@@ -1,0 +1,11 @@
+--- msggen.pl	2003-02-19 10:57:37.000000000 -0800
++++ msggen.pl	2003-02-19 10:58:06.000000000 -0800
+@@ -61,7 +61,7 @@
+     else {
+ 	$field[0] =~ /^[IWQXE][0-9]$/ || &error("invalid first field");;
+ 	$type[$num] = substr($field[0], 0, 1);
+-	$argc = int(substr($field[0], 1, 1));
++	$argc = substr($field[0], 1, 1);
+     }
+     $nargs[$num] = $argc;
+     $field[1] =~ /^[a-zA-Z_][a-zA-Z0-9_]+$/ || &error("invalid tag");
