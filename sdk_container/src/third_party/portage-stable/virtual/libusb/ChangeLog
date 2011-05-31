@@ -1,0 +1,76 @@
+# ChangeLog for virtual/libusb
+# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/virtual/libusb/ChangeLog,v 1.18 2011/02/06 12:00:59 leio Exp $
+
+  06 Feb 2011; Mart Raudsepp <leio@gentoo.org> libusb-0.ebuild:
+  Drop to ~mips
+
+  12 Oct 2010; Raúl Porcel <armin76@gentoo.org> libusb-1.ebuild:
+  sparc stable wrt #304149
+
+  09 Oct 2010; Mike Frysinger <vapier@gentoo.org> libusb-1.ebuild:
+  Mark ia64/s390/sh stable #304149.
+
+  29 Sep 2010; Jeroen Roovers <jer@gentoo.org> libusb-1.ebuild:
+  Stable for HPPA (bug #304149).
+
+  10 Sep 2010; Tobias Klausmann <klausman@gentoo.org> libusb-1.ebuild:
+  Stable on alpha, bug #304149
+
+  21 Aug 2010; Markus Meier <maekke@gentoo.org> libusb-1.ebuild:
+  arm stable, bug #304149
+
+  11 Aug 2010; Joseph Jezak <josejx@gentoo.org> libusb-1.ebuild:
+  Marked ppc/ppc64 stable for bug #304149.
+
+  31 Jul 2010; Pawel Hajdan jr <phajdan.jr@gentoo.org> libusb-1.ebuild:
+  x86 stable wrt bug #304149
+
+  31 Jul 2010; Pacho Ramos <pacho@gentoo.org> libusb-1.ebuild:
+  amd64 stable, bug 304149
+
+  13 Apr 2010; Alexis Ballier <aballier@gentoo.org> libusb-0.ebuild:
+  freebsd-lib-8.0 provides a libusb compatible layer. We cant rip it out
+  because some FreeBSD usb utilities require some of its additions; FreeBSD
+  people claim it has a compatible API so that should be fine to have it as
+  a provider too.
+
+  18 Feb 2010; Jeremy Olexa <darkside@gentoo.org> libusb-0.ebuild,
+  libusb-1.ebuild:
+  Add ~x86-macos keywords because dev-libs/libusb was tested in the prefix
+  overlay
+
+  11 Jan 2010; Ulrich Mueller <ulm@gentoo.org> libusb-0.ebuild,
+  libusb-1.ebuild:
+  Set empty HOMEPAGE and LICENSE.
+
+  15 Dec 2009; Jonathan Callen <abcd@gentoo.org> libusb-0.ebuild,
+  libusb-1.ebuild:
+  QA: Add prefix keywords
+
+  11 Nov 2009; Robin H. Johnson <robbat2@gentoo.org> libusb-1.ebuild:
+  Raise the minimum version of libusb-1 used to resolve some issues with the
+  early releases (eg bug #282532).
+
+  16 May 2009; Robin H. Johnson <robbat2@gentoo.org> libusb-0.ebuild:
+  Include the current stable of dev-libs/libusb-0* in the version
+  specification, so that we can replace the version dependancy in other
+  ebuilds when migrating them to the virtual.
+
+  15 May 2009; Arfrever Frehtes Taifersar Arahesis <arfrever@gentoo.org>
+  libusb-1.ebuild:
+  Fix SLOT.
+
+  15 May 2009; Robin H. Johnson <robbat2@gentoo.org> libusb-0.ebuild:
+  Use the keywords from the latest stable dev-libs/libusb:0 ebuild so that
+  we can change other stable packages safely.
+
+*libusb-1 (14 May 2009)
+*libusb-0 (14 May 2009)
+
+  14 May 2009; Robin H. Johnson <robbat2@gentoo.org> +libusb-0.ebuild,
+  +libusb-1.ebuild, +metadata.xml:
+  Bug #247687: virtual for libusb support. Based on final design choices in
+  the bug, as agreed on by Tiziano Müller <dev-zero@gentoo.org> and Robert
+  Buchholz <rbu@gentoo.org>.
+

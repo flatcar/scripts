@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<herd>freedesktop</herd>
+<use>
+	<flag name="policykit">
+	Use the PolicyKit framework (<pkg>sys-auth/polkit</pkg>) to get
+	authorization for suspend/shutdown.
+	</flag>
+</use>
+</pkgmetadata>

@@ -1,0 +1,43 @@
+From cae0b1c57f0f8ce73f4f117f8abb61c68e34a0e7 Mon Sep 17 00:00:00 2001
+From: Chun-wei Fan <fanchunwei@src.gnome.org>
+Date: Tue, 30 Nov 2010 02:28:00 +0000
+Subject: Bug635093: Deprecation check in tests/testglib.c
+
+The Relation API in glib/grel.h has been marked as
+deprecated (G_DISABLE_DEPRECATED), so added check for
+that macro in this source file and added label to indicate
+deprecation
+---
+diff --git a/tests/testglib.c b/tests/testglib.c
+index b4e29f0..158808a 100644
+--- a/tests/testglib.c
++++ b/tests/testglib.c
+@@ -1038,6 +1038,7 @@ hash_table_tests (void)
+   g_hash_table_destroy (hash_table);
+ }
+ 
++#ifndef G_DISABLE_DEPRECATED
+ static void
+ relation_test (void)
+ {
+@@ -1110,6 +1111,7 @@ relation_test (void)
+ 
+   relation = NULL;
+ }
++#endif
+ 
+ static void
+ gstring_tests (void)
+@@ -1539,7 +1541,9 @@ main (int   argc,
+   g_test_add_func ("/testglib/GTree", binary_tree_test);
+   g_test_add_func ("/testglib/Arrays", test_arrays);
+   g_test_add_func ("/testglib/GHashTable", hash_table_tests);
+-  g_test_add_func ("/testglib/Relation", relation_test);
++#ifndef G_DISABLE_DEPRECATED
++  g_test_add_func ("/testglib/Relation (deprecated)", relation_test);
++#endif
+   g_test_add_func ("/testglib/File Paths", test_paths);
+   g_test_add_func ("/testglib/File Functions", test_file_functions);
+   g_test_add_func ("/testglib/Parse Debug Strings", test_g_parse_debug_string);
+--
+cgit v0.8.3.1

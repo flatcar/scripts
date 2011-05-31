@@ -1,0 +1,120 @@
+From c4ba8b276bf95faf2f643e42988709ed6cb0b2f0 Mon Sep 17 00:00:00 2001
+From: Gilles Dartiguelongue <eva@gentoo.org>
+Date: Sun, 18 Oct 2009 23:30:36 +0200
+Subject: [PATCH] respect multilib
+
+---
+ src/Makefile.am           |    4 ++--
+ src/ck-manager.c          |    4 ++--
+ src/ck-seat.c             |    2 +-
+ src/ck-session.c          |    2 +-
+ tools/freebsd/Makefile.am |    2 +-
+ tools/linux/Makefile.am   |    2 +-
+ tools/solaris/Makefile.am |    2 +-
+ 7 files changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 6ab05c8..d6fb810 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -204,8 +204,8 @@ MAINTAINERCLEANFILES =			\
+ 
+ install-data-local:
+ 	-mkdir -p $(DESTDIR)$(sysconfdir)/ConsoleKit/run-session.d
+-	-mkdir -p $(DESTDIR)$(prefix)/lib/ConsoleKit/run-session.d
++	-mkdir -p $(DESTDIR)$(libdir)/ConsoleKit/run-session.d
+ 	-mkdir -p $(DESTDIR)$(sysconfdir)/ConsoleKit/run-seat.d
+-	-mkdir -p $(DESTDIR)$(prefix)/lib/ConsoleKit/run-seat.d
++	-mkdir -p $(DESTDIR)$(libdir)/ConsoleKit/run-seat.d
+ 	-mkdir -p $(DESTDIR)$(localstatedir)/run/ConsoleKit
+ 	-mkdir -p $(DESTDIR)$(localstatedir)/log/ConsoleKit
+diff --git a/src/ck-manager.c b/src/ck-manager.c
+index 99693a3..e65e25b 100644
+--- a/src/ck-manager.c
++++ b/src/ck-manager.c
+@@ -1083,7 +1083,7 @@ do_restart (CkManager             *manager,
+         log_system_restart_event (manager);
+ 
+         error = NULL;
+-        res = g_spawn_command_line_async (PREFIX "/lib/ConsoleKit/scripts/ck-system-restart",
++        res = g_spawn_command_line_async (LIBDIR "/ConsoleKit/scripts/ck-system-restart",
+                                           &error);
+         if (! res) {
+                 GError *new_error;
+@@ -1164,7 +1164,7 @@ do_stop (CkManager             *manager,
+         log_system_stop_event (manager);
+ 
+         error = NULL;
+-        res = g_spawn_command_line_async (PREFIX "/lib/ConsoleKit/scripts/ck-system-stop",
++        res = g_spawn_command_line_async (LIBDIR "/ConsoleKit/scripts/ck-system-stop",
+                                           &error);
+         if (! res) {
+                 GError *new_error;
+diff --git a/src/ck-seat.c b/src/ck-seat.c
+index af7db59..d089f29 100644
+--- a/src/ck-seat.c
++++ b/src/ck-seat.c
+@@ -1278,7 +1278,7 @@ ck_seat_run_programs (CkSeat    *seat,
+         g_assert(n <= G_N_ELEMENTS(extra_env));
+ 
+         ck_run_programs (SYSCONFDIR "/ConsoleKit/run-seat.d", action, extra_env);
+-        ck_run_programs (PREFIX "/lib/ConsoleKit/run-seat.d", action, extra_env);
++        ck_run_programs (LIBDIR "/ConsoleKit/run-seat.d", action, extra_env);
+ 
+         for (n = 0; extra_env[n] != NULL; n++) {
+                 g_free (extra_env[n]);
+diff --git a/src/ck-session.c b/src/ck-session.c
+index d8db9dd..c2fc320 100644
+--- a/src/ck-session.c
++++ b/src/ck-session.c
+@@ -1287,7 +1287,7 @@ ck_session_run_programs (CkSession  *session,
+         g_assert(n <= G_N_ELEMENTS(extra_env));
+ 
+         ck_run_programs (SYSCONFDIR "/ConsoleKit/run-session.d", action, extra_env);
+-        ck_run_programs (PREFIX "/lib/ConsoleKit/run-session.d", action, extra_env);
++        ck_run_programs (LIBDIR "/ConsoleKit/run-session.d", action, extra_env);
+ 
+         for (n = 0; extra_env[n] != NULL; n++) {
+                 g_free (extra_env[n]);
+diff --git a/tools/freebsd/Makefile.am b/tools/freebsd/Makefile.am
+index f668722..d25930e 100644
+--- a/tools/freebsd/Makefile.am
++++ b/tools/freebsd/Makefile.am
+@@ -6,7 +6,7 @@ NULL =
+ SUBDIRS = \
+ 	$(NULL)
+ 
+-scriptdir = $(prefix)/lib/ConsoleKit/scripts
++scriptdir = $(libdir)/ConsoleKit/scripts
+ script_SCRIPTS =			\
+ 	ck-system-stop			\
+ 	ck-system-restart		\
+diff --git a/tools/linux/Makefile.am b/tools/linux/Makefile.am
+index 5a95942..51196c0 100644
+--- a/tools/linux/Makefile.am
++++ b/tools/linux/Makefile.am
+@@ -6,7 +6,7 @@ NULL =
+ SUBDIRS = \
+ 	$(NULL)
+ 
+-scriptdir = $(prefix)/lib/ConsoleKit/scripts
++scriptdir = $(libdir)/ConsoleKit/scripts
+ script_SCRIPTS =			\
+ 	ck-system-stop	\
+ 	ck-system-restart		\
+diff --git a/tools/solaris/Makefile.am b/tools/solaris/Makefile.am
+index f668722..d25930e 100644
+--- a/tools/solaris/Makefile.am
++++ b/tools/solaris/Makefile.am
+@@ -6,7 +6,7 @@ NULL =
+ SUBDIRS = \
+ 	$(NULL)
+ 
+-scriptdir = $(prefix)/lib/ConsoleKit/scripts
++scriptdir = $(libdir)/ConsoleKit/scripts
+ script_SCRIPTS =			\
+ 	ck-system-stop			\
+ 	ck-system-restart		\
+-- 
+1.6.5.rc1
+
