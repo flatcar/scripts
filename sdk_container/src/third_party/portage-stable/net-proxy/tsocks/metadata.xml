@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<herd>net-proxy</herd>
+<longdescription>tsocks' role is to allow non SOCKS aware applications (e.g telnet, ssh, ftp etc) to use SOCKS 
+without any modification. It does this by intercepting the calls that applications make to establish network connections 
+and negotating them through a SOCKS server as necessary.</longdescription>
+<use>
+	<flag name='tordns'>
+		Apply tordns patch which allows transparent TORification of the DNS queries
+	</flag>
+</use>
+</pkgmetadata>
