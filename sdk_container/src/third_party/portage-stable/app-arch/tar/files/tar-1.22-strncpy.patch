@@ -1,0 +1,32 @@
+diff -uNr tar-1.22.ORIG//src/create.c tar-1.22/src/create.c
+--- tar-1.22.ORIG//src/create.c	2010-04-25 19:50:28.147606290 +0100
++++ tar-1.22/src/create.c	2010-04-25 19:50:44.849606051 +0100
+@@ -577,7 +577,10 @@
+   GNAME_TO_CHARS (tmpname, header->header.gname);
+   free (tmpname);
+ 
+-  strcpy (header->header.magic, OLDGNU_MAGIC);
++  /* OLDGNU_MAGIC is string with 7 chars + NULL */
++  strncpy (header->header.magic, OLDGNU_MAGIC, sizeof(header->header.magic));
++  strncpy (header->header.version, OLDGNU_MAGIC+sizeof(header->header.magic),
++           sizeof(header->header.version));
+   header->header.typeflag = type;
+   finish_header (st, header, -1);
+ 
+@@ -907,9 +910,13 @@
+       break;
+ 
+     case OLDGNU_FORMAT:
+-    case GNU_FORMAT:   /*FIXME?*/
+-      /* Overwrite header->header.magic and header.version in one blow.  */
+-      strcpy (header->header.magic, OLDGNU_MAGIC);
++    case GNU_FORMAT:
++      /* OLDGNU_MAGIC is string with 7 chars + NULL */
++      strncpy (header->header.magic, OLDGNU_MAGIC,
++               sizeof(header->header.magic));
++      strncpy (header->header.version,
++               OLDGNU_MAGIC+sizeof(header->header.magic),
++               sizeof(header->header.version));
+       break;
+ 
+     case POSIX_FORMAT:

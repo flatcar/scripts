@@ -1,0 +1,51 @@
+commit 8fbf889dd9a3002926aa0f4958aee10a3ffdf414
+Author: Zach Kuznia <zork@chromium.org>
+Date:   Tue Jun 8 09:45:00 2010 +0900
+
+    Fix tools to run on the host system during cross-compile.
+    
+    BUG=chromium-os:3864
+    TEST=Set up an arm build environment.  Run emerge-arm-generic -a libchewing
+    
+    Review URL: http://codereview.chromium.org/2640005
+
+diff --git a/configure.ac b/configure.ac
+index c8241d5..035490a 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -55,6 +55,9 @@ AC_PROG_CC
+ AC_LANG(C)
+ AC_C_CONST
+ 
++CC_FOR_BUILD=${CC_FOR_BUILD-${CC}}
++AC_SUBST(CC_FOR_BUILD)
++
+ # Checks if doxygen is avaiable
+ AC_PATH_PROG(DOXYGEN, doxygen, no)
+ AM_CONDITIONAL(HAVE_DOXYGEN, test x$DOXYGEN != xno)
+diff --git a/src/tools/Makefile.am b/src/tools/Makefile.am
+index 8f90595..be2cc0e 100644
+--- a/src/tools/Makefile.am
++++ b/src/tools/Makefile.am
+@@ -4,12 +4,17 @@ INCLUDES = \
+ 	-I$(top_srcdir)/src \
+ 	-I$(top_srcdir)/src/porting_layer/include
+ 
++CC = $(CC_FOR_BUILD)
++CFLAGS = $(CFLAGS_FOR_BUILD)
++
+ noinst_PROGRAMS = sort_word sort_dic maketree
+ 
+-sort_word_LDADD = $(top_builddir)/src/common/libcommon.la
+-sort_word_SOURCES = sort_word.c
++sort_word_SOURCES = sort_word.c \
++		    $(top_builddir)/src/common/key2pho.c \
++		    $(top_builddir)/src/common/chewing-utf8-util.c
+ 
+-sort_dic_LDADD =  $(top_builddir)/src/common/libcommon.la
+-sort_dic_SOURCES = sort_dic.c
++sort_dic_SOURCES = sort_dic.c \
++		   $(top_builddir)/src/common/key2pho.c \
++		   $(top_builddir)/src/common/chewing-utf8-util.c
+ 
+ maketree_SOURCES = maketree.c

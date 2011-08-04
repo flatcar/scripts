@@ -1,0 +1,136 @@
+https://bugs.gentoo.org/show_bug.cgi?id=253122
+http://git.savannah.gnu.org/cgit/tar.git/commit/?id=7b68ef3d918603f3afb03e939ba72f5cad10edf4
+
+From 7b68ef3d918603f3afb03e939ba72f5cad10edf4 Mon Sep 17 00:00:00 2001
+From: Sergey Poznyakoff <gray@gnu.org.ua>
+Date: Mon, 29 Dec 2008 09:27:00 +0000
+Subject: Fix testsuite and bootstrap. Implement -I.
+
+* bootstrap.conf: Include size_max.
+* gnulib.modules: Remove memset, rmdir. Replace strdup with
+strdup-posix. Patch by Eric Blake.
+* src/tar.c: Implement -I as a shorthand for --use-compress-program.
+* doc/tar.texi: Document -I.
+* tests/pipe.at, tests/shortrec.at: Account for eventual 'Record
+size' output.
+* tests/testsuite.at (AT_TAR_CHECK_HOOK): New define
+(AT_TAR_WITH_HOOK, TAR_IGNREC_HOOK): New macros.
+---
+diff --git a/tests/pipe.at b/tests/pipe.at
+index efca65b..be99212 100644
+--- a/tests/pipe.at
++++ b/tests/pipe.at
+@@ -1,7 +1,7 @@
+ # Process this file with autom4te to create testsuite. -*- Autotest -*-
+ 
+ # Test suite for GNU tar.
+-# Copyright (C) 2004, 2005, 2006, 2007 Free Software Foundation, Inc.
++# Copyright (C) 2004, 2005, 2006, 2007, 2008 Free Software Foundation, Inc.
+ 
+ # This program is free software; you can redistribute it and/or modify
+ # it under the terms of the GNU General Public License as published by
+@@ -30,7 +30,8 @@ AT_SETUP([decompressing from stdin])
+ 
+ AT_KEYWORDS([pipe])
+ 
+-AT_TAR_CHECK([
++AT_TAR_WITH_HOOK([TAR_IGNREC_HOOK],
++[AT_TAR_CHECK([
+ AT_SORT_PREREQ
+ 
+ mkdir directory
+@@ -49,6 +50,7 @@ directory/file1
+ directory/file2
+ separator
+ separator
+-])
++],
++[stderr])])
+ 
+ AT_CLEANUP
+diff --git a/tests/shortrec.at b/tests/shortrec.at
+index 3e009fd..179f365 100644
+--- a/tests/shortrec.at
++++ b/tests/shortrec.at
+@@ -1,7 +1,7 @@
+ # Process this file with autom4te to create testsuite. -*- Autotest -*-
+ 
+ # Test suite for GNU tar.
+-# Copyright (C) 2005, 2007 Free Software Foundation, Inc.
++# Copyright (C) 2005, 2007, 2008 Free Software Foundation, Inc.
+ 
+ # This program is free software; you can redistribute it and/or modify
+ # it under the terms of the GNU General Public License as published by
+@@ -23,17 +23,22 @@
+ # used to create the archive.
+ 
+ AT_SETUP([short records])
+-AT_KEYWORDS([shortrec.at])
++AT_KEYWORDS([shortrec])
+ 
+-AT_TAR_CHECK([
++AT_TAR_WITH_HOOK([TAR_IGNREC_HOOK],
++[AT_TAR_CHECK([
+ mkdir directory
+ (cd directory && touch a b c d e f g h i j k l m n o p q r)
+-tar -c -b 1 -f - directory | tar -t -f - >/dev/null
++tar -c -b 1 -f - directory | tar -t -f - 
+ tar -c -b 1 -f archive directory
+-tar -t -f archive >/dev/null
+-tar -t -f - < archive >/dev/null
++tar -t -f archive 
++tar -t -f - < archive 
+ 
+ rm -r directory
++],
++[0],
++[ignore],
++[stderr])
+ ])
+ 
+ AT_CLEANUP
+diff --git a/tests/testsuite.at b/tests/testsuite.at
+index 2fa5392..a12477d 100644
+--- a/tests/testsuite.at
++++ b/tests/testsuite.at
+@@ -1,7 +1,7 @@
+ # Process this file with autom4te to create testsuite. -*- Autotest -*-
+ 
+ # Test suite for GNU tar.
+-# Copyright (C) 2004, 2005, 2006, 2007 Free Software Foundation, Inc.
++# Copyright (C) 2004, 2005, 2006, 2007, 2008 Free Software Foundation, Inc.
+ 
+ # This program is free software; you can redistribute it and/or modify
+ # it under the terms of the GNU General Public License as published by
+@@ -21,6 +21,7 @@
+ # We need a recent Autotest.
+ m4_version_prereq([2.52g])
+ 
++m4_define([AT_TAR_CHECK_HOOK])
+ m4_define([AT_TAR_CHECK],[
+   AT_XFAIL_IF(test -f $[]XFAILFILE)
+   m4_foreach([FMT],
+@@ -33,9 +34,20 @@ export TEST_TAR_FORMAT
+ TAR_OPTIONS="-H FMT"
+ export TAR_OPTIONS
+ rm -rf *
+-$1)],$2,$3,$4,$5,$6)])
++$1)],$2,$3,$4,$5,$6)
++              AT_TAR_CHECK_HOOK])
+ ])
+ 
++m4_define([AT_TAR_WITH_HOOK],[
++  m4_pushdef([AT_TAR_CHECK_HOOK],[$1])
++  $2
++  
++  m4_popdef([AT_TAR_CHECK_HOOK])])
++
++m4_define([TAR_IGNREC_HOOK],[
++  AT_CHECK([grep -v '^.*tar: Record size = ' stderr; exit 0])
++])
++  
+ m4_define([RE_CHECK],[
+ AT_DATA([$1.re],[$2])
+ awk '{print NR " " $[]0}' $1 > $[]$.1
+--
+cgit v0.8.2

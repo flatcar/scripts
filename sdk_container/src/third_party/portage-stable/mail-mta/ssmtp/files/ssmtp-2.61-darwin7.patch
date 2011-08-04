@@ -1,0 +1,10 @@
+--- ssmtp-2.61/ssmtp.c
++++ ssmtp-2.61/ssmtp.c
+@@ -14,6 +14,7 @@
+ */
+ #define VERSION "2.60.4"
+ 
++#include <sys/types.h>
+ #include <sys/socket.h>
+ #include <netinet/in.h>
+ #include <sys/param.h>
