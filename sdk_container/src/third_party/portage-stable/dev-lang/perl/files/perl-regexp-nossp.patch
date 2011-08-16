@@ -1,0 +1,11 @@
+--- cflags.SH.orig	2005-07-03 23:39:10.000000000 -0400
++++ cflags.SH	2005-07-03 23:39:47.000000000 -0400
+@@ -165,6 +165,8 @@
+ esac
+ 
+     : Can we perhaps use $ansi2knr here
++    [ "x$file" = xregcomp ] && export ccflags="${ccflags} -fno-stack-protector"
++    [ "x$file" = xregexec ] && export ccflags="${ccflags} -fno-stack-protector"
+     echo "$cc -c -DPERL_CORE $ccflags $optimize $warn"
+     eval "$also "'"$cc -DPERL_CORE -c $ccflags $optimize $warn"'
+ 
