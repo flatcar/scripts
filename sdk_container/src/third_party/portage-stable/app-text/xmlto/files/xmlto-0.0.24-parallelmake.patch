@@ -1,0 +1,56 @@
+From f2ada08ce5b92de1869419f1ed50aa1190a8bfb4 Mon Sep 17 00:00:00 2001
+From: Mike Frysinger <vapier@gentoo.org>
+Date: Fri, 19 Aug 2011 10:47:10 -0400
+Subject: [PATCH] fix building manpages in parallel
+
+The current man page rules allow make to fire off two children (1 per
+man page), but each child will attempt to create all the required man
+pages.  So it's possible for the children to collide on their outputs.
+Rewrite the rules so that each man page will fire off one child and
+only process its specific man page.
+
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+---
+ Makefile.am |    8 +++-----
+ 1 files changed, 3 insertions(+), 5 deletions(-)
+
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -68,11 +68,9 @@ EXTRA_DIST = xmlto.spec \
+ 	doc/xmlif.xml \
+ 	xmlto.mak
+ 
+-$(man1_MANS): $(top_srcdir)/doc/xmlto.xml $(top_srcdir)/doc/xmlif.xml
+-	for xml in xmlif.xml xmlto.xml; do \
+-	  FORMAT_DIR=$(top_srcdir)/format \
+-	   $(BASH) ./xmlto -o man/man1 man $(top_srcdir)/doc/$$xml ; \
+-	done || ( RC=$$?; exit $$RC )
++GEN_MANPAGE = FORMAT_DIR=$(top_srcdir)/format $(BASH) ./xmlto -o $(@D) man $<
++man/man1/xmlto.1: doc/xmlto.xml ; $(GEN_MANPAGE)
++man/man1/xmlif.1: doc/xmlif.xml ; $(GEN_MANPAGE)
+ 
+ TESTS_ENVIRONMENT = top_srcdir=$(top_srcdir) top_builddir=$(top_builddir)
+ TESTS = xmlif/test/run-test
+
+The Makefile.in patch is trivial, so avoid autotools just for this
+
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -959,11 +959,9 @@
+ 	uninstall-man uninstall-man1 uninstall-nobase_pkgdataDATA
+ 
+ 
+-$(man1_MANS): $(top_srcdir)/doc/xmlto.xml $(top_srcdir)/doc/xmlif.xml
+-	for xml in xmlif.xml xmlto.xml; do \
+-	  FORMAT_DIR=$(top_srcdir)/format \
+-	   $(BASH) ./xmlto -o man/man1 man $(top_srcdir)/doc/$$xml ; \
+-	done || ( RC=$$?; exit $$RC )
++GEN_MANPAGE = FORMAT_DIR=$(top_srcdir)/format $(BASH) ./xmlto -o $(@D) man $<
++man/man1/xmlto.1: doc/xmlto.xml ; $(GEN_MANPAGE)
++man/man1/xmlif.1: doc/xmlif.xml ; $(GEN_MANPAGE)
+ 
+ tag:
+ 	cvs tag -c `echo V@VERSION@ | tr . _`
+-- 
+1.7.6
+
