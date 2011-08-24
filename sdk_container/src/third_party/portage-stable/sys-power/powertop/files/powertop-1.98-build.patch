@@ -1,0 +1,26 @@
+From f60a30a247fd1bfdd58de42934937a861e4b927a Mon Sep 17 00:00:00 2001
+From: Mike Frysinger <vapier@gentoo.org>
+Date: Tue, 23 Aug 2011 18:01:36 -0400
+Subject: [PATCH] use CFLAGS/LDFLAGS when linking
+
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+---
+ Makefile |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index b0b6cb7..f637bfe 100644
+--- a/Makefile
++++ b/Makefile
+@@ -70,7 +70,7 @@ clean:
+ 	rm -f *.o *~ powertop DEADJOE core.* */*.o */*~ csstoh css.h
+ 	
+ powertop: $(OBJS) $(HEADERS)
+-	$(CXX) $(OBJS) $(LIBS) -o powertop
++	$(CXX) $(CFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) -o powertop
+ 	@(cd po/ && $(MAKE))
+ 	
+ install: powertop
+-- 
+1.7.6
+
