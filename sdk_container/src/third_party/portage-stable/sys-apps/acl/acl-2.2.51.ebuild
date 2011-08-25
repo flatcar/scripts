@@ -1,8 +1,8 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/acl/acl-2.2.49-r1.ebuild,v 1.1 2011/04/15 17:08:47 flameeyes Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/acl/acl-2.2.51.ebuild,v 1.5 2011/08/21 13:51:55 nixnut Exp $
 
-EAPI=4
+EAPI="4"
 
 inherit eutils toolchain-funcs
 
@@ -13,7 +13,7 @@ SRC_URI="http://download.savannah.gnu.org/releases/${PN}/${P}.src.tar.gz
 
 LICENSE="LGPL-2.1"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-linux ~ia64-linux ~x86-linux"
+KEYWORDS="~alpha amd64 ~arm ~hppa ~ia64 ~m68k ~mips ppc ~ppc64 ~s390 ~sh ~sparc x86 ~amd64-linux ~ia64-linux ~x86-linux"
 IUSE="nfs nls static-libs"
 
 RDEPEND=">=sys-apps/attr-2.4
@@ -29,7 +29,8 @@ src_prepare() {
 			acl-2.2.42-CITI_NFS4_ALL-2.dif || die
 		epatch acl-2.2.42-CITI_NFS4_ALL-2.dif
 	fi
-	epatch "${FILESDIR}"/${P}-quote-strchr.patch
+	epatch "${FILESDIR}"/${PN}-2.2.49-quote-strchr.patch
+	epatch "${FILESDIR}"/${PN}-2.2.51-config-shell.patch #365397
 	sed -i \
 		-e '/^as_dummy=/s:=":="$PATH$PATH_SEPARATOR:' \
 		configure # hack PATH with AC_PATH_PROG
