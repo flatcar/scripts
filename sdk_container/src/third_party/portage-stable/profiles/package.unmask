@@ -1,2 +1,0 @@
-# This is to counter a package.mask from portage, which is no longer relevant.
-<=net-misc/dhcp-4.2.99
