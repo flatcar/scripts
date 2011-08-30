@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/clang/clang-2.8-r3.ebuild,v 1.3 2011/03/14 21:41:19 grobian Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/clang/clang-2.8-r3.ebuild,v 1.4 2011/07/08 10:10:59 ssuominen Exp $
 
 EAPI=3
 
@@ -18,7 +18,7 @@ SRC_URI="http://llvm.org/releases/${PV}/llvm-${PV}.tgz -> llvm-${PV}-r1.tgz
 
 LICENSE="UoI-NCSA"
 SLOT="0"
-KEYWORDS="amd64 arm x86 ~amd64-linux ~x86-linux ~ppc-macos"
+KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux ~ppc-macos"
 IUSE="alltargets debug +static-analyzer system-cxx-headers test"
 
 # Note: for LTO support, clang will depend on binutils with gold plugins, and LLVM built after that - http://llvm.org/docs/GoldPlugin.html
@@ -131,8 +131,8 @@ src_test() {
 
 	echo ">>> Test phase [test]: ${CATEGORY}/${PF}"
 	if ! emake -j1 VERBOSE=1 test; then
-		hasq test $FEATURES && die "Make test failed. See above for details."
-		hasq test $FEATURES || eerror "Make test failed. See above for details."
+		has test $FEATURES && die "Make test failed. See above for details."
+		has test $FEATURES || eerror "Make test failed. See above for details."
 	fi
 }
 

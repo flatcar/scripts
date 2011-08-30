@@ -13,7 +13,7 @@ SRC_URI="mirror://sourceforge/${PN}/${P}.tar.gz"
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~ppc ~x86 amd64"
+KEYWORDS="~amd64 ~ppc ~x86"
 IUSE="examples"
 
 ### The bus enumeration does not appear to work with libusb-compat

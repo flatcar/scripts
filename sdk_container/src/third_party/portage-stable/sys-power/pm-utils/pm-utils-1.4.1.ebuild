@@ -47,7 +47,7 @@ src_configure() {
 
 src_install() {
 	emake DESTDIR="${D}" install || die
-	dodoc AUTHORS ChangeLog NEWS pm/HOWTO* README* TODO || die
+	dodoc AUTHORS ChangeLog NEWS pm/HOWTO* README* TODO ||Â die
 	doman man/*.{1,8} || die
 
 	insinto /etc/pm/config.d

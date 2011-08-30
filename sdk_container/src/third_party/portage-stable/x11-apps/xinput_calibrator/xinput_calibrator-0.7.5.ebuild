@@ -28,4 +28,3 @@ src_configure() {
 	)
 	autotools-utils_src_configure
 }
-
