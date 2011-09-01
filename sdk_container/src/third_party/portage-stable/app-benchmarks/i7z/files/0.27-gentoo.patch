@@ -1,0 +1,56 @@
+diff --git a/Makefile b/Makefile
+index fc4d262..e2347bf 100644
+--- a/Makefile
++++ b/Makefile
+@@ -17,18 +17,18 @@
+ 
+ #makefile updated from patch by anestling
+ 
+-CFLAGSANY = -g -O0 -fomit-frame-pointer -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DBUILD_MAIN -Wall
++CFLAGS += -O0 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DBUILD_MAIN -Wall
+ 
+ LBITS := $(shell getconf LONG_BIT)
+ ifeq ($(LBITS),64)
+-   CFLAGS = $(CFLAGSANY) -Dx64_BIT
++   CFLAGS += -Dx64_BIT
+ else
+-   CFLAGS = $(CFLAGSANY) -Dx86
++   CFLAGS += -Dx86
+ endif
+ 
+-CC       = gcc 
++CC       ?= gcc
+ 
+-LDFLAGS  = -lncurses -lpthread -lrt
++LIBS  = -lncurses -lpthread -lrt
+ INCLUDEFLAGS = 
+ 
+ OBJS = helper_functions
+@@ -36,15 +36,15 @@ OBJS = helper_functions
+ BIN	= i7z
+ SRC	= i7z.c helper_functions.c i7z_Single_Socket.c i7z_Dual_Socket.c
+ 
+-sbindir = /usr/sbin
++sbindir = $(DESTDIR)/usr/sbin
+ 
+-all: clean message bin
++all: clean bin
+ 
+ message:
+ 	@echo "If the compilation complains about not finding ncurses.h, install ncurses (libncurses5-dev on ubuntu/debian)"
+ 
+ bin:
+-	$(CC) $(CFLAGS) $(LDFLAGS) $(INCLUDEFLAGS) $(SRC) -o $(BIN)
++	$(CC) $(CFLAGS) $(LDFLAGS) $(INCLUDEFLAGS) $(SRC) -o $(BIN) $(LIBS)
+ 
+ clean:
+ 	rm -f *.o $(BIN)
+@@ -52,6 +52,6 @@ clean:
+ distclean: clean
+ 	rm -f *~ \#*
+ 
+-install: all
+-	install -m 755 $(BIN) $(sbindir)
++install:
++	install -D -m 755 $(BIN) $(sbindir)/$(BIN)
+ 
