@@ -1,8 +1,8 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-proto/inputproto/inputproto-2.0.1.ebuild,v 1.8 2011/03/15 21:12:16 xarthisius Exp $
+# $Header: /var/cvsroot/gentoo-x86/x11-proto/inputproto/inputproto-2.0.2.ebuild,v 1.8 2011/08/20 15:55:01 jer Exp $
 
-EAPI=3
+EAPI=4
 inherit xorg-2
 
 DESCRIPTION="X.Org Input protocol headers"
