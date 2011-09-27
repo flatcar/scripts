@@ -1,8 +1,8 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-apps/xauth/xauth-1.0.6.ebuild,v 1.8 2011/08/20 15:45:11 jer Exp $
+# $Header: /var/cvsroot/gentoo-x86/x11-apps/xauth/xauth-1.0.5.ebuild,v 1.9 2011/02/14 23:41:01 xarthisius Exp $
 
-EAPI=4
+EAPI=3
 
 inherit xorg-2
 
@@ -18,8 +18,5 @@ RDEPEND="x11-libs/libX11
 DEPEND="${RDEPEND}"
 
 pkg_setup() {
-	XORG_CONFIGURE_OPTIONS=(
-		$(use_enable ipv6)
-	)
-	xorg-2_pkg_setup
+	CONFIGURE_OPTIONS="$(use_enable ipv6)"
 }

@@ -1,13 +1,10 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/xorg-2.eclass,v 1.48 2011/09/12 13:50:57 mgorny Exp $
-
+# $Header: /var/cvsroot/gentoo-x86/eclass/xorg-2.eclass,v 1.28 2011/03/14 17:09:41 flameeyes Exp $
+#
 # @ECLASS: xorg-2.eclass
 # @MAINTAINER:
 # x11@gentoo.org
-# @AUTHOR:
-# Author: Tomáš Chvátal <scarabeus@gentoo.org>
-# Author: Donnie Berkholz <dberkholz@gentoo.org>
 # @BLURB: Reduces code duplication in the modularized X11 ebuilds.
 # @DESCRIPTION:
 # This eclass makes trivial X ebuilds possible for apps, fonts, drivers,
@@ -20,9 +17,12 @@
 # with the other X packages, you don't need to set SRC_URI. Pretty much
 # everything else should be automatic.
 
+# Author: Tomáš Chvátal <scarabeus@gentoo.org>
+# Author: Donnie Berkholz <dberkholz@gentoo.org>
+
 GIT_ECLASS=""
 if [[ ${PV} == *9999* ]]; then
-	GIT_ECLASS="git-2"
+	GIT_ECLASS="git"
 	XORG_EAUTORECONF="yes"
 fi
 
@@ -43,7 +43,7 @@ inherit autotools-utils eutils libtool multilib toolchain-funcs flag-o-matic aut
 EXPORTED_FUNCTIONS="src_unpack src_compile src_install pkg_postinst pkg_postrm"
 case "${EAPI:-0}" in
 	3|4) EXPORTED_FUNCTIONS="${EXPORTED_FUNCTIONS} src_prepare src_configure" ;;
-	*) die "EAPI=${EAPI} is not supported" ;;
+	*) die "EAPI-UNSUPPORTED" ;;
 esac
 
 # exports must be ALWAYS after inherit
@@ -58,41 +58,41 @@ HOMEPAGE="http://xorg.freedesktop.org/"
 # before inheriting this eclass.
 : ${XORG_EAUTORECONF:="no"}
 
-# @ECLASS-VARIABLE: XORG_BASE_INDIVIDUAL_URI
+# @ECLASS-VARIABLE: BASE_INDIVIDUAL_URI
 # @DESCRIPTION:
 # Set up SRC_URI for individual modular releases. If set to an empty
 # string, no SRC_URI will be provided by the eclass.
-: ${XORG_BASE_INDIVIDUAL_URI="http://xorg.freedesktop.org/releases/individual"}
+: ${BASE_INDIVIDUAL_URI="http://xorg.freedesktop.org/releases/individual"}
 
-# @ECLASS-VARIABLE: XORG_MODULE
+# @ECLASS-VARIABLE: MODULE
 # @DESCRIPTION:
 # The subdirectory to download source from. Possible settings are app,
 # doc, data, util, driver, font, lib, proto, xserver. Set above the
 # inherit to override the default autoconfigured module.
-if [[ -z ${XORG_MODULE} ]]; then
+if [[ -z ${MODULE} ]]; then
 	case ${CATEGORY} in
-		app-doc)             XORG_MODULE=doc/     ;;
-		media-fonts)         XORG_MODULE=font/    ;;
-		x11-apps|x11-wm)     XORG_MODULE=app/     ;;
-		x11-misc|x11-themes) XORG_MODULE=util/    ;;
-		x11-base)            XORG_MODULE=xserver/ ;;
-		x11-drivers)         XORG_MODULE=driver/  ;;
-		x11-proto)           XORG_MODULE=proto/   ;;
-		x11-libs)            XORG_MODULE=lib/     ;;
-		*)                   XORG_MODULE=         ;;
+		app-doc)             MODULE=doc/     ;;
+		media-fonts)         MODULE=font/    ;;
+		x11-apps|x11-wm)     MODULE=app/     ;;
+		x11-misc|x11-themes) MODULE=util/    ;;
+		x11-base)            MODULE=xserver/ ;;
+		x11-drivers)         MODULE=driver/  ;;
+		x11-proto)           MODULE=proto/   ;;
+		x11-libs)            MODULE=lib/     ;;
+		*)                   MODULE=         ;;
 	esac
 fi
 
-# @ECLASS-VARIABLE: XORG_PACKAGE_NAME
+# @ECLASS-VARIABLE: PACKAGE_NAME
 # @DESCRIPTION:
 # For git checkout the git repository might differ from package name.
 # This variable can be used for proper directory specification
-: ${XORG_PACKAGE_NAME:=${PN}}
+: ${PACKAGE_NAME:=${PN}}
 
 if [[ -n ${GIT_ECLASS} ]]; then
-	: ${EGIT_REPO_URI:="git://anongit.freedesktop.org/git/xorg/${XORG_MODULE}${XORG_PACKAGE_NAME} http://anongit.freedesktop.org/git/xorg/${XORG_MODULE}${XORG_PACKAGE_NAME}"}
-elif [[ -n ${XORG_BASE_INDIVIDUAL_URI} ]]; then
-	SRC_URI="${XORG_BASE_INDIVIDUAL_URI}/${XORG_MODULE}${P}.tar.bz2"
+	EGIT_REPO_URI="git://anongit.freedesktop.org/git/xorg/${MODULE}${PACKAGE_NAME}"
+elif [[ -n ${BASE_INDIVIDUAL_URI} ]]; then
+	SRC_URI="${BASE_INDIVIDUAL_URI}/${MODULE}${P}.tar.bz2"
 fi
 
 : ${SLOT:=0}
@@ -109,9 +109,9 @@ EAUTORECONF_DEPEND+="
 	>=sys-devel/libtool-2.2.6a
 	sys-devel/m4"
 if [[ ${PN} != util-macros ]] ; then
-	EAUTORECONF_DEPEND+=" >=x11-misc/util-macros-1.14.0"
+	EAUTORECONF_DEPEND+=" >=x11-misc/util-macros-1.11.0"
 	# Required even by xorg-server
-	[[ ${PN} == "font-util" ]] || EAUTORECONF_DEPEND+=" >=media-fonts/font-util-1.2.0"
+	[[ ${PN} == "font-util" ]] || EAUTORECONF_DEPEND+=" >=media-fonts/font-util-1.1.1-r1"
 fi
 WANT_AUTOCONF="latest"
 WANT_AUTOMAKE="latest"
@@ -128,7 +128,7 @@ if [[ ${FONT} == yes ]]; then
 		x11-apps/mkfontscale
 		x11-apps/mkfontdir"
 	PDEPEND+=" media-fonts/font-alias"
-	DEPEND+=" >=media-fonts/font-util-1.2.0"
+	DEPEND+=" >=media-fonts/font-util-1.1.1-r1"
 
 	# @ECLASS-VARIABLE: FONT_DIR
 	# @DESCRIPTION:
@@ -177,49 +177,21 @@ fi
 
 DEPEND+=" >=dev-util/pkgconfig-0.23"
 
-# @ECLASS-VARIABLE: XORG_DRI
-# @DESCRIPTION:
-# Possible values are "always" or the value of the useflag DRI capabilities
-# are required for. Default value is "no"
-#
-# Eg. XORG_DRI="opengl" will pull all dri dependant deps for opengl useflag
-: ${XORG_DRI:="no"}
-
-DRI_COMMON_DEPEND="
-	x11-base/xorg-server[-minimal]
-	x11-libs/libdrm
-"
-DRI_DEPEND="
-	x11-proto/xf86driproto
-	x11-proto/glproto
-	x11-proto/dri2proto
-"
-case ${XORG_DRI} in
-	no)
-		;;
-	always)
-		COMMON_DEPEND+=" ${DRI_COMMON_DEPEND}"
-		DEPEND+=" ${DRI_DEPEND}"
-		;;
-	*)
-		COMMON_DEPEND+=" ${XORG_DRI}? ( ${DRI_COMMON_DEPEND} )"
-		DEPEND+=" ${XORG_DRI}? ( ${DRI_DEPEND} )"
-		IUSE+=" ${XORG_DRI}"
-		;;
-esac
-unset DRI_DEPEND
-unset DRI_COMMONDEPEND
-
+# Check deps on drivers
+if has dri ${IUSE//+}; then
+	COMMON_DEPEND+=" dri? (
+		x11-base/xorg-server[-minimal]
+		x11-libs/libdrm
+	)"
+	DEPEND+=" dri? (
+		x11-proto/xf86driproto
+		x11-proto/glproto
+		x11-proto/dri2proto
+	)"
+fi
 if [[ -n "${DRIVER}" ]]; then
 	COMMON_DEPEND+="
 		x11-base/xorg-server[xorg]
-	"
-fi
-if [[ -n "${DRIVER}" && ${PN} == xf86-input-* ]]; then
-	DEPEND+="
-		x11-proto/inputproto
-		x11-proto/kbproto
-		x11-proto/xproto
 	"
 fi
 if [[ -n "${DRIVER}" && ${PN} == xf86-video-* ]]; then
@@ -238,36 +210,19 @@ if [[ -n "${DRIVER}" && ${PN} == xf86-video-* ]]; then
 	"
 fi
 
-# @ECLASS-VARIABLE: XORG_DOC
-# @DESCRIPTION:
-# Possible values are "always" or the value of the useflag doc packages
-# are required for. Default value is "no"
-#
-# Eg. XORG_DOC="manual" will pull all doc dependant deps for manual useflag
-: ${XORG_DOC:="no"}
-
-DOC_DEPEND="
-	doc? (
-		app-text/asciidoc
-		app-text/xmlto
-		app-doc/doxygen
-		app-text/docbook-xml-dtd:4.1.2
-		app-text/docbook-xml-dtd:4.2
-		app-text/docbook-xml-dtd:4.3
-	)
-"
-case ${XORG_DOC} in
-	no)
-		;;
-	always)
-		DEPEND+=" ${DOC_DEPEND}"
-		;;
-	*)
-		DEPEND+=" ${XORG_DOC}? ( ${DOC_DEPEND} )"
-		IUSE+=" ${XORG_DOC}"
-		;;
-esac
-unset DOC_DEPEND
+# Add deps on documentation
+# Most docbooks use dtd version 4.2 and 4.3 add more when found
+if has doc ${IUSE//+}; then
+	DEPEND+="
+		doc? (
+			app-text/xmlto
+			app-doc/doxygen
+			app-text/docbook-xml-dtd:4.1
+			app-text/docbook-xml-dtd:4.2
+			app-text/docbook-xml-dtd:4.3
+		)
+	"
+fi
 
 DEPEND+=" ${COMMON_DEPEND}"
 RDEPEND+=" ${COMMON_DEPEND}"
@@ -275,7 +230,6 @@ unset COMMON_DEPEND
 
 debug-print "${LINENO} ${ECLASS} ${FUNCNAME}: DEPEND=${DEPEND}"
 debug-print "${LINENO} ${ECLASS} ${FUNCNAME}: RDEPEND=${RDEPEND}"
-debug-print "${LINENO} ${ECLASS} ${FUNCNAME}: PDEPEND=${PDEPEND}"
 
 # @FUNCTION: xorg-2_pkg_setup
 # @DESCRIPTION:
@@ -293,7 +247,7 @@ xorg-2_src_unpack() {
 	debug-print-function ${FUNCNAME} "$@"
 
 	if [[ -n ${GIT_ECLASS} ]]; then
-		git-2_src_unpack
+		git_src_unpack
 	else
 		unpack ${A}
 	fi
@@ -340,6 +294,7 @@ xorg-2_reconf_source() {
 xorg-2_src_prepare() {
 	debug-print-function ${FUNCNAME} "$@"
 
+	[[ -n ${GIT_ECLASS} ]] && git_src_prepare
 	xorg-2_patch_source
 	xorg-2_reconf_source
 }
@@ -404,27 +359,17 @@ xorg-2_src_configure() {
 
 	xorg-2_flags_setup
 
-	# @VARIABLE: XORG_CONFIGURE_OPTIONS
+	# @VARIABLE: CONFIGURE_OPTIONS
 	# @DESCRIPTION:
-	# Array of an additional options to pass to configure.
+	# Any options to pass to configure
 	# @DEFAULT_UNSET
-	if [[ $(declare -p XORG_CONFIGURE_OPTIONS 2>&-) != "declare -a"* ]]; then
-		# fallback to CONFIGURE_OPTIONS, deprecated.
-		if [[ -n "${CONFIGURE_OPTIONS}" ]]; then
-			eqawarn "CONFIGURE_OPTIONS are deprecated. Please migrate to XORG_CONFIGURE_OPTIONS"
-			eqawarn "to preserve namespace."
-		fi
-
-		local xorgconfadd=(${CONFIGURE_OPTIONS})
-	else
-		local xorgconfadd=("${XORG_CONFIGURE_OPTIONS[@]}")
-	fi
+	CONFIGURE_OPTIONS=${CONFIGURE_OPTIONS:=""}
 
 	[[ -n "${FONT}" ]] && xorg-2_font_configure
 	local myeconfargs=(
 		--disable-dependency-tracking
+		${CONFIGURE_OPTIONS}
 		${FONT_OPTIONS}
-		"${xorgconfadd[@]}"
 	)
 
 	autotools-utils_src_configure "$@"
