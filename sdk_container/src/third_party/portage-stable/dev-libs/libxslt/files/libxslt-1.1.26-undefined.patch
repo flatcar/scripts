@@ -1,0 +1,14 @@
+http://bugs.gentoo.org/show_bug.cgi?id=246748
+
+diff -ur libxslt-1.1.26.orig/python/Makefile.am libxslt-1.1.26/python/Makefile.am
+--- libxslt-1.1.26.orig/python/Makefile.am	2009-05-12 09:29:34.000000000 +0300
++++ libxslt-1.1.26/python/Makefile.am	2009-10-07 18:27:35.000000000 +0300
+@@ -36,7 +36,7 @@
+ python_LTLIBRARIES = libxsltmod.la
+ 
+ libxsltmod_la_SOURCES = libxslt.c types.c libxslt-py.c
+-libxsltmod_la_LIBADD = $(mylibs) 
++libxsltmod_la_LIBADD = $(mylibs)  -lpython$(PYTHON_VERSION)
+ 
+ libxslt.py: $(srcdir)/libxsl.py $(srcdir)/libxsltclass.py
+ 	cat $(srcdir)/libxsl.py $(srcdir)/libxsltclass.py > libxslt.py
