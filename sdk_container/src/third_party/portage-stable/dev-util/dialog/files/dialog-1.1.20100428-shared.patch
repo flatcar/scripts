@@ -1,0 +1,80 @@
+--- dialog-1.1-20100428/aclocal.m4
++++ dialog-1.1-20100428/aclocal.m4
+@@ -3460,6 +3460,7 @@
+ ])
+ # common library maintenance symbols that are convenient for libtool scripts:
+ LIB_CREATE='${AR} -cr'
++LIB_LIBS=''
+ LIB_OBJECT='${OBJECTS}'
+ LIB_SUFFIX=.a
+ LIB_PREP="$RANLIB"
+@@ -3494,7 +3495,8 @@
+ 		AC_MSG_ERROR(Cannot find libtool)
+ 	fi
+ ])dnl
+-	LIB_CREATE='${LIBTOOL} --mode=link ${CC} -rpath ${DESTDIR}${libdir} -version-info `cut -f1 ${srcdir}/VERSION` ${LIBTOOL_OPTS} ${LT_UNDEF} -o'
++	LIB_CREATE='${LIBTOOL} --mode=link ${CC} -rpath ${DESTDIR}${libdir} -version-info `cut -f1 ${srcdir}/VERSION` ${LIBTOOL_OPTS} ${LT_UNDEF} ${LDFLAGS} -o'
++	LIB_LIBS='$(LIBS)'
+ 	LIB_OBJECT='${OBJECTS:.o=.lo}'
+ 	LIB_SUFFIX=.la
+ 	LIB_CLEAN='${LIBTOOL} --mode=clean'
+@@ -3547,6 +3549,7 @@
+ AC_SUBST(LIBTOOL_OPTS)
+ 
+ AC_SUBST(LIB_CREATE)
++AC_SUBST(LIB_LIBS)
+ AC_SUBST(LIB_OBJECT)
+ AC_SUBST(LIB_SUFFIX)
+ AC_SUBST(LIB_PREP)
+--- dialog-1.1-20100428/configure
++++ dialog-1.1-20100428/configure
+@@ -8305,6 +8305,7 @@
+ 
+ # common library maintenance symbols that are convenient for libtool scripts:
+ LIB_CREATE='${AR} -cr'
++LIB_LIBS=''
+ LIB_OBJECT='${OBJECTS}'
+ LIB_SUFFIX=.a
+ LIB_PREP="$RANLIB"
+@@ -8409,7 +8410,8 @@
+ echo "$as_me: error: Cannot find libtool" >&2;}
+    { (exit 1); exit 1; }; }
+ 	fi
+-	LIB_CREATE='${LIBTOOL} --mode=link ${CC} -rpath ${DESTDIR}${libdir} -version-info `cut -f1 ${srcdir}/VERSION` ${LIBTOOL_OPTS} ${LT_UNDEF} -o'
++	LIB_CREATE='${LIBTOOL} --mode=link ${CC} -rpath ${DESTDIR}${libdir} -version-info `cut -f1 ${srcdir}/VERSION` ${LIBTOOL_OPTS} ${LT_UNDEF} ${LDFLAGS} -o'
++	LIB_LIBS='$(LIBS)'
+ 	LIB_OBJECT='${OBJECTS:.o=.lo}'
+ 	LIB_SUFFIX=.la
+ 	LIB_CLEAN='${LIBTOOL} --mode=clean'
+@@ -13848,6 +13850,7 @@
+ s,@LIBTOOL_CXX@,$LIBTOOL_CXX,;t t
+ s,@LIBTOOL_OPTS@,$LIBTOOL_OPTS,;t t
+ s,@LIB_CREATE@,$LIB_CREATE,;t t
++s,@LIB_LIBS@,$LIB_LIBS,;t t
+ s,@LIB_OBJECT@,$LIB_OBJECT,;t t
+ s,@LIB_SUFFIX@,$LIB_SUFFIX,;t t
+ s,@LIB_PREP@,$LIB_PREP,;t t
+--- dialog-1.1-20100428/makefile.in
++++ dialog-1.1-20100428/makefile.in
+@@ -54,6 +54,7 @@
+ LIBTOOL_CLEAN	= @LIB_CLEAN@
+ LIBTOOL_COMPILE	= @LIB_COMPILE@
+ LIBTOOL_CREATE	= @LIB_CREATE@
++LIBTOOL_LIBS	= @LIB_LIBS@
+ LIBTOOL_LINK	= @LIB_LINK@
+ LIBTOOL_INSTALL	= @LIB_INSTALL@
+ LIBTOOL_UNINSTALL = @LIB_UNINSTALL@
+@@ -140,11 +141,11 @@
+ $(OBJECTS) : $(srcdir)/dialog.h $(srcdir)/dlg_keys.h dlg_config.h VERSION
+ 
+ $(LIB) : $(LIB_OBJECT)
+-	$(LIBTOOL_CREATE) $(LIB) $(LIB_OBJECT)
++	$(LIBTOOL_CREATE) $(LIB) $(LIB_OBJECT) $(LIBTOOL_LIBS)
+ 	$(RANLIB) $@
+ 
+ dialog$x : $(LIB) dialog$o @INTLDIR_MAKE@ @INTLLIBS@
+-	$(LINK) -o $@ dialog$o -L. -ldialog $(LDFLAGS) $(LIBS)
++	$(LINK) $(LDFLAGS) -o $@ dialog$o -L. -ldialog $(LIBS)
+ 
+ clean	\
+ distclean \
