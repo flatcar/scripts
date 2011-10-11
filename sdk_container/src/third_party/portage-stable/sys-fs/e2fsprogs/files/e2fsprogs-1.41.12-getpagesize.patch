@@ -1,0 +1,42 @@
+From 81c81f5421cb9b85e793c591595a0a4d6ee04e99 Mon Sep 17 00:00:00 2001
+From: Mike Frysinger <vapier@gentoo.org>
+Date: Sat, 4 Dec 2010 17:10:53 -0500
+Subject: [PATCH] libext2fs: change getpagesize to sysconf
+
+Newer versions of glibc no longer export the getpagesize() prototype when
+using recent versions of POSIX (_XOPEN_SOURCE).  So building tdb.c gives
+use implicit function declaration warnings.  Fix the issue by using the
+portable sysconf() function which returns the same answer.
+
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+---
+ lib/ext2fs/tdb.c |    6 +-----
+ 1 files changed, 1 insertions(+), 5 deletions(-)
+
+diff --git a/lib/ext2fs/tdb.c b/lib/ext2fs/tdb.c
+index 0c82a24..43c5d44 100644
+--- a/lib/ext2fs/tdb.c
++++ b/lib/ext2fs/tdb.c
+@@ -111,10 +111,6 @@ typedef int bool;
+ #define u32 unsigned
+ #endif
+ 
+-#ifndef HAVE_GETPAGESIZE
+-#define getpagesize() 0x2000
+-#endif
+-
+ typedef u32 tdb_len_t;
+ typedef u32 tdb_off_t;
+ 
+@@ -3838,7 +3834,7 @@ struct tdb_context *tdb_open_ex(const char *name, int hash_size, int tdb_flags,
+ 	tdb->hash_fn = hash_fn ? hash_fn : default_tdb_hash;
+ 
+ 	/* cache the page size */
+-	tdb->page_size = getpagesize();
++	tdb->page_size = sysconf(_SC_PAGESIZE);
+ 	if (tdb->page_size <= 0) {
+ 		tdb->page_size = 0x2000;
+ 	}
+-- 
+1.7.3.1
+
