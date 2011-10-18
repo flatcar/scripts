@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install postinst postrm prepare test
+DEPEND=dev-python/setuptools test? ( dev-python/egenix-mx-base dev-python/unittest2 !dev-python/psycopg[-mxdatetime] ) >=app-admin/eselect-python-20091230 dev-lang/python
+DESCRIPTION=Useful miscellaneous modules used by Logilab projects
+EAPI=3
+HOMEPAGE=http://www.logilab.org/projects/common/ http://pypi.python.org/pypi/logilab-common
+IUSE=test
+KEYWORDS=~amd64 ~ia64 ~ppc ~ppc64 ~s390 ~sparc ~x86 ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos
+LICENSE=LGPL-2.1
+RDEPEND=dev-python/setuptools >=app-admin/eselect-python-20091230 dev-lang/python
+SLOT=0
+SRC_URI=ftp://ftp.logilab.org/pub/common/logilab-common-0.53.0.tar.gz mirror://pypi/l/logilab-common/logilab-common-0.53.0.tar.gz
+_eclasses_=distutils	6913a81639c955969c9686be71b03a30	eutils	c89e7605f1414fa0f33eae391db1b5d3	multilib	7a03929201acae1505c919d5f10e9fa6	portability	0be430f759a631e692678ed796e09f5c	python	b3471f94188b4b0f3a0681898251591f	toolchain-funcs	7a31e3b5a682011c05f9316d88890d9d
+_md5_=2d28d90edb0501c86f8ced905677c481

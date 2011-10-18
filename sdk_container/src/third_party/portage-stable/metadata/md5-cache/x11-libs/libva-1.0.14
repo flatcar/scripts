@@ -1,0 +1,14 @@
+DEFINED_PHASES=configure install prepare
+DEPEND=>=x11-libs/libdrm-2.4 video_cards_intel? ( >=x11-libs/libdrm-2.4.23[video_cards_intel] ) video_cards_dummy? ( sys-fs/udev ) x11-libs/libX11 x11-libs/libXext x11-libs/libXfixes opengl? ( virtual/opengl ) dev-util/pkgconfig || ( =sys-devel/automake-1.11* ) >=sys-devel/autoconf-2.61 >=sys-devel/libtool-2.2.6b
+DESCRIPTION=Video Acceleration (VA) API for Linux
+EAPI=3
+HOMEPAGE=http://www.freedesktop.org/wiki/Software/vaapi
+IUSE=opengl video_cards_dummy video_cards_nvidia video_cards_intel video_cards_fglrx
+KEYWORDS=amd64 x86 ~amd64-linux ~x86-linux
+LICENSE=MIT
+PDEPEND=video_cards_nvidia? ( x11-libs/vdpau-video ) video_cards_fglrx? ( x11-libs/xvba-video )
+RDEPEND=>=x11-libs/libdrm-2.4 video_cards_intel? ( >=x11-libs/libdrm-2.4.23[video_cards_intel] ) video_cards_dummy? ( sys-fs/udev ) x11-libs/libX11 x11-libs/libXext x11-libs/libXfixes opengl? ( virtual/opengl )
+SLOT=0
+SRC_URI=http://cgit.freedesktop.org/libva/snapshot/libva-1.0.14.tar.bz2
+_eclasses_=autotools	c60f2324450f373b5ec1ad30df566782	eutils	c89e7605f1414fa0f33eae391db1b5d3	libtool	390d374bfc41723a51e3bafbb77c9325	multilib	7a03929201acae1505c919d5f10e9fa6	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	7a31e3b5a682011c05f9316d88890d9d
+_md5_=aa77282d93f7a76b01a816c6af186f91

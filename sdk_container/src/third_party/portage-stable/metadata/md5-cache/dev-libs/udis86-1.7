@@ -1,0 +1,12 @@
+DEFINED_PHASES=configure install prepare
+DEPEND=test? ( amd64? ( dev-lang/yasm ) x86? ( dev-lang/yasm ) x86-fbsd? ( dev-lang/yasm ) ) || ( =sys-devel/automake-1.11* ) >=sys-devel/autoconf-2.61 >=sys-devel/libtool-2.2.6b
+DESCRIPTION=Disassembler library for the x86/-64 architecture sets.
+EAPI=3
+HOMEPAGE=http://udis86.sourceforge.net/
+IUSE=pic test
+KEYWORDS=amd64 ~hppa ppc ~ppc64 x86 ~x86-fbsd
+LICENSE=BSD
+SLOT=0
+SRC_URI=mirror://sourceforge/udis86/udis86-1.7.tar.gz
+_eclasses_=autotools	c60f2324450f373b5ec1ad30df566782	eutils	c89e7605f1414fa0f33eae391db1b5d3	libtool	390d374bfc41723a51e3bafbb77c9325	multilib	7a03929201acae1505c919d5f10e9fa6	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	7a31e3b5a682011c05f9316d88890d9d
+_md5_=106370f6cd38b77fe5451531f6acb3d3

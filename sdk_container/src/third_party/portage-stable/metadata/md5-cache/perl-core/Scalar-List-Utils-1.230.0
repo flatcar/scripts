@@ -1,0 +1,12 @@
+DEFINED_PHASES=compile configure install postinst postrm prepare test unpack
+DEPEND=dev-lang/perl[-build]
+DESCRIPTION=Scalar-List-Utils module for perl
+EAPI=2
+HOMEPAGE=http://search.cpan.org/dist/Scalar-List-Utils/
+KEYWORDS=alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~ppc-aix ~x86-fbsd ~x64-freebsd ~x86-freebsd ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris
+LICENSE=|| ( Artistic GPL-1 GPL-2 GPL-3 )
+RDEPEND=dev-lang/perl[-build]
+SLOT=0
+SRC_URI=mirror://cpan/authors/id/G/GB/GBARR/Scalar-List-Utils-1.23.tar.gz
+_eclasses_=alternatives	eb864f6e50a20036e4cd47c8fd8f64d1	base	fc89786f3f7e7bcf03334359bd5b639b	eutils	c89e7605f1414fa0f33eae391db1b5d3	multilib	7a03929201acae1505c919d5f10e9fa6	perl-module	62eaf4b4e2dfe2d7766c20bfd93e7199	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	7a31e3b5a682011c05f9316d88890d9d
+_md5_=5c8b2d3b8bdcfb31b998a8d8ecea1907

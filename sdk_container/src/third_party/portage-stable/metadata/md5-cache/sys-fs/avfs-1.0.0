@@ -1,0 +1,13 @@
+DEFINED_PHASES=configure install postinst prepare
+DEPEND=>=sys-fs/fuse-2.4 sys-libs/zlib app-arch/bzip2 lzma? ( app-arch/xz-utils )
+DESCRIPTION=AVFS is a virtual filesystem that allows browsing of compressed files.
+EAPI=4
+HOMEPAGE=http://sourceforge.net/projects/avf
+IUSE=static-libs +lzma
+KEYWORDS=~alpha ~amd64 ~hppa ~ppc ~ppc64 ~x86
+LICENSE=GPL-2
+RDEPEND=>=sys-fs/fuse-2.4 sys-libs/zlib app-arch/bzip2 lzma? ( app-arch/xz-utils )
+SLOT=0
+SRC_URI=mirror://sourceforge/avf/avfs-1.0.0.tar.bz2
+_eclasses_=eutils	c89e7605f1414fa0f33eae391db1b5d3	multilib	7a03929201acae1505c919d5f10e9fa6	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	7a31e3b5a682011c05f9316d88890d9d
+_md5_=dc8b87b5edb886d93a3b026bab0587fe

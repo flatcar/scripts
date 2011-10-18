@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install postinst postrm prepare test
+DEPEND=>=dev-python/logilab-common-0.53.0 >=dev-python/astng-0.21.1 dev-python/setuptools >=app-admin/eselect-python-20091230 || ( =dev-lang/python-3.2* =dev-lang/python-3.1* =dev-lang/python-3.0* =dev-lang/python-2.7* =dev-lang/python-2.6* =dev-lang/python-2.5* )
+DESCRIPTION=Python code static checker
+EAPI=3
+HOMEPAGE=http://www.logilab.org/projects/pylint/ http://pypi.python.org/pypi/pylint
+IUSE=examples
+KEYWORDS=~amd64 ~ia64 ~ppc ~sparc ~x86 ~amd64-linux ~x86-linux ~x64-macos ~x86-macos
+LICENSE=GPL-2
+RDEPEND=>=dev-python/logilab-common-0.53.0 >=dev-python/astng-0.21.1 >=app-admin/eselect-python-20091230 || ( =dev-lang/python-3.2* =dev-lang/python-3.1* =dev-lang/python-3.0* =dev-lang/python-2.7* =dev-lang/python-2.6* =dev-lang/python-2.5* )
+SLOT=0
+SRC_URI=ftp://ftp.logilab.org/pub/pylint/pylint-0.23.0.tar.gz mirror://pypi/p/pylint/pylint-0.23.0.tar.gz
+_eclasses_=distutils	6913a81639c955969c9686be71b03a30	multilib	7a03929201acae1505c919d5f10e9fa6	python	b3471f94188b4b0f3a0681898251591f	toolchain-funcs	7a31e3b5a682011c05f9316d88890d9d
+_md5_=3ae2a5e782397598cbaf7d8d44feecbb
