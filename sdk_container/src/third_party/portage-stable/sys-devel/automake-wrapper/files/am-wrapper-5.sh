@@ -1,7 +1,7 @@
-#!/usr/bin/env bash
-# Copyright 1999-2006 Gentoo Foundation
+#!/bin/sh
+# Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/automake-wrapper/files/am-wrapper-4.sh,v 1.2 2010/02/24 08:08:28 mduft Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/automake-wrapper/files/am-wrapper-5.sh,v 1.1 2010/03/07 15:45:40 vapier Exp $
 
 # Based on the am-wrapper.pl script provided by MandrakeSoft
 # Rewritten in bash by Gregorio Guidi
@@ -46,9 +46,11 @@
 #     -or-
 #   - 'aclocal.m4' contain AM_AUTOMAKE_VERSION, specifying the use of 1.4
 
+warn() { printf "am-wrapper: $*\n" 1>&2; }
+err() { warn "$@"; exit 1; }
+
 if [ "${0##*/}" = "am-wrapper.sh" ] ; then
-	echo "Don't call this script directly." >&2
-	exit 1
+	err "Don't call this script directly"
 fi
 
 vers="1.11 1.10 1.9 1.8 1.7 1.6 1.5 1.4"
@@ -59,17 +61,14 @@ vers="1.11 1.10 1.9 1.8 1.7 1.6 1.5 1.4"
 #
 binary=""
 for v in ${vers} ; do
-	eval binary_${v/./_}="${0}-${v}"
-
 	if [ -z "${binary}" ] && [ -x "${0}-${v}" ] ; then
 		binary="${0}-${v}"
 	fi
 done
 if [ -z "${binary}" ] ; then
-	echo "am-wrapper: Unable to locate any usuable version of automake." >&2
-	echo "            I tried these versions: ${vers}" >&2
-	echo "            With a base name of '${0}'." >&2
-	exit 1
+	err "Unable to locate any usuable version of automake.\n" \
+	    "\tI tried these versions: ${vers}\n" \
+	    "\tWith a base name of '${0}'."
 fi
 
 #
@@ -79,15 +78,14 @@ fi
 if [ -n "${WANT_AUTOMAKE}" ] ; then
 	for v in ${vers} x ; do
 		if [ "${v}" = "x" ] ; then
-			echo "am-wrapper: warning: invalid WANT_AUTOMAKE '${WANT_AUTOMAKE}'; ignoring." >&2
+			warn "warning: invalid WANT_AUTOMAKE '${WANT_AUTOMAKE}'; ignoring."
 			unset WANT_AUTOMAKE
 			break
 		fi
 
 		for wx in ${WANT_AUTOMAKE} ; do
 			if [ "${wx}" = "${v}" ] ; then
-				binary="binary_${v/./_}"
-				binary="${!binary}"
+				binary="${0}-${v}"
 				v="x"
 			fi
 		done
@@ -117,11 +115,11 @@ if [ -z "${WANT_AUTOMAKE}" ] ; then
 	fi
 
 	for v in ${vers} ; do
-		if [ "${confversion_mf}" = "${v}" ] \
-		   || [ "${confversion_ac}" = "${v}" ] \
-		   || [ "${confversion_am}" = "${v}" ] ; then
-			binary="binary_${v/./_}"
-			binary="${!binary}"
+		if [ "${confversion_mf}" = "${v}" ] || \
+		   [ "${confversion_ac}" = "${v}" ] || \
+		   [ "${confversion_am}" = "${v}" ]
+		then
+			binary="${0}-${v}"
 			break
 		fi
 	done
@@ -129,17 +127,16 @@ fi
 
 if [ "${WANT_AMWRAPPER_DEBUG}" ] ; then
 	if [ "${WANT_AUTOMAKE}" ] ; then
-		echo "am-wrapper: DEBUG: WANT_AUTOMAKE is set to ${WANT_AUTOMAKE}" >&2
+		warn "DEBUG: WANT_AUTOMAKE is set to ${WANT_AUTOMAKE}"
 	fi
-	echo "am-wrapper: DEBUG: will execute <$binary>" >&2
+	warn "DEBUG: will execute <$binary>"
 fi
 
 #
 # for further consistency
 #
 for v in ${vers} ; do
-	mybin="binary_${v/./_}"
-	if [ "${binary}" = "${!mybin}" ] ; then
+	if [ "${binary}" = "${0}-${v}" ] ; then
 		export WANT_AUTOMAKE="${v}"
 	fi
 done
@@ -148,12 +145,10 @@ done
 # Now try to run the binary
 #
 if [ ! -x "${binary}" ] ; then
-	echo "am-wrapper: $binary is missing or not executable." >&2
-	echo "            Please try emerging the correct version of automake." >&2
-	exit 1
+	err "$binary is missing or not executable.\n" \
+	    "\tPlease try emerging the correct version of automake."
 fi
 
 exec "$binary" "$@"
 
-echo "am-wrapper: was unable to exec $binary !?" >&2
-exit 1
+err "was unable to exec $binary !?"
