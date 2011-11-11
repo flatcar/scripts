@@ -17,7 +17,7 @@ then
 	vcs="git-2 autotools"
 fi
 
-inherit ${vcs} eutils flag-o-matic multilib toolchain-funcs linux-info systemd
+inherit ${vcs} eutils flag-o-matic multilib toolchain-funcs linux-info systemd libtool
 
 if [[ ${PV} != "9999" ]]
 then
@@ -185,6 +185,8 @@ src_prepare() {
 	then
 		gtkdocize --copy || die "gtkdocize failed"
 		eautoreconf
+	else
+		elibtoolize
 	fi
 }
 
