@@ -7,5 +7,5 @@ KEYWORDS=alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~x86-f
 LICENSE=LGPL-2.1
 SLOT=1
 SRC_URI=ftp://ftp.gtk.org/pub/gtk/v1.2/glib-1.2.10.tar.gz ftp://ftp.gnome.org/pub/GNOME/stable/sources/glib/glib-1.2.10.tar.gz mirror://gentoo/glib-1.2.10-r1-as-needed.patch.bz2
-_eclasses_=autotools	c60f2324450f373b5ec1ad30df566782	eutils	c89e7605f1414fa0f33eae391db1b5d3	flag-o-matic	01a8b1eb019305bc4b4a8bd0b04e4cd8	libtool	390d374bfc41723a51e3bafbb77c9325	multilib	7a03929201acae1505c919d5f10e9fa6	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	7a31e3b5a682011c05f9316d88890d9d
+_eclasses_=autotools	c60f2324450f373b5ec1ad30df566782	eutils	33ef77a15337022e05342d2c772a7a5a	flag-o-matic	01a8b1eb019305bc4b4a8bd0b04e4cd8	libtool	390d374bfc41723a51e3bafbb77c9325	multilib	7a03929201acae1505c919d5f10e9fa6	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	7a31e3b5a682011c05f9316d88890d9d	user	9e552f935106ff0bc92af16da64b4b29
 _md5_=f31941ec5f6a80c3afb225a703745269

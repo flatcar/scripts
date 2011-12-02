@@ -8,5 +8,5 @@ LICENSE=|| ( Artistic GPL-1 GPL-2 GPL-3 )
 RDEPEND=virtual/perl-MIME-Base64 dev-lang/perl[-build]
 SLOT=0
 SRC_URI=mirror://cpan/authors/id/G/GA/GAAS/URI-1.55.tar.gz
-_eclasses_=base	fc89786f3f7e7bcf03334359bd5b639b	eutils	c89e7605f1414fa0f33eae391db1b5d3	multilib	7a03929201acae1505c919d5f10e9fa6	perl-module	62eaf4b4e2dfe2d7766c20bfd93e7199	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	7a31e3b5a682011c05f9316d88890d9d
+_eclasses_=base	fc89786f3f7e7bcf03334359bd5b639b	eutils	33ef77a15337022e05342d2c772a7a5a	multilib	7a03929201acae1505c919d5f10e9fa6	perl-module	62eaf4b4e2dfe2d7766c20bfd93e7199	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	7a31e3b5a682011c05f9316d88890d9d	user	9e552f935106ff0bc92af16da64b4b29
 _md5_=08d18b62934a92e2f6705a060c5e8706

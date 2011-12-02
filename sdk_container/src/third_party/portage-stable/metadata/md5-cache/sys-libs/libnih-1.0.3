@@ -1,0 +1,13 @@
+DEFINED_PHASES=configure install prepare
+DEPEND=dbus? ( dev-libs/expat >=sys-apps/dbus-1.2.16 ) sys-devel/gettext dev-util/pkgconfig test? ( dev-util/valgrind ) || ( =sys-devel/automake-1.11* ) >=sys-devel/autoconf-2.61 >=sys-devel/libtool-2.2.6b
+DESCRIPTION=Light-weight 'standard library' of C functions
+EAPI=2
+HOMEPAGE=https://launchpad.net/libnih
+IUSE=+dbus nls static-libs test +threads
+KEYWORDS=amd64 arm x86
+LICENSE=GPL-2
+RDEPEND=dbus? ( dev-libs/expat >=sys-apps/dbus-1.2.16 )
+SLOT=0
+SRC_URI=http://launchpad.net/libnih/1.0/1.0.3/+download/libnih-1.0.3.tar.gz
+_eclasses_=autotools	c60f2324450f373b5ec1ad30df566782	eutils	33ef77a15337022e05342d2c772a7a5a	libtool	390d374bfc41723a51e3bafbb77c9325	multilib	7a03929201acae1505c919d5f10e9fa6	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	7a31e3b5a682011c05f9316d88890d9d	user	9e552f935106ff0bc92af16da64b4b29	versionator	865bc8b2fc9fcfb6d520bdf5a110f5ed
+_md5_=21d4c75a271f9501e74c135801fb985a

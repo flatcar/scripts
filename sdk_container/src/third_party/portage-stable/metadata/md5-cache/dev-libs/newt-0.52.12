@@ -9,5 +9,5 @@ LICENSE=LGPL-2
 RDEPEND==sys-libs/slang-2* >=dev-libs/popt-1.6 elibc_uclibc? ( sys-libs/ncurses ) gpm? ( sys-libs/gpm ) tcl? ( =dev-lang/tcl-8.5* ) >=app-admin/eselect-python-20091230 =dev-lang/python-2*
 SLOT=0
 SRC_URI=https://fedorahosted.org/releases/n/e/newt/newt-0.52.12.tar.gz
-_eclasses_=eutils	c89e7605f1414fa0f33eae391db1b5d3	multilib	7a03929201acae1505c919d5f10e9fa6	portability	0be430f759a631e692678ed796e09f5c	python	b3471f94188b4b0f3a0681898251591f	toolchain-funcs	7a31e3b5a682011c05f9316d88890d9d
+_eclasses_=eutils	33ef77a15337022e05342d2c772a7a5a	multilib	7a03929201acae1505c919d5f10e9fa6	portability	0be430f759a631e692678ed796e09f5c	python	6bbd984910e27780e5d0ea543d83ef84	toolchain-funcs	7a31e3b5a682011c05f9316d88890d9d	user	9e552f935106ff0bc92af16da64b4b29
 _md5_=43897182443d6da9a47b4b3c1b97469b

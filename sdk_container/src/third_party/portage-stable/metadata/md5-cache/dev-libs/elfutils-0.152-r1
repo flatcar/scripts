@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install prepare test
+DEPEND=zlib? ( >=sys-libs/zlib-1.2.2.3 ) bzip2? ( app-arch/bzip2 ) lzma? ( app-arch/xz-utils ) !dev-libs/libelf nls? ( sys-devel/gettext ) >=sys-devel/flex-2.5.4a sys-devel/m4
+DESCRIPTION=Libraries/utilities to handle ELF objects (drop in replacement for libelf)
+EAPI=3
+HOMEPAGE=https://fedorahosted.org/elfutils/
+IUSE=bzip2 lzma nls zlib
+KEYWORDS=~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-linux ~x86-linux
+LICENSE=GPL-2-with-exceptions
+RDEPEND=zlib? ( >=sys-libs/zlib-1.2.2.3 ) bzip2? ( app-arch/bzip2 ) lzma? ( app-arch/xz-utils ) !dev-libs/libelf
+SLOT=0
+SRC_URI=https://fedorahosted.org/releases/e/l/elfutils/0.152/elfutils-0.152.tar.bz2 https://fedorahosted.org/releases/e/l/elfutils/0.152/elfutils-portability.patch -> elfutils-0.152-portability.patch https://fedorahosted.org/releases/e/l/elfutils/0.152/elfutils-robustify.patch -> elfutils-0.152-robustify.patch
+_eclasses_=eutils	33ef77a15337022e05342d2c772a7a5a	multilib	7a03929201acae1505c919d5f10e9fa6	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	7a31e3b5a682011c05f9316d88890d9d	user	9e552f935106ff0bc92af16da64b4b29
+_md5_=cde50f686008b3171c84ac7a4b4eb5a1

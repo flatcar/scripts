@@ -1,0 +1,10 @@
+DEFINED_PHASES=compile install prepare
+DESCRIPTION=utilities for working with Das U-Boot
+EAPI=4
+HOMEPAGE=http://www.denx.de/wiki/U-Boot/WebHome
+KEYWORDS=amd64 arm x86
+LICENSE=GPL-2
+SLOT=0
+SRC_URI=ftp://ftp.denx.de/pub/u-boot/u-boot-2011.06.tar.bz2
+_eclasses_=multilib	7a03929201acae1505c919d5f10e9fa6	toolchain-funcs	7a31e3b5a682011c05f9316d88890d9d
+_md5_=9e7757d2809666cc8a9df3fd802ffa00

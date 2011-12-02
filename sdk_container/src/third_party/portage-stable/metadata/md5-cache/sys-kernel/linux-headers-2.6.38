@@ -9,5 +9,5 @@ PROVIDE=virtual/os-headers
 RESTRICT=binchecks strip
 SLOT=0
 SRC_URI=mirror://gentoo/gentoo-headers-base-2.6.38.tar.xz mirror://gentoo/gentoo-headers-2.6.38-1.tar.xz
-_eclasses_=eutils	c89e7605f1414fa0f33eae391db1b5d3	kernel-2	fac988fb09b9b9b87d85d60efe37d03f	multilib	7a03929201acae1505c919d5f10e9fa6	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	7a31e3b5a682011c05f9316d88890d9d	versionator	b4e7d622ba2551eb4b5051879f5f4ad5
+_eclasses_=eutils	33ef77a15337022e05342d2c772a7a5a	kernel-2	fac988fb09b9b9b87d85d60efe37d03f	multilib	7a03929201acae1505c919d5f10e9fa6	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	7a31e3b5a682011c05f9316d88890d9d	user	9e552f935106ff0bc92af16da64b4b29	versionator	865bc8b2fc9fcfb6d520bdf5a110f5ed
 _md5_=5ccdc686b9c67bb3edf1144d28a13420
