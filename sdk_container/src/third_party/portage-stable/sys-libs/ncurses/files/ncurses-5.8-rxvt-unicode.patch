@@ -184,6 +184,6 @@ which adds support for 256 colors.
 +	pairs#32767,
 +	use=rxvt-unicode,
 +
- # mrxvt 0.5.3
+ # mrxvt 0.5.4
  #
  # mrxvt is based on rxvt 2.7.11, but has by default XTERM_FKEYS defined, which
