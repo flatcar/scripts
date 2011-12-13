@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/libtool.eclass,v 1.94 2011/10/03 04:04:46 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/libtool.eclass,v 1.97 2011/12/13 21:28:15 vapier Exp $
 
 # @ECLASS: libtool.eclass
 # @MAINTAINER:
@@ -14,11 +14,25 @@
 # generated libtool files.  We do not run the libtoolize program because that
 # requires a regeneration of the main autotool files in order to work properly.
 
+if [[ ${___ECLASS_ONCE_LIBTOOL} != "recur -_+^+_- spank" ]] ; then
+___ECLASS_ONCE_LIBTOOL="recur -_+^+_- spank"
+
+# If an overlay has eclass overrides, but doesn't actually override the
+# libtool.eclass, we'll have ECLASSDIR pointing to the active overlay's
+# eclass/ dir, but libtool.eclass is still in the main Gentoo tree.  So
+# add a check to locate the ELT-patches/ regardless of what's going on.
+ECLASSDIR_LOCAL=${BASH_SOURCE[0]%/*}
+elt_patch_dir() {
+	local d="${ECLASSDIR}/ELT-patches"
+	if [[ ! -d ${d} ]] ; then
+		d="${ECLASSDIR_LOCAL}/ELT-patches"
+	fi
+	echo "${d}"
+}
+
 DESCRIPTION="Based on the ${ECLASS} eclass"
 
 inherit multilib toolchain-funcs
-
-ELT_PATCH_DIR="${ECLASSDIR}/ELT-patches"
 
 #
 # See if we can apply $2 on $1, and if so, do it
@@ -70,7 +84,7 @@ ELT_walk_patches() {
 	local ret=1
 	local file=$1
 	local patch_set=$2
-	local patch_dir="${ELT_PATCH_DIR}/${patch_set}"
+	local patch_dir="$(elt_patch_dir)/${patch_set}"
 	local rem_int_dep=$3
 
 	[[ -z ${patch_set} ]] && return 1
@@ -84,7 +98,7 @@ ELT_walk_patches() {
 		sed_args+=( -e "s|@REM_INT_DEP@|${rem_int_dep}|g" )
 	fi
 
-	pushd "${ELT_PATCH_DIR}" >/dev/null || die
+	pushd "$(elt_patch_dir)" >/dev/null || die
 
 	# Go through the patches in reverse order (newer version to older)
 	for patch in $(find "${patch_set}" -maxdepth 1 -type f | LC_ALL=C sort -r) ; do
@@ -119,6 +133,7 @@ elibtoolize() {
 	local do_uclibc="yes"
 	local deptoremove=
 	local do_shallow="no"
+	local force="false"
 	local elt_patches="install-sh ltmain portage relink max_cmd_len sed test tmp cross as-needed"
 
 	for x in "$@" ; do
@@ -153,6 +168,9 @@ elibtoolize() {
 			--no-uclibc)
 				do_uclibc="no"
 				;;
+			--force)
+				force="true"
+				;;
 			*)
 				eerror "Invalid elibtoolize option: ${x}"
 				die "elibtoolize called with ${x} ??"
@@ -186,9 +204,15 @@ elibtoolize() {
 	for d in "$@" ; do
 		export ELT_APPLIED_PATCHES=
 
-		[[ -f ${d}/.elibtoolized ]] && continue
+		if [[ -f ${d}/.elibtoolized ]] ; then
+			${force} || continue
+		fi
 
 		einfo "Running elibtoolize in: ${d#${WORKDIR}/}/"
+		if [[ -f ${d}/.elibtoolized ]] ; then
+			ewarn "  We've already been run in this tree; you should"
+			ewarn "  avoid this if possible (perhaps by filing a bug)"
+		fi
 
 		for p in ${elt_patches} ; do
 			local ret=0
@@ -476,3 +500,5 @@ VER_to_int() {
 	echo 1
 	return 1
 }
+
+fi
