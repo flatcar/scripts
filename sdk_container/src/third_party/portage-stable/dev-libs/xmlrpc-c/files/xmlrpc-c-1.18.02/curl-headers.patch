@@ -1,0 +1,36 @@
+diff --git a/lib/curl_transport/curlmulti.c b/lib/curl_transport/curlmulti.c
+index 27f93e3..6897d68 100644
+--- a/lib/curl_transport/curlmulti.c
++++ b/lib/curl_transport/curlmulti.c
+@@ -19,7 +19,6 @@
+ #endif
+ 
+ #include <curl/curl.h>
+-#include <curl/types.h>
+ #include <curl/easy.h>
+ #include <curl/multi.h>
+ 
+diff --git a/lib/curl_transport/curltransaction.c b/lib/curl_transport/curltransaction.c
+index 3889462..0745f42 100644
+--- a/lib/curl_transport/curltransaction.c
++++ b/lib/curl_transport/curltransaction.c
+@@ -17,7 +17,6 @@
+ #include "version.h"
+ 
+ #include <curl/curl.h>
+-#include <curl/types.h>
+ #include <curl/easy.h>
+ 
+ #include "curlversion.h"
+diff --git a/lib/curl_transport/xmlrpc_curl_transport.c b/lib/curl_transport/xmlrpc_curl_transport.c
+index 812ba2f..0a16835 100644
+--- a/lib/curl_transport/xmlrpc_curl_transport.c
++++ b/lib/curl_transport/xmlrpc_curl_transport.c
+@@ -85,7 +85,6 @@
+ #include "xmlrpc-c/time_int.h"
+ 
+ #include <curl/curl.h>
+-#include <curl/types.h>
+ #include <curl/easy.h>
+ #include <curl/multi.h>
+ 
