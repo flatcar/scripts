@@ -1,0 +1,80 @@
+already sent upstream
+
+From ceff276b495884e0b6904814f2bcc93dc98da132 Mon Sep 17 00:00:00 2001
+From: Mike Frysinger <vapier@gentoo.org>
+Date: Thu, 15 Dec 2011 14:16:50 -0500
+Subject: [PATCH] add compile-only tests for shift sizes
+
+We can take advantage of array limits to calculate the shift size
+required for constants.  If we compile to a value we don't like,
+then the array limit will be -1 and trigger a compile error.
+
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+---
+ configure.in |   15 ++++++++++++++-
+ 1 files changed, 14 insertions(+), 1 deletions(-)
+
+diff --git a/configure.in b/configure.in
+index 45cb88a..15c4d7d 100644
+--- a/configure.in
++++ b/configure.in
+@@ -1331,7 +1331,20 @@ AC_CACHE_CHECK(shift offset of $1, $2,
+  ],
+  [$2=`cat $conftestoffset`],
+  [$2=-1],
+- [AC_MSG_RESULT(please determine $1_SHIFT manually)]
++ [
++  i=0
++  $2=-1
++  while test $i -lt 64 -a $$2 -eq -1; do
++   AC_TRY_COMPILE([
++   #include <errno.h>
++   #include <stdio.h>
++   #include <termios.h>
++   #include <string.h>
++   ],[char c[(($1 >> $i) & 1) - 1];],
++   [$2=$i])
++   i=$(( $i + 1 ))
++  done
++ ]
+ )
+  LIBS="$LIBS1"])
+ AC_DEFINE_UNQUOTED($1_SHIFT, ${$2})
+-- 
+1.7.6.1
+
+From a3e300ce4cde7e326ecffe1035017874d85d796e Mon Sep 17 00:00:00 2001
+From: Mike Frysinger <vapier@gentoo.org>
+Date: Thu, 15 Dec 2011 15:00:37 -0500
+Subject: [PATCH] let compiler handle ISPEED_OFFSET when cross-compiling
+
+While I can't devise a compile-only test that'll calculate the offset
+(which doesn't involve inspecting the compiled object file), at least
+gcc is good enough with a offsetof()-like value.  So use that in the
+cross-compile fallback case.
+
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+---
+ configure.in |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/configure.in b/configure.in
+index 15c4d7d..87e1029 100644
+--- a/configure.in
++++ b/configure.in
+@@ -918,11 +918,11 @@ AC_CACHE_VAL(ac_cv_ispeed_offset,
+  ],
+  [ac_cv_ispeed_offset=`cat $conftestspeedoff`],
+  [ac_cv_ispeed_offset=-1],
+- [ac_cv_ispeed_offset=-1]	#!
++ [ac_cv_ispeed_offset="((unsigned long)&((struct termios *)0)->c_ispeed / sizeof(speed_t))"]	#!
+ )])
+ LIBS="$LIBS1"
+ AC_MSG_RESULT($ac_cv_ispeed_offset)
+- if test $ac_cv_ispeed_offset -ge 0; then
++ if test "$ac_cv_ispeed_offset" != "-1"; then
+    AC_DEFINE_UNQUOTED(ISPEED_OFFSET, $ac_cv_ispeed_offset)
+  fi
+ fi
+-- 
+1.7.6.1
