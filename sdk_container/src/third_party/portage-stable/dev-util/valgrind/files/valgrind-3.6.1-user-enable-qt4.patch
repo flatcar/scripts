@@ -1,0 +1,89 @@
+--- configure.in.orig	2011-02-17 14:29:14.000000000 -0500
++++ configure.in	2011-02-17 15:05:46.000000000 -0500
+@@ -1692,7 +1692,8 @@
+ # NEEDED BY THE REGRESSION TEST PROGRAMS.
+ 
+ 
+-# The test below verifies whether the QtCore package been installed.
++# The test below first checks if the user has manaually disabled
++# QtCore.  It then verifies whether the QtCore package been installed.
+ # This test works as follows:
+ # - If pkg-config was not installed at the time autogen.sh was run,
+ #   the definition of the PKG_CHECK_EXISTS() macro will not be found by
+@@ -1709,37 +1710,49 @@
+ #   the pkg-config executable is not present on the system on which the
+ #   configure script is run.
+ 
+-ifdef(
+-  [PKG_CHECK_EXISTS],
+-  [PKG_CHECK_EXISTS(
+-    [QtCore],
++AC_ARG_ENABLE(qtcore,
++  AS_HELP_STRING(--enable-qtcore, compile with qtcore support),
+     [
+-      PKG_CHECK_MODULES([QTCORE], [QtCore])
+-      # Paranoia: don't trust the result reported by pkg-config, but when
+-      # pkg-config reports that QtCore has been found, verify whether linking
+-      # programs with QtCore succeeds.
+-      AC_LANG(C++)
+-      safe_CXXFLAGS="${CXXFLAGS}"
+-      CXXFLAGS="${QTCORE_CFLAGS} ${QTCORE_LIBS} $mflag_primary"
+-      AC_TRY_LINK(
+-        [#include <QMutex>],
+-        [QMutex Mutex;],
+-        [ac_have_qtcore=yes],
+-        [
+-          AC_MSG_WARN([Although pkg-config detected Qt4, linking Qt4 programs fails. Skipping Qt4.])
+-          ac_have_qtcore=no
+-        ]
+-        )
+-      CXXFLAGS="${safe_CXXFLAGS}"
++      if test x$enableval = xno ; then
++        AC_MSG_CHECKING([for QTCORE ])
++        AC_MSG_RESULT([QTCORE is manually distabled.])
++        [ac_have_qtcore=no]
++      fi
+     ],
+     [
+-      ac_have_qtcore=no
++      ifdef(
++        [PKG_CHECK_EXISTS],
++        [PKG_CHECK_EXISTS(
++          [QtCore],
++          [
++            PKG_CHECK_MODULES([QTCORE], [QtCore])
++            # Paranoia: don't trust the result reported by pkg-config, but when
++            # pkg-config reports that QtCore has been found, verify whether linking
++            # programs with QtCore succeeds.
++            AC_LANG(C++)
++            safe_CXXFLAGS="${CXXFLAGS}"
++            CXXFLAGS="${QTCORE_CFLAGS} ${QTCORE_LIBS} $mflag_primary"
++            AC_TRY_LINK(
++              [#include <QMutex>],
++              [QMutex Mutex;],
++              [ac_have_qtcore=yes],
++              [
++                AC_MSG_WARN([Although pkg-config detected Qt4, linking Qt4 programs fails. Skipping Qt4.])
++                ac_have_qtcore=no
++              ]
++              )
++            CXXFLAGS="${safe_CXXFLAGS}"
++          ],
++          [
++            ac_have_qtcore=no
++          ]
++          )
++        ],
++        AC_MSG_WARN([pkg-config has not been installed or is too old.])
++        AC_MSG_WARN([Detection of Qt4 will be skipped.])
++        [ac_have_qtcore=no]
++      )
+     ]
+-    )
+-  ],
+-  AC_MSG_WARN([pkg-config has not been installed or is too old.])
+-  AC_MSG_WARN([Detection of Qt4 will be skipped.])
+-  [ac_have_qtcore=no]
+ )
+ 
+ AM_CONDITIONAL([HAVE_QTCORE], [test x$ac_have_qtcore = xyes])
