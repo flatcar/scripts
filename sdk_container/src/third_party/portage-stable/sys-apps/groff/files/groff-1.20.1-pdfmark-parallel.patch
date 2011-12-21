@@ -1,0 +1,46 @@
+http://crosbug.com/24481
+https://savannah.gnu.org/bugs/index.php?35146
+
+From 324a699b3903bd7d9d248bc229ab8518fc47cbed Mon Sep 17 00:00:00 2001
+From: Mike Frysinger <vapier@gentoo.org>
+Date: Wed, 21 Dec 2011 14:15:50 -0500
+Subject: [PATCH] pdfmark: fix parallel build race failure
+
+Sometimes building in parallel will fail in the pdfmark directory:
+	make[2]: Entering directory '.../contrib/pdfmark'
+	rm -f pdfroff
+	rm -f pdfmark.pdf
+	sed -f ... ./pdfroff.sh >pdfroff
+	...; ./pdfroff ... pdfmark.ms >pdfmark.pdf
+	/bin/sh: ./pdfroff: Permission denied
+	chmod +x pdfroff
+	make[2]: *** [pdfmark.pdf] Error 126
+
+This is because the generated pdf files use the local generated pdfroff
+helper script, but they don't depend directly upon it, so make tries to
+create the two in parallel and randomly falls over.
+
+Have all the .pdf files explicitly depend on the pdfroff helper script.
+
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+---
+ contrib/pdfmark/Makefile.sub |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/contrib/pdfmark/Makefile.sub b/contrib/pdfmark/Makefile.sub
+index 9eb2763..36c9e0f 100644
+--- a/contrib/pdfmark/Makefile.sub
++++ b/contrib/pdfmark/Makefile.sub
+@@ -66,6 +66,9 @@ PDFROFF=\
+ 
+ all: pdfroff $(make_pdfdoc)
+ 
++# The pdf files use the local script to generate.
++$(PDFDOCFILES): pdfroff
++
+ pdfdoc: gnu.eps $(PDFDOCFILES)
+ 
+ gnu.eps:
+-- 
+1.7.6.1
+
