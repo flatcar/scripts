@@ -17,7 +17,7 @@ SRC_URI="mirror://nongnu/${PN}/${P}.tar.gz"
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~ppc ~ppc64 x86"
+KEYWORDS="amd64 arm ~ppc ~ppc64 x86"
 
 GPSD_PROTOCOLS=(
 	ashtech aivdm clientdebug earthmate evermore fv18 garmin
