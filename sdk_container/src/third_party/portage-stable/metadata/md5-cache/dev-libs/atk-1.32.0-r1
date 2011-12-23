@@ -9,5 +9,5 @@ LICENSE=LGPL-2
 RDEPEND=dev-libs/glib:2 introspection? ( >=dev-libs/gobject-introspection-0.6.7 )
 SLOT=0
 SRC_URI=mirror://gnome/sources/atk/1.32/atk-1.32.0.tar.bz2
-_eclasses_=fdo-mime	9c46e30acd923ff12e325dbe96bb98b9	gnome.org	6d236bfa516020939a4adbc435063f79	gnome2	a6e6d84c3fe3f0cec09451d083331d60	gnome2-utils	0067e2e4dc66e2ff223a9c527e329407	libtool	390d374bfc41723a51e3bafbb77c9325	multilib	7a03929201acae1505c919d5f10e9fa6	toolchain-funcs	7a31e3b5a682011c05f9316d88890d9d
+_eclasses_=fdo-mime	9c46e30acd923ff12e325dbe96bb98b9	gnome.org	6d236bfa516020939a4adbc435063f79	gnome2	a6e6d84c3fe3f0cec09451d083331d60	gnome2-utils	0067e2e4dc66e2ff223a9c527e329407	libtool	0fd90d183673bf1107465ec45849d1ea	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	toolchain-funcs	7a31e3b5a682011c05f9316d88890d9d
 _md5_=244f36a75e9ff6b8a04d05e15bdad07e

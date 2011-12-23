@@ -1,5 +1,5 @@
 DEFINED_PHASES=compile install postinst unpack
-DEPEND=|| ( =sys-devel/automake-1.11* ) >=sys-devel/autoconf-2.61 >=sys-devel/libtool-2.2.6b
+DEPEND=|| ( =sys-devel/automake-1.11* ) >=sys-devel/autoconf-2.61 sys-devel/libtool
 DESCRIPTION=Transparent SOCKS v4 proxying library
 HOMEPAGE=http://tsocks.sourceforge.net/
 IUSE=tordns
@@ -7,5 +7,5 @@ KEYWORDS=alpha amd64 ppc ppc64 sparc x86 ~x86-fbsd
 LICENSE=GPL-2
 SLOT=0
 SRC_URI=mirror://sourceforge/tsocks/tsocks-1.8beta5.tar.gz tordns? ( mirror://gentoo/tsocks-1.8b5-tordns1-gentoo-r1.patch.gz )
-_eclasses_=autotools	c60f2324450f373b5ec1ad30df566782	eutils	33ef77a15337022e05342d2c772a7a5a	libtool	390d374bfc41723a51e3bafbb77c9325	multilib	7a03929201acae1505c919d5f10e9fa6	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	7a31e3b5a682011c05f9316d88890d9d	user	9e552f935106ff0bc92af16da64b4b29
+_eclasses_=autotools	63332a15502113ca711ccccb3889a109	eutils	33ef77a15337022e05342d2c772a7a5a	libtool	0fd90d183673bf1107465ec45849d1ea	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	7a31e3b5a682011c05f9316d88890d9d	user	9e552f935106ff0bc92af16da64b4b29
 _md5_=5a6950a3552a55fdec1bab1901fdd5d5

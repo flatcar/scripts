@@ -9,5 +9,5 @@ LICENSE=GPL-2
 RDEPEND=elibc_glibc? ( >=sys-libs/glibc-2.6 ) !sys-libs/com_err !sys-libs/ss !<sys-fs/e2fsprogs-1.41.8
 SLOT=0
 SRC_URI=mirror://sourceforge/e2fsprogs/e2fsprogs-libs-1.41.14.tar.gz
-_eclasses_=multilib	7a03929201acae1505c919d5f10e9fa6	toolchain-funcs	7a31e3b5a682011c05f9316d88890d9d
+_eclasses_=multilib	5f4ad6cf85e365e8f0c6050ddd21659e	toolchain-funcs	7a31e3b5a682011c05f9316d88890d9d
 _md5_=438104d662c05836b5e1e931d23af5fa

@@ -1,5 +1,5 @@
 DEFINED_PHASES=compile configure install postinst postrm prepare setup test unpack
-DEPEND=sys-libs/zlib icu? ( dev-libs/icu ) readline? ( sys-libs/readline ) hppa? ( >=sys-devel/binutils-2.15.92.0.2 ) >=app-admin/eselect-python-20091230 python? ( =dev-lang/python-2* ) python? ( =dev-lang/python-2*[-build,xml] ) || ( =sys-devel/automake-1.11* ) >=sys-devel/autoconf-2.61 >=sys-devel/libtool-2.2.6b
+DEPEND=sys-libs/zlib icu? ( dev-libs/icu ) readline? ( sys-libs/readline ) hppa? ( >=sys-devel/binutils-2.15.92.0.2 ) >=app-admin/eselect-python-20091230 python? ( =dev-lang/python-2* ) python? ( =dev-lang/python-2*[-build,xml] ) || ( =sys-devel/automake-1.11* ) >=sys-devel/autoconf-2.61 sys-devel/libtool
 DESCRIPTION=Version 2 of the library to manipulate XML files
 EAPI=3
 HOMEPAGE=http://www.xmlsoft.org/
@@ -9,5 +9,5 @@ LICENSE=MIT
 RDEPEND=sys-libs/zlib icu? ( dev-libs/icu ) readline? ( sys-libs/readline ) >=app-admin/eselect-python-20091230 python? ( =dev-lang/python-2* ) python? ( =dev-lang/python-2*[-build,xml] )
 SLOT=2
 SRC_URI=ftp://xmlsoft.org/libxml2/libxml2-2.7.8.tar.gz test? ( http://www.w3.org/XML/2004/xml-schema-test-suite/xmlschema2002-01-16/xsts-2002-01-16.tar.gz http://www.w3.org/XML/2004/xml-schema-test-suite/xmlschema2004-01-14/xsts-2004-01-14.tar.gz )
-_eclasses_=autotools	c60f2324450f373b5ec1ad30df566782	eutils	33ef77a15337022e05342d2c772a7a5a	flag-o-matic	01a8b1eb019305bc4b4a8bd0b04e4cd8	libtool	390d374bfc41723a51e3bafbb77c9325	multilib	7a03929201acae1505c919d5f10e9fa6	portability	0be430f759a631e692678ed796e09f5c	prefix	21058c21ca48453d771df15500873ede	python	6bbd984910e27780e5d0ea543d83ef84	toolchain-funcs	7a31e3b5a682011c05f9316d88890d9d	user	9e552f935106ff0bc92af16da64b4b29
+_eclasses_=autotools	63332a15502113ca711ccccb3889a109	eutils	33ef77a15337022e05342d2c772a7a5a	flag-o-matic	01a8b1eb019305bc4b4a8bd0b04e4cd8	libtool	0fd90d183673bf1107465ec45849d1ea	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	portability	0be430f759a631e692678ed796e09f5c	prefix	21058c21ca48453d771df15500873ede	python	6bbd984910e27780e5d0ea543d83ef84	toolchain-funcs	7a31e3b5a682011c05f9316d88890d9d	user	9e552f935106ff0bc92af16da64b4b29
 _md5_=51bdb562a6c59db94dc2e3be16304003
