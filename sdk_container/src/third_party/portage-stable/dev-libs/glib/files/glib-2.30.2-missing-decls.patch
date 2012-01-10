@@ -1,0 +1,36 @@
+Fix from upstream for building with C++ compilers:
+https://bugzilla.gnome.org/show_bug.cgi?id=663880
+
+From 5d9f05eef147f17d71e38c9fba2e3f622c9ed21b Mon Sep 17 00:00:00 2001
+From: Matthias Clasen <mclasen@redhat.com>
+Date: Sat, 12 Nov 2011 10:26:31 -0500
+Subject: [PATCH] glib-unix.h: Add G_BEGIN/END_DECLS
+
+The omission was pointed out in bug 663880.
+---
+ glib/glib-unix.h |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletions(-)
+
+diff --git a/glib/glib-unix.h b/glib/glib-unix.h
+index 9642b5c..7be37f0 100644
+--- a/glib/glib-unix.h
++++ b/glib/glib-unix.h
+@@ -38,6 +38,8 @@
+ #error "This header may only be used on UNIX"
+ #endif
+ 
++G_BEGIN_DECLS
++
+ /**
+  * G_UNIX_ERROR:
+  *
+@@ -77,4 +79,6 @@ guint    g_unix_signal_add         (gint        signum,
+                                     GSourceFunc handler,
+                                     gpointer    user_data);
+ 
+-#endif
++G_END_DECLS
++
++#endif  /* __G_UNIX_H__ */
+-- 
+1.7.7.1
