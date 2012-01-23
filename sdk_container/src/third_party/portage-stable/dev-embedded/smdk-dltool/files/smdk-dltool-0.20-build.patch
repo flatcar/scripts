@@ -1,0 +1,18 @@
+respect env build settings
+
+--- a/releases/smdk-tools-v0.20/dltool/Makefile
++++ b/releases/smdk-tools-v0.20/dltool/Makefile
+@@ -7,8 +7,11 @@
+ 
+ .PHONY:	clean
+ 
+-dltool:	dltool.c
+-	$(CC) -O2 -Wall -g -lusb -o smdk-usbdl dltool.c
++CFLAGS ?= -O2 -g
++CFLAGS += -Wall
++LDLIBS = -lusb
++
++all: dltool
+ 
+ clean:
+ 	-rm smdk-usbdl
