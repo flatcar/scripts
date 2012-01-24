@@ -1,8 +1,8 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-libs/libXrandr/libXrandr-1.3.1.ebuild,v 1.9 2011/02/14 22:56:13 xarthisius Exp $
+# $Header: /var/cvsroot/gentoo-x86/x11-libs/libXrandr/libXrandr-1.3.2.ebuild,v 1.8 2011/10/03 18:06:25 josejx Exp $
 
-EAPI=3
+EAPI=4
 inherit xorg-2
 
 DESCRIPTION="X.Org Xrandr library"
@@ -13,7 +13,7 @@ IUSE=""
 RDEPEND="x11-libs/libX11
 	x11-libs/libXext
 	x11-libs/libXrender
-	x11-proto/randrproto
+	>=x11-proto/randrproto-1.3.0
 	x11-proto/renderproto
 	x11-proto/xextproto"
 DEPEND="${RDEPEND}"
