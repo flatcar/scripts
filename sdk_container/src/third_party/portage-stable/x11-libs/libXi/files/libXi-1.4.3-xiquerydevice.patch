@@ -1,0 +1,171 @@
+From 635c2c029b1e73311c3f650bcaf7eeb9e782134b Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Wed, 17 Aug 2011 05:20:48 +0000
+Subject: Handle unknown device classes.
+
+If the server sends an unknown device class in response to an XIQueryDevice
+call, no memory is allocated for these classes but we still write type
+and sourceid as well as setting to->classes[i]. The latter causes multiple
+classes to point to the same memory field.
+
+Move the common code of assigning these three into the respective class type
+handlers so to automatically skip any unknown classes.
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+---
+diff --git a/src/XExtInt.c b/src/XExtInt.c
+index 86a780e..9e1ad19 100644
+--- a/src/XExtInt.c
++++ b/src/XExtInt.c
+@@ -98,7 +98,7 @@ extern int _XiGetDevicePresenceNotifyEvent(
+     Display *		/* dpy */
+ );
+ 
+-int copy_classes(XIDeviceInfo *to, xXIAnyInfo* from, int nclasses);
++int copy_classes(XIDeviceInfo *to, xXIAnyInfo* from, int *nclasses);
+ int size_classes(xXIAnyInfo* from, int nclasses);
+ 
+ static XExtensionInfo *xinput_info;
+@@ -1448,30 +1448,29 @@ size_classes(xXIAnyInfo* from, int nclasses)
+  *             |______________________^
+  */
+ _X_HIDDEN int
+-copy_classes(XIDeviceInfo* to, xXIAnyInfo* from, int nclasses)
++copy_classes(XIDeviceInfo* to, xXIAnyInfo* from, int *nclasses)
+ {
+     XIAnyClassInfo *any_lib;
+     xXIAnyInfo *any_wire;
+     void *ptr_lib;
+     char *ptr_wire;
+     int i, len;
++    int cls_idx = 0;
+ 
+     if (!to->classes)
+         return -1;
+ 
+     ptr_wire = (char*)from;
+     ptr_lib = to->classes;
+-    to->classes = next_block(&ptr_lib, nclasses * sizeof(XIAnyClassInfo*));
++    to->classes = next_block(&ptr_lib, *nclasses * sizeof(XIAnyClassInfo*));
++    memset(to->classes, 0, sizeof(*nclasses * sizeof(XIAnyClassInfo*)));
+     len = 0; /* count wire length */
+ 
+-    for (i = 0; i < nclasses; i++)
++    for (i = 0; i < *nclasses; i++)
+     {
+         any_lib = (XIAnyClassInfo*)ptr_lib;
+         any_wire = (xXIAnyInfo*)ptr_wire;
+ 
+-        to->classes[i] = any_lib;
+-        any_lib->type = any_wire->type;
+-        any_lib->sourceid = any_wire->sourceid;
+         switch(any_wire->type)
+         {
+             case XIButtonClass:
+@@ -1485,6 +1484,8 @@ copy_classes(XIDeviceInfo* to, xXIAnyInfo* from, int nclasses)
+                     cls_lib = next_block(&ptr_lib, sizeof(XIButtonClassInfo));
+                     cls_wire = (xXIButtonInfo*)any_wire;
+ 
++                    cls_lib->type = cls_wire->type;
++                    cls_lib->sourceid = cls_wire->sourceid;
+                     cls_lib->num_buttons = cls_wire->num_buttons;
+                     size = ((((cls_wire->num_buttons + 7)/8) + 3)/4);
+                     cls_lib->state.mask_len = size * 4;
+@@ -1499,6 +1500,7 @@ copy_classes(XIDeviceInfo* to, xXIAnyInfo* from, int nclasses)
+                     for (j = 0; j < cls_lib->num_buttons; j++)
+                         cls_lib->labels[j] = *atoms++;
+ 
++                    to->classes[cls_idx++] = any_lib;
+                     break;
+                 }
+             case XIKeyClass:
+@@ -1509,12 +1511,15 @@ copy_classes(XIDeviceInfo* to, xXIAnyInfo* from, int nclasses)
+                     cls_lib = next_block(&ptr_lib, sizeof(XIKeyClassInfo));
+                     cls_wire = (xXIKeyInfo*)any_wire;
+ 
++                    cls_lib->type = cls_wire->type;
++                    cls_lib->sourceid = cls_wire->sourceid;
+                     cls_lib->num_keycodes = cls_wire->num_keycodes;
+                     cls_lib->keycodes = next_block(&ptr_lib,
+                             cls_lib->num_keycodes * sizeof(int));
+                     memcpy(cls_lib->keycodes, &cls_wire[1],
+                             cls_lib->num_keycodes);
+ 
++                    to->classes[cls_idx++] = any_lib;
+                     break;
+                 }
+             case XIValuatorClass:
+@@ -1525,6 +1530,8 @@ copy_classes(XIDeviceInfo* to, xXIAnyInfo* from, int nclasses)
+                     cls_lib = next_block(&ptr_lib, sizeof(XIValuatorClassInfo));
+                     cls_wire = (xXIValuatorInfo*)any_wire;
+ 
++                    cls_lib->type = cls_wire->type;
++                    cls_lib->sourceid = cls_wire->sourceid;
+                     cls_lib->number = cls_wire->number;
+                     cls_lib->label  = cls_wire->label;
+                     cls_lib->resolution = cls_wire->resolution;
+@@ -1534,12 +1541,16 @@ copy_classes(XIDeviceInfo* to, xXIAnyInfo* from, int nclasses)
+                     /* FIXME: fractional parts */
+                     cls_lib->mode       = cls_wire->mode;
+ 
++                    to->classes[cls_idx++] = any_lib;
+                 }
+                 break;
+         }
+         len += any_wire->length * 4;
+         ptr_wire += any_wire->length * 4;
+     }
++
++    /* we may have skipped unknown classes, reset nclasses */
++    *nclasses = cls_idx;
+     return len;
+ }
+ 
+@@ -1550,6 +1561,7 @@ wireToDeviceChangedEvent(xXIDeviceChangedEvent *in, XGenericEventCookie *cookie)
+     XIDeviceChangedEvent *out;
+     XIDeviceInfo info;
+     int len;
++    int nclasses = in->num_classes;
+ 
+     len = size_classes((xXIAnyInfo*)&in[1], in->num_classes);
+ 
+@@ -1564,13 +1576,13 @@ wireToDeviceChangedEvent(xXIDeviceChangedEvent *in, XGenericEventCookie *cookie)
+     out->deviceid = in->deviceid;
+     out->sourceid = in->sourceid;
+     out->reason = in->reason;
+-    out->num_classes = in->num_classes;
+ 
+     out->classes = (XIAnyClassInfo**)&out[1];
+ 
+     info.classes = out->classes;
+ 
+-    copy_classes(&info, (xXIAnyInfo*)&in[1], in->num_classes);
++    copy_classes(&info, (xXIAnyInfo*)&in[1], &nclasses);
++    out->num_classes = nclasses;
+ 
+     return 1;
+ }
+diff --git a/src/XIQueryDevice.c b/src/XIQueryDevice.c
+index 4e2f392..c22aee1 100644
+--- a/src/XIQueryDevice.c
++++ b/src/XIQueryDevice.c
+@@ -29,7 +29,7 @@
+ #include <X11/extensions/extutil.h>
+ #include "XIint.h"
+ 
+-extern int copy_classes(XIDeviceInfo* to, xXIAnyInfo* from, int nclasses);
++extern int copy_classes(XIDeviceInfo* to, xXIAnyInfo* from, int *nclasses);
+ extern int size_classes(xXIAnyInfo* from, int nclasses);
+ 
+ XIDeviceInfo*
+@@ -87,7 +87,7 @@ XIQueryDevice(Display *dpy, int deviceid, int *ndevices_return)
+         ptr += ((wire->name_len + 3)/4) * 4;
+ 
+         lib->classes = Xmalloc(size_classes((xXIAnyInfo*)ptr, lib->num_classes));
+-        ptr += copy_classes(lib, (xXIAnyInfo*)ptr, lib->num_classes);
++        ptr += copy_classes(lib, (xXIAnyInfo*)ptr, &lib->num_classes);
+     }
+ 
+     Xfree(buf);
+--
+cgit v0.9.0.2-2-gbebe
