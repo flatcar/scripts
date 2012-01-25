@@ -1,8 +1,8 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-apps/xrandr/xrandr-1.3.4.ebuild,v 1.9 2011/02/14 23:41:03 xarthisius Exp $
+# $Header: /var/cvsroot/gentoo-x86/x11-apps/xrandr/xrandr-1.3.5.ebuild,v 1.7 2011/10/03 17:58:09 josejx Exp $
 
-EAPI=3
+EAPI=4
 
 inherit xorg-2
 
@@ -18,5 +18,5 @@ DEPEND="${RDEPEND}"
 
 src_install() {
 	xorg-2_src_install
-	rm -f "${ED}"/usr/bin/xkeystone
+	rm -f "${ED}"/usr/bin/xkeystone || die
 }
