@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-libs/libdrm/libdrm-2.4.27.ebuild,v 1.2 2011/10/30 05:18:43 mattst88 Exp $
+# $Header: /var/cvsroot/gentoo-x86/x11-libs/libdrm/libdrm-2.4.30.ebuild,v 1.1 2012/01/07 20:47:41 chithanh Exp $
 
 EAPI=4
 inherit xorg-2
@@ -30,7 +30,7 @@ DEPEND="${RDEPEND}
 	>=x11-libs/libpciaccess-0.10"
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-2.4.23-solaris.patch
+	"${FILESDIR}"/${PN}-2.4.28-solaris.patch
 )
 
 pkg_setup() {

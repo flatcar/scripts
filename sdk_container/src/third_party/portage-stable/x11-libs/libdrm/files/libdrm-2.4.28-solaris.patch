@@ -76,7 +76,7 @@ Index: libdrm-2.4.23/xf86drm.c
 +#ifdef __sun
 +    map.handle = handle;
 +#else
-     map.handle = (void *)handle;
+     map.handle = (void *)(uintptr_t)handle;
 +#endif
  
      if(drmIoctl(fd, DRM_IOCTL_RM_MAP, &map))
