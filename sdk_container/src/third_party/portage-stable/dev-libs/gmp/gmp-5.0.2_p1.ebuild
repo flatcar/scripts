@@ -1,28 +1,35 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/gmp/gmp-5.0.2.ebuild,v 1.5 2011/09/04 21:01:37 maekke Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/gmp/gmp-5.0.2_p1.ebuild,v 1.10 2012/01/03 10:21:17 vapier Exp $
 
-inherit flag-o-matic eutils libtool flag-o-matic toolchain-funcs
+inherit flag-o-matic eutils libtool toolchain-funcs
 
+MY_PV=${PV/_p*}
+MY_P=${PN}-${MY_PV}
+PLEVEL=${PV/*p}
 DESCRIPTION="Library for arithmetic on arbitrary precision integers, rational numbers, and floating-point numbers"
 HOMEPAGE="http://gmplib.org/"
-SRC_URI="mirror://gnu/${PN}/${P}.tar.bz2"
-#	doc? ( http://www.nada.kth.se/~tege/${PN}-man-${PV}.pdf )"
+SRC_URI="mirror://gnu/${PN}/${MY_P}.tar.bz2
+	doc? ( http://gmplib.org/${PN}-man-${MY_PV}.pdf )"
 
 LICENSE="LGPL-3"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc x86 ~sparc-fbsd ~x86-fbsd"
-IUSE="nocxx" #doc
+KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ~ppc ~ppc64 s390 sh sparc x86 ~sparc-fbsd ~x86-fbsd"
+IUSE="doc cxx static-libs"
 
 DEPEND="sys-devel/m4"
 RDEPEND=""
 
+S=${WORKDIR}/${MY_P}
+
 src_unpack() {
-	unpack ${A}
+	unpack ${MY_P}.tar.bz2
 	cd "${S}"
 	[[ -d ${FILESDIR}/${PV} ]] && EPATCH_SUFFIX="diff" EPATCH_FORCE="yes" epatch "${FILESDIR}"/${PV}
 	epatch "${FILESDIR}"/${PN}-4.1.4-noexecstack.patch
 	epatch "${FILESDIR}"/${PN}-5.0.0-s390.diff
+	epatch "${FILESDIR}"/${MY_P}-unnormalised-dividends.patch
+	has x32 $(get_all_abis) && epatch "${FILESDIR}"/${PN}-5.0.2*x32*.patch
 
 	# disable -fPIE -pie in the tests for x86  #236054
 	if use x86 && gcc-specs-pie ; then
@@ -53,7 +60,7 @@ src_compile() {
 	case ${ABI} in
 		32|x86)       GMPABI=32;;
 		64|amd64|n64) GMPABI=64;;
-		o32|n32)      GMPABI=${ABI};;
+		[onx]32)      GMPABI=${ABI};;
 	esac
 	export GMPABI
 
@@ -61,20 +68,29 @@ src_compile() {
 	econf \
 		--localstatedir=/var/state/gmp \
 		--disable-mpbsd \
-		$(use_enable !nocxx cxx) \
-		|| die "configure failed"
+		$(use_enable cxx) \
+		$(use_enable static-libs static) \
+		|| die
 
-	emake || die "emake failed"
+	emake || die
 }
 
 src_install() {
-	emake DESTDIR="${D}" install || die "make install failed"
+	emake DESTDIR="${D}" install || die
+
+	# should be a standalone lib
+	rm -f "${D}"/usr/$(get_libdir)/libgmp.la
+	# this requires libgmp
+	local la="${D}/usr/$(get_libdir)/libgmpxx.la"
+	use static-libs \
+		&& sed -i 's:/[^ ]*/libgmp.la:-lgmp:' "${la}" \
+		|| rm -f "${la}"
 
 	dodoc AUTHORS ChangeLog NEWS README
 	dodoc doc/configuration doc/isa_abi_headache
 	dohtml -r doc
 
-	#use doc && cp "${DISTDIR}"/gmp-man-${PV}.pdf "${D}"/usr/share/doc/${PF}/
+	use doc && cp "${DISTDIR}"/gmp-man-${MY_PV}.pdf "${D}"/usr/share/doc/${PF}/
 }
 
 pkg_preinst() {
