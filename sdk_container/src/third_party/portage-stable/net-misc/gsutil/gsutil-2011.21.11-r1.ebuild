@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/gsutil/gsutil-2011.21.11.ebuild,v 1.3 2011/11/29 16:49:23 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-misc/gsutil/gsutil-2011.21.11-r1.ebuild,v 1.1 2011/12/13 19:55:27 vapier Exp $
 
 EAPI="3"
 
@@ -41,7 +41,7 @@ src_install() {
 	dobin gsutil || die
 
 	insinto /usr/$(get_libdir)/${PN}
-	doins -r gslib oauth2_plugin third_party || die
+	doins -r gslib oauth2_plugin third_party VERSION || die
 
 	dodoc README
 	if use examples ; then
