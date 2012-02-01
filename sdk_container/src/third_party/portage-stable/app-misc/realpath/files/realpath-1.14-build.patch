@@ -1,0 +1,26 @@
+diff -ur realpath-1.14.orig/common.mk realpath-1.14/common.mk
+--- realpath-1.14.orig/common.mk	2009-02-22 11:58:00.000000000 +0000
++++ realpath-1.14/common.mk	2009-04-30 16:12:29.000000000 +0000
+@@ -34,9 +34,9 @@
+ applicationsdir := $(prefix)/share/applications
+ 
+ PERL            := /usr/bin/perl
+-CC              := gcc
+-CFLAGS           = -Wall -Wextra -Wstrict-prototypes -Wmissing-prototypes -Werror -g -DVERSION='"$(VERSION)"' -DPACKAGE='"$(PACKAGE)"' -DLOCALEDIR='"$(nlsdir)"'
+-LDFLAGS         :=
++CC              ?= gcc
++CFLAGS          += -Wall -Wextra -Wstrict-prototypes -Wmissing-prototypes -DVERSION='"$(VERSION)"' -DPACKAGE='"$(PACKAGE)"' -DLOCALEDIR='"$(nlsdir)"'
++LDFLAGS         +=
+ LIBS            := 
+ 
+ ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+@@ -60,9 +60,6 @@
+   unexport CDPATH ENV
+ 
+   ifdef DESTDIR
+-    ifneq ($(DESTDIR),$(abspath $(DESTDIR)))
+-      $(error DESTDIR "$(DESTDIR)" is not an absolute path)
+-    endif
+     override ddirshort  :=  DESTDIR
+     export ddirshort
+   endif
