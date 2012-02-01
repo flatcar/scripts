@@ -1,0 +1,73 @@
+diff -Naur gnome-doc-utils-0.16.0/xml2po/Makefile.am gnome-doc-utils-0.16.0.new/xml2po/Makefile.am
+--- gnome-doc-utils-0.16.0/xml2po/Makefile.am	2008-09-22 22:06:09.000000000 +0200
++++ gnome-doc-utils-0.16.0.new/xml2po/Makefile.am	2009-03-21 14:07:56.000000000 +0100
+@@ -3,7 +3,6 @@
+ nodist_bin_SCRIPTS = xml2po
+ CLEANFILES = xml2po
+ 
+-commondir = $(datadir)/xml2po
+ 
+ pkgconfigdir = $(libdir)/pkgconfig
+ pkgconfig_DATA = xml2po.pc
+@@ -12,7 +11,7 @@
+ 
+ xml2po: xml2po.py
+ 	sed -e "s/^VERSION =.*/VERSION = \"@VERSION@\"/" \
+-	    -e "s+^submodes_path =.*+submodes_path = \"$(commondir)\"+" \
++	    -e "s+^submodes_path =.*+submodes_path = \"$(pythondir)/xml2po\"+" \
+ 	    -e "s+^#!.*python.*+#!$(PYTHON)+" \
+ 	  < $(srcdir)/xml2po.py > xml2po
+ 	chmod +x xml2po
+diff -Naur gnome-doc-utils-0.16.0/xml2po/Makefile.in gnome-doc-utils-0.16.0.new/xml2po/Makefile.in
+--- gnome-doc-utils-0.16.0/xml2po/Makefile.in	2009-03-16 18:52:17.000000000 +0100
++++ gnome-doc-utils-0.16.0.new/xml2po/Makefile.in	2009-03-21 14:07:09.000000000 +0100
+@@ -225,7 +225,6 @@
+ SUBDIRS = modes examples
+ nodist_bin_SCRIPTS = xml2po
+ CLEANFILES = xml2po
+-commondir = $(datadir)/xml2po
+ pkgconfigdir = $(libdir)/pkgconfig
+ pkgconfig_DATA = xml2po.pc
+ man_MANS = xml2po.1
+@@ -631,7 +630,7 @@
+ 
+ xml2po: xml2po.py
+ 	sed -e "s/^VERSION =.*/VERSION = \"@VERSION@\"/" \
+-	    -e "s+^submodes_path =.*+submodes_path = \"$(commondir)\"+" \
++	    -e "s+^submodes_path =.*+submodes_path = \"$(pythondir)/xml2po\"+" \
+ 	    -e "s+^#!.*python.*+#!$(PYTHON)+" \
+ 	  < $(srcdir)/xml2po.py > xml2po
+ 	chmod +x xml2po
+diff -Naur gnome-doc-utils-0.16.0/xml2po/modes/Makefile.am gnome-doc-utils-0.16.0.new/xml2po/modes/Makefile.am
+--- gnome-doc-utils-0.16.0/xml2po/modes/Makefile.am	2008-09-22 22:06:09.000000000 +0200
++++ gnome-doc-utils-0.16.0.new/xml2po/modes/Makefile.am	2009-03-21 14:04:54.000000000 +0100
+@@ -1,4 +1,4 @@
+-commondir = $(datadir)/xml2po
++commondir = $(pythondir)/xml2po
+ common_DATA = docbook.py empty.py gs.py ubuntu.py xhtml.py
+ 
+ EXTRA_DIST = $(common_DATA)
+diff -Naur gnome-doc-utils-0.16.0/xml2po/modes/Makefile.in gnome-doc-utils-0.16.0.new/xml2po/modes/Makefile.in
+--- gnome-doc-utils-0.16.0/xml2po/modes/Makefile.in	2009-03-16 18:52:17.000000000 +0100
++++ gnome-doc-utils-0.16.0.new/xml2po/modes/Makefile.in	2009-03-21 14:03:20.000000000 +0100
+@@ -205,7 +205,7 @@
+ sharedstatedir = @sharedstatedir@
+ sysconfdir = @sysconfdir@
+ target_alias = @target_alias@
+-commondir = $(datadir)/xml2po
++commondir = $(pythondir)/xml2po
+ common_DATA = docbook.py empty.py gs.py ubuntu.py xhtml.py
+ EXTRA_DIST = $(common_DATA)
+ all: all-am
+diff -Naur gnome-doc-utils-0.16.0/xml2po/xml2po.pc.in gnome-doc-utils-0.16.0.new/xml2po/xml2po.pc.in
+--- gnome-doc-utils-0.16.0/xml2po/xml2po.pc.in	2008-09-22 22:06:09.000000000 +0200
++++ gnome-doc-utils-0.16.0.new/xml2po/xml2po.pc.in	2009-03-21 14:04:24.000000000 +0100
+@@ -1,7 +1,7 @@
+ prefix=@prefix@
+ exec_prefix=${prefix}
+ datarootdir=@datarootdir@
+-modesdir=@datadir@/xml2po
++modesdir=@pythondir@/xml2po
+ 
+ Name: xml2po
+ Description: Tool for translating XML documents
