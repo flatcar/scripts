@@ -1,0 +1,153 @@
+diff -Naru esearch-0.7.1/esearch.py esearch-0.7.1-tmp/esearch.py
+--- esearch-0.7.1/esearch.py	2006-05-16 19:12:07.795314560 +0200
++++ esearch-0.7.1-tmp/esearch.py	2006-05-18 23:08:28.363580608 +0200
+@@ -64,16 +64,16 @@
+     if fatal:
+         sys.exit(1)
+ 
+-def searchEbuilds(path, portdir = True, searchdef = ""):
+-    global ebuilds, output, defebuild
++def searchEbuilds(path, portdir = True, searchdef = "", repo_num = ""):
++    global ebuilds, output, defebuild, found_in_overlay
+     pv = ""
+     pkgs = []
+     nr = len(ebuilds) + 1
+ 
+     if portdir:
+-        rep = darkgreen("Portage")
++        rep = darkgreen("Portage    ")
+     else:
+-        rep = red("Overlay")
++        rep = red("Overlay "+str(repo_num)+"  ")
+ 
+     if isdir(path):
+         list = listdir(path)
+@@ -82,18 +82,20 @@
+             if file[-7:] == ".ebuild":
+                 pv = file[:-7]
+                 pkgs.append(pkgsplit(pv))
+-                pkgs[-1].append(path + "/" + file)
++                pkgs[-1].append(path + file)
+                 if searchdef != "" and pv == searchdef:
+                     defebuild = (searchdef, pkgs[-1][3])
++		if not portdir:
++		    found_in_overlay = True
+         pkgs.sort(pkgcmp)
+         for pkg in pkgs:
+             rev = ""
+             if pkg[2] != "r0":
+                 rev = "-" + pkg[2]
+             output.append(" " + rep + " [" + bold(str(nr)) + "] " + pkg[0] + "-" + pkg[1] + rev + "\n")
+-            ebuilds.append(pkg[3])
++            ebuilds.append(pkg[len(pkg)-1])
+             nr += 1
+-
++ 
+ NORMAL =  1
+ COMPACT = 2
+ VERBOSE = 3
+@@ -105,6 +107,7 @@
+ fullname =   False
+ pattern =    False
+ instonly =   False
++found_in_overlay = False
+ 
+ try:
+     opts = getopt(sys.argv[1:], "hSFIcveo:d:n", ["help", "searchdesc", "fullname", "instonly", "compact", "verbose", "ebuild", "own=", "directory=", "nocolor"])
+@@ -128,7 +131,7 @@
+         from output import blue
+         from common import version
+         outputm = VERBOSE
+-    elif arg in ("-e", "--ebuilds"):
++    elif arg in ("-e", "--ebuild"):
+         from os import listdir, getenv, system
+         from os.path import isdir
+         from portage import settings, pkgcmp, pkgsplit
+@@ -313,12 +316,14 @@
+                 else:
+                     searchdef = ""
+ 
+-                searchEbuilds("%s/%s/" % (portdir, pkg[1]), True, searchdef)
++                searchEbuilds("%s/%s/" % (portdir, pkg[1]), True, searchdef, "")
+                 if overlay:
+-                    searchEbuilds("%s/%s/" % (overlay, pkg[1]), False, searchdef)
++                    repo_num=1
++                    for repo in overlay.split():
++                        searchEbuilds("%s/%s/" % ( repo, pkg[1]), False, searchdef,repo_num)
++                        repo_num += 1
+ 
+                 output.append("\n")
+-
+             count += 1
+ 
+     regexlist[i][2] = "".join(output)
+@@ -338,34 +343,42 @@
+     if outputm == NORMAL:
+         print ""
+ 
+-if outputm == EBUILDS and count != 0:
+-    if count > 1:
+-        defebuild = (0, 0)
+ 
+-    if len(ebuilds) == 1:
+-        nr = 1
+-    else:
+-        if defebuild[0] != 0:
+-            print bold("Show Ebuild"), " (" + darkgreen(defebuild[0]) + "): ",
++if outputm == EBUILDS:
++    if overlay and found_in_overlay:
++        repo_num=1
++        for repo in overlay.split():
++            print red("Overlay "+str(repo_num)+" : "+repo)
++            repo_num += 1
++    
++    if count != 0:
++        if count > 1:
++            defebuild = (0, 0)
++
++        if len(ebuilds) == 1:
++            nr = 1
+         else:
+-            print bold("Show Ebuild: "),
++            if defebuild[0] != 0:
++                print bold("\nShow Ebuild"), " (" + darkgreen(defebuild[0]) + "): ",
++            else:
++                print bold("\nShow Ebuild: "),
++            try:
++                nr = sys.stdin.readline()
++            except KeyboardInterrupt:
++                sys.exit(1)
+         try:
+-            nr = sys.stdin.readline()
+-        except KeyboardInterrupt:
+-            sys.exit(1)
+-    try:
+-        editor = getenv("EDITOR")
+-        if editor:
+-            system(editor + " " + ebuilds[int(nr) - 1])
+-        else:
+-            print ""
+-            error("Please set EDITOR", False)
+-    except IndexError:
+-        print ""
+-        error("No such ebuild", False)
+-    except ValueError:
+-        if defebuild[0] != 0:
+-            system(editor + " " + defebuild[1])
+-        else:
++            editor = getenv("EDITOR")
++            if editor:
++                system(editor + " " + ebuilds[int(nr) - 1])
++            else:
++                print ""
++                error("Please set EDITOR", False)
++        except IndexError:
+             print ""
+-            error("Please enter a valid number", False)
++            error("No such ebuild", False)
++        except ValueError:
++            if defebuild[0] != 0:
++                system(editor + " " + defebuild[1])
++            else:
++                print ""
++                error("Please enter a valid number", False)
