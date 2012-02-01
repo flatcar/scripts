@@ -1,35 +1,21 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/automake/automake-1.11.1.ebuild,v 1.2 2010/02/21 22:10:07 fauli Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/automake/automake-1.10.3.ebuild,v 1.6 2010/03/09 22:35:46 josejx Exp $
 
-inherit eutils versionator
-
-if [[ ${PV/_beta} == ${PV} ]]; then
-	MY_P=${P}
-	SRC_URI="mirror://gnu/${PN}/${P}.tar.bz2"
-else
-	MY_PV="$(get_major_version).$(($(get_version_component_range 2)-1))b"
-	MY_P="${PN}-${MY_PV}"
-
-	# Alpha/beta releases are not distributed on the usual mirrors.
-	SRC_URI="ftp://alpha.gnu.org/pub/gnu/${PN}/${MY_P}.tar.bz2"
-fi
-
-S="${WORKDIR}/${MY_P}"
-
-# Use Gentoo versioning for slotting.
-SLOT="${PV:0:4}"
+inherit eutils
 
 DESCRIPTION="Used to generate Makefile.in from Makefile.am"
 HOMEPAGE="http://sources.redhat.com/automake/"
+SRC_URI="mirror://gnu/${PN}/${P}.tar.bz2"
 
 LICENSE="GPL-2"
+SLOT="${PV:0:4}"
 KEYWORDS="alpha amd64 arm hppa ia64 m68k mips ppc ppc64 s390 sh sparc x86 ~sparc-fbsd ~x86-fbsd"
 IUSE=""
 
 RDEPEND="dev-lang/perl
-	>=sys-devel/automake-wrapper-3-r2
-	>=sys-devel/autoconf-2.62
+	>=sys-devel/automake-wrapper-2
+	>=sys-devel/autoconf-2.60
 	>=sys-apps/texinfo-4.7
 	sys-devel/gnuconfig"
 DEPEND="${RDEPEND}
@@ -51,28 +37,24 @@ src_unpack() {
 }
 
 src_compile() {
-	econf --docdir=/usr/share/doc/${PF} HELP2MAN=true || die
-	emake \
-		APIVERSION="${SLOT}" pkgvdatadir="/usr/share/${PN}-${SLOT}" || die
-
-	local x
-	for x in aclocal automake; do
-		help2man "perl -Ilib ${x}" > doc/${x}-${SLOT}.1
-	done
+	econf --docdir=/usr/share/doc/${PF} || die
+	emake || die
 }
 
 src_install() {
-	emake DESTDIR="${D}" install \
-		APIVERSION="${SLOT}" pkgvdatadir="/usr/share/${PN}-${SLOT}" || die
+	emake DESTDIR="${D}" install || die
 	dodoc NEWS README THANKS TODO AUTHORS ChangeLog
 
-	rm \
-		"${D}"/usr/bin/{aclocal,automake} \
-		"${D}"/usr/share/man/man1/{aclocal,automake}.1
+	# SLOT the docs and junk
+	local x
+	for x in aclocal automake ; do
+		help2man "perl -Ilib ${x}" > ${x}-${SLOT}.1
+		doman ${x}-${SLOT}.1
+		rm -f "${D}"/usr/bin/${x}
+	done
 
 	# remove all config.guess and config.sub files replacing them
 	# w/a symlink to a specific gnuconfig version
-	local x
 	for x in guess sub ; do
 		dosym ../gnuconfig/config.${x} /usr/share/${PN}-${SLOT}/config.${x}
 	done

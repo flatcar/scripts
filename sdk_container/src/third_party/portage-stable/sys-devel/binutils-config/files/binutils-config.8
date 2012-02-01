@@ -1,0 +1,82 @@
+.TH "BINUTILS-CONFIG" "8" "Jan 2005" "Gentoo" "Gentoo"
+.SH "NAME"
+binutils-config \- manage active versions of the binutils programs
+.SH "DESCRIPTION"
+The \fBbinutils-config\fR script allows you to switch between different 
+versions of binutils when you have installed multiple copies via portage.  
+It also allows you to manage multiple cross-compiling targets.
+
+Remember, you may have one version of binutils active per \fBCTARGET\fR.
+.SH "SYNOPSIS"
+\fBbinutils-config\fR \fI--get-current-profile\fR \fI[TARGET]\fR
+
+\fBbinutils-config\fR \fI--list-profiles\fR
+
+\fBbinutils-config\fR \fI--uninstall\fR \fI<TARGET>\fR
+.SH "GENERIC OPTIONS"
+.TP
+\fBTARGET\fR
+Change the system to use the specified binutils version.  This may take the
+form of the list index number (the number shown in the
+\fI\-\-list\-profiles\fR output), a full \fBCTARGET-VERSION\fR (useful when
+working with cross-compilers), or just a binutils \fBVERSION\fR where the
+\fBCTARGET\fR is assumed to be the native \fBCHOST\fR value.
+.TP
+\fB\-c\fR, \fB\-\-get\-current\-profile\fR \fI[TARGET]\fR
+Display the active profile for \fITARGET\fR.  If none is specified, the 
+host system's \fITARGET\fR will be shown.
+.TP
+\fB\-l\fR, \fB\-\-list\-profiles\fR
+Show all the profiles that your system currently has installed and what
+versions are active.  The active native version is noted with a bright green
+asterisk while the active cross-compiler versions are noted with a light blue
+asterisk.
+.TP
+\fB-u\fR, \fB\-\-uninstall\fR <\fBTARGET\fR>
+This is really for internal use only.  Used to remove all traces of the 
+\fBTARGET\fR binutils from your system.
+.SH "SPECIFIC OPTIONS"
+.TP
+\fB\-\-amd64\fR
+A nice feature of the amd64/x86 toolchain is that each can produce code for 
+other.  The typical user could care less, but some may want to be able to 
+cross-compile for an amd64 on a x86 system.  This will install the extra 
+symlinks ('x86_64') to facilitate this process.
+.TP
+\fB\-\-arm\fR
+The arm architecture comes in both big and little endian versions.  Typically 
+you only need support for the native target, but sometimes it's helpful to 
+have links for the other endian target.  This will make sure you have both the 
+big endian target ('armeb') and the little endian target ('arm').
+.TP
+\fB\-\-mips\fR
+The mips architecture (like arm) comes in both big and little endian versions.  
+Typically you only need support for the native target, but sometimes it's 
+helpful to have links for the other endian target.  This will make sure you 
+have both the big endian target ('mips') and the little endian target 
+('mipsel').
+.TP
+\fB\-\-x86\fR
+One oddity of the x86 toolchain is that they may be named 'i386', or 'i486', 
+or 'i586', or 'i686', yet still produce the same exact code.  When dealing 
+with distcc systems that are mixed (some i586 and some i686), you will need 
+symlinks for all these targets.  This option will install those extra targets.
+.SH "REPORTING BUGS"
+Please report bugs via http://bugs.gentoo.org/
+.SH "SEE ALSO"
+.BR ar (1),
+.BR as (1),
+.BR ld (1),
+.BR nm (1),
+.BR objcopy (1),
+.BR ranlib (1),
+.BR readelf (1),
+.BR strings (1),
+.BR strip (1)
+.SH "FILES"
+.nf
+.BR /usr/bin/binutils-config
+.BR /etc/env.d/binutils/*
+.fi
+.SH "AUTHORS"
+Mike Frysinger <vapier@gentoo.org>
