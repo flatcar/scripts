@@ -7,5 +7,5 @@ LICENSE=GPL-2
 RDEPEND=>=app-admin/eselect-1.0.6
 SLOT=0
 SRC_URI=mirror://gentoo/vi.eselect-1.1.7.bz2
-_eclasses_=eutils	33ef77a15337022e05342d2c772a7a5a	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	7a31e3b5a682011c05f9316d88890d9d	user	9e552f935106ff0bc92af16da64b4b29
+_eclasses_=eutils	33ef77a15337022e05342d2c772a7a5a	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	6177ab16afca7327c797de1df341169d	user	9e552f935106ff0bc92af16da64b4b29
 _md5_=a7b002e5c7aca686ce80c6ae0c276c95

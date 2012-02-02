@@ -6,5 +6,5 @@ KEYWORDS=amd64 arm x86
 LICENSE=GPL-2
 SLOT=0
 SRC_URI=ftp://ftp.denx.de/pub/u-boot/u-boot-2011.06.tar.bz2
-_eclasses_=multilib	5f4ad6cf85e365e8f0c6050ddd21659e	toolchain-funcs	7a31e3b5a682011c05f9316d88890d9d
+_eclasses_=multilib	5f4ad6cf85e365e8f0c6050ddd21659e	toolchain-funcs	6177ab16afca7327c797de1df341169d
 _md5_=9e7757d2809666cc8a9df3fd802ffa00
