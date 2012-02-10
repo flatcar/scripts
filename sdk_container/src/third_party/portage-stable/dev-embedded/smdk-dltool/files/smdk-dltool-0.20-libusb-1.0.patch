@@ -107,7 +107,7 @@ migrate to libusb-1 by me (Mike Frysinger)
  		.name		= NULL
  	}
  };
-@@ -181,12 +198,14 @@ int flg_show = 0;
+@@ -181,12 +204,14 @@ int flg_show = 0;
  
  int main(int argc, char **argv)
  {
@@ -127,7 +127,7 @@ migrate to libusb-1 by me (Mike Frysinger)
  
  	printf("SMDK42XX,S3C64XX USB Download Tool\n");
  	printf("Version 0.20 (c) 2004,2005,2006"
-@@ -197,7 +216,7 @@ int main(int argc, char **argv)
+@@ -197,7 +222,7 @@ int main(int argc, char **argv)
  		int index = 0;
  		int c;
  
@@ -136,7 +136,7 @@ migrate to libusb-1 by me (Mike Frysinger)
  
  		DBG(("option index %d\n",c ));
  
-@@ -218,117 +237,116 @@ int main(int argc, char **argv)
+@@ -218,117 +243,125 @@ int main(int argc, char **argv)
  			break;
  
  		case 'b':
@@ -277,12 +277,21 @@ migrate to libusb-1 by me (Mike Frysinger)
 -	}
 +	ret = libusb_open(found, &devh);
 +	if (ret == 0) {
++		/*
++		 * Seems to break some recovery modes :(
++		 * http://crosbug.com/26083
++		 * These fail:
++		 * smdk-dltool -a 0x02021400 -f bl1.bin
++		 * smdk-dltool -a 0x02023400 -f bl2.bin
++		 */
++#if 0
 +		uint8_t configuration;
 +		struct libusb_config_descriptor *config;
 +		libusb_get_active_config_descriptor(found, &config);
 +		configuration = config->bConfigurationValue;
 +		libusb_free_config_descriptor(config);
 +		libusb_set_configuration(devh, configuration);
++#endif
 +	} else
 +		errp("libusb_open");
  
