@@ -1,0 +1,62 @@
+quota was meant to be turned off in the 1.42 release as it's half
+baked, but the commit to disable didn't really work either.
+
+--- a/lib/quota/Makefile.in
++++ b/lib/quota/Makefile.in
+@@ -76,7 +76,8 @@
+ 		$(DESTDIR)$(includedir)/quota $(DESTDIR)$(man3dir) \
+ 		$(DESTDIR)$(libdir)/pkgconfig
+ 
+-install:: all installdirs
++install::
++disabled:: all installdirs
+ 	$(E) "	INSTALL_DATA $(libdir)/libquota.a"
+ 	$(Q) $(INSTALL_DATA) libquota.a $(DESTDIR)$(libdir)/libquota.a
+ 	-$(Q) $(RANLIB) $(DESTDIR)$(libdir)/libquota.a
+--- a/configure
++++ b/configure
+@@ -5224,11 +5224,11 @@
+ 
+ fi
+ 
+-LIBQUOTA='$(LIB)/libquota'$LIB_EXT
++LIBQUOTA=
+ DEPLIBQUOTA=$LIBQUOTA
+-STATIC_LIBQUOTA='$(LIB)/libquota'$STATIC_LIB_EXT
++STATIC_LIBQUOTA=
+ DEPSTATIC_LIBQUOTA=$STATIC_LIBQUOTA
+-PROFILED_LIBQUOTA='$(LIB)/libquota'$PROFILED_LIB_EXT
++PROFILED_LIBQUOTA=
+ DEPPROFILED_LIBQUOTA=$PROFILED_LIBQUOTA
+ 
+ 
+--- a/lib/quota/mkquota.h
++++ b/lib/quota/mkquota.h
+@@ -60,4 +60,17 @@
+ int quota_file_exists(ext2_filsys fs, int qtype, int fmt);
+ void quota_set_sb_inum(ext2_filsys fs, ext2_ino_t ino, int qtype);
+ 
++#define quota_init_context(a, ...)
++#define quota_data_inodes(a, ...)
++#define quota_data_add(a, ...)
++#define quota_data_sub(a, ...)
++#define quota_write_inode(a, ...)
++#define quota_update_inode(a, ...) 0
++#define quota_compute_usage(a, ...)
++#define quota_release_context(a, ...)
++#define quota_remove_inode(a, ...)
++#define quota_is_on(a, ...)
++#define quota_file_exists(a, ...) -1
++#define quota_set_sb_inum(a, ...)
++
+ #endif  /* __QUOTA_QUOTAIO_H__ */
+--- a/lib/quota/quotaio.h
++++ b/lib/quota/quotaio.h
+@@ -167,4 +167,7 @@
+ const char *quota_get_qf_path(const char *mntpt, int qtype, int fmt,
+ 			      char *path_buf, size_t path_buf_size);
+ 
++#define quota_get_qf_name(a, ...)
++#define quota_get_qf_path(a, ...)
++
+ #endif /* GUARD_QUOTAIO_H */

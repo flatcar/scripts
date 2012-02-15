@@ -1,6 +1,11 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/e2fsprogs/e2fsprogs-1.41.14.ebuild,v 1.4 2011/08/29 06:13:48 jer Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/e2fsprogs/e2fsprogs-1.42.ebuild,v 1.1 2011/12/07 16:51:08 vapier Exp $
+
+case ${PV} in
+*_pre*) UP_PV="${PV%_pre*}-WIP-${PV#*_pre}" ;;
+*)      UP_PV=${PV} ;;
+esac
 
 EAPI="3"
 
@@ -8,12 +13,12 @@ inherit eutils flag-o-matic multilib toolchain-funcs
 
 DESCRIPTION="Standard EXT2/EXT3/EXT4 filesystem utilities"
 HOMEPAGE="http://e2fsprogs.sourceforge.net/"
-SRC_URI="mirror://sourceforge/e2fsprogs/${P}.tar.gz"
+SRC_URI="mirror://sourceforge/e2fsprogs/${PN}-${UP_PV}.tar.gz"
 
 LICENSE="GPL-2 BSD"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc x86 -x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos ~m68k-mint"
-IUSE="nls elibc_FreeBSD"
+KEYWORDS="~alpha amd64 arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc x86 -x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos ~m68k-mint"
+IUSE="nls static-libs elibc_FreeBSD"
 
 RDEPEND="~sys-libs/${PN}-libs-${PV}
 	>=sys-apps/util-linux-2.16
@@ -22,6 +27,8 @@ DEPEND="${RDEPEND}
 	nls? ( sys-devel/gettext )
 	dev-util/pkgconfig
 	sys-apps/texinfo"
+
+S=${WORKDIR}/${P%_pre*}
 
 pkg_setup() {
 	if [[ ! -e ${EROOT}/etc/mtab ]] ; then
@@ -36,6 +43,7 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-1.41.8-makefile.patch
 	epatch "${FILESDIR}"/${PN}-1.41.12-getpagesize.patch
 	epatch "${FILESDIR}"/${PN}-1.40-fbsd.patch
+	epatch "${FILESDIR}"/${PN}-1.42-no-quota.patch
 	# use symlinks rather than hardlinks
 	sed -i \
 		-e 's:$(LN) -f $(DESTDIR).*/:$(LN_S) -f :' \
@@ -55,9 +63,6 @@ src_prepare() {
 	sed -i -r \
 		-e '/^LIB_SUBDIRS/s:lib/(et|ss)::g' \
 		Makefile.in || die "remove subdirs"
-	sed -i \
-		-e '/^#define _XOPEN/i#define _GNU_SOURCE' \
-		misc/mke2fs.c || die # needs open64() prototype
 
 	# Avoid rebuild
 	touch lib/ss/ss_err.h
@@ -77,6 +82,7 @@ src_configure() {
 	esac
 
 	ac_cv_path_LDCONFIG=: \
+	QUOTA_CMT='#' \
 	econf \
 		--with-root-prefix="${EPREFIX}/" \
 		${libtype} \
@@ -85,6 +91,7 @@ src_configure() {
 		$(use_enable nls) \
 		--disable-libblkid \
 		--disable-libuuid \
+		--disable-quota \
 		--disable-fsck \
 		--disable-uuidd
 	if [[ ${CHOST} != *-uclibc ]] && grep -qs 'USE_INCLUDED_LIBINTL.*yes' config.{log,status} ; then
@@ -128,9 +135,9 @@ src_install() {
 
 	# Move shared libraries to /lib/, install static libraries to
 	# /usr/lib/, and install linker scripts to /usr/lib/.
-	set -- "${ED}"/usr/$(get_libdir)/*.a
-	set -- ${@/*\/lib}
-	gen_usr_ldscript -a "${@/.a}"
+	gen_usr_ldscript -a e2p ext2fs
+	# configure doesn't have an option to disable static libs :/
+	find "${D}" -name '*.a' -delete
 
 	if use elibc_FreeBSD ; then
 		# Install helpers for us
