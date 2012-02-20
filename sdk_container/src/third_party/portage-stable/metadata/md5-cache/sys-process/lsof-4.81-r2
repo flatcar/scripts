@@ -1,0 +1,12 @@
+DEFINED_PHASES=compile install unpack
+DEPEND=selinux? ( sys-libs/libselinux ) >=sys-apps/sed-4
+DESCRIPTION=Lists open files for running Unix processes
+HOMEPAGE=ftp://lsof.itap.purdue.edu/pub/tools/unix/lsof/
+IUSE=static selinux
+KEYWORDS=alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~x86-fbsd
+LICENSE=lsof
+RDEPEND=selinux? ( sys-libs/libselinux )
+SLOT=0
+SRC_URI=ftp://lsof.itap.purdue.edu/pub/tools/unix/lsof/lsof_4.81.tar.bz2 ftp://vic.cc.purdue.edu/pub/tools/unix/lsof/lsof_4.81.tar.bz2 ftp://ftp.cerias.purdue.edu/pub/tools/unix/sysutils/lsof/lsof_4.81.tar.bz2
+_eclasses_=eutils	33ef77a15337022e05342d2c772a7a5a	fixheadtails	059c47dd86229aa6382393274677acfe	flag-o-matic	01a8b1eb019305bc4b4a8bd0b04e4cd8	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	6526ac6fc9aedf391efb91fcd75ace68	user	9e552f935106ff0bc92af16da64b4b29
+_md5_=065aee59f3afe31b9359b24b0b753aaa

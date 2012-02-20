@@ -1,0 +1,15 @@
+DEFINED_PHASES=configure install
+DEPEND=kerberos? ( virtual/krb5 ) dbi? ( dev-db/libdbi ) gnutls? ( net-libs/gnutls ) mysql? ( virtual/mysql ) postgres? ( virtual/postgresql-base ) relp? ( >=dev-libs/librelp-0.1.1 ) snmp? ( net-analyzer/net-snmp ) zlib? ( sys-libs/zlib )
+DESCRIPTION=An enhanced multi-threaded syslogd with database support and more.
+EAPI=2
+HOMEPAGE=http://www.rsyslog.com/
+IUSE=debug kerberos dbi gnutls mysql postgres relp snmp zlib
+KEYWORDS=~amd64 ~arm ~hppa ~sparc ~x86
+LICENSE=GPL-3 LGPL-3
+PROVIDE=virtual/logger
+RDEPEND=kerberos? ( virtual/krb5 ) dbi? ( dev-db/libdbi ) gnutls? ( net-libs/gnutls ) mysql? ( virtual/mysql ) postgres? ( virtual/postgresql-base ) relp? ( >=dev-libs/librelp-0.1.1 ) snmp? ( net-analyzer/net-snmp ) zlib? ( sys-libs/zlib )
+RESTRICT=test
+SLOT=0
+SRC_URI=http://download.rsyslog.com/rsyslog/rsyslog-3.22.1.tar.gz
+_eclasses_=eutils	33ef77a15337022e05342d2c772a7a5a	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	6526ac6fc9aedf391efb91fcd75ace68	user	9e552f935106ff0bc92af16da64b4b29	versionator	865bc8b2fc9fcfb6d520bdf5a110f5ed
+_md5_=6f1f6d0204325399230da12d411ef033

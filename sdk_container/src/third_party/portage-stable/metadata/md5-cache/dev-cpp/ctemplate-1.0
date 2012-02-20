@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install postinst postrm setup
+DEPEND=test? ( =dev-lang/python-2* ) >=app-admin/eselect-python-20091230
+DESCRIPTION=A simple but powerful template language for C++
+EAPI=4
+HOMEPAGE=http://code.google.com/p/google-ctemplate/
+IUSE=doc emacs vim-syntax static-libs test
+KEYWORDS=amd64 arm ~ppc x86 ~amd64-linux ~x86-linux
+LICENSE=BSD
+RDEPEND=vim-syntax? ( >=app-editors/vim-core-7 ) emacs? ( virtual/emacs ) >=app-admin/eselect-python-20091230
+SLOT=0
+SRC_URI=http://google-ctemplate.googlecode.com/files/ctemplate-1.0.tar.gz
+_eclasses_=elisp-common	3322f14f031ddc95feccd9089c9adc59	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	python	6bbd984910e27780e5d0ea543d83ef84	toolchain-funcs	6526ac6fc9aedf391efb91fcd75ace68
+_md5_=7599b53ec27939949c4268550a0c9660

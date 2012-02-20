@@ -1,0 +1,15 @@
+DEFINED_PHASES=compile install postinst postrm setup test unpack
+DEPEND=berkdb? ( sys-libs/db ) gdbm? ( sys-libs/gdbm ) ssl? ( dev-libs/openssl ) socks5? ( >=net-proxy/dante-1.1.13 ) tk? ( dev-lang/tk ) >=app-admin/eselect-ruby-20091225 !=dev-lang/ruby-cvs-1.8* !<dev-ruby/rdoc-2 !dev-ruby/rexml || ( =sys-devel/automake-1.11* ) >=sys-devel/autoconf-2.61 sys-devel/libtool
+DESCRIPTION=An object-oriented scripting language
+EAPI=1
+HOMEPAGE=http://www.ruby-lang.org/
+IUSE=+berkdb debug doc emacs examples +gdbm ipv6 rubytests socks5 ssl threads tk xemacs
+KEYWORDS=alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~sparc-fbsd ~x86-fbsd
+LICENSE=|| ( Ruby GPL-2 )
+PDEPEND=emacs? ( app-emacs/ruby-mode ) xemacs? ( app-xemacs/ruby-modes )
+PROVIDE=virtual/ruby
+RDEPEND=berkdb? ( sys-libs/db ) gdbm? ( sys-libs/gdbm ) ssl? ( dev-libs/openssl ) socks5? ( >=net-proxy/dante-1.1.13 ) tk? ( dev-lang/tk ) >=app-admin/eselect-ruby-20091225 !=dev-lang/ruby-cvs-1.8* !<dev-ruby/rdoc-2 !dev-ruby/rexml
+SLOT=1.8
+SRC_URI=mirror://ruby/1.8/ruby-1.8.7-p249.tar.bz2 http://dev.a3li.li/gentoo/distfiles/ruby-patches-1.8.7_p249.tar.bz2
+_eclasses_=autotools	63332a15502113ca711ccccb3889a109	eutils	33ef77a15337022e05342d2c772a7a5a	flag-o-matic	01a8b1eb019305bc4b4a8bd0b04e4cd8	libtool	0fd90d183673bf1107465ec45849d1ea	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	6526ac6fc9aedf391efb91fcd75ace68	user	9e552f935106ff0bc92af16da64b4b29	versionator	865bc8b2fc9fcfb6d520bdf5a110f5ed
+_md5_=111197b04a40032231d9ff0d6eac8ae5

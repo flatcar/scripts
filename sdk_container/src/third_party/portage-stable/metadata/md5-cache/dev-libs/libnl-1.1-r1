@@ -1,0 +1,9 @@
+DEFINED_PHASES=install unpack
+DESCRIPTION=A library for applications dealing with netlink socket
+HOMEPAGE=http://people.suug.ch/~tgr/libnl/
+KEYWORDS=amd64 arm hppa ~ia64 ppc ppc64 ~sh ~sparc x86
+LICENSE=LGPL-2.1
+SLOT=0
+SRC_URI=http://people.suug.ch/~tgr/libnl/files/libnl-1.1.tar.gz
+_eclasses_=eutils	33ef77a15337022e05342d2c772a7a5a	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	6526ac6fc9aedf391efb91fcd75ace68	user	9e552f935106ff0bc92af16da64b4b29
+_md5_=4e1ba9b7324b53c32ad36bc51d46e17f

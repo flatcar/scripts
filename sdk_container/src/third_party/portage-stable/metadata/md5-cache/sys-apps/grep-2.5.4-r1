@@ -1,0 +1,13 @@
+DEFINED_PHASES=configure install prepare
+DEPEND=nls? ( virtual/libintl ) pcre? ( >=dev-libs/libpcre-7.8-r1 ) nls? ( sys-devel/gettext )
+DESCRIPTION=GNU regular expression matcher
+EAPI=2
+HOMEPAGE=http://www.gnu.org/software/grep/
+IUSE=nls pcre
+KEYWORDS=alpha amd64 ~amd64-fbsd arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc ~sparc-fbsd x86 ~x86-fbsd
+LICENSE=GPL-3
+RDEPEND=nls? ( virtual/libintl ) pcre? ( >=dev-libs/libpcre-7.8-r1 )
+SLOT=0
+SRC_URI=mirror://gnu/grep/grep-2.5.4.tar.bz2 mirror://gentoo/grep-2.5.4.tar.bz2
+_eclasses_=eutils	33ef77a15337022e05342d2c772a7a5a	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	6526ac6fc9aedf391efb91fcd75ace68	user	9e552f935106ff0bc92af16da64b4b29
+_md5_=6b900694e2d8b114b32d72e456e436f9

@@ -9,5 +9,5 @@ LICENSE=MIT
 RDEPEND=x11-libs/libX11 >=x11-libs/libXext-1.0.99.4 x11-libs/libXi x11-proto/inputproto >=x11-proto/recordproto-1.13.99.1 >=x11-proto/xextproto-7.0.99.3
 SLOT=0
 SRC_URI=http://xorg.freedesktop.org/releases/individual/lib/libXtst-1.2.0.tar.bz2
-_eclasses_=autotools	63332a15502113ca711ccccb3889a109	autotools-utils	966fed1f979132a778b0b48c74a16adb	base	fc89786f3f7e7bcf03334359bd5b639b	eutils	33ef77a15337022e05342d2c772a7a5a	flag-o-matic	01a8b1eb019305bc4b4a8bd0b04e4cd8	libtool	0fd90d183673bf1107465ec45849d1ea	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	6177ab16afca7327c797de1df341169d	user	9e552f935106ff0bc92af16da64b4b29	xorg-2	b83efc910bb3ac2c64f89e2623f181f5
+_eclasses_=autotools	63332a15502113ca711ccccb3889a109	autotools-utils	966fed1f979132a778b0b48c74a16adb	base	fc89786f3f7e7bcf03334359bd5b639b	eutils	33ef77a15337022e05342d2c772a7a5a	flag-o-matic	01a8b1eb019305bc4b4a8bd0b04e4cd8	libtool	0fd90d183673bf1107465ec45849d1ea	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	6526ac6fc9aedf391efb91fcd75ace68	user	9e552f935106ff0bc92af16da64b4b29	xorg-2	b83efc910bb3ac2c64f89e2623f181f5
 _md5_=a600198db5ffc168fe971448945e6d98

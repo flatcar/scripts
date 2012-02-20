@@ -1,0 +1,11 @@
+DEFINED_PHASES=compile install postinst postrm prerm unpack
+DEPEND=>=app-arch/unzip-5.41 >=app-text/sgml-common-0.6.3-r2
+DESCRIPTION=Docbook SGML DTD 4.2
+HOMEPAGE=http://www.docbook.org/sgml/
+KEYWORDS=alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~x86-fbsd ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos ~sparc-solaris ~x64-solaris
+LICENSE=as-is
+RDEPEND=app-text/sgml-common
+SLOT=4.2
+SRC_URI=http://www.oasis-open.org/docbook/sgml/4.2/docbook-4.2.zip
+_eclasses_=base	fc89786f3f7e7bcf03334359bd5b639b	eutils	33ef77a15337022e05342d2c772a7a5a	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	portability	0be430f759a631e692678ed796e09f5c	sgml-catalog	a4d9b97f60f3331317a2d4279eecbe7d	toolchain-funcs	6526ac6fc9aedf391efb91fcd75ace68	user	9e552f935106ff0bc92af16da64b4b29
+_md5_=8b7051a2d839f7ec3d1cd7fb0f657218

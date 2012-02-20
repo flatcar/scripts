@@ -1,0 +1,11 @@
+DEFINED_PHASES=install postinst postrm setup
+DEPEND=X? ( x11-apps/mkfontdir media-fonts/encodings ) >=media-libs/fontconfig-2.4.0
+DESCRIPTION=SIL Opentype Unicode fonts for Ethiopic languages
+HOMEPAGE=http://scripts.sil.org/AbyssinicaSIL
+IUSE=doc X
+KEYWORDS=alpha amd64 arm hppa ia64 ppc ppc64 s390 sh sparc x86 ~x86-fbsd
+LICENSE=OFL
+SLOT=0
+SRC_URI=mirror://gentoo/ttf-sil-abyssinica-1.0.tgz
+_eclasses_=eutils	33ef77a15337022e05342d2c772a7a5a	font	bc3df4ed373e09f86a90e8fad39034d6	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	6526ac6fc9aedf391efb91fcd75ace68	user	9e552f935106ff0bc92af16da64b4b29
+_md5_=639c7975a37964c0c206f7b9be2cb923

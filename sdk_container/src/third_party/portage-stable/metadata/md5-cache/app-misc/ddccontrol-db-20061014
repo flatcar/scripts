@@ -1,0 +1,11 @@
+DEFINED_PHASES=compile install
+DEPEND=nls? ( sys-devel/gettext ) dev-util/intltool dev-perl/XML-Parser
+DESCRIPTION=DDCControl monitor database
+HOMEPAGE=http://ddccontrol.sourceforge.net/
+IUSE=nls
+KEYWORDS=amd64 ppc x86
+LICENSE=GPL-2
+RDEPEND=nls? ( sys-devel/gettext )
+SLOT=0
+SRC_URI=mirror://sourceforge/ddccontrol/ddccontrol-db-20061014.tar.bz2
+_md5_=4768c49b6aa80a788417b3f6382b6ef3
