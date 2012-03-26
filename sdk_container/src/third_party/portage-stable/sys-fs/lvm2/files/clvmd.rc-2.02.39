@@ -1,7 +1,7 @@
 #!/sbin/runscript
 # Copyright 1999-2005 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/lvm2/files/clvmd.rc-2.02.39,v 1.1 2009/05/19 00:08:35 robbat2 Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/lvm2/files/clvmd.rc-2.02.39,v 1.2 2010/05/01 21:26:32 robbat2 Exp $
 
 [ -x /usr/sbin/clvmd ] && CLVMD_BIN="/usr/sbin/clvmd" || CLVMD_BIN="/sbin/clvmd"
 
@@ -14,8 +14,7 @@ VGDISPLAY="/sbin/vgdisplay"
 CLVMD_PIDFILE="/var/run/clvmd.pid"
 
 depend() {
-	use dns logger
-	use net
+	use net dns logger dmeventd
 	need cman
 }
 

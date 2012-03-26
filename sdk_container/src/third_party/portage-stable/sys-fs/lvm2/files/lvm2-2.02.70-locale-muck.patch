@@ -1,0 +1,11 @@
+--- make.tmpl.in.orig	2010-08-04 10:10:17.000000000 +0300
++++ make.tmpl.in	2010-08-04 10:10:33.000000000 +0300
+@@ -360,7 +360,7 @@
+ 	( cat $(srcdir)/.exported_symbols; \
+ 	  if test x$(EXPORTED_HEADER) != x; then \
+         	$(CC) -E -P $(EXPORTED_HEADER) | \
+-        	$(SED) -ne "/^typedef|}/!s/.*[ \*]\(\$(EXPORTED_FN_PREFIX)_[a-z0-9_]*\)(.*/\1/p"; \
++        	LC_ALL=C $(SED) -ne "/^typedef|}/!s/.*[ \*]\(\$(EXPORTED_FN_PREFIX)_[a-z0-9_]*\)(.*/\1/p"; \
+ 	  fi \
+ 	) > $@
+ 
