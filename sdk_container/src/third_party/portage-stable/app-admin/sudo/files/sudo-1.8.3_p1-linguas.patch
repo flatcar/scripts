@@ -1,0 +1,25 @@
+respect user LINGUAS when installing translations
+
+http://www.sudo.ws/pipermail/sudo-workers/2011-November/000701.html
+
+diff -r ecd3533cb711 -r f99b940123fa Makefile.in
+--- a/Makefile.in	Fri Oct 07 13:52:45 2011 -0400
++++ b/Makefile.in	Tue Nov 15 00:53:52 2011 -0500
+@@ -226,6 +226,7 @@
+ 
+ install-nls:
+ 	@if test "$(NLS)" = "enabled"; then \
++	    install_mos="$(LINGUAS)"; \
+ 	    cd $(top_srcdir); \
+ 	    for pot in $(POTFILES); do \
+ 		podir=`dirname $$pot`; \
+@@ -233,6 +234,9 @@
+ 		echo $(ECHO_N) "Installing $$domain message catalogs:$(ECHO_C)"; \
+ 		for mo in $$podir/*.mo; do \
+ 		    lang=`basename $$mo .mo`; \
++		    if [ -n "$$install_mos" ]; then \
++			case " $$install_mos " in *" $$lang "*) :;; *) continue;; esac; \
++		    fi; \
+ 		    echo $(ECHO_N) " $$lang$(ECHO_C)"; \
+ 		    $(SHELL) $(top_srcdir)/mkinstalldirs $(DESTDIR)$(localedir)/$$lang/LC_MESSAGES; \
+ 		    $(INSTALL) -O $(install_uid) -G $(install_gid) -M 0644 $$mo $(DESTDIR)$(localedir)/$$lang/LC_MESSAGES/$$domain.mo; \
