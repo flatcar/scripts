@@ -1,20 +1,18 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-shells/bash/bash-4.1_p9.ebuild,v 1.8 2011/05/16 10:36:26 nyhm Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-shells/bash/bash-4.2_p20.ebuild,v 1.10 2012/03/25 16:31:53 maekke Exp $
 
 EAPI="1"
 
 inherit eutils flag-o-matic toolchain-funcs multilib
 
 # Official patchlevel
-# See ftp://ftp.cwru.edu/pub/bash/bash-3.2-patches/
+# See ftp://ftp.cwru.edu/pub/bash/bash-4.2-patches/
 PLEVEL=${PV##*_p}
 MY_PV=${PV/_p*}
 MY_PV=${MY_PV/_/-}
 MY_P=${PN}-${MY_PV}
 [[ ${PV} != *_p* ]] && PLEVEL=0
-READLINE_VER=6.1
-READLINE_PLEVEL=0 # both readline patches are also released as bash patches
 patches() {
 	local opt=$1 plevel=${2:-${PLEVEL}} pn=${3:-${PN}} pv=${4:-${MY_PV}}
 	[[ ${plevel} -eq 0 ]] && return 1
@@ -32,19 +30,21 @@ patches() {
 
 DESCRIPTION="The standard GNU Bourne again shell"
 HOMEPAGE="http://tiswww.case.edu/php/chet/bash/bashtop.html"
-SRC_URI="mirror://gnu/bash/${MY_P}.tar.gz $(patches)
-	$(patches ${READLINE_PLEVEL} readline ${READLINE_VER})"
+SRC_URI="mirror://gnu/bash/${MY_P}.tar.gz $(patches)"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~sparc-fbsd ~x86-fbsd"
+KEYWORDS="~alpha amd64 arm hppa ~ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh ~sparc x86 ~sparc-fbsd ~x86-fbsd"
 IUSE="afs bashlogger examples mem-scramble +net nls plugins vanilla"
 
 DEPEND=">=sys-libs/ncurses-5.2-r2
+	>=sys-libs/readline-6.2
 	nls? ( virtual/libintl )"
 RDEPEND="${DEPEND}
 	!<sys-apps/portage-2.1.7.16
 	!<sys-apps/paludis-0.26.0_alpha5"
+# we only need yacc when the .y files get patched (bash42-005)
+DEPEND+=" virtual/yacc"
 
 S=${WORKDIR}/${MY_P}
 
@@ -66,16 +66,18 @@ src_unpack() {
 
 	# Include official patches
 	[[ ${PLEVEL} -gt 0 ]] && epatch $(patches -s)
-	cd lib/readline
-	[[ ${READLINE_PLEVEL} -gt 0 ]] && epatch $(patches -s ${READLINE_PLEVEL} readline ${READLINE_VER})
-	cd ../..
 
-	epatch "${FILESDIR}"/${PN}-4.1-fbsd-eaccess.patch #303411
+	# Clean out local libs so we know we use system ones
+	rm -rf lib/{readline,termcap}/*
+	touch lib/{readline,termcap}/Makefile.in # for config.status
+	sed -ri -e 's:\$[(](RL|HIST)_LIBSRC[)]/[[:alpha:]]*.h::g' Makefile.in || die
 
-	if ! use vanilla ; then
-		sed -i '1i#define NEED_FPURGE_DECL' execute_cmd.c # needs fpurge() decl
-		epatch "${FILESDIR}"/${PN}-4.1-parallel-build.patch
-	fi
+	# Avoid regenerating docs after patches #407985
+	sed -i -r '/^(HS|RL)USER/s:=.*:=:' doc/Makefile.in || die
+	touch -r . doc/*
+
+	epatch "${FILESDIR}"/${PN}-4.2-execute-job-control.patch #383237
+	epatch "${FILESDIR}"/${PN}-4.2-parallel-build.patch
 }
 
 src_compile() {
@@ -92,33 +94,37 @@ src_compile() {
 		-DSSH_SOURCE_BASHRC \
 		$(use bashlogger && echo -DSYSLOG_HISTORY)
 
-	# Always use the buildin readline, else if we update readline
-	# bash gets borked as readline is usually not binary compadible
-	# between minor versions.
-	#myconf="${myconf} $(use_with !readline installed-readline)"
-	myconf="${myconf} --without-installed-readline"
-
 	# Don't even think about building this statically without
 	# reading Bug 7714 first.  If you still build it statically,
 	# don't come crying to us with bugs ;).
 	#use static && export LDFLAGS="${LDFLAGS} -static"
 	use nls || myconf="${myconf} --disable-nls"
 
-	# Force linking with system curses ... the bundled termcap lib
-	# sucks bad compared to ncurses
-	myconf="${myconf} --with-curses"
+	# Historically, we always used the builtin readline, but since
+	# our handling of SONAME upgrades has gotten much more stable
+	# in the PM (and the readline ebuild itself preserves the old
+	# libs during upgrades), linking against the system copy should
+	# be safe.
+	# Exact cached version here doesn't really matter as long as it
+	# is at least what's in the DEPEND up above.
+	export ac_cv_rl_version=6.2
 
-	myconf="${myconf} --without-lispdir" #335896
+	# Force linking with system curses ... the bundled termcap lib
+	# sucks bad compared to ncurses.  For the most part, ncurses
+	# is here because readline needs it.  But bash itself calls
+	# ncurses in one or two small places :(.
 
 	use plugins && append-ldflags -Wl,-rpath,/usr/$(get_libdir)/bash
 	econf \
+		--with-installed-readline=. \
+		--with-curses \
 		$(use_with afs) \
 		$(use_enable net net-redirections) \
 		--disable-profiling \
 		$(use_enable mem-scramble) \
 		$(use_with mem-scramble bash-malloc) \
-		${myconf} || die
-	emake || die "make failed"
+		${myconf}
+	emake || die
 
 	if use plugins ; then
 		emake -C examples/loadables all others || die
