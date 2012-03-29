@@ -39,5 +39,5 @@ index 6aa194c..0752d73 100755
 +EOF
 +    ;;
  esac
-
+ 
  enable $subarch

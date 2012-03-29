@@ -1,0 +1,17 @@
+Some guards so that it can still build with ffmpeg 0.10
+
+Index: mplayer-1.0_rc4_p20120213/fmt-conversion.c
+===================================================================
+--- mplayer-1.0_rc4_p20120213.orig/fmt-conversion.c
++++ mplayer-1.0_rc4_p20120213/fmt-conversion.c
+@@ -65,8 +65,10 @@ static const struct {
+     {IMGFMT_RGBA,    PIX_FMT_RGB0},
+     {IMGFMT_RGB64LE, PIX_FMT_RGBA64LE},
+     {IMGFMT_RGB64BE, PIX_FMT_RGBA64BE},
++#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(51, 35, 101)
+     {IMGFMT_444A,    PIX_FMT_YUVA444P},
+ #endif
++#endif
+ #if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(51, 20, 1)
+     {IMGFMT_GBR24P,  PIX_FMT_GBRP},
+ #endif

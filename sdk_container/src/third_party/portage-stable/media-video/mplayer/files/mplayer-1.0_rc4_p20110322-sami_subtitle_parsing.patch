@@ -1,0 +1,14 @@
+http://bugs.gentoo.org/379297
+http://mplayerhq.hu/pipermail/mplayer-cvslog/2011-May/042075.html
+
+--- sub/subreader.c
++++ sub/subreader.c
+@@ -173,6 +173,8 @@
+ 	    break;
+ 
+ 	case 3: /* get all text until '<' appears */
++	    if (p - text >= LINE_LEN)
++	    sami_add_line(current, text, &p);
+ 	    if (*s == '\0') break;
+ 	    else if (!strncasecmp (s, "<br>", 4)) {
+                 sami_add_line(current, text, &p);
