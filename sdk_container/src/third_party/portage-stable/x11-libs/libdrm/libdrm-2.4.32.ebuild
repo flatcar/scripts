@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-libs/libdrm/libdrm-2.4.31.ebuild,v 1.1 2012/02/08 02:13:45 chithanh Exp $
+# $Header: /var/cvsroot/gentoo-x86/x11-libs/libdrm/libdrm-2.4.32.ebuild,v 1.1 2012/03/17 02:05:26 mattst88 Exp $
 
 EAPI=4
 inherit xorg-2
@@ -26,8 +26,7 @@ RESTRICT="test" # see bug #236845
 
 RDEPEND="dev-libs/libpthread-stubs
 	video_cards_intel? ( >=x11-libs/libpciaccess-0.10 )"
-DEPEND="${RDEPEND}
-	>=x11-libs/libpciaccess-0.10"
+DEPEND="${RDEPEND}"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.4.28-solaris.patch
