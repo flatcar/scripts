@@ -1,12 +1,12 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/util-linux/util-linux-2.21.1.ebuild,v 1.3 2012/03/30 20:31:38 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/util-linux/util-linux-2.19.1-r1.ebuild,v 1.10 2011/11/17 18:48:41 phajdan.jr Exp $
 
 EAPI="3"
 
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/utils/util-linux/util-linux.git"
 inherit eutils toolchain-funcs libtool flag-o-matic
-[[ ${PV} == "9999" ]] && inherit git-2 autotools
+[[ ${PV} == "9999" ]] && inherit git autotools
 
 MY_PV=${PV/_/-}
 MY_P=${PN}-${MY_PV}
@@ -18,18 +18,17 @@ if [[ ${PV} == "9999" ]] ; then
 	SRC_URI=""
 	#KEYWORDS=""
 else
-	SRC_URI="mirror://kernel/linux/utils/util-linux/v${PV:0:4}/${MY_P}.tar.xz
-		loop-aes? ( http://loop-aes.sourceforge.net/updates/util-linux-2.20-20110905.diff.bz2 )"
-	KEYWORDS="alpha amd64 arm hppa ia64 m68k mips ppc ppc64 s390 sh sparc x86 ~x86-linux"
+	SRC_URI="mirror://kernel/linux/utils/util-linux/v${PV:0:4}/${MY_P}.tar.bz2
+		loop-aes? ( http://loop-aes.sourceforge.net/updates/util-linux-2.19.1-20110510.diff.bz2 )"
+	KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ~ppc64 s390 sh sparc x86 ~x86-linux"
 fi
 
-LICENSE="GPL-2 GPL-3 LGPL-2.1 BSD-4 MIT public-domain"
+LICENSE="GPL-2"
 SLOT="0"
-IUSE="+cramfs crypt ddate loop-aes ncurses nls old-linux perl selinux slang static-libs uclibc unicode"
+IUSE="+cramfs crypt loop-aes ncurses nls old-linux perl selinux slang uclibc unicode"
 
 RDEPEND="!sys-process/schedutils
 	!sys-apps/setarch
-	!<sys-apps/sysvinit-2.88-r3
 	!<sys-libs/e2fsprogs-libs-1.41.8
 	!<sys-fs/e2fsprogs-1.41.8
 	cramfs? ( sys-libs/zlib )
@@ -43,11 +42,18 @@ DEPEND="${RDEPEND}
 
 src_prepare() {
 	if [[ ${PV} == "9999" ]] ; then
-		po/update-potfiles
 		autopoint --force
 		eautoreconf
 	else
 		use loop-aes && epatch "${WORKDIR}"/util-linux-*.diff
+	fi
+	epatch "${FILESDIR}"/${P}-mount-a-segv.patch #366213
+	if ! use loop-aes ; then
+		epatch "${FILESDIR}"/${P}-umount-l-nfs.patch #370051
+	else
+		ewarn "loop-aes is incompatible with current solution of #370051 bug!"
+		ewarn "Therefore you're vulnerable to that bug now!"
+		ewarn "Look at https://bugs.gentoo.org/show_bug.cgi?id=370051."
 	fi
 	use uclibc && sed -i -e s/versionsort/alphasort/g -e s/strverscmp.h/dirent.h/g mount/lomount.c
 	elibtoolize
@@ -66,6 +72,7 @@ lfs_fallocate_test() {
 	rm -f "${T}"/fallocate.c
 }
 
+usex() { use $1 && echo ${2:-yes} || echo ${3:-no} ; }
 src_configure() {
 	lfs_fallocate_test
 	econf \
@@ -73,9 +80,9 @@ src_configure() {
 		$(use_enable nls) \
 		--enable-agetty \
 		$(use_enable cramfs) \
-		$(use_enable ddate) \
 		$(use_enable old-linux elvtune) \
 		--with-ncurses=$(usex ncurses $(usex unicode auto yes) no) \
+		--disable-init \
 		--disable-kill \
 		--disable-last \
 		--disable-mesg \
@@ -87,15 +94,15 @@ src_configure() {
 		--enable-schedutils \
 		--disable-wall \
 		--enable-write \
+		--without-pam \
 		$(use_with selinux) \
 		$(use_with slang) \
-		$(use_enable static-libs static) \
 		$(tc-has-tls || echo --disable-tls)
 }
 
 src_install() {
-	emake install DESTDIR="${D}" || die
-	dodoc AUTHORS NEWS README* Documentation/{TODO,*.txt}
+	emake install DESTDIR="${D}" || die "install failed"
+	dodoc AUTHORS NEWS README* TODO docs/*
 
 	if ! use perl ; then #284093
 		rm "${ED}"/usr/bin/chkdupexe || die
@@ -103,17 +110,12 @@ src_install() {
 	fi
 
 	# need the libs in /
-	gen_usr_ldscript -a blkid mount uuid
+	gen_usr_ldscript -a blkid uuid
 	# e2fsprogs-libs didnt install .la files, and .pc work fine
-	find "${ED}" -name '*.la' -delete
+	rm -f "${ED}"/usr/$(get_libdir)/*.la
 
 	if use crypt ; then
 		newinitd "${FILESDIR}"/crypto-loop.initd crypto-loop || die
 		newconfd "${FILESDIR}"/crypto-loop.confd crypto-loop || die
 	fi
-}
-
-pkg_postinst() {
-	elog "The agetty util now clears the terminal by default.  You"
-	elog "might want to add --noclear to your /etc/inittab lines."
 }
