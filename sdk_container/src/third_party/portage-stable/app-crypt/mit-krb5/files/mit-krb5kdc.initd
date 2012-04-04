@@ -4,10 +4,8 @@
 # This script starts/stops the MIT Kerberos 5 KDC
 #---------------------------------------------------------------------------
 
-daemon="MIT Kerberos 5 KDC"	
+daemon="MIT Kerberos 5 KDC"
 exec="/usr/sbin/krb5kdc"
-
-opts="start stop restart"
 
 depend() {
 	need net
@@ -19,13 +17,8 @@ start() {
 	eend $? "Error starting $daemon"
 }
 
-stop() { 
-        ebegin "Stopping $daemon"
-        start-stop-daemon --stop --quiet --oknodo --exec ${exec} 1>&2
-        eend $? "Error stopping $daemon"
-}
-
-restart() {
-   svc_stop
-   svc_start
+stop() {
+	ebegin "Stopping $daemon"
+	start-stop-daemon --stop --quiet --exec ${exec} 1>&2
+	eend $? "Error stopping $daemon"
 }

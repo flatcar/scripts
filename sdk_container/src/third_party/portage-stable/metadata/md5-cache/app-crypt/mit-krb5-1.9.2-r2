@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install preinst prepare unpack
+DEPEND=!!app-crypt/heimdal >=sys-libs/e2fsprogs-libs-1.41.0 keyutils? ( sys-apps/keyutils ) openldap? ( net-nds/openldap ) xinetd? ( sys-apps/xinetd ) virtual/yacc doc? ( virtual/latex-base ) test? ( dev-lang/tcl dev-lang/python dev-util/dejagnu )
+DESCRIPTION=MIT Kerberos V
+EAPI=3
+HOMEPAGE=http://web.mit.edu/kerberos/www/
+IUSE=doc +keyutils openldap +pkinit +threads test xinetd
+KEYWORDS=alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos
+LICENSE=as-is
+RDEPEND=!!app-crypt/heimdal >=sys-libs/e2fsprogs-libs-1.41.0 keyutils? ( sys-apps/keyutils ) openldap? ( net-nds/openldap ) xinetd? ( sys-apps/xinetd )
+SLOT=0
+SRC_URI=http://web.mit.edu/kerberos/dist/krb5/1.9/krb5-1.9.2-signed.tar
+_eclasses_=eutils	33ef77a15337022e05342d2c772a7a5a	flag-o-matic	01a8b1eb019305bc4b4a8bd0b04e4cd8	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	6526ac6fc9aedf391efb91fcd75ace68	user	9e552f935106ff0bc92af16da64b4b29	versionator	865bc8b2fc9fcfb6d520bdf5a110f5ed
+_md5_=292c6a2149db45bad9867d8004a9c277
