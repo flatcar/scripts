@@ -1,6 +1,6 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-arch/gzip/gzip-1.4.ebuild,v 1.6 2010/02/11 19:19:32 armin76 Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-arch/gzip/gzip-1.4.ebuild,v 1.8 2011/04/03 11:15:56 ulm Exp $
 
 inherit eutils flag-o-matic
 
@@ -18,13 +18,13 @@ IUSE="nls pic static"
 RDEPEND=""
 DEPEND="${RDEPEND}
 	nls? ( sys-devel/gettext )"
-PROVIDE="virtual/gzip"
 
 src_unpack() {
 	unpack ${A}
 	cd "${S}"
 	#epatch "${FILESDIR}"/${PN}-1.3.5-rsync.patch
 	epatch "${FILESDIR}"/${PN}-1.3.8-install-symlinks.patch
+	epatch "${FILESDIR}"/${P}-assembler.patch #309079
 }
 
 src_compile() {
