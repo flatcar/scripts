@@ -1,0 +1,16 @@
+Index: trunk/config/jdk-defaults-x86.conf
+===================================================================
+--- trunk/config/jdk-defaults-x86.conf	(revision 7989)
++++ trunk/config/jdk-defaults-x86.conf	(revision 7990)
+@@ -1,2 +1,2 @@
+ # This files contain the default support jdk's
+-*= sun-jdk blackdown-jdk ibm-jdk-bin jrockit-jdk-bin
++*= icedtea6 icedtea6-bin sun-jdk blackdown-jdk ibm-jdk-bin jrockit-jdk-bin
+Index: trunk/config/jdk-defaults-amd64.conf
+===================================================================
+--- trunk/config/jdk-defaults-amd64.conf	(revision 7989)
++++ trunk/config/jdk-defaults-amd64.conf	(revision 7990)
+@@ -1,2 +1,2 @@
+ # This files contain the default support jdk's
+-*= sun-jdk blackdown-jdk ibm-jdk-bin jrockit-jdk-bin
++*= icedtea6 icedtea6-bin sun-jdk blackdown-jdk ibm-jdk-bin jrockit-jdk-bin

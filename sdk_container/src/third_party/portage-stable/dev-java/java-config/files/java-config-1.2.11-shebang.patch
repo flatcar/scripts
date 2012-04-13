@@ -1,0 +1,9 @@
+--- java-config 13 Jan 2005 22:39:18 -0000      1.37
++++ java-config 18 Jun 2005 13:43:47 -0000
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python -E
+ # -*- coding: UTF-8 -*-
+  
+   # Copyright 2001-2005 Gentoo Foundation
+

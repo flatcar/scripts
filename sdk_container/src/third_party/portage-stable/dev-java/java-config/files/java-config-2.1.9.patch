@@ -1,0 +1,35 @@
+Index: src/depend-java-query
+===================================================================
+--- src/depend-java-query	(revision 7909)
++++ src/depend-java-query	(working copy)
+@@ -40,7 +40,7 @@
+ 
+ def get_vm(option, opt, value, parser):
+     try:
+-        vm = verman.get_vm(value, False)
++        vm = verman.get_vm(value, True)
+         printer._print(vm)
+     except Exception, ex:
+         printer._printError(str(ex))
+Index: java-config-2
+===================================================================
+--- src/java-config-2	(revision 7909)
++++ src/java-config-2	(working copy)
+@@ -143,12 +143,15 @@
+     printer._print('%HThe following VMs are available for generation-2:%$')
+     for i, vm in vm_list.iteritems():
+         if vm is active:
+-            printer._print('%G' + '*)\t%s [%s]%s' % (vm.query('VERSION'), vm.name(), '%$'))
++            if not vm.is_build_only():
++                printer._print('%G' + '*)\t%s [%s]%s' % (vm.query('VERSION'), vm.name(), '%$'))
++            else:
++                printer._print('%G' + '*)\t%s [%s]%s' % (vm.query('VERSION'), vm.name(), '%$') + '%r (Build Only)%$')
+         else:
+             if not vm.is_build_only():
+                 printer._print('%i)\t%s [%s]' % (i, vm.query('VERSION'), vm.name()))
+             else:
+-                printer._print('%i)\t%s [%s]' % (i, vm.query('VERSION'), vm.name()) + '%r (Build Only)')
++                printer._print('%i)\t%s [%s]' % (i, vm.query('VERSION'), vm.name()) + '%r (Build Only)%$')
+ 
+     printer._print('')
+     printer._print('%r' + 'VMs marked as Build Only may contain Security Vulnerabilities and/or be EOL.')
