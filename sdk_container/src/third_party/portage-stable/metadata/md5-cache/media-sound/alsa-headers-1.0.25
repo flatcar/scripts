@@ -1,11 +1,11 @@
 DEFINED_PHASES=compile configure install prepare setup unpack
 DESCRIPTION=Header files for Advanced Linux Sound Architecture kernel modules
-EAPI=3
+EAPI=4
 HOMEPAGE=http://www.alsa-project.org/
-KEYWORDS=~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sh ~sparc ~x86 ~amd64-linux ~x86-linux ~ppc-macos
+KEYWORDS=alpha amd64 arm hppa ia64 ~mips ~ppc ppc64 sh sparc x86 ~amd64-linux ~x86-linux ~ppc-macos
 LICENSE=GPL-2
 RESTRICT=binchecks strip
 SLOT=0
-SRC_URI=mirror://alsaproject/driver/alsa-driver-1.0.24.tar.bz2
+SRC_URI=mirror://alsaproject/driver/alsa-driver-1.0.25.tar.bz2
 _eclasses_=base	fc89786f3f7e7bcf03334359bd5b639b	eutils	33ef77a15337022e05342d2c772a7a5a	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	6526ac6fc9aedf391efb91fcd75ace68	user	9e552f935106ff0bc92af16da64b4b29
-_md5_=110666a0cd08edff6f8822df0f08595c
+_md5_=b3f4fa8815b82fdfedda8a385d4bd32d

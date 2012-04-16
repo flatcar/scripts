@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install postinst prepare unpack
+DEPEND=>=sys-libs/ncurses-5.1 dev-util/dialog >=media-libs/alsa-lib-1.0.25 media-libs/libsamplerate doc? ( app-text/xmlto )
+DESCRIPTION=Advanced Linux Sound Architecture Utils (alsactl, alsamixer, etc.)
+EAPI=4
+HOMEPAGE=http://www.alsa-project.org/
+IUSE=doc nls minimal
+KEYWORDS=alpha amd64 arm hppa ia64 ~mips ~ppc ppc64 sh sparc x86
+LICENSE=GPL-2
+RDEPEND=>=sys-libs/ncurses-5.1 dev-util/dialog >=media-libs/alsa-lib-1.0.25 media-libs/libsamplerate !minimal? ( sys-apps/pciutils )
+SLOT=0.9
+SRC_URI=mirror://alsaproject/utils/alsa-utils-1.0.25.tar.bz2 mirror://alsaproject/driver/alsa-driver-1.0.25.tar.bz2
+_eclasses_=base	fc89786f3f7e7bcf03334359bd5b639b	eutils	33ef77a15337022e05342d2c772a7a5a	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	portability	0be430f759a631e692678ed796e09f5c	systemd	b5da52630b2559da43198bfb56ccacba	toolchain-funcs	6526ac6fc9aedf391efb91fcd75ace68	user	9e552f935106ff0bc92af16da64b4b29
+_md5_=a9aa392e347f04d3cb1bce0d98546d00
