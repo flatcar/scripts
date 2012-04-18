@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/autotools.eclass,v 1.116 2011/12/14 20:46:36 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/autotools.eclass,v 1.130 2012/03/22 19:16:22 vapier Exp $
 
 # @ECLASS: autotools.eclass
 # @MAINTAINER:
@@ -37,11 +37,13 @@ inherit eutils libtool
 # @INTERNAL
 # @DESCRIPTION:
 # CONSTANT!
-# The latest major version/slot of automake available on each arch.
-# If a newer version is stable on any arch, and is NOT reflected in this list,
+# The latest major version/slot of automake available on each arch.  #312315
+# If a newer slot is stable on any arch, and is NOT reflected in this list,
 # then circular dependencies may arise during emerge @system bootstraps.
 # Do NOT change this variable in your ebuilds!
-_LATEST_AUTOMAKE='1.11'
+# If you want to force a newer minor version, you can specify the correct
+# WANT value by using a colon:  <PV>[:<WANT_AUTOMAKE>]
+_LATEST_AUTOMAKE=( 1.11.1:1.11 )
 
 _automake_atom="sys-devel/automake"
 _autoconf_atom="sys-devel/autoconf"
@@ -50,7 +52,14 @@ if [[ -n ${WANT_AUTOMAKE} ]]; then
 		none)   _automake_atom="" ;; # some packages don't require automake at all
 		# if you change the "latest" version here, change also autotools_run_tool
 		# this MUST reflect the latest stable major version for each arch!
-		latest) _automake_atom="|| ( `printf '=sys-devel/automake-%s* ' ${_LATEST_AUTOMAKE}` )" ;;
+		latest)
+			# Use SLOT deps if we can.  For EAPI=0, we get pretty close.
+			if [[ ${EAPI:-0} != 0 ]] ; then
+				_automake_atom="|| ( `printf '>=sys-devel/automake-%s:%s ' ${_LATEST_AUTOMAKE[@]/:/ }` )"
+			else
+				_automake_atom="|| ( `printf '>=sys-devel/automake-%s ' ${_LATEST_AUTOMAKE[@]/%:*}` )"
+			fi
+			;;
 		*)      _automake_atom="=sys-devel/automake-${WANT_AUTOMAKE}*" ;;
 	esac
 	export WANT_AUTOMAKE
@@ -60,8 +69,8 @@ if [[ -n ${WANT_AUTOCONF} ]] ; then
 	case ${WANT_AUTOCONF} in
 		none)       _autoconf_atom="" ;; # some packages don't require autoconf at all
 		2.1)        _autoconf_atom="=sys-devel/autoconf-${WANT_AUTOCONF}*" ;;
-		# if you change the “latest” version here, change also autotools_run_tool
-		latest|2.5) _autoconf_atom=">=sys-devel/autoconf-2.61" ;;
+		# if you change the "latest" version here, change also autotools_env_setup
+		latest|2.5) _autoconf_atom=">=sys-devel/autoconf-2.68" ;;
 		*)          die "Invalid WANT_AUTOCONF value '${WANT_AUTOCONF}'" ;;
 	esac
 	export WANT_AUTOCONF
@@ -97,6 +106,13 @@ unset _automake_atom _autoconf_atom
 # @DESCRIPTION:
 # Additional options to pass to automake during
 # eautoreconf call.
+
+# @ECLASS-VARIABLE: AT_NOEAUTOMAKE
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# Don't run eautomake command if set to 'yes'; only used to workaround
+# broken packages.  Generally you should, instead, fix the package to
+# not call AM_INIT_AUTOMAKE if it doesn't actually use automake.
 
 # @ECLASS-VARIABLE: AT_NOELIBTOOLIZE
 # @DEFAULT_UNSET
@@ -153,7 +169,7 @@ eautoreconf() {
 	fi
 	eautoconf
 	eautoheader
-	FROM_EAUTORECONF="yes" eautomake ${AM_OPTS}
+	[[ ${AT_NOEAUTOMAKE} != "yes" ]] && FROM_EAUTORECONF="yes" eautomake ${AM_OPTS}
 
 	[[ ${AT_NOELIBTOOLIZE} == "yes" ]] && return 0
 
@@ -256,15 +272,15 @@ eautomake() {
 
 	# Run automake if:
 	#  - a Makefile.am type file exists
-	#  - a Makefile.in type file exists and the configure
-	#    script is using the AM_INIT_AUTOMAKE directive
-	for makefile_name in {GNUmakefile,{M,m}akefile}.{am,in} "" ; do
+	#  - the configure script is using the AM_INIT_AUTOMAKE directive
+	for makefile_name in {GNUmakefile,{M,m}akefile}.am "" ; do
 		[[ -f ${makefile_name} ]] && break
 	done
-	[[ -z ${makefile_name} ]] && return 0
 
-	if [[ ${makefile_name} == *.in ]] ; then
-		if ! grep -qs AM_INIT_AUTOMAKE configure.?? ; then
+	if [[ -z ${makefile_name} ]] ; then
+		# Really we should just use autotools_check_macro ...
+		local am_init_automake=$(sed -n '/AM_INIT_AUTOMAKE/{s:#.*::;s:\<dnl\>.*::;p}' configure.??)
+		if [[ ${am_init_automake} != *"AM_INIT_AUTOMAKE"* ]] ; then
 			return 0
 		fi
 
@@ -299,16 +315,35 @@ eautopoint() {
 	autotools_run_tool autopoint "$@"
 }
 
+# @FUNCTION: config_rpath_update
+# @USAGE: [destination]
+# @DESCRIPTION:
+# Some packages utilize the config.rpath helper script, but don't
+# use gettext directly.  So we have to copy it in manually since
+# we can't let `autopoint` do it for us.
+config_rpath_update() {
+	local dst src=$(type -P gettext | sed 's:bin/gettext:share/gettext/config.rpath:')
+
+	[[ $# -eq 0 ]] && set -- $(find -name config.rpath)
+	[[ $# -eq 0 ]] && return 0
+
+	einfo "Updating all config.rpath files"
+	for dst in "$@" ; do
+		einfo "   ${dst}"
+		cp "${src}" "${dst}" || die
+	done
+}
+
 # Internal function to run an autotools' tool
 autotools_env_setup() {
-	# We do the “latest” → version switch here because it solves
+	# We do the "latest" → version switch here because it solves
 	# possible order problems, see bug #270010 as an example.
 	if [[ ${WANT_AUTOMAKE} == "latest" ]]; then
 		local pv
-		for pv in ${_LATEST_AUTOMAKE} ; do
+		for pv in ${_LATEST_AUTOMAKE[@]/#*:} ; do
 			# has_version respects ROOT, but in this case, we don't want it to,
 			# thus "ROOT=/" prefix:
-			ROOT=/ has_version "=sys-devel/automake-${pv}*" && export WANT_AUTOMAKE="$pv"
+			ROOT=/ has_version "=sys-devel/automake-${pv}*" && export WANT_AUTOMAKE="${pv}"
 		done
 		[[ ${WANT_AUTOMAKE} == "latest" ]] && \
 			die "Cannot find the latest automake! Tried ${_LATEST_AUTOMAKE}"

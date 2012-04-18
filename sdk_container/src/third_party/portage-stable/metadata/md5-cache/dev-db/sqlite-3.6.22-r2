@@ -1,5 +1,5 @@
 DEFINED_PHASES=compile configure install prepare test
-DEPEND=icu? ( dev-libs/icu ) readline? ( sys-libs/readline ) tcl? ( dev-lang/tcl ) test? ( dev-lang/tcl ) doc? ( app-arch/unzip ) || ( =sys-devel/automake-1.11* ) >=sys-devel/autoconf-2.61 sys-devel/libtool
+DEPEND=icu? ( dev-libs/icu ) readline? ( sys-libs/readline ) tcl? ( dev-lang/tcl ) test? ( dev-lang/tcl ) doc? ( app-arch/unzip ) || ( >=sys-devel/automake-1.11.1:1.11 ) >=sys-devel/autoconf-2.68 sys-devel/libtool
 DESCRIPTION=A SQL Database Engine in a C Library
 EAPI=2
 HOMEPAGE=http://www.sqlite.org/
@@ -9,5 +9,5 @@ LICENSE=as-is
 RDEPEND=icu? ( dev-libs/icu ) readline? ( sys-libs/readline ) tcl? ( dev-lang/tcl )
 SLOT=3
 SRC_URI=tcl? ( http://www.sqlite.org/sqlite-3.6.22.tar.gz ) !tcl? ( test? ( http://www.sqlite.org/sqlite-3.6.22.tar.gz ) !test? ( http://www.sqlite.org/sqlite-amalgamation-3.6.22.tar.gz ) ) doc? ( http://www.sqlite.org/sqlite_docs_3_6_22.zip )
-_eclasses_=autotools	63332a15502113ca711ccccb3889a109	eutils	33ef77a15337022e05342d2c772a7a5a	flag-o-matic	01a8b1eb019305bc4b4a8bd0b04e4cd8	libtool	0fd90d183673bf1107465ec45849d1ea	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	6526ac6fc9aedf391efb91fcd75ace68	user	9e552f935106ff0bc92af16da64b4b29	versionator	865bc8b2fc9fcfb6d520bdf5a110f5ed
+_eclasses_=autotools	addbdf6cce5024ac93ad2084ad5e1d2d	eutils	33ef77a15337022e05342d2c772a7a5a	flag-o-matic	01a8b1eb019305bc4b4a8bd0b04e4cd8	libtool	0fd90d183673bf1107465ec45849d1ea	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	6526ac6fc9aedf391efb91fcd75ace68	user	9e552f935106ff0bc92af16da64b4b29	versionator	865bc8b2fc9fcfb6d520bdf5a110f5ed
 _md5_=e7271c016240dd7a52e403b0721233a2
