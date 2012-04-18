@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/memtester/memtester-4.2.2.ebuild,v 1.6 2012/03/19 19:06:21 armin76 Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/memtester/memtester-4.2.2.ebuild,v 1.7 2012/04/17 22:35:42 vapier Exp $
 
 EAPI="4"
 
@@ -13,7 +13,7 @@ SRC_URI="http://pyropus.ca/software/memtester/${P}.tar.gz
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 ~ia64 ~mips ppc ppc64 sparc x86"
+KEYWORDS="amd64 arm ~ia64 ~mips ppc ppc64 sparc x86"
 IUSE=""
 
 src_prepare() {
