@@ -1,8 +1,9 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-text/ghostscript-gpl/ghostscript-gpl-9.04-r3.ebuild,v 1.5 2011/10/06 17:41:08 jer Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-text/ghostscript-gpl/ghostscript-gpl-9.05.ebuild,v 1.3 2012/04/05 19:47:38 dilfridge Exp $
 
 EAPI=3
+
 inherit autotools eutils versionator flag-o-matic
 
 DESCRIPTION="Ghostscript is an interpreter for the PostScript language and for PDF"
@@ -11,21 +12,24 @@ HOMEPAGE="http://ghostscript.com/"
 MY_P=${P/-gpl}
 GSDJVU_PV=1.5
 PVM=$(get_version_component_range 1-2)
-SRC_URI="!bindist? ( djvu? ( mirror://sourceforge/djvu/gsdjvu-${GSDJVU_PV}.tar.gz ) )
+SRC_URI="
 	mirror://sourceforge/ghostscript/${MY_P}.tar.bz2
-	mirror://gentoo/${P}-patchset-3.tar.bz2"
+	mirror://gentoo/${P}-patchset-1.tar.bz2
+	!bindist? ( djvu? ( mirror://sourceforge/djvu/gsdjvu-${GSDJVU_PV}.tar.gz ) )"
 
 LICENSE="GPL-3 CPL-1.0"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc x86 ~sparc-fbsd ~x86-fbsd"
+KEYWORDS="~alpha amd64 arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc x86 ~sparc-fbsd ~x86-fbsd"
 IUSE="bindist cups dbus djvu gtk idn jpeg2k static-libs X"
 
-COMMON_DEPEND="app-text/libpaper
+COMMON_DEPEND="
+	app-text/libpaper
 	media-libs/fontconfig
-	media-libs/freetype:2
-	media-libs/lcms:0
-	>=media-libs/libpng-1.2.42
-	>=media-libs/tiff-3.9.2
+	>=media-libs/freetype-2.4.2:2
+	media-libs/jbig2dec
+	media-libs/lcms:2
+	media-libs/libpng:0
+	media-libs/tiff:0
 	>=sys-libs/zlib-1.2.3
 	virtual/jpeg
 	!bindist? ( djvu? ( app-text/djvu ) )
@@ -45,7 +49,10 @@ RDEPEND="${COMMON_DEPEND}
 	linguas_ja? ( media-fonts/kochi-substitute )
 	linguas_ko? ( media-fonts/baekmuk-fonts )
 	linguas_zh_CN? ( media-fonts/arphicfonts )
-	linguas_zh_TW? ( media-fonts/arphicfonts )"
+	linguas_zh_TW? ( media-fonts/arphicfonts )
+	!!media-fonts/gnu-gs-fonts-std
+	!!media-fonts/gnu-gs-fonts-other
+"
 
 S="${WORKDIR}/${MY_P}"
 
@@ -66,9 +73,11 @@ src_prepare() {
 	rm -rf "${S}"/expat
 	rm -rf "${S}"/freetype
 	rm -rf "${S}"/jasper
+	rm -rf "${S}"/jbig2dec
 	rm -rf "${S}"/jpeg
 	rm -rf "${S}"/lcms{,2}
 	rm -rf "${S}"/libpng
+	rm -rf "${S}"/openjpeg
 	rm -rf "${S}"/tiff
 	rm -rf "${S}"/zlib
 	# remove internal urw-fonts
@@ -87,6 +96,7 @@ src_prepare() {
 		cp gsdjvu-${GSDJVU_PV}/gsdjvu "${S}"
 		cp gsdjvu-${GSDJVU_PV}/gdevdjvu.c "${S}/base"
 		epatch "${WORKDIR}/patches-gsdjvu/gsdjvu-1.3-${PN}-8.64.patch"
+		epatch "${WORKDIR}/patches-gsdjvu/gsdjvu-1.5-${PN}-9.05.patch"
 		cp gsdjvu-${GSDJVU_PV}/ps2utf8.ps "${S}/lib"
 		cp "${S}/base/contrib.mak" "${S}/base/contrib.mak.gsdjvu"
 		grep -q djvusep "${S}/base/contrib.mak" || \
@@ -113,9 +123,6 @@ src_prepare() {
 	cd "${S}"
 	eautoreconf
 
-	cd "${S}/jbig2dec"
-	eautoreconf
-
 	cd "${S}/ijs"
 	eautoreconf
 }
@@ -140,6 +147,7 @@ src_configure() {
 		--enable-freetype \
 		--enable-fontconfig \
 		--disable-compile-inits \
+		--disable-openjpeg \
 		--with-drivers=ALL \
 		--with-fontpath="$FONTPATH" \
 		--with-ijs \
@@ -174,8 +182,13 @@ src_compile() {
 }
 
 src_install() {
-	# -j1 -> see bug #356303
+	# workaround: -j1 -> see bug #356303
 	emake -j1 DESTDIR="${D}" install-so install || die "emake install failed"
+
+	# workaround: some printer drivers still require pstoraster, bug #383831
+	use cups && dosym /usr/libexec/cups/filter/gstoraster /usr/libexec/cups/filter/pstoraster
+	# workaround: do the same for pstopxl as of gs 9.05
+	use cups && dosym /usr/libexec/cups/filter/gstopxl /usr/libexec/cups/filter/pstopxl
 
 	if ! use bindist && use djvu ; then
 		dobin gsdjvu || die "dobin gsdjvu install failed"
