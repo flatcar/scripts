@@ -10,7 +10,7 @@ SRC_URI="mirror://kernel/linux/bluetooth/${P}.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 hppa ~ppc x86"
+KEYWORDS="amd64 arm hppa ~ppc x86"
 IUSE=""
 
 RDEPEND=">=net-wireless/bluez-4.98"
