@@ -1,0 +1,20 @@
+http://bugs.debian.org/505851
+--- liblockfile-1.08.orig/lockfile.c
++++ liblockfile-1.08/lockfile.c
+@@ -391,13 +391,10 @@
+ 	 *	Without a pid in the lockfile, the lock
+ 	 *	is valid if it is newer than 5 mins.
+ 	 */
+-#if 0
++
+ 	if (now < st.st_mtime + 300)
+ 		return 0;
+-#else
+-	if (now < st.st_mtime + 10)
+-		return 0;
+-#endif
++
+ 	return -1;
+ }
+ 
+
