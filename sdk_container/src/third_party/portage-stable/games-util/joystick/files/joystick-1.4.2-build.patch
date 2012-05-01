@@ -1,0 +1,79 @@
+--- a/docs/Makefile
++++ b/docs/Makefile
+@@ -20,13 +20,16 @@
+ # 02110-1301 USA.
+ 
+ MANPAGES	= inputattach.1 jstest.1 jscal.1 fftest.1 \
+-		  ffmvforce.1 ffset.1 ffcfstress.1 jscal-store.1 \
++		  ffset.1 ffcfstress.1 jscal-store.1 \
+ 		  jscal-restore.1
++ifneq ($(USE_SDL),no)
++MANPAGES += ffmvforce.1
++endif
+ 
+ PREFIX          ?= /usr/local
+ 
+ install:
+ 	install -d $(DESTDIR)$(PREFIX)/share/man/man1
+-	install $(MANPAGES) $(DESTDIR)$(PREFIX)/share/man/man1
++	install -m 644 $(MANPAGES) $(DESTDIR)$(PREFIX)/share/man/man1
+ 
+ .PHONY: install
+--- a/utils/Makefile
++++ b/utils/Makefile
+@@ -25,11 +25,19 @@
+ # Edit the options below to suit your needs
+ #
+ 
+-CC		= gcc
+-CFLAGS		= -g -O2 -Wall -I../linux/include
++CC ?= gcc
++PKG_CONFIG ?= pkg-config
++CFLAGS ?= -g -O2
++CFLAGS += -Wall
++CPPFLAGS += -I../linux/include
++SDL_CFLAGS = $(shell $(PKG_CONFIG) --cflags sdl)
++SDL_LIBS = $(shell $(PKG_CONFIG) --libs sdl)
+ 
+-PROGRAMS	= inputattach jstest jscal fftest ffmvforce ffset \
++PROGRAMS	= inputattach jstest jscal fftest ffset \
+ 		  ffcfstress jscal-restore jscal-store
++ifneq ($(USE_SDL),no)
++PROGRAMS += ffmvforce
++endif
+ 
+ PREFIX          ?= /usr/local
+ 
+@@ -40,27 +48,27 @@
+ 	$(RM) *.o *.swp $(PROGRAMS) *.orig *.rej map *~
+ 
+ ffcfstress: ffcfstress.c
+-	$(CC) -O2 -funsigned-char ffcfstress.c -lm -o ffcfstress
++	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -funsigned-char ffcfstress.c -lm -o ffcfstress
+ 
+ ffmvforce.o: ffmvforce.c
+-	$(CC) -c $(CFLAGS) $(CPPFLAGS) $^ -o $@ `sdl-config --cflags`
++	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(SDL_CFLAGS) $^ -o $@
+ 
+ ffmvforce: ffmvforce.o
+-	$(CC) $^ -o $@ $(LDFLAGS) -g -lm `sdl-config --libs`
++	$(CC) $^ -o $@ $(CFLAGS) $(LDFLAGS) -lm $(SDL_LIBS)
+ 
+ axbtnmap.o: axbtnmap.c axbtnmap.h
+ 
+ jscal.o: jscal.c axbtnmap.h
+ 
+ jscal: jscal.o axbtnmap.o
+-	$(CC) $(CFLAGS) $(CPPFLAGS) $^ -lm -o $@
++	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $^ -lm -o $@
+ 
+ jstest.o: jstest.c axbtnmap.h
+ 
+ jstest: jstest.o axbtnmap.o
+ 
+ gencodes: gencodes.c scancodes.h
+-	$(CC) $(CFLAGS) $(CPPFLAGS) gencodes.c -o gencodes
++	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) gencodes.c -o gencodes
+ 
+ jscal-restore: jscal-restore.in
+ 	sed "s^@@PREFIX@@^$(PREFIX)^g" < $^ > $@
