@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install postinst postrm preinst prepare setup unpack
+DEPEND=>=dev-libs/glib-2 dev-libs/libxml2 dev-libs/libxslt dev-libs/popt >=media-libs/freetype-2 >=media-libs/libart_lgpl-2 media-libs/libpng sys-libs/zlib x11-libs/gtk+:2 x11-libs/pango cairo? ( x11-libs/cairo ) doc? ( app-text/docbook-xml-dtd:4.5 app-text/docbook-xsl-stylesheets ) gnome? ( >=gnome-base/libgnome-2 >=gnome-base/libgnomeui-2 ) python? ( >=dev-python/pygtk-2 ) dev-util/intltool virtual/pkgconfig doc? ( dev-libs/libxslt ) || ( >=sys-devel/automake-1.11.1:1.11 ) >=sys-devel/autoconf-2.68 sys-devel/libtool app-arch/xz-utils >=sys-apps/sed-4 >=app-admin/eselect-python-20091230 python? ( =dev-lang/python-2* )
+DESCRIPTION=Diagram/flowchart creation program
+EAPI=4
+HOMEPAGE=http://live.gnome.org/Dia
+IUSE=cairo doc gnome python debug
+KEYWORDS=~alpha amd64 ~hppa ~ia64 ~ppc ppc64 ~sparc x86 ~x86-fbsd ~x86-freebsd ~amd64-linux ~x86-linux ~ppc-macos
+LICENSE=GPL-2
+RDEPEND=>=dev-libs/glib-2 dev-libs/libxml2 dev-libs/libxslt dev-libs/popt >=media-libs/freetype-2 >=media-libs/libart_lgpl-2 media-libs/libpng sys-libs/zlib x11-libs/gtk+:2 x11-libs/pango cairo? ( x11-libs/cairo ) doc? ( app-text/docbook-xml-dtd:4.5 app-text/docbook-xsl-stylesheets ) gnome? ( >=gnome-base/libgnome-2 >=gnome-base/libgnomeui-2 ) python? ( >=dev-python/pygtk-2 ) >=app-admin/eselect-python-20091230 python? ( =dev-lang/python-2* )
+SLOT=0
+SRC_URI=mirror://gnome/sources/dia/0.97/dia-0.97.2.tar.xz
+_eclasses_=autotools	addbdf6cce5024ac93ad2084ad5e1d2d	eutils	33ef77a15337022e05342d2c772a7a5a	fdo-mime	9c46e30acd923ff12e325dbe96bb98b9	gnome.org	8fef8f967214f56e08fa92d61163d891	gnome2	e766f648c9d51ea0afabaf25bddb1ad9	gnome2-utils	0067e2e4dc66e2ff223a9c527e329407	libtool	0fd90d183673bf1107465ec45849d1ea	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	portability	0be430f759a631e692678ed796e09f5c	python	6bbd984910e27780e5d0ea543d83ef84	toolchain-funcs	6526ac6fc9aedf391efb91fcd75ace68	user	9e552f935106ff0bc92af16da64b4b29	versionator	865bc8b2fc9fcfb6d520bdf5a110f5ed
+_md5_=2db60ffb4930d47d82b037f4be70d861
