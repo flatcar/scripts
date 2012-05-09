@@ -1,9 +1,9 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/media-libs/libdvdnav/libdvdnav-4.2.0.ebuild,v 1.6 2012/02/12 19:39:12 armin76 Exp $
+# $Header: /var/cvsroot/gentoo-x86/media-libs/libdvdnav/libdvdnav-4.2.0.ebuild,v 1.7 2012/04/12 23:40:17 vapier Exp $
 
 EAPI=4
-inherit autotools libtool
+inherit autotools
 
 DESCRIPTION="Library for DVD navigation tools"
 HOMEPAGE="http://dvdnav.mplayerhq.hu/"
@@ -21,7 +21,7 @@ DOCS=( AUTHORS ChangeLog DEVELOPMENT-POLICY.txt doc/dvd_structures NEWS README T
 
 src_prepare() {
 	sed -i -e '/^CFLAGS/s:-O3::' configure.ac || die
-	elibtoolize
+	epatch "${FILESDIR}"/${PN}-4.2.0-pkgconfig.patch
 	eautoreconf
 }
 
