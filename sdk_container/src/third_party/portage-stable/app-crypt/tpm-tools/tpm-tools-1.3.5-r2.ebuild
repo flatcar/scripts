@@ -10,7 +10,7 @@ HOMEPAGE="http://trousers.sourceforge.net"
 SRC_URI="mirror://sourceforge/trousers/${P}.tar.gz"
 LICENSE="CPL-1.0"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 arm x86"
 IUSE="nls pkcs11 debug"
 
 COMMON_DEPEND="
