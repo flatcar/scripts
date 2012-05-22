@@ -136,7 +136,7 @@ migrate to libusb-1 by me (Mike Frysinger)
  
  		DBG(("option index %d\n",c ));
  
-@@ -218,117 +243,125 @@ int main(int argc, char **argv)
+@@ -218,117 +243,127 @@ int main(int argc, char **argv)
  			break;
  
  		case 'b':
@@ -320,7 +320,9 @@ migrate to libusb-1 by me (Mike Frysinger)
 -	if (ret != dl_size) {
 -		printf("failed to write %ld bytes\n", dl_size);
 +	if (ret || transferred != dl_size) {
-+		printf("failed to write %ld bytes (wrote %d)\n", dl_size, transferred);
++		printf("failed to write %ld bytes (wrote %d): %s\n",
++			dl_size, transferred, strerror(errno));
++		ret = 1;
  	}
  
  	free(dl_data);
@@ -331,5 +333,6 @@ migrate to libusb-1 by me (Mike Frysinger)
 +	libusb_close(devh);
 +	libusb_exit(ctx);
  
- 	return 0;
+-	return 0;
++	return ret;
  }
