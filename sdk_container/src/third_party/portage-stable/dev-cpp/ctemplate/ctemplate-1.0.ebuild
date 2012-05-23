@@ -1,10 +1,10 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-cpp/ctemplate/ctemplate-1.0.ebuild,v 1.5 2012/02/11 05:11:44 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-cpp/ctemplate/ctemplate-1.0.ebuild,v 1.7 2012/05/24 19:27:18 vapier Exp $
 
 EAPI="4"
 
-inherit elisp-common python
+inherit elisp-common python eutils
 
 DESCRIPTION="A simple but powerful template language for C++"
 HOMEPAGE="http://code.google.com/p/google-ctemplate/"
@@ -28,6 +28,10 @@ pkg_setup() {
 	fi
 }
 
+src_prepare() {
+	epatch "${FILESDIR}"/${P}-gcc-4.7.patch
+}
+
 src_configure() {
 	econf \
 		--enable-shared \
@@ -43,7 +47,7 @@ src_compile() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" install
+	default
 
 	# Installs just every piece
 	rm -rf "${ED}/usr/share/doc"
@@ -64,7 +68,7 @@ src_install() {
 		elisp-site-file-install "${FILESDIR}/${SITEFILE}"
 	fi
 
-	find "${ED}" -name '*.la' -exec rm -f {} +
+	find "${ED}"/usr -name '*.la' -delete
 }
 
 pkg_postinst() {
