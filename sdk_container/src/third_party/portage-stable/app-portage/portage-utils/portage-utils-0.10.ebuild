@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-portage/portage-utils/portage-utils-0.8.ebuild,v 1.6 2012/02/06 20:13:39 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-portage/portage-utils/portage-utils-0.10.ebuild,v 1.2 2012/04/26 13:52:57 aballier Exp $
 
 EAPI="3"
 
@@ -12,14 +12,15 @@ SRC_URI="mirror://gentoo/${P}.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~sparc-fbsd ~x86-fbsd"
+KEYWORDS="~alpha amd64 arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="static"
 
 src_configure() {
 	use static && append-ldflags -static
 
 	# Avoid slow configure+gnulib+make if on an up-to-date Linux system
-	if ! use kernel_linux || has_version '<sys-libs/glibc-2.10'
+	if use prefix || ! use kernel_linux || \
+	   has_version '<sys-libs/glibc-2.10'
 	then
 		econf --with-eprefix="${EPREFIX}"
 	else
@@ -35,22 +36,28 @@ src_install() {
 	doexe "${FILESDIR}"/post_sync || die
 	insinto /etc/portage/postsync.d
 	doins "${FILESDIR}"/q-reinitialize || die
+
+	# Portage fixes shebangs, we just need to fix the paths in the files
+	sed -i \
+		-e "s:\(/etc/portage/postsync.d\|/usr/bin/q\):${EPREFIX}&:g" \
+		"${ED}"/etc/portage/bin/post_sync \
+		"${ED}"/etc/portage/postsync.d/q-reinitialize || die
 }
 
 pkg_preinst() {
 	# preserve +x bit on postsync files #301721
 	local x
-	pushd "${D}" >/dev/null
+	pushd "${ED}" >/dev/null
 	for x in etc/portage/postsync.d/* ; do
-		[[ -x ${ROOT}/${x} ]] && chmod +x "${x}"
+		[[ -x ${EROOT}/${x} ]] && chmod +x "${x}"
 	done
 }
 
 pkg_postinst() {
-	elog "/etc/portage/postsync.d/q-reinitialize has been installed for convenience"
+	elog "${EPREFIX}/etc/portage/postsync.d/q-reinitialize has been installed for convenience"
 	elog "If you wish for it to be automatically run at the end of every --sync:"
-	elog "   # chmod +x /etc/portage/postsync.d/q-reinitialize"
+	elog "   # chmod +x ${EPREFIX}/etc/portage/postsync.d/q-reinitialize"
 	elog "Normally this should only take a few seconds to run but file systems"
 	elog "such as ext3 can take a lot longer.  To disable, simply do:"
-	elog "   # chmod -x /etc/portage/postsync.d/q-reinitialize"
+	elog "   # chmod -x ${EPREFIX}/etc/portage/postsync.d/q-reinitialize"
 }
