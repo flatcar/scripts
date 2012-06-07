@@ -1,5 +1,13 @@
-# Copyright 1999-2008 Gentoo Foundation
+#!/sbin/runscript
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/busybox/files/mdev.rc.1,v 1.1 2011/09/17 03:46:33 vapier Exp $
+
+depend()
+{
+	provide dev
+	need sysfs
+}
 
 find_mdev()
 {
@@ -55,26 +63,7 @@ seed_dev()
 	mkdir -p /dev/pts /dev/shm
 }
 
-mount_it_b1()
-{
-	if [ "${RC_USE_FSTAB}" = "yes" ] ; then
-		mntcmd=$(get_mount_fstab /dev)
-	else
-		unset mntcmd
-	fi
-	if [ -n "${mntcmd}" ] ; then
-		try mount -n ${mntcmd}
-	else
-		if grep -Eq "[[:space:]]+tmpfs$" /proc/filesystems ; then
-			mntcmd="tmpfs"
-		else
-			mntcmd="ramfs"
-		fi
-		# many video drivers require exec access in /dev #92921
-		try mount -n -t "${mntcmd}" -o exec,nosuid,mode=0755 mdev /dev
-	fi
-}
-mount_it_b2()
+mount_it()
 {
 	if fstabinfo --quiet /dev ; then
 		mount -n /dev
@@ -83,12 +72,8 @@ mount_it_b2()
 		mount -n -t tmpfs -o "exec,nosuid,mode=0755,size=10M" mdev /dev
 	fi
 }
-mount_it()
-{
-	type fstabinfo && mount_it_b2 || mount_it_b1
-}
 
-main()
+start()
 {
 	# Setup temporary storage for /dev
 	ebegin "Mounting /dev for mdev"
@@ -100,26 +85,14 @@ main()
 	# rc will remove the file when done with sysinit.
 	touch /dev/.rcsysinit
 
-	# Selinux lovin; /selinux should be mounted by selinux-patched init
-	if [ -x /sbin/restorecon ] && [ -c /selinux/null ] ; then
-		restorecon /dev > /selinux/null
-	fi
-
 	seed_dev
 
 	# Setup hotplugging (if possible)
 	if [ -e /proc/sys/kernel/hotplug ] ; then
-		ebegin "Setting up proper hotplug agent"
-		eindent
-		einfo "Setting /sbin/mdev as hotplug agent ..."
+		ebegin "Setting up mdev as hotplug agent"
 		echo $(find_mdev) > /proc/sys/kernel/hotplug
-		eoutdent
 		eend 0
 	fi
 
 	populate_mdev
 }
-
-main
-
-# vim:ts=4

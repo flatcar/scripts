@@ -1,9 +1,9 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/busybox/busybox-1.19.0.ebuild,v 1.6 2011/08/24 19:18:38 maekke Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/busybox/busybox-1.20.1.ebuild,v 1.2 2012/06/05 20:35:58 ranger Exp $
 
-EAPI="3"
-inherit eutils flag-o-matic savedconfig toolchain-funcs
+EAPI="4"
+inherit eutils flag-o-matic savedconfig toolchain-funcs multilib
 
 ################################################################################
 # BUSYBOX ALTERNATE CONFIG MINI-HOWTO
@@ -43,28 +43,27 @@ inherit eutils flag-o-matic savedconfig toolchain-funcs
 #
 ################################################################################
 
-#SNAPSHOT=20040726
-SNAPSHOT=""
-
 DESCRIPTION="Utilities for rescue and embedded systems"
 HOMEPAGE="http://www.busybox.net/"
-if [[ -n ${SNAPSHOT} ]] ; then
+if [[ ${PV} == "9999" ]] ; then
 	MY_P=${PN}
-	SRC_URI="http://www.busybox.net/downloads/snapshots/${PN}-${SNAPSHOT}.tar.bz2"
+	EGIT_REPO_URI="git://busybox.net/busybox.git"
+	inherit git-2
 else
 	MY_P=${PN}-${PV/_/-}
 	SRC_URI="http://www.busybox.net/downloads/${MY_P}.tar.bz2"
+	KEYWORDS="~alpha amd64 arm ~hppa ~ia64 ~m68k ~mips ~ppc ppc64 ~s390 ~sh ~sparc x86 ~amd64-linux ~x86-linux"
 fi
+
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm hppa ~ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh ~sparc x86 ~x86-linux"
-IUSE="debug ipv6 make-symlinks +mdev nfs -pam selinux static elibc_glibc"
+IUSE="ipv6 livecd make-symlinks math mdev -pam selinux sep-usr static"
 RESTRICT="test"
 
 RDEPEND="selinux? ( sys-libs/libselinux )
 	pam? ( sys-libs/pam )"
 DEPEND="${RDEPEND}
-	nfs? ( || ( <sys-libs/glibc-2.13 >=net-libs/libtirpc-0.2.2-r1 ) )"
+	>=sys-kernel/linux-headers-2.6.39"
 
 S=${WORKDIR}/${MY_P}
 
@@ -85,11 +84,11 @@ src_prepare() {
 	unset KBUILD_OUTPUT #88088
 	append-flags -fno-strict-aliasing #310413
 	use ppc64 && append-flags -mminimal-toc #130943
-	append-cppflags $($(tc-getPKG_CONFIG) libtirpc --cflags)
 
 	# patches go here!
-	#epatch "${FILESDIR}"/busybox-1.19.0-bb.patch
-	epatch "${FILESDIR}"/busybox-${PV}-*.patch
+	epatch "${FILESDIR}"/${PN}-1.19.0-bb.patch
+	#epatch "${FILESDIR}"/${P}-*.patch
+	cp "${FILESDIR}"/ginit.c init/ || die
 
 	# flag cleanup
 	sed -i -r \
@@ -104,6 +103,9 @@ src_prepare() {
 		-e "/^CC\>/s:=.*:= $(tc-getCC):" \
 		-e "/^HOSTCC/s:=.*:= $(tc-getBUILD_CC):" \
 		Makefile || die
+	sed -i \
+		-e 's:-static-libgcc::' \
+		Makefile.flags || die
 }
 
 src_configure() {
@@ -120,12 +122,18 @@ src_configure() {
 
 	# setup the config file
 	emake -j1 allyesconfig > /dev/null
+	# nommu forces a bunch of things off which we want on #387555
+	busybox_config_option n NOMMU
+	sed -i '/^#/d' .config
+	yes "" | emake -j1 oldconfig >/dev/null
+
+	# now turn off stuff we really don't want
 	busybox_config_option n DMALLOC
 	busybox_config_option n FEATURE_SUID_CONFIG
 	busybox_config_option n BUILD_AT_ONCE
 	busybox_config_option n BUILD_LIBBUSYBOX
-	busybox_config_option n NOMMU
 	busybox_config_option n MONOTONIC_SYSCALL
+	busybox_config_option n WERROR
 
 	# If these are not set and we are using a uclibc/busybox setup
 	# all calls to system() will fail.
@@ -142,18 +150,22 @@ src_configure() {
 	if use static && use pam ; then
 		ewarn "You cannot have USE='static pam'.  Assuming static is more important."
 	fi
-	busybox_config_option nfs FEATURE_MOUNT_NFS
 	use static \
 		&& busybox_config_option n PAM \
 		|| busybox_config_option pam PAM
 	busybox_config_option static STATIC
-	busybox_config_option debug DEBUG
-	use debug \
-		&& busybox_config_option y NO_DEBUG_LIB \
-		&& busybox_config_option n DMALLOC \
-		&& busybox_config_option n EFENCE
+	busybox_config_option math FEATURE_AWK_LIBM
+
+	# all the debug options are compiler related, so punt them
+	busybox_config_option n DEBUG
+	busybox_config_option y NO_DEBUG_LIB
+	busybox_config_option n DMALLOC
+	busybox_config_option n EFENCE
 
 	busybox_config_option selinux SELINUX
+
+	# this opt only controls mounting with <linux-2.6.23
+	busybox_config_option n FEATURE_MOUNT_NFS
 
 	# default a bunch of uncommon options to off
 	local opt
@@ -166,7 +178,7 @@ src_configure() {
 		FEATURE_DEVFS \
 		HOSTID HUSH \
 		INETD INOTIFYD IPCALC \
-		LASH LOCALE_SUPPORT LOGNAME LPD \
+		LOCALE_SUPPORT LOGNAME LPD \
 		MAKEMIME MKFS_MINIX MSH \
 		OD \
 		RDEV READPROFILE REFORMIME REMOVE_SHELL RFKILL RUN_PARTS RUNSV{,DIR} \
@@ -185,15 +197,18 @@ src_compile() {
 	unset KBUILD_OUTPUT #88088
 	export SKIP_STRIP=y
 
-	emake busybox || die "build failed"
+	emake V=1 busybox
 	if ! use static ; then
 		cp .config{,.bak}
 		mv busybox_unstripped{,.bak}
 		use pam && busybox_config_option n PAM
-		emake CONFIG_STATIC=y busybox || die "static build failed"
+		emake CONFIG_STATIC=y busybox
 		mv busybox_unstripped bb
 		mv busybox_unstripped{.bak,}
 		mv .config{.bak,}
+	else
+		# keeps src_install simpler
+		ln busybox_unstripped bb
 	fi
 }
 
@@ -202,12 +217,24 @@ src_install() {
 	save_config .config
 
 	into /
-	newbin busybox_unstripped busybox || die
-	if use static ; then
-		dosym busybox /bin/bb || die
-		dosym bb /bin/busybox.static || die
+	dodir /bin
+	if use sep-usr ; then
+		# install /ginit to take care of mounting stuff
+		exeinto /
+		newexe bb ginit
+		dosym /ginit /bin/bb
+		if use static ; then
+			dosym bb /bin/busybox
+		else
+			newbin busybox_unstripped busybox
+		fi
 	else
-		dobin bb || die
+		newbin busybox_unstripped busybox
+		if use static ; then
+			dosym busybox /bin/bb
+		else
+			dobin bb
+		fi
 	fi
 	if use mdev ; then
 		dodir /$(get_libdir)/mdev/
@@ -217,35 +244,31 @@ src_install() {
 		exeinto /$(get_libdir)/mdev/
 		doexe "${FILESDIR}"/mdev/*
 
-		insinto /$(get_libdir)/rcscripts/addons
-		doins "${FILESDIR}"/mdev-start.sh || die
-		newinitd "${FILESDIR}"/mdev.rc mdev || die
+		newinitd "${FILESDIR}"/mdev.rc.1 mdev
+	fi
+	if use livecd ; then
+		dosym busybox /bin/vi
 	fi
 
 	# bundle up the symlink files for use later
-	emake DESTDIR="${ED}" install || die
+	emake DESTDIR="${ED}" install
 	rm _install/bin/busybox
 	tar cf busybox-links.tar -C _install . || : #;die
 	insinto /usr/share/${PN}
-	doins busybox-links.tar || die
-	newins .config ${PF}.config || die
+	use make-symlinks && doins busybox-links.tar
 
 	dodoc AUTHORS README TODO
 
-	cd docs || die
+	cd docs
 	docinto txt
 	dodoc *.txt
 	docinto pod
 	dodoc *.pod
 	dohtml *.html
 
-	cd ../examples || die
+	cd ../examples
 	docinto examples
 	dodoc inittab depmod.pl *.conf *.script undeb unrpm
-
-	cd bootfloppy || die
-	docinto bootfloppy
-	dodoc $(find . -type f)
 }
 
 pkg_preinst() {
@@ -263,6 +286,8 @@ pkg_preinst() {
 }
 
 pkg_postinst() {
+	savedconfig_pkg_postinst
+
 	if use make-symlinks ; then
 		cd "${T}" || die
 		mkdir _install
@@ -270,7 +295,13 @@ pkg_postinst() {
 		cp -vpPR _install/* "${ROOT}"/ || die "copying links for ${x} failed"
 	fi
 
-	elog "This ebuild has support for user defined configs"
-	elog "Please read this ebuild for more details and re-emerge as needed"
-	elog "if you want to add or remove functionality for ${PN}"
+	if use sep-usr ; then
+		elog "In order to use the sep-usr support, you have to update your"
+		elog "kernel command line.  Add the option:"
+		elog "     init=/ginit"
+		elog "To launch a different init than /sbin/init, use:"
+		elog "     init=/ginit /sbin/yourinit"
+		elog "To get a rescue shell, you may boot with:"
+		elog "     init=/ginit bb"
+	fi
 }
