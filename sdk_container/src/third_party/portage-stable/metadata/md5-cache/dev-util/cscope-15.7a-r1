@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install postinst postrm prepare
+DEPEND=>=sys-libs/ncurses-5.2 emacs? ( virtual/emacs ) sys-devel/flex sys-devel/bison >=sys-devel/autoconf-2.60
+DESCRIPTION=Interactively examine a C program
+EAPI=4
+HOMEPAGE=http://cscope.sourceforge.net/
+IUSE=emacs
+KEYWORDS=alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd
+LICENSE=BSD GPL-2
+RDEPEND=>=sys-libs/ncurses-5.2 emacs? ( virtual/emacs )
+SLOT=0
+SRC_URI=mirror://sourceforge/cscope/cscope-15.7a.tar.bz2
+_eclasses_=elisp-common	3322f14f031ddc95feccd9089c9adc59	eutils	33ef77a15337022e05342d2c772a7a5a	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	6526ac6fc9aedf391efb91fcd75ace68	user	9e552f935106ff0bc92af16da64b4b29
+_md5_=85f8ee6426f36f2946ecda24b25f77a8
