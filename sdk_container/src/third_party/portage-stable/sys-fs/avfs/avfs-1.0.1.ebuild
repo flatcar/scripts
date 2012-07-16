@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/avfs/avfs-1.0.0.ebuild,v 1.1 2011/07/12 00:31:58 radhermit Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/avfs/avfs-1.0.1.ebuild,v 1.1 2012/06/13 07:58:44 radhermit Exp $
 
 EAPI=4
 inherit eutils
@@ -11,19 +11,15 @@ SRC_URI="mirror://sourceforge/avf/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~hppa ~ppc ~ppc64 ~x86"
+KEYWORDS="~alpha amd64 arm ~hppa ~ppc ~ppc64 x86"
 IUSE="static-libs +lzma"
 
-DEPEND=">=sys-fs/fuse-2.4
+RDEPEND=">=sys-fs/fuse-2.4
 	sys-libs/zlib
 	app-arch/bzip2
 	lzma? ( app-arch/xz-utils )"
-RDEPEND="${DEPEND}"
-
-src_prepare() {
-	# Fixes bug #258295
-	epatch "${FILESDIR}/${PN}-0.9.8-gcc43_fix_open_missing_mode.patch"
-}
+DEPEND="${RDEPEND}
+	virtual/pkgconfig"
 
 src_configure() {
 	econf \
@@ -40,7 +36,7 @@ src_install() {
 	default
 
 	# remove cruft
-	rm "${D}"/usr/bin/{davpass,ftppass} || die "rm failed"
+	rm "${D}"/usr/bin/{davpass,ftppass} || die
 
 	# install docs
 	dodoc doc/{api-overview,background,FORMAT,INSTALL.*,README.avfs-fuse}
@@ -49,7 +45,7 @@ src_install() {
 	docinto scripts
 	dodoc scripts/{avfscoda*,*pass}
 
-	use static-libs || find "${ED}" -name '*.la' -exec rm -f {} +
+	prune_libtool_files
 }
 
 pkg_postinst() {
@@ -60,6 +56,6 @@ pkg_postinst() {
 	einfo "   modprobe fuse or add to startup."
 	einfo "3) run mountavfs"
 	einfo "To unload daemon, type umountavfs"
-	echo
+	einfo
 	einfo "READ the documentation! Enjoy :)"
 }
