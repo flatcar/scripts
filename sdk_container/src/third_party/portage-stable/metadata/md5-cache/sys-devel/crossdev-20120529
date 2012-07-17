@@ -7,5 +7,5 @@ KEYWORDS=alpha amd64 arm hppa ia64 m68k mips ppc ppc64 s390 sh sparc x86 ~x86-fb
 LICENSE=GPL-2
 RDEPEND=>=sys-apps/portage-2.1 app-shells/bash !sys-devel/crossdev-wrappers
 SLOT=0
-SRC_URI=mirror://gentoo/crossdev-20120305.tar.xz http://dev.gentoo.org/~vapier/dist/crossdev-20120305.tar.xz
+SRC_URI=mirror://gentoo/crossdev-20120529.tar.xz http://dev.gentoo.org/~vapier/dist/crossdev-20120529.tar.xz
 _md5_=241931643a2ac3d4e131ff13537cdb97

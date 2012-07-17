@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install preinst prepare setup
+DEPEND=>=dev-java/java-config-2.1.9-r1
+DESCRIPTION=JavaScript optimizing compiler
+EAPI=4
+HOMEPAGE=http://code.google.com/p/closure-compiler/
+IUSE=elibc_FreeBSD
+KEYWORDS=amd64 x86
+LICENSE=Apache-2.0
+RDEPEND=>=virtual/jre-1.6 >=dev-java/java-config-2.1.9-r1
+SLOT=0
+SRC_URI=http://closure-compiler.googlecode.com/files/compiler-20120305.tar.gz -> closure-compiler-bin-20120305.tar.gz
+_eclasses_=eutils	33ef77a15337022e05342d2c772a7a5a	java-pkg-2	39b2c3db200ad244ca675b2a1363aa75	java-utils-2	6beafc7c3d1dbae83a4478182b158f66	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	6526ac6fc9aedf391efb91fcd75ace68	user	9e552f935106ff0bc92af16da64b4b29	versionator	865bc8b2fc9fcfb6d520bdf5a110f5ed
+_md5_=d13db97af50cd70d309e746064ad0923
