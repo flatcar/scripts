@@ -1,43 +1,46 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/pam/pam-1.1.3.ebuild,v 1.13 2010/12/30 18:15:23 flameeyes Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/pam/pam-1.1.5.ebuild,v 1.9 2012/07/05 16:17:52 flameeyes Exp $
 
-EAPI="3"
+EAPI="4"
 
-inherit libtool multilib eutils pam toolchain-funcs flag-o-matic db-use autotools
+inherit libtool multilib eutils pam toolchain-funcs flag-o-matic db-use
 
 MY_PN="Linux-PAM"
 MY_P="${MY_PN}-${PV}"
 
-HOMEPAGE="http://www.kernel.org/pub/linux/libs/pam/"
+HOMEPAGE="https://fedorahosted.org/linux-pam/"
 DESCRIPTION="Linux-PAM (Pluggable Authentication Modules)"
 
-SRC_URI="mirror://kernel/linux/libs/pam/library/${MY_P}.tar.bz2
-	mirror://kernel/linux/libs/pam/documentation/${MY_P}-docs.tar.bz2"
+SRC_URI="https://fedorahosted.org/releases/l/i/linux-pam/${MY_P}.tar.bz2
+	https://fedorahosted.org/releases/l/i/linux-pam/${MY_P}-docs.tar.bz2"
 
 LICENSE="|| ( BSD GPL-2 )"
 SLOT="0"
 KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-linux ~ia64-linux ~x86-linux"
-IUSE="cracklib nls elibc_FreeBSD selinux vim-syntax audit test elibc_glibc debug berkdb"
+IUSE="cracklib nls elibc_FreeBSD selinux vim-syntax audit test elibc_glibc debug berkdb nis"
 
 RDEPEND="nls? ( virtual/libintl )
 	cracklib? ( >=sys-libs/cracklib-2.8.3 )
 	audit? ( sys-process/audit )
 	selinux? ( >=sys-libs/libselinux-1.28 )
 	berkdb? ( sys-libs/db )
-	elibc_glibc? ( >=sys-libs/glibc-2.7 )"
+	elibc_glibc? (
+		>=sys-libs/glibc-2.7
+		nis? ( || ( >=net-libs/libtirpc-0.2.2-r1 <sys-libs/glibc-2.14 ) )
+	)"
 DEPEND="${RDEPEND}
 	>=sys-devel/libtool-2
 	sys-devel/flex
-	nls? ( sys-devel/gettext )"
+	nls? ( sys-devel/gettext )
+	virtual/pkgconfig"
 PDEPEND="sys-auth/pambase
 	vim-syntax? ( app-vim/pam-syntax )"
 RDEPEND="${RDEPEND}
+	!sys-auth/openpam
 	!sys-auth/pam_userdb"
 
 S="${WORKDIR}/${MY_P}"
-
-PROVIDE="virtual/pam"
 
 check_old_modules() {
 	local retval="0"
@@ -80,6 +83,8 @@ pkg_setup() {
 }
 
 src_prepare() {
+	epatch "${FILESDIR}"/${MY_P}+glibc-2.16.patch
+
 	elibtoolize
 }
 
@@ -109,6 +114,7 @@ src_configure() {
 		$(use_enable audit) \
 		$(use_enable debug) \
 		$(use_enable berkdb db) \
+		$(use_enable nis) \
 		--with-db-uniquename=-$(db_findver sys-libs/db) \
 		--disable-prelude \
 		${myconf}
@@ -141,7 +147,7 @@ src_install() {
 		fi
 	done
 
-	dodoc CHANGELOG ChangeLog README AUTHORS Copyright NEWS || die
+	dodoc CHANGELOG ChangeLog README AUTHORS Copyright NEWS
 
 	docinto modules
 	for dir in modules/pam_*; do
