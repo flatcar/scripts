@@ -1,10 +1,15 @@
-# Copyright 1999-2005 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/x-modular.eclass,v 1.118 2009/12/09 10:21:49 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/x-modular.eclass,v 1.125 2012/05/02 18:31:45 jdhore Exp $
+#
+# @DEPRECATED
+# This eclass has been superseded by xorg-2
+# Please modify your ebuilds to use that instead
 #
 # @ECLASS: x-modular.eclass
 # @MAINTAINER:
-# Donnie Berkholz <dberkholz@gentoo.org>, x11@gentoo.org
+# Donnie Berkholz <dberkholz@gentoo.org>
+# x11@gentoo.org
 # @BLURB: Reduces code duplication in the modularized X11 ebuilds.
 # @DESCRIPTION:
 # This eclass makes trivial X ebuilds possible for apps, fonts, drivers,
@@ -174,12 +179,11 @@ if [[ -z "${FONT}" ]] \
 fi
 
 DEPEND="${DEPEND}
-	>=dev-util/pkgconfig-0.18"
+	virtual/pkgconfig"
 
 if [[ "${PN/util-macros}" = "${PN}" ]]; then
 	DEPEND="${DEPEND}
-		>=x11-misc/util-macros-1.3.0
-		sys-devel/binutils"
+		>=x11-misc/util-macros-1.3.0"
 fi
 
 RDEPEND="${RDEPEND}
@@ -498,48 +502,8 @@ x-modular_pkg_postinst() {
 # task right now is some cleanup for font packages.
 x-modular_pkg_postrm() {
 	if [[ -n "${FONT}" ]]; then
-		cleanup_fonts
 		font_pkg_postrm
 	fi
-}
-
-# @FUNCTION: cleanup_fonts
-# @USAGE:
-# @DESCRIPTION:
-# Get rid of font directories that only contain generated files
-cleanup_fonts() {
-	local ALLOWED_FILES="encodings.dir fonts.alias fonts.cache-1 fonts.dir fonts.scale"
-	for DIR in ${FONT_DIR}; do
-		unset KEEP_FONTDIR
-		REAL_DIR=${ROOT}usr/share/fonts/${DIR}
-
-		ebegin "Checking ${REAL_DIR} for useless files"
-		pushd ${REAL_DIR} &> /dev/null
-		for FILE in *; do
-			unset MATCH
-			for ALLOWED_FILE in ${ALLOWED_FILES}; do
-				if [[ ${FILE} = ${ALLOWED_FILE} ]]; then
-					# If it's allowed, then move on to the next file
-					MATCH="yes"
-					break
-				fi
-			done
-			# If we found a match in allowed files, move on to the next file
-			if [[ -n ${MATCH} ]]; then
-				continue
-			fi
-			# If we get this far, there wasn't a match in the allowed files
-			KEEP_FONTDIR="yes"
-			# We don't need to check more files if we're already keeping it
-			break
-		done
-		popd &> /dev/null
-		# If there are no files worth keeping, then get rid of the dir
-		if [[ -z "${KEEP_FONTDIR}" ]]; then
-			rm -rf ${REAL_DIR}
-		fi
-		eend 0
-	done
 }
 
 # @FUNCTION: setup_fonts
@@ -578,7 +542,7 @@ remove_font_metadata() {
 # @FUNCTION: install_driver_hwdata
 # @USAGE:
 # @DESCRIPTION:
-# Installs device-to-driver mappings for system-config-display and 
+# Installs device-to-driver mappings for system-config-display and
 # anything else that uses hwdata.
 install_driver_hwdata() {
 	insinto /usr/share/hwdata/videoaliases
