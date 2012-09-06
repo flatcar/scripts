@@ -1,26 +1,30 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/glib/glib-2.30.2-r1.ebuild,v 1.1 2012/01/10 21:25:04 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/glib/glib-2.32.4-r1.ebuild,v 1.6 2012/10/06 21:17:44 blueness Exp $
 
 EAPI="4"
 PYTHON_DEPEND="utils? 2"
 # Avoid runtime dependency on python when USE=test
 
-inherit autotools gnome.org libtool eutils flag-o-matic multilib pax-utils python toolchain-funcs virtualx
+inherit autotools gnome.org libtool eutils flag-o-matic gnome2-utils multilib pax-utils python toolchain-funcs virtualx linux-info
 
 DESCRIPTION="The GLib library of C routines"
 HOMEPAGE="http://www.gtk.org/"
 SRC_URI="${SRC_URI}
+	http://dev.gentoo.org/~tetromino/distfiles/glib/${P}-AS_IF-patches.tar.xz
 	http://pkgconfig.freedesktop.org/releases/pkg-config-0.26.tar.gz" # pkg.m4 for eautoreconf
 
-LICENSE="LGPL-2"
+LICENSE="LGPL-2+"
 SLOT="2"
-IUSE="debug doc fam selinux +static-libs systemtap test utils xattr"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~sparc-fbsd ~x86-fbsd ~x86-linux"
+IUSE="debug doc fam kernel_linux selinux static-libs systemtap test utils xattr"
+KEYWORDS="~alpha amd64 arm hppa ~ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh ~sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~amd64-linux ~x86-linux"
 
 RDEPEND="virtual/libiconv
 	virtual/libffi
 	sys-libs/zlib
+	|| (
+		>=dev-libs/elfutils-0.142
+		>=dev-libs/libelf-0.8.12 )
 	xattr? ( sys-apps/attr )
 	fam? ( virtual/fam )
 	utils? ( >=dev-util/gdbus-codegen-${PV} )"
@@ -39,7 +43,10 @@ DEPEND="${RDEPEND}
 		>=dev-util/gdbus-codegen-${PV}
 		>=sys-apps/dbus-1.2.14 )
 	!<dev-util/gtk-doc-1.15-r2"
-PDEPEND="!<gnome-base/gvfs-1.6.4-r990" # Earlier versions do not work with glib
+PDEPEND="x11-misc/shared-mime-info
+	!<gnome-base/gvfs-1.6.4-r990"
+# shared-mime-info needed for gio/xdgmime, bug #409481
+# Earlier versions of gvfs do not work with glib
 
 pkg_setup() {
 	# Needed for gio/tests/gdbus-testserver.py
@@ -47,42 +54,30 @@ pkg_setup() {
 		python_set_active_version 2
 		python_pkg_setup
 	fi
+
+	if use kernel_linux ; then
+		CONFIG_CHECK="~INOTIFY_USER"
+		linux-info_pkg_setup
+	fi
 }
 
 src_prepare() {
-	mv -vf "${WORKDIR}"/pkg-config-*/pkg.m4 "${WORKDIR}"/ || die
+	epatch "${FILESDIR}"/${P}-CVE-2012-3524.patch
 
-	if use ia64 ; then
-		# Only apply for < 4.1
-		local major=$(gcc-major-version)
-		local minor=$(gcc-minor-version)
-		if (( major < 4 || ( major == 4 && minor == 0 ) )); then
-			epatch "${FILESDIR}/glib-2.10.3-ia64-atomic-ops.patch"
-		fi
-	fi
-
-	# Fix from upstream for building with C++ compilers.
-	epatch "${FILESDIR}"/${P}-missing-decls.patch
-
-	# Don't fail gio tests when ran without userpriv, upstream bug 552912
-	# This is only a temporary workaround, remove as soon as possible
-#	epatch "${FILESDIR}/${PN}-2.18.1-workaround-gio-test-failure-without-userpriv.patch"
+	mv -f "${WORKDIR}"/pkg-config-*/pkg.m4 "${WORKDIR}"/ || die
 
 	# Fix gmodule issues on fbsd; bug #184301
 	epatch "${FILESDIR}"/${PN}-2.12.12-fbsd.patch
-
-	# Fix test failure when upgrading from 2.22 to 2.24, upstream bug 621368
-	epatch "${FILESDIR}/${PN}-2.24-assert-test-failure.patch"
-
-	# Do not try to remove files on live filesystem, upstream bug #619274
-	sed 's:^\(.*"/desktop-app-info/delete".*\):/*\1*/:' \
-		-i "${S}"/gio/tests/desktop-app-info.c || die "sed failed"
 
 	# need to build tests if USE=doc for bug #387385
 	if ! use test && ! use doc; then
 		# don't waste time building tests
 		sed 's/^\(.*\SUBDIRS .*\=.*\)tests\(.*\)$/\1\2/' -i $(find . -name Makefile.am -o -name Makefile.in) || die
 	else
+		# Do not try to remove files on live filesystem, upstream bug #619274
+		sed 's:^\(.*"/desktop-app-info/delete".*\):/*\1*/:' \
+			-i "${S}"/gio/tests/desktop-app-info.c || die "sed failed"
+
 		# Disable tests requiring dev-util/desktop-file-utils when not installed, bug #286629
 		if ! has_version dev-util/desktop-file-utils ; then
 			ewarn "Some tests will be skipped due dev-util/desktop-file-utils not being present on your system,"
@@ -110,16 +105,16 @@ src_prepare() {
 	fi
 
 	# gdbus-codegen is a separate package
-	epatch "${FILESDIR}/${PN}-2.30.1-external-gdbus-codegen.patch"
+	epatch "${FILESDIR}/${PN}-2.31.x-external-gdbus-codegen.patch"
 
-	# Handle the G_HOME environment variable to override the passwd entry, upstream bug #142568
-	epatch "${FILESDIR}/${PN}-2.30.1-homedir-env.patch"
+	# bashcomp goes in /usr/share/bash-completion
+	epatch "${FILESDIR}/${PN}-2.32.4-bashcomp.patch"
 
-	# Fix hardcoded path to machine-id wrt #390143
-	epatch "${FILESDIR}/${PN}-2.30.2-machine-id.patch"
+	# AS_IF fixes from 2.33.x, needed for cross-compiling, bug #434770
+	epatch ../AS_IF-patches/*.patch
 
 	# disable pyc compiling
-	echo '#!/bin/sh' > py-compile
+	use test && python_clean_py-compile_files
 
 	# Needed for the punt-python-check patch, disabling timeout test
 	# Also needed to prevent croscompile failures, see bug #267603
@@ -135,7 +130,7 @@ src_configure() {
 	# Avoid circular depend with dev-util/pkgconfig and
 	# native builds (cross-compiles won't need pkg-config
 	# in the target ROOT to work here)
-	if ! tc-is-cross-compiler && ! has_version dev-util/pkgconfig; then
+	if ! tc-is-cross-compiler && ! $(tc-getPKG_CONFIG) --version >& /dev/null; then
 		if has_version sys-apps/dbus; then
 			export DBUS1_CFLAGS="-I/usr/include/dbus-1.0 -I/usr/$(get_libdir)/dbus-1.0/include"
 			export DBUS1_LIBS="-ldbus-1"
@@ -162,7 +157,6 @@ src_configure() {
 		$(use_enable static-libs static) \
 		$(use_enable systemtap dtrace) \
 		$(use_enable systemtap systemtap) \
-		--enable-regex \
 		--with-pcre=internal \
 		--with-threads=posix
 }
@@ -185,24 +179,20 @@ src_install() {
 
 	dodoc AUTHORS ChangeLog* NEWS* README
 
-	insinto /usr/share/bash-completion
-	for f in gdbus gsettings; do
-		newins "${ED}/etc/bash_completion.d/${f}-bash-completion.sh" ${f}
-	done
-	rm -rf "${ED}/etc"
-
 	# Completely useless with or without USE static-libs, people need to use
 	# pkg-config
 	find "${D}" -name '*.la' -exec rm -f {} +
 }
 
 src_test() {
+	gnome2_environment_reset
+
 	unset DBUS_SESSION_BUS_ADDRESS
 	export XDG_CONFIG_DIRS=/etc/xdg
 	export XDG_DATA_DIRS=/usr/local/share:/usr/share
 	export G_DBUS_COOKIE_SHA1_KEYRING_DIR="${T}/temp"
-	export XDG_DATA_HOME="${T}"
 	unset GSETTINGS_BACKEND # bug 352451
+	export LC_TIME=C # bug #411967
 
 	# Related test is a bit nitpicking
 	mkdir "$G_DBUS_COOKIE_SHA1_KEYRING_DIR"
