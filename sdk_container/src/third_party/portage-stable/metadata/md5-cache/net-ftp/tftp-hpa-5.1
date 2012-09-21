@@ -1,0 +1,13 @@
+DEFINED_PHASES=configure install prepare
+DEPEND=selinux? ( sec-policy/selinux-tftp ) readline? ( sys-libs/readline ) tcpd? ( sys-apps/tcp-wrappers ) !net-ftp/atftp !net-ftp/netkit-tftp app-arch/xz-utils
+DESCRIPTION=port of the OpenBSD TFTP server
+EAPI=4
+HOMEPAGE=http://www.kernel.org/pub/software/network/tftp/
+IUSE=ipv6 readline selinux tcpd
+KEYWORDS=alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~x86-fbsd
+LICENSE=BSD
+RDEPEND=selinux? ( sec-policy/selinux-tftp ) readline? ( sys-libs/readline ) tcpd? ( sys-apps/tcp-wrappers ) !net-ftp/atftp !net-ftp/netkit-tftp
+SLOT=0
+SRC_URI=mirror://kernel/software/network/tftp/tftp-hpa/tftp-hpa-5.1.tar.xz
+_eclasses_=multilib	5f4ad6cf85e365e8f0c6050ddd21659e	toolchain-funcs	6526ac6fc9aedf391efb91fcd75ace68
+_md5_=09c013dfafb95d74b3be067c22929954
