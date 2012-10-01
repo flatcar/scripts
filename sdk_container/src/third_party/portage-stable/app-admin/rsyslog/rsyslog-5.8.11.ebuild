@@ -13,7 +13,7 @@ SRC_URI="http://www.rsyslog.com/files/download/${PN}/${P}.tar.gz
 	zeromq?	( https://github.com/aggregateknowledge/rsyslog-zeromq/tarball/44b551abc29dd5b541884bd51b45b413855a93d8 -> ${PN}-zeromq.tar.gz )"
 
 LICENSE="GPL-3 LGPL-3 Apache-2.0"
-KEYWORDS="~amd64 ~arm ~hppa ~x86"
+KEYWORDS="amd64 arm ~hppa x86"
 SLOT="0"
 IUSE="dbi debug doc extras kerberos mysql oracle postgres relp snmp ssl static-libs zeromq zlib"
 
