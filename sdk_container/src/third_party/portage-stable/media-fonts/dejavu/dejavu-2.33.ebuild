@@ -1,8 +1,8 @@
-# Copyright 1999-2009 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/media-fonts/dejavu/dejavu-2.29.ebuild,v 1.8 2009/09/12 09:38:58 armin76 Exp $
+# $Header: /var/cvsroot/gentoo-x86/media-fonts/dejavu/dejavu-2.33.ebuild,v 1.10 2012/04/26 19:28:04 aballier Exp $
 
-EAPI=1
+EAPI="4"
 
 inherit font versionator
 
@@ -30,7 +30,7 @@ else
 fi
 
 SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ia64 ppc ppc64 s390 sh sparc x86 ~x86-fbsd"
+KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~x86-fbsd ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~x86-solaris"
 
 IUSE="fontforge"
 DEPEND="fontforge? ( x11-apps/mkfontscale
@@ -79,18 +79,4 @@ src_install() {
 	then
 		dodoc build/*.txt
 	fi
-
-}
-
-pkg_postinst() {
-	font_pkg_postinst
-
-	ewarn
-	ewarn "Starting with ${PN}-2.22 font ligatures were re-imported in DejaVu"
-	ewarn "That means that you'll possibly encounter the infamous ligature bug"
-	ewarn "with pango-enabled Firefox (e.g. 'fi' and 'fl' will occasionally"
-	ewarn "overlap). This will be fixed in Firefox-3.x. Until this happens"
-	ewarn "either use Firefox without pango (MOZ_DISABLE_PANGO=1), or use"
-	ewarn "${PN}-2.21"
-	ewarn
 }
