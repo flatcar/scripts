@@ -20,6 +20,12 @@ if [ "${PV%9999}" != "${PV}" ] ; then # Live ebuild
 	S="${WORKDIR}/${PN}"
 else
 	SRC_URI="http://cgit.freedesktop.org/vaapi/libva/snapshot/${P}.tar.bz2"
+	if [ "${PV}" == "1.1.0_rc1" ]; then
+		# Temporary hack to work around a badly named upstream tarball;
+		# this is chrome-os specific, and should be removed once we move
+		# away from 1.1.0_rc1 .  See crosbug.com/35116
+		S="${WORKDIR}/${PN}-1.1.0"
+	fi
 fi
 
 LICENSE="MIT"
