@@ -1,16 +1,14 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/gsutil/gsutil-2011.21.11-r1.ebuild,v 1.1 2011/12/13 19:55:27 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-misc/gsutil/gsutil-3.14.ebuild,v 1.1 2012/08/02 15:54:22 vapier Exp $
 
 EAPI="3"
 
-inherit versionator eutils python multilib
-
-MY_P=$(version_format_string '${PN}_$3-$2-$1')
+inherit eutils python multilib
 
 DESCRIPTION="command line tool for interacting with cloud storage services"
 HOMEPAGE="http://code.google.com/p/gsutil/"
-SRC_URI="http://${PN}.googlecode.com/files/${MY_P}.tar.gz"
+SRC_URI="http://commondatastorage.googleapis.com/pub/${PN}_${PV}.tar.gz"
 
 LICENSE="Apache-2.0"
 SLOT="0"
@@ -19,7 +17,7 @@ IUSE="examples"
 
 DEPEND=""
 RDEPEND="${DEPEND}
-	>=dev-python/boto-2.1.1"
+	>=dev-python/boto-2.5.2"
 
 S=${WORKDIR}/${PN}
 
@@ -42,6 +40,9 @@ src_install() {
 
 	insinto /usr/$(get_libdir)/${PN}
 	doins -r gslib oauth2_plugin third_party VERSION || die
+
+	# http://code.google.com/p/gsutil/issues/detail?id=96
+	rm "${D}"/usr/$(get_libdir)/${PN}/gslib/commands/test.py || die
 
 	dodoc README
 	if use examples ; then
