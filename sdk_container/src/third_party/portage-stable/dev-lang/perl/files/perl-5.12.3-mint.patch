@@ -1,0 +1,321 @@
+http://rt.perl.org/rt3/Ticket/Display.html?id=89502
+
+--- perl-5.12.3/Configure	2011-02-21 09:18:09.000000000 +0000
++++ perl-5.12.3/Configure	2011-02-21 09:38:49.000000000 +0000
+@@ -1275,6 +1275,9 @@ 
+ elif test -n "$DJGPP"; then
+ : DOS DJGPP
+     _exe=".exe"
++elif test -f "/kern/cookiejar"; then
++: MiNT
++    _exe=""
+ elif test -d c:/. -o -n "$is_os2" ; then
+ : OS/2 or cygwin
+     _exe=".exe"
+@@ -1402,7 +1405,7 @@ 
+ 	xcat=/bin/cat
+ 	test -f $xcat$_exe || xcat=/usr/bin/cat
+ 	if test ! -f $xcat$_exe; then
+-		for p in `echo $PATH | sed -e "s/$p_/ /g"` $paths; do
++		for p in `echo $PATH | sed -e 's/$p_/ /g'` $paths; do
+ 			if test -f $p/cat$_exe; then
+ 				xcat=$p/cat
+ 				break
+--- perl-5.12.3/ext/DynaLoader/dl_dld.xs	2010-11-21 21:40:55.000000000 +0000
++++ perl-5.12.3/ext/DynaLoader/dl_dld.xs	2011-02-21 09:38:51.000000000 +0000
+@@ -116,6 +116,18 @@ 
+ 	goto haverror;
+     }
+ 
++    DLDEBUG(1,PerlIO_printf(Perl_debug_log, "dld_link(libm.a)\n"));
++    if (dlderr = dld_link("/usr/lib/libm.a")) {
++	SaveError(aTHX_ "dld_link(libm.a): %s", dld_strerror(dlderr));
++	goto haverror;
++    }
++
++    DLDEBUG(1,PerlIO_printf(Perl_debug_log, "dld_link(libc.a)\n"));
++    if (dlderr = dld_link("/usr/lib/libc.a")) {
++	SaveError(aTHX_ "dld_link(libc.a): %s", dld_strerror(dlderr));
++	goto haverror;
++    }
++
+     max = AvFILL(dl_resolve_using);
+     for (x = 0; x <= max; x++) {
+ 	char *sym = SvPVX(*av_fetch(dl_resolve_using, x, 0));
+--- perl-5.12.3/malloc.c	2011-01-09 20:20:57.000000000 +0000
++++ perl-5.12.3/malloc.c	2011-02-21 09:38:51.000000000 +0000
+@@ -264,7 +264,7 @@ 
+ #define MIN_BUC_POW2 (sizeof(void*) > 4 ? 3 : 2) /* Allow for 4-byte arena. */
+ #define MIN_BUCKET (MIN_BUC_POW2 * BUCKETS_PER_POW2)
+ 
+-#if !(defined(I286) || defined(atarist))
++#if !defined(I286)
+ 	/* take 2k unless the block is bigger than that */
+ #  define LOG_OF_MIN_ARENA 11
+ #else
+@@ -551,8 +551,8 @@ 
+  */
+ #define u_short unsigned short
+ 
+-/* 286 and atarist like big chunks, which gives too much overhead. */
+-#if (defined(RCHECK) || defined(I286) || defined(atarist)) && defined(PACK_MALLOC)
++/* 286 like big chunks, which gives too much overhead. */
++#if (defined(RCHECK) || defined(I286)) && defined(PACK_MALLOC)
+ #  undef PACK_MALLOC
+ #endif 
+ 
+@@ -1734,16 +1734,14 @@ 
+ 	/* Second, check alignment. */
+ 	slack = 0;
+ 
+-#if !defined(atarist) /* on the atari we dont have to worry about this */
+-#  ifndef I286 	/* The sbrk(0) call on the I286 always returns the next segment */
++#ifndef I286 	/* The sbrk(0) call on the I286 always returns the next segment */
+ 	/* WANTED_ALIGNMENT may be more than NEEDED_ALIGNMENT, but this may
+ 	   improve performance of memory access. */
+ 	if (PTR2UV(cp) & (WANTED_ALIGNMENT - 1)) { /* Not aligned. */
+ 	    slack = WANTED_ALIGNMENT - (PTR2UV(cp) & (WANTED_ALIGNMENT - 1));
+ 	    add += slack;
+ 	}
+-#  endif
+-#endif /* !atarist */
++#endif
+ 		
+ 	if (add) {
+ 	    DEBUG_m(PerlIO_printf(Perl_debug_log, 
+--- perl-5.12.3/miniperlmain.c	2011-01-09 20:20:57.000000000 +0000
++++ perl-5.12.3/miniperlmain.c	2011-02-21 09:38:49.000000000 +0000
+@@ -45,7 +45,7 @@ 
+ #if defined (atarist)
+ /* The Atari operating system doesn't have a dynamic stack.  The
+    stack size is determined from this value.  */
+-long _stksize = 64 * 1024;
++long _stksize = 256 * 1024;
+ #endif
+ 
+ #if defined(PERL_GLOBAL_STRUCT_PRIVATE)
+--- perl-5.12.3/os2/perlrexx.c	2010-11-21 21:40:56.000000000 +0000
++++ perl-5.12.3/os2/perlrexx.c	2011-02-21 09:42:49.000000000 +0000
+@@ -38,7 +38,7 @@ 
+ #if defined (atarist)
+ /* The Atari operating system doesn't have a dynamic stack.  The
+    stack size is determined from this value.  */
+-long _stksize = 64 * 1024;
++long _stksize = 256 * 1024;
+ #endif
+ 
+ /* Register any extra external extensions */
+--- perl-5.12.3/perl.c	2011-02-21 09:17:19.000000000 +0000
++++ perl-5.12.3/perl.c	2011-02-21 09:38:50.000000000 +0000
+@@ -3272,10 +3272,6 @@ 
+ 		      "\n\nOS/2 port Copyright (c) 1990, 1991, Raymond Chen, Kai Uwe Rommel\n"
+ 		      "Version 5 port Copyright (c) 1994-2002, Andreas Kaiser, Ilya Zakharevich\n");
+ #endif
+-#ifdef atarist
+-	PerlIO_printf(PerlIO_stdout(),
+-		      "atariST series port, ++jrb  bammi@cadence.com\n");
+-#endif
+ #ifdef __BEOS__
+ 	PerlIO_printf(PerlIO_stdout(),
+ 		      "BeOS port Copyright Tom Spindler, 1997-1999\n");
+--- perl-5.12.3/perl.h	2011-01-09 20:20:57.000000000 +0000
++++ perl-5.12.3/perl.h	2011-02-21 09:38:50.000000000 +0000
+@@ -497,7 +497,7 @@ 
+  */
+ 
+ /* define this once if either system, instead of cluttering up the src */
+-#if defined(MSDOS) || defined(atarist) || defined(WIN32) || defined(NETWARE)
++#if defined(MSDOS) || defined(WIN32) || defined(NETWARE)
+ #define DOSISH 1
+ #endif
+ 
+--- perl-5.12.3/perlio.c	2009-04-14 23:47:25.000000000 +0000
++++ perl-5.12.3/perlio.c	2010-03-23 18:36:15.000000000 +0000
+@@ -135,17 +135,6 @@ 
+      * This used to be contents of do_binmode in doio.c
+      */
+ #ifdef DOSISH
+-#  if defined(atarist)
+-    PERL_UNUSED_ARG(iotype);
+-    if (!fflush(fp)) {
+-        if (mode & O_BINARY)
+-            ((FILE *) fp)->_flag |= _IOBIN;
+-        else
+-            ((FILE *) fp)->_flag &= ~_IOBIN;
+-        return 1;
+-    }
+-    return 0;
+-#  else
+     dTHX;
+     PERL_UNUSED_ARG(iotype);
+ #ifdef NETWARE
+@@ -153,7 +142,7 @@ 
+ #else
+     if (PerlLIO_setmode(fileno(fp), mode) != -1) {
+ #endif
+-#    if defined(WIN32) && defined(__BORLANDC__)
++#  if defined(WIN32) && defined(__BORLANDC__)
+         /*
+          * The translation mode of the stream is maintained independent 
+ of
+@@ -169,12 +158,11 @@ 
+             fp->flags |= _F_BIN;
+         else
+             fp->flags &= ~_F_BIN;
+-#    endif
++#  endif
+         return 1;
+     }
+     else
+         return 0;
+-#  endif
+ #else
+ #  if defined(USEMYBINMODE)
+     dTHX;
+--- perl-5.12.3/pp_sys.c	2011-01-09 20:20:58.000000000 +0000
++++ perl-5.12.3/pp_sys.c	2011-02-21 09:38:50.000000000 +0000
+@@ -3308,14 +3308,6 @@ 
+     RETPUSHNO;
+ }
+ 
+-#if defined(atarist) /* this will work with atariST. Configure will
+-			make guesses for other systems. */
+-# define FILE_base(f) ((f)->_base)
+-# define FILE_ptr(f) ((f)->_ptr)
+-# define FILE_cnt(f) ((f)->_cnt)
+-# define FILE_bufsiz(f) ((f)->_cnt + ((f)->_ptr - (f)->_base))
+-#endif
+-
+ PP(pp_fttext)
+ {
+     dVAR;
+@@ -5567,30 +5559,6 @@ 
+     case 8:
+ 	retval = syscall(a[0],a[1],a[2],a[3],a[4],a[5],a[6],a[7]);
+ 	break;
+-#ifdef atarist
+-    case 9:
+-	retval = syscall(a[0],a[1],a[2],a[3],a[4],a[5],a[6],a[7],a[8]);
+-	break;
+-    case 10:
+-	retval = syscall(a[0],a[1],a[2],a[3],a[4],a[5],a[6],a[7],a[8],a[9]);
+-	break;
+-    case 11:
+-	retval = syscall(a[0],a[1],a[2],a[3],a[4],a[5],a[6],a[7],a[8],a[9],
+-	  a[10]);
+-	break;
+-    case 12:
+-	retval = syscall(a[0],a[1],a[2],a[3],a[4],a[5],a[6],a[7],a[8],a[9],
+-	  a[10],a[11]);
+-	break;
+-    case 13:
+-	retval = syscall(a[0],a[1],a[2],a[3],a[4],a[5],a[6],a[7],a[8],a[9],
+-	  a[10],a[11],a[12]);
+-	break;
+-    case 14:
+-	retval = syscall(a[0],a[1],a[2],a[3],a[4],a[5],a[6],a[7],a[8],a[9],
+-	  a[10],a[11],a[12],a[13]);
+-	break;
+-#endif /* atarist */
+     }
+     SP = ORIGMARK;
+     PUSHi(retval);
+--- perl-5.12.3/util.c	2011-01-09 20:20:58.000000000 +0000
++++ perl-5.12.3/util.c	2011-02-21 09:38:51.000000000 +0000
+@@ -2545,7 +2545,7 @@ 
+     return PerlIO_fdopen(p[This], mode);
+ }
+ #else
+-#if defined(atarist) || defined(EPOC)
++#if defined(EPOC)
+ FILE *popen();
+ PerlIO *
+ Perl_my_popen(pTHX_ const char *cmd, const char *mode)
+@@ -2994,7 +2994,7 @@ 
+ }
+ #endif
+ 
+-#if defined(atarist) || defined(OS2) || defined(EPOC)
++#if defined(OS2) || defined(EPOC)
+ int pclose();
+ #ifdef HAS_FORK
+ int					/* Cannot prototype with I32
+@@ -3111,7 +3111,7 @@ 
+     I32 len = 0;
+     int retval;
+     char *bufend;
+-#if defined(DOSISH) && !defined(OS2) && !defined(atarist)
++#if defined(DOSISH) && !defined(OS2)
+ #  define SEARCH_EXTS ".bat", ".cmd", NULL
+ #  define MAX_EXT_LEN 4
+ #endif
+@@ -3234,28 +3234,25 @@ 
+ 
+ 	bufend = s + strlen(s);
+ 	while (s < bufend) {
+-#if defined(atarist) || defined(DOSISH)
++#if defined(DOSISH)
+ 	    for (len = 0; *s
+-#  ifdef atarist
+-		    && *s != ','
+-#  endif
+ 		    && *s != ';'; len++, s++) {
+ 		if (len < sizeof tmpbuf)
+ 		    tmpbuf[len] = *s;
+ 	    }
+ 	    if (len < sizeof tmpbuf)
+ 		tmpbuf[len] = '\0';
+-#else  /* ! (atarist || DOSISH) */
++#else  /* ! (DOSISH) */
+ 	    s = delimcpy(tmpbuf, tmpbuf + sizeof tmpbuf, s, bufend,
+ 			':',
+ 			&len);
+-#endif /* ! (atarist || DOSISH) */
++#endif /* ! (DOSISH) */
+ 	    if (s < bufend)
+ 		s++;
+ 	    if (len + 1 + strlen(scriptname) + MAX_EXT_LEN >= sizeof tmpbuf)
+ 		continue;	/* don't search dir with too-long name */
+ 	    if (len
+-#  if defined(atarist) || defined(DOSISH)
++#  if defined(DOSISH)
+ 		&& tmpbuf[len - 1] != '/'
+ 		&& tmpbuf[len - 1] != '\\'
+ #  endif
+--- perl-5.12.3/hints/freemint.sh	2011-01-09 20:20:58.000000000 +0000
++++ perl-5.12.3/hints/freemint.sh	2011-02-21 09:38:51.000000000 +0000
+@@ -0,0 +1,34 @@ 
++# hints/freemint.sh
++#
++# talk to guido@freemint.de if you want to change this file.
++# Please read the README.mint file.
++#
++# misc stuff
++
++archname="m68k-freemint"
++
++cccdlflags=' '; # avoid -fPIC
++ccdlflags="-Wl,-whole-archive -lgcc -lpthread -Wl,-no-whole-archive"
++
++# libs
++libpth="$prefix/lib /usr/local/lib /usr/lib"
++glibpth="$libpth"
++xlibpth="$libpth"
++
++ccflags="$ccflags -D_GNU_SOURCE"
++libswanted='m dld'
++dl_src='dl_dld.xs'
++dlext='o'
++lddlflags='-r'
++ldflags='-static'
++so='none'
++useshrplib='false'
++
++#sbrk() returns -1 (failure) somewhere in lib/unicore/mktables at
++#around 14M, so we need to use system malloc() as our sbrk()
++malloc_cflags='ccflags="-DUSE_PERL_SBRK -DPERL_SBRK_VIA_MALLOC $ccflags"'
++
++# Locales aren't feeling well. We crash if -Ox used.
++locale_cflags='optimize="-O0"'
++LC_ALL=C; export LC_ALL;
++LANG=C; export LANG;

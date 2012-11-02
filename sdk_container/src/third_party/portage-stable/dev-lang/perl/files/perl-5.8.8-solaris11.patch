@@ -1,0 +1,14 @@
+Thanks to the nice OpenSolaris guys, I finally figured out that on
+OpenSolaris 11, the header dependencies have changed.
+
+--- perl.h
++++ perl.h
+@@ -1192,6 +1192,8 @@
+  */
+ 
+ #if defined(I_SYSMODE) && !defined(PERL_MICRO)
++#include <sys/stat.h>
++#include <sys/vnode.h>
+ #include <sys/mode.h>
+ #endif
+ 
