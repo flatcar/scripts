@@ -1,0 +1,26 @@
+https://bugs.gentoo.org/418033
+
+fix building when zlib is disabled but bzip2 is enabled
+
+patch by Richard Grenville <pyxlcy@gmail.com>
+
+--- a/pcregrep.c	(revision 970)
++++ b/pcregrep.c	(working copy)
+@@ -1618,7 +1618,7 @@ gzFile ingz = NULL;
+ BZFILE *inbz2 = NULL;
+ #endif
+ 
+-#if defined SUPPORT_LIBZ || defined SUPPORT_LIBZ2
++#if defined SUPPORT_LIBZ || defined SUPPORT_LIBBZ2
+ int pathlen;
+ #endif
+ 
+@@ -1701,7 +1701,7 @@ skipping was not requested. The scan pro
+ argument at top level, we don't show the file name, unless we are only showing
+ the file name, or the filename was forced (-H). */
+ 
+-#if defined SUPPORT_LIBZ || defined SUPPORT_LIBZ2
++#if defined SUPPORT_LIBZ || defined SUPPORT_LIBBZ2
+ pathlen = (int)(strlen(pathname));
+ #endif
+ 
