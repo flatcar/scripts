@@ -3,28 +3,39 @@
 binutils-config \- manage active versions of the binutils programs
 .SH "DESCRIPTION"
 The \fBbinutils-config\fR script allows you to switch between different 
-versions of binutils when you have installed multiple copies via portage.  
-It also allows you to manage multiple cross-compiling targets.
+versions of binutils when you have installed multiple copies (see
+USE=multislot).  It also allows you to manage multiple cross-compiling
+targets simultaneously.
 
-Remember, you may have one version of binutils active per \fBCTARGET\fR.
+Remember, you may have one version of binutils active per \fICTARGET\fR,
+and changing the version for one target has no bearing on any other.  So
+changing an active cross-compiler will not break your native compiler
+(i.e. \fICHOST\fR).
 .SH "SYNOPSIS"
-\fBbinutils-config\fR \fI--get-current-profile\fR \fI[TARGET]\fR
+\fBbinutils-config\fR [\fIcrufty options\fR] \fIPROFILE\fR
 
-\fBbinutils-config\fR \fI--list-profiles\fR
+\fBbinutils-config\fR \fB--get-current-profile\fR \fI[TARGET]\fR
 
-\fBbinutils-config\fR \fI--uninstall\fR \fI<TARGET>\fR
+\fBbinutils-config\fR \fB--list-profiles\fR
+
+\fBbinutils-config\fR \fB--uninstall\fR \fITARGET\fR
 .SH "GENERIC OPTIONS"
 .TP
-\fBTARGET\fR
+\fBPROFILE\fR
 Change the system to use the specified binutils version.  This may take the
-form of the list index number (the number shown in the
-\fI\-\-list\-profiles\fR output), a full \fBCTARGET-VERSION\fR (useful when
-working with cross-compilers), or just a binutils \fBVERSION\fR where the
-\fBCTARGET\fR is assumed to be the native \fBCHOST\fR value.
+form of the list index number (the number shown on the left in the
+\fB\-\-list\-profiles\fR output), a full \fITARGET-VERSION\fR (useful when
+working with cross-compilers), just a \fITARGET\fR where the \fIVERSION\fR
+is picked from the active, or just a binutils \fIVERSION\fR where the
+\fITARGET\fR is assumed to be the native \fIHOST\fR value.
+.TP
+\fBTARGET\fR
+Similiar to \fBPROFILE\fR, but this is only the target and no version info
+(i.e. \fICTARGET\fR or \fICHOST\fR).
 .TP
 \fB\-c\fR, \fB\-\-get\-current\-profile\fR \fI[TARGET]\fR
 Display the active profile for \fITARGET\fR.  If none is specified, the 
-host system's \fITARGET\fR will be shown.
+host system's \fITARGET\fR will be shown (i.e. \fICHOST\fR).
 .TP
 \fB\-l\fR, \fB\-\-list\-profiles\fR
 Show all the profiles that your system currently has installed and what
@@ -32,10 +43,19 @@ versions are active.  The active native version is noted with a bright green
 asterisk while the active cross-compiler versions are noted with a light blue
 asterisk.
 .TP
-\fB-u\fR, \fB\-\-uninstall\fR <\fBTARGET\fR>
+\fB-u\fR, \fB\-\-uninstall\fR \fITARGET\fR
 This is really for internal use only.  Used to remove all traces of the 
-\fBTARGET\fR binutils from your system.
-.SH "SPECIFIC OPTIONS"
+\fITARGET\fR binutils from your system.
+.SH "CRUFTY OPTIONS"
+.TP
+\fB\-\-gold\fR
+Change the default linker for the specified \fIPROFILE\fR to the [newer] gold
+linker.  This only works if the binutils actually supports gold.  Note that
+not all options supported by the bfd linker are supportd by the gold linker.
+.TP
+\fB\-\-bfd\fR
+Change the default linker for the specified \fIPROFILE\fR to the [older but
+stable] bfd linker.  If unsure, stick to this one.
 .TP
 \fB\-\-amd64\fR
 A nice feature of the amd64/x86 toolchain is that each can produce code for 
