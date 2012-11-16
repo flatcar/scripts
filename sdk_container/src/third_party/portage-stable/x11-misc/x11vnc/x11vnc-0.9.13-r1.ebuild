@@ -1,8 +1,8 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-misc/x11vnc/x11vnc-0.9.9.ebuild,v 1.14 2011/11/01 03:56:58 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/x11-misc/x11vnc/x11vnc-0.9.13-r1.ebuild,v 1.1 2012/11/15 21:06:42 vapier Exp $
 
-EAPI="2"
+EAPI="4"
 
 inherit eutils
 
@@ -12,8 +12,8 @@ SRC_URI="mirror://sourceforge/libvncserver/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ia64 ppc ppc64 sh sparc x86 ~x86-fbsd ~x86-interix ~amd64-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
-IUSE="fbcon +jpeg +zlib threads ssl crypt xinerama avahi system-libvncserver"
+KEYWORDS="~alpha amd64 arm ~hppa ~ia64 ~ppc ~ppc64 ~sh ~sparc x86 ~x86-fbsd ~x86-interix ~amd64-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
+IUSE="avahi crypt fbcon +jpeg ssl system-libvncserver threads tk xinerama +zlib"
 
 RDEPEND="system-libvncserver? ( >=net-libs/libvncserver-0.9.7[threads=,jpeg=,zlib=] )
 	!system-libvncserver? (
@@ -21,6 +21,7 @@ RDEPEND="system-libvncserver? ( >=net-libs/libvncserver-0.9.7[threads=,jpeg=,zli
 		jpeg? ( virtual/jpeg:0 )
 	)
 	ssl? ( dev-libs/openssl )
+	tk? ( dev-lang/tk )
 	avahi? ( >=net-dns/avahi-0.6.4 )
 	xinerama? ( x11-libs/libXinerama )
 	x11-libs/libXfixes
@@ -29,7 +30,6 @@ RDEPEND="system-libvncserver? ( >=net-libs/libvncserver-0.9.7[threads=,jpeg=,zli
 	>=x11-libs/libXtst-1.1.0
 	x11-libs/libXdamage
 	x11-libs/libXext"
-
 DEPEND="${RDEPEND}
 	x11-libs/libXt
 	xinerama? ( x11-proto/xineramaproto )
@@ -40,17 +40,15 @@ DEPEND="${RDEPEND}
 	x11-proto/xextproto"
 
 pkg_setup() {
-	if use avahi && ! use threads
-	then
+	if use avahi && ! use threads ; then
 		ewarn "Non-native avahi support has been enabled."
 		ewarn "Native avahi support can be enabled by also enabling the threads USE flag."
 	fi
 }
 
 src_prepare() {
-	epatch \
-		"${FILESDIR}"/${PN}-0.9.11-rename-pointer.patch \
-		"${FILESDIR}"/${PN}-0.9.12-warnings.patch
+	epatch "${FILESDIR}"/${P}-warnings.patch
+	epatch "${FILESDIR}"/${P}-shm-cleanup.patch
 }
 
 src_configure() {
@@ -70,6 +68,8 @@ src_configure() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" install || die "make install failed"
+	emake DESTDIR="${D}" install
 	dodoc x11vnc/{ChangeLog,README}
+	# Remove include files, which conflict with net-libs/libvncserver
+	rm -rf "${D}"/usr/include
 }
