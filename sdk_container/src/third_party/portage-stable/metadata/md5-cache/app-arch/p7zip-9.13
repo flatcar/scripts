@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install prepare setup test
+DEPEND=kde? ( x11-libs/wxGTK:2.8[X,-odbc] kde-base/kdelibs ) wxwidgets? ( x11-libs/wxGTK:2.8[X,-odbc] )
+DESCRIPTION=Port of 7-Zip archiver for Unix
+EAPI=2
+HOMEPAGE=http://p7zip.sourceforge.net/
+IUSE=doc kde rar static wxwidgets
+KEYWORDS=alpha amd64 ~arm hppa ia64 ppc ppc64 sparc x86 ~x86-fbsd ~x86-freebsd ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos
+LICENSE=LGPL-2.1 rar? ( unRAR )
+RDEPEND=kde? ( x11-libs/wxGTK:2.8[X,-odbc] kde-base/kdelibs ) wxwidgets? ( x11-libs/wxGTK:2.8[X,-odbc] )
+SLOT=0
+SRC_URI=mirror://sourceforge/p7zip/p7zip_9.13_src_all.tar.bz2
+_eclasses_=eutils	33ef77a15337022e05342d2c772a7a5a	flag-o-matic	01a8b1eb019305bc4b4a8bd0b04e4cd8	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	6526ac6fc9aedf391efb91fcd75ace68	user	9e552f935106ff0bc92af16da64b4b29	wxwidgets	a63777cd98e5f0d521e43c451fe4cf43
+_md5_=c28cc567e5d01b14ffa199a95d10354e
