@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-util/valgrind/valgrind-3.7.0-r4.ebuild,v 1.2 2012/05/10 09:21:33 grobian Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-util/valgrind/valgrind-3.8.1.ebuild,v 1.1 2012/09/20 20:49:50 blueness Exp $
 
 EAPI="4"
 inherit autotools eutils flag-o-matic toolchain-funcs multilib pax-utils
@@ -35,16 +35,7 @@ src_prepare() {
 
 	# Don't build in empty assembly files for other platforms or we'll get a QA
 	# warning about executable stacks.
-	epatch "${FILESDIR}"/${PN}-3.7.0-non-exec-stack-v2.patch
-
-	# Fix the regex to get gcc's version
-	epatch "${FILESDIR}"/${PN}-3.7.0-fix-gcc-regex.patch
-
-	# Fix stricter use of dir variables, bug #397429
-	epatch "${FILESDIR}"/${PN}-3.7.0-automake-1.11.2.patch
-
-	# Fix for glibc 2.15, bug #398921
-	epatch "${FILESDIR}"/${PN}-3.7.0-glibc-2.15.patch
+	epatch "${FILESDIR}"/${PN}-3.8.0-non-exec-stack.patch
 
 	# Regenerate autotools files
 	eautoreconf
