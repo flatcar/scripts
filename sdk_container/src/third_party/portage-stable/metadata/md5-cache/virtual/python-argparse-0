@@ -1,0 +1,10 @@
+DEFINED_PHASES=-
+DESCRIPTION=A virtual for the Python argparse module
+EAPI=4
+IUSE=python_targets_python2_5 python_targets_python2_6 python_targets_python2_7 python_targets_python3_1 python_targets_python3_2 python_targets_python3_3 python_targets_pypy1_8 python_targets_pypy1_9 python_targets_jython2_5
+KEYWORDS=alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x86-solaris
+RDEPEND=python_targets_python2_5? ( dev-python/argparse ) python_targets_python2_6? ( dev-python/argparse ) python_targets_jython2_5? ( dev-python/argparse )
+REQUIRED_USE=|| ( python_targets_python2_5 python_targets_python2_6 python_targets_python2_7 python_targets_python3_1 python_targets_python3_2 python_targets_python3_3 python_targets_pypy1_8 python_targets_pypy1_9 python_targets_jython2_5 )
+SLOT=0
+_eclasses_=multilib	5f4ad6cf85e365e8f0c6050ddd21659e	python-r1	e8d8e8cfcf00614a58f2db821a59fa27	python-utils-r1	003399fd79dd7f27db6df90c2d78b3cb	toolchain-funcs	6526ac6fc9aedf391efb91fcd75ace68
+_md5_=7cf394ee8b8957855cf9dd5100559393
