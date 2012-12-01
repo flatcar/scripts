@@ -2,11 +2,12 @@ Index: tiff-3.8.2/configure
 ===================================================================
 --- tiff-3.8.2.orig/configure
 +++ tiff-3.8.2/configure
-@@ -8199,7 +8199,13 @@ freebsd* | dragonfly*)
+@@ -8199,7 +8199,14 @@ freebsd* | dragonfly*)
      *) objformat=elf ;;
      esac
    fi
 -  version_type=freebsd-$objformat
++  # Handle Gentoo/FreeBSD as it was Linux
 +  case $host_vendor in
 +    gentoo)
 +      version_type=linux ;;
