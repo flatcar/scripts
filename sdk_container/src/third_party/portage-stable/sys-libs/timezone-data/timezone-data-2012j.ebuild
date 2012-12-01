@@ -1,21 +1,21 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/timezone-data/timezone-data-2011j.ebuild,v 1.3 2011/10/19 20:12:23 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/timezone-data/timezone-data-2012j.ebuild,v 1.1 2012/11/13 05:52:46 vapier Exp $
 
 inherit eutils toolchain-funcs flag-o-matic
 
-code_ver=${PV%j}i
+code_ver=${PV}
 data_ver=${PV}
 DESCRIPTION="Timezone data (/usr/share/zoneinfo) and utilities (tzselect/zic/zdump)"
-HOMEPAGE="http://www.twinsun.com/tz/tz-link.htm"
-SRC_URI="ftp://elsie.nci.nih.gov/pub/tzdata${data_ver}.tar.gz
-	ftp://elsie.nci.nih.gov/pub/tzcode${code_ver}.tar.gz
-	mirror://gentoo/tzdata${data_ver}.tar.gz
-	mirror://gentoo/tzcode${code_ver}.tar.gz"
+HOMEPAGE="http://www.iana.org/time-zones http://www.twinsun.com/tz/tz-link.htm"
+SRC_URI="http://www.iana.org/time-zones/repository/releases/tzdata${data_ver}.tar.gz
+	http://www.iana.org/time-zones/repository/releases/tzcode${code_ver}.tar.gz
+	ftp://munnari.oz.au/pub/tzdata${data_ver}.tar.gz
+	ftp://munnari.oz.au/pub/tzcode${code_ver}.tar.gz"
 
 LICENSE="BSD public-domain"
 SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~sparc-fbsd ~x86-fbsd"
+KEYWORDS="alpha amd64 arm hppa ia64 m68k mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
 IUSE="nls elibc_FreeBSD elibc_glibc"
 
 RDEPEND="!<sys-libs/glibc-2.3.5"
@@ -24,7 +24,7 @@ S=${WORKDIR}
 
 src_unpack() {
 	unpack ${A}
-	epatch "${FILESDIR}"/${PN}-2008h-makefile.patch
+	epatch "${FILESDIR}"/${PN}-2012i-makefile.patch
 	tc-is-cross-compiler && cp -pR "${S}" "${S}"-native
 }
 
@@ -32,15 +32,13 @@ src_compile() {
 	local LDLIBS
 	tc-export CC
 	use elibc_FreeBSD && append-flags -DSTD_INSPIRED #138251
-	if use nls ; then
-		use elibc_glibc || LDLIBS="${LDLIBS} -lintl" #154181
-		export NLS=1
-	else
-		export NLS=0
+	export NLS=$(usex nls 1 0)
+	if use nls && ! use elibc_glibc ; then
+		LDLIBS+=" -lintl" #154181
 	fi
-	# Makefile uses LBLIBS for the libs (which defaults to LDFLAGS)
-	# But it also uses LFLAGS where it expects the real LDFLAGS
 	emake \
+		CFLAGS="${CPPFLAGS} ${CFLAGS} -std=gnu99" \
+		LDFLAGS="${LDFLAGS}" \
 		LDLIBS="${LDLIBS}" \
 		|| die "emake failed"
 	if tc-is-cross-compiler ; then
