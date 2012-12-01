@@ -1,0 +1,30 @@
+From df024db3a4573d89d11a59d0c05be7d4f3d7e143 Mon Sep 17 00:00:00 2001
+From: Paul Varner <fuzzyray@gentoo.org>
+Date: Wed, 16 May 2012 16:12:03 -0500
+Subject: [PATCH 1/3] Make colors for useflags be the same as portage.
+
+The current colors are the opposite of how portage uses the colors.
+This just switches them so portage and equery show the same color for
+the same meaning, Red is a set useflag and blue is an unset useflag.
+
+Note: This ignores any user defined colormaps in portage.
+---
+ pym/gentoolkit/pprinter.py |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/pym/gentoolkit/pprinter.py b/pym/gentoolkit/pprinter.py
+index d9f0375..7d8dc2c 100644
+--- a/pym/gentoolkit/pprinter.py
++++ b/pym/gentoolkit/pprinter.py
+@@ -116,7 +116,7 @@ def subsection(string):
+ 
+ def useflag(string, enabled=True):
+ 	"""Returns a USE flag string."""
+-	return output.blue(string) if enabled else output.red(string)
++	return output.red(string) if enabled else output.blue(string)
+ 
+ def keyword(string, stable=True, hard_masked=False):
+ 	"""Returns a keyword string."""
+-- 
+1.7.8.6
+

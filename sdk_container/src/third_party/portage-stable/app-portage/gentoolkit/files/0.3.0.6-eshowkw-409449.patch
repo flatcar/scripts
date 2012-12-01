@@ -1,0 +1,25 @@
+From ba64705ea61bbfe506bee228b56758216ffb987c Mon Sep 17 00:00:00 2001
+From: Paul Varner <fuzzyray@gentoo.org>
+Date: Wed, 16 May 2012 16:58:04 -0500
+Subject: [PATCH 2/3] Fix output to be sorted using portage.versions.vercmp
+ (bug 409449).
+
+---
+ pym/gentoolkit/eshowkw/keywords_content.py |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
+
+diff --git a/pym/gentoolkit/eshowkw/keywords_content.py b/pym/gentoolkit/eshowkw/keywords_content.py
+index 77a68fb..2e6c0fa 100644
+--- a/pym/gentoolkit/eshowkw/keywords_content.py
++++ b/pym/gentoolkit/eshowkw/keywords_content.py
+@@ -176,7 +176,6 @@ class keywords_content:
+ 				return port.versions.vercmp(ver_map[cpv1[0]], ver_map[cpv2[0]])
+ 
+ 			package_content.sort(key=port.util.cmp_sort_key(cmp_cpv))
+-			package_content.sort(key=itemgetter(2))
+ 
+ 	def __xmatch(self, pdb, package):
+ 		"""xmatch function that searches for all packages over all repos"""
+-- 
+1.7.8.6
+

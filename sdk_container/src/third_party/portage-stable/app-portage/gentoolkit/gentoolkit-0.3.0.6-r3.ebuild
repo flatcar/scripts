@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-portage/gentoolkit/gentoolkit-0.3.0.4-r4.ebuild,v 1.5 2011/10/18 21:05:47 jer Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-portage/gentoolkit/gentoolkit-0.3.0.6-r3.ebuild,v 1.12 2012/10/29 16:31:11 mgorny Exp $
 
 EAPI="3"
 SUPPORT_PYTHON_ABIS="1"
@@ -18,17 +18,21 @@ LICENSE="GPL-2"
 SLOT="0"
 IUSE=""
 
-# Drop "~m68k ~s390 ~sh ~sparc-fbsd ~x86-fbsd" due to dev-python/argparse dependency
-# Note: argparse is provided in python 2.7 and 3.2 (Bug 346005)
-KEYWORDS="~alpha amd64 arm hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc x86 ~ppc-aix ~x86-fbsd ~x64-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 
+# Note: argparse is provided in python 2.7 and 3.2 (Bug 346005)
+# Note: dev-lang/python dependencies are so emerge will print a blocker if any
+# installed slot of python is not built with +xml.  This is used since
+# PYTHON_USE_WITH just dies in the middle of the emerge. See bug 399331.
 DEPEND="sys-apps/portage"
 RDEPEND="${DEPEND}
+	>=dev-lang/python-2.6[xml]
+	!>=dev-lang/python-2.6[-xml]
 	!<=app-portage/gentoolkit-dev-0.2.7
-	dev-python/argparse
-	|| ( app-misc/realpath sys-freebsd/freebsd-bin )
+	|| ( >=sys-apps/coreutils-8.15 app-misc/realpath sys-freebsd/freebsd-bin )
 	sys-apps/gawk
-	sys-apps/grep"
+	sys-apps/grep
+	virtual/python-argparse"
 
 distutils_src_compile_pre_hook() {
 	echo VERSION="${PVR}" "$(PYTHON)" setup.py set_version
@@ -37,16 +41,24 @@ distutils_src_compile_pre_hook() {
 }
 
 src_prepare() {
-	epatch "${FILESDIR}/${PV}-euse-376393.patch"
-	epatch "${FILESDIR}/${PV}-euse-379599.patch"
-	epatch "${FILESDIR}/${PV}-gentoolkit-375293.patch"
-	epatch "${FILESDIR}/${PV}-equery-380573.patch"
-	epatch "${FILESDIR}/${PV}-euse-382219.patch"
+	epatch "${FILESDIR}/${PV}-eread-413577.patch"
+	epatch "${FILESDIR}/${PV}-eshowkw-414627.patch"
+	epatch "${FILESDIR}/${PV}-gentoolkit-304125.patch"
+	epatch "${FILESDIR}/${PV}-euse-410365.patch"
+	epatch "${FILESDIR}/${PV}-eshowkw-409449.patch"
+	epatch "${FILESDIR}/${PV}-euse-422675.patch"
 }
 
 src_install() {
 	python_convert_shebangs -r "" build-*/scripts-*
 	distutils_src_install
+
+	# Rename the python versions of revdep-rebuild, since we are not ready
+	# to switch to the python version yet. Link /usr/bin/revdep-rebuild to
+	# revdep-rebuild.sh. Leaving the python version available for potential
+	# testing by a wider audience.
+	mv "${ED}"/usr/bin/revdep-rebuild "${ED}"/usr/bin/revdep-rebuild.py
+	dosym revdep-rebuild.sh /usr/bin/revdep-rebuild
 
 	# Create cache directory for revdep-rebuild
 	dodir /var/cache/revdep-rebuild
@@ -58,7 +70,7 @@ src_install() {
 	if use prefix; then
 		elog "The revdep-rebuild command is removed, the preserve-libs"
 		elog "feature of portage will handle issues."
-		rm "${ED}"/usr/bin/revdep-rebuild
+		rm "${ED}"/usr/bin/revdep-rebuild*
 		rm "${ED}"/usr/share/man/man1/revdep-rebuild.1
 		rm -rf "${ED}"/etc/revdep-rebuild
 		rm -rf "${ED}"/var

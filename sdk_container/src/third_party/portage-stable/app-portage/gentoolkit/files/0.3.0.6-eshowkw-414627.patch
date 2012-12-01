@@ -1,0 +1,44 @@
+From 9369c9a3e8d92ac445ff8929a448e83fd30fb485 Mon Sep 17 00:00:00 2001
+From: Paul Varner <fuzzyray@gentoo.org>
+Date: Tue, 8 May 2012 16:03:04 -0500
+Subject: [PATCH 2/2] Fix Bug 414627, where not all packages were being
+ printed.
+
+Not sure of why this fixes it, but it appears to be caused by
+interaction between the map() and zip() iterator objects in python3.
+
+The fix is to use the list() operator to create a list from the iterator
+objects.
+---
+ pym/gentoolkit/eshowkw/keywords_content.py |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/pym/gentoolkit/eshowkw/keywords_content.py b/pym/gentoolkit/eshowkw/keywords_content.py
+index 3e2551d..77a68fb 100644
+--- a/pym/gentoolkit/eshowkw/keywords_content.py
++++ b/pym/gentoolkit/eshowkw/keywords_content.py
+@@ -23,10 +23,11 @@ class keywords_content:
+ 		def __listRedundantSlots(self, masks, keywords, slots):
+ 			"""Search for redundant packages walking per keywords for specified slot."""
+ 			output = list()
++			zipped = list(zip(masks, keywords, slots))
+ 			for slot in self.__uniq(slots):
+ 				ms = list()
+ 				ks = list()
+-				for m, k, s in zip(masks, keywords, slots):
++				for m, k, s in zipped:
+ 					if slot == s:
+ 						ms.append(m)
+ 						ks.append(k)
+@@ -157,7 +158,7 @@ class keywords_content:
+ 			self.vartree = port.db[port.root]['vartree'].dbapi
+ 			self.mysettings = port.config(local_config=False)
+ 			self.versions = self.__getVersions(packages)
+-			self.masks = map(lambda x: self.__getMaskStatus(x), packages)
++			self.masks = list(map(lambda x: self.__getMaskStatus(x), packages))
+ 
+ 	@staticmethod
+ 	def __packages_sort(package_content):
+-- 
+1.7.8.6
+
