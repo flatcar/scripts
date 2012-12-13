@@ -1,0 +1,12 @@
+DEFINED_PHASES=compile install prepare unpack
+DESCRIPTION=Return the canonicalized absolute pathname
+EAPI=2
+HOMEPAGE=http://packages.debian.org/unstable/utils/realpath
+IUSE=nls
+KEYWORDS=alpha amd64 arm hppa ia64 ~mips ppc ppc64 sparc x86
+LICENSE=GPL-2
+RDEPEND=!sys-freebsd/freebsd-bin
+SLOT=0
+SRC_URI=mirror://debian/pool/main/r/realpath/realpath_1.15.tar.gz nls? ( mirror://debian/pool/main/r/realpath/realpath_1.15_i386.deb )
+_eclasses_=eutils	33ef77a15337022e05342d2c772a7a5a	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	6526ac6fc9aedf391efb91fcd75ace68	user	9e552f935106ff0bc92af16da64b4b29
+_md5_=cbb612728aa9d42029ba317146f7a6a8
