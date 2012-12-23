@@ -24,7 +24,9 @@ DEPEND="${COMMON_DEPEND}
 	nls? ( sys-devel/gettext )"
 
 src_prepare() {
-	sed -i -e "s/-Werror //" configure.in || die "Sed failed"
+	sed -i -r \
+		-e '/CFLAGS/s/ -(Werror|m64)//' \
+		configure.in || die
 	epatch "${FILESDIR}"/${PN}-1.3.1-gold.patch
 	epatch "${FILESDIR}"/${PN}-1.3.5-password.patch
 
