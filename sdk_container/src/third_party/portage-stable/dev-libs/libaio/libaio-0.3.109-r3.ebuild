@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/libaio/libaio-0.3.109-r3.ebuild,v 1.9 2012/11/14 17:19:51 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/libaio/libaio-0.3.109-r3.ebuild,v 1.10 2012/12/29 20:33:56 vapier Exp $
 
 EAPI=3
 
@@ -12,7 +12,7 @@ SRC_URI="mirror://kernel/linux/libs/aio/${P}.tar.bz2"
 
 LICENSE="LGPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc x86 ~amd64-linux ~x86-linux"
+KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-linux ~x86-linux"
 IUSE="multilib static-libs"
 
 EMULTILIB_PKG="true"
