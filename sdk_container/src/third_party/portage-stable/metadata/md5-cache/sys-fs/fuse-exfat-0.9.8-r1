@@ -1,0 +1,12 @@
+DEFINED_PHASES=compile install prepare
+DEPEND=sys-fs/fuse dev-util/scons virtual/pkgconfig
+DESCRIPTION=exFAT filesystem FUSE module
+EAPI=4
+HOMEPAGE=http://code.google.com/p/exfat/
+KEYWORDS=arm amd64 x86
+LICENSE=GPL-3
+RDEPEND=sys-fs/fuse
+SLOT=0
+SRC_URI=http://exfat.googlecode.com/files/fuse-exfat-0.9.8.tar.gz
+_eclasses_=eutils	33ef77a15337022e05342d2c772a7a5a	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	portability	0be430f759a631e692678ed796e09f5c	scons-utils	bfa350a15756117faaecd9056bbb79c2	toolchain-funcs	6526ac6fc9aedf391efb91fcd75ace68	udev	f7490675e06a5e4db55adf394f078b7b	user	9e552f935106ff0bc92af16da64b4b29
+_md5_=3933ae29f62647becc89e32d8e44397c
