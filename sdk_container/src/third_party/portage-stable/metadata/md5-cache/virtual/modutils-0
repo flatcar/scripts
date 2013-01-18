@@ -1,0 +1,7 @@
+DEFINED_PHASES=-
+DESCRIPTION=Virtual for utilities to manage Linux kernel modules
+EAPI=2
+KEYWORDS=alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86
+RDEPEND=|| ( sys-apps/kmod[tools] >=sys-apps/module-init-tools-3.2 sys-apps/modutils )
+SLOT=0
+_md5_=382e3878f4091eb753913a34df424280
