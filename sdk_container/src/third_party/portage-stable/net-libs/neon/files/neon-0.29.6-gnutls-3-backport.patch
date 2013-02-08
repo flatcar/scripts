@@ -1,0 +1,96 @@
+BUGZILLA-GENTOO: https://bugs.gentoo.org/show_bug.cgi?id=440936, 
+BUGZILLA-GNUTLS: https://savannah.gnu.org/support/index.php?108189
+
+This patch fixes situation when subversion fails on some https sources
+due incorrect handing of issuers in neon library.
+
+Patch is backported from upstream.
+
+diff --git a/src/ne_gnutls.c b/src/ne_gnutls.c
+index 5a5dca9..0eef990 100644
+--- a/src/ne_gnutls.c
++++ b/src/ne_gnutls.c
+@@ -1,6 +1,6 @@
+ /*
+    neon SSL/TLS support using GNU TLS
+-   Copyright (C) 2002-2010, Joe Orton <joe@manyfish.co.uk>
++   Copyright (C) 2002-2011, Joe Orton <joe@manyfish.co.uk>
+    Copyright (C) 2004, Aleix Conchillo Flaque <aleix@member.fsf.org>
+ 
+    This library is free software; you can redistribute it and/or
+@@ -486,7 +486,7 @@ static ne_ssl_certificate *populate_cert(ne_ssl_certificate *cert,
+ static gnutls_x509_crt x509_crt_copy(gnutls_x509_crt src)
+ {
+     int ret;
+-    size_t size;
++    size_t size = 0;
+     gnutls_datum tmp;
+     gnutls_x509_crt dest;
+     
+@@ -680,6 +680,11 @@ void ne_ssl_context_set_flag(ne_ssl_context *ctx, int flag, int value)
+     /* SSLv2 not supported. */
+ }
+ 
++int ne_ssl_context_get_flag(ne_ssl_context *ctx, int flag)
++{
++    return 0;
++}
++
+ void ne_ssl_context_destroy(ne_ssl_context *ctx)
+ {
+     gnutls_certificate_free_credentials(ctx->cred);
+@@ -1128,6 +1133,21 @@ static int pkcs12_parse(gnutls_pkcs12_t p12, gnutls_x509_privkey *pkey,
+ 
+ ne_ssl_client_cert *ne_ssl_clicert_read(const char *filename)
+ {
++    gnutls_datum datum;
++    ne_ssl_client_cert *cc;
++
++    if (read_to_datum(filename, &datum))
++        return NULL;
++
++    cc = ne_ssl_clicert_import(datum.data, datum.size);
++
++    ne_free(datum.data);
++
++    return cc;
++}
++
++ne_ssl_client_cert *ne_ssl_clicert_import(const unsigned char *buffer, size_t buflen)
++{
+     int ret;
+     gnutls_datum data;
+     gnutls_pkcs12_t p12;
+@@ -1136,15 +1156,14 @@ ne_ssl_client_cert *ne_ssl_clicert_read(const char *filename)
+     gnutls_x509_crt cert = NULL;
+     gnutls_x509_privkey pkey = NULL;
+ 
+-    if (read_to_datum(filename, &data))
+-        return NULL;
++    data.data = buffer;
++    data.size = buflen;
+ 
+     if (gnutls_pkcs12_init(&p12) != 0) {
+         return NULL;
+     }
+ 
+     ret = gnutls_pkcs12_import(p12, &data, GNUTLS_X509_FMT_DER, 0);
+-    ne_free(data.data);
+     if (ret < 0) {
+         gnutls_pkcs12_deinit(p12);
+         return NULL;
+
+diff --git a/src/ne_gnutls.c b/src/ne_gnutls.c
+index 0eef990..2ed90c2 100644
+--- a/src/ne_gnutls.c
++++ b/src/ne_gnutls.c
+@@ -60,6 +60,9 @@ GCRY_THREAD_OPTION_PTHREAD_IMPL;
+ #include "ne_private.h"
+ #include "ne_privssl.h"
+ 
++
++ne_ssl_client_cert *ne_ssl_clicert_import(const unsigned char *buffer, size_t buflen);
++
+ #if LIBGNUTLS_VERSION_NUMBER >= 0x020302
+ /* The GnuTLS DN functions in 2.3.2 and later allow a simpler DN
+  * abstraction to be used. */

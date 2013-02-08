@@ -1,0 +1,314 @@
+# ChangeLog for sys-apps/kmod
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/kmod/ChangeLog,v 1.69 2013/01/27 13:53:03 ago Exp $
+
+  27 Jan 2013; Agostino Sarubbo <ago@gentoo.org> kmod-12-r1.ebuild:
+  Stable for ppc, wrt bug #452556
+
+  20 Jan 2013; Agostino Sarubbo <ago@gentoo.org> kmod-12-r1.ebuild:
+  Stable for x86, wrt bug #452556
+
+  19 Jan 2013; Samuli Suominen <ssuominen@gentoo.org> kmod-12-r1.ebuild:
+  amd64 stable wrt #452556
+
+  18 Jan 2013; Samuli Suominen <ssuominen@gentoo.org> kmod-12-r1.ebuild,
+  kmod-9999.ebuild:
+  Pass --disable-silent-rules wrt #452854 by Agostino Sarubbo
+
+  07 Jan 2013; Samuli Suominen <ssuominen@gentoo.org> kmod-12-r1.ebuild,
+  kmod-9999.ebuild:
+  Create also /bin/modinfo symlink because the application is useble and
+  useful as a normal user.
+
+  18 Dec 2012; Samuli Suominen <ssuominen@gentoo.org> -kmod-12.ebuild:
+  old
+
+*kmod-12-r1 (18 Dec 2012)
+
+  18 Dec 2012; Samuli Suominen <ssuominen@gentoo.org> +kmod-12-r1.ebuild,
+  kmod-9999.ebuild:
+  Moving binaries to where they are with module-init-tools one last time (!)
+  wrt #447580 by "consus"
+
+  06 Dec 2012; William Hubbs <williamh@gentoo.org> -kmod-11-r4.ebuild:
+  remove broken version
+
+*kmod-12 (05 Dec 2012)
+
+  05 Dec 2012; William Hubbs <williamh@gentoo.org> +kmod-12.ebuild,
+  kmod-9999.ebuild:
+  version bump and sync live ebuild. We dropped the --libdir= configure switch
+  to install the pkg-config file in the proper location.
+
+*kmod-11-r4 (04 Dec 2012)
+
+  04 Dec 2012; William Hubbs <williamh@gentoo.org> +kmod-11-r4.ebuild,
+  kmod-9999.ebuild:
+  Upstream recommended to me that we install the kmod binary in /bin. Also I
+  have put the syminks there except for the compatibility symlinks for the
+  kernel.
+
+*kmod-11-r3 (25 Nov 2012)
+
+  25 Nov 2012; Samuli Suominen <ssuominen@gentoo.org> +kmod-11-r3.ebuild,
+  kmod-9999.ebuild:
+  Use --with-rootlibdir= instead of gen_usr_ldscript wrt #443710 by William
+  Hubbs
+
+  24 Nov 2012; Samuli Suominen <ssuominen@gentoo.org>
+  -files/kmod-8-gc-sections.patch, -kmod-10-r2.ebuild:
+  old
+
+*kmod-11-r2 (24 Nov 2012)
+
+  24 Nov 2012; Samuli Suominen <ssuominen@gentoo.org> +kmod-11-r2.ebuild,
+  kmod-9999.ebuild:
+  Move kmod from /usr to / wrt #443710 by Francisco Blas Izquierdo Riera and
+  Lars Wendler
+
+  10 Nov 2012; William Hubbs <williamh@gentoo.org> ChangeLog:
+  add libxslt dependency for bug #442402 to kmod-11-r1 and kmod-9999.
+
+*kmod-11-r1 (08 Nov 2012)
+
+  08 Nov 2012; William Hubbs <williamh@gentoo.org> +kmod-11-r1.ebuild,
+  kmod-9999.ebuild:
+  kmod reads from /lib/modprobe.d not /usr/lib/modprobe.d
+
+*kmod-11 (08 Nov 2012)
+
+  08 Nov 2012; William Hubbs <williamh@gentoo.org> +kmod-11.ebuild,
+  kmod-9999.ebuild:
+  version bump and sync live ebuild
+
+*kmod-10-r2 (20 Oct 2012)
+
+  20 Oct 2012; Samuli Suominen <ssuominen@gentoo.org> +kmod-10-r2.ebuild,
+  kmod-9999.ebuild:
+  Convert from modprobe install to softdep wrt #396147 by Gustavo Sverzut
+  Barbieri
+
+*kmod-10-r1 (20 Oct 2012)
+
+  20 Oct 2012; Samuli Suominen <ssuominen@gentoo.org> +kmod-10-r1.ebuild,
+  kmod-9999.ebuild:
+  Forward /etc/modprobe.d/usb-load-ehci-first.conf from module-init-tools to
+  kmod wrt #260139
+
+  20 Sep 2012; Tim Harder <radhermit@gentoo.org> metadata.xml:
+  Remove extraneous character from email address.
+
+  09 Sep 2012; William Hubbs <williamh@gentoo.org> kmod-10.ebuild,
+  kmod-9999.ebuild:
+  clean up the live portion of the ebuild using multiple inherits
+
+*kmod-10 (08 Sep 2012)
+
+  08 Sep 2012; Samuli Suominen <ssuominen@gentoo.org> +kmod-10.ebuild,
+  kmod-9999.ebuild:
+  Version bump. Use prune_libtool_files from eutils.eclass.
+
+  23 Jul 2012; William Hubbs <williamh@gentoo.org> -kmod-7.ebuild,
+  -kmod-8.ebuild, -kmod-9.ebuild:
+  remove old versions
+
+  22 Jul 2012; Raúl Porcel <armin76@gentoo.org> kmod-9.ebuild,
+  kmod-9-r3.ebuild:
+  Add ~alpha/~sh/~sparc wrt #397769
+
+  20 Jul 2012; Samuli Suominen <ssuominen@gentoo.org> kmod-9-r3.ebuild,
+  kmod-9999.ebuild:
+  Force recent enough sys-libs/zlib for zlib.pc pkg-config file to be present
+  wrt #427130 by Nick Bowler
+
+  17 Jul 2012; William Hubbs <williamh@gentoo.org> -kmod-9-r2.ebuild:
+  remove broken version
+
+*kmod-9-r3 (17 Jul 2012)
+
+  17 Jul 2012; Samuli Suominen <ssuominen@gentoo.org> +kmod-9-r3.ebuild,
+  kmod-9999.ebuild:
+  Another hardcoded path in the Linux source tree (depmod) wrt #426698 by Kyle
+  McFarland
+
+*kmod-9-r2 (13 Jul 2012)
+
+  13 Jul 2012; William Hubbs <williamh@gentoo.org> +kmod-9-r2.ebuild,
+  -kmod-9-r1.ebuild, kmod-9999.ebuild:
+  remove broken version. The kernel calls /sbin/modprobe directly, so that
+  symbolic link cannot be removed at this time.
+
+*kmod-9-r1 (13 Jul 2012)
+
+  13 Jul 2012; Samuli Suominen <ssuominen@gentoo.org> +kmod-9-r1.ebuild,
+  kmod-9999.ebuild:
+  Move kmod symlinks, like lsmod and modprobe, from / to /usr wrt #416223
+
+*kmod-9 (19 Jun 2012)
+
+  19 Jun 2012; William Hubbs <williamh@gentoo.org> +kmod-9.ebuild:
+  version bump
+
+  13 Jun 2012; Mike Frysinger <vapier@gentoo.org>
+  +files/kmod-8-gc-sections.patch, kmod-8.ebuild:
+  Add fix from upstream for building w/out gc-sections.
+
+  23 May 2012; Mike Frysinger <vapier@gentoo.org> kmod-7.ebuild, kmod-8.ebuild,
+  kmod-9999.ebuild:
+  Inherit libtool eclass for elibtoolize.
+
+  04 May 2012; Jeff Horelick <jdhore@gentoo.org> kmod-7.ebuild, kmod-8.ebuild,
+  kmod-9999.ebuild:
+  dev-util/pkgconfig -> virtual/pkgconfig
+
+  29 Apr 2012; Mike Frysinger <vapier@gentoo.org> kmod-8.ebuild:
+  Add m68k/s390 keywords #397769.
+
+*kmod-8 (20 Apr 2012)
+
+  20 Apr 2012; Samuli Suominen <ssuominen@gentoo.org> +kmod-8.ebuild,
+  kmod-9999.ebuild:
+  Version bump.
+
+  06 Apr 2012; Samuli Suominen <ssuominen@gentoo.org> kmod-7.ebuild,
+  kmod-9999.ebuild:
+  Use zlib_CFLAGS and zlib_LIBS because zlib.pc pkg-config file is present only
+  in sys-libs/zlib >= 1.2.6 wrt #410865
+
+  02 Apr 2012; Samuli Suominen <ssuominen@gentoo.org> kmod-7.ebuild,
+  kmod-9999.ebuild:
+  Remove temporary COMMON_DEPEND variable usage to simplify dependencies.
+
+  02 Apr 2012; William Hubbs <williamh@gentoo.org> kmod-7.ebuild,
+  kmod-9999.ebuild:
+  re-work the dependencies since pkgconfig is not a runtime dependency. This
+  moves the dependencies for the lzma and zlib use flags out of common_depend
+  since they are now different for RDEPEND vs DEPEND.
+
+  02 Apr 2012; Robin H. Johnson <robbat2@gentoo.org> kmod-7.ebuild,
+  kmod-9999.ebuild:
+  Bug #410489: missing pkgconfig dep.
+
+  20 Mar 2012; William Hubbs <williamh@gentoo.org> -kmod-6.ebuild:
+  remove old version
+
+  20 Mar 2012; William Hubbs <williamh@gentoo.org> kmod-7.ebuild,
+  kmod-9999.ebuild:
+  restrict test feature for bug #408915
+
+  19 Mar 2012; William Hubbs <williamh@gentoo.org> kmod-7.ebuild,
+  kmod-9999.ebuild:
+  style fixes
+
+*kmod-7 (19 Mar 2012)
+
+  19 Mar 2012; Samuli Suominen <ssuominen@gentoo.org> +kmod-7.ebuild,
+  kmod-9999.ebuild:
+  Version bump.
+
+  09 Mar 2012; William Hubbs <williamh@gentoo.org> kmod-6.ebuild,
+  kmod-9999.ebuild, metadata.xml:
+  Drop compat use flag for bug #406957
+
+  09 Mar 2012; William Hubbs <williamh@gentoo.org> -kmod-5.ebuild:
+  remove old version
+
+*kmod-6 (08 Mar 2012)
+
+  08 Mar 2012; William Hubbs <williamh@gentoo.org> +kmod-6.ebuild,
+  kmod-9999.ebuild:
+  version bump for bug #406887
+
+  25 Feb 2012; Robin H. Johnson <robbat2@gentoo.org> kmod-5.ebuild,
+  kmod-9999.ebuild:
+  Also blocks the 2.4 kernel sys-apps/modutils.
+
+  24 Feb 2012; William Hubbs <williamh@gentoo.org> kmod-5.ebuild,
+  kmod-9999.ebuild:
+  migrate git repository to kernel.org
+
+  19 Feb 2012; William Hubbs <williamh@gentoo.org> -kmod-4.ebuild:
+  remove old version
+
+  08 Feb 2012; Matt Turner <mattst88@gentoo.org> kmod-5.ebuild:
+  Added ~mips, bug 397769.
+
+*kmod-5 (08 Feb 2012)
+
+  08 Feb 2012; William Hubbs <williamh@gentoo.org> +kmod-5.ebuild:
+  version bump
+
+  04 Feb 2012; William Hubbs <williamh@gentoo.org> kmod-4.ebuild,
+  kmod-9999.ebuild:
+  fix blockers for module-init-tools for bug #401899.
+
+  30 Jan 2012; Markus Meier <maekke@gentoo.org> kmod-4.ebuild:
+  add ~arm, bug #397769
+
+  21 Jan 2012; William Hubbs <williamh@gentoo.org> kmod-4.ebuild,
+  kmod-9999.ebuild:
+  lsmod should be installed in /bin not /sbin.
+
+  18 Jan 2012; William Hubbs <williamh@gentoo.org> -kmod-3.ebuild:
+  remove old version
+
+*kmod-4 (18 Jan 2012)
+
+  18 Jan 2012; William Hubbs <williamh@gentoo.org> +kmod-4.ebuild:
+  version bump
+
+  18 Jan 2012; William Hubbs <williamh@gentoo.org> kmod-9999.ebuild:
+  update to block module-init-tools if tools is in use
+
+  16 Jan 2012; Kacper Kowalik <xarthisius@gentoo.org> kmod-3.ebuild:
+  Marked ~ppc64/~ppc wrt #397769
+
+  11 Jan 2012; Jeroen Roovers <jer@gentoo.org> kmod-3.ebuild:
+  Marked ~hppa (bug #397769).
+
+  09 Jan 2012; William Hubbs <williamh@gentoo.org> kmod-3.ebuild,
+  kmod-9999.ebuild:
+  only install compatibility symlinks if compat and tools are in use.
+
+  09 Jan 2012; William Hubbs <williamh@gentoo.org> kmod-3.ebuild,
+  kmod-9999.ebuild, metadata.xml:
+  Fix compatibility symlinks for bug #397949 and add a compat use flag for
+  installing them.
+
+*kmod-3 (05 Jan 2012)
+
+  05 Jan 2012; William Hubbs <williamh@gentoo.org> +kmod-3.ebuild,
+  -kmod-2.ebuild, metadata.xml:
+  version bump, remove old version and remove the rootfs-install use flag
+  description.
+
+  02 Jan 2012; Mike Frysinger <vapier@gentoo.org> kmod-9999.ebuild:
+  Always delete .la since we have a .pc file, and restore /bin and /sbin split.
+
+  01 Jan 2012; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Removing myself.
+
+  31 Dec 2011; William Hubbs <williamh@gentoo.org> kmod-9999.ebuild:
+  Live ebuild updates: - Remove the usage of autotools-utils from the live
+  ebuild since we can   do the static libs handling in the ebuild. - Pass
+  --bindir=/sbin to the configure script for now to install the   binaries in
+  /sbin.   - call portage's default src_install function in src_install.
+
+*kmod-9999 (31 Dec 2011)
+
+  31 Dec 2011; Mike Frysinger <vapier@gentoo.org> +kmod-9999.ebuild,
+  metadata.xml:
+  Add live git version #395863 by Gustavo Sverzut Barbieri, and add to
+  base-system herd.
+
+  27 Dec 2011; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Fix utf8 in metadata.
+
+  26 Dec 2011; William Hubbs <williamh@gentoo.org> metadata.xml:
+  add udev-bugs as co-maintainer
+
+*kmod-2 (25 Dec 2011)
+
+  25 Dec 2011; Michał Górny <mgorny@gentoo.org> +kmod-2.ebuild,
+  +metadata.xml:
+  Introduce kmod module tools wrt bug #395863 and as a dep of udev.

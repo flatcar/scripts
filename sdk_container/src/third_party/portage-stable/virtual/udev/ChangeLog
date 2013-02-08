@@ -1,0 +1,80 @@
+# ChangeLog for virtual/udev
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/virtual/udev/ChangeLog,v 1.20 2013/01/28 14:42:41 axs Exp $
+
+  28 Jan 2013; Ian Stakenvicius <axs@gentoo.org> udev-197.ebuild:
+  Adjust passthrough of USE=kmod on eudev to enable USE=modutils instead, bug
+  454312
+
+  27 Jan 2013; Agostino Sarubbo <ago@gentoo.org> udev-197.ebuild:
+  Stable for ppc, wrt bug #452556
+
+  27 Jan 2013; Samuli Suominen <ssuominen@gentoo.org> udev-171.ebuild,
+  udev-197.ebuild, metadata.xml:
+  Introduce IUSE="+kmod" wrt #450692
+
+  21 Jan 2013; Samuli Suominen <ssuominen@gentoo.org> -udev-196.ebuild:
+  old
+
+  20 Jan 2013; Agostino Sarubbo <ago@gentoo.org> udev-197.ebuild:
+  Stable for x86, wrt bug #452556
+
+  19 Jan 2013; Samuli Suominen <ssuominen@gentoo.org> udev-197.ebuild:
+  amd64 stable wrt #452556
+
+  17 Jan 2013; Samuli Suominen <ssuominen@gentoo.org> +udev-196.ebuild:
+  Put 196 back in tree for sys-apps/systemd. If you don't use systemd, you
+  shouldn't be emerging this package because it has wrong udevdir= in udev.pc.
+
+  17 Jan 2013; Samuli Suominen <ssuominen@gentoo.org> -udev-196.ebuild:
+  old
+
+*udev-197 (17 Jan 2013)
+
+  17 Jan 2013; Samuli Suominen <ssuominen@gentoo.org> +udev-197.ebuild:
+  This will mark the initial support for:
+  http://www.freedesktop.org/wiki/Software/systemd/PredictableNetworkInterfaceNames
+
+  17 Jan 2013; Samuli Suominen <ssuominen@gentoo.org> -udev-0.ebuild:
+  old
+
+  12 Dec 2012; Ian Stakenvicius <axs@gentoo.org> udev-0.ebuild,
+  udev-171.ebuild, udev-196.ebuild:
+  dropped acl use flag as it is not needed by anything
+
+  11 Dec 2012; Patrick Lauer <patrick@gentoo.org> udev-171.ebuild,
+  udev-196.ebuild:
+  Fixing virtual to be a choice and not both at the same time
+
+  11 Dec 2012; Ian Stakenvicius <axs@gentoo.org> udev-171.ebuild,
+  udev-196.ebuild:
+  added eudev to the virtual representing libudev.so.1
+
+  10 Dec 2012; Jonathan Callen <abcd@gentoo.org> udev-0.ebuild, udev-171.ebuild,
+  udev-196.ebuild:
+  Fix it's -> its in DESCRIPTION
+
+  02 Dec 2012; Samuli Suominen <ssuominen@gentoo.org> -udev-180.ebuild:
+  old
+
+*udev-196 (02 Dec 2012)
+
+  02 Dec 2012; William Hubbs <williamh@gentoo.org> +udev-196.ebuild,
+  metadata.xml:
+  add new virtual because of hwdb and drop the invalid udev herd
+
+  02 Dec 2012; Samuli Suominen <ssuominen@gentoo.org> udev-180.ebuild:
+  Scale back with the sys-fs/udev version to let systemd catch up.
+
+*udev-180 (24 Nov 2012)
+*udev-171 (24 Nov 2012)
+
+  24 Nov 2012; Samuli Suominen <ssuominen@gentoo.org> udev-0.ebuild,
+  +udev-171.ebuild, +udev-180.ebuild:
+  Introduce versioned virtual(s) to satisfy the need (see UDisks2 ebuild for
+  example)
+
+*udev-0 (24 Nov 2012)
+
+  24 Nov 2012; Samuli Suominen <ssuominen@gentoo.org> +udev-0.ebuild:
+  Initial commit wrt #444398 by Richard Yao

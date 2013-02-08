@@ -1,0 +1,14 @@
+# ChangeLog for sys-apps/systemd-ui
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/systemd-ui/ChangeLog,v 1.2 2012/12/15 13:06:20 mgorny Exp $
+
+*systemd-ui-9999 (15 Dec 2012)
+
+  15 Dec 2012; Michał Górny <mgorny@gentoo.org> +systemd-ui-9999.ebuild:
+  Import the live ebuild.
+
+*systemd-ui-1 (31 Mar 2012)
+
+  31 Mar 2012; Michał Górny <mgorny@gentoo.org> +systemd-ui-1.ebuild,
+  +metadata.xml:
+  Introduce a separate ebuild for the first release of systemd-ui.

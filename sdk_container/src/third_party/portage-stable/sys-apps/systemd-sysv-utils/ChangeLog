@@ -1,0 +1,14 @@
+# ChangeLog for sys-apps/systemd-sysv-utils
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/systemd-sysv-utils/ChangeLog,v 1.2 2012/10/04 20:03:07 mgorny Exp $
+
+*systemd-sysv-utils-194 (04 Oct 2012)
+
+  04 Oct 2012; Michał Górny <mgorny@gentoo.org> +systemd-sysv-utils-194.ebuild:
+  Version bump, as requested per bug #430876.
+
+*systemd-sysv-utils-37 (07 Jan 2012)
+
+  07 Jan 2012; Michał Górny <mgorny@gentoo.org>
+  +systemd-sysv-utils-37.ebuild, +metadata.xml:
+  Introduce an ebuild for systemd sysv-compat symlinks and manpages.

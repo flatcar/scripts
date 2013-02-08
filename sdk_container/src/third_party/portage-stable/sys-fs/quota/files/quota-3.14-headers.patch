@@ -1,0 +1,10 @@
+--- quota.c
++++ quota.c
+@@ -43,6 +43,7 @@
+ #include <sys/param.h>
+ #include <getopt.h>
+ #include <stdio.h>
++#include <stdlib.h>
+ #include <pwd.h>
+ #include <grp.h>
+ #include <time.h>

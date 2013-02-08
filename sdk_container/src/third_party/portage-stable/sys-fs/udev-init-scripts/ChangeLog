@@ -1,0 +1,209 @@
+# ChangeLog for sys-fs/udev-init-scripts
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/udev-init-scripts/ChangeLog,v 1.41 2013/02/01 08:09:29 ssuominen Exp $
+
+  01 Feb 2013; Samuli Suominen <ssuominen@gentoo.org>
+  -udev-init-scripts-19-r1.ebuild,
+  -files/udev-init-scripts-19-start-only-regular-file.patch:
+  old
+
+  31 Jan 2013; Agostino Sarubbo <ago@gentoo.org> udev-init-scripts-22.ebuild:
+  Stable for ppc, wrt bug #452556
+
+  29 Jan 2013; Agostino Sarubbo <ago@gentoo.org> udev-init-scripts-22.ebuild:
+  Stable for x86, wrt bug #452556
+
+  29 Jan 2013; Agostino Sarubbo <ago@gentoo.org> udev-init-scripts-22.ebuild:
+  Stable for amd64, wrt bug #452556
+
+  27 Jan 2013; William Hubbs <williamh@gentoo.org> -files/udev-init-scripts-21-f
+  ix-population-of-run-udev-rules.d-for-newnet.patch,
+  -udev-init-scripts-21-r1.ebuild, -udev-init-scripts-21.ebuild:
+  remove old unstable version
+
+*udev-init-scripts-22 (27 Jan 2013)
+
+  27 Jan 2013; William Hubbs <williamh@gentoo.org>
+  +udev-init-scripts-22.ebuild:
+  version bump
+
+  27 Jan 2013; Agostino Sarubbo <ago@gentoo.org> udev-init-scripts-19-r1.ebuild:
+  Stable for ppc, wrt bug #452556
+
+*udev-init-scripts-21-r1 (25 Jan 2013)
+
+  25 Jan 2013; Samuli Suominen <ssuominen@gentoo.org>
+  +udev-init-scripts-21-r1.ebuild,
+  +files/udev-init-scripts-21-fix-population-of-run-udev-rules.d-for-newnet.pat
+  ch:
+  Create /run/udev/rules.d when required wrt #453656 by Mike Gilbert
+
+  21 Jan 2013; Samuli Suominen <ssuominen@gentoo.org>
+  udev-init-scripts-19-r1.ebuild, udev-init-scripts-21.ebuild,
+  udev-init-scripts-9999.ebuild:
+  Use rc-update instead of rc-config to avoid eselect dependency.
+
+  21 Jan 2013; Samuli Suominen <ssuominen@gentoo.org>
+  udev-init-scripts-19-r1.ebuild, udev-init-scripts-21.ebuild,
+  udev-init-scripts-9999.ebuild:
+  Only print warning about udev-postmount if it's present in runlevels boot,
+  default or sysinit wrt #453408 by Pacho Ramos
+
+*udev-init-scripts-21 (21 Jan 2013)
+
+  21 Jan 2013; William Hubbs <williamh@gentoo.org>
+  -udev-init-scripts-20.ebuild, +udev-init-scripts-21.ebuild:
+  version bump to add code to stop udev if udevadm control fails, pointed out
+  by Nikoli.
+
+*udev-init-scripts-20 (21 Jan 2013)
+
+  21 Jan 2013; William Hubbs <williamh@gentoo.org>
+  +udev-init-scripts-20.ebuild, udev-init-scripts-9999.ebuild:
+  version bump for running the udev executable only; not the symbolic link.
+  This is the same fix as 19-r1.
+
+  21 Jan 2013; Samuli Suominen <ssuominen@gentoo.org>
+  -udev-init-scripts-10.ebuild, -udev-init-scripts-12.ebuild,
+  -udev-init-scripts-14.ebuild, -udev-init-scripts-15.ebuild,
+  -udev-init-scripts-16.ebuild, -udev-init-scripts-17.ebuild,
+  -udev-init-scripts-17-r1.ebuild, -udev-init-scripts-18.ebuild,
+  -udev-init-scripts-19.ebuild:
+  old
+
+*udev-init-scripts-19-r1 (21 Jan 2013)
+
+  21 Jan 2013; Samuli Suominen <ssuominen@gentoo.org>
+  +udev-init-scripts-19-r1.ebuild,
+  +files/udev-init-scripts-19-start-only-regular-file.patch:
+  Skip systemd-udevd if it's a symlink.
+
+  20 Jan 2013; Agostino Sarubbo <ago@gentoo.org> udev-init-scripts-19.ebuild:
+  Stable for x86, wrt bug #452556
+
+  19 Jan 2013; Samuli Suominen <ssuominen@gentoo.org>
+  udev-init-scripts-19.ebuild:
+  amd64 stable wrt #452556
+
+*udev-init-scripts-19 (09 Jan 2013)
+
+  09 Jan 2013; William Hubbs <williamh@gentoo.org>
+  +udev-init-scripts-19.ebuild, udev-init-scripts-9999.ebuild:
+  version bump and sync live ebuild
+
+  11 Dec 2012; Ian Stakenvicius <axs@gentoo.org> udev-init-scripts-18.ebuild,
+  udev-init-scripts-9999.ebuild:
+  adjusted the dep for virtual/udev
+
+  11 Dec 2012; Ian Stakenvicius <axs@gentoo.org> udev-init-scripts-18.ebuild:
+  changed direct udev dependency to virtual/udev to support installation of
+  eudev
+
+*udev-init-scripts-18 (09 Dec 2012)
+
+  09 Dec 2012; William Hubbs <williamh@gentoo.org>
+  +udev-init-scripts-18.ebuild, udev-init-scripts-9999.ebuild:
+  version bump for eudev support and sync live ebuild.
+
+*udev-init-scripts-17-r1 (20 Oct 2012)
+
+  20 Oct 2012; William Hubbs <williamh@gentoo.org>
+  +udev-init-scripts-17-r1.ebuild:
+  Another part of the fix for #438932.
+  Now we require both udev-mount and udev to be added to the sysinit
+  runlevel.
+
+*udev-init-scripts-17 (19 Oct 2012)
+
+  19 Oct 2012; William Hubbs <williamh@gentoo.org>
+  +udev-init-scripts-17.ebuild:
+  version bump
+
+*udev-init-scripts-16 (08 Aug 2012)
+
+  08 Aug 2012; William Hubbs <williamh@gentoo.org>
+  +udev-init-scripts-16.ebuild:
+  version bump
+
+*udev-init-scripts-15 (07 Aug 2012)
+
+  07 Aug 2012; William Hubbs <williamh@gentoo.org>
+  +udev-init-scripts-15.ebuild, udev-init-scripts-9999.ebuild:
+  version bump to move everything back to /lib/udev from /usr/lib/udev.
+
+
+*udev-init-scripts-14 (01 Aug 2012)
+
+  01 Aug 2012; William Hubbs <williamh@gentoo.org>
+  +udev-init-scripts-14.ebuild, udev-init-scripts-9999.ebuild:
+  version bump and sync live ebuild
+
+  22 Jul 2012; Raúl Porcel <armin76@gentoo.org> udev-init-scripts-10.ebuild,
+  udev-init-scripts-12.ebuild:
+  Add ~alpha/~sh/~sparc wrt #397769
+
+*udev-init-scripts-12 (04 Jul 2012)
+
+  04 Jul 2012; William Hubbs <williamh@gentoo.org>
+  +udev-init-scripts-12.ebuild:
+  version bump
+
+  03 May 2012; Mike Frysinger <vapier@gentoo.org> udev-init-scripts-10.ebuild,
+  udev-init-scripts-9999.ebuild:
+  eat spurious leading space
+
+  21 Mar 2012; William Hubbs <williamh@gentoo.org>
+  udev-init-scripts-9999.ebuild:
+  remove the test restriction from the live ebuild since the tests were dropped
+  from git.
+
+  21 Mar 2012; William Hubbs <williamh@gentoo.org> udev-init-scripts-10.ebuild,
+  udev-init-scripts-9999.ebuild:
+  The tests are really for script developers, so I am restricting them for bug
+  #409065
+
+  21 Mar 2012; William Hubbs <williamh@gentoo.org> udev-init-scripts-10.ebuild,
+  udev-init-scripts-9999.ebuild:
+  Only inherit git-2 if we are a live ebuild.
+
+  20 Mar 2012; William Hubbs <williamh@gentoo.org> -udev-init-scripts-9.ebuild:
+  remove old version
+
+  20 Mar 2012; Samuli Suominen <ssuominen@gentoo.org>
+  udev-init-scripts-10.ebuild, udev-init-scripts-9999.ebuild:
+  Set blockers to prevent file collision wrt #405505
+
+*udev-init-scripts-10 (19 Mar 2012)
+
+  19 Mar 2012; William Hubbs <williamh@gentoo.org> +udev-init-scripts-10.ebuild:
+  version bump
+
+  19 Mar 2012; William Hubbs <williamh@gentoo.org> udev-init-scripts-9.ebuild:
+  This version of udev-init-scripts is only for udev-181.
+
+  19 Mar 2012; William Hubbs <williamh@gentoo.org> -udev-init-scripts-8.ebuild:
+  remove old version
+
+  19 Mar 2012; William Hubbs <williamh@gentoo.org> udev-init-scripts-8.ebuild,
+  udev-init-scripts-9.ebuild, udev-init-scripts-9999.ebuild:
+  add openrc to rdepends
+
+*udev-init-scripts-9 (19 Mar 2012)
+
+  19 Mar 2012; William Hubbs <williamh@gentoo.org> +udev-init-scripts-9.ebuild:
+  version bump
+
+  24 Feb 2012; William Hubbs <williamh@gentoo.org> udev-init-scripts-8.ebuild,
+  udev-init-scripts-9999.ebuild:
+  Fix dependencies and add a blocker for older udev versions for bug #405505.
+
+  08 Feb 2012; Matt Turner <mattst88@gentoo.org> udev-init-scripts-8.ebuild:
+  Added ~mips, bug 397769.
+
+*udev-init-scripts-9999 (02 Feb 2012)
+*udev-init-scripts-8 (02 Feb 2012)
+
+  02 Feb 2012; William Hubbs <williamh@gentoo.org> +udev-init-scripts-8.ebuild,
+  +udev-init-scripts-9999.ebuild, +metadata.xml:
+  Initial commit of udev-init-scripts. This package contains the openrc init
+  scripts and helpers for udev.
