@@ -1,0 +1,46 @@
+# ChangeLog for media-libs/oyranos
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/media-libs/oyranos/ChangeLog,v 1.8 2012/11/23 21:55:30 xmw Exp $
+
+  23 Nov 2012; Michael Weber <xmw@gentoo.org> oyranos-0.4.0-r1.ebuild,
+  oyranos-0.9.0.ebuild, oyranos-0.9.1.ebuild:
+  Fix quoting.
+
+*oyranos-0.9.1 (23 Nov 2012)
+
+  23 Nov 2012; Michael Weber <xmw@gentoo.org> +oyranos-0.9.1.ebuild:
+  Version bump
+
+  04 Nov 2012; Michael Weber <xmw@gentoo.org> oyranos-0.9.0.ebuild:
+  Fix for add-admin/elektra-0.8.3.
+
+*oyranos-0.9.0 (04 Nov 2012)
+
+  04 Nov 2012; Michael Weber <xmw@gentoo.org> +oyranos-0.9.0.ebuild,
+  +files/oyranos-0.9.0-array.patch, +files/oyranos-0.9.0-buildsystem.patch,
+  +files/oyranos-0.9.0-png.patch:
+  Version bump with upstream fixes (thanks Andreas Sturmlechner, bug 440838)
+
+*oyranos-0.4.0-r1 (04 Nov 2012)
+
+  04 Nov 2012; Michael Weber <xmw@gentoo.org> -oyranos-0.3.2.ebuild,
+  -files/oyranos-0.3.2-buildsystem.patch, -oyranos-0.4.0.ebuild,
+  +oyranos-0.4.0-r1.ebuild:
+  Revbump to adapt to new elektra include names, drop old.
+
+*oyranos-0.4.0 (09 Mar 2012)
+
+  09 Mar 2012; Michael Weber <xmw@gentoo.org> +oyranos-0.4.0.ebuild,
+  +files/oyranos-0.4.0-buildsystem.patch:
+  Version bump (thanks Andreas Sturmlechner, bug 407485)
+
+  08 Feb 2012; Michael Weber <xmw@gentoo.org> oyranos-0.3.2.ebuild,
+  +files/oyranos-0.3.2-test.patch:
+  Fix tests (bug 402623)
+
+*oyranos-0.3.2 (05 Feb 2012)
+
+  05 Feb 2012; Michael Weber <xmw@gentoo.org> +oyranos-0.3.2.ebuild,
+  +metadata.xml:
+  Initial import from sunrise (bug 287353)
+

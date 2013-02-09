@@ -1,6 +1,6 @@
-# Copyright 1999-2008 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/versionator.eclass,v 1.20 2011/11/22 18:42:10 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/versionator.eclass,v 1.23 2011/12/27 17:55:12 fauli Exp $
 
 # @ECLASS: versionator.eclass
 # @MAINTAINER:
@@ -25,6 +25,9 @@
 # There's also:
 #     version_is_at_least             want      have
 #  which may be buggy, so use with caution.
+
+if [[ ${___ECLASS_ONCE_VERSIONATOR} != "recur -_+^+_- spank" ]] ; then
+___ECLASS_ONCE_VERSIONATOR="recur -_+^+_- spank"
 
 inherit eutils
 
@@ -504,191 +507,4 @@ version_format_string() {
 	eval echo "${fstr}"
 }
 
-__versionator__test_version_compare() {
-	eshopts_push -s extglob
-	local lt=1 eq=2 gt=3 p q
-
-	__versionator__test_version_compare_t() {
-		version_compare "${1}" "${3}"
-		local r=$?
-		[[ ${r} -eq ${2} ]] || echo "FAIL: ${@} (got ${r} exp ${2})"
-	}
-
-	echo "
-		0             $lt 1
-		1             $lt 2
-		2             $gt 1
-		2             $eq 2
-		0             $eq 0
-		10            $lt 20
-		68            $eq 068
-		068           $gt 67
-		068           $lt 69
-
-		1.0           $lt 2.0
-		2.0           $eq 2.0
-		2.0           $gt 1.0
-
-		1.0           $gt 0.0
-		0.0           $eq 0.0
-		0.0           $lt 1.0
-
-		0.1           $lt 0.2
-		0.2           $eq 0.2
-		0.3           $gt 0.2
-
-		1.2           $lt 2.1
-		2.1           $gt 1.2
-
-		1.2.3         $lt 1.2.4
-		1.2.4         $gt 1.2.3
-
-		1.2.0         $gt 1.2
-		1.2.1         $gt 1.2
-		1.2           $lt 1.2.1
-
-		1.2b          $eq 1.2b
-		1.2b          $lt 1.2c
-		1.2b          $gt 1.2a
-		1.2b          $gt 1.2
-		1.2           $lt 1.2a
-
-		1.3           $gt 1.2a
-		1.3           $lt 1.3a
-
-		1.0_alpha7    $lt 1.0_beta7
-		1.0_beta      $lt 1.0_pre
-		1.0_pre5      $lt 1.0_rc2
-		1.0_rc2       $lt 1.0
-
-		1.0_p1        $gt 1.0
-		1.0_p1-r1     $gt 1.0_p1
-
-		1.0_alpha6-r1 $gt 1.0_alpha6
-		1.0_beta6-r1  $gt 1.0_alpha6-r2
-
-		1.0_pre1      $lt 1.0_p1
-
-		1.0p          $gt 1.0_p1
-		1.0r          $gt 1.0-r1
-		1.6.15        $gt 1.6.10-r2
-		1.6.10-r2     $lt 1.6.15
-
-	" | while read a b c ; do
-		[[ -z "${a}${b}${c}" ]] && continue;
-		__versionator__test_version_compare_t "${a}" "${b}" "${c}"
-	done
-
-
-	for q in "alpha beta pre rc=${lt};${gt}" "p=${gt};${lt}" ; do
-		for p in ${q%%=*} ; do
-			local c=${q##*=}
-			local alt=${c%%;*} agt=${c##*;}
-			__versionator__test_version_compare_t "1.0" $agt "1.0_${p}"
-			__versionator__test_version_compare_t "1.0" $agt "1.0_${p}1"
-			__versionator__test_version_compare_t "1.0" $agt "1.0_${p}068"
-
-			__versionator__test_version_compare_t "2.0_${p}"    $alt "2.0"
-			__versionator__test_version_compare_t "2.0_${p}1"   $alt "2.0"
-			__versionator__test_version_compare_t "2.0_${p}068" $alt "2.0"
-
-			__versionator__test_version_compare_t "1.0_${p}"  $eq "1.0_${p}"
-			__versionator__test_version_compare_t "0.0_${p}"  $lt "0.0_${p}1"
-			__versionator__test_version_compare_t "666_${p}3" $gt "666_${p}"
-
-			__versionator__test_version_compare_t "1_${p}7"  $lt "1_${p}8"
-			__versionator__test_version_compare_t "1_${p}7"  $eq "1_${p}7"
-			__versionator__test_version_compare_t "1_${p}7"  $gt "1_${p}6"
-			__versionator__test_version_compare_t "1_${p}09" $eq "1_${p}9"
-
-			__versionator__test_version_compare_t "1_${p}7-r0"  $eq "1_${p}7"
-			__versionator__test_version_compare_t "1_${p}7-r0"  $lt "1_${p}7-r1"
-			__versionator__test_version_compare_t "1_${p}7-r0"  $lt "1_${p}7-r01"
-			__versionator__test_version_compare_t "1_${p}7-r01" $eq "1_${p}7-r1"
-			__versionator__test_version_compare_t "1_${p}8-r1"  $gt "1_${p}7-r100"
-
-			__versionator__test_version_compare_t "1_${p}_alpha" $lt "1_${p}_beta"
-		done
-	done
-
-	for p in "-r" "_p" ; do
-		__versionator__test_version_compare_t "7.2${p}1" $lt "7.2${p}2"
-		__versionator__test_version_compare_t "7.2${p}2" $gt "7.2${p}1"
-		__versionator__test_version_compare_t "7.2${p}3" $gt "7.2${p}2"
-		__versionator__test_version_compare_t "7.2${p}2" $lt "7.2${p}3"
-	done
-
-	# The following tests all come from portage's test cases:
-	__versionator__test_version_compare_t "6.0" $gt "5.0"
-	__versionator__test_version_compare_t "5.0" $gt "5"
-	__versionator__test_version_compare_t "1.0-r1" $gt "1.0-r0"
-	__versionator__test_version_compare_t "1.0-r1" $gt "1.0"
-	__versionator__test_version_compare_t "999999999999999999999999999999" $gt "999999999999999999999999999998"
-	__versionator__test_version_compare_t "1.0.0" $gt "1.0"
-	__versionator__test_version_compare_t "1.0.0" $gt "1.0b"
-	__versionator__test_version_compare_t "1b" $gt "1"
-	__versionator__test_version_compare_t "1b_p1" $gt "1_p1"
-	__versionator__test_version_compare_t "1.1b" $gt "1.1"
-	__versionator__test_version_compare_t "12.2.5" $gt "12.2b"
-
-	__versionator__test_version_compare_t "4.0" $lt "5.0"
-	__versionator__test_version_compare_t "5" $lt "5.0"
-	__versionator__test_version_compare_t "1.0_pre2" $lt "1.0_p2"
-	__versionator__test_version_compare_t "1.0_alpha2" $lt "1.0_p2"
-	__versionator__test_version_compare_t "1.0_alpha1" $lt "1.0_beta1"
-	__versionator__test_version_compare_t "1.0_beta3" $lt "1.0_rc3"
-	__versionator__test_version_compare_t "1.001000000000000000001" $lt "1.001000000000000000002"
-	__versionator__test_version_compare_t "1.00100000000" $lt "1.0010000000000000001"
-	__versionator__test_version_compare_t "999999999999999999999999999998" $lt "999999999999999999999999999999"
-	__versionator__test_version_compare_t "1.01" $lt "1.1"
-	__versionator__test_version_compare_t "1.0-r0" $lt "1.0-r1"
-	__versionator__test_version_compare_t "1.0" $lt "1.0-r1"
-	__versionator__test_version_compare_t "1.0" $lt "1.0.0"
-	__versionator__test_version_compare_t "1.0b" $lt "1.0.0"
-	__versionator__test_version_compare_t "1_p1" $lt "1b_p1"
-	__versionator__test_version_compare_t "1" $lt "1b"
-	__versionator__test_version_compare_t "1.1" $lt "1.1b"
-	__versionator__test_version_compare_t "12.2b" $lt "12.2.5"
-
-	__versionator__test_version_compare_t "4.0" $eq "4.0"
-	__versionator__test_version_compare_t "1.0" $eq "1.0"
-	__versionator__test_version_compare_t "1.0-r0" $eq "1.0"
-	__versionator__test_version_compare_t "1.0" $eq "1.0-r0"
-	__versionator__test_version_compare_t "1.0-r0" $eq "1.0-r0"
-	__versionator__test_version_compare_t "1.0-r1" $eq "1.0-r1"
-
-	# The following were just tests for != in portage, we need something a bit
-	# more precise
-	__versionator__test_version_compare_t "1" $lt "2"
-	__versionator__test_version_compare_t "1.0_alpha" $lt "1.0_pre"
-	__versionator__test_version_compare_t "1.0_beta" $gt "1.0_alpha"
-	__versionator__test_version_compare_t "0" $lt "0.0"
-	__versionator__test_version_compare_t "1.0-r0" $lt "1.0-r1"
-	__versionator__test_version_compare_t "1.0-r1" $gt "1.0-r0"
-	__versionator__test_version_compare_t "1.0" $lt "1.0-r1"
-	__versionator__test_version_compare_t "1.0-r1" $gt "1.0"
-	__versionator__test_version_compare_t "1_p1" $lt "1b_p1"
-	__versionator__test_version_compare_t "1b" $gt "1"
-	__versionator__test_version_compare_t "1.1b" $gt "1.1"
-	__versionator__test_version_compare_t "12.2b" $gt "12.2"
-
-	# The following tests all come from paludis's test cases:
-	__versionator__test_version_compare_t "1.0" $gt "1"
-	__versionator__test_version_compare_t "1" $lt "1.0"
-	__versionator__test_version_compare_t "1.0_alpha" $gt "1_alpha"
-	__versionator__test_version_compare_t "1.0_alpha" $gt "1"
-	__versionator__test_version_compare_t "1.0_alpha" $lt "1.0"
-	__versionator__test_version_compare_t "1.2.0.0_alpha7-r4" $gt "1.2_alpha7-r4"
-
-	__versionator__test_version_compare_t "0001" $eq "1"
-	__versionator__test_version_compare_t "01" $eq "001"
-	__versionator__test_version_compare_t "0001.1" $eq "1.1"
-	__versionator__test_version_compare_t "01.01" $eq "1.01"
-	__versionator__test_version_compare_t "1.010" $eq "1.01"
-	__versionator__test_version_compare_t "1.00" $eq "1.0"
-	__versionator__test_version_compare_t "1.0100" $eq "1.010"
-	__versionator__test_version_compare_t "1" $eq "1-r0"
-	__versionator__test_version_compare_t "1-r00" $eq "1-r0"
-
-	eshopts_pop
-}
+fi

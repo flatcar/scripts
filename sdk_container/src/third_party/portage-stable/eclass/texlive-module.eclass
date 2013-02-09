@@ -1,11 +1,11 @@
-# Copyright 1999-2008 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/texlive-module.eclass,v 1.34 2010/01/13 15:16:49 fauli Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/texlive-module.eclass,v 1.63 2012/07/26 16:40:47 aballier Exp $
 
 # @ECLASS: texlive-module.eclass
 # @MAINTAINER:
 # tex@gentoo.org
-#
+# @AUTHOR:
 # Original Author: Alexis Ballier <aballier@gentoo.org>
 # @BLURB: Provide generic install functions so that modular texlive's texmf ebuild will only have to inherit this eclass
 # @DESCRIPTION:
@@ -14,30 +14,30 @@
 # Ebuilds have to provide TEXLIVE_MODULE_CONTENTS variable that contains the list
 # of packages that it will install. (See below)
 #
-# What is assumed is that it unpacks texmf and texmf-dist directories to
-# ${WORKDIR}.
+# For TeX Live versions prior to 2009, the ebuild was supposed to unpack the
+# texmf and texmf-dist directories to ${WORKDIR} (which is what the default
+# src_unpack does).
+# Starting from TeX Live 2009, the eclass provides a src_unpack function taking
+# care of unpacking and relocating the files that need it.
 #
-# It inherits texlive-common
+# It inherits texlive-common and base for supporting patching via the PATCHES
+# bash array with EAPI>=2.
 
 # @ECLASS-VARIABLE: TEXLIVE_MODULE_CONTENTS
 # @DESCRIPTION:
 # The list of packages that will be installed. This variable will be expanded to
 # SRC_URI:
-#
-# For TeX Live 2008: foo -> texlive-module-foo-${PV}.tar.lzma
-# For TeX Live 2009: foo -> texlive-module-foo-${PV}.tar.xz
+# foo -> texlive-module-foo-${PV}.tar.xz
 
 # @ECLASS-VARIABLE: TEXLIVE_MODULE_DOC_CONTENTS
 # @DESCRIPTION:
 # The list of packages that will be installed if the doc useflag is enabled.
-# Expansion to SRC_URI is the same as for TEXLIVE_MODULE_CONTENTS. This is only
-# valid for TeX Live 2008 and later
+# Expansion to SRC_URI is the same as for TEXLIVE_MODULE_CONTENTS.
 
 # @ECLASS-VARIABLE: TEXLIVE_MODULE_SRC_CONTENTS
 # @DESCRIPTION:
 # The list of packages that will be installed if the source useflag is enabled.
-# Expansion to SRC_URI is the same as for TEXLIVE_MODULE_CONTENTS. This is only
-# valid for TeX Live 2008 and later
+# Expansion to SRC_URI is the same as for TEXLIVE_MODULE_CONTENTS.
 
 # @ECLASS-VARIABLE: TEXLIVE_MODULE_BINSCRIPTS
 # @DESCRIPTION:
@@ -51,7 +51,12 @@
 # If this is not the case, TL_PV takes the version number for the
 # needed app-text/texlive-core.
 
-inherit texlive-common
+# @ECLASS-VARIABLE: TL_MODULE_INFORMATION
+# @DESCRIPTION:
+# Information to display about the package.
+# e.g. for enabling/disabling a feature
+
+inherit texlive-common base
 
 HOMEPAGE="http://www.tug.org/texlive/"
 
@@ -59,17 +64,10 @@ COMMON_DEPEND=">=app-text/texlive-core-${TL_PV:-${PV}}"
 
 IUSE="source"
 
-# TeX Live 2008 was providing .tar.lzma files of CTAN packages. For 2009 they are now
-# .tar.xz
-if [ "${PV#2008}" != "${PV}" ]; then
-	PKGEXT=tar.lzma
-	DEPEND="${COMMON_DEPEND}
-		|| ( app-arch/xz-utils app-arch/lzma-utils )"
-else
-	PKGEXT=tar.xz
-	DEPEND="${COMMON_DEPEND}
-		app-arch/xz-utils"
-fi
+# Starting from TeX Live 2009, upstream provides .tar.xz modules.
+PKGEXT=tar.xz
+DEPEND="${COMMON_DEPEND}
+	app-arch/xz-utils"
 
 for i in ${TEXLIVE_MODULE_CONTENTS}; do
 	SRC_URI="${SRC_URI} mirror://gentoo/texlive-module-${i}-${PV}.${PKGEXT}"
@@ -97,24 +95,32 @@ RDEPEND="${COMMON_DEPEND}"
 
 S="${WORKDIR}"
 
-if [ "${PV#2008}" == "${PV}" ]; then
-
 # @FUNCTION: texlive-module_src_unpack
 # @DESCRIPTION:
-# Only for TeX Live 2009.
+# Only for TeX Live 2009 and later.
 # Gives tar.xz unpack support until we can use an EAPI with that support.
+# If EAPI supports tar.xz then it calls unpack instead of its own unpacker.
+# After unpacking, the files that need to be relocated are moved accordingly.
 
 RELOC_TARGET=texmf-dist
 
 texlive-module_src_unpack() {
-	local i s
-	for i in ${A}
-	do
-		s="${DISTDIR%/}/${i}"
-		einfo "Unpacking ${s} to ${PWD}"
-		test -s "${s}" || die "${s} does not exist"
-		xz -dc -- "${s}" | tar xof - || die "Unpacking ${s} failed"
-	done
+	if has "${EAPI:-0}" 0 1 2 ; then
+		local i s
+		# Avoid installing world writable files
+		# Bugs #309997, #310039, #338881
+		umask 022
+		for i in ${A}
+		do
+			s="${DISTDIR%/}/${i}"
+			einfo "Unpacking ${s} to ${PWD}"
+			test -s "${s}" || die "${s} does not exist"
+			xz -dc -- "${s}" | tar xof - || die "Unpacking ${s} failed"
+		done
+	else
+		unpack ${A}
+	fi
+
 	grep RELOC tlpkg/tlpobj/* | awk '{print $2}' | sed 's#^RELOC/##' > "${T}/reloclist"
 	{ for i in $(<"${T}/reloclist"); do  dirname $i; done; } | uniq > "${T}/dirlist"
 	for i in $(<"${T}/dirlist"); do
@@ -125,13 +131,12 @@ texlive-module_src_unpack() {
 	done
 }
 
-fi
-
 # @FUNCTION: texlive-module_add_format
 # @DESCRIPTION:
 # Creates/appends to a format.${PN}.cnf file for fmtutil.
+# It parses the AddFormat directive of tlpobj files to create it.
 # This will make fmtutil generate the formats when asked and allow the remaining
-# src_compile phase to build the formats
+# src_compile phase to build the formats.
 
 texlive-module_add_format() {
 	local name engine mode patterns options
@@ -139,7 +144,7 @@ texlive-module_add_format() {
 	einfo "Appending to format.${PN}.cnf for $@"
 	[ -d texmf/fmtutil ] || mkdir -p texmf/fmtutil
 	[ -f texmf/fmtutil/format.${PN}.cnf ] || { echo "# Generated for ${PN} by texlive-module.eclass" > texmf/fmtutil/format.${PN}.cnf; }
-	if [ "${mode}" == "disabled" ]; then
+	if [ "${mode}" = "disabled" ]; then
 		printf "#! " >> texmf/fmtutil/format.${PN}.cnf
 	fi
 	[ -z "${patterns}" ] && patterns="-"
@@ -148,11 +153,11 @@ texlive-module_add_format() {
 
 # @FUNCTION: texlive-module_make_language_def_lines
 # @DESCRIPTION:
-# Creates a language.${PN}.def entry to put in /etc/texmf/language.def.d
+# Creates a language.${PN}.def entry to put in /etc/texmf/language.def.d.
 # It parses the AddHyphen directive of tlpobj files to create it.
 
 texlive-module_make_language_def_lines() {
-	local lefthyphenmin righthyphenmin synonyms name file
+	local lefthyphenmin righthyphenmin synonyms name file file_patterns file_exceptions luaspecial
 	eval $@
 	einfo "Generating language.def entry for $@"
 	[ -z "$lefthyphenmin" ] && lefthyphenmin="2"
@@ -168,12 +173,11 @@ texlive-module_make_language_def_lines() {
 
 # @FUNCTION: texlive-module_make_language_dat_lines
 # @DESCRIPTION:
-# Only valid for TeXLive 2008.
-# Creates a language.${PN}.dat entry to put in /etc/texmf/language.dat.d
+# Creates a language.${PN}.dat entry to put in /etc/texmf/language.dat.d.
 # It parses the AddHyphen directive of tlpobj files to create it.
 
 texlive-module_make_language_dat_lines() {
-	local lefthyphenmin righthyphenmin synonyms name file
+	local lefthyphenmin righthyphenmin synonyms name file file_patterns file_exceptions luaspecial
 	eval $@
 	einfo "Generating language.dat entry for $@"
 	echo "$name $file" >> "${S}/language.${PN}.dat"
@@ -185,28 +189,66 @@ texlive-module_make_language_dat_lines() {
 	fi
 }
 
+# @FUNCTION: texlive-module_synonyms_to_language_lua_line
+# @DESCRIPTION:
+# Helper function for texlive-module_make_language_lua_lines to generate a
+# correctly formatted synonyms entry for language.dat.lua.
+
+texlive-module_synonyms_to_language_lua_line() {
+	local prev=""
+	for i in $(echo $@ | tr ',' ' ') ; do
+		printf "${prev} '%s'" $i
+		prev=","
+	done
+}
+
+# @FUNCTION: texlive-module_make_language_lua_lines
+# @DESCRIPTION:
+# Only valid for TeXLive 2010.
+# Creates a language.${PN}.dat.lua entry to put in
+# /etc/texmf/language.dat.lua.d.
+# It parses the AddHyphen directive of tlpobj files to create it.
+
+texlive-module_make_language_lua_lines() {
+	local lefthyphenmin righthyphenmin synonyms name file file_patterns file_exceptions luaspecial
+	local dest="${S}/language.${PN}.dat.lua"
+	eval $@
+	[ -z "$lefthyphenmin"  ] && lefthyphenmin="2"
+	[ -z "$righthyphenmin" ] && righthyphenmin="3"
+	einfo "Generating language.dat.lua entry for $@"
+	printf "\t['%s'] = {\n" "$name"                                                                 >> "$dest"
+	printf "\t\tloader = '%s',\n" "$file"                                                           >> "$dest"
+	printf "\t\tlefthyphenmin = %s,\n\t\trighthyphenmin = %s,\n" "$lefthyphenmin" "$righthyphenmin" >> "$dest"
+	printf "\t\tsynonyms = {%s },\n" "$(texlive-module_synonyms_to_language_lua_line "$synonyms")"  >> "$dest"
+	[ -n "$file_patterns"   ] && printf "\t\tpatterns = '%s',\n" "$file_patterns"                   >> "$dest"
+	[ -n "$file_exceptions" ] && printf "\t\thyphenation = '%s',\n"	"$file_exceptions"              >> "$dest"
+	[ -n "$luaspecial"      ] && printf "\t\tspecial = '%s',\n" "$luaspecial"                       >> "$dest"
+	printf "\t},\n"                                                                                 >> "$dest"
+}
+
 # @FUNCTION: texlive-module_src_compile
 # @DESCRIPTION:
 # exported function:
-# Will look for format.foo.cnf and build foo format files using fmtutil
+# Generates the config files that are to be installed in /etc/texmf;
+# texmf-update script will take care of merging the different config files for
+# different packages in a single one used by the whole tex installation.
+#
+# Once the config files are generated, we build the format files using fmtutil
 # (provided by texlive-core). The compiled format files will be sent to
 # texmf-var/web2c, like fmtutil defaults to but with some trick to stay in the
-# sandbox
-# The next step is to generate config files that are to be installed in
-# /etc/texmf; texmf-update script will take care of merging the different config
-# files for different packages in a single one used by the whole tex installation.
+# sandbox.
 
 texlive-module_src_compile() {
-	# Generate config files
-	# TeX Live 2007 was providing lists. For 2008 they are now tlpobj.
+	# Generate config files from the tlpobj files provided by TeX Live 2008 and
+	# later
 	for i in "${S}"/tlpkg/tlpobj/*;
 	do
-		grep '^execute ' "${i}" | sed -e 's/^execute //' | tr ' ' '@' |sort|uniq >> "${T}/jobs"
+		grep '^execute ' "${i}" | sed -e 's/^execute //' | tr ' \t' '##' |sort|uniq >> "${T}/jobs"
 	done
 
 	for i in $(<"${T}/jobs");
 	do
-		j="$(echo $i | tr '@' ' ')"
+		j="$(echo $i | tr '#' ' ')"
 		command=${j%% *}
 		parameter=${j#* }
 		case "${command}" in
@@ -214,13 +256,17 @@ texlive-module_src_compile() {
 				echo "Map ${parameter}" >> "${S}/${PN}.cfg";;
 			addMixedMap)
 				echo "MixedMap ${parameter}" >> "${S}/${PN}.cfg";;
+			addKanjiMap)
+				echo "KanjiMap ${parameter}" >> "${S}/${PN}.cfg";;
 			addDvipsMap)
 				echo "p	+${parameter}" >> "${S}/${PN}-config.ps";;
 			addDvipdfmMap)
 				echo "f	${parameter}" >> "${S}/${PN}-config";;
 			AddHyphen)
 				texlive-module_make_language_def_lines "$parameter"
-				texlive-module_make_language_dat_lines "$parameter";;
+				texlive-module_make_language_dat_lines "$parameter"
+				texlive-module_make_language_lua_lines "$parameter"
+				;;
 			AddFormat)
 				texlive-module_add_format "$parameter";;
 			BuildFormat)
@@ -250,7 +296,7 @@ texlive-module_src_compile() {
 # @FUNCTION: texlive-module_src_install
 # @DESCRIPTION:
 # exported function:
-# Install texmf and config files to the system
+# Installs texmf and config files to the system.
 
 texlive-module_src_install() {
 	for i in texmf/fmtutil/format*.cnf; do
@@ -288,6 +334,12 @@ texlive-module_src_install() {
 		insinto /etc/texmf/language.dat.d
 		doins "${S}/language.${PN}.dat"
 	fi
+
+	if [ -f "${S}/language.${PN}.dat.lua" ] ; then
+		insinto /etc/texmf/language.dat.lua.d
+		doins "${S}/language.${PN}.dat.lua"
+	fi
+
 	[ -n "${TEXLIVE_MODULE_BINSCRIPTS}" ] && dobin_texmf_scripts ${TEXLIVE_MODULE_BINSCRIPTS}
 
 	texlive-common_handle_config_files
@@ -296,37 +348,22 @@ texlive-module_src_install() {
 # @FUNCTION: texlive-module_pkg_postinst
 # @DESCRIPTION:
 # exported function:
-# run texmf-update to ensure the tex installation is consistent with the
+# Run texmf-update to ensure the tex installation is consistent with the
 # installed texmf trees.
 
 texlive-module_pkg_postinst() {
-	if [ "$ROOT" = "/" ] && [ -x /usr/sbin/texmf-update ] ; then
-		/usr/sbin/texmf-update
-	else
-		ewarn "Cannot run texmf-update for some reason."
-		ewarn "Your texmf tree might be inconsistent with your configuration"
-		ewarn "Please try to figure what has happened"
-	fi
+	etexmf-update
+	[ -n "${TL_MODULE_INFORMATION}" ] && elog "${TL_MODULE_INFORMATION}"
 }
 
 # @FUNCTION: texlive-module_pkg_postrm
 # @DESCRIPTION:
 # exported function:
-# run texmf-update to ensure the tex installation is consistent with the
+# Run texmf-update to ensure the tex installation is consistent with the
 # installed texmf trees.
 
 texlive-module_pkg_postrm() {
-	if [ "$ROOT" = "/" ] && [ -x /usr/sbin/texmf-update ] ; then
-		/usr/sbin/texmf-update
-	else
-		ewarn "Cannot run texmf-update for some reason."
-		ewarn "Your texmf tree might be inconsistent with your configuration"
-		ewarn "Please try to figure what has happened"
-	fi
+	etexmf-update
 }
 
-if [ "${PV#2008}" != "${PV}" ]; then
-EXPORT_FUNCTIONS src_compile src_install pkg_postinst pkg_postrm
-else
 EXPORT_FUNCTIONS src_unpack src_compile src_install pkg_postinst pkg_postrm
-fi

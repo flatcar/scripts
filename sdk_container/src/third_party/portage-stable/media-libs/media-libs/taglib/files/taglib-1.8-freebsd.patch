@@ -1,0 +1,12 @@
+diff --git a/tests/utils.h b/tests/utils.h
+index 39e15ce..b69bfa5 100644
+--- a/tests/utils.h
++++ b/tests/utils.h
+@@ -7,6 +7,7 @@
+ #include <unistd.h>
+ #include <fcntl.h>
+ #include <sys/fcntl.h>
++#include <sys/stat.h>
+ #endif
+ #include <stdio.h>
+ #include <string.h>

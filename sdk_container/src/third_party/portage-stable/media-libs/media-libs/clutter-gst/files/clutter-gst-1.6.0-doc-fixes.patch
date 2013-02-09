@@ -1,0 +1,39 @@
+From 61d54db88bd279e3ef68abcc22faa6ad630bc315 Mon Sep 17 00:00:00 2001
+From: Edward Hervey <edward.hervey@collabora.co.uk>
+Date: Thu, 12 Jul 2012 12:03:31 +0200
+Subject: [PATCH] Misc doc fixes
+
+gtk-doc/gi-scanner complains otherwise
+---
+ clutter-gst/clutter-gst-player.h        | 2 +-
+ clutter-gst/clutter-gst-video-texture.c | 1 -
+ 2 files changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/clutter-gst/clutter-gst-player.h b/clutter-gst/clutter-gst-player.h
+index 2a7cdf3..02d45cb 100644
+--- a/clutter-gst/clutter-gst-player.h
++++ b/clutter-gst/clutter-gst-player.h
+@@ -57,7 +57,7 @@ typedef struct _ClutterGstPlayerIfacePrivate ClutterGstPlayerIfacePrivate;
+ 
+ 
+ /**
+- * ClutterGstPlayer
++ * ClutterGstPlayer:
+  *
+  * #ClutterGstPlayer is an opaque structure whose members cannot be
+  * directly accessed
+diff --git a/clutter-gst/clutter-gst-video-texture.c b/clutter-gst/clutter-gst-video-texture.c
+index 7cd9114..8f99a9f 100644
+--- a/clutter-gst/clutter-gst-video-texture.c
++++ b/clutter-gst/clutter-gst-video-texture.c
+@@ -665,7 +665,6 @@ clutter_gst_video_texture_get_idle_material (ClutterGstVideoTexture *texture)
+   return texture->priv->idle_material;
+ }
+ /**
+-
+  * clutter_gst_video_texture_set_idle_material:
+  * @texture: a #ClutterGstVideoTexture
+  * @material: the handle of a Cogl material
+-- 
+1.7.12
+

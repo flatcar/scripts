@@ -1,6 +1,6 @@
-# Copyright 1999-2007 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/freebsd.eclass,v 1.14 2009/05/22 15:23:35 aballier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/freebsd.eclass,v 1.24 2012/11/24 11:22:44 aballier Exp $
 #
 # Diego Pettenò <flameeyes@gentoo.org>
 
@@ -24,6 +24,7 @@ ETC="freebsd-etc-${PV}"
 SYS="freebsd-sys-${PV}"
 INCLUDE="freebsd-include-${PV}"
 RESCUE="freebsd-rescue-${PV}"
+CDDL="freebsd-cddl-${PV}"
 
 # Release version (5.3, 5.4, 6.0, etc)
 RV="$(get_version_component_range 1-2)"
@@ -67,6 +68,7 @@ freebsd_do_patches() {
 			epatch "${x}"
 		done
 	fi
+	epatch_user
 }
 
 freebsd_rename_libraries() {
@@ -76,7 +78,13 @@ freebsd_rename_libraries() {
 		sed -i -e 's:-ltermcap:-lncurses:g; s:{LIBTERMCAP}:{LIBNCURSES}:g'
 	# flex provides libfl, not libl
 	find "${S}" -name Makefile -print0 | xargs -0 \
-		sed -i -e 's:-ll:-lfl:g; s:{LIBL}:{LIBFL}:g'
+		sed -i -e 's:-ll$:-lfl:g; s:-ll :-lfl :g; s:{LIBL}:{LIBFL}:g'
+	# ncurses provides libncursesw not libcursesw
+	find "${S}" -name Makefile -print0 | xargs -0 \
+		sed -i -e 's:-lcursesw:-lncursesw:g'
+	# we use expat instead of bsdxml
+	find "${S}" -name Makefile -print0 | xargs -0 \
+		sed -i -e 's:-lbsdxml:-lexpat:g'
 
 	eend $?
 }
@@ -93,13 +101,9 @@ freebsd_src_unpack() {
 
 freebsd_src_compile() {
 	use profile && filter-flags "-fomit-frame-pointer"
-	use profile || \
-		case "${RV}" in
-			5.*) mymakeopts="${mymakeopts} NOPROFILE= " ;;
-			6.*|7.*) mymakeopts="${mymakeopts} NO_PROFILE= " ;;
-		esac
+	use profile || mymakeopts="${mymakeopts} NO_PROFILE= "
 
-	mymakeopts="${mymakeopts} NO_MANCOMPRESS= NO_INFOCOMPRESS="
+	mymakeopts="${mymakeopts} NO_MANCOMPRESS= NO_INFOCOMPRESS= NO_FSCHG="
 
 	# Many things breaks when using ricer flags here
 	[[ -z "${NOFLAGSTRIP}" ]] && strip-flags
@@ -107,17 +111,19 @@ freebsd_src_compile() {
 	# Make sure to use FreeBSD definitions while crosscompiling
 	[[ -z "${BMAKE}" ]] && BMAKE="$(freebsd_get_bmake)"
 
+	# Create objdir if MAKEOBJDIRPREFIX is defined, so that we can make out of
+	# tree builds easily.
+	if [[ -n "${MAKEOBJDIRPREFIX}" ]] ; then
+		mkmake obj || die
+	fi
+
 	bsdmk_src_compile
 }
 
 freebsd_src_install() {
-	use profile || \
-		case "${RV}" in
-			5.*) mymakeopts="${mymakeopts} NOPROFILE= " ;;
-			6.*|7.*) mymakeopts="${mymakeopts} NO_PROFILE= " ;;
-		esac
+	use profile || mymakeopts="${mymakeopts} NO_PROFILE= "
 
-	mymakeopts="${mymakeopts} NO_MANCOMPRESS= NO_INFOCOMPRESS="
+	mymakeopts="${mymakeopts} NO_MANCOMPRESS= NO_INFOCOMPRESS= NO_FSCHG="
 
 	[[ -z "${BMAKE}" ]] && BMAKE="$(freebsd_get_bmake)"
 

@@ -1,10 +1,10 @@
-# Copyright 1999-2008 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/makeedit.eclass,v 1.12 2008/07/17 09:58:40 pva Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/makeedit.eclass,v 1.13 2011/08/22 04:46:32 vapier Exp $
 
 # @ECLASS: makeedit.eclass
-# @MAINTAINER:
-# Author: Spider
+# @AUTHOR:
+# Spider
 # @BLURB: An eclass to replace some flags in makefiles
 # @DESCRIPTION:
 #

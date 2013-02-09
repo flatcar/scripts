@@ -1,0 +1,13 @@
+--- src/joystick/linux/SDL_sysjoystick.c.org	2012-06-06 18:03:56.700819599 +0300
++++ src/joystick/linux/SDL_sysjoystick.c	2012-06-06 18:04:31.473143816 +0300
+@@ -1106,6 +1106,10 @@ static __inline__ void EV_HandleEvents(S
+ 				}
+ 				break;
+ 			    case EV_ABS:
++				if (code >= ABS_MISC) {
++				    break;
++				}
++
+ 				switch (code) {
+ 				    case ABS_HAT0X:
+ 				    case ABS_HAT0Y:

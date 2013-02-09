@@ -1,0 +1,36 @@
+Include kpathsea/version.h when available. Fixes a build failure with TeX Live
+2010.
+
+Index: freetype/freetype1-contrib/ttf2pk/configure.ac
+===================================================================
+--- freetype.orig/freetype1-contrib/ttf2pk/configure.ac
++++ freetype/freetype1-contrib/ttf2pk/configure.ac
+@@ -58,6 +58,7 @@ if test -n "$kpathsea_include" -o -n "$k
+ 
+   AC_CHECK_HEADER(kpathsea/c-auto.h, ,[
+                   AC_MSG_ERROR([Can't find kpathsea include files! Use --with-kpathsea-include option.])])
++  AC_CHECK_HEADERS([kpathsea/version.h])
+ else
+   CPPFLAGS="$CPPFLAGS -I$srcdir"
+ fi
+Index: freetype/freetype1-contrib/ttf2pk/filesrch.c
+===================================================================
+--- freetype.orig/freetype1-contrib/ttf2pk/filesrch.c
++++ freetype/freetype1-contrib/ttf2pk/filesrch.c
+@@ -34,12 +34,16 @@
+ #include "kpathsea/kpathsea.h"
+ #endif
+ 
++#ifdef HAVE_KPATHSEA_VERSION_H
++#include <kpathsea/version.h>
++#else
+ #ifdef KPSEDLL
+ /* this is kpathsea 3.3 and newer */
+ extern KPSEDLL char *kpathsea_version_string;
+ #else
+ extern DllImport char *kpathsea_version_string;
+ #endif
++#endif
+ 
+ /*
+  *   Initialize kpathsea library; arguments are the full name of the

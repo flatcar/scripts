@@ -1,205 +1,165 @@
-# Copyright 2004-2006 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License, v2 or later
-# $Header: /var/cvsroot/gentoo-x86/eclass/gdesklets.eclass,v 1.18 2009/05/13 02:11:24 nixphoeni Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/gdesklets.eclass,v 1.21 2011/08/22 04:46:31 vapier Exp $
+
+# @ECLASS: gdesklets.eclass
+# @MAINTAINER:
+# gdesklets@gentoo.org
+# @AUTHOR:
+# Original author: Joe Sapp <nixphoeni@gentoo.org>
+# Original author: Mike Gardiner <obz@gentoo.org>
+# @BLURB: Installation functions for Desklets and Controls supported by gDesklets
+# @DESCRIPTION:
+# The gdesklets eclass provides a simple way to create ebuilds for
+# globally installing desktop applets ("Desklets") and supporting code
+# ("Controls") used in the gDesklets framework (provided by
+# gnome-extra/gdesklets-core)
 #
-# Authors:	Joe Sapp <nixphoeni@gentoo.org>
-#		Mike Gardiner <obz@gentoo.org>
-#
-# Usage:
-# As a writer for an ebuild for gDesklets, you should set a few things:
-#
-#	DESKLET_NAME: The name of the desklet.
-#	DOCS: Anything (like a README) that should be dodoc'd.
-#	S: *Optional* The package's base directory.
-#		Usually ${WORKDIR}/${DESKLET_NAME} if it was packaged
-#		correctly (hence, this is the default).
-# 	RDEPEND: *Optional* Set if the desklet requires a minimum version
-#		of gDesklets greater than 0.34 or other packages.
+# This eclass assumes a package following the instructions at
+# http://gdesklets.de/index.php?q=node/2 .  Specifically, the package
+# should be a Desklet or Control ONLY (and *not* a Sensor).  You
+# technically could have an ebuild that works around this limitation,
+# but no new packages should be added to the tree that do this (mainly
+# for ease of maintenance).
+
+# @ECLASS-VARIABLE: DESKLET_NAME
+# @DESCRIPTION:
+# *Optional*  The name of the Desklet, if the package is one. The
+# default is to assume a Desklet with the name being ${PN} without the
+# "desklet-" prefix.
+
+# @ECLASS-VARIABLE: CONTROL_NAME
+# @DESCRIPTION:
+# *Optional*  The name of the Control, if the package is one.
+
+# @ECLASS-VARIABLE: DOCS
+# @DESCRIPTION:
+# Anything (like a README) that should be dodoc'd.
+
+# @ECLASS-VARIABLE: SLOT
+# @DESCRIPTION:
+# Set only if the package is a Control and it provides a different
+# interface (i.e. expands to a different install directory) than a
+# previous version.
 
 inherit eutils multilib python
 
+if [[ -n "${CONTROL_NAME}" ]]; then
+	debug-print "Looking for a Control named \"${CONTROL_NAME}\""
+	MY_PN="${CONTROL_NAME}"
+	SRC_URI="http://gdesklets.de/files/controls/${MY_PN}/${MY_PN}-${PV}.tar.gz"
+	unset DESKLET_NAME
+else # [[ -n "${DESKLET_NAME}" ]]; then
+	# Assume an unset DESKLET_NAME means the name is ${PN} without
+	# the "desklet-" prefix
+	[[ -z "${DESKLET_NAME}" ]] && DESKLET_NAME="${PN#desklet-}"
+	debug-print "Looking for a Desklet named \"${DESKLET_NAME}\""
+	MY_PN="${DESKLET_NAME}"
+	SRC_URI="http://gdesklets.de/files/desklets/${MY_PN}/${MY_PN}-${PV}.tar.gz"
+fi
 
-MY_PN="${DESKLET_NAME}"
 MY_P="${MY_PN}-${PV}"
-S="${WORKDIR}/${DESKLET_NAME}"
+S="${WORKDIR}/${MY_PN}"
 
-SRC_URI="http://gdesklets.de/files/desklets/${MY_PN}/${MY_P}.tar.gz"
-
-# Ebuild writer shouldn't need to touch these (except maybe $RDEPEND)
 SLOT="0"
+# Ebuild writer shouldn't need to touch these (except maybe RDEPEND)
 IUSE=""
-RDEPEND=">=gnome-extra/gdesklets-core-0.34.3-r1"
+RDEPEND=">=gnome-extra/gdesklets-core-0.36.1-r3"
 
 GDESKLETS_INST_DIR="${ROOT}usr/$(get_libdir)/gdesklets"
 
+# @FUNCTION: gdesklets_src_install
+# @DESCRIPTION:
+# Installs a Desklet or Control depending on which is set of
+# CONTROL_NAME or DESKLET_NAME
 gdesklets_src_install() {
 
 	debug-print-function $FUNCNAME $*
 
-	# Disable compilation of included python modules (Controls)
+	# Disable compilation of included python modules (for Controls)
 	python_disable_pyc
 
-	# Do not remove - see bugs 126890 and 128289
+	# Avoid sandbox violations caused by misbehaving packages (bug #128289)
 	addwrite "${ROOT}/root/.gnome2"
 
-	has_version ">=gnome-extra/gdesklets-core-0.33.1" || \
-				GDESKLETS_INST_DIR="/usr/share/gdesklets"
-
-	# This should be done by the gdesklets-core ebuild
-	# It makes the Displays or Controls directory in the
-	# global installation directory if it doesn't exist
-	[[ -d "${GDESKLETS_INST_DIR}/Displays" ]] || \
-		dodir "${GDESKLETS_INST_DIR}/Displays"
-
-	# The displays only need to be readable
+	# Both Displays and Controls only need to be readable
 	insopts -m0744
 
-	# Check to see if DISPLAY is set for the
-	# gdesklets-control-getid script to run without
-	# error
-	[ -z "${DISPLAY}" ] && DISPLAY=""
-	export DISPLAY
+	debug-print-section docs_install
 
-	debug-print-section sensor_install
-	# First, install the Sensor (if there is one)
-	if [[ -n "${SENSOR_NAME}" ]]; then
-		for SENS in ${SENSOR_NAME[@]}; do
-			einfo "Installing Sensor ${SENS}"
-			/usr/bin/python "Install_${SENS}_Sensor.bin" \
-					--nomsg "${D}${GDESKLETS_INST_DIR}/Sensors" || \
-					die "Couldn't Install Sensor"
+	# Install some docs if so requested (and then delete them so they
+	# don't get copied into the installation directory)
+	[[ -n "${DOCS}" ]] && dodoc ${DOCS} && \
+		rm -f ${DOCS} \
+		debug-print "Installed and deleted ${DOCS}"
+	# LICENSE doesn't need to get installed if it exists
+	find . -name LICENSE -delete
 
-			chown -R root:0 "${D}${GDESKLETS_INST_DIR}/Sensors/${SENSOR_NAME}"
-		done # for in ${SENSOR_NAME}
-	fi # if -n "${SENSOR_NAME}"
+	if [[ -n "${DESKLET_NAME}" ]]; then
 
-	debug-print-section display_install
-	# This finds the Displays
-	DISPLAY_FILES=(`find . -iname "*.display"`)
+		debug-print-section display_install
 
-	DESKLET_INSDIR=""
-
-	# There is most likely only one display per package
-	if [[ -n "${DISPLAY_FILES[@]}" ]]; then
 		# Base installation directory for displays from this desklet
-		DESKLET_INSDIR="${GDESKLETS_INST_DIR}/Displays/${DESKLET_NAME}"
+		INSDIR="${GDESKLETS_INST_DIR}/Displays/${DESKLET_NAME}"
 
-		# This creates the subdirectory of ${DESKLET_NAME}
-		# in the global Displays directory
-		[[ -d "${DESKLET_INSDIR}" ]] || \
-			dodir "${DESKLET_INSDIR}"
+		debug-print "Installing into ${INSDIR}"
+		debug-print "Exiting Display-specific installation code"
 
-		# For each of the Display files, there may be
-		# scripts included inline which don't necessarily
-		# follow any naming scheme.
-		# So for each of them, determine what those scripts are
-		# and install them.
-		for DSP in ${DISPLAY_FILES[@]}; do
+	elif [[ -n "${CONTROL_NAME}" ]]; then
 
-			cd `dirname ${DSP}`
-			einfo "Installing Display `basename ${DSP} .display`"
-			debug-print "Installing ${DSP} into ${DESKLET_INSDIR}"
-			DSP=`basename ${DSP}`
-			insinto "${DESKLET_INSDIR}"
-			doins "${DSP}"
+		debug-print-section control_install
 
-			SCRIPTS=$(grep "script .*uri" ${DSP} | \
-				sed -e "s:.*<script\b.*\buri=[\"']: :g" -e "s:[\"'].*/>.*: :g")
+		# Unique name for this Control and its interface
+		CTRL_DIRNAME=$( "${GDESKLETS_INST_DIR}/gdesklets-control-getid" `pwd` 2> /dev/null )
+		einfo "Installing Control ${CTRL_DIRNAME}"
 
-			# For each one of the scripts, change to its
-			# base directory and change the install location
-			# so it gets installed at the proper place
-			# relative to the display.
-			for SCR in ${SCRIPTS[@]}; do
+		# Base installation directory for this Control
+		INSDIR="${GDESKLETS_INST_DIR}/Controls/${CTRL_DIRNAME}"
+		debug-print "Installing into ${INSDIR}"
 
-				insinto "${DESKLET_INSDIR}/`dirname ${SCR}`"
-				doins "${SCR}"
-				debug-print "Installed ${SCR} into ${DESKLET_INSDIR}/`dirname ${SCR}`"
+		# Mercilessly delete all existing compiled code
+		find . -iname '*.py[co]' -delete
 
-			done # for in ${SCRIPTS}
+		debug-print "Exiting Control-specific installation code"
 
-			# Install the graphics for this display.
-			# If there are multiple displays in this
-			# directory, this will be done more than
-			# once.  It's the only solution I can
-			# come up with for now...
-			GFX=(`find . \
-					-iname "*.png" -o -iname "*.svg" \
-					-o -iname "*.jpg" -o -iname "*.gif" \
-					-o -iname "*.xcf"`)
-
-			for G in ${GFX[@]}; do
-
-				insinto "${DESKLET_INSDIR}/`dirname ${G}`"
-				doins "${G}"
-				debug-print "Installed ${G} into ${DESKLET_INSDIR}/`dirname ${G}`"
-
-			done # for in ${GFX}
-
-			cd "${S}"
-
-		done # for in ${DISPLAY_FILES}
-
+	else
+		die "nothing to install, is the ebuild written correctly?"
 	fi
 
-	debug-print-section control_install
+	debug-print-section common_install
 
-	CONTROL_INSDIR=""
-
-	# Make sure that it only finds Controls and not Sensors
-	# If it uses a Sensor, it shouldn't use a Control (since
-	# Sensors are deprecated).
-	if [[ -z "${SENSOR_NAME}" ]]; then
-
-		# Base installation directory for Controls
-		CONTROL_INSDIR="${GDESKLETS_INST_DIR}/Controls"
-
-		CONTROL_INITS=$(find . -iname "__init__.py")
-
-		# There are possibly multiple Controls packaged with the display.
-		# For each __init__.py found, there must be a Control associated with it.
-		for CTRL in ${CONTROL_INITS[@]}; do
-
-			cd `dirname ${CTRL}`
-			CTRL_NAME=$( "${GDESKLETS_INST_DIR}/gdesklets-control-getid" `pwd` )
-			einfo "Installing Control ${CTRL_NAME}"
-			# This creates the subdirectory of ${CTRL_NAME}
-			# in the global Controls directory
-			[[ -d "${CONTROL_INSDIR}/${CTRL_NAME}" ]] || \
-				dodir "${CONTROL_INSDIR}/${CTRL_NAME}"
-
-			insinto "${CONTROL_INSDIR}/${CTRL_NAME}"
-
-			doins -r *.py
-
-			cd "${S}"
-
-		done # for in ${CONTROL_INITS}
-
-	fi # if no Sensors
-
-	# Install any remaining graphics and other files
-	# that are sitting in ${S}.
-
-	GFX=$(find . -maxdepth 1 \
-		-iname "*.png" -o -iname "*.svg" \
-		-o -iname "*.jpg" -o -iname "*.gif" \
-		-o -iname "*.xcf")
-
-	if [[ -n "${GFX}" ]]; then
-
-		# Install to the Displays directory of the Desklet
-		insinto "${GDESKLETS_INST_DIR}/Displays/${DESKLET_NAME}"
-		doins "${GFX}"
-		debug-print "Installed ${GFX} into ${GDESKLETS_INST_DIR}/Displays/${DESKLET_NAME}"
-
-	fi # if -n "${GFX}"
-
-	# Install some docs if so requested
-	[[ -n "${DOCS}" ]] && dodoc ${DOCS} && \
-	debug-print "Installed ${DOCS}"
+	# Create the proper subdirectory in the global Controls or
+	# Displays directory
+	dodir "${INSDIR}"
+	insinto "${INSDIR}"
+	doins -r *
 
 }
 
+# @FUNCTION: gdesklets_pkg_postinst
+# @DESCRIPTION:
+# Marks the Control for rebuilding on Python version change and
+# compiles the Python code or display a useful message to the user,
+# depending on which of CONTROL_NAME or DESKLET_NAME is set.
+gdesklets_pkg_postinst() {
 
-EXPORT_FUNCTIONS src_install
+	# The only time compilation of python modules should occur is
+	# for Controls, since Displays are run from inside the sandbox
+	# (and therefore can't be compiled).
+	if [[ -n "${CONTROL_NAME}" ]]; then
+
+		CTRL_DIRNAME=$( "${GDESKLETS_INST_DIR}/gdesklets-control-getid" `pwd` 2> /dev/null )
+		python_need_rebuild
+		python_mod_optimize "${GDESKLETS_INST_DIR}/Controls/${CTRL_DIRNAME}"
+
+	else
+
+		einfo "Each user can now add this desklet to their desktop through the"
+		einfo "gDesklets shell or the command line (.display files can be"
+		einfo "found in ${GDESKLETS_INST_DIR}/Displays/${DESKLET_NAME})."
+
+	fi
+
+}
+
+EXPORT_FUNCTIONS src_install pkg_postinst

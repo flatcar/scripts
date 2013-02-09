@@ -1,0 +1,11 @@
+# ChangeLog for media-libs/rtaudio
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/media-libs/rtaudio/ChangeLog,v 1.1 2012/11/27 07:35:52 radhermit Exp $
+
+*rtaudio-4.0.11 (27 Nov 2012)
+
+  27 Nov 2012; Tim Harder <radhermit@gentoo.org> +rtaudio-4.0.11.ebuild,
+  +files/rtaudio-4.0.11-cflags.patch, +files/rtaudio-4.0.11-configure.patch,
+  +files/rtaudio-4.0.11-makefile.patch, +metadata.xml:
+  Initial import, ebuild by me.
+

@@ -1,0 +1,95 @@
+diff -Naur freetype-orig/freetype1-contrib/ttf2bdf/configure.in freetype/freetype1-contrib/ttf2bdf/configure.in
+--- freetype-orig/freetype1-contrib/ttf2bdf/configure.in	2000-04-14 11:53:50.000000000 -0600
++++ freetype/freetype1-contrib/ttf2bdf/configure.in	2008-03-19 20:24:48.000000000 -0600
+@@ -29,6 +29,7 @@
+ AC_SUBST(XX_CFLAGS)
+ 
+ AC_CHECK_PROG(RM, rm, rm)
++AC_PROG_INSTALL
+ 
+ dnl Checks for header files.
+ AC_HEADER_STDC
+diff -Naur freetype-orig/freetype1-contrib/ttf2bdf/Makefile.in freetype/freetype1-contrib/ttf2bdf/Makefile.in
+--- freetype-orig/freetype1-contrib/ttf2bdf/Makefile.in	2001-02-03 11:03:12.000000000 -0600
++++ freetype/freetype1-contrib/ttf2bdf/Makefile.in	2008-03-19 20:24:15.000000000 -0600
+@@ -45,6 +45,10 @@
+ bindir = @bindir@
+ mandir = @mandir@
+ 
++INSTALL = @INSTALL@
++INSTALL_DATA = @INSTALL_DATA@
++INSTALL_PROGRAM = @INSTALL_PROGRAM@
++
+ all: ttf2bdf
+ 
+ ttf2bdf: $(OBJS)
+@@ -63,9 +67,9 @@
+ 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
+ 
+ install: ttf2bdf
+-	@$(MKINSTALLDIRS) $(bindir) $(mandir)/man1
+-	@cp ttf2bdf $(bindir)/ttf2bdf
+-	@cp ttf2bdf.man $(mandir)/man1/ttf2bdf.1
++	@$(MKINSTALLDIRS) $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1
++	@$(INSTALL_PROGRAM) ttf2bdf $(DESTDIR)$(bindir)/ttf2bdf
++	@$(INSTALL_DATA) ttf2bdf.man $(DESTDIR)$(mandir)/man1/ttf2bdf.1
+ 
+ uninstall:
+ 	@$(RM) -f $(bindir)/ttf2bdf
+diff -Naur freetype-orig/freetype1-contrib/ttf2pfb/Makefile.in freetype/freetype1-contrib/ttf2pfb/Makefile.in
+--- freetype-orig/freetype1-contrib/ttf2pfb/Makefile.in	2000-04-14 11:53:50.000000000 -0600
++++ freetype/freetype1-contrib/ttf2pfb/Makefile.in	2008-03-19 20:24:15.000000000 -0600
+@@ -32,7 +32,7 @@
+ 
+ SRC = t1asm.c ttf2pfb.c
+ 
+-PROGRAMS = t1asm ttf2pfb
++PROGRAMS = ttf2pfb
+ 
+ default all: $(PROGRAMS)
+ 
+@@ -58,11 +58,10 @@
+ 	$(CC) -c $(FT_CFLAGS) $<
+ 
+ install: $(PROGRAMS)
+-	$(MKINSTALLDIRS) $(bindir)
++	$(MKINSTALLDIRS) $(DESTDIR)$(bindir)
+ 	for P in $(PROGRAMS) ; do \
+-	  $(LIBTOOL) --mode=install $(INSTALL_PROGRAM) $$P $(bindir)/$$P ; \
++	  $(LIBTOOL) --mode=install $(INSTALL_PROGRAM) $$P $(DESTDIR)$(bindir)/$$P ; \
+ 	done
+-	$(INSTALL_PROGRAM) $(srcdir)/getafm $(bindir)/getafm
+ 
+ uninstall:
+ 	-for P in $(PROGRAMS) ; do \
+diff -Naur freetype-orig/freetype1-contrib/ttf2pk/Makefile.in freetype/freetype1-contrib/ttf2pk/Makefile.in
+--- freetype-orig/freetype1-contrib/ttf2pk/Makefile.in	2001-02-03 11:03:12.000000000 -0600
++++ freetype/freetype1-contrib/ttf2pk/Makefile.in	2008-03-19 20:24:15.000000000 -0600
+@@ -69,10 +69,10 @@
+                                      $(LIBDIR)/libttf.la $(LDFLAGS)
+ 
+ install: $(PROGRAMS)
+-	$(MKINSTALLDIRS) $(bindir) $(mandir)/man1
++	$(MKINSTALLDIRS) $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1
+ 	for P in $(PROGRAMS) ; do \
+-          $(LIBTOOL) --mode=install $(INSTALL_PROGRAM) $$P $(bindir)/$$P ; \
+-          $(INSTALL_DATA) $(srcdir)/$$P.1 $(mandir)/man1 ; \
++          $(LIBTOOL) --mode=install $(INSTALL_PROGRAM) $$P $(DESTDIR)$(bindir)/$$P ; \
++          $(INSTALL_DATA) $(srcdir)/$$P.1 $(DESTDIR)$(mandir)/man1 ; \
+         done
+ 
+ uninstall:
+diff -Naur freetype-orig/freetype1-contrib/ttfbanner/Makefile.in freetype/freetype1-contrib/ttfbanner/Makefile.in
+--- freetype-orig/freetype1-contrib/ttfbanner/Makefile.in	2000-04-14 11:53:50.000000000 -0600
++++ freetype/freetype1-contrib/ttfbanner/Makefile.in	2008-03-19 20:24:15.000000000 -0600
+@@ -53,8 +53,8 @@
+ 	$(CC) -c $(FT_CFLAGS) $<
+ 
+ install: ttfbanner
+-	$(MKINSTALLDIRS) $(bindir)
+-	$(LIBTOOL) --mode=install $(INSTALL_PROGRAM) ttfbanner $(bindir)/
++	$(MKINSTALLDIRS) $(DESTDIR)$(bindir)
++	$(LIBTOOL) --mode=install $(INSTALL_PROGRAM) ttfbanner $(DESTDIR)$(bindir)
+ 
+ uninstall:
+ 	$(LIBTOOL) --mode=uninstall $(RM) $(bindir)/ttfbanner

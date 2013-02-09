@@ -1,22 +1,24 @@
-# Copyright 1999-2008 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/base.eclass,v 1.53 2010/05/27 08:09:33 scarabeus Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/base.eclass,v 1.58 2012/09/27 16:35:41 axs Exp $
 
 # @ECLASS: base.eclass
 # @MAINTAINER:
 # QA Team <qa@gentoo.org>
-#
-# Original author Dan Armak <danarmak@gentoo.org>
+# @AUTHOR:
+# Original author: Dan Armak <danarmak@gentoo.org>
 # @BLURB: The base eclass defines some default functions and variables.
 # @DESCRIPTION:
-# The base eclass defines some default functions and variables. Nearly
-# everything else inherits from here.
+# The base eclass defines some default functions and variables.
+
+if [[ ${___ECLASS_ONCE_BASE} != "recur -_+^+_- spank" ]] ; then
+___ECLASS_ONCE_BASE="recur -_+^+_- spank"
 
 inherit eutils
 
 BASE_EXPF="src_unpack src_compile src_install"
 case "${EAPI:-0}" in
-	2|3|4) BASE_EXPF+=" src_prepare src_configure" ;;
+	2|3|4|5) BASE_EXPF+=" src_prepare src_configure" ;;
 	*) ;;
 esac
 
@@ -56,7 +58,11 @@ base_src_unpack() {
 
 	pushd "${WORKDIR}" > /dev/null
 
-	[[ -n "${A}" ]] && unpack ${A}
+	if [[ $(type -t unpacker_src_unpack) == "function" ]] ; then
+		unpacker_src_unpack
+	elif [[ -n ${A} ]] ; then
+		unpack ${A}
+	fi
 	has src_prepare ${BASE_EXPF} || base_src_prepare
 
 	popd > /dev/null
@@ -184,3 +190,5 @@ base_src_install_docs() {
 
 	popd > /dev/null
 }
+
+fi

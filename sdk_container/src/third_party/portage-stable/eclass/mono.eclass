@@ -1,12 +1,11 @@
-# Copyright 1999-2008 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/mono.eclass,v 1.13 2009/03/08 15:46:54 loki_val Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/mono.eclass,v 1.15 2011/08/22 04:46:32 vapier Exp $
 
 # @ECLASS: mono.eclass
 # @MAINTAINER:
 # dotnet@gentoo.org
-# @BLURB: common settings and functions for mono and dotnet related
-# packages
+# @BLURB: common settings and functions for mono and dotnet related packages
 # @DESCRIPTION:
 # The mono eclass contains common environment settings that are useful for
 # dotnet packages.  Currently, it provides no functions, just exports
@@ -35,24 +34,26 @@ export XDG_CONFIG_HOME="${T}"
 unset MONO_AOT_CACHE
 
 egacinstall() {
+	use !prefix && has "${EAPI:-0}" 0 1 2 && ED="${D}"
 	gacutil -i "${1}" \
-		-root "${D}"/usr/$(get_libdir) \
+		-root "${ED}"/usr/$(get_libdir) \
 		-gacdir /usr/$(get_libdir) \
 		-package ${2:-${GACPN:-${PN}}} \
 		|| die "installing ${1} into the Global Assembly Cache failed"
 }
 
 mono_multilib_comply() {
+	use !prefix && has "${EAPI:-0}" 0 1 2 && ED="${D}"
 	local dir finddirs=() mv_command=${mv_command:-mv}
-	if [[ -d "${D}/usr/lib" && "$(get_libdir)" != "lib" ]]
+	if [[ -d "${ED}/usr/lib" && "$(get_libdir)" != "lib" ]]
 	then
-		if ! [[ -d "${D}"/usr/"$(get_libdir)" ]]
+		if ! [[ -d "${ED}"/usr/"$(get_libdir)" ]]
 		then
-			mkdir "${D}"/usr/"$(get_libdir)" || die "Couldn't mkdir ${D}/usr/$(get_libdir)"
+			mkdir "${ED}"/usr/"$(get_libdir)" || die "Couldn't mkdir ${ED}/usr/$(get_libdir)"
 		fi
-		${mv_command} "${D}"/usr/lib/* "${D}"/usr/"$(get_libdir)"/ || die "Moving files into correct libdir failed"
-		rm -rf "${D}"/usr/lib
-		for dir in "${D}"/usr/"$(get_libdir)"/pkgconfig "${D}"/usr/share/pkgconfig
+		${mv_command} "${ED}"/usr/lib/* "${ED}"/usr/"$(get_libdir)"/ || die "Moving files into correct libdir failed"
+		rm -rf "${ED}"/usr/lib
+		for dir in "${ED}"/usr/"$(get_libdir)"/pkgconfig "${ED}"/usr/share/pkgconfig
 		do
 
 			if [[ -d "${dir}" && "$(find "${dir}" -name '*.pc')" != "" ]]
@@ -64,9 +65,9 @@ mono_multilib_comply() {
 				popd "${dir}" &> /dev/null
 			fi
 		done
-		if [[ -d "${D}/usr/bin" ]]
+		if [[ -d "${ED}/usr/bin" ]]
 		then
-			for exe in "${D}/usr/bin"/*
+			for exe in "${ED}/usr/bin"/*
 			do
 				if [[ "$(file "${exe}")" == *"shell script text"* ]]
 				then

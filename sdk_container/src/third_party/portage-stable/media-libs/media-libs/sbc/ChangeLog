@@ -1,0 +1,25 @@
+# ChangeLog for media-libs/sbc
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/media-libs/sbc/ChangeLog,v 1.6 2012/12/02 10:42:37 maekke Exp $
+
+  02 Dec 2012; Markus Meier <maekke@gentoo.org> sbc-1.0.ebuild:
+  add ~arm, bug #442932
+
+  18 Nov 2012; Samuli Suominen <ssuominen@gentoo.org> metadata.xml:
+  Maintained by Pacho Ramos because this is unbundled BlueZ library. Remove
+  pda@ and add sound@ as backup herd because this is also used by
+  media-sound/pulseaudio.
+
+  18 Nov 2012; Pacho Ramos <pacho@gentoo.org> metadata.xml:
+  Drop mobile herd as talked in gentoo-dev ML
+
+  16 Nov 2012; Anthony G. Basile <blueness@gentoo.org> sbc-1.0.ebuild:
+  keyword ~ppc ~ppc64, bug #442932
+
+  13 Nov 2012; Jeroen Roovers <jer@gentoo.org> sbc-1.0.ebuild:
+  Marked ~hppa (bug #442932).
+
+*sbc-1.0 (05 Aug 2012)
+
+  05 Aug 2012; Samuli Suominen <ssuominen@gentoo.org> +sbc-1.0.ebuild:
+  Initial commit wrt #429754 by Manuel Rüger

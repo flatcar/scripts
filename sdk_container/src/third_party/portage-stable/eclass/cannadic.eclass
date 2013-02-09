@@ -1,11 +1,9 @@
-# Copyright 1999-2008 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/cannadic.eclass,v 1.15 2008/09/10 08:15:48 pva Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/cannadic.eclass,v 1.17 2012/09/15 16:16:53 zmedico Exp $
 
 # @ECLASS: cannadic.eclass
-# @MAINTAINER:
-# ???
-#
+# @AUTHOR:
 # Original author: Mamoru KOMACHI <usata@gentoo.org>
 # @BLURB: Function for Canna compatible dictionaries
 # @DESCRIPTION:
@@ -17,7 +15,6 @@ EXPORT_FUNCTIONS src_install pkg_setup pkg_postinst pkg_postrm
 
 IUSE=""
 
-DESCRIPTION="Based on the $ECLASS eclass"
 HOMEPAGE="http://canna.sourceforge.jp/"		# you need to change this!
 SRC_URI="mirror://gentoo/${P}.tar.gz"
 
@@ -36,7 +33,7 @@ cannadir="${ROOT}/var/lib/canna/dic/canna"
 dicsdir="${ROOT}/var/lib/canna/dic/dics.d"
 
 # @FUNCTION: cannadic_pkg_setup
-# @DESCRIPTION: 
+# @DESCRIPTION:
 # Sets up cannadic dir
 cannadic_pkg_setup() {
 

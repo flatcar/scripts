@@ -1,0 +1,61 @@
+diff -upr freetype.orig/freetype1-contrib/ttf2pk/newobj.c freetype/freetype1-contrib/ttf2pk/newobj.c
+--- freetype.orig/freetype1-contrib/ttf2pk/newobj.c	2002-06-20 22:34:37.000000000 +0500
++++ freetype/freetype1-contrib/ttf2pk/newobj.c	2009-05-19 22:01:07.314923296 +0500
+@@ -128,13 +128,13 @@ get_line(FILE *f)
+ 
+ 
+ /*
+- *   getline() is a wrapper function for get_line().  It returns `False' in
++ *   getline_() is a wrapper function for get_line().  It returns `False' in
+  *   case of error and expects a pointer to a buffer to store the current
+  *   line.   Additionally, the final newline character is stripped.
+  */
+ 
+ Boolean
+-getline(char **bufferp, FILE *f)
++getline_(char **bufferp, FILE *f)
+ {
+   size_t l;
+ 
+diff -upr freetype.orig/freetype1-contrib/ttf2pk/newobj.h freetype/freetype1-contrib/ttf2pk/newobj.h
+--- freetype.orig/freetype1-contrib/ttf2pk/newobj.h	2002-01-08 16:48:27.000000000 +0400
++++ freetype/freetype1-contrib/ttf2pk/newobj.h	2009-05-19 22:00:23.324243127 +0500
+@@ -26,7 +26,7 @@ void *mycalloc(size_t len);
+ void *myrealloc(void *oldp, size_t len);
+ 
+ char *get_line(FILE *f);
+-Boolean getline(char **bufferp, FILE *f);
++Boolean getline_(char **bufferp, FILE *f);
+ char *newstring(char *s);
+ 
+ ttfinfo *newchar(Font *fnt);
+diff -upr freetype.orig/freetype1-contrib/ttf2pk/parse.c freetype/freetype1-contrib/ttf2pk/parse.c
+--- freetype.orig/freetype1-contrib/ttf2pk/parse.c	2002-03-15 05:33:52.000000000 +0400
++++ freetype/freetype1-contrib/ttf2pk/parse.c	2009-05-19 22:00:58.944122095 +0500
+@@ -63,7 +63,7 @@ gettoken(char **bufferp, size_t *offsetp
+       if (*bufferp)
+         free(*bufferp);
+ 
+-      if (getline(bufferp, f) == False)
++      if (getline_(bufferp, f) == False)
+         oops("Premature end in encoding file.");
+ 
+       curp = *bufferp;
+@@ -187,7 +187,7 @@ readencoding(char **enc, Font *fnt, Bool
+         "Token 258 in encoding must be make-array (]).");
+     free(p);
+ 
+-    while (getline(&buffer, enc_file))
++    while (getline_(&buffer, enc_file))
+     {
+       for (p = buffer; *p; p++)
+         if (*p == '%')
+@@ -246,7 +246,7 @@ get_replacements(Font *fnt)
+   if (replacement_file == NULL)
+     oops("Cannot open replacement file `%s'.", real_replacement_name);
+ 
+-  while (getline(&buffer, replacement_file))
++  while (getline_(&buffer, replacement_file))
+   {
+     for (p = buffer; *p; p++)
+       if (*p == '%')

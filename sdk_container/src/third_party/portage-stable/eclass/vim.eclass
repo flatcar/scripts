@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/vim.eclass,v 1.200 2011/08/20 15:46:21 lack Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/vim.eclass,v 1.205 2012/10/24 18:55:30 ulm Exp $
 
 # Authors:
 # 	Jim Ramsay <lack@gentoo.org>
@@ -31,7 +31,7 @@ if [[ ${MY_PN} != "vim-core" ]] ; then
 	PYTHON_USE_WITH_OPT="python"
 	PYTHON_USE_WITH="threads"
 fi
-inherit eutils vim-doc flag-o-matic versionator fdo-mime bash-completion prefix python
+inherit eutils vim-doc flag-o-matic versionator fdo-mime bash-completion-r1 prefix python
 
 HOMEPAGE="http://www.vim.org/"
 SLOT="0"
@@ -87,15 +87,14 @@ else
 		gpm?     ( >=sys-libs/gpm-1.19.3 )
 		perl?    ( dev-lang/perl )
 		acl?     ( kernel_linux? ( sys-apps/acl ) )
-		ruby?    ( =dev-lang/ruby-1.8* )"
+		ruby?    ( || ( dev-lang/ruby:1.9 dev-lang/ruby:1.8 ) )"
 	RDEPEND="${RDEPEND}
 		cscope?  ( dev-util/cscope )
 		gpm?     ( >=sys-libs/gpm-1.19.3 )
 		perl?    ( dev-lang/perl )
 		acl?     ( kernel_linux? ( sys-apps/acl ) )
-		ruby?    ( =dev-lang/ruby-1.8* )
+		ruby?    ( || ( dev-lang/ruby:1.9 dev-lang/ruby:1.8 ) )
 		!<app-vim/align-30-r1
-		!app-vim/vimspell
 		!<app-vim/vimbuddy-0.9.1-r1
 		!<app-vim/autoalign-11
 		!<app-vim/supertab-0.41"
@@ -124,7 +123,7 @@ else
 			dev-util/ctags
 			!aqua? (
 				gtk? (
-					dev-util/pkgconfig
+					virtual/pkgconfig
 				)
 			)"
 		RDEPEND="${RDEPEND}
@@ -139,7 +138,7 @@ else
 				)
 				!gtk? (
 					motif? (
-						>=x11-libs/openmotif-2.3:0
+						>=x11-libs/motif-2.3:0
 					)
 					!motif? (
 						neXt? (
@@ -246,7 +245,7 @@ vim_pkg_setup() {
 			# python.eclass only defines python_pkg_setup for EAPIs that support
 			# USE dependencies
 			python_pkg_setup
-		elif ! built_with_use =dev-lang/python-2* threads; then
+		elif ! has_version "=dev-lang/python-2*[threads]"; then
 			die "You must build dev-lang/python with USE=threads"
 		fi
 	fi
@@ -625,9 +624,9 @@ vim_src_install() {
 
 	# bash completion script, bug #79018.
 	if [[ ${MY_PN} == "vim-core" ]] ; then
-		dobashcompletion "${FILESDIR}"/xxd-completion xxd
+		newbashcomp "${FILESDIR}"/xxd-completion xxd
 	else
-		dobashcompletion "${FILESDIR}"/${MY_PN}-completion ${MY_PN}
+		newbashcomp "${FILESDIR}"/${MY_PN}-completion ${MY_PN}
 	fi
 	# We shouldn't be installing the ex or view man page symlinks, as they
 	# are managed by eselect-vi
@@ -722,12 +721,6 @@ vim_pkg_postinst() {
 	fi
 
 	echo
-
-	# Display bash-completion message
-	if [[ ${MY_PN} == "vim-core" ]] ; then
-		export BASHCOMPLETION_NAME="xxd"
-	fi
-	bash-completion_pkg_postinst
 
 	# Make convenience symlinks
 	if [[ ${MY_PN} != "vim-core" ]] ; then

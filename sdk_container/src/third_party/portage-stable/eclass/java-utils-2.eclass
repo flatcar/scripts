@@ -2,11 +2,11 @@
 #
 # Copyright (c) 2004-2005, Thomas Matthijs <axxo@gentoo.org>
 # Copyright (c) 2004, Karl Trygve Kalleberg <karltk@gentoo.org>
-# Copyright (c) 2004-2005, Gentoo Foundation
+# Copyright (c) 2004-2011, Gentoo Foundation
 #
 # Licensed under the GNU General Public License, v2
 #
-# $Header: /var/cvsroot/gentoo-x86/eclass/java-utils-2.eclass,v 1.132 2010/02/12 23:51:44 caster Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/java-utils-2.eclass,v 1.152 2013/01/16 19:06:15 sera Exp $
 
 # -----------------------------------------------------------------------------
 # @eclass-begin
@@ -113,6 +113,19 @@ JAVA_PKG_ALLOW_VM_CHANGE=${JAVA_PKG_ALLOW_VM_CHANGE:="yes"}
 # @example Use sun-jdk-1.5 to emerge foo
 #	JAVA_PKG_FORCE_VM=sun-jdk-1.5 emerge foo
 #
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# @variable-external JAVA_PKG_WANT_BUILD_VM
+#
+# A list of VM handles to choose a build VM from. If the list contains the
+# currently active VM use that one, otherwise step through the list till a
+# usable/installed VM is found.
+#
+# This allows to use an explicit list of JDKs in DEPEND instead of a virtual.
+# Users of this variable must make sure at least one of the listed handles is
+# covered by DEPEND.
+# Requires JAVA_PKG_WANT_SOURCE and JAVA_PKG_WANT_TARGET to be set as well. 
 # -----------------------------------------------------------------------------
 
 # -----------------------------------------------------------------------------
@@ -243,6 +256,9 @@ java-pkg_doexamples() {
 			doins -r "$@"
 		) || die "Installing examples failed"
 	fi
+
+	# Let's make a symlink to the directory we have everything else under
+	dosym "${dest}" "${JAVA_PKG_SHAREPATH}/examples" || die
 }
 
 # -----------------------------------------------------------------------------
@@ -1317,7 +1333,7 @@ java-pkg_get-bootclasspath() {
 	local version="${1}"
 
 	local bcp
-	case "${version}" in 
+	case "${version}" in
 		auto)
 			bcp="$(java-config -g BOOTCLASSPATH)"
 			;;
@@ -1670,23 +1686,13 @@ java-pkg_get-jni-cflags() {
 }
 
 java-pkg_ensure-gcj() {
-	if ! built_with_use sys-devel/gcc gcj ; then
-		ewarn
-		ewarn "You must build gcc with the gcj support to build with gcj"
-		ewarn
-		ebeep 5
-		die "No GCJ support found!"
-	fi
+	# was enforcing sys-devel/gcc[gcj]
+	die "${FUNCNAME} was removed. Use use-deps available as of EAPI 2 instead. #261562"
 }
 
 java-pkg_ensure-test() {
-	if has test ${FEATURES} && ! has -test ${FEATURES} \
-		&& has test ${IUSE} && ! use test;
-	then
-		eerror "You specified FEATURES=test, but USE=test is needed"
-		eerror "to pull in the additional dependencies for testing"
-		die "Need USE=test enabled"
-	fi
+	# was enforcing USE=test if FEATURES=test
+	die "${FUNCNAME} was removed. Package mangers handle this already. #278965"
 }
 
 # ------------------------------------------------------------------------------
@@ -1754,21 +1760,18 @@ java-pkg_ant-tasks-depend() {
 	fi
 }
 
+
 # ------------------------------------------------------------------------------
-# @ebuild-function ejunit
+# @internal-function ejunit_
 #
-# Junit wrapper function. Makes it easier to run the tests and checks for
+# Internal Junit wrapper function. Makes it easier to run the tests and checks for
 # dev-java/junit in DEPEND. Launches the tests using junit.textui.TestRunner.
 #
-# Examples:
-# ejunit -cp build/classes org.blinkenlights.jid3.test.AllTests
-# ejunit org.blinkenlights.jid3.test.AllTests
-#
-# @param $1 - -cp or -classpath
-# @param $2 - classpath; junit and recorded dependencies get appended
+# @param $1 - junit package (junit or junit-4)
+# @param $2 - -cp or -classpath
+# @param $3 - classpath; junit and recorded dependencies get appended
 # @param $@ - the rest of the parameters are passed to java
-# ------------------------------------------------------------------------------
-ejunit() {
+ejunit_() {
 	debug-print-function ${FUNCNAME} $*
 
 	local pkgs
@@ -1778,7 +1781,10 @@ ejunit() {
 		done
 	fi
 
-	local cp=$(java-pkg_getjars --with-dependencies junit${pkgs})
+	local junit=${1}
+	shift 1
+
+	local cp=$(java-pkg_getjars --with-dependencies ${junit}${pkgs})
 	if [[ ${1} = -cp || ${1} = -classpath ]]; then
 		cp="${2}:${cp}"
 		shift 2
@@ -1787,8 +1793,55 @@ ejunit() {
 	fi
 
 	local runner=junit.textui.TestRunner
+	if [[ "${junit}" == "junit-4" ]] ; then
+		runner=org.junit.runner.JUnitCore
+	fi
 	debug-print "Calling: java -cp \"${cp}\" -Djava.awt.headless=true ${runner} ${@}"
 	java -cp "${cp}" -Djava.awt.headless=true ${runner} "${@}" || die "Running junit failed"
+}
+
+# ------------------------------------------------------------------------------
+# @ebuild-function ejunit
+#
+# Junit wrapper function. Makes it easier to run the tests and checks for
+# dev-java/junit in DEPEND. Launches the tests using org.junit.runner.JUnitCore.
+#
+# Examples:
+# ejunit -cp build/classes org.blinkenlights.jid3.test.AllTests
+# ejunit org.blinkenlights.jid3.test.AllTests
+# ejunit org.blinkenlights.jid3.test.FirstTest \
+#         org.blinkenlights.jid3.test.SecondTest
+#
+# @param $1 - -cp or -classpath
+# @param $2 - classpath; junit and recorded dependencies get appended
+# @param $@ - the rest of the parameters are passed to java
+# ------------------------------------------------------------------------------
+ejunit() {
+	debug-print-function ${FUNCNAME} $*
+
+	ejunit_ "junit" "${@}"
+}
+
+# ------------------------------------------------------------------------------
+# @ebuild-function ejunit4
+#
+# Junit4 wrapper function. Makes it easier to run the tests and checks for
+# dev-java/junit:4 in DEPEND. Launches the tests using junit.textui.TestRunner.
+#
+# Examples:
+# ejunit4 -cp build/classes org.blinkenlights.jid3.test.AllTests
+# ejunit4 org.blinkenlights.jid3.test.AllTests
+# ejunit4 org.blinkenlights.jid3.test.FirstTest \
+#         org.blinkenlights.jid3.test.SecondTest
+#
+# @param $1 - -cp or -classpath
+# @param $2 - classpath; junit and recorded dependencies get appended
+# @param $@ - the rest of the parameters are passed to java
+# ------------------------------------------------------------------------------
+ejunit4() {
+	debug-print-function ${FUNCNAME} $*
+
+	ejunit_ "junit-4" "${@}"
 }
 
 # ------------------------------------------------------------------------------
@@ -1864,7 +1917,6 @@ java-utils-2_pkg_preinst() {
 # EANT_NEEDS_TOOLS - add tools.jar to the gentoo.classpath. Should only be used
 #                    for build-time purposes, the dependency is not recorded to
 #                    package.env!
-# JAVA_PKG_NO_BUNDLED_SEARCH - Don't search for bundled jars or class files
 # *ANT_TASKS - used to determine ANT_TASKS before calling Ant.
 # ------------------------------------------------------------------------------
 eant() {
@@ -1960,6 +2012,8 @@ eant() {
 		antflags="${antflags} -DJunit.present=true"
 		[[ ${ANT_TASKS} = *ant-junit* ]] && gcp="${gcp} junit"
 		getjarsarg="--with-dependencies"
+	else
+		antflags="${antflags} -Dmaven.test.skip=true"
 	fi
 
 	local cp
@@ -2086,6 +2140,13 @@ use_doc() {
 # -----------------------------------------------------------------------------
 java-pkg_init() {
 	debug-print-function ${FUNCNAME} $*
+
+	# Don't set up build environment if installing from binary. #206024 #258423
+	[[ "${MERGE_TYPE}" == "binary" ]] && return
+	# Also try Portage's nonstandard EMERGE_FROM for old EAPIs, if it doesn't
+	# work nothing is lost.
+	has ${EAPI:-0} 0 1 2 3 && [[ "${EMERGE_FROM}" == "binary" ]] && return
+
 	unset JAVAC
 	unset JAVA_HOME
 
@@ -2322,12 +2383,12 @@ java-pkg_do_write_() {
 			[[ -n "${JAVA_PKG_LIBRARY}" ]] && echo "LIBRARY_PATH=\"${JAVA_PKG_LIBRARY}\""
 			[[ -n "${JAVA_PROVIDE}" ]] && echo "PROVIDES=\"${JAVA_PROVIDE}\""
 			[[ -f "${JAVA_PKG_DEPEND_FILE}" ]] \
-				&& echo "DEPEND=\"$(cat "${JAVA_PKG_DEPEND_FILE}" | uniq | tr '\n' ':')\""
+				&& echo "DEPEND=\"$(sort -u "${JAVA_PKG_DEPEND_FILE}" | tr '\n' ':')\""
 			[[ -f "${JAVA_PKG_OPTIONAL_DEPEND_FILE}" ]] \
-				&& echo "OPTIONAL_DEPEND=\"$(cat "${JAVA_PKG_OPTIONAL_DEPEND_FILE}" | uniq | tr '\n' ':')\""
+				&& echo "OPTIONAL_DEPEND=\"$(sort -u "${JAVA_PKG_OPTIONAL_DEPEND_FILE}" | tr '\n' ':')\""
 			echo "VM=\"$(echo ${RDEPEND} ${DEPEND} | sed -e 's/ /\n/g' | sed -n -e '/virtual\/\(jre\|jdk\)/ { p;q }')\"" # TODO cleanup !
 			[[ -f "${JAVA_PKG_BUILD_DEPEND_FILE}" ]] \
-				&& echo "BUILD_DEPEND=\"$(cat "${JAVA_PKG_BUILD_DEPEND_FILE}" | uniq | tr '\n' ':')\""
+				&& echo "BUILD_DEPEND=\"$(sort -u "${JAVA_PKG_BUILD_DEPEND_FILE}" | tr '\n' ':')\""
 		) > "${JAVA_PKG_ENV}"
 
 		# register target/source
@@ -2460,14 +2521,19 @@ java-pkg_func-exists() {
 java-pkg_setup-vm() {
 	debug-print-function ${FUNCNAME} $*
 
-	export LANG="C" LC_ALL="C"
-
 	local vendor="$(java-pkg_get-vm-vendor)"
 	if [[ "${vendor}" == "sun" ]] && java-pkg_is-vm-version-ge "1.5" ; then
 		addpredict "/dev/random"
 	elif [[ "${vendor}" == "ibm" ]]; then
 		addpredict "/proc/self/maps"
 		addpredict "/proc/cpuinfo"
+		addpredict "/proc/self/coredump_filter"
+	elif [[ "${vendor}" == "oracle" ]]; then
+		addpredict "/dev/random"
+		addpredict "/proc/self/coredump_filter"
+	elif [[ "${vendor}" == icedtea* ]] && java-pkg_is-vm-version-ge "1.7" ; then
+		addpredict "/dev/random"
+		addpredict "/proc/self/coredump_filter"
 	elif [[ "${vendor}" == "jrockit" ]]; then
 		addpredict "/proc/cpuinfo"
 	fi
@@ -2476,7 +2542,8 @@ java-pkg_setup-vm() {
 # ------------------------------------------------------------------------------
 # @internal-function java-pkg_needs-vm
 #
-# Does the current package depend on virtual/jdk?
+# Does the current package depend on virtual/jdk or does it set
+# JAVA_PKG_WANT_BUILD_VM?
 #
 # @return 0 - Package depends on virtual/jdk
 # @return 1 - Package does not depend on virtual/jdk
@@ -2484,9 +2551,11 @@ java-pkg_setup-vm() {
 java-pkg_needs-vm() {
 	debug-print-function ${FUNCNAME} $*
 
-	if [[ -n "$(echo ${DEPEND} | sed -e '\:virtual/jdk:!d')" ]]; then
+	if [[ -n "$(echo ${JAVA_PKG_NV_DEPEND:-${DEPEND}} | sed -e '\:virtual/jdk:!d')" ]]; then
 		return 0
 	fi
+
+	[[ -n "${JAVA_PKG_WANT_BUILD_VM}" ]] && return 0
 
 	return 1
 }
@@ -2525,6 +2594,38 @@ java-pkg_get-vm-version() {
 }
 
 # ------------------------------------------------------------------------------
+# @internal-function java-pkg_build-vm-from-handle
+#
+# Selects a build vm from a list of vm handles. First checks for the system-vm
+# beeing usable, then steps through the listed handles till a suitable vm is
+# found.
+#
+# @return - VM handle of an available JDK
+# ------------------------------------------------------------------------------
+java-pkg_build-vm-from-handle() {
+	debug-print-function ${FUNCNAME} "$*"
+
+	local vm
+	vm=$(java-pkg_get-current-vm 2>/dev/null)
+	if [[ $? -eq 0 ]]; then
+		if has ${vm} ${JAVA_PKG_WANT_BUILD_VM}; then
+			echo ${vm}
+			return 0
+		fi
+	fi
+
+	for vm in ${JAVA_PKG_WANT_BUILD_VM}; do
+		if java-config-2 --select-vm=${vm} 2>/dev/null; then
+			echo ${vm}
+			return 0
+		fi
+	done
+
+	eerror "${FUNCNAME}: No vm found for handles: ${JAVA_PKG_WANT_BUILD_VM}"
+	return 1
+}
+
+# ------------------------------------------------------------------------------
 # @internal-function java-pkg_switch-vm
 #
 # Switch VM if we're allowed to (controlled by JAVA_PKG_ALLOW_VM_CHANGE), and
@@ -2542,15 +2643,35 @@ java-pkg_switch-vm() {
 			export GENTOO_VM="${JAVA_PKG_FORCE_VM}"
 		# if we're allowed to switch the vm...
 		elif [[ "${JAVA_PKG_ALLOW_VM_CHANGE}" == "yes" ]]; then
-			debug-print "depend-java-query:  NV_DEPEND:	${JAVA_PKG_NV_DEPEND:-${DEPEND}}"
-			GENTOO_VM="$(depend-java-query --get-vm "${JAVA_PKG_NV_DEPEND:-${DEPEND}}")"
-			if [[ -z "${GENTOO_VM}" || "${GENTOO_VM}" == "None" ]]; then
-				eerror "Unable to determine VM for building from dependencies:"
-				echo "NV_DEPEND: ${JAVA_PKG_NV_DEPEND:-${DEPEND}}"
-				die "Failed to determine VM for building."
+			# if there is an explicit list of handles to choose from
+			if [[ -n "${JAVA_PKG_WANT_BUILD_VM}" ]]; then
+				debug-print "JAVA_PKG_WANT_BUILD_VM used: ${JAVA_PKG_WANT_BUILD_VM}"
+				GENTOO_VM=$(java-pkg_build-vm-from-handle)
+				if [[ $? != 0 ]]; then
+					eerror "${FUNCNAME}: No VM found for handles: ${JAVA_PKG_WANT_BUILD_VM}"
+					die "${FUNCNAME}: Failed to determine VM for building"
+				fi
+				# JAVA_PKG_WANT_SOURCE and JAVA_PKG_WANT_TARGET are required as
+				# they can't be deduced from handles.
+				if [[ -z "${JAVA_PKG_WANT_SOURCE}" ]]; then
+					eerror "JAVA_PKG_WANT_BUILD_VM specified but not JAVA_PKG_WANT_SOURCE"
+					die "Specify JAVA_PKG_WANT_SOURCE"
+				fi
+				if [[ -z "${JAVA_PKG_WANT_TARGET}" ]]; then
+					eerror "JAVA_PKG_WANT_BUILD_VM specified but not JAVA_PKG_WANT_TARGET"
+					die "Specify JAVA_PKG_WANT_TARGET"
+				fi
+			# otherwise determine a vm from dep string
 			else
-				export GENTOO_VM
+				debug-print "depend-java-query:  NV_DEPEND:	${JAVA_PKG_NV_DEPEND:-${DEPEND}}"
+				GENTOO_VM="$(depend-java-query --get-vm "${JAVA_PKG_NV_DEPEND:-${DEPEND}}")"
+				if [[ -z "${GENTOO_VM}" || "${GENTOO_VM}" == "None" ]]; then
+					eerror "Unable to determine VM for building from dependencies:"
+					echo "NV_DEPEND: ${JAVA_PKG_NV_DEPEND:-${DEPEND}}"
+					die "Failed to determine VM for building."
+				fi
 			fi
+			export GENTOO_VM
 		# otherwise just make sure the current VM is sufficient
 		else
 			java-pkg_ensure-vm-version-sufficient
@@ -2679,8 +2800,9 @@ java-pkg_ensure-dep() {
 	local target_pkg="${2}"
 	local dev_error=""
 
+	# remove the version specification, which may include globbing (* and [123])
 	local stripped_pkg=$(echo "${target_pkg}" | sed \
-		's/-[0-9]*\(\.[0-9]\)*$//')
+		's/-\([0-9*]*\(\[[0-9]*\]\)*\)*\(\.\([0-9*]*\(\[[0-9]*\]\)*\)*\)*$//')
 
 	debug-print "Matching against: ${stripped_pkg}"
 

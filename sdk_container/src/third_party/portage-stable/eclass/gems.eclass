@@ -1,13 +1,16 @@
-# Copyright 1999-2009 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/gems.eclass,v 1.32 2009/11/29 19:10:01 flameeyes Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/gems.eclass,v 1.35 2011/08/22 04:46:31 vapier Exp $
 
+# DEPRECATION NOTICE
+# This eclass is deprecated because it does not properly handle
+# multiple ruby targets. Please use ruby-fakegem.eclass instead.
+#
 # @ECLASS: gems.eclass
 # @MAINTAINER:
 # ruby@gentoo.org
-#
+# @AUTHOR:
 # Original Author: Rob Cakebread <pythonhead@gentoo.org>
-#
 # @BLURB: Eclass helping with the installation of RubyGems
 # @DESCRIPTION:
 # See http://dev.gentoo.org/~pythonhead/ruby/gems.html for notes on using gems with Portage.
@@ -25,7 +28,8 @@ SRC_URI="mirror://rubygems/${P}.gem"
 IUSE="doc"
 
 DEPEND="
-	|| ( >=dev-ruby/rubygems-1.3.1 =dev-lang/ruby-1.9* )
+	>=dev-ruby/rubygems-1.3.1
+	<=dev-ruby/rubygems-1.3.7-r1
 	!<dev-ruby/rdoc-2
 "
 RDEPEND="${DEPEND}"

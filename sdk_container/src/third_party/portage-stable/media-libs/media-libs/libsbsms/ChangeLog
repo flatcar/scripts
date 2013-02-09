@@ -1,0 +1,18 @@
+# ChangeLog for media-libs/libsbsms
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/media-libs/libsbsms/ChangeLog,v 1.3 2012/12/08 17:48:10 scarabeus Exp $
+
+  08 Dec 2012; Tomáš Chvátal <scarabeus@gentoo.org>
+  +files/libsbsms-2.0.1-includes.patch, libsbsms-2.0.1.ebuild:
+  Keyword ppc and ppc64, fixes bug#436020.
+
+*libsbsms-2.0.1 (10 Jul 2012)
+
+  10 Jul 2012; Tim Harder <radhermit@gentoo.org> +libsbsms-2.0.1.ebuild:
+  Version bump (bug #425550).
+
+*libsbsms-2.0.0 (30 Jun 2012)
+
+  30 Jun 2012; Tim Harder <radhermit@gentoo.org> +libsbsms-2.0.0.ebuild,
+  +files/libsbsms-2.0.0-cflags.patch, +metadata.xml:
+  Initial import, ebuild by me. Optional dependency for audacity.

@@ -1,0 +1,19 @@
+libpng: Version 1.5.1beta04 [January 16, 2011]
+  Mentioned in the documentation that applications must #include "zlib.h"
+    if they need access to anything in zlib.h.
+---
+ codec/convert.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/codec/convert.c b/codec/convert.c
+index 25e715b..153c4b9 100644
+--- a/codec/convert.c
++++ b/codec/convert.c
+@@ -47,6 +47,7 @@
+ #ifdef _WIN32
+ #include "../libs/png/png.h"
+ #else
++#include <zlib.h>
+ #include <png.h>
+ #endif /* _WIN32 */
+ #endif /* HAVE_LIBPNG */

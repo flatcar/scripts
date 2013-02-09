@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain-binutils.eclass,v 1.121 2012/11/26 18:06:55 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain-binutils.eclass,v 1.122 2012/12/23 23:37:26 vapier Exp $
 #
 # Maintainer: Toolchain Ninjas <toolchain@gentoo.org>
 #
@@ -252,6 +252,13 @@ toolchain-binutils_src_compile() {
 		export ac_cv_search_zlibVersion=$(usex zlib -lz no)
 		myconf+=( $(use_with zlib) )
 	fi
+
+	# For bi-arch systems, enable a 64bit bfd.  This matches
+	# the bi-arch logic in toolchain.eclass. #446946
+	# We used to do it for everyone, but it's slow on 32bit arches. #438522
+	case $(tc-arch) in
+	ppc|sparc|x86) myconf+=( --enable-64-bit-bfd ) ;;
+	esac
 
 	use multitarget && myconf+=( --enable-targets=all --enable-64-bit-bfd )
 	[[ -n ${CBUILD} ]] && myconf+=( --build=${CBUILD} )

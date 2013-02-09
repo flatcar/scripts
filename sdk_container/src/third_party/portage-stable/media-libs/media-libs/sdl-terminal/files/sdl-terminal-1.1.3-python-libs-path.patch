@@ -1,0 +1,11 @@
+--- configure.orig	2012-10-15 11:37:40.871135394 +0400
++++ configure	2012-10-15 11:38:05.763136943 +0400
+@@ -22780,7 +22780,7 @@
+         echo "$as_me:$LINENO: checking for Python library path" >&5
+ echo $ECHO_N "checking for Python library path... $ECHO_C" >&6
+         python_path=`echo $PYTHON | sed "s,/bin.*$,,"`
+-        for i in "$python_path/lib/python$PYTHON_VERSION/config/" "$python_path/lib/python$PYTHON_VERSION/" "$python_path/lib/python/config/" "$python_path/lib/python/" "$python_path/" ; do
++        for i in "${libdir}" ; do
+                 python_path=`find $i -type f -name libpython$PYTHON_VERSION.* -print | sed "1q"`
+                 if test -n "$python_path" ; then
+                         break

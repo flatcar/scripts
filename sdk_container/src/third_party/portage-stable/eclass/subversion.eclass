@@ -1,12 +1,10 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/subversion.eclass,v 1.73 2012/02/02 03:17:56 floppym Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/subversion.eclass,v 1.83 2012/07/29 05:54:17 hattya Exp $
 
 # @ECLASS: subversion.eclass
 # @MAINTAINER:
 # Akinori Hattori <hattya@gentoo.org>
-# Bo Ørsted Andresen <zlin@gentoo.org>
-# Arfrever Frehtes Taifersar Arahesis <arfrever@gentoo.org>
 # @AUTHOR:
 # Original Author: Akinori Hattori <hattya@gentoo.org>
 # @BLURB: The subversion eclass is written to fetch software sources from subversion repositories
@@ -21,20 +19,15 @@ ESVN="${ECLASS}"
 case "${EAPI:-0}" in
 	0|1)
 		EXPORT_FUNCTIONS src_unpack pkg_preinst
+		DEPEND="dev-vcs/subversion"
 		;;
 	*)
 		EXPORT_FUNCTIONS src_unpack src_prepare pkg_preinst
+		DEPEND="|| ( dev-vcs/subversion[webdav-neon] dev-vcs/subversion[webdav-serf] )"
 		;;
 esac
 
-DESCRIPTION="Based on the ${ECLASS} eclass"
-
-SUBVERSION_DEPEND="dev-vcs/subversion
-	net-misc/rsync"
-
-if [[ -z "${ESVN_DISABLE_DEPENDENCIES}" ]]; then
-	DEPEND="${SUBVERSION_DEPEND}"
-fi
+DEPEND+=" net-misc/rsync"
 
 # @ECLASS-VARIABLE: ESVN_STORE_DIR
 # @DESCRIPTION:
@@ -68,11 +61,12 @@ ESVN_OPTIONS="${ESVN_OPTIONS:-}"
 #
 # e.g. http://foo/trunk, svn://bar/trunk, svn://bar/branch/foo@1234
 #
-# supported protocols:
+# supported URI schemes:
 #   http://
 #   https://
 #   svn://
 #   svn+ssh://
+#   file://
 #
 # to peg to a specific revision, append @REV to the repo's uri
 ESVN_REPO_URI="${ESVN_REPO_URI:-}"
@@ -143,23 +137,21 @@ ESVN_PATCHES="${ESVN_PATCHES:-}"
 #     don't export the working copy to S.
 ESVN_RESTRICT="${ESVN_RESTRICT:-}"
 
-# @ECLASS-VARIABLE: ESVN_DISABLE_DEPENDENCIES
-# @DESCRIPTION:
-# Set this variable to a non-empty value to disable the automatic inclusion of
-# Subversion in dependencies.
-ESVN_DISABLE_DEPENDENCIES="${ESVN_DISABLE_DEPENDENCIES:-}"
-
 # @ECLASS-VARIABLE: ESVN_OFFLINE
 # @DESCRIPTION:
 # Set this variable to a non-empty value to disable the automatic updating of
 # an svn source tree. This is intended to be set outside the subversion source
 # tree by users.
-ESVN_OFFLINE="${ESVN_OFFLINE:-${ESCM_OFFLINE}}"
+ESVN_OFFLINE="${ESVN_OFFLINE:-${EVCS_OFFLINE}}"
 
 # @ECLASS-VARIABLE: ESVN_UMASK
 # @DESCRIPTION:
-# Set this variable to custom umask.
-# This is intended to be set by users.
+# Set this variable to a custom umask. This is intended to be set by users.
+# By setting this to something like 002, it can make life easier for people
+# who do development as non-root (but are in the portage group), and then
+# switch over to building with FEATURES=userpriv.  Or vice-versa.  Shouldn't
+# be a security issue here as anyone who has portage group write access
+# already can screw the system over in more creative ways.
 ESVN_UMASK="${ESVN_UMASK:-${EVCS_UMASK}}"
 
 # @ECLASS-VARIABLE: ESVN_UP_FREQ
@@ -197,24 +189,17 @@ subversion_fetch() {
 
 	[[ -n "${ESVN_REVISION}" ]] && revision="${ESVN_REVISION}"
 
-	# check for the protocol
-	local protocol="${repo_uri%%:*}"
-
-	case "${protocol}" in
+	# check for the scheme
+	local scheme="${repo_uri%%:*}"
+	case "${scheme}" in
 		http|https)
-			if ! built_with_use -o dev-vcs/subversion webdav-neon webdav-serf; then
-				echo
-				eerror "In order to emerge this package, you need to"
-				eerror "reinstall Subversion with support for WebDAV."
-				eerror "Subversion requires either Neon or Serf to support WebDAV."
-				echo
-				die "${ESVN}: reinstall Subversion with support for WebDAV."
-			fi
 			;;
 		svn|svn+ssh)
 			;;
+		file)
+			;;
 		*)
-			die "${ESVN}: fetch from '${protocol}' is not yet implemented."
+			die "${ESVN}: fetch from '${scheme}' is not yet implemented."
 			;;
 	esac
 
@@ -230,7 +215,7 @@ subversion_fetch() {
 		mkdir -m 775 -p "${ESVN_STORE_DIR}" || die "${ESVN}: can't mkdir ${ESVN_STORE_DIR}."
 	fi
 
-	pushd "${ESVN_STORE_DIR}" > /dev/null || die "${ESVN}: can't chdir to ${ESVN_STORE_DIR}"
+	pushd "${ESVN_STORE_DIR}" >/dev/null || die "${ESVN}: can't chdir to ${ESVN_STORE_DIR}"
 
 	local wc_path="$(subversion__get_wc_path "${repo_uri}")"
 	local options="${ESVN_OPTIONS} --config-dir ${ESVN_STORE_DIR}/.subversion"
@@ -272,6 +257,7 @@ subversion_fetch() {
 		svn upgrade "${wc_path}" &>/dev/null
 		svn cleanup "${wc_path}" &>/dev/null
 		subversion_wc_info "${repo_uri}" || die "${ESVN}: unknown problem occurred while accessing working copy."
+
 		if [[ -n ${ESVN_REVISION} && ${ESVN_REVISION} != ${ESVN_WC_REVISION} ]]; then
 			die "${ESVN}: You requested off-line updating and revision ${ESVN_REVISION} but only revision ${ESVN_WC_REVISION} is available locally."
 		fi
@@ -359,8 +345,7 @@ subversion_fetch() {
 		rsync -rlpgo --exclude=".svn/" . "${S}" || die "${ESVN}: can't export to ${S}."
 	fi
 
-	popd > /dev/null
-
+	popd >/dev/null
 	echo
 }
 
@@ -375,61 +360,34 @@ subversion_bootstrap() {
 	cd "${S}"
 
 	if [[ -n ${ESVN_PATCHES} ]]; then
-		einfo "apply patches -->"
-
 		local patch fpatch
-
+		einfo "apply patches -->"
 		for patch in ${ESVN_PATCHES}; do
 			if [[ -f ${patch} ]]; then
 				epatch "${patch}"
-
 			else
 				for fpatch in ${FILESDIR}/${patch}; do
 					if [[ -f ${fpatch} ]]; then
 						epatch "${fpatch}"
-
 					else
 						die "${ESVN}: ${patch} not found"
-
 					fi
 				done
-
 			fi
 		done
-
 		echo
 	fi
 
 	if [[ -n ${ESVN_BOOTSTRAP} ]]; then
 		einfo "begin bootstrap -->"
-
 		if [[ -f ${ESVN_BOOTSTRAP} && -x ${ESVN_BOOTSTRAP} ]]; then
 			einfo "   bootstrap with a file: ${ESVN_BOOTSTRAP}"
 			eval "./${ESVN_BOOTSTRAP}" || die "${ESVN}: can't execute ESVN_BOOTSTRAP."
-
 		else
 			einfo "   bootstrap with command: ${ESVN_BOOTSTRAP}"
 			eval "${ESVN_BOOTSTRAP}" || die "${ESVN}: can't eval ESVN_BOOTSTRAP."
-
 		fi
 	fi
-}
-
-# @FUNCTION: subversion_src_unpack
-# @DESCRIPTION:
-# Default src_unpack. Fetch and, in older EAPIs, bootstrap.
-subversion_src_unpack() {
-	subversion_fetch     || die "${ESVN}: unknown problem occurred in subversion_fetch."
-	if has "${EAPI:-0}" 0 1; then
-		subversion_bootstrap || die "${ESVN}: unknown problem occurred in subversion_bootstrap."
-	fi
-}
-
-# @FUNCTION: subversion_src_prepare
-# @DESCRIPTION:
-# Default src_prepare. Bootstrap.
-subversion_src_prepare() {
-	subversion_bootstrap || die "${ESVN}: unknown problem occurred in subversion_bootstrap."
 }
 
 # @FUNCTION: subversion_wc_info
@@ -458,6 +416,46 @@ subversion_wc_info() {
 	export ESVN_WC_PATH="${wc_path}"
 }
 
+# @FUNCTION: subversion_src_unpack
+# @DESCRIPTION:
+# Default src_unpack. Fetch and, in older EAPIs, bootstrap.
+subversion_src_unpack() {
+	subversion_fetch || die "${ESVN}: unknown problem occurred in subversion_fetch."
+	if has "${EAPI:-0}" 0 1; then
+		subversion_bootstrap || die "${ESVN}: unknown problem occurred in subversion_bootstrap."
+	fi
+}
+
+# @FUNCTION: subversion_src_prepare
+# @DESCRIPTION:
+# Default src_prepare. Bootstrap.
+subversion_src_prepare() {
+	subversion_bootstrap || die "${ESVN}: unknown problem occurred in subversion_bootstrap."
+}
+
+# @FUNCTION: subversion_pkg_preinst
+# @USAGE: [repo_uri]
+# @DESCRIPTION:
+# Log the svn revision of source code. Doing this in pkg_preinst because we
+# want the logs to stick around if packages are uninstalled without messing with
+# config protection.
+subversion_pkg_preinst() {
+	local pkgdate=$(date "+%Y%m%d %H:%M:%S")
+	subversion_wc_info "${1}"
+	if [[ -n ${ESCM_LOGDIR} ]]; then
+		local dir="${ROOT}/${ESCM_LOGDIR}/${CATEGORY}"
+		if [[ ! -d ${dir} ]]; then
+			mkdir -p "${dir}" || eerror "Failed to create '${dir}' for logging svn revision"
+		fi
+		local logmessage="svn: ${pkgdate} - ${PF}:${SLOT} was merged at revision ${ESVN_WC_REVISION}"
+		if [[ -d ${dir} ]]; then
+			echo "${logmessage}" >>"${dir}/${PN}.log"
+		else
+			eerror "Could not log the message '${logmessage}' to '${dir}/${PN}.log'"
+		fi
+	fi
+}
+
 ## -- Private Functions
 
 ## -- subversion__svn_info() ------------------------------------------------- #
@@ -469,26 +467,25 @@ subversion__svn_info() {
 	local target="${1}"
 	local key="${2}"
 
-	env LC_ALL=C svn info "${target}" | grep -i "^${key}" | cut -d" " -f2-
+	env LC_ALL=C svn info ${options} --username "${ESVN_USER}" --password "${ESVN_PASSWORD}" "${target}" \
+		| grep -i "^${key}" \
+		| cut -d" " -f2-
 }
 
 ## -- subversion__get_repository_uri() --------------------------------------- #
 #
 # param $1 - a repository URI.
 subversion__get_repository_uri() {
-	 local repo_uri="${1}"
+	local repo_uri="${1}"
 
 	debug-print "${FUNCNAME}: repo_uri = ${repo_uri}"
-
 	if [[ -z ${repo_uri} ]]; then
 		die "${ESVN}: ESVN_REPO_URI (or specified URI) is empty."
 	fi
-
 	# delete trailing slash
 	if [[ -z ${repo_uri##*/} ]]; then
 		repo_uri="${repo_uri%/}"
 	fi
-
 	repo_uri="${repo_uri%@*}"
 
 	echo "${repo_uri}"
@@ -510,42 +507,16 @@ subversion__get_wc_path() {
 # param $1 - a repository URI.
 subversion__get_peg_revision() {
 	local repo_uri="${1}"
+	local peg_rev=
 
 	debug-print "${FUNCNAME}: repo_uri = ${repo_uri}"
-
-	# repo_uri has peg revision ?
-	if [[ ${repo_uri} != *@* ]]; then
+	# repo_uri has peg revision?
+	if [[ ${repo_uri} = *@* ]]; then
+		peg_rev="${repo_uri##*@}"
+		debug-print "${FUNCNAME}: peg_rev = ${peg_rev}"
+	else
 		debug-print "${FUNCNAME}: repo_uri does not have a peg revision."
 	fi
 
-	local peg_rev=
-	[[ ${repo_uri} = *@* ]] &&  peg_rev="${repo_uri##*@}"
-
-	debug-print "${FUNCNAME}: peg_rev = ${peg_rev}"
-
 	echo "${peg_rev}"
-}
-
-# @FUNCTION: subversion_pkg_preinst
-# @USAGE: [repo_uri]
-# @DESCRIPTION:
-# Log the svn revision of source code. Doing this in pkg_preinst because we
-# want the logs to stick around if packages are uninstalled without messing with
-# config protection.
-subversion_pkg_preinst() {
-	local pkgdate=$(date "+%Y%m%d %H:%M:%S")
-	subversion_wc_info "${1:-${ESVN_REPO_URI}}"
-	if [[ -n ${ESCM_LOGDIR} ]]; then
-		local dir="${ROOT}/${ESCM_LOGDIR}/${CATEGORY}"
-		if [[ ! -d ${dir} ]]; then
-			mkdir -p "${dir}" || \
-				eerror "Failed to create '${dir}' for logging svn revision to '${PORTDIR_SCM}'"
-		fi
-		local logmessage="svn: ${pkgdate} - ${PF}:${SLOT} was merged at revision ${ESVN_WC_REVISION}"
-		if [[ -d ${dir} ]]; then
-			echo "${logmessage}" >> "${dir}/${PN}.log"
-		else
-			eerror "Could not log the message '${logmessage}' to '${dir}/${PN}.log'"
-		fi
-	fi
 }

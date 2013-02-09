@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<herd>enlightenment</herd>
+<use>
+ <flag name="dbus">Enable integration with <pkg>dev-libs/e_dbus</pkg>.</flag>
+ <flag name='emotion'>Add support for <pkg>media-libs/emotion</pkg></flag>
+ <flag name='ethumb'>Add support for <pkg>media-libs/ethumb</pkg></flag>
+ <flag name="quicklaunch">Enable quick-launch support</flag>
+ <flag name="xdg">Enable integration with <pkg>dev-libs/efreet</pkg> for cross-desktop standards (freedesktop.org).</flag>
+</use>
+<longdescription>
+Elementary is a widget set. It is a new-style of widget set much more
+canvas object based than anything else. Why not ETK? Why not EWL? Well
+they both tend to veer away from the core of Evas, Ecore and Edje a
+lot to build their own worlds. Also I wanted something focused on
+embedded devices - specifically small touchscreens. Unlike GTK+ and
+Qt, 75% of the "widget set" is already embodied in a common core -
+Ecore, Edje, Evas etc. So this fine-grained library splitting means
+all of this is shared, just a new widget "personality" is on top. And
+that is... Elementary, my dear watson. Elementary.
+</longdescription>
+</pkgmetadata>

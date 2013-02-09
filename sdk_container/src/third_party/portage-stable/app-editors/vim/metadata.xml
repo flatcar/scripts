@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<herd>vim</herd>
+<use>
+  <flag name='vim-pager'>Install vimpager and vimmanpager links</flag>
+  <flag name='X'>Link console vim against X11 libraries to enable title and
+	  clipboard features in xterm</flag>
+</use>
+</pkgmetadata>

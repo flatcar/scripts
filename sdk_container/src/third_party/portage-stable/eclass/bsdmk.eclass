@@ -1,6 +1,6 @@
-# Copyright 1999-2008 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/bsdmk.eclass,v 1.9 2008/08/08 21:16:24 aballier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/bsdmk.eclass,v 1.11 2011/12/27 17:55:12 fauli Exp $
 
 # @ECLASS: bsdmk.eclass
 # @MAINTAINER:
@@ -64,6 +64,8 @@ mkinstall() {
 # useful to remove the need for "minimal" patches
 dummy_mk() {
 	for dir in $@; do
+		[ -d ${dir} ] || ewarn "dummy_mk called on a non-existing directory: $dir"
+		[ -f ${dir}/Makefile ] || ewarn "dummy_mk called on a directory without Makefile: $dir"
 		echo ".include <bsd.lib.mk>" > ${dir}/Makefile
 	done
 }

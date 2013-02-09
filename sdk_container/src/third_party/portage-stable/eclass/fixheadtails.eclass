@@ -1,12 +1,12 @@
-# Copyright 1999-2008 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/fixheadtails.eclass,v 1.11 2008/02/19 05:27:25 vapier Exp $
-#
-# Original author John Mylchreest <johnm@gentoo.org>
+# $Header: /var/cvsroot/gentoo-x86/eclass/fixheadtails.eclass,v 1.12 2011/08/22 04:46:31 vapier Exp $
 
 # @ECLASS: fixheadtails.eclass
 # @MAINTAINER:
 # base-system@gentoo.org
+# @AUTHOR:
+# Original author John Mylchreest <johnm@gentoo.org>
 # @BLURB: functions to replace obsolete head/tail with POSIX compliant ones
 
 DEPEND=">=sys-apps/sed-4"

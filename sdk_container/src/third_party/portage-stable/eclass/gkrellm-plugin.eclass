@@ -1,6 +1,6 @@
-# Copyright 1999-2007 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/gkrellm-plugin.eclass,v 1.3 2007/04/23 19:35:05 swegener Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/gkrellm-plugin.eclass,v 1.4 2012/05/02 18:31:42 jdhore Exp $
 
 #
 # Original Author: Jim Ramsay <lack@gentoo.org>
@@ -41,7 +41,7 @@ inherit multilib eutils
 
 RDEPEND="=app-admin/gkrellm-2*"
 DEPEND="${RDEPEND}
-	dev-util/pkgconfig"
+	virtual/pkgconfig"
 
 gkrellm-plugin_dir() {
 	echo /usr/$(get_libdir)/gkrellm2/plugins

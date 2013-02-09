@@ -1,14 +1,18 @@
-# Copyright 1999-2009 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/nsplugins.eclass,v 1.24 2009/05/01 23:03:00 nirbheek Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/nsplugins.eclass,v 1.31 2012/09/15 16:16:53 zmedico Exp $
 #
-# Author: Martin Schlemmer <azarah@gentoo.org>
-#
-# Just some re-usable functions for the netscape/moz plugins sharing
+# @ECLASS: nsplugins.eclass
+# @MAINTAINER:
+# Mozilla Team <mozilla@gentoo.org>
+# @AUTHOR:
+# Original Author: Martin Schlemmer <azarah@gentoo.org>
+# @BLURB: reusable functions for netscape/moz plugin sharing
+# @DESCRIPTION:
+# Reusable functions that promote sharing of netscape/moz plugins, also provides
+# share_plugins_dir function for mozilla applications.
 
-inherit eutils
-
-DESCRIPTION="Based on the ${ECLASS} eclass"
+inherit eutils multilib
 
 PLUGINS_DIR="nsbrowser/plugins"
 
@@ -16,12 +20,13 @@ PLUGINS_DIR="nsbrowser/plugins"
 # ${D}/usr/$(get_libdir)/${PLUGIN_DIR}.  First argument should be
 # the full path (without $D) to old plugin dir.
 src_mv_plugins() {
+	has "${EAPI:-0}" 0 1 2 && ! use prefix && ED="${D}"
 
 	# Move plugins dir.  We use keepdir so that it might not be unmerged
 	# by mistake ...
 	keepdir /usr/$(get_libdir)/${PLUGINS_DIR}
-	cp -a "${D}"/$1/* "${D}"/usr/$(get_libdir)/${PLUGINS_DIR}
-	rm -rf "${D}"/$1
+	cp -a "${ED}"/$1/* "${ED}"/usr/$(get_libdir)/${PLUGINS_DIR}
+	rm -rf "${ED}"/$1
 	dosym /usr/$(get_libdir)/${PLUGINS_DIR} $1
 }
 
@@ -29,19 +34,43 @@ src_mv_plugins() {
 # ${ROOT}/usr/$(get_libdir)/${PLUGIN_DIR}.  First argument should be
 # the full path (without $ROOT) to old plugin dir.
 pkg_mv_plugins() {
+	has "${EAPI:-0}" 0 1 2 && ! use prefix && ED="${ROOT}"
 
 	# Move old plugins dir
 	if [ -d "${ROOT}/$1" -a ! -L "${ROOT}/$1" ]
 	then
-		mkdir -p "${ROOT}"/usr/$(get_libdir)/${PLUGINS_DIR}
-		cp -a "${ROOT}"/$1/* "${ROOT}"/usr/$(get_libdir)/${PLUGINS_DIR}
-		rm -rf "${ROOT}"/$1
+		mkdir -p "${EROOT}"/usr/$(get_libdir)/${PLUGINS_DIR}
+		cp -a "${EROOT}"/$1/* "${EROOT}"/usr/$(get_libdir)/${PLUGINS_DIR}
+		rm -rf "${EROOT}"/$1
 	fi
 }
 
 # This function installs a plugin with dosym to PLUGINS_DIR.
 # First argument should be the plugin file.
 inst_plugin() {
+	if [[ -z "${1}" ]]; then
+		eerror "The plugin file \"${1}\" does not exist."
+		die "No such file or directory."
+	fi
+
 	dodir /usr/$(get_libdir)/${PLUGINS_DIR}
-	dosym ${1} /usr/$(get_libdir)/${PLUGINS_DIR}
+	dosym ${1} /usr/$(get_libdir)/${PLUGINS_DIR}/$(basename ${1})
+}
+
+# This function ensures we use proper plugin path for Gentoo.
+# This should only be used by mozilla packages.
+# ${MOZILLA_FIVE_HOME} must be defined in src_install to support
+share_plugins_dir() {
+	if [[ ${PN} == seamonkey ]] ; then
+		rm -rf "${D}"${MOZILLA_FIVE_HOME}/plugins \
+			|| die "failed to remove existing plugins dir"
+	fi
+
+	if [[ ${PN} == *-bin ]] ; then
+		PLUGIN_BASE_PATH="/usr/$(get_libdir)"
+	else
+		PLUGIN_BASE_PATH=".."
+	fi
+
+	dosym "${PLUGIN_BASE_PATH}/nsbrowser/plugins" "${MOZILLA_FIVE_HOME}/plugins"
 }

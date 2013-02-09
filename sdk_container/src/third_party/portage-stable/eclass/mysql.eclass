@@ -1,13 +1,14 @@
-# Copyright 1999-2009 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/mysql.eclass,v 1.136 2010/03/09 20:37:34 robbat2 Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/mysql.eclass,v 1.176 2012/11/01 20:22:57 robbat2 Exp $
 
 # @ECLASS: mysql.eclass
 # @MAINTAINER:
-# Author: Francesco Riosa (Retired) <vivo@gentoo.org>
-# Maintainers: MySQL Team <mysql-bugs@gentoo.org>
-#		- Luca Longinotti <chtekk@gentoo.org>
-#		- Robin H. Johnson <robbat2@gentoo.org>
+# MySQL Team <mysql-bugs@gentoo.org>
+# Luca Longinotti <chtekk@gentoo.org>
+# Robin H. Johnson <robbat2@gentoo.org>
+# @AUTHOR:
+# Francesco Riosa (Retired) <vivo@gentoo.org>
 # @BLURB: This eclass provides most of the functions for mysql ebuilds
 # @DESCRIPTION:
 # The mysql.eclass provides almost all the code to build the mysql ebuilds
@@ -18,7 +19,7 @@
 WANT_AUTOCONF="latest"
 WANT_AUTOMAKE="latest"
 
-inherit eutils flag-o-matic gnuconfig autotools mysql_fx versionator toolchain-funcs
+inherit eutils flag-o-matic gnuconfig autotools multilib mysql_fx versionator toolchain-funcs
 
 # Shorten the path because the socket path length must be shorter than 107 chars
 # and we will run a mysql server during test phase
@@ -28,11 +29,11 @@ S="${WORKDIR}/mysql"
 if [[ "${MY_EXTRAS_VER}" == "live" ]]; then
 	EGIT_PROJECT=mysql-extras
 	EGIT_REPO_URI="git://git.overlays.gentoo.org/proj/mysql-extras.git"
-	inherit git
+	inherit git-2
 fi
 
 case "${EAPI:-0}" in
-	2)
+	2|3|4|5)
 		EXPORT_FUNCTIONS pkg_setup \
 					src_unpack src_prepare \
 					src_configure src_compile \
@@ -52,6 +53,22 @@ case "${EAPI:-0}" in
 	*)
 		die "Unsupported EAPI: ${EAPI}" ;;
 esac
+
+
+# @ECLASS-VARIABLE: MYSQL_PV_MAJOR
+# @DESCRIPTION:
+# Upstream MySQL considers the first two parts of the version number to be the
+# major version. Upgrades that change major version should always run
+# mysql_upgrade.
+MYSQL_PV_MAJOR="$(get_version_component_range 1-2 ${PV})"
+
+# Cluster is a special case...
+if [[ "${PN}" == "mysql-cluster" ]]; then
+	case $PV in
+		6.1*|7.0*|7.1*) MYSQL_PV_MAJOR=5.1 ;;
+	esac
+fi
+
 
 # @ECLASS-VARIABLE: MYSQL_VERSION_ID
 # @DESCRIPTION:
@@ -79,7 +96,7 @@ MYSQL_VERSION_ID=${MYSQL_VERSION_ID##"0"}
 # and 0 (no).
 # Community features are available in mysql-community
 # AND in the re-merged mysql-5.0.82 and newer
-if [ "${PN}" == "mysql-community" ]; then
+if [ "${PN}" == "mysql-community" -o "${PN}" == "mariadb" ]; then
 	MYSQL_COMMUNITY_FEATURES=1
 elif [ "${PV#5.0}" != "${PV}" ] && mysql_version_is_at_least "5.0.82"; then
 	MYSQL_COMMUNITY_FEATURES=1
@@ -89,7 +106,9 @@ elif [ "${PV#5.4}" != "${PV}" ] ; then
 	MYSQL_COMMUNITY_FEATURES=1
 elif [ "${PV#5.5}" != "${PV}" ] ; then
 	MYSQL_COMMUNITY_FEATURES=1
-elif [ "${PV#6.0}" != "${PV}" ] ; then
+elif [ "${PV#6}" != "${PV}" ] ; then
+	MYSQL_COMMUNITY_FEATURES=1
+elif [ "${PV#7}" != "${PV}" ] ; then
 	MYSQL_COMMUNITY_FEATURES=1
 else
 	MYSQL_COMMUNITY_FEATURES=0
@@ -108,21 +127,32 @@ PERCONA_VER="${PERCONA_VER}"
 # Be warned, *DEPEND are version-dependant
 # These are used for both runtime and compiletime
 DEPEND="ssl? ( >=dev-libs/openssl-0.9.6d )
-		userland_GNU? ( sys-process/procps )
+		kernel_linux? ( sys-process/procps )
 		>=sys-apps/sed-4
 		>=sys-apps/texinfo-4.7-r1
 		>=sys-libs/readline-4.1
 		>=sys-libs/zlib-1.2.3"
 
+[[ "${PN}" == "mariadb" ]] \
+&& DEPEND="${DEPEND} libevent? ( >=dev-libs/libevent-1.4 )"
+
 # Having different flavours at the same time is not a good idea
-for i in "" "-community" ; do
-	[[ "${i}" == ${PN#mysql} ]] ||
-	DEPEND="${DEPEND} !dev-db/mysql${i}"
+for i in "mysql" "mysql-community" "mysql-cluster" "mariadb" ; do
+	[[ "${i}" == ${PN} ]] ||
+	DEPEND="${DEPEND} !dev-db/${i}"
 done
 
+# prefix: first need to implement something for #196294
 RDEPEND="${DEPEND}
-		!minimal? ( dev-db/mysql-init-scripts )
+		!minimal? ( !prefix? ( dev-db/mysql-init-scripts ) )
 		selinux? ( sec-policy/selinux-mysql )"
+
+DEPEND="${DEPEND}
+		virtual/yacc"
+
+if [ "${EAPI:-0}" = "2" ]; then
+	DEPEND="${DEPEND} static? ( sys-libs/ncurses[static-libs] )"
+fi
 
 # compile-time-only
 mysql_version_is_at_least "5.1" \
@@ -132,18 +162,46 @@ mysql_version_is_at_least "5.1" \
 mysql_version_is_at_least "5.1.12" \
 && DEPEND="${DEPEND} >=dev-util/cmake-2.4.3"
 
+[[ "${PN}" == "mariadb" ]] \
+&& mysql_version_is_at_least "5.2" \
+&& DEPEND="${DEPEND} oqgraph? ( >=dev-libs/boost-1.40.0 )"
+#SphinxSE is included but is not available in 5.2.4 due to a missing plug.in file
+#	sphinx? ( app-misc/sphinx )"
+
 # dev-perl/DBD-mysql is needed by some scripts installed by MySQL
 PDEPEND="perl? ( >=dev-perl/DBD-mysql-2.9004 )"
 
 # For other stuff to bring us in
-PDEPEND="${PDEPEND} =virtual/mysql-$(get_version_component_range 1-2 ${PV})"
+PDEPEND="${PDEPEND} =virtual/mysql-${MYSQL_PV_MAJOR}"
 
 # Work out the default SERVER_URI correctly
 if [ -z "${SERVER_URI}" ]; then
 	[ -z "${MY_PV}" ] && MY_PV="${PV//_/-}"
-	# The community build is on the mirrors
-	if [ "${MYSQL_COMMUNITY_FEATURES}" == "1" ]; then
-		SERVER_URI="mirror://mysql/Downloads/MySQL-${PV%.*}/mysql-${MY_PV}.tar.gz"
+	if [ "${PN}" == "mariadb" ]; then
+		MARIA_FULL_PV="$(replace_version_separator 3 '-' ${PV})"
+		MARIA_FULL_P="${PN}-${MARIA_FULL_PV}"
+		SERVER_URI="
+		http://ftp.osuosl.org/pub/mariadb/${MARIA_FULL_P}/kvm-tarbake-jaunty-x86/${MARIA_FULL_P}.tar.gz
+		http://ftp.rediris.es/mirror/MariaDB/${MARIA_FULL_P}/kvm-tarbake-jaunty-x86/${MARIA_FULL_P}.tar.gz
+		http://maria.llarian.net/download/${MARIA_FULL_P}/kvm-tarbake-jaunty-x86/${MARIA_FULL_P}.tar.gz
+		http://launchpad.net/maria/${MYSQL_PV_MAJOR}/ongoing/+download/${MARIA_FULL_P}.tar.gz
+		http://mirrors.fe.up.pt/pub/${PN}/${MARIA_FULL_P}/kvm-tarbake-jaunty-x86/${MARIA_FULL_P}.tar.gz
+		http://ftp-stud.hs-esslingen.de/pub/Mirrors/${PN}/${MARIA_FULL_P}/kvm-tarbake-jaunty-x86/${MARIA_FULL_P}.tar.gz
+		"
+	# The community and cluster builds are on the mirrors
+	elif [[ "${MYSQL_COMMUNITY_FEATURES}" == "1" || ${PN} == "mysql-cluster" ]] ; then
+		if [[ "${PN}" == "mysql-cluster" ]] ; then
+			URI_DIR="MySQL-Cluster"
+			URI_FILE="mysql-cluster-gpl"
+		else
+			URI_DIR="MySQL"
+			URI_FILE="mysql"
+		fi
+		URI_A="${URI_FILE}-${MY_PV}.tar.gz"
+		MIRROR_PV=$(get_version_component_range 1-2 ${PV})
+		# Recently upstream switched to an archive site, and not on mirrors
+		SERVER_URI="http://downloads.mysql.com/archives/${URI_FILE}-${MIRROR_PV}/${URI_A}
+					mirror://mysql/Downloads/${URI_DIR}-${PV%.*}/${URI_A}"
 	# The (old) enterprise source is on the primary site only
 	elif [ "${PN}" == "mysql" ]; then
 		SERVER_URI="ftp://ftp.mysql.com/pub/mysql/src/mysql-${MY_PV}.tar.gz"
@@ -162,6 +220,13 @@ SRC_URI="${SERVER_URI}"
 
 DESCRIPTION="A fast, multi-threaded, multi-user SQL database server."
 HOMEPAGE="http://www.mysql.com/"
+if [[ "${PN}" == "mariadb" ]]; then
+	HOMEPAGE="http://askmonty.org/"
+	DESCRIPTION="MariaDB is a MySQL fork with 3rd-party patches and additional storage engines merged."
+fi
+if [[ "${PN}" == "mysql-community" ]]; then
+	DESCRIPTION="${DESCRIPTION} (obsolete, move to dev-db/mysql)"
+fi
 LICENSE="GPL-2"
 SLOT="0"
 IUSE="big-tables debug embedded minimal ${IUSE_DEFAULT_ON}perl selinux ssl static test"
@@ -169,8 +234,12 @@ IUSE="big-tables debug embedded minimal ${IUSE_DEFAULT_ON}perl selinux ssl stati
 mysql_version_is_at_least "4.1" \
 && IUSE="${IUSE} latin1"
 
-mysql_version_is_at_least "4.1.3" \
-&& IUSE="${IUSE} cluster extraengine"
+if mysql_version_is_at_least "4.1.3" ; then
+	IUSE="${IUSE} extraengine"
+	if [[ "${PN}" != "mysql-cluster" ]] ; then
+		IUSE="${IUSE} cluster"
+	fi
+fi
 
 mysql_version_is_at_least "5.0" \
 || IUSE="${IUSE} raid"
@@ -184,22 +253,63 @@ mysql_version_is_at_least "5.1" \
 [ "${MYSQL_COMMUNITY_FEATURES}" == "1" ] \
 && IUSE="${IUSE} ${IUSE_DEFAULT_ON}community profiling"
 
-# PBXT engine
-mysql_version_is_at_least "5.1.12" \
-&& [[ -n "${PBXT_VERSION}" ]] \
+[[ "${PN}" == "mariadb" ]] \
+&& IUSE="${IUSE} libevent"
+
+[[ "${PN}" == "mariadb" ]] \
+&& mysql_version_is_at_least "5.2" \
+&& IUSE="${IUSE} oqgraph"
+#SphinxSE is included but is not available in 5.2.4 due to a missing plug.in file
+#&& IUSE="${IUSE} oqgraph sphinx"
+
+# MariaDB has integrated PBXT
+# PBXT_VERSION means that we have a PBXT patch for this PV
+# PBXT was only introduced after 5.1.12
+pbxt_patch_available() {
+	[[ "${PN}" != "mariadb" ]] \
+	&& mysql_version_is_at_least "5.1.12" \
+	&& [[ -n "${PBXT_VERSION}" ]]
+	return $?
+}
+
+pbxt_available() {
+	pbxt_patch_available || [[ "${PN}" == "mariadb" ]]
+	return $?
+}
+
+# Get the percona tarball if XTRADB_VER and PERCONA_VER are both set
+# MariaDB has integrated XtraDB
+# XTRADB_VERS means that we have a XTRADB patch for this PV
+# XTRADB was only introduced after 5.1.26
+xtradb_patch_available() {
+	[[ "${PN}" != "mariadb" ]] \
+	&& mysql_version_is_at_least "5.1.26" \
+	&& [[ -n "${XTRADB_VER}" && -n "${PERCONA_VER}" ]]
+	return $?
+}
+
+
+pbxt_patch_available \
 && PBXT_P="pbxt-${PBXT_VERSION}" \
 && PBXT_SRC_URI="http://www.primebase.org/download/${PBXT_P}.tar.gz mirror://sourceforge/pbxt/${PBXT_P}.tar.gz" \
 && SRC_URI="${SRC_URI} pbxt? ( ${PBXT_SRC_URI} )" \
-&& IUSE="${IUSE} pbxt"
 
-# Get the percona tarball if XTRADB_VER and PERCONA_VER are both set
-mysql_version_is_at_least "5.1.26" \
-&& [[ -n "${XTRADB_VER}" && -n "${PERCONA_VER}" ]] \
+# PBXT_NEWSTYLE means pbxt is in storage/ and gets enabled as other plugins
+# vs. built outside the dir
+pbxt_available \
+&& IUSE="${IUSE} pbxt" \
+&& mysql_version_is_at_least "5.1.40" \
+&& PBXT_NEWSTYLE=1
+
+xtradb_patch_available \
 && XTRADB_P="percona-xtradb-${XTRADB_VER}" \
 && XTRADB_SRC_URI_COMMON="${PERCONA_VER}/source/${XTRADB_P}.tar.gz" \
-&& XTRADB_SRC_URI1="http://www.percona.com/percona-builds/xtradb/${XTRADB_SRC_URI_COMMON}" \
-&& XTRADB_SRC_URI2="http://www.percona.com/${PN}/xtradb/${XTRADB_SRC_URI_COMMON}" \
-&& SRC_URI="${SRC_URI} xtradb? ( ${XTRADB_SRC_URI1} ${XTRADB_SRC_URI2} )" \
+&& XTRADB_SRC_B1="http://www.percona.com/" \
+&& XTRADB_SRC_B2="${XTRADB_SRC_B1}/percona-builds/" \
+&& XTRADB_SRC_URI1="${XTRADB_SRC_B2}/Percona-Server/Percona-Server-${XTRADB_SRC_URI_COMMON}" \
+&& XTRADB_SRC_URI2="${XTRADB_SRC_B2}/xtradb/${XTRADB_SRC_URI_COMMON}" \
+&& XTRADB_SRC_URI3="${XTRADB_SRC_B1}/${PN}/xtradb/${XTRADB_SRC_URI_COMMON}" \
+&& SRC_URI="${SRC_URI} xtradb? ( ${XTRADB_SRC_URI1} ${XTRADB_SRC_URI2} ${XTRADB_SRC_URI3} )" \
 && IUSE="${IUSE} xtradb"
 
 #
@@ -214,7 +324,7 @@ mysql_disable_test() {
 	rawtestname="${1}" ; shift
 	reason="${@}"
 	ewarn "test '${rawtestname}' disabled: '${reason}'"
-	
+
 	testsuite="${rawtestname/.*}"
 	testname="${rawtestname/*.}"
 	mysql_disable_file="${S}/mysql-test/t/disabled.def"
@@ -254,21 +364,21 @@ mysql_disable_test() {
 # Initialize global variables
 # 2005-11-19 <vivo@gentoo.org>
 mysql_init_vars() {
-	MY_SHAREDSTATEDIR=${MY_SHAREDSTATEDIR="/usr/share/mysql"}
-	MY_SYSCONFDIR=${MY_SYSCONFDIR="/etc/mysql"}
-	MY_LIBDIR=${MY_LIBDIR="/usr/$(get_libdir)/mysql"}
-	MY_LOCALSTATEDIR=${MY_LOCALSTATEDIR="/var/lib/mysql"}
-	MY_LOGDIR=${MY_LOGDIR="/var/log/mysql"}
-	MY_INCLUDEDIR=${MY_INCLUDEDIR="/usr/include/mysql"}
+	MY_SHAREDSTATEDIR=${MY_SHAREDSTATEDIR="${EPREFIX}/usr/share/mysql"}
+	MY_SYSCONFDIR=${MY_SYSCONFDIR="${EPREFIX}/etc/mysql"}
+	MY_LIBDIR=${MY_LIBDIR="${EPREFIX}/usr/$(get_libdir)/mysql"}
+	MY_LOCALSTATEDIR=${MY_LOCALSTATEDIR="${EPREFIX}/var/lib/mysql"}
+	MY_LOGDIR=${MY_LOGDIR="${EPREFIX}/var/log/mysql"}
+	MY_INCLUDEDIR=${MY_INCLUDEDIR="${EPREFIX}/usr/include/mysql"}
 
 	if [[ -z "${MY_DATADIR}" ]] ; then
 		MY_DATADIR=""
-		if [[ -f "${MY_SYSCONFDIR}/my.cnf" ]] ; then
+		if [[ -f ${MY_SYSCONFDIR}/my.cnf ]] ; then
 			MY_DATADIR=`"my_print_defaults" mysqld 2>/dev/null \
 				| sed -ne '/datadir/s|^--datadir=||p' \
 				| tail -n1`
 			if [[ -z "${MY_DATADIR}" ]] ; then
-				MY_DATADIR=`grep ^datadir "${MY_SYSCONFDIR}/my.cnf" \
+				MY_DATADIR=`grep ^datadir ${MY_SYSCONFDIR}/my.cnf \
 				| sed -e 's/.*=\s*//' \
 				| tail -n1`
 			fi
@@ -306,8 +416,10 @@ mysql_init_vars() {
 		fi
 	fi
 
-	MY_SOURCEDIR=${SERVER_URI##*/}
-	MY_SOURCEDIR=${MY_SOURCEDIR%.tar*}
+	if [ "${MY_SOURCEDIR:-unset}" == "unset" ]; then
+		MY_SOURCEDIR=${SERVER_URI##*/}
+		MY_SOURCEDIR=${MY_SOURCEDIR%.tar*}
+	fi
 
 	export MY_SHAREDSTATEDIR MY_SYSCONFDIR
 	export MY_LIBDIR MY_LOCALSTATEDIR MY_LOGDIR
@@ -348,7 +460,7 @@ configure_common() {
 	myconf="${myconf} --with-extra-charsets=all"
 	myconf="${myconf} --with-mysqld-user=mysql"
 	myconf="${myconf} --with-server"
-	myconf="${myconf} --with-unix-socket-path=/var/run/mysqld/mysqld.sock"
+	myconf="${myconf} --with-unix-socket-path=${EPREFIX}/var/run/mysqld/mysqld.sock"
 	myconf="${myconf} --without-libwrap"
 
 	if use static ; then
@@ -364,7 +476,7 @@ configure_common() {
 	else
 		myconf="${myconf} --without-debug"
 		mysql_version_is_at_least "4.1.3" \
-		&& use cluster \
+		&& ( use cluster || [[ "${PN}" == "mysql-cluster" ]] ) \
 		&& myconf="${myconf} --without-ndb-debug"
 	fi
 
@@ -393,12 +505,13 @@ configure_common() {
 }
 
 configure_40_41_50() {
+	myconf="${myconf} --with-zlib-dir=${EPREFIX}/usr"
 	myconf="${myconf} $(use_with perl bench)"
 	myconf="${myconf} --enable-assembler"
 	myconf="${myconf} --with-extra-tools"
 	myconf="${myconf} --with-innodb"
 	myconf="${myconf} --without-readline"
-	myconf="${myconf} $(use_with ssl openssl)"
+	myconf="${myconf} $(use_with ssl openssl "${EPREFIX}/usr")"
 	mysql_version_is_at_least "5.0" || myconf="${myconf} $(use_with raid)"
 
 	# --with-vio is not needed anymore, it's on by default and
@@ -431,7 +544,9 @@ configure_40_41_50() {
 
 	if mysql_version_is_at_least "4.1.3" ; then
 		myconf="${myconf} --with-geometry"
-		myconf="${myconf} $(use_with cluster ndbcluster)"
+		if [[ "${PN}" != "mysql-cluster" ]] ; then
+			myconf="${myconf} $(use_with cluster ndbcluster)"
+		fi
 	fi
 
 	if mysql_version_is_at_least "4.1.3" && use extraengine ; then
@@ -472,13 +587,18 @@ configure_51() {
 	# TODO: !!!! readd --without-readline
 	# the failure depend upon config/ac-macros/readline.m4 checking into
 	# readline.h instead of history.h
-	myconf="${myconf} $(use_with ssl ssl /usr)"
+	myconf="${myconf} $(use_with ssl ssl "${EPREFIX}"/usr)"
 	myconf="${myconf} --enable-assembler"
 	myconf="${myconf} --with-geometry"
 	myconf="${myconf} --with-readline"
-	myconf="${myconf} --with-zlib-dir=/usr/"
+	myconf="${myconf} --with-zlib-dir=${EPREFIX}/usr/"
 	myconf="${myconf} --without-pstack"
-	use max-idx-128 && myconf="${myconf} --with-max-indexes=128"
+	myconf="${myconf} --with-plugindir=${EPREFIX}/usr/$(get_libdir)/mysql/plugin"
+
+	# This is an explict die here, because if we just forcibly disable it, then the
+	# user's data is not accessible.
+	use max-idx-128 && die "Bug #336027: upstream has a corruption issue with max-idx-128 presently"
+	#use max-idx-128 && myconf="${myconf} --with-max-indexes=128"
 	if [ "${MYSQL_COMMUNITY_FEATURES}" == "1" ]; then
 		myconf="${myconf} $(use_enable community community-features)"
 		if use community; then
@@ -488,47 +608,131 @@ configure_51() {
 		fi
 	fi
 
+	# Scan for all available plugins
+	local plugins_avail="$(
+	LANG=C \
+	find "${S}" \
+		\( \
+		-name 'plug.in' \
+		-o -iname 'configure.in' \
+		-o -iname 'configure.ac' \
+		\) \
+		-print0 \
+	| xargs -0 sed -r -n \
+		-e '/^MYSQL_STORAGE_ENGINE/{
+			s~MYSQL_STORAGE_ENGINE\([[:space:]]*\[?([-_a-z0-9]+)\]?.*,~\1 ~g ;
+			s~^([^ ]+).*~\1~gp;
+		}' \
+	| tr -s '\n' ' '
+	)"
+
 	# 5.1 introduces a new way to manage storage engines (plugins)
 	# like configuration=none
-	local plugins="csv,myisam,myisammrg,heap"
+	# This base set are required, and will always be statically built.
+	local plugins_sta="csv myisam myisammrg heap"
+	local plugins_dyn=""
+	local plugins_dis="example ibmdb2i"
+
+	# These aren't actually required by the base set, but are really useful:
+	plugins_sta="${plugins_sta} archive blackhole"
+
+	# default in 5.5.4
+	if mysql_version_is_at_least "5.5.4" ; then
+		plugins_sta="${plugins_sta} partition"
+	fi
+	# Now the extras
 	if use extraengine ; then
 		# like configuration=max-no-ndb, archive and example removed in 5.1.11
 		# not added yet: ibmdb2i
-		# Not supporting as examples: example,daemon_example,ftexample 
-		plugins="${plugins},archive,blackhole,federated,partition"
+		# Not supporting as examples: example,daemon_example,ftexample
+		plugins_sta="${plugins_sta} partition"
 
-		elog "Before using the Federated storage engine, please be sure to read"
-		elog "http://dev.mysql.com/doc/refman/5.1/en/federated-limitations.html"
+		if [[ "${PN}" != "mariadb" ]] ; then
+			elog "Before using the Federated storage engine, please be sure to read"
+			elog "http://dev.mysql.com/doc/refman/5.1/en/federated-limitations.html"
+			plugins_dyn="${plugins_sta} federated"
+		else
+			elog "MariaDB includes the FederatedX engine. Be sure to read"
+			elog "http://askmonty.org/wiki/index.php/Manual:FederatedX_storage_engine"
+			plugins_dyn="${plugins_sta} federatedx"
+		fi
+	else
+		plugins_dis="${plugins_dis} partition federated"
 	fi
 
 	# Upstream specifically requests that InnoDB always be built:
 	# - innobase, innodb_plugin
 	# Build falcon if available for 6.x series.
-	for i in innobase innodb_plugin falcon ; do
-		[ -e "${S}"/storage/${i} ] && plugins="${plugins},${i}"
+	for i in innobase falcon ; do
+		[ -e "${S}"/storage/${i} ] && plugins_sta="${plugins_sta} ${i}"
+	done
+	for i in innodb_plugin ; do
+		[ -e "${S}"/storage/${i} ] && plugins_dyn="${plugins_dyn} ${i}"
 	done
 
 	# like configuration=max-no-ndb
-	if use cluster ; then
-		plugins="${plugins},ndbcluster"
+	if ( use cluster || [[ "${PN}" == "mysql-cluster" ]] ) ; then
+		plugins_sta="${plugins_sta} ndbcluster partition"
+		plugins_dis="${plugins_dis//partition}"
 		myconf="${myconf} --with-ndb-binlog"
+	else
+		plugins_dis="${plugins_dis} ndbcluster"
 	fi
 
-	myconf="${myconf} --with-plugins=${plugins}"
-}
+	if [[ "${PN}" == "mariadb" ]] ; then
+		# In MariaDB, InnoDB is packaged in the xtradb directory, so it's not
+		# caught above.
+		# This is not optional, without it several upstream testcases fail.
+		# Also strongly recommended by upstream.
+		if [[ "${PV}" < "5.2.0" ]] ; then
+			myconf="${myconf} --with-maria-tmp-tables"
+			plugins_sta="${plugins_sta} maria"
+		else
+			myconf="${myconf} --with-aria-tmp-tables"
+			plugins_sta="${plugins_sta} aria"
+		fi
 
-xtradb_applicable() {
-	mysql_version_is_at_least "5.1.26" \
-	&& [[ -n "${XTRADB_VER}" && -n "${PERCONA_VER}" ]] \
-	&& use xtradb
-	return $?
-}
+		[ -e "${S}"/storage/innobase ] || [ -e "${S}"/storage/xtradb ] ||
+			die "The ${P} package doesn't provide innobase nor xtradb"
 
-pbxt_applicable() {
-	mysql_version_is_at_least "5.1.12" \
-	&& [[ -n "${PBXT_VERSION}" ]] \
-	&& use pbxt
-	return $?
+		for i in innobase xtradb ; do
+			[ -e "${S}"/storage/${i} ] && plugins_sta="${plugins_sta} ${i}"
+		done
+
+		myconf="${myconf} $(use_with libevent)"
+
+		if mysql_version_is_at_least "5.2" ; then
+			#This should include sphinx, but the 5.2.4 archive forgot the plug.in file
+			#for i in oqgraph sphinx ; do
+			for i in oqgraph ; do
+				use ${i} \
+				&& plugins_dyn="${plugins_dyn} ${i}" \
+				|| plugins_dis="${plugins_dis} ${i}"
+			done
+		fi
+	fi
+
+	if pbxt_available && [[ "${PBXT_NEWSTYLE}" == "1" ]]; then
+		use pbxt \
+		&& plugins_sta="${plugins_sta} pbxt" \
+		|| plugins_dis="${plugins_dis} pbxt"
+	fi
+
+	use static && \
+	plugins_sta="${plugins_sta} ${plugins_dyn}" && \
+	plugins_dyn=""
+
+	einfo "Available plugins: ${plugins_avail}"
+	einfo "Dynamic plugins: ${plugins_dyn}"
+	einfo "Static plugins: ${plugins_sta}"
+	einfo "Disabled plugins: ${plugins_dis}"
+
+	# These are the static plugins
+	myconf="${myconf} --with-plugins=${plugins_sta// /,}"
+	# And the disabled ones
+	for i in ${plugins_dis} ; do
+		myconf="${myconf} --without-plugin-${i}"
+	done
 }
 
 pbxt_src_configure() {
@@ -537,16 +741,16 @@ pbxt_src_configure() {
 	pushd "${WORKDIR}/pbxt-${PBXT_VERSION}" &>/dev/null
 
 	einfo "Reconfiguring dir '${PWD}'"
-	AT_GNUCONF_UPDATE="yes" eautoreconf
+	eautoreconf
 
 	local myconf=""
-	myconf="${myconf} --with-mysql=${S} --libdir=${MY_LIBDIR}"
+	myconf="${myconf} --with-mysql=${S} --libdir=${EPREFIX}/usr/$(get_libdir)"
 	use debug && myconf="${myconf} --with-debug=full"
-	# TODO: is it safe/needed to use econf here ?
-	./configure ${myconf} || die "Problem configuring PBXT storage engine"
+	econf ${myconf} || die "Problem configuring PBXT storage engine"
 }
 
 pbxt_src_compile() {
+
 	# Be backwards compatible for now
 	if [[ $EAPI != 2 ]]; then
 		pbxt_src_configure
@@ -575,7 +779,7 @@ pbxt_src_install() {
 #   create new user and group for mysql
 #   warn about deprecated features
 mysql_pkg_setup() {
-	if hasq test ${FEATURES} ; then
+	if has test ${FEATURES} ; then
 		if ! use minimal ; then
 			if [[ $UID -eq 0 ]]; then
 				eerror "Testing with FEATURES=-userpriv is no longer supported by upstream. Tests MUST be run as non-root."
@@ -583,10 +787,27 @@ mysql_pkg_setup() {
 		fi
 	fi
 
+	# bug 350844
+	case "${EAPI:-0}" in
+		0 | 1)
+			if use static && ! built_with_use sys-libs/ncurses static-libs; then
+				die "To build MySQL statically you need to enable static-libs for sys-libs/ncurses"
+			fi
+			;;
+	esac
+
 	# Check for USE flag problems in pkg_setup
 	if use static && use ssl ; then
-		eerror "MySQL does not support being built statically with SSL support enabled!"
-		die "MySQL does not support being built statically with SSL support enabled!"
+		M="MySQL does not support being built statically with SSL support enabled!"
+		eerror "${M}"
+		die "${M}"
+	fi
+
+	if mysql_version_is_at_least "5.1.51" \
+	   && ! mysql_version_is_at_least "5.2" \
+	   && use debug ; then
+	   # Also in package.use.mask
+	   die "Bug #344885: Upstream has broken USE=debug for 5.1 series >=5.1.51"
 	fi
 
 	if ! mysql_version_is_at_least "5.0" \
@@ -598,17 +819,34 @@ mysql_pkg_setup() {
 	fi
 
 	if mysql_version_is_at_least "4.1.3" \
-	&& ( use cluster || use extraengine ) \
+	&& ( use cluster || use extraengine || use embedded ) \
 	&& use minimal ; then
-		eerror "USE flags 'cluster' and 'extraengine' conflict with 'minimal' USE flag!"
-		die "USE flags 'cluster' and 'extraengine' conflict with 'minimal' USE flag!"
+		M="USE flags 'cluster', 'extraengine', 'embedded' conflict with 'minimal' USE flag!"
+		eerror "${M}"
+		die "${M}"
 	fi
 
-	# Bug #290570 fun. Upstream made us need a fairly new GCC4.
-	if mysql_version_is_at_least "5.0.83" ; then
+	if mysql_version_is_at_least "5.1" \
+	&& xtradb_patch_available \
+	&& use xtradb \
+	&& use embedded ; then
+		M="USE flags 'xtradb' and 'embedded' conflict and cause build failures"
+		eerror "${M}"
+		die "${M}"
+	fi
+
+	# Bug #290570, 284946, 307251
+	# Upstream changes made us need a fairly new GCC4.
+	# But only for 5.0.8[3-6]!
+	if mysql_version_is_at_least "5.0.83"  && ! mysql_version_is_at_least 5.0.87 ; then
 		GCC_VER=$(gcc-version)
-		case ${GCC_VER} in
-			2*|3*|4.0|4.1|4.2) die "Active GCC too old! Must have at least GCC4.3" ;;
+		case ${CHOST}:${GCC_VER} in
+			*-darwin*:4.*) : ;; # bug #310615
+			*:2*|*:3*|*:4.0|*:4.1|*:4.2)
+			eerror "Some releases of MySQL required a very new GCC, and then"
+			eerror "later release relaxed that requirement again. Either pick a"
+			eerror "MySQL >=5.0.87, or use a newer GCC."
+			die "Active GCC too old!" ;;
 		esac
 	fi
 
@@ -668,12 +906,15 @@ mysql_src_prepare() {
 	epatch
 
 	# last -fPIC fixup, per bug #305873
-	i="${S}"/storage/innodb_plugin/plug.in	
+	i="${S}"/storage/innodb_plugin/plug.in
 	[ -f "${i}" ] && sed -i -e '/CFLAGS/s,-prefer-non-pic,,g' "${i}"
 
-	# Additional checks, remove bundled zlib
-	rm -f "${S}/zlib/"*.[ch]
-	sed -i -e "s/zlib\/Makefile dnl/dnl zlib\/Makefile/" "${S}/configure.in"
+	# Additional checks, remove bundled zlib (Cluster needs this, for static
+	# memory management in zlib, leave available for Cluster)
+	if [[ "${PN}" != "mysql-cluster" ]] ; then
+		rm -f "${S}/zlib/"*.[ch]
+		sed -i -e "s/zlib\/Makefile dnl/dnl zlib\/Makefile/" "${S}/configure.in"
+	fi
 	rm -f "scripts/mysqlbug"
 
 	# Make charsets install in the right place
@@ -693,17 +934,26 @@ mysql_src_prepare() {
 
 	local rebuilddirlist d
 
-	if xtradb_applicable ; then
-		einfo "Replacing InnoDB with Percona XtraDB"
-		pushd "${S}"/storage
+	if xtradb_patch_available && use xtradb ; then
+		einfo "Adding storage engine: Percona XtraDB (replacing InnoDB)"
+		pushd "${S}"/storage >/dev/null
 		i="innobase"
 		o="${WORKDIR}/storage-${i}.mysql-upstream"
 		# Have we been here already?
 		[ -d "${o}" ] && rm -f "${i}"
 		# Or maybe we haven't
 		[ -d "${i}" -a ! -d "${o}" ] && mv "${i}" "${o}"
-		cp -ra "${WORKDIR}/${XTRADB_P}" "${i}"
-		popd
+		cp -ral "${WORKDIR}/${XTRADB_P}" "${i}"
+		popd >/dev/null
+	fi
+
+	if pbxt_patch_available && [[ "${PBXT_NEWSTYLE}" == "1" ]] && use pbxt ; then
+		einfo "Adding storage engine: PBXT"
+		pushd "${S}"/storage >/dev/null
+		i='pbxt'
+		[ -d "${i}" ] && rm -rf "${i}"
+		cp -ral "${WORKDIR}/${PBXT_P}" "${i}"
+		popd >/dev/null
 	fi
 
 	if mysql_version_is_at_least "5.1.12" ; then
@@ -722,7 +972,7 @@ mysql_src_prepare() {
 	for d in ${rebuilddirlist} ; do
 		einfo "Reconfiguring dir '${d}'"
 		pushd "${d}" &>/dev/null
-		AT_GNUCONF_UPDATE="yes" eautoreconf
+		eautoreconf
 		popd &>/dev/null
 	done
 
@@ -730,14 +980,14 @@ mysql_src_prepare() {
 	&& use berkdb ; then
 		einfo "Fixing up berkdb buildsystem"
 		[[ -w "bdb/dist/ltmain.sh" ]] && cp -f "ltmain.sh" "bdb/dist/ltmain.sh"
-		cp -f "/usr/share/aclocal/libtool.m4" "bdb/dist/aclocal/libtool.ac" \
+		cp -f "${EPREFIX}/usr/share/aclocal/libtool.m4" "bdb/dist/aclocal/libtool.ac" \
 		|| die "Could not copy libtool.m4 to bdb/dist/"
 		#These files exist only with libtool-2*, and need to be included.
-		if [ -f '/usr/share/aclocal/ltsugar.m4' ]; then
-			cat "/usr/share/aclocal/ltsugar.m4" >>  "bdb/dist/aclocal/libtool.ac"
-			cat "/usr/share/aclocal/ltversion.m4" >>  "bdb/dist/aclocal/libtool.ac"
-			cat "/usr/share/aclocal/lt~obsolete.m4" >>  "bdb/dist/aclocal/libtool.ac"
-			cat "/usr/share/aclocal/ltoptions.m4" >>  "bdb/dist/aclocal/libtool.ac"
+		if [ -f ${EPREFIX}'/usr/share/aclocal/ltsugar.m4' ]; then
+			cat "${EPREFIX}/usr/share/aclocal/ltsugar.m4" >>  "bdb/dist/aclocal/libtool.ac"
+			cat "${EPREFIX}/usr/share/aclocal/ltversion.m4" >>  "bdb/dist/aclocal/libtool.ac"
+			cat "${EPREFIX}/usr/share/aclocal/lt~obsolete.m4" >>  "bdb/dist/aclocal/libtool.ac"
+			cat "${EPREFIX}/usr/share/aclocal/ltoptions.m4" >>  "bdb/dist/aclocal/libtool.ac"
 		fi
 		pushd "bdb/dist" &>/dev/null
 		sh s_all \
@@ -788,18 +1038,28 @@ mysql_src_configure() {
 	# bug #283926, with GCC4.4, this is required to get correct behavior.
 	append-flags -fno-strict-aliasing
 
+	# bug #335185, #335995, with >= GCC4.3.3 on x86 only, omit-frame-pointer
+	# causes a mis-compile.
+	# Upstream bugs:
+	# http://gcc.gnu.org/bugzilla/show_bug.cgi?id=38562
+	# http://bugs.mysql.com/bug.php?id=45205
+	use x86 && version_is_at_least "4.3.3" "$(gcc-fullversion)" && \
+		append-flags -fno-omit-frame-pointer && \
+		filter-flags -fomit-frame-pointer
+
 	econf \
-		--libexecdir="/usr/sbin" \
-		--sysconfdir="${MY_SYSCONFDIR}" \
-		--localstatedir="${MY_LOCALSTATEDIR}" \
-		--sharedstatedir="${MY_SHAREDSTATEDIR}" \
-		--libdir="${MY_LIBDIR}" \
-		--includedir="${MY_INCLUDEDIR}" \
+		--libexecdir="${EPREFIX}"/usr/sbin \
+		--sysconfdir=${MY_SYSCONFDIR} \
+		--localstatedir=${MY_LOCALSTATEDIR} \
+		--sharedstatedir=${MY_SHAREDSTATEDIR} \
+		--libdir=${MY_LIBDIR} \
+		--includedir=${MY_INCLUDEDIR} \
 		--with-low-memory \
 		--with-client-ldflags=-lstdc++ \
 		--enable-thread-safe-client \
 		--with-comment="Gentoo Linux ${PF}" \
 		--without-docs \
+		--with-LIBDIR="$(get_libdir)" \
 		${myconf} || die "econf failed"
 
 	# TODO: Move this before autoreconf !!!
@@ -807,8 +1067,8 @@ mysql_src_configure() {
 	| xargs -0 -n100 sed -i \
 	-e 's|^pkglibdir *= *$(libdir)/mysql|pkglibdir = $(libdir)|;s|^pkgincludedir *= *$(includedir)/mysql|pkgincludedir = $(includedir)|'
 
-	if [[ $EAPI == 2 ]]; then
-		pbxt_applicable && pbxt_src_configure
+	if [[ $EAPI == 2 ]] && [[ "${PBXT_NEWSTYLE}" != "1" ]]; then
+		pbxt_patch_available && use pbxt && pbxt_src_configure
 	fi
 }
 
@@ -817,14 +1077,16 @@ mysql_src_configure() {
 # Compile the mysql code.
 mysql_src_compile() {
 	# Be backwards compatible for now
-        case ${EAPI:-0} in
-                2) : ;;
-                0 | 1) mysql_src_configure ;;
-        esac
+	case ${EAPI:-0} in
+		2) : ;;
+		0 | 1) mysql_src_configure ;;
+	esac
 
 	emake || die "emake failed"
 
-	pbxt_applicable && pbxt_src_compile
+	if [[ "${PBXT_NEWSTYLE}" != "1" ]]; then
+		pbxt_patch_available && use pbxt && pbxt_src_compile
+	fi
 }
 
 # @FUNCTION: mysql_src_install
@@ -836,11 +1098,13 @@ mysql_src_install() {
 
 	emake install \
 		DESTDIR="${D}" \
-		benchdir_root="${MY_SHAREDSTATEDIR}" \
+		benchdir_root=${MY_SHAREDSTATEDIR} \
 		testroot="${MY_SHAREDSTATEDIR}" \
 		|| die "emake install failed"
 
-	pbxt_applicable && pbxt_src_install
+	if [[ "${PBXT_NEWSTYLE}" != "1" ]]; then
+		pbxt_patch_available && use pbxt && pbxt_src_install
+	fi
 
 	# Convenience links
 	einfo "Making Convenience links for mysqlcheck multi-call binary"
@@ -850,7 +1114,7 @@ mysql_src_install() {
 
 	# Various junk (my-*.cnf moved elsewhere)
 	einfo "Removing duplicate /usr/share/mysql files"
-	rm -Rf "${D}/usr/share/info"
+	rm -Rf "${ED}/usr/share/info"
 	for removeme in  "mysql-log-rotate" mysql.server* \
 		binary-configure* my-*.cnf mi_test_all*
 	do
@@ -861,8 +1125,8 @@ mysql_src_install() {
 	if use minimal ; then
 		einfo "Remove all extra content for minimal build"
 		rm -Rf "${D}${MY_SHAREDSTATEDIR}"/{mysql-test,sql-bench}
-		rm -f "${D}"/usr/bin/{mysql{_install_db,manager*,_secure_installation,_fix_privilege_tables,hotcopy,_convert_table_format,d_multi,_fix_extensions,_zap,_explain_log,_tableinfo,d_safe,_install,_waitpid,binlog,test},myisam*,isam*,pack_isam}
-		rm -f "${D}/usr/sbin/mysqld"
+		rm -f "${ED}"/usr/bin/{mysql{_install_db,manager*,_secure_installation,_fix_privilege_tables,hotcopy,_convert_table_format,d_multi,_fix_extensions,_zap,_explain_log,_tableinfo,d_safe,_install,_waitpid,binlog,test},myisam*,isam*,pack_isam}
+		rm -f "${ED}/usr/sbin/mysqld"
 		rm -f "${D}${MY_LIBDIR}"/lib{heap,merge,nisam,my{sys,strings,sqld,isammrg,isam},vio,dbug}.a
 	fi
 
@@ -874,19 +1138,26 @@ mysql_src_install() {
 	fi
 
 	# Configuration stuff
-	if mysql_version_is_at_least "4.1" ; then
-		mysql_mycnf_version="4.1"
-	else
-		mysql_mycnf_version="4.0"
-	fi
-	einfo "Building default my.cnf"
-	insinto "${MY_SYSCONFDIR}"
+	case ${MYSQL_PV_MAJOR} in
+		3*|4.0) mysql_mycnf_version="4.0" ;;
+		4.[1-9]|5.0) mysql_mycnf_version="4.1" ;;
+		5.[1-9]|6*|7*) mysql_mycnf_version="5.1" ;;
+	esac
+	einfo "Building default my.cnf (${mysql_mycnf_version})"
+	insinto "${MY_SYSCONFDIR#${EPREFIX}}"
 	doins scripts/mysqlaccess.conf
+	mycnf_src="my.cnf-${mysql_mycnf_version}"
 	sed -e "s!@DATADIR@!${MY_DATADIR}!g" \
-		"${FILESDIR}/my.cnf-${mysql_mycnf_version}" \
+		-e "s!/tmp!${EPREFIX}/tmp!" \
+		-e "s!/usr!${EPREFIX}/usr!" \
+		-e "s!= /var!= ${EPREFIX}/var!" \
+		"${FILESDIR}/${mycnf_src}" \
 		> "${TMPDIR}/my.cnf.ok"
-	if mysql_version_is_at_least "4.1" && use latin1 ; then
-		sed -e "s|utf8|latin1|g" -i "${TMPDIR}/my.cnf.ok"
+	use prefix && sed -i -e '/^user[ 	]*= mysql$/d' "${TMPDIR}/my.cnf.ok"
+	if use latin1 ; then
+		sed -i \
+			-e "/character-set/s|utf8|latin1|g" \
+			"${TMPDIR}/my.cnf.ok"
 	fi
 	newins "${TMPDIR}/my.cnf.ok" my.cnf
 
@@ -896,22 +1167,24 @@ mysql_src_install() {
 		# Empty directories ...
 		diropts "-m0750"
 		if [[ "${PREVIOUS_DATADIR}" != "yes" ]] ; then
-			dodir "${MY_DATADIR}"
-			keepdir "${MY_DATADIR}"
+			dodir "${MY_DATADIR#${EPREFIX}}"
+			keepdir "${MY_DATADIR#${EPREFIX}}"
 			chown -R mysql:mysql "${D}/${MY_DATADIR}"
 		fi
 
 		diropts "-m0755"
-		for folder in "${MY_LOGDIR}" "/var/run/mysqld" ; do
+		for folder in "${MY_LOGDIR#${EPREFIX}}" "/var/run/mysqld" ; do
 			dodir "${folder}"
 			keepdir "${folder}"
-			chown -R mysql:mysql "${D}/${folder}"
+			chown -R mysql:mysql "${ED}/${folder}"
 		done
 	fi
 
 	# Docs
 	einfo "Installing docs"
-	dodoc README ChangeLog EXCEPTIONS-CLIENT INSTALL-SOURCE
+	for i in README ChangeLog EXCEPTIONS-CLIENT INSTALL-SOURCE ; do
+		[[ -f "$i" ]] && dodoc "$i"
+	done
 	doinfo "${S}"/Docs/mysql.info
 
 	# Minimal builds don't have the MySQL server
@@ -933,7 +1206,7 @@ mysql_src_install() {
 
 	fi
 
-	mysql_lib_symlinks "${D}"
+	mysql_lib_symlinks "${ED}"
 }
 
 # @FUNCTION: mysql_pkg_preinst
@@ -957,7 +1230,7 @@ mysql_pkg_postinst() {
 	mysql_init_vars
 
 	# Check FEATURES="collision-protect" before removing this
-	[[ -d "${ROOT}/var/log/mysql" ]] || install -d -m0750 -o mysql -g mysql "${ROOT}${MY_LOGDIR}"
+	[[ -d "${EROOT}/var/log/mysql" ]] || install -d -m0750 -o mysql -g mysql "${ROOT}${MY_LOGDIR}"
 
 	# Secure the logfiles
 	touch "${ROOT}${MY_LOGDIR}"/mysql.{log,err}
@@ -972,12 +1245,15 @@ mysql_pkg_postinst() {
 			support-files/magic \
 			support-files/ndb-config-2-node.ini
 		do
-			dodoc "${script}"
+			[[ -f "${script}" ]] \
+			&& dodoc "${script}"
 		done
 
 		docinto "scripts"
 		for script in scripts/mysql* ; do
-			[[ "${script%.sh}" == "${script}" ]] && dodoc "${script}"
+			[[ -f "${script}" ]] \
+			&& [[ "${script%.sh}" == "${script}" ]] \
+			&& dodoc "${script}"
 		done
 
 		einfo
@@ -985,13 +1261,18 @@ mysql_pkg_postinst() {
 		elog "\"emerge --config =${CATEGORY}/${PF}\""
 		elog "if this is a new install."
 		einfo
+
+		einfo
+		elog "If you are upgrading major versions, you should run the"
+		elog "mysql_upgrade tool."
+		einfo
 	fi
 
-	if pbxt_applicable ; then
-		# TODO: explain it better
-		elog "    mysql> INSTALL PLUGIN pbxt SONAME 'libpbxt.so';"
-		elog "    mysql> CREATE TABLE t1 (c1 int, c2 text) ENGINE=pbxt;"
-		elog "if, after that, you cannot start the MySQL server,"
+	if pbxt_available && use pbxt ; then
+                elog "Note: PBXT is now statically built when enabled."
+                elog ""
+                elog "If, you previously installed as a plugin and "
+                elog "you cannot start the MySQL server,"
 		elog "remove the ${MY_DATADIR}/mysql/plugin.* files, then"
 		elog "use the MySQL upgrade script to restore the table"
 		elog "or execute the following SQL command:"
@@ -1007,11 +1288,34 @@ mysql_pkg_postinst() {
 	&& elog "Berkeley DB support is deprecated and will be removed in future versions!"
 }
 
+# @FUNCTION: mysql_getopt
+# @DESCRIPTION:
+# Use my_print_defaults to extract specific config options
+mysql_getopt() {
+	local mypd="${EROOT}"/usr/bin/my_print_defaults
+	section="$1"
+	flag="--${2}="
+	"${mypd}" $section | sed -n "/^${flag}/p"
+}
+
+# @FUNCTION: mysql_getoptval
+# @DESCRIPTION:
+# Use my_print_defaults to extract specific config options
+mysql_getoptval() {
+	local mypd="${EROOT}"/usr/bin/my_print_defaults
+	section="$1"
+	flag="--${2}="
+	"${mypd}" $section | sed -n "/^${flag}/s,${flag},,gp"
+}
+
 # @FUNCTION: mysql_pkg_config
 # @DESCRIPTION:
 # Configure mysql environment.
 mysql_pkg_config() {
 	local old_MY_DATADIR="${MY_DATADIR}"
+	local old_HOME="${HOME}"
+	# my_print_defaults needs to read stuff in $HOME/.my.cnf
+	export HOME=/root
 
 	# Make sure the vars are correctly initialized
 	mysql_init_vars
@@ -1023,10 +1327,12 @@ mysql_pkg_config() {
 	fi
 
 	if [[ ( -n "${MY_DATADIR}" ) && ( "${MY_DATADIR}" != "${old_MY_DATADIR}" ) ]]; then
-		local MY_DATADIR_s="$(strip_duplicate_slashes ${ROOT}/${MY_DATADIR})"
-		local old_MY_DATADIR_s="$(strip_duplicate_slashes ${ROOT}/${old_MY_DATADIR})"
+		local MY_DATADIR_s="${ROOT}/${MY_DATADIR}"
+		MY_DATADIR_s="${MY_DATADIR_s%%/}"
+		local old_MY_DATADIR_s="${ROOT}/${old_MY_DATADIR}"
+		old_MY_DATADIR_s="${old_MY_DATADIR_s%%/}"
 
-		if [[ -d "${old_MY_DATADIR_s}" ]]; then
+		if [[ -d "${old_MY_DATADIR_s}" ]]  && [[ "${old_MY_DATADIR_s}" != / ]]; then
 			if [[ -d "${MY_DATADIR_s}" ]]; then
 				ewarn "Both ${old_MY_DATADIR_s} and ${MY_DATADIR_s} exist"
 				ewarn "Attempting to use ${MY_DATADIR_s} and preserving ${old_MY_DATADIR_s}"
@@ -1048,7 +1354,30 @@ mysql_pkg_config() {
 
 	local pwd1="a"
 	local pwd2="b"
-	local maxtry=5
+	local maxtry=15
+
+	if [ -z "${MYSQL_ROOT_PASSWORD}" ]; then
+		MYSQL_ROOT_PASSWORD="$(mysql_getoptval 'client mysql' password)"
+	fi
+	MYSQL_TMPDIR="$(mysql_getoptval mysqld tmpdir)"
+	# These are dir+prefix
+	MYSQL_RELAY_LOG="$(mysql_getoptval mysqld relay-log)"
+	MYSQL_RELAY_LOG=${MYSQL_RELAY_LOG%/*}
+	MYSQL_LOG_BIN="$(mysql_getoptval mysqld log-bin)"
+	MYSQL_LOG_BIN=${MYSQL_LOG_BIN%/*}
+
+	if [[ ! -d "${EROOT}"/$MYSQL_TMPDIR ]]; then
+		einfo "Creating MySQL tmpdir $MYSQL_TMPDIR"
+		install -d -m 770 -o mysql -g mysql "${EROOT}"/$MYSQL_TMPDIR
+	fi
+	if [[ ! -d "${EROOT}"/$MYSQL_LOG_BIN ]]; then
+		einfo "Creating MySQL log-bin directory $MYSQL_LOG_BIN"
+		install -d -m 770 -o mysql -g mysql "${EROOT}"/$MYSQL_LOG_BIN
+	fi
+	if [[ ! -d "${EROOT}"/$MYSQL_RELAY_LOG ]]; then
+		einfo "Creating MySQL relay-log directory $MYSQL_RELAY_LOG"
+		install -d -m 770 -o mysql -g mysql "${EROOT}"/$MYSQL_RELAY_LOG
+	fi
 
 	if [[ -d "${ROOT}/${MY_DATADIR}/mysql" ]] ; then
 		ewarn "You have already a MySQL database in place."
@@ -1061,21 +1390,24 @@ mysql_pkg_config() {
 	# localhost. Also causes weird failures.
 	[[ "${HOSTNAME}" == "localhost" ]] && die "Your machine must NOT be named localhost"
 
-	einfo "Creating the mysql database and setting proper"
-	einfo "permissions on it ..."
+	if [ -z "${MYSQL_ROOT_PASSWORD}" ]; then
 
-	einfo "Insert a password for the mysql 'root' user"
-	ewarn "Avoid [\"'\\_%] characters in the password"
-	read -rsp "    >" pwd1 ; echo
+		einfo "Please provide a password for the mysql 'root' user now, in the"
+		einfo "MYSQL_ROOT_PASSWORD env var or through the /root/.my.cnf file."
+		ewarn "Avoid [\"'\\_%] characters in the password"
+		read -rsp "    >" pwd1 ; echo
 
-	einfo "Retype the password"
-	read -rsp "    >" pwd2 ; echo
+		einfo "Retype the password"
+		read -rsp "    >" pwd2 ; echo
 
-	if [[ "x$pwd1" != "x$pwd2" ]] ; then
-		die "Passwords are not the same"
+		if [[ "x$pwd1" != "x$pwd2" ]] ; then
+			die "Passwords are not the same"
+		fi
+		MYSQL_ROOT_PASSWORD="${pwd1}"
+		unset pwd1 pwd2
 	fi
 
-	local options=""
+	local options="--log-warnings=0"
 	local sqltmp="$(emktemp)"
 
 	local help_tables="${ROOT}${MY_SHAREDSTATEDIR}/fill_help_tables.sql"
@@ -1084,11 +1416,33 @@ mysql_pkg_config() {
 	|| touch "${TMPDIR}/fill_help_tables.sql"
 	help_tables="${TMPDIR}/fill_help_tables.sql"
 
+	# Figure out which options we need to disable to do the setup
+	helpfile="${TMPDIR}/mysqld-help"
+	${EROOT}/usr/sbin/mysqld --verbose --help >"${helpfile}" 2>/dev/null
+	for opt in grant-tables host-cache name-resolve networking slave-start bdb \
+		federated innodb ssl log-bin relay-log slow-query-log external-locking \
+		ndbcluster log-slave-updates \
+		; do
+		optexp="--(skip-)?${opt}" optfull="--loose-skip-${opt}"
+		egrep -sq -- "${optexp}" "${helpfile}" && options="${options} ${optfull}"
+	done
+	# But some options changed names
+	egrep -sq external-locking "${helpfile}" && \
+	options="${options/skip-locking/skip-external-locking}"
+
+	use prefix || options="${options} --user=mysql"
+
 	pushd "${TMPDIR}" &>/dev/null
-	"${ROOT}/usr/bin/mysql_install_db" >"${TMPDIR}"/mysql_install_db.log 2>&1
+	#cmd="'${EROOT}/usr/share/mysql/scripts/mysql_install_db' '--basedir=${EPREFIX}/usr' ${options}"
+	cmd=${EROOT}usr/share/mysql/scripts/mysql_install_db
+	[ -f ${cmd} ] || cmd=${EROOT}usr/bin/mysql_install_db
+	cmd="'$cmd' '--basedir=${EPREFIX}/usr' ${options}"
+	einfo "Command: $cmd"
+	eval $cmd \
+		>"${TMPDIR}"/mysql_install_db.log 2>&1
 	if [ $? -ne 0 ]; then
 		grep -B5 -A999 -i "ERROR" "${TMPDIR}"/mysql_install_db.log 1>&2
-		die "Failed to run mysql_install_db. Please review /var/log/mysql/mysqld.err AND ${TMPDIR}/mysql_install_db.log"
+		die "Failed to run mysql_install_db. Please review ${EPREFIX}/var/log/mysql/mysqld.err AND ${TMPDIR}/mysql_install_db.log"
 	fi
 	popd &>/dev/null
 	[[ -f "${ROOT}/${MY_DATADIR}/mysql/user.frm" ]] \
@@ -1097,59 +1451,71 @@ mysql_pkg_config() {
 	chmod 0750 "${ROOT}/${MY_DATADIR}" 2>/dev/null
 
 	if mysql_version_is_at_least "4.1.3" ; then
-		options="--skip-ndbcluster"
-
 		# Filling timezones, see
 		# http://dev.mysql.com/doc/mysql/en/time-zone-support.html
-		"${ROOT}/usr/bin/mysql_tzinfo_to_sql" "${ROOT}/usr/share/zoneinfo" > "${sqltmp}" 2>/dev/null
+		"${EROOT}/usr/bin/mysql_tzinfo_to_sql" "${EROOT}/usr/share/zoneinfo" > "${sqltmp}" 2>/dev/null
 
 		if [[ -r "${help_tables}" ]] ; then
 			cat "${help_tables}" >> "${sqltmp}"
 		fi
 	fi
 
-	local socket="${ROOT}/var/run/mysqld/mysqld${RANDOM}.sock"
-	local pidfile="${ROOT}/var/run/mysqld/mysqld${RANDOM}.pid"
-	local mysqld="${ROOT}/usr/sbin/mysqld \
+	einfo "Creating the mysql database and setting proper"
+	einfo "permissions on it ..."
+
+	local socket="${EROOT}/var/run/mysqld/mysqld${RANDOM}.sock"
+	local pidfile="${EROOT}/var/run/mysqld/mysqld${RANDOM}.pid"
+	local mysqld="${EROOT}/usr/sbin/mysqld \
 		${options} \
 		--user=mysql \
-		--skip-grant-tables \
-		--basedir=${ROOT}/usr \
+		--log-warnings=0 \
+		--basedir=${EROOT}/usr \
 		--datadir=${ROOT}/${MY_DATADIR} \
-		--skip-innodb \
-		--skip-bdb \
-		--skip-networking \
 		--max_allowed_packet=8M \
 		--net_buffer_length=16K \
+		--default-storage-engine=MyISAM \
 		--socket=${socket} \
 		--pid-file=${pidfile}"
+	#einfo "About to start mysqld: ${mysqld}"
+	ebegin "Starting mysqld"
+	einfo "Command ${mysqld}"
 	${mysqld} &
+	rc=$?
 	while ! [[ -S "${socket}" || "${maxtry}" -lt 1 ]] ; do
 		maxtry=$((${maxtry}-1))
 		echo -n "."
 		sleep 1
 	done
+	eend $rc
 
+	if ! [[ -S "${socket}" ]]; then
+		die "Completely failed to start up mysqld with: ${mysqld}"
+	fi
+
+	ebegin "Setting root password"
 	# Do this from memory, as we don't want clear text passwords in temp files
-	local sql="UPDATE mysql.user SET Password = PASSWORD('${pwd1}') WHERE USER='root'"
-	"${ROOT}/usr/bin/mysql" \
+	local sql="UPDATE mysql.user SET Password = PASSWORD('${MYSQL_ROOT_PASSWORD}') WHERE USER='root'"
+	"${EROOT}/usr/bin/mysql" \
 		--socket=${socket} \
 		-hlocalhost \
 		-e "${sql}"
+	eend $?
 
-	einfo "Loading \"zoneinfo\", this step may require a few seconds ..."
-
-	"${ROOT}/usr/bin/mysql" \
+	ebegin "Loading \"zoneinfo\", this step may require a few seconds ..."
+	"${EROOT}/usr/bin/mysql" \
 		--socket=${socket} \
 		-hlocalhost \
 		-uroot \
-		-p"${pwd1}" \
+		--password="${MYSQL_ROOT_PASSWORD}" \
 		mysql < "${sqltmp}"
+	rc=$?
+	eend $?
+	[ $rc -ne 0 ] && ewarn "Failed to load zoneinfo!"
 
 	# Stop the server and cleanup
+	einfo "Stopping the server ..."
 	kill $(< "${pidfile}" )
 	rm -f "${sqltmp}"
-	einfo "Stopping the server ..."
 	wait %1
 	einfo "Done"
 }
@@ -1158,5 +1524,5 @@ mysql_pkg_config() {
 # @DESCRIPTION:
 # Remove mysql symlinks.
 mysql_pkg_postrm() {
-	: # mysql_lib_symlinks "${D}"
+	: # mysql_lib_symlinks "${ED}"
 }

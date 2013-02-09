@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/savedconfig.eclass,v 1.20 2012/01/04 08:23:51 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/savedconfig.eclass,v 1.21 2013/01/28 20:11:14 vapier Exp $
 
 # @ECLASS: savedconfig.eclass
 # @MAINTAINER:
@@ -13,6 +13,22 @@
 # of saving and restoring the configuration files was developed
 # so users can modify these config files and the ebuild will take it
 # into account as needed.
+#
+# @ROFF .nr step 1 1
+# Typically you can create your own configuration files quickly by
+# doing:
+# @ROFF .IP \n[step] 3
+# Build the package with FEATURES=noclean USE=savedconfig.
+# @ROFF .IP \n+[step]
+# Go into the build dir and edit the relevant configuration system
+# (e.g. `make menuconfig` or `nano config-header.h`).  You can look
+# at the files in /etc/portage/savedconfig/ to see what files get
+# loaded/restored.
+# @ROFF .IP \n+[step]
+# Copy the modified configuration files out of the workdir and to
+# the paths in /etc/portage/savedconfig/.
+# @ROFF .IP \n+[step]
+# Emerge the package with just USE=savedconfig to get the custom build.
 
 inherit portability
 

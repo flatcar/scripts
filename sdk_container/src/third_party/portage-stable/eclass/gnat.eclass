@@ -1,6 +1,6 @@
-# Copyright 1999-2004 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/gnat.eclass,v 1.39 2010/01/13 15:06:11 scarabeus Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/gnat.eclass,v 1.42 2012/06/02 19:16:31 zmedico Exp $
 #
 # Author: George Shapovalov <george@gentoo.org>
 # Belongs to: ada herd <ada@gentoo.org>
@@ -17,7 +17,7 @@
 # $S (this is where the working copy of source is held) and $DL instead of $D as
 # its installation point.
 
-inherit flag-o-matic eutils
+inherit flag-o-matic eutils multilib
 
 # The environment is set locally in src_compile and src_install functions
 # by the common code sourced here and in gnat-eselect module.
@@ -128,7 +128,7 @@ get_ada_dep() {
 #
 # params:
 #  $1 - the requested gnat profile in usual form (e.g. x86_64-pc-linux-gnu-gnat-gcc-4.1)
-#  $2 - Ada standard specification, as would be specified in DEPEND. 
+#  $2 - Ada standard specification, as would be specified in DEPEND.
 #       Valid  values: ada-1995, ada-2005, ada
 #
 #       This used to treat ada-1995 and ada alike, but some packages (still

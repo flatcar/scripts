@@ -1,0 +1,64 @@
+# ChangeLog for media-libs/libpostproc
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/media-libs/libpostproc/ChangeLog,v 1.13 2012/11/25 15:56:14 lu_zero Exp $
+
+*libpostproc-0.8.0.20121125 (25 Nov 2012)
+
+  25 Nov 2012; Luca Barbato <lu_zero@gentoo.org>
+  +libpostproc-0.8.0.20121125.ebuild:
+  Update to support libav-9
+
+  20 Sep 2012; Kacper Kowalik <xarthisius@gentoo.org>
+  libpostproc-0.8.0.20120229.ebuild:
+  ppc64 stable wrt #422537
+
+  23 Aug 2012; Michael Weber <xmw@gentoo.org> libpostproc-0.8.0.20120229.ebuild:
+  ppc stable (bug 422537).
+
+  01 Aug 2012; Pawel Hajdan jr <phajdan.jr@gentoo.org>
+  libpostproc-0.8.0.20120229.ebuild:
+  x86 stable wrt bug #422537
+
+  19 Jul 2012; Markus Meier <maekke@gentoo.org>
+  libpostproc-0.8.0.20120229.ebuild:
+  arm stable, bug #422537
+
+  22 Jun 2012; Agostino Sarubbo <ago@gentoo.org>
+  libpostproc-0.8.0.20120229.ebuild:
+  Stable for amd64, wrt bug #422537
+
+  22 Jun 2012; Tomáš Chvátal <scarabeus@gentoo.org>
+  libpostproc-0.8.0.20120229.ebuild:
+  Lower the dep on virtual/ffmpeg for now. As the change that required testing
+  version is no longer in there (reverted by using different approach).
+
+*libpostproc-0.8.0.20120229 (18 May 2012)
+
+  18 May 2012; Luca Barbato <lu_zero@gentoo.org>
+  -libpostproc-0.8.0.20120217.ebuild, +libpostproc-0.8.0.20120229.ebuild,
+  libpostproc-9999.ebuild:
+  Update upstream repository, update snapshot
+
+  17 May 2012; Samuli Suominen <ssuominen@gentoo.org>
+  libpostproc-0.8.0.20120217.ebuild, libpostproc-9999.ebuild:
+  Block every version of media-video/ffmpeg wrt #416421
+
+  17 May 2012; Tomáš Chvátal <scarabeus@gentoo.org>
+  libpostproc-0.8.0.20120217.ebuild, libpostproc-9999.ebuild:
+  Provide dependency on virtual/ffmpeg.
+
+  17 May 2012; Tomáš Chvátal <scarabeus@gentoo.org>
+  libpostproc-0.8.0.20120217.ebuild, libpostproc-9999.ebuild:
+  Avoid file colisions.
+
+  15 May 2012; Tomáš Chvátal <scarabeus@gentoo.org>
+  libpostproc-0.8.0.20120217.ebuild, libpostproc-9999.ebuild:
+  Depend on newer libav as older has postrproc in itself -> collisions. Drop
+  predefined eapi4 phases.
+
+*libpostproc-9999 (14 May 2012)
+*libpostproc-0.8.0.20120217 (14 May 2012)
+
+  14 May 2012; Luca Barbato <lu_zero@gentoo.org>
+  +libpostproc-0.8.0.20120217.ebuild, +libpostproc-9999.ebuild, +metadata.xml:
+  Initial commit

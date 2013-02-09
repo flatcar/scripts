@@ -1,0 +1,11 @@
+diff -urN vigra-1.7.1.old/test/utilities/test.cxx vigra-1.7.1/test/utilities/test.cxx
+--- vigra-1.7.1.old/test/utilities/test.cxx	2011-09-04 17:13:53.362610527 +0200
++++ vigra-1.7.1/test/utilities/test.cxx	2011-09-04 17:27:55.772600423 +0200
+@@ -33,6 +33,7 @@
+ /*                                                                      */
+ /************************************************************************/
+ 
++#include <cstddef>
+ #include <iostream>
+ #include <iterator>
+ #include "unittest.hxx"

@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/distutils.eclass,v 1.80 2011/04/12 18:49:03 arfrever Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/distutils.eclass,v 1.82 2012/03/15 16:51:54 patrick Exp $
 
 # @ECLASS: distutils.eclass
 # @MAINTAINER:
@@ -9,7 +9,11 @@
 # @DESCRIPTION:
 # The distutils eclass defines phase functions for packages with build systems using Distutils.
 
-inherit multilib python
+if [[ -z "${_PYTHON_ECLASS_INHERITED}" ]]; then
+	inherit python
+fi
+
+inherit multilib
 
 case "${EAPI:-0}" in
 	0|1)
@@ -440,9 +444,9 @@ distutils_src_install() {
 			while read -r line; do
 				einfo "        $(echo "${line}" | sed -e "s/.*types\.ModuleType('\([^']\+\)').*/\1/")"
 			done < "${nspkg_pth_file}"
-			if ! has "${EAPI:-0}" 0 1 2 3; then
-				rm -f "${nspkg_pth_file}" || die "Deletion of '${nspkg_pth_file}' failed"
-			fi
+			#if ! has "${EAPI:-0}" 0 1 2 3; then
+			#	rm -f "${nspkg_pth_file}" || die "Deletion of '${nspkg_pth_file}' failed"
+			#fi
 		done
 		einfo
 	fi

@@ -1,0 +1,40 @@
+# ChangeLog for media-libs/libharu
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/media-libs/libharu/ChangeLog,v 1.9 2012/07/04 22:12:45 bicatali Exp $
+
+  04 Jul 2012; Sébastien Fabbro <bicatali@gentoo.org> libharu-2.2.1-r1.ebuild:
+  Keyword amd64-linux, x86-linux
+
+  22 Apr 2012; Markus Meier <maekke@gentoo.org> libharu-2.2.1-r1.ebuild:
+  x86 stable, bug #411085
+
+  16 Apr 2012; Brent Baude <ranger@gentoo.org> libharu-2.2.1-r1.ebuild:
+  Marking libharu-2.2.1-r1 ppc for bug 411085
+
+  13 Apr 2012; Agostino Sarubbo <ago@gentoo.org> libharu-2.2.1-r1.ebuild:
+  Stable for amd64, wrt bug #411085
+
+*libharu-2.2.1-r1 (11 Apr 2012)
+
+  11 Apr 2012; Kacper Kowalik <xarthisius@gentoo.org> +libharu-2.2.1-r1.ebuild,
+  -libharu-2.1.0.ebuild, -libharu-2.2.1.ebuild:
+  Remove .la file, unslot, drop old
+
+  10 Jul 2011; Justin Lecher <jlec@gentoo.org> libharu-2.1.0.ebuild,
+  libharu-2.2.1.ebuild, +files/libharu-2.2.1-libpng-1.5.patch, metadata.xml:
+  Adding upstream fix for building against libpng-1.5, EAPI=4 bump
+
+*libharu-2.2.1 (30 Nov 2010)
+
+  30 Nov 2010; Sébastien Fabbro <bicatali@gentoo.org> +libharu-2.2.1.ebuild:
+  Version bump
+
+*libharu-2.1.0 (21 Oct 2008)
+
+  25 Oct 2008; Pieter Van den Abeele <pvdabeel@gentoo.org> libharu-2.1.0.ebuild:
+  Keyworded ~ppc. Closes bug #243480
+
+  21 Oct 2008; Sébastien Fabbro <bicatali@gentoo.org> +metadata.xml,
+  +libharu-2.1.0.ebuild:
+  Initial import. Thanks rajkrish (bug #140840) for his work.
+

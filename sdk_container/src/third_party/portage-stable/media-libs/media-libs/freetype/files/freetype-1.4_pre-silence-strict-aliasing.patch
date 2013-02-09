@@ -1,0 +1,241 @@
+diff -Naurp freetype-orig/lib/extend/ftxgdef.c freetype/lib/extend/ftxgdef.c
+--- freetype-orig/lib/extend/ftxgdef.c	2002-01-18 18:23:23.000000000 -0600
++++ freetype/lib/extend/ftxgdef.c	2008-03-18 19:04:49.000000000 -0600
+@@ -142,7 +142,7 @@
+     if ( !faze )
+       return TT_Err_Invalid_Face_Handle;
+ 
+-    error = TT_Extension_Get( faze, GDEF_ID, (void**)&gdef );
++    error = TT_Extension_Get( faze, GDEF_ID, (void**)(void*)&gdef );
+     if ( error )
+       return error;
+ 
+diff -Naurp freetype-orig/lib/extend/ftxgpos.c freetype/lib/extend/ftxgpos.c
+--- freetype-orig/lib/extend/ftxgpos.c	2002-09-26 02:40:00.000000000 -0600
++++ freetype/lib/extend/ftxgpos.c	2008-03-18 19:04:49.000000000 -0600
+@@ -184,7 +184,7 @@
+     if ( !faze )
+       return TT_Err_Invalid_Face_Handle;
+ 
+-    error = TT_Extension_Get( faze, GPOS_ID, (void**)&gpos );
++    error = TT_Extension_Get( faze, GPOS_ID, (void**)(void*)&gpos );
+     if ( error )
+       return error;
+ 
+@@ -283,7 +283,7 @@
+ 
+           /* copy the class definition pointer into the extension structure */
+ 
+-          error = TT_Extension_Get( faze, GDEF_ID, (void**)&gdef_reg );
++          error = TT_Extension_Get( faze, GDEF_ID, (void**)(void*)&gdef_reg );
+           if ( error )
+             return error;
+ 
+diff -Naurp freetype-orig/lib/extend/ftxgsub.c freetype/lib/extend/ftxgsub.c
+--- freetype-orig/lib/extend/ftxgsub.c	2002-09-26 02:40:00.000000000 -0600
++++ freetype/lib/extend/ftxgsub.c	2008-03-18 19:04:49.000000000 -0600
+@@ -264,7 +264,7 @@
+     if ( !faze )
+       return TT_Err_Invalid_Face_Handle;
+ 
+-    error = TT_Extension_Get( faze, GSUB_ID, (void**)&gsub );
++    error = TT_Extension_Get( faze, GSUB_ID, (void**)(void*)&gsub );
+     if ( error )
+       return error;
+ 
+@@ -363,7 +363,7 @@
+ 
+           /* copy the class definition pointer into the extension structure */
+ 
+-          error = TT_Extension_Get( faze, GDEF_ID, (void**)&gdef_reg );
++          error = TT_Extension_Get( faze, GDEF_ID, (void**)(void*)&gdef_reg );
+           if ( error )
+             return error;
+ 
+diff -Naurp freetype-orig/lib/extend/ftxkern.c freetype/lib/extend/ftxkern.c
+--- freetype-orig/lib/extend/ftxkern.c	2002-03-14 19:33:53.000000000 -0600
++++ freetype/lib/extend/ftxkern.c	2008-03-18 19:04:49.000000000 -0600
+@@ -545,7 +545,7 @@
+       return TT_Err_Invalid_Face_Handle;
+ 
+     /* copy directory header */
+-    error = TT_Extension_Get( faze, KERNING_ID, (void**)&kerning );
++    error = TT_Extension_Get( faze, KERNING_ID, (void**)(void*)&kerning );
+     if ( !error )
+       *directory = *kerning;
+ 
+@@ -584,7 +584,7 @@
+     if ( !faze )
+       return TT_Err_Invalid_Face_Handle;
+ 
+-    error = TT_Extension_Get( faze, KERNING_ID, (void**)&kern );
++    error = TT_Extension_Get( faze, KERNING_ID, (void**)(void*)&kern );
+     if ( error )
+       return error;
+ 
+diff -Naurp freetype-orig/lib/extend/ftxpost.c freetype/lib/extend/ftxpost.c
+--- freetype-orig/lib/extend/ftxpost.c	2002-07-20 15:24:26.000000000 -0600
++++ freetype/lib/extend/ftxpost.c	2008-03-18 19:04:49.000000000 -0600
+@@ -404,7 +404,7 @@
+     if ( !faze )
+       return TT_Err_Invalid_Face_Handle;
+ 
+-    error = TT_Extension_Get( faze, POST_ID, (void**)&post );
++    error = TT_Extension_Get( faze, POST_ID, (void**)(void*)&post );
+     if ( error )
+       return error;
+ 
+@@ -494,7 +494,7 @@
+     if ( index >= faze->numGlyphs )
+       return TT_Err_Invalid_Glyph_Index;
+ 
+-    error = TT_Extension_Get( faze, POST_ID, (void**)&post );
++    error = TT_Extension_Get( faze, POST_ID, (void**)(void*)&post );
+     if ( error )
+       return error;
+ 
+diff -Naurp freetype-orig/lib/extend/ftxsbit.c freetype/lib/extend/ftxsbit.c
+--- freetype-orig/lib/extend/ftxsbit.c	2002-01-18 18:23:24.000000000 -0600
++++ freetype/lib/extend/ftxsbit.c	2008-03-18 19:04:49.000000000 -0600
+@@ -1145,7 +1145,7 @@
+     TT_Error  error;
+ 
+ 
+-    error = TT_Extension_Get( faze, SBIT_ID, (void**)&eblc );
++    error = TT_Extension_Get( faze, SBIT_ID, (void**)(void*)&eblc );
+     if ( !error )
+     {
+       if ( eblc->version )
+@@ -1200,7 +1200,7 @@
+     if ( !strike || !ins || ins->owner != faze )
+       return TT_Err_Invalid_Argument;
+ 
+-    error = TT_Extension_Get( faze, SBIT_ID, (void**)&eblc );
++    error = TT_Extension_Get( faze, SBIT_ID, (void**)(void*)&eblc );
+     if ( error )
+       goto Exit;
+ 
+diff -Naurp freetype-orig/lib/ttapi.c freetype/lib/ttapi.c
+--- freetype-orig/lib/ttapi.c	2002-11-15 03:42:15.000000000 -0600
++++ freetype/lib/ttapi.c	2008-03-18 19:04:49.000000000 -0600
+@@ -598,7 +598,7 @@
+ 
+       for ( n = 0; n <= num; n++ )
+       {
+-        TT_Get_Metrics( (TT_Horizontal_Header*)&_face->verticalHeader,
++        TT_Get_Metrics( (TT_Horizontal_Header*)(void*)&_face->verticalHeader,
+                         firstGlyph + n, &top_bearing, &advance_height );
+ 
+         if ( topBearings )  topBearings[n] = top_bearing;
+diff -Naurp freetype-orig/lib/ttcache.h freetype/lib/ttcache.h
+--- freetype-orig/lib/ttcache.h	2002-03-14 19:33:52.000000000 -0600
++++ freetype/lib/ttcache.h	2008-03-18 19:04:49.000000000 -0600
+@@ -192,7 +192,7 @@
+   Cache_Done( TCache*  cache, void*  data );
+ 
+ #define CACHE_New( _cache, _newobj, _parent ) \
+-          Cache_New( (TCache*)_cache, (void**)&_newobj, (void*)_parent )
++          Cache_New( (TCache*)_cache, (void**)(void*)&_newobj, (void*)_parent )
+ 
+ #define CACHE_Done( _cache, _obj ) \
+           Cache_Done( (TCache*)_cache, (void*)_obj )
+diff -Naurp freetype-orig/lib/ttgload.c freetype/lib/ttgload.c
+--- freetype-orig/lib/ttgload.c	2002-03-14 19:33:52.000000000 -0600
++++ freetype/lib/ttgload.c	2008-03-18 19:04:49.000000000 -0600
+@@ -1251,7 +1251,7 @@
+         /* Don't assume that both the vertical header and vertical */
+         /* metrics are present in the same font :-)                */
+ 
+-        TT_Get_Metrics( (TT_Horizontal_Header*)&face->verticalHeader,
++        TT_Get_Metrics( (TT_Horizontal_Header*)(void*)&face->verticalHeader,
+                         glyph_index,
+                         &top_bearing,
+                         &advance_height );
+diff -Naurp freetype-orig/lib/ttload.c freetype/lib/ttload.c
+--- freetype-orig/lib/ttload.c	2003-11-05 15:47:14.000000000 -0600
++++ freetype/lib/ttload.c	2008-03-18 19:04:49.000000000 -0600
+@@ -533,8 +533,8 @@
+       }
+ 
+       num_longs = face->verticalHeader.number_Of_VMetrics;
+-      longs     = (PLongMetrics*)&face->verticalHeader.long_metrics;
+-      shorts    = (PShortMetrics*)&face->verticalHeader.short_metrics;
++      longs     = (PLongMetrics*)(void*)&face->verticalHeader.long_metrics;
++      shorts    = (PShortMetrics*)(void*)&face->verticalHeader.short_metrics;
+     }
+     else
+     {
+@@ -545,8 +545,8 @@
+       }
+ 
+       num_longs = face->horizontalHeader.number_Of_HMetrics;
+-      longs     = (PLongMetrics*)&face->horizontalHeader.long_metrics;
+-      shorts    = (PShortMetrics*)&face->horizontalHeader.short_metrics;
++      longs     = (PLongMetrics*)(void*)&face->horizontalHeader.long_metrics;
++      shorts    = (PShortMetrics*)(void*)&face->horizontalHeader.short_metrics;
+     }
+ 
+     /* never trust derived values! */
+@@ -647,7 +647,7 @@
+         return TT_Err_Ok;
+ 
+       face->verticalInfo = 1;
+-      header = (TT_Horizontal_Header*)&face->verticalHeader;
++      header = (TT_Horizontal_Header*)(void*)&face->verticalHeader;
+     }
+     else
+     {
+diff -Naurp freetype-orig/lib/ttmemory.h freetype/lib/ttmemory.h
+--- freetype-orig/lib/ttmemory.h	2002-03-14 19:33:52.000000000 -0600
++++ freetype/lib/ttmemory.h	2008-03-18 19:04:49.000000000 -0600
+@@ -54,10 +54,10 @@
+ 
+ 
+ #define MEM_Alloc( _pointer_, _size_ ) \
+-  TT_Alloc( _size_, (void**)&(_pointer_) )
++  TT_Alloc( _size_, (void**)(void*)&(_pointer_) )
+ 
+ #define MEM_Realloc( _pointer_, _size_ ) \
+-  TT_Realloc( _size_, (void**)&(_pointer_) )
++  TT_Realloc( _size_, (void**)(void*)&(_pointer_) )
+ 
+ #define ALLOC( _pointer_, _size_ ) \
+   ( ( error = MEM_Alloc( _pointer_, _size_ ) ) != TT_Err_Ok )
+@@ -74,7 +74,7 @@
+                           (_count_) * sizeof ( _type_ ) ) ) != TT_Err_Ok )
+ 
+ #define FREE( _pointer_ ) \
+-  TT_Free( (void**)&(_pointer_) )
++  TT_Free( (void**)(void*)&(_pointer_) )
+ 
+ 
+   /* Allocate a block of memory of 'Size' bytes from the heap, and */
+diff -Naurp freetype-orig/lib/ttobjs.c freetype/lib/ttobjs.c
+--- freetype-orig/lib/ttobjs.c	2002-03-14 19:33:52.000000000 -0600
++++ freetype/lib/ttobjs.c	2008-03-18 19:04:49.000000000 -0600
+@@ -550,14 +550,14 @@
+ 
+     error = Update_Max( &exec->loadSize,
+                         sizeof ( TSubglyph_Record ),
+-                        (void**)&exec->loadStack,
++                        (void**)(void*)&exec->loadStack,
+                         face->maxComponents + 1 );
+     if ( error )
+       return error;
+ 
+     error = Update_Max( &exec->stackSize,
+                         sizeof ( TT_F26Dot6 ),
+-                        (void**)&exec->stack,
++                        (void**)(void*)&exec->stack,
+                         maxp->maxStackElements + 32 );
+     /* XXX : We reserve a little more elements on the stack to deal safely */
+     /*       with broken fonts like arialbs, courbs, timesbs...            */
+@@ -566,7 +566,7 @@
+ 
+     error = Update_Max( &exec->glyphSize,
+                         sizeof ( Byte ),
+-                        (void**)&exec->glyphIns,
++                        (void**)(void*)&exec->glyphIns,
+                         maxp->maxSizeOfInstructions );
+     if ( error )
+       return error;

@@ -1,0 +1,29 @@
+# ChangeLog for media-libs/sampleicc
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/media-libs/sampleicc/ChangeLog,v 1.6 2012/04/26 07:33:00 scarabeus Exp $
+
+  26 Apr 2012; Tomáš Chvátal <scarabeus@gentoo.org> sampleicc-1.6.6.ebuild:
+  ppc stable wrt bug#411449.
+
+  06 Apr 2012; Tomáš Chvátal <scarabeus@gentoo.org> -sampleicc-1.6.4.ebuild,
+  sampleicc-1.6.6.ebuild:
+  Stabilise sampleicc-1.6.6 on amd64 and x86. Drop older.
+
+*sampleicc-1.6.6 (25 Jan 2012)
+
+  25 Jan 2012; Tomáš Chvátal <scarabeus@gentoo.org> +sampleicc-1.6.6.ebuild:
+  Version bump to latest.
+
+  16 Jan 2012; Agostino Sarubbo <ago@gentoo.org> sampleicc-1.6.4.ebuild:
+  Stable for amd64, wrt bug #398521
+
+  30 Nov 2011; Kacper Kowalik <xarthisius@gentoo.org> sampleicc-1.6.4.ebuild:
+  Marked ~ppc wrt #392585
+
+*sampleicc-1.6.4 (24 Sep 2011)
+
+  24 Sep 2011; Tomáš Chvátal <scarabeus@gentoo.org> +sampleicc-1.6.4.ebuild,
+  +metadata.xml:
+  Add the library that will be used during libreoffice build (for now bundled.
+  Also fixes bug #175972.
+

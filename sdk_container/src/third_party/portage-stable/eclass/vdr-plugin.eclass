@@ -1,72 +1,53 @@
-# Copyright 1999-2005 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/vdr-plugin.eclass,v 1.71 2009/10/11 11:49:05 maekke Exp $
-#
-# Author:
-#   Matthias Schwarzott <zzam@gentoo.org>
-#   Joerg Bornkessel <hd_brummy@gentoo.org>
+# $Header: /var/cvsroot/gentoo-x86/eclass/vdr-plugin.eclass,v 1.90 2012/09/27 16:35:42 axs Exp $
 
-# vdr-plugin.eclass
-#
-#   eclass to create ebuilds for vdr plugins
-#
+# @ECLASS: vdr-plugin.eclass
+# @MAINTAINER:
+# vdr@gentoo.org
+# @BLURB: common vdr plugin ebuild functions
+# @DESCRIPTION:
+# Eclass for easing maitenance of vdr plugin ebuilds
 
-# Example ebuild (basic version without patching):
-#
-#	EAPI="2"
-#	inherit vdr-plugin
-#	IUSE=""
-#	SLOT="0"
-#	DESCRIPTION="vdr Plugin: DVB Frontend Status Monitor (signal strengt/noise)"
-#	HOMEPAGE="http://www.saunalahti.fi/~rahrenbe/vdr/femon/"
-#	SRC_URI="http://www.saunalahti.fi/~rahrenbe/vdr/femon/files/${P}.tgz"
-#	LICENSE="GPL-2"
-#	KEYWORDS="~x86"
-#	DEPEND=">=media-video/vdr-1.6.0"
-#
-#
+# Authors:
+# Matthias Schwarzott <zzam@gentoo.org>
+# Joerg Bornkessel <hd_brummy@gentoo.org>
+# Christian Ruppert <idl0r@gentoo.org>
 
-# For patching you should modify src_prepare phase:
+# Plugin config file installation:
 #
-#	src_prepare() {
-#		epatch "${FILESDIR}"/${P}-xxx.patch
-#		vdr-plugin_src_prepare
-#	}
+# A plugin config file can be specified through the $VDR_CONFD_FILE variable, it
+# defaults to ${FILESDIR}/confd. Each config file will be installed as e.g.
+# ${D}/etc/conf.d/vdr.${VDRPLUGIN}
 
-# Installation of a config file for the plugin
+# Installation of rc-addon files:
+# NOTE: rc-addon files must be valid shell scripts!
 #
-#     If ${VDR_CONFD_FILE} is set install this file
-#     else install ${FILESDIR}/confd if it exists.
+# Installing rc-addon files is basically the same as for plugin config files
+# (see above), it's just using the $VDR_RCADDON_FILE variable instead.
+# The default value when $VDR_RCADDON_FILE is undefined is:
+# ${FILESDIR}/rc-addon.sh and will be installed as
+# ${VDR_RC_DIR}/plugin-${VDRPLUGIN}.sh
+#
+# The rc-addon files will be sourced by the startscript when the specific plugin
+# has been enabled.
+# rc-addon files may be used to prepare everything that is necessary for the
+# plugin start/stop, like passing extra command line options and so on.
 
-#     Gets installed as /etc/conf.d/vdr.${VDRPLUGIN}.
-#     For the plugin vdr-femon this would be /etc/conf.d/vdr.femon
-
-
-# Installation of an rc-addon file for the plugin
+# Applying your own local/user patches:
+# This is done by using the epatch_user() function of the eutils.eclass.
+# Simply put your patches into one of these directories:
+# /etc/portage/patches/<CATEGORY>/<PF|P|PN>/
+# Quote: where the first of these three directories to exist will be the one to
+# use, ignoring any more general directories which might exist as well.
 #
-#     If ${VDR_RCADDON_FILE} is set install this file
-#     else install ${FILESDIR}/rc-addon.sh if it exists.
-#
-#     Gets installed under ${VDR_RC_DIR}/plugin-${VDRPLUGIN}.sh
-#     (in example vdr-femon this would be /usr/share/vdr/rcscript/plugin-femon.sh)
-#
-#     This file is sourced by the startscript when plugin is activated in /etc/conf.d/vdr
-#     It could be used for special startup actions for this plugins, or to create the
-#     plugin command line options from a nicer version of a conf.d file.
-
-# HowTo use own local patches; Example
-#
-#	Add to your /etc/make.conf:
-# 	VDR_LOCAL_PATCHES_DIR="/usr/local/patch"
-#
-#	Add two DIR's in your local patch dir, ${PN}/${PV},
-#	e.g for vdr-burn-0.1.0 should be:
-#	/usr/local/patch/vdr-burn/0.1.0/
-#
-#	all patches which ending on diff or patch in this DIR will automatically applied
-#
+# For more details about it please take a look at the eutils.class.
 
 inherit base multilib eutils flag-o-matic
+
+if ! has "${EAPI:-0}" 0 1 2 3 4 5; then
+	die "API of vdr-plugin.eclass in EAPI=\"${EAPI}\" not established"
+fi
 
 IUSE=""
 
@@ -84,7 +65,7 @@ S="${WORKDIR}/${VDRPLUGIN}-${PV}"
 COMMON_DEPEND=">=media-tv/gentoo-vdr-scripts-0.4.2"
 
 DEPEND="${COMMON_DEPEND}
-	media-tv/linuxtv-dvb-headers"
+	virtual/linuxtv-dvb-headers"
 RDEPEND="${COMMON_DEPEND}
 	>=app-admin/eselect-vdr-0.0.2"
 
@@ -242,16 +223,6 @@ vdr_patchmakefile() {
 	touch "${WORKDIR}"/.vdr-plugin_makefile_patched
 }
 
-vdr_add_local_patch() {
-	if test -d "${VDR_LOCAL_PATCHES_DIR}/${PN}"; then
-		echo
-		einfo "Applying local patches"
-		for LOCALPATCH in "${VDR_LOCAL_PATCHES_DIR}/${PN}/${PV}"/*.{diff,patch}; do
-			test -f "${LOCALPATCH}" && epatch "${LOCALPATCH}"
-		done
-	fi
-}
-
 vdr_has_gettext() {
 	has_version ">=media-video/vdr-1.5.7"
 }
@@ -261,7 +232,11 @@ plugin_has_gettext() {
 }
 
 vdr_i18n_convert_to_gettext() {
-	local i18n_tool="${ROOT}/usr/share/vdr/bin/i18n-to-gettext.pl"
+	if has_version ">=media-video/vdr-1.7.22"; then
+		local i18n_tool="${ROOT}/usr/share/vdr/bin/i18n-to-gettext"
+	else
+		local i18n_tool="${ROOT}/usr/share/vdr/bin/i18n-to-gettext.pl"
+	fi
 
 	if [[ ${NO_GETTEXT_HACK} == "1" ]]; then
 		ewarn "Conversion to gettext disabled in ebuild"
@@ -319,9 +294,7 @@ vdr_i18n() {
 		else
 			vdr_i18n_convert_to_gettext
 			if [[ $? != 0 ]]; then
-				eerror ""
-				eerror "Plugin will have only english OSD texts"
-				eerror "it needs manual fixing."
+				einfo "Plugin has no OSD texts or will have only english OSD texts"
 			fi
 		fi
 	else
@@ -382,6 +355,12 @@ vdr-plugin_pkg_setup() {
 	# -fPIC is needed for shared objects on some platforms (amd64 and others)
 	append-flags -fPIC
 
+	# Plugins need to be compiled with position independent code, otherwise linking
+	# VDR against it will fail
+	if has_version ">=media-video/vdr-1.7.13"; then
+		append-lfs-flags
+	fi
+
 	# Where should the plugins live in the filesystem
 	VDR_PLUGIN_DIR="/usr/$(get_libdir)/vdr/plugins"
 	VDR_CHECKSUM_DIR="${VDR_PLUGIN_DIR%/plugins}/checksums"
@@ -395,7 +374,7 @@ vdr-plugin_pkg_setup() {
 	DVB_INCLUDE_DIR="/usr/include"
 
 	TMP_LOCALE_DIR="${WORKDIR}/tmp-locale"
-	LOCDIR="/usr/share/vdr/locale"
+	LOCDIR="/usr/share/locale"
 
 	if ! has_vdr; then
 		# set to invalid values to detect abuses
@@ -417,12 +396,19 @@ vdr-plugin_pkg_setup() {
 
 	einfo "Compiling against"
 	einfo "\tvdr-${VDRVERSION} [API version ${APIVERSION}]"
+
+
+	if [ -n "${VDR_LOCAL_PATCHES_DIR}" ]; then
+		eerror "Using VDR_LOCAL_PATCHES_DIR is deprecated!"
+		eerror "Please move all your patches into"
+		eerror "${EROOT}/etc/portage/patches/${CATEGORY}/${P}"
+		eerror "and remove or unset the VDR_LOCAL_PATCHES_DIR variable."
+		die
+	fi
 }
 
 vdr-plugin_src_util() {
-
 	while [ "$1" ]; do
-
 		case "$1" in
 		all)
 			vdr-plugin_src_util unpack add_local_patch patchmakefile i18n
@@ -435,15 +421,18 @@ vdr-plugin_src_util() {
 			;;
 		add_local_patch)
 			cd "${S}" || die "Could not change to plugin-source-directory!"
-			vdr_add_local_patch
+			epatch_user
 			;;
 		patchmakefile)
 			cd "${S}" || die "Could not change to plugin-source-directory!"
 			vdr_patchmakefile
 			;;
 		i18n)
-			cd "${S}" || die "Could not change to plugin-source-directory!"
-			vdr_i18n
+			# i18n-to-gettext tool removed starting with version 1.7.27
+			if has_version "<media-video/vdr-1.7.27"; then
+				cd "${S}" || die "Could not change to plugin-source-directory!"
+				vdr_i18n
+			fi
 			;;
 		esac
 
@@ -461,7 +450,7 @@ vdr-plugin_src_unpack() {
 	fi
 	if [ -z "$1" ]; then
 		case "${EAPI:-0}" in
-			2)
+			2|3|4|5)
 				vdr-plugin_src_util unpack
 				;;
 			*)
@@ -599,12 +588,11 @@ vdr-plugin_pkg_postrm() {
 }
 
 vdr-plugin_pkg_config() {
-	ewarn "emerge --config ${PN} is no longer supported"
-	vdr-plugin_print_enable_command
+:
 }
 
 case "${EAPI:-0}" in
-	2)
+	2|3|4|5)
 		EXPORT_FUNCTIONS pkg_setup src_unpack src_prepare src_compile src_install pkg_postinst pkg_postrm pkg_config
 		;;
 	*)

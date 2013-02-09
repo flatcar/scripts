@@ -1,13 +1,17 @@
-# Copyright 1999-2004 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/ruby.eclass,v 1.77 2009/10/03 08:31:29 a3li Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/ruby.eclass,v 1.81 2011/08/22 04:46:32 vapier Exp $
+
+# DEPRECATION NOTICE
+# This eclass is deprecated because it does not properly handle
+# multiple ruby targets. Please use ruby-ng.eclass instead.
 #
 # @ECLASS: ruby.eclass
 # @MAINTAINER:
 # Ruby herd <ruby@gentoo.org>
-#
+# @AUTHOR:
 # Author: Mamoru KOMACHI <usata@gentoo.org>
-#
+
 # The ruby eclass is designed to allow easier installation of ruby
 # softwares, and their incorporation into the Gentoo Linux system.
 
@@ -57,8 +61,8 @@ LICENSE="Ruby"
 
 # If you specify RUBY_OPTIONAL you also need to take care of ruby useflag and dependency.
 if [[ ${RUBY_OPTIONAL} != "yes" ]]; then
-	DEPEND="${DEPEND} virtual/ruby"
-	RDEPEND="${RDEPEND} virtual/ruby"
+	DEPEND="${DEPEND} =dev-lang/ruby-1.8*"
+	RDEPEND="${RDEPEND} =dev-lang/ruby-1.8*"
 fi
 
 [[ -z "${RUBY}" ]] && export RUBY=/usr/bin/ruby
@@ -189,7 +193,7 @@ erubydoc() {
 		dohtml -r *
 	fi
 
-	if hasq examples ${IUSE} && use examples; then
+	if has examples ${IUSE} && use examples; then
 		for dir in sample samples example examples; do
 			if [ -d ${dir} ] ; then
 				dodir /usr/share/doc/${PF}

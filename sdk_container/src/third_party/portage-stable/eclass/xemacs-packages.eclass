@@ -1,16 +1,27 @@
-# Copyright 1999-2007 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/xemacs-packages.eclass,v 1.15 2009/06/21 14:53:12 graaff Exp $
-#
-# xemacs-packages eclass inherited by all xemacs packages
-# $PKG_CAT need's to be set before inheriting xemacs-packages
+# $Header: /var/cvsroot/gentoo-x86/eclass/xemacs-packages.eclass,v 1.19 2011/12/27 17:55:13 fauli Exp $
+
+# @ECLASS: xemacs-packages.eclass
+# @MAINTAINER:
+# xemacs@gentoo.org
+# @BLURB: Eclass to support elisp packages distributed by XEmacs.
+# @DESCRIPTION:
+# This eclass supports ebuilds for packages distributed by XEmacs.
 
 EXPORT_FUNCTIONS src_unpack src_compile src_install
 
-DEPEND="app-editors/xemacs"
+RDEPEND="${RDEPEND} app-editors/xemacs"
+DEPEND="${DEPEND}"
 
 [ -z "$HOMEPAGE" ]    && HOMEPAGE="http://xemacs.org/"
 [ -z "$LICENSE" ]     && LICENSE="GPL-2"
+
+# @ECLASS-VARIABLE: PKG_CAT
+# @REQUIRED
+# @DESCRIPTION:
+# The package category that the package is in. Can be either standard,
+# mule, or contrib.
 
 case "${PKG_CAT}" in
 	"standard" )
@@ -21,12 +32,22 @@ case "${PKG_CAT}" in
 
 	"contrib" )
 		MY_INSTALL_DIR="/usr/lib/xemacs/site-packages" ;;
+	*)
+		die "Unsupported package category in PKG_CAT (or unset)" ;;
 esac
 [ -n "$DEBUG" ] && einfo "MY_INSTALL_DIR is ${MY_INSTALL_DIR}"
 
+# @ECLASS-VARIABLE: EXPERIMENTAL
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# If set then the package is downloaded from the experimental packages
+# repository, which is the staging area for packages upstream. Packages
+# in the experimental repository are auto-generated from XEmacs VCS, so
+# they may not be well-tested.
+
 if [ -n "$EXPERIMENTAL" ]
 then
-	[ -z "$SRC_URI" ] && SRC_URI="ftp://ftp.xemacs.org/beta/experimental/packages/${P}-pkg.tar.gz"
+	[ -z "$SRC_URI" ] && SRC_URI="http://ftp.xemacs.org/pub/xemacs/beta/experimental/packages/${P}-pkg.tar.gz"
 else
 	[ -z "$SRC_URI" ] && SRC_URI="http://ftp.xemacs.org/pub/xemacs/packages/${P}-pkg.tar.gz"
 fi

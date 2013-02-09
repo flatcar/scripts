@@ -1,0 +1,33 @@
+diff -Naur openjpeg_v1_4_sources_r697/libopenjpeg/openjpeg.h openjpeg_v1_4_sources_r697-patched/libopenjpeg/openjpeg.h
+--- openjpeg_v1_4_sources_r697/libopenjpeg/openjpeg.h	2011-01-02 13:14:45.000000000 -0500
++++ openjpeg_v1_4_sources_r697-patched/libopenjpeg/openjpeg.h	2011-05-10 01:35:25.000000000 -0400
+@@ -60,7 +60,7 @@
+ #endif /* !OPJ_STATIC || !_WIN32 */
+ 
+ #ifndef __cplusplus
+-#if defined(HAVE_STDBOOL_H)
++#if @HAVE_STDBOOL_H@
+ /*
+ The C language implementation does correctly provide the standard header
+ file "stdbool.h".
+diff -Naur openjpeg_v1_4_sources_r697/CMakeLists.txt openjpeg_v1_4_sources_r697-patched/CMakeLists.txt
+--- openjpeg_v1_4_sources_r697/CMakeLists.txt	2011-01-02 13:14:45.000000000 -0500
++++ openjpeg_v1_4_sources_r697-patched/CMakeLists.txt	2011-05-10 01:35:25.000000000 -0400
+@@ -296,6 +296,7 @@
+   FIND_FILE(HAVE_UNISTD_H unistd.h)
+   SET(HAS_UNISTD_H 1)
+ ENDIF()
++check_include_file(stdbool.h HAVE_STDBOOL_H)
+ #
+ # Does the system have png library installed ?
+ #
+@@ -364,4 +365,8 @@
+   "${OPENJPEG_BINARY_DIR}/opj_config.h"
+   @ONLY 
+ )
+-
++#
++# fix openjpeg.h
++FILE(READ "${OPENJPEG_SOURCE_DIR}/libopenjpeg/openjpeg.h" ojh)
++STRING(REGEX REPLACE "\@HAVE_STDBOOL_H\@" "${HAVE_STDBOOL_H}" ojhfixed "${ojh}" )
++FILE(WRITE "${OPENJPEG_SOURCE_DIR}/libopenjpeg/openjpeg.h" "${ojhfixed}" )

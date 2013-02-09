@@ -1,8 +1,6 @@
-# Copyright 1999-2007 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/apache-2.eclass,v 1.20 2010/03/05 09:01:07 hollow Exp $
-
-EAPI="2"
+# $Header: /var/cvsroot/gentoo-x86/eclass/apache-2.eclass,v 1.29 2012/05/23 03:24:44 flameeyes Exp $
 
 # @ECLASS: apache-2.eclass
 # @MAINTAINER:
@@ -245,14 +243,6 @@ setup_modules() {
 		MY_CONF="${MY_CONF} --without-ssl --disable-ssl"
 	fi
 
-	if use threads || has ${MY_MPM} ${IUSE_MPMS_THREAD} ; then
-		MY_CONF="${MY_CONF} --enable-cgid=${mod_type}"
-		MY_MODS="${MY_MODS} cgid"
-	else
-		MY_CONF="${MY_CONF} --enable-cgi=${mod_type}"
-		MY_MODS="${MY_MODS} cgi"
-	fi
-
 	if use suexec ; then
 		elog "You can manipulate several configure options of suexec"
 		elog "through the following environment variables:"
@@ -434,7 +424,7 @@ apache-2_src_prepare() {
 
 	# patched-in MPMs need the build environment rebuilt
 	sed -i -e '/sinclude/d' configure.in
-	AT_GNUCONF_UPDATE=yes AT_M4DIR=build eautoreconf
+	AT_M4DIR=build eautoreconf
 }
 
 # @FUNCTION: apache-2_src_configure
@@ -477,7 +467,7 @@ apache-2_src_configure() {
 # This function runs `emake install' and generates, installs and adapts the gentoo
 # specific configuration files found in the tarball
 apache-2_src_install() {
-	make DESTDIR="${D}" install || die "make install failed"
+	emake DESTDIR="${D}" MKINSTALLDIRS="mkdir -p" install || die "make install failed"
 
 	# install our configuration files
 	keepdir /etc/apache2/vhosts.d
@@ -496,7 +486,7 @@ apache-2_src_install() {
 	use doc && APACHE2_OPTS="${APACHE2_OPTS} -D MANUAL"
 	use ssl && APACHE2_OPTS="${APACHE2_OPTS} -D SSL -D SSL_DEFAULT_VHOST"
 	use suexec && APACHE2_OPTS="${APACHE2_OPTS} -D SUEXEC"
-	if hasq negotiation ${APACHE2_MODULES} && use apache2_modules_negotiation; then
+	if has negotiation ${APACHE2_MODULES} && use apache2_modules_negotiation; then
 		APACHE2_OPTS="${APACHE2_OPTS} -D LANGUAGE"
 	fi
 
@@ -549,7 +539,7 @@ apache-2_src_install() {
 	for i in /var/lib/dav /var/log/apache2 /var/cache/apache2 ; do
 		keepdir ${i}
 		fowners apache:apache ${i}
-		fperms 0755 ${i}
+		fperms 0750 ${i}
 	done
 }
 
@@ -560,6 +550,12 @@ apache-2_src_install() {
 # because the default webroot is a copy of the files that exist elsewhere and we
 # don't want them to be managed/removed by portage when apache is upgraded.
 apache-2_pkg_postinst() {
+	# fix previously wrong set permissions Bug#398899
+	einfo "Sanitizing directory permissions ..."
+	for i in /var/lib/dav /var/log/apache2 /var/cache/apache2 ; do
+		chmod 0750 ${i}
+	done
+
 	if use ssl && [[ ! -e "${ROOT}/etc/ssl/apache2/server.pem" ]]; then
 		SSL_ORGANIZATION="${SSL_ORGANIZATION:-Apache HTTP Server}"
 		install_cert /etc/ssl/apache2/server
@@ -576,6 +572,13 @@ apache-2_pkg_postinst() {
 		mkdir -p "${ROOT}/var/www/localhost/htdocs"
 		echo "<html><body><h1>It works!</h1></body></html>" > "${ROOT}/var/www/localhost/htdocs/index.html"
 	fi
+
+	echo
+	elog "Attention: cgi and cgid modules are now handled via APACHE2_MODULES flags"
+	elog "in /etc/make.conf. Make sure to enable those in order to compile them."
+	elog "In general, you should use 'cgid' with threaded MPMs and 'cgi' otherwise."
+	echo
+
 }
 
 EXPORT_FUNCTIONS pkg_setup src_prepare src_configure src_install pkg_postinst

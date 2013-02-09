@@ -1,11 +1,11 @@
 # Base eclass for Java packages that needs to be OSGi compliant
 #
 # Copyright (c) 2007, Jean-Noël Rivasseau <elvanor@gmail.com>
-# Copyright (c) 2007, Gentoo Foundation
+# Copyright (c) 2007-2011, Gentoo Foundation
 #
 # Licensed under the GNU General Public License, v2
 #
-# $Header: /var/cvsroot/gentoo-x86/eclass/java-osgi.eclass,v 1.5 2009/01/12 22:58:36 maekke Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/java-osgi.eclass,v 1.7 2011/12/27 17:55:12 fauli Exp $
 
 # -----------------------------------------------------------------------------
 # @eclass-begin
@@ -68,7 +68,7 @@ _java-osgi_plugin() {
 # This is an internal function, not to be called directly.
 #
 # @example
-#	_java-osgi_makejar "dist/${PN}.jar" "com.jcraft.jsch" "JSch" "com.jcraft.jsch, com.jcraft.jsch.jce;x-internal:=true" 
+#	_java-osgi_makejar "dist/${PN}.jar" "com.jcraft.jsch" "JSch" "com.jcraft.jsch, com.jcraft.jsch.jce;x-internal:=true"
 #
 # @param $1 - name of jar to repackage with OSGi
 # @param $2 - bundle symbolic name
@@ -229,7 +229,7 @@ _java-osgi_makejar-fromfile() {
 #	java-osgi_newjar-fromfile "dist/${PN}.jar" "${FILESDIR}/MANIFEST.MF" "Standard Widget Toolkit for GTK 2.0"
 #
 # @param $opt
-#	--no-auto-version - This option disables automatic rewriting of the 
+#	--no-auto-version - This option disables automatic rewriting of the
 #		version in the Manifest file#
 # @param $1 - name of jar to repackage with OSGi
 # @param $2 (optional) - name of the target jar. It will default to package name if not specified.
@@ -269,7 +269,7 @@ java-osgi_newjar-fromfile() {
 #	java-osgi_dojar-fromfile "dist/${PN}.jar" "${FILESDIR}/MANIFEST.MF" "Standard Widget Toolkit for GTK 2.0"
 #
 # @param $opt
-#	--no-auto-version - This option disables automatic rewriting of the 
+#	--no-auto-version - This option disables automatic rewriting of the
 #		version in the Manifest file
 # @param $1 - name of jar to repackage with OSGi
 # @param $2 - path to the Manifest file

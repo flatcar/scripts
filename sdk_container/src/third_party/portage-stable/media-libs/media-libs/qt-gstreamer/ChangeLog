@@ -1,0 +1,22 @@
+# ChangeLog for media-libs/qt-gstreamer
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/media-libs/qt-gstreamer/ChangeLog,v 1.5 2012/11/11 22:30:40 pesa Exp $
+
+  11 Nov 2012; Davide Pesavento <pesa@gentoo.org> qt-gstreamer-0.10.2.ebuild:
+  Remove false dependency on boost-build.
+
+  11 Sep 2012; Johannes Huber <johu@gentoo.org> qt-gstreamer-0.10.2.ebuild:
+  Add slot dependency on media-libs/gst*.
+
+  30 Aug 2012; Andreas K. Huettel <dilfridge@gentoo.org>
+  qt-gstreamer-0.10.2.ebuild:
+  Add boost dependency, bug 432242
+
+  31 Jul 2012; Tomáš Chvátal <scarabeus@gentoo.org> qt-gstreamer-0.10.2.ebuild:
+  Stable on amd64 and x86 as it works just fine.
+
+*qt-gstreamer-0.10.2 (12 Jul 2012)
+
+  12 Jul 2012; Johannes Huber <johu@gentoo.org> +metadata.xml,
+  +qt-gstreamer-0.10.2.ebuild:
+  New package, initial commit. Import from kde overlay.

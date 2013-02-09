@@ -1,0 +1,106 @@
+ demos/animated-marker.c | 1 -
+ demos/launcher-gtk.c    | 1 -
+ demos/launcher.c        | 1 -
+ demos/local-rendering.c | 1 -
+ demos/minimal-gtk.c     | 1 -
+ demos/minimal.c         | 1 -
+ demos/polygons.c        | 1 -
+ demos/url-marker.c      | 1 -
+ 8 files changed, 8 deletions(-)
+
+diff --git a/demos/animated-marker.c b/demos/animated-marker.c
+index ebcbe72..5c5a8ce 100644
+--- a/demos/animated-marker.c
++++ b/demos/animated-marker.c
+@@ -123,7 +123,6 @@ main (int argc, char *argv[])
+   ChamplainLayer *layer;
+   GpsCallbackData callback_data;
+ 
+-  g_thread_init (NULL);
+   clutter_init (&argc, &argv);
+ 
+   stage = clutter_stage_get_default ();
+diff --git a/demos/launcher-gtk.c b/demos/launcher-gtk.c
+index 897e148..b4cb06d 100644
+--- a/demos/launcher-gtk.c
++++ b/demos/launcher-gtk.c
+@@ -207,7 +207,6 @@ main (int argc,
+   ChamplainView *view;
+   ChamplainLayer *layer;
+ 
+-  g_thread_init (NULL);
+   gtk_clutter_init (&argc, &argv);
+ 
+   /* create the main, top level, window */
+diff --git a/demos/launcher.c b/demos/launcher.c
+index a7a5fd8..acdd1cf 100644
+--- a/demos/launcher.c
++++ b/demos/launcher.c
+@@ -93,7 +93,6 @@ main (int argc,
+   ChamplainLayer *layer;
+   gfloat width, total_width = 0;
+ 
+-  g_thread_init (NULL);
+   clutter_init (&argc, &argv);
+ 
+   stage = clutter_stage_get_default ();
+diff --git a/demos/local-rendering.c b/demos/local-rendering.c
+index 43ad2ad..7577071 100644
+--- a/demos/local-rendering.c
++++ b/demos/local-rendering.c
+@@ -725,7 +725,6 @@ main (int argc,
+ {
+   GtkWidget *widget, *hbox, *bbox, *menubox, *button, *viewport, *label;
+ 
+-  g_thread_init (NULL);
+   gtk_clutter_init (&argc, &argv);
+ 
+   /* create the main, top level, window */
+diff --git a/demos/minimal-gtk.c b/demos/minimal-gtk.c
+index ea3383a..195f9e4 100644
+--- a/demos/minimal-gtk.c
++++ b/demos/minimal-gtk.c
+@@ -29,7 +29,6 @@ main (int argc, char *argv[])
+   GtkWidget *window, *widget;
+ 
+   /* initialize threads and clutter */
+-  g_thread_init (NULL);
+   gtk_clutter_init (&argc, &argv);
+ 
+   /* create the top-level window and quit the main loop when it's closed */
+diff --git a/demos/minimal.c b/demos/minimal.c
+index 4a66c6e..bd20929 100644
+--- a/demos/minimal.c
++++ b/demos/minimal.c
+@@ -23,7 +23,6 @@ main (int argc, char *argv[])
+ {
+   ClutterActor *actor, *stage;
+ 
+-  g_thread_init (NULL);
+   clutter_init (&argc, &argv);
+ 
+   stage = clutter_stage_get_default ();
+diff --git a/demos/polygons.c b/demos/polygons.c
+index 5d07bb3..6884a3c 100644
+--- a/demos/polygons.c
++++ b/demos/polygons.c
+@@ -74,7 +74,6 @@ main (int argc,
+   ChamplainPolygon *polygon;
+   gfloat width, total_width = 0;;
+ 
+-  g_thread_init (NULL);
+   clutter_init (&argc, &argv);
+ 
+   stage = clutter_stage_get_default ();
+diff --git a/demos/url-marker.c b/demos/url-marker.c
+index 6fbbfb0..71d90c5 100644
+--- a/demos/url-marker.c
++++ b/demos/url-marker.c
+@@ -244,7 +244,6 @@ main (int argc, char *argv[])
+   ChamplainLayer *layer;
+   SoupSession *session;
+ 
+-  g_thread_init (NULL);
+   clutter_init (&argc, &argv);
+ 
+   stage = clutter_stage_get_default ();

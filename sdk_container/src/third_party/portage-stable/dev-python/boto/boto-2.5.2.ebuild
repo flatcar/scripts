@@ -16,7 +16,7 @@ SRC_URI="mirror://github/boto/boto/${P}.tar.gz"
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="amd64 ~ppc ~sparc x86 ~x86-linux ~ppc-macos ~x86-macos"
+KEYWORDS="~amd64 ~ppc ~sparc ~x86 ~x86-linux ~ppc-macos ~x86-macos"
 IUSE="test"
 
 DEPEND="dev-python/setuptools

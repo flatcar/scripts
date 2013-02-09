@@ -1,13 +1,13 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/e2fsprogs-libs/e2fsprogs-libs-1.42.ebuild,v 1.1 2011/12/07 16:50:09 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/e2fsprogs-libs/e2fsprogs-libs-1.42.ebuild,v 1.11 2012/05/04 07:33:10 jdhore Exp $
+
+EAPI=2
 
 case ${PV} in
 *_pre*) UP_PV="${PV%_pre*}-WIP-${PV#*_pre}" ;;
 *)      UP_PV=${PV} ;;
 esac
-
-EAPI="2"
 
 inherit toolchain-funcs
 
@@ -17,14 +17,14 @@ SRC_URI="mirror://sourceforge/e2fsprogs/${PN}-${UP_PV}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc x86 ~x86-fbsd"
+KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~x86-fbsd"
 IUSE="nls static-libs"
 
 RDEPEND="!sys-libs/com_err
 	!sys-libs/ss
 	!<sys-fs/e2fsprogs-1.41.8"
 DEPEND="nls? ( sys-devel/gettext )
-	dev-util/pkgconfig"
+	virtual/pkgconfig"
 
 S=${WORKDIR}/${P%_pre*}
 
@@ -58,5 +58,5 @@ src_install() {
 	emake STRIP=: DESTDIR="${D}" install || die
 	gen_usr_ldscript -a com_err ss
 	# configure doesn't have an option to disable static libs :/
-	find "${D}" -name '*.a' -delete
+	use static-libs || find "${D}" -name '*.a' -delete
 }

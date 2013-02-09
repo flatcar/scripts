@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/kernel-2.eclass,v 1.273 2011/12/12 22:01:37 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/kernel-2.eclass,v 1.277 2012/06/24 17:52:38 mpagano Exp $
 
 # Description: kernel.eclass rewrite for a clean base regarding the 2.6
 #              series of kernel with back-compatibility for 2.4
@@ -207,14 +207,10 @@ detect_version() {
 	if [[ ${#OKV_ARRAY[@]} -lt 3 ]]; then
 		KV_PATCH_ARR=(${KV_PATCH//\./ })
 
-		# at this point 080811, Linus is putting 3.1 kernels in 3.0 directory
-		# revisit when 3.1 is released
-		if [[ ${KV_PATCH} -gt 0 ]]; then
-			KERNEL_BASE_URI="mirror://kernel/linux/kernel/v${KV_MAJOR}.$((${KV_PATCH_ARR} - 1))"
-		else
-			KERNEL_BASE_URI="mirror://kernel/linux/kernel/v${KV_MAJOR}.${KV_PATCH_ARR}"
-		fi
-		# KERNEL_BASE_URI="mirror://kernel/linux/kernel/v${KV_MAJOR}.${KV_PATCH_ARR}"
+		# at this point 031412, Linus is putting all 3.x kernels in a 
+		# 3.x directory, may need to revisit when 4.x is released
+		KERNEL_BASE_URI="mirror://kernel/linux/kernel/v${KV_MAJOR}.x"
+
 		[[ -n "${K_LONGTERM}" ]] &&
 			KERNEL_BASE_URI="${KERNEL_BASE_URI}/longterm/v${KV_MAJOR}.${KV_PATCH_ARR}"
 	else
@@ -227,8 +223,8 @@ detect_version() {
 		fi
 
 		[[ -n "${K_LONGTERM}" ]] &&
-			KERNEL_BASE_URI="${KERNEL_BASE_URI}/longterm"
-			#KERNEL_BASE_URI="${KERNEL_BASE_URI}/longterm/v${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}"
+			#KERNEL_BASE_URI="${KERNEL_BASE_URI}/longterm"
+			KERNEL_BASE_URI="${KERNEL_BASE_URI}/longterm/v${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}"
 	fi
 
 	debug-print "KERNEL_BASE_URI is ${KERNEL_BASE_URI}"
@@ -346,7 +342,7 @@ detect_version() {
 				OKV="${KV_MAJOR}.$((${KV_PATCH_ARR} - 1))"
 			fi
 			KERNEL_URI="${KERNEL_BASE_URI}/testing/patch-${CKV//_/-}.bz2
-						${KERNEL_BASE_URI}/testing/linux-${OKV}.tar.bz2"
+						${KERNEL_BASE_URI}/linux-${OKV}.tar.bz2"
 			UNIPATCH_LIST_DEFAULT="${DISTDIR}/patch-${CKV//_/-}.bz2"
 		fi
 
@@ -419,7 +415,8 @@ if [[ ${ETYPE} == sources ]]; then
 	DEPEND="!build? ( sys-apps/sed
 					  >=sys-devel/binutils-2.11.90.0.31 )"
 	RDEPEND="!build? ( >=sys-libs/ncurses-5.2
-					   sys-devel/make )"
+					   sys-devel/make 
+					   dev-lang/perl )"
 	PDEPEND="!build? ( virtual/dev-manager )"
 
 	SLOT="${PVR}"
@@ -582,19 +579,6 @@ universal_unpack() {
 	# remove all backup files
 	find . -iname "*~" -exec rm {} \; 2> /dev/null
 
-	# fix a problem on ppc where TOUT writes to /usr/src/linux breaking sandbox
-	# only do this for kernel < 2.6.27 since this file does not exist in later
-	# kernels
-	if [[ -n ${KV_MINOR} &&  ${KV_MAJOR}.${KV_MINOR}.${KV_PATCH} < 2.6.27 ]]
-	then
-		sed -i \
-			-e 's|TOUT	:= .tmp_gas_check|TOUT	:= $(T).tmp_gas_check|' \
-			"${S}"/arch/ppc/Makefile
-	else
-		sed -i \
-			-e 's|TOUT	:= .tmp_gas_check|TOUT	:= $(T).tmp_gas_check|' \
-			"${S}"/arch/powerpc/Makefile
-	fi
 }
 
 unpack_set_extraversion() {
@@ -1158,6 +1142,20 @@ kernel-2_src_unpack() {
 		cp "${DISTDIR}/${DEBLOB_A}" "${T}" || die "cp ${DEBLOB_A} failed"
 		cp "${DISTDIR}/${DEBLOB_CHECK_A}" "${T}/deblob-check" || die "cp ${DEBLOB_CHECK_A} failed"
 		chmod +x "${T}/${DEBLOB_A}" "${T}/deblob-check" || die "chmod deblob scripts failed"
+	fi
+
+	# fix a problem on ppc where TOUT writes to /usr/src/linux breaking sandbox
+	# only do this for kernel < 2.6.27 since this file does not exist in later
+	# kernels
+	if [[ -n ${KV_MINOR} &&  ${KV_MAJOR}.${KV_MINOR}.${KV_PATCH} < 2.6.27 ]]
+	then
+		sed -i \
+			-e 's|TOUT	:= .tmp_gas_check|TOUT	:= $(T).tmp_gas_check|' \
+			"${S}"/arch/ppc/Makefile
+	else
+		sed -i \
+			-e 's|TOUT	:= .tmp_gas_check|TOUT	:= $(T).tmp_gas_check|' \
+			"${S}"/arch/powerpc/Makefile
 	fi
 }
 

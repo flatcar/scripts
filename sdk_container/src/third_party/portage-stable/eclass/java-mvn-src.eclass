@@ -1,10 +1,10 @@
 # Eclass for Java packages from bare sources exported by Maven
 #
-# Copyright (c) 2004-2009, Gentoo Foundation
+# Copyright (c) 2004-2011, Gentoo Foundation
 #
 # Licensed under the GNU General Public License, v2
 #
-# $Header: /var/cvsroot/gentoo-x86/eclass/java-mvn-src.eclass,v 1.1 2010/01/16 18:48:39 weaver Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/java-mvn-src.eclass,v 1.2 2011/12/27 17:55:12 fauli Exp $
 
 inherit java-pkg-simple
 
@@ -56,7 +56,7 @@ RELATIVE_SRC_URI=${GROUP_ID//./\/}/${ARTIFACT_ID}/${PV}/${ARTIFACT_ID}-${PV}-sou
 
 # Look for source jar in all listed repositories
 for repo in ${MAVEN2_REPOSITORIES}; do
-    SRC_URI="${SRC_URI} ${repo}/${RELATIVE_SRC_URI}"
+	SRC_URI="${SRC_URI} ${repo}/${RELATIVE_SRC_URI}"
 done
 unset repo
 

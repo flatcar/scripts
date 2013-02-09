@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain-funcs.eclass,v 1.109 2011/12/10 19:45:00 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain-funcs.eclass,v 1.120 2012/12/29 05:08:54 vapier Exp $
 
 # @ECLASS: toolchain-funcs.eclass
 # @MAINTAINER:
@@ -17,8 +17,6 @@ if [[ ${___ECLASS_ONCE_TOOLCHAIN_FUNCS} != "recur -_+^+_- spank" ]] ; then
 ___ECLASS_ONCE_TOOLCHAIN_FUNCS="recur -_+^+_- spank"
 
 inherit multilib
-
-DESCRIPTION="Based on the ${ECLASS} eclass"
 
 # tc-getPROG <VAR [search vars]> <default> [tuple]
 _tc-getPROG() {
@@ -179,36 +177,29 @@ tc-is-cross-compiler() {
 # See if this toolchain is a softfloat based one.
 # @CODE
 # The possible return values:
-#  - only: the target is always softfloat (never had fpu)
-#  - yes:  the target should support softfloat
-#  - no:   the target doesn't support softfloat
+#  - only:   the target is always softfloat (never had fpu)
+#  - yes:    the target should support softfloat
+#  - softfp: (arm specific) the target should use hardfloat insns, but softfloat calling convention
+#  - no:     the target doesn't support softfloat
 # @CODE
 # This allows us to react differently where packages accept
 # softfloat flags in the case where support is optional, but
 # rejects softfloat flags where the target always lacks an fpu.
 tc-is-softfloat() {
+	local CTARGET=${CTARGET:-${CHOST}}
 	case ${CTARGET} in
 		bfin*|h8300*)
 			echo "only" ;;
 		*)
-			[[ ${CTARGET//_/-} == *-softfloat-* ]] \
-				&& echo "yes" \
-				|| echo "no"
+			if [[ ${CTARGET//_/-} == *-softfloat-* ]] ; then
+				echo "yes"
+			elif [[ ${CTARGET//_/-} == *-softfp-* ]] ; then
+				echo "softfp"
+			else
+				echo "no"
+			fi
 			;;
 	esac
-}
-
-# @FUNCTION: tc-is-hardfloat
-# @DESCRIPTION:
-# See if this toolchain is a hardfloat based one.
-# @CODE
-# The possible return values:
-#  - yes:  the target should support hardfloat
-#  - no:   the target doesn't support hardfloat
-tc-is-hardfloat() {
-	[[ ${CTARGET//_/-} == *-hardfloat-* ]] \
-		&& echo "yes" \
-		|| echo "no"
 }
 
 # @FUNCTION: tc-is-static-only
@@ -222,6 +213,19 @@ tc-is-static-only() {
 	return $([[ ${host} == *-mint* ]])
 }
 
+# @FUNCTION: tc-export_build_env
+# @USAGE: [compiler variables]
+# @DESCRIPTION:
+# Export common build related compiler settings.
+tc-export_build_env() {
+	tc-export "$@"
+	: ${BUILD_CFLAGS:=-O1 -pipe}
+	: ${BUILD_CXXFLAGS:=-O1 -pipe}
+	: ${BUILD_CPPFLAGS:=}
+	: ${BUILD_LDFLAGS:=}
+	export BUILD_{C,CXX,CPP,LD}FLAGS
+}
+
 # @FUNCTION: tc-env_build
 # @USAGE: <command> [command args]
 # @INTERNAL
@@ -231,8 +235,9 @@ tc-is-static-only() {
 # all of the semi-[non-]standard env vars like $BUILD_CC which often
 # the target build system does not check.
 tc-env_build() {
-	CFLAGS=${BUILD_CFLAGS:--O1 -pipe} \
-	CXXFLAGS=${BUILD_CXXFLAGS:--O1 -pipe} \
+	tc-export_build_env
+	CFLAGS=${BUILD_CFLAGS} \
+	CXXFLAGS=${BUILD_CXXFLAGS} \
 	CPPFLAGS=${BUILD_CPPFLAGS} \
 	LDFLAGS=${BUILD_LDFLAGS} \
 	AR=$(tc-getBUILD_AR) \
@@ -352,7 +357,12 @@ ninj() { [[ ${type} == "kern" ]] && echo $1 || echo $2 ; }
 	local host=$2
 	[[ -z ${host} ]] && host=${CTARGET:-${CHOST}}
 
+	local KV=${KV:-${KV_FULL}}
+	[[ ${type} == "kern" ]] && [[ -z ${KV} ]] && \
+	ewarn "QA: Kernel version could not be determined, please inherit kernel-2 or linux-info"
+
 	case ${host} in
+		aarch64*)	ninj arm64 arm;;
 		alpha*)		echo alpha;;
 		arm*)		echo arm;;
 		avr*)		ninj avr32 avr;;
@@ -439,6 +449,8 @@ tc-endian() {
 	host=${host%%-*}
 
 	case ${host} in
+		aarch64*be)	echo big;;
+		aarch64)	echo little;;
 		alpha*)		echo big;;
 		arm*b*)		echo big;;
 		arm*)		echo little;;
@@ -605,6 +617,14 @@ gen_usr_ldscript() {
 
 	tc-is-static-only && return
 
+	# Eventually we'd like to get rid of this func completely #417451
+	case ${CTARGET:-${CHOST}} in
+	*-darwin*) ;;
+	*linux*|*-freebsd*|*-openbsd*|*-netbsd*)
+		use prefix && return 0 ;;
+	*) return 0 ;;
+	esac
+
 	# Just make sure it exists
 	dodir /usr/${libdir}
 
@@ -670,65 +690,6 @@ gen_usr_ldscript() {
 			pushd "${ED}/usr/${libdir}" > /dev/null
 			ln -snf "../../${libdir}/${tlib}" "${lib}"
 			popd > /dev/null
-			;;
-		*-aix*|*-irix*|*64*-hpux*|*-interix*|*-winnt*)
-			if ${auto} ; then
-				mv "${ED}"/usr/${libdir}/${lib}* "${ED}"/${libdir}/ || die
-				# no way to retrieve soname on these platforms (?)
-				tlib=$(readlink "${ED}"/${libdir}/${lib})
-				tlib=${tlib##*/}
-				if [[ -z ${tlib} ]] ; then
-					# ok, apparently was not a symlink, don't remove it and
-					# just link to it
-					tlib=${lib}
-				else
-					rm -f "${ED}"/${libdir}/${lib}
-				fi
-			else
-				tlib=${lib}
-			fi
-
-			# we don't have GNU binutils on these platforms, so we symlink
-			# instead, which seems to work fine.  Keep it relative, otherwise
-			# we break some QA checks in Portage
-			# on interix, the linker scripts would work fine in _most_
-			# situations. if a library links to such a linker script the
-			# absolute path to the correct library is inserted into the binary,
-			# which is wrong, since anybody linking _without_ libtool will miss
-			# some dependencies, since the stupid linker cannot find libraries
-			# hardcoded with absolute paths (as opposed to the loader, which
-			# seems to be able to do this).
-			# this has been seen while building shared-mime-info which needs
-			# libxml2, but links without libtool (and does not add libz to the
-			# command line by itself).
-			pushd "${ED}/usr/${libdir}" > /dev/null
-			ln -snf "../../${libdir}/${tlib}" "${lib}"
-			popd > /dev/null
-			;;
-		hppa*-hpux*) # PA-RISC 32bit (SOM) only, others (ELF) match *64*-hpux* above.
-			if ${auto} ; then
-				tlib=$(chatr "${ED}"/usr/${libdir}/${lib} | sed -n '/internal name:/{n;s/^ *//;p;q}')
-				[[ -z ${tlib} ]] && tlib=${lib}
-				tlib=${tlib##*/} # 'internal name' can have a path component
-				mv "${ED}"/usr/${libdir}/${lib}* "${ED}"/${libdir}/ || die
-				# some SONAMEs are funky: they encode a version before the .so
-				if [[ ${tlib} != ${lib}* ]] ; then
-					mv "${ED}"/usr/${libdir}/${tlib}* "${ED}"/${libdir}/ || die
-				fi
-				[[ ${tlib} != ${lib} ]] &&
-				rm -f "${ED}"/${libdir}/${lib}
-			else
-				tlib=$(chatr "${ED}"/${libdir}/${lib} | sed -n '/internal name:/{n;s/^ *//;p;q}')
-				[[ -z ${tlib} ]] && tlib=${lib}
-				tlib=${tlib##*/} # 'internal name' can have a path component
-			fi
-			pushd "${ED}"/usr/${libdir} >/dev/null
-			ln -snf "../../${libdir}/${tlib}" "${lib}"
-			# need the internal name in usr/lib too, to be available at runtime
-			# when linked with /path/to/lib.sl (hardcode_direct_absolute=yes)
-			[[ ${tlib} != ${lib} ]] &&
-			ln -snf "../../${libdir}/${tlib}" "${tlib}"
-			popd >/dev/null
 			;;
 		*)
 			if ${auto} ; then

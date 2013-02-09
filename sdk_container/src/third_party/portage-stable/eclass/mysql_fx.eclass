@@ -1,9 +1,11 @@
-# Copyright 1999-2007 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/mysql_fx.eclass,v 1.22 2009/02/12 05:05:14 robbat2 Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/mysql_fx.eclass,v 1.30 2012/01/09 10:42:19 grobian Exp $
 
 # Author: Francesco Riosa (Retired) <vivo@gentoo.org>
-# Maintainer: Luca Longinotti <chtekk@gentoo.org>
+# Maintainer:
+#	- MySQL Team <mysql-bugs@gentoo.org>
+#	- Luca Longinotti <chtekk@gentoo.org>
 
 inherit multilib
 
@@ -182,30 +184,122 @@ mysql_version_is_at_least() {
 # library to the best version available.
 #
 mysql_lib_symlinks() {
-	einfo "Updating MySQL .so symlinks"
-	local d dirlist maxdots soname sonameln reldir
+
+	local d dirlist maxdots libname libnameln libsuffix reldir
+	libsuffix=$(get_libname)
+
+	einfo "libsuffix = ${libsuffix}"
+	einfo "Updating MySQL libraries symlinks"
+
 	reldir="${1}"
 	pushd "${reldir}/usr/$(get_libdir)" &> /dev/null
-		# dirlist must contain the less significative directory left
-		dirlist="mysql"
 
-		# waste some time in removing and recreating symlinks
-		for d in $dirlist ; do
-			for soname in $( find "${d}" -name "*.so*" -and -not -type "l" 2>/dev/null ) ; do
-				# maxdot is a limit versus infinite loop
-				maxdots=0
-				sonameln=${soname##*/}
-				# loop in version of the library to link it, similar to how
-				# libtool works
-				while [[ ${sonameln:0-3} != '.so' ]] && [[ ${maxdots} -lt 6 ]] ; do
-					rm -f "${sonameln}"
-					ln -s "${soname}" "${sonameln}"
+	# dirlist must contain the less significative directory left
+	dirlist="mysql"
+
+	# waste some time in removing and recreating symlinks
+	for d in $dirlist ; do
+		for libname in $( find "${d}" -mindepth 1 -maxdepth 1 -name "*${libsuffix}*" -and -not -type "l" 2>/dev/null ) ; do
+			# maxdot is a limit versus infinite loop
+			maxdots=0
+			libnameln=${libname##*/}
+			# loop in version of the library to link it, similar to how
+			# libtool works
+			if [[ ${CHOST} == *-darwin* ]] ; then
+				# macho: libname.x.y.z.dylib
+				local libbasename=${libnameln%%.*}       # libname
+				local libver=${libnameln#${libbasename}} # .x.y.z.dylib
+				libver=${libver%${libsuffix}}            # .x.y.z
+				while [[ -n ${libver} ]] && [[ ${maxdots} -lt 6 ]] ; do
+					libnameln="${libbasename}${libver}${libsuffix}"
+					rm -f "${libnameln}"
+					ln -s "${libname}" "${libnameln}"
 					(( ++maxdots ))
-					sonameln="${sonameln%.*}"
+					libver=${libver%.*}
 				done
-				rm -f "${sonameln}"
-				ln -s "${soname}" "${sonameln}"
-			done
+				libnameln="${libbasename}${libsuffix}"
+				rm -f "${libnameln}"
+				ln -s "${libname}" "${libnameln}"
+			else
+				# elf: libname.so.x.y.z
+				while [[ ${libnameln:0-3} != '${libsuffix}' ]] && [[ ${maxdots} -lt 6 ]] ; do
+					rm -f "${libnameln}"
+					ln -s "${libname}" "${libnameln}"
+					(( ++maxdots ))
+					libnameln="${libnameln%.*}"
+				done
+				rm -f "${libnameln}"
+				ln -s "${libname}" "${libnameln}"
+			fi
 		done
+	done
+
 	popd &> /dev/null
+}
+
+# @FUNCTION: mysql_init_vars
+# @DESCRIPTION:
+# void mysql_init_vars()
+# Initialize global variables
+# 2005-11-19 <vivo@gentoo.org>
+mysql_init_vars() {
+	MY_SHAREDSTATEDIR=${MY_SHAREDSTATEDIR="${EPREFIX}/usr/share/mysql"}
+	MY_SYSCONFDIR=${MY_SYSCONFDIR="${EPREFIX}/etc/mysql"}
+	MY_LOCALSTATEDIR=${MY_LOCALSTATEDIR="${EPREFIX}/var/lib/mysql"}
+	MY_LOGDIR=${MY_LOGDIR="${EPREFIX}/var/log/mysql"}
+	MY_INCLUDEDIR=${MY_INCLUDEDIR="${EPREFIX}/usr/include/mysql"}
+	MY_LIBDIR=${MY_LIBDIR="${EPREFIX}/usr/$(get_libdir)/mysql"}
+
+	if [[ -z "${MY_DATADIR}" ]] ; then
+		MY_DATADIR=""
+		if [[ -f "${MY_SYSCONFDIR}/my.cnf" ]] ; then
+			MY_DATADIR=`"my_print_defaults" mysqld 2>/dev/null \
+				| sed -ne '/datadir/s|^--datadir=||p' \
+				| tail -n1`
+			if [[ -z "${MY_DATADIR}" ]] ; then
+				MY_DATADIR=`grep ^datadir "${MY_SYSCONFDIR}/my.cnf" \
+				| sed -e 's/.*=\s*//' \
+				| tail -n1`
+			fi
+		fi
+		if [[ -z "${MY_DATADIR}" ]] ; then
+			MY_DATADIR="${MY_LOCALSTATEDIR}"
+			einfo "Using default MY_DATADIR"
+		fi
+		elog "MySQL MY_DATADIR is ${MY_DATADIR}"
+
+		if [[ -z "${PREVIOUS_DATADIR}" ]] ; then
+			if [[ -e "${MY_DATADIR}" ]] ; then
+				# If you get this and you're wondering about it, see bug #207636
+				elog "MySQL datadir found in ${MY_DATADIR}"
+				elog "A new one will not be created."
+				PREVIOUS_DATADIR="yes"
+			else
+				PREVIOUS_DATADIR="no"
+			fi
+			export PREVIOUS_DATADIR
+		fi
+	else
+		if [[ ${EBUILD_PHASE} == "config" ]]; then
+			local new_MY_DATADIR
+			new_MY_DATADIR=`"my_print_defaults" mysqld 2>/dev/null \
+				| sed -ne '/datadir/s|^--datadir=||p' \
+				| tail -n1`
+
+			if [[ ( -n "${new_MY_DATADIR}" ) && ( "${new_MY_DATADIR}" != "${MY_DATADIR}" ) ]]; then
+				ewarn "MySQL MY_DATADIR has changed"
+				ewarn "from ${MY_DATADIR}"
+				ewarn "to ${new_MY_DATADIR}"
+			fi
+		fi
+	fi
+
+	if [ "${MY_SOURCEDIR:-unset}" == "unset" ]; then
+		MY_SOURCEDIR=${SERVER_URI##*/}
+		MY_SOURCEDIR=${MY_SOURCEDIR%.tar*}
+	fi
+
+	export MY_SHAREDSTATEDIR MY_SYSCONFDIR
+	export MY_LIBDIR MY_LOCALSTATEDIR MY_LOGDIR
+	export MY_INCLUDEDIR MY_DATADIR MY_SOURCEDIR
 }

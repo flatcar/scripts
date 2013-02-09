@@ -1,6 +1,6 @@
-# Copyright 1999-2008 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/sword-module.eclass,v 1.2 2009/05/29 18:46:24 beandog Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/sword-module.eclass,v 1.3 2011/12/27 17:55:12 fauli Exp $
 
 #
 # eclass to simplify installation of Sword modules

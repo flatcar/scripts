@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/python.eclass,v 1.139 2011/10/15 20:58:08 phajdan.jr Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/python.eclass,v 1.164 2012/12/20 06:34:57 floppym Exp $
 
 # @ECLASS: python.eclass
 # @MAINTAINER:
@@ -9,16 +9,32 @@
 # @DESCRIPTION:
 # The python eclass contains miscellaneous, useful functions for Python packages.
 
-inherit multilib
+if [[ ${_PYTHON_UTILS_R1} ]]; then
+	die 'python.eclass can not be used with python-r1 suite eclasses.'
+fi
 
-if ! has "${EAPI:-0}" 0 1 2 3 4; then
+# Must call inherit before EXPORT_FUNCTIONS to avoid QA warning.
+if [[ -z "${_PYTHON_ECLASS_INHERITED}" ]]; then
+	inherit multilib
+fi
+
+# Export pkg_setup every time to avoid issues with eclass inheritance order.
+if ! has "${EAPI:-0}" 0 1 2 3 || { has "${EAPI:-0}" 2 3 && [[ -n "${PYTHON_USE_WITH}" || -n "${PYTHON_USE_WITH_OR}" ]]; }; then
+	EXPORT_FUNCTIONS pkg_setup
+fi
+
+# Avoid processing this eclass more than once.
+if [[ -z "${_PYTHON_ECLASS_INHERITED}" ]]; then
+_PYTHON_ECLASS_INHERITED="1"
+
+if ! has "${EAPI:-0}" 0 1 2 3 4 5; then
 	die "API of python.eclass in EAPI=\"${EAPI}\" not established"
 fi
 
 _CPYTHON2_GLOBALLY_SUPPORTED_ABIS=(2.4 2.5 2.6 2.7)
-_CPYTHON3_GLOBALLY_SUPPORTED_ABIS=(3.1 3.2)
+_CPYTHON3_GLOBALLY_SUPPORTED_ABIS=(3.1 3.2 3.3)
 _JYTHON_GLOBALLY_SUPPORTED_ABIS=(2.5-jython)
-_PYPY_GLOBALLY_SUPPORTED_ABIS=(2.7-pypy-1.5)
+_PYPY_GLOBALLY_SUPPORTED_ABIS=(2.7-pypy-1.7 2.7-pypy-1.8 2.7-pypy-1.9 2.7-pypy-2.0)
 _PYTHON_GLOBALLY_SUPPORTED_ABIS=(${_CPYTHON2_GLOBALLY_SUPPORTED_ABIS[@]} ${_CPYTHON3_GLOBALLY_SUPPORTED_ABIS[@]} ${_JYTHON_GLOBALLY_SUPPORTED_ABIS[@]} ${_PYPY_GLOBALLY_SUPPORTED_ABIS[@]})
 
 # ================================================================================================
@@ -88,16 +104,20 @@ _python_check_python_abi_matching() {
 	fi
 }
 
-_python_package_supporting_installation_for_multiple_python_abis() {
-	if has "${EAPI:-0}" 0 1 2 3 4; then
-		if [[ -n "${SUPPORT_PYTHON_ABIS}" ]]; then
-			return 0
-		else
-			return 1
-		fi
+_python_implementation() {
+	if [[ "${CATEGORY}/${PN}" == "dev-lang/python" ]]; then
+		return 0
+	elif [[ "${CATEGORY}/${PN}" == "dev-java/jython" ]]; then
+		return 0
+	elif [[ "${CATEGORY}/${PN}" == "dev-python/pypy" ]]; then
+		return 0
 	else
-		die "${FUNCNAME}(): Support for EAPI=\"${EAPI}\" not implemented"
+		return 1
 	fi
+}
+
+_python_package_supporting_installation_for_multiple_python_abis() {
+	[[ -n "${SUPPORT_PYTHON_ABIS}" ]]
 }
 
 # @ECLASS-VARIABLE: PYTHON_DEPEND
@@ -233,8 +253,11 @@ _python_parse_PYTHON_DEPEND() {
 	fi
 }
 
-DEPEND=">=app-admin/eselect-python-20091230"
-RDEPEND="${DEPEND}"
+if _python_implementation; then
+	DEPEND=">=app-admin/eselect-python-20091230"
+	RDEPEND="${DEPEND}"
+	PDEPEND="app-admin/python-updater"
+fi
 
 if [[ -n "${PYTHON_DEPEND}" ]]; then
 	_python_parse_PYTHON_DEPEND
@@ -283,8 +306,8 @@ if ! has "${EAPI:-0}" 0 1 && [[ -n ${PYTHON_USE_WITH} || -n ${PYTHON_USE_WITH_OR
 	if [[ -n "${PYTHON_USE_WITH_OPT}" ]]; then
 		_PYTHON_USE_WITH_ATOMS="${PYTHON_USE_WITH_OPT}? ( ${_PYTHON_USE_WITH_ATOMS} )"
 	fi
-	DEPEND+=" ${_PYTHON_USE_WITH_ATOMS}"
-	RDEPEND+=" ${_PYTHON_USE_WITH_ATOMS}"
+	DEPEND+="${DEPEND:+ }${_PYTHON_USE_WITH_ATOMS}"
+	RDEPEND+="${RDEPEND:+ }${_PYTHON_USE_WITH_ATOMS}"
 	unset _PYTHON_ATOM _PYTHON_USE_WITH_ATOMS _PYTHON_USE_WITH_ATOMS_ARRAY
 fi
 
@@ -293,18 +316,6 @@ unset _PYTHON_ATOMS
 # ================================================================================================
 # =================================== MISCELLANEOUS FUNCTIONS ====================================
 # ================================================================================================
-
-_python_implementation() {
-	if [[ "${CATEGORY}/${PN}" == "dev-lang/python" ]]; then
-		return 0
-	elif [[ "${CATEGORY}/${PN}" == "dev-java/jython" ]]; then
-		return 0
-	elif [[ "${CATEGORY}/${PN}" == "dev-python/pypy" ]]; then
-		return 0
-	else
-		return 1
-	fi
-}
 
 _python_abi-specific_local_scope() {
 	[[ " ${FUNCNAME[@]:2} " =~ " "(_python_final_sanity_checks|python_execute_function|python_mod_optimize|python_mod_cleanup)" " ]]
@@ -386,8 +397,6 @@ _python_set_color_variables() {
 	fi
 }
 
-unset PYTHON_PKG_SETUP_EXECUTED
-
 _python_check_python_pkg_setup_execution() {
 	[[ " ${FUNCNAME[@]:1} " =~ " "(python_set_active_version|python_pkg_setup)" " ]] && return
 
@@ -465,10 +474,6 @@ python_pkg_setup() {
 	PYTHON_PKG_SETUP_EXECUTED="1"
 }
 
-if ! has "${EAPI:-0}" 0 1 2 3 || { has "${EAPI:-0}" 2 3 && [[ -n "${PYTHON_USE_WITH}" || -n "${PYTHON_USE_WITH_OR}" ]]; }; then
-	EXPORT_FUNCTIONS pkg_setup
-fi
-
 _PYTHON_SHEBANG_BASE_PART_REGEX='^#![[:space:]]*([^[:space:]]*/usr/bin/env[[:space:]]+)?([^[:space:]]*/)?(jython|pypy-c|python)'
 
 # @FUNCTION: python_convert_shebangs
@@ -478,7 +483,7 @@ _PYTHON_SHEBANG_BASE_PART_REGEX='^#![[:space:]]*([^[:space:]]*/usr/bin/env[[:spa
 python_convert_shebangs() {
 	_python_check_python_pkg_setup_execution
 
-	local argument file files=() only_executables="0" python_interpreter quiet="0" recursive="0"
+	local argument file files=() only_executables="0" python_interpreter quiet="0" recursive="0" shebangs_converted="0"
 
 	while (($#)); do
 		case "$1" in
@@ -543,12 +548,54 @@ python_convert_shebangs() {
 		if [[ "$(head -n1 "${file}")" =~ ${_PYTHON_SHEBANG_BASE_PART_REGEX} ]]; then
 			[[ "$(sed -ne "2p" "${file}")" =~ ^"# Gentoo '".*"' wrapper script generated by python_generate_wrapper_scripts()"$ ]] && continue
 
+			shebangs_converted="1"
+
 			if [[ "${quiet}" == "0" ]]; then
 				einfo "Converting shebang in '${file}'"
 			fi
 
 			sed -e "1s:^#![[:space:]]*\([^[:space:]]*/usr/bin/env[[:space:]]\)\?[[:space:]]*\([^[:space:]]*/\)\?\(jython\|pypy-c\|python\)\([[:digit:]]\+\(\.[[:digit:]]\+\)\?\)\?\(\$\|[[:space:]].*\):#!\1\2${python_interpreter}\6:" -i "${file}" || die "Conversion of shebang in '${file}' failed"
 		fi
+	done
+
+	if [[ "${shebangs_converted}" == "0" ]]; then
+		ewarn "${FUNCNAME}(): Python scripts not found"
+	fi
+}
+
+# @FUNCTION: python_clean_py-compile_files
+# @USAGE: [-q|--quiet]
+# @DESCRIPTION:
+# Clean py-compile files to disable byte-compilation.
+python_clean_py-compile_files() {
+	_python_check_python_pkg_setup_execution
+
+	local file files=() quiet="0"
+
+	while (($#)); do
+		case "$1" in
+			-q|--quiet)
+				quiet="1"
+				;;
+			-*)
+				die "${FUNCNAME}(): Unrecognized option '$1'"
+				;;
+			*)
+				die "${FUNCNAME}(): Invalid usage"
+				;;
+		esac
+		shift
+	done
+
+	while read -d $'\0' -r file; do
+		files+=("${file#./}")
+	done < <(find -name py-compile -type f -print0)
+
+	for file in "${files[@]}"; do
+		if [[ "${quiet}" == "0" ]]; then
+			einfo "Cleaning '${file}' file"
+		fi
+		echo "#!/bin/sh" > "${file}"
 	done
 }
 
@@ -701,9 +748,7 @@ if ! has "${EAPI:-0}" 0 1; then
 	fi
 fi
 
-if has "${EAPI:-0}" 0 1 2 3 4; then
-	unset PYTHON_ABIS
-fi
+unset PYTHON_ABIS
 
 _python_calculate_PYTHON_ABIS() {
 	if ! _python_package_supporting_installation_for_multiple_python_abis; then
@@ -712,7 +757,7 @@ _python_calculate_PYTHON_ABIS() {
 
 	_python_initial_sanity_checks
 
-	if [[ "$(declare -p PYTHON_ABIS 2> /dev/null)" != "declare -x PYTHON_ABIS="* ]] && has "${EAPI:-0}" 0 1 2 3 4; then
+	if [[ "$(declare -p PYTHON_ABIS 2> /dev/null)" != "declare -x PYTHON_ABIS="* ]]; then
 		local PYTHON_ABI
 
 		if [[ "$(declare -p USE_PYTHON 2> /dev/null)" == "declare -x USE_PYTHON="* ]]; then
@@ -796,6 +841,16 @@ _python_calculate_PYTHON_ABIS() {
 				else
 					python3_version=""
 				fi
+			fi
+
+			if [[ -z "${python2_version}" && -z "${python3_version}" ]]; then
+				eerror "${CATEGORY}/${PF} requires at least one of the following packages:"
+				for PYTHON_ABI in "${_CPYTHON2_GLOBALLY_SUPPORTED_ABIS[@]}" "${_CPYTHON3_GLOBALLY_SUPPORTED_ABIS[@]}"; do
+					if ! _python_check_python_abi_matching --patterns-list "${PYTHON_ABI}" "${RESTRICT_PYTHON_ABIS}"; then
+						eerror "    dev-lang/python:${PYTHON_ABI}"
+					fi
+				done
+				die "No supported version of CPython installed"
 			fi
 
 			if [[ -n "${python2_version}" && "${python_version}" == "2."* && "${python_version}" != "${python2_version}" ]]; then
@@ -963,10 +1018,12 @@ python_execute_function() {
 			}
 		elif [[ "${EBUILD_PHASE}" == "test" ]]; then
 			python_default_function() {
-				if emake -j1 -n check &> /dev/null; then
-					emake -j1 check "$@"
-				elif emake -j1 -n test &> /dev/null; then
-					emake -j1 test "$@"
+				# Stolen from portage's _eapi0_src_test()
+				local emake_cmd="${MAKE:-make} ${MAKEOPTS} ${EXTRA_EMAKE}"
+				if ${emake_cmd} -j1 -n check &> /dev/null; then
+					${emake_cmd} -j1 check "$@"
+				elif ${emake_cmd} -j1 -n test &> /dev/null; then
+					${emake_cmd} -j1 test "$@"
 				fi
 			}
 		elif [[ "${EBUILD_PHASE}" == "install" ]]; then
@@ -1243,9 +1300,14 @@ cpython_shebang_re = re.compile(r"^#![ \t]*(?:${EPREFIX}/usr/bin/python|(?:${EPR
 python_shebang_options_re = re.compile(r"^#![ \t]*${EPREFIX}/usr/bin/(?:jython|pypy-c|python)(?:\d+(?:\.\d+)?)?[ \t]+(-\S)")
 python_verification_output_re = re.compile("^GENTOO_PYTHON_TARGET_SCRIPT_PATH supported\n$")
 
-pypy_versions_mapping = {
-	"1.5": "2.7"
-}
+#pypy_versions_mapping = {
+#	"1.5": "2.7",
+#	"1.6": "2.7",
+#	"1.7": "2.7",
+#	"1.8": "2.7",
+#	"1.9": "2.7",
+#	"2.0": "2.7",
+#}
 
 def get_PYTHON_ABI(python_interpreter):
 	cpython_matched = cpython_interpreter_re.match(python_interpreter)
@@ -1256,7 +1318,8 @@ def get_PYTHON_ABI(python_interpreter):
 	elif jython_matched is not None:
 		PYTHON_ABI = jython_matched.group(1) + "-jython"
 	elif pypy_matched is not None:
-		PYTHON_ABI = pypy_versions_mapping[pypy_matched.group(1)] + "-pypy-" + pypy_matched.group(1)
+		#PYTHON_ABI = pypy_versions_mapping[pypy_matched.group(1)] + "-pypy-" + pypy_matched.group(1)
+		PYTHON_ABI = "2.7-pypy-" + pypy_matched.group(1)
 	else:
 		PYTHON_ABI = None
 	return PYTHON_ABI
@@ -1594,8 +1657,14 @@ for file in sorted(files_set):
 
 		popd > /dev/null || die "popd failed"
 
-		if ROOT="/" has_version sys-apps/coreutils; then
+		# This is per bug #390691, without the duplication refactor, and with
+		# the 3-way structure per comment #6. This enable users with old
+		# coreutils to upgrade a lot easier (you need to upgrade python+portage
+		# before coreutils can be upgraded).
+		if ROOT="/" has_version '>=sys-apps/coreutils-6.9.90'; then
 			cp -fr --preserve=all --no-preserve=context "${intermediate_installation_images_directory}/${PYTHON_ABI}/"* "${D}" || die "Merging of intermediate installation image for Python ABI '${PYTHON_ABI} into installation image failed"
+		elif ROOT="/" has_version sys-apps/coreutils; then
+			cp -fr --preserve=all "${intermediate_installation_images_directory}/${PYTHON_ABI}/"* "${D}" || die "Merging of intermediate installation image for Python ABI '${PYTHON_ABI} into installation image failed"
 		else
 			cp -fpr "${intermediate_installation_images_directory}/${PYTHON_ABI}/"* "${D}" || die "Merging of intermediate installation image for Python ABI '${PYTHON_ABI} into installation image failed"
 		fi
@@ -2640,6 +2709,10 @@ python_disable_pyc() {
 	export PYTHONDONTWRITEBYTECODE="1"
 }
 
+_python_vecho() {
+	[[ -z ${PORTAGE_VERBOSE} ]] || echo "$@"
+}
+
 _python_clean_compiled_modules() {
 	_python_initialize_prefix_variables
 	_python_set_color_variables
@@ -2662,7 +2735,7 @@ _python_clean_compiled_modules() {
 				# Delete empty child directories.
 				find "${path}" -type d | sort -r | while read -r dir; do
 					if rmdir "${dir}" 2> /dev/null; then
-						echo "${_CYAN}<<< ${dir}${_NORMAL}"
+						_python_vecho "<<< ${dir}"
 					fi
 				done
 			fi
@@ -2695,7 +2768,7 @@ _python_clean_compiled_modules() {
 				else
 					[[ -f "${py_file}" ]] && continue
 				fi
-				echo "${_BLUE}<<< ${compiled_file%[co]}[co]${_NORMAL}"
+				_python_vecho "<<< ${compiled_file%[co]}[co]"
 				rm -f "${compiled_file%[co]}"[co]
 			elif [[ "${compiled_file}" == *\$py.class ]]; then
 				if [[ "${dir}" == "__pycache__" ]]; then
@@ -2710,7 +2783,7 @@ _python_clean_compiled_modules() {
 				else
 					[[ -f "${py_file}" ]] && continue
 				fi
-				echo "${_BLUE}<<< ${compiled_file}${_NORMAL}"
+				_python_vecho "<<< ${compiled_file}"
 				rm -f "${compiled_file}"
 			else
 				die "${FUNCNAME}(): Unrecognized file type: '${compiled_file}'"
@@ -2720,7 +2793,7 @@ _python_clean_compiled_modules() {
 			dir="${compiled_file%/*}"
 			while [[ "${dir}" != "${root}" ]]; do
 				if rmdir "${dir}" 2> /dev/null; then
-					echo "${_CYAN}<<< ${dir}${_NORMAL}"
+					_python_vecho "<<< ${dir}"
 				else
 					break
 				fi
@@ -3110,3 +3183,5 @@ python_mod_cleanup() {
 # ================================================================================================
 # ===================================== DEPRECATED FUNCTIONS =====================================
 # ================================================================================================
+
+fi # _PYTHON_ECLASS_INHERITED

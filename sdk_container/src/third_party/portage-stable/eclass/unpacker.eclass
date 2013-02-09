@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/unpacker.eclass,v 1.5 2012/02/13 20:53:34 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/unpacker.eclass,v 1.10 2012/08/22 01:41:12 ottxor Exp $
 
 # @ECLASS: unpacker.eclass
 # @MAINTAINER:
@@ -253,8 +253,46 @@ unpack_deb() {
 
 	unpack_banner "${deb}"
 
-	ar x "${deb}"
-	unpack ./data.tar*
+	# on AIX ar doesn't work out as their ar used a different format
+	# from what GNU ar (and thus what .deb files) produce
+	if [[ -n ${EPREFIX} ]] ; then
+		{
+			read # global header
+			[[ ${REPLY} = "!<arch>" ]] || die "${deb} does not seem to be a deb archive"
+			local f timestamp uid gid mode size magic
+			while read f timestamp uid gid mode size magic ; do
+				[[ -n ${f} && -n ${size} ]] || continue # ignore empty lines
+				if [[ ${f} = "data.tar"* ]] ; then
+					head -c "${size}" > "${f}"
+				else
+					head -c "${size}" > /dev/null # trash it
+				fi
+			done
+		} < "${deb}"
+	else
+		ar x "${deb}"
+	fi
+
+	unpacker ./data.tar*
+}
+
+# @FUNCTION: unpack_cpio
+# @USAGE: <one cpio to unpack>
+# @DESCRIPTION:
+# Unpack a cpio archive, file "-" means stdin.
+unpack_cpio() {
+	[[ $# -eq 1 ]] || die "Usage: ${FUNCNAME} <file>"
+
+	# needed as cpio always reads from stdin
+	local cpio_cmd=( cpio --make-directories --extract --preserve-modification-time )
+	if [[ $1 == "-" ]] ; then
+		unpack_banner "stdin"
+		"${cpio_cmd[@]}"
+	else
+		local cpio=$(find_unpackable_file "$1")
+		unpack_banner "${cpio}"
+		"${cpio_cmd[@]}" <"${cpio}"
+	fi
 }
 
 # @FUNCTION: _unpacker
@@ -273,8 +311,8 @@ _unpacker() {
 	# first figure out the decompression method
 	case ${m} in
 	*.bz2|*.tbz|*.tbz2)
-		local bzcmd=${PORTAGE_BZIP2_COMMAND:-$(type -P pbzip2 || bzip2)}
-		local bzuncmd=${PORTAGE_BUNZIP2_COMMAND:-${PORTAGE_BZIP2_COMMAND} -d}
+		local bzcmd=${PORTAGE_BZIP2_COMMAND:-$(type -P pbzip2 || type -P bzip2)}
+		local bzuncmd=${PORTAGE_BUNZIP2_COMMAND:-${bzcmd} -d}
 		: ${UNPACKER_BZ2:=${bzuncmd}}
 		comp="${UNPACKER_BZ2} -c"
 		;;
@@ -290,10 +328,18 @@ _unpacker() {
 	case ${m} in
 	*.tgz|*.tbz|*.tbz2|*.txz|*.tar.*|*.tar)
 		arch="tar --no-same-owner -xof" ;;
+	*.cpio.*|*.cpio)
+		arch="unpack_cpio" ;;
 	*.deb)
 		arch="unpack_deb" ;;
 	*.run)
 		arch="unpack_makeself" ;;
+	*.sh)
+		# Not all shell scripts are makeself
+		if head -n 30 "${a}" | grep -qs '#.*Makeself' ; then
+			arch="unpack_makeself"
+		fi
+		;;
 	*.bin)
 		# Makeself archives can be annoyingly named
 		if head -c 100 "${a}" | grep -qs '#.*Makeself' ; then
@@ -311,7 +357,9 @@ _unpacker() {
 	[[ ${arch} != unpack_* ]] && unpack_banner "${a}"
 
 	if [[ -z ${arch} ]] ; then
-		${comp} "${a}" > "${a%.*}"
+		# Need to decompress the file into $PWD #408801
+		local _a=${a%.*}
+		${comp} "${a}" > "${_a##*/}"
 	elif [[ -z ${comp} ]] ; then
 		${arch} "${a}"
 	else
@@ -354,6 +402,8 @@ unpacker_src_uri_depends() {
 
 	for uri in "$@" ; do
 		case ${uri} in
+		*.cpio.*|*.cpio)
+			d="app-arch/cpio" ;;
 		*.rar|*.RAR)
 			d="app-arch/unrar" ;;
 		*.7z)

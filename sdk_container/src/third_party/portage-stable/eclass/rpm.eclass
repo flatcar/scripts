@@ -1,6 +1,6 @@
-# Copyright 1999-2009 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/rpm.eclass,v 1.19 2009/10/05 06:14:36 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/rpm.eclass,v 1.22 2011/12/27 17:55:12 fauli Exp $
 
 # @ECLASS: rpm.eclass
 # @MAINTAINER:
@@ -47,8 +47,7 @@ srcrpm_unpack() {
 	# no .src.rpm files, then nothing to do
 	[[ "$* " != *".src.rpm " ]] && return 0
 
-	local old_shopts=$(shopt -p nullglob)
-	shopt -s nullglob
+	eshopts_push -s nullglob
 
 	# unpack everything
 	local a
@@ -57,7 +56,7 @@ srcrpm_unpack() {
 		rm -f "${a}"
 	done
 
-	eval "${old_shopts}"
+	eshopts_pop
 
 	return 0
 }
@@ -83,18 +82,46 @@ rpm_src_unpack() {
 # all the patches listed in it.  If the spec does funky things like moving
 # files around, well this won't handle that.
 rpm_spec_epatch() {
-	local p spec=${1:-${PN}.spec}
-	local dir=${spec%/*}
+	local p spec=$1
+	local dir
+
+	if [[ -z ${spec} ]] ; then
+		# search likely places for the spec file
+		for spec in "${PWD}" "${S}" "${WORKDIR}" ; do
+			spec+="/${PN}.spec"
+			[[ -e ${spec} ]] && break
+		done
+	fi
+	[[ ${spec} == */* ]] \
+		&& dir=${spec%/*} \
+		|| dir=
+
+	ebegin "Applying patches from ${spec}"
+
 	grep '^%patch' "${spec}" | \
 	while read line ; do
+		# expand the %patch line
 		set -- ${line}
 		p=$1
 		shift
-		EPATCH_OPTS="$*"
+
+		# process the %patch arguments
+		local arg
+		EPATCH_OPTS=
+		for arg in "$@" ; do
+			case ${arg} in
+			-b) EPATCH_OPTS+=" --suffix" ;;
+			*)  EPATCH_OPTS+=" ${arg}" ;;
+			esac
+		done
+
+		# extract the patch name from the Patch# line
 		set -- $(grep "^P${p#%p}: " "${spec}")
 		shift
 		epatch "${dir:+${dir}/}$*"
 	done
+
+	eend
 }
 
 EXPORT_FUNCTIONS src_unpack

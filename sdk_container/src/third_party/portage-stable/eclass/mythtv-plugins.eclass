@@ -1,12 +1,13 @@
-# Copyright 1999-2006 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/mythtv-plugins.eclass,v 1.36 2009/11/02 01:59:17 cardoe Exp $
-#
+# $Header: /var/cvsroot/gentoo-x86/eclass/mythtv-plugins.eclass,v 1.40 2011/08/22 04:46:32 vapier Exp $
+
 # @ECLASS: mythtv-plugins.eclass
-# @AUTHOR: Doug Goldstein <cardoe@gentoo.org>
-# @MAINTAINER: Doug Goldstein <cardoe@gentoo.org>
+# @MAINTAINER:
+# Doug Goldstein <cardoe@gentoo.org>
+# @AUTHOR:
+# Doug Goldstein <cardoe@gentoo.org>
 # @BLURB: Installs MythTV plugins along with patches from the release-${PV}-fixes branch
-#
 
 # NOTE: YOU MUST INHERIT EITHER qt3 or qt4 IN YOUR PLUGIN!
 
@@ -48,6 +49,11 @@ mythtv-plugins_pkg_setup() {
 		MYTHPLUGINS="${MYTHPLUGINS/mythcontrols/}"
 		MYTHPLUGINS="${MYTHPLUGINS/mythphone/}"
 	fi
+
+	if version_is_at_least "0.23_beta" ; then
+		MYTHPLUGINS="${MYTHPLUGINS/mythflix/}"
+		MYTHPLUGINS="${MYTHPLUGINS} mythnetvision"
+	fi
 }
 
 mythtv-plugins_src_prepare() {
@@ -82,7 +88,7 @@ mythtv-plugins_src_configure() {
 
 	local myconf=""
 
-	if hasq ${PN} ${MYTHPLUGINS} ; then
+	if has ${PN} ${MYTHPLUGINS} ; then
 		for x in ${MYTHPLUGINS} ; do
 			if [[ ${PN} == ${x} ]] ; then
 				myconf="${myconf} --enable-${x}"
@@ -108,7 +114,7 @@ mythtv-plugins_src_compile() {
 }
 
 mythtv-plugins_src_install() {
-	if hasq ${PN} ${MYTHPLUGINS} ; then
+	if has ${PN} ${MYTHPLUGINS} ; then
 		cd "${S}"/${PN}
 	else
 		die "Package ${PN} is unsupported"

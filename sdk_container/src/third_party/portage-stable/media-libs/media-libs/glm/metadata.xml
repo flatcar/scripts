@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer>
+		<email>tupone@gentoo.org</email>
+		<name>Tupone Alfredo</name>
+	</maintainer>
+	<longdescription lang="en">
+		header only C++ mathematics library for graphics software based on the OpenGL Shading Language (GLSL) specification. 
+	</longdescription>
+</pkgmetadata>
+

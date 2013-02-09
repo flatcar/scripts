@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/mysql-cmake.eclass,v 1.10 2012/11/01 23:57:50 robbat2 Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/mysql-cmake.eclass,v 1.13 2013/01/20 02:37:51 robbat2 Exp $
 
 # @ECLASS: mysql-cmake.eclass
 # @MAINTAINER:
@@ -15,7 +15,7 @@
 # the src_unpack, src_prepare, src_configure, src_compile, scr_install,
 # pkg_preinst, pkg_postinst, pkg_config and pkg_postrm phase hooks.
 
-inherit cmake-utils flag-o-matic multilib
+inherit cmake-utils flag-o-matic multilib prefix
 
 #
 # HELPER FUNCTIONS:
@@ -109,7 +109,8 @@ configure_cmake_minimal() {
 		-DWITH_SSL=system
 		-DWITH_ZLIB=system
 		-DWITHOUT_LIBWRAP=1
-		-DWITHOUT_READLINE=1
+		-DWITH_READLINE=0
+		-DWITH_LIBEDIT=0
 		-DWITHOUT_ARCHIVE_STORAGE_ENGINE=1
 		-DWITHOUT_BLACKHOLE_STORAGE_ENGINE=1
 		-DWITHOUT_CSV_STORAGE_ENGINE=1
@@ -133,7 +134,8 @@ configure_cmake_standard() {
 		-DEXTRA_CHARSETS=all
 		-DMYSQL_USER=mysql
 		-DMYSQL_UNIX_ADDR=${EPREFIX}/var/run/mysqld/mysqld.sock
-		-DWITHOUT_READLINE=1
+		-DWITH_READLINE=0
+		-DWITH_LIBEDIT=0
 		-DWITH_ZLIB=system
 		-DWITHOUT_LIBWRAP=1
 	)
@@ -329,10 +331,11 @@ mysql-cmake_src_install() {
 
 	# Configuration stuff
 	case ${MYSQL_PV_MAJOR} in
-		5.[1-9]|6*|7*) mysql_mycnf_version="5.1" ;;
+		5.[1-4]*) mysql_mycnf_version="5.1" ;;
+		5.[5-9]|6*|7*) mysql_mycnf_version="5.5" ;;
 	esac
 	einfo "Building default my.cnf (${mysql_mycnf_version})"
-	insinto "${MY_SYSCONFDIR}"
+	insinto "${MY_SYSCONFDIR#${EPREFIX}}"
 	doins scripts/mysqlaccess.conf
 	mycnf_src="my.cnf-${mysql_mycnf_version}"
 	sed -e "s!@DATADIR@!${MY_DATADIR}!g" \
@@ -343,6 +346,7 @@ mysql-cmake_src_install() {
 			-e "/character-set/s|utf8|latin1|g" \
 			"${TMPDIR}/my.cnf.ok"
 	fi
+	eprefixify "${TMPDIR}/my.cnf.ok"
 	newins "${TMPDIR}/my.cnf.ok" my.cnf
 
 	# Minimal builds don't have the MySQL server

@@ -1,0 +1,23 @@
+# ChangeLog for media-libs/libsvgtiny
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/media-libs/libsvgtiny/ChangeLog,v 1.4 2012/07/18 15:38:34 xmw Exp $
+
+  18 Jul 2012; Michael Weber <xmw@gentoo.org>
+  -libsvgtiny-0.0.2_pre20120629.ebuild:
+  drop old
+
+*libsvgtiny-0.0.2 (18 Jul 2012)
+
+  18 Jul 2012; Michael Weber <xmw@gentoo.org> +libsvgtiny-0.0.2.ebuild:
+  Version bump to netsurf-2.9 tarball
+
+  18 Jul 2012; Michael Weber <xmw@gentoo.org>
+  libsvgtiny-0.0.2_pre20120629.ebuild, libsvgtiny-9999.ebuild:
+  Fix HOMEPAGE, thanks Nikoli
+
+*libsvgtiny-9999 (18 Jul 2012)
+*libsvgtiny-0.0.2_pre20120629 (18 Jul 2012)
+
+  18 Jul 2012; Michael Weber <xmw@gentoo.org>
+  +libsvgtiny-0.0.2_pre20120629.ebuild, +libsvgtiny-9999.ebuild, +metadata.xml:
+  Initial import

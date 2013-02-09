@@ -1,16 +1,13 @@
-# Copyright 1999-2004 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/linux-mod.eclass,v 1.98 2010/01/17 04:00:07 robbat2 Exp $
-
-# Author(s): John Mylchreest <johnm@gentoo.org>,
-#            Stefan Schweizer <genstef@gentoo.org>
-# Maintainer: kernel-misc@gentoo.org
-#
-# Please direct your bugs to the current eclass maintainer :)
+# $Header: /var/cvsroot/gentoo-x86/eclass/linux-mod.eclass,v 1.108 2012/09/15 16:16:53 zmedico Exp $
 
 # @ECLASS: linux-mod.eclass
 # @MAINTAINER:
 # kernel-misc@gentoo.org
+# @AUTHOR:
+# John Mylchreest <johnm@gentoo.org>,
+# Stefan Schweizer <genstef@gentoo.org>
 # @BLURB: It provides the functionality required to install external modules against a kernel source tree.
 # @DESCRIPTION:
 # This eclass is used to interface with linux-info.eclass in such a way
@@ -37,7 +34,7 @@
 
 # @ECLASS-VARIABLE: BUILD_TARGETS
 # @DESCRIPTION:
-# It's a string with the build targets to pass to make. The default value is "clean modules"
+# It's a string with the build targets to pass to make. The default value is "clean module"
 
 # @ECLASS-VARIABLE: MODULE_NAMES
 # @DESCRIPTION:
@@ -57,7 +54,7 @@
 #
 # To get an idea of how these variables are used, here's a few lines
 # of code from around line 540 in this eclass:
-#		
+#
 #	einfo "Installing ${modulename} module"
 #	cd ${objdir} || die "${objdir} does not exist"
 #	insinto /lib/modules/${KV_FULL}/${libdir}
@@ -125,17 +122,11 @@
 # @DESCRIPTION:
 # It's a read-only variable. It contains the extension of the kernel modules.
 
-# The order of these is important as both of linux-info and eutils contain
-# set_arch_to_kernel and set_arch_to_portage functions and the ones in eutils
-# are deprecated in favor of the ones in linux-info.
-# See http://bugs.gentoo.org/show_bug.cgi?id=127506
-
 inherit eutils linux-info multilib
 EXPORT_FUNCTIONS pkg_setup pkg_preinst pkg_postinst src_install src_compile pkg_postrm
 
 IUSE="kernel_linux"
 SLOT="0"
-DESCRIPTION="Based on the $ECLASS eclass"
 RDEPEND="kernel_linux? ( virtual/modutils )"
 DEPEND="${RDEPEND}
 	sys-apps/sed
@@ -195,6 +186,7 @@ use_m() {
 
 	# if the kernel version is greater than 2.6.6 then we should use
 	# M= instead of SUBDIRS=
+	[ ${KV_MAJOR} -eq 3 ] && return 0
 	[ ${KV_MAJOR} -eq 2 -a ${KV_MINOR} -gt 5 -a ${KV_PATCH} -gt 5 ] && \
 		return 0 || return 1
 }
@@ -230,7 +222,7 @@ update_depmod() {
 	ebegin "Updating module dependencies for ${KV_FULL}"
 	if [ -r "${KV_OUT_DIR}"/System.map ]
 	then
-		depmod -ae -F "${KV_OUT_DIR}"/System.map -b "${ROOT}" -r ${KV_FULL}
+		depmod -ae -F "${KV_OUT_DIR}"/System.map -b "${ROOT}" ${KV_FULL}
 		eend $?
 	else
 		ewarn
@@ -328,7 +320,7 @@ remove_moduledb() {
 set_kvobj() {
 	debug-print-function ${FUNCNAME} $*
 
-	if kernel_is 2 6
+	if kernel_is ge 2 6
 	then
 		KV_OBJ="ko"
 	else
@@ -576,8 +568,15 @@ find_module_params() {
 linux-mod_pkg_setup() {
 	debug-print-function ${FUNCNAME} $*
 
+	local is_bin="${MERGE_TYPE}"
+
 	# If we are installing a binpkg, take a different path.
-	if [[ $EMERGE_FROM == binary ]]; then
+	# use MERGE_TYPE if available (eapi>=4); else use non-PMS EMERGE_FROM (eapi<4)
+	if has ${EAPI} 0 1 2 3; then
+		is_bin=${EMERGE_FROM}
+	fi
+
+	if [[ ${is_bin} == binary ]]; then
 		linux-mod_pkg_setup_binary
 		return
 	fi
@@ -602,11 +601,10 @@ linux-mod_pkg_setup() {
 linux-mod_pkg_setup_binary() {
 	debug-print-function ${FUNCNAME} $*
 	local new_CONFIG_CHECK
+	# ~ needs always to be quoted, else bash expands it.
 	for config in $CONFIG_CHECK ; do
-		case ${config:0:1} in
-			~) optional="" ;;
-			*) optional="~" ;;
-		esac
+		optional='~'
+		[[ ${config:0:1} == "~" ]] && optional=''
 		new_CONFIG_CHECK="${new_CONFIG_CHECK} ${optional}${config}"
 	done
 	export CONFIG_CHECK="${new_CONFIG_CHECK}"

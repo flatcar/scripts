@@ -1,11 +1,10 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/python-utils-r1.eclass,v 1.5 2012/11/30 11:43:14 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/python-utils-r1.eclass,v 1.16 2013/01/29 21:12:33 mgorny Exp $
 
 # @ECLASS: python-utils-r1
 # @MAINTAINER:
-# Michał Górny <mgorny@gentoo.org>
-# Python herd <python@gentoo.org>
+# Python team <python@gentoo.org>
 # @AUTHOR:
 # Author: Michał Górny <mgorny@gentoo.org>
 # Based on work of: Krzysztof Pawlik <nelchael@gentoo.org>
@@ -43,10 +42,41 @@ inherit multilib
 # All supported Python implementations, most preferred last.
 _PYTHON_ALL_IMPLS=(
 	jython2_5
-	pypy1_8 pypy1_9
+	pypy1_9 pypy2_0
 	python3_1 python3_2 python3_3
 	python2_5 python2_6 python2_7
 )
+
+# @FUNCTION: _python_impl_supported
+# @USAGE: <impl>
+# @INTERNAL
+# @DESCRIPTION:
+# Check whether the implementation <impl> (PYTHON_COMPAT-form)
+# is still supported.
+#
+# Returns 0 if the implementation is valid and supported. If it is
+# unsupported, returns 1 -- and the caller should ignore the entry.
+# If it is invalid, dies with an appopriate error messages.
+_python_impl_supported() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	[[ ${#} -eq 1 ]] || die "${FUNCNAME}: takes exactly 1 argument (impl)."
+
+	local impl=${1}
+
+	# keep in sync with _PYTHON_ALL_IMPLS!
+	# (not using that list because inline patterns shall be faster)
+	case "${impl}" in
+		python2_[567]|python3_[123]|pypy1_9|pypy2_0|jython2_5)
+			return 0
+			;;
+		pypy1_8)
+			return 1
+			;;
+		*)
+			die "Invalid implementation in PYTHON_COMPAT: ${impl}"
+	esac
+}
 
 # @ECLASS-VARIABLE: PYTHON
 # @DESCRIPTION:
@@ -81,6 +111,28 @@ _PYTHON_ALL_IMPLS=(
 # Example value:
 # @CODE
 # /usr/lib64/python2.6/site-packages
+# @CODE
+
+# @ECLASS-VARIABLE: PYTHON_INCLUDEDIR
+# @DESCRIPTION:
+# The path to Python include directory.
+#
+# Set and exported on request using python_export().
+#
+# Example value:
+# @CODE
+# /usr/include/python2.6
+# @CODE
+
+# @ECLASS-VARIABLE: PYTHON_PKG_DEP
+# @DESCRIPTION:
+# The complete dependency on a particular Python package as a string.
+#
+# Set and exported on request using python_export().
+#
+# Example value:
+# @CODE
+# dev-lang/python:2.7[xml]
 # @CODE
 
 # @FUNCTION: python_export
@@ -150,6 +202,47 @@ python_export() {
 				export PYTHON_SITEDIR=${EPREFIX}${dir}/site-packages
 				debug-print "${FUNCNAME}: PYTHON_SITEDIR = ${PYTHON_SITEDIR}"
 				;;
+			PYTHON_INCLUDEDIR)
+				local dir
+				case "${impl}" in
+					python*)
+						dir=/usr/include/${impl}
+						;;
+					jython*)
+						dir=/usr/share/${impl}/Include
+						;;
+					pypy*)
+						dir=/usr/$(get_libdir)/${impl/-c/}/include
+						;;
+				esac
+
+				export PYTHON_INCLUDEDIR=${EPREFIX}${dir}
+				debug-print "${FUNCNAME}: PYTHON_INCLUDEDIR = ${PYTHON_INCLUDEDIR}"
+				;;
+			PYTHON_PKG_DEP)
+				local d
+				case ${impl} in
+					python*)
+						PYTHON_PKG_DEP='dev-lang/python';;
+					jython*)
+						PYTHON_PKG_DEP='dev-java/jython';;
+					pypy*)
+						PYTHON_PKG_DEP='dev-python/pypy';;
+					*)
+						die "Invalid implementation: ${impl}"
+				esac
+
+				# slot
+				PYTHON_PKG_DEP+=:${impl##*[a-z-]}
+
+				# use-dep
+				if [[ ${PYTHON_REQ_USE} ]]; then
+					PYTHON_PKG_DEP+=[${PYTHON_REQ_USE}]
+				fi
+
+				export PYTHON_PKG_DEP
+				debug-print "${FUNCNAME}: PYTHON_PKG_DEP = ${PYTHON_PKG_DEP}"
+				;;
 			*)
 				die "python_export: unknown variable ${var}"
 		esac
@@ -202,6 +295,21 @@ python_get_sitedir() {
 	echo "${PYTHON_SITEDIR}"
 }
 
+# @FUNCTION: python_get_includedir
+# @USAGE: [<impl>]
+# @DESCRIPTION:
+# Obtain and print the include path for the given implementation. If no
+# implementation is provided, ${EPYTHON} will be used.
+#
+# If you just need to have PYTHON_INCLUDEDIR set (and exported), then it
+# is better to use python_export() directly instead.
+python_get_includedir() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	python_export "${@}" PYTHON_INCLUDEDIR
+	echo "${PYTHON_INCLUDEDIR}"
+}
+
 # @FUNCTION: _python_rewrite_shebang
 # @INTERNAL
 # @USAGE: [<EPYTHON>] <path>...
@@ -241,17 +349,33 @@ _python_rewrite_shebang() {
 	local f
 	for f; do
 		local shebang=$(head -n 1 "${f}")
+		local from
 		debug-print "${FUNCNAME}: path = ${f}"
 		debug-print "${FUNCNAME}: shebang = ${shebang}"
 
-		if [[ "${shebang} " != *'python '* ]]; then
+		if [[ "${shebang} " == *'python '* ]]; then
+			from=python
+		elif [[ "${shebang} " == *'python2 '* ]]; then
+			from=python2
+		elif [[ "${shebang} " == *'python3 '* ]]; then
+			from=python3
+		else
 			eerror "A file does not seem to have a supported shebang:"
 			eerror "  file: ${f}"
 			eerror "  shebang: ${shebang}"
 			die "${FUNCNAME}: ${f} does not seem to have a valid shebang"
 		fi
 
-		sed -i -e "1s:python:${impl}:" "${f}" || die
+		if [[ ${from} == python2 && ${impl} == python3*
+				|| ${from} == python3 && ${impl} != python3* ]]; then
+			eerror "A file does have shebang not supporting requested impl:"
+			eerror "  file: ${f}"
+			eerror "  shebang: ${shebang}"
+			eerror "  impl: ${impl}"
+			die "${FUNCNAME}: ${f} does have shebang not supporting ${EPYTHON}"
+		fi
+
+		sed -i -e "1s:${from}:${impl}:" "${f}" || die
 	done
 }
 
@@ -270,20 +394,22 @@ _python_ln_rel() {
 	local topath=${to%/*}/
 	local rel_path=
 
-	# remove double slashes
-	frpath=${frpath/\/\///}
-	topath=${topath/\/\///}
-
 	while [[ ${topath} ]]; do
-		local frseg=${frpath%%/*}
-		local toseg=${topath%%/*}
+		local frseg= toseg=
+
+		while [[ ! ${frseg} && ${frpath} ]]; do
+			frseg=${frpath%%/*}
+			frpath=${frpath#${frseg}/}
+		done
+
+		while [[ ! ${toseg} && ${topath} ]]; do
+			toseg=${topath%%/*}
+			topath=${topath#${toseg}/}
+		done
 
 		if [[ ${frseg} != ${toseg} ]]; then
 			rel_path=../${rel_path}${frseg:+${frseg}/}
 		fi
-
-		frpath=${frpath#${frseg}/}
-		topath=${topath#${toseg}/}
 	done
 	rel_path+=${frpath}${1##*/}
 
@@ -322,6 +448,8 @@ python_optimize() {
 				set -- "${D}${f}" "${@}"
 			fi
 		done < <("${PYTHON}" -c 'import sys; print("\0".join(sys.path))')
+
+		debug-print "${FUNCNAME}: using sys.path: ${*/%/;}"
 	fi
 
 	local d
@@ -408,10 +536,10 @@ python_doscript() {
 
 		debug-print "${FUNCNAME}: ${oldfn} -> ${newfn}"
 		newins "${f}" "${newfn}" || die
-		_python_rewrite_shebang "${D}/${d}/${newfn}"
+		_python_rewrite_shebang "${ED}/${d}/${newfn}"
 
 		# install the wrapper
-		_python_ln_rel "${ED}"/usr/bin/python-exec "${D}/${d}/${oldfn}" || die
+		_python_ln_rel "${ED}"/usr/bin/python-exec "${ED}/${d}/${oldfn}" || die
 	done
 }
 
@@ -419,7 +547,7 @@ python_doscript() {
 # @DEFAULT_UNSET
 # @DESCRIPTION:
 # The current module root for python_domodule(). The path can be either
-# an absolute system path (it must start with a slash, and ${D} will be
+# an absolute system path (it must start with a slash, and ${ED} will be
 # prepended to it) or relative to the implementation's site-packages directory
 # (then it must start with a non-slash character).
 #
@@ -479,7 +607,7 @@ python_domodule() {
 		local PYTHON_SITEDIR=${PYTHON_SITEDIR}
 		[[ ${PYTHON_SITEDIR} ]] || python_export PYTHON_SITEDIR
 
-		d=${PYTHON_SITEDIR}/${python_moduleroot}
+		d=${PYTHON_SITEDIR#${EPREFIX}}/${python_moduleroot}
 	fi
 
 	local INSDESTTREE
@@ -487,7 +615,36 @@ python_domodule() {
 	insinto "${d}"
 	doins -r "${@}" || die
 
-	python_optimize "${D}/${d}"
+	python_optimize "${ED}/${d}"
+}
+
+# @FUNCTION: python_doheader
+# @USAGE: <files>...
+# @DESCRIPTION:
+# Install the given headers into the implementation-specific include
+# directory. This function is unconditionally recursive, i.e. you can
+# pass directories instead of files.
+#
+# Example:
+# @CODE
+# src_install() {
+#   python_foreach_impl python_doheader foo.h bar.h
+# }
+# @CODE
+python_doheader() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	[[ ${EPYTHON} ]] || die 'No Python implementation set (EPYTHON is null).'
+
+	local d PYTHON_INCLUDEDIR=${PYTHON_INCLUDEDIR}
+	[[ ${PYTHON_INCLUDEDIR} ]] || python_export PYTHON_INCLUDEDIR
+
+	d=${PYTHON_INCLUDEDIR#${EPREFIX}}
+
+	local INSDESTTREE
+
+	insinto "${d}"
+	doins -r "${@}" || die
 }
 
 _PYTHON_UTILS_R1=1

@@ -1,13 +1,13 @@
-# Copyright 1999-2007 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/php-lib-r1.eclass,v 1.9 2008/01/06 19:30:24 swegener Exp $
-#
-# Author: Stuart Herbert <stuart@gentoo.org>
-# Author: Luca Longinotti <chtekk@gentoo.org>
+# $Header: /var/cvsroot/gentoo-x86/eclass/php-lib-r1.eclass,v 1.11 2012/02/12 21:48:58 mabi Exp $
 
 # @ECLASS: php-lib-r1.eclass
 # @MAINTAINER:
 # Gentoo PHP team <php-bugs@gentoo.org>
+# @AUTHOR:
+# Author: Stuart Herbert <stuart@gentoo.org>
+# Author: Luca Longinotti <chtekk@gentoo.org>
 # @BLURB: A unified interface for adding new PHP libraries.
 # @DESCRIPTION:
 # This eclass provides a unified interface for adding new PHP libraries.
@@ -38,16 +38,6 @@ RDEPEND="${DEPEND}"
 # $1 - directory in ${S} to insert from
 # $2 ... list of files to install
 php-lib-r1_src_install() {
-	has_php
-
-	# install to the correct phpX folder, if not specified
-	# fall back to /usr/share/php
-	if [[ -n "${PHP_SHARED_CAT}" ]] ; then
-		PHP_LIB_DIR="/usr/share/${PHP_SHARED_CAT}/${PHP_LIB_NAME}"
-	else
-		PHP_LIB_DIR="/usr/share/php/${PHP_LIB_NAME}"
-	fi
-
 	local x
 
 	S_DIR="$1"
@@ -55,7 +45,7 @@ php-lib-r1_src_install() {
 
 	for x in $@ ; do
 		SUBDIR="$(dirname ${x})"
-		insinto "${PHP_LIB_DIR}/${SUBDIR}"
+		insinto "/usr/share/php/${PHP_LIB_NAME}/${SUBDIR}"
 		doins "${S_DIR}/${x}"
 	done
 

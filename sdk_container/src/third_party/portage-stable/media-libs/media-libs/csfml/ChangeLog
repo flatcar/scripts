@@ -1,0 +1,16 @@
+# ChangeLog for media-libs/csfml
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/media-libs/csfml/ChangeLog,v 1.3 2012/12/03 21:36:05 radhermit Exp $
+
+  03 Dec 2012; Tim Harder <radhermit@gentoo.org> csfml-1.6.ebuild:
+  Fix LICENSE (bug #445866 by ulm).
+
+  07 Feb 2011; Tim Harder <radhermit@gentoo.org> metadata.xml:
+  Moving to no-herd for now.
+
+*csfml-1.6 (07 Feb 2011)
+
+  07 Feb 2011; Tim Harder <radhermit@gentoo.org> +csfml-1.6.ebuild,
+  +files/csfml-1.6-destdir.patch, +metadata.xml:
+  Initial import. Split from media-libs/libsfml.
+

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<herd>video</herd>
+	<maintainer>
+		<email>media-video@gentoo.org</email>
+	</maintainer>
+	<use>
+		<flag name="postproc">Enable additional post processing filters</flag>
+		<flag name="sse3">Enable optimization for SSE3 capable chips</flag>
+		<flag name="ssse3">faster floating point optimization for SSSE3 capable chips (Intel Core 2 and later chips)</flag>
+		<flag name="sse4_1">Enable optimization for SSE4_1 capable processors (Intel Core 2 Penryn and later chips)</flag>
+	</use>
+	<upstream>
+		<remote-id type="google-code">webm</remote-id>
+	</upstream>
+</pkgmetadata>

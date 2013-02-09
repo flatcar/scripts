@@ -1,6 +1,6 @@
-# Copyright 1999-2007 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/php-common-r1.eclass,v 1.17 2010/01/22 13:23:44 scarabeus Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/php-common-r1.eclass,v 1.18 2011/12/27 17:55:12 fauli Exp $
 
 # Based on robbat2's work on the php4 sapi eclass
 # Based on stuart's work on the php5 sapi eclass

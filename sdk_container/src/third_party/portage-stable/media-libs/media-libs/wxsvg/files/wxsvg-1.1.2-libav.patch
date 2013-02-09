@@ -1,0 +1,13 @@
+Include mathematics.h for av_rescale().
+https://bugs.gentoo.org/384281
+
+--- a/src/mediadec_ffmpeg.cpp
++++ b/src/mediadec_ffmpeg.cpp
+@@ -29,6 +29,7 @@ extern "C" {
+ #include <swscale.h>
+ #else
+ #include <libavformat/avformat.h>
++#include <libavutil/mathematics.h>
+ #include <libswscale/swscale.h>
+ #endif
+ }

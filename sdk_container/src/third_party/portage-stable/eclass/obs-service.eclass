@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/obs-service.eclass,v 1.8 2012/11/15 20:06:34 scarabeus Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/obs-service.eclass,v 1.9 2013/01/31 09:26:42 scarabeus Exp $
 
 # @ECLASS: obs-service.eclass
 # @MAINTAINER:
@@ -62,7 +62,7 @@ SRC_URI="${OBS_URI}/${OBS_SERVICE_NAME} -> ${OBS_SERVICE_NAME}-${PV}"
 SRC_URI+=" ${OBS_URI}/${OBS_SERVICE_NAME}.service -> ${OBS_SERVICE_NAME}-${PV}.service"
 
 for i in ${ADDITIONAL_FILES}; do
-	SRC_URI+=" ${OBS_URI}/${i}"
+	SRC_URI+=" ${OBS_URI}/${i} -> ${i}-${PV}"
 done
 
 # @FUNCTION: obs-service_src_unpack
@@ -101,7 +101,7 @@ obs-service_src_install() {
 		debug-print "	${ADDITIONAL_FILES}"
 		exeinto /usr/lib/obs/service/${OBS_SERVICE_NAME}.files
 		for i in ${ADDITIONAL_FILES}; do
-			doexe "${S}"/${i}
+			newexe "${S}"/${i}-${PV} ${i}
 		done
 	fi
 }

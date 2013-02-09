@@ -1,0 +1,11 @@
+--- CMakeLists.txt
++++ CMakeLists.txt
+@@ -176,7 +176,7 @@
+         set( LCOV_RDIR "${CMAKE_BINARY_DIR}/lcov-report" )
+         add_definitions(-fprofile-arcs -ftest-coverage)
+         set (CMAKE_SHARED_LINKER_FLAGS  "${CMAKE_SHARED_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
+-        set (CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXEC_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
++        set (CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
+         add_custom_target( coverage-clean
+           COMMAND mkdir -p ${LCOV_RDIR}
+           COMMAND ${LCOV} -d ${CMAKE_BINARY_DIR} -z

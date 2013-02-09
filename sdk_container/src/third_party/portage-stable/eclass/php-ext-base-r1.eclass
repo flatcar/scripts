@@ -1,15 +1,15 @@
-# Copyright 1999-2007 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/php-ext-base-r1.eclass,v 1.10 2009/12/30 01:05:42 hoffie Exp $
-#
-# Author: Tal Peer <coredumb@gentoo.org>
-# Author: Stuart Herbert <stuart@gentoo.org>
-# Author: Luca Longinotti <chtekk@gentoo.org>
-# Author: Jakub Moc <jakub@gentoo.org> (documentation)
+# $Header: /var/cvsroot/gentoo-x86/eclass/php-ext-base-r1.eclass,v 1.17 2011/08/22 04:46:32 vapier Exp $
 
 # @ECLASS: php-ext-base-r1.eclass
 # @MAINTAINER:
 # Gentoo PHP team <php-bugs@gentoo.org>
+# @AUTHOR:
+# Author: Tal Peer <coredumb@gentoo.org>
+# Author: Stuart Herbert <stuart@gentoo.org>
+# Author: Luca Longinotti <chtekk@gentoo.org>
+# Author: Jakub Moc <jakub@gentoo.org> (documentation)
 # @BLURB: A unified interface for adding standalone PHP extensions.
 # @DESCRIPTION:
 # This eclass provides a unified interface for adding standalone
@@ -17,6 +17,17 @@
 #
 # Combined with php-ext-source-r1, we have a standardised solution for supporting
 # PHP extensions.
+
+# Block ebuilds with minor version slotting. Quite temporary fix
+DEPEND="!=dev-lang/php-5.3.3-r2
+		!=dev-lang/php-5.2.14-r1
+		!=dev-lang/php-5.3.3-r3
+		!=dev-lang/php-5.3.5
+		!=dev-lang/php-5.3.4-r1
+		!=dev-lang/php-5.3.4
+		!=dev-lang/php-5.2.16
+		!=dev-lang/php-5.2.17
+		!=dev-lang/php-5.2.14-r2"
 
 inherit depend.php
 
@@ -45,7 +56,7 @@ EXPORT_FUNCTIONS src_install
 php-ext-base-r1_buildinilist() {
 	# Work out the list of <ext>.ini files to edit/add to
 	if [[ -z "${PHPSAPILIST}" ]] ; then
-		PHPSAPILIST="apache2 cli cgi"
+		PHPSAPILIST="apache2 cli cgi fpm"
 	fi
 
 	PHPINIFILELIST=""

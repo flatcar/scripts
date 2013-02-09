@@ -1,0 +1,33 @@
+# ChangeLog for media-libs/libmetalink
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/media-libs/libmetalink/ChangeLog,v 1.6 2012/08/31 21:13:47 hwoarang Exp $
+
+*libmetalink-0.1.0-r1 (31 Aug 2012)
+
+  31 Aug 2012; Markos Chandras <hwoarang@gentoo.org>
+  +libmetalink-0.1.0-r1.ebuild:
+  EAPI4fy. Introduce xml useflag. Rework econf to pass --with/--without as
+  expected. Support static libs. bug #433042
+
+*libmetalink-0.1.0 (01 Aug 2012)
+
+  01 Aug 2012; Jeroen Roovers <jer@gentoo.org> +libmetalink-0.1.0.ebuild:
+  Version bump (bug #429340).
+
+  01 Aug 2012; Jeroen Roovers <jer@gentoo.org> libmetalink-0.0.3.ebuild:
+  Marked ~hppa (bug #428520).
+
+  29 Jul 2012; Anthony G. Basile <blueness@gentoo.org>
+  libmetalink-0.0.3.ebuild:
+  Keyword ~arm
+
+  29 Jul 2012; Anthony G. Basile <blueness@gentoo.org>
+  libmetalink-0.0.3.ebuild:
+  Keyword ~ppc/~ppc64 for curl-7.27.0
+
+*libmetalink-0.0.3 (07 Aug 2011)
+
+  07 Aug 2011; Markos Chandras <hwoarang@gentoo.org> +libmetalink-0.0.3.ebuild,
+  +metadata.xml:
+  Moved from sunrise overlay. Thanks to Sebastian Pipping <sping@gentoo.org>.
+  Bug #273118

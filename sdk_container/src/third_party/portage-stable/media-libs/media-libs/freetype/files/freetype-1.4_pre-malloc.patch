@@ -1,0 +1,13 @@
+https://bugs.gentoo.org/show_bug.cgi?id=104016
+
+diff -Naurp freetype-orig/freetype1-contrib/ttfbanner/ttfbanner.c freetype/freetype1-contrib/ttfbanner/ttfbanner.c
+--- freetype-orig/freetype1-contrib/ttfbanner/ttfbanner.c	2008-03-18 18:16:36.000000000 -0600
++++ freetype/freetype1-contrib/ttfbanner/ttfbanner.c	2008-03-18 18:16:22.000000000 -0600
+@@ -4,7 +4,6 @@
+ 
+ #include <stdlib.h>
+ #include <stdio.h>
+-#include <malloc.h>
+ #include <string.h>
+ #include "freetype.h"
+ #include "ttfbanner.h"

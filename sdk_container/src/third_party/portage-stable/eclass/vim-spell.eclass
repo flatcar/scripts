@@ -1,6 +1,6 @@
-# Copyright 1999-2005 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/vim-spell.eclass,v 1.7 2009/07/07 18:54:05 arfrever Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/vim-spell.eclass,v 1.9 2011/12/27 17:55:12 fauli Exp $
 
 #
 # Original Author: Ciaran McCreesh <ciaranm@gentoo.org>
@@ -105,6 +105,7 @@ vim-spell_src_install() {
 }
 
 vim-spell_pkg_postinst() {
+	has "${EAPI:-0}" 0 1 2 && ! use prefix && EROOT="${ROOT}"
 	target="/usr/share/vim/vimfiles/spell/"
 	echo
 	elog "To enable ${VIM_SPELL_LANGUAGE} spell checking, use"
@@ -112,7 +113,7 @@ vim-spell_pkg_postinst() {
 	echo
 	elog "The following (Vim internal, not file) encodings are supported for"
 	elog "this language:"
-	for f in "${ROOT}/${target}/${VIM_SPELL_CODE}".*.spl ; do
+	for f in "${EROOT}/${target}/${VIM_SPELL_CODE}".*.spl ; do
 		enc="${f##*/${VIM_SPELL_CODE}.}"
 		enc="${enc%.spl}"
 		[[ -z "${enc}" ]] && continue
@@ -124,4 +125,3 @@ vim-spell_pkg_postinst() {
 	echo
 	epause
 }
-

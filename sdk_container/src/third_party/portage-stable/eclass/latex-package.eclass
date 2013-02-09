@@ -1,12 +1,12 @@
-# Copyright 1999-2008 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/latex-package.eclass,v 1.38 2009/01/11 21:46:39 ulm Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/latex-package.eclass,v 1.39 2011/08/22 04:46:32 vapier Exp $
 
 # @ECLASS: latex-package.eclass
 # @MAINTAINER:
 # TeX team <tex@gentoo.org>
-#
-# Author Matthew Turk <satai@gentoo.org>
+# @AUTHOR:
+# Matthew Turk <satai@gentoo.org>
 # Martin Ehmsen <ehmsen@gentoo.org>
 # @BLURB: An eclass for easy installation of LaTeX packages
 # @DESCRIPTION:

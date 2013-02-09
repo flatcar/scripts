@@ -1,14 +1,14 @@
 # Eclass for simple bare-source Java packages
 #
-# Copyright (c) 2004-2009, Gentoo Foundation
+# Copyright (c) 2004-2011, Gentoo Foundation
 #
 # Licensed under the GNU General Public License, v2
 #
-# $Header: /var/cvsroot/gentoo-x86/eclass/java-pkg-simple.eclass,v 1.1 2010/01/16 18:48:39 weaver Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/java-pkg-simple.eclass,v 1.3 2011/12/27 17:55:12 fauli Exp $
 
 inherit java-utils-2
 
-if ! hasq java-pkg-2 ${INHERITED}; then
+if ! has java-pkg-2 ${INHERITED}; then
 	eerror "java-pkg-simple eclass can only be inherited AFTER java-pkg-2"
 fi
 
@@ -128,7 +128,7 @@ java-pkg-simple_src_compile() {
 		@${sources}
 
 	# javadoc
-	if hasq doc ${JAVA_PKG_IUSE} && use doc; then
+	if has doc ${JAVA_PKG_IUSE} && use doc; then
 		mkdir -p ${apidoc}
 		java-pkg-simple_verbose-cmd \
 			javadoc -d ${apidoc} \
@@ -162,13 +162,13 @@ java-pkg-simple_src_install() {
 		java-pkg_dojar ${PN}.jar
 
 	# javadoc
-	if hasq doc ${JAVA_PKG_IUSE} && use doc; then
+	if has doc ${JAVA_PKG_IUSE} && use doc; then
 		java-pkg-simple_verbose-cmd \
 			java-pkg_dojavadoc ${apidoc}
 	fi
 
 	# dosrc
-	if hasq source ${JAVA_PKG_IUSE} && use source; then
+	if has source ${JAVA_PKG_IUSE} && use source; then
 		local srcdirs=""
 		if [[ ${JAVA_SRC_DIR} ]]; then
 			local parent child

@@ -1,0 +1,39 @@
+# ChangeLog for media-libs/gst-rtsp-server
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/media-libs/gst-rtsp-server/ChangeLog,v 1.9 2012/11/07 20:37:33 tetromino Exp $
+
+  07 Nov 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  gst-rtsp-server-0.10.8.ebuild:
+  Slot gstreamer dependencies in preparation for gstreamer-1.0, and slot ebuild
+  to 0.10 since upstream is working on a gst-1.0-compatible version.
+
+  05 May 2012; Jeff Horelick <jdhore@gentoo.org> gst-rtsp-server-0.10.8.ebuild:
+  dev-util/pkgconfig -> virtual/pkgconfig
+
+  18 Dec 2011; Pawel Hajdan jr <phajdan.jr@gentoo.org>
+  gst-rtsp-server-0.10.8.ebuild:
+  x86 stable wrt bug #393411
+
+  14 Dec 2011; Agostino Sarubbo <ago@gentoo.org> gst-rtsp-server-0.10.8.ebuild:
+  Stable for AMD64, wrt bug #393411
+
+  24 Oct 2011; Alexandre Rostovtsev <tetromino@gentoo.org>
+  gst-rtsp-server-0.10.8.ebuild:
+  Depend on correct slot of pygobject.
+
+  01 Sep 2011; Matt Turner <mattst88@gentoo.org> gst-rtsp-server-0.10.8.ebuild:
+  Depend on gstreamer[introspection?], bug 381369.
+
+  01 Sep 2011; Matt Turner <mattst88@gentoo.org> gst-rtsp-server-0.10.8.ebuild:
+  Use PYTHON_DEPEND. Thanks to Arfrever for pointing it out.
+
+  31 Aug 2011; Matt Turner <mattst88@gentoo.org> gst-rtsp-server-0.10.8.ebuild:
+  Doesn't build with python-3, so python_set_active_version 2. Bug 379781.
+
+*gst-rtsp-server-0.10.8 (17 Aug 2011)
+
+  17 Aug 2011; Matt Turner <mattst88@gentoo.org>
+  +gst-rtsp-server-0.10.8.ebuild, +metadata.xml:
+  Added gst-rtsp-server-0.10.8, bug 280910. Thanks to Ooblick for the ebuild on
+  which this one is based.
+

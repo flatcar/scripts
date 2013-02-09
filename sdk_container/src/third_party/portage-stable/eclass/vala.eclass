@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/vala.eclass,v 1.4 2012/09/20 04:48:26 tetromino Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/vala.eclass,v 1.5 2012/12/02 11:26:07 pacho Exp $
 
 # @ECLASS: vala.eclass
 # @MAINTAINER:
@@ -16,7 +16,7 @@
 #
 # This eclass provides one phase function: src_prepare.
 
-inherit multilib
+inherit eutils multilib
 
 case "${EAPI:-0}" in
 	0)	die "EAPI=0 is not supported" ;;
@@ -75,20 +75,36 @@ vala_best_api_version() {
 }
 
 # @FUNCTION: vala_src_prepare
-# @USAGE: [--vala-api-version api_version]
+# @USAGE: [--ignore-use] [--vala-api-version api_version]
 # @DESCRIPTION:
 # Sets up the environment variables and pkgconfig files for the
 # specified API version, or, if no version is specified, for the
 # highest installed vala API version satisfying
 # VALA_MAX_API_VERSION, VALA_MIN_API_VERSION, and VALA_USE_DEPEND.
-# Dies if called without --vala-api-version and no suitable vala
-# version is found.
+# Is a no-op if called without --ignore-use when USE=-vala.
+# Dies if the USE check is passed (or ignored) and a suitable vala
+# version is not available.
 vala_src_prepare() {
-	local p d valafoo version
+	local p d valafoo version ignore_use
 
-	if [[ $1 = "--vala-api-version" ]]; then
-		version=$2
-		[[ ${version} ]] || die "'--vala-api-version' option requires API version parameter."
+	while [[ $1 ]]; do
+		case $1 in
+			"--ignore-use" )
+				ignore_use=1 ;;
+			"--vala-api-version" )
+				shift
+				version=$1
+				[[ ${version} ]] || die "'--vala-api-version' option requires API version parameter."
+		esac
+		shift
+	done
+
+	if [[ -z ${ignore_use} ]]; then
+		in_iuse vala && ! use vala && return 0
+	fi
+
+	if [[ ${version} ]]; then
+		has_version "dev-lang/vala:${version}" || die "No installed vala:${version}"
 	else
 		version=$(vala_best_api_version)
 		[[ ${version} ]] || die "No installed vala in $(vala_depend)"

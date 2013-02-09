@@ -1,21 +1,23 @@
-# Copyright 1999-2008 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/games.eclass,v 1.141 2010/01/03 19:13:44 scarabeus Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/games.eclass,v 1.153 2012/09/27 16:35:41 axs Exp $
 
-# devlist: {vapier,wolf31o2,mr_bones_}@gentoo.org -> games@gentoo.org
+# devlist: games@gentoo.org
 #
 # This is the games eclass for standardizing the install of games ...
 # you better have a *good* reason why you're *not* using games.eclass
 # in a games-* ebuild
 
-inherit base multilib toolchain-funcs eutils
+if [[ ${___ECLASS_ONCE_GAMES} != "recur -_+^+_- spank" ]] ; then
+___ECLASS_ONCE_GAMES="recur -_+^+_- spank"
+
+inherit base multilib toolchain-funcs eutils user
 
 case ${EAPI:-0} in
 	0|1) EXPORT_FUNCTIONS pkg_setup src_compile pkg_preinst pkg_postinst ;;
-	2) EXPORT_FUNCTIONS pkg_setup src_configure src_compile pkg_preinst pkg_postinst ;;
+	2|3|4|5) EXPORT_FUNCTIONS pkg_setup src_configure src_compile pkg_preinst pkg_postinst ;;
+	*) die "no support for EAPI=${EAPI} yet" ;;
 esac
-
-DESCRIPTION="Based on the ${ECLASS} eclass"
 
 export GAMES_PREFIX=${GAMES_PREFIX:-/usr/games}
 export GAMES_PREFIX_OPT=${GAMES_PREFIX_OPT:-/opt}
@@ -88,8 +90,11 @@ prepgamesdirs() {
 				fowners root:root "${dir}"
 				fperms 755 "${dir}"
 				for d in $(get_libdir) bin ; do
-					fowners root:root "${dir}/${d}"
-					fperms 755 "${dir}/${d}"
+					# check if dirs exist to avoid "nonfatal" option
+					if [[ -e ${D}/${dir}/${d} ]] ; then
+						fowners root:root "${dir}/${d}"
+						fperms 755 "${dir}/${d}"
+					fi
 				done
 			fi
 		) &>/dev/null
@@ -121,8 +126,7 @@ gamesenv() {
 }
 
 games_pkg_setup() {
-	tc-export CC CXX
-	[[ ${GAMES_CHECK_LICENSE} == "yes" ]] && check_license ${LICENSE}
+	tc-export CC CXX LD AR RANLIB
 
 	enewgroup "${GAMES_GROUP}" 35
 	[[ ${GAMES_USER} != "root" ]] \
@@ -133,7 +137,7 @@ games_pkg_setup() {
 	# Dear portage team, we are so sorry.  Lots of love, games team.
 	# See Bug #61680
 	[[ ${USERLAND} != "GNU" ]] && return 0
-	[[ $(getent passwd "${GAMES_USER_DED}" | cut -f7 -d:) == "/bin/false" ]] \
+	[[ $(egetshell "${GAMES_USER_DED}") == "/bin/false" ]] \
 		&& usermod -s /bin/bash "${GAMES_USER_DED}"
 }
 
@@ -192,12 +196,12 @@ games_ut_unpack() {
 		die "You must provide an argument to games_ut_unpack"
 	fi
 	if [[ -f ${ut_unpack} ]] ; then
-		uz2unpack "${ut_unpack}" "${ut_unpack/.uz2/}" &>/dev/null \
+		uz2unpack "${ut_unpack}" "${ut_unpack%.uz2}" \
 			|| die "uncompressing file ${ut_unpack}"
 	fi
 	if [[ -d ${ut_unpack} ]] ; then
 		while read f ; do
-			uz2unpack "${ut_unpack}/${f}" "${ut_unpack}/${f%.uz2}" &>/dev/null \
+			uz2unpack "${ut_unpack}/${f}" "${ut_unpack}/${f%.uz2}" \
 				|| die "uncompressing file ${f}"
 			rm -f "${ut_unpack}/${f}" || die "deleting compressed file ${f}"
 		done < <(find "${ut_unpack}" -maxdepth 1 -name '*.uz2' -printf '%f\n' 2>/dev/null)
@@ -217,3 +221,5 @@ games_umod_unpack() {
 	rm -f "${Ddir}"/System/{ucc-bin,{Manifest,Def{ault,User},User,UT200{3,4}}.ini,{Engine,Core,zlib,ogg,vorbis}.so,{Engine,Core}.int,ucc.log} &>/dev/null \
 		|| die "Removing temporary files"
 }
+
+fi

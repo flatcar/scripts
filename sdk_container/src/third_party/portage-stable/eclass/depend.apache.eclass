@@ -1,6 +1,6 @@
-# Copyright 1999-2009 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/depend.apache.eclass,v 1.45 2009/05/26 16:41:56 arfrever Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/depend.apache.eclass,v 1.47 2012/04/20 07:22:47 patrick Exp $
 
 # @ECLASS: depend.apache.eclass
 # @MAINTAINER:
@@ -105,6 +105,12 @@ APACHE2_DEPEND="=www-servers/apache-2*"
 # @DESCRIPTION:
 # Dependencies for Apache 2.2.x
 APACHE2_2_DEPEND="=www-servers/apache-2.2*"
+
+# @ECLASS-VARIABLE: APACHE2_4_DEPEND
+# @DESCRIPTION:
+# Dependencies for Apache 2.4.x
+APACHE2_4_DEPEND="=www-servers/apache-2.4*"
+
 
 # ==============================================================================
 # INTERNAL FUNCTIONS
@@ -232,6 +238,17 @@ need_apache2_2() {
 	DEPEND="${DEPEND} ${APACHE2_2_DEPEND}"
 	RDEPEND="${RDEPEND} ${APACHE2_2_DEPEND}"
 	_init_apache2
+}
+
+# @FUNCTION: need_apache2_4
+# @DESCRIPTION:
+# An ebuild calls this to get the dependency information for apache-2.4.x.
+need_apache2_4() {
+        debug-print-function $FUNCNAME $*
+
+        DEPEND="${DEPEND} ${APACHE2_4_DEPEND}"
+        RDEPEND="${RDEPEND} ${APACHE2_4_DEPEND}"
+        _init_apache2
 }
 
 # @FUNCTION: has_apache

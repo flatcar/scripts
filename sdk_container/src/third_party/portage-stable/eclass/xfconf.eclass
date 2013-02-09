@@ -1,6 +1,6 @@
-# Copyright 1999-2009 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/xfconf.eclass,v 1.7 2010/01/23 17:36:34 angelos Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/xfconf.eclass,v 1.45 2012/11/28 12:41:23 ssuominen Exp $
 
 # @ECLASS: xfconf.eclass
 # @MAINTAINER:
@@ -11,78 +11,80 @@
 
 # @ECLASS-VARIABLE: EAUTORECONF
 # @DESCRIPTION:
-# Run eautoreconf instead of elibtoolize if set "yes"
-
-# @ECLASS-VARIABLE: EINTLTOOLIZE
-# @DESCRIPTION:
-# Run intltoolize --force --copy --automake if set "yes"
-
-# @ECLASS-VARIABLE: DOCS
-# @DESCRIPTION:
-# Define documentation to install
-
-# @ECLASS-VARIABLE: PATCHES
-# @DESCRIPTION:
-# Define patches to apply
+# Run eautoreconf instead of elibtoolize if the variable is set
 
 # @ECLASS-VARIABLE: XFCONF
 # @DESCRIPTION:
-# Define options for econf
+# This should be an array defining arguments for econf
 
-inherit autotools base fdo-mime gnome2-utils libtool
+AUTOTOOLS_AUTO_DEPEND=no
 
-if ! [[ ${MY_P} ]]; then
-	MY_P=${P}
-else
-	S=${WORKDIR}/${MY_P}
-fi
+unset _xfconf_live
+[[ $PV == *9999* ]] && _xfconf_live=git-2
 
-SRC_URI="mirror://xfce/xfce/${PV}/src/${MY_P}.tar.bz2"
+inherit ${_xfconf_live} autotools base eutils fdo-mime gnome2-utils libtool
 
-if [[ "${EINTLTOOLIZE}" == "yes" ]]; then
-	_xfce4_intltool="dev-util/intltool"
-fi
+EGIT_BOOTSTRAP=autogen.sh
+EGIT_REPO_URI="git://git.xfce.org/xfce/${MY_PN:-${PN}}"
 
-if [[ "${EAUTORECONF}" == "yes" ]]; then
-	_xfce4_m4="dev-util/xfce4-dev-tools"
-fi
+_xfconf_deps=""
+_xfconf_m4=">=dev-util/xfce4-dev-tools-4.10 ${AUTOTOOLS_DEPEND}"
+
+[[ -n $_xfconf_live ]] && _xfconf_deps+=" dev-util/gtk-doc ${_xfconf_m4}"
+[[ -n $EAUTORECONF ]] && _xfconf_deps+=" ${_xfconf_m4}"
 
 RDEPEND=""
-DEPEND="${_xfce4_intltool}
-	${_xfce4_m4}"
+DEPEND="${_xfconf_deps}"
 
-unset _xfce4_intltool
-unset _xfce4_m4
+unset _xfconf_deps
+unset _xfconf_m4
 
-XFCONF_EXPF="src_unpack src_compile src_install pkg_preinst pkg_postinst pkg_postrm"
 case ${EAPI:-0} in
-	3|2) XFCONF_EXPF="${XFCONF_EXPF} src_prepare src_configure" ;;
-	1|0) ;;
+	5) ;;
 	*) die "Unknown EAPI." ;;
 esac
-EXPORT_FUNCTIONS ${XFCONF_EXPF}
+
+[[ -n $_xfconf_live ]] && _xfconf_live=src_unpack
+
+EXPORT_FUNCTIONS ${_xfconf_live} src_prepare src_configure src_install pkg_preinst pkg_postinst pkg_postrm
+
+# @FUNCTION: xfconf_use_debug
+# @DESCRIPTION:
+# If IUSE has debug, return --enable-debug=minimum.
+# If USE debug is enabled, return --enable-debug which is the same as --enable-debug=yes.
+# If USE debug is enabled and the XFCONF_FULL_DEBUG variable is set, return --enable-debug=full.
+xfconf_use_debug() {
+	if has debug ${IUSE}; then
+		if use debug; then
+			if [[ -n $XFCONF_FULL_DEBUG ]]; then
+				echo "--enable-debug=full"
+			else
+				echo "--enable-debug"
+			fi
+		else
+			echo "--enable-debug=minimum"
+		fi
+	else
+		ewarn "${FUNCNAME} called without debug in IUSE"
+	fi
+}
 
 # @FUNCTION: xfconf_src_unpack
 # @DESCRIPTION:
-# Run base_src_util autopatch and eautoreconf or elibtoolize
+# Run git-2_src_unpack if required
 xfconf_src_unpack() {
-	unpack ${A}
-	cd "${S}"
-	has src_prepare ${XFCONF_EXPF} || xfconf_src_prepare
+	NOCONFIGURE=1 git-2_src_unpack
 }
 
 # @FUNCTION: xfconf_src_prepare
 # @DESCRIPTION:
-# Run base_src_util autopatch and eautoreconf or elibtoolize
+# Run base_src_prepare and eautoreconf or elibtoolize
 xfconf_src_prepare() {
+	debug-print-function ${FUNCNAME} "$@"
 	base_src_prepare
 
-	if [[ "${EINTLTOOLIZE}" == "yes" ]]; then
-		intltoolize --force --copy --automake || die "intltoolize failed"
-	fi
-
-	if [[ "${EAUTORECONF}" == "yes" ]]; then
-		AT_M4DIR="/usr/share/xfce4/dev-tools/m4macros" eautoreconf
+	if [[ -n $EAUTORECONF ]]; then
+		AT_M4DIR=${EPREFIX}/usr/share/xfce4/dev-tools/m4macros eautoreconf
 	else
 		elibtoolize
 	fi
@@ -90,34 +92,34 @@ xfconf_src_prepare() {
 
 # @FUNCTION: xfconf_src_configure
 # @DESCRIPTION:
-# Run econf with opts in XFCONF variable
+# Run econf with opts from the XFCONF array
 xfconf_src_configure() {
-	econf ${XFCONF}
-}
-
-# @FUNCTION: xfconf_src_compile
-# @DESCRIPTION:
-# Run econf with opts in XFCONF variable
-xfconf_src_compile() {
-	has src_configure ${XFCONF_EXPF} || xfconf_src_configure
-	emake || die "emake failed"
+	debug-print-function ${FUNCNAME} "$@"
+	[[ -n $_xfconf_live ]] && XFCONF+=( --enable-maintainer-mode )
+	econf "${XFCONF[@]}"
 }
 
 # @FUNCTION: xfconf_src_install
 # @DESCRIPTION:
-# Run emake install and install documentation in DOCS variable
+# Run emake install and install documentation in the DOCS array
 xfconf_src_install() {
-	emake DESTDIR="${D}" install || die "emake install failed"
+	debug-print-function ${FUNCNAME} "$@"
 
-	if [[ -n ${DOCS} ]]; then
-		dodoc ${DOCS} || die "dodoc failed"
+	# FIXME
+	if [[ -n $_xfconf_live ]] && ! [[ -e ChangeLog ]]; then
+		touch ChangeLog
 	fi
+
+	base_src_install "$@" || die
+
+	prune_libtool_files --all
 }
 
 # @FUNCTION: xfconf_pkg_preinst
 # @DESCRIPTION:
 # Run gnome2_icon_savelist
 xfconf_pkg_preinst() {
+	debug-print-function ${FUNCNAME} "$@"
 	gnome2_icon_savelist
 }
 
@@ -125,6 +127,7 @@ xfconf_pkg_preinst() {
 # @DESCRIPTION:
 # Run fdo-mime_{desktop,mime}_database_update and gnome2_icon_cache_update
 xfconf_pkg_postinst() {
+	debug-print-function ${FUNCNAME} "$@"
 	fdo-mime_desktop_database_update
 	fdo-mime_mime_database_update
 	gnome2_icon_cache_update
@@ -134,6 +137,7 @@ xfconf_pkg_postinst() {
 # @DESCRIPTION:
 # Run fdo-mime_{desktop,mime}_database_update and gnome2_icon_cache_update
 xfconf_pkg_postrm() {
+	debug-print-function ${FUNCNAME} "$@"
 	fdo-mime_desktop_database_update
 	fdo-mime_mime_database_update
 	gnome2_icon_cache_update

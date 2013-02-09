@@ -1,11 +1,11 @@
-# Copyright 1999-2008 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/cron.eclass,v 1.12 2008/06/26 10:51:41 bangert Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/cron.eclass,v 1.15 2011/08/22 04:46:31 vapier Exp $
 
 # @ECLASS: cron
 # @MAINTAINER:
 # cron-bugs@gentoo.org
-#
+# @AUTHOR:
 # Original Author: Aaron Walker <ka0ttic@gentoo.org>
 # @BLURB: Some functions for cron
 # @DESCRIPTION:
@@ -27,11 +27,11 @@ SLOT="0"
 
 DEPEND=">=sys-apps/sed-4.0.5"
 
-RDEPEND="!virtual/cron
-	virtual/mta
+RDEPEND="virtual/mta
 	>=sys-process/cronbase-0.3.2"
-
-PROVIDE="virtual/cron"
+for pn in vixie-cron bcron cronie dcron fcron; do
+	[[ ${pn} == "${PN}" ]] || RDEPEND="${RDEPEND} !sys-process/${pn}"
+done
 
 # @FUNCTION: docrondir
 # @USAGE: [ dir ] [ perms ]

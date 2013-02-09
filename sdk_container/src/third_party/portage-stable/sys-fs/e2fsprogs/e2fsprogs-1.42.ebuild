@@ -1,13 +1,13 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/e2fsprogs/e2fsprogs-1.42.ebuild,v 1.1 2011/12/07 16:51:08 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/e2fsprogs/e2fsprogs-1.42.ebuild,v 1.12 2012/05/04 19:09:17 jdhore Exp $
+
+EAPI=3
 
 case ${PV} in
 *_pre*) UP_PV="${PV%_pre*}-WIP-${PV#*_pre}" ;;
 *)      UP_PV=${PV} ;;
 esac
-
-EAPI="3"
 
 inherit eutils flag-o-matic multilib toolchain-funcs
 
@@ -17,7 +17,7 @@ SRC_URI="mirror://sourceforge/e2fsprogs/${PN}-${UP_PV}.tar.gz"
 
 LICENSE="GPL-2 BSD"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc x86 -x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos ~m68k-mint"
+KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 -x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos ~m68k-mint"
 IUSE="nls static-libs elibc_FreeBSD"
 
 RDEPEND="~sys-libs/${PN}-libs-${PV}
@@ -25,7 +25,7 @@ RDEPEND="~sys-libs/${PN}-libs-${PV}
 	nls? ( virtual/libintl )"
 DEPEND="${RDEPEND}
 	nls? ( sys-devel/gettext )
-	dev-util/pkgconfig
+	virtual/pkgconfig
 	sys-apps/texinfo"
 
 S=${WORKDIR}/${P%_pre*}
@@ -44,6 +44,7 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-1.41.12-getpagesize.patch
 	epatch "${FILESDIR}"/${PN}-1.40-fbsd.patch
 	epatch "${FILESDIR}"/${PN}-1.42-no-quota.patch
+	epatch "${FILESDIR}"/${PN}-1.42-no-fallocate.patch #406609
 	# use symlinks rather than hardlinks
 	sed -i \
 		-e 's:$(LN) -f $(DESTDIR).*/:$(LN_S) -f :' \
@@ -137,7 +138,7 @@ src_install() {
 	# /usr/lib/, and install linker scripts to /usr/lib/.
 	gen_usr_ldscript -a e2p ext2fs
 	# configure doesn't have an option to disable static libs :/
-	find "${D}" -name '*.a' -delete
+	use static-libs || find "${D}" -name '*.a' -delete
 
 	if use elibc_FreeBSD ; then
 		# Install helpers for us

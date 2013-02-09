@@ -1,12 +1,13 @@
-# Copyright 1999-2006 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/mythtv.eclass,v 1.20 2009/11/16 07:59:47 cardoe Exp $
-#
+# $Header: /var/cvsroot/gentoo-x86/eclass/mythtv.eclass,v 1.21 2011/08/22 04:46:32 vapier Exp $
+
 # @ECLASS: mythtv.eclass
-# @AUTHOR: Doug Goldstein <cardoe@gentoo.org>
-# @MAINTAINER: Doug Goldstein <cardoe@gentoo.org>
+# @MAINTAINER:
+# Doug Goldstein <cardoe@gentoo.org>
+# @AUTHOR:
+# Doug Goldstein <cardoe@gentoo.org>
 # @BLURB: Downloads the MythTV source packages and any patches from the fixes branch
-#
 
 inherit versionator
 

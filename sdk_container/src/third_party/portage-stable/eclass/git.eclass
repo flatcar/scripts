@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/git.eclass,v 1.58 2011/12/14 23:40:18 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/git.eclass,v 1.60 2013/01/15 11:23:43 jlec Exp $
 
 # @DEPRECATED
 # This eclass has been superseded by git-2 eclass.
@@ -14,7 +14,8 @@
 # The git eclass provides functions to fetch, patch and bootstrap
 # software sources from git repositories and is based on the subversion eclass.
 # It is necessary to define at least the EGIT_REPO_URI variable.
-# @THANKS TO:
+#
+# THANKS TO:
 # Fernando J. Pereda <ferdy@gentoo.org>
 
 inherit eutils
@@ -26,7 +27,7 @@ DEPEND=">=dev-vcs/git-1.6"
 
 EXPORTED_FUNCTIONS="src_unpack"
 case "${EAPI:-0}" in
-	4|3|2) EXPORTED_FUNCTIONS="${EXPORTED_FUNCTIONS} src_prepare" ;;
+	2|3|4|5) EXPORTED_FUNCTIONS="${EXPORTED_FUNCTIONS} src_prepare" ;;
 	1|0) ;;
 	*) die "EAPI=${EAPI} is not supported" ;;
 esac

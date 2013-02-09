@@ -1,6 +1,6 @@
-# Copyright 1999-2006 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/horde.eclass,v 1.37 2008/08/08 13:21:56 wrobel Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/horde.eclass,v 1.40 2011/12/27 17:55:12 fauli Exp $
 #
 # Help manage the horde project http://www.horde.org/
 #
@@ -149,28 +149,36 @@ horde_src_install() {
 }
 
 horde_pkg_postinst() {
-	if [[ -e ${ROOT}/usr/share/doc/${PF}/INSTALL.gz ]] ; then
-		einfo "Please read /usr/share/doc/${PF}/INSTALL.gz"
+	if [ -e ${ROOT}/usr/share/doc/${PF}/INSTALL* ] ; then
+		elog "Please read the INSTALL file in /usr/share/doc/${PF}."
 	fi
-	einfo "Before this package will work, you have to setup"
-	einfo "the configuration files.  Please review the"
-	einfo "config/ subdirectory of ${HORDE_PN} in the webroot."
+
+	einfo "Before this package will work, you have to setup the configuration files."
+	einfo "Please review the config/ subdirectory of ${HORDE_PN} in the webroot."
+
+	if [ -e ${ROOT}/usr/share/doc/${PF}/SECURITY* ] ; then
+		ewarn
+		ewarn "Users are HIGHLY recommended to consult the SECURITY guide in"
+		ewarn "/usr/share/doc/${PF} before going into production with Horde."
+	fi
+
 	if [[ ${HORDE_PN} != "horde" && ${HORDE_PN} != "horde-groupware" && ${HORDE_PN} != "horde-webmail" ]] ; then
 		ewarn
-		ewarn "Make sure ${HORDE_PN} is accounted for in horde's root"
+		ewarn "Make sure ${HORDE_PN} is accounted for in Horde's root"
 		ewarn "    config/registry.php"
 	fi
+
 	if [[ ${EHORDE_CVS} = "true" ]] ; then
 		ewarn
 		ewarn "Use these CVS versions at your own risk."
-		ewarn "They tend to break things when working with"
-		ewarn "the non CVS versions of horde."
+		ewarn "They tend to break things when working with the non CVS versions of horde."
 	fi
+
 	if use vhosts ; then
-		echo
-		ewarn "When installing horde into a vhost dir, you will"
-		ewarn "need to use the -d option so that it is installed"
-		ewarn "into the proper location."
+		ewarn
+		ewarn "When installing Horde into a vhost dir, you will need to use the"
+		ewarn "-d option so that it is installed into the proper location."
 	fi
+
 	webapp_pkg_postinst
 }

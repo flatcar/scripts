@@ -1,0 +1,31 @@
+--- build/make/configure.sh.old	2012-03-04 17:22:12.968222061 +0100
++++ build/make/configure.sh	2012-03-04 17:24:36.905216824 +0100
+@@ -549,6 +549,9 @@
+             *sparc*)
+                 tgt_isa=sparc
+                 ;;
++            *armv7*)
++                tgt_isa=armv7
++                ;;
+         esac
+ 
+         # detect tgt_os
+@@ -680,7 +683,6 @@
+ 
+         case ${tgt_cc} in
+         gcc)
+-            CROSS=${CROSS:-arm-none-linux-gnueabi-}
+             link_with_cc=gcc
+             setup_gnu_toolchain
+             arch_int=${tgt_isa##armv}
+@@ -689,8 +691,8 @@
+             tune_cflags="-mtune="
+             if enabled armv7
+             then
+-                check_add_cflags -march=armv7-a -mcpu=cortex-a8 -mfpu=neon -mfloat-abi=softfp  #-ftree-vectorize
+-                check_add_asflags -mcpu=cortex-a8 -mfpu=neon -mfloat-abi=softfp  #-march=armv7-a
++                check_add_cflags -mfpu=neon
++                check_add_asflags -mfpu=neon
+             else
+                 check_add_cflags -march=${tgt_isa}
+                 check_add_asflags -march=${tgt_isa}

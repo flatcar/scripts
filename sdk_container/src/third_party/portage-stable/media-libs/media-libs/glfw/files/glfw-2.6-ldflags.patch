@@ -1,0 +1,21 @@
+--- compile.sh.old	2010-09-13 13:51:19.000000000 +0200
++++ compile.sh	2010-09-13 13:51:34.000000000 +0200
+@@ -85,7 +85,7 @@
+ case "x`uname 2> /dev/null`" in
+ xLinux)
+   CFLAGS="$CFLAGS -Dlinux"
+-  LDFLAGS="-shared"
++  LDFLAGS="${LDFLAGS} -shared"
+   echo " Linux" 1>&6
+   ;;
+ xDarwin)
+--- compile.sh.old	2010-09-13 13:58:07.000000000 +0200
++++ compile.sh	2010-09-13 13:58:20.000000000 +0200
+@@ -65,7 +65,6 @@
+ 
+ CFLAGS=
+ LFLAGS=
+-LDFLAGS=
+ INCS=
+ LIBS="-lGL -lX11"
+ 

@@ -1,18 +1,26 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License, v2 or later
-# Author Diego Pettenò <flameeyes@gentoo.org>
-# $Header: /var/cvsroot/gentoo-x86/eclass/pam.eclass,v 1.22 2011/12/27 17:55:12 fauli Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/pam.eclass,v 1.23 2012/08/05 15:34:20 jlec Exp $
 #
+
+# @ECLASS: pam.eclass
+# @MAINTAINER:
+# pam-bugs@gentoo.org
+# @AUTHOR:
+# Diego Pettenò <flameeyes@gentoo.org>
+# @BLURB: Handles pam related tasks
+# @DESCRIPTION:
 # This eclass contains functions to install pamd configuration files and
 # pam modules.
 
 if [[ ${___ECLASS_ONCE_PAM} != "recur -_+^+_- spank" ]] ; then
 ___ECLASS_ONCE_PAM="recur -_+^+_- spank"
 
-inherit multilib flag-o-matic
+inherit flag-o-matic multilib
 
-# dopamd <file> [more files]
-#
+# @FUNCTION: dopamd
+# @USAGE: <file> [more files]
+# @DESCRIPTION:
 # Install pam auth config file in /etc/pam.d
 dopamd() {
 	[[ -z $1 ]] && die "dopamd requires at least one argument"
@@ -29,8 +37,9 @@ dopamd() {
 	cleanpamd "$@"
 }
 
-# newpamd <old name> <new name>
-#
+# @FUNCTION: newpamd
+# @USAGE: <old name> <new name>
+# @DESCRIPTION:
 # Install pam file <old name> as <new name> in /etc/pam.d
 newpamd() {
 	[[ $# -ne 2 ]] && die "newpamd requires two arguments"
@@ -47,8 +56,9 @@ newpamd() {
 	cleanpamd $2
 }
 
-# dopamsecurity <section> <file> [more files]
-#
+# @FUNCTION: dopamsecurity
+# @USAGE: <section> <file> [more files]
+# @DESCRIPTION:
 # Installs the config files in /etc/security/<section>/
 dopamsecurity() {
 	[[ $# -lt 2 ]] && die "dopamsecurity requires at least two arguments"
@@ -64,8 +74,9 @@ dopamsecurity() {
 	) || die "failed to install ${@:2}"
 }
 
-# newpamsecurity <section> <old name> <new name>
-#
+# @FUNCTION: newpamsecurity
+# @USAGE: <section> <old name> <new name>
+# @DESCRIPTION:
 # Installs the config file <old name> as <new name> in /etc/security/<section>/
 newpamsecurity() {
 	[[ $# -ne 3 ]] && die "newpamsecurity requires three arguments"
@@ -81,8 +92,8 @@ newpamsecurity() {
 	) || die "failed to install $2 as $3"
 }
 
-# getpam_mod_dir
-#
+# @FUNCTION: getpam_mod_dir
+# @DESCRIPTION:
 # Returns the pam modules' directory for current implementation
 getpam_mod_dir() {
 	if has_version sys-libs/pam || has_version sys-libs/openpam; then
@@ -95,8 +106,8 @@ getpam_mod_dir() {
 	echo ${PAM_MOD_DIR}
 }
 
-# pammod_hide_symbols
-#
+# @FUNCTION: pammod_hide_symbols
+# @DESCRIPTION:
 # Hide all non-PAM-used symbols from the module; this function creates a
 # simple ld version script that hides all the symbols that are not
 # necessary for PAM to load the module, then uses append-flags to make
@@ -112,8 +123,9 @@ EOF
 	append-ldflags -Wl,--version-script="${T}"/pam-eclass-pam_symbols.ver
 }
 
-# dopammod <file> [more files]
-#
+# @FUNCTION: dopammod
+# @USAGE: <file> [more files]
+# @DESCRIPTION:
 # Install pam module file in the pam modules' dir for current implementation
 dopammod() {
 	[[ -z $1 ]] && die "dopammod requires at least one argument"
@@ -126,8 +138,9 @@ dopammod() {
 	doexe "$@" || die "failed to install $@"
 }
 
-# newpammod <old name> <new name>
-#
+# @FUNCTION: newpammod
+# @USAGE: <old name> <new name>
+# @DESCRIPTION:
 # Install pam module file <old name> as <new name> in the pam
 # modules' dir for current implementation
 newpammod() {
@@ -141,8 +154,9 @@ newpammod() {
 	newexe "$1" "$2" || die "failed to install $1 as $2"
 }
 
-# pamd_mimic_system <pamd file> [auth levels]
-#
+# @FUNCTION: pamd_mimic_system
+# @USAGE: <pamd file> [auth levels]
+# @DESCRIPTION:
 # This function creates a pamd file which mimics system-auth file
 # for the given levels in the /etc/pam.d directory.
 pamd_mimic_system() {
@@ -150,8 +164,9 @@ pamd_mimic_system() {
 	pamd_mimic system-auth "$@"
 }
 
-# pamd_mimic <stack> <pamd file> [auth levels]
-#
+# @FUNCTION: pamd_mimic
+# @USAGE: <stack> <pamd file> [auth levels]
+# @DESCRIPTION:
 # This function creates a pamd file which mimics the given stack
 # for the given levels in the /etc/pam.d directory.
 pamd_mimic() {
@@ -186,8 +201,9 @@ pamd_mimic() {
 	done
 }
 
-# cleanpamd <pamd file>
-#
+# @FUNCTION: cleanpamd
+# @USAGE: <pamd file>
+# @DESCRIPTION:
 # Cleans a pam.d file from modules that might not be present on the system
 # where it's going to be installed
 cleanpamd() {
@@ -200,6 +216,10 @@ cleanpamd() {
 	done
 }
 
+# @FUNCTION: pam_epam_expand
+# @USAGE: <pamd file>
+# @DESCRIPTION:
+# Steer clear, deprecated, don't use, bad experiment
 pam_epam_expand() {
 	sed -n -e 's|#%EPAM-\([[:alpha:]-]\+\):\([-+<>=/.![:alnum:]]\+\)%#.*|\1 \2|p' \
 	"$@" | sort -u | while read condition parameter; do

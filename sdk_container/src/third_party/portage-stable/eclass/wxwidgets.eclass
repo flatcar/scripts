@@ -1,6 +1,6 @@
-# Copyright 1999-2007 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/wxwidgets.eclass,v 1.29 2010/02/16 01:06:24 dirtyepic Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/wxwidgets.eclass,v 1.32 2011/12/27 17:55:13 fauli Exp $
 
 # @ECLASS:			wxwidgets.eclass
 # @MAINTAINER:

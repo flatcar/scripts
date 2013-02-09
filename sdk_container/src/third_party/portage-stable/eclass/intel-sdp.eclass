@@ -1,10 +1,9 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/intel-sdp.eclass,v 1.4 2012/09/20 13:54:56 jlec Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/intel-sdp.eclass,v 1.9 2013/01/23 11:14:33 jlec Exp $
 
 # @ECLASS: intel-sdp.eclass
 # @MAINTAINER:
-# Sébastien Fabbro <bicatali@gentoo.org>
 # Justin Lecher <jlec@gentoo.org>
 # Sci Team <sci@gentoo.org>
 # @BLURB: Handling of Intel's Software Development Products package management
@@ -76,6 +75,11 @@
 #
 # e.g. openmp
 
+# @ECLASS-VARIABLE: INTEL_SDP_DB
+# @DESCRIPTION:
+# Full path to intel registry db
+INTEL_SDP_DB="${EROOT%/}"/opt/intel/intel-sdp-products.db
+
 inherit check-reqs multilib versionator
 
 _INTEL_PV1=$(get_version_component_range 1)
@@ -87,19 +91,19 @@ _INTEL_URI="http://registrationcenter-download.intel.com/irc_nas/${INTEL_DID}/${
 SRC_URI="
 	amd64? ( multilib? ( ${_INTEL_URI}_${INTEL_DPV}.tgz ) )
 	amd64? ( !multilib? ( ${_INTEL_URI}_${INTEL_DPV}_intel64.tgz ) )
-	x86?  ( ${_INTEL_URI}_${INTEL_DPV}_ia32.tgz )"
+	x86?	( ${_INTEL_URI}_${INTEL_DPV}_ia32.tgz )"
 
 LICENSE="Intel-SDP"
 # Future work, #394411
 #SLOT="${_INTEL_PV1}.${_INTEL_PV2}"
 SLOT="0"
-IUSE="multilib"
+IUSE="examples multilib"
 KEYWORDS="-* ~amd64 ~x86 ~amd64-linux ~x86-linux"
 
 RESTRICT="mirror"
 
 RDEPEND=""
-DEPEND=">=app-arch/rpm2targz-9.0.0.3g"
+DEPEND="app-arch/rpm2targz"
 
 _INTEL_SDP_YEAR=${INTEL_DPV%_update*}
 _INTEL_SDP_YEAR=${INTEL_DPV%_sp*}
@@ -108,24 +112,17 @@ _INTEL_SDP_YEAR=${INTEL_DPV%_sp*}
 # @DEFAULT_UNSET
 # @DESCRIPTION:
 # Full rootless path to installation dir
-
 INTEL_SDP_DIR="opt/intel/${INTEL_SUBDIR}-${_INTEL_SDP_YEAR:-${_INTEL_PV1}}.${_INTEL_PV3}.${_INTEL_PV4}"
 
 # @ECLASS-VARIABLE: INTEL_SDP_EDIR
 # @DEFAULT_UNSET
 # @DESCRIPTION:
 # Full rooted path to installation dir
-
 INTEL_SDP_EDIR="${EROOT%/}/${INTEL_SDP_DIR}"
 
 S="${WORKDIR}"
 
 QA_PREBUILT="${INTEL_SDP_DIR}/*"
-
-intel-sdp_pkg_pretend() {
-	: ${CHECKREQS_DISK_BUILD:=256M}
-	check-reqs_pkg_pretend
-}
 
 # @ECLASS-VARIABLE: INTEL_ARCH
 # @DEFAULT_UNSET
@@ -134,8 +131,168 @@ intel-sdp_pkg_pretend() {
 #
 # e.g. amd64-multilib -> INTEL_ARCH="intel64 ia32"
 
+# @FUNCTION: _isdp_link_eclipse_plugins
+# @INTERNAL
+# @DESCRIPTION:
+# Creating necessary links to use intel compiler with eclipse
+_isdp_link_eclipse_plugins() {
+	local c f
+	pushd ${INTEL_SDP_DIR}/eclipse_support > /dev/null
+		for c in cdt*; do
+			local cv=${c#cdt} ev=3.$(( ${cv:0:1} - 1))
+			if has_version "dev-util/eclipse-sdk:${ev}"; then
+				einfo "Linking eclipse (v${ev}) plugin cdt (v${cv})"
+				for f in cdt${cv}/eclipse/features/*; do
+					dodir /usr/$(get_libdir)/eclipse-${ev}/features
+					dosym "${INTEL_SDP_EDIR}"/eclipse_support/${f} \
+						/usr/$(get_libdir)/eclipse-${ev}/features/ || die
+				done
+				for f in cdt${cv}/eclipse/plugins/*; do
+					dodir /usr/$(get_libdir)/eclipse-${ev}/plugins
+					dosym "${INTEL_SDP_EDIR}"/eclipse_support/${f} \
+						/usr/$(get_libdir)/eclipse-${ev}/plugins/ || die
+				done
+			fi
+		done
+	popd > /dev/null
+}
+
+# @FUNCTION: _isdp_big-warning
+# @USAGE: [pre-check | test-failed]
+# @INTERNAL
+# @DESCRIPTION:
+# warn user that we really require a license
+_isdp_big-warning() {
+	case ${1} in
+		pre-check )
+			echo ""
+			ewarn "License file not found!"
+			;;
+
+		test-failed )
+			echo
+			ewarn "Function test failed. Most probably due to an invalid license."
+			ewarn "This means you already tried to bypass the license check once."
+			;;
+	esac
+
+	echo ""
+	ewarn "Make sure you have recieved the an Intel license."
+	ewarn "To receive a non-commercial license, you need to register at:"
+	ewarn "http://software.intel.com/en-us/articles/non-commercial-software-development/"
+	ewarn "Install the license file into ${INTEL_SDP_EDIR}/licenses/"
+
+	case ${1} in
+		pre-check )
+			ewarn "before proceeding with installation of ${P}"
+			echo ""
+			;;
+		* )
+			echo ""
+			;;
+			esac
+}
+
+# @FUNCTION: _isdp_version_test
+# @INTERNAL
+# @DESCRIPTION:
+# Testing for valid license by asking for version information of the compiler
+_isdp_version_test() {
+	local comp comp_full arch warn
+	case ${PN} in
+		ifc )
+			debug-print "Testing ifort"
+			comp=ifort
+			;;
+		icc )
+			debug-print "Testing icc"
+			comp=icc
+			;;
+		*)
+			die "${PN} is not supported for testing"
+			;;
+	esac
+
+	for arch in ${INTEL_ARCH}; do
+		case ${EBUILD_PHASE} in
+			install )
+				comp_full="${ED}/${INTEL_SDP_DIR}/bin/${arch}/${comp}"
+				;;
+			postinst )
+				comp_full="${INTEL_SDP_EDIR}/bin/${arch}/${comp}"
+				;;
+			* )
+				ewarn "Compile test not supported in ${EBUILD_PHASE}"
+				continue
+				;;
+		esac
+
+		debug-print "LD_LIBRARY_PATH=\"${INTEL_SDP_EDIR}/bin/${arch}/\" \"${comp_full}\" -V"
+
+		LD_LIBRARY_PATH="${INTEL_SDP_EDIR}/bin/${arch}/" "${comp_full}" -V &>/dev/null
+		[[ $? -ne 0 ]] && warn=yes
+	done
+	[[ "${warn}" == "yes" ]] && _isdp_big-warning test-failed
+}
+
+# @FUNCTION: _isdp_run-test
+# @INTERNAL
+# Test if installed compiler is working
+_isdp_run-test() {
+	case ${PN} in
+		ifc | icc )
+			_isdp_version_test ;;
+		* )
+			debug-print "No test available for ${PN}"
+			;;
+	esac
+}
+
+# @FUNCTION: intel-sdp_pkg_pretend
+# @DESCRIPTION:
+# @CODE
+# * Check that the user has a (valid) license file before going on.
+# * Check for space requirements being fullfilled
+# @CODE
+intel-sdp_pkg_pretend() {
+	local warn=1 dir dirs ret arch a p
+
+	: ${CHECKREQS_DISK_BUILD:=256M}
+	check-reqs_pkg_pretend
+
+	if echo ${INTEL_LICENSE_FILE} | grep -q @; then
+		einfo "Looks like you are using following license server:"
+		einfo "   ${INTEL_LICENSE_FILE}"
+		return 0
+	fi
+
+	dirs=(
+		"${INTEL_SDP_EDIR}/licenses"
+		"${INTEL_SDP_EDIR}/Licenses"
+		"${EPREFIX}/opt/intel/licenses"
+		)
+	for dir in "${dirs[@]}" ; do
+		ebegin "Checking for a license in: ${dir}"
+		#maybe use nullglob or [[ $(echo ${dir/*lic) != "${dir}/*lic" ]]
+		[[ $( ls "${dir}"/*lic 2>/dev/null ) ]]; ret=$?
+		eend ${ret}
+		if [[ ${ret} == "0" ]]; then
+			warn=${ret}
+			break
+		fi
+	done
+	if [[ ${warn} == "1" ]]; then
+		_isdp_big-warning pre-check
+		die "Could not find license file"
+	fi
+}
+
+# @FUNCTION: intel-sdp_pkg_setup
+# @DESCRIPTION:
+# Setting up and sorting some internal variables
 intel-sdp_pkg_setup() {
 	local arch a p
+
 	if use x86; then
 		arch=${INTEL_X86}
 		INTEL_ARCH="ia32"
@@ -150,11 +307,11 @@ intel-sdp_pkg_setup() {
 	INTEL_RPMS=""
 	for p in ${INTEL_BIN_RPMS}; do
 		for a in ${arch}; do
-			INTEL_RPMS="${INTEL_RPMS} intel-${p}-${_INTEL_PV4}-${_INTEL_PV1}.${_INTEL_PV2}-${_INTEL_PV3}.${a}.rpm"
+			INTEL_RPMS+=" intel-${p}-${_INTEL_PV4}-${_INTEL_PV1}.${_INTEL_PV2}-${_INTEL_PV3}.${a}.rpm"
 		done
 	done
 	for p in ${INTEL_DAT_RPMS}; do
-		INTEL_RPMS="${INTEL_RPMS} intel-${p}-${_INTEL_PV4}-${_INTEL_PV1}.${_INTEL_PV2}-${_INTEL_PV3}.noarch.rpm"
+		INTEL_RPMS+=" intel-${p}-${_INTEL_PV4}-${_INTEL_PV1}.${_INTEL_PV2}-${_INTEL_PV3}.noarch.rpm"
 	done
 
 	case "${EAPI:-0}" in
@@ -162,75 +319,91 @@ intel-sdp_pkg_setup() {
 	esac
 }
 
+# @FUNCTION: intel-sdp_src_unpack
+# @DESCRIPTION:
+# Unpacking necessary rpms from tarball, extract them and rearrange the output.
 intel-sdp_src_unpack() {
-	local l r t rpmdir
+	local l r subdir rb t list=()
+
 	for t in ${A}; do
 		for r in ${INTEL_RPMS}; do
-			# Find which subdirectory of the archive the rpm is in
-			rpm_found="false"
 			for subdir in ${INTEL_RPMS_DIRS}; do
-				[[ "${rpm_found}" == "true" ]] && continue
 				rpmdir=${t%%.*}/${subdir}
-				l=.${r}_$(date +'%d%m%y_%H%M%S').log
-				tar xf "${DISTDIR}"/${t} ${rpmdir}/${r} 2> /dev/null || continue
-				einfo "Unpacking ${r}"
-				rpm_found="true"
-				rpm2tar -O "./${rpmdir}/${r}" | tar xvf - | sed -e \
-					"s:^\.:${EROOT#/}:g" > ${l} || die "unpacking ${r} failed"
-				mv ${l} opt/intel/ || die "failed moving extract log file"
+				list+=( ${rpmdir}/${r})
 			done
 		done
+		tar xf "${DISTDIR}"/${t} ${list[@]}	2> /dev/null || die
+		for r in ${list[@]}; do
+			rb=$(basename ${r})
+			l=.${rb}_$(date +'%d%m%y_%H%M%S').log
+			einfo "Unpacking ${rb}"
+			rpm2tar -O ${r} | tar xvf - | sed -e \
+				"s:^\.:${EROOT#/}:g" > ${l} || die "unpacking ${r} failed"
+			mv ${l} opt/intel/ || die "failed moving extract log file"
+		done
 	done
-	mv -v opt/intel/* ${INTEL_SDP_DIR} || die "mv to INTEL_SDP_DIR failed"
+
+	mv opt/intel/* ${INTEL_SDP_DIR} || die "mv to INTEL_SDP_DIR failed"
 }
 
-intel_link_eclipse_plugins() {
-	pushd ${INTEL_SDP_DIR}/eclipse_support > /dev/null
-	local c f
-	for c in cdt*; do
-		local cv=${c#cdt} ev=3.$(( ${cv:0:1} - 1))
-		if has_version "dev-util/eclipse-sdk:${ev}"; then
-			einfo "Linking eclipse (v${ev}) plugin cdt (v${cv})"
-			for f in cdt${cv}/eclipse/features/*; do
-				dodir /usr/$(get_libdir)/eclipse-${ev}/features
-				dosym "${INTEL_SDP_EDIR}"/eclipse_support/${f} \
-					/usr/$(get_libdir)/eclipse-${ev}/features/ || die
-			done
-			for f in cdt${cv}/eclipse/plugins/*; do
-				dodir /usr/$(get_libdir)/eclipse-${ev}/plugins
-				dosym "${INTEL_SDP_EDIR}"/eclipse_support/${f} \
-					/usr/$(get_libdir)/eclipse-${ev}/plugins/ || die
-			done
-		fi
-	done
-	popd > /dev/null
-}
-
+# @FUNCTION: intel-sdp_src_install
+# @DESCRIPTION:
+# Install everything
 intel-sdp_src_install() {
-	[[ -d ${INTEL_SDP_DIR}/eclipse_support ]] && \
-		has eclipse ${IUSE} && \
-		use eclipse && \
-		intel_link_eclipse_plugins
-	einfo "Tagging ${PN}"
+	if [[ -d "${INTEL_SDP_DIR}"/Documentation ]]; then
+		dodoc -r "${INTEL_SDP_DIR}"/Documentation/*
+
+		ebegin "Cleaning out documentation"
+		find "${INTEL_SDP_DIR}"/Documentation -delete || die
+		eend
+	fi
+
+	if [[ -d "${INTEL_SDP_DIR}"/Samples ]]; then
+		if use examples ; then
+			insinto /usr/share/${P}/examples/
+			doins -r "${INTEL_SDP_DIR}"/Samples/*
+		fi
+		ebegin "Cleaning out examples"
+		find "${INTEL_SDP_DIR}"/Samples -delete || die
+		eend
+	fi
+
+	if [[ -d "${INTEL_SDP_DIR}"/eclipse_support ]]; then
+		if has eclipse ${IUSE} && use eclipse; then
+			_isdp_link_eclipse_plugins
+		else
+			ebegin "Cleaning out eclipse plugin"
+			find "${INTEL_SDP_DIR}"/eclipse_support -delete || die
+			eend
+		fi
+	fi
+
+	if [[ -d "${INTEL_SDP_DIR}"/man ]]; then
+		doman "${INTEL_SDP_DIR}"/man/en_US/man1/*
+		if has linguas_ja ${IUSE} && use linguas_ja; then
+			doman -i18n=ja_JP "${INTEL_SDP_DIR}"/man/ja_JP/man1/*
+		fi
+
+		find "${INTEL_SDP_DIR}"/man -delete || die
+	fi
+
+	ebegin "Tagging ${PN}"
 	find opt -name \*sh -type f -exec sed -i \
 		-e "s:<.*DIR>:${INTEL_SDP_EDIR}:g" \
-		'{}' \;
-	mkdir -p "${ED:-${D}}"/ || die
-	mv opt "${ED:-${D}}"/ || die "moving files failed"
+		'{}' + || die
+	eend
+
+	[[ -d "${ED}" ]] || dodir /
+	mv opt "${ED}"/ || die "moving files failed"
+
+	dodir "${INTEL_SDP_DIR}"/licenses /opt/intel/ism/rm
+	keepdir "${INTEL_SDP_DIR}"/licenses /opt/intel/ism/rm
 }
 
-
-# @ECLASS-VARIABLE: INTEL_SDP_DB
+# @FUNCTION: intel-sdp_pkg_postinst
 # @DESCRIPTION:
-# Full path to intel registry db
-INTEL_SDP_DB="${EROOT%/}"/opt/intel/intel-sdp-products.db
-
+# Add things to intel database
 intel-sdp_pkg_postinst() {
-	elog "Make sure you have recieved the an Intel license."
-	elog "To receive a non-commercial license, you need to register at:"
-	elog "http://software.intel.com/en-us/articles/non-commercial-software-development/"
-	elog "Install the license file into ${EROOT}opt/intel/licenses."
-
 	# add product registry to intel "database"
 	local l r
 	for r in ${INTEL_RPMS}; do
@@ -238,8 +411,12 @@ intel-sdp_pkg_postinst() {
 		echo >> ${INTEL_SDP_DB} \
 			"<:${r%-${_INTEL_PV4}*}-${_INTEL_PV4}:${r}:${INTEL_SDP_EDIR}:${l}:>"
 	done
+	_isdp_run-test
 }
 
+# @FUNCTION: intel-sdp_pkg_postrm
+# @DESCRIPTION:
+# Sanitize intel database
 intel-sdp_pkg_postrm() {
 	# remove from intel "database"
 	if [[ -e ${INTEL_SDP_DB} ]]; then
@@ -255,6 +432,6 @@ intel-sdp_pkg_postrm() {
 EXPORT_FUNCTIONS pkg_setup src_unpack src_install pkg_postinst pkg_postrm
 case "${EAPI:-0}" in
 	0|1|2|3) ;;
-	4) EXPORT_FUNCTIONS pkg_pretend ;;
+	4|5) EXPORT_FUNCTIONS pkg_pretend ;;
 	*) die "EAPI=${EAPI} is not supported" ;;
 esac

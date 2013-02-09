@@ -1,6 +1,6 @@
-# Copyright 1999-2004 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/db-use.eclass,v 1.8 2009/11/24 05:24:20 robbat2 Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/db-use.eclass,v 1.10 2011/12/27 17:55:12 fauli Exp $
 # This is a common location for functions that aid the use of sys-libs/db
 #
 # Bugs: pauldv@gentoo.org
@@ -18,7 +18,11 @@ db_ver_to_slot() {
 		done
 		return 1
 	fi
-	echo -n "${1/.0/}"
+	# 5.0.x uses 5.0 as slot value, so this replacement will break it;
+	# older sys-libs/db might have been using this but it's no longer
+	# the case, so make it work for latest rather than older stuff.
+	# echo -n "${1/.0/}"
+	echo -n "$1"
 }
 
 #Find the version that correspond to the given atom

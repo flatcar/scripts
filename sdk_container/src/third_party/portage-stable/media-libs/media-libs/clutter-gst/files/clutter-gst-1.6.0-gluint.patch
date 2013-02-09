@@ -1,0 +1,36 @@
+From b33739b1442f3486e6aef85c5fb1fec312b32f2b Mon Sep 17 00:00:00 2001
+From: Edward Hervey <edward.hervey@collabora.co.uk>
+Date: Wed, 22 Aug 2012 15:23:51 +0200
+Subject: [PATCH] video-sink: Don't use GL* values
+
+And only check for target type if using full GL
+---
+ clutter-gst/clutter-gst-video-sink.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/clutter-gst/clutter-gst-video-sink.c b/clutter-gst/clutter-gst-video-sink.c
+index 9b4b53c..8160d14 100644
+--- a/clutter-gst/clutter-gst-video-sink.c
++++ b/clutter-gst/clutter-gst-video-sink.c
+@@ -1097,13 +1097,16 @@ clutter_gst_hw_upload (ClutterGstVideoSink *sink,
+ 
+   if (G_UNLIKELY (priv->converter == NULL)) {
+     CoglHandle tex;
+-    GLuint gl_texture;
+-    GLenum gl_target;
++    unsigned int gl_texture;
++    unsigned int gl_target;
+     GValue value = {0};
+ 
+     tex = clutter_texture_get_cogl_texture (priv->texture);
+     cogl_texture_get_gl_texture (tex, &gl_texture, &gl_target);
++    /* GL_TEXTURE_2D is always used in GLES2 */
++#ifndef COGL_HAS_GLES2
+     g_return_if_fail (gl_target == GL_TEXTURE_2D);
++#endif
+ 
+     g_value_init (&value, G_TYPE_UINT);
+     g_value_set_uint (&value, gl_texture);
+-- 
+1.8.0
+

@@ -1,18 +1,18 @@
-# Copyright 1999-2009 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/perl-module.eclass,v 1.130 2011/08/09 11:48:31 tove Exp $
-#
-# Author: Seemant Kulleen <seemant@gentoo.org>
+# $Header: /var/cvsroot/gentoo-x86/eclass/perl-module.eclass,v 1.135 2012/09/27 16:35:41 axs Exp $
 
 # @ECLASS: perl-module.eclass
 # @MAINTAINER:
 # perl@gentoo.org
+# @AUTHOR:
+# Seemant Kulleen <seemant@gentoo.org>
 # @BLURB: eclass for perl modules
 # @DESCRIPTION:
 # The perl-module eclass is designed to allow easier installation of perl
 # modules, and their incorporation into the Gentoo Linux system.
 
-inherit eutils base
+inherit eutils base multiprocessing
 [[ ${CATEGORY} == "perl-core" ]] && inherit alternatives
 
 PERL_EXPF="src_unpack src_compile src_test src_install"
@@ -21,7 +21,7 @@ case "${EAPI:-0}" in
 	0|1)
 		PERL_EXPF+=" pkg_setup pkg_preinst pkg_postinst pkg_prerm pkg_postrm"
 		;;
-	2|3|4)
+	2|3|4|5)
 		PERL_EXPF+=" src_prepare src_configure"
 		[[ ${CATEGORY} == "perl-core" ]] && \
 			PERL_EXPF+=" pkg_postinst pkg_postrm"
@@ -49,8 +49,6 @@ case "${PERL_EXPORT_PHASE_FUNCTIONS:-yes}" in
 		die "PERL_EXPORT_PHASE_FUNCTIONS=${PERL_EXPORT_PHASE_FUNCTIONS} is not supported by perl-module.eclass"
 		;;
 esac
-
-DESCRIPTION="Based on the $ECLASS eclass"
 
 LICENSE="${LICENSE:-|| ( Artistic GPL-1 GPL-2 GPL-3 )}"
 
@@ -197,8 +195,8 @@ perl-module_src_test() {
 	debug-print-function $FUNCNAME "$@"
 	if has 'do' ${SRC_TEST} || has 'parallel' ${SRC_TEST} ; then
 		if has "${TEST_VERBOSE:-0}" 0 && has 'parallel' ${SRC_TEST} ; then
-			export HARNESS_OPTIONS=j$(echo -j1 ${MAKEOPTS} | sed -r "s/.*(-j\s*|--jobs=)([0-9]+).*/\2/" )
-			einfo "Test::Harness Jobs=${HARNESS_OPTIONS}"
+			export HARNESS_OPTIONS=j$(makeopts_jobs)
+			einfo "Test::Harness Jobs=$(makeopts_jobs)"
 		fi
 		${perlinfo_done} || perl_set_version
 		if [[ -f Build ]] ; then

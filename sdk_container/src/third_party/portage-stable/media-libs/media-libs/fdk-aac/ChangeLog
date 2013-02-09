@@ -1,0 +1,20 @@
+# ChangeLog for media-libs/fdk-aac
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/media-libs/fdk-aac/ChangeLog,v 1.4 2012/11/21 02:13:51 aballier Exp $
+
+*fdk-aac-0.1.1 (21 Nov 2012)
+
+  21 Nov 2012; Alexis Ballier <aballier@gentoo.org> +fdk-aac-0.1.1.ebuild:
+  version bump
+
+  14 Nov 2012; Luca Barbato <lu_zero@gentoo.org> fdk-aac-0.1.0.ebuild:
+  Add keywords
+
+  01 Nov 2012; Diego E. Pettenò <flameeyes@gentoo.org> fdk-aac-0.1.0.ebuild:
+  Fix CVS header. Closes bug #440810.
+
+*fdk-aac-0.1.0 (10 Aug 2012)
+
+  10 Aug 2012; Luca Barbato <lu_zero@gentoo.org> +fdk-aac-0.1.0.ebuild,
+  +metadata.xml:
+  Initial commit, thanks to Janne Grunau <janne-gentoo@jannau.net>

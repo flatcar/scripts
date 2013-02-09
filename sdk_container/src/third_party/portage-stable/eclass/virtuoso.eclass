@@ -1,62 +1,64 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/virtuoso.eclass,v 1.1 2010/02/08 20:30:19 alexxy Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/virtuoso.eclass,v 1.14 2012/09/27 16:35:42 axs Exp $
 
 # @ECLASS: virtuoso.eclass
 # @MAINTAINER:
 # Maciej Mrozowski <reavertm@gentoo.org>
+# Chris Reffett <creffett@gentoo.org>
 #
 # @BLURB: Provides splitting functionality for Virtuoso
 # @DESCRIPTION:
 # This eclass provides common code for splitting Virtuoso OpenSource database
 
 case ${EAPI:-0} in
-	2|3) : ;;
-	*) DEPEND="EAPI-TOO-OLD" ;;
+	2|3|4|5) : ;;
+	*) die "EAPI=${EAPI} is not supported" ;;
 esac
 
-inherit base autotools flag-o-matic multilib
+inherit base autotools multilib
 
 MY_P="virtuoso-opensource-${PV}"
 
 case ${PV} in
 	*9999*)
 		ECVS_SERVER="virtuoso.cvs.sourceforge.net:/cvsroot/virtuoso"
+		ECVS_PROJECT='virtuoso'
 		SRC_URI=""
 		inherit cvs
 		;;
 	*)
 		# Use this variable to determine distribution method (live or tarball)
 		TARBALL="${MY_P}.tar.gz"
-		SRC_URI="mirror://sourceforge/virtuoso/${TARBALL}"
+		SRC_URI="mirror://sourceforge/virtuoso/${TARBALL} mirror://gentoo/VOS-genpatches-${PV}.tar.bz2"
 		;;
 esac
 
 EXPORT_FUNCTIONS src_prepare src_configure src_compile src_install
 
 # Set some defaults
-HOMEPAGE="http://virtuoso.openlinksw.com/wiki/main/Main/"
-LICENSE="GPL-2"
-SLOT="0"
+HOMEPAGE='http://virtuoso.openlinksw.com/wiki/main/Main/'
+LICENSE='GPL-2'
+SLOT='0'
 
-DEPEND=">=sys-devel/libtool-2.2.6a"
-RDEPEND=""
+DEPEND='
+	>=sys-devel/libtool-2.2.6a
+'
+RDEPEND=''
 
 S="${WORKDIR}/${MY_P}"
 
 # @FUNCTION: virtuoso_src_prepare
 # @DESCRIPTION:
-# 1. Applies common release patches (from ${FILESDIR}/${PV}/ dir)
+# 1. Applies common release patches
 # 2. Applies package-specific patches (from ${FILESDIR}/, PATCHES can be used)
-# 3. Modifies makefiles for split build. Uses VOS_EXTRACT
-# 4. eautoreconf
+# 3. Applies user patches from /etc/portage/patches/${CATEGORY}/${PN}/
+# 4. Modifies makefiles for split build. Uses VOS_EXTRACT
+# 5. eautoreconf
 virtuoso_src_prepare() {
 	debug-print-function ${FUNCNAME} "$@"
 
-	for file in "${FILESDIR}/${PV}"/*; do
-		epatch "${file}"
-	done
-
+	EPATCH_SUFFIX='patch' EPATCH_FORCE='yes' epatch
 	base_src_prepare
 
 	# @ECLASS-VARIABLE: VOS_EXTRACT
@@ -67,7 +69,7 @@ virtuoso_src_prepare() {
 		# Comment out everything
 		find . -name Makefile.am -exec \
 			sed -e '/SUBDIRS\s*=/s/^/# DISABLED /g' -i {} + \
-				|| die "failed to disable subdirs"
+				|| die 'failed to disable subdirs'
 
 		# Uncomment specified
 		local path
@@ -87,7 +89,7 @@ virtuoso_src_prepare() {
 						sed -e '/^# DISABLED \s*SUBDIRS\s*=/s/.*/SUBDIRS =/g' \
 							-i "${path}"/Makefile.am
 						# Append subdirs if not there already
-						if [[ -z `grep --color=never -P "SUBDIRS\s*=.*${subdir}\b" "${path}"/Makefile.am` ]]; then
+						if [[ -z `sed -ne "/SUBDIRS\s*=.*${subdir}\b/p" "${path}"/Makefile.am` ]]; then
 							sed -e "/^SUBDIRS\s*=/s|$| ${subdir}|" \
 								-i "${path}"/Makefile.am || die "failed to append ${subdir}"
 						fi
@@ -107,18 +109,16 @@ virtuoso_src_prepare() {
 virtuoso_src_configure() {
 	debug-print-function ${FUNCNAME} "$@"
 
-	use amd64 && append-flags "-m64"
-
 	# Override some variables to make tests work
 	if [[ ${PN} != virtuoso-server ]]; then
 		[[ ${EAPI} == 2 ]] && ! use prefix && EPREFIX=
-		export ISQL=${EPREFIX}/usr/bin/isql-v
-		export SERVER=${EPREFIX}/usr/bin/virtuoso-t
+		export ISQL="${EPREFIX}"/usr/bin/isql-v
+		export SERVER="${EPREFIX}"/usr/bin/virtuoso-t
 	fi
 
 	econf \
 		--with-layout=gentoo \
-		--localstatedir=${EPREFIX}/var \
+		--localstatedir="${EPREFIX}"/var \
 		--enable-shared \
 		--with-pthreads \
 		--without-internal-zlib \
@@ -126,7 +126,7 @@ virtuoso_src_configure() {
 }
 
 # @FUNCTION: virtuoso_src_compile
-# @DESCRIPTION
+# @DESCRIPTION:
 # Runs make for specified subdirs
 virtuoso_src_compile() {
 	debug-print-function ${FUNCNAME} "$@"

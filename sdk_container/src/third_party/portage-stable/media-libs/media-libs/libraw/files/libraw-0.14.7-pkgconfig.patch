@@ -1,0 +1,9 @@
+--- LibRaw-0.14.7/libraw_r.pc.in
++++ LibRaw-0.14.7/libraw_r.pc.in
+@@ -7,5 +7,5 @@
+ Description: Raw image decoder library (thread-safe)
+ Requires: @PACKAGE_REQUIRES@
+ Version: @PACKAGE_VERSION@
+-Libs: -L${libdir} -lraw -lstdc++@PC_OPENMP@
++Libs: -L${libdir} -lraw_r -lstdc++@PC_OPENMP@
+ Cflags: -I${includedir}/libraw

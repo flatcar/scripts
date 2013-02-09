@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/linux-info.eclass,v 1.91 2011/12/12 22:01:37 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/linux-info.eclass,v 1.96 2013/01/24 20:47:23 vapier Exp $
 
 # @ECLASS: linux-info.eclass
 # @MAINTAINER:
@@ -18,6 +18,14 @@
 # "kernel config" in this file means:
 # The .config of the currently installed sources is used as the first
 # preference, with a fall-back to bundled config (/proc/config.gz) if available.
+#
+# Before using any of the config-handling functions in this eclass, you must
+# ensure that one of the following functions has been called (in order of
+# preference), otherwise you will get bugs like #364041):
+# linux-info_pkg_setup
+# linux-info_get_any_version
+# get_version
+# get_running_version
 
 # A Couple of env vars are available to effect usage of this eclass
 # These are as follows:
@@ -159,7 +167,7 @@ qeerror() { qout eerror "${@}" ; }
 # done by including the configfile, and printing the variable with Make.
 # It WILL break if your makefile has missing dependencies!
 getfilevar() {
-local	ERROR basefname basedname myARCH="${ARCH}"
+	local ERROR basefname basedname myARCH="${ARCH}"
 	ERROR=0
 
 	[ -z "${1}" ] && ERROR=1
@@ -190,7 +198,7 @@ local	ERROR basefname basedname myARCH="${ARCH}"
 # This is done with sed matching an expression only. If the variable is defined,
 # you will run into problems. See getfilevar for those cases.
 getfilevar_noexec() {
-	local	ERROR basefname basedname mycat myARCH="${ARCH}"
+	local ERROR basefname basedname mycat myARCH="${ARCH}"
 	ERROR=0
 	mycat='cat'
 
@@ -283,8 +291,7 @@ require_configured_kernel() {
 # MUST call linux_config_exists first.
 linux_chkconfig_present() {
 	linux_config_qa_check linux_chkconfig_present
-	local	RESULT
-	local config
+	local RESULT config
 	config="${KV_OUT_DIR}/.config"
 	[ ! -f "${config}" ] && config="/proc/config.gz"
 	RESULT="$(getfilevar_noexec CONFIG_${1} "${config}")"
@@ -300,8 +307,7 @@ linux_chkconfig_present() {
 # MUST call linux_config_exists first.
 linux_chkconfig_module() {
 	linux_config_qa_check linux_chkconfig_module
-	local	RESULT
-	local config
+	local RESULT config
 	config="${KV_OUT_DIR}/.config"
 	[ ! -f "${config}" ] && config="/proc/config.gz"
 	RESULT="$(getfilevar_noexec CONFIG_${1} "${config}")"
@@ -317,8 +323,7 @@ linux_chkconfig_module() {
 # MUST call linux_config_exists first.
 linux_chkconfig_builtin() {
 	linux_config_qa_check linux_chkconfig_builtin
-	local	RESULT
-	local config
+	local RESULT config
 	config="${KV_OUT_DIR}/.config"
 	[ ! -f "${config}" ] && config="/proc/config.gz"
 	RESULT="$(getfilevar_noexec CONFIG_${1} "${config}")"
@@ -581,11 +586,14 @@ get_running_version() {
 		get_version
 		return $?
 	else
-		KV_MAJOR=$(get_version_component_range 1 ${KV_FULL})
-		KV_MINOR=$(get_version_component_range 2 ${KV_FULL})
-		KV_PATCH=$(get_version_component_range 3 ${KV_FULL})
-		KV_PATCH=${KV_PATCH//-*}
-		KV_EXTRA="${KV_FULL#${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}}"
+		# This handles a variety of weird kernel versions.  Make sure to update
+		# tests/linux-info:get_running_version.sh if you want to change this.
+		local kv_full=${KV_FULL//[-+_]*}
+		KV_MAJOR=$(get_version_component_range 1 ${kv_full})
+		KV_MINOR=$(get_version_component_range 2 ${kv_full})
+		KV_PATCH=$(get_version_component_range 3 ${kv_full})
+		KV_EXTRA="${KV_FULL#${KV_MAJOR}.${KV_MINOR}${KV_PATCH:+.${KV_PATCH}}}"
+		: ${KV_PATCH:=0}
 	fi
 	return 0
 }
@@ -617,7 +625,14 @@ check_kernel_built() {
 	require_configured_kernel
 	get_version
 
-	if [ ! -f "${KV_OUT_DIR}/include/linux/version.h" ]
+	local versionh_path
+	if kernel_is -ge 3 7; then
+		versionh_path="include/generated/uapi/linux/version.h"
+	else
+		versionh_path="include/linux/version.h"
+	fi
+
+	if [ ! -f "${KV_OUT_DIR}/${versionh_path}" ]
 	then
 		eerror "These sources have not yet been prepared."
 		eerror "We cannot build against an unprepared tree."
@@ -640,8 +655,7 @@ check_modules_supported() {
 	require_configured_kernel
 	get_version
 
-	if ! linux_chkconfig_builtin "MODULES"
-	then
+	if ! linux_chkconfig_builtin "MODULES"; then
 		eerror "These sources do not support loading external modules."
 		eerror "to be able to use this module please enable \"Loadable modules support\""
 		eerror "in your kernel, recompile and then try merging this module again."
@@ -654,20 +668,19 @@ check_modules_supported() {
 # It checks the kernel config options specified by CONFIG_CHECK. It dies only when a required config option (i.e.
 # the prefix ~ is not used) doesn't satisfy the directive.
 check_extra_config() {
-	local	config negate die error reworkmodulenames
-	local	soft_errors_count=0 hard_errors_count=0 config_required=0
+	local config negate die error reworkmodulenames
+	local soft_errors_count=0 hard_errors_count=0 config_required=0
 	# store the value of the QA check, because otherwise we won't catch usages
 	# after if check_extra_config is called AND other direct calls are done
 	# later.
-	local   old_LINUX_CONFIG_EXISTS_DONE="${_LINUX_CONFIG_EXISTS_DONE}"
+	local old_LINUX_CONFIG_EXISTS_DONE="${_LINUX_CONFIG_EXISTS_DONE}"
 
 	# if we haven't determined the version yet, we need to
 	linux-info_get_any_version
 
 	# Determine if we really need a .config. The only time when we don't need
 	# one is when all of the CONFIG_CHECK options are prefixed with "~".
-	for config in ${CONFIG_CHECK}
-	do
+	for config in ${CONFIG_CHECK}; do
 		if [[ "${config:0:1}" != "~" ]]; then
 			config_required=1
 			break

@@ -1,0 +1,12 @@
+diff -r 2ebe9d14fb3c src/combined/ffmpeg/ffmpeg_compat.h
+--- a/src/combined/ffmpeg/ffmpeg_compat.h	Wed Jul 04 21:39:20 2012 +0300
++++ b/src/combined/ffmpeg/ffmpeg_compat.h	Thu Jul 05 21:36:43 2012 +0200
+@@ -101,7 +101,7 @@
+ #endif
+ 
+ /* AVFrame.age */
+-#if !(LIBAVCODEC_VERSION_MAJOR >= 53 && LIBAVCODEC_VERSION_MAJOR >= 28 && LIBAVCODEC_VERSION_MICRO >= 1)
++#if !(LIBAVCODEC_VERSION_MAJOR > 53 || LIBAVCODEC_VERSION_MAJOR == 53 && LIBAVCODEC_VERSION_MINOR >= 28)
+ #  define AVFRAMEAGE 1
+ #endif
+ 

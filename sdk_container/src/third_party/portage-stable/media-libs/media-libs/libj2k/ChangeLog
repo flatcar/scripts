@@ -1,0 +1,26 @@
+# ChangeLog for media-libs/libj2k
+# Copyright 1999-2009 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/media-libs/libj2k/ChangeLog,v 1.6 2009/01/07 21:49:34 armin76 Exp $
+
+  07 Jan 2009; Raúl Porcel <armin76@gentoo.org> libj2k-0.0.9.ebuild:
+  Add ~alpha/~ia64 wrt #245949
+
+  24 Dec 2008; Friedrich Oslage <bluebird@gentoo.org> libj2k-0.0.9.ebuild:
+  Add ~sparc keyword, bug #245949
+
+  15 May 2007; Thilo Bangert <bangert@gentoo.org> metadata.xml:
+  add <herd>no-herd</herd>
+
+  22 Feb 2007; Piotr Jaroszyński <peper@gentoo.org> ChangeLog:
+  Transition to Manifest2.
+
+  08 Oct 2006; Simon Stelling <blubb@gentoo.org> libj2k-0.0.9.ebuild:
+  added ~amd64
+
+*libj2k-0.0.9 (21 May 2006)
+
+  21 May 2006; Stefan Schweizer <genstef@gentoo.org> +metadata.xml,
+  +libj2k-0.0.9.ebuild:
+  New ebuild libj2k, dep of gst-plugins-farsight, dep of tapioca, bug 127383,
+  original ebuild taken from the zugaina overlay
+

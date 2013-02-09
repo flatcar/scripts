@@ -1,0 +1,20 @@
+--- python/Makefile.am
++++ python/Makefile.am
+@@ -22,7 +22,7 @@
+ 
+ endif
+ 
+-_lcms_la_LDFLAGS = -no-undefined -module -avoid-version \
++_lcms_la_LDFLAGS = -no-undefined -module -avoid-version -shared \
+                     -L$(LCMS_PYLIB)/config 
+ 
+ _lcms_la_LIBADD = $(top_builddir)/src/liblcms.la -lpython$(PYTHON_VERSION)
+@@ -31,7 +31,7 @@
+ 
+ _lcms_la_CPPFLAGS = -I$(PYTHON_PREFIX)/include/python$(PYTHON_VERSION) \
+ 		    -I$(LCMS_PYINCLUDE) \
+-                    $(AM_CPPFLAGS)
++                    $(AM_CPPFLAGS) -shared
+ 
+ 
+ EXTRA_DIST = lcms.py lcms.i testbed swig_lcms

@@ -1,6 +1,6 @@
-# Copyright 1999-2004 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/vim-doc.eclass,v 1.15 2007/05/14 20:04:07 pioto Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/vim-doc.eclass,v 1.17 2011/12/27 17:55:12 fauli Exp $
 #
 # This eclass is used by vim.eclass and vim-plugin.eclass to update
 # the documentation tags.  This is necessary since vim doesn't look in
@@ -13,10 +13,11 @@
 
 
 update_vim_helptags() {
+	has "${EAPI:-0}" 0 1 2 && ! use prefix && EROOT="${ROOT}"
 	local vimfiles vim d s
 
 	# This is where vim plugins are installed
-	vimfiles="${ROOT}"/usr/share/vim/vimfiles
+	vimfiles="${EROOT}"/usr/share/vim/vimfiles
 
 	if [[ $PN != vim-core ]]; then
 		# Find a suitable vim binary for updating tags :helptags
@@ -37,7 +38,7 @@ update_vim_helptags() {
 
 	# Install the documentation symlinks into the versioned vim
 	# directory and run :helptags
-	for d in "${ROOT}"/usr/share/vim/vim[0-9]*; do
+	for d in "${EROOT%/}"/usr/share/vim/vim[0-9]*; do
 		[[ -d "$d/doc" ]] || continue	# catch a failed glob
 
 		# Remove links, and possibly remove stale dirs

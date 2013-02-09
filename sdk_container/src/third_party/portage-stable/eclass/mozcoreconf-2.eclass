@@ -1,13 +1,16 @@
-# Copyright 1999-2007 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/mozcoreconf-2.eclass,v 1.15 2010/01/27 18:58:04 armin76 Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/mozcoreconf-2.eclass,v 1.27 2013/01/16 19:02:10 mgorny Exp $
 #
 # mozcoreconf.eclass : core options for mozilla
 # inherit mozconfig-2 if you need USE flags
 
-inherit multilib flag-o-matic
+PYTHON_COMPAT=( python2_7 )
+PYTHON_REQ_USE='threads,sqlite'
 
-IUSE="${IUSE} custom-optimization"
+inherit multilib flag-o-matic python-any-r1 versionator
+
+IUSE="${IUSE} custom-cflags custom-optimization"
 
 RDEPEND="x11-libs/libXrender
 	x11-libs/libXt
@@ -15,212 +18,8 @@ RDEPEND="x11-libs/libXrender
 	>=sys-libs/zlib-1.1.4"
 
 DEPEND="${RDEPEND}
-	dev-util/pkgconfig"
-
-# Set by configure (plus USE_AUTOCONF=1), but useful for NSPR
-export MOZILLA_CLIENT=1
-export BUILD_OPT=1
-export NO_STATIC_LIB=1
-export USE_PTHREADS=1
-
-mozconfig_init() {
-	declare enable_optimize pango_version myext x
-	declare MOZ=$([[ ${PN} == mozilla || ${PN} == gecko-sdk ]] && echo true || echo false)
-	declare FF=$([[ ${PN} == *firefox ]] && echo true || echo false)
-	declare TB=$([[ ${PN} == *thunderbird ]] && echo true || echo false)
-	declare SB=$([[ ${PN} == *sunbird ]] && echo true || echo false)
-	declare EM=$([[ ${PN} == enigmail ]] && echo true || echo false)
-	declare XUL=$([[ ${PN} == *xulrunner ]] && echo true || echo false)
-	declare SM=$([[ ${PN} == seamonkey ]] && echo true || echo false)
-	declare IC=$([[ ${PN} == *icecat ]] && echo true || echo false)
-
-	####################################
-	#
-	# Setup the initial .mozconfig
-	# See http://www.mozilla.org/build/configure-build.html
-	#
-	####################################
-
-	case ${PN} in
-		mozilla|gecko-sdk)
-			# The other builds have an initial --enable-extensions in their
-			# .mozconfig.  The "default" set in configure applies to mozilla
-			# specifically.
-			: >.mozconfig || die "initial mozconfig creation failed"
-			mozconfig_annotate "" --enable-extensions=default ;;
-		*firefox)
-			cp browser/config/mozconfig .mozconfig \
-				|| die "cp browser/config/mozconfig failed" ;;
-		enigmail)
-			cp mail/config/mozconfig .mozconfig \
-				|| die "cp mail/config/mozconfig failed" ;;
-		*xulrunner)
-			cp xulrunner/config/mozconfig .mozconfig \
-				|| die "cp xulrunner/config/mozconfig failed" ;;
-		*sunbird)
-			cp calendar/sunbird/config/mozconfig .mozconfig \
-				|| die "cp calendar/sunbird/config/mozconfig failed" ;;
-		*thunderbird)
-			cp mail/config/mozconfig .mozconfig \
-				|| die "cp mail/config/mozconfig failed" ;;
-		seamonkey)
-			# The other builds have an initial --enable-extensions in their
-			# .mozconfig.  The "default" set in configure applies to mozilla
-			# specifically.
-			: >.mozconfig || die "initial mozconfig creation failed"
-			mozconfig_annotate "" --enable-application=suite
-			mozconfig_annotate "" --enable-extensions=default ;;
-		*icecat)
-			cp browser/config/mozconfig .mozconfig \
-				|| die "cp browser/config/mozconfig failed" ;;
-	esac
-
-	####################################
-	#
-	# CFLAGS setup and ARCH support
-	#
-	####################################
-
-	# Set optimization level
-	if [[ ${ARCH} == hppa ]]; then
-		mozconfig_annotate "more than -O0 causes segfaults on hppa" --enable-optimize=-O0
-	elif [[ ${ARCH} == x86 ]]; then
-		mozconfig_annotate "less then -O2 causes a segfault on x86" --enable-optimize=-O2
-	elif use custom-optimization || [[ ${ARCH} == alpha ]]; then
-		# Set optimization level based on CFLAGS
-		if is-flag -O0; then
-			mozconfig_annotate "from CFLAGS" --enable-optimize=-O0
-		elif [[ ${ARCH} == ppc ]] && has_version '>=sys-libs/glibc-2.8'; then
-			mozconfig_annotate "more than -O1 segfaults on ppc with glibc-2.8" --enable-optimize=-O1
-		elif is-flag -O1; then
-			mozconfig_annotate "from CFLAGS" --enable-optimize=-O1
-		elif is-flag -Os; then
-			mozconfig_annotate "from CFLAGS" --enable-optimize=-Os
-		else
-			mozconfig_annotate "Gentoo's default optimization" --enable-optimize=-O2
-		fi
-	else
-		# Enable Mozilla's default
-		mozconfig_annotate "mozilla default" --enable-optimize
-	fi
-
-	# Now strip optimization from CFLAGS so it doesn't end up in the
-	# compile string
-	filter-flags '-O*'
-
-	# Strip over-aggressive CFLAGS - Mozilla supplies its own
-	# fine-tuned CFLAGS and shouldn't be interfered with..  Do this
-	# AFTER setting optimization above since strip-flags only allows
-	# -O -O1 and -O2
-	strip-flags
-
-	# Additional ARCH support
-	case "${ARCH}" in
-	alpha)
-		# Historically we have needed to add -fPIC manually for 64-bit.
-		# Additionally, alpha should *always* build with -mieee for correct math
-		# operation
-		append-flags -fPIC -mieee
-		;;
-
-	amd64|ia64)
-		# Historically we have needed to add this manually for 64-bit
-		append-flags -fPIC
-		;;
-
-	ppc64)
-		append-flags -fPIC -mminimal-toc
-		;;
-
-	ppc)
-		# Fix to avoid gcc-3.3.x micompilation issues.
-		if [[ $(gcc-major-version).$(gcc-minor-version) == 3.3 ]]; then
-			append-flags -fno-strict-aliasing
-		fi
-		;;
-
-	x86)
-		if [[ $(gcc-major-version) -eq 3 ]]; then
-			# gcc-3 prior to 3.2.3 doesn't work well for pentium4
-			# see bug 25332
-			if [[ $(gcc-minor-version) -lt 2 ||
-				( $(gcc-minor-version) -eq 2 && $(gcc-micro-version) -lt 3 ) ]]
-			then
-				replace-flags -march=pentium4 -march=pentium3
-				filter-flags -msse2
-			fi
-		fi
-		;;
-	esac
-
-	if [[ $(gcc-major-version) -eq 3 ]]; then
-		# Enable us to use flash, etc plugins compiled with gcc-2.95.3
-		mozconfig_annotate "building with >=gcc-3" --enable-old-abi-compat-wrappers
-
-		# Needed to build without warnings on gcc-3
-		CXXFLAGS="${CXXFLAGS} -Wno-deprecated"
-	fi
-
-	# Go a little faster; use less RAM
-	append-flags "$MAKEEDIT_FLAGS"
-
-	####################################
-	#
-	# mozconfig setup
-	#
-	####################################
-
-	mozconfig_annotate gentoo \
-		--disable-installer \
-		--disable-pedantic \
-		--enable-crypto \
-		--with-system-jpeg \
-		--with-system-zlib \
-		--disable-updater \
-		--enable-pango \
-		--enable-svg \
-		--enable-system-cairo \
-		--disable-strip \
-		--disable-strip-libs \
-		--disable-install-strip \
-		--with-distribution-id=org.gentoo
-
-		# This doesn't work yet
-		#--with-system-png \
-
-	if [[ ${PN} != seamonkey ]]; then
-		mozconfig_annotate gentoo \
-			--enable-single-profile \
-			--disable-profilesharing \
-			--disable-profilelocking
-	fi
-
-	# Here is a strange one...
-	if is-flag '-mcpu=ultrasparc*' || is-flag '-mtune=ultrasparc*'; then
-		mozconfig_annotate "building on ultrasparc" --enable-js-ultrasparc
-	fi
-
-	# jemalloc won't build with older glibc
-	! has_version ">=sys-libs/glibc-2.4" && mozconfig_annotate "we have old glibc" --disable-jemalloc
-}
-
-# Simulate the silly csh makemake script
-makemake() {
-	typeset m topdir
-	for m in $(find . -name Makefile.in); do
-		topdir=$(echo "$m" | sed -r 's:[^/]+:..:g')
-		sed -e "s:@srcdir@:.:g" -e "s:@top_srcdir@:${topdir}:g" \
-			< ${m} > ${m%.in} || die "sed ${m} failed"
-	done
-}
-
-makemake2() {
-	for m in $(find ../ -name Makefile.in); do
-		topdir=$(echo "$m" | sed -r 's:[^/]+:..:g')
-		sed -e "s:@srcdir@:.:g" -e "s:@top_srcdir@:${topdir}:g" \
-			< ${m} > ${m%.in} || die "sed ${m} failed"
-	done
-}
+	virtual/pkgconfig
+	${PYTHON_DEPS}"
 
 # mozconfig_annotate: add an annotated line to .mozconfig
 #
@@ -242,7 +41,7 @@ mozconfig_annotate() {
 # => ac_add_options --enable-freetype2 # +truetype
 mozconfig_use_enable() {
 	declare flag=$(use_enable "$@")
-	mozconfig_annotate "$(useq $1 && echo +$1 || echo -$1)" "${flag}"
+	mozconfig_annotate "$(use $1 && echo +$1 || echo -$1)" "${flag}"
 }
 
 # mozconfig_use_with: add a line to .mozconfig based on a USE-flag
@@ -252,7 +51,7 @@ mozconfig_use_enable() {
 # => ac_add_options --with-gss-api=/usr/lib # +kerberos
 mozconfig_use_with() {
 	declare flag=$(use_with "$@")
-	mozconfig_annotate "$(useq $1 && echo +$1 || echo -$1)" "${flag}"
+	mozconfig_annotate "$(use $1 && echo +$1 || echo -$1)" "${flag}"
 }
 
 # mozconfig_use_extension: enable or disable an extension based on a USE-flag
@@ -261,8 +60,206 @@ mozconfig_use_with() {
 # mozconfig_use_extension gnome gnomevfs
 # => ac_add_options --enable-extensions=gnomevfs
 mozconfig_use_extension() {
-	declare minus=$(useq $1 || echo -)
+	declare minus=$(use $1 || echo -)
 	mozconfig_annotate "${minus:-+}$1" --enable-extensions=${minus}${2}
+}
+
+mozversion_is_new_enough() {
+	case ${PN} in
+		firefox|thunderbird)
+			if [[ $(get_version_component_range 1) -ge 17 ]] ; then
+				return 0
+			fi
+		;;
+		seamonkey)
+			if [[ $(get_version_component_range 1) -eq 2 ]] && [[ $(get_version_component_range 2) -ge 14 ]] ; then
+				return 0
+			fi
+		;;
+	esac
+
+	return 1
+}
+
+moz_pkgsetup() {
+	# Ensure we use C locale when building
+	export LANG="C"
+	export LC_ALL="C"
+	export LC_MESSAGES="C"
+	export LC_CTYPE="C"
+
+	# Ensure that we have a sane build enviroment
+	export MOZILLA_CLIENT=1
+	export BUILD_OPT=1
+	export NO_STATIC_LIB=1
+	export USE_PTHREADS=1
+	export ALDFLAGS=${LDFLAGS}
+
+	if [[ $(gcc-major-version) -eq 3 ]]; then
+		ewarn "Unsupported compiler detected, DO NOT file bugs for"
+		ewarn "outdated compilers. Bugs opened with gcc-3 will be closed"
+		ewarn "invalid."
+	fi
+
+	python-any-r1_pkg_setup
+}
+
+mozconfig_init() {
+	declare enable_optimize pango_version myext x
+	declare XUL=$([[ ${PN} == xulrunner ]] && echo true || echo false)
+	declare FF=$([[ ${PN} == firefox ]] && echo true || echo false)
+	declare IC=$([[ ${PN} == icecat ]] && echo true || echo false)
+	declare SM=$([[ ${PN} == seamonkey ]] && echo true || echo false)
+	declare TB=$([[ ${PN} == thunderbird ]] && echo true || echo false)
+	declare EM=$([[ ${PN} == enigmail ]] && echo true || echo false)
+
+
+	####################################
+	#
+	# Setup the initial .mozconfig
+	# See http://www.mozilla.org/build/configure-build.html
+	#
+	####################################
+
+	case ${PN} in
+		*xulrunner)
+			cp xulrunner/config/mozconfig .mozconfig \
+				|| die "cp xulrunner/config/mozconfig failed" ;;
+		*firefox)
+			cp browser/config/mozconfig .mozconfig \
+				|| die "cp browser/config/mozconfig failed" ;;
+		*icecat)
+			cp browser/config/mozconfig .mozconfig \
+				|| die "cp browser/config/mozconfig failed" ;;
+		seamonkey)
+			# Must create the initial mozconfig to enable application
+			: >.mozconfig || die "initial mozconfig creation failed"
+			mozconfig_annotate "" --enable-application=suite ;;
+		*thunderbird)
+			# Must create the initial mozconfig to enable application
+			: >.mozconfig || die "initial mozconfig creation failed"
+			mozconfig_annotate "" --enable-application=mail ;;
+		enigmail)
+			cp mail/config/mozconfig .mozconfig \
+				|| die "cp mail/config/mozconfig failed" ;;
+	esac
+
+	####################################
+	#
+	# CFLAGS setup and ARCH support
+	#
+	####################################
+
+	# Set optimization level
+	if [[ ${ARCH} == hppa ]]; then
+		mozconfig_annotate "more than -O0 causes a segfault on hppa" --enable-optimize=-O0
+	elif [[ ${ARCH} == x86 ]]; then
+		mozconfig_annotate "less then -O2 causes a segfault on x86" --enable-optimize=-O2
+	elif use custom-optimization || [[ ${ARCH} =~ (alpha|ia64) ]]; then
+		# Set optimization level based on CFLAGS
+		if is-flag -O0; then
+			mozconfig_annotate "from CFLAGS" --enable-optimize=-O0
+		elif [[ ${ARCH} == ppc ]] && has_version '>=sys-libs/glibc-2.8'; then
+			mozconfig_annotate "more than -O1 segfaults on ppc with glibc-2.8" --enable-optimize=-O1
+		elif is-flag -O3; then
+			mozconfig_annotate "from CFLAGS" --enable-optimize=-O3
+		elif is-flag -O1; then
+			mozconfig_annotate "from CFLAGS" --enable-optimize=-O1
+		elif is-flag -Os; then
+			mozconfig_annotate "from CFLAGS" --enable-optimize=-Os
+		else
+			mozconfig_annotate "Gentoo's default optimization" --enable-optimize=-O2
+		fi
+	else
+		# Enable Mozilla's default
+		mozconfig_annotate "mozilla default" --enable-optimize
+	fi
+
+	# Strip optimization so it does not end up in compile string
+	filter-flags '-O*'
+
+	# Strip over-aggressive CFLAGS
+	use custom-cflags || strip-flags
+
+	# Additional ARCH support
+	case "${ARCH}" in
+	alpha)
+		# Historically we have needed to add -fPIC manually for 64-bit.
+		# Additionally, alpha should *always* build with -mieee for correct math
+		# operation
+		append-flags -fPIC -mieee
+		;;
+
+	ia64)
+		# Historically we have needed to add this manually for 64-bit
+		append-flags -fPIC
+		;;
+
+	ppc64)
+		append-flags -fPIC -mminimal-toc
+		;;
+	esac
+
+	# Go a little faster; use less RAM
+	append-flags "$MAKEEDIT_FLAGS"
+
+	####################################
+	#
+	# mozconfig setup
+	#
+	####################################
+
+	mozconfig_annotate system_libs \
+		--with-system-jpeg \
+		--with-system-zlib \
+		--enable-pango \
+		--enable-system-cairo
+		if ! $(mozversion_is_new_enough) ; then
+			mozconfig annotate system-libs --enable-svg
+		fi
+
+	mozconfig_annotate disable_update_strip \
+		--disable-pedantic \
+		--disable-updater \
+		--disable-strip \
+		--disable-install-strip
+		if ! $(mozversion_is_new_enough) ; then
+			mozconfig_annotate disable_update_strip \
+				--disable-installer \
+				--disable-strip-libs
+		fi
+
+	if [[ ${PN} != seamonkey ]]; then
+		mozconfig_annotate basic_profile \
+			--disable-profilelocking
+			if ! $(mozversion_is_new_enough) ; then
+				mozconfig_annotate basic_profile \
+					--enable-single-profile \
+					--disable-profilesharing
+			fi
+	fi
+
+	# Here is a strange one...
+	if is-flag '-mcpu=ultrasparc*' || is-flag '-mtune=ultrasparc*'; then
+		mozconfig_annotate "building on ultrasparc" --enable-js-ultrasparc
+	fi
+
+	# Currently --enable-elf-dynstr-gc only works for x86,
+	# thanks to Jason Wever <weeve@gentoo.org> for the fix.
+	if use x86 && [[ ${enable_optimize} != -O0 ]]; then
+		mozconfig_annotate "${ARCH} optimized build" --enable-elf-dynstr-gc
+	fi
+
+	# jemalloc won't build with older glibc
+	! has_version ">=sys-libs/glibc-2.4" && mozconfig_annotate "we have old glibc" --disable-jemalloc
+}
+
+makemake2() {
+	for m in $(find ../ -name Makefile.in); do
+		topdir=$(echo "$m" | sed -r 's:[^/]+:..:g')
+		sed -e "s:@srcdir@:.:g" -e "s:@top_srcdir@:${topdir}:g" \
+			< ${m} > ${m%.in} || die "sed ${m} failed"
+	done
 }
 
 # mozconfig_final: display a table describing all configuration options paired
@@ -286,3 +283,4 @@ mozconfig_final() {
 	sed -i '/^ac_add_options --enable-extensions/d' .mozconfig
 	echo "ac_add_options --enable-extensions=${exts// /,}" >> .mozconfig
 }
+

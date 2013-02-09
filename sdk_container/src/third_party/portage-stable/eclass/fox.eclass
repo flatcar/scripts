@@ -1,9 +1,12 @@
-# Copyright 1999-2005 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/fox.eclass,v 1.8 2008/10/12 12:31:36 mabi Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/fox.eclass,v 1.17 2012/09/27 16:35:41 axs Exp $
 
-# fox eclass
-#
+# @ECLASS: fox.eclass
+# @MAINTAINER:
+# mabi@gentoo.org
+# @BLURB: Functionality required the FOX Toolkit and it's applications
+# @DESCRIPTION:
 # This eclass allows building SLOT-able FOX Toolkit installations
 # (x11-libs/fox: headers, libs, and docs), which are by design
 # parallel-installable, while installing only one version of the utils
@@ -20,151 +23,139 @@
 # bumped together with the library.
 #
 # Here are sample [R]DEPENDs for the fox apps
-# fox versions that do not use this eclass are blocked in INCOMPAT_DEP below
-#	1.0: '=x11-libs/fox-1.0*'
-#	1.2: '=x11-libs/fox-1.2*'
-#	1.4: '=x11-libs/fox-1.4*'
-#	1.5: '~x11-libs/fox-${PV}'
-#	1.6: '=x11-libs/fox-${FOXVER}*'
+#	1.6: 'x11-libs/fox:1.6'
+#	1.7: '~x11-libs/fox-${PV}'
 #
-# Some concepts borrowed from gst-plugins and gtk-sharp-component eclasses
+# EAPI phase trickery borrowed from enlightenment.eclass
 
-inherit eutils libtool versionator
+inherit autotools versionator
 
 
-FOX_PV="${FOX_PV:-${PV}}"
-PVP=(${FOX_PV//[-\._]/ })
-FOXVER="${PVP[0]}.${PVP[1]}"
+FOX_EXPF="src_unpack src_compile src_install pkg_postinst"
+case "${EAPI:-0}" in
+	2|3|4|5) FOX_EXPF+=" src_prepare src_configure" ;;
+	*) ;;
+esac
+EXPORT_FUNCTIONS ${FOX_EXPF}
 
-if [ "${FOXVER}" != "1.0" ] ; then
-	FOXVER_SUFFIX="-${FOXVER}"
-fi
+# @ECLASS-VARIABLE: FOX_PV
+# @DESCRIPTION:
+# The version of the FOX Toolkit provided or required by the package
+: ${FOX_PV:=${PV}}
+
+# @ECLASS-VARIABLE: FOXVER
+# @INTERNAL
+# @DESCRIPTION:
+# The major.minor version of FOX_PV, usually acts as $SLOT and is used in
+# building the applications
+FOXVER=$(get_version_component_range 1-2 ${FOX_PV})
+
+# @ECLASS-VARIABLE: FOX_APPS
+# @INTERNAL
+# @DESCRIPTION:
+# The applications originally packaged in the FOX Toolkit
+FOX_APPS="adie calculator pathfinder shutterbug"
+
+# @ECLASS-VARIABLE: FOXCONF
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# Set this to add additional configuration options during src_configure
 
 DESCRIPTION="C++ based Toolkit for developing Graphical User Interfaces easily and effectively"
 HOMEPAGE="http://www.fox-toolkit.org/"
-SRC_URI="http://www.fox-toolkit.org/ftp/fox-${FOX_PV}.tar.gz"
+SRC_URI="ftp://ftp.fox-toolkit.org/pub/fox-${FOX_PV}.tar.gz"
 
 IUSE="debug doc profile"
 
-# from fox-1.0
-FOX_APPS="adie calculator pathfinder"
-# from fox-1.2+
-if [ "${FOXVER}" != "1.0" ] ; then
-	FOX_APPS="${FOX_APPS} shutterbug"
-	FOX_CHART="chart"
-fi
-
-if [ "${PN}" != fox ] ; then
+if [[ ${PN} != fox ]] ; then
 	FOX_COMPONENT="${FOX_COMPONENT:-${PN}}"
 fi
 
-if [ "${FOXVER}" != "1.0" ] && [ -z "${FOX_COMPONENT}" ] ; then
+if [[ -z ${FOX_COMPONENT} ]] ; then
 	DOXYGEN_DEP="doc? ( app-doc/doxygen )"
 fi
 
-if [ "${PN}" != reswrap ] ; then
+if [[ ${PN} != reswrap ]] ; then
 	RESWRAP_DEP="dev-util/reswrap"
 fi
 
-# These versions are not compatible with new fox layout
-# and will cause collissions - we need to block them
-INCOMPAT_DEP="!<x11-libs/fox-1.0.53
-	!=x11-libs/fox-1.2.4
-	!~x11-libs/fox-1.2.6
-	!=x11-libs/fox-1.4.11"
-
-DEPEND="${INCOMPAT_DEP}
-	${DOXYGEN_DEP}
+DEPEND="${DOXYGEN_DEP}
 	${RESWRAP_DEP}
-	=sys-devel/automake-1.4*
 	>=sys-apps/sed-4"
 
 S="${WORKDIR}/fox-${FOX_PV}"
 
 fox_src_unpack() {
 	unpack ${A}
-	cd ${S}
+	cd "${S}"
 
-	ebegin "Fixing configure"
+	has src_prepare ${FOX_EXPF} || fox_src_prepare
+}
+
+fox_src_prepare() {
+	# fox changed from configure.in to configure.am in 1.6.38
+	local confFile="configure.ac"
+	[[ -r "configure.in" ]] && confFile="configure.in"
 
 	# Respect system CXXFLAGS
-	sed -i -e 's:CXXFLAGS=""::' configure.in || die "sed configure.in error"
-	touch aclocal.m4
-	sed -i -e 's:CXXFLAGS=""::' configure || die "sed configure error"
+	sed -i -e 's:CXXFLAGS=""::' $confFile || die "sed ${confFile} error"
 
-	eend
-
-	ebegin "Fixing Makefiles"
+	# don't strip binaries
+	sed -i -e '/LDFLAGS="-s ${LDFLAGS}"/d' $confFile || die "sed ${confFile} error"
 
 	# don't build apps from top-level (i.e. x11-libs/fox)
 	# utils == reswrap
+	local d
 	for d in ${FOX_APPS} utils windows ; do
 		sed -i -e "s:${d}::" Makefile.am || die "sed Makefile.am error"
 	done
 
 	# use the installed reswrap for everything else
-	for d in ${FOX_APPS} ${FOX_CHART} tests ; do
-		sed -i -e 's:$(top_builddir)/utils/reswrap:reswrap:' \
-			${d}/Makefile.am || die "sed ${d}/Makefile.am error"
+	for d in ${FOX_APPS} chart controlpanel tests ; do
+		[[ -d ${d} ]] &&
+		(sed -i -e 's:$(top_builddir)/utils/reswrap:reswrap:' \
+			${d}/Makefile.am || die "sed ${d}/Makefile.am error")
 	done
 
 	# use the installed headers and library for apps
 	for d in ${FOX_APPS} ; do
-		if version_is_at_least "1.6.34" ${PV} ; then
-			sed -i \
-				-e "s:-I\$(top_srcdir)/include -I\$(top_builddir)/include:-I\$(includedir)/fox${FOXVER_SUFFIX}:" \
-				-e 's:$(top_builddir)/src/libFOX:-lFOX:' \
-				-e 's:\.la::' \
-				${d}/Makefile.am || die "sed ${d}/Makefile.am error"
-		else
-			sed -i \
-				-e "s:-I\$(top_srcdir)/include -I\$(top_builddir)/include:-I\$(includedir)/fox${FOXVER_SUFFIX}:" \
-				-e 's:../src/libFOX:-lFOX:' \
-				-e 's:\.la::' \
-				${d}/Makefile.am || die "sed ${d}/Makefile.am error"
-		fi
+		sed -i \
+			-e "s:-I\$(top_srcdir)/include -I\$(top_builddir)/include:-I\$(includedir)/fox-${FOXVER}:" \
+			-e 's:$(top_builddir)/src/libFOX:-lFOX:' \
+			-e 's:$(top_builddir)/lib/libFOX:-lFOX:' \
+			-e 's:\.la::' \
+			${d}/Makefile.am || die "sed ${d}/Makefile.am error"
 	done
 
-	# Upstream often has trouble with version number transitions
-	if [ "${FOXVER}" == "1.5" ] ; then
-		sed -i -e 's:1.4:1.5:g' chart/Makefile.am
-	fi
-
-	eend
-
-	ebegin "Running automake"
-	automake-1.4 -a -c || die "automake error"
-	eend
-
-	elibtoolize
+	eautoreconf
 }
 
+fox_src_configure() {
+	use debug && FOXCONF+=" --enable-debug" \
+		  || FOXCONF+=" --enable-release"
+
+	econf ${FOXCONF} \
+		  $(use_with profile profiling)
+}
+
+
 fox_src_compile() {
-	local myconf
-	use debug && myconf="${myconf} --enable-debug" \
-		|| myconf="${myconf} --enable-release"
+	has src_configure ${FOX_EXPF} || fox_src_configure
 
-	econf \
-		${FOXCONF} \
-		${myconf} \
-		$(use_with profile profiling) \
-		|| die "configure error"
-
-	cd ${S}/${FOX_COMPONENT}
+	cd "${S}/${FOX_COMPONENT}"
 	emake || die "compile error"
 
 	# build class reference docs (FOXVER >= 1.2)
-	if use doc && [ "${FOXVER}" != "1.0" ] && [ -z "${FOX_COMPONENT}" ] ; then
-		cd ${S}/doc
-		make docs || die "doxygen error"
+	if use doc && [[ -z ${FOX_COMPONENT} ]] ; then
+		emake -C "${S}"/doc docs  || die "doxygen error"
 	fi
 }
 
-fox_src_install () {
-	cd ${S}/${FOX_COMPONENT}
+fox_src_install() {
+	cd "${S}/${FOX_COMPONENT}"
 
-	make install \
-		DESTDIR=${D} \
+	emake install \
+		DESTDIR="${D}" \
 		htmldir=/usr/share/doc/${PF}/html \
 		artdir=/usr/share/doc/${PF}/html/art \
 		screenshotsdir=/usr/share/doc/${PF}/html/screenshots \
@@ -195,18 +186,17 @@ fox_src_install () {
 	done
 
 	# remove documentation if USE=-doc
-	if ( ! use doc ) && [ -d ${D}/usr/share/doc/${PF}/html ] ; then
-		rm -fr ${D}/usr/share/doc/${PF}/html
+	use doc || rm -fr "${D}/usr/share/doc/${PF}/html"
+
+	# install class reference docs if USE=doc
+	if use doc && [[ -z ${FOX_COMPONENT} ]] ; then
+		dohtml -r "${S}/doc/ref"
 	fi
 
-	# install class reference docs (FOXVER >= 1.2) if USE=doc
-	if use doc && [ "${FOXVER}" != "1.0" ] && [ -z "${FOX_COMPONENT}" ] ; then
-		dohtml -r ${S}/doc/ref
-	fi
-
-	# slot fox-config where present (FOXVER >= 1.2)
-	if [ -f ${D}/usr/bin/fox-config ] ; then
-		mv ${D}/usr/bin/fox-config ${D}/usr/bin/fox-${FOXVER}-config
+	# slot fox-config
+	if [[ -f ${D}/usr/bin/fox-config ]] ; then
+		mv "${D}/usr/bin/fox-config" "${D}/usr/bin/fox-${FOXVER}-config" \
+		|| die "failed to install fox-config"
 	fi
 }
 
@@ -220,17 +210,21 @@ fox_pkg_postinst() {
 		einfo "(adie, calculator, pathfinder, shutterbug) are now available as"
 		einfo "separate ebuilds."
 		echo
-		if [ "${FOXVER}" != "1.0" ] ; then
+
+		if version_is_at_least "1.7.25"; then
+			einfo "Fox versions after 1.7.25 ships a pkg-config file called fox17.pc"
+			einfo "instead of the previous fox-config tool."
+			einfo "You now get all info via pkg-config:"
+			einfo
+			einfo "pkg-config fox17 --libs (etc.)"
+		else
 			einfo "The fox-config script has been installed as fox-${FOXVER}-config."
 			einfo "The fox-wrapper package is used to direct calls to fox-config"
 			einfo "to the correct versioned script, based on the WANT_FOX variable."
 			einfo "For example:"
 			einfo
 			einfo "    WANT_FOX=\"${FOXVER}\" fox-config <options>"
-			einfo
-			epause
 		fi
+		einfo
 	fi
 }
-
-EXPORT_FUNCTIONS src_unpack src_compile src_install pkg_postinst

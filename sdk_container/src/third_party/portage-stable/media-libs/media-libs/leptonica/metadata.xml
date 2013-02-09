@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer>
+		<email>sbriesen@gentoo.org</email>
+		<name>Stefan Briesenick</name>
+	</maintainer>
+	<use>
+		<flag name="webp">Adds support for the WebP image format</flag>
+		<flag name="utils">Install command-line utilities</flag>
+	</use>
+</pkgmetadata>

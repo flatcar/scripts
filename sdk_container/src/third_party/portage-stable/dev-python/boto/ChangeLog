@@ -1,0 +1,211 @@
+# ChangeLog for dev-python/boto
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-python/boto/ChangeLog,v 1.53 2013/01/25 04:50:57 radhermit Exp $
+
+*boto-2.7.0 (25 Jan 2013)
+
+  25 Jan 2013; Tim Harder <radhermit@gentoo.org> +boto-2.7.0.ebuild:
+  Version bump, migrate to distutils-r1 (bug #453922).
+
+*boto-2.6.0 (29 Sep 2012)
+
+  29 Sep 2012; Tim Harder <radhermit@gentoo.org> +boto-2.6.0.ebuild:
+  Version bump.
+
+  29 Jul 2012; Raúl Porcel <armin76@gentoo.org> boto-2.3.0.ebuild:
+  sparc stable wrt #416861
+
+*boto-2.5.2 (17 Jul 2012)
+
+  17 Jul 2012; Mike Frysinger <vapier@gentoo.org> +boto-2.5.2.ebuild:
+  Version bump #425176 by Ian Delaney.
+
+  13 Jun 2012; Tim Harder <radhermit@gentoo.org> boto-2.3.0.ebuild,
+  boto-2.4.1.ebuild:
+  Remove unused eutils inherit.
+
+  29 May 2012; Brent Baude <ranger@gentoo.org> boto-2.3.0.ebuild:
+  Marking boto-2.3.0 ppc for bug 416861
+
+  21 May 2012; Agostino Sarubbo <ago@gentoo.org> boto-2.3.0.ebuild:
+  Stable for amd64, wrt bug #416861
+
+*boto-2.4.1 (21 May 2012)
+
+  21 May 2012; Mike Frysinger <vapier@gentoo.org> +boto-2.4.1.ebuild:
+  Version bump #416811 by Johan Bergström.
+
+  21 May 2012; Jeff Horelick <jdhore@gentoo.org> boto-2.3.0.ebuild:
+  marked x86 per bug 416861
+
+*boto-2.3.0 (09 Apr 2012)
+
+  09 Apr 2012; Mike Gilbert <floppym@gentoo.org> +boto-2.3.0.ebuild:
+  Version bump, round 2.
+
+  09 Apr 2012; Mike Gilbert <floppym@gentoo.org> -boto-2.3.0.ebuild:
+  Remove broken ebuild.
+
+*boto-2.3.0 (08 Apr 2012)
+
+  08 Apr 2012; Mike Gilbert <floppym@gentoo.org> +boto-2.3.0.ebuild:
+  Version bump, #411037 by Ian Delaney.
+
+*boto-2.2.2-r1 (29 Feb 2012)
+
+  29 Feb 2012; Mike Frysinger <vapier@gentoo.org> +boto-2.2.2-r1.ebuild,
+  +files/boto-2.2.2-no-install-tests.patch:
+  Add fix from upstream to not install tests #404979 by Patrick Lauer.
+
+  23 Feb 2012; Tim Harder <radhermit@gentoo.org> -boto-1.9b.ebuild:
+  Remove old.
+
+  22 Feb 2012; Mike Frysinger <vapier@gentoo.org> boto-2.0.ebuild:
+  Mark sparc stable #391437.
+
+  22 Feb 2012; Mike Frysinger <vapier@gentoo.org> metadata.xml:
+  Add myself as maintainer.
+
+*boto-2.2.2 (18 Feb 2012)
+
+  18 Feb 2012; Tim Harder <radhermit@gentoo.org> +boto-2.2.2.ebuild:
+  Version bump (fixes bug #404153).
+
+  01 Feb 2012; Brent Baude <ranger@gentoo.org> boto-2.0.ebuild:
+  Marking boto-2.0 ppc for bug 391437
+
+  28 Nov 2011; Pawel Hajdan jr <phajdan.jr@gentoo.org> boto-2.0.ebuild:
+  x86 stable wrt bug #391437
+
+  26 Nov 2011; Markos Chandras <hwoarang@gentoo.org> boto-2.0.ebuild:
+  Stable on amd64 wrt bug #391437
+
+*boto-2.1.1 (09 Nov 2011)
+
+  09 Nov 2011; Tim Harder <radhermit@gentoo.org> +boto-2.1.1.ebuild:
+  Version bump.
+
+*boto-2.0 (20 Jul 2011)
+
+  20 Jul 2011; Tim Harder <radhermit@gentoo.org> -boto-2.0_beta3.ebuild,
+  -boto-2.0_beta4.ebuild, +boto-2.0.ebuild:
+  Version bump and remove old.
+
+*boto-2.0_beta4 (02 May 2011)
+
+  02 May 2011; Arfrever Frehtes Taifersar Arahesis <arfrever@gentoo.org>
+  +boto-2.0_beta4.ebuild:
+  Version bump.
+
+  04 Jan 2011; Michael Weber <xmw@gentoo.org> boto-1.9b.ebuild,
+  boto-2.0_beta3.ebuild:
+  added ~sparc keyword (bug 279975)
+
+*boto-2.0_beta3 (16 Oct 2010)
+
+  16 Oct 2010; Arfrever Frehtes Taifersar Arahesis <arfrever@gentoo.org>
+  -boto-2.0_beta2.ebuild, +boto-2.0_beta3.ebuild:
+  Version bump.
+
+  28 Sep 2010; Arfrever Frehtes Taifersar Arahesis <arfrever@gentoo.org>
+  -boto-1.6b.ebuild:
+  Delete.
+
+  28 Sep 2010; Brent Baude <ranger@gentoo.org> boto-1.9b.ebuild:
+  stable ppc, bug 326815
+
+*boto-2.0_beta2 (27 Sep 2010)
+
+  27 Sep 2010; Dirkjan Ochtman <djc@gentoo.org> +boto-2.0_beta2.ebuild:
+  Version bump to 2.0b2.
+
+  27 Sep 2010; Dirkjan Ochtman <djc@gentoo.org> -boto-1.8d.ebuild:
+  Remove old unneeded version.
+
+  17 Jul 2010; Christian Faulhammer <fauli@gentoo.org> boto-1.9b.ebuild:
+  stable x86, bug 326815
+
+  04 Jul 2010; Markos Chandras <hwoarang@gentoo.org> boto-1.9b.ebuild:
+  Stable on amd64 wrt bug #326815
+
+  24 Jun 2010; Pacho Ramos <pacho@gentoo.org> boto-1.8d.ebuild:
+  stable amd64, bug 322461
+
+  14 Jun 2010; Pawel Hajdan jr <phajdan.jr@gentoo.org> boto-1.8d.ebuild:
+  x86 stable wrt bug #322461
+
+  11 Jun 2010; Arfrever Frehtes Taifersar Arahesis <arfrever@gentoo.org>
+  boto-1.9b.ebuild:
+  Set SUPPORT_PYTHON_ABIS.
+
+*boto-1.9b (02 Jun 2010)
+
+  02 Jun 2010; Dirkjan Ochtman <djc@gentoo.org> +boto-1.9b.ebuild:
+  Version bump to 1.9b (bug 320653).
+
+  02 Jun 2010; Dirkjan Ochtman <djc@gentoo.org> metadata.xml:
+  python takes over maintainership.
+
+  02 Jun 2010; Torsten Veller <tove@gentoo.org> metadata.xml:
+  Remove caleb from metadata.xml (#317071)
+
+  20 Dec 2009; Fabian Groffen <grobian@gentoo.org> boto-1.8d.ebuild:
+  Marked ~x86-linux, ~x86-macos and ~ppc-macos, bug #296932
+
+  05 Sep 2009; Patrick Lauer <patrick@gentoo.org> -boto-1.7a.ebuild:
+  Remove old
+
+*boto-1.8d (25 Jul 2009)
+
+  25 Jul 2009; Patrick Lauer <patrick@gentoo.org> +boto-1.8d.ebuild:
+  Bump to 1.8d, fixes #279029
+
+  30 Apr 2009; Patrick Lauer <patrick@gentoo.org> -boto-1.0a.ebuild:
+  Remove old
+
+  27 Apr 2009; Markus Meier <maekke@gentoo.org> boto-1.6b.ebuild:
+  amd64/x86 stable, bug #267340
+
+  26 Apr 2009; Brent Baude <ranger@gentoo.org> boto-1.6b.ebuild:
+  stable ppc, bug 267340
+
+*boto-1.7a (24 Apr 2009)
+
+  24 Apr 2009; Patrick Lauer <patrick@gentoo.org> +boto-1.7a.ebuild:
+  Bump to 1.7a
+
+  24 Apr 2009; Patrick Lauer <patrick@gentoo.org> -boto-1.3a.ebuild,
+  -boto-1.4a.ebuild, -boto-1.4c.ebuild:
+  Remove old
+
+  17 Apr 2009; Brent Baude <ranger@gentoo.org> boto-1.3a.ebuild,
+  boto-1.4a.ebuild, boto-1.4c.ebuild, boto-1.6b.ebuild:
+  Marking 1.3, 1.4, 1.6 ~ppc for bug 265361
+
+*boto-1.6b (08 Jan 2009)
+
+  08 Jan 2009; Patrick Lauer <patrick@gentoo.org> +boto-1.6b.ebuild:
+  Bump to 1.6b, closes #254218
+
+*boto-1.4c (11 Nov 2008)
+
+  11 Nov 2008; Caleb Tennis <caleb@gentoo.org> +boto-1.4c.ebuild:
+  version bump
+
+*boto-1.4a (20 Sep 2008)
+
+  20 Sep 2008; Caleb Tennis <caleb@gentoo.org> +boto-1.4a.ebuild:
+  version bump per #236670
+
+*boto-1.3a (13 Jul 2008)
+
+  13 Jul 2008; Caleb Tennis <caleb@gentoo.org> +boto-1.3a.ebuild:
+  version bump
+
+  14 Mar 2008; Caleb Tennis <caleb@gentoo.org> boto-1.0a.ebuild:
+  amd64 stable
+
+*boto-1.0a (18 Jan 2008)
+
+  18 Jan 2008; Caleb Tennis <caleb@gentoo.org> +boto-1.0a.ebuild:
+  Initial import

@@ -1,7 +1,7 @@
 # eclass for ant based Java packages
 #
 # Copyright (c) 2004-2005, Thomas Matthijs <axxo@gentoo.org>
-# Copyright (c) 2004-2005, Gentoo Foundation
+# Copyright (c) 2004-2011, Gentoo Foundation
 # Changes:
 #   May 2007:
 #     Made bsfix make one pass for all things and add some glocal targets for
@@ -14,9 +14,9 @@
 #
 # Licensed under the GNU General Public License, v2
 #
-# $Header: /var/cvsroot/gentoo-x86/eclass/java-ant-2.eclass,v 1.48 2010/02/12 23:51:44 caster Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/java-ant-2.eclass,v 1.55 2012/09/14 05:04:50 ferringb Exp $
 
-inherit java-utils-2
+inherit java-utils-2 multilib
 
 # This eclass provides functionality for Java packages which use
 # ant to build. In particular, it will attempt to fix build.xml files, so that
@@ -37,7 +37,6 @@ inherit java-utils-2
 # dev-java/ant-core into DEPEND.
 
 # construct ant-speficic DEPEND
-JAVA_ANT_E_DEPEND=""
 # add ant-core into DEPEND, unless disabled
 if [[ -z "${JAVA_ANT_DISABLE_ANT_CORE_DEP}" ]]; then
 		JAVA_ANT_E_DEPEND="${JAVA_ANT_E_DEPEND} >=dev-java/ant-core-1.7.0"
@@ -53,17 +52,19 @@ if [[ $? != 0 ]]; then
 fi
 
 # We need some tools from javatoolkit. We also need portage 2.1 for phase hooks
-# and ant dependencies constructed above.
+# and ant dependencies constructed above. Python is there for
+# java-ant_remove-taskdefs
 JAVA_ANT_E_DEPEND="${JAVA_ANT_E_DEPEND}
-	${ANT_TASKS_DEPEND}
-	${JAVA_PKG_PORTAGE_DEP}
-	>=dev-java/javatoolkit-0.3.0-r2"
+	   ${ANT_TASKS_DEPEND}
+	   ${JAVA_PKG_PORTAGE_DEP}
+	   >=dev-java/javatoolkit-0.3.0-r2
+	   >=dev-lang/python-2.4"
 
 # this eclass must be inherited after java-pkg-2 or java-pkg-opt-2
 # if it's java-pkg-opt-2, ant dependencies are pulled based on USE flag
-if hasq java-pkg-opt-2 ${INHERITED}; then
+if has java-pkg-opt-2 ${INHERITED}; then
 	JAVA_ANT_E_DEPEND="${JAVA_PKG_OPT_USE}? ( ${JAVA_ANT_E_DEPEND} )"
-elif ! hasq java-pkg-2 ${INHERITED}; then
+elif ! has java-pkg-2 ${INHERITED}; then
 	eerror "java-ant-2 eclass can only be inherited AFTER java-pkg-2 or java-pkg-opt-2"
 fi
 
@@ -143,6 +144,11 @@ esac
 # src_configure rewrites the build.xml files
 # ------------------------------------------------------------------------------
 java-ant-2_src_configure() {
+	# if java support is optional, don't perform this when the USE flag is off
+	if has java-pkg-opt-2 ${INHERITED}; then
+		use ${JAVA_PKG_OPT_USE} || return
+	fi
+
 	# eant will call us unless called by Portage
 	[[ -e "${T}/java-ant-2_src_configure-run" ]] && return
 
@@ -258,11 +264,6 @@ java-ant_bsfix_files() {
 			files="${files} -f '${file}'"
 		done
 
-		# Play nice with paludis
-		if [[ $(type -t quiet_mode) = function ]] && quiet_mode; then
-			local output=">/dev/null"
-		fi
-
 		# for javadoc target and all in one pass, we need the new rewriter.
 		local rewriter3="/usr/share/javatoolkit/xml-rewrite-3.py"
 		if [[ ! -f ${rewriter3} ]]; then
@@ -274,7 +275,7 @@ java-ant_bsfix_files() {
 		if [[ -x ${rewriter4} && ${JAVA_ANT_ENCODING} ]]; then
 			[[ ${JAVA_ANT_REWRITE_CLASSPATH} ]] && local gcp="-g"
 			[[ ${JAVA_ANT_ENCODING} ]] && local enc="-e ${JAVA_ANT_ENCODING}"
-			eval echo "cElementTree rewriter" ${output}
+			eval echo "cElementTree rewriter"
 			debug-print "${rewriter4} extra args: ${gcp} ${enc}"
 			${rewriter4} ${gcp} ${enc} \
 				-c "${JAVA_PKG_BSFIX_SOURCE_TAGS}" source ${want_source} \
@@ -282,23 +283,23 @@ java-ant_bsfix_files() {
 				"${@}" || die "build-xml-rewrite failed"
 		elif [[ ! -f ${rewriter3} ]]; then
 			debug-print "Using second generation rewriter"
-			eval echo "Rewriting source attributes" ${output}
+			eval echo "Rewriting source attributes"
 			eval xml-rewrite-2.py ${files} \
 				-c -e ${JAVA_PKG_BSFIX_SOURCE_TAGS// / -e } \
-				-a source -v ${want_source} ${output} || _bsfix_die "xml-rewrite2 failed: ${file}"
+				-a source -v ${want_source} || _bsfix_die "xml-rewrite2 failed: ${file}"
 
-			eval echo "Rewriting target attributes" ${output}
+			eval echo "Rewriting target attributes"
 			eval xml-rewrite-2.py ${files} \
 				-c -e ${JAVA_PKG_BSFIX_TARGET_TAGS// / -e } \
-				-a target -v ${want_target} ${output} || _bsfix_die "xml-rewrite2 failed: ${file}"
+				-a target -v ${want_target} || _bsfix_die "xml-rewrite2 failed: ${file}"
 
-			eval echo "Rewriting nowarn attributes" ${output}
+			eval echo "Rewriting nowarn attributes"
 			eval xml-rewrite-2.py ${files} \
 				-c -e ${JAVA_PKG_BSFIX_TARGET_TAGS// / -e } \
-				-a nowarn -v yes ${output} || _bsfix_die "xml-rewrite2 failed: ${file}"
+				-a nowarn -v yes || _bsfix_die "xml-rewrite2 failed: ${file}"
 
 			if [[ ${JAVA_ANT_REWRITE_CLASSPATH} ]]; then
-				eval echo "Adding gentoo.classpath to javac tasks" ${output}
+				eval echo "Adding gentoo.classpath to javac tasks"
 				eval xml-rewrite-2.py ${files} \
 					 -c -e javac -e xjavac -a classpath -v \
 					 '\${gentoo.classpath}' \
@@ -306,7 +307,7 @@ java-ant_bsfix_files() {
 			fi
 		else
 			debug-print "Using third generation rewriter"
-			eval echo "Rewriting attributes" ${output}
+			eval echo "Rewriting attributes"
 			local bsfix_extra_args=""
 			# WARNING KEEP THE ORDER, ESPECIALLY FOR CHANGED ATTRIBUTES!
 			if [[ -n ${JAVA_ANT_REWRITE_CLASSPATH} ]]; then
@@ -322,7 +323,7 @@ java-ant_bsfix_files() {
 				readonly JAVA_ANT_JAVADOC_OUTPUT_DIR="${WORKDIR}/gentoo_javadoc"
 				mkdir -p "${JAVA_ANT_JAVADOC_OUTPUT_DIR}" || die
 
-				if hasq doc ${IUSE}; then
+				if has doc ${IUSE}; then
 					if use doc; then
 						if [[ -z ${EANT_DOC_TARGET} ]]; then
 							EANT_DOC_TARGET="gentoojavadoc"
@@ -360,7 +361,7 @@ java-ant_bsfix_files() {
 				--target-attribute target --target-value ${want_target} \
 				--target-attribute nowarn --target-value yes \
 				${bsfix_extra_args} \
-				${output} || _bsfix_die "xml-rewrite2 failed: ${file}"
+				|| _bsfix_die "xml-rewrite2 failed: ${file}"
 		fi
 
 		if [[ -n "${JAVA_PKG_DEBUG}" ]]; then
@@ -420,6 +421,38 @@ java-ant_rewrite-classpath() {
 	if [[ -n "${JAVA_PKG_DEBUG}" ]]; then
 		diff -NurbB "${file}.orig" "${file}"
 	fi
+}
+
+# ------------------------------------------------------------------------------
+# @public java-ant_remove-taskdefs
+#
+# Removes (named) taskdef elements from the file.
+# Options:
+#   --name NAME : only remove taskdef with name NAME.
+# @param $1 - the file to rewrite (defaults to build.xml)
+# ------------------------------------------------------------------------------
+java-ant_remove-taskdefs() {
+	debug-print-function ${FUNCNAME} $*
+	local task_name
+	if [[ "${1}" == --name ]]; then
+		task_name="${2}"
+		shift 2
+	fi
+	local file="${1:-build.xml}"
+	echo "Removing taskdefs from ${file}"
+	python <<EOF
+import sys
+from xml.dom.minidom import parse
+dom = parse("${file}")
+for elem in dom.getElementsByTagName('taskdef'):
+	if (len("${task_name}") == 0 or elem.getAttribute("name") == "${task_name}"):
+		elem.parentNode.removeChild(elem)
+		elem.unlink()
+f = open("${file}", "w")
+dom.writexml(f)
+f.close()
+EOF
+	[[ $? != 0 ]] && die "Removing taskdefs failed"
 }
 
 # ------------------------------------------------------------------------------

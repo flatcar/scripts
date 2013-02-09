@@ -1,0 +1,33 @@
+# ChangeLog for media-libs/opencollada
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/media-libs/opencollada/ChangeLog,v 1.6 2012/12/01 18:32:28 blueness Exp $
+
+  01 Dec 2012; Anthony G. Basile <blueness@gentoo.org>
+  opencollada-0_p864-r1.ebuild:
+  stable ppc64, bug #436574
+
+  29 Sep 2012; Anthony G. Basile <blueness@gentoo.org>
+  opencollada-0_p864-r1.ebuild:
+  keyword ~ppc64, bug #436566
+
+  10 Sep 2012; Sebastian Pipping <sping@gentoo.org>
+  opencollada-0_p864-r1.ebuild, +files/opencollada-0_p864-gcc-4.7.patch,
+  +files/opencollada-0_p864-parallel.patch:
+  Fix compilation, many thanks for the patches to Jimmy Jazz (bug #428016)
+
+*opencollada-0_p864-r1 (11 Feb 2012)
+
+  11 Feb 2012; Sebastian Pipping <sping@gentoo.org> -opencollada-0_p864.ebuild,
+  +opencollada-0_p864-r1.ebuild:
+  Make sure installed libs can be linked against despite their
+  /usr/lib*/opencollada location (thanks to Anthoine Bourgeois!), workaround
+  parallel make issues
+
+  27 Jan 2012; Sebastian Pipping <sping@gentoo.org> opencollada-0_p864.ebuild:
+  Fix installation on arch x86 (bug #400823)
+
+*opencollada-0_p864 (16 Jan 2012)
+
+  16 Jan 2012; Sebastian Pipping <sping@gentoo.org> +opencollada-0_p864.ebuild,
+  +files/opencollada-0_p864-expat.patch, +metadata.xml:
+  New package required by media-gfx/blender (bug #390431)

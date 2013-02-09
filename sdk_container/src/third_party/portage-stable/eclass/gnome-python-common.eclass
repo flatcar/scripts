@@ -1,6 +1,6 @@
-# Copyright 1999-2008 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/gnome-python-common.eclass,v 1.9 2010/02/09 10:06:36 grobian Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/gnome-python-common.eclass,v 1.17 2012/05/02 18:31:42 jdhore Exp $
 
 # Original Author: Arun Raghavan <ford_prefect@gentoo.org> (based on the
 #		   gnome-python-desktop eclass by Jim Ramsay <lack@gentoo.org>)
@@ -25,7 +25,19 @@
 # So, for example, with the bonobo bindings, the original package is libbonobo
 # and the packages is named dev-python/libbonobo-python
 
-inherit versionator python autotools gnome2
+SUPPORT_PYTHON_ABIS="1"
+RESTRICT_PYTHON_ABIS="3.* *-jython 2.7-pypy-*"
+
+inherit autotools gnome2 python versionator
+
+case "${EAPI:-0}" in
+	0|1)
+		EXPORT_FUNCTIONS pkg_setup src_unpack src_compile src_install pkg_postinst pkg_postrm
+		;;
+	*)
+		EXPORT_FUNCTIONS pkg_setup src_prepare src_configure src_compile src_install pkg_postinst pkg_postrm
+		;;
+esac
 
 G_PY_PN=${G_PY_PN:-gnome-python}
 G_PY_BINDINGS=${G_PY_BINDINGS:-${PN%-python}}
@@ -52,10 +64,12 @@ fi
 
 RDEPEND="${RDEPEND} ~dev-python/${G_PY_PN}-base-${PV}"
 DEPEND="${RDEPEND}
-	dev-util/pkgconfig"
+	virtual/pkgconfig"
 
 # Enable the required bindings as specified by the G_PY_BINDINGS variable
 gnome-python-common_pkg_setup() {
+	python_pkg_setup
+
 	G2CONF="${G2CONF} --disable-allbindings"
 	for binding in ${G_PY_BINDINGS}; do
 		G2CONF="${G2CONF} --enable-${binding}"
@@ -65,10 +79,48 @@ gnome-python-common_pkg_setup() {
 gnome-python-common_src_unpack() {
 	gnome2_src_unpack
 
-	# disable pyc compiling
-	if [[ -f py-compile ]]; then
-		rm py-compile
-		ln -s $(type -P true) py-compile
+	has ${EAPI:-0} 0 1 && gnome-python-common_src_prepare
+}
+
+gnome-python-common_src_prepare() {
+	gnome2_src_prepare
+	python_clean_py-compile_files
+
+	# The .pc file is installed by respective gnome-python*-base package
+	sed -i '/^pkgconfig_DATA/d' Makefile.in || die "sed failed"
+	sed -i '/^pkgconfigdir/d' Makefile.in || die "sed failed"
+
+	python_copy_sources
+}
+
+gnome-python-common_src_configure() {
+	python_execute_function -s gnome2_src_configure "$@"
+}
+
+gnome-python-common_src_compile() {
+	if has ${EAPI:-0} 0 1; then
+		gnome-python-common_src_configure "$@"
+		building() {
+			emake "$@"
+		}
+		python_execute_function -s building "$@"
+	else
+		python_src_compile "$@"
+	fi
+}
+
+gnome-python-common_src_test() {
+	if has ${EAPI:-0} 0 1; then
+		testing() {
+			if emake -j1 -n check &> /dev/null; then
+				emake -j1 check "$@"
+			elif emake -j1 -n test &> /dev/null; then
+				emake -j1 test "$@"
+			fi
+		}
+		python_execute_function -s testing "$@"
+	else
+		python_src_test "$@"
 	fi
 }
 
@@ -77,13 +129,10 @@ gnome-python-common_src_unpack() {
 # (to install a directory recursively, specify it with a trailing '/' - for
 # example, foo/bar/)
 gnome-python-common_src_install() {
-	# The .pc file is installed by respective gnome-python*-base package
-	sed -i '/^pkgconfig_DATA/d' Makefile || die "sed failed"
-	sed -i '/^pkgconfigdir/d' Makefile || die "sed failed"
+	python_execute_function -s gnome2_src_install "$@"
+	python_clean_installation_image
 
-	gnome2_src_install
-
-	if hasq examples ${IUSE} && use examples; then
+	if has examples ${IUSE} && use examples; then
 		insinto /usr/share/doc/${PF}/examples
 
 		for example in ${EXAMPLES}; do
@@ -94,21 +143,12 @@ gnome-python-common_src_install() {
 			fi
 		done
 	fi
-
-	# Python does not need these, bug #299243
-	find "${D%/}${EPREFIX}$(python_get_sitedir)" -name "*.la" -delete \
-		|| die "failed to remove la files"
-
 }
 
 gnome-python-common_pkg_postinst() {
-	python_version
-	python_need_rebuild
-	python_mod_optimize /usr/$(get_libdir)/python${PYVER}/site-packages/gtk-2.0
+	python_mod_optimize gtk-2.0
 }
 
 gnome-python-common_pkg_postrm() {
-	python_mod_cleanup
+	python_mod_cleanup gtk-2.0
 }
-
-EXPORT_FUNCTIONS pkg_setup src_unpack src_install pkg_postinst pkg_postrm

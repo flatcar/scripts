@@ -1,0 +1,33 @@
+From f06c5004f410d0a0a9ed706dad194aabf1be0077 Mon Sep 17 00:00:00 2001
+From: Mike Frysinger <vapier@gentoo.org>
+Date: Tue, 22 May 2012 15:02:42 -0400
+Subject: [PATCH] libquota: add a quotactl prototype
+
+The commit 0df8a27bbaf51b55c0e8c3a533ef4c2ff9d79c9f removed the system
+quota.h include, but in doing so, added the problem:
+mkquota.c:55:2: warning: implicit declaration of function 'quotactl'
+
+Since we're maintaining a copy of quota.h, add a proper func prototype.
+
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+---
+ lib/quota/quota.h |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
+
+diff --git a/lib/quota/quota.h b/lib/quota/quota.h
+index a943ec6..3eaec1d 100644
+--- a/lib/quota/quota.h
++++ b/lib/quota/quota.h
+@@ -152,4 +152,9 @@ enum {
+ };
+ #define QUOTA_NL_A_MAX (__QUOTA_NL_A_MAX - 1)
+ 
++#ifdef HAVE_QUOTACTL
++extern int quotactl(int __cmd, const char *__special, int __id,
++		    caddr_t __addr);
++#endif
++
+ #endif /* _QUOTA_ */
+-- 
+1.7.8.6
+

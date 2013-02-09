@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+  <herd>crypto</herd>
+  <longdescription>
+    GnuPG is a complete and free replacement for PGP. Because it does
+    not use the patented IDEA algorithm, it can be used without any
+    restrictions. GnuPG is a RFC2440 (OpenPGP) compliant application.
+  </longdescription>
+  <use>
+    <flag name='smartcard' restrict='&lt;app-crypt/gnupg-2.0.17-r1'>
+      Bring in <pkg>dev-libs/libusb</pkg> as a dependency; enable
+      scdaemon.
+    </flag>
+    <flag name='smartcard' restrict='&gt;=app-crypt/gnupg-2.0.17-r1'>
+      Build scdaemon software. Enables usage of OpenPGP cards. For
+      other type of smartcards, try
+      <pkg>app-crypt/gnupg-pkcs11-scd</pkg>.
+    </flag>
+    <flag name='usb' restrict='&gt;=app-crypt/gnupg-2.0.17-r1'>
+      Build direct CCID access for scdaemon; requires
+      <pkg>dev-libs/libusb</pkg>.
+    </flag>
+    <flag name='mta'>
+      Build mta support using
+      <pkg>virtual/mta</pkg>.
+    </flag>
+  </use>
+</pkgmetadata>

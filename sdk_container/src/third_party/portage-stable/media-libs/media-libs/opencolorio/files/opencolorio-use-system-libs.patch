@@ -1,0 +1,18 @@
+--- CMakeLists.txt.orig	2012-08-18 14:47:17.449263203 +0400
++++ CMakeLists.txt	2012-08-18 14:47:34.102263732 +0400
+@@ -28,11 +28,10 @@
+ option(OCIO_USE_BOOST_PTR "Set to ON to enable boost shared_ptr (necessary when tr1 is not available)" OFF)
+ 
+ option(OCIO_PYGLUE_RESPECT_ABI "If ON, the Python module install path includes Python UCS version" OFF)
+-if(UNIX AND NOT APPLE)
+-    option(USE_EXTERNAL_YAML "Use system installed yaml-cpp library." OFF)
+-    option(USE_EXTERNAL_TINYXML "Use system installed tinyxml library." OFF)
+-    option(USE_EXTERNAL_LCMS "Use system install lcms2 library." OFF)
+-endif()
++
++option(USE_EXTERNAL_YAML "Use system installed yaml-cpp library." ON)
++option(USE_EXTERNAL_TINYXML "Use system installed tinyxml library." ON)
++option(USE_EXTERNAL_LCMS "Use system install lcms2 library." ON)
+ 
+ # This does not include the SOVERSION override, on purpose, so that the
+ # OCIO_VERSION value will be an accurate reflection of the underlying library version.

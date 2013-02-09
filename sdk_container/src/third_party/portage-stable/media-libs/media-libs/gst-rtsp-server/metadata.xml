@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<maintainer>
+	<email>mattst88@gentoo.org</email>
+	<name>Matt Turner</name>
+</maintainer>
+<herd>gstreamer</herd>
+<use>
+	<flag name="introspection">Use
+		<pkg>dev-libs/gobject-introspection</pkg> for
+		introspection</flag>
+	<flag name="vala">Add support for <pkg>dev-lang/vala</pkg></flag>
+</use>
+</pkgmetadata>

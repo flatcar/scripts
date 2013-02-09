@@ -1,0 +1,12 @@
+https://bugs.gentoo.org/341565
+
+--- a/editor/specialty/pampaintspill.c
++++ b/editor/specialty/pampaintspill.c
+@@ -42,7 +42,6 @@
+ #include <stdio.h>
+ #include <string.h>
+ #include <math.h>
+-#include <alloca.h>
+ #include <time.h>
+ 
+ #include "mallocvar.h"

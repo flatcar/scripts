@@ -1,6 +1,6 @@
-# Copyright 1999-2006 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/myspell.eclass,v 1.6 2009/02/09 08:21:00 pva Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/myspell.eclass,v 1.8 2011/12/27 17:55:12 fauli Exp $
 
 # Author: Kevin F. Quinn <kevquinn@gentoo.org>
 # Packages: app-dicts/myspell-*
@@ -146,8 +146,8 @@ myspell_src_install() {
 	done
 	doins ${dictlst} || die "Failed to install ${dictlst}"
 	# Install any txt files (usually README.txt) as documentation
-	for filen in $(ls *.txt 2> /dev/null); do
-		dodoc ${filen}
+	for filen in *.txt; do
+		[[ -s ${filen} ]] && dodoc ${filen}
 	done
 }
 
@@ -255,4 +255,3 @@ myspell_pkg_preinst() {
 		done
 	done < ${MYSPELL_DICTBASE}/${dictlst}
 }
-

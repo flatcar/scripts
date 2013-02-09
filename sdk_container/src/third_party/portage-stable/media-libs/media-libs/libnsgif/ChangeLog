@@ -1,0 +1,12 @@
+# ChangeLog for media-libs/libnsgif
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/media-libs/libnsgif/ChangeLog,v 1.2 2012/07/17 23:25:46 xmw Exp $
+
+  17 Jul 2012; Michael Weber <xmw@gentoo.org> libnsgif-0.0.3.ebuild:
+  Fix typo
+
+*libnsgif-0.0.3 (17 Jul 2012)
+
+  17 Jul 2012; Michael Weber <xmw@gentoo.org> +libnsgif-0.0.3.ebuild,
+  +metadata.xml:
+  Initial import

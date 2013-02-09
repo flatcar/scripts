@@ -1,6 +1,6 @@
-# Copyright 1999-2007 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/php-ezc.eclass,v 1.5 2008/01/13 15:28:38 jokey Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/php-ezc.eclass,v 1.7 2011/12/27 17:55:12 fauli Exp $
 
 # @ECLASS: php-ezc.eclass
 # @MAINTAINER:
@@ -37,12 +37,12 @@ DEPEND=">=dev-lang/php-5.1.2
 
 # @ECLASS-VARIABLE: EZC_BASE_MIN
 # @DESCRIPTION:
-# Minimal dev-php5/ezc-Base version required for given eZ component version.
+# Minimal dev-php/ezc-Base version required for given eZ component version.
 # Set in ebuild before inherit.
 [[ -z "${EZC_BASE_MIN}" ]] && EZC_BASE_MIN="1.0"
 
 if [[ "${PN}" != "ezc-Base" ]] ; then
-	RDEPEND="${DEPEND} >=dev-php5/ezc-Base-${EZC_BASE_MIN}"
+	RDEPEND="${DEPEND} >=dev-php/ezc-Base-${EZC_BASE_MIN}"
 else
 	RDEPEND="${DEPEND}"
 fi

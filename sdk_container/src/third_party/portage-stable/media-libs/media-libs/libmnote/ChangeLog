@@ -1,0 +1,31 @@
+# ChangeLog for media-libs/libmnote
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/media-libs/libmnote/ChangeLog,v 1.11 2012/05/05 08:02:29 jdhore Exp $
+
+  05 May 2012; Jeff Horelick <jdhore@gentoo.org> libmnote-0.5.6.ebuild:
+  dev-util/pkgconfig -> virtual/pkgconfig
+
+  03 May 2008; Samuli Suominen <drac@gentoo.org> libmnote-0.5.6.ebuild:
+  Move pkgconfig to DEPEND wrt #217278.
+
+  15 May 2007; Thilo Bangert <bangert@gentoo.org> metadata.xml:
+  add <herd>no-herd</herd>
+
+  22 Feb 2007; Piotr Jaroszyński <peper@gentoo.org> ChangeLog:
+  Transition to Manifest2.
+
+  13 Sep 2005; Aron Griffis <agriffis@gentoo.org> libmnote-0.5.6.ebuild:
+  Mark 0.5.6 stable on alpha
+
+  24 Apr 2005; Michael Hanselmann <hansmi@gentoo.org> libmnote-0.5.6.ebuild:
+  Stable on ppc.
+
+  25 Apr 2004; Aron Griffis <agriffis@gentoo.org> libmnote-0.5.6.ebuild:
+  Add die following econf for bug 48950
+
+*libmnote-0.5.6 (08 Jan 2003)
+
+  08 Jan 2003; Martin Holzer <mholzer@gentoo.org> libmnote-0.5.6.ebuild
+  files/digest-libmnote-0.5.6 ChangeLog : 
+  Initial version.
+

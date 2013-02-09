@@ -1,71 +1,102 @@
-# Copyright 1999-2008 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/mozconfig-3.eclass,v 1.8 2010/01/27 12:06:22 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/mozconfig-3.eclass,v 1.34 2013/01/16 23:57:37 anarchy Exp $
 #
 # mozconfig.eclass: the new mozilla.eclass
 
 inherit multilib flag-o-matic mozcoreconf-2
 
-IUSE="gnome dbus startup-notification"
+# use-flags common among all mozilla ebuilds
+IUSE="+alsa +dbus debug libnotify startup-notification system-sqlite wifi"
 
-RDEPEND="x11-libs/libXrender
-	x11-libs/libXt
-	x11-libs/libXmu
-	>=media-libs/jpeg-7
-	dev-libs/expat
-	app-arch/zip
+# XXX: GConf is used for setting the default browser
+#      revisit to make it optional with GNOME 3
+# pango[X] is needed for pangoxft.h
+# freedesktop-icon-theme is needed for bug 341697
+RDEPEND="app-arch/zip
 	app-arch/unzip
-	>=x11-libs/gtk+-2.8.6
-	>=dev-libs/glib-2.8.2
-	>=x11-libs/pango-1.10.1
+	>=app-text/hunspell-1.2
+	dev-libs/expat
 	>=dev-libs/libIDL-0.8.0
-	gnome? ( >=gnome-base/gnome-vfs-2.16.3
-		>=gnome-base/libgnomeui-2.16.1
-		>=gnome-base/gconf-2.16.0
-		>=gnome-base/libgnome-2.16.0 )
+	>=dev-libs/libevent-1.4.7
+	>=x11-libs/cairo-1.8[X]
+	>=x11-libs/gtk+-2.8.6:2
+	>=x11-libs/pango-1.10.1[X]
+	virtual/jpeg
+	alsa? ( media-libs/alsa-lib )
+	virtual/freedesktop-icon-theme
 	dbus? ( >=dev-libs/dbus-glib-0.72 )
+	libnotify? ( >=x11-libs/libnotify-0.4 )
 	startup-notification? ( >=x11-libs/startup-notification-0.8 )
-	!<x11-base/xorg-x11-6.7.0-r2
-	>=x11-libs/cairo-1.6.0"
-	#According to bugs #18573, #204520, and couple of others in Mozilla's
-	#bugzilla. libmng and mng support has been removed in 2003.
-
-
+	wifi? ( net-wireless/wireless-tools )"
 DEPEND="${RDEPEND}"
 
 mozconfig_config() {
-	if ${MN} || ${XUL} || ${TB}; then
-	    mozconfig_annotate thebes --enable-default-toolkit=cairo-gtk2
-	else
-	    mozconfig_annotate -thebes --enable-default-toolkit=gtk2
+	mozconfig_annotate '' --enable-default-toolkit=cairo-gtk2
+
+	if has bindist ${IUSE}; then
+		mozconfig_use_enable !bindist official-branding
+		if [[ ${PN} == firefox ]] && use bindist ; then
+			mozconfig_annotate '' --with-branding=browser/branding/aurora
+		fi
 	fi
 
-	if ! use dbus; then
-		mozconfig_annotate '' --disable-dbus
+	if ! $(mozversion_is_new_enough) ; then
+		mozconfig_use_enable alsa ogg
+		mozconfig_use_enable alsa wave
+		mozconfig_use_enable libnotify
+		mozconfig_use_enable debug debugger-info-modules
+		if has +ipc ${IUSE}; then
+			mozconfig_use_enable ipc
+		fi
+		if [[ ${PN} != thunderbird ]] ; then
+			mozconfig_annotate 'places' --enable-storage --enable-places --enable-places_bookmarks
+			mozconfig_annotate '' --enable-oji --enable-mathml
+			mozconfig_annotate 'broken' --disable-mochitest
+		fi
+		if use system-sqlite; then
+			mozconfig_annotate '' --with-sqlite-prefix="${EPREFIX}"/usr
+		fi
+		if use amd64 || use x86 || use arm || use sparc; then
+			mozconfig_annotate '' --enable-tracejit
+		fi
 	fi
+
+	mozconfig_use_enable dbus
+	mozconfig_use_enable debug
+	mozconfig_use_enable debug tests
 	mozconfig_use_enable startup-notification
+	mozconfig_use_enable system-sqlite
+	mozconfig_use_enable wifi necko-wifi
 
-#	if use debug; then
-#		mozconfig_annotate +debug \
-#			--enable-debug \
-#			--enable-tests \
-#			--enable-debugger-info-modules=ALL_MODULES
-#	else
-	mozconfig_annotate -debug \
-		--disable-debug \
-		--disable-tests
-
-	# Currently --enable-elf-dynstr-gc only works for x86 and ppc,
-	# thanks to Jason Wever <weeve@gentoo.org> for the fix.
-	# -- This breaks now on ppc, no idea why
-#	if use x86 || use ppc && [[ ${enable_optimize} != -O0 ]]; then
-	if use x86 && [[ ${enable_optimize} != -O0 ]]; then
-		mozconfig_annotate "${ARCH} optimized build" --enable-elf-dynstr-gc
+	if $(mozversion_is_new_enough) ; then
+		mozconfig_annotate 'required' --enable-ogg
+		mozconfig_annotate 'required' --enable-wave
+		mozconfig_annotate 'required' --with-system-libvpx
+	elif has +webm ${IUSE} && use webm; then
+		if ! use alsa; then
+			echo "Enabling alsa support due to webm request"
+			mozconfig_annotate '+webm -alsa' --enable-ogg
+			mozconfig_annotate '+webm -alsa' --enable-wave
+			mozconfig_annotate '+webm' --enable-webm
+			mozconfig_annotate '+webm' --with-system-libvpx
+		else
+			mozconfig_use_enable webm
+			mozconfig_annotate '+webm' --with-system-libvpx
+		fi
+	else
+		mozconfig_annotate '' --disable-webm
+		mozconfig_annotate '' --disable-system-libvpx
 	fi
-#	fi
 
-	if ! use gnome; then
-		mozconfig_annotate -gnome --disable-gnomevfs
-		mozconfig_annotate -gnome --disable-gnomeui
-	fi
+	# These are enabled by default in all mozilla applications
+	mozconfig_annotate '' --with-system-nspr --with-nspr-prefix="${EPREFIX}"/usr
+	mozconfig_annotate '' --with-system-nss --with-nss-prefix="${EPREFIX}"/usr
+	mozconfig_annotate '' --x-includes="${EPREFIX}"/usr/include --x-libraries="${EPREFIX}"/usr/$(get_libdir)
+	mozconfig_annotate '' --with-system-libevent="${EPREFIX}"/usr
+	mozconfig_annotate '' --enable-system-hunspell
+	mozconfig_annotate '' --disable-gnomevfs
+	mozconfig_annotate '' --disable-gnomeui
+	mozconfig_annotate '' --enable-gio
+	mozconfig_annotate '' --disable-crashreporter
 }

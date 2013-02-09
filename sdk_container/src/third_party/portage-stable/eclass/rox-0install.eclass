@@ -1,6 +1,6 @@
-# Copyright 1999-2004 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/rox-0install.eclass,v 1.2 2007/12/04 21:26:55 lack Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/rox-0install.eclass,v 1.4 2011/12/27 17:55:12 fauli Exp $
 
 # ROX-0install eclass Version 1
 
@@ -38,7 +38,7 @@ ICON_CACHE_DIR="/var/cache/0install.net/interface_icons"
 #
 # 0install_native_feed <src> <destpath>
 #  src   - The XML file we will edit, install, and point at
-#  path  - The path where the implementation will be installed 
+#  path  - The path where the implementation will be installed
 #          IE, the final edited xml will be at <path>/<basename of src>
 0install_native_feed() {
 	local src=$1 path=$2

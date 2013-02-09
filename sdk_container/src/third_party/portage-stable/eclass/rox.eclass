@@ -1,6 +1,6 @@
-# Copyright 1999-2004 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/rox.eclass,v 1.31 2010/03/07 20:42:13 lack Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/rox.eclass,v 1.36 2012/05/02 18:31:42 jdhore Exp $
 
 # ROX eclass Version 3
 
@@ -38,7 +38,7 @@
 #       APPMIME="a/foo-1;a/foo-2
 #                $(usemime three "a/three")
 #                text/plain"
-#    will be expanded to either "a/foo-1;a/foo-2;a/three;text/plain" if 
+#    will be expanded to either "a/foo-1;a/foo-2;a/three;text/plain" if
 #    USE=three or "a/foo-1;a/foo-2;text/plain" if not.
 #    WARNING: the 'usemime' function cannot be used in global scope. You should
 #    set APPMIME (or at least the USE-dependant parts) in your own src_install
@@ -48,6 +48,11 @@
 #    preserve the source code for some reason
 
 # For examples refer to ebuilds in rox-extra/ or rox-base/
+
+if [[ ${ROX_LIB_VER} ]]; then
+	# Presently all packages which require ROX_LIB also require python2
+	PYTHON_DEPEND="2"
+fi
 
 # need python to byte compile modules, if any
 # need autotools to run autoreconf, if required
@@ -67,7 +72,7 @@ if [[ ${ROX_CLIB_VER} ]]; then
 		>=rox-base/rox-clib-${ROX_CLIB_VER}"
 	DEPEND="${DEPEND}
 		>=rox-base/rox-clib-${ROX_CLIB_VER}
-		>=dev-util/pkgconfig-0.20"
+		virtual/pkgconfig"
 fi
 
 # This is the new wrapper name (for /usr/bin/)
@@ -102,50 +107,6 @@ expandmime() {
 	IFS=$'; \t\n'
 	echo "$*"
 	IFS=$old_IFS
-}
-
-# Creates a .desktop file for this rox application
-# (Adapted from eutils::make_desktop_entry)
-#
-# rox_desktop_entry <exec> <name> <icon> <type> [<extra> ...]
-#  exec - The executable to run
-#  name - The name to display
-#  icon - The icon file to display
-#  Any other arguments will be appended verbatim to the desktop file.
-#
-# The name of the desktop file will be ${exec}.desktop
-#
-rox_desktop_entry() {
-	# Coppied from etuils:make_desktop_entry
-	local exec=${1}; shift
-	local name=${1}; shift
-	local icon=${1}; shift
-	local type=${1}; shift
-
-	local desktop="${exec}.desktop"
-
-	cat <<-EOF > "${desktop}"
-	[Desktop Entry]
-	Name=${name}
-	Type=Application
-	Comment=${DESCRIPTION}
-	Exec=${exec}
-	TryExec=${exec%% *}
-	Icon=${icon}
-	Categories=${type};
-	EOF
-
-	local extra=${1}; shift
-	while [[ "${extra}" ]]; do
-		echo "${extra}" >> "${desktop}"
-		extra=${1}; shift
-	done
-
-	# Subshell, so as to not pollute the caller's env.
-	(
-		insinto /usr/share/applications
-		doins "${desktop}"
-	)
 }
 
 #
@@ -226,14 +187,25 @@ rox_install_desktop() {
 			)
 		fi
 
-		rox_desktop_entry "${WRAPPERNAME}" "${APPNAME}" "${WRAPPERNAME}" \
+		make_desktop_entry "${WRAPPERNAME}" "${APPNAME}" "${WRAPPERNAME}" \
 			"${APPCATEGORY}" "MimeType=$(expandmime $APPMIME)"
 	fi
 }
 
 # Exported functions
+
+rox_pkg_setup() {
+	if [[ ${PYTHON_DEPEND} ]]; then
+		python_set_active_version 2
+	fi
+}
+
 rox_src_compile() {
 	cd "${APPNAME}"
+	# Python packages need their shebangs fixed
+	if [[ ${PYTHON_DEPEND} ]]; then
+		python_convert_shebangs -r 2 .
+	fi
 	#Some packages need to be compiled.
 	chmod 755 AppRun
 	if [[ -d src/ ]]; then
@@ -294,7 +266,9 @@ rox_src_install() {
 }
 
 rox_pkg_postinst() {
-	python_mod_optimize "${APPDIR}/${APPNAME}" >/dev/null 2>&1
+	if [[ ${PYTHON_DEPEND} ]]; then
+		python_mod_optimize "${APPDIR}/${APPNAME}" >/dev/null 2>&1
+	fi
 
 	einfo "${APPNAME} has been installed into ${APPDIR}"
 	if [[ "${WRAPPERNAME}" != "skip" ]]; then
@@ -308,8 +282,10 @@ rox_pkg_postinst() {
 }
 
 rox_pkg_postrm() {
-	python_mod_cleanup "${APPDIR}"
+	if [[ ${PYTHON_DEPEND} ]]; then
+		python_mod_cleanup "${APPDIR}"
+	fi
 }
 
 
-EXPORT_FUNCTIONS src_compile src_install pkg_postinst pkg_postrm
+EXPORT_FUNCTIONS pkg_setup src_compile src_install pkg_postinst pkg_postrm

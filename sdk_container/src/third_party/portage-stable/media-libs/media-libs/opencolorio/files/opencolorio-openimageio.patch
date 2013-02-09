@@ -1,0 +1,38 @@
+http://github.com/cjwills/OpenColorIO/commit/36c59cb788adc20219f6086bccd893531d0cec43
+
+--- src/apps/ocioconvert/main.cpp
++++ src/apps/ocioconvert/main.cpp
+@@ -35,7 +35,9 @@
+ 
+ #include <OpenImageIO/imageio.h>
+ #include <OpenImageIO/typedesc.h>
++#if defined OIIO_VERSION && (OIIO_VERSION<10100)
+ namespace OIIO = OIIO_NAMESPACE;
++#endif
+ 
+ #include "argparse.h"
+ 
+--- src/apps/ociodisplay/main.cpp
++++ src/apps/ociodisplay/main.cpp
+@@ -53,7 +53,9 @@
+ 
+ #include <OpenImageIO/imageio.h>
+ #include <OpenImageIO/typedesc.h>
++#if defined OIIO_VERSION && (OIIO_VERSION<10100)
+ namespace OIIO = OIIO_NAMESPACE;
++#endif
+ 
+ GLint g_win = 0;
+ int g_winWidth = 0;
+--- src/apps/ociolutimage/main.cpp
++++ src/apps/ociolutimage/main.cpp
+@@ -32,7 +32,9 @@
+ 
+ #include <OpenImageIO/imageio.h>
+ #include <OpenImageIO/typedesc.h>
++#if defined OIIO_VERSION && (OIIO_VERSION<10100)
+ namespace OIIO = OIIO_NAMESPACE;
++#endif
+ 
+ #include "argparse.h"
+ 

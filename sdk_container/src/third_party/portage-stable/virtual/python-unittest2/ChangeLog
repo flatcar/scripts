@@ -1,0 +1,24 @@
+# ChangeLog for virtual/python-unittest2
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/virtual/python-unittest2/ChangeLog,v 1.5 2013/01/28 13:37:40 aballier Exp $
+
+  28 Jan 2013; Alexis Ballier <aballier@gentoo.org> python-unittest2-1.ebuild:
+  keyword ~amd64-fbsd, bug #453136
+
+  14 Jan 2013; Michał Górny <mgorny@gentoo.org> python-unittest2-1.ebuild:
+  Change the description to make the intent clear.
+
+*python-unittest2-1 (07 Jan 2013)
+
+  07 Jan 2013; Michał Górny <mgorny@gentoo.org> +python-unittest2-1.ebuild,
+  -python-unittest2-0.ebuild:
+  Explicitly require slot :0 of dev-python/unittest2.
+
+  07 Jan 2013; Michał Górny <mgorny@gentoo.org> python-unittest2-0.ebuild:
+  Install the unittest2 module for all implementations.
+
+*python-unittest2-0 (06 Jan 2013)
+
+  06 Jan 2013; Michał Górny <mgorny@gentoo.org> +metadata.xml,
+  +python-unittest2-0.ebuild:
+  Introduce a virtual for unittest2-compatible unittest module.

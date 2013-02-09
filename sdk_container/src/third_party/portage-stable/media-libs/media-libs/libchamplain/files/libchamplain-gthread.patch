@@ -1,0 +1,106 @@
+From b6098de723f14f8dd5051a83f54bb7503f7e8a47 Mon Sep 17 00:00:00 2001
+From: Colin Walters <walters@verbum.org>
+Date: Fri, 04 Nov 2011 02:29:37 +0000
+Subject: demos: Don't call g_thread_init
+
+Doing so now requires linking -lgthread, but it's been pointless
+since GLib 2.18, which is ancient history now.
+---
+diff --git a/demos/animated-marker.c b/demos/animated-marker.c
+index 7f3fd6e..71580a7 100644
+--- a/demos/animated-marker.c
++++ b/demos/animated-marker.c
+@@ -127,7 +127,6 @@ main (int argc, char *argv[])
+   ChamplainMarkerLayer *layer;
+   GpsCallbackData callback_data;
+ 
+-  g_thread_init (NULL);
+   if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
+     return 1;
+ 
+diff --git a/demos/launcher-gtk.c b/demos/launcher-gtk.c
+index 67b7a6a..8e699a9 100644
+--- a/demos/launcher-gtk.c
++++ b/demos/launcher-gtk.c
+@@ -223,7 +223,6 @@ main (int argc,
+   ClutterActor *scale;
+   ChamplainLicense *license_actor;
+ 
+-  g_thread_init (NULL);
+   gtk_clutter_init (&argc, &argv);
+ 
+   /* create the main, top level, window */
+diff --git a/demos/launcher.c b/demos/launcher.c
+index 1f222d4..26e585f 100644
+--- a/demos/launcher.c
++++ b/demos/launcher.c
+@@ -95,7 +95,6 @@ main (int argc,
+   ChamplainPathLayer *path;
+   gfloat width, total_width = 0;
+ 
+-  g_thread_init (NULL);
+   if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
+     return 1;
+ 
+diff --git a/demos/local-rendering.c b/demos/local-rendering.c
+index 16bc9a5..98208b9 100644
+--- a/demos/local-rendering.c
++++ b/demos/local-rendering.c
+@@ -730,7 +730,6 @@ main (int argc,
+ {
+   GtkWidget *widget, *hbox, *bbox, *menubox, *button, *viewport, *label;
+ 
+-  g_thread_init (NULL);
+   gtk_clutter_init (&argc, &argv);
+ 
+   /* create the main, top level, window */
+diff --git a/demos/minimal-gtk.c b/demos/minimal-gtk.c
+index ea3383a..195f9e4 100644
+--- a/demos/minimal-gtk.c
++++ b/demos/minimal-gtk.c
+@@ -29,7 +29,6 @@ main (int argc, char *argv[])
+   GtkWidget *window, *widget;
+ 
+   /* initialize threads and clutter */
+-  g_thread_init (NULL);
+   gtk_clutter_init (&argc, &argv);
+ 
+   /* create the top-level window and quit the main loop when it's closed */
+diff --git a/demos/minimal.c b/demos/minimal.c
+index 6ada0a9..b3ec2ef 100644
+--- a/demos/minimal.c
++++ b/demos/minimal.c
+@@ -23,7 +23,6 @@ main (int argc, char *argv[])
+ {
+   ClutterActor *actor, *stage;
+ 
+-  g_thread_init (NULL);
+   if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
+     return 1;
+ 
+diff --git a/demos/polygons.c b/demos/polygons.c
+index 996a61f..df54689 100644
+--- a/demos/polygons.c
++++ b/demos/polygons.c
+@@ -84,7 +84,6 @@ main (int argc,
+   ChamplainPathLayer *layer;
+   gfloat width, total_width = 0;;
+ 
+-  g_thread_init (NULL);
+   if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
+     return 1;
+ 
+diff --git a/demos/url-marker.c b/demos/url-marker.c
+index 6e34d09..a73bd27 100644
+--- a/demos/url-marker.c
++++ b/demos/url-marker.c
+@@ -243,7 +243,6 @@ main (int argc, char *argv[])
+   ChamplainMarkerLayer *layer;
+   SoupSession *session;
+ 
+-  g_thread_init (NULL);
+   if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
+     return 1;
+ 
+--
+cgit v0.9.0.2

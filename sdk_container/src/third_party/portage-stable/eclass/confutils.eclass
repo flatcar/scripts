@@ -1,6 +1,6 @@
-# Copyright 1999-2008 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/confutils.eclass,v 1.22 2008/02/27 09:53:04 hollow Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/confutils.eclass,v 1.23 2012/09/15 16:16:53 zmedico Exp $
 
 # @ECLASS: confutils.eclass
 # @MAINTAINER:
@@ -13,8 +13,6 @@
 # Based on the PHP5 eclass by Stuart Herbert <stuart@stuartherbert.com>
 
 inherit eutils
-
-DESCRIPTION="Based on the ${ECLASS} eclass"
 
 # @VARIABLE: EBUILD_SUPPORTS_SHAREDEXT
 # @DESCRIPTION:

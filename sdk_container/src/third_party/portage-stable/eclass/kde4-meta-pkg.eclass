@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/kde4-meta-pkg.eclass,v 1.9 2012/10/13 22:54:37 johu Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/kde4-meta-pkg.eclass,v 1.10 2013/02/02 16:58:00 dilfridge Exp $
 
 # @ECLASS: kde4-meta-pkg.eclass
 # @MAINTAINER:
@@ -15,11 +15,5 @@ HOMEPAGE="http://www.kde.org/"
 
 LICENSE="metapackage"
 IUSE="aqua"
-
-# Only add the kdeprefix USE flag for older versions, to help
-# non-portage package managers handle the upgrade
-if [[ ${PV} < 4.6.4 && ( ${PN} != kdepim-meta || ${PV} < 4.6 ) ]]; then
-	IUSE+=" kdeprefix"
-fi
 
 SLOT=4

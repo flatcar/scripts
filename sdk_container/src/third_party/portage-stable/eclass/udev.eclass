@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/udev.eclass,v 1.6 2012/10/31 18:28:10 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/udev.eclass,v 1.9 2013/01/29 15:33:37 ssuominen Exp $
 
 # @ECLASS: udev.eclass
 # @MAINTAINER:
@@ -13,17 +13,19 @@
 # @CODE
 # inherit udev
 #
-# RDEPEND=">=sys-fs/udev-171-r6"
+# # In this example 196 is the first version with udev.bin hwdb database,
+# # and we also link against libgudev
+# RDEPEND=">=virtual/udev-196[hwdb,gudev]"
 # DEPEND="${RDEPEND}"
 #
 # src_configure() {
-#	econf \
-#		--with-udevrulesdir="$(udev_get_udevdir)"/rules.d
+#	econf --with-rulesdir="$(get_udevdir)"/rules.d
 # }
 #
 # src_install() {
+#	default
 #	# udev_dorules contrib/99-foomatic
-#	udev_newrules contrib/98-foomatic 99-foomatic
+#	# udev_newrules contrib/98-foomatic 99-foomatic
 # }
 # @CODE
 
@@ -51,10 +53,19 @@ _udev_get_udevdir() {
 
 # @FUNCTION: udev_get_udevdir
 # @DESCRIPTION:
+# Use the short version $(get_udevdir) instead!
+udev_get_udevdir() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	echo "$(_udev_get_udevdir)"
+}
+
+# @FUNCTION: get_udevdir
+# @DESCRIPTION:
 # Output the path for the udev directory (not including ${D}).
 # This function always succeeds, even if udev is not installed.
 # The fallback value is set to /lib/udev
-udev_get_udevdir() {
+get_udevdir() {
 	debug-print-function ${FUNCNAME} "${@}"
 
 	echo "$(_udev_get_udevdir)"

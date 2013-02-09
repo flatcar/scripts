@@ -1,0 +1,39 @@
+=== modified file 'configure.in'
+--- configure.in	2009-03-23 12:17:31 +0000
++++ configure.in	2009-03-23 14:15:09 +0000
+@@ -66,7 +66,7 @@
+ dnl NLS/gettext nightmare^H^H^H^H^H^H^H^H^H^H support...
+ 
+ if test "$USE_NLS" = "yes"; then
+-  AC_REQUIRE([AC_PROG_MAKE_SET])
++  AC_PROG_MAKE_SET
+   AC_CHECK_HEADERS(locale.h)
+   AC_CHECK_FUNCS(setlocale)
+   AC_SUBST(HAVE_LOCALE_H)  
+
+=== modified file 'freetype1-contrib/ttf2bdf/Makefile.in'
+--- freetype1-contrib/ttf2bdf/Makefile.in	2009-03-23 12:17:31 +0000
++++ freetype1-contrib/ttf2bdf/Makefile.in	2009-03-23 12:25:17 +0000
+@@ -52,7 +52,7 @@
+ all: ttf2bdf
+ 
+ ttf2bdf: $(OBJS)
+-	$(PURIFY) $(CC) $(STATIC) $(CFLAGS) -o ttf2bdf $(OBJS) $(LIBS)
++	$(PURIFY) $(CC) $(LDFLAGS) $(STATIC) $(CFLAGS) -o ttf2bdf $(OBJS) $(LIBS)
+ 
+ clean:
+ 	$(RM) -f *.o *BAK *CKP *~ a.out core
+
+=== modified file 'lib/arch/unix/Makefile.in'
+--- lib/arch/unix/Makefile.in	2009-03-23 12:17:31 +0000
++++ lib/arch/unix/Makefile.in	2009-03-23 12:26:37 +0000
+@@ -205,7 +205,7 @@
+                                         $(SRC_S)
+ 
+ libttf.la: $(LIB_FILES)
+-	$(LIBTOOL) --mode=link $(CC) -o libttf.la $(LIB_FILES) \
++	$(LIBTOOL) --mode=link $(CC) $(LDFLAGS) -o libttf.la $(LIB_FILES) \
+                                -rpath $(libdir) \
+                                -version-info $(version_info) $(FT_LIBS)
+ 
+

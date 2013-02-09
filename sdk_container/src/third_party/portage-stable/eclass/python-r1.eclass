@@ -1,11 +1,10 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/python-r1.eclass,v 1.24 2012/11/30 11:40:15 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/python-r1.eclass,v 1.40 2013/01/30 10:42:25 mgorny Exp $
 
 # @ECLASS: python-r1
 # @MAINTAINER:
-# Michał Górny <mgorny@gentoo.org>
-# Python herd <python@gentoo.org>
+# Python team <python@gentoo.org>
 # @AUTHOR:
 # Author: Michał Górny <mgorny@gentoo.org>
 # Based on work of: Krzysztof Pawlik <nelchael@gentoo.org>
@@ -29,11 +28,12 @@
 # http://www.gentoo.org/proj/en/Python/python-r1/dev-guide.xml
 
 case "${EAPI:-0}" in
-	0|1|2|3)
+	0|1|2|3|4)
 		die "Unsupported EAPI=${EAPI:-0} (too old) for ${ECLASS}"
 		;;
-	4|5)
-		# EAPI=4 needed for REQUIRED_USE
+	5)
+		# EAPI=5 is required for meaningful USE default deps
+		# on USE_EXPAND flags
 		;;
 	*)
 		die "Unsupported EAPI=${EAPI} (unknown) for ${ECLASS}"
@@ -44,6 +44,8 @@ if [[ ! ${_PYTHON_R1} ]]; then
 
 if [[ ${_PYTHON_SINGLE_R1} ]]; then
 	die 'python-r1.eclass can not be used with python-single-r1.eclass.'
+elif [[ ${_PYTHON_ANY_R1} ]]; then
+	die 'python-r1.eclass can not be used with python-any-r1.eclass.'
 fi
 
 inherit python-utils-r1
@@ -126,44 +128,200 @@ fi
 #
 # Example value:
 # @CODE
-# python_targets_python2_6?,python_targets_python2_7?
+# python_targets_python2_6(-)?,python_targets_python2_7(-)?
 # @CODE
 
 _python_set_globals() {
-	local flags=( "${PYTHON_COMPAT[@]/#/python_targets_}" )
-	local optflags=${flags[@]/%/?}
+	local impls=()
+
+	PYTHON_DEPS=
+	local i PYTHON_PKG_DEP
+	for i in "${PYTHON_COMPAT[@]}"; do
+		_python_impl_supported "${i}" || continue
+
+		python_export "${i}" PYTHON_PKG_DEP
+		PYTHON_DEPS+="python_targets_${i}? ( ${PYTHON_PKG_DEP} ) "
+
+		impls+=( "${i}" )
+	done
+
+	if [[ ${#impls[@]} -eq 0 ]]; then
+		die "No supported implementation in PYTHON_COMPAT."
+	fi
+
+	local flags=( "${impls[@]/#/python_targets_}" )
+	local optflags=${flags[@]/%/(-)?}
+
+	# A nice QA trick here. Since a python-single-r1 package has to have
+	# at least one PYTHON_SINGLE_TARGET enabled (REQUIRED_USE),
+	# the following check will always fail on those packages. Therefore,
+	# it should prevent developers from mistakenly depending on packages
+	# not supporting multiple Python implementations.
+
+	local flags_st=( "${impls[@]/#/-python_single_target_}" )
+	optflags+=,${flags_st[@]/%/(-)}
 
 	IUSE=${flags[*]}
-	REQUIRED_USE="|| ( ${flags[*]} )"
+	#REQUIRED_USE="|| ( ${flags[*]} )"
 	PYTHON_USEDEP=${optflags// /,}
-
-	local usestr
-	[[ ${PYTHON_REQ_USE} ]] && usestr="[${PYTHON_REQ_USE}]"
 
 	# 1) well, python-exec would suffice as an RDEP
 	# but no point in making this overcomplex, BDEP doesn't hurt anyone
 	# 2) python-exec should be built with all targets forced anyway
 	# but if new targets were added, we may need to force a rebuild
-	PYTHON_DEPS="dev-python/python-exec[${PYTHON_USEDEP}]"
-	local i
-	for i in "${PYTHON_COMPAT[@]}"; do
-		local d
-		case ${i} in
-			python*)
-				d='dev-lang/python';;
-			jython*)
-				d='dev-java/jython';;
-			pypy*)
-				d='dev-python/pypy';;
-			*)
-				die "Invalid implementation: ${i}"
-		esac
-
-		local v=${i##*[a-z]}
-		PYTHON_DEPS+=" python_targets_${i}? ( ${d}:${v/_/.}${usestr} )"
-	done
+	PYTHON_DEPS+="dev-python/python-exec[${PYTHON_USEDEP}]"
 }
 _python_set_globals
+
+# @FUNCTION: _python_validate_useflags
+# @INTERNAL
+# @DESCRIPTION:
+# Enforce the proper setting of PYTHON_TARGETS.
+_python_validate_useflags() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	local i
+
+	for i in "${PYTHON_COMPAT[@]}"; do
+		_python_impl_supported "${i}" || continue
+
+		use "python_targets_${i}" && return 0
+	done
+
+	eerror "No Python implementation selected for the build. Please add one"
+	eerror "of the following values to your PYTHON_TARGETS (in make.conf):"
+	eerror
+	eerror "${PYTHON_COMPAT[@]}"
+	echo
+	die "No supported Python implementation in PYTHON_TARGETS."
+}
+
+# @FUNCTION: python_gen_usedep
+# @USAGE: <pattern> [...]
+# @DESCRIPTION:
+# Output a USE dependency string for Python implementations which
+# are both in PYTHON_COMPAT and match any of the patterns passed
+# as parameters to the function.
+#
+# When all implementations are requested, please use ${PYTHON_USEDEP}
+# instead. Please also remember to set an appropriate REQUIRED_USE
+# to avoid ineffective USE flags.
+#
+# Example:
+# @CODE
+# PYTHON_COMPAT=( python{2_7,3_2} )
+# DEPEND="doc? ( dev-python/epydoc[$(python_gen_usedep python2*)] )"
+# @CODE
+#
+# It will cause the dependency to look like:
+# @CODE
+# DEPEND="doc? ( dev-python/epydoc[python_targets_python2_7?] )"
+# @CODE
+python_gen_usedep() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	local impl pattern
+	local matches=()
+
+	for impl in "${PYTHON_COMPAT[@]}"; do
+		_python_impl_supported "${impl}" || continue
+
+		for pattern; do
+			if [[ ${impl} == ${pattern} ]]; then
+				matches+=(
+					"python_targets_${impl}(-)?"
+					"-python_single_target_${impl}(-)"
+				)
+				break
+			fi
+		done
+	done
+
+	local out=${matches[@]}
+	echo ${out// /,}
+}
+
+# @FUNCTION: python_gen_useflags
+# @USAGE: <pattern> [...]
+# @DESCRIPTION:
+# Output a list of USE flags for Python implementations which
+# are both in PYTHON_COMPAT and match any of the patterns passed
+# as parameters to the function.
+#
+# Example:
+# @CODE
+# PYTHON_COMPAT=( python{2_7,3_2} )
+# REQUIRED_USE="doc? ( || ( $(python_gen_useflags python2*) ) )"
+# @CODE
+#
+# It will cause the variable to look like:
+# @CODE
+# REQUIRED_USE="doc? ( || ( python_targets_python2_7 ) )"
+# @CODE
+python_gen_useflags() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	local impl pattern
+	local matches=()
+
+	for impl in "${PYTHON_COMPAT[@]}"; do
+		_python_impl_supported "${impl}" || continue
+
+		for pattern; do
+			if [[ ${impl} == ${pattern} ]]; then
+				matches+=( "python_targets_${impl}" )
+				break
+			fi
+		done
+	done
+
+	echo ${matches[@]}
+}
+
+# @FUNCTION: python_gen_cond_dep
+# @USAGE: <dependency> <pattern> [...]
+# @DESCRIPTION:
+# Output a list of <dependency>-ies made conditional to USE flags
+# of Python implementations which are both in PYTHON_COMPAT and match
+# any of the patterns passed as the remaining parameters.
+#
+# Please note that USE constraints on the package need to be enforced
+# separately. Therefore, the dependency usually needs to use
+# python_gen_usedep as well.
+#
+# Example:
+# @CODE
+# PYTHON_COMPAT=( python{2_5,2_6,2_7} )
+# RDEPEND="$(python_gen_cond_dep dev-python/unittest2 python{2_5,2_6})"
+# @CODE
+#
+# It will cause the variable to look like:
+# @CODE
+# RDEPEND="python_targets_python2_5? ( dev-python/unittest2 )
+#	python_targets_python2_6? ( dev-python/unittest2 )"
+# @CODE
+python_gen_cond_dep() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	local impl pattern
+	local matches=()
+
+	local dep=${1}
+	shift
+
+	for impl in "${PYTHON_COMPAT[@]}"; do
+		_python_impl_supported "${impl}" || continue
+
+		for pattern; do
+			if [[ ${impl} == ${pattern} ]]; then
+				matches+=( "python_targets_${impl}? ( ${dep} )" )
+				break
+			fi
+		done
+	done
+
+	echo ${matches[@]}
+}
 
 # @ECLASS-VARIABLE: BUILD_DIR
 # @DESCRIPTION:
@@ -190,6 +348,8 @@ _python_set_globals
 python_copy_sources() {
 	debug-print-function ${FUNCNAME} "${@}"
 
+	_python_validate_useflags
+
 	local impl
 	local bdir=${BUILD_DIR:-${S}}
 
@@ -197,6 +357,8 @@ python_copy_sources() {
 	einfo "Will copy sources from ${S}"
 	# the order is irrelevant here
 	for impl in "${PYTHON_COMPAT[@]}"; do
+		_python_impl_supported "${impl}" || continue
+
 		if use "python_targets_${impl}"
 		then
 			local BUILD_DIR=${bdir%%/}-${impl}
@@ -229,6 +391,8 @@ _python_check_USE_PYTHON() {
 
 			local impl py2 py3 dis_py2 dis_py3
 			for impl in "${PYTHON_COMPAT[@]}"; do
+				_python_impl_supported "${impl}" || continue
+
 				if use "python_targets_${impl}"; then
 					case "${impl}" in
 						python2_*)
@@ -265,6 +429,10 @@ _python_check_USE_PYTHON() {
 			# is installed.
 			if [[ ! ${py2+1} && ${dis_py2} ]]; then
 				debug-print "${FUNCNAME}: -> all py2 versions disabled"
+				if ! has python2_7 "${PYTHON_COMPAT[@]}"; then
+					debug-print "${FUNCNAME}: ---> package does not support 2.7"
+					return 0
+				fi
 				if has_version '=dev-lang/python-2*'; then
 					debug-print "${FUNCNAME}: ---> but =python-2* installed!"
 					return 1
@@ -272,6 +440,10 @@ _python_check_USE_PYTHON() {
 			fi
 			if [[ ! ${py3+1} && ${dis_py3} ]]; then
 				debug-print "${FUNCNAME}: -> all py3 versions disabled"
+				if ! has python3_2 "${PYTHON_COMPAT[@]}"; then
+					debug-print "${FUNCNAME}: ---> package does not support 3.2"
+					return 0
+				fi
 				if has_version '=dev-lang/python-3*'; then
 					debug-print "${FUNCNAME}: ---> but =python-3* installed!"
 					return 1
@@ -332,6 +504,8 @@ _python_check_USE_PYTHON() {
 		local impl old=${USE_PYTHON} new=() removed=()
 
 		for impl in "${PYTHON_COMPAT[@]}"; do
+			_python_impl_supported "${impl}" || continue
+
 			local abi
 			case "${impl}" in
 				python*)
@@ -417,6 +591,7 @@ _python_check_USE_PYTHON() {
 python_foreach_impl() {
 	debug-print-function ${FUNCNAME} "${@}"
 
+	_python_validate_useflags
 	_python_check_USE_PYTHON
 
 	local impl
@@ -424,7 +599,9 @@ python_foreach_impl() {
 
 	debug-print "${FUNCNAME}: bdir = ${bdir}"
 	for impl in "${_PYTHON_ALL_IMPLS[@]}"; do
-		if has "${impl}" "${PYTHON_COMPAT[@]}" && use "python_targets_${impl}"
+		if has "${impl}" "${PYTHON_COMPAT[@]}" \
+			&& _python_impl_supported "${impl}" \
+			&& use "python_targets_${impl}"
 		then
 			local EPYTHON PYTHON
 			python_export "${impl}" EPYTHON PYTHON
@@ -446,11 +623,15 @@ python_foreach_impl() {
 python_export_best() {
 	debug-print-function ${FUNCNAME} "${@}"
 
+	_python_validate_useflags
+
 	[[ ${#} -gt 0 ]] || set -- EPYTHON PYTHON
 
 	local impl best
 	for impl in "${_PYTHON_ALL_IMPLS[@]}"; do
-		if has "${impl}" "${PYTHON_COMPAT[@]}" && use "python_targets_${impl}"
+		if has "${impl}" "${PYTHON_COMPAT[@]}" \
+			&& _python_impl_supported "${impl}" \
+			&& use "python_targets_${impl}"
 		then
 			best=${impl}
 		fi
@@ -473,9 +654,7 @@ python_export_best() {
 python_replicate_script() {
 	debug-print-function ${FUNCNAME} "${@}"
 
-	if [[ ${_PYTHON_SINGLE_R1} ]]; then
-		die "${FUNCNAME} must not be used with python-single-r1 eclass."
-	fi
+	_python_validate_useflags
 
 	local suffixes=()
 
@@ -500,6 +679,25 @@ python_replicate_script() {
 	for f; do
 		_python_ln_rel "${ED}"/usr/bin/python-exec "${f}" || die
 	done
+}
+
+# @FUNCTION: run_in_build_dir
+# @USAGE: <argv>...
+# @DESCRIPTION:
+# Run the given command in the directory pointed by BUILD_DIR.
+run_in_build_dir() {
+	debug-print-function ${FUNCNAME} "${@}"
+	local ret
+
+	[[ ${#} -ne 0 ]] || die "${FUNCNAME}: no command specified."
+	[[ ${BUILD_DIR} ]] || die "${FUNCNAME}: BUILD_DIR not set."
+
+	pushd "${BUILD_DIR}" >/dev/null || die
+	"${@}"
+	ret=${?}
+	popd >/dev/null || die
+
+	return ${ret}
 }
 
 _PYTHON_R1=1

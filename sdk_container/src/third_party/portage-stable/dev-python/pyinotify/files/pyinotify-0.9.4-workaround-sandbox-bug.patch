@@ -1,0 +1,34 @@
+diff --git a/setup.py b/setup.py
+index c318749..f0a1884 100755
+--- a/setup.py
++++ b/setup.py
+@@ -61,14 +61,25 @@ else:
+ 
+ def should_compile_ext_mod():
+     try:
+-        import ctypes
+-        import ctypes.util
+-    except:
++        if sys.hexversion >= 0x03030000:
++            from unittest.mock import patch
++            with patch('subprocess.Popen'):
++                import ctypes
++                import ctypes.util
++        else:
++            import ctypes
++            import ctypes.util
++
++    except OSError:
+         return True
+ 
+     libc_name = None
+     try:
+-        libc_name = ctypes.util.find_library('c')
++        if sys.hexversion >= 0x03030000:
++            with patch('subprocess.Popen'):
++                libc_name = ctypes.util.find_library('c')
++        else:
++            libc_name = ctypes.util.find_library('c')
+     except:
+         pass  # Will attemp to load it with None anyway.
+ 
