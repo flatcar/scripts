@@ -1,0 +1,20 @@
+diff -ur dmalloc-5.5.2.orig/configure.ac dmalloc-5.5.2/configure.ac
+--- dmalloc-5.5.2.orig/configure.ac	2007-05-14 20:26:14.000000000 +0300
++++ dmalloc-5.5.2/configure.ac	2007-12-27 18:13:18.000000000 +0200
+@@ -55,11 +55,12 @@
+ AC_PROG_CC
+ AC_PROG_CXX
+ 
++# fixme. always returns false.
+ # see if we actually have a CXX program
+-if test "$ac_cv_prog_CXX" = "" -o ! -x "$ac_cv_prog_CXX"; then
+-    AC_MSG_WARN(could not find C++ compiler $ac_cv_prog_CXX)
+-    enable_cxx=no
+-fi
++#if test "$ac_cv_prog_CXX" = "" -o ! -x "$ac_cv_prog_CXX"; then
++#    AC_MSG_WARN(could not find C++ compiler $ac_cv_prog_CXX)
++#    enable_cxx=no
++#fi
+ 
+ # hopefully we have a stdc c-compiler
+ if test "$ac_cv_prog_cc_stdc" = "no" ; then

@@ -1,0 +1,55 @@
+# ChangeLog for dev-libs/softhsm
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/softhsm/ChangeLog,v 1.9 2012/12/18 16:10:18 mschiff Exp $
+
+*softhsm-1.3.4 (18 Dec 2012)
+
+  18 Dec 2012; Marc Schiffbauer <mschiff@gentoo.org> -softhsm-1.3.2.ebuild,
+  +softhsm-1.3.4.ebuild:
+  Version bump. Drop old version.
+
+*softhsm-1.3.3 (14 Aug 2012)
+
+  14 Aug 2012; Marc Schiffbauer <mschiff@gentoo.org> -softhsm-1.3.1-r1.ebuild,
+  +softhsm-1.3.3.ebuild:
+  Version bump. Drop old version.
+
+*softhsm-1.3.2 (20 Mar 2012)
+
+  20 Mar 2012; Marc Schiffbauer <mschiff@gentoo.org> -softhsm-1.3.0.ebuild,
+  +softhsm-1.3.2.ebuild:
+  Version bump. Drop old version. Thanks to Tom Hendrikx. Fixes bug #408929.
+
+  25 Jan 2012; Marc Schiffbauer <mschiff@gentoo.org> -softhsm-1.3.1.ebuild,
+  +softhsm-1.3.1-r1.ebuild:
+  Drop 1.3.1
+
+*softhsm-1.3.1-r1 (25 Jan 2012)
+
+  25 Jan 2012; Marc Schiffbauer <mschiff@gentoo.org> +softhsm-1.3.1-r1.ebuild:
+  Added 1.3.1-r1 with warning about changed .so location.
+
+*softhsm-1.3.1 (25 Jan 2012)
+
+  25 Jan 2012; Marc Schiffbauer <mschiff@gentoo.org> +softhsm-1.3.1.ebuild:
+  Version bump. Thanks to Tom Hendrikx. Fixes bug #400649.
+
+  11 Nov 2011; Marc Schiffbauer <mschiff@gentoo.org> metadata.xml:
+  Added me as maintainer.
+
+  11 Nov 2011; Tomáš Chvátal <scarabeus@gentoo.org> metadata.xml:
+  Drop me from maint.
+
+*softhsm-1.3.0 (20 Aug 2011)
+
+  20 Aug 2011; Tomáš Chvátal <scarabeus@gentoo.org> -softhsm-1.2.1.ebuild,
+  +softhsm-1.3.0.ebuild:
+  Version bump to latest.
+
+*softhsm-1.2.1 (02 Jun 2011)
+
+  02 Jun 2011; Tomáš Chvátal <scarabeus@gentoo.org> +softhsm-1.2.1.ebuild,
+  +metadata.xml:
+  Inital ebuild. Fixes bug #278576. Thanks to Tom Hendrikx for the basic
+  ebuild.
+

@@ -1,0 +1,70 @@
+# ChangeLog for dev-libs/libreport
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/libreport/ChangeLog,v 1.15 2012/10/04 14:49:28 ago Exp $
+
+  04 Oct 2012; Agostino Sarubbo <ago@gentoo.org> libreport-2.0.10.ebuild:
+  Stable for amd64, wrt bug #427544
+
+  03 Oct 2012; Pawel Hajdan jr <phajdan.jr@gentoo.org> libreport-2.0.10.ebuild:
+  x86 stable wrt bug #427544
+
+*libreport-2.0.13 (22 Sep 2012)
+
+  22 Sep 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  +libreport-2.0.13.ebuild, +files/libreport-2.0.13-automake-1.12.patch,
+  +files/libreport-2.0.13-gentoo.patch:
+  Version bump. Fix automake-1.12 problems with a proper patch.
+
+  08 Jul 2012; Justin Lecher <jlec@gentoo.org> libreport-2.0.10.ebuild:
+  Add fix for automake-1.12, #425268
+
+*libreport-2.0.10 (08 Jul 2012)
+
+  08 Jul 2012; Pacho Ramos <pacho@gentoo.org> +libreport-2.0.10.ebuild,
+  -libreport-2.0.7.ebuild:
+  Version bump, drop old.
+
+  06 Jun 2012; Zac Medico <zmedico@gentoo.org> libreport-2.0.7.ebuild,
+  libreport-2.0.9.ebuild:
+  inherit user for enewgroup and enewuser
+
+  04 May 2012; Jeff Horelick <jdhore@gentoo.org> libreport-2.0.7.ebuild,
+  libreport-2.0.9.ebuild:
+  dev-util/pkgconfig -> virtual/pkgconfig
+
+  15 Mar 2012; Pawel Hajdan jr <phajdan.jr@gentoo.org> libreport-2.0.9.ebuild:
+  x86 stable wrt bug #407011
+
+  13 Mar 2012; Agostino Sarubbo <ago@gentoo.org> libreport-2.0.9.ebuild:
+  Stable for amd64, wrt bug #407011
+
+*libreport-2.0.9 (07 Mar 2012)
+
+  07 Mar 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  +libreport-2.0.9.ebuild, +files/libreport-2.0.9-gentoo.patch,
+  +files/libreport-2.0.9-no-bugzilla.patch:
+  Version bump with assorted bugfixes.
+
+  14 Jan 2012; Markus Meier <maekke@gentoo.org> libreport-2.0.7.ebuild:
+  x86 stable, bug #393007
+
+  31 Dec 2011; Alexandre Rostovtsev <tetromino@gentoo.org>
+  libreport-2.0.7.ebuild:
+  Simplify py-compile fix.
+
+  31 Dec 2011; Alexandre Rostovtsev <tetromino@gentoo.org>
+  libreport-2.0.7.ebuild:
+  Fix py-compile idiom for automake-1.11.2 compatibility (bug #396585, thanks
+  to Michał Górny).
+
+  29 Dec 2011; Pacho Ramos <pacho@gentoo.org> libreport-2.0.7.ebuild:
+  amd64 stable, bug 393007
+
+*libreport-2.0.7 (16 Nov 2011)
+
+  16 Nov 2011; Alexandre Rostovtsev <tetromino@gentoo.org>
+  +libreport-2.0.7.ebuild, +files/libreport-2.0.7-gentoo.patch,
+  +files/libreport-2.0.7-multiple-tabs.patch,
+  +files/libreport-2.0.7-no-bugzilla.patch,
+  +files/libreport-2.0.7-uploader_event-syntax.patch, +metadata.xml:
+  Add bug reporting library from the gnome overlay; needed for abrt.

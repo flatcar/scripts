@@ -1,0 +1,86 @@
+# ChangeLog for dev-ruby/tmail
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/tmail/ChangeLog,v 1.22 2012/05/01 18:24:19 armin76 Exp $
+
+  01 May 2012; Raúl Porcel <armin76@gentoo.org> tmail-1.2.7.1-r2.ebuild,
+  tmail-1.2.7.1-r3.ebuild:
+  Drop ia64/sparc keywords
+
+*tmail-1.2.7.1-r3 (28 Dec 2011)
+
+  28 Dec 2011; Hans de Graaff <graaff@gentoo.org> tmail-1.2.7.1-r2.ebuild,
+  +tmail-1.2.7.1-r3.ebuild:
+  Revision bump to drop ruby19 from stable version.
+
+  24 Jul 2011; Raúl Porcel <armin76@gentoo.org> tmail-1.2.7.1-r2.ebuild:
+  ia64/sparc stable
+
+  23 Jul 2011; Kacper Kowalik <xarthisius@gentoo.org> tmail-1.2.7.1-r2.ebuild:
+  ppc/ppc64 stable wrt #372391
+
+  13 Jul 2011; Markus Meier <maekke@gentoo.org> tmail-1.2.7.1-r2.ebuild:
+  x86 stable, bug #372391
+
+  07 Jul 2011; Markos Chandras <hwoarang@gentoo.org> tmail-1.2.7.1-r2.ebuild:
+  Stable on amd64 wrt bug #372391
+
+  07 Jan 2011; Hans de Graaff <graaff@gentoo.org> tmail-1.2.7.1-r2.ebuild:
+  Use proper call to install gemspec now that the eclass changed interface.
+
+  07 Jan 2011; Hans de Graaff <graaff@gentoo.org> tmail-1.2.7.1-r2.ebuild:
+  Keyword ~x86-macos.
+
+*tmail-1.2.7.1-r2 (31 Jul 2010)
+
+  31 Jul 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -tmail-1.2.7.1-r1.ebuild, +tmail-1.2.7.1-r2.ebuild:
+  Fix build function to actually build the extension on 1.8 and EE.
+
+*tmail-1.2.7.1-r1 (29 Jul 2010)
+
+  29 Jul 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -tmail-1.2.3.1.ebuild, -tmail-1.2.7.1.ebuild, +tmail-1.2.7.1-r1.ebuild:
+  Make it install properly the binary extension on Ruby Enterprise as well.
+  Respect CFLAGS/LDFLAGS.
+
+*tmail-1.2.7.1 (23 May 2010)
+
+  23 May 2010; Hans de Graaff <graaff@gentoo.org> +tmail-1.2.7.1.ebuild:
+  Version bump for the forthcoming Rails 2.3.6 release.
+
+  22 May 2010; Alex Legler <a3li@gentoo.org> tmail-1.2.3.1.ebuild:
+  Add REE18 support
+
+  22 May 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  tmail-1.2.3.1.ebuild:
+  Various cleanups.
+
+  18 Feb 2010; Fabian Groffen <grobian@gentoo.org> tmail-1.2.3.1.ebuild:
+  Marked ~x86-solaris
+
+  13 Feb 2010; Raúl Porcel <armin76@gentoo.org> tmail-1.2.3.1.ebuild:
+  Add ~ia64/~sparc
+
+  01 Feb 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  tmail-1.2.3.1.ebuild:
+  Add support for JRuby.
+
+  25 Jan 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  tmail-1.2.3.1.ebuild:
+  Add ~x86 keyword, tested on a development container.
+
+  18 Jan 2010; Brent Baude <ranger@gentoo.org> tmail-1.2.3.1.ebuild:
+  Marking tmail-1.2.3.1 ~ppc64 for bug 301007
+
+  15 Jan 2010; Fabian Groffen <grobian@gentoo.org> tmail-1.2.3.1.ebuild:
+  Marked ~x64-solaris and ~ppc-macos
+
+  14 Jan 2010; Brent Baude <ranger@gentoo.org> tmail-1.2.3.1.ebuild:
+  Marking tmail-1.2.3.1 ~ppc for bug 297718
+
+*tmail-1.2.3.1 (02 Jan 2010)
+
+  02 Jan 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +tmail-1.2.3.1.ebuild, +metadata.xml:
+  Initial import of tmail, needed for the unbundled actionmailer.
+

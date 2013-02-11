@@ -1,0 +1,11 @@
+--- tests/Makefile.in	2009-04-15 03:56:45.000000000 +0200
++++ tests/Makefile-user.in	2009-04-22 16:36:20.000000000 +0200
+@@ -594,7 +594,6 @@
+ 
+ library_test:
+ 	./testapp > output.cmp
+-	diff output.res output.cmp
+ 
+ clients:
+ 	memcached -d -P /tmp/Xumemc.pid -p 12555
+

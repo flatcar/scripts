@@ -1,0 +1,12 @@
+DEFINED_PHASES=compile install postinst
+DEPEND=>=dev-libs/glib-2 >=gnome-extra/libgsf-1.13 sys-libs/zlib media-libs/libpng dev-libs/libxml2 wmf? ( >=media-libs/libwmf-0.2.2 ) virtual/pkgconfig
+DESCRIPTION=Tool for conversion of MSWord doc and rtf files to something readable
+HOMEPAGE=http://wvware.sourceforge.net/
+IUSE=wmf
+KEYWORDS=alpha amd64 hppa ia64 ppc ppc64 sparc x86 ~x86-fbsd
+LICENSE=GPL-2
+RDEPEND=>=dev-libs/glib-2 >=gnome-extra/libgsf-1.13 sys-libs/zlib media-libs/libpng dev-libs/libxml2 wmf? ( >=media-libs/libwmf-0.2.2 )
+SLOT=0
+SRC_URI=mirror://sourceforge/wvware/wv-1.2.3.tar.gz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=94fd91eaf559af035858a8d4341c5207

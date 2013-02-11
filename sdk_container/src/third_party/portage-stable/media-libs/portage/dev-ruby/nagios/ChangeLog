@@ -1,0 +1,20 @@
+# ChangeLog for dev-ruby/nagios
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/nagios/ChangeLog,v 1.4 2012/12/21 08:56:43 iksaif Exp $
+
+  21 Dec 2012; Corentin Chary <iksaif@gentoo.org> metadata.xml:
+  /ruby>/ruby/
+
+  17 Dec 2012; Hans de Graaff <graaff@gentoo.org> metadata.xml:
+  Add ruby herd.
+
+*nagios-0.0.4 (17 Dec 2012)
+
+  17 Dec 2012; Hans de Graaff <graaff@gentoo.org> +nagios-0.0.4.ebuild:
+  Add the latest version.
+
+*nagios-0.0.3 (17 Dec 2012)
+
+  17 Dec 2012; Benedikt Böhm <hollow@gentoo.org> +nagios-0.0.3.ebuild,
+  +metadata.xml:
+  add dev-ruby/nagios

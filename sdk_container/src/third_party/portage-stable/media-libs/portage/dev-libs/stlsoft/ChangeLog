@@ -1,0 +1,12 @@
+# ChangeLog for dev-libs/stlsoft
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/stlsoft/ChangeLog,v 1.2 2013/01/15 21:18:34 hwoarang Exp $
+
+  15 Jan 2013; Markos Chandras <hwoarang@gentoo.org> metadata.xml:
+  Remove myself from metadata
+
+*stlsoft-1.9.111 (28 Jan 2012)
+
+  28 Jan 2012; Markos Chandras <hwoarang@gentoo.org> +stlsoft-1.9.111.ebuild,
+  +metadata.xml:
+  Initial commit. Thanks to Dmitriy Vilkov <dav.daemon@gmail.com>. Bug #399617

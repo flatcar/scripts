@@ -1,0 +1,92 @@
+# ChangeLog for dev-libs/json-c
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/json-c/ChangeLog,v 1.25 2013/02/01 21:32:58 radhermit Exp $
+
+  01 Feb 2013; Tim Harder <radhermit@gentoo.org> -json-c-0.10.ebuild:
+  Remove old.
+
+*json-c-0.10-r1 (01 Feb 2013)
+
+  01 Feb 2013; Tim Harder <radhermit@gentoo.org> +json-c-0.10-r1.ebuild:
+  Revision bump to add header directory compatibility symlink for pkgs not
+  using pkgconfig.
+
+*json-c-0.10 (28 Jan 2013)
+
+  28 Jan 2013; Justin Lecher <jlec@gentoo.org> json-c-0.9.ebuild,
+  json-c-0.9-r1.ebuild, +json-c-0.10.ebuild, +files/json-c-0.10-flags.patch,
+  +files/json-c-0.10-headers.patch, metadata.xml:
+  Version Bump, #454372; all patches prepared by radhermit (Tim Harder); moves
+  header out of the way to fix collision with jsoncpp, 452234
+
+  30 Sep 2012; Raúl Porcel <armin76@gentoo.org> json-c-0.9-r1.ebuild:
+  alpha/ia64/sh/sparc stable wrt #418745
+
+  14 Jun 2012; Jeroen Roovers <jer@gentoo.org> json-c-0.9-r1.ebuild:
+  Stable for HPPA (bug #418745).
+
+  07 Jun 2012; Brent Baude <ranger@gentoo.org> json-c-0.9-r1.ebuild:
+  Marking json-c-0.9-r1 ppc for bug 418745
+
+  06 Jun 2012; Jeff Horelick <jdhore@gentoo.org> json-c-0.9-r1.ebuild:
+  marked x86 per bug 418745
+
+  05 Jun 2012; Brent Baude <ranger@gentoo.org> json-c-0.9-r1.ebuild:
+  Marking json-c-0.9-r1 ppc64 for bug 418745
+
+  03 Jun 2012; Markus Meier <maekke@gentoo.org> json-c-0.9-r1.ebuild:
+  arm stable, bug #418745
+
+  02 Jun 2012; Agostino Sarubbo <ago@gentoo.org> json-c-0.9-r1.ebuild:
+  Stable for amd64, wrt bug #418745
+
+  25 Mar 2012; Raúl Porcel <armin76@gentoo.org> json-c-0.9.ebuild:
+  alpha/ia64/sh/sparc stable wrt #403305
+
+  08 Mar 2012; Brent Baude <ranger@gentoo.org> json-c-0.9.ebuild:
+  Marking json-c-0.9 ppc64 for bug 403305
+
+  02 Mar 2012; Markus Meier <maekke@gentoo.org> json-c-0.9.ebuild:
+  arm stable, bug #403305
+
+*json-c-0.9-r1 (18 Feb 2012)
+
+  18 Feb 2012; Markos Chandras <hwoarang@gentoo.org> +json-c-0.9-r1.ebuild:
+  Ebuild cleanup. Thanks to Agostino Sarubbo. Bug #403381
+
+  17 Feb 2012; Agostino Sarubbo <ago@gentoo.org> json-c-0.9.ebuild:
+  Stable for amd64, wrt bug #403305
+
+  16 Feb 2012; Pawel Hajdan jr <phajdan.jr@gentoo.org> json-c-0.9.ebuild:
+  x86 stable wrt bug #403305
+
+  15 Feb 2012; Jeroen Roovers <jer@gentoo.org> json-c-0.9.ebuild:
+  Stable for HPPA (bug #403305).
+
+  14 Feb 2012; Brent Baude <ranger@gentoo.org> json-c-0.9.ebuild:
+  Marking json-c-0.9 ppc for bug 403305
+
+  23 Oct 2011; Raúl Porcel <armin76@gentoo.org> json-c-0.9.ebuild:
+  Add ~alpha/~ia64/~sh/~sparc wrt #377497
+
+  05 Sep 2011; Markos Chandras <hwoarang@gentoo.org> json-c-0.9.ebuild:
+  Fix license. Bug #381921
+
+  04 Sep 2011; Markus Meier <maekke@gentoo.org> json-c-0.9.ebuild:
+  add ~arm, bug #377497
+
+  25 Aug 2011; Jeroen Roovers <jer@gentoo.org> json-c-0.9.ebuild:
+  Marked ~hppa (bug #377497).
+
+  14 Aug 2011; Kacper Kowalik <xarthisius@gentoo.org> json-c-0.9.ebuild:
+  Marked ~ppc/~ppc64 wrt #377497
+
+  03 Aug 2011; Fabian Groffen <grobian@gentoo.org> json-c-0.9.ebuild:
+  Marked ~amd64-linux ~x86-linux ~ppc-macos, bug #377497
+
+*json-c-0.9 (14 Mar 2010)
+
+  14 Mar 2010; Markos Chandras <hwoarang@gentoo.org> +json-c-0.9.ebuild,
+  +metadata.xml:
+  Initial commit of json-c library. Fixes bug #238910
+

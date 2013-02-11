@@ -1,0 +1,22 @@
+commit 1a46a428b4c92982124a8081623db9d56f6a28d7
+Author: Hans de Graaff <hans@degraaff.org>
+Date:   Thu Jun 2 11:46:22 2011 +0200
+
+    Don't use -Werror in production code.
+    
+    Using -Werror will break compilation when new versions of gcc are
+    introduced since new warnings are added for every new version.
+
+diff --git a/tasks/compile.rake b/tasks/compile.rake
+index 57cd90f..01e9b55 100755
+--- a/tasks/compile.rake
++++ b/tasks/compile.rake
+@@ -72,7 +72,7 @@ langs.each do |i18n|
+         io.write(<<-EOF)
+ require 'mkmf'
+ CONFIG['warnflags'].gsub!(/-Wshorten-64-to-32/, '') if CONFIG['warnflags']
+-$CFLAGS << ' -O0 -Wall -Werror' if CONFIG['CC'] =~ /gcc/
++$CFLAGS << ' -O0 -Wall' if CONFIG['CC'] =~ /gcc/
+ dir_config("gherkin_lexer_#{i18n.underscored_iso_code}")
+ have_library("c", "main")
+ create_makefile("gherkin_lexer_#{i18n.underscored_iso_code}")

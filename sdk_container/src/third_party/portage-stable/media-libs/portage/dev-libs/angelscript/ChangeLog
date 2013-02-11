@@ -1,0 +1,16 @@
+# ChangeLog for dev-libs/angelscript
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/angelscript/ChangeLog,v 1.3 2013/01/19 12:33:46 hasufell Exp $
+
+  19 Jan 2013; Julian Ospald <hasufell@gentoo.org> angelscript-2.25.2.ebuild:
+  fix install rules
+
+  18 Jan 2013; Julian Ospald <hasufell@gentoo.org> angelscript-2.25.2.ebuild:
+  add doc useflag
+
+*angelscript-2.25.2 (18 Jan 2013)
+
+  18 Jan 2013; Julian Ospald <hasufell@gentoo.org> +angelscript-2.25.2.ebuild,
+  +files/angelscript-2.25.2-QA.patch, +metadata.xml:
+  initial import wrt #122061
+

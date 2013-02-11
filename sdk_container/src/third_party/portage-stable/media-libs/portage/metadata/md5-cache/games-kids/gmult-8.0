@@ -1,0 +1,12 @@
+DEFINED_PHASES=compile configure install postinst postrm preinst prepare setup unpack
+DEPEND=dev-libs/glib:2 x11-libs/gtk+:3 virtual/libintl sys-devel/gettext virtual/pkgconfig >=sys-apps/sed-4
+DESCRIPTION=Multiplication Puzzle is a simple GTK+ 2 game that emulates the multiplication game found in Emacs
+EAPI=5
+HOMEPAGE=http://www.mterry.name/gmult/
+KEYWORDS=~amd64 ~ppc ~x86
+LICENSE=GPL-3
+RDEPEND=dev-libs/glib:2 x11-libs/gtk+:3 virtual/libintl
+SLOT=0
+SRC_URI=https://launchpad.net/gmult/trunk/8.0/+download/gmult-8.0.tar.bz2
+_eclasses_=base	ec46b36a6f6fd1d0b505a33e0b74e413	eutils	d40dc948067bd3db1c8ebf7d51897313	games	e0a83e3f3f024b8c8ef7a8217d716cbf	gnome2-utils	794d2847b4af390a1e020924876c8297	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=216d7353059d5b5e9f2b70b382ad5311

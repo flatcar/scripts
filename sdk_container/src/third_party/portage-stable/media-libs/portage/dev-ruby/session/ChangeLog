@@ -1,0 +1,85 @@
+# ChangeLog for dev-ruby/session
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/session/ChangeLog,v 1.22 2013/01/15 05:54:42 zerochaos Exp $
+
+  15 Jan 2013; Rick Farina <zerochaos@gentoo.org> session-3.1.0-r1.ebuild:
+  adding ~arm keywords to net-analyzer/metasploit rdeps
+
+  30 Dec 2012; Raúl Porcel <armin76@gentoo.org> session-3.1.0-r1.ebuild:
+  Add ~alpha/~sparc wrt #448162
+
+  22 Dec 2012; Agostino Sarubbo <ago@gentoo.org> session-3.1.0-r1.ebuild:
+  Add ~ia64, wrt bug #448162
+
+  21 Jul 2012; Hans de Graaff <graaff@gentoo.org> -session-2.4.0.ebuild:
+  Remove old version.
+
+  01 May 2012; Raúl Porcel <armin76@gentoo.org> session-2.4.0.ebuild,
+  session-3.1.0-r1.ebuild:
+  Drop ia64/sparc keywords
+
+  05 Dec 2011; Naohiro Aota <naota@gentoo.org> session-3.1.0-r1.ebuild:
+  Add ~x86-fbsd.
+
+  24 Jul 2011; Raúl Porcel <armin76@gentoo.org> session-2.4.0.ebuild,
+  session-3.1.0-r1.ebuild:
+  Add ~ia64
+
+*session-3.1.0-r1 (15 Feb 2011)
+
+  15 Feb 2011; Diego E. Pettenò <flameeyes@gentoo.org> -session-3.1.0.ebuild,
+  +session-3.1.0-r1.ebuild:
+  Revision bump to avoid installing a broken gemspec (closes bug #355063).
+
+  27 Dec 2010; Fabian Groffen <grobian@gentoo.org> session-3.1.0.ebuild:
+  Added Prefix keywords
+
+  04 Dec 2010; Hans de Graaff <graaff@gentoo.org> session-3.1.0.ebuild:
+  Add ree18 target. Make repoman happy with RDEPEND.
+
+  04 Dec 2010; Hans de Graaff <graaff@gentoo.org> session-3.1.0.ebuild:
+  Move ppc and ppc64 keywords forward. Looking at the timeline this was most
+  likely the intention.
+
+  25 Oct 2010; Jeroen Roovers <jer@gentoo.org> session-3.1.0.ebuild:
+  Marked ~hppa (bug #337956).
+
+  29 Sep 2010; Brent Baude <ranger@gentoo.org> session-2.4.0.ebuild:
+  Marking session-2.4.0 ~ppc64 for bug 321283
+
+  28 Sep 2010; Brent Baude <ranger@gentoo.org> session-2.4.0.ebuild:
+  Marking session-2.4.0 ~ppc for bug 322053
+
+  18 Sep 2010; Hans de Graaff <graaff@gentoo.org> session-3.1.0.ebuild:
+  Also depend on sys-apps/coreutils when testing, fixes bug 332977.
+
+*session-3.1.0 (19 Jul 2010)
+
+  19 Jul 2010; Hans de Graaff <graaff@gentoo.org> +session-3.1.0.ebuild,
+  +files/session-3.1.0-jruby.patch:
+  Version bump. Remove part of patches that got applied upstream.
+
+  17 Jul 2010; Raúl Porcel <armin76@gentoo.org> session-2.4.0.ebuild:
+  Add ~sparc wrt #322053
+
+  30 Jun 2010; Christian Faulhammer <fauli@gentoo.org> session-2.4.0.ebuild:
+  keyworded ~x86, bug 322053
+
+  22 May 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  session-2.4.0.ebuild:
+  Various cleanups.
+
+  14 Jan 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  session-2.4.0.ebuild, +files/session-2.4.0-jruby.patch:
+  Add a patch for JRuby compatibility by Charles Nutter (headius), and
+  enable for JRuby target.
+
+  11 Jan 2010; Hans de Graaff <graaff@gentoo.org> session-2.4.0.ebuild:
+  Update license.
+
+*session-2.4.0 (05 Jan 2010)
+
+  05 Jan 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +session-2.4.0.ebuild, +metadata.xml:
+  Initial import of session as needed by rr (for the gemcutter testsuite).
+  Warning: license unknown.

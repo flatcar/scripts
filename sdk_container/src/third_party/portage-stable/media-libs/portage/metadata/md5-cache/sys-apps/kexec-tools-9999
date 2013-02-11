@@ -1,0 +1,11 @@
+DEFINED_PHASES=configure install unpack
+DEPEND=zlib? ( sys-libs/zlib ) dev-vcs/git || ( >=sys-devel/automake-1.11.1:1.11 >=sys-devel/automake-1.12:1.12 ) >=sys-devel/autoconf-2.68 sys-devel/libtool
+DESCRIPTION=Load another kernel from the currently executing Linux kernel
+EAPI=2
+HOMEPAGE=http://kernel.org/pub/linux/utils/kernel/kexec/
+IUSE=xen zlib
+LICENSE=GPL-2
+RDEPEND=zlib? ( sys-libs/zlib )
+SLOT=0
+_eclasses_=autotools	cf83655b19ed98f9ea3b44f4572b51a3	git-2	e92e09651292b1bef5656592364550f7	libtool	2b273eea1976cfaed3449345d94331ac	multilib	ded93e450747134a079e647d888aa80b	multiprocessing	a2130e6fc4aa4c6a24b265ca0cbcc2b6	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e
+_md5_=8d6561593ff2a1c6d9d3e57c3736a1f3

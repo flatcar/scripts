@@ -1,0 +1,24 @@
+Seed depends on gnome-js-common (build-time), and gnome-js-common[seed] depends
+on seed (build-time). The gnome-js-common build-time dep is purely to find out
+the gnome-js-common module directory and append to the search path of the
+Seed.js extension. However, that's a runtime dep...
+
+---
+--- configure.ac
++++ configure.ac
+@@ -89,8 +89,13 @@
+ AC_SUBST(GOBJECT_INTROSPECTION_LDFLAGS)
+ 
+ dnl ========================GNOME-js common====================================
+-PKG_CHECK_MODULES(GNOME_JS, gnome-js-common)
+-GNOME_JS_DIR=`pkg-config --variable=moduledir gnome-js-common`
++PKG_CHECK_MODULES(GNOME_JS, gnome-js-common, have_gnome_js=yes, have_gnome_js=no)
++if test x"$have_gnome_js" = x"yes"; then
++	GNOME_JS_DIR=`pkg-config --variable=moduledir gnome-js-common`
++else
++	dnl If we don't have it installed, avoid circular build dependency
++	GNOME_JS_DIR="$libdir/gnome-js"
++fi
+ AC_SUBST(GNOME_JS_DIR)
+ 
+ dnl =============================Modules=======================================

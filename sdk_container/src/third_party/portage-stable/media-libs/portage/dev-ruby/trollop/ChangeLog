@@ -1,0 +1,70 @@
+# ChangeLog for dev-ruby/trollop
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/trollop/ChangeLog,v 1.17 2012/10/28 17:23:20 armin76 Exp $
+
+  28 Oct 2012; Raúl Porcel <armin76@gentoo.org> trollop-1.16.2-r2.ebuild,
+  trollop-1.16.2-r3.ebuild, trollop-2.0.ebuild:
+  Add ~alpha
+
+*trollop-1.16.2-r3 (30 Sep 2012)
+
+  30 Sep 2012; Hans de Graaff <graaff@gentoo.org> +trollop-1.16.2-r3.ebuild:
+  Revision bump to add ruby19 for bug 436344.
+
+  30 Sep 2012; Hans de Graaff <graaff@gentoo.org> trollop-2.0.ebuild:
+  Move trollop 2.0 to a separate slot since its semantics changed, bug 436344.
+
+  27 Sep 2012; Hans de Graaff <graaff@gentoo.org> trollop-2.0.ebuild:
+  Add ruby19, bug 436344, thanks to Manuel Rüger.
+
+*trollop-2.0 (23 Sep 2012)
+
+  23 Sep 2012; Hans de Graaff <graaff@gentoo.org> +trollop-2.0.ebuild:
+  Version bump.
+
+  14 Sep 2011; Jeroen Roovers <jer@gentoo.org> trollop-1.16.2-r2.ebuild:
+  Stable for HPPA (bug #369573).
+
+  04 Dec 2010; Fabian Groffen <grobian@gentoo.org> trollop-1.16.2-r2.ebuild:
+  Added Prefix keywords
+
+  31 Oct 2010; Hans de Graaff <graaff@gentoo.org> -trollop-1.16.2.ebuild,
+  -trollop-1.16.2-r1.ebuild:
+  Remove old versions.
+
+  25 Oct 2010; Jeroen Roovers <jer@gentoo.org> trollop-1.16.2-r2.ebuild:
+  Marked ~hppa (bug #337956).
+
+  19 Sep 2010; Raúl Porcel <armin76@gentoo.org> trollop-1.16.2.ebuild,
+  trollop-1.16.2-r1.ebuild, trollop-1.16.2-r2.ebuild:
+  Add ~ia64
+
+*trollop-1.16.2-r2 (12 Sep 2010)
+
+  12 Sep 2010; Hans de Graaff <graaff@gentoo.org> +trollop-1.16.2-r2.ebuild:
+  Add jruby.
+
+*trollop-1.16.2-r1 (12 Sep 2010)
+
+  12 Sep 2010; Hans de Graaff <graaff@gentoo.org> +trollop-1.16.2-r1.ebuild:
+  Add ree18.
+
+  14 Jul 2010; Hans de Graaff <graaff@gentoo.org> metadata.xml:
+  This package should be part of the ruby herd.
+
+  13 Jul 2010; Jorge Manuel B. S. Vicetto <jmbsvicetto@gentoo.org>
+  metadata.xml:
+  Added missing herd tag to metadata.xml
+
+  28 May 2010; Joseph Jezak <josejx@gentoo.org> trollop-1.16.2.ebuild:
+  Marked ~ppc/~ppc64.
+
+  24 May 2010; Raúl Porcel <armin76@gentoo.org> trollop-1.16.2.ebuild:
+  Add ~sparc wrt #318949
+
+*trollop-1.16.2 (08 May 2010)
+
+  08 May 2010; Hans de Graaff <graaff@gentoo.org> +trollop-1.16.2.ebuild,
+  +metadata.xml:
+  Initial import from overlay graaff. Dependency for dev-ruby/gherkin.
+

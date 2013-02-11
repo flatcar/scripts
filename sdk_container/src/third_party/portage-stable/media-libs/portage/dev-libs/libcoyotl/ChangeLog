@@ -1,0 +1,48 @@
+# ChangeLog for dev-libs/libcoyotl
+# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/libcoyotl/ChangeLog,v 1.12 2011/01/09 18:50:21 flameeyes Exp $
+
+  09 Jan 2011; Diego E. Pettenò <flameeyes@gentoo.org>
+  -libcoyotl-3.0.1.ebuild, libcoyotl-3.1.0.ebuild:
+  Remove old version as it's not needed anymore (closes bug #307815 by
+  Christophe Lefebvre); run eautoreconf to build when grep-2.7 is installed
+  (closes bug #340048 by Renato Gallo); don't try installing API docs if they
+  weren't built (closes bug #298217 by me).
+
+  26 Feb 2009; Joseph Jezak <josejx@gentoo.org> libcoyotl-3.1.0.ebuild:
+  Marked ppc stable.
+
+  09 May 2008; Markus Meier <maekke@gentoo.org> libcoyotl-3.1.0.ebuild:
+  amd64/x86 stable, bug #219890
+
+  01 May 2008; Tiziano Müller <dev-zero@gentoo.org>
+  +files/3.1.0-gcc-4.3.patch, libcoyotl-3.1.0.ebuild:
+  Added fix for gcc-4.3 (bug #214176, thanks to Peter Alfredsen and Debian),
+  added doc USE-flag to make doc-generation less magical.
+
+  22 Feb 2007; Piotr Jaroszyński <peper@gentoo.org> ChangeLog:
+  Transition to Manifest2.
+
+  15 Jul 2006; Bryan Østergaard <kloeri@gentoo.org> metadata.xml:
+  Remove aliz from metadata.xml as he's retired.
+
+*libcoyotl-3.1.0 (18 Dec 2005)
+
+  18 Dec 2005; Mark Loeser <halcy0n@gentoo.org> libcoyotl-3.0.1.ebuild,
+  +libcoyotl-3.1.0.ebuild:
+  Fix up SRC_URI and HOMEPAGE, bump to version 3.1.0; bug #91400
+
+  19 Sep 2005; Mark Loeser <halcy0n@gentoo.org> metadata.xml:
+  Adding to cpp herd
+
+  14 Jun 2004; Daniel Ahlberg <aliz@gentoo.org> libcoyotl-3.0.1.ebuild:
+  Unmasked on x86 and amd64.
+
+  08 May 2004; David Holm <dholm@gentoo.org> libcoyotl-3.0.1.ebuild:
+  Added to ~ppc.
+
+*libcoyotl-3.0.1 (07 May 2004)
+
+  07 May 2004; Daniel Ahlberg <aliz@gentoo.org> libcoyotl-3.0.1.ebuild:
+  Initial import.
+

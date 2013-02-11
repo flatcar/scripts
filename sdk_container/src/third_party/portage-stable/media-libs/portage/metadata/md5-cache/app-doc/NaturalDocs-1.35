@@ -1,0 +1,10 @@
+DEFINED_PHASES=compile install unpack
+DEPEND=dev-lang/perl app-arch/unzip
+DESCRIPTION=Extensible, multi-language source code documentation generator
+HOMEPAGE=http://www.naturaldocs.org/
+KEYWORDS=amd64 ppc x86
+LICENSE=GPL-2
+RDEPEND=dev-lang/perl
+SLOT=0
+SRC_URI=mirror://sourceforge/naturaldocs/NaturalDocs-1.35.zip
+_md5_=cc20f50cd26b137ca21145234586b3a1

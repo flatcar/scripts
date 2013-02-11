@@ -1,0 +1,37 @@
+# ChangeLog for net-irc/supybot-plugins
+# Copyright 1999-2010 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-irc/supybot-plugins/ChangeLog,v 1.6 2010/11/04 12:48:54 maekke Exp $
+
+  04 Nov 2010; Markus Meier <maekke@gentoo.org>
+  supybot-plugins-20060723-r2.ebuild:
+  add ~arm, bug #343509
+
+  04 Apr 2010; Arfrever Frehtes Taifersar Arahesis <arfrever@gentoo.org>
+  supybot-plugins-20060723-r2.ebuild:
+  Set SUPPORT_PYTHON_ABIS.
+
+*supybot-plugins-20060723-r2 (22 Sep 2009)
+
+  22 Sep 2009; Jesus Rivero <neurogeek@gentoo.org>
+  +supybot-plugins-20060723-r2.ebuild,
+  +files/supybot-plugins_credentials.patch:
+  Added twsited-web and twisted-conch as deps. Closes bugs #266340 and
+  #266339.
+
+*supybot-plugins-20060723-r1 (22 May 2009)
+
+  22 May 2009; Jim Ramsay <lack@gentoo.org>
+  +supybot-plugins-20060723-r1.ebuild:
+  Fixed collision with supybot-0.83.4
+
+  29 May 2008; Ali Polatel <hawking@gentoo.org>
+  supybot-plugins-20060723.ebuild:
+  python_mod_{cleanup,optimize} are ROOT aware. Inherit multilib.
+
+*supybot-plugins-20060723 (26 Sep 2007)
+
+  26 Sep 2007; Jim Ramsay <lack@gentoo.org> +metadata.xml,
+  +supybot-plugins-20060723.ebuild:
+  Adding new ebuild. This is the officially released set of extra plugins for
+  Supybot.
+

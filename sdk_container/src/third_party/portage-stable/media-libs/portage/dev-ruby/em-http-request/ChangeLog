@@ -1,0 +1,50 @@
+# ChangeLog for dev-ruby/em-http-request
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/em-http-request/ChangeLog,v 1.11 2013/01/01 09:04:11 ago Exp $
+
+  01 Jan 2013; Agostino Sarubbo <ago@gentoo.org> em-http-request-0.2.14.ebuild:
+  Stable for x86, wrt bug #448672
+
+  01 Jan 2013; Agostino Sarubbo <ago@gentoo.org> em-http-request-0.2.14.ebuild:
+  Stable for amd64, wrt bug #448672
+
+  01 Jan 2013; Hans de Graaff <graaff@gentoo.org>
+  em-http-request-0.2.14.ebuild:
+  Comment out the test dependencies so they don't need to be included in the
+  stable list.
+
+  01 Nov 2011; Hans de Graaff <graaff@gentoo.org>
+  em-http-request-0.2.14.ebuild:
+  Add ruby19.
+
+  22 Apr 2011; Hans de Graaff <graaff@gentoo.org>
+  em-http-request-0.2.14.ebuild:
+  Add ree18 support.
+
+  26 Feb 2011; Kacper Kowalik <xarthisius@gentoo.org>
+  em-http-request-0.2.14.ebuild:
+  Marked ~ppc64 wrt #339565
+
+  27 Dec 2010; Fabian Groffen <grobian@gentoo.org>
+  em-http-request-0.2.14.ebuild:
+  Added Prefix keywords
+
+  11 Dec 2010; Hans de Graaff <graaff@gentoo.org>
+  -em-http-request-0.2.13.ebuild:
+  Remove old version.
+
+  22 Oct 2010; Christian Faulhammer <fauli@gentoo.org>
+  em-http-request-0.2.14.ebuild:
+  keyworded ~arch for x86, bug 339565
+
+*em-http-request-0.2.14 (18 Oct 2010)
+
+  18 Oct 2010; Hans de Graaff <graaff@gentoo.org>
+  +em-http-request-0.2.14.ebuild:
+  Version bump: form-encode keys/values of ruby objects passed in as body.
+
+*em-http-request-0.2.13 (03 Oct 2010)
+
+  03 Oct 2010; Hans de Graaff <graaff@gentoo.org>
+  +em-http-request-0.2.13.ebuild, +metadata.xml:
+  Initial import. New dependency for dev-ruby/webmock.

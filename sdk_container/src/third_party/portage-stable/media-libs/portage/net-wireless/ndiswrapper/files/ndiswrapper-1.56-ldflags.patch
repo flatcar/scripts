@@ -1,0 +1,13 @@
+diff --git a/utils/Makefile b/utils/Makefile
+index f1701a6..ca4cefc 100644
+--- a/utils/Makefile
++++ b/utils/Makefile
+@@ -12,7 +12,7 @@ DISTFILES=Makefile ndiswrapper loadndisdriver.c ndiswrapper-buginfo
+ all: loadndisdriver
+ 
+ loadndisdriver: loadndisdriver.c
+-	$(CC) $(CFLAGS) -o $@ $<
++	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $<
+ 
+ clean:
+ 	rm -f *~ *.o loadndisdriver

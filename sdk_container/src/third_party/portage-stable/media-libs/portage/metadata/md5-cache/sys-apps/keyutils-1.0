@@ -1,0 +1,10 @@
+DEFINED_PHASES=compile install
+DEPEND=>=sys-kernel/linux-headers-2.6.11
+DESCRIPTION=Linux Key Management Utilities
+HOMEPAGE=http://www.kernel.org/
+KEYWORDS=~x86
+LICENSE=GPL-2 LGPL-2.1
+RDEPEND=>=sys-kernel/linux-headers-2.6.11
+SLOT=0
+SRC_URI=http://people.redhat.com/~dhowells/keyutils/keyutils-1.0.tar.bz2
+_md5_=2d4247691b3672f5b3bc56e9f42311a4

@@ -1,0 +1,56 @@
+# ChangeLog for dev-libs/isl
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/isl/ChangeLog,v 1.10 2013/01/07 00:23:02 dirtyepic Exp $
+
+*isl-0.11.1 (07 Jan 2013)
+
+  07 Jan 2013; Ryan Hill <dirtyepic@gentoo.org> +isl-0.11.1.ebuild:
+  Version bump (bug #450632).
+
+*isl-0.10 (24 Jun 2012)
+
+  24 Jun 2012; Ryan Hill <dirtyepic@gentoo.org> -isl-0.07-r1.ebuild,
+  +isl-0.10.ebuild:
+  Version bump (bug #421429). Remove old.
+
+*isl-0.09 (20 Feb 2012)
+
+  20 Feb 2012; Ryan Hill <dirtyepic@gentoo.org> +isl-0.09.ebuild:
+  Version bump (bug #389357 by Samuli).
+
+  20 Nov 2011; Samuli Suominen <ssuominen@gentoo.org> isl-0.07-r1.ebuild:
+  Link to upstream bug report for the LDFLAGS and pkg-config issue.
+
+  02 Nov 2011; Samuli Suominen <ssuominen@gentoo.org> -isl-0.06.ebuild,
+  -files/isl-0.06-parallel-py.patch, -isl-0.07.ebuild:
+  old
+
+*isl-0.07-r1 (02 Nov 2011)
+
+  02 Nov 2011; Samuli Suominen <ssuominen@gentoo.org> +isl-0.07-r1.ebuild:
+  Remove compile time LDFLAGS from Libs: in pkg-config file wrt #382737
+
+*isl-0.07 (21 Aug 2011)
+
+  21 Aug 2011; Ryan Hill <dirtyepic@gentoo.org> -isl-0.05.1.ebuild,
+  +isl-0.07.ebuild, +files/isl-0.07-gdb-autoload-dir.patch:
+  Version bump.
+
+*isl-0.06 (13 Apr 2011)
+
+  13 Apr 2011; Ryan Hill <dirtyepic@gentoo.org> +isl-0.06.ebuild,
+  +files/isl-0.06-parallel-py.patch:
+  Version bump.
+
+*isl-0.05.1 (07 Jan 2011)
+
+  07 Jan 2011; Ryan Hill <dirtyepic@gentoo.org> -isl-0.05.ebuild,
+  +isl-0.05.1.ebuild:
+  Version bump.
+
+*isl-0.05 (01 Jan 2011)
+
+  01 Jan 2011; Ryan Hill <dirtyepic@gentoo.org> +isl-0.05.ebuild,
+  +metadata.xml:
+  Initial import.
+

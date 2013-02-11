@@ -1,0 +1,12 @@
+DEFINED_PHASES=configure
+DEPEND=app-text/libwpd:0.9 wpg? ( app-text/libwpg:0.2 ) wps? ( app-text/libwps ) visio? ( media-libs/libvisio ) gsf? ( gnome-extra/libgsf ) virtual/pkgconfig
+DESCRIPTION=WordPerfect Document (wpd/wpg) to Open document (odt/odg) converter
+EAPI=4
+HOMEPAGE=http://libwpd.sf.net
+IUSE=debug gsf +visio +wpg +wps
+KEYWORDS=amd64 ppc x86 ~x86-linux ~ppc-macos ~x86-solaris
+LICENSE=LGPL-2.1
+RDEPEND=app-text/libwpd:0.9 wpg? ( app-text/libwpg:0.2 ) wps? ( app-text/libwps ) visio? ( media-libs/libvisio ) gsf? ( gnome-extra/libgsf )
+SLOT=0
+SRC_URI=mirror://sourceforge/libwpd/writerperfect-0.8.1.tar.xz
+_md5_=1e6395c5a6c744dd24f7d4a634d663be

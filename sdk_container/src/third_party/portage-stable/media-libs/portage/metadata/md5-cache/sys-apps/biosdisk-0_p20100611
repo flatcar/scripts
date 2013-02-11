@@ -1,0 +1,11 @@
+DEFINED_PHASES=install
+DESCRIPTION=A script that creates floppy boot images to flash Dell BIOSes
+EAPI=4
+HOMEPAGE=http://en.community.dell.com/techcenter/os-applications/w/wiki/linux-projects.aspx
+KEYWORDS=~amd64 ~x86
+LICENSE=GPL-2
+RDEPEND=|| ( app-text/unix2dos >=app-text/dos2unix-5.0 ) sys-boot/syslinux
+SLOT=0
+SRC_URI=http://linux.dell.com/biosdisk/biosdisk-git-06112010.tar.gz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=4874b14cb85a20a4eec0d79a16bb4252

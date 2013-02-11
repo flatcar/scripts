@@ -1,0 +1,12 @@
+DEFINED_PHASES=compile configure install prepare unpack
+DEPEND=x11-libs/qt-gui:4
+DESCRIPTION=QVV Image Viewer and Browser
+EAPI=2
+HOMEPAGE=http://cade.datamax.bg/qvv/
+KEYWORDS=~amd64 ~x86
+LICENSE=GPL-2
+RDEPEND=x11-libs/qt-gui:4
+SLOT=0
+SRC_URI=http://cade.datamax.bg/qvv/qvv-4.02.tar.gz
+_eclasses_=base	ec46b36a6f6fd1d0b505a33e0b74e413	eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	qt4-r2	19af9102ca9b827213997cc636e7e33c	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=e7133d6bc9bfc184e1df0c54295f4c7f

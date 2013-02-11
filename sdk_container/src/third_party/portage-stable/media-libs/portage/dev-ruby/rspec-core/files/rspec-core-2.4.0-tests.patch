@@ -1,0 +1,49 @@
+From 22bd1e10147d43c4055cbb1b1f95872b84d88fdf Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Diego=20Elio=20Petten=C3=B2?= <flameeyes@gmail.com>
+Date: Wed, 2 Feb 2011 14:53:16 +0100
+Subject: [PATCH] Squashed commit of the following:
+
+commit 23727ceecc0ac619acb31bf5a0c850eb60a443b7
+Author: David Chelimsky <dchelimsky@gmail.com>
+Date:   Sun Jan 16 16:42:48 2011 -0600
+
+    sort rather than match on unsorted content
+
+commit cdb8e160f1659dd148f56e12b5acc174444dda3c
+Author: David Chelimsky <dchelimsky@gmail.com>
+Date:   Sun Jan 16 10:34:01 2011 -0600
+
+    loosen constraint on outcome in example that returns an array
+
+    - Closes #278.
+---
+ spec/rspec/core/rake_task_spec.rb |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/spec/rspec/core/rake_task_spec.rb b/spec/rspec/core/rake_task_spec.rb
+index 6ba16af..1bdf50a 100644
+--- a/spec/rspec/core/rake_task_spec.rb
++++ b/spec/rspec/core/rake_task_spec.rb
+@@ -144,16 +144,16 @@ module RSpec::Core
+         @task = RakeTask.new do |t|
+           t.pattern = File.join(@tmp_dir, "*spec.rb")
+         end
+-        ["first_spec.rb", "second_\"spec.rb", "third_'spec.rb"].each do |file_name|
++        ["first_spec.rb", "second_\"spec.rb", "third_\'spec.rb"].each do |file_name|
+           FileUtils.touch(File.join(@tmp_dir, file_name))
+         end
+       end
+ 
+       it "escapes the quotes" do
+-        @task.__send__(:files_to_run).should eq([
++        @task.__send__(:files_to_run).sort.should eq([
+           File.join(@tmp_dir, "first_spec.rb"),
+           File.join(@tmp_dir, "second_\\\"spec.rb"),
+-          File.join(@tmp_dir, "third_\\'spec.rb") 
++          File.join(@tmp_dir, "third_\\\'spec.rb") 
+         ])
+       end
+     end
+-- 
+1.7.4
+

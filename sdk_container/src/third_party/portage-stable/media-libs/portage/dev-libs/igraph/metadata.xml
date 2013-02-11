@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<maintainer>
+<email>vadimk@gentoo.org</email>
+<name>Vadim Kuznetsov</name>
+</maintainer>
+<longdescription lang="en">
+igraph is a free software package for creating and manipulating undirected and directed graphs. It includes implementations for classic graph theory problems like minimum spanning trees and network flow, and also implements algorithms for some recent network analysis methods, like community structure search.
+</longdescription>
+<use>
+  <flag name='arpack'>Use external sci-libs/arpack</flag>
+  <flag name='blas'>Use external virtual/blas numerical library</flag>
+  <flag name='lapack'>Use external lapack numerical library</flag>
+  <flag name='gmp'>Enables dev-libs/gmp support</flag>
+  <flag name='gprof'>Enables profiling support</flag>
+</use>
+</pkgmetadata>
+

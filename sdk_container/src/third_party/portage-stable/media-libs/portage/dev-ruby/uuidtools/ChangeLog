@@ -1,0 +1,133 @@
+# ChangeLog for dev-ruby/uuidtools
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/uuidtools/ChangeLog,v 1.29 2012/10/17 03:17:55 phajdan.jr Exp $
+
+  17 Oct 2012; Pawel Hajdan jr <phajdan.jr@gentoo.org> uuidtools-2.1.3.ebuild:
+  x86 stable wrt bug #437364
+
+  12 Oct 2012; Agostino Sarubbo <ago@gentoo.org> uuidtools-2.1.3.ebuild:
+  Stable for amd64, wrt bug #437364
+
+  24 Sep 2012; Hans de Graaff <graaff@gentoo.org> -uuidtools-2.1.2.ebuild:
+  Cleanup.
+
+*uuidtools-2.1.3 (20 Jul 2012)
+
+  20 Jul 2012; Hans de Graaff <graaff@gentoo.org> +uuidtools-2.1.3.ebuild:
+  Version bump.
+
+  10 Jul 2012; Diego E. Pettenò <flameeyes@gentoo.org>
+  +files/uuidtools-2.1.2-macaddress.patch, uuidtools-2.1.2.ebuild:
+  Add patch to fix tests when network information is restricted (bug #425430).
+
+  08 Mar 2011; Hans de Graaff <graaff@gentoo.org> -uuidtools-1.0.7.ebuild,
+  -uuidtools-2.1.1-r2.ebuild:
+  Remove old versions.
+
+  08 Mar 2011; Thomas Kahle <tomka@gentoo.org> uuidtools-2.1.1-r1.ebuild:
+  x86 stable per bug 333867
+
+  28 Feb 2011; Markos Chandras <hwoarang@gentoo.org> uuidtools-2.1.1-r1.ebuild:
+  Stable on amd64 wrt bug #333867
+
+*uuidtools-2.1.2 (03 Feb 2011)
+
+  03 Feb 2011; Hans de Graaff <graaff@gentoo.org> +uuidtools-2.1.2.ebuild:
+  Version bump.
+
+  10 Jan 2011; Hans de Graaff <graaff@gentoo.org> uuidtools-2.1.1-r2.ebuild:
+  Keyword ~x86-macos.
+
+  09 Oct 2010; Hans de Graaff <graaff@gentoo.org> uuidtools-2.1.1-r1.ebuild,
+  uuidtools-2.1.1-r2.ebuild:
+  Depend on rspec-1.
+
+*uuidtools-2.1.1-r2 (21 Aug 2010)
+
+  21 Aug 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -files/uuidtools-1.0.7+ruby-1.8.7.patch, uuidtools-2.1.1-r1.ebuild,
+  +uuidtools-2.1.1-r2.ebuild:
+  Remove unused file and prepare a revision with Ruby 1.9 so a new one can
+  be stabilized.
+
+  16 Aug 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  uuidtools-2.1.1-r1.ebuild:
+  Fix specs with Ruby 1.9.2 (bug #332973).
+
+  22 May 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -uuidtools-1.0.7-r1.ebuild, -uuidtools-2.0.0.ebuild,
+  -uuidtools-2.1.1.ebuild, uuidtools-2.1.1-r1.ebuild:
+  Cleanup old versions, use new syntax.
+
+*uuidtools-2.1.1-r1 (15 Dec 2009)
+
+  15 Dec 2009; Diego E. Pettenò <flameeyes@gentoo.org>
+  +uuidtools-2.1.1-r1.ebuild:
+  Bump to ruby-fakegem.
+
+*uuidtools-2.1.1 (14 Oct 2009)
+
+  14 Oct 2009; Diego E. Pettenò <flameeyes@gentoo.org>
+  +uuidtools-2.1.1.ebuild:
+  Version bump to 2.1.1.
+
+*uuidtools-2.0.0 (25 Aug 2009)
+
+  25 Aug 2009; Hans de Graaff <graaff@gentoo.org> +uuidtools-2.0.0.ebuild:
+  Version bump.
+
+  04 May 2009; Diego E. Pettenò <flameeyes@gentoo.org>
+  uuidtools-1.0.7-r1.ebuild:
+  Fix src_test when Ruby 1.9 is not present.
+
+*uuidtools-1.0.7-r1 (27 Apr 2009)
+
+  27 Apr 2009; Diego E. Pettenò <flameeyes@gentoo.org>
+  +files/uuidtools-1.0.7+ruby-1.8.7.patch, +uuidtools-1.0.7-r1.ebuild:
+  Add a fix for uuidtools with Ruby 1.8.7's securerandom and make it install
+  for Ruby 1.9 too.
+
+  19 Apr 2009; Markus Meier <maekke@gentoo.org> uuidtools-1.0.7:
+  amd64/x86 stable, bug #266508
+
+  17 Apr 2009; Diego E. Pettenò <flameeyes@gentoo.org>
+  -uuidtools-1.0.4.ebuild:
+  Remove 1.0.4 version (old version with gem).
+
+  12 Mar 2009; Alex Legler <a3li@gentoo.org> metadata.xml:
+  Removing flameeyes from metadata, as per his request.
+
+  07 Dec 2008; Diego E. Pettenò <flameeyes@gentoo.org> metadata.xml:
+  Add long description.
+
+*uuidtools-1.0.7 (04 Dec 2008)
+
+  04 Dec 2008; Diego E. Pettenò <flameeyes@gentoo.org>
+  -uuidtools-1.0.6.ebuild, +uuidtools-1.0.7.ebuild:
+  Version bump and remove old version.
+
+*uuidtools-1.0.6 (02 Dec 2008)
+
+  02 Dec 2008; Diego E. Pettenò <flameeyes@gentoo.org>
+  -uuidtools-1.0.5.ebuild, +uuidtools-1.0.6.ebuild:
+  Version bump, remove 1.0.5.
+
+*uuidtools-1.0.5 (01 Dec 2008)
+
+  01 Dec 2008; Diego E. Pettenò <flameeyes@gentoo.org>
+  +uuidtools-1.0.5.ebuild:
+  Version bump; use tarball rather than gem: the installed package is
+  smaller, it has no rake/rspec dependencies, and tests are executed with
+  FEATURES=test.
+
+  03 Nov 2008; Hans de Graaff <graaff@gentoo.org> uuidtools-1.0.4.ebuild:
+  Keywording ~x86, works fine there
+
+  03 Nov 2008; Diego Pettenò <flameeyes@gentoo.org> uuidtools-1.0.4.ebuild:
+  Add missing rspec dependency.
+
+*uuidtools-1.0.4 (03 Nov 2008)
+
+  03 Nov 2008; Diego Pettenò <flameeyes@gentoo.org> +metadata.xml,
+  +uuidtools-1.0.4.ebuild:
+  Add uuidtools ebuild (if you want to know, my blog uses it.

@@ -1,0 +1,11 @@
+DEFINED_PHASES=install
+DESCRIPTION=HTML Help Editor for wxWidgets
+EAPI=1
+HOMEPAGE=http://www.helpblocks.com/
+KEYWORDS=-* ~amd64 ~x86
+LICENSE=as-is
+RDEPEND=x11-libs/gtk+:2 x11-libs/libXinerama >=media-libs/libpng-1.2 media-libs/jpeg >=media-libs/tiff-3
+RESTRICT=strip
+SLOT=0
+SRC_URI=x86? ( http://www.helpblocks.com/HelpBlocks-1.21-i386.tar.gz ) amd64? ( http://www.helpblocks.com/HelpBlocks-1.21-x86_64.tar.gz )
+_md5_=3cfd2ef8f7d98b0286c63c2e6bd00b81

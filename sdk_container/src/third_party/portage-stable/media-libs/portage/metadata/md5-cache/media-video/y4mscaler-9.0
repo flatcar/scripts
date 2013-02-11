@@ -1,0 +1,10 @@
+DEFINED_PHASES=compile install
+DEPEND=>=media-video/mjpegtools-1.8.0-r1
+DESCRIPTION=A video scaler which operates on YUV4MPEG2 streams, as used by the tools in the MJPEGtools project.
+HOMEPAGE=http://www.mir.com/DMG/Software/
+KEYWORDS=amd64 x86
+LICENSE=GPL-2
+RDEPEND=>=media-video/mjpegtools-1.8.0-r1
+SLOT=0
+SRC_URI=http://www.mir.com/DMG/Software/y4mscaler-9.0-src.tgz
+_md5_=33a1c37f51853636ad295f97aed6d757

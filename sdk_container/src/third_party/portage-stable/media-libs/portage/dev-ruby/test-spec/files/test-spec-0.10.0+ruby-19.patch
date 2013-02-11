@@ -1,0 +1,45 @@
+Index: test-spec-0.10.0/lib/test/spec.rb
+===================================================================
+--- a/test-spec-0.10.0/lib/test/spec.rb
++++ b/test-spec-0.10.0/lib/test/spec.rb
+@@ -6,6 +6,8 @@
+ # This work is licensed under the same terms as Ruby itself.
+ #
+ 
++gem 'test-unit' if RUBY_VERSION =~ /1\.9/
++
+ require 'test/unit'
+ 
+ class Test::Unit::AutoRunner    # :nodoc:
+@@ -354,7 +356,7 @@ class Test::Spec::TestCase
+ 
+       # Don't let the default_test clutter up the results and don't
+       # flunk if no tests given, either.
+-      throw :invalid_test  if name.to_s == "default_test"
++      #throw :invalid_test  if name.to_s == "default_test"
+     end
+ 
+     def position
+Index: metadata
+===================================================================
+--- a/metadata
++++ b/metadata
+@@ -11,7 +11,17 @@ cert_chain: []
+ 
+ date: 2009-02-01 00:00:00 +01:00
+ default_executable: 
+-dependencies: []
++dependencies:
++- !ruby/object:Gem::Dependency
++  name: test-unit
++  type: :runtime
++  version_requirement:
++  version_requirements: !ruby/object:Gem::Requirement
++    requirements:
++    - - ">="
++      - !ruby/object:Gem::Version
++        version: 2.0.6
++    version:
+ 
+ description: test/spec layers an RSpec-inspired interface on top of Test::Unit, so you can mix TDD and BDD (Behavior-Driven Development).  test/spec is a clean-room implementation that maps most kinds of Test::Unit assertions to a `should'-like syntax.
+ email: chneukirchen@gmail.com

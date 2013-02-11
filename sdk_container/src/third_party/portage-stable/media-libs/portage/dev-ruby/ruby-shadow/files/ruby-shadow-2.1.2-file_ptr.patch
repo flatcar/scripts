@@ -1,0 +1,13 @@
+diff --git a/shadow.c b/shadow.c
+index c44a4d8..41ff003 100644
+--- a/shadow.c
++++ b/shadow.c
+@@ -170,7 +170,7 @@ rb_shadow_putspent(VALUE self, VALUE entry, VALUE file)
+ 
+   for(i=0; i<=8; i++)
+     val[i] = RSTRUCT_PTR( entry )[i]; //val[i] = RSTRUCT(entry)->ptr[i];
+-  cfile = file_pr( RFILE(file)->fptr );
++  cfile = file_ptr( RFILE(file)->fptr );
+ 
+   centry.sp_namp = StringValuePtr(val[0]);
+   centry.sp_pwdp = StringValuePtr(val[1]);

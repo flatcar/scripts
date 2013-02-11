@@ -1,0 +1,29 @@
+--- cwirc-2.0.0.orig/Makefile	2009-10-15 22:54:05.388287074 +0200
++++ cwirc-2.0.0/Makefile	2009-10-15 22:55:32.084285919 +0200
+@@ -62,8 +62,8 @@
+ XCHAT_INC=-I$(XCHAT_PLUGIN_INCLUDE_PATH)
+ CFLAGS=-Wall -Wstrict-prototypes -O2 -D$(TARGET_OS)
+ GTK_CFLAGS=`pkg-config --cflags gtk+-2.0`
+-LDFLAGS=-lm ${EXTRA_LDFLAGS}
+-GTK_LDFLAGS=`pkg-config --libs gtk+-2.0`
++LIBS=-lm `pkg-config --libs-only-l gtk+-2.0`
++GTK_LDFLAGS=`pkg-config --libs-only-L gtk+-2.0`
+ 
+ all:			missing_settings				\
+ 			$(PLUGIN) 					\
+@@ -102,12 +102,12 @@
+ 			extension.o
+ 
+ $(PLUGIN):		$(PLUGIN_OBJS)
+-			$(CC) -shared $(LDFLAGS) -o $@ $(PLUGIN_OBJS)
++			$(CC) -shared $(LDFLAGS) -o $@ $(PLUGIN_OBJS) -lm
+ 			$(STRIP) $@
+ 
+ $(FRONTEND):		$(FRONTEND_OBJS)
+-			$(CC) $(LDFLAGS) $(GTK_LDFLAGS) -o $@ $(FRONTEND_OBJS)
+-			$(STRIP) $@
++			$(CC) $(LDFLAGS) $(GTK_LDFLAGS) -o $@ $(FRONTEND_OBJS) $(LIBS)
++			$(STRIP) $@ 
+ 
+ plugin.shared.o:	plugin.c					\
+ 			$(XCHAT_PLUGIN_INCLUDE_PATH)/xchat-plugin.h	\

@@ -1,0 +1,39 @@
+# ChangeLog for dev-libs/cloog
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/cloog/ChangeLog,v 1.7 2013/01/07 00:28:01 dirtyepic Exp $
+
+*cloog-0.18.0 (07 Jan 2013)
+
+  07 Jan 2013; Ryan Hill <dirtyepic@gentoo.org> +cloog-0.18.0.ebuild:
+  Version bump (bug #450628). Stop using autotools-utils - we want to avoid
+  autoreconf in this package. Steal the pkgconfig trick from isl until
+  upstream updates their ax_create_pkgconfig_info.m4 to ignore LDFLAGS.
+
+  07 Jan 2013; Ryan Hill <dirtyepic@gentoo.org> cloog-0.17.0.ebuild:
+  Restrict isl to older versions.
+
+  27 Jun 2012; Ryan Hill <dirtyepic@gentoo.org> -cloog-0.16.3.ebuild:
+  Remove old.
+
+*cloog-0.17.0 (20 Feb 2012)
+
+  20 Feb 2012; Ryan Hill <dirtyepic@gentoo.org> -cloog-0.16.1.ebuild,
+  -cloog-0.16.2.ebuild, cloog-0.16.3.ebuild, +cloog-0.17.0.ebuild:
+  Version bump.
+
+*cloog-0.16.3 (21 Aug 2011)
+
+  21 Aug 2011; Ryan Hill <dirtyepic@gentoo.org> +cloog-0.16.3.ebuild:
+  Version bump.
+
+*cloog-0.16.2 (14 Apr 2011)
+
+  14 Apr 2011; Ryan Hill <dirtyepic@gentoo.org> +cloog-0.16.2.ebuild:
+  Version bump.
+
+*cloog-0.16.1 (08 Jan 2011)
+
+  08 Jan 2011; Ryan Hill <dirtyepic@gentoo.org> +cloog-0.16.1.ebuild,
+  +metadata.xml:
+  Initial import.
+

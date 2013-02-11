@@ -1,0 +1,30 @@
+# ChangeLog for dev-ruby/weakling
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/weakling/ChangeLog,v 1.7 2012/08/14 19:00:20 flameeyes Exp $
+
+  14 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> metadata.xml:
+  Update metadata.xml so that it's the same as most other packages.
+
+  02 Aug 2011; Markos Chandras <hwoarang@gentoo.org> weakling-0.0.3-r1.ebuild:
+  Stable on amd64 wrt bug #348510
+
+  20 Jul 2011; Thomas Kahle <tomka@gentoo.org> weakling-0.0.3-r1.ebuild:
+  x86 stable per bug 348510
+
+  09 Jul 2011; Hans de Graaff <graaff@gentoo.org> -weakling-0.0.3.ebuild:
+  Remove old version.
+
+  23 May 2011; Thomas Kahle <tomka@gentoo.org> weakling-0.0.3-r1.ebuild:
+  ~x86 per bug 365417
+
+*weakling-0.0.3-r1 (01 May 2011)
+
+  01 May 2011; Hans de Graaff <graaff@gentoo.org> +weakling-0.0.3-r1.ebuild:
+  Compile the jar file instead of using the shipped version. Thanks for
+  James Le Cuirot for the ebuild and investigation in bug 365463.
+
+*weakling-0.0.3 (30 Apr 2011)
+
+  30 Apr 2011; Hans de Graaff <graaff@gentoo.org> +weakling-0.0.3.ebuild,
+  +metadata.xml:
+  Initial import. Dependency for nokogiri with jruby support.

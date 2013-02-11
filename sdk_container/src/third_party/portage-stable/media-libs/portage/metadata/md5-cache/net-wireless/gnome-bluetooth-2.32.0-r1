@@ -1,0 +1,14 @@
+DEFINED_PHASES=compile configure install postinst postrm preinst prepare setup unpack
+DEPEND=>=dev-libs/glib-2.26.1-r1:2 >=x11-libs/gtk+-2.19.1:2 >=x11-libs/libnotify-0.4.3 >=gnome-base/gconf-2.6:2 >=dev-libs/dbus-glib-0.74 dev-libs/libunique:1 nautilus? ( >=gnome-extra/nautilus-sendto-2.31.7 ) !!net-wireless/bluez-gnome app-text/docbook-xml-dtd:4.1.2 app-text/gnome-doc-utils app-text/scrollkeeper dev-libs/libxml2:2 dev-util/intltool virtual/pkgconfig sys-devel/gettext x11-libs/libX11 x11-libs/libXi x11-proto/xproto doc? ( >=dev-util/gtk-doc-1.9 ) gnome-base/gnome-common dev-util/gtk-doc-am >=sys-apps/sed-4 || ( >=sys-devel/automake-1.11.1:1.11 >=sys-devel/automake-1.12:1.12 ) >=sys-devel/autoconf-2.68 sys-devel/libtool virtual/pkgconfig
+DESCRIPTION=Fork of bluez-gnome focused on integration with GNOME
+EAPI=4
+HOMEPAGE=http://live.gnome.org/GnomeBluetooth
+IUSE=doc +introspection nautilus test debug
+KEYWORDS=amd64 ppc x86
+LICENSE=GPL-2+ LGPL-2.1+ FDL-1.1+
+RDEPEND=>=dev-libs/glib-2.26.1-r1:2 >=x11-libs/gtk+-2.19.1:2 >=x11-libs/libnotify-0.4.3 >=gnome-base/gconf-2.6:2 >=dev-libs/dbus-glib-0.74 dev-libs/libunique:1 nautilus? ( >=gnome-extra/nautilus-sendto-2.31.7 ) >=net-wireless/bluez-4.34 app-mobilephone/obexd virtual/udev introspection? ( >=dev-libs/gobject-introspection-0.6.7 )
+REQUIRED_USE=test? ( !doc )
+SLOT=2
+SRC_URI=mirror://gnome/sources/gnome-bluetooth/2.32/gnome-bluetooth-2.32.0.tar.bz2 mirror://gentoo/introspection.m4.bz2
+_eclasses_=autotools	cf83655b19ed98f9ea3b44f4572b51a3	eutils	d40dc948067bd3db1c8ebf7d51897313	fdo-mime	0acfe1a88fd8751a1d5dc671168219fa	gnome.org	8fef8f967214f56e08fa92d61163d891	gnome2	96ca31031ada9967bcf96a4fd8977ae4	gnome2-utils	794d2847b4af390a1e020924876c8297	libtool	2b273eea1976cfaed3449345d94331ac	multilib	ded93e450747134a079e647d888aa80b	multiprocessing	a2130e6fc4aa4c6a24b265ca0cbcc2b6	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	udev	fea2246732f911905d6991fed203e65c	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=7d315c4154bc68fd1517ea40a7300d02

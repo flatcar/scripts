@@ -1,0 +1,10 @@
+--- ext/Const.c.orig	2010-07-04 20:42:47.986362515 +0200
++++ ext/Const.c	2010-07-04 20:43:10.402363271 +0200
+@@ -236,7 +236,6 @@
+   rb_define_const(rbgsl_mConstCGSM, "STOKES", rb_float_new(GSL_CONST_CGSM_STOKES));
+   rb_define_const(rbgsl_mConstCGSM, "FARADAY", rb_float_new(GSL_CONST_CGSM_FARADAY));
+   rb_define_const(rbgsl_mConstCGSM, "ELECTRON_CHARGE", rb_float_new(GSL_CONST_CGSM_ELECTRON_CHARGE));
+-  rb_define_const(rbgsl_mConstCGSM, "GAUSS", rb_float_new(GSL_CONST_CGSM_GAUSS));
+   rb_define_const(rbgsl_mConstCGSM, "STILB", rb_float_new(GSL_CONST_CGSM_STILB));
+   rb_define_const(rbgsl_mConstCGSM, "LUMEN", rb_float_new(GSL_CONST_CGSM_LUMEN));
+   rb_define_const(rbgsl_mConstCGSM, "LUX", rb_float_new(GSL_CONST_CGSM_LUX));

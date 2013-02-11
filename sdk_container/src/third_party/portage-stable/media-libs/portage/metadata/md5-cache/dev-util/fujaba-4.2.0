@@ -1,0 +1,10 @@
+DEFINED_PHASES=compile install unpack
+DEPEND=>=virtual/jdk-1.4 >=virtual/jre-1.4 =dev-java/junit-3.8* dev-java/log4j ~dev-java/jdom-1.0_beta10 =dev-java/xerces-1.3*
+DESCRIPTION=The Fujaba Tool Suite provides an easy to extend UML and Java development platform
+HOMEPAGE=http://www.uni-paderborn.de/cs/fujaba/index.html
+KEYWORDS=~x86 ~ppc ~amd64
+LICENSE=LGPL-2.1
+RDEPEND=>=virtual/jre-1.4 =dev-java/junit-3.8* dev-java/log4j ~dev-java/jdom-1.0_beta10 =dev-java/xerces-1.3*
+SLOT=0
+SRC_URI=ftp://ftp.uni-paderborn.de/private/fujaba/Fujaba_4/FujabaToolSuite_Developer4_2_0.jar
+_md5_=a80814ed6f0d670a47d7af53777e68b9

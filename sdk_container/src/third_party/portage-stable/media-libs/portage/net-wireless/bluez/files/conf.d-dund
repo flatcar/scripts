@@ -1,0 +1,4 @@
+# Bluetooth DUN daemon configuraton file
+
+# Arguments to dund
+DUND_OPTIONS="--search --persist"

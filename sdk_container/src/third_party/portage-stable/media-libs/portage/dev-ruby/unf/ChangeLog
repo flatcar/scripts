@@ -1,0 +1,29 @@
+# ChangeLog for dev-ruby/unf
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/unf/ChangeLog,v 1.6 2012/11/25 19:17:18 tomka Exp $
+
+  25 Nov 2012; Thomas Kahle <tomka@gentoo.org> unf-0.0.5-r1.ebuild:
+  marked ~x86 per bug 432830
+
+  29 Sep 2012; Fabian Groffen <grobian@gentoo.org> unf-0.0.5-r1.ebuild:
+  Added Prefix keywords, bug #432830
+
+  27 Sep 2012; Samuli Suominen <ssuominen@gentoo.org> unf-0.0.5-r1.ebuild:
+  Keyword ~ppc/~ppc64 wrt #432830
+
+*unf-0.0.5-r1 (14 Aug 2012)
+
+  14 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> +unf-0.0.5-r1.ebuild,
+  -unf-0.0.5.ebuild:
+  Make sure to install the gemspec, but fix it so that it works correctly with
+  JRuby.
+
+  14 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> unf-0.0.5.ebuild:
+  Disable test task (drops rake dependency for USE=test); use Test::Unit 2 and
+  the ruby-ng helper for tests; simplofy dependency over unf_ext.
+
+*unf-0.0.5 (13 May 2012)
+
+  13 May 2012; Hans de Graaff <graaff@gentoo.org> +unf-0.0.5.ebuild,
+  +metadata.xml:
+  Initial import. New dependency for dev-ruby/mechanize.

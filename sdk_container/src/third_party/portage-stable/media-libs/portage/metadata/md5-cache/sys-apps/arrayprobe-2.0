@@ -1,0 +1,8 @@
+DEFINED_PHASES=install
+DESCRIPTION=CLI utility that reports the status of a HP (Compaq) array controller (both IDA & CCISS supported).
+HOMEPAGE=http://www.strocamp.net/opensource/arrayprobe.php
+KEYWORDS=~amd64 x86
+LICENSE=GPL-2
+SLOT=0
+SRC_URI=http://www.strocamp.net/opensource/compaq/downloads/arrayprobe-2.0.tar.gz
+_md5_=4b587003187bd274fe229dff8bc4187a

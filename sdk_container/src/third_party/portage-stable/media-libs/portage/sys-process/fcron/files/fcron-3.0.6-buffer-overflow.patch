@@ -1,0 +1,16 @@
+ socket.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/socket.c b/socket.c
+index ef04ebe..2f7f4ac 100644
+--- a/socket.c
++++ b/socket.c
+@@ -272,7 +272,7 @@ auth_client(struct fcrondyn_cl *client)
+         len += (sizeof(FIELD_STR)-1); \
+     }
+ #define Add_field(FIELD_STR) \
+-    strncat(fields, FIELD_STR, sizeof(fields) - len); \
++    strncat(fields, FIELD_STR, sizeof(fields)-1 - len); \
+     len += (sizeof(FIELD_STR)-1);
+ 
+ void

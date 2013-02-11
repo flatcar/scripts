@@ -1,0 +1,97 @@
+Index: activesupport-2.3.5/lib/active_support/vendor.rb
+===================================================================
+--- activesupport-2.3.5.orig/lib/active_support/vendor.rb
++++ activesupport-2.3.5/lib/active_support/vendor.rb
+@@ -1,11 +1,7 @@
+ # Prefer gems to the bundled libs.
+ require 'rubygems'
+ 
+-begin
+-  gem 'builder', '~> 2.1.2'
+-rescue Gem::LoadError
+-  $:.unshift "#{File.dirname(__FILE__)}/vendor/builder-2.1.2"
+-end
++gem 'builder', '~> 2.1.2'
+ require 'builder'
+ 
+ begin
+@@ -14,15 +10,7 @@ rescue Gem::LoadError
+   $:.unshift "#{File.dirname(__FILE__)}/vendor/memcache-client-1.7.4"
+ end
+ 
+-begin
+-  gem 'tzinfo', '~> 0.3.12'
+-rescue Gem::LoadError
+-  $:.unshift "#{File.dirname(__FILE__)}/vendor/tzinfo-0.3.12"
+-end
++gem 'tzinfo', '~> 0.3.12'
+ 
+-begin
+-  gem 'i18n', '>= 0.4.1'
+-rescue Gem::LoadError
+-  $:.unshift "#{File.dirname(__FILE__)}/vendor/i18n-0.4.1"
+-end
++gem 'i18n', '~> 0.4.1'
+ require 'i18n'
+Index: metadata
+===================================================================
+--- a/metadata
++++ b/metadata
+@@ -16,8 +16,56 @@ bindir: bin
+ cert_chain: []
+ 
+ date: 2013-01-08 00:00:00 -08:00
+ default_executable: 
+-dependencies: []
++dependencies:
++- !ruby/object:Gem::Dependency 
++  name: builder
++  prerelease: false
++  requirement: &id001 !ruby/object:Gem::Requirement 
++    none: false
++    requirements: 
++    - - "~>"
++      - !ruby/object:Gem::Version 
++        hash: 57
++        segments: 
++        - 2
++        - 1
++        - 2
++        version: 2.1.2
++  type: :runtime
++  version_requirements: *id003
++- !ruby/object:Gem::Dependency 
++  name: tzinfo
++  prerelease: false
++  requirement: &id002 !ruby/object:Gem::Requirement 
++    none: false
++    requirements: 
++    - - ">="
++      - !ruby/object:Gem::Version 
++        hash: 57
++        segments: 
++        - 0
++        - 3
++        - 16
++        version: 0.3.16
++  type: :runtime
++  version_requirements: *id003
++- !ruby/object:Gem::Dependency 
++  name: i18n
++  prerelease: false
++  requirement: &id003 !ruby/object:Gem::Requirement 
++    none: false
++    requirements: 
++    - - "~>"
++      - !ruby/object:Gem::Version 
++        hash: 57
++        segments: 
++        - 0
++        - 4
++        - 1
++        version: 0.4.1
++  type: :runtime
++  version_requirements: *id003
+ 
+ description: Utility library which carries commonly used classes and goodies from the Rails framework
+ email: david@loudthinking.com

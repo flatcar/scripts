@@ -1,0 +1,41 @@
+Index: text-hyphen-1.0.0/lib/text/hyphen.rb
+===================================================================
+--- text-hyphen-1.0.0.orig/lib/text/hyphen.rb
++++ text-hyphen-1.0.0/lib/text/hyphen.rb
+@@ -269,7 +269,8 @@ private
+ 
+   def make_result_list(res) #:nodoc:
+     r = []
+-    res.each_with_index { |c, i| r <<  i * (c.to_i % 2) }
++    res_a = (res.is_a? Array) ? res : res.split(//)
++    res_a.each_with_index { |c, i| r <<  i * (c.to_i % 2) }
+     r.reject { |i| i.to_i == 0 }
+   end
+ 
+Index: text-hyphen-1.0.0/tests/tc_text_hyphen.rb
+===================================================================
+--- text-hyphen-1.0.0.orig/tests/tc_text_hyphen.rb
++++ text-hyphen-1.0.0/tests/tc_text_hyphen.rb
+@@ -12,7 +12,7 @@ class Test__Text__Hyphen < Test::Unit::T
+                playback presents programmable representation)
+   POINTS  = [
+     [2, 4, 8],     # additional
+-    [],            # declination
++    [3, 5, 7],     # declination
+     [2],           # going
+     [4],           # leaving
+     [3, 4],        # maximize
+@@ -24,11 +24,11 @@ class Test__Text__Hyphen < Test::Unit::T
+     [3, 5, 8, 10]  # representation
+   ]
+ 
+-  VISUAL = %w(ad-di-tion-al declination go-ing leav-ing max-i-mizes
++  VISUAL = %w(ad-di-tion-al dec-li-na-tion go-ing leav-ing max-i-mizes
+               mul-ti-ple pe-ter play-back presents pro-gram-mable
+               rep-re-sen-ta-tion)
+ 
+-  HY_TO   = [ %w(addi- tional), [nil, 'declination'], %w(go- ing),
++  HY_TO   = [ %w(addi- tional), %w(dec- lination), %w(go- ing),
+               %w(leav- ing), %w(maxi- mizes), %w(mul- tiple), %w(pe- ter),
+               %w(play- back), [nil, 'presents'], %w(pro- grammable),
+               %w(rep- resentation)]

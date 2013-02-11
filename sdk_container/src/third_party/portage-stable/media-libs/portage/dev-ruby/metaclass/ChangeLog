@@ -1,0 +1,54 @@
+# ChangeLog for dev-ruby/metaclass
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/metaclass/ChangeLog,v 1.16 2013/01/15 07:04:20 zerochaos Exp $
+
+  15 Jan 2013; Rick Farina <zerochaos@gentoo.org> metaclass-0.0.1.ebuild:
+  adding ~arm keywords to net-analyzer/metasploit rdeps
+
+  07 Nov 2012; Jeroen Roovers <jer@gentoo.org> metaclass-0.0.1.ebuild:
+  Stable for HPPA (bug #427606).
+
+  28 Oct 2012; Raúl Porcel <armin76@gentoo.org> metaclass-0.0.1.ebuild:
+  alpha/ia64/sparc stable wrt #427606
+
+  09 Aug 2012; Anthony G. Basile <blueness@gentoo.org> metaclass-0.0.1.ebuild:
+  Stable ppc64, bug #427606
+
+  04 Aug 2012; Agostino Sarubbo <ago@gentoo.org> metaclass-0.0.1.ebuild:
+  Stable for amd64, wrt bug #427606
+
+  23 Jul 2012; Jeff Horelick <jdhore@gentoo.org> metaclass-0.0.1.ebuild:
+  marked x86 per bug 427606
+
+  22 Jul 2012; <nixnut@gentoo.org> metaclass-0.0.1.ebuild:
+  ppc stable #427606
+
+  05 May 2012; Raúl Porcel <armin76@gentoo.org> metaclass-0.0.1.ebuild:
+  Add ~ia64/~sparc wrt #398985
+
+  01 May 2012; Raúl Porcel <armin76@gentoo.org> metaclass-0.0.1.ebuild:
+  Drop ia64/sparc keywords
+
+  11 Mar 2012; Brent Baude <ranger@gentoo.org> metaclass-0.0.1.ebuild:
+  Marking metaclass-0.0.1 ~ppc64 for bug 398985
+
+  07 Mar 2012; Naohiro Aota <naota@gentoo.org> metaclass-0.0.1.ebuild:
+  Add ~x86-fbsd
+
+  05 Mar 2012; Thomas Kahle <tomka@gentoo.org> metaclass-0.0.1.ebuild:
+  marked ~x86 per bug 398985
+
+  09 Feb 2012; Fabian Groffen <grobian@gentoo.org> metaclass-0.0.1.ebuild:
+  Rekeyword for Prefix, bug #398985
+
+  06 Feb 2012; Brent Baude <ranger@gentoo.org> metaclass-0.0.1.ebuild:
+  Marking metaclass-0.0.1 ~ppc for bug 398985
+
+  18 Jan 2012; Jeroen Roovers <jer@gentoo.org> metaclass-0.0.1.ebuild:
+  Marked ~hppa (bug #398985).
+
+*metaclass-0.0.1 (22 Dec 2011)
+
+  22 Dec 2011; Hans de Graaff <graaff@gentoo.org> +metaclass-0.0.1.ebuild,
+  +metadata.xml:
+  Initial import. New dependency of dev-ruby/mocha.

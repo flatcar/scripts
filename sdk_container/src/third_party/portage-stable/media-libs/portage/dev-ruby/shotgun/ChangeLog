@@ -1,0 +1,41 @@
+# ChangeLog for dev-ruby/shotgun
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/shotgun/ChangeLog,v 1.7 2012/09/23 06:51:57 graaff Exp $
+
+  23 Sep 2012; Hans de Graaff <graaff@gentoo.org> shotgun-0.9.ebuild:
+  EAPI=4. Add ruby19.
+
+  23 Sep 2012; Hans de Graaff <graaff@gentoo.org> -shotgun-0.8.ebuild:
+  Cleanup.
+
+*shotgun-0.9 (25 Feb 2011)
+
+  25 Feb 2011; Hans de Graaff <graaff@gentoo.org> +shotgun-0.9.ebuild:
+  Version bump.
+
+  22 Jan 2011; Hans de Graaff <graaff@gentoo.org> -shotgun-0.6.ebuild,
+  shotgun-0.8.ebuild:
+  Relax rack dependency. Shotgun seems to work fine with rack 1.1.0 and rack
+  1.2.1 installed.
+
+  22 Jan 2011; Hans de Graaff <graaff@gentoo.org> -shotgun-0.6.ebuild:
+  Remove old version.
+
+*shotgun-0.8 (19 Jul 2010)
+
+  19 Jul 2010; Hans de Graaff <graaff@gentoo.org> +shotgun-0.8.ebuild:
+  Version bump.
+
+*shotgun-0.6 (28 Jan 2010)
+
+  28 Jan 2010; Diego E. Pettenò <flameeyes@gentoo.org> -shotgun-0.5.ebuild,
+  -files/shotgun-0.5-optional-launchy.patch, +shotgun-0.6.ebuild:
+  Version bump, remove now-obsoleted patch. Now use gem for packaging. Add
+  ~x86 as it's tested in a development guest.
+
+*shotgun-0.5 (25 Jan 2010)
+
+  25 Jan 2010; Diego E. Pettenò <flameeyes@gentoo.org> +shotgun-0.5.ebuild,
+  +files/shotgun-0.5-optional-launchy.patch, +metadata.xml:
+  Initial import of shotgun, a way to auto-relaod rackup servers.
+

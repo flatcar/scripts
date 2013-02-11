@@ -1,0 +1,306 @@
+# ChangeLog for net-irc/bitchx
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-irc/bitchx/ChangeLog,v 1.73 2013/01/28 19:32:19 jer Exp $
+
+  28 Jan 2013; Jeroen Roovers <jer@gentoo.org> bitchx-1.2.ebuild,
+  files/bitchx-1.2-build.patch:
+  Do not remove "duplicate" CFLAGS args. Respect LDFLAGS.
+
+  28 Jan 2013; Jeroen Roovers <jer@gentoo.org> bitchx-1.2.ebuild:
+  Restore missing keywords (bug #425634). Fix quoting issue.
+
+*bitchx-1.2 (02 Jan 2013)
+
+  02 Jan 2013; Jeff Horelick <jdhore@gentoo.org> +bitchx-1.2.ebuild,
+  +files/bitchx-1.2-build.patch:
+  Version bump
+
+  21 Dec 2011; Nathan Phillip Brink <binki@gentoo.org> bitchx-1.1-r4.ebuild:
+  Update SRC_URI to point to tarball's new home.
+
+  17 Nov 2009; Dawid Węgliński <cla@gentoo.org> bitchx-1.1-r4.ebuild,
+  +files/1.1/bitchx-1.1-open-mode.patch:
+  Pass mode to O_CREAT bug #285374
+
+  11 Mar 2008; Dawid Węgliński <cla@gentoo.org> bitchx-1.1-r4.ebuild:
+  Use sane unpack(), add lowercase symlink.
+
+  27 Feb 2008; Sven Wegener <swegener@gentoo.org> -bitchx-1.1-r3.ebuild:
+  Cleanup.
+
+  11 Nov 2007; Raúl Porcel <armin76@gentoo.org> bitchx-1.1-r4.ebuild:
+  Add ~ia64 wrt #198460
+
+  24 Sep 2007; Luca Barbato <lu_zero@gentoo.org>
+  +files/1.1/bitchx-1.1-inline.patch, bitchx-1.1-r4.ebuild:
+  Fix bug #185663, thanks to David Klempner <klempner@imsanet.org>
+
+*bitchx-1.1-r4 (17 Jul 2007)
+
+  17 Jul 2007; Luca Barbato <lu_zero@gentoo.org>
+  +files/1.1/bitchx-1.1-pbxs.patch, +bitchx-1.1-r4.ebuild:
+  fix bug #183149
+
+  19 Nov 2006; Saleem Abdulrasool <compnerd@gentoo.org> -bitchx-1.1-r1.ebuild,
+  -bitchx-1.1-r2.ebuild:
+  Drop the older versions
+
+  19 Nov 2006; Saleem Abdulrasool <compnerd@gentoo.org> bitchx-1.1-r1.ebuild,
+  bitchx-1.1-r2.ebuild, bitchx-1.1-r3.ebuild:
+  Drop gnome, gtk, esd, ncurses, cdrom useflags for GNOME 1.x removal
+
+  13 Nov 2006; Diego Pettenò <flameeyes@gentoo.org> bitchx-1.1-r1.ebuild,
+  bitchx-1.1-r2.ebuild, bitchx-1.1-r3.ebuild:
+  Remove xmms useflag.
+
+  07 Nov 2006; Jeroen Roovers <jer@gentoo.org> bitchx-1.1-r3.ebuild:
+  Stable for HPPA (bug #149851).
+
+  30 Oct 2006; Luis Medinas <metalgod@gentoo.org> bitchx-1.1-r3.ebuild:
+  Stable on amd64 see bug #149851.
+
+  26 Oct 2006; Joshua Jackson <tsunam@gentoo.org> bitchx-1.1-r3.ebuild:
+  Stable x86 for gcc4
+
+  22 Oct 2006; Jason Wever <weeve@gentoo.org> bitchx-1.1-r3.ebuild:
+  Stable on SPARC wrt bug #149851.
+
+  20 Oct 2006; Bryan Østergaard <kloeri@gentoo.org> bitchx-1.1-r3.ebuild:
+  Stable on Alpha.
+
+  20 Oct 2006; Luca Barbato <lu_zero@gentoo.org> bitchx-1.1-r3.ebuild:
+  Marked ppc
+
+  20 Oct 2006; Markus Ullmann <jokey@gentoo.org> bitchx-1.1-r3.ebuild:
+  Fix for bug #147165 thanks to armin76 on irc
+
+*bitchx-1.1-r3 (06 Sep 2006)
+
+  06 Sep 2006; Mike Frysinger <vapier@gentoo.org>
+  +files/1.1/bitchx-1.1-build.patch, files/1.1/bitchx-1.1-gcc34.patch,
+  +files/1.1/bitchx-1.1-gcc41.patch, +files/1.1/bitchx-1.1-headers.patch,
+  +bitchx-1.1-r3.ebuild:
+  Clean up ebuild and compiling with gcc-4.1 #113736; thanks to everyone.
+
+  22 Mar 2005; <blubb@gentoo.org> bitchx-1.1-r2.ebuild:
+  pseudo-fixing bug #61133 with an ugly hack, prevents bitchx from building with
+  gtk support on amd64
+
+  29 Dec 2004; Ciaran McCreesh <ciaranm@gentoo.org> :
+  Change encoding to UTF-8 for GLEP 31 compliance
+
+  06 Sep 2004; Ciaran McCreesh <ciaranm@gentoo.org> bitchx-1.1-r1.ebuild,
+  bitchx-1.1-r2.ebuild:
+  Switch to use epause and ebeep, bug #62950
+
+*bitchx-1.1-r2 (31 Aug 2004)
+
+  31 Aug 2004; Guy Martin <gmsoft@gentoo.org> +files/fPIC.patch,
+  +bitchx-1.1-r2.ebuild:
+  Added a unconditionnal -fPIC patch (#55238).
+
+  22 Aug 2004; Sven Wegener <swegener@gentoo.org> bitchx-1.1-r1.ebuild:
+  Updated SRC_URI as upstream download location has changed. Closes bug #61005.
+
+  22 Jul 2004; Sven Wegener <swegener@gentoo.org> -bitchx-1.1.ebuild:
+  Removed old ebuild.
+
+*bitchx-1.1-r1 (05 Jul 2004)
+
+  05 Jul 2004; Sven Wegener <swegener@gentoo.org>
+  -files/bitchx-1.0.19-cjk.patch, -files/bitchx-1.0.19-freenode.patch,
+  -files/bitchx-1.0.19-gcc-3.3.patch, -files/bitchx-1.0.19-hebrew.patch,
+  -files/bitchx-1.0.19-nickcomp-nocolor.patch,
+  -files/bitchx-1.0.19-security.patch, -files/bitchx-1.0.19-security2.patch,
+  -bitchx-1.0.19-r5.ebuild, -bitchx-1.0.19-r6.ebuild, +bitchx-1.1-r1.ebuild:
+  Added support for the local cdrom USE flag. Closes bug #55823. Removed older
+  ebuilds.
+
+  20 Jun 2004; Sven Wegener <swegener@gentoo.org>
+  +files/1.1/bitchx-1.1-gcc34.patch, bitchx-1.1.ebuild:
+  Fixed compile error with gcc-3.4. Closes bug #54454.
+
+  07 Jun 2004; Chuck Short <zul@gentoo.org> bitchx-1.0.19-r5.ebuild,
+  bitchx-1.0.19-r6.ebuild, bitchx-1.1.ebuild:
+  Update homepage and SRC_URI. Closes #52360.
+
+  05 Jun 2004; Bryan Østergaard <kloeri@gentoo.org> bitchx-1.1.ebuild:
+  Stable on alpha.
+
+  29 May 2004; Pieter Van den Abeele <pvdabeel@gentoo.org>
+  bitchx-1.0.19-r6.ebuild, bitchx-1.1.ebuild:
+  Masked bitchx-1.1.ebuild stable for ppc
+
+  29 May 2004; Pieter Van den Abeele <pvdabeel@gentoo.org>
+  bitchx-1.0.19-r6.ebuild:
+  Masked bitchx-1.0.19-r6.ebuild stable for ppc
+
+  25 Apr 2004; Travis Tilley <lv@gentoo.org> +files/BitchX-64bit.patch,
+  bitchx-1.1.ebuild:
+  ported to amd64
+
+  15 Apr 2004; Jason Wever <weeve@gentoo.org> bitchx-1.1.ebuild:
+  Stable on sparc.
+
+  15 Apr 2004; Guy Martin <gmsoft@gentoo.org> bitchx-1.1.ebuild:
+  Marked stable on hppa.
+
+  13 Apr 2004; Chuck Short <zul@gentoo.org> bitchx-1.1.ebuild:
+  Marked stable for x86.
+
+  05 Apr 2004; Jason Wever <weeve@gentoo.org> bitchx-1.0.19-r6.ebuild:
+  Stable on sparc.
+
+  28 Mar 2004; <chuck@gentoo.org> bitchx-1.0.19-r6.ebuild:
+  Marked stable on x86.
+
+*bitchx-1.1 (28 Mar 2004)
+
+  28 Mar 2004; <chuck@gentoo.org> bitchx-1.1.ebuild,
+  files/1.1/bitchx-1.1-cjk.patch, files/1.1/bitchx-1.1-freenode.patch,
+  files/1.1/bitchx-1.1-hebrew.patch:
+  New release, closes #45974.
+
+  28 Mar 2004; Chuck Short <zul@gentoo.org> bitchx-1.0.19-r5.ebuild,
+  bitchx-1.0.19-r6.ebuild:
+  New version of bitchx is out, updated src_uri, partially fixes 45974.
+
+  23 Mar 2004; Chuck Short <zul@gentoo.org> bitchx-1.0.19-r5.ebuild,
+  bitchx-1.0.19-r6.ebuild:
+  Removed USE="ncurses" since it is not tested and its already in DEPEND.
+
+  06 Feb 2004; Aron Griffis <agriffis@gentoo.org> bitchx-1.0.19-r6.ebuild:
+  add ~alpha
+
+  02 Jan 2004; Chuck Short <zul@gentoo.org> bitchx-1.0.19-r5.ebuild,
+  bitchx-1.0.19-r6.ebuild:
+  Updated copyright years.
+
+  15 Oct 2003; Martin Holzer <mholzer@gentoo.org> bitchx-1.0.19-r6.ebuild:
+  fixing type which pretend to install package. closes #31119.
+
+*bitchx-1.0.19-r6 (05 Sep 2003)
+
+  03 Dec 2003; <gmsoft@gentoo.org> bitchx-1.0.19-r6.ebuild :
+  Added hppa to KEYWORDS.
+
+  05 Sep 2003; <solar@gentoo.org> bitchx-1.0.19-r6.ebuild,
+  files/bitchx-1.0.19-freenode.patch,
+  files/bitchx-1.0.19-nickcomp-nocolor.patch:
+  per almost every gentoo developers request we are removing the bold out of the
+  default NICK_COMP fset, and switching freenode to be the default network. two
+  minor patches added added to handle this.
+
+  19 Aug 2003; Greg Fitzgerald <gregf@gentoo.org> bitchx-1.0.19-r5.ebuild,
+  files/bitchx-1.0.19-hebrew.patch:
+  Added Hebrew Patch, This closes bug #26181
+
+  06 Aug 2003; Patrick Kursawe <phosphan@gentoo.org> bitchx-1.0.19-r5.ebuild:
+  Updated homepage and SRC_URI
+
+  16 Jun 2003; Luca Barbato <lu_zero@gentoo.org> :
+  Applied the fix as suggested by Martin Lesser 
+  <gentoo@better-com.de> to make sure that the zvt
+  workaround works everywhere.
+
+  05 Jun 2003; Luca Barbato <lu_zero@gentoo.org> :
+  State clearly that you can have either gtkBitchX or 
+  the standar BitchX, not both.
+
+  16 Jun 2003; Luca Barbato <lu_zero@gentoo.org> :
+  gtkBitchX fix, gcc-3.3 fix
+
+*bitchx-1.0.19-r5 (15 Mar 2003)
+
+  23 Mar 2003; Jungmin Seo <seo@gentoo.org> :
+  removed the cjk patch SRC_URI
+
+  15 Mar 2003; Daniel Ahlberg <aliz@gentoo.org> :
+  Security update.
+
+*bitchx-1.0.19-r4 (20 Feb 2003)
+
+  23 Mar 2003; Jungmin Seo <seo@gentoo.org> :
+  removed the cjk patch SRC_URI
+
+  13 Mar 2003; Guy Martin <gmsoft@gentoo.org> bitchx-1.0.19-r4.ebuild :
+  Added -fPIC to CFLAGS and added hppa to KEYWORDS.
+
+  20 Feb 2003; Daniel Ahlberg <aliz@gentoo.org> :
+  Security update.
+
+  06 Dec 2002; Rodney Rees <manson@gentoo.org> : changed sparc ~sparc keywords
+ 
+*bitchx-1.0.19-r3 (11 Nov 2002)
+
+  21 Dec 2002; Jungmin Seo <seo@gentoo.org> bitchx-1.0.19-r3.ebuild,
+  ChangeLog, files/bitchx-1.0.19-cjk.patch:
+  Added 'cjk' use flag on the ebuild, the patch for 'cjk' and
+  the patch is for using 2-byte nicks (euc-kr and euc-jp) 
+
+  19 Nov 2002; phoen][x <phoenix@gentoo.org> bitchx-1.0.19-r3.ebuild :
+  Added "-fPIC" to C(XX)FLAGS on alpha boxes. This fixes bug 10932.
+  Thanks to bjb for the help.
+  
+  21 Oct 2002; phoen][x <phoenix@gentoo.org> bitchx-1.0.19-r3.ebuild,
+  files/digest-bitchx-1.0.19-r3 :
+  Used sed to patch include/config.h. BitchX now compiles with #define LATIN1 ON.
+  This shouldn't break anything but add support for the standard LATIN1 letters.
+  This closes bug #10332.
+
+*bitchx-1.0.19-r2 (26 Jun 2002)
+
+  26 Oct 2002; Jack Morgan <jmorgan@gentoo.org> bitchx-1.0.19-r2.ebuild :
+  Added Sparc/sparc64 keywords
+  
+  21 Oct 2002; phoen][x <phoenix@gentoo.org> bitchx-1.0.19-r2.ebuild :
+  Fixed the flag-o-matic setting. It explicitely replaced -O3 with -O2,
+  which made the ebuild fail on -O4++ (which aren't standard gcc settings).
+  Flag-o-matic replaces -O[3-9] with -O2 now. 
+
+  03 Oct 2002; Brad Cowan <bcowan@gentoo.org> bitchx-1.0.19-r2.ebuild :
+  Added flag-o-matic to change -O3 to -O2 this fixes a segmentation fault
+  problem. closes bug #8667
+
+  22 Aug 2002; Seemant Kulleen <seemant@gentoo.org> bitchx-1.0.19-r2.ebuild :
+  Man page now installs properly (ie, it's readable).  Thanks to:
+  stocke2@cox.net (Eric Stockbridge) in bug #6720.
+
+  16 Jul 2002; Ben Lutgens <lamer@gentoo.org> ChangeLog  :
+  Commented out the "use socks5" stuff because bitchx is being lame and
+  doesn't work with any packaged socks implementations in the tree :-(
+
+  26 Jun 2002; Seemant Kulleen <seemant@gentoo.org> bitchx-1.0.19-r1.ebuild
+  files/digest-bitchx-1.0.19-r2 :
+  LFH/man page fixes, SLOT, LICENSE
+
+*bitchx-1.0.19-r1 (23 April 2002)
+
+  23 April 2002; Bart Verwilst <verwilst@gentoo.org> Changelog:
+  Quick revision bump, fixed symlink bug..
+
+*bitchx-1.0.19 (16 Apr 2002)
+
+  16 Apr 2002; Seemant Kulleen <seemant@gentoo.org> bitchx-1.0.19.ebuild,
+  files/digest-bitchx-1.0.19  
+  Quick version bump, and ebuild clean up
+  
+  25 Feb 2002; Geert Bevin <gbevin@gentoo.org> bitchx-1.0.18-r5.ebuild,
+  files/bitchx-1.0.18-dupver.patch :
+  Gcc3 related fixes.
+
+*bitchx-1.0.18-r5 (25 Feb 2002)
+
+  25 Feb 2002; Dan Armak <danarmak@gentoo.org> ChangeLog :  
+  Fixed bug #817 - now, when gnome is in use both gtkBitchX and plain BitchX
+  are built and installed.  
+  Also, fixed case where gtkBitchX would be built even when gnome isn't in use.
+
+*bitchx-1.0.18-r4 (1 Feb 2002)
+
+  1 Feb 2002; G.Bevin <gbevin@gentoo.org> ChangeLog :  
+  Added initial ChangeLog which should be updated whenever the package is
+  updated in any way. This changelog is targetted to users. This means that the
+  comments should well explained and written in clean English. The details about
+  writing correct changelogs are explained in the skel.ChangeLog file which you
+  can find in the root directory of the portage repository.

@@ -1,0 +1,22 @@
+From 76109d033db729252f4d47314ab69b0bf2d63711 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Fri, 18 Mar 2011 14:23:26 +0000
+Subject: wizard: Fix typo in PIN quirks
+
+Thanks to Daniele Forsi
+---
+diff --git a/wizard/pin-code-database.xml b/wizard/pin-code-database.xml
+index 3b4479e..e485d03 100644
+--- a/wizard/pin-code-database.xml
++++ b/wizard/pin-code-database.xml
+@@ -38,7 +38,7 @@
+ <!DOCTYPE devices [
+ 	<!ELEMENT devices (device)+>
+ 	<!ELEMENT device EMPTY>
+-	<!ATTLIST device type (any|mouse|table|keyboard|headset|headphones|audio|printer|network) "any">
++	<!ATTLIST device type (any|mouse|tablet|keyboard|headset|headphones|audio|printer|network) "any">
+ 	<!ATTLIST device oui CDATA #IMPLIED>
+ 	<!ATTLIST device name CDATA #IMPLIED>
+ 	<!ATTLIST device pin CDATA #REQUIRED>
+--
+cgit v0.9.0.2

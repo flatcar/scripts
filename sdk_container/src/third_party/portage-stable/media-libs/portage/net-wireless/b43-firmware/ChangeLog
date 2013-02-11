@@ -1,0 +1,40 @@
+# ChangeLog for net-wireless/b43-firmware
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-wireless/b43-firmware/ChangeLog,v 1.7 2012/12/10 00:41:00 zerochaos Exp $
+
+  10 Dec 2012; Rick Farina <zerochaos@gentoo.org> b43-firmware-5.100.138.ebuild:
+  fix license as-is->Broadcom
+
+  20 Nov 2012; Rick Farina <zerochaos@gentoo.org> metadata.xml:
+  Adding myself to help with bug reports
+
+  18 Nov 2012; Pacho Ramos <pacho@gentoo.org> -b43-firmware-3.130.20.0.ebuild,
+  -b43-firmware-4.150.10.5.ebuild, -b43-firmware-4.174.64.19.ebuild,
+  -b43-firmware-4.80.53.0.ebuild, metadata.xml:
+  Drop mobile herd as talked in gentoo-dev ML, remove old.
+
+*b43-firmware-5.100.138 (21 Jul 2012)
+
+  21 Jul 2012; Matthew Thode <prometheanfire@gentoo.org>
+  +b43-firmware-5.100.138.ebuild:
+  adding updated firmware for newer devices
+
+  03 Sep 2011; Tomáš Chvátal <scarabeus@gentoo.org>
+  b43-firmware-3.130.20.0.ebuild, b43-firmware-4.80.53.0.ebuild,
+  b43-firmware-4.150.10.5.ebuild, b43-firmware-4.174.64.19.ebuild:
+  Fix wrong features nomirror -> mirror.
+
+  09 May 2011; Krzysztof Pawlik <nelchael@gentoo.org>
+  b43-firmware-4.174.64.19.ebuild:
+  Add ~amd64 and ~x86.
+
+*b43-firmware-4.174.64.19 (09 Jan 2010)
+*b43-firmware-4.150.10.5 (09 Jan 2010)
+*b43-firmware-4.80.53.0 (09 Jan 2010)
+*b43-firmware-3.130.20.0 (09 Jan 2010)
+
+  09 Jan 2010; Mike Frysinger <vapier@gentoo.org>
+  +b43-firmware-3.130.20.0.ebuild, +b43-firmware-4.80.53.0.ebuild,
+  +b43-firmware-4.150.10.5.ebuild, +b43-firmware-4.174.64.19.ebuild,
+  +metadata.xml:
+  Initial ebuild by me.

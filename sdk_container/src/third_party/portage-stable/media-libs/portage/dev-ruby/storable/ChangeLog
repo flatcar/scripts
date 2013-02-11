@@ -1,0 +1,114 @@
+# ChangeLog for dev-ruby/storable
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/storable/ChangeLog,v 1.20 2012/09/23 08:41:52 graaff Exp $
+
+  23 Sep 2012; Hans de Graaff <graaff@gentoo.org> -storable-0.8.7.ebuild:
+  Cleanup.
+
+  22 May 2011; Hans de Graaff <graaff@gentoo.org> -storable-0.8.2.ebuild,
+  -storable-0.8.6.ebuild:
+  Remove old versions.
+
+*storable-0.8.9 (22 May 2011)
+
+  22 May 2011; Hans de Graaff <graaff@gentoo.org> +storable-0.8.9.ebuild:
+  Version bump.
+
+*storable-0.8.7 (04 Mar 2011)
+
+  04 Mar 2011; Hans de Graaff <graaff@gentoo.org> +storable-0.8.7.ebuild:
+  Version bump.
+
+*storable-0.8.6 (18 Feb 2011)
+
+  18 Feb 2011; Hans de Graaff <graaff@gentoo.org> +storable-0.8.6.ebuild:
+  Version bump.
+
+*storable-0.8.2 (09 Sep 2010)
+
+  09 Sep 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -storable-0.7.4.ebuild, -storable-0.8.0.ebuild, -storable-0.8.1.ebuild,
+  +storable-0.8.2.ebuild:
+  Version bump, remove older versions.
+
+*storable-0.8.1 (01 Aug 2010)
+
+  01 Aug 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +storable-0.8.1.ebuild:
+  Version bump.
+
+*storable-0.8.0 (28 Jul 2010)
+
+  28 Jul 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  storable-0.7.4.ebuild, +storable-0.8.0.ebuild:
+  Add new ebuild for version 0.8 (that does not work with JRuby, as it
+  forces a dep over yajl-ruby), and fix the dependencies for tryouts slot.
+
+  23 May 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -storable-0.7.3.ebuild, storable-0.7.4.ebuild:
+  Remove old version; update to new syntax; allow use of yajl-ruby in place
+  of json.
+
+*storable-0.7.4 (02 May 2010)
+
+  02 May 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +storable-0.7.4.ebuild:
+  Version bump.
+
+  01 May 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  storable-0.7.3.ebuild:
+  Restore original SRC_URI.
+
+  30 Apr 2010; Hans de Graaff <graaff@gentoo.org> storable-0.7.3.ebuild:
+  Deal with github changing their tarball generation.
+
+*storable-0.7.3 (12 Apr 2010)
+
+  12 Apr 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -storable-0.6.3.ebuild, -storable-0.7.2.ebuild, +storable-0.7.3.ebuild:
+  Version bump and cleanup old version.
+
+*storable-0.7.2 (07 Apr 2010)
+
+  07 Apr 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -storable-0.7.1-r1.ebuild, -files/storable-0.7.1-emptysymbol.patch,
+  +storable-0.7.2.ebuild:
+  Version bump.
+
+*storable-0.7.1-r1 (06 Apr 2010)
+
+  06 Apr 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -storable-0.7.1.ebuild, +storable-0.7.1-r1.ebuild,
+  +files/storable-0.7.1-emptysymbol.patch:
+  Add patch to fix rudy.
+
+*storable-0.7.1 (06 Apr 2010)
+
+  06 Apr 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -storable-0.6.5.ebuild, +storable-0.7.1.ebuild:
+  Version bump to latest version.
+
+*storable-0.6.5 (25 Mar 2010)
+
+  25 Mar 2010; Hans de Graaff <graaff@gentoo.org> +storable-0.6.5.ebuild:
+  Version bump.
+
+*storable-0.6.3 (20 Feb 2010)
+
+  20 Feb 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -storable-0.6.2.ebuild, +storable-0.6.3.ebuild:
+  Version bump.
+
+*storable-0.6.2 (13 Feb 2010)
+
+  13 Feb 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -storable-0.6.1.ebuild, -files/storable-0.6.1-hanna.patch,
+  +storable-0.6.2.ebuild:
+  Version bump and drop merged patch.
+
+*storable-0.6.1 (12 Feb 2010)
+
+  12 Feb 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +storable-0.6.1.ebuild, +files/storable-0.6.1-hanna.patch, +metadata.xml:
+  Initial import of storable, needed for Rudy.
+

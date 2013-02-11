@@ -1,0 +1,47 @@
+# ChangeLog for dev-ruby/map
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/map/ChangeLog,v 1.10 2012/08/26 06:22:12 graaff Exp $
+
+  26 Aug 2012; Hans de Graaff <graaff@gentoo.org> -map-5.1.0.ebuild,
+  -map-5.2.0.ebuild:
+  Cleanup.
+
+  29 Apr 2012; Thomas Kahle <tomka@gentoo.org> map-5.5.0.ebuild:
+  marked ~x86 per bug 395157
+
+*map-5.5.0 (09 Apr 2012)
+
+  09 Apr 2012; Hans de Graaff <graaff@gentoo.org> +map-5.5.0.ebuild:
+  Version bump.
+
+  07 Mar 2012; Naohiro Aota <naota@gentoo.org> map-5.2.0.ebuild:
+  Add ~x86-fbsd
+
+  31 Jan 2012; Hans de Graaff <graaff@gentoo.org> map-5.2.0.ebuild:
+  Update license per https://github.com/ahoward/map/issues/10
+
+*map-5.2.0 (15 Jan 2012)
+
+  15 Jan 2012; Hans de Graaff <graaff@gentoo.org> +map-5.2.0.ebuild:
+  Version bump.
+
+  15 Jan 2012; Hans de Graaff <graaff@gentoo.org> -map-4.6.1.ebuild,
+  -map-4.7.1.ebuild:
+  Remove old versions.
+
+*map-5.1.0 (14 Dec 2011)
+
+  14 Dec 2011; Hans de Graaff <graaff@gentoo.org> +map-5.1.0.ebuild:
+  Version bump.
+
+*map-4.7.1 (21 Nov 2011)
+
+  21 Nov 2011; Hans de Graaff <graaff@gentoo.org> +map-4.7.1.ebuild:
+  Version bump.
+
+*map-4.6.1 (11 Oct 2011)
+
+  11 Oct 2011; Hans de Graaff <graaff@gentoo.org> +map-4.6.1.ebuild,
+  +metadata.xml:
+  Initial import. New dependency for dev-ruby/main.
+

@@ -1,0 +1,12 @@
+DEFINED_PHASES=compile configure install prepare unpack
+DEPEND=media-gfx/opencsg sci-mathematics/cgal x11-libs/qt-core:4 x11-libs/qt-gui:4 x11-libs/qt-opengl:4 dev-cpp/eigen:2 dev-libs/gmp dev-libs/mpfr dev-libs/boost sys-libs/glibc sys-devel/gcc
+DESCRIPTION=The Programmers Solid 3D CAD Modeller
+EAPI=2
+HOMEPAGE=http://www.openscad.org/
+KEYWORDS=~amd64 ~x86
+LICENSE=GPL-2
+RDEPEND=media-gfx/opencsg sci-mathematics/cgal x11-libs/qt-core:4 x11-libs/qt-gui:4 x11-libs/qt-opengl:4 dev-cpp/eigen:2 dev-libs/gmp dev-libs/mpfr dev-libs/boost sys-libs/glibc
+SLOT=0
+SRC_URI=https://github.com/downloads/openscad/openscad/openscad-2011.12.src.tar.gz
+_eclasses_=base	ec46b36a6f6fd1d0b505a33e0b74e413	eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	qt4-r2	19af9102ca9b827213997cc636e7e33c	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=2ff9575395ed7de81ba9b314ae8edfb0

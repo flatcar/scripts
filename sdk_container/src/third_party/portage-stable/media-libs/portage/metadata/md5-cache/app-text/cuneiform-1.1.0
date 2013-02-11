@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install prepare test unpack
+DEPEND=>=dev-util/cmake-2.6.2 imagemagick? ( media-gfx/imagemagick ) >=dev-util/cmake-2.8.8 userland_GNU? ( >=sys-apps/findutils-4.4.0 )
+DESCRIPTION=An enterprise quality optical character recognition (OCR) engine by Cognitive Technologies
+EAPI=4
+HOMEPAGE=https://launchpad.net/cuneiform-linux
+IUSE=debug +imagemagick
+KEYWORDS=~amd64 ~x86
+LICENSE=BSD
+RDEPEND=imagemagick? ( media-gfx/imagemagick )
+SLOT=0
+SRC_URI=http://launchpad.net/cuneiform-linux/1.1/1.1/+download/cuneiform-linux-1.1.0.tar.bz2
+_eclasses_=base	ec46b36a6f6fd1d0b505a33e0b74e413	cmake-utils	3cb7a29aafd4b984d2bf12bc50abe5da	eutils	d40dc948067bd3db1c8ebf7d51897313	flag-o-matic	d900015de4e092f26d8c0a18b6bd60de	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=75b239be9d05e7f6d84f8c40edea44e8

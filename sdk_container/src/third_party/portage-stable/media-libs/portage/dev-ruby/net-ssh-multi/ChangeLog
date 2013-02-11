@@ -1,0 +1,39 @@
+# ChangeLog for dev-ruby/net-ssh-multi
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/net-ssh-multi/ChangeLog,v 1.8 2012/08/14 18:44:14 flameeyes Exp $
+
+  14 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> metadata.xml:
+  Update metadata.xml so that it's the same as most other packages.
+
+  11 Aug 2012; Benedikt Böhm <hollow@gentoo.org>
+  -net-ssh-multi-1.0.1-r1.ebuild, net-ssh-multi-1.1.ebuild:
+  add ruby19 support
+
+  01 May 2012; Raúl Porcel <armin76@gentoo.org> net-ssh-multi-1.0.1-r1.ebuild,
+  net-ssh-multi-1.1.ebuild:
+  Drop ia64/sparc keywords
+
+*net-ssh-multi-1.1 (25 Apr 2011)
+
+  25 Apr 2011; Hans de Graaff <graaff@gentoo.org> +net-ssh-multi-1.1.ebuild:
+  Version bump.
+
+  16 Jan 2011; Hans de Graaff <graaff@gentoo.org>
+  -net-ssh-multi-1.0.1.ebuild:
+  Remove old version.
+
+  15 Aug 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  net-ssh-multi-1.0.1-r1.ebuild:
+  Block test-unit:2 for testing.
+
+*net-ssh-multi-1.0.1-r1 (26 Jun 2010)
+
+  26 Jun 2010; Hans de Graaff <graaff@gentoo.org>
+  +net-ssh-multi-1.0.1-r1.ebuild:
+  Convert to ruby-fakegem.
+
+*net-ssh-multi-1.0.1 (25 Feb 2009)
+
+  25 Feb 2009; Robin H. Johnson <robbat2@gentoo.org> +metadata.xml,
+  +net-ssh-multi-1.0.1.ebuild:
+  Initial commit.

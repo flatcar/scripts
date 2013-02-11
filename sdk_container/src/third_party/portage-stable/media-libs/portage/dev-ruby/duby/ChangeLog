@@ -1,0 +1,11 @@
+# ChangeLog for dev-ruby/duby
+# Copyright 1999-2010 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/duby/ChangeLog,v 1.1 2010/02/19 12:01:28 flameeyes Exp $
+
+*duby-0.0.2 (19 Feb 2010)
+
+  19 Feb 2010; Diego E. Pettenò <flameeyes@gentoo.org> +duby-0.0.2.ebuild,
+  +metadata.xml:
+  Initial import of duby, the typed language with a Ruby-influenced syntax
+  to be used with JRuby.
+

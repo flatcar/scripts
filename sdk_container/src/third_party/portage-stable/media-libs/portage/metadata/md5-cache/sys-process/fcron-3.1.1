@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile config configure install postinst prepare setup
+DEPEND=selinux? ( sys-libs/libselinux ) pam? ( virtual/pam ) readline? ( sys-libs/readline ) >=sys-apps/sed-4.0.5 sys-devel/automake >=sys-devel/autoconf-2.68 sys-devel/libtool
+DESCRIPTION=A command scheduler with extended capabilities over cron and anacron
+EAPI=5
+HOMEPAGE=http://fcron.free.fr/
+IUSE=debug pam selinux linguas_fr +system-crontab readline
+KEYWORDS=amd64 arm ~hppa ia64 ~mips ppc ~sparc x86 ~x86-fbsd
+LICENSE=GPL-2
+RDEPEND=selinux? ( sys-libs/libselinux ) pam? ( virtual/pam ) readline? ( sys-libs/readline ) app-shells/bash >=app-misc/editor-wrapper-3 pam? ( >=sys-auth/pambase-20100310 ) virtual/mta >=sys-process/cronbase-0.3.2 !sys-process/vixie-cron !sys-process/bcron !sys-process/cronie !sys-process/dcron
+SLOT=0
+SRC_URI=http://fcron.free.fr/archives/fcron-3.1.1.src.tar.gz
+_eclasses_=autotools	cf83655b19ed98f9ea3b44f4572b51a3	cron	7f2ced83f02bd3c752860bd108b62e2c	eutils	d40dc948067bd3db1c8ebf7d51897313	flag-o-matic	d900015de4e092f26d8c0a18b6bd60de	libtool	2b273eea1976cfaed3449345d94331ac	multilib	ded93e450747134a079e647d888aa80b	multiprocessing	a2130e6fc4aa4c6a24b265ca0cbcc2b6	pam	5c1a9ef4892062f9ec25c8ef7c1f1e52	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=a93bbbe02555580716e614ebe1f6c36e

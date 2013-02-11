@@ -1,0 +1,40 @@
+# ChangeLog for dev-libs/pugixml
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/pugixml/ChangeLog,v 1.10 2012/11/21 11:18:11 ago Exp $
+
+  21 Nov 2012; Agostino Sarubbo <ago@gentoo.org> pugixml-1.2.ebuild:
+  Stable for x86, wrt bug #436690
+
+  09 Nov 2012; Anthony G. Basile <blueness@gentoo.org> pugixml-1.2.ebuild:
+  stable ppc64, bug #436690
+
+  05 Nov 2012; Anthony G. Basile <blueness@gentoo.org> pugixml-1.2.ebuild:
+  keyword ~ppc, bug #418355
+
+  13 Oct 2012; Agostino Sarubbo <ago@gentoo.org> pugixml-1.2.ebuild:
+  Stable for amd64, wrt bug #436690
+
+  29 Sep 2012; Anthony G. Basile <blueness@gentoo.org> pugixml-1.2.ebuild:
+  keyword ~ppc64, bug #436566
+
+  26 Sep 2012;  <naota@gentoo.org> pugixml-1.2.ebuild:
+  Add ~x86-fbsd. #418355
+
+  20 Sep 2012; Christoph Junghans <ottxor@gentoo.org> pugixml-1.2.ebuild:
+  added prefix keyword
+
+  31 May 2012; Tim Harder <radhermit@gentoo.org> -pugixml-1.0.ebuild,
+  -files/pugixml-1.0-cmake.patch:
+  Remove old.
+
+*pugixml-1.2 (10 May 2012)
+
+  10 May 2012; Tim Harder <radhermit@gentoo.org> +pugixml-1.2.ebuild,
+  +files/pugixml-1.2-cmake.patch:
+  Version bump.
+
+*pugixml-1.0 (08 Apr 2012)
+
+  08 Apr 2012; Tim Harder <radhermit@gentoo.org> +pugixml-1.0.ebuild,
+  +files/pugixml-1.0-cmake.patch, +metadata.xml:
+  Initial import for mkvtoolnix-5.5.0. Ebuild by me.

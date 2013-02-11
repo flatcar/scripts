@@ -1,0 +1,27 @@
+# ChangeLog for sys-process/cronutils
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-process/cronutils/ChangeLog,v 1.6 2012/12/24 08:19:21 ramereth Exp $
+
+  24 Dec 2012; Lance Albertson <ramereth@gentoo.org> cronutils-1.2.ebuild:
+  mark stable
+
+*cronutils-1.2 (20 Nov 2012)
+
+  20 Nov 2012; Diego E. Pettenò <flameeyes@gentoo.org> +cronutils-1.2.ebuild:
+  QA: bump to 1.2 so that package can build with --as-needed (bug #424371); also
+  make sure to use the user-defined CFLAGS, instead of -O0.
+
+  29 Feb 2012; Jeff Horelick <jdhore@gentoo.org> cronutils-1.1.ebuild:
+  marked x86 per bug 406173
+
+  29 Feb 2012; Agostino Sarubbo <ago@gentoo.org> cronutils-1.1.ebuild:
+  Stable for amd64, wrt bug #406173
+
+  20 Feb 2012; Mike Gilbert <floppym@gentoo.org> metadata.xml:
+  Drop no-herd.
+
+*cronutils-1.1 (08 Dec 2011)
+
+  08 Dec 2011; Lance Albertson <ramereth@gentoo.org> +cronutils-1.1.ebuild,
+  +metadata.xml:
+  Initial ebuild

@@ -1,0 +1,32 @@
+# ChangeLog for dev-ruby/mash
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/mash/ChangeLog,v 1.7 2012/08/13 18:23:39 flameeyes Exp $
+
+  13 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> mash-0.1.1-r1.ebuild:
+  Bump to EAPI 4; add Ruby 1.9, Ruby EE and JRuby support; use the new rspec
+  recipe for tests, which let us abandon rspec:0.
+
+  09 Oct 2010; Hans de Graaff <graaff@gentoo.org> mash-0.1.1-r1.ebuild:
+  Depend on rspec-1.
+
+  09 Oct 2010; Hans de Graaff <graaff@gentoo.org> -mash-0.1.1.ebuild:
+  Remove old version.
+
+*mash-0.1.1-r1 (26 Jun 2010)
+
+  26 Jun 2010; Hans de Graaff <graaff@gentoo.org> +mash-0.1.1-r1.ebuild:
+  Convert to ruby-fakegem.
+
+  09 Dec 2009; Hans de Graaff <graaff@gentoo.org> -mash-0.0.3.ebuild:
+  Remove old version.
+
+*mash-0.1.1 (28 Nov 2009)
+
+  28 Nov 2009; Alex Legler <a3li@gentoo.org> +mash-0.1.1.ebuild:
+  Version bump
+
+*mash-0.0.3 (16 May 2009)
+
+  16 May 2009; Hans de Graaff <graaff@gentoo.org> +metadata.xml,
+  +mash-0.0.3.ebuild:
+  Initial import. Dependency of dev-ruby/twitter.

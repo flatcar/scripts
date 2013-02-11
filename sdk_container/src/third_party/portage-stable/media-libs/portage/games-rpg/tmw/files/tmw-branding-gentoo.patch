@@ -1,0 +1,19 @@
+respect games paths
+
+--- tmw
++++ tmw
+@@ -1,2 +1,2 @@
+ #!/bin/sh
+-exec mana /usr/share/tmw/tmw.mana "$@"
++exec mana @GENTOO_DATADIR@/tmw.mana "$@"
+--- tmw.desktop
++++ tmw.desktop
+@@ -8,7 +8,7 @@ Comment[de]=ein Online Fantasy Spiel
+ Comment[it]=Un gioco fantasy online
+ Comment[nl]=Een online role playing game
+ Comment[sv]=Ett fantasyrollspel online
+-Exec=mana /usr/share/tmw/tmw.mana
++Exec=mana @GENTOO_DATADIR@/tmw.mana
+ StartupNotify=false
+ Terminal=false
+ Type=Application

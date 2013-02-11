@@ -1,0 +1,94 @@
+From 39ac9fd01c90371285a2d9b40f95089342b8929d Mon Sep 17 00:00:00 2001
+From: Alexandre Rostovtsev <tetromino@gentoo.org>
+Date: Tue, 6 Mar 2012 23:32:46 -0500
+Subject: [PATCH 2/2] Disable bugzilla plugin (requires Gentoo infrastructure
+ changes)
+
+---
+ doc/Makefile.am         |    1 -
+ src/plugins/Makefile.am |   28 ----------------------------
+ 2 files changed, 0 insertions(+), 29 deletions(-)
+
+diff --git a/doc/Makefile.am b/doc/Makefile.am
+index 368be24..863b6d1 100644
+--- a/doc/Makefile.am
++++ b/doc/Makefile.am
+@@ -9,7 +9,6 @@ XMLTO_SILENT_0 = @echo "  XMLTO " $@;
+ 
+ MAN1_TXT =
+ MAN1_TXT += report-cli.txt
+-MAN1_TXT += reporter-bugzilla.txt
+ MAN1_TXT += reporter-kerneloops.txt
+ MAN1_TXT += reporter-mailx.txt
+ MAN1_TXT += reporter-print.txt
+diff --git a/src/plugins/Makefile.am b/src/plugins/Makefile.am
+index 3ef8ba7..47a5f4f 100644
+--- a/src/plugins/Makefile.am
++++ b/src/plugins/Makefile.am
+@@ -1,7 +1,6 @@
+ pluginslibdir = $(PLUGINS_LIB_DIR)
+ 
+ bin_PROGRAMS = \
+-    reporter-bugzilla \
+     reporter-kerneloops \
+     reporter-upload \
+     reporter-mailx \
+@@ -16,14 +15,11 @@ pluginsconfdir = $(PLUGINS_CONF_DIR)
+ reportpluginsconfdir = $(REPORT_PLUGINS_CONF_DIR)
+ 
+ dist_reportpluginsconf_DATA = \
+-    bugzilla.conf \
+     mailx.conf
+ 
+ eventsdir = $(EVENTS_DIR)
+ 
+ dist_events_DATA = \
+-    report_Bugzilla.xml \
+-    report_Bugzilla.conf \
+     report_Logger.conf \
+     report_Logger.xml \
+     report_Mailx.xml \
+@@ -37,12 +33,9 @@ eventsconfdir = $(EVENTS_CONF_DIR)
+ dist_eventsconf_DATA = \
+     mailx_event.conf \
+     print_event.conf \
+-    bugzilla_event.conf \
+     uploader_event.conf
+ 
+ EXTRA_DIST = \
+-    report_Bugzilla.xml.in \
+-    report_Bugzilla.conf \
+     report_Logger.conf \
+     report_Logger.xml.in \
+     report_Mailx.xml.in \
+@@ -52,27 +45,6 @@ EXTRA_DIST = \
+ $(DESTDIR)/$(DEBUG_INFO_DIR):
+ 	$(mkdir_p) '$@'
+ 
+-reporter_bugzilla_SOURCES = \
+-    reporter-bugzilla.c rhbz.c rhbz.h
+-reporter_bugzilla_CPPFLAGS = \
+-    -I$(srcdir)/../include \
+-    -I$(srcdir)/../lib \
+-    -DBIN_DIR=\"$(bindir)\" \
+-    -DCONF_DIR=\"$(CONF_DIR)\" \
+-    -DLOCALSTATEDIR='"$(localstatedir)"' \
+-    -DDEBUG_DUMPS_DIR=\"$(DEBUG_DUMPS_DIR)\" \
+-    -DDEBUG_INFO_DIR=\"$(DEBUG_INFO_DIR)\" \
+-    -DPLUGINS_LIB_DIR=\"$(PLUGINS_LIB_DIR)\" \
+-    -DPLUGINS_CONF_DIR=\"$(REPORT_PLUGINS_CONF_DIR)\" \
+-    $(GLIB_CFLAGS) \
+-    $(LIBREPORT_CFLAGS) \
+-    -D_GNU_SOURCE \
+-    -Wall -Wwrite-strings
+-reporter_bugzilla_LDADD = \
+-    $(GLIB_LIBS) \
+-    ../lib/libabrt_web.la \
+-    ../lib/libreport.la
+-
+ reporter_upload_SOURCES = \
+     reporter-upload.c
+ reporter_upload_CPPFLAGS = \
+-- 
+1.7.8.5
+

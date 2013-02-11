@@ -1,0 +1,10 @@
+DEFINED_PHASES=compile install
+DESCRIPTION=Tool for generating Encapsulated Postscript Format (EPS,EPSF) files from one-page Postscript documents
+HOMEPAGE=http://www.tm.uka.de/~bless/ps2eps
+KEYWORDS=~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris
+LICENSE=GPL-2
+RDEPEND=app-text/ghostscript-gpl !<app-text/texlive-core-2007-r7
+SLOT=0
+SRC_URI=http://www.tm.uka.de/~bless/ps2eps-1.68.tar.gz
+_eclasses_=multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e
+_md5_=286fb443e68e7788b476c5140a695fd3

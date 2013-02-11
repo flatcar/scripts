@@ -1,0 +1,135 @@
+# ChangeLog for dev-ruby/sass
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/sass/ChangeLog,v 1.29 2013/01/15 06:47:25 zerochaos Exp $
+
+  15 Jan 2013; Rick Farina <zerochaos@gentoo.org> sass-3.1.20.ebuild,
+  sass-3.1.21.ebuild, sass-3.2.3.ebuild, sass-3.2.4.ebuild, sass-3.2.5.ebuild:
+  adding ~arm keywords to net-analyzer/metasploit rdeps
+
+*sass-3.2.5 (05 Jan 2013)
+
+  05 Jan 2013; Hans de Graaff <graaff@gentoo.org> +sass-3.2.5.ebuild:
+  Version bump.
+
+*sass-3.2.4 (27 Dec 2012)
+
+  27 Dec 2012; Hans de Graaff <graaff@gentoo.org> +sass-3.2.4.ebuild:
+  Version bump.
+
+  25 Nov 2012; Thomas Kahle <tomka@gentoo.org> sass-3.2.3.ebuild:
+  marked ~x86 per bug 433129
+
+  18 Nov 2012; Pacho Ramos <pacho@gentoo.org> metadata.xml:
+  Drop maintainer as he is not taking care of this package.
+
+  11 Nov 2012; Hans de Graaff <graaff@gentoo.org> sass-3.2.3.ebuild:
+  Move forward ppc,ppc64 keywords, oops.
+
+*sass-3.2.3 (11 Nov 2012)
+
+  11 Nov 2012; Hans de Graaff <graaff@gentoo.org> +sass-3.2.3.ebuild:
+  Version bump.
+
+  29 Sep 2012; Fabian Groffen <grobian@gentoo.org> sass-3.1.21.ebuild:
+  Marked ~x64-macos
+
+  27 Sep 2012; Samuli Suominen <ssuominen@gentoo.org> sass-3.1.21.ebuild:
+  Keyword ~ppc/~ppc64 wrt #433129
+
+  22 Sep 2012; Hans de Graaff <graaff@gentoo.org> -sass-3.1.15.ebuild,
+  -sass-3.1.17.ebuild, -sass-3.1.19.ebuild:
+  Cleanup.
+
+*sass-3.1.21 (29 Aug 2012)
+
+  29 Aug 2012; Hans de Graaff <graaff@gentoo.org> +sass-3.1.21.ebuild:
+  Version bump. Add missing listen dependency and drop obsolete fssm. Drop
+  keywords accordingly, bug 433129.
+
+  27 Aug 2012; Hans de Graaff <graaff@gentoo.org> sass-3.1.20.ebuild:
+  sass has switched from fssm to listen since 3.1.16.
+
+*sass-3.1.20 (05 Jul 2012)
+
+  05 Jul 2012; Diego E. Pettenò <flameeyes@gentoo.org> +sass-3.1.20.ebuild:
+  Version bump.
+
+*sass-3.1.19 (25 Jun 2012)
+
+  25 Jun 2012; Hans de Graaff <graaff@gentoo.org> +sass-3.1.19.ebuild:
+  Version bump. Avoid known-to-be-broken tests on jruby. Fixes bug 422937.
+
+  02 Jun 2012; Hans de Graaff <graaff@gentoo.org> -sass-3.1.4.ebuild,
+  -sass-3.1.5.ebuild, -sass-3.1.10.ebuild, -sass-3.1.10-r1.ebuild,
+  -sass-3.1.12.ebuild:
+  Remove old versions.
+
+*sass-3.1.17 (11 May 2012)
+
+  11 May 2012; Diego E. Pettenò <flameeyes@gentoo.org> +sass-3.1.17.ebuild:
+  Version bump; forgo tests when using JRuby for now.
+
+  01 Mar 2012; Fabian Groffen <grobian@gentoo.org> sass-3.1.12.ebuild,
+  sass-3.1.15.ebuild:
+  Marked ~x64-macos
+
+*sass-3.1.15 (28 Feb 2012)
+
+  28 Feb 2012; Diego E. Pettenò <flameeyes@gentoo.org> +sass-3.1.15.ebuild:
+  Version bump; tests are known not to work on JRuby for now, working on it.
+
+*sass-3.1.12 (22 Jan 2012)
+
+  22 Jan 2012; Diego E. Pettenò <flameeyes@gentoo.org> +sass-3.1.12.ebuild:
+  Version bump.
+
+*sass-3.1.10-r1 (30 Dec 2011)
+
+  30 Dec 2011; Hans de Graaff <graaff@gentoo.org> +sass-3.1.10-r1.ebuild:
+  Avoid yard documentation task which causes segmentation fault. Add ruby19.
+  Avoid tests depending on fixed hash ordering.
+
+*sass-3.1.10 (14 Oct 2011)
+
+  14 Oct 2011; Hans de Graaff <graaff@gentoo.org> +sass-3.1.10.ebuild:
+  Version bump.
+
+  29 Jul 2011; Hans de Graaff <graaff@gentoo.org> -sass-3.1.1.ebuild,
+  -sass-3.1.2.ebuild, -sass-3.1.3.ebuild:
+  Remove old versions.
+
+*sass-3.1.5 (29 Jul 2011)
+
+  29 Jul 2011; Hans de Graaff <graaff@gentoo.org> +sass-3.1.5.ebuild:
+  Version bump.
+
+  24 Jul 2011; Kacper Kowalik <xarthisius@gentoo.org> sass-3.1.4.ebuild:
+  Marked ~ppc/~ppc64 wrt #365515
+
+*sass-3.1.4 (22 Jul 2011)
+
+  22 Jul 2011; Hans de Graaff <graaff@gentoo.org> +sass-3.1.4.ebuild:
+  Version bump.
+
+*sass-3.1.3 (24 Jun 2011)
+
+  24 Jun 2011; Hans de Graaff <graaff@gentoo.org> +sass-3.1.3.ebuild:
+  Version bump.
+
+*sass-3.1.2 (02 Jun 2011)
+
+  02 Jun 2011; Hans de Graaff <graaff@gentoo.org> +sass-3.1.2.ebuild:
+  Version bump.
+
+  23 May 2011; Hans de Graaff <graaff@gentoo.org> sass-3.1.1.ebuild:
+  Add ~x86 keyword.
+
+  23 May 2011; Hans de Graaff <graaff@gentoo.org> sass-3.1.1.ebuild:
+  Block on older haml versions since these install the same sass files.
+
+*sass-3.1.1 (01 May 2011)
+
+  01 May 2011; Hans de Graaff <graaff@gentoo.org> +sass-3.1.1.ebuild,
+  +metadata.xml:
+  Initial import from graaff overlay. Forthcoming dependency of
+  dev-ruby/haml (currently bundled).

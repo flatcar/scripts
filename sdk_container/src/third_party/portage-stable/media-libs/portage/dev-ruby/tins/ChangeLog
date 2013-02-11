@@ -1,0 +1,60 @@
+# ChangeLog for dev-ruby/tins
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/tins/ChangeLog,v 1.13 2012/10/16 13:33:22 graaff Exp $
+
+*tins-0.6.0 (16 Oct 2012)
+
+  16 Oct 2012; Hans de Graaff <graaff@gentoo.org> +tins-0.6.0.ebuild:
+  Version bump.
+
+*tins-0.5.5 (23 Sep 2012)
+
+  23 Sep 2012; Hans de Graaff <graaff@gentoo.org> +tins-0.5.5.ebuild:
+  Version bump.
+
+  14 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> metadata.xml:
+  Update metadata.xml so that it's the same as most other packages.
+
+  01 Aug 2012; Anthony G. Basile <blueness@gentoo.org> tins-0.3.14.ebuild:
+  Stable ppc64, bug #428454
+
+  01 Aug 2012; Hans de Graaff <graaff@gentoo.org> tins-0.3.14.ebuild:
+  Avoid test broken with FEATURES=-userpriv, fixing bug 428704.
+
+  30 Jul 2012; Jeff Horelick <jdhore@gentoo.org> tins-0.3.14.ebuild:
+  marked x86 per bug 428454
+
+  28 Jul 2012; Hans de Graaff <graaff@gentoo.org> -tins-0.3.6.ebuild,
+  -tins-0.3.7.ebuild:
+  Cleanup.
+
+*tins-0.4.3 (08 Jul 2012)
+
+  08 Jul 2012; Diego E. Pettenò <flameeyes@gentoo.org>
+  +files/tins-0.4.3-gentoo.patch, +tins-0.4.3.ebuild:
+  Version bump; this version requires the latest test-unit-2 with the new
+  script, and uses the new support in the eclass for it.
+
+*tins-0.3.14 (10 Jun 2012)
+
+  10 Jun 2012; Hans de Graaff <graaff@gentoo.org> +tins-0.3.14.ebuild:
+  Version bump.
+
+  01 May 2012; Raúl Porcel <armin76@gentoo.org> tins-0.3.6.ebuild,
+  tins-0.3.7.ebuild:
+  Drop ia64/sparc keywords
+
+*tins-0.3.7 (28 Jan 2012)
+
+  28 Jan 2012; Hans de Graaff <graaff@gentoo.org> +tins-0.3.7.ebuild:
+  Version bump.
+
+  14 Jan 2012; Hans de Graaff <graaff@gentoo.org> tins-0.3.6.ebuild:
+  Add ~hppa since spruz also has that keyword and this is essentially just a
+  new version of that code.
+
+*tins-0.3.6 (25 Dec 2011)
+
+  25 Dec 2011; Hans de Graaff <graaff@gentoo.org> +tins-0.3.6.ebuild,
+  +metadata.xml:
+  Initial import. Successor to dev-ruby/spruz.

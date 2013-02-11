@@ -1,0 +1,50 @@
+# ChangeLog for dev-libs/pakchois
+# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/pakchois/ChangeLog,v 1.14 2011/06/23 16:09:11 hwoarang Exp $
+
+  23 Jun 2011; Markos Chandras <hwoarang@gentoo.org> metadata.xml:
+  add crypto as maintainer. Remove Arfrever per his request
+
+  10 Sep 2010; Arfrever Frehtes Taifersar Arahesis <arfrever@gentoo.org>
+  metadata.xml:
+  Restore previous maintainer.
+
+  19 Aug 2010; Jeroen Roovers <jer@gentoo.org> metadata.xml:
+  Remove arfrever.
+
+  12 Nov 2008; Peter Volkov <pva@gentoo.org> pakchois-0.4.ebuild:
+  ~mips keyword added, bug #212056.
+
+  08 Sep 2008; Guy Martin <gmsoft@gentoo.org> pakchois-0.4.ebuild:
+  Stable on hppa.
+
+  04 Sep 2008; <baude@gentoo.org> pakchois-0.4.ebuild:
+  stable ppc64, bug 236127
+
+  31 Aug 2008; Raúl Porcel <armin76@gentoo.org> pakchois-0.4.ebuild:
+  alpha/ia64/sparc stable wrt #236127
+
+  30 Aug 2008; Brent Baude <ranger@gentoo.org> pakchois-0.4.ebuild:
+  stable ppc, bug 236127
+
+  29 Aug 2008; Markus Meier <maekke@gentoo.org> pakchois-0.4.ebuild:
+  amd64/x86 stable, bug #236127
+
+  14 Jun 2008; nixnut <nixnut@gentoo.org> pakchois-0.4.ebuild:
+  Added ~ppc wrt bug 212056
+
+  06 Mar 2008; Raúl Porcel <armin76@gentoo.org> pakchois-0.4.ebuild:
+  Add ~alpha/~ia64/~sparc wrt #212056
+
+  04 Mar 2008; Jeroen Roovers <jer@gentoo.org> pakchois-0.4.ebuild:
+  Marked ~hppa (bug #212056).
+
+  04 Mar 2008; Brent Baude <ranger@gentoo.org> pakchois-0.4.ebuild:
+  keyworded ~arch for ppc64, bug 212056
+
+*pakchois-0.4 (02 Mar 2008)
+
+  02 Mar 2008; Benedikt Böhm <hollow@gentoo.org> +metadata.xml,
+  +pakchois-0.4.ebuild:
+  initial ebuild wrt #210533
+

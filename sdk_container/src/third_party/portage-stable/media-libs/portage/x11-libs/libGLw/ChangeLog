@@ -1,0 +1,41 @@
+# ChangeLog for x11-libs/libGLw
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/x11-libs/libGLw/ChangeLog,v 1.9 2012/10/24 19:46:39 ulm Exp $
+
+  24 Oct 2012; Ulrich Müller <ulm@gentoo.org> libGLw-8.0.0.ebuild:
+  Update dependency after package move from x11-libs/openmotif to
+  x11-libs/motif.
+
+  02 Aug 2012; Justin Lecher <jlec@gentoo.org> -libGLw-1.0.0_pre120304.ebuild,
+  -libGLw-1.0.0.ebuild:
+  Drop old
+
+  24 Jun 2012; Agostino Sarubbo <ago@gentoo.org> libGLw-8.0.0.ebuild:
+  Stable for x86, wrt bug #419473
+
+  22 Jun 2012; Agostino Sarubbo <ago@gentoo.org> libGLw-8.0.0.ebuild:
+  Stable for amd64, wrt bug #419473
+
+*libGLw-8.0.0 (28 May 2012)
+
+  28 May 2012; Justin Lecher <jlec@gentoo.org> +libGLw-8.0.0.ebuild:
+  Version BUmp
+
+*libGLw-1.0.0 (17 May 2012)
+
+  17 May 2012; Justin Lecher <jlec@gentoo.org> +libGLw-1.0.0.ebuild:
+  Version Bump
+
+  05 May 2012; Jeff Horelick <jdhore@gentoo.org> libGLw-1.0.0_pre120304.ebuild:
+  dev-util/pkgconfig -> virtual/pkgconfig
+
+  04 Mar 2012; Michael Sterrett <mr_bones_@gentoo.org>
+  libGLw-1.0.0_pre120304.ebuild:
+  fix SRC_URI
+
+*libGLw-1.0.0_pre120304 (04 Mar 2012)
+
+  04 Mar 2012; Justin Lecher <jlec@gentoo.org> +libGLw-1.0.0_pre120304.ebuild,
+  +metadata.xml:
+  Initial addition of git snapshot
+

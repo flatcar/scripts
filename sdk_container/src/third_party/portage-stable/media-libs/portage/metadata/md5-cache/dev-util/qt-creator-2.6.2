@@ -1,0 +1,14 @@
+DEFINED_PHASES=compile configure install prepare unpack
+DEPEND=>=x11-libs/qt-assistant-4.8.0:4[doc?] >=x11-libs/qt-core-4.8.0:4[ssl] >=x11-libs/qt-declarative-4.8.0:4 >=x11-libs/qt-gui-4.8.0:4 >=x11-libs/qt-script-4.8.0:4 >=x11-libs/qt-sql-4.8.0:4 >=x11-libs/qt-svg-4.8.0:4 debug? ( >=x11-libs/qt-test-4.8.0:4 ) !botan-bundled? ( >=dev-libs/botan-1.10.2 ) !botan-bundled? ( virtual/pkgconfig )
+DESCRIPTION=Lightweight IDE for C++ development centering around Qt
+EAPI=4
+HOMEPAGE=http://qt-project.org/wiki/Category:Tools::QtCreator
+IUSE=+botan-bundled debug doc examples android autotools bazaar clearcase cmake cvs fakevim git madde mercurial perforce qnx subversion valgrind linguas_cs linguas_de linguas_fr linguas_hu linguas_ja linguas_pl linguas_ru linguas_sl linguas_zh_CN
+KEYWORDS=~amd64 ~x86
+LICENSE=LGPL-2.1
+PDEPEND=autotools? ( sys-devel/autoconf ) bazaar? ( dev-vcs/bzr ) cmake? ( dev-util/cmake ) cvs? ( dev-vcs/cvs ) git? ( dev-vcs/git ) mercurial? ( dev-vcs/mercurial ) subversion? ( dev-vcs/subversion ) valgrind? ( dev-util/valgrind )
+RDEPEND=>=x11-libs/qt-assistant-4.8.0:4[doc?] >=x11-libs/qt-core-4.8.0:4[ssl] >=x11-libs/qt-declarative-4.8.0:4 >=x11-libs/qt-gui-4.8.0:4 >=x11-libs/qt-script-4.8.0:4 >=x11-libs/qt-sql-4.8.0:4 >=x11-libs/qt-svg-4.8.0:4 debug? ( >=x11-libs/qt-test-4.8.0:4 ) !botan-bundled? ( >=dev-libs/botan-1.10.2 ) >=sys-devel/gdb-7.2[python] examples? ( >=x11-libs/qt-demo-4.8.0:4 )
+SLOT=0
+SRC_URI=http://releases.qt-project.org/qtcreator/2.6.2/qt-creator-2.6.2-src.tar.gz
+_eclasses_=base	ec46b36a6f6fd1d0b505a33e0b74e413	eutils	d40dc948067bd3db1c8ebf7d51897313	flag-o-matic	d900015de4e092f26d8c0a18b6bd60de	l10n	33bde4fb0cfd3a21a277b66bfd837e19	multilib	ded93e450747134a079e647d888aa80b	qt4-r2	19af9102ca9b827213997cc636e7e33c	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=c67b9ef989e683162c80da7cffbfab9e

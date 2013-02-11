@@ -1,0 +1,84 @@
+From a66a557038c0e3d21bc4f14090efb497558a12be Mon Sep 17 00:00:00 2001
+From: Lucas De Marchi <lucas.demarchi@profusion.mobi>
+Date: Tue, 26 Jun 2012 18:11:25 -0300
+Subject: [PATCH 1/1] Fix GDBus flags after conversion to macros
+
+Commit "aa3b9016bf444b60e1b7e1804dfc323a23a93c5a Convert GDBus methods
+to use macro helpers" converted the previous tables to use the new
+macros but some flags were lost.
+---
+ attrib/client.c   |    2 +-
+ audio/control.c   |    2 +-
+ audio/headset.c   |    2 +-
+ audio/transport.c |    2 +-
+ src/manager.c     |    2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/attrib/client.c b/attrib/client.c
+index 8d119df..b3e3abe 100644
+--- a/attrib/client.c
++++ b/attrib/client.c
+@@ -519,7 +519,7 @@ static const GDBusMethodTable char_methods[] = {
+ 	{ GDBUS_METHOD("GetProperties",
+ 			NULL, GDBUS_ARGS({ "properties", "a{sv}" }),
+ 			get_properties) },
+-	{ GDBUS_METHOD("SetProperty",
++	{ GDBUS_ASYNC_METHOD("SetProperty",
+ 			GDBUS_ARGS({ "name", "s" }, { "value", "v" }), NULL,
+ 			set_property) },
+ 	{ }
+diff --git a/audio/control.c b/audio/control.c
+index c5a6a58..187f838 100644
+--- a/audio/control.c
++++ b/audio/control.c
+@@ -198,7 +198,7 @@ static DBusMessage *control_get_properties(DBusConnection *conn,
+ }
+ 
+ static const GDBusMethodTable control_methods[] = {
+-	{ GDBUS_ASYNC_METHOD("IsConnected",
++	{ GDBUS_DEPRECATED_METHOD("IsConnected",
+ 				NULL, GDBUS_ARGS({ "connected", "b" }),
+ 				control_is_connected) },
+ 	{ GDBUS_METHOD("GetProperties",
+diff --git a/audio/headset.c b/audio/headset.c
+index 729e4dc..b9c6265 100644
+--- a/audio/headset.c
++++ b/audio/headset.c
+@@ -2094,7 +2094,7 @@ static const GDBusMethodTable headset_methods[] = {
+ static const GDBusSignalTable headset_signals[] = {
+ 	{ GDBUS_DEPRECATED_SIGNAL("Connected", NULL) },
+ 	{ GDBUS_DEPRECATED_SIGNAL("Disconnected", NULL) },
+-	{ GDBUS_DEPRECATED_SIGNAL("AnswerRequested", NULL) },
++	{ GDBUS_SIGNAL("AnswerRequested", NULL) },
+ 	{ GDBUS_DEPRECATED_SIGNAL("Stopped", NULL) },
+ 	{ GDBUS_DEPRECATED_SIGNAL("Playing", NULL) },
+ 	{ GDBUS_DEPRECATED_SIGNAL("SpeakerGainChanged",
+diff --git a/audio/transport.c b/audio/transport.c
+index b015625..832ad2a 100644
+--- a/audio/transport.c
++++ b/audio/transport.c
+@@ -959,7 +959,7 @@ static const GDBusMethodTable transport_methods[] = {
+ 	{ GDBUS_ASYNC_METHOD("Release",
+ 			GDBUS_ARGS({ "access_type", "s" }), NULL,
+ 			release ) },
+-	{ GDBUS_ASYNC_METHOD("SetProperty",
++	{ GDBUS_METHOD("SetProperty",
+ 			GDBUS_ARGS({ "name", "s" }, { "value", "v" }),
+ 			NULL, set_property) },
+ 	{ },
+diff --git a/src/manager.c b/src/manager.c
+index 385354d..7061f64 100644
+--- a/src/manager.c
++++ b/src/manager.c
+@@ -207,7 +207,7 @@ static const GDBusMethodTable manager_methods[] = {
+ 			GDBUS_ARGS({ "pattern", "s" }),
+ 			GDBUS_ARGS({ "adapter", "o" }),
+ 			find_adapter) },
+-	{ GDBUS_ASYNC_METHOD("ListAdapters",
++	{ GDBUS_DEPRECATED_METHOD("ListAdapters",
+ 			NULL, GDBUS_ARGS({ "adapters", "ao" }),
+ 			list_adapters) },
+ 	{ }
+-- 
+1.7.7.6
+

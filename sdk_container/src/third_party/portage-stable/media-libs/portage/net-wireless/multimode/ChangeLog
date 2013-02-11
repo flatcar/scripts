@@ -1,0 +1,19 @@
+# ChangeLog for net-wireless/multimode
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-wireless/multimode/ChangeLog,v 1.3 2012/09/14 18:03:27 mr_bones_ Exp $
+
+  14 Sep 2012; Michael Sterrett <mr_bones_@gentoo.org> multimode-9999.ebuild:
+  inherit goes before description
+
+*multimode-1.00 (13 Sep 2012)
+
+  13 Sep 2012; Rick Farina <zerochaos@gentoo.org> +multimode-1.00.ebuild,
+  multimode-9999.ebuild:
+  add stable release, most deps still have no stable but moving in the right
+  direction
+
+*multimode-9999 (10 Sep 2012)
+
+  10 Sep 2012; Rick Farina <zerochaos@gentoo.org> +metadata.xml,
+  +multimode-9999.ebuild:
+  initial commit of multimode, thanks to Arfrever for helping cleanup

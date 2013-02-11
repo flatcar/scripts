@@ -1,0 +1,30 @@
+Index: flickr-1.0.2-gentoo/lib/flickr.rb
+===================================================================
+--- flickr-1.0.2-gentoo.orig/lib/flickr.rb
++++ flickr-1.0.2-gentoo/lib/flickr.rb
+@@ -64,7 +64,7 @@ class Flickr
+   # Takes a Flickr API method name and set of parameters; returns an XmlSimple object with the response
+   def request(method, *params)
+     response = XmlSimple.xml_in(http_get(request_url(method, params)), { 'ForceArray' => false })
+-    raise response['err']['msg'] if response['stat'] != 'ok'
++    raise (response['err']['msg'] + "API key #{@api_key}") if response['stat'] != 'ok'
+     response
+   end
+   
+@@ -167,14 +167,14 @@ class Flickr
+     
+     attr_reader :client, :id, :name, :location, :photos_url, :url, :count, :firstdate, :firstdatetaken
+ 
+-    def initialize(id=nil, username=nil, email=nil, password=nil, api_key=nil)
++    def initialize(id=nil, api_key=nil, username=nil, email=nil, password=nil)
+       @id = id
++      @api_key = api_key
+       @username = username
+       @email = email
+       @password = password
+       @client = Flickr.new @api_key
+       @client.login(email, password) if email and password
+-      @api_key = api_key
+     end
+ 
+     def username

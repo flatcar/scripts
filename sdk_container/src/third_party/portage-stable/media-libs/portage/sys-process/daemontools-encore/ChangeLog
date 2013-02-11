@@ -1,0 +1,29 @@
+# ChangeLog for sys-process/daemontools-encore
+# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-process/daemontools-encore/ChangeLog,v 1.5 2011/07/20 17:35:53 pacho Exp $
+
+  20 Jul 2011; Pacho Ramos <pacho@gentoo.org> metadata.xml:
+  Drop maintainer due retirement, bug #118937
+
+  30 Jan 2011; Thilo Bangert <bangert@gentoo.org>
+  -daemontools-encore-1.02.ebuild, -daemontools-encore-1.04.ebuild:
+  remove old ebuilds
+
+*daemontools-encore-1.05 (28 Jan 2011)
+
+  28 Jan 2011; Thilo Bangert <bangert@gentoo.org>
+  +daemontools-encore-1.05.ebuild:
+  version bump
+
+*daemontools-encore-1.04 (18 Jan 2011)
+
+  18 Jan 2011; Thilo Bangert <bangert@gentoo.org>
+  +daemontools-encore-1.04.ebuild:
+  version bump (#351901)
+
+*daemontools-encore-1.02 (05 Jan 2011)
+
+  05 Jan 2011; Thilo Bangert <bangert@gentoo.org> +files/svscan.init-1.02,
+  +daemontools-encore-1.02.ebuild, +metadata.xml:
+  initial release (#334481)
+

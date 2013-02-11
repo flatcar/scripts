@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install postinst postrm prepare setup
+DEPEND=dev-python/setuptools =dev-lang/python-2* =dev-lang/python-2*[xml]
+DESCRIPTION=An easy to use multimedia transcoder for the GNOME Desktop
+EAPI=3
+HOMEPAGE=http://programmer-art.org/projects/arista-transcoder
+IUSE=+faac kde nautilus +x264 +xvid
+KEYWORDS=amd64 x86
+LICENSE=LGPL-2.1
+RDEPEND=>=x11-libs/gtk+-2.16:2 || ( dev-lang/python:2.7 dev-lang/python:2.6 dev-python/simplejson ) >=dev-python/pygtk-2.16:2 dev-python/pygobject:2 dev-python/pycairo dev-python/gconf-python:2 dev-python/dbus-python dev-python/python-gudev >=media-libs/gstreamer-0.10.22:0.10 dev-python/gst-python:0.10 media-libs/gst-plugins-base:0.10 media-libs/gst-plugins-good:0.10 media-libs/gst-plugins-bad:0.10 media-plugins/gst-plugins-meta:0.10 media-plugins/gst-plugins-ffmpeg:0.10 nautilus? ( dev-python/nautilus-python ) kde? ( dev-python/librsvg-python ) faac? ( media-plugins/gst-plugins-faac:0.10 ) x264? ( media-plugins/gst-plugins-x264:0.10 ) xvid? ( media-plugins/gst-plugins-xvid:0.10 ) =dev-lang/python-2* =dev-lang/python-2*[xml]
+SLOT=0
+SRC_URI=http://programmer-art.org/media/releases/arista-transcoder/arista-0.9.5.tar.gz
+_eclasses_=distutils	15ae23f6f8219a009bfcfff7724fe727	multilib	ded93e450747134a079e647d888aa80b	python	e5b3412fa9f03670a666c8a137bd1060	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e
+_md5_=92860548de98af3ddc97babe2b0ff36d

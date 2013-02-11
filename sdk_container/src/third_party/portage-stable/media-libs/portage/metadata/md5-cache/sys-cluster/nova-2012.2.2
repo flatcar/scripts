@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install prepare test
+DEPEND=dev-python/setuptools[python_targets_python2_5(-)?,python_targets_python2_6(-)?,python_targets_python2_7(-)?,-python_single_target_python2_5(-),-python_single_target_python2_6(-),-python_single_target_python2_7(-)] python_targets_python2_5? ( dev-lang/python:2.5 ) python_targets_python2_6? ( dev-lang/python:2.6 ) python_targets_python2_7? ( dev-lang/python:2.7 ) dev-python/python-exec[python_targets_python2_5(-)?,python_targets_python2_6(-)?,python_targets_python2_7(-)?,-python_single_target_python2_5(-),-python_single_target_python2_6(-),-python_single_target_python2_7(-)]
+DESCRIPTION=Nova is a cloud computing fabric controller (main part of an IaaS system). It is written in Python.
+EAPI=5
+HOMEPAGE=https://launchpad.net/nova
+IUSE=python_targets_python2_5 python_targets_python2_6 python_targets_python2_7
+KEYWORDS=~amd64 ~x86
+LICENSE=Apache-2.0
+RDEPEND==dev-python/amqplib-0.6.1 >=dev-python/anyjson-0.2.4 >=dev-python/sqlalchemy-0.7.8 <=dev-python/sqlalchemy-0.7.9 =dev-python/boto-2.1.1 >=dev-python/eventlet-0.9.17 =dev-python/kombu-1.0.4 =dev-python/routes-1.12.3 =dev-python/webob-1.0.8 >=dev-python/greenlet-0.3.1 =dev-python/pastedeploy-1.5.0 dev-python/paste >=dev-python/sqlalchemy-migrate-0.7.2 dev-python/netaddr =dev-python/suds-0.4 dev-python/paramiko >=dev-python/Babel-0.9.6 >=dev-python/iso8601-0.1.4 dev-python/httplib2 >=dev-python/setuptools-git-0.4 >=dev-python/python-glanceclient-0.5.0 <dev-python/python-glanceclient-2 >=dev-python/python-quantumclient-2.1 python_targets_python2_5? ( dev-lang/python:2.5 ) python_targets_python2_6? ( dev-lang/python:2.6 ) python_targets_python2_7? ( dev-lang/python:2.7 ) dev-python/python-exec[python_targets_python2_5(-)?,python_targets_python2_6(-)?,python_targets_python2_7(-)?,-python_single_target_python2_5(-),-python_single_target_python2_6(-),-python_single_target_python2_7(-)]
+SLOT=0
+SRC_URI=http://launchpad.net/nova/folsom/2012.2.2/+download/nova-2012.2.2.tar.gz
+_eclasses_=distutils-r1	88c04402d2e6e306290ca673b9c4e997	eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	multiprocessing	a2130e6fc4aa4c6a24b265ca0cbcc2b6	python-r1	048b50bedc7713734694d95a872490a6	python-utils-r1	8e94ca6ef82c71c1ccf8e97276525491	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=0ac14276aa73f736daee2acd00bb63dd

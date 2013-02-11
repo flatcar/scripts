@@ -1,0 +1,38 @@
+# ChangeLog for dev-ruby/attic
+# Copyright 1999-2010 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/attic/ChangeLog,v 1.9 2010/09/09 18:02:09 flameeyes Exp $
+
+  09 Sep 2010; Diego E. Pettenò <flameeyes@gentoo.org> attic-0.5.2.ebuild:
+  Remove JRuby support.
+
+  28 Jul 2010; Diego E. Pettenò <flameeyes@gentoo.org> attic-0.5.2.ebuild:
+  Depend on slotted tryouts.
+
+  24 May 2010; Hans de Graaff <graaff@gentoo.org> attic-0.5.2.ebuild:
+  Declare test USE flag.
+
+  22 May 2010; Diego E. Pettenò <flameeyes@gentoo.org> attic-0.5.2.ebuild:
+  Various cleanups.
+
+  01 May 2010; Diego E. Pettenò <flameeyes@gentoo.org> attic-0.5.2.ebuild:
+  Restore original SRC_URI.
+
+  30 Apr 2010; Hans de Graaff <graaff@gentoo.org> attic-0.5.2.ebuild:
+  Deal with github changing their tarball generation.
+
+  17 Apr 2010; Diego E. Pettenò <flameeyes@gentoo.org> attic-0.5.2.ebuild:
+  Fix test function.
+
+*attic-0.5.2 (17 Feb 2010)
+
+  17 Feb 2010; Diego E. Pettenò <flameeyes@gentoo.org> -attic-0.5.0.ebuild,
+  -files/attic-0.5.0-fixes.patch, +attic-0.5.2.ebuild,
+  +files/attic-0.5.2-fixes.patch:
+  Bump to released version and partly-merged fixes.
+
+*attic-0.5.0 (14 Feb 2010)
+
+  14 Feb 2010; Diego E. Pettenò <flameeyes@gentoo.org> +attic-0.5.0.ebuild,
+  +files/attic-0.5.0-fixes.patch, +metadata.xml:
+  Initial import of attic needed ultimately for rudy.
+

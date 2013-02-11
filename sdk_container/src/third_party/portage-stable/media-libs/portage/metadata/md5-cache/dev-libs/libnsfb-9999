@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install prepare test unpack
+DEPEND=media-libs/libsdl net-libs/libvncserver x11-libs/libxcb x11-libs/xcb-util x11-libs/xcb-util-image x11-libs/xcb-util-keysyms virtual/pkgconfig dev-vcs/git
+DESCRIPTION=framebuffer abstraction library, written in C
+EAPI=4
+HOMEPAGE=http://www.netsurf-browser.org/projects/libnsfb/
+IUSE=static-libs
+LICENSE=MIT
+RDEPEND=media-libs/libsdl net-libs/libvncserver x11-libs/libxcb x11-libs/xcb-util x11-libs/xcb-util-image x11-libs/xcb-util-keysyms
+RESTRICT=test
+SLOT=0
+SRC_URI=mirror://gentoo/netsurf-buildsystem-0_p20120717.tar.gz
+_eclasses_=git-2	e92e09651292b1bef5656592364550f7	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e
+_md5_=6d6e901141019489b356a3e3feb28fc5

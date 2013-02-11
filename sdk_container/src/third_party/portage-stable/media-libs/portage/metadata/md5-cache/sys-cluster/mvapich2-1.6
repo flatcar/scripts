@@ -1,0 +1,13 @@
+DEFINED_PHASES=configure install postinst prepare setup
+DEPEND=|| ( ( sys-infiniband/libibverbs sys-infiniband/libibumad sys-infiniband/libibmad sys-infiniband/librdmacm ) sys-infiniband/openib-userspace ) virtual/fortran
+DESCRIPTION=MVAPICH2 MPI-over-infiniband package auto-configured for OpenIB
+EAPI=4
+HOMEPAGE=http://mvapich.cse.ohio-state.edu/
+IUSE=debug fortran large-cluster medium-cluster romio threads
+KEYWORDS=~x86 ~amd64
+LICENSE=BSD
+RDEPEND=|| ( ( sys-infiniband/libibverbs sys-infiniband/libibumad sys-infiniband/libibmad sys-infiniband/librdmacm ) sys-infiniband/openib-userspace ) virtual/fortran
+SLOT=0
+SRC_URI=http://mvapich.cse.ohio-state.edu//download/mvapich2/mvapich2-1.6.tgz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	fortran-2	19652e219ec9b62d7d89735821d7afb6	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=041fc0614f2b03b8a601dc96778cb3c1

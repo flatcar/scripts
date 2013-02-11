@@ -1,0 +1,105 @@
+# ChangeLog for dev-ruby/rye
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/rye/ChangeLog,v 1.22 2012/09/21 05:51:41 graaff Exp $
+
+*rye-0.9.7 (21 Sep 2012)
+
+  21 Sep 2012; Hans de Graaff <graaff@gentoo.org> +rye-0.9.7.ebuild:
+  Version bump.
+
+  21 Sep 2012; Hans de Graaff <graaff@gentoo.org> -rye-0.9.4.ebuild,
+  -rye-0.9.5.ebuild:
+  Cleanup.
+
+*rye-0.9.6 (28 May 2012)
+
+  28 May 2012; Hans de Graaff <graaff@gentoo.org> +rye-0.9.6.ebuild:
+  Version bump.
+
+*rye-0.9.5 (28 Jan 2012)
+
+  28 Jan 2012; Hans de Graaff <graaff@gentoo.org> +rye-0.9.5.ebuild:
+  Version bump.
+
+  28 Jan 2012; Hans de Graaff <graaff@gentoo.org> -rye-0.9.2.ebuild,
+  -rye-0.9.3.ebuild:
+  Remove old versions.
+
+  07 Aug 2011; Diego E. Pettenò <flameeyes@gentoo.org> rye-0.9.4.ebuild:
+  Add missing dependency over virtual/ruby-ssl.
+
+*rye-0.9.4 (15 Feb 2011)
+
+  15 Feb 2011; Hans de Graaff <graaff@gentoo.org> +rye-0.9.4.ebuild:
+  Version bump.
+
+*rye-0.9.3 (29 Jan 2011)
+
+  29 Jan 2011; Hans de Graaff <graaff@gentoo.org> +rye-0.9.3.ebuild:
+  Version bump.
+
+  29 Jan 2011; Hans de Graaff <graaff@gentoo.org> -rye-0.8.19.ebuild,
+  -rye-0.9.0.ebuild, -rye-0.9.1.ebuild:
+  Remove old versions.
+
+*rye-0.9.2 (25 Oct 2010)
+
+  25 Oct 2010; Diego E. Pettenò <flameeyes@gentoo.org> +rye-0.9.2.ebuild:
+  Version bump, needed for rudy when setting up instances without sudo (like
+  Gentoo).
+
+*rye-0.9.1 (24 Oct 2010)
+
+  24 Oct 2010; Hans de Graaff <graaff@gentoo.org> +rye-0.9.1.ebuild:
+  Version bump: Don't add keys to ssh-agent in Rye::Box and Rye::Set.
+
+*rye-0.9.0 (22 Aug 2010)
+
+  22 Aug 2010; Diego E. Pettenò <flameeyes@gentoo.org> +rye-0.9.0.ebuild:
+  Version bump.
+
+  11 Jul 2010; Hans de Graaff <graaff@gentoo.org> -rye-0.8.17.ebuild,
+  -rye-0.8.18.ebuild:
+  Remove old version.
+
+*rye-0.8.19 (28 Jun 2010)
+
+  28 Jun 2010; Diego E. Pettenò <flameeyes@gentoo.org> +rye-0.8.19.ebuild:
+  Version bump.
+
+*rye-0.8.18 (19 Jun 2010)
+
+  19 Jun 2010; Diego E. Pettenò <flameeyes@gentoo.org> +rye-0.8.18.ebuild:
+  Version bump.
+
+  21 May 2010; Diego E. Pettenò <flameeyes@gentoo.org> -rye-0.8.15.ebuild:
+  Cleanup old version.
+
+*rye-0.8.17 (20 May 2010)
+
+  20 May 2010; Diego E. Pettenò <flameeyes@gentoo.org> +rye-0.8.17.ebuild:
+  Version bump.
+
+  12 Apr 2010; Diego E. Pettenò <flameeyes@gentoo.org> -rye-0.8.13.ebuild,
+  -rye-0.8.14.ebuild:
+  Cleanup old versions.
+
+*rye-0.8.15 (04 Apr 2010)
+
+  04 Apr 2010; Diego E. Pettenò <flameeyes@gentoo.org> +rye-0.8.15.ebuild:
+  Version bump.
+
+*rye-0.8.14 (02 Mar 2010)
+
+  02 Mar 2010; Hans de Graaff <graaff@gentoo.org> +rye-0.8.14.ebuild:
+  Version bump.
+
+  14 Feb 2010; Diego E. Pettenò <flameeyes@gentoo.org> rye-0.8.13.ebuild:
+  Don't depend on tryouts since we're not going to run tests for now.
+
+*rye-0.8.13 (14 Feb 2010)
+
+  14 Feb 2010; Diego E. Pettenò <flameeyes@gentoo.org> +rye-0.8.13.ebuild,
+  +metadata.xml:
+  Initial import of rye, needed for Rudy.
+

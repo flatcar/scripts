@@ -1,0 +1,27 @@
+Fix segfault in gssapi.
+
+--- a/plugins/gssapi.c
++++ b/plugins/gssapi.c
+@@ -370,7 +370,7 @@ sasl_gss_encode(void *context, const str
+     }
+     
+     if (output_token->value && output) {
+-	unsigned char * p = (unsigned char *) text->encode_buf;
++	int len;
+ 	
+ 	ret = _plug_buf_alloc(text->utils,
+ 			      &(text->encode_buf),
+@@ -384,11 +384,8 @@ sasl_gss_encode(void *context, const str
+ 	    return ret;
+ 	}
+ 	
+-	p[0] = (output_token->length>>24) & 0xFF;
+-	p[1] = (output_token->length>>16) & 0xFF;
+-	p[2] = (output_token->length>>8) & 0xFF;
+-	p[3] = output_token->length & 0xFF;
+-
++	len = htonl(output_token->length);
++	memcpy(text->encode_buf, &len, 4);
+ 	memcpy(text->encode_buf + 4, output_token->value, output_token->length);
+     }
+     

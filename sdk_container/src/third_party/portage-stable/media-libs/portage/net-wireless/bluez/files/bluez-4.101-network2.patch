@@ -1,0 +1,17 @@
+X-Git-Url: http://git.kernel.org/?p=bluetooth%2Fbluez.git;a=blobdiff_plain;f=network%2Fconnection.c;h=59423a900b2fba9ec99115dec421a3113bc2d834;hp=544ec3a9c643bc8fada6d683d428a8165a4b052f;hb=57170b311f1468330f4a9961dc0b3ac45f97bc13;hpb=c1d662075288d475ee6e1740d39ac84fe806542a
+
+diff --git a/network/connection.c b/network/connection.c
+index 544ec3a..59423a9 100644
+--- a/network/connection.c
++++ b/network/connection.c
+@@ -554,7 +554,9 @@ static void path_unregister(void *data)
+ 
+ static const GDBusMethodTable connection_methods[] = {
+ 	{ GDBUS_ASYNC_METHOD("Connect",
+-			NULL, NULL, connection_connect) },
++				GDBUS_ARGS({"uuid", "s"}),
++				GDBUS_ARGS({"interface", "s"}),
++				connection_connect) },
+ 	{ GDBUS_METHOD("Disconnect",
+ 			NULL, NULL, connection_disconnect) },
+ 	{ GDBUS_METHOD("GetProperties",

@@ -1,0 +1,8 @@
+DEFINED_PHASES=install
+DESCRIPTION=Utilities for converting between and manipulating mac fonts and unix fonts
+HOMEPAGE=http://fondu.sourceforge.net/
+KEYWORDS=ppc x86
+LICENSE=BSD
+SLOT=0
+SRC_URI=mirror://sourceforge/fondu/fondu_src-040925.tgz
+_md5_=fcdf6bbb30c375ee022c54b56c87176f

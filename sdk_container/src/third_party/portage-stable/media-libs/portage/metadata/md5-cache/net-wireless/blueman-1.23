@@ -1,0 +1,13 @@
+DEFINED_PHASES=configure install postinst postrm preinst prepare setup
+DEPEND=dev-libs/glib:2 >=x11-libs/gtk+-2.12:2 x11-libs/startup-notification dev-python/pygobject:2 >=net-wireless/bluez-4.21 nls? ( dev-util/intltool sys-devel/gettext ) virtual/pkgconfig >=dev-python/pyrex-0.9.8 =dev-lang/python-2* >=sys-apps/sed-4
+DESCRIPTION=GTK+ Bluetooth Manager, designed to be simple and intuitive for everyday bluetooth tasks.
+EAPI=4
+HOMEPAGE=http://blueman-project.org/
+IUSE=gconf sendto network nls policykit pulseaudio
+KEYWORDS=~amd64 ~ppc ~x86
+LICENSE=GPL-3
+RDEPEND=dev-libs/glib:2 >=x11-libs/gtk+-2.12:2 x11-libs/startup-notification dev-python/pygobject:2 >=net-wireless/bluez-4.21 >=app-mobilephone/obex-data-server-0.4.4 sys-apps/dbus dev-python/pygtk dev-python/notify-python dev-python/dbus-python x11-themes/hicolor-icon-theme gconf? ( dev-python/gconf-python ) sendto? ( gnome-base/nautilus ) network? ( || ( net-dns/dnsmasq =net-misc/dhcp-3* >=net-misc/networkmanager-0.8 ) ) policykit? ( sys-auth/polkit ) pulseaudio? ( media-sound/pulseaudio ) =dev-lang/python-2*
+SLOT=0
+SRC_URI=http://download.tuxfamily.org/blueman/blueman-1.23.tar.gz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	gnome2-utils	794d2847b4af390a1e020924876c8297	multilib	ded93e450747134a079e647d888aa80b	python	e5b3412fa9f03670a666c8a137bd1060	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=d0edde34c058126cf4581d8b2332ca4b

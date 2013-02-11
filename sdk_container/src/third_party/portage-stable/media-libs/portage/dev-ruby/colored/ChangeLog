@@ -1,0 +1,10 @@
+# ChangeLog for dev-ruby/colored
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/colored/ChangeLog,v 1.1 2012/08/05 08:10:25 graaff Exp $
+
+*colored-1.2 (05 Aug 2012)
+
+  05 Aug 2012; Hans de Graaff <graaff@gentoo.org> +colored-1.2.ebuild,
+  +metadata.xml:
+  Initial import from graaff overlay. New dependency for dev-ruby/cri.
+

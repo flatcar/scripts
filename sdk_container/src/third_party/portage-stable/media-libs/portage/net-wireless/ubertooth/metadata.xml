@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer>
+		<email>zerochaos@gentoo.org</email>
+		<name>Rick Farina</name>
+	</maintainer>
+	<longdescription lang="en">
+	</longdescription>
+	<use>
+		<flag name="clock_debug">support for clock following an existing local bluetooth connection with bluez</flag>
+		<flag name="dfu">Install ubertooth-dfu (needed for read/write of firmware)</flag>
+		<flag name="specan">Enable the ubertooth spectrum analyzer</flag>
+		<flag name="ubertooth0-firmware">Build/install ubertooth0-firmware</flag>
+		<flag name="ubertooth1-firmware">Build/install ubertooth1-firmware</flag>
+	</use>
+</pkgmetadata>
+

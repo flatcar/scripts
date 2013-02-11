@@ -1,0 +1,10 @@
+--- ofxconnect/ofxpartner.cpp~	2011-03-31 00:30:50.000000000 +0200
++++ ofxconnect/ofxpartner.cpp	2012-06-23 16:30:34.227522021 +0200
+@@ -32,6 +32,7 @@
+ 
+ #include <sys/stat.h>
+ 
++#include <unistd.h>
+ #include <iostream>
+ #include <string>
+ #include <vector>

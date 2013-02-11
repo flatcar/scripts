@@ -1,0 +1,208 @@
+From a26a8bc169ff2fdc249437c9c6fa9d6aae77b4df Mon Sep 17 00:00:00 2001
+From: Pacho Ramos <pacho@condmat1.ciencias.uniovi.es>
+Date: Thu, 16 Dec 2010 19:15:42 +0000
+Subject: introspection: Fix build with newer g-introspection
+
+Fixes build with gobject-introspection 0.9
+
+https://bugzilla.gnome.org/show_bug.cgi?id=634131
+---
+diff --git a/Makefile.am b/Makefile.am
+index 9391392..f73baf4 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -9,10 +9,9 @@ SUBDIRS = icons lib applet properties wizard sendto $(MOBLIN_DIR) docs po help
+ DIST_SUBDIRS = $(DEF_SUBDIRS) moblin
+ EXTRA_DIST = intltool-extract.in intltool-update.in intltool-merge.in ChangeLog.pre-2.27 gtk-doc.make gnome-doc-utils.make
+ 
+-# FIXME https://bugzilla.gnome.org/show_bug.cgi?id=595675
+ DISTCHECK_CONFIGURE_FLAGS = --disable-schemas-install \
+ 	--disable-desktop-update --disable-mime-update --disable-icon-update \
+-	--enable-gtk-doc --disable-scrollkeeper --enable-introspection=no
++	--enable-gtk-doc --disable-scrollkeeper --enable-introspection
+ 
+ DISTCLEANFILES = intltool-extract intltool-update intltool-merge gnome-doc-utils.make
+ 
+diff --git a/acinclude.m4 b/acinclude.m4
+index 5cf8c03..deebd2b 100644
+--- a/acinclude.m4
++++ b/acinclude.m4
+@@ -1,93 +1,3 @@
+-dnl -*- mode: autoconf -*-
+-dnl Copyright 2009 Johan Dahlin
+-dnl
+-dnl This file is free software; the author(s) gives unlimited
+-dnl permission to copy and/or distribute it, with or without
+-dnl modifications, as long as this notice is preserved.
+-dnl
+-
+-# serial 1
+-
+-m4_define([_GOBJECT_INTROSPECTION_CHECK_INTERNAL],
+-[
+-    AC_BEFORE([AC_PROG_LIBTOOL],[$0])dnl setup libtool first
+-    AC_BEFORE([AM_PROG_LIBTOOL],[$0])dnl setup libtool first
+-    AC_BEFORE([LT_INIT],[$0])dnl setup libtool first
+-
+-    dnl enable/disable introspection
+-    m4_if([$2], [require],
+-    [dnl
+-        enable_introspection=yes
+-    ],[dnl
+-        AC_ARG_ENABLE(introspection,
+-                  AS_HELP_STRING([--enable-introspection[=@<:@no/auto/yes@:>@]],
+-                                 [Enable introspection for this build]),,
+-                                 [enable_introspection=auto])
+-    ])dnl
+-
+-    AC_MSG_CHECKING([for gobject-introspection])
+-
+-    dnl presence/version checking
+-    AS_CASE([$enable_introspection],
+-    [no], [dnl
+-        found_introspection="no (disabled, use --enable-introspection to enable)"
+-    ],dnl
+-    [yes],[dnl
+-        PKG_CHECK_EXISTS([gobject-introspection-1.0],,
+-                         AC_MSG_ERROR([gobject-introspection-1.0 is not installed]))
+-        PKG_CHECK_EXISTS([gobject-introspection-1.0 >= $1],
+-                         found_introspection=yes,
+-                         AC_MSG_ERROR([You need to have gobject-introspection >= $1 installed to build AC_PACKAGE_NAME]))
+-    ],dnl
+-    [auto],[dnl
+-        PKG_CHECK_EXISTS([gobject-introspection-1.0 >= $1], found_introspection=yes, found_introspection=no)
+-    ],dnl
+-    [dnl
+-        AC_MSG_ERROR([invalid argument passed to --enable-introspection, should be one of @<:@no/auto/yes@:>@])
+-    ])dnl
+-
+-    AC_MSG_RESULT([$found_introspection])
+-
+-    INTROSPECTION_SCANNER=
+-    INTROSPECTION_COMPILER=
+-    INTROSPECTION_GENERATE=
+-    INTROSPECTION_GIRDIR=
+-    INTROSPECTION_TYPELIBDIR=
+-    if test "x$found_introspection" = "xyes"; then
+-       INTROSPECTION_SCANNER=`$PKG_CONFIG --variable=g_ir_scanner gobject-introspection-1.0`
+-       INTROSPECTION_COMPILER=`$PKG_CONFIG --variable=g_ir_compiler gobject-introspection-1.0`
+-       INTROSPECTION_GENERATE=`$PKG_CONFIG --variable=g_ir_generate gobject-introspection-1.0`
+-       INTROSPECTION_GIRDIR=`$PKG_CONFIG --variable=girdir gobject-introspection-1.0`
+-       INTROSPECTION_TYPELIBDIR="$($PKG_CONFIG --variable=typelibdir gobject-introspection-1.0)"
+-    fi
+-    AC_SUBST(INTROSPECTION_SCANNER)
+-    AC_SUBST(INTROSPECTION_COMPILER)
+-    AC_SUBST(INTROSPECTION_GENERATE)
+-    AC_SUBST(INTROSPECTION_GIRDIR)
+-    AC_SUBST(INTROSPECTION_TYPELIBDIR)
+-
+-    AM_CONDITIONAL(HAVE_INTROSPECTION, test "x$found_introspection" = "xyes")
+-])
+-
+-
+-dnl Usage:
+-dnl   GOBJECT_INTROSPECTION_CHECK([minimum-g-i-version])
+-
+-AC_DEFUN([GOBJECT_INTROSPECTION_CHECK],
+-[
+-  _GOBJECT_INTROSPECTION_CHECK_INTERNAL([$1])
+-])
+-
+-dnl Usage:
+-dnl   GOBJECT_INTROSPECTION_REQUIRE([minimum-g-i-version])
+-
+-
+-AC_DEFUN([GOBJECT_INTROSPECTION_REQUIRE],
+-[
+-  _GOBJECT_INTROSPECTION_CHECK_INTERNAL([$1], [require])
+-])
+-
+-
+ dnl as-ac-expand.m4 0.2.0                                   -*- autoconf -*-
+ dnl autostars m4 macro for expanding directories using configure's prefix
+ 
+diff --git a/configure.ac b/configure.ac
+index 8bbce4e..02aaf5f 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -186,7 +186,7 @@ AC_SUBST(DBUS_BINDING_TOOL)
+ GLIB_GENMARSHAL=`$PKG_CONFIG --variable=glib_genmarshal glib-2.0`
+ AC_SUBST(GLIB_GENMARSHAL)
+ 
+-GOBJECT_INTROSPECTION_CHECK([0.6.3])
++GOBJECT_INTROSPECTION_CHECK([0.6.7])
+ 
+ GNOME_COMMON_INIT
+ GNOME_DEBUG_CHECK
+diff --git a/lib/Makefile.am b/lib/Makefile.am
+index 6da2a9c..f7acece 100644
+--- a/lib/Makefile.am
++++ b/lib/Makefile.am
+@@ -55,41 +55,29 @@ gnomebluetooth_HEADERS =				\
+ 
+ AM_CFLAGS = -I$(srcdir) $(LIBGNOMEBT_CFLAGS) $(COMMON_CFLAGS) $(WARN_CFLAGS) $(DISABLE_DEPRECATED) -DPLUGINDIR=\"$(libdir)/gnome-bluetooth/plugins\"
+ 
++-include $(INTROSPECTION_MAKEFILE)
++INTROSPECTION_GIRS =
++INTROSPECTION_SCANNER_ARGS = --warn-all --add-include-path=$(srcdir)
++INTROSPECTION_COMPILER_ARGS = --includedir=$(srcdir)
++
+ if HAVE_INTROSPECTION
+-BUILT_GIRSOURCES += GnomeBluetooth-1.0.gir
++introspection_sources = $(gnomebluetooth_HEADERS)
+ 
+-GnomeBluetooth-1.0.gir: $(libgnome_bluetooth_la_SOURCES)
+-GnomeBluetooth-1.0.gir: $(gnomebluetooth_HEADERS)
+ GnomeBluetooth-1.0.gir: libgnome-bluetooth.la
+-GnomeBluetooth-1.0.gir: $(INTROSPECTION_SCANNER)
+-	$(AM_V_GEN) $(INTROSPECTION_SCANNER) -v --namespace GnomeBluetooth --nsversion=1.0 \
+-		--add-include-path=$(srcdir) --add-include-path=. \
+-		--include=GObject-2.0 \
+-		--include=Gtk-2.0 \
+-		--include=DBusGLib-1.0 \
+-		--include=GModule-2.0 \
+-		--libtool="$(LIBTOOL)" \
+-		--library=gnome-bluetooth \
+-		--output $@ \
+-		--pkg gobject-2.0 \
+-		--pkg gtk+-2.0 \
+-		--pkg dbus-glib-1 \
+-		--pkg gmodule-2.0 \
+-		-I$(srcdir) \
+-		$(LIBGNOMEBT_CFLAGS) \
+-		$(gnomebluetooth_HEADERS)
++GnomeBluetooth_1_0_gir_INCLUDES = GObject-2.0 Gtk-2.0 DBusGLib-1.0 GModule-2.0
++GnomeBluetooth_1_0_gir_CFLAGS = -I$(srcdir) $(LIBGNOMEBT_CFLAGS)
++GnomeBluetooth_1_0_gir_LIBS = libgnome-bluetooth.la
++GnomeBluetooth_1_0_gir_SCANNERFLAGS = --strip-prefix=Bluetooth --pkg-export=gnome-bluetooth-1.0
++GnomeBluetooth_1_0_gir_FILES = $(introspection_sources)
++INTROSPECTION_GIRS += GnomeBluetooth-1.0.gir
+ 
+ girdir = $(INTROSPECTION_GIRDIR)
+-dist_gir_DATA = $(BUILT_GIRSOURCES)
+ 
+-EXTRA_DIST += $(BUILT_GIRSOURCES)
++gir_DATA = $(INTROSPECTION_GIRS)
+ 
+-typelibsdir = $(INTROSPECTION_TYPELIBDIR)
+-typelibs_DATA = $(BUILT_GIRSOURCES:.gir=.typelib)
++typelibdir = $(INTROSPECTION_TYPELIBDIR)
++typelib_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
+ 
+-%.typelib: %.gir $(G_IR_COMPILER)
+-	$(AM_V_GEN) LD_LIBRARY_PATH=$${LD_LIBRARY_PATH:+$$LD_LIBRARY_PATH:}. $(INTROSPECTION_COMPILER) --includedir=$(srcdir) --includedir=. $(G_IR_COMPILER_OPTS) $< -o $@
+-	
+ endif # HAVE_INTROSPECTION
+ 
+ BUILT_SOURCES = marshal.h marshal.c \
+@@ -101,7 +89,7 @@ BUILT_SOURCES = marshal.h marshal.c \
+ 
+ nodist_libcommon_la_SOURCES = $(BUILT_SOURCES)
+ 
+-CLEANFILES = $(BUILT_SOURCES)
++CLEANFILES = $(BUILT_SOURCES) $(gir_DATA) $(typelib_DATA)
+ 
+ noinst_PROGRAMS = test-client test-agent test-deviceselection test-plugins test-class
+ 
+--
+cgit v0.8.3.1

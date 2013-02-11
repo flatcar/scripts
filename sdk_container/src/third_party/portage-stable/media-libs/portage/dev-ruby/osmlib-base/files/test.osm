@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<osm version="0.5" generator="OpenStreetMap server">
+  <node id="31240030" lat="48.9622461" lon="8.300288" user="u1" visible="true" timestamp="2007-07-03T00:04:12+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="31317212" lat="48.9629821" lon="8.3001671" user="u2" visible="true" timestamp="2007-07-05T00:31:13+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+</osm>

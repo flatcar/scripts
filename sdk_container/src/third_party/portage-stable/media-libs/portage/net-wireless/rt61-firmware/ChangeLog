@@ -1,0 +1,26 @@
+# ChangeLog for net-wireless/rt61-firmware
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-wireless/rt61-firmware/ChangeLog,v 1.6 2013/01/21 22:26:19 ssuominen Exp $
+
+  21 Jan 2013; Samuli Suominen <ssuominen@gentoo.org> rt61-firmware-1.2.ebuild:
+  Remove sys-apps/hotplug dependency from || () in favour of virtual/udev wrt
+  #145809
+
+  11 Dec 2012; Ian Stakenvicius <axs@gentoo.org> rt61-firmware-1.2.ebuild:
+  virtualize udev dependency
+
+  18 Nov 2012; Pacho Ramos <pacho@gentoo.org> metadata.xml:
+  Drop mobile herd as talked in gentoo-dev ML
+
+  24 Nov 2011; Pacho Ramos <pacho@gentoo.org> metadata.xml:
+  Drop maintainer due retirement, bug #158470
+
+  14 Mar 2009; Robert Buchholz <rbu@gentoo.org> rt61-firmware-1.2.ebuild:
+  Add DEPEND on app-arch/unzip (bug #262330 by Jonathan Heaney)
+
+*rt61-firmware-1.2 (11 Mar 2009)
+
+  11 Mar 2009; Robert Buchholz <rbu@gentoo.org> +metadata.xml,
+  +rt61-firmware-1.2.ebuild:
+  Ebuild for rt61pci firmware, based on an ebuild by Davide Pesavento in bug
+  204314

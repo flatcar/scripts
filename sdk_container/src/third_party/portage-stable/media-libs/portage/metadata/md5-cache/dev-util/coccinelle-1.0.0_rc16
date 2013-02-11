@@ -1,0 +1,14 @@
+DEFINED_PHASES=compile configure install postinst postrm prepare setup test
+DEPEND=>=dev-lang/ocaml-3.10[ocamlopt?] dev-ml/sexplib emacs? ( virtual/emacs ) ocaml? ( dev-ml/findlib ) pcre? ( dev-ml/pcre-ocaml ) virtual/pkgconfig doc? ( virtual/latex-base dev-texlive/texlive-latexextra dev-texlive/texlive-fontsextra ) python? ( =dev-lang/python-2* ) || ( >=sys-devel/automake-1.11.1:1.11 >=sys-devel/automake-1.12:1.12 ) >=sys-devel/autoconf-2.68 sys-devel/libtool
+DESCRIPTION=Program matching and transformation engine
+EAPI=4
+HOMEPAGE=http://coccinelle.lip6.fr/
+IUSE=doc emacs ocaml +ocamlopt pcre python test vim-syntax
+KEYWORDS=~amd64 ~x86
+LICENSE=GPL-2
+RDEPEND=>=dev-lang/ocaml-3.10[ocamlopt?] dev-ml/sexplib emacs? ( virtual/emacs ) ocaml? ( dev-ml/findlib ) pcre? ( dev-ml/pcre-ocaml ) vim-syntax? ( || ( app-editors/vim app-editors/gvim ) ) python? ( =dev-lang/python-2* )
+REQUIRED_USE=test? ( ocaml python )
+SLOT=0
+SRC_URI=http://coccinelle.lip6.fr/distrib/coccinelle-1.0.0-rc16.tgz
+_eclasses_=autotools	cf83655b19ed98f9ea3b44f4572b51a3	bash-completion-r1	fcc2dafb65a2b662dd4b076f2103f6a6	elisp-common	21605c8f0b2a5ffa3233faeb3f9df309	eutils	d40dc948067bd3db1c8ebf7d51897313	libtool	2b273eea1976cfaed3449345d94331ac	multilib	ded93e450747134a079e647d888aa80b	multiprocessing	a2130e6fc4aa4c6a24b265ca0cbcc2b6	python	e5b3412fa9f03670a666c8a137bd1060	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=4b7ecea6c419d3b31f84e0348bd2d774

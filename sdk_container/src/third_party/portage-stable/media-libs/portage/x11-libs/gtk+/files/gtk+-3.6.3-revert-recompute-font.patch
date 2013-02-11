@@ -1,0 +1,43 @@
+From 0ac6138fe5d501258a552f7de0e3aad1420d204a Mon Sep 17 00:00:00 2001
+From: Alexandre Rostovtsev <tetromino@gentoo.org>
+Date: Sat, 5 Jan 2013 08:43:28 -0500
+Subject: [PATCH] Revert "stylecontext: Always recompute font"
+
+This reverts commit c3508c9fa3854a158c16da4b50e4cbcc321333b9.
+
+Causes segfaults when opening printing dialog.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=691186
+---
+ gtk/gtkstylecontext.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
+
+diff --git a/gtk/gtkstylecontext.c b/gtk/gtkstylecontext.c
+index bcbea77..9604c42 100644
+--- a/gtk/gtkstylecontext.c
++++ b/gtk/gtkstylecontext.c
+@@ -3519,12 +3519,15 @@ gtk_style_context_get_font (GtkStyleContext *context,
+ 
+   /* Yuck, fonts are created on-demand but we don't return a ref.
+    * Do bad things to achieve this requirement */
+-  gtk_style_context_get (context, state, "font", &description, NULL);
+-  g_object_set_data_full (G_OBJECT (data->store),
+-                          "font-cache-for-get_font",
+-                          description,
+-                          (GDestroyNotify) pango_font_description_free);
+-
++  description = g_object_get_data (G_OBJECT (data->store), "font-cache-for-get_font");
++  if (description == NULL)
++    {
++      gtk_style_context_get (context, state, "font", &description, NULL);
++      g_object_set_data_full (G_OBJECT (data->store),
++                              "font-cache-for-get_font",
++                              description,
++                              (GDestroyNotify) pango_font_description_free);
++    }
+   return description;
+ }
+ 
+-- 
+1.8.1
+

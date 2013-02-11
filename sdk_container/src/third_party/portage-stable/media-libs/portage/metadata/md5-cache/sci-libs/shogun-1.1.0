@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install preinst prepare setup test
+DEPEND=sci-libs/gsl sys-libs/zlib arpack? ( sci-libs/arpack ) bzip2? ( app-arch/bzip2 ) glpk? ( sci-mathematics/glpk ) gzip? ( app-arch/gzip ) hdf5? ( sci-libs/hdf5 ) java? ( >=virtual/jdk-1.5 ) json? ( dev-libs/json-c ) lapack? ( virtual/cblas virtual/lapack ) lpsolve? ( sci-mathematics/lpsolve ) lua? ( dev-lang/lua ) lzo? ( dev-libs/lzo ) mono? ( dev-lang/mono ) octave? ( sci-mathematics/octave[hdf5=] ) python? ( dev-python/numpy ) R? ( dev-lang/R ) readline? ( sys-libs/readline ) ruby? ( >=dev-ruby/narray-0.6.0.1-r2 ) snappy? ( app-arch/snappy ) superlu? ( sci-libs/superlu ) xml? ( dev-libs/libxml2 ) virtual/pkgconfig doc? ( app-doc/doxygen[dot] ) java? ( dev-lang/swig dev-java/ant ) octave? ( dev-lang/swig ) python? ( dev-lang/swig test? ( sci-libs/scipy ) ) ruby? ( dev-lang/swig ) java? ( >=dev-java/java-config-2.1.9-r1 )
+DESCRIPTION=Large Scale Machine Learning Toolbox
+EAPI=4
+HOMEPAGE=http://shogun-toolbox.org/
+IUSE=arpack bzip2 doc examples glpk gzip hdf5 json lapack lpsolve mono lua lzma lzo java R ruby octave python readline snappy static-libs superlu test xml elibc_FreeBSD java
+KEYWORDS=~amd64 ~x86 ~amd64-linux ~x86-linux
+LICENSE=GPL-3 free-noncomm
+RDEPEND=sci-libs/gsl sys-libs/zlib arpack? ( sci-libs/arpack ) bzip2? ( app-arch/bzip2 ) glpk? ( sci-mathematics/glpk ) gzip? ( app-arch/gzip ) hdf5? ( sci-libs/hdf5 ) java? ( >=virtual/jdk-1.5 ) json? ( dev-libs/json-c ) lapack? ( virtual/cblas virtual/lapack ) lpsolve? ( sci-mathematics/lpsolve ) lua? ( dev-lang/lua ) lzo? ( dev-libs/lzo ) mono? ( dev-lang/mono ) octave? ( sci-mathematics/octave[hdf5=] ) python? ( dev-python/numpy ) R? ( dev-lang/R ) readline? ( sys-libs/readline ) ruby? ( >=dev-ruby/narray-0.6.0.1-r2 ) snappy? ( app-arch/snappy ) superlu? ( sci-libs/superlu ) xml? ( dev-libs/libxml2 ) java? ( >=dev-java/java-config-2.1.9-r1 )
+SLOT=0
+SRC_URI=ftp://shogun-toolbox.org/shogun/releases/1.1/sources/shogun-1.1.0.tar.bz2 test? ( ftp://shogun-toolbox.org/shogun/data/shogun-data-0.3.tar.bz2 ) examples? ( ftp://shogun-toolbox.org/shogun/data/shogun-data-0.3.tar.bz2 )
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	java-pkg-opt-2	f9bbbe5092225a2059aa9e6a3a2b52f1	java-utils-2	dcda71e114d638cdf01db57b8445337d	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=131883617272336f9a6cf219277b7d69

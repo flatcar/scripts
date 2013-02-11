@@ -1,0 +1,50 @@
+# ChangeLog for games-sports/racer-bin
+# Copyright 2000-2008 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/games-sports/racer-bin/ChangeLog,v 1.9 2008/04/09 17:09:43 nyhm Exp $
+
+*racer-bin-0.5.0-r2 (09 Apr 2008)
+
+  09 Apr 2008; Tristan Heaven <nyhm@gentoo.org> -racer-bin-0.5.0-r1.ebuild,
+  +racer-bin-0.5.0-r2.ebuild:
+  Fix permissions on executables, bug #217034
+
+  08 Feb 2008; Michael Sterrett <mr_bones_@gentoo.org>
+  racer-bin-0.5.0-r1.ebuild:
+  add a desktop entry
+
+  17 Oct 2007; Samuli Suominen <drac@gentoo.org> racer-bin-0.5.0-r1.ebuild:
+  Change media-libs/fmod dep to work with slots.
+
+  06 Oct 2006; Tristan Heaven <nyhm@gentoo.org> -files/racer-skel,
+  racer-bin-0.5.0-r1.ebuild:
+  Enable sound by default
+
+  19 Sep 2006; Chris Gianelloni <wolf31o2@gentoo.org>
+  racer-bin-0.5.0-r1.ebuild:
+  Adding strip to RESTRICT for bug #137819.
+
+  31 Oct 2003; Michael Sterrett <mr_bones_@gentoo.org>
+  racer-bin-0.5.0-r1.ebuild:
+  more error checking/messages; local variables; fix permissions for bug 31694
+
+  12 Jul 2003; Michael Sterrett <msterret@gentoo.org>
+  racer-bin-0.5.0-r1.ebuild:
+  fix DESCRIPTION
+
+*racer-bin-0.5.0-r1 (07 Jul 2003)
+
+  07 Jul 2003; Mike Frysinger <vapier@gentoo.org> :
+  Add games.eclass support, more binaries, and correct support for libfmod.
+
+*racer-bin-0.5.0 (05 Jun 2003)
+
+  05 Jun 2003; Martin Holzer <mholzer@gentoo.org> racer-bin-0.5.0.ebuild:
+  Updated depend. Closes #22294.
+
+*racer-0.4.9 (04 Apr 2003)
+
+  04 Apr 2003; Seemant Kulleen <seemant@gentoo.org> racer-0.4.9.ebuild,
+  files/racer:
+  Long awaited ebuild for Racer. Thanks to: Mike Gardiner <driver@iinet.net.au>
+  in bug #13539
+

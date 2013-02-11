@@ -1,0 +1,18 @@
+# ChangeLog for dev-libs/skalibs
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/skalibs/ChangeLog,v 1.11 2012/06/22 07:25:28 xmw Exp $
+
+*skalibs-1.2.8 (22 Jun 2012)
+
+  22 Jun 2012; Michael Weber <xmw@gentoo.org> +skalibs-1.2.8.ebuild:
+  Version bump (thanks euscan)
+
+  06 Jun 2012; Zac Medico <zmedico@gentoo.org> skalibs-1.2.7.ebuild:
+  inherit multilib for get_libdir
+
+*skalibs-1.2.7 (06 Apr 2012)
+
+  06 Apr 2012; Michael Weber <xmw@gentoo.org> +skalibs-1.2.7.ebuild,
+  +metadata.xml:
+  Initial import
+

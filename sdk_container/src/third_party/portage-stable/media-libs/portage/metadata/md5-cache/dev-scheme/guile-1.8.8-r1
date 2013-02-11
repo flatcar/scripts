@@ -1,0 +1,14 @@
+DEFINED_PHASES=compile config configure install postinst postrm prepare
+DEPEND=>=dev-libs/gmp-4.1 >=sys-devel/libtool-1.5.6 sys-devel/gettext emacs? ( virtual/emacs ) || ( >=sys-devel/automake-1.11.1:1.11 >=sys-devel/automake-1.12:1.12 ) >=sys-devel/autoconf-2.68 sys-devel/libtool
+DESCRIPTION=Scheme interpreter
+EAPI=3
+HOMEPAGE=http://www.gnu.org/software/guile/
+IUSE=networking +regex discouraged +deprecated emacs nls debug-freelist debug-malloc debug +threads
+KEYWORDS=alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~x86-fbsd ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos
+LICENSE=LGPL-2.1
+RDEPEND=>=dev-libs/gmp-4.1 >=sys-devel/libtool-1.5.6 sys-devel/gettext emacs? ( virtual/emacs )
+RESTRICT=!regex? ( test )
+SLOT=12
+SRC_URI=mirror://gnu/guile/guile-1.8.8.tar.gz
+_eclasses_=autotools	cf83655b19ed98f9ea3b44f4572b51a3	elisp-common	21605c8f0b2a5ffa3233faeb3f9df309	eutils	d40dc948067bd3db1c8ebf7d51897313	flag-o-matic	d900015de4e092f26d8c0a18b6bd60de	libtool	2b273eea1976cfaed3449345d94331ac	multilib	ded93e450747134a079e647d888aa80b	multiprocessing	a2130e6fc4aa4c6a24b265ca0cbcc2b6	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=875389313efbb66dd78ddbad37f333f6

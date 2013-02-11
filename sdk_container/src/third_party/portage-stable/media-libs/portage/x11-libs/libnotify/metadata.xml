@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+  <herd>freedesktop</herd>
+  <use>
+    <flag name='introspection'>Use <pkg>dev-libs/gobject-introspection</pkg> for introspection</flag>
+    <flag name='symlink'>Create symlink from libnotify-notify-send to notify-send</flag>
+  </use>
+</pkgmetadata>

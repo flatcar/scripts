@@ -1,0 +1,10 @@
+DEFINED_PHASES=-
+DESCRIPTION=Meta package for a suite of sparse matrix tools
+EAPI=2
+HOMEPAGE=http://www.cise.ufl.edu/research/sparse/SuiteSparse/
+IUSE=metis doc
+KEYWORDS=~amd64 ~x86
+LICENSE=LGPL-2.1 GPL-2
+RDEPEND=>=sci-libs/ufconfig-3.5.0 >=sci-libs/amd-2.2[doc?] >=sci-libs/btf-1.1 >=sci-libs/camd-2.2.0[doc?] >=sci-libs/ccolamd-2.7.1 >=sci-libs/cholmod-1.7.1[doc?,metis?] >=sci-libs/colamd-2.7.1 >=sci-libs/cxsparse-2.2.3 >=sci-libs/klu-1.1[doc?] >=sci-libs/ldl-2.0.1[doc?] >=sci-libs/spqr-1.2[doc?,metis?] >=sci-libs/umfpack-5.5[doc?,metis?]
+SLOT=0
+_md5_=0046296a74094f317139140e88121188

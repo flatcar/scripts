@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile config configure install nofetch postinst postrm preinst prepare setup unpack
+DEPEND=app-arch/xz-utils >=sys-apps/sed-4
+DESCRIPTION=Scary first-person adventure game trilogy which focuses on story, immersion and puzzles
+EAPI=5
+HOMEPAGE=http://www.penumbragame.com/
+KEYWORDS=-* ~amd64 ~x86
+LICENSE=PENUMBRA-COLLECTION
+RDEPEND=virtual/glu virtual/opengl x86? ( media-libs/fontconfig media-libs/freealut media-libs/freetype media-libs/libogg media-libs/libsdl[X,audio,video,opengl] media-libs/libvorbis media-libs/sdl-image[gif,jpeg,png] media-libs/sdl-ttf media-gfx/nvidia-cg-toolkit x11-libs/fltk:1 x11-libs/libX11 x11-libs/libXext x11-libs/libXft x11-libs/libXrender ) amd64? ( app-emulation/emul-linux-x86-opengl app-emulation/emul-linux-x86-sdl app-emulation/emul-linux-x86-soundlibs app-emulation/emul-linux-x86-xlibs )
+RESTRICT=fetch
+SLOT=0
+SRC_URI=PenumbraCollection-1.1.sh
+_eclasses_=base	ec46b36a6f6fd1d0b505a33e0b74e413	eutils	d40dc948067bd3db1c8ebf7d51897313	games	e0a83e3f3f024b8c8ef7a8217d716cbf	gnome2-utils	794d2847b4af390a1e020924876c8297	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	unpacker	50e1227854e96469a19a63f053496328	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=c67e84fe70eef1a807a4f9d05462fafc

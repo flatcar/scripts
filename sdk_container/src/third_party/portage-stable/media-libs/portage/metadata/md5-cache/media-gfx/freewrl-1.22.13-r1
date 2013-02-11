@@ -1,0 +1,13 @@
+DEFINED_PHASES=configure install postinst preinst prepare setup
+DEPEND=x11-libs/libXau x11-libs/libXdmcp x11-libs/libXext x11-libs/libX11 motif? ( x11-libs/motif ) !motif? ( x11-libs/libXaw ) media-libs/mesa glew? ( media-libs/glew ) virtual/opengl media-libs/libpng virtual/jpeg media-libs/imlib2 >=media-libs/freetype-2 media-libs/fontconfig curl? ( net-misc/curl ) osc? ( media-libs/liblo ) dev-lang/spidermonkey virtual/pkgconfig java? ( >=virtual/jdk-1.4 ) nsplugin? ( net-misc/npapi-sdk ) || ( >=sys-devel/automake-1.11.1:1.11 >=sys-devel/automake-1.12:1.12 ) >=sys-devel/autoconf-2.68 sys-devel/libtool java? ( >=dev-java/java-config-2.1.9-r1 )
+DESCRIPTION=VRML97 and X3D compliant browser, library, and web-browser plugin
+EAPI=4
+HOMEPAGE=http://freewrl.sourceforge.net/
+IUSE=curl debug +glew java libeai motif +nsplugin osc +sox static-libs elibc_FreeBSD java
+KEYWORDS=~amd64 ~x86
+LICENSE=GPL-3
+RDEPEND=x11-libs/libXau x11-libs/libXdmcp x11-libs/libXext x11-libs/libX11 motif? ( x11-libs/motif ) !motif? ( x11-libs/libXaw ) media-libs/mesa glew? ( media-libs/glew ) virtual/opengl media-libs/libpng virtual/jpeg media-libs/imlib2 >=media-libs/freetype-2 media-libs/fontconfig curl? ( net-misc/curl ) osc? ( media-libs/liblo ) dev-lang/spidermonkey media-fonts/dejavu || ( media-gfx/imagemagick media-gfx/graphicsmagick[imagemagick] ) app-arch/unzip java? ( >=virtual/jre-1.4 ) sox? ( media-sound/sox ) java? ( >=dev-java/java-config-2.1.9-r1 )
+SLOT=0
+SRC_URI=mirror://sourceforge/freewrl/freewrl-1.22.13.1.tar.bz2
+_eclasses_=autotools	cf83655b19ed98f9ea3b44f4572b51a3	eutils	d40dc948067bd3db1c8ebf7d51897313	flag-o-matic	d900015de4e092f26d8c0a18b6bd60de	java-pkg-opt-2	f9bbbe5092225a2059aa9e6a3a2b52f1	java-utils-2	dcda71e114d638cdf01db57b8445337d	libtool	2b273eea1976cfaed3449345d94331ac	multilib	ded93e450747134a079e647d888aa80b	multiprocessing	a2130e6fc4aa4c6a24b265ca0cbcc2b6	nsplugins	b195a1306f4ee7cf507037dc6aa5ba89	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=807dcb8eabab5d13aafb0369d857625d

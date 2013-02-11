@@ -1,0 +1,10 @@
+DEFINED_PHASES=install
+DESCRIPTION=sysvinit compatibility symlinks and manpages
+EAPI=4
+HOMEPAGE=http://www.freedesktop.org/wiki/Software/systemd
+KEYWORDS=~amd64 ~x86
+LICENSE=GPL-2
+RDEPEND=!sys-apps/sysvinit sys-apps/systemd
+SLOT=0
+SRC_URI=http://www.freedesktop.org/software/systemd/systemd-37.tar.bz2
+_md5_=257850a809d840af7cdc670ba3be5500

@@ -1,0 +1,72 @@
+# ChangeLog for dev-ruby/method_source
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/method_source/ChangeLog,v 1.16 2012/12/24 08:03:16 graaff Exp $
+
+*method_source-0.8.1 (24 Dec 2012)
+
+  24 Dec 2012; Hans de Graaff <graaff@gentoo.org> +method_source-0.8.1.ebuild:
+  Version bump.
+
+  14 Nov 2012; Hans de Graaff <graaff@gentoo.org> -method_source-0.6.7.ebuild:
+  Remove this version again since the compatibility issues where elsewhere.
+
+  14 Nov 2012; Hans de Graaff <graaff@gentoo.org> +method_source-0.6.7.ebuild:
+  Add back 0.6.7 in a separate slot to satisfy dev-ruby/pry dependency.
+
+  26 Aug 2012; Hans de Graaff <graaff@gentoo.org>
+  -method_source-0.7.1-r1.ebuild:
+  Cleanup.
+
+  14 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> metadata.xml:
+  Update metadata.xml so that it's the same as most other packages.
+
+*method_source-0.8 (06 Jul 2012)
+
+  06 Jul 2012; Hans de Graaff <graaff@gentoo.org> +method_source-0.8.ebuild:
+  Version bump.
+
+  06 Jul 2012; Hans de Graaff <graaff@gentoo.org> -method_source-0.6.7.ebuild,
+  -method_source-0.7.0.ebuild:
+  Remove old versions.
+
+*method_source-0.7.1-r1 (30 Apr 2012)
+
+  30 Apr 2012; Diego E. Pettenò <flameeyes@gentoo.org>
+  +method_source-0.7.1-r1.ebuild, -method_source-0.7.1.ebuild:
+  Fix gemspec to report the correct version.
+
+  29 Apr 2012; Thomas Kahle <tomka@gentoo.org> method_source-0.7.1.ebuild:
+  marked ~x86 per bug 391073
+
+*method_source-0.7.1 (09 Apr 2012)
+
+  09 Apr 2012; Hans de Graaff <graaff@gentoo.org> +method_source-0.7.1.ebuild:
+  Version bump.
+
+  11 Mar 2012; Brent Baude <ranger@gentoo.org> method_source-0.7.0.ebuild:
+  Marking method_source-0.7.0 ~ppc64 for bug 388357
+
+*method_source-0.7.0 (15 Jan 2012)
+
+  15 Jan 2012; Hans de Graaff <graaff@gentoo.org> +method_source-0.7.0.ebuild:
+  Version bump. No longer depends on ruby_parser.
+
+  28 Dec 2011; Hans de Graaff <graaff@gentoo.org> -method_source-0.6.5.ebuild,
+  -method_source-0.6.6.ebuild:
+  Remove old versions.
+
+*method_source-0.6.7 (18 Dec 2011)
+
+  18 Dec 2011; Hans de Graaff <graaff@gentoo.org> +method_source-0.6.7.ebuild:
+  Version bump.
+
+*method_source-0.6.6 (16 Oct 2011)
+
+  16 Oct 2011; Hans de Graaff <graaff@gentoo.org> +method_source-0.6.6.ebuild:
+  Version bump.
+
+*method_source-0.6.5 (10 Sep 2011)
+
+  10 Sep 2011; Hans de Graaff <graaff@gentoo.org> +method_source-0.6.5.ebuild,
+  +metadata.xml:
+  Initial import. Dependency for forthcoming dev-ruby/pry.

@@ -1,0 +1,11 @@
+# ChangeLog for dev-ruby/mab
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/mab/ChangeLog,v 1.1 2012/11/24 10:01:38 graaff Exp $
+
+*mab-0.0.2 (24 Nov 2012)
+
+  24 Nov 2012; Hans de Graaff <graaff@gentoo.org> +mab-0.0.2.ebuild,
+  +metadata.xml:
+  Initial import. New dependency for dev-ruby/camping. Ebuild by Michel
+  Boaventura, moved from ruby overlay.
+

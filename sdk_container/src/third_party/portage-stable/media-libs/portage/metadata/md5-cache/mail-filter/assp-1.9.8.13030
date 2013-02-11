@@ -1,0 +1,12 @@
+DEFINED_PHASES=install postinst setup unpack
+DEPEND=app-arch/unzip
+DESCRIPTION=Anti-Spam SMTP Proxy written in Perl.
+HOMEPAGE=http://assp.sourceforge.net/
+IUSE=ipv6 ldap sasl spf srs ssl syslog
+KEYWORDS=~amd64 ~x86
+LICENSE=GPL-2
+RDEPEND=dev-lang/perl dev-perl/Net-DNS dev-perl/File-ReadBackwards virtual/perl-IO-Compress dev-perl/Email-MIME dev-perl/Email-Send dev-perl/Email-Valid dev-perl/libwww-perl dev-perl/mime-construct dev-perl/Net-CIDR-Lite virtual/perl-Digest-MD5 virtual/perl-Time-HiRes ipv6? ( dev-perl/IO-Socket-INET6 ) sasl? ( dev-perl/Authen-SASL ) spf? ( dev-perl/Mail-SPF ) srs? ( dev-perl/Mail-SRS ) ssl? ( dev-perl/IO-Socket-SSL ) syslog? ( perl-core/Sys-Syslog ) ldap? ( dev-perl/perl-ldap )
+SLOT=0
+SRC_URI=mirror://sourceforge/assp/ASSP_1.98_13030_install.zip
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=324c37764d86c62bacaf0f4f5afab109

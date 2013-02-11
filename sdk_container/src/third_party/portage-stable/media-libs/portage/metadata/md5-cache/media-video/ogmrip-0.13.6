@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install postinst postrm preinst prepare setup unpack
+DEPEND=>=dev-libs/glib-2.16:2 >=app-i18n/enca-1.9 dev-libs/libxml2 media-libs/libdvdread >=media-video/mplayer-1.0_rc2[dvd,encode,xvid?,dts?,x264?] aac? ( >=media-libs/faac-1.24 ) gtk? ( >=x11-libs/gtk+-2.12:2 gnome-base/libglade gnome-base/gconf dbus? ( dev-libs/dbus-glib ) libnotify? ( >=x11-libs/libnotify-0.4.3 ) media-video/mplayer[jpeg] ) matroska? ( media-video/mkvtoolnix ) mp3? ( media-sound/lame ) mp4? ( >=media-video/gpac-0.4.2 ) ogm? ( media-sound/ogmtools ) spell? ( >=app-text/enchant-1.1.0 ) srt? ( || ( ( >=app-text/tesseract-2 media-libs/tiff ) >=app-text/gocr-0.39 >=app-text/ocrad-0.15 ) media-libs/libpng ) theora? ( media-libs/libtheora ) vorbis? ( media-sound/vorbis-tools ) nls? ( sys-devel/gettext dev-util/intltool ) virtual/pkgconfig || ( >=sys-devel/automake-1.11.1:1.11 >=sys-devel/automake-1.12:1.12 ) >=sys-devel/autoconf-2.68 sys-devel/libtool >=sys-apps/sed-4
+DESCRIPTION=Graphical frontend and libraries for ripping DVDs and encoding to AVI/OGM/MKV/MP4
+EAPI=2
+HOMEPAGE=http://ogmrip.sourceforge.net/
+IUSE=aac dbus dts gtk libnotify matroska mp3 mp4 nls ogm spell srt theora vorbis x264 xvid
+KEYWORDS=~amd64 ~ppc ~ppc64 ~x86
+LICENSE=LGPL-2.1
+RDEPEND=>=dev-libs/glib-2.16:2 >=app-i18n/enca-1.9 dev-libs/libxml2 media-libs/libdvdread >=media-video/mplayer-1.0_rc2[dvd,encode,xvid?,dts?,x264?] aac? ( >=media-libs/faac-1.24 ) gtk? ( >=x11-libs/gtk+-2.12:2 gnome-base/libglade gnome-base/gconf dbus? ( dev-libs/dbus-glib ) libnotify? ( >=x11-libs/libnotify-0.4.3 ) media-video/mplayer[jpeg] ) matroska? ( media-video/mkvtoolnix ) mp3? ( media-sound/lame ) mp4? ( >=media-video/gpac-0.4.2 ) ogm? ( media-sound/ogmtools ) spell? ( >=app-text/enchant-1.1.0 ) srt? ( || ( ( >=app-text/tesseract-2 media-libs/tiff ) >=app-text/gocr-0.39 >=app-text/ocrad-0.15 ) media-libs/libpng ) theora? ( media-libs/libtheora ) vorbis? ( media-sound/vorbis-tools ) gnome-base/gvfs
+SLOT=0
+SRC_URI=mirror://sourceforge/ogmrip/ogmrip-0.13.6.tar.gz
+_eclasses_=autotools	cf83655b19ed98f9ea3b44f4572b51a3	eutils	d40dc948067bd3db1c8ebf7d51897313	fdo-mime	0acfe1a88fd8751a1d5dc671168219fa	gnome.org	8fef8f967214f56e08fa92d61163d891	gnome2	96ca31031ada9967bcf96a4fd8977ae4	gnome2-utils	794d2847b4af390a1e020924876c8297	libtool	2b273eea1976cfaed3449345d94331ac	multilib	ded93e450747134a079e647d888aa80b	multiprocessing	a2130e6fc4aa4c6a24b265ca0cbcc2b6	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=9d3a24e99adf594fd2dbbe695cf2a3d9

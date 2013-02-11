@@ -1,0 +1,19 @@
+# ChangeLog for dev-libs/antlr-c
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/antlr-c/ChangeLog,v 1.4 2013/02/03 11:22:03 pacho Exp $
+
+  03 Feb 2013; Pacho Ramos <pacho@gentoo.org> metadata.xml:
+  Cleanup due #333419
+
+  05 Mar 2012; Markos Chandras <hwoarang@gentoo.org> metadata.xml:
+  Remove betelgeuse
+
+  09 Feb 2012; Pacho Ramos <pacho@gentoo.org> metadata.xml:
+  Reorder maintainers per their availability.
+
+*antlr-c-3.3_pre20110403 (10 Jun 2011)
+
+  10 Jun 2011; Mu Qiao <qiaomuf@gentoo.org> +files/antlr-c-3.1.4-doxygen.patch,
+  +antlr-c-3.3_pre20110403.ebuild, +files/antlr-c-3.3-cflags.patch,
+  +metadata.xml:
+  Initial commit for antlr-c

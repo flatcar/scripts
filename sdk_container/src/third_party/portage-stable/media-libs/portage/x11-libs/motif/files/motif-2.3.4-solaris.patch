@@ -1,0 +1,17 @@
+http://bugs.motifzone.net/showattachment.cgi?attach_id=259
+http://bugs.motifzone.net/long_list.cgi?buglist=1479
+
+Extend the patch to include guard for sun to solve the exact same
+compilation issue on Solaris.
+
+--- motif-2.3.4-orig/clients/uil/UilDefI.h
++++ motif-2.3.4/clients/uil/UilDefI.h
+@@ -270,7 +270,7 @@
+ #include "UilIODef.h"
+ #include "UilDiagDef.h"
+ #include "UilSarDef.h"
+-#if defined(linux) || defined(__APPLE__)
++#if defined(linux) || defined(__APPLE__) || defined(sun)
+ #define YYSTYPE yystype
+ #endif
+ #include "UilLexPars.h"

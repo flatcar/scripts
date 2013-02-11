@@ -1,0 +1,26 @@
+# ChangeLog for net-wireless/madwimax
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-wireless/madwimax/ChangeLog,v 1.6 2012/11/18 11:22:23 pacho Exp $
+
+  18 Nov 2012; Pacho Ramos <pacho@gentoo.org> metadata.xml:
+  Drop mobile herd as talked in gentoo-dev ML
+
+  04 May 2012; Jeff Horelick <jdhore@gentoo.org> madwimax-0.1.1.ebuild:
+  dev-util/pkgconfig -> virtual/pkgconfig
+
+  04 Feb 2012; Alexey Shvetsov <alexxy@gentoo.org> madwimax-0.1.1.ebuild:
+  Fix bug #381325
+
+  05 Nov 2011; Robin H. Johnson <robbat2@gentoo.org> madwimax-0.1.1.ebuild:
+  Fix CONFIG_CHECK usage to be non-fatal, this package does not build kernel
+  modules. Verified good build with no kernel sources or kernel config
+  available.
+
+  02 Oct 2011; Alexey Shvetsov <alexxy@gentoo.org> madwimax-0.1.1.ebuild:
+  It works on ~arm (tm)
+
+*madwimax-0.1.1 (07 Aug 2010)
+
+  07 Aug 2010; Alexey Shvetsov <alexxy@gentoo.org> +madwimax-0.1.1.ebuild,
+  +metadata.xml:
+  Initial import. fix for bug #270869

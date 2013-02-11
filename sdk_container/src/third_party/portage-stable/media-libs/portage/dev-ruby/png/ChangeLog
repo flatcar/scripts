@@ -1,0 +1,45 @@
+# ChangeLog for dev-ruby/png
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/png/ChangeLog,v 1.11 2012/09/10 18:39:44 graaff Exp $
+
+  10 Sep 2012; Hans de Graaff <graaff@gentoo.org> png-1.2.0-r1.ebuild:
+  Add ruby19, ree18. Move to EAPI=4.
+
+  16 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> png-1.2.0-r1.ebuild:
+  Update after Ruby packages move.
+
+  14 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> metadata.xml:
+  Update metadata.xml so that it's the same as most other packages.
+
+  29 Jul 2010; Diego E. Pettenò <flameeyes@gentoo.org> -png-1.2.0.ebuild,
+  png-1.2.0-r1.ebuild:
+  Fix $HOME permissions (bug #299367); cleanup old version.
+
+*png-1.2.0-r1 (27 Jun 2010)
+
+  27 Jun 2010; Hans de Graaff <graaff@gentoo.org> +png-1.2.0-r1.ebuild:
+  Convert to ruby-fakegem.
+
+  22 May 2010; Diego E. Pettenò <flameeyes@gentoo.org> png-1.2.0.ebuild:
+  Various cleanups.
+
+  09 Dec 2009; Hans de Graaff <graaff@gentoo.org> -png-1.1.0.ebuild:
+  Remove old version.
+
+  03 Jul 2009; Hans de Graaff <graaff@gentoo.org> png-1.2.0.ebuild:
+  Add back ruby-inline dependency. It is not listed in the gemspec but still
+  needed by the code. Fixes #276179.
+
+*png-1.2.0 (27 Jun 2009)
+
+  27 Jun 2009; Hans de Graaff <graaff@gentoo.org> +png-1.2.0.ebuild:
+  Version bump with many enhancements.
+
+  20 Mar 2009; Jorge Manuel B. S. Vicetto <jmbsvicetto@gentoo.org>
+  metadata.xml:
+  Removing agorf as a maintainer since he was retired.
+
+*png-1.1.0 (21 Sep 2007)
+
+  21 Sep 2007; Aggelos Orfanakos <agorf@gentoo.org> +png-1.1.0.ebuild:
+  Initial import.

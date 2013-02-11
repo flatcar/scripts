@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install prepare
+DEPEND=media-libs/fontconfig >=x11-libs/libXft-2.1.0 x11-libs/libXmu x11-libs/libXt x11-libs/libXv gif? ( >=media-libs/giflib-4.1.0-r3 ) png? ( media-libs/libpng:0 ) jpeg? ( virtual/jpeg ) tiff? ( media-libs/tiff:0 ) xinerama? ( x11-libs/libXinerama ) xrandr? ( x11-libs/libXrandr ) || ( >=sys-devel/automake-1.11.1:1.11 >=sys-devel/automake-1.12:1.12 ) >=sys-devel/autoconf-2.68 sys-devel/libtool
+DESCRIPTION=The fast and light GNUstep window manager
+EAPI=4
+HOMEPAGE=http://www.windowmaker.org/
+IUSE=gif jpeg nls png tiff modelock xinerama xrandr
+KEYWORDS=~alpha ~amd64 ~arm ~hppa ~mips ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris
+LICENSE=GPL-2
+RDEPEND=media-libs/fontconfig >=x11-libs/libXft-2.1.0 x11-libs/libXmu x11-libs/libXt x11-libs/libXv gif? ( >=media-libs/giflib-4.1.0-r3 ) png? ( media-libs/libpng:0 ) jpeg? ( virtual/jpeg ) tiff? ( media-libs/tiff:0 ) xinerama? ( x11-libs/libXinerama ) xrandr? ( x11-libs/libXrandr ) nls? ( >=sys-devel/gettext-0.10.39 )
+SLOT=0
+SRC_URI=http://windowmaker.org/pub/source/release/WindowMaker-0.95.4.tar.gz http://www.windowmaker.org/pub/source/release/WindowMaker-extra-0.1.tar.gz
+_eclasses_=autotools	cf83655b19ed98f9ea3b44f4572b51a3	eutils	d40dc948067bd3db1c8ebf7d51897313	libtool	2b273eea1976cfaed3449345d94331ac	multilib	ded93e450747134a079e647d888aa80b	multiprocessing	a2130e6fc4aa4c6a24b265ca0cbcc2b6	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=edecfab644ed4d95459cf1b4b1794cc3

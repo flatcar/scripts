@@ -1,0 +1,26 @@
+# ChangeLog for dev-ruby/inifile
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/inifile/ChangeLog,v 1.5 2012/10/12 05:23:15 graaff Exp $
+
+*inifile-2.0.2 (12 Oct 2012)
+
+  12 Oct 2012; Hans de Graaff <graaff@gentoo.org> +inifile-2.0.2.ebuild:
+  Version bump. Handle doc and test directly to drop bones dependency.
+
+  20 Aug 2012; Hans de Graaff <graaff@gentoo.org> -inifile-0.4.1.ebuild:
+  Cleanup.
+
+  13 Mar 2012; Hans de Graaff <graaff@gentoo.org> inifile-1.1.0.ebuild:
+  Fix HOMEPAGE.
+
+*inifile-1.1.0 (13 Mar 2012)
+
+  13 Mar 2012; Hans de Graaff <graaff@gentoo.org> +inifile-1.1.0.ebuild:
+  Version bump.
+
+*inifile-0.4.1 (29 Dec 2011)
+
+  29 Dec 2011; Diego E. Pettenò <flameeyes@gentoo.org> +inifile-0.4.1.ebuild,
+  +metadata.xml:
+  Initial import of ebuild for .ini file reading.
+

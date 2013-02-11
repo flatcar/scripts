@@ -1,0 +1,48 @@
+# ChangeLog for dev-libs/gnulib
+# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/gnulib/ChangeLog,v 1.12 2011/09/21 08:21:11 mgorny Exp $
+
+  21 Sep 2011; Michał Górny <mgorny@gentoo.org> gnulib-9999-r1.ebuild:
+  Migrate to git-2.
+
+*gnulib-2009.03.03.14.07.45-r1 (20 Feb 2010)
+
+  20 Feb 2010; Jonathan Callen <abcd@gentoo.org>
+  -gnulib-2009.03.03.14.07.45.ebuild, +gnulib-2009.03.03.14.07.45-r1.ebuild:
+  Transfer prefix keywords, bump EAPI
+
+  25 Oct 2009; Torsten Veller <tove@gentoo.org> metadata.xml:
+  Remove drizzt from metadata.xml (#149111)
+
+  26 Mar 2009; Timothy Redaelli <drizzt@gentoo.org>
+  gnulib-2009.03.03.14.07.45.ebuild:
+  Create a static libgnu.a. Backport from prefix overlay
+
+  04 Mar 2009; Timothy Redaelli <drizzt@gentoo.org>
+  gnulib-2009.03.03.14.07.45.ebuild, gnulib-9999-r1.ebuild:
+  Add use doc also on 9999-r1 ebuild. QA: Remove COPYING file
+
+*gnulib-2009.03.03.14.07.45 (04 Mar 2009)
+
+  04 Mar 2009; Timothy Redaelli <drizzt@gentoo.org>
+  +files/gnulib-2008.07.23-rpl_getopt.patch,
+  +files/gnulib-2009.03.03.14.07.45-scandir.patch,
+  +gnulib-2009.03.03.14.07.45.ebuild:
+  Add a snapshot of gnulib
+
+  02 Feb 2009; <drizzt@gentoo.org> -gnulib-9999.ebuild,
+  +gnulib-9999-r1.ebuild:
+  Install modules and build-aux Thanks to Michael Haubenwallner wrt #232921
+
+*gnulib-9999-r1 (27 Oct 2007)
+
+  27 Oct 2007; Timothy Redaelli <drizzt@gentoo.org> +gnulib-9999-r1.ebuild:
+  Now gnulib uses git, make a symlink instead of wrapper since is not necessary.
+
+*gnulib-9999 (08 May 2007)
+
+  08 May 2007; Timothy Redaelli <drizzt@gentoo.org> +metadata.xml,
+  +gnulib-9999.ebuild:
+  New ebuild, imported from my overlay.
+  Thanks to Davide Angelocola wrt bug #162295 for original ebuild.
+

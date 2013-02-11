@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install postinst postrm prepare setup
+DEPEND=dev-python/wxpython:2.8[cairo?] dev-python/imaging media-video/mplayer[encode] sdl? ( dev-python/pygame ) =dev-lang/python-2* =dev-lang/python-2*[sqlite]
+DESCRIPTION=Movie slideshow creator using Ken Burns effect
+EAPI=5
+HOMEPAGE=http://www.photofilmstrip.org
+IUSE=cairo sdl
+KEYWORDS=~amd64 ~x86
+LICENSE=GPL-2
+RDEPEND=dev-python/wxpython:2.8[cairo?] dev-python/imaging media-video/mplayer[encode] sdl? ( dev-python/pygame ) =dev-lang/python-2* =dev-lang/python-2*[sqlite]
+SLOT=0
+SRC_URI=mirror://sourceforge/photostoryx/photofilmstrip/1.9.91-unstable/photofilmstrip-1.9.91.tar.gz
+_eclasses_=distutils	15ae23f6f8219a009bfcfff7724fe727	multilib	ded93e450747134a079e647d888aa80b	python	e5b3412fa9f03670a666c8a137bd1060	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e
+_md5_=bfd6dc2aa289a6c0c98f4ece15a37995

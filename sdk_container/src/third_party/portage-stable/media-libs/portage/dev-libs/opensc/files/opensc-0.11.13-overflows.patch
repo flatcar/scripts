@@ -1,0 +1,71 @@
+--- a/src/libopensc/internal.h
++++ b/src/libopensc/internal.h
+@@ -49,6 +49,13 @@ extern "C" {
+ #define sleep(t)	Sleep((t) * 1000)
+ #endif
+ 
++#ifndef MAX
++#define MAX(x, y) (((x) > (y)) ? (x) : (y))
++#endif
++#ifndef MIN
++#define MIN(x, y) (((x) < (y)) ? (x) : (y))
++#endif
++
+ struct sc_atr_table {
+ 	/* The atr fields are required to
+ 	 * be in aa:bb:cc hex format. */
+--- a/src/libopensc/muscle.c
++++ b/src/libopensc/muscle.c
+@@ -31,13 +31,6 @@
+ #define MSC_DSA_PUBLIC		0x04
+ #define MSC_DSA_PRIVATE 	0x05
+ 
+-#ifndef MAX
+-#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+-#endif
+-#ifndef MIN
+-#define MIN(x, y) (((x) < (y)) ? (x) : (y))
+-#endif
+-
+ static msc_id inputId = { { 0xFF, 0xFF, 0xFF, 0xFF } };
+ static msc_id outputId = { { 0xFF, 0xFF, 0xFF, 0xFE } };
+ 
+--- a/src/libopensc/card-acos5.c
++++ b/src/libopensc/card-acos5.c
+@@ -138,8 +138,8 @@ static int acos5_get_serialnr(sc_card_t * card, sc_serial_number_t * serial)
+ 	/*
+ 	 * Cache serial number.
+ 	 */
+-	memcpy(card->serialnr.value, apdu.resp, apdu.resplen);
+-	card->serialnr.len = apdu.resplen;
++	memcpy(card->serialnr.value, apdu.resp, MIN(apdu.resplen, SC_MAX_SERIALNR));
++	card->serialnr.len = MIN(apdu.resplen, SC_MAX_SERIALNR);
+ 
+ 	/*
+ 	 * Copy and return serial number.
+--- a/src/libopensc/card-atrust-acos.c
++++ b/src/libopensc/card-atrust-acos.c
+@@ -842,8 +842,8 @@ static int acos_get_serialnr(sc_card_t *card, sc_serial_number_t *serial)
+ 	if (apdu.sw1 != 0x90 || apdu.sw2 != 0x00)
+ 		return SC_ERROR_INTERNAL;
+ 	/* cache serial number */
+-	memcpy(card->serialnr.value, apdu.resp, apdu.resplen);
+-	card->serialnr.len = apdu.resplen;
++	memcpy(card->serialnr.value, apdu.resp, MIN(apdu.resplen, SC_MAX_SERIALNR));
++	card->serialnr.len = MIN(apdu.resplen, SC_MAX_SERIALNR);
+ 	/* copy and return serial number */
+ 	memcpy(serial, &card->serialnr, sizeof(*serial));
+ 	return SC_SUCCESS;
+--- a/src/libopensc/card-starcos.c
++++ b/src/libopensc/card-starcos.c
+@@ -1279,8 +1279,8 @@ static int starcos_get_serialnr(sc_card_t *card, sc_serial_number_t *serial)
+ 	if (apdu.sw1 != 0x90 || apdu.sw2 != 0x00)
+ 		return SC_ERROR_INTERNAL;
+ 	/* cache serial number */
+-	memcpy(card->serialnr.value, apdu.resp, apdu.resplen);
+-	card->serialnr.len = apdu.resplen;
++	memcpy(card->serialnr.value, apdu.resp, MIN(apdu.resplen, SC_MAX_SERIALNR));
++	card->serialnr.len = MIN(apdu.resplen, SC_MAX_SERIALNR);
+ 	/* copy and return serial number */
+ 	memcpy(serial, &card->serialnr, sizeof(*serial));
+ 	return SC_SUCCESS;

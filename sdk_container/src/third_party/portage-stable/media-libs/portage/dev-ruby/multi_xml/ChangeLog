@@ -1,0 +1,63 @@
+# ChangeLog for dev-ruby/multi_xml
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/multi_xml/ChangeLog,v 1.14 2013/01/16 07:25:47 graaff Exp $
+
+  16 Jan 2013; Hans de Graaff <graaff@gentoo.org> -multi_xml-0.5.1.ebuild:
+  Cleanup.
+
+*multi_xml-0.5.2 (11 Jan 2013)
+
+  11 Jan 2013; Hans de Graaff <graaff@gentoo.org> +multi_xml-0.5.2.ebuild:
+  Version bump for security bug 451382.
+
+  27 Sep 2012; Samuli Suominen <ssuominen@gentoo.org> multi_xml-0.5.1.ebuild:
+  Keyword ~ppc wrt #415691
+
+  28 Aug 2012; Hans de Graaff <graaff@gentoo.org> -multi_xml-0.4.1.ebuild,
+  -multi_xml-0.4.2.ebuild:
+  Cleanup.
+
+  14 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> multi_xml-0.5.1.ebuild:
+  Port to rspec helper for testing.
+
+*multi_xml-0.5.1 (17 May 2012)
+
+  17 May 2012; Hans de Graaff <graaff@gentoo.org> +multi_xml-0.5.1.ebuild:
+  Version bump.
+
+  17 May 2012; Hans de Graaff <graaff@gentoo.org> -multi_xml-0.2.2.ebuild,
+  -multi_xml-0.3.0.ebuild, -multi_xml-0.4.0.ebuild:
+  Remove old versions.
+
+*multi_xml-0.4.2 (09 Apr 2012)
+
+  09 Apr 2012; Hans de Graaff <graaff@gentoo.org> +multi_xml-0.4.2.ebuild:
+  Version bump.
+
+  28 Dec 2011; Hans de Graaff <graaff@gentoo.org> multi_xml-0.4.1.ebuild:
+  Add back jruby support as well.
+
+*multi_xml-0.4.1 (28 Dec 2011)
+
+  28 Dec 2011; Hans de Graaff <graaff@gentoo.org> +multi_xml-0.4.1.ebuild,
+  +files/multi_xml-0.4.1-ruby19.patch:
+  Version bump. Add ruby19 and fix tests for it.
+
+  29 Sep 2011; Hans de Graaff <graaff@gentoo.org> multi_xml-0.4.0.ebuild:
+  Add ~x86 keyword.
+
+*multi_xml-0.4.0 (14 Sep 2011)
+
+  14 Sep 2011; Hans de Graaff <graaff@gentoo.org> +multi_xml-0.4.0.ebuild:
+  Version bump.
+
+*multi_xml-0.3.0 (12 Aug 2011)
+
+  12 Aug 2011; Hans de Graaff <graaff@gentoo.org> +multi_xml-0.3.0.ebuild:
+  Version bump.
+
+*multi_xml-0.2.2 (20 Jul 2011)
+
+  20 Jul 2011; Hans de Graaff <graaff@gentoo.org> +multi_xml-0.2.2.ebuild,
+  +metadata.xml:
+  Initial import. New dependency of dev-ruby/twitter.

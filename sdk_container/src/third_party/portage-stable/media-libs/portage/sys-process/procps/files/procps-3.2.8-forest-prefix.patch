@@ -1,0 +1,38 @@
+avoid gcc warnings like:
+
+ps/output.c:341:6: warning: the address of ‘forest_prefix’ will always evaluate as ‘true’
+
+Index: ps/output.c
+===================================================================
+RCS file: /cvsroot/procps/procps/ps/output.c,v
+retrieving revision 1.63
+diff -u -p -r1.63 output.c
+--- ps/output.c	3 May 2009 06:39:33 -0000	1.63
++++ ps/output.c	14 Nov 2010 00:24:56 -0000
+@@ -338,7 +338,7 @@ static int pr_args(char *restrict const 
+   unsigned flags;
+   int rightward=max_rightward;
+ 
+-  if(forest_prefix){
++  if(/*forest_prefix*/1){
+     int fh = forest_helper(outbuf);
+     endp += fh;
+     rightward -= fh;
+@@ -365,7 +365,7 @@ static int pr_comm(char *restrict const 
+   unsigned flags;
+   int rightward=max_rightward;
+   
+-  if(forest_prefix){
++  if(/*forest_prefix*/1){
+     int fh = forest_helper(outbuf);
+     endp += fh;
+     rightward -= fh;
+@@ -390,7 +390,7 @@ static int pr_fname(char *restrict const
+   char *endp = outbuf;
+   int rightward = max_rightward;
+   
+-  if(forest_prefix){
++  if(/*forest_prefix*/1){
+     int fh = forest_helper(outbuf);
+     endp += fh;
+     rightward -= fh;

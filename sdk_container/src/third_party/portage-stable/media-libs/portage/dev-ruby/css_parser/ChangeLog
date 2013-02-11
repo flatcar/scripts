@@ -1,0 +1,13 @@
+# ChangeLog for dev-ruby/css_parser
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/css_parser/ChangeLog,v 1.2 2012/05/05 05:44:15 graaff Exp $
+
+  05 May 2012; Hans de Graaff <graaff@gentoo.org> css_parser-1.2.6.ebuild:
+  Add missing IUSE.
+
+*css_parser-1.2.6 (20 Feb 2012)
+
+  20 Feb 2012; Diego E. Pettenò <flameeyes@gentoo.org> +css_parser-1.2.6.ebuild,
+  +metadata.xml:
+  Initial import (required for testing compass).
+

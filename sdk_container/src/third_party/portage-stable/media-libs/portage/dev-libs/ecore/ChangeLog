@@ -1,0 +1,84 @@
+# ChangeLog for dev-libs/ecore
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/ecore/ChangeLog,v 1.15 2013/01/04 18:09:30 tommy Exp $
+
+*ecore-1.7.5 (04 Jan 2013)
+
+  04 Jan 2013; Thomas Sachau (Tommy[D]) <tommy@gentoo.org> +ecore-1.7.5.ebuild:
+  Version bump
+
+  29 Dec 2012; Thomas Sachau (Tommy[D]) <tommy@gentoo.org> ecore-1.7.4.ebuild:
+  Disable automagic scim support in ecore_imf, missing arm support for scim
+
+*ecore-1.7.4 (21 Dec 2012)
+
+  21 Dec 2012; Thomas Sachau (Tommy[D]) <tommy@gentoo.org>
+  -files/ecore-1.7_80526.patch, -ecore-1.7.1.ebuild, -ecore-1.7.3.ebuild,
+  +ecore-1.7.4.ebuild:
+  Version bump, drop old
+
+*ecore-1.7.3 (09 Dec 2012)
+
+  09 Dec 2012; Thomas Sachau (Tommy[D]) <tommy@gentoo.org>
+  -files/ecore-1.2.1-glibc-2.16.patch, +files/ecore-1.7_80526.patch,
+  -ecore-1.7.0.ebuild, +ecore-1.7.3.ebuild:
+  Version bump, drop old
+
+*ecore-1.7.1 (22 Oct 2012)
+
+  22 Oct 2012; Thomas Sachau (Tommy[D]) <tommy@gentoo.org> -ecore-1.2.1.ebuild,
+  +ecore-1.7.1.ebuild:
+  Version bump, drop old
+
+  10 Sep 2012; Mike Frysinger <vapier@gentoo.org> ecore-1.7.0.ebuild:
+  Add arm love.
+
+*ecore-1.7.0 (08 Sep 2012)
+
+  08 Sep 2012; Thomas Sachau (Tommy[D]) <tommy@gentoo.org> -ecore-1.0.1.ebuild,
+  -ecore-1.1.0.ebuild, +ecore-1.7.0.ebuild:
+  Version bump, drop old
+
+  18 Aug 2012; Mike Frysinger <vapier@gentoo.org>
+  +files/ecore-1.2.1-glibc-2.16.patch, ecore-1.2.1.ebuild:
+  Add fix from upstream for building with glibc-2.16 #426812 by Diego Elio
+  Pettenò.
+
+*ecore-1.2.1 (17 Jun 2012)
+
+  17 Jun 2012; Thomas Sachau (Tommy[D]) <tommy@gentoo.org> +ecore-1.2.1.ebuild:
+  Version bump
+
+*ecore-1.1.0 (08 Feb 2012)
+
+  08 Feb 2012; Thomas Sachau (Tommy[D]) <tommy@gentoo.org> -ecore-1.0.0.ebuild,
+  +ecore-1.1.0.ebuild:
+  Version bump, drop old
+
+*ecore-1.0.1 (29 May 2011)
+
+  29 May 2011; Thomas Sachau (Tommy[D]) <tommy@gentoo.org> +ecore-1.0.1.ebuild:
+  Version bump
+
+*ecore-1.0.0 (30 Jan 2011)
+
+  30 Jan 2011; Thomas Sachau (Tommy[D]) <tommy@gentoo.org>
+  -ecore-1.0.0_beta2.ebuild, +ecore-1.0.0.ebuild:
+  Version bump, drop old
+
+  19 Dec 2010; Thomas Sachau (Tommy[D]) <tommy@gentoo.org>
+  ecore-1.0.0_beta3.ebuild:
+  Use virtualx eclass for tests requiring a running X, thanks to flameeyes
+  pointing this out, fixes bug 348757
+
+*ecore-1.0.0_beta3 (19 Dec 2010)
+
+  19 Dec 2010; Thomas Sachau (Tommy[D]) <tommy@gentoo.org>
+  +ecore-1.0.0_beta3.ebuild:
+  Version bump
+
+*ecore-1.0.0_beta2 (18 Nov 2010)
+
+  18 Nov 2010; Thomas Sachau (Tommy[D]) <tommy@gentoo.org>
+  +ecore-1.0.0_beta2.ebuild, +metadata.xml:
+  Initial commit, based on ebuild in enlightenment overlay

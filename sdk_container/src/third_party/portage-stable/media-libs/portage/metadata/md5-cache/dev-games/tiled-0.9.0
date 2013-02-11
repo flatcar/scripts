@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install prepare unpack
+DEPEND=sys-libs/zlib >=x11-libs/qt-core-4.6:4 >=x11-libs/qt-gui-4.6:4 >=x11-libs/qt-opengl-4.6:4
+DESCRIPTION=A general purpose tile map editor.
+EAPI=5
+HOMEPAGE=http://www.mapeditor.org/
+IUSE=examples linguas_cs linguas_de linguas_en linguas_es linguas_fr linguas_he linguas_it linguas_ja linguas_lv linguas_nl linguas_pt linguas_pt_BR linguas_ru linguas_zh
+KEYWORDS=~amd64
+LICENSE=BSD GPL-2
+RDEPEND=sys-libs/zlib >=x11-libs/qt-core-4.6:4 >=x11-libs/qt-gui-4.6:4 >=x11-libs/qt-opengl-4.6:4
+SLOT=0
+SRC_URI=mirror://sourceforge/tiled/tiled-qt-0.9.0.tar.gz
+_eclasses_=base	ec46b36a6f6fd1d0b505a33e0b74e413	eutils	d40dc948067bd3db1c8ebf7d51897313	l10n	33bde4fb0cfd3a21a277b66bfd837e19	multilib	ded93e450747134a079e647d888aa80b	qt4-r2	19af9102ca9b827213997cc636e7e33c	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=59834ce3e2d8c0a143354b490036a48f

@@ -1,0 +1,10 @@
+DEFINED_PHASES=install
+DEPEND=>=dev-scheme/guile-1.6 =x11-libs/gtk+-1.2*
+DESCRIPTION=GTK+ bindings for guile
+HOMEPAGE=http://www.ping.de/sites/zagadka/guile-gtk/
+KEYWORDS=~x86 ppc ~amd64
+LICENSE=GPL-2
+RDEPEND=>=dev-scheme/guile-1.6 =x11-libs/gtk+-1.2*
+SLOT=0
+SRC_URI=http://savannah.nongnu.org/download/guile-gtk/guile-gtk-1.2-0.31.tar.gz
+_md5_=1334824b6a8a81a0f1543e33a1ca832b

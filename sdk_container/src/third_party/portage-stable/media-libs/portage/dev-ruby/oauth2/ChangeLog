@@ -1,0 +1,75 @@
+# ChangeLog for dev-ruby/oauth2
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/oauth2/ChangeLog,v 1.15 2012/11/25 19:28:30 tomka Exp $
+
+  25 Nov 2012; Thomas Kahle <tomka@gentoo.org> oauth2-0.8.0.ebuild:
+  marked ~x86 per bug 434488
+
+  09 Sep 2012; Hans de Graaff <graaff@gentoo.org> -oauth2-0.0.13.ebuild,
+  -oauth2-0.4.1.ebuild, -oauth2-0.5.1.ebuild:
+  Cleanup.
+
+*oauth2-0.8.0 (09 Sep 2012)
+
+  09 Sep 2012; Hans de Graaff <graaff@gentoo.org> +oauth2-0.8.0.ebuild:
+  Version bump. Drop x86 due to new dependencies, bug 434488.
+
+*oauth2-0.5.2 (18 Apr 2012)
+
+  18 Apr 2012; Hans de Graaff <graaff@gentoo.org> +oauth2-0.5.2.ebuild:
+  Version bump.
+
+*oauth2-0.5.1 (29 Sep 2011)
+
+  29 Sep 2011; Hans de Graaff <graaff@gentoo.org> +oauth2-0.5.1.ebuild:
+  Version bump.
+
+  24 Jul 2011; Thomas Kahle <tomka@gentoo.org> oauth2-0.4.1.ebuild:
+  ~x86 per bug 375153
+
+*oauth2-0.4.1 (19 Jul 2011)
+
+  19 Jul 2011; Hans de Graaff <graaff@gentoo.org> +oauth2-0.4.1.ebuild:
+  Version bump. Drop x86 keyword, bug 375153.
+
+  02 Jan 2011; Hans de Graaff <graaff@gentoo.org> -oauth2-0.0.10.ebuild:
+  Remove old version.
+
+*oauth2-0.0.13 (22 Aug 2010)
+
+  22 Aug 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +oauth2-0.0.13.ebuild:
+  Version bump.
+
+*oauth2-0.0.10 (19 Jun 2010)
+
+  19 Jun 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -oauth2-0.0.8.ebuild, -files/oauth2-0.0.8-gentoo.patch,
+  -oauth2-0.0.9.ebuild, -files/oauth2-0.0.9-gentoo.patch,
+  +oauth2-0.0.10.ebuild:
+  Version bump, remove patch.
+
+*oauth2-0.0.9 (19 Jun 2010)
+
+  19 Jun 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +oauth2-0.0.9.ebuild, +files/oauth2-0.0.9-gentoo.patch:
+  Version bump, new ebuild needs multi_json (and a fixed one) and is further
+  fixed.
+
+  18 May 2010; Diego E. Pettenò <flameeyes@gentoo.org> oauth2-0.0.8.ebuild:
+  Add ~x86, tested on development container.
+
+  30 Apr 2010; Diego E. Pettenò <flameeyes@gentoo.org> oauth2-0.0.8.ebuild,
+  +files/oauth2-0.0.8-gentoo.patch:
+  Fix documentation build if RSpec is not present.
+
+  30 Apr 2010; Diego E. Pettenò <flameeyes@gentoo.org> oauth2-0.0.8.ebuild:
+  Add Ruby 1.9 support.
+
+*oauth2-0.0.8 (30 Apr 2010)
+
+  30 Apr 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +oauth2-0.0.8.ebuild, +metadata.xml:
+  Initial impor of the OAuth2 gem, to use the new Facebook authentication
+  APIs.
+

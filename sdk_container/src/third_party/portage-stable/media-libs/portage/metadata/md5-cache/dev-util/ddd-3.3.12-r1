@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install unpack
+DEPEND=>=sys-devel/gdb-6.5 >=x11-libs/motif-2.3:0 x11-libs/libX11 x11-libs/libXp
+DESCRIPTION=Graphical openmotif front-end for command-line debuggers
+EAPI=1
+HOMEPAGE=http://www.gnu.org/software/ddd
+KEYWORDS=alpha amd64 ia64 ppc ppc64 sparc x86
+LICENSE=GPL-3 LGPL-3 FDL-1.1
+RDEPEND=>=sys-devel/gdb-6.5 >=x11-libs/motif-2.3:0 x11-libs/libX11 x11-libs/libXp sci-visualization/gnuplot x11-apps/xfontsel
+RESTRICT=test
+SLOT=0
+SRC_URI=mirror://gnu/ddd/ddd-3.3.12.tar.gz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=7b00324e634f5ec8d154941d736f5dcb

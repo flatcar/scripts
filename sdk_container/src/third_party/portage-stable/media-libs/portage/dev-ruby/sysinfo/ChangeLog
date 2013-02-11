@@ -1,0 +1,38 @@
+# ChangeLog for dev-ruby/sysinfo
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/sysinfo/ChangeLog,v 1.7 2013/01/06 10:36:04 graaff Exp $
+
+  06 Jan 2013; Hans de Graaff <graaff@gentoo.org> sysinfo-0.8.0.ebuild:
+  Add a blocker on dev-util/hxtools, bug 445436.
+
+  23 Sep 2012; Hans de Graaff <graaff@gentoo.org> -sysinfo-0.7.3.ebuild:
+  Cleanup.
+
+*sysinfo-0.8.0 (09 Jun 2012)
+
+  09 Jun 2012; Hans de Graaff <graaff@gentoo.org> +sysinfo-0.8.0.ebuild:
+  Version bump.
+
+  09 Sep 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  sysinfo-0.7.3.ebuild:
+  Remove jruby support as only older storable works with that.
+
+*sysinfo-0.7.3 (16 Mar 2010)
+
+  16 Mar 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -sysinfo-0.7.2.ebuild, +sysinfo-0.7.3.ebuild:
+  Version bump.
+
+*sysinfo-0.7.2 (13 Feb 2010)
+
+  13 Feb 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -sysinfo-0.7.1.ebuild, -files/sysinfo-0.7.1-hanna.patch,
+  +sysinfo-0.7.2.ebuild:
+  Version bump and drop merged patch.
+
+*sysinfo-0.7.1 (12 Feb 2010)
+
+  12 Feb 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +sysinfo-0.7.1.ebuild, +files/sysinfo-0.7.1-hanna.patch, +metadata.xml:
+  Initial import of sysinfo needed by Rudy.
+

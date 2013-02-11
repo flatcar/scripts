@@ -1,0 +1,23 @@
+http://rubyforge.org/tracker/?func=detail&atid=5923&aid=29320&group_id=1513
+
+diff --git a/test/test_hoe_test.rb b/test/test_hoe_test.rb
+index 8a9e613..01dc0af 100644
+--- a/test/test_hoe_test.rb
++++ b/test/test_hoe_test.rb
+@@ -13,15 +13,13 @@ class TestHoeTest < MiniTest::Unit::TestCase
+       initialize_test
+ 
+       def test_globs
+-        ['test/**/test_*.rb']
++        ['test/test_hoe_test.rb']
+       end
+     end
+   end
+ 
+   def test_make_test_cmd_with_different_testlibs
+     expected = ['-w -Ilib:bin:test:. -e \'require "rubygems"; %s',
+-                'require "test/test_hoe.rb"; ',
+-                'require "test/test_hoe_gemcutter.rb"; ',
+                 'require "test/test_hoe_test.rb"',
+                 "' -- ",
+                ].join

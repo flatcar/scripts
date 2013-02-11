@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install preinst prepare setup test unpack
+DEPEND=perl? ( dev-lang/perl[-build] ) || ( >=sys-devel/automake-1.11.1:1.11 >=sys-devel/automake-1.12:1.12 ) >=sys-devel/autoconf-2.68 sys-devel/libtool
+DESCRIPTION=Library for locking devices
+EAPI=2
+HOMEPAGE=http://packages.debian.org/source/sid/lockdev
+IUSE=perl
+KEYWORDS=amd64 x86
+LICENSE=LGPL-2.1
+RDEPEND=perl? ( dev-lang/perl[-build] )
+SLOT=0
+SRC_URI=mirror://debian/pool/main/l/lockdev/lockdev_1.0.3.orig.tar.gz mirror://debian/pool/main/l/lockdev/lockdev_1.0.3-1.2.diff.gz
+_eclasses_=autotools	cf83655b19ed98f9ea3b44f4572b51a3	base	ec46b36a6f6fd1d0b505a33e0b74e413	eutils	d40dc948067bd3db1c8ebf7d51897313	libtool	2b273eea1976cfaed3449345d94331ac	multilib	ded93e450747134a079e647d888aa80b	multiprocessing	a2130e6fc4aa4c6a24b265ca0cbcc2b6	perl-module	825d3d7654c88c5c4dec7400d3612578	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=8879964d91ba06b409ff1434493a26df

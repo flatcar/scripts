@@ -1,0 +1,19 @@
+# ChangeLog for dev-ruby/jruby-debug-base
+# Copyright 1999-2010 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/jruby-debug-base/ChangeLog,v 1.3 2010/05/28 17:21:36 josejx Exp $
+
+  28 May 2010; Joseph Jezak <josejx@gentoo.org>
+  jruby-debug-base-0.10.3.1.ebuild:
+  Marked ~ppc for bug #302563.
+
+  12 Feb 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  jruby-debug-base-0.10.3.1.ebuild:
+  Add ~x86 keyword (tested in development container).
+
+*jruby-debug-base-0.10.3.1 (28 Jan 2010)
+
+  28 Jan 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +jruby-debug-base-0.10.3.1.ebuild, +metadata.xml:
+  Initial import of jruby-debug-base as alternative to ruby-debug-base for
+  jruby.
+

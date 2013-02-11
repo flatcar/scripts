@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+  <herd>x11</herd>
+  <maintainer>
+    <email>yngwin@gentoo.org</email>
+    <name>Ben de Groot</name>
+  </maintainer>
+  <use>
+    <flag name='opengl' restrict="&gt;=x11-libs/cairo-1.10.0">
+      Use Mesa backend for acceleration</flag>
+    <flag name='drm'>Use Linux DRM for backend acceleration</flag>
+    <flag name='gallium'>Use Mesa's Gallium backend for acceleration</flag>
+    <flag name='glib'>Compile with GLib Object System support</flag>
+    <flag name='legacy-drivers'>Include the buggy gradients patch (for legacy drivers, such as nvidia-drivers older than 304.30)</flag>
+    <flag name='openvg'>Use OpenVG for backend acceleration</flag>
+  </use>
+</pkgmetadata>

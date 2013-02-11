@@ -1,0 +1,33 @@
+From 58b5cf9444c0dbe8374557539bbcd6c58341323d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Diego=20Elio=20Petten=C3=B2?= <flameeyes@flameeyes.eu>
+Date: Mon, 13 Aug 2012 19:16:09 -0700
+Subject: [PATCH] spec: do not check for /usr/bin not to be writable when
+ running as root.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This test would fail on default GEntoo installs as the package is
+executed as root.
+
+Signed-off-by: Diego Elio Pettenò <flameeyes@flameeyes.eu>
+---
+ spec/install/gems/simple_case_spec.rb |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/spec/install/gems/simple_case_spec.rb b/spec/install/gems/simple_case_spec.rb
+index 0619ba5..1c932f1 100644
+--- a/spec/install/gems/simple_case_spec.rb
++++ b/spec/install/gems/simple_case_spec.rb
+@@ -796,7 +796,7 @@ describe "bundle install with gem sources" do
+     # On OS X, Gem.bindir defaults to /usr/bin, so system_bindir is useful if
+     # you want to avoid sudo installs for system gems with OS X's default ruby
+     it "overrides Gem.bindir" do
+-      Pathname.new("/usr/bin").should_not be_writable
++      Pathname.new("/usr/bin").should_not be_writable unless Process::euid == 0
+       gemfile <<-G
+         require 'rubygems'
+         def Gem.bindir; "/usr/bin"; end
+-- 
+1.7.8.6
+

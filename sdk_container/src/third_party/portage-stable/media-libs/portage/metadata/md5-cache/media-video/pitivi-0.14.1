@@ -1,0 +1,14 @@
+DEFINED_PHASES=compile configure install postinst postrm preinst prepare setup test unpack
+DEPEND=>=dev-python/pygtk-2.18:2 dev-python/pycairo >=media-libs/gstreamer-0.10.28:0.10 >=dev-python/gst-python-0.10.19:0.10 >=media-libs/gnonlin-0.10.16:0.10 dev-python/dbus-python >=dev-python/gconf-python-2.12 dev-python/pygoocanvas dev-python/pyxdg net-zope/zope-interface gnome-base/librsvg >=media-libs/gst-plugins-base-0.10.31:0.10 >=media-libs/gst-plugins-good-0.10.24:0.10 >=media-plugins/gst-plugins-ffmpeg-0.10:0.10 >=media-plugins/gst-plugins-xvideo-0.10.31:0.10 >=media-plugins/gst-plugins-libpng-0.10.24:0.10 v4l? ( media-plugins/gst-plugins-v4l2:0.10 ) dev-python/setuptools sys-devel/gettext >=dev-util/intltool-0.35.5 >=sys-apps/sed-4 || ( =dev-lang/python-2.7* =dev-lang/python-2.6* =dev-lang/python-2.5* ) test? ( !prefix? ( x11-base/xorg-server[xvfb] ) x11-apps/xhost )
+DESCRIPTION=A non-linear video editor using the GStreamer multimedia framework
+EAPI=3
+HOMEPAGE=http://www.pitivi.org
+IUSE=v4l test
+KEYWORDS=~amd64 ~x86
+LICENSE=LGPL-2.1
+RDEPEND=>=dev-python/pygtk-2.18:2 dev-python/pycairo >=media-libs/gstreamer-0.10.28:0.10 >=dev-python/gst-python-0.10.19:0.10 >=media-libs/gnonlin-0.10.16:0.10 dev-python/dbus-python >=dev-python/gconf-python-2.12 dev-python/pygoocanvas dev-python/pyxdg net-zope/zope-interface gnome-base/librsvg >=media-libs/gst-plugins-base-0.10.31:0.10 >=media-libs/gst-plugins-good-0.10.24:0.10 >=media-plugins/gst-plugins-ffmpeg-0.10:0.10 >=media-plugins/gst-plugins-xvideo-0.10.31:0.10 >=media-plugins/gst-plugins-libpng-0.10.24:0.10 v4l? ( media-plugins/gst-plugins-v4l2:0.10 ) || ( =dev-lang/python-2.7* =dev-lang/python-2.6* =dev-lang/python-2.5* )
+RESTRICT=test
+SLOT=0
+SRC_URI=mirror://gnome/sources/pitivi/0.14/pitivi-0.14.1.tar.bz2
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	fdo-mime	0acfe1a88fd8751a1d5dc671168219fa	gnome.org	8fef8f967214f56e08fa92d61163d891	gnome2	96ca31031ada9967bcf96a4fd8977ae4	gnome2-utils	794d2847b4af390a1e020924876c8297	libtool	2b273eea1976cfaed3449345d94331ac	multilib	ded93e450747134a079e647d888aa80b	python	e5b3412fa9f03670a666c8a137bd1060	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4	virtualx	73cfc129b4b9ba23aed1abb10c825d86
+_md5_=02a96b04fcf714e003e09dbc964687de

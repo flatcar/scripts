@@ -1,0 +1,92 @@
+# ChangeLog for dev-ruby/yajl-ruby
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/yajl-ruby/ChangeLog,v 1.22 2013/01/16 01:12:55 zerochaos Exp $
+
+  16 Jan 2013; Rick Farina <zerochaos@gentoo.org> yajl-ruby-1.1.0.ebuild:
+  adding ~arm keywords to net-analyzer/metasploit rdeps
+
+  13 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> yajl-ruby-1.1.0.ebuild:
+  The rspec recipe takes care of IUSE and dependency.
+
+  05 Jul 2012; Diego E. Pettenò <flameeyes@gentoo.org> -yajl-ruby-0.8.2.ebuild,
+  -yajl-ruby-0.8.3.ebuild, yajl-ruby-1.1.0.ebuild:
+  Cleanup 0.8 series; use the new support for rspec in the eclasses.
+
+  01 May 2012; Raúl Porcel <armin76@gentoo.org> yajl-ruby-0.8.2.ebuild,
+  yajl-ruby-0.8.3.ebuild, yajl-ruby-1.1.0.ebuild:
+  Drop ia64/sparc keywords
+
+  11 Mar 2012; Brent Baude <ranger@gentoo.org> yajl-ruby-1.1.0.ebuild:
+  Marking yajl-ruby-1.1.0 ~ppc64 for bug 396043
+
+  07 Mar 2012; Naohiro Aota <naota@gentoo.org> yajl-ruby-1.1.0.ebuild:
+  Add ~x86-fbsd.
+
+  06 Feb 2012; Brent Baude <ranger@gentoo.org> yajl-ruby-1.1.0.ebuild:
+  Marking yajl-ruby-1.1.0 ~ppc for bug 396043
+
+  19 Jan 2012; Jeroen Roovers <jer@gentoo.org> yajl-ruby-1.1.0.ebuild:
+  Marked ~hppa (bug #396043).
+
+  31 Dec 2011; Fabian Groffen <grobian@gentoo.org> yajl-ruby-1.1.0.ebuild:
+  Add Prefix keywords, bug #396547
+
+  27 Dec 2011; Diego E. Pettenò <flameeyes@gentoo.org> yajl-ruby-1.1.0.ebuild:
+  Fix install.
+
+*yajl-ruby-1.1.0 (25 Dec 2011)
+
+  25 Dec 2011; Hans de Graaff <graaff@gentoo.org> +yajl-ruby-1.1.0.ebuild:
+  Version bump.
+
+  25 Dec 2011; Hans de Graaff <graaff@gentoo.org> -yajl-ruby-0.8.1.ebuild:
+  Remove old version.
+
+*yajl-ruby-0.8.3 (20 Aug 2011)
+
+  20 Aug 2011; Hans de Graaff <graaff@gentoo.org> +yajl-ruby-0.8.3.ebuild:
+  Version bump.
+
+*yajl-ruby-0.8.2 (12 Apr 2011)
+
+  12 Apr 2011; Hans de Graaff <graaff@gentoo.org> +yajl-ruby-0.8.2.ebuild:
+  Version bump.
+
+  12 Apr 2011; Hans de Graaff <graaff@gentoo.org> -yajl-ruby-0.7.8.ebuild,
+  -yajl-ruby-0.7.9.ebuild:
+  Remove old versions.
+
+*yajl-ruby-0.8.1 (12 Feb 2011)
+
+  12 Feb 2011; Hans de Graaff <graaff@gentoo.org> +yajl-ruby-0.8.1.ebuild:
+  Version bump.
+
+*yajl-ruby-0.7.9 (15 Jan 2011)
+
+  15 Jan 2011; Hans de Graaff <graaff@gentoo.org> +yajl-ruby-0.7.9.ebuild:
+  Version bump.
+
+  09 Oct 2010; Hans de Graaff <graaff@gentoo.org> -yajl-ruby-0.7.7.ebuild:
+  Remove old version.
+
+*yajl-ruby-0.7.8 (02 Oct 2010)
+
+  02 Oct 2010; Hans de Graaff <graaff@gentoo.org> +yajl-ruby-0.7.8.ebuild:
+  Version bump with bug fixes.
+
+  29 Jul 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -yajl-ruby-0.7.6.ebuild, -files/yajl-ruby-0.7.6-gentoo.patch:
+  Cleanup old version.
+
+*yajl-ruby-0.7.7 (20 Jul 2010)
+
+  20 Jul 2010; Hans de Graaff <graaff@gentoo.org> +yajl-ruby-0.7.7.ebuild:
+  Version bump. Our patch has been applied upstream.
+
+*yajl-ruby-0.7.6 (23 May 2010)
+
+  23 May 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +yajl-ruby-0.7.6.ebuild, +files/yajl-ruby-0.7.6-gentoo.patch,
+  +metadata.xml:
+  Initial import of the yajl bindings for Ruby, optionally used by the new
+  versions of Rails.

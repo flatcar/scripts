@@ -1,0 +1,28 @@
+# ChangeLog for games-rpg/dragonhunt
+# Copyright 1999-2010 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/games-rpg/dragonhunt/ChangeLog,v 1.6 2010/05/05 05:07:50 tupone Exp $
+
+  05 May 2010; Tupone Alfredo <tupone@gentoo.org> dragonhunt-3.56.ebuild:
+  Force python2 fixing bug #312273 by arfrevergentoo.org
+
+  18 Dec 2009; Pacho Ramos <pacho@gentoo.org> dragonhunt-3.56.ebuild:
+  amd64 stable, bug 289164
+
+  26 Nov 2009; Christian Faulhammer <fauli@gentoo.org>
+  dragonhunt-3.56.ebuild:
+  stable x86, bug 289164
+
+  15 Oct 2009; Michael Sterrett <mr_bones_@gentoo.org>
+  dragonhunt-3.56.ebuild:
+  EAPI=2
+
+*dragonhunt-3.56 (20 May 2007)
+
+  20 May 2007; Tristan Heaven <nyhm@gentoo.org> +dragonhunt-3.56.ebuild:
+  Version bump
+
+*dragonhunt-3.55 (06 Nov 2006)
+
+  06 Nov 2006; <tupone@gentoo.org> +dragonhunt-3.55.ebuild:
+  New ebuild. Bug #56743 by Alastair Murray
+

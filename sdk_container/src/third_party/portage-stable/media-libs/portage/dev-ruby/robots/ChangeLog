@@ -1,0 +1,20 @@
+# ChangeLog for dev-ruby/robots
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/robots/ChangeLog,v 1.3 2013/01/15 02:53:01 zerochaos Exp $
+
+  15 Jan 2013; Rick Farina <zerochaos@gentoo.org> robots-0.10.1-r1.ebuild:
+  adding ~arm keywords to net-analyzer/metasploit rdeps
+
+*robots-0.10.1-r1 (10 Jan 2013)
+
+  10 Jan 2013; Hans de Graaff <graaff@gentoo.org> -robots-0.10.1.ebuild,
+  +robots-0.10.1-r1.ebuild, metadata.xml:
+  Use correct LICENSE and DESCRIPTION, install documentation, run tests. Add
+  ruby herd.
+
+*robots-0.10.1 (10 Jan 2013)
+
+  10 Jan 2013; Rick Farina <zerochaos@gentoo.org> +metadata.xml,
+  +robots-0.10.1.ebuild:
+  I am sure this is unimpressive but I need it for metasploit and it works so,
+  initial commit

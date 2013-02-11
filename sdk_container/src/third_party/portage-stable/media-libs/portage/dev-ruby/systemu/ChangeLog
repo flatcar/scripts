@@ -1,0 +1,75 @@
+# ChangeLog for dev-ruby/systemu
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/systemu/ChangeLog,v 1.16 2012/12/18 16:05:05 ago Exp $
+
+  18 Dec 2012; Agostino Sarubbo <ago@gentoo.org> systemu-2.5.2.ebuild:
+  Stable for x86, wrt bug #2
+
+  18 Dec 2012; Agostino Sarubbo <ago@gentoo.org> systemu-2.5.2.ebuild:
+  Stable for amd64, wrt bug #2
+
+  23 Sep 2012; Hans de Graaff <graaff@gentoo.org> -systemu-2.4.2.ebuild,
+  -systemu-2.5.0.ebuild, -systemu-2.5.1.ebuild:
+  Cleanup.
+
+  14 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> metadata.xml:
+  Update metadata.xml so that it's the same as most other packages.
+
+*systemu-2.5.2 (13 Aug 2012)
+
+  13 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> +systemu-2.5.2.ebuild:
+  Version bump.
+
+*systemu-2.5.1 (10 Jun 2012)
+
+  10 Jun 2012; Hans de Graaff <graaff@gentoo.org> +systemu-2.5.1.ebuild:
+  Version bump.
+
+*systemu-2.5.0 (22 Apr 2012)
+
+  22 Apr 2012; Hans de Graaff <graaff@gentoo.org> +systemu-2.5.0.ebuild:
+  Version bump. Run tests. Add ree18 and ruby19.
+
+  22 Apr 2012; Hans de Graaff <graaff@gentoo.org> -systemu-2.4.0.ebuild,
+  -systemu-2.4.1.ebuild:
+  Remove old versions.
+
+*systemu-2.4.2 (25 Dec 2011)
+
+  25 Dec 2011; Hans de Graaff <graaff@gentoo.org> +systemu-2.4.2.ebuild:
+  Version bump.
+
+  25 Dec 2011; Hans de Graaff <graaff@gentoo.org> -systemu-1.2.0.ebuild,
+  -systemu-1.2.0-r1.ebuild, -systemu-2.2.0.ebuild, -systemu-2.3.0.ebuild:
+  Remove old versions.
+
+*systemu-2.4.1 (07 Dec 2011)
+
+  07 Dec 2011; Hans de Graaff <graaff@gentoo.org> +systemu-2.4.1.ebuild:
+  Version bump.
+
+*systemu-2.4.0 (16 Sep 2011)
+
+  16 Sep 2011; Hans de Graaff <graaff@gentoo.org> +systemu-2.4.0.ebuild:
+  Version bump.
+
+*systemu-2.3.0 (20 Aug 2011)
+
+  20 Aug 2011; Hans de Graaff <graaff@gentoo.org> +systemu-2.3.0.ebuild:
+  Version bump.
+
+*systemu-2.2.0 (15 Apr 2011)
+
+  15 Apr 2011; Hans de Graaff <graaff@gentoo.org> +systemu-2.2.0.ebuild:
+  Version bump.
+
+*systemu-1.2.0-r1 (17 Jul 2010)
+
+  17 Jul 2010; Hans de Graaff <graaff@gentoo.org> +systemu-1.2.0-r1.ebuild:
+  Install documentation and examples.
+
+*systemu-1.2.0 (03 Jul 2010)
+
+  03 Jul 2010; Benedikt Böhm <hollow@gentoo.org> +systemu-1.2.0.ebuild,
+  +metadata.xml:
+  initial ebuild, thanks to Gábor Vészi

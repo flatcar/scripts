@@ -1,0 +1,79 @@
+# ChangeLog for dev-libs/libpeas
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/libpeas/ChangeLog,v 1.15 2013/02/02 22:26:12 ago Exp $
+
+  02 Feb 2013; Agostino Sarubbo <ago@gentoo.org> libpeas-1.6.2-r1.ebuild:
+  Add ~arm, wrt bug #449220
+
+  06 Jan 2013; Agostino Sarubbo <ago@gentoo.org> libpeas-1.6.2-r1.ebuild:
+  Add ~sparc, wrt bug #449220
+
+  01 Jan 2013; Agostino Sarubbo <ago@gentoo.org> libpeas-1.6.2-r1.ebuild:
+  Add ~alpha, wrt bug #449220
+
+  01 Jan 2013; Agostino Sarubbo <ago@gentoo.org> libpeas-1.6.2-r1.ebuild:
+  Add ~ia64, wrt bug #449220
+
+  31 Dec 2012; Agostino Sarubbo <ago@gentoo.org> libpeas-1.6.2-r1.ebuild:
+  Add ~ppc64, wrt bug #449220
+
+*libpeas-1.6.2-r1 (16 Dec 2012)
+
+  16 Dec 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  -files/libpeas-1.2.0-PeasPluginInfo-annotation.patch,
+  -files/libpeas-1.4.0-pkgconfig.patch, -libpeas-1.6.0.ebuild,
+  -libpeas-1.6.1.ebuild, +libpeas-1.6.2-r1.ebuild:
+  Port to python-single-r1.eclass and EAPI5. Drop old.
+
+*libpeas-1.6.2 (25 Nov 2012)
+
+  25 Nov 2012; Gilles Dartiguelongue <eva@gentoo.org> +libpeas-1.6.2.ebuild:
+  Version bump.
+
+*libpeas-1.6.1 (20 Oct 2012)
+
+  20 Oct 2012; Pacho Ramos <pacho@gentoo.org> +libpeas-1.6.1.ebuild,
+  -libpeas-1.2.0-r1.ebuild, -libpeas-1.4.0-r1.ebuild, metadata.xml:
+  Version bump, drop old.
+
+*libpeas-1.6.0 (30 Sep 2012)
+
+  30 Sep 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  +libpeas-1.6.0.ebuild, -libpeas-1.0.0.ebuild, libpeas-1.2.0-r1.ebuild,
+  libpeas-1.4.0-r1.ebuild:
+  Bump, update license, drop old.
+
+  13 Aug 2012; Anthony G. Basile <blueness@gentoo.org> libpeas-1.4.0-r1.ebuild:
+  Keyword ~ppc, bug #385237
+
+*libpeas-1.4.0-r1 (14 May 2012)
+
+  14 May 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  -libpeas-1.4.0.ebuild, +libpeas-1.4.0-r1.ebuild,
+  +files/libpeas-1.4.0-pkgconfig.patch:
+  Fix broken pkgconfig file that prevented eog etc. from being built (bug
+  #415961, thanks to pingouin21).
+
+*libpeas-1.4.0 (22 Apr 2012)
+
+  22 Apr 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  +libpeas-1.4.0.ebuild:
+  Version bump from the gnome overlay for gjs-1.32 compatibility (bug #413047,
+  thanks to Tiziano Müller).
+
+  01 Dec 2011; Jeremy Olexa <darkside@gentoo.org> libpeas-1.2.0-r1.ebuild:
+  add some prefix keywords as tested
+
+*libpeas-1.2.0-r1 (03 Nov 2011)
+
+  03 Nov 2011; Alexandre Rostovtsev <tetromino@gentoo.org>
+  +libpeas-1.2.0-r1.ebuild,
+  +files/libpeas-1.2.0-PeasPluginInfo-annotation.patch, metadata.xml:
+  Bump to 1.2.0 from the gnome overlay. Notable changes: optional gjs support,
+  pygobject-3 compatibility.
+
+*libpeas-1.0.0 (16 Aug 2011)
+
+  16 Aug 2011; Nirbheek Chauhan <nirbheek@gentoo.org> +libpeas-1.0.0.ebuild,
+  +metadata.xml:
+  Move from gnome overlay for GNOME 3

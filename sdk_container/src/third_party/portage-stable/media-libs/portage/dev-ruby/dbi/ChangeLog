@@ -1,0 +1,238 @@
+# ChangeLog for dev-ruby/dbi
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/dbi/ChangeLog,v 1.4 2012/09/09 08:23:03 graaff Exp $
+
+  09 Sep 2012; Hans de Graaff <graaff@gentoo.org> dbi-0.4.3.ebuild,
+  -files/ruby-dbi-0.4.3-drivers-test.patch:
+  Use sed instead of patch broken on whitespace, fixing bug 434188. Make sure
+  the right version of deprecated is used.
+
+  02 Sep 2012; Diego E. Pettenò <flameeyes@gentoo.org> dbi-0.4.3.ebuild:
+  Fix typo.
+
+*dbi-0.4.5 (02 Sep 2012)
+
+  02 Sep 2012; Diego E. Pettenò <flameeyes@gentoo.org> +dbi-0.4.5.ebuild,
+  +files/dbi-0.4.5-gentoo.patch:
+  Version bump: move to EAPI=4, fakegem and testrb-2.
+
+  02 Sep 2012; Diego E. Pettenò <flameeyes@gentoo.org>
+  -files/ruby-dbi-0.1.1-destdir-gentoo.diff,
+  -files/ruby-dbi-destdir-gentoo.diff:
+  Remove unused patches.
+
+  01 May 2012; Raúl Porcel <armin76@gentoo.org> ruby-dbi-0.4.3.ebuild:
+  Drop ia64/sparc keywords
+
+  30 Apr 2012; Hans de Graaff <graaff@gentoo.org> -ruby-dbi-0.2.0-r1.ebuild:
+  Remove old version.
+
+  23 Jul 2011; Kacper Kowalik <xarthisius@gentoo.org> ruby-dbi-0.4.3.ebuild:
+  ppc stable wrt #333087
+
+  19 Jun 2011; Hans de Graaff <graaff@gentoo.org> ruby-dbi-0.4.3.ebuild:
+  Depend on a compatible dev-ruby/deprecated slot, fixes bug 332985.
+
+  05 Sep 2010; Raúl Porcel <armin76@gentoo.org> ruby-dbi-0.4.3.ebuild:
+  ia64 stable wrt #333087
+
+  23 Aug 2010; Markos Chandras <hwoarang@gentoo.org> ruby-dbi-0.4.3.ebuild:
+  Stable on amd64 wrt bug #333087
+
+  20 Aug 2010; Christian Faulhammer <fauli@gentoo.org>
+  ruby-dbi-0.4.3.ebuild:
+  stable x86, bug 333087
+
+  16 Aug 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -ruby-dbi-0.4.2.ebuild, ruby-dbi-0.4.3.ebuild:
+  Remove old version using ruby.eclass. Use $FILESDIR for patch name.
+
+*ruby-dbi-0.4.3 (15 Jun 2010)
+
+  15 Jun 2010; Hans de Graaff <graaff@gentoo.org> +ruby-dbi-0.4.3.ebuild,
+  +files/ruby-dbi-0.4.3-drivers-test.patch:
+  Version bump. Convert to ruby-ng. Make sure tests run.
+
+  22 May 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  ruby-dbi-0.4.2.ebuild:
+  Various cleanups.
+
+  21 Dec 2009; Diego E. Pettenò <flameeyes@gentoo.org>
+  ruby-dbi-0.4.2.ebuild:
+  Quickly fix dependency over test-unit.
+
+  20 Dec 2009; Hans de Graaff <graaff@gentoo.org> ruby-dbi-0.2.0-r1.ebuild,
+  ruby-dbi-0.4.2.ebuild:
+  Remove obsolete virtual/ruby dependency.
+
+  31 Oct 2009; Mounir Lamouri <volkmar@gentoo.org> ruby-dbi-0.4.2.ebuild:
+  Re-Keywording for ppc, bug 283229
+
+  24 Sep 2009; Raúl Porcel <armin76@gentoo.org> ruby-dbi-0.4.2.ebuild:
+  Add ~ia64/~sparc wrt #283229
+
+  30 Aug 2009; Alex Legler <a3li@gentoo.org> ruby-dbi-0.4.2.ebuild:
+  Fix testing.
+
+  26 Aug 2009; Alex Legler <a3li@gentoo.org> ruby-dbi-0.4.2.ebuild:
+  Giving die a meaningful message, ignoring not installed ruby versions when
+  testing.
+
+*ruby-dbi-0.4.2 (26 Aug 2009)
+
+  26 Aug 2009; Alex Legler <a3li@gentoo.org> +ruby-dbi-0.4.2.ebuild:
+  Version bump. Now with modular database drivers. Dropped keywords due to
+  the introduction of dev-ruby/deprecated as a new dependency.
+
+  09 Aug 2009; Hans de Graaff <graaff@gentoo.org> -ruby-dbi-0.1.1.ebuild:
+  Remove old version.
+
+  09 Aug 2009; nixnut <nixnut@gentoo.org> ruby-dbi-0.2.0-r1.ebuild:
+  ppc stable #273962
+
+  17 Jul 2009; Hans de Graaff <graaff@gentoo.org>
+  -ruby-dbi-0.0.21-r2.ebuild, -ruby-dbi-0.2.0.ebuild:
+  Remove old versions.
+
+  02 Jul 2009; Markus Meier <maekke@gentoo.org> ruby-dbi-0.2.0-r1.ebuild:
+  amd64 stable, bug #273962
+
+  24 Jun 2009; Raúl Porcel <armin76@gentoo.org> ruby-dbi-0.2.0-r1.ebuild:
+  ia64 stable wrt #273962
+
+  16 Jun 2009; Christian Faulhammer <fauli@gentoo.org>
+  ruby-dbi-0.2.0-r1.ebuild:
+  stable x86, bug 273962
+
+  20 Mar 2009; Joseph Jezak <josejx@gentoo.org> ruby-dbi-0.2.0-r1.ebuild:
+  Marked ~ppc for bug #250319.
+
+  29 Dec 2008; Hans de Graaff <graaff@gentoo.org> ruby-dbi-0.2.0-r1.ebuild:
+  Use a bash array for the patches now that the ruby.eclass supports it.
+
+  16 Dec 2008; Raúl Porcel <armin76@gentoo.org> ruby-dbi-0.2.0-r1.ebuild:
+  Re-add ~ia64 wrt #250319
+
+*ruby-dbi-0.2.0-r1 (08 Dec 2008)
+
+  08 Dec 2008; Hans de Graaff <graaff@gentoo.org> +ruby-dbi-0.2.0-r1.ebuild:
+  Add oracle support. Patch and testing by Erwin Paternotte in #249921.
+  Dropped ia64 and ppc keywords due to new ruby-oci8 dependency, and filed i
+  #250319 about it.
+
+*ruby-dbi-0.2.0 (16 Mar 2008)
+
+  16 Mar 2008; Richard Brown <rbrown@gentoo.org> +ruby-dbi-0.2.0.ebuild:
+  Version bump.
+
+  02 Jan 2008; Raúl Porcel <armin76@gentoo.org> ruby-dbi-0.1.1.ebuild:
+  Re-add ~ia64
+
+  21 Oct 2007; Steve Dibb <beandog@gentoo.org> ruby-dbi-0.0.21-r2.ebuild,
+  ruby-dbi-0.1.1.ebuild:
+  amd64 stable
+
+  09 Sep 2007; René Nussbaumer <killerfox@gentoo.org>
+  ruby-dbi-0.1.1.ebuild:
+  Stable on ppc. See bug #190304.
+
+  27 Aug 2007; Jurek Bartuszek <jurek@gentoo.org> ruby-dbi-0.1.1.ebuild:
+  x86 stable (bug #190304)
+
+  21 Jan 2007; Nguyễn Thái Ngọc Duy <pclouds@gentoo.org>
+  ruby-dbi-0.0.21-r2.ebuild, ruby-dbi-0.1.1.ebuild:
+  Added examples use flag to ebuild, #145222
+
+  20 Oct 2006; Aron Griffis <agriffis@gentoo.org> ruby-dbi-0.0.21-r2.ebuild:
+  Mark 0.0.21-r2 stable on ia64
+
+  14 Oct 2006; Jason Wever <weeve@gentoo.org> ruby-dbi-0.1.1.ebuild:
+  Added ~sparc keyword wrt bug #150234.
+
+  06 Oct 2006; <nixnut@gentoo.org> ruby-dbi-0.1.1.ebuild:
+  Added ~ppc wrt bug 150234
+
+*ruby-dbi-0.1.1 (06 Oct 2006)
+
+  06 Oct 2006; Nguyễn Thái Ngọc Duy <pclouds@gentoo.org>
+  +files/ruby-dbi-0.1.1-destdir-gentoo.diff, -ruby-dbi-0.0.21.ebuild,
+  -ruby-dbi-0.0.21-r1.ebuild, +ruby-dbi-0.1.1.ebuild:
+  Version bump by Richard Brown <mynamewasgone@gmail.com>, #150146. Removed
+  old ebuilds
+
+  08 Aug 2006; Luis Medinas <metalgod@gentoo.org> ruby-dbi-0.0.21-r2.ebuild:
+  Added ~amd64 keyword.
+
+  30 Mar 2006; Aron Griffis <agriffis@gentoo.org> ruby-dbi-0.0.21-r2.ebuild:
+  Mark 0.0.21-r2 ~ia64
+
+*ruby-dbi-0.0.21-r2 (12 Jan 2006)
+
+  12 Jan 2006; Caleb Tennis <caleb@gentoo.org> +ruby-dbi-0.0.21-r2.ebuild:
+  Deps should be on ruby packages and not directly on the databases. Also,
+  mark x86 stable and remove ruby16
+
+  30 Apr 2005; Ferris McCormick <fmccor@gentoo.org>
+  ruby-dbi-0.0.21-r1.ebuild:
+  Add ~sparc keyword --- works fine on sparc.
+
+  05 Aug 2004; Anders Rune Jensen <arj@gentoo.org> ruby-dbi-0.0.21-r1.ebuild:
+  Depend on version 2 of sqlite.
+
+*ruby-dbi-0.0.21-r1 (23 May 2004)
+
+  23 May 2004; Mamoru KOMACHI <usata@gentoo.org> ruby-dbi-0.0.16-r1.ebuild,
+  ruby-dbi-0.0.18-r1.ebuild, ruby-dbi-0.0.21-r1.ebuild, ruby-dbi-0.0.21.ebuild:
+  Added sqlite IUSE flag. Thanks to Andreas Schwarz <gentoo@andreas-s.net>,
+  closing bug #47494. Removed old ebuilds.
+
+  17 Apr 2004; David Holm <dholm@gentoo.org> ruby-dbi-0.0.21.ebuild:
+  Added to ~ppc.
+
+  10 Apr 2004; Mamoru KOMACHI <usata@gentoo.org> ruby-dbi-0.0.16-r1.ebuild,
+  ruby-dbi-0.0.18-r1.ebuild, ruby-dbi-0.0.21.ebuild:
+  virtual/ruby fix
+
+*ruby-dbi-0.0.21 (01 Apr 2004)
+*ruby-dbi-0.0.18-r1 (01 Apr 2004)
+*ruby-dbi-0.0.16-r1 (01 Apr 2004)
+
+  01 Apr 2004; Mamoru KOMACHI <usata@gentoo.org> ruby-dbi-0.0.16-r1.ebuild,
+  ruby-dbi-0.0.16.ebuild, ruby-dbi-0.0.18-r1.ebuild, ruby-dbi-0.0.18.ebuild,
+  ruby-dbi-0.0.21.ebuild, files/ruby-dbi-destdir-gentoo.diff:
+  Version bumped. Fixed hardcoded rubydir, closing bug #46237
+
+*ruby-dbi-0.0.18 (27 Jul 2002)
+
+  27 Oct 2002; Ryan Phillips <rphillips@gentoo.org> ruby-dbi-0.0.17.ebuild :
+
+  New version
+
+*ruby-dbi-0.0.16 (10 Jul 2002)
+
+  10 Jul 2002; Ryan Phillips <rphillips@gentoo.org> ruby-dbi-0.0.16.ebuild :
+
+  New version
+
+*ruby-dbi-0.0.15 (21 Jun 2002)
+
+  21 Jun 2002; Ryan Phillips <rphillips@gentoo.org> ruby-dbi-0.0.15.ebuild :
+
+  New version
+
+  07 Jul 2002; Aron Griffis <agriffis@gentoo.org> ruby-dbi-0.0.15.ebuild:
+
+  Added LICENSE, KEYWORDS, SLOT.
+
+*ruby-dbi-0.0.13 (24 Apr 2002)
+
+  24 Apr 2002; Karl Trygve Kalleberg <karltk@gentoo.org> ruby-dbi-0.0.13.ebuild files/digest-ruby-dbi-0.0.13 :
+  
+  Ruby/DBI - a database independent interface for accessing databases - 
+  similar to Perl's DBI.
+
+  Ebuild submitted by Geert Bevin <gbevin@uwyn.com>.
+
+  07 Jul 2002; Aron Griffis <agriffis@gentoo.org> ruby-dbi-0.0.13.ebuild:
+
+  Added LICENSE, KEYWORDS, SLOT.

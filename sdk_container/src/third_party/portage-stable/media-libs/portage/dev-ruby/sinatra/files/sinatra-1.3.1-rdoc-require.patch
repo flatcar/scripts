@@ -1,0 +1,18 @@
+commit dc1ff1867096c5ef036c7aff9b55e4e72e4eaa6a
+Author: Tim Felgentreff <timfelgentreff@gmail.com>
+Date:   Mon Oct 10 18:57:14 2011 -0700
+
+    Update rdoc test to work with RDoc 3.10
+
+diff --git a/test/rdoc_test.rb b/test/rdoc_test.rb
+index ff547bc..d28b16a 100644
+--- a/test/rdoc_test.rb
++++ b/test/rdoc_test.rb
+@@ -1,6 +1,7 @@
+ require File.expand_path('../helper', __FILE__)
+ 
+ begin
++require 'rdoc'
+ require 'rdoc/markup/to_html'
+ 
+ class RdocTest < Test::Unit::TestCase

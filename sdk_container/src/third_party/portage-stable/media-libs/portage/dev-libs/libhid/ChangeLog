@@ -1,0 +1,41 @@
+# ChangeLog for dev-libs/libhid
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/libhid/ChangeLog,v 1.8 2013/02/03 12:15:48 pacho Exp $
+
+  03 Feb 2013; Pacho Ramos <pacho@gentoo.org> -libhid-0.2.16-r2.ebuild,
+  metadata.xml:
+  Cleanup due #22900
+
+  17 Dec 2012; Agostino Sarubbo <ago@gentoo.org> libhid-0.2.16-r3.ebuild:
+  Add ~ppc64, wrt bug #414993
+
+  10 Dec 2012; Agostino Sarubbo <ago@gentoo.org> libhid-0.2.16-r3.ebuild:
+  Add ~ppc, wrt bug #414993
+
+  28 Jul 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  libhid-0.2.16-r3.ebuild:
+  Remove an empty append-ldflags wthat wasn't found anyway.
+
+*libhid-0.2.16-r3 (17 Jul 2010)
+
+  17 Jul 2010; Markos Chandras <hwoarang@gentoo.org>
+  +libhid-0.2.16-r3.ebuild:
+  Respect LDFLAGS. Remove useless .la file. Fixes bug #313841
+
+*libhid-0.2.16-r2 (04 Apr 2010)
+
+  04 Apr 2010; MATSUU Takuto <matsuu@gentoo.org> -libhid-0.2.16-r1.ebuild,
+  +libhid-0.2.16-r2.ebuild:
+  Removed -Werror, bug #260884. Fixed python dependency, bug #312189.
+
+*libhid-0.2.16-r1 (23 Sep 2009)
+
+  23 Sep 2009; MATSUU Takuto <matsuu@gentoo.org> -libhid-0.2.16.ebuild,
+  +libhid-0.2.16-r1.ebuild:
+  virtual/libusb migration, bug #270039.
+
+*libhid-0.2.16 (01 Oct 2008)
+
+  01 Oct 2008; MATSUU Takuto <matsuu@gentoo.org> +metadata.xml,
+  +libhid-0.2.16.ebuild:
+  Initial import. Submitted by Mark Karpeles, bug #234264.

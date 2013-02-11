@@ -1,0 +1,131 @@
+# ChangeLog for dev-ruby/test-spec
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/test-spec/ChangeLog,v 1.31 2013/01/16 01:01:24 zerochaos Exp $
+
+  16 Jan 2013; Rick Farina <zerochaos@gentoo.org> test-spec-0.10.0-r4.ebuild:
+  adding ~arm keywords to net-analyzer/metasploit rdeps
+
+  28 Oct 2012; Raúl Porcel <armin76@gentoo.org> test-spec-0.10.0-r4.ebuild:
+  Add ~alpha/~ia64/~sparc wrt #431384
+
+  23 Sep 2012; Hans de Graaff <graaff@gentoo.org> -test-spec-0.10.0-r2.ebuild,
+  -test-spec-0.10.0-r3.ebuild:
+  Cleanup.
+
+  10 Aug 2012; Anthony G. Basile <blueness@gentoo.org>
+  test-spec-0.10.0-r4.ebuild:
+  Stable ppc64, bug #420711
+
+  10 Aug 2012; Anthony G. Basile <blueness@gentoo.org>
+  test-spec-0.10.0-r4.ebuild:
+  Stable ppc, bug #420711
+
+  07 Aug 2012; Agostino Sarubbo <ago@gentoo.org> test-spec-0.10.0-r4.ebuild:
+  Stable for amd64, wrt bug #420711
+
+  24 Jul 2012; Jeff Horelick <jdhore@gentoo.org> test-spec-0.10.0-r4.ebuild:
+  marked x86 per bug 420711
+
+*test-spec-0.10.0-r4 (12 May 2012)
+
+  12 May 2012; Diego E. Pettenò <flameeyes@gentoo.org>
+  +files/test-spec-0.10.0+ruby-19.patch, +test-spec-0.10.0-r4.ebuild,
+  test-spec-0.10.0-r3.ebuild:
+  Add a patch that actually gets test-spec to work, and for prawn-security to
+  work.
+
+  01 May 2012; Raúl Porcel <armin76@gentoo.org> test-spec-0.10.0-r2.ebuild,
+  test-spec-0.10.0-r3.ebuild:
+  Drop ia64/sparc keywords
+
+  28 Oct 2011; Jeroen Roovers <jer@gentoo.org> test-spec-0.10.0-r3.ebuild:
+  Marked ~hppa (bug #388355).
+
+  23 Jul 2011; Kacper Kowalik <xarthisius@gentoo.org>
+  test-spec-0.10.0-r2.ebuild:
+  ppc/ppc64 stable wrt #367469
+
+  12 Jun 2011; Raúl Porcel <armin76@gentoo.org> test-spec-0.10.0-r2.ebuild:
+  ia64/sparc stable wrt #367469
+
+  31 May 2011; Markus Meier <maekke@gentoo.org> test-spec-0.10.0-r2.ebuild:
+  x86 stable, bug #367469
+
+  24 May 2011; Markos Chandras <hwoarang@gentoo.org>
+  test-spec-0.10.0-r2.ebuild:
+  Stable on amd64 wrt bug #367469
+
+*test-spec-0.10.0-r3 (16 May 2011)
+
+  16 May 2011; Hans de Graaff <graaff@gentoo.org> test-spec-0.10.0-r2.ebuild,
+  +test-spec-0.10.0-r3.ebuild:
+  Revision bump to create a stable candidate.
+
+  23 May 2010; Alex Legler <a3li@gentoo.org> test-spec-0.10.0-r2.ebuild:
+  Add REE18 support
+
+  01 May 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  test-spec-0.10.0-r2.ebuild:
+  Don't depend on test-unit-2 at runtime.
+
+  26 Apr 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  test-spec-0.10.0-r2.ebuild:
+  Enable use with ruby19 using the (masked) test-unit-2.
+
+  17 Jan 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  test-spec-0.10.0-r2.ebuild, +files/test-spec-0.10.0-jruby.patch:
+  Add a patch to fix use with JRuby, and enable it.
+
+  14 Jan 2010; Brent Baude <ranger@gentoo.org> test-spec-0.10.0-r2.ebuild:
+  Marking test-spec-0.10.0-r2 ~ppc for bug 297711
+
+  13 Jan 2010; Brent Baude <ranger@gentoo.org> test-spec-0.10.0-r2.ebuild:
+  Marking test-spec-0.10.0-r2 ~ppc64 for bug 300739
+
+  30 Dec 2009; Raúl Porcel <armin76@gentoo.org> test-spec-0.10.0-r2.ebuild:
+  Add ~ia64/~sparc
+
+  20 Dec 2009; Diego E. Pettenò <flameeyes@gentoo.org>
+  -test-spec-0.10.0.ebuild, test-spec-0.10.0-r2.ebuild:
+  Don't build for Ruby 1.9 since this is incompatible with the test-unit
+  gem. Document why that and jruby are not present then.
+
+  20 Dec 2009; Diego E. Pettenò <flameeyes@gentoo.org>
+  test-spec-0.10.0-r2.ebuild, -files/test-spec-0.10.0-test-unit.patch:
+  Revert my previous change, as it breaks specrb.
+
+*test-spec-0.10.0-r2 (20 Dec 2009)
+
+  20 Dec 2009; Diego E. Pettenò <flameeyes@gentoo.org>
+  -test-spec-0.10.0-r1.ebuild, +test-spec-0.10.0-r2.ebuild,
+  +files/test-spec-0.10.0-test-unit.patch:
+  Revision bump again, add a patch to use test-unit directly, fix
+  dependencies.
+
+*test-spec-0.10.0-r1 (16 Dec 2009)
+
+  16 Dec 2009; Alex Legler <a3li@gentoo.org> +test-spec-0.10.0-r1.ebuild:
+  Revbump, move to ruby-fakegem
+
+  07 Aug 2009; Hans de Graaff <graaff@gentoo.org> -test-spec-0.4.0.ebuild,
+  -test-spec-0.9.0.ebuild:
+  Remove old versions.
+
+*test-spec-0.10.0 (01 Mar 2009)
+
+  01 Mar 2009; Alex Legler <a3li@gentoo.org> +test-spec-0.10.0.ebuild:
+  Version bump. Gem is now available on rubyforge, and looks 19 compatible.
+
+*test-spec-0.9.0 (20 Dec 2008)
+
+  20 Dec 2008; Hans de Graaff <graaff@gentoo.org> +test-spec-0.9.0.ebuild:
+  Version bump
+
+  09 Dec 2007; <nichoj@gentoo.org> test-spec-0.4.0.ebuild:
+  Keyworded ~x86.
+
+*test-spec-0.4.0 (02 Aug 2007)
+
+  02 Aug 2007; Joshua Nichols <nichoj@gentoo.org> +metadata.xml,
+  +test-spec-0.4.0.ebuild:
+  Initial version.

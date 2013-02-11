@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install postinst postrm prepare
+DEPEND=dev-python/pygobject:2 dev-python/pygtk:2 x11-libs/libX11 x11-libs/libXcomposite x11-libs/libXdamage x11-libs/libXfixes x11-libs/libXrandr x11-libs/libXtst vpx? ( media-libs/libvpx virtual/ffmpeg ) webp? ( media-libs/libwebp ) x264? ( media-libs/x264 virtual/ffmpeg ) virtual/pkgconfig >=dev-python/cython-0.16 dev-lang/python
+DESCRIPTION=X Persistent Remote Apps (xpra) and Partitioning WM (parti) based on wimpiggy
+EAPI=3
+HOMEPAGE=http://xpra.org/
+IUSE=+clipboard +rencode server vpx webp x264
+KEYWORDS=~amd64 ~x86 ~amd64-linux ~x86-linux
+LICENSE=GPL-2 BSD
+RDEPEND=dev-python/pygobject:2 dev-python/pygtk:2 x11-libs/libX11 x11-libs/libXcomposite x11-libs/libXdamage x11-libs/libXfixes x11-libs/libXrandr x11-libs/libXtst vpx? ( media-libs/libvpx virtual/ffmpeg ) webp? ( media-libs/libwebp ) x264? ( media-libs/x264 virtual/ffmpeg ) dev-python/dbus-python dev-python/imaging dev-python/ipython virtual/ssh x11-apps/setxkbmap x11-apps/xmodmap server? ( x11-base/xorg-server[-minimal] x11-drivers/xf86-input-void x11-drivers/xf86-video-dummy ) dev-lang/python
+SLOT=0
+SRC_URI=http://xpra.org/src/xpra-0.7.8.tar.bz2
+_eclasses_=distutils	15ae23f6f8219a009bfcfff7724fe727	eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	python	e5b3412fa9f03670a666c8a137bd1060	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=6d5920e679d5874aca299fe4a97b0282

@@ -1,0 +1,98 @@
+# ChangeLog for dev-ruby/rubyzip
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/rubyzip/ChangeLog,v 1.25 2012/09/27 19:06:12 johu Exp $
+
+  27 Sep 2012; Johannes Huber <johu@gentoo.org> rubyzip-0.9.9.ebuild:
+  Stable for x86, wrt bug #435824
+
+  24 Sep 2012; Agostino Sarubbo <ago@gentoo.org> rubyzip-0.9.9.ebuild:
+  Stable for amd64, wrt bug #435824
+
+  08 Jul 2012; Hans de Graaff <graaff@gentoo.org> -rubyzip-0.9.4-r1.ebuild:
+  Remove old version.
+
+*rubyzip-0.9.9 (08 Jul 2012)
+
+  08 Jul 2012; Hans de Graaff <graaff@gentoo.org> +rubyzip-0.9.9.ebuild:
+  Version bump.
+
+  01 May 2012; Raúl Porcel <armin76@gentoo.org> rubyzip-0.9.4.ebuild,
+  rubyzip-0.9.4-r1.ebuild, rubyzip-0.9.5.ebuild:
+  Drop ia64/sparc keywords
+
+  05 Dec 2011; Naohiro Aota <naota@gentoo.org> rubyzip-0.9.5.ebuild:
+  Add ~x86-fbsd.
+
+*rubyzip-0.9.5 (27 Nov 2011)
+
+  27 Nov 2011; Hans de Graaff <graaff@gentoo.org> +rubyzip-0.9.5.ebuild:
+  Version bump. Add ruby19.
+
+  11 Feb 2011; Kacper Kowalik <xarthisius@gentoo.org>
+  rubyzip-0.9.4-r1.ebuild:
+  Marked ~ppc64 wrt #319241
+
+*rubyzip-0.9.4-r1 (24 Jan 2011)
+
+  24 Jan 2011; Hans de Graaff <graaff@gentoo.org> +rubyzip-0.9.4-r1.ebuild:
+  Add ree18 support.
+
+  28 Sep 2010; Brent Baude <ranger@gentoo.org> rubyzip-0.9.4.ebuild:
+  Marking rubyzip-0.9.4 ~ppc for bug 319241
+
+  11 Jul 2010; Hans de Graaff <graaff@gentoo.org> -rubyzip-0.5.12.ebuild:
+  Remove old version.
+
+  08 Jul 2010; Raúl Porcel <armin76@gentoo.org> rubyzip-0.9.4.ebuild:
+  ia64 stable wrt #321101
+
+  13 Jun 2010; Pawel Hajdan jr <phajdan.jr@gentoo.org> rubyzip-0.9.4.ebuild:
+  x86 stable wrt bug #321101
+
+  26 May 2010; Pacho Ramos <pacho@gentoo.org> rubyzip-0.9.4.ebuild:
+  stable amd64, bug 321101
+
+  22 May 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -rubyzip-0.9.1.ebuild:
+  Drop old version.
+
+  22 May 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  rubyzip-0.5.12.ebuild, rubyzip-0.9.1.ebuild:
+  Various cleanups.
+
+*rubyzip-0.9.4 (30 Jan 2010)
+
+  30 Jan 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +rubyzip-0.9.4.ebuild:
+  Version bump and port to fakegem.
+
+  02 Jan 2008; Raúl Porcel <armin76@gentoo.org> rubyzip-0.9.1.ebuild:
+  Re-add ~ia64
+
+*rubyzip-0.9.1 (07 Sep 2007)
+
+  07 Sep 2007; Christian Parpart <trapni@gentoo.org> +rubyzip-0.9.1.ebuild:
+  version bump
+
+  28 Mar 2007; Raúl Porcel <armin76@gentoo.org> rubyzip-0.5.12.ebuild:
+  ia64 stable wrt bug 155513
+
+  15 Jan 2007; Steve Dibb <beandog@gentoo.org> rubyzip-0.5.12.ebuild:
+  amd64 stable, bug 155513
+
+  04 Dec 2006; Christian Faulhammer <opfer@gentoo.org>
+  rubyzip-0.5.12.ebuild:
+  stable x86, bug #155513
+
+  08 Aug 2006; Luis Medinas <metalgod@gentoo.org> rubyzip-0.5.12.ebuild:
+  Added ~amd64 keyword.
+
+  30 Mar 2006; Aron Griffis <agriffis@gentoo.org> rubyzip-0.5.12.ebuild:
+  Mark 0.5.12 ~ia64
+
+*rubyzip-0.5.12 (31 Oct 2005)
+
+  31 Oct 2005; Tom Payne <twp@gentoo.org> +metadata.xml,
+  +rubyzip-0.5.12.ebuild:
+  New package.
+

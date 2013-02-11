@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<herd>gnome</herd>
+<use>
+	<flag name="nautilus">Build the <pkg>gnome-extra/nautilus-sendto</pkg>
+		plugin</flag>
+	<flag name="sendto">Build the <pkg>gnome-extra/nautilus-sendto</pkg>
+		plugin</flag>
+</use>
+</pkgmetadata>

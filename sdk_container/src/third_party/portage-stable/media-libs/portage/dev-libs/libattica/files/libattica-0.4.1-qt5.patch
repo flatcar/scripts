@@ -1,0 +1,12 @@
+--- lib/cmake/FindQt5Transitional.cmake
++++ lib/cmake/FindQt5Transitional.cmake
+@@ -1,5 +1,8 @@
++option(WITH_Qt5 ON)
+ 
+-find_package(Qt5Core QUIET)
++if (WITH_Qt5)
++  find_package(Qt5Core QUIET)
++endif()
+ 
+ if (Qt5Core_FOUND)
+   if (NOT Qt5Transitional_FIND_COMPONENTS)

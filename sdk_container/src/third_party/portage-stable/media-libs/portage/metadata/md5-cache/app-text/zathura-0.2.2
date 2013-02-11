@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install postinst postrm setup test
+DEPEND=>=dev-libs/girara-0.1.5:2 >=dev-libs/glib-2 x11-libs/cairo sqlite? ( dev-db/sqlite:3 ) sys-devel/gettext virtual/pkgconfig doc? ( dev-python/docutils ) test? ( dev-libs/check ) test? ( !prefix? ( x11-base/xorg-server[xvfb] ) x11-apps/xhost )
+DESCRIPTION=A highly customizable and functional document viewer
+EAPI=5
+HOMEPAGE=http://pwmt.org/projects/zathura/
+IUSE=+doc sqlite test test
+KEYWORDS=~amd64 ~arm ~x86 ~amd64-linux ~x86-linux
+LICENSE=ZLIB
+RDEPEND=>=dev-libs/girara-0.1.5:2 >=dev-libs/glib-2 x11-libs/cairo sqlite? ( dev-db/sqlite:3 )
+SLOT=0
+SRC_URI=http://pwmt.org/projects/zathura/download/zathura-0.2.2.tar.gz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	fdo-mime	0acfe1a88fd8751a1d5dc671168219fa	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28	virtualx	73cfc129b4b9ba23aed1abb10c825d86
+_md5_=faf259ab4631893420e57f496139d702

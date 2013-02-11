@@ -1,0 +1,15 @@
+# ChangeLog for dev-ruby/mini_shoulda
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/mini_shoulda/ChangeLog,v 1.2 2012/08/26 13:26:15 graaff Exp $
+
+*mini_shoulda-0.5.0 (26 Aug 2012)
+
+  26 Aug 2012; Hans de Graaff <graaff@gentoo.org> +mini_shoulda-0.5.0.ebuild:
+  Version bump.
+
+*mini_shoulda-0.4.0 (02 Aug 2012)
+
+  02 Aug 2012; Hans de Graaff <graaff@gentoo.org> +mini_shoulda-0.4.0.ebuild,
+  +metadata.xml:
+  Initial import. Dependency of forthcoming dev-ruby/dalli.
+

@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install postinst postrm prepare setup test unpack
+DEPEND=>=dev-libs/expat-2.0.1 >=app-arch/bzip2-1.0.5 >=dev-libs/openssl-0.9.8o:0 >=sys-libs/db-4.8.30[cxx] ~dev-cpp/libmcpp-2.7.2 ruby? ( dev-lang/ruby:1.8 ) mono? ( dev-lang/mono ) !dev-python/IcePy !dev-ruby/IceRuby ncurses? ( sys-libs/ncurses sys-libs/readline ) test? ( =dev-lang/python-2* ) python? ( =dev-lang/python-2* )
+DESCRIPTION=ICE middleware C++ library and generator tools
+EAPI=2
+HOMEPAGE=http://www.zeroc.com/
+IUSE=doc examples +ncurses mono python ruby test debug elibc_FreeBSD ruby_targets_ruby18
+KEYWORDS=amd64 ~arm ~ia64 x86
+LICENSE=GPL-2
+RDEPEND=>=dev-libs/expat-2.0.1 >=app-arch/bzip2-1.0.5 >=dev-libs/openssl-0.9.8o:0 >=sys-libs/db-4.8.30[cxx] ~dev-cpp/libmcpp-2.7.2 ruby? ( dev-lang/ruby:1.8 ) mono? ( dev-lang/mono ) !dev-python/IcePy !dev-ruby/IceRuby python? ( =dev-lang/python-2* )
+SLOT=0
+SRC_URI=http://www.zeroc.com/download/Ice/3.4/Ice-3.4.2.tar.gz doc? ( http://www.zeroc.com/download/Ice/3.4/Ice-3.4.2.pdf.gz ) http://dev.gentoo.org/~ssuominen/Ice-3.4.2-gcc47.patch.bz2
+_eclasses_=db-use	2f5d6a2718559b90a51648d8ff58be83	eutils	d40dc948067bd3db1c8ebf7d51897313	java-utils-2	dcda71e114d638cdf01db57b8445337d	mono	203a4295c06155d318bdff9c6b2d5e1c	multilib	ded93e450747134a079e647d888aa80b	python	e5b3412fa9f03670a666c8a137bd1060	ruby-ng	10ca07a887e226622062d89bb959a175	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=3c221fcbc70ac35deb6819b9b921ab48

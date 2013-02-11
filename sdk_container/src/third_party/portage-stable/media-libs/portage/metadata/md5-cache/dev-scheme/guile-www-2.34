@@ -1,0 +1,12 @@
+DEFINED_PHASES=-
+DEPEND=>=dev-scheme/guile-1.8
+DESCRIPTION=Guile Scheme modules to facilitate HTTP, URL and CGI programming
+EAPI=4
+HOMEPAGE=http://www.nongnu.org/guile-www/
+KEYWORDS=amd64 ppc ppc64 x86 ~amd64-linux ~x86-linux ~x64-macos ~x86-macos
+LICENSE=GPL-3
+RDEPEND=>=dev-scheme/guile-1.8
+SLOT=0
+SRC_URI=mirror://nongnu/guile-www/guile-www-2.34.tar.xz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=b5b6fb7b0f96f780509bb448df5e3fc2

@@ -1,0 +1,11 @@
+DEFINED_PHASES=install unpack
+DEPEND=virtual/opengl media-libs/freeglut virtual/pkgconfig
+DESCRIPTION=A library for creating portable OpenGL applications with easy-to-code scene setup and selection.
+HOMEPAGE=http://www.bioinformatics.org/ghemical/
+KEYWORDS=~amd64 ~ppc ~x86
+LICENSE=GPL-2
+RDEPEND=virtual/opengl media-libs/freeglut
+SLOT=0
+SRC_URI=http://www.bioinformatics.org/ghemical/download/current/liboglappth-1.0.0.tar.gz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=3a688c6a5b97094fc7d39b0e22c04694

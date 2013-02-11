@@ -1,0 +1,10 @@
+DEFINED_PHASES=compile install prepare
+DESCRIPTION=A logging library for C/C++ programs
+EAPI=2
+HOMEPAGE=http://sourceforge.net/projects/dclog/
+KEYWORDS=~x86
+LICENSE=BSD
+SLOT=0
+SRC_URI=mirror://sourceforge/dclog/dclog-1.1.1.tar.bz2
+_eclasses_=multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e
+_md5_=e64c0ede88e0aae38ac23e80c951d12a

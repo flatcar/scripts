@@ -1,0 +1,83 @@
+From 71510fc785e440c068cc42dbd294dba5d74eeaff Mon Sep 17 00:00:00 2001
+From: Richard Hughes <richard@hughsie.com>
+Date: Wed, 27 Jun 2012 09:00:15 +0100
+Subject: [PATCH 1/2] Do not reuse __COLORD_H_INSIDE__ as this causes #include
+ insanity
+
+---
+ libcolord-gtk/cd-version.h.in  | 2 +-
+ libcolord-gtk/cd-window-sync.h | 2 +-
+ libcolord-gtk/cd-window.h      | 2 +-
+ libcolord-gtk/colord-gtk.h     | 9 +++------
+ 4 files changed, 6 insertions(+), 9 deletions(-)
+
+diff --git a/libcolord-gtk/cd-version.h.in b/libcolord-gtk/cd-version.h.in
+index 5ad7569..555556a 100644
+--- a/libcolord-gtk/cd-version.h.in
++++ b/libcolord-gtk/cd-version.h.in
+@@ -29,7 +29,7 @@
+  * See also: #CdClient, #CdDevice
+  */
+ 
+-#if !defined (__COLORD_H_INSIDE__) && !defined (CD_COMPILATION)
++#if !defined (__COLORD_GTK_H_INSIDE__) && !defined (CD_COMPILATION)
+ #error "Only <colord.h> can be included directly."
+ #endif
+ 
+diff --git a/libcolord-gtk/cd-window-sync.h b/libcolord-gtk/cd-window-sync.h
+index 6afe83b..47b8254 100644
+--- a/libcolord-gtk/cd-window-sync.h
++++ b/libcolord-gtk/cd-window-sync.h
+@@ -19,7 +19,7 @@
+  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
+  */
+ 
+-#if !defined (__COLORD_H_INSIDE__) && !defined (CD_COMPILATION)
++#if !defined (__COLORD_GTK_H_INSIDE__) && !defined (CD_COMPILATION)
+ #error "Only <colord.h> can be included directly."
+ #endif
+ 
+diff --git a/libcolord-gtk/cd-window.h b/libcolord-gtk/cd-window.h
+index 3b993a8..dbdab3e 100644
+--- a/libcolord-gtk/cd-window.h
++++ b/libcolord-gtk/cd-window.h
+@@ -19,7 +19,7 @@
+  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
+  */
+ 
+-#if !defined (__COLORD_H_INSIDE__) && !defined (CD_COMPILATION)
++#if !defined (__COLORD_GTK_H_INSIDE__) && !defined (CD_COMPILATION)
+ #error "Only <colord-gtk.h> can be included directly."
+ #endif
+ 
+diff --git a/libcolord-gtk/colord-gtk.h b/libcolord-gtk/colord-gtk.h
+index 658ec60..4080667 100644
+--- a/libcolord-gtk/colord-gtk.h
++++ b/libcolord-gtk/colord-gtk.h
+@@ -31,20 +31,17 @@
+ #ifndef __COLORD_GTK_H__
+ #define __COLORD_GTK_H__
+ 
+-#define __COLORD_H_INSIDE__
++#define __COLORD_GTK_H_INSIDE__
+ 
+ #include <gtk/gtk.h>
+-
+ #include <colord.h>
+-//#include <colord/cd-device.h>
+-//#include <colord/cd-profile.h>
+-//#include <colord/cd-color.h>
++
+ #include <colord-gtk/cd-sample-window.h>
+ #include <colord-gtk/cd-version.h>
+ #include <colord-gtk/cd-window.h>
+ #include <colord-gtk/cd-window-sync.h>
+ 
+-#undef __COLORD_H_INSIDE__
++#undef __COLORD_GTK_H_INSIDE__
+ 
+ #endif /* __COLORD_GTK_H__ */
+ 
+-- 
+1.7.12
+

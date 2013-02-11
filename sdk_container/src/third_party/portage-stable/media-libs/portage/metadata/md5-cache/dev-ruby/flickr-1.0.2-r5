@@ -1,0 +1,14 @@
+DEFINED_PHASES=compile configure install prepare setup test unpack
+DEPEND=test? ( ruby_targets_ruby18? ( dev-ruby/xml-simple[ruby_targets_ruby18] ) ruby_targets_ruby19? ( dev-ruby/xml-simple[ruby_targets_ruby19] ) ruby_targets_jruby? ( dev-ruby/xml-simple[ruby_targets_jruby] ) ) ruby_targets_ruby18? ( dev-lang/ruby:1.8 ) ruby_targets_ruby19? ( dev-lang/ruby:1.9 ) ruby_targets_jruby? ( dev-java/jruby ) ruby_targets_ruby18? ( virtual/rubygems[ruby_targets_ruby18] ) ruby_targets_ruby19? ( virtual/rubygems[ruby_targets_ruby19] ) ruby_targets_jruby? ( virtual/rubygems[ruby_targets_jruby] ) test? ( ruby_targets_ruby18? ( virtual/rubygems[ruby_targets_ruby18] ) ruby_targets_ruby19? ( virtual/rubygems[ruby_targets_ruby19] ) ruby_targets_jruby? ( virtual/rubygems[ruby_targets_jruby] ) )
+DESCRIPTION=An insanely easy interface to the Flickr photo-sharing service.
+EAPI=5
+HOMEPAGE=http://rubyforge.org/projects/flickr/
+IUSE=test elibc_FreeBSD ruby_targets_ruby18 ruby_targets_ruby19 ruby_targets_jruby test
+KEYWORDS=~amd64
+LICENSE=MIT
+RDEPEND=ruby_targets_ruby18? ( dev-ruby/xml-simple[ruby_targets_ruby18] ) ruby_targets_ruby19? ( dev-ruby/xml-simple[ruby_targets_ruby19] ) ruby_targets_jruby? ( dev-ruby/xml-simple[ruby_targets_jruby] ) ruby_targets_ruby18? ( dev-lang/ruby:1.8 ) ruby_targets_ruby19? ( dev-lang/ruby:1.9 ) ruby_targets_jruby? ( dev-java/jruby ) ruby_targets_ruby18? ( virtual/rubygems[ruby_targets_ruby18] ) ruby_targets_ruby19? ( virtual/rubygems[ruby_targets_ruby19] ) ruby_targets_jruby? ( virtual/rubygems[ruby_targets_jruby] )
+REQUIRED_USE=|| ( ruby_targets_ruby18 ruby_targets_ruby19 ruby_targets_jruby )
+SLOT=0
+SRC_URI=mirror://gentoo/flickr-1.0.2-gentoo.tar.bz2
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	java-utils-2	dcda71e114d638cdf01db57b8445337d	multilib	ded93e450747134a079e647d888aa80b	ruby-fakegem	2785c639b173dd603e95bd60b8d6c4c0	ruby-ng	10ca07a887e226622062d89bb959a175	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=28e83069dd153cd004e68a37dbf8218f

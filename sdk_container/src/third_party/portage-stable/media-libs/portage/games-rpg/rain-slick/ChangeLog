@@ -1,0 +1,55 @@
+# ChangeLog for games-rpg/rain-slick
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/games-rpg/rain-slick/ChangeLog,v 1.13 2013/01/25 19:06:08 tupone Exp $
+
+  25 Jan 2013; Tupone Alfredo <tupone@gentoo.org> rain-slick-2.3.ebuild:
+  Use QA_PREBUILT Bug #431544 by Diego Elio Pettenò
+
+  22 Jan 2013; Michael Sterrett <mr_bones_@gentoo.org> -rain-slick-2.1.ebuild:
+  old
+
+  21 May 2012; Samuli Suominen <ssuominen@gentoo.org> rain-slick-1.5.ebuild,
+  rain-slick-2.3.ebuild:
+  inherit eutils for make_desktop_entry
+
+  16 Feb 2012; Pawel Hajdan jr <phajdan.jr@gentoo.org> rain-slick-2.3.ebuild:
+  x86 stable wrt bug #397041
+
+  03 Feb 2012; Agostino Sarubbo <ago@gentoo.org> rain-slick-2.3.ebuild:
+  Stable for amd64, wrt bug #397041
+
+  13 Feb 2011; Mike Frysinger <vapier@gentoo.org> rain-slick-1.5.ebuild,
+  rain-slick-2.3.ebuild:
+  Add desktop menu entries.
+
+*rain-slick-2.3 (07 Feb 2011)
+
+  07 Feb 2011; Mike Frysinger <vapier@gentoo.org> +rain-slick-2.3.ebuild:
+  Version bump #271454 by Anton Romanov.
+
+  07 Feb 2011; Mike Frysinger <vapier@gentoo.org> rain-slick-1.5.ebuild,
+  rain-slick-2.1.ebuild:
+  Update HOMEPAGE/SRC_URI and stabilize.
+
+*rain-slick-1.5 (01 Nov 2010)
+
+  01 Nov 2010; Arun Raghavan <ford_prefect@gentoo.org>
+  +rain-slick-1.5.ebuild:
+  Bump to 1.5 for the r5 version. Fix HOMEPAGE to be version-independent as
+  well.
+
+  08 Jan 2009; Michael Sterrett <mr_bones_@gentoo.org>
+  rain-slick-2.1.ebuild:
+  fix up SRC_URI as mentioned by Xake in bug #250975
+
+*rain-slick-2.1 (29 Oct 2008)
+*rain-slick-1.4 (29 Oct 2008)
+
+  29 Oct 2008; Mike Frysinger <vapier@gentoo.org> +rain-slick-1.4.ebuild,
+  +rain-slick-2.1.ebuild:
+  Version bump.
+
+*rain-slick-1.2 (25 May 2008)
+
+  25 May 2008; Mike Frysinger <vapier@gentoo.org> +rain-slick-1.2.ebuild:
+  Initial ebuild by me.

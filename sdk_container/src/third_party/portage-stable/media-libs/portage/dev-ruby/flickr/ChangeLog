@@ -1,0 +1,65 @@
+# ChangeLog for dev-ruby/flickr
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/flickr/ChangeLog,v 1.13 2013/02/02 16:16:53 flameeyes Exp $
+
+*flickr-1.0.2-r5 (02 Feb 2013)
+
+  02 Feb 2013; Diego E. Pettenò <flameeyes@gentoo.org> +flickr-1.0.2-r5.ebuild,
+  -flickr-1.0.2-r4.ebuild:
+  Remove doc support which is broken as of bug #455144. Use 'none' recipes to
+  avoid dependencies.
+
+  06 Aug 2012; Hans de Graaff <graaff@gentoo.org> -flickr-1.0.2-r1.ebuild:
+  Cleanup.
+
+  14 Dec 2011; Agostino Sarubbo <ago@gentoo.org> flickr-1.0.2-r3.ebuild:
+  Stable for AMD64, wrt bug #387911
+
+*flickr-1.0.2-r4 (20 Oct 2011)
+
+  20 Oct 2011; Hans de Graaff <graaff@gentoo.org> flickr-1.0.2-r3.ebuild,
+  +flickr-1.0.2-r4.ebuild:
+  $1
+
+  20 Oct 2011; Hans de Graaff <graaff@gentoo.org> -flickr-1.0.2-r2.ebuild:
+  Remove old version.
+
+*flickr-1.0.2-r3 (15 Dec 2009)
+
+  15 Dec 2009; Diego E. Pettenò <flameeyes@gentoo.org>
+  +flickr-1.0.2-r3.ebuild:
+  Bump to ruby-fakegem.
+
+*flickr-1.0.2-r2 (28 Jun 2009)
+
+  28 Jun 2009; Diego E. Pettenò <flameeyes@gentoo.org>
+  +flickr-1.0.2-r2.ebuild, +files/flickr-1.0.2-typo.patch:
+  Backport a patch applied by Typo upstream.
+
+  20 Jun 2009; Diego E. Pettenò <flameeyes@gentoo.org>
+  -flickr-1.0.2.ebuild:
+  Remove old version.
+
+  18 Jun 2009; Thomas Anderson <gentoofan23@gentoo.org>
+  flickr-1.0.2-r1.ebuild:
+  stable amd64, bug 274031
+
+  09 Jun 2009; Diego E. Pettenò <flameeyes@gentoo.org>
+  flickr-1.0.2-r1.ebuild:
+  Fix install.
+
+*flickr-1.0.2-r1 (27 Apr 2009)
+
+  27 Apr 2009; Diego E. Pettenò <flameeyes@gentoo.org>
+  +files/flickr-1.0.2-fix.patch, +flickr-1.0.2-r1.ebuild:
+  Add a new revision of flickr using a manually-forged tarball, and add a
+  fix for the URLs.
+
+  23 Apr 2009; Markus Meier <maekke@gentoo.org> flickr-1.0.2:
+  amd64 stable, bug #266510
+
+*flickr-1.0.2 (03 Nov 2008)
+
+  03 Nov 2008; Diego Pettenò <flameeyes@gentoo.org> +metadata.xml,
+  +flickr-1.0.2.ebuild:
+  Add flickr ebuild (yes again for my blog).

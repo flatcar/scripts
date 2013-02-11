@@ -1,0 +1,18 @@
+# ChangeLog for dev-ruby/coffee-script
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/coffee-script/ChangeLog,v 1.4 2013/01/15 06:33:36 zerochaos Exp $
+
+  15 Jan 2013; Rick Farina <zerochaos@gentoo.org> coffee-script-2.2.0.ebuild:
+  adding ~arm keywords to net-analyzer/metasploit rdeps
+
+  17 May 2012; Thomas Kahle <tomka@gentoo.org> coffee-script-2.2.0.ebuild:
+  marked ~x86 per bug 396547
+
+  01 Mar 2012; Fabian Groffen <grobian@gentoo.org> coffee-script-2.2.0.ebuild:
+  Marked ~x64-macos
+
+*coffee-script-2.2.0 (30 Dec 2011)
+
+  30 Dec 2011; Hans de Graaff <graaff@gentoo.org> +coffee-script-2.2.0.ebuild,
+  +metadata.xml:
+  Initial import. Dependency of coffee-rails.

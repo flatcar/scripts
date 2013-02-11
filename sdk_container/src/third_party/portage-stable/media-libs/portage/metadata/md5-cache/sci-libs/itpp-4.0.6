@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install setup unpack
+DEPEND=!minimal? ( fftw? ( >=sci-libs/fftw-3.0.0 ) ) blas? ( virtual/blas lapack? ( virtual/lapack ) ) doc? ( app-doc/doxygen virtual/latex-base )
+DESCRIPTION=C++ library of mathematical, signal processing and communication
+HOMEPAGE=http://itpp.sourceforge.net/
+IUSE=blas debug doc fftw lapack minimal
+KEYWORDS=amd64 ppc ppc64 x86
+LICENSE=GPL-3
+RDEPEND=!minimal? ( fftw? ( >=sci-libs/fftw-3.0.0 ) ) blas? ( virtual/blas lapack? ( virtual/lapack ) )
+RESTRICT=strip
+SLOT=0
+SRC_URI=mirror://sourceforge/itpp/itpp-4.0.6.tar.bz2
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	flag-o-matic	d900015de4e092f26d8c0a18b6bd60de	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=10f054dd8280df32e47cbfdae5d1e593

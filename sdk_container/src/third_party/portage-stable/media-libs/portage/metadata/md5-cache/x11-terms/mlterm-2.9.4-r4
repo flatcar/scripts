@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install unpack
+DEPEND=|| ( sys-libs/libutempter sys-apps/utempter ) x11-libs/libX11 x11-libs/libICE x11-libs/libSM gtk? ( x11-libs/gtk+:2 ) !gtk? ( imlib? ( >=media-libs/imlib-1.9.14 ) ) truetype? ( x11-libs/libXft ) bidi? ( >=dev-libs/fribidi-0.10.4 ) nls? ( virtual/libintl ) uim? ( >=app-i18n/uim-1.0 ) scim? ( >=app-i18n/scim-1.4 ) m17n-lib? ( >=dev-libs/m17n-lib-1.2.0 ) virtual/pkgconfig nls? ( sys-devel/gettext )
+DESCRIPTION=A multi-lingual terminal emulator
+EAPI=1
+HOMEPAGE=http://mlterm.sourceforge.net/
+IUSE=truetype gtk imlib bidi nls uim scim m17n-lib
+KEYWORDS=amd64 hppa ppc ppc64 x86
+LICENSE=BSD
+RDEPEND=|| ( sys-libs/libutempter sys-apps/utempter ) x11-libs/libX11 x11-libs/libICE x11-libs/libSM gtk? ( x11-libs/gtk+:2 ) !gtk? ( imlib? ( >=media-libs/imlib-1.9.14 ) ) truetype? ( x11-libs/libXft ) bidi? ( >=dev-libs/fribidi-0.10.4 ) nls? ( virtual/libintl ) uim? ( >=app-i18n/uim-1.0 ) scim? ( >=app-i18n/scim-1.4 ) m17n-lib? ( >=dev-libs/m17n-lib-1.2.0 )
+SLOT=0
+SRC_URI=mirror://sourceforge/mlterm/mlterm-2.9.4.tar.gz http://shinh.skr.jp/dat_dir/mlterm-2.9.4_256.patch
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=a6fb9144893ba122bb161a61d0974359

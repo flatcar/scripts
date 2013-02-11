@@ -1,0 +1,28 @@
+# ChangeLog for dev-ruby/net-http-digest_auth
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/net-http-digest_auth/ChangeLog,v 1.5 2012/11/25 19:16:31 tomka Exp $
+
+  25 Nov 2012; Thomas Kahle <tomka@gentoo.org>
+  net-http-digest_auth-1.2.1.ebuild:
+  marked ~x86 per bug 432830
+
+  29 Sep 2012; Fabian Groffen <grobian@gentoo.org>
+  net-http-digest_auth-1.2.1.ebuild:
+  Added Prefix keywords, bug #432830
+
+  27 Sep 2012; Samuli Suominen <ssuominen@gentoo.org>
+  net-http-digest_auth-1.2.1.ebuild:
+  Keyword ~ppc/~ppc64 wrt #432830
+
+*net-http-digest_auth-1.2.1 (17 Aug 2012)
+
+  17 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org>
+  +net-http-digest_auth-1.2.1.ebuild:
+  Version bump; use rdoc for documentation generation to avoid a dependency over
+  hoe for docs.
+
+*net-http-digest_auth-1.2 (18 Dec 2011)
+
+  18 Dec 2011; Hans de Graaff <graaff@gentoo.org>
+  +net-http-digest_auth-1.2.ebuild, +metadata.xml:
+  Initial import. New dependency for dev-ruby/mechanize.

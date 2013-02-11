@@ -1,0 +1,21 @@
+From 479d1535579184f437fe3cf73f24c4e17d933ecc Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Fri, 18 Mar 2011 14:16:00 +0000
+Subject: wizard: Update DTD for latest addition
+
+---
+diff --git a/wizard/pin-code-database.xml b/wizard/pin-code-database.xml
+index b3e9f8d..3b4479e 100644
+--- a/wizard/pin-code-database.xml
++++ b/wizard/pin-code-database.xml
+@@ -38,7 +38,7 @@
+ <!DOCTYPE devices [
+ 	<!ELEMENT devices (device)+>
+ 	<!ELEMENT device EMPTY>
+-	<!ATTLIST device type (any|mouse|keyboard|headset|headphones|audio|printer|network) "any">
++	<!ATTLIST device type (any|mouse|table|keyboard|headset|headphones|audio|printer|network) "any">
+ 	<!ATTLIST device oui CDATA #IMPLIED>
+ 	<!ATTLIST device name CDATA #IMPLIED>
+ 	<!ATTLIST device pin CDATA #REQUIRED>
+--
+cgit v0.9.0.2

@@ -1,0 +1,12 @@
+Index: rqr-0.2.2/ext/rqr/qr_draw_png.h
+===================================================================
+--- rqr-0.2.2.orig/ext/rqr/qr_draw_png.h
++++ rqr-0.2.2/ext/rqr/qr_draw_png.h
+@@ -6,6 +6,7 @@
+ #include "qr_draw.h"
+ 
+ #ifdef USE_PNG
++	#include <zlib.h>
+ 	#include <png.h>
+ #endif
+ 

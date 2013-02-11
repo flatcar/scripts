@@ -1,0 +1,230 @@
+# ChangeLog for dev-ruby/sexp_processor
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/sexp_processor/ChangeLog,v 1.14 2013/01/24 16:36:09 jer Exp $
+
+  24 Jan 2013; Jeroen Roovers <jer@gentoo.org> sexp_processor-3.2.0.ebuild:
+  Stable for HPPA (bug #450978).
+
+  21 Jan 2013; Agostino Sarubbo <ago@gentoo.org> sexp_processor-3.2.0.ebuild:
+  Stable for sparc, wrt bug #450978
+
+  21 Jan 2013; Agostino Sarubbo <ago@gentoo.org> sexp_processor-3.2.0.ebuild:
+  Stable for ia64, wrt bug #450978
+
+  21 Jan 2013; Agostino Sarubbo <ago@gentoo.org> sexp_processor-3.2.0.ebuild:
+  Stable for ppc, wrt bug #450978
+
+  21 Jan 2013; Agostino Sarubbo <ago@gentoo.org> sexp_processor-3.2.0.ebuild:
+  Stable for ppc64, wrt bug #450978
+
+  20 Jan 2013; Agostino Sarubbo <ago@gentoo.org> sexp_processor-3.2.0.ebuild:
+  Stable for alpha, wrt bug #450978
+
+  20 Jan 2013; Agostino Sarubbo <ago@gentoo.org> sexp_processor-3.2.0.ebuild:
+  Stable for x86, wrt bug #450978
+
+  20 Jan 2013; Agostino Sarubbo <ago@gentoo.org> sexp_processor-3.2.0.ebuild:
+  Stable for amd64, wrt bug #450978
+
+  15 Jan 2013; Rick Farina <zerochaos@gentoo.org> sexp_processor-3.0.5.ebuild,
+  sexp_processor-3.2.0.ebuild, sexp_processor-4.0.1.ebuild,
+  sexp_processor-4.1.3.ebuild:
+  adding ~arm keywords to net-analyzer/metasploit rdeps
+
+*sexp_processor-4.1.3 (09 Dec 2012)
+
+  09 Dec 2012; Hans de Graaff <graaff@gentoo.org> +sexp_processor-4.1.3.ebuild:
+  Version bump.
+
+  28 Oct 2012; Raúl Porcel <armin76@gentoo.org> sexp_processor-3.0.5.ebuild:
+  alpha stable
+
+*sexp_processor-4.0.1 (23 Sep 2012)
+
+  23 Sep 2012; Hans de Graaff <graaff@gentoo.org> +sexp_processor-4.0.1.ebuild:
+  Version bump.
+
+  16 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org>
+  -sexp_processor-3.0.10.ebuild, -sexp_processor-3.0.9.ebuild,
+  sexp_processor-3.0.5.ebuild, sexp_processor-3.2.0.ebuild:
+  Remove old; drop FAKEGEM_NAME; for the latest one bump to EAPI 4 and use the
+  rdoc recipe for documentation building at least.
+
+  14 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> metadata.xml:
+  Update metadata.xml so that it's the same as most other packages.
+
+*sexp-processor-3.2.0 (21 Apr 2012)
+
+  21 Apr 2012; Hans de Graaff <graaff@gentoo.org> +sexp-processor-3.2.0.ebuild:
+  Version bump.
+
+*sexp-processor-3.0.10 (28 Jan 2012)
+
+  28 Jan 2012; Hans de Graaff <graaff@gentoo.org>
+  +sexp-processor-3.0.10.ebuild:
+  Version bump.
+
+  28 Jan 2012; Hans de Graaff <graaff@gentoo.org>
+  -sexp-processor-3.0.5-r1.ebuild, -sexp-processor-3.0.6.ebuild:
+  Remove old versions.
+
+  31 Dec 2011; Fabian Groffen <grobian@gentoo.org> sexp-processor-3.0.9.ebuild:
+  Add Prefix keywords, bug #396547
+
+*sexp-processor-3.0.9 (25 Dec 2011)
+
+  25 Dec 2011; Hans de Graaff <graaff@gentoo.org> +sexp-processor-3.0.9.ebuild:
+  Version bump.
+
+  05 Dec 2011; Naohiro Aota <naota@gentoo.org> sexp-processor-3.0.6.ebuild:
+  Add ~x86-fbsd.
+
+  15 Sep 2011; Jeroen Roovers <jer@gentoo.org> sexp-processor-3.0.5.ebuild:
+  Stable for HPPA (bug #369573).
+
+*sexp-processor-3.0.6 (20 Aug 2011)
+
+  20 Aug 2011; Hans de Graaff <graaff@gentoo.org> +sexp-processor-3.0.6.ebuild:
+  Version bump.
+
+  10 Jul 2011; Mark Loeser <halcy0n@gentoo.org> sexp-processor-3.0.5.ebuild:
+  Stable for ppc64; bug #355299
+
+  16 Apr 2011; Raúl Porcel <armin76@gentoo.org> sexp-processor-3.0.5.ebuild:
+  ia64 stable wrt #355299
+
+  01 Apr 2011; Michael Weber <xmw@gentoo.org> sexp-processor-3.0.5.ebuild:
+  sparc stable (bug 355299)
+
+  27 Mar 2011; Brent Baude <ranger@gentoo.org> sexp-processor-3.0.5.ebuild:
+  Marking sexp-processor-3.0.5 ppc stable for bug 355299
+
+  08 Mar 2011; Thomas Kahle <tomka@gentoo.org> sexp-processor-3.0.5.ebuild:
+  x86 stable per bug 355299
+
+  21 Feb 2011; Markos Chandras <hwoarang@gentoo.org>
+  sexp-processor-3.0.5.ebuild:
+  Stable on amd64 wrt bug #355299
+
+*sexp-processor-3.0.5-r1 (17 Feb 2011)
+
+  17 Feb 2011; Hans de Graaff <graaff@gentoo.org>
+  sexp-processor-3.0.5.ebuild, +sexp-processor-3.0.5-r1.ebuild:
+  Revision bump to create a stable candidate with ree18 and without ruby19.
+
+  17 Feb 2011; Hans de Graaff <graaff@gentoo.org>
+  -sexp-processor-3.0.4.ebuild:
+  Remove old version.
+
+  28 Dec 2010; Fabian Groffen <grobian@gentoo.org>
+  sexp-processor-3.0.5.ebuild:
+  Added Prefix keywords
+
+  27 Dec 2010; Fabian Groffen <grobian@gentoo.org>
+  sexp-processor-3.0.5.ebuild:
+  Marked ~x64-solaris
+
+  23 Oct 2010; Jeroen Roovers <jer@gentoo.org> sexp-processor-3.0.4.ebuild,
+  sexp-processor-3.0.5.ebuild:
+  Marked ~hppa (bug #337956).
+
+  10 Oct 2010; Tobias Klausmann <klausman@gentoo.org>
+  sexp-processor-3.0.5.ebuild:
+  Keyworded on alpha, bug #330337
+
+  09 Oct 2010; Hans de Graaff <graaff@gentoo.org>
+  sexp-processor-3.0.4.ebuild:
+  Drop ree18/ruby19 to create a stable candidate.
+
+  09 Oct 2010; Hans de Graaff <graaff@gentoo.org>
+  -sexp-processor-3.0.3-r1.ebuild:
+  Remove old version.
+
+*sexp-processor-3.0.5 (02 Oct 2010)
+
+  02 Oct 2010; Hans de Graaff <graaff@gentoo.org>
+  +sexp-processor-3.0.5.ebuild:
+  Version bump with optimization enhancements. Add jruby.
+
+  18 Aug 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  sexp-processor-3.0.3-r1.ebuild, sexp-processor-3.0.4.ebuild:
+  Stop using virtual/ruby-minitest, since it's now unbundled from 1.9 as
+  well.
+
+*sexp-processor-3.0.4 (19 Jul 2010)
+
+  19 Jul 2010; Hans de Graaff <graaff@gentoo.org>
+  +sexp-processor-3.0.4.ebuild:
+  Version bump: Added line number to pretty_print output if 
+
+  22 May 2010; Alex Legler <a3li@gentoo.org> sexp-processor-3.0.3-r1.ebuild:
+  Add REE18 support
+
+  22 May 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -sexp-processor-3.0.2.ebuild, -sexp-processor-3.0.3.ebuild,
+  sexp-processor-3.0.3-r1.ebuild:
+  Cleanup old versions, use new syntax.
+
+  13 Feb 2010; Raúl Porcel <armin76@gentoo.org>
+  sexp-processor-3.0.2.ebuild, sexp-processor-3.0.3.ebuild,
+  sexp-processor-3.0.3-r1.ebuild:
+  Add ~sparc
+
+  29 Jan 2010; Raúl Porcel <armin76@gentoo.org>
+  sexp-processor-3.0.2.ebuild, sexp-processor-3.0.3.ebuild,
+  sexp-processor-3.0.3-r1.ebuild:
+  Add ~ia64
+
+  14 Jan 2010; Brent Baude <ranger@gentoo.org>
+  sexp-processor-3.0.3-r1.ebuild:
+  Marking sexp-processor-3.0.3-r1 ~ppc for bug 298379
+
+  13 Jan 2010; Brent Baude <ranger@gentoo.org> ChangeLog:
+  Marking sexp-processor-3.0.3-r1 ~ppc64 for bug 298379
+
+  13 Jan 2010; Brent Baude <ranger@gentoo.org>
+  sexp-processor-3.0.3-r1.ebuild:
+  Marking sexp-processor-3.0.3-r1 ~ppc64 for bug 280631
+
+  04 Jan 2010; Markus Meier <maekke@gentoo.org>
+  sexp-processor-3.0.3-r1.ebuild:
+  add ~x86, bug #298379
+
+  04 Jan 2010; Christian Faulhammer <fauli@gentoo.org>
+  sexp-processor-3.0.3-r1.ebuild:
+  Transfer Prefix keywords
+
+*sexp-processor-3.0.3-r1 (25 Dec 2009)
+
+  25 Dec 2009; Diego E. Pettenò <flameeyes@gentoo.org>
+  +sexp-processor-3.0.3-r1.ebuild:
+  Port to fakegem.
+
+  15 Aug 2009; Hans de Graaff <graaff@gentoo.org>
+  -sexp-processor-3.0.0.ebuild, -sexp-processor-3.0.1.ebuild:
+  Remove old versions.
+
+*sexp-processor-3.0.3 (15 Aug 2009)
+
+  15 Aug 2009; Hans de Graaff <graaff@gentoo.org>
+  +sexp-processor-3.0.3.ebuild:
+  Version bump with minor enhancement: Pulled #mass up from flog/flay.
+
+*sexp-processor-3.0.2 (12 Jul 2009)
+
+  12 Jul 2009; Hans de Graaff <graaff@gentoo.org>
+  +sexp-processor-3.0.2.ebuild:
+  Version bump with 2 minor enhancements.
+
+*sexp-processor-3.0.1 (09 Jun 2009)
+
+  09 Jun 2009; Hans de Graaff <graaff@gentoo.org>
+  +sexp-processor-3.0.1.ebuild:
+  Version bump with minor enhancements.
+
+*sexp-processor-3.0.0 (28 Dec 2008)
+
+  28 Dec 2008; Hans de Graaff <graaff@gentoo.org> +metadata.xml,
+  +sexp-processor-3.0.0.ebuild:
+  Initial import. This package is split out of the ParseTree package, so I've
+  kept the original keywords from that package.

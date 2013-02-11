@@ -1,0 +1,12 @@
+https://rails.lighthouseapp.com/projects/8994-ruby-on-rails/tickets/5555-actionmailer-239-should-now-require-uri
+
+--- lib/action_mailer/base.rb.orig	2010-09-05 10:56:52.424972729 +0200
++++ lib/action_mailer/base.rb	2010-09-05 10:56:59.760472595 +0200
+@@ -247,6 +247,7 @@
+   class Base
+     include AdvAttrAccessor, PartContainer, Quoting, Utils
+     if Object.const_defined?(:ActionController)
++      require 'uri'
+       include ActionController::UrlWriter
+       include ActionController::Layout
+     end

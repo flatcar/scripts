@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<herd>gnome</herd>
+	<use>
+		<flag name="gjs">Build support for loading JavaScript plugins using
+			<pkg>dev-libs/gjs</pkg></flag>
+		<flag name="glade">Install the glade catalog</flag>
+		<flag name="python">Build support for loading <pkg>dev-lang/python</pkg>
+			plugins</flag>
+		<flag name="seed">Build support for loading JavaScript plugins using
+			<pkg>dev-libs/seed</pkg></flag>
+	</use>
+</pkgmetadata>

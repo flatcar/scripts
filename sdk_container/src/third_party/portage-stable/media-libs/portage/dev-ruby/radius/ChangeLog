@@ -1,0 +1,49 @@
+# ChangeLog for dev-ruby/radius
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/radius/ChangeLog,v 1.11 2012/09/11 17:58:12 graaff Exp $
+
+  11 Sep 2012; Hans de Graaff <graaff@gentoo.org> -radius-0.6.1-r1.ebuild,
+  -radius-0.7.1.ebuild:
+  Cleanup.
+
+  14 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> metadata.xml:
+  Update metadata.xml so that it's the same as most other packages.
+
+  17 May 2012; Thomas Kahle <tomka@gentoo.org> radius-0.7.3.ebuild:
+  marked ~x86 per bug 396547
+
+*radius-0.7.3 (27 Feb 2012)
+
+  27 Feb 2012; Diego E. Pettenò <flameeyes@gentoo.org> +radius-0.7.3.ebuild:
+  Version bump; since the new version uses kramdown rather than redcloth, add
+  support for JRuby and Ruby 1.9 as well.
+
+*radius-0.7.1 (15 Aug 2011)
+
+  15 Aug 2011; Hans de Graaff <graaff@gentoo.org> +radius-0.7.1.ebuild:
+  Version bump.
+
+  16 Feb 2011; Hans de Graaff <graaff@gentoo.org> radius-0.6.1-r1.ebuild:
+  Add missing dependency on rubigen. Add ree18.
+
+  13 Aug 2010; Hans de Graaff <graaff@gentoo.org> -radius-0.6.1.ebuild:
+  Remove old version.
+
+*radius-0.6.1-r1 (01 Jun 2010)
+
+  01 Jun 2010; Hans de Graaff <graaff@gentoo.org> +radius-0.6.1-r1.ebuild:
+  Convert to ruby-fakegem.
+
+  09 Dec 2009; Hans de Graaff <graaff@gentoo.org> -radius-0.5.1.ebuild:
+  Remove old version.
+
+*radius-0.6.1 (03 Oct 2009)
+
+  03 Oct 2009; Alex Legler <a3li@gentoo.org> +radius-0.6.1.ebuild:
+  Version bump
+
+*radius-0.5.1 (04 Feb 2007)
+
+  04 Feb 2007; Nguyễn Thái Ngọc Duy <pclouds@gentoo.org> +metadata.xml,
+  +radius-0.5.1.ebuild:
+  Initial ebuild by Hans de Graaff <graaff@gentoo.org>, #147670

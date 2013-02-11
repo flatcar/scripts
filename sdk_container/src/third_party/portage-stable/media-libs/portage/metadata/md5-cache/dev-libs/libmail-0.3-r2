@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install prepare test
+DEPEND=gnutls? ( >=net-libs/gnutls-2 ) sasl? ( >=dev-libs/cyrus-sasl-2 ) || ( >=sys-devel/automake-1.11.1:1.11 >=sys-devel/automake-1.12:1.12 ) >=sys-devel/autoconf-2.68 sys-devel/libtool
+DESCRIPTION=A mail handling library
+EAPI=5
+HOMEPAGE=http://libmail.sourceforge.net
+IUSE=apop debug gnutls profile sasl static-libs
+KEYWORDS=~amd64 ~x86
+LICENSE=GPL-3
+RDEPEND=gnutls? ( >=net-libs/gnutls-2 ) sasl? ( >=dev-libs/cyrus-sasl-2 )
+SLOT=0
+SRC_URI=mirror://sourceforge/libmail/libmail-0.3.tar.bz2
+_eclasses_=autotools	cf83655b19ed98f9ea3b44f4572b51a3	autotools-utils	f4dc5b0e643575b9bd31a2bd7deeee31	eutils	d40dc948067bd3db1c8ebf7d51897313	libtool	2b273eea1976cfaed3449345d94331ac	multilib	ded93e450747134a079e647d888aa80b	multiprocessing	a2130e6fc4aa4c6a24b265ca0cbcc2b6	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=88dc95fa51d43533c9bf11fe46baf244

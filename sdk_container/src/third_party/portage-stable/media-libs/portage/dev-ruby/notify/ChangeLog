@@ -1,0 +1,24 @@
+# ChangeLog for dev-ruby/notify
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/notify/ChangeLog,v 1.4 2012/09/01 07:00:22 graaff Exp $
+
+*notify-0.4.0 (01 Sep 2012)
+
+  01 Sep 2012; Hans de Graaff <graaff@gentoo.org> +notify-0.4.0.ebuild:
+  Version bump.
+
+*notify-0.3.0 (28 Nov 2011)
+
+  28 Nov 2011; Naohiro Aota <naota@gentoo.org> +notify-0.3.0.ebuild:
+  Version bumped.
+
+  20 Nov 2011; Hans de Graaff <graaff@gentoo.org> notify-0.2.1.ebuild:
+  Fix USE=doc.
+
+*notify-0.2.1 (13 Nov 2011)
+
+  13 Nov 2011; Naohiro Aota <naota@gentoo.org> +notify-0.2.1.ebuild,
+  +metadata.xml:
+  New ebuild dev-ruby/notify. ebuild written by Matsuu Takuto
+  <matsuu@gentoo.org>
+

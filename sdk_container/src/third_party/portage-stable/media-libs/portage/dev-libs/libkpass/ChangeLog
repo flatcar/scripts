@@ -1,0 +1,17 @@
+# ChangeLog for dev-libs/libkpass
+# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/libkpass/ChangeLog,v 1.3 2011/12/14 15:07:52 ssuominen Exp $
+
+  14 Dec 2011; Samuli Suominen <ssuominen@gentoo.org> libkpass-3.ebuild:
+  Remove unnecessary USE static-libs requirement from dev-libs/openssl. Remove
+  unnecessary libkpass.la when USE static-libs is not enabled.
+
+  13 Dec 2011; Christian Birchinger <joker@gentoo.org> libkpass-3.ebuild:
+  Changed static use flag to static-libs. Removed || die from emake
+
+*libkpass-3 (13 Dec 2011)
+
+  13 Dec 2011; Christian Birchinger <joker@gentoo.org> +libkpass-3.ebuild,
+  +metadata.xml:
+  Initial release
+

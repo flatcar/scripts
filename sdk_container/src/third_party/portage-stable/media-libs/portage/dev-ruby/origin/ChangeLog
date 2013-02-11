@@ -1,0 +1,61 @@
+# ChangeLog for dev-ruby/origin
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/origin/ChangeLog,v 1.11 2012/12/01 09:45:15 graaff Exp $
+
+*origin-1.0.11 (01 Dec 2012)
+
+  01 Dec 2012; Hans de Graaff <graaff@gentoo.org> +origin-1.0.11.ebuild:
+  Version bump.
+
+*origin-1.0.9 (23 Sep 2012)
+
+  23 Sep 2012; Diego E. Pettenò <flameeyes@gentoo.org> +origin-1.0.9.ebuild,
+  -origin-1.0.8.ebuild:
+  Version bump.
+
+*origin-1.0.8 (01 Sep 2012)
+
+  01 Sep 2012; Diego E. Pettenò <flameeyes@gentoo.org> +origin-1.0.8.ebuild,
+  -origin-1.0.4.ebuild, -origin-1.0.6.ebuild:
+  Version bump.
+
+*origin-1.0.6 (08 Aug 2012)
+
+  08 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> +origin-1.0.6.ebuild,
+  -origin-1.0.5.ebuild:
+  Version bump.
+
+*origin-1.0.5 (08 Aug 2012)
+
+  08 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> +origin-1.0.5.ebuild:
+  Version bump.
+
+*origin-1.0.4 (08 Jul 2012)
+
+  08 Jul 2012; Diego E. Pettenò <flameeyes@gentoo.org> +origin-1.0.4.ebuild,
+  -origin-1.0.3.ebuild:
+  Version bump.
+
+  05 Jul 2012; Diego E. Pettenò <flameeyes@gentoo.org> origin-1.0.3.ebuild:
+  Use the new rspec support in the eclasses.
+
+*origin-1.0.3 (05 Jul 2012)
+
+  05 Jul 2012; Diego E. Pettenò <flameeyes@gentoo.org> +origin-1.0.3.ebuild,
+  -origin-1.0.2.ebuild:
+  Version bump (again).
+
+*origin-1.0.2 (05 Jul 2012)
+
+  05 Jul 2012; Diego E. Pettenò <flameeyes@gentoo.org> +origin-1.0.2.ebuild,
+  -origin-1.0.1.ebuild:
+  Version bump; wire in tests, respect TEST_VERBOSE, don't use rake.
+
+  21 Jun 2012; Diego E. Pettenò <flameeyes@gentoo.org> origin-1.0.1.ebuild:
+  Remove mongodb usage (not needed for this package).
+
+*origin-1.0.1 (21 Jun 2012)
+
+  21 Jun 2012; Diego E. Pettenò <flameeyes@gentoo.org> +metadata.xml,
+  +origin-1.0.1.ebuild:
+  Initial import of origin (required by mongoid 3).

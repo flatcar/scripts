@@ -1,0 +1,32 @@
+From d2cefae726e1db63fb578a144d7440a7826034b5 Mon Sep 17 00:00:00 2001
+From: Nathan Phillip Brink <ohnobinki@ohnopublishing.net>
+Date: Mon, 9 May 2011 21:46:37 -0400
+Subject: [PATCH] Respect the value passed to --enable-tcl (which is supposed to be a directory containing tclConfig.sh).
+
+The current ./configure script will suggest to the user to specify
+``--enable-tcl=/path/to'' but it corrently completely ignores anything
+passed to --enable-tcl.
+---
+ configure.ac |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index ff9ea95..62c0d8f 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -260,9 +260,9 @@ AC_MSG_RESULT([$enable_tcl])
+ if test "x$have_tcl" != "xno"; then
+ 	have_tcl=no
+ 	AC_MSG_CHECKING([for tclConfig.sh])
+-	for dir in $tcl /lib /usr/lib /usr/lib/tcl8.4 /usr/tcl/lib /usr/local/lib /usr/local/tcl-8.4/lib /usr/local/tcl/lib /opt/lib; do
+-		if test -f $dir/tclConfig.sh; then
+-			. $dir/tclConfig.sh
++	for dir in "$enable_tcl" /lib /usr/lib /usr/lib/tcl8.4 /usr/tcl/lib /usr/local/lib /usr/local/tcl-8.4/lib /usr/local/tcl/lib /opt/lib; do
++		if test -f "$dir/tclConfig.sh"; then
++			. "$dir/tclConfig.sh"
+ 			TCL_LIBS="$TCL_LIB_SPEC $TCL_LIBS"
+ 			TCL_CFLAGS="-I${TCL_PREFIX}/include $TCL_INCLUDE_SPEC"
+ 			AC_SUBST([TCL_LIBS])
+-- 
+1.7.3.4
+

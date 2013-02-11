@@ -1,0 +1,10 @@
+DEFINED_PHASES=configure prepare test unpack
+DEPEND=test? ( media-libs/netpbm[png] ) dev-libs/libxslt app-text/docbook-xsl-ns-stylesheets dev-vcs/git || ( >=sys-devel/automake-1.11.1:1.11 >=sys-devel/automake-1.12:1.12 ) >=sys-devel/autoconf-2.68 sys-devel/libtool
+DESCRIPTION=Post-processor for scanned and photocopied book pages
+EAPI=4
+HOMEPAGE=http://www.flameeyes.eu/projects/unpaper
+IUSE=test
+LICENSE=GPL-2
+SLOT=0
+_eclasses_=autotools	cf83655b19ed98f9ea3b44f4572b51a3	git-2	e92e09651292b1bef5656592364550f7	libtool	2b273eea1976cfaed3449345d94331ac	multilib	ded93e450747134a079e647d888aa80b	multiprocessing	a2130e6fc4aa4c6a24b265ca0cbcc2b6	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e
+_md5_=ad54cb44d8b2673aa9de042ccff5dd8a

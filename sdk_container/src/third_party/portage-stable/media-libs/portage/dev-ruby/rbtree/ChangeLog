@@ -1,0 +1,40 @@
+# ChangeLog for dev-ruby/rbtree
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/rbtree/ChangeLog,v 1.9 2012/06/30 06:19:01 graaff Exp $
+
+  30 Jun 2012; Hans de Graaff <graaff@gentoo.org> rbtree-0.3.0-r2.ebuild:
+  Fix tests for ruby 1.8 random hash ordering, fixing bug 424079. Add ruby19.
+
+  30 Jun 2012; Hans de Graaff <graaff@gentoo.org> -rbtree-0.3.0-r1.ebuild:
+  Remove old version.
+
+*rbtree-0.3.0-r2 (15 Jun 2011)
+
+  15 Jun 2011; Hans de Graaff <graaff@gentoo.org> +rbtree-0.3.0-r2.ebuild:
+  Install the shared object file where the gemspec expects it to be. Add ree18.
+
+  13 Aug 2010; Hans de Graaff <graaff@gentoo.org> -rbtree-0.3.0.ebuild:
+  Remove old version.
+
+*rbtree-0.3.0-r1 (29 Jun 2010)
+
+  29 Jun 2010; Hans de Graaff <graaff@gentoo.org> +rbtree-0.3.0-r1.ebuild:
+  Convert to ruby-fakegem.
+
+  09 Dec 2009; Hans de Graaff <graaff@gentoo.org> -rbtree-0.2.1.ebuild:
+  Remove old version.
+
+*rbtree-0.3.0 (17 Nov 2009)
+
+  17 Nov 2009; Hans de Graaff <graaff@gentoo.org> +rbtree-0.3.0.ebuild:
+  Version bump.
+
+  25 Oct 2009; Torsten Veller <tove@gentoo.org> metadata.xml:
+  Remove drizzt from metadata.xml (#149111)
+
+*rbtree-0.2.1 (21 Mar 2009)
+
+  21 Mar 2009; Timothy Redaelli <drizzt@gentoo.org> +metadata.xml,
+  +rbtree-0.2.1.ebuild:
+  New ebuild. Thanks to Sergio D. Rodríguez Inclan for ebuild wrt #173341
+

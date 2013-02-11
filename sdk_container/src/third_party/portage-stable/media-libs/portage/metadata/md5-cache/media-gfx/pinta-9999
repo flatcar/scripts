@@ -1,0 +1,10 @@
+DEFINED_PHASES=postinst postrm prepare unpack
+DEPEND=dev-dotnet/atk-sharp:2 dev-dotnet/gdk-sharp:2 dev-dotnet/glib-sharp:2 dev-dotnet/gtk-sharp:2 dev-dotnet/mono-addins[gtk] dev-dotnet/pango-sharp:2 dev-lang/mono dev-util/intltool virtual/pkgconfig sys-devel/gettext || ( >=sys-devel/automake-1.11.1:1.11 >=sys-devel/automake-1.12:1.12 ) >=sys-devel/autoconf-2.68 sys-devel/libtool dev-vcs/git
+DESCRIPTION=Simple Painting for Gtk
+EAPI=4
+HOMEPAGE=http://pinta-project.com
+LICENSE=MIT CCPL-Attribution-3.0
+RDEPEND=dev-dotnet/atk-sharp:2 dev-dotnet/gdk-sharp:2 dev-dotnet/glib-sharp:2 dev-dotnet/gtk-sharp:2 dev-dotnet/mono-addins[gtk] dev-dotnet/pango-sharp:2 dev-lang/mono x11-libs/cairo[X] x11-libs/gdk-pixbuf[X,jpeg,tiff] x11-themes/gnome-icon-theme
+SLOT=0
+_eclasses_=autotools	cf83655b19ed98f9ea3b44f4572b51a3	fdo-mime	0acfe1a88fd8751a1d5dc671168219fa	git-2	e92e09651292b1bef5656592364550f7	libtool	2b273eea1976cfaed3449345d94331ac	mono	203a4295c06155d318bdff9c6b2d5e1c	multilib	ded93e450747134a079e647d888aa80b	multiprocessing	a2130e6fc4aa4c6a24b265ca0cbcc2b6	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e
+_md5_=723c0afeacd10f7e00c1cfceb9b0b16a

@@ -1,0 +1,74 @@
+# ChangeLog for dev-libs/gjs
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/gjs/ChangeLog,v 1.17 2013/01/28 14:54:13 aballier Exp $
+
+  28 Jan 2013; Alexis Ballier <aballier@gentoo.org> gjs-1.34.0.ebuild:
+  keyword ~amd64-fbsd
+
+  06 Jan 2013; Markus Meier <maekke@gentoo.org> gjs-1.34.0.ebuild:
+  add ~arm, bug #449220
+
+  06 Jan 2013; Agostino Sarubbo <ago@gentoo.org> gjs-1.34.0.ebuild:
+  Add ~sparc, wrt bug #449220
+
+  01 Jan 2013; Agostino Sarubbo <ago@gentoo.org> gjs-1.34.0.ebuild:
+  Add ~ia64, wrt bug #449220
+
+  17 Dec 2012; Agostino Sarubbo <ago@gentoo.org> gjs-1.32.0.ebuild:
+  Add ~ppc64, wrt bug #447426
+
+  17 Dec 2012; Agostino Sarubbo <ago@gentoo.org> gjs-1.34.0.ebuild:
+  Add ~ppc64, wrt bug #447426
+
+*gjs-1.34.0 (25 Sep 2012)
+
+  25 Sep 2012; Alexandre Rostovtsev <tetromino@gentoo.org> gjs-1.30.1.ebuild,
+  gjs-1.32.0.ebuild, +gjs-1.34.0.ebuild:
+  Version bump with a new GError class hierarchy. Make license more precise.
+
+  13 Aug 2012; Anthony G. Basile <blueness@gentoo.org> gjs-1.32.0.ebuild:
+  Keyword ~ppc, dep for bug #385237
+
+  28 May 2012; Matt Turner <mattst88@gentoo.org> gjs-1.32.0.ebuild:
+  Added ~alpha, bug 390345.
+
+  04 May 2012; Jeff Horelick <jdhore@gentoo.org> gjs-1.30.1.ebuild,
+  gjs-1.32.0.ebuild:
+  dev-util/pkgconfig -> virtual/pkgconfig
+
+  21 Apr 2012; Samuli Suominen <ssuominen@gentoo.org> -gjs-0.7.14.ebuild,
+  -files/gjs-drop-js-config.patch:
+  old
+
+*gjs-1.32.0 (28 Mar 2012)
+
+  28 Mar 2012; Alexandre Rostovtsev <tetromino@gentoo.org> -gjs-1.30.0.ebuild,
+  +gjs-1.32.0.ebuild:
+  Version bump. Adds system module, meta classes, better out parameter support,
+  lots of bugfixes. Drop old.
+
+*gjs-1.30.1 (14 Jan 2012)
+
+  14 Jan 2012; Alexandre Rostovtsev <tetromino@gentoo.org> +gjs-1.30.1.ebuild:
+  Bump, fixes several crashes, including in gnome-shell when using certain
+  third-party extensions.
+
+  15 Nov 2011; Nirbheek Chauhan <nirbheek@gentoo.org> gjs-1.30.0.ebuild:
+  Port to EAPI 4
+
+*gjs-1.30.0 (30 Sep 2011)
+
+  30 Sep 2011; Nirbheek Chauhan <nirbheek@gentoo.org> -gjs-1.29.0.ebuild,
+  +gjs-1.30.0.ebuild:
+  Bump to 1.30.0, from gnome-next, make it spidermonkey-only
+
+*gjs-1.29.0 (14 Jun 2011)
+
+  14 Jun 2011; Nirbheek Chauhan <nirbheek@gentoo.org> +gjs-1.29.0.ebuild:
+  Bump to 1.29.0, developmental version
+
+*gjs-0.7.14 (01 May 2011)
+
+  01 May 2011; Nirbheek Chauhan <nirbheek@gentoo.org> +gjs-0.7.14.ebuild,
+  +files/gjs-drop-js-config.patch, +metadata.xml:
+  Move gjs from gnome overlay to the tree

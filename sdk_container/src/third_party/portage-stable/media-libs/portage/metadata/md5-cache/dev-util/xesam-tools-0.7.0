@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install postinst postrm prepare setup
+DEPEND==dev-lang/python-2* =dev-lang/python-2*[xml]
+DESCRIPTION=Development tools and examples for the Xesam desktop search API
+EAPI=3
+HOMEPAGE=http://xesam.org/people/kamstrup/xesam-tools
+IUSE=examples
+KEYWORDS=~x86
+LICENSE=LGPL-2.1
+RDEPEND=dev-python/dbus-python dev-python/pygobject:2 dev-python/pygtk =dev-lang/python-2* =dev-lang/python-2*[xml]
+SLOT=0
+SRC_URI=http://xesam.org/people/kamstrup/xesam-tools/xesam-tools-0.7.0.tar.gz
+_eclasses_=distutils	15ae23f6f8219a009bfcfff7724fe727	multilib	ded93e450747134a079e647d888aa80b	python	e5b3412fa9f03670a666c8a137bd1060	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e
+_md5_=d2ba92dfc13c3fecb321e07c609cead1

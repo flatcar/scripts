@@ -1,0 +1,243 @@
+# ChangeLog for dev-ruby/ncurses-ruby
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/ncurses-ruby/ChangeLog,v 1.64 2012/09/01 06:23:01 graaff Exp $
+
+  01 Sep 2012; Hans de Graaff <graaff@gentoo.org>
+  -ncurses-ruby-1.2.4-r1.ebuild, -ncurses-ruby-1.2.4-r2.ebuild:
+  Cleanup.
+
+  22 Jul 2012; <nixnut@gentoo.org> ncurses-ruby-1.3.1.ebuild:
+  ppc stable #414671
+
+  01 Jul 2012; Raúl Porcel <armin76@gentoo.org> ncurses-ruby-1.2.4-r1.ebuild,
+  ncurses-ruby-1.2.4-r2.ebuild, ncurses-ruby-1.3.1.ebuild:
+  Drop alpha keywords
+
+  23 May 2012; Brent Baude <ranger@gentoo.org> ncurses-ruby-1.3.1.ebuild:
+  Marking ncurses-ruby-1.3.1 ppc64 for bug 414671
+
+  21 May 2012; Pawel Hajdan jr <phajdan.jr@gentoo.org>
+  ncurses-ruby-1.3.1.ebuild:
+  x86 stable wrt bug #414671
+
+  06 May 2012; Agostino Sarubbo <ago@gentoo.org> ncurses-ruby-1.3.1.ebuild:
+  Stable for amd64, wrt bug #414671
+
+  06 May 2012; Hans de Graaff <graaff@gentoo.org> ncurses-ruby-1.3.1.ebuild:
+  Avoid hardcoded cflags, thanks to ago for reporting in bug 414671.
+
+  01 May 2012; Raúl Porcel <armin76@gentoo.org> ncurses-ruby-1.2.4-r1.ebuild,
+  ncurses-ruby-1.2.4-r2.ebuild, ncurses-ruby-1.3.1.ebuild:
+  Drop ia64/sparc keywords
+
+*ncurses-ruby-1.3.1 (31 May 2011)
+
+  31 May 2011; Hans de Graaff <graaff@gentoo.org> +ncurses-ruby-1.3.1.ebuild:
+  Version bump. Drop patch that got applied upstream.
+
+  31 Jan 2011; Hans de Graaff <graaff@gentoo.org>
+  -ncurses-ruby-1.2.3.ebuild:
+  Remove old version.
+
+  30 Jan 2011; Raúl Porcel <armin76@gentoo.org> ncurses-ruby-1.2.4-r1.ebuild:
+  alpha/sparc stable wrt #344243
+
+  22 Jan 2011; Kacper Kowalik <xarthisius@gentoo.org>
+  ncurses-ruby-1.2.4-r1.ebuild:
+  ppc64 stable wrt #344243
+
+  07 Jan 2011; Brent Baude <ranger@gentoo.org> ncurses-ruby-1.2.4-r1.ebuild:
+  stable ppc, bug 344243
+
+  18 Nov 2010; Hans de Graaff <graaff@gentoo.org>
+  ncurses-ruby-1.2.4-r1.ebuild:
+  Depend on ncurses without USE=trace since this doesn't work. This is fixed
+  in 1.2.4-r2. See #344243.
+
+*ncurses-ruby-1.2.4-r2 (08 Nov 2010)
+
+  08 Nov 2010; Hans de Graaff <graaff@gentoo.org>
+  +ncurses-ruby-1.2.4-r2.ebuild, +files/ncurses-ruby-1.2.4-fix-trace.patch:
+  Fix compilation when ncurses is compiled with USE=trace, fixing report in
+  bug 344243.
+
+
+  05 Nov 2010; Markos Chandras <hwoarang@gentoo.org>
+  ncurses-ruby-1.2.4-r1.ebuild:
+  Stable on amd64 wrt bug #344243
+
+  05 Nov 2010; Pawel Hajdan jr <phajdan.jr@gentoo.org>
+  ncurses-ruby-1.2.4-r1.ebuild:
+  x86 stable wrt bug #344243
+
+  05 Nov 2010; Hans de Graaff <graaff@gentoo.org>
+  -ncurses-ruby-1.2.3-r2.ebuild, -ncurses-ruby-1.2.4.ebuild:
+  Remove old versions.
+
+*ncurses-ruby-1.2.4-r1 (10 Jul 2010)
+
+  10 Jul 2010; Hans de Graaff <graaff@gentoo.org>
+  +ncurses-ruby-1.2.4-r1.ebuild:
+  Install examples. Thanks to Manu Wächter for reporting in bug 326915.
+
+*ncurses-ruby-1.2.4 (26 Jun 2010)
+
+  26 Jun 2010; Hans de Graaff <graaff@gentoo.org>
+  +ncurses-ruby-1.2.4.ebuild:
+  Version bump. Convert to ruby-fakegem.
+
+  22 May 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  ncurses-ruby-1.2.3.ebuild, ncurses-ruby-1.2.3-r2.ebuild:
+  Various cleanups.
+
+  09 Dec 2009; Hans de Graaff <graaff@gentoo.org> -ncurses-ruby-1.1.ebuild:
+  Remove old version.
+
+  02 Oct 2009; Tiago Cunha <tcunha@gentoo.org> ncurses-ruby-1.2.3.ebuild:
+  stable sparc, bug 282596
+
+  27 Sep 2009; nixnut <nixnut@gentoo.org> ncurses-ruby-1.2.3.ebuild:
+  ppc stable #282596
+
+*ncurses-ruby-1.2.3-r2 (23 Sep 2009)
+
+  23 Sep 2009; Alex Legler <a3li@gentoo.org> -ncurses-ruby-1.2.3-r1.ebuild,
+  +ncurses-ruby-1.2.3-r2.ebuild:
+  s/vendorlibdir/sitelibdir/ in the fake gemspec for 1.8.6 compatibility.
+  Thanks to Sebastian Pipping (sping) for reporting this.
+
+  06 Sep 2009; Markus Meier <maekke@gentoo.org> ncurses-ruby-1.2.3.ebuild:
+  amd64/x86 stable, bug #282596
+
+  05 Sep 2009; Brent Baude <ranger@gentoo.org> ncurses-ruby-1.2.3.ebuild:
+  Marking ncurses-ruby-1.2.3 ppc64 for bug 282596
+
+  30 Aug 2009; Tobias Klausmann <klausman@gentoo.org>
+  ncurses-ruby-1.2.3.ebuild:
+  Stable on alpha, bug #282596
+
+*ncurses-ruby-1.2.3-r1 (30 Aug 2009)
+
+  30 Aug 2009; Hans de Graaff <graaff@gentoo.org>
+  +ncurses-ruby-1.2.3-r1.ebuild:
+  Add a fake gemspec file so that this package can be used by other gems.
+
+  14 Jul 2009; Hans de Graaff <graaff@gentoo.org> ncurses-ruby-1.2.3.ebuild:
+  Add back missing CVS header.
+
+*ncurses-ruby-1.2.3 (14 Jul 2009)
+
+  14 Jul 2009; Hans de Graaff <graaff@gentoo.org> ncurses-ruby-1.1.ebuild,
+  +ncurses-ruby-1.2.3.ebuild:
+  Version bump. Remove ruby19 keyword from ncurses-ruby.1.1 since it is not
+  compatible. Thanks to Kevin Fullerton in bug 276826 for testing and
+  providing the new ebuild.
+
+  14 Jul 2009; Hans de Graaff <graaff@gentoo.org>
+  -ncurses-ruby-0.9.1.ebuild:
+  Remove old version.
+
+  02 May 2008; Rob Cakebread <pythonhead@gentoo.org>
+  ncurses-ruby-0.9.1.ebuild, ncurses-ruby-1.1.ebuild:
+  Use berlios mirror. bug #218657
+
+  24 Jan 2008; Christoph Mende <angelos@gentoo.org> ncurses-ruby-1.1.ebuild:
+  Stable on amd64, bug #206737
+
+  21 Jan 2008; Raúl Porcel <armin76@gentoo.org> ncurses-ruby-1.1.ebuild:
+  alpha/sparc stable wrt #206737
+
+  21 Jan 2008; Markus Meier <maekke@gentoo.org> ncurses-ruby-1.1.ebuild:
+  x86 stable, bug #206737
+
+  20 Jan 2008; Brent Baude <ranger@gentoo.org> ncurses-ruby-1.1.ebuild:
+  Marking ncurses-ruby-1.1 ppc and ppc64 for bug 206737
+
+  20 Jan 2008; Hans de Graaff <graaff@gentoo.org> ncurses-ruby-1.1.ebuild:
+  Remove obsolete variable for #145222
+
+  20 Jan 2008; Hans de Graaff <graaff@gentoo.org> -ncurses-ruby-0.8.ebuild,
+  -ncurses-ruby-0.9.2.ebuild:
+  Remove old version and intermediate version that won't be made stable.
+
+  17 Jul 2007; Markus Rothe <corsair@gentoo.org> ncurses-ruby-1.1.ebuild:
+  Added ~ppc64
+
+  14 Mar 2007; Tom Gall <tgall@gentoo.org> ncurses-ruby-0.9.2.ebuild:
+  added ~ppc64
+
+  22 Feb 2007; Piotr Jaroszyński <peper@gentoo.org> ChangeLog:
+  Transition to Manifest2.
+
+  21 Jan 2007; Nguyễn Thái Ngọc Duy <pclouds@gentoo.org>
+  ncurses-ruby-0.8.ebuild, ncurses-ruby-0.9.1.ebuild,
+  ncurses-ruby-0.9.2.ebuild, ncurses-ruby-1.1.ebuild:
+  Added examples use flag to ebuild, #145222
+
+*ncurses-ruby-1.1 (02 Jul 2006)
+
+  02 Jul 2006; Diego Pettenò <flameeyes@gentoo.org>
+  +ncurses-ruby-1.1.ebuild:
+  Version bump, thanks to Armando Di Cianno in bug #138803.
+
+  02 May 2006; Jason Wever <weeve@gentoo.org> ncurses-ruby-0.9.1.ebuild:
+  Stable on SPARC.
+
+  19 Nov 2005; Joseph Jezak <josejx@gentoo.org> ncurses-ruby-0.9.1.ebuild:
+  Marked ppc stable.
+
+  03 Oct 2005; Aron Griffis <agriffis@gentoo.org> ncurses-ruby-0.9.2.ebuild:
+  Mark 0.9.2 ~ia64
+
+  08 May 2005; Mamoru KOMACHI <usata@gentoo.org> ncurses-ruby-0.9.2.ebuild:
+  0.9.2 doesn't build on ruby16
+
+  24 Apr 2005; Simon Stelling <blubb@gentoo.org> ncurses-ruby-0.9.1.ebuild:
+  stable on amd64
+
+  14 Apr 2005; Bryan Østergaard <kloeri@gentoo.org>
+  ncurses-ruby-0.9.1.ebuild:
+  Stable on alpha.
+
+*ncurses-ruby-0.9.2 (16 Mar 2005)
+
+  16 Mar 2005; Caleb Tennis <caleb@gentoo.org> +ncurses-ruby-0.9.2.ebuild:
+  version bump
+
+  12 Mar 2005; Michael Kohl <citizen428@gentoo.org>
+  ncurses-ruby-0.9.1.ebuild:
+  Marked stable on x86.
+
+*ncurses-ruby-0.9.1 (15 Feb 2005)
+
+  15 Feb 2005; Michael Kohl <citizen428@gentoo.org>
+  +ncurses-ruby-0.9.1.ebuild:
+  Version bump; submitted by Thomas Kirchner <gentoo@halffull.org> in bug #81638
+
+  31 Dec 2004; Ciaran McCreesh <ciaranm@gentoo.org> :
+  Change encoding to UTF-8 for GLEP 31 compliance
+
+  14 Oct 2004; David Holm <dholm@gentoo.org> ncurses-ruby-0.8.ebuild:
+  Added to ~ppc.
+
+  11 Sep 2004; Tom Martin <slarti@gentoo.org> ncurses-ruby-0.8.ebuild:
+  Marked ~amd64.
+
+  03 Jun 2004; Bryan Østergaard <kloeri@gentoo.org> ncurses-ruby-0.8.ebuild:
+  Stable on alpha.
+
+  10 Apr 2004; Mamoru KOMACHI <usata@gentoo.org> ncurses-ruby-0.8.ebuild:
+  virtual/ruby fix
+
+  31 Oct 2003; Tom Payne <twp@gentoo.org> ncurses-ruby-0.8.ebuild :
+  Marked stable on x86. Removed old version.
+
+*ncurses-ruby-0.8 (12 Sep 2003)
+
+  12 Sep 2003; Tom Payne <twp@gentoo.org> ncurses-ruby-0.8.ebuild :
+  Version bump. Use ruby.eclass.
+
+*ncurses-ruby-0.7.1 (7 Jul 2003)
+
+  7 Jul 2003; Tom Payne <twp@gentoo.org> ncurses-ruby-0.7.1.ebuild :
+  Initial version. Ebuild submitted by Robert Jorgenson. Bug # 23310.

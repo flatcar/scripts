@@ -1,0 +1,61 @@
+# ChangeLog for dev-ruby/fast_xs
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/fast_xs/ChangeLog,v 1.18 2013/01/15 05:16:24 zerochaos Exp $
+
+  15 Jan 2013; Rick Farina <zerochaos@gentoo.org> fast_xs-0.8.0.ebuild:
+  adding ~arm keywords to net-analyzer/metasploit rdeps
+
+  28 Oct 2012; Raúl Porcel <armin76@gentoo.org> fast_xs-0.8.0.ebuild:
+  Add ~alpha/~ia64/~sparc wrt #405757
+
+  27 Sep 2012; Samuli Suominen <ssuominen@gentoo.org> fast_xs-0.8.0.ebuild:
+  Keyword ~ppc wrt #405757
+
+  17 Sep 2012; Fabian Groffen <grobian@gentoo.org> fast_xs-0.8.0.ebuild:
+  Marked ~x86-solaris
+
+  15 Aug 2012; Johannes Huber <johu@gentoo.org> fast_xs-0.8.0.ebuild:
+  Stable for x86, wrt bug #428698
+
+  14 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> metadata.xml:
+  Update metadata.xml so that it's the same as most other packages.
+
+  11 Aug 2012; Benedikt Böhm <hollow@gentoo.org> fast_xs-0.7.3-r1.ebuild:
+  add ruby19 support
+
+  11 Aug 2012; Agostino Sarubbo <ago@gentoo.org> fast_xs-0.8.0.ebuild:
+  Stable for amd64, wrt bug #421617
+
+  08 Jul 2012; Jeroen Roovers <jer@gentoo.org> fast_xs-0.8.0.ebuild:
+  Marked ~hppa (bug #417573).
+
+  28 Apr 2012; Diego E. Pettenò <flameeyes@gentoo.org> fast_xs-0.8.0.ebuild:
+  Fix testing: add rack and mongrel to dependencies (the latter only in ruby18),
+  and run the tests sequentially instead of all at once.
+
+  28 Mar 2012; Brent Baude <ranger@gentoo.org> fast_xs-0.8.0.ebuild:
+  Marking fast_xs-0.8.0 ~ppc64 for bug 405757
+
+  02 Mar 2012; Naohiro Aota <naota@gentoo.org> fast_xs-0.8.0.ebuild:
+  Add ~x86-fbsd
+
+  25 Jan 2012; Diego E. Pettenò <flameeyes@gentoo.org>
+  +files/fast_xs-0.8.0+ruby-1.9.patch, fast_xs-0.8.0.ebuild:
+  Add ruby19 to the supported targets (with a patch to fix the tests).
+
+*fast_xs-0.8.0 (25 Jan 2012)
+
+  25 Jan 2012; Diego E. Pettenò <flameeyes@gentoo.org> +fast_xs-0.8.0.ebuild,
+  -fast_xs-0.7.3.ebuild:
+  Version bump.
+
+*fast_xs-0.7.3-r1 (25 Jul 2011)
+
+  25 Jul 2011; Hans de Graaff <graaff@gentoo.org> +fast_xs-0.7.3-r1.ebuild:
+  Install documentation. Run tests. Add ree18.
+
+*fast_xs-0.7.3 (25 Jul 2011)
+
+  25 Jul 2011; Benedikt Böhm <hollow@gentoo.org> +fast_xs-0.7.3.ebuild,
+  +metadata.xml:
+  initial ebuild. required by app-admin/chef-expander.

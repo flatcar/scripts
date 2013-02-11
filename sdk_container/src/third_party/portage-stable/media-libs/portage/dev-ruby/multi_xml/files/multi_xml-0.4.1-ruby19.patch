@@ -1,0 +1,15 @@
+Ruby 1.9.3 no longer makes a long number a BigDecimal, it seems.
+
+https://github.com/sferik/multi_xml/issues/18
+
+--- spec/parser_shared_example.rb.~1~	2011-12-28 12:54:08.770134726 +0100
++++ spec/parser_shared_example.rb	2011-12-28 12:54:55.186385918 +0100
+@@ -302,7 +302,7 @@
+         end
+ 
+         it "should return the correct number" do
+-          MultiXml.parse(@xml)['tag'].should == 3.14159265358979323846264338327950288419716939937510
++          MultiXml.parse(@xml)['tag'].should == BigDecimal.new('3.14159265358979323846264338327950288419716939937510')
+         end
+       end
+ 

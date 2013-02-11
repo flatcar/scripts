@@ -1,0 +1,67 @@
+# ChangeLog for dev-ruby/gemcutter
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/gemcutter/ChangeLog,v 1.14 2012/08/06 17:57:52 graaff Exp $
+
+  06 Aug 2012; Hans de Graaff <graaff@gentoo.org> -gemcutter-0.7.0.ebuild:
+  Cleanup.
+
+*gemcutter-0.7.1 (12 May 2012)
+
+  12 May 2012; Hans de Graaff <graaff@gentoo.org> +gemcutter-0.7.1.ebuild:
+  Version bump.
+
+  06 Dec 2011; Hans de Graaff <graaff@gentoo.org> -gemcutter-0.6.1.ebuild:
+  Remove old version.
+
+*gemcutter-0.7.0 (27 Feb 2011)
+
+  27 Feb 2011; Hans de Graaff <graaff@gentoo.org> +gemcutter-0.7.0.ebuild:
+  Version bump.
+
+  31 Dec 2010; Hans de Graaff <graaff@gentoo.org> -gemcutter-0.3.0.ebuild,
+  -gemcutter-0.5.0.ebuild:
+  Remove old versions.
+
+  27 Dec 2010; Fabian Groffen <grobian@gentoo.org> gemcutter-0.6.1.ebuild:
+  Added Prefix keywords
+
+  29 Sep 2010; Brent Baude <ranger@gentoo.org> gemcutter-0.6.1.ebuild:
+  Marking gemcutter-0.6.1 ~ppc64 for bug 321283
+
+  15 Aug 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  gemcutter-0.6.1.ebuild:
+  Block test-unit:2 for testing.
+
+*gemcutter-0.6.1 (20 Jul 2010)
+
+  20 Jul 2010; Hans de Graaff <graaff@gentoo.org> +gemcutter-0.6.1.ebuild:
+  Version bump.
+
+  20 Jul 2010; Christian Faulhammer <fauli@gentoo.org>
+  gemcutter-0.5.0.ebuild:
+  add ~x86, bug 328915
+
+*gemcutter-0.5.0 (25 Jun 2010)
+
+  25 Jun 2010; Hans de Graaff <graaff@gentoo.org> +gemcutter-0.5.0.ebuild:
+  Version bump.
+
+*gemcutter-0.3.0 (05 Jan 2010)
+
+  05 Jan 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -gemcutter-0.2.1.ebuild, -gemcutter-0.3.0_pre.ebuild,
+  +gemcutter-0.3.0.ebuild:
+  Bump to final 0.3.0, tests are finally enabled, thanks upstream.
+
+*gemcutter-0.3.0_pre (04 Jan 2010)
+
+  04 Jan 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +gemcutter-0.3.0_pre.ebuild:
+  Version bump, tests are shipped but fail, waiting on upstream.
+
+*gemcutter-0.2.1 (25 Dec 2009)
+
+  25 Dec 2009; Diego E. Pettenò <flameeyes@gentoo.org>
+  +gemcutter-0.2.1.ebuild, +metadata.xml:
+  Initial import of gemcutter, as needed by dev-ruby/echoe.
+

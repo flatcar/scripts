@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install prepare unpack
+DEPEND=>=dev-libs/eina-1.7.4 >=dev-libs/ecore-1.7.5 sys-apps/dbus connman? ( >=net-misc/connman-0.75 ) libnotify? ( >=media-libs/evas-1.7.5 ) udev? ( sys-power/upower sys-fs/udisks:0 ) || ( >=sys-devel/automake-1.11.1:1.11 >=sys-devel/automake-1.12:1.12 ) >=sys-devel/autoconf-2.68 sys-devel/libtool doc? ( app-doc/doxygen )
+DESCRIPTION=Enlightenment's (Ecore) integration to DBus
+EAPI=2
+HOMEPAGE=http://www.enlightenment.org/
+IUSE=bluetooth +connman +libnotify ofono static-libs test-binaries +udev nls doc
+KEYWORDS=~amd64 ~arm ~x86
+LICENSE=BSD-2
+RDEPEND=>=dev-libs/eina-1.7.4 >=dev-libs/ecore-1.7.5 sys-apps/dbus connman? ( >=net-misc/connman-0.75 ) libnotify? ( >=media-libs/evas-1.7.5 ) udev? ( sys-power/upower sys-fs/udisks:0 ) nls? ( sys-devel/gettext )
+SLOT=0
+SRC_URI=http://download.enlightenment.org/releases/e_dbus-1.7.5.tar.bz2
+_eclasses_=autotools	cf83655b19ed98f9ea3b44f4572b51a3	enlightenment	59018f068e8f700839d3c75f86495011	eutils	d40dc948067bd3db1c8ebf7d51897313	libtool	2b273eea1976cfaed3449345d94331ac	multilib	ded93e450747134a079e647d888aa80b	multiprocessing	a2130e6fc4aa4c6a24b265ca0cbcc2b6	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=ddd39d173d31665f7f4398612f9e0f70

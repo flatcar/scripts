@@ -1,0 +1,25 @@
+# ChangeLog for dev-ruby/amq-client
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/amq-client/ChangeLog,v 1.5 2012/12/14 07:26:08 graaff Exp $
+
+*amq-client-0.9.10 (14 Dec 2012)
+
+  14 Dec 2012; Hans de Graaff <graaff@gentoo.org> +amq-client-0.9.10.ebuild:
+  Version bump.
+
+*amq-client-0.9.5 (18 Oct 2012)
+
+  18 Oct 2012; Hans de Graaff <graaff@gentoo.org> +amq-client-0.9.5.ebuild:
+  Version bump.
+
+  14 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> metadata.xml:
+  Update metadata.xml so that it's the same as most other packages.
+
+  29 Jul 2012; Hans de Graaff <graaff@gentoo.org> amq-client-0.9.4.ebuild:
+  Add x86 keyword since all this code was part of amqp before.
+
+*amq-client-0.9.4 (28 Jul 2012)
+
+  28 Jul 2012; Hans de Graaff <graaff@gentoo.org> +amq-client-0.9.4.ebuild,
+  +metadata.xml:
+  Initial import. New dependency for dev-ruby/amqp.

@@ -1,0 +1,16 @@
+# ChangeLog for dev-libs/libbrahe
+# Copyright 1999-2009 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/libbrahe/ChangeLog,v 1.3 2009/02/26 14:50:42 josejx Exp $
+
+  26 Feb 2009; Joseph Jezak <josejx@gentoo.org> libbrahe-1.1.0.ebuild:
+  Marked ppc stable.
+
+  08 Feb 2009; Markus Meier <maekke@gentoo.org> libbrahe-1.1.0.ebuild:
+  amd64/x86 stable, bug #245193
+
+*libbrahe-1.1.0 (01 May 2008)
+
+  01 May 2008; Tiziano Müller <dev-zero@gentoo.org>
+  +files/1.1.0-missing_libs.patch, +metadata.xml, +libbrahe-1.1.0.ebuild:
+  Initial commit as revdep for a new version of dev-libs/libevocosm.
+

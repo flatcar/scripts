@@ -1,0 +1,11 @@
+diff -Naur libevocosm-3.3.0.orig/libevocosm/roulette.cpp libevocosm-3.3.0/libevocosm/roulette.cpp
+--- libevocosm-3.3.0.orig/libevocosm/roulette.cpp	2008-05-01 02:30:39.000000000 +0200
++++ libevocosm-3.3.0/libevocosm/roulette.cpp	2008-05-01 02:31:25.000000000 +0200
+@@ -34,6 +34,7 @@
+ 
+ // Standard C++ Library
+ #include <stdexcept>
++#include <cstring>
+ 
+ // libevocosm
+ #include "validator.h"

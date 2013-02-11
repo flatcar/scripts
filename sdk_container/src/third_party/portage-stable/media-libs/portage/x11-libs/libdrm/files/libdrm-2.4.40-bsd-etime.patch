@@ -1,0 +1,31 @@
+From 7d42b49c0cf19dbb4531cd84efae51f95db2eea1 Mon Sep 17 00:00:00 2001
+From: David Shao <davshao@gmail.com>
+Date: Sat, 10 Nov 2012 05:24:56 +0000
+Subject: intel: Fix missing ETIME on BSD operating systems
+
+Originally posted to Free Desktop bug #52549 by David Shao.
+Resolves Gentoo Bug #433403.
+Commit message by Richard Yao.
+
+Reviewed-by: Richard Yao <ryao@gentoo.org>
+Reviewed-by: Kenneth Graunke <kenneth@whitecape.org>
+References: https://bugs.freedesktop.org/show_bug.cgi?id=52549
+
+Signed-off-by: Ben Widawsky <ben@bwidawsk.net>
+---
+diff --git a/intel/intel_bufmgr_gem.c b/intel/intel_bufmgr_gem.c
+index 8d45839..512bc6f 100644
+--- a/intel/intel_bufmgr_gem.c
++++ b/intel/intel_bufmgr_gem.c
+@@ -54,6 +54,9 @@
+ #include <stdbool.h>
+ 
+ #include "errno.h"
++#ifndef ETIME
++#define ETIME ETIMEDOUT
++#endif
+ #include "libdrm_lists.h"
+ #include "intel_bufmgr.h"
+ #include "intel_bufmgr_priv.h"
+--
+cgit v0.9.0.2-2-gbebe

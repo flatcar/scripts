@@ -1,0 +1,19 @@
+--- test/functional_test.rb.~1~	2011-01-24 19:17:41.810305565 +0100
++++ test/functional_test.rb	2011-01-24 19:21:52.210621962 +0100
+@@ -2,6 +2,7 @@
+ require 'mock/marshmallow'
+ require 'cerberus/cli'
+ 
++gem 'actionmailer', '~> 2.0' 
+ require 'action_mailer'
+ 
+ class FunctionalTest < Test::Unit::TestCase
+--- lib/cerberus/publisher/mail.rb.~1~	2011-01-24 19:23:12.330407808 +0100
++++ lib/cerberus/publisher/mail.rb	2011-01-24 19:24:49.131814237 +0100
+@@ -1,4 +1,6 @@
+ require 'rubygems'
++gem 'activesupport', '~>2.0'
++gem 'actionpack', '~>2.0'
+ gem 'actionmailer', '~> 2.0' 
+ require 'action_mailer'
+ require 'cerberus/publisher/base'

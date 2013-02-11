@@ -1,0 +1,73 @@
+# ChangeLog for dev-ruby/shoulda
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/shoulda/ChangeLog,v 1.19 2013/01/15 07:08:54 zerochaos Exp $
+
+  15 Jan 2013; Rick Farina <zerochaos@gentoo.org> shoulda-2.11.3.ebuild:
+  adding ~arm keywords to net-analyzer/metasploit rdeps
+
+  01 Jan 2013; Agostino Sarubbo <ago@gentoo.org> shoulda-2.11.3.ebuild:
+  Stable for x86, wrt bug #448672
+
+  01 Jan 2013; Agostino Sarubbo <ago@gentoo.org> shoulda-2.11.3.ebuild:
+  Stable for amd64, wrt bug #448672
+
+  26 Dec 2012; Hans de Graaff <graaff@gentoo.org> -shoulda-2.10.3.ebuild,
+  -shoulda-2.11.2.ebuild:
+  Cleanup.
+
+  01 May 2012; Raúl Porcel <armin76@gentoo.org> shoulda-2.11.3.ebuild:
+  Drop ia64/sparc keywords
+
+  05 Dec 2011; Naohiro Aota <naota@gentoo.org> shoulda-2.11.3.ebuild:
+  Add ~x86-fbsd.
+
+  07 Aug 2011; Raúl Porcel <armin76@gentoo.org> shoulda-2.11.3.ebuild:
+  Add ~ia64/~sparc wrt #351835
+
+*shoulda-2.11.3 (29 May 2011)
+
+  29 May 2011; Hans de Graaff <graaff@gentoo.org> +shoulda-2.11.3.ebuild:
+  Version bump.
+
+*shoulda-2.11.2 (18 Feb 2011)
+
+  18 Feb 2011; Hans de Graaff <graaff@gentoo.org> +shoulda-2.11.2.ebuild:
+  Version bump.
+
+  27 Dec 2010; Fabian Groffen <grobian@gentoo.org> shoulda-2.10.3.ebuild:
+  Added Prefix keywords
+
+  29 Sep 2010; Brent Baude <ranger@gentoo.org> shoulda-2.10.3.ebuild:
+  Marking shoulda-2.10.3 ~ppc64 for bug 321283
+
+  31 Aug 2010; Alex Legler <a3li@gentoo.org> shoulda-2.10.3.ebuild:
+  Add REE 1.8 support.
+
+  28 May 2010; Joseph Jezak <josejx@gentoo.org> shoulda-2.10.3.ebuild:
+  Marked ~ppc for bug #302560.
+
+  01 May 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  shoulda-2.10.3.ebuild:
+  Restore original SRC_URI.
+
+  30 Apr 2010; Hans de Graaff <graaff@gentoo.org> shoulda-2.10.3.ebuild:
+  Deal with github changing their tarball generation.
+
+  30 Apr 2010; Hans de Graaff <graaff@gentoo.org> -shoulda-2.10.2.ebuild:
+  Remove old version.
+
+  12 Feb 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  shoulda-2.10.3.ebuild:
+  Add ~x86 keyword (tested in development container).
+
+*shoulda-2.10.3 (16 Jan 2010)
+
+  16 Jan 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +shoulda-2.10.3.ebuild:
+  Version bump.
+
+*shoulda-2.10.2 (05 Jan 2010)
+
+  05 Jan 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +shoulda-2.10.2.ebuild, +metadata.xml:
+  Initial import of shoulda as needed by the gemcutter testsuite.

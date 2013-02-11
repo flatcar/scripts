@@ -1,0 +1,31 @@
+# ChangeLog for dev-libs/lockdev
+# Copyright 1999-2009 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/lockdev/ChangeLog,v 1.6 2009/11/26 17:17:59 maekke Exp $
+
+  26 Nov 2009; Markus Meier <maekke@gentoo.org> lockdev-1.0.3.1.2-r1.ebuild:
+  amd64 stable, bug #289428
+
+  19 Nov 2009; Christian Faulhammer <fauli@gentoo.org>
+  lockdev-1.0.3.1.2-r1.ebuild:
+  stable x86, bug 289428
+
+  17 Oct 2009; Jonathan Callen <abcd@gentoo.org> -lockdev-1.0.3.1.2.ebuild:
+  Drop old revision
+
+*lockdev-1.0.3.1.2-r1 (02 Oct 2009)
+
+  02 Oct 2009; Jonathan Callen <abcd@gentoo.org>
+  +lockdev-1.0.3.1.2-r1.ebuild:
+  Remove *.la files
+
+  11 Sep 2009; Jonathan Callen <abcd@gentoo.org> lockdev-1.0.3.1.2.ebuild:
+  Keyword ~amd64
+
+*lockdev-1.0.3.1.2 (11 Sep 2009)
+
+  11 Sep 2009; Jonathan Callen <abcd@gentoo.org> +lockdev-1.0.3.1.2.ebuild,
+  +files/lockdev-1.0.3-add-autotools.patch,
+  +files/lockdev-1.0.3-fix-perl.patch, +metadata.xml:
+  New ebuild, required for schroot. Thanks to Nick Fortino
+  <nfortino@gmail.com> for initial autotools patch (bug #257333).
+

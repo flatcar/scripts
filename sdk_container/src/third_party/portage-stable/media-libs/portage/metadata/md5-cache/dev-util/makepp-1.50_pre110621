@@ -1,0 +1,12 @@
+DEFINED_PHASES=configure install prepare unpack
+DEPEND=>=dev-lang/perl-5.6.0
+DESCRIPTION=GNU make replacement
+EAPI=3
+HOMEPAGE=http://makepp.sourceforge.net/
+KEYWORDS=~alpha ~ppc ~sparc ~x86
+LICENSE=GPL-2
+RDEPEND=>=dev-lang/perl-5.6.0
+SLOT=0
+SRC_URI=mirror://sourceforge/makepp/1.50/makepp-1.50-110621.txz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=91e5b5d1180d72442efb3a219d2c49c9

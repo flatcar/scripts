@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<herd>netmon</herd>
+<use>
+	<flag name="perl-geoipupdate">Install pure perl version of geoipupdate, with
+	Proxy Server support via the "http_proxy" environment variable and easy to
+	customize.</flag>
+</use>
+<longdescription>easily lookup countries by IP addresses, even when Reverse DNS entries don't exist</longdescription>
+</pkgmetadata>

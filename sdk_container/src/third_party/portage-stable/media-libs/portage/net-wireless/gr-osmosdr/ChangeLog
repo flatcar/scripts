@@ -1,0 +1,23 @@
+# ChangeLog for net-wireless/gr-osmosdr
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-wireless/gr-osmosdr/ChangeLog,v 1.5 2012/07/05 21:40:48 chithanh Exp $
+
+  05 Jul 2012; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> metadata.xml:
+  Assign maintainership to radio herd.
+
+  12 Jun 2012; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  gr-osmosdr-9999.ebuild:
+  gnuradio[audio] not needed with current packages in portage.
+
+  11 Jun 2012; Sebastian Pipping <sping@gentoo.org> gr-osmosdr-9999.ebuild:
+  Add missing dependency on cheetah
+
+  11 Jun 2012; Sebastian Pipping <sping@gentoo.org> gr-osmosdr-9999.ebuild:
+  Dependend on net-wireless/gnuradio[audio] to fix error about missing
+  gr_audio_sink.h
+
+*gr-osmosdr-9999 (21 Apr 2012)
+
+  21 Apr 2012; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  +gr-osmosdr-9999.ebuild, +metadata.xml:
+  Initial commit.

@@ -1,0 +1,11 @@
+DEFINED_PHASES=compile config install postinst test unpack
+DEPEND=app-arch/unzip
+DESCRIPTION=library providing functions for Scheme implementations
+HOMEPAGE=http://swiss.csail.mit.edu/~jaffer/SLIB
+KEYWORDS=alpha amd64 ia64 ppc sparc x86
+LICENSE=public-domain BSD
+RESTRICT=test
+SLOT=0
+SRC_URI=http://swiss.csail.mit.edu/ftpdir/scm/slib3a5.zip
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=a21356243b7686cdd53c45e0e885f409

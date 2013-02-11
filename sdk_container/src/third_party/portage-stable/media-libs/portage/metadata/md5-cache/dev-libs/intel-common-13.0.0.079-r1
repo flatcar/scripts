@@ -1,0 +1,13 @@
+DEFINED_PHASES=install postinst postrm pretend setup unpack
+DEPEND=app-arch/rpm2targz
+DESCRIPTION=Common libraries and utilities needed for Intel compilers and libraries
+EAPI=4
+HOMEPAGE=http://software.intel.com/en-us/articles/intel-compilers/
+IUSE=+compiler examples multilib
+KEYWORDS=-* ~amd64 ~x86 ~amd64-linux ~x86-linux
+LICENSE=Intel-SDP
+RESTRICT=mirror
+SLOT=0
+SRC_URI=amd64? ( multilib? ( http://registrationcenter-download.intel.com/irc_nas/2749/parallel_studio_xe_2013.tgz ) ) amd64? ( !multilib? ( http://registrationcenter-download.intel.com/irc_nas/2749/parallel_studio_xe_2013_intel64.tgz ) ) x86? ( http://registrationcenter-download.intel.com/irc_nas/2749/parallel_studio_xe_2013_ia32.tgz )
+_eclasses_=check-reqs	0efdf29c9002a1995388968bf54e9d3d	eutils	d40dc948067bd3db1c8ebf7d51897313	intel-sdp	ac9d7e5b8bb1956a9d5722dd5690083f	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=703859bc4192951c91e841f50ecd6942

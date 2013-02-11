@@ -1,0 +1,23 @@
+# ChangeLog for dev-ruby/log_buddy
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/log_buddy/ChangeLog,v 1.5 2012/12/02 13:56:14 graaff Exp $
+
+  02 Dec 2012; Hans de Graaff <graaff@gentoo.org> log_buddy-0.7.0.ebuild:
+  Fix license, bug 445456.
+
+  26 Aug 2012; Hans de Graaff <graaff@gentoo.org> -log_buddy-0.6.0.ebuild:
+  Cleanup.
+
+  14 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> log_buddy-0.7.0.ebuild:
+  Port to rspec helper for testing.
+
+*log_buddy-0.7.0 (13 May 2012)
+
+  13 May 2012; Hans de Graaff <graaff@gentoo.org> +log_buddy-0.7.0.ebuild:
+  Version bump.
+
+*log_buddy-0.6.0 (24 Dec 2011)
+
+  24 Dec 2011; Diego E. Pettenò <flameeyes@gentoo.org>
+  +files/log_buddy-0.6.0-gentoo.patch, +log_buddy-0.6.0.ebuild, +metadata.xml:
+  Initial import of log_buddy.

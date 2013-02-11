@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install postinst postrm prepare
+DEPEND=>=dev-libs/glib-2.12:2 emacs? ( virtual/emacs ) app-arch/xz-utils virtual/pkgconfig
+DESCRIPTION=Command line utilities to work with desktop menu entries
+EAPI=4
+HOMEPAGE=http://freedesktop.org/wiki/Software/desktop-file-utils
+IUSE=emacs
+KEYWORDS=alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~x86-fbsd ~x86-interix ~amd64-linux ~x86-linux ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris
+LICENSE=GPL-2+
+RDEPEND=>=dev-libs/glib-2.12:2 emacs? ( virtual/emacs )
+SLOT=0
+SRC_URI=http://www.freedesktop.org/software/desktop-file-utils/releases/desktop-file-utils-0.21.tar.xz
+_eclasses_=elisp-common	21605c8f0b2a5ffa3233faeb3f9df309	eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=2e39d39bfc4bc7eb6351bed206bc020c

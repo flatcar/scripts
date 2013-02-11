@@ -1,0 +1,25 @@
+# ChangeLog for dev-libs/msgpack
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/msgpack/ChangeLog,v 1.5 2013/02/03 12:17:33 pacho Exp $
+
+  03 Feb 2013; Pacho Ramos <pacho@gentoo.org> -files/msgpack-0.4.2-test.patch,
+  -msgpack-0.4.2.ebuild, metadata.xml:
+  Cleanup due #22900
+
+  11 Nov 2011; Mike Frysinger <vapier@gentoo.org> msgpack-0.4.2.ebuild,
+  msgpack-0.5.6.ebuild:
+  Update gtest depend after category migration #387155.
+
+*msgpack-0.5.6 (10 May 2011)
+
+  10 May 2011; MATSUU Takuto <matsuu@gentoo.org> +msgpack-0.5.6.ebuild:
+  Version bumped. Added static-libs USE flag.
+
+  10 May 2011; Naohiro Aota <naota@gentoo.org> msgpack-0.4.2.ebuild:
+  Add ~x86-fbsd keyword
+
+*msgpack-0.4.2 (02 Mar 2010)
+
+  02 Mar 2010; MATSUU Takuto <matsuu@gentoo.org> +msgpack-0.4.2.ebuild,
+  +files/msgpack-0.4.2-test.patch, +metadata.xml:
+  Initial import.

@@ -1,0 +1,14 @@
+DEFINED_PHASES=compile install prepare setup unpack
+DEPEND=>=dev-util/nvidia-cuda-toolkit-2.2 examples? ( !emulation? ( >=x11-drivers/nvidia-drivers-180.22 ) ) media-libs/freeglut <sys-devel/gcc-4.4
+DESCRIPTION=NVIDIA CUDA Software Development Kit
+EAPI=2
+HOMEPAGE=http://developer.nvidia.com/cuda
+IUSE=debug +doc emulation +examples
+KEYWORDS=~amd64 x86
+LICENSE=CUDPP
+RDEPEND=>=dev-util/nvidia-cuda-toolkit-2.2 examples? ( !emulation? ( >=x11-drivers/nvidia-drivers-180.22 ) ) media-libs/freeglut
+RESTRICT=binchecks
+SLOT=0
+SRC_URI=http://developer.download.nvidia.com/compute/cuda/2_2/sdk/cudasdk_2.2_linux.run
+_eclasses_=multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	unpacker	50e1227854e96469a19a63f053496328
+_md5_=6bf4a841563f0fa9405eb66635228e0d

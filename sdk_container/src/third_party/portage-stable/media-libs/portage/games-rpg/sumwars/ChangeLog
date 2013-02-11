@@ -1,0 +1,31 @@
+# ChangeLog for games-rpg/sumwars
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/games-rpg/sumwars/ChangeLog,v 1.7 2012/07/03 09:03:12 jdhore Exp $
+
+  03 Jul 2012; Jeff Horelick <jdhore@gentoo.org> sumwars-0.5.6-r2.ebuild:
+  marked x86 per bug 423237
+
+  24 Jun 2012; Agostino Sarubbo <ago@gentoo.org> sumwars-0.5.6-r2.ebuild:
+  Stable for amd64, wrt bug #423237
+
+  05 Jun 2012; Julian Ospald <hasufell@gentoo.org> sumwars-0.5.6-r2.ebuild:
+  fix QA issues
+
+  05 Jun 2012; Julian Ospald <hasufell@gentoo.org> sumwars-0.5.6-r2.ebuild:
+  use new doicon functionality
+
+  02 Jun 2012; Julian Ospald <hasufell@gentoo.org> sumwars-0.5.6-r2.ebuild:
+  bump to EAPI=4
+
+*sumwars-0.5.6-r2 (30 May 2012)
+
+  30 May 2012; Julian Ospald <hasufell@gentoo.org> -sumwars-0.5.6-r1.ebuild,
+  +sumwars-0.5.6-r2.ebuild:
+  force revbump to unblock dev-games/ogre[threads] wrt #418279
+
+*sumwars-0.5.6-r1 (21 May 2012)
+
+  21 May 2012; Julian Ospald <hasufell@gentoo.org> +sumwars-0.5.6-r1.ebuild,
+  +files/sumwars-0.5.6-build.patch, +metadata.xml:
+  initial import with Michael Kunz wrt #383377
+

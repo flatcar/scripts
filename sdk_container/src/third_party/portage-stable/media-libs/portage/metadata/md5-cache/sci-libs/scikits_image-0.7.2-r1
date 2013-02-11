@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install postinst postrm prepare setup test
+DEPEND=>=dev-python/cython-0.15 >=dev-python/numpy-1.6 dev-python/setuptools test? ( dev-python/matplotlib ) =dev-lang/python-2* test? ( dev-python/nose )
+DESCRIPTION=Image processing routines for SciPy
+EAPI=4
+HOMEPAGE=http://scikit-image.org/
+IUSE=freeimage gtk qt4 test test
+KEYWORDS=~amd64 ~x86 ~amd64-linux ~x86-linux
+LICENSE=BSD
+RDEPEND=sci-libs/scikits sci-libs/scipy freeimage? ( media-libs/freeimage ) gtk? ( dev-python/pygtk ) qt4? ( dev-python/PyQt4 ) =dev-lang/python-2*
+SLOT=0
+SRC_URI=mirror://pypi/s/scikit-image/scikit-image-0.7.2.tar.gz
+_eclasses_=distutils	15ae23f6f8219a009bfcfff7724fe727	multilib	ded93e450747134a079e647d888aa80b	python	e5b3412fa9f03670a666c8a137bd1060	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e
+_md5_=6f64d0fa2c69a6f6273ec1b0a005da16

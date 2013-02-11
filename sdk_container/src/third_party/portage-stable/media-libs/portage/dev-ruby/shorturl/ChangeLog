@@ -1,0 +1,79 @@
+# ChangeLog for dev-ruby/shorturl
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/shorturl/ChangeLog,v 1.18 2012/05/01 18:24:14 armin76 Exp $
+
+  01 May 2012; Raúl Porcel <armin76@gentoo.org> shorturl-0.8.8.ebuild,
+  shorturl-0.8.8-r1.ebuild:
+  Drop ia64/sparc keywords
+
+  07 Apr 2012; Markus Meier <maekke@gentoo.org> shorturl-0.8.8.ebuild:
+  x86 stable, bug #399581
+
+*shorturl-0.8.8-r1 (29 Jan 2012)
+
+  29 Jan 2012; Hans de Graaff <graaff@gentoo.org> shorturl-0.8.8.ebuild,
+  +shorturl-0.8.8-r1.ebuild:
+  Revision bump to create stable candidate without ruby19.
+
+  10 Jan 2011; Hans de Graaff <graaff@gentoo.org> shorturl-0.8.8.ebuild:
+  Keyword ~x86-macos.
+
+  11 Jul 2010; Hans de Graaff <graaff@gentoo.org> -shorturl-0.8.7.ebuild,
+  -shorturl-0.8.7-r1.ebuild:
+  Remove old versions.
+
+*shorturl-0.8.8 (14 Mar 2010)
+
+  14 Mar 2010; Hans de Graaff <graaff@gentoo.org> +shorturl-0.8.8.ebuild:
+  Version bump: add VURL service.
+
+*shorturl-0.8.7-r1 (29 Jan 2010)
+
+  29 Jan 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +shorturl-0.8.7-r1.ebuild, +files/shorturl-0.8.7+ruby-1.9.patch:
+  Bump to fakegem, add patch to work with Ruby 1.9 similar to the one in
+  overlay.
+
+  24 Dec 2009; Hans de Graaff <graaff@gentoo.org> shorturl-0.8.7.ebuild:
+  Remove obsolete virtual/ruby dependency.
+
+  24 Dec 2009; Hans de Graaff <graaff@gentoo.org> -shorturl-0.8.4.ebuild:
+  Remove old version.
+
+*shorturl-0.8.7 (28 Nov 2009)
+
+  28 Nov 2009; Alex Legler <a3li@gentoo.org> +shorturl-0.8.7.ebuild:
+  Version bump, add USE_RUBY=ruby18
+
+  12 Mar 2009; Alex Legler <a3li@gentoo.org> metadata.xml:
+  Remove flameeyes from metadata.xml, as per his request.
+
+  22 Sep 2008; Diego Pettenò <flameeyes@gentoo.org> -shorturl-0.8.3.ebuild:
+  Cleanup old version.
+
+  25 Jul 2008; Stephanie Lockwood-Childs <wormo@gentoo.org>
+  shorturl-0.8.4.ebuild:
+  mark ~ppc (needed for bug #230517)
+
+  08 Jul 2008; Javier Villavicencio <the_paya@gentoo.org>
+  shorturl-0.8.4.ebuild:
+  Added ~x86-fbsd keyword.
+
+  07 Jul 2008; Friedrich Oslage <bluebird@gentoo.org> shorturl-0.8.4.ebuild:
+  Add ~sparc keyword, bug #230517
+
+  08 Jan 2008; <nichoj@gentoo.org> shorturl-0.8.4.ebuild:
+  Added ~x86
+
+*shorturl-0.8.4 (07 Jan 2008)
+
+  07 Jan 2008; Diego Pettenò <flameeyes@gentoo.org> +shorturl-0.8.4.ebuild:
+  Version bump.
+
+*shorturl-0.8.3 (17 Dec 2007)
+
+  17 Dec 2007; Diego Pettenò <flameeyes@gentoo.org> +metadata.xml,
+  +shorturl-0.8.3.ebuild:
+  Initial import of dev-ruby/shorturl, needed for net-irc/rbot with shorturl
+  USE flag enabled.
+

@@ -1,0 +1,95 @@
+# ChangeLog for x11-libs/xpyb
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/x11-libs/xpyb/ChangeLog,v 1.24 2013/01/06 11:21:36 ago Exp $
+
+  06 Jan 2013; Agostino Sarubbo <ago@gentoo.org> xpyb-1.3.1.ebuild:
+  Add ~sparc, wrt bug #449220
+
+  01 Jan 2013; Agostino Sarubbo <ago@gentoo.org> xpyb-1.3.1.ebuild:
+  Add ~alpha, wrt bug #449220
+
+  01 Jan 2013; Agostino Sarubbo <ago@gentoo.org> xpyb-1.3.1.ebuild:
+  Add ~ia64, wrt bug #442934
+
+  22 Nov 2012; Anthony G. Basile <blueness@gentoo.org> xpyb-1.3.1.ebuild:
+  keyword arm, bug #442934
+
+  21 Nov 2012; Alexis Ballier <aballier@gentoo.org> xpyb-1.3.1.ebuild:
+  keyword ~amd64-fbsd, bug #442934
+
+  16 Nov 2012; Anthony G. Basile <blueness@gentoo.org> xpyb-1.3.1.ebuild:
+  keyword ~ppc ~ppc64, bug #442934
+
+  15 Nov 2012; Jeroen Roovers <jer@gentoo.org> xpyb-1.3.1.ebuild:
+  Marked ~hppa (bug #442934).
+
+  14 Nov 2012;  <naota@gentoo.org> xpyb-1.3.1.ebuild:
+  Add ~x86-fbsd wrt #442934
+
+  24 Jun 2012; Agostino Sarubbo <ago@gentoo.org> xpyb-1.3.1.ebuild:
+  Stable for x86, wrt bug #419473
+
+  22 Jun 2012; Agostino Sarubbo <ago@gentoo.org> xpyb-1.3.1.ebuild:
+  Stable for amd64, wrt bug #419473
+
+*xpyb-1.3.1 (26 Mar 2012)
+
+  26 Mar 2012; Tomáš Chvátal <scarabeus@gentoo.org> +xpyb-1.3.1.ebuild:
+  Version bump to latest.
+
+  13 Jul 2010; Christian Faulhammer <fauli@gentoo.org> xpyb-1.2-r1.ebuild:
+  x86 stable, bug 327777
+
+  12 Jul 2010; Markos Chandras <hwoarang@gentoo.org> xpyb-1.2-r1.ebuild:
+  Stable on amd64 wrt bug #327777
+
+  23 Jan 2010; Tomáš Chvátal <scarabeus@gentoo.org>
+  -files/0001-.la-file-is-totaly-useless-for-python-bindings-and-c.patch,
+  -xpyb-1.2.ebuild:
+  rm
+
+*xpyb-1.2-r1 (05 Jan 2010)
+
+  05 Jan 2010; Tomáš Chvátal <scarabeus@gentoo.org> +xpyb-1.2-r1.ebuild:
+  Revision bump since the patch was bad idea.
+
+*xpyb-1.2 (03 Jan 2010)
+
+  03 Jan 2010; Tomáš Chvátal <scarabeus@gentoo.org>
+  +files/0001-.la-file-is-totaly-useless-for-python-bindings-and-c.patch,
+  -xpyb-1.0.ebuild, -xpyb-1.1.ebuild, +xpyb-1.2.ebuild:
+  Version bump. Drop old. Fix bug #299517
+
+  14 Dec 2009; Rémi Cardona <remi@gentoo.org> xpyb-1.0.ebuild:
+  change LICENSE to MIT
+
+  29 Sep 2009; Rémi Cardona <remi@gentoo.org> -xpyb-0.9.ebuild:
+  drop old ebuilds
+
+*xpyb-1.1 (29 Sep 2009)
+
+  29 Sep 2009; Rémi Cardona <remi@gentoo.org> +xpyb-1.1.ebuild:
+  bump to 1.1, sync with x11 overlay
+
+  04 May 2009; Samuli Suominen <ssuominen@gentoo.org> xpyb-0.9.ebuild,
+  xpyb-1.0.ebuild:
+  Move use_ functions out of global scope.
+
+*xpyb-1.0 (13 Jan 2009)
+
+  13 Jan 2009; Donnie Berkholz <dberkholz@gentoo.org>; +xpyb-1.0.ebuild:
+  Bump. Use correct conversion specifier for Py_ssize_t arguments. Fix
+  connect call when authorization info is not passed in.
+
+  30 Jul 2008; Donnie Berkholz <dberkholz@gentoo.org>; xpyb-0.9.ebuild:
+  Require xcb-proto 1.2 to make sure everything builds right. Even though it
+  seemed OK with 1.1, I'm not sure why.
+
+  30 Jul 2008; Donnie Berkholz <dberkholz@gentoo.org>; xpyb-0.9.ebuild:
+  Bugfix: USE=selinux didn't work as expected.
+
+*xpyb-0.9 (30 Jul 2008)
+
+  30 Jul 2008; Donnie Berkholz <dberkholz@gentoo.org>; +metadata.xml,
+  +xpyb-0.9.ebuild:
+  New package: XCB-based Python bindings for the X Window System.

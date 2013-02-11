@@ -1,0 +1,13 @@
+--- test/abstract_unit.rb.~1~	2011-02-10 08:12:37.551582393 +0100
++++ test/abstract_unit.rb	2011-02-10 08:13:37.845418027 +0100
+@@ -19,6 +19,10 @@
+   # Debugging disabled. `gem install ruby-debug` to enable.
+ end
+ 
++gem 'activesupport', '~> 2.3'
++gem 'actionmailer', '~> 2.3'
++gem 'activerecord', '~> 2.3'
++
+ require 'action_controller'
+ require 'action_controller/cgi_ext'
+ require 'action_controller/test_process'

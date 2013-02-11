@@ -1,0 +1,11 @@
+# ChangeLog for dev-libs/log4sh
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/log4sh/ChangeLog,v 1.11 2013/01/27 08:47:18 pinkbyte Exp $
+
+*log4sh-1.4.2 (27 Jan 2013)
+
+  27 Jan 2013; Sergey Popov <pinkbyte@gentoo.org> +log4sh-1.4.2.ebuild,
+  metadata.xml:
+  Version bump: EAPI 5, add ~amd64 keyword, install examples optionally,
+  improve postinstall message. Assign myself as maintainer
+

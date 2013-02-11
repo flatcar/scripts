@@ -1,0 +1,13 @@
+# ChangeLog for dev-libs/log4c
+# Copyright 1999-2010 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/log4c/ChangeLog,v 1.33 2010/11/04 17:35:26 fauli Exp $
+
+  04 Nov 2010; Christian Faulhammer <fauli@gentoo.org> log4c-1.2.1.ebuild:
+  stable x86, bug 342757
+
+*log4c-1.2.1 (08 Aug 2010)
+
+  08 Aug 2010; <elvanor@gentoo.org> +log4c-1.2.1.ebuild, +metadata.xml:
+  Initial import from bug #297708. Credits goes to n1ghtcr4wler@gmail.com,
+  gef.kornflakes@gmail.com, graham@grahamcox.co.uk.
+

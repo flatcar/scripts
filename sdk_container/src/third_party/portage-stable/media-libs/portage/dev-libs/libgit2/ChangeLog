@@ -1,0 +1,51 @@
+# ChangeLog for dev-libs/libgit2
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/libgit2/ChangeLog,v 1.12 2012/05/23 00:51:14 radhermit Exp $
+
+  23 May 2012; Tim Harder <radhermit@gentoo.org> -libgit2-0.15.0.ebuild:
+  Remove old.
+
+  23 May 2012; Tim Harder <radhermit@gentoo.org> libgit2-0.17.0.ebuild,
+  +files/libgit2-0.17.0-cflags.patch:
+  Respect CFLAGS.
+
+*libgit2-0.17.0 (23 May 2012)
+
+  23 May 2012; Tim Harder <radhermit@gentoo.org> +libgit2-0.17.0.ebuild:
+  Version bump.
+
+  23 Apr 2012; Benda Xu <heroxbd@gentoo.org> libgit2-0.16.0.ebuild:
+  add keyword ppc-macos with prefix support. closes bug #413115
+
+  26 Feb 2012; Tim Harder <radhermit@gentoo.org> libgit2-0.16.0.ebuild:
+  Fix examples install (bug #405859).
+
+  13 Feb 2012; Tim Harder <radhermit@gentoo.org> -libgit2-0.14.0.ebuild:
+  Remove old.
+
+*libgit2-0.16.0 (13 Feb 2012)
+
+  13 Feb 2012; Tim Harder <radhermit@gentoo.org> +libgit2-0.16.0.ebuild:
+  Version bump.
+
+*libgit2-0.15.0 (07 Oct 2011)
+
+  07 Oct 2011; Tim Harder <radhermit@gentoo.org> +libgit2-0.15.0.ebuild:
+  Version bump.
+
+*libgit2-0.14.0 (14 Jul 2011)
+
+  14 Jul 2011; Tim Harder <radhermit@gentoo.org> -libgit2-0.13.0.ebuild,
+  -files/libgit2-0.13.0-system-zlib.patch, +libgit2-0.14.0.ebuild:
+  Version bump and remove old.
+
+  30 Jun 2011; Tim Harder <radhermit@gentoo.org>
+  files/libgit2-0.13.0-system-zlib.patch:
+  Use system zlib on all non-Windows systems if available.
+
+*libgit2-0.13.0 (30 Jun 2011)
+
+  30 Jun 2011; Tim Harder <radhermit@gentoo.org> +libgit2-0.13.0.ebuild,
+  +files/libgit2-0.13.0-system-zlib.patch, +metadata.xml:
+  Initial import.
+

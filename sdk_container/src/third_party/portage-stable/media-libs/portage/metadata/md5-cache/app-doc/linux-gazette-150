@@ -1,0 +1,10 @@
+DEFINED_PHASES=install
+DEPEND=>=app-doc/linux-gazette-base-150
+DESCRIPTION=Sharing ideas and discoveries and Making Linux just a little more fun
+HOMEPAGE=http://linuxgazette.net/
+KEYWORDS=alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86
+LICENSE=OPL
+RDEPEND=>=app-doc/linux-gazette-base-150
+SLOT=150
+SRC_URI=http://linuxgazette.net/ftpfiles/lg-150.tar.gz
+_md5_=b3d368c9df05fc51827dc2a69f0ebeba

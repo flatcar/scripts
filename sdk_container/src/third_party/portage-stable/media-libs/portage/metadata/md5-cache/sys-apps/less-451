@@ -1,0 +1,13 @@
+DEFINED_PHASES=configure install postinst prepare unpack
+DEPEND=>=app-misc/editor-wrapper-3 >=sys-libs/ncurses-5.2 pcre? ( dev-libs/libpcre )
+DESCRIPTION=Excellent text file viewer
+EAPI=4
+HOMEPAGE=http://www.greenwoodsoftware.com/less/
+IUSE=pcre unicode
+KEYWORDS=alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris
+LICENSE=|| ( GPL-3 BSD-2 )
+RDEPEND=>=app-misc/editor-wrapper-3 >=sys-libs/ncurses-5.2 pcre? ( dev-libs/libpcre )
+SLOT=0
+SRC_URI=http://www.greenwoodsoftware.com/less/less-451.tar.gz http://www-zeuthen.desy.de/~friebel/unix/less/code2color
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=e9f75fc0e842ddf12aab75c8e03a542d

@@ -1,0 +1,12 @@
+DEFINED_PHASES=install unpack
+DEPEND=sys-devel/automake sys-devel/autoconf test? ( sys-apps/texinfo )
+DESCRIPTION=Used to start a programming project using autotools and a command line parser generator
+HOMEPAGE=http://packages.debian.org/unstable/devel/autoproject
+IUSE=test
+KEYWORDS=~amd64 ~ppc ~x86 ~amd64-linux ~x86-linux ~ppc-macos
+LICENSE=GPL-2
+RDEPEND=sys-devel/automake sys-devel/autoconf
+SLOT=0
+SRC_URI=mirror://debian/pool/main/a/autoproject/autoproject_0.20.orig.tar.gz mirror://debian/pool/main/a/autoproject/autoproject_0.20-4.diff.gz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=8022d491e189caa7d0959ddb872bfc6f

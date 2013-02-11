@@ -1,0 +1,18 @@
+# ChangeLog for dev-ruby/dep_selector
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/dep_selector/ChangeLog,v 1.4 2012/08/14 18:33:01 flameeyes Exp $
+
+  14 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> metadata.xml:
+  Update metadata.xml so that it's the same as most other packages.
+
+  17 Jun 2012; Benedikt Böhm <hollow@gentoo.org> dep_selector-0.0.8.ebuild:
+  add ruby19
+
+  06 Aug 2011; Hans de Graaff <graaff@gentoo.org> dep_selector-0.0.8.ebuild:
+  Fix dependencies to be safe wrt. ruby-fakegem's handling.
+
+*dep_selector-0.0.8 (25 Jul 2011)
+
+  25 Jul 2011; Benedikt Böhm <hollow@gentoo.org> +dep_selector-0.0.8.ebuild,
+  +metadata.xml:
+  initial ebuild. required by app-admin/chef-expander.

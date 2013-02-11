@@ -1,0 +1,37 @@
+# ChangeLog for dev-ruby/sass-rails
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/sass-rails/ChangeLog,v 1.8 2013/01/17 07:36:58 graaff Exp $
+
+*sass-rails-3.2.6 (17 Jan 2013)
+
+  17 Jan 2013; Hans de Graaff <graaff@gentoo.org> +sass-rails-3.2.6.ebuild:
+  Version bump.
+
+  16 Jan 2013; Rick Farina <zerochaos@gentoo.org> sass-rails-3.2.5.ebuild:
+  adding ~arm keywords to net-analyzer/metasploit rdeps
+
+  17 Sep 2012; Fabian Groffen <grobian@gentoo.org> sass-rails-3.1.5.ebuild,
+  sass-rails-3.2.5.ebuild:
+  Marked ~x86-solaris
+
+  17 May 2012; Thomas Kahle <tomka@gentoo.org> sass-rails-3.1.5.ebuild,
+  sass-rails-3.2.5.ebuild:
+  marked ~x86 per bug 396547
+
+*sass-rails-3.2.5 (20 Apr 2012)
+
+  20 Apr 2012; Hans de Graaff <graaff@gentoo.org> sass-rails-3.1.5.ebuild,
+  +sass-rails-3.2.5.ebuild:
+  Version bump.
+
+  01 Mar 2012; Fabian Groffen <grobian@gentoo.org> sass-rails-3.1.5.ebuild:
+  Marked ~x64-macos
+
+  04 Jan 2012; Hans de Graaff <graaff@gentoo.org> sass-rails-3.1.5.ebuild:
+  Actually restrict the tests.
+
+*sass-rails-3.1.5 (02 Jan 2012)
+
+  02 Jan 2012; Hans de Graaff <graaff@gentoo.org> +sass-rails-3.1.5.ebuild,
+  +metadata.xml:
+  Initial import. Part of the default Rails 3.1 asset pipeline.

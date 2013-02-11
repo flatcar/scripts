@@ -1,0 +1,14 @@
+DEFINED_PHASES=compile configure install prepare setup test unpack
+DEPEND=ruby_targets_ruby18? ( dev-lang/ruby:1.8 ) ruby_targets_ruby18? ( virtual/rubygems[ruby_targets_ruby18] ) test? ( ruby_targets_ruby18? ( virtual/rubygems[ruby_targets_ruby18] ) )
+DESCRIPTION=XML-to-object (and back) mapper for Ruby, including XPath interpreter
+EAPI=4
+HOMEPAGE=http://xml-mapping.rubyforge.org/
+IUSE=elibc_FreeBSD ruby_targets_ruby18 test
+KEYWORDS=~amd64 ~x86
+LICENSE=GPL-2
+RDEPEND=ruby_targets_ruby18? ( dev-lang/ruby:1.8 ) ruby_targets_ruby18? ( virtual/rubygems[ruby_targets_ruby18] )
+REQUIRED_USE=|| ( ruby_targets_ruby18 )
+SLOT=0
+SRC_URI=mirror://rubygems/xml-mapping-0.9.1.gem
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	java-utils-2	dcda71e114d638cdf01db57b8445337d	multilib	ded93e450747134a079e647d888aa80b	ruby-fakegem	2785c639b173dd603e95bd60b8d6c4c0	ruby-ng	10ca07a887e226622062d89bb959a175	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=525fd843bf6f5dbd6fd2c5d5e1bb5a2e

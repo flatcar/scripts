@@ -1,0 +1,14 @@
+DEFINED_PHASES=compile configure install postinst postrm prepare setup
+DEPEND=!app-admin/fam !<app-admin/gamin-0.1.10 || ( >=sys-devel/automake-1.11.1:1.11 >=sys-devel/automake-1.12:1.12 ) >=sys-devel/autoconf-2.68 sys-devel/libtool python? ( =dev-lang/python-2* )
+DESCRIPTION=Library providing the FAM File Alteration Monitor API
+EAPI=3
+HOMEPAGE=http://www.gnome.org/~veillard/gamin/
+IUSE=debug kernel_linux python static-libs
+KEYWORDS=alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x86-freebsd ~amd64-linux ~x86-linux ~x86-solaris
+LICENSE=LGPL-2
+RDEPEND=!app-admin/fam !<app-admin/gamin-0.1.10 python? ( =dev-lang/python-2* )
+RESTRICT=test
+SLOT=0
+SRC_URI=mirror://gnome/sources/gamin/0.1/gamin-0.1.10.tar.bz2 mirror://gentoo/gamin-0.1.9-freebsd.patch.bz2 http://dev.gentoo.org/~grobian/patches/libgamin-0.1.10-opensolaris.patch.bz2 http://pkgconfig.freedesktop.org/releases/pkg-config-0.26.tar.gz
+_eclasses_=autotools	cf83655b19ed98f9ea3b44f4572b51a3	eutils	d40dc948067bd3db1c8ebf7d51897313	flag-o-matic	d900015de4e092f26d8c0a18b6bd60de	gnome.org	8fef8f967214f56e08fa92d61163d891	libtool	2b273eea1976cfaed3449345d94331ac	multilib	ded93e450747134a079e647d888aa80b	multiprocessing	a2130e6fc4aa4c6a24b265ca0cbcc2b6	python	e5b3412fa9f03670a666c8a137bd1060	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=d34bcc770e06ba8e4022b1d78ff495ae

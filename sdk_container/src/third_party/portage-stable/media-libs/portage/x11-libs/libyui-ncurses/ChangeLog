@@ -1,0 +1,13 @@
+# ChangeLog for x11-libs/libyui-ncurses
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/x11-libs/libyui-ncurses/ChangeLog,v 1.2 2012/06/16 08:35:54 pacho Exp $
+
+  16 Jun 2012; Pacho Ramos <pacho@gentoo.org> libyui-ncurses-2.21.1.ebuild:
+  Fix DESCRIPTION, bug #411757 by Jack Hill.
+
+*libyui-ncurses-2.21.1 (15 Aug 2011)
+
+  15 Aug 2011; Michal Hrusecky <miska@gentoo.org>
+  +libyui-ncurses-2.21.1.ebuild, +metadata.xml:
+  New ebuild for libyui-ncurses. Ebuild written by me.
+

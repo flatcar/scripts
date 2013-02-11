@@ -1,0 +1,11 @@
+DEFINED_PHASES=configure install
+DEPEND=virtual/pkgconfig test? ( dev-libs/check )
+DESCRIPTION=A pipeline manipulation library
+EAPI=2
+HOMEPAGE=http://libpipeline.nongnu.org/
+IUSE=static-libs test
+KEYWORDS=~amd64 ~x86
+LICENSE=GPL-3
+SLOT=0
+SRC_URI=mirror://nongnu/libpipeline/libpipeline-1.1.0.tar.gz
+_md5_=b4bf945c9284181eb6797061610ec037

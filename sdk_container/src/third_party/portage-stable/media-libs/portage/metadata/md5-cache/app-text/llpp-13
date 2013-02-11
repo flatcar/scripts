@@ -1,0 +1,12 @@
+DEFINED_PHASES=compile install prepare
+DEPEND=media-libs/freetype media-libs/jbig2dec media-libs/openjpeg virtual/jpeg x11-libs/libX11 x11-misc/xsel app-text/mupdf dev-lang/ocaml[ocamlopt] dev-ml/lablgl[glut]
+DESCRIPTION=a graphical PDF viewer which aims to superficially resemble less(1)
+EAPI=4
+HOMEPAGE=http://repo.or.cz/w/llpp.git
+KEYWORDS=~amd64 ~ppc ~x86
+LICENSE=GPL-3
+RDEPEND=media-libs/freetype media-libs/jbig2dec media-libs/openjpeg virtual/jpeg x11-libs/libX11 x11-misc/xsel
+SLOT=0
+SRC_URI=http://repo.or.cz/w/llpp.git/snapshot/68f22b01f680b7afaf56c24ec0b4d7eae3d08c35.tar.gz -> llpp-13.tar.gz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=51f379534be56a286df41dfc54d966f1

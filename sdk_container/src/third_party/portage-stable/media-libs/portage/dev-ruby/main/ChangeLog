@@ -1,0 +1,71 @@
+# ChangeLog for dev-ruby/main
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/main/ChangeLog,v 1.13 2012/12/23 12:48:43 graaff Exp $
+
+*main-5.1.1 (23 Dec 2012)
+
+  23 Dec 2012; Hans de Graaff <graaff@gentoo.org> +main-5.1.1.ebuild:
+  Version bump.
+
+*main-5.1.0 (05 Oct 2012)
+
+  05 Oct 2012; Hans de Graaff <graaff@gentoo.org> +main-5.1.0.ebuild:
+  Version bump.
+
+  26 Aug 2012; Hans de Graaff <graaff@gentoo.org> -main-4.2.0-r1.ebuild,
+  -main-4.4.0.ebuild, -main-5.0.0.ebuild:
+  Cleanup.
+
+*main-5.0.1 (13 May 2012)
+
+  13 May 2012; Hans de Graaff <graaff@gentoo.org> +main-5.0.1.ebuild:
+  Version bump.
+
+  29 Apr 2012; Thomas Kahle <tomka@gentoo.org> main-5.0.0.ebuild:
+  marked ~x86 per bug 395157
+
+  06 Mar 2012; Hans de Graaff <graaff@gentoo.org> -main-4.8.1.ebuild,
+  +main-5.0.0.ebuild:
+  Remove version broken with newer dev-ruby/map.
+
+*main-5.0.0 (06 Mar 2012)
+
+  06 Mar 2012; Hans de Graaff <graaff@gentoo.org> +main-5.0.0.ebuild:
+  Version bump. Also fixes problems reported in bug 395157.
+
+*main-4.8.1 (18 Dec 2011)
+
+  18 Dec 2011; Hans de Graaff <graaff@gentoo.org> +main-4.8.1.ebuild:
+  Version bump. Drop x86 keyword due to new dev-ruby/map dependency, bug
+  395157.
+
+*main-4.4.0 (26 Nov 2010)
+
+  26 Nov 2010; Hans de Graaff <graaff@gentoo.org> +main-4.4.0.ebuild:
+  Version bump.
+
+*main-4.2.0-r1 (27 Jan 2010)
+
+  27 Jan 2010; Hans de Graaff <graaff@gentoo.org> +main-4.2.0-r1.ebuild:
+  Convert to ruby-fakegem.
+
+  09 Dec 2009; Hans de Graaff <graaff@gentoo.org> -main-2.8.4.ebuild,
+  -main-4.0.0.ebuild:
+  Remove old versions.
+
+*main-4.2.0 (27 Nov 2009)
+
+  27 Nov 2009; Hans de Graaff <graaff@gentoo.org> +main-4.2.0.ebuild:
+  Version bump.
+
+*main-4.0.0 (23 Oct 2009)
+
+  23 Oct 2009; Hans de Graaff <graaff@gentoo.org> +main-4.0.0.ebuild:
+  Version bump. Major changes, but *should* be backward compatible.
+
+*main-2.8.4 (04 Jul 2009)
+
+  04 Jul 2009; Hans de Graaff <graaff@gentoo.org> +main-2.8.4.ebuild,
+  +metadata.xml:
+  Initial import. Dependency of dev-ruby/piston.
+

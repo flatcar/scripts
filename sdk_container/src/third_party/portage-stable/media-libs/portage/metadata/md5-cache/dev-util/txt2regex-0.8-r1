@@ -1,0 +1,12 @@
+DEFINED_PHASES=install unpack
+DEPEND=nls? ( sys-devel/gettext )
+DESCRIPTION=A Regular Expression wizard that converts human sentences to regexs
+HOMEPAGE=http://txt2regex.sourceforge.net/
+IUSE=nls cjk
+KEYWORDS=alpha amd64 hppa ~mips ~ppc sparc x86
+LICENSE=GPL-2
+RDEPEND=>=app-shells/bash-2.04
+SLOT=0
+SRC_URI=http://txt2regex.sourceforge.net/txt2regex-0.8.tgz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=e3ee9b624f82330cb557d3a37c6e0a5c

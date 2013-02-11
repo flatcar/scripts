@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install postinst prepare unpack
+DEPEND=media-libs/tiff virtual/jpeg sys-libs/zlib x11-libs/libX11 x11-libs/libXau x11-libs/libXdmcp x11-libs/libXext x11-libs/libXinerama x11-libs/libXrandr x11-libs/libXxf86vm x11-libs/libXScrnSaver app-arch/unzip dev-util/ftjam virtual/pkgconfig virtual/pkgconfig
+DESCRIPTION=Open source, ICC compatible color management system
+EAPI=5
+HOMEPAGE=http://www.argyllcms.com/
+IUSE=doc
+KEYWORDS=amd64 x86
+LICENSE=AGPL-3
+RDEPEND=media-libs/tiff virtual/jpeg sys-libs/zlib x11-libs/libX11 x11-libs/libXau x11-libs/libXdmcp x11-libs/libXext x11-libs/libXinerama x11-libs/libXrandr x11-libs/libXxf86vm x11-libs/libXScrnSaver
+SLOT=0
+SRC_URI=http://www.argyllcms.com/Argyll_V1.4.0_src.zip
+_eclasses_=base	ec46b36a6f6fd1d0b505a33e0b74e413	eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	udev	fea2246732f911905d6991fed203e65c	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=e2eaff1944f09fd105048f1245ee8056

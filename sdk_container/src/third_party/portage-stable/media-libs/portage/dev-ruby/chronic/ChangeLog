@@ -1,0 +1,54 @@
+# ChangeLog for dev-ruby/chronic
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/chronic/ChangeLog,v 1.11 2013/02/02 11:00:13 graaff Exp $
+
+*chronic-0.9.0 (02 Feb 2013)
+
+  02 Feb 2013; Hans de Graaff <graaff@gentoo.org> +chronic-0.9.0.ebuild:
+  Version bump.
+
+*chronic-0.7.0 (05 Aug 2012)
+
+  05 Aug 2012; Hans de Graaff <graaff@gentoo.org> +chronic-0.7.0.ebuild:
+  Version bump.
+
+  20 Jun 2012; Hans de Graaff <graaff@gentoo.org> chronic-0.6.7.ebuild:
+  Avoid built-time dependency on git, bug 422669.
+
+  20 Jun 2012; Hans de Graaff <graaff@gentoo.org> -chronic-0.6.4.ebuild,
+  -chronic-0.6.4-r1.ebuild, -chronic-0.6.6.ebuild:
+  Remove old versions.
+
+*chronic-0.6.7 (07 Apr 2012)
+
+  07 Apr 2012; Hans de Graaff <graaff@gentoo.org> +chronic-0.6.7.ebuild:
+  Version bump.
+
+  07 Mar 2012; Naohiro Aota <naota@gentoo.org> chronic-0.6.6.ebuild:
+  Add ~x86-fbsd
+
+*chronic-0.6.6 (17 Dec 2011)
+
+  17 Dec 2011; Hans de Graaff <graaff@gentoo.org> +chronic-0.6.6.ebuild:
+  Version bump. Drop rbx until problems with it have been resolved.
+
+*chronic-0.6.4-r1 (21 Oct 2011)
+
+  21 Oct 2011; Hans de Graaff <graaff@gentoo.org> +chronic-0.6.4-r1.ebuild:
+  Add rbx support.
+
+  21 Oct 2011; Hans de Graaff <graaff@gentoo.org> -chronic-0.6.2.ebuild:
+  Remove old version.
+
+*chronic-0.6.4 (10 Sep 2011)
+
+  10 Sep 2011; Hans de Graaff <graaff@gentoo.org> +chronic-0.6.4.ebuild:
+  Version bump.
+
+*chronic-0.6.2 (20 Aug 2011)
+
+  20 Aug 2011; Hans de Graaff <graaff@gentoo.org> +chronic-0.6.2.ebuild,
+  +metadata.xml:
+  Initial import from graaff overlay. New dependency for dev-ruby/main. Closes
+  bug 280143.
+

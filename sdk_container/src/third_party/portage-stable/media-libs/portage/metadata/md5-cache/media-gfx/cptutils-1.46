@@ -1,0 +1,12 @@
+DEFINED_PHASES=prepare setup
+DEPEND=dev-libs/libxml2:2 media-libs/libpng
+DESCRIPTION=A number of utilities for the manipulation of color gradient files
+EAPI=5
+HOMEPAGE=http://soliton.vm.bytemark.co.uk/pub/jjg/en/code/cptutils.html
+KEYWORDS=~amd64 ~x86
+LICENSE=GPL-2
+RDEPEND=dev-libs/libxml2:2 media-libs/libpng =dev-lang/python-2*
+SLOT=0
+SRC_URI=http://soliton.vm.bytemark.co.uk/pub/jjg/code/cptutils-1.46.tar.gz
+_eclasses_=multilib	ded93e450747134a079e647d888aa80b	python	e5b3412fa9f03670a666c8a137bd1060	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e
+_md5_=ce980b8a0f88a0c58df5f9e9a1bc0f71

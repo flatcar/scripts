@@ -1,0 +1,228 @@
+# ChangeLog for dev-ruby/activemodel
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/activemodel/ChangeLog,v 1.51 2013/01/28 22:22:52 graaff Exp $
+
+*activemodel-3.0.20 (28 Jan 2013)
+
+  28 Jan 2013; Hans de Graaff <graaff@gentoo.org> +activemodel-3.0.20.ebuild:
+  Version bump for security bug 453844.
+
+  23 Jan 2013; Diego E. Pettenò <flameeyes@gentoo.org>
+  activemodel-3.2.11.ebuild:
+  Fix dependency on builder to limit it at slot 3.
+
+  20 Jan 2013; Hans de Graaff <graaff@gentoo.org> -activemodel-3.0.18.ebuild,
+  -activemodel-3.1.9.ebuild, -activemodel-3.2.10.ebuild:
+  Remove vulnerable versions.
+
+  16 Jan 2013; Rick Farina <zerochaos@gentoo.org> activemodel-3.1.10.ebuild,
+  activemodel-3.1.3.ebuild, activemodel-3.1.9.ebuild, activemodel-3.2.10.ebuild,
+  activemodel-3.2.11.ebuild:
+  adding ~arm keywords to net-analyzer/metasploit rdeps
+
+*activemodel-3.0.19 (09 Jan 2013)
+
+  09 Jan 2013; Hans de Graaff <graaff@gentoo.org> +activemodel-3.0.19.ebuild:
+  Version bump for bug 450974.
+
+*activemodel-3.1.10 (09 Jan 2013)
+
+  09 Jan 2013; Hans de Graaff <graaff@gentoo.org> +activemodel-3.1.10.ebuild:
+  Version bump for bug 450974.
+
+*activemodel-3.2.11 (09 Jan 2013)
+
+  09 Jan 2013; Hans de Graaff <graaff@gentoo.org> +activemodel-3.2.11.ebuild:
+  Version bump for bug 450974.
+
+  06 Jan 2013; Hans de Graaff <graaff@gentoo.org> -activemodel-3.0.17.ebuild,
+  -activemodel-3.1.8.ebuild, -activemodel-3.2.8.ebuild,
+  -activemodel-3.2.9.ebuild:
+  Remove vulnerable versions.
+
+*activemodel-3.0.18 (03 Jan 2013)
+
+  03 Jan 2013; Hans de Graaff <graaff@gentoo.org> +activemodel-3.0.18.ebuild:
+  Version bump for security bug 449826.
+
+*activemodel-3.1.9 (03 Jan 2013)
+
+  03 Jan 2013; Hans de Graaff <graaff@gentoo.org> +activemodel-3.1.9.ebuild:
+  Version bump for security bug 449826.
+
+*activemodel-3.2.10 (03 Jan 2013)
+
+  03 Jan 2013; Hans de Graaff <graaff@gentoo.org> +activemodel-3.2.10.ebuild:
+  Version bump for security bug 449826.
+
+*activemodel-3.2.9 (12 Nov 2012)
+
+  12 Nov 2012; Hans de Graaff <graaff@gentoo.org> +activemodel-3.2.9.ebuild:
+  Version bump.
+
+  27 Aug 2012; Hans de Graaff <graaff@gentoo.org> -activemodel-3.0.16.ebuild,
+  -activemodel-3.1.7.ebuild, -activemodel-3.2.7.ebuild:
+  Remove vulnerable versions.
+
+*activemodel-3.1.8 (11 Aug 2012)
+*activemodel-3.0.17 (11 Aug 2012)
+
+  11 Aug 2012; Hans de Graaff <graaff@gentoo.org> +activemodel-3.0.17.ebuild,
+  +activemodel-3.1.8.ebuild:
+  Version bumps for security bug 430718.
+
+*activemodel-3.2.8 (10 Aug 2012)
+
+  10 Aug 2012; Hans de Graaff <graaff@gentoo.org> +activemodel-3.2.8.ebuild:
+  Version bump for security bug 430718.
+
+  29 Jul 2012; Hans de Graaff <graaff@gentoo.org> -activemodel-3.0.15.ebuild,
+  -activemodel-3.1.6.ebuild, -activemodel-3.2.6.ebuild:
+  Remove vulnerable versions.
+
+*activemodel-3.0.16 (28 Jul 2012)
+
+  28 Jul 2012; Hans de Graaff <graaff@gentoo.org> +activemodel-3.0.16.ebuild:
+  Version bump for Rails 3.0.16, bug 428254.
+
+*activemodel-3.1.7 (28 Jul 2012)
+
+  28 Jul 2012; Hans de Graaff <graaff@gentoo.org> +activemodel-3.1.7.ebuild:
+  Version bump for Rails 3.1.7, bug 428254.
+
+*activemodel-3.2.7 (27 Jul 2012)
+
+  27 Jul 2012; Hans de Graaff <graaff@gentoo.org> +activemodel-3.2.7.ebuild:
+  Version bump for Rails 3.2.7, bug 428254.
+
+  23 Jun 2012; Hans de Graaff <graaff@gentoo.org> -activemodel-3.0.12.ebuild,
+  -activemodel-3.1.4.ebuild, -activemodel-3.2.3.ebuild,
+  -activemodel-3.2.5.ebuild:
+  Remove old vulnerable versions.
+
+*activemodel-3.1.6 (17 Jun 2012)
+
+  17 Jun 2012; Hans de Graaff <graaff@gentoo.org> +activemodel-3.1.6.ebuild:
+  Version bump for Rails 3.1.6.
+
+*activemodel-3.0.15 (13 Jun 2012)
+
+  13 Jun 2012; Hans de Graaff <graaff@gentoo.org> +activemodel-3.0.15.ebuild:
+  Version bump for Rails 3.0.15.
+
+*activemodel-3.2.6 (13 Jun 2012)
+
+  13 Jun 2012; Hans de Graaff <graaff@gentoo.org> +activemodel-3.2.6.ebuild:
+  Version bump for Rails 3.2.6.
+
+*activemodel-3.2.5 (01 Jun 2012)
+
+  01 Jun 2012; Hans de Graaff <graaff@gentoo.org> +activemodel-3.2.5.ebuild:
+  Version bump for bug 418481.
+
+  01 Jun 2012; Hans de Graaff <graaff@gentoo.org> -activemodel-3.0.10.ebuild,
+  -activemodel-3.0.11.ebuild:
+  Remove old versions.
+
+  01 May 2012; Raúl Porcel <armin76@gentoo.org> activemodel-3.0.10.ebuild,
+  activemodel-3.0.11.ebuild, activemodel-3.0.12.ebuild:
+  Drop ia64/sparc keywords
+
+*activemodel-3.2.3 (20 Apr 2012)
+
+  20 Apr 2012; Hans de Graaff <graaff@gentoo.org> +activemodel-3.2.3.ebuild:
+  Version bump.
+
+*activemodel-3.1.4 (04 Apr 2012)
+
+  04 Apr 2012; Hans de Graaff <graaff@gentoo.org> +activemodel-3.1.4.ebuild:
+  Version bump for Rails 3.1.4, security bug 406547.
+
+*activemodel-3.0.12 (04 Apr 2012)
+
+  04 Apr 2012; Hans de Graaff <graaff@gentoo.org> +activemodel-3.0.12.ebuild:
+  Version bump for security bug 406547.
+
+  11 Mar 2012; Brent Baude <ranger@gentoo.org> activemodel-3.1.3.ebuild:
+  Marking activemodel-3.1.3 ~ppc64 for bug 396547
+
+  06 Feb 2012; Brent Baude <ranger@gentoo.org> activemodel-3.1.3.ebuild:
+  Marking activemodel-3.1.3 ~ppc for bug 396177
+
+  31 Dec 2011; Fabian Groffen <grobian@gentoo.org> activemodel-3.1.3.ebuild:
+  Add Prefix keywords, bug #396547
+
+  28 Dec 2011; Hans de Graaff <graaff@gentoo.org> activemodel-3.1.3.ebuild:
+  Drop unneeded dependencies. ruby-debug is not used and not ruby19-ready.
+
+  27 Dec 2011; Hans de Graaff <graaff@gentoo.org> activemodel-3.1.3.ebuild:
+  Fix slot
+
+*activemodel-3.1.3 (27 Dec 2011)
+
+  27 Dec 2011; Hans de Graaff <graaff@gentoo.org> +activemodel-3.1.3.ebuild:
+  Version bump. Drop keywords due to new dependencies, bug 396177.
+
+*activemodel-3.0.11 (19 Nov 2011)
+
+  19 Nov 2011; Hans de Graaff <graaff@gentoo.org> +activemodel-3.0.11.ebuild:
+  Version bump for Rails 3.0.11.
+
+  05 Oct 2011; Hans de Graaff <graaff@gentoo.org> -activemodel-3.0.7.ebuild,
+  -activemodel-3.0.9.ebuild:
+  Remove old versions.
+
+*activemodel-3.0.10 (28 Sep 2011)
+
+  28 Sep 2011; Hans de Graaff <graaff@gentoo.org> +activemodel-3.0.10.ebuild:
+  Version bump for Rails 3.0.10
+
+  09 Sep 2011; Fabian Groffen <grobian@gentoo.org> activemodel-3.0.9.ebuild:
+  Marked ~sparc-solaris
+
+  07 Aug 2011; Raúl Porcel <armin76@gentoo.org> activemodel-3.0.9.ebuild:
+  Add ~ia64/~sparc wrt #351835
+
+  24 Jul 2011; Kacper Kowalik <xarthisius@gentoo.org> activemodel-3.0.9.ebuild:
+  Marked ~ppc/~ppc64 wrt #351835
+
+*activemodel-3.0.9 (04 Jul 2011)
+
+  04 Jul 2011; Hans de Graaff <graaff@gentoo.org> +activemodel-3.0.9.ebuild:
+  Version bump for Rails 3.0.9.
+
+  01 May 2011; Hans de Graaff <graaff@gentoo.org> -activemodel-3.0.3.ebuild,
+  -activemodel-3.0.3-r1.ebuild:
+  Remove old versions.
+
+*activemodel-3.0.7 (26 Apr 2011)
+
+  26 Apr 2011; Hans de Graaff <graaff@gentoo.org> +activemodel-3.0.7.ebuild:
+  Version bump for Rails 3.0.7.
+
+  13 Feb 2011; Thomas Kahle <tomka@gentoo.org> activemodel-3.0.3-r1.ebuild:
+  keyworded ~x86 per bug 351835
+
+*activemodel-3.0.3-r1 (10 Jan 2011)
+
+  10 Jan 2011; Hans de Graaff <graaff@gentoo.org>
+  +activemodel-3.0.3-r1.ebuild:
+  This requires a bump since we modify the gemspec file.
+
+  10 Jan 2011; Hans de Graaff <graaff@gentoo.org> activemodel-3.0.3.ebuild:
+  Relax builder requirements for bug 351189.
+
+  28 Dec 2010; Hans de Graaff <graaff@gentoo.org> activemodel-3.0.3.ebuild:
+  Install proper gemspec.
+
+  04 Dec 2010; Hans de Graaff <graaff@gentoo.org> activemodel-3.0.3.ebuild:
+  Move activemodel into the right SLOT.
+
+  03 Dec 2010; Hans de Graaff <graaff@gentoo.org> activemodel-3.0.3.ebuild:
+  activemodel does not contain database-specific parts: remove USE flags.
+
+*activemodel-3.0.3 (03 Dec 2010)
+
+  03 Dec 2010; Hans de Graaff <graaff@gentoo.org> +activemodel-3.0.3.ebuild,
+  +metadata.xml:
+  Initial import for Rails 3.0.3.

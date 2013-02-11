@@ -1,0 +1,13 @@
+DEFINED_PHASES=configure install prepare setup
+DEPEND=>=sys-libs/cracklib-2.8 pam? ( virtual/pam ) sys-devel/libtool virtual/pkgconfig python? ( =dev-lang/python-2.7* )
+DESCRIPTION=Library for password quality checking and generating random passwords
+EAPI=5
+HOMEPAGE=https://fedorahosted.org/libpwquality/
+IUSE=pam python static-libs
+KEYWORDS=~amd64 ~x86
+LICENSE=|| ( BSD GPL-2 )
+RDEPEND=>=sys-libs/cracklib-2.8 pam? ( virtual/pam ) python? ( =dev-lang/python-2.7* )
+SLOT=0
+SRC_URI=https://fedorahosted.org/releases/l/i/libpwquality/libpwquality-1.2.0.tar.bz2
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	flag-o-matic	d900015de4e092f26d8c0a18b6bd60de	multilib	ded93e450747134a079e647d888aa80b	pam	5c1a9ef4892062f9ec25c8ef7c1f1e52	python	e5b3412fa9f03670a666c8a137bd1060	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=b29ef33ceb5f696aa7931d7db859134d

@@ -1,0 +1,103 @@
+diff -ru ruby19/facter-1.6.16/lib/facter/ipaddress6.rb all/facter-1.6.16/lib/facter/ipaddress6.rb
+--- ruby19/facter-1.6.16/lib/facter/ipaddress6.rb	2012-12-02 20:01:43.841753654 +0100
++++ all/facter-1.6.16/lib/facter/ipaddress6.rb	2012-12-02 20:07:19.076607117 +0100
+@@ -38,7 +38,7 @@
+ Facter.add(:ipaddress6) do
+   confine :kernel => :linux
+   setcode do
+-    output = Facter::Util::Resolution.exec('/sbin/ifconfig 2>/dev/null')
++    output = Facter::Util::Resolution.exec('/bin/ifconfig 2>/dev/null')
+ 
+     get_address_after_token(output, 'inet6 addr:')
+   end
+diff -ru ruby19/facter-1.6.16/lib/facter/ipaddress.rb all/facter-1.6.16/lib/facter/ipaddress.rb
+--- ruby19/facter-1.6.16/lib/facter/ipaddress.rb	2012-12-02 20:01:43.841753654 +0100
++++ all/facter-1.6.16/lib/facter/ipaddress.rb	2012-12-02 20:07:28.368353632 +0100
+@@ -26,7 +26,7 @@
+   confine :kernel => :linux
+   setcode do
+     ip = nil
+-    output = %x{/sbin/ifconfig 2>/dev/null}
++    output = %x{/bin/ifconfig 2>/dev/null}
+ 
+     output.split(/^\S/).each { |str|
+       if str =~ /inet addr:([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/
+diff -ru ruby19/facter-1.6.16/lib/facter/macaddress.rb all/facter-1.6.16/lib/facter/macaddress.rb
+--- ruby19/facter-1.6.16/lib/facter/macaddress.rb	2012-12-02 20:01:43.845753542 +0100
++++ all/facter-1.6.16/lib/facter/macaddress.rb	2012-12-02 20:06:44.049562697 +0100
+@@ -26,7 +26,7 @@
+   confine :kernel => 'Linux'
+   setcode do
+     ether = []
+-    output = Facter::Util::Resolution.exec("/sbin/ifconfig -a 2>/dev/null")
++    output = Facter::Util::Resolution.exec("/bin/ifconfig -a 2>/dev/null")
+     output.each_line do |s|
+       ether.push($1) if s =~ /(?:ether|HWaddr) ((\w{1,2}:){5,}\w{1,2})/
+     end
+diff -ru ruby19/facter-1.6.16/lib/facter/util/ip.rb all/facter-1.6.16/lib/facter/util/ip.rb
+--- ruby19/facter-1.6.16/lib/facter/util/ip.rb	2012-12-02 20:01:43.845753542 +0100
++++ all/facter-1.6.16/lib/facter/util/ip.rb	2012-12-02 20:05:58.594802786 +0100
+@@ -76,7 +76,9 @@
+ 
+   def self.get_all_interface_output
+     case Facter.value(:kernel)
+-    when 'Linux', 'OpenBSD', 'NetBSD', 'FreeBSD', 'Darwin', 'GNU/kFreeBSD', 'DragonFly'
++    when 'Linux'
++      output = %x{/bin/ifconfig -a 2>/dev/null}
++    when 'OpenBSD', 'NetBSD', 'FreeBSD', 'Darwin', 'GNU/kFreeBSD', 'DragonFly'
+       output = %x{/sbin/ifconfig -a 2>/dev/null}
+     when 'SunOS'
+       output = %x{/usr/sbin/ifconfig -a}
+diff -ru ruby19/facter-1.6.16/lib/facter/util/netmask.rb all/facter-1.6.16/lib/facter/util/netmask.rb
+--- ruby19/facter-1.6.16/lib/facter/util/netmask.rb	2012-12-02 20:01:43.845753542 +0100
++++ all/facter-1.6.16/lib/facter/util/netmask.rb	2012-12-02 20:04:39.664956233 +0100
+@@ -7,7 +7,7 @@
+     case Facter.value(:kernel)
+     when 'Linux'
+       ops = {
+-        :ifconfig => '/sbin/ifconfig 2>/dev/null',
++        :ifconfig => '/bin/ifconfig 2>/dev/null',
+         :regex => %r{\s+ inet\saddr: #{Facter.ipaddress} .*? Mask: (#{ipregex})}x,
+         :munge => nil,
+       }
+diff -ru ruby19/facter-1.6.16/spec/unit/ipaddress6_spec.rb all/facter-1.6.16/spec/unit/ipaddress6_spec.rb
+--- ruby19/facter-1.6.16/spec/unit/ipaddress6_spec.rb	2012-12-02 20:01:43.857753215 +0100
++++ all/facter-1.6.16/spec/unit/ipaddress6_spec.rb	2012-12-02 20:10:38.379170335 +0100
+@@ -25,7 +25,7 @@
+ 
+   it "should return ipaddress6 information for Linux" do
+     Facter::Util::Resolution.stubs(:exec).with('uname -s').returns('Linux')
+-    Facter::Util::Resolution.stubs(:exec).with('/sbin/ifconfig 2>/dev/null').
++    Facter::Util::Resolution.stubs(:exec).with('/bin/ifconfig 2>/dev/null').
+       returns(ifconfig_fixture('linux_ifconfig_all_with_multiple_interfaces'))
+ 
+     Facter.value(:ipaddress6).should == "2610:10:20:209:212:3fff:febe:2201"
+diff -ru ruby19/facter-1.6.16/spec/unit/macaddress_spec.rb all/facter-1.6.16/spec/unit/macaddress_spec.rb
+--- ruby19/facter-1.6.16/spec/unit/macaddress_spec.rb	2012-12-02 20:01:43.857753215 +0100
++++ all/facter-1.6.16/spec/unit/macaddress_spec.rb	2012-12-02 20:10:01.604173469 +0100
+@@ -22,14 +22,14 @@
+     end
+ 
+     it "should return the macaddress of the first interface" do
+-      Facter::Util::Resolution.stubs(:exec).with('/sbin/ifconfig -a 2>/dev/null').
++      Facter::Util::Resolution.stubs(:exec).with('/bin/ifconfig -a 2>/dev/null').
+         returns(ifconfig_fixture('linux_ifconfig_all_with_multiple_interfaces'))
+ 
+       Facter.value(:macaddress).should == "00:12:3f:be:22:01"
+     end
+ 
+     it "should return nil when no macaddress can be found" do
+-      Facter::Util::Resolution.stubs(:exec).with('/sbin/ifconfig -a 2>/dev/null').
++      Facter::Util::Resolution.stubs(:exec).with('/bin/ifconfig -a 2>/dev/null').
+         returns(ifconfig_fixture('linux_ifconfig_no_mac'))
+ 
+       proc { Facter.value(:macaddress) }.should_not raise_error
+@@ -38,7 +38,7 @@
+ 
+     # some interfaces dont have a real mac addresses (like venet inside a container)
+     it "should return nil when no interface has a real macaddress" do
+-      Facter::Util::Resolution.stubs(:exec).with('/sbin/ifconfig -a 2>/dev/null').
++      Facter::Util::Resolution.stubs(:exec).with('/bin/ifconfig -a 2>/dev/null').
+         returns(ifconfig_fixture('linux_ifconfig_venet'))
+ 
+       proc { Facter.value(:macaddress) }.should_not raise_error

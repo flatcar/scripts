@@ -1,0 +1,11 @@
+DEFINED_PHASES=compile install unpack
+DEPEND=sys-freebsd/freebsd-mk-defs virtual/pmake
+DESCRIPTION=pidof(1) utility for *BSD
+HOMEPAGE=http://people.freebsd.org/~novel/pidof.html
+KEYWORDS=~amd64-fbsd ~sparc-fbsd ~x86-fbsd
+LICENSE=BSD
+RDEPEND=!sys-process/psmisc
+SLOT=0
+SRC_URI=mirror://gentoo/pidof-bsd-20050501.tar.gz
+_eclasses_=base	ec46b36a6f6fd1d0b505a33e0b74e413	bsdmk	d13d2e416a2fa9a525bf82c9bdb05509	eutils	d40dc948067bd3db1c8ebf7d51897313	flag-o-matic	d900015de4e092f26d8c0a18b6bd60de	multilib	ded93e450747134a079e647d888aa80b	portability	536c5e70c5fb252ed3b769e04aa3f05b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=e5fa742e1e7a089e513b2281d055ee98

@@ -1,0 +1,12 @@
+DEFINED_PHASES=configure install
+DEPEND=gmp? ( dev-libs/gmp ) dev-libs/libxml2 arpack? ( sci-libs/arpack ) blas? ( virtual/blas ) lapack? ( virtual/lapack )
+DESCRIPTION=igraph is a free software package for creating and manipulating undirected and directed graphs.
+EAPI=4
+HOMEPAGE=http://igraph.sourceforge.net/index.html
+IUSE=+arpack +blas debug gmp gprof +lapack static-libs
+KEYWORDS=~amd64
+LICENSE=GPL-2
+RDEPEND=gmp? ( dev-libs/gmp ) dev-libs/libxml2 arpack? ( sci-libs/arpack ) blas? ( virtual/blas ) lapack? ( virtual/lapack )
+SLOT=0
+SRC_URI=mirror://sourceforge/igraph/igraph-0.5.4.tar.gz
+_md5_=f4c0c3c8c6de3a1c8137459d02b53e70

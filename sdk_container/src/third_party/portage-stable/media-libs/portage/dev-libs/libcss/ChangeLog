@@ -1,0 +1,24 @@
+# ChangeLog for dev-libs/libcss
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/libcss/ChangeLog,v 1.6 2012/11/11 21:23:41 xmw Exp $
+
+  11 Nov 2012; Michael Weber <xmw@gentoo.org> libcss-0.1.2.ebuild:
+  Cross compile fix (bug 431884, James Le Cuirot)
+
+  23 Jul 2012; Michael Weber <xmw@gentoo.org> libcss-0.1.2.ebuild:
+  Fix RDEPEND
+
+  18 Jul 2012; Michael Weber <xmw@gentoo.org> libcss-0.1.2.ebuild:
+  Fix dependencies
+
+  18 Jul 2012; Michael Sterrett <mr_bones_@gentoo.org> libcss-0.1.2.ebuild:
+  add missing test to IUSE
+
+  18 Jul 2012; Michael Weber <xmw@gentoo.org> libcss-0.1.2.ebuild:
+  fix inherit, test depends on dev-lang/perl.
+
+*libcss-0.1.2 (17 Jul 2012)
+
+  17 Jul 2012; Michael Weber <xmw@gentoo.org> +libcss-0.1.2.ebuild,
+  +metadata.xml:
+  Initial import

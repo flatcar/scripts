@@ -1,0 +1,22 @@
+# ChangeLog for dev-libs/mps
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/mps/ChangeLog,v 1.4 2012/11/25 21:54:19 ulm Exp $
+
+  25 Nov 2012; Ulrich Müller <ulm@gentoo.org> mps-1.106.2.ebuild,
+  mps-1.110.0.ebuild:
+  Update LICENSE, duplicate of Sleepycat, bug 300426; thanks to angelos for
+  pointing this out. Whitespace.
+
+*mps-1.110.0 (22 Oct 2012)
+
+  22 Oct 2012; Patrick Lauer <patrick@gentoo.org> +mps-1.110.0.ebuild:
+  Bump
+
+  22 Aug 2012; Patrick Lauer <patrick@gentoo.org> mps-1.106.2.ebuild:
+  Removing amd64 keyword, upstream doesn't have full support yet
+
+*mps-1.106.2 (22 Aug 2012)
+
+  22 Aug 2012; Patrick Lauer <patrick@gentoo.org> +metadata.xml,
+  +mps-1.106.2.ebuild:
+  Initial import, ebuild by me. Dependency of Opendylan on x86

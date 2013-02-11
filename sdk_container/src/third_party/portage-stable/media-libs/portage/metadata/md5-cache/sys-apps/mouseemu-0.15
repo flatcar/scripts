@@ -1,0 +1,9 @@
+DEFINED_PHASES=install postinst unpack
+DESCRIPTION=Emulates scrollwheel, right- & left-click for one-button mice/touchpads
+HOMEPAGE=http://geekounet.org/powerbook/
+KEYWORDS=-* ~ppc
+LICENSE=GPL-2
+SLOT=0
+SRC_URI=http://geekounet.org/powerbook/files/mouseemu-0.15.tar.gz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=10520cfe8796c337831da92e627df709

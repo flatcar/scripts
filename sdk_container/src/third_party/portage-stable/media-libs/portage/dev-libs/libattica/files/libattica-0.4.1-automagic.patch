@@ -1,0 +1,36 @@
+From 1d930b3b6b7c9b4d8ba94f5f390519161ad623c5 Mon Sep 17 00:00:00 2001
+From: Michael Palimaka <kensington@gentoo.org>
+Date: Thu, 4 Oct 2012 22:51:24 +1000
+Subject: [PATCH] Make the dependency check for QtTest conditional - it is
+ only required to build tests.
+
+REVIEW: 106706
+---
+ lib/CMakeLists.txt | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/lib/CMakeLists.txt b/lib/CMakeLists.txt
+index 49a74ef..a8114d9 100644
+--- a/lib/CMakeLists.txt
++++ b/lib/CMakeLists.txt
+@@ -12,7 +12,6 @@ set(QT_MIN_VERSION "4.7.0")
+ find_package(Qt5Transitional REQUIRED
+     Core
+     Network
+-    Test
+ )
+ 
+ # TODO: Remove me once fixed in ECM module
+@@ -189,6 +188,9 @@ endif(NOT WIN32)
+ 
+ # Add the optional subdirectory with unit tests
+ if (ATTICA_ENABLE_TESTS)
++    find_package(Qt5Transitional REQUIRED
++        Test
++    )
+     add_subdirectory(tests)
+ endif (ATTICA_ENABLE_TESTS)
+ 
+-- 
+1.7.12
+

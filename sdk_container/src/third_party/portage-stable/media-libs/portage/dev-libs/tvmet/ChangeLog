@@ -1,0 +1,24 @@
+# ChangeLog for dev-libs/tvmet
+# Copyright 1999-2009 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/tvmet/ChangeLog,v 1.3 2009/04/19 20:53:36 halcy0n Exp $
+
+*tvmet-1.7.2-r1 (19 Apr 2009)
+
+  19 Apr 2009; Mark Loeser <halcy0n@gentoo.org>
+  +files/tvmet-1.7.2-respect-cxxflags.patch, +tvmet-1.7.2-r1.ebuild:
+  Fix build so it respects CXXFLAGS, thanks to Diego E. 'Flameeyes' Pettenò
+  <flameeyes AT gentoo DOT org> for reporting; bug #240229
+
+  07 Jun 2008; Tiziano Müller <dev-zero@gentoo.org>
+  files/1.7.2-docs_missing_destdir.patch, tvmet-1.7.2.ebuild:
+  Reworked the patch to operate on the Makefile.in instead the Makefile.am
+  to avoid we need cppunit unconditionally (bug #223175). Added cppunit to
+  DEPEND depending on the 'test' USE-flag.
+
+*tvmet-1.7.2 (23 Mar 2008)
+
+  23 Mar 2008; Tiziano Müller <dev-zero@gentoo.org>
+  +files/1.7.2-docs_missing_destdir.patch, +metadata.xml,
+  +tvmet-1.7.2.ebuild:
+  Initial commit, ebuild written by me.
+

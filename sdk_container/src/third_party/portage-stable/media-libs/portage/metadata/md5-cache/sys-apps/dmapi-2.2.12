@@ -1,0 +1,13 @@
+DEFINED_PHASES=configure install prepare
+DEPEND=sys-fs/xfsprogs
+DESCRIPTION=XFS data management API library
+EAPI=4
+HOMEPAGE=http://oss.sgi.com/projects/xfs/
+IUSE=static-libs
+KEYWORDS=~alpha ~amd64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86
+LICENSE=LGPL-2.1
+RDEPEND=sys-fs/xfsprogs
+SLOT=0
+SRC_URI=ftp://oss.sgi.com/projects/xfs/cmd_tars/dmapi-2.2.12.tar.gz ftp://oss.sgi.com/projects/xfs/previous/cmd_tars/dmapi-2.2.12.tar.gz
+_eclasses_=multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e
+_md5_=f51c0e0ab84e6ec3000803860bbec844

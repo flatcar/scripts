@@ -1,0 +1,13 @@
+diff --git a/Makefile b/Makefile
+index 3795115..28a9418 100755
+--- a/Makefile
++++ b/Makefile
+@@ -57,7 +57,7 @@ memhog: util.o memhog.o libnuma.so
+ 
+ numactl.o: numactl.c
+ 
+-numademo: override LDFLAGS += -lm
++numademo: LDLIBS += -lm
+ # GNU make 3.80 appends BENCH_CFLAGS twice. Bug? It's harmless though.
+ numademo: CFLAGS += -DHAVE_STREAM_LIB -DHAVE_MT -DHAVE_CLEAR_CACHE ${BENCH_CFLAGS}
+ stream_lib.o: CFLAGS += ${BENCH_CFLAGS}

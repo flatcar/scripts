@@ -1,0 +1,77 @@
+# ChangeLog for dev-ruby/fastercsv
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/fastercsv/ChangeLog,v 1.17 2012/08/14 08:26:44 johu Exp $
+
+  14 Aug 2012; Johannes Huber <johu@gentoo.org> fastercsv-1.5.5.ebuild:
+  Stable for x86, wrt bug #430198
+
+  07 Aug 2012; Agostino Sarubbo <ago@gentoo.org> fastercsv-1.5.5.ebuild:
+  Stable for amd64, wrt bug #430198
+
+  06 Aug 2012; Hans de Graaff <graaff@gentoo.org> -fastercsv-1.5.4.ebuild:
+  Cleanup.
+
+*fastercsv-1.5.5 (19 Jun 2012)
+
+  19 Jun 2012; Hans de Graaff <graaff@gentoo.org> +fastercsv-1.5.5.ebuild:
+  Version bump.
+
+*fastercsv-1.5.4 (14 Jan 2011)
+
+  14 Jan 2011; Hans de Graaff <graaff@gentoo.org> +fastercsv-1.5.4.ebuild:
+  Version bump.
+
+  03 Nov 2010; Markus Meier <maekke@gentoo.org> fastercsv-1.5.3.ebuild:
+  x86 stable, bug #342233
+
+  31 Oct 2010; Markos Chandras <hwoarang@gentoo.org> fastercsv-1.5.3.ebuild:
+  Stable on amd64 wrt bug #342233
+
+  22 May 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -fastercsv-1.5.0.ebuild, -fastercsv-1.5.0-r1.ebuild,
+  -fastercsv-1.5.1.ebuild, fastercsv-1.5.3.ebuild:
+  Cleanup old versions, use new syntax.
+
+  04 Apr 2010; Hans de Graaff <graaff@gentoo.org> fastercsv-1.5.3.ebuild:
+  Remove conditional in runtime dependencies, looks to be a mistake.
+
+*fastercsv-1.5.3 (04 Apr 2010)
+
+  04 Apr 2010; Hans de Graaff <graaff@gentoo.org> +fastercsv-1.5.3.ebuild:
+  Version bump with bug fixes.
+
+*fastercsv-1.5.1 (16 Feb 2010)
+
+  16 Feb 2010; Hans de Graaff <graaff@gentoo.org> +fastercsv-1.5.1.ebuild:
+  Version bump: A bug fix for deleting blank Table rows.
+
+  14 Jan 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  fastercsv-1.5.0-r1.ebuild:
+  Improve jruby failure comment.
+
+*fastercsv-1.5.0-r1 (13 Jan 2010)
+
+  13 Jan 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +fastercsv-1.5.0-r1.ebuild:
+  Port to ruby-fakegem.
+
+  22 Aug 2009; Hans de Graaff <graaff@gentoo.org> -fastercsv-1.2.3.ebuild,
+  -fastercsv-1.4.0.ebuild:
+  Remove old versions.
+
+*fastercsv-1.5.0 (18 Jun 2009)
+
+  18 Jun 2009; Hans de Graaff <graaff@gentoo.org> +fastercsv-1.5.0.ebuild:
+  Version bump with bug fixes.
+
+*fastercsv-1.4.0 (10 Nov 2008)
+
+  10 Nov 2008; Hans de Graaff <graaff@gentoo.org> +fastercsv-1.4.0.ebuild:
+  Version bump, closing #242368
+
+*fastercsv-1.2.3 (08 Feb 2008)
+
+  08 Feb 2008; Joshua Nichols <nichoj@gentoo.org> +fastercsv-1.2.3.ebuild:
+  Initial version, see bug #209319. Contributed by Sergio D. Rodriguez Inclan
+  <srinclan@gmail.com>.
+

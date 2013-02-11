@@ -1,0 +1,95 @@
+# ChangeLog for dev-ruby/gibbler
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/gibbler/ChangeLog,v 1.18 2012/08/06 18:15:52 graaff Exp $
+
+  06 Aug 2012; Hans de Graaff <graaff@gentoo.org> -gibbler-0.8.9.ebuild:
+  Cleanup.
+
+*gibbler-0.8.10 (24 Oct 2011)
+
+  24 Oct 2011; Hans de Graaff <graaff@gentoo.org> +gibbler-0.8.10.ebuild:
+  Version bump: Gibbler::Hash and Gibbler::Array now skip values that have no
+  __gibbler method.
+
+  20 Jul 2011; Hans de Graaff <graaff@gentoo.org> -gibbler-0.8.6.ebuild,
+  -gibbler-0.8.7.ebuild:
+  Remove old versions.
+
+*gibbler-0.8.9 (12 Feb 2011)
+
+  12 Feb 2011; Hans de Graaff <graaff@gentoo.org> +gibbler-0.8.9.ebuild:
+  Version bump.
+
+*gibbler-0.8.7 (09 Feb 2011)
+
+  09 Feb 2011; Hans de Graaff <graaff@gentoo.org> +gibbler-0.8.7.ebuild:
+  Version bump.
+
+  09 Feb 2011; Hans de Graaff <graaff@gentoo.org> -gibbler-0.8.4.ebuild:
+  Remove old version.
+
+*gibbler-0.8.6 (25 Dec 2010)
+
+  25 Dec 2010; Hans de Graaff <graaff@gentoo.org> +gibbler-0.8.6.ebuild:
+  Version bump.
+
+  09 Sep 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  gibbler-0.8.4.ebuild:
+  Remove JRuby support.
+
+  28 Jul 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -gibbler-0.8.3.ebuild, gibbler-0.8.4.ebuild:
+  Drop old version, fix tryouts dependency to slot.
+
+*gibbler-0.8.4 (19 Jun 2010)
+
+  19 Jun 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +gibbler-0.8.4.ebuild:
+  Version bump.
+
+*gibbler-0.8.3 (04 May 2010)
+
+  04 May 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -gibbler-0.8.2.ebuild, +gibbler-0.8.3.ebuild:
+  Version bump.
+
+  01 May 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  gibbler-0.8.2.ebuild:
+  Move to mirrors-only (April 30th had different archives).
+
+*gibbler-0.8.2 (30 Apr 2010)
+
+  30 Apr 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -gibbler-0.8.1.ebuild, +gibbler-0.8.2.ebuild:
+  Version bump, tests are enabled now, as the final failure is fixed.
+
+*gibbler-0.8.1 (12 Apr 2010)
+
+  12 Apr 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -gibbler-0.7.4.ebuild, -gibbler-0.7.6.ebuild, -gibbler-0.7.7.ebuild,
+  -gibbler-0.8.0.ebuild, +gibbler-0.8.1.ebuild:
+  Version bump and cleanup old versions.
+
+*gibbler-0.8.0 (09 Apr 2010)
+
+  09 Apr 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +gibbler-0.8.0.ebuild:
+  Version bump.
+
+*gibbler-0.7.7 (04 Apr 2010)
+
+  04 Apr 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +gibbler-0.7.7.ebuild:
+  Version bump.
+
+*gibbler-0.7.6 (22 Mar 2010)
+
+  22 Mar 2010; Hans de Graaff <graaff@gentoo.org> +gibbler-0.7.6.ebuild:
+  Version bump with bug fixes.
+
+*gibbler-0.7.4 (14 Feb 2010)
+
+  14 Feb 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +gibbler-0.7.4.ebuild, +metadata.xml:
+  Initial import of gibbler, needed for Rudy.
+

@@ -1,0 +1,41 @@
+# ChangeLog for net-irc/irssi-otr
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-irc/irssi-otr/ChangeLog,v 1.10 2012/05/03 06:27:14 jdhore Exp $
+
+  03 May 2012; Jeff Horelick <jdhore@gentoo.org> irssi-otr-0.2.ebuild,
+  irssi-otr-0.3.ebuild:
+  dev-util/pkgconfig -> virtual/pkgconfig
+
+  09 Dec 2011; Guy Martin <gmsoft@gentoo.org> irssi-otr-0.3.ebuild:
+  Added ~hppa to KEYWORDS.
+
+  28 Jun 2010; Lars Wendler <polynomial-c@gentoo.org> irssi-otr-0.3.ebuild:
+  Added fixes suggested by (QA-man) ssuominen.
+
+  20 Apr 2010; Lars Wendler <polynomial-c@gentoo.org> irssi-otr-0.2.ebuild,
+  irssi-otr-0.3.ebuild:
+  RDEPEND was incomplete. Fixed with kind permission from armin76.
+
+  21 Oct 2009; Markus Meier <maekke@gentoo.org> irssi-otr-0.2.ebuild:
+  x86 stable, bug #286871
+
+  30 Sep 2009; Dawid Węgliński <cla@gentoo.org> irssi-otr-0.2.ebuild:
+  Stable on amd64 (bug #286871)
+
+*irssi-otr-0.3 (22 Feb 2009)
+
+  22 Feb 2009; Raúl Porcel <armin76@gentoo.org> +irssi-otr-0.3.ebuild:
+  Version bump
+
+  04 Aug 2008; Friedrich Oslage <bluebird@gentoo.org> irssi-otr-0.2.ebuild:
+  Add ~sparc keyword at user(Michael Hellwig) request, bug #233886
+
+  04 Aug 2008; Sven Wegener <swegener@gentoo.org> irssi-otr-0.2.ebuild:
+  irssi-otr is also compatbile with our irssi-svn ebuild, bug #233891.
+
+*irssi-otr-0.2 (16 Jul 2008)
+
+  16 Jul 2008; Raúl Porcel <armin76@gentoo.org> +metadata.xml,
+  +irssi-otr-0.2.ebuild:
+  Initial import, bug #228031, ebuild by Ulim <a.sporto+as at gmail dot com>
+

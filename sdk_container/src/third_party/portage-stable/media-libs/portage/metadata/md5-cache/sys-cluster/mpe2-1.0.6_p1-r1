@@ -1,0 +1,13 @@
+DEFINED_PHASES=configure install prepare setup test
+DEPEND=!minimal? ( >=virtual/jdk-1.4 ) !minimal? ( x11-libs/libXtst x11-libs/libXi ) || ( sys-cluster/openmpi[fortran?,threads?] sys-cluster/mpich2[fortran?,threads?] ) fortran? ( virtual/fortran )
+DESCRIPTION=MPI development tools
+EAPI=2
+HOMEPAGE=http://www-unix.mcs.anl.gov/perfvis/download/index.htm
+IUSE=minimal fortran threads debug elibc_FreeBSD
+KEYWORDS=~amd64 ~x86
+LICENSE=mpich2
+RDEPEND=!minimal? ( >=virtual/jre-1.4 ) !minimal? ( x11-libs/libXtst x11-libs/libXi ) || ( sys-cluster/openmpi[fortran?,threads?] sys-cluster/mpich2[fortran?,threads?] ) fortran? ( virtual/fortran )
+SLOT=0
+SRC_URI=ftp://ftp.mcs.anl.gov/pub/mpi/mpe/mpe2-1.0.6p1.tar.gz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	fortran-2	19652e219ec9b62d7d89735821d7afb6	java-utils-2	dcda71e114d638cdf01db57b8445337d	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=eb49c0912e3b81fc8e95045dac895c90

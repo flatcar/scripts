@@ -1,0 +1,12 @@
+DEFINED_PHASES=compile configure install postinst postrm preinst prepare setup test unpack
+DEPEND=>=dev-games/cegui-0.7.6-r1[ogre] !>=dev-games/cegui-0.8 >=dev-games/ogre-1.7.4-r1[freeimage,opengl] !>=dev-games/ogre-1.9 dev-games/ois dev-games/physfs =dev-lang/lua-5.1* >=dev-libs/tinyxml-2.6.2-r2 media-libs/freealut media-libs/openal media-libs/libogg media-libs/libvorbis >=net-libs/enet-1.3.0 x11-libs/libXrandr tools? ( dev-libs/poco ) >=dev-util/cmake-2.8.8 userland_GNU? ( >=sys-apps/findutils-4.4.0 ) >=sys-apps/sed-4
+DESCRIPTION=a multi-player, 3D action role-playing game
+EAPI=4
+HOMEPAGE=http://sumwars.org
+IUSE=+tools debug linguas_de linguas_en linguas_it linguas_pl linguas_pt linguas_ru linguas_uk
+KEYWORDS=amd64 x86
+LICENSE=GPL-3 CCPL-Attribution-ShareAlike-3.0
+SLOT=0
+SRC_URI=mirror://sourceforge/sumwars/sumwars-0.5.6-src.tar.bz2
+_eclasses_=base	ec46b36a6f6fd1d0b505a33e0b74e413	cmake-utils	3cb7a29aafd4b984d2bf12bc50abe5da	eutils	d40dc948067bd3db1c8ebf7d51897313	flag-o-matic	d900015de4e092f26d8c0a18b6bd60de	games	e0a83e3f3f024b8c8ef7a8217d716cbf	gnome2-utils	794d2847b4af390a1e020924876c8297	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=3c97432591c80317b7c8944e821e6f6b

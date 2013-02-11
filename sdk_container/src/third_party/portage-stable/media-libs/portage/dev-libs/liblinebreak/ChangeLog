@@ -1,0 +1,38 @@
+# ChangeLog for dev-libs/liblinebreak
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/liblinebreak/ChangeLog,v 1.7 2012/12/02 10:39:49 maekke Exp $
+
+  02 Dec 2012; Markus Meier <maekke@gentoo.org> liblinebreak-2.1.ebuild:
+  add ~arm, bug #431244
+
+  30 Sep 2011; Andreas K. Huettel <dilfridge@gentoo.org>
+  liblinebreak-2.1.ebuild:
+  Drop .la file
+
+*liblinebreak-2.1 (31 Aug 2011)
+
+  31 Aug 2011; Alexey Shvetsov <alexxy@gentoo.org> -liblinebreak-2.0.ebuild,
+  +liblinebreak-2.1.ebuild:
+  Version bump
+
+*liblinebreak-2.0 (13 Feb 2011)
+
+  13 Feb 2011; Tomáš Chvátal <scarabeus@gentoo.org>
+  -liblinebreak-1.0.ebuild, -liblinebreak-1.2.ebuild, +liblinebreak-2.0.ebuild:
+  Version bump. Drop older.
+
+*liblinebreak-1.2 (21 Dec 2009)
+
+  21 Dec 2009; Tomáš Chvátal <scarabeus@gentoo.org>
+  +liblinebreak-1.2.ebuild:
+  Version bump.
+
+  26 Apr 2009; Brent Baude <ranger@gentoo.org> liblinebreak-1.0.ebuild:
+  Marking liblinebreak-1.0 ~ppc for bug 264733
+
+*liblinebreak-1.0 (02 Feb 2009)
+
+  02 Feb 2009; Alexey Shvetsov <alexxy@gentoo.org> +metadata.xml,
+  +liblinebreak-1.0.ebuild:
+  Initial import of liblinebreak; this fixes bug #216311
+

@@ -1,0 +1,32 @@
+From 9bc8ce3c5bd1919df87ac7039b41de18e70bc64d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Diego=20Elio=20Petten=C3=B2?= <flameeyes@flameeyes.eu>
+Date: Fri, 25 Jan 2013 12:29:21 -0800
+Subject: [PATCH] lib: add to the whitelist the protocol schemes that are
+ tested for.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Without this commit, the testsuite will simply fail.
+
+Signed-off-by: Diego Elio Pettenò <flameeyes@flameeyes.eu>
+---
+ lib/rails_autolink/helpers.rb | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/rails_autolink/helpers.rb b/lib/rails_autolink/helpers.rb
+index 4f6cd8d..bec82c6 100644
+--- a/lib/rails_autolink/helpers.rb
++++ b/lib/rails_autolink/helpers.rb
+@@ -71,7 +71,7 @@ module RailsAutolink
+         private
+ 
+           AUTO_LINK_RE = %r{
+-              (?: ((?:ed2k|ftp|http|https|irc|mailto|news|gopher|nntp|telnet|webcal|xmpp|callto|feed|svn|urn|aim|rsync|tag|ssh|sftp|rtsp|afs):)// | www\. )
++              (?: ((?:ed2k|ftp|http|https|irc|mailto|news|gopher|nntp|telnet|webcal|xmpp|callto|feed|svn|urn|aim|rsync|tag|ssh|sftp|rtsp|afs|file|z39.50r|chrome|view-source:http):)// | www\. )
+               [^\s<]+
+             }x
+ 
+-- 
+1.8.1.1
+

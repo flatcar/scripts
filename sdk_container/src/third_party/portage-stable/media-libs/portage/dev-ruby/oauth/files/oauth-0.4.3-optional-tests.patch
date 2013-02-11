@@ -1,0 +1,123 @@
+commit d71057125981d613aa77100cbd1edd278257aa40
+Author: Hans de Graaff <hans@degraaff.org>
+Date:   Fri Jun 25 22:53:36 2010 +0200
+
+    Fix LoadError rescue: return can't be used in this context.
+    
+    Using return leads to this error:
+    ./test/test_curb_request_proxy.rb:8: unexpected return (LocalJumpError)
+    
+    Without using return the rescue needs to be placed at the end.
+
+diff --git a/test/test_curb_request_proxy.rb b/test/test_curb_request_proxy.rb
+index 582b18f..8abf245 100644
+--- a/test/test_curb_request_proxy.rb
++++ b/test/test_curb_request_proxy.rb
+@@ -1,12 +1,9 @@
+ require File.expand_path('../test_helper', __FILE__)
+ 
+ begin
+-  require 'oauth/request_proxy/curb_request'
+-  require 'curb'
+-rescue LoadError => e
+-  warn "! problems loading curb, skipping these tests: #{e}"
+-  return
+-end
++
++require 'oauth/request_proxy/curb_request'
++require 'curb'
+ 
+ 
+ class CurbRequestProxyTest < Test::Unit::TestCase
+@@ -74,3 +71,7 @@ class CurbRequestProxyTest < Test::Unit::TestCase
+     assert_equal 'http://example.com/test', request_proxy.normalized_uri
+   end
+ end
++
++rescue LoadError => e
++  warn "! problems loading curb, skipping these tests: #{e}"
++end
+diff --git a/test/test_em_http_client.rb b/test/test_em_http_client.rb
+index 9d0994f..603fd8b 100644
+--- a/test/test_em_http_client.rb
++++ b/test/test_em_http_client.rb
+@@ -1,10 +1,7 @@
+ require File.expand_path('../test_helper', __FILE__)
+ begin
+-  require 'oauth/client/em_http'
+-rescue LoadError => e
+-  warn "! problem loading em-http, skipping these tests: #{e}"
+-  return
+-end
++
++require 'oauth/client/em_http'
+ 
+ class EmHttpClientTest < Test::Unit::TestCase
+ 
+@@ -77,3 +74,7 @@ class EmHttpClientTest < Test::Unit::TestCase
+   end
+ 
+ end
++
++rescue LoadError => e
++  warn "! problem loading em-http, skipping these tests: #{e}"
++end
+diff --git a/test/test_em_http_request_proxy.rb b/test/test_em_http_request_proxy.rb
+index 7b9b12b..ab0b5a5 100644
+--- a/test/test_em_http_request_proxy.rb
++++ b/test/test_em_http_request_proxy.rb
+@@ -1,12 +1,9 @@
+ require File.expand_path('../test_helper', __FILE__)
+ 
+ begin
+-  require 'em-http'
+-  require 'oauth/request_proxy/em_http_request'
+-rescue LoadError => e
+-  warn "! problem loading em-http, skipping these tests: #{e}"
+-  return
+-end
++
++require 'em-http'
++require 'oauth/request_proxy/em_http_request'
+ 
+ 
+ class EmHttpRequestProxyTest < Test::Unit::TestCase
+@@ -110,5 +107,9 @@ class EmHttpRequestProxyTest < Test::Unit::TestCase
+     arguments = opts.delete(:proxy_options) || {}
+     OAuth::RequestProxy.proxy(create_client(opts), arguments)
+   end
++  
++end
+ 
++rescue LoadError => e
++  warn "! problem loading em-http, skipping these tests: #{e}"
+ end
+diff --git a/test/test_typhoeus_request_proxy.rb b/test/test_typhoeus_request_proxy.rb
+index ce69fb2..c809a6f 100644
+--- a/test/test_typhoeus_request_proxy.rb
++++ b/test/test_typhoeus_request_proxy.rb
+@@ -1,13 +1,9 @@
+ require File.expand_path('../test_helper', __FILE__)
+ 
+ begin
+-  require 'oauth/request_proxy/typhoeus_request'
+-  require 'typhoeus'
+-rescue LoadError => e
+-  warn "! problem loading typhoeus, skipping these tests: #{e}"
+-  return
+-end
+ 
++require 'oauth/request_proxy/typhoeus_request'
++require 'typhoeus'
+ 
+ class TyphoeusRequestProxyTest < Test::Unit::TestCase
+ 
+@@ -78,3 +74,8 @@ class TyphoeusRequestProxyTest < Test::Unit::TestCase
+     assert_equal 'POST', request_proxy.method
+   end
+ end
++
++rescue LoadError => e
++  warn "! problem loading typhoeus, skipping these tests: #{e}"
++end
++

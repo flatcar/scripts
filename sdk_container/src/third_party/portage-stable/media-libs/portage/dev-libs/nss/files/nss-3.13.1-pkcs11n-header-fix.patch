@@ -1,0 +1,11 @@
+--- a/mozilla/security/nss/lib/util/pkcs11n.h	2011-12-11 15:18:57.451617325 -0600
++++ a/mozilla/security/nss/lib/util/pkcs11n.h	2011-12-11 15:19:27.652239770 -0600
+@@ -362,7 +362,7 @@
+  *  cast the resulting value to the deprecated type in the #define, thus
+  *  producting the warning when the #define is used.
+  */
+-#if (__GNUC__  == 4) && (__GNUC_MINOR < 5)
++#if (__GNUC__  == 4) && (__GNUC_MINOR__ < 5)
+ /* The mac doesn't like the friendlier deprecate messages. I'm assuming this
+  * is a gcc version issue rather than mac or ppc specific */
+ typedef CK_TRUST __CKT_NSS_UNTRUSTED __attribute__((deprecated));

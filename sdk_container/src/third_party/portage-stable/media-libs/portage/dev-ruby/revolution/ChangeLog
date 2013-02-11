@@ -1,0 +1,35 @@
+# ChangeLog for dev-ruby/revolution
+# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/revolution/ChangeLog,v 1.8 2011/10/12 18:20:16 graaff Exp $
+
+  12 Oct 2011; Hans de Graaff <graaff@gentoo.org> -revolution-0.5.ebuild:
+  Remove old version.
+
+  21 Aug 2011; Pawel Hajdan jr <phajdan.jr@gentoo.org>
+  revolution-0.5-r1.ebuild:
+  x86 stable wrt bug #379013
+
+  14 Aug 2011; Markos Chandras <hwoarang@gentoo.org> revolution-0.5-r1.ebuild:
+  Stable on amd64 wrt bug #379013
+
+*revolution-0.5-r1 (27 Dec 2009)
+
+  27 Dec 2009; Hans de Graaff <graaff@gentoo.org> +revolution-0.5-r1.ebuild:
+  Convert to ruby-fakegem, fixes bug #298485.
+
+  31 May 2009; Markus Meier <maekke@gentoo.org> revolution-0.5.ebuild:
+  amd64 stable, bug #253573
+
+  25 May 2009; Christian Faulhammer <fauli@gentoo.org>
+  revolution-0.5.ebuild:
+  stable x86, bug 253573
+
+  25 Feb 2009; Joseph Jezak <josejx@gentoo.org> revolution-0.5.ebuild:
+  Marked ~ppc.
+
+*revolution-0.5 (31 Mar 2008)
+
+  31 Mar 2008; Hans de Graaff <graaff@gentoo.org> +metadata.xml,
+  +revolution-0.5.ebuild:
+  Initial import based on ebuild from John Keeping in #215457
+

@@ -1,0 +1,13 @@
+DEFINED_PHASES=configure install prepare
+DEPEND=png? ( media-libs/libpng ) gif? ( media-libs/giflib ) pdf? ( app-text/ghostscript-gpl media-libs/tiff ) tiff? ( media-libs/tiff ) curl? ( net-misc/curl ) lirc? ( app-misc/lirc ) imagemagick? ( || ( media-gfx/imagemagick media-gfx/graphicsmagick[imagemagick] ) ) scanner? ( media-gfx/sane-backends ) X? ( x11-libs/libX11 x11-libs/libXt x11-libs/libXpm >=x11-libs/motif-2.3:0 ) !media-gfx/fbi virtual/jpeg media-libs/libexif >=media-libs/freetype-2.0 >=media-libs/fontconfig-2.2 virtual/ttf-fonts X? ( x11-proto/xextproto x11-proto/xproto )
+DESCRIPTION=Image viewers for the framebuffer console (fbi) and X11 (ida).
+EAPI=2
+HOMEPAGE=http://linux.bytesex.org/fbida/
+IUSE=curl fbcon gif imagemagick lirc pdf png scanner tiff X
+KEYWORDS=~alpha ~amd64 ~arm ~hppa ~ppc ~ppc64 ~sh ~sparc ~x86
+LICENSE=GPL-2
+RDEPEND=png? ( media-libs/libpng ) gif? ( media-libs/giflib ) pdf? ( app-text/ghostscript-gpl media-libs/tiff ) tiff? ( media-libs/tiff ) curl? ( net-misc/curl ) lirc? ( app-misc/lirc ) imagemagick? ( || ( media-gfx/imagemagick media-gfx/graphicsmagick[imagemagick] ) ) scanner? ( media-gfx/sane-backends ) X? ( x11-libs/libX11 x11-libs/libXt x11-libs/libXpm >=x11-libs/motif-2.3:0 ) !media-gfx/fbi virtual/jpeg media-libs/libexif >=media-libs/freetype-2.0 >=media-libs/fontconfig-2.2 virtual/ttf-fonts
+SLOT=0
+SRC_URI=http://dl.bytesex.org/releases/fbida/fbida-2.09.tar.gz mirror://gentoo/ida.png.bz2
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=8c67b6fe2b6b3610ab0b3b5b99715823

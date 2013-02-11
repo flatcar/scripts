@@ -1,0 +1,30 @@
+# ChangeLog for dev-ruby/moneta
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/moneta/ChangeLog,v 1.7 2012/08/14 18:41:39 flameeyes Exp $
+
+  14 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> metadata.xml:
+  Update metadata.xml so that it's the same as most other packages.
+
+  11 Aug 2012; Benedikt Böhm <hollow@gentoo.org> moneta-0.6.0-r1.ebuild:
+  add ruby19 support
+
+  16 Jun 2012; Hans de Graaff <graaff@gentoo.org> moneta-0.6.0-r1.ebuild:
+  Don't run memcache tests, bug 332919. Add ree18.
+
+  09 Oct 2010; Hans de Graaff <graaff@gentoo.org> moneta-0.6.0-r1.ebuild:
+  Depend on rspec-1.
+
+  09 Oct 2010; Hans de Graaff <graaff@gentoo.org> -moneta-0.6.0.ebuild:
+  Remove old version.
+
+*moneta-0.6.0-r1 (08 Jul 2010)
+
+  08 Jul 2010; Hans de Graaff <graaff@gentoo.org> +moneta-0.6.0-r1.ebuild,
+  +files/moneta-0.6.0-optional-memcache.patch:
+  Install documentation. Run tests.
+
+*moneta-0.6.0 (03 Jul 2010)
+
+  03 Jul 2010; Benedikt Böhm <hollow@gentoo.org> +moneta-0.6.0.ebuild,
+  +metadata.xml:
+  initial ebuild, thanks to Gábor Vészi

@@ -1,0 +1,11 @@
+DEFINED_PHASES=install prepare
+DEPEND=app-editors/vim
+DESCRIPTION=vilearn is an interactive vi tutorial comprised of 5 tutorials for the vi-impaired.
+EAPI=4
+HOMEPAGE=http://vilearn.org/
+KEYWORDS=amd64 ppc x86 ~ppc-macos ~x86-macos
+LICENSE=BSD
+RDEPEND=app-editors/vim
+SLOT=0
+SRC_URI=http://vilearn.org/vilearn-1.0.tar.gz
+_md5_=5965e4cdfeaa56ed15287452d799f916

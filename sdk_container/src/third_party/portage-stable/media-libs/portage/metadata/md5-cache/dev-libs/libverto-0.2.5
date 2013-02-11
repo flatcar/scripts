@@ -1,0 +1,13 @@
+DEFINED_PHASES=configure install prepare
+DEPEND=!=app-crypt/mit-krb5-1.10.1-r0 !=app-crypt/mit-krb5-1.10.1-r1 !=app-crypt/mit-krb5-1.10.1-r2 glib? ( >=dev-libs/glib-2.29 ) libev? ( >=dev-libs/libev-4.11 ) libevent? ( >=dev-libs/libevent-2.0 ) tevent? ( sys-libs/tevent )
+DESCRIPTION=Main event loop abstraction library
+EAPI=4
+HOMEPAGE=https://fedorahosted.org/libverto/
+IUSE=glib +libev libevent tevent +threads static-libs
+KEYWORDS=~amd64 ~arm ~hppa ~ia64 ~ppc ~x86 ~amd64-fbsd
+LICENSE=MIT
+RDEPEND=!=app-crypt/mit-krb5-1.10.1-r0 !=app-crypt/mit-krb5-1.10.1-r1 !=app-crypt/mit-krb5-1.10.1-r2 glib? ( >=dev-libs/glib-2.29 ) libev? ( >=dev-libs/libev-4.11 ) libevent? ( >=dev-libs/libevent-2.0 ) tevent? ( sys-libs/tevent )
+REQUIRED_USE=|| ( glib libev libevent tevent )
+SLOT=0
+SRC_URI=https://fedorahosted.org/releases/l/i/libverto/libverto-0.2.5.tar.gz
+_md5_=a290c5303a65bc9f547fd1d382f7ccad

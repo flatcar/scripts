@@ -1,0 +1,22 @@
+# ChangeLog for games-rpg/penumbra-collection
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/games-rpg/penumbra-collection/ChangeLog,v 1.4 2012/12/18 23:05:52 hasufell Exp $
+
+  18 Dec 2012; Julian Ospald <hasufell@gentoo.org>
+  penumbra-collection-1.1.ebuild:
+  fix QA_PREBUILT logic
+
+  18 Dec 2012; Julian Ospald <hasufell@gentoo.org>
+  penumbra-collection-1.1.ebuild:
+  fix cosmetic error in desktop files wrt #278326#c21
+
+  17 Dec 2012; Julian Ospald <hasufell@gentoo.org>
+  penumbra-collection-1.1.ebuild:
+  fix keyword order
+
+*penumbra-collection-1.1 (17 Dec 2012)
+
+  17 Dec 2012; Julian Ospald <hasufell@gentoo.org>
+  +penumbra-collection-1.1.ebuild, +metadata.xml:
+  initial import based on work from Robert Cernansky wrt #278326
+

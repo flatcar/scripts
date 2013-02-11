@@ -1,0 +1,13 @@
+DEFINED_PHASES=configure install postinst prepare setup
+DEPEND=dev-libs/confuse dev-libs/expat >=dev-libs/apr-1.0 !dev-db/firebird pcre? ( dev-libs/libpcre ) python? ( =dev-lang/python-2* )
+DESCRIPTION=A scalable distributed monitoring system for clusters and grids
+EAPI=3
+HOMEPAGE=http://ganglia.sourceforge.net/
+IUSE=minimal pcre python examples
+KEYWORDS=amd64 ppc x86
+LICENSE=BSD
+RDEPEND=dev-libs/confuse dev-libs/expat >=dev-libs/apr-1.0 !dev-db/firebird pcre? ( dev-libs/libpcre ) !minimal? ( net-analyzer/rrdtool ) python? ( =dev-lang/python-2* )
+SLOT=0
+SRC_URI=mirror://sourceforge/ganglia/ganglia-3.3.7.tar.gz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	python	e5b3412fa9f03670a666c8a137bd1060	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=dfd91c9d466a6c2d7e4dfa760e596ef6

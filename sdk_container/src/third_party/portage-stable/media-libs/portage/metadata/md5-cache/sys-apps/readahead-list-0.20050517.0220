@@ -1,0 +1,10 @@
+DEFINED_PHASES=compile install postinst
+DEPEND=virtual/os-headers
+DESCRIPTION=Preloads files into the page cache to accelerate program loading.
+HOMEPAGE=http://www.orbis-terrarum.net
+IUSE=doc
+KEYWORDS=x86 ~amd64
+LICENSE=GPL-2
+SLOT=0
+SRC_URI=http://tirpitz.iat.sfu.ca/custom-software/readahead-list/readahead-list-0.20050517.0220.tar.bz2
+_md5_=6aa758480595f681e079449ccfe0f590

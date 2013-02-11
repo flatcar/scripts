@@ -1,0 +1,14 @@
+DEFINED_PHASES=compile configure install postinst postrm preinst prepare unpack
+DEPEND=app-arch/unzip >=sys-apps/sed-4 virtual/pkgconfig
+DESCRIPTION=Family of powerful x86 virtualization products for enterprise as well as home use
+EAPI=2
+HOMEPAGE=http://www.virtualbox.org/
+IUSE=+additions +chm headless python sdk vboxwebsrv rdesktop-vrdp debug
+KEYWORDS=~amd64 ~x86
+LICENSE=GPL-2 PUEL
+RDEPEND=!!app-emulation/virtualbox !app-emulation/virtualbox-additions ~app-emulation/virtualbox-modules-4.1.24 !headless? ( x11-libs/libXcursor media-libs/libsdl[X] x11-libs/libXrender x11-libs/libXfixes media-libs/libpng x11-libs/libXi x11-libs/libXrandr x11-libs/libXinerama x11-libs/libXft media-libs/freetype media-libs/fontconfig x11-libs/libXext dev-libs/glib chm? ( dev-libs/expat ) ) x11-libs/libXt dev-libs/libxml2 x11-libs/libXau x11-libs/libX11 x11-libs/libXmu x11-libs/libSM x11-libs/libICE x11-libs/libXdmcp python? ( || ( dev-lang/python:2.7 dev-lang/python:2.6 dev-lang/python:2.5 ) )
+RESTRICT=mirror
+SLOT=0
+SRC_URI=amd64? ( http://download.virtualbox.org/virtualbox/4.1.24/VirtualBox-4.1.24-82872-Linux_amd64.run ) x86? ( http://download.virtualbox.org/virtualbox/4.1.24/VirtualBox-4.1.24-82872-Linux_x86.run ) sdk? ( http://download.virtualbox.org/virtualbox/4.1.24/VirtualBoxSDK-4.1.24-82872.zip ) http://download.virtualbox.org/virtualbox/4.1.24/Oracle_VM_VirtualBox_Extension_Pack-4.1.24-82872.vbox-extpack -> Oracle_VM_VirtualBox_Extension_Pack-4.1.24-82872.tar.gz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	fdo-mime	0acfe1a88fd8751a1d5dc671168219fa	gnome.org	8fef8f967214f56e08fa92d61163d891	gnome2	96ca31031ada9967bcf96a4fd8977ae4	gnome2-utils	794d2847b4af390a1e020924876c8297	libtool	2b273eea1976cfaed3449345d94331ac	multilib	ded93e450747134a079e647d888aa80b	pax-utils	0ace932c4045349c7fc1af0fe7091acf	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	udev	fea2246732f911905d6991fed203e65c	unpacker	50e1227854e96469a19a63f053496328	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=c101c43ea01e117f3a9415ab7306f088

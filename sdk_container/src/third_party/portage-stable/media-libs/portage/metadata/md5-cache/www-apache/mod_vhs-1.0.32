@@ -1,0 +1,12 @@
+DEFINED_PHASES=compile install postinst setup unpack
+DEPEND=dev-libs/libhome php? ( dev-lang/php ) suphp? ( www-apache/mod_suphp ) =www-servers/apache-2*
+DESCRIPTION=Mass Virtual Hosting System for Apache 2
+HOMEPAGE=http://www.oav.net/projects/mod_vhs/
+IUSE=debug php suphp
+KEYWORDS=~amd64 ~x86
+LICENSE=Apache-1.1
+RDEPEND==www-servers/apache-2*
+SLOT=0
+SRC_URI=http://www.oav.net/projects/mod_vhs/mod_vhs-1.0.32.tar.gz
+_eclasses_=apache-module	1f60370f9dceba046ec036cd6bbb0c8b	depend.apache	1a38534d3f755d1ab1d92ce120bd7dbd	depend.php	df169a364e191b840b695604097e3c21	eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	phpconfutils	e108303831029e5b8a9d24b991b1d62a	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=ca963a5cb914af9c610bd9258220452d

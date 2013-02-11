@@ -1,0 +1,14 @@
+DEFINED_PHASES=compile configure install prepare setup test unpack
+DEPEND=test? ( ruby_targets_ruby18? ( ~dev-ruby/actionpack-3.0.20[ruby_targets_ruby18] >=dev-ruby/mail-2.2.19[ruby_targets_ruby18] ) ruby_targets_ree18? ( ~dev-ruby/actionpack-3.0.20[ruby_targets_ree18] >=dev-ruby/mail-2.2.19[ruby_targets_ree18] ) ) ruby_targets_ruby18? ( test? ( >=dev-ruby/mocha-0.13.0[ruby_targets_ruby18] ) ) ruby_targets_ree18? ( test? ( >=dev-ruby/mocha-0.13.0[ruby_targets_ree18] ) ) ruby_targets_ruby18? ( dev-lang/ruby:1.8 ) ruby_targets_ree18? ( dev-lang/ruby-enterprise:1.8 ) ruby_targets_ruby18? ( test? ( dev-ruby/rake[ruby_targets_ruby18] ) ) ruby_targets_ree18? ( test? ( dev-ruby/rake[ruby_targets_ree18] ) ) ruby_targets_ruby18? ( virtual/rubygems[ruby_targets_ruby18] ) ruby_targets_ree18? ( virtual/rubygems[ruby_targets_ree18] ) test? ( ruby_targets_ruby18? ( virtual/rubygems[ruby_targets_ruby18] ) ruby_targets_ree18? ( virtual/rubygems[ruby_targets_ree18] ) )
+DESCRIPTION=Framework for designing email-service layers
+EAPI=4
+HOMEPAGE=http://rubyforge.org/projects/actionmailer/
+IUSE=test elibc_FreeBSD ruby_targets_ruby18 ruby_targets_ree18 test test
+KEYWORDS=~amd64 ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris
+LICENSE=MIT
+RDEPEND=ruby_targets_ruby18? ( ~dev-ruby/actionpack-3.0.20[ruby_targets_ruby18] >=dev-ruby/mail-2.2.19[ruby_targets_ruby18] ) ruby_targets_ree18? ( ~dev-ruby/actionpack-3.0.20[ruby_targets_ree18] >=dev-ruby/mail-2.2.19[ruby_targets_ree18] ) ruby_targets_ruby18? ( dev-lang/ruby:1.8 ) ruby_targets_ree18? ( dev-lang/ruby-enterprise:1.8 ) ruby_targets_ruby18? ( virtual/rubygems[ruby_targets_ruby18] ) ruby_targets_ree18? ( virtual/rubygems[ruby_targets_ree18] )
+REQUIRED_USE=|| ( ruby_targets_ruby18 ruby_targets_ree18 )
+SLOT=3.0
+SRC_URI=http://github.com/rails/rails/tarball/v3.0.20 -> rails-3.0.20.tgz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	java-utils-2	dcda71e114d638cdf01db57b8445337d	multilib	ded93e450747134a079e647d888aa80b	ruby-fakegem	2785c639b173dd603e95bd60b8d6c4c0	ruby-ng	10ca07a887e226622062d89bb959a175	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=e8e08b73763d7ded1c7e05c7b352fd3c

@@ -1,0 +1,12 @@
+DEFINED_PHASES=compile install prepare
+DEPEND=app-arch/unzip
+DESCRIPTION=Library that converts FORTRAN to C source
+EAPI=4
+HOMEPAGE=http://www.netlib.org/f2c/
+IUSE=static-libs
+KEYWORDS=amd64 ppc ppc64 x86 ~x86-fbsd ~amd64-linux ~x86-linux
+LICENSE=HPND
+SLOT=0
+SRC_URI=http://www.netlib.org/f2c//libf2c.zip -> libf2c-20110801.zip
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=c66dc46718d6f525c28bf5f4a3d57dd8

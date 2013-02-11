@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install prepare test
+DEPEND=python_targets_python2_5? ( dev-lang/python:2.5 ) python_targets_python2_6? ( dev-lang/python:2.6 ) python_targets_python2_7? ( dev-lang/python:2.7 ) dev-python/python-exec[python_targets_python2_5(-)?,python_targets_python2_6(-)?,python_targets_python2_7(-)?,-python_single_target_python2_5(-),-python_single_target_python2_6(-),-python_single_target_python2_7(-)]
+DESCRIPTION=Aggregate several remote shells into one
+EAPI=5
+HOMEPAGE=http://guichaz.free.fr/polysh/
+IUSE=python_targets_python2_5 python_targets_python2_6 python_targets_python2_7
+KEYWORDS=~amd64 ~x86 ~amd64-linux ~x86-linux
+LICENSE=GPL-2
+RDEPEND=python_targets_python2_5? ( dev-lang/python:2.5 ) python_targets_python2_6? ( dev-lang/python:2.6 ) python_targets_python2_7? ( dev-lang/python:2.7 ) dev-python/python-exec[python_targets_python2_5(-)?,python_targets_python2_6(-)?,python_targets_python2_7(-)?,-python_single_target_python2_5(-),-python_single_target_python2_6(-),-python_single_target_python2_7(-)]
+SLOT=0
+SRC_URI=http://guichaz.free.fr/polysh/files/polysh-0.4.tar.bz2
+_eclasses_=distutils-r1	88c04402d2e6e306290ca673b9c4e997	eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	multiprocessing	a2130e6fc4aa4c6a24b265ca0cbcc2b6	python-r1	048b50bedc7713734694d95a872490a6	python-utils-r1	8e94ca6ef82c71c1ccf8e97276525491	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=85edcce46fd81fda6f6ec5a9d3eef7a9

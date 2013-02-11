@@ -1,0 +1,272 @@
+# ChangeLog for dev-ruby/rdoc
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/rdoc/ChangeLog,v 1.86 2013/01/28 15:16:45 aballier Exp $
+
+  28 Jan 2013; Alexis Ballier <aballier@gentoo.org> rdoc-3.12.ebuild:
+  keyword ~amd64-fbsd
+
+  06 Nov 2012; Jeroen Roovers <jer@gentoo.org> rdoc-3.12.ebuild:
+  Stable for HPPA (bug #411507).
+
+  27 Oct 2012; Raúl Porcel <armin76@gentoo.org> rdoc-3.12.ebuild:
+  s390/sh stable wrt #411507
+
+  21 Oct 2012; Raúl Porcel <armin76@gentoo.org> rdoc-3.12.ebuild:
+  alpha/ia64/sparc stable wrt #411507
+
+  27 Jul 2012; Fabian Groffen <grobian@gentoo.org> rdoc-3.12.ebuild:
+  Marked ~sparc64-solaris
+
+  25 Jul 2012; Anthony G. Basile <blueness@gentoo.org> rdoc-3.12.ebuild:
+  ppc64 stable #411507
+
+  22 Jul 2012; <nixnut@gentoo.org> rdoc-3.12.ebuild:
+  ppc stable #411507
+
+  25 Jun 2012; Andreas Schuerch <nativemad@gentoo.org> rdoc-3.12.ebuild:
+  x86 stable, see bug 411507
+
+  27 May 2012; Markus Meier <maekke@gentoo.org> rdoc-3.12.ebuild:
+  arm stable, bug #411507
+
+  20 May 2012; Agostino Sarubbo <ago@gentoo.org> rdoc-3.12.ebuild:
+  Stable for amd64, wrt bug #411507
+
+  20 May 2012; Hans de Graaff <graaff@gentoo.org> -rdoc-2.5.11.ebuild,
+  -rdoc-3.5.3.ebuild, -rdoc-3.6.ebuild, -rdoc-3.11.ebuild:
+  Remove old versions.
+
+  30 Apr 2012; Hans de Graaff <graaff@gentoo.org> rdoc-3.12.ebuild,
+  +files/rdoc-fix-hash-ordering-tests.patch:
+  Fix ruby 1.8 hash ordering test failures, bug 397657. Fix racc file
+  generation. Avoid test requiring FEATURES=userpriv, bug 361959.
+
+  01 Mar 2012; Naohiro Aota <naota@gentoo.org> rdoc-3.12.ebuild:
+  Add ~x86-fbsd
+
+  05 Feb 2012; Markus Meier <maekke@gentoo.org> rdoc-3.12.ebuild:
+  add ~arm, bug #332593
+
+  31 Dec 2011; Fabian Groffen <grobian@gentoo.org> rdoc-3.6.1.ebuild:
+  Add Prefix keywords, bug #396547
+
+*rdoc-3.12 (24 Dec 2011)
+
+  24 Dec 2011; Hans de Graaff <graaff@gentoo.org> +rdoc-3.12.ebuild:
+  Version bump.
+
+*rdoc-3.11 (21 Nov 2011)
+
+  21 Nov 2011; Hans de Graaff <graaff@gentoo.org> +rdoc-3.11.ebuild:
+  Version bump. Drop arm,s390,sh,x86-fbsd keywords due to new racc dependency,
+  bug 391287.
+
+  10 Nov 2011; Naohiro Aota <naota@gentoo.org> rdoc-3.6.1.ebuild:
+  Add ~x86-fbsd
+
+  14 Sep 2011; Jeroen Roovers <jer@gentoo.org> rdoc-3.5.1.ebuild:
+  Stable for HPPA (bug #369573).
+
+  09 Sep 2011; Fabian Groffen <grobian@gentoo.org> rdoc-3.6.1.ebuild:
+  Marked ~sparc-solaris
+
+  23 Jul 2011; Kacper Kowalik <xarthisius@gentoo.org> rdoc-3.5.1.ebuild:
+  ppc64 stable wrt #364215
+
+  23 Jul 2011; Hans de Graaff <graaff@gentoo.org> rdoc-3.5.1.ebuild:
+  Remove remaining use of ruby19.
+
+  16 Jul 2011; Kacper Kowalik <xarthisius@gentoo.org> rdoc-3.5.1.ebuild:
+  ppc stable wrt #364215
+
+  15 Jul 2011; Matt Turner <mattst88@gentoo.org> rdoc-3.6.1.ebuild:
+  Added ~mips, bug 332593
+
+  11 Jul 2011; Fabian Groffen <grobian@gentoo.org> rdoc-3.6.1.ebuild:
+  Marked ~x86-linux, bug #374765
+
+*rdoc-3.6.1 (17 May 2011)
+
+  17 May 2011; Hans de Graaff <graaff@gentoo.org> +rdoc-3.6.1.ebuild:
+  Version bump.
+
+*rdoc-3.6 (15 May 2011)
+
+  15 May 2011; Hans de Graaff <graaff@gentoo.org> +rdoc-3.6.ebuild:
+  Version bump.
+
+  26 Apr 2011; Christoph Mende <angelos@gentoo.org> rdoc-3.5.1.ebuild:
+  Stable on amd64 wrt bug #357939
+
+  23 Apr 2011; Raúl Porcel <armin76@gentoo.org> rdoc-3.5.1.ebuild:
+  alpha/ia64/sparc stable wrt #357939
+
+  17 Apr 2011; Christian Faulhammer <fauli@gentoo.org> rdoc-3.5.1.ebuild:
+  stable x86, 357939
+
+  04 Apr 2011; Hans de Graaff <graaff@gentoo.org> rdoc-3.5.1.ebuild:
+  Drop ruby19 target to create a stable candidate.
+
+  04 Apr 2011; Hans de Graaff <graaff@gentoo.org> -rdoc-3.4.ebuild,
+  -rdoc-3.5.ebuild:
+  Remove old versions.
+
+  07 Mar 2011; Raúl Porcel <armin76@gentoo.org> rdoc-2.5.11.ebuild,
+  rdoc-3.4.ebuild, rdoc-3.5.ebuild, rdoc-3.5.1.ebuild, rdoc-3.5.3.ebuild:
+  Add ~arm/~s390/~sh
+
+*rdoc-3.5.3 (12 Feb 2011)
+
+  12 Feb 2011; Hans de Graaff <graaff@gentoo.org> +rdoc-3.5.3.ebuild:
+  Version bump.
+
+  12 Feb 2011; Hans de Graaff <graaff@gentoo.org> -rdoc-3.0.1.ebuild,
+  -rdoc-3.0.1-r1.ebuild, -rdoc-3.2.ebuild:
+  Remove old versions.
+
+*rdoc-3.5.1 (31 Jan 2011)
+
+  31 Jan 2011; Hans de Graaff <graaff@gentoo.org> +rdoc-3.5.1.ebuild:
+  Version bump.
+
+*rdoc-3.5 (30 Jan 2011)
+
+  30 Jan 2011; Hans de Graaff <graaff@gentoo.org> +rdoc-3.5.ebuild:
+  Version bump.
+
+  30 Jan 2011; Hans de Graaff <graaff@gentoo.org> rdoc-3.0.1.ebuild,
+  rdoc-3.0.1-r1.ebuild, rdoc-3.2.ebuild, rdoc-3.4.ebuild:
+  Move alpha keyword forward, no reason to only keyword an old version.
+
+*rdoc-3.4 (08 Jan 2011)
+
+  08 Jan 2011; Hans de Graaff <graaff@gentoo.org> +rdoc-3.4.ebuild:
+  Version bump.
+
+  02 Jan 2011; Tobias Klausmann <klausman@gentoo.org> rdoc-2.5.11.ebuild:
+  Keyworded on alpha, bug #332593
+
+  31 Dec 2010; Hans de Graaff <graaff@gentoo.org> rdoc-3.2.ebuild:
+  Be explicit about the slots to avoid wrong edge cases, reported by
+  Arfrever.
+
+*rdoc-3.2 (30 Dec 2010)
+
+  30 Dec 2010; Hans de Graaff <graaff@gentoo.org> +rdoc-3.2.ebuild:
+  Version bump: more bug fixes.
+
+  28 Dec 2010; Fabian Groffen <grobian@gentoo.org> rdoc-3.0.1-r1.ebuild:
+  Marked ~x64-solaris
+
+*rdoc-3.0.1-r1 (28 Dec 2010)
+
+  28 Dec 2010; Hans de Graaff <graaff@gentoo.org> +rdoc-3.0.1-r1.ebuild,
+  +files/rdoc-3.0.1-bin-require.patch:
+  Fix include path for script, thanks for James le Cuirot for the patch.
+
+  27 Dec 2010; Hans de Graaff <graaff@gentoo.org> rdoc-2.5.11.ebuild:
+  Drop ruby19 support to create a stable candidate.
+
+*rdoc-3.0.1 (27 Dec 2010)
+
+  27 Dec 2010; Hans de Graaff <graaff@gentoo.org> +rdoc-3.0.1.ebuild:
+  Version bump: major enhancements and bug fixing. Ruby 1.8.6 is no longer
+  supported.
+
+  27 Dec 2010; Hans de Graaff <graaff@gentoo.org> -rdoc-2.5.6.ebuild,
+  -rdoc-2.5.9.ebuild:
+  Remove old versions.
+
+  04 Dec 2010; Fabian Groffen <grobian@gentoo.org> rdoc-2.5.11.ebuild:
+  Marked ~x{86,64}-macos
+
+  25 Oct 2010; Jeroen Roovers <jer@gentoo.org> rdoc-2.5.11.ebuild:
+  Marked ~hppa (bug #337956).
+
+  10 Sep 2010; Fabian Groffen <grobian@gentoo.org> rdoc-2.5.11.ebuild:
+  Fix for Prefix, bug #336704
+
+*rdoc-2.5.11 (24 Aug 2010)
+
+  24 Aug 2010; Alex Legler <a3li@gentoo.org> +rdoc-2.5.11.ebuild:
+  Version bump. Fixes tests wrt bug 330279. ruby19 patch is no longer
+  needed.
+
+  18 Aug 2010; Diego E. Pettenò <flameeyes@gentoo.org> rdoc-2.5.6.ebuild,
+  rdoc-2.5.9.ebuild:
+  Stop using virtual/ruby-minitest, since it's now unbundled from 1.9 as
+  well.
+
+  08 Aug 2010; Hans de Graaff <graaff@gentoo.org> rdoc-2.5.9.ebuild:
+  Use less existent nonexistent directory, fixing bug 321059.
+
+*rdoc-2.5.9 (19 Jul 2010)
+
+  19 Jul 2010; Hans de Graaff <graaff@gentoo.org> +rdoc-2.5.9.ebuild:
+  Version bump.
+
+  22 May 2010; Alex Legler <a3li@gentoo.org> rdoc-2.5.6.ebuild:
+  Add REE18 support
+
+  22 May 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -rdoc-2.4.3-r1.ebuild, rdoc-2.5.6.ebuild:
+  Cleanup old versions, use new syntax.
+
+*rdoc-2.5.6 (26 Apr 2010)
+
+  26 Apr 2010; Diego E. Pettenò <flameeyes@gentoo.org> -rdoc-2.5.5.ebuild,
+  +rdoc-2.5.6.ebuild, +files/rdoc-2.5.6-ruby19.patch:
+  Version bump, add a patch so that tests pass on Ruby 1.9.
+
+*rdoc-2.5.5 (22 Apr 2010)
+
+  22 Apr 2010; Hans de Graaff <graaff@gentoo.org> +rdoc-2.5.5.ebuild:
+  Version bump: many enhancements and bug fixes.
+
+  21 Feb 2010; Jonathan Callen <abcd@gentoo.org> rdoc-2.4.3-r1.ebuild:
+  Transfer prefix keywords (no other changes)
+
+  30 Jan 2010; Raúl Porcel <armin76@gentoo.org> rdoc-2.4.3-r1.ebuild:
+  Add ~sparc
+
+  29 Jan 2010; Raúl Porcel <armin76@gentoo.org> rdoc-2.4.3-r1.ebuild:
+  Add ~ia64
+
+  14 Jan 2010; Brent Baude <ranger@gentoo.org> rdoc-2.4.3-r1.ebuild:
+  Marking rdoc-2.4.3-r1 ~ppc for bug 300739
+
+  13 Jan 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  rdoc-2.4.3-r1.ebuild:
+  Enable support for JRuby.
+
+  13 Jan 2010; Brent Baude <ranger@gentoo.org> rdoc-2.4.3-r1.ebuild:
+  Marking rdoc-2.4.3-r1 ~ppc64 for bug 297041
+
+*rdoc-2.4.3-r1 (10 Jan 2010)
+
+  10 Jan 2010; Alex Legler <a3li@gentoo.org> -rdoc-2.4.3.ebuild,
+  +rdoc-2.4.3-r1.ebuild:
+  Properly install the binaries into /usr/bin, bug 300489 by Andy Kittner
+
+  04 Jan 2010; Markus Meier <maekke@gentoo.org> rdoc-2.4.3.ebuild:
+  add ~x86, bug #297041
+
+  01 Jan 2010; Alex Legler <a3li@gentoo.org> rdoc-2.4.3.ebuild:
+  Fix tests when rdoc is not yet installed (bug 298910), add test dependency
+  on minitest, s/$PN/rdoc/ in HOMEPAGE
+
+  30 Dec 2009; Hans de Graaff <graaff@gentoo.org> rdoc-2.4.3.ebuild:
+  Use proper task name for USE=doc, partially fixing #298910.
+
+  25 Dec 2009; Diego E. Pettenò <flameeyes@gentoo.org> rdoc-2.4.3.ebuild:
+  Add missing test and doc dependency over hoe (drop jruby support because
+  of that). Fix a typo.
+
+  21 Dec 2009; Diego E. Pettenò <flameeyes@gentoo.org> rdoc-2.4.3.ebuild:
+  Cleanup and simplify ebuild.
+
+*rdoc-2.4.3 (15 Dec 2009)
+
+  15 Dec 2009; Diego E. Pettenò <flameeyes@gentoo.org> +rdoc-2.4.3.ebuild,
+  +metadata.xml:
+  Initial import of rdoc 2, ruby-ng style.

@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install postinst prepare
+DEPEND=fbsplash? ( >=media-gfx/splashutils-1.5.2.1 media-libs/libmng[lcms] >=media-libs/libpng-1.4.8[static-libs] media-libs/freetype[static-libs] || ( <app-arch/bzip2-1.0.6-r3[static] >=app-arch/bzip2-1.0.6-r3[static-libs] ) media-libs/lcms:0[static-libs] virtual/jpeg )
+DESCRIPTION=User Interface for TuxOnIce
+EAPI=4
+HOMEPAGE=http://www.tuxonice.net
+IUSE=fbsplash
+KEYWORDS=amd64 x86
+LICENSE=GPL-2
+RDEPEND=fbsplash? ( >=media-gfx/splashutils-1.5.2.1 media-libs/libmng[lcms] >=media-libs/libpng-1.4.8[static-libs] media-libs/freetype[static-libs] || ( <app-arch/bzip2-1.0.6-r3[static] >=app-arch/bzip2-1.0.6-r3[static-libs] ) media-libs/lcms:0[static-libs] virtual/jpeg )
+SLOT=0
+SRC_URI=http://tuxonice.net/files/tuxonice-userui-1.1.tar.gz -> tuxonice-userui-1.1.tar mirror://debian/pool/main/t/tuxonice-userui/tuxonice-userui_1.1-2~exp1.debian.tar.gz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=33b59578b810f14b581d5ea3682925fe

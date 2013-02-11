@@ -1,0 +1,360 @@
+# ChangeLog for dev-ruby/rubyforge
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/rubyforge/ChangeLog,v 1.96 2013/01/28 15:16:36 aballier Exp $
+
+  28 Jan 2013; Alexis Ballier <aballier@gentoo.org> rubyforge-2.0.4-r2.ebuild:
+  keyword ~amd64-fbsd
+
+  06 Nov 2012; Jeroen Roovers <jer@gentoo.org> rubyforge-2.0.4-r2.ebuild:
+  Stable for HPPA (bug #411507).
+
+  27 Oct 2012; Raúl Porcel <armin76@gentoo.org> rubyforge-2.0.4-r2.ebuild:
+  s390/sh stable wrt #411507
+
+  21 Oct 2012; Raúl Porcel <armin76@gentoo.org> rubyforge-2.0.4-r2.ebuild:
+  alpha/ia64/sparc stable wrt #411507
+
+  16 Sep 2012; Hans de Graaff <graaff@gentoo.org> -rubyforge-2.0.4.ebuild:
+  Cleanup.
+
+  25 Jul 2012; Anthony G. Basile <blueness@gentoo.org>
+  rubyforge-2.0.4-r2.ebuild:
+  Stable ppc64, bug #411507
+
+  22 Jul 2012; <nixnut@gentoo.org> rubyforge-2.0.4-r2.ebuild:
+  ppc stable #411507
+
+  25 Jun 2012; Andreas Schuerch <nativemad@gentoo.org>
+  rubyforge-2.0.4-r2.ebuild:
+  x86 stable, see bug 411507
+
+  27 May 2012; Markus Meier <maekke@gentoo.org> rubyforge-2.0.4-r2.ebuild:
+  arm stable, bug #411507
+
+  20 May 2012; Agostino Sarubbo <ago@gentoo.org> rubyforge-2.0.4-r2.ebuild:
+  Stable for amd64, wrt bug #411507
+
+  15 Jul 2011; Matt Turner <mattst88@gentoo.org> rubyforge-2.0.4-r2.ebuild:
+  Added ~mips, bug 332593
+
+  10 Jul 2011; Mark Loeser <halcy0n@gentoo.org> rubyforge-2.0.4-r1.ebuild:
+  Stable for ppc64; bug #354481
+
+  23 Apr 2011; Raúl Porcel <armin76@gentoo.org> rubyforge-2.0.4-r1.ebuild:
+  alpha stable
+
+  27 Mar 2011; Brent Baude <ranger@gentoo.org> rubyforge-2.0.4-r1.ebuild:
+  Marking rubyforge-2.0.4-r1 ppc stable for bug 354481
+
+  07 Mar 2011; Raúl Porcel <armin76@gentoo.org> rubyforge-2.0.4.ebuild,
+  rubyforge-2.0.4-r1.ebuild, rubyforge-2.0.4-r2.ebuild:
+  Add ~s390/~sh
+
+  01 Mar 2011; Jeroen Roovers <jer@gentoo.org> rubyforge-2.0.4-r1.ebuild:
+  Stable for HPPA (bug #354481).
+
+  26 Feb 2011; Raúl Porcel <armin76@gentoo.org> rubyforge-2.0.4-r1.ebuild:
+  ia64/sparc stable wrt #354481
+
+  15 Feb 2011; Pawel Hajdan jr <phajdan.jr@gentoo.org>
+  rubyforge-2.0.4-r1.ebuild:
+  x86 stable wrt bug #354481
+
+  11 Feb 2011; Markos Chandras <hwoarang@gentoo.org> rubyforge-2.0.4-r1.ebuild:
+  Stable on amd64 wrt bug #354481
+
+  11 Feb 2011; Diego E. Pettenò <flameeyes@gentoo.org>
+  rubyforge-2.0.4-r2.ebuild:
+  Use virtual/ruby-ssl for the SSL dependencies.
+
+*rubyforge-2.0.4-r2 (11 Feb 2011)
+
+  11 Feb 2011; Hans de Graaff <graaff@gentoo.org> rubyforge-2.0.4-r1.ebuild,
+  +rubyforge-2.0.4-r2.ebuild:
+  Revision bump to create a stable candidate with ree18 and without ruby19.
+
+  29 Dec 2010; Hans de Graaff <graaff@gentoo.org> rubyforge-2.0.4.ebuild,
+  rubyforge-2.0.4-r1.ebuild:
+  Fix metadata now that we use it to install the gemspec.
+
+  29 Dec 2010; Hans de Graaff <graaff@gentoo.org> -rubyforge-1.0.3.ebuild:
+  Remove old version.
+
+  27 Dec 2010; Fabian Groffen <grobian@gentoo.org>
+  rubyforge-2.0.4-r1.ebuild:
+  Marked ~x64-solaris
+
+  03 Dec 2010; Fabian Groffen <grobian@gentoo.org>
+  rubyforge-2.0.4-r1.ebuild:
+  Marked ~x64-macos
+
+  10 Oct 2010; Tobias Klausmann <klausman@gentoo.org>
+  rubyforge-2.0.4-r1.ebuild:
+  Keyworded on alpha, bug #325465
+
+  29 Sep 2010; Brent Baude <ranger@gentoo.org> rubyforge-2.0.4.ebuild:
+  Marking rubyforge-2.0.4 ppc64 for bug 321043
+
+  28 Sep 2010; Brent Baude <ranger@gentoo.org> rubyforge-2.0.4.ebuild:
+  Marking rubyforge-2.0.4 ppc for bug 321043
+
+  17 Aug 2010; Jeroen Roovers <jer@gentoo.org> rubyforge-2.0.4.ebuild:
+  Stable for HPPA (bug #321043).
+
+  05 Aug 2010; Markus Meier <maekke@gentoo.org> rubyforge-2.0.4-r1.ebuild:
+  add ~arm, bug #331061
+
+  24 Jul 2010; Raúl Porcel <armin76@gentoo.org> rubyforge-2.0.4.ebuild:
+  ia64/sparc stable wrt #321043
+
+  21 Jul 2010; Christian Faulhammer <fauli@gentoo.org>
+  rubyforge-2.0.4.ebuild:
+  stable x86, bug 321043
+
+  29 Jun 2010; Christoph Mende <angelos@gentoo.org> rubyforge-2.0.4.ebuild:
+  Stable on amd64 wrt bug #321043
+
+  22 May 2010; Alex Legler <a3li@gentoo.org> rubyforge-2.0.4-r1.ebuild:
+  Add REE18 support
+
+  22 May 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  rubyforge-1.0.3.ebuild, rubyforge-2.0.4.ebuild, rubyforge-2.0.4-r1.ebuild:
+  Cleanup old versions, use new syntax.
+
+*rubyforge-2.0.4-r1 (22 May 2010)
+
+  22 May 2010; Hans de Graaff <graaff@gentoo.org> rubyforge-2.0.4.ebuild,
+  +rubyforge-2.0.4-r1.ebuild:
+  Revision bump so that ruby19 can be dropped for upcoming stabilization.
+
+  24 Apr 2010; Hans de Graaff <graaff@gentoo.org> -rubyforge-1.0.5.ebuild,
+  -rubyforge-2.0.3.ebuild:
+  Remove old versions.
+
+*rubyforge-2.0.4 (24 Mar 2010)
+
+  24 Mar 2010; Hans de Graaff <graaff@gentoo.org> +rubyforge-2.0.4.ebuild:
+  Version bump.
+
+  13 Jan 2010; Brent Baude <ranger@gentoo.org> rubyforge-2.0.3.ebuild:
+  Marking rubyforge-2.0.3 ~ppc64 for bug 297828
+
+  06 Jan 2010; Raúl Porcel <armin76@gentoo.org> rubyforge-2.0.3.ebuild:
+  Add ~ia64/~sparc wrt #297828
+
+  04 Jan 2010; Markus Meier <maekke@gentoo.org> rubyforge-2.0.3.ebuild:
+  add ~x86, bug #297828
+
+  04 Jan 2010; Christian Faulhammer <fauli@gentoo.org>
+  rubyforge-2.0.3.ebuild:
+  Transfer Prefix keywords
+
+  04 Jan 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  rubyforge-2.0.3.ebuild:
+  Add support for JRuby (although it has a possibly cyclic dependency over
+  jruby-openssl).
+
+  26 Dec 2009; Diego E. Pettenò <flameeyes@gentoo.org>
+  rubyforge-2.0.3.ebuild:
+  Allow use with Ruby 1.9.
+
+  25 Dec 2009; Hans de Graaff <graaff@gentoo.org> rubyforge-2.0.3.ebuild:
+  The Rakefile requires hoe, so add this as a dependency for doc and test
+  USE flags. Drop x86 keyword due to the hoe dependency. Bug #297828.
+
+  23 Dec 2009; Jeroen Roovers <jer@gentoo.org> rubyforge-2.0.3.ebuild:
+  Marked ~hppa (bug #297830).
+
+*rubyforge-2.0.3 (21 Dec 2009)
+
+  21 Dec 2009; Diego E. Pettenò <flameeyes@gentoo.org>
+  +rubyforge-2.0.3.ebuild:
+  Version bump and port to fakegem.
+
+  23 Oct 2009; Hans de Graaff <graaff@gentoo.org> -rubyforge-1.0.1.ebuild,
+  -rubyforge-1.0.4.ebuild:
+  Remove old versions.
+
+*rubyforge-1.0.5 (19 Sep 2009)
+
+  19 Sep 2009; Hans de Graaff <graaff@gentoo.org> +rubyforge-1.0.5.ebuild:
+  Version bump with minor bug fixes.
+
+  05 Sep 2009; Brent Baude <ranger@gentoo.org> rubyforge-1.0.3.ebuild:
+  Marking rubyforge-1.0.3 ppc64 stable for bug 280851
+
+  29 Aug 2009; Raúl Porcel <armin76@gentoo.org> rubyforge-1.0.3.ebuild:
+  ia64/sparc stable wrt #280851
+
+  14 Aug 2009; Markus Meier <maekke@gentoo.org> rubyforge-1.0.3.ebuild:
+  amd64/x86 stable, bug #280851
+
+  09 Aug 2009; Jeroen Roovers <jer@gentoo.org> rubyforge-1.0.3.ebuild,
+  rubyforge-1.0.4.ebuild:
+  Marked ~hppa too.
+
+  09 Aug 2009; nixnut <nixnut@gentoo.org> rubyforge-1.0.3.ebuild:
+  ppc stable #280851
+
+*rubyforge-1.0.4 (03 Aug 2009)
+
+  03 Aug 2009; Hans de Graaff <graaff@gentoo.org> +rubyforge-1.0.4.ebuild:
+  Version bump with bug fixes.
+
+  03 Aug 2009; Hans de Graaff <graaff@gentoo.org> -rubyforge-0.4.5.ebuild,
+  -rubyforge-1.0.2.ebuild:
+  Remove old versions.
+
+*rubyforge-1.0.3 (05 Mar 2009)
+
+  05 Mar 2009; Hans de Graaff <graaff@gentoo.org> +rubyforge-1.0.3.ebuild:
+  Version bump with minor bug fixes.
+
+  29 Jan 2009; Diego E. Pettenò <flameeyes@gentoo.org>
+  rubyforge-1.0.1.ebuild, rubyforge-1.0.2.ebuild:
+  Fix HOMEPAGE for 1.0.x releases.
+
+*rubyforge-1.0.2 (24 Jan 2009)
+
+  24 Jan 2009; Hans de Graaff <graaff@gentoo.org> +rubyforge-1.0.2.ebuild:
+  Version bump
+
+  26 Dec 2008; Raúl Porcel <armin76@gentoo.org> rubyforge-1.0.1.ebuild:
+  ia64 stable wrt #250348
+
+  20 Dec 2008; Markus Meier <maekke@gentoo.org> rubyforge-1.0.1.ebuild:
+  amd64/x86 stable, bug #250348
+
+  14 Dec 2008; nixnut <nixnut@gentoo.org> rubyforge-1.0.1.ebuild:
+  Stable on ppc wrt bug 250348
+
+  12 Dec 2008; Hans de Graaff <graaff@gentoo.org> -rubyforge-0.4.3.ebuild,
+  -rubyforge-0.4.4.ebuild, -rubyforge-1.0.0.ebuild:
+  Remove old versions
+
+  10 Dec 2008; Ferris McCormick <fmccor@gentoo.org> rubyforge-1.0.1.ebuild:
+  Sparc stable, part of Bug #250348.
+
+  09 Dec 2008; Brent Baude <ranger@gentoo.org> rubyforge-1.0.1.ebuild:
+  Marking rubyforge-1.0.1 ppc64 for bug 250348
+
+  25 Nov 2008; Hans de Graaff <graaff@gentoo.org> rubyforge-1.0.1.ebuild:
+  rubyforge works fine with Ruby 1.9
+
+*rubyforge-1.0.1 (25 Oct 2008)
+
+  25 Oct 2008; Hans de Graaff <graaff@gentoo.org> +rubyforge-1.0.1.ebuild:
+  Version bump. Fixes broken upload of release notes to rubyforge.
+
+  08 Jul 2008; Javier Villavicencio <the_paya@gentoo.org>
+  rubyforge-1.0.0.ebuild:
+  Add ~x86-fbsd.
+
+  07 Jul 2008; Friedrich Oslage <bluebird@gentoo.org>
+  rubyforge-1.0.0.ebuild:
+  Add ~sparc keyword, bug #230517
+
+*rubyforge-1.0.0 (22 May 2008)
+
+  22 May 2008; Hans de Graaff <graaff@gentoo.org> +rubyforge-1.0.0.ebuild:
+  Version bump: 
+  
+   * Removed HTTPAccess2, thanks to Aaron Patterson. Even tho he's whiny.
+   * Changed initialize/configure to make testing scream. 100x faster.
+
+  17 Apr 2008; Raúl Porcel <armin76@gentoo.org> rubyforge-0.4.5.ebuild:
+  ia64 stable wrt #217389
+
+  13 Apr 2008; Markus Rothe <corsair@gentoo.org> rubyforge-0.4.5.ebuild:
+  Stable on ppc64; bug #217389
+
+  12 Apr 2008; Dawid Węgliński <cla@gentoo.org> rubyforge-0.4.5.ebuild:
+  Stable on x86 (bug #217389)
+
+  12 Apr 2008; nixnut <nixnut@gentoo.org> rubyforge-0.4.5.ebuild:
+  Stable on ppc wrt bug 217389
+
+  12 Apr 2008; Hans de Graaff <graaff@gentoo.org> rubyforge-0.4.5.ebuild:
+  Mark stable on amd64, bug #217389
+
+  15 Mar 2008; nixnut <nixnut@gentoo.org> rubyforge-0.4.4.ebuild:
+  Stable on ppc wrt bug 213250
+
+  14 Mar 2008; Raúl Porcel <armin76@gentoo.org> rubyforge-0.4.4.ebuild:
+  ia64 stable
+
+  13 Mar 2008; Brent Baude <ranger@gentoo.org> rubyforge-0.4.4.ebuild:
+  stable ppc64, bug 213250
+
+  13 Mar 2008; Dawid Węgliński <cla@gentoo.org> rubyforge-0.4.4.ebuild:
+  Stable on x86 (bug #213250)
+
+  13 Mar 2008; Hans de Graaff <graaff@gentoo.org> rubyforge-0.4.4.ebuild:
+  Mark stable on amd64
+
+*rubyforge-0.4.5 (13 Mar 2008)
+
+  13 Mar 2008; Hans de Graaff <graaff@gentoo.org> -rubyforge-0.4.2.ebuild,
+  +rubyforge-0.4.5.ebuild:
+  Version bump with minor bug fixes; remove old version
+
+  13 Oct 2007; Tom Gall <tgall@gentoo.org> rubyforge-0.4.3.ebuild:
+  stable on ppc64
+
+  05 Sep 2007; Christoph Mende <angelos@gentoo.org> rubyforge-0.4.3.ebuild:
+  Stable on amd64 wrt bug #190161
+
+  26 Aug 2007; Raúl Porcel <armin76@gentoo.org> rubyforge-0.4.3.ebuild:
+  ia64/x86 stable wrt #190161
+
+*rubyforge-0.4.4 (15 Aug 2007)
+
+  15 Aug 2007; Hans de Graaff <graaff@gentoo.org> +rubyforge-0.4.4.ebuild:
+  Version bump:
+  * New type_id values will merge with extant data. 
+  * Scrape processor_ids, merging in with extant data.
+  * Default to "Other" if a file's type is unrecognized.
+
+*rubyforge-0.4.3 (24 Jul 2007)
+
+  24 Jul 2007; Hans de Graaff <graaff@gentoo.org> -rubyforge-0.3.1.ebuild,
+  -rubyforge-0.4.1.ebuild, +rubyforge-0.4.3.ebuild:
+  Version bump with very minor bug fixes; remove older versions
+
+*rubyforge-0.4.2 (04 Jun 2007)
+
+  04 Jun 2007; Hans de Graaff <graaff@gentoo.org> +rubyforge-0.4.2.ebuild:
+  Version bump:
+    * Fix for windoze users (spaces in path).
+    * Added check for extant release.
+    * Added default hash for first-time releases.
+
+  13 Apr 2007; Robin H. Johnson <robbat2@gentoo.org> rubyforge-0.4.1.ebuild:
+  Add ~ppc for work.
+
+*rubyforge-0.4.1 (14 Mar 2007)
+
+  14 Mar 2007; Hans de Graaff <graaff@gentoo.org> -rubyforge-0.3.0.ebuild,
+  +rubyforge-0.4.1.ebuild:
+  Version bump; remove old version.
+
+  12 Mar 2007; Tom Gall <tgall@gentoo.org> rubyforge-0.3.1.ebuild:
+  added ~ppc64
+
+  05 Jan 2007; Bryan Østergaard <kloeri@gentoo.org> rubyforge-0.3.1.ebuild:
+  Add ~ia64 keyword.
+
+*rubyforge-0.3.1 (18 Dec 2006)
+
+  18 Dec 2006; Hans de Graaff <graaff@gentoo.org> +rubyforge-0.3.1.ebuild:
+  Version bump.
+
+  04 Dec 2006; Hans de Graaff <graaff@gentoo.org> rubyforge-0.3.0.ebuild:
+  Keyword for ~amd64.
+
+*rubyforge-0.3.0 (03 Dec 2006)
+
+  03 Dec 2006; Nguyễn Thái Ngọc Duy <pclouds@gentoo.org> +metadata.xml,
+  +rubyforge-0.3.0.ebuild:
+  Added rubyforge, part of #147065. Ebuild by Guillaume Benny <guillaume.benny@sympatico.ca>
+

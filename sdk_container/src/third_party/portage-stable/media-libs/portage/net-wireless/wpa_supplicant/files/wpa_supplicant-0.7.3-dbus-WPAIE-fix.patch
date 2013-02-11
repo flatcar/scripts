@@ -1,0 +1,115 @@
+diff -up wpa_supplicant-0.7.3/wpa_supplicant/dbus/dbus_new_handlers.c.prop-failure wpa_supplicant-0.7.3/wpa_supplicant/dbus/dbus_new_handlers.c
+--- wpa_supplicant-0.7.3/wpa_supplicant/dbus/dbus_new_handlers.c.prop-failure	2011-04-09 14:04:43.108343777 -0400
++++ wpa_supplicant-0.7.3/wpa_supplicant/dbus/dbus_new_handlers.c	2011-04-09 14:44:09.808372285 -0400
+@@ -33,6 +33,14 @@
+ #include "dbus_new_handlers.h"
+ #include "dbus_dict_helpers.h"
+ 
++/* The getters in this file can also be invoked when building a signal
++ * message to send out spontaneously. In this case, no message is passed
++ * in and if we try to call dbus_message_new_error(), we'll get an
++ * assertion failure. So, #define dbus_message_new_error() to a more
++ * tolerant cut-and-paste version
++ */
++#define dbus_message_new_error wpa_dbus_message_new_error
++
+ extern int wpa_debug_level;
+ extern int wpa_debug_show_keys;
+ extern int wpa_debug_timestamp;
+diff -up wpa_supplicant-0.7.3/wpa_supplicant/dbus/dbus_new_handlers.h.prop-failure wpa_supplicant-0.7.3/wpa_supplicant/dbus/dbus_new_handlers.h
+diff -up wpa_supplicant-0.7.3/wpa_supplicant/dbus/dbus_new_helpers.c.prop-failure wpa_supplicant-0.7.3/wpa_supplicant/dbus/dbus_new_helpers.c
+--- wpa_supplicant-0.7.3/wpa_supplicant/dbus/dbus_new_helpers.c.prop-failure	2011-04-09 14:04:18.293117234 -0400
++++ wpa_supplicant-0.7.3/wpa_supplicant/dbus/dbus_new_helpers.c	2011-04-09 14:51:48.464204876 -0400
+@@ -22,6 +22,42 @@
+ #include "dbus_new.h"
+ #include "dbus_new_helpers.h"
+ 
++/* This is exactly like dbus_message_new_error, but returns a
++ * (partially filled in) error message in the case reply_to is
++ * NULL rather than failing with an assertion message. This is
++ * useful for getters that we recycle when sending out signals.
++ *
++ * Contains code cut-and-pasted from dbus_message_new_error()
++ * Copyright (C) 2002, 2003, 2004, 2005  Red Hat Inc.
++ * Copyright (C) 2002, 2003  CodeFactory AB
++ */
++DBusMessage*
++wpa_dbus_message_new_error (DBusMessage *reply_to,
++			    const char  *error_name,
++			    const char  *error_message)
++{
++	if (reply_to) {
++		return dbus_message_new_error(reply_to, error_name, error_message);
++	} else {
++		DBusMessage *message = dbus_message_new(DBUS_MESSAGE_TYPE_ERROR);
++		DBusMessageIter iter;
++
++		dbus_message_set_error_name(message, error_name);
++		dbus_message_set_no_reply(message, TRUE);
++
++		if (error_message != NULL) {
++			dbus_message_iter_init_append(message, &iter);
++			if (!dbus_message_iter_append_basic(&iter,
++							    DBUS_TYPE_STRING,
++							    &error_message)) {
++				dbus_message_unref(message);
++				return NULL;
++			}
++		}
++
++		return message;
++	}
++}
+ 
+ /**
+  * recursive_iter_copy - Reads arguments from one iterator and
+@@ -86,6 +122,7 @@ static void recursive_iter_copy(DBusMess
+ 
+ 
+ static unsigned int fill_dict_with_properties(
++	DBusMessage *message,
+ 	DBusMessageIter *dict_iter, const struct wpa_dbus_property_desc *props,
+ 	const char *interface, const void *user_data)
+ {
+@@ -98,7 +135,7 @@ static unsigned int fill_dict_with_prope
+ 		if (!os_strncmp(dsc->dbus_interface, interface,
+ 				WPAS_DBUS_INTERFACE_MAX) &&
+ 		    dsc->access != W && dsc->getter) {
+-			reply = dsc->getter(NULL, user_data);
++			reply = dsc->getter(message, user_data);
+ 			if (!reply)
+ 				continue;
+ 
+@@ -160,7 +197,8 @@ static DBusMessage * get_all_properties(
+ 					 DBUS_DICT_ENTRY_END_CHAR_AS_STRING,
+ 					 &dict_iter);
+ 
+-	props_num = fill_dict_with_properties(&dict_iter, obj_dsc->properties,
++	props_num = fill_dict_with_properties(message,
++					      &dict_iter, obj_dsc->properties,
+ 					      interface, obj_dsc->user_data);
+ 
+ 	dbus_message_iter_close_container(&iter, &dict_iter);
+@@ -870,6 +908,7 @@ void wpa_dbus_get_object_properties(stru
+ 		return;
+ 	}
+ 
+-	fill_dict_with_properties(dict_iter, obj_desc->properties,
++	fill_dict_with_properties(NULL,
++				  dict_iter, obj_desc->properties,
+ 				  interface, obj_desc->user_data);
+ }
+diff -up wpa_supplicant-0.7.3/wpa_supplicant/dbus/dbus_new_helpers.h.prop-failure wpa_supplicant-0.7.3/wpa_supplicant/dbus/dbus_new_helpers.h
+--- wpa_supplicant-0.7.3/wpa_supplicant/dbus/dbus_new_helpers.h.prop-failure	2011-04-09 14:04:25.130180461 -0400
++++ wpa_supplicant-0.7.3/wpa_supplicant/dbus/dbus_new_helpers.h	2011-04-09 14:38:53.092075181 -0400
+@@ -112,6 +112,10 @@ struct wpa_dbus_property_desc {
+ #define WPA_DBUS_PROPERTIES_SET "Set"
+ #define WPA_DBUS_PROPERTIES_GETALL "GetAll"
+ 
++DBusMessage* wpa_dbus_message_new_error (DBusMessage *reply_to,
++					 const char  *error_name,
++					 const char  *error_message);
++
+ void free_dbus_object_desc(struct wpa_dbus_object_desc *obj_dsc);
+ 
+ int wpa_dbus_ctrl_iface_init(struct wpas_dbus_priv *iface, char *dbus_path,

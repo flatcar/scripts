@@ -1,0 +1,17 @@
+--- tests/server.c	2009-04-15 03:47:48.000000000 +0200
++++ tests/server-user.c	2009-04-22 16:26:54.000000000 +0200
+@@ -40,12 +40,12 @@
+ 
+         if (x == 0)
+         {
+-          sprintf(buffer, "%s -d -P /tmp/%umemc.pid -t 1 -p %u -U %u -m 128",
++          sprintf(buffer, "%s -d -P /tmp/%umemc.pid -t 1 -p %u -U %u -m 128 -u memcached",
+                     MEMCACHED_BINARY, x, x + TEST_PORT_BASE, x + TEST_PORT_BASE);
+         } 
+         else
+         {
+-          sprintf(buffer, "%s -d -P /tmp/%umemc.pid -t 1 -p %u -U %u",
++          sprintf(buffer, "%s -d -P /tmp/%umemc.pid -t 1 -p %u -U %u -u memcached",
+                     MEMCACHED_BINARY, x, x + TEST_PORT_BASE, x + TEST_PORT_BASE);
+         }
+         fprintf(stderr, "STARTING SERVER: %s\n", buffer);

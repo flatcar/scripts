@@ -1,0 +1,11 @@
+--- src/fe-text/fe-text.c.orig	2012-11-14 20:21:44.371749885 +0100
++++ src/fe-text/fe-text.c	2012-11-14 20:22:05.914751110 +0100
+@@ -788,7 +788,7 @@
+ {
+ }
+ void
+-fe_lastlog (session * sess, session * lastlog_sess, char *sstr, gboolean regexp)
++fe_lastlog (session *sess, session *lastlog_sess, char *sstr, gtk_xtext_search_flags flags)
+ {
+ }
+ void

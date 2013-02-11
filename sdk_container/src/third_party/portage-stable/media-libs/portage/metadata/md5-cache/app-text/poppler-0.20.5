@@ -1,0 +1,14 @@
+DEFINED_PHASES=compile configure install postinst prepare test unpack
+DEPEND=>=media-libs/fontconfig-2.6.0 >=media-libs/freetype-2.3.9 sys-libs/zlib cairo? ( dev-libs/glib:2 >=x11-libs/cairo-1.10.0 introspection? ( >=dev-libs/gobject-introspection-1.32.1 ) ) curl? ( net-misc/curl ) jpeg? ( virtual/jpeg ) jpeg2k? ( media-libs/openjpeg ) lcms? ( media-libs/lcms:2 ) png? ( >=media-libs/libpng-1.4:0 ) qt4? ( x11-libs/qt-core:4 x11-libs/qt-gui:4 ) tiff? ( media-libs/tiff:0 ) virtual/pkgconfig >=dev-util/cmake-2.8.8 userland_GNU? ( >=sys-apps/findutils-4.4.0 )
+DESCRIPTION=PDF rendering library based on the xpdf-3.0 code base
+EAPI=4
+HOMEPAGE=http://poppler.freedesktop.org/
+IUSE=cairo cjk curl cxx debug doc +introspection jpeg jpeg2k +lcms png qt4 tiff +utils
+KEYWORDS=alpha amd64 arm hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris
+LICENSE=GPL-2
+RDEPEND=>=media-libs/fontconfig-2.6.0 >=media-libs/freetype-2.3.9 sys-libs/zlib cairo? ( dev-libs/glib:2 >=x11-libs/cairo-1.10.0 introspection? ( >=dev-libs/gobject-introspection-1.32.1 ) ) curl? ( net-misc/curl ) jpeg? ( virtual/jpeg ) jpeg2k? ( media-libs/openjpeg ) lcms? ( media-libs/lcms:2 ) png? ( >=media-libs/libpng-1.4:0 ) qt4? ( x11-libs/qt-core:4 x11-libs/qt-gui:4 ) tiff? ( media-libs/tiff:0 ) !dev-libs/poppler !dev-libs/poppler-glib !dev-libs/poppler-qt3 !dev-libs/poppler-qt4 !app-text/poppler-utils cjk? ( >=app-text/poppler-data-0.4.4 )
+RESTRICT=test
+SLOT=0
+SRC_URI=http://poppler.freedesktop.org/poppler-0.20.5.tar.gz
+_eclasses_=base	ec46b36a6f6fd1d0b505a33e0b74e413	cmake-utils	3cb7a29aafd4b984d2bf12bc50abe5da	eutils	d40dc948067bd3db1c8ebf7d51897313	flag-o-matic	d900015de4e092f26d8c0a18b6bd60de	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=ab497044355ace8d4654f0e2e50d2009

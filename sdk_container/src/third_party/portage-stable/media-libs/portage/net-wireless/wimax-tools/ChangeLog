@@ -1,0 +1,87 @@
+# ChangeLog for net-wireless/wimax-tools
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-wireless/wimax-tools/ChangeLog,v 1.20 2013/01/06 10:06:33 ago Exp $
+
+  06 Jan 2013; Agostino Sarubbo <ago@gentoo.org> wimax-tools-1.4.5-r1.ebuild:
+  Add ~sparc, wrt bug #449220
+
+  01 Jan 2013; Agostino Sarubbo <ago@gentoo.org> wimax-tools-1.4.5-r1.ebuild:
+  Add ~alpha, wrt bug #449220
+
+  01 Jan 2013; Agostino Sarubbo <ago@gentoo.org> wimax-tools-1.4.5-r1.ebuild:
+  Add ~ia64, wrt bug #449220
+
+  18 Nov 2012; Pacho Ramos <pacho@gentoo.org> metadata.xml:
+  Drop mobile herd as talked in gentoo-dev ML
+
+  11 Oct 2012; Anthony G. Basile <blueness@gentoo.org>
+  wimax-tools-1.4.5-r1.ebuild:
+  stable ppc ppc64, bug #430370
+
+  22 Sep 2012; Anthony G. Basile <blueness@gentoo.org>
+  wimax-tools-1.4.5-r1.ebuild:
+  keyword ~ppc64, bug #379275
+
+  14 Jun 2012; Michael Weber <xmw@gentoo.org> wimax-tools-1.4.5-r1.ebuild:
+  adding ~ppc keyword (bug 379275)
+
+  04 May 2012; Jeff Horelick <jdhore@gentoo.org> wimax-tools-1.4.5-r1.ebuild:
+  dev-util/pkgconfig -> virtual/pkgconfig
+
+  04 Feb 2012; Alexey Shvetsov <alexxy@gentoo.org> -wimax-tools-1.4.5.ebuild,
+  wimax-tools-1.4.5-r1.ebuild:
+  Fix bug #381321
+
+  23 Jan 2012; Thomas Kahle <tomka@gentoo.org> wimax-tools-1.4.5-r1.ebuild:
+  x86 stable per bug 386121
+
+  11 Jan 2012; Agostino Sarubbo <ago@gentoo.org> wimax-tools-1.4.5-r1.ebuild:
+  Stable for AMD64, wrt bug #386121
+
+*wimax-tools-1.4.5-r1 (19 Nov 2011)
+
+  19 Nov 2011; Alexey Shvetsov <alexxy@gentoo.org> +wimax-tools-1.4.5-r1.ebuild:
+  Fix bugs #390845 and #386127
+
+  27 Oct 2011; Alexandre Rostovtsev <tetromino@gentoo.org>
+  wimax-tools-1.4.5.ebuild:
+  Depend on correct slot of libnl.
+
+  10 Sep 2011; Tomáš Chvátal <scarabeus@gentoo.org>
+  wimax-tools-1.4.5.ebuild:
+  Bump to eapi4. Disable static libs and libtool archives.
+
+*wimax-tools-1.4.5 (20 Apr 2011)
+
+  20 Apr 2011; Alexey Shvetsov <alexxy@gentoo.org>
+  -files/updates/0001-wimaxll_cb_ctx-move-to-internal.h-to-wimaxll.h-fixin.patc
+  h, -wimax-tools-1.4.4.ebuild, -wimax-tools-1.4.4-r1.ebuild,
+  +wimax-tools-1.4.5.ebuild:
+  Version bump
+
+*wimax-tools-1.4.4-r1 (23 Feb 2011)
+
+  23 Feb 2011; Alexey Shvetsov <alexxy@gentoo.org>
+  +files/updates/0001-wimaxll_cb_ctx-move-to-internal.h-to-wimaxll.h-fixin.patch,
+  +wimax-tools-1.4.4-r1.ebuild:
+  Add updates from git
+
+*wimax-tools-1.4.4 (08 Nov 2010)
+
+  08 Nov 2010; Alexey Shvetsov <alexxy@gentoo.org>
+  -wimax-tools-1.4.3.ebuild, +wimax-tools-1.4.4.ebuild:
+  Version bump & cleanup
+
+  26 Jul 2010; Alexey Shvetsov <alexxy@gentoo.org> wimax-tools-1.4.3.ebuild:
+  Fix typo in deps
+
+  26 Jul 2010; Alexey Shvetsov <alexxy@gentoo.org> wimax-tools-1.4.3.ebuild,
+  metadata.xml:
+  Make wimax-tools always builds as 32bit app since wimax network service
+  doesnt suport 64bit mode
+
+*wimax-tools-1.4.3 (25 Jul 2010)
+
+  25 Jul 2010; Alexey Shvetsov <alexxy@gentoo.org>
+  +wimax-tools-1.4.3.ebuild, +metadata.xml:
+  Initial import of wimax tools

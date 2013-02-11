@@ -1,0 +1,61 @@
+https://ssl.icu-project.org/trac/ticket/8764
+--- layout/LESwaps.h
++++ layout/LESwaps.h
+@@ -45,8 +45,8 @@
+ public:
+ 
+     /**
+-     * Reads a big-endian 16-bit word and returns a native-endian value.
+-     * No-op on a big-endian platform, byte-swaps on a little-endian platform.
++     * This method does the byte swap required on little endian platforms
++     * to correctly access a (16-bit) word.
+      *
+      * @param value - the word to be byte swapped
+      *
+@@ -56,21 +56,12 @@
+      */
+     static le_uint16 swapWord(le_uint16 value)
+     {
+-#if (defined(U_IS_BIG_ENDIAN) && U_IS_BIG_ENDIAN) || \
+-    (defined(BYTE_ORDER) && defined(BIG_ENDIAN) && (BYTE_ORDER == BIG_ENDIAN)) || \
+-    defined(__BIG_ENDIAN__)
+-        // Fastpath when we know that the platform is big-endian.
+-        return value;
+-#else
+-        // Reads a big-endian value on any platform.
+-        const le_uint8 *p = reinterpret_cast<const le_uint8 *>(&value);
+-        return (le_uint16)((p[0] << 8) | p[1]);
+-#endif
++        return (le_uint16)((value << 8) | (value >> 8));
+     };
+ 
+     /**
+-     * Reads a big-endian 32-bit word and returns a native-endian value.
+-     * No-op on a big-endian platform, byte-swaps on a little-endian platform.
++     * This method does the byte swapping required on little endian platforms
++     * to correctly access a (32-bit) long.
+      *
+      * @param value - the long to be byte swapped
+      *
+@@ -80,16 +71,11 @@
+      */
+     static le_uint32 swapLong(le_uint32 value)
+     {
+-#if (defined(U_IS_BIG_ENDIAN) && U_IS_BIG_ENDIAN) || \
+-    (defined(BYTE_ORDER) && defined(BIG_ENDIAN) && (BYTE_ORDER == BIG_ENDIAN)) || \
+-    defined(__BIG_ENDIAN__)
+-        // Fastpath when we know that the platform is big-endian.
+-        return value;
+-#else
+-        // Reads a big-endian value on any platform.
+-        const le_uint8 *p = reinterpret_cast<const le_uint8 *>(&value);
+-        return (le_uint32)((p[0] << 24) | (p[1] << 16) | (p[2] << 8) | p[3]);
+-#endif
++        return (le_uint32)(
++            (value << 24) |
++            ((value << 8) & 0xff0000) |
++            ((value >> 8) & 0xff00) |
++            (value >> 24));
+     };
+ 
+ private:

@@ -1,0 +1,13 @@
+# ChangeLog for dev-libs/hiredis
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/hiredis/ChangeLog,v 1.2 2013/02/01 00:14:28 neurogeek Exp $
+
+  01 Feb 2013; <neurogeek@gentoo.org> ChangeLog:
+  Forcing signing
+
+*hiredis-0.11.0 (01 Feb 2013)
+
+  01 Feb 2013; <neurogeek@gentoo.org> +hiredis-0.11.0.ebuild,
+  +files/hiredis-0.11.0-disable-network-tests.patch, +metadata.xml:
+  Initial commit
+

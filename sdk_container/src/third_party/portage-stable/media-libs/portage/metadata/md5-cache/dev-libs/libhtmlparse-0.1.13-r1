@@ -1,0 +1,12 @@
+DEFINED_PHASES=configure unpack
+DEPEND=virtual/libc
+DESCRIPTION=HTML parsing library. It takes HTML tags, text, and calls callbacks for each type of token
+EAPI=4
+HOMEPAGE=http://msalem.translator.cx/libhtmlparse.html
+IUSE=static-libs
+KEYWORDS=~amd64 ~x86
+LICENSE=LGPL-2.1
+RDEPEND=virtual/libc
+SLOT=0
+SRC_URI=http://msalem.translator.cx/dist/libhtmlparse-0.1.13.tar.gz
+_md5_=3e94b46a23b2ebd48d322c441c3b9ac8

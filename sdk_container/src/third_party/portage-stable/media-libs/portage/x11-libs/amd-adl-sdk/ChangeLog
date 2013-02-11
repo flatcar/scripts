@@ -1,0 +1,22 @@
+
+
+  11 Aug 2012; Agostino Sarubbo <ago@gentoo.org> amd-adl-sdk-4.0.ebuild:
+  Stable for amd64, wrt bug #430210
+
+*amd-adl-sdk-4.0 (22 May 2012)
+
+  22 May 2012; Anthony G. Basile <blueness@gentoo.org> +amd-adl-sdk-4.0.ebuild:
+  Version bump
+
+  27 Apr 2012; Anthony G. Basile <blueness@gentoo.org> amd-adl-sdk-3.0.ebuild:
+  Add missing dep on app-arch/unzip
+
+  02 Apr 2012; Anthony G. Basile <blueness@gentoo.org> metadata.xml:
+  Update luke-jr's email address
+
+*amd-adl-sdk-3.0 (23 Feb 2012)
+
+  23 Feb 2012; Anthony G. Basile <blueness@gentoo.org> +amd-adl-sdk-3.0.ebuild,
+  +metadata.xml:
+  Initial commit, moved from luke-jr's bitcoin overlay
+

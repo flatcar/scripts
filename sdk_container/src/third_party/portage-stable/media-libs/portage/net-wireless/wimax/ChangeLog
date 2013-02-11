@@ -1,0 +1,142 @@
+# ChangeLog for net-wireless/wimax
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-wireless/wimax/ChangeLog,v 1.23 2013/01/06 10:06:14 ago Exp $
+
+  06 Jan 2013; Agostino Sarubbo <ago@gentoo.org> wimax-1.5.2-r1.ebuild:
+  Add ~sparc, wrt bug #449220
+
+  01 Jan 2013; Agostino Sarubbo <ago@gentoo.org> wimax-1.5.2-r1.ebuild:
+  Add ~alpha, wrt bug #449220
+
+  01 Jan 2013; Agostino Sarubbo <ago@gentoo.org> wimax-1.5.2-r1.ebuild:
+  Add ~ia64, wrt bug #449220
+
+  18 Nov 2012; Pacho Ramos <pacho@gentoo.org> metadata.xml:
+  Drop mobile herd as talked in gentoo-dev ML
+
+  11 Oct 2012; Anthony G. Basile <blueness@gentoo.org> wimax-1.5.2-r1.ebuild:
+  stable ppc ppc64, bug #430370
+
+  22 Sep 2012; Anthony G. Basile <blueness@gentoo.org> wimax-1.5.2-r1.ebuild:
+  keyword ~ppc64, bug #379275
+
+  14 Jun 2012; Michael Weber <xmw@gentoo.org> wimax-1.5.2-r1.ebuild:
+  adding ~ppc keyword (bug 379275)
+
+  25 Feb 2012; Jeroen Roovers <jer@gentoo.org> wimax-1.5.2.ebuild,
+  wimax-1.5.2-r1.ebuild:
+  Remove dev-libs/nl version dependency.
+
+  23 Jan 2012; Thomas Kahle <tomka@gentoo.org> wimax-1.5.2-r1.ebuild:
+  x86 stable per bug 386121
+
+  12 Jan 2012; Alexey Shvetsov <alexxy@gentoo.org> wimax-1.5.2-r1.ebuild:
+  Fix bug #393195
+
+  11 Jan 2012; Agostino Sarubbo <ago@gentoo.org> wimax-1.5.2-r1.ebuild:
+  Stable for AMD64, wrt bug #386121
+
+*wimax-1.5.2-r1 (19 Nov 2011)
+
+  19 Nov 2011; Alexey Shvetsov <alexxy@gentoo.org> +wimax-1.5.2-r1.ebuild:
+  Fix bugs #390845 and #386127
+
+  27 Oct 2011; Alexandre Rostovtsev <tetromino@gentoo.org> wimax-1.5.2.ebuild:
+  Depend on same slot of libnl as wimax-tools.
+
+*wimax-1.5.2 (20 Apr 2011)
+
+  20 Apr 2011; Alexey Shvetsov <alexxy@gentoo.org> -wimax-1.5.1.ebuild,
+  -files/wimax-1.5.1-64bit-fixes.patch,
+  -files/wimax-1.5.1-fix-struct-packing-and-type-casting-issues.patch,
+  -files/wimax-1.5.1-kdapi.patch,
+  -files/wimax-1.5.1-malloc-free-warnings.patch,
+  -files/wimax-1.5.1-pthread-mutex-inconsistency.patch, +wimax-1.5.2.ebuild,
+  -files/updates/0001-wimax-network-service-64-bit-fixes.patch,
+  -files/updates/0002-cleanup-fix-struct-packing-and-type-casting-issues.patch,
+  -files/updates/0003-Fix-pthread_mutex_unlock-duplicate-call-in-OSALTrace.patc
+  h,
+  -files/updates/0004-Fix-a-lot-of-warnings-about-undefined-malloc-free.patch,
+  -files/updates/0005-remove-duplicate-typedef-for-u8.patch,
+  -files/updates/0006-wimaxcu-fix-array-size.patch,
+  -files/updates/0007-supplicant-fix-invocation-of-eap_peer_sm_init.patch,
+  -files/updates/0008-supplicant-Fix-eap_methods-array-setup-and-declarati.patc
+  h, -files/updates/0009-daemon-don-t-mask-SEGV-just-crash-and-dump-core.patch,
+  -files/updates/0010-OSAL-fix-OSAL_wcsmp-for-Linux-environments.patch,
+  -files/updates/0011-configure-remove-O2-by-default.patch,
+  -files/updates/0012-Allow-IP-handling-script-to-be-configurable-at-runti.patc
+  h, -files/updates/0013-Fix-typo-in-logrotate-script.patch,
+  -files/updates/0014-KDapi-Big-endian-support.patch,
+  -files/updates/0015-Wrappers-wmx_Preambles_t-alignment.patch,
+  -files/updates/0016-Wrappers-wmx_SystemStateUpdate-alignment.patch,
+  -files/updates/0017-L4_INTEL_80216_INDICATION-typedef-redefinition.patch,
+  -files/updates/0018-L5Common-Big-endian-support.patch,
+  -files/updates/0019-Supplicant-Big-endian-support.patch,
+  -files/updates/0020-endianess-use-endian.h-to-determine-endianess-vs-sta.patc
+  h, -wimax-1.5.1-r1.ebuild:
+  Version bump
+
+  24 Feb 2011; Alexey Shvetsov <alexxy@gentoo.org> wimax-1.5.1-r1.ebuild:
+  Fix building
+
+  24 Feb 2011; Alexey Shvetsov <alexxy@gentoo.org>
+  files/updates/0009-daemon-don-t-mask-SEGV-just-crash-and-dump-core.patch:
+  Fix bug #356221
+
+*wimax-1.5.1-r1 (23 Feb 2011)
+
+  23 Feb 2011; Alexey Shvetsov <alexxy@gentoo.org>
+  +files/updates/0001-wimax-network-service-64-bit-fixes.patch,
+  +files/updates/0002-cleanup-fix-struct-packing-and-type-casting-issues.patch,
+  +files/updates/0003-Fix-pthread_mutex_unlock-duplicate-call-in-OSALTrace.patch,
+  +files/updates/0004-Fix-a-lot-of-warnings-about-undefined-malloc-free.patch,
+  +files/updates/0005-remove-duplicate-typedef-for-u8.patch,
+  +files/updates/0006-wimaxcu-fix-array-size.patch,
+  +files/updates/0007-supplicant-fix-invocation-of-eap_peer_sm_init.patch,
+  +files/updates/0008-supplicant-Fix-eap_methods-array-setup-and-declarati.patch,
+  +files/updates/0009-daemon-don-t-mask-SEGV-just-crash-and-dump-core.patch,
+  +files/updates/0010-OSAL-fix-OSAL_wcsmp-for-Linux-environments.patch,
+  +files/updates/0011-configure-remove-O2-by-default.patch,
+  +files/updates/0012-Allow-IP-handling-script-to-be-configurable-at-runti.patch,
+  +files/updates/0013-Fix-typo-in-logrotate-script.patch,
+  +files/updates/0014-KDapi-Big-endian-support.patch,
+  +files/updates/0015-Wrappers-wmx_Preambles_t-alignment.patch,
+  +files/updates/0016-Wrappers-wmx_SystemStateUpdate-alignment.patch,
+  +files/updates/0017-L4_INTEL_80216_INDICATION-typedef-redefinition.patch,
+  +files/updates/0018-L5Common-Big-endian-support.patch,
+  +files/updates/0019-Supplicant-Big-endian-support.patch,
+  +files/updates/0020-endianess-use-endian.h-to-determine-endianess-vs-sta.patch,
+  +wimax-1.5.1-r1.ebuild,
+  files/wimax:
+  Add updates from git. Also fix bug #356121
+
+  02 Jan 2011; Alexey Shvetsov <alexxy@gentoo.org> wimax-1.5.1.ebuild:
+  Fix bug #331289
+
+  08 Nov 2010; Alexey Shvetsov <alexxy@gentoo.org> files/wimax:
+  fix init.d per bug #338922
+
+*wimax-1.5.1 (08 Nov 2010)
+
+  08 Nov 2010; Alexey Shvetsov <alexxy@gentoo.org> -wimax-1.5.ebuild,
+  +wimax-1.5.1.ebuild, +files/wimax-1.5.1-64bit-fixes.patch,
+  +files/wimax-1.5.1-fix-struct-packing-and-type-casting-issues.patch,
+  +files/wimax-1.5.1-kdapi.patch,
+  +files/wimax-1.5.1-malloc-free-warnings.patch,
+  +files/wimax-1.5.1-pthread-mutex-inconsistency.patch:
+  Version bump & 64bit fixes
+
+  26 Jul 2010; Alexey Shvetsov <alexxy@gentoo.org> wimax-1.5.ebuild:
+  Fix typo in deps
+
+  26 Jul 2010; Alexey Shvetsov <alexxy@gentoo.org> wimax-1.5.ebuild,
+  files/wimax, metadata.xml:
+  Make wimax always builds as 32bit app since it doesnt suport 64bit mode.
+  Also it fixes bug #329935
+
+*wimax-1.5 (25 Jul 2010)
+
+  25 Jul 2010; Alexey Shvetsov <alexxy@gentoo.org> +wimax-1.5.ebuild,
+  +files/wimax, +metadata.xml:
+  Initial import of wimax network service. Currently it isnt working on
+  64bit systems.

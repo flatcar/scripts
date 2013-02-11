@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install postinst prepare
+DEPEND=dev-libs/openssl sqlite? ( >=dev-db/sqlite-3.4 )
+DESCRIPTION=WLAN tools for breaking 802.11 WEP/WPA keys
+EAPI=3
+HOMEPAGE=http://www.aircrack-ng.org
+IUSE=+sqlite kernel_linux kernel_FreeBSD
+KEYWORDS=amd64 arm ppc x86 ~x86-fbsd ~amd64-linux ~x86-linux
+LICENSE=GPL-2
+RDEPEND=dev-libs/openssl sqlite? ( >=dev-db/sqlite-3.4 ) kernel_linux? ( net-wireless/iw net-wireless/wireless-tools )
+SLOT=0
+SRC_URI=http://download.aircrack-ng.org/aircrack-ng-1.1.tar.gz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=59820f7771dc68b5cf570e5056a18924

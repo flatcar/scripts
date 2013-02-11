@@ -1,0 +1,25 @@
+# ChangeLog for dev-ruby/mixlib-shellout
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/mixlib-shellout/ChangeLog,v 1.5 2012/08/28 05:05:23 graaff Exp $
+
+*mixlib-shellout-1.1.0 (28 Aug 2012)
+
+  28 Aug 2012; Hans de Graaff <graaff@gentoo.org>
+  +mixlib-shellout-1.1.0.ebuild:
+  Version bump.
+
+  14 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> metadata.xml:
+  Update metadata.xml so that it's the same as most other packages.
+
+  14 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org>
+  mixlib-shellout-1.0.0.ebuild:
+  Port to rspec helper for testing.
+
+  11 Aug 2012; Benedikt Böhm <hollow@gentoo.org> mixlib-shellout-1.0.0.ebuild:
+  convert to EAPI4 and add test support
+
+*mixlib-shellout-1.0.0 (29 Apr 2012)
+
+  29 Apr 2012; Benedikt Böhm <hollow@gentoo.org>
+  +mixlib-shellout-1.0.0.ebuild, +metadata.xml:
+  initial version (required dependency of chef-0.10.10)

@@ -1,0 +1,33 @@
+# ChangeLog for x11-libs/gtk+
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/x11-libs/gtk+/ChangeLog,v 1.632 2013/01/28 14:16:39 aballier Exp $
+
+  28 Jan 2013; Alexis Ballier <aballier@gentoo.org> gtk+-3.6.3-r2.ebuild:
+  keyword ~amd64-fbsd
+
+*gtk+-3.6.3-r2 (07 Jan 2013)
+
+  07 Jan 2013; Alexandre Rostovtsev <tetromino@gentoo.org> -gtk+-3.6.3.ebuild,
+  gtk+-3.6.3-r1.ebuild, +gtk+-3.6.3-r2.ebuild,
+  +files/gtk+-3.6.3-stylecontext-font-crash.patch:
+  Add upstream fix for print and other dialog window crash. Propagate ~sparc
+  keyword to 3.6.3-rx ebuilds.
+
+  06 Jan 2013; Agostino Sarubbo <ago@gentoo.org> gtk+-3.6.2.ebuild:
+  Add ~sparc, wrt bug #449220
+
+*gtk+-3.6.3-r1 (05 Jan 2013)
+
+  05 Jan 2013; Alexandre Rostovtsev <tetromino@gentoo.org>
+  +gtk+-3.6.3-r1.ebuild, +files/gtk+-3.6.3-revert-recompute-font.patch:
+  Fix crash when opening printing dilog (bug #450370, thanks to poncho).
+
+*gtk+-3.6.3 (04 Jan 2013)
+
+  04 Jan 2013; Alexandre Rostovtsev <tetromino@gentoo.org> +gtk+-3.6.3.ebuild:
+  Version bump with various bugfixes.
+
+  01 Jan 2013; Andreas K. Huettel <dilfridge@gentoo.org> +ChangeLog-2012:
+  Split ChangeLog.
+
+  For previous entries, please see ChangeLog-2012.

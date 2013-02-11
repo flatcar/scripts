@@ -1,0 +1,13 @@
+DEFINED_PHASES=configure install postinst postrm prepare setup
+DEPEND=app-arch/xz-utils || ( =dev-lang/python-2.7* =dev-lang/python-2.6* )
+DESCRIPTION=Parser and analyzer for backtraces produced by gdb
+EAPI=4
+HOMEPAGE=https://fedorahosted.org/btparser/
+IUSE=static-libs
+KEYWORDS=amd64 x86
+LICENSE=GPL-2
+RDEPEND=|| ( =dev-lang/python-2.7* =dev-lang/python-2.6* )
+SLOT=0
+SRC_URI=https://fedorahosted.org/released/btparser/btparser-0.17.tar.xz
+_eclasses_=multilib	ded93e450747134a079e647d888aa80b	python	e5b3412fa9f03670a666c8a137bd1060	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e
+_md5_=3191bcedc4016ee40cda0e72e72936b8

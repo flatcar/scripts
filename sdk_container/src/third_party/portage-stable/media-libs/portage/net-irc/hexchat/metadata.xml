@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+  <herd>proxy-maintainers</herd>
+  <maintainer>
+    <email>god@politeia.in</email>
+  </maintainer>
+  <use>
+    <flag name='fastscroll'>Make scrolling of large text buffers faster by
+      circumventing some of pango's overhead</flag>
+    <flag name='ntlm'>Enable NTLM authentication</flag>
+    <flag name='libproxy'>Enable proxy support.</flag>
+    <flag name='plugins'>Enable plugin support and installs some built-in plugins</flag>
+  </use>
+</pkgmetadata>

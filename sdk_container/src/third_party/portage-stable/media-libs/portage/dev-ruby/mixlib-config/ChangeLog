@@ -1,0 +1,27 @@
+# ChangeLog for dev-ruby/mixlib-config
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/mixlib-config/ChangeLog,v 1.6 2012/08/14 19:04:45 flameeyes Exp $
+
+  14 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> metadata.xml:
+  Update metadata.xml so that it's the same as most other packages.
+
+  13 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org>
+  mixlib-config-1.1.2.ebuild:
+  Use the newly-introduced cucumber helper.
+
+  13 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org>
+  mixlib-config-1.1.2.ebuild:
+  Use the rspec helper for tests; add missing test USE flag and disable rake
+  dependency; add ree18.
+
+  11 Aug 2012; Benedikt Böhm <hollow@gentoo.org> mixlib-config-1.1.2.ebuild:
+  add ruby19 support; migrate to EAPI4 and rspec2
+
+  08 Mar 2012; Naohiro Aota <naota@gentoo.org> mixlib-config-1.1.2.ebuild:
+  Add ~x86-fbsd.
+
+*mixlib-config-1.1.2 (03 Jul 2010)
+
+  03 Jul 2010; Benedikt Böhm <hollow@gentoo.org>
+  +mixlib-config-1.1.2.ebuild, +metadata.xml:
+  initial ebuild, thanks to Gábor Vészi

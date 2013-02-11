@@ -1,0 +1,19 @@
+--- doxyfile
++++ doxyfile
+@@ -30,7 +30,6 @@
+ SHORT_NAMES            = NO
+ JAVADOC_AUTOBRIEF      = YES
+ MULTILINE_CPP_IS_BRIEF = NO
+-DETAILS_AT_TOP         = YES
+ INHERIT_DOCS           = YES
+ SEPARATE_MEMBER_PAGES  = NO
+ TAB_SIZE               = 4
+@@ -73,7 +72,7 @@
+ #---------------------------------------------------------------------------
+ # configuration options related to warning and progress messages
+ #---------------------------------------------------------------------------
+-QUIET                  = NO
++QUIET                  = YES
+ WARNINGS               = YES
+ WARN_IF_UNDOCUMENTED   = YES
+ WARN_IF_DOC_ERROR      = YES

@@ -1,0 +1,65 @@
+# ChangeLog for dev-libs/libnatspec
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/libnatspec/ChangeLog,v 1.19 2012/07/15 18:17:10 armin76 Exp $
+
+  15 Jul 2012; Raúl Porcel <armin76@gentoo.org> libnatspec-0.2.6.ebuild:
+  alpha/ia64/m68k/s390/sh/sparc stable wrt #420725
+
+  28 Jun 2012; Brent Baude <ranger@gentoo.org> libnatspec-0.2.6.ebuild:
+  Marking libnatspec-0.2.6 ppc for bug 420725
+
+  27 Jun 2012; Jeroen Roovers <jer@gentoo.org> libnatspec-0.2.6.ebuild:
+  Stable for HPPA (bug #420725).
+
+  22 Jun 2012; Brent Baude <ranger@gentoo.org> libnatspec-0.2.6.ebuild:
+  Marking libnatspec-0.2.6 ppc64 for bug 420725
+
+  15 Jun 2012; Agostino Sarubbo <ago@gentoo.org> libnatspec-0.2.6.ebuild:
+  Stable for amd64, wrt bug #420725
+
+  14 Jun 2012; Jeff Horelick <jdhore@gentoo.org> libnatspec-0.2.6.ebuild:
+  marked x86 per bug 420725
+
+  21 May 2012; Kacper Kowalik <xarthisius@gentoo.org> libnatspec-0.2.6.ebuild:
+  Add missing inheritance of eutils.eclass
+
+  26 Apr 2012; Alexis Ballier <aballier@gentoo.org> libnatspec-0.2.6.ebuild:
+  keyword ~amd64-fbsd
+
+  18 Dec 2011; Naohiro Aota <naota@gentoo.org> libnatspec-0.2.6.ebuild,
+  +files/libnatspec-0.2.6-iconv.patch:
+  Regenerate libtool. Add patch to detect libiconv
+
+  13 Dec 2011; Naohiro Aota <naota@gentoo.org> metadata.xml:
+  Assign to cjk herd
+
+  12 Mar 2011; Raúl Porcel <armin76@gentoo.org> libnatspec-0.2.6.ebuild:
+  Add ~ia64/~m68k/~s390/~sh/~sparc wrt #349393
+
+  07 Mar 2011; Tobias Klausmann <klausman@gentoo.org> libnatspec-0.2.6.ebuild:
+  Keyworded on alpha, bug #349393
+
+  13 Jan 2011; Jeroen Roovers <jer@gentoo.org> libnatspec-0.2.6.ebuild:
+  Marked ~hppa (bug #349393).
+
+  09 Jan 2011; Brent Baude <ranger@gentoo.org> libnatspec-0.2.6.ebuild:
+  Marking libnatspec-0.2.6 ~ppc for bug 349393
+
+  02 Jan 2011; Markus Meier <maekke@gentoo.org> libnatspec-0.2.6.ebuild:
+  add ~arm, bug #349393
+
+  27 Dec 2010; Brent Baude <ranger@gentoo.org> libnatspec-0.2.6.ebuild:
+  Marking libnatspec-0.2.6 ~ppc64 for bug 349393
+
+  26 Dec 2010; Matt Turner <mattst88@gentoo.org> libnatspec-0.2.6.ebuild:
+  Added ~mips, bug 349393
+
+  31 Oct 2010; Diego E. Pettenò <flameeyes@gentoo.org> metadata.xml:
+  Add package to maintainer-needed.
+
+*libnatspec-0.2.6 (24 Jan 2010)
+
+  24 Jan 2010; Mike Frysinger <vapier@gentoo.org> +libnatspec-0.2.6.ebuild,
+  +metadata.xml:
+  Initial ebuild by Arseny Solokha.
+

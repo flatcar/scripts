@@ -1,0 +1,10 @@
+# ChangeLog for dev-libs/protobuf-c
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/protobuf-c/ChangeLog,v 1.1 2012/07/27 06:32:05 radhermit Exp $
+
+*protobuf-c-0.15 (27 Jul 2012)
+
+  27 Jul 2012; Tim Harder <radhermit@gentoo.org> +protobuf-c-0.15.ebuild,
+  +metadata.xml:
+  Initial import (bug #427666 by Christoph Brill).
+

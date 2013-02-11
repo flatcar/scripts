@@ -1,0 +1,12 @@
+DEFINED_PHASES=install prepare
+DEPEND=dev-lang/tk dev-lang/tcl
+DESCRIPTION=A tool for differing and merging directories
+EAPI=5
+HOMEPAGE=http://samba.org/ftp/paulus/
+KEYWORDS=~amd64 ~ppc ~x86
+LICENSE=GPL-2
+RDEPEND=dev-lang/tk dev-lang/tcl
+SLOT=0
+SRC_URI=http://samba.org/ftp/paulus/dirdiff-2.1.tar.gz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	flag-o-matic	d900015de4e092f26d8c0a18b6bd60de	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=83279cda777c639762227369c9de704e

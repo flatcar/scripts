@@ -1,0 +1,10 @@
+--- src/helpers/System.cpp.old	2012-06-12 11:01:24.332083600 +0200
++++ src/helpers/System.cpp	2012-06-12 11:01:35.335083715 +0200
+@@ -24,6 +24,7 @@
+ #include "Log.h"
+ #include "VExcept.h"
+ #include <sstream>
++#include <unistd.h>
+ 
+ std::vector<std::string>* System::getDisplayModes(int windowed) {
+     std::vector<std::string>* modes = new std::vector<std::string>;

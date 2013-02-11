@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile config configure install postinst postrm
+DEPEND=dev-libs/gmp >=sys-devel/libtool-1.5.6 sys-devel/gettext virtual/pkgconfig dev-libs/libunistring >=dev-libs/boehm-gc-7.0[threads?] virtual/libffi emacs? ( virtual/emacs )
+DESCRIPTION=GNU Ubiquitous Intelligent Language for Extensions
+EAPI=3
+HOMEPAGE=http://www.gnu.org/software/guile/
+IUSE=networking +regex +deprecated emacs nls debug-freelist debug-malloc debug +threads
+KEYWORDS=~amd64
+LICENSE=LGPL-3
+RDEPEND=dev-libs/gmp >=sys-devel/libtool-1.5.6 sys-devel/gettext virtual/pkgconfig dev-libs/libunistring >=dev-libs/boehm-gc-7.0[threads?] virtual/libffi emacs? ( virtual/emacs )
+SLOT=2
+SRC_URI=mirror://gnu/guile/guile-2.0.0.tar.gz
+_eclasses_=elisp-common	21605c8f0b2a5ffa3233faeb3f9df309	eutils	d40dc948067bd3db1c8ebf7d51897313	flag-o-matic	d900015de4e092f26d8c0a18b6bd60de	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=bb1ee7743aa39db6d08243863c90ee4d

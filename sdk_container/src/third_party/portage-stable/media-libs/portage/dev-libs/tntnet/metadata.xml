@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer>                                                                                         
+		<email>hd_brummy@gentoo.org</email>                                                                        
+		<name>Joerg Bornkessel</name>                                                                      
+	</maintainer>
+	<maintainer>                                                                                         
+		<email>zzam@gentoo.org</email>                                                                        
+		<name>Matthias Schwarzott</name>                                                                      
+	</maintainer>
+	<herd>media-tv</herd>
+	<use>
+		<flag name="server">Enable tntnet server daemon</flag>
+		<flag name="sdk">Enable tntnet SDK</flag>
+	</use>
+</pkgmetadata>

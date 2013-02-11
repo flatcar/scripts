@@ -1,0 +1,31 @@
+From 0b0774d2bc6092ca5ad07f0653c569b6fa55c6fe Mon Sep 17 00:00:00 2001
+From: Mike Frysinger <vapier@gentoo.org>
+Date: Mon, 28 Jan 2013 15:14:26 -0500
+Subject: [PATCH] fix building for s390 systems
+
+Checking for __s390x__ means you work on s390x, but not s390 (32bit)
+systems.  So use __s390__ which works for both.
+
+With this, `make check` passes on s390.
+
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+---
+ include/jemalloc/internal/jemalloc_internal.h.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/jemalloc/internal/jemalloc_internal.h.in b/include/jemalloc/internal/jemalloc_internal.h.in
+index c606c12..74a8bd5 100644
+--- a/include/jemalloc/internal/jemalloc_internal.h.in
++++ b/include/jemalloc/internal/jemalloc_internal.h.in
+@@ -287,7 +287,7 @@ static const bool config_ivsalloc =
+ #  ifdef __powerpc__
+ #    define LG_QUANTUM		4
+ #  endif
+-#  ifdef __s390x__
++#  ifdef __s390__
+ #    define LG_QUANTUM		4
+ #  endif
+ #  ifdef __SH4__
+-- 
+1.8.0.2
+

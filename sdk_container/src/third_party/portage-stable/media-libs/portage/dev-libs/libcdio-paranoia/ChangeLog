@@ -1,0 +1,21 @@
+# ChangeLog for dev-libs/libcdio-paranoia
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/libcdio-paranoia/ChangeLog,v 1.4 2013/01/16 10:17:56 ssuominen Exp $
+
+  16 Jan 2013; Samuli Suominen <ssuominen@gentoo.org>
+  libcdio-paranoia-0.90.ebuild:
+  Fix LICENSE. Thanks to ulm for help.
+
+  15 Jan 2013; Zac Medico <zmedico@gentoo.org> libcdio-paranoia-0.90.ebuild:
+  Fix SRC_URI.
+
+  15 Jan 2013; Samuli Suominen <ssuominen@gentoo.org>
+  libcdio-paranoia-0.90.ebuild:
+  Introduce eselect-cdparanoia support.
+
+*libcdio-paranoia-0.90 (15 Jan 2013)
+
+  15 Jan 2013; Samuli Suominen <ssuominen@gentoo.org>
+  +libcdio-paranoia-0.90.ebuild, +files/libcdio-paranoia-0.90-headers.patch:
+  Initial commit wrt #444268 with a patch from upstream to correct location of
+  paranoia headers. Thanks to Lars Wendler for reporting.

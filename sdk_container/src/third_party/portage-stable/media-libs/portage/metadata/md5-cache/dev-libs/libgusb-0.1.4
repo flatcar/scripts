@@ -1,0 +1,15 @@
+DEFINED_PHASES=configure install prepare
+DEPEND=>=dev-libs/glib-2.28:2 virtual/libusb:1 virtual/udev[gudev] introspection? ( >=dev-libs/gobject-introspection-1.29 ) app-arch/xz-utils dev-libs/libxslt dev-util/gtk-doc-am virtual/pkgconfig vala? ( || ( dev-lang/vala:0.18[vapigen] dev-lang/vala:0.16[vapigen] ) )
+DESCRIPTION=GObject wrapper for libusb
+EAPI=4
+HOMEPAGE=https://gitorious.org/gusb/
+IUSE=+introspection static-libs vala
+KEYWORDS=alpha amd64 ~arm ~hppa ia64 ~mips ppc ppc64 ~sparc x86
+LICENSE=LGPL-2.1+
+RDEPEND=>=dev-libs/glib-2.28:2 virtual/libusb:1 virtual/udev[gudev] introspection? ( >=dev-libs/gobject-introspection-1.29 )
+REQUIRED_USE=vala? ( introspection )
+RESTRICT=test
+SLOT=0
+SRC_URI=http://people.freedesktop.org/~hughsient/releases/libgusb-0.1.4.tar.xz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28	vala	ad1e7234faa2244a7e10f1c864371475
+_md5_=606b027329f20225054722b75fc64bc6

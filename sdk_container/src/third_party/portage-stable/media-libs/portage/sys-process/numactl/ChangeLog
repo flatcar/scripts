@@ -1,0 +1,114 @@
+# ChangeLog for sys-process/numactl
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-process/numactl/ChangeLog,v 1.26 2013/01/06 23:04:26 vapier Exp $
+
+*numactl-2.0.8 (06 Jan 2013)
+
+  06 Jan 2013; Mike Frysinger <vapier@gentoo.org>
+  +files/numactl-2.0.8-static_libs.patch, +numactl-2.0.8.ebuild:
+  Version bump #450626 by Agostino Sarubbo.
+
+  29 Jun 2012; Jeff Horelick <jdhore@gentoo.org> numactl-2.0.7-r2.ebuild:
+  marked x86 per bug 422237
+
+  28 Jun 2012; Brent Baude <ranger@gentoo.org> numactl-2.0.7-r2.ebuild:
+  Marking numactl-2.0.7-r2 ppc for bug 422237
+
+  19 Jun 2012; Agostino Sarubbo <ago@gentoo.org> numactl-2.0.7-r2.ebuild:
+  Stable for amd64, wrt bug #422237
+
+*numactl-2.0.7-r2 (22 Mar 2012)
+
+  22 Mar 2012; Kacper Kowalik <xarthisius@gentoo.org>
+  +files/numactl-2.0.7-static_libs.patch, +numactl-2.0.7-r2.ebuild,
+  -numactl-2.0.7-r1.ebuild:
+  Build static library without -fPIC and make it optional wrt #379849 by
+  Agostino Sarubbo <ago@gentoo.org>
+
+  22 Mar 2012; Mike Frysinger <vapier@gentoo.org> numactl-2.0.7-r1.ebuild:
+  Fix libdir handling and update to EAPI=4 #379849 by Agostino Sarubbo.
+
+  07 Dec 2011; Kacper Kowalik <xarthisius@gentoo.org> numactl-2.0.7-r1.ebuild:
+  Marked ~ppc64 wrt #381313
+
+  06 Nov 2011; Brent Baude <ranger@gentoo.org> numactl-2.0.7.ebuild:
+  Marking numactl-2.0.7 ppc for bug 379807
+
+*numactl-2.0.7-r1 (14 Sep 2011)
+
+  14 Sep 2011; Fabian Groffen <grobian@gentoo.org> +numactl-2.0.7-r1.ebuild:
+  Bump for Prefix fixes, marked ~amd64-linux, bug #382347
+
+  26 Aug 2011; Thomas Kahle <tomka@gentoo.org> numactl-2.0.7.ebuild:
+  x86 stable per bug 379807
+
+  19 Aug 2011; Markos Chandras <hwoarang@gentoo.org> numactl-2.0.7.ebuild:
+  Stable on amd64 wrt bug #379807
+
+*numactl-2.0.7 (15 Jun 2011)
+
+  15 Jun 2011; Jeroen Roovers <jer@gentoo.org> +numactl-2.0.7.ebuild:
+  Version bump.
+
+*numactl-2.0.5 (14 Aug 2010)
+
+  14 Aug 2010; Mike Frysinger <vapier@gentoo.org> +numactl-2.0.5.ebuild,
+  +files/numactl-2.0.5-protos.patch:
+  Version bump #332215 by Michal Fojtik.
+
+  22 Dec 2009; Robin H. Johnson <robbat2@gentoo.org> numactl-2.0.2.ebuild:
+  Update src_test for minimal kernels without some parts of sysfs.
+
+  03 Sep 2009; Christian Faulhammer <fauli@gentoo.org> numactl-2.0.2.ebuild:
+  stable x86, bug 281486
+
+  30 Aug 2009; Thomas Anderson <tanderson@gentoo.org> numactl-2.0.2.ebuild:
+  stable amd64, bug 281486
+
+  29 Aug 2009; nixnut <nixnut@gentoo.org> numactl-2.0.2.ebuild:
+  ppc stable #281486
+
+  08 Feb 2009; Mike Frysinger <vapier@gentoo.org>
+  +files/numactl-2.0.2-build.patch, numactl-2.0.2.ebuild:
+  Fix linking order #248444 by Diego E. Pettenò.
+
+*numactl-2.0.2 (29 Sep 2008)
+
+  29 Sep 2008; Mike Frysinger <vapier@gentoo.org> +numactl-2.0.2.ebuild:
+  Version bump and fix man-page collision #238805 by Joost Ruis.
+
+  14 Jan 2008; Robin H. Johnson <robbat2@gentoo.org> -numactl-0.9.8.ebuild,
+  -numactl-0.9.9.ebuild, -numactl-0.9.10.ebuild, numactl-0.9.11.ebuild:
+  Change maintainer, clean up old ebuilds.
+
+  14 Jan 2008; Robin H. Johnson <robbat2@gentoo.org> metadata.xml:
+  Change maintainer.
+
+*numactl-1.0.2 (07 Jan 2008)
+
+  07 Jan 2008; Mike Frysinger <vapier@gentoo.org>
+  +files/numactl-1.0.2-migrate_pages-fix.diff, +numactl-1.0.2.ebuild:
+  Version bump.
+
+*numactl-0.9.11 (11 May 2007)
+
+  11 May 2007; Robin H. Johnson <robbat2@gentoo.org>
+  +files/numactl-0.9.11-make-jobs.patch, +numactl-0.9.11.ebuild:
+  Version bump, with fix from bug #174402 for parallel-safety in makefiles.
+
+*numactl-0.9.10 (01 May 2007)
+
+  01 May 2007; Robin H. Johnson <robbat2@gentoo.org> +numactl-0.9.10.ebuild:
+  Version bump.
+
+*numactl-0.9.9 (16 Jul 2006)
+
+  16 Jul 2006; Robin H. Johnson <robbat2@gentoo.org> +numactl-0.9.9.ebuild:
+  Version bump, test cleanup.
+
+*numactl-0.9.8 (02 Jun 2006)
+
+  02 Jun 2006; Robin H. Johnson <robbat2@gentoo.org> +metadata.xml,
+  +numactl-0.9.8.ebuild:
+  Initial commit, based on ebuild submitted in bug #114686, thanks to Philippe
+  Troin <phil@fifi.org>.

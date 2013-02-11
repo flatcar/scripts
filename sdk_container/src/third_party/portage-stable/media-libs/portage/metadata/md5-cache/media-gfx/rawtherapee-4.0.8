@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install prepare setup test unpack
+DEPEND=bzip2? ( app-arch/bzip2 ) >=dev-cpp/gtkmm-2.12:2.4 >=dev-cpp/glibmm-2.16:2 dev-libs/libsigc++:2 media-libs/tiff media-libs/libpng media-libs/libiptcdata media-libs/lcms:2 sys-libs/zlib virtual/jpeg app-arch/xz-utils virtual/pkgconfig >=dev-util/cmake-2.8.8 userland_GNU? ( >=sys-apps/findutils-4.4.0 )
+DESCRIPTION=A powerful cross-platform raw image processing program
+EAPI=4
+HOMEPAGE=http://www.rawtherapee.com/
+IUSE=bzip2 doc openmp
+KEYWORDS=~amd64 ~x86
+LICENSE=GPL-3
+RDEPEND=bzip2? ( app-arch/bzip2 ) >=dev-cpp/gtkmm-2.12:2.4 >=dev-cpp/glibmm-2.16:2 dev-libs/libsigc++:2 media-libs/tiff media-libs/libpng media-libs/libiptcdata media-libs/lcms:2 sys-libs/zlib virtual/jpeg
+SLOT=0
+SRC_URI=http://rawtherapee.googlecode.com/files/rawtherapee-4.0.8.tar.xz
+_eclasses_=base	ec46b36a6f6fd1d0b505a33e0b74e413	cmake-utils	3cb7a29aafd4b984d2bf12bc50abe5da	eutils	d40dc948067bd3db1c8ebf7d51897313	flag-o-matic	d900015de4e092f26d8c0a18b6bd60de	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=5d85235d053a798e4c21cb5e691111e9

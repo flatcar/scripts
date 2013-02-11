@@ -1,0 +1,52 @@
+# ChangeLog for dev-ruby/rack-cache
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/rack-cache/ChangeLog,v 1.13 2013/01/15 23:59:42 zerochaos Exp $
+
+  16 Jan 2013; Rick Farina <zerochaos@gentoo.org> rack-cache-1.2.ebuild:
+  adding ~arm keywords to net-analyzer/metasploit rdeps
+
+  27 Sep 2012; Samuli Suominen <ssuominen@gentoo.org> rack-cache-1.2.ebuild:
+  Keyword ~ppc wrt #385887
+
+  31 Jul 2012; Hans de Graaff <graaff@gentoo.org> -rack-cache-1.0.3.ebuild,
+  -rack-cache-1.1.ebuild:
+  Remove vulnerable versions, nothing in the tree depends on them. Fixes bug
+  428706.
+
+  01 May 2012; Raúl Porcel <armin76@gentoo.org> rack-cache-1.0.3.ebuild,
+  rack-cache-1.1.ebuild, rack-cache-1.2.ebuild:
+  Drop ia64/sparc keywords
+
+*rack-cache-1.2 (04 Apr 2012)
+
+  04 Apr 2012; Hans de Graaff <graaff@gentoo.org> +rack-cache-1.2.ebuild:
+  Version bump.
+
+  04 Apr 2012; Hans de Graaff <graaff@gentoo.org> rack-cache-1.1.ebuild:
+  Move ~ppc keyword forward to latest version.
+
+  11 Mar 2012; Brent Baude <ranger@gentoo.org> rack-cache-1.0.3.ebuild:
+  Marking rack-cache-1.0.3 ~ppc64 for bug 385887
+
+  31 Dec 2011; Fabian Groffen <grobian@gentoo.org> rack-cache-1.1.ebuild:
+  Add Prefix keywords, bug #396547
+
+*rack-cache-1.1 (24 Dec 2011)
+
+  24 Dec 2011; Hans de Graaff <graaff@gentoo.org> +rack-cache-1.1.ebuild:
+  Version bump.
+
+  17 Dec 2011; Raúl Porcel <armin76@gentoo.org> rack-cache-1.0.3.ebuild:
+  Add ~ia64/~sparc wrt #385887
+
+  11 Dec 2011; Markus Meier <maekke@gentoo.org> rack-cache-1.0.3.ebuild:
+  add ~x86, bug #385887
+
+  10 Oct 2011; Fabian Groffen <grobian@gentoo.org> rack-cache-1.0.3.ebuild:
+  Keyworded for Prefix, bug #385887
+
+*rack-cache-1.0.3 (06 Oct 2011)
+
+  06 Oct 2011; Hans de Graaff <graaff@gentoo.org> +rack-cache-1.0.3.ebuild,
+  +metadata.xml:
+  Initial import. New dependency for forthcoming Rails 3.1 release.

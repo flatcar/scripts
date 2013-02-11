@@ -1,0 +1,20 @@
+# ChangeLog for dev-ruby/merb-assets
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/merb-assets/ChangeLog,v 1.4 2012/08/14 18:39:03 flameeyes Exp $
+
+  14 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> metadata.xml:
+  Update metadata.xml so that it's the same as most other packages.
+
+  11 Aug 2012; Benedikt Böhm <hollow@gentoo.org> merb-assets-1.1.3.ebuild:
+  add ruby19 support
+
+*merb-assets-1.1.3 (02 Jan 2011)
+
+  02 Jan 2011; Hans de Graaff <graaff@gentoo.org> +merb-assets-1.1.3.ebuild:
+  Version bump. Support doc and test USE flags.
+
+*merb-assets-1.1.2 (03 Jul 2010)
+
+  03 Jul 2010; Benedikt Böhm <hollow@gentoo.org> +merb-assets-1.1.2.ebuild,
+  +metadata.xml:
+  initial ebuild, thanks to Gábor Vészi

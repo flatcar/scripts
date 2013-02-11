@@ -1,0 +1,9 @@
+DEFINED_PHASES=install unpack
+DESCRIPTION=Gentoo Package Manager Specification
+EAPI=2
+HOMEPAGE=http://www.gentoo.org/proj/en/qa/pms.xml
+KEYWORDS=alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~x86-netbsd ~ppc-openbsd ~x64-openbsd ~x86-openbsd ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt
+LICENSE=CCPL-Attribution-ShareAlike-3.0
+SLOT=0
+SRC_URI=mirror://gentoo/pms-4_p20110118.pdf
+_md5_=27c59383e3870d9bca056ad98c303a0b

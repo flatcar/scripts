@@ -1,0 +1,14 @@
+https://bugs.freedesktop.org/attachment.cgi?id=38376
+http://bugs.gentoo.org/show_bug.cgi?id=335619
+
+--- libXext-1.1.2/src/Xge.c
++++ libXext-1.1.2/src/Xge.c
+@@ -294,7 +294,7 @@
+ /*
+  * Extensions need to register callbacks for their events.
+  */
+-Bool
++_X_HIDDEN Bool
+ xgeExtRegister(Display* dpy, int offset, XExtensionHooks* callbacks)
+ {
+     XGEExtNode* newExt;

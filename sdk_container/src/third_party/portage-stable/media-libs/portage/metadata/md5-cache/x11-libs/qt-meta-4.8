@@ -1,0 +1,10 @@
+DEFINED_PHASES=postinst
+DESCRIPTION=The Qt toolkit is a comprehensive C++ application development framework
+EAPI=2
+HOMEPAGE=http://qt-project.org/ http://qt.nokia.com/
+IUSE=dbus kde opengl openvg qt3support
+KEYWORDS=amd64 ~arm ~ia64 ~ppc ~ppc64 x86 ~amd64-linux ~x86-linux ~ppc-macos
+LICENSE=|| ( LGPL-2.1 GPL-3 )
+RDEPEND=>=x11-libs/qt-assistant-4.8:4 >=x11-libs/qt-core-4.8:4 dbus? ( >=x11-libs/qt-dbus-4.8:4 ) >=x11-libs/qt-declarative-4.8:4 >=x11-libs/qt-gui-4.8:4 >=x11-libs/qt-multimedia-4.8:4 opengl? ( >=x11-libs/qt-opengl-4.8:4 ) openvg? ( >=x11-libs/qt-openvg-4.8:4 ) kde? ( media-libs/phonon ) !kde? ( || ( >=x11-libs/qt-phonon-4.8:4 media-libs/phonon ) ) qt3support? ( >=x11-libs/qt-qt3support-4.8:4 ) >=x11-libs/qt-script-4.8:4 >=x11-libs/qt-sql-4.8:4 >=x11-libs/qt-svg-4.8:4 >=x11-libs/qt-test-4.8:4 >=x11-libs/qt-webkit-4.8:4 >=x11-libs/qt-xmlpatterns-4.8:4
+SLOT=4
+_md5_=36ee409bf95450cc9048a0a43761f3da

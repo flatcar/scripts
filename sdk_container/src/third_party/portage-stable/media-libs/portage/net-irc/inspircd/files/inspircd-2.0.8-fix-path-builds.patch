@@ -1,0 +1,165 @@
+diff -Nur a/docs/conf/inspircd.conf.example b/docs/conf/inspircd.conf.example
+--- a/docs/conf/inspircd.conf.example	2012-07-13 17:38:01.000000000 +0200
++++ b/docs/conf/inspircd.conf.example	2012-07-21 20:03:39.116601423 +0200
+@@ -412,11 +412,11 @@
+ 
+ # This file has all the information about oper classes, types and o:lines.
+ # You *MUST* edit it.
+-<include file="conf/opers.conf.example">
++<include file="/etc/inspircd/opers.conf.example">
+ 
+ # This file has all the information about server links and ulined servers.
+ # You *MUST* edit it if you intend to link servers.
+-<include file="conf/links.conf.example">
++<include file="/etc/inspircd/links.conf.example">
+ 
+ #-#-#-#-#-#-#-#-#-#-  MISCELLANEOUS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
+ #                                                                     #
+@@ -426,7 +426,8 @@
+ #   motd - displayed on connect and when a user executes /MOTD
+ #   rules - displayed when the user executes /RULES
+ # Modules can also define their own files
+-<files motd="conf/inspircd.motd.example" rules="conf/inspircd.rules.example">
++<files motd="/etc/inspircd/inspircd.motd.example"
++       rules="/etc/inspircd/inspircd.rules.example">
+ 
+ # Example of an executable file include. Note this will be read on rehash,
+ # not when the command is run.
+@@ -472,7 +473,7 @@
+ # the default of 'inspircd.pid' is used.                              #
+ #                                                                     #
+ 
+-#<pid file="/path/to/inspircd.pid">
++<pid file="/var/run/inspircd/inspircd.pid">
+ 
+ #-#-#-#-#-#-#-#-#-#-#-#-#- BANLIST LIMITS #-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+ #                                                                     #
+@@ -945,7 +946,7 @@
+ # provide almost all the features of InspIRCd. :)                     #
+ #                                                                     #
+ # The default does nothing -- we include it for simplicity for you.   #
+-<include file="conf/modules.conf.example">
++<include file="/etc/inspircd/modules.conf.example">
+ 
+ # Here are some pre-built modules.conf files that closely match the
+ # default configurations of some popular IRCd's. You still may want to
+@@ -957,10 +958,10 @@
+ # recommended that you make your own modules file based on modules.conf.example.
+ 
+ # Settings similar to UnrealIRCd defaults.
+-#<include file="conf/modules/modules.conf.unreal">
++#<include file="/etc/inspircd/modules/modules.conf.unreal">
+ 
+ # Settings similar to Charybdis IRCd defaults.
+-#<include file="conf/modules/modules.conf.charybdis">
++#<include file="/etc/inspircd/modules/modules.conf.charybdis">
+ 
+ 
+ #########################################################################
+diff -Nur a/make/template/main.mk b/make/template/main.mk
+--- a/make/template/main.mk	2012-07-13 17:38:01.000000000 +0200
++++ b/make/template/main.mk	2012-07-21 20:08:02.584307622 +0200
+@@ -80,22 +80,22 @@
+   CXXFLAGS += -D_ALL_SOURCE -I/usr/local/include
+ @ENDIF
+ 
+-@IFNDEF D
+-  D=0
++@IFNDEF DEBUGLEVEL
++  DEBUGLEVEL=0
+ @ENDIF
+ 
+ DBGOK=0
+-@IFEQ $(D) 0
++@IFEQ $(DEBUGLEVEL) 0
+   CXXFLAGS += -O2 -g1
+   HEADER = std-header
+   DBGOK=1
+ @ENDIF
+-@IFEQ $(D) 1
++@IFEQ $(DEBUGLEVEL) 1
+   CXXFLAGS += -O0 -g3 -Werror
+   HEADER = debug-header
+   DBGOK=1
+ @ENDIF
+-@IFEQ $(D) 2
++@IFEQ $(DEBUGLEVEL) 2
+   CXXFLAGS += -O2 -g3
+   HEADER = debug-header
+   DBGOK=1
+@@ -137,10 +137,10 @@
+     @GNU_ONLY TARGET = modules/$(M:.so=).so
+ @ENDIF
+ 
+-@IFDEF T
++@IFDEF TGT
+     HEADER =
+     FOOTER = target
+-    TARGET = $(T)
++    TARGET = $(TGT)
+ @ENDIF
+ 
+ @IFEQ $(DBGOK) 0
+@@ -215,8 +215,8 @@
+ 	@-install -d -o $(INSTUID) -m $(INSTMODE_DIR) $(BASE)/data
+ 	@-install -d -o $(INSTUID) -m $(INSTMODE_DIR) $(BASE)/logs
+ 	@-install -d -m $(INSTMODE_DIR) $(BINPATH)
+-	@-install -d -m $(INSTMODE_DIR) $(CONPATH)/examples/aliases
+-	@-install -d -m $(INSTMODE_DIR) $(CONPATH)/examples/modules
++	@-install -d -m $(INSTMODE_DIR) $(CONPATH)/aliases
++	@-install -d -m $(INSTMODE_DIR) $(CONPATH)/modules
+ 	@-install -d -m $(INSTMODE_DIR) $(MODPATH)
+ 	[ $(BUILDPATH)/bin/ -ef $(BINPATH) ] || install -m $(INSTMODE_BIN) $(BUILDPATH)/bin/inspircd $(BINPATH)
+ @IFNDEF PURE_STATIC
+@@ -224,9 +224,9 @@
+ @ENDIF
+ 	-install -m $(INSTMODE_BIN) @STARTSCRIPT@ $(BASE) 2>/dev/null
+ 	-install -m $(INSTMODE_LIB) tools/gdbargs $(BASE)/.gdbargs 2>/dev/null
+-	-install -m $(INSTMODE_LIB) docs/conf/*.example $(CONPATH)/examples
+-	-install -m $(INSTMODE_LIB) docs/conf/aliases/*.example $(CONPATH)/examples/aliases
+-	-install -m $(INSTMODE_LIB) docs/conf/modules/*.conf.* $(CONPATH)/examples/modules
++	-install -m $(INSTMODE_LIB) docs/conf/*.example $(CONPATH)
++	-install -m $(INSTMODE_LIB) docs/conf/aliases/*.example $(CONPATH)/aliases
++	-install -m $(INSTMODE_LIB) docs/conf/modules/*.conf.* $(CONPATH)/modules
+ 	@echo ""
+ 	@echo "*************************************"
+ 	@echo "*        INSTALL COMPLETE!          *"
+@@ -238,7 +238,7 @@
+ 	@echo '  Modules:' $(MODPATH)
+ 	@echo 'To start the ircd, run:' $(BASE)/inspircd start
+ 	@echo 'Remember to create your config file:' $(CONPATH)/inspircd.conf
+-	@echo 'Examples are available at:' $(CONPATH)/examples/
++	@echo 'Examples are available at:' $(CONPATH)/
+ 
+ @GNU_ONLY RCS_FILES = $(wildcard .git/index src/version.sh)
+ @BSD_ONLY RCS_FILES = src/version.sh
+diff -Nur a/src/modules/m_xline_db.cpp b/src/modules/m_xline_db.cpp
+--- a/src/modules/m_xline_db.cpp	2012-07-13 17:38:01.000000000 +0200
++++ b/src/modules/m_xline_db.cpp	2012-07-21 20:09:12.402434777 +0200
+@@ -99,7 +99,7 @@
+ 		 *		-- w00t
+ 		 */
+ 		ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Opening temporary database");
+-		f = fopen("data/xline.db.new", "w");
++		f = fopen("/var/lib/inspircd/data/xline.db.new", "w");
+ 		if (!f)
+ 		{
+ 			ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Cannot create database! %s (%d)", strerror(errno), errno);
+@@ -140,7 +140,7 @@
+ 		}
+ 
+ 		// Use rename to move temporary to new db - this is guarenteed not to fuck up, even in case of a crash.
+-		if (rename("data/xline.db.new", "data/xline.db") < 0)
++		if (rename("/var/lib/inspircd/data/xline.db.new", "/var/lib/inspircd/data/xline.db") < 0)
+ 		{
+ 			ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Cannot move new to old database! %s (%d)", strerror(errno), errno);
+ 			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot replace old with new db: %s (%d)", strerror(errno), errno);
+@@ -156,7 +156,7 @@
+ 		char linebuf[MAXBUF];
+ 		unsigned int lineno = 0;
+ 
+-		f = fopen("data/xline.db", "r");
++		f = fopen("/var/lib/inspircd/data/xline.db", "r");
+ 		if (!f)
+ 		{
+ 			if (errno == ENOENT)

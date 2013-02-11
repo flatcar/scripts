@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+  <herd>dev-tools</herd>
+  <herd>proxy-maintainers</herd>
+  <maintainer>
+  	<email>andreis.vinogradovs@gmail.com</email>
+	<name>Andreis Vinogradovs</name>
+	<description>Maintainer. Assign bugs on him</description>
+  </maintainer>
+  <longdescription>
+  This package provides configuration and command-line tools, as well as a rules
+  processing daemon for working with kernel control groups.
+  </longdescription>
+<use>
+  <flag name="daemon">
+    Install the configuration tools and init/config files.
+  </flag>
+  <flag name="tools">
+    Install the cgroup rules processing daemon and init/config files.
+  </flag>
+</use>
+</pkgmetadata>

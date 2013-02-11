@@ -1,0 +1,11 @@
+DEFINED_PHASES=configure install
+DEPEND=>=dev-libs/libxml2-2.6.27 >=dev-libs/libxslt-1.1.9 dev-libs/libgcrypt virtual/libiconv sys-apps/sed
+DESCRIPTION=A set of tools to transform, query, validate, and edit XML documents
+EAPI=4
+HOMEPAGE=http://xmlstar.sourceforge.net/
+KEYWORDS=~amd64 ~ppc ~x86 ~amd64-linux ~x86-linux ~ppc-macos
+LICENSE=MIT
+RDEPEND=>=dev-libs/libxml2-2.6.27 >=dev-libs/libxslt-1.1.9 dev-libs/libgcrypt virtual/libiconv
+SLOT=0
+SRC_URI=mirror://sourceforge/xmlstar/xmlstarlet-1.3.0.tar.gz
+_md5_=e18130f2abd6c7af03e3e2ee3e381f5a

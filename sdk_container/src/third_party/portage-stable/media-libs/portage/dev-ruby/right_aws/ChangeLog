@@ -1,0 +1,15 @@
+# ChangeLog for dev-ruby/right_aws
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/right_aws/ChangeLog,v 1.2 2012/06/15 12:25:22 flameeyes Exp $
+
+*right_aws-3.0.4 (15 Jun 2012)
+
+  15 Jun 2012; Diego E. Pettenò <flameeyes@gentoo.org> +right_aws-3.0.4.ebuild:
+  Version bump.
+
+*right_aws-1.10.0 (28 Jan 2010)
+
+  28 Jan 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +right_aws-1.10.0.ebuild, +metadata.xml:
+  Initial import of RightScale AWS library.
+

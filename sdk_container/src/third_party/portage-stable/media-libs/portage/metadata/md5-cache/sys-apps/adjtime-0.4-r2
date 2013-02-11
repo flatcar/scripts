@@ -1,0 +1,8 @@
+DEFINED_PHASES=install postinst
+DESCRIPTION=A perl script to adjust the clock tick of the hardware clock on the system board (should work on most platforms).
+HOMEPAGE=http://groups.yahoo.com/group/LinkStation_General/
+KEYWORDS=ppc
+LICENSE=as-is
+RDEPEND=dev-lang/perl >=net-misc/ntp-4.2
+SLOT=0
+_md5_=e386c3024cb4dc794ab4f240f1ec6d26

@@ -1,0 +1,308 @@
+# ChangeLog for dev-ruby/mocha
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/mocha/ChangeLog,v 1.77 2013/01/15 07:06:31 zerochaos Exp $
+
+  15 Jan 2013; Rick Farina <zerochaos@gentoo.org> mocha-0.10.5.ebuild,
+  mocha-0.11.4.ebuild, mocha-0.12.7.ebuild, mocha-0.13.0.ebuild,
+  mocha-0.13.1.ebuild:
+  adding ~arm keywords to net-analyzer/metasploit rdeps
+
+*mocha-0.13.1 (24 Dec 2012)
+
+  24 Dec 2012; Hans de Graaff <graaff@gentoo.org> +mocha-0.13.1.ebuild:
+  Version bump.
+
+  13 Nov 2012; Hans de Graaff <graaff@gentoo.org> -mocha-0.9.12.ebuild,
+  -mocha-0.12.3.ebuild:
+  Cleanup.
+
+*mocha-0.13.0 (13 Nov 2012)
+
+  13 Nov 2012; Hans de Graaff <graaff@gentoo.org> +mocha-0.13.0.ebuild:
+  Version bump.
+
+  07 Nov 2012; Jeroen Roovers <jer@gentoo.org> mocha-0.10.5.ebuild:
+  Stable for HPPA (bug #427606).
+
+  28 Oct 2012; Raúl Porcel <armin76@gentoo.org> mocha-0.9.12.ebuild,
+  mocha-0.10.5.ebuild, mocha-0.11.4.ebuild, mocha-0.12.3.ebuild,
+  mocha-0.12.7.ebuild:
+  alpha/ia64/sparc stable wrt #427606, add ~alpha
+
+*mocha-0.12.7 (15 Oct 2012)
+
+  15 Oct 2012; Hans de Graaff <graaff@gentoo.org> +mocha-0.12.7.ebuild:
+  Version bump.
+
+  28 Aug 2012; Hans de Graaff <graaff@gentoo.org> -mocha-0.12.1.ebuild:
+  Cleanup.
+
+*mocha-0.12.3 (12 Aug 2012)
+
+  12 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> +mocha-0.12.3.ebuild:
+  Version bump; use test-unit-2 and the helper function for testing (more
+  consistent among implementations).
+
+  09 Aug 2012; Anthony G. Basile <blueness@gentoo.org> mocha-0.10.5.ebuild:
+  Stable ppc, bug #427594
+
+  09 Aug 2012; Anthony G. Basile <blueness@gentoo.org> mocha-0.10.5.ebuild:
+  Stable ppc64, bug #427606
+
+  04 Aug 2012; Agostino Sarubbo <ago@gentoo.org> mocha-0.10.5.ebuild:
+  Stable for amd64, wrt bug #427606
+
+*mocha-0.12.1 (27 Jul 2012)
+
+  27 Jul 2012; Hans de Graaff <graaff@gentoo.org> +mocha-0.12.1.ebuild:
+  Version bump.
+
+  23 Jul 2012; Jeff Horelick <jdhore@gentoo.org> mocha-0.10.5.ebuild:
+  marked x86 per bug 427606
+
+  22 Jul 2012; Hans de Graaff <graaff@gentoo.org> mocha-0.10.5.ebuild:
+  Fix examples generation to work with all coderay versions.
+
+  27 Jun 2012; Hans de Graaff <graaff@gentoo.org> mocha-0.11.4.ebuild:
+  Run tests directly instead of via rake to avoid unneeded dependency on yard,
+  bug 423187.
+
+  13 Jun 2012; Hans de Graaff <graaff@gentoo.org> -mocha-0.9.10.ebuild,
+  -mocha-0.10.0.ebuild, -mocha-0.10.3.ebuild:
+  Remove old versions.
+
+  13 Jun 2012; Hans de Graaff <graaff@gentoo.org> mocha-0.10.5.ebuild,
+  mocha-0.11.4.ebuild:
+  Add ~ppc based on comment 2 in bug 398985.
+
+  13 Jun 2012; Hans de Graaff <graaff@gentoo.org> mocha-0.10.5.ebuild,
+  mocha-0.11.4.ebuild:
+  Move ~x86 forward to newer versions.
+
+*mocha-0.11.4 (15 May 2012)
+
+  15 May 2012; Hans de Graaff <graaff@gentoo.org> +mocha-0.11.4.ebuild:
+  Version bump.
+
+  05 May 2012; Raúl Porcel <armin76@gentoo.org> mocha-0.10.0.ebuild,
+  mocha-0.10.3.ebuild, mocha-0.10.5.ebuild:
+  Add ~ia64/~sparc wrt #398985
+
+  25 Mar 2012; Raúl Porcel <armin76@gentoo.org> mocha-0.9.12.ebuild:
+  ia64/sparc stable wrt #399799
+
+  11 Mar 2012; Brent Baude <ranger@gentoo.org> mocha-0.10.5.ebuild:
+  Marking mocha-0.10.5 ~ppc64 for bug 396547
+
+  11 Mar 2012; Brent Baude <ranger@gentoo.org> mocha-0.10.0.ebuild:
+  Marking mocha-0.10.0 ~ppc64 for bug 398985
+
+  08 Mar 2012; Brent Baude <ranger@gentoo.org> mocha-0.9.12.ebuild:
+  Marking mocha-0.9.12 ppc64 for bug 399799
+
+  05 Mar 2012; Thomas Kahle <tomka@gentoo.org> mocha-0.10.0.ebuild:
+  marked ~x86 per bug 398985
+
+*mocha-0.10.5 (29 Feb 2012)
+
+  29 Feb 2012; Diego E. Pettenò <flameeyes@gentoo.org> +mocha-0.10.5.ebuild:
+  Version bump.
+
+  09 Feb 2012; Fabian Groffen <grobian@gentoo.org> mocha-0.10.3.ebuild:
+  Rekeyword for Prefix, bug #398985
+
+  07 Feb 2012; Jeroen Roovers <jer@gentoo.org> mocha-0.9.12.ebuild:
+  Stable for HPPA (bug #399799).
+
+  06 Feb 2012; Brent Baude <ranger@gentoo.org> mocha-0.9.12.ebuild:
+  Marking mocha-0.9.12 ppc for bug 399799
+
+  06 Feb 2012; Brent Baude <ranger@gentoo.org> mocha-0.10.0.ebuild:
+  Marking mocha-0.10.0 ~ppc for bug 398985
+
+  28 Jan 2012; Pawel Hajdan jr <phajdan.jr@gentoo.org> mocha-0.9.12.ebuild:
+  x86 stable wrt bug #399799
+
+  23 Jan 2012; Agostino Sarubbo <ago@gentoo.org> mocha-0.9.12.ebuild:
+  Stable for amd64, wrt bug #399799
+
+*mocha-0.10.3 (23 Jan 2012)
+
+  23 Jan 2012; Hans de Graaff <graaff@gentoo.org> +mocha-0.10.3.ebuild:
+  Version bump.
+
+  23 Jan 2012; Hans de Graaff <graaff@gentoo.org> mocha-0.9.12.ebuild:
+  Drop ruby19 to create a stable candidate.
+
+  23 Jan 2012; Hans de Graaff <graaff@gentoo.org> -mocha-0.9.10-r1.ebuild,
+  -mocha-0.9.11.ebuild:
+  Remove old versions.
+
+  18 Jan 2012; Jeroen Roovers <jer@gentoo.org> mocha-0.10.0.ebuild:
+  Marked ~hppa (bug #398985).
+
+*mocha-0.10.0 (15 Jan 2012)
+
+  15 Jan 2012; Hans de Graaff <graaff@gentoo.org> +mocha-0.10.0.ebuild:
+  Version bump. Drop keywords due to new metaclass dependency, bug 398985.
+
+  31 Dec 2011; Fabian Groffen <grobian@gentoo.org> mocha-0.9.12.ebuild:
+  Add Prefix keywords, bug #396547
+
+  03 Oct 2011; Jeroen Roovers <jer@gentoo.org> mocha-0.9.10.ebuild:
+  Stable for HPPA (bug #385149).
+
+  22 Jul 2011; Kacper Kowalik <xarthisius@gentoo.org> mocha-0.9.10.ebuild:
+  ppc64 stable wrt #371259
+
+  16 Apr 2011; Raúl Porcel <armin76@gentoo.org> mocha-0.9.10.ebuild:
+  ia64 stable wrt #353032
+
+  01 Apr 2011; Michael Weber <xmw@gentoo.org> mocha-0.9.10.ebuild:
+  sparc stable (bug 353032)
+
+  27 Mar 2011; Brent Baude <ranger@gentoo.org> mocha-0.9.10.ebuild:
+  Marking mocha-0.9.10 ppc stable for bug 353032
+
+  08 Mar 2011; Markos Chandras <hwoarang@gentoo.org> mocha-0.9.10.ebuild:
+  Stable on amd64 wrt bug #353032
+
+  08 Mar 2011; Thomas Kahle <tomka@gentoo.org> mocha-0.9.10.ebuild:
+  x86 stable per bug 353032
+
+*mocha-0.9.12 (13 Feb 2011)
+
+  13 Feb 2011; Hans de Graaff <graaff@gentoo.org> +mocha-0.9.12.ebuild:
+  Version bump.
+
+*mocha-0.9.11 (04 Feb 2011)
+
+  04 Feb 2011; Hans de Graaff <graaff@gentoo.org> +mocha-0.9.11.ebuild:
+  Version bump.
+
+*mocha-0.9.10-r1 (28 Jan 2011)
+
+  28 Jan 2011; Hans de Graaff <graaff@gentoo.org> mocha-0.9.10.ebuild,
+  +mocha-0.9.10-r1.ebuild:
+  Revision bump to drop ruby19 and create stable candidate.
+
+  22 Jan 2011; Hans de Graaff <graaff@gentoo.org> -mocha-0.9.8-r3.ebuild,
+  -mocha-0.9.9.ebuild:
+  Remove old versions.
+
+  04 Dec 2010; Fabian Groffen <grobian@gentoo.org> mocha-0.9.10.ebuild:
+  Added Prefix keywords
+
+*mocha-0.9.10 (26 Nov 2010)
+
+  26 Nov 2010; Hans de Graaff <graaff@gentoo.org> +mocha-0.9.10.ebuild:
+  Version bump.
+
+  25 Oct 2010; Jeroen Roovers <jer@gentoo.org> mocha-0.9.8-r3.ebuild,
+  mocha-0.9.9.ebuild:
+  Marked ~hppa (bug #322175).
+
+*mocha-0.9.9 (24 Oct 2010)
+
+  24 Oct 2010; Hans de Graaff <graaff@gentoo.org> +mocha-0.9.9.ebuild:
+  Version bump. Drop patch that has been applied upstream.
+
+  17 Aug 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  mocha-0.9.8-r3.ebuild:
+  Thanks again to Thomas Nyman for noticing the broken SRC_URI.
+
+*mocha-0.9.8-r3 (16 Aug 2010)
+
+  16 Aug 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -mocha-0.9.8-r2.ebuild, +mocha-0.9.8-r3.ebuild:
+  Reduce the 1.9.2 fix backport as upstream broke it. Thanks to Thomas Nyman
+  in bug #333015 for reporting.
+
+  29 Jul 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  mocha-0.9.8-r2.ebuild, -files/mocha-0.9.8+ruby-1.9.2.patch:
+  Move patch to dev.gentoo.org as it's quite big.
+
+  29 Jul 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  mocha-0.9.8-r2.ebuild, +files/mocha-0.9.8+ruby-1.9.2.patch:
+  Add patch to pass tests with Ruby 1.9.2 (directly from upstream).
+
+  22 May 2010; Alex Legler <a3li@gentoo.org> mocha-0.9.8-r2.ebuild:
+  Add REE18 support
+
+  22 May 2010; Diego E. Pettenò <flameeyes@gentoo.org> -mocha-0.9.8.ebuild,
+  -mocha-0.9.8-r1.ebuild, mocha-0.9.8-r2.ebuild:
+  Cleanup old versions, use new syntax.
+
+  16 Jan 2010; Raúl Porcel <armin76@gentoo.org> mocha-0.9.8-r2.ebuild:
+  Add ~ia64/~sparc wrt #300372
+
+  14 Jan 2010; Brent Baude <ranger@gentoo.org> mocha-0.9.8-r2.ebuild:
+  Marking mocha-0.9.8-r2 ~ppc for bug 297711
+
+  13 Jan 2010; Brent Baude <ranger@gentoo.org> mocha-0.9.8-r2.ebuild:
+  Marking mocha-0.9.8-r2 ~ppc64 for bug 300739
+
+  10 Jan 2010; Hans de Graaff <graaff@gentoo.org> mocha-0.9.8-r2.ebuild:
+  Add coderay dependency to build the docs, fixes #299873.
+  Drop ~ia64 and ~sparc keywords because of this: #300372.
+
+  30 Dec 2009; Raúl Porcel <armin76@gentoo.org> mocha-0.9.8.ebuild,
+  mocha-0.9.8-r1.ebuild:
+  Add ~ia64/~sparc
+
+*mocha-0.9.8-r1 (15 Dec 2009)
+
+  15 Dec 2009; Diego E. Pettenò <flameeyes@gentoo.org>
+  +mocha-0.9.8-r1.ebuild:
+  Bump to ruby-fakegem.
+
+  09 Dec 2009; Hans de Graaff <graaff@gentoo.org> -mocha-0.9.7.ebuild:
+  Remove old version.
+
+*mocha-0.9.8 (03 Oct 2009)
+
+  03 Oct 2009; Alex Legler <a3li@gentoo.org> +mocha-0.9.8.ebuild:
+  Version bump
+
+  24 Aug 2009; Hans de Graaff <graaff@gentoo.org> -mocha-0.9.4.ebuild,
+  -mocha-0.9.5.ebuild:
+  Remove old versions.
+
+*mocha-0.9.7 (20 Jul 2009)
+
+  20 Jul 2009; Hans de Graaff <graaff@gentoo.org> +mocha-0.9.7.ebuild:
+  Version bump.
+
+*mocha-0.9.5 (01 Jun 2009)
+
+  01 Jun 2009; Hans de Graaff <graaff@gentoo.org> +mocha-0.9.5.ebuild:
+  Version bump.
+
+  26 May 2009; Hans de Graaff <graaff@gentoo.org> -mocha-0.5.6.ebuild,
+  -mocha-0.9.3.ebuild:
+  Remove old versions.
+
+*mocha-0.9.4 (01 Jan 2009)
+
+  01 Jan 2009; Hans de Graaff <graaff@gentoo.org> +mocha-0.9.4.ebuild:
+  Version bump
+
+*mocha-0.9.3 (20 Dec 2008)
+
+  20 Dec 2008; Hans de Graaff <graaff@gentoo.org> +mocha-0.9.3.ebuild:
+  Version bump
+
+  18 Jun 2008; Hans de Graaff <graaff@gentoo.org> -mocha-0.5.4.ebuild,
+  mocha-0.5.6.ebuild:
+  Add rake dependency, fixing #227873. Remove older version.
+
+*mocha-0.5.6 (26 Jan 2008)
+
+  26 Jan 2008; Hans de Graaff <graaff@gentoo.org> +mocha-0.5.6.ebuild:
+  Version bump
+
+*mocha-0.5.4 (16 Sep 2007)
+
+  16 Sep 2007; Joshua Nichols <nichoj@gentoo.org> +metadata.xml,
+  +mocha-0.5.4.ebuild:
+  Initial commit.

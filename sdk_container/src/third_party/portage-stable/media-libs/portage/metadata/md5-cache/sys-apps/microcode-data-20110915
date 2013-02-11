@@ -1,0 +1,10 @@
+DEFINED_PHASES=install postinst
+DESCRIPTION=Intel IA32 microcode update data
+EAPI=4
+HOMEPAGE=http://urbanmyth.org/microcode/
+KEYWORDS=~amd64 ~x86
+LICENSE=intel-ucode
+RDEPEND=!<sys-apps/microcode-ctl-1.17-r2
+SLOT=0
+SRC_URI=http://downloadmirror.intel.com/20429/eng/microcode-20110915.tgz
+_md5_=7b16bf16fb8b1a441b5f12f7098d4147

@@ -1,0 +1,33 @@
+# ChangeLog for dev-ruby/litc
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/litc/ChangeLog,v 1.6 2012/08/25 06:31:57 graaff Exp $
+
+  25 Aug 2012; Hans de Graaff <graaff@gentoo.org> litc-1.0.3.ebuild:
+  EAPI=4, add ruby19 & ree18, modernize bdepend, drop unneeded ruby-debug
+  dependency.
+
+  18 Sep 2010; Hans de Graaff <graaff@gentoo.org> litc-1.0.3.ebuild:
+  Remove unneeded check_dependencies task, fixing bug 332925.
+
+*litc-1.0.3 (16 Feb 2010)
+
+  16 Feb 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -litc-1.0.2-r1.ebuild, -files/litc-1.0.2-fixes.patch, +litc-1.0.3.ebuild:
+  Upstream released a new version with the patches merged in.
+
+*litc-1.0.2-r1 (16 Feb 2010)
+
+  16 Feb 2010; Diego E. Pettenò <flameeyes@gentoo.org> -litc-1.0.2.ebuild,
+  +litc-1.0.2-r1.ebuild, +files/litc-1.0.2-fixes.patch,
+  -files/litc-1.0.2-tests.patch:
+  Fix litc to work properly.
+
+  12 Feb 2010; Diego E. Pettenò <flameeyes@gentoo.org> litc-1.0.2.ebuild:
+  Add ~x86 keyword (tested in development container).
+
+*litc-1.0.2 (11 Feb 2010)
+
+  11 Feb 2010; Diego E. Pettenò <flameeyes@gentoo.org> +litc-1.0.2.ebuild,
+  +files/litc-1.0.2-tests.patch, +metadata.xml:
+  Initial import of litc.
+

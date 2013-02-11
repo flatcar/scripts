@@ -1,0 +1,26 @@
+# ChangeLog for dev-ruby/flog
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/flog/ChangeLog,v 1.5 2012/08/16 03:53:14 flameeyes Exp $
+
+  16 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> flog-2.5.3.ebuild:
+  Update after Ruby packages move.
+
+  06 Aug 2012; Hans de Graaff <graaff@gentoo.org> -flog-2.5.2.ebuild:
+  Cleanup.
+
+*flog-2.5.3 (07 Oct 2011)
+
+  07 Oct 2011; Hans de Graaff <graaff@gentoo.org> -flog-2.5.1.ebuild,
+  +flog-2.5.3.ebuild:
+  Version bump.
+
+*flog-2.5.2 (12 Aug 2011)
+
+  12 Aug 2011; Hans de Graaff <graaff@gentoo.org> +flog-2.5.2.ebuild:
+  Version bump.
+
+*flog-2.5.1 (19 Mar 2011)
+
+  19 Mar 2011; Hans de Graaff <graaff@gentoo.org> +flog-2.5.1.ebuild,
+  +metadata.xml:
+  Initial import from graaff overlay. Closed bug 234770.

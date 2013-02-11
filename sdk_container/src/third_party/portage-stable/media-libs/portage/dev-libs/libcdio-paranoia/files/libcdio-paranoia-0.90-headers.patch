@@ -1,0 +1,24 @@
+--- configure.ac
++++ configure.ac
+@@ -29,7 +29,7 @@
+ AM_INIT_AUTOMAKE
+ 
+ AC_CANONICAL_HOST
+-AM_CONFIG_HEADER(config.h)
++AC_CONFIG_HEADERS(config.h)
+ AC_CONFIG_MACRO_DIR([m4])
+ 
+ AM_MISSING_PROG(HELP2MAN, help2man, $missing_dir)
+--- include/cdio/paranoia/Makefile.am
++++ include/cdio/paranoia/Makefile.am
+@@ -3,8 +3,8 @@
+ ########################################################
+ #
+ 
+-libcdioincludedir=$(includedir)/cdio
+-dist_libcdioinclude_HEADERS = cdda.h paranoia.h 
++cdio_paranoia_includedir=$(includedir)/cdio/paranoia
++dist_cdio_paranoia_include_HEADERS = cdda.h paranoia.h 
+ 
+ EXTRA_DIST = version.h.in
+ BUILT_SOURCES = version.h

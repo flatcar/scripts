@@ -1,0 +1,9 @@
+# ChangeLog for net-irc/xaric
+# Copyright 1999-2010 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-irc/xaric/ChangeLog,v 1.1 2010/03/24 20:29:19 ssuominen Exp $
+
+*xaric-0.13.5 (24 Mar 2010)
+
+  24 Mar 2010; Samuli Suominen <ssuominen@gentoo.org> +xaric-0.13.5.ebuild:
+  Initial commit.
+

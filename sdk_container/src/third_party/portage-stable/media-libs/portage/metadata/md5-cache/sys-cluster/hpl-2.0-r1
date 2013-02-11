@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install postinst prepare
+DEPEND=virtual/mpi virtual/blas virtual/lapack
+DESCRIPTION=A Portable Implementation of the High-Performance Linpack Benchmark for Distributed-Memory Computers
+EAPI=4
+HOMEPAGE=http://www.netlib.org/benchmark/hpl/
+IUSE=doc
+KEYWORDS=~x86 ~amd64
+LICENSE=HPL
+RDEPEND=virtual/mpi virtual/blas virtual/lapack
+SLOT=0
+SRC_URI=http://www.netlib.org/benchmark/hpl/hpl-2.0.tar.gz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=b47bd0b2b4bfa62a0bc250f8e97d8ac6

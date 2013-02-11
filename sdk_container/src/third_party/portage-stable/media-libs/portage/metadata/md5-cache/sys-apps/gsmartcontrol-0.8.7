@@ -1,0 +1,13 @@
+DEFINED_PHASES=configure install postinst postrm preinst
+DEPEND=dev-cpp/gtkmm:2.4 dev-libs/libpcre sys-apps/smartmontools virtual/pkgconfig test? ( dev-util/gtk-builder-convert ) >=sys-apps/sed-4
+DESCRIPTION=Hard disk drive health inspection tool
+EAPI=4
+HOMEPAGE=http://gsmartcontrol.berlios.de/
+IUSE=test
+KEYWORDS=~amd64 ~x86
+LICENSE=|| ( GPL-2 GPL-3 ) Boost-1.0 BSD Unlicense ZLIB
+RDEPEND=dev-cpp/gtkmm:2.4 dev-libs/libpcre sys-apps/smartmontools x11-apps/xmessage
+SLOT=0
+SRC_URI=mirror://berlios/gsmartcontrol/gsmartcontrol-0.8.7.tar.bz2 http://artificialtime.com/gsmartcontrol/gsmartcontrol-0.8.7.tar.bz2
+_eclasses_=gnome2-utils	794d2847b4af390a1e020924876c8297
+_md5_=b298d10d6fc9f2a9a4b31161e521e5aa

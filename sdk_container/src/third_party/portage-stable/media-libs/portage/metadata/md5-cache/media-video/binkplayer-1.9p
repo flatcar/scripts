@@ -1,0 +1,10 @@
+DEFINED_PHASES=install
+DEPEND=app-arch/unzip
+DESCRIPTION=Bink Video! Player
+HOMEPAGE=http://www.radgametools.com/default.htm
+KEYWORDS=-* amd64 x86
+LICENSE=as-is
+RDEPEND=amd64? ( app-emulation/emul-linux-x86-sdl app-emulation/emul-linux-x86-compat ) x86? ( media-libs/libsdl media-libs/sdl-mixer ~virtual/libstdc++-3.3 )
+SLOT=0
+SRC_URI=mirror://gentoo/binkplayer-1.9p.zip
+_md5_=67f7e7bed46ce1da690d7c2283c8c9b4

@@ -1,0 +1,70 @@
+# ChangeLog for dev-ruby/amazon-ec2
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/amazon-ec2/ChangeLog,v 1.12 2012/07/28 17:24:44 graaff Exp $
+
+  28 Jul 2012; Hans de Graaff <graaff@gentoo.org> -amazon-ec2-0.9.15.ebuild:
+  Cleanup.
+
+  07 Aug 2011; Diego E. Pettenò <flameeyes@gentoo.org>
+  amazon-ec2-0.9.17.ebuild, +files/amazon-ec2-0.9.17+ruby-1.9.2.patch:
+  Fix building with USE=doc (remove bundler reference from all copies); fix
+  tests with Ruby 1.9.2; add missing ruby-ssl dependency; use test-unit-2 as
+  that's what upstream seems to prefer.
+
+*amazon-ec2-0.9.17 (21 Jul 2011)
+
+  21 Jul 2011; Hans de Graaff <graaff@gentoo.org> +amazon-ec2-0.9.17.ebuild:
+  Version bump. Fix tests breaking due to missing yard, bug 339261.
+
+  15 Aug 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  amazon-ec2-0.9.15.ebuild:
+  Block test-unit:2 for testing.
+
+*amazon-ec2-0.9.15 (10 Jun 2010)
+
+  10 Jun 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -amazon-ec2-0.9.14.ebuild, +amazon-ec2-0.9.15.ebuild:
+  Version bump.
+
+*amazon-ec2-0.9.14 (23 May 2010)
+
+  23 May 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -amazon-ec2-0.9.4.ebuild, -amazon-ec2-0.9.10.ebuild,
+  -amazon-ec2-0.9.12.ebuild, +amazon-ec2-0.9.14.ebuild:
+  Version bump; cleanup old versions; use new syntax.
+
+  26 Apr 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  amazon-ec2-0.9.12.ebuild:
+  Enable ruby19 support, test-spec with test-unit-2 works for testing this.
+
+*amazon-ec2-0.9.12 (26 Apr 2010)
+
+  26 Apr 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +amazon-ec2-0.9.12.ebuild:
+  Version bump.
+
+*amazon-ec2-0.9.10 (04 Apr 2010)
+
+  04 Apr 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +amazon-ec2-0.9.10.ebuild:
+  Version bump.
+
+  13 Feb 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  amazon-ec2-0.9.4.ebuild:
+  Generate documentation using YARD rather than RDoc as the options hashes
+  aren't documented very well otherwise.
+
+*amazon-ec2-0.9.4 (12 Feb 2010)
+
+  12 Feb 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -amazon-ec2-0.9.3.ebuild, -files/amazon-ec2-0.9.3-fixes.patch,
+  +amazon-ec2-0.9.4.ebuild:
+  Bump and remove patch (merged upstream for release).
+
+*amazon-ec2-0.9.3 (12 Feb 2010)
+
+  12 Feb 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +amazon-ec2-0.9.3.ebuild, +files/amazon-ec2-0.9.3-fixes.patch,
+  +metadata.xml:
+  Initial import of amazon-ec2 gem. Pushed the fixes upstream.
+

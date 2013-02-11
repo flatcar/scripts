@@ -1,0 +1,63 @@
+diff --git a/extconf.rb b/extconf.rb
+index 06a6284..f8c04e9 100755
+--- a/extconf.rb
++++ b/extconf.rb
+@@ -156,6 +156,8 @@ if macro_defined?("PG_TRY", %Q{#include "c.h"\n#include "utils/elog.h"})
+     $CFLAGS += " -DPG_PL_TRYCATCH"
+ end
+ 
++have_library('pq', 'PQconnectdb')
++
+ enable_conversion = false
+ if enable_conversion = enable_config("conversion", true)
+    $CFLAGS += " -DPLRUBY_ENABLE_CONVERSION"
+diff --git a/src/conversions/basic/extconf.rb b/src/conversions/basic/extconf.rb
+index d4833b8..f788d9c 100644
+--- a/src/conversions/basic/extconf.rb
++++ b/src/conversions/basic/extconf.rb
+@@ -4,4 +4,5 @@ if CONFIG["LIBRUBYARG"] == "$(LIBRUBYARG_SHARED)" &&
+       !enable_config("plruby-shared")
+    $LIBRUBYARG = ""
+ end
++have_library('ruby18', 'ruby_init')
+ create_makefile('plruby/plruby_basic')
+diff --git a/src/conversions/bitstring/extconf.rb b/src/conversions/bitstring/extconf.rb
+index e980c1e..b6f89d3 100644
+--- a/src/conversions/bitstring/extconf.rb
++++ b/src/conversions/bitstring/extconf.rb
+@@ -4,4 +4,5 @@ if CONFIG["LIBRUBYARG"] == "$(LIBRUBYARG_SHARED)" &&
+       !enable_config("plruby-shared")
+    $LIBRUBYARG = ""
+ end
++have_library('ruby18', 'ruby_init')
+ create_makefile('plruby/plruby_bitstring')
+diff --git a/src/conversions/datetime/extconf.rb b/src/conversions/datetime/extconf.rb
+index c5de23b..caeebea 100644
+--- a/src/conversions/datetime/extconf.rb
++++ b/src/conversions/datetime/extconf.rb
+@@ -4,4 +4,5 @@ if CONFIG["LIBRUBYARG"] == "$(LIBRUBYARG_SHARED)" &&
+       !enable_config("plruby-shared")
+    $LIBRUBYARG = ""
+ end
++have_library('ruby18', 'ruby_init')
+ create_makefile('plruby/plruby_datetime')
+diff --git a/src/conversions/geometry/extconf.rb b/src/conversions/geometry/extconf.rb
+index 9fcf48e..74655b3 100644
+--- a/src/conversions/geometry/extconf.rb
++++ b/src/conversions/geometry/extconf.rb
+@@ -4,4 +4,5 @@ if CONFIG["LIBRUBYARG"] == "$(LIBRUBYARG_SHARED)" &&
+       !enable_config("plruby-shared")
+    $LIBRUBYARG = ""
+ end
++have_library('ruby18', 'ruby_init')
+ create_makefile('plruby/plruby_geometry')
+diff --git a/src/conversions/network/extconf.rb b/src/conversions/network/extconf.rb
+index 29952ee..612e7fa 100644
+--- a/src/conversions/network/extconf.rb
++++ b/src/conversions/network/extconf.rb
+@@ -4,4 +4,5 @@ if CONFIG["LIBRUBYARG"] == "$(LIBRUBYARG_SHARED)" &&
+       !enable_config("plruby-shared")
+    $LIBRUBYARG = ""
+ end
++have_library('ruby18', 'ruby_init')
+ create_makefile('plruby/plruby_network')

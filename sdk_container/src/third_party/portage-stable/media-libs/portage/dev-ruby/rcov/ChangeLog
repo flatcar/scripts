@@ -1,0 +1,108 @@
+# ChangeLog for dev-ruby/rcov
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/rcov/ChangeLog,v 1.22 2012/09/15 09:58:56 graaff Exp $
+
+  15 Sep 2012; Hans de Graaff <graaff@gentoo.org> -rcov-0.9.9.ebuild:
+  Cleanup.
+
+*rcov-1.0 (14 Feb 2012)
+
+  14 Feb 2012; Diego E. Pettenò <flameeyes@gentoo.org> +rcov-1.0.ebuild,
+  rcov-0.9.11.ebuild, rcov-0.9.9.ebuild:
+  Version bump; drop jruby support as it doesn't build with current JRuby and
+  upstream is not very friendly.
+
+  28 Jan 2012; Hans de Graaff <graaff@gentoo.org> -rcov-0.9.7.1.ebuild,
+  -rcov-0.9.8.ebuild:
+  Remove old versions.
+
+*rcov-0.9.11 (10 Oct 2011)
+
+  10 Oct 2011; Hans de Graaff <graaff@gentoo.org> +rcov-0.9.11.ebuild:
+  Version bump.
+
+*rcov-0.9.9 (19 Sep 2010)
+
+  19 Sep 2010; Hans de Graaff <graaff@gentoo.org> +rcov-0.9.9.ebuild:
+  Version bump.
+
+*rcov-0.9.8 (29 Jun 2010)
+
+  29 Jun 2010; Hans de Graaff <graaff@gentoo.org> +rcov-0.9.8.ebuild:
+  Version bump. Upstream did not tag release, using hash instead. Tests
+  still fail.
+
+  01 May 2010; Diego E. Pettenò <flameeyes@gentoo.org> rcov-0.9.7.1.ebuild:
+  Restore original SRC_URI.
+
+  30 Apr 2010; Hans de Graaff <graaff@gentoo.org> rcov-0.9.7.1.ebuild:
+  Deal with github changing their tarball generation.
+
+  10 Feb 2010; Torsten Veller <tove@gentoo.org> rcov-0.9.7.1.ebuild:
+  Add missing die: || "..." -> || die "..."
+
+  14 Jan 2010; Diego E. Pettenò <flameeyes@gentoo.org> rcov-0.9.7.1.ebuild,
+  +files/rcov-0.9.7.1-jruby.patch:
+  Add a patch to build properly with JRuby (sent upstream), and enable jruby
+  target.
+
+*rcov-0.9.7.1 (29 Dec 2009)
+
+  29 Dec 2009; Diego E. Pettenò <flameeyes@gentoo.org>
+  -rcov-0.8.1.2.0.ebuild, -rcov-0.9.6.ebuild, -rcov-0.9.6-r1.ebuild,
+  -rcov-0.9.7.ebuild, +rcov-0.9.7.1.ebuild:
+  Version bump, remove old versions, restrict tests again, remove jruby
+  support for now, even though the ebuild is ready to handle it properly
+  this time.
+
+*rcov-0.9.7 (28 Dec 2009)
+
+  28 Dec 2009; Diego E. Pettenò <flameeyes@gentoo.org> +rcov-0.9.7.ebuild:
+  Version bump, enable tests (even though they fail right now — reported
+  upstream).
+
+*rcov-0.9.6-r1 (25 Dec 2009)
+
+  25 Dec 2009; Diego E. Pettenò <flameeyes@gentoo.org>
+  +rcov-0.9.6-r1.ebuild:
+  Bump to ruby-fakegem, add support for ruby19 and jruby.
+
+*rcov-0.9.6 (05 Dec 2009)
+
+  05 Dec 2009; Hans de Graaff <graaff@gentoo.org> +rcov-0.9.6.ebuild:
+  Version bump.
+
+  31 May 2009; Hans de Graaff <graaff@gentoo.org> -rcov-0.8.0.1.ebuild,
+  -rcov-0.8.0.2.ebuild:
+  Remove old versions.
+
+*rcov-0.8.1.2.0 (23 Nov 2007)
+
+  23 Nov 2007; Hans de Graaff <graaff@gentoo.org> +rcov-0.8.1.2.0.ebuild:
+  Version bump, fixes #195505.
+
+*rcov-0.8.0.2 (20 Sep 2007)
+
+  20 Sep 2007; Hans de Graaff <graaff@gentoo.org> +rcov-0.8.0.2.ebuild:
+  Version bump.
+
+  17 Mar 2007; Robin H. Johnson <robbat2@gentoo.org> rcov-0.8.0.1.ebuild:
+  Add ~ppc.
+
+*rcov-0.8.0.1 (28 Feb 2007)
+
+  28 Feb 2007; Nguyễn Thái Ngọc Duy <pclouds@gentoo.org>
+  -rcov-0.5.0.1.ebuild, -rcov-0.7.0.1.ebuild, +rcov-0.8.0.1.ebuild:
+  Version bump
+
+*rcov-0.7.0.1 (28 Aug 2006)
+
+  28 Aug 2006; Nguyễn Thái Ngọc Duy <pclouds@gentoo.org> +rcov-0.7.0.1.ebuild:
+  Version bump (#144573)
+
+*rcov-0.5.0.1 (02 Jun 2006)
+
+  02 Jun 2006; Caleb Tennis <caleb@gentoo.org> +metadata.xml,
+  +rcov-0.5.0.1.ebuild:
+  Initial import of rcov, code coverage analysis tool
+

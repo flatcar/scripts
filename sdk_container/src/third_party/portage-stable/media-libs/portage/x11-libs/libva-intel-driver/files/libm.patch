@@ -1,0 +1,27 @@
+commit eb39abb70886d9277cf7d5114125cb7b22e7c362
+Author: Joe Konno <joe.konno@intel.com>
+Date:   Tue Nov 20 07:42:27 2012 -0800
+
+    configure: add missing dependency to libm.
+    
+    Build broke when trying to compile with expressive debug CFLAGS (-g3).
+    This was root-caused to the lack of the "-lm" linker flag. By adding a
+    simple autoconf check we ensure that libm is linked.
+    
+    More specifically, recent VEBOX changes depend on cos() and sin() math
+    functions.
+    
+    Signed-off-by: Joe Konno <joe.konno@intel.com>
+
+diff --git a/configure.ac b/configure.ac
+index 4427839..2655d74 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -64,6 +64,7 @@ AM_PROG_CC_C_O
+ AC_C_BIGENDIAN
+ AC_HEADER_STDC
+ AC_SYS_LARGEFILE
++AC_CHECK_LIB([m], [sin])
+ 
+ LIBVA_PACKAGE_VERSION=libva_package_version
+ AC_SUBST(LIBVA_PACKAGE_VERSION)

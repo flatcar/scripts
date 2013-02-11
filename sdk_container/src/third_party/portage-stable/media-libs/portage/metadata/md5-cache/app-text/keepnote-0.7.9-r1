@@ -1,0 +1,14 @@
+DEFINED_PHASES=compile configure install postinst postrm preinst prepare test
+DEPEND=>=sys-apps/sed-4 !<sys-apps/portage-2.1.10.58 python_targets_python2_6? ( dev-lang/python:2.6[sqlite,xml] ) python_targets_python2_7? ( dev-lang/python:2.7[sqlite,xml] )
+DESCRIPTION=A note taking application
+EAPI=4
+HOMEPAGE=http://keepnote.org/
+IUSE=python_targets_python2_6 python_targets_python2_7
+KEYWORDS=~amd64 ~x86
+LICENSE=GPL-2
+RDEPEND=dev-python/pygobject:2 dev-python/pygtk:2 x11-misc/xdg-utils python_targets_python2_6? ( dev-lang/python:2.6[sqlite,xml] ) python_targets_python2_7? ( dev-lang/python:2.7[sqlite,xml] )
+REQUIRED_USE=|| ( python_targets_python2_6 python_targets_python2_7 )
+SLOT=0
+SRC_URI=http://keepnote.org/download-test/keepnote-0.7.9.tar.gz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	gnome2-utils	794d2847b4af390a1e020924876c8297	multilib	ded93e450747134a079e647d888aa80b	python-distutils-ng	b6176485a30153729ae856cd37d0174c	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=9ab7ba8d3b067b1c4487a723708920fb

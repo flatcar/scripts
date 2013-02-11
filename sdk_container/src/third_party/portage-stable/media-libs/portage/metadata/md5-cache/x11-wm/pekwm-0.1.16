@@ -1,0 +1,13 @@
+DEFINED_PHASES=configure install
+DEPEND=virtual/jpeg media-libs/libpng x11-libs/libXpm x11-libs/libXrandr x11-libs/libXrender truetype? ( x11-libs/libXft ) xinerama? ( x11-libs/libXinerama ) virtual/pkgconfig
+DESCRIPTION=A small window mananger based on aewm++
+EAPI=5
+HOMEPAGE=http://pekwm.org/
+IUSE=debug truetype xinerama
+KEYWORDS=~amd64 ~mips ~ppc ~sparc ~x86 ~x86-fbsd
+LICENSE=GPL-2
+RDEPEND=virtual/jpeg media-libs/libpng x11-libs/libXpm x11-libs/libXrandr x11-libs/libXrender truetype? ( x11-libs/libXft ) xinerama? ( x11-libs/libXinerama )
+SLOT=0
+SRC_URI=http://pekwm.org/projects/pekwm/files/pekwm-0.1.16.tar.bz2 mirror://gentoo/pekwm-themes.tar.bz2
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=eaff7e3d5a409b386ff57ea663cc5e3d

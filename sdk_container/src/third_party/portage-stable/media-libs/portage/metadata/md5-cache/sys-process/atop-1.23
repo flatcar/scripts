@@ -1,0 +1,10 @@
+DEFINED_PHASES=install unpack
+DEPEND=sys-process/acct
+DESCRIPTION=Resource-specific view of processes
+HOMEPAGE=http://www.atcomputing.nl/Tools/atop
+KEYWORDS=amd64 hppa ppc x86
+LICENSE=GPL-2
+RDEPEND=sys-process/acct
+SLOT=0
+SRC_URI=http://www.atconsultancy.nl/atop/packages/atop-1.23.tar.gz
+_md5_=9ba6f8d8430e386ca193a7e0af5be3b1

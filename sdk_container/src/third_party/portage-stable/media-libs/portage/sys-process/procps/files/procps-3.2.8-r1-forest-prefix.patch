@@ -1,0 +1,42 @@
+avoid gcc warnings like:
+
+ps/output.c:341:6: warning: the address of ‘forest_prefix’ will always evaluate as ‘true’
+
+--- a/ps/output.c
++++ b/ps/output.c
+@@ -338,7 +338,7 @@ static int pr_args(char *restrict const 
+   unsigned flags;
+   int rightward=max_rightward;
+ 
+-  if(forest_prefix){
++  if(/*forest_prefix*/1){
+     int fh = forest_helper(outbuf);
+     endp += fh;
+     rightward -= fh;
+@@ -405,7 +405,7 @@ static int pr_cgroup(char *restrict cons
+  if(pp->cgroup && *pp->cgroup) {
+    char *endp = outbuf;
+    int rightward=max_rightward;
+-   if(forest_prefix){
++   if(/*forest_prefix*/1){
+        int fh = forest_helper(outbuf);
+        endp += fh;
+        rightward -= fh;
+@@ -365,7 +365,7 @@ static int pr_comm(char *restrict const 
+   unsigned flags;
+   int rightward=max_rightward;
+   
+-  if(forest_prefix){
++  if(/*forest_prefix*/1){
+     int fh = forest_helper(outbuf);
+     endp += fh;
+     rightward -= fh;
+@@ -390,7 +390,7 @@ static int pr_fname(char *restrict const
+   char *endp = outbuf;
+   int rightward = max_rightward;
+   
+-  if(forest_prefix){
++  if(/*forest_prefix*/1){
+     int fh = forest_helper(outbuf);
+     endp += fh;
+     rightward -= fh;

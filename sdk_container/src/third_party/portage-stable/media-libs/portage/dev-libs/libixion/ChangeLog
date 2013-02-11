@@ -1,0 +1,15 @@
+# ChangeLog for dev-libs/libixion
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/libixion/ChangeLog,v 1.2 2012/09/02 16:50:38 scarabeus Exp $
+
+*libixion-9999 (02 Sep 2012)
+
+  02 Sep 2012; Tomáš Chvátal <scarabeus@gentoo.org> +libixion-9999.ebuild:
+  Provide also live version
+
+*libixion-0.3.0 (02 Sep 2012)
+
+  02 Sep 2012; Tomáš Chvátal <scarabeus@gentoo.org> +libixion-0.3.0.ebuild,
+  +metadata.xml:
+  Initial commit of this multipurpose library, will be used by orcus in future
+  when it has release.

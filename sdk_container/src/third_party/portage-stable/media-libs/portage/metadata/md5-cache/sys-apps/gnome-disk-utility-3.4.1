@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install postinst postrm preinst prepare unpack
+DEPEND=>=dev-libs/glib-2.31:2 >=sys-fs/udisks-1.90:2 >=x11-libs/gtk+-3.3.11:3 >=dev-util/intltool-0.50 virtual/pkgconfig app-arch/xz-utils >=sys-apps/sed-4
+DESCRIPTION=Disk Utility for GNOME using udisks
+EAPI=4
+HOMEPAGE=http://git.gnome.org/browse/gnome-disk-utility
+IUSE=fat
+KEYWORDS=~amd64 ~arm ~ppc ~ppc64 ~sh ~x86
+LICENSE=LGPL-2
+RDEPEND=>=dev-libs/glib-2.31:2 >=sys-fs/udisks-1.90:2 >=x11-libs/gtk+-3.3.11:3 >=x11-themes/gnome-icon-theme-symbolic-2.91 fat? ( sys-fs/dosfstools )
+SLOT=0
+SRC_URI=mirror://gnome/sources/gnome-disk-utility/3.4/gnome-disk-utility-3.4.1.tar.xz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	fdo-mime	0acfe1a88fd8751a1d5dc671168219fa	gnome.org	8fef8f967214f56e08fa92d61163d891	gnome2	96ca31031ada9967bcf96a4fd8977ae4	gnome2-utils	794d2847b4af390a1e020924876c8297	libtool	2b273eea1976cfaed3449345d94331ac	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=485c96cf0b9a3bbfbe6dc28abe1bb0f7

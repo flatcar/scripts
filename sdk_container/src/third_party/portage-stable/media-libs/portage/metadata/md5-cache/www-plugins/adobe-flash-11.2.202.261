@@ -1,0 +1,14 @@
+DEFINED_PHASES=compile install postinst pretend setup unpack
+DEPEND=amd64? ( multilib? ( !64bit? ( www-plugins/nspluginwrapper ) ) ) selinux? ( sec-policy/selinux-flash )
+DESCRIPTION=Adobe Flash Player
+EAPI=4
+HOMEPAGE=http://www.adobe.com/products/flashplayer.html
+IUSE=multilib -32bit +64bit selinux vdpau kde +sse2check
+KEYWORDS=-* amd64 x86
+LICENSE=AdobeFlash-10.3
+RDEPEND=x86? ( x11-libs/gtk+:2 media-libs/fontconfig dev-libs/nss net-misc/curl vdpau? ( x11-libs/libvdpau ) kde? ( kde-base/kcmshell ) >=sys-libs/glibc-2.4 ) amd64? ( multilib? ( 64bit? ( x11-libs/gtk+:2 media-libs/fontconfig dev-libs/nss net-misc/curl vdpau? ( x11-libs/libvdpau ) kde? ( kde-base/kcmshell ) >=sys-libs/glibc-2.4 ) 32bit? ( vdpau? ( >=app-emulation/emul-linux-x86-xlibs-20110129 ) >=app-emulation/emul-linux-x86-gtklibs-20100409-r1 app-emulation/emul-linux-x86-soundlibs ) ) !multilib? ( x11-libs/gtk+:2 media-libs/fontconfig dev-libs/nss net-misc/curl vdpau? ( x11-libs/libvdpau ) kde? ( kde-base/kcmshell ) >=sys-libs/glibc-2.4 ) ) || ( media-fonts/liberation-fonts media-fonts/corefonts ) amd64? ( multilib? ( !64bit? ( www-plugins/nspluginwrapper ) ) ) selinux? ( sec-policy/selinux-flash )
+RESTRICT=strip mirror
+SLOT=0
+SRC_URI=x86? ( http://fpdownload.macromedia.com/get/flashplayer/pdc/11.2.202.261/install_flash_player_11_linux.i386.tar.gz -> adobe-flash-11.2.202.261.i386.tar.gz ) amd64? ( multilib? ( 32bit? ( http://fpdownload.macromedia.com/get/flashplayer/pdc/11.2.202.261/install_flash_player_11_linux.i386.tar.gz -> adobe-flash-11.2.202.261.i386.tar.gz ) 64bit? ( http://fpdownload.macromedia.com/get/flashplayer/pdc/11.2.202.261/install_flash_player_11_linux.x86_64.tar.gz -> adobe-flash-11.2.202.261.x86_64.tar.gz ) ) !multilib? ( http://fpdownload.macromedia.com/get/flashplayer/pdc/11.2.202.261/install_flash_player_11_linux.x86_64.tar.gz -> adobe-flash-11.2.202.261.x86_64.tar.gz ) )
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	nsplugins	b195a1306f4ee7cf507037dc6aa5ba89	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=bfa616f6623796a032d42e83711434fd

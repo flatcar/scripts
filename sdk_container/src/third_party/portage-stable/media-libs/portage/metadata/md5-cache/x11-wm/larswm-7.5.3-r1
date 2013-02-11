@@ -1,0 +1,12 @@
+DEFINED_PHASES=compile configure install
+DEPEND=x11-libs/libX11 x11-libs/libXmu x11-libs/libXt x11-libs/libXext x11-proto/xproto x11-proto/xextproto x11-misc/imake x11-misc/gccmakedep app-text/rman
+DESCRIPTION=Tiling window manager for X11, based on 9wm by David Hogan.
+EAPI=2
+HOMEPAGE=http://larswm.fnurt.net/
+KEYWORDS=alpha ~amd64 ppc ppc64 x86 ~x86-fbsd
+LICENSE=9wm
+RDEPEND=x11-libs/libX11 x11-libs/libXmu x11-libs/libXt x11-libs/libXext
+SLOT=0
+SRC_URI=http://larswm.fnurt.net/larswm-7.5.3.tar.gz
+_eclasses_=multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e
+_md5_=b1f28bdcd9a1872b4224e73579f839a4

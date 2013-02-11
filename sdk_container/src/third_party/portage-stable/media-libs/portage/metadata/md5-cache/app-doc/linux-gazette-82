@@ -1,0 +1,10 @@
+DEFINED_PHASES=install
+DEPEND=>=app-doc/linux-gazette-base-82
+DESCRIPTION=Sharing ideas and discoveries and Making Linux just a little more fun
+HOMEPAGE=http://linuxgazette.net/
+KEYWORDS=alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86
+LICENSE=OPL
+RDEPEND=>=app-doc/linux-gazette-base-82
+SLOT=82
+SRC_URI=http://linuxgazette.net/ftpfiles/lg-issue82.tar.gz
+_md5_=51a52c86bc34f11385493a7b1d54ea37

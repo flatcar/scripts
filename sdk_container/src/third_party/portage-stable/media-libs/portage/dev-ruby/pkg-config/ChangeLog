@@ -1,0 +1,75 @@
+# ChangeLog for dev-ruby/pkg-config
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/pkg-config/ChangeLog,v 1.19 2012/09/30 22:06:16 flameeyes Exp $
+
+  30 Sep 2012; Diego E. Pettenò <flameeyes@gentoo.org> pkg-config-1.1.4.ebuild:
+  Add missing dependency on virtual/pkgconfig.
+
+  09 Sep 2012; Hans de Graaff <graaff@gentoo.org> -pkg-config-1.1.2.ebuild:
+  Cleanup.
+
+  17 Aug 2012; Johannes Huber <johu@gentoo.org> pkg-config-1.1.3.ebuild:
+  Stable for x86, wrt bug #428040
+
+*pkg-config-1.1.4 (13 Aug 2012)
+
+  13 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> +pkg-config-1.1.4.ebuild,
+  -files/pkg-config-1.1.1-Manifest.txt:
+  Version bump: use EAPI 4, add testing through test-unit-2 and helper, install
+  NEWS file.
+
+  04 Aug 2012; Agostino Sarubbo <ago@gentoo.org> pkg-config-1.1.3.ebuild:
+  Stable for amd64, wrt bug #428040
+
+  03 Aug 2012; Anthony G. Basile <blueness@gentoo.org> pkg-config-1.1.3.ebuild:
+  Stable ppc ppc64, bug #428040
+
+  01 Jul 2012; Raúl Porcel <armin76@gentoo.org> pkg-config-1.1.2.ebuild,
+  pkg-config-1.1.3.ebuild:
+  Drop alpha keywords
+
+  01 May 2012; Raúl Porcel <armin76@gentoo.org> pkg-config-1.1.2.ebuild,
+  pkg-config-1.1.3.ebuild:
+  Drop ia64/sparc keywords
+
+  17 Apr 2012; Jeff Horelick <jdhore@gentoo.org> pkg-config-1.1.2.ebuild:
+  marked x86 per bug 412097
+
+  16 Apr 2012; Agostino Sarubbo <ago@gentoo.org> pkg-config-1.1.2.ebuild:
+  Stable for amd64, wrt bug #412097
+
+  16 Apr 2012; Hans de Graaff <graaff@gentoo.org> pkg-config-1.1.2.ebuild:
+  Drop ruby19 to create a stable candidate.
+
+  16 Apr 2012; Hans de Graaff <graaff@gentoo.org> -pkg-config-1.1.1.ebuild:
+  Remove old version.
+
+*pkg-config-1.1.3 (15 Apr 2012)
+
+  15 Apr 2012; Hans de Graaff <graaff@gentoo.org> +pkg-config-1.1.3.ebuild:
+  Version bump.
+
+  18 Mar 2012; Brent Baude <ranger@gentoo.org> pkg-config-1.1.2.ebuild:
+  Marking pkg-config-1.1.2 ~ppc64 for bug 371353
+
+  04 Dec 2011; Raúl Porcel <armin76@gentoo.org> pkg-config-1.1.1.ebuild,
+  pkg-config-1.1.2.ebuild:
+  Add ~alpha/~ia64/~sparc wrt #391759
+
+  23 Sep 2011; Kacper Kowalik <xarthisius@gentoo.org> pkg-config-1.1.2.ebuild:
+  Add ~ppc keyword for dev-ruby/ruby-gstreamer
+
+  10 Aug 2011; Hans de Graaff <graaff@gentoo.org> pkg-config-1.1.2.ebuild:
+  Restrict tests as was originally intended since they require a lot of
+  additional dependencies.
+
+*pkg-config-1.1.2 (19 Jul 2011)
+
+  19 Jul 2011; Hans de Graaff <graaff@gentoo.org> +pkg-config-1.1.2.ebuild:
+  Version bump.
+
+*pkg-config-1.1.1 (26 May 2011)
+
+  26 May 2011; Naohiro Aota <naota@gentoo.org> +pkg-config-1.1.1.ebuild,
+  +files/pkg-config-1.1.1-Manifest.txt, +metadata.xml:
+  New package dev-ruby/pkg-config. Dependency for bug #345721

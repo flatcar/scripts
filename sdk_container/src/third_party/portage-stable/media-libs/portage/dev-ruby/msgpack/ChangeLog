@@ -1,0 +1,86 @@
+# ChangeLog for dev-ruby/msgpack
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/msgpack/ChangeLog,v 1.18 2013/02/03 12:23:48 pacho Exp $
+
+  03 Feb 2013; Pacho Ramos <pacho@gentoo.org> metadata.xml:
+  Cleanup due #22900
+
+  15 Jan 2013; Rick Farina <zerochaos@gentoo.org> msgpack-0.4.7.ebuild:
+  adding ~arm keywords to net-analyzer/metasploit rdeps
+
+  27 Sep 2012; Samuli Suominen <ssuominen@gentoo.org> msgpack-0.4.7.ebuild:
+  Keyword ~ppc/~ppc64 wrt #412603
+
+  28 Aug 2012; Hans de Graaff <graaff@gentoo.org> -msgpack-0.4.5.ebuild,
+  -msgpack-0.4.6.ebuild:
+  Cleanup.
+
+*msgpack-0.4.7 (15 May 2012)
+
+  15 May 2012; Hans de Graaff <graaff@gentoo.org> +msgpack-0.4.7.ebuild:
+  Version bump.
+
+  19 Apr 2012; Naohiro Aota <naota@gentoo.org> msgpack-0.4.6.ebuild:
+  Add ~x86-fbsd.
+
+*msgpack-0.4.6 (12 Aug 2011)
+
+  12 Aug 2011; Hans de Graaff <graaff@gentoo.org> +msgpack-0.4.6.ebuild:
+  Version bump.
+
+  12 Aug 2011; Hans de Graaff <graaff@gentoo.org> -msgpack-0.4.2.ebuild,
+  -msgpack-0.4.3.ebuild, -msgpack-0.4.4.ebuild:
+  Remove old versions.
+
+*msgpack-0.4.5 (10 May 2011)
+
+  10 May 2011; MATSUU Takuto <matsuu@gentoo.org> +msgpack-0.4.5.ebuild:
+  Version bumped. Added ruby19 to USE_RUBY.
+
+*msgpack-0.4.4 (31 Dec 2010)
+
+  31 Dec 2010; Hans de Graaff <graaff@gentoo.org> +msgpack-0.4.4.ebuild:
+  Version bump.
+
+  31 Dec 2010; Hans de Graaff <graaff@gentoo.org> -msgpack-0.3.9.ebuild:
+  Remove old version.
+
+*msgpack-0.4.3 (19 Jul 2010)
+
+  19 Jul 2010; Hans de Graaff <graaff@gentoo.org> +msgpack-0.4.3.ebuild:
+  Version bump.
+
+*msgpack-0.4.2 (05 Jun 2010)
+
+  05 Jun 2010; Hans de Graaff <graaff@gentoo.org> +msgpack-0.4.2.ebuild:
+  Version bump.
+
+  26 May 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -msgpack-0.3.3.ebuild, -msgpack-0.3.6.ebuild, msgpack-0.3.9.ebuild:
+  Reduce size of configure/compile functions, die if tests fail, add ree18
+  support.
+
+  22 May 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  msgpack-0.3.6.ebuild, msgpack-0.3.9.ebuild:
+  Various cleanups.
+
+*msgpack-0.3.9 (30 Apr 2010)
+
+  30 Apr 2010; Hans de Graaff <graaff@gentoo.org> +msgpack-0.3.9.ebuild:
+  Version bump. Move .so installation to compile phase so that it can be
+  used during testing.
+
+*msgpack-0.3.6 (04 Apr 2010)
+
+  04 Apr 2010; Hans de Graaff <graaff@gentoo.org> +msgpack-0.3.6.ebuild:
+  Version bump. Convert to ruby-fakegem. Fix QA notice. Run tests.
+
+  02 Mar 2010; MATSUU Takuto <matsuu@gentoo.org> +msgpack-0.3.3.ebuild,
+  +metadata.xml:
+  Initial import.
+
+*msgpack-0.3.3 (02 Mar 2010)
+
+  02 Mar 2010; MATSUU Takuto <matsuu@gentoo.org> +msgpack-0.3.3.ebuild,
+  +metadata.xml:
+  Initial import.

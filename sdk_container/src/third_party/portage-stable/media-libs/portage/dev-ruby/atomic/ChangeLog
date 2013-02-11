@@ -1,0 +1,10 @@
+# ChangeLog for dev-ruby/atomic
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/atomic/ChangeLog,v 1.1 2012/12/26 18:56:41 graaff Exp $
+
+*atomic-1.0.1 (26 Dec 2012)
+
+  26 Dec 2012; Hans de Graaff <graaff@gentoo.org> +atomic-1.0.1.ebuild,
+  +metadata.xml:
+  Initial import. Dependency for forthcoming dev-ruby/thread_safe.
+

@@ -1,0 +1,9 @@
+DEFINED_PHASES=install
+DESCRIPTION=TiVo File Decoder
+HOMEPAGE=http://tivodecode.sourceforge.net/
+KEYWORDS=~amd64 ~x86
+LICENSE=BSD
+SLOT=0
+SRC_URI=mirror://sourceforge/tivodecode/tivodecode-0.2pre4.tar.gz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=b8e1551a001e6983b79d9f19bdfd0253

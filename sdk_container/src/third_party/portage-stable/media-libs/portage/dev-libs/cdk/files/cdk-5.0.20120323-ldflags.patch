@@ -1,0 +1,33 @@
+--- cdk-5.0-20120323/aclocal.m4
++++ cdk-5.0-20120323/aclocal.m4
+@@ -2852,7 +2852,7 @@
+ 		AC_MSG_ERROR(Cannot find libtool)
+ 	fi
+ ])dnl
+-	LIB_CREATE='${LIBTOOL} --mode=link ${CC} -rpath ${DESTDIR}${libdir} ${LIBTOOL_VERSION} `cut -f1 ${srcdir}/VERSION` ${LIBTOOL_OPTS} ${LT_UNDEF} $(LIBS) -o'
++	LIB_CREATE='${LIBTOOL} --mode=link ${CC} -rpath ${DESTDIR}${libdir} ${LIBTOOL_VERSION} `cut -f1 ${srcdir}/VERSION` ${LDFLAGS} ${LIBTOOL_OPTS} ${LT_UNDEF} $(LIBS) -o'
+ 	LIB_OBJECT='${OBJECTS:.o=.lo}'
+ 	LIB_SUFFIX=.la
+ 	LIB_CLEAN='${LIBTOOL} --mode=clean'
+--- cdk-5.0-20120323/configure
++++ cdk-5.0-20120323/configure
+@@ -5135,7 +5135,7 @@
+ echo "$as_me: error: Cannot find libtool" >&2;}
+    { (exit 1); exit 1; }; }
+ 	fi
+-	LIB_CREATE='${LIBTOOL} --mode=link ${CC} -rpath ${DESTDIR}${libdir} ${LIBTOOL_VERSION} `cut -f1 ${srcdir}/VERSION` ${LIBTOOL_OPTS} ${LT_UNDEF} $(LIBS) -o'
++	LIB_CREATE='${LIBTOOL} --mode=link ${CC} -rpath ${DESTDIR}${libdir} ${LIBTOOL_VERSION} `cut -f1 ${srcdir}/VERSION` ${LDFLAGS} ${LIBTOOL_OPTS} ${LT_UNDEF} $(LIBS) -o'
+ 	LIB_OBJECT='${OBJECTS:.o=.lo}'
+ 	LIB_SUFFIX=.la
+ 	LIB_CLEAN='${LIBTOOL} --mode=clean'
+--- cdk-5.0-20120323/Makefile.in
++++ cdk-5.0-20120323/Makefile.in
+@@ -277,7 +277,7 @@
+ all cdklib :: $(DEFAULT)
+ 
+ $(CDKLIB) :: $(OBJECTS)
+-	@echo creating $@; $(LIBTOOL_CREATE) $@ $(LIB_OBJECT)
++	@echo creating $@; $(LIBTOOL_CREATE) $@ $(LIB_OBJECT) $(LIBS)
+ 	@$(RANLIB) $@
+ 
+ cdkshlib $(CDKSHLIB) :: $(CDKSHOBJS)

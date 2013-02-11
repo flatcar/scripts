@@ -1,0 +1,71 @@
+The compiler error is:
+ /usr/include/bluetooth/bluetooth.h::131:9: error: invalid conversion from 'void*' to 'bt_get_le64(void*)::<anonymous struct>*'
+ ...
+
+The reason is that C++, in contrast to C, does not allow conversion of
+void * to anything, and this code gets compiled as C++ when the app is
+written in C++. The macro with the assignment itself is older, but only
+recent Bluez starts to use it in inline functions, thus triggering the
+problem.
+
+This patch keeps the "struct __attribute__((packed))" magic and merely
+changes the typecast so that it works in C and C++. Like the existing
+macro this patch relies on support for typeof.
+
+The new variant of the code is in an ifdef and only used for C++
+to avoid unexpected regressions in C applications.
+
+Signed-off-by: Patrick Ohly <patrick.ohly@intel.com>
+---
+ lib/bluetooth.h |   30 ++++++++++++++++++++++++++++++
+ 1 files changed, 30 insertions(+), 0 deletions(-)
+
+Index: bluez-4.98/lib/bluetooth.h
+===================================================================
+--- bluez-4.98.orig/lib/bluetooth.h	2012-02-05 13:20:23.753659182 +0100
++++ bluez-4.98/lib/bluetooth.h	2012-02-05 13:26:33.905473976 +0100
+@@ -109,6 +109,12 @@
+ #endif
+ 
+ /* Bluetooth unaligned access */
++#ifndef __cplusplus
++/*
++ * traditional code, doesn't work in C++ because
++ * of the void * to struct pointer assignment
++ */
++
+ #define bt_get_unaligned(ptr)			\
+ ({						\
+ 	struct __attribute__((packed)) {	\
+@@ -125,6 +131,31 @@
+ 	__p->__v = (val);			\
+ } while(0)
+ 
++#else /* __cplusplus */
++
++/*
++ * modified code with typeof typecast, for C++;
++ * the traditional code continues to be used for
++ * C to avoid unexpected regressions with this
++ * code here (it should work in C and C++, though)
++ */
++#define bt_get_unaligned(ptr)                  \
++({                                             \
++       struct __attribute__((packed)) {        \
++               typeof(*(ptr)) __v;             \
++       } *__p = (typeof(__p)) (ptr);           \
++       __p->__v;                               \
++})
++
++#define bt_put_unaligned(val, ptr)             \
++do {                                           \
++       struct __attribute__((packed)) {        \
++               typeof(*(ptr)) __v;             \
++       } *__p = (typeof(__p)) (ptr);           \
++       __p->__v = (val);                       \
++} while(0)
++#endif /* __cplusplus */
++
+ #if __BYTE_ORDER == __LITTLE_ENDIAN
+ static inline uint64_t bt_get_le64(void *ptr)
+ {

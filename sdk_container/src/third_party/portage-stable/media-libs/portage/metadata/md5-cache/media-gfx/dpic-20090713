@@ -1,0 +1,10 @@
+DEFINED_PHASES=compile install
+DESCRIPTION=Converts PIC plots into pstricks, PGF/TikZ, PostScript, MetaPost and TeX
+HOMEPAGE=http://ece.uwaterloo.ca/~aplevich/dpic
+IUSE=examples
+KEYWORDS=amd64 x86
+LICENSE=as-is
+SLOT=0
+SRC_URI=mirror://gentoo/dpic-20090713.tar.gz
+_eclasses_=multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e
+_md5_=82fe7130cbe3e8add89bd483d036f089

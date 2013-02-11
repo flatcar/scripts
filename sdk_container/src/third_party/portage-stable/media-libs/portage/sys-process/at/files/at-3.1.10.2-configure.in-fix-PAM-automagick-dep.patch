@@ -1,0 +1,18 @@
+diff -Naur at-3.1.10.2.orig/configure.in at-3.1.10.2/configure.in
+--- at-3.1.10.2.orig/configure.in	2009-01-31 15:38:54.000000000 +0100
++++ at-3.1.10.2/configure.in	2009-01-31 17:01:00.000000000 +0100
+@@ -79,8 +79,13 @@
+ AC_FUNC_VPRINTF
+ AC_FUNC_GETLOADAVG
+ AC_CHECK_FUNCS(getcwd mktime strftime setreuid setresuid sigaction waitpid)
+-AC_CHECK_HEADERS(security/pam_appl.h, [PAMLIB="-lpam"
++
++AC_ARG_WITH([pam], AS_HELP_STRING([--without-pam], [Build without PAM support(default: enabled)]))
++
++if test "x$with_pam" != "xno"; then
++  AC_CHECK_HEADERS(security/pam_appl.h, [PAMLIB="-lpam"
+ 				      AC_DEFINE(HAVE_PAM)])
++fi
+ 
+ dnl Checking for programs
+ 

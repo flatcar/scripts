@@ -1,0 +1,59 @@
+Similar to 4178cd1cece5a7b2b7efe32318f6fa168a1f8bcd
+Ported to apply to 1.0.18: Fix build with libva-1.1.0
+
+Index: intel-driver-1.0.18/src/i965_drv_video.c
+===================================================================
+--- intel-driver-1.0.18.orig/src/i965_drv_video.c
++++ intel-driver-1.0.18/src/i965_drv_video.c
+@@ -2275,7 +2275,6 @@ i965_PutSurface(VADriverContextP ctx,
+                 unsigned int flags) /* de-interlacing flags */
+ {
+     struct i965_driver_data *i965 = i965_driver_data(ctx); 
+-    struct dri_state *dri_state = (struct dri_state *)ctx->dri_state;
+     struct i965_render_state *render_state = &i965->render_state;
+     struct dri_drawable *dri_drawable;
+     union dri_buffer *buffer;
+@@ -2288,7 +2287,11 @@ i965_PutSurface(VADriverContextP ctx,
+     int pp_flag = 0;
+ 
+     /* Currently don't support DRI1 */
+-    if (dri_state->driConnectedFlag != VA_DRI2)
++#if VA_CHECK_VERSION(0,33,0)
++    if (((struct drm_state *)ctx->drm_state)->auth_type != VA_DRI2)
++#else
++    if (((struct dri_state *)ctx->dri_state)->driConnectedFlag != VA_DRI2)
++#endif
+         return VA_STATUS_ERROR_UNKNOWN;
+ 
+     /* Some broken sources such as H.264 conformance case FM2_SVA_C
+Index: intel-driver-1.0.18/src/intel_driver.c
+===================================================================
+--- intel-driver-1.0.18.orig/src/intel_driver.c
++++ intel-driver-1.0.18/src/intel_driver.c
+@@ -50,15 +50,25 @@ Bool
+ intel_driver_init(VADriverContextP ctx)
+ {
+     struct intel_driver_data *intel = intel_driver_data(ctx);
+-    struct dri_state *dri_state = (struct dri_state *)ctx->dri_state;
+     int has_exec2, has_bsd, has_blt;
+ 
++#if VA_CHECK_VERSION(0,33,0)
++    struct drm_state *drm_state = (struct drm_state *)ctx->drm_state;
++    assert(drm_state);
++    assert(drm_state->auth_type == VA_DRI2 || 
++           drm_state->auth_type == VA_DRI1);
++
++    intel->fd = drm_state->fd;
++    intel->dri2Enabled = (drm_state->auth_type == VA_DRI2);
++#else
++    struct dri_state *dri_state = (struct dri_state *)ctx->dri_state;
+     assert(dri_state);
+     assert(dri_state->driConnectedFlag == VA_DRI2 || 
+            dri_state->driConnectedFlag == VA_DRI1);
+ 
+     intel->fd = dri_state->fd;
+     intel->dri2Enabled = (dri_state->driConnectedFlag == VA_DRI2);
++#endif
+ 
+     if (!intel->dri2Enabled) {
+         return False;

@@ -1,0 +1,12 @@
+DEFINED_PHASES=compile install prepare
+DEPEND=x11-libs/libXaw x11-libs/libXp x11-libs/libXaw3d x11-libs/libXi virtual/jpeg media-libs/libpng media-fonts/font-misc-misc media-fonts/urw-fonts >=media-gfx/transfig-3.2.5-r1 media-libs/netpbm x11-misc/imake x11-proto/xproto x11-proto/inputproto
+DESCRIPTION=A menu-driven tool to draw and manipulate objects interactively in an X window.
+EAPI=2
+HOMEPAGE=http://www.xfig.org
+KEYWORDS=alpha amd64 hppa ppc ppc64 sparc x86
+LICENSE=BSD
+RDEPEND=x11-libs/libXaw x11-libs/libXp x11-libs/libXaw3d x11-libs/libXi virtual/jpeg media-libs/libpng media-fonts/font-misc-misc media-fonts/urw-fonts >=media-gfx/transfig-3.2.5-r1 media-libs/netpbm
+SLOT=0
+SRC_URI=mirror://sourceforge/mcj/xfig.3.2.5b.full.tar.gz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=3e34c1be9e5538849229fa3d0bde376b

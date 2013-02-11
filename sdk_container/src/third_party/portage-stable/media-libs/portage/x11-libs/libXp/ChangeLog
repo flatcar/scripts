@@ -1,0 +1,142 @@
+# ChangeLog for x11-libs/libXp
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/x11-libs/libXp/ChangeLog,v 1.40 2012/05/06 00:50:29 aballier Exp $
+
+  06 May 2012; Alexis Ballier <aballier@gentoo.org> libXp-1.0.1.ebuild:
+  keyword ~amd64-fbsd
+
+  07 Mar 2011; Tomáš Chvátal <scarabeus@gentoo.org> -libXp-1.0.0.ebuild:
+  old
+
+  05 Mar 2011; Kacper Kowalik <xarthisius@gentoo.org> libXp-1.0.1.ebuild:
+  ppc64 stable wrt #354237
+
+  05 Mar 2011; Raúl Porcel <armin76@gentoo.org> libXp-1.0.1.ebuild:
+  alpha/arm/ia64/s390/sh/sparc stable wrt #354237
+
+  23 Feb 2011; Jeroen Roovers <jer@gentoo.org> libXp-1.0.1.ebuild:
+  Stable for HPPA (bug #354237).
+
+  14 Feb 2011; Kacper Kowalik <xarthisius@gentoo.org> libXp-1.0.1.ebuild:
+  ppc stable wrt #344827, #354237
+
+  12 Feb 2011; Christian Faulhammer <fauli@gentoo.org> libXp-1.0.1.ebuild:
+  stable x86, bug 354237
+
+  12 Feb 2011; Markos Chandras <hwoarang@gentoo.org> libXp-1.0.1.ebuild:
+  Stable on amd64 wrt bug #354237
+
+  06 Feb 2011; Mart Raudsepp <leio@gentoo.org> libXp-1.0.0.ebuild:
+  Drop to ~mips
+
+*libXp-1.0.1 (15 Jan 2011)
+
+  15 Jan 2011; Tomáš Chvátal <scarabeus@gentoo.org> +libXp-1.0.1.ebuild:
+  Version bump
+
+  15 Jan 2010; Christian Faulhammer <fauli@gentoo.org> libXp-1.0.0.ebuild:
+  Transfer Prefix keywords
+
+  04 Feb 2007; Joshua Baergen <joshuabaergen@gentoo.org> libXp-1.0.0.ebuild:
+  Drop mirroring restriction.  Thanks to Zhang Le of bug #163088.
+
+  29 Oct 2006; Joshua Baergen <joshuabaergen@gentoo.org> libXp-1.0.0.ebuild:
+  Move printproto to RDEPEND from DEPEND, fixing bug #150956.  (Thanks to Evil
+  Compile Person)
+
+  19 Jul 2006; Guy Martin <gmsoft@gentoo.org> libXp-1.0.0.ebuild:
+  Stable on hppa.
+
+  10 Jul 2006; Aron Griffis <agriffis@gentoo.org> libXp-1.0.0.ebuild:
+  Mark 1.0.0 stable on ia64
+
+  30 Jun 2006; Donnie Berkholz <spyderous@gentoo.org>; libXp-1.0.0.ebuild:
+  ppc/sparc/mips/alpha/arm/sh stable
+
+  30 Jun 2006; Marien Zwart <marienz@gentoo.org> files/digest-libXp-1.0.0,
+  Manifest:
+  Fix digest.
+
+  30 Jun 2006; Chris Gianelloni <wolf31o2@gentoo.org> libXp-1.0.0.ebuild:
+  Stable on amd64.
+
+  30 Jun 2006; Markus Rothe <corsair@gentoo.org> libXp-1.0.0.ebuild:
+  Stable on ppc64
+
+  30 Jun 2006; Donnie Berkholz <spyderous@gentoo.org>; libXp-1.0.0.ebuild:
+  x86 stable.
+
+  28 Apr 2006; Marien Zwart <marienz@gentoo.org> files/digest-libXp-1.0.0,
+  Manifest:
+  Revert to working digest.
+
+  28 Apr 2006; Alec Warner <antarus@gentoo.org> files/digest-libXp-1.0.0,
+  Manifest:
+  Fixing SHA256 digest, pass four
+
+  13 Apr 2006; Diego Pettenò <flameeyes@gentoo.org> libXp-1.0.0.ebuild:
+  Add ~x86-fbsd keyword.
+
+  26 Mar 2006; Joshua Baergen <joshuabaergen@gentoo.org> libXp-1.0.0.ebuild:
+  Fix digest per upstream tarball change (bug #127306, Daniel Webert).
+
+  09 Mar 2006; Aron Griffis <agriffis@gentoo.org> libXp-1.0.0.ebuild:
+  Mark 1.0.0 ~ia64
+
+  14 Feb 2006; Markus Rothe <corsair@gentoo.org> libXp-1.0.0.ebuild:
+  Added ~ppc64
+
+  04 Feb 2006; Rene Nussbaumer <killerfox@gentoo.org> libXp-1.0.0.ebuild:
+  Unstable on hppa.
+
+  26 Dec 2005; Joshua Baergen <joshuabaergen@gentoo.org>
+  -libXp-0.99.2.ebuild:
+  Pull old versions.
+
+  26 Dec 2005; Stefaan De Roeck <stefaan@gentoo.org> libXp-1.0.0.ebuild:
+  Marked ~alpha
+
+*libXp-1.0.0 (17 Dec 2005)
+
+  17 Dec 2005; Joshua Baergen <joshuabaergen@gentoo.org>
+  +libXp-1.0.0.ebuild:
+  Bump for 7.0RC4.
+
+  09 Dec 2005; Donnie Berkholz <spyderous@gentoo.org>; -libXp-0.99.1.ebuild:
+  Pull old versions.
+
+*libXp-0.99.2 (04 Dec 2005)
+
+  04 Dec 2005; Joshua Baergen <joshuabaergen@gentoo.org>
+  +libXp-0.99.2.ebuild:
+  Bump for 7.0RC3.
+
+  04 Nov 2005; Joshua Baergen <joshuabaergen@gentoo.org>
+  -libXp-0.99.0.ebuild:
+  Drop old version.
+
+*libXp-0.99.1 (20 Oct 2005)
+
+  20 Oct 2005; Donnie Berkholz <spyderous@gentoo.org>; +libXp-0.99.1.ebuild:
+  Bump for 7.0 RC1.
+
+  09 Sep 2005; Donnie Berkholz <spyderous@gentoo.org>; +metadata.xml:
+  Add metadata.
+
+  04 Sep 2005; MATSUU Takuto <matsuu@gentoo.org> libXp-0.99.0.ebuild:
+  Added ~sh
+
+  23 Aug 2005; Herbie Hopkins <herbs@gentoo.org> libXp-0.99.0.ebuild:
+  Marked ~amd64.
+
+  20 Aug 2005; Luca Barbato <lu_zero@gentoo.org> libXp-0.99.0.ebuild:
+  Marked ~ppc
+
+  08 Aug 2005; Ferris McCormick <fmccor@gentoo.org> libXp-0.99.0.ebuild:
+  Add ~sparc keyword (modular X testing).
+
+*libXp-0.99.0 (08 Aug 2005)
+
+  08 Aug 2005; Donnie Berkholz <spyderous@gentoo.org>; +libXp-0.99.0.ebuild:
+  Initial commit for modular X.
+

@@ -1,0 +1,42 @@
+# ChangeLog for dev-ruby/bcrypt-ruby
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/bcrypt-ruby/ChangeLog,v 1.12 2013/01/16 01:11:39 zerochaos Exp $
+
+  16 Jan 2013; Rick Farina <zerochaos@gentoo.org> bcrypt-ruby-3.0.1.ebuild:
+  adding ~arm keywords to net-analyzer/metasploit rdeps
+
+  30 Jul 2012; Hans de Graaff <graaff@gentoo.org> bcrypt-ruby-3.0.1.ebuild:
+  Use RSpec recipe. Avoid implicit dependency on git.
+
+  01 May 2012; Raúl Porcel <armin76@gentoo.org> bcrypt-ruby-3.0.1.ebuild:
+  Drop ia64/sparc keywords
+
+  11 Mar 2012; Brent Baude <ranger@gentoo.org> bcrypt-ruby-3.0.1.ebuild:
+  Marking bcrypt-ruby-3.0.1 ~ppc64 for bug 385763
+
+  08 Mar 2012; Naohiro Aota <naota@gentoo.org> bcrypt-ruby-3.0.1.ebuild:
+  Add ~x86-fbsd.
+
+  06 Feb 2012; Brent Baude <ranger@gentoo.org> bcrypt-ruby-3.0.1.ebuild:
+  Marking bcrypt-ruby-3.0.1 ~ppc for bug 385763
+
+  31 Dec 2011; Fabian Groffen <grobian@gentoo.org> bcrypt-ruby-3.0.1.ebuild:
+  Add Prefix keywords, bug #396547
+
+  27 Dec 2011; Hans de Graaff <graaff@gentoo.org> bcrypt-ruby-3.0.1.ebuild:
+  Add ruby19.
+
+  03 Dec 2011; Raúl Porcel <armin76@gentoo.org> bcrypt-ruby-3.0.1.ebuild:
+  Add ~ia64/~sparc wrt #385763
+
+  13 Nov 2011; Markus Meier <maekke@gentoo.org> bcrypt-ruby-3.0.1.ebuild:
+  add ~x86, bug #385763
+
+  10 Oct 2011; Fabian Groffen <grobian@gentoo.org> bcrypt-ruby-3.0.1.ebuild:
+  Keyworded for Prefix, bug #385763
+
+*bcrypt-ruby-3.0.1 (05 Oct 2011)
+
+  05 Oct 2011; Hans de Graaff <graaff@gentoo.org> +bcrypt-ruby-3.0.1.ebuild,
+  +metadata.xml:
+  Initial import from my overlay. New dependency for Rails 3.1.

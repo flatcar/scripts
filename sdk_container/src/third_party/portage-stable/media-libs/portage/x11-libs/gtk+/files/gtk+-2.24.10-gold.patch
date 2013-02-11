@@ -1,0 +1,29 @@
+ docs/tools/Makefile.am |    1 +
+ perf/Makefile.am       |    2 +-
+ 2 files changed, 2 insertions(+), 1 deletions(-)
+
+diff --git a/docs/tools/Makefile.am b/docs/tools/Makefile.am
+index 54b77b7..1783f77 100644
+--- a/docs/tools/Makefile.am
++++ b/docs/tools/Makefile.am
+@@ -17,6 +17,7 @@ LDADDS = 								\
+ 	$(top_builddir)/gtk/$(gtktargetlib)				\
+ 	$(GTK_DEP_LIBS)							\
+ 	$(GDK_DEP_LIBS)							\
++	$(GMODULE_LIBS)							\
+ 	-lm
+ 
+ if USE_X11
+diff --git a/perf/Makefile.am b/perf/Makefile.am
+index 736b6cb..9e67ed4 100644
+--- a/perf/Makefile.am
++++ b/perf/Makefile.am
+@@ -17,7 +17,7 @@ DEPS =									\
+ LDADDS =								\
+ 	$(top_builddir)/gdk/$(gdktargetlib)				\
+ 	$(top_builddir)/gtk/$(gtktargetlib)				\
+-	$(GTK_DEP_LIBS)
++	$(GTK_DEP_LIBS) $(GMODULE_LIBS)
+ 
+ noinst_PROGRAMS	= 	\
+ 	testperf

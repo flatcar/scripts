@@ -1,0 +1,246 @@
+Combined patch of upstream commits 4cbfbbc2..c6c01691,
+fixes multiple issues with an empty/unset/malformatted LANGUAGE env variable.
+
+Bugs 327677 and 330227 for instance are caused by this.
+Upstream: yes
+
+diff --git a/README.rdoc b/README.rdoc
+index 381032f..5705872 100644
+--- a/README.rdoc
++++ b/README.rdoc
+@@ -11,7 +11,7 @@ handle major locale ID standards.
+   * POSIX, CLDR, IETF(RFC4646, 3066(BCP47)), Win32 and Java language tags 
+     and convert the tag string to each other.
+   * Auto detect Locale ID.
+-    POSIX(Unix/Linux/*BSD), Win32, JRuby, CGI.
++    POSIX(Unix/Linux/*BSD), Win32, JRuby, CGI(CGI, Rack, others).
+ 
+ * Resources
+   * ISO 639-3 languages
+diff --git a/lib/locale.rb b/lib/locale.rb
+index f56de37..95b965a 100644
+--- a/lib/locale.rb
++++ b/lib/locale.rb
+@@ -236,9 +236,11 @@ module Locale
+     end
+ 
+     tags = []
+-    (0...candidate_tags[0].size).each {|i|
+-      tags += candidate_tags.collect{|v| v[i]}
+-    }
++    unless candidate_tags.empty?
++      (0...candidate_tags[0].size).each {|i|
++        tags += candidate_tags.collect{|v| v[i]}
++      }
++    end
+     tags += default_tags
+     tags.uniq!
+ 
+diff --git a/lib/locale/driver/cgi.rb b/lib/locale/driver/cgi.rb
+index c1d1126..4035c78 100644
+--- a/lib/locale/driver/cgi.rb
++++ b/lib/locale/driver/cgi.rb
+@@ -50,7 +50,9 @@ module Locale
+         unless locales.size > 0
+           # HTTP_ACCEPT_LANGUAGE
+           if lang = req[:accept_language] and lang.size > 0
+-            locales += lang.gsub(/\s/, "").split(/,/).map{|v| v.split(";q=")}.map{|j| [j[0], j[1] ? j[1].to_f : 1.0]}.sort{|a,b| -(a[1] <=> b[1])}.map{|v| Locale::Tag.parse(v[0])}
++            # 10.0 is for ruby-1.8.6 which have the bug of str.to_f. 
++            # Normally, this should be 1.0.
++            locales += lang.gsub(/\s/, "").split(/,/).map{|v| v.split(";q=")}.map{|j| [j[0], j[1] ? j[1].to_f : 10.0]}.sort{|a,b| -(a[1] <=> b[1])}.map{|v| Locale::Tag.parse(v[0])}
+           end
+         end
+ 
+@@ -81,6 +83,7 @@ module Locale
+      # * accept_language: The value of HTTP_ACCEPT_LANGUAGE
+      # * accept_charset: The value of HTTP_ACCEPT_CHARSET
+      def set_request(query_langs, cookie_langs, accept_language, accept_charset)
++       Locale.clear
+        Thread.current[:current_request] = {
+          :query_langs => query_langs, 
+          :cookie_langs => cookie_langs, 
+diff --git a/lib/locale/driver/env.rb b/lib/locale/driver/env.rb
+index 9d0995f..a3e1b34 100644
+--- a/lib/locale/driver/env.rb
++++ b/lib/locale/driver/env.rb
+@@ -39,13 +39,16 @@ module Locale
+       # Gets the locales from environment variables. (LANGUAGE > LC_ALL > LC_MESSAGES > LANG)
+       # * Returns: an Array of the locale as Locale::Tag::Posix or nil.
+       def locales
+-        if (locales = ENV["LANGUAGE"])
+-          Locale::TagList.new(locales.split(/:/).collect{|v| Locale::Tag::Posix.parse(v)})
++        locales = ENV["LANGUAGE"]
++        if (locales != nil and locales.size > 0)
++          locs = locales.split(/:/).collect{|v| Locale::Tag::Posix.parse(v)}.compact
++          if locs.size > 0
++            return Locale::TagList.new(locs)
++          end
+         elsif (loc = locale)
+-          Locale::TagList.new([loc])
+-        else
+-          nil
++          return Locale::TagList.new([loc])
+         end
++        nil
+       end
+ 
+       # Gets the charset from environment variable or return nil.
+diff --git a/lib/locale/driver/win32.rb b/lib/locale/driver/win32.rb
+index 2bb6fbc..2ac09f8 100644
+--- a/lib/locale/driver/win32.rb
++++ b/lib/locale/driver/win32.rb
+@@ -1,7 +1,7 @@
+ =begin
+   locale/win32.rb
+ 
+-  Copyright (C) 2002-2008  Masao Mutoh
++  Copyright (C) 2002-2010  Masao Mutoh
+ 
+   You may redistribute it and/or modify it under the same
+   license terms as Ruby.
+@@ -13,8 +13,10 @@
+ 
+ require File.join(File.dirname(__FILE__), 'env')
+ require File.join(File.dirname(__FILE__), 'win32_table')
+-require 'dl/win32'
+ 
++unless Win32API
++  require 'dl/win32'
++end
+ 
+ module Locale
+   # Locale::Driver::Win32 module for win32.
+diff --git a/samples/rack/hello_rack.rb b/samples/rack/hello_rack.rb
+index d6cb160..0f458aa 100644
+--- a/samples/rack/hello_rack.rb
++++ b/samples/rack/hello_rack.rb
+@@ -1,14 +1,13 @@
+ require 'rubygems'
+ require 'rack'
+-require 'locale'
++require 'locale_rack'
+  
+-Locale.init(:driver => :cgi)
+-
+ class HelloRackApp
++  include Locale::Rack
++
+   def call(env)
+     req = Rack::Request.new(env)
+-    Locale.set_request(req["lang"], req.cookies["lang"],
+-                       env["HTTP_ACCEPT_LANGUAGE"], env["HTTP_ACCEPT_CHARSET"])
++    init_locale(env, req)
+     str = "Language tag candidates of your request order by the priority:\n\n"
+     str += Locale.candidates(:type => :rfc).map{|v| v.inspect + "\n"}.join
+     [200, {"Content-Type" => "text/plain", "Content-Length" => str.length.to_s}, [str]]
+diff --git a/samples/rack/locale_rack.rb b/samples/rack/locale_rack.rb
+new file mode 100644
+index 0000000..2b53a8a
+--- /dev/null
++++ b/samples/rack/locale_rack.rb
+@@ -0,0 +1,11 @@
++ require 'locale'
++ Locale.init(:driver => :cgi)
++ 
++ module Locale::Rack 
++    def init_locale(env, req)
++      Locale.set_request([req["lang"]], [req.cookies["lang"]],
++                         env["HTTP_ACCEPT_LANGUAGE"], 
++                         env["HTTP_ACCEPT_CHARSET"])     
++    end
++ end
++
+diff --git a/test/test_detect_cgi.rb b/test/test_detect_cgi.rb
+index e2adbfc..ef5a090 100644
+--- a/test/test_detect_cgi.rb
++++ b/test/test_detect_cgi.rb
+@@ -213,4 +213,12 @@ class TestDetectCGI < Test::Unit::TestCase
+     Locale.default = "en"
+     Locale.set_app_language_tags(nil)
+   end
++
++  def test_request
++    Locale.set_request(["ja"], [""], "", "")
++    assert_equal common("ja", "en"), Locale.candidates
++
++    Locale.set_request(["en"], [""], "", "")
++    assert_equal common("en"), Locale.candidates #Cache should be cleared.
++  end
+ end
+diff --git a/test/test_detect_general.rb b/test/test_detect_general.rb
+index 08b912d..2367354 100644
+--- a/test/test_detect_general.rb
++++ b/test/test_detect_general.rb
+@@ -102,6 +102,35 @@ class TestDetectGeneral < Test::Unit::TestCase
+     assert_equal "Shift_JIS", Locale.charset
+   end
+ 
++  def test_language_strip
++    ENV["LC_ALL"] = "ja_JP.Shift_JIS"
++    ENV["LANGUAGE"] = nil
++
++    tags = Locale.current
++    assert_equal 1, tags.size
++    assert_equal Locale::Tag::Posix, tags[0].class
++    assert_equal "ja", tags.language
++    assert_equal "ja", tags[0].language
++    Locale.clear
++    ENV["LANGUAGE"] = ""
++
++    tags = Locale.current
++    assert_equal 1, tags.size
++    assert_equal Locale::Tag::Posix, tags[0].class
++    assert_equal "ja", tags.language
++    assert_equal "ja", tags[0].language
++    Locale.clear
++    ENV["LANGUAGE"] = "zh_CN.UTF-8:ja_JP"
++
++    tags = Locale.current
++    assert_equal 2, tags.size
++    assert_equal Locale::Tag::Posix, tags[0].class
++    assert_equal Locale::Tag::Posix, tags[1].class
++    assert_equal "zh", tags.language
++    assert_equal "zh", tags[0].language
++    assert_equal "ja", tags[1].language
++  end
++
+   def test_no_charset
+     ENV["LC_ALL"] = "cs_CZ"
+ 
+@@ -149,6 +178,24 @@ class TestDetectGeneral < Test::Unit::TestCase
+     Locale.set_default(nil)
+   end
+ 
++  def test_wrong_envs
++    ENV["LC_ALL"] = nil
++    ENV["LANGUAGE"] = "g"
++    Locale.default = "de"
++    assert_equal Locale::Tag.parse("de"), Locale.current[0]
++
++    ENV["LC_ALL"] = "f"
++    ENV["LANGUAGE"] = nil
++    Locale.default = "fr"
++    assert_equal Locale::Tag.parse("fr"), Locale.current[0]
++
++    ENV["LC_ALL"] = "j"
++    ENV["LANGUAGE"] = nil
++    Locale.default = nil
++    assert_equal Locale::Tag.parse("en"), Locale.current[0]
++
++  end
++
+   def test_clear
+     ENV["LC_ALL"] = "ja_JP.Shift_JIS"
+     ENV["LANGUAGE"] = nil
+diff --git a/test/test_driver_win32.rb b/test/test_driver_win32.rb
+index 604cd6e..35199e6 100644
+--- a/test/test_driver_win32.rb
++++ b/test/test_driver_win32.rb
+@@ -60,6 +60,6 @@ begin
+       assert_equal "CP1252", Locale::Driver::Win32.charset
+     end
+   end
+-rescue LoadError
++rescue LoadError, NameError
+   puts "win32 test was skipped."
+ end

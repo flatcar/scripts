@@ -1,0 +1,10 @@
+DEFINED_PHASES=compile install test
+DESCRIPTION=a small hash library written in C
+HOMEPAGE=ftp://ftp.ugh.net.au/pub/unix/libhash/
+IUSE=doc
+KEYWORDS=amd64 arm hppa ppc x86
+LICENSE=BSD
+SLOT=0
+SRC_URI=ftp://ftp.ugh.net.au/pub/unix/libhash/libhash-1.0.3.tar.gz
+_eclasses_=multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e
+_md5_=6d5c5b4a5ffc419e8eb17cab400ea46c

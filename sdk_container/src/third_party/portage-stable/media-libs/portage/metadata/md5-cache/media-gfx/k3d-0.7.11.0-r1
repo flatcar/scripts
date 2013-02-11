@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install prepare test unpack
+DEPEND=dev-libs/boost[python] >=dev-cpp/glibmm-2.6:2 >=dev-cpp/gtkmm-2.6:2.4 dev-libs/expat >=dev-libs/libsigc++-2.2:2 media-libs/mesa virtual/glu virtual/opengl >=x11-libs/gtkglext-1.0.6-r3 x11-libs/libICE x11-libs/libSM x11-libs/libXmu x11-libs/libXt 3ds? ( media-libs/lib3ds ) cuda? ( dev-util/nvidia-cuda-toolkit ) gnome? ( gnome-base/libgnome ) graphviz? ( media-gfx/graphviz ) gts? ( sci-libs/gts ) imagemagick? ( media-gfx/imagemagick ) jpeg? ( virtual/jpeg ) openexr? ( media-libs/openexr ) png? ( >=media-libs/libpng-1.2.43-r2 ) python? ( >=dev-lang/python-2.3 dev-python/cgkit ) tiff? ( media-libs/tiff ) truetype? ( >=media-libs/freetype-2 ) virtual/pkgconfig nls? ( sys-devel/gettext ) >=dev-util/cmake-2.8.8 userland_GNU? ( >=sys-apps/findutils-4.4.0 )
+DESCRIPTION=A free 3D modeling, animation, and rendering system
+EAPI=2
+HOMEPAGE=http://www.k-3d.org/
+IUSE=3ds cuda gnome graphviz gts imagemagick jpeg nls openexr png python tiff truetype
+KEYWORDS=~amd64 ~ppc ~x86
+LICENSE=GPL-2
+RDEPEND=dev-libs/boost[python] >=dev-cpp/glibmm-2.6:2 >=dev-cpp/gtkmm-2.6:2.4 dev-libs/expat >=dev-libs/libsigc++-2.2:2 media-libs/mesa virtual/glu virtual/opengl >=x11-libs/gtkglext-1.0.6-r3 x11-libs/libICE x11-libs/libSM x11-libs/libXmu x11-libs/libXt 3ds? ( media-libs/lib3ds ) cuda? ( dev-util/nvidia-cuda-toolkit ) gnome? ( gnome-base/libgnome ) graphviz? ( media-gfx/graphviz ) gts? ( sci-libs/gts ) imagemagick? ( media-gfx/imagemagick ) jpeg? ( virtual/jpeg ) openexr? ( media-libs/openexr ) png? ( >=media-libs/libpng-1.2.43-r2 ) python? ( >=dev-lang/python-2.3 dev-python/cgkit ) tiff? ( media-libs/tiff ) truetype? ( >=media-libs/freetype-2 )
+SLOT=0
+SRC_URI=mirror://sourceforge/k3d/k3d-source-0.7.11.0.tar.gz
+_eclasses_=base	ec46b36a6f6fd1d0b505a33e0b74e413	cmake-utils	3cb7a29aafd4b984d2bf12bc50abe5da	eutils	d40dc948067bd3db1c8ebf7d51897313	flag-o-matic	d900015de4e092f26d8c0a18b6bd60de	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=00eaac1a3f3dc730f6933b446e17e045

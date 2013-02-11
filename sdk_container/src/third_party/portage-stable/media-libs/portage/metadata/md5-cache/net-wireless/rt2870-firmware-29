@@ -1,0 +1,10 @@
+DEFINED_PHASES=install
+DESCRIPTION=Firmware for Ralink rt2870-based WiFi adapters (rt2800usb and rt2870sta modules)
+EAPI=4
+HOMEPAGE=http://git.kernel.org/?p=linux/kernel/git/firmware/linux-firmware.git http://www.ralinktech.com/en/04_support/support.php?sn=501
+KEYWORDS=~amd64 ~arm ~x86
+LICENSE=ralink-firmware
+RDEPEND=virtual/udev
+SLOT=0
+SRC_URI=mirror://gentoo/rt2870-firmware-29.tar.bz2
+_md5_=7d986b8e171a0a942b749fe06ba360bd

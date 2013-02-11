@@ -1,0 +1,12 @@
+DEFINED_PHASES=compile install postinst postrm prepare
+DEPEND==dev-lang/python-2*
+DESCRIPTION=Python tool for extracting information from PDF documents
+EAPI=2
+HOMEPAGE=http://www.unixuser.org/~euske/python/pdfminer/ http://pypi.python.org/pypi/pdfminer/
+KEYWORDS=~amd64 ~x86
+LICENSE=MIT
+RDEPEND==dev-lang/python-2*
+SLOT=0
+SRC_URI=mirror://pypi/p/pdfminer/pdfminer-20110515.tar.gz
+_eclasses_=distutils	15ae23f6f8219a009bfcfff7724fe727	multilib	ded93e450747134a079e647d888aa80b	python	e5b3412fa9f03670a666c8a137bd1060	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e
+_md5_=faa01fbdd9cc91cf170c53e780c9d647

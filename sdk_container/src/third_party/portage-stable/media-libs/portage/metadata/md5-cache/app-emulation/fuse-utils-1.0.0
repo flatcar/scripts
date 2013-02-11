@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install prepare
+DEPEND=~app-emulation/libspectrum-1.0.0[gcrypt?] audiofile? ( >=media-libs/audiofile-0.2.3 ) virtual/pkgconfig || ( >=sys-devel/automake-1.11.1:1.11 >=sys-devel/automake-1.12:1.12 ) >=sys-devel/autoconf-2.68 sys-devel/libtool
+DESCRIPTION=Utils for the Free Unix Spectrum Emulator by Philip Kendall
+EAPI=3
+HOMEPAGE=http://fuse-emulator.sourceforge.net
+IUSE=audiofile gcrypt
+KEYWORDS=~amd64 ~x86
+LICENSE=GPL-2
+RDEPEND=~app-emulation/libspectrum-1.0.0[gcrypt?] audiofile? ( >=media-libs/audiofile-0.2.3 )
+SLOT=0
+SRC_URI=mirror://sourceforge/fuse-emulator/fuse-utils-1.0.0.tar.gz
+_eclasses_=autotools	cf83655b19ed98f9ea3b44f4572b51a3	eutils	d40dc948067bd3db1c8ebf7d51897313	libtool	2b273eea1976cfaed3449345d94331ac	multilib	ded93e450747134a079e647d888aa80b	multiprocessing	a2130e6fc4aa4c6a24b265ca0cbcc2b6	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=c5cc16c26a6f1726574351ba77dfc9be

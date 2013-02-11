@@ -1,0 +1,218 @@
+# ChangeLog for dev-ruby/railties
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/railties/ChangeLog,v 1.48 2013/01/28 22:24:35 graaff Exp $
+
+*railties-3.0.20 (28 Jan 2013)
+
+  28 Jan 2013; Hans de Graaff <graaff@gentoo.org> +railties-3.0.20.ebuild:
+  Version bump for security bug 453844.
+
+  20 Jan 2013; Hans de Graaff <graaff@gentoo.org> -railties-3.0.18.ebuild,
+  -railties-3.1.9.ebuild, -railties-3.2.10.ebuild:
+  Remove vulnerable versions.
+
+  16 Jan 2013; Rick Farina <zerochaos@gentoo.org> railties-3.1.10.ebuild,
+  railties-3.1.3.ebuild, railties-3.1.9.ebuild, railties-3.2.10.ebuild,
+  railties-3.2.11.ebuild:
+  adding ~arm keywords to net-analyzer/metasploit rdeps
+
+*railties-3.0.19 (09 Jan 2013)
+
+  09 Jan 2013; Hans de Graaff <graaff@gentoo.org> +railties-3.0.19.ebuild:
+  Version bump for bug 450974.
+
+*railties-3.1.10 (09 Jan 2013)
+
+  09 Jan 2013; Hans de Graaff <graaff@gentoo.org> +railties-3.1.10.ebuild:
+  Version bump for bug 450974.
+
+*railties-3.2.11 (09 Jan 2013)
+
+  09 Jan 2013; Hans de Graaff <graaff@gentoo.org> +railties-3.2.11.ebuild:
+  Version bump for bug 450974.
+
+  06 Jan 2013; Hans de Graaff <graaff@gentoo.org> -railties-3.0.17.ebuild,
+  -railties-3.1.8.ebuild, -railties-3.2.8.ebuild, -railties-3.2.9.ebuild:
+  Remove vulnerable versions.
+
+*railties-3.0.18 (03 Jan 2013)
+
+  03 Jan 2013; Hans de Graaff <graaff@gentoo.org> +railties-3.0.18.ebuild:
+  Version bump for security bug 449826.
+
+*railties-3.1.9 (03 Jan 2013)
+
+  03 Jan 2013; Hans de Graaff <graaff@gentoo.org> +railties-3.1.9.ebuild:
+  Version bump for security bug 449826.
+
+*railties-3.2.10 (03 Jan 2013)
+
+  03 Jan 2013; Hans de Graaff <graaff@gentoo.org> +railties-3.2.10.ebuild:
+  Version bump for security bug 449826.
+
+*railties-3.2.9 (12 Nov 2012)
+
+  12 Nov 2012; Hans de Graaff <graaff@gentoo.org> +railties-3.2.9.ebuild:
+  Version bump.
+
+  27 Aug 2012; Hans de Graaff <graaff@gentoo.org> -railties-3.0.16.ebuild,
+  -railties-3.1.7.ebuild, -railties-3.2.7.ebuild:
+  Remove vulnerable versions.
+
+  22 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> railties-3.0.17.ebuild,
+  railties-3.1.8.ebuild:
+  Permit newer thor on railties 3.0/3.1.
+
+*railties-3.1.8 (11 Aug 2012)
+*railties-3.0.17 (11 Aug 2012)
+
+  11 Aug 2012; Hans de Graaff <graaff@gentoo.org> +railties-3.0.17.ebuild,
+  +railties-3.1.8.ebuild:
+  Version bumps for security bug 430718.
+
+*railties-3.2.8 (10 Aug 2012)
+
+  10 Aug 2012; Hans de Graaff <graaff@gentoo.org> +railties-3.2.8.ebuild:
+  Version bump for security bug 430718.
+
+  29 Jul 2012; Hans de Graaff <graaff@gentoo.org> -railties-3.0.15.ebuild,
+  -railties-3.1.6.ebuild, -railties-3.2.6.ebuild:
+  Remove vulnerable versions.
+
+*railties-3.0.16 (28 Jul 2012)
+
+  28 Jul 2012; Hans de Graaff <graaff@gentoo.org> +railties-3.0.16.ebuild:
+  Version bump for Rails 3.0.16, bug 428254.
+
+*railties-3.1.7 (28 Jul 2012)
+
+  28 Jul 2012; Hans de Graaff <graaff@gentoo.org> +railties-3.1.7.ebuild:
+  Version bump for Rails 3.1.7, bug 428254.
+
+*railties-3.2.7 (27 Jul 2012)
+
+  27 Jul 2012; Hans de Graaff <graaff@gentoo.org> +railties-3.2.7.ebuild:
+  Version bump for Rails 3.2.7, bug 428254.
+
+  23 Jun 2012; Hans de Graaff <graaff@gentoo.org> -railties-3.0.12.ebuild,
+  -railties-3.1.4.ebuild, -railties-3.2.3.ebuild, -railties-3.2.5.ebuild:
+  Remove old vulnerable versions.
+
+*railties-3.1.6 (17 Jun 2012)
+
+  17 Jun 2012; Hans de Graaff <graaff@gentoo.org> +railties-3.1.6.ebuild:
+  Version bump for Rails 3.1.6.
+
+*railties-3.0.15 (13 Jun 2012)
+
+  13 Jun 2012; Hans de Graaff <graaff@gentoo.org> +railties-3.0.15.ebuild:
+  Version bump for Rails 3.0.15.
+
+*railties-3.2.6 (13 Jun 2012)
+
+  13 Jun 2012; Hans de Graaff <graaff@gentoo.org> +railties-3.2.6.ebuild:
+  Version bump for Rails 3.2.6.
+
+*railties-3.2.5 (01 Jun 2012)
+
+  01 Jun 2012; Hans de Graaff <graaff@gentoo.org> +railties-3.2.5.ebuild:
+  Version bump for bug 418481.
+
+  01 Jun 2012; Hans de Graaff <graaff@gentoo.org> -railties-3.0.10.ebuild,
+  -railties-3.0.11.ebuild:
+  Remove old versions.
+
+  17 May 2012; Thomas Kahle <tomka@gentoo.org> railties-3.1.4.ebuild,
+  railties-3.2.3.ebuild:
+  marked ~x86 per bug 396547
+
+  01 May 2012; Raúl Porcel <armin76@gentoo.org> railties-3.0.10.ebuild,
+  railties-3.0.11.ebuild, railties-3.0.12.ebuild:
+  Drop ia64/sparc keywords
+
+*railties-3.2.3 (20 Apr 2012)
+
+  20 Apr 2012; Hans de Graaff <graaff@gentoo.org> +railties-3.2.3.ebuild:
+  Version bump.
+
+*railties-3.1.4 (04 Apr 2012)
+
+  04 Apr 2012; Hans de Graaff <graaff@gentoo.org> +railties-3.1.4.ebuild:
+  Version bump for Rails 3.1.4, security bug 406547.
+
+*railties-3.0.12 (04 Apr 2012)
+
+  04 Apr 2012; Hans de Graaff <graaff@gentoo.org> +railties-3.0.12.ebuild,
+  railties-3.1.3.ebuild:
+  Add missing ~ppc64 which was most likely the intention given that rails
+  itself is keyworded.
+
+  31 Dec 2011; Fabian Groffen <grobian@gentoo.org> railties-3.1.3.ebuild:
+  Add Prefix keywords, bug #396547
+
+*railties-3.1.3 (30 Dec 2011)
+
+  30 Dec 2011; Hans de Graaff <graaff@gentoo.org> +railties-3.1.3.ebuild:
+  Version bump. Add ruby19. Drop arches due to bug 396547.
+
+*railties-3.0.11 (19 Nov 2011)
+
+  19 Nov 2011; Hans de Graaff <graaff@gentoo.org> +railties-3.0.11.ebuild:
+  Version bump for Rails 3.0.11.
+
+  05 Oct 2011; Hans de Graaff <graaff@gentoo.org> -railties-3.0.7.ebuild,
+  -railties-3.0.9.ebuild:
+  Remove old versions.
+
+*railties-3.0.10 (28 Sep 2011)
+
+  28 Sep 2011; Hans de Graaff <graaff@gentoo.org> +railties-3.0.10.ebuild:
+  Version bump for Rails 3.0.10
+
+  09 Sep 2011; Fabian Groffen <grobian@gentoo.org> railties-3.0.9.ebuild:
+  Marked ~sparc-solaris
+
+  07 Aug 2011; Raúl Porcel <armin76@gentoo.org> railties-3.0.9.ebuild:
+  Add ~ia64/~sparc wrt #351835
+
+  24 Jul 2011; Kacper Kowalik <xarthisius@gentoo.org> railties-3.0.9.ebuild:
+  Marked ~ppc/~ppc64 wrt #351835
+
+  07 Jul 2011; Hans de Graaff <graaff@gentoo.org> railties-3.0.9.ebuild:
+  Add missing dependency on rdoc as reported in bug 374175.
+
+*railties-3.0.9 (04 Jul 2011)
+
+  04 Jul 2011; Hans de Graaff <graaff@gentoo.org> +railties-3.0.9.ebuild:
+  Version bump for Rails 3.0.9.
+
+  01 May 2011; Hans de Graaff <graaff@gentoo.org> -railties-3.0.3-r1.ebuild:
+  Remove old versions.
+
+*railties-3.0.7 (26 Apr 2011)
+
+  26 Apr 2011; Hans de Graaff <graaff@gentoo.org> +railties-3.0.7.ebuild:
+  Version bump for Rails 3.0.7.
+
+  04 Apr 2011; Hans de Graaff <graaff@gentoo.org> -railties-3.0.3.ebuild:
+  Remove old version.
+
+  04 Apr 2011; Hans de Graaff <graaff@gentoo.org> railties-3.0.3-r1.ebuild:
+  Add dependency on rake since the gemspec requires this. Fixes bug 361595.
+
+  13 Feb 2011; Thomas Kahle <tomka@gentoo.org> railties-3.0.3-r1.ebuild:
+  keyworded ~x86 per bug 351835
+
+  13 Jan 2011; Hans de Graaff <graaff@gentoo.org> railties-3.0.3-r1.ebuild:
+  Add missing dependency on redcloth, fixing bug 351367.
+
+*railties-3.0.3-r1 (10 Jan 2011)
+
+  10 Jan 2011; Hans de Graaff <graaff@gentoo.org> +railties-3.0.3-r1.ebuild:
+  Install the real gemspec instead of our own version. Fixes bug 351240.
+
+*railties-3.0.3 (05 Dec 2010)
+
+  05 Dec 2010; Hans de Graaff <graaff@gentoo.org> +railties-3.0.3.ebuild,
+  +metadata.xml:
+  Initial import for Rails 3. Split off from dev-ruby/rails.

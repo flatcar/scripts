@@ -1,0 +1,13 @@
+# ChangeLog for dev-libs/libqzeitgeist
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/libqzeitgeist/ChangeLog,v 1.2 2012/07/31 10:46:15 kensington Exp $
+
+  31 Jul 2012; Michael Palimaka <kensington@gentoo.org>
+  libqzeitgeist-0.8.0.ebuild:
+  Add missing dependencies. Always use Python 2 wrt bug #428466.
+
+*libqzeitgeist-0.8.0 (23 Dec 2011)
+
+  23 Dec 2011; Johannes Huber <johu@gentoo.org> +libqzeitgeist-0.8.0.ebuild,
+  +metadata.xml:
+  New package.

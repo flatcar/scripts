@@ -1,0 +1,10 @@
+http://lists.gnupg.org/pipermail/gcrypt-devel/2012-September/001979.html
+https://bugs.gentoo.org/427726
+
+--- mpi/amd64/mpi-asm-defs.h
++++ mpi/amd64/mpi-asm-defs.h
+@@ -0,0 +1,4 @@
++/* This file defines some basic constants for the MPI machinery.  We
++ * need to define the types on a per-CPU basis, so it is done with
++ * this file here.  */
++#define BYTES_PER_MPI_LIMB 8

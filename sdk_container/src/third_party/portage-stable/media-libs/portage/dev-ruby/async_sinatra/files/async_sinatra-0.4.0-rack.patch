@@ -1,0 +1,22 @@
+Fix expectation for newer versions of rack. See
+https://github.com/raggi/async_sinatra/issues/#issue/10
+
+--- test/test_async.rb.~1~	2011-02-20 15:05:47.480108199 +0100
++++ test/test_async.rb	2011-02-20 15:09:38.494594250 +0100
+@@ -96,8 +96,7 @@
+   
+   def assert_redirect(path)
+     r = last_request.env
+-    uri = r['rack.url_scheme'] + '://' + r['SERVER_NAME'] + path
+-    assert_equal uri, last_response.location
++    assert_equal path, last_response.location
+   end
+ 
+   def test_basic_async_get
+@@ -194,4 +193,4 @@
+     assert_equal 302, last_response.status
+     assert_redirect '/'
+   end
+-end
+\ No newline at end of file
++end

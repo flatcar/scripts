@@ -1,0 +1,23 @@
+# ChangeLog for dev-libs/libnsfb
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/libnsfb/ChangeLog,v 1.3 2012/07/18 16:00:36 xmw Exp $
+
+*libnsfb-0.0.2 (18 Jul 2012)
+
+  18 Jul 2012; Michael Weber <xmw@gentoo.org> +files/libnsfb-0.0.2-unused.patch,
+  +files/libnsfb-0.0.2-xcb-fix.patch, +libnsfb-0.0.2.ebuild,
+  -libnsfb-0.0.2_pre20120629.ebuild:
+  Version bump to netsurf-2.9 tarball, drop old
+
+*libnsfb-0.0.2_pre20120629 (18 Jul 2012)
+
+  18 Jul 2012; Michael Weber <xmw@gentoo.org> +libnsfb-0.0.2_pre20120629.ebuild,
+  -libnsfb-0.0.2_pre20120718.ebuild:
+  fix version information
+
+*libnsfb-0.0.2_pre20120718 (18 Jul 2012)
+*libnsfb-9999 (18 Jul 2012)
+
+  18 Jul 2012; Michael Weber <xmw@gentoo.org> +libnsfb-0.0.2_pre20120718.ebuild,
+  +libnsfb-9999.ebuild, +metadata.xml:
+  Initial import

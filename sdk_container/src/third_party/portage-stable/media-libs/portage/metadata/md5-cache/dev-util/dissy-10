@@ -1,0 +1,12 @@
+DEFINED_PHASES=compile install postinst postrm prepare setup
+DEPEND=|| ( =dev-lang/python-2.7* =dev-lang/python-2.6* )
+DESCRIPTION=A graphical frontend to the objdump disassembler
+EAPI=3
+HOMEPAGE=http://code.google.com/p/dissy/
+KEYWORDS=~amd64 ~x86
+LICENSE=GPL-2
+RDEPEND=sys-devel/binutils dev-python/pygtk dev-python/pygobject:2 dev-python/pywebkitgtk || ( =dev-lang/python-2.7* =dev-lang/python-2.6* )
+SLOT=0
+SRC_URI=http://dissy.googlecode.com/files/dissy-10.tar.gz
+_eclasses_=distutils	15ae23f6f8219a009bfcfff7724fe727	multilib	ded93e450747134a079e647d888aa80b	python	e5b3412fa9f03670a666c8a137bd1060	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e
+_md5_=dd774b7a7bc0e90fab116f5c529b35b2

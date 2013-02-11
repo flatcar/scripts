@@ -1,0 +1,13 @@
+DEFINED_PHASES=configure install prepare setup
+DEPEND=cgi? ( dev-lang/python ) fuse? ( >=sys-fs/fuse-2.6 )
+DESCRIPTION=A filesystem for highly reliable petabyte storage
+EAPI=4
+HOMEPAGE=http://www.moosefs.org/
+IUSE=cgi +fuse static-libs
+KEYWORDS=~amd64 ~x86
+LICENSE=GPL-3
+RDEPEND=cgi? ( dev-lang/python ) fuse? ( >=sys-fs/fuse-2.6 )
+SLOT=0
+SRC_URI=http://www.moosefs.org/tl_files/mfscode/mfs-1.6.26.tar.gz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=4a556e335c1d46f016d3a15aa7817b0f

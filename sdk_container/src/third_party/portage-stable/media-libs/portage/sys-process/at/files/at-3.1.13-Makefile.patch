@@ -1,0 +1,29 @@
+# - install into Gentoo/FHS doc dir
+# - respect Gentoo LDFLAGS
+# - dont allow install to strip binaries
+
+--- at-3.1.13/Makefile.in
++++ at-3.1.13/Makefile.in
+@@ -12,8 +12,11 @@
+ man1dir		= $(mandir)/man1
+ man5dir		= $(mandir)/man5
+ man8dir		= $(mandir)/man8
+-docdir		= $(prefix)/doc
+-atdocdir	= $(docdir)/at
++ifndef PF
++PF = at-$(VERSION)
++endif
++docdir		= $(prefix)/share/doc
++atdocdir	= $(docdir)/$(PF)
+ etcdir		= @ETCDIR@
+ 
+ DAEMON_USERNAME	= @DAEMON_USERNAME@
+@@ -35,7 +38,7 @@
+ 		-DDAEMON_USERNAME=\"$(DAEMON_USERNAME)\" \
+ 		-DDAEMON_GROUPNAME=\"$(DAEMON_GROUPNAME)\" \
+ 		-DLFILE=\"$(LFILE)\" -Wall
+-LIBS		= @LIBS@
++LIBS		= @LIBS@ @LDFLAGS@
+ LIBOBJS		= @LIBOBJS@
+ INSTALL		= @INSTALL@
+ PAMLIB          = @PAMLIB@

@@ -1,0 +1,154 @@
+From b3e72a475d9d4c5293c9cc875483509975754395 Mon Sep 17 00:00:00 2001
+From: Alexandre Rostovtsev <tetromino@gmail.com>
+Date: Fri, 7 Oct 2011 23:25:14 -0400
+Subject: [PATCH 1/2] Replace RedHat defaults with Gentoo ones
+
+---
+ src/plugins/Makefile.am            |   36 +-----------------------------------
+ src/plugins/bugzilla.conf          |    2 +-
+ src/plugins/report_Bugzilla.conf   |    2 +-
+ src/plugins/report_Bugzilla.xml.in |    4 ++--
+ src/plugins/reporter-bugzilla.txt  |    2 +-
+ 5 files changed, 6 insertions(+), 40 deletions(-)
+
+diff --git a/src/plugins/Makefile.am b/src/plugins/Makefile.am
+index c5f1810..937337c 100644
+--- a/src/plugins/Makefile.am
++++ b/src/plugins/Makefile.am
+@@ -4,7 +4,6 @@ pluginslibdir = $(PLUGINS_LIB_DIR)
+ 
+ bin_PROGRAMS = \
+     reporter-bugzilla \
+-    reporter-rhtsupport \
+     reporter-kerneloops \
+     reporter-upload \
+     reporter-mailx \
+@@ -19,8 +18,7 @@ pluginsconfdir = $(PLUGINS_CONF_DIR)
+ reportpluginsconfdir = $(REPORT_PLUGINS_CONF_DIR)
+ 
+ dist_reportpluginsconf_DATA = \
+-    bugzilla.conf \
+-    rhtsupport.conf
++    bugzilla.conf
+ 
+ eventsdir = $(EVENTS_DIR)
+ 
+@@ -30,7 +28,6 @@ dist_events_DATA = \
+     report_Logger.conf \
+     report_Logger.xml \
+     report_Mailx.xml \
+-    report_RHTSupport.xml \
+     report_Kerneloops.xml \
+     report_Uploader.xml
+ if HAVE_BODHI
+@@ -45,7 +42,6 @@ dist_eventsconf_DATA = \
+     mailx_event.conf \
+     print_event.conf \
+     bugzilla_event.conf \
+-    rhtsupport_event.conf \
+     uploader_event.conf
+ if HAVE_BODHI
+ dist_eventsconf_DATA += bodhi_event.conf
+@@ -55,7 +51,6 @@ MAN_TXT = \
+     reporter-print.txt \
+     reporter-mailx.txt \
+     reporter-bugzilla.txt \
+-    reporter-rhtsupport.txt \
+     reporter-kerneloops.txt \
+     reporter-upload.txt \
+     report.txt
+@@ -80,7 +75,6 @@ EXTRA_DIST = \
+     report_Logger.conf \
+     report_Logger.xml.in \
+     report_Mailx.xml.in \
+-    report_RHTSupport.xml.in \
+     report_Kerneloops.xml.in \
+     report_Uploader.xml.in
+ if HAVE_BODHI
+@@ -112,34 +106,6 @@ reporter_bugzilla_LDADD = \
+     ../lib/libabrt_web.la \
+     ../lib/libreport.la
+ 
+-reporter_rhtsupport_SOURCES = \
+-    abrt_rh_support.h abrt_rh_support.c \
+-    reporter-rhtsupport.h \
+-    reporter-rhtsupport-parse.c \
+-    reporter-rhtsupport.c
+-reporter_rhtsupport_CPPFLAGS = \
+-    -I$(srcdir)/../include \
+-    -I$(srcdir)/../lib \
+-    -DBIN_DIR=\"$(bindir)\" \
+-    -DVAR_RUN=\"$(VAR_RUN)\" \
+-    -DCONF_DIR=\"$(CONF_DIR)\" \
+-    -DLOCALSTATEDIR='"$(localstatedir)"' \
+-    -DDEBUG_DUMPS_DIR=\"$(DEBUG_DUMPS_DIR)\" \
+-    -DDEBUG_INFO_DIR=\"$(DEBUG_INFO_DIR)\" \
+-    -DPLUGINS_LIB_DIR=\"$(PLUGINS_LIB_DIR)\" \
+-    -DPLUGINS_CONF_DIR=\"$(REPORT_PLUGINS_CONF_DIR)\" \
+-    $(GLIB_CFLAGS) \
+-    $(LIBREPORT_CFLAGS) \
+-    $(XMLRPC_CFLAGS) $(XMLRPC_CLIENT_CFLAGS) \
+-    -D_GNU_SOURCE \
+-    -Wall -Wwrite-strings -Werror
+-reporter_rhtsupport_LDFLAGS = -ltar
+-reporter_rhtsupport_LDADD = \
+-    $(GLIB_LIBS) \
+-    $(XMLRPC_LIBS) $(XMLRPC_CLIENT_LIBS) \
+-    ../lib/libabrt_web.la \
+-    ../lib/libreport.la
+-
+ reporter_upload_SOURCES = \
+     reporter-upload.c
+ reporter_upload_CPPFLAGS = \
+diff --git a/src/plugins/bugzilla.conf b/src/plugins/bugzilla.conf
+index 18eba5a..f5afe6f 100644
+--- a/src/plugins/bugzilla.conf
++++ b/src/plugins/bugzilla.conf
+@@ -1,5 +1,5 @@
+ # Bugzilla URL
+-BugzillaURL = https://bugzilla.redhat.com/
++BugzillaURL = https://bugs.gentoo.org/
+ # yes means that ssl certificates will be checked
+ SSLVerify = yes
+ # your login has to exist, if you don have any, please create one
+diff --git a/src/plugins/report_Bugzilla.conf b/src/plugins/report_Bugzilla.conf
+index f1a77f5..9e9c7d0 100644
+--- a/src/plugins/report_Bugzilla.conf
++++ b/src/plugins/report_Bugzilla.conf
+@@ -1,4 +1,4 @@
+-Bugzilla_BugzillaURL = https://bugzilla.redhat.com
++Bugzilla_BugzillaURL = https://bugs.gentoo.org
+ Bugzilla_Login =
+ Bugzilla_Password =
+ Bugzilla_SSLVerify = yes
+diff --git a/src/plugins/report_Bugzilla.xml.in b/src/plugins/report_Bugzilla.xml.in
+index e287a50..f5f9e71 100644
+--- a/src/plugins/report_Bugzilla.xml.in
++++ b/src/plugins/report_Bugzilla.xml.in
+@@ -15,8 +15,8 @@
+             <_label>Bugzilla URL</_label>
+             <allow-empty>no</allow-empty>
+             <_description>Address of Bugzilla server</_description>
+-            <default-value>https://bugzilla.redhat.com</default-value>
+-            <_note-html>You can create bugzilla.redhat.com account &lt;a href="https://bugzilla.redhat.com/createaccount.cgi"&gt;here&lt;/a&gt;</_note-html>
++            <default-value>https://bugs.gentoo.org</default-value>
++            <_note-html>You can create a Gentoo Bugzilla account &lt;a href="https://bugs.gentoo.org/createaccount.cgi"&gt;here&lt;/a&gt;</_note-html>
+         </option>
+         <option type="text" name="Bugzilla_Login">
+             <_label>User name</_label>
+diff --git a/src/plugins/reporter-bugzilla.txt b/src/plugins/reporter-bugzilla.txt
+index 6c4d6fe..cd0f26b 100644
+--- a/src/plugins/reporter-bugzilla.txt
++++ b/src/plugins/reporter-bugzilla.txt
+@@ -41,7 +41,7 @@ Configuration file lines should have 'PARAM = VALUE' format. The parameters are:
+ 	Password to Bugzilla account.
+ 
+ 'BugzillaURL'::
+-	Bugzilla HTTP(S) address. (default: https://bugzilla.redhat.com)
++	Bugzilla HTTP(S) address. (default: https://bugs.gentoo.org)
+ 
+ 'SSLVerify'::
+ 	Use yes/true/on/1 to verify server's SSL certificate. (default: yes)
+-- 
+1.7.8.rc1
+

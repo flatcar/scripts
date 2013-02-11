@@ -1,0 +1,27 @@
+# ChangeLog for dev-ruby/coolio
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/coolio/ChangeLog,v 1.5 2013/02/03 12:20:53 pacho Exp $
+
+  03 Feb 2013; Pacho Ramos <pacho@gentoo.org> metadata.xml:
+  Cleanup due #22900
+
+  05 Aug 2012; Hans de Graaff <graaff@gentoo.org> -coolio-1.1.0-r1.ebuild:
+  Cleanup.
+
+*coolio-1.1.0-r2 (17 Apr 2012)
+
+  17 Apr 2012; MATSUU Takuto <matsuu@gentoo.org> -coolio-1.1.0.ebuild,
+  +coolio-1.1.0-r2.ebuild, +files/coolio-1.1.0-rubyio.patch:
+  Added RESTRICT="test".
+
+*coolio-1.1.0-r1 (14 Mar 2012)
+
+  14 Mar 2012; MATSUU Takuto <matsuu@gentoo.org> +coolio-1.1.0-r1.ebuild,
+  +files/coolio-1.1.0-libev.patch:
+  Added dev-libs/libev to DEPEND and removed bundled libev. Added test.
+
+*coolio-1.1.0 (14 Mar 2012)
+
+  14 Mar 2012; MATSUU Takuto <matsuu@gentoo.org> +coolio-1.1.0.ebuild,
+  +metadata.xml:
+  Initial import.

@@ -1,0 +1,22 @@
+# ChangeLog for x11-libs/libdesktop-agnostic
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/x11-libs/libdesktop-agnostic/ChangeLog,v 1.4 2012/01/22 20:43:12 ssuominen Exp $
+
+  22 Jan 2012; Samuli Suominen <ssuominen@gentoo.org>
+  libdesktop-agnostic-0.3.92.ebuild:
+  Enable introspection by default.
+
+  24 May 2011; Christoph Mende <angelos@gentoo.org>
+  libdesktop-agnostic-0.3.92.ebuild:
+  gobject-introspection is always required to build
+
+  13 Mar 2011; <angelos@gentoo.org> libdesktop-agnostic-0.3.92.ebuild,
+  metadata.xml:
+  Removed gnome-vfs support
+
+*libdesktop-agnostic-0.3.92 (13 Mar 2011)
+
+  13 Mar 2011; <angelos@gentoo.org> +libdesktop-agnostic-0.3.92.ebuild,
+  +metadata.xml:
+  Initial import
+

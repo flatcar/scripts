@@ -1,0 +1,40 @@
+# ChangeLog for dev-libs/starpu
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/starpu/ChangeLog,v 1.6 2012/10/30 15:00:48 bicatali Exp $
+
+*starpu-1.0.4 (30 Oct 2012)
+
+  30 Oct 2012; Sébastien Fabbro <bicatali@gentoo.org> +starpu-1.0.4.ebuild,
+  starpu-1.0.2.ebuild:
+  Version bump
+
+  15 Aug 2012; Sébastien Fabbro <bicatali@gentoo.org> -starpu-1.0.1.ebuild,
+  starpu-1.0.2.ebuild:
+  Slot qt4 in preparation of qt5, allow cross-compilation with pkg-config, added
+  comments, removed old version
+
+*starpu-1.0.2 (15 Aug 2012)
+
+  15 Aug 2012; Sébastien Fabbro <bicatali@gentoo.org> +starpu-1.0.2.ebuild,
+  files/starpu-1.0.1-detect-qt.patch, files/starpu-1.0.1-no-examples.patch,
+  files/starpu-1.0.1-no-pc-ldflags.patch,
+  files/starpu-1.0.1-respect-cflags.patch, files/starpu-1.0.1-system-blas.patch,
+  metadata.xml:
+  Version bump
+
+  23 Jun 2012; Samuli Suominen <ssuominen@gentoo.org> starpu-1.0.1.ebuild:
+  Fix building with sys-devel/automake >= 1.12 wrt #423011
+
+  31 May 2012; Sébastien Fabbro <bicatali@gentoo.org> starpu-1.0.1.ebuild,
+  +files/starpu-1.0.1-detect-qt.patch, metadata.xml:
+  Added doc, examples, and gcc-plugin flags. Fixed a wrong autoconf macro when
+  checking for qt4
+
+*starpu-1.0.1 (30 May 2012)
+
+  30 May 2012; Sébastien Fabbro <bicatali@gentoo.org> +starpu-1.0.1.ebuild,
+  +files/starpu-1.0.1-no-examples.patch,
+  +files/starpu-1.0.1-no-pc-ldflags.patch,
+  +files/starpu-1.0.1-respect-cflags.patch,
+  +files/starpu-1.0.1-system-blas.patch, +metadata.xml:
+  Initial import

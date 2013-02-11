@@ -1,0 +1,21 @@
+commit df3148f9cb843b68f4c65bb152c176eb201a99c8
+Author: Kouhei Sutou <kou@clear-code.com>
+Date:   Wed Jul 20 22:19:55 2011 +0900
+
+    support Ruby Enterprise Edition. fix #29325
+    
+    Reported by Hans de Graaff. Thanks!!!
+
+diff --git a/lib/test/unit/attribute.rb b/lib/test/unit/attribute.rb
+index c91fc32..13c794c 100644
+--- a/lib/test/unit/attribute.rb
++++ b/lib/test/unit/attribute.rb
+@@ -36,7 +36,7 @@ module Test
+           return unless defined?(@current_attributes)
+ 
+           attributes = {}
+-          kept_attributes = {}
++          kept_attributes = StringifyKeyHash.new
+           @current_attributes.each do |attribute_name, attribute|
+             attributes[attribute_name] = attribute[:value]
+             kept_attributes[attribute_name] = attribute if attribute[:keep]

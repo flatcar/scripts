@@ -1,0 +1,11 @@
+DEFINED_PHASES=compile install postinst setup
+DEPEND==www-servers/apache-2*
+DESCRIPTION=Apache2 module enabling Netscape Communicator roaming profiles.
+HOMEPAGE=http://www.klomp.org/mod_roaming/
+KEYWORDS=x86
+LICENSE=BSD
+RDEPEND==www-servers/apache-2*
+SLOT=0
+SRC_URI=http://www.klomp.org/mod_roaming/mod_roaming-2.0.0.tar.gz
+_eclasses_=apache-module	1f60370f9dceba046ec036cd6bbb0c8b	depend.apache	1a38534d3f755d1ab1d92ce120bd7dbd	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e
+_md5_=b1a733a84acfed1721e874a27b5537af

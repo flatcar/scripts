@@ -1,0 +1,10 @@
+DEFINED_PHASES=configure install
+DESCRIPTION=Provide a faked chroot environment without requiring root privileges
+EAPI=2
+HOMEPAGE=http://fakechroot.alioth.debian.org/
+KEYWORDS=amd64 x86
+LICENSE=LGPL-2.1
+RESTRICT=test
+SLOT=0
+SRC_URI=mirror://debian/pool/main/f/fakechroot/fakechroot_2.11.orig.tar.gz
+_md5_=3d326626552b28546919375f704494d9

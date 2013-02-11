@@ -1,0 +1,83 @@
+# ChangeLog for dev-ruby/mini_magick
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/mini_magick/ChangeLog,v 1.15 2012/08/26 13:21:25 graaff Exp $
+
+  26 Aug 2012; Hans de Graaff <graaff@gentoo.org> -mini_magick-1.3.3-r1.ebuild,
+  -mini_magick-3.3.ebuild:
+  Cleanup.
+
+*mini_magick-1.3.3-r2 (12 May 2012)
+
+  12 May 2012; Diego E. Pettenò <flameeyes@gentoo.org>
+  +mini_magick-1.3.3-r2.ebuild:
+  Fix metadata handling for Ruby 1.9 by converting first to gemspec and then
+  sed.
+
+*mini_magick-3.4 (15 Jan 2012)
+
+  15 Jan 2012; Hans de Graaff <graaff@gentoo.org> +mini_magick-3.4.ebuild:
+  Version bump. Add ruby19.
+
+  21 Dec 2011; Diego E. Pettenò <flameeyes@gentoo.org>
+  mini_magick-1.3.3-r1.ebuild:
+  Bump EAPI as well.
+
+*mini_magick-1.3.3-r1 (21 Dec 2011)
+
+  21 Dec 2011; Diego E. Pettenò <flameeyes@gentoo.org>
+  +mini_magick-1.3.3-r1.ebuild, -files/mini_magick-1.2.5-tests-tempdir.patch,
+  -mini_magick-1.2.5.ebuild, -mini_magick-1.3.3.ebuild, -mini_magick-3.1.ebuild,
+  -mini_magick-3.2.ebuild:
+  Cleanup old versions; revision bump latest 1.3 series (which I'm still using
+  for Typo) to fix the gem specification's dependency over subexec.
+
+  25 Sep 2011; Diego E. Pettenò <flameeyes@gentoo.org> mini_magick-3.3.ebuild:
+  Remove ruby19 support as subexec does not declare supporting it.
+
+*mini_magick-3.3 (21 Jul 2011)
+
+  21 Jul 2011; Hans de Graaff <graaff@gentoo.org> +mini_magick-3.3.ebuild:
+  Version bump.
+
+*mini_magick-3.2 (14 Jan 2011)
+
+  14 Jan 2011; Hans de Graaff <graaff@gentoo.org> +mini_magick-3.2.ebuild:
+  Version bump.
+
+*mini_magick-3.1 (02 Jan 2011)
+
+  02 Jan 2011; Hans de Graaff <graaff@gentoo.org> +mini_magick-3.1.ebuild:
+  Version bump.
+
+  02 Jan 2011; Hans de Graaff <graaff@gentoo.org> -mini_magick-1.3.1.ebuild,
+  -mini_magick-1.3.2.ebuild:
+  Remove old versions.
+
+*mini_magick-1.3.3 (19 Sep 2010)
+
+  19 Sep 2010; Hans de Graaff <graaff@gentoo.org> +mini_magick-1.3.3.ebuild:
+  Version bump.
+
+*mini_magick-1.3.2 (03 Aug 2010)
+
+  03 Aug 2010; Hans de Graaff <graaff@gentoo.org> +mini_magick-1.3.2.ebuild:
+  Version bump. Test failure has been fixed upstream.
+
+*mini_magick-1.3.1 (21 Jul 2010)
+
+  21 Jul 2010; Hans de Graaff <graaff@gentoo.org> +mini_magick-1.3.1.ebuild:
+  Version bump.
+
+  22 May 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  mini_magick-1.2.5.ebuild:
+  Various cleanups.
+
+*mini_magick-1.2.5 (13 Jan 2010)
+
+  13 Jan 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +mini_magick-1.2.5.ebuild, +files/mini_magick-1.2.5-tests-tempdir.patch,
+  +metadata.xml:
+  Initial import of mini_magick, needed by Typo master. Tests currently fail
+  (at least with ImageMagick 6.5.8.8), and the two changes are sent upstream
+  for merging.
+

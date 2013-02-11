@@ -1,0 +1,10 @@
+# ChangeLog for games-rpg/nwn-shadowlordsdreamcatcherdemon
+# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/games-rpg/nwn-shadowlordsdreamcatcherdemon/ChangeLog,v 1.1 2011/05/19 05:38:15 calchan Exp $
+
+*nwn-shadowlordsdreamcatcherdemon-1 (19 May 2011)
+
+  19 May 2011; Denis Dupeyron <calchan@gentoo.org>
+  +nwn-shadowlordsdreamcatcherdemon-1.ebuild, +metadata.xml:
+  Initial commit.
+

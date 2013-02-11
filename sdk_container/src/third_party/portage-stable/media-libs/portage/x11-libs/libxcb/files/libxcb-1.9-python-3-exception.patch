@@ -1,0 +1,22 @@
+Replace except statement with a PEP-3110 compliant one. This fixes a regression
+introduced by c3deeaf714630531d693a6a902b8dabf791858b1
+https://bugs.freedesktop.org/show_bug.cgi?id=55690
+---
+ src/c_client.py |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/src/c_client.py b/src/c_client.py
+index 9952a09..ec66223 100644
+--- a/src/c_client.py
++++ b/src/c_client.py
+@@ -2908,7 +2908,7 @@ Refer to the README file in xcb/proto for more info.
+ # Ensure the man subdirectory exists
+ try:
+     os.mkdir('man')
+-except OSError, e:
++except OSError as e:
+     if e.errno != errno.EEXIST:
+         raise
+ 
+-- 
+1.7.8.6

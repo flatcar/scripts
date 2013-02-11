@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install postinst postrm preinst setup
+DEPEND=virtual/linux-sources kernel_linux? ( virtual/modutils ) sys-apps/sed kernel_linux? ( virtual/linux-sources )
+DESCRIPTION=mirror/replicate block-devices across a network-connection
+EAPI=2
+HOMEPAGE=http://www.drbd.org
+IUSE=kernel_linux
+KEYWORDS=~amd64 ~x86
+LICENSE=GPL-2
+RDEPEND=kernel_linux? ( virtual/modutils )
+SLOT=0
+SRC_URI=http://oss.linbit.com/drbd/8.3/drbd-8.3.8.1.tar.gz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	linux-info	c27564a568491445be036a10498ed8be	linux-mod	dbc722ed035721476f23ab7b0572985e	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=f86271fb5b05ed447769ccb89c813115

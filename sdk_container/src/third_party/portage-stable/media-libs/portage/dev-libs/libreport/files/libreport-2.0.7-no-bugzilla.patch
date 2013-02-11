@@ -1,0 +1,80 @@
+From d30693aab920000afd5cfdcaf558f968c712b80f Mon Sep 17 00:00:00 2001
+From: Alexandre Rostovtsev <tetromino@gmail.com>
+Date: Sat, 8 Oct 2011 00:26:15 -0400
+Subject: [PATCH 2/2] Disable bugzilla plugin (requires Gentoo infrastructure
+ changes)
+
+---
+ src/plugins/Makefile.am |   28 +---------------------------
+ 1 files changed, 1 insertions(+), 27 deletions(-)
+
+diff --git a/src/plugins/Makefile.am b/src/plugins/Makefile.am
+index 937337c..f5ec729 100644
+--- a/src/plugins/Makefile.am
++++ b/src/plugins/Makefile.am
+@@ -3,7 +3,6 @@
+ pluginslibdir = $(PLUGINS_LIB_DIR)
+ 
+ bin_PROGRAMS = \
+-    reporter-bugzilla \
+     reporter-kerneloops \
+     reporter-upload \
+     reporter-mailx \
+@@ -17,8 +16,7 @@ pluginsconfdir = $(PLUGINS_CONF_DIR)
+ 
+ reportpluginsconfdir = $(REPORT_PLUGINS_CONF_DIR)
+ 
+-dist_reportpluginsconf_DATA = \
+-    bugzilla.conf
++dist_reportpluginsconf_DATA = 
+ 
+ eventsdir = $(EVENTS_DIR)
+ 
+@@ -41,7 +39,6 @@ eventsconfdir = $(EVENTS_CONF_DIR)
+ dist_eventsconf_DATA = \
+     mailx_event.conf \
+     print_event.conf \
+-    bugzilla_event.conf \
+     uploader_event.conf
+ if HAVE_BODHI
+ dist_eventsconf_DATA += bodhi_event.conf
+@@ -50,7 +47,6 @@ endif
+ MAN_TXT = \
+     reporter-print.txt \
+     reporter-mailx.txt \
+-    reporter-bugzilla.txt \
+     reporter-kerneloops.txt \
+     reporter-upload.txt \
+     report.txt
+@@ -84,28 +80,6 @@ endif
+ $(DESTDIR)/$(DEBUG_INFO_DIR):
+ 	$(mkdir_p) '$@'
+ 
+-reporter_bugzilla_SOURCES = \
+-    reporter-bugzilla.c rhbz.c rhbz.h
+-reporter_bugzilla_CPPFLAGS = \
+-    -I$(srcdir)/../include \
+-    -I$(srcdir)/../lib \
+-    -DBIN_DIR=\"$(bindir)\" \
+-    -DVAR_RUN=\"$(VAR_RUN)\" \
+-    -DCONF_DIR=\"$(CONF_DIR)\" \
+-    -DLOCALSTATEDIR='"$(localstatedir)"' \
+-    -DDEBUG_DUMPS_DIR=\"$(DEBUG_DUMPS_DIR)\" \
+-    -DDEBUG_INFO_DIR=\"$(DEBUG_INFO_DIR)\" \
+-    -DPLUGINS_LIB_DIR=\"$(PLUGINS_LIB_DIR)\" \
+-    -DPLUGINS_CONF_DIR=\"$(REPORT_PLUGINS_CONF_DIR)\" \
+-    $(GLIB_CFLAGS) \
+-    $(LIBREPORT_CFLAGS) \
+-    -D_GNU_SOURCE \
+-    -Wall -Wwrite-strings
+-reporter_bugzilla_LDADD = \
+-    $(GLIB_LIBS) \
+-    ../lib/libabrt_web.la \
+-    ../lib/libreport.la
+-
+ reporter_upload_SOURCES = \
+     reporter-upload.c
+ reporter_upload_CPPFLAGS = \
+-- 
+1.7.8.rc1
+

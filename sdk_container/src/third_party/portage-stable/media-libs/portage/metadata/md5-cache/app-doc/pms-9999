@@ -1,0 +1,10 @@
+DEFINED_PHASES=compile install unpack
+DEPEND=html? ( >=dev-tex/tex4ht-20090115_p0029 ) dev-tex/leaflet dev-texlive/texlive-bibtexextra dev-texlive/texlive-latex dev-texlive/texlive-latexrecommended dev-texlive/texlive-latexextra dev-texlive/texlive-science dev-vcs/git
+DESCRIPTION=Gentoo Package Manager Specification (draft)
+EAPI=4
+HOMEPAGE=http://www.gentoo.org/proj/en/qa/pms.xml
+IUSE=html
+LICENSE=CCPL-Attribution-ShareAlike-3.0
+SLOT=live
+_eclasses_=git-2	e92e09651292b1bef5656592364550f7
+_md5_=af97ee1e1e988f4b51446d5d9faf0de1

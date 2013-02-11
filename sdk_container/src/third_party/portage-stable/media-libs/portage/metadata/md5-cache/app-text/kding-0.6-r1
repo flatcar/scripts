@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install postinst postrm preinst prepare setup test unpack
+DEPEND=>=sys-apps/sed-4 >=dev-util/cmake-2.8.8 userland_GNU? ( >=sys-apps/findutils-4.4.0 ) dev-util/automoc virtual/pkgconfig !aqua? ( >=x11-libs/libXtst-1.1.0 x11-proto/xf86vidmodeproto ) handbook? ( app-text/docbook-xml-dtd:4.2 app-text/docbook-xsl-stylesheets ) dev-lang/perl >=x11-libs/qt-core-4.7.4:4[qt3support,ssl] >=x11-libs/qt-dbus-4.7.4:4 >=x11-libs/qt-gui-4.7.4:4[accessibility,dbus] >=x11-libs/qt-qt3support-4.7.4:4[accessibility] >=x11-libs/qt-script-4.7.4:4 >=x11-libs/qt-sql-4.7.4:4[qt3support] >=x11-libs/qt-svg-4.7.4:4 >=x11-libs/qt-test-4.7.4:4 >=x11-libs/qt-webkit-4.7.4:4 !aqua? ( x11-libs/libXext x11-libs/libXt x11-libs/libXxf86vm x11-libs/libXcomposite x11-libs/libxkbfile ) >=kde-base/kdelibs-4.4:4[aqua=]
+DESCRIPTION=KDE port of Ding, a dictionary lookup program.
+EAPI=4
+HOMEPAGE=http://www.rexi.org/software/kding/
+IUSE=debug linguas_de +handbook aqua
+KEYWORDS=amd64 x86
+LICENSE=GPL-2
+RDEPEND=>=kde-base/oxygen-icons-4.4:4[aqua=] linguas_de? ( >=kde-base/kde-l10n-4.4:4[aqua=,linguas_de(+)] ) handbook? ( >=kde-base/kdelibs-4.4:4[aqua=,handbook] ) dev-lang/perl >=x11-libs/qt-core-4.7.4:4[qt3support,ssl] >=x11-libs/qt-dbus-4.7.4:4 >=x11-libs/qt-gui-4.7.4:4[accessibility,dbus] >=x11-libs/qt-qt3support-4.7.4:4[accessibility] >=x11-libs/qt-script-4.7.4:4 >=x11-libs/qt-sql-4.7.4:4[qt3support] >=x11-libs/qt-svg-4.7.4:4 >=x11-libs/qt-test-4.7.4:4 >=x11-libs/qt-webkit-4.7.4:4 !aqua? ( x11-libs/libXext x11-libs/libXt x11-libs/libXxf86vm x11-libs/libXcomposite x11-libs/libxkbfile ) >=kde-base/kdelibs-4.4:4[aqua=]
+SLOT=4
+SRC_URI=http://www.rexi.org/downloads/kding/kding-0.6.tar.bz2
+_eclasses_=base	ec46b36a6f6fd1d0b505a33e0b74e413	cmake-utils	3cb7a29aafd4b984d2bf12bc50abe5da	eutils	d40dc948067bd3db1c8ebf7d51897313	fdo-mime	0acfe1a88fd8751a1d5dc671168219fa	flag-o-matic	d900015de4e092f26d8c0a18b6bd60de	gnome2-utils	794d2847b4af390a1e020924876c8297	kde4-base	58e674cc5d0dd976ab665e89a1310e81	kde4-functions	37767566f9ffa88075c4d392a59100a9	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4	virtualx	73cfc129b4b9ba23aed1abb10c825d86
+_md5_=f08dc67e6cadad9f063e9eb112d373fd

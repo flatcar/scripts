@@ -1,0 +1,62 @@
+# ChangeLog for dev-libs/seed
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/seed/ChangeLog,v 1.14 2013/02/02 22:27:32 ago Exp $
+
+  02 Feb 2013; Agostino Sarubbo <ago@gentoo.org> seed-3.2.0-r1.ebuild:
+  Add ~arm, wrt bug #449220
+
+  06 Jan 2013; Agostino Sarubbo <ago@gentoo.org> seed-3.2.0-r1.ebuild:
+  Add ~sparc, wrt bug #449220
+
+  01 Jan 2013; Agostino Sarubbo <ago@gentoo.org> seed-3.2.0-r1.ebuild:
+  Add ~alpha, wrt bug #449220
+
+  01 Jan 2013; Agostino Sarubbo <ago@gentoo.org> seed-3.2.0-r1.ebuild:
+  Add ~ia64, wrt bug #449220
+
+  31 Dec 2012; Agostino Sarubbo <ago@gentoo.org> seed-3.2.0-r1.ebuild:
+  Add ~ppc64, wrt bug #449220
+
+  13 Aug 2012; Anthony G. Basile <blueness@gentoo.org> seed-3.2.0-r1.ebuild:
+  Keyword ppc, dep for bug #385237
+
+  04 May 2012; Jeff Horelick <jdhore@gentoo.org> seed-3.2.0-r1.ebuild:
+  dev-util/pkgconfig -> virtual/pkgconfig
+
+  18 Mar 2012; Pacho Ramos <pacho@gentoo.org> -seed-2.30.0.ebuild, metadata.xml:
+  Drop old.
+
+*seed-3.2.0-r1 (04 Dec 2011)
+
+  04 Dec 2011; Alexandre Rostovtsev <tetromino@gentoo.org> -seed-3.2.0.ebuild,
+  +seed-3.2.0-r1.ebuild:
+  Fix docs directory (bug #392445, thanks to Chris Mayo <aklhfex@gmail.com> for
+  reporting).
+
+  24 Nov 2011; Alexandre Rostovtsev <tetromino@gentoo.org>
+  -files/seed-2.31.5-cleanup-autotools.patch, -seed-3.0.0.ebuild:
+  Drop old.
+
+*seed-3.2.0 (03 Nov 2011)
+
+  03 Nov 2011; Alexandre Rostovtsev <tetromino@gentoo.org> +seed-3.2.0.ebuild,
+  +files/seed-3.2.0-gio-libs.patch:
+  Bump to 3.2.0 from the gnome overlay. Notable changes: relicensed as LGPL-2,
+  fixes compatibility with gobject-introspection-1.x and webkit-gtk-1.6. Tests
+  disabled due to test suite brokenness (bug filed upstream).
+
+*seed-3.0.0 (14 Aug 2011)
+
+  14 Aug 2011; Nirbheek Chauhan <nirbheek@gentoo.org>
+  +files/seed-2.31.5-cleanup-autotools.patch, +seed-3.0.0.ebuild:
+  Bump to 3.0.0, from gnome overlay for GNOME 3
+
+  21 Mar 2011; Nirbheek Chauhan <nirbheek@gentoo.org> seed-2.30.0.ebuild:
+  Fix slot-deps on libs, remove old
+
+*seed-2.30.0 (29 Jun 2010)
+
+  29 Jun 2010; Nirbheek Chauhan <nirbheek@gentoo.org> +seed-2.30.0.ebuild,
+  +files/seed-fix-gnome-js-common-circular-dep.patch, +metadata.xml:
+  Add new ebuild for dev-libs/seed, needed by gnome-games. Masked for now
+  till the issues mentioned in the ebuild are fixed

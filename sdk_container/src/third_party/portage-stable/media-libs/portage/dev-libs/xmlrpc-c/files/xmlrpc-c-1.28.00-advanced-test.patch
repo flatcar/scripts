@@ -1,0 +1,51 @@
+Index: test/method_registry.c
+===================================================================
+--- test/method_registry.c	(revision 2200)
++++ test/method_registry.c	(working copy)
+@@ -37,9 +37,9 @@
+ #ifndef WIN32    
+     /* xmlrpc_server_version_major, etc. are not exported from a Windows DLL */
+ 
+-    TEST(major = xmlrpc_server_version_major);
+-    TEST(minor = xmlrpc_server_version_minor);
+-    TEST(point = xmlrpc_server_version_point);
++    TEST(major == xmlrpc_server_version_major);
++    TEST(minor == xmlrpc_server_version_minor);
++    TEST(point == xmlrpc_server_version_point);
+ #endif
+ }
+ 
+Index: test/client.c
+===================================================================
+--- test/client.c	(revision 2200)
++++ test/client.c	(working copy)
+@@ -26,9 +26,9 @@
+ #ifndef WIN32    
+     /* xmlrpc_client_version_major, etc. are not exported from a Windows DLL */
+ 
+-    TEST(major = xmlrpc_client_version_major);
+-    TEST(minor = xmlrpc_client_version_minor);
+-    TEST(point = xmlrpc_client_version_point);
++    TEST(major == xmlrpc_client_version_major);
++    TEST(minor == xmlrpc_client_version_minor);
++    TEST(point == xmlrpc_client_version_point);
+ #endif
+ }
+ 
+Index: test/test.c
+===================================================================
+--- test/test.c	(revision 2200)
++++ test/test.c	(working copy)
+@@ -87,9 +87,9 @@
+ #ifndef WIN32    
+     /* xmlrpc_version_major, etc. are not exported from a Windows DLL */
+ 
+-    TEST(major = xmlrpc_version_major);
+-    TEST(minor = xmlrpc_version_minor);
+-    TEST(point = xmlrpc_version_point);
++    TEST(major == xmlrpc_version_major);
++    TEST(minor == xmlrpc_version_minor);
++    TEST(point == xmlrpc_version_point);
+ #endif
+ }
+ 

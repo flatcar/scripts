@@ -1,0 +1,69 @@
+# ChangeLog for dev-ruby/rb-inotify
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/rb-inotify/ChangeLog,v 1.17 2013/02/03 11:07:10 pacho Exp $
+
+  03 Feb 2013; Pacho Ramos <pacho@gentoo.org> metadata.xml:
+  Cleanup due #63939
+
+*rb-inotify-0.9.0 (19 Jan 2013)
+
+  19 Jan 2013; Hans de Graaff <graaff@gentoo.org> +rb-inotify-0.9.0.ebuild:
+  Version bump.
+
+  15 Jan 2013; Rick Farina <zerochaos@gentoo.org> rb-inotify-0.8.8.ebuild:
+  adding ~arm keywords to net-analyzer/metasploit rdeps
+
+  29 Sep 2012; Fabian Groffen <grobian@gentoo.org> rb-inotify-0.8.8.ebuild:
+  Marked ~x64-macos
+
+  25 Sep 2012; Hans de Graaff <graaff@gentoo.org> rb-inotify-0.8.8.ebuild:
+  Avoid mandatory but unneeded dependency on maruku when building yard
+  documentation, bug 436112.
+
+  01 May 2012; Raúl Porcel <armin76@gentoo.org> rb-inotify-0.8.8.ebuild:
+  Drop ia64/sparc keywords
+
+  02 Jan 2012; Hans de Graaff <graaff@gentoo.org> rb-inotify-0.8.8.ebuild:
+  Avoid unneeded dependency on jeweler, fixing bug 397337.
+
+  30 Dec 2011; Hans de Graaff <graaff@gentoo.org> rb-inotify-0.8.8.ebuild:
+  Add ruby19.
+
+  30 Dec 2011; Hans de Graaff <graaff@gentoo.org> -rb-inotify-0.8.5.ebuild,
+  -rb-inotify-0.8.6.ebuild, -rb-inotify-0.8.6-r1.ebuild:
+  Remove old versions.
+
+  17 Dec 2011; Raúl Porcel <armin76@gentoo.org> rb-inotify-0.8.8.ebuild:
+  Add ~ia64/~sparc wrt #379131
+
+  13 Nov 2011; Markus Meier <maekke@gentoo.org> rb-inotify-0.8.8.ebuild:
+  add ~x86, bug #379131
+
+*rb-inotify-0.8.8 (06 Oct 2011)
+
+  06 Oct 2011; Hans de Graaff <graaff@gentoo.org> +rb-inotify-0.8.8.ebuild:
+  Version bump.
+
+  14 Aug 2011; Kacper Kowalik <xarthisius@gentoo.org>
+  rb-inotify-0.8.6-r1.ebuild:
+  Marked ~ppc/~ppc64 wrt #379131
+
+*rb-inotify-0.8.6-r1 (14 Aug 2011)
+
+  14 Aug 2011; Hans de Graaff <graaff@gentoo.org> +rb-inotify-0.8.6-r1.ebuild:
+  jruby has a native ffi implementation so don't require dev-ruby/ffi in the
+  gemspec.
+
+*rb-inotify-0.8.6 (06 Aug 2011)
+
+  06 Aug 2011; Hans de Graaff <graaff@gentoo.org> +rb-inotify-0.8.6.ebuild:
+  Version bump.
+
+  08 Jun 2011; Hans de Graaff <graaff@gentoo.org> rb-inotify-0.8.5.ebuild:
+  Add jruby
+
+*rb-inotify-0.8.5 (03 Jun 2011)
+
+  03 Jun 2011; Hans de Graaff <graaff@gentoo.org> +rb-inotify-0.8.5.ebuild,
+  +metadata.xml:
+  Initial import. Optional but usefull dependency for dev-ruby/fssm.

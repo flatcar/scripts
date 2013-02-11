@@ -1,0 +1,18 @@
+# ChangeLog for net-wireless/chirp
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-wireless/chirp/ChangeLog,v 1.3 2012/11/30 17:20:08 zerochaos Exp $
+
+  30 Nov 2012; Rick Farina <zerochaos@gentoo.org> chirp-0.2.3.ebuild:
+  disable missing tests for release version
+
+  10 Oct 2012; Rick Farina <zerochaos@gentoo.org> chirp-0.2.3.ebuild,
+  chirp-9999.ebuild:
+  recent ebuild cleanup seems to have left out SRC_URI... fixed
+
+*chirp-0.2.3 (08 Sep 2012)
+*chirp-9999 (08 Sep 2012)
+
+  08 Sep 2012; Rick Farina <zerochaos@gentoo.org> +chirp-0.2.3.ebuild,
+  +chirp-9999.ebuild, +metadata.xml:
+  initial commit of chirp, thanks to xarthisius for reviewing my terrible python
+  ebuild

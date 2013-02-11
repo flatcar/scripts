@@ -1,0 +1,32 @@
+# ChangeLog for dev-libs/ustr
+# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/ustr/ChangeLog,v 1.7 2011/02/12 14:50:24 arfrever Exp $
+
+  12 Feb 2011; Arfrever Frehtes Taifersar Arahesis <arfrever@gentoo.org>
+  -ustr-1.0.4.ebuild:
+  Delete.
+
+  12 Feb 2011; Markos Chandras <hwoarang@gentoo.org> ustr-1.0.4-r1.ebuild:
+  Stable on amd64 wrt bug #353781
+
+  10 Feb 2011; Pawel Hajdan jr <phajdan.jr@gentoo.org> ustr-1.0.4-r1.ebuild:
+  x86 stable wrt bug #353781
+
+  05 Feb 2011; Arfrever Frehtes Taifersar Arahesis <arfrever@gentoo.org>
+  ustr-1.0.4-r1.ebuild:
+  Fix installation with FEATURES="multilib-strict".
+
+*ustr-1.0.4-r1 (02 Aug 2009)
+
+  02 Aug 2009; Chris PeBenito <pebenito@gentoo.org> +ustr-1.0.4-r1.ebuild:
+  Fix bugs #240230, #241280, and #243954.
+
+  22 Jul 2009; Chris PeBenito <pebenito@gentoo.org> ustr-1.0.4.ebuild:
+  Mark stable. Remove old ebuilds.
+
+*ustr-1.0.4 (03 Oct 2008)
+
+  03 Oct 2008; Chris PeBenito <pebenito@gentoo.org> +metadata.xml,
+  +ustr-1.0.4.ebuild:
+  Initial commit.
+

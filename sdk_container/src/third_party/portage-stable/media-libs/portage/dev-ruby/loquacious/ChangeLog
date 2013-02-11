@@ -1,0 +1,82 @@
+# ChangeLog for dev-ruby/loquacious
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/loquacious/ChangeLog,v 1.18 2012/08/26 06:16:06 graaff Exp $
+
+  26 Aug 2012; Hans de Graaff <graaff@gentoo.org> -loquacious-1.9.0.ebuild:
+  Cleanup.
+
+  14 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> loquacious-1.9.1.ebuild:
+  Port to rspec helper for testing. Only build documentation with USE=doc.
+
+  02 Feb 2012; Thomas Kahle <tomka@gentoo.org> loquacious-1.9.1.ebuild:
+  ~x86 per bug 325471
+
+  18 Dec 2011; Hans de Graaff <graaff@gentoo.org> -loquacious-1.7.1.ebuild,
+  -loquacious-1.8.0.ebuild, -loquacious-1.8.1.ebuild:
+  Remove old versions.
+
+*loquacious-1.9.1 (18 Dec 2011)
+
+  18 Dec 2011; Hans de Graaff <graaff@gentoo.org> +loquacious-1.9.1.ebuild:
+  Version bump.
+
+*loquacious-1.9.0 (14 Sep 2011)
+
+  14 Sep 2011; Hans de Graaff <graaff@gentoo.org> +loquacious-1.9.0.ebuild:
+  Version bump.
+
+*loquacious-1.8.1 (17 Jun 2011)
+
+  17 Jun 2011; Hans de Graaff <graaff@gentoo.org> +loquacious-1.8.1.ebuild:
+  Version bump.
+
+*loquacious-1.8.0 (04 Jun 2011)
+
+  04 Jun 2011; Hans de Graaff <graaff@gentoo.org> +loquacious-1.8.0.ebuild:
+  Version bump.
+
+  04 Jun 2011; Hans de Graaff <graaff@gentoo.org> -loquacious-1.7.0.ebuild:
+  Remove old version.
+
+*loquacious-1.7.1 (12 Feb 2011)
+
+  12 Feb 2011; Hans de Graaff <graaff@gentoo.org> +loquacious-1.7.1.ebuild:
+  Version bump.
+
+  23 Jan 2011; Hans de Graaff <graaff@gentoo.org> loquacious-1.7.0.ebuild:
+  Add ree18.
+
+  09 Oct 2010; Hans de Graaff <graaff@gentoo.org> loquacious-1.7.0.ebuild:
+  Depend on rspec-1.
+
+  09 Oct 2010; Hans de Graaff <graaff@gentoo.org> -loquacious-1.5.2.ebuild:
+  Remove old version.
+
+*loquacious-1.7.0 (17 Aug 2010)
+
+  17 Aug 2010; Hans de Graaff <graaff@gentoo.org> +loquacious-1.7.0.ebuild:
+  Version bump. Remove circular bones dependency by executing tasks
+  directly.
+
+  22 May 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  -loquacious-1.4.1.ebuild, -loquacious-1.4.2.ebuild,
+  loquacious-1.5.2.ebuild:
+  Cleanup old versions, use new syntax.
+
+*loquacious-1.5.2 (19 Apr 2010)
+
+  19 Apr 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +loquacious-1.5.2.ebuild:
+  Version bump and add missing rspec test dependency.
+
+*loquacious-1.4.2 (02 Feb 2010)
+
+  02 Feb 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +loquacious-1.4.2.ebuild:
+  Version bump.
+
+*loquacious-1.4.1 (31 Jan 2010)
+
+  31 Jan 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +loquacious-1.4.1.ebuild, +metadata.xml:
+  Initial import of bones and related dependencies.

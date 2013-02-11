@@ -1,0 +1,41 @@
+# ChangeLog for dev-ruby/ammeter
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/ammeter/ChangeLog,v 1.9 2012/08/16 03:51:20 flameeyes Exp $
+
+  16 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> ammeter-0.2.5.ebuild,
+  ammeter-0.2.8.ebuild:
+  Update after Ruby packages move.
+
+*ammeter-0.2.8 (28 Jul 2012)
+
+  28 Jul 2012; Hans de Graaff <graaff@gentoo.org> +ammeter-0.2.8.ebuild:
+  Version bump.
+
+  28 Jul 2012; Hans de Graaff <graaff@gentoo.org> -ammeter-0.2.2.ebuild,
+  -ammeter-0.2.3.ebuild:
+  Cleanup.
+
+  23 Jul 2012; Andreas Schuerch <nativemad@gentoo.org> ammeter-0.2.5.ebuild:
+  x86 keyworded, see bug 417587
+
+*ammeter-0.2.5 (25 May 2012)
+
+  25 May 2012; Hans de Graaff <graaff@gentoo.org> +ammeter-0.2.5.ebuild:
+  Version bump.
+
+*ammeter-0.2.3 (01 Apr 2012)
+
+  01 Apr 2012; Hans de Graaff <graaff@gentoo.org> +ammeter-0.2.3.ebuild:
+  Version bump.
+
+  29 Jan 2012; Hans de Graaff <graaff@gentoo.org> ammeter-0.2.2.ebuild:
+  Add ruby19.
+
+  29 Jan 2012; Hans de Graaff <graaff@gentoo.org> ammeter-0.2.2.ebuild:
+  Fix USE=doc, there is no documentation task.
+
+*ammeter-0.2.2 (16 Jan 2012)
+
+  16 Jan 2012; Diego E. Pettenò <flameeyes@gentoo.org> +ammeter-0.2.2.ebuild,
+  +metadata.xml:
+  Initial import of ammeter gem required by mongoid.

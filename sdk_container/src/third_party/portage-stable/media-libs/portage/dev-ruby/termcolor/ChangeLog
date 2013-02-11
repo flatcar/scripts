@@ -1,0 +1,29 @@
+# ChangeLog for dev-ruby/termcolor
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/termcolor/ChangeLog,v 1.5 2012/08/13 17:42:57 flameeyes Exp $
+
+  13 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> -termcolor-1.2.0.ebuild,
+  termcolor-1.2.1.ebuild:
+  Remove old; bump to EAPI 4, use the new rspec recipe for tests; remove
+  mandatory dependency over rspec:0.
+
+  14 Jul 2012; Hans de Graaff <graaff@gentoo.org> termcolor-1.2.1.ebuild,
+  +files/termcolor-1.2.1-fix-spec.patch:
+  Add upstream fix for failing spec.
+
+*termcolor-1.2.1 (08 Jul 2012)
+
+  08 Jul 2012; Naohiro Aota <naota@gentoo.org> +termcolor-1.2.1.ebuild,
+  termcolor-1.2.0.ebuild:
+  Bump to 1.2.1
+
+  20 Nov 2011; Hans de Graaff <graaff@gentoo.org> termcolor-1.2.0.ebuild:
+  Fix building with USE=doc, fix rspec dependency to right slot. Fix running
+  specs on ruby19.
+
+*termcolor-1.2.0 (13 Nov 2011)
+
+  13 Nov 2011; Naohiro Aota <naota@gentoo.org> +termcolor-1.2.0.ebuild,
+  +metadata.xml:
+  New ebuild dev-ruby/termcolor. ebuild written by Matsuu Takuto
+  <matsuu@gentoo.org>

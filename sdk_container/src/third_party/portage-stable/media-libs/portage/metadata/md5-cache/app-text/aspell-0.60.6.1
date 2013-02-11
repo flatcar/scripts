@@ -1,0 +1,14 @@
+DEFINED_PHASES=configure install postinst prepare
+DEPEND=>=sys-libs/ncurses-5.2 nls? ( virtual/libintl ) nls? ( sys-devel/gettext ) || ( >=sys-devel/automake-1.11.1:1.11 >=sys-devel/automake-1.12:1.12 ) >=sys-devel/autoconf-2.68 sys-devel/libtool
+DESCRIPTION=A spell checker replacement for ispell
+EAPI=4
+HOMEPAGE=http://aspell.net/
+IUSE=nls linguas_af linguas_be linguas_bg linguas_br linguas_ca linguas_cs linguas_cy linguas_da linguas_de linguas_el linguas_en linguas_eo linguas_es linguas_et linguas_fi linguas_fo linguas_fr linguas_ga linguas_gl linguas_he linguas_hr linguas_is linguas_it linguas_la linguas_lt linguas_nl linguas_no linguas_pl linguas_pt linguas_pt_BR linguas_ro linguas_ru linguas_sk linguas_sl linguas_sr linguas_sv linguas_uk linguas_vi
+KEYWORDS=alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x86-solaris
+LICENSE=LGPL-2
+PDEPEND=app-dicts/aspell-en linguas_af? ( app-dicts/aspell-af ) linguas_be? ( app-dicts/aspell-be ) linguas_bg? ( app-dicts/aspell-bg ) linguas_br? ( app-dicts/aspell-br ) linguas_ca? ( app-dicts/aspell-ca ) linguas_cs? ( app-dicts/aspell-cs ) linguas_cy? ( app-dicts/aspell-cy ) linguas_da? ( app-dicts/aspell-da ) linguas_de? ( || ( app-dicts/aspell-de app-dicts/aspell-de-alt ) ) linguas_el? ( app-dicts/aspell-el ) linguas_en? ( app-dicts/aspell-en ) linguas_eo? ( app-dicts/aspell-eo ) linguas_es? ( app-dicts/aspell-es ) linguas_et? ( app-dicts/aspell-et ) linguas_fi? ( app-dicts/aspell-fi ) linguas_fo? ( app-dicts/aspell-fo ) linguas_fr? ( app-dicts/aspell-fr ) linguas_ga? ( app-dicts/aspell-ga ) linguas_gl? ( app-dicts/aspell-gl ) linguas_he? ( app-dicts/aspell-he ) linguas_hr? ( app-dicts/aspell-hr ) linguas_is? ( app-dicts/aspell-is ) linguas_it? ( app-dicts/aspell-it ) linguas_la? ( app-dicts/aspell-la ) linguas_lt? ( app-dicts/aspell-lt ) linguas_nl? ( app-dicts/aspell-nl ) linguas_no? ( app-dicts/aspell-no ) linguas_pl? ( app-dicts/aspell-pl ) linguas_pt? ( app-dicts/aspell-pt ) linguas_pt_BR? ( app-dicts/aspell-pt-br ) linguas_ro? ( app-dicts/aspell-ro ) linguas_ru? ( app-dicts/aspell-ru ) linguas_sk? ( app-dicts/aspell-sk ) linguas_sl? ( app-dicts/aspell-sl ) linguas_sr? ( app-dicts/aspell-sr ) linguas_sv? ( app-dicts/aspell-sv ) linguas_uk? ( app-dicts/aspell-uk ) linguas_vi? ( app-dicts/aspell-vi )
+RDEPEND=>=sys-libs/ncurses-5.2 nls? ( virtual/libintl ) !=app-dicts/aspell-en-0.5*
+SLOT=0
+SRC_URI=mirror://gnu/aspell/aspell-0.60.6.1.tar.gz
+_eclasses_=autotools	cf83655b19ed98f9ea3b44f4572b51a3	eutils	d40dc948067bd3db1c8ebf7d51897313	flag-o-matic	d900015de4e092f26d8c0a18b6bd60de	libtool	2b273eea1976cfaed3449345d94331ac	multilib	ded93e450747134a079e647d888aa80b	multiprocessing	a2130e6fc4aa4c6a24b265ca0cbcc2b6	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=5dcc3365d198d29648af8e99516fc09e

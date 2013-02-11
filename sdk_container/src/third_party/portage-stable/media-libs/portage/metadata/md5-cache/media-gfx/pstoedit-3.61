@@ -1,0 +1,13 @@
+DEFINED_PHASES=configure install prepare
+DEPEND=>=media-libs/libpng-1.4.3 >=media-libs/gd-2.0.35-r1 >=app-text/ghostscript-gpl-8.71-r1 emf? ( >=media-libs/libemf-1.0.3 ) flash? ( >=media-libs/ming-0.4.3 ) imagemagick? ( >=media-gfx/imagemagick-6.6.1.2[cxx] ) plotutils? ( media-libs/plotutils ) virtual/pkgconfig || ( >=sys-devel/automake-1.11.1:1.11 >=sys-devel/automake-1.12:1.12 ) >=sys-devel/autoconf-2.68 sys-devel/libtool
+DESCRIPTION=Translate PostScript and PDF graphics into other vector formats
+EAPI=4
+HOMEPAGE=http://sourceforge.net/projects/pstoedit/
+IUSE=emf flash imagemagick plotutils
+KEYWORDS=alpha amd64 hppa ia64 ppc ppc64 sparc x86 ~amd64-fbsd ~amd64-linux ~x86-fbsd ~x86-linux
+LICENSE=GPL-2
+RDEPEND=>=media-libs/libpng-1.4.3 >=media-libs/gd-2.0.35-r1 >=app-text/ghostscript-gpl-8.71-r1 emf? ( >=media-libs/libemf-1.0.3 ) flash? ( >=media-libs/ming-0.4.3 ) imagemagick? ( >=media-gfx/imagemagick-6.6.1.2[cxx] ) plotutils? ( media-libs/plotutils )
+SLOT=0
+SRC_URI=mirror://sourceforge/pstoedit/pstoedit-3.61.tar.gz
+_eclasses_=autotools	cf83655b19ed98f9ea3b44f4572b51a3	eutils	d40dc948067bd3db1c8ebf7d51897313	libtool	2b273eea1976cfaed3449345d94331ac	multilib	ded93e450747134a079e647d888aa80b	multiprocessing	a2130e6fc4aa4c6a24b265ca0cbcc2b6	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=2d0c11e23bd29a46ccb80116cffe69b6

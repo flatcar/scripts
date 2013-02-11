@@ -1,0 +1,24 @@
+diff --git a/lib/Makefile.am b/lib/Makefile.am
+index 2dac439..ba929fc 100644
+--- a/lib/Makefile.am
++++ b/lib/Makefile.am
+@@ -3,7 +3,7 @@ SUBDIRS =	SmartIrc4net
+ OUTPUT_DIR = $(top_builddir)/bin/$(PROFILE)
+ OBJECT_DIR = $(OUTPUT_DIR)/obj
+ SOURCE_PATTERNS = *.cs */*.cs */*/*.cs */*/*/*.cs
+-XBUILD_FLAGS = /p:Configuration=Debug /p:WarningLevel=0 /p:OutputPath=$(abspath $(OUTPUT_DIR)) /p:BaseIntermediateOutputPath=$(abspath $(OBJECT_DIR))/ /p:DocumentationFile=
++XBUILD_FLAGS = /p:Configuration=Release /p:SignAssembly=false /p:WarningLevel=0 /p:OutputPath=$(abspath $(OUTPUT_DIR)) /p:BaseIntermediateOutputPath=$(abspath $(OBJECT_DIR))/ /p:DocumentationFile=
+ 
+ JSON_SUBDIR = Newtonsoft.Json
+ JSON_SRCDIR = $(srcdir)/$(JSON_SUBDIR)/Src/Newtonsoft.Json
+--- a/lib/Makefile.in
++++ b/lib/Makefile.in
+@@ -285,7 +285,7 @@
+ OUTPUT_DIR = $(top_builddir)/bin/$(PROFILE)
+ OBJECT_DIR = $(OUTPUT_DIR)/obj
+ SOURCE_PATTERNS = *.cs */*.cs */*/*.cs */*/*/*.cs
+-XBUILD_FLAGS = /p:Configuration=Debug /p:WarningLevel=0 /p:OutputPath=$(abspath $(OUTPUT_DIR)) /p:BaseIntermediateOutputPath=$(abspath $(OBJECT_DIR))/ /p:DocumentationFile=
++XBUILD_FLAGS = /p:Configuration=Release /p:SignAssembly=false /p:WarningLevel=0 /p:OutputPath=$(abspath $(OUTPUT_DIR)) /p:BaseIntermediateOutputPath=$(abspath $(OBJECT_DIR))/ /p:DocumentationFile=
+ JSON_SUBDIR = Newtonsoft.Json
+ JSON_SRCDIR = $(srcdir)/$(JSON_SUBDIR)/Src/Newtonsoft.Json
+ JSON_SOURCE_FILES = $(foreach pattern, $(SOURCE_PATTERNS), $(wildcard $(JSON_SRCDIR)/$(pattern)))

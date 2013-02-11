@@ -1,0 +1,51 @@
+# ChangeLog for net-irc/dccserver
+# Copyright 1999-2009 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-irc/dccserver/ChangeLog,v 1.12 2009/09/23 18:43:33 patrick Exp $
+
+  23 Sep 2009; Patrick Lauer <patrick@gentoo.org> dccserver-0.4.ebuild:
+  Remove virtual/libc
+
+  09 Feb 2007; Diego Pettenò <flameeyes@gentoo.org> ChangeLog:
+  Regenerate digest in Manifest2 format.
+
+  24 Apr 2005; Michael Hanselmann <hansmi@gentoo.org> dccserver-0.4.ebuild:
+  Stable on ppc.
+
+  05 Dec 2004; Sven Wegener <swegener@gentoo.org> -dccserver-0.3.ebuild:
+  Removed old ebuild.
+
+  13 Jul 2004; Sven Wegener <swegener@gentoo.org> dccserver-0.3.ebuild,
+  dccserver-0.4.ebuild:
+  Removed unnecessary src_compile() and marked 0.4 stable on x86.
+
+  01 Jul 2004; Jeremy Huddleston <eradicator@gentoo.org> dccserver-0.3.ebuild,
+  dccserver-0.4.ebuild:
+  virtual/glibc -> virtual/libc
+
+  29 May 2004; Pieter Van den Abeele <pvdabeel@gentoo.org>
+  dccserver-0.3.ebuild, dccserver-0.4.ebuild:
+  Masked dccserver-0.4.ebuild testing for ppc
+
+  29 May 2004; Pieter Van den Abeele <pvdabeel@gentoo.org>
+  dccserver-0.3.ebuild:
+  Masked dccserver-0.3.ebuild testing for ppc
+
+*dccserver-0.4 (03 Jan 2004)
+
+  03 Jan 2004; Chuck Short <zul@gentoo.org> dccserver-0.3.ebuild,
+  dccserver-0.4.ebuild:
+  Header updates.
+
+  21 Nov 2003; Chuck Short <zul@gentoo.org> :
+  Updated SRC_URI, new release.
+
+  21 Nov 2003; Chuck Short <zul@gentoo.org> dccserver-0.3.ebuild:
+  Marked stable for x86.
+
+*dccserver-0.3 (26 Jul 2003)
+
+  26 Jul 2003; Greg Fitzgerald <gregf@gentoo.org> dccserver-0.3.ebuild,
+  metadata.xml:
+  Initial Release. Closes bug #21610 submitted by Frank Zschockelt
+  <gentoo@freakysoft.de>
+

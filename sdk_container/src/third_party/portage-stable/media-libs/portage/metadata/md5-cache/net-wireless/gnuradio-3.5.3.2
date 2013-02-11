@@ -1,0 +1,14 @@
+DEFINED_PHASES=configure install postinst postrm prepare setup
+DEPEND=dev-libs/boost dev-python/numpy dev-util/cppunit sci-libs/fftw:3.0 sci-libs/gsl virtual/cblas fcd? ( virtual/libusb:1 ) audio? ( media-libs/alsa-lib media-sound/jack-audio-connection-kit >=media-libs/portaudio-19_pre ) grc? ( dev-python/cheetah dev-python/lxml dev-python/pygtk:2 ) guile? ( >=dev-scheme/guile-1.8.4 ) qt4? ( dev-python/PyQt4[X,opengl] dev-python/pyqwt:5 x11-libs/qt-gui:4 ) sdl? ( media-libs/libsdl ) wxwidgets? ( dev-python/wxpython:2.8 dev-python/numpy ) !!<net-wireless/gnuradio-3.5.3.2 dev-lang/swig virtual/pkgconfig doc? ( >=app-doc/doxygen-1.5.7.1[dot?] app-text/xmlto ) grc? ( x11-misc/xdg-utils ) =dev-lang/python-2*
+DESCRIPTION=Toolkit that provides signal processing blocks to implement software radios
+EAPI=4
+HOMEPAGE=http://gnuradio.org/
+IUSE=audio doc dot examples fcd grc guile qt4 sdl utils wxwidgets
+KEYWORDS=~amd64
+LICENSE=GPL-3
+RDEPEND=dev-libs/boost dev-python/numpy dev-util/cppunit sci-libs/fftw:3.0 sci-libs/gsl virtual/cblas fcd? ( virtual/libusb:1 ) audio? ( media-libs/alsa-lib media-sound/jack-audio-connection-kit >=media-libs/portaudio-19_pre ) grc? ( dev-python/cheetah dev-python/lxml dev-python/pygtk:2 ) guile? ( >=dev-scheme/guile-1.8.4 ) qt4? ( dev-python/PyQt4[X,opengl] dev-python/pyqwt:5 x11-libs/qt-gui:4 ) sdl? ( media-libs/libsdl ) wxwidgets? ( dev-python/wxpython:2.8 dev-python/numpy ) =dev-lang/python-2*
+REQUIRED_USE=utils? ( wxwidgets ) fcd? ( audio )
+SLOT=0
+SRC_URI=http://gnuradio.org/redmine/attachments/download/324/gnuradio-3.5.3.2.tar.gz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	fdo-mime	0acfe1a88fd8751a1d5dc671168219fa	multilib	ded93e450747134a079e647d888aa80b	python	e5b3412fa9f03670a666c8a137bd1060	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=f530b75ec89a5237c0e7657ea3f79452

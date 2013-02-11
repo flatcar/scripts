@@ -1,0 +1,252 @@
+commit 888816897cb8803c4cea94959f4df2051b046695
+Author: Alexandre Rostovtsev <tetromino@gentoo.org>
+Date:   Tue Mar 6 23:05:32 2012 -0500
+
+    Replace RedHat and Fedora defaults with Gentoo ones
+    
+    Also, make Bodhi optional like in 2.0.7 because we do not use it in Gentoo.
+
+diff --git a/configure.ac b/configure.ac
+index 851cc89..f4eba64 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -74,8 +74,6 @@ PKG_CHECK_MODULES([XMLRPC], [xmlrpc])
+ PKG_CHECK_MODULES([XMLRPC_CLIENT], [xmlrpc_client])
+ PKG_CHECK_MODULES([CURL], [libcurl])
+ PKG_CHECK_MODULES([GNOME_KEYRING], [gnome-keyring-1])
+-PKG_CHECK_MODULES([JSON_C], [json])
+-PKG_CHECK_MODULES([RPM], [rpm])
+ 
+ # Just PKG_CHECK_MODULES([PYTHON], [python]) works only with python2.7+
+ # Below, if python is not found, we set up for python2.6 w/o checking:
+@@ -88,6 +86,22 @@ PKG_CHECK_MODULES([PROXY], [libproxy-1.0], [
+     AC_DEFINE([HAVE_PROXY], [1], [Use libproxy])
+ ], [:])
+ 
++AS_IF([test "x$enable_bodhi" != "xno"], [
++  dnl Do the stuff needed for enabling the feature
++  AC_CHECK_LIB([json], [json_tokener_parse],
++		     [AM_CONDITIONAL(HAVE_BODHI, true)
++		     AC_DEFINE([HAVE_BODHI], [1], [have bodhi])
++		     PKG_CHECK_MODULES([JSON_C], [json])
++		     PKG_CHECK_MODULES([RPM], [rpm])],
++		     [AM_CONDITIONAL(HAVE_BODHI, false)
++		     AC_DEFINE([HAVE_BODHI], [0], [have bodhi])])
++  ],
++  [test "x$enable_bodhi" = "xno"], [
++     AM_CONDITIONAL(HAVE_BODHI, false)
++     AC_DEFINE([HAVE_BODHI], [0], [have bodhi])
++  ]
++)
++
+ PKG_PROG_PKG_CONFIG
+ 
+ AC_CHECK_HEADER([libtar.h], [],
+diff --git a/doc/Makefile.am b/doc/Makefile.am
+index 70e0fb0..368be24 100644
+--- a/doc/Makefile.am
++++ b/doc/Makefile.am
+@@ -13,10 +13,8 @@ MAN1_TXT += reporter-bugzilla.txt
+ MAN1_TXT += reporter-kerneloops.txt
+ MAN1_TXT += reporter-mailx.txt
+ MAN1_TXT += reporter-print.txt
+-MAN1_TXT += reporter-rhtsupport.txt
+ MAN1_TXT += reporter-upload.txt
+ MAN1_TXT += report.txt
+-MAN1_TXT += abrt-bodhi.txt
+ 
+ MAN5_TXT =
+ MAN5_TXT += report_event.conf.txt
+diff --git a/doc/reporter-bugzilla.txt b/doc/reporter-bugzilla.txt
+index 94216ae..2154e7c 100644
+--- a/doc/reporter-bugzilla.txt
++++ b/doc/reporter-bugzilla.txt
+@@ -44,7 +44,7 @@ Configuration file lines should have 'PARAM = VALUE' format. The parameters are:
+ 	Password to Bugzilla account.
+ 
+ 'BugzillaURL'::
+-	Bugzilla HTTP(S) address. (default: https://bugzilla.redhat.com)
++	Bugzilla HTTP(S) address. (default: https://bugs.gentoo.org/)
+ 
+ 'SSLVerify'::
+ 	Use yes/true/on/1 to verify server's SSL certificate. (default: yes)
+diff --git a/src/lib/dump_dir.c b/src/lib/dump_dir.c
+index 374c641..ef946f2 100644
+--- a/src/lib/dump_dir.c
++++ b/src/lib/dump_dir.c
+@@ -494,7 +494,7 @@ void dd_create_basic_files(struct dump_dir *dd, uid_t uid)
+     release = load_text_file("/etc/system-release",
+             DD_LOAD_TEXT_RETURN_NULL_ON_FAILURE);
+     if (!release)
+-        release = load_text_file("/etc/redhat-release", /*flags:*/ 0);
++        release = load_text_file("/etc/gentoo-release", /*flags:*/ 0);
+     dd_save_text(dd, FILENAME_OS_RELEASE, release);
+     free(release);
+ }
+diff --git a/src/plugins/Makefile.am b/src/plugins/Makefile.am
+index 6514ff6..3ef8ba7 100644
+--- a/src/plugins/Makefile.am
++++ b/src/plugins/Makefile.am
+@@ -2,13 +2,14 @@ pluginslibdir = $(PLUGINS_LIB_DIR)
+ 
+ bin_PROGRAMS = \
+     reporter-bugzilla \
+-    reporter-rhtsupport \
+     reporter-kerneloops \
+     reporter-upload \
+     reporter-mailx \
+     reporter-print \
+-    report \
+-    abrt-bodhi
++    report
++if HAVE_BODHI
++bin_PROGRAMS += abrt-bodhi
++endif
+ 
+ pluginsconfdir = $(PLUGINS_CONF_DIR)
+ 
+@@ -16,7 +17,6 @@ reportpluginsconfdir = $(REPORT_PLUGINS_CONF_DIR)
+ 
+ dist_reportpluginsconf_DATA = \
+     bugzilla.conf \
+-    rhtsupport.conf \
+     mailx.conf
+ 
+ eventsdir = $(EVENTS_DIR)
+@@ -27,7 +27,6 @@ dist_events_DATA = \
+     report_Logger.conf \
+     report_Logger.xml \
+     report_Mailx.xml \
+-    report_RHTSupport.xml \
+     report_Kerneloops.xml \
+     report_Uploader.xml
+ 
+@@ -39,7 +38,6 @@ dist_eventsconf_DATA = \
+     mailx_event.conf \
+     print_event.conf \
+     bugzilla_event.conf \
+-    rhtsupport_event.conf \
+     uploader_event.conf
+ 
+ EXTRA_DIST = \
+@@ -48,7 +46,6 @@ EXTRA_DIST = \
+     report_Logger.conf \
+     report_Logger.xml.in \
+     report_Mailx.xml.in \
+-    report_RHTSupport.xml.in \
+     report_Kerneloops.xml.in \
+     report_Uploader.xml.in
+ 
+@@ -76,33 +73,6 @@ reporter_bugzilla_LDADD = \
+     ../lib/libabrt_web.la \
+     ../lib/libreport.la
+ 
+-reporter_rhtsupport_SOURCES = \
+-    abrt_rh_support.h abrt_rh_support.c \
+-    reporter-rhtsupport.h \
+-    reporter-rhtsupport-parse.c \
+-    reporter-rhtsupport.c
+-reporter_rhtsupport_CPPFLAGS = \
+-    -I$(srcdir)/../include \
+-    -I$(srcdir)/../lib \
+-    -DBIN_DIR=\"$(bindir)\" \
+-    -DCONF_DIR=\"$(CONF_DIR)\" \
+-    -DLOCALSTATEDIR='"$(localstatedir)"' \
+-    -DDEBUG_DUMPS_DIR=\"$(DEBUG_DUMPS_DIR)\" \
+-    -DDEBUG_INFO_DIR=\"$(DEBUG_INFO_DIR)\" \
+-    -DPLUGINS_LIB_DIR=\"$(PLUGINS_LIB_DIR)\" \
+-    -DPLUGINS_CONF_DIR=\"$(REPORT_PLUGINS_CONF_DIR)\" \
+-    $(GLIB_CFLAGS) \
+-    $(LIBREPORT_CFLAGS) \
+-    $(XMLRPC_CFLAGS) $(XMLRPC_CLIENT_CFLAGS) \
+-    -D_GNU_SOURCE \
+-    -Wall -Wwrite-strings -Werror
+-reporter_rhtsupport_LDFLAGS = -ltar
+-reporter_rhtsupport_LDADD = \
+-    $(GLIB_LIBS) \
+-    $(XMLRPC_LIBS) $(XMLRPC_CLIENT_LIBS) \
+-    ../lib/libabrt_web.la \
+-    ../lib/libreport.la
+-
+ reporter_upload_SOURCES = \
+     reporter-upload.c
+ reporter_upload_CPPFLAGS = \
+@@ -201,6 +171,7 @@ report_CPPFLAGS = \
+ report_LDADD = \
+     ../lib/libreport.la
+ 
++if HAVE_BODHI
+ abrt_bodhi_SOURCES = \
+     abrt-bodhi.c
+ abrt_bodhi_CPPFLAGS = \
+@@ -217,5 +188,6 @@ abrt_bodhi_LDADD = \
+     $(RPM_LIBS) \
+     ../lib/libreport.la \
+     ../lib/libabrt_web.la
++endif
+ 
+ DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
+diff --git a/src/plugins/bugzilla.conf b/src/plugins/bugzilla.conf
+index 18eba5a..f5afe6f 100644
+--- a/src/plugins/bugzilla.conf
++++ b/src/plugins/bugzilla.conf
+@@ -1,5 +1,5 @@
+ # Bugzilla URL
+-BugzillaURL = https://bugzilla.redhat.com/
++BugzillaURL = https://bugs.gentoo.org/
+ # yes means that ssl certificates will be checked
+ SSLVerify = yes
+ # your login has to exist, if you don have any, please create one
+diff --git a/src/plugins/report_Bugzilla.conf b/src/plugins/report_Bugzilla.conf
+index f1a77f5..bb2e651 100644
+--- a/src/plugins/report_Bugzilla.conf
++++ b/src/plugins/report_Bugzilla.conf
+@@ -1,4 +1,4 @@
+-Bugzilla_BugzillaURL = https://bugzilla.redhat.com
++Bugzilla_BugzillaURL = https://bugs.gentoo.org/
+ Bugzilla_Login =
+ Bugzilla_Password =
+ Bugzilla_SSLVerify = yes
+diff --git a/src/plugins/report_Bugzilla.xml.in b/src/plugins/report_Bugzilla.xml.in
+index bda60bc..127b07e 100644
+--- a/src/plugins/report_Bugzilla.xml.in
++++ b/src/plugins/report_Bugzilla.xml.in
+@@ -15,8 +15,8 @@
+             <_label>Bugzilla URL</_label>
+             <allow-empty>no</allow-empty>
+             <_description>Address of Bugzilla server</_description>
+-            <default-value>https://bugzilla.redhat.com</default-value>
+-            <_note-html>You can create bugzilla.redhat.com account &lt;a href="https://bugzilla.redhat.com/createaccount.cgi"&gt;here&lt;/a&gt;</_note-html>
++            <default-value>https://bugs.gentoo.org/</default-value>
++            <_note-html>You can create bugs.gentoo.org account &lt;a href="https://bugs.gentoo.org/createaccount.cgi"&gt;here&lt;/a&gt;</_note-html>
+         </option>
+         <option type="text" name="Bugzilla_Login">
+             <_label>User name</_label>
+diff --git a/src/plugins/reporter-bugzilla.c b/src/plugins/reporter-bugzilla.c
+index ee0da0f..1334ab0 100644
+--- a/src/plugins/reporter-bugzilla.c
++++ b/src/plugins/reporter-bugzilla.c
+@@ -34,7 +34,7 @@ static void set_settings(struct bugzilla_struct *b, map_string_h *settings)
+     environ = getenv("Bugzilla_BugzillaURL");
+     b->b_bugzilla_url = environ ? environ : get_map_string_item_or_empty(settings, "BugzillaURL");
+     if (!b->b_bugzilla_url[0])
+-        b->b_bugzilla_url = "https://bugzilla.redhat.com";
++        b->b_bugzilla_url = "https://bugs.gentoo.org/";
+     b->b_bugzilla_xmlrpc = xasprintf("%s"XML_RPC_SUFFIX, b->b_bugzilla_url);
+ 
+     environ = getenv("Bugzilla_SSLVerify");
+diff --git a/src/report-python/__init__.py b/src/report-python/__init__.py
+index 6f4f543..2a405f8 100644
+--- a/src/report-python/__init__.py
++++ b/src/report-python/__init__.py
+@@ -21,8 +21,8 @@ from report.io import TextIO, GTKIO, NewtIO
+ 
+ import os
+ 
+-SYSTEM_RELEASE_PATHS = ["/etc/system-release","/etc/redhat-release"]
+-SYSTEM_RELEASE_DEPS = ["system-release", "redhat-release"]
++SYSTEM_RELEASE_PATHS = ["/etc/system-release","/etc/gentoo-release"]
++SYSTEM_RELEASE_DEPS = ["system-release", "gentoo-release"]
+ 
+ _hardcoded_default_product = ""
+ _hardcoded_default_version = ""

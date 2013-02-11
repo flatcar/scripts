@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install postinst prepare setup test unpack
+DEPEND=>=dev-perl/Event-ExecFlow-0.64 >=dev-perl/Event-RPC-0.89 dev-perl/gtk2-perl >=dev-perl/gtk2-ex-formfactory-0.65 >=dev-perl/libintl-perl-1.16 || ( media-gfx/graphicsmagick[imagemagick] media-gfx/imagemagick ) >=media-video/transcode-1.1.0[dvd,jpeg,mp3,ogg,vorbis] dev-lang/perl[-build]
+DESCRIPTION=dvd::rip is a graphical frontend for transcode
+EAPI=4
+HOMEPAGE=http://www.exit1.org/dvdrip/
+IUSE=ffmpeg fping mplayer ogg subtitles vcd vorbis xine xvid
+KEYWORDS=amd64 ppc ppc64 x86
+LICENSE=|| ( Artistic GPL-1 GPL-2 GPL-3 )
+RDEPEND=>=dev-perl/Event-ExecFlow-0.64 >=dev-perl/Event-RPC-0.89 dev-perl/gtk2-perl >=dev-perl/gtk2-ex-formfactory-0.65 >=dev-perl/libintl-perl-1.16 || ( media-gfx/graphicsmagick[imagemagick] media-gfx/imagemagick ) >=media-video/transcode-1.1.0[dvd,jpeg,mp3,ogg,vorbis] x11-libs/gdk-pixbuf:2[jpeg] x11-libs/gtk+:2 ffmpeg? ( virtual/ffmpeg ) fping? ( >=net-analyzer/fping-2.2 ) mplayer? ( media-video/mplayer ) ogg? ( media-sound/ogmtools ) subtitles? ( media-video/subtitleripper ) vcd? ( media-video/transcode[mjpeg] >=media-video/mjpegtools-1.6.0 ) vorbis? ( media-sound/vorbis-tools ) xine? ( media-video/xine-ui ) xvid? ( media-video/xvid4conf ) >=media-video/lsdvd-0.15 dev-lang/perl[-build]
+SLOT=0
+SRC_URI=http://www.exit1.org/dvdrip/dist/dvdrip-0.98.11.tar.gz
+_eclasses_=base	ec46b36a6f6fd1d0b505a33e0b74e413	eutils	d40dc948067bd3db1c8ebf7d51897313	flag-o-matic	d900015de4e092f26d8c0a18b6bd60de	multilib	ded93e450747134a079e647d888aa80b	multiprocessing	a2130e6fc4aa4c6a24b265ca0cbcc2b6	perl-module	825d3d7654c88c5c4dec7400d3612578	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=da140ef502ea71373364b396249b2a5a

@@ -1,0 +1,21 @@
+commit 1dc3030678f79764d7e16496da44f5bcf01899f1
+Author: Kouhei Sutou <kou@clear-code.com>
+Date:   Thu Jul 21 23:59:41 2011 +0900
+
+    support JRuby. fixes #29326
+    
+    Reported by Hans de Graaff. Thanks!!!
+
+diff --git a/lib/test/unit/assertions.rb b/lib/test/unit/assertions.rb
+index 762444b..df8c53b 100644
+--- a/lib/test/unit/assertions.rb
++++ b/lib/test/unit/assertions.rb
+@@ -116,7 +116,7 @@ EOT
+           failure.inspected_expected = AssertionMessage.convert(expected)
+           failure.inspected_actual = AssertionMessage.convert(actual)
+           failure.user_message = message
+-          raise
++          raise failure # For JRuby. :<
+         end
+       end
+ 

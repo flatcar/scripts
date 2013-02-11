@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install prepare unpack
+DEPEND=media-sound/sox media-video/mplayer x11-libs/qt-gui:4[debug?] x11-libs/qt-opengl:4[debug?] x11-libs/qt-webkit:4[debug?] || ( media-gfx/imagemagick media-gfx/graphicsmagick[imagemagick] )
+DESCRIPTION=Slideshow Maker In Linux Environement
+EAPI=2
+HOMEPAGE=http://smile.tuxfamily.org/
+IUSE=debug linguas_de linguas_en linguas_it linguas_pl linguas_pt linguas_ru
+KEYWORDS=amd64 x86
+LICENSE=GPL-2
+RDEPEND=media-sound/sox media-video/mplayer x11-libs/qt-gui:4[debug?] x11-libs/qt-opengl:4[debug?] x11-libs/qt-webkit:4[debug?] || ( media-gfx/imagemagick media-gfx/graphicsmagick[imagemagick] )
+SLOT=0
+SRC_URI=http://download.tuxfamily.org/smiletool/smile-1.0.tar.gz
+_eclasses_=base	ec46b36a6f6fd1d0b505a33e0b74e413	eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	qt4-r2	19af9102ca9b827213997cc636e7e33c	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=4c1e81ee378203efbc59c42d0502a810

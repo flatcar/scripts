@@ -1,0 +1,12 @@
+DEFINED_PHASES=compile configure install postinst preinst prepare setup unpack
+DEPEND=app-arch/libarchive media-libs/glew media-libs/libsdl[opengl,video] media-libs/sdl-gfx media-libs/sdl-image[png] media-libs/libvorbis net-misc/curl sci-physics/bullet[-double-precision] virtual/opengl virtual/glu dev-cpp/asio dev-libs/boost virtual/pkgconfig dev-util/scons
+DESCRIPTION=A driving simulation made with drift racing in mind
+EAPI=2
+HOMEPAGE=http://vdrift.net/
+KEYWORDS=amd64 x86
+LICENSE=GPL-3 ZLIB
+RDEPEND=app-arch/libarchive media-libs/glew media-libs/libsdl[opengl,video] media-libs/sdl-gfx media-libs/sdl-image[png] media-libs/libvorbis net-misc/curl sci-physics/bullet[-double-precision] virtual/opengl virtual/glu
+SLOT=0
+SRC_URI=mirror://sourceforge/vdrift/vdrift-2011-10-22.tar.bz2
+_eclasses_=base	ec46b36a6f6fd1d0b505a33e0b74e413	eutils	d40dc948067bd3db1c8ebf7d51897313	games	e0a83e3f3f024b8c8ef7a8217d716cbf	multilib	ded93e450747134a079e647d888aa80b	scons-utils	988e24b9e2e4642189b4e97c03e5ae71	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=b721f64be197b3fbecbbdb761a1c7db9

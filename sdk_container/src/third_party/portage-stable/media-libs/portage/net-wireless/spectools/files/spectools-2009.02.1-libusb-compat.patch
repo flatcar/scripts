@@ -1,0 +1,20 @@
+diff -Nuar spectools-2009-02-R1.orig/wispy_hw_dbx.c spectools-2009-02-R1/wispy_hw_dbx.c
+--- spectools-2009-02-R1.orig/wispy_hw_dbx.c	2009-02-03 13:41:16.000000000 -0800
++++ spectools-2009-02-R1/wispy_hw_dbx.c	2012-02-19 14:12:20.516850122 -0800
+@@ -589,15 +589,13 @@
+ 	return auxptr->sockpair[0];
+ }
+ 
+-extern int usb_debug;
+-
+ int wispydbx_usb_open(wispy_phy *phydev) {
+ 	int pid_status;
+ 	struct usb_dev_handle *wispy;
+ 	wispydbx_usb_aux *auxptr = (wispydbx_usb_aux *) phydev->auxptr;
+ 	wispydbx_startsweep startcmd;
+ 
+-	usb_debug = 1024;
++	usb_set_debug(1024);
+ 
+ 	/* Make the client/server socketpair */
+ 	if (socketpair(PF_UNIX, SOCK_DGRAM, 0, auxptr->sockpair) < 0) {

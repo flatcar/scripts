@@ -1,0 +1,354 @@
+# ChangeLog for dev-ruby/nokogiri
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/nokogiri/ChangeLog,v 1.86 2013/01/16 01:10:42 zerochaos Exp $
+
+  16 Jan 2013; Rick Farina <zerochaos@gentoo.org> metadata.xml,
+  nokogiri-1.5.5.ebuild:
+  adding ~arm keywords to net-analyzer/metasploit rdeps, removed unused use flag
+  description
+
+  20 Dec 2012; Hans de Graaff <graaff@gentoo.org> -nokogiri-1.4.4-r1.ebuild,
+  -nokogiri-1.5.2.ebuild:
+  Cleanup.
+
+  01 Dec 2012; Raúl Porcel <armin76@gentoo.org> nokogiri-1.5.5.ebuild:
+  alpha/ia64/sparc/x86 stable wrt #440094
+
+  09 Nov 2012; Anthony G. Basile <blueness@gentoo.org> nokogiri-1.5.5.ebuild:
+  stable ppc ppc64, bug #440094
+
+  07 Nov 2012; Jeroen Roovers <jer@gentoo.org> nokogiri-1.5.5.ebuild:
+  Stable for HPPA (bug #440094).
+
+  06 Nov 2012; Jeroen Roovers <jer@gentoo.org> nokogiri-1.5.2.ebuild:
+  Stable for HPPA (bug #426668).
+
+  31 Oct 2012; Agostino Sarubbo <ago@gentoo.org> nokogiri-1.5.5.ebuild:
+  Stable for amd64, wrt bug #440094
+
+  28 Oct 2012; Raúl Porcel <armin76@gentoo.org> nokogiri-1.4.4-r1.ebuild,
+  nokogiri-1.5.2.ebuild, nokogiri-1.5.5.ebuild:
+  alpha stable, add ~alpha
+
+  28 Oct 2012; Raúl Porcel <armin76@gentoo.org> nokogiri-1.5.2.ebuild:
+  ia64/sparc stable wrt #423071
+
+  26 Jul 2012; Anthony G. Basile <blueness@gentoo.org> nokogiri-1.5.2.ebuild:
+  Stable ppc64, bug #423071
+
+  22 Jul 2012; <nixnut@gentoo.org> nokogiri-1.5.2.ebuild:
+  ppc stable #423071
+
+  04 Jul 2012; Andreas Schuerch <nativemad@gentoo.org> nokogiri-1.5.2.ebuild:
+  x86 stable, see bug 423071
+
+*nokogiri-1.5.5 (03 Jul 2012)
+
+  03 Jul 2012; Hans de Graaff <graaff@gentoo.org> +nokogiri-1.5.5.ebuild:
+  Version bump. Enable most of the tests again.
+
+  23 Jun 2012; Agostino Sarubbo <ago@gentoo.org> nokogiri-1.5.2.ebuild:
+  Stable for amd64, wrt bug #423071
+
+  22 Jun 2012; Hans de Graaff <graaff@gentoo.org> -nokogiri-1.5.0.ebuild,
+  -nokogiri-1.5.0-r1.ebuild, -nokogiri-1.5.0-r2.ebuild, nokogiri-1.5.2.ebuild:
+  Remove old versions.
+
+*nokogiri-1.5.2 (11 May 2012)
+
+  11 May 2012; Diego E. Pettenò <flameeyes@gentoo.org> +nokogiri-1.5.2.ebuild:
+  Version bump; tests are partially restricted but this solves JRuby issues
+  among others.
+
+  06 May 2012; Kacper Kowalik <xarthisius@gentoo.org> nokogiri-1.4.4-r1.ebuild:
+  ppc64 stable wrt #369573
+
+  02 Mar 2012; Naohiro Aota <naota@gentoo.org> nokogiri-1.5.0-r2.ebuild:
+  Add ~x86-fbsd, bug #330283
+
+  31 Dec 2011; Fabian Groffen <grobian@gentoo.org> nokogiri-1.5.0-r2.ebuild:
+  Add Prefix keywords, bug #396547
+
+  21 Nov 2011; Hans de Graaff <graaff@gentoo.org> nokogiri-1.5.0-r2.ebuild:
+  Always require rdoc since the hoe-based build system requires it. Thanks for
+  naota for reporting in bug 389845.
+
+*nokogiri-1.5.0-r2 (19 Nov 2011)
+
+  19 Nov 2011; Hans de Graaff <graaff@gentoo.org> +nokogiri-1.5.0-r2.ebuild:
+  Build parser.rb now that we use the github tarball where this has not been
+  done yet. Fixes bug 390477.
+
+*nokogiri-1.5.0-r1 (06 Nov 2011)
+
+  06 Nov 2011; Hans de Graaff <graaff@gentoo.org> +nokogiri-1.5.0-r1.ebuild:
+  Readd jruby support. Work around ruby19 test failures.
+
+  02 Oct 2011; Raúl Porcel <armin76@gentoo.org> nokogiri-1.4.4-r1.ebuild:
+  ia64/sparc stable wrt #369573
+
+  14 Sep 2011; Jeroen Roovers <jer@gentoo.org> nokogiri-1.4.4-r1.ebuild:
+  Stable for HPPA (bug #369573).
+
+  27 Aug 2011; Fabian Groffen <grobian@gentoo.org> nokogiri-1.5.0.ebuild:
+  Provide locations to libraries, and help extconf to guess the library name of
+  libiconv for Prefix platforms. Marked ~x64-macos
+
+  02 Aug 2011; Markos Chandras <hwoarang@gentoo.org> nokogiri-1.4.4-r1.ebuild:
+  Stable on amd64 wrt bug #348510
+
+  23 Jul 2011; Kacper Kowalik <xarthisius@gentoo.org> nokogiri-1.4.4-r1.ebuild:
+  ppc stable wrt #348510
+
+  20 Jul 2011; Thomas Kahle <tomka@gentoo.org> nokogiri-1.4.4-r1.ebuild:
+  x86 stable per bug 348510
+
+  09 Jul 2011; Hans de Graaff <graaff@gentoo.org> nokogiri-1.4.4-r1.ebuild:
+  Drop ruby19 to create a stable candidate.
+
+*nokogiri-1.5.0 (09 Jul 2011)
+
+  09 Jul 2011; Hans de Graaff <graaff@gentoo.org> +nokogiri-1.5.0.ebuild:
+  Version bump. The ffi interface is no longer supported, so jruby has been
+  dropped. It should be possible to add that back later by building the native
+  jruby support.
+
+  09 Jul 2011; Hans de Graaff <graaff@gentoo.org> -nokogiri-1.4.4.ebuild:
+  Remove old version.
+
+  23 May 2011; Thomas Kahle <tomka@gentoo.org> nokogiri-1.4.4-r1.ebuild:
+  ~x86 per bug 365417
+
+*nokogiri-1.4.4-r1 (30 Apr 2011)
+
+  30 Apr 2011; Hans de Graaff <graaff@gentoo.org> +nokogiri-1.4.4-r1.ebuild:
+  dev-ruby/weakling is actually a runtime dependency when using jruby. Drop
+  x86 keyword because of this, bug 365417.
+
+  30 Apr 2011; Hans de Graaff <graaff@gentoo.org> nokogiri-1.4.4.ebuild:
+  Depend on rdoc for documentation, as the rdoc implementation of ruby 1.8
+  ends up in an endless loop.
+
+  20 Apr 2011; Hans de Graaff <graaff@gentoo.org>
+  -files/nokogiri-1.4.1-ruby19.patch,
+  -files/nokogiri-1.4.2+ruby-1.9.2.patch:
+  Remove unused patches.
+
+  20 Apr 2011; Hans de Graaff <graaff@gentoo.org> nokogiri-1.4.4.ebuild,
+  +files/nokogiri-1.4.4-libxml-2.7.8.patch:
+  Fix tests with libxml 2.8.7 with upstream patch.
+
+  16 Feb 2011; Hans de Graaff <graaff@gentoo.org> -nokogiri-1.4.1-r1.ebuild,
+  -nokogiri-1.4.3.1.ebuild, -nokogiri-1.4.3.1-r1.ebuild:
+  Remove old versions.
+
+  02 Feb 2011; Diego E. Pettenò <flameeyes@gentoo.org> nokogiri-1.4.4.ebuild:
+  Add missing racc dependency; skip tests for JRuby since they require
+  libraries we don't have (weakling).
+
+  10 Jan 2011; Hans de Graaff <graaff@gentoo.org> nokogiri-1.4.4.ebuild:
+  Keyword ~x86-macos.
+
+  18 Dec 2010; Hans de Graaff <graaff@gentoo.org>
+  nokogiri-1.4.3.1-r1.ebuild, nokogiri-1.4.4.ebuild:
+  Add keywords for ~ppc and ~ppc64 since a bump happened before
+  re-keywording.
+
+  03 Dec 2010; Fabian Groffen <grobian@gentoo.org> nokogiri-1.4.4.ebuild:
+  Added Prefix keywords, fix for Darwin
+
+  29 Nov 2010; Hans de Graaff <graaff@gentoo.org> +nokogiri-1.4.1-r1.ebuild:
+  Add back nokogiri-1.4.1-r1 since it is the last version that supports
+  jruby and dev-ruby/mechanize depends on it.
+
+*nokogiri-1.4.4 (26 Nov 2010)
+
+  26 Nov 2010; Hans de Graaff <graaff@gentoo.org> +nokogiri-1.4.4.ebuild:
+  Version bump.
+
+  26 Nov 2010; Hans de Graaff <graaff@gentoo.org> -nokogiri-1.4.1.ebuild,
+  -nokogiri-1.4.1-r1.ebuild:
+  Remove old versions.
+
+  25 Oct 2010; Jeroen Roovers <jer@gentoo.org> nokogiri-1.4.1-r1.ebuild,
+  nokogiri-1.4.3.1.ebuild, nokogiri-1.4.3.1-r1.ebuild:
+  Marked ~hppa (bug #337956).
+
+  30 Sep 2010; Brent Baude <ranger@gentoo.org> nokogiri-1.4.3.1.ebuild:
+  Marking nokogiri-1.4.3.1 ~ppc64 for bug 330283
+
+  28 Sep 2010; Brent Baude <ranger@gentoo.org> nokogiri-1.4.3.1.ebuild:
+  Marking nokogiri-1.4.3.1 ~ppc for bug 330283
+
+  19 Sep 2010; Raúl Porcel <armin76@gentoo.org> nokogiri-1.4.1.ebuild,
+  nokogiri-1.4.1-r1.ebuild, nokogiri-1.4.3.1.ebuild,
+  nokogiri-1.4.3.1-r1.ebuild:
+  Add ~ia64
+
+  18 Sep 2010; Raúl Porcel <armin76@gentoo.org> nokogiri-1.4.3.1.ebuild,
+  nokogiri-1.4.3.1-r1.ebuild:
+  Add ~sparc wrt #330283
+
+*nokogiri-1.4.3.1-r1 (12 Sep 2010)
+
+  12 Sep 2010; Hans de Graaff <graaff@gentoo.org>
+  +nokogiri-1.4.3.1-r1.ebuild:
+  Add ree18.
+
+  12 Sep 2010; Hans de Graaff <graaff@gentoo.org> -nokogiri-1.4.0.ebuild,
+  -nokogiri-1.4.2.ebuild:
+  Remove old versions.
+
+*nokogiri-1.4.3.1 (30 Jul 2010)
+
+  30 Jul 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +nokogiri-1.4.3.1.ebuild:
+  Version bump (upstream fixed 1.9.2 in a different way).
+
+  30 Jul 2010; Jeremy Olexa <darkside@gentoo.org> nokogiri-1.4.2.ebuild:
+  Add prefix keywords, bug 330283
+
+  29 Jul 2010; Christian Faulhammer <fauli@gentoo.org>
+  nokogiri-1.4.2.ebuild:
+  keyworded ~arch for x86, bug 330283
+
+  28 Jul 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  nokogiri-1.4.2.ebuild, +files/nokogiri-1.4.2+ruby-1.9.2.patch:
+  Fix building with Ruby 1.9.2 (bug #330275).
+
+*nokogiri-1.4.2 (19 Jun 2010)
+
+  19 Jun 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +nokogiri-1.4.2.ebuild, metadata.xml:
+  Version bump, add ffi USE flag to use the ffi interface rather than the
+  compiled extension even on MRI.
+
+  22 May 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  nokogiri-1.4.0.ebuild:
+  Various cleanups.
+
+  28 Feb 2010; Hans de Graaff <graaff@gentoo.org> -nokogiri-1.3.2.ebuild,
+  -nokogiri-1.3.3.ebuild:
+  Remove old versions.
+
+  30 Jan 2010; Raúl Porcel <armin76@gentoo.org> nokogiri-1.4.1.ebuild,
+  nokogiri-1.4.1-r1.ebuild:
+  Add ~sparc
+
+  18 Jan 2010; Alex Legler <a3li@gentoo.org> nokogiri-1.4.1-r1.ebuild:
+  Add dev-ruby/hoe as dependency
+
+  18 Jan 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  nokogiri-1.4.1-r1.ebuild:
+  Enable support for JRuby.
+
+  17 Jan 2010; Christian Faulhammer <fauli@gentoo.org>
+  nokogiri-1.4.1-r1.ebuild:
+  add ~x86, bug 297822
+
+  15 Jan 2010; Brent Baude <ranger@gentoo.org> nokogiri-1.4.1-r1.ebuild:
+  Marking nokogiri-1.4.1-r1 ~ppc64 for bug 297822
+
+  15 Jan 2010; Brent Baude <ranger@gentoo.org> nokogiri-1.4.1-r1.ebuild:
+  Marking nokogiri-1.4.1-r1 ~ppc for bug 297822
+
+*nokogiri-1.4.1-r1 (15 Jan 2010)
+
+  15 Jan 2010; Diego E. Pettenò <flameeyes@gentoo.org>
+  +nokogiri-1.4.1-r1.ebuild, +files/nokogiri-1.4.1-ruby19.patch:
+  Add a new revision of nokogiri that works with Ruby 1.9, but which depends
+  on newly-added rexical.
+
+  14 Jan 2010; Brent Baude <ranger@gentoo.org> nokogiri-1.4.1.ebuild:
+  Marking nokogiri-1.4.1 ~ppc for bug 297822
+
+  13 Jan 2010; Brent Baude <ranger@gentoo.org> nokogiri-1.4.1.ebuild:
+  Marking nokogiri-1.4.1 ~ppc64 for bug 300739
+
+  04 Jan 2010; Markus Meier <maekke@gentoo.org> nokogiri-1.4.1.ebuild:
+  add ~x86, bug #297822
+
+  04 Jan 2010; Christian Faulhammer <fauli@gentoo.org>
+  nokogiri-1.4.1.ebuild:
+  Transfer Prefix keywords
+
+  21 Dec 2009; Diego E. Pettenò <flameeyes@gentoo.org>
+  nokogiri-1.4.1.ebuild:
+  Fix compile step.
+
+*nokogiri-1.4.1 (21 Dec 2009)
+
+  21 Dec 2009; Diego E. Pettenò <flameeyes@gentoo.org>
+  +nokogiri-1.4.1.ebuild:
+  Version bump and port to fakegem.
+
+*nokogiri-1.4.0 (21 Nov 2009)
+
+  21 Nov 2009; Gordon Malm <gengor@gentoo.org> +nokogiri-1.4.0.ebuild:
+  Version bump, bug 293346.
+
+*nokogiri-1.3.3 (01 Aug 2009)
+
+  01 Aug 2009; Alex Legler <a3li@gentoo.org> -nokogiri-1.2.3.ebuild,
+  -nokogiri-1.3.1.ebuild, +nokogiri-1.3.3.ebuild:
+  Version bump, removing old.
+
+*nokogiri-1.3.2 (27 Jun 2009)
+
+  27 Jun 2009; Hans de Graaff <graaff@gentoo.org> +nokogiri-1.3.2.ebuild:
+  Version bump with bug fixes.
+
+*nokogiri-1.3.1 (13 Jun 2009)
+
+  13 Jun 2009; Hans de Graaff <graaff@gentoo.org> -nokogiri-1.1.0.ebuild,
+  -nokogiri-1.2.1.ebuild, -nokogiri-1.2.2.ebuild, nokogiri-1.2.3.ebuild,
+  +nokogiri-1.3.1.ebuild:
+  Version bump with many new features.  Move ~ppc keyword to the latest
+  version. Remove old versions.
+
+*nokogiri-1.2.3 (28 Mar 2009)
+
+  28 Mar 2009; Hans de Graaff <graaff@gentoo.org> +nokogiri-1.2.3.ebuild:
+  Version bump with several bug fixes.
+
+  18 Mar 2009; Brent Baude <ranger@gentoo.org> nokogiri-1.2.1.ebuild:
+  keyworded ~arch for ppc, bug 252676
+
+*nokogiri-1.2.2 (16 Mar 2009)
+
+  16 Mar 2009; Alex Legler <a3li@gentoo.org> -nokogiri-1.0.6.ebuild,
+  nokogiri-1.1.0.ebuild, nokogiri-1.2.1.ebuild, +nokogiri-1.2.2.ebuild:
+  Version bump, adding USE_RUBY, removing old version
+
+*nokogiri-1.2.1 (27 Feb 2009)
+
+  27 Feb 2009; Hans de Graaff <graaff@gentoo.org> +nokogiri-1.2.1.ebuild:
+  Version bump
+
+  21 Jan 2009; Alexis Ballier <aballier@gentoo.org> nokogiri-1.1.0.ebuild:
+  keyword ~x86-fbsd
+
+  29 Dec 2008; Zac Medico <zmedico@gentoo.org> metadata.xml,
+  nokogiri-1.0.6.ebuild, nokogiri-1.1.0.ebuild:
+  Bug #253002 - Remove unicode characters from DESCRIPTION since metadata is
+  required to be plain ASCII. Move the unicode characters to metadata.xml.
+
+  28 Dec 2008; Diego E. Pettenò <flameeyes@gentoo.org>
+  nokogiri-1.0.6.ebuild, nokogiri-1.1.0.ebuild:
+  Fix DESCRIPTION's encoding, thanks to Arfrever Frehtes Taifersar Arahesis
+  in bug #252748.
+
+  27 Dec 2008; Friedrich Oslage <bluebird@gentoo.org> nokogiri-1.1.0.ebuild:
+  Add ~sparc keyword, bug #252676
+
+*nokogiri-1.1.0 (27 Dec 2008)
+
+  27 Dec 2008; Hans de Graaff <graaff@gentoo.org> +nokogiri-1.1.0.ebuild:
+  Version bump
+
+*nokogiri-1.0.6 (27 Dec 2008)
+
+  27 Dec 2008; Hans de Graaff <graaff@gentoo.org> +metadata.xml,
+  +nokogiri-1.0.6.ebuild:
+  Initial import from my personal overlay. This is now a dependency of
+  dev-ruby/mechanize.

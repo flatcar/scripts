@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install prepare setup test
+DEPEND=doc? ( app-doc/doxygen ) virtual/fortran
+DESCRIPTION=High-performance C++ numeric library
+EAPI=3
+HOMEPAGE=http://www.oonumerics.org/blitz
+IUSE=debug doc examples
+KEYWORDS=~amd64 ~ppc ~x86 ~ppc-macos ~x86-macos
+LICENSE=|| ( GPL-2 Blitz-Artistic )
+RDEPEND=virtual/fortran
+SLOT=0
+SRC_URI=mirror://sourceforge/blitz/blitz-0.9.tar.gz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	fortran-2	19652e219ec9b62d7d89735821d7afb6	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=ac8613a69c2e20a75eea7de141e22f18

@@ -1,0 +1,10 @@
+# ChangeLog for dev-ruby/ttfunk
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/ttfunk/ChangeLog,v 1.5 2012/01/28 07:46:21 graaff Exp $
+
+*ttfunk-1.0.3 (28 Jan 2012)
+
+  28 Jan 2012; Hans de Graaff <graaff@gentoo.org> +ttfunk-1.0.3.ebuild,
+  +metadata.xml:
+  Re-adding now that upstream has made it into a gem and no longer bundles it.
+

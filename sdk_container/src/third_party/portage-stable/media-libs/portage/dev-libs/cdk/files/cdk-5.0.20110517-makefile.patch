@@ -1,0 +1,11 @@
+--- cdk-5.0-20110517/Makefile.in.orig
++++ cdk-5.0-20110517/Makefile.in
+@@ -402,7 +402,7 @@
+ installCDKHeaderFiles \
+ installCDKLibrary :: $(BIN_DIR) cdk-config
+ 	@echo "Installing script $(CFG_ROOTNAME)$(VERSION_MAJOR)-config"
+-	@$(INSTALL_DATA) cdk-config $(BIN_DIR)/$(CFG_ROOTNAME)$(VERSION_MAJOR)-config
++	@$(INSTALL_PROGRAM) cdk-config $(BIN_DIR)/$(CFG_ROOTNAME)$(VERSION_MAJOR)-config
+ 
+ uninstall \
+ uninstallCDKHeaderFiles \

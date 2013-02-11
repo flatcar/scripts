@@ -1,0 +1,95 @@
+# ChangeLog for dev-ruby/mustache
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/mustache/ChangeLog,v 1.24 2013/01/15 05:00:15 zerochaos Exp $
+
+  15 Jan 2013; Rick Farina <zerochaos@gentoo.org> mustache-0.99.4-r1.ebuild:
+  adding ~arm keywords to net-analyzer/metasploit rdeps
+
+  28 Oct 2012; Raúl Porcel <armin76@gentoo.org> mustache-0.99.4-r1.ebuild:
+  Add ~alpha
+
+  28 Aug 2012; Hans de Graaff <graaff@gentoo.org> -mustache-0.99.4.ebuild:
+  Cleanup.
+
+  15 Aug 2012; Johannes Huber <johu@gentoo.org> mustache-0.99.4-r1.ebuild:
+  Stable for x86, wrt bug #428698
+
+  11 Aug 2012; Agostino Sarubbo <ago@gentoo.org> mustache-0.99.4-r1.ebuild:
+  Stable for amd64, wrt bug #421617
+
+  08 Jul 2012; Jeroen Roovers <jer@gentoo.org> mustache-0.99.4-r1.ebuild:
+  Marked ~hppa (bug #417573).
+
+  07 Apr 2012; Markus Meier <maekke@gentoo.org> mustache-0.99.4.ebuild:
+  x86 stable, bug #398847
+
+  17 Jan 2012; Agostino Sarubbo <ago@gentoo.org> mustache-0.99.4.ebuild:
+  Stable for amd64, wrt bug #398847
+
+*mustache-0.99.4-r1 (14 Jan 2012)
+
+  14 Jan 2012; Hans de Graaff <graaff@gentoo.org> mustache-0.99.4.ebuild,
+  +mustache-0.99.4-r1.ebuild:
+  Revision bump to create a stable candidate without ruby19.
+
+  14 Jan 2012; Hans de Graaff <graaff@gentoo.org> -mustache-0.99.3.ebuild:
+  Remove old version.
+
+  27 Dec 2011; Hans de Graaff <graaff@gentoo.org> mustache-0.99.4.ebuild:
+  Add ruby19.
+
+  04 Dec 2011; Naohiro Aota <naota@gentoo.org> mustache-0.99.4.ebuild:
+  Add ~x86-fbsd.
+
+  07 Aug 2011; Raúl Porcel <armin76@gentoo.org> mustache-0.99.3.ebuild,
+  mustache-0.99.4.ebuild:
+  Add ~ia64/~sparc
+
+  24 Jul 2011; Kacper Kowalik <xarthisius@gentoo.org> mustache-0.99.4.ebuild:
+  Marked ~ppc/~ppc64 wrt #351835
+
+  02 Jun 2011; Markus Meier <maekke@gentoo.org> mustache-0.99.4.ebuild:
+  add ~x86, bug #368983
+
+*mustache-0.99.4 (28 May 2011)
+
+  28 May 2011; Hans de Graaff <graaff@gentoo.org> +mustache-0.99.4.ebuild:
+  Version bump.
+
+  28 May 2011; Hans de Graaff <graaff@gentoo.org> -mustache-0.99.2.ebuild:
+  Remove old version.
+
+*mustache-0.99.3 (10 Apr 2011)
+
+  10 Apr 2011; Hans de Graaff <graaff@gentoo.org> +mustache-0.99.3.ebuild:
+  Version bump.
+
+  10 Apr 2011; Hans de Graaff <graaff@gentoo.org> -mustache-0.11.2.ebuild,
+  -mustache-0.12.0.ebuild, -mustache-0.98.0.ebuild, -mustache-0.99.1.ebuild:
+  Remove old versions.
+
+*mustache-0.99.2 (11 Mar 2011)
+
+  11 Mar 2011; Hans de Graaff <graaff@gentoo.org> +mustache-0.99.2.ebuild:
+  Version bump.
+
+*mustache-0.99.1 (04 Mar 2011)
+
+  04 Mar 2011; Hans de Graaff <graaff@gentoo.org> +mustache-0.99.1.ebuild:
+  Version bump.
+
+*mustache-0.98.0 (25 Feb 2011)
+
+  25 Feb 2011; Hans de Graaff <graaff@gentoo.org> +mustache-0.98.0.ebuild:
+  Version bump.
+
+*mustache-0.12.0 (31 Dec 2010)
+
+  31 Dec 2010; Hans de Graaff <graaff@gentoo.org> +mustache-0.12.0.ebuild:
+  Version bump.
+
+*mustache-0.11.2 (14 Sep 2010)
+
+  14 Sep 2010; Hans de Graaff <graaff@gentoo.org> +mustache-0.11.2.ebuild,
+  +metadata.xml:
+  Initial import. Dependency of app-text/ronn.

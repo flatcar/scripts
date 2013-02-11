@@ -1,0 +1,53 @@
+--- cairo.orig/build/configure.ac.features	2010-12-28 14:41:21.487225155 +0100
++++ cairo/build/configure.ac.features	2010-12-28 14:42:06.166239606 +0100
+@@ -407,6 +407,7 @@
+ 	echo "The following features and utilities:"
+ 	echo "  cairo-trace:                $use_trace"
+ 	echo "  cairo-script-interpreter:   $use_interpreter"
++	echo "  cairo-perf-utils:           $use_perf_utils"
+ 	echo ""
+ 	echo "And the following internal features:"
+ 	echo "  pthread:       $use_pthread"
+--- cairo.orig/configure.ac	2010-12-28 14:43:02.291226995 +0100
++++ cairo/configure.ac	2010-12-28 14:43:18.191141863 +0100
+@@ -10,6 +10,7 @@
+ AC_CONFIG_SRCDIR(src/cairo.h)
+ AC_CONFIG_HEADERS(config.h)
+ AM_INIT_AUTOMAKE([1.9.6 gnu -Wall no-define])
++AM_MAINTAINER_MODE
+ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+ AC_LIBTOOL_WIN32_DLL dnl Must be called before AC_PROG_LIBTOOL
+ AC_PROG_LIBTOOL dnl ([1.4]) Don't remove!
+@@ -796,6 +796,11 @@
+ PKG_CHECK_MODULES(gtk, "gtk+-2.0",have_gtk=yes, have_gtk=no)
+ AM_CONDITIONAL(HAVE_GTK, test "x$have_gtk" = "xyes")
+ 
++dnl ===========================================================================
++
++CAIRO_ENABLE(perf_utils, cairo-perf-utils, no, [use_perf_utils=yes])
++
++
+ AC_CONFIG_FILES([
+ Makefile
+ boilerplate/Makefile
+--- cairo.orig/perf/Makefile.am	2010-06-18 13:47:11.000000000 +0200
++++ cairo/perf/Makefile.am	2010-12-28 14:42:06.162226875 +0100
+@@ -10,6 +10,18 @@
+ 
+ AM_LDFLAGS = $(CAIRO_LDFLAGS)
+ 
++if CAIRO_HAS_PERF_UTILS
++bin_PROGRAMS = cairo-perf-micro \
++	cairo-perf-trace \
++	cairo-perf-diff-files \
++	cairo-perf-print \
++	cairo-perf-chart \
++	cairo-perf-compare-backends
++if HAVE_GTK
++bin_PROGRAMS += cairo-perf-graph-files
++endif
++endif
++
+ EXTRA_PROGRAMS += cairo-perf-micro \
+ 		  cairo-perf-trace \
+ 		  cairo-perf-diff-files \

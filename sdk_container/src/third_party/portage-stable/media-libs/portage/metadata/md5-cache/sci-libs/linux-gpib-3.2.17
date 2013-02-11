@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install postinst postrm preinst prepare setup unpack
+DEPEND=tcl? ( dev-lang/tcl ) guile? ( dev-scheme/guile ) perl? ( dev-lang/perl ) php? ( dev-lang/php ) firmware? ( sys-apps/fxload ) virtual/pkgconfig doc? ( app-text/docbook-sgml-utils ) perl? ( virtual/perl-ExtUtils-MakeMaker ) kernel_linux? ( virtual/modutils ) sys-apps/sed kernel_linux? ( virtual/linux-sources ) || ( >=sys-devel/automake-1.11.1:1.11 >=sys-devel/automake-1.12:1.12 ) >=sys-devel/autoconf-2.68 sys-devel/libtool python? ( =dev-lang/python-2* ) virtual/pkgconfig
+DESCRIPTION=Kernel module and driver library for GPIB (IEEE 488.2) hardware
+EAPI=4
+HOMEPAGE=http://linux-gpib.sourceforge.net/
+IUSE=pcmcia static debug guile perl php python tcl doc firmware kernel_linux
+KEYWORDS=~amd64 ~x86
+LICENSE=GPL-2
+RDEPEND=tcl? ( dev-lang/tcl ) guile? ( dev-scheme/guile ) perl? ( dev-lang/perl ) php? ( dev-lang/php ) firmware? ( sys-apps/fxload ) kernel_linux? ( virtual/modutils ) python? ( =dev-lang/python-2* )
+SLOT=0
+SRC_URI=mirror://sourceforge/linux-gpib/linux-gpib-3.2.17.tar.gz firmware? ( http://linux-gpib.sourceforge.net/firmware/gpib_firmware-2006-11-12.tar.gz )
+_eclasses_=autotools	cf83655b19ed98f9ea3b44f4572b51a3	base	ec46b36a6f6fd1d0b505a33e0b74e413	eutils	d40dc948067bd3db1c8ebf7d51897313	libtool	2b273eea1976cfaed3449345d94331ac	linux-info	c27564a568491445be036a10498ed8be	linux-mod	dbc722ed035721476f23ab7b0572985e	multilib	ded93e450747134a079e647d888aa80b	multiprocessing	a2130e6fc4aa4c6a24b265ca0cbcc2b6	perl-module	825d3d7654c88c5c4dec7400d3612578	python	e5b3412fa9f03670a666c8a137bd1060	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	udev	fea2246732f911905d6991fed203e65c	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=4c93c697b2bcf95344762856b984cae3

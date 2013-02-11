@@ -1,0 +1,15 @@
+--- ./wpa_supplicant/wpa_gui-qt4/wpagui.cpp_old	2012-03-22 10:32:40.397228118 +0000
++++ ./wpa_supplicant/wpa_gui-qt4/wpagui.cpp	2012-03-22 10:33:04.150228188 +0000
+@@ -12,10 +12,10 @@
+  * See README and COPYING for more details.
+  */
+ 
+-#ifdef __MINGW32__
++/* #ifdef __MINGW32__	*/
+ /* Need to get getopt() */
+ #include <unistd.h>
+-#endif
++/* #endif	*/
+ 
+ #ifdef CONFIG_NATIVE_WINDOWS
+ #include <windows.h>

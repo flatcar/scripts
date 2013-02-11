@@ -1,0 +1,22 @@
+--- a/include/netlink/object.h
++++ b/include/netlink/object.h
+@@ -55,7 +55,7 @@
+ /* Access Functions */
+ extern int			nl_object_get_refcnt(struct nl_object *);
+ extern struct nl_cache *	nl_object_get_cache(struct nl_object *);
+-extern inline void *		nl_object_priv(struct nl_object *);
++extern void *			nl_object_priv(struct nl_object *);
+ 
+ #ifdef __cplusplus
+ }
+--- a/lib/object.c
++++ b/lib/object.c
+@@ -376,7 +376,7 @@
+ 	return obj->ce_cache;
+ }
+ 
+-inline void *nl_object_priv(struct nl_object *obj)
++void *nl_object_priv(struct nl_object *obj)
+ {
+ 	return obj;
+ }

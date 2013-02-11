@@ -1,0 +1,32 @@
+Bug https://bugs.gentoo.org/show_bug.cgi?id=407299
+
+From b16336c0b389ace07f7418f5a021bfbc68fec2b6 Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Mon, 5 Mar 2012 11:01:01 -0500
+Subject: [PATCH] linux: Fix out[bwl] macros on non-I/O architectures
+
+Signed-off-by: Adam Jackson <ajax@redhat.com>
+---
+ src/linux_sysfs.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/linux_sysfs.c b/src/linux_sysfs.c
+index b817860..97fcf36 100644
+--- a/src/linux_sysfs.c
++++ b/src/linux_sysfs.c
+@@ -51,9 +51,9 @@
+ #define inb(x) -1
+ #define inw(x) -1
+ #define inl(x) -1
+-#define outb(x) do {} while (0)
+-#define outw(x) do {} while (0)
+-#define outl(x) do {} while (0)
++#define outb(x,y) do {} while (0)
++#define outw(x,y) do {} while (0)
++#define outl(x,y) do {} while (0)
+ #define iopl(x) -1
+ #endif
+ 
+-- 
+1.7.3.4
+

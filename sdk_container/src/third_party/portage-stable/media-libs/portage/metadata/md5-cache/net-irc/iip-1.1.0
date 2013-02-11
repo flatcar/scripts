@@ -1,0 +1,9 @@
+DEFINED_PHASES=compile install unpack
+DEPEND=>=sys-apps/sed-4
+DESCRIPTION=Proxy server for encrypted anonymous IRC-like network
+HOMEPAGE=http://www.invisiblenet.net/iip/
+KEYWORDS=~x86 ~ppc
+LICENSE=GPL-2
+SLOT=0
+SRC_URI=mirror://sourceforge/invisibleip/iip-1.1.0.tgz
+_md5_=851b2b8dba218ddf058aa5ff76a4a01d

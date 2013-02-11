@@ -1,0 +1,73 @@
+# ChangeLog for dev-libs/eet
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/eet/ChangeLog,v 1.25 2012/12/21 19:41:59 tommy Exp $
+
+*eet-1.7.4 (21 Dec 2012)
+
+  21 Dec 2012; Thomas Sachau (Tommy[D]) <tommy@gentoo.org> -eet-1.7.2.ebuild,
+  -eet-1.7.3.ebuild, +eet-1.7.4.ebuild:
+  Version bump, drop old
+
+*eet-1.7.3 (08 Dec 2012)
+
+  08 Dec 2012; Thomas Sachau (Tommy[D]) <tommy@gentoo.org> -eet-1.7.1.ebuild,
+  +eet-1.7.3.ebuild:
+  Version bump, drop old
+
+*eet-1.7.2 (23 Nov 2012)
+
+  23 Nov 2012; Thomas Sachau (Tommy[D]) <tommy@gentoo.org> -eet-1.7.0.ebuild,
+  +eet-1.7.2.ebuild:
+  Version bump, drop old
+
+*eet-1.7.1 (22 Oct 2012)
+
+  22 Oct 2012; Thomas Sachau (Tommy[D]) <tommy@gentoo.org> -eet-1.6.1.ebuild,
+  +eet-1.7.1.ebuild:
+  Version bump, drop old
+
+  10 Sep 2012; Mike Frysinger <vapier@gentoo.org> eet-1.7.0.ebuild:
+  Add arm love.
+
+*eet-1.7.0 (07 Sep 2012)
+
+  07 Sep 2012; Thomas Sachau (Tommy[D]) <tommy@gentoo.org> -eet-1.4.1.ebuild,
+  -eet-1.5.0.ebuild, +eet-1.7.0.ebuild:
+  Version bump, drop old
+
+*eet-1.6.1 (16 Jun 2012)
+
+  16 Jun 2012; Thomas Sachau (Tommy[D]) <tommy@gentoo.org> +eet-1.6.1.ebuild:
+  Version bump
+
+*eet-1.5.0 (08 Feb 2012)
+
+  08 Feb 2012; Thomas Sachau (Tommy[D]) <tommy@gentoo.org> -eet-1.4.0.ebuild,
+  +eet-1.5.0.ebuild:
+  Version bump, drop old
+
+*eet-1.4.1 (29 May 2011)
+
+  29 May 2011; Thomas Sachau (Tommy[D]) <tommy@gentoo.org> +eet-1.4.1.ebuild:
+  Version bump
+
+  25 Feb 2011; Kevin McCarthy <signals@gentoo.org> eet-1.4.0.ebuild:
+  Update depends from media-libs/jpeg to virtual/jpeg
+
+*eet-1.4.0 (30 Jan 2011)
+
+  30 Jan 2011; Thomas Sachau (Tommy[D]) <tommy@gentoo.org>
+  -eet-1.4.0_beta2.ebuild, +eet-1.4.0.ebuild:
+  Version bump, drop old
+
+*eet-1.4.0_beta3 (17 Dec 2010)
+
+  17 Dec 2010; Thomas Sachau (Tommy[D]) <tommy@gentoo.org>
+  +eet-1.4.0_beta3.ebuild:
+  Version bump
+
+*eet-1.4.0_beta2 (18 Nov 2010)
+
+  18 Nov 2010; Thomas Sachau (Tommy[D]) <tommy@gentoo.org>
+  +eet-1.4.0_beta2.ebuild, +metadata.xml:
+  Initial commit, based on ebuild in enlightenment overlay

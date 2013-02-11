@@ -1,0 +1,25 @@
+#!/sbin/runscript
+# Copyright 1999-2010 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/net-wireless/bluez/files/init.d-dund,v 1.1 2010/09/24 21:32:51 pacho Exp $
+
+depend() {
+	need bluetooth
+}
+
+start() {
+	local result service
+
+	ebegin "Starting dund"
+	start-stop-daemon --start --quiet \
+		--exec /usr/bin/dund -- ${DUND_OPTIONS}
+	result="$?"
+	eend ${result}
+}
+
+stop() {
+	ebegin "Stopping dund"
+	/usr/bin/dund -K
+	start-stop-daemon --stop --quiet --exec /usr/bin/dund
+	eend $?
+}

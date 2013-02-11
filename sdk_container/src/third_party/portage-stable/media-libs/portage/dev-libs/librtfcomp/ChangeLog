@@ -1,0 +1,17 @@
+# ChangeLog for dev-libs/librtfcomp
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/librtfcomp/ChangeLog,v 1.3 2012/06/15 09:23:34 ssuominen Exp $
+
+  15 Jun 2012; Samuli Suominen <ssuominen@gentoo.org> -librtfcomp-1.1.ebuild:
+  old
+
+*librtfcomp-1.2 (15 Jun 2012)
+
+  15 Jun 2012; Samuli Suominen <ssuominen@gentoo.org> +librtfcomp-1.2.ebuild:
+  Version bump.
+
+*librtfcomp-1.1 (25 Feb 2011)
+
+  25 Feb 2011; Samuli Suominen <ssuominen@gentoo.org> +librtfcomp-1.1.ebuild:
+  Initial commit.
+

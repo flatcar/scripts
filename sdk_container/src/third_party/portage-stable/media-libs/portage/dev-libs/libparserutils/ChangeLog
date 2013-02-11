@@ -1,0 +1,19 @@
+# ChangeLog for dev-libs/libparserutils
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/libparserutils/ChangeLog,v 1.4 2012/07/18 07:16:31 xmw Exp $
+
+  18 Jul 2012; Michael Weber <xmw@gentoo.org> libparserutils-0.1.1.ebuild:
+  fix shared/static targets for test
+
+  18 Jul 2012; Michael Sterrett <mr_bones_@gentoo.org>
+  libparserutils-0.1.1.ebuild:
+  add missing test to IUSE
+
+  17 Jul 2012; Michael Weber <xmw@gentoo.org> libparserutils-0.1.1.ebuild:
+  Fix HOMEPAGE
+
+*libparserutils-0.1.1 (17 Jul 2012)
+
+  17 Jul 2012; Michael Weber <xmw@gentoo.org> +libparserutils-0.1.1.ebuild,
+  +metadata.xml:
+  Initial import

@@ -1,0 +1,12 @@
+DEFINED_PHASES=compile configure install prepare test
+DEPEND=|| ( >=sys-devel/automake-1.11.1:1.11 >=sys-devel/automake-1.12:1.12 ) >=sys-devel/autoconf-2.68 sys-devel/libtool
+DESCRIPTION=A JSON implementation in C
+EAPI=5
+HOMEPAGE=https://github.com/json-c/json-c/wiki
+IUSE=doc static-libs
+KEYWORDS=~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sh ~sparc ~x86 ~amd64-linux ~x86-linux ~ppc-macos
+LICENSE=MIT
+SLOT=0/0
+SRC_URI=mirror://github/json-c/json-c/json-c-0.10.tar.gz
+_eclasses_=autotools	cf83655b19ed98f9ea3b44f4572b51a3	autotools-utils	f4dc5b0e643575b9bd31a2bd7deeee31	eutils	d40dc948067bd3db1c8ebf7d51897313	libtool	2b273eea1976cfaed3449345d94331ac	multilib	ded93e450747134a079e647d888aa80b	multiprocessing	a2130e6fc4aa4c6a24b265ca0cbcc2b6	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=ce814f4424920bcb519788ab9f35dbea

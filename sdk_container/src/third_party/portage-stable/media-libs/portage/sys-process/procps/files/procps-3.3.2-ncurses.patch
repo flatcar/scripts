@@ -1,0 +1,136 @@
+From 1928653399e4aa73a99049c34334d66345ca8b97 Mon Sep 17 00:00:00 2001
+From: Craig Small <csmall@enc.com.au>
+Date: Mon, 9 Jan 2012 21:40:53 +1100
+Subject: [PATCH] watch needs a conditonal LDADD
+
+Makes Debian patch makefile_watch_ncurses redundant.
+watch was being linked to NCURSES_LIBS when it should of been
+WATCH_NCURSES_LIBS which can be ncursesw with 8bit enabled.
+---
+ Makefile.am |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index 06b70ed..0ec2938 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -62,7 +62,7 @@ dist_man_MANS += \
+ slabtop_SOURCES = slabtop.c $(top_srcdir)/lib/strutils.c
+ slabtop_LDADD = @NCURSES_LIBS@
+ watch_SOURCES = watch.c $(top_srcdir)/lib/strutils.c
+-watch_LDADD = @NCURSES_LIBS@
++watch_LDADD = @WATCH_NCURSES_LIBS@
+ endif
+ 
+ kill_SOURCES = skill.c $(top_srcdir)/lib/strutils.c
+-- 
+1.7.8.3
+
+From b953a2926549a26b185c56de17d15b232368f6d6 Mon Sep 17 00:00:00 2001
+From: Samuli Suominen <ssuominen@gentoo.org>
+Date: Tue, 24 Jan 2012 12:11:46 -0500
+Subject: [PATCH] fix basic ncurses check
+
+The first check for ncurses is for the non-wide variant, so drop the "w".
+The wide version gets checked later on based on watch8bit.
+
+Signed-off-by: Samuli Suominen <ssuominen@gentoo.org>
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+---
+ configure.ac |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+			squashed below
+-- 
+1.7.8.3
+
+From fd1295e4618ad9711d8af359e097f3162f30ebd0 Mon Sep 17 00:00:00 2001
+From: Mike Frysinger <vapier@gentoo.org>
+Date: Tue, 24 Jan 2012 12:15:13 -0500
+Subject: [PATCH] fix AC_ARG_WITH(ncurses) handling
+
+The third arg is for "the user has specified some flag", not "the user
+has disabled things", so use $withval.
+
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+---
+ configure.ac |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 838d4a4..f6a24a6 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -127,7 +127,7 @@ AC_TRY_COMPILE([#include <argp.h>],
+ 
+ AC_ARG_WITH([ncurses],
+   AS_HELP_STRING([--without-ncurses], [build only applications not needing ncurses]),
+-  [with_ncurses=no], [with_ncurses=yes]
++  [with_ncurses=$withval], [with_ncurses=yes]
+ )
+ 
+ if test "x$with_ncurses" = xno; then
+-- 
+1.7.8.3
+
+From 32b74bce18cda251cb1f8d4b1851b1217065eaa3 Mon Sep 17 00:00:00 2001
+From: Mike Frysinger <vapier@gentoo.org>
+Date: Tue, 24 Jan 2012 12:40:27 -0500
+Subject: [PATCH] use pkg-config for ncurses by default
+
+Newer ncurses install pkg-config files, so search those first.  If they
+aren't found, fall back to existing detection logic.
+
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+---
+ configure.ac |   23 ++++++++++++++---------
+ 1 files changed, 14 insertions(+), 9 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index f6a24a6..792222c 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -16,6 +16,7 @@ AC_PROG_CC
+ AM_PROG_CC_C_O
+ AC_PROG_INSTALL
+ AC_PROG_LN_S
++PKG_PROG_PKG_CONFIG
+ 
+ AC_SUBST([WITH_WATCH8BIT])
+ AC_ARG_ENABLE([watch8bit],
+@@ -133,19 +134,23 @@ AC_ARG_WITH([ncurses],
+ if test "x$with_ncurses" = xno; then
+   AM_CONDITIONAL(WITH_NCURSES, false)
+ else
+-  AC_CHECK_LIB(ncursesw, initscr, [have_ncurses=yes], [have_ncurses=no])
+-  AC_CHECK_HEADERS(curses.h ncurses.h term.h, [], [have_ncurses=no], AC_INCLUDES_DEFAULT)
+-  if test "x$have_ncurses" = xno; then
+-    AC_MSG_ERROR([ncurses support missing/incomplete (for partial build use --without-ncurses)])
+-  fi
++  PKG_CHECK_MODULES([NCURSES], [ncurses], [], [
++    AC_CHECK_LIB(ncurses, initscr, [have_ncurses=yes], [have_ncurses=no])
++    AC_CHECK_HEADERS(curses.h ncurses.h term.h, [], [have_ncurses=no], AC_INCLUDES_DEFAULT)
++    if test "x$have_ncurses" = xno; then
++      AC_MSG_ERROR([ncurses support missing/incomplete (for partial build use --without-ncurses)])
++    fi
++    NCURSES_LIBS="-lncurses"
++  ])
+   AM_CONDITIONAL(WITH_NCURSES, true)
+   if test "$enable_watch8bit" = yes; then
+-    AC_CHECK_LIB([ncursesw], [addwstr], [WATCH_NCURSES_LIBS=-lncursesw],
+-                [AC_MSG_ERROR([Cannot find ncurses wide library ncursesw with --enable-watch8bit])])
++    PKG_CHECK_MODULES([NCURSESW], [ncursesw], [WATCH_NCURSES_LIBS="$NCURSESW_LIBS"], [
++      AC_CHECK_LIB([ncursesw], [addwstr], [WATCH_NCURSES_LIBS=-lncursesw],
++                   [AC_MSG_ERROR([Cannot find ncurses wide library ncursesw with --enable-watch8bit])])
++    ])
+   else
+-    WATCH_NCURSES_LIBS="-lncurses"
++    WATCH_NCURSES_LIBS="$NCURSES_LIBS"
+   fi
+-  NCURSES_LIBS="-lncurses"
+ fi
+ AC_SUBST([NCURSES_LIBS])
+ AC_SUBST([WATCH_NCURSES_LIBS])
+-- 
+1.7.8.3
+

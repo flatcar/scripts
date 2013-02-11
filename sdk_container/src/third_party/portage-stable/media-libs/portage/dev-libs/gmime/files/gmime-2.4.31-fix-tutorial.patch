@@ -1,0 +1,49 @@
+From a876678c4bee4a969ad66d0701869df06b1d10ea Mon Sep 17 00:00:00 2001
+From: Alexandre Rostovtsev <tetromino@gentoo.org>
+Date: Fri, 20 Jan 2012 02:27:34 -0500
+Subject: [PATCH] Fix tutorial generation for DB2HTML changes
+
+DB2HTML is now a path, so in HAVE_DOCBOOK AM_CONDITIONAL we need to test
+it for non-emptiness instead of trying to execute it.
+
+docbook2html uses . as the default output directory, while db2html uses
+gmime-tut by default. We therefore need to explicitly set the output
+directory by calling $DB2HTML with "-o html".
+
+https://bugzilla.gnome.org/show_bug.cgi?id=667070
+---
+ configure.in              |    2 +-
+ docs/tutorial/Makefile.am |    4 +---
+ 2 files changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/configure.in b/configure.in
+index 89304d3..93997c8 100644
+--- a/configure.in
++++ b/configure.in
+@@ -133,7 +133,7 @@ dnl ************************************
+ GTK_DOC_CHECK([1.8])
+ 
+ AC_PATH_PROGS([DB2HTML], [db2html docbook2html])
+-AM_CONDITIONAL(HAVE_DOCBOOK, $DB2HTML)
++AM_CONDITIONAL(HAVE_DOCBOOK, [test -n "$DB2HTML"])
+ 
+ dnl NOTE: We need to use a separate automake conditional for this
+ dnl       to make this work with the tarballs.
+diff --git a/docs/tutorial/Makefile.am b/docs/tutorial/Makefile.am
+index 71d70be..13e713d 100644
+--- a/docs/tutorial/Makefile.am
++++ b/docs/tutorial/Makefile.am
+@@ -6,9 +6,7 @@ html:
+ if HAVE_DOCBOOK
+ 	if test -w $(srcdir); then \
+ 	  (cd $(srcdir); \
+-	   $(DB2HTML) gmime-tut.sgml; \
+-	   test -d html && rm -r html; \
+-	   mv gmime-tut html); \
++	   $(DB2HTML) -o html gmime-tut.sgml); \
+ 	fi
+ else
+ 	echo "***"
+-- 
+1.7.8.3
+

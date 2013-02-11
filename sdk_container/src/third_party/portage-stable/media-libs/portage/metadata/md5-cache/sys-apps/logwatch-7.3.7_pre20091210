@@ -1,0 +1,9 @@
+DEFINED_PHASES=install postinst
+DESCRIPTION=Analyzes and Reports on system logs
+HOMEPAGE=http://www.logwatch.org/
+KEYWORDS=~alpha ~amd64 ~arm ~hppa ~ppc64 ~sparc ~x86
+LICENSE=MIT
+RDEPEND=virtual/cron virtual/mta virtual/mailx dev-lang/perl dev-perl/Date-Calc dev-perl/DateManip dev-perl/Tie-IxHash dev-perl/Sys-CPU dev-perl/Sys-MemInfo
+SLOT=0
+SRC_URI=mirror://gentoo/logwatch-7.3.7_pre20091210.tar.bz2
+_md5_=ea5ff9497e8cc6bc60f4ba7af0ce8fc9

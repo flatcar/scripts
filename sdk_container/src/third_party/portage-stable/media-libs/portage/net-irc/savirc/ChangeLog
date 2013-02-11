@@ -1,0 +1,26 @@
+# ChangeLog for net-irc/savirc
+# Copyright 1999-2007 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-irc/savirc/ChangeLog,v 1.6 2007/02/09 04:28:38 flameeyes Exp $
+
+  09 Feb 2007; Diego Pettenò <flameeyes@gentoo.org> ChangeLog:
+  Regenerate digest in Manifest2 format.
+
+  07 Aug 2005; Michael Hanselmann <hansmi@gentoo.org> savirc-1.99.ebuild:
+  Stable on ppc.
+
+  17 Feb 2005; Sven Wegener <swegener@gentoo.org> savirc-1.99.ebuild:
+  Changed tarball from .gz to .bz2.
+
+  13 Nov 2004; Sven Wegener <swegener@gentoo.org> savirc-1.99.ebuild:
+  Marked stable on x86.
+
+  17 Oct 2004; David Holm <dholm@gentoo.org> savirc-1.99.ebuild:
+  Added to ~ppc.
+
+*savirc-1.99 (27 Sep 2004)
+
+  27 Sep 2004; Sven Wegener <swegener@gentoo.org> +metadata.xml,
+  +savirc-1.99.ebuild:
+  Initial import, ebuild submitted by Sander van Grieken <sander@3v8.net> in bug
+  #63193.
+

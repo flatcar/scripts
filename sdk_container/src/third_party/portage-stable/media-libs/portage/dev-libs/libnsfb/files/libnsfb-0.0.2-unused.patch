@@ -1,0 +1,19 @@
+--- libnsfb-0.0.2/src/surface/vnc.c
++++ libnsfb-0.0.2/src/surface/vnc.c
+@@ -486,7 +486,6 @@
+ static bool vnc_input(nsfb_t *nsfb, nsfb_event_t *event, int timeout)
+ {
+     rfbScreenInfoPtr vncscreen = nsfb->surface_priv;
+-    int ret;
+ 
+     if (vncscreen != NULL) {
+ 
+@@ -496,7 +495,7 @@
+ 	event->type = NSFB_EVENT_CONTROL;
+ 	event->value.controlcode = NSFB_CONTROL_TIMEOUT;
+ 
+-	ret = rfbProcessEvents(vncscreen, timeout * 1000);
++	rfbProcessEvents(vncscreen, timeout * 1000);
+ 	return true;
+     }
+ 

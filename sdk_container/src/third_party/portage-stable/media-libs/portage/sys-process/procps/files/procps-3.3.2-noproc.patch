@@ -1,0 +1,17 @@
+If /proc isnt mounted, `top` will cause screen corruption ...
+
+--- b/top/top.c
++++ b/top/top.c
+@@ -3201,6 +3201,12 @@
+ {
+    (void)dont_care_argc;
+    before(*argv);
++
++   if (access("/proc/stat", F_OK)) {
++      fprintf(stderr, "/proc is not mounted, required for output data");
++      exit(1);
++   }
++
+                                         //                 +-------------+
+    windows_stage1();                    //                 top (sic) slice
+    configs_read();                      //                 > spread etc, <

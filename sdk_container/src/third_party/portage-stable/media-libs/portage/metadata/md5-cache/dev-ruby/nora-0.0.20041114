@@ -1,0 +1,11 @@
+DEFINED_PHASES=compile install unpack
+DEPEND==dev-lang/ruby-1.8*
+DESCRIPTION=Nora - ruby libraries for web application library
+HOMEPAGE=http://raa.ruby-lang.org/list.rhtml?name=nora
+KEYWORDS=~amd64 ~ppc ~ppc64 x86
+LICENSE=Ruby
+RDEPEND==dev-lang/ruby-1.8*
+SLOT=0
+SRC_URI=http://www.moonwolf.com/ruby/archive/nora-0.0.20041114.tar.gz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	ruby	d0d4dafe867eb79ce8953e27d88fc00f	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=592281ad78334bb303d0478ecdcd5f2d

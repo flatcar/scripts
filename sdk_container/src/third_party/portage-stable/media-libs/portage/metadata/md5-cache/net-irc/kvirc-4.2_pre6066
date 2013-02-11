@@ -1,0 +1,14 @@
+DEFINED_PHASES=compile configure install prepare setup test unpack
+DEPEND=sys-libs/zlib x11-libs/libX11 >=x11-libs/qt-core-4.6:4 >=x11-libs/qt-gui-4.6:4 >=x11-libs/qt-sql-4.6:4 dcc_video? ( media-libs/libv4l theora? ( media-libs/libogg media-libs/libtheora ) ) kde? ( >=kde-base/kdelibs-4 ) oss? ( audiofile? ( media-libs/audiofile ) ) perl? ( dev-lang/perl ) phonon? ( || ( media-libs/phonon >=x11-libs/qt-phonon-4.6:4 ) ) qt-dbus? ( >=x11-libs/qt-dbus-4.6:4 ) ssl? ( dev-libs/openssl ) webkit? ( >=x11-libs/qt-webkit-4.6:4 ) >=dev-util/cmake-2.6.4 virtual/pkgconfig x11-proto/scrnsaverproto nls? ( sys-devel/gettext ) doc? ( app-doc/doxygen ) >=dev-util/cmake-2.8.8 userland_GNU? ( >=sys-apps/findutils-4.4.0 ) python? ( =dev-lang/python-2* )
+DESCRIPTION=Advanced IRC Client
+EAPI=4
+HOMEPAGE=http://www.kvirc.net/
+IUSE=audiofile dcc_video +dcc_voice debug doc gsm +ipc ipv6 kde +nls oss +perl +phonon profile +python +qt-dbus +ssl theora +transparency webkit
+KEYWORDS=~alpha amd64 ~ppc ~ppc64 x86
+LICENSE=kvirc
+RDEPEND=sys-libs/zlib x11-libs/libX11 >=x11-libs/qt-core-4.6:4 >=x11-libs/qt-gui-4.6:4 >=x11-libs/qt-sql-4.6:4 dcc_video? ( media-libs/libv4l theora? ( media-libs/libogg media-libs/libtheora ) ) kde? ( >=kde-base/kdelibs-4 ) oss? ( audiofile? ( media-libs/audiofile ) ) perl? ( dev-lang/perl ) phonon? ( || ( media-libs/phonon >=x11-libs/qt-phonon-4.6:4 ) ) qt-dbus? ( >=x11-libs/qt-dbus-4.6:4 ) ssl? ( dev-libs/openssl ) webkit? ( >=x11-libs/qt-webkit-4.6:4 ) gsm? ( media-sound/gsm ) python? ( =dev-lang/python-2* )
+REQUIRED_USE=audiofile? ( oss ) theora? ( dcc_video )
+SLOT=4
+SRC_URI=http://people.apache.org/~Arfrever/gentoo/kvirc-4.2_pre6066.tar.xz
+_eclasses_=base	ec46b36a6f6fd1d0b505a33e0b74e413	cmake-utils	3cb7a29aafd4b984d2bf12bc50abe5da	eutils	d40dc948067bd3db1c8ebf7d51897313	flag-o-matic	d900015de4e092f26d8c0a18b6bd60de	multilib	ded93e450747134a079e647d888aa80b	python	e5b3412fa9f03670a666c8a137bd1060	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=62f7bbbdd63ea0e92279db8f6cdf7102

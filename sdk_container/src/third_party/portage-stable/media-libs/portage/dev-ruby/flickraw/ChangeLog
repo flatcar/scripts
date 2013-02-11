@@ -1,0 +1,10 @@
+# ChangeLog for dev-ruby/flickraw
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/flickraw/ChangeLog,v 1.1 2013/01/25 21:03:25 flameeyes Exp $
+
+*flickraw-0.9.6 (25 Jan 2013)
+
+  25 Jan 2013; Diego E. Pettenò <flameeyes@gentoo.org> +flickraw-0.9.6.ebuild,
+  +metadata.xml:
+  Initial import of flickraw from graaff's overlay. This version drops test
+  dependencies as well supports doc building without rake.

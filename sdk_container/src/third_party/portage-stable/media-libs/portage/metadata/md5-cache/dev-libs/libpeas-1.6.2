@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install postinst postrm preinst prepare setup test unpack
+DEPEND=>=dev-libs/glib-2.32:2 >=dev-libs/gobject-introspection-0.10.1 gjs? ( >=dev-libs/gjs-1.31.11 ) glade? ( >=dev-util/glade-3.9.1:3.10 ) gtk? ( >=x11-libs/gtk+-3:3[introspection] ) python? ( >=dev-python/pygobject-3.0.0:3 ) seed? ( >=dev-libs/seed-2.91.91 ) >=dev-util/intltool-0.40 >=sys-devel/gettext-0.17 app-arch/xz-utils >=sys-apps/sed-4 python? ( || ( =dev-lang/python-2.7* =dev-lang/python-2.6* =dev-lang/python-2.5* ) ) test? ( !prefix? ( x11-base/xorg-server[xvfb] ) x11-apps/xhost )
+DESCRIPTION=A GObject plugins library
+EAPI=4
+HOMEPAGE=http://developer.gnome.org/libpeas/stable/
+IUSE=gjs +gtk glade +python seed test
+KEYWORDS=~amd64 ~ppc ~x86 ~x86-freebsd ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux
+LICENSE=LGPL-2+
+RDEPEND=>=dev-libs/glib-2.32:2 >=dev-libs/gobject-introspection-0.10.1 gjs? ( >=dev-libs/gjs-1.31.11 ) glade? ( >=dev-util/glade-3.9.1:3.10 ) gtk? ( >=x11-libs/gtk+-3:3[introspection] ) python? ( >=dev-python/pygobject-3.0.0:3 ) seed? ( >=dev-libs/seed-2.91.91 ) python? ( || ( =dev-lang/python-2.7* =dev-lang/python-2.6* =dev-lang/python-2.5* ) )
+SLOT=0
+SRC_URI=mirror://gnome/sources/libpeas/1.6/libpeas-1.6.2.tar.xz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	fdo-mime	0acfe1a88fd8751a1d5dc671168219fa	gnome.org	8fef8f967214f56e08fa92d61163d891	gnome2	96ca31031ada9967bcf96a4fd8977ae4	gnome2-utils	794d2847b4af390a1e020924876c8297	libtool	2b273eea1976cfaed3449345d94331ac	multilib	ded93e450747134a079e647d888aa80b	python	e5b3412fa9f03670a666c8a137bd1060	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4	virtualx	73cfc129b4b9ba23aed1abb10c825d86
+_md5_=93f80585cf8e30069df812faac9d8fda

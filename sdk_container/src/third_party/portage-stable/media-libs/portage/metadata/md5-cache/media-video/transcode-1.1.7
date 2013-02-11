@@ -1,0 +1,14 @@
+DEFINED_PHASES=configure install prepare
+DEPEND=>=virtual/ffmpeg-0.6.90 a52? ( media-libs/a52dec ) aac? ( media-libs/faac ) alsa? ( media-libs/alsa-lib ) dv? ( media-libs/libdv ) dvd? ( media-libs/libdvdread ) iconv? ( virtual/libiconv ) imagemagick? ( media-gfx/imagemagick ) jpeg? ( virtual/jpeg ) lzo? ( >=dev-libs/lzo-2 ) mjpeg? ( media-video/mjpegtools ) mp3? ( media-sound/lame ) mpeg? ( media-libs/libmpeg2 ) ogg? ( media-libs/libogg ) postproc? ( >=virtual/ffmpeg-0.6.90 ) quicktime? ( >=media-libs/libquicktime-1 ) sdl? ( >=media-libs/libsdl-1.2.5[X?] ) theora? ( media-libs/libtheora ) truetype? ( >=media-libs/freetype-2 ) v4l? ( media-libs/libv4l ) vorbis? ( media-libs/libvorbis ) X? ( x11-libs/libXpm x11-libs/libXaw x11-libs/libXv ) x264? ( media-libs/x264 ) xml? ( dev-libs/libxml2 ) xvid? ( media-libs/xvid ) virtual/pkgconfig v4l? ( >=sys-kernel/linux-headers-2.6.11 )
+DESCRIPTION=A suite of utilities for transcoding video and audio codecs in different containers
+EAPI=4
+HOMEPAGE=http://tcforge.berlios.de/
+IUSE=3dnow a52 aac alsa altivec dv dvd +iconv imagemagick jpeg lzo mjpeg mmx mp3 mpeg nuv ogg oss pic postproc quicktime sdl sse sse2 theora truetype v4l vorbis X x264 xml xvid
+KEYWORDS=alpha amd64 ppc ppc64 sparc x86
+LICENSE=GPL-2
+RDEPEND=>=virtual/ffmpeg-0.6.90 a52? ( media-libs/a52dec ) aac? ( media-libs/faac ) alsa? ( media-libs/alsa-lib ) dv? ( media-libs/libdv ) dvd? ( media-libs/libdvdread ) iconv? ( virtual/libiconv ) imagemagick? ( media-gfx/imagemagick ) jpeg? ( virtual/jpeg ) lzo? ( >=dev-libs/lzo-2 ) mjpeg? ( media-video/mjpegtools ) mp3? ( media-sound/lame ) mpeg? ( media-libs/libmpeg2 ) ogg? ( media-libs/libogg ) postproc? ( >=virtual/ffmpeg-0.6.90 ) quicktime? ( >=media-libs/libquicktime-1 ) sdl? ( >=media-libs/libsdl-1.2.5[X?] ) theora? ( media-libs/libtheora ) truetype? ( >=media-libs/freetype-2 ) v4l? ( media-libs/libv4l ) vorbis? ( media-libs/libvorbis ) X? ( x11-libs/libXpm x11-libs/libXaw x11-libs/libXv ) x264? ( media-libs/x264 ) xml? ( dev-libs/libxml2 ) xvid? ( media-libs/xvid )
+REQUIRED_USE=sse? ( mmx ) sse2? ( mmx sse ) 3dnow? ( mmx ) nuv? ( lzo )
+SLOT=0
+SRC_URI=mirror://bitbucket/france/transcode-tcforge/downloads/transcode-1.1.7.tar.bz2
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	libtool	2b273eea1976cfaed3449345d94331ac	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=074fb35b62b9d4108acbf8b903eca66f

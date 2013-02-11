@@ -1,0 +1,72 @@
+# ChangeLog for dev-ruby/rest-client
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-ruby/rest-client/ChangeLog,v 1.16 2012/12/17 18:39:24 graaff Exp $
+
+  17 Dec 2012; Hans de Graaff <graaff@gentoo.org> -rest-client-1.6.7.ebuild:
+  Cleanup.
+
+  15 Sep 2012; Hans de Graaff <graaff@gentoo.org> -rest-client-1.5.1.ebuild,
+  -rest-client-1.6.1.ebuild, -rest-client-1.6.3.ebuild:
+  Cleanup.
+
+  14 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> metadata.xml:
+  Update metadata.xml so that it's the same as most other packages.
+
+  13 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org>
+  rest-client-1.6.7-r1.ebuild:
+  Disable the automagic use of ruby-debug and mandatory use of rspec 1.x, then
+  use the rspec recipe for tests. This allows dropping the jeweler dependency
+  during tests at least.
+
+*rest-client-1.6.7-r1 (11 Aug 2012)
+
+  11 Aug 2012; Benedikt Böhm <hollow@gentoo.org> +rest-client-1.6.7-r1.ebuild,
+  +files/rest-client-1.6.7-ruby19.patch:
+  add ruby19 support
+
+*rest-client-1.6.7 (16 Sep 2011)
+
+  16 Sep 2011; Hans de Graaff <graaff@gentoo.org> +rest-client-1.6.7.ebuild:
+  Version bump.
+
+*rest-client-1.6.3 (20 Jul 2011)
+
+  20 Jul 2011; Hans de Graaff <graaff@gentoo.org> +rest-client-1.6.3.ebuild:
+  Version bump.
+
+  17 Jun 2011; Hans de Graaff <graaff@gentoo.org> +rest-client-1.5.1.ebuild:
+  And add it back once more for old versions of chef...
+
+  17 Jun 2011; Hans de Graaff <graaff@gentoo.org> -rest-client-1.5.1.ebuild:
+  Remove old version.
+
+  09 Oct 2010; Mark Loeser <halcy0n@gentoo.org> +rest-client-1.5.1.ebuild:
+  Restore 1.5.1 for app-admin/chef
+
+  09 Oct 2010; Hans de Graaff <graaff@gentoo.org> rest-client-1.6.1.ebuild:
+  Depend on rspec-1.
+
+  09 Oct 2010; Hans de Graaff <graaff@gentoo.org> -rest-client-1.5.1.ebuild,
+  -rest-client-1.6.0.ebuild:
+  Remove old versions.
+
+*rest-client-1.6.1 (19 Sep 2010)
+
+  19 Sep 2010; Hans de Graaff <graaff@gentoo.org> +rest-client-1.6.1.ebuild:
+  Version bump with several enhancements and bug fixes.
+
+  20 Jul 2010; Christian Faulhammer <fauli@gentoo.org>
+  rest-client-1.6.0.ebuild:
+  add ~x86, bug 328915
+
+*rest-client-1.6.0 (19 Jul 2010)
+
+  19 Jul 2010; Hans de Graaff <graaff@gentoo.org> +rest-client-1.6.0.ebuild:
+  Version bump. Install documentation. Run tests. Drop x86 keyword due to
+  new dependencies, bug 328915.
+
+*rest-client-1.5.1 (03 Jul 2010)
+
+  03 Jul 2010; Benedikt Böhm <hollow@gentoo.org> +rest-client-1.5.1.ebuild,
+  +metadata.xml:
+  initial ebuild, thanks to Gábor Vészi

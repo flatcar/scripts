@@ -1,0 +1,27 @@
+# Fix crash in bouncedcc module.
+# It happens when DCC RESUME is received.
+# Affected ZNC versions: 0.200, 0.202.
+
+https://bugs.gentoo.org/show_bug.cgi?id=398159
+
+diff -Naur znc-0.202.orig/modules/bouncedcc.cpp znc-0.202/modules/bouncedcc.cpp
+--- znc-0.202.orig/modules/bouncedcc.cpp	2011-09-21 22:20:19.000000000 +0200
++++ znc-0.202/modules/bouncedcc.cpp	2012-01-07 14:47:20.436704782 +0100
+@@ -238,7 +238,7 @@
+ 					CDCCBounce* pSock = (CDCCBounce*) *it;
+ 
+ 					if (pSock->GetLocalPort() == uResumePort) {
+-						m_pUser->PutUser(":" + Nick.GetNickMask() + " PRIVMSG " + m_pClient->GetNick() + " :\001DCC " + sType + " " + sFile + " " + CString(pSock->GetUserPort()) + " " + sMessage.Token(4) + "\001");
++						m_pUser->PutUser(":" + Nick.GetNickMask() + " PRIVMSG " + m_pUser->GetNick() + " :\001DCC " + sType + " " + sFile + " " + CString(pSock->GetUserPort()) + " " + sMessage.Token(4) + "\001");
+ 					}
+ 				}
+ 			} else if (sType.Equals("ACCEPT")) {
+@@ -248,7 +248,7 @@
+ 					CDCCBounce* pSock = (CDCCBounce*) *it;
+ 
+ 					if (pSock->GetUserPort() == sMessage.Token(3).ToUShort()) {
+-						m_pUser->PutUser(":" + Nick.GetNickMask() + " PRIVMSG " + m_pClient->GetNick() + " :\001DCC " + sType + " " + sFile + " " + CString(pSock->GetLocalPort()) + " " + sMessage.Token(4) + "\001");
++						m_pUser->PutUser(":" + Nick.GetNickMask() + " PRIVMSG " + m_pUser->GetNick() + " :\001DCC " + sType + " " + sFile + " " + CString(pSock->GetLocalPort()) + " " + sMessage.Token(4) + "\001");
+ 					}
+ 				}
+ 			}

@@ -1,0 +1,65 @@
+# ChangeLog for net-wireless/airtraf
+# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-wireless/airtraf/ChangeLog,v 1.18 2011/08/20 21:05:36 jer Exp $
+
+  20 Aug 2011; Jeroen Roovers <jer@gentoo.org> metadata.xml:
+  Remove useless maintainer tag.
+
+*airtraf-1.1-r1 (17 Sep 2010)
+
+  17 Sep 2010; Jeroen Roovers <jer@gentoo.org> -airtraf-1.0.ebuild,
+  airtraf-1.1.ebuild, +airtraf-1.1-r1.ebuild, +files/airtraf-1.1.patch,
+  -files/airtraf.patch:
+  Clean up patch. Clean up old. Replace sed scripts with make variables,
+  respect LDFLAGS (bug #337678), CXX, too. Fix quoting issues. Set RDEPEND.
+
+  17 Dec 2009; Diego E. Pettenò <flameeyes@gentoo.org> airtraf-1.1.ebuild,
+  metadata.xml:
+  Use emake -j1 for build (bug #297331). Fix metadata, email for netmon@g.o
+  was wrong.
+
+  20 Feb 2007; Markus Ullmann <jokey@gentoo.org> ChangeLog:
+  Redigest for Manifest2
+
+  20 Feb 2006; Markus Ullmann <jokey@gentoo.org> airtraf-1.0.ebuild,
+  airtraf-1.1.ebuild:
+  Removing virtual/libpcap wrt bug #117898
+
+  08 Oct 2005; Michael Hanselmann <hansmi@gentoo.org> airtraf-1.1.ebuild:
+  Stable on ppc.
+
+  04 Sep 2005; Daniel Black <dragonheart@gentoo.org> airtraf-1.1.ebuild:
+  x86 stable on 1.1. 1.0 fails on newer gcc - to be removed soon
+
+  24 Apr 2005; Michael Hanselmann <hansmi@gentoo.org> airtraf-1.0.ebuild:
+  Stable on ppc.
+
+  30 Jan 2005; Daniel Black <dragonheart@gentoo.org> airtraf-1.0.ebuild,
+  airtraf-1.1.ebuild:
+  Transition dependancy from net-libs/libpcap to virtual/libpcap
+
+  12 Jan 2005; Daniel Black <dragonheart@gentoo.org> +metadata.xml,
+  -files/airtraf-amd64.patch, +files/airtraf.patch, airtraf-1.1.ebuild:
+  Combined patches from amd64 and bug #73313 to solve bug #73313. Thanks to
+  Peter K. Lee <saint@corenova.com>.
+
+*airtraf-1.1 (29 Oct 2004)
+
+  29 Oct 2004; Daniel Black <dragonheart@gentoo.org> airtraf-1.0.ebuild,
+  +airtraf-1.1.ebuild:
+  CC/CXX fix as per bug #69280. Version bump too. Thank Spanky.
+
+  22 Sep 2004; <blubb@gentoo.org> airtraf-1.0.ebuild:
+  added Aris Adamantiadis' amd64-fix (#64879).
+
+  03 Sep 2004; David Holm <dholm@gentoo.org> airtraf-1.0.ebuild:
+  Added to ~ppc.
+
+*airtraf-1.0 (30 Jan 2003)
+
+  14 Feb 2003; Peter Johanson <latexer@gentoo.org> airtraf-1.0.ebuild :
+  Little sed cleanup
+
+  30 Jan 2003; Peter Johanson <latexer@gentoo.org> airtraf-1.0.ebuild:
+  Initial Import. Ebuild submitted by Ezra Gorman <ezra@kickasskungfu.com>.
+  Bug #14014

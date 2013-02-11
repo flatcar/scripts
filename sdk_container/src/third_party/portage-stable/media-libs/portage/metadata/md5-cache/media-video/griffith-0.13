@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install postinst postrm prepare setup
+DEPEND=dev-python/imaging gnome-base/libglade dev-python/pyxml >=dev-python/pygtk-2.6.1:2 dev-python/pygobject:2 >=dev-python/sqlalchemy-0.5.2 >=dev-python/reportlab-1.19 doc? ( app-text/docbook2X ) =dev-lang/python-2* =dev-lang/python-2*[sqlite]
+DESCRIPTION=Movie collection manager
+EAPI=4
+HOMEPAGE=http://griffith.berlios.de/
+IUSE=doc
+KEYWORDS=amd64 x86 ~x86-fbsd
+LICENSE=GPL-2
+RDEPEND=dev-python/imaging gnome-base/libglade dev-python/pyxml >=dev-python/pygtk-2.6.1:2 dev-python/pygobject:2 >=dev-python/sqlalchemy-0.5.2 >=dev-python/reportlab-1.19 =dev-lang/python-2* =dev-lang/python-2*[sqlite]
+SLOT=0
+SRC_URI=http://launchpad.net/griffith/trunk/0.13/+download/griffith-0.13.tar.gz mirror://berlios/griffith/griffith-extra-artwork-0.9.4.tar.gz
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	python	e5b3412fa9f03670a666c8a137bd1060	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=5a1ef222e04e32c980616f6732603e39

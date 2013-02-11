@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install postinst postrm prepare setup test
+DEPEND=dev-python/setuptools dev-python/twisted !!<dev-util/buildbot-0.8.1 !<dev-util/buildbot-0.8.3 test? ( dev-python/mock ) =dev-lang/python-2*
+DESCRIPTION=BuildBot Slave Daemon
+EAPI=3
+HOMEPAGE=http://trac.buildbot.net/ http://code.google.com/p/buildbot/ http://pypi.python.org/pypi/buildbot-slave
+IUSE=test
+KEYWORDS=~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-interix ~amd64-linux
+LICENSE=GPL-2
+RDEPEND=dev-python/setuptools dev-python/twisted !!<dev-util/buildbot-0.8.1 !<dev-util/buildbot-0.8.3 =dev-lang/python-2*
+SLOT=0
+SRC_URI=mirror://pypi/b/buildbot-slave/buildbot-slave-0.8.7p1.tar.gz
+_eclasses_=distutils	15ae23f6f8219a009bfcfff7724fe727	multilib	ded93e450747134a079e647d888aa80b	python	e5b3412fa9f03670a666c8a137bd1060	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=7fbb90e026548bdc5ded151f4fd34df3

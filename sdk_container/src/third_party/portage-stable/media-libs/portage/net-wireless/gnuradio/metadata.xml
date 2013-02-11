@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<herd>radio</herd>
+	<use>
+		<flag name='audio'>enable audio output</flag>
+		<flag name='dot'>create dot graphs in documentation</flag>
+		<flag name='fcd'>enable Funcube Dongle source block</flag>
+		<flag name='filter'>enable filter signal processing blocks</flag>
+		<flag name='grc'>enable GNU Radio Companion graphical tool to design signal processing flow graphs</flag>
+		<flag name='uhd'>install UHD source and sink blocks</flag>
+		<flag name='utils'>install scripts to enable viewing and analysis of files produced by flow graphs</flag>
+		<flag name='wavelet'>enable wavelet signal processing blocks</flag>
+	</use>
+</pkgmetadata>
+

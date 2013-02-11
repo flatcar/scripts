@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install setup unpack
+DEPEND=dev-util/nvidia-cuda-toolkit >=x11-drivers/nvidia-drivers-177.73 media-libs/freeglut
+DESCRIPTION=NVIDIA CUDA Software Development Kit
+HOMEPAGE=http://developer.nvidia.com/cuda
+IUSE=debug emulation
+KEYWORDS=amd64 x86
+LICENSE=CUDPP
+RDEPEND=dev-util/nvidia-cuda-toolkit >=x11-drivers/nvidia-drivers-177.73 media-libs/freeglut
+RESTRICT=binchecks
+SLOT=0
+SRC_URI=http://developer.download.nvidia.com/compute/cuda/2_0/linux/sdk/NVIDIA_CUDA_SDK_2.02.0807.1535_linux.run
+_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	unpacker	50e1227854e96469a19a63f053496328	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=d9f865c81a22a7615064b26b6164fd15
