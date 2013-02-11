@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-python/ws4py/ws4py-0.2.1-r2.ebuild,v 1.2 2012/06/11 14:13:15 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-python/ws4py/ws4py-9999.ebuild,v 1.4 2012/07/17 02:11:37 vapier Exp $
 
 # The gevent package isn't in the tree yet, so we delete
 # those implementations.
@@ -10,7 +10,8 @@
 # Same for www-servers/tornado and USE=client ...
 
 EAPI="4"
-PYTHON_DEPEND="2"
+PYTHON_DEPEND="2:2.6"
+DISTUTILS_SRC_TEST="setup.py"
 
 inherit distutils eutils
 if [[ ${PV} == "9999" ]] ; then
@@ -27,15 +28,14 @@ HOMEPAGE="https://github.com/Lawouach/WebSocket-for-Python"
 
 LICENSE="BSD"
 SLOT="0"
-IUSE="+client +server +threads"
+IUSE="+client +server test +threads"
 
 RDEPEND="client? ( dev-lang/python[threads?] )"
-DEPEND=""
-
-src_prepare() {
-	epatch "${FILESDIR}"/${P}-process-data.patch
-	distutils_src_prepare
-}
+DEPEND="test? (
+		${RDEPEND}
+		dev-python/cherrypy
+		dev-python/gevent
+	)"
 
 src_install() {
 	distutils_src_install

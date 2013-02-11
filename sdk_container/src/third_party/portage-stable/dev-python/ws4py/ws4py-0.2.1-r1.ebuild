@@ -1,13 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-python/ws4py/ws4py-0.2.1-r2.ebuild,v 1.2 2012/06/11 14:13:15 mgorny Exp $
-
-# The gevent package isn't in the tree yet, so we delete
-# those implementations.
-#
-# We could depend on dev-python/cherrypy when USE=server, but
-# that is an optional component ...
-# Same for www-servers/tornado and USE=client ...
+# $Header: /var/cvsroot/gentoo-x86/dev-python/ws4py/ws4py-0.2.1-r1.ebuild,v 1.2 2012/06/11 14:13:15 mgorny Exp $
 
 EAPI="4"
 PYTHON_DEPEND="2"
@@ -27,9 +20,12 @@ HOMEPAGE="https://github.com/Lawouach/WebSocket-for-Python"
 
 LICENSE="BSD"
 SLOT="0"
-IUSE="+client +server +threads"
+IUSE=""
+#IUSE="client server"
 
-RDEPEND="client? ( dev-lang/python[threads?] )"
+# The gevent package isn't in the tree yet.
+#RDEPEND="client? ( >=dev-python/gevent-0.13.6 )
+#	server? ( >=dev-python/gevent-0.13.6 )"
 DEPEND=""
 
 src_prepare() {
@@ -39,8 +35,7 @@ src_prepare() {
 
 src_install() {
 	distutils_src_install
-	# We don't have a gevent pkg in the tree, so punt.
-	rm -rf "${ED}$(python_get_sitedir)"/ws4py/*/gevent*.py
-	use client || rm -rf "${ED}$(python_get_sitedir)"/ws4py/client
-	use server || rm -rf "${ED}$(python_get_sitedir)"/ws4py/server
+	#use client || rm -rf "${ED}$(python_get_sitedir)"/ws4py/client
+	#use server || rm -rf "${ED}$(python_get_sitedir)"/ws4py/server
+	rm -rf "${ED}$(python_get_sitedir)"/ws4py/{client,server}
 }
