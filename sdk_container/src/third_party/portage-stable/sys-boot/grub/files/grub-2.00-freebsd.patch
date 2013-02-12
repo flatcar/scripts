@@ -1,0 +1,382 @@
+Taken from
+http://bzr.savannah.gnu.org/lh/grub/trunk/grub/revision/4556
+http://bzr.savannah.gnu.org/lh/grub/trunk/grub/revision/4584
+http://bzr.savannah.gnu.org/lh/grub/trunk/grub/revision/4624
+http://bzr.savannah.gnu.org/lh/grub/trunk/grub/revision/4625
+
+diff -Nur grub-2.00.orig/grub-core/loader/i386/bsd.c grub-2.00/grub-core/loader/i386/bsd.c
+--- grub-2.00.orig/grub-core/loader/i386/bsd.c	2012-06-07 22:06:00.000000000 +0900
++++ grub-2.00/grub-core/loader/i386/bsd.c	2013-01-04 19:50:55.000000000 +0900
+@@ -1309,7 +1309,7 @@
+       && phdr->p_type != PT_DYNAMIC)
+       return 0;
+ 
+-  paddr = phdr->p_paddr & 0xFFFFFF;
++  paddr = phdr->p_paddr & 0xFFFFFFF;
+ 
+   if (paddr < kern_start)
+     kern_start = paddr;
+@@ -1333,7 +1333,7 @@
+     }
+ 
+   *do_load = 1;
+-  phdr->p_paddr &= 0xFFFFFF;
++  phdr->p_paddr &= 0xFFFFFFF;
+   paddr = phdr->p_paddr;
+ 
+   *addr = (grub_addr_t) (paddr - kern_start + (grub_uint8_t *) kern_chunk_src);
+@@ -1351,7 +1351,7 @@
+       && phdr->p_type != PT_DYNAMIC)
+     return 0;
+ 
+-  paddr = phdr->p_paddr & 0xffffff;
++  paddr = phdr->p_paddr & 0xfffffff;
+ 
+   if (paddr < kern_start)
+     kern_start = paddr;
+@@ -1375,7 +1375,7 @@
+     }
+ 
+   *do_load = 1;
+-  paddr = phdr->p_paddr & 0xffffff;
++  paddr = phdr->p_paddr & 0xfffffff;
+ 
+   *addr = (grub_addr_t) (paddr - kern_start + (grub_uint8_t *) kern_chunk_src);
+ 
+@@ -1394,7 +1394,7 @@
+     {
+       grub_relocator_chunk_t ch;
+ 
+-      entry = elf->ehdr.ehdr32.e_entry & 0xFFFFFF;
++      entry = elf->ehdr.ehdr32.e_entry & 0xFFFFFFF;
+       err = grub_elf32_phdr_iterate (elf, filename,
+ 				     grub_bsd_elf32_size_hook, NULL);
+       if (err)
+diff -Nur grub-2.00.orig/util/grub-mkconfig_lib.in grub-2.00/util/grub-mkconfig_lib.in
+--- grub-2.00.orig/util/grub-mkconfig_lib.in	2012-06-28 00:27:53.000000000 +0900
++++ grub-2.00/util/grub-mkconfig_lib.in	2013-01-04 19:50:55.000000000 +0900
+@@ -349,3 +349,10 @@
+       cat
+   fi
+ }
++
++grub_tab="	"
++
++grub_add_tab () {
++  sed -e "s/^/$grub_tab/"
++}
++
+diff -Nur grub-2.00.orig/util/grub.d/10_hurd.in grub-2.00/util/grub.d/10_hurd.in
+--- grub-2.00.orig/util/grub.d/10_hurd.in	2012-03-05 05:10:04.000000000 +0900
++++ grub-2.00/util/grub.d/10_hurd.in	2013-01-04 19:50:55.000000000 +0900
+@@ -108,7 +108,7 @@
+ EOF
+   fi
+ 
+-  prepare_grub_to_access_device "${GRUB_DEVICE_BOOT}" | sed -e "s/^/\t/"|sed "s/^/$submenu_indentation/"
++  prepare_grub_to_access_device "${GRUB_DEVICE_BOOT}" | grub_add_tab|sed "s/^/$submenu_indentation/"
+   message="$(gettext_printf "Loading GNU Mach ...")"
+ 
+   if [ x$type = xrecovery ] ; then
+@@ -122,9 +122,9 @@
+ EOF
+ 
+   if [ x$type != xrecovery ] ; then
+-      save_default_entry | sed -e "s/^/\t/"| sed "s/^/$submenu_indentation/"
++      save_default_entry | grub_add_tab| sed "s/^/$submenu_indentation/"
+   fi
+-  prepare_grub_to_access_device "${GRUB_DEVICE}" | sed -e "s/^/\t/"| sed "s/^/$submenu_indentation/"
++  prepare_grub_to_access_device "${GRUB_DEVICE}" | grub_add_tab| sed "s/^/$submenu_indentation/"
+   message="$(gettext_printf "Loading the Hurd ...")"
+   if [ x$type = xrecovery ] ; then
+       opts=
+@@ -158,7 +158,7 @@
+ 
+   if [ "x$is_first_entry" = xtrue ]; then
+       hurd_entry "$kernel" simple
+-      submenu_indentation="\t"
++      submenu_indentation="$grub_tab"
+     
+       # TRANSLATORS: %s is replaced with an OS name
+       echo "submenu '$(gettext_printf "Advanced options for %s" "${OS}" | grub_quote)' \$menuentry_id_option 'gnuhurd-advanced-$(grub_get_device_id "${GRUB_DEVICE_BOOT}")' {"
+diff -Nur grub-2.00.orig/util/grub.d/10_illumos.in grub-2.00/util/grub.d/10_illumos.in
+--- grub-2.00.orig/util/grub.d/10_illumos.in	2012-03-05 04:03:38.000000000 +0900
++++ grub-2.00/util/grub.d/10_illumos.in	2013-01-04 19:50:55.000000000 +0900
+@@ -35,8 +35,8 @@
+ esac
+ 
+ echo "menuentry '$(echo "$OS" | grub_quote)' ${CLASS} \$menuentry_id_option 'illumos-$(grub_get_device_id "${GRUB_DEVICE_BOOT}")' {"
+-save_default_entry | sed -e "s/^/\t/"
+-prepare_grub_to_access_device "${GRUB_DEVICE_BOOT}" | sed -e "s/^/\t/"
++save_default_entry | grub_add_tab
++prepare_grub_to_access_device "${GRUB_DEVICE_BOOT}" | grub_add_tab
+ message="$(gettext_printf "Loading kernel of Illumos ...")"
+   cat << EOF
+ 	insmod gzio
+diff -Nur grub-2.00.orig/util/grub.d/10_kfreebsd.in grub-2.00/util/grub.d/10_kfreebsd.in
+--- grub-2.00.orig/util/grub.d/10_kfreebsd.in	2012-03-05 06:02:30.000000000 +0900
++++ grub-2.00/util/grub.d/10_kfreebsd.in	2013-01-04 19:50:55.000000000 +0900
+@@ -54,7 +54,7 @@
+   fi
+ 
+   if [ -z "${prepare_module_dir_cache}" ]; then
+-    prepare_module_dir_cache="$(prepare_grub_to_access_device $(grub-probe -t device "${module_dir}") | sed -e "s/^/\t/")"
++    prepare_module_dir_cache="$(prepare_grub_to_access_device $(${grub_probe} -t device "${module_dir}") | grub_add_tab)"
+   fi
+ 
+   printf '%s\n' "${prepare_module_dir_cache}"
+@@ -91,10 +91,10 @@
+       echo "menuentry '$(echo "$OS" | grub_quote)' ${CLASS} \$menuentry_id_option 'kfreebsd-simple-$boot_device_id' {" | sed "s/^/$submenu_indentation/"
+   fi
+   if [ x$type != xrecovery ] ; then
+-      save_default_entry | sed -e "s/^/\t/" | sed "s/^/$submenu_indentation/"
++      save_default_entry | grub_add_tab | sed "s/^/$submenu_indentation/"
+   fi
+   if [ -z "${prepare_boot_cache}" ]; then
+-    prepare_boot_cache="$(prepare_grub_to_access_device ${GRUB_DEVICE_BOOT} | sed -e "s/^/\t/")"
++    prepare_boot_cache="$(prepare_grub_to_access_device ${GRUB_DEVICE_BOOT} | grub_add_tab)"
+   fi
+ 
+   printf '%s\n' "${prepare_boot_cache}" | sed "s/^/$submenu_indentation/"
+@@ -112,7 +112,7 @@
+ 
+   load_kfreebsd_module acpi true
+ 
+-  for abstraction in dummy $(grub-probe -t abstraction --device ${GRUB_DEVICE}) ; do
++  for abstraction in dummy $(${grub_probe} -t abstraction --device ${GRUB_DEVICE}) ; do
+     case $abstraction in
+       lvm) load_kfreebsd_module geom_linux_lvm false ;;
+     esac
+@@ -122,10 +122,10 @@
+     zfs)
+       load_kfreebsd_module opensolaris false
+ 
+-      ls "${dirname}/zfs/zpool.cache" > /dev/null
++      ls "/boot/zfs/zpool.cache" > /dev/null
+       printf '%s\n' "${prepare_boot_cache}"
+       sed "s/^/$submenu_indentation/" << EOF
+-	kfreebsd_module		${rel_dirname}/zfs/zpool.cache type=/boot/zfs/zpool.cache
++	kfreebsd_module		$(make_system_path_relative_to_its_root /boot)/zfs/zpool.cache type=/boot/zfs/zpool.cache
+ EOF
+     ;;
+   esac
+@@ -179,7 +179,7 @@
+   case ${GRUB_FS} in
+     zfs)
+ 			# zpool name
+-			kfreebsd_device=$(grub-probe -t fs_label --device ${GRUB_DEVICE})
++			kfreebsd_device=$(${grub_probe} -t fs_label --device ${GRUB_DEVICE})
+ 			# filesystem name (empty string for the main filesystem)
+ 			kfreebsd_device="${kfreebsd_device}$(${grub_mkrelpath} / | sed -e "s,/*@$,,")"
+     ;;
+@@ -213,7 +213,7 @@
+ 
+   if [ "x$is_first_entry" = xtrue ]; then
+       kfreebsd_entry "${OS}" "${version}" simple
+-      submenu_indentation="\t"
++      submenu_indentation="$grub_tab"
+     
+       if [ -z "$boot_device_id" ]; then
+ 	  boot_device_id="$(grub_get_device_id "${GRUB_DEVICE}")"
+diff -Nur grub-2.00.orig/util/grub.d/10_linux.in grub-2.00/util/grub.d/10_linux.in
+--- grub-2.00.orig/util/grub.d/10_linux.in	2012-04-19 06:24:38.000000000 +0900
++++ grub-2.00/util/grub.d/10_linux.in	2013-01-04 19:50:55.000000000 +0900
+@@ -101,7 +101,7 @@
+       echo "menuentry '$(echo "$os" | grub_quote)' ${CLASS} \$menuentry_id_option 'gnulinux-simple-$boot_device_id' {" | sed "s/^/$submenu_indentation/"
+   fi      
+   if [ x$type != xrecovery ] ; then
+-      save_default_entry | sed -e "s/^/\t/"
++      save_default_entry | grub_add_tab
+   fi
+ 
+   # Use ELILO's generic "efifb" when it's known to be available.
+@@ -123,12 +123,12 @@
+ 
+   if [ x$dirname = x/ ]; then
+     if [ -z "${prepare_root_cache}" ]; then
+-      prepare_root_cache="$(prepare_grub_to_access_device ${GRUB_DEVICE} | sed -e "s/^/\t/")"
++      prepare_root_cache="$(prepare_grub_to_access_device ${GRUB_DEVICE} | grub_add_tab)"
+     fi
+     printf '%s\n' "${prepare_root_cache}" | sed "s/^/$submenu_indentation/"
+   else
+     if [ -z "${prepare_boot_cache}" ]; then
+-      prepare_boot_cache="$(prepare_grub_to_access_device ${GRUB_DEVICE_BOOT} | sed -e "s/^/\t/")"
++      prepare_boot_cache="$(prepare_grub_to_access_device ${GRUB_DEVICE_BOOT} | grub_add_tab)"
+     fi
+     printf '%s\n' "${prepare_boot_cache}" | sed "s/^/$submenu_indentation/"
+   fi
+@@ -230,7 +230,7 @@
+     linux_entry "${OS}" "${version}" simple \
+     "${GRUB_CMDLINE_LINUX} ${GRUB_CMDLINE_LINUX_DEFAULT}"
+ 
+-    submenu_indentation="\t"
++    submenu_indentation="$grub_tab"
+     
+     if [ -z "$boot_device_id" ]; then
+ 	boot_device_id="$(grub_get_device_id "${GRUB_DEVICE}")"
+diff -Nur grub-2.00.orig/util/grub.d/10_netbsd.in grub-2.00/util/grub.d/10_netbsd.in
+--- grub-2.00.orig/util/grub.d/10_netbsd.in	2012-03-05 04:47:35.000000000 +0900
++++ grub-2.00/util/grub.d/10_netbsd.in	2013-01-04 19:50:55.000000000 +0900
+@@ -77,10 +77,10 @@
+   prepare_grub_to_access_device $(${grub_probe} -t device "${kmodule}") | sed -e 's,^,	,'
+   case "${loader}" in
+     knetbsd)
+-      printf "\tknetbsd_module_elf %s\n" "${kmodule_rel}"
++      printf "$grub_tabknetbsd_module_elf %s\n" "${kmodule_rel}"
+       ;;
+     multiboot)
+-      printf "\tmodule %s\n" "${kmodule_rel}"
++      printf "$grub_tabmodule %s\n" "${kmodule_rel}"
+       ;;
+   esac
+ }
+@@ -121,11 +121,11 @@
+   printf "%s\n" "${prepare_boot_cache}" | sed "s/^/$submenu_indentation/"
+   case "${loader}" in
+     knetbsd)
+-      printf "\tknetbsd %s -r %s %s\n" \
++      printf "$grub_tabknetbsd %s -r %s %s\n" \
+         "${kernel}" "${kroot_device}" "${GRUB_CMDLINE_NETBSD} ${args}" | sed "s/^/$submenu_indentation/"
+       ;;
+     multiboot)
+-      printf "\tmultiboot %s %s root=%s %s\n" \
++      printf "$grub_tabmultiboot %s %s root=%s %s\n" \
+         "${kernel}" "${kernel}" "${kroot_device}" "${GRUB_CMDLINE_NETBSD} ${args}" | sed "s/^/$submenu_indentation/"
+       ;;
+   esac
+@@ -159,7 +159,7 @@
+ 
+   if [ "x$is_first_entry" = xtrue ]; then
+       netbsd_entry "knetbsd"   "$k" simple "${GRUB_CMDLINE_NETBSD_DEFAULT}"
+-    submenu_indentation="\t"
++    submenu_indentation="$grub_tab"
+     
+     if [ -z "$boot_device_id" ]; then
+ 	boot_device_id="$(grub_get_device_id "${GRUB_DEVICE}")"
+diff -Nur grub-2.00.orig/util/grub.d/10_windows.in grub-2.00/util/grub.d/10_windows.in
+--- grub-2.00.orig/util/grub.d/10_windows.in	2012-03-05 06:11:43.000000000 +0900
++++ grub-2.00/util/grub.d/10_windows.in	2013-01-04 19:50:55.000000000 +0900
+@@ -45,7 +45,7 @@
+     sort | uniq | wc -l`" = 1 || return 1
+ 
+   # Search 'default=PARTITION'
+-  get_os_name_from_boot_ini_part=`sed -n 's,^default=,,p' "$1" | sed 's,\\\\,/,g;s,[ \t\r]*$,,;1q'`
++  get_os_name_from_boot_ini_part=`sed -n 's,^default=,,p' "$1" | sed 's,\\\\,/,g;s,[ $grub_tab\r]*$,,;1q'`
+   test -n "$get_os_name_from_boot_ini_part" || return 1
+ 
+   # Search 'PARTITION="NAME" ...'
+@@ -87,8 +87,8 @@
+ menuentry '$(echo "$OS" | grub_quote)' \$menuentry_id_option '$osid-$(grub_get_device_id "${dev}")' {
+ EOF
+ 
+-  save_default_entry | sed -e 's,^,\t,'
+-  prepare_grub_to_access_device "$dev" | sed 's,^,\t,'
++  save_default_entry | sed -e 's,^,$grub_tab,'
++  prepare_grub_to_access_device "$dev" | sed 's,^,$grub_tab,'
+   test -z "$needmap" || cat <<EOF
+ 	drivemap -s (hd0) \$root
+ EOF
+diff -Nur grub-2.00.orig/util/grub.d/10_xnu.in grub-2.00/util/grub.d/10_xnu.in
+--- grub-2.00.orig/util/grub.d/10_xnu.in	2012-05-29 19:31:03.000000000 +0900
++++ grub-2.00/util/grub.d/10_xnu.in	2013-01-04 19:50:55.000000000 +0900
+@@ -39,8 +39,8 @@
+         cat << EOF
+ menuentry '$(echo "Darwin/Mac OS X $bitstr $onstr" | grub_quote)' --class osx --class darwin --class os \$menuentry_id_option 'osprober-xnu-$2-$(grub_get_device_id "${GRUB_DEVICE}")'  {
+ EOF
+-	save_default_entry | sed -e "s/^/	/"
+-	prepare_grub_to_access_device ${GRUB_DEVICE} | sed -e "s/^/	/"
++	save_default_entry | grub_add_tab
++	prepare_grub_to_access_device ${GRUB_DEVICE} | grub_add_tab
+ 	cat << EOF
+         load_video
+         set do_resume=0
+diff -Nur grub-2.00.orig/util/grub.d/20_linux_xen.in grub-2.00/util/grub.d/20_linux_xen.in
+--- grub-2.00.orig/util/grub.d/20_linux_xen.in	2012-06-04 04:57:42.000000000 +0900
++++ grub-2.00/util/grub.d/20_linux_xen.in	2013-01-04 19:50:55.000000000 +0900
+@@ -110,11 +110,11 @@
+       echo "menuentry '$(echo "$title" | grub_quote)' ${CLASS} \$menuentry_id_option 'xen-gnulinux-simple-$boot_device_id' {" | sed "s/^/$submenu_indentation/"
+   fi
+   if [ x$type != xrecovery ] ; then
+-      save_default_entry | sed -e "s/^/\t/" | sed "s/^/$submenu_indentation/"
++      save_default_entry | grub_add_tab | sed "s/^/$submenu_indentation/"
+   fi
+ 
+   if [ -z "${prepare_boot_cache}" ]; then
+-    prepare_boot_cache="$(prepare_grub_to_access_device ${GRUB_DEVICE_BOOT} | sed -e "s/^/\t/")"
++    prepare_boot_cache="$(prepare_grub_to_access_device ${GRUB_DEVICE_BOOT} | grub_add_tab)"
+   fi
+   printf '%s\n' "${prepare_boot_cache}" | sed "s/^/$submenu_indentation/"
+   xmessage="$(gettext_printf "Loading Xen %s ..." ${xen_version})"
+@@ -236,7 +236,7 @@
+ 	    linux_entry "${OS}" "${version}" "${xen_version}" simple \
+ 		"${GRUB_CMDLINE_LINUX} ${GRUB_CMDLINE_LINUX_DEFAULT}" "${GRUB_CMDLINE_XEN} ${GRUB_CMDLINE_XEN_DEFAULT}"
+ 
+-	    submenu_indentation="\t\t"
++	    submenu_indentation="$grub_tab$grub_tab"
+     
+ 	    if [ -z "$boot_device_id" ]; then
+ 		boot_device_id="$(grub_get_device_id "${GRUB_DEVICE}")"
+diff -Nur grub-2.00.orig/util/grub.d/30_os-prober.in grub-2.00/util/grub.d/30_os-prober.in
+--- grub-2.00.orig/util/grub.d/30_os-prober.in	2012-03-05 05:52:03.000000000 +0900
++++ grub-2.00/util/grub.d/30_os-prober.in	2013-01-04 19:50:55.000000000 +0900
+@@ -54,8 +54,8 @@
+         cat << EOF
+ menuentry '$(echo "${LONGNAME} $bitstr $onstr" | grub_quote)' --class osx --class darwin --class os \$menuentry_id_option 'osprober-xnu-$2-$(grub_get_device_id "${DEVICE}")'  {
+ EOF
+-	save_default_entry | sed -e "s/^/\t/"
+-	prepare_grub_to_access_device ${DEVICE} | sed -e "s/^/\t/"
++	save_default_entry | grub_add_tab
++	prepare_grub_to_access_device ${DEVICE} | grub_add_tab
+ 	cat << EOF
+         load_video
+         set do_resume=0
+@@ -126,8 +126,8 @@
+       cat << EOF
+ menuentry '$(echo "${LONGNAME} $onstr" | grub_quote)' --class windows --class os \$menuentry_id_option 'osprober-chain-$(grub_get_device_id "${DEVICE}")' {
+ EOF
+-      save_default_entry | sed -e "s/^/\t/"
+-      prepare_grub_to_access_device ${DEVICE} | sed -e "s/^/\t/"
++      save_default_entry | grub_add_tab
++      prepare_grub_to_access_device ${DEVICE} | grub_add_tab
+ 
+       case ${LONGNAME} in
+ 	Windows\ Vista*|Windows\ 7*|Windows\ Server\ 2008*)
+@@ -181,14 +181,14 @@
+ 	used_osprober_linux_ids="$used_osprober_linux_ids 'osprober-gnulinux-$LKERNEL-${recovery_params}-$counter-$boot_device_id'"
+ 
+ 	if [ -z "${prepare_boot_cache}" ]; then
+-	  prepare_boot_cache="$(prepare_grub_to_access_device ${LBOOT} | sed -e "s/^/\t/")"
++	  prepare_boot_cache="$(prepare_grub_to_access_device ${LBOOT} | grub_add_tab)"
+ 	fi
+ 
+ 	if [ "x$is_first_entry" = xtrue ]; then
+             cat << EOF
+ menuentry '$(echo "$OS" | grub_quote)' --class gnu-linux --class gnu --class os \$menuentry_id_option 'osprober-gnulinux-simple-$boot_device_id' {
+ EOF
+-	    save_default_entry | sed -e "s/^/\t/"
++	    save_default_entry | grub_add_tab
+ 	    printf '%s\n' "${prepare_boot_cache}"
+ 	    cat <<  EOF
+ 	linux ${LKERNEL} ${LPARAMS}
+@@ -208,8 +208,8 @@
+         cat << EOF
+ 	menuentry '$(echo "$title" | grub_quote)' --class gnu-linux --class gnu --class os \$menuentry_id_option 'osprober-gnulinux-$LKERNEL-${recovery_params}-$boot_device_id' {
+ EOF
+-	save_default_entry | sed -e "s/^/\t\t/"
+-	printf '%s\n' "${prepare_boot_cache}" | sed -e "s/^/\t/"
++	save_default_entry | sed -e "s/^/$grub_tab$grub_tab/"
++	printf '%s\n' "${prepare_boot_cache}" | grub_add_tab
+ 	cat <<  EOF
+ 		linux ${LKERNEL} ${LPARAMS}
+ EOF
+@@ -243,8 +243,8 @@
+       cat << EOF
+ menuentry '$(echo "${LONGNAME} $onstr" | grub_quote)' --class hurd --class gnu --class os \$menuentry_id_option 'osprober-gnuhurd-/boot/gnumach.gz-false-$(grub_get_device_id "${DEVICE}")' {
+ EOF
+-      save_default_entry | sed -e "s/^/\t/"
+-      prepare_grub_to_access_device ${DEVICE} | sed -e "s/^/\t/"
++      save_default_entry | grub_add_tab
++      prepare_grub_to_access_device ${DEVICE} | grub_add_tab
+       grub_device="`${grub_probe} --device ${DEVICE} --target=drive`"
+       mach_device="`echo "${grub_device}" | sed -e 's/(\(hd.*\),msdos\(.*\))/\1s\2/'`"
+       grub_fs="`${grub_probe} --device ${DEVICE} --target=fs`"

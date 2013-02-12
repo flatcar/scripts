@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-boot/grub/grub-1.99-r2.ebuild,v 1.8 2011/11/18 00:04:29 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-boot/grub/grub-1.99-r2.ebuild,v 1.12 2012/05/31 00:01:18 vapier Exp $
 
 EAPI=4
 
@@ -19,7 +19,7 @@ else
 	S=${WORKDIR}/${MY_P}
 fi
 
-inherit mount-boot eutils flag-o-matic pax-utils toolchain-funcs ${DO_AUTORECONF:+autotools} ${LIVE_ECLASS}
+inherit mount-boot eutils flag-o-matic pax-utils toolchain-funcs multilib ${DO_AUTORECONF:+autotools} ${LIVE_ECLASS}
 unset LIVE_ECLASS
 
 DESCRIPTION="GNU GRUB boot loader"
@@ -54,7 +54,9 @@ RDEPEND="
 		sdl? ( media-libs/libsdl )
 	)
 	device-mapper? ( >=sys-fs/lvm2-2.02.45 )
-	truetype? ( media-libs/freetype >=media-fonts/unifont-5 )"
+	truetype? ( media-libs/freetype >=media-fonts/unifont-5 )
+	ppc? ( sys-apps/ibm-powerpc-utils sys-apps/powerpc-utils )
+	ppc64? ( sys-apps/ibm-powerpc-utils sys-apps/powerpc-utils )"
 DEPEND="${RDEPEND}
 	>=dev-lang/python-2.5.2
 	sys-devel/flex
@@ -249,7 +251,7 @@ src_install() {
 		"bin/grub2-mkimage"
 	)
 	for e in ${PAX[@]}; do
-		pax-mark -mp "${ED}/${e}"
+		pax-mark -mpes "${ED}/${e}"
 	done
 
 	# can't be in docs array as we use default_src_install in different builddir
@@ -271,7 +273,7 @@ EOF
 show_doc_url() {
 	elog
 	elog "For informations how to configure grub-2 please refer to the guide:"
-	elog "    http://dev.gentoo.org/~scarabeus/grub-2-guide.xml"
+	elog "    http://wiki.gentoo.org/wiki/GRUB2"
 }
 
 setup_boot_dir() {

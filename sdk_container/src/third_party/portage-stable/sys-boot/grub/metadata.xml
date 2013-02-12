@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<herd>base-system</herd>
+<maintainer>
+	<email>base-system@gentoo.org</email>
+</maintainer>
+<maintainer restrict="&gt;=sys-boot/grub-2">
+	<email>floppym@gentoo.org</email>
+	<name>Mike Gilbert</name>
+</maintainer>
+<use>
+	<flag name='device-mapper'>
+		Enable support for <pkg>sys-fs/device-mapper</pkg>
+	</flag>
+	<flag name='efiemu'>
+		Build and install the efiemu runtimes
+	</flag>
+	<flag name='mount'>
+		Build and install the grub-mount utility
+	</flag>
+	<flag name='libzfs'>
+		Enable support for <pkg>sys-fs/zfs</pkg>
+	</flag>
+</use>
+</pkgmetadata>
