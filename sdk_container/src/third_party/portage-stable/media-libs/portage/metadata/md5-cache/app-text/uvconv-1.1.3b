@@ -1,8 +1,0 @@
-DEFINED_PHASES=compile install
-DESCRIPTION=A small utility that converts among Vietnamese charsets
-HOMEPAGE=http://unikey.sourceforge.net/linux.php
-KEYWORDS=x86
-LICENSE=GPL-2
-SLOT=0
-SRC_URI=mirror://sourceforge/unikey/uvconv-1.1.3b.tar.gz
-_md5_=19466bfd94fb3ff1f953f61a978a09e9

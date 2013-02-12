@@ -1,8 +1,0 @@
-Fedora patch http://cvs.fedoraproject.org/viewvc/rpms/ruby-gnome2/devel/ruby-gnome2-0.19.1-vte-depend.patch?revision=1.1 as reported in upstream bug https://sourceforge.net/tracker/?func=detail&aid=2831660&group_id=53614&atid=470969
-
---- ruby-gnome2-all-0.19.1/vte/src/depend.bad	2009-08-03 03:44:58.000000000 +0900
-+++ ruby-gnome2-all-0.19.1/vte/src/depend	2009-08-04 02:57:41.000000000 +0900
-@@ -1,2 +1,2 @@
- install:
--	$(INSTALL_DATA) ../vte-ruby.pc $(libdir)/pkgconfig
-+	$(INSTALL_DATA) ../vte-ruby.pc $(libdir)/pkgconfig || true

@@ -1,5 +1,0 @@
-# $Header: /var/cvsroot/gentoo-x86/sys-process/fcron/files/fcrontab,v 1.1 2006/07/31 02:10:49 wschlich Exp $
-# Script for checking system crontabs and creating the fcron systab.
-# Runs every 10 minutes, does not mail output, doesn't log job runs
-# except for errors.
-@mail(false),nolog(true) 10 /usr/sbin/check_system_crontabs -s 0

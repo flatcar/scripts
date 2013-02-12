@@ -1,8 +1,0 @@
---- data/Makefile.am
-+++ data/Makefile.am
-@@ -1,4 +1,4 @@
--usdatadir=@usdatadir@
-+usdatadir=$(DESTDIR)/@usdatadir@
- 
- install:
- 	$(mkinstalldirs) ${usdatadir}

@@ -1,9 +1,0 @@
-DEFINED_PHASES=compile install unpack
-DESCRIPTION=Generate spring graphs from graphviz input files
-HOMEPAGE=http://www.chaosreigns.com/code/springgraph
-KEYWORDS=x86 alpha hppa ~mips ppc sparc ia64 amd64
-LICENSE=GPL-2
-RDEPEND=dev-perl/GD
-SLOT=0
-SRC_URI=http://www.chaosreigns.com/code/springgraph/dl/springgraph.pl.79
-_md5_=ad3e6e2666399656220e675a0af6141d

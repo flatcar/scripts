@@ -1,8 +1,0 @@
-DEFINED_PHASES=install
-DESCRIPTION=AX.25 protocol library for various Amateur Radio programs
-HOMEPAGE=http://ax25.sourceforge.net/
-KEYWORDS=amd64 ~ppc x86
-LICENSE=LGPL-2.1
-SLOT=0
-SRC_URI=mirror://sourceforge/ax25/libax25-0.0.11.tar.gz
-_md5_=43c9d56b9e2cc4cc6cada813d4944de9

@@ -1,9 +1,0 @@
-DEFINED_PHASES=compile install unpack
-DESCRIPTION=Tool to compare a burned DVD with an image to check for errors
-HOMEPAGE=http://panteltje.com/panteltje/dvd/
-KEYWORDS=amd64 ~ppc x86
-LICENSE=GPL-2
-SLOT=0
-SRC_URI=http://panteltje.com/panteltje/dvd/dvdimagecmp-0.3.tgz
-_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	flag-o-matic	d900015de4e092f26d8c0a18b6bd60de	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
-_md5_=289cf1977392ff2eaab5fe0e1e229c81

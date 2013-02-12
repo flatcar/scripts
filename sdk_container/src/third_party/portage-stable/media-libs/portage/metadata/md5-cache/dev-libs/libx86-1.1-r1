@@ -1,9 +1,0 @@
-DEFINED_PHASES=compile install unpack
-DESCRIPTION=A hardware-independent library for executing real-mode x86 code
-HOMEPAGE=http://www.codon.org.uk/~mjg59/libx86
-KEYWORDS=amd64 x86
-LICENSE=BSD
-SLOT=0
-SRC_URI=http://www.codon.org.uk/~mjg59/libx86/downloads/libx86-1.1.tar.gz
-_eclasses_=eutils	d40dc948067bd3db1c8ebf7d51897313	multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e	user	d0a4d0735a6c0183d707ca919bd72f28
-_md5_=064dabdbb0ffa25800a1c8bc492b91a9

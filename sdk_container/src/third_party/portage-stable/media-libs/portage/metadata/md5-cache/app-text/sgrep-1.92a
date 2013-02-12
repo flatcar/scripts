@@ -1,9 +1,0 @@
-DEFINED_PHASES=compile configure install
-DESCRIPTION=Structured grep: tool for searching and indexing text, SGML,XML and HTML files and filtering text streams using structural criteria.
-EAPI=3
-HOMEPAGE=http://www.cs.helsinki.fi/u/jjaakkol/sgrep.html
-KEYWORDS=~amd64 ~ppc ~x86 ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos
-LICENSE=GPL-2
-SLOT=0
-SRC_URI=ftp://ftp.cs.helsinki.fi/pub/Software/Local/Sgrep/sgrep-1.92a.tar.gz
-_md5_=ac7e710306ea04274ab679fed443662b

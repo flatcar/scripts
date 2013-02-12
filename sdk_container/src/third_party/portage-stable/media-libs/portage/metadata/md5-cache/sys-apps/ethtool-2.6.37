@@ -1,8 +1,0 @@
-DEFINED_PHASES=install
-DESCRIPTION=Utility for examining and tuning ethernet-based network interfaces
-HOMEPAGE=http://www.kernel.org/pub/software/network/ethtool/
-KEYWORDS=~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sh ~sparc ~x86
-LICENSE=GPL-2
-SLOT=0
-SRC_URI=mirror://kernel/software/network/ethtool/ethtool-2.6.37.tar.bz2
-_md5_=ad9683cddd4a34c40c9164fdaca199aa

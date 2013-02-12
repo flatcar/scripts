@@ -1,7 +1,0 @@
-DEFINED_PHASES=install
-DESCRIPTION=wrapper for fox-config to manage multiple versions
-HOMEPAGE=http://www.gentoo.org/
-KEYWORDS=~alpha amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc x86 ~x86-fbsd
-LICENSE=GPL-2
-SLOT=0
-_md5_=1a68ee1e4395af88b5fad925834aba7c

@@ -1,9 +1,0 @@
-DEFINED_PHASES=compile install
-DESCRIPTION=A program to organize many kinds of data in one place.
-HOMEPAGE=http://hnb.sourceforge.net/
-KEYWORDS=x86 ppc ~sparc
-LICENSE=GPL-2
-SLOT=0
-SRC_URI=mirror://sourceforge/hnb/hnb-1.9.17.tar.gz
-_eclasses_=multilib	ded93e450747134a079e647d888aa80b	toolchain-funcs	69a2016af67775a812f4c03ba4b0e03e
-_md5_=32a9ed8b9238807112d8b21e431d2cc7

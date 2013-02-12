@@ -1,9 +1,0 @@
-DEFINED_PHASES=compile install
-DEPEND=dev-libs/openssl dev-lang/python
-DESCRIPTION=Binary regulatory database for CRDA
-HOMEPAGE=http://wireless.kernel.org/en/developers/Regulatory
-KEYWORDS=amd64 ppc ppc64 x86
-LICENSE=ISC
-SLOT=0
-SRC_URI=http://wireless.kernel.org/download/wireless-regdb/wireless-regdb-2009.01.15.tar.bz2
-_md5_=831247c25f3b042294e73221ffb15816

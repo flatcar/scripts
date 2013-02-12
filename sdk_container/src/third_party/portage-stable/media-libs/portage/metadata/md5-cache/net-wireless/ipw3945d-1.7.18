@@ -1,8 +1,0 @@
-DEFINED_PHASES=install postinst
-DESCRIPTION=Regulatory daemon for the Intel PRO/Wireless 3945ABG miniPCI express adapter
-HOMEPAGE=http://www.bughost.org/ipw3945/
-KEYWORDS=x86
-LICENSE=ipw3945
-SLOT=0
-SRC_URI=http://www.bughost.org/ipw3945/daemon/ipw3945d-1.7.18.tgz
-_md5_=de7e5237ca6dc6332c4a49526ea8a856

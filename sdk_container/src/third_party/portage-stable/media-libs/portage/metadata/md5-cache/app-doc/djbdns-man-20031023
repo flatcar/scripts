@@ -1,8 +1,0 @@
-DEFINED_PHASES=install
-DESCRIPTION=Man pages for djbdns
-HOMEPAGE=http://smarden.org/pape/djb/manpages/
-KEYWORDS=alpha amd64 hppa ia64 ~mips ppc ppc64 sparc x86
-LICENSE=public-domain
-SLOT=0
-SRC_URI=http://smarden.org/pape/djb/manpages/djbdns-1.05-man-20031023.tar.gz
-_md5_=8ac7a903bfcd937fdc9a6135a6720932

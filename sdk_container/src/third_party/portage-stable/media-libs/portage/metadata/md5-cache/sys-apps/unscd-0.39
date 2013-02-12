@@ -1,8 +1,0 @@
-DEFINED_PHASES=compile install unpack
-DESCRIPTION=simple & stable nscd replacement
-HOMEPAGE=http://busybox.net/~vda/unscd/README
-KEYWORDS=amd64 x86
-LICENSE=GPL-2
-SLOT=0
-SRC_URI=http://busybox.net/~vda/unscd/nscd-0.39.c
-_md5_=23fa56b68871225fb90196d4ff506c2b
