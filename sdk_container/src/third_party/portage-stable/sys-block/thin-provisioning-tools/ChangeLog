@@ -1,0 +1,61 @@
+# ChangeLog for sys-block/thin-provisioning-tools
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-block/thin-provisioning-tools/ChangeLog,v 1.13 2012/12/30 14:57:53 ago Exp $
+
+  30 Dec 2012; Agostino Sarubbo <ago@gentoo.org>
+  thin-provisioning-tools-0.1.5-r1.ebuild:
+  Stable for alpha, wrt bug #443692
+
+  29 Dec 2012; Agostino Sarubbo <ago@gentoo.org>
+  thin-provisioning-tools-0.1.5-r1.ebuild:
+  Stable for sparc, wrt bug #443692
+
+  17 Dec 2012; Agostino Sarubbo <ago@gentoo.org>
+  thin-provisioning-tools-0.1.5-r1.ebuild:
+  Stable for ia64, wrt bug #443692
+
+  09 Dec 2012; Agostino Sarubbo <ago@gentoo.org>
+  thin-provisioning-tools-0.1.5-r1.ebuild:
+  Stable for ppc64, wrt bug #443784
+
+  04 Dec 2012; <ago@gentoo.org> thin-provisioning-tools-0.1.5-r1.ebuild:
+  Stable for x86, wrt bug #443692
+
+  02 Dec 2012; Markus Meier <maekke@gentoo.org>
+  thin-provisioning-tools-0.1.5-r1.ebuild:
+  arm stable, bug #443692
+
+  28 Nov 2012; Brent Baude <ranger@gentoo.org>
+  thin-provisioning-tools-0.1.5-r1.ebuild:
+  Marking thin-provisioning-tools-0.1.5-r1 ppc for bug 443692
+
+  18 Nov 2012; Agostino Sarubbo <ago@gentoo.org>
+  thin-provisioning-tools-0.1.5-r1.ebuild:
+  Stable for amd64, wrt bug #443692
+
+  05 Jun 2012; Jeroen Roovers <jer@gentoo.org>
+  thin-provisioning-tools-0.1.5-r1.ebuild,
+  -filesthin-provisioning-tools-0.1.5-LDFLAGS.patch,
+  +files/thin-provisioning-tools-0.1.5-LDFLAGS.patch:
+  Fix FILESDIR problems by Arfrever on IRC.
+
+*thin-provisioning-tools-0.1.5-r1 (05 Jun 2012)
+
+  05 Jun 2012; Justin Lecher <jlec@gentoo.org>
+  +thin-provisioning-tools-0.1.5-r1.ebuild:
+  Bump to reach all users
+
+  05 Jun 2012; Justin Lecher <jlec@gentoo.org>
+  thin-provisioning-tools-0.1.5.ebuild,
+  +filesthin-provisioning-tools-0.1.5-LDFLAGS.patch:
+  Respect CXX/LDFLAGS, #417969
+
+  27 May 2012; Robin H. Johnson <robbat2@gentoo.org>
+  thin-provisioning-tools-0.1.5.ebuild:
+  Bug #417735: Missing boost dependency not declared in upstream README.
+
+*thin-provisioning-tools-0.1.5 (27 May 2012)
+
+  27 May 2012; Robin H. Johnson <robbat2@gentoo.org>
+  +thin-provisioning-tools-0.1.5.ebuild, +metadata.xml:
+  Initial commit, new dependency for LVM2.
