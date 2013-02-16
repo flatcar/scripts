@@ -1,7 +1,5 @@
 # /lib/rcscripts/addons/lvm-start.sh
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/lvm2/files/lvm2-start.sh-2.02.67-r1,v 1.2 2012/03/27 03:20:56 robbat2 Exp $
-
-config='global { locking_dir = "/dev/.lvm" }'
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/lvm2/files/lvm2-start.sh,v 1.7 2007/10/04 16:06:22 cardoe Exp $
 
 dm_in_proc() {
 	local retval=0
@@ -26,17 +24,14 @@ if [ -z "${CDBOOT}" -a -x /sbin/vgscan ] ; then
 	if [ -d /proc/lvm ] || dm_in_proc ; then
 		ebegin "Setting up the Logical Volume Manager"
 		#still echo stderr for debugging
-		# Extra PV find pass because some devices might not have been available until very recently
-		/sbin/pvscan --config "${config}" >/dev/null
-		# Now make the nodes
-		/sbin/vgscan --mknodes --config "${config}" >/dev/null
+		/sbin/vgscan --mknodes --ignorelockingfailure >/dev/null
 		if [ -x /sbin/vgchange ] && \
 		   [ -f /etc/lvmtab -o -d /etc/lvm ]
 		then
-			/sbin/vgchange --sysinit --config "${config}" -a ly >/dev/null
+			/sbin/vgchange --ignorelockingfailure -a y >/dev/null
 		fi
 		eend $? "Failed to setup the LVM"
 	fi
 fi
 
-# vim:ts=4 ft=sh noet:
+# vim:ts=4

@@ -1,8 +1,8 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/lvm2/lvm2-2.02.88.ebuild,v 1.16 2012/12/10 20:41:45 axs Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/lvm2/lvm2-2.02.73.ebuild,v 1.11 2012/12/11 21:48:10 ssuominen Exp $
 
-EAPI=3
+EAPI=2
 inherit eutils multilib toolchain-funcs autotools linux-info
 
 DESCRIPTION="User-land utilities for LVM2 (device-mapper) software."
@@ -12,12 +12,11 @@ SRC_URI="ftp://sources.redhat.com/pub/lvm2/${PN/lvm/LVM}.${PV}.tgz
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~x86-linux"
+KEYWORDS="alpha amd64 arm ~hppa ia64 ~mips ~ppc ~ppc64 s390 sh sparc x86"
 
-IUSE="readline +static +static-libs clvm cman +lvm1 selinux"
+IUSE="readline +static clvm cman +lvm1 selinux"
 
 DEPEND_COMMON="!!sys-fs/device-mapper
-	readline? ( sys-libs/readline )
 	clvm? ( =sys-cluster/dlm-2*
 			cman? ( =sys-cluster/cman-2* ) )
 	<virtual/udev-196"
@@ -33,8 +32,7 @@ RDEPEND="${RDEPEND}
 		!<sys-fs/cryptsetup-1.1.2"
 
 DEPEND="${DEPEND_COMMON}
-		virtual/pkgconfig
-		>=sys-devel/binutils-2.20.1-r1"
+		virtual/pkgconfig"
 
 S="${WORKDIR}/${PN/lvm/LVM}.${PV}"
 
@@ -47,7 +45,7 @@ pkg_setup() {
 	if use static; then
 		elog "Warning, we no longer overwrite /sbin/lvm and /sbin/dmsetup with"
 		elog "their static versions. If you need the static binaries,"
-		elog "you must append .static to the filename!"
+		elog "you must append .static the filename!"
 	fi
 }
 
@@ -84,13 +82,6 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-2.02.70-asneeded.patch
 	# bug 332905
 	epatch "${FILESDIR}"/${PN}-2.02.72-dynamic-static-ldflags.patch
-	# bug 361429 - merged upstream in .85
-	#epatch "${FILESDIR}"/${PN}-2.02.84-udev-pkgconfig.patch
-
-	# Merged upstream
-	#epatch "${FILESDIR}"/${PN}-2.02.73-asneeded.patch
-
-	epatch "${FILESDIR}"/${PN}-2.02.88-respect-cc.patch
 
 	eautoreconf
 }
@@ -157,18 +148,17 @@ src_configure() {
 	fi
 
 	myconf="${myconf}
+			--sbindir=/sbin
+			--with-staticdir=/sbin
 			--with-dmeventd-path=/sbin/dmeventd"
 	econf $(use_enable readline) \
 		$(use_enable selinux) \
 		--enable-pkgconfig \
-		--with-confdir="${EPREFIX}/etc" \
-		--sbindir="${EPREFIX}/sbin" \
-		--with-staticdir="${EPREFIX}/sbin" \
-		--libdir="${EPREFIX}/$(get_libdir)" \
-		--with-usrlibdir="${EPREFIX}/usr/$(get_libdir)" \
+		--libdir=/$(get_libdir) \
+		--with-usrlibdir=/usr/$(get_libdir) \
 		--enable-udev_rules \
 		--enable-udev_sync \
-		--with-udevdir="${EPREFIX}/lib/udev/rules.d/" \
+		--with-udevdir=/lib/udev/rules.d/ \
 		${myconf} \
 		CLDFLAGS="${LDFLAGS}" || die
 }
@@ -186,7 +176,36 @@ src_compile() {
 src_install() {
 	emake DESTDIR="${D}" install || die "Failed to emake install"
 
-	dodoc README VERSION* WHATS_NEW WHATS_NEW_DM doc/*.{conf,c,txt}
+	# All of this was change by upstream, and if we don't get any problems, we
+	# can probably drop it in .65
+	#X## Revamp all of our library handling for bug #316571
+	#X## Upstream build script puts a lot of this stuff into /usr/lib regardless of
+	#X## libdir variable.
+	#X#dodir /$(get_libdir)
+	#X## .so -> /$(get_libdir)
+	#X#mv -f "${D}"/usr/lib/lib*.so* "${D}"/$(get_libdir)
+	#X#[[ "$(get_libdir)" != "lib" ]] && \
+	#X#	mv "${D}"/usr/$(get_libdir)/lib*.so* "${D}"/$(get_libdir)
+	#X## .a -> /usr/$(get_libdir)
+	#X#[[ "$(get_libdir)" != "lib" ]] && \
+	#X#	mv -f "${D}"/usr/lib/lib*.a "${D}"/usr/$(get_libdir)
+	#X## The upstream symlinks are borked. lets rebuild them instead.
+	#X#find "${D}"/{usr,}/{lib,$(get_libdir)} -type l \
+	#X#	| xargs rm -f 2>/dev/null
+	#X#for i in "${D}"/$(get_libdir)/*.so.* ; do
+	#X#	b="${i//*\/}" o="${b/.so.*/.so}"
+	#X#	ln -s "${b}" "${D}/$(get_libdir)/${o}"
+	#X#done
+	#X## Now enable building properly
+	#X#for i in \
+	#X#	libdevmapper-event{,-lvm2{,mirror,snapshot}} \
+	#X#	libdevmapper \
+	#X#	liblvm2{format1,snapshot,cmd,app} \
+	#X#	; do
+	#X#	gen_usr_ldscript ${i}.so || die
+	#X#done
+
+	dodoc README VERSION WHATS_NEW doc/*.{conf,c,txt}
 	insinto /$(get_libdir)/rcscripts/addons
 	newins "${FILESDIR}"/lvm2-start.sh-2.02.67-r1 lvm-start.sh || die
 	newins "${FILESDIR}"/lvm2-stop.sh-2.02.67-r1 lvm-stop.sh || die
@@ -199,10 +218,8 @@ src_install() {
 	fi
 
 	# move shared libs to /lib(64)
-	if use static-libs; then
-		dolib.a libdm/ioctl/libdevmapper.a || die "dolib.a libdevmapper.a"
-		#gen_usr_ldscript libdevmapper.so
-	fi
+	dolib.a libdm/ioctl/libdevmapper.a || die "dolib.a libdevmapper.a"
+	#gen_usr_ldscript libdevmapper.so
 
 	dosbin "${S}"/scripts/lvm2create_initrd/lvm2create_initrd
 	doman  "${S}"/scripts/lvm2create_initrd/lvm2create_initrd.8
@@ -218,26 +235,21 @@ src_install() {
 	newconfd "${FILESDIR}"/device-mapper.conf-1.02.22-r3 device-mapper || die
 
 	newinitd "${FILESDIR}"/dmeventd.initd-2.02.67-r1 dmeventd || die
-	if use static-libs; then
-		dolib.a daemons/dmeventd/libdevmapper-event.a \
-		|| die "dolib.a libdevmapper-event.a"
-		#gen_usr_ldscript libdevmapper-event.so
-	fi
-
-	use static-libs || \
-	rm -f "${D}"/usr/$(get_libdir)/{libdevmapper-event,liblvm2cmd,liblvm2app,libdevmapper}.a
+	dolib.a daemons/dmeventd/libdevmapper-event.a \
+	|| die "dolib.a libdevmapper-event.a"
+	#gen_usr_ldscript libdevmapper-event.so
 
 	#insinto /etc/udev/rules.d/
 	#newins "${FILESDIR}"/64-device-mapper.rules-2.02.56-r3 64-device-mapper.rules || die
 
 	# do not rely on /lib -> /libXX link
-	sed -e "s-/lib/rcscripts/-/$(get_libdir)/rcscripts/-" -i "${ED}"/etc/init.d/*
+	sed -e "s-/lib/rcscripts/-/$(get_libdir)/rcscripts/-" -i "${D}"/etc/init.d/*
 
 	elog "USE flag nocman is deprecated and replaced"
 	elog "with the cman USE flag."
 	elog ""
 	elog "USE flags clvm and cman are masked"
-	elog "by default and need to be unmasked to be used"
+	elog "by default and need to be unmasked to use them"
 	elog ""
 	elog "If you are using genkernel and root-on-LVM, rebuild the initramfs."
 }
@@ -246,7 +258,7 @@ pkg_postinst() {
 	elog "lvm volumes are no longer automatically created for"
 	elog "baselayout-2 users. If you are using baselayout-2, be sure to"
 	elog "run: # rc-update add lvm boot"
-	elog "Do NOT add it if you are still using baselayout-1."
+	elog "Do NOT add it if you are using baselayout-1 still."
 }
 
 src_test() {
