@@ -1,0 +1,18 @@
+http://bugs.gentoo.org/354247
+
+[openbsd-compat/port-linux.c] Bug #1851: fix syntax error in
+	selinux code.  Patch from Leonardo Chiquitto.
+
+/* $Id: openssh-5.8_p1-selinux.patch,v 1.1 2011/02/10 02:44:53 vapier Exp $ */
+
+--- a/openbsd-compat/port-linux.c
++++ b/openbsd-compat/port-linux.c
+@@ -213,7 +213,7 @@
+ 
+ 	if (!ssh_selinux_enabled())
+ 		return;
+-	if (path == NULL)
++	if (path == NULL) {
+ 		setfscreatecon(NULL);
+ 		return;
+ 	}

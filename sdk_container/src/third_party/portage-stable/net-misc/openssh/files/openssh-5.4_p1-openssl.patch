@@ -1,0 +1,12 @@
+pull in openssl/conf.h for OPENSSL_config() prototype
+
+--- openbsd-compat/openssl-compat.c
++++ openbsd-compat/openssl-compat.c
+@@ -59,6 +59,7 @@
+ #endif
+ 
+ #ifdef	USE_OPENSSL_ENGINE
++#include <openssl/conf.h>
+ void
+ ssh_SSLeay_add_all_algorithms(void)
+ {

@@ -1,0 +1,15 @@
+don't go reading random stack values
+
+already e-mailed to upstream hpn devs
+
+--- progressmeter.c
++++ progressmeter.c
+@@ -183,7 +183,7 @@
+ 	else
+ 		percent = 100;
+ 
+-	snprintf(buf + strlen(buf), win_size - strlen(buf-8),
++	snprintf(buf + strlen(buf), win_size - strlen(buf) - 8,
+ 	    " %3d%% ", percent);
+ 
+ 	/* amount transferred */
