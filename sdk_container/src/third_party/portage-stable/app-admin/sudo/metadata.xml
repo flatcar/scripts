@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+  <herd>base-system</herd>
+  <longdescription lang="en">
+    Sudo (superuser do) allows a system administrator to give certain
+    users (or groups of users) the ability to run some (or all)
+    commands as root or another user while logging the commands and
+    arguments.
+  </longdescription>
+  <use>
+    <flag name='offensive'>
+      Let sudo print insults when the user types the wrong password.
+    </flag>
+  </use>
+</pkgmetadata>
