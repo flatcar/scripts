@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-kernel/linux-headers/linux-headers-3.4.ebuild,v 1.7 2012/10/10 06:38:26 nativemad Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-kernel/linux-headers/linux-headers-3.4-r1.ebuild,v 1.2 2012/07/15 17:32:15 armin76 Exp $
 
 EAPI="3"
 
@@ -9,11 +9,11 @@ H_SUPPORTEDARCH="alpha amd64 arm bfin cris hppa m68k mips ia64 ppc ppc64 s390 sh
 inherit kernel-2
 detect_version
 
-PATCH_VER="1"
+PATCH_VER="2"
 SRC_URI="mirror://gentoo/gentoo-headers-base-${PV}.tar.xz
 	${PATCH_VER:+mirror://gentoo/gentoo-headers-${PV}-${PATCH_VER}.tar.xz}"
 
-KEYWORDS="~alpha amd64 arm hppa ~ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh ~sparc x86 ~amd64-linux ~x86-linux"
+KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ~ppc ~ppc64 s390 sh sparc ~x86 ~amd64-linux ~x86-linux"
 
 DEPEND="app-arch/xz-utils
 	dev-lang/perl"
