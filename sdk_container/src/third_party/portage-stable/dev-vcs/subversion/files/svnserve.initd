@@ -1,7 +1,7 @@
 #!/sbin/runscript
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 2004 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License, v2 or later
-# $Header: /var/cvsroot/gentoo-x86/dev-vcs/subversion/files/svnserve.initd2,v 1.2 2012/01/14 19:46:34 tommy Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-vcs/subversion/files/svnserve.initd,v 1.1 2010/06/22 18:17:21 arfrever Exp $
 
 depend() {
 	need net
@@ -14,7 +14,7 @@ start() {
 	cd /
 	start-stop-daemon --start --quiet --background --make-pidfile \
 		--pidfile /var/run/svnserve.pid --exec /usr/bin/svnserve \
-		--user ${SVNSERVE_USER:-apache} --group ${SVNSERVE_GROUP:-apache} -- \
+		--chuid ${SVNSERVE_USER:-apache}:${SVNSERVE_GROUP:-apache} -- \
 		--foreground --daemon ${SVNSERVE_OPTS:---root=/var/svn}
 	eend $?
 }

@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-vcs/subversion/subversion-1.6.17-r7.ebuild,v 1.13 2012/08/20 20:31:05 tommy Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-vcs/subversion/subversion-1.7.7.ebuild,v 1.12 2013/01/26 17:44:46 grobian Exp $
 
 EAPI="3"
 SUPPORT_PYTHON_ABIS="1"
@@ -8,17 +8,17 @@ RESTRICT_PYTHON_ABIS="3.* *-jython *-pypy-*"
 WANT_AUTOMAKE="none"
 MY_P="${P/_/-}"
 
-inherit autotools base bash-completion db-use depend.apache elisp-common flag-o-matic java-pkg-opt-2 libtool multilib perl-module python user
+inherit autotools bash-completion-r1 db-use depend.apache elisp-common flag-o-matic java-pkg-opt-2 libtool multilib perl-module python eutils
 
 DESCRIPTION="Advanced version control system"
 HOMEPAGE="http://subversion.apache.org/"
-SRC_URI="http://subversion.tigris.org/downloads/${MY_P}.tar.bz2"
+SRC_URI="mirror://apache/${PN}/${MY_P}.tar.bz2"
 S="${WORKDIR}/${MY_P}"
 
-LICENSE="Subversion"
+LICENSE="Subversion GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~x86-fbsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="apache2 berkdb ctypes-python debug doc +dso emacs extras gnome-keyring java kde nls perl python ruby sasl vim-syntax +webdav-neon webdav-serf"
+KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+IUSE="apache2 berkdb ctypes-python debug doc +dso extras gnome-keyring java kde nls perl python ruby sasl vim-syntax +webdav-neon webdav-serf"
 
 CDEPEND=">=dev-db/sqlite-3.4
 	>=dev-libs/apr-1.3:1
@@ -27,15 +27,14 @@ CDEPEND=">=dev-db/sqlite-3.4
 	sys-libs/zlib
 	berkdb? ( >=sys-libs/db-4.0.14 )
 	ctypes-python? ( =dev-lang/python-2* )
-	emacs? ( virtual/emacs )
 	gnome-keyring? ( dev-libs/glib:2 sys-apps/dbus gnome-base/gnome-keyring )
 	kde? ( sys-apps/dbus x11-libs/qt-core:4 x11-libs/qt-dbus:4 x11-libs/qt-gui:4 >=kde-base/kdelibs-4:4 )
 	perl? ( dev-lang/perl )
 	python? ( =dev-lang/python-2* )
-	ruby? ( >=dev-lang/ruby-1.8.2 )
+	ruby? ( >=dev-lang/ruby-1.8.2:1.8 )
 	sasl? ( dev-libs/cyrus-sasl )
 	webdav-neon? ( >=net-libs/neon-0.28 )
-	webdav-serf? ( >=net-libs/serf-0.3.0:0 )"
+	webdav-serf? ( >=net-libs/serf-0.3.0 )"
 RDEPEND="${CDEPEND}
 	apache2? ( www-servers/apache[apache2_modules_dav] )
 	java? ( >=virtual/jre-1.5 )
@@ -51,15 +50,6 @@ DEPEND="${CDEPEND}
 	kde? ( virtual/pkgconfig )
 	nls? ( sys-devel/gettext )
 	webdav-neon? ( virtual/pkgconfig )"
-
-PATCHES=(
-		"${FILESDIR}/${PN}-1.6.0-disable_linking_against_unneeded_libraries.patch"
-		"${FILESDIR}/${PN}-1.6.2-local_library_preloading.patch"
-		"${FILESDIR}/${PN}-1.6.3-kwallet_window.patch"
-		"${FILESDIR}/${PN}-1.5.4-interix.patch"
-		"${FILESDIR}/${PN}-1.5.6-aix-dso.patch"
-		"${FILESDIR}/${PN}-1.6.3-hpux-dso.patch"
-)
 
 want_apache
 
@@ -115,7 +105,12 @@ pkg_setup() {
 }
 
 src_prepare() {
-	base_src_prepare
+	epatch "${FILESDIR}"/${PN}-1.5.4-interix.patch \
+		"${FILESDIR}"/${PN}-1.5.6-aix-dso.patch \
+		"${FILESDIR}"/${PN}-1.6.3-hpux-dso.patch \
+		"${FILESDIR}"/${PN}-fix-parallel-build-support-for-perl-bindings.patch \
+		"${FILESDIR}"/${PN}-1.7.6-kwallet.patch
+
 	fperms +x build/transform_libtool_scripts.sh
 
 	sed -i \
@@ -154,20 +149,39 @@ src_configure() {
 	fi
 
 	case ${CHOST} in
-		*-solaris*)
-			# -lintl isn't added for some reason (makes Neon check fail)
-			use nls && append-libs -lintl
-		;;
 		*-aix*)
 			# avoid recording immediate path to sharedlibs into executables
 			append-ldflags -Wl,-bnoipath
 		;;
 		*-interix*)
 			# loader crashes on the LD_PRELOADs...
-			myconf="${myconf} --disable-local-library-preloading"
+			myconf+=" --disable-local-library-preloading"
+		;;
+		*-solaris*)
+			# need -lintl to link
+			use nls && append-libs intl
+			# this breaks installation, on x64 echo replacement is 32-bits
+			myconf+=" --disable-local-library-preloading"
+		;;
+		*-mint*)
+			myconf+=" --enable-all-static --disable-local-library-preloading"
+		;;
+		*)
+			# inject LD_PRELOAD entries for easy in-tree development
+			myconf+=" --enable-local-library-preloading"
 		;;
 	esac
 
+	#workaround for bug 387057
+	has_version =dev-vcs/subversion-1.6* && myconf+=" --disable-disallowing-of-undefined-references"
+
+	#version 1.7.7 again tries to link against the older installed version and fails, when trying to
+	#compile for x86 on amd64, so workaround this issue again
+	#check newer versions, if this is still/again needed
+	myconf+=" --disable-disallowing-of-undefined-references"
+
+	#force ruby-1.8 for bug 399105
+	ac_cv_path_RUBY="${EPREFIX}"/usr/bin/ruby18 ac_cv_path_RDOC="${EPREFIX}"/usr/bin/rdoc18 \
 	econf --libdir="${EPREFIX}/usr/$(get_libdir)" \
 		$(use_with apache2 apxs "${APXS}") \
 		$(use_with berkdb berkeley-db "db.h:${EPREFIX}/usr/include/db${SVN_BDB_VERSION}::db-${SVN_BDB_VERSION}") \
@@ -185,11 +199,9 @@ src_configure() {
 		--with-apr-util="${EPREFIX}/usr/bin/apu-1-config" \
 		--disable-experimental-libtool \
 		--without-jikes \
-		--enable-local-library-preloading \
 		--disable-mod-activation \
 		--disable-neon-version-check \
-		--disable-static \
-		--with-sqlite="${EPREFIX}/usr"
+		--disable-static
 }
 
 src_compile() {
@@ -240,12 +252,7 @@ src_compile() {
 		emake -j1 JAVAC_FLAGS="$(java-pkg_javac-args) -encoding iso8859-1" javahl || die "Building of Subversion JavaHL library failed"
 	fi
 
-	if use emacs; then
-		elisp-compile contrib/client-side/emacs/{dsvn,psvn,vc-svn}.el doc/svn-doc.el doc/tools/svnbook.el || die "Compilation of Emacs modules failed"
-	fi
-
 	if use extras; then
-		emake contrib || die "Building of contrib failed"
 		emake tools || die "Building of tools failed"
 	fi
 
@@ -306,7 +313,7 @@ src_install() {
 
 	if use java; then
 		emake DESTDIR="${D}" install-javahl || die "Installation of Subversion JavaHL library failed"
-		java-pkg_regso "${ED}"usr/$(get_libdir)/libsvnjavahl*.so
+		java-pkg_regso "${ED}"usr/$(get_libdir)/libsvnjavahl*$(get_libname)
 		java-pkg_dojar "${ED}"usr/$(get_libdir)/svn-javahl/svn-javahl.jar
 		rm -fr "${ED}"usr/$(get_libdir)/svn-javahl/*.jar
 	fi
@@ -319,18 +326,12 @@ src_install() {
 	fi
 
 	# Install Bash Completion, bug 43179.
-	dobashcompletion tools/client-side/bash_completion subversion
+	newbashcomp tools/client-side/bash_completion subversion
 	rm -f tools/client-side/bash_completion
 
 	# Install hot backup script, bug 54304.
 	newbin tools/backup/hot-backup.py svn-hot-backup
 	rm -fr tools/backup
-
-	# Install svn_load_dirs.pl.
-	if use perl; then
-		dobin contrib/client-side/svn_load_dirs/svn_load_dirs.pl
-	fi
-	rm -f contrib/client-side/svn_load_dirs/svn_load_dirs.pl
 
 	# Install svnserve init-script and xinet.d snippet, bug 43245.
 	newinitd "${FILESDIR}"/svnserve.initd2 svnserve
@@ -338,26 +339,18 @@ src_install() {
 	insinto /etc/xinetd.d
 	newins "${FILESDIR}"/svnserve.xinetd svnserve
 
+	#adjust default user and group with disabled apache2 USE flag, bug 381385
+	use apache2 || sed -e "s\USER:-apache\USER:-svn\g" \
+			-e "s\GROUP:-apache\GROUP:-svnusers\g" \
+			-i "${ED}"etc/init.d/svnserve || die
+	use apache2 || sed -e "0,/apache/s//svn/" \
+			-e "s:apache:svnusers:" \
+			-i "${ED}"etc/xinetd.d/svnserve || die
+
 	# Install documentation.
 	dodoc CHANGES COMMITTERS README
 	dodoc tools/xslt/svnindex.{css,xsl}
 	rm -fr tools/xslt
-
-	# Install Vim syntax files.
-	if use vim-syntax; then
-		insinto /usr/share/vim/vimfiles/syntax
-		doins contrib/client-side/vim/svn.vim
-	fi
-	rm -f contrib/client-side/vim/svn.vim
-
-	# Install Emacs Lisps.
-	if use emacs; then
-		elisp-install ${PN} contrib/client-side/emacs/{dsvn,psvn}.{el,elc} doc/svn-doc.{el,elc} doc/tools/svnbook.{el,elc} || die "Installation of Emacs modules failed"
-		elisp-install ${PN}/compat contrib/client-side/emacs/vc-svn.{el,elc} || die "Installation of Emacs modules failed"
-		touch "${ED}${SITELISP}/${PN}/compat/.nosearch"
-		elisp-site-file-install "${FILESDIR}/70svn-gentoo.el" || die "Installation of Emacs site-init file failed"
-	fi
-	rm -fr contrib/client-side/emacs
 
 	# Install extra files.
 	if use extras; then
@@ -367,38 +360,39 @@ ROOTPATH="${EPREFIX}/usr/$(get_libdir)/subversion/bin"
 EOF
 		doenvd 80subversion-extras
 
-		emake DESTDIR="${D}" contribdir="/usr/$(get_libdir)/subversion/bin" install-contrib || die "Installation of contrib failed"
 		emake DESTDIR="${D}" toolsdir="/usr/$(get_libdir)/subversion/bin" install-tools || die "Installation of tools failed"
 
-		find contrib tools "(" -name "*.bat" -o -name "*.in" -o -name ".libs" ")" -print0 | xargs -0 rm -fr
-		rm -fr contrib/client-side/svn-push
-		rm -fr contrib/server-side/svnstsw
+		find tools "(" -name "*.bat" -o -name "*.in" -o -name ".libs" ")" -print0 | xargs -0 rm -fr
 		rm -fr tools/client-side/svnmucc
 		rm -fr tools/server-side/{svn-populate-node-origins-index,svnauthz-validate}*
 		rm -fr tools/{buildbot,dev,diff,po}
 
 		insinto /usr/share/${PN}
-		doins -r contrib tools
+		python_convert_shebangs -r 2 tools
+		doins -r tools
 	fi
 
 	if use doc; then
 		dohtml -r doc/doxygen/html/* || die "Installation of Subversion HTML documentation failed"
-
-		dodoc notes/*
 
 		if use java; then
 			java-pkg_dojavadoc doc/javadoc
 		fi
 	fi
 
-	find "${D}" '(' -name '*.la' ')' -print0 | xargs -0 rm -f
+	find "${ED}" '(' -name '*.la' ')' -print0 | xargs -0 rm -f
+
+	cd "${ED}"usr/share/locale
+	for i in * ; do
+		[[ $i == *$LINGUAS* ]] || { rm -r $i || die ; }
+	done
 }
 
 pkg_preinst() {
 	# Compare versions of Berkeley DB, bug 122877.
 	if use berkdb && [[ -f "${EROOT}usr/bin/svn" ]]; then
-		OLD_BDB_VERSION="$(scanelf -nq "${EROOT}usr/$(get_libdir)/libsvn_subr-1.so.0" | grep -Eo "libdb-[[:digit:]]+\.[[:digit:]]+" | sed -e "s/libdb-\(.*\)/\1/")"
-		NEW_BDB_VERSION="$(scanelf -nq "${ED}usr/$(get_libdir)/libsvn_subr-1.so.0" | grep -Eo "libdb-[[:digit:]]+\.[[:digit:]]+" | sed -e "s/libdb-\(.*\)/\1/")"
+		OLD_BDB_VERSION="$(scanelf -nq "${EROOT}usr/$(get_libdir)/libsvn_subr-1$(get_libname 0)" | grep -Eo "libdb-[[:digit:]]+\.[[:digit:]]+" | sed -e "s/libdb-\(.*\)/\1/")"
+		NEW_BDB_VERSION="$(scanelf -nq "${ED}usr/$(get_libdir)/libsvn_subr-1$(get_libname 0)" | grep -Eo "libdb-[[:digit:]]+\.[[:digit:]]+" | sed -e "s/libdb-\(.*\)/\1/")"
 		if [[ "${OLD_BDB_VERSION}" != "${NEW_BDB_VERSION}" ]]; then
 			CHANGED_BDB_VERSION="1"
 		fi
@@ -406,7 +400,6 @@ pkg_preinst() {
 }
 
 pkg_postinst() {
-	use emacs && elisp-site-regen
 	use perl && perl-module_pkg_postinst
 
 	if use ctypes-python; then
@@ -428,7 +421,6 @@ pkg_postinst() {
 }
 
 pkg_postrm() {
-	use emacs && elisp-site-regen
 	use perl && perl-module_pkg_postrm
 
 	if use ctypes-python; then
@@ -443,16 +435,16 @@ pkg_postrm() {
 pkg_config() {
 	# Remember: Don't use ${EROOT}${SVN_REPOS_LOC} since ${SVN_REPOS_LOC}
 	# already has EPREFIX in it
-	einfo "Initializing the database in ${ROOT}${SVN_REPOS_LOC}..."
-	if [[ -e "${ROOT}${SVN_REPOS_LOC}/repos" ]]; then
+	einfo "Initializing the database in ${SVN_REPOS_LOC}..."
+	if [[ -e "${SVN_REPOS_LOC}/repos" ]]; then
 		echo "A Subversion repository already exists and I will not overwrite it."
-		echo "Delete \"${ROOT}${SVN_REPOS_LOC}/repos\" first if you're sure you want to have a clean version."
+		echo "Delete \"${SVN_REPOS_LOC}/repos\" first if you're sure you want to have a clean version."
 	else
-		mkdir -p "${ROOT}${SVN_REPOS_LOC}/conf"
+		mkdir -p "${SVN_REPOS_LOC}/conf"
 
 		einfo "Populating repository directory..."
 		# Create initial repository.
-		"${EROOT}usr/bin/svnadmin" create "${ROOT}${SVN_REPOS_LOC}/repos"
+		"${EROOT}usr/bin/svnadmin" create "${SVN_REPOS_LOC}/repos"
 
 		einfo "Setting repository permissions..."
 		SVNSERVE_USER="$(. "${EROOT}etc/conf.d/svnserve"; echo "${SVNSERVE_USER}")"
@@ -463,11 +455,13 @@ pkg_config() {
 		else
 			[[ -z "${SVNSERVE_USER}" ]] && SVNSERVE_USER="svn"
 			[[ -z "${SVNSERVE_GROUP}" ]] && SVNSERVE_GROUP="svnusers"
-			enewgroup "${SVNSERVE_GROUP}"
-			enewuser "${SVNSERVE_USER}" -1 -1 "${SVN_REPOS_LOC}" "${SVNSERVE_GROUP}"
 		fi
-		chown -Rf "${SVNSERVE_USER}:${SVNSERVE_GROUP}" "${ROOT}${SVN_REPOS_LOC}/repos"
-		chmod -Rf go-rwx "${ROOT}${SVN_REPOS_LOC}/conf"
-		chmod -Rf o-rwx "${ROOT}${SVN_REPOS_LOC}/repos"
+		chmod -Rf go-rwx "${SVN_REPOS_LOC}/conf"
+		chmod -Rf o-rwx "${SVN_REPOS_LOC}/repos"
+		echo "Please create \"${SVNSERVE_GROUP}\" group if it does not exist yet."
+		echo "Afterwards please create \"${SVNSERVE_USER}\" user with homedir \"${SVN_REPOS_LOC}\""
+		echo "and as part of the \"${SVNSERVE_GROUP}\" group if it does not exist yet."
+		echo "Finally, execute \"chown -Rf ${SVNSERVE_USER}:${SVNSERVE_GROUP} ${SVN_REPOS_LOC}/repos\""
+		echo "to finish the configuration."
 	fi
 }
