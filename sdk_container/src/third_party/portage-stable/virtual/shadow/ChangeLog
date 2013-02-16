@@ -1,0 +1,30 @@
+# ChangeLog for virtual/shadow
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/virtual/shadow/ChangeLog,v 1.8 2012/08/05 12:08:34 grobian Exp $
+
+  05 Aug 2012; Fabian Groffen <grobian@gentoo.org> shadow-0.ebuild:
+  Marked ~x86-freebsd
+
+  05 Jul 2012; Richard Yao <ryao@gentoo.org> shadow-0.ebuild:
+  Keyword ~x64-freebsd, Bug #424836
+
+  04 Jun 2012; Fabian Groffen <grobian@gentoo.org> shadow-0.ebuild:
+  Marked ~m68k-mint, bug #418389
+
+  29 May 2012; Fabian Groffen <grobian@gentoo.org> shadow-0.ebuild:
+  Marked *-macos, *-solaris
+
+  26 May 2012; Fabian Groffen <grobian@gentoo.org> shadow-0.ebuild:
+  Make a no-op for Prefix, instead of requiring a package.provided package
+
+  28 Mar 2012; XU Benda <heroxbd@gentoo.org> shadow-0.ebuild:
+  add keywords for tested prefix
+
+  11 Mar 2012; Pawel Hajdan jr <phajdan.jr@gentoo.org> shadow-0.ebuild:
+  Add stable keywords to match sys-apps/shadow.
+
+*shadow-0 (11 Mar 2012)
+
+  11 Mar 2012; Pawel Hajdan jr <phajdan.jr@gentoo.org> +shadow-0.ebuild,
+  +metadata.xml:
+  Initial import.
