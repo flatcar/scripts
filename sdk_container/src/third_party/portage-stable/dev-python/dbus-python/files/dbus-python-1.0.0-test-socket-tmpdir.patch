@@ -1,0 +1,27 @@
+From c53788657c0cfbd038325e690e7097e31f5e8430 Mon Sep 17 00:00:00 2001
+From: Simon McVittie <simon.mcvittie@collabora.co.uk>
+Date: Wed, 29 Feb 2012 13:35:24 +0000
+Subject: Put sockets for the regression tests in /tmp, not ${builddir}
+
+Some automated build systems (naming no Portage) have really long build
+directories, which can cause dbus-python to hit the length limit for Unix
+sockets' names.
+
+Bug: https://bugs.freedesktop.org/show_bug.cgi?id=46747
+Signed-off-by: Simon McVittie <simon.mcvittie@collabora.co.uk>
+---
+diff --git a/test/tmp-session-bus.conf.in b/test/tmp-session-bus.conf.in
+index 9d172ff..3a2c756 100644
+--- a/test/tmp-session-bus.conf.in
++++ b/test/tmp-session-bus.conf.in
+@@ -4,7 +4,7 @@
+ <busconfig>
+   <!-- Our well-known bus type, don't change this -->
+   <type>session</type>
+-  <listen>unix:tmpdir=@abs_top_builddir@/test</listen>
++  <listen>unix:tmpdir=/tmp</listen>
+ 
+   <servicedir>@abs_top_builddir@/test</servicedir>
+ 
+--
+cgit v0.9.0.2-2-gbebe
