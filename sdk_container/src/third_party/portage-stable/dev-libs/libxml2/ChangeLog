@@ -1,6 +1,291 @@
 # ChangeLog for dev-libs/libxml2
-# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/libxml2/ChangeLog,v 1.304 2011/02/26 17:17:33 arfrever Exp $
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/libxml2/ChangeLog,v 1.372 2012/12/18 07:48:21 tetromino Exp $
+
+*libxml2-2.9.0-r1 (18 Dec 2012)
+*libxml2-2.8.0-r4 (18 Dec 2012)
+
+  18 Dec 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  -libxml2-2.8.0-r2.ebuild, +libxml2-2.8.0-r4.ebuild, +libxml2-2.9.0-r1.ebuild,
+  +files/libxml2-2.9.0-manual-python.patch:
+  Update to EAPI5 and python-r1.eclass. Always install pre-built docs in a
+  devhelp-compatible location. Add a patch for cleaner multiple python ABI
+  support.
+
+  15 Dec 2012; Raúl Porcel <armin76@gentoo.org> libxml2-2.8.0-r3.ebuild:
+  alpha/ia64/m68k/s390/sh/sparc stable wrt #444836
+
+  02 Dec 2012; Agostino Sarubbo <ago@gentoo.org> libxml2-2.8.0-r3.ebuild:
+  Stable for ppc64, wrt bug #444836
+
+  02 Dec 2012; Markus Meier <maekke@gentoo.org> libxml2-2.8.0-r3.ebuild:
+  arm stable, bug #444836
+
+  29 Nov 2012; <ago@gentoo.org> libxml2-2.8.0-r3.ebuild:
+  Stable for ppc, wrt bug #444836
+
+  27 Nov 2012; Jeroen Roovers <jer@gentoo.org> libxml2-2.8.0-r3.ebuild:
+  Stable for HPPA (bug #444836).
+
+  27 Nov 2012; Agostino Sarubbo <ago@gentoo.org> libxml2-2.8.0-r3.ebuild:
+  Stable for x86, wrt bug #444836
+
+  27 Nov 2012; Agostino Sarubbo <ago@gentoo.org> libxml2-2.8.0-r3.ebuild:
+  Stable for amd64, wrt bug #444836
+
+*libxml2-2.9.0 (27 Nov 2012)
+
+  27 Nov 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  +libxml2-2.9.0.ebuild, +files/libxml2-2.9.0-disable_static_modules.patch,
+  +files/libxml2-2.9.0-large-file-parse.patch,
+  +files/libxml2-2.9.0-nsclean.patch, +files/libxml2-2.9.0-rand_seed.patch,
+  +files/libxml2-2.9.0-streaming-validation.patch,
+  +files/libxml2-2.9.0-thread-alloc.patch,
+  +files/libxml2-2.9.0-thread-portability.patch:
+  Version bump featuring improved push parser and XPath evaluation (bug
+  #444290). Update to EAPI5, always install docs in a devhelp-compatible
+  location following current gnome team style guidelines, and run a more
+  complete test suite.
+
+  26 Nov 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  libxml2-2.8.0-r3.ebuild:
+  Comment typo
+
+*libxml2-2.8.0-r3 (26 Nov 2012)
+
+  26 Nov 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  +libxml2-2.8.0-r3.ebuild,
+  +files/libxml2-2.8.0-xmlParseAttValueComplex-underflow.patch:
+  Fix buffer underflow (bug #444836, CVE-2012-5134, thanks to Mike Gilbert).
+
+  22 Sep 2012; Pacho Ramos <pacho@gentoo.org>
+  -files/libxml2-2.8.0_rc1-randomization-threads.patch,
+  -libxml2-2.8.0-r1.ebuild, -libxml2-2.8.0_rc1.ebuild:
+  Drop old.
+
+  18 Sep 2012; Anthony G. Basile <blueness@gentoo.org> libxml2-2.8.0-r2.ebuild:
+  stable ppc, bug #434344
+
+  17 Sep 2012; Anthony G. Basile <blueness@gentoo.org> libxml2-2.8.0-r2.ebuild:
+  stable ppc64, bug #434344
+
+  15 Sep 2012; Raúl Porcel <armin76@gentoo.org> libxml2-2.8.0-r2.ebuild:
+  alpha/arm/ia64/s390/sh/sparc stable wrt #434344
+
+  15 Sep 2012; Andreas Schuerch <nativemad@gentoo.org> libxml2-2.8.0-r2.ebuild:
+  x86 stable, see bug 434344
+
+  11 Sep 2012; Agostino Sarubbo <ago@gentoo.org> libxml2-2.8.0-r2.ebuild:
+  Stable for amd64, wrt bug #434344
+
+  10 Sep 2012; Jeroen Roovers <jer@gentoo.org> libxml2-2.8.0-r2.ebuild:
+  Stable for HPPA (bug #434344).
+
+*libxml2-2.8.0-r2 (09 Sep 2012)
+
+  09 Sep 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  -files/libxml2-2.7.2-winnt.patch, -libxml2-2.7.8-r5.ebuild,
+  -files/libxml2-2.7.8-allocation-error-copying-entities.patch,
+  -files/libxml2-2.7.8-error-xpath.patch,
+  -files/libxml2-2.7.8-hardening-xpath.patch,
+  -files/libxml2-2.7.8-hash-randomization.patch,
+  -files/libxml2-2.7.8-reactivate-script.patch,
+  -files/libxml2-2.7.8-reallocation-failures.patch,
+  -files/libxml2-2.7.8-windows-thread_t.patch,
+  -files/libxml2-2.7.8-xpath-freeing.patch,
+  -files/libxml2-2.7.8-xpath-freeing2.patch,
+  -files/libxml2-2.7.8-xpath-memory.patch, +libxml2-2.8.0-r2.ebuild:
+  Add upstream patches to ensure special treatment for namespace nodes
+  (CVE-2012-2871, bug #434344, thanks to Paweł Hajdan, Jr. and Sean Amoss).
+  Drop old version.
+
+  04 Jun 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  libxml2-2.8.0-r1.ebuild, +files/libxml2-2.8.0-icu-linking.patch:
+  De-uglify fix for bug #417539 with an upstreamable patch, thanks to Rafał
+  Mużyło and Arfrever.
+
+  29 May 2012; Brent Baude <ranger@gentoo.org> libxml2-2.8.0_rc1.ebuild:
+  Marking libxml2-2.8.0_rc1 ppc64 for bug 416209
+
+  27 May 2012; Jeroen Roovers <jer@gentoo.org> libxml2-2.8.0-r1.ebuild:
+  Marked ~hppa (bug #417569).
+
+  26 May 2012; Raúl Porcel <armin76@gentoo.org> libxml2-2.8.0_rc1.ebuild:
+  alpha/ia64/m68k/s390/sh/sparc stable wrt #416209
+
+  26 May 2012; Alexis Ballier <aballier@gentoo.org> libxml2-2.8.0-r1.ebuild:
+  keyword ~amd64-fbsd, bug #417569
+
+  26 May 2012; Markus Meier <maekke@gentoo.org> libxml2-2.8.0_rc1.ebuild:
+  arm stable, bug #416209
+
+*libxml2-2.8.0-r1 (26 May 2012)
+
+  26 May 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  -libxml2-2.8.0.ebuild, +libxml2-2.8.0-r1.ebuild:
+  Prevent libxml2's python module from linking to out-of-build-tree libxml2
+  library by hacking the relink_command entry in its build-time .la file. Fixes
+  bug #417539 ("'LIBXML2_2.7.9' not found" errors). Forced to drop hppa and
+  amd64-fbsd keywords, bug #417569. Drop broken 2.8.0 ebuild.
+
+*libxml2-2.8.0 (25 May 2012)
+
+  25 May 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  libxml2-2.8.0_rc1.ebuild, +libxml2-2.8.0.ebuild:
+  Version bump to 2.8.0 final. Point rc1's SRC_URI at Gentoo mirrors since the
+  rc1 tarball is no longer available from upstream (bug #416209 comment #10).
+
+  22 May 2012; Jeroen Roovers <jer@gentoo.org> libxml2-2.8.0_rc1.ebuild:
+  Stable for HPPA (bug #416209).
+
+  21 May 2012; Agostino Sarubbo <ago@gentoo.org> libxml2-2.8.0_rc1.ebuild:
+  Stable for amd64, wrt bug #416209
+
+  21 May 2012; Jeff Horelick <jdhore@gentoo.org> libxml2-2.8.0_rc1.ebuild:
+  marked x86 per bug 416209
+
+  21 May 2012; Brent Baude <ranger@gentoo.org> libxml2-2.8.0_rc1.ebuild:
+  Marking libxml2-2.8.0_rc1 ppc for bug 416209
+
+  21 May 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  libxml2-2.8.0_rc1.ebuild:
+  Remove unnecessary definition, thanks to Arfrever for pointing out.
+
+*libxml2-2.8.0_rc1 (21 May 2012)
+
+  21 May 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  -libxml2-2.7.8-r4.ebuild, +libxml2-2.8.0_rc1.ebuild,
+  +files/libxml2-2.8.0_rc1-randomization-threads.patch,
+  +files/libxml2-2.8.0_rc1-winnt.patch:
+  Version bump with numerous bugfixes, including for bug #416209 (out-of-bounds
+  write, CVE-2011-3102, thanks to Paweł Hajdan, Jr.). Drop old.
+
+  26 Apr 2012; Alexis Ballier <aballier@gentoo.org> libxml2-2.7.8-r5.ebuild:
+  keyword ~amd64-fbsd
+
+  08 Mar 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  libxml2-2.7.8-r5.ebuild, +files/libxml2-2.7.8-windows-thread_t.patch:
+  Fix building against pthreads-win32 (bug #407371, thanks to Nathan Phillip
+  Brink (binki)).
+
+  03 Mar 2012; Raúl Porcel <armin76@gentoo.org> libxml2-2.7.8-r5.ebuild:
+  arm/ia64/m68k/s390/sh/sparc stable wrt #405261
+
+  03 Mar 2012; Brent Baude <ranger@gentoo.org> libxml2-2.7.8-r5.ebuild:
+  Marking libxml2-2.7.8-r5 ppc64 for bug 405261
+
+  02 Mar 2012; Tobias Klausmann <klausman@gentoo.org> libxml2-2.7.8-r5.ebuild:
+  Stable on alpha, bug #405261
+
+  29 Feb 2012; Jeff Horelick <jdhore@gentoo.org> libxml2-2.7.8-r5.ebuild:
+  marked x86 per security bug 405261
+
+  28 Feb 2012; Brent Baude <ranger@gentoo.org> libxml2-2.7.8-r5.ebuild:
+  Marking libxml2-2.7.8-r5 ppc for bug 405261
+
+  23 Feb 2012; Agostino Sarubbo <ago@gentoo.org> libxml2-2.7.8-r5.ebuild:
+  Stable for AMD64, wrt security bug #405261
+
+  23 Feb 2012; Jeroen Roovers <jer@gentoo.org> libxml2-2.7.8-r5.ebuild:
+  Stable for HPPA (bug #405261).
+
+*libxml2-2.7.8-r5 (23 Feb 2012)
+
+  23 Feb 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  -libxml2-2.7.8-r1.ebuild, -libxml2-2.7.8-r2.ebuild, -libxml2-2.7.8-r3.ebuild,
+  +libxml2-2.7.8-r5.ebuild, +files/libxml2-2.7.8-hash-randomization.patch:
+  Add hashing randomization to prevent DoS vulnerability (CVE-2012-0841, bug
+  #405261, thanks to Michael Harrison for reporting). Drop old.
+
+  20 Feb 2012; Patrick Lauer <patrick@gentoo.org> libxml2-2.7.8-r1.ebuild,
+  libxml2-2.7.8-r2.ebuild, libxml2-2.7.8-r3.ebuild, libxml2-2.7.8-r4.ebuild:
+  Restricting pypy #403751
+
+  16 Jan 2012; Jeroen Roovers <jer@gentoo.org> libxml2-2.7.8-r4.ebuild:
+  Stable for HPPA (bug #398361).
+
+  14 Jan 2012; Raúl Porcel <armin76@gentoo.org> libxml2-2.7.8-r4.ebuild:
+  alpha/arm/ia64/m68k/s390/sh/sparc stable wrt #398361
+
+  12 Jan 2012; Pawel Hajdan jr <phajdan.jr@gentoo.org> libxml2-2.7.8-r4.ebuild:
+  x86 stable wrt bug #398361
+
+  11 Jan 2012; Mark Loeser <halcy0n@gentoo.org> libxml2-2.7.8-r4.ebuild:
+  Stable for ppc/ppc64; bug #398361
+
+  10 Jan 2012; Agostino Sarubbo <ago@gentoo.org> libxml2-2.7.8-r4.ebuild:
+  Stable for AMD64, wrt security bug #398361
+
+*libxml2-2.7.8-r4 (10 Jan 2012)
+
+  10 Jan 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  +libxml2-2.7.8-r4.ebuild,
+  +files/libxml2-2.7.8-allocation-error-copying-entities.patch:
+  Fix heap-based overflow in parsing long entity references (CVE-2011-3919, bug
+  #398361, thanks to Agostino Sarubbo for reporting).
+
+  30 Oct 2011; Raúl Porcel <armin76@gentoo.org> libxml2-2.7.8-r3.ebuild:
+  alpha/ia64/m68k/s390/sh/sparc stable wrt #385699
+
+  28 Oct 2011; Markus Meier <maekke@gentoo.org> libxml2-2.7.8-r3.ebuild:
+  arm stable, bug #385699
+
+  21 Oct 2011; Pawel Hajdan jr <phajdan.jr@gentoo.org> libxml2-2.7.8-r3.ebuild:
+  x86 stable wrt bug #385699
+
+  20 Oct 2011; Tony Vroon <chainsaw@gentoo.org> libxml2-2.7.8-r3.ebuild:
+  Marked stable on AMD64 based on arch testing by Agostino "ago" Sarubbo & Ian
+  "idella4" Delaney in security bug #386985.
+
+  18 Oct 2011; Jeroen Roovers <jer@gentoo.org> libxml2-2.7.8-r3.ebuild:
+  Stable for HPPA (bug #385699).
+
+  18 Oct 2011; Jeroen Roovers <jer@gentoo.org> libxml2-2.7.8-r2.ebuild:
+  Stable for HPPA (bug #385699).
+
+  16 Oct 2011; Kacper Kowalik <xarthisius@gentoo.org> libxml2-2.7.8-r3.ebuild:
+  ppc/ppc64 stable wrt #386985
+
+*libxml2-2.7.8-r3 (15 Oct 2011)
+
+  15 Oct 2011; Pacho Ramos <pacho@gentoo.org> -libxml2-2.7.8.ebuild,
+  +libxml2-2.7.8-r3.ebuild, +files/libxml2-2.7.8-error-xpath.patch,
+  +files/libxml2-2.7.8-hardening-xpath.patch:
+  Fix CVE-2011-{2821,2834}, bug #386985, thanks to Michael Harrison and Tim
+  Sammut. Remove old.
+
+  14 Oct 2011; Samuli Suominen <ssuominen@gentoo.org> libxml2-2.7.8-r2.ebuild:
+  amd64 stable wrt #385699
+
+*libxml2-2.7.8-r2 (14 Aug 2011)
+
+  14 Aug 2011; Nirbheek Chauhan <nirbheek@gentoo.org> +libxml2-2.7.8-r2.ebuild:
+  USE=static-libs support, bug 378249
+
+  03 Jul 2011; Kacper Kowalik <xarthisius@gentoo.org> libxml2-2.7.8-r1.ebuild:
+  ppc64 stable wrt #370715
+
+  22 Jun 2011; Brent Baude <ranger@gentoo.org> libxml2-2.7.8-r1.ebuild:
+  Marking libxml2-2.7.8-r1 ppc for bug 370715
+
+  19 Jun 2011; Raúl Porcel <armin76@gentoo.org> libxml2-2.7.8-r1.ebuild:
+  alpha/ia64/m68k/s390/sh/sparc stable wrt #370715
+
+  14 Jun 2011; Markus Meier <maekke@gentoo.org> libxml2-2.7.8-r1.ebuild:
+  amd64/arm stable, bug #370715
+
+  14 Jun 2011; Pawel Hajdan jr <phajdan.jr@gentoo.org> libxml2-2.7.8-r1.ebuild:
+  x86 stable wrt bug #370715
+
+  14 Jun 2011; Jeroen Roovers <jer@gentoo.org> libxml2-2.7.8-r1.ebuild:
+  Stable for HPPA (bug #370715).
+
+*libxml2-2.7.8-r1 (13 Jun 2011)
+
+  13 Jun 2011; Pacho Ramos <pacho@gentoo.org> -libxml2-2.7.7.ebuild,
+  +libxml2-2.7.8-r1.ebuild, +files/libxml2-2.7.8-reallocation-failures.patch:
+  Fix some potential problems on reallocation failures (CVE-2011-1944), bug
+  #370715 by Sylvia. Remove old.
 
   26 Feb 2011; Arfrever Frehtes Taifersar Arahesis <arfrever@gentoo.org>
   libxml2-2.7.8.ebuild, +files/libxml2-2.7.8-disable_static_modules.patch:
