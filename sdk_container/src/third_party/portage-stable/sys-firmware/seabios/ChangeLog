@@ -1,0 +1,98 @@
+# ChangeLog for sys-firmware/seabios
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-firmware/seabios/ChangeLog,v 1.10 2013/01/24 22:10:19 ago Exp $
+
+  24 Jan 2013; Agostino Sarubbo <ago@gentoo.org> seabios-1.7.1.ebuild:
+  Stable for x86, wrt bug #453282
+
+  24 Jan 2013; Agostino Sarubbo <ago@gentoo.org> seabios-1.7.1.ebuild:
+  Stable for amd64, wrt bug #453282
+
+*seabios-1.7.2 (23 Jan 2013)
+
+  23 Jan 2013; Doug Goldstein <cardoe@gentoo.org> +seabios-1.7.2.ebuild:
+  Version bump
+
+  29 Oct 2012; Doug Goldstein <cardoe@gentoo.org> seabios-1.7.1.ebuild:
+  Fix my total breakage
+
+*seabios-1.7.1 (29 Oct 2012)
+
+  29 Oct 2012; Doug Goldstein <cardoe@gentoo.org> +seabios-1.7.1.ebuild,
+  metadata.xml:
+  Version bump. Use upstream's prebuilt binary when requested or when we won't
+  be able to compile our own.
+
+  17 Oct 2012; Doug Goldstein <cardoe@gentoo.org> seabios-1.7.0.ebuild:
+  Fix compilation issue when built under different locales. Fix by Sergei
+  Trofimovich <slyfox@gentoo.org>. bug #428762
+
+  09 Oct 2012; Doug Goldstein <cardoe@gentoo.org> seabios-1.6.3.ebuild,
+  seabios-1.7.0.ebuild:
+  Drop blocker since we install to our own directory.
+
+  04 Aug 2012; Agostino Sarubbo <ago@gentoo.org> seabios-1.7.0.ebuild:
+  Stable for amd64, wrt bug #427590
+
+  30 Jul 2012; Jeff Horelick <jdhore@gentoo.org> seabios-1.7.0.ebuild:
+  marked x86 per bug 427590
+
+  26 Jul 2012; Richard Yao <ryao@gentoo.org> seabios-1.7.0.ebuild:
+  Keyword ~amd64-fbsd and ~x86-fbsd
+
+  21 Jul 2012; Doug Goldstein <cardoe@gentoo.org> seabios-1.7.0.ebuild:
+  Include pre-built versions for systems that don't support compiling this.
+
+*seabios-1.7.0 (28 Jun 2012)
+
+  28 Jun 2012; Doug Goldstein <cardoe@gentoo.org> +seabios-1.7.0.ebuild:
+  Version bump. bug #423925
+
+  28 Jan 2012; Pawel Hajdan jr <phajdan.jr@gentoo.org> seabios-1.6.3.ebuild:
+  x86 stable wrt bug #399219
+
+  24 Jan 2012; Mike Frysinger <vapier@gentoo.org> seabios-1.6.3.ebuild:
+  Add depend on python-2 since we need it to build.
+
+  20 Jan 2012; Agostino Sarubbo <ago@gentoo.org> seabios-1.6.3.ebuild:
+  Stable for amd64, wrt bug #399219
+
+  17 Jan 2012; Doug Goldstein <cardoe@gentoo.org>
+  -seabios-0.6.3_pre20110817.ebuild:
+  Remove older version.
+
+  25 Oct 2011; Diego E. Pettenò <flameeyes@gentoo.org> seabios-1.6.3.ebuild:
+  QA: Actually use the damn tarball.
+
+  24 Oct 2011; Doug Goldstein <cardoe@gentoo.org>
+  -seabios-0.6.3_pre20010817.ebuild:
+  Actually remove wrong version name
+
+*seabios-1.6.3 (24 Oct 2011)
+
+  24 Oct 2011; Doug Goldstein <cardoe@gentoo.org> +seabios-1.6.3.ebuild:
+  Version bump to released version
+
+*seabios-0.6.3_pre20110817 (24 Oct 2011)
+
+  24 Oct 2011; Doug Goldstein <cardoe@gentoo.org>
+  +seabios-0.6.3_pre20110817.ebuild:
+  Fix bad version name
+
+  24 Oct 2011; Doug Goldstein <cardoe@gentoo.org>
+  seabios-0.6.3_pre20010817.ebuild:
+  Set the active Python to 2.x since this doesn't build with 3.x
+
+  21 Oct 2011; Doug Goldstein <cardoe@gentoo.org>
+  seabios-0.6.3_pre20010817.ebuild:
+  Update blockers so we mark the versions of qemu-kvm we'll work with.
+
+  19 Sep 2011; Doug Goldstein <cardoe@gentoo.org>
+  seabios-0.6.3_pre20010817.ebuild:
+  Update install path to match package name.
+
+*seabios-0.6.3_pre20010817 (25 Aug 2011)
+
+  25 Aug 2011; Doug Goldstein <cardoe@gentoo.org>
+  +seabios-0.6.3_pre20010817.ebuild, +metadata.xml:
+  Add initial version of seabios

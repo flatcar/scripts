@@ -1,0 +1,22 @@
+# ChangeLog for sys-firmware/ipxe
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-firmware/ipxe/ChangeLog,v 1.5 2013/01/26 20:16:13 cardoe Exp $
+
+  26 Jan 2013; Doug Goldstein <cardoe@gentoo.org> ipxe-1.0.0_p20120905.ebuild:
+  USE=iso needs virtual/cdrtools to successfully build as discovered by Homer
+  Parker <hparker@gentoo.org> bug #454190
+
+  24 Jan 2013; Agostino Sarubbo <ago@gentoo.org> ipxe-1.0.0_p20120905.ebuild:
+  Stable for x86, wrt bug #453762
+
+  24 Jan 2013; Agostino Sarubbo <ago@gentoo.org> ipxe-1.0.0_p20120905.ebuild:
+  Stable for amd64, wrt bug #453762
+
+  14 Jan 2013; Patrick Lauer <patrick@gentoo.org> ipxe-1.0.0_p20120905.ebuild:
+  Re-keywording for x86, #438780
+
+*ipxe-1.0.0_p20120905 (10 Sep 2012)
+
+  10 Sep 2012; Doug Goldstein <cardoe@gentoo.org> +ipxe-1.0.0_p20120905.ebuild,
+  +metadata.xml:
+  Add initial version of iPXE 1.0.0+
