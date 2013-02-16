@@ -1,0 +1,45 @@
+commit 1a61c71e4037ebea5db7dc2f0fdceae764e47e17
+Author: Simon McVittie <simon.mcvittie@collabora.co.uk>
+Date:   Thu Jun 28 12:54:02 2012 +0100
+
+    my_object_unsafe_disable_legacy_property_access: have the right signature
+    
+    I'm amazed this ever worked.
+    
+    Bug: https://bugs.freedesktop.org/show_bug.cgi?id=51511
+    Signed-off-by: Simon McVittie <simon.mcvittie@collabora.co.uk>
+    Reviewed-by: Colin Walters <walters@verbum.org>
+
+diff --git a/test/core/my-object.c b/test/core/my-object.c
+index 82b6322..e31dca3 100644
+--- a/test/core/my-object.c
++++ b/test/core/my-object.c
+@@ -859,10 +859,12 @@ my_object_async_throw_error (MyObject *obj, DBusGMethodInvocation *context)
+   g_idle_add ((GSourceFunc) do_async_error,  data);
+ }
+ 
+-void
+-my_object_unsafe_disable_legacy_property_access (MyObject *obj)
++gboolean
++my_object_unsafe_disable_legacy_property_access (MyObject *obj,
++    GError **error)
+ {
+   dbus_glib_global_set_disable_legacy_property_access ();
++  return TRUE;
+ }
+ 
+ extern GMainLoop *loop;
+diff --git a/test/core/my-object.h b/test/core/my-object.h
+index d50d0b4..779efac 100644
+--- a/test/core/my-object.h
++++ b/test/core/my-object.h
+@@ -116,7 +116,8 @@ void my_object_async_increment (MyObject *obj, gint32 x, DBusGMethodInvocation *
+ 
+ void my_object_async_throw_error (MyObject *obj, DBusGMethodInvocation *context);
+ 
+-void my_object_unsafe_disable_legacy_property_access (MyObject *obj);
++gboolean my_object_unsafe_disable_legacy_property_access (MyObject *obj,
++    GError **error);
+ 
+ void my_object_emit_objectified (MyObject *obj, GObject *other);
+ 
