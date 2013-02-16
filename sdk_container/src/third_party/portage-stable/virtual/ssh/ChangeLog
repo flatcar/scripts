@@ -1,0 +1,15 @@
+# ChangeLog for virtual/ssh
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/virtual/ssh/ChangeLog,v 1.3 2012/05/29 12:40:07 aballier Exp $
+
+  29 May 2012; Alexis Ballier <aballier@gentoo.org> ssh-0.ebuild:
+  keyword ~amd64-fbsd
+
+  25 Sep 2011; Ulrich Mueller <ulm@gentoo.org> metadata.xml:
+  Remove myself as maintainer.
+
+*ssh-0 (16 Apr 2011)
+
+  16 Apr 2011; Ulrich Mueller <ulm@gentoo.org> +ssh-0.ebuild, +metadata.xml:
+  Initial import, bug 361121.
+
