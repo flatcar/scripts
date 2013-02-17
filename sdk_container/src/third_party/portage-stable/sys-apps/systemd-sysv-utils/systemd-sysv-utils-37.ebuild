@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/sys-apps/systemd-sysv-utils/systemd-sysv-utils-37.ebuild,v 1.1 2012/01/07 22:38:20 mgorny Exp $
 
-EAPI=4
+EAPI=5
 
 MY_P=systemd-${PV}
 
