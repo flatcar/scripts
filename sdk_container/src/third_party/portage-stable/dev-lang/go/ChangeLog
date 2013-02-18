@@ -1,0 +1,43 @@
+# ChangeLog for dev-lang/go
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-lang/go/ChangeLog,v 1.7 2012/10/29 15:57:40 williamh Exp $
+
+*go-1.0.3 (29 Oct 2012)
+
+  29 Oct 2012; William Hubbs <williamh@gentoo.org> +go-1.0.3.ebuild,
+  +files/go-1.0.3-hardened.patch, go-9999.ebuild:
+  version bump and sync live ebuild
+
+  14 Sep 2012; Markus Meier <maekke@gentoo.org> go-1.0.2.ebuild:
+  add ~arm, bug #416133
+
+  01 Sep 2012; William Hubbs <williamh@gentoo.org> go-1.0.2.ebuild,
+  go-9999.ebuild:
+  Fix arm5 detection thanks to Markus Meier.
+
+*go-1.0.2 (30 Jul 2012)
+
+  30 Jul 2012; William Hubbs <williamh@gentoo.org> +go-1.0.2.ebuild,
+  +files/go-1.0.2-hardened.patch, go-9999.ebuild:
+  Version bump and sync live ebuild.
+  This also includes a patch from upstream to add the pax flags header to
+  binaries.
+
+  12 Jun 2012; William Hubbs <williamh@gentoo.org> go-1.0.1.ebuild,
+  go-9999.ebuild:
+  Add optional depend on gvim for bug #419957 thanks to
+  michel.boaventura@gmail.com.
+
+  16 May 2012; William Hubbs <williamh@gentoo.org> go-9999.ebuild:
+  sync live ebuild and test repoman commit
+
+*go-9999 (15 May 2012)
+*go-1.0.1 (15 May 2012)
+
+  15 May 2012; William Hubbs <williamh@gentoo.org> +go-1.0.1.ebuild,
+  +files/go-1.0.1-hardened.patch, +go-9999.ebuild, +metadata.xml:
+  Initial commit for bug #342505.
+  I would like to thank johnny@9souldier.org for the initial report and
+  ebuild. Also, I would like to thank powerman-asdf@yandex.ru for the
+  original hardened patch and everyone else who worked with me on the bug
+  so we could get this into the tree.

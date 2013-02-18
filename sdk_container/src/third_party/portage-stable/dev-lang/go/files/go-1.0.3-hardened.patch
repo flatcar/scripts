@@ -1,0 +1,44 @@
+Index: src/cmd/6l/asm.c
+===================================================================
+--- a/src/cmd/6l/asm.c
++++ b/src/cmd/6l/asm.c
+@@ -1082,6 +1082,11 @@
+ 		ph->type = PT_GNU_STACK;
+ 		ph->flags = PF_W+PF_R;
+ 		ph->align = 8;
++		
++		ph = newElfPhdr();
++		ph->type = PT_PAX_FLAGS;
++		ph->flags = 0x2a00; // mprotect, randexec, emutramp disabled
++		ph->align = 8;
+ 
+ 		sh = newElfShstrtab(elfstr[ElfStrShstrtab]);
+ 		sh->type = SHT_STRTAB;
+Index: src/cmd/8l/asm.c
+===================================================================
+--- a/src/cmd/8l/asm.c
++++ b/src/cmd/8l/asm.c
+@@ -1127,6 +1127,11 @@
+ 		ph->flags = PF_W+PF_R;
+ 		ph->align = 4;
+ 
++		ph = newElfPhdr();
++		ph->type = PT_PAX_FLAGS;
++		ph->flags = 0x2a00; // mprotect, randexec, emutramp disabled
++		ph->align = 8;
++
+ 		sh = newElfShstrtab(elfstr[ElfStrShstrtab]);
+ 		sh->type = SHT_STRTAB;
+ 		sh->addralign = 1;
+Index: src/cmd/ld/elf.h
+===================================================================
+--- a/src/cmd/ld/elf.h
++++ b/src/cmd/ld/elf.h
+@@ -251,6 +251,7 @@
+ #define PT_LOPROC	0x70000000	/* First processor-specific type. */
+ #define PT_HIPROC	0x7fffffff	/* Last processor-specific type. */
+ #define PT_GNU_STACK	0x6474e551
++#define PT_PAX_FLAGS	0x65041580
+ 
+ /* Values for p_flags. */
+ #define PF_X		0x1		/* Executable. */
