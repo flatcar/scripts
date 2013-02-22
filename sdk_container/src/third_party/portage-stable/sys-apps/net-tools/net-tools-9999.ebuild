@@ -1,31 +1,38 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/net-tools/net-tools-1.60_p20110409135728.ebuild,v 1.10 2012/07/23 01:12:43 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/net-tools/net-tools-9999.ebuild,v 1.3 2012/07/23 01:12:43 vapier Exp $
 
 EAPI="3"
 
 inherit flag-o-matic toolchain-funcs eutils
 
-PATCH_VER="1"
+if [[ ${PV} == "9999" ]] ; then
+	EGIT_REPO_URI="git://net-tools.git.sourceforge.net/gitroot/net-tools/net-tools"
+	inherit git-2
+	KEYWORDS=""
+else
+	PATCH_VER="1"
+	SRC_URI="mirror://gentoo/${P}.tar.xz
+		mirror://gentoo/${P}-patches-${PATCH_VER}.tar.xz"
+	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-linux ~x86-linux"
+fi
+
 DESCRIPTION="Standard Linux networking tools"
-HOMEPAGE="http://net-tools.berlios.de/"
-SRC_URI="mirror://gentoo/${P}.tar.xz
-	mirror://gentoo/${P}-patches-${PATCH_VER}.tar.xz"
+HOMEPAGE="http://net-tools.sourceforge.net/"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~x86-linux"
-IUSE="nls static"
+IUSE="nls old-output static"
 
 RDEPEND=""
 DEPEND="${RDEPEND}
 	app-arch/xz-utils"
 
 maint_pkg_create() {
-	cd /usr/local/src/net-tools/git
+	cd /usr/local/src/net-tools
 	#git-update
-	local stamp=$(git log -n1 --pretty=format:%ai master | sed -e 's:[- :]::g' -e 's:+.*::')
-	local pv="${PV/_p*}_p${stamp}"
+	local stamp=$(date --date="$(git log -n1 --pretty=format:%ci master)" -u +%Y%m%d%H%M%S)
+	local pv="${PV/_p*}_p${stamp}"; pv=${pv/9999/1.60}
 	local p="${PN}-${pv}"
 	git archive --prefix="nt/" master | tar xf - -C "${T}"
 	pushd "${T}" >/dev/null
@@ -37,7 +44,7 @@ maint_pkg_create() {
 	rm -f ${p}.tar.gz
 	popd >/dev/null
 
-	local patches="${p}-patches-${PATCH_VER}"
+	local patches="${p}-patches-${PATCH_VER:-1}"
 	local d="${T}/${patches}"
 	mkdir "${d}"
 	git format-patch -o "${d}" master..gentoo > /dev/null
@@ -61,7 +68,10 @@ set_opt() {
 }
 
 src_prepare() {
-	EPATCH_SUFFIX="patch" EPATCH_FORCE="yes" epatch "${WORKDIR}"/${P}-patches-${PATCH_VER}
+	if [[ -n ${PATCH_VER} ]] ; then
+		use old-output || EPATCH_EXCLUDE="0001-revert-621a2f376334f8097604b9fee5783e0f1141e66d-for-.patch"
+		EPATCH_SUFFIX="patch" EPATCH_FORCE="yes" epatch "${WORKDIR}"/${P}-patches-${PATCH_VER}
+	fi
 }
 
 src_configure() {
