@@ -9,7 +9,7 @@ depend() {
 
 start() {
     ebegin 'Starting netperf server (netserver)'
-    start-stop-daemon --start --quiet --chuid nobody \
+    start-stop-daemon --start --quiet --user nobody \
         --exec /usr/sbin/netserver -- ${NETSERVER_ARGS} >/dev/null
     eend $?
 }

@@ -1,0 +1,13 @@
+http://bugs.gentoo.org/85054
+
+--- gettext-0.14.2/gettext-tools/misc/Makefile.in
++++ gettext-0.14.2/gettext-tools/misc/Makefile.in
+@@ -441,7 +441,7 @@
+ 	  shift; \
+ 	  EMACS="$(EMACS)" $(SHELL) $(elisp_comp) "$$@" || exit 1; \
+ 	else : ; fi
+-	@mv -f elc-temp $@
++	@mv -f elc-temp $@ || touch $@
+ $(am__ELCFILES): elc-stamp
+ 	@if test ! -f $@; then \
+ 	  rm -f elc-stamp; \

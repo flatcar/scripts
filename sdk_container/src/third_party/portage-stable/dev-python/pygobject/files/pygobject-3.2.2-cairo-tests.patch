@@ -1,0 +1,81 @@
+From fd7f8eefbe8aba0b29d80e3eb9d985d33a268c8a Mon Sep 17 00:00:00 2001
+From: Martin Pitt <martinpitt@gnome.org>
+Date: Thu, 3 May 2012 09:38:56 +0200
+Subject: [PATCH] Fix building with --disable-cairo
+
+Build gobject-introspection's regress.c against cairo, not pycairo/py3cairo. We
+always need cairo to build, so unconditionally check for this in configure.ac.
+
+In test_everything.py, gracefully handle the absence of the "cairo" Python
+module, which we do not have when building without cairo support.
+---
+ configure.ac             | 3 +++
+ tests/Makefile.am        | 4 ++--
+ tests/test_everything.py | 8 +++++++-
+ 3 files changed, 12 insertions(+), 3 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 8606bbd..ef5d7b6 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -184,6 +184,9 @@ AC_SUBST(LIBFFI_PC)
+ dnl gio
+ PKG_CHECK_MODULES(GIO, gio-2.0 >= gio_required_version)
+ 
++# we always need cairo (not pycairo) for building the tests
++PKG_CHECK_MODULES(CAIRO, cairo)
++
+ AC_ARG_ENABLE(cairo,
+     AC_HELP_STRING([--enable-cairo], [Enable Cairo bindings using introspection information]),
+     enable_cairo=$enableval,
+diff --git a/tests/Makefile.am b/tests/Makefile.am
+index fa9ab8c..a54bed8 100644
+--- a/tests/Makefile.am
++++ b/tests/Makefile.am
+@@ -2,8 +2,8 @@ CLEANFILES =
+ noinst_LTLIBRARIES = libregress.la libgimarshallingtests.la
+ 
+ nodist_libregress_la_SOURCES = $(GI_DATADIR)/tests/regress.c $(GI_DATADIR)/tests/regress.h
+-libregress_la_CFLAGS = $(GIO_CFLAGS) $(PYCAIRO_CFLAGS)
+-libregress_la_LDFLAGS = -module -avoid-version $(GIO_LIBS) $(PYCAIRO_LIBS)
++libregress_la_CFLAGS = $(GIO_CFLAGS) $(CAIRO_CFLAGS)
++libregress_la_LDFLAGS = -module -avoid-version $(GIO_LIBS) $(CAIRO_LIBS)
+ nodist_libgimarshallingtests_la_SOURCES = $(GI_DATADIR)/tests/gimarshallingtests.c $(GI_DATADIR)/tests/gimarshallingtests.h
+ libgimarshallingtests_la_CFLAGS = $(GLIB_CFLAGS)
+ libgimarshallingtests_la_LDFLAGS = -module -avoid-version $(GLIB_LIBS)
+diff --git a/tests/test_everything.py b/tests/test_everything.py
+index 47408d4..dfe6eea 100644
+--- a/tests/test_everything.py
++++ b/tests/test_everything.py
+@@ -9,7 +9,11 @@ sys.path.insert(0, "../")
+ from sys import getrefcount
+ 
+ import copy
+-import cairo
++try:
++    import cairo
++    has_cairo = True
++except ImportError:
++    has_cairo = False
+ 
+ from gi.repository import GObject
+ from gi.repository import GLib
+@@ -25,6 +29,7 @@ else:
+ 
+ class TestEverything(unittest.TestCase):
+ 
++    @unittest.skipUnless(has_cairo, 'built without cairo support')
+     def test_cairo_context(self):
+         context = Everything.test_cairo_context_full_return()
+         self.assertTrue(isinstance(context, cairo.Context))
+@@ -33,6 +38,7 @@ class TestEverything(unittest.TestCase):
+         context = cairo.Context(surface)
+         Everything.test_cairo_context_none_in(context)
+ 
++    @unittest.skipUnless(has_cairo, 'built without cairo support')
+     def test_cairo_surface(self):
+         surface = Everything.test_cairo_surface_none_return()
+         self.assertTrue(isinstance(surface, cairo.ImageSurface))
+-- 
+1.8.0.2
+

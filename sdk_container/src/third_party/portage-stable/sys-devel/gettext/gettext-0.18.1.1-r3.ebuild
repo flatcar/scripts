@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gettext/gettext-0.18.1.1-r3.ebuild,v 1.2 2011/11/13 19:21:31 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/gettext/gettext-0.18.1.1-r3.ebuild,v 1.12 2012/09/23 19:05:55 armin76 Exp $
 
 EAPI="2"
 
@@ -12,8 +12,8 @@ SRC_URI="mirror://gnu/${PN}/${P}.tar.gz"
 
 LICENSE="GPL-3 LGPL-2"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~sparc-fbsd ~x86-fbsd"
-IUSE="acl doc emacs +git java nls +cxx openmp static-libs elibc_glibc"
+KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
+IUSE="acl -cvs doc emacs git java nls +cxx openmp static-libs elibc_glibc"
 
 DEPEND="virtual/libiconv
 	dev-libs/libxml2
@@ -22,6 +22,7 @@ DEPEND="virtual/libiconv
 	acl? ( virtual/acl )
 	java? ( >=virtual/jdk-1.4 )"
 RDEPEND="${DEPEND}
+	!git? ( cvs? ( dev-vcs/cvs ) )
 	git? ( dev-vcs/git )
 	java? ( >=virtual/jre-1.4 )"
 PDEPEND="emacs? ( app-emacs/po-mode )"
@@ -31,6 +32,7 @@ src_prepare() {
 	epunt_cxx
 	elibtoolize
 	epatch "${FILESDIR}"/${P}-uclibc-sched_param-def.patch
+	epatch "${FILESDIR}"/${P}-no-gets.patch
 }
 
 src_configure() {
@@ -50,6 +52,7 @@ src_configure() {
 	# --with-included-libunistring will _disable_ libunistring (since
 	# --it's not bundled), see bug #326477
 	econf \
+		--cache-file="${S}"/config.cache \
 		--docdir="/usr/share/doc/${PF}" \
 		--without-emacs \
 		--without-lispdir \
@@ -61,7 +64,7 @@ src_configure() {
 		$(use_enable openmp) \
 		$(use_enable static-libs static) \
 		$(use_with git) \
-		--without-cvs
+		$(usex git --without-cvs $(use_with cvs))
 }
 
 src_install() {

@@ -1,0 +1,17 @@
+The test env manipulates $PATH, executing binaries whose libraries 
+have not yet been installed into the standard library search path.
+Thus we manipulate LD_LIBRARY_PATH so that the current binaries 
+run with the current libraries.
+
+http://bugs.gentoo.org/show_bug.cgi?id=81628
+
+--- gettext-tools/tests/Makefile.in
++++ gettext-tools/tests/Makefile.in
+@@ -122,6 +122,7 @@
+ 
+ TESTS_ENVIRONMENT = top_srcdir=$(top_srcdir) \
+ 		    PATH=.:../src:../../gettext-runtime/src:$(top_srcdir)/../gettext-runtime/src:$$PATH \
++		    LD_LIBRARY_PATH=../lib/.libs:../src/.libs:$$LD_LIBRARY_PATH \
+ 		    GETTEXT="$(CHECKER) tstgettext" \
+ 		    NGETTEXT="$(CHECKER) tstngettext" \
+ 		    XGETTEXT="$(CHECKER) xgettext" \

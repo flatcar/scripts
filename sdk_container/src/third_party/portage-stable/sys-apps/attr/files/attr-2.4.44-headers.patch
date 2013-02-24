@@ -1,0 +1,12 @@
+needs string.h for strchr()
+
+--- attr/libmisc/quote.c
++++ attr/libmisc/quote.c
+@@ -19,6 +19,7 @@
+ 
+ #include <stdio.h>
+ #include <stdlib.h>
++#include <string.h>
+ #include <ctype.h>
+ #include "misc.h"
+ 

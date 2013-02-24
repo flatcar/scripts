@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<herd>toolchain</herd>
+<use>
+ <flag name='gd'>build memusage and memusagestat tools</flag>
+ <flag name='linuxthreads'>Build linuxthreads support (only for kernels older than linux-2.6)</flag>
+ <flag name='nscd'>Build, and enable support for, the Name Service Cache Daemon</flag>
+ <flag name='systemtap'>enable systemtap static probe points</flag>
+</use>
+</pkgmetadata>
