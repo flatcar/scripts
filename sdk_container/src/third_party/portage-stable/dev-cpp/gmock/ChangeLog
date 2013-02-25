@@ -1,0 +1,57 @@
+# ChangeLog for dev-cpp/gmock
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-cpp/gmock/ChangeLog,v 1.14 2012/08/28 21:52:08 vapier Exp $
+
+  28 Aug 2012; Mike Frysinger <vapier@gentoo.org>
+  +files/gmock-1.4.0-more-gcc-4.7.patch, gmock-1.4.0.ebuild:
+  Add another fix from upstream for building with gcc-4.7.
+
+  24 Aug 2012; Michael Weber <xmw@gentoo.org> gmock-1.6.0.ebuild:
+  ppc stable (bug 420853).
+
+  17 Jul 2012; Anthony G. Basile <blueness@gentoo.org> gmock-1.6.0.ebuild:
+  Keyword ~mips ~ppc ~ppc64
+
+  12 Jun 2012; Jeff Horelick <jdhore@gentoo.org> gmock-1.4.0.ebuild,
+  gmock-1.5.0.ebuild:
+  Drop app-arch/unzip from DEPEND on 1.4.0 and 1.5.0 as only 1.6.0 needs it.
+
+  12 Jun 2012; Jeff Horelick <jdhore@gentoo.org> gmock-1.6.0.ebuild:
+  marked x86 per bug 420853
+
+  12 Jun 2012; Agostino Sarubbo <ago@gentoo.org> gmock-1.4.0.ebuild,
+  gmock-1.5.0.ebuild, gmock-1.6.0.ebuild:
+  Add app-arch/unzip as DEPEND per JD request
+
+  12 Jun 2012; Agostino Sarubbo <ago@gentoo.org> gmock-1.6.0.ebuild:
+  Stable for amd64, wrt bug #420853
+
+  30 May 2012; Mike Frysinger <vapier@gentoo.org>
+  +files/gmock-1.4.0-gcc-4.7.patch, gmock-1.4.0.ebuild:
+  Fix via ChromiumOS from upstream for building with gcc-4.7.
+
+*gmock-1.6.0 (30 Mar 2012)
+
+  30 Mar 2012; Mike Frysinger <vapier@gentoo.org> +gmock-1.6.0.ebuild:
+  Version bump.
+
+  20 Feb 2012; Mike Gilbert <floppym@gentoo.org> metadata.xml:
+  Drop no-herd.
+
+  11 Nov 2011; Mike Frysinger <vapier@gentoo.org> gmock-1.4.0.ebuild,
+  gmock-1.5.0.ebuild:
+  Call elibtoolize to fix cross-compiling relink issues.
+
+*gmock-1.4.0 (11 Nov 2011)
+
+  11 Nov 2011; Mike Frysinger <vapier@gentoo.org> +gmock-1.4.0.ebuild:
+  Add an older version to match versions available for gtest.
+
+  11 Nov 2011; Mike Frysinger <vapier@gentoo.org> gmock-1.5.0.ebuild:
+  Update gtest depend after category migration #387155.
+
+*gmock-1.5.0 (14 Oct 2011)
+
+  14 Oct 2011; Mike Frysinger <vapier@gentoo.org> +gmock-1.5.0.ebuild,
+  +metadata.xml:
+  Initial import based on ChromeOS's ebuild.
