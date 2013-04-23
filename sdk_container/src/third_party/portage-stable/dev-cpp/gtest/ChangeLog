@@ -1,5 +1,49 @@
 # ChangeLog for dev-cpp/gtest
-# $Header: /var/cvsroot/gentoo-x86/dev-cpp/gtest/ChangeLog,v 1.17 2013/02/03 12:09:47 pacho Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-cpp/gtest/ChangeLog,v 1.31 2013/04/06 07:45:16 tomka Exp $
+
+*gtest-1.6.0-r2 (06 Apr 2013)
+
+  06 Apr 2013; Thomas Kahle <tomka@gentoo.org> +gtest-1.6.0-r2.ebuild:
+  add multilib support, thanks to Karl Lindén (bug 464702)
+
+  29 Mar 2013; Mike Frysinger <vapier@gentoo.org> gtest-1.6.0-r1.ebuild:
+  Remove pointless die with epatch.
+
+  28 Feb 2013; Jeroen Roovers <jer@gentoo.org> gtest-1.6.0-r1.ebuild:
+  Stable for HPPA (bug #456476).
+
+  24 Feb 2013; Agostino Sarubbo <ago@gentoo.org> gtest-1.6.0-r1.ebuild:
+  Stable for sh, wrt bug #456476
+
+  20 Feb 2013; Agostino Sarubbo <ago@gentoo.org> gtest-1.6.0-r1.ebuild:
+  Stable for s390, wrt bug #456476
+
+  12 Feb 2013; Agostino Sarubbo <ago@gentoo.org> gtest-1.6.0-r1.ebuild:
+  Stable for sparc, wrt bug #456476
+
+  12 Feb 2013; Agostino Sarubbo <ago@gentoo.org> gtest-1.6.0-r1.ebuild:
+  Stable for alpha, wrt bug #456476
+
+  12 Feb 2013; Agostino Sarubbo <ago@gentoo.org> gtest-1.6.0-r1.ebuild:
+  Stable for ia64, wrt bug #456476
+
+  11 Feb 2013; Agostino Sarubbo <ago@gentoo.org> gtest-1.6.0-r1.ebuild:
+  Stable for arm, wrt bug #456476
+
+  10 Feb 2013; Agostino Sarubbo <ago@gentoo.org> gtest-1.6.0-r1.ebuild:
+  Stable for ppc, wrt bug #456476
+
+  10 Feb 2013; Agostino Sarubbo <ago@gentoo.org> gtest-1.6.0-r1.ebuild:
+  Stable for ppc64, wrt bug #456476
+
+  10 Feb 2013; Agostino Sarubbo <ago@gentoo.org> gtest-1.6.0-r1.ebuild:
+  Stable for x86, wrt bug #456476
+
+  10 Feb 2013; Agostino Sarubbo <ago@gentoo.org> gtest-1.6.0-r1.ebuild:
+  Stable for amd64, wrt bug #456476
+
+  06 Feb 2013; Thomas Kahle <tomka@gentoo.org> metadata.xml:
+  take maintainership
 
   03 Feb 2013; Pacho Ramos <pacho@gentoo.org> -files/gtest-1.4.0-asneeded.patch,
   -files/gtest-1.4.0-gcc-4.7.patch, -files/gtest-1.5.0-asneeded.patch,

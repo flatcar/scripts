@@ -2,7 +2,8 @@
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
 	<maintainer>
-	<email>maintainer-needed@gentoo.org</email>
+	<email>tomka@gentoo.org</email>
+	<name>Thomas Kahle</name>
 	</maintainer>
 	<upstream>
 		<doc lang="en">http://code.google.com/p/googletest/w/list</doc>
