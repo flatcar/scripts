@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/util-linux/util-linux-2.22.2.ebuild,v 1.18 2013/03/28 17:49:23 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/util-linux/util-linux-2.23.ebuild,v 1.3 2013/05/08 22:32:07 vapier Exp $
 
 EAPI="3"
 
@@ -10,7 +10,7 @@ if [[ ${PV} == "9999" ]] ; then
 	inherit git-2 autotools
 	#KEYWORDS=""
 else
-	KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-linux ~arm-linux ~x86-linux"
+	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-linux ~arm-linux ~x86-linux"
 fi
 
 MY_PV=${PV/_/-}
@@ -27,17 +27,18 @@ fi
 
 LICENSE="GPL-2 GPL-3 LGPL-2.1 BSD-4 MIT public-domain"
 SLOT="0"
-IUSE="+cramfs crypt ddate ncurses nls old-linux perl selinux slang static-libs +suid test udev unicode"
+IUSE="bash-completion caps +cramfs cytune fdformat ncurses nls old-linux selinux slang static-libs +suid test tty-helpers udev unicode"
 
 RDEPEND="!sys-process/schedutils
 	!sys-apps/setarch
-	!<sys-apps/sysvinit-2.88-r4
+	!<sys-apps/sysvinit-2.88-r5
 	!sys-block/eject
 	!<sys-libs/e2fsprogs-libs-1.41.8
 	!<sys-fs/e2fsprogs-1.41.8
+	!<app-shells/bash-completion-1.3-r2
+	caps? ( sys-libs/libcap-ng )
 	cramfs? ( sys-libs/zlib )
 	ncurses? ( >=sys-libs/ncurses-5.2-r2 )
-	perl? ( dev-lang/perl )
 	selinux? ( sys-libs/libselinux )
 	slang? ( sys-libs/slang )
 	udev? ( virtual/udev )"
@@ -73,23 +74,26 @@ src_configure() {
 		--enable-fs-paths-extra=/usr/sbin:/bin:/usr/bin \
 		$(use_enable nls) \
 		--enable-agetty \
-		$(use_enable perl chkdupexe) \
+		--with-bashcompletiondir='${datarootdir}/bash-completion' \
+		$(use_enable bash-completion) \
+		$(use_enable caps setpriv) \
 		$(use_enable cramfs) \
-		$(use_enable ddate) \
+		$(use_enable cytune) \
+		$(use_enable fdformat) \
 		$(use_enable old-linux elvtune) \
 		--with-ncurses=$(usex ncurses $(usex unicode auto yes) no) \
 		--disable-kill \
 		--disable-last \
 		--disable-login \
-		--disable-mesg \
+		$(use_enable tty-helpers mesg) \
 		--enable-partx \
 		--enable-raw \
 		--enable-rename \
 		--disable-reset \
 		--enable-schedutils \
 		--disable-su \
-		--disable-wall \
-		--enable-write \
+		$(use_enable tty-helpers wall) \
+		$(use_enable tty-helpers write) \
 		$(use_enable suid makeinstall-chown) \
 		$(use_enable suid makeinstall-setuid) \
 		$(use_with selinux) \
@@ -107,11 +111,6 @@ src_install() {
 	gen_usr_ldscript -a blkid mount uuid
 	# e2fsprogs-libs didnt install .la files, and .pc work fine
 	find "${ED}" -name '*.la' -delete
-
-	if use crypt ; then
-		newinitd "${FILESDIR}"/crypto-loop.initd crypto-loop || die
-		newconfd "${FILESDIR}"/crypto-loop.confd crypto-loop || die
-	fi
 }
 
 pkg_postinst() {

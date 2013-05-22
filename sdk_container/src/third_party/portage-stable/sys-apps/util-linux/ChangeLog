@@ -1,6 +1,77 @@
 # ChangeLog for sys-apps/util-linux
-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/util-linux/ChangeLog,v 1.409 2012/12/16 21:30:56 vapier Exp $
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/util-linux/ChangeLog,v 1.429 2013/05/08 22:32:07 vapier Exp $
+
+  08 May 2013; Mike Frysinger <vapier@gentoo.org> metadata.xml,
+  util-linux-2.23.ebuild, util-linux-9999.ebuild:
+  Add USE=caps to control `setpriv` #469102 by Arfrever Frehtes Taifersar
+  Arahesis.
+
+  04 May 2013; Samuli Suominen <ssuominen@gentoo.org> util-linux-2.23.ebuild:
+  Block version of app-shells/bash-completion with conflicting "rtcwake"
+  completion wrt #468544
+
+*util-linux-2.23 (04 May 2013)
+
+  04 May 2013; Mike Frysinger <vapier@gentoo.org> +util-linux-2.23.ebuild,
+  metadata.xml:
+  Version bump #468144 by Samuli Suominen.
+
+  28 Mar 2013; Mike Frysinger <vapier@gentoo.org> metadata.xml,
+  util-linux-2.22.2.ebuild, util-linux-9999.ebuild:
+  Also put wall/write setgid behavior under USE=suid.
+
+  28 Mar 2013; Mike Frysinger <vapier@gentoo.org> metadata.xml,
+  util-linux-2.22.2.ebuild, util-linux-9999.ebuild:
+  Add USE=suid to control mount/umount behavior.
+
+  23 Mar 2013; Mike Frysinger <vapier@gentoo.org> util-linux-2.22.2.ebuild:
+  Mark m68k stable #458226.
+
+  12 Mar 2013; Mike Frysinger <vapier@gentoo.org> util-linux-2.22.2.ebuild,
+  util-linux-9999.ebuild:
+  Install release notes too #458230 by Mart Raudsepp.
+
+  12 Mar 2013; Mike Frysinger <vapier@gentoo.org> util-linux-2.22.2.ebuild,
+  util-linux-9999.ebuild:
+  Pull in sys-devel/bc for USE=test #460184 by Sean Santos.
+
+  01 Mar 2013; Agostino Sarubbo <ago@gentoo.org> util-linux-2.22.2.ebuild:
+  Stable for sh, wrt bug #458226
+
+  26 Feb 2013; Agostino Sarubbo <ago@gentoo.org> util-linux-2.22.2.ebuild:
+  Stable for s390, wrt bug #458226
+
+  26 Feb 2013; Agostino Sarubbo <ago@gentoo.org> util-linux-2.22.2.ebuild:
+  Stable for sparc, wrt bug #458226
+
+  26 Feb 2013; Agostino Sarubbo <ago@gentoo.org> util-linux-2.22.2.ebuild:
+  Stable for arm, wrt bug #458226
+
+  26 Feb 2013; Agostino Sarubbo <ago@gentoo.org> util-linux-2.22.2.ebuild:
+  Stable for ia64, wrt bug #458226
+
+  26 Feb 2013; Agostino Sarubbo <ago@gentoo.org> util-linux-2.22.2.ebuild:
+  Stable for alpha, wrt bug #458226
+
+  25 Feb 2013; Agostino Sarubbo <ago@gentoo.org> util-linux-2.22.2.ebuild:
+  Stable for ppc64, wrt bug #458226
+
+  25 Feb 2013; Agostino Sarubbo <ago@gentoo.org> util-linux-2.22.2.ebuild:
+  Stable for ppc, wrt bug #458226
+
+  25 Feb 2013; Agostino Sarubbo <ago@gentoo.org> util-linux-2.22.2.ebuild:
+  Stable for x86, wrt bug #458226
+
+  25 Feb 2013; Agostino Sarubbo <ago@gentoo.org> util-linux-2.22.2.ebuild:
+  Stable for amd64, wrt bug #458226
+
+  20 Feb 2013; Jeroen Roovers <jer@gentoo.org> util-linux-2.22.2.ebuild:
+  Stable for HPPA (bug #458226).
+
+  19 Feb 2013; Zac Medico <zmedico@gentoo.org> util-linux-2.22.2.ebuild,
+  util-linux-9999.ebuild:
+  Add ~arm-linux keywords.
 
 *util-linux-2.22.2 (16 Dec 2012)
 
