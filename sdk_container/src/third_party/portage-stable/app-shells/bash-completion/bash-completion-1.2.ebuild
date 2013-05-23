@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-shells/bash-completion/bash-completion-1.3.ebuild,v 1.8 2012/05/04 11:08:39 aballier Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-shells/bash-completion/bash-completion-1.2.ebuild,v 1.10 2010/10/03 13:07:45 armin76 Exp $
 
 EAPI=3
 inherit prefix
@@ -11,7 +11,7 @@ SRC_URI="http://bash-completion.alioth.debian.org/files/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris"
+KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~sparc-fbsd ~x86-fbsd ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris"
 IUSE=""
 
 DEPEND=""
@@ -23,8 +23,6 @@ PDEPEND="app-shells/gentoo-bashcomp"
 src_prepare() {
 	cp "${FILESDIR}"/bash-completion.sh-gentoo-1.2 "${T}"/bash-completion.sh || die
 	eprefixify "${T}"/bash-completion.sh
-
-	find "${S}"/completions -name 'Makefile*' -delete
 }
 
 src_configure() { :; } # no-op
@@ -32,13 +30,14 @@ src_compile() { :; } # no-op
 
 src_install() {
 	# Gentoo specific bash-completion.sh file.
-	insinto /etc/profile.d
-	doins "${T}"/bash-completion.sh || die
+	dodir /etc/profile.d
+	cp "${T}"/bash-completion.sh \
+		"${ED}"/etc/profile.d/bash-completion.sh || die "cp failed"
 
 	# All files from contrib/ in source package get installed
-	insinto /usr/share/bash-completion
-	doins -r "${S}"/completions/* || die
-
+	dodir /usr/share/bash-completion
+	cp "${S}"/contrib/* "${ED}"/usr/share/bash-completion/ \
+		|| die "installation failed to move files"
 	awk -v D="$ED" '
 	BEGIN { out=".pre" }
 	/^# A lot of the following one-liners/ { out="base" }
