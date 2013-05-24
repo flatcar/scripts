@@ -1,6 +1,35 @@
 # ChangeLog for dev-lang/go
-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-lang/go/ChangeLog,v 1.7 2012/10/29 15:57:40 williamh Exp $
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-lang/go/ChangeLog,v 1.14 2013/05/20 20:56:40 williamh Exp $
+
+  20 May 2013; William Hubbs <williamh@gentoo.org>
+  -files/go-1.0.3-hardened.patch, -files/go-1.0.3-no-Werror.patch,
+  -go-1.0.3.ebuild:
+  remove old version
+
+  20 May 2013; William Hubbs <williamh@gentoo.org> go-1.1.ebuild,
+  go-9999.ebuild:
+  fix QA_MULTILIB_PATHS for bug #463546, thanks to Peter Volkov <pva@gentoo.org>
+
+*go-1.1 (17 May 2013)
+
+  17 May 2013; William Hubbs <williamh@gentoo.org> +go-1.1.ebuild,
+  go-9999.ebuild, +files/go-1.1-no-Werror.patch:
+  version bump for bug #469762. Also sync live ebuild.
+
+  16 Apr 2013; William Hubbs <williamh@gentoo.org> go-9999.ebuild:
+  sync live ebuild
+
+  16 Apr 2013; William Hubbs <williamh@gentoo.org> ChangeLog:
+  Add tool directory to QA_MULTILIB_PATHS for #463546
+
+  16 Apr 2013; William Hubbs <williamh@gentoo.org> go-1.0.3.ebuild,
+  go-9999.ebuild:
+  repoman fixes
+
+  16 Apr 2013; William Hubbs <williamh@gentoo.org> ChangeLog:
+  Add patch to remove -Werror for #465046 thanks to Ryan Hill.
+  Remove go-1.0.2 since it is an old version.
 
 *go-1.0.3 (29 Oct 2012)
 
