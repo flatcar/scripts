@@ -5,17 +5,11 @@
   <email>udev-bugs@gentoo.org</email>
 </maintainer>
 <use>
-  <flag name="action_modeswitch">switch Mobile Action cables into serial mode</flag>
-  <flag name="edd">create /dev/disk/by-id/edd-* links for BIOS EDD data</flag>
-  <flag name="extras">Compile udev-extras requiring external dependencies</flag>
-  <flag name="floppy">create historical floppy kernel device nodes (/dev/fd0h1440, ...)</flag>
-  <flag name="gudev">enable libudev gobject interface</flag>
-  <flag name="hwdb">read vendor/device string database and add it to udev database</flag>
-  <flag name="introspection">Use <pkg>dev-libs/gobject-introspection</pkg>
-  	for introspection</flag>
-  <flag name="keymap">map custom hardware's multimedia keys</flag>
-  <flag name="kmod">enable udev to load kernel modules</flag>
-  <flag name="rule_generator">enable persistent network and optical device rule generator</flag>
-  <flag name="openrc">install the OpenRC init scripts</flag>
+  <flag name='firmware-loader'>Enable userspace firmware loader (DEPRECATED, replaced by in-kernel loader in 3.8+)</flag>
+  <flag name='gudev'>Build the gobject interface library</flag>
+  <flag name='hwdb'>Read vendor/device string database and add it to udev database</flag>
+  <flag name='keymap'>Map custom hardware's multimedia keys</flag>
+  <flag name='kmod'>Enable kernel module loading/unloading support using <pkg>sys-apps/kmod</pkg></flag>
+  <flag name='openrc'>Install the OpenRC init scripts</flag>
 </use>
 </pkgmetadata>
