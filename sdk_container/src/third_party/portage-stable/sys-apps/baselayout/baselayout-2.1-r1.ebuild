@@ -16,6 +16,10 @@ IUSE="build kernel_linux"
 
 PDEPEND="sys-apps/openrc"
 
+pkg_setup() {
+	multilib_layout
+}
+
 # Create our multilib dirs - the Makefile has no knowledge of this
 multilib_warn() {
 	local syms=$1 dirs=$2 def_libdir=$3
@@ -137,7 +141,7 @@ pkg_preinst() {
 	# We need to install directories and maybe some dev nodes when building
 	# stages, but they cannot be in CONTENTS.
 	# Also, we cannot reference $S as binpkg will break so we do this.
-	#multilib_layout
+	multilib_layout
 	if use build ; then
 		emake -C "${D}/usr/share/${PN}" DESTDIR="${ROOT}" layout || die
 	fi

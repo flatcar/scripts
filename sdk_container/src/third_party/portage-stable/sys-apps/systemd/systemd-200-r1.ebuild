@@ -1,12 +1,11 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/systemd/systemd-197-r1.ebuild,v 1.5 2013/02/24 11:49:24 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/systemd/systemd-200-r1.ebuild,v 1.4 2013/04/27 05:38:24 mgorny Exp $
 
 EAPI=5
 
 PYTHON_COMPAT=( python2_7 )
-inherit autotools-utils bash-completion-r1 linux-info pam \
-	python-single-r1 systemd
+inherit autotools-utils linux-info multilib pam python-single-r1 systemd toolchain-funcs udev user
 
 DESCRIPTION="System and service manager for Linux"
 HOMEPAGE="http://www.freedesktop.org/wiki/Software/systemd"
@@ -15,20 +14,22 @@ SRC_URI="http://www.freedesktop.org/software/systemd/${P}.tar.xz"
 LICENSE="GPL-2 LGPL-2.1 MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~ppc64 ~x86"
-IUSE="acl audit cryptsetup gcrypt http +kmod lzma pam python qrcode
-	selinux tcpd vanilla xattr"
+IUSE="acl audit cryptsetup doc gcrypt gudev http
+	introspection +kmod lzma openrc pam python qrcode selinux static-libs
+	tcpd vanilla xattr"
 
 MINKV="2.6.39"
 
 COMMON_DEPEND=">=sys-apps/dbus-1.6.8-r1
 	>=sys-apps/util-linux-2.20
-	~sys-fs/udev-${PV}
 	sys-libs/libcap
 	acl? ( sys-apps/acl )
 	audit? ( >=sys-process/audit-2 )
 	cryptsetup? ( >=sys-fs/cryptsetup-1.4.2 )
 	gcrypt? ( >=dev-libs/libgcrypt-1.4.5 )
+	gudev? ( >=dev-libs/glib-2 )
 	http? ( net-libs/libmicrohttpd )
+	introspection? ( >=dev-libs/gobject-introspection-1.31.1 )
 	kmod? ( >=sys-apps/kmod-12 )
 	lzma? ( app-arch/xz-utils )
 	pam? ( virtual/pam )
@@ -38,15 +39,19 @@ COMMON_DEPEND=">=sys-apps/dbus-1.6.8-r1
 	tcpd? ( sys-apps/tcp-wrappers )
 	xattr? ( sys-apps/attr )"
 
+# baselayout-2.2 has /run
 RDEPEND="${COMMON_DEPEND}
-	sys-apps/hwids
+	>=sys-apps/baselayout-2.2
+	openrc? ( >=sys-fs/udev-init-scripts-25 )
 	|| (
 		>=sys-apps/util-linux-2.22
 		<sys-apps/sysvinit-2.88-r4
 	)
 	!sys-auth/nss-myhostname
 	!<sys-libs/glibc-2.10
-	!<sys-fs/udev-197-r3"
+	!sys-fs/udev"
+
+PDEPEND=">=sys-apps/hwids-20130326.1[udev]"
 
 # sys-fs/quota is necessary to store correct paths in unit files
 DEPEND="${COMMON_DEPEND}
@@ -54,55 +59,42 @@ DEPEND="${COMMON_DEPEND}
 	app-text/docbook-xsl-stylesheets
 	dev-libs/libxslt
 	dev-util/gperf
-	dev-util/intltool
+	>=dev-util/intltool-0.50
 	sys-fs/quota
-	>=sys-kernel/linux-headers-${MINKV}"
-
-AUTOTOOLS_IN_SOURCE_BUILD=1
-
-pkg_setup() {
-	use python && python-single-r1_pkg_setup
-}
-
-src_prepare() {
-	# systemd-analyze is for python2.7 only nowadays.
-	sed -i -e '1s/python/&2.7/' src/analyze/systemd-analyze
-
-	# link against external udev & libsystemd-daemon.
-	sed -i -e 's:lib\(udev\|systemd-daemon\)\.la:-l\1:' Makefile.am
-
-	local PATCHES=(
-		"${FILESDIR}"/197-0001-Disable-udev-targets.patch
-	)
-
-	autotools-utils_src_prepare
-
-	# XXX: support it within eclass
-	eautomake
-}
+	>=sys-kernel/linux-headers-${MINKV}
+	virtual/pkgconfig
+	doc? ( >=dev-util/gtk-doc-1.18 )"
 
 src_configure() {
 	local myeconfargs=(
 		--localstatedir=/var
+		--with-firmware-path="/lib/firmware/updates:/lib/firmware"
 		# install everything to /usr
 		--with-rootprefix=/usr
 		--with-rootlibdir=/usr/$(get_libdir)
 		# but pam modules have to lie in /lib*
-		--with-pamlibdir=/$(get_libdir)/security
+		--with-pamlibdir=$(getpam_mod_dir)
+		# avoid bash-completion dep, default is stupid
+		--with-bashcompletiondir=/usr/share/bash-completion
 		# make sure we get /bin:/sbin in $PATH
 		--enable-split-usr
 		# disable sysv compatibility
 		--with-sysvinit-path=
 		--with-sysvrcnd-path=
-		# udev parts
-		--disable-introspection
-		--disable-gtk-doc
-		--disable-gudev
+		# just text files
+		--enable-polkit
+		# no deps
+		--enable-keymap
+		--enable-efi
+		# optional components/dependencies
 		$(use_enable acl)
 		$(use_enable audit)
 		$(use_enable cryptsetup libcryptsetup)
+		$(use_enable doc gtk-doc)
 		$(use_enable gcrypt)
+		$(use_enable gudev)
 		$(use_enable http microhttpd)
+		$(use_enable introspection)
 		$(use_enable kmod)
 		$(use_enable lzma xz)
 		$(use_enable pam)
@@ -114,13 +106,35 @@ src_configure() {
 		$(use_enable xattr)
 	)
 
+	# Keep using the one where the rules were installed.
+	MY_UDEVDIR=$(get_udevdir)
+
+	# Work around bug 463846.
+	tc-export CC
+
 	autotools-utils_src_configure
 }
 
+src_compile() {
+	autotools-utils_src_compile \
+		udevlibexecdir="${MY_UDEVDIR}"
+}
+
 src_install() {
-	autotools-utils_src_install \
-		bashcompletiondir=/tmp \
-		udevlibexecdir=/lib/udev
+	autotools-utils_src_install -j1 \
+		udevlibexecdir="${MY_UDEVDIR}" \
+		dist_udevhwdb_DATA=
+
+	# keep udev working without initramfs, for openrc compat
+	dodir /bin /sbin
+	mv "${D}"/usr/lib/systemd/systemd-udevd "${D}"/sbin/udevd || die
+	mv "${D}"/usr/bin/udevadm "${D}"/bin/udevadm || die
+	dosym ../../../sbin/udevd /usr/lib/systemd/systemd-udevd
+	dosym ../../bin/udevadm /usr/bin/udevadm
+
+	# zsh completion
+	insinto /usr/share/zsh/site-functions
+	newins shell-completion/systemd-zsh-completion.zsh "_${PN}"
 
 	# remove pam.d plugin .la-file
 	prune_libtool_files --modules
@@ -130,10 +144,6 @@ src_install() {
 	dosym ../lib/systemd/systemd /usr/bin/systemd
 	# rsyslog.service depends on it...
 	dosym ../usr/bin/systemctl /bin/systemctl
-
-	# move files as necessary
-	newbashcomp "${D}"/tmp/systemd-bash-completion.sh ${PN}
-	rm -r "${D}"/tmp || die
 
 	# we just keep sysvinit tools, so no need for the mans
 	rm "${D}"/usr/share/man/man8/{halt,poweroff,reboot,runlevel,shutdown,telinit}.8 \
@@ -151,16 +161,19 @@ src_install() {
 	fi
 
 	# Disable storing coredumps in journald, bug #433457
-	mv "${D}"/usr/lib/sysctl.d/coredump.conf \
-		"${D}"/etc/sysctl.d/coredump.conf.disabled || die
+	mv "${D}"/usr/lib/sysctl.d/50-coredump.conf{,.disabled} || die
 
 	# Preserve empty dirs in /etc & /var, bug #437008
 	keepdir /etc/binfmt.d /etc/modules-load.d /etc/tmpfiles.d \
 		/etc/systemd/ntp-units.d /etc/systemd/user /var/lib/systemd
 
 	# Check whether we won't break user's system.
-	[[ -x "${D}"/bin/systemd ]] || die '/bin/systemd symlink broken, aborting.'
-	[[ -x "${D}"/usr/bin/systemd ]] || die '/usr/bin/systemd symlink broken, aborting.'
+	local x
+	for x in /bin/systemd /usr/bin/systemd \
+		/usr/bin/udevadm /usr/lib/systemd/systemd-udevd
+	do
+		[[ -x ${D}${x} ]] || die "${x} symlink broken, aborting."
+	done
 }
 
 pkg_preinst() {
@@ -186,9 +199,22 @@ optfeature() {
 }
 
 pkg_postinst() {
+	# for udev rules
+	enewgroup dialout
+
+	enewgroup systemd-journal
+	if use http; then
+		enewgroup systemd-journal-gateway
+		enewuser systemd-journal-gateway -1 -1 -1 systemd-journal-gateway
+	fi
 	systemd_update_catalog
 
-	mkdir -p "${ROOT}"/run || ewarn "Unable to mkdir /run, this could mean trouble."
+	# Keep this here in case the database format changes so it gets updated
+	# when required. Despite that this file is owned by sys-apps/hwids.
+	if has_version "sys-apps/hwids[udev]"; then
+		udevadm hwdb --update --root="${ROOT%/}"
+	fi
+
 	if [[ ! -L "${ROOT}"/etc/mtab ]]; then
 		ewarn "Upstream suggests that the /etc/mtab file should be a symlink to /proc/mounts."
 		ewarn "It is known to cause users being unable to unmount user mounts. If you don't"
@@ -199,19 +225,21 @@ pkg_postinst() {
 
 	elog "To get additional features, a number of optional runtime dependencies may"
 	elog "be installed:"
-	optfeature 'for systemd-analyze' \
-		'dev-lang/python:2.7' 'dev-python/dbus-python'
-	optfeature 'for systemd-analyze plotting ability' \
-		'dev-python/pycairo[svg]'
 	optfeature 'for GTK+ systemadm UI and gnome-ask-password-agent' \
 		'sys-apps/systemd-ui'
-	elog
 
-	ewarn "Please note this is a work-in-progress and many packages in Gentoo"
-	ewarn "do not supply systemd unit files yet. You are testing it on your own"
-	ewarn "responsibility. Please remember than you can pass:"
-	ewarn "	init=/sbin/init"
-	ewarn "to your kernel to boot using sysvinit / OpenRC."
+	# read null-terminated argv[0] from PID 1
+	# and see which path to systemd was used (if any)
+	local init_path
+	IFS= read -r -d '' init_path < /proc/1/cmdline
+	if [[ ${init_path} == */bin/systemd ]]; then
+		ewarn
+		ewarn "You are using a compatibility symlink to run systemd. The symlink"
+		ewarn "will be removed in near future. Please update your bootloader"
+		ewarn "to use:"
+		ewarn
+		ewarn "	init=/usr/lib/systemd/systemd"
+	fi
 }
 
 pkg_prerm() {

@@ -1,16 +1,8 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/systemd-ui/systemd-ui-9999.ebuild,v 1.2 2013/03/29 14:16:34 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/systemd-ui/systemd-ui-2.ebuild,v 1.2 2013/03/29 14:16:34 mgorny Exp $
 
 EAPI=4
-
-#if LIVE
-AUTOTOOLS_AUTORECONF=yes
-EGIT_REPO_URI="git://anongit.freedesktop.org/systemd/${PN}
-	http://cgit.freedesktop.org/systemd/${PN}/"
-
-inherit git-2
-#endif
 
 VALA_MIN_API_VERSION=0.14
 VALA_MAX_API_VERSION=0.20
@@ -38,14 +30,6 @@ RDEPEND="!sys-apps/systemd[gtk]
 DEPEND="${RDEPEND}
 	app-arch/xz-utils
 	$(vala_depend)"
-
-#if LIVE
-SRC_URI=
-KEYWORDS=
-
-DEPEND="${DEPEND}
-	app-text/docbook-xml-dtd:4.2"
-#endif
 
 # Due to vala being broken.
 AUTOTOOLS_IN_SOURCE_BUILD=1
