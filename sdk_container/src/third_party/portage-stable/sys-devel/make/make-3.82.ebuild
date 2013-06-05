@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/make/make-3.82-r1.ebuild,v 1.8 2011/12/30 15:46:43 halcy0n Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/make/make-3.82.ebuild,v 1.11 2011/07/09 09:17:29 xarthisius Exp $
 
 EAPI="2"
 
@@ -21,7 +21,6 @@ RDEPEND="nls? ( virtual/libintl )"
 src_prepare() {
 	epatch "${FILESDIR}"/${P}-archives-many-objs.patch #334889
 	epatch "${FILESDIR}"/${P}-MAKEFLAGS-reexec.patch #31975
-	epatch "${FILESDIR}"/${P}-memory-corruption.patch #355907
 }
 
 src_configure() {
