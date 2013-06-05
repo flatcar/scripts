@@ -1,6 +1,135 @@
 # ChangeLog for sys-apps/hwids
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/hwids/ChangeLog,v 1.77 2013/01/31 16:04:01 flameeyes Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/hwids/ChangeLog,v 1.109 2013/06/04 15:58:46 ssuominen Exp $
+
+  04 Jun 2013; Samuli Suominen <ssuominen@gentoo.org> hwids-20130329.ebuild:
+  m68k stable wrt #463678
+
+*hwids-20130529 (29 May 2013)
+
+  29 May 2013; Diego E. Pettenò <flameeyes@gentoo.org> +hwids-20130529.ebuild,
+  -hwids-20130514.ebuild, -hwids-20130523.ebuild:
+  Version bump and cleanup old.
+
+*hwids-20130523 (23 May 2013)
+
+  23 May 2013; Diego E. Pettenò <flameeyes@gentoo.org> +hwids-20130523.ebuild:
+  Version bump.
+
+*hwids-20130514 (14 May 2013)
+
+  14 May 2013; Diego E. Pettenò <flameeyes@gentoo.org> +hwids-20130514.ebuild:
+  Version bump.
+
+  13 Apr 2013; Agostino Sarubbo <ago@gentoo.org> hwids-20130329.ebuild:
+  Stable for s390, wrt bug #463678
+
+  12 Apr 2013; Agostino Sarubbo <ago@gentoo.org> hwids-20130329.ebuild:
+  Stable for ia64, wrt bug #463678
+
+  09 Apr 2013; Jeroen Roovers <jer@gentoo.org> hwids-20130329.ebuild:
+  Stable for HPPA (bug #463678).
+
+  05 Apr 2013; Agostino Sarubbo <ago@gentoo.org> hwids-20130329.ebuild:
+  Stable for ppc64, wrt bug #463678
+
+  02 Apr 2013; Agostino Sarubbo <ago@gentoo.org> hwids-20130329.ebuild:
+  Stable for arm, wrt bug #463678
+
+  02 Apr 2013; Agostino Sarubbo <ago@gentoo.org> hwids-20130329.ebuild:
+  Stable for sh, wrt bug #463678
+
+  01 Apr 2013; Agostino Sarubbo <ago@gentoo.org> hwids-20130329.ebuild:
+  Stable for alpha, wrt bug #463678
+
+  31 Mar 2013; Agostino Sarubbo <ago@gentoo.org> hwids-20130329.ebuild:
+  Stable for sparc, wrt bug #463678
+
+  30 Mar 2013; Agostino Sarubbo <ago@gentoo.org> hwids-20130329.ebuild:
+  Stable for x86, wrt bug #463678
+
+  30 Mar 2013; Agostino Sarubbo <ago@gentoo.org> hwids-20130329.ebuild:
+  Stable for amd64, wrt bug #463678
+
+  30 Mar 2013; Agostino Sarubbo <ago@gentoo.org> hwids-20130329.ebuild:
+  Stable for ppc, wrt bug #463678
+
+*hwids-20130329 (29 Mar 2013)
+
+  29 Mar 2013; Diego E. Pettenò <flameeyes@gentoo.org> +hwids-20130329.ebuild,
+  -hwids-20130309-r1.ebuild, -hwids-20130309.ebuild, -hwids-20130326.1.ebuild:
+  Bump to latest update.
+
+*hwids-20130326.1 (26 Mar 2013)
+
+  26 Mar 2013; Samuli Suominen <ssuominen@gentoo.org> +hwids-20130326.1.ebuild:
+  Version bump.
+
+*hwids-20130309-r1 (10 Mar 2013)
+
+  10 Mar 2013; Samuli Suominen <ssuominen@gentoo.org>
+  +hwids-20130309-r1.ebuild, hwids-99999999.ebuild:
+  Fix /etc/udev/hwdb.bin generation with >=sys-fs/udev-198 (by moving hwdb.bin
+  out from $(DESTDIR) and updating it from pkg_postinst())
+
+  10 Mar 2013; Samuli Suominen <ssuominen@gentoo.org> hwids-20130309.ebuild,
+  hwids-99999999.ebuild:
+  Replace udev_get_udevdir with the sanitized get_udevdir.
+
+*hwids-20130309 (09 Mar 2013)
+
+  09 Mar 2013; Diego E. Pettenò <flameeyes@gentoo.org> +hwids-20130309.ebuild:
+  Version bump.
+
+  07 Mar 2013; Diego E. Pettenò <flameeyes@gentoo.org> -hwids-20130114.ebuild:
+  Remove old.
+
+  06 Mar 2013; Raúl Porcel <armin76@gentoo.org> hwids-20130302.ebuild:
+  alpha/ia64/m68k/s390/sh/sparc/x86 stable wrt #459968
+
+  06 Mar 2013; Jeroen Roovers <jer@gentoo.org> hwids-20130302.ebuild:
+  Stable for HPPA (bug #459968).
+
+  03 Mar 2013; Agostino Sarubbo <ago@gentoo.org> hwids-20130302.ebuild:
+  Stable for ppc64, wrt bug #459968
+
+  03 Mar 2013; Agostino Sarubbo <ago@gentoo.org> hwids-20130302.ebuild:
+  Stable for ppc, wrt bug #459968
+
+  02 Mar 2013; Sergey Popov <pinkbyte@gentoo.org> hwids-20130302.ebuild:
+  Stable on amd64, wrt bug #459968
+
+*hwids-20130302 (02 Mar 2013)
+
+  02 Mar 2013; Diego E. Pettenò <flameeyes@gentoo.org> +hwids-20130302.ebuild,
+  -hwids-20130219.ebuild:
+  Version bump.
+
+  21 Feb 2013; Zac Medico <zmedico@gentoo.org> hwids-20130219.ebuild:
+  Add ~arm-linux keyword.
+
+*hwids-20130219 (19 Feb 2013)
+
+  19 Feb 2013; Diego E. Pettenò <flameeyes@gentoo.org> +hwids-20130219.ebuild,
+  -hwids-20130209.1.ebuild:
+  Version bump.
+
+*hwids-20130209.1 (09 Feb 2013)
+
+  09 Feb 2013; Diego E. Pettenò <flameeyes@gentoo.org> +hwids-20130209.1.ebuild,
+  -hwids-20130131.ebuild, hwids-99999999.ebuild:
+  Version bump; this version generates thw hwdb.bin file straight in the
+  package, rather than in postinst, so that the file is no longer orphaned.
+
+  07 Feb 2013; Samuli Suominen <ssuominen@gentoo.org>
+  -hwids-20130131-r1.ebuild, hwids-99999999.ebuild:
+  Wait until upstream has accepted the --root patch.
+
+*hwids-20130131-r1 (07 Feb 2013)
+
+  07 Feb 2013; Samuli Suominen <ssuominen@gentoo.org>
+  +hwids-20130131-r1.ebuild, hwids-99999999.ebuild:
+  Use --root switch in udevadm hwdb --update for an offset root support.
 
 *hwids-20130131 (31 Jan 2013)
 

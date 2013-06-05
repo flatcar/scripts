@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/make/make-3.82-r1.ebuild,v 1.1 2011/06/07 13:18:10 chainsaw Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/make/make-3.82-r1.ebuild,v 1.8 2011/12/30 15:46:43 halcy0n Exp $
 
 EAPI="2"
 

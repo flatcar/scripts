@@ -1,9 +1,6 @@
 # ChangeLog for sys-apps/baselayout
 # Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/baselayout/ChangeLog-2008,v 1.1 2012/01/01 20:37:42 dilfridge Exp $
-
-# See the rc-scripts ChangeLog in subversion for release info:
-# http://sources.gentoo.org/viewcvs.py/*checkout*/baselayout/trunk/ChangeLog
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/baselayout/ChangeLog-2008,v 1.2 2013/05/11 16:17:29 vapier Exp $
 
   19 Aug 2008; Zac Medico <zmedico@gentoo.org> baselayout-2.0.0.ebuild:
   Avoid potential warning messages in the SYMLINK_LIB code which may be

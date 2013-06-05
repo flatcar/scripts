@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/baselayout/baselayout-2.2.ebuild,v 1.3 2012/10/13 19:18:18 aballier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/baselayout/baselayout-2.2.ebuild,v 1.14 2013/05/20 17:56:20 ago Exp $
 
 inherit eutils multilib
 
@@ -11,10 +11,14 @@ SRC_URI="mirror://gentoo/${P}.tar.bz2
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
+KEYWORDS="alpha amd64 arm hppa ia64 ~m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
 IUSE="build kernel_linux"
 
 PDEPEND="sys-apps/openrc"
+
+pkg_setup() {
+	multilib_layout
+}
 
 # Create our multilib dirs - the Makefile has no knowledge of this
 multilib_warn() {
@@ -138,7 +142,7 @@ pkg_preinst() {
 	# We need to install directories and maybe some dev nodes when building
 	# stages, but they cannot be in CONTENTS.
 	# Also, we cannot reference $S as binpkg will break so we do this.
-	#multilib_layout
+	multilib_layout
 	if use build ; then
 		emake -C "${D}/usr/share/${PN}" DESTDIR="${ROOT}" layout || die
 	fi

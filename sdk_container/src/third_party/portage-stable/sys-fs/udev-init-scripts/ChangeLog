@@ -1,6 +1,114 @@
 # ChangeLog for sys-fs/udev-init-scripts
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/udev-init-scripts/ChangeLog,v 1.41 2013/02/01 08:09:29 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/udev-init-scripts/ChangeLog,v 1.72 2013/06/02 13:29:45 jer Exp $
+
+  02 Jun 2013; Jeroen Roovers <jer@gentoo.org> udev-init-scripts-26.ebuild:
+  Stable for HPPA (bug #470580).
+
+*udev-init-scripts-26 (17 Apr 2013)
+
+  17 Apr 2013; William Hubbs <williamh@gentoo.org>
+  +udev-init-scripts-26.ebuild, udev-init-scripts-9999.ebuild:
+  version bump
+
+  17 Apr 2013; William Hubbs <williamh@gentoo.org> -udev-init-scripts-24.ebuild:
+  remove old version that never went stable
+
+  15 Apr 2013; Jeroen Roovers <jer@gentoo.org> udev-init-scripts-25.ebuild:
+  Stable for HPPA (bug #463614).
+
+  13 Apr 2013; Agostino Sarubbo <ago@gentoo.org> udev-init-scripts-25.ebuild:
+  Stable for s390, wrt bug #463614
+
+  12 Apr 2013; Agostino Sarubbo <ago@gentoo.org> udev-init-scripts-25.ebuild:
+  Stable for ia64, wrt bug #463614
+
+  05 Apr 2013; Agostino Sarubbo <ago@gentoo.org> udev-init-scripts-25.ebuild:
+  Stable for ppc64, wrt bug #463614
+
+  05 Apr 2013; Agostino Sarubbo <ago@gentoo.org> udev-init-scripts-25.ebuild:
+  Stable for ppc, wrt bug #463614
+
+  02 Apr 2013; Agostino Sarubbo <ago@gentoo.org> udev-init-scripts-25.ebuild:
+  Stable for arm, wrt bug #463614
+
+  02 Apr 2013; Agostino Sarubbo <ago@gentoo.org> udev-init-scripts-25.ebuild:
+  Stable for sh, wrt bug #463614
+
+  01 Apr 2013; Agostino Sarubbo <ago@gentoo.org> udev-init-scripts-25.ebuild:
+  Stable for alpha, wrt bug #463614
+
+  31 Mar 2013; Agostino Sarubbo <ago@gentoo.org> udev-init-scripts-25.ebuild:
+  Stable for sparc, wrt bug #463614
+
+  30 Mar 2013; Agostino Sarubbo <ago@gentoo.org> udev-init-scripts-25.ebuild:
+  Stable for x86, wrt bug #463614
+
+  30 Mar 2013; Agostino Sarubbo <ago@gentoo.org> udev-init-scripts-25.ebuild:
+  Stable for amd64, wrt bug #463614
+
+*udev-init-scripts-25 (21 Mar 2013)
+
+  21 Mar 2013; William Hubbs <williamh@gentoo.org>
+  +udev-init-scripts-25.ebuild:
+  version bump
+
+*udev-init-scripts-24 (13 Mar 2013)
+
+  13 Mar 2013; William Hubbs <williamh@gentoo.org>
+  +udev-init-scripts-24.ebuild:
+  Version bump for #424189.
+
+  10 Mar 2013; Samuli Suominen <ssuominen@gentoo.org>
+  udev-init-scripts-23.ebuild, udev-init-scripts-9999.ebuild:
+  Fix offset root support wrt #458156, Comment #1 by "smkbot"
+
+  06 Mar 2013; Raúl Porcel <armin76@gentoo.org> udev-init-scripts-23.ebuild:
+  m68k/s390/sh/sparc stable wrt #457568
+
+  02 Mar 2013; Samuli Suominen <ssuominen@gentoo.org>
+  -udev-init-scripts-22.ebuild:
+  old
+
+  01 Mar 2013; Jeroen Roovers <jer@gentoo.org> udev-init-scripts-23.ebuild:
+  Stable for HPPA (bug #457568).
+
+  23 Feb 2013; Agostino Sarubbo <ago@gentoo.org> udev-init-scripts-23.ebuild:
+  Stable for alpha, wrt bug #457568
+
+  21 Feb 2013; Agostino Sarubbo <ago@gentoo.org> udev-init-scripts-23.ebuild:
+  Stable for ia64, wrt bug #457568
+
+  19 Feb 2013; Agostino Sarubbo <ago@gentoo.org> udev-init-scripts-23.ebuild:
+  Stable for arm, wrt bug #457568
+
+  18 Feb 2013; Agostino Sarubbo <ago@gentoo.org> udev-init-scripts-23.ebuild:
+  Stable for ppc64, wrt bug #457568
+
+  18 Feb 2013; Agostino Sarubbo <ago@gentoo.org> udev-init-scripts-23.ebuild:
+  Stable for ppc, wrt bug #457568
+
+  15 Feb 2013; Agostino Sarubbo <ago@gentoo.org> udev-init-scripts-23.ebuild:
+  Stable for x86, wrt bug #457568
+
+  15 Feb 2013; Agostino Sarubbo <ago@gentoo.org> udev-init-scripts-23.ebuild:
+  Stable for amd64, wrt bug #457568
+
+  09 Feb 2013; Samuli Suominen <ssuominen@gentoo.org>
+  udev-init-scripts-22.ebuild:
+  arm/ppc64 stable wrt #452556
+
+  09 Feb 2013; Agostino Sarubbo <ago@gentoo.org> udev-init-scripts-22.ebuild:
+  Stable for ia64, wrt bug #452556
+
+  08 Feb 2013; Jeroen Roovers <jer@gentoo.org> udev-init-scripts-22.ebuild:
+  Stable for HPPA (bug #452556).
+
+*udev-init-scripts-23 (05 Feb 2013)
+
+  05 Feb 2013; William Hubbs <williamh@gentoo.org>
+  +udev-init-scripts-23.ebuild:
+  version bump
 
   01 Feb 2013; Samuli Suominen <ssuominen@gentoo.org>
   -udev-init-scripts-19-r1.ebuild,

@@ -1,10 +1,10 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/systemd.eclass,v 1.21 2012/12/31 13:09:09 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/systemd.eclass,v 1.25 2013/04/13 22:49:21 floppym Exp $
 
 # @ECLASS: systemd.eclass
 # @MAINTAINER:
-# mgorny@gentoo.org
+# systemd@gentoo.org
 # @BLURB: helper functions to install systemd units
 # @DESCRIPTION:
 # This eclass provides a set of functions to install unit files for
@@ -25,17 +25,25 @@
 # }
 # @CODE
 
+inherit toolchain-funcs
+
 case ${EAPI:-0} in
 	0|1|2|3|4|5) ;;
 	*) die "${ECLASS}.eclass API in EAPI ${EAPI} not yet established."
 esac
+
+DEPEND="virtual/pkgconfig"
 
 # @FUNCTION: _systemd_get_unitdir
 # @INTERNAL
 # @DESCRIPTION:
 # Get unprefixed unitdir.
 _systemd_get_unitdir() {
-	echo /usr/lib/systemd/system
+	if $(tc-getPKG_CONFIG) --exists systemd; then
+		echo "$($(tc-getPKG_CONFIG) --variable=systemdsystemunitdir systemd)"
+	else
+		echo /usr/lib/systemd/system
+	fi
 }
 
 # @FUNCTION: systemd_get_unitdir
@@ -49,6 +57,18 @@ systemd_get_unitdir() {
 	echo "${EPREFIX}$(_systemd_get_unitdir)"
 }
 
+# @FUNCTION: _systemd_get_userunitdir
+# @INTERNAL
+# @DESCRIPTION:
+# Get unprefixed userunitdir.
+_systemd_get_userunitdir() {
+	if $(tc-getPKG_CONFIG) --exists systemd; then
+		echo "$($(tc-getPKG_CONFIG) --variable=systemduserunitdir systemd)"
+	else
+		echo /usr/lib/systemd/user
+	fi
+}
+
 # @FUNCTION: systemd_get_userunitdir
 # @DESCRIPTION:
 # Output the path for the systemd user unit directory (not including
@@ -58,7 +78,19 @@ systemd_get_userunitdir() {
 	has "${EAPI:-0}" 0 1 2 && ! use prefix && EPREFIX=
 	debug-print-function ${FUNCNAME} "${@}"
 
-	echo "${EPREFIX}/usr/lib/systemd/user"
+	echo "${EPREFIX}$(_systemd_get_userunitdir)"
+}
+
+# @FUNCTION: _systemd_get_utildir
+# @INTERNAL
+# @DESCRIPTION:
+# Get unprefixed utildir.
+_systemd_get_utildir() {
+	if $(tc-getPKG_CONFIG) --exists systemd; then
+		echo "$($(tc-getPKG_CONFIG) --variable=systemdutildir systemd)"
+	else
+		echo /usr/lib/systemd
+	fi
 }
 
 # @FUNCTION: systemd_get_utildir
@@ -70,7 +102,7 @@ systemd_get_utildir() {
 	has "${EAPI:-0}" 0 1 2 && ! use prefix && EPREFIX=
 	debug-print-function ${FUNCNAME} "${@}"
 
-	echo "${EPREFIX}/usr/lib/systemd"
+	echo "${EPREFIX}$(_systemd_get_utildir)"
 }
 
 # @FUNCTION: systemd_dounit
@@ -147,7 +179,7 @@ systemd_enable_service() {
 	local target=${1}
 	local service=${2}
 	local ud=$(_systemd_get_unitdir)
-	local destname=$(basename "${service}")
+	local destname=${service##*/}
 
 	dodir "${ud}"/"${target}".wants && \
 	dosym ../"${service}" "${ud}"/"${target}".wants/"${destname}"
@@ -210,6 +242,7 @@ systemd_update_catalog() {
 	debug-print-function ${FUNCNAME} "${@}"
 
 	# Make sure to work on the correct system.
+
 	local journalctl=${EPREFIX}/usr/bin/journalctl
 	if [[ -x ${journalctl} ]]; then
 		ebegin "Updating systemd journal catalogs"
