@@ -5,7 +5,7 @@
 EAPI=5
 
 AUTOTOOLS_PRUNE_LIBTOOL_FILES=all
-PYTHON_COMPAT=( python2_7 )
+PYTHON_COMPAT=( python2_6 python2_7 )
 inherit autotools-utils linux-info multilib pam python-single-r1 systemd toolchain-funcs udev user
 
 DESCRIPTION="System and service manager for Linux"
