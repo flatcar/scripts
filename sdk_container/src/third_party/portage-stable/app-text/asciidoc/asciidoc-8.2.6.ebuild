@@ -1,17 +1,17 @@
-# Copyright 1999-2008 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-text/asciidoc/asciidoc-8.2.6.ebuild,v 1.8 2008/12/07 11:45:39 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-text/asciidoc/asciidoc-8.2.6.ebuild,v 1.11 2012/09/15 04:31:54 floppym Exp $
 
 DESCRIPTION="A text document format for writing short documents, articles, books and UNIX man pages"
 HOMEPAGE="http://www.methods.co.nz/asciidoc/"
-SRC_URI="http://www.methods.co.nz/${PN}/${P}.tar.gz"
+SRC_URI="mirror://sourceforge/project/${PN}/${PN}/${PV}/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~x86-fbsd"
 IUSE="examples vim-syntax"
 
-DEPEND=">=virtual/python-2.3
+DEPEND=">=dev-lang/python-2.3
 		dev-libs/libxslt"
 
 src_unpack() {
