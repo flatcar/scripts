@@ -1,0 +1,19 @@
+Only in lbzip2: .lfs.sh.swp
+diff -u lbzip2.orig//test.sh lbzip2/test.sh
+--- lbzip2.orig//test.sh	2009-11-26 22:38:44.000000000 -0500
++++ lbzip2/test.sh	2011-08-14 19:28:31.746454047 -0400
+@@ -99,12 +99,8 @@
+ }
+ EOT
+ 
+-  T_CFLAGS="$(set CFLAGS; set +e; . "$OLDPWD"/lfs.sh)"
+-  T_LDFLAGS="$(set LDFLAGS; set +e; . "$OLDPWD"/lfs.sh)"
+-  T_LIBS="$(set LIBS; set +e; . "$OLDPWD"/lfs.sh)"
+-
+-  $C_CC1 $T_CFLAGS -D _XOPEN_SOURCE=500 $C_CC2 -o scratch/nullfmt -s \
+-      $T_LDFLAGS scratch/nullfmt.c $T_LIBS
++  $C_CC1 $CFLAGS $C_CC2 -o scratch/nullfmt -s \
++      $LDFLAGS scratch/nullfmt.c $LIBS
+   C_NULLFMT="$(scratch/nullfmt)"
+ fi
+ readonly C_NULLFMT
