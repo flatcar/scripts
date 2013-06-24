@@ -1,6 +1,51 @@
 # ChangeLog for dev-python/boto
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-python/boto/ChangeLog,v 1.53 2013/01/25 04:50:57 radhermit Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-python/boto/ChangeLog,v 1.63 2013/06/19 03:47:57 radhermit Exp $
+
+*boto-2.9.6 (19 Jun 2013)
+
+  19 Jun 2013; Tim Harder <radhermit@gentoo.org> +boto-2.9.6.ebuild:
+  Version bump.
+
+  03 Jun 2013; Sébastien Fabbro <bicatali@gentoo.org> boto-2.9.5.ebuild:
+  Keyword amd64-linux and x86-linux
+
+*boto-2.9.5 (29 May 2013)
+
+  29 May 2013; Tim Harder <radhermit@gentoo.org> +boto-2.9.5.ebuild:
+  Version bump.
+
+*boto-2.9.4 (21 May 2013)
+
+  21 May 2013; Tim Harder <radhermit@gentoo.org> +boto-2.9.4.ebuild:
+  Version bump.
+
+*boto-2.9.3 (16 May 2013)
+
+  16 May 2013; Tim Harder <radhermit@gentoo.org> +boto-2.9.3.ebuild:
+  Version bump.
+
+*boto-2.9.2 (01 May 2013)
+
+  01 May 2013; Tim Harder <radhermit@gentoo.org> +boto-2.9.2.ebuild:
+  Version bump.
+
+  20 Feb 2013; Matthew Thode <prometheanfire@gentoo.org> boto-2.1.1.ebuild:
+  added comment to boto-2.1.1 to hopefully prevent bad pruning
+
+  20 Feb 2013; Matthew Thode <prometheanfire@gentoo.org> boto-2.1.1.ebuild:
+  readding boto-2.1.1 as sys-cluster/nova requires it
+
+  05 Feb 2013; Tim Harder <radhermit@gentoo.org> -boto-2.0.ebuild,
+  -boto-2.1.1.ebuild, -boto-2.2.2.ebuild, -boto-2.2.2-r1.ebuild,
+  -files/boto-2.2.2-no-install-tests.patch, -boto-2.4.1.ebuild,
+  -boto-2.5.2.ebuild:
+  Remove old.
+
+*boto-2.8.0 (05 Feb 2013)
+
+  05 Feb 2013; Tim Harder <radhermit@gentoo.org> +boto-2.8.0.ebuild:
+  Version bump.
 
 *boto-2.7.0 (25 Jan 2013)
 
