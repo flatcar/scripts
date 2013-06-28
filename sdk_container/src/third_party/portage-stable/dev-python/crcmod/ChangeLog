@@ -1,0 +1,23 @@
+# ChangeLog for dev-python/crcmod
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-python/crcmod/ChangeLog,v 1.4 2012/02/10 04:08:57 patrick Exp $
+
+  10 Feb 2012; Patrick Lauer <patrick@gentoo.org> crcmod-1.7-r1.ebuild,
+  crcmod-1.7.ebuild:
+  Changing python deps in preparation for 2.4 removal
+
+*crcmod-1.7-r1 (10 Oct 2011)
+
+  10 Oct 2011; Stefan Briesenick <sbriesen@gentoo.org> +crcmod-1.7-r1.ebuild:
+  added python 3.2 abi support, solves bug #378923.
+
+  10 Oct 2010; Arfrever Frehtes Taifersar Arahesis <arfrever@gentoo.org>
+  crcmod-1.7.ebuild:
+  Update EAPI.
+
+*crcmod-1.7 (22 Jul 2010)
+
+  22 Jul 2010; Stefan Briesenick <sbriesen@gentoo.org> +crcmod-1.7.ebuild,
+  +metadata.xml:
+  initial commit.
+
