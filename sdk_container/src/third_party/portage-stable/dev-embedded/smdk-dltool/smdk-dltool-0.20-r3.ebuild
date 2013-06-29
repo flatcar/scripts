@@ -17,7 +17,8 @@ KEYWORDS="amd64 x86"
 IUSE=""
 
 RDEPEND="virtual/libusb:1"
-DEPEND="${RDEPEND}"
+DEPEND="${RDEPEND}
+	dev-util/pkgconfig"
 
 S=${WORKDIR}/releases/smdk-tools-v${PV}/dltool
 
