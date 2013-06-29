@@ -1,6 +1,12 @@
 # ChangeLog for sys-devel/dev86
-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/dev86/ChangeLog,v 1.25 2012/11/28 10:41:09 polynomial-c Exp $
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/dev86/ChangeLog,v 1.27 2013/02/25 11:39:32 ago Exp $
+
+  25 Feb 2013; Agostino Sarubbo <ago@gentoo.org> dev86-0.16.19.ebuild:
+  Stable for x86, wrt bug #457478
+
+  25 Feb 2013; Agostino Sarubbo <ago@gentoo.org> dev86-0.16.19.ebuild:
+  Stable for amd64, wrt bug #457478
 
   28 Nov 2012; Lars Wendler <polynomial-c@gentoo.org> metadata.xml:
   Dropped myself as maintainer.
