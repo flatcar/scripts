@@ -1,0 +1,14 @@
+--- OpenSSL/ssl/context.c
++++ OpenSSL/ssl/context.c
+@@ -1095,7 +1095,11 @@
+  */
+ static ssl_ContextObj*
+ ssl_Context_init(ssl_ContextObj *self, int i_method) {
++    #if OPENSSL_VERSION_NUMBER >= 0x10000000L
++    const SSL_METHOD *method;
++    #else
+     SSL_METHOD *method;
++    #endif
+ 
+     switch (i_method) {
+         case ssl_SSLv2_METHOD:
