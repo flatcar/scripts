@@ -1,6 +1,12 @@
 # ChangeLog for dev-lang/go
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-lang/go/ChangeLog,v 1.14 2013/05/20 20:56:40 williamh Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-lang/go/ChangeLog,v 1.15 2013/06/14 01:10:58 williamh Exp $
+
+*go-1.1.1 (14 Jun 2013)
+
+  14 Jun 2013; William Hubbs <williamh@gentoo.org> +go-1.1.1.ebuild,
+  +files/go-1.1.1-no-Werror.patch:
+  version bump for #473150
 
   20 May 2013; William Hubbs <williamh@gentoo.org>
   -files/go-1.0.3-hardened.patch, -files/go-1.0.3-no-Werror.patch,
