@@ -14,9 +14,12 @@
 		<flag name="ssh">Enabled SSH urls in curl using libssh2</flag>
 		<flag name="gnutls">Prefer gnutls over nss and openssl as the crypto engine</flag>
 		<flag name="metalink">Enable metalink support</flag>
-		<flag name="nonblocking">Enable nonblocking communication</flag>
 		<flag name="nss">Prefer NSS over openssl as the crypto engine</flag>
 		<flag name="ssl">Enable crypto engine support (via openssl if USE='-gnutls -nss')</flag>
 		<flag name="rtmp">Enable Enables RTMPDump Streaming Media support</flag>
 	</use>
+	<upstream>
+		<remote-id type="cpe">cpe:/a:curl:curl</remote-id>
+		<remote-id type="cpe">cpe:/a:curl:libcurl</remote-id>
+	</upstream>
 </pkgmetadata>

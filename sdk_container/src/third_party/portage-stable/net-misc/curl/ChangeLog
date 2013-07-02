@@ -1,6 +1,107 @@
 # ChangeLog for net-misc/curl
-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/curl/ChangeLog,v 1.255 2012/11/20 18:22:58 blueness Exp $
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-misc/curl/ChangeLog,v 1.285 2013/06/22 14:24:52 blueness Exp $
+
+*curl-7.31.0 (22 Jun 2013)
+
+  22 Jun 2013; Anthony G. Basile <blueness@gentoo.org> +curl-7.31.0.ebuild:
+  Version bump, addresses CVE-2013-2174
+
+  09 Jun 2013; Mike Frysinger <vapier@gentoo.org> metadata.xml:
+  Add upstream CPE tag (security info) from ChromiumOS.
+
+  09 Jun 2013; Agostino Sarubbo <ago@gentoo.org> curl-7.30.0.ebuild:
+  Stable for sh, wrt bug #465678
+
+  26 May 2013; Agostino Sarubbo <ago@gentoo.org> curl-7.30.0.ebuild:
+  Stable for s390, wrt bug #465678
+
+  11 May 2013; Agostino Sarubbo <ago@gentoo.org> curl-7.30.0.ebuild:
+  Stable for sparc, wrt bug #465678
+
+  11 May 2013; Agostino Sarubbo <ago@gentoo.org> curl-7.30.0.ebuild:
+  Stable for ppc, wrt bug #465678
+
+  11 May 2013; Agostino Sarubbo <ago@gentoo.org> curl-7.30.0.ebuild:
+  Stable for ppc64, wrt bug #465678
+
+  11 May 2013; Agostino Sarubbo <ago@gentoo.org> curl-7.30.0.ebuild:
+  Stable for ia64, wrt bug #465678
+
+  11 May 2013; Agostino Sarubbo <ago@gentoo.org> curl-7.30.0.ebuild:
+  Stable for arm, wrt bug #465678
+
+  11 May 2013; Agostino Sarubbo <ago@gentoo.org> curl-7.30.0.ebuild:
+  Stable for alpha, wrt bug #465678
+
+  11 May 2013; Agostino Sarubbo <ago@gentoo.org> curl-7.30.0.ebuild:
+  Stable for x86, wrt bug #465678
+
+  11 May 2013; Agostino Sarubbo <ago@gentoo.org> curl-7.30.0.ebuild:
+  Stable for amd64, wrt bug #465678
+
+  10 May 2013; Jeroen Roovers <jer@gentoo.org> curl-7.30.0.ebuild:
+  Stable for HPPA (bug #465678).
+
+*curl-7.30.0 (17 Apr 2013)
+
+  17 Apr 2013; Anthony G. Basile <blueness@gentoo.org> +curl-7.30.0.ebuild,
+  +files/curl-7.30.0-prefix.patch, metadata.xml:
+  Version bump, security bug #465678
+
+  24 Mar 2013; Anthony G. Basile <blueness@gentoo.org> -curl-7.27.0-r3.ebuild,
+  -curl-7.28.0-r1.ebuild, -curl-7.28.1.ebuild:
+  Remove older unstable versions
+
+  15 Mar 2013; Agostino Sarubbo <ago@gentoo.org> curl-7.29.0-r1.ebuild:
+  Stable for sh, wrt bug #456074
+
+  10 Mar 2013; Agostino Sarubbo <ago@gentoo.org> curl-7.29.0-r1.ebuild:
+  Stable for s390, wrt bug #456074
+
+  09 Mar 2013; Agostino Sarubbo <ago@gentoo.org> curl-7.29.0-r1.ebuild:
+  Stable for sparc, wrt bug #456074
+
+  09 Mar 2013; Agostino Sarubbo <ago@gentoo.org> curl-7.29.0-r1.ebuild:
+  Stable for x86, wrt bug #456074
+
+  09 Mar 2013; Agostino Sarubbo <ago@gentoo.org> curl-7.29.0-r1.ebuild:
+  Stable for ia64, wrt bug #456074
+
+  09 Mar 2013; Agostino Sarubbo <ago@gentoo.org> curl-7.29.0-r1.ebuild:
+  Stable for alpha, wrt bug #456074
+
+  09 Mar 2013; Agostino Sarubbo <ago@gentoo.org> curl-7.29.0-r1.ebuild:
+  Stable for ppc64, wrt bug #456074
+
+  08 Mar 2013; Agostino Sarubbo <ago@gentoo.org> curl-7.29.0-r1.ebuild:
+  Stable for arm, wrt bug #456074
+
+  06 Mar 2013; Agostino Sarubbo <ago@gentoo.org> curl-7.29.0-r1.ebuild:
+  Stable for amd64, wrt bug #456074
+
+  05 Mar 2013; Jeroen Roovers <jer@gentoo.org> curl-7.29.0-r1.ebuild:
+  Stable for HPPA (bug #456074).
+
+  04 Mar 2013; Brent Baude <ranger@gentoo.org> curl-7.29.0-r1.ebuild:
+  Marking curl-7.29.0-r1 ppc for bug 456074
+
+  21 Feb 2013; Zac Medico <zmedico@gentoo.org> curl-7.29.0-r1.ebuild:
+  Add ~arm-linux keyword.
+
+*curl-7.29.0-r1 (12 Feb 2013)
+
+  12 Feb 2013; Anthony G. Basile <blueness@gentoo.org> +curl-7.29.0-r1.ebuild,
+  +files/curl-7.29.0-fix-null-pointer.patch, -curl-7.29.0.ebuild:
+  Fix null pointer ref, bug #456842
+
+  09 Feb 2013; Anthony G. Basile <blueness@gentoo.org> curl-7.29.0.ebuild:
+  Remove USE=nonblocking, bug #456320
+
+*curl-7.29.0 (07 Feb 2013)
+
+  07 Feb 2013; Anthony G. Basile <blueness@gentoo.org> +curl-7.29.0.ebuild:
+  Verson bump
 
 *curl-7.28.1 (20 Nov 2012)
 
