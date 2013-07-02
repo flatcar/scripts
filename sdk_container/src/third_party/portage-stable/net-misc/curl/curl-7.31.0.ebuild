@@ -1,8 +1,8 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/curl/curl-7.27.0-r3.ebuild,v 1.3 2012/11/11 00:27:44 blueness Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-misc/curl/curl-7.31.0.ebuild,v 1.1 2013/06/22 14:24:52 blueness Exp $
 
-EAPI="4"
+EAPI="5"
 
 inherit autotools eutils prefix
 
@@ -12,7 +12,7 @@ SRC_URI="http://curl.haxx.se/download/${P}.tar.bz2"
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="adns idn ipv6 kerberos ldap metalink rtmp ssh ssl static-libs test threads"
 IUSE="${IUSE} curl_ssl_axtls curl_ssl_cyassl curl_ssl_gnutls curl_ssl_nss +curl_ssl_openssl curl_ssl_polarssl"
 
@@ -64,11 +64,9 @@ DEPEND="${RDEPEND}
 	)"
 
 # c-ares must be disabled for threads
-# metalink cannot use nss for its backend #433822
 # only one ssl provider can be enabled
 REQUIRED_USE="
 	threads? ( !adns )
-	metalink? ( !curl_ssl_nss )
 	ssl? (
 		^^ (
 			curl_ssl_axtls
@@ -85,12 +83,9 @@ DOCS=( CHANGES README docs/FEATURES docs/INTERNALS \
 
 src_prepare() {
 	epatch \
-		"${FILESDIR}"/${PN}-7.27.0-curl-config.patch \
-		"${FILESDIR}"/${PN}-7.27.0-prefix.patch \
+		"${FILESDIR}"/${PN}-7.30.0-prefix.patch \
 		"${FILESDIR}"/${PN}-respect-cflags-3.patch \
-		"${FILESDIR}"/${PN}-fix-gnutls-nettle.patch \
-		"${FILESDIR}"/${PN}-7.27.0-fix-nettle-include.patch \
-		"${FILESDIR}"/${PN}-7.27.0-fix-metalink-gnutls.patch
+		"${FILESDIR}"/${PN}-fix-gnutls-nettle.patch
 	sed -i '/LD_LIBRARY_PATH=/d' configure.ac || die #382241
 
 	eprefixify curl-config.in
@@ -177,7 +172,6 @@ src_configure() {
 		$(use_enable ipv6) \
 		--enable-largefile \
 		--enable-manual \
-		--enable-nonblocking \
 		--enable-proxy \
 		--disable-soname-bump \
 		--disable-sspi \
