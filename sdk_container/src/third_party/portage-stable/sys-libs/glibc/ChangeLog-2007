@@ -1,6 +1,6 @@
 # ChangeLog for sys-libs/glibc
-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/ChangeLog-2007,v 1.1 2012/01/02 16:02:57 dilfridge Exp $
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/ChangeLog-2007,v 1.2 2013/02/09 04:42:17 vapier Exp $
 
   31 Dec 2007; Jeroen Roovers <jer@gentoo.org> glibc-2.7-r1.ebuild:
   Stable for HPPA.
@@ -943,7 +943,7 @@
   CVS update for gcc-4.0.0 testing.  Added 5090_all_stubs-rule-fix.patch
   to patches to fix:
   
-    http://sources.redhat.com/ml/libc-alpha/2005-04/msg00098.html
+    http://sourceware.org/ml/libc-alpha/2005-04/msg00098.html
 
   13 Apr 2005; Luca Barbato <lu_zero@gentoo.org> glibc-2.3.5.ebuild:
   Marked ~ppc
@@ -1312,7 +1312,7 @@
   10 Oct 2004; Travis Tilley <lv@gentoo.org>
   +files/2.3.4/glibc-2.3.4-res_init.patch, glibc-2.3.4.20040808-r1.ebuild:
   added fix for a relocation error on at least amd64 and ia64. see
-  http://sources.redhat.com/ml/libc-alpha/2004-08/msg00076.html for more info.
+  http://sourceware.org/ml/libc-alpha/2004-08/msg00076.html for more info.
   closes bug 66396.
 
 *glibc-2.3.2-r12 (07 Oct 2004)
@@ -1342,7 +1342,7 @@
   +glibc-2.3.4.20041002.ebuild:
   updated to the latest fedora-branch snapshot. among other things, this fixes
   the pthread_mutex_timedwait bug detailed at
-  http://sources.redhat.com/bugzilla/show_bug.cgi?id=417
+  http://sourceware.org/bugzilla/show_bug.cgi?id=417
 
   01 Oct 2004; Joshua Kinard <kumba@gentoo.org> glibc-2.3.4.20040808.ebuild:
   Added ~mips to keywords. Only n32 users should see this upgrade, but ONLY if
@@ -1462,7 +1462,7 @@
   16 Aug 2004; Travis Tilley <lv@gentoo.org>
   +files/2.3.4/glibc-2.3.4-ld.so-brk-fix.patch, glibc-2.3.4.20040808.ebuild:
   added ld.so brk patch, which should fix the upstream bug detailed at
-  http://sources.redhat.com/bugzilla/show_bug.cgi?id=227
+  http://sourceware.org/bugzilla/show_bug.cgi?id=227
 
   15 Aug 2004; Travis Tilley <lv@gentoo.org> -glibc-2.3.3_pre20040207.ebuild:
   removed ebuild now that alpha and ia64 dont use it
@@ -2336,7 +2336,7 @@
   Downgrade nptl to version 0.28 and add glibc-2.3.2-gcc33-sscanf.patch to
   fix compile errors with gcc-3.3:
 
-    http://sources.redhat.com/ml/libc-alpha/2003-03/msg00052.html
+    http://sourceware.org/ml/libc-alpha/2003-03/msg00052.html
 
 *glibc-2.3.2-r2 (18 May 2003)
 
@@ -2479,7 +2479,7 @@
 
   Small patch "prelinkfix" which fixes rare error with prelinking and
   preloading some executables. Patch taken from glibc CVS.
-  http://sources.redhat.com/ml/libc-alpha/2002-11/msg00151.html
+  http://sourceware.org/ml/libc-alpha/2002-11/msg00151.html
 
   16 Nov 2002; Martin Schlemmer <azarah@gentoo.org> glibc-2.3.1-r2.ebuild :
 
@@ -2504,7 +2504,7 @@
   One more compat issue which breaks sun-jdk-1.3.1.  See bug #8766 for more
   info, and also:
 
-    http://sources.redhat.com/ml/libc-alpha/2002-04/msg00143.html
+    http://sourceware.org/ml/libc-alpha/2002-04/msg00143.html
 
   Thanks to Jan Gutter <jangutter@tuks.co.za> for reporting it.  Added
   libc_wait-compat.patch as fix.
@@ -2540,7 +2540,7 @@
 
   Added semctl patch for sparc.  Thanks to nall <nall@gentoo.org> for
   finding this at:
-  http://sources.redhat.com/ml/libc-hacker/2002-04/msg00071.html
+  http://sourceware.org/ml/libc-hacker/2002-04/msg00071.html
 
   13 Oct 2002; Martin Schlemmer <azarah@gentoo.org> glibc-2.2.5-r7.ebuild :
 
@@ -2583,7 +2583,7 @@
   running back in.  Seems the relocation problems was also a cause of
   the atexit() bug, and fixed in gcc-2.95.3-r7 and later.
 
-   http://sources.redhat.com/ml/bug-glibc/2002-04/msg00025.html
+   http://sourceware.org/ml/bug-glibc/2002-04/msg00025.html
    http://bugs.gentoo.org/show_bug.cgi?id=501
 
 *glibc-2.2.5-r6 (02 Aug 2002)

@@ -1,5 +1,105 @@
 # ChangeLog for sys-libs/glibc
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/ChangeLog,v 1.921 2013/01/28 19:53:58 vapier Exp $
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/ChangeLog,v 1.944 2013/06/29 03:22:33 heroxbd Exp $
+
+  29 Jun 2013; Benda Xu <heroxbd@gentoo.org> files/eblits/common.eblit,
+  files/eblits/pkg_preinst.eblit, files/eblits/pkg_setup.eblit,
+  files/eblits/src_install.eblit, files/eblits/src_unpack.eblit:
+  Apply trivial Prefix adjustment first: For vanilla portage, EPREFIX is null,
+  ED and EROOT are D and ROOT. The rest of Prefix support is still under review
+  by vapier. (bug 473728)
+
+  27 Jun 2013; Jeroen Roovers <jer@gentoo.org> glibc-2.17.ebuild:
+  Stable for HPPA too.
+
+  26 Jun 2013; Mike Frysinger <vapier@gentoo.org> glibc-2.17.ebuild:
+  Fix from upstream for localedef behavior on arches where MAP_FIXED requires
+  SHMLBA alignment #471020 by Jeroen Roovers.
+
+  23 Jun 2013; Mike Frysinger <vapier@gentoo.org> glibc-2.16.0.ebuild,
+  glibc-2.17.ebuild:
+  Fix from upstream for qecvt func decl handling #450714 by Dennis Schridde.
+
+  12 May 2013; Patrick Lauer <patrick@gentoo.org> metadata.xml:
+  Drop obsolete use flags from metadata.xml
+
+  09 May 2013; Mike Frysinger <vapier@gentoo.org> glibc-2.15-r3.ebuild:
+  Mark sh stable.
+
+  28 Apr 2013; Mike Frysinger <vapier@gentoo.org> glibc-2.17.ebuild:
+  Add fix from upstream for arm ld.so.cache lib tags #454200.
+
+  11 Apr 2013; Mike Frysinger <vapier@gentoo.org> files/eblits/src_test.eblit:
+  Fix return code checking in src_test for both multilib & non-multilib builds
+  #451922 by William Throwe.
+
+  10 Apr 2013; Mike Frysinger <vapier@gentoo.org>
+  files/eblits/pkg_preinst.eblit, files/eblits/src_install.eblit:
+  Add `in_iuse suid` checks before doing `use suid` so older ebuilds work.
+
+  10 Apr 2013; Mike Frysinger <vapier@gentoo.org>
+  files/eblits/pkg_preinst.eblit, files/eblits/src_install.eblit,
+  glibc-2.16.0.ebuild, glibc-2.17.ebuild, glibc-9999.ebuild, metadata.xml:
+  Add USE=suid to control pt_chown setuid behavior #465308 by Nikoli.
+
+  05 Apr 2013; Mike Frysinger <vapier@gentoo.org>
+  files/eblits/src_compile.eblit:
+  Force mips float/abi cached vars #464642 by Bertrand Jacquin. Update the logic
+  to log each var (and its value) that it forced to make debugging simpler.
+
+  05 Apr 2013; Mike Frysinger <vapier@gentoo.org> glibc-2.17.ebuild:
+  Disable mips librt patch as it no longer applies -- lets see if people
+  complain about ABI compat #456912 by Manuel Lauss.
+
+  05 Apr 2013; Mike Frysinger <vapier@gentoo.org>
+  files/eblits/src_compile.eblit:
+  Disable info manual generation to simplify older builds #464394 by Jason
+  Mours.
+
+  05 Apr 2013; Mike Frysinger <vapier@gentoo.org>
+  files/eblits/src_install.eblit, files/eblits/src_unpack.eblit,
+  glibc-2.10.1-r1.ebuild, glibc-2.11.3.ebuild, glibc-2.12.1-r3.ebuild,
+  glibc-2.12.2.ebuild, glibc-2.13-r2.ebuild, glibc-2.13-r4.ebuild,
+  glibc-2.14.1-r2.ebuild, glibc-2.14.1-r3.ebuild, glibc-2.14.ebuild,
+  glibc-2.15-r1.ebuild, glibc-2.15-r2.ebuild, glibc-2.15-r3.ebuild,
+  glibc-2.16.0.ebuild, glibc-2.17.ebuild, glibc-2.9_p20081201-r3.ebuild,
+  glibc-9999.ebuild:
+  Drop MANPAGE_VER/INFOPAGE_VER support as we haven't used it in a long time.
+
+  04 Apr 2013; Jeroen Roovers <jer@gentoo.org> glibc-2.17.ebuild:
+  Marked ~hppa too.
+
+  01 Apr 2013; Mike Frysinger <vapier@gentoo.org>
+  files/eblits/src_install.eblit:
+  Do not install nscd config files when USE=-nscd #463786 by Harris Landgarten.
+
+  28 Mar 2013; Mike Frysinger <vapier@gentoo.org> glibc-2.17.ebuild:
+  Move to ~arch.
+
+  28 Mar 2013; Mike Frysinger <vapier@gentoo.org>
+  files/eblits/src_install.eblit:
+  Fix array walking logic with ldsos.
+
+  12 Feb 2013; Jeroen Roovers <jer@gentoo.org> glibc-2.15-r1.ebuild,
+  glibc-2.15-r2.ebuild:
+  Mask sys-libs/glibc-2.15 for HPPA too.
+
+  12 Feb 2013; Raúl Porcel <armin76@gentoo.org> glibc-2.15-r3.ebuild:
+  m68k stable
+
+  09 Feb 2013; Mike Frysinger <vapier@gentoo.org>
+  files/eblits/pkg_preinst.eblit:
+  Revert manual gcc dir search #453760 since that the real bug is broken
+  ld.so.cache searching #454200.
+
+  09 Feb 2013; Mike Frysinger <vapier@gentoo.org> ChangeLog-2007,
+  files/eblits/src_unpack.eblit, glibc-2.10.1-r1.ebuild, glibc-2.11.3.ebuild,
+  glibc-2.12.1-r3.ebuild, glibc-2.12.2.ebuild, glibc-2.13-r2.ebuild,
+  glibc-2.13-r4.ebuild, glibc-2.14.1-r2.ebuild, glibc-2.14.1-r3.ebuild,
+  glibc-2.14.ebuild, glibc-2.15-r1.ebuild, glibc-2.15-r2.ebuild,
+  glibc-2.15-r3.ebuild, glibc-2.16.0.ebuild, glibc-2.17.ebuild,
+  glibc-2.9_p20081201-r3.ebuild, glibc-9999.ebuild:
+  Update SRC_URI/bug/mail links to use sourceware.org #455152 by wbrana.
 
   28 Jan 2013; Mike Frysinger <vapier@gentoo.org>
   files/eblits/src_compile.eblit:

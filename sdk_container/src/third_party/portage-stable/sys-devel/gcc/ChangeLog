@@ -1,6 +1,94 @@
 # ChangeLog for sys-devel/gcc
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/ChangeLog,v 1.935 2013/01/22 15:55:01 jer Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/ChangeLog,v 1.952 2013/06/04 05:25:51 dirtyepic Exp $
+
+*gcc-4.8.1 (04 Jun 2013)
+
+  04 Jun 2013; Ryan Hill <dirtyepic@gentoo.org> +gcc-4.8.1.ebuild:
+  Version bump (bug #472116).
+
+  20 May 2013; Alexis Ballier <aballier@gentoo.org> gcc-4.7.0.ebuild,
+  gcc-4.7.1.ebuild, gcc-4.7.2-r1.ebuild, gcc-4.7.3.ebuild:
+  drop fbsd keywords on gcc 4.7: bug #444678; gcc 4.8 is fine so we can move on
+  with that version when it gets unmasked.
+
+  19 May 2013; Anthony G. Basile <blueness@gentoo.org> gcc-4.8.0.ebuild:
+  PIE/SSP work on mips for both glibc and uclibc
+
+  15 May 2013; Ryan Hill <dirtyepic@gentoo.org> gcc-4.4.3-r3.ebuild,
+  gcc-4.4.4-r2.ebuild, gcc-4.4.5.ebuild, gcc-4.4.6-r1.ebuild, gcc-4.4.7.ebuild,
+  gcc-4.5.1-r1.ebuild, gcc-4.5.2.ebuild, gcc-4.5.3-r2.ebuild, gcc-4.5.4.ebuild,
+  gcc-4.6.0.ebuild, gcc-4.6.1-r1.ebuild, gcc-4.6.2.ebuild, gcc-4.6.3.ebuild,
+  gcc-4.6.4.ebuild, gcc-4.7.0.ebuild, gcc-4.7.1.ebuild, gcc-4.7.2-r1.ebuild,
+  gcc-4.8.0.ebuild:
+  Stick LTO message behind USE flag and drop warnings that no longer apply.
+
+*gcc-4.7.3 (15 May 2013)
+
+  15 May 2013; Ryan Hill <dirtyepic@gentoo.org> +gcc-4.7.3.ebuild,
+  metadata.xml:
+  Version bump, bug #465622. Also fixes bug #443092 (ICE with -fprofile-use
+  --coverage) and a wrong code bug with -mxop.
+
+  07 May 2013; Ryan Hill <dirtyepic@gentoo.org> gcc-4.8.0.ebuild:
+  4.8.0 p1.3: Fixes bug #465894 (wine memcopy breakage) and a couple of wrong
+  code bugs for -march=bdver2.
+
+*gcc-4.6.4 (23 Apr 2013)
+
+  23 Apr 2013; Ryan Hill <dirtyepic@gentoo.org> +gcc-4.6.4.ebuild:
+  Version bump. Fixes bug #411691 (ICE building stable boost) and bug #454426
+  (bootstrap fails on alpha).
+
+  21 Apr 2013; Mike Frysinger <vapier@gentoo.org> gcc-4.4.7.ebuild,
+  gcc-4.5.4.ebuild, gcc-4.6.3.ebuild, gcc-4.7.2-r1.ebuild, gcc-4.8.0.ebuild:
+  Fix default armv4 linking behavior.
+
+  20 Apr 2013; Mike Frysinger <vapier@gentoo.org> gcc-4.4.7.ebuild,
+  gcc-4.5.4.ebuild, gcc-4.6.3.ebuild, gcc-4.7.2-r1.ebuild, gcc-4.8.0.ebuild:
+  Add missing call to toolchain_pkg_postinst so gcc-config and friends kick in
+  properly.
+
+  12 Apr 2013; Ulrich Müller <ulm@gentoo.org> gcc-3.1.1-r2.ebuild,
+  gcc-3.2.3-r4.ebuild, gcc-4.0.4.ebuild, gcc-4.1.2.ebuild, gcc-4.2.4-r1.ebuild,
+  gcc-4.3.3-r2.ebuild, gcc-4.3.4.ebuild, gcc-4.3.5.ebuild, gcc-4.3.6-r1.ebuild,
+  gcc-4.4.2.ebuild, gcc-4.4.3-r3.ebuild, gcc-4.4.4-r2.ebuild, gcc-4.4.5.ebuild,
+  gcc-4.4.6-r1.ebuild, gcc-4.4.7.ebuild, gcc-4.5.1-r1.ebuild, gcc-4.5.2.ebuild,
+  gcc-4.5.3-r2.ebuild, gcc-4.5.4.ebuild, gcc-4.6.0.ebuild, gcc-4.6.1-r1.ebuild,
+  gcc-4.6.2.ebuild, gcc-4.6.3.ebuild, gcc-4.7.0.ebuild, gcc-4.7.1.ebuild,
+  gcc-4.7.2-r1.ebuild, gcc-4.8.0.ebuild:
+  Update LICENSE to FDL-1.3+ for gcc-4.6.0 and later versions, bug 464670.
+  Change all GNU licenses to the "or later" variant.
+
+  05 Apr 2013; Mike Frysinger <vapier@gentoo.org> gcc-4.8.0.ebuild:
+  Fix cross-compile builds #464640 by Tim Northover.
+
+*gcc-4.8.0 (04 Apr 2013)
+
+  04 Apr 2013; Ryan Hill <dirtyepic@gentoo.org> +gcc-4.8.0.ebuild:
+  Version bump (bug #462736).
+
+  12 Mar 2013; Agostino Sarubbo <ago@gentoo.org> gcc-4.6.3.ebuild:
+  Move back to ~sparc with the acknowledge of the sparc team, because of bug
+  #457062
+
+  02 Mar 2013; Ryan Hill <dirtyepic@gentoo.org> -gcc-4.7.2.ebuild,
+  gcc-4.7.2-r1.ebuild:
+  4.7.2 p1.5: Fixes PR56125 (wrong code with -ffast-math).
+
+*gcc-4.7.2-r1 (25 Feb 2013)
+
+  25 Feb 2013; Ryan Hill <dirtyepic@gentoo.org> +gcc-4.7.2-r1.ebuild,
+  -files/pro-police-docs.patch:
+  4.7.2 p1.4: Fixes bug #451680 (bootstrap comparison failure on alpha),
+  bug #421305 and #417271 (libitm build breakage), and PR55940 (incorrect
+  code building virtualbox kernel modules). Revbump for unmasking.
+
+  08 Feb 2013; Agostino Sarubbo <ago@gentoo.org> gcc-4.6.3.ebuild:
+  Stable for s390, wrt bug #418383
+
+  07 Feb 2013; Agostino Sarubbo <ago@gentoo.org> gcc-4.6.3.ebuild:
+  Stable for sh, wrt bug #418383
 
   22 Jan 2013; Jeroen Roovers <jer@gentoo.org> gcc-4.6.3.ebuild:
   Stable for HPPA (bug #418383).

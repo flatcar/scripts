@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/glibc-2.15-r2.ebuild,v 1.27 2012/12/30 17:16:50 ulm Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/glibc-2.15-r2.ebuild,v 1.30 2013/04/05 00:25:16 vapier Exp $
 
 inherit eutils versionator toolchain-funcs flag-o-matic gnuconfig multilib unpacker multiprocessing
 
@@ -8,7 +8,7 @@ DESCRIPTION="GNU libc6 (also called glibc2) C library"
 HOMEPAGE="http://www.gnu.org/software/libc/libc.html"
 
 LICENSE="LGPL-2.1+ BSD HPND inner-net"
-KEYWORDS="alpha amd64 arm ia64 ~mips ppc ppc64 s390 ~sh sparc x86"
+KEYWORDS="alpha amd64 arm -hppa ia64 ~mips ppc ppc64 s390 ~sh sparc x86"
 RESTRICT="strip" # strip ourself #46186
 EMULTILIB_PKG="true"
 
@@ -30,8 +30,6 @@ case ${PV} in
 	RELEASE_VER=${PV}
 	;;
 esac
-MANPAGE_VER=""                                 # pregenerated manpages
-INFOPAGE_VER=""                                # pregenerated infopages
 LIBIDN_VER=""                                  # it's integrated into the main tarball now
 PATCH_VER="21"                                 # Gentoo patchset
 PORTS_VER=${RELEASE_VER}                       # version of glibc ports addon
@@ -103,7 +101,7 @@ fi
 
 SRC_URI=$(
 	upstream_uris() {
-		echo mirror://gnu/glibc/$1 ftp://sources.redhat.com/pub/glibc/{releases,snapshots}/$1 mirror://gentoo/$1
+		echo mirror://gnu/glibc/$1 ftp://sourceware.org/pub/glibc/{releases,snapshots}/$1 mirror://gentoo/$1
 	}
 	gentoo_uris() {
 		local devspace="HTTP~vapier/dist/URI HTTP~azarah/glibc/URI"
@@ -123,8 +121,6 @@ SRC_URI=$(
 	[[ -n ${PORTS_VER}     ]] && upstream_uris ${TARNAME}-ports-${PORTS_VER}.tar.xz
 	[[ -n ${BRANCH_UPDATE} ]] && gentoo_uris glibc-${RELEASE_VER}-branch-update-${BRANCH_UPDATE}.patch.bz2
 	[[ -n ${PATCH_VER}     ]] && gentoo_uris glibc-${RELEASE_VER}-patches-${PATCH_VER}.tar.bz2
-	[[ -n ${MANPAGE_VER}   ]] && gentoo_uris glibc-manpages-${MANPAGE_VER}.tar.bz2
-	[[ -n ${INFOPAGE_VER}  ]] && gentoo_uris glibc-infopages-${INFOPAGE_VER}.tar.bz2
 )
 
 # eblit-include [--skip] <function> [version]

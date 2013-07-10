@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/glibc-2.17.ebuild,v 1.7 2013/01/23 05:27:59 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/glibc-2.17.ebuild,v 1.16 2013/06/27 12:19:41 jer Exp $
 
 inherit eutils versionator toolchain-funcs flag-o-matic gnuconfig multilib unpacker multiprocessing
 
@@ -8,7 +8,7 @@ DESCRIPTION="GNU libc6 (also called glibc2) C library"
 HOMEPAGE="http://www.gnu.org/software/libc/libc.html"
 
 LICENSE="LGPL-2.1+ BSD HPND ISC inner-net rc PCRE"
-#KEYWORDS="~alpha ~amd64 ~arm -hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86"
+KEYWORDS="~alpha ~amd64 ~arm hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86"
 RESTRICT="strip" # strip ourself #46186
 EMULTILIB_PKG="true"
 
@@ -24,10 +24,10 @@ case ${PV} in
 	RELEASE_VER=${PV}
 	;;
 esac
-PATCH_VER="4"                                  # Gentoo patchset
+PATCH_VER="7"                                  # Gentoo patchset
 NPTL_KERN_VER=${NPTL_KERN_VER:-"2.6.16"}       # min kernel version nptl requires
 
-IUSE="debug gd hardened multilib nscd selinux systemtap profile vanilla crosscompile_opts_headers-only"
+IUSE="debug gd hardened multilib nscd selinux systemtap profile suid vanilla crosscompile_opts_headers-only"
 
 # Here's how the cross-compile logic breaks down ...
 #  CTARGET - machine that will target the binaries
@@ -90,7 +90,7 @@ fi
 
 SRC_URI=$(
 	upstream_uris() {
-		echo mirror://gnu/glibc/$1 ftp://sources.redhat.com/pub/glibc/{releases,snapshots}/$1 mirror://gentoo/$1
+		echo mirror://gnu/glibc/$1 ftp://sourceware.org/pub/glibc/{releases,snapshots}/$1 mirror://gentoo/$1
 	}
 	gentoo_uris() {
 		local devspace="HTTP~vapier/dist/URI HTTP~azarah/glibc/URI"
@@ -150,6 +150,10 @@ for x in setup {pre,post}inst ; do
 		eval "pkg_${x}() { eblit-run pkg_${x} ; }"
 	fi
 done
+
+eblit-src_unpack-pre() {
+	GLIBC_PATCH_EXCLUDE+=" 6600_mips_librt-mips.patch" #456912
+}
 
 eblit-src_unpack-post() {
 	if use hardened ; then
