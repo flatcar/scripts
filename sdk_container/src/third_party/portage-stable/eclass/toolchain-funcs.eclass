@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain-funcs.eclass,v 1.120 2012/12/29 05:08:54 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain-funcs.eclass,v 1.121 2013/05/14 20:40:34 vapier Exp $
 
 # @ECLASS: toolchain-funcs.eclass
 # @MAINTAINER:
@@ -367,7 +367,10 @@ ninj() { [[ ${type} == "kern" ]] && echo $1 || echo $2 ; }
 		arm*)		echo arm;;
 		avr*)		ninj avr32 avr;;
 		bfin*)		ninj blackfin bfin;;
+		c6x)		echo c6x;;
 		cris*)		echo cris;;
+		frv)		echo frv;;
+		hexagon)	echo hexagon;;
 		hppa*)		ninj parisc hppa;;
 		i?86*)
 			# Starting with linux-2.6.24, the 'x86_64' and 'i386'
@@ -381,9 +384,11 @@ ninj() { [[ ${type} == "kern" ]] && echo $1 || echo $2 ; }
 			;;
 		ia64*)		echo ia64;;
 		m68*)		echo m68k;;
+		metag)		echo metag;;
 		mips*)		echo mips;;
 		nios2*)		echo nios2;;
 		nios*)		echo nios;;
+		or32)		echo openrisc;;
 		powerpc*)
 			# Starting with linux-2.6.15, the 'ppc' and 'ppc64' trees
 			# have been unified into simply 'powerpc', but until 2.6.16,
@@ -405,6 +410,7 @@ ninj() { [[ ${type} == "kern" ]] && echo $1 || echo $2 ; }
 			fi
 			;;
 		s390*)		echo s390;;
+		score)		echo score;;
 		sh64*)		ninj sh64 sh;;
 		sh*)		echo sh;;
 		sparc64*)	ninj sparc64 sparc;;
@@ -412,6 +418,7 @@ ninj() { [[ ${type} == "kern" ]] && echo $1 || echo $2 ; }
 						&& ninj sparc64 sparc \
 						|| echo sparc
 					;;
+		tile*)		echo tile;;
 		vax*)		echo vax;;
 		x86_64*freebsd*) echo amd64;;
 		x86_64*)
@@ -423,6 +430,7 @@ ninj() { [[ ${type} == "kern" ]] && echo $1 || echo $2 ; }
 				ninj x86_64 amd64
 			fi
 			;;
+		xtensa*)	echo xtensa;;
 
 		# since our usage of tc-arch is largely concerned with
 		# normalizing inputs for testing ${CTARGET}, let's filter

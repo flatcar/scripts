@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/multilib-build.eclass,v 1.1 2013/02/01 21:39:50 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/multilib-build.eclass,v 1.14 2013/06/28 02:37:52 mgorny Exp $
 
 # @ECLASS: multilib-build.eclass
 # @MAINTAINER:
@@ -17,13 +17,13 @@
 
 if [[ ! ${_MULTILIB_BUILD} ]]; then
 
-# EAPI=5 is required for meaningful MULTILIB_USEDEP.
+# EAPI=4 is required for meaningful MULTILIB_USEDEP.
 case ${EAPI:-0} in
-	5) ;;
+	4|5) ;;
 	*) die "EAPI=${EAPI} is not supported" ;;
 esac
 
-inherit multilib multiprocessing
+inherit multibuild multilib
 
 # @ECLASS-VARIABLE: _MULTILIB_FLAGS
 # @INTERNAL
@@ -32,6 +32,7 @@ inherit multilib multiprocessing
 _MULTILIB_FLAGS=(
 	abi_x86_32:x86
 	abi_x86_64:amd64
+	abi_x86_x32:x32
 )
 
 # @ECLASS-VARIABLE: MULTILIB_USEDEP
@@ -80,9 +81,27 @@ multilib_get_enabled_abis() {
 	done
 
 	if [[ ! ${found} ]]; then
-		debug-print "${FUNCNAME}: no ABIs enabled, fallback to ${DEFAULT_ABI}"
-		echo ${DEFAULT_ABI}
+		# ${ABI} can be used to override the fallback (multilib-portage),
+		# ${DEFAULT_ABI} is the safe fallback.
+		local abi=${ABI:-${DEFAULT_ABI}}
+
+		debug-print "${FUNCNAME}: no ABIs enabled, fallback to ${abi}"
+		debug-print "${FUNCNAME}: ABI=${ABI}, DEFAULT_ABI=${DEFAULT_ABI}"
+		echo ${abi}
 	fi
+}
+
+# @FUNCTION: _multilib_multibuild_wrapper
+# @USAGE: <argv>...
+# @INTERNAL
+# @DESCRIPTION:
+# Initialize the environment for ABI selected for multibuild.
+_multilib_multibuild_wrapper() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	local ABI=${MULTIBUILD_VARIANT}
+	multilib_toolchain_setup "${ABI}"
+	"${@}"
 }
 
 # @FUNCTION: multilib_foreach_abi
@@ -95,13 +114,10 @@ multilib_get_enabled_abis() {
 # If multilib support is disabled, it just runs the commands. No setup
 # is done.
 multilib_foreach_abi() {
-	local initial_dir=${BUILD_DIR:-${S}}
+	debug-print-function ${FUNCNAME} "${@}"
 
-	local ABI
-	for ABI in $(multilib_get_enabled_abis); do
-		multilib_toolchain_setup "${ABI}"
-		BUILD_DIR=${initial_dir%%/}-${ABI} "${@}"
-	done
+	local MULTIBUILD_VARIANTS=( $(multilib_get_enabled_abis) )
+	multibuild_foreach_variant _multilib_multibuild_wrapper "${@}"
 }
 
 # @FUNCTION: multilib_parallel_foreach_abi
@@ -117,24 +133,209 @@ multilib_foreach_abi() {
 #
 # Useful for running configure scripts.
 multilib_parallel_foreach_abi() {
-	local initial_dir=${BUILD_DIR:-${S}}
+	debug-print-function ${FUNCNAME} "${@}"
 
-	multijob_init
+	local MULTIBUILD_VARIANTS=( $(multilib_get_enabled_abis) )
+	multibuild_parallel_foreach_variant _multilib_multibuild_wrapper "${@}"
+}
 
-	local ABI
-	for ABI in $(multilib_get_enabled_abis); do
-		(
-			multijob_child_init
+# @FUNCTION: multilib_for_best_abi
+# @USAGE: <argv>...
+# @DESCRIPTION:
+# Runs the given command with setup for the 'best' (usually native) ABI.
+multilib_for_best_abi() {
+	debug-print-function ${FUNCNAME} "${@}"
 
-			multilib_toolchain_setup "${ABI}"
-			BUILD_DIR=${initial_dir%%/}-${ABI}
-			"${@}"
-		) &
+	local MULTIBUILD_VARIANTS=( $(multilib_get_enabled_abis) )
 
-		multijob_post_fork
+	multibuild_for_best_variant _multilib_multibuild_wrapper "${@}"
+}
+
+# @FUNCTION: multilib_check_headers
+# @DESCRIPTION:
+# Check whether the header files are consistent between ABIs.
+#
+# This function needs to be called after each ABI's installation phase.
+# It obtains the header file checksums and compares them with previous
+# runs (if any). Dies if header files differ.
+multilib_check_headers() {
+	_multilib_header_cksum() {
+		[[ -d ${ED}usr/include ]] && \
+		find "${ED}"usr/include -type f \
+			-exec cksum {} + | sort -k2
+	}
+
+	local cksum=$(_multilib_header_cksum)
+	local cksum_file=${T}/.multilib_header_cksum
+
+	if [[ -f ${cksum_file} ]]; then
+		local cksum_prev=$(< "${cksum_file}")
+
+		if [[ ${cksum} != ${cksum_prev} ]]; then
+			echo "${cksum}" > "${cksum_file}.new"
+
+			eerror "Header files have changed between ABIs."
+
+			if type -p diff &>/dev/null; then
+				eerror "$(diff -du "${cksum_file}" "${cksum_file}.new")"
+			else
+				eerror "Old checksums in: ${cksum_file}"
+				eerror "New checksums in: ${cksum_file}.new"
+			fi
+
+			die "Header checksum mismatch, aborting."
+		fi
+	else
+		echo "${cksum}" > "${cksum_file}"
+	fi
+}
+
+# @FUNCTION: multilib_copy_sources
+# @DESCRIPTION:
+# Create a single copy of the package sources for each enabled ABI.
+#
+# The sources are always copied from initial BUILD_DIR (or S if unset)
+# to ABI-specific build directory matching BUILD_DIR used by
+# multilib_foreach_abi().
+multilib_copy_sources() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	local MULTIBUILD_VARIANTS=( $(multilib_get_enabled_abis) )
+	multibuild_copy_sources
+}
+
+# @ECLASS-VARIABLE: MULTILIB_WRAPPED_HEADERS
+# @DESCRIPTION:
+# A list of headers to wrap for multilib support. The listed headers
+# will be moved to a non-standard location and replaced with a file
+# including them conditionally to current ABI.
+#
+# This variable has to be a bash array. Paths shall be relative to
+# installation root (${ED}), and name regular files. Recursive wrapping
+# is not supported.
+#
+# Please note that header wrapping is *discouraged*. It is preferred to
+# install all headers in a subdirectory of libdir and use pkg-config to
+# locate the headers. Some C preprocessors will not work with wrapped
+# headers.
+#
+# Example:
+# @CODE
+# MULTILIB_WRAPPED_HEADERS=(
+#	/usr/include/foobar/config.h
+# )
+# @CODE
+
+# @FUNCTION: multilib_prepare_wrappers
+# @USAGE: [<install-root>]
+# @DESCRIPTION:
+# Perform the preparation of all kinds of wrappers for the current ABI.
+# This function shall be called once per each ABI, after installing
+# the files to be wrapped.
+#
+# Takes an optional custom <install-root> from which files will be
+# used. If no root is specified, uses ${ED}.
+#
+# The files to be wrapped are specified using separate variables,
+# e.g. MULTILIB_WRAPPED_HEADERS. Those variables shall not be changed
+# between the successive calls to multilib_prepare_wrappers
+# and multilib_install_wrappers.
+#
+# After all wrappers are prepared, multilib_install_wrappers shall
+# be called to commit them to the installation tree.
+multilib_prepare_wrappers() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	[[ ${#} -le 1 ]] || die "${FUNCNAME}: too many arguments"
+
+	local root=${1:-${ED}}
+	local f
+
+	for f in "${MULTILIB_WRAPPED_HEADERS[@]}"; do
+		# drop leading slash if it's there
+		f=${f#/}
+
+		if [[ ${f} != usr/include/* ]]; then
+			die "Wrapping headers outside of /usr/include is not supported at the moment."
+		fi
+		# and then usr/include
+		f=${f#usr/include}
+
+		local dir=${f%/*}
+
+		# $CHOST shall be set by multilib_toolchain_setup
+		dodir "/tmp/multilib-include/${CHOST}${dir}"
+		mv "${root}/usr/include${f}" "${ED}/tmp/multilib-include/${CHOST}${dir}/" || die
+
+		if [[ ! -f ${ED}/tmp/multilib-include${f} ]]; then
+			dodir "/tmp/multilib-include${dir}"
+			# a generic template
+			cat > "${ED}/tmp/multilib-include${f}" <<_EOF_
+/* This file is auto-generated by multilib-build.eclass
+ * as a multilib-friendly wrapper. For the original content,
+ * please see the files that are #included below.
+ */
+
+#if defined(__x86_64__) /* amd64 */
+#	if defined(__ILP32__) /* x32 ABI */
+#		error "abi_x86_x32 not supported by the package."
+#	else /* 64-bit ABI */
+#		error "abi_x86_64 not supported by the package."
+#	endif
+#elif defined(__i386__) /* plain x86 */
+#	error "abi_x86_32 not supported by the package."
+#else
+#	error "No ABI matched, please report a bug to bugs.gentoo.org"
+#endif
+_EOF_
+		fi
+
+		# XXX: get abi_* directly
+		local abi_flag
+		case "${ABI}" in
+			amd64)
+				abi_flag=abi_x86_64;;
+			x86)
+				abi_flag=abi_x86_32;;
+			x32)
+				abi_flag=abi_x86_x32;;
+			*)
+				die "Header wrapping for ${ABI} not supported yet";;
+		esac
+
+		# Note: match a space afterwards to avoid collision potential.
+		sed -e "/${abi_flag} /s&error.*&include <${CHOST}${f}>&" \
+			-i "${ED}/tmp/multilib-include${f}" || die
 	done
+}
 
-	multijob_finish
+# @FUNCTION: multilib_install_wrappers
+# @USAGE: [<install-root>]
+# @DESCRIPTION:
+# Install the previously-prepared wrappers. This function shall
+# be called once, after all wrappers were prepared.
+#
+# Takes an optional custom <install-root> to which the wrappers will be
+# installed. If no root is specified, uses ${ED}. There is no need to
+# use the same root as when preparing the wrappers.
+#
+# The files to be wrapped are specified using separate variables,
+# e.g. MULTILIB_WRAPPED_HEADERS. Those variables shall not be changed
+# between the calls to multilib_prepare_wrappers
+# and multilib_install_wrappers.
+multilib_install_wrappers() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	[[ ${#} -le 1 ]] || die "${FUNCNAME}: too many arguments"
+
+	local root=${1:-${ED}}
+
+	if [[ -d "${ED}"/tmp/multilib-include ]]; then
+		multibuild_merge_root \
+			"${ED}"/tmp/multilib-include "${root}"/usr/include
+		# it can fail if something else uses /tmp
+		rmdir "${ED}"/tmp &>/dev/null
+	fi
 }
 
 _MULTILIB_BUILD=1

@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/pax-utils.eclass,v 1.18 2012/04/06 18:03:54 blueness Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/pax-utils.eclass,v 1.21 2013/05/18 13:43:20 zorry Exp $
 
 # @ECLASS: pax-utils.eclass
 # @MAINTAINER:
@@ -8,22 +8,27 @@
 # @AUTHOR:
 # Original Author: Kevin F. Quinn <kevquinn@gentoo.org>
 # Modifications for bug #365825, @ ECLASS markup: Anthony G. Basile <blueness@gentoo.org>
+# Modifications for bug #431092: Anthony G. Basile <blueness@gentoo.org>
 # @BLURB: functions to provide pax markings
 # @DESCRIPTION:
-# This eclass provides support for manipulating PaX markings on ELF binaries,
-# wrapping the use of the paxctl and scanelf utilities.  It decides which to
-# use depending on what is installed on the build host, preferring paxctl to
-# scanelf.  If paxctl is not installed, we fall back to scanelf since it is
-# always present.  However, currently scanelf doesn't do all that paxctl can.
 #
-# To control what markings are made, set PAX_MARKINGS in /etc/make.conf to
-# contain either "PT" or "none".  If PAX_MARKINGS is set to "PT", and the
-# necessary utility is installed, the PT_PAX_FLAGS markings will be made.  If
-# PAX_MARKINGS is set to "none", no markings will be made.
+# This eclass provides support for manipulating PaX markings on ELF binaries,
+# whether the system is using legacy PT_PAX markings or the newer XATTR_PAX.
+# The eclass wraps the use of paxctl-ng, paxctl, set/getattr and scanelf utilities,
+# deciding which to use depending on what's installed on the build host, and
+# whether we're working with PT_PAX, XATTR_PAX or both.
+#
+# To control what markings are made, set PAX_MARKINGS in /etc/portage/make.conf
+# to contain either "PT", "XT" or "none".  The default is to attempt both
+# PT_PAX and XATTR_PAX.
 
 if [[ ${___ECLASS_ONCE_PAX_UTILS} != "recur -_+^+_- spank" ]] ; then
 ___ECLASS_ONCE_PAX_UTILS="recur -_+^+_- spank"
 
+# @ECLASS-VARIABLE: PAX_MARKINGS
+# @DESCRIPTION:
+# Control which markings are made:
+# PT = PT_PAX markings, XT = XATTR_PAX markings
 # Default to PT markings.
 PAX_MARKINGS=${PAX_MARKINGS:="PT"}
 
@@ -33,78 +38,136 @@ PAX_MARKINGS=${PAX_MARKINGS:="PT"}
 # @DESCRIPTION:
 # Marks <ELF files> with provided PaX <flags>
 #
-# Flags are passed directly to the utilities unchanged.  Possible flags at the
-# time of writing, taken from /sbin/paxctl, are:
+# Flags are passed directly to the utilities unchanged
 #
 #	p: disable PAGEEXEC		P: enable PAGEEXEC
-#	e: disable EMUTRMAP		E: enable EMUTRMAP
+#	e: disable EMUTRAMP		E: enable EMUTRAMP
 #	m: disable MPROTECT		M: enable MPROTECT
 #	r: disable RANDMMAP		R: enable RANDMMAP
 #	s: disable SEGMEXEC		S: enable SEGMEXEC
 #
 # Default flags are 'PeMRS', which are the most restrictive settings.  Refer
 # to http://pax.grsecurity.net/ for details on what these flags are all about.
-# Do not use the obsolete flag 'x'/'X' which has been deprecated.
 #
 # Please confirm any relaxation of restrictions with the Gentoo Hardened team.
 # Either ask on the gentoo-hardened mailing list, or CC/assign hardened@g.o on
 # the bug report.
 pax-mark() {
-	local f flags fail=0 failures="" zero_load_alignment
-	# Ignore '-' characters - in particular so that it doesn't matter if
-	# the caller prefixes with -
-	flags=${1//-}
+
+	local f								# loop over paxables
+	local flags							# pax flags
+	local pt_fail=0 pt_failures=""		# record PT_PAX failures
+	local xt_fail=0 xt_failures=""		# record xattr PAX marking failures
+	local ret=0							# overal return code of this function
+
+	# Only the actual PaX flags and z are accepted
+	# 1. The leading '-' is optional
+	# 2. -C -c only make sense for paxctl, but are unnecessary
+	#    because we progressively do -q -qc -qC
+	# 3. z is allowed for the default
+
+	flags="${1//[!zPpEeMmRrSs]}"
+	[[ "${flags}" ]] || return 0
 	shift
-	# Try paxctl, then scanelf.  paxctl is preferred.
-	if type -p paxctl > /dev/null && has PT ${PAX_MARKINGS}; then
-		# Try paxctl, the upstream supported tool.
-		einfo "PT PaX marking -${flags}"
-		_pax_list_files einfo "$@"
-		for f in "$@"; do
-			# First, try modifying the existing PAX_FLAGS header
-			paxctl -q${flags} "${f}" && continue
-			# Second, try stealing the (unused under PaX) PT_GNU_STACK header
-			paxctl -qc${flags} "${f}" && continue
-			# Third, try pulling the base down a page, to create space and
-			# insert a PT_GNU_STACK header (works on ET_EXEC)
-			paxctl -qC${flags} "${f}" && continue
-			#
-			# prelink is masked on hardened so we wont use this method.
-			# We're working on a new utiity to try to do the same safely. See
-			# http://git.overlays.gentoo.org/gitweb/?p=proj/elfix.git;a=summary
-			#
-			# Fourth - check if it loads to 0 (probably an ET_DYN) and if so,
-			# try rebasing with prelink first to give paxctl some space to
-			# grow downwards into.
-			#if type -p objdump > /dev/null && type -p prelink > /dev/null; then
-			#	zero_load_alignment=$(objdump -p "${f}" | \
-			#		grep -E '^[[:space:]]*LOAD[[:space:]]*off[[:space:]]*0x0+[[:space:]]' | \
-			#		sed -e 's/.*align\(.*\)/\1/')
-			#	if [[ ${zero_load_alignment} != "" ]]; then
-			#		prelink -r $(( 2*(${zero_load_alignment}) )) &&
-			#		paxctl -qC${flags} "${f}" && continue
-			#	fi
-			#fi
-			fail=1
-			failures="${failures} ${f}"
-		done
-	elif type -p scanelf > /dev/null && [[ ${PAX_MARKINGS} != "none" ]]; then
-		# Try scanelf, the Gentoo swiss-army knife ELF utility
-		# Currently this sets PT if it can, no option to control what it does.
-		einfo "Fallback PaX marking -${flags}"
-		_pax_list_files einfo "$@"
-		scanelf -Xxz ${flags} "$@"
-	elif [[ ${PAX_MARKINGS} != "none" ]]; then
-		# Out of options!
-		failures="$*"
-		fail=1
+
+	# z = default. For XATTR_PAX, the default is no xattr field at all
+	local dodefault=""
+	[[ "${flags//[!z]}" ]] && dodefault="yes"
+
+	if has PT ${PAX_MARKINGS}; then
+
+		#First try paxctl -> this might try to create/convert program headers
+		if type -p paxctl > /dev/null; then
+			einfo "PT PaX marking -${flags} with paxctl"
+			_pax_list_files einfo "$@"
+			for f in "$@"; do
+				# First, try modifying the existing PAX_FLAGS header
+				paxctl -q${flags} "${f}" && continue
+				# Second, try creating a PT_PAX header (works on ET_EXEC)
+				# Even though this is less safe, most exes need it, eg bug #463170
+				paxctl -qC${flags} "${f}" && continue
+				# Third, try stealing the (unused under PaX) PT_GNU_STACK header
+				paxctl -qc${flags} "${f}" && continue
+				pt_fail=1
+				pt_failures="${pt_failures} ${f}"
+			done
+
+		#Next try paxctl-ng -> this will not create/convert any program headers
+		elif type -p paxctl-ng > /dev/null && paxctl-ng -L ; then
+			einfo "PT PaX marking -${flags} with paxctl-ng"
+			flags="${flags//z}"
+			_pax_list_files einfo "$@"
+			for f in "$@"; do
+				[[ ${dodefault} == "yes" ]] && paxctl-ng -L -z "${f}"
+				[[ "${flags}" ]] || continue
+				paxctl-ng -L -${flags} "${f}" && continue
+				pt_fail=1
+				pt_failures="${pt_failures} ${f}"
+			done
+
+		#Finally fall back on scanelf
+		elif type -p scanelf > /dev/null && [[ ${PAX_MARKINGS} != "none" ]]; then
+			einfo "Fallback PaX marking -${flags} with scanelf"
+			_pax_list_files einfo "$@"
+			scanelf -Xxz ${flags} "$@"
+
+		#We failed to set PT_PAX flags
+		elif [[ ${PAX_MARKINGS} != "none" ]]; then
+			pt_failures="$*"
+			pt_fail=1
+		fi
+
+		if [[ ${pt_fail} == 1 ]]; then
+			elog "Failed to set PT_PAX markings -${flags} for:"
+			_pax_list_files elog ${pt_failures}
+			ret=1
+		fi
 	fi
-	if [[ ${fail} == 1 ]]; then
-		ewarn "Failed to set PaX markings -${flags} for:"
-		_pax_list_files ewarn ${failures}
-		ewarn "Executables may be killed by PaX kernels."
+
+	if has XT ${PAX_MARKINGS}; then
+
+		flags="${flags//z}"
+
+		#First try paxctl-ng
+		if type -p paxctl-ng > /dev/null && paxctl-ng -l ; then
+			einfo "XT PaX marking -${flags} with paxctl-ng"
+			_pax_list_files einfo "$@"
+			for f in "$@"; do
+				[[ ${dodefault} == "yes" ]] && paxctl-ng -d "${f}"
+				[[ "${flags}" ]] || continue
+				paxctl-ng -l -${flags} "${f}" && continue
+				xt_fail=1
+				xt_failures="${tx_failures} ${f}"
+			done
+
+		#Next try setfattr
+		elif type -p setfattr > /dev/null; then
+			[[ "${flags//[!Ee]}" ]] || flags+="e" # bug 447150
+			einfo "XT PaX marking -${flags} with setfattr"
+			_pax_list_files einfo "$@"
+			for f in "$@"; do
+				[[ ${dodefault} == "yes" ]] && setfattr -x "user.pax.flags" "${f}"
+				setfattr -n "user.pax.flags" -v "${flags}" "${f}" && continue
+				xt_fail=1
+				xt_failures="${tx_failures} ${f}"
+			done
+
+		#We failed to set XATTR_PAX flags
+		elif [[ ${PAX_MARKINGS} != "none" ]]; then
+			xt_failures="$*"
+			xt_fail=1
+		fi
+
+		if [[ ${xt_fail} == 1 ]]; then
+			elog "Failed to set XATTR_PAX markings -${flags} for:"
+			_pax_list_files elog ${xt_failures}
+			ret=1
+		fi
 	fi
-	return ${fail}
+
+	# [[ ${ret} == 1 ]] && elog "Executables may be killed by PaX kernels."
+
+	return ${ret}
 }
 
 # @FUNCTION: list-paxables
