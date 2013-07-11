@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain-binutils.eclass,v 1.122 2012/12/23 23:37:26 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain-binutils.eclass,v 1.123 2013/02/09 04:32:48 vapier Exp $
 #
 # Maintainer: Toolchain Ninjas <toolchain@gentoo.org>
 #
@@ -61,7 +61,7 @@ fi
 is_cross() { [[ ${CHOST} != ${CTARGET} ]] ; }
 
 DESCRIPTION="Tools necessary to build programs"
-HOMEPAGE="http://sources.redhat.com/binutils/"
+HOMEPAGE="http://sourceware.org/binutils/"
 
 case ${BTYPE} in
 	cvs|git) SRC_URI="" ;;

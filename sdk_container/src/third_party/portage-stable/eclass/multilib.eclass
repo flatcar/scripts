@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/multilib.eclass,v 1.102 2013/01/21 19:22:25 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/multilib.eclass,v 1.103 2013/04/22 01:18:51 vapier Exp $
 
 # @ECLASS: multilib.eclass
 # @MAINTAINER:
@@ -397,7 +397,7 @@ multilib_toolchain_setup() {
 	if [[ ${__DEFAULT_ABI_SAVED} == "true" ]] ; then
 		for v in CHOST CBUILD AS CC CXX LD PKG_CONFIG_{LIBDIR,PATH} ; do
 			vv="__abi_saved_${v}"
-			export ${v}="${!vv}"
+			[[ ${!vv+set} == "set" ]] && export ${v}="${!vv}" || unset ${v}
 			unset ${vv}
 		done
 		unset __DEFAULT_ABI_SAVED
@@ -408,7 +408,8 @@ multilib_toolchain_setup() {
 	if [[ ${ABI} != ${DEFAULT_ABI} ]] ; then
 		# Back that multilib-ass up so we can restore it later
 		for v in CHOST CBUILD AS CC CXX LD PKG_CONFIG_{LIBDIR,PATH} ; do
-			export __abi_saved_${v}="${!v}"
+			vv="__abi_saved_${v}"
+			[[ ${!v+set} == "set" ]] && export ${vv}="${!v}" || unset ${vv}
 		done
 		export __DEFAULT_ABI_SAVED="true"
 

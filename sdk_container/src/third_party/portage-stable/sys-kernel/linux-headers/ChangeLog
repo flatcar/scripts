@@ -1,6 +1,73 @@
 # ChangeLog for sys-kernel/linux-headers
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-kernel/linux-headers/ChangeLog,v 1.365 2013/01/04 19:34:18 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-kernel/linux-headers/ChangeLog,v 1.385 2013/06/09 23:05:10 vapier Exp $
+
+  09 Jun 2013; Mike Frysinger <vapier@gentoo.org> metadata.xml:
+  Add upstream CPE tag (security info) from ChromiumOS.
+
+  14 May 2013; Mike Frysinger <vapier@gentoo.org> linux-headers-3.9.ebuild:
+  Add more known architectures in this release.
+
+*linux-headers-3.9 (04 May 2013)
+
+  04 May 2013; Mike Frysinger <vapier@gentoo.org> +linux-headers-3.9.ebuild:
+  Version bump.
+
+  13 Apr 2013; Agostino Sarubbo <ago@gentoo.org> linux-headers-3.7.ebuild:
+  Stable for s390, wrt bug #462980
+
+  02 Apr 2013; Agostino Sarubbo <ago@gentoo.org> linux-headers-3.7.ebuild:
+  Stable for hppa, wrt bug #462980
+
+  02 Apr 2013; Agostino Sarubbo <ago@gentoo.org> linux-headers-3.7.ebuild:
+  Stable for sh, wrt bug #462980
+
+  31 Mar 2013; Agostino Sarubbo <ago@gentoo.org> linux-headers-3.7.ebuild:
+  Stable for sparc, wrt bug #462980
+
+  30 Mar 2013; Agostino Sarubbo <ago@gentoo.org> linux-headers-3.7.ebuild:
+  Stable for alpha, wrt bug #462980
+
+  28 Mar 2013; Agostino Sarubbo <ago@gentoo.org> linux-headers-3.7.ebuild:
+  Stable for ia64, wrt bug #462980
+
+  28 Mar 2013; Agostino Sarubbo <ago@gentoo.org> linux-headers-3.7.ebuild:
+  Stable for arm, wrt bug #462980
+
+  26 Mar 2013; Agostino Sarubbo <ago@gentoo.org> linux-headers-3.7.ebuild:
+  Stable for ppc64, wrt bug #462980
+
+  26 Mar 2013; Agostino Sarubbo <ago@gentoo.org> linux-headers-3.7.ebuild:
+  Stable for ppc, wrt bug #462980
+
+  25 Mar 2013; Agostino Sarubbo <ago@gentoo.org> linux-headers-3.7.ebuild:
+  Stable for amd64, wrt bug #462980
+
+  25 Mar 2013; Agostino Sarubbo <ago@gentoo.org> linux-headers-3.7.ebuild:
+  Stable for x86, wrt bug #462980
+
+  09 Mar 2013; Tom Wijsman <TomWij@gentoo.org> linux-headers-2.4.33.3.ebuild,
+  linux-headers-2.4.36.ebuild:
+  EAPI 5. Kernel sources and (gen)patches now use xz instead of bz2. Bug
+  #421721.
+
+*linux-headers-3.8 (02 Mar 2013)
+
+  02 Mar 2013; Mike Frysinger <vapier@gentoo.org> +linux-headers-3.8.ebuild:
+  Version bump.
+
+  24 Feb 2013; Agostino Sarubbo <ago@gentoo.org> linux-headers-3.6.ebuild:
+  Stable for sh, wrt bug #443532
+
+  20 Feb 2013; Agostino Sarubbo <ago@gentoo.org> linux-headers-3.6.ebuild:
+  Stable for s390, wrt bug #443532
+
+  18 Feb 2013; Zac Medico <zmedico@gentoo.org> linux-headers-3.4-r2.ebuild,
+  linux-headers-3.5.ebuild, linux-headers-3.6.ebuild, linux-headers-3.7.ebuild:
+  Add ~arm-linux keywords.
+
+  08 Feb 2013; Jeroen Roovers <jer@gentoo.org> linux-headers-3.6.ebuild:
+  Stable for HPPA (bug #443532).
 
   04 Jan 2013; Agostino Sarubbo <ago@gentoo.org> linux-headers-3.6.ebuild:
   Stable for ia64, wrt bug #443532

@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/gcc-3.1.1-r2.ebuild,v 1.13 2012/11/24 21:22:30 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/gcc-3.1.1-r2.ebuild,v 1.14 2013/04/12 06:47:58 ulm Exp $
 
 # NOTE TO MAINTAINER:  Info pages get nuked for multiple version installs.
 #                      Ill fix it later if i get a chance.
@@ -31,7 +31,7 @@ HOMEPAGE="http://gcc.gnu.org/"
 SRC_URI="ftp://gcc.gnu.org/pub/gcc/releases/${P}/${P}.tar.bz2
 	http://www.ibiblio.org/gentoo/distfiles/${P}_final-patches-1.0.tbz2"
 
-LICENSE="GPL-2 LGPL-2.1"
+LICENSE="GPL-2+ LGPL-2.1+"
 SLOT="${MY_PV}"
 KEYWORDS="x86 sparc -ppc"
 IUSE="static nls bootstrap java build"

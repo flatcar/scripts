@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/gcc-3.2.3-r4.ebuild,v 1.31 2012/11/24 21:22:29 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/gcc-3.2.3-r4.ebuild,v 1.32 2013/04/12 06:47:58 ulm Exp $
 
 inherit eutils flag-o-matic libtool versionator
 
@@ -95,7 +95,7 @@ SRC_URI="${SRC_URI}
 DESCRIPTION="The GNU Compiler Collection"
 HOMEPAGE="http://gcc.gnu.org/"
 
-LICENSE="GPL-2 LGPL-2.1"
+LICENSE="GPL-2+ LGPL-2.1+"
 # this is a glibc-propolice forced bump to a gcc without guard
 # when no binary on the system has references to guard@@libgcc
 # hppa has no dependency on propolice for gcc - skip this arch

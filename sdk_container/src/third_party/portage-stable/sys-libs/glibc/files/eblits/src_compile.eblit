@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/files/eblits/src_compile.eblit,v 1.33 2013/01/28 19:53:58 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/files/eblits/src_compile.eblit,v 1.35 2013/04/05 18:25:21 vapier Exp $
 
 glibc_do_configure() {
 	local myconf=()
@@ -98,6 +98,13 @@ glibc_do_configure() {
 	# this overriding check.  #347761
 	export libc_cv_hashstyle=no
 
+	# Overtime, generating info pages can be painful.  So disable this for
+	# versions older than the latest stable to avoid the issue (this ver
+	# should be updated from time to time).  #464394
+	if ! version_is_at_least 2.15 ; then
+		export ac_cv_prog_MAKEINFO=:
+	fi
+
 	local GBUILDDIR=${WORKDIR}/build-${ABI}-${CTARGET}-$1
 	mkdir -p "${GBUILDDIR}"
 	cd "${GBUILDDIR}"
@@ -154,24 +161,32 @@ toolchain-glibc_headers_compile() {
 	# if we don't have a compiler yet, we cant really test it now ...
 	# hopefully they don't affect header geneation, so let's hope for
 	# the best here ...
-	export \
-		ac_cv_header_cpuid_h=yes \
-		libc_cv_{386,390,alpha,arm,hppa,ia64,mips,{powerpc,sparc}{,32,64},sh,x86_64}_tls=yes \
-		libc_cv_asm_cfi_directives=yes \
-		libc_cv_broken_visibility_attribute=no \
-		libc_cv_gcc___thread=yes \
-		libc_cv_mlong_double_128=yes \
-		libc_cv_mlong_double_128ibm=yes \
-		libc_cv_ppc_machine=yes \
-		libc_cv_ppc_rel16=yes \
-		libc_cv_predef_{fortify_source,stack_protector}=no \
-		libc_cv_visibility_attribute=yes \
-		libc_cv_z_combreloc=yes \
-		libc_cv_z_execstack=yes \
-		libc_cv_z_initfirst=yes \
-		libc_cv_z_nodelete=yes \
-		libc_cv_z_nodlopen=yes \
+	local v vars=(
+		ac_cv_header_cpuid_h=yes
+		libc_cv_{386,390,alpha,arm,hppa,ia64,mips,{powerpc,sparc}{,32,64},sh,x86_64}_tls=yes
+		libc_cv_asm_cfi_directives=yes
+		libc_cv_broken_visibility_attribute=no
+		libc_cv_gcc___thread=yes
+		libc_cv_mlong_double_128=yes
+		libc_cv_mlong_double_128ibm=yes
+		libc_cv_ppc_machine=yes
+		libc_cv_ppc_rel16=yes
+		libc_cv_predef_{fortify_source,stack_protector}=no
+		libc_cv_visibility_attribute=yes
+		libc_cv_z_combreloc=yes
+		libc_cv_z_execstack=yes
+		libc_cv_z_initfirst=yes
+		libc_cv_z_nodelete=yes
+		libc_cv_z_nodlopen=yes
 		libc_cv_z_relro=yes
+		libc_mips_abi=${ABI}
+		libc_mips_float=$([[ $(tc-is-softfloat) == "yes" ]] && echo soft || echo hard)
+	)
+	einfo "Forcing cached settings:"
+	for v in "${vars[@]}" ; do
+		einfo " ${v}"
+		export ${v}
+	done
 
 	# Pick out the correct location for build headers
 	local ports="" myconf=()

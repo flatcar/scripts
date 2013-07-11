@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/gcc-4.7.0.ebuild,v 1.7 2012/11/24 21:22:29 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/gcc-4.7.0.ebuild,v 1.10 2013/05/20 10:56:06 aballier Exp $
 
 PATCH_VER="1.2"
 UCLIBC_VER="1.0"
@@ -22,8 +22,8 @@ inherit toolchain
 
 DESCRIPTION="The GNU Compiler Collection"
 
-LICENSE="GPL-3 LGPL-3 || ( GPL-3 libgcc libstdc++ gcc-runtime-library-exception-3.1 ) FDL-1.2"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd"
+LICENSE="GPL-3+ LGPL-3+ || ( GPL-3+ libgcc libstdc++ gcc-runtime-library-exception-3.1 ) FDL-1.3+"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 -amd64-fbsd -x86-fbsd"
 
 RDEPEND=""
 DEPEND="${RDEPEND}
@@ -56,8 +56,10 @@ src_unpack() {
 pkg_setup() {
 	toolchain_pkg_setup
 
-	ewarn
-	ewarn "LTO support is still experimental and unstable."
-	ewarn "Any bugs resulting from the use of LTO will not be fixed."
-	ewarn
+	if use lto ; then
+		ewarn
+		ewarn "LTO support is still experimental and unstable."
+		ewarn "Any bugs resulting from the use of LTO will not be fixed."
+		ewarn
+	fi
 }

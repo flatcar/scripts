@@ -30,5 +30,6 @@
     <flag name="objc++">Build support for the Objective C++ language</flag>
     <flag name="objc-gc">Build support for the Objective C code language Garbage
       Collector</flag>
+    <flag name="regression-test">Run the testsuite and install the results (requires FEATURES=test)</flag>
   </use>
 </pkgmetadata>
