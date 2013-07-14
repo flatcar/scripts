@@ -1,11 +1,54 @@
 # ChangeLog for virtual/libusb
-# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/virtual/libusb/ChangeLog,v 1.18 2011/02/06 12:00:59 leio Exp $
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/virtual/libusb/ChangeLog,v 1.31 2013/06/05 02:08:30 ssuominen Exp $
+
+  05 Jun 2013; Samuli Suominen <ssuominen@gentoo.org> metadata.xml:
+  Peter Stuge from libusb upstream is sharing ebuild maintenance by his own
+  request.
+
+  12 May 2013; Andreas K. Huettel <dilfridge@gentoo.org> libusb-1.ebuild:
+  Add ~amd64-fbsd, acked by aballier, bug 469502
+
+  19 Apr 2013; Samuli Suominen <ssuominen@gentoo.org> libusb-1.ebuild:
+  Force more recent libusbx to prevent bMaxPower vs. MaxPower declaration
+  conflict.
+
+  18 Feb 2013; Zac Medico <zmedico@gentoo.org> libusb-1.ebuild:
+  Add ~arm-linux keyword.
+
+  18 Nov 2012; Robin H. Johnson <robbat2@gentoo.org> metadata.xml:
+  Drop duplication of myself as a maintainer where there is a herd.
+
+  09 Nov 2012; Richard Yao <ryao@gentoo.org> libusb-1.ebuild:
+  Add >=sys-freebsd/freebsd-lib-9.1_rc3-r1[usb] as virtual/libusb:1 provider
+
+  21 Sep 2012; Samuli Suominen <ssuominen@gentoo.org> libusb-1.ebuild:
+  Force latest dev-libs/libusbx because <1.0.13 had issues with namespace
+  collision(s) wrt #423135
+
+  27 May 2012; Samuli Suominen <ssuominen@gentoo.org> libusb-1.ebuild:
+  Change order of preference for libusbx.
+
+  22 May 2012; Samuli Suominen <ssuominen@gentoo.org> libusb-0.ebuild:
+  Change order of || ( ) to list dev-libs/libusb-compat first wrt #417135
+
+  22 May 2012; Samuli Suominen <ssuominen@gentoo.org> libusb-1.ebuild:
+  Include dev-libs/libusbx:1 as secondary alternative.
+
+  06 May 2012; Alexis Ballier <aballier@gentoo.org> libusb-0.ebuild:
+  keyword ~amd64-fbsd
+
+  20 Apr 2012; Samuli Suominen <ssuominen@gentoo.org> libusb-1.ebuild:
+  Raise requirement of libusb to >= 1.0.9_rc for compability with usbredir.
+
+  27 Sep 2011; Fabian Groffen <grobian@gentoo.org> libusb-0.ebuild,
+  libusb-1.ebuild:
+  Marked ~x64-macos
 
   06 Feb 2011; Mart Raudsepp <leio@gentoo.org> libusb-0.ebuild:
   Drop to ~mips
 
-  12 Oct 2010; Raúl Porcel <armin76@gentoo.org> libusb-1.ebuild:
+  12 Oct 2010; RaÃºl Porcel <armin76@gentoo.org> libusb-1.ebuild:
   sparc stable wrt #304149
 
   09 Oct 2010; Mike Frysinger <vapier@gentoo.org> libusb-1.ebuild:
@@ -71,6 +114,5 @@
   14 May 2009; Robin H. Johnson <robbat2@gentoo.org> +libusb-0.ebuild,
   +libusb-1.ebuild, +metadata.xml:
   Bug #247687: virtual for libusb support. Based on final design choices in
-  the bug, as agreed on by Tiziano Müller <dev-zero@gentoo.org> and Robert
+  the bug, as agreed on by Tiziano MÃ¼ller <dev-zero@gentoo.org> and Robert
   Buchholz <rbu@gentoo.org>.
-
