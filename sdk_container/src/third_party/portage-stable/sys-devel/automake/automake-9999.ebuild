@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/automake/automake-9999.ebuild,v 1.7 2013/01/03 18:45:44 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/automake/automake-9999.ebuild,v 1.8 2013/04/04 22:15:06 vapier Exp $
 
 EAPI="2"
 EGIT_REPO_URI="git://git.savannah.gnu.org/${PN}.git
@@ -26,9 +26,6 @@ DEPEND="${RDEPEND}
 	sys-apps/help2man"
 
 src_prepare() {
-	sed -i \
-		-e "s|: (automake)| v${SLOT}: (automake${SLOT})|" \
-		doc/automake.texi doc/automake-history.texi || die
 	export WANT_AUTOCONF=2.5
 	# Don't try wrapping the autotools this thing runs as it tends
 	# to be a bit esoteric, and the script does `set -e` itself.
@@ -39,8 +36,38 @@ src_configure() {
 	econf --docdir=/usr/share/doc/${PF}
 }
 
+# slot the info pages.  do this w/out munging the source so we don't have
+# to depend on texinfo to regen things.  #464146 (among others)
+slot_info_pages() {
+	pushd "${D}"/usr/share/info >/dev/null
+	rm -f dir
+
+	# Rewrite all the references to other pages.
+	# before: * aclocal-invocation: (automake)aclocal Invocation.   Generating aclocal.m4.
+	# after:  * aclocal-invocation v1.13: (automake-1.13)aclocal Invocation.   Generating aclocal.m4.
+	local p pages=( *.info ) args=()
+	for p in "${pages[@]/%.info}" ; do
+		args+=(
+			-e "/START-INFO-DIR-ENTRY/,/END-INFO-DIR-ENTRY/s|: (${p})| v${SLOT}&|"
+			-e "s:(${p}):(${p}-${SLOT}):g"
+		)
+	done
+	sed -i "${args[@]}" * || die
+
+	# Rewrite all the file references, and rename them in the process.
+	local f d
+	for f in * ; do
+		d=${f/.info/-${SLOT}.info}
+		mv "${f}" "${d}" || die
+		sed -i -e "s:${f}:${d}:g" * || die
+	done
+
+	popd >/dev/null
+}
+
 src_install() {
 	emake DESTDIR="${D}" install || die
+	slot_info_pages
 	dodoc NEWS README THANKS TODO AUTHORS ChangeLog
 
 	# SLOT the docs and junk
@@ -49,10 +76,6 @@ src_install() {
 		help2man "perl -Ilib ${x}" > ${x}-${SLOT}.1
 		doman ${x}-${SLOT}.1
 		rm -f "${D}"/usr/bin/${x}
-	done
-	cd "${D}"/usr/share/info || die
-	for x in *.info* ; do
-		mv "${x}" "${x/${PN}/${PN}${SLOT}}" || die
 	done
 
 	# remove all config.guess and config.sub files replacing them

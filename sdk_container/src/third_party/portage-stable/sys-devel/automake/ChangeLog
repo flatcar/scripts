@@ -1,6 +1,73 @@
 # ChangeLog for sys-devel/automake
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/automake/ChangeLog,v 1.181 2013/01/14 17:37:20 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/automake/ChangeLog,v 1.198 2013/06/23 04:51:17 vapier Exp $
+
+*automake-1.14 (23 Jun 2013)
+
+  23 Jun 2013; Mike Frysinger <vapier@gentoo.org> +automake-1.14.ebuild:
+  Version bump.
+
+*automake-1.13.3 (17 Jun 2013)
+*automake-1.13.4 (17 Jun 2013)
+
+  17 Jun 2013; Mike Frysinger <vapier@gentoo.org> +automake-1.13.3.ebuild,
+  +automake-1.13.4.ebuild:
+  Version bump.
+
+*automake-1.13.2 (15 May 2013)
+
+  15 May 2013; Samuli Suominen <ssuominen@gentoo.org> +automake-1.13.2.ebuild:
+  Version bump. This will turn uses of AM_CONFIG_HEADER and AM_PROG_CC_STDC
+  from error back to warning wrt #451744#c5
+
+  17 Apr 2013; Alexis Ballier <aballier@gentoo.org> automake-1.12.6.ebuild,
+  automake-1.13.1.ebuild:
+  bring ~amd64-fbsd keywords to latest versions too
+
+  15 Apr 2013; Mike Frysinger <vapier@gentoo.org> automake-1.12.6.ebuild:
+  Mark m68k stable.
+
+  14 Apr 2013; Agostino Sarubbo <ago@gentoo.org> automake-1.12.6.ebuild:
+  Stable for sh, wrt bug #459962
+
+  13 Apr 2013; Agostino Sarubbo <ago@gentoo.org> automake-1.12.6.ebuild:
+  Stable for s390, wrt bug #459962
+
+  13 Apr 2013; Agostino Sarubbo <ago@gentoo.org> automake-1.12.6.ebuild:
+  Stable for sparc, wrt bug #459962
+
+  12 Apr 2013; Agostino Sarubbo <ago@gentoo.org> automake-1.12.6.ebuild:
+  Stable for ia64, wrt bug #459962
+
+  12 Apr 2013; Agostino Sarubbo <ago@gentoo.org> automake-1.12.6.ebuild:
+  Stable for alpha, wrt bug #459962
+
+  10 Apr 2013; Jeroen Roovers <jer@gentoo.org> automake-1.12.6.ebuild:
+  Stable for HPPA (bug #459962).
+
+  05 Apr 2013; Agostino Sarubbo <ago@gentoo.org> automake-1.12.6.ebuild:
+  Stable for arm, wrt bug #459962
+
+  05 Apr 2013; Agostino Sarubbo <ago@gentoo.org> automake-1.12.6.ebuild:
+  Stable for ppc64, wrt bug #459962
+
+  05 Apr 2013; Agostino Sarubbo <ago@gentoo.org> automake-1.12.6.ebuild:
+  Stable for ppc, wrt bug #459962
+
+  05 Apr 2013; Agostino Sarubbo <ago@gentoo.org> automake-1.12.6.ebuild:
+  Stable for x86, wrt bug #459962
+
+  05 Apr 2013; Agostino Sarubbo <ago@gentoo.org> automake-1.12.6.ebuild:
+  Stable for amd64, wrt bug #459962
+
+  04 Apr 2013; Mike Frysinger <vapier@gentoo.org> -automake-1.11.1.ebuild,
+  -automake-1.12.2.ebuild, -automake-1.12.3.ebuild, -automake-1.12.4.ebuild,
+  -automake-1.12.5.ebuild, automake-1.10.3.ebuild, automake-1.11.6.ebuild,
+  automake-1.12.6.ebuild, automake-1.13.1.ebuild, automake-1.4_p6-r1.ebuild,
+  automake-1.5-r1.ebuild, automake-1.6.3-r1.ebuild, automake-1.7.9-r2.ebuild,
+  automake-1.8.5-r4.ebuild, automake-1.9.6-r3.ebuild, automake-9999.ebuild:
+  Redo how we slot the info pages to avoid regenerating them from source #464146
+  by Denys Dmytriyenko.
 
   14 Jan 2013; Mike Frysinger <vapier@gentoo.org>
   +files/automake-1.13-dyn-ithreads.patch, automake-1.13.1.ebuild:
