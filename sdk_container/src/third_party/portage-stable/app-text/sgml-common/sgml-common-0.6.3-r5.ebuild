@@ -1,33 +1,35 @@
-# Copyright 1999-2009 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-text/sgml-common/sgml-common-0.6.3-r5.ebuild,v 1.19 2009/07/19 11:18:02 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-text/sgml-common/sgml-common-0.6.3-r5.ebuild,v 1.27 2013/02/17 20:39:27 zmedico Exp $
 
-inherit autotools eutils
+EAPI="3"
+
+inherit eutils prefix
 
 DESCRIPTION="Base ISO character entities and utilities for SGML"
 HOMEPAGE="http://www.iso.ch/cate/3524030.html"
-SRC_URI="mirror://kde/devel/docbook/SOURCES/${P}.tgz"
+#SRC_URI="mirror://kde/devel/docbook/SOURCES/${P}.tgz"
+SRC_URI="http://dev.gentoo.org/~floppym/dist/${PN}/${P}-gentoo.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc ~sparc-fbsd x86 ~x86-fbsd"
+KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE=""
 
-RDEPEND=""
 DEPEND=""
+RDEPEND=""
 
-src_unpack() {
-	unpack ${A}
-
+src_prepare() {
 	# We use a hacked version of install-catalog that supports the ROOT
-	# variable, and puts quotes around the CATALOG files.
+	# variable, puts quotes around the CATALOG files, and can be prefixed.
 	cp "${FILESDIR}/${P}-install-catalog.in" "${S}/bin/install-catalog.in"
-	cd "${S}"
 
-	epatch "${FILESDIR}"/${P}-configure.in.patch
-	epatch "${FILESDIR}"/${P}-man_MANS.patch
+	epatch "${FILESDIR}"/${P}-prefix.patch
+	eprefixify bin/install-catalog.in bin/sgmlwhich config/sgml.conf
+}
 
-	eautoreconf
+src_configure() {
+	econf --htmldir="${EPREFIX}/usr/share/doc/${PF}/html"
 }
 
 src_install() {
@@ -35,22 +37,22 @@ src_install() {
 }
 
 pkg_postinst() {
-	local installer="${ROOT}usr/bin/install-catalog"
-	if [ ! -x "${installer}" ]; then
+	local installer="${EROOT}usr/bin/install-catalog"
+	if [[ ! -x ${installer} ]]; then
 		eerror "install-catalog not found! Something went wrong!"
-		die
+		die "install-catalog not found! Something went wrong!"
 	fi
 
 	einfo "Installing Catalogs..."
-	$installer --add \
-		/etc/sgml/sgml-ent.cat \
-		/usr/share/sgml/sgml-iso-entities-8879.1986/catalog
-	$installer --add \
-		/etc/sgml/sgml-docbook.cat \
-		/etc/sgml/sgml-ent.cat
+	"$installer" --add \
+		"${EPREFIX}"/etc/sgml/sgml-ent.cat \
+		"${EPREFIX}"/usr/share/sgml/sgml-iso-entities-8879.1986/catalog
+	"$installer" --add \
+		"${EPREFIX}"/etc/sgml/sgml-docbook.cat \
+		"${EPREFIX}"/etc/sgml/sgml-ent.cat
 
 	local file
-	for file in `find "${ROOT}etc/sgml/" -name "*.cat"` "${ROOT}etc/sgml/catalog"
+	for file in `find "${EROOT}etc/sgml/" -name "*.cat"` "${EROOT}etc/sgml/catalog"
 	do
 		einfo "Fixing ${file}"
 		awk '/"$/ { print $1 " " $2 }
@@ -60,7 +62,7 @@ pkg_postinst() {
 }
 
 pkg_prerm() {
-	cp "${ROOT}usr/bin/install-catalog" "${T}"
+	cp "${EROOT}usr/bin/install-catalog" "${T}"
 }
 
 pkg_postrm() {
@@ -69,15 +71,15 @@ pkg_postrm() {
 	fi
 
 	einfo "Removing Catalogs..."
-	if [ -e "${ROOT}etc/sgml/sgml-ent.cat" ]; then
+	if [ -e "${EROOT}etc/sgml/sgml-ent.cat" ]; then
 		"${T}"/install-catalog --remove \
-			/etc/sgml/sgml-ent.cat \
-			/usr/share/sgml/sgml-iso-entities-8879.1986/catalog
+			"${EPREFIX}"/etc/sgml/sgml-ent.cat \
+			"${EPREFIX}"/usr/share/sgml/sgml-iso-entities-8879.1986/catalog
 	fi
 
-	if [ -e "${ROOT}etc/sgml/sgml-docbook.cat" ]; then
+	if [ -e "${EROOT}etc/sgml/sgml-docbook.cat" ]; then
 		"${T}"/install-catalog --remove \
-			/etc/sgml/sgml-docbook.cat \
-			/etc/sgml/sgml-ent.cat
+			"${EPREFIX}"/etc/sgml/sgml-docbook.cat \
+			"${EPREFIX}"/etc/sgml/sgml-ent.cat
 	fi
 }
