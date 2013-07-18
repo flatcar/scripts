@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/ncurses/ncurses-5.9-r1.ebuild,v 1.2 2012/06/24 00:24:08 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/ncurses/ncurses-5.9-r2.ebuild,v 1.17 2013/01/17 04:19:21 vapier Exp $
 
 EAPI="1"
 inherit eutils flag-o-matic toolchain-funcs
@@ -14,12 +14,13 @@ SRC_URI="mirror://gnu/ncurses/${MY_P}.tar.gz"
 
 LICENSE="MIT"
 SLOT="5"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~sparc-fbsd ~x86-fbsd"
-IUSE="ada +cxx debug doc gpm minimal profile static-libs trace unicode"
+KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
+IUSE="ada +cxx debug doc gpm minimal profile static-libs tinfo trace unicode"
 
 DEPEND="gpm? ( sys-libs/gpm )"
 #	berkdb? ( sys-libs/db )"
-RDEPEND="!<x11-terms/rxvt-unicode-9.06-r3"
+RDEPEND="${DEPEND}
+	!<x11-terms/rxvt-unicode-9.06-r3"
 
 S=${WORKDIR}/${MY_P}
 
@@ -29,16 +30,14 @@ src_unpack() {
 	[[ -n ${PV_SNAP} ]] && epatch "${WORKDIR}"/${MY_P}-${PV_SNAP}-patch.sh
 	epatch "${FILESDIR}"/${PN}-5.8-gfbsd.patch
 	epatch "${FILESDIR}"/${PN}-5.7-nongnu.patch
-	epatch "${FILESDIR}"/${PN}-5.8-rxvt-unicode.patch #192083
-	sed -i \
-		-e '/^PKG_CONFIG_LIBDIR/s:=.*:=$(libdir)/pkgconfig:' \
-		misc/Makefile.in || die
+	epatch "${FILESDIR}"/${PN}-5.9-rxvt-unicode-9.15.patch #192083 #383871
+	epatch "${FILESDIR}"/${PN}-5.9-fix-clang-build.patch #417763
 }
 
 src_compile() {
 	unset TERMINFO #115036
-	tc-export BUILD_CC
-	export BUILD_CPPFLAGS+=" -D_GNU_SOURCE" #214642
+	tc-export_build_env BUILD_{CC,CPP}
+	BUILD_CPPFLAGS+=" -D_GNU_SOURCE" #214642
 
 	# when cross-compiling, we need to build up our own tic
 	# because people often don't keep matching host/target
@@ -63,6 +62,12 @@ do_compile() {
 	mkdir "${WORKDIR}"/$1
 	cd "${WORKDIR}"/$1
 	shift
+
+	# ncurses is dumb and doesn't install .pc files unless pkg-config
+	# is also installed.  Force the tests to go our way.  Note that it
+	# doesn't actually use pkg-config ... it just looks for set vars.
+	tc-export PKG_CONFIG
+	export PKG_CONFIG_LIBDIR="/usr/$(get_libdir)/pkgconfig"
 
 	# The chtype/mmask-t settings below are to retain ABI compat
 	# with ncurses-5.4 so dont change em !
@@ -102,6 +107,7 @@ do_compile() {
 		$(use_with debug expanded) \
 		$(use_with !debug macros) \
 		$(use_with trace) \
+		$(use_with tinfo termlib) \
 		${conf_abi} \
 		"$@"
 
@@ -133,8 +139,11 @@ src_install() {
 	fi
 
 	# Move libncurses{,w} into /lib
-	gen_usr_ldscript -a ncurses
-	use unicode && gen_usr_ldscript -a ncursesw
+	gen_usr_ldscript -a \
+		ncurses \
+		$(usex unicode 'ncursesw' '') \
+		$(use tinfo && usex unicode 'tinfow' '') \
+		$(usev tinfo)
 	ln -sf libncurses.so "${D}"/usr/$(get_libdir)/libcurses.so || die
 	use static-libs || find "${D}"/usr/ -name '*.a' -a '!' -name '*curses++*.a' -delete
 

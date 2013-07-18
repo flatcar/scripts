@@ -1,0 +1,11 @@
+--- configure
++++ configure
+@@ -9122,7 +9122,7 @@
+ echo "$as_me:9122: result: $with_warnings" >&5
+ echo "${ECHO_T}$with_warnings" >&6
+ 
+-if test -n "$with_warnings"; then
++if test "x$with_warnings" = "xyes"; then
+  	ADAFLAGS="$ADAFLAGS -gnatg"
+ 
+ INTEL_COMPILER=no
