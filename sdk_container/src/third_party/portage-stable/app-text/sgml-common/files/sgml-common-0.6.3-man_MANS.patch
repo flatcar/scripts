@@ -1,7 +1,0 @@
-diff -ur sgml-common-0.6.3.orig/doc/man/Makefile.am sgml-common-0.6.3/doc/man/Makefile.am
---- sgml-common-0.6.3.orig/doc/man/Makefile.am	2001-01-30 16:42:22.000000000 +0200
-+++ sgml-common-0.6.3/doc/man/Makefile.am	2009-07-19 14:09:48.000000000 +0300
-@@ -1,2 +1 @@
--man8dir	  = $(mandir)/man8
--man8_DATA = *.8
-+man_MANS = *.8
