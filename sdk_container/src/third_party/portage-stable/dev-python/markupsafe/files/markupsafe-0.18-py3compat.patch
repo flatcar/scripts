@@ -1,0 +1,142 @@
+https://github.com/tseaver/markupsafe/commit/553d9c3ba00e89967dfb608806f5703ef11c3f4c
+diff --git a/CHANGES b/CHANGES
+index 91a61c5..ec98481 100644
+diff --git a/markupsafe/__init__.py b/markupsafe/__init__.py
+index 25f00d3..902b2b2 100644
+--- a/markupsafe/__init__.py
++++ b/markupsafe/__init__.py
+@@ -10,12 +10,11 @@
+ """
+ import re
+ from markupsafe._compat import text_type, string_types, int_types, \
+-     unichr, PY2
++     unichr, PY2, _EMPTY, _BLANK
+ 
+ 
+ __all__ = ['Markup', 'soft_unicode', 'escape', 'escape_silent']
+ 
+-
+ _striptags_re = re.compile(r'(<!--.*?-->|<[^>]*>)')
+ _entity_re = re.compile(r'&([^;]+);')
+ 
+@@ -65,7 +64,7 @@ class Markup(text_type):
+     """
+     __slots__ = ()
+ 
+-    def __new__(cls, base=u'', encoding=None, errors='strict'):
++    def __new__(cls, base=_EMPTY, encoding=None, errors='strict'):
+         if hasattr(base, '__html__'):
+             base = base.__html__()
+         if encoding is None:
+@@ -139,7 +138,7 @@ def handle_match(m):
+                     return unichr(int(name[1:]))
+             except ValueError:
+                 pass
+-            return u''
++            return _EMPTY
+         return _entity_re.sub(handle_match, text_type(self))
+ 
+     def striptags(self):
+@@ -150,7 +149,7 @@ def striptags(self):
+         >>> Markup("Main &raquo;  <em>About</em>").striptags()
+         u'Main \xbb About'
+         """
+-        stripped = u' '.join(_striptags_re.sub('', self).split())
++        stripped = _BLANK.join(_striptags_re.sub('', self).split())
+         return Markup(stripped).unescape()
+ 
+     @classmethod
+diff --git a/markupsafe/_compat.py b/markupsafe/_compat.py
+index 29e4a3d..0cc647e 100644
+--- a/markupsafe/_compat.py
++++ b/markupsafe/_compat.py
+@@ -17,8 +17,18 @@
+     string_types = (str,)
+     unichr = chr
+     int_types = (int,)
++
++    def _u(s):
++        return s
++
+ else:
+     text_type = unicode
+     string_types = (str, unicode)
+     unichr = unichr
+     int_types = (int, long)
++
++    def _u(s):
++        return unicode(s, 'unicode_escape')
++
++_EMPTY = _u('')
++_BLANK = _u(' ')
+diff --git a/markupsafe/tests.py b/markupsafe/tests.py
+index b34cc6e..f2f71a4 100644
+--- a/markupsafe/tests.py
++++ b/markupsafe/tests.py
+@@ -2,7 +2,7 @@
+ import gc
+ import unittest
+ from markupsafe import Markup, escape, escape_silent
+-from markupsafe._compat import text_type
++from markupsafe._compat import text_type, _u
+ 
+ 
+ class MarkupTestCase(unittest.TestCase):
+@@ -48,16 +48,16 @@ def test_tuple_interpol(self):
+         self.assertEqual(Markup('<em>%s:%s</em>') % (
+             '<foo>',
+             '<bar>',
+-        ), Markup(u'<em>&lt;foo&gt;:&lt;bar&gt;</em>'))
++        ), Markup(_u('<em>&lt;foo&gt;:&lt;bar&gt;</em>')))
+ 
+     def test_dict_interpol(self):
+         self.assertEqual(Markup('<em>%(foo)s</em>') % {
+             'foo': '<foo>',
+-        }, Markup(u'<em>&lt;foo&gt;</em>'))
++        }, Markup(_u('<em>&lt;foo&gt;</em>')))
+         self.assertEqual(Markup('<em>%(foo)s:%(bar)s</em>') % {
+             'foo': '<foo>',
+             'bar': '<bar>',
+-        }, Markup(u'<em>&lt;foo&gt;:&lt;bar&gt;</em>'))
++        }, Markup(_u('<em>&lt;foo&gt;:&lt;bar&gt;</em>')))
+ 
+     def test_escaping(self):
+         # escaping and unescaping
+@@ -73,7 +73,7 @@ def test_all_set(self):
+     def test_escape_silent(self):
+         assert escape_silent(None) == Markup()
+         assert escape(None) == Markup(None)
+-        assert escape_silent('<foo>') == Markup(u'&lt;foo&gt;')
++        assert escape_silent('<foo>') == Markup(_u('&lt;foo&gt;'))
+ 
+     def test_splitting(self):
+         self.assertEqual(Markup('a b').split(), [
+@@ -101,8 +101,8 @@ def test_markup_leaks(self):
+             for item in range(1000):
+                 escape("foo")
+                 escape("<foo>")
+-                escape(u"foo")
+-                escape(u"<foo>")
++                escape(_u("foo"))
++                escape(_u("<foo>"))
+             counts.add(len(gc.get_objects()))
+         assert len(counts) == 1, 'ouch, c extension seems to leak objects'
+ 
+diff --git a/setup.py b/setup.py
+index a5ca3ef..cac6084 100644
+--- a/setup.py
++++ b/setup.py
+@@ -81,7 +81,12 @@ def run_setup(with_binary):
+             'License :: OSI Approved :: BSD License',
+             'Operating System :: OS Independent',
+             'Programming Language :: Python',
++            'Programming Language :: Python :: 2',
++            'Programming Language :: Python :: 2.6',
++            'Programming Language :: Python :: 2.7',
+             'Programming Language :: Python :: 3',
++            'Programming Language :: Python :: 3.2',
++            'Programming Language :: Python :: 3.3',
+             'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
+             'Topic :: Software Development :: Libraries :: Python Modules',
+             'Topic :: Text Processing :: Markup :: HTML'
+

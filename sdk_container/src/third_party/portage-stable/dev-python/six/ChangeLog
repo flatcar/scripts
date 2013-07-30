@@ -1,0 +1,94 @@
+# ChangeLog for dev-python/six
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-python/six/ChangeLog,v 1.26 2013/07/14 10:23:58 ago Exp $
+
+  14 Jul 2013; Agostino Sarubbo <ago@gentoo.org> six-1.3.0.ebuild:
+  Stable for alpha, wrt bug #469994
+
+  27 Jun 2013; Alexis Ballier <aballier@gentoo.org> six-1.3.0.ebuild,
+  six-9999.ebuild:
+  keyword ~amd64-fbsd, bug #473666
+
+  24 May 2013; Agostino Sarubbo <ago@gentoo.org> six-1.3.0.ebuild:
+  Stable for ppc64, wrt bug #469994
+
+  22 May 2013; Agostino Sarubbo <ago@gentoo.org> six-1.3.0.ebuild:
+  Stable for ia64, wrt bug #469994
+
+  20 May 2013; Agostino Sarubbo <ago@gentoo.org> six-1.3.0.ebuild:
+  Stable for arm, wrt bug #469994
+
+  20 May 2013; Agostino Sarubbo <ago@gentoo.org> six-1.3.0.ebuild:
+  Stable for ppc, wrt bug #469994
+
+  20 May 2013; Agostino Sarubbo <ago@gentoo.org> six-1.3.0.ebuild:
+  Stable for x86, wrt bug #469994
+
+  19 May 2013; Agostino Sarubbo <ago@gentoo.org> six-1.3.0.ebuild:
+  Stable for amd64, wrt bug #469994
+
+  17 May 2013; Jeroen Roovers <jer@gentoo.org> six-1.3.0.ebuild:
+  Stable for HPPA (bug #469994).
+
+*six-1.3.0 (24 Mar 2013)
+
+  24 Mar 2013; Tim Harder <radhermit@gentoo.org> +six-1.3.0.ebuild:
+  Version bump.
+
+  02 Jan 2013; Mike Gilbert <floppym@gentoo.org> six-1.2.0-r1.ebuild:
+  Add pypy2_0.
+
+*six-9999 (01 Jan 2013)
+
+  01 Jan 2013; Michał Górny <mgorny@gentoo.org> +six-9999.ebuild,
+  six-1.2.0-r1.ebuild:
+  Add a live ebuild and a proper homepage.
+
+*six-1.2.0-r1 (01 Jan 2013)
+
+  01 Jan 2013; Michał Górny <mgorny@gentoo.org> +six-1.2.0-r1.ebuild:
+  Migrate to distutils-r1.
+
+  17 Dec 2012; Agostino Sarubbo <ago@gentoo.org> six-1.1.0.ebuild:
+  Stable for ia64, wrt bug #426466
+
+  07 Oct 2012; nixnut <nixnut@gentoo.org> six-1.1.0.ebuild:
+  ppc stable #426466
+
+  06 Oct 2012; Anthony G. Basile <blueness@gentoo.org> six-1.2.0.ebuild:
+  keyword ~arm, bug #437250
+
+  29 Sep 2012; Tim Harder <radhermit@gentoo.org> six-1.2.0.ebuild:
+  Call distutils_src_prepare.
+
+*six-1.2.0 (29 Sep 2012)
+
+  29 Sep 2012; Tim Harder <radhermit@gentoo.org> +six-1.2.0.ebuild:
+  Version bump.
+
+  29 Sep 2012; Fabian Groffen <grobian@gentoo.org> six-1.1.0.ebuild:
+  Marked ~x86-macos
+
+  06 Aug 2012; Patrick Lauer <patrick@gentoo.org> six-1.1.0.ebuild:
+  Restricting jython
+
+  14 Jul 2012; Johannes Huber <johu@gentoo.org> six-1.1.0.ebuild:
+  Stable for x86, wrt bug #426466
+
+  14 Jul 2012; Agostino Sarubbo <ago@gentoo.org> six-1.1.0.ebuild:
+  Stable for amd64, wrt bug #426466
+
+  04 Apr 2012; Justin Lecher <jlec@gentoo.org> six-1.1.0.ebuild:
+  Keyworded for ~-linux tested by me
+
+  01 Apr 2012; Mike Gilbert <floppym@gentoo.org> six-1.1.0.ebuild:
+  One more keyword.
+
+  01 Apr 2012; Mike Gilbert <floppym@gentoo.org> six-1.1.0.ebuild:
+  Add keywords to satisfy python-dateutil reverse dependency.
+
+*six-1.1.0 (01 Apr 2012)
+
+  01 Apr 2012; Mike Gilbert <floppym@gentoo.org> +metadata.xml,
+  +six-1.1.0.ebuild:
+  New package.

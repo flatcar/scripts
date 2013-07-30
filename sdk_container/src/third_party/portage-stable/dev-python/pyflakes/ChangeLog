@@ -1,0 +1,119 @@
+# ChangeLog for dev-python/pyflakes
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-python/pyflakes/ChangeLog,v 1.33 2013/07/27 11:40:00 ago Exp $
+
+  27 Jul 2013; Agostino Sarubbo <ago@gentoo.org> pyflakes-0.7.2.ebuild:
+  Stable for amd64, wrt bug #461158
+
+  03 Jul 2013; Mike Gilbert <floppym@gentoo.org> pyflakes-0.6.1.ebuild,
+  pyflakes-0.7.2.ebuild, pyflakes-0.7.3.ebuild:
+  [R]DEPEND on setuptools, thanks Arfrever.
+
+*pyflakes-0.7.3 (02 Jul 2013)
+
+  02 Jul 2013; Tim Harder <radhermit@gentoo.org> +pyflakes-0.7.3.ebuild:
+  Version bump.
+
+  31 May 2013; Ian Delaney <idella4@gentoo.org> pyflakes-0.7.2.ebuild:
+  added apparent support of healthy py2.[5-6], py3.2
+
+*pyflakes-0.7.2 (27 Apr 2013)
+
+  27 Apr 2013; Patrick McLean <chutzpah@gentoo.org> +pyflakes-0.7.2.ebuild,
+  -pyflakes-0.4.0.ebuild:
+  Version bump, port to distutils-r1. Clean out really old version.
+
+  21 Feb 2013; Zac Medico <zmedico@gentoo.org> pyflakes-0.6.1.ebuild:
+  Add ~arm-linux keyword.
+
+*pyflakes-0.6.1 (07 Feb 2013)
+
+  07 Feb 2013; Patrick Lauer <patrick@gentoo.org> +pyflakes-0.6.1.ebuild:
+  Bump
+
+  11 Dec 2012; Agostino Sarubbo <ago@gentoo.org> pyflakes-0.5.0.ebuild:
+  Add ~ppc, wrt bug #416677
+
+  11 Dec 2012; Agostino Sarubbo <ago@gentoo.org> pyflakes-0.5.0.ebuild:
+  Add ~ppc64, wrt bug #416677
+
+  10 Nov 2012; Ian Delaney <idella4@gentoo.org> pyflakes-0.5.0.ebuild:
+  tests re-tested, pypy set to tests restricted, fixes Bug #No. #432560
+
+  23 Oct 2011; Raúl Porcel <armin76@gentoo.org> pyflakes-0.4.0.ebuild,
+  pyflakes-0.5.0.ebuild:
+  Drop ia64 keywords
+
+  13 Oct 2011; Pawel Hajdan jr <phajdan.jr@gentoo.org> pyflakes-0.5.0.ebuild:
+  x86 stable wrt bug #386067
+
+  12 Oct 2011; Tony Vroon <chainsaw@gentoo.org> pyflakes-0.5.0.ebuild:
+  Marked stable on AMD64 based on arch testing by Agostino "ago" Sarubbo & Ian
+  "idella4" Delaney in bug #386067.
+
+  20 Sep 2011; Mike Gilbert <floppym@gentoo.org> pyflakes-0.5.0.ebuild:
+  Restrict tests with Jython. Simplify dependencies. Patch by Arfrever.
+
+  04 Sep 2011; Dirkjan Ochtman <djc@gentoo.org> pyflakes-0.5.0.ebuild:
+  Take some fixes suggested by Arfrever via the python overlay.
+
+*pyflakes-0.5.0 (03 Sep 2011)
+
+  03 Sep 2011; Dirkjan Ochtman <djc@gentoo.org> +pyflakes-0.5.0.ebuild:
+  Version bump to 0.5.0.
+
+  08 Jul 2010; Arfrever Frehtes Taifersar Arahesis <arfrever@gentoo.org>
+  pyflakes-0.4.0.ebuild:
+  Set PYTHON_DEPEND. Simplify src_test().
+
+  07 Mar 2010; Samuli Suominen <ssuominen@gentoo.org> pyflakes-0.4.0.ebuild:
+  amd64 stable wrt #298977
+
+  04 Jan 2010; Christian Faulhammer <fauli@gentoo.org>
+  pyflakes-0.4.0.ebuild:
+  stable x86, bug 298977
+
+*pyflakes-0.4.0 (30 Nov 2009)
+
+  30 Nov 2009; Arfrever Frehtes Taifersar Arahesis <arfrever@gentoo.org>
+  +pyflakes-0.4.0.ebuild:
+  Version bump. Set SUPPORT_PYTHON_ABIS.
+
+  11 Oct 2009; Fabian Groffen <grobian@gentoo.org> pyflakes-0.3.0.ebuild:
+  Merge from Prefix
+
+  04 Sep 2009; Patrick Lauer <patrick@gentoo.org> -pyflakes-0.2.1.ebuild:
+  Remove old
+
+  02 Mar 2009; Raúl Porcel <armin76@gentoo.org> pyflakes-0.3.0.ebuild:
+  x86 stable wrt #203596
+
+  02 Mar 2009; Tiago Cunha <tcunha@gentoo.org> pyflakes-0.3.0.ebuild:
+  stable amd64, bug 203596
+
+*pyflakes-0.3.0 (31 Jan 2009)
+
+  31 Jan 2009; Patrick Lauer <patrick@gentoo.org> +pyflakes-0.3.0.ebuild:
+  Bump to 0.3.0, fixes #257026
+
+  21 Oct 2008; Christian Hoffmann <hoffie@gentoo.org> pyflakes-0.2.1.ebuild:
+  fixing HOMEPAGE (upstream apparently moved to trac)
+
+  31 May 2007; Lukasz Strzygowski <lucass@gentoo.org> pyflakes-0.2.1.ebuild:
+  Marked ~amd64.
+
+  22 Feb 2007; Piotr Jaroszyński <peper@gentoo.org> ChangeLog:
+  Transition to Manifest2.
+
+  06 Jun 2006; Carsten Lohrke <carlo@gentoo.org> pyflakes-0.2.1.ebuild:
+  Fix use of nonexistent versioned virtual/python.
+
+  01 Apr 2006; Aron Griffis <agriffis@gentoo.org> pyflakes-0.2.1.ebuild:
+  Mark 0.2.1 ~ia64
+
+*pyflakes-0.2.1 (20 Feb 2006)
+
+  20 Feb 2006; Marien Zwart <marienz@gentoo.org> +metadata.xml,
+  +pyflakes-0.2.1.ebuild:
+  New ebuild contributed by Qiangning Hong <hongqn@gmail.com>, closes bug
+  #123479.
