@@ -1,6 +1,47 @@
 # ChangeLog for sys-firmware/seabios
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-firmware/seabios/ChangeLog,v 1.10 2013/01/24 22:10:19 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-firmware/seabios/ChangeLog,v 1.20 2013/07/28 09:27:54 jcallen Exp $
+
+  28 Jul 2013; Jonathan Callen <jcallen@gentoo.org> seabios-1.7.2.2.ebuild:
+  Add missing python dependency, switch to using python-any-r1 as it is usually
+  more appropriate when the package does not install anything that would depend
+  on python at runtime.
+
+*seabios-1.7.2.2 (05 Jul 2013)
+
+  05 Jul 2013; Doug Goldstein <cardoe@gentoo.org> +seabios-1.7.2.2.ebuild:
+  Version bump. Switch to python-single-r1 from python eclass. Use QEMU's pre-
+  built binary to supply the 'upstream' pre-built binary since upstream has not
+  provided one for this version.
+
+  04 Jun 2013; Agostino Sarubbo <ago@gentoo.org> seabios-1.7.2.1.ebuild:
+  Stable for x86, wrt bug #466092
+
+  04 Jun 2013; Agostino Sarubbo <ago@gentoo.org> seabios-1.7.2.1.ebuild:
+  Stable for amd64, wrt bug #466092
+
+  07 May 2013; Agostino Sarubbo <ago@gentoo.org> seabios-1.7.2.ebuild:
+  Stable for x86, wrt bug #468918
+
+  07 May 2013; Agostino Sarubbo <ago@gentoo.org> seabios-1.7.2.ebuild:
+  Stable for amd64, wrt bug #468918
+
+*seabios-1.7.2.1 (07 May 2013)
+
+  07 May 2013; Doug Goldstein <cardoe@gentoo.org> +seabios-1.7.2.1.ebuild:
+  Version bump. I generated the tarball from the git tag. The bios.bin file is
+  from qemu 1.4.1.
+
+  17 Mar 2013; Doug Goldstein <cardoe@gentoo.org> seabios-1.7.1.ebuild,
+  seabios-1.7.2.ebuild:
+  These versions are not compatible with iasl-20130117.
+
+  16 Mar 2013; Doug Goldstein <cardoe@gentoo.org> seabios-1.7.2.ebuild:
+  Need to include eutils, not user eclass.
+
+  12 Mar 2013; Doug Goldstein <cardoe@gentoo.org> seabios-1.6.3.ebuild,
+  seabios-1.7.0.ebuild, seabios-1.7.1.ebuild, seabios-1.7.2.ebuild:
+  Add a clear warning for people not using USE=binary.
 
   24 Jan 2013; Agostino Sarubbo <ago@gentoo.org> seabios-1.7.1.ebuild:
   Stable for x86, wrt bug #453282
