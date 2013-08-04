@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/python-r1.eclass,v 1.40 2013/01/30 10:42:25 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/python-r1.eclass,v 1.56 2013/08/04 08:24:28 mgorny Exp $
 
 # @ECLASS: python-r1
 # @MAINTAINER:
@@ -48,7 +48,7 @@ elif [[ ${_PYTHON_ANY_R1} ]]; then
 	die 'python-r1.eclass can not be used with python-any-r1.eclass.'
 fi
 
-inherit python-utils-r1
+inherit multibuild python-utils-r1
 
 # @ECLASS-VARIABLE: PYTHON_COMPAT
 # @REQUIRED
@@ -67,12 +67,27 @@ inherit python-utils-r1
 # PYTHON_COMPAT=( python{2_5,2_6,2_7} )
 # @CODE
 if ! declare -p PYTHON_COMPAT &>/dev/null; then
-	if [[ ${CATEGORY}/${PN} == dev-python/python-exec ]]; then
-		PYTHON_COMPAT=( "${_PYTHON_ALL_IMPLS[@]}" )
-	else
-		die 'PYTHON_COMPAT not declared.'
-	fi
+	die 'PYTHON_COMPAT not declared.'
 fi
+
+# @ECLASS-VARIABLE: PYTHON_COMPAT_OVERRIDE
+# @INTERNAL
+# @DESCRIPTION:
+# This variable can be used when working with ebuilds to override
+# the in-ebuild PYTHON_COMPAT. It is a string listing all
+# the implementations which package will be built for. It need be
+# specified in the calling environment, and not in ebuilds.
+#
+# It should be noted that in order to preserve metadata immutability,
+# PYTHON_COMPAT_OVERRIDE does not affect IUSE nor dependencies.
+# The state of PYTHON_TARGETS is ignored, and all the implementations
+# in PYTHON_COMPAT_OVERRIDE are built. Dependencies need to be satisfied
+# manually.
+#
+# Example:
+# @CODE
+# PYTHON_COMPAT_OVERRIDE='pypy2_0 python3_3' emerge -1v dev-python/foo
+# @CODE
 
 # @ECLASS-VARIABLE: PYTHON_REQ_USE
 # @DEFAULT_UNSET
@@ -131,6 +146,24 @@ fi
 # python_targets_python2_6(-)?,python_targets_python2_7(-)?
 # @CODE
 
+# @ECLASS-VARIABLE: PYTHON_REQUIRED_USE
+# @DESCRIPTION:
+# This is an eclass-generated required-use expression which ensures at
+# least one Python implementation has been enabled.
+#
+# This expression should be utilized in an ebuild by including it in
+# REQUIRED_USE, optionally behind a use flag.
+#
+# Example use:
+# @CODE
+# REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
+# @CODE
+#
+# Example value:
+# @CODE
+# || ( python_targets_python2_6 python_targets_python2_7 )
+# @CODE
+
 _python_set_globals() {
 	local impls=()
 
@@ -162,7 +195,7 @@ _python_set_globals() {
 	optflags+=,${flags_st[@]/%/(-)}
 
 	IUSE=${flags[*]}
-	#REQUIRED_USE="|| ( ${flags[*]} )"
+	PYTHON_REQUIRED_USE="|| ( ${flags[*]} )"
 	PYTHON_USEDEP=${optflags// /,}
 
 	# 1) well, python-exec would suffice as an RDEP
@@ -172,6 +205,14 @@ _python_set_globals() {
 	PYTHON_DEPS+="dev-python/python-exec[${PYTHON_USEDEP}]"
 }
 _python_set_globals
+
+# @ECLASS-VARIABLE: DISTUTILS_JOBS
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# The number of parallel jobs to run for distutils-r1 parallel builds.
+# If unset, the job-count in ${MAKEOPTS} will be used.
+#
+# This variable is intended to be set in make.conf.
 
 # @FUNCTION: _python_validate_useflags
 # @INTERNAL
@@ -203,6 +244,9 @@ _python_validate_useflags() {
 # are both in PYTHON_COMPAT and match any of the patterns passed
 # as parameters to the function.
 #
+# Remember to escape or quote the patterns to premature evaluation as a file
+# name glob.
+#
 # When all implementations are requested, please use ${PYTHON_USEDEP}
 # instead. Please also remember to set an appropriate REQUIRED_USE
 # to avoid ineffective USE flags.
@@ -210,7 +254,7 @@ _python_validate_useflags() {
 # Example:
 # @CODE
 # PYTHON_COMPAT=( python{2_7,3_2} )
-# DEPEND="doc? ( dev-python/epydoc[$(python_gen_usedep python2*)] )"
+# DEPEND="doc? ( dev-python/epydoc[$(python_gen_usedep 'python2*')] )"
 # @CODE
 #
 # It will cause the dependency to look like:
@@ -340,34 +384,19 @@ python_gen_cond_dep() {
 
 # @FUNCTION: python_copy_sources
 # @DESCRIPTION:
-# Create a single copy of the package sources (${S}) for each enabled
-# Python implementation.
+# Create a single copy of the package sources for each enabled Python
+# implementation.
 #
-# The sources are always copied from S to implementation-specific build
-# directories respecting BUILD_DIR.
+# The sources are always copied from initial BUILD_DIR (or S if unset)
+# to implementation-specific build directory matching BUILD_DIR used by
+# python_foreach_abi().
 python_copy_sources() {
 	debug-print-function ${FUNCNAME} "${@}"
 
-	_python_validate_useflags
+	local MULTIBUILD_VARIANTS
+	_python_obtain_impls
 
-	local impl
-	local bdir=${BUILD_DIR:-${S}}
-
-	debug-print "${FUNCNAME}: bdir = ${bdir}"
-	einfo "Will copy sources from ${S}"
-	# the order is irrelevant here
-	for impl in "${PYTHON_COMPAT[@]}"; do
-		_python_impl_supported "${impl}" || continue
-
-		if use "python_targets_${impl}"
-		then
-			local BUILD_DIR=${bdir%%/}-${impl}
-
-			einfo "${impl}: copying to ${BUILD_DIR}"
-			debug-print "${FUNCNAME}: [${impl}] cp ${S} => ${BUILD_DIR}"
-			cp -pr "${S}" "${BUILD_DIR}" || die
-		fi
-	done
+	multibuild_copy_sources
 }
 
 # @FUNCTION: _python_check_USE_PYTHON
@@ -578,40 +607,102 @@ _python_check_USE_PYTHON() {
 	fi
 }
 
+# @FUNCTION: _python_obtain_impls
+# @INTERNAL
+# @DESCRIPTION:
+# Set up the enabled implementation list.
+_python_obtain_impls() {
+	if [[ ${PYTHON_COMPAT_OVERRIDE} ]]; then
+		if [[ ! ${_PYTHON_COMPAT_OVERRIDE_WARNED} ]]; then
+			ewarn "WARNING: PYTHON_COMPAT_OVERRIDE in effect. The following Python"
+			ewarn "implementations will be enabled:"
+			ewarn
+			ewarn "	${PYTHON_COMPAT_OVERRIDE}"
+			ewarn
+			ewarn "Dependencies won't be satisfied, and PYTHON_TARGETS will be ignored."
+			_PYTHON_COMPAT_OVERRIDE_WARNED=1
+		fi
+
+		MULTIBUILD_VARIANTS=( ${PYTHON_COMPAT_OVERRIDE} )
+		return
+	fi
+
+	_python_validate_useflags
+	_python_check_USE_PYTHON
+
+	MULTIBUILD_VARIANTS=()
+
+	for impl in "${_PYTHON_ALL_IMPLS[@]}"; do
+		if has "${impl}" "${PYTHON_COMPAT[@]}" \
+			&& use "python_targets_${impl}"
+		then
+			MULTIBUILD_VARIANTS+=( "${impl}" )
+		fi
+	done
+}
+
+# @FUNCTION: _python_multibuild_wrapper
+# @USAGE: <command> [<args>...]
+# @INTERNAL
+# @DESCRIPTION:
+# Initialize the environment for Python implementation selected
+# for multibuild.
+_python_multibuild_wrapper() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	local -x EPYTHON PYTHON
+	local -x PATH=${PATH} PKG_CONFIG_PATH=${PKG_CONFIG_PATH}
+	python_export "${MULTIBUILD_VARIANT}" EPYTHON PYTHON
+	python_wrapper_setup
+
+	"${@}"
+}
+
 # @FUNCTION: python_foreach_impl
 # @USAGE: <command> [<args>...]
 # @DESCRIPTION:
 # Run the given command for each of the enabled Python implementations.
 # If additional parameters are passed, they will be passed through
-# to the command. If the command fails, python_foreach_impl dies.
-# If necessary, use ':' to force a successful return.
+# to the command.
+#
+# The function will return 0 status if all invocations succeed.
+# Otherwise, the return code from first failing invocation will
+# be returned.
 #
 # For each command being run, EPYTHON, PYTHON and BUILD_DIR are set
 # locally, and the former two are exported to the command environment.
 python_foreach_impl() {
 	debug-print-function ${FUNCNAME} "${@}"
 
-	_python_validate_useflags
-	_python_check_USE_PYTHON
+	local MULTIBUILD_VARIANTS
+	_python_obtain_impls
 
-	local impl
-	local bdir=${BUILD_DIR:-${S}}
+	multibuild_foreach_variant _python_multibuild_wrapper "${@}"
+}
 
-	debug-print "${FUNCNAME}: bdir = ${bdir}"
-	for impl in "${_PYTHON_ALL_IMPLS[@]}"; do
-		if has "${impl}" "${PYTHON_COMPAT[@]}" \
-			&& _python_impl_supported "${impl}" \
-			&& use "python_targets_${impl}"
-		then
-			local EPYTHON PYTHON
-			python_export "${impl}" EPYTHON PYTHON
-			local BUILD_DIR=${bdir%%/}-${impl}
-			export EPYTHON PYTHON
+# @FUNCTION: python_parallel_foreach_impl
+# @USAGE: <command> [<args>...]
+# @DESCRIPTION:
+# Run the given command for each of the enabled Python implementations.
+# If additional parameters are passed, they will be passed through
+# to the command.
+#
+# The function will return 0 status if all invocations succeed.
+# Otherwise, the return code from first failing invocation will
+# be returned.
+#
+# For each command being run, EPYTHON, PYTHON and BUILD_DIR are set
+# locally, and the former two are exported to the command environment.
+#
+# Multiple invocations of the command will be run in parallel, up to
+# DISTUTILS_JOBS (defaulting to '-j' option argument from MAKEOPTS).
+python_parallel_foreach_impl() {
+	debug-print-function ${FUNCNAME} "${@}"
 
-			einfo "${EPYTHON}: running ${@}"
-			"${@}" || die "${EPYTHON}: ${1} failed"
-		fi
-	done
+	local MULTIBUILD_JOBS=${MULTIBUILD_JOBS:-${DISTUTILS_JOBS}}
+	local MULTIBUILD_VARIANTS
+	_python_obtain_impls
+	multibuild_parallel_foreach_variant _python_multibuild_wrapper "${@}"
 }
 
 # @FUNCTION: python_export_best
@@ -623,24 +714,19 @@ python_foreach_impl() {
 python_export_best() {
 	debug-print-function ${FUNCNAME} "${@}"
 
-	_python_validate_useflags
-
 	[[ ${#} -gt 0 ]] || set -- EPYTHON PYTHON
 
-	local impl best
-	for impl in "${_PYTHON_ALL_IMPLS[@]}"; do
-		if has "${impl}" "${PYTHON_COMPAT[@]}" \
-			&& _python_impl_supported "${impl}" \
-			&& use "python_targets_${impl}"
-		then
-			best=${impl}
-		fi
-	done
+	local best MULTIBUILD_VARIANTS
+	_python_obtain_impls
 
-	[[ ${best+1} ]] || die "python_export_best(): no implementation found!"
+	_python_set_best() {
+		best=${MULTIBUILD_VARIANT}
+	}
+	multibuild_for_best_variant _python_set_best
 
-	debug-print "${FUNCNAME}: Best implementation is: ${impl}"
-	python_export "${impl}" "${@}"
+	debug-print "${FUNCNAME}: Best implementation is: ${best}"
+	python_export "${best}" "${@}"
+	python_wrapper_setup
 }
 
 # @FUNCTION: python_replicate_script
@@ -653,8 +739,6 @@ python_export_best() {
 # having a matching shebang will be refused.
 python_replicate_script() {
 	debug-print-function ${FUNCNAME} "${@}"
-
-	_python_validate_useflags
 
 	local suffixes=()
 
@@ -679,25 +763,6 @@ python_replicate_script() {
 	for f; do
 		_python_ln_rel "${ED}"/usr/bin/python-exec "${f}" || die
 	done
-}
-
-# @FUNCTION: run_in_build_dir
-# @USAGE: <argv>...
-# @DESCRIPTION:
-# Run the given command in the directory pointed by BUILD_DIR.
-run_in_build_dir() {
-	debug-print-function ${FUNCNAME} "${@}"
-	local ret
-
-	[[ ${#} -ne 0 ]] || die "${FUNCNAME}: no command specified."
-	[[ ${BUILD_DIR} ]] || die "${FUNCNAME}: BUILD_DIR not set."
-
-	pushd "${BUILD_DIR}" >/dev/null || die
-	"${@}"
-	ret=${?}
-	popd >/dev/null || die
-
-	return ${ret}
 }
 
 _PYTHON_R1=1

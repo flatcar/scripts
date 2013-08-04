@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/python-distutils-ng.eclass,v 1.29 2012/10/30 17:22:33 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/python-distutils-ng.eclass,v 1.30 2013/07/27 11:17:44 mgorny Exp $
 
 # @ECLASS: python-distutils-ng
 # @MAINTAINER:
@@ -132,7 +132,7 @@ for impl in ${PYTHON_COMPAT}; do
 		jython?.?)
 			dep_str="dev-java/jython:${dep_str: -3}${_PYTHON_USE}" ;;
 		pypy?.?)
-			dep_str="dev-python/pypy:${dep_str: -3}${_PYTHON_USE}" ;;
+			dep_str="virtual/pypy:${dep_str: -3}${_PYTHON_USE}" ;;
 		*)
 			die "Unsupported implementation: ${impl}" ;;
 	esac

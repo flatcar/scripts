@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/distutils.eclass,v 1.82 2012/03/15 16:51:54 patrick Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/distutils.eclass,v 1.84 2013/08/03 13:28:22 patrick Exp $
 
 # @ECLASS: distutils.eclass
 # @MAINTAINER:
@@ -33,15 +33,15 @@ fi
 		ewarn
 		ewarn "\"${EBUILD}\":"
 		ewarn "Deprecation Warning: Usage of distutils.eclass in packages supporting installation"
-		ewarn "for multiple Python ABIs in EAPI <=1 is deprecated and will be banned on 2011-06-01."
-		ewarn "The ebuild needs to be fixed. Please report a bug, if it has not been already reported."
+		ewarn "for multiple Python ABIs in EAPI <=1 is deprecated."
+		ewarn "The ebuild should to be fixed. Please report a bug, if it has not been already reported."
 		ewarn
 	elif has "${EAPI:-0}" 0 1 2 && [[ -z "${SUPPORT_PYTHON_ABIS}" ]]; then
 		ewarn
 		ewarn "\"${EBUILD}\":"
 		ewarn "Deprecation Warning: Usage of distutils.eclass in packages not supporting installation"
-		ewarn "for multiple Python ABIs in EAPI <=2 is deprecated and will be banned on 2011-06-01."
-		ewarn "The ebuild needs to be fixed. Please report a bug, if it has not been already reported."
+		ewarn "for multiple Python ABIs in EAPI <=2 is deprecated."
+		ewarn "The ebuild should to be fixed. Please report a bug, if it has not been already reported."
 		ewarn
 	fi
 
@@ -98,7 +98,7 @@ if [[ -z "${DISTUTILS_DISABLE_TEST_DEPENDENCY}" ]]; then
 	# trial requires an argument, which is usually equal to "${PN}".
 	elif [[ "${DISTUTILS_SRC_TEST}" =~ ^trial(\ .*)?$ ]]; then
 		IUSE="test"
-		DEPEND+="${DEPEND:+ }test? ( dev-python/twisted )"
+		DEPEND+="${DEPEND:+ }test? ( dev-python/twisted-core )"
 	fi
 fi
 
