@@ -1,6 +1,36 @@
 # ChangeLog for dev-python/argparse
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-python/argparse/ChangeLog,v 1.49 2013/01/01 19:01:38 armin76 Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-python/argparse/ChangeLog,v 1.59 2013/04/12 17:20:01 ago Exp $
+
+  12 Apr 2013; Agostino Sarubbo <ago@gentoo.org> argparse-1.2.1-r2.ebuild:
+  Stable for ia64, wrt bug #456600
+
+  05 Apr 2013; Agostino Sarubbo <ago@gentoo.org> argparse-1.2.1-r2.ebuild:
+  Stable for ppc64, wrt bug #456600
+
+  02 Apr 2013; Agostino Sarubbo <ago@gentoo.org> argparse-1.2.1-r2.ebuild:
+  Stable for s390, wrt bug #456600
+
+  02 Apr 2013; Agostino Sarubbo <ago@gentoo.org> argparse-1.2.1-r2.ebuild:
+  Stable for arm, wrt bug #456600
+
+  02 Apr 2013; Agostino Sarubbo <ago@gentoo.org> argparse-1.2.1-r2.ebuild:
+  Stable for hppa, wrt bug #456600
+
+  31 Mar 2013; Agostino Sarubbo <ago@gentoo.org> argparse-1.2.1-r2.ebuild:
+  Stable for sh, wrt bug #456600
+
+  31 Mar 2013; Agostino Sarubbo <ago@gentoo.org> argparse-1.2.1-r2.ebuild:
+  Stable for sparc, wrt bug #456600
+
+  30 Mar 2013; Agostino Sarubbo <ago@gentoo.org> argparse-1.2.1-r2.ebuild:
+  Stable for alpha, wrt bug #456600
+
+  30 Mar 2013; Agostino Sarubbo <ago@gentoo.org> argparse-1.2.1-r2.ebuild:
+  Stable for ppc, wrt bug #456600
+
+  27 Mar 2013; Agostino Sarubbo <ago@gentoo.org> argparse-1.2.1-r2.ebuild:
+  Stable for amd64, wrt bug #456600
 
   01 Jan 2013; Raúl Porcel <armin76@gentoo.org> argparse-1.2.1-r1.ebuild:
   s390/sh/x86 stable wrt #446496

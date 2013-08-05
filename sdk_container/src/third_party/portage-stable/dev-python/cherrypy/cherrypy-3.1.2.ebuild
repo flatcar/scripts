@@ -17,7 +17,7 @@ SRC_URI="http://download.cherrypy.org/${PN}/${PV}/${MY_P}.tar.gz"
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="arm amd64 ia64 ppc x86 ~amd64-linux ~x86-linux ~x86-macos"
+KEYWORDS="amd64 ia64 ppc x86 ~amd64-linux ~x86-linux ~x86-macos"
 IUSE="doc"
 
 DEPEND=""

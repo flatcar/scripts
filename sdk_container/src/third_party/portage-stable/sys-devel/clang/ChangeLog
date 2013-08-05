@@ -1,6 +1,47 @@
 # ChangeLog for sys-devel/clang
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/clang/ChangeLog,v 1.84 2013/02/02 23:28:27 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/clang/ChangeLog,v 1.93 2013/07/31 21:51:47 aballier Exp $
+
+  31 Jul 2013; Alexis Ballier <aballier@gentoo.org> clang-3.3-r100.ebuild:
+  remove ppc keywords that were added by mistake
+
+*clang-3.3-r100 (21 Jul 2013)
+*clang-9999-r100 (21 Jul 2013)
+
+  21 Jul 2013; Michał Górny <mgorny@gentoo.org> +clang-3.3-r100.ebuild,
+  +clang-9999-r100.ebuild:
+  Add clang meta-package pulling in llvm[clang].
+
+*clang-3.3 (18 Jun 2013)
+
+  18 Jun 2013; Bernard Cafarelli <voyageur@gentoo.org> -clang-3.3_rc3.ebuild,
+  +clang-3.3.ebuild:
+  Remove mask on llvm release candidates
+
+  18 Jun 2013; Alexis Ballier <aballier@gentoo.org> clang-3.3_rc3.ebuild,
+  files/clang-3.1-gentoo-freebsd-fix-lib-path.patch:
+  Drop a FreeBSD specific patch that causes problem with multilib on FreeBSD.
+
+  17 Jun 2013; Bernard Cafarelli <voyageur@gentoo.org> clang-3.3_rc3.ebuild,
+  clang-9999.ebuild:
+  Use clang resource dir configuration option, fixes #417595
+
+  13 Jun 2013; Bernard Cafarelli <voyageur@gentoo.org> clang-3.3_rc3.ebuild,
+  clang-9999.ebuild:
+  Fix libprofile_rt.a lookup path, bug #471434
+
+*clang-3.3_rc3 (10 Jun 2013)
+
+  10 Jun 2013; Bernard Cafarelli <voyageur@gentoo.org> +clang-3.3_rc3.ebuild:
+  3.3_rc bump
+
+  24 May 2013; Alexis Ballier <aballier@gentoo.org> clang-3.2.ebuild:
+  rekeyword ~amd64-fbsd: c++ include search for gcc ones is broken but works
+  very well when using libcxx.
+
+  04 Feb 2013; Michał Górny <mgorny@gentoo.org> clang-3.2.ebuild,
+  clang-9999.ebuild:
+  Use supported Python implementation during build. Fixes bug #455260.
 
   02 Feb 2013; Michał Górny <mgorny@gentoo.org> clang-3.2.ebuild,
   clang-9999.ebuild:

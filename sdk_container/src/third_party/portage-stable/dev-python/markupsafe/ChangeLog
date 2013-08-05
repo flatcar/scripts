@@ -1,6 +1,9 @@
 # ChangeLog for dev-python/markupsafe
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-python/markupsafe/ChangeLog,v 1.48 2013/07/28 18:13:55 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-python/markupsafe/ChangeLog,v 1.49 2013/08/04 13:42:23 ago Exp $
+
+  04 Aug 2013; Agostino Sarubbo <ago@gentoo.org> markupsafe-0.15-r1.ebuild:
+  Stable for ppc64, wrt bug #477970
 
   28 Jul 2013; Agostino Sarubbo <ago@gentoo.org> markupsafe-0.15-r1.ebuild:
   Stable for ppc, wrt bug #477970

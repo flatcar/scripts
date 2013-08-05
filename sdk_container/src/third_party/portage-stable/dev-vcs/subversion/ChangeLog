@@ -1,6 +1,94 @@
 # ChangeLog for dev-vcs/subversion
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-vcs/subversion/ChangeLog,v 1.96 2013/01/26 17:44:46 grobian Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-vcs/subversion/ChangeLog,v 1.119 2013/08/03 08:54:28 tommy Exp $
+
+*subversion-1.7.11 (03 Aug 2013)
+
+  03 Aug 2013; Thomas Sachau (Tommy[D]) <tommy@gentoo.org>
+  +subversion-1.7.11.ebuild:
+  Version bump for bug 472202
+
+*subversion-1.7.10 (21 Jul 2013)
+
+  21 Jul 2013; Thomas Sachau (Tommy[D]) <tommy@gentoo.org>
+  +subversion-1.7.10.ebuild:
+  Version bump
+
+  20 Jul 2013; Michał Górny <mgorny@gentoo.org> subversion-1.7.9.ebuild:
+  Lower the build-time requirement of Python to Python bindings or USE=test. Add
+  REQUIRED_USE for Python.
+
+  05 May 2013; Agostino Sarubbo <ago@gentoo.org> -subversion-1.6.17-r7.ebuild,
+  -subversion-1.7.6.ebuild, -subversion-1.7.7.ebuild, -subversion-1.7.8.ebuild:
+  Remove old
+
+  22 Apr 2013; Agostino Sarubbo <ago@gentoo.org> subversion-1.7.9.ebuild:
+  Stable for alpha, wrt bug #463860
+
+  22 Apr 2013; Jeroen Roovers <jer@gentoo.org> subversion-1.7.9.ebuild:
+  Stable for HPPA (bug #463860).
+
+  22 Apr 2013; Agostino Sarubbo <ago@gentoo.org> subversion-1.7.9.ebuild:
+  Stable for sparc, wrt bug #463860
+
+  22 Apr 2013; Agostino Sarubbo <ago@gentoo.org> subversion-1.7.9.ebuild:
+  Stable for sh, wrt bug #463860
+
+  22 Apr 2013; Agostino Sarubbo <ago@gentoo.org> subversion-1.7.9.ebuild:
+  Stable for s390, wrt bug #463860
+
+  22 Apr 2013; Agostino Sarubbo <ago@gentoo.org> subversion-1.7.9.ebuild:
+  Stable for ppc64, wrt bug #463860
+
+  22 Apr 2013; Agostino Sarubbo <ago@gentoo.org> subversion-1.7.9.ebuild:
+  Stable for ppc, wrt bug #463860
+
+  22 Apr 2013; Agostino Sarubbo <ago@gentoo.org> subversion-1.7.9.ebuild:
+  Stable for ia64, wrt bug #463860
+
+  21 Apr 2013; Agostino Sarubbo <ago@gentoo.org> subversion-1.7.9.ebuild:
+  Stable for arm, wrt bug #463860
+
+  20 Apr 2013; Agostino Sarubbo <ago@gentoo.org> subversion-1.7.9.ebuild:
+  Stable for x86, wrt bug #463860
+
+  20 Apr 2013; Agostino Sarubbo <ago@gentoo.org> subversion-1.7.9.ebuild:
+  Stable for amd64, wrt bug #463860
+
+  19 Apr 2013; Thomas Sachau (Tommy[D]) <tommy@gentoo.org>
+  subversion-1.7.9.ebuild:
+  Require threadsafe sqlite, fixes bug 456172
+
+  19 Apr 2013; Thomas Sachau (Tommy[D]) <tommy@gentoo.org>
+  subversion-1.7.9.ebuild:
+  Force RUBY_TARGETS=ruby18 for dev-ruby/rubygems with USE=ruby
+
+*subversion-1.7.9 (08 Apr 2013)
+
+  08 Apr 2013; Thomas Sachau (Tommy[D]) <tommy@gentoo.org>
+  +subversion-1.7.9.ebuild:
+  Version bump for bug 463860
+
+  03 Mar 2013; Michał Górny <mgorny@gentoo.org> subversion-1.7.8.ebuild:
+  Unconditionally set proper Python version for build-time. Fixes bug #459708.
+
+  02 Mar 2013; Markos Chandras <hwoarang@gentoo.org>
+  subversion-1.6.17-r7.ebuild, subversion-1.7.6.ebuild, subversion-1.7.7.ebuild,
+  subversion-1.7.8.ebuild:
+  Move Qt dependencies to the new category
+
+  23 Feb 2013; Michał Górny <mgorny@gentoo.org> subversion-1.7.8.ebuild:
+  Keep Python sources symlinked during builds. Required for Ruby bindings, for
+  some reason. Bug #458764.
+
+  22 Feb 2013; Zac Medico <zmedico@gentoo.org> subversion-1.7.7.ebuild,
+  subversion-1.7.8.ebuild:
+  Add ~arm-linux keyword.
+
+*subversion-1.7.8 (22 Feb 2013)
+
+  22 Feb 2013; Michał Górny <mgorny@gentoo.org> +subversion-1.7.8.ebuild:
+  Version bump. Convert to distutils-r1.
 
   26 Jan 2013; Fabian Groffen <grobian@gentoo.org> subversion-1.7.7.ebuild:
   Fix compilation for FreeMiNT by Alan Hourihane, bug #451502

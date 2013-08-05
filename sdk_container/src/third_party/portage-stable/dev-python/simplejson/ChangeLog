@@ -1,6 +1,89 @@
 # ChangeLog for dev-python/simplejson
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-python/simplejson/ChangeLog,v 1.86 2013/01/13 20:04:12 radhermit Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-python/simplejson/ChangeLog,v 1.111 2013/07/13 11:41:28 vincent Exp $
+
+  13 Jul 2013; Vicente Olivert Riera <vincent@gentoo.org>
+  simplejson-3.3.0.ebuild:
+  ppc64 keyword added, bug #468468
+
+  10 Jul 2013; Markos Chandras <hwoarang@gentoo.org> simplejson-3.3.0.ebuild:
+  Add ~mips. Bug #468268
+
+  26 Jun 2013; Sergey Popov <pinkbyte@gentoo.org> simplejson-3.3.0.ebuild:
+  Stable on arm, wrt bug #472862
+
+  25 Jun 2013; Agostino Sarubbo <ago@gentoo.org> simplejson-3.3.0.ebuild:
+  Stable for amd64, wrt bug #472862
+
+  25 Jun 2013; Agostino Sarubbo <ago@gentoo.org> simplejson-3.3.0.ebuild:
+  Stable for x86, wrt bug #472862
+
+  24 Jun 2013; Agostino Sarubbo <ago@gentoo.org> simplejson-3.3.0.ebuild:
+  Stable for ppc, wrt bug #472862
+
+  10 Jun 2013; Jeroen Roovers <jer@gentoo.org> simplejson-3.3.0.ebuild:
+  Stable for HPPA (bug #472862).
+
+  19 May 2013; Alexis Ballier <aballier@gentoo.org> simplejson-3.3.0.ebuild:
+  keyword ~amd64-fbsd, bug #468268
+
+  16 May 2013; Agostino Sarubbo <ago@gentoo.org> simplejson-3.1.3.ebuild:
+  Stable for ppc, wrt bug #469658
+
+  14 May 2013; Agostino Sarubbo <ago@gentoo.org> simplejson-3.1.3.ebuild:
+  Stable for arm, wrt bug #469658
+
+  14 May 2013; Agostino Sarubbo <ago@gentoo.org> simplejson-3.1.3.ebuild:
+  Stable for x86, wrt bug #469658
+
+  14 May 2013; Agostino Sarubbo <ago@gentoo.org> simplejson-3.1.3.ebuild:
+  Stable for amd64, wrt bug #469658
+
+*simplejson-3.3.0 (08 May 2013)
+
+  08 May 2013; Tim Harder <radhermit@gentoo.org> +simplejson-3.3.0.ebuild:
+  Version bump.
+
+  02 May 2013; Jeroen Roovers <jer@gentoo.org> simplejson-3.2.0.ebuild:
+  Marked ~hppa (bug #468268).
+
+  02 May 2013; Tim Harder <radhermit@gentoo.org> -simplejson-2.6.2.ebuild,
+  -simplejson-3.0.0.ebuild, -simplejson-3.0.4.ebuild,
+  -simplejson-3.0.4-r1.ebuild, -simplejson-3.0.5.ebuild,
+  -simplejson-3.1.0.ebuild, -simplejson-3.1.2.ebuild:
+  Remove old.
+
+*simplejson-3.2.0 (02 May 2013)
+
+  02 May 2013; Tim Harder <radhermit@gentoo.org> +simplejson-3.2.0.ebuild:
+  Version bump.
+
+*simplejson-3.1.3 (07 Apr 2013)
+
+  07 Apr 2013; Tim Harder <radhermit@gentoo.org> +simplejson-3.1.3.ebuild:
+  Version bump.
+
+*simplejson-3.1.2 (26 Mar 2013)
+
+  26 Mar 2013; Patrick Lauer <patrick@gentoo.org> +simplejson-3.1.2.ebuild:
+  Bump
+
+  09 Mar 2013; Agostino Sarubbo <ago@gentoo.org> simplejson-3.0.7.ebuild:
+  Stable for ppc, wrt bug #460624
+
+  08 Mar 2013; Agostino Sarubbo <ago@gentoo.org> simplejson-3.0.7.ebuild:
+  Stable for arm, wrt bug #460624
+
+  07 Mar 2013; Agostino Sarubbo <ago@gentoo.org> simplejson-3.0.7.ebuild:
+  Stable for x86, wrt bug #460624
+
+  07 Mar 2013; Agostino Sarubbo <ago@gentoo.org> simplejson-3.0.7.ebuild:
+  Stable for amd64, wrt bug #460624
+
+*simplejson-3.1.0 (07 Mar 2013)
+
+  07 Mar 2013; Tim Harder <radhermit@gentoo.org> +simplejson-3.1.0.ebuild:
+  Version bump.
 
 *simplejson-3.0.7 (13 Jan 2013)
 

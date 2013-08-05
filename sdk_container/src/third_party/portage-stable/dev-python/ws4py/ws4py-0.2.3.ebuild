@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-python/ws4py/ws4py-0.2.3.ebuild,v 1.3 2013/01/11 15:50:38 idella4 Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-python/ws4py/ws4py-0.2.3.ebuild,v 1.4 2013/07/19 07:56:00 mgorny Exp $
 
 # We could depend on dev-python/cherrypy when USE=server, but
 # that is an optional component ...
@@ -31,7 +31,7 @@ IUSE="+client +server test +threads"
 RDEPEND="client? ( dev-lang/python[threads?] )"
 DEPEND="test? (
 		${RDEPEND}
-		virtual/python-unittest2
+		dev-python/unittest2
 		>=dev-python/cherrypy-3.2.0
 		dev-python/gevent
 	)"

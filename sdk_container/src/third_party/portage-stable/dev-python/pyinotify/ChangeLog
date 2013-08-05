@@ -1,6 +1,25 @@
 # ChangeLog for dev-python/pyinotify
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-python/pyinotify/ChangeLog,v 1.51 2013/01/22 19:48:35 chutzpah Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-python/pyinotify/ChangeLog,v 1.57 2013/05/29 17:18:38 idella4 Exp $
+
+  29 May 2013; Ian Delaney <idella4@gentoo.org> pyinotify-0.9.4-r1.ebuild:
+  drop pypy1.8 support, add pypy2_0
+
+  16 May 2013; Agostino Sarubbo <ago@gentoo.org> pyinotify-0.9.4-r1.ebuild:
+  Stable for ppc, wrt bug #467130
+
+  12 May 2013; Agostino Sarubbo <ago@gentoo.org> pyinotify-0.9.4-r1.ebuild:
+  Stable for x86, wrt bug #467130
+
+  12 May 2013; Agostino Sarubbo <ago@gentoo.org> pyinotify-0.9.4-r1.ebuild:
+  Stable for amd64, wrt bug #467130
+
+  24 Mar 2013; Mike Gilbert <floppym@gentoo.org>
+  -files/pyinotify-0.9.4-workaround-sandbox-bug.patch:
+  Remove patch.
+
+  24 Mar 2013; Mike Gilbert <floppym@gentoo.org> pyinotify-0.9.4-r1.ebuild:
+  Remove sandbox workaround.
 
   22 Jan 2013; Patrick McLean <chutzpah@gentoo.org> pyinotify-0.9.4-r1.ebuild:
   Make the python 3.3 workaround only apply for python 3.3 and above, fixes bug

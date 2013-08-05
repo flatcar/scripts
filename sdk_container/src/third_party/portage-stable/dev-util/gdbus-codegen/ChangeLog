@@ -1,0 +1,213 @@
+# ChangeLog for dev-util/gdbus-codegen
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-util/gdbus-codegen/ChangeLog,v 1.49 2013/08/02 12:43:21 mgorny Exp $
+
+*gdbus-codegen-2.32.4-r1 (02 Aug 2013)
+
+  02 Aug 2013; Michał Górny <mgorny@gentoo.org> +gdbus-codegen-2.32.4-r1.ebuild:
+  Backport the distutils-r1 conversion.
+
+*gdbus-codegen-2.36.3 (10 Jun 2013)
+
+  10 Jun 2013; Pacho Ramos <pacho@gentoo.org> +gdbus-codegen-2.36.3.ebuild,
+  -gdbus-codegen-2.36.1.ebuild:
+  Version bump, drop old
+
+*gdbus-codegen-2.36.2 (14 May 2013)
+
+  14 May 2013; Pacho Ramos <pacho@gentoo.org> +gdbus-codegen-2.36.2.ebuild,
+  -gdbus-codegen-2.36.0.ebuild:
+  Version bump, drop old
+
+*gdbus-codegen-2.36.1 (23 Apr 2013)
+
+  23 Apr 2013; Pacho Ramos <pacho@gentoo.org> +gdbus-codegen-2.36.1.ebuild,
+  -gdbus-codegen-2.30.3.ebuild, -gdbus-codegen-2.34.2.ebuild:
+  Version bump, drop old
+
+  29 Mar 2013; Pacho Ramos <pacho@gentoo.org>
+  +files/gdbus-codegen-2.36.0-sitedir.patch, gdbus-codegen-2.36.0.ebuild:
+  Forgot to commit ebuild using updated patch (#463656 by Maciej Piechotka)
+
+*gdbus-codegen-2.36.0 (28 Mar 2013)
+
+  28 Mar 2013; Pacho Ramos <pacho@gentoo.org> +gdbus-codegen-2.36.0.ebuild:
+  Version bump for Gnome 3.8
+
+  25 Feb 2013; Zac Medico <zmedico@gentoo.org> gdbus-codegen-2.34.3.ebuild:
+  Add ~arm-linux keyword.
+
+  17 Dec 2012; Michał Górny <mgorny@gentoo.org> gdbus-codegen-2.34.2.ebuild:
+  Bump to EAPI=5 to make Paludis happy, bug #447524.
+
+  10 Dec 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  gdbus-codegen-2.34.2.ebuild, gdbus-codegen-2.34.3.ebuild:
+  Migrate to distutils-r1.eclass, enable python3.3 support.
+
+*gdbus-codegen-2.34.3 (27 Nov 2012)
+
+  27 Nov 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  -gdbus-codegen-2.34.1.ebuild, +gdbus-codegen-2.34.3.ebuild:
+  Version bump, no code changes. Drop old.
+
+*gdbus-codegen-2.34.2 (10 Nov 2012)
+
+  10 Nov 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  -gdbus-codegen-2.34.0.ebuild, +gdbus-codegen-2.34.2.ebuild:
+  Version bump, no code changes. Drop old.
+
+*gdbus-codegen-2.34.1 (17 Oct 2012)
+
+  17 Oct 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  +gdbus-codegen-2.34.1.ebuild:
+  Version bump.
+
+  14 Oct 2012; Raúl Porcel <armin76@gentoo.org> gdbus-codegen-2.32.4.ebuild:
+  ia64/m68k/s390/sh/sparc stable wrt #436028
+
+  06 Oct 2012; Anthony G. Basile <blueness@gentoo.org>
+  gdbus-codegen-2.32.4.ebuild:
+  stable ppc ppc64, bug #427544
+
+  06 Oct 2012; Markus Meier <maekke@gentoo.org> gdbus-codegen-2.32.4.ebuild:
+  arm stable, bug #427544
+
+  04 Oct 2012; Agostino Sarubbo <ago@gentoo.org> gdbus-codegen-2.32.4.ebuild:
+  Stable for amd64, wrt bug #427544
+
+  03 Oct 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  gdbus-codegen-2.32.4.ebuild, gdbus-codegen-2.34.0.ebuild:
+  Use PYTHON_USE.
+
+  03 Oct 2012; Pawel Hajdan jr <phajdan.jr@gentoo.org>
+  gdbus-codegen-2.32.4.ebuild:
+  x86 stable wrt bug #427544
+
+  02 Oct 2012; Jeroen Roovers <jer@gentoo.org> gdbus-codegen-2.32.4.ebuild:
+  Stable for HPPA (bug #427544).
+
+  26 Sep 2012; Matt Turner <mattst88@gentoo.org> gdbus-codegen-2.32.4.ebuild:
+  Stable on alpha, bug 427544.
+
+*gdbus-codegen-2.34.0 (25 Sep 2012)
+
+  25 Sep 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  -gdbus-codegen-2.30.2.ebuild, -gdbus-codegen-2.32.3.ebuild,
+  gdbus-codegen-2.30.3.ebuild, gdbus-codegen-2.32.4.ebuild,
+  +gdbus-codegen-2.34.0.ebuild:
+  Version bump, drop old. Make license more precise.
+
+*gdbus-codegen-2.32.4 (16 Jul 2012)
+
+  16 Jul 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  -gdbus-codegen-2.32.2.ebuild, +files/setup.py-2.32.4,
+  +gdbus-codegen-2.32.4.ebuild, +files/gdbus-codegen-2.32.4-sitedir.patch:
+  Version bump, now with python3 support. Drop old.
+
+  15 Jul 2012; Raúl Porcel <armin76@gentoo.org> gdbus-codegen-2.30.3.ebuild:
+  alpha/ia64/m68k/s390/sh/sparc stable wrt #410611
+
+  24 May 2012; Samuli Suominen <ssuominen@gentoo.org>
+  gdbus-codegen-2.30.3.ebuild:
+  ppc stable wrt #410611
+
+  16 May 2012; Jeroen Roovers <jer@gentoo.org> gdbus-codegen-2.30.3.ebuild:
+  Stable for HPPA (bug #410611).
+
+*gdbus-codegen-2.32.3 (15 May 2012)
+
+  15 May 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  -gdbus-codegen-2.32.1.ebuild, +gdbus-codegen-2.32.3.ebuild:
+  Version bump. Drop old.
+
+*gdbus-codegen-2.32.2 (01 May 2012)
+
+  01 May 2012; Pacho Ramos <pacho@gentoo.org> +gdbus-codegen-2.32.2.ebuild,
+  -gdbus-codegen-2.32.0.ebuild:
+  Version bump, remove old.
+
+  29 Apr 2012; Markus Meier <maekke@gentoo.org> gdbus-codegen-2.30.3.ebuild:
+  x86 stable, bug #410611
+
+  28 Apr 2012; Alexis Ballier <aballier@gentoo.org>
+  gdbus-codegen-2.32.1.ebuild:
+  keyword ~amd64-fbsd
+
+  25 Apr 2012; Markus Meier <maekke@gentoo.org> gdbus-codegen-2.30.3.ebuild:
+  arm stable, bug #410611
+
+  19 Apr 2012; Brent Baude <ranger@gentoo.org> gdbus-codegen-2.30.3.ebuild:
+  Marking gdbus-codegen-2.30.3 ppc64 stable for bug 410611
+
+  18 Apr 2012; Agostino Sarubbo <ago@gentoo.org> gdbus-codegen-2.30.3.ebuild:
+  Stable for amd64, wrt bug #410611
+
+*gdbus-codegen-2.32.1 (14 Apr 2012)
+
+  14 Apr 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  +gdbus-codegen-2.32.1.ebuild:
+  Version bump.
+
+  25 Mar 2012; Raúl Porcel <armin76@gentoo.org> gdbus-codegen-2.30.2.ebuild:
+  ia64/m68k/s390/sparc stable 
+
+*gdbus-codegen-2.32.0 (25 Mar 2012)
+
+  25 Mar 2012; Nirbheek Chauhan <nirbheek@gentoo.org>
+  +gdbus-codegen-2.32.0.ebuild:
+  Bump to 2.32, used by clutter and GNOME 3.4; package.masked because it breaks
+  a lot of stuff
+
+*gdbus-codegen-2.30.3 (14 Mar 2012)
+
+  14 Mar 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+  +gdbus-codegen-2.30.3.ebuild:
+  Version bump.
+
+  05 Mar 2012; Brent Baude <ranger@gentoo.org> gdbus-codegen-2.30.2.ebuild:
+  Marking gdbus-codegen-2.30.2 ppc stable for bug 393007
+
+  05 Mar 2012; Brent Baude <ranger@gentoo.org> gdbus-codegen-2.30.2.ebuild:
+  Marking gdbus-codegen-2.30.2 ppc64 stable for bug 393007
+
+  17 Feb 2012; Tobias Klausmann <klausman@gentoo.org>
+  gdbus-codegen-2.30.2.ebuild:
+  Stable on alpha, bug #401513
+
+  16 Feb 2012; Nathan Phillip Brink <binki@gentoo.org>
+  gdbus-codegen-2.30.2.ebuild:
+  Add ~amd64-linux keyword, tested on ubuntu 10.
+
+  18 Jan 2012; Markus Meier <maekke@gentoo.org> gdbus-codegen-2.30.2.ebuild:
+  arm stable, bug #393007
+
+  17 Jan 2012; Pacho Ramos <pacho@gentoo.org> -gdbus-codegen-2.30.1.ebuild,
+  gdbus-codegen-2.30.2.ebuild:
+  Rewrite skipping tests message to try to explain the issue a bit better and
+  prevent misunderstandings like reported in bug #398943 by Toralf Förster.
+
+  14 Jan 2012; Markus Meier <maekke@gentoo.org> gdbus-codegen-2.30.2.ebuild:
+  x86 stable, bug #393007
+
+  29 Dec 2011; Pacho Ramos <pacho@gentoo.org> gdbus-codegen-2.30.2.ebuild:
+  amd64 stable, bug 393007
+
+  20 Dec 2011; Jeroen Roovers <jer@gentoo.org> gdbus-codegen-2.30.2.ebuild:
+  Stable for HPPA (bug #393007).
+
+*gdbus-codegen-2.30.2 (14 Nov 2011)
+
+  14 Nov 2011; Alexandre Rostovtsev <tetromino@gentoo.org>
+  -gdbus-codegen-2.30.0.ebuild, +gdbus-codegen-2.30.2.ebuild:
+  Version bump, drop old.
+
+*gdbus-codegen-2.30.1 (16 Oct 2011)
+
+  16 Oct 2011; Pacho Ramos <pacho@gentoo.org> +gdbus-codegen-2.30.1.ebuild:
+  Version bump.
+
+*gdbus-codegen-2.30.0 (27 Sep 2011)
+
+  27 Sep 2011; Nirbheek Chauhan <nirbheek@gentoo.org>
+  +gdbus-codegen-2.30.0.ebuild, +metadata.xml:
+  Move from GNOME overlay for GNOME 3.2. Ebuild by tetromino.

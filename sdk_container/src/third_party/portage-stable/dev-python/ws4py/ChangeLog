@@ -1,6 +1,15 @@
 # ChangeLog for dev-python/ws4py
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-python/ws4py/ChangeLog,v 1.8 2013/01/11 15:50:38 idella4 Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-python/ws4py/ChangeLog,v 1.10 2013/07/19 07:56:00 mgorny Exp $
+
+  19 Jul 2013; Michał Górny <mgorny@gentoo.org> ws4py-0.2.3.ebuild,
+  ws4py-0.2.4-r1.ebuild, ws4py-0.2.4.ebuild:
+  Switch the dep back to dev-python/unittest2 due to bug #450658.
+
+*ws4py-0.2.4-r1 (16 Mar 2013)
+
+  16 Mar 2013; Ian Delaney <idella4@gentoo.org> +ws4py-0.2.4-r1.ebuild:
+  migration revbump
 
 *ws4py-0.2.4 (11 Jan 2013)
 

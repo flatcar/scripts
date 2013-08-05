@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/clang/clang-9999.ebuild,v 1.34 2013/02/02 23:28:27 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/clang/clang-9999.ebuild,v 1.37 2013/06/17 14:04:31 voyageur Exp $
 
 EAPI=5
 
@@ -37,12 +37,15 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-2.7-fixdoc.patch
 
 	# multilib-strict
-	sed -e "/PROJ_headers/s#lib/clang#$(get_libdir)/clang#" \
+	sed -e "/PROJ_headers\|HeaderDir/s#lib/clang#$(get_libdir)/clang#" \
 		-i tools/clang/lib/Headers/Makefile \
-		|| die "clang Makefile failed"
-	sed -e "/PROJ_resources/s#lib/clang#$(get_libdir)/clang#" \
+		|| die "clang Makefile sed failed"
+	sed -e "/PROJ_resources\|ResourceDir/s#lib/clang#$(get_libdir)/clang#" \
 		-i tools/clang/runtime/compiler-rt/Makefile \
-		|| die "compiler-rt Makefile failed"
+		|| die "compiler-rt Makefile sed failed"
+	sed -e "s#/lib/#/lib{{(32|64)?}}/#" \
+		-i tools/clang/test/Preprocessor/iwithprefix.c \
+		|| die "clang test sed failed"
 	# fix the static analyzer for in-tree install
 	sed -e 's/import ScanView/from clang \0/'  \
 		-i tools/clang/tools/scan-view/scan-view \
@@ -50,10 +53,11 @@ src_prepare() {
 	sed -e "/scanview.css\|sorttable.js/s#\$RealBin#${EPREFIX}/usr/share/${PN}#" \
 		-i tools/clang/tools/scan-build/scan-build \
 		|| die "scan-build sed failed"
-	# Set correct path for gold plugin
+	# Set correct path for gold plugin and coverage lib
 	sed -e "/LLVMgold.so/s#lib/#$(get_libdir)/llvm/#" \
+		-e "s#lib\(/libprofile_rt.a\)#$(get_libdir)/llvm\1#" \
 		-i  tools/clang/lib/Driver/Tools.cpp \
-		|| die "gold plugin path sed failed"
+		|| die "driver tools paths sed failed"
 
 	# From llvm src_prepare
 	einfo "Fixing install dirs"
@@ -76,11 +80,13 @@ src_prepare() {
 }
 
 src_configure() {
+	# Update resource dir version after first RC
 	local CONF_FLAGS="--enable-shared
 		--with-optimize-option=
 		$(use_enable !debug optimized)
 		$(use_enable debug assertions)
-		$(use_enable debug expensive-checks)"
+		$(use_enable debug expensive-checks)
+		--with-clang-resource-dir=../$(get_libdir)/clang/3.4"
 
 	# Setup the search path to include the Prefix includes
 	if use prefix ; then
@@ -98,6 +104,9 @@ src_configure() {
 		CONF_FLAGS="${CONF_FLAGS} --enable-pic"
 	fi
 
+	# build with a suitable Python version
+	python_export_best
+
 	# clang prefers clang over gcc, so we may need to force that
 	tc-export CC CXX
 	econf ${CONF_FLAGS}
@@ -111,8 +120,6 @@ src_test() {
 	cd "${S}"/tools/clang || die "cd clang failed"
 
 	echo ">>> Test phase [test]: ${CATEGORY}/${PF}"
-
-	python_export_best
 
 	if ! emake -j1 VERBOSE=1 test; then
 		has test $FEATURES && die "Make test failed. See above for details."

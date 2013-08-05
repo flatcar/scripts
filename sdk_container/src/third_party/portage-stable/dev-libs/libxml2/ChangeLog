@@ -1,6 +1,110 @@
 # ChangeLog for dev-libs/libxml2
-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/libxml2/ChangeLog,v 1.372 2012/12/18 07:48:21 tetromino Exp $
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/libxml2/ChangeLog,v 1.400 2013/07/21 17:55:22 ago Exp $
+
+  21 Jul 2013; Agostino Sarubbo <ago@gentoo.org> libxml2-2.9.1-r1.ebuild:
+  Stable for sparc, wrt bug #476438
+
+  21 Jul 2013; Agostino Sarubbo <ago@gentoo.org> libxml2-2.9.1-r1.ebuild:
+  Stable for sh, wrt bug #476438
+
+  21 Jul 2013; Agostino Sarubbo <ago@gentoo.org> libxml2-2.9.1-r1.ebuild:
+  Stable for ia64, wrt bug #476438
+
+  14 Jul 2013; Agostino Sarubbo <ago@gentoo.org> libxml2-2.9.1-r1.ebuild:
+  Stable for arm, wrt bug #476438
+
+  14 Jul 2013; Agostino Sarubbo <ago@gentoo.org> libxml2-2.9.1-r1.ebuild:
+  Stable for alpha, wrt bug #476438
+
+  13 Jul 2013; Agostino Sarubbo <ago@gentoo.org> libxml2-2.9.1-r1.ebuild:
+  Stable for ppc64, wrt bug #476438
+
+  13 Jul 2013; Agostino Sarubbo <ago@gentoo.org> libxml2-2.9.1-r1.ebuild:
+  Stable for ppc, wrt bug #476438
+
+  13 Jul 2013; Agostino Sarubbo <ago@gentoo.org> libxml2-2.9.1-r1.ebuild:
+  Stable for x86, wrt bug #476438
+
+  13 Jul 2013; Jeroen Roovers <jer@gentoo.org> libxml2-2.9.1-r1.ebuild:
+  Stable for HPPA (bug #476438).
+
+  12 Jul 2013; Agostino Sarubbo <ago@gentoo.org> libxml2-2.9.1-r1.ebuild:
+  Stable for amd64, wrt bug #476438
+
+*libxml2-2.9.1-r1 (12 Jul 2013)
+
+  12 Jul 2013; Alexandre Rostovtsev <tetromino@gentoo.org>
+  +libxml2-2.9.1-r1.ebuild, +files/libxml2-2.9.1-python3a.patch:
+  Unbreak python2.5 and really fix python3 syntax in drv_libxml2.py (bug
+  #476586, thanks to Arfrever for the patch).
+
+  11 Jul 2013; Jeroen Roovers <jer@gentoo.org> libxml2-2.9.1.ebuild:
+  Stable for HPPA (bug #476438).
+
+  11 Jul 2013; Alexandre Rostovtsev <tetromino@gentoo.org>
+  libxml2-2.9.1.ebuild:
+  Accidentally inherited unneeded versionator eclass
+
+*libxml2-2.9.1 (11 Jul 2013)
+
+  11 Jul 2013; Alexandre Rostovtsev <tetromino@gentoo.org>
+  libxml2-2.8.0-r3.ebuild, -libxml2-2.8.0-r4.ebuild, -libxml2-2.9.0-r1.ebuild,
+  +libxml2-2.9.1.ebuild, +files/libxml2-2.9.1-compression-detection.patch,
+  +files/libxml2-2.9.1-missing-break.patch,
+  +files/libxml2-2.9.1-non-ascii-cr-lf.patch,
+  +files/libxml2-2.9.1-python-2.6.patch, +files/libxml2-2.9.1-python3.patch:
+  Version bump. Fixes denial-of-service vulnerability (bug #476438,
+  CVE-2013-2877, thanks to Agostino Sarubbo). Drop old versions, except for
+  2.8.0-r3 which for some reason was the only revision keyworded stable on
+  m68k.
+
+  09 Jun 2013; Mike Frysinger <vapier@gentoo.org> metadata.xml:
+  Add upstream CPE tag (security info) from ChromiumOS.
+
+  01 Mar 2013; Agostino Sarubbo <ago@gentoo.org> libxml2-2.9.0-r2.ebuild:
+  Stable for sh, wrt bug #458430
+
+  26 Feb 2013; Agostino Sarubbo <ago@gentoo.org> libxml2-2.9.0-r2.ebuild:
+  Stable for s390, wrt bug #458430
+
+  26 Feb 2013; Agostino Sarubbo <ago@gentoo.org> libxml2-2.9.0-r2.ebuild:
+  Stable for sparc, wrt bug #458430
+
+  26 Feb 2013; Agostino Sarubbo <ago@gentoo.org> libxml2-2.9.0-r2.ebuild:
+  Stable for arm, wrt bug #458430
+
+  26 Feb 2013; Agostino Sarubbo <ago@gentoo.org> libxml2-2.9.0-r2.ebuild:
+  Stable for ia64, wrt bug #458430
+
+  26 Feb 2013; Agostino Sarubbo <ago@gentoo.org> libxml2-2.9.0-r2.ebuild:
+  Stable for alpha, wrt bug #458430
+
+  25 Feb 2013; Agostino Sarubbo <ago@gentoo.org> libxml2-2.9.0-r2.ebuild:
+  Stable for ppc64, wrt bug #458430
+
+  25 Feb 2013; Agostino Sarubbo <ago@gentoo.org> libxml2-2.9.0-r2.ebuild:
+  Stable for ppc, wrt bug #458430
+
+  25 Feb 2013; Agostino Sarubbo <ago@gentoo.org> libxml2-2.9.0-r2.ebuild:
+  Stable for x86, wrt bug #458430
+
+  25 Feb 2013; Agostino Sarubbo <ago@gentoo.org> libxml2-2.9.0-r2.ebuild:
+  Stable for amd64, wrt bug #458430
+
+  24 Feb 2013; Jeroen Roovers <jer@gentoo.org> libxml2-2.9.0-r2.ebuild:
+  Stable for HPPA (bug #458430).
+
+  21 Feb 2013; Zac Medico <zmedico@gentoo.org> libxml2-2.9.0-r2.ebuild:
+  Add ~arm-linux keyword.
+
+*libxml2-2.9.0-r2 (20 Feb 2013)
+
+  20 Feb 2013; Alexandre Rostovtsev <tetromino@gentoo.org>
+  -libxml2-2.9.0.ebuild, +libxml2-2.9.0-r2.ebuild,
+  +files/libxml2-2.9.0-excessive-entity-expansion.patch:
+  Fix entity expansion DoS vulnerability (CVE-2013-1664, bug #458430, thanks to
+  Dirkjan Ochtman). Drop old.
 
 *libxml2-2.9.0-r1 (18 Dec 2012)
 *libxml2-2.8.0-r4 (18 Dec 2012)

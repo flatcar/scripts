@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/libxslt/libxslt-1.1.28.ebuild,v 1.12 2013/01/01 19:34:34 armin76 Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/libxslt/libxslt-1.1.28.ebuild,v 1.13 2013/03/12 18:07:42 ssuominen Exp $
 
 EAPI=5
 
@@ -42,7 +42,7 @@ src_prepare() {
 	sed -i -e 's/$(PYTHON_SUBDIR)//' Makefile.am || die
 
 	eautoreconf
-	epunt_cxx
+#	epunt_cxx
 }
 
 src_configure() {

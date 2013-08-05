@@ -1,6 +1,12 @@
 # ChangeLog for virtual/python-argparse
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/virtual/python-argparse/ChangeLog,v 1.9 2013/01/21 16:12:06 idella4 Exp $
+# $Header: /var/cvsroot/gentoo-x86/virtual/python-argparse/ChangeLog,v 1.11 2013/02/17 20:49:09 zmedico Exp $
+
+  17 Feb 2013; Zac Medico <zmedico@gentoo.org> python-argparse-1.ebuild:
+  Add ~arm-linux keyword.
+
+  17 Feb 2013; Michał Górny <mgorny@gentoo.org> python-argparse-1.ebuild:
+  Update the KEYWORDS. Add PYTHON_DEPS to RDEP and simplify the dep-gen code.
 
   22 Jan 2013; Ian Delaney <idella4@gentoo.org> python-argparse-1.ebuild:
   Re-added not yet deprecated pypy1_8

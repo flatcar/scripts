@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/clang/clang-3.2.ebuild,v 1.4 2013/02/02 23:28:27 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/clang/clang-3.2.ebuild,v 1.6 2013/05/24 21:27:58 aballier Exp $
 
 EAPI=5
 
@@ -17,7 +17,7 @@ SRC_URI="http://llvm.org/releases/${PV}/llvm-${PV}.src.tar.gz
 
 LICENSE="UoI-NCSA"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos"
+KEYWORDS="~amd64 ~arm ~x86 ~amd64-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos"
 IUSE="debug kernel_FreeBSD multitarget python +static-analyzer test"
 
 DEPEND="static-analyzer? ( dev-lang/perl )
@@ -110,6 +110,9 @@ src_configure() {
 		CONF_FLAGS="${CONF_FLAGS} --enable-pic"
 	fi
 
+	# build with a suitable Python version
+	python_export_best
+
 	# clang prefers clang over gcc, so we may need to force that
 	tc-export CC CXX
 	econf ${CONF_FLAGS}
@@ -123,8 +126,6 @@ src_test() {
 	cd "${S}"/tools/clang || die "cd clang failed"
 
 	echo ">>> Test phase [test]: ${CATEGORY}/${PF}"
-
-	python_export_best
 
 	if ! emake -j1 VERBOSE=1 test; then
 		has test $FEATURES && die "Make test failed. See above for details."

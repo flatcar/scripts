@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-python/dbus-python/dbus-python-1.1.1-r1.ebuild,v 1.2 2012/12/18 17:32:34 tetromino Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-python/dbus-python/dbus-python-1.1.1-r1.ebuild,v 1.16 2013/04/10 19:49:43 ago Exp $
 
 EAPI=5
 
@@ -14,7 +14,7 @@ SRC_URI="http://dbus.freedesktop.org/releases/${PN}/${P}.tar.gz"
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux"
+KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux"
 IUSE="doc examples test"
 # API docs generated with epydoc, which is python2-only
 REQUIRED_USE="doc? ( || ( python_targets_python2_6 python_targets_python2_7 ) )"
@@ -27,8 +27,7 @@ DEPEND="${RDEPEND}
 	doc? (
 		dev-python/docutils[python_targets_python2_6?,python_targets_python2_7?]
 		=dev-python/epydoc-3*[python_targets_python2_6?,python_targets_python2_7?] )
-	test? ( dev-python/pygobject:3 )"
-# TODO: should be dev-python/pygobject:3[${PYTHON_USEDEP] when pygobject-3.4 is unmasked
+	test? ( dev-python/pygobject:3[${PYTHON_USEDEP}] )"
 
 src_prepare() {
 	python_copy_sources

@@ -1,6 +1,94 @@
 # ChangeLog for dev-python/dbus-python
-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-python/dbus-python/ChangeLog,v 1.109 2012/12/18 17:32:34 tetromino Exp $
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-python/dbus-python/ChangeLog,v 1.136 2013/07/04 13:34:03 ago Exp $
+
+  04 Jul 2013; Agostino Sarubbo <ago@gentoo.org> dbus-python-1.2.0.ebuild:
+  Stable for ppc64, wrt bug #453086
+
+  02 Jun 2013; Agostino Sarubbo <ago@gentoo.org> dbus-python-1.2.0.ebuild:
+  Stable for sh, wrt bug #453086
+
+  25 May 2013; Agostino Sarubbo <ago@gentoo.org> dbus-python-1.2.0.ebuild:
+  Stable for sparc, wrt bug #453086
+
+  20 May 2013; Agostino Sarubbo <ago@gentoo.org> dbus-python-1.2.0.ebuild:
+  Stable for s390, wrt bug #453086
+
+  18 May 2013; Agostino Sarubbo <ago@gentoo.org> dbus-python-1.2.0.ebuild:
+  Stable for alpha, wrt bug #453086
+
+  18 May 2013; Agostino Sarubbo <ago@gentoo.org> dbus-python-1.2.0.ebuild:
+  Stable for ia64, wrt bug #453086
+
+  16 May 2013; Agostino Sarubbo <ago@gentoo.org> dbus-python-1.2.0.ebuild:
+  Stable for ppc, wrt bug #453086
+
+  15 May 2013; Jeroen Roovers <jer@gentoo.org> dbus-python-1.2.0.ebuild:
+  Stable for HPPA (bug #453086).
+
+  14 May 2013; Agostino Sarubbo <ago@gentoo.org> dbus-python-1.2.0.ebuild:
+  Stable for arm, wrt bug #453086
+
+  14 May 2013; Agostino Sarubbo <ago@gentoo.org> dbus-python-1.2.0.ebuild:
+  Stable for x86, wrt bug #453086
+
+  14 May 2013; Agostino Sarubbo <ago@gentoo.org> dbus-python-1.2.0.ebuild:
+  Stable for amd64, wrt bug #453086
+
+  10 May 2013; Samuli Suominen <ssuominen@gentoo.org>
+  -dbus-python-1.0.0.ebuild, -dbus-python-1.1.1.ebuild,
+  -files/dbus-python-1.0.0-test-socket-tmpdir.patch:
+  old
+
+*dbus-python-1.2.0 (10 May 2013)
+
+  10 May 2013; Samuli Suominen <ssuominen@gentoo.org>
+  +dbus-python-1.2.0.ebuild:
+  Version bump.
+
+  10 Apr 2013; Agostino Sarubbo <ago@gentoo.org> dbus-python-1.1.1-r1.ebuild:
+  Stable for s390, wrt bug #458992
+
+  03 Apr 2013; Agostino Sarubbo <ago@gentoo.org> dbus-python-1.1.1-r1.ebuild:
+  Revert because pygobject requires too much unstable deps
+
+  03 Apr 2013; Agostino Sarubbo <ago@gentoo.org> dbus-python-1.1.1-r1.ebuild:
+  Stable for s390, wrt bug #458992
+
+  02 Apr 2013; Agostino Sarubbo <ago@gentoo.org> dbus-python-1.1.1-r1.ebuild:
+  Stable for sh, wrt bug #458992
+
+  31 Mar 2013; Agostino Sarubbo <ago@gentoo.org> dbus-python-1.1.1-r1.ebuild:
+  Stable for sparc, wrt bug #458992
+
+  28 Mar 2013; Agostino Sarubbo <ago@gentoo.org> dbus-python-1.1.1-r1.ebuild:
+  Stable for ia64, wrt bug #458992
+
+  23 Mar 2013; Agostino Sarubbo <ago@gentoo.org> dbus-python-1.1.1-r1.ebuild:
+  Stable for alpha, wrt bug #458992
+
+  23 Mar 2013; Agostino Sarubbo <ago@gentoo.org> dbus-python-1.1.1-r1.ebuild:
+  Stable for arm, wrt bug #458992
+
+  23 Mar 2013; Agostino Sarubbo <ago@gentoo.org> dbus-python-1.1.1-r1.ebuild:
+  Stable for ppc64, wrt bug #458992
+
+  22 Mar 2013; Agostino Sarubbo <ago@gentoo.org> dbus-python-1.1.1-r1.ebuild:
+  Stable for ppc, wrt bug #458992
+
+  16 Mar 2013; Jeroen Roovers <jer@gentoo.org> dbus-python-1.1.1-r1.ebuild:
+  Stable for HPPA (bug #458992).
+
+  15 Mar 2013; Agostino Sarubbo <ago@gentoo.org> dbus-python-1.1.1-r1.ebuild:
+  Stable for x86, wrt bug #458992
+
+  15 Mar 2013; Agostino Sarubbo <ago@gentoo.org> dbus-python-1.1.1-r1.ebuild:
+  Stable for amd64, wrt bug #458992
+
+  20 Feb 2013; Samuli Suominen <ssuominen@gentoo.org>
+  dbus-python-1.1.1-r1.ebuild:
+  Fix test dependency now that latest pygobject is unmasked. Thanks to Nikoli
+  for noticing.
 
   18 Dec 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
   dbus-python-1.1.1-r1.ebuild:

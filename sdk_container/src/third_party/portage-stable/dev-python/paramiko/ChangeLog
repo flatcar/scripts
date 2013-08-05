@@ -1,6 +1,42 @@
 # ChangeLog for dev-python/paramiko
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-python/paramiko/ChangeLog,v 1.88 2013/05/04 03:35:52 radhermit Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-python/paramiko/ChangeLog,v 1.100 2013/07/29 07:16:44 idella4 Exp $
+
+  29 Jul 2013; Ian Delaney <idella4@gentoo.org> paramiko-1.10.1.ebuild:
+  minor 'tidy' to install phase
+
+  02 Jul 2013; Agostino Sarubbo <ago@gentoo.org> paramiko-1.10.1.ebuild:
+  Stable for sh, wrt bug #474190
+
+  30 Jun 2013; Agostino Sarubbo <ago@gentoo.org> paramiko-1.10.1.ebuild:
+  Stable for s390, wrt bug #474190
+
+  29 Jun 2013; Agostino Sarubbo <ago@gentoo.org> paramiko-1.10.1.ebuild:
+  Stable for sparc, wrt bug #474190
+
+  26 Jun 2013; Agostino Sarubbo <ago@gentoo.org> paramiko-1.10.1.ebuild:
+  Stable for arm, wrt bug #474190
+
+  26 Jun 2013; Agostino Sarubbo <ago@gentoo.org> paramiko-1.10.1.ebuild:
+  Stable for ia64, wrt bug #474190
+
+  26 Jun 2013; Agostino Sarubbo <ago@gentoo.org> paramiko-1.10.1.ebuild:
+  Stable for alpha, wrt bug #474190
+
+  25 Jun 2013; Agostino Sarubbo <ago@gentoo.org> paramiko-1.10.1.ebuild:
+  Stable for amd64, wrt bug #474190
+
+  25 Jun 2013; Agostino Sarubbo <ago@gentoo.org> paramiko-1.10.1.ebuild:
+  Stable for x86, wrt bug #474190
+
+  25 Jun 2013; Agostino Sarubbo <ago@gentoo.org> paramiko-1.10.1.ebuild:
+  Stable for ppc64, wrt bug #474190
+
+  24 Jun 2013; Agostino Sarubbo <ago@gentoo.org> paramiko-1.10.1.ebuild:
+  Stable for ppc, wrt bug #474190
+
+  23 Jun 2013; Jeroen Roovers <jer@gentoo.org> paramiko-1.10.1.ebuild:
+  Stable for HPPA (bug #474190).
 
 *paramiko-1.10.1 (04 May 2013)
 

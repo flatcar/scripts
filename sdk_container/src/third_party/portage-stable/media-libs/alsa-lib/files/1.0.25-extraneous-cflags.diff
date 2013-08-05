@@ -1,6 +1,5 @@
-diff -uNr alsa-lib-1.0.25.ORIG/modules/mixer/simple/Makefile.am alsa-lib-1.0.25/modules/mixer/simple/Makefile.am
---- alsa-lib-1.0.25.ORIG/modules/mixer/simple/Makefile.am	2012-01-26 10:46:50.870738448 +0000
-+++ alsa-lib-1.0.25/modules/mixer/simple/Makefile.am	2012-01-26 11:12:16.972695934 +0000
+--- modules/mixer/simple/Makefile.am
++++ modules/mixer/simple/Makefile.am
 @@ -1,7 +1,7 @@
  alsaplugindir = @ALSA_PLUGIN_DIR@
  pkglibdir = $(alsaplugindir)/smixer
@@ -10,9 +9,8 @@ diff -uNr alsa-lib-1.0.25.ORIG/modules/mixer/simple/Makefile.am alsa-lib-1.0.25/
  
  INCLUDES=-I$(top_srcdir)/include
  
-diff -uNr alsa-lib-1.0.25.ORIG/src/pcm/scopes/Makefile.am alsa-lib-1.0.25/src/pcm/scopes/Makefile.am
---- alsa-lib-1.0.25.ORIG/src/pcm/scopes/Makefile.am	2012-01-26 10:46:50.875738335 +0000
-+++ alsa-lib-1.0.25/src/pcm/scopes/Makefile.am	2012-01-26 11:12:29.172695655 +0000
+--- src/pcm/scopes/Makefile.am
++++ src/pcm/scopes/Makefile.am
 @@ -1,6 +1,6 @@
  pkglibdir = $(libdir)/@PACKAGE@/scopes
  
