@@ -1,6 +1,133 @@
 # ChangeLog for sys-apps/kmod
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/kmod/ChangeLog,v 1.69 2013/01/27 13:53:03 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/kmod/ChangeLog,v 1.104 2013/07/30 17:21:17 ssuominen Exp $
+
+  30 Jul 2013; Samuli Suominen <ssuominen@gentoo.org> files/static-nodes:
+  Remove unrequired "need localmount" and add required "after modules" to the
+  init script depend()
+  Revision bump later after tmpfiles /dev support is in portage and the
+  init script has been finalized.
+
+  26 Jul 2013; Samuli Suominen <ssuominen@gentoo.org> -kmod-12-r1.ebuild,
+  -kmod-14.ebuild:
+  old
+
+  26 Jul 2013; Samuli Suominen <ssuominen@gentoo.org> kmod-13-r1.ebuild:
+  m68k stable wrt #470580
+
+  26 Jul 2013; William Hubbs <williamh@gentoo.org> files/static-nodes:
+  Style fixes for init script, convert multiple spaces at the start of lines to
+  tabs.
+
+  23 Jul 2013; Samuli Suominen <ssuominen@gentoo.org> files/static-nodes:
+  Correct tmpfiles.setup init script name in depend()
+
+*kmod-14-r1 (23 Jul 2013)
+
+  23 Jul 2013; Samuli Suominen <ssuominen@gentoo.org> +kmod-14-r1.ebuild,
+  kmod-9999.ebuild, metadata.xml, +files/static-nodes:
+  Import support for kmod tmpfiles.d static device node creation wrt #477856 by
+  Alexander Vershilov
+
+  04 Jul 2013; William Hubbs <williamh@gentoo.org> -kmod-13.ebuild:
+  remove old version
+
+*kmod-14 (04 Jul 2013)
+
+  04 Jul 2013; Samuli Suominen <ssuominen@gentoo.org> +kmod-14.ebuild,
+  kmod-9999.ebuild:
+  Revert upstream commit that discontinued support for --enable-static in order
+  to get libkmod.a back for USE="static-libs" in sys-fs/udev (libudev.a) wrt
+  #472608. Version bump.
+
+  30 Jun 2013; Agostino Sarubbo <ago@gentoo.org> kmod-13-r1.ebuild:
+  Stable for s390, wrt bug #470580
+
+  29 Jun 2013; Agostino Sarubbo <ago@gentoo.org> kmod-13-r1.ebuild:
+  Stable for ppc64, wrt bug #470580
+
+  29 Jun 2013; Agostino Sarubbo <ago@gentoo.org> kmod-13-r1.ebuild:
+  Stable for ppc, wrt bug #470580
+
+  29 Jun 2013; Agostino Sarubbo <ago@gentoo.org> kmod-13-r1.ebuild:
+  Stable for sparc, wrt bug #470580
+
+  26 Jun 2013; Agostino Sarubbo <ago@gentoo.org> kmod-13-r1.ebuild:
+  Stable for arm, wrt bug #470580
+
+  26 Jun 2013; Agostino Sarubbo <ago@gentoo.org> kmod-13-r1.ebuild:
+  Stable for ia64, wrt bug #470580
+
+  26 Jun 2013; Agostino Sarubbo <ago@gentoo.org> kmod-13-r1.ebuild:
+  Stable for alpha, wrt bug #470580
+
+  25 Jun 2013; Agostino Sarubbo <ago@gentoo.org> kmod-13-r1.ebuild:
+  Stable for x86, wrt bug #470580
+
+  25 Jun 2013; Agostino Sarubbo <ago@gentoo.org> kmod-13-r1.ebuild:
+  Stable for amd64, wrt bug #470580
+
+  14 Jun 2013; William Hubbs <williamh@gentoo.org> kmod-9999.ebuild:
+  always build  shared libraries
+
+  09 Jun 2013; Agostino Sarubbo <ago@gentoo.org> kmod-13-r1.ebuild:
+  Stable for sh, wrt bug #470580
+
+  02 Jun 2013; Jeroen Roovers <jer@gentoo.org> kmod-13-r1.ebuild:
+  Stable for HPPA (bug #470580).
+
+*kmod-13-r1 (27 May 2013)
+
+  27 May 2013; Samuli Suominen <ssuominen@gentoo.org> +kmod-13-r1.ebuild,
+  +files/kmod-13-errno_syscall.patch:
+  Avoid calling syscall() with -1 patch from upstream for
+  http://bugs.funtoo.org/browse/FL-534 as requested by lxnay
+
+  10 Apr 2013; William Hubbs <williamh@gentoo.org> kmod-13.ebuild,
+  kmod-9999.ebuild:
+  drop --disable-silent-rules since it is part of eapi 5, thanks to Samuli
+  Suominen.
+
+*kmod-13 (10 Apr 2013)
+
+  10 Apr 2013; William Hubbs <williamh@gentoo.org> +kmod-13.ebuild,
+  kmod-9999.ebuild:
+  version bump, eapi bump and sync live ebuild.
+
+  26 Mar 2013; Samuli Suominen <ssuominen@gentoo.org> kmod-12-r1.ebuild,
+  kmod-9999.ebuild:
+  Declare this package as VIRTUAL_MODUTILS=1 for use with linux-mod.eclass wrt
+  #462926
+
+  22 Mar 2013; Samuli Suominen <ssuominen@gentoo.org> kmod-12-r1.ebuild,
+  kmod-9999.ebuild:
+  Sanitize upgrade path from sys-apps/module-init-tools by running
+  update_depmod() function from linux-mod.eclass, but skipping it if we are
+  upgrading or the /lib/modules directory with eg. modules.dep is missing.
+
+  06 Mar 2013; Raúl Porcel <armin76@gentoo.org> kmod-12-r1.ebuild:
+  m68k/s390/sh/sparc stable wrt #457568
+
+  23 Feb 2013; Agostino Sarubbo <ago@gentoo.org> kmod-12-r1.ebuild:
+  Stable for alpha, wrt bug #457568
+
+  15 Feb 2013; Samuli Suominen <ssuominen@gentoo.org> kmod-12-r1.ebuild,
+  kmod-9999.ebuild:
+  Warn users also about missing CONFIG_MODULE_UNLOAD (otherwise modprobe -r and
+  lsmod won't behave as they should)
+
+  09 Feb 2013; Samuli Suominen <ssuominen@gentoo.org> kmod-12-r1.ebuild:
+  arm/ppc64 stable wrt #452556
+
+  09 Feb 2013; Agostino Sarubbo <ago@gentoo.org> kmod-12-r1.ebuild:
+  Stable for ia64, wrt bug #452556
+
+  08 Feb 2013; Jeroen Roovers <jer@gentoo.org> kmod-12-r1.ebuild:
+  Stable for HPPA (bug #452556).
+
+  05 Feb 2013; Samuli Suominen <ssuominen@gentoo.org> kmod-12-r1.ebuild,
+  kmod-9999.ebuild:
+  Ensure CONFIG_MODULES is set using linux-info.eclass by Agostino Sarubbo
 
   27 Jan 2013; Agostino Sarubbo <ago@gentoo.org> kmod-12-r1.ebuild:
   Stable for ppc, wrt bug #452556

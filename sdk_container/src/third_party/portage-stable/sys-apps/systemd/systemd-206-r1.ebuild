@@ -1,20 +1,13 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/systemd/systemd-9999.ebuild,v 1.61 2013/05/14 14:55:37 floppym Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/systemd/systemd-206-r1.ebuild,v 1.1 2013/07/31 22:23:50 mgorny Exp $
 
 EAPI=5
 
-#if LIVE
-AUTOTOOLS_AUTORECONF=yes
-EGIT_REPO_URI="git://anongit.freedesktop.org/${PN}/${PN}
-	http://cgit.freedesktop.org/${PN}/${PN}/"
-
-inherit git-2
-#endif
-
 AUTOTOOLS_PRUNE_LIBTOOL_FILES=all
 PYTHON_COMPAT=( python2_7 )
-inherit autotools-utils linux-info multilib pam python-single-r1 systemd toolchain-funcs udev user
+inherit autotools-utils bash-completion-r1 fcaps linux-info multilib \
+	pam python-single-r1 systemd toolchain-funcs udev user
 
 DESCRIPTION="System and service manager for Linux"
 HOMEPAGE="http://www.freedesktop.org/wiki/Software/systemd"
@@ -22,24 +15,24 @@ SRC_URI="http://www.freedesktop.org/software/systemd/${P}.tar.xz"
 
 LICENSE="GPL-2 LGPL-2.1 MIT"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~ppc64 ~x86"
+KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86"
 IUSE="acl audit cryptsetup doc +firmware-loader gcrypt gudev http introspection
-	keymap +kmod lzma openrc pam policykit python qrcode selinux static-libs
-	tcpd test vanilla xattr"
+	+kmod lzma openrc pam policykit python qrcode selinux tcpd test
+	vanilla xattr"
 
-MINKV="2.6.39"
+MINKV="3.0"
 
 COMMON_DEPEND=">=sys-apps/dbus-1.6.8-r1
 	>=sys-apps/util-linux-2.20
 	sys-libs/libcap
 	acl? ( sys-apps/acl )
 	audit? ( >=sys-process/audit-2 )
-	cryptsetup? ( >=sys-fs/cryptsetup-1.4.2 )
+	cryptsetup? ( >=sys-fs/cryptsetup-1.6 )
 	gcrypt? ( >=dev-libs/libgcrypt-1.4.5 )
 	gudev? ( >=dev-libs/glib-2 )
 	http? ( net-libs/libmicrohttpd )
 	introspection? ( >=dev-libs/gobject-introspection-1.31.1 )
-	kmod? ( >=sys-apps/kmod-12 )
+	kmod? ( >=sys-apps/kmod-14-r1 )
 	lzma? ( app-arch/xz-utils )
 	pam? ( virtual/pam )
 	python? ( ${PYTHON_DEPS} )
@@ -57,11 +50,12 @@ RDEPEND="${COMMON_DEPEND}
 		>=sys-apps/util-linux-2.22
 		<sys-apps/sysvinit-2.88-r4
 	)
+	!sys-apps/gentoo-systemd-integration
 	!sys-auth/nss-myhostname
 	!<sys-libs/glibc-2.10
 	!sys-fs/udev"
 
-PDEPEND=">=sys-apps/hwids-20130326.1[udev]"
+PDEPEND=">=sys-apps/hwids-20130717-r1[udev]"
 
 DEPEND="${COMMON_DEPEND}
 	app-arch/xz-utils
@@ -70,32 +64,19 @@ DEPEND="${COMMON_DEPEND}
 	dev-libs/libxslt
 	dev-util/gperf
 	>=dev-util/intltool-0.50
+	>=sys-devel/binutils-2.23.1
 	>=sys-devel/gcc-4.6
 	>=sys-kernel/linux-headers-${MINKV}
 	virtual/pkgconfig
 	doc? ( >=dev-util/gtk-doc-1.18 )"
-
-#if LIVE
-DEPEND="${DEPEND}
-	dev-libs/gobject-introspection
-	>=dev-libs/libgcrypt-1.4.5
-	>=dev-util/gtk-doc-1.18"
-
-SRC_URI=
-KEYWORDS=
-
-src_prepare() {
-	gtkdocize --docdir docs/ || die
-
-	autotools-utils_src_prepare
-}
-#endif
 
 pkg_pretend() {
 	local CONFIG_CHECK="~AUTOFS4_FS ~BLK_DEV_BSG ~CGROUPS ~DEVTMPFS
 		~FANOTIFY ~HOTPLUG ~INOTIFY_USER ~IPV6 ~NET ~PROC_FS ~SIGNALFD
 		~SYSFS ~!IDE ~!SYSFS_DEPRECATED ~!SYSFS_DEPRECATED_V2"
 #		~!FW_LOADER_USER_HELPER"
+
+	use pam && CONFIG_CHECK+=" ~AUDITSYSCALL"
 
 	# read null-terminated argv[0] from PID 1
 	# and see which path to systemd was used (if any)
@@ -142,12 +123,27 @@ pkg_setup() {
 	use python && python-single-r1_pkg_setup
 }
 
+src_prepare() {
+	local PATCHES=(
+		#477954 - gnome-shell-3.8* session unlock broken
+		"${FILESDIR}"/206-0001-logind-update-state-file-after-generating-the-sessio.patch
+		#474946 - localectl does not find keymaps
+		"${FILESDIR}"/206-0002-Add-usr-share-keymaps-to-localectl-supported-locatio.patch
+		#478198 - wrong permission for static-nodes
+		"${FILESDIR}"/206-0003-tmpfiles-support-passing-prefix-multiple-times.patch
+		"${FILESDIR}"/206-0004-tmpfiles-introduce-exclude-prefix.patch
+		"${FILESDIR}"/206-0005-tmpfiles-setup-exclude-dev-prefixes-files.patch
+	)
+
+	autotools-utils_src_prepare
+}
+
 src_configure() {
 	local myeconfargs=(
 		--localstatedir=/var
 		--with-pamlibdir=$(getpam_mod_dir)
-		# avoid bash-completion dep, default is stupid
-		--with-bashcompletiondir=/usr/share/bash-completion
+		# avoid bash-completion dep
+		--with-bashcompletiondir="$(get_bashcompdir)"
 		# make sure we get /bin:/sbin in $PATH
 		--enable-split-usr
 		# disable sysv compatibility
@@ -165,7 +161,6 @@ src_configure() {
 		$(use_enable gudev)
 		$(use_enable http microhttpd)
 		$(use_enable introspection)
-		$(use_enable keymap)
 		$(use_enable kmod)
 		$(use_enable lzma xz)
 		$(use_enable pam)
@@ -289,6 +284,9 @@ pkg_postinst() {
 	if has_version "sys-apps/hwids[udev]"; then
 		udevadm hwdb --update --root="${ROOT%/}"
 	fi
+
+	# Bug 468876
+	fcaps cap_dac_override,cap_sys_ptrace=ep usr/bin/systemd-detect-virt
 
 	if [[ ! -L "${ROOT}"/etc/mtab ]]; then
 		ewarn "Upstream suggests that the /etc/mtab file should be a symlink to /proc/mounts."

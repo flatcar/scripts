@@ -1,6 +1,31 @@
 # ChangeLog for sys-apps/hwids
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/hwids/ChangeLog,v 1.109 2013/06/04 15:58:46 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/hwids/ChangeLog,v 1.113 2013/07/23 05:00:11 ssuominen Exp $
+
+*hwids-20130717-r1 (23 Jul 2013)
+
+  23 Jul 2013; Samuli Suominen <ssuominen@gentoo.org>
+  +hwids-20130717-r1.ebuild, hwids-99999999.ebuild:
+  Import 60-keyboard.hwdb file from systemd git for virtual/udev >= 206.
+  Because this file will conflict with the old keymap feature, be strict with
+  the virtual/udev dependency.
+
+*hwids-20130717 (17 Jul 2013)
+
+  17 Jul 2013; Diego E. Pettenò <flameeyes@gentoo.org> +hwids-20130717.ebuild:
+  Version bump.
+
+*hwids-20130707 (08 Jul 2013)
+
+  08 Jul 2013; Diego E. Pettenò <flameeyes@gentoo.org> +hwids-20130707.ebuild,
+  -hwids-20130617.ebuild:
+  Version bump.
+
+*hwids-20130617 (17 Jun 2013)
+
+  17 Jun 2013; Diego E. Pettenò <flameeyes@gentoo.org> +hwids-20130617.ebuild,
+  -hwids-20130302.ebuild, -hwids-20130529.ebuild:
+  Version bump; remove old.
 
   04 Jun 2013; Samuli Suominen <ssuominen@gentoo.org> hwids-20130329.ebuild:
   m68k stable wrt #463678

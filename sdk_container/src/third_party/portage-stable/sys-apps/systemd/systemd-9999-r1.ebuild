@@ -1,11 +1,21 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/systemd/systemd-202.ebuild,v 1.2 2013/05/14 14:55:37 floppym Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/systemd/systemd-9999-r1.ebuild,v 1.6 2013/08/04 08:15:08 mgorny Exp $
 
 EAPI=5
 
+#if LIVE
+AUTOTOOLS_AUTORECONF=yes
+EGIT_REPO_URI="git://anongit.freedesktop.org/${PN}/${PN}
+	http://cgit.freedesktop.org/${PN}/${PN}/"
+
+inherit git-2
+#endif
+
+AUTOTOOLS_PRUNE_LIBTOOL_FILES=all
 PYTHON_COMPAT=( python2_7 )
-inherit autotools-utils linux-info multilib pam python-single-r1 systemd toolchain-funcs udev user
+inherit autotools-utils bash-completion-r1 fcaps linux-info multilib \
+	pam python-single-r1 systemd toolchain-funcs udev user
 
 DESCRIPTION="System and service manager for Linux"
 HOMEPAGE="http://www.freedesktop.org/wiki/Software/systemd"
@@ -13,24 +23,24 @@ SRC_URI="http://www.freedesktop.org/software/systemd/${P}.tar.xz"
 
 LICENSE="GPL-2 LGPL-2.1 MIT"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~ppc64 ~x86"
+KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86"
 IUSE="acl audit cryptsetup doc +firmware-loader gcrypt gudev http introspection
-	keymap +kmod lzma openrc pam policykit python qrcode selinux static-libs
-	tcpd test vanilla xattr"
+	+kmod lzma openrc pam policykit python qrcode selinux tcpd test
+	vanilla xattr"
 
-MINKV="2.6.39"
+MINKV="3.0"
 
 COMMON_DEPEND=">=sys-apps/dbus-1.6.8-r1
 	>=sys-apps/util-linux-2.20
 	sys-libs/libcap
 	acl? ( sys-apps/acl )
 	audit? ( >=sys-process/audit-2 )
-	cryptsetup? ( >=sys-fs/cryptsetup-1.4.2 )
+	cryptsetup? ( >=sys-fs/cryptsetup-1.6 )
 	gcrypt? ( >=dev-libs/libgcrypt-1.4.5 )
 	gudev? ( >=dev-libs/glib-2 )
 	http? ( net-libs/libmicrohttpd )
 	introspection? ( >=dev-libs/gobject-introspection-1.31.1 )
-	kmod? ( >=sys-apps/kmod-12 )
+	kmod? ( >=sys-apps/kmod-14-r1 )
 	lzma? ( app-arch/xz-utils )
 	pam? ( virtual/pam )
 	python? ( ${PYTHON_DEPS} )
@@ -48,11 +58,12 @@ RDEPEND="${COMMON_DEPEND}
 		>=sys-apps/util-linux-2.22
 		<sys-apps/sysvinit-2.88-r4
 	)
+	!vanilla? ( sys-apps/gentoo-systemd-integration )
 	!sys-auth/nss-myhostname
 	!<sys-libs/glibc-2.10
 	!sys-fs/udev"
 
-PDEPEND=">=sys-apps/hwids-20130326.1[udev]"
+PDEPEND=">=sys-apps/hwids-20130717-r1[udev]"
 
 DEPEND="${COMMON_DEPEND}
 	app-arch/xz-utils
@@ -61,16 +72,35 @@ DEPEND="${COMMON_DEPEND}
 	dev-libs/libxslt
 	dev-util/gperf
 	>=dev-util/intltool-0.50
+	>=sys-devel/binutils-2.23.1
 	>=sys-devel/gcc-4.6
 	>=sys-kernel/linux-headers-${MINKV}
 	virtual/pkgconfig
 	doc? ( >=dev-util/gtk-doc-1.18 )"
+
+#if LIVE
+DEPEND="${DEPEND}
+	dev-libs/gobject-introspection
+	>=dev-libs/libgcrypt-1.4.5
+	>=dev-util/gtk-doc-1.18"
+
+SRC_URI=
+KEYWORDS=
+
+src_prepare() {
+	gtkdocize --docdir docs/ || die
+
+	autotools-utils_src_prepare
+}
+#endif
 
 pkg_pretend() {
 	local CONFIG_CHECK="~AUTOFS4_FS ~BLK_DEV_BSG ~CGROUPS ~DEVTMPFS
 		~FANOTIFY ~HOTPLUG ~INOTIFY_USER ~IPV6 ~NET ~PROC_FS ~SIGNALFD
 		~SYSFS ~!IDE ~!SYSFS_DEPRECATED ~!SYSFS_DEPRECATED_V2"
 #		~!FW_LOADER_USER_HELPER"
+
+	use pam && CONFIG_CHECK+=" ~AUDITSYSCALL"
 
 	if [[ ${MERGE_TYPE} != binary ]]; then
 		if [[ $(gcc-major-version) -lt 4
@@ -105,8 +135,8 @@ src_configure() {
 	local myeconfargs=(
 		--localstatedir=/var
 		--with-pamlibdir=$(getpam_mod_dir)
-		# avoid bash-completion dep, default is stupid
-		--with-bashcompletiondir=/usr/share/bash-completion
+		# avoid bash-completion dep
+		--with-bashcompletiondir="$(get_bashcompdir)"
 		# make sure we get /bin:/sbin in $PATH
 		--enable-split-usr
 		# disable sysv compatibility
@@ -124,7 +154,6 @@ src_configure() {
 		$(use_enable gudev)
 		$(use_enable http microhttpd)
 		$(use_enable introspection)
-		$(use_enable keymap)
 		$(use_enable kmod)
 		$(use_enable lzma xz)
 		$(use_enable pam)
@@ -170,40 +199,14 @@ src_install() {
 		udevlibexecdir="${MY_UDEVDIR}" \
 		dist_udevhwdb_DATA=
 
-	# keep udev working without initramfs, for openrc compat
-	dodir /bin /sbin
-	mv "${D}"/usr/lib/systemd/systemd-udevd "${D}"/sbin/udevd || die
-	mv "${D}"/usr/bin/udevadm "${D}"/bin/udevadm || die
-	dosym ../../../sbin/udevd /usr/lib/systemd/systemd-udevd
-	dosym ../../bin/udevadm /usr/bin/udevadm
-
 	# zsh completion
 	insinto /usr/share/zsh/site-functions
-	newins shell-completion/systemd-zsh-completion.zsh "_${PN}"
-
-	# remove pam.d plugin .la-file
-	prune_libtool_files --modules
-
-	# compat for init= use
-	dosym ../usr/lib/systemd/systemd /bin/systemd
-	dosym ../lib/systemd/systemd /usr/bin/systemd
-	# rsyslog.service depends on it...
-	dosym ../usr/bin/systemctl /bin/systemctl
+	doins shell-completion/zsh/_*
 
 	# we just keep sysvinit tools, so no need for the mans
 	rm "${D}"/usr/share/man/man8/{halt,poweroff,reboot,runlevel,shutdown,telinit}.8 \
 		|| die
 	rm "${D}"/usr/share/man/man1/init.1 || die
-
-	if ! use vanilla; then
-		# Create /run/lock as required by new baselay/OpenRC compat.
-		systemd_dotmpfilesd "${FILESDIR}"/gentoo-run.conf
-
-		# Add mount-rules for /var/lock and /var/run, bug #433607
-		systemd_dounit "${FILESDIR}"/var-{lock,run}.mount
-		systemd_enable_service sysinit.target var-lock.mount
-		systemd_enable_service sysinit.target var-run.mount
-	fi
 
 	# Disable storing coredumps in journald, bug #433457
 	mv "${D}"/usr/lib/sysctl.d/50-coredump.conf{,.disabled} || die
@@ -211,14 +214,6 @@ src_install() {
 	# Preserve empty dirs in /etc & /var, bug #437008
 	keepdir /etc/binfmt.d /etc/modules-load.d /etc/tmpfiles.d \
 		/etc/systemd/ntp-units.d /etc/systemd/user /var/lib/systemd
-
-	# Check whether we won't break user's system.
-	local x
-	for x in /bin/systemd /usr/bin/systemd \
-		/usr/bin/udevadm /usr/lib/systemd/systemd-udevd
-	do
-		[[ -x ${D}${x} ]] || die "${x} symlink broken, aborting."
-	done
 }
 
 optfeature() {
@@ -252,6 +247,9 @@ pkg_postinst() {
 		udevadm hwdb --update --root="${ROOT%/}"
 	fi
 
+	# Bug 468876
+	fcaps cap_dac_override,cap_sys_ptrace=ep usr/bin/systemd-detect-virt
+
 	if [[ ! -L "${ROOT}"/etc/mtab ]]; then
 		ewarn "Upstream suggests that the /etc/mtab file should be a symlink to /proc/mounts."
 		ewarn "It is known to cause users being unable to unmount user mounts. If you don't"
@@ -264,19 +262,6 @@ pkg_postinst() {
 	elog "be installed:"
 	optfeature 'for GTK+ systemadm UI and gnome-ask-password-agent' \
 		'sys-apps/systemd-ui'
-
-	# read null-terminated argv[0] from PID 1
-	# and see which path to systemd was used (if any)
-	local init_path
-	IFS= read -r -d '' init_path < /proc/1/cmdline
-	if [[ ${init_path} == */bin/systemd ]]; then
-		ewarn
-		ewarn "You are using a compatibility symlink to run systemd. The symlink"
-		ewarn "will be removed in near future. Please update your bootloader"
-		ewarn "to use:"
-		ewarn
-		ewarn "	init=/usr/lib/systemd/systemd"
-	fi
 }
 
 pkg_prerm() {

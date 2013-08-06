@@ -5,8 +5,8 @@
 	<maintainer>
 		<email>udev-bugs@gentoo.org</email>
 	</maintainer>
-
 	<use>
+		<flag name='openrc'>Install the OpenRC init scripts</flag>
 		<flag name='tools'>Install module loading/unloading tools.</flag>
 	</use>
 </pkgmetadata>
