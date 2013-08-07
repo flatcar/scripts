@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-firmware/seabios/seabios-1.7.2.ebuild,v 1.6 2013/05/07 19:33:10 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-firmware/seabios/seabios-1.7.2.1.ebuild,v 1.3 2013/06/04 12:32:59 ago Exp $
 
 EAPI=5
 
@@ -19,6 +19,8 @@ else
 	KEYWORDS="amd64 ~ppc ~ppc64 x86 ~amd64-fbsd ~x86-fbsd"
 	SRC_URI="http://code.coreboot.org/p/seabios/downloads/get/${P}.tar.gz
 	http://code.coreboot.org/p/seabios/downloads/get/bios.bin-${PV}.gz
+	http://dev.gentoo.org/~cardoe/distfiles/${P}.tar.gz
+	http://dev.gentoo.org/~cardoe/distfiles/bios.bin-${PV}.gz
 	${BACKPORTS:+http://dev.gentoo.org/~cardoe/distfiles/${P}-bp-${BACKPORTS}.tar.bz2}"
 fi
 
@@ -32,10 +34,7 @@ IUSE="+binary"
 REQUIRED_USE="ppc? ( binary )
 	ppc64? ( binary )"
 
-DEPEND="!binary? (
-		>=sys-power/iasl-20060912
-		<sys-power/iasl-20130117
-		)"
+DEPEND="!binary? ( >=sys-power/iasl-20060912 )"
 RDEPEND=""
 
 pkg_pretend() {

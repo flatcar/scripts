@@ -1,14 +1,19 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-firmware/seabios/seabios-1.7.2.ebuild,v 1.6 2013/05/07 19:33:10 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-firmware/seabios/seabios-1.7.2.2.ebuild,v 1.2 2013/07/28 09:27:54 jcallen Exp $
 
 EAPI=5
 
-PYTHON_DEPEND="2"
+PYTHON_COMPAT=( python{2_6,2_7} )
 
-inherit eutils python
+inherit eutils python-any-r1
 
 #BACKPORTS=1
+
+# SeaBIOS maintainers don't release stable tarballs or stable binaries
+# to generate the stable tarball the following is necessary:
+# git clone git://git.seabios.org/seabios.git && cd seabios
+# git archive --output seabios-${PV}.tar.gz --prefix seabios-${PV}/ rel-${PV}
 
 if [[ ${PV} = *9999* || ! -z "${EGIT_COMMIT}" ]]; then
 	EGIT_REPO_URI="git://git.seabios.org/seabios.git"
@@ -16,10 +21,12 @@ if [[ ${PV} = *9999* || ! -z "${EGIT_COMMIT}" ]]; then
 	KEYWORDS=""
 	SRC_URI=""
 else
-	KEYWORDS="amd64 ~ppc ~ppc64 x86 ~amd64-fbsd ~x86-fbsd"
+	KEYWORDS="~amd64 ~ppc ~ppc64 ~x86 ~amd64-fbsd ~x86-fbsd"
 	SRC_URI="http://code.coreboot.org/p/seabios/downloads/get/${P}.tar.gz
 	http://code.coreboot.org/p/seabios/downloads/get/bios.bin-${PV}.gz
-	${BACKPORTS:+http://dev.gentoo.org/~cardoe/distfiles/${P}-bp-${BACKPORTS}.tar.bz2}"
+	http://dev.gentoo.org/~cardoe/distfiles/${P}.tar.gz
+	http://dev.gentoo.org/~cardoe/distfiles/bios.bin-${PV}.gz
+	${BACKPORTS:+http://dev.gentoo.org/~cardoe/distfiles/${P}-${BACKPORTS}.tar.xz}"
 fi
 
 DESCRIPTION="Open Source implementation of a 16-bit x86 BIOS"
@@ -32,10 +39,12 @@ IUSE="+binary"
 REQUIRED_USE="ppc? ( binary )
 	ppc64? ( binary )"
 
-DEPEND="!binary? (
+DEPEND="
+	!binary? (
 		>=sys-power/iasl-20060912
-		<sys-power/iasl-20130117
-		)"
+		${PYTHON_DEPS}
+	)
+"
 RDEPEND=""
 
 pkg_pretend() {
@@ -52,7 +61,9 @@ pkg_pretend() {
 }
 
 pkg_setup() {
-	python_set_active_version 2
+	if ! use binary; then
+		python-any-r1_pkg_setup
+	fi
 }
 
 src_prepare() {

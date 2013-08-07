@@ -7,11 +7,17 @@
 	<name>Doug Goldstein</name>
   </maintainer>
   <use>
+    <flag name='accessibility'>Adds support for braille displays using brltty</flag>
     <flag name='aio'>Enables support for Linux's Async IO</flag>
     <flag name='alsa'>Enable alsa output for sound emulation</flag>
     <flag name='brltty'>Adds support for braille displays using brltty</flag>
 	<flag name='curl'>Support ISOs / -cdrom directives vis HTTP or HTTPS.</flag>
     <flag name='fdt'>Enables firmware device tree support</flag>
+	<flag name='glusterfs'>Enables GlusterFS cluster fileystem via
+		<pkg>sys-cluster/glusterfs</pkg></flag>
+	<flag name='iscsi'>Enable direct iSCSI support via
+		<pkg>net-libs/libiscsi</pkg> instead of indirectly via the Linux
+		block layer that <pkg>sys-block/open-iscsi</pkg> does.</flag>
 	<flag name='mixemu'>Enable audio mixer emulation. On Fedora, known to cause performance problems when using SDL output and ALSA. For OSS, locks the sound device from other applications.</flag>
     <flag name='ncurses'>Enable the ncurses-based console</flag>
     <flag name='pulseaudio'>Enable pulseaudio output for sound emulation</flag>
@@ -24,7 +30,8 @@
 	<flag name='static'>Enables both 'static-softmmu' and 'static-user'</flag>
 	<flag name='systemtap'>Enable SystemTAP/DTrace tracing</flag>
 	<flag name='tci'>Enable the TCG Interpreter which can speed up or slowdown workloads depending on the host and guest CPUs being emulated. In the future it will be a runtime option but for now its compile time.</flag>
-    <flag name='tls'>Enable TLS support for the VNC console server</flag>
+    <flag name='tls'>Enable TLS support for the VNC console server.
+		For 1.4 and newer this also enables WebSocket support.</flag>
     <flag name='jpeg'>Enable jpeg image support for the VNC console server</flag>
     <flag name='png'>Enable png image support for the VNC console server</flag>
     <flag name="usbredir">Use <pkg>sys-apps/usbredir</pkg> to redirect USB
@@ -32,7 +39,7 @@
     <flag name='uuid'>Enable UUID support in the vdi block driver</flag>
     <flag name='vde'>Enable VDE-based networking</flag>
     <flag name='vhost-net'>Enable accelerated networking using vhost-net, see http://www.linux-kvm.org/page/VhostNet</flag>
-	<flag name='virtfs'>Enable VirtFS support. See http://wiki.qemu.org/Documentation/9psetup</flag>
+	<flag name='virtfs'>Enable VirtFS via virtio-9p-pci / fsdev. See http://wiki.qemu.org/Documentation/9psetup</flag>
     <flag name='xattr'>
       Add support for getting and setting POSIX extended attributes, through
       <pkg>sys-apps/attr</pkg>. Requisite for the virtfs backend.
