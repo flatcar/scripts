@@ -1,6 +1,42 @@
 # ChangeLog for virtual/udev
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/virtual/udev/ChangeLog,v 1.39 2013/04/24 19:38:07 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/virtual/udev/ChangeLog,v 1.48 2013/08/02 12:40:35 blueness Exp $
+
+  02 Aug 2013; Anthony G. Basile <blueness@gentoo.org> udev-206.ebuild:
+  Bump from eudev-1.2_beta to eudev-1.2
+
+  31 Jul 2013; Samuli Suominen <ssuominen@gentoo.org> -udev-197-r3.ebuild:
+  old
+
+*udev-197-r3 (29 Jul 2013)
+
+  29 Jul 2013; Patrick Lauer <patrick@gentoo.org> +udev-197-r3.ebuild:
+  QA: Readd udev-197 so that stable amd64 and x86 (and others?) have a
+  resolvable udev
+
+  26 Jul 2013; Samuli Suominen <ssuominen@gentoo.org> -udev-197-r3.ebuild:
+  old
+
+  26 Jul 2013; Samuli Suominen <ssuominen@gentoo.org> udev-200.ebuild:
+  Stabilize for everyone.
+
+  24 Jul 2013; Ian Stakenvicius <axs@gentoo.org> udev-206.ebuild:
+  adjusted eudev dependency to force keymaps on, so that consistency is held
+  with sys-fs/udev-206
+
+*udev-206 (23 Jul 2013)
+
+  23 Jul 2013; Samuli Suominen <ssuominen@gentoo.org> +udev-206.ebuild:
+  Version bump for the new keyboard hwdb.
+
+*udev-200 (06 Jul 2013)
+
+  06 Jul 2013; Samuli Suominen <ssuominen@gentoo.org> +udev-200.ebuild:
+  Revision bump for sys-fs/udev users to avoid confusion in which version the
+  predictable names are enabled by default.
+
+  05 Jul 2013; Michał Górny <mgorny@gentoo.org> udev-197-r3.ebuild:
+  New systemd does no longer support USE=static-libs.
 
   24 Apr 2013; Samuli Suominen <ssuominen@gentoo.org> -udev-171.ebuild:
   old

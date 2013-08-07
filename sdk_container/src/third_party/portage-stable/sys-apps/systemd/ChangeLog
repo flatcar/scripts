@@ -1,6 +1,104 @@
 # ChangeLog for sys-apps/systemd
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/systemd/ChangeLog,v 1.137 2013/05/25 20:18:41 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/systemd/ChangeLog,v 1.158 2013/08/04 13:30:11 ago Exp $
+
+  04 Aug 2013; Agostino Sarubbo <ago@gentoo.org> systemd-204.ebuild:
+  Stable for ppc64, wrt bug #477910
+
+  04 Aug 2013; Michał Górny <mgorny@gentoo.org> systemd-9999-r1.ebuild:
+  Sync kmod dep in the live ebuild.
+
+  03 Aug 2013; Michał Górny <mgorny@gentoo.org> systemd-9999-r1.ebuild:
+  Update zsh-completion install after upstream cleanup.
+
+  31 Jul 2013; Michał Górny <mgorny@gentoo.org>
+  -files/191-0001-Disable-udev-targets-for-udev-190.patch,
+  -files/196-0001-Disable-udev-targets.patch,
+  -files/196-0002-Don-t-fail-with-missing-gcrypt-macros.patch,
+  -files/197-0001-Disable-udev-targets.patch,
+  -files/198-0001-Disable-udev-targets.patch,
+  -files/198-0002-build-sys-break-dependency-loop-between-libsystemd-i.patch,
+  -files/198-0003-build-sys-link-libsystemd-login-also-against-libsyst.patch,
+  -files/199-firmware.patch, -files/203-systemd-sleep.patch:
+  Drop old patches.
+
+*systemd-206-r1 (31 Jul 2013)
+
+  31 Jul 2013; Michał Górny <mgorny@gentoo.org>
+  +files/206-0001-logind-update-state-file-after-generating-the-sessio.patch,
+  +files/206-0002-Add-usr-share-keymaps-to-localectl-supported-locatio.patch,
+  +files/206-0003-tmpfiles-support-passing-prefix-multiple-times.patch,
+  +files/206-0004-tmpfiles-introduce-exclude-prefix.patch,
+  +files/206-0005-tmpfiles-setup-exclude-dev-prefixes-files.patch,
+  +systemd-206-r1.ebuild, -systemd-205.ebuild, -systemd-206.ebuild,
+  systemd-9999-r1.ebuild:
+  Fix gnome-shell<->logind race condition, bug #477954. Fix missing keymap
+  location, bug #474946. Fix broken device permissions due to static-nodes, bug
+  #478198. Check for CONFIG_AUDITSYSCALL, bug #478032. Add >=binutils-2.32.1
+  dep, bug #479038.
+
+  31 Jul 2013; Michał Górny <mgorny@gentoo.org> systemd-9999-r1.ebuild:
+  Finally drop compatibility symlinks. This time for real.
+
+  30 Jul 2013; Michał Górny <mgorny@gentoo.org> systemd-206.ebuild,
+  systemd-9999-r1.ebuild:
+  Bump kernel dep to 3.0. Reported by ssuominen, thanks.
+
+*systemd-9999-r1 (29 Jul 2013)
+
+  29 Jul 2013; Michał Górny <mgorny@gentoo.org> +systemd-9999-r1.ebuild,
+  -systemd-9999.ebuild:
+  Move the Gentoo-specific files from the live ebuild to gentoo-systemd-
+  integration. Revbump to ensure smooth migration.
+
+  28 Jul 2013; Agostino Sarubbo <ago@gentoo.org> systemd-204.ebuild:
+  Stable for arm, wrt bug #477910
+
+  28 Jul 2013; Agostino Sarubbo <ago@gentoo.org> systemd-204.ebuild:
+  Stable for ppc, wrt bug #477910
+
+  27 Jul 2013; Agostino Sarubbo <ago@gentoo.org> systemd-204.ebuild:
+  Stable for amd64, wrt bug #477910
+
+  24 Jul 2013; Mike Gilbert <floppym@gentoo.org> systemd-204.ebuild:
+  Add missing inherit bash-completion-r1, bug 478038.
+
+  23 Jul 2013; Michał Górny <mgorny@gentoo.org> systemd-206.ebuild:
+  Bump kmod dep per bug #477886.
+
+*systemd-206 (23 Jul 2013)
+
+  23 Jul 2013; Michał Górny <mgorny@gentoo.org> +systemd-206.ebuild,
+  systemd-9999.ebuild:
+  Version bump. Drop USE=keyword as it was replaced upstream by hwdb magic.
+
+  16 Jul 2013; Michał Górny <mgorny@gentoo.org> systemd-201.ebuild,
+  systemd-204.ebuild, systemd-205.ebuild, systemd-9999.ebuild:
+  Use get_bashcompdir for future bash-completion compat.
+
+  14 Jul 2013; Mike Gilbert <floppym@gentoo.org> systemd-205.ebuild,
+  systemd-9999.ebuild:
+  Set file capabilities on systemd-detect-virt, bug 468876 by Michał
+  Bartoszkiewicz.
+
+*systemd-205 (05 Jul 2013)
+
+  05 Jul 2013; Michał Górny <mgorny@gentoo.org> +systemd-205.ebuild,
+  -systemd-197-r1.ebuild, -systemd-200-r1.ebuild, -systemd-202.ebuild,
+  -systemd-203-r1.ebuild, systemd-9999.ebuild:
+  Version bump. Drop USE=static-libs since it is no longer supported. Drop old.
+
+  04 Jul 2013; Agostino Sarubbo <ago@gentoo.org> systemd-201.ebuild:
+  Stable for ppc64, wrt bug #465870
+
+  30 Jun 2013; Agostino Sarubbo <ago@gentoo.org> systemd-201.ebuild:
+  Stable for x86, wrt bug #465870
+
+  30 Jun 2013; Agostino Sarubbo <ago@gentoo.org> systemd-201.ebuild:
+  Stable for amd64, wrt bug #465870
+
+  20 Jun 2013; Agostino Sarubbo <ago@gentoo.org> systemd-204.ebuild:
+  Add ~ppc, wrt bug #465870
 
   25 May 2013; Agostino Sarubbo <ago@gentoo.org> systemd-201.ebuild:
   Stable for arm, wrt bug #465870
