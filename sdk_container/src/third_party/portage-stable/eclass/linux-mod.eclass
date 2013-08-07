@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/linux-mod.eclass,v 1.108 2012/09/15 16:16:53 zmedico Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/linux-mod.eclass,v 1.112 2013/03/26 08:17:26 ssuominen Exp $
 
 # @ECLASS: linux-mod.eclass
 # @MAINTAINER:
@@ -77,12 +77,12 @@
 #   insinto /lib/modules/${KV_FULL}/usb
 #   doins module_usb.${KV_OBJ}
 
-# There is also support for automated modprobe.d/modules.d(2.4) file generation.
+# There is also support for automated modprobe.d file generation.
 # This can be explicitly enabled by setting any of the following variables.
 
 # @ECLASS-VARIABLE: MODULESD_<modulename>_ENABLED
 # @DESCRIPTION:
-# This is used to disable the modprobe.d/modules.d file generation otherwise the file will be
+# This is used to disable the modprobe.d file generation otherwise the file will be
 # always generated (unless no MODULESD_<modulename>_* variable is provided). Set to "no" to disable
 # the generation of the file and the installation of the documentation.
 
@@ -91,7 +91,7 @@
 # This is a bash array containing a list of examples which should
 # be used. If you want us to try and take a guess set this to "guess".
 #
-# For each array_component it's added an options line in the modprobe.d/modules.d file
+# For each array_component it's added an options line in the modprobe.d file
 #
 #   options array_component
 #
@@ -101,7 +101,7 @@
 # @DESCRIPTION:
 # This is a bash array containing a list of associated aliases.
 #
-# For each array_component it's added an alias line in the modprobe.d/modules.d file
+# For each array_component it's added an alias line in the modprobe.d file
 #
 #   alias array_component
 #
@@ -127,10 +127,12 @@ EXPORT_FUNCTIONS pkg_setup pkg_preinst pkg_postinst src_install src_compile pkg_
 
 IUSE="kernel_linux"
 SLOT="0"
-RDEPEND="kernel_linux? ( virtual/modutils )"
-DEPEND="${RDEPEND}
-	sys-apps/sed
-	kernel_linux? ( virtual/linux-sources )"
+if [[ -z ${VIRTUAL_MODUTILS} ]]; then
+	RDEPEND="kernel_linux? ( virtual/modutils )"
+	DEPEND="${RDEPEND}
+		sys-apps/sed
+		kernel_linux? ( virtual/linux-sources )"
+fi
 
 # eclass utilities
 # ----------------------------------
@@ -235,27 +237,6 @@ update_depmod() {
 
 # internal function
 #
-# FUNCTION: update_modules
-# DESCRIPTION:
-# It calls the update-modules utility.
-update_modules() {
-	debug-print-function ${FUNCNAME} $*
-
-	if [ -x /sbin/update-modules ] && \
-		grep -v -e "^#" -e "^$" "${D}"/etc/modules.d/* >/dev/null 2>&1; then
-		ebegin "Updating modules.conf"
-		/sbin/update-modules
-		eend $?
-	elif [ -x /sbin/update-modules ] && \
-		grep -v -e "^#" -e "^$" "${D}"/etc/modules.d/* >/dev/null 2>&1; then
-		ebegin "Updating modules.conf"
-		/sbin/update-modules
-		eend $?
-	fi
-}
-
-# internal function
-#
 # FUNCTION: move_old_moduledb
 # DESCRIPTION:
 # It updates the location of the database used by the module-rebuild utility.
@@ -355,9 +336,9 @@ get-KERNEL_CC() {
 #
 # FUNCTION:
 # USAGE: /path/to/the/modulename_without_extension
-# RETURN: A file in /etc/modules.d/ (kernel < 2.6) or /etc/modprobe.d/ (kernel >= 2.6)
+# RETURN: A file in /etc/modprobe.d
 # DESCRIPTION:
-# This function will generate and install the neccessary modprobe.d/modules.d file from the
+# This function will generate and install the neccessary modprobe.d file from the
 # information contained in the modules exported parms.
 # (see the variables MODULESD_<modulename>_ENABLED, MODULESD_<modulename>_EXAMPLES,
 # MODULESD_<modulename>_ALIASES, MODULESD_<modulename>_ADDITION and MODULESD_<modulename>_DOCS).
@@ -402,13 +383,13 @@ generate_modulesd() {
 		[[ -z ${!module_*} ]] && return 0
 
 		# OK so now if we have got this far, then we know we want to continue
-		# and generate the modules.d file.
+		# and generate the modprobe.d file.
 		module_modinfo="$(modinfo -p ${currm_path}.${KV_OBJ})"
 		module_config="${T}/modulesd-${currm}"
 
-		ebegin "Preparing file for modules.d"
+		ebegin "Preparing file for modprobe.d"
 		#-----------------------------------------------------------------------
-		echo "# modules.d configuration file for ${currm}" >> "${module_config}"
+		echo "# modprobe.d configuration file for ${currm}" >> "${module_config}"
 		#-----------------------------------------------------------------------
 		[[ -n ${module_docs} ]] && \
 			echo "# For more information please read:" >> "${module_config}"
@@ -494,11 +475,7 @@ generate_modulesd() {
 		#-----------------------------------------------------------------------
 
 		# then we install it
-		if kernel_is ge 2 6; then
-			insinto /etc/modprobe.d
-		else
-			insinto /etc/modules.d
-		fi
+		insinto /etc/modprobe.d
 		newins "${module_config}" "${currm_path//*\/}.conf"
 
 		# and install any documentation we might have.
@@ -687,7 +664,7 @@ linux-mod_src_compile() {
 # It install the modules specified in MODULES_NAME. The modules should be inside the ${objdir}
 # directory and they are installed inside /lib/modules/${KV_FULL}/${libdir}.
 #
-# The modprobe.d/modules.d configuration file is automatically generated if the
+# The modprobe.d configuration file is automatically generated if the
 # MODULESD_<modulename>_* variables are defined. The only way to stop this process is by
 # setting MODULESD_<modulename>_ENABLED=no. At the end the documentation specified via
 # MODULESD_<modulename>_DOCS is also installed.
@@ -727,27 +704,24 @@ linux-mod_pkg_preinst() {
 	debug-print-function ${FUNCNAME} $*
 
 	[ -d "${D}lib/modules" ] && UPDATE_DEPMOD=true || UPDATE_DEPMOD=false
-	[ -d "${D}etc/modules.d" ] && UPDATE_MODULES=true || UPDATE_MODULES=false
 	[ -d "${D}lib/modules" ] && UPDATE_MODULEDB=true || UPDATE_MODULEDB=false
 }
 
 # @FUNCTION: linux-mod_pkg_postinst
 # @DESCRIPTION:
 # It executes /sbin/depmod and adds the package to the /var/lib/module-rebuild/moduledb
-# database (if ${D}/lib/modules is created) and it runs /sbin/update-modules
-# (if ${D}/etc/modules.d is created).
+# database (if ${D}/lib/modules is created)"
 linux-mod_pkg_postinst() {
 	debug-print-function ${FUNCNAME} $*
 
 	${UPDATE_DEPMOD} && update_depmod;
-	${UPDATE_MODULES} && update_modules;
 	${UPDATE_MODULEDB} && update_moduledb;
 }
 
 # @FUNCTION: linux-mod_pkg_postrm
 # @DESCRIPTION:
 # It removes the package from the /var/lib/module-rebuild/moduledb database but it doens't
-# call /sbin/depmod and /sbin/update-modules because the modules are still installed.
+# call /sbin/depmod because the modules are still installed.
 linux-mod_pkg_postrm() {
 	debug-print-function ${FUNCNAME} $*
 	remove_moduledb;
