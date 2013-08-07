@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/kernel-2.eclass,v 1.284 2013/04/29 22:14:23 tomwij Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/kernel-2.eclass,v 1.287 2013/07/31 21:25:50 hasufell Exp $
 
 # Description: kernel.eclass rewrite for a clean base regarding the 2.6
 #              series of kernel with back-compatibility for 2.4
@@ -689,7 +689,6 @@ install_headers() {
 		emake headers_install INSTALL_HDR_PATH="${D}"/${ddir}/.. ${xmakeopts} || die
 
 		# let other packages install some of these headers
-		rm -rf "${D}"/${ddir}/sound #alsa-headers
 		rm -rf "${D}"/${ddir}/scsi  #glibc/uclibc/etc...
 		return 0
 	fi
@@ -815,7 +814,8 @@ postinst_sources() {
 	# optionally display security unsupported message
 	#  Start with why
 	if [[ ${K_SECURITY_UNSUPPORTED} = deblob ]]; then
-		ewarn "Deblobbed kernels are UNSUPPORTED by Gentoo Security."
+		ewarn "Deblobbed kernels may not be up-to-date security-wise"
+		ewarn "as they depend on external scripts."
 	elif [[ -n ${K_SECURITY_UNSUPPORTED} ]]; then
 		ewarn "${PN} is UNSUPPORTED by Gentoo Security."
 	fi
