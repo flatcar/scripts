@@ -1,11 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-util/catalyst/catalyst-9999.ebuild,v 1.28 2013/04/13 07:04:57 mattst88 Exp $
-
-# catalyst-9999         -> latest Git
-# catalyst-2.9999       -> catalyst_2 branch from Git
-# catalyst-3.9999       -> catalyst_3 branch from Git
-# catalyst-VER          -> normal catalyst release
+# $Header: /var/cvsroot/gentoo-x86/dev-util/catalyst/catalyst-9999.ebuild,v 1.29 2013/07/31 04:34:00 mattst88 Exp $
 
 EAPI=3
 PYTHON_DEPEND="2"
@@ -16,11 +11,6 @@ if [[ ${PV} == *9999* ]]; then
 	SRC_URI=""
 	S="${WORKDIR}/${PN}"
 	KEYWORDS=""
-
-	case ${PV} in
-		2.9999) EGIT_BRANCH="catalyst_2" ;;
-		3.9999) EGIT_BRANCH="catalyst_3" ;;
-	esac
 else
 	SRC_URI="mirror://gentoo/${P}.tar.bz2
 		http://dev.gentoo.org/~jmbsvicetto/distfiles/${P}.tar.bz2"
