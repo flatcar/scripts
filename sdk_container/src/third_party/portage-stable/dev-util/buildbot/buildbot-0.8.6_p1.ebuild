@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-util/buildbot/buildbot-0.8.6_p1.ebuild,v 1.18 2013/02/24 17:48:14 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-util/buildbot/buildbot-0.8.6_p1.ebuild,v 1.19 2013/08/03 09:45:39 mgorny Exp $
 
 EAPI="3"
 PYTHON_DEPEND="2"
@@ -27,7 +27,7 @@ IUSE="doc examples irc mail manhole test"
 RDEPEND=">=dev-python/jinja-2.1
 	|| ( dev-lang/python:2.7 dev-lang/python:2.6 dev-python/simplejson )
 	|| ( dev-lang/python:2.7[sqlite] dev-lang/python:2.6[sqlite] dev-python/pysqlite:2 )
-	>=dev-python/twisted-8.0.0
+	>=dev-python/twisted-core-8.0.0
 	dev-python/twisted-web
 	dev-python/sqlalchemy
 	dev-python/sqlalchemy-migrate

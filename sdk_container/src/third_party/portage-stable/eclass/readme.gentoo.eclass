@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/readme.gentoo.eclass,v 1.2 2013/01/24 21:38:41 pacho Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/readme.gentoo.eclass,v 1.7 2013/05/24 18:05:27 pacho Exp $
 
 # @ECLASS: readme.gentoo
 # @MAINTAINER:
@@ -10,7 +10,7 @@
 # @BLURB: An eclass for installing a README.gentoo doc file recording tips
 # shown via elog messages.
 # @DESCRIPTION:
-# An eclass for installing a README.gentoo doc file recording tips           
+# An eclass for installing a README.gentoo doc file recording tips
 # shown via elog messages. With this eclass, those elog messages will only be
 # shown at first package installation and a file for later reviewing will be
 # installed under /usr/share/doc/${PF}
@@ -36,6 +36,13 @@ esac
 
 EXPORT_FUNCTIONS src_install pkg_postinst
 
+# @ECLASS-VARIABLE: DISABLE_AUTOFORMATTING
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# If non-empty, DOC_CONTENTS information will be strictly respected,
+# not getting it automatically formatted by fmt. If empty, it will
+# rely on fmt for formatting and 'echo -e' options to tweak lines a bit.
+
 # @ECLASS-VARIABLE: FORCE_PRINT_ELOG
 # @DEFAULT_UNSET
 # @DESCRIPTION:
@@ -44,7 +51,7 @@ EXPORT_FUNCTIONS src_install pkg_postinst
 # @FUNCTION: readme.gentoo_create_doc
 # @DESCRIPTION:
 # Create doc file with ${DOC_CONTENTS} variable (preferred) and, if not set,
-# look for "${FILESDIR}/README.gentoo" contents. You can use 
+# look for "${FILESDIR}/README.gentoo" contents. You can use
 # ${FILESDIR}/README.gentoo-${SLOT} also.
 # Usually called at src_install phase.
 readme.gentoo_create_doc() {
@@ -53,22 +60,23 @@ readme.gentoo_create_doc() {
 	if [[ -n "${DOC_CONTENTS}" ]]; then
 		eshopts_push
 		set -f
-		echo ${DOC_CONTENTS} | fmt > "${T}"/README.gentoo
-		eshopts_pop
-		dodoc "${T}"/README.gentoo
-	else
-		if [[ -f "${FILESDIR}/README.gentoo-${SLOT%/*}" ]]; then
-			cp "${FILESDIR}/README.gentoo-${SLOT%/*}" "${T}"/README.gentoo
-			dodoc "${T}"/README.gentoo
+		if [[ -n "${DISABLE_AUTOFORMATTING}" ]]; then
+			echo "${DOC_CONTENTS}" > "${T}"/README.gentoo
 		else
-			if [[ -f "${FILESDIR}/README.gentoo" ]]; then
-				cp "${FILESDIR}/README.gentoo" "${T}"/README.gentoo
-				dodoc "${T}"/README.gentoo
-			else
-				die "You are not specifying README.gentoo contents!"
-			fi
+			echo -e ${DOC_CONTENTS} | fold -s -w 70 \
+				| sed 's/[[:space:]]*$//' > "${T}"/README.gentoo
 		fi
+		eshopts_pop
+	elif [[ -f "${FILESDIR}/README.gentoo-${SLOT%/*}" ]]; then
+		cp "${FILESDIR}/README.gentoo-${SLOT%/*}" "${T}"/README.gentoo
+	elif [[ -f "${FILESDIR}/README.gentoo" ]]; then
+		cp "${FILESDIR}/README.gentoo" "${T}"/README.gentoo
+	else
+		die "You are not specifying README.gentoo contents!"
 	fi
+
+	dodoc "${T}"/README.gentoo
+	README_GENTOO_DOC_VALUE=$(< "${T}/README.gentoo")
 }
 
 # @FUNCTION: readme.gentoo_print_elog
@@ -85,15 +93,14 @@ readme.gentoo_create_doc() {
 readme.gentoo_print_elog() {
 	debug-print-function ${FUNCNAME} "${@}"
 
-	if [[ -f "${T}"/README.gentoo ]]; then
-		if ! [[ -n "${REPLACING_VERSIONS}" ]] || [[ -n "${FORCE_PRINT_ELOG}" ]]; then
-			eshopts_push
-			set -f
-			cat "${T}"/README.gentoo | while read -r ELINE; do elog "${ELINE}"; done
-			eshopts_pop
-		fi
-	else
-		die "README.gentoo wasn't created at src_install!"
+	if [[ -z "${README_GENTOO_DOC_VALUE}" ]]; then
+		die "readme.gentoo_print_elog invoked without matching readme.gentoo_create_doc call!"
+	elif ! [[ -n "${REPLACING_VERSIONS}" ]] || [[ -n "${FORCE_PRINT_ELOG}" ]]; then
+		echo -e "${README_GENTOO_DOC_VALUE}" | while read -r ELINE; do elog "${ELINE}"; done
+		elog ""
+		elog "(Note: Above message is only printed the first time package is"
+		elog "installed. Please look at /usr/share/doc/${PF}/README.gentoo*"
+		elog "for future reference)"
 	fi
 }
 

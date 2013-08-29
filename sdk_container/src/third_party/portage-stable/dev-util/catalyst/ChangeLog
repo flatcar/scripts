@@ -1,6 +1,12 @@
 # ChangeLog for dev-util/catalyst
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-util/catalyst/ChangeLog,v 1.265 2013/07/31 10:07:51 xmw Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-util/catalyst/ChangeLog,v 1.266 2013/08/08 02:48:35 mattst88 Exp $
+
+*catalyst-2.0.14 (08 Aug 2013)
+
+  08 Aug 2013; Matt Turner <mattst88@gentoo.org> +catalyst-2.0.14.ebuild,
+  -catalyst-2.0.13.ebuild:
+  Version bump to 2.0.14.
 
   31 Jul 2013; Michael Weber <xmw@gentoo.org> catalyst-2.0.13.ebuild:
   Fix SRC_URI (non-maint commit)

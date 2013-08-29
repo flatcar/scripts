@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-util/buildbot-slave/buildbot-slave-0.8.7_p1.ebuild,v 1.13 2013/05/20 17:55:01 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-util/buildbot-slave/buildbot-slave-0.8.7_p1.ebuild,v 1.14 2013/08/03 09:45:42 mgorny Exp $
 
 EAPI="5"
 PYTHON_DEPEND="2"
@@ -24,7 +24,7 @@ KEYWORDS="alpha amd64 arm hppa ia64 ppc ppc64 s390 sh sparc x86 ~x86-interix ~am
 IUSE="test"
 
 RDEPEND="dev-python/setuptools
-	dev-python/twisted
+	dev-python/twisted-core
 	!!<dev-util/buildbot-0.8.1
 	!<dev-util/buildbot-0.8.3"
 DEPEND="${RDEPEND}
