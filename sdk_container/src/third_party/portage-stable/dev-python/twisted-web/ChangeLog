@@ -1,6 +1,23 @@
 # ChangeLog for dev-python/twisted-web
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-python/twisted-web/ChangeLog,v 1.83 2013/04/08 06:59:05 patrick Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-python/twisted-web/ChangeLog,v 1.87 2013/08/23 12:59:55 jer Exp $
+
+  23 Aug 2013; Jeroen Roovers <jer@gentoo.org> twisted-web-12.3.0.ebuild:
+  Stable for HPPA (bug #468150).
+
+  09 Aug 2013; Michał Górny <mgorny@gentoo.org> twisted-web-13.0.0-r1.ebuild:
+  Drop stale versionator inherit.
+
+*twisted-web-13.0.0-r1 (09 Aug 2013)
+
+  09 Aug 2013; Michał Górny <mgorny@gentoo.org> +twisted-web-13.0.0-r1.ebuild:
+  Migrate to twisted-r1.
+
+  03 Aug 2013; Michał Górny <mgorny@gentoo.org> twisted-web-10.2.0.ebuild,
+  twisted-web-11.0.0.ebuild, twisted-web-11.1.0.ebuild,
+  twisted-web-12.0.0.ebuild, twisted-web-12.2.0.ebuild,
+  twisted-web-12.3.0.ebuild, twisted-web-13.0.0.ebuild:
+  Move dev-python/twisted to dev-python/twisted-core.
 
 *twisted-web-13.0.0 (08 Apr 2013)
 
