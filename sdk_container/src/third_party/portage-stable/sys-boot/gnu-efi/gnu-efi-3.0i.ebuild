@@ -1,19 +1,18 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-boot/gnu-efi/gnu-efi-3.0i.ebuild,v 1.1 2010/01/10 16:34:24 armin76 Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-boot/gnu-efi/gnu-efi-3.0i.ebuild,v 1.3 2010/08/28 22:43:29 vapier Exp $
 
-inherit eutils toolchain-funcs
+inherit eutils
 
 MY_P="${PN}_${PV}"
-
 DESCRIPTION="Library for build EFI Applications"
 HOMEPAGE="http://developer.intel.com/technology/efi"
-SRC_URI="mirror://sourceforge/gnu-efi/${MY_P}.orig.tar.gz"
-SRC_URI="${SRC_URI} mirror://debian/pool/main/g/gnu-efi/gnu-efi_3.0i-2.diff.gz"
+SRC_URI="mirror://sourceforge/gnu-efi/${MY_P}.orig.tar.gz
+	mirror://debian/pool/main/g/gnu-efi/gnu-efi_3.0i-2.diff.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 ia64 x86"
+KEYWORDS="~amd64 ia64 ~x86"
 IUSE=""
 
 DEPEND="sys-apps/pciutils"
@@ -21,12 +20,7 @@ DEPEND="sys-apps/pciutils"
 src_unpack() {
 	unpack ${A}
 	cd "${S}"
-
-	ebegin Applying ../*.diff
-	# Using epatch on this is annoying because it wants to create the elilo-3.6/
-	# directory.  Since all the files are new, it doesn't know better.
-	filterdiff -p1 -i debian/\* ../*.diff | patch -s -p1
-	eend $? || return
+	EPATCH_OPTS="-p1" epatch "${WORKDIR}"/*.diff
 }
 
 src_compile() {
@@ -35,12 +29,14 @@ src_compile() {
 		ia64)  iarch=ia64 ;;
 		x86)   iarch=ia32 ;;
 		amd64) iarch=x86_64 ;;
-		*)    die "unknown architecture: $ARCH" ;;
+		*)     die "unknown architecture: $ARCH" ;;
 	esac
-	emake CC="$(tc-getCC)" ARCH=${iarch} -j1 || die "emake failed"
+	# The lib subdir uses unsafe archive targets, and
+	# the apps subdir needs gnuefi subdir
+	emake prefix=${CHOST}- ARCH=${iarch} -j1 || die
 }
 
 src_install() {
-	make install INSTALLROOT="${D}"/usr || die "install failed"
+	emake install INSTALLROOT="${D}"/usr || die
 	dodoc README* ChangeLog
 }
