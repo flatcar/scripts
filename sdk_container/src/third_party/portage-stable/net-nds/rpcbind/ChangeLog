@@ -1,0 +1,93 @@
+# ChangeLog for net-nds/rpcbind
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-nds/rpcbind/ChangeLog,v 1.23 2013/07/13 12:39:16 pacho Exp $
+
+*rpcbind-0.2.0-r1 (13 Jul 2013)
+
+  13 Jul 2013; Pacho Ramos <pacho@gentoo.org> +files/rpcbind.service,
+  +rpcbind-0.2.0-r1.ebuild:
+  Install unit file (#475866)
+
+  27 Apr 2013; Mike Frysinger <vapier@gentoo.org> rpcbind-0.2.0.ebuild:
+  Fix build with automake-1.13 (fix is already upstream) #467018 by Alphat-PC.
+
+  18 Feb 2013; Mike Frysinger <vapier@gentoo.org>
+  +files/rpcbind-0.2.0-no-nss.patch, rpcbind-0.2.0.ebuild:
+  Fix building on non-glibc systems #458024 by Mark Reiche.
+
+  21 May 2012; Kacper Kowalik <xarthisius@gentoo.org> rpcbind-0.2.0.ebuild:
+  Add missing inheritance of eutils.eclass
+
+  03 May 2012; Jeff Horelick <jdhore@gentoo.org> rpcbind-0.2.0.ebuild,
+  rpcbind-9999.ebuild:
+  dev-util/pkgconfig -> virtual/pkgconfig
+
+  26 Jan 2012; Mike Frysinger <vapier@gentoo.org> rpcbind-0.2.0.ebuild,
+  rpcbind-9999.ebuild:
+  Add USE=tcpd support #400607 by Tor.
+
+  28 Dec 2011; <swift@gentoo.org> rpcbind-0.2.0.ebuild:
+  Add selinux dependency for selinux-rpcbind
+
+  21 Sep 2011; Michał Górny <mgorny@gentoo.org> rpcbind-9999.ebuild:
+  Migrate to git-2.
+
+  02 Sep 2011; Mike Frysinger <vapier@gentoo.org> rpcbind-0.2.0.ebuild:
+  Oops, lost some KEYWORDS there ... back to stable.
+
+  02 Sep 2011; Mike Frysinger <vapier@gentoo.org> rpcbind-0.2.0.ebuild,
+  +files/rpcbind-0.2.0-pkgconfig.patch, rpcbind-9999.ebuild:
+  Add pkg-config patch from upstream.
+
+  02 Sep 2011; Mike Frysinger <vapier@gentoo.org> rpcbind-0.2.0.ebuild,
+  rpcbind-9999.ebuild:
+  Migrate to EAPI=2 for fun.
+
+  24 Apr 2011; Raúl Porcel <armin76@gentoo.org> rpcbind-0.2.0.ebuild:
+  sparc stable wrt #358509
+
+  24 Mar 2011; Thomas Kahle <tomka@gentoo.org> rpcbind-0.2.0.ebuild:
+  x86 stable per bug 317517
+
+  18 Mar 2011; Mike Frysinger <vapier@gentoo.org> rpcbind-0.2.0.ebuild:
+  Mark alpha/arm/hppa/ia64/s390/sh stable #317517.
+
+  14 Mar 2011; Markos Chandras <hwoarang@gentoo.org> rpcbind-0.2.0.ebuild:
+  Stable on amd64 wrt bug #317517
+
+  13 Mar 2011; Kacper Kowalik <xarthisius@gentoo.org> rpcbind-0.2.0.ebuild:
+  ppc/ppc64 stable wrt #317517
+
+  22 Nov 2009; Mike Frysinger <vapier@gentoo.org> rpcbind-0.2.0.ebuild,
+  rpcbind-9999.ebuild:
+  Update LICENSE field #271921 by Chí-Thanh Christopher Nguyễn.
+
+  30 May 2009; Mike Frysinger <vapier@gentoo.org> rpcbind-0.2.0.ebuild,
+  rpcbind-9999.ebuild:
+  Add keywords for all.
+
+*rpcbind-0.2.0 (30 May 2009)
+
+  30 May 2009; Mike Frysinger <vapier@gentoo.org> +rpcbind-0.2.0.ebuild:
+  Version bump.
+
+*rpcbind-9999 (17 Jan 2009)
+
+  17 Jan 2009; Mike Frysinger <vapier@gentoo.org> +rpcbind-9999.ebuild:
+  Add live git ebuild #255201 by Chi-Thanh Christopher Nguyen.
+
+*rpcbind-0.1.7 (17 Jan 2009)
+
+  17 Jan 2009; Mike Frysinger <vapier@gentoo.org> +rpcbind-0.1.7.ebuild:
+  Version bump #255199 by Chi-Thanh Christopher Nguyen.
+
+*rpcbind-0.1.5.1 (06 Dec 2008)
+
+  06 Dec 2008; <ssuominen@gentoo.org> +rpcbind-0.1.5.1.ebuild:
+  Version bump for bug 249811, thanks to Chi-Thanh Christopher Nguyen.
+
+*rpcbind-0.1.4 (29 Dec 2007)
+
+  29 Dec 2007; Mike Frysinger <vapier@gentoo.org> +files/rpcbind.confd,
+  +files/rpcbind.initd, +metadata.xml, +rpcbind-0.1.4.ebuild:
+  Initial ebuild by me.

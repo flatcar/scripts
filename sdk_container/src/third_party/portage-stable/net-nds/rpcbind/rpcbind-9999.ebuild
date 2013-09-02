@@ -1,19 +1,17 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-nds/rpcbind/rpcbind-0.2.0.ebuild,v 1.17 2013/04/27 04:15:22 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-nds/rpcbind/rpcbind-9999.ebuild,v 1.8 2012/05/03 04:24:37 jdhore Exp $
 
 EAPI="2"
 
-inherit autotools eutils
-
 if [[ ${PV} == "9999" ]] ; then
 	EGIT_REPO_URI="git://git.infradead.org/~steved/rpcbind.git"
-	inherit autotools eutils git-2
+	inherit autotools git-2
 	SRC_URI=""
 	#KEYWORDS=""
 else
 	SRC_URI="mirror://sourceforge/${PN}/${P}.tar.bz2"
-	KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sh sparc x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86"
 fi
 
 DESCRIPTION="portmap replacement which supports RPC over various protocols"
@@ -33,10 +31,8 @@ src_prepare() {
 	if [[ ${PV} == "9999" ]] ; then
 		eautoreconf
 	else
-		sed -i 's:AM_CONFIG_HEADER:AC_CONFIG_HEADERS:' configure.in || die #467018
-		epatch "${FILESDIR}"/${P}-pkgconfig.patch
-		epatch "${FILESDIR}"/${P}-no-nss.patch
-		eautoreconf
+		# fix busted timestamps
+		find . -type f -print0 | xargs -0 touch -r .
 	fi
 }
 

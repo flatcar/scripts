@@ -1,0 +1,43 @@
+From b02133aaa4feec085627172b5466d8c64a11a5a6 Mon Sep 17 00:00:00 2001
+From: Mike Frysinger <vapier@gentoo.org>
+Date: Thu, 8 Dec 2011 00:10:27 -0500
+Subject: [PATCH] nfsctl: fix building with newer arches
+
+Newer arches omitting both nfsctl and nfsservctl which breaks nfsctl.
+
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+---
+ support/nfs/nfsctl.c |    8 +++++++-
+ 1 files changed, 7 insertions(+), 1 deletions(-)
+
+diff --git a/support/nfs/nfsctl.c b/support/nfs/nfsctl.c
+index 89fa1a4..fec775f 100644
+--- a/support/nfs/nfsctl.c
++++ b/support/nfs/nfsctl.c
+@@ -11,16 +11,22 @@
+ #endif
+ 
+ #include <unistd.h>
++#include <errno.h>
+ #include <asm/unistd.h>
+ #include "nfslib.h"
+ 
+ /* compatibility hack... */
+-#ifndef __NR_nfsctl
++#if !defined(__NR_nfsctl) && defined(__NR_nfsservctl)
+ #define __NR_nfsctl	__NR_nfsservctl
+ #endif
+ 
+ int
+ nfsctl (int cmd, struct nfsctl_arg * argp, union nfsctl_res * resp)
+ {
++#ifdef __NR_nfsctl
+   return syscall (__NR_nfsctl, cmd, argp, resp);
++#else
++  errno = ENOSYS;
++  return -1;
++#endif
+ }
+-- 
+1.7.6.1
+

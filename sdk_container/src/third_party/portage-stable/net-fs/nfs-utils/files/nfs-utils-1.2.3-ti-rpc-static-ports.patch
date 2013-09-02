@@ -1,0 +1,352 @@
+http://bugs.gentoo.org/340797
+
+From 656028f9925f5817c5a37565d27159973db84ec3 Mon Sep 17 00:00:00 2001
+From: Chuck Lever <chuck.lever@oracle.com>
+Date: Wed, 13 Oct 2010 11:22:07 -0400
+Subject: [PATCH] libnfs.a: Allow multiple RPC listeners to share	listener port number
+
+Normally, when "-p" is not specified on the mountd command line, the
+TI-RPC library chooses random port numbers for each listener.  If a
+port number _is_ specified on the command line, all the listeners
+will get the same port number, so SO_REUSEADDR needs to be set on
+each socket.
+
+Thus we can't let TI-RPC create the listener sockets for us in this
+case; we must create them ourselves and then set SO_REUSEADDR (and
+other socket options) by hand.
+
+Different versions of the same RPC program have to share the same
+listener and SVCXPRT, so we have to cache xprts we create, and re-use
+them when additional requests for registration come from the
+application.
+
+Though it doesn't look like it, this fix was "copied" from the legacy
+rpc_init() function.  It's more complicated for TI-RPC, of course,
+since a TI-RPC application can set up listeners with a nearly
+arbitrary number of address families and socket types, not just the
+two listeners that legacy RPC applications can set up (one for AF_INET
+UDP and one for AF_INET TCP).
+
+See:
+  https://bugzilla.linux-nfs.org/show_bug.cgi?id=190
+
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Steve Dickson <steved@redhat.com>
+---
+ support/nfs/svc_create.c |  252 ++++++++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 246 insertions(+), 6 deletions(-)
+
+diff --git a/support/nfs/svc_create.c b/support/nfs/svc_create.c
+index 59ba505..b3f75ed 100644
+--- a/support/nfs/svc_create.c
++++ b/support/nfs/svc_create.c
+@@ -27,6 +27,7 @@
+ #include <memory.h>
+ #include <signal.h>
+ #include <unistd.h>
++#include <errno.h>
+ #include <netdb.h>
+ 
+ #include <netinet/in.h>
+@@ -41,11 +42,68 @@
+ #include "tcpwrapper.h"
+ #endif
+ 
++#include "sockaddr.h"
+ #include "rpcmisc.h"
+ #include "xlog.h"
+ 
+ #ifdef HAVE_LIBTIRPC
+ 
++#define SVC_CREATE_XPRT_CACHE_SIZE	(8)
++static SVCXPRT *svc_create_xprt_cache[SVC_CREATE_XPRT_CACHE_SIZE] = { NULL, };
++
++/*
++ * Cache an SVC xprt, in case there are more programs or versions to
++ * register against it.
++ */
++static void
++svc_create_cache_xprt(SVCXPRT *xprt)
++{
++	unsigned int i;
++
++	/* Check if we've already got this one... */
++	for (i = 0; i < SVC_CREATE_XPRT_CACHE_SIZE; i++)
++		if (svc_create_xprt_cache[i] == xprt)
++			return;
++
++	/* No, we don't.  Cache it. */
++	for (i = 0; i < SVC_CREATE_XPRT_CACHE_SIZE; i++)
++		if (svc_create_xprt_cache[i] == NULL) {
++			svc_create_xprt_cache[i] = xprt;
++			return;
++		}
++
++	xlog(L_ERROR, "%s: Failed to cache an xprt", __func__);
++}
++
++/*
++ * Find a previously cached SVC xprt structure with the given bind address
++ * and transport semantics.
++ *
++ * Returns pointer to a cached SVC xprt.
++ *
++ * If no matching SVC XPRT can be found, NULL is returned.
++ */
++static SVCXPRT *
++svc_create_find_xprt(const struct sockaddr *bindaddr, const struct netconfig *nconf)
++{
++	unsigned int i;
++
++	for (i = 0; i < SVC_CREATE_XPRT_CACHE_SIZE; i++) {
++		SVCXPRT *xprt = svc_create_xprt_cache[i];
++		struct sockaddr *sap;
++
++		if (xprt == NULL)
++			continue;
++		if (strcmp(nconf->nc_netid, xprt->xp_netid) != 0)
++			continue;
++		sap = (struct sockaddr *)xprt->xp_ltaddr.buf;
++		if (!nfs_compare_sockaddr(bindaddr, sap))
++			continue;
++		return xprt;
++	}
++	return NULL;
++}
++
+ /*
+  * Set up an appropriate bind address, given @port and @nconf.
+  *
+@@ -98,17 +156,113 @@ svc_create_bindaddr(struct netconfig *nconf, const uint16_t port)
+ 	return ai;
+ }
+ 
++/*
++ * Create a listener socket on a specific bindaddr, and set
++ * special socket options to allow it to share the same port
++ * as other listeners.
++ *
++ * Returns an open, bound, and possibly listening network
++ * socket on success.
++ *
++ * Otherwise returns -1 if some error occurs.
++ */
++static int
++svc_create_sock(const struct sockaddr *sap, socklen_t salen,
++		struct netconfig *nconf)
++{
++	int fd, type, protocol;
++	int one = 1;
++
++	switch(nconf->nc_semantics) {
++	case NC_TPI_CLTS:
++		type = SOCK_DGRAM;
++		break;
++	case NC_TPI_COTS_ORD:
++		type = SOCK_STREAM;
++		break;
++	default:
++		xlog(D_GENERAL, "%s: Unrecognized bind address semantics: %u",
++			__func__, nconf->nc_semantics);
++		return -1;
++	}
++
++	if (strcmp(nconf->nc_proto, NC_UDP) == 0)
++		protocol = (int)IPPROTO_UDP;
++	else if (strcmp(nconf->nc_proto, NC_TCP) == 0)
++		protocol = (int)IPPROTO_TCP;
++	else {
++		xlog(D_GENERAL, "%s: Unrecognized bind address protocol: %s",
++			__func__, nconf->nc_proto);
++		return -1;
++	}
++
++	fd = socket((int)sap->sa_family, type, protocol);
++	if (fd == -1) {
++		xlog(L_ERROR, "Could not make a socket: (%d) %m",
++			errno);
++		return -1;
++	}
++
++#ifdef IPV6_SUPPORTED
++	if (sap->sa_family == AF_INET6) {
++		if (setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY,
++				&one, sizeof(one)) == -1) {
++			xlog(L_ERROR, "Failed to set IPV6_V6ONLY: (%d) %m",
++				errno);
++			(void)close(fd);
++			return -1;
++		}
++	}
++#endif	/* IPV6_SUPPORTED */
++
++	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
++		       &one, sizeof(one)) == -1) {
++		xlog(L_ERROR, "Failed to set SO_REUSEADDR: (%d) %m",
++			errno);
++		(void)close(fd);
++		return -1;
++	}
++
++	if (bind(fd, sap, salen) == -1) {
++		xlog(L_ERROR, "Could not bind socket: (%d) %m",
++			errno);
++		(void)close(fd);
++		return -1;
++	}
++
++	if (nconf->nc_semantics == NC_TPI_COTS_ORD)
++		if (listen(fd, SOMAXCONN) == -1) {
++			xlog(L_ERROR, "Could not listen on socket: (%d) %m",
++				errno);
++			(void)close(fd);
++			return -1;
++		}
++
++	return fd;
++}
++
++/*
++ * The simple case is allowing the TI-RPC library to create a
++ * transport itself, given just the bind address and transport
++ * semantics.
++ *
++ * Our local xprt cache is ignored in this path, since the
++ * caller is not interested in sharing listeners or ports, and
++ * the library automatically avoids ports already in use.
++ *
++ * Returns the count of started listeners (one or zero).
++ */
+ static unsigned int
+-svc_create_nconf(const char *name, const rpcprog_t program,
++svc_create_nconf_rand_port(const char *name, const rpcprog_t program,
+ 		const rpcvers_t version,
+ 		void (*dispatch)(struct svc_req *, SVCXPRT *),
+-		const uint16_t port, struct netconfig *nconf)
++		struct netconfig *nconf)
+ {
+ 	struct t_bind bindaddr;
+ 	struct addrinfo *ai;
+ 	SVCXPRT	*xprt;
+ 
+-	ai = svc_create_bindaddr(nconf, port);
++	ai = svc_create_bindaddr(nconf, 0);
+ 	if (ai == NULL)
+ 		return 0;
+ 
+@@ -119,7 +273,7 @@ svc_create_nconf(const char *name, const rpcprog_t program,
+ 	freeaddrinfo(ai);
+ 	if (xprt == NULL) {
+ 		xlog(D_GENERAL, "Failed to create listener xprt "
+-				"(%s, %u, %s)", name, version, nconf->nc_netid);
++			"(%s, %u, %s)", name, version, nconf->nc_netid);
+ 		return 0;
+ 	}
+ 
+@@ -133,6 +287,93 @@ svc_create_nconf(const char *name, const rpcprog_t program,
+ 	return 1;
+ }
+ 
++/*
++ * If a port is specified on the command line, that port value will be
++ * the same for all listeners created here.  Create each listener
++ * socket in advance and set SO_REUSEADDR, rather than allowing the
++ * RPC library to create the listeners for us on a randomly chosen
++ * port via svc_tli_create(RPC_ANYFD).
++ *
++ * Some callers want to listen for more than one RPC version using the
++ * same port number.  For example, mountd could want to listen for MNT
++ * version 1, 2, and 3 requests.  This means mountd must use the same
++ * set of listener sockets for multiple RPC versions, since, on one
++ * system, you can't have two listener sockets with the exact same
++ * bind address (and port) and transport protocol.
++ *
++ * To accomplish this, this function caches xprts as they are created.
++ * This cache is checked to see if a previously created xprt can be
++ * used, before creating a new xprt for this [program, version].  If
++ * there is a cached xprt with the same bindaddr and transport
++ * semantics, we simply register the new version with that xprt,
++ * rather than creating a fresh xprt for it.
++ *
++ * The xprt cache implemented here is local to a process.  Two
++ * separate RPC daemons can not share a set of listeners.
++ *
++ * Returns the count of started listeners (one or zero).
++ */
++static unsigned int
++svc_create_nconf_fixed_port(const char *name, const rpcprog_t program,
++		const rpcvers_t version,
++		void (*dispatch)(struct svc_req *, SVCXPRT *),
++		const uint16_t port, struct netconfig *nconf)
++{
++	struct addrinfo *ai;
++	SVCXPRT	*xprt;
++
++	ai = svc_create_bindaddr(nconf, port);
++	if (ai == NULL)
++		return 0;
++
++	xprt = svc_create_find_xprt(ai->ai_addr, nconf);
++	if (xprt == NULL) {
++		int fd;
++
++		fd = svc_create_sock(ai->ai_addr, ai->ai_addrlen, nconf);
++		if (fd == -1)
++			goto out_free;
++
++		xprt = svc_tli_create(fd, nconf, NULL, 0, 0);
++		if (xprt == NULL) {
++			xlog(D_GENERAL, "Failed to create listener xprt "
++				"(%s, %u, %s)", name, version, nconf->nc_netid);
++			(void)close(fd);
++			goto out_free;
++		}
++	}
++
++	if (!svc_reg(xprt, program, version, dispatch, nconf)) {
++		/* svc_reg(3) destroys @xprt in this case */
++		xlog(D_GENERAL, "Failed to register (%s, %u, %s)",
++				name, version, nconf->nc_netid);
++		goto out_free;
++	}
++
++	svc_create_cache_xprt(xprt);
++
++	freeaddrinfo(ai);
++	return 1;
++
++out_free:
++	freeaddrinfo(ai);
++	return 0;
++}
++
++static unsigned int
++svc_create_nconf(const char *name, const rpcprog_t program,
++		const rpcvers_t version,
++		void (*dispatch)(struct svc_req *, SVCXPRT *),
++		const uint16_t port, struct netconfig *nconf)
++{
++	if (port != 0)
++		return svc_create_nconf_fixed_port(name, program,
++			version, dispatch, port, nconf);
++
++	return svc_create_nconf_rand_port(name, program,
++			version, dispatch, nconf);
++}
++
+ /**
+  * nfs_svc_create - start up RPC svc listeners
+  * @name: C string containing name of new service
+@@ -145,8 +386,7 @@ svc_create_nconf(const char *name, const rpcprog_t program,
+  * the RPC dispatcher.  Returns the number of started network transports.
+  */
+ unsigned int
+-nfs_svc_create(__attribute__((unused)) char *name,
+-		const rpcprog_t program, const rpcvers_t version,
++nfs_svc_create(char *name, const rpcprog_t program, const rpcvers_t version,
+ 		void (*dispatch)(struct svc_req *, SVCXPRT *),
+ 		const uint16_t port)
+ {
+-- 
+1.7.3.1
+
