@@ -1,0 +1,25 @@
+#!/sbin/runscript
+# Copyright 1999-2011 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/net-fs/nfs-utils/files/rpc.pipefs.initd,v 1.2 2011/06/19 23:04:36 vapier Exp $
+
+mount_pipefs() {
+	local fstype=rpc_pipefs mntpoint=/var/lib/nfs/rpc_pipefs
+
+	# if things are already mounted, nothing to do
+	mountinfo -q ${mntpoint} && return 0
+
+	# if rpc_pipefs is not available, try to load sunrpc for it #219566
+	grep -qs ${fstype} /proc/filesystems || modprobe -q sunrpc
+	# if still not available, the `mount` will issue an error for the user
+
+	# now just do it for kicks
+	mkdir -p ${mntpoint}
+	mount -t ${fstype} ${fstype} ${mntpoint}
+}
+
+start() {
+	ebegin "Setting up RPC pipefs"
+	mount_pipefs
+	eend $? "make sure you have NFS/SUNRPC enabled in your kernel"
+}

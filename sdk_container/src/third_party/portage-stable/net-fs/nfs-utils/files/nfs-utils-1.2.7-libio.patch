@@ -1,0 +1,50 @@
+https://bugs.gentoo.org/459200
+
+From 2d9fb08c588970b842ce2a609088079181e6aafb Mon Sep 17 00:00:00 2001
+From: Mike Frysinger <vapier@gentoo.org>
+Date: Sun, 24 Mar 2013 17:41:19 -0400
+Subject: [PATCH [nfs-utils]] check for libio.h availability
+
+On some systems (like uClibc), there isn't a libio.h header.  But it
+isn't also needed on them.  So check for the header first.
+
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+---
+ configure.ac               | 2 +-
+ support/include/sockaddr.h | 6 ++++++
+ 2 files changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index f461219..cc7f3b4 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -358,7 +358,7 @@ AC_CHECK_HEADERS([arpa/inet.h fcntl.h libintl.h limits.h \
+                  stdlib.h string.h sys/file.h sys/ioctl.h sys/mount.h \
+                  sys/param.h sys/socket.h sys/time.h sys/vfs.h \
+                  syslog.h unistd.h com_err.h et/com_err.h \
+-                 ifaddrs.h nfs-plugin.h])
++                 ifaddrs.h nfs-plugin.h libio.h])
+ 
+ dnl *************************************************************
+ dnl Checks for typedefs, structures, and compiler characteristics
+diff --git a/support/include/sockaddr.h b/support/include/sockaddr.h
+index 72766db..a1c30f9 100644
+--- a/support/include/sockaddr.h
++++ b/support/include/sockaddr.h
+@@ -20,7 +20,13 @@
+ #ifndef NFS_UTILS_SOCKADDR_H
+ #define NFS_UTILS_SOCKADDR_H
+ 
++#ifdef HAVE_CONFIG_H
++#include <config.h>
++#endif
++
++#ifdef HAVE_LIBIO_H
+ #include <libio.h>
++#endif
+ #include <stdbool.h>
+ #include <sys/socket.h>
+ #include <netinet/in.h>
+-- 
+1.8.1.2
+
