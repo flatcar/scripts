@@ -1,6 +1,21 @@
 # ChangeLog for net-misc/iputils
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/iputils/ChangeLog,v 1.118 2013/01/31 23:10:23 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-misc/iputils/ChangeLog,v 1.123 2013/06/09 23:01:13 vapier Exp $
+
+  09 Jun 2013; Mike Frysinger <vapier@gentoo.org> metadata.xml:
+  Add upstream CPE tag (security info) from ChromiumOS.
+
+  08 Feb 2013; Agostino Sarubbo <ago@gentoo.org> iputils-20121221.ebuild:
+  Stable for alpha, wrt bug #408183
+
+  08 Feb 2013; Agostino Sarubbo <ago@gentoo.org> iputils-20121221.ebuild:
+  Stable for s390, wrt bug #408183
+
+  08 Feb 2013; Agostino Sarubbo <ago@gentoo.org> iputils-20121221.ebuild:
+  Stable for sh, wrt bug #408183
+
+  06 Feb 2013; Agostino Sarubbo <ago@gentoo.org> iputils-20121221.ebuild:
+  Stable for sparc, wrt bug #408183
 
   31 Jan 2013; Agostino Sarubbo <ago@gentoo.org> iputils-20121221.ebuild:
   Stable for ppc, wrt bug #408183
