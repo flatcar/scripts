@@ -1,28 +1,23 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-portage/gentoolkit/gentoolkit-9999.ebuild,v 1.30 2013/09/05 18:25:00 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-portage/gentoolkit/gentoolkit-0.3.0.8.ebuild,v 1.1 2013/09/05 16:56:38 fuzzyray Exp $
 
 EAPI="5"
 
 PYTHON_COMPAT=(python{2_6,2_7,3_2,3_3} pypy2_0)
 PYTHON_REQ_USE="xml(+)"
 
-EGIT_MASTER="gentoolkit"
-EGIT_BRANCH="gentoolkit"
-
-inherit distutils-r1 git-2
-
-EGIT_REPO_URI="git://git.overlays.gentoo.org/proj/gentoolkit.git"
+inherit distutils-r1
 
 DESCRIPTION="Collection of administration scripts for Gentoo"
 HOMEPAGE="http://www.gentoo.org/proj/en/portage/tools/index.xml"
-SRC_URI=""
+SRC_URI="mirror://gentoo/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
 IUSE=""
 
-KEYWORDS=""
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 
 DEPEND="sys-apps/portage"
 RDEPEND="${DEPEND}
@@ -34,13 +29,20 @@ RDEPEND="${DEPEND}
 
 python_prepare_all() {
 	python_export_best
-	echo VERSION="9999-${EGIT_VERSION}" "${PYTHON}" setup.py set_version
-	VERSION="9999-${EGIT_VERSION}" "${PYTHON}" setup.py set_version
+	echo VERSION="${PVR}" "${PYTHON}" setup.py set_version
+	VERSION="${PVR}" "${PYTHON}" setup.py set_version
 	distutils-r1_python_prepare_all
 }
 
 python_install_all() {
 	distutils-r1_python_install_all
+
+	# Rename the python versions of revdep-rebuild, since we are not ready
+	# to switch to the python version yet. Link /usr/bin/revdep-rebuild to
+	# revdep-rebuild.sh. Leaving the python version available for potential
+	# testing by a wider audience.
+	mv "${ED}"/usr/bin/revdep-rebuild "${ED}"/usr/bin/revdep-rebuild.py
+	dosym revdep-rebuild.sh /usr/bin/revdep-rebuild
 
 	# Create cache directory for revdep-rebuild
 	keepdir /var/cache/revdep-rebuild

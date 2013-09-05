@@ -1,6 +1,26 @@
 # ChangeLog for app-portage/gentoolkit
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/app-portage/gentoolkit/ChangeLog,v 1.293 2013/03/12 16:14:57 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-portage/gentoolkit/ChangeLog,v 1.298 2013/09/05 18:25:00 mgorny Exp $
+
+  05 Sep 2013; Michał Górny <mgorny@gentoo.org> gentoolkit-9999.ebuild:
+  Clean up PYTHON_COMPAT from old implementations.
+
+*gentoolkit-0.3.0.8 (05 Sep 2013)
+
+  05 Sep 2013; Paul Varner <fuzzyray@gentoo.org> +gentoolkit-0.3.0.8.ebuild:
+  Version bump for bug fixes and conversion to distutils-r1 eclass. See
+  http://git.overlays.gentoo.org/gitweb/?p=proj/gentoolkit.git;a=shortlog;h=refs/heads/gentoolkit
+  for full list of bug fixes.
+
+  04 Sep 2013; Paul Varner <fuzzyray@gentoo.org> gentoolkit-9999.ebuild:
+  Remove dosym calls for eclean-dist and eclean-pkg, since they are now actual
+  files.
+
+  30 Aug 2013; Mike Gilbert <floppym@gentoo.org> gentoolkit-9999.ebuild:
+  Call distutils-r1_python_prepare_all.
+
+  26 Jul 2013; Mike Gilbert <floppym@gentoo.org> gentoolkit-9999.ebuild:
+  Add pypy2.0 and fix PYTHON_REQ_USE after recent remove of xml use flag.
 
 *gentoolkit-0.3.0.7-r2 (12 Mar 2013)
 
