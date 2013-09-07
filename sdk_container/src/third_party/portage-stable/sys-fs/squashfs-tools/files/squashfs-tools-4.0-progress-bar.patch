@@ -1,0 +1,36 @@
+http://bugs.gentoo.org/292011
+
+revision 1.121
+date: 2010/03/08 01:30:17;  author: plougher;  state: Exp;  lines: +10 -5
+Fix floating point error in progress_bar when max == 0
+
+Index: unsquashfs.c
+===================================================================
+RCS file: /cvsroot/squashfs/squashfs/squashfs-tools/unsquashfs.c,v
+retrieving revision 1.120
+retrieving revision 1.121
+diff -u -p -r1.120 -r1.121
+--- squashfs-tools/unsquashfs.c	7 Mar 2010 03:16:46 -0000	1.120
++++ squashfs-tools/unsquashfs.c	8 Mar 2010 01:30:17 -0000	1.121
+@@ -1871,12 +1871,17 @@ void update_progress_bar()
+ void progress_bar(long long current, long long max, int columns)
+ {
+ 	char rotate_list[] = { '|', '/', '-', '\\' };
+-	int max_digits = floor(log10(max)) + 1;
+-	int used = max_digits * 2 + 11;
+-	int hashes = (current * (columns - used)) / max;
+-	int spaces = columns - used - hashes;
++	int max_digits, used, hashes, spaces;
+ 	static int tty = -1;
+ 
++	if(max == 0)
++		return;
++
++	max_digits = floor(log10(max)) + 1;
++	used = max_digits * 2 + 11;
++	hashes = (current * (columns - used)) / max;
++	spaces = columns - used - hashes;
++
+ 	if((current > max) || (columns - used < 0))
+ 		return;
+ 
