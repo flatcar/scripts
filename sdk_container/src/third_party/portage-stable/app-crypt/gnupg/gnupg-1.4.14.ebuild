@@ -1,8 +1,8 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-crypt/gnupg/gnupg-1.4.13.ebuild,v 1.11 2013/01/13 19:33:20 armin76 Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-crypt/gnupg/gnupg-1.4.14.ebuild,v 1.12 2013/08/08 12:37:13 ago Exp $
 
-EAPI="4"
+EAPI="5"
 
 inherit eutils flag-o-matic toolchain-funcs
 
@@ -14,20 +14,18 @@ MY_P=${P/_/}
 DESCRIPTION="The GNU Privacy Guard, a GPL pgp replacement"
 HOMEPAGE="http://www.gnupg.org/"
 SRC_URI="mirror://gnupg/gnupg/${P}.tar.bz2"
-#		ecc? ( http://www.calcurco.cat/eccGnuPG/src/${ECC_PATCH}.bz2 )
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~x86-fbsd ~x86-freebsd ~amd64-linux ~x86-linux ~x86-macos"
-IUSE="bzip2 curl ldap nls readline selinux smartcard static usb zlib linguas_ru"
-#IUSE="bzip2 bindist curl ecc ldap nls readline selinux smartcard static usb zlib linguas_ru"
+IUSE="bzip2 curl ldap mta nls readline selinux smartcard static usb zlib linguas_ru"
 
 COMMON_DEPEND="
 	ldap? ( net-nds/openldap )
 	bzip2? ( app-arch/bzip2 )
 	zlib? ( sys-libs/zlib )
 	curl? ( net-misc/curl )
-	virtual/mta
+	mta? ( virtual/mta )
 	readline? ( sys-libs/readline )
 	smartcard? ( =virtual/libusb-0* )
 	usb? ( =virtual/libusb-0* )"
@@ -43,23 +41,11 @@ DEPEND="${COMMON_DEPEND}
 S="${WORKDIR}/${MY_P}"
 
 src_prepare() {
-#	if use ecc; then
-#		if use bindist; then
-#			einfo "Skipping ECC patch to comply with binary distribution (bug #148907)."
-#		else
-#			sed -i \
-#				"s/- VERSION='${ECCVER_GNUPG}'/- VERSION='${PV}'/" \
-#				"${WORKDIR}/${ECC_PATCH}"
-#			sed -i \
-#				"s/+ VERSION='${ECCVER_GNUPG}-ecc${ECCVER}'/+ VERSION='${PV}-ecc${ECCVER}'/" \
-#				"${WORKDIR}/${ECC_PATCH}"
-#
-#			epatch "${WORKDIR}/${ECC_PATCH}"
-#		fi
-#	fi
-
 	# Install RU man page in right location
 	sed -e "/^man_MANS =/s/ gpg\.ru\.1//" -i doc/Makefile.in || die "sed doc/Makefile.in failed"
+
+	# bug#469388
+	sed -i -e 's/--batch --dearmor/--homedir . --batch --dearmor/' checks/Makefile.in
 
 	# Fix PIC definitions
 	sed -i -e 's:PIC:__PIC__:' mpi/i386/mpih-{add,sub}1.S intl/relocatable.c \
@@ -82,7 +68,7 @@ src_configure() {
 	econf \
 		--docdir="${EPREFIX}/usr/share/doc/${PF}" \
 		$(use_enable ldap) \
-		--enable-mailto \
+		$(use_enable mta mailto) \
 		--enable-hkp \
 		--enable-finger \
 		$(use_with !zlib included-zlib) \
@@ -102,7 +88,7 @@ src_configure() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" install
+	default
 
 	# keep the documentation in /usr/share/doc/...
 	rm -rf "${ED}usr/share/gnupg/FAQ" "${ED}usr/share/gnupg/faq.html" || die

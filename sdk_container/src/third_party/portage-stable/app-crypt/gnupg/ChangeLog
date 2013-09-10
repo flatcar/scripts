@@ -1,6 +1,108 @@
 # ChangeLog for app-crypt/gnupg
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/app-crypt/gnupg/ChangeLog,v 1.457 2013/01/19 21:16:55 alonbl Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-crypt/gnupg/ChangeLog,v 1.486 2013/08/19 16:59:42 radhermit Exp $
+
+  19 Aug 2013; Tim Harder <radhermit@gentoo.org> -gnupg-1.4.13.ebuild,
+  -gnupg-1.4.13-r1.ebuild, -gnupg-2.0.19.ebuild, -gnupg-2.0.19-r1.ebuild,
+  -gnupg-2.0.19-r2.ebuild, -files/gnupg-2.0.19-support-sc-key-3072.patch,
+  -files/gnupg-2.0.19-texinfo-5.patch:
+  Remove old.
+
+*gnupg-2.0.21 (19 Aug 2013)
+
+  19 Aug 2013; Tim Harder <radhermit@gentoo.org> +gnupg-2.0.21.ebuild:
+  Version bump.
+
+  08 Aug 2013; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.14.ebuild:
+  Stable for sh, wrt bug #478184
+
+  08 Aug 2013; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.14.ebuild:
+  Stable for sparc, wrt bug #478184
+
+  06 Aug 2013; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.14.ebuild:
+  Stable for s390, wrt bug #478184
+
+  04 Aug 2013; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.14.ebuild:
+  Stable for ppc64, wrt bug #478184
+
+  04 Aug 2013; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.14.ebuild:
+  Stable for ia64, wrt bug #478184
+
+  30 Jul 2013; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.14.ebuild:
+  Stable for alpha, wrt bug #478184
+
+  28 Jul 2013; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.14.ebuild:
+  Stable for arm, wrt bug #478184
+
+  28 Jul 2013; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.14.ebuild:
+  Stable for ppc, wrt bug #478184
+
+  27 Jul 2013; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.14.ebuild:
+  Stable for x86, wrt bug #478184
+
+  27 Jul 2013; Jeroen Roovers <jer@gentoo.org> gnupg-1.4.14.ebuild:
+  Stable for HPPA (bug #478184).
+
+  26 Jul 2013; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.14.ebuild:
+  Stable for amd64, wrt bug #478184
+
+*gnupg-1.4.14 (26 Jul 2013)
+
+  26 Jul 2013; Tim Harder <radhermit@gentoo.org> +gnupg-1.4.14.ebuild:
+  Security bump (bug #478184).
+
+  30 Jun 2013; Agostino Sarubbo <ago@gentoo.org> gnupg-2.0.20.ebuild:
+  Stable for s390, wrt bug #471404
+
+  29 Jun 2013; Agostino Sarubbo <ago@gentoo.org> gnupg-2.0.20.ebuild:
+  Stable for sparc, wrt bug #471404
+
+  26 Jun 2013; Agostino Sarubbo <ago@gentoo.org> gnupg-2.0.20.ebuild:
+  Stable for ia64, wrt bug #471404
+
+  26 Jun 2013; Agostino Sarubbo <ago@gentoo.org> gnupg-2.0.20.ebuild:
+  Stable for alpha, wrt bug #471404
+
+  25 Jun 2013; Agostino Sarubbo <ago@gentoo.org> gnupg-2.0.20.ebuild:
+  Stable for ppc64, wrt bug #471404
+
+  24 Jun 2013; Agostino Sarubbo <ago@gentoo.org> gnupg-2.0.20.ebuild:
+  Stable for ppc, wrt bug #471404
+
+  10 Jun 2013; Sergey Popov <pinkbyte@gentoo.org> gnupg-2.0.20.ebuild:
+  Stable on amd64 and x86, wrt bug #471404
+
+  09 Jun 2013; Agostino Sarubbo <ago@gentoo.org> gnupg-2.0.20.ebuild:
+  Stable for sh, wrt bug #471404
+
+  09 Jun 2013; Markus Meier <maekke@gentoo.org> gnupg-2.0.20.ebuild:
+  arm stable, bug #471404
+
+  03 Jun 2013; Jeroen Roovers <jer@gentoo.org> gnupg-2.0.20.ebuild:
+  Stable for HPPA (bug #471404).
+
+*gnupg-2.0.20 (15 May 2013)
+
+  15 May 2013; Tim Harder <radhermit@gentoo.org> +gnupg-2.0.20.ebuild:
+  Version bump.
+
+  13 May 2013; Alon Bar-Lev <alonbl@gentoo.org> gnupg-1.4.13-r1.ebuild:
+  Fix tests accessing wrong homedir, bug#469388
+
+  10 Apr 2013; Alon Bar-Lev <alonbl@gentoo.org>
+  +files/gnupg-2.0.19-texinfo-5.patch, gnupg-2.0.19-r2.ebuild:
+  Fix texinfo-5 comatibility, per bug#464162, thanks to Denys Duchier and Ian
+  Abbott
+
+*gnupg-2.0.19-r2 (07 Apr 2013)
+
+  07 Apr 2013; Alon Bar-Lev <alonbl@gentoo.org>
+  +files/gnupg-2.0.19-support-sc-key-3072.patch, +gnupg-2.0.19-r2.ebuild:
+  Backport openpgp key>=3072 support from upstream master, per bug#464890,
+  thanks to Andreas K. Hüttel
+
+  21 Feb 2013; Zac Medico <zmedico@gentoo.org> gnupg-2.0.19-r1.ebuild:
+  Add ~arm-linux keyword.
 
   19 Jan 2013; Alon Bar-Lev <alonbl@gentoo.org>
   files/gnupg-2.0.17-gpgsm-gencert.patch:

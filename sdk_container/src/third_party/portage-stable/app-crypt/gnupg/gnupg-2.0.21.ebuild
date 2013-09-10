@@ -1,8 +1,8 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-crypt/gnupg/gnupg-2.0.19.ebuild,v 1.12 2012/08/19 18:43:45 armin76 Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-crypt/gnupg/gnupg-2.0.21.ebuild,v 1.1 2013/08/19 16:55:43 radhermit Exp $
 
-EAPI="4"
+EAPI="5"
 
 inherit eutils flag-o-matic toolchain-funcs
 
@@ -13,13 +13,13 @@ SRC_URI="mirror://gnupg/gnupg/${P}.tar.bz2"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="adns bzip2 doc ldap nls readline static selinux smartcard usb"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+IUSE="adns bzip2 doc ldap nls mta readline static selinux smartcard usb"
 
 COMMON_DEPEND_LIBS="
 	>=dev-libs/libassuan-2
 	>=dev-libs/libgcrypt-1.4
-	>=dev-libs/libgpg-error-1.7
+	>=dev-libs/libgpg-error-1.11
 	>=dev-libs/libksba-1.0.7
 	>=dev-libs/pth-1.3.7
 	>=net-misc/curl-7.10
@@ -40,14 +40,16 @@ DEPEND="${COMMON_DEPEND_LIBS}
 		>=dev-libs/libgpg-error-1.7[static-libs]
 		>=dev-libs/libksba-1.0.7[static-libs]
 		>=dev-libs/pth-1.3.7[static-libs]
-		|| ( sys-libs/zlib[static-libs] <sys-libs/zlib-1.2.5.1-r2 )
+		>=net-misc/curl-7.10[static-libs]
+		sys-libs/zlib[static-libs]
+		bzip2? ( app-arch/bzip2[static-libs] )
 	)
 	nls? ( sys-devel/gettext )
 	doc? ( sys-apps/texinfo )"
 
 RDEPEND="!static? ( ${COMMON_DEPEND_LIBS} )
 	${COMMON_DEPEND_BINS}
-	virtual/mta
+	mta? ( virtual/mta )
 	!<=app-crypt/gnupg-2.0.1
 	selinux? ( sec-policy/selinux-gpg )
 	nls? ( virtual/libintl )"
@@ -82,6 +84,7 @@ src_configure() {
 		$(use_enable bzip2) \
 		$(use_enable !elibc_SunOS symcryptrun) \
 		$(use_enable nls) \
+		$(use_enable mta mailto) \
 		$(use_enable ldap) \
 		$(use_with readline) \
 		CC_FOR_BUILD="$(tc-getBUILD_CC)"
@@ -99,7 +102,7 @@ src_compile() {
 src_install() {
 	emake DESTDIR="${D}" install
 	emake DESTDIR="${D}" -f doc/Makefile uninstall-nobase_dist_docDATA
-	rm -r "${ED}usr/share/gnupg/help"*
+	rm "${ED}"/usr/share/gnupg/help* || die
 
 	dodoc ChangeLog NEWS README THANKS TODO VERSION doc/FAQ doc/DETAILS \
 		doc/HACKING doc/TRANSLATE doc/OpenPGP doc/KEYSERVER doc/help*
@@ -112,11 +115,11 @@ src_install() {
 	if use ldap; then
 		dosym gpg2keys_ldap /usr/libexec/gpgkeys_ldap
 	fi
-	echo ".so man1/gpg2.1" > "${ED}usr/share/man/man1/gpg.1"
-	echo ".so man1/gpgv2.1" > "${ED}usr/share/man/man1/gpgv.1"
+	echo ".so man1/gpg2.1" > "${ED}"/usr/share/man/man1/gpg.1
+	echo ".so man1/gpgv2.1" > "${ED}"/usr/share/man/man1/gpgv.1
 
 	dodir /etc/env.d
-	echo "CONFIG_PROTECT=/usr/share/gnupg/qualified.txt" >>"${ED}etc/env.d/30gnupg"
+	echo "CONFIG_PROTECT=/usr/share/gnupg/qualified.txt" >> "${ED}"/etc/env.d/30gnupg
 
 	if use doc; then
 		dohtml doc/gnupg.html/* doc/*.png
