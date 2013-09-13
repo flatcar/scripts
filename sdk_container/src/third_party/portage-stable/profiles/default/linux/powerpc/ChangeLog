@@ -1,0 +1,53 @@
+# ChangeLog for the default/linux/powerpc profile directory
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/powerpc/ChangeLog,v 1.3 2013/02/09 12:34:17 dilfridge Exp $
+
+  09 Feb 2013; Andreas K. Huettel <dilfridge@gentoo.org>
+  +ppc32/10.0/deprecated, +ppc32/10.0/desktop/deprecated,
+  +ppc32/10.0/desktop/gnome/deprecated, +ppc32/10.0/desktop/kde/deprecated,
+  +ppc32/10.0/developer/deprecated, +ppc32/10.0/server/deprecated,
+  +ppc64/10.0/32bit-userland/deprecated,
+  +ppc64/10.0/32bit-userland/desktop/deprecated,
+  +ppc64/10.0/32bit-userland/desktop/gnome/deprecated,
+  +ppc64/10.0/32bit-userland/desktop/kde/deprecated,
+  +ppc64/10.0/32bit-userland/developer/deprecated,
+  +ppc64/10.0/32bit-userland/server/deprecated,
+  +ppc64/10.0/64bit-userland/deprecated,
+  +ppc64/10.0/64bit-userland/desktop/deprecated,
+  +ppc64/10.0/64bit-userland/desktop/gnome/deprecated,
+  +ppc64/10.0/64bit-userland/desktop/kde/deprecated,
+  +ppc64/10.0/64bit-userland/developer/deprecated,
+  +ppc64/10.0/64bit-userland/server/deprecated:
+  Deprecate 10.0 profiles
+
+  18 Jan 2013; Andreas K. Huettel <dilfridge@gentoo.org> ChangeLog:
+  Fix ChangeLog header
+
+  16 Jan 2013; Andreas K. Huettel <dilfridge@gentoo.org>
+  +ppc32/13.0/desktop/eapi, +ppc32/13.0/desktop/gnome/eapi,
+  +ppc32/13.0/desktop/gnome/parent, +ppc32/13.0/desktop/kde/eapi,
+  +ppc32/13.0/desktop/kde/parent, +ppc32/13.0/desktop/parent,
+  +ppc32/13.0/developer/eapi, +ppc32/13.0/developer/parent, +ppc32/13.0/eapi,
+  +ppc32/13.0/parent, +ppc64/13.0/32bit-userland/desktop/eapi,
+  +ppc64/13.0/32bit-userland/desktop/gnome/eapi,
+  +ppc64/13.0/32bit-userland/desktop/gnome/parent,
+  +ppc64/13.0/32bit-userland/desktop/kde/eapi,
+  +ppc64/13.0/32bit-userland/desktop/kde/parent,
+  +ppc64/13.0/32bit-userland/desktop/parent,
+  +ppc64/13.0/32bit-userland/developer/eapi,
+  +ppc64/13.0/32bit-userland/developer/parent, +ppc64/13.0/32bit-userland/eapi,
+  +ppc64/13.0/32bit-userland/parent, +ppc64/13.0/64bit-userland/desktop/eapi,
+  +ppc64/13.0/64bit-userland/desktop/gnome/eapi,
+  +ppc64/13.0/64bit-userland/desktop/gnome/parent,
+  +ppc64/13.0/64bit-userland/desktop/kde/eapi,
+  +ppc64/13.0/64bit-userland/desktop/kde/parent,
+  +ppc64/13.0/64bit-userland/desktop/parent,
+  +ppc64/13.0/64bit-userland/developer/eapi,
+  +ppc64/13.0/64bit-userland/developer/parent, +ppc64/13.0/64bit-userland/eapi,
+  +ppc64/13.0/64bit-userland/parent, +ppc64/13.0/desktop/eapi,
+  +ppc64/13.0/desktop/gnome/eapi, +ppc64/13.0/desktop/gnome/parent,
+  +ppc64/13.0/desktop/kde/eapi, +ppc64/13.0/desktop/kde/parent,
+  +ppc64/13.0/desktop/parent, +ppc64/13.0/developer/eapi,
+  +ppc64/13.0/developer/parent, +ppc64/13.0/eapi, +ppc64/13.0/parent:
+  Copy profile tree 10.0 to 13.0 and adapt inheritance
+

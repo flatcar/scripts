@@ -1,0 +1,5 @@
+# Michael Palimaka <kensington@gentoo.org> (21 Aug 2013)
+# Don't force consolekit on newer KDE versions.
+# It still defaults on in the ebuild, but forcing it can
+# conflict with systemd. See bug #468500.
+<kde-base/kdm-4.11.0 consolekit

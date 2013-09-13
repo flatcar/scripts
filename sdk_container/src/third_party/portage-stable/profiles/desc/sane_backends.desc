@@ -1,6 +1,6 @@
-# Copyright 1999-2009 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/desc/sane_backends.desc,v 1.1 2009/06/24 21:45:51 phosphan Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/desc/sane_backends.desc,v 1.5 2012/10/06 21:46:56 phosphan Exp $
 
 # This file contains descriptions of SANE_BACKENDS USE_EXPAND flags for media-gfx/sane-backends.
 
@@ -43,9 +43,15 @@ hpsj5s - SANE_BACKENDS setting for building the hpsj5s backend
 hpljm1005 - SANE_BACKENDS setting for building the hpljm1005 backend
 hs2p - SANE_BACKENDS setting for building the hs2p backend
 ibm - SANE_BACKENDS setting for building the ibm backend
+kodak - SANE_BACKENDS setting for building the kodak backend
+kodakaio - SANE_BACKENDS setting for building the kodak backend
+kvs1025 - SANE_BACKENDS setting for building the kvs1025 backend
+kvs20xx - SANE_BACKENDS setting for building the kvs20xx backend
+kvs40xx - SANE_BACKENDS setting for building the kvs20xx backend
 leo - SANE_BACKENDS setting for building the leo backend
 lexmark - SANE_BACKENDS setting for building the lexmark backend
 ma1509 - SANE_BACKENDS setting for building the ma1509 backend
+magicolor - SANE_BACKENDS setting for building the magicolor backend
 matsushita - SANE_BACKENDS setting for building the matsushita backend
 microtek - SANE_BACKENDS setting for building the microtek backend
 microtek2 - SANE_BACKENDS setting for building the microtek2 backend
@@ -57,11 +63,13 @@ nec - SANE_BACKENDS setting for building the nec backend
 net - SANE_BACKENDS setting for building the net backend
 niash - SANE_BACKENDS setting for building the niash backend
 nothing - SANE_BACKENDS setting if you want no backend at all
+p5 - SANE_BACKENDS setting for building the p5 backend
 pie - SANE_BACKENDS setting for building the pie backend
 pint - SANE_BACKENDS setting for building the pint backend
 pixma - SANE_BACKENDS setting for building the pixma backend
 plustek - SANE_BACKENDS setting for building the plustek backend
 plustek_pp - SANE_BACKENDS setting for building the plustek_pp backend
+pnm - SANE_BACKENDS settings for building the pnm test backend, considered a possible security risk
 qcam - SANE_BACKENDS setting for building the qcam backend
 ricoh - SANE_BACKENDS setting for building the ricoh backend
 rts8891 - SANE_BACKENDS setting for building the rts8891 backend

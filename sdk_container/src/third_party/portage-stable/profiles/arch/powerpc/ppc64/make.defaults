@@ -1,0 +1,35 @@
+# Copyright 1999-2012 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/ppc64/make.defaults,v 1.10 2012/11/12 15:36:54 floppym Exp $
+
+# All extra USE/etc should be specified in sub-profiles.
+# DO NOT POLLUTE USE ON THIS PROFILE.
+
+ARCH="ppc64"
+ACCEPT_KEYWORDS="${ARCH}"
+
+CHOST="powerpc64-unknown-linux-gnu"
+CFLAGS="-O2 -pipe"
+CXXFLAGS="${CFLAGS}"
+FFLAGS="${CFLAGS}"
+FCFLAGS="${CFLAGS}"
+
+USE="ibm"
+
+MULTILIB_ABIS="ppc64"
+DEFAULT_ABI="ppc64"
+KERNEL_ABI="ppc64"
+PROFILE_ARCH="ppc64"
+ABI="ppc64"
+
+#CFLAGS_ppc64="-m64"
+LDFLAGS_ppc64="-m elf64ppc"
+CHOST_ppc64="powerpc64-unknown-linux-gnu"
+
+CFLAGS_ppc="-m32"
+LDFLAGS_ppc="-m elf32ppc"
+CHOST_ppc="powerpc-unknown-linux-gnu"
+
+# 2006/08/18 - Donnie Berkholz <dberkholz@gentoo.org>
+# Defaults for video drivers
+VIDEO_CARDS="fbdev mach64 mga nv r128 radeon vesa"

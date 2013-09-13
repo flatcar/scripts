@@ -1,0 +1,15 @@
+# Copyright 1999-2012 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/targets/developer/make.defaults,v 1.12 2012/08/12 08:35:59 ssuominen Exp $
+
+# Remove "multilib-strict" for now wrt #424423
+FEATURES="collision-protect sign splitdebug test test-fail-continue userpriv usersandbox"
+
+# Disable branding (from desktop)
+USE="-branding"
+
+# As much as it pains me, we hope that developers know what they're doing.
+I_KNOW_WHAT_I_AM_DOING="yes"
+
+# Log eqawarn messages
+PORTAGE_ELOG_CLASSES="${PORTAGE_ELOG_CLASSES} qa"

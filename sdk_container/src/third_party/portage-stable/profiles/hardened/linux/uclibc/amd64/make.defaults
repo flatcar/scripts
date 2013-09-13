@@ -1,0 +1,12 @@
+# Copyright 1999-2012 Gentoo Foundation.
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/uclibc/amd64/make.defaults,v 1.3 2012/10/08 17:57:51 blueness Exp $
+
+ARCH="amd64"
+ACCEPT_KEYWORDS="${ARCH}"
+
+CHOST="x86_64-gentoo-linux-uclibc"
+CFLAGS="-O2 -pipe"
+CXXFLAGS="${CFLAGS}"
+FFLAGS="${CFLAGS}"
+FCFLAGS="${CFLAGS}"

@@ -1,6 +1,6 @@
-# Copyright 2007 Gentoo Foundation.
+# Copyright 2007-2012 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/desc/lcd_devices.desc,v 1.8 2009/06/08 15:14:51 rbu Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/desc/lcd_devices.desc,v 1.9 2012/05/07 09:43:35 pacho Exp $
 
 # This file contains descriptions of LCD_DEVICES USE_EXPAND flags.
 
@@ -38,6 +38,7 @@ lph7508 - Add support for the Pollin LPH7508
 luise - Add support for the Wallbraun Electronics LCD-USB-Interface to Hitachi SP14Q002
 m50530 - Add support for M50530 and compatible displays
 md8800 - Add support for the VFD of the Medion MD8800 PC
+mdm166a - Add support for the Futaba / Targa USB Graphic Vacuum Fluorescent Display
 milfordbpk - Add support for Milford Instruments BPK serial interface board for HD44780
 ms6931 - Add support for MSI-6931 displays in MSI rack servers
 mtcs16209x - Add support for MTC_S16209x displays
@@ -51,6 +52,7 @@ png - Add support for PNG output
 ppm - Add support for PNG output
 pyramid - Add support for the Pyramid LCD device
 routerboard - Add support for the Router Board LCD port
+SureElec - Add support drivers from the 'SURE electronics' shop
 sed1330 - Add support for Seiko Epson SED1330/1335 graphical displays (S1D13300/S1D13305)
 sed1520 - Add support for the Seiko Epson SED1520 Controller
 serdisplib - Meta-driver to support drivers via dev-libs/serdisplib

@@ -1,0 +1,65 @@
+# Copyright 1999-2013 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/package.use.mask,v 1.43 2013/08/10 15:12:22 blueness Exp $
+
+# Anthony G. Basile <blueness@gentoo.org> (10 Aug 2013)
+# mask php and mono bindings pending more testing
+=dev-libs/xapian-bindings-1.3.1 php mono
+
+# Pacho Ramos (02 Apr 2013)
+# brasero-3.4 was removed.
+=media-sound/rhythmbox-2.97 cdr
+
+# Diego Elio Pettenò (27 Aug 2012)
+# The libpci access is only used for linux.
+net-analyzer/net-snmp -pci
+
+# Richard Yao <ryao@gentoo.org> (22 August 2012)
+# USE=kernel-builtin is dangerous. Only those that know what they are doing
+# should use it until documentation improves.
+sys-fs/zfs kernel-builtin
+
+# Diego Elio Pettenò (20 Aug 2012)
+# The prevent-removal USE flag is only implemented for Linux.
+sys-auth/pam_mktemp -prevent-removal
+
+sys-devel/gcc hardened
+sys-libs/glibc hardened
+
+# Anthony G. Basile <blueness@gentoo.org> (23 Jul 2012)
+# USE=system-libs is potentially unreliable and insecure
+# Bug #426798
+app-backup/spideroak-bin system-libs
+
+# Samuli Suominen <ssuominen@gentoo.org> (30 Apr 2012)
+# This is replaced by native CONFIG_INOTIFY_USER support wrt #413403
+=dev-libs/glib-2* fam
+
+# Samuli Suominen <ssuominen@gentoo.org (20 Mar 2012)
+# This is masked in base/package.use.mask as Linux only.
+sys-auth/consolekit -acl
+
+# Samuli Suominen <ssuominen@gentoo.org> (10 Jan 2012)
+# Masked in base/package.use.mask as Linux -only feature
+app-arch/libarchive -e2fsprogs
+
+# Diego E. Pettenò <flameeyes@gentoo.org> (20 Aug 2009)
+#
+# Mask oss USE flag for PulseAudio; it's present for compatibility
+# with FreeBSD and other operating systems that have no better
+# interfaces, but people would probably abuse it with Linux as well.
+#
+# Older versions also had an OSS compatibility wrapper on that USE so
+# they are excluded.
+>=media-sound/pulseaudio-0.9.16_rc5 oss
+
+# Diego E. Pettenò <flameeyes@gentoo.org> (9 Mar 2011)
+#
+# Mask usb USE flag for newest PCSC-Lite, since on Linux we want to
+# use libudev instead.
+>=sys-apps/pcsc-lite-1.7.0 usb
+
+# Diego E. Pettenò <flameeyes@gentoo.org> (27 Mar 2011)
+#
+# Unmask pdnsd's Linux-specific USE flags.
+net-dns/pdnsd -isdn -urandom

@@ -1,0 +1,10 @@
+# Copyright 2010-2012 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/mips/mipsel/mips64el/n32/make.defaults,v 1.3 2013/07/28 02:41:59 mattst88 Exp $
+
+PROFILE_ARCH="mips64el"
+
+CHOST="mips64el-unknown-linux-gnu"
+
+DEFAULT_ABI="n32"
+ABI="${DEFAULT_ABI}"

@@ -1,0 +1,28 @@
+# ChangeLog for the default/linux/mips profile directory
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/mips/ChangeLog,v 1.3 2013/02/09 12:23:24 dilfridge Exp $
+
+  09 Feb 2013; Andreas K. Huettel <dilfridge@gentoo.org> +10.0/deprecated,
+  +10.0/mipsel/deprecated, +10.0/mipsel/multilib/deprecated,
+  +10.0/mipsel/multilib/n32/deprecated, +10.0/mipsel/multilib/n64/deprecated,
+  +10.0/mipsel/n32/deprecated, +10.0/mipsel/n64/deprecated,
+  +10.0/multilib/deprecated, +10.0/multilib/n32/deprecated,
+  +10.0/multilib/n64/deprecated, +10.0/n32/deprecated, +10.0/n64/deprecated:
+  Deprecate 10.0 profiles
+
+  18 Jan 2013; Andreas K. Huettel <dilfridge@gentoo.org> ChangeLog:
+  Fix ChangeLog header
+
+  16 Jan 2013; Andreas K. Huettel <dilfridge@gentoo.org> +13.0/desktop/eapi,
+  +13.0/desktop/parent, +13.0/developer/eapi, +13.0/developer/parent,
+  +13.0/eapi, +13.0/mipsel/desktop/parent, +13.0/mipsel/developer/parent,
+  +13.0/mipsel/multilib/n32/parent, +13.0/mipsel/multilib/n64/parent,
+  +13.0/mipsel/multilib/parent, +13.0/mipsel/n32/desktop/parent,
+  +13.0/mipsel/n32/developer/parent, +13.0/mipsel/n32/parent,
+  +13.0/mipsel/n64/desktop/parent, +13.0/mipsel/n64/developer/parent,
+  +13.0/mipsel/n64/parent, +13.0/mipsel/parent, +13.0/multilib/n32/parent,
+  +13.0/multilib/n64/parent, +13.0/multilib/parent, +13.0/n32/desktop/parent,
+  +13.0/n32/developer/parent, +13.0/n32/parent, +13.0/n64/desktop/parent,
+  +13.0/n64/developer/parent, +13.0/n64/parent, +13.0/parent:
+  Copy profile tree 10.0 to 13.0 and adapt inheritance
+

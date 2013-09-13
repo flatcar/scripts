@@ -1,0 +1,16 @@
+# Copyright 1999-2013 Gentoo Foundation.
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/uclibc/mips/make.defaults,v 1.4 2013/08/03 21:18:24 blueness Exp $
+
+ARCH="mips"
+ACCEPT_KEYWORDS="${ARCH} ~${ARCH}"
+
+CHOST="mips-gentoo-linux-uclibc"
+CFLAGS="-O2 -pipe"
+CXXFLAGS="${CFLAGS}"
+FFLAGS="${CFLAGS}"
+FCFLAGS="${CFLAGS}"
+
+DEFAULT_ABI="o32"
+ABI="${DEFAULT_ABI}"
+LIBDIR_o32="lib"

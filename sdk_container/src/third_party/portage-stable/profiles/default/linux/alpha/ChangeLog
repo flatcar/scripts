@@ -1,0 +1,53 @@
+# ChangeLog for the default/linux/alpha profile directory
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/alpha/ChangeLog,v 1.11 2013/02/09 10:59:00 dilfridge Exp $
+
+  09 Feb 2013; Andreas K. Huettel <dilfridge@gentoo.org> +10.0/deprecated,
+  +10.0/desktop/deprecated, +10.0/desktop/gnome/deprecated,
+  +10.0/desktop/kde/deprecated, +10.0/developer/deprecated,
+  +10.0/server/deprecated:
+  Deprecate 10.0 profiles
+
+  18 Jan 2013; Andreas K. Huettel <dilfridge@gentoo.org> ChangeLog:
+  Fix ChangeLog header
+
+  16 Jan 2013; Andreas K. Huettel <dilfridge@gentoo.org> -13.0/server/eapi,
+  -13.0/server/parent:
+  Remove server profiles as per mailing list discussion
+
+  15 Jan 2013; Andreas K. Huettel <dilfridge@gentoo.org> +13.0/desktop/eapi,
+  +13.0/desktop/gnome/eapi, +13.0/desktop/gnome/parent, +13.0/desktop/kde/eapi,
+  +13.0/desktop/kde/parent, +13.0/desktop/parent, +13.0/developer/eapi,
+  +13.0/developer/parent, +13.0/eapi, +13.0/parent, +13.0/server/eapi,
+  +13.0/server/parent, +13.0/use.mask:
+  Copy profile tree 10.0 to 13.0 and adapt inheritance
+
+  09 Aug 2011; Samuli Suominen <ssuominen@gentoo.org> -2008.0/deprecated,
+  -2008.0/desktop/deprecated, -2008.0/desktop/make.defaults,
+  -2008.0/desktop/parent, -2008.0/developer/deprecated,
+  -2008.0/developer/parent, -2008.0/parent, -2008.0/server/deprecated,
+  -2008.0/server/parent:
+  Remove 2008.0 profile.
+
+  10 Nov 2008; Raúl Porcel <armin76@gentoo.org> -package.use.mask:
+  Punt package.use.mask, this goes to arch/alpha
+
+  09 Nov 2008; Tobias Klausmann <klausman@gentoo.org> package.use.mask:
+  Mask dxr3 USE flag for mplayer due to lack of hardware for testing
+
+  17 Sep 2008; Jose Luis Rivero <yoswink@gentoo.org>
+  -2008.0/no-nptl/deprecated, -2008.0/no-nptl/package.mask,
+  -2008.0/no-nptl/parent:
+  Remove the deprecated 2008/no-nptl profile
+
+  19 Aug 2008; Jose Luis Rivero <yoswink@gentoo.org>
+  2008.0/no-nptl/package.mask:
+  package mask gcc-4.3 since it needs >=glibc-2.6
+
+  13 Aug 2008; Raúl Porcel <armin76@gentoo.org>
+  +2008.0/no-nptl/package.mask:
+  P.mask iproute2 on no-nptl profile
+
+  11 Aug 2008; Raúl Porcel <armin76@gentoo.org> +2008.0/no-nptl/deprecated:
+  Deprecate the no-nptl profile
+

@@ -1,0 +1,52 @@
+# Copyright 1999-2013 Gentoo Foundation.
+# Distributed under the terms of the GNU General Public License, v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64-fbsd/use.mask,v 1.18 2013/09/05 10:08:25 mgorny Exp $
+
+# Unmask the flag which corresponds to ARCH.
+-amd64-fbsd
+
+-3dnow
+-3dnowext
+-mmx
+-mmxext
+-sse
+-sse2
+-sse3
+-sse4
+-sse4a
+-ssse3
+
+# nvidia drivers works on x86
+-xvmc
+-nvidia
+-video_cards_nvidia
+
+# Unmask vmware drivers
+#-video_cards_vmware
+-input_devices_vmmouse
+
+# Diablo Latte and Caffe (JRE and JDK) works here
+-java
+
+# Other
+
+# Alexandre Rostovtsev <tetromino@gentoo.org> (09 Dec 2012)
+# Orc optimisations work fine on amd64 and x86
+-orc
+
+# Alexandre Rostovtsev <tetromino@gmail.com> (16 Jul 2012)
+# Only python:2.7 and :3.2 are keyworded on this arch
+python_targets_python2_6
+python_single_target_python2_6
+
+# Diego Elio Pettenò <flameeyes@gentoo.org> (21 Aug 2012)
+# IPMI is only implemented for x86, amd64 and ia64
+-ipmi
+
+# Multilib ABIs
+-abi_x86_32
+-abi_x86_64
+
+# Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (22 Aug 2013)
+# virtual/opencl is not keyworded
+opencl

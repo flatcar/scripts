@@ -1,0 +1,36 @@
+# ChangeLog for the default/linux/amd64 profile directory
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/amd64/ChangeLog,v 1.6 2013/08/07 22:11:07 mgorny Exp $
+
+  07 Aug 2013; Michał Górny <mgorny@gentoo.org> 13.0/use.mask,
+  13.0/use.stable.mask:
+  PyPy 1.9 is going masked for removal. Bug #480070.
+
+  09 Feb 2013; Andreas K. Huettel <dilfridge@gentoo.org> +10.0/deprecated,
+  +10.0/desktop/deprecated, +10.0/desktop/gnome/deprecated,
+  +10.0/desktop/kde/deprecated, +10.0/developer/deprecated,
+  +10.0/no-multilib/deprecated, +10.0/selinux/deprecated,
+  +10.0/server/deprecated, +10.0/x32/deprecated:
+  Deprecate 10.0 profiles
+
+  20 Jan 2013; Michał Górny <mgorny@gentoo.org> 13.0/eapi, +13.0/use.mask,
+  +13.0/use.stable.mask:
+  Unmask pypy for ~amd64, mask for stable amd64.
+
+  18 Jan 2013; Andreas K. Huettel <dilfridge@gentoo.org> ChangeLog:
+  Fix ChangeLog header
+
+  16 Jan 2013; Andreas K. Huettel <dilfridge@gentoo.org> -13.0/server/eapi,
+  -13.0/server/parent:
+  Remove 13.0 server profiles as per mailing list discussion
+
+  15 Jan 2013; Andreas K. Huettel <dilfridge@gentoo.org> +13.0/desktop/eapi,
+  +13.0/desktop/gnome/eapi, +13.0/desktop/gnome/parent, +13.0/desktop/kde/eapi,
+  +13.0/desktop/kde/parent, +13.0/desktop/parent, +13.0/developer/eapi,
+  +13.0/developer/make.defaults, +13.0/developer/parent, +13.0/eapi,
+  +13.0/no-multilib/eapi, +13.0/no-multilib/parent, +13.0/parent,
+  +13.0/selinux/eapi, +13.0/selinux/parent, +13.0/server/eapi,
+  +13.0/server/parent, +13.0/x32/eapi, +13.0/x32/make.defaults,
+  +13.0/x32/parent:
+  Copy profile tree 10.0 to 13.0 and adapt inheritance
+

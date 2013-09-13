@@ -1,0 +1,88 @@
+# ChangeLog for profiles/prefix
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/ChangeLog,v 1.396 2013/09/05 18:09:57 mgorny Exp $
+
+  05 Sep 2013; Michał Górny <mgorny@gentoo.org> package.mask:
+  Remove obsolete Python 3 mask.
+
+  29 Aug 2013; Jonathan Callen <jcallen@gentoo.org> packages:
+  Remove openrc from packages, not used in prefix (bug 482854)
+
+  16 Jul 2013; Fabian Groffen <grobian@gentoo.org> -linux/amd64/deprecated:
+  remove deprecated file for linux/amd64, it breaks the profile
+
+  16 Jul 2013; Fabian Groffen <grobian@gentoo.org> +linux/amd64/deprecated:
+  Override deprecated message (test) for amd64 to avoid users switching to a
+  non-prefix profile
+
+  19 Jun 2013; Christoph Junghans <ottxor@gentoo.org> darwin/package.mask:
+  drop sys-apps/findutils mask, bug #469206 was fixed
+
+  18 Jun 2013; Fabian Groffen <grobian@gentoo.org> darwin/package.mask:
+  Mask sys-apps/findutils-4.5.11 on Darwin for bug #469206
+
+  13 Jun 2013; Ulrich Müller <ulm@gentoo.org> darwin/macos/10.4/x86/use.mask,
+  darwin/macos/10.5/ppc/package.use.mask, darwin/macos/10.5/x64/use.mask,
+  darwin/macos/10.5/x86/use.mask, darwin/macos/10.6/x64/use.mask,
+  darwin/macos/10.6/x86/use.mask, darwin/macos/10.7/x64/use.mask,
+  darwin/macos/10.7/x86/use.mask, darwin/macos/10.8/x64/use.mask,
+  darwin/macos/10.8/x86/use.mask, darwin/package.use.mask:
+  Remove mask for real USE flag because the flag is gone, bug 473206.
+
+  06 Jun 2013; Christoph Junghans <ottxor@gentoo.org>
+  linux/amd64/make.defaults:
+  removed misleading DEFAULT_ABI (bug #471079#c12)
+
+  30 May 2013; Michał Górny <mgorny@gentoo.org> darwin/make.defaults:
+  Drop stale ALSA_PCM_PLUGINS from USE_EXPAND. Bug #471792.
+
+  16 May 2013; Ulrich Müller <ulm@gentoo.org>
+  darwin/macos/10.5/ppc/package.use.mask, darwin/package.use.mask:
+  Remove win32codecs from package.use.mask for mplayer, bug 468406.
+
+  07 May 2013; Fabian Groffen <grobian@gentoo.org> sunos/solaris/package.mask:
+  Mask app-portage/portage-utils-0.30 due to gnulib statat bug
+
+  07 May 2013; Fabian Groffen <grobian@gentoo.org> package.mask:
+  Latest findutils fixed for Prefix, so unmask again, bug #468786
+
+  06 May 2013; Fabian Groffen <grobian@gentoo.org> package.mask:
+  Mask latest findutils due to guaranteed fail to install in Prefix, bug
+  #468786
+
+  03 May 2013; Fabian Groffen <grobian@gentoo.org> package.mask:
+  Adjust mask such that baselayout-prefix-2.2 becomes available, a quantum leap
+  we should take
+
+  23 Apr 2013; Fabian Groffen <grobian@gentoo.org> darwin/package.mask:
+  Unmask dev-util/cmake-2.8.10.2 now I've fixed it
+
+  20 Apr 2013; Fabian Groffen <grobian@gentoo.org> make.defaults:
+  Drop PYTHON_TARGETS we can only append, not remove (which is the only thing
+  which would fix something here)
+
+  05 Mar 2013; Christoph Junghans <ottxor@gentoo.org> darwin/package.mask:
+  unmask povray on darwin
+
+  26 Feb 2013; Fabian Groffen <grobian@gentoo.org>
+  darwin/macos/10.5/make.defaults, darwin/macos/10.6/make.defaults,
+  darwin/macos/10.7/make.defaults, darwin/macos/10.8/make.defaults:
+  Disable sandbox on OSX again, due to #456234, #443444 (vcs eclass problems)
+
+  02 Feb 2013; Fabian Groffen <grobian@gentoo.org> aix/use.mask, bsd/use.mask,
+  darwin/macos/10.4/x86/use.mask, darwin/macos/10.5/x64/use.mask,
+  darwin/macos/10.5/x86/use.mask, darwin/macos/10.6/x64/use.mask,
+  darwin/macos/10.6/x86/use.mask, darwin/macos/10.7/x64/use.mask,
+  darwin/macos/10.7/x86/use.mask, darwin/macos/10.8/x64/use.mask,
+  darwin/macos/10.8/x86/use.mask, darwin/use.mask, hpux/use.mask,
+  mint/use.mask, sunos/use.mask:
+  move cman clvm masks up to system level, bug #452848
+
+  03 Jan 2013; Fabian Groffen <grobian@gentoo.org> darwin/package.mask:
+  Extend cmake mask, bug #445308
+
+  01 Jan 2013; Andreas K. Huettel <dilfridge@gentoo.org> +ChangeLog-2012:
+  Split ChangeLog.
+
+  For previous entries, please see ChangeLog-2012.
+

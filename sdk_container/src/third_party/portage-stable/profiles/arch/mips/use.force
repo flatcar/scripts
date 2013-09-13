@@ -1,0 +1,6 @@
+# Copyright 2008 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/mips/use.force,v 1.2 2013/07/28 02:41:57 mattst88 Exp $
+
+# Force the flag which corresponds to ARCH.
+mips

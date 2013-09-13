@@ -15,7 +15,6 @@ move xfce-extra/xarchiver app-arch/xarchiver
 move gnome-extra/zim x11-misc/zim
 move xfce-extra/xfmedia media-video/xfmedia
 slotmove x11-libs/openmotif 2.1 0
-slotmove x11-libs/openmotif 2.2 0
 slotmove x11-libs/openmotif 2.3 0
 slotmove x11-libs/lesstif 2.1 0
 move app-doc/chmlib dev-libs/chmlib

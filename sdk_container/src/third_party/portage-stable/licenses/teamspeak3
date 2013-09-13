@@ -1,5 +1,5 @@
-TeamSpeak 3.x End User License Agreement
-Revised: December 1st, 2009
+TeamSpeak 3.x - End User License Agreement
+Revised: February 2nd, 2010
 
 THIS IS A LEGAL AGREEMENT between "you", the individual, company, or
 organization utilizing TeamSpeak brand software, TeamSpeak Systems GmbH,
@@ -226,17 +226,22 @@ by Triton CI & Associates, Inc. to determine the best course of action
 when correcting or modifying an invoice.
 i. ATHPs acknowledge that slot count data for each Virtual Server hosted
 by the ATHP is reported daily to TeamSpeak Systems GmbH's tracking
-server located at webpost.teamspeak.org (IP 62.146.63.82) for the
+server located at accounting.teamspeak.com (IP 62.146.63.84) for the
 purpose of tracking and billing the ATHP accordingly.
 j. ATHPs may not utilize firewalls or any other tools to prevent
 communication from their licensed Virtual Servers to TeamSpeak Systems
-GmbH's tracking server located at webpost.teamspeak.org (IP
-62.146.63.82). All outbound traffic, both TCP and UDP, must be made
+GmbH's tracking server located at accounting.teamspeak.com (IP
+62.146.63.84). All outbound traffic, both TCP and UDP, must be made
 available to the tracking server AND the organization must ensure that
 DNS is functioning properly and is able to resolve the hostname
-webpost.teamspeak.org at all times on all physical machines where
+accounting.teamspeak.com at all times on all physical machines where
 Virtual Servers are being hosted.
-h. ATHPs may allow resellers to sell their TeamSpeak Virtual Servers;
+k. ATHPs may not alter each individual Virtual Server's slot count on a
+daily basis (e.g. - via an automated script or third party utility) in
+order to deliberately or otherwise alter the daily slot count
+configuration data which is reported to TeamSpeak Systems GmbH's
+tracking server located at accounting.teamspeak.com (IP 62.146.63.84).
+l. ATHPs may allow resellers to sell their TeamSpeak Virtual Servers;
 however, the ATHP must ensure that all of their Virtual Server IPs are
 licensed at all times. Resellers are not required to register and
 purchase a separate ATHP license for themselves as long as all Virtual

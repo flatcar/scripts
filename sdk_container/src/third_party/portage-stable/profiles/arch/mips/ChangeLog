@@ -1,0 +1,478 @@
+# ChangeLog for Gentoo/MIPS profile directory
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/mips/ChangeLog,v 1.121 2013/09/02 07:02:22 pinkbyte Exp $
+
+  02 Sep 2013; Sergey Popov <pinkbyte@gentoo.org> package.use.mask:
+  Mask webp USE-flag on media-libs/leptonica and app-text/tesseract, not tested
+
+  22 Aug 2013; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> use.mask:
+  Mask opencl flag due to lack of virtual/opencl keywording.
+
+  15 Aug 2013; Tom Wijsman <TomWij@gentoo.org> package.mask:
+  =sys-kernel/gentoo-sources-3.4.58: Broken due to not building patches that
+  upstream slipped through.
+
+  30 Jul 2013; Matt Turner <mattst88@gentoo.org> mips64/multilib/make.defaults,
+  mipsel/mips64el/multilib/make.defaults:
+  Unhide ABI_MIPS.
+
+  29 Jul 2013; Matt Turner <mattst88@gentoo.org>
+  +mips64/multilib/n32/use.force, +mips64/multilib/n64/use.force,
+  +mips64/multilib/o32/use.force, +mips64/multilib/use.mask,
+  +mipsel/mips64el/multilib/n32/use.force,
+  +mipsel/mips64el/multilib/n64/use.force,
+  +mipsel/mips64el/multilib/o32/use.force, +mipsel/mips64el/multilib/use.mask:
+  Mask/force ABI flags on multilib profiles.
+
+  10 Jul 2013; Anthony G. Basile <blueness@gentoo.org> use.mask:
+  Unmask USE=emacs, bug #476160
+
+  16 Jun 2013; Markos Chandras <hwoarang@gentoo.org> package.mask:
+  Mask openssl-1.0.1e-r1 per #469976
+
+  28 May 2013; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  package.use.mask:
+  Mask r600-llvm-compiler flag for mesa.
+
+  28 May 2013; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> use.mask:
+  Mask video_cards_radeonsi.
+
+  27 May 2013; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> use.mask:
+  Mask video_cards_ilo.
+
+  06 Feb 2013; Matt Turner <mattst88@gentoo.org> use.mask:
+  un-use.mask mips-only loongson2f USE flag.
+
+  20 Jan 2013; Michał Górny <mgorny@gentoo.org> use.mask:
+  Remove duplicate pypy/jython masks (masked in base profile now).
+
+  18 Jan 2013; Samuli Suominen <ssuominen@gentoo.org> use.mask:
+  Mask USE="cman clvm" because cman and libdlm are not keyworded on this arch.
+
+  09 Dec 2012; Anthony G. Basile <blueness@gentoo.org> package.use.mask:
+  Unmask media-sound/audacity[sbsms] since libsbsms now works, bug #436020
+
+  24 Nov 2012; Mike Gilbert <floppym@gentoo.org> use.mask:
+  Mask python_single_target values not supported on this arch.
+
+  31 Oct 2012; Michał Górny <mgorny@gentoo.org> use.mask:
+  Add a PYTHON_TARGETS mask based on keywords.
+
+  17 Oct 2012; Matt Turner <mattst88@gentoo.org> make.defaults:
+  Add LIBDIR_* definitions to make.defaults for single-ABI profiles.
+
+  29 Sep 2012; Matt Turner <mattst88@gentoo.org> mips64/multilib/make.defaults,
+  mips64/n32/make.defaults, mips64/n64/make.defaults,
+  mipsel/mips64el/multilib/make.defaults, mipsel/mips64el/n32/make.defaults,
+  mipsel/mips64el/n64/make.defaults:
+  Drop LIBDIR_* assignments. They're set by features/multilib.
+
+  28 Sep 2012; Matt Turner <mattst88@gentoo.org> mips64/n64/make.defaults,
+  mipsel/mips64el/n64/make.defaults:
+  Set LIBDIR_n64 in n64 profiles, bug 436468.
+
+  23 Sep 2012; Matt Turner <mattst88@gentoo.org> package.mask:
+  Remove python-3.2 mask, bug 354877.
+
+  18 Jul 2012; Anthony G. Basile <blueness@gentoo.org> use.mask:
+  Un-use mask php
+
+  16 Jul 2012; Anthony G. Basile <blueness@gentoo.org> package.use.mask:
+  Mask net-libs/cyassl[aes-ni] on mips
+
+  04 Jul 2012; Samuli Suominen <ssuominen@gentoo.org> use.mask:
+  Remove obsolete entry for USE="xulrunner" wrt #424617
+
+  14 Jun 2012; Anthony G. Basile <blueness@gentoo.org> package.use.mask:
+  Remove xattr use mask on sys-apps/portage, bug #402215
+
+  09 May 2012; Matt Turner <mattst88@gentoo.org> package.use.mask:
+  Remove taglib's test package.use.mask.
+
+  09 May 2012; Matt Turner <mattst88@gentoo.org> package.use.mask:
+  Remove vte and gtksourceview's glade package.use.mask.
+
+  18 Mar 2012; Matt Turner <mattst88@gentoo.org> use.mask:
+  Remove gstreamer from use.mask
+
+  18 Mar 2012; Samuli Suominen <ssuominen@gentoo.org> use.mask, package.use.mask:
+  Remove mask for USE="esd" because there is no such flag in tree anymore.
+
+  21 Feb 2012; Zac Medico <zmedico@gentoo.org> package.use.mask:
+  Bug #402215: Mask USE=xattr for sys-apps/portage, pending ~mips keyword for
+  dev-python/pyxattr.
+
+  10 Feb 2012; Matt Turner <mattst88@gentoo.org> use.mask:
+  Mask wayland USE flag.
+
+  10 Feb 2012; Matt Turner <mattst88@gentoo.org> use.mask:
+  Mask d3d USE flag.
+
+  10 Feb 2012; Matt Turner <mattst88@gentoo.org> use.mask:
+  Add new video_cards_* to use.mask.
+
+  09 Feb 2012; Matt Turner <mattst88@gentoo.org> arch/mips/package.use.mask:
+  Unmask zbus and paired-single USE flags on mips.
+
+  09 Feb 2012; Matt Turner <mattst88@gentoo.org> package.use.mask:
+  Add 'dev-vcs/git cgi' to package.use.mask.
+
+  01 Nov 2011; Samuli Suominen <ssuominen@gentoo.org> package.use.mask:
+  Remove obsolete entry for media-video/mplayer and USE="v4l2"
+
+  11 Oct 2011; Matt Turner <mattst88@gentoo.org> package.mask:
+  Remove >=baselayout-2.1 from package.mask. (That was quick)
+
+  11 Oct 2011; Matt Turner <mattst88@gentoo.org> package.mask:
+  package.mask >=baselayout-2.1, bug 386821
+
+  09 Oct 2011; Matt Turner <mattst88@gentoo.org> mips64/multilib/make.defaults,
+  mipsel/mips64el/multilib/make.defaults:
+  Add SYMLINK_LIB=no to multilib profiles.
+
+  23 Sep 2011; Matt Turner <mattst88@gentoo.org> use.mask:
+  Remove laptop, glitz, cpufreq, battery from use.mask
+
+  21 Aug 2011; Matt Turner <mattst88@gentoo.org> use.mask:
+  Remove siliconmotion from use.mask. It's now keyworded on mips.
+
+  21 Aug 2011; Matt Turner <mattst88@gentoo.org> use.mask:
+  Remove radeonhd from use.mask. It's gone from the tree.
+
+  21 Aug 2011; Matt Turner <mattst88@gentoo.org> use.mask:
+  Remove mad from use.mask. There are lots of other flags that pull in libmad,
+  so masking one isn't doing to job.
+
+  20 Aug 2011; Matt Turner <mattst88@gentoo.org> use.mask:
+  Remove hal from use.mask. It's masked by base/use.mask now.
+
+  31 Jul 2011; Matt Turner <mattst88@gentoo.org> package.use.mask:
+  mplayer has no 'teletext' USE flag anymore.
+
+  14 Jul 2011; Matt Turner <mattst88@gentoo.org> package.use.mask:
+  Remove 'app-admin/gkrellm ntlm' from package.use.mask now that libntlm is
+  keyworded
+
+  14 Jul 2011; Matt Turner <mattst88@gentoo.org> package.use.mask:
+  Remove 'net-dialup/ppp atm' from package.use.mask. No reason to assume it
+  doesn't work
+
+  14 Jul 2011; Matt Turner <mattst88@gentoo.org> use.mask:
+  Drop ocaml from use.mask now that it's keyworded
+
+  14 Jul 2011; Matt Turner <mattst88@gentoo.org> package.use.mask, use.mask:
+  Remove kerberos from package.use.mask and use.mask
+
+  11 Jul 2011; Matt Turner <mattst88@gentoo.org> use.mask:
+  Add ocamlopt to use.mask
+
+  11 Jul 2011; Matt Turner <mattst88@gentoo.org> use.mask:
+  Add xemacs to use.mask
+
+  10 Jul 2011; Matt Turner <mattst88@gentoo.org> use.mask:
+  Remove policykit from use.mask now that polkit is keyworded, bug 296548
+
+  08 Jul 2011; Matt Turner <mattst88@gentoo.org> package.use.mask:
+  Remove 'dev-perl/Authen-SASL kerberos' from package.use.mask now that
+  dependencies are keyworded'
+
+  08 Jul 2011; Matt Turner <mattst88@gentoo.org> package.use.mask:
+  Remove outdated paludis package.use.mask entries
+
+  28 Jun 2011; Matt Turner <mattst88@gentoo.org> -sys/README,
+  -sys/cobalt/make.defaults, -sys/lemote/lm2e/fulong/make.defaults,
+  -sys/lemote/lm2e/fulong/parent, -sys/lemote/lm2e/parent,
+  -sys/lemote/lm2e/use.force, -sys/lemote/lm2f/parent,
+  -sys/lemote/lm2f/use.force, -sys/lemote/lm2f/yeeloong/make.defaults,
+  -sys/lemote/lm2f/yeeloong/parent, -sys/sgi/ip22/make.defaults,
+  -sys/sgi/ip22/parent, -sys/sgi/ip27/make.defaults, -sys/sgi/ip27/parent,
+  -sys/sgi/ip27/use.force, -sys/sgi/ip28/make.defaults, -sys/sgi/ip28/parent,
+  -sys/sgi/ip28/use.force, -sys/sgi/ip30/make.defaults, -sys/sgi/ip30/parent,
+  -sys/sgi/ip30/use.force, -sys/sgi/ip32/make.defaults, -sys/sgi/ip32/parent,
+  -sys/sgi/ip32/r10k/make.defaults, -sys/sgi/ip32/r10k/parent,
+  -sys/sgi/ip32/r10k/use.force, -sys/sgi/make.defaults:
+  Remove sys/ profiles. They didn't do anything.
+
+  28 Jun 2011; Matt Turner <mattst88@gentoo.org> use.mask:
+  Remove acl from use.mask, bug 372249
+
+  25 Jun 2011; Matt Turner <mattst88@gentoo.org> +mips64/n64/make.defaults,
+  +mipsel/mips64el/n64/make.defaults, -mips64/multilib/n32-n64/use.force,
+  -mips64/multilib/n32-o32/use.force, -mips64/multilib/n32/use.force,
+  -mips64/multilib/n64-n32/use.force, -mips64/multilib/n64-o32/use.force,
+  -mips64/multilib/n64/use.force, -mips64/multilib/o32-n32/use.force,
+  -mips64/multilib/o32-n64/use.force, -mips64/multilib/o32/use.force,
+  -mips64/n32/use.force, -mips64/n64/use.force,
+  -mipsel/mips64el/multilib/n32-n64/use.force,
+  -mipsel/mips64el/multilib/n32-o32/use.force,
+  -mipsel/mips64el/multilib/n32/use.force,
+  -mipsel/mips64el/multilib/n64-n32/use.force,
+  -mipsel/mips64el/multilib/n64-o32/use.force,
+  -mipsel/mips64el/multilib/n64/use.force,
+  -mipsel/mips64el/multilib/o32-n32/use.force,
+  -mipsel/mips64el/multilib/o32-n64/use.force,
+  -mipsel/mips64el/multilib/o32/use.force, -mipsel/mips64el/n32/use.force,
+  -mipsel/mips64el/n64/use.force:
+  Remove use.force files containing n32/n64 USE flags, since these flags aren't
+  used anymore
+
+  14 Jun 2011; Matt Turner <mattst88@gentoo.org> use.mask:
+  use.mask pdfannotextractor
+
+  14 Jun 2011; Matt Turner <mattst88@gentoo.org> package.mask:
+  Remove texlive from package.mask now that bug 342513 is complete
+
+  13 Jun 2011; Matt Turner <mattst88@gentoo.org> package.use.mask:
+  Remove mercurial from package.use.mask now that it's keyworded
+
+  13 Jun 2011; Matt Turner <mattst88@gentoo.org> use.mask:
+  Remove jpeg2k from use.mask now that openjpeg is keyworded
+
+  12 Jun 2011; Matt Turner <mattst88@gentoo.org> package.use.mask:
+  Add 'dev-vcs/mercurial bugzilla' to package.use.mask
+
+  08 Jun 2011; Matt Turner <mattst88@gentoo.org>
+  +mips64/multilib/n32-n64/make.defaults, +mips64/multilib/n32-n64/parent,
+  +mips64/multilib/n32-n64/use.force, +mips64/multilib/n32-o32/make.defaults,
+  +mips64/multilib/n32-o32/parent, +mips64/multilib/n32-o32/use.force,
+  +mips64/multilib/n32/use.force, +mips64/multilib/n64-n32/make.defaults,
+  +mips64/multilib/n64-n32/parent, +mips64/multilib/n64-n32/use.force,
+  +mips64/multilib/n64-o32/make.defaults, +mips64/multilib/n64-o32/parent,
+  +mips64/multilib/n64-o32/use.force, +mips64/multilib/n64/use.force,
+  +mips64/multilib/o32-n32/make.defaults, +mips64/multilib/o32-n32/parent,
+  +mips64/multilib/o32-n32/use.force, +mips64/multilib/o32-n64/make.defaults,
+  +mips64/multilib/o32-n64/parent, +mips64/multilib/o32-n64/use.force,
+  +mips64/multilib/o32/make.defaults, +mips64/multilib/o32/parent,
+  +mips64/multilib/o32/use.force,
+  +mipsel/mips64el/multilib/n32-n64/make.defaults,
+  +mipsel/mips64el/multilib/n32-n64/parent,
+  +mipsel/mips64el/multilib/n32-n64/use.force,
+  +mipsel/mips64el/multilib/n32-o32/make.defaults,
+  +mipsel/mips64el/multilib/n32-o32/parent,
+  +mipsel/mips64el/multilib/n32-o32/use.force,
+  +mipsel/mips64el/multilib/n32/use.force,
+  +mipsel/mips64el/multilib/n64-n32/make.defaults,
+  +mipsel/mips64el/multilib/n64-n32/parent,
+  +mipsel/mips64el/multilib/n64-n32/use.force,
+  +mipsel/mips64el/multilib/n64-o32/make.defaults,
+  +mipsel/mips64el/multilib/n64-o32/parent,
+  +mipsel/mips64el/multilib/n64-o32/use.force,
+  +mipsel/mips64el/multilib/n64/use.force,
+  +mipsel/mips64el/multilib/o32-n32/make.defaults,
+  +mipsel/mips64el/multilib/o32-n32/parent,
+  +mipsel/mips64el/multilib/o32-n32/use.force,
+  +mipsel/mips64el/multilib/o32-n64/make.defaults,
+  +mipsel/mips64el/multilib/o32-n64/parent,
+  +mipsel/mips64el/multilib/o32-n64/use.force,
+  +mipsel/mips64el/multilib/o32/make.defaults,
+  +mipsel/mips64el/multilib/o32/parent,
+  +mipsel/mips64el/multilib/o32/use.force, mips64/multilib/make.defaults,
+  mips64/multilib/use.force, mipsel/mips64el/multilib/make.defaults,
+  mipsel/mips64el/multilib/parent, mipsel/mips64el/multilib/use.force:
+  Add more multilib subprofiles for each possible ABI combination.
+
+  07 Jun 2011; Matt Turner <mattst88@gentoo.org>
+  +mips64/multilib/n32/make.defaults, +mips64/multilib/n32/parent,
+  +mips64/multilib/n64/make.defaults, +mips64/multilib/n64/parent,
+  +mipsel/mips64el/multilib/n32/make.defaults,
+  +mipsel/mips64el/multilib/n32/parent,
+  +mipsel/mips64el/multilib/n64/make.defaults,
+  +mipsel/mips64el/multilib/n64/parent, mips64/multilib/make.defaults,
+  mips64/multilib/parent, mipsel/mips64el/multilib/make.defaults:
+  Add multilib/n{32,64} subprofiles to specify default ABI for multilib
+  installations.
+
+  20 May 2011; Kacper Kowalik <xarthisius@gentoo.org> package.use.mask:
+  Mask net-nds/ypbind[debug] as dev-libs/dmalloc is not keyworded
+
+  09 May 2011; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  use.mask:
+  Mask video_cards_nouveau, bug #364027.
+
+  30 Apr 2011; Ulrich Mueller <ulm@gentoo.org> -virtuals:
+  Remove old-style virtual/linux-sources, bug 118442.
+
+  14 Apr 2011; Ulrich Mueller <ulm@gentoo.org> virtuals:
+  Remove old-style virtual/os-headers, bug 358999.
+
+  10 Apr 2011; Ulrich Mueller <ulm@gentoo.org> -sys/cobalt/virtuals:
+  Remove old-style virtual/bootloader, bug 359971.
+
+  07 Apr 2011; Mart Raudsepp <leio@gentoo.org> use.mask:
+  Mask policykit global USE flag on mips for now, to get other keywording going
+  first
+
+  01 Apr 2011; Ulrich Mueller <ulm@gentoo.org> -packages:
+  Remove virtual/bootloader from system set, with permission from mattst88,
+  bug 359971. Remove then empty file.
+
+  31 Mar 2011; Mart Raudsepp <leio@gentoo.org> package.use.mask:
+  Add x11-libs/vte to glade USE mask list
+
+  19 Mar 2011; Samuli Suominen <ssuominen@gentoo.org> virtuals:
+  Remove virtual/alsa.
+
+  18 Mar 2011: Mike Frysinger <vapier@gentoo.org> mips64/multilib/make.defaults,
+  mipsel/mips64el/multilib/make.defaults:
+  Drop CDEFINE_<abi> variables now that nothing uses them.
+
+  04 Mar 2011; Matt Turner <mattst88@gentoo.org> package.use.mask:
+  Drop net-firewall/iptables[netlink], per bug 354309
+
+  21 Feb 2011; Matt Turner <mattst88@gentoo.org> make.defaults:
+  Remove -unicode from USE. No one remembers why it was there
+
+  18 Feb 2011; Matt Turner <mattst88@gentoo.org> +mips64/n32/make.defaults,
+  +mipsel/mips64el/n32/make.defaults:
+  Add make.defaults to n32 profiles to set LIBDIR to the correct location.
+
+  15 Feb 2011; Matt Turner <mattst88@gentoo.org> make.defaults:
+  Added -openmp to default MIPS USE flags.
+
+  27 Dec 2010; Matt Turner <mattst88@gentoo.org> package.use.mask:
+  Add 'media-gfx/imagemagick raw' package.use.mask
+
+  26 Dec 2010; Matt Turner <mattst88@gentoo.org> package.use.mask:
+  Add 'www-client/elinks javascript' package.use.mask
+
+  14 Dec 2010; Matt Turner <mattst88@gentoo.org> use.mask:
+  use.mask llvm.
+
+  14 Dec 2010; Matt Turner <mattst88@gentoo.org> use.mask:
+  use.mask ocaml.
+
+  14 Dec 2010; Matt Turner <mattst88@gentoo.org> use.mask:
+  use.mask smi.
+
+  14 Dec 2010; Matt Turner <mattst88@gentoo.org> use.mask:
+  use.mask bluetooth.
+
+  14 Dec 2010; Matt Turner <mattst88@gentoo.org> use.mask:
+  use.mask USE=rpm. Dropping app-arch/rpm keywords.
+
+  07 Dec 2010; Matt Turner <mattst88@gentoo.org> package.use.mask:
+  Added 'dev-perl/Authen-SASL kerberos' to package.use.mask since we don't
+  have dev-perl/GSSAPI keyworded.
+
+  07 Dec 2010; Matt Turner <mattst88@gentoo.org> package.use.mask:
+  Add 'mail-client/mutt tokyocabinet' package.use.mask
+
+  06 Dec 2010; Matt Turner <mattst88@gentoo.org> make.defaults:
+  Add ALSA_CARDS.
+
+  06 Dec 2010; Matt Turner <mattst88@gentoo.org> make.defaults:
+  Add -fortran to default USE.
+
+  06 Dec 2010; Matt Turner <mattst88@gentoo.org> make.defaults:
+  Remove ccache from default FEATURES.
+
+  06 Dec 2010; Matt Turner <mattst88@gentoo.org> use.mask:
+  Remove lm_sensors from use.mask. I've got hardware to test with.
+
+  21 Nov 2010; Ryan Hill <dirtyepic@gentoo.org> use.mask:
+  Mask lpsol USE flag, needs sci-mathematics/glpk.
+
+  13 Nov 2010; Alexis Ballier <aballier@gentoo.org> package.mask:
+  Move TeX Live 2010 package.mask to per-arch package.mask, bug #342513
+
+  04 Oct 2010; Mart Raudsepp <leio@gentoo.org> package.use.mask:
+  Mask glade USE flag for gtksourceview, as no dev-util/glade yet
+
+  27 Sep 2010; Mart Raudsepp <leio@gentoo.org> package.use.mask:
+  package.use.mask some untested samba functionality that also lacks
+  keywording
+
+  21 Sep 2010; Mart Raudsepp <leio@gentoo.org> use.mask:
+  Unmask xcb USE flag
+
+  09 Aug 2010; Kacper Kowalik <xarthisius@gentoo.org> use.mask:
+  Mask cblas-external
+
+  19 Jun 2010; Jonathan Callen <abcd@gentoo.org> package.use.mask:
+  Finish move of dev-util/cvs* to dev-vcs/cvs*
+
+  19 Jun 2010; Jonathan Callen <abcd@gentoo.org> package.use.mask:
+  Duplicate dev-util/cvs* as dev-vcs/cvs* to keep current masks
+
+  13 Mar 2010; Samuli Suominen <ssuominen@gentoo.org> package.mask:
+  Mask libpng-1.4 pending on texlive-core-2009 unmasking.
+
+  27 Jan 2010; Sebastian Pipping <sping@gentoo.org> package.use.mask:
+  Mask use flags bazaar/darcs/mercurial for app-portage/layman
+
+  25 Jan 2010; Alexis Ballier <aballier@gentoo.org> package.mask:
+  Move TeX Live 2009 mask here from global package.mask, remove it once
+  keyworded, bug #300526
+
+  09 Jan 2010; Stuart Longland <redhatter@gentoo.org> -cobalt/make.defaults,
+  -cobalt/parent, -cobalt/virtuals, make.defaults, +mips64/make.defaults,
+  +mips64/n32/parent, +mips64/n32/use.force, +mips64/n64/parent,
+  +mips64/n64/use.force, +mips64/parent, +mipsel/make.defaults,
+  +mipsel/mips64el/make.defaults, +mipsel/mips64el/n32/parent,
+  +mipsel/mips64el/n32/use.force, +mipsel/mips64el/n64/parent,
+  +mipsel/mips64el/n64/use.force, +mipsel/mips64el/parent, +mipsel/parent,
+  package.use.mask, parent, +sys/README, +sys/cobalt/make.defaults,
+  +sys/cobalt/virtuals, +sys/lemote/lm2e/fulong/make.defaults,
+  +sys/lemote/lm2e/fulong/parent, +sys/lemote/lm2e/parent,
+  +sys/lemote/lm2e/use.force, +sys/lemote/lm2f/parent,
+  +sys/lemote/lm2f/use.force, +sys/lemote/lm2f/yeeloong/make.defaults,
+  +sys/lemote/lm2f/yeeloong/parent, +sys/sgi/ip22/make.defaults,
+  +sys/sgi/ip22/parent, +sys/sgi/ip27/make.defaults, +sys/sgi/ip27/parent,
+  +sys/sgi/ip27/use.force, +sys/sgi/ip28/make.defaults,
+  +sys/sgi/ip28/parent, +sys/sgi/ip28/use.force,
+  +sys/sgi/ip30/make.defaults, +sys/sgi/ip30/parent,
+  +sys/sgi/ip30/use.force, +sys/sgi/ip32/make.defaults,
+  +sys/sgi/ip32/parent, +sys/sgi/ip32/r10k/make.defaults,
+  +sys/sgi/ip32/r10k/parent, +sys/sgi/ip32/r10k/use.force,
+  +sys/sgi/make.defaults, use.mask, virtuals:
+  Profile shake-up for MIPS. This adds in all profiles for each supported
+  platform within Gentoo/MIPS. Everything should work as per normal, the
+  profiles have seen some testing, so there shouldn't be too many issues.
+  Fingers crossed, this is the case for everyone, but let me know if it
+  isn't.
+
+  13 Dec 2009; Rémi Cardona <remi@gentoo.org> use.mask:
+  drop "imstt" from VIDEO_CARDS in all profiles
+
+  13 Dec 2009; Rémi Cardona <remi@gentoo.org> use.mask:
+  drop "vga" from VIDEO_CARDS in all profiles
+
+  19 Oct 2009; Alexey Shvetsov <alexxy@gentoo.org> use.mask:
+  Mask graphite use flag on mips
+
+
+  11 Oct 2009; Peter Volkov <pva@gentoo.org> package.use.mask:
+  Masked fontforge USE flag for media-fonts/dejavu until fontforge keyworded
+
+  16 Aug 2009; Rémi Cardona <remi@gentoo.org> use.mask:
+  drop last traces of i810
+
+  12 Mar 2009; Peter Volkov <pva@gentoo.org> use.mask:
+  Added unsupported on mips video_cards (radeonhd and ast) to use.mask.
+
+  03 Mar 2009; Peter Volkov <pva@gentoo.org> use.mask:
+  Masked mpi USE flag, per bug #227631
+
+  10 Nov 2008; Raúl Porcel <armin76@gentoo.org> package.use.mask:
+  Move stuff from default/linux/mips
+
+  05 Nov 2008; Jim Ramsay <lack@gentoo.org> package.use.mask:
+  app-admin/gkrellm may pull in net-libs/libntlm, which is not keyworded
+
+  03 May 2008; Ryan Hill <dirtyepic@gentoo.org> use.mask:
+  Mask various gnome-related USE flags.
+
+  03 May 2008; Ryan Hill <dirtyepic@gentoo.org> use.mask:
+  Mask xulrunner USE flag.
+
+  02 May 2008; <ricmm@gentoo.org> use.mask:
+  Unmask libssh2 USE flag
+
+  10 Apr 2008; Donnie Berkholz <dberkholz@gentoo.org>; make.defaults:
+  Make VIDEO_CARDS defaults a reasonable set instead of every imaginable
+  card.
+
+  10 Apr 2008; Donnie Berkholz <dberkholz@gentoo.org>; use.mask:
+  changing around video_cards_via masking by unmasking only for available
+  arches instead of masking on unavailable.
+

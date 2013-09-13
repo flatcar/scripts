@@ -1,6 +1,6 @@
-# Copyright 1999-2006 Gentoo Foundation.
+# Copyright 1999-2013 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/desc/video_cards.desc,v 1.20 2009/12/21 10:16:16 scarabeus Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/desc/video_cards.desc,v 1.35 2013/05/28 13:23:46 chithanh Exp $
 
 # This file contains descriptions of VIDEO_CARDS USE_EXPAND flags.
 
@@ -14,16 +14,22 @@ cirrus - VIDEO_CARDS setting to build driver for cirrus video cards
 cyrix - VIDEO_CARDS setting to build driver for cyrix video cards
 dummy - VIDEO_CARDS setting to build driver for dummy video cards
 epson - VIDEO_CARDS setting to build driver for epson video cards
+exynos - VIDEO_CARDS setting to build driver for Samsung Exynos video cards
+freedreno - VIDEO_CARDS setting to build reverse-engineered driver for Qualcomm Adreno cards
 fbdev - VIDEO_CARDS setting to build driver for fbdev video cards
 fglrx - VIDEO_CARDS setting to build driver for fglrx video cards
 geode - VIDEO_CARDS setting to build driver for AMD Geode GX and LX video cards
 glint - VIDEO_CARDS setting to build driver for glint video cards
 i128 - VIDEO_CARDS setting to build driver for Number 9 I128 video cards
 i740 - VIDEO_CARDS setting to build driver for Intel i740 video cards
+i915 - VIDEO_CARDS setting to build driver for Intel i915 video cards
+i965 - VIDEO_CARDS setting to build driver for Intel i965 video cards
+ilo - VIDEO_CARDS setting to build unofficial gallium driver for Intel gen6/7 video cards
 impact - VIDEO_CARDS setting to build driver for impact video cards
 intel - VIDEO_CARDS setting to build driver for Intel video cards
 mach64 - VIDEO_CARDS setting to build driver for mach64 video cards
 mga - VIDEO_CARDS setting to build driver for mga video cards
+modesetting - VIDEO_CARDS setting to build driver for unaccelerated modesetting
 neomagic - VIDEO_CARDS setting to build driver for neomagic video cards
 newport - VIDEO_CARDS setting to build driver for newport video cards
 none - VIDEO_CARDS setting to build no drivers (useful when using binary drivers)
@@ -31,9 +37,17 @@ nouveau - VIDEO_CARDS setting to build reverse-engineered driver for nvidia card
 nsc - VIDEO_CARDS setting to build driver for nsc video cards
 nvidia - VIDEO_CARDS setting to build driver for nvidia video cards
 nv - VIDEO_CARDS setting to build driver for nv video cards
+omap - VIDEO_CARDS setting to build DRM driver for TI OMAP video cards
+omapfb - VIDEO_CARDS setting to build framebuffer driver for TI OMAP video cards
+qxl - VIDEO_CARDS setting to build driver for qxl (QEMU virtual GPU)
+r100 - VIDEO_CARDS setting to build only r100 based chips code for radeon
 r128 - VIDEO_CARDS setting to build driver for ATI r128 video cards
+r200 - VIDEO_CARDS setting to build only r200 based chips code for radeon
+r300 - VIDEO_CARDS setting to build only r300, r400 and r500 based chips code for radeon
+r600 - VIDEO_CARDS setting to build only r600, r700, Evergreen and Northern Islands based chips code for radeon
 radeonhd - VIDEO_CARDS setting to build driver for ATI radeon HD video cards (radeon also works)
 radeon - VIDEO_CARDS setting to build driver for ATI radeon video cards
+radeonsi - VIDEO_CARDS setting to build only Southern Islands based chips code for radeon
 rendition - VIDEO_CARDS setting to build driver for rendition video cards
 s3 - VIDEO_CARDS setting to build driver for s3 video cards
 s3virge - VIDEO_CARDS setting to build driver for s3virge video cards

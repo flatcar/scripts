@@ -1,0 +1,150 @@
+# ChangeLog for Gentoo/x86-fbsd profile directory
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64-fbsd/ChangeLog,v 1.49 2013/09/05 10:08:25 mgorny Exp $
+
+  05 Sep 2013; Michał Górny <mgorny@gentoo.org> use.mask:
+  Python 2.5 and 3.1 were removed from the tree.
+
+  27 Aug 2013; Alexis Ballier <aballier@gentoo.org> package.use.mask,
+  todo/package.use.mask:
+  move devhelp usemask to the proper place
+
+  27 Aug 2013; Alexis Ballier <aballier@gentoo.org> package.use.mask,
+  todo/package.use.mask:
+  move gvfs usemasks to the proper file
+
+  22 Aug 2013; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> use.mask:
+  Mask opencl flag due to lack of virtual/opencl keywording.
+
+  16 Aug 2013; Alexis Ballier <aballier@gentoo.org> package.use.mask:
+  remove useless gvfs[gnome-keyring] mask
+
+  16 Aug 2013; Alexis Ballier <aballier@gentoo.org> package.use.mask:
+  unmask nepomuk-core[epub], bug #481092
+
+  14 Aug 2013; Andreas K. Huettel <dilfridge@gentoo.org> package.use.mask:
+  mask ebook support of nepomuk-core until keyworded
+
+  09 Aug 2013; Alexis Ballier <aballier@gentoo.org> package.use.force:
+  force abi_x86_32 on the rest of system packages too
+
+  09 Aug 2013; Alexis Ballier <aballier@gentoo.org> +package.use.force:
+  force abi_x86_32 on fbsd-lib, in preparation for migrating it to the multilib
+  eclasses
+
+  27 Jul 2013; Alexis Ballier <aballier@gentoo.org> make.defaults, use.force,
+  use.mask:
+  add support for multilib eclasses, bug #475294 by Yuta SATOH
+
+  08 Jul 2013; Alexis Ballier <aballier@gentoo.org> make.defaults:
+  Add CFLAGS and LDFLAGS so that gcc finds the needed files and libraries when
+  doing multilib.
+
+  07 Apr 2013; Michael Palimaka <kensington@gentoo.org> -package.mask:
+  Unmask KDE SC 4.10.0 since it is no longer in the tree.
+
+  07 Feb 2013; Alexey Shvetsov <alexxy@gentoo.org> +package.mask:
+  Mask KDE SC 4.10.0 for keywording bug #455960
+
+  07 Feb 2013; Matt Turner <mattst88@gentoo.org> use.mask:
+  Drop sse5 USE flag.
+
+  20 Jan 2013; Michał Górny <mgorny@gentoo.org> use.mask:
+  Remove duplicate pypy/jython masks (masked in base profile now).
+
+  27 Dec 2012; Alexandre Rostovtsev <tetromino@gentoo.org> package.use.mask:
+  Mask devhelp[gedit] until gedit-3.6 is keyworded.
+
+  27 Dec 2012; Alexandre Rostovtsev <tetromino@gentoo.org> package.use.mask:
+  Mask >=gvfs-1.14[gnome-keyring] until app-crypt/libsecret is keyworded.
+
+  09 Dec 2012; Alexandre Rostovtsev <tetromino@gentoo.org> package.use.mask,
+  use.mask:
+  dev-lang/orc is used in many packages, so move orc from package.use.mask to
+  use.mask
+
+  24 Nov 2012; Mike Gilbert <floppym@gentoo.org> use.mask:
+  Mask python_single_target values not supported on this arch.
+
+  31 Oct 2012; Michał Górny <mgorny@gentoo.org> use.mask:
+  Update the PYTHON_TARGETS mask. Pypy1.7 is no longer in the tree, and 1.9 was
+  introduced.
+
+  22 Sep 2012; Alexis Ballier <aballier@gentoo.org> make.defaults:
+  Put 64bits libraries into lib as this is what vanilla FreeBSD does and also
+  other linux distros.
+
+  11 Sep 2012; Alexis Ballier <aballier@gentoo.org> make.defaults:
+  set SYMLINK_LIB=no which is closer to vanilla freebsd
+
+  27 Aug 2012; Diego E. Pettenò <flameeyes@gentoo.org> todo/package.use.mask:
+  Remove libpcap package.use.mask (now uses netlink which is already masked).
+
+  16 Jul 2012; Alexandre Rostovtsev <tetromino@gentoo.org> use.mask:
+  Mask python targets that are not keyworded on amd64-fbsd.
+
+  29 May 2012; Alexis Ballier <aballier@gentoo.org> package.use.mask:
+  mask media-libs/libprojectm[video_cards_nvidia] due to cg not being
+  available. we do it here since we unmask video_cards_nvidia here
+
+  18 May 2012; Alexis Ballier <aballier@gentoo.org> make.defaults:
+  we need to define COMPAT_32BIT when building for x86
+
+  17 May 2012; Alexis Ballier <aballier@gentoo.org> package.use.mask:
+  unmask orc since its fine here
+
+  16 May 2012; Alexis Ballier <aballier@gentoo.org> use.mask:
+  bring back the video_cards_nvidia unmask
+
+  16 May 2012; Alexis Ballier <aballier@gentoo.org> package.use.mask:
+  remove old masks about packages not even keyworded
+
+  16 May 2012; Alexis Ballier <aballier@gentoo.org> package.use.mask:
+  mask nvidia-drivers[multilib] as the package provided by nvidia is not
+  multilib
+
+  16 May 2012; Alexis Ballier <aballier@gentoo.org> use.mask:
+  bring back the input_devices_vmmouse unmask
+
+  11 May 2012; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  todo/package.use.mask:
+  Mask x11-base/xorg-drivers video_cards_modesetting
+
+  11 May 2012; Alexis Ballier <aballier@gentoo.org> use.mask:
+  remove java usemask now that we have diablo
+
+  10 May 2012; Alexis Ballier <aballier@gentoo.org> use.mask:
+  comment out xorg-drivers unmask until they are keyworded
+
+  26 Apr 2012; Alexis Ballier <aballier@gentoo.org> make.defaults:
+  enable mmx, sse and sse2 by default, all 64bits cpus have them
+
+  26 Apr 2012; Alexis Ballier <aballier@gentoo.org> use.mask:
+  leave the java useflag masked for now
+
+  26 Apr 2012; Alexis Ballier <aballier@gentoo.org> +todo/ChangeLog:
+  move the changelog to its own dir not to pollute the real one
+
+  26 Apr 2012; Alexis Ballier <aballier@gentoo.org> +todo/package.use.mask,
+  parent:
+  add a todo dir to mask useflags (per package) when they are missing deps to
+  keep a sane deptree. Mask libffi[test] as it requires dejagnu.
+
+  14 Oct 2011; Mike Frysinger <vapier@gentoo.org> make.defaults:
+  Drop unused ASFLAGS_x86 variable.
+
+  18 Mar 2011: Mike Frysinger <vapier@gentoo.org> make.defaults:
+  Drop CDEFINE_<abi> variables now that nothing uses them.
+
+  07 Mar 2010; Samuli Suominen <ssuominen@gentoo.org> use.mask:
+  Unmask x86_* flags sse3, sse4, sse4a, and sse5.
+
+  13 Dec 2009; Rémi Cardona <remi@gentoo.org> make.defaults:
+  drop "vga" from VIDEO_CARDS in all profiles
+
+  16 Aug 2009; Rémi Cardona <remi@gentoo.org> make.defaults:
+  drop last traces of i810
+
+  11 Mar 2009; Timothy Redaelli <drizzt@gentoo.org> +make.defaults,
+  +package.use.mask, +parent, +use.force, +use.mask:
+  Add amd64-fbsd arch profile; it will be used for freebsd 7.1.

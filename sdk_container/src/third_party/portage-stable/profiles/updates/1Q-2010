@@ -60,3 +60,15 @@ move dev-util/stgit dev-vcs/stgit
 move dev-util/cvsspam dev-vcs/cvsspam
 move dev-util/svnmailer dev-vcs/svnmailer
 move dev-util/git-sh dev-vcs/git-sh
+slotmove >=sys-freebsd/freebsd-lib-7 7.0 0
+move dev-util/darcs dev-vcs/darcs
+slotmove =dev-haskell/quickcheck-1* 0 1
+move x11-misc/googleearth sci-geosciences/googleearth
+move dev-util/git dev-vcs/git
+move dev-util/colorsvn dev-vcs/colorsvn
+move net-misc/anyremote app-mobilephone/anyremote
+move games-arcade/teeworlds games-action/teeworlds
+move x11-misc/xfce4-notifyd xfce-extra/xfce4-notifyd
+move dev-util/cvs2svn dev-vcs/cvs2svn
+slotmove app-admin/bcfg2 1 0
+move kde-misc/plasma-indicatordisplay kde-misc/plasma-widget-message-indicator

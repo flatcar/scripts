@@ -1,6 +1,6 @@
-# Copyright 2007 Gentoo Foundation.
+# Copyright 2007-2010 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/desc/apache2_modules.desc,v 1.2 2008/04/19 09:03:12 hollow Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/desc/apache2_modules.desc,v 1.4 2010/12/02 06:43:07 robbat2 Exp $
 
 # This file contains descriptions of APACHE2_MODULES USE_EXPAND flags.
 
@@ -26,6 +26,8 @@ autoindex - Generates directory indexes, automatically, similar to the Unix ls c
 cache - Content cache keyed to URIs
 cern_meta - CERN httpd metafile semantics
 charset_lite - Specify character set translation or recoding
+cgi - Enable CGI module (used by non-multithreaded MPMs, for eg. prefork)
+cgid - Enable CGI module (used by multithreaded MPMs, for eg. worker)
 dav - Distributed Authoring and Versioning (WebDAV) functionality
 dav_fs - filesystem provider for mod_dav
 dav_lock - generic locking module for mod_dav
@@ -57,7 +59,9 @@ proxy_balancer - mod_proxy extension for load balancing
 proxy_connect - mod_proxy extension for CONNECT request handling
 proxy_ftp - FTP support module for mod_proxy
 proxy_http - HTTP support module for mod_proxy
+proxy_scgi - SCGI gateway module for mod_proxy
 rewrite - Provides a rule-based rewriting engine to rewrite requested URLs on the fly
+reqtimeout - Set timeout and minimum data rate for receiving requests
 setenvif - Allows the setting of environment variables based on characteristics of the request
 speling - Attempts to correct mistaken URLs that users might have entered by ignoring capitalization and by allowing up to one misspelling
 status - Provides information on server activity and performance
