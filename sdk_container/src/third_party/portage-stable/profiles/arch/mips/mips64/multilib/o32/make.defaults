@@ -1,0 +1,7 @@
+# Copyright 2011 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/mips/mips64/multilib/o32/make.defaults,v 1.2 2013/07/28 02:41:58 mattst88 Exp $
+
+MULTILIB_ABIS="n64 n32 o32"
+DEFAULT_ABI="o32"
+ABI="${DEFAULT_ABI}"

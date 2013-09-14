@@ -1,0 +1,21 @@
+# Copyright 1999-2012 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/sh/make.defaults,v 1.3 2012/06/16 11:44:12 jlec Exp $
+
+# Main SuperH profile
+
+ARCH="sh"
+ACCEPT_KEYWORDS="sh"
+
+CHOST="sh-unknown-linux-gnu"
+CFLAGS="-O2"
+CXXFLAGS="${CFLAGS}"
+FFLAGS="${CFLAGS}"
+FCFLAGS="${CFLAGS}"
+
+# Jorge Manuel B. S. Vicetto <jmbsvicetto@gentoo.org> (16 Nov 2011)
+# Rename STAGE1_USE to BOOTSTRAP_USE and stack it to the parent value
+# We need to disable ssp.
+BOOTSTRAP_USE="${BOOTSTRAP_USE} nossp"
+
+USE="nossp"

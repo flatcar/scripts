@@ -1,0 +1,9 @@
+# Zac Medico <zmedico@gentoo.org>
+# must use a prefix profile
+prefix
+
+# Chris PeBenito <pebenito@gentoo.org>
+# must use a SELinux profile
+selinux
+
+emul-linux-x86

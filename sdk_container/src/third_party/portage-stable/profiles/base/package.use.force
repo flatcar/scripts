@@ -1,0 +1,76 @@
+# Copyright 1999-2013 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/base/package.use.force,v 1.41 2013/09/12 13:37:39 flameeyes Exp $
+
+# Michał Gorny <mgorny@gentoo.org> (26 Feb 2013)
+# Meta-packages which use multilib ebuilds always install development
+# headers. The flag is there to satisfy deps only.
+>=app-emulation/emul-linux-x86-xlibs-20130224-r1 development
+
+# Zac Medico <zmedico@gentoo.org> (4 Dec 2012)
+# Force app-shells/bash[readline] in stage1 builds, so that compgen is
+# available for sys-apps/portage (see bug #445576).
+app-shells/bash readline
+
+# Michał Górny <mgorny@gentoo.org> (14 Oct 2012)
+# Force-enable all PYTHON_TARGETS for python-exec to avoid using private
+# API. Please remember to keep it in sync with python_targets.desc.
+dev-python/python-exec python_targets_python2_6 python_targets_python2_7 python_targets_python3_2 python_targets_python3_3 python_targets_jython2_5 python_targets_jython2_7 python_targets_pypy2_0
+
+# Davide Pesavento <pesa@gentoo.org> (12 Sep 2012)
+# Unbundling code needs updates, will be fixed in 2.7
+=dev-qt/qt-creator-2.6* botan-bundled
+
+# Samuli Suominen <ssuominen@gentoo.org> (23 Jan 2012)
+# Forcing enabled while waiting for eselect-notify-send wrt #379941
+x11-libs/libnotify symlink
+
+# Zac Medico <zmedico@gentoo.org> (20 Oct 2010)
+# Force ipc USE flag since it should remain enabled unless
+# it is found to be incompatible with a specific profile
+# or environment. When enabled, it fixes bug #278895,
+# bug #315615, and makes subshell die support more robust
+# (so that repoman's ebuild.nesteddie check is irrelevant).
+sys-apps/portage ipc
+
+# Arfrever Frehtes Taifersar Arahesis <arfrever@gentoo.org>
+# Python should use wide Unicode implementation by default.
+# Switching of "wide-unicode" USE flag changes ABI of Python
+# and requires reinstallation of many Python modules.
+dev-lang/python wide-unicode
+
+# Peter Alfredsen <loki_val@gentoo.org> (11 Apr 2009)
+# Forcing w.r.t. bug 265336. When unicode use-flag is
+# turned off, ABI is broken without a .so bump.
+dev-libs/libpcre unicode
+
+# Diego E. Pettenò <flameeyes@gentoo.org> (14 Jan 2010)
+# List of packages working on a single (non-default) Ruby
+# implementation that cannot, thus, be turned off.
+dev-ruby/bitescript ruby_targets_jruby
+dev-ruby/duby ruby_targets_jruby
+dev-ruby/jruby-debug-base ruby_targets_jruby
+dev-ruby/jruby-openssl ruby_targets_jruby
+=dev-ruby/test-unit-1* ruby_targets_ruby19
+
+# Diego E. Pettenò <flameeyes@gentoo.org> (14 Jan 2010)
+# Multi-version Ruby virtuals for sanity
+~virtual/ruby-ssl-0 ruby_targets_ruby18
+~virtual/ruby-ssl-1 ruby_targets_ruby19
+~virtual/ruby-ssl-2 ruby_targets_jruby
+~virtual/ruby-ssl-3 ruby_targets_ruby20
+~virtual/ruby-rdoc-0 ruby_targets_ruby18
+~virtual/ruby-rdoc-1 ruby_targets_ruby19
+~virtual/ruby-rdoc-2 ruby_targets_jruby
+~virtual/ruby-rdoc-3 ruby_targets_ruby20
+~virtual/ruby-threads-0 ruby_targets_ruby18
+~virtual/ruby-threads-1 ruby_targets_ruby19
+~virtual/ruby-threads-2 ruby_targets_jruby
+~virtual/ruby-threads-3 ruby_targets_ree18
+~virtual/ruby-threads-4 ruby_targets_ruby20
+~virtual/rubygems-1 ruby_targets_ruby18
+~virtual/rubygems-2 ruby_targets_jruby
+~virtual/rubygems-3 ruby_targets_ree18
+~virtual/rubygems-4 ruby_targets_ruby19
+~virtual/rubygems-5 ruby_targets_rbx
+~virtual/rubygems-6 ruby_targets_ruby20

@@ -1,0 +1,15 @@
+# Copyright 1999-2013 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/eapi-5-files/use.stable.mask,v 1.7 2013/08/23 14:13:52 ago Exp $
+
+# This file requires eapi 5 or later. New entries go on top.
+# Please use the same syntax as in use.mask
+
+# Alexandre Rostovtsev <tetromino@gentoo.org> (30 Apr 2013)
+# Remove when Python 3.3 is unmasked and ready for stabilization (bug #467894)
+python_targets_python3_3
+python_single_target_python3_3
+
+# Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (27 Mar 2013
+# wayland is not stable, bug #419473
+wayland

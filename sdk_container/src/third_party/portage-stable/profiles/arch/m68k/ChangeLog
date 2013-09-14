@@ -1,0 +1,87 @@
+# ChangeLog for Gentoo/m68k profile
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/m68k/ChangeLog,v 1.28 2013/08/22 16:07:40 chithanh Exp $
+
+  22 Aug 2013; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> use.mask:
+  Mask opencl flag due to lack of virtual/opencl keywording.
+
+  10 Aug 2013; Ulrich Müller <ulm@gentoo.org> package.use.force:
+  P.use.force app-doc/pms binary because of unkeyworded texlive dependency.
+
+  11 Jul 2013; Mikle Kolyada <zlogene@gentoo.org> package.use.mask:
+  P.use.mask dev-perl/Error test due to unkeyworded dependency
+
+  23 Jan 2013; Raúl Porcel <armin76@gentoo.org> package.use.mask:
+  P.use.mask dev-libs/libpcre jit as it fails to build, unsupported
+  architecture
+
+  20 Jan 2013; Michał Górny <mgorny@gentoo.org> use.mask:
+  Remove duplicate pypy/jython masks (masked in base profile now).
+
+  18 Jan 2013; Samuli Suominen <ssuominen@gentoo.org> use.mask:
+  Mask USE="cman clvm" because cman and libdlm are not keyworded on this arch.
+
+  24 Nov 2012; Mike Gilbert <floppym@gentoo.org> use.mask:
+  Mask python_single_target values not supported on this arch.
+
+  31 Oct 2012; Michał Górny <mgorny@gentoo.org> use.mask:
+  Add a PYTHON_TARGETS mask based on keywords.
+
+  23 Aug 2012; Mike Frysinger <vapier@gentoo.org> -package.mask:
+  Drop old package.mask #423585 by Ryan Hill.
+
+  19 Aug 2012; Raúl Porcel <armin76@gentoo.org> use.mask:
+  Add clang to use.mask, needs testing
+
+  17 Jun 2012; Raúl Porcel <armin76@gentoo.org> use.mask:
+  Use.mask tk
+
+  06 May 2012; Raúl Porcel <armin76@gentoo.org> use.mask:
+  Add systemd to use.mask, needs testing
+
+  08 Apr 2012; Raúl Porcel <armin76@gentoo.org> package.use.mask:
+  Unmask pyxattr
+
+  21 Feb 2012; Zac Medico <zmedico@gentoo.org> package.use.mask:
+  Bug #402215: Mask USE=xattr for sys-apps/portage, pending ~m68k keyword for
+  dev-python/pyxattr.
+
+  18 Sep 2011; Samuli Suominen <ssuominen@gentoo.org> use.mask:
+  Remove obsolete USE="hal" mask.
+
+  23 Jul 2011; Raúl Porcel <armin76@gentoo.org> use.mask:
+  Use.mask nettle
+
+  20 Jul 2011; Ryan Hill <dirtyepic@gentoo.org> package.use.mask:
+  Mask sys-devel/gcc USE graphite and lto due to unkeyworded dependencies.
+
+  31 Mar 2011; Tomáš Chvátal <scarabeus@gentoo.org> package.use.mask:
+  Drop mask on non-existant portage version.
+
+  30 May 2010; Raúl Porcel <armin76@gentoo.org> use.mask:
+  Use.mask latex
+
+  06 Jan 2010; Ulrich Mueller <ulm@gentoo.org> use.mask:
+  Use.mask bash-completion, bug 299051.
+
+  28 Oct 2009; Raúl Porcel <armin76@gentoo.org> use.mask:
+  Use.mask policykit
+
+  27 Oct 2009; Raúl Porcel <armin76@gentoo.org> use.mask:
+  Use.mask autotrace, lqr
+
+  06 Jul 2009; Raúl Porcel <armin76@gentoo.org> use.mask:
+  Add bluetooth to use.mask
+
+  12 Jun 2009; Ulrich Mueller <ulm@gentoo.org> use.mask:
+  Remove paludis from use.mask since the flag is gone.
+
+  21 May 2009; Raúl Porcel <armin76@gentoo.org> use.mask:
+  Use.mask paludis
+
+  10 May 2009; Raúl Porcel <armin76@gentoo.org> use.mask:
+  Add hal to use.mask
+
+  29 Mar 2009; Raúl Porcel <armin76@gentoo.org> use.mask:
+  Add nss to use.mask
+

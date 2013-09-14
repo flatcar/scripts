@@ -1,7 +1,7 @@
 #!/bin/bash
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/scripts/bootstrap.sh,v 1.96 2012/10/23 02:25:23 zmedico Exp $
+# $Header: /var/cvsroot/gentoo-x86/scripts/bootstrap.sh,v 1.97 2013/06/27 21:04:49 zmedico Exp $
 
 # people who were here:
 # (drobbins, 06 Jun 2003)
@@ -52,7 +52,7 @@ v_echo() {
 	env "$@"
 }
 
-cvsver="$Header: /var/cvsroot/gentoo-x86/scripts/bootstrap.sh,v 1.96 2012/10/23 02:25:23 zmedico Exp $"
+cvsver="$Header: /var/cvsroot/gentoo-x86/scripts/bootstrap.sh,v 1.97 2013/06/27 21:04:49 zmedico Exp $"
 cvsver=${cvsver##*,v }
 cvsver=${cvsver%%Exp*}
 cvsyear=${cvsver#* }
@@ -304,10 +304,6 @@ echo ---------------------------------------------------------------------------
 [[ -x /usr/sbin/gcc-config ]] && GCC_CONFIG="/usr/sbin/gcc-config"
 [[ -x /usr/bin/gcc-config  ]] && GCC_CONFIG="/usr/bin/gcc-config"
 
-# Make sure we automatically clean old instances, else we may run
-# into issues, bug #32140.
-export AUTOCLEAN="yes"
-
 # Allow portage to overwrite stuff
 export CONFIG_PROTECT="-*"
 
@@ -350,7 +346,6 @@ if [[ -n ${STRAP_RUN} ]] ; then
 	if [[ -x ${GCC_CONFIG} ]] && ${GCC_CONFIG} --get-current-profile &>/dev/null
 	then
 		# Make sure we get the old gcc unmerged ...
-		emerge --clean || cleanup 1
 		emerge --prune sys-devel/gcc || cleanup 1
 		# Make sure the profile and /lib/cpp and /usr/bin/cc are valid ...
 		${GCC_CONFIG} "$(${GCC_CONFIG} --get-current-profile)" &>/dev/null

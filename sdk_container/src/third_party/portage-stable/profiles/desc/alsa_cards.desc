@@ -1,6 +1,6 @@
-# Copyright 2006 Gentoo Foundation.
+# Copyright 2006-2013 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/desc/alsa_cards.desc,v 1.8 2009/08/13 15:09:23 beandog Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/desc/alsa_cards.desc,v 1.9 2013/04/23 10:15:33 ssuominen Exp $
 
 # This file contains descriptions of ALSA_CARDS USE_EXPAND flags.
 
@@ -37,6 +37,7 @@ azt2320 - Aztech Systems AZT2320
 azt3328 - Aztech AZF3328 / PCI168 (EXPERIMENTAL)
 bt87x - Bt87x Audio Capture
 ca0106 - SB Audigy LS / Live 24bit
+ca0132 - Creative CA0132 (Sound Core3D) HD-audio
 cmi8330 - C-Media CMI8330
 cmipci - C-Media 8738, 8338
 cs4231 - Generic Cirrus Logic CS4231 driver

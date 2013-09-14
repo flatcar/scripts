@@ -1,0 +1,18 @@
+# Copyright 1999-2013 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/targets/desktop/kde/package.use,v 1.5 2013/03/22 22:53:26 dilfridge Exp $
+
+# Required by kde-base/pykde4
+dev-python/PyQt4 script sql webkit
+
+# Required by app-office/akonadi-server
+dev-qt/qtsql mysql
+
+# Required by media-gfx/graphviz which is required by kde-base/kcachegrind
+media-libs/gd fontconfig
+
+# Required by dev-db/virtuoso-server
+sys-libs/zlib minizip
+
+# Not required, but makes life easier with Qt; bug 457934
+app-arch/unzip natspec

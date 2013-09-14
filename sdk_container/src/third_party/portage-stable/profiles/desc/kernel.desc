@@ -1,6 +1,6 @@
-# Copyright 1999-2006 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/desc/kernel.desc,v 1.5 2009/06/21 13:59:48 jer Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/desc/kernel.desc,v 1.6 2011/12/18 09:04:46 grobian Exp $
 
 # This file contains descriptions of KERNEL USE_EXPAND flags.
 
@@ -12,7 +12,6 @@ freemint - KERNEL setting for system using the FreeMiNT kernel
 linux - KERNEL setting for system using the Linux kernel
 HPUX - KERNEL setting for system using the HP-UX kernel
 Interix - KERNEL setting for system using the Interix subsystem (SFU on Windows)
-IRIX - KERNEL setting for system using the SGI IRIX kernel
 NetBSD - KERNEL setting for system using the NetBSD kernel
 OpenBSD - KERNEL setting for system using the OpenBSD kernel
 SunOS - KERNEL setting for system using an SunOS (i.e.: Solaris) kernel

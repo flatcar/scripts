@@ -1,0 +1,12 @@
+# Copyright 1999-2011 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/linux/package.mask,v 1.9 2011/02/07 20:51:37 darkside Exp $
+
+# Jeremy Olexa <darkside@gentoo.org> (07 Feb 2011)
+# Fails while bootstrapping (compiler issue), bug 353630
+=sys-process/procps-3.2.8-r2
+
+# Fabian Groffen <grobian@gentoo.org> (24 Jan 2011)
+# unmask, on Linux this should mostly work
+-=sys-fs/e2fsprogs-1.41.14
+

@@ -1,6 +1,6 @@
 # Copyright 2008 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/desc/netbeans_modules.desc,v 1.2 2009/04/30 07:36:19 fordfrog Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/desc/netbeans_modules.desc,v 1.4 2012/01/06 11:50:29 fordfrog Exp $
 
 # This file contains descriptions of NETBEANS_MODULES USE_EXPAND flags.
 
@@ -16,6 +16,8 @@ ide - enables Netbeans IDE
 identity - enables identity module
 j2ee - enables J2EE development support
 java - enables Java development support
+javacard - enables cluster for JavaCard development
+javafx - enables JavaFX development support
 mobility - enables support for development of mobile applications
 nb - enables Netbeans branding
 php - enables PHP development support

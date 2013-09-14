@@ -1,0 +1,42 @@
+# ChangeLog for Gentoo/AMD64 profile directory
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/ChangeLog,v 1.8 2013/08/03 21:18:24 blueness Exp $
+
+  03 Aug 2013; Anthony G. Basile <blueness@gentoo.org>
+  linux/uclibc/mips/make.defaults:
+  linux/uclibc/mips/make.defaults: add abi and libdir info, bug #479656
+
+  01 Aug 2013; Anthony G. Basile <blueness@gentoo.org>
+  +linux/arm/armv7a/selinux/eapi, +linux/arm/armv7a/selinux/parent:
+  linux/arm/armv7a/selinux: add hardened selinux for hardened armv7a
+
+  22 Jun 2013; Anthony G. Basile <blueness@gentoo.org>
+  +linux/musl/amd64/make.defaults, +linux/musl/amd64/package.mask,
+  +linux/musl/amd64/parent, +linux/musl/amd64/use.force,
+  +linux/musl/amd64/use.mask, +linux/musl/make.defaults,
+  +linux/musl/package.mask, +linux/musl/packages, +linux/musl/packages.build,
+  +linux/musl/parent, +linux/musl/use.force, +linux/musl/use.mask:
+  Add very experimental hardened/linux/musl, only amd64 for now
+
+  09 Jun 2013; Ulrich Müller <ulm@gentoo.org>
+  linux/amd64/no-multilib/package.mask:
+  Remove mask for media-libs/realcodecs and media-libs/win32codecs. Packages
+  have been removed.
+
+  30 May 2013; Justin Lecher <jlec@gentoo.org>
+  linux/amd64/no-multilib/package.mask:
+  Mask sci-chemistry/xdsgui due to missing support for
+  sci-chemistry/xdsstat-bin
+
+  30 May 2013; Justin Lecher <jlec@gentoo.org>
+  linux/amd64/no-multilib/package.mask:
+  Mask sci-chemistry/xdsstat-bin due to missing emul package
+
+  17 May 2013; Magnus Granberg <zorry@gentoo.org> linux/amd64/no-multilib/package.mask:
+  Readd some missings masks
+
+  16 May 2013; Magnus Granberg <zorry@gentoo.org> linux/amd64/no-multilib/make.defaults,
+  linux/amd64/no-multilib/package.mask, linux/amd64/no-multilib/package.use.force,
+  linux/amd64/no-multilib/package.use.mask, linux/amd64/no-multilib/parent,
+  linux/amd64/no-multilib/use.mask, ChangeLog:
+  bug 470092 and 469254 qa on parent and missing arch/amd64/no-multilib(mirroring)

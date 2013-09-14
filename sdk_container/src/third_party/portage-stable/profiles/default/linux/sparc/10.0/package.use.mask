@@ -1,0 +1,9 @@
+# Copyright 1999-2011 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/sparc/10.0/package.use.mask,v 1.1 2011/12/21 17:30:07 blueness Exp $
+
+# Anthony G. Basile <blueness@gentoo.org> (Dec 21, 2011)
+#
+# Mask the vde flag on tinc because net-misc/vde is not
+# keyworded for sparc
+net-misc/tinc vde

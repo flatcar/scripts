@@ -1,0 +1,13 @@
+# Copyright 1999-2010 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/windows/cygwin/make.defaults,v 1.1 2010/08/31 06:55:40 grobian Exp $
+
+# System-wide defaults for all Cygwin profiles
+# This file should rarely need to be changed
+
+# 'Sane' defaults
+ELIBC="Cygwin"
+KERNEL="Cygwin"
+
+# no scanelf
+FEATURES="nostrip"

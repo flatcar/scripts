@@ -1,0 +1,14 @@
+# Copyright 1999-2013 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/x32/package.use.mask,v 1.2 2013/03/03 07:34:00 tetromino Exp $
+
+# This file requires >=portage-2.1.1
+
+# Alexandre Rostovtsev <tetromino@gentoo.org> (03 Mar 2013)
+# Wine is x86- and x64-only
+app-emulation/wine abi_x86_x32
+
+# Pawel Hajdan jr <phajdan.jr@gentoo.org> (07 Oct 2012)
+# V8 upstream said they won't support x32, bug #423815
+# Masked V8 and reverse dependencies.
+dev-db/mongodb v8

@@ -1,0 +1,468 @@
+#######################################################################
+#
+# ./maps/ut4_abbeyctf.txt
+# ./maps/ut4_abbey.txt
+# ./maps/ut4_austria.txt
+# ./maps/ut4_algiers.txt
+#
+Copyright = mine!
+
+
+
+
+
+#######################################################################
+#
+# ./maps/ut4_kingdom.txt
+# ./maps/ut4_mandolin.txt
+# ./maps/ut4_ambush.txt
+# ./maps/ut4_crossing.txt
+# ./maps/ut4_casa.txt
+# ./maps/ut4_dressingroom.txt
+# ./maps/ut4_kingdom.txt
+# ./models/trees/FS_trees.txt
+# ./maps/ut4_snoppis.txt
+# ./maps/ut4_riyadh.txt
+# ./maps/ut4_turnpike.txt
+# ./maps/ut4_tombs.txt
+# ./maps/ut4_tunis.txt
+# ./maps/ut4_toxic.txt
+#
+-----------------------------------------------------------------
+* COPYRIGHT / PERMISSIONS *
+-----------------------------------------------------------------
+Authors MAY NOT use this level as a base to build additional levels.
+This map MAY NOT be sold, or in any other way turn into profit for any
+other person than the author. This map MAY be distributed on any media
+as long as this media is distributed freely without anyone having to pay
+for it. This level is designed for the Quake 3 Total Conversion
+"Urban Terror" and is not to be used, replicated or edited for any other
+Mod, Total Conversion, Game or Game Engine.
+
+
+
+
+
+#######################################################################
+#
+# ./maps/ut4_oildepot.txt
+#
+=================================================================
+This map is � 2004 & 2007 Martti Ekstrand and may only be distributed by
+electronic means (e.a. Internet or BBS). CD distribution is not allowed
+without permission. You may NOT distribute this map/.pk3 file/.bsp file
+commercially in any way or form without my expressed WRITTEN permission.
+Authors MAY NOT use this level as a base to build additional levels, and
+the geometry CANNOT be changed in any way. If you wish to recreate this
+level for another game or mod, please inform me be e-mail, just so I know
+it's out there in other forms, and I might even help. Please retain this
+text file if you do.
+
+
+
+
+
+#######################################################################
+#
+# ./maps/ut4_eagle.txt
+#
+=================================================================
+* COPYRIGHT / PERMISSIONS *
+-----------------------------------------------------------------
+
+Authors MAY NOT use this level as a base to build additional
+levels, and the geometry CANNOT be changed in any way. If you
+wish to modify the entities for use with a non-standard CTF Mod,
+please inform me be e-mail, just so I know it's out there in
+other forms. Please retain this text file if you do.
+
+You CAN create prefabs from this level though, just please give
+the original author the credit for the original construction!
+
+This .pk3 may be distributed over the Internet and/or BBS
+systems(like these exist anymore) as long as the ORIGINAL(this)
+text file is included in the .zip file.
+
+You may NOT distribute this map/.pk3 file/.bsp file commercially
+without my expressed WRITTEN permission. If you wish to include
+this in a compilation of some form, have your people contact my
+people and they'll talk, or just send me an e-mail and we'll talk. ;)
+
+
+
+
+
+#######################################################################
+#
+# ./maps/BFP_Model\ Readme.txt
+#
+This mapobject may be distrubuted freely over the internet, as long as
+this readme is included and the contents of the archive DOES NOT change.
+
+Quake 3 Arena And Team Arena are trademarks of id Software CopyRight
+All rights reserved
+
+
+
+
+
+#######################################################################
+#
+# ./maps/ut4_maya.txt
+#
+=================================================================
+* COPYRIGHT / PERMISSIONS *
+-----------------------------------------------------------------
+
+sock_pom-src.map by Simon O'Callaghan was used in the creation of
+Mayan Standoff, released under the ..::LvL Open Game Source License'
+
+Authors MAY NOT use this level as a base to build additional levels.
+This map MAY NOT be sold, or in any other way turn into profit for
+any person. This map MAY be distributed on any media as long as this
+media is distributed freely without anyone having to pay for it and
+this text file is included. This level was converted for the Quake 3
+Total Conversion "Urban Terror" and is not to be used, replicated or
+edited for any other Mod, Total Conversion, Game or Game Engine. If
+you want the original file used in this creation, you may download it
+at http://simonoc.com/pages/design/maps_q3/pom.htm
+
+Copyright (c) 2004 sock
+Changes Copyright (c) 2007 Raymond Ritzmann
+All rights reserved.
+
+Quake III Arena is a registered trademark of iD Software, Inc.
+
+Urban Terror is the property of Frozen Sand, LLC.
+
+
+
+
+
+#######################################################################
+#
+# ./models/mapobjects/masheen/readme.txt
+#
+flourescent light models (c) 2004 ShminkyBoy.
+
+  This game componant is created and owned by me. No modifications on
+  any part of it are allowed. You may not use this object as a base to
+  create another one. You can use it freely in any games as long as
+  you include a note indicating you got it from me. For any
+  troubleshooting or inquiry, feel free to contact me.
+
+E-mail: shminkyboy@yahoo.com
+
+
+
+
+
+#######################################################################
+#
+# ./models/mapobjects/baskets/readme.txt
+# ./models/mapobjects/humvee/readme.txt
+# ./models/mapobjects/br_washerdryer/readme.txt
+# ./models/mapobjects/br_computers/readme.txt
+# ./models/mapobjects/firetruck/readme.txt
+# ./models/mapobjects/br_hometheatre/readme.txt
+# ./models/mapobjects/br_table/readme.txt
+# ./models/mapobjects/br_pcs1/readme.txt
+# ./models/mapobjects/br_officechair/readme.txt
+# ./models/mapobjects/br_lighting1/readme.txt
+# ./models/mapobjects/woodencart/readme.txt
+# ./models/mapobjects/planters/readme.txt
+# ./models/mapobjects/bk_couch/readme.txt
+# ./models/mapobjects/axe/readme.txt
+# ./models/mapobjects/ashtray/readme.txt
+# ./models/mapobjects/br_flowers/readme.txt
+# ./models/mapobjects/br_chest/readme.txt
+# ./models/mapobjects/copcar/readme.txt
+# ./models/mapobjects/cashregister/readme.txt
+# ./models/mapobjects/br_casabench/readme.txt
+# ./models/mapobjects/swords/readme.txt
+# ./models/mapobjects/newspaper/readme.txt
+# ./models/mapobjects/billboards/readme.txt
+# ./models/mapobjects/copymachine/readme.txt
+# ./models/mapobjects/br_bath/readme.txt
+# ./models/mapobjects/truck1/readme.txt
+# ./models/mapobjects/br_couches/readme.txt
+# ./models/mapobjects/br_baskets/readme.txt
+# ./models/mapobjects/ambulance/readme.txt
+# ./models/mapobjects/br_fountain/readme.txt
+# ./models/mapobjects/br_egypt/readme.txt
+# ./models/mapobjects/br_apple/readme.txt
+# ./models/mapobjects/market/readme.txt
+# ./models/mapobjects/honda/readme.txt
+# ./models/mapobjects/br_shrine/readme.txt
+# ./models/mapobjects/garbagecans/readme.txt
+# ./models/mapobjects/lighthouse/readme.txt
+# ./models/mapobjects/landscapelighting/readme.txt
+# ./models/mapobjects/br_palms/readme.txt
+# ./models/mapobjects/toxiclight/readme.txt
+# ./models/mapobjects/br_weedpak/readme.txt
+# ./models/mapobjects/lt1_computers/readme.txt
+# ./models/mapobjects/kitchen/readme.txt
+# ./models/mapobjects/playground/readme.txt
+# ./models/mapobjects/br_pooltable/readme.txt
+# ./models/mapobjects/nuclearfurniture/readme.txt
+# ./models/mapobjects/tub_light/readme.txt
+# ./models/mapobjects/br_rubberduck/readme.txt
+# ./models/mapobjects/cart/readme.txt
+# ./models/null_beach/tires/lt1_tires_readme.txt
+# ./models/br_nuke.txt
+#
+This Model was created by Lt1 and Black Rayne Studios.
+
+--------------------------------------------------------------
+if  you need anything made or this object modified or skinned
+differently please let me know and it will be done. feel free
+to contact me at:
+
+------------------blackraynestudios@gmail.com-----------------
+
+also there is a forum on my website for suggestions and requests
+--------------------------------------------------------------
+http://www.blackrayne.net
+
+Copyrights :
+  This game component is created and owned by Lt1 and Black rayne Studios.
+  No modifications on any part of it are allowed unless indicated.
+  You may not use this object as base to create another one. It must be
+  used as is. You can use it freely in any games as long as you include
+  a note indicating you got it from me. For any troubleshooting or
+  inquiry, feel free to contact me.
+
+
+
+
+
+#######################################################################
+#
+# ./models/mapobjects/toxicprops/readme.txt
+# ./models/mapobjects/portopotty/readme.txt
+# ./models/mapobjects/barrell/readme.txt
+# ./models/mapobjects/bulldozer/readme.txt
+# ./models/mapobjects/toxiclogs/readme.txt
+#
+This Model was created by Lt1 and Urban Terror Operations.
+
+--------------------------------------------------------------
+if  you need anything made or this object modified or skinned differently
+please let me know and it will be done. feel free to contact me at:
+
+-----------------rbergman@lt1productions.com------------------
+
+
+--------------------------------------------------------------
+http://www.lt1productions.com/utops.php
+
+Copyrights :
+  This game component is created and owned by Lt1 and Urban Terror
+  Operations. No modifications on any part of it are allowed unless
+  indicated.
+  You may not use this object as base to create another one. It must
+  be used as is. You can use it freely in any games as long as you
+  include a note indicating you got it from me. For any troubleshooting
+  or inquiry, feel free to contact me.
+
+
+
+
+
+#######################################################################
+#
+# ./models/mapobjects/shminkylights/readme.txt
+#
+flourescent light models (c) 2004 ShminkyBoy.
+
+  This game componant is created and owned by me. No modifications on
+  any part of it are allowed. You may not use this object as a base to
+  create another one. You can use it freely in any games as long as you
+  include a note indicating you got it from me. For any troubleshooting
+  or inquiry, feel free to contact me.
+
+E-mail: shminkyboy@yahoo.com
+
+
+
+
+
+#######################################################################
+#
+# ./models/mapobjects/switcher/omita-readme.txt
+# ./models/mapobjects/junker/omita-readme.txt
+# ./models/mapobjects/roman_armor/oak-shiro-readme.txt
+# ./models/mapobjects/eagle/omita-readme.txt
+#
+=================================================================
+* Permissions *
+=================================================================
+
+This mapobject may be electronically distributed only at no charge to
+the recipient, and may not be modified in any way.  This text file
+must be included with the level.
+This mapobject may not be distributed on any CD-ROM without the prior,
+explicit consent of its author.
+You may run this mapobject on your server as long as no money is charged
+to players for playing on you server.
+
+
+
+
+
+#######################################################################
+#
+# ./models/mapobjects/Phones/ReadMe.txt
+#
+Special notes :
+  n/a
+
+Copyrights :
+  This game componant is created and own by Browser [ICE]. No
+  modifications on any part of it are allowed unless indicated in the
+  Special Notes section.
+  You may not use this object as base to create another one. It must be
+  used as is. You can use it freely in any games as long as you include
+  a note indicating you got it from me. For any troubleshooting or
+  inquiry, feel free to contact me.
+
+
+
+
+
+#######################################################################
+#
+# ./models/mapobjects/codey1/volvo_xc/readme.txt
+# ./models/mapobjects/codey1/gmc_van/readme.txt
+# ./models/mapobjects/computer_01/readme.txt
+# ./models/mapobjects/crossing/kamaz_truck/readme.txt
+# ./models/mapobjects/crossing/tgb11_rus/readme.txt
+# ./models/mapobjects/crossing/kamaz_tanker/readme.txt
+# ./models/mapobjects/diesel_generator_01/readme.txt
+# ./models/mapobjects/gmc_van/readme.txt
+# ./models/mapobjects/trash/readme.txt
+#
+Boring copyright notice:
+
+You may use this model for non-profit purposes only. If you do, please
+notify the author.
+You may NOT modify, sell or redistribute it without the authors
+permission.
+
+
+
+
+
+#######################################################################
+#
+# ./models/mapobjects/oldtruck/readme_oldtruckmodel.txt
+#
+=================================================================
+* COPYRIGHT / PERMISSIONS *
+-----------------------------------------------------------------
+Authors Do whatever the hell you want with these models except sell them.
+These models and skins MAY NOT be sold, or in any other way turn into
+profit for any other person than the authors.  These models MAY be
+distributed on any media as long as this media is distributed freely
+without anyone having to pay for it. These models were designed for the
+Quake 3 Total Conversion "Urban Terror" If you want to use them for
+another Mod, Total Conversion, Game or Game Engine let us know, and send
+us screenshots, and leave this README intact. We didnt make this for
+money, we made it because we love to game just as much as you do.
+P.S. If I find you have used any of these models and changed the
+README's and cut me out of them after all my hard work, I will hunt you
+down and beat the living Dogshit outta you!!
+
+
+
+
+
+#######################################################################
+#
+# ./models/mapobjects/imperium/drahd-readme.txt
+#
+- Distribution -
+
+Feel free to distribute this file in any form, incl. on CD media,
+as long as proper credit is given and this text file, or the model file
+has not been edited in any way.
+
+
+
+
+
+#######################################################################
+#
+# ./models/mapobjects/o3-angel/angel.txt
+#
+* Copyright / Permissions *
+Include authors name and email address in the credits for there work..
+
+QUAKE(R) and QUAKE III Arena(R) are registered trademarks of id Software,
+Inc.
+
+
+
+
+
+#######################################################################
+#
+# ./models/mapobjects/urbanterror/trees/readme.txt
+#
+* Silicon Ice Development Tree mapobject pak *
+-----------------------------------------------------------------
+
+For use with Urban Terror level design
+only unless by express permission of authors.
+
+10/10/2002
+
+
+
+
+
+#######################################################################
+#
+# ./models/mapobjects/mustang/readme.txt
+#
+*****************************************************************
+COPYWRITE NOTICE
+*****************************************************************
+DO NOT EDIT, DISTRIBUTE, MODIFY, OR SELL THIS MODEL WITHOUT PRIOR
+PERMISSION. IF YOU PLAN TO USE THIS MODEL IN ANOTHER GAME/MOD, YOU
+NEED TO NOTIFY/SEEK AUTHORS PERMISSION. FOR ANY OTHER USE PLEASE
+INQUIRE WITH THE AUTHOR FIRST.
+
+Send comments at gusher@planetunreal.com icq 104359090
+
+
+
+
+
+#######################################################################
+#
+# ./maps/ut4_suburbs.TXT
+#
+Suburbs by ShminkyBoy
+
+(Copyright 2007 David Snyder)
+
+
+
+
+
+#######################################################################
+#
+# ./models/mapobjects/shminkybushes/readme.txt
+#
+bush models (c) ShminkyBoy
+
+
+
+
+
+#######################################################################
+#
+# ./models/mapobjects/oak/oak_readme.txt
+#
+Oak-tree Mapmodel (c)GrimReaper

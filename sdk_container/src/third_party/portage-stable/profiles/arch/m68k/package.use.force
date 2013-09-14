@@ -1,0 +1,10 @@
+# Copyright 1999-2013 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/m68k/package.use.force,v 1.2 2013/08/10 22:08:54 ulm Exp $
+
+# Ulrich Müller <ulm@gentoo.org> (10 Aug 2013)
+# Building from source requires TeX Live as dependency
+app-doc/pms binary
+
+# We need to force-enable cups due to KEYWORDS
+net-print/foomatic-filters cups

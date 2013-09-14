@@ -1,0 +1,6 @@
+# Copyright 1999-2013 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/eapi-5-files/use.stable.force,v 1.1 2013/01/14 20:47:01 dilfridge Exp $
+
+# This file requires eapi 5 or later. New entries go on top.
+# Please use the same syntax as in use.force

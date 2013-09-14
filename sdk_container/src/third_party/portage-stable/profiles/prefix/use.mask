@@ -1,0 +1,46 @@
+# Copyright 1999-2012 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/use.mask,v 1.7 2012/12/26 11:46:02 heroxbd Exp $
+
+# multilib is never going to work as expected in Prefix
+multilib
+
+# Mask all glibc/linux combination, unmasked in the appropriate profiles
+elibc_glibc
+kernel_linux
+
+# re-add userland GNU
+-userland_GNU
+
+# USE flags inherited by the base/use.defaults file that shouldn't be in Prefix
+cups
+gpm
+
+# prefix USE flag should always be unmasked in prefix profiles
+-prefix
+
+# USE=acl will probably never work because of how it is related to the kernel
+# and Gentoo Prefix does not have access to that. Also, definately problems with
+# coreutils on darwin.
+acl
+
+# USE=pam just does not make sense in Gentoo Prefix. Should be using the host
+# auth system.
+pam
+
+# USE=udev just does not make sense in Gentoo Prefix. bug 293480
+udev
+
+# The JRuby stack adds *alot* of non-tested ebuilds. If someone has time and
+# motivation, please look into porting this to Gentoo Prefix. bug 302563
+ruby_targets_jruby
+
+# undo:
+# Mike Gilbert <floppym@gentoo.org> (08 Oct 2012)
+# Python 3.3 is masked for testing.
+-python_targets_python3_3
+-python_single_target_python3_3
+
+# suid requires root privilege, which is not support by prefix in general
+# one example: bug 447340.
+suid

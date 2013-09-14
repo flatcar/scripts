@@ -5,20 +5,22 @@
 app-shells/bash
 sys-devel/autoconf
 sys-devel/automake
-virtual/os-headers
+sys-kernel/linux-headers
+sys-libs/glibc
+sys-libs/uclibc
+sys-freebsd/freebsd-lib
 sys-devel/binutils
 sys-devel/libtool
+sys-devel/make
 dev-lang/python
 sys-apps/sandbox
-dev-util/confcache
 dev-util/ccache
-dev-python/pycrypto
 sys-devel/gcc
 sys-devel/gcc-config
-app-admin/eselect-compiler
 dev-java/java-config
 dev-util/cmake
-# NOTE: portage-2.2 will no longer list /etc/gentoo-release,
+dev-util/pkgconfig
+# NOTE: portage no longer list /etc/gentoo-release,
 # so this is not redundant
 sys-apps/baselayout
 sys-apps/openrc

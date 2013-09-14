@@ -1,0 +1,38 @@
+# Copyright 1999-2013 Gentoo Foundation.
+# Distributed under the terms of the GNU General Public License, v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64-fbsd/make.defaults,v 1.13 2013/07/27 23:57:56 aballier Exp $
+# System-wide defaults for the G/FBSD Portage system
+
+ARCH="amd64-fbsd"
+ACCEPT_KEYWORDS="amd64-fbsd ~amd64-fbsd"
+
+CFLAGS="-O2 -pipe"
+CXXFLAGS="${CFLAGS}"
+FFLAGS="${CFLAGS}"
+FCFLAGS="${CFLAGS}"
+
+MULTILIB_ABIS="amd64_fbsd x86_fbsd"
+DEFAULT_ABI="amd64_fbsd"
+# Do not remove this one, or all kinds of hell breaks loose.
+ABI="amd64_fbsd"
+
+# 32bit specific settings.
+CFLAGS_x86_fbsd="-m32 -DCOMPAT_32BIT -B/usr/lib32 -L/usr/lib32"
+LDFLAGS_x86_fbsd="-m elf_i386_fbsd -L/usr/lib32"
+
+USE="mmx sse sse2"
+
+VIDEO_CARDS="apm ark chips cirrus cyrix dummy i128 intel mach64 mga \
+	nv r128 radeon rendition s3 s3virge savage siliconmotion sis \
+	sisusb tga trident tseng via vmware"
+
+# Vanilla FreeBSD has: lib for native 64 bits libs, lib32 for 32-bits emulation.
+# Let's do this too as this also happens to be more standard among other linux
+# distros.
+# Adjust multilib dirs for multilib-strict.
+LIBDIR_amd64_fbsd="lib"
+MULTILIB_STRICT_DIRS="/lib32 /usr/lib32 /usr/kde/*/lib32 /usr/qt/*/lib32 /usr/X11R6/lib32"
+SYMLINK_LIB="no"
+
+# Unmask multilib ABIs use expands.
+USE_EXPAND_HIDDEN="-ABI_X86"

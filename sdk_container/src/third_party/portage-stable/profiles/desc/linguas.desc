@@ -1,14 +1,18 @@
-# Copyright 1999-2006 Gentoo Foundation.
+# Copyright 1999-2013 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/desc/linguas.desc,v 1.46 2010/02/04 21:19:56 abcd Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/desc/linguas.desc,v 1.75 2013/08/03 09:40:27 pinkbyte Exp $
 
 # This file contains descriptions of LINGUAS USE_EXPAND flags.
 
 # Keep it sorted.
 
 af - Afrikaans locale
+af_ZA - Afrikaans locale for South Africa
+ak - Akan locale
 am - Amharic locale
 ar - Arabic locale
+ar_SA - Arabic locale for Saudi-Arabia
+ar_SY - Arabic locale for Syria
 as - Assamese locale
 as_IN - Assamese locale for India
 ast - Asturian locale
@@ -16,6 +20,7 @@ az - Azeri locale
 be - Belarusian locale
 be_BY - Belarusian locale
 bg - Bulgarian locale
+bg_BG - Bulgarian locale
 bn - Bengali locale
 bn_BD - Bengalie locale for Bangladesh
 bn_IN - Bengali locale for India
@@ -24,18 +29,25 @@ br - Breton locale
 brx - Bodo locale for India
 bs - Bosnian locale
 ca - Catalan locale
+ca_ES - Catalan locale for Spain
+ca_XV - Asturian and Catalan locale (Valencia)
 ca@valencia - Catalan locale (Valencia)
 crh - Crimean Tatar (Crimean Turkish) locale
 cs - Czech locale
+cs_CZ - Czech locale for Czech Republic
 csb - Kashubian locale
 cy - Welsh locale
 da - Danish locale
 de - German locale
+de_DE - German locale for Germany
 de_FR - German locale for France
 dgo - Dogri locale for India
 dz - Dzongkha locale
+ee - Ewe locale
 el - Greek locale
+el_GR - Greek locale
 en - English locale
+en_AU - English locale for Australia
 en_CA - English locale for Canada
 en_GB - English locale for Britain
 en_US - English locale
@@ -44,38 +56,56 @@ eo - Esperanto locale
 es - Spanish locale
 es_AR - Spanish locale for Argentina
 es_CL - Spanish locale for Chile
+es_CO - Spanish locale for Columbia
 es_CR - Spanish locale for Costa Rica
 es_ES - Spanish locale for Spain
 es_LA - Spanish locale for Latin America
 es_MX - Spanish locale for Mexico
+es_VE - Spanish locale for Venezuela
 et - Estonian locale
 et_EE - Estonian locale
 eu - Basque locale
+eu_ES - Basque locale for Spain
 fa - Persian locale
+fa_IR - Persian locale for Iran
 fi - Finnish locale
-fo -  Faroese locale
+fi_FI - Finnish locale
+fil - Filipino locale
+fo - Faroese locale
 fr - French locale
 fr_CA - French locale for Canada
+fr_FR - French locale for France
 fy - Frisian locale
 fy_NL - Frisian language locale for the Netherlands
 ga - Irish locale
 ga_IE - Irish locale for Ireland
+gd - Gaelic locale
 gl - Galician locale
 gu - Gujarati locale
 gu_IN - Gujarati locale for India
 he - Hebrew locale
+he_IL - Hebrew locale for Israel
 hi - Hindi locale
 hi_IN - Hindi locale
 hne - Chhattisgarhi locale
 hr - Croatian locale
 hsb - Upper Sorbian locale
+ht - Haitian locale
 hu - Hungarian locale
+hu_HU - Hungarian locale
 hy - Armenian locale
+hy_AM - Armenian locale
+ia - Interlingua locale
 id - Indonesian locale
+id_ID - Indonesian locale
 is - Icelandic locale
 it - Italian locale
+it_IT - Italian locale
 ja - Japanese locale
+ja_JP - Japanese locale
+jv - Javanese locale
 ka - Georgian locale
+ka_GE - Georgian locale
 kk - Kazakh locale
 km - Khmer locale
 kn - Kannada locale
@@ -85,12 +115,17 @@ ko_KR - Korean locale
 kok - Konkani locale
 ks - Kashmiri locale
 ku - Kurdish (latin) locale
+ky - Kyrgyz (Kirghiz) locale
 la - Latin2 locale
 lb - Luxembourgish locale
+lg - Ganda locale
 lo - Lao locale
 lt - Lithuanian locale
+lt_LT - Lithuanian locale
 lv - Latvian locale
+lv_LV - Latvian locale for Latvia
 mai - Maithili locale
+me - Montenegrin (Crnogorski) locale
 mk - Macedonian locale
 ml - Malayalam locale
 ml_IN - Malayalam locale for India
@@ -99,13 +134,17 @@ mni - Manipuri locale
 mr - Marathi locale
 mr_IN - Marathi locale for India
 ms - Malay locale
+ms_MY - Malay locale for Malaysia
 mt - Maltese locale
 my - Burmese locale
+nan - Min Nan locale
 nb - Norwegian (Bokmal) locale
 nb_NO - Norwegian (Bokmal) locale for Norway
 nds - Low Saxon locale
 ne - Nepali locale
 nl - Dutch locale
+nl_BE - Dutch locale for Belgium (Flemish)
+nl_NL - Dutch locale for Netherlands
 nn - Nynorsk locale
 nn_NO - Nynorsk locale for Norway
 no - Norwegian locale
@@ -118,28 +157,44 @@ or - Oriya locale
 or_IN - Oriya locale for India
 pa - Punjabi locale for India
 pa_IN - Punjabi locale for India
+pap - Paiamento local
 pl - Polish locale
+pl_PL - Polish locale
+ps - Pushto locale
 pt - Portuguese locale
 pt_BR - Portuguese locale for Brasil
 pt_PT - Portuguese locale for Portugal
 rm - Romansh locale
 ro - Romanian locale
+ro_RO - Romanian locale for Romania
 ru - Russian locale
+ru_RU - Russian locale for Russia
 rw - Kinyarwanda locale
 sa_IN - Sanskrit locale
 sat - Santali locale
+sco - Scots locale
 sd - Sindhi locale
 se - Northern Saami locale
 sh - Serbo-Croatian locale
 sh_YU - Serbo-Croatian locale
+son - Songhai locale
 si - Sinhala locale
+si_LK - Sinhala locale
 sk - Slovak locale
+sk_SK - Slovak locale
 sl - Slovenian locale
+sl_SI - Slovenian locale
 sq - Albanian locale
 sr - Serbian locale
+sr@ijekavian - Serbian-Ijekavian locale
+sr@ijekavianlatin - Serbian-Ijekavian (latin) locale
 sr@latin - Serbian (latin) locale
 sr@Latn - Serbian (latin) locale
+sr_BA - Serbian locale for Bosnia and Herzegovina
 sr_CS - Serbian locale
+sr_RS - Serbian locale for Serbia
+sr_RS@cyrillic - Serbian (cyrillic) locale for Serbia
+sr_RS@latin - Serbian (latin) locale for Serbia
 ss - Swati locale
 st - Southern Sotho locale
 sv - Swedish locale
@@ -152,23 +207,31 @@ ta_LK - Tamil locale for Sri Lanka
 te - Telugu locale
 te_IN - Telugu locale for India
 tg - Tajik locale
+tg_TJ - Tajik locale Tajikistan
 th - Thai locale
+th_TH - Thai locale Thailand
+ti - Tigrinya locale
 ti_ER - Tigrinya locale for Eritrea
 tk - Turkmen locale
 tl - Tagalog locale
 tn - Tswana locale
 tr - Turkish locale
 ts - Tsonga locale
+tt - Tatar locale
 ug - Uighur locale
 uk - Ukrainian locale
+uk_UA - Ukrainian locale for Ukraine
+ur - Urdu locale
 ur_IN - Urdu locale for India
 ur_PK - Urdu language locale for Pakistan
 uz - Uzbek locale
 uz@cyrillic - Uzbek (cyrillic) locale
 ve - Venda locale
 vi - Vietnamese locale
+vi_VN - Vietnamese locale
 wa - Walloon locale
 xh - Xhosa locale
+yi - Yiddish locale
 zh - Chinese locale
 zh_CN - Chinese locale for Peoples Republic of China
 zh_HK - Chinese locale for Hong Kong

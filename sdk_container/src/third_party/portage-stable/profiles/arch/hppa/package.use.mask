@@ -1,0 +1,149 @@
+# Copyright 1999-2013 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/hppa/package.use.mask,v 1.129 2013/08/11 12:41:43 jer Exp $
+
+# DON'T TOUCH THIS FILE. Instead, file a bug and assign it to <hppa@gentoo.org>.
+
+# Jeroen Roovers <jer@gentoo.org> (23 Jul 2013)
+# graphite is not implemented on HPPA
+sys-devel/gcc graphite
+
+# Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (28 May 2013)
+# depends on sys-devel/llvm[video_cards_radeon]
+media-libs/mesa r600-llvm-compiler
+
+# Julian Ospald <hasufell@gentoo.org> (31 Mar 2013)
+# depends on mono
+>=net-irc/hexchat-2.9.4-r1 theme-manager
+
+# Jeroen Roovers <jer@gentoo.org> (22 Jan 2013)
+# dev-python/greenlet has not been ported to HPPA but is needed for
+# dev-python/restkit which is needed for dev-python/pyquery's test phase
+# (bug #452764)
+dev-python/pyquery test
+
+# Jeroen Roovers <jer@gentoo.org> (2 Jan 2013)
+# Mask sci-libs/proj for dev-perl/PDL (bug #417453)
+dev-perl/PDL proj
+
+# Jeroen Roovers <jer@gentoo.org> (2 Jan 2013)
+# Mask non-keyworded sci-libs/hdf5 for sci-mathematics/octave
+sci-mathematics/octave hdf5 qhull
+
+# Robin H Johnson <robbat2@gentoo.org> (01 Nov 2012)
+# MySQL 5.5 wants systemtap, tcmalloc & jemalloc
+>=dev-db/mysql-5.5 systemtap tcmalloc
+>=dev-db/mariadb-5.5 systemtap tcmalloc
+
+# Jeroen Roovers <jer@gentoo.org> (10 Jul 2012)
+# USE=clang needs sys-devel/llvm which has not been ported
+app-portage/eix clang
+
+# Jeroen Roovers <jer@gentoo.org> (8 Jul 2012)
+# media-libs/devil has not been fully tested on HPPA
+media-gfx/graphviz devil
+
+# Jeroen Roovers <jer@gentoo.org> (3 Jul 2012)
+# Mask USE=connman for net-libs/gupnp (bug #424225)
+net-libs/gupnp connman
+
+# Jeroen Roovers <jer@gentoo.org> (21 May 2012)
+# HPPA is an unsupported architecture
+dev-libs/libpcre jit
+
+# Arun Raghavan <ford_prefect@gentoo.org> (24 May 2012)
+# media-sound/pulseaudio needs PyQt4[dbus] for making the equalizer module
+# usable. Mask until this is available.
+media-sound/pulseaudio equalizer
+
+# Jeroen Roovers <jer@gentoo.org> (21 May 2012)
+# media-sound/lilypond has problems running mpost (bug #416961)
+app-text/asciidoc test
+
+# Jeroen Roovers <jer@gentoo.org> (26 Apr 2012)
+# Untested dependency on net-misc/connman
+dev-qt/qtbearer connman
+
+# Jeroen Roovers <jer@gentoo.org> (19 Apr 2012)
+# Requires sys-power/upower which is not much use on HPPA
+xfce-extra/xfce4-systemload-plugin udev
+
+# Jeroen Roovers <jer@gentoo.org> (25 Oct 2011)
+# Depends upon an as yet unsupported version of dev-libs/dietlibc
+dev-libs/libowfat diet
+
+# Robin H. Johnson <robbat2@gentoo.org> (03 Sep 2011)
+# Remove this for your arch after you keyword dev-utils/google-perftools and virtual/gsasl (bug #381737
+dev-libs/libmemcached tcmalloc sasl
+
+# Jeroen Roovers <jer@gentoo.org> (5 Jun 2011)
+# app-office/gnumeric is not keyworded (bug #367513)
+app-office/lyx gnumeric
+
+# Jeroen Roovers <jer@gentoo.org> (24 Feb 2011)
+# Needs Java (bug #355353)
+app-text/texlive pdfannotextractor
+
+# Jeroen Roovers <jer@gentoo.org> (21 Jan 2011)
+# Pulls in either GNOME or LXDE, neither are keyworded (bug #296548)
+sys-auth/polkit gtk
+
+# Samuli Suominen <ssuominen@gentoo.org> (6 Jan 2011)
+# Missing sys-power/upower keywording.
+xfce-base/xfce4-session udev
+
+# Jeroen Roovers <jer@gentoo.org> (5 Jan 2011)
+# Mask dev-lang/spidermonkey (bug #347827)
+www-client/elinks javascript
+
+# Jeroen Roovers <jer@gentoo.org> (30 Nov 2010)
+# Mask doc-pdf because of Java dependencies (bug #347259)
+net-analyzer/wireshark doc-pdf
+
+# Jeroen Roovers <jer@gentoo.org> (25 Nov 2010)
+# No support for sci-libs/ipp on HPPA (bug #340269)
+media-libs/opencv ipp
+
+# Justin Lecher <jlec@gentoo.org> (13 Aug 2010)
+# MKL not available on this arch
+media-gfx/povray mkl
+
+# Pacho Ramos <pacho@gentoo.org> (11 Jul 2010)
+# Mask due bug #324511, this will be general once needed by more packages.
+net-im/pidgin gstreamer
+x11-misc/xscreensaver gdm new-login
+x11-libs/wxGTK gstreamer
+net-p2p/mldonkey guionly gtk
+dev-vcs/git gtk
+app-cdr/cdrdao gcdmaster
+net-im/pidgin eds
+
+# Ben de Groot <yngwin@gentoo.org> (16 Jan 2010)
+# qtmultimedia is not keyworded, bug 293671
+dev-python/PyQt4 multimedia
+
+# Jeroen Roovers <jer@gentoo.org> (15 Apr 2008)
+# media-sound/fluidsynth fails to build with stable libtool, so it can't be
+# tested for ~hppa keywording right now
+media-sound/mpd fluidsynth
+
+# Jeroen Roovers <jer@gentoo.org> (16 Sep 2008)
+# cpudetection and custom-cpuopts does not apply
+# to HPPA (bug #234629)
+media-video/mplayer cpudetection custom-cpuopts
+
+# Jeroen Roovers <jer@gentoo.org> (16 Sep 2008)
+# app-text/xindy needs dev-lisp/clisp and clisp does not build (bug #229217)
+app-text/texlive xindy
+
+# Tobias Scherbaum <dertobi123@gentoo.org> (31 May 2008)
+# Mask ups for nagios-plugins which would pull in sys-power/nut
+net-analyzer/nagios-plugins ups
+
+# Mart Raudsepp <leio@gentoo.org> (02 Apr 2008)
+# media-plugins/gst-plugins-{dvb,fluendo-mpegdemux,bad} not keyworded
+media-plugins/gst-plugins-meta dvb
+
+# Jeroen Roovers <jer@gentoo.org> (12 Apr 2007)
+# Mask until fixed.
+net-misc/tightvnc server

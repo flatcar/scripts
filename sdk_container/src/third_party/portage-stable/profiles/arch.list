@@ -19,13 +19,14 @@ x86-fbsd
 ppc-aix
 x86-freebsd
 x64-freebsd
+sparc64-freebsd
 hppa-hpux
 ia64-hpux
 x86-interix
-mips-irix
 amd64-linux
 arm-linux
 ia64-linux
+ppc64-linux
 x86-linux
 ppc-macos
 x86-macos
@@ -40,3 +41,4 @@ sparc64-solaris
 x64-solaris
 x86-solaris
 x86-winnt
+x86-cygwin

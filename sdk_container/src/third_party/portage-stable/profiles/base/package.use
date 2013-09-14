@@ -1,0 +1,33 @@
+# Copyright 1999-2013 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/base/package.use,v 1.30 2013/09/12 13:37:39 flameeyes Exp $
+
+# Hans de Graaff <graaff@gentoo.org> (3 Sep 2013)
+# Enable ruby20 on the core ruby packages so we don't
+# need to include ruby20 in RUBY_TARGETS right now.
+# bug 483254
+>=dev-ruby/rubygems-2.0.3 ruby_targets_ruby20
+>=dev-ruby/rake-0.9.6 ruby_targets_ruby20
+>=dev-ruby/json-1.8.0 ruby_targets_ruby20
+>=dev-ruby/racc-1.4.9 ruby_targets_ruby20
+>=dev-ruby/rdoc-4.0.1-r1 ruby_targets_ruby20
+
+# Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (27 Jul 2012)
+# Modular X: Build the Xorg X server by default
+x11-base/xorg-server xorg
+
+# Diego Elio Pettenò <flameeyes@gentoo.org> (11 Apr 2011)
+# Disable ldap support by default in sudo, as it seem to lack
+# developers maintaining that particular support and is, thus, vastly
+# untested.
+app-admin/sudo -ldap
+
+# Doug Goldstein <cardoe@gentoo.org> (30 Aug 2010)
+# bug #332077 - Disable xcb backend by default for cairo-1.10. Its not
+# really prime time ready prior to cairo-1.10
+<x11-libs/cairo-1.10 -xcb
+
+# Zac Medico <zmedico@gentoo.org> (04 Dec 2009)
+# Bug #295615 - Disable cxx by default, in order to avoid a die
+# in pkg_setup with default USE settings (cxx requires sasl).
+net-nds/openldap -cxx

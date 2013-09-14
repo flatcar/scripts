@@ -1,0 +1,214 @@
+# Copyright 1999-2013 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/package.use.mask,v 1.178 2013/09/08 14:24:18 pacho Exp $
+
+# Pacho Ramos <pacho@gentoo.org> (08 Sep 2013)
+# monodevelop is not keyworded, bug #468030
+gnome-extra/zeitgeist-datasources mono
+
+# Agostino Sarubbo <ago@gentoo.org> (24 Aug 2013)
+# Klibc does not work anymore on ppc
+app-shells/mksh static
+
+# Nathan Phillip Brink <binki@gentoo.org> (31 Jul 2013)
+# app-text/discount missing ~ppc.
+dev-util/geany-plugins markdown
+
+# Pacho Ramos <pacho@gentoo.org> (20 Jul 2013)
+# Keywords pending, bug #476710
+>=gnome-base/gnome-extra-apps-3.8 games
+
+# Patrick Lauer <patrick@gentoo.org> (17 Jun 2013)
+# Fix per-arch mask of phonon[zeitgeist] #460140
+media-libs/phonon zeitgeist
+
+# Agostino Sarubbo <ago@gentoo.org> (23 Apr 2013)
+# dev-db/spatialite fails to compile on ppc*
+sci-libs/gdal spatialite
+
+# Julian Ospald <hasufell@gentoo.org> (31 Mar 2013)
+# depends on mono/monodevelop
+>=net-irc/hexchat-2.9.4-r1 theme-manager
+
+# Alexandre Rostovtsev <tetromino@gentoo.org> (31 Jan 2013)
+# remove mask when net-libs/libqmi is keyworded here
+net-misc/modemmanager qmi qmi-newest
+
+# Alexandre Rostovtsev <tetromino@gentoo.org> (22 Jan 2013)
+# remove mask if/when media-gfx/argyllcms is keywored here.
+x11-misc/colord extra-print-profiles
+
+# Sergei Trofimovich <slyfox@gentoo.org> (11 Jan 2013)
+# Current sys-libs/libseccomp (up to 1.0.1) support
+# only x86/amd64. Relies on hardcoded syscall numbers.
+app-emulation/qemu seccomp
+
+# Anthony G. Basile <blueness@gentoo.org> (15 Nove 2012)
+# Mask telepathy, no stable net-libs/telepathy-qt, bug #441456
+kde-base/krdc telepathy
+kde-base/krfb telepathy
+
+# Robin H Johnson <robbat2@gentoo.org> (01 Nov 2012)
+# MySQL 5.5 wants systemtap, tcmalloc & jemalloc
+>=dev-db/mysql-5.5 tcmalloc
+>=dev-db/mariadb-5.5 tcmalloc
+
+# Anthony G. Basile <blueness@gentoo.org> (29 Sep 2012)
+# dev-cpp/tbb does not build on ppc ppc64 so mask any
+# dependencies on it
+media-libs/openimageio tbb
+
+# Samuli Suominen <ssuominen@gentoo.org> (27 Sep 2012)
+# I don't want to open this can of worms yet. Feel free
+# to do so.
+dev-ruby/rack-test test
+
+# Michael Weber <xmw@gentoo.org> (22 Aug 2012)
+# missing stable on >=www-client/firefox-3
+x11-themes/gtk-engines-qtcurve mozilla
+
+# Anthony G. Basile <blueness@gentoo.org> (21 Aug 2012)
+# Does not work on ppc/ppc64
+net-misc/tor tor-hardening
+
+# Johannes Huber <johu@gentoo.org> (9 Jul 2012)
+# dev-qt/qtopenvg not keyworded correctly.
+# ppc/ppc64 team please validate.
+=dev-qt/qtdemo-4.8* openvg
+
+# Michael Weber <xmw@gentoo.org> (3 Jun 2012)
+# pymol got stabled (bug 366229) but USE=apbs deps aren't keyworded
+sci-chemistry/pymol apbs
+
+# Andreas K. Huettel <dilfridge@gentoo.org> (28 May 2012)
+# Mask new useflag of opencv, as dependency dev-cpp/tbb is not keyworded on ppc
+media-libs/opencv tbb
+
+# Brent Baude <ranger@gentoo.org> (06 Mar 2012)
+# masking kde on gajim
+net-im/gajim kde
+
+# Pacho Ramos <pacho@gentoo.org> (07 May 2012)
+# libhid is not keyworded
+app-misc/lcdproc hid
+
+# Brent Baude <ranger@gentoo.org> (06 Mar 2012)
+# masking wimax use flag
+net-misc/connman wimax ofono
+
+# Alexey Shvetsov <alexxy@gentoo.org> (20 Jan 2012)
+# Mask some use flags for openmpi due to unkeyworded deps
+sys-cluster/openmpi openmpi_fabrics_psm openmpi_fabrics_knem openmpi_fabrics_open-mx openmpi_fabrics_ofed openmpi_fabrics_dapl openmpi_rm_slurm openmpi_ofed_features_rdmacm
+
+# Kacper Kowalik <xarthisius@gentoo.org> (20 Nov 2011)
+# Dropped dietlibc wrt #364103
+sys-fs/dmraid dietlibc
+
+# Pacho Ramos <pacho@gentoo.org> (26 Sep 2011)
+# Dependencies not keyworded yet, bug #372245
+media-video/miro xvid
+
+# Patrick McLean <chutzpah@gentoo.org> (07 Sep 2011)
+# missing keywords on dependencies
+media-video/x264-encoder ffmpegsource
+
+# Robin H. Johnson <robbat2@gentoo.org> (03 Sep 2011)
+# Remove this for your arch after you keyword dev-utils/google-perftools (bug #381737
+dev-libs/libmemcached tcmalloc
+
+# Kacper Kowalik <xarthisius@gentoo.org> (10 Aug 2011)
+# mask cuda dep for opencv bug 365451
+media-libs/opencv cuda
+
+# Kacper Kowalik <xarthisius@gentoo.org> (09 Aug 2011)
+# pass on media-sound/amarok[upnp] bug 365003
+media-sound/amarok upnp
+
+# Pacho Ramos <pacho@gentoo.org> (19 Jul 2011)
+# Missing keywords on dependencies
+app-cdr/brasero vcd
+
+# Brent Baude <ranger@gentoo.org> (25 June 2011)
+# kde-base/krossjava fails to build on ppc
+kde-base/kdebindings-meta java
+
+# Doug Goldstein <cardoe@gentoo.org> (27 May 2011)
+# app-emulation/spice, app-emulation/xen, and sys-cluster/ceph
+# are not keyworded. bug #368959
+# sys-apps/usbredir
+app-emulation/qemu     spice xen rbd usbredir
+
+# Kacper Kowalik <xarthisius@gentoo.org> (16 Jan 2011)
+# bug 350513, app-pda/jpilot is not keyworded
+mail-client/claws-mail pda
+
+# Sebastian Pipping <sping@gentoo.org> (22 Feb 2011)
+# No media-sound/lilypond here, yet (bug #356069)
+app-text/asciidoc test
+
+# Kacper Kowalik <xarthisius@gentoo.org> (16 Jan 2011)
+# bug 303931
+# dev-lang/icc is not available for ppc
+# sci-chemistry/arp-warp-bin is not available for ppc
+sci-chemistry/ccp4 arpwarp
+
+# Justin Lecher <jlec@gentoo.org> (01 Nov 2010)
+# Deps not Keyworded
+sci-chemistry/apbs fetk
+
+# Vlastimil Babka <caster@gentoo.org> (13 Oct 2010)
+# dev-util/systemtap not keyworded on ppc arches. Note that this currently applies for java-overlay
+# icedtea only, but the plan is to move it to main tree.
+dev-java/icedtea systemtap
+
+# Alexey Shvetsov <alexxy@gentoo.org> (22 Aug 2010)
+# sci-chemistry/msms not available for this arch
+sci-chemistry/vmd msms
+
+# Justin Lecher <jlec@gentoo.org> (13 Aug 2010)
+# MKL not available on this arch
+media-gfx/povray mkl
+
+# Steve Arnold <nerdboy@gentoo.org> (12 Jun 2010)
+# masking for gdal (see bug 315659)
+sci-libs/gdal ecwj2k
+
+# Bernard Cafarelli <voyageur@gentoo.org> (26 Apr 2010)
+# This is for x86/amd64 only
+sys-devel/llvm udis86
+
+# Alexey Shvetsov <alexxy@gentoo.org> (23 Feb 2010)
+# media-gfx/tachyon needed to be keyworded per bug #306549
+sci-chemistry/vmd tachyon
+
+# Pacho Ramos <pacho@gentoo.org>
+# Not keyworded
+media-plugins/gst-plugins-meta dts vcd vpx
+
+# QA: This entry is moved from INVALID location from default/linux/powerpc.
+# VDPAU is currently not keyworded on PPC since its a nvidia-drivers feature
+# only presently. If other drivers support it in the future, then this can
+# get unmasked
+media-tv/mythtv vdpau
+
+# Brent Baude <ranger@gentoo.org> (14 Jan 2009)
+# # Temporarily masking sql off activerecord
+dev-ruby/activerecord sqlite3
+
+# Brent Baude <ranger@gentoo.org>
+# masking zephyr USE on pidgin
+net-im/pidgin zephyr
+
+=dev-java/ibm-jdk-bin-1.5* -nsplugin
+=dev-java/ibm-jre-bin-1.5* -nsplugin
+=dev-java/ibm-jdk-bin-1.6* -nsplugin
+=dev-java/ibm-jre-bin-1.6* -nsplugin
+
+# Joseph Jezak <josejx@gentoo.org> (28 Jun 2007)
+# Masked Parallel LCD devices for bug #180683
+# app-misc/lcd4linux
+app-misc/lcd4linux lcd_devices_hd44780
+
+# Tobias Scherbaum <dertobi123@gentoo.org> (1 Feb 2008)
+# Mask mono flag for gnome as tomboy is segfaulting.
+gnome-base/gnome mono

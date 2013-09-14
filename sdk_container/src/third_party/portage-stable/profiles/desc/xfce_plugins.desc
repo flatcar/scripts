@@ -1,0 +1,11 @@
+# Copyright 1999-2012 Gentoo Foundation.
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/desc/xfce_plugins.desc,v 1.5 2012/09/09 19:34:35 ssuominen Exp $
+
+# This file contains descriptions of XFCE_PLUGINS USE_EXPAND flags.
+
+# Keep it sorted.
+
+brightness - Build xfce4-brightness-plugin for panel
+clock - Build xfce4-orageclock-plugin for panel
+trash - Build thunar-tpa (trash) plugin for panel
