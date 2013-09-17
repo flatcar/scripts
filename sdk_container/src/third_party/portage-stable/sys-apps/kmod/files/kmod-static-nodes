@@ -1,13 +1,13 @@
 #!/sbin/runscript
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/kmod/files/static-nodes,v 1.4 2013/07/30 17:21:17 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/kmod/files/kmod-static-nodes,v 1.1 2013/08/09 19:08:18 ssuominen Exp $
 
 description="Create list of required static device nodes for the current kernel"
 
 depend() {
-	before tmpfiles.setup
-	after modules
+	after dev-mount
+	before tmpfiles.dev dev
 }
 
 start() {

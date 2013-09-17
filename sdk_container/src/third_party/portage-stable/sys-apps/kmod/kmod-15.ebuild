@@ -1,12 +1,9 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/kmod/kmod-14-r1.ebuild,v 1.3 2013/07/23 11:54:33 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/kmod/kmod-15.ebuild,v 1.1 2013/08/24 12:03:31 ssuominen Exp $
 
 EAPI=5
-
-VIRTUAL_MODUTILS=1
-
-inherit autotools eutils libtool multilib linux-mod
+inherit autotools eutils libtool multilib toolchain-funcs versionator
 
 if [[ ${PV} == 9999 ]]; then
 	EGIT_REPO_URI="git://git.kernel.org/pub/scm/utils/kernel/${PN}/${PN}.git"
@@ -32,6 +29,7 @@ RESTRICT="test"
 RDEPEND="!sys-apps/module-init-tools
 	!sys-apps/modutils
 	lzma? ( >=app-arch/xz-utils-5.0.4-r1 )
+	openrc? ( !<sys-apps/openrc-0.12 )
 	zlib? ( >=sys-libs/zlib-1.2.6 )" #427130
 DEPEND="${RDEPEND}
 	dev-libs/libxslt
@@ -40,8 +38,8 @@ DEPEND="${RDEPEND}
 	zlib? ( virtual/pkgconfig )"
 
 pkg_setup() {
-	CONFIG_CHECK="~MODULES ~MODULE_UNLOAD"
-	linux-info_pkg_setup
+	version_is_at_least 4.6 $(gcc-version) || \
+		die "At least sys-devel/gcc >= 4.6 is required to build ${CATEGORY}/${PN}." #481020
 }
 
 src_prepare() {
@@ -99,33 +97,30 @@ src_install() {
 	insinto /lib/modprobe.d
 	doins "${T}"/usb-load-ehci-first.conf #260139
 
-	use openrc && doinitd "${FILESDIR}"/static-nodes
+	use openrc && doinitd "${FILESDIR}"/kmod-static-nodes
 }
 
 pkg_postinst() {
-	# Upgrade path from sys-apps/module-init-tools
-	if [[ -d ${ROOT}/lib/modules/${KV_FULL} ]]; then
-		if [[ -z ${REPLACING_VERSIONS} ]]; then
-			update_depmod
-		fi
-	fi
-
 	if use openrc; then
-		# Add kmod to the boot runlevel automatically if this is the first install of this package.
+		if [[ -L ${ROOT}etc/runlevels/boot/static-nodes ]]; then
+			ewarn "Removing old conflicting static-nodes init script from the boot runlevel"
+			rm -f "${ROOT}"etc/runlevels/boot/static-nodes
+		fi
+
+		# Add kmod to the runlevel automatically if this is the first install of this package.
 		if [[ -z ${REPLACING_VERSIONS} ]]; then
-			if [[ -x "${ROOT}"etc/init.d/static-nodes && -d "${ROOT}"etc/runlevels/boot ]]; then
-				ln -s /etc/init.d/static-nodes "${ROOT}"/etc/runlevels/boot/static-nodes
+			if [[ -x ${ROOT}etc/init.d/kmod-static-nodes && -d ${ROOT}etc/runlevels/sysinit ]]; then
+				ln -s /etc/init.d/kmod-static-nodes "${ROOT}"/etc/runlevels/sysinit/kmod-static-nodes
 			fi
 		fi
 
-		if [[ -e "${ROOT}"etc/runlevels/boot ]]; then
-			if [[ ! -e "${ROOT}"etc/runlevels/boot/static-nodes ]]; then
+		if [[ -e ${ROOT}etc/runlevels/sysinit ]]; then
+			if [[ ! -e ${ROOT}etc/runlevels/sysinit/kmod-static-nodes ]]; then
 				ewarn
-				ewarn "You need to add static-nodes to the boot runlevel."
-				ewarn "If you do not do this,"
-				ewarn "your system will not necessarily have the required static nodes!"
+				ewarn "You need to add kmod-static-nodes to the sysinit runlevel for"
+				ewarn "kernel modules to have required static nodes!"
 				ewarn "Run this command:"
-				ewarn "\trc-update add static-nodes boot"
+				ewarn "\trc-update add kmod-static-nodes sysinit"
 			fi
 		fi
 	fi

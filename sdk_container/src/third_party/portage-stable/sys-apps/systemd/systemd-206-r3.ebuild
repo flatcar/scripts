@@ -1,13 +1,14 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/systemd/systemd-206-r1.ebuild,v 1.1 2013/07/31 22:23:50 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/systemd/systemd-206-r3.ebuild,v 1.7 2013/09/06 19:58:12 pacho Exp $
 
 EAPI=5
 
 AUTOTOOLS_PRUNE_LIBTOOL_FILES=all
 PYTHON_COMPAT=( python2_7 )
 inherit autotools-utils bash-completion-r1 fcaps linux-info multilib \
-	pam python-single-r1 systemd toolchain-funcs udev user
+	multilib-minimal pam python-single-r1 systemd toolchain-funcs udev \
+	user
 
 DESCRIPTION="System and service manager for Linux"
 HOMEPAGE="http://www.freedesktop.org/wiki/Software/systemd"
@@ -33,19 +34,20 @@ COMMON_DEPEND=">=sys-apps/dbus-1.6.8-r1
 	http? ( net-libs/libmicrohttpd )
 	introspection? ( >=dev-libs/gobject-introspection-1.31.1 )
 	kmod? ( >=sys-apps/kmod-14-r1 )
-	lzma? ( app-arch/xz-utils )
+	lzma? ( app-arch/xz-utils[${MULTILIB_USEDEP}] )
 	pam? ( virtual/pam )
 	python? ( ${PYTHON_DEPS} )
 	qrcode? ( media-gfx/qrencode )
 	selinux? ( sys-libs/libselinux )
 	tcpd? ( sys-apps/tcp-wrappers )
-	xattr? ( sys-apps/attr )"
+	xattr? ( sys-apps/attr )
+	abi_x86_32? ( !<=app-emulation/emul-linux-x86-baselibs-20130224-r8
+		!app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)] )"
 
 # baselayout-2.2 has /run
 RDEPEND="${COMMON_DEPEND}
 	>=sys-apps/baselayout-2.2
 	openrc? ( >=sys-fs/udev-init-scripts-25 )
-	policykit? ( sys-auth/polkit )
 	|| (
 		>=sys-apps/util-linux-2.22
 		<sys-apps/sysvinit-2.88-r4
@@ -55,7 +57,8 @@ RDEPEND="${COMMON_DEPEND}
 	!<sys-libs/glibc-2.10
 	!sys-fs/udev"
 
-PDEPEND=">=sys-apps/hwids-20130717-r1[udev]"
+PDEPEND=">=sys-apps/hwids-20130717-r1[udev]
+	policykit? ( sys-auth/polkit )"
 
 DEPEND="${COMMON_DEPEND}
 	app-arch/xz-utils
@@ -76,6 +79,7 @@ pkg_pretend() {
 		~SYSFS ~!IDE ~!SYSFS_DEPRECATED ~!SYSFS_DEPRECATED_V2"
 #		~!FW_LOADER_USER_HELPER"
 
+	use acl && CONFIG_CHECK+=" ~TMPFS_POSIX_ACL"
 	use pam && CONFIG_CHECK+=" ~AUDITSYSCALL"
 
 	# read null-terminated argv[0] from PID 1
@@ -138,7 +142,7 @@ src_prepare() {
 	autotools-utils_src_prepare
 }
 
-src_configure() {
+multilib_src_configure() {
 	local myeconfargs=(
 		--localstatedir=/var
 		--with-pamlibdir=$(getpam_mod_dir)
@@ -190,21 +194,94 @@ src_configure() {
 		)
 	fi
 
+	if ! multilib_is_native_abi; then
+		myeconfargs+=(
+			ac_cv_search_cap_init=
+			ac_cv_header_sys_capability_h=yes
+			DBUS_CFLAGS=' '
+			DBUS_LIBS=' '
+
+			--disable-acl
+			--disable-audit
+			--disable-gcrypt
+			--disable-gtk-doc
+			--disable-gudev
+			--disable-introspection
+			--disable-kmod
+			--disable-libcryptsetup
+			--disable-microhttpd
+			--disable-pam
+			--disable-polkit
+			--disable-qrencode
+			--disable-selinux
+			--disable-tcpwrap
+			--disable-tests
+			--disable-xattr
+			--disable-xz
+			--without-python
+		)
+	fi
+
 	# Work around bug 463846.
 	tc-export CC
 
 	autotools-utils_src_configure
 }
 
-src_compile() {
-	autotools-utils_src_compile \
+multilib_src_compile() {
+	local mymakeopts=(
 		udevlibexecdir="${MY_UDEVDIR}"
+	)
+
+	if multilib_is_native_abi; then
+		emake "${mymakeopts[@]}"
+	else
+		echo 'gentoo: $(lib_LTLIBRARIES) $(pkgconfiglib_DATA)' | \
+		emake "${mymakeopts[@]}" -f Makefile -f - gentoo
+	fi
 }
 
 src_install() {
-	autotools-utils_src_install -j1 \
-		udevlibexecdir="${MY_UDEVDIR}" \
+	MULTILIB_WRAPPED_HEADERS=()
+
+	if use gudev; then
+		MULTILIB_WRAPPED_HEADERS+=(
+			/usr/include/gudev-1.0/gudev/gudev.h
+			/usr/include/gudev-1.0/gudev/gudevclient.h
+			/usr/include/gudev-1.0/gudev/gudevdevice.h
+			/usr/include/gudev-1.0/gudev/gudevenumerator.h
+			/usr/include/gudev-1.0/gudev/gudevenums.h
+			/usr/include/gudev-1.0/gudev/gudevenumtypes.h
+			/usr/include/gudev-1.0/gudev/gudevtypes.h
+		)
+	fi
+
+	multilib-minimal_src_install
+}
+
+multilib_src_install() {
+	local mymakeopts=(
+		udevlibexecdir="${MY_UDEVDIR}"
 		dist_udevhwdb_DATA=
+		DESTDIR="${D}"
+	)
+
+	if multilib_is_native_abi; then
+		emake "${mymakeopts[@]}" -j1 install
+	else
+		mymakeopts+=(
+			install-libLTLIBRARIES
+			install-pkgconfiglibDATA
+			install-includeHEADERS
+			install-pkgincludeHEADERS
+		)
+
+		emake "${mymakeopts[@]}"
+	fi
+}
+
+multilib_src_install_all() {
+	prune_libtool_files --modules
 
 	# keep udev working without initramfs, for openrc compat
 	dodir /bin /sbin
@@ -254,20 +331,6 @@ src_install() {
 	done
 }
 
-optfeature() {
-	local i desc=${1} text
-	shift
-
-	text="  [\e[1m$(has_version ${1} && echo I || echo ' ')\e[0m] ${1}"
-	shift
-
-	for i; do
-		elog "${text}"
-		text="& [\e[1m$(has_version ${1} && echo I || echo ' ')\e[0m] ${1}"
-	done
-	elog "${text} (${desc})"
-}
-
 pkg_postinst() {
 	# for udev rules
 	enewgroup dialout
@@ -285,21 +348,26 @@ pkg_postinst() {
 		udevadm hwdb --update --root="${ROOT%/}"
 	fi
 
+	if [[ ${ROOT} == "" || ${ROOT} == "/" ]]; then
+		udevadm control --reload
+	fi
+
 	# Bug 468876
 	fcaps cap_dac_override,cap_sys_ptrace=ep usr/bin/systemd-detect-virt
 
 	if [[ ! -L "${ROOT}"/etc/mtab ]]; then
-		ewarn "Upstream suggests that the /etc/mtab file should be a symlink to /proc/mounts."
-		ewarn "It is known to cause users being unable to unmount user mounts. If you don't"
-		ewarn "require that specific feature, please call:"
-		ewarn "	$ ln -sf '${ROOT}proc/self/mounts' '${ROOT}etc/mtab'"
+		ewarn "Upstream mandates the /etc/mtab file should be a symlink to /proc/mounts."
+		ewarn "Not having it is not supported by upstream and will cause tools like 'df'"
+		ewarn "and 'mount' to not work properly. Please run:"
+		ewarn "	# ln -sf '${ROOT}proc/self/mounts' '${ROOT}etc/mtab'"
 		ewarn
 	fi
 
-	elog "To get additional features, a number of optional runtime dependencies may"
-	elog "be installed:"
-	optfeature 'for GTK+ systemadm UI and gnome-ask-password-agent' \
-		'sys-apps/systemd-ui'
+	if ! has_version sys-apps/systemd-ui; then
+		elog "To get additional features, a number of optional runtime dependencies may"
+		elog "be installed:"
+		elog "- sys-apps/systemd-ui: for GTK+ systemadm UI and gnome-ask-password-agent"
+	fi
 }
 
 pkg_prerm() {

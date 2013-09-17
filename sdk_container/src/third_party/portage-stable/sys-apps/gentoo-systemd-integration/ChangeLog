@@ -1,0 +1,24 @@
+# ChangeLog for sys-apps/gentoo-systemd-integration
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/gentoo-systemd-integration/ChangeLog,v 1.4 2013/09/11 11:49:53 mgorny Exp $
+
+*gentoo-systemd-integration-1 (11 Sep 2013)
+
+  11 Sep 2013; Michał Górny <mgorny@gentoo.org>
+  +gentoo-systemd-integration-1.ebuild, gentoo-systemd-integration-9999.ebuild:
+  Introduce the first release.
+
+  11 Sep 2013; Michał Górny <mgorny@gentoo.org>
+  gentoo-systemd-integration-9999.ebuild:
+  sys-devel/systemd-sdk has been renamed to systemd-m4.
+
+  29 Jul 2013; Michał Górny <mgorny@gentoo.org>
+  gentoo-systemd-integration-9999.ebuild:
+  Block the current revision of live ebuild as well, to ensure a smooth move of
+  files between the packages.
+
+*gentoo-systemd-integration-9999 (29 Jul 2013)
+
+  29 Jul 2013; Michał Górny <mgorny@gentoo.org>
+  +gentoo-systemd-integration-9999.ebuild, +metadata.xml:
+  Initial commit of systemd Gentoo integration files.

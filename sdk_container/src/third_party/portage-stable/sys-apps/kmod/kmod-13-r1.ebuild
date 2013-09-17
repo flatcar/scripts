@@ -1,12 +1,9 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/kmod/kmod-13-r1.ebuild,v 1.14 2013/07/26 14:52:57 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/kmod/kmod-13-r1.ebuild,v 1.15 2013/08/24 10:59:48 ssuominen Exp $
 
 EAPI=5
-
-VIRTUAL_MODUTILS=1
-
-inherit autotools eutils libtool multilib linux-mod
+inherit autotools eutils libtool multilib
 
 if [[ ${PV} == 9999 ]]; then
 	EGIT_REPO_URI="git://git.kernel.org/pub/scm/utils/kernel/${PN}/${PN}.git"
@@ -38,11 +35,6 @@ DEPEND="${RDEPEND}
 	doc? ( dev-util/gtk-doc )
 	lzma? ( virtual/pkgconfig )
 	zlib? ( virtual/pkgconfig )"
-
-pkg_setup() {
-	CONFIG_CHECK="~MODULES ~MODULE_UNLOAD"
-	linux-info_pkg_setup
-}
 
 src_prepare() {
 	epatch "${FILESDIR}"/${P}-errno_syscall.patch
@@ -94,13 +86,4 @@ src_install() {
 
 	insinto /lib/modprobe.d
 	doins "${T}"/usb-load-ehci-first.conf #260139
-}
-
-pkg_postinst() {
-	# Upgrade path from sys-apps/module-init-tools
-	if [[ -d ${ROOT}/lib/modules/${KV_FULL} ]]; then
-		if [[ -z ${REPLACING_VERSIONS} ]]; then
-			update_depmod
-		fi
-	fi
 }
