@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/vdr-plugin.eclass,v 1.90 2012/09/27 16:35:42 axs Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/vdr-plugin.eclass,v 1.91 2013/02/18 09:43:18 hd_brummy Exp $
 
 # @ECLASS: vdr-plugin.eclass
 # @MAINTAINER:
@@ -441,6 +441,11 @@ vdr-plugin_src_util() {
 }
 
 vdr-plugin_src_unpack() {
+	# mark vdr-plugin.eclass deprecated
+	eerror "\n\tvdr-plugin.eclass is deprecated"
+	eerror "\tMaintainer: please fix your ebuilds to use"
+	eerror "\tvdr-plugin-2.eclass \n"
+
 	if [[ -z ${VDR_INCLUDE_DIR} ]]; then
 		eerror "Wrong use of vdr-plugin.eclass."
 		eerror "An ebuild for a vdr-plugin will not work without calling vdr-plugin_pkg_setup."

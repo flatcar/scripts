@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/mysql-cmake.eclass,v 1.13 2013/01/20 02:37:51 robbat2 Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/mysql-cmake.eclass,v 1.17 2013/06/27 17:23:33 jmbsvicetto Exp $
 
 # @ECLASS: mysql-cmake.eclass
 # @MAINTAINER:
@@ -36,29 +36,29 @@ mysql-cmake_disable_test() {
 	for mysql_disabled_file in \
 		${S}/mysql-test/disabled.def  \
 		${S}/mysql-test/t/disabled.def ; do
-		[ -f "${mysql_disabled_file}" ] && break
+		[[ -f ${mysql_disabled_file} ]] && break
 	done
 	#mysql_disabled_file="${S}/mysql-test/t/disabled.def"
 	#einfo "rawtestname=${rawtestname} testname=${testname} testsuite=${testsuite}"
 	echo ${testname} : ${reason} >> "${mysql_disabled_file}"
 
-	if [ -n "${testsuite}" ] && [ "${testsuite}" != "main" ]; then
+	if [[ ( -n ${testsuite} ) && ( ${testsuite} != "main" ) ]]; then
 		for mysql_disabled_file in \
 			${S}/mysql-test/suite/${testsuite}/disabled.def  \
 			${S}/mysql-test/suite/${testsuite}/t/disabled.def  \
 			FAILED ; do
-			[ -f "${mysql_disabled_file}" ] && break
+			[[ -f ${mysql_disabled_file} ]] && break
 		done
-		if [ "${mysql_disabled_file}" != "FAILED" ]; then
+		if [[ ${mysql_disabled_file} != "FAILED" ]]; then
 			echo "${testname} : ${reason}" >> "${mysql_disabled_file}"
 		else
 			for mysql_disabled_dir in \
 				${S}/mysql-test/suite/${testsuite} \
 				${S}/mysql-test/suite/${testsuite}/t  \
 				FAILED ; do
-				[ -d "${mysql_disabled_dir}" ] && break
+				[[ -d ${mysql_disabled_dir} ]] && break
 			done
-			if [ "${mysql_disabled_dir}" != "FAILED" ]; then
+			if [[ ${mysql_disabled_dir} != "FAILED" ]]; then
 				echo "${testname} : ${reason}" >> "${mysql_disabled_dir}/disabled.def"
 			else
 				ewarn "Could not find testsuite disabled.def location for ${rawtestname}"
@@ -72,7 +72,7 @@ mysql-cmake_disable_test() {
 # Helper function to configure locale cmake options
 configure_cmake_locale() {
 
-	if ! use minimal && [ -n "${MYSQL_DEFAULT_CHARSET}" -a -n "${MYSQL_DEFAULT_COLLATION}" ]; then
+	if ! use minimal && [[ ( -n ${MYSQL_DEFAULT_CHARSET} ) && ( -n ${MYSQL_DEFAULT_COLLATION} ) ]]; then
 		ewarn "You are using a custom charset of ${MYSQL_DEFAULT_CHARSET}"
 		ewarn "and a collation of ${MYSQL_DEFAULT_COLLATION}."
 		ewarn "You MUST file bugs without these variables set."
@@ -151,7 +151,7 @@ configure_cmake_standard() {
 	if use ssl; then
 		mycmakeargs+=( -DWITH_SSL=system )
 	else
-		mycmakeargs+=( -DWITH_SSL=0 )
+		mycmakeargs+=( -DWITH_SSL=bundled )
 	fi
 
 	if mysql_version_is_at_least "5.5" && use jemalloc; then
@@ -179,11 +179,21 @@ configure_cmake_standard() {
 		mycmakeargs+=( $(cmake-utils_use_with pbxt PBXT_STORAGE_ENGINE) )
 	fi
 
-	if [ "${PN}" == "mariadb" ]; then
+	if [[ ${PN} == "mariadb" ]]; then
 		mycmakeargs+=(
 			$(cmake-utils_use_with oqgraph OQGRAPH_STORAGE_ENGINE)
 			$(cmake-utils_use_with sphinx SPHINX_STORAGE_ENGINE)
 			$(cmake-utils_use_with extraengine FEDERATEDX_STORAGE_ENGINE)
+		)
+
+		if ! use pam ; then
+			mycmakeargs+=( -DAUTH_PAM_DISABLED=1 )
+		fi
+	fi
+
+	if [[ ${PN} == "percona-server" ]]; then
+		mycmakeargs+=(
+			$(cmake-utils_use_with pam)
 		)
 	fi
 }
@@ -213,9 +223,10 @@ mysql-cmake_src_prepare() {
 
 	# last -fPIC fixup, per bug #305873
 	i="${S}"/storage/innodb_plugin/plug.in
-	[ -f "${i}" ] && sed -i -e '/CFLAGS/s,-prefer-non-pic,,g' "${i}"
+	[[ -f ${i} ]] && sed -i -e '/CFLAGS/s,-prefer-non-pic,,g' "${i}"
 
 	rm -f "scripts/mysqlbug"
+	epatch_user
 }
 
 # @FUNCTION: mysql-cmake_src_configure
@@ -247,13 +258,13 @@ mysql-cmake_src_configure() {
 		-DINSTALL_SQLBENCHDIR=share/mysql
 		-DINSTALL_SUPPORTFILESDIR=${EPREFIX}/usr/share/mysql
 		-DWITH_COMMENT="Gentoo Linux ${PF}"
-		-DWITHOUT_UNIT_TESTS=1
+		$(cmake-utils_use_with test UNIT_TESTS)
 	)
 
 	# Bug 412851
 	# MariaDB requires this flag to compile with GPLv3 readline linked
 	# Adds a warning about redistribution to configure
-	if [[ "${PN}" == "mariadb" ]] ; then
+	if [[ ${PN} == "mariadb" ]] ; then
 		mycmakeargs+=( -DNOT_FOR_DISTRIBUTION=1 )
 	fi
 
@@ -268,9 +279,16 @@ mysql-cmake_src_configure() {
 	# Bug #114895, bug #110149
 	filter-flags "-O" "-O[01]"
 
-	CXXFLAGS="${CXXFLAGS} -fno-exceptions -fno-strict-aliasing"
+	CXXFLAGS="${CXXFLAGS} -fno-strict-aliasing"
 	CXXFLAGS="${CXXFLAGS} -felide-constructors -fno-rtti"
-	CXXFLAGS="${CXXFLAGS} -fno-implicit-templates"
+	# Causes linkage failures.  Upstream bug #59607 removes it
+	if ! mysql_version_is_at_least "5.6" ; then
+		CXXFLAGS="${CXXFLAGS} -fno-implicit-templates"
+	fi
+	# As of 5.7, exceptions are used!
+	if ! mysql_version_is_at_least "5.7" ; then
+		CXXFLAGS="${CXXFLAGS} -fno-exceptions"
+	fi
 	export CXXFLAGS
 
 	# bug #283926, with GCC4.4, this is required to get correct behavior.
@@ -307,6 +325,9 @@ mysql-cmake_src_install() {
 	dosym "/usr/bin/mysqlcheck" "/usr/bin/mysqlrepair"
 	dosym "/usr/bin/mysqlcheck" "/usr/bin/mysqloptimize"
 
+	# Create a mariadb_config symlink
+	[[ ${PN} == "mariadb" ]] && dosym "/usr/bin/mysql_config" "/usr/bin/mariadb_config"
+
 	# INSTALL_LAYOUT=STANDALONE causes cmake to create a /usr/data dir
 	rm -Rf "${ED}/usr/data"
 
@@ -332,7 +353,7 @@ mysql-cmake_src_install() {
 	# Configuration stuff
 	case ${MYSQL_PV_MAJOR} in
 		5.[1-4]*) mysql_mycnf_version="5.1" ;;
-		5.[5-9]|6*|7*) mysql_mycnf_version="5.5" ;;
+		5.[5-9]|6*|7*|8*|9*|10*) mysql_mycnf_version="5.5" ;;
 	esac
 	einfo "Building default my.cnf (${mysql_mycnf_version})"
 	insinto "${MY_SYSCONFDIR#${EPREFIX}}"
@@ -354,7 +375,7 @@ mysql-cmake_src_install() {
 		einfo "Creating initial directories"
 		# Empty directories ...
 		diropts "-m0750"
-		if [[ "${PREVIOUS_DATADIR}" != "yes" ]] ; then
+		if [[ ${PREVIOUS_DATADIR} != "yes" ]] ; then
 			dodir "${MY_DATADIR#${EPREFIX}}"
 			keepdir "${MY_DATADIR#${EPREFIX}}"
 			chown -R mysql:mysql "${D}/${MY_DATADIR}"
@@ -377,15 +398,21 @@ mysql-cmake_src_install() {
 			"${S}"/support-files/magic \
 			"${S}"/support-files/ndb-config-2-node.ini.sh
 		do
-			[[ -f "$script" ]] && dodoc "${script}"
+			[[ -f $script ]] && dodoc "${script}"
 		done
 
 		docinto "scripts"
 		for script in "${S}"/scripts/mysql* ; do
-			[[ -f "$script" ]] && [[ "${script%.sh}" == "${script}" ]] && dodoc "${script}"
+			[[ ( -f $script ) && ( ${script%.sh} == ${script} ) ]] && dodoc "${script}"
 		done
-
 	fi
 
-	mysql_lib_symlinks "${ED}"
+	cat <<-EOF > "${T}"/80mysql-libdir
+	LDPATH="${EPREFIX}/usr/$(get_libdir)/mysql"
+	EOF
+	doenvd "${T}"/80mysql-libdir
+
+	#Remove mytop if perl is not selected
+	[[ ${PN} == "mariadb" ]] && ! use perl \
+	&& rm -f "${ED}/usr/bin/mytop"
 }

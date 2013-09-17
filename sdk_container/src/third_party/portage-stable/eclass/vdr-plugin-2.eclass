@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/vdr-plugin-2.eclass,v 1.21 2013/01/27 13:32:44 hd_brummy Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/vdr-plugin-2.eclass,v 1.24 2013/04/13 19:07:31 hd_brummy Exp $
 
 # @ECLASS: vdr-plugin-2.eclass
 # @MAINTAINER:
@@ -104,31 +104,6 @@ create_plugindb_file() {
 	} > "${D}/${DB_FILE}"
 }
 
-# Delete files created outside of vdr-plugin-2.eclass
-#   vdrplugin-rebuild.ebuild converted plugindb and files are
-#   not deleted by portage itself - should only be needed as
-#   long as not every system has switched over to
-#   vdrplugin-rebuild-0.2 / gentoo-vdr-scripts-0.4.2
-delete_orphan_plugindb_file() {
-	#elog Testing for orphaned plugindb file
-	local NEW_VDRPLUGINDB_DIR=/usr/share/vdr/vdrplugin-rebuild/
-	local DB_FILE="${ROOT}/${NEW_VDRPLUGINDB_DIR}/${CATEGORY}-${PF}"
-
-	# file exists
-	[[ -f ${DB_FILE} ]] || return
-
-	# will portage handle the file itself
-	if grep -q CREATOR=ECLASS "${DB_FILE}"; then
-		#elog file owned by eclass - don't touch it
-		return
-	fi
-
-	elog "Removing orphaned plugindb-file."
-	elog "\t#rm ${DB_FILE}"
-	rm "${DB_FILE}"
-}
-
-
 create_header_checksum_file() {
 	# Danger: Not using $ROOT here, as compile will also not use it !!!
 	# If vdr in $ROOT and / differ, plugins will not run anyway
@@ -212,12 +187,6 @@ vdr_patchmakefile() {
 		-e '/^CXXFLAGS[[:space:]]*=/s/=/?=/' \
 		-e '/LDFLAGS/!s:-shared:$(LDFLAGS) -shared:'
 
-	# Do not use {C,CXX}FLAGS from pkg-config vdr.pc, >=media-video/vdr-1.7.34
-	# we do not have the chance to overwrite it with *.eclass
-	sed -e "/^export[[:space:]]*CFLAGS[[:space:]]*=/s/=/?=/" \
-		-e "/^export[[:space:]]*CXXFLAGS[[:space:]]*=/s/=/?=/" \
-		-i Makefile
-
 	# Disabling file stripping, the package manager takes care of it
 	sed -i Makefile \
 		-e '/@.*strip/d' \
@@ -248,7 +217,7 @@ gettext_missing() {
 }
 
 detect_po_dir() {
-#	Some plugins have po/ in a subdir
+#	Some plugins have /po in a subdir
 #	set PO_SUBDIR in .ebuild
 #	i.e media-plugins/vdr-streamdev
 #	PO_SUBDIR="client server"
@@ -258,18 +227,12 @@ detect_po_dir() {
 	local f
 
 	pofile_dir=( ${po_dir} ${po_subdir[*]} )
-
-	# maintainer check
-	if [[ ! -d ${pofile_dir[*]} ]]; then
-		dev_check "po dir not found? May be in subdir? \n"
-	fi
 }
 
 linguas_support() {
 #	Patching Makefile for linguas support.
 #	Only locales, enabled through the LINGUAS (make.conf) variable will be
 #	"compiled" and installed.
-#
 
 	einfo "Patching for Linguas support"
 	einfo "available Languages for ${P} are:"
@@ -277,7 +240,6 @@ linguas_support() {
 	detect_po_dir
 
 	for f in ${pofile_dir[*]}; do
-
 		PLUGIN_LINGUAS=$( ls ${f}/po --ignore="*.pot" | sed -e "s:.po::g" | cut -d_ -f1 | tr \\\012 ' ' )
 		einfo "LINGUAS=\"${PLUGIN_LINGUAS}\""
 
@@ -338,34 +300,9 @@ remove_i18n_include() {
 		-e "s:^#include[[:space:]]*\"i18n.h\"://:"
 	done
 
-	dev_check "removed i18n.h for ${@}"
+	dev_check "removed i18n.h include in ${@}"
 }
 # end new vdr-plugin-2.eclass content
-
-# ToDo: we don't support included plugins from vdr source for install in this way !!!
-# obsolet, remove it, later...
-#vdr-plugin-2_copy_source_tree() {
-#	pushd . >/dev/null
-#	cp -r "${S}" "${T}"/source-tree
-#	cd "${T}"/source-tree
-#	cp "${WORKDIR}"/Makefile.before Makefile
-#	# TODO: Fix this, maybe no longer needed
-#	sed -i Makefile \
-#		-e "s:^DVBDIR.*$:DVBDIR = ${DVB_INCLUDE_DIR}:" \
-#		-e 's:^CXXFLAGS:#CXXFLAGS:' \
-#		-e 's:-I$(DVBDIR)/include:-I$(DVBDIR):' \
-#		-e 's:-I$(VDRDIR) -I$(DVBDIR):-I$(DVBDIR) -I$(VDRDIR):'
-#	popd >/dev/null
-#}
-
-#vdr-plugin-2_install_source_tree() {
-#	einfo "Installing sources"
-#	destdir="${VDRSOURCE_DIR}/vdr-${VDRVERSION}/PLUGINS/src/${VDRPLUGIN}"
-#	insinto "${destdir}-${PV}"
-#	doins -r "${T}"/source-tree/*
-#
-#	dosym "${VDRPLUGIN}-${PV}" "${destdir}"
-#}
 
 vdr-plugin-2_print_enable_command() {
 	local p_name c=0 l=""
@@ -443,6 +380,7 @@ vdr-plugin-2_pkg_setup() {
 	fi
 
 	if has_version ">=media-video/vdr-1.7.34"; then
+		VDRVERSION=$(awk -F'"' '/define VDRVERSION/ {print $2}' "${VDR_INCLUDE_DIR}"/config.h)
 		APIVERSION=$(pkg-config --variable=apiversion vdr)
 	else
 		VDRVERSION=$(awk -F'"' '/define VDRVERSION/ {print $2}' "${VDR_INCLUDE_DIR}"/config.h)
@@ -524,14 +462,10 @@ vdr-plugin-2_src_prepare() {
 }
 
 vdr-plugin-2_src_compile() {
-	[ -z "$1" ] && vdr-plugin-2_src_compile copy_source compile
+	[ -z "$1" ] && vdr-plugin-2_src_compile compile
 
 	while [ "$1" ]; do
 		case "$1" in
-		copy_source)
-			[[ -n "${VDRSOURCE_DIR}" ]] && vdr-plugin-2_copy_source_tree
-			dev_check "ToDo: obsoleted handling, vdr-plugin-2_copy_source_tree"
-			;;
 		compile)
 			if [[ ! -f ${WORKDIR}/.vdr-plugin_makefile_patched ]]; then
 				eerror "Wrong use of vdr-plugin-2.eclass."
@@ -567,8 +501,6 @@ vdr-plugin-2_src_install() {
 		die "vdr-plugin-2_src_install not called!"
 	fi
 
-#	ToDo: obsolet, remove it, later...
-#	[[ -n "${VDRSOURCE_DIR}" ]] && vdr-plugin-2_install_source_tree
 	cd "${WORKDIR}"
 
 	if [[ -n ${VDR_MAINTAINER_MODE} ]]; then
@@ -598,14 +530,12 @@ vdr-plugin-2_src_install() {
 		einstall ${BUILD_PARAMS} \
 			${BUILD_TARGETS} \
 			TMPDIR="${T}" \
-			LOCDIR="${TMP_LOCALE_DIR}" \
-			LIBDIR="${S}" \
 			DESTDIR="${D}" \
 			|| die "einstall (makefile target) failed"
-		fi
-
-	insinto "${VDR_PLUGIN_DIR}"
-	doins libvdr-*.so.*
+	else
+		insinto "${VDR_PLUGIN_DIR}"
+		doins libvdr-*.so.*
+	fi
 
 	if [[ -d ${TMP_LOCALE_DIR} ]]; then
 		einfo "Installing locales"
@@ -618,7 +548,7 @@ vdr-plugin-2_src_install() {
 		done
 	fi
 
-	cd "${S}"
+	cd "${D}/usr/$(get_libdir)/vdr/plugins"
 
 	# create list of all created plugin libs
 	vdr_plugin_list=""
@@ -628,6 +558,8 @@ vdr-plugin-2_src_install() {
 		p_name="${p_name#lib}"
 		vdr_plugin_list="${vdr_plugin_list} ${p_name}"
 	done
+
+	cd "${S}"
 
 	create_header_checksum_file ${vdr_plugin_list}
 	create_plugindb_file ${vdr_plugin_list}
@@ -664,7 +596,7 @@ vdr-plugin-2_pkg_postinst() {
 }
 
 vdr-plugin-2_pkg_postrm() {
-	delete_orphan_plugindb_file
+:
 }
 
 vdr-plugin-2_pkg_config() {

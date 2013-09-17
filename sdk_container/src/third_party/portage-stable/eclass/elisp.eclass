@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/elisp.eclass,v 1.56 2013/01/04 21:22:43 ulm Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/elisp.eclass,v 1.57 2013/03/16 08:55:30 ulm Exp $
 #
 # @ECLASS: elisp.eclass
 # @MAINTAINER:
@@ -151,7 +151,7 @@ elisp_src_configure() { :; }
 # GNU Info files from them.
 
 elisp_src_compile() {
-	elisp-compile *.el || die
+	elisp-compile *.el
 	if [[ -n ${ELISP_TEXINFO} ]]; then
 		makeinfo ${ELISP_TEXINFO} || die
 	fi
@@ -165,9 +165,9 @@ elisp_src_compile() {
 # ELISP_TEXINFO and documentation listed in the DOCS variable.
 
 elisp_src_install() {
-	elisp-install ${PN} *.el *.elc || die
+	elisp-install ${PN} *.el *.elc
 	if [[ -n ${SITEFILE} ]]; then
-		elisp-site-file-install "${FILESDIR}/${SITEFILE}" || die
+		elisp-site-file-install "${FILESDIR}/${SITEFILE}"
 	fi
 	if [[ -n ${ELISP_TEXINFO} ]]; then
 		set -- ${ELISP_TEXINFO}
@@ -176,6 +176,9 @@ elisp_src_install() {
 	fi
 	if [[ -n ${DOCS} ]]; then
 		dodoc ${DOCS} || die
+	fi
+	if declare -f readme.gentoo_create_doc >/dev/null; then
+		readme.gentoo_create_doc
 	fi
 }
 
@@ -186,6 +189,9 @@ elisp_src_install() {
 
 elisp_pkg_postinst() {
 	elisp-site-regen
+	if declare -f readme.gentoo_print_elog >/dev/null; then
+		readme.gentoo_print_elog
+	fi
 }
 
 # @FUNCTION: elisp_pkg_postrm

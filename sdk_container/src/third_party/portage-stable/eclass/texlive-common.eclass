@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/texlive-common.eclass,v 1.19 2012/10/17 13:16:31 aballier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/texlive-common.eclass,v 1.20 2013/06/26 15:54:48 aballier Exp $
 
 # @ECLASS: texlive-common.eclass
 # @MAINTAINER:
@@ -48,8 +48,8 @@ texlive-common_handle_config_files() {
 
 texlive-common_is_file_present_in_texmf() {
 	local mark="${T}/$1.found"
-	find texmf -name $1 -exec touch "${mark}" \;
-	find texmf-dist -name $1 -exec touch "${mark}" \;
+	[ -d texmf ] && find texmf -name $1 -exec touch "${mark}" \;
+	[ -d texmf-dist ] && find texmf-dist -name $1 -exec touch "${mark}" \;
 	[ -f "${mark}" ]
 }
 

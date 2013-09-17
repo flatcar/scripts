@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/ghc-package.eclass,v 1.36 2013/01/06 13:06:35 slyfox Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/ghc-package.eclass,v 1.37 2013/05/11 12:46:32 slyfox Exp $
 
 # @ECLASS: ghc-package.eclass
 # @MAINTAINER:
@@ -101,6 +101,21 @@ ghc-supports-shared-libraries() {
 ghc-supports-threaded-runtime() {
 	$(ghc-getghc) --info | grep "RTS ways" | grep -q "thr"
 }
+
+# @FUNCTION: ghc-supports-smp
+# @DESCRIPTION:
+# checks if ghc is built with support for multiple cores runtime
+ghc-supports-smp() {
+	$(ghc-getghc) --info | grep "Support SMP" | grep -q "YES"
+}
+
+# @FUNCTION: ghc-supports-dynamic-by-default
+# @DESCRIPTION:
+# checks if ghc link against shared haskell libraries by default
+ghc-supports-dynamic-by-default() {
+	$(ghc-getghc) --info | grep "Dynamic by default" | grep -q "YES"
+}
+
 
 # @FUNCTION: ghc-extractportageversion
 # @DESCRIPTION:

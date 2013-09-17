@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/flag-o-matic.eclass,v 1.187 2013/01/12 14:32:31 jlec Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/flag-o-matic.eclass,v 1.188 2013/09/05 05:28:01 vapier Exp $
 
 # @ECLASS: flag-o-matic.eclass
 # @MAINTAINER:
@@ -325,7 +325,9 @@ filter-mfpmath() {
 	orig_mfpmath=$(get-flag -mfpmath)
 	# get the value of the current -mfpmath flag
 	new_math=$(get-flag mfpmath)
-	new_math=" ${new_math//,/ } "
+	# convert "both" to something we can filter
+	new_math=${new_math/both/387,sse}
+	new_math=" ${new_math//[,+]/ } "
 	# figure out which math values are to be removed
 	prune_math=""
 	for prune_math in "$@" ; do

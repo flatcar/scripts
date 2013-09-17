@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/python-single-r1.eclass,v 1.18 2013/05/21 01:31:02 floppym Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/python-single-r1.eclass,v 1.21 2013/09/17 13:33:55 mgorny Exp $
 
 # @ECLASS: python-single-r1
 # @MAINTAINER:
@@ -82,6 +82,8 @@ fi
 # for all implementations in PYTHON_COMPAT, so it may be necessary to
 # use USE defaults.
 #
+# This should be set before calling `inherit'.
+#
 # Example:
 # @CODE
 # PYTHON_REQ_USE="gdbm,ncurses(-)?"
@@ -108,7 +110,7 @@ fi
 #
 # Example value:
 # @CODE
-# dev-python/python-exec
+# dev-python/python-exec:0
 # python_single_target_python2_6? ( dev-lang/python:2.6[gdbm] )
 # python_single_target_python2_7? ( dev-lang/python:2.7[gdbm] )
 # @CODE
@@ -191,7 +193,13 @@ _python_single_set_globals() {
 	# but no point in making this overcomplex, BDEP doesn't hurt anyone
 	# 2) python-exec should be built with all targets forced anyway
 	# but if new targets were added, we may need to force a rebuild
-	PYTHON_DEPS+="dev-python/python-exec[${PYTHON_USEDEP}]"
+	# 3) use whichever python-exec slot installed in EAPI 5. For EAPI 4,
+	# just fix :0 for now since := deps are not supported.
+	if [[ ${EAPI} != 4 ]]; then
+		PYTHON_DEPS+="dev-python/python-exec:=[${PYTHON_USEDEP}]"
+	else
+		PYTHON_DEPS+="dev-python/python-exec:0[${PYTHON_USEDEP}]"
+	fi
 }
 _python_single_set_globals
 

@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/nsplugins.eclass,v 1.31 2012/09/15 16:16:53 zmedico Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/nsplugins.eclass,v 1.33 2013/05/28 03:29:50 anarchy Exp $
 #
 # @ECLASS: nsplugins.eclass
 # @MAINTAINER:
@@ -12,7 +12,7 @@
 # Reusable functions that promote sharing of netscape/moz plugins, also provides
 # share_plugins_dir function for mozilla applications.
 
-inherit eutils multilib
+inherit eutils multilib versionator mozextension
 
 PLUGINS_DIR="nsbrowser/plugins"
 
@@ -72,5 +72,9 @@ share_plugins_dir() {
 		PLUGIN_BASE_PATH=".."
 	fi
 
-	dosym "${PLUGIN_BASE_PATH}/nsbrowser/plugins" "${MOZILLA_FIVE_HOME}/plugins"
+	if $(mozversion_extension_location) ; then
+		dosym "${PLUGIN_BASE_PATH}/nsbrowser/plugins" "${MOZILLA_FIVE_HOME}/browser/plugins"
+	else
+		dosym "${PLUGIN_BASE_PATH}/nsbrowser/plugins" "${MOZILLA_FIVE_HOME}/plugins"
+	fi
 }

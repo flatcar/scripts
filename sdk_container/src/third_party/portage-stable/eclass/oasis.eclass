@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/oasis.eclass,v 1.3 2012/03/27 22:44:41 aballier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/oasis.eclass,v 1.4 2013/02/07 13:42:12 aballier Exp $
 
 # @ECLASS: oasis.eclass
 # @MAINTAINER: 
@@ -46,6 +46,8 @@ inherit multilib findlib eutils base
 
 case ${EAPI:-0} in
 	0|1|2) die "You need at least EAPI-3 to use oasis.eclass";;
+	3|4) RDEPEND=">=dev-lang/ocaml-3.12[ocamlopt?]";;
+	*) RDEPEND=">=dev-lang/ocaml-3.12:=[ocamlopt?]";;
 esac
 
 IUSE="+ocamlopt"
@@ -53,7 +55,6 @@ IUSE="+ocamlopt"
 [ -n "${OASIS_BUILD_DOCS}" ] && IUSE="${IUSE} doc"
 [ -n "${OASIS_BUILD_TESTS}" ] && IUSE="${IUSE} test"
 
-RDEPEND=">=dev-lang/ocaml-3.12[ocamlopt?]"
 DEPEND="${RDEPEND}"
 
 # @FUNCTION: oasis_use_enable

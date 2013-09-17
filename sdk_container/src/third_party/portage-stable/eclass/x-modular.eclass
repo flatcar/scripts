@@ -1,8 +1,8 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/x-modular.eclass,v 1.125 2012/05/02 18:31:45 jdhore Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/x-modular.eclass,v 1.126 2013/07/05 17:39:10 ulm Exp $
 #
-# @DEPRECATED
+# DEPRECATED
 # This eclass has been superseded by xorg-2
 # Please modify your ebuilds to use that instead
 #

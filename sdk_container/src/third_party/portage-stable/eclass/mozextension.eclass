@@ -1,17 +1,28 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/mozextension.eclass,v 1.7 2011/12/27 17:55:12 fauli Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/mozextension.eclass,v 1.9 2013/05/28 03:29:50 anarchy Exp $
 #
 # @ECLASS: mozextension.eclass
 # @MAINTAINER:
 # Mozilla team <mozilla@gentoo.org>
-# @DESCRIPTION:
-# Install extensions for use in mozilla products.
+# @BLURB: Install extensions for use in mozilla products.
 
 
 inherit eutils
 
 DEPEND="app-arch/unzip"
+
+mozversion_extension_location() {
+	case ${PN} in
+		firefox|firefox-bin)
+			if [[ $(get_version_component_range 1) -ge 21 ]] ; then
+				return 0
+			fi
+		;;
+	esac
+
+	return 1
+}
 
 xpi_unpack() {
 	local xpi xpiname srcdir
@@ -54,6 +65,10 @@ xpi_install() {
 	# determine id for extension
 	emid="$(sed -n -e '/install-manifest/,$ { /em:id/!d; s/.*[\">]\([^\"<>]*\)[\"<].*/\1/; p; q }' "${x}"/install.rdf)" \
 		|| die "failed to determine extension id"
-	insinto "${MOZILLA_FIVE_HOME}"/extensions/${emid}
+	if $(mozversion_extension_location) ; then
+		insinto "${MOZILLA_FIVE_HOME}"/browser/extensions/${emid}
+	else
+		insinto "${MOZILLA_FIVE_HOME}"/extensions/${emid}
+	fi
 	doins -r "${x}"/* || die "failed to copy extension"
 }

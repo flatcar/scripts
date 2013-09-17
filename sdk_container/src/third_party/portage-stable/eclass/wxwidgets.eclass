@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/wxwidgets.eclass,v 1.32 2011/12/27 17:55:13 fauli Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/wxwidgets.eclass,v 1.34 2013/08/16 07:59:17 heroxbd Exp $
 
 # @ECLASS:			wxwidgets.eclass
 # @MAINTAINER:
@@ -71,13 +71,13 @@ if [[ -z ${WX_CONFIG} ]]; then
 			# newer versions don't have a seperate debug profile
 			for wxdebug in xxx release- debug-; do
 				wxconf="${wxtoolkit}-${wxchar}-${wxdebug/xxx/}${WX_GTK_VER}"
-				if [[ -f /usr/$(get_libdir)/wx/config/${wxconf} ]]; then
+				if [[ -f ${EPREFIX}/usr/$(get_libdir)/wx/config/${wxconf} ]]; then
 					# if this is a wxBase install, die in pkg_setup
 					[[ ${wxtoolkit} == "base" ]] && WXBASE_DIE=1
 				else
 					continue
 				fi
-				WX_CONFIG="/usr/$(get_libdir)/wx/config/${wxconf}"
+				WX_CONFIG="${EPREFIX}/usr/$(get_libdir)/wx/config/${wxconf}"
 				WX_ECLASS_CONFIG="${WX_CONFIG}"
 				break
 			done
@@ -229,7 +229,7 @@ need-wxwidgets() {
 	debug-print "wxconf is ${wxconf}"
 
 	# if this doesn't work, something is seriously screwed
-	if [[ ! -f /usr/$(get_libdir)/wx/config/${wxconf} ]]; then
+	if [[ ! -f ${EPREFIX}/usr/$(get_libdir)/wx/config/${wxconf} ]]; then
 		echo
 		eerror "Failed to find configuration ${wxconf}"
 		echo
@@ -238,7 +238,7 @@ need-wxwidgets() {
 
 	debug-print "Found config ${wxconf} - setting WX_CONFIG"
 
-	export WX_CONFIG="/usr/$(get_libdir)/wx/config/${wxconf}"
+	export WX_CONFIG="${EPREFIX}/usr/$(get_libdir)/wx/config/${wxconf}"
 
 	debug-print "WX_CONFIG is ${WX_CONFIG}"
 

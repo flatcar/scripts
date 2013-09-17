@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/mozcoreconf-2.eclass,v 1.27 2013/01/16 19:02:10 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/mozcoreconf-2.eclass,v 1.30 2013/08/26 14:39:36 anarchy Exp $
 #
 # mozcoreconf.eclass : core options for mozilla
 # inherit mozconfig-2 if you need USE flags
@@ -14,7 +14,6 @@ IUSE="${IUSE} custom-cflags custom-optimization"
 
 RDEPEND="x11-libs/libXrender
 	x11-libs/libXt
-	x11-libs/libXmu
 	>=sys-libs/zlib-1.1.4"
 
 DEPEND="${RDEPEND}
@@ -94,6 +93,12 @@ moz_pkgsetup() {
 	export NO_STATIC_LIB=1
 	export USE_PTHREADS=1
 	export ALDFLAGS=${LDFLAGS}
+	# ensure MOZCONFIG is not defined
+	eval unset MOZCONFIG
+
+	# nested configure scripts in mozilla products generate unrecognized options
+	# false positives when toplevel configure passes downwards.
+	export QA_CONFIGURE_OPTIONS=".*"
 
 	if [[ $(gcc-major-version) -eq 3 ]]; then
 		ewarn "Unsupported compiler detected, DO NOT file bugs for"
@@ -108,11 +113,8 @@ mozconfig_init() {
 	declare enable_optimize pango_version myext x
 	declare XUL=$([[ ${PN} == xulrunner ]] && echo true || echo false)
 	declare FF=$([[ ${PN} == firefox ]] && echo true || echo false)
-	declare IC=$([[ ${PN} == icecat ]] && echo true || echo false)
 	declare SM=$([[ ${PN} == seamonkey ]] && echo true || echo false)
 	declare TB=$([[ ${PN} == thunderbird ]] && echo true || echo false)
-	declare EM=$([[ ${PN} == enigmail ]] && echo true || echo false)
-
 
 	####################################
 	#
@@ -128,9 +130,6 @@ mozconfig_init() {
 		*firefox)
 			cp browser/config/mozconfig .mozconfig \
 				|| die "cp browser/config/mozconfig failed" ;;
-		*icecat)
-			cp browser/config/mozconfig .mozconfig \
-				|| die "cp browser/config/mozconfig failed" ;;
 		seamonkey)
 			# Must create the initial mozconfig to enable application
 			: >.mozconfig || die "initial mozconfig creation failed"
@@ -139,9 +138,6 @@ mozconfig_init() {
 			# Must create the initial mozconfig to enable application
 			: >.mozconfig || die "initial mozconfig creation failed"
 			mozconfig_annotate "" --enable-application=mail ;;
-		enigmail)
-			cp mail/config/mozconfig .mozconfig \
-				|| die "cp mail/config/mozconfig failed" ;;
 	esac
 
 	####################################
@@ -215,7 +211,7 @@ mozconfig_init() {
 		--enable-pango \
 		--enable-system-cairo
 		if ! $(mozversion_is_new_enough) ; then
-			mozconfig annotate system-libs --enable-svg
+			mozconfig_annotate system-libs --enable-svg
 		fi
 
 	mozconfig_annotate disable_update_strip \
@@ -252,14 +248,6 @@ mozconfig_init() {
 
 	# jemalloc won't build with older glibc
 	! has_version ">=sys-libs/glibc-2.4" && mozconfig_annotate "we have old glibc" --disable-jemalloc
-}
-
-makemake2() {
-	for m in $(find ../ -name Makefile.in); do
-		topdir=$(echo "$m" | sed -r 's:[^/]+:..:g')
-		sed -e "s:@srcdir@:.:g" -e "s:@top_srcdir@:${topdir}:g" \
-			< ${m} > ${m%.in} || die "sed ${m} failed"
-	done
 }
 
 # mozconfig_final: display a table describing all configuration options paired

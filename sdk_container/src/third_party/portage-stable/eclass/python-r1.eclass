@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/python-r1.eclass,v 1.56 2013/08/04 08:24:28 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/python-r1.eclass,v 1.61 2013/09/17 13:33:55 mgorny Exp $
 
 # @ECLASS: python-r1
 # @MAINTAINER:
@@ -28,12 +28,11 @@
 # http://www.gentoo.org/proj/en/Python/python-r1/dev-guide.xml
 
 case "${EAPI:-0}" in
-	0|1|2|3|4)
+	0|1|2|3)
 		die "Unsupported EAPI=${EAPI:-0} (too old) for ${ECLASS}"
 		;;
-	5)
-		# EAPI=5 is required for meaningful USE default deps
-		# on USE_EXPAND flags
+	4|5)
+		# EAPI=4 is required for USE default deps on USE_EXPAND flags
 		;;
 	*)
 		die "Unsupported EAPI=${EAPI} (unknown) for ${ECLASS}"
@@ -97,6 +96,8 @@ fi
 # for all implementations in PYTHON_COMPAT, so it may be necessary to
 # use USE defaults.
 #
+# This should be set before calling `inherit'.
+#
 # Example:
 # @CODE
 # PYTHON_REQ_USE="gdbm,ncurses(-)?"
@@ -121,7 +122,7 @@ fi
 #
 # Example value:
 # @CODE
-# dev-python/python-exec
+# dev-python/python-exec:=
 # python_targets_python2_6? ( dev-lang/python:2.6[gdbm] )
 # python_targets_python2_7? ( dev-lang/python:2.7[gdbm] )
 # @CODE
@@ -202,7 +203,13 @@ _python_set_globals() {
 	# but no point in making this overcomplex, BDEP doesn't hurt anyone
 	# 2) python-exec should be built with all targets forced anyway
 	# but if new targets were added, we may need to force a rebuild
-	PYTHON_DEPS+="dev-python/python-exec[${PYTHON_USEDEP}]"
+	# 3) use whichever python-exec slot installed in EAPI 5. For EAPI 4,
+	# just fix :0 for now since := deps are not supported.
+	if [[ ${EAPI} != 4 ]]; then
+		PYTHON_DEPS+="dev-python/python-exec:=[${PYTHON_USEDEP}]"
+	else
+		PYTHON_DEPS+="dev-python/python-exec:0[${PYTHON_USEDEP}]"
+	fi
 }
 _python_set_globals
 
@@ -740,28 +747,36 @@ python_export_best() {
 python_replicate_script() {
 	debug-print-function ${FUNCNAME} "${@}"
 
-	local suffixes=()
+	_python_replicate_script() {
+		if _python_want_python_exec2; then
+			local PYTHON_SCRIPTDIR
+			python_export PYTHON_SCRIPTDIR
 
-	_add_suffix() {
-		suffixes+=( "${EPYTHON}" )
+			(
+				exeinto "${PYTHON_SCRIPTDIR#${EPREFIX}}"
+				doexe "${files[@]}"
+			)
+
+			_python_rewrite_shebang "${EPYTHON}" \
+				"${files[@]/*\//${D%/}/${PYTHON_SCRIPTDIR}/}"
+		else
+			local f
+			for f in "${files[@]}"; do
+				cp -p "${f}" "${f}-${EPYTHON}" || die
+			done
+
+			_python_rewrite_shebang "${EPYTHON}" \
+				"${files[@]/%/-${EPYTHON}}"
+		fi
 	}
-	python_foreach_impl _add_suffix
-	debug-print "${FUNCNAME}: suffixes = ( ${suffixes[@]} )"
 
-	local f suffix
-	for suffix in "${suffixes[@]}"; do
-		for f; do
-			local newf=${f}-${suffix}
+	local files=( "${@}" )
+	python_foreach_impl _python_replicate_script
 
-			debug-print "${FUNCNAME}: ${f} -> ${newf}"
-			cp "${f}" "${newf}" || die
-		done
-
-		_python_rewrite_shebang "${suffix}" "${@/%/-${suffix}}"
-	done
-
+	# install the wrappers
+	local f
 	for f; do
-		_python_ln_rel "${ED}"/usr/bin/python-exec "${f}" || die
+		_python_ln_rel "${ED%/}$(_python_get_wrapper_path)" "${f}" || die
 	done
 }
 

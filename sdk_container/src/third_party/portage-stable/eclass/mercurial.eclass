@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/mercurial.eclass,v 1.20 2012/12/26 23:08:53 ottxor Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/mercurial.eclass,v 1.22 2013/04/28 16:15:33 zmedico Exp $
 
 # @ECLASS: mercurial.eclass
 # @MAINTAINER:
@@ -36,7 +36,7 @@ DEPEND="dev-vcs/mercurial"
 
 # @ECLASS-VARIABLE: EHG_STORE_DIR
 # @DESCRIPTION:
-# Mercurial sources store directory. Users may override this in /etc/make.conf
+# Mercurial sources store directory. Users may override this in /etc/portage/make.conf
 [[ -z "${EHG_STORE_DIR}" ]] && EHG_STORE_DIR="${PORTAGE_ACTUAL_DISTDIR:-${DISTDIR}}/hg-src"
 
 # @ECLASS-VARIABLE: EHG_PROJECT
@@ -49,8 +49,8 @@ DEPEND="dev-vcs/mercurial"
 
 # @ECLASS-VARIABLE: EHG_QUIET
 # @DESCRIPTION:
-# Suppress some extra noise from mercurial, set it to 'OFF' to be louder.
-: ${EHG_QUIET:="ON"}
+# Suppress some extra noise from mercurial, set it to 'ON' to be quiet.
+: ${EHG_QUIET:="OFF"}
 [[ "${EHG_QUIET}" == "ON" ]] && EHG_QUIET_CMD_OPT="--quiet"
 
 # @ECLASS-VARIABLE: EHG_CLONE_CMD

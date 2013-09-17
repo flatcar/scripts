@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/mozlinguas.eclass,v 1.5 2012/09/27 16:35:41 axs Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/mozlinguas.eclass,v 1.6 2013/04/05 15:27:40 floppym Exp $
 
 # @ECLASS: mozlinguas.eclass
 # @MAINTAINER:
@@ -28,7 +28,6 @@ esac
 # Array containing the list of language pack xpis available for
 # this release. The list can be updated with scripts/get_langs.sh from the
 # mozilla overlay.
-# @DEFAULT-UNSET
 : ${MOZ_LANGS:=()}
 
 # @ECLASS-VARIABLE: MOZ_PV
@@ -50,7 +49,6 @@ esac
 : ${MOZ_P:="${MOZ_PN}-${MOZ_PV}"}
 
 # @ECLASS-VARIABLE: MOZ_FTP_URI
-# @DEFAULT-UNSET
 # @DESCRIPTION:
 # The ftp URI prefix for the release tarballs and language packs.
 : ${MOZ_FTP_URI:=""}

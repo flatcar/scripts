@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/bsdmk.eclass,v 1.11 2011/12/27 17:55:12 fauli Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/bsdmk.eclass,v 1.12 2013/08/09 16:26:59 aballier Exp $
 
 # @ECLASS: bsdmk.eclass
 # @MAINTAINER:
@@ -74,7 +74,7 @@ dummy_mk() {
 # @DESCRIPTION:
 # The bsdmk src_compile function, which is exported
 bsdmk_src_compile() {
-	mkmake || die "make failed"
+	mkmake "$@" || die "make failed"
 }
 
 # @FUNCTION: bsdmk_src_install

@@ -14,7 +14,7 @@
 #
 # Licensed under the GNU General Public License, v2
 #
-# $Header: /var/cvsroot/gentoo-x86/eclass/java-ant-2.eclass,v 1.55 2012/09/14 05:04:50 ferringb Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/java-ant-2.eclass,v 1.56 2013/04/20 18:23:57 sera Exp $
 
 inherit java-utils-2 multilib
 
@@ -39,7 +39,7 @@ inherit java-utils-2 multilib
 # construct ant-speficic DEPEND
 # add ant-core into DEPEND, unless disabled
 if [[ -z "${JAVA_ANT_DISABLE_ANT_CORE_DEP}" ]]; then
-		JAVA_ANT_E_DEPEND="${JAVA_ANT_E_DEPEND} >=dev-java/ant-core-1.7.0"
+		JAVA_ANT_E_DEPEND="${JAVA_ANT_E_DEPEND} >=dev-java/ant-core-1.8.2"
 fi
 
 # add ant tasks specified in WANT_ANT_TASKS to DEPEND

@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/php-common-r1.eclass,v 1.18 2011/12/27 17:55:12 fauli Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/php-common-r1.eclass,v 1.19 2013/04/28 16:15:33 zmedico Exp $
 
 # Based on robbat2's work on the php4 sapi eclass
 # Based on stuart's work on the php5 sapi eclass
@@ -92,7 +92,7 @@ php_check_java() {
 		eerror "in front of your emerge command, for example:"
 		eerror "  USE='-java-internal' emerge =dev-lang/php-4*"
 		eerror
-		eerror "or edit your USE flags in /etc/make.conf."
+		eerror "or edit your USE flags in /etc/portage/make.conf."
 		die "Kaffe JVM not supported"
 	fi
 
