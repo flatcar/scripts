@@ -1,6 +1,19 @@
 # ChangeLog for virtual/python-argparse
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/virtual/python-argparse/ChangeLog,v 1.11 2013/02/17 20:49:09 zmedico Exp $
+# $Header: /var/cvsroot/gentoo-x86/virtual/python-argparse/ChangeLog,v 1.14 2013/09/13 21:41:27 mgorny Exp $
+
+  13 Sep 2013; Michał Górny <mgorny@gentoo.org> python-argparse-0.ebuild,
+  python-argparse-1.ebuild:
+  Use python_gen_cond_dep and python_gen_usedep. This guarantees clean upgrade
+  after disabling old implementations.
+
+  05 Sep 2013; Michał Górny <mgorny@gentoo.org> python-argparse-0.ebuild,
+  python-argparse-1.ebuild:
+  Clean up after py2.5+3.1 removal. Inline the deps.
+
+  07 Aug 2013; Michał Górny <mgorny@gentoo.org> python-argparse-0.ebuild,
+  python-argparse-1.ebuild:
+  Drop removed Python implementations from PYTHON_COMPAT.
 
   17 Feb 2013; Zac Medico <zmedico@gentoo.org> python-argparse-1.ebuild:
   Add ~arm-linux keyword.
