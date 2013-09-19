@@ -1,10 +1,12 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/git.eclass,v 1.60 2013/01/15 11:23:43 jlec Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/git.eclass,v 1.62 2013/08/02 15:41:17 mgorny Exp $
 
-# @DEPRECATED
-# This eclass has been superseded by git-2 eclass.
-# Please modify your ebuilds to use that one instead.
+# @DEAD
+# Michał Górny <mgorny@gentoo.org> (2 Aug 2013)
+# This eclass has been superseded by git-2 eclass and will be removed
+# on 2013-09-02. Please modify your ebuilds to use git-2 instead.
+# Bug #479474.
 
 # @ECLASS: git.eclass
 # @MAINTAINER:

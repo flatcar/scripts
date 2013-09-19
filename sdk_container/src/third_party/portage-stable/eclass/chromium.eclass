@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/chromium.eclass,v 1.7 2012/09/11 08:15:08 phajdan.jr Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/chromium.eclass,v 1.8 2013/08/11 02:42:54 floppym Exp $
 
 # @ECLASS: chromium.eclass
 # @MAINTAINER:
@@ -11,7 +11,9 @@
 
 inherit eutils fdo-mime gnome2-utils linux-info
 
-EXPORT_FUNCTIONS pkg_preinst pkg_postinst pkg_postrm
+if [[ ${CHROMIUM_EXPORT_PHASES} != no ]]; then
+	EXPORT_FUNCTIONS pkg_preinst pkg_postinst pkg_postrm
+fi
 
 if [[ ${PN} == chromium ]]; then
 	IUSE+=" custom-cflags"

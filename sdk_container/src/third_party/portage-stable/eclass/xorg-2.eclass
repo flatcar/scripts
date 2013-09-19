@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/xorg-2.eclass,v 1.60 2013/01/31 14:12:12 chithanh Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/xorg-2.eclass,v 1.63 2013/07/30 18:59:18 mgorny Exp $
 
 # @ECLASS: xorg-2.eclass
 # @MAINTAINER:
@@ -37,9 +37,19 @@ if [[ ${PN} == font* \
 	FONT_ECLASS="font"
 fi
 
+# @ECLASS-VARIABLE: XORG_MULTILIB
+# @DESCRIPTION:
+# If set to 'yes', the multilib support for package will be enabled. Set
+# before inheriting this eclass.
+: ${XORG_MULTILIB:="no"}
+
 # we need to inherit autotools first to get the deps
 inherit autotools autotools-utils eutils libtool multilib toolchain-funcs \
 	flag-o-matic ${FONT_ECLASS} ${GIT_ECLASS}
+
+if [[ ${XORG_MULTILIB} == yes ]]; then
+	inherit autotools-multilib
+fi
 
 EXPORTED_FUNCTIONS="src_unpack src_compile src_install pkg_postinst pkg_postrm"
 case "${EAPI:-0}" in
@@ -296,6 +306,10 @@ DEPEND+=" ${COMMON_DEPEND}"
 RDEPEND+=" ${COMMON_DEPEND}"
 unset COMMON_DEPEND
 
+if [[ ${XORG_MULTILIB} == yes ]]; then
+	RDEPEND+=" abi_x86_32? ( !app-emulation/emul-linux-x86-xlibs[-abi_x86_32(-)] )"
+fi
+
 debug-print "${LINENO} ${ECLASS} ${FUNCNAME}: DEPEND=${DEPEND}"
 debug-print "${LINENO} ${ECLASS} ${FUNCNAME}: RDEPEND=${RDEPEND}"
 debug-print "${LINENO} ${ECLASS} ${FUNCNAME}: PDEPEND=${PDEPEND}"
@@ -460,7 +474,11 @@ xorg-2_src_configure() {
 		"${xorgconfadd[@]}"
 	)
 
-	autotools-utils_src_configure "$@"
+	if [[ ${XORG_MULTILIB} == yes ]]; then
+		autotools-multilib_src_configure "$@"
+	else
+		autotools-utils_src_configure "$@"
+	fi
 }
 
 # @FUNCTION: xorg-2_src_compile
@@ -469,7 +487,11 @@ xorg-2_src_configure() {
 xorg-2_src_compile() {
 	debug-print-function ${FUNCNAME} "$@"
 
-	autotools-utils_src_compile "$@"
+	if [[ ${XORG_MULTILIB} == yes ]]; then
+		autotools-multilib_src_compile "$@"
+	else
+		autotools-utils_src_compile "$@"
+	fi
 }
 
 # @FUNCTION: xorg-2_src_install
@@ -479,13 +501,18 @@ xorg-2_src_compile() {
 xorg-2_src_install() {
 	debug-print-function ${FUNCNAME} "$@"
 
+	local install_args=( docdir="${EPREFIX}/usr/share/doc/${PF}" )
+
 	if [[ ${CATEGORY} == x11-proto ]]; then
-		autotools-utils_src_install \
-			${PN/proto/}docdir="${EPREFIX}/usr/share/doc/${PF}" \
-			docdir="${EPREFIX}/usr/share/doc/${PF}"
+		install_args+=(
+			${PN/proto/}docdir="${EPREFIX}/usr/share/doc/${PF}"
+		)
+	fi
+
+	if [[ ${XORG_MULTILIB} == yes ]]; then
+		autotools-multilib_src_install "${install_args[@]}"
 	else
-		autotools-utils_src_install \
-			docdir="${EPREFIX}/usr/share/doc/${PF}"
+		autotools-utils_src_install "${install_args[@]}"
 	fi
 
 	if [[ -n ${GIT_ECLASS} ]]; then

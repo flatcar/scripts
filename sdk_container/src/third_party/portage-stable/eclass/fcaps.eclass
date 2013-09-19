@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/fcaps.eclass,v 1.3 2013/01/30 07:15:49 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/fcaps.eclass,v 1.8 2013/06/27 01:18:57 vapier Exp $
 
 # @ECLASS: fcaps.eclass
 # @MAINTAINER:
@@ -33,6 +33,7 @@ ___ECLASS_ONCE_FCAPS="recur -_+^+_- spank"
 
 IUSE="+filecaps"
 
+# We can't use libcap-ng atm due to #471414.
 DEPEND="filecaps? ( sys-libs/libcap )"
 
 # @ECLASS-VARIABLE: FILECAPS
@@ -111,7 +112,7 @@ fcaps() {
 	esac
 
 	# Process every file!
-	local file out
+	local file
 	for file ; do
 		[[ ${file} != /* ]] && file="${root}${file}"
 
@@ -124,24 +125,66 @@ fcaps() {
 			# by people.
 			chmod ${caps_mode} "${file}" || die
 
-			if ! out=$(LC_ALL=C setcap "${caps}" "${file}" 2>&1) ; then
-				if [[ ${out} != *"Operation not supported"* ]] ; then
-					eerror "Setting caps '${caps}' on file '${file}' failed:"
-					eerror "${out}"
-					die "could not set caps"
-				else
-					local fstype=$(stat -f -c %T "${file}")
-					ewarn "Could not set caps on '${file}' due to missing filesystem support."
-					ewarn "Make sure you enable XATTR support for '${fstype}' in your kernel."
-					ewarn "You might also have to enable the relevant FS_SECURITY option."
-				fi
-			else
-				# Sanity check that everything took.
-				setcap -v "${caps}" "${file}" >/dev/null \
-					|| die "Checking caps '${caps}' on '${file}' failed"
+			# Set/verify funcs for sys-libs/libcap.
+			_libcap()        { setcap "${caps}" "${file}" ; }
+			_libcap_verify() { setcap -v "${caps}" "${file}" >/dev/null ; }
 
-				# Everything worked.  Move on to the next file.
-				continue
+			# Set/verify funcs for sys-libs/libcap-ng.
+			# Note: filecap only supports =ep mode.
+			# It also expects a different form:
+			#  setcap cap_foo,cap_bar
+			#  filecap foo bar
+			_libcap_ng() {
+				local caps=",${caps%=ep}"
+				filecap "${file}" "${caps//,cap_}"
+			}
+			_libcap_ng_verify() {
+				# libcap-ng has a crappy interface
+				local rcaps icaps caps=",${caps%=ep}"
+				rcaps=$(filecap "${file}" | \
+					sed -nr \
+						-e "s:^.{${#file}} +::" \
+						-e 's:, +:\n:g' \
+						-e 2p | \
+					LC_ALL=C sort)
+				[[ ${PIPESTATUS[0]} -eq 0 ]] || return 1
+				icaps=$(echo "${caps//,cap_}" | LC_ALL=C sort)
+				[[ ${rcaps} == ${icaps} ]]
+			}
+
+			local out cmd notfound=0
+			for cmd in _libcap _libcap_ng ; do
+				if ! out=$(LC_ALL=C ${cmd} 2>&1) ; then
+					case ${out} in
+					*"command not found"*)
+						: $(( ++notfound ))
+						continue
+						;;
+					*"Operation not supported"*)
+						local fstype=$(stat -f -c %T "${file}")
+						ewarn "Could not set caps on '${file}' due to missing filesystem support:"
+						ewarn "* enable XATTR support for '${fstype}' in your kernel (if configurable)"
+						ewarn "* mount the fs with the user_xattr option (if not the default)"
+						ewarn "* enable the relevant FS_SECURITY option (if configurable)"
+						break
+						;;
+					*)
+						eerror "Setting caps '${caps}' on file '${file}' failed:"
+						eerror "${out}"
+						die "could not set caps"
+						;;
+					esac
+				else
+					# Sanity check that everything took.
+					${cmd}_verify || die "Checking caps '${caps}' on '${file}' failed"
+
+					# Everything worked.  Move on to the next file.
+					continue 2
+				fi
+			done
+			if [[ ${notfound} -eq 2 ]] && [[ -z ${__FCAPS_WARNED} ]] ; then
+				__FCAPS_WARNED="true"
+				ewarn "Could not find cap utils; make sure libcap or libcap-ng is available."
 			fi
 		fi
 

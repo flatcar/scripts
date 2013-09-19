@@ -6,7 +6,7 @@
 #
 # Licensed under the GNU General Public License, v2
 #
-# $Header: /var/cvsroot/gentoo-x86/eclass/java-utils-2.eclass,v 1.152 2013/01/16 19:06:15 sera Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/java-utils-2.eclass,v 1.154 2013/08/27 05:32:28 radhermit Exp $
 
 # -----------------------------------------------------------------------------
 # @eclass-begin
@@ -2331,10 +2331,10 @@ java-pkg_init_paths_() {
 	debug-print-function ${FUNCNAME} $*
 
 	local pkg_name
-	if [[ "$SLOT" == "0" ]] ; then
+	if [[ "${SLOT%/*}" == "0" ]] ; then
 		JAVA_PKG_NAME="${PN}"
 	else
-		JAVA_PKG_NAME="${PN}-${SLOT}"
+		JAVA_PKG_NAME="${PN}-${SLOT%/*}"
 	fi
 
 	JAVA_PKG_SHAREPATH="${DESTTREE}/share/${JAVA_PKG_NAME}"
@@ -2724,7 +2724,7 @@ java-pkg_die() {
 	echo "!!! When you file a bug report, please include the following information:" >&2
 	echo "GENTOO_VM=${GENTOO_VM}  CLASSPATH=\"${CLASSPATH}\" JAVA_HOME=\"${JAVA_HOME}\"" >&2
 	echo "JAVACFLAGS=\"${JAVACFLAGS}\" COMPILER=\"${GENTOO_COMPILER}\"" >&2
-	echo "and of course, the output of emerge --info" >&2
+	echo "and of course, the output of emerge --info =${P}" >&2
 }
 
 

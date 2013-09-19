@@ -1,12 +1,52 @@
 # ChangeLog for sys-apps/kmod
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/kmod/ChangeLog,v 1.104 2013/07/30 17:21:17 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/kmod/ChangeLog,v 1.112 2013/08/25 14:57:09 ssuominen Exp $
+
+  25 Aug 2013; Samuli Suominen <ssuominen@gentoo.org> -kmod-14-r1.ebuild,
+  -kmod-14-r2.ebuild:
+  old
+
+*kmod-15 (24 Aug 2013)
+
+  24 Aug 2013; Samuli Suominen <ssuominen@gentoo.org> +kmod-15.ebuild:
+  Version bump.
+
+  24 Aug 2013; Samuli Suominen <ssuominen@gentoo.org> kmod-13-r1.ebuild,
+  kmod-14-r1.ebuild, kmod-14-r2.ebuild, kmod-9999.ebuild:
+  Remove checks for CONFIG_MODULES and CONFIG_MODULE_UNLOAD and upgrade path
+  from sys-apps/module-init-tools wrt #462926 by Mike Frysinger. Bail out early
+  if the used compiler is too old wrt #481020.
+
+*kmod-14-r1 (16 Aug 2013)
+
+  16 Aug 2013; Samuli Suominen <ssuominen@gentoo.org> +kmod-14-r1.ebuild:
+  Restore crippled version to tree because sys-apps/openrc >= 0.12 was
+  hardmasked for other reasons.
+
+  16 Aug 2013; Samuli Suominen <ssuominen@gentoo.org> -files/static-nodes,
+  -kmod-14-r1.ebuild:
+  old
+
+  16 Aug 2013; Samuli Suominen <ssuominen@gentoo.org> kmod-14-r2.ebuild,
+  kmod-9999.ebuild:
+  Block old OpenRC instead of depending on new one to prevent circular
+  dependency.
+
+*kmod-14-r2 (16 Aug 2013)
+
+  16 Aug 2013; Samuli Suominen <ssuominen@gentoo.org> +kmod-14-r2.ebuild,
+  kmod-9999.ebuild:
+  Revision bump for OpenRC >= 0.12 to make the "static-nodes" -> "kmod-static-
+  nodes" switch for everyone.
+
+  09 Aug 2013; Samuli Suominen <ssuominen@gentoo.org> kmod-14-r1.ebuild,
+  kmod-9999.ebuild, +files/kmod-static-nodes:
+  Rename static-nodes init script to kmod-static-nodes as suggested by WilliamH
+  earlier. Support OpenRC 0.12 and the new tmpfiles /dev support.
+  Proper revision bump is required after OpenRC 0.12 is in tree.
 
   30 Jul 2013; Samuli Suominen <ssuominen@gentoo.org> files/static-nodes:
-  Remove unrequired "need localmount" and add required "after modules" to the
-  init script depend()
-  Revision bump later after tmpfiles /dev support is in portage and the
-  init script has been finalized.
+  Remove unrequired "need localmount" from the init script depend()
 
   26 Jul 2013; Samuli Suominen <ssuominen@gentoo.org> -kmod-12-r1.ebuild,
   -kmod-14.ebuild:

@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/apache-2.eclass,v 1.29 2012/05/23 03:24:44 flameeyes Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/apache-2.eclass,v 1.31 2013/04/28 16:15:33 zmedico Exp $
 
 # @ECLASS: apache-2.eclass
 # @MAINTAINER:
@@ -550,12 +550,6 @@ apache-2_src_install() {
 # because the default webroot is a copy of the files that exist elsewhere and we
 # don't want them to be managed/removed by portage when apache is upgraded.
 apache-2_pkg_postinst() {
-	# fix previously wrong set permissions Bug#398899
-	einfo "Sanitizing directory permissions ..."
-	for i in /var/lib/dav /var/log/apache2 /var/cache/apache2 ; do
-		chmod 0750 ${i}
-	done
-
 	if use ssl && [[ ! -e "${ROOT}/etc/ssl/apache2/server.pem" ]]; then
 		SSL_ORGANIZATION="${SSL_ORGANIZATION:-Apache HTTP Server}"
 		install_cert /etc/ssl/apache2/server
@@ -575,7 +569,7 @@ apache-2_pkg_postinst() {
 
 	echo
 	elog "Attention: cgi and cgid modules are now handled via APACHE2_MODULES flags"
-	elog "in /etc/make.conf. Make sure to enable those in order to compile them."
+	elog "in make.conf. Make sure to enable those in order to compile them."
 	elog "In general, you should use 'cgid' with threaded MPMs and 'cgi' otherwise."
 	echo
 

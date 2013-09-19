@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/nvidia-driver.eclass,v 1.18 2012/11/27 17:39:48 jer Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/nvidia-driver.eclass,v 1.22 2013/05/16 14:25:13 jer Exp $
 
 # @ECLASS: nvidia-driver.eclass
 # @MAINTAINER:
@@ -17,7 +17,7 @@ inherit versionator
 DEPEND="sys-apps/pciutils"
 
 # the data below is derived from
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/177.13/README/appendix-a.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/319.12/README/supportedchips.html
 
 drv_96xx="0110 0111 0112 0113 0170 0171 0172 0173 0174 0175 0176 0177 0178 \
 0179 017a 017c 017d 0181 0182 0183 0185 0188 018a 018b 018c 01a0 01f0 0200 \
@@ -35,11 +35,10 @@ drv_304x="0040 0041 0042 0043 0044 0045 0046 0047 0048 004e 0090 0091 0092 \
 00f2 00f3 00f4 00f5 00f6 00f8 00f9 0140 0141 0142 0143 0144 0145 0146 0147 \
 0148 0149 014a 014c 014d 014e 014f 0160 0161 0162 0163 0164 0165 0166 0167 \
 0168 0169 016a 01d0 01d1 01d2 01d3 01d6 01d7 01d8 01da 01db 01dc 01dd 01de \
-01de 01df 0211 0212 0215 0218 0221 0222 0240 0241 0242 0244 0245 0247 0290 \
-0291 0292 0293 0294 0295 0297 0298 0299 029a 029b 029c 029d 029e 029f 02e0 \
-02e1 02e2 02e3 02e4 038b 0390 0391 0392 0393 0394 0395 0397 0398 0399 039c \
-039e 03d0 03d1 03d2 03d5 03d6 0531 0533 053a 053b 053e 07e0 07e1 07e2 07e3 \
-07e5"
+01df 0211 0212 0215 0218 0221 0222 0240 0241 0242 0244 0245 0247 0290 0291 \
+0292 0293 0294 0295 0297 0298 0299 029a 029b 029c 029d 029e 029f 02e0 02e1 \
+02e2 02e3 02e4 038b 0390 0391 0392 0393 0394 0395 0397 0398 0399 039c 039e \
+03d0 03d1 03d2 03d5 03d6 0531 0533 053a 053b 053e 07e0 07e1 07e2 07e3 07e5"
 
 mask_96xx=">=x11-drivers/nvidia-drivers-97.0.0"
 mask_71xx=">=x11-drivers/nvidia-drivers-72.0.0"
@@ -50,50 +49,54 @@ mask_304x=">=x11-drivers/nvidia-drivers-305.0.0"
 # @DESCRIPTION:
 # Retrieve the PCI device ID for each Nvidia video card you have
 nvidia-driver-get-card() {
-	local NVIDIA_CARD="$(/usr/sbin/lspci -d 10de: -n | \
-	awk '/ 0300: /{print $3}' | cut -d: -f2 | tr '\n' ' ')"
+	local NVIDIA_CARD=$(
+		[ -x /usr/sbin/lspci ] && /usr/sbin/lspci -d 10de: -n \
+			| awk -F'[: ]' '/ 0300: /{print $6}'
+	)
 
 	if [ -n "$NVIDIA_CARD" ]; then
-		echo "$NVIDIA_CARD";
+		echo "$NVIDIA_CARD"
 	else
-		echo "0000";
+		echo 0000
 	fi
 }
 
 nvidia-driver-get-mask() {
 	local NVIDIA_CARDS="$(nvidia-driver-get-card)"
+	local card drv
+
 	for card in $NVIDIA_CARDS; do
 		for drv in $drv_96xx; do
 			if [ "x$card" = "x$drv" ]; then
-				echo "$mask_96xx";
-				return 0;
+				echo "$mask_96xx"
+				return 0
 			fi
 		done
 
 		for drv in $drv_71xx; do
 			if [ "x$card" = "x$drv" ]; then
-				echo "$mask_71xx";
-				return 0;
+				echo "$mask_71xx"
+				return 0
 			fi
 		done
 
 		for drv in $drv_173x; do
 			if [ "x$card" = "x$drv" ]; then
-				echo "$mask_173x";
-				return 0;
+				echo "$mask_173x"
+				return 0
 			fi
 		done
 
 		for drv in $drv_304x; do
 			if [ "x$card" = "x$drv" ]; then
-				echo "$mask_304x";
-				return 0;
+				echo "$mask_304x"
+				return 0
 			fi
 		done
 	done
 
-	echo "";
-	return 1;
+	echo ''
+	return 1
 }
 
 # @FUNCTION: nvidia-driver-check-warning
@@ -101,6 +104,7 @@ nvidia-driver-get-mask() {
 # Prints out a warning if the driver does not work w/ the installed video card
 nvidia-driver-check-warning() {
 	local NVIDIA_MASK="$(nvidia-driver-get-mask)"
+
 	if [ -n "$NVIDIA_MASK" ]; then
 		version_compare "${NVIDIA_MASK##*-}" "${PV}"
 		r=$?

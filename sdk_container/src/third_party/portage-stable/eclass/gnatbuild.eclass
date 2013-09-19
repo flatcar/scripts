@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/gnatbuild.eclass,v 1.55 2012/09/15 16:16:53 zmedico Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/gnatbuild.eclass,v 1.56 2013/08/02 17:38:57 george Exp $
 #
 # Author: George Shapovalov <george@gentoo.org>
 # Belongs to: ada herd <ada@gentoo.org>
@@ -337,9 +337,16 @@ gnatbuild_src_unpack() {
 
 			cd "${S}"
 			# patching gcc sources, following the toolchain
-			if [[ -d "${FILESDIR}"/${SLOT} ]] ; then
-				EPATCH_MULTI_MSG="Applying Gentoo patches ..." \
-				epatch "${FILESDIR}"/${SLOT}/*.patch
+			# first, the common patches
+			if [[ -d "${FILESDIR}"/patches ]] && [[ ! -z $(ls "${FILESDIR}"/patches/*.patch 2>/dev/null) ]] ; then
+				EPATCH_MULTI_MSG="Applying common Gentoo patches ..." \
+				epatch "${FILESDIR}"/patches/*.patch
+			fi
+			#
+			# then per SLOT
+			if [[ -d "${FILESDIR}"/patches/${SLOT} ]] && [[ ! -z $(ls "${FILESDIR}"/patches/${SLOT}/*.patch 2>/dev/null) ]] ; then
+				EPATCH_MULTI_MSG="Applying SLOT-specific Gentoo patches ..." \
+				epatch "${FILESDIR}"/patches/${SLOT}/*.patch
 			fi
 			# Replacing obsolete head/tail with POSIX compliant ones
 			ht_fix_file */configure

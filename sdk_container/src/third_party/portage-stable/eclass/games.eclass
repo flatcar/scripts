@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/games.eclass,v 1.153 2012/09/27 16:35:41 axs Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/games.eclass,v 1.154 2013/04/08 07:36:25 mr_bones_ Exp $
 
 # devlist: games@gentoo.org
 #
@@ -39,12 +39,21 @@ games_get_libdir() {
 }
 
 egamesconf() {
+	# handle verbose build log pre-EAPI5
+	local _gamesconf
+	if has "${EAPI:-0}" 0 1 2 3 4 ; then
+		if grep -q -s disable-silent-rules "${ECONF_SOURCE:-.}"/configure ; then
+			_gamesconf="--disable-silent-rules"
+		fi
+	fi
+
 	econf \
 		--prefix="${GAMES_PREFIX}" \
 		--libdir="$(games_get_libdir)" \
 		--datadir="${GAMES_DATADIR}" \
 		--sysconfdir="${GAMES_SYSCONFDIR}" \
 		--localstatedir="${GAMES_STATEDIR}" \
+		${_gamesconf} \
 		"$@"
 }
 
@@ -123,6 +132,8 @@ gamesenv() {
 	LDPATH="${libdirs:1}"
 	PATH="${GAMES_BINDIR}"
 	EOF
+	gamesowners "${ROOT}"/etc/env.d/${GAMES_ENVD}
+	gamesperms  "${ROOT}"/etc/env.d/${GAMES_ENVD}
 }
 
 games_pkg_setup() {

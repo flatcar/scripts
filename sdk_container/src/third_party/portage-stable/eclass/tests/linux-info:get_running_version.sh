@@ -19,13 +19,14 @@ test_get_running_version() {
 }
 
 tests=(
-	# KV_FULL		MAJOR	MINOR	PATCH	EXTRA
-	1.2.3			1		2		3		''
-	1.2.3.4			1		2		3		.4
-	1.2.3-ver+1.4	1		2		3		-ver+1.4
-	1.2-kern.3		1		2		0		-kern.3
-	1.2+kern.5		1		2		0		+kern.5
-	1.2.3_blah		1		2		3		_blah
+	# KV_FULL				MAJOR	MINOR	PATCH	EXTRA
+	1.2.3					1		2		3		''
+	1.2.3.4					1		2		3		.4
+	1.2.3-ver+1.4			1		2		3		-ver+1.4
+	1.2-kern.3				1		2		0		-kern.3
+	1.2+kern.5				1		2		0		+kern.5
+	1.2.3_blah				1		2		3		_blah
+	3.2.1-zen-vs2.3.2.5+	3		2		1		-zen-vs2.3.2.5+
 )
 
 for (( i = 0; i < ${#tests[@]}; i += 5 )) ; do

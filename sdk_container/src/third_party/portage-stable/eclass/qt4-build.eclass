@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/qt4-build.eclass,v 1.142 2013/01/03 08:39:49 pesa Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/qt4-build.eclass,v 1.150 2013/08/13 10:17:54 pesa Exp $
 
 # @ECLASS: qt4-build.eclass
 # @MAINTAINER:
@@ -10,7 +10,7 @@
 # This eclass contains various functions that are used when building Qt4.
 
 case ${EAPI} in
-	3|4|5)	: ;;
+	4|5)	: ;;
 	*)	die "qt4-build.eclass: unsupported EAPI=${EAPI:-0}" ;;
 esac
 
@@ -36,57 +36,18 @@ case ${QT4_BUILD_TYPE} in
 		EGIT_BRANCH=${PV%.9999}
 		;;
 	release)
-		SRC_URI="http://releases.qt-project.org/qt4/source/${MY_P}.tar.gz"
+		SRC_URI="http://download.qt-project.org/official_releases/qt/${PV%.*}/${PV}/${MY_P}.tar.gz"
 		;;
 esac
 
 IUSE="aqua debug pch"
-[[ ${CATEGORY}/${PN} != x11-libs/qt-xmlpatterns ]] && IUSE+=" +exceptions"
-[[ ${CATEGORY}/${PN} != x11-libs/qt-webkit ]] && IUSE+=" c++0x"
+[[ ${CATEGORY}/${PN} != dev-qt/qtwebkit ]] && IUSE+=" c++0x"
+[[ ${CATEGORY}/${PN} != dev-qt/qtxmlpatterns ]] && IUSE+=" +exceptions"
 
 DEPEND="virtual/pkgconfig"
 if [[ ${QT4_BUILD_TYPE} == live ]]; then
 	DEPEND+=" dev-lang/perl"
 fi
-
-RDEPEND="
-	!<x11-libs/qt-assistant-${PV}:4
-	!>x11-libs/qt-assistant-${PV}-r9999:4
-	!<x11-libs/qt-bearer-${PV}:4
-	!>x11-libs/qt-bearer-${PV}-r9999:4
-	!<x11-libs/qt-core-${PV}:4
-	!>x11-libs/qt-core-${PV}-r9999:4
-	!<x11-libs/qt-dbus-${PV}:4
-	!>x11-libs/qt-dbus-${PV}-r9999:4
-	!<x11-libs/qt-declarative-${PV}:4
-	!>x11-libs/qt-declarative-${PV}-r9999:4
-	!<x11-libs/qt-demo-${PV}:4
-	!>x11-libs/qt-demo-${PV}-r9999:4
-	!<x11-libs/qt-gui-${PV}:4
-	!>x11-libs/qt-gui-${PV}-r9999:4
-	!<x11-libs/qt-multimedia-${PV}:4
-	!>x11-libs/qt-multimedia-${PV}-r9999:4
-	!<x11-libs/qt-opengl-${PV}:4
-	!>x11-libs/qt-opengl-${PV}-r9999:4
-	!<x11-libs/qt-openvg-${PV}:4
-	!>x11-libs/qt-openvg-${PV}-r9999:4
-	!<x11-libs/qt-phonon-${PV}:4
-	!>x11-libs/qt-phonon-${PV}-r9999:4
-	!<x11-libs/qt-qt3support-${PV}:4
-	!>x11-libs/qt-qt3support-${PV}-r9999:4
-	!<x11-libs/qt-script-${PV}:4
-	!>x11-libs/qt-script-${PV}-r9999:4
-	!<x11-libs/qt-sql-${PV}:4
-	!>x11-libs/qt-sql-${PV}-r9999:4
-	!<x11-libs/qt-svg-${PV}:4
-	!>x11-libs/qt-svg-${PV}-r9999:4
-	!<x11-libs/qt-test-${PV}:4
-	!>x11-libs/qt-test-${PV}-r9999:4
-	!<x11-libs/qt-webkit-${PV}:4
-	!>x11-libs/qt-webkit-${PV}-r9999:4
-	!<x11-libs/qt-xmlpatterns-${PV}:4
-	!>x11-libs/qt-xmlpatterns-${PV}-r9999:4
-"
 
 S=${WORKDIR}/${MY_P}
 
@@ -140,9 +101,11 @@ qt4-build_src_unpack() {
 
 	if ! version_is_at_least 4.1 $(gcc-version); then
 		ewarn "Using a GCC version lower than 4.1 is not supported."
+	elif use_if_iuse c++0x && ! version_is_at_least 4.4 $(gcc-version); then
+		ewarn "USE=c++0x requires GCC 4.4 or later."
 	fi
 
-	if [[ ${PN} == qt-webkit ]]; then
+	if [[ ${CATEGORY}/${PN} == dev-qt/qtwebkit ]]; then
 		eshopts_push -s extglob
 		if is-flagq '-g?(gdb)?([1-9])'; then
 			echo
@@ -191,7 +154,7 @@ qt4-build_src_unpack() {
 # @FUNCTION: qt4-build_src_prepare
 # @DESCRIPTION:
 # Prepare the sources before the configure phase. Strip CFLAGS if necessary, and fix
-# the build system in order to respect CFLAGS/CXXFLAGS/LDFLAGS specified in /etc/make.conf.
+# the build system in order to respect CFLAGS/CXXFLAGS/LDFLAGS specified in make.conf.
 qt4-build_src_prepare() {
 	setqtenv
 
@@ -200,7 +163,7 @@ qt4-build_src_prepare() {
 	fi
 
 	# avoid X11 dependency in non-gui packages
-	local nolibx11_pkgs="qt-core qt-dbus qt-script qt-sql qt-test qt-xmlpatterns"
+	local nolibx11_pkgs="qtcore qtdbus qtscript qtsql qttest qtxmlpatterns"
 	has ${PN} ${nolibx11_pkgs} && qt_nolibx11
 
 	if use aqua; then
@@ -212,41 +175,31 @@ qt4-build_src_prepare() {
 			-i mkspecs/$(qt_mkspecs_dir)/qmake.conf || die
 	fi
 
-	if [[ ${PN} != qt-core ]]; then
+	if [[ ${CATEGORY}/${PN} != dev-qt/qtcore ]]; then
 		skip_qmake_build
 		skip_project_generation
 		symlink_binaries_to_buildtree
-	fi
-
-	if [[ ${CHOST} == *86*-apple-darwin* ]]; then
-		# qmake bus errors with -O2 or -O3 but -O1 works
-		# Bug 373061
-		replace-flags -O[23] -O1
-	fi
-
-	# Bug 178652
-	if [[ $(gcc-major-version) == 3 ]] && use amd64; then
-		ewarn "Appending -fno-gcse to CFLAGS/CXXFLAGS"
-		append-flags -fno-gcse
 	fi
 
 	if use_if_iuse c++0x; then
 		append-cxxflags -std=c++0x
 	fi
 
-	# Unsupported old gcc versions - hardened needs this :(
-	if [[ $(gcc-major-version) -lt 4 ]]; then
-		ewarn "Appending -fno-stack-protector to CXXFLAGS"
-		append-cxxflags -fno-stack-protector
-		# Bug 253127
-		sed -e "/^QMAKE_CFLAGS\t/ s:$: -fno-stack-protector-all:" \
-			-i mkspecs/common/g++.conf || die
-	fi
-
 	# Bug 261632
 	if use ppc64; then
-		ewarn "Appending -mminimal-toc to CFLAGS/CXXFLAGS"
 		append-flags -mminimal-toc
+	fi
+
+	# Bug 373061
+	# qmake bus errors with -O2 or -O3 but -O1 works
+	if [[ ${CHOST} == *86*-apple-darwin* ]]; then
+		replace-flags -O[23] -O1
+	fi
+
+	# Bug 417105
+	# graphite on gcc 4.7 causes miscompilations
+	if [[ $(gcc-version) == "4.7" ]]; then
+		filter-flags -fgraphite-identity
 	fi
 
 	# Respect CC, CXX, {C,CXX,LD}FLAGS in .qmake.cache
@@ -470,7 +423,7 @@ qt4-build_src_compile() {
 # Runs tests only in target directories.
 qt4-build_src_test() {
 	# QtMultimedia does not have any test suite (bug #332299)
-	[[ ${PN} == qt-multimedia ]] && return
+	[[ ${CATEGORY}/${PN} == dev-qt/qtmultimedia ]] && return
 
 	for dir in ${QT4_TARGET_DIRECTORIES}; do
 		emake -j1 check -C ${dir}
@@ -566,15 +519,6 @@ setqtenv() {
 # @DESCRIPTION:
 # Generates Makefiles for the given list of directories.
 prepare_directories() {
-	# avoid running over the maximum argument number, bug #299810
-	{
-		echo "${S}"/mkspecs/common/*.conf
-		find "${S}" -name '*.pr[io]'
-	} | xargs sed -i \
-		-e "s:\$\$\[QT_INSTALL_LIBS\]:${QTLIBDIR}:g" \
-		-e "s:\$\$\[QT_INSTALL_PLUGINS\]:${QTPLUGINDIR}:g" \
-		|| die
-
 	for x in "$@"; do
 		pushd "${S}"/${x} >/dev/null || die
 		einfo "Running qmake in: ${x}"
@@ -600,8 +544,7 @@ build_directories() {
 			CXX="$(tc-getCXX)" \
 			LINK="$(tc-getCXX)" \
 			RANLIB=":" \
-			STRIP=":" \
-			|| die "emake failed"
+			STRIP=":"
 		popd >/dev/null || die
 	done
 }
@@ -614,7 +557,7 @@ build_directories() {
 install_directories() {
 	for x in "$@"; do
 		pushd "${S}"/${x} >/dev/null || die
-		emake INSTALL_ROOT="${D}" install || die "emake install failed"
+		emake INSTALL_ROOT="${D}" install
 		popd >/dev/null || die
 	done
 }
@@ -645,7 +588,7 @@ install_qconfigs() {
 			[[ -n ${!x} ]] && echo ${x}=${!x} >> "${T}"/${PN}-qconfig.pri
 		done
 		insinto ${QTDATADIR#${EPREFIX}}/mkspecs/gentoo
-		doins "${T}"/${PN}-qconfig.pri || die "installing ${PN}-qconfig.pri failed"
+		doins "${T}"/${PN}-qconfig.pri
 	fi
 
 	if [[ -n ${QCONFIG_DEFINE} ]]; then
@@ -653,7 +596,7 @@ install_qconfigs() {
 			echo "#define ${x}" >> "${T}"/gentoo-${PN}-qconfig.h
 		done
 		insinto ${QTHEADERDIR#${EPREFIX}}/Gentoo
-		doins "${T}"/gentoo-${PN}-qconfig.h || die "installing ${PN}-qconfig.h failed"
+		doins "${T}"/gentoo-${PN}-qconfig.h
 	fi
 }
 
@@ -662,7 +605,7 @@ install_qconfigs() {
 # @DESCRIPTION:
 # Generates gentoo-specific qconfig.{h,pri}.
 generate_qconfigs() {
-	if [[ -n ${QCONFIG_ADD} || -n ${QCONFIG_REMOVE} || -n ${QCONFIG_DEFINE} || ${PN} == qt-core ]]; then
+	if [[ -n ${QCONFIG_ADD} || -n ${QCONFIG_REMOVE} || -n ${QCONFIG_DEFINE} || ${CATEGORY}/${PN} == dev-qt/qtcore ]]; then
 		local x qconfig_add qconfig_remove qconfig_new
 		for x in "${ROOT}${QTDATADIR}"/mkspecs/gentoo/*-qconfig.pri; do
 			[[ -f ${x} ]] || continue
@@ -673,7 +616,7 @@ generate_qconfigs() {
 		# these error checks do not use die because dying in pkg_post{inst,rm}
 		# just makes things worse.
 		if [[ -e "${ROOT}${QTDATADIR}"/mkspecs/gentoo/qconfig.pri ]]; then
-			# start with the qconfig.pri that qt-core installed
+			# start with the qconfig.pri that qtcore installed
 			if ! cp "${ROOT}${QTDATADIR}"/mkspecs/gentoo/qconfig.pri \
 				"${ROOT}${QTDATADIR}"/mkspecs/qconfig.pri; then
 				eerror "cp qconfig failed."
@@ -735,7 +678,7 @@ qt4-build_pkg_postinst() {
 # @FUNCTION: skip_qmake_build
 # @INTERNAL
 # @DESCRIPTION:
-# Patches configure to skip qmake compilation, as it's already installed by qt-core.
+# Patches configure to skip qmake compilation, as it's already installed by qtcore.
 skip_qmake_build() {
 	sed -i -e "s:if true:if false:g" "${S}"/configure || die
 }
@@ -853,10 +796,9 @@ qt_mkspecs_dir() {
 # @FUNCTION: qt_nolibx11
 # @INTERNAL
 # @DESCRIPTION:
-# Ignore X11 tests for packages that don't need X libraries installed.
+# Skip X11 tests for packages that don't need X libraries installed.
 qt_nolibx11() {
-	sed -i "/unixtests\/compile.test.*config.tests\/x11\/xlib/,/fi$/d" "${S}"/configure ||
-		die "x11 check sed failed"
+	sed -i -e '/^if.*PLATFORM_X11.*CFG_GUI/,/^fi$/d' "${S}"/configure || die
 }
 
 EXPORT_FUNCTIONS pkg_setup src_unpack src_prepare src_configure src_compile src_install src_test pkg_postrm pkg_postinst

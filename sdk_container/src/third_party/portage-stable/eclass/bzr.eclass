@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/bzr.eclass,v 1.19 2012/09/18 06:41:45 ulm Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/bzr.eclass,v 1.20 2013/07/11 18:38:59 ulm Exp $
 #
 # @ECLASS: bzr.eclass
 # @MAINTAINER:
@@ -40,6 +40,11 @@ esac
 # @DESCRIPTION:
 # The directory to store all fetched Bazaar live sources.
 : ${EBZR_STORE_DIR:=${PORTAGE_ACTUAL_DISTDIR:-${DISTDIR}}/bzr-src}
+
+# @ECLASS-VARIABLE: EBZR_UNPACK_DIR
+# @DESCRIPTION:
+# The working directory where the sources are copied to.
+: ${EBZR_UNPACK_DIR:=${WORKDIR}/${P}}
 
 # @ECLASS-VARIABLE: EBZR_INIT_REPO_CMD
 # @DESCRIPTION:
@@ -261,13 +266,14 @@ bzr_fetch() {
 	if [[ -n ${EBZR_WORKDIR_CHECKOUT} ]]; then
 		einfo "checking out ..."
 		${EBZR_CHECKOUT_CMD} ${EBZR_REVISION:+-r ${EBZR_REVISION}} \
-			. "${WORKDIR}/${P}" || die "${EBZR}: checkout failed"
+			. "${EBZR_UNPACK_DIR}" || die "${EBZR}: checkout failed"
 	else
 		einfo "exporting ..."
 		${EBZR_EXPORT_CMD} ${EBZR_REVISION:+-r ${EBZR_REVISION}} \
-			"${WORKDIR}/${P}" . || die "${EBZR}: export failed"
+			"${EBZR_UNPACK_DIR}" . || die "${EBZR}: export failed"
 	fi
-	einfo "revision ${EBZR_REVISION:-${EBZR_REVNO}} is now in ${WORKDIR}/${P}"
+	einfo \
+		"revision ${EBZR_REVISION:-${EBZR_REVNO}} is now in ${EBZR_UNPACK_DIR}"
 
 	popd > /dev/null
 }

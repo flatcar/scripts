@@ -1,6 +1,6 @@
 #!/bin/bash
 
-EAPI=4
+EAPI=5
 PYTHON_COMPAT=( python2_7 )
 source tests-common.sh
 

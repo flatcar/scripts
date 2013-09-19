@@ -1,6 +1,83 @@
 # ChangeLog for sys-apps/systemd
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/systemd/ChangeLog,v 1.158 2013/08/04 13:30:11 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/systemd/ChangeLog,v 1.174 2013/09/14 18:44:05 floppym Exp $
+
+  14 Sep 2013; Mike Gilbert <floppym@gentoo.org> systemd-207.ebuild,
+  systemd-9999-r1.ebuild:
+  Replace --without-python with --disable-python-devel for non-native abis, bug
+  484934.
+
+*systemd-207 (14 Sep 2013)
+
+  14 Sep 2013; Michał Górny <mgorny@gentoo.org> +systemd-207.ebuild,
+  systemd-9999-r1.ebuild:
+  Version bump. Update kernel checks. Do not check for HOTPLUG on 3.7+ wrt bug
+  #476464. Run tests for native ABI only.
+
+*systemd-206-r5 (14 Sep 2013)
+
+  14 Sep 2013; Pacho Ramos <pacho@gentoo.org>
+  +files/206-0006-allow-tabs-in-configuration-files.patch,
+  +files/206-0007-allow-tabs-in-configuration-files2.patch,
+  +systemd-206-r5.ebuild:
+  Allow tabs in environment files (#481554 by dolphinling)
+
+  13 Sep 2013; Michał Górny <mgorny@gentoo.org> systemd-9999-r1.ebuild:
+  Sync the live ebuild with latest changes.
+
+*systemd-206-r4 (11 Sep 2013)
+
+  11 Sep 2013; Michał Górny <mgorny@gentoo.org> +systemd-206-r4.ebuild:
+  Introduce -r4 that uses separate sys-apps/gentoo-systemd-integration.
+  Introduces local.d generator.
+
+  06 Sep 2013; Pacho Ramos <pacho@gentoo.org> systemd-204.ebuild,
+  systemd-206-r3.ebuild:
+  Check for TMPFS_POSIX_ACL when needed (#482336#c24 by Alexander Tsoy)
+
+  28 Aug 2013; Pacho Ramos <pacho@gentoo.org> systemd-204.ebuild,
+  systemd-206-r3.ebuild:
+  Update message about /etc/mtab link (#482786), show message about systemd-ui
+  only when package is not installed (#480606)
+
+  11 Aug 2013; Mike Gilbert <floppym@gentoo.org> systemd-206-r3.ebuild,
+  systemd-9999-r1.ebuild:
+  Call udevadm control --reload in pkg_postinst.
+
+  10 Aug 2013; Michał Górny <mgorny@gentoo.org> systemd-9999-r1.ebuild:
+  Enable building multilib libgudev.
+
+  10 Aug 2013; Michał Górny <mgorny@gentoo.org> systemd-206-r3.ebuild,
+  systemd-9999-r1.ebuild:
+  Add missing prune_libtool_files call.
+
+  09 Aug 2013; Michał Górny <mgorny@gentoo.org> -systemd-206-r1.ebuild,
+  systemd-206-r3.ebuild, systemd-9999-r1.ebuild:
+  Make polkit a PDEP to avoid circular dependency. Bug #480328.
+
+  09 Aug 2013; Michał Górny <mgorny@gentoo.org> systemd-206-r3.ebuild,
+  systemd-9999-r1.ebuild:
+  Work-around 32-bit dbus check (it is not used by the libraries).
+
+*systemd-206-r3 (09 Aug 2013)
+
+  09 Aug 2013; Michał Górny <mgorny@gentoo.org> +systemd-206-r3.ebuild,
+  -systemd-206-r2.ebuild:
+  Fix installing multilib pkg-config files.
+
+  08 Aug 2013; Samuli Suominen <ssuominen@gentoo.org> systemd-206-r2.ebuild,
+  systemd-9999-r1.ebuild:
+  Raise the emul-linux-x86-baselibs block from -r7 to -r8 in order to avoid
+  file collision w/ libsystemd-daemon wrt #480274 by "nE0sIghT"
+
+*systemd-206-r2 (08 Aug 2013)
+
+  08 Aug 2013; Michał Górny <mgorny@gentoo.org> +systemd-206-r2.ebuild,
+  systemd-9999-r1.ebuild:
+  Enable partial multilib support wrt bug #479620.
+
+  07 Aug 2013; Agostino Sarubbo <ago@gentoo.org> systemd-204.ebuild:
+  Stable for x86, wrt bug #477910
 
   04 Aug 2013; Agostino Sarubbo <ago@gentoo.org> systemd-204.ebuild:
   Stable for ppc64, wrt bug #477910

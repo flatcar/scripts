@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/kde4-functions.eclass,v 1.62 2012/09/27 16:35:41 axs Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/kde4-functions.eclass,v 1.67 2013/08/15 15:10:05 kensington Exp $
 
 inherit versionator
 
@@ -12,11 +12,14 @@ inherit versionator
 # This eclass contains all functions shared by the different eclasses,
 # for KDE 4 ebuilds.
 
+if [[ ${___ECLASS_ONCE_KDE4_FUNCTIONS} != "recur -_+^+_- spank" ]] ; then
+___ECLASS_ONCE_KDE4_FUNCTIONS="recur -_+^+_- spank"
+
 # @ECLASS-VARIABLE: EAPI
 # @DESCRIPTION:
-# Currently kde4 eclasses support EAPI 3 and 4.
+# Currently kde4 eclasses support EAPI 4 and 5.
 case ${EAPI:-0} in
-	3|4|5) : ;;
+	4|5) : ;;
 	*) die "EAPI=${EAPI} is not supported" ;;
 esac
 
@@ -54,19 +57,10 @@ export KDE_BUILD_TYPE
 if [[ ${KDE_BUILD_TYPE} == live ]]; then
 	case "${KMNAME}" in
 		kdebase-workspace)
-			KDE_SCM="git"
 			EGIT_REPONAME=${EGIT_REPONAME:=kde-workspace}
 		;;
 		kdebase-runtime)
-			KDE_SCM="git"
 			EGIT_REPONAME=${EGIT_REPONAME:=kde-runtime}
-		;;
-		kdebase-apps)
-			KDE_SCM="git"
-			EGIT_REPONAME=${EGIT_REPONAME:=kde-baseapps}
-		;;
-		kde-workspace|kde-runtime|kde-baseapps)
-			KDE_SCM="git"
 		;;
 	esac
 fi
@@ -74,8 +68,8 @@ fi
 # @ECLASS-VARIABLE: KDE_SCM
 # @DESCRIPTION:
 # If this is a live package which scm does it use
-# Everything else uses svn by default
-KDE_SCM="${KDE_SCM:-svn}"
+# Everything else uses git by default
+KDE_SCM="${KDE_SCM:-git}"
 case ${KDE_SCM} in
 	svn|git) ;;
 	*) die "KDE_SCM: ${KDE_SCM} is not supported" ;;
@@ -222,60 +216,6 @@ enable_selected_doc_linguas() {
 
 	done
 	[[ -n "${linguas}" ]] && einfo "Enabling handbook translations:${linguas}"
-}
-
-# @FUNCTION: migrate_store_dir
-# @DESCRIPTION:
-# Universal store dir migration
-# * performs split of kdebase to kdebase-apps when needed
-# * moves playground/extragear kde4-base-style to toplevel dir
-migrate_store_dir() {
-	if [[ ${KDE_SCM} != svn ]]; then
-		die "migrate_store_dir() only makes sense for subversion"
-	fi
-
-	local cleandir="${ESVN_STORE_DIR}/KDE"
-
-	if [[ -d ${cleandir} ]]; then
-		ewarn "'${cleandir}' has been found. Moving contents to new location."
-		addwrite "${ESVN_STORE_DIR}"
-		# Split kdebase
-		local module
-		if pushd "${cleandir}"/kdebase/kdebase > /dev/null; then
-			for module in `find . -maxdepth 1 -type d -name [a-z0-9]\*`; do
-				module="${module#./}"
-				mkdir -p "${ESVN_STORE_DIR}/kdebase-${module}" && mv -f "${module}" "${ESVN_STORE_DIR}/kdebase-${module}" || \
-					die "Failed to move to '${ESVN_STORE_DIR}/kdebase-${module}'."
-			done
-			popd > /dev/null
-			rm -fr "${cleandir}/kdebase" || \
-				die "Failed to remove ${cleandir}/kdebase. You need to remove it manually."
-		fi
-		# Move the rest
-		local pkg
-		for pkg in "${cleandir}"/*; do
-			mv -f "${pkg}" "${ESVN_STORE_DIR}"/ || eerror "Failed to move '${pkg}'"
-		done
-		rmdir "${cleandir}" || die "Could not move obsolete KDE store dir.  Please move '${cleandir}' contents to appropriate location (possibly ${ESVN_STORE_DIR}) and manually remove '${cleandir}' in order to continue."
-	fi
-
-	if ! has kde4-meta ${INHERITED}; then
-		case ${KMNAME} in
-			extragear*|playground*)
-				local scmlocalpath="${ESVN_STORE_DIR}"/"${KMNAME}"/"${PN}"
-				if [[ -d "${scmlocalpath}" ]]; then
-					local destdir="${ESVN_STORE_DIR}"/"${ESVN_PROJECT}"/"`basename "${ESVN_REPO_URI}"`"
-					ewarn "'${scmlocalpath}' has been found."
-					ewarn "Moving contents to new location: ${destdir}"
-					addwrite "${ESVN_STORE_DIR}"
-					mkdir -p "${ESVN_STORE_DIR}"/"${ESVN_PROJECT}" && mv -f "${scmlocalpath}" "${destdir}" \
-						|| die "Failed to move to '${scmlocalpath}'"
-					# Try cleaning empty directories
-					rmdir "`dirname "${scmlocalpath}"`" 2> /dev/null
-				fi
-				;;
-		esac
-	fi
 }
 
 # Functions handling KMLOADLIBS and KMSAVELIBS
@@ -483,3 +423,5 @@ get_kde_version() {
 		(( micro < 50 )) && echo ${major}.${minor} || echo ${major}.$((minor + 1))
 	fi
 }
+
+fi

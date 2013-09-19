@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/intel-sdp.eclass,v 1.9 2013/01/23 11:14:33 jlec Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/intel-sdp.eclass,v 1.14 2013/07/29 09:50:09 jlec Exp $
 
 # @ECLASS: intel-sdp.eclass
 # @MAINTAINER:
@@ -41,17 +41,34 @@
 #
 # Must be defined before inheriting the eclass
 
+# @ECLASS-VARIABLE: INTEL_TARX
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# The package extention.
+# To find out its value, see the links to download in
+# https://registrationcenter.intel.com/RegCenter/MyProducts.aspx
+#
+# e.g. tar.gz
+#
+# Must be defined before inheriting the eclass
+: ${INTEL_TARX:=tgz}
+
 # @ECLASS-VARIABLE: INTEL_SUBDIR
 # @DEFAULT_UNSET
 # @DESCRIPTION:
 # The package sub-directory where it will end-up in /opt/intel
 # To find out its value, you have to do a raw install from the Intel tar ball
 
-# @ECLASS-VARIABLE: INTEL_RPMS_DIRS
+# @ECLASS-VARIABLE: INTEL_SKIP_LICENSE
+# @DEFAULT_UNSET
 # @DESCRIPTION:
-# List of subdirectories in the main archive which contains the
-# rpms to extract.
-: ${INTEL_RPMS_DIRS:=rpm}
+# Possibility to skip the mandatory check for licenses. Only set this if there
+# is really no fix.
+
+# @ECLASS-VARIABLE: INTEL_RPMS_DIR
+# @DESCRIPTION:
+# Main subdirectory which contains the rpms to extract.
+: ${INTEL_RPMS_DIR:=rpm}
 
 # @ECLASS-VARIABLE: INTEL_X86
 # @DESCRIPTION:
@@ -66,6 +83,11 @@
 # Functional name of rpm without any version/arch tag
 #
 # e.g. compilerprof
+#
+# if the rpm is located in a directory different to INTEL_RPMS_DIR you can
+# specify the full path
+#
+# e.g. CLI_install/rpm/intel-vtune-amplifier-xe-cli
 
 # @ECLASS-VARIABLE: INTEL_DAT_RPMS
 # @DEFAULT_UNSET
@@ -74,6 +96,16 @@
 # without any version tag
 #
 # e.g. openmp
+#
+# if the rpm is located in a directory different to INTEL_RPMS_DIR you can
+# specify the full path
+#
+# e.g. CLI_install/rpm/intel-vtune-amplifier-xe-cli-common
+
+# @ECLASS-VARIABLE: INTEL_SINGLE_ARCH
+# @DESCRIPTION:
+# Unset, if only the multilib package will be provided by intel
+: ${INTEL_SINGLE_ARCH:=true}
 
 # @ECLASS-VARIABLE: INTEL_SDP_DB
 # @DESCRIPTION:
@@ -88,17 +120,20 @@ _INTEL_PV3=$(get_version_component_range 3)
 _INTEL_PV4=$(get_version_component_range 4)
 _INTEL_URI="http://registrationcenter-download.intel.com/irc_nas/${INTEL_DID}/${INTEL_DPN}"
 
-SRC_URI="
-	amd64? ( multilib? ( ${_INTEL_URI}_${INTEL_DPV}.tgz ) )
-	amd64? ( !multilib? ( ${_INTEL_URI}_${INTEL_DPV}_intel64.tgz ) )
-	x86?	( ${_INTEL_URI}_${INTEL_DPV}_ia32.tgz )"
+if [ ${INTEL_SINGLE_ARCH} == true ]; then
+	SRC_URI="
+		amd64? ( multilib? ( ${_INTEL_URI}_${INTEL_DPV}.${INTEL_TARX} ) )
+		amd64? ( !multilib? ( ${_INTEL_URI}_${INTEL_DPV}_intel64.${INTEL_TARX} ) )
+		x86?	( ${_INTEL_URI}_${INTEL_DPV}_ia32.${INTEL_TARX} )"
+else
+	SRC_URI="${_INTEL_URI}_${INTEL_DPV}.${INTEL_TARX}"
+fi
 
 LICENSE="Intel-SDP"
 # Future work, #394411
 #SLOT="${_INTEL_PV1}.${_INTEL_PV2}"
 SLOT="0"
 IUSE="examples multilib"
-KEYWORDS="-* ~amd64 ~x86 ~amd64-linux ~x86-linux"
 
 RESTRICT="mirror"
 
@@ -239,13 +274,15 @@ _isdp_version_test() {
 # @INTERNAL
 # Test if installed compiler is working
 _isdp_run-test() {
-	case ${PN} in
-		ifc | icc )
-			_isdp_version_test ;;
-		* )
-			debug-print "No test available for ${PN}"
-			;;
-	esac
+	if [[ -z ${INTEL_SKIP_LICENSE} ]]; then
+		case ${PN} in
+			ifc | icc )
+				_isdp_version_test ;;
+			* )
+				debug-print "No test available for ${PN}"
+				;;
+		esac
+	fi
 }
 
 # @FUNCTION: intel-sdp_pkg_pretend
@@ -260,30 +297,35 @@ intel-sdp_pkg_pretend() {
 	: ${CHECKREQS_DISK_BUILD:=256M}
 	check-reqs_pkg_pretend
 
-	if echo ${INTEL_LICENSE_FILE} | grep -q @; then
-		einfo "Looks like you are using following license server:"
-		einfo "   ${INTEL_LICENSE_FILE}"
-		return 0
-	fi
-
-	dirs=(
-		"${INTEL_SDP_EDIR}/licenses"
-		"${INTEL_SDP_EDIR}/Licenses"
-		"${EPREFIX}/opt/intel/licenses"
-		)
-	for dir in "${dirs[@]}" ; do
-		ebegin "Checking for a license in: ${dir}"
-		#maybe use nullglob or [[ $(echo ${dir/*lic) != "${dir}/*lic" ]]
-		[[ $( ls "${dir}"/*lic 2>/dev/null ) ]]; ret=$?
-		eend ${ret}
-		if [[ ${ret} == "0" ]]; then
-			warn=${ret}
-			break
+	if [[ -z ${INTEL_SKIP_LICENSE} ]]; then
+		if echo ${INTEL_LICENSE_FILE} | grep -q @; then
+			einfo "Looks like you are using following license server:"
+			einfo "   ${INTEL_LICENSE_FILE}"
+			return 0
 		fi
-	done
-	if [[ ${warn} == "1" ]]; then
-		_isdp_big-warning pre-check
-		die "Could not find license file"
+
+		dirs=(
+			"${INTEL_SDP_EDIR}/licenses"
+			"${INTEL_SDP_EDIR}/Licenses"
+			"${EPREFIX}/opt/intel/licenses"
+			)
+		for dir in "${dirs[@]}" ; do
+			ebegin "Checking for a license in: ${dir}"
+			#maybe use nullglob or [[ $(echo ${dir/*lic) != "${dir}/*lic" ]]
+			[[ $( ls "${dir}"/*lic 2>/dev/null ) ]]; ret=$?
+			eend ${ret}
+			if [[ ${ret} == "0" ]]; then
+				warn=${ret}
+				break
+			fi
+		done
+		if [[ ${warn} == "1" ]]; then
+			_isdp_big-warning pre-check
+			die "Could not find license file"
+		fi
+	else
+		eqawarn "The ebuild doesn't check for a license!"
+		eqawarn "This shouldn't be done unless there is a serious reason."
 	fi
 }
 
@@ -304,14 +346,23 @@ intel-sdp_pkg_setup() {
 			INTEL_ARCH="intel64 ia32"
 		fi
 	fi
-	INTEL_RPMS=""
+	INTEL_RPMS=()
+	INTEL_RPMS_FULL=()
 	for p in ${INTEL_BIN_RPMS}; do
 		for a in ${arch}; do
-			INTEL_RPMS+=" intel-${p}-${_INTEL_PV4}-${_INTEL_PV1}.${_INTEL_PV2}-${_INTEL_PV3}.${a}.rpm"
+			if [ ${p} == $(basename ${p}) ]; then
+				INTEL_RPMS+=( intel-${p}-${_INTEL_PV4}-${_INTEL_PV1}.${_INTEL_PV2}-${_INTEL_PV3}.${a}.rpm )
+			else
+				INTEL_RPMS_FULL+=( ${p}-${_INTEL_PV4}-${_INTEL_PV1}.${_INTEL_PV2}-${_INTEL_PV3}.${a}.rpm )
+			fi
 		done
 	done
 	for p in ${INTEL_DAT_RPMS}; do
-		INTEL_RPMS+=" intel-${p}-${_INTEL_PV4}-${_INTEL_PV1}.${_INTEL_PV2}-${_INTEL_PV3}.noarch.rpm"
+		if [ ${p} == $(basename ${p}) ]; then
+			INTEL_RPMS+=( intel-${p}-${_INTEL_PV4}-${_INTEL_PV1}.${_INTEL_PV2}-${_INTEL_PV3}.noarch.rpm )
+		else
+			INTEL_RPMS_FULL+=( ${p}-${_INTEL_PV4}-${_INTEL_PV1}.${_INTEL_PV2}-${_INTEL_PV3}.noarch.rpm )
+		fi
 	done
 
 	case "${EAPI:-0}" in
@@ -323,22 +374,31 @@ intel-sdp_pkg_setup() {
 # @DESCRIPTION:
 # Unpacking necessary rpms from tarball, extract them and rearrange the output.
 intel-sdp_src_unpack() {
-	local l r subdir rb t list=()
+	local l r subdir rb t list=() debug_list
 
 	for t in ${A}; do
-		for r in ${INTEL_RPMS}; do
-			for subdir in ${INTEL_RPMS_DIRS}; do
-				rpmdir=${t%%.*}/${subdir}
-				list+=( ${rpmdir}/${r})
-			done
+		for r in ${INTEL_RPMS[@]}; do
+			rpmdir=${t%%.*}/${INTEL_RPMS_DIR}
+			list+=( ${rpmdir}/${r} )
 		done
-		tar xf "${DISTDIR}"/${t} ${list[@]}	2> /dev/null || die
+
+		for r in ${INTEL_RPMS_FULL[@]}; do
+			list+=( ${t%%.*}/${r} )
+		done
+
+		debug_list="$(IFS=$'\n'; echo ${list[@]} )"
+
+		debug-print "Adding to decompression list:"
+		debug-print ${debug_list}
+
+		tar xvf "${DISTDIR}"/${t} ${list[@]} &> "${T}"/rpm-extraction.log
+
 		for r in ${list[@]}; do
 			rb=$(basename ${r})
 			l=.${rb}_$(date +'%d%m%y_%H%M%S').log
 			einfo "Unpacking ${rb}"
 			rpm2tar -O ${r} | tar xvf - | sed -e \
-				"s:^\.:${EROOT#/}:g" > ${l} || die "unpacking ${r} failed"
+				"s:^\.:${EROOT#/}:g" > ${l}; assert "unpacking ${r} failed"
 			mv ${l} opt/intel/ || die "failed moving extract log file"
 		done
 	done

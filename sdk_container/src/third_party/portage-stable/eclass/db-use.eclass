@@ -1,9 +1,9 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/db-use.eclass,v 1.10 2011/12/27 17:55:12 fauli Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/db-use.eclass,v 1.11 2013/07/21 09:23:45 pacho Exp $
 # This is a common location for functions that aid the use of sys-libs/db
 #
-# Bugs: pauldv@gentoo.org
+# Bugs: maintainer-needed@gentoo.org
 
 inherit versionator multilib
 

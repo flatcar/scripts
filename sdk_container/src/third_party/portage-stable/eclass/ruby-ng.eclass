@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/ruby-ng.eclass,v 1.51 2012/09/27 16:35:41 axs Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/ruby-ng.eclass,v 1.52 2013/06/23 14:56:07 graaff Exp $
 
 # @ECLASS: ruby-ng.eclass
 # @MAINTAINER:
@@ -17,6 +17,7 @@
 # Currently available targets are:
 #  * ruby18 - Ruby (MRI) 1.8.x
 #  * ruby19 - Ruby (MRI) 1.9.x
+#  * ruby20 - Ruby (MRI) 2.0.x
 #  * ree18  - Ruby Enterprise Edition 1.8.x
 #  * jruby  - JRuby
 #  * rbx    - Rubinius
@@ -107,6 +108,10 @@ ruby_implementation_depend() {
 		ruby19)
 			rubypn="dev-lang/ruby"
 			rubyslot=":1.9"
+			;;
+		ruby20)
+			rubypn="dev-lang/ruby"
+			rubyslot=":2.0"
 			;;
 		ree18)
 			rubypn="dev-lang/ruby-enterprise"

@@ -1,6 +1,31 @@
 # ChangeLog for sys-apps/hwids
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/hwids/ChangeLog,v 1.113 2013/07/23 05:00:11 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/hwids/ChangeLog,v 1.118 2013/09/16 07:33:36 ssuominen Exp $
+
+  16 Sep 2013; Samuli Suominen <ssuominen@gentoo.org> hwids-20130915.1.ebuild:
+  Synchronize with hwids-9999.ebuild to correct udev dependency and hwdb update.
+
+*hwids-20130915.1 (15 Sep 2013)
+
+  15 Sep 2013; Diego E. Pettenò <flameeyes@gentoo.org> +hwids-20130915.1.ebuild,
+  -hwids-20130707.ebuild, -hwids-20130717-r1.ebuild, -hwids-20130717.ebuild,
+  -hwids-20130915.ebuild:
+  Cleanup the stupid -r1/patching/non-default ebuilds.
+
+*hwids-20130915 (15 Sep 2013)
+
+  15 Sep 2013; Samuli Suominen <ssuominen@gentoo.org> +hwids-20130915.ebuild:
+  Temporarily use different SRC_URI for http://github.com/gentoo/hwids/pull/4 +
+  make fetch; update for important syntax bug fixes in the udev hwdb files.
+
+  11 Aug 2013; Samuli Suominen <ssuominen@gentoo.org> hwids-20130717-r1.ebuild,
+  hwids-99999999.ebuild:
+  Don't reload the /etc/udev/hwdb.bin when $ROOT isn't set or when it isn't /
+
+  11 Aug 2013; Samuli Suominen <ssuominen@gentoo.org> hwids-20130717-r1.ebuild,
+  hwids-99999999.ebuild:
+  Run udevadm control --reload to reload the /etc/udev/hwdb.bin after
+  regenerating it.
 
 *hwids-20130717-r1 (23 Jul 2013)
 

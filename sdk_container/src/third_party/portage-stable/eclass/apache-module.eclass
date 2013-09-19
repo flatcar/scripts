@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/apache-module.eclass,v 1.25 2011/12/27 17:55:12 fauli Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/apache-module.eclass,v 1.26 2013/06/22 00:06:53 vapier Exp $
 
 # @ECLASS: apache-module.eclass
 # @MAINTAINER:
@@ -176,7 +176,7 @@ apache-module_src_install() {
 	debug-print-function $FUNCNAME $*
 
 	local CD_DIR=$(apache_cd_dir)
-	cd "${CD_DIR}" || die "cd ${CD_DIR} failed"
+	pushd "${CD_DIR}" >/dev/null || die "cd ${CD_DIR} failed"
 
 	local MOD_FILE=$(apache_mod_file)
 
@@ -207,6 +207,8 @@ apache-module_src_install() {
 		[[ -n "${OTHER_DOCS}" ]] && dodoc ${OTHER_DOCS}
 		[[ -n "${HTML_DOCS}" ]] && dohtml ${HTML_DOCS}
 	fi
+
+	popd >/dev/null
 }
 
 # @FUNCTION: apache-module_pkg_postinst

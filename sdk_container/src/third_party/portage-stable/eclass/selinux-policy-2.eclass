@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/selinux-policy-2.eclass,v 1.16 2013/01/26 15:01:52 swift Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/selinux-policy-2.eclass,v 1.19 2013/05/07 09:25:17 swift Exp $
 
 # Eclass for installing SELinux policy, and optionally
 # reloading the reference-policy based modules.
@@ -52,7 +52,7 @@
 # This variable informs the eclass for which SELinux policies the module should
 # be built. Currently, Gentoo supports targeted, strict, mcs and mls.
 # This variable is the same POLICY_TYPES variable that we tell SELinux
-# users to set in /etc/make.conf. Therefor, it is not the module that should
+# users to set in make.conf. Therefore, it is not the module that should
 # override it, but the user.
 : ${POLICY_TYPES:="targeted strict mcs mls"}
 
@@ -152,6 +152,10 @@ selinux-policy-2_src_prepare() {
 		epatch
 	fi
 
+	# Call in epatch_user. We do this early on as we start moving
+	# files left and right hereafter.
+	epatch_user
+
 	# Copy additional files to the 3rd_party/ location
 	if [[ "$(declare -p POLICY_FILES 2>/dev/null 2>&1)" == "declare -a"* ]] ||
 	   [[ -n ${POLICY_FILES} ]];
@@ -241,6 +245,11 @@ selinux-policy-2_pkg_postinst() {
 	done
 
 	for i in ${POLICY_TYPES}; do
+		if [ "${i}" == "strict" ] && [ "${MODS}" = "unconfined" ];
+		then
+			einfo "Ignoring loading of unconfined module in strict module store.";
+			continue;
+		fi
 		einfo "Inserting the following modules into the $i module store: ${MODS}"
 
 		cd /usr/share/selinux/${i} || die "Could not enter /usr/share/selinux/${i}"

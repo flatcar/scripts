@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/latex-package.eclass,v 1.39 2011/08/22 04:46:32 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/latex-package.eclass,v 1.40 2013/07/05 22:59:40 aballier Exp $
 
 # @ECLASS: latex-package.eclass
 # @MAINTAINER:
@@ -61,7 +61,7 @@ DEPEND="${RDEPEND}
 HOMEPAGE="http://www.tug.org/"
 SRC_URI="ftp://tug.ctan.org/macros/latex/"
 S=${WORKDIR}/${P}
-TEXMF="/usr/share/texmf"
+TEXMF="/usr/share/texmf-site"
 
 # @ECLASS-VARIABLE: SUPPLIER
 # @DESCRIPTION:

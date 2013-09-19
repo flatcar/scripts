@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/cvs.eclass,v 1.81 2013/01/22 07:29:02 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/cvs.eclass,v 1.82 2013/06/18 04:31:44 ottxor Exp $
 
 # @ECLASS: cvs.eclass
 # @MAINTAINER:
@@ -301,10 +301,10 @@ cvs_fetch() {
 
 	# Our server string (i.e. CVSROOT) without the password so it can
 	# be put in Root
+	local connection="${ECVS_AUTH}"
 	if [[ ${ECVS_AUTH} == "no" ]] ; then
 		local server="${ECVS_USER}@${ECVS_SERVER}"
 	else
-		local connection="${ECVS_AUTH}"
 		[[ -n ${ECVS_PROXY} ]] && connection+=";proxy=${ECVS_PROXY}"
 		[[ -n ${ECVS_PROXY_PORT} ]] && connection+=";proxyport=${ECVS_PROXY_PORT}"
 		local server=":${connection}:${ECVS_USER}@${ECVS_SERVER}"
@@ -340,15 +340,15 @@ cvs_fetch() {
 		chown "${ECVS_RUNAS}" "${T}/cvspass"
 	fi
 
-	# The server string with the password in it, for login
-	cvsroot_pass=":${ECVS_AUTH}:${ECVS_USER}:${ECVS_PASS}@${ECVS_SERVER}"
+	# The server string with the password in it, for login (only used for pserver)
+	cvsroot_pass=":${connection}:${ECVS_USER}:${ECVS_PASS}@${ECVS_SERVER}"
 
 	# Ditto without the password, for checkout/update after login, so
 	# that the CVS/Root files don't contain the password in plaintext
 	if [[ ${ECVS_AUTH} == "no" ]] ; then
 		cvsroot_nopass="${ECVS_USER}@${ECVS_SERVER}"
 	else
-		cvsroot_nopass=":${ECVS_AUTH}:${ECVS_USER}@${ECVS_SERVER}"
+		cvsroot_nopass=":${connection}:${ECVS_USER}@${ECVS_SERVER}"
 	fi
 
 	# Commands to run

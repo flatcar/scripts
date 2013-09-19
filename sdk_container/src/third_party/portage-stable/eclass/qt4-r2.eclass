@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/qt4-r2.eclass,v 1.24 2012/11/08 09:42:51 pesa Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/qt4-r2.eclass,v 1.28 2013/06/03 08:41:19 pesa Exp $
 
 # @ECLASS: qt4-r2.eclass
 # @MAINTAINER:
@@ -127,8 +127,7 @@ qt4-r2_src_compile() {
 # @FUNCTION: qt4-r2_src_install
 # @DESCRIPTION:
 # Default src_install function for qt4-based packages. Installs compiled code,
-# documentation (via DOCS and HTML_DOCS variables).
-
+# and documentation (via DOCS and HTML_DOCS variables).
 qt4-r2_src_install() {
 	debug-print-function $FUNCNAME "$@"
 
@@ -143,6 +142,14 @@ qt4-r2_src_install() {
 	fi
 }
 
+# @VARIABLE: EQMAKE4_EXCLUDE
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# List of files to be excluded from eqmake4 CONFIG processing.
+# Paths are relative to the current working directory (usually ${S}).
+#
+# Example: EQMAKE4_EXCLUDE="ignore/me.pro foo/*"
+
 # @FUNCTION: eqmake4
 # @USAGE: [project_file] [parameters to qmake]
 # @DESCRIPTION:
@@ -151,13 +158,16 @@ qt4-r2_src_install() {
 # than one project file are found, then ${PN}.pro is processed, provided
 # that it exists. Otherwise eqmake4 fails.
 #
-# All other arguments are appended unmodified to qmake command line. For
-# recursive build systems, i.e. those based on the subdirs template, you
-# should run eqmake4 on the top-level project file only, unless you have
-# strong reasons to do things differently. During the building, qmake
-# will be automatically re-invoked with the right arguments on every
-# directory specified inside the top-level project file.
+# All other arguments are appended unmodified to qmake command line.
+#
+# For recursive build systems, i.e. those based on the subdirs template,
+# you should run eqmake4 on the top-level project file only, unless you
+# have a valid reason to do otherwise. During the building, qmake will
+# be automatically re-invoked with the right arguments on every directory
+# specified inside the top-level project file.
 eqmake4() {
+	debug-print-function ${FUNCNAME} "$@"
+
 	[[ ${EAPI} == 2 ]] && use !prefix && EPREFIX=
 
 	ebegin "Running qmake"
@@ -172,7 +182,7 @@ eqmake4() {
 		if [[ -z ${project_file} ]]; then
 			echo
 			eerror "No project files found in '${PWD}'!"
-			eerror "This shouldn't happen - please send a bug report to http://bugs.gentoo.org/"
+			eerror "This shouldn't happen - please send a bug report to https://bugs.gentoo.org/"
 			echo
 			die "eqmake4 failed"
 		fi
@@ -187,6 +197,7 @@ eqmake4() {
 		config_add="debug"
 		config_remove="release"
 	fi
+
 	local awkscript='BEGIN {
 				printf "### eqmake4 was here ###\n" > file;
 				printf "CONFIG -= debug_and_release %s\n", remove >> file;
@@ -209,16 +220,25 @@ eqmake4() {
 			END {
 				print fixed;
 			}'
-	local file=
+
+	[[ -n ${EQMAKE4_EXCLUDE} ]] && eshopts_push -o noglob
+
+	local file
 	while read file; do
+		local excl
+		for excl in ${EQMAKE4_EXCLUDE}; do
+			[[ ${file} == ${excl} ]] && continue 2
+		done
 		grep -q '^### eqmake4 was here ###$' "${file}" && continue
+
 		local retval=$({
-				rm -f "${file}" || echo FAIL
-				awk -v file="${file}" \
-					-v add=${config_add} \
-					-v remove=${config_remove} \
-					-- "${awkscript}" || echo FAIL
-				} < "${file}")
+			rm -f "${file}" || echo FAIL
+			awk -v file="${file}" \
+				-v add=${config_add} \
+				-v remove=${config_remove} \
+				-- "${awkscript}" || echo FAIL
+			} < "${file}")
+
 		if [[ ${retval} == 1 ]]; then
 			einfo " - fixed CONFIG in ${file}"
 		elif [[ ${retval} != 0 ]]; then
@@ -226,6 +246,8 @@ eqmake4() {
 			die "eqmake4 failed to process ${file}"
 		fi
 	done < <(find . -type f -name '*.pr[io]' -printf '%P\n' 2>/dev/null)
+
+	[[ -n ${EQMAKE4_EXCLUDE} ]] && eshopts_pop
 
 	"${EPREFIX}"/usr/bin/qmake \
 		-makefile \
@@ -235,6 +257,7 @@ eqmake4() {
 		QMAKE_CC="$(tc-getCC)" \
 		QMAKE_CXX="$(tc-getCXX)" \
 		QMAKE_LINK="$(tc-getCXX)" \
+		QMAKE_LINK_C="$(tc-getCC)" \
 		QMAKE_OBJCOPY="$(tc-getOBJCOPY)" \
 		QMAKE_RANLIB= \
 		QMAKE_STRIP= \
@@ -256,12 +279,10 @@ eqmake4() {
 	if ! eend $? ; then
 		echo
 		eerror "Running qmake has failed! (see above for details)"
-		eerror "This shouldn't happen - please send a bug report to http://bugs.gentoo.org/"
+		eerror "This shouldn't happen - please send a bug report to https://bugs.gentoo.org/"
 		echo
 		die "eqmake4 failed"
 	fi
-
-	return 0
 }
 
 # Internal function, used by eqmake4 and qt4-r2_src_configure.

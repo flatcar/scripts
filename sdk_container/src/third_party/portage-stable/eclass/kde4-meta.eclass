@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/kde4-meta.eclass,v 1.68 2012/09/04 14:08:24 johu Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/kde4-meta.eclass,v 1.74 2013/08/21 19:08:18 kensington Exp $
 #
 # @ECLASS: kde4-meta.eclass
 # @MAINTAINER:
@@ -12,6 +12,9 @@
 # You must define KMNAME to use this eclass, and do so before inheriting it. All other variables are optional.
 # Do not include the same item in more than one of KMMODULE, KMMEXTRA, KMCOMPILEONLY, KMEXTRACTONLY.
 
+if [[ ${___ECLASS_ONCE_KDE4_META} != "recur -_+^+_- spank" ]] ; then
+___ECLASS_ONCE_KDE4_META="recur -_+^+_- spank"
+
 [[ -z ${KMNAME} ]] && die "kde4-meta.eclass inherited but KMNAME not defined - broken ebuild"
 
 inherit kde4-base versionator
@@ -21,9 +24,6 @@ EXPORT_FUNCTIONS ${KDEMETA_EXPF}
 
 # Add dependencies that all packages in a certain module share.
 case ${KMNAME} in
-	kdebase|kdebase-apps|kde-baseapps|kdebase-workspace|kde-workspace|kdebase-runtime|kde-runtime|kdegraphics)
-		COMMONDEPEND+=" >=media-libs/qimageblitz-0.0.4"
-		;;
 	kdepim|kdepim-runtime)
 		case ${PN} in
 			akregator|kaddressbook|kjots|kmail|knode|knotes|korganizer|ktimetracker)
@@ -31,11 +31,6 @@ case ${KMNAME} in
 				RDEPEND+=" kontact? ( $(add_kdebase_dep kontact) )"
 				;;
 		esac
-		;;
-	kdegames)
-		if [[ ${PN} != libkdegames ]]; then
-			COMMONDEPEND+=" $(add_kdebase_dep libkdegames)"
-		fi
 		;;
 esac
 
@@ -128,7 +123,6 @@ kde4-meta_src_unpack() {
 	if [[ ${KDE_BUILD_TYPE} = live ]]; then
 		case "${KDE_SCM}" in
 			svn)
-				migrate_store_dir
 				S="${WORKDIR}/${P}"
 				mkdir -p "${S}"
 				ESVN_RESTRICT="export" subversion_src_unpack
@@ -196,16 +190,7 @@ kde4-meta_src_extract() {
 			KMTARPARAMS+=" --xz"
 		fi
 
-		case ${KMNAME} in
-			kdebase-apps)
-				# kdebase/apps -> kdebase-apps
-				tarball="kdebase-${PV}.tar.${postfix}"
-				;;
-			*)
-				# Create tarball name from module name (this is the default)
-				tarball="${KMNAME}-${PV}.tar.${postfix}"
-				;;
-		esac
+		tarball="${KMNAME}-${PV}.tar.${postfix}"
 
 		# Full path to source tarball
 		tarfile="${DISTDIR}/${tarball}"
@@ -283,31 +268,27 @@ kde4-meta_create_extractlists() {
 	# Note that this actually doesn't include KMEXTRA handling.
 	# In those cases you should care to add the relevant files to KMEXTRACTONLY
 	case ${KMNAME} in
-		kdebase | kdebase-apps | kde-baseapps)
+		kde-baseapps)
 			KMEXTRACTONLY+="
+				CTestConfig.cmake
 				config-apps.h.cmake
 				ConfigureChecks.cmake"
 			;;
-		kdebase-runtime | kde-runtime)
+		kde-runtime)
 			KMEXTRACTONLY+="
+				cmake/modules/
 				CTestConfig.cmake
 				config-runtime.h.cmake"
 			;;
-		kdebase-workspace | kde-workspace)
+		kde-workspace)
 			KMEXTRACTONLY+="
+				cmake/modules/
 				config-unix.h.cmake
 				ConfigureChecks.cmake
 				config-workspace.h.cmake
 				config-X11.h.cmake
 				startkde.cmake
 				KDE4WorkspaceConfig.cmake.in"
-			;;
-		kdegames)
-			if [[ ${PN} != libkdegames ]]; then
-				KMEXTRACTONLY+="
-					libkdegames/"
-				KMLOADLIBS="${KMLOADLIBS} libkdegames"
-			fi
 			;;
 		kdepim)
 			if [[ ${PN} != libkdepim ]]; then
@@ -316,41 +297,16 @@ kde4-meta_create_extractlists() {
 			fi
 			KMEXTRACTONLY+="
 				config-enterprise.h.cmake
-				kleopatra/ConfigureChecks.cmake"
-			if ! [[ $(get_kde_version) < 4.5 ]]; then
-				KMEXTRACTONLY+="
-					CTestCustom.cmake
-					kdepim-version.h.cmake"
-			else
-				KMEXTRACTONLY+="
-					kdepim-version.h"
-			fi
+				kleopatra/ConfigureChecks.cmake
+				CTestCustom.cmake
+				kdepim-version.h.cmake
+				kdepim-version.h"
 			if use_if_iuse kontact; then
 				KMEXTRA+="
 					kontact/plugins/${PLUGINNAME:-${PN}}/"
 			fi
 			;;
-		kdeutils)
-			KMEXTRACTONLY+="
-				kdeutils-version.h"
-			;;
 	esac
-	# Don't install cmake modules for split ebuilds, to avoid collisions.
-	# note: kdegraphics >= 4.6.2 does not even have code to do that, so we
-	#   should not try in that case
-	# note2: kdeedu 4.6.4 does not have a cmake/modules/ subdir anymore :(
-	#   it may be possible to formulate this shorter, but it should also
-	#   still be understandable...
-	if [[ ${KMNAME} != kdegraphics || ( ( $(get_kde_version) != 4.6 || ${PV} < 4.6.2 ) && $(get_kde_version) < 4.7 ) ]] \
-		&& ! [[ ${KMNAME} == kdeedu && ( ${PV} == 4.6.4 || ${PV} == 4.6.5 ) ]] \
-		&& ! [[ ${KMNAME} == kdegames && ${PV} > 4.9.0 ]]; then
-		case ${KMNAME} in
-			kdebase-runtime|kde-runtime|kdebase-workspace|kde-workspace|kdeedu|kdegames|kdegraphics)
-				KMEXTRACTONLY+="
-					cmake/modules/"
-			;;
-		esac
-	fi
 
 	debug-print "line ${LINENO} ${ECLASS} ${FUNCNAME}: KMEXTRACTONLY ${KMEXTRACTONLY}"
 }
@@ -486,8 +442,8 @@ kde4-meta_change_cmakelists() {
 		find "${S}"/${i} -name CMakeLists.txt -print0 | \
 			xargs -0 sed -i \
 				-e 's/^#DONOTCOMPILE //g' \
-				-e '/install(.*)/{s/^/#DONOTINSTALL /;}' \
-				-e '/^install(/,/)/{s/^/#DONOTINSTALL /;}' \
+				-e '/install(.*)/I{s/^/#DONOTINSTALL /;}' \
+				-e '/^install(/,/)/I{s/^/#DONOTINSTALL /;}' \
 				-e '/kde4_install_icons(.*)/{s/^/#DONOTINSTALL /;}' || \
 				die "${LINENO}: sed died in the KMCOMPILEONLY section while processing ${i}"
 		_change_cmakelists_parent_dirs ${i}
@@ -512,7 +468,7 @@ kde4-meta_change_cmakelists() {
 	done
 
 	case ${KMNAME} in
-		kdebase-workspace | kde-workspace)
+		kde-workspace)
 			# COLLISION PROTECT section
 			# Install the startkde script just once, as a part of kde-base/kdebase-startkde,
 			# not as a part of every package.
@@ -529,16 +485,24 @@ kde4-meta_change_cmakelists() {
 				sed -e '/install(FILES ${CMAKE_CURRENT_BINARY_DIR}\/KDE4WorkspaceConfig.cmake/,/^[[:space:]]*FILE KDE4WorkspaceLibraryTargets.cmake )[[:space:]]*^/d' \
 					-i CMakeLists.txt || die "${LINENO}: sed died in kde-workspace strip config install and fix EXPORT section"
 			fi
+			# <KDE/4.11
 			if [[ ${PN} != plasma-workspace ]]; then
 				sed -e '/KActivities/s/REQUIRED//' \
 					-i CMakeLists.txt || die "${LINENO}: sed died in kde-workspace dep reduction section"
 			fi
+			sed -e '/QImageBlitz/s/REQUIRED//' \
+				-i CMakeLists.txt || die "${LINENO}: sed died in kde-workspace dep reduction section 2"
+
+			# >=KDE/4.11
+			sed -e 's/TYPE REQUIRED/TYPE OPTIONAL/' -e 's/XCB REQUIRED/XCB/' -e 's/X11 REQUIRED/X11/' \
+				-e 's/message(FATAL_ERROR/message(/' -i CMakeLists.txt \
+				|| die "${LINENO}: sed died in kde-workspace dep reduction section"
 			if [[ "${PN}" != "kwin" ]]; then
 				sed -i -e "/^    macro_log_feature(OPENGL_OR_ES_FOUND/s/TRUE/FALSE/" \
 					"${S}"/CMakeLists.txt || die "${LINENO}: sed died removing kde-workspace opengl dependency"
 			fi
 			;;
-		kdebase-runtime | kde-runtime)
+		kde-runtime)
 			# COLLISION PROTECT section
 			# Only install the kde4 script as part of kde-base/kdebase-data
 			if [[ ${PN} != kdebase-data && -f CMakeLists.txt ]]; then
@@ -565,24 +529,18 @@ kde4-meta_change_cmakelists() {
 					-e 's/if[[:space:]]*([[:space:]]*[[:alnum:]]*_FOUND[[:space:]]*)[[:space:]]*$/if(1) # &/' \
 					-i kontact/plugins/CMakeLists.txt || die 'failed to override build logic'
 			fi
-			if [[ $(get_kde_version) < 4.5 ]]; then
-				case ${PN} in
-					kalarm|kmailcvt|kontact|korganizer|korn)
-						sed -n -e '/qt4_generate_dbus_interface(.*org\.kde\.kmail\.\(kmail\|mailcomposer\)\.xml/p' \
-							-e '/add_custom_target(kmail_xml /,/)/p' \
-							-i kmail/CMakeLists.txt || die "uncommenting xml failed"
-						_change_cmakelists_parent_dirs kmail
+			case ${PV} in
+				4.4*)
+					case ${PN} in
+						kalarm|kmailcvt|kontact|korganizer|korn)
+							sed -n -e '/qt4_generate_dbus_interface(.*org\.kde\.kmail\.\(kmail\|mailcomposer\)\.xml/p' \
+								-e '/add_custom_target(kmail_xml /,/)/p' \
+								-i kmail/CMakeLists.txt || die "uncommenting xml failed"
+							_change_cmakelists_parent_dirs kmail
+							;;
+					esac
 					;;
-				esac
-			fi
-			;;
-		kdewebdev)
-			# Disable hardcoded checks
-			sed -e 's/find_package(KdepimLibs REQUIRED)/macro_optional_find_package(KdepimLibs)/' \
-				-e 's/find_package(LibXml2 REQUIRED)/macro_optional_find_package(LibXml2)/' \
-				-e 's/find_package(LibXslt REQUIRED)/macro_optional_find_package(LibXslt)/' \
-				-e 's/find_package(Boost REQUIRED)/macro_optional_find_package(Boost)/' \
-				-i CMakeLists.txt || die "failed to disable hardcoded checks"
+			esac
 			;;
 	esac
 
@@ -595,25 +553,6 @@ kde4-meta_change_cmakelists() {
 # ebuilds.
 kde4-meta_src_configure() {
 	debug-print-function ${FUNCNAME} "$@"
-
-	# backwards-compatibility: make mycmakeargs an array, if it isn't already
-	if [[ $(declare -p mycmakeargs 2>&-) != "declare -a mycmakeargs="* ]]; then
-		mycmakeargs=(${mycmakeargs})
-	fi
-
-	# Set some cmake default values here (usually workarounds for automagic deps)
-	case ${KMNAME} in
-		kdewebdev)
-			mycmakeargs=(
-				-DWITH_KdepimLibs=OFF
-				-DWITH_LibXml2=OFF
-				-DWITH_LibXslt=OFF
-				-DWITH_Boost=OFF
-				-DWITH_LibTidy=OFF
-				"${mycmakeargs[@]}"
-			)
-			;;
-	esac
 
 	kde4-base_src_configure
 }
@@ -684,3 +623,5 @@ kde4-meta_pkg_postrm() {
 
 	kde4-base_pkg_postrm
 }
+
+fi
