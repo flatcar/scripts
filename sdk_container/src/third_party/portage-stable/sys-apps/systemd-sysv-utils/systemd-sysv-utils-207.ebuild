@@ -1,8 +1,8 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/systemd-sysv-utils/systemd-sysv-utils-194.ebuild,v 1.1 2012/10/04 20:03:07 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/systemd-sysv-utils/systemd-sysv-utils-207.ebuild,v 1.1 2013/09/20 16:37:33 mgorny Exp $
 
-EAPI=4
+EAPI=5
 
 MY_P=systemd-${PV}
 
@@ -16,7 +16,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 RDEPEND="!sys-apps/sysvinit
-	sys-apps/systemd"
+	>=sys-apps/systemd-201"
 
 S=${WORKDIR}/${MY_P}/man
 
@@ -27,5 +27,5 @@ src_install() {
 	done
 
 	newman init.1 init.8
-	dosym ../usr/bin/systemd /sbin/init
+	dosym ../usr/lib/systemd/systemd /sbin/init
 }
