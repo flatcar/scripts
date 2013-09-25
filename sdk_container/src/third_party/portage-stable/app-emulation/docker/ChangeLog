@@ -1,0 +1,11 @@
+# ChangeLog for app-emulation/docker
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/app-emulation/docker/ChangeLog,v 1.1 2013/09/25 03:22:15 gregkh Exp $
+
+*docker-0.6.3 (25 Sep 2013)
+
+  25 Sep 2013; Greg Kroah-Hartman <gregkh@gentoo.org> +docker-0.6.3.ebuild,
+  +files/docker-r2.confd, +files/docker-r2.initd, +files/docker.initd,
+  +files/docker.service, +metadata.xml:
+  initial docker ebuild taken (with permission) from git@github.com:tianon
+  /docker-overlay.git
