@@ -1,6 +1,119 @@
 # ChangeLog for dev-vcs/git
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-vcs/git/ChangeLog,v 1.179 2013/01/29 19:52:58 grobian Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-vcs/git/ChangeLog,v 1.208 2013/09/28 10:08:18 pacho Exp $
+
+*git-1.8.1.5-r1 (28 Sep 2013)
+
+  28 Sep 2013; Pacho Ramos <pacho@gentoo.org> +git-1.8.1.5-r1.ebuild:
+  Backport unit files to allow faster stabilization
+
+  16 Sep 2013; Michał Górny <mgorny@gentoo.org> git-1.8.3.2.ebuild,
+  git-9999.ebuild:
+  Use ${PYTHON} rather than $(python_get_PYTHON). It is exported anyway.
+
+  31 Jul 2013; Matt Turner <mattst88@gentoo.org> git-1.8.3.2.ebuild,
+  git-9999.ebuild:
+  Allow building against >=dev-lang/perl-5.16 without 'build' in IUSE.
+
+  26 Jul 2013; William Hubbs <williamh@gentoo.org> git-9999.ebuild:
+  non-maintainer commit: sync live ebuild with git-1.8.3.2.
+
+  15 Jul 2013; Jonathan Callen <abcd@gentoo.org> git-1.8.3.2.ebuild:
+  Non-maintainer update: make ${PYTHON_REQUIRED_USE} conditional on USE=python;
+  fix pygtk and pygtksourceview deps to require that they be built with the same
+  version of python as this package; replace built_with_use calls with
+  has_version; remove python 2.5 support as none of the dependencies support it.
+
+  11 Jul 2013; Lars Wendler <polynomial-c@gentoo.org> git-1.8.3.2.ebuild:
+  Non-maintainer commit: Fixed test failure when built with USE="-perl" (bug
+  #476472). Also fixed wrong located python_optimize call. Thanks to Arfrever
+  for pointing this out in IRC and mgorny for giving advice how to fix this.
+
+*git-1.8.3.2 (09 Jul 2013)
+
+  09 Jul 2013; Lars Wendler <polynomial-c@gentoo.org> +git-1.8.3.2.ebuild:
+  Non-maintainer commit: Version bump (bug #467856). Converted ebuild to EAPI-5
+  and python-single-r1 eclass. Added gtk -> python REQUIRED_USE (bug #451374).
+  Hopefully fixed test failure with USE=-perl (bug #470592). Added installation
+  of git-remote-hg (bug #465808) and git-remote-bzr with USE=python.
+
+  18 May 2013; Fabio Erculiani <lxnay@gentoo.org> git-1.8.2.1.ebuild,
+  git-9999.ebuild, +files/git-daemon.socket, +files/git-daemon_at.service:
+  add systemd unit supporting socket activation to 1.8.21 and 9999, fix bug
+  #468846
+
+  19 Apr 2013; Mike Frysinger <vapier@gentoo.org> git-1.8.2.1.ebuild:
+  Add missing pthreads linkage for svn-fe #466178 by Mike Gilbert.
+
+  17 Apr 2013; Robin H. Johnson <robbat2@gentoo.org> git-1.8.2.1.ebuild:
+  Bug #466178: better use of variables to make svn-fe always compile right.
+
+*git-1.8.2.1 (16 Apr 2013)
+
+  16 Apr 2013; Robin H. Johnson <robbat2@gentoo.org>
+  +files/git-1.8.2-optional-cvs.patch, +files/git-1.8.2-texinfo.patch,
+  +git-1.8.2.1.ebuild:
+  Verbump. Bug #464210: fix texinfo 5.1 @anchor handling.
+
+  19 Mar 2013; Agostino Sarubbo <ago@gentoo.org> -git-1.7.12-r1.ebuild,
+  -git-1.7.12-r2.ebuild, -git-1.7.12.3-r1.ebuild, -git-1.7.12.3.ebuild,
+  -git-1.7.12.ebuild, -git-1.8.0-r1.ebuild, -git-1.8.0.ebuild,
+  -git-1.8.1.1.ebuild, -git-1.8.1.2.ebuild, -git-1.8.1.4.ebuild,
+  -git-1.8.1.ebuild:
+  Remove old
+
+  10 Mar 2013; Agostino Sarubbo <ago@gentoo.org> git-1.8.1.5.ebuild:
+  Stable for s390, wrt bug #459158
+
+  09 Mar 2013; Agostino Sarubbo <ago@gentoo.org> git-1.8.1.5.ebuild:
+  Stable for sparc, wrt bug #459158
+
+  09 Mar 2013; Agostino Sarubbo <ago@gentoo.org> git-1.8.1.5.ebuild:
+  Stable for ia64, wrt bug #459158
+
+  09 Mar 2013; Agostino Sarubbo <ago@gentoo.org> git-1.8.1.5.ebuild:
+  Stable for alpha, wrt bug #459158
+
+  09 Mar 2013; Agostino Sarubbo <ago@gentoo.org> git-1.8.1.5.ebuild:
+  Stable for ppc64, wrt bug #459158
+
+  08 Mar 2013; Agostino Sarubbo <ago@gentoo.org> git-1.8.1.5.ebuild:
+  Stable for arm, wrt bug #459158
+
+  06 Mar 2013; Agostino Sarubbo <ago@gentoo.org> git-1.8.1.5.ebuild:
+  Stable for sh, wrt bug #459158
+
+  05 Mar 2013; Jeroen Roovers <jer@gentoo.org> git-1.8.1.5.ebuild:
+  Stable for HPPA (bug #459158).
+
+  04 Mar 2013; Brent Baude <ranger@gentoo.org> git-1.8.1.5.ebuild:
+  Marking git-1.8.1.5 ppc for bug 459158
+
+  04 Mar 2013; Agostino Sarubbo <ago@gentoo.org> git-1.8.1.5.ebuild:
+  Stable for x86, wrt bug #459158
+
+  04 Mar 2013; Agostino Sarubbo <ago@gentoo.org> git-1.8.1.5.ebuild:
+  Stable for amd64, wrt bug #459158
+
+*git-1.8.1.5 (01 Mar 2013)
+
+  01 Mar 2013; Robin H. Johnson <robbat2@gentoo.org> +git-1.8.1.5.ebuild:
+  Bump.
+
+  24 Feb 2013; Agostino Sarubbo <ago@gentoo.org> git-1.7.12.4.ebuild:
+  Stable for sh, wrt bug #436704
+
+  22 Feb 2013; Zac Medico <zmedico@gentoo.org> git-1.8.1.2.ebuild,
+  git-1.8.1.4.ebuild, git-9999.ebuild:
+  Add ~arm-linux keywords.
+
+*git-1.8.1.4 (20 Feb 2013)
+
+  20 Feb 2013; Robin H. Johnson <robbat2@gentoo.org> +git-1.8.1.4.ebuild:
+  Bump.
+
+  20 Feb 2013; Agostino Sarubbo <ago@gentoo.org> git-1.7.12.4.ebuild:
+  Stable for s390, wrt bug #436704
 
   29 Jan 2013; Fabian Groffen <grobian@gentoo.org> git-1.8.0.2.ebuild,
   git-1.8.1.2.ebuild:
