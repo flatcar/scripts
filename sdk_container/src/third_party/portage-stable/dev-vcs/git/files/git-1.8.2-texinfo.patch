@@ -1,0 +1,19 @@
+Strip anchors to avoid duplicate anchor names. This keeps texinfo 5-x happy.
+
+2013-04-02 Martin von Gagern
+
+References:
+* https://bugs.gentoo.org/464210
+
+Index: git-1.8.1.5/Documentation/cat-texi.perl
+===================================================================
+--- git-1.8.1.5.orig/Documentation/cat-texi.perl
++++ git-1.8.1.5/Documentation/cat-texi.perl
+@@ -12,6 +12,7 @@ while (<STDIN>) {
+ 		push @menu, $1;
+ 	}
+ 	s/\(\@pxref{\[(URLS|REMOTES)\]}\)//;
++	s/\@anchor\{[^{}]*\}//g;
+ 	print TMP;
+ }
+ close TMP;
