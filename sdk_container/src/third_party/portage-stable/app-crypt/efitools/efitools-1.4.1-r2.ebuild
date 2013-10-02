@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-crypt/efitools/efitools-1.4.1-r2.ebuild,v 1.1 2013/09/01 22:19:56 gregkh Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-crypt/efitools/efitools-1.4.1-r2.ebuild,v 1.2 2013/09/10 03:42:19 patrick Exp $
 
 EAPI="4"
 inherit eutils
@@ -25,5 +25,5 @@ DEPEND="${RDEPEND}
 
 src_prepare() {
 	epatch "${FILESDIR}"/xxdi.patch
-	chmod 755 ${WORKDIR}/${P}/xxdi.pl
+	chmod 755 "${WORKDIR}/${P}/xxdi.pl"
 }
