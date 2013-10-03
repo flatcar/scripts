@@ -1,6 +1,15 @@
 # ChangeLog for app-crypt/efitools
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/app-crypt/efitools/ChangeLog,v 1.3 2013/09/01 22:19:56 gregkh Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-crypt/efitools/ChangeLog,v 1.5 2013/10/02 23:49:35 gregkh Exp $
+
+*efitools-1.4.2 (02 Oct 2013)
+
+  02 Oct 2013; Greg Kroah-Hartman <gregkh@gentoo.org> +efitools-1.4.2.ebuild:
+  Version bump to 1.4.2
+
+  10 Sep 2013; Patrick Lauer <patrick@gentoo.org> efitools-1.4.1-r1.ebuild,
+  efitools-1.4.1-r2.ebuild, efitools-1.4.1.ebuild:
+  Whitespace
 
 *efitools-1.4.1-r2 (01 Sep 2013)
 
