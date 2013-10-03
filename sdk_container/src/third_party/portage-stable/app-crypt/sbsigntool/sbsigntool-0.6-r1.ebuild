@@ -1,10 +1,10 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-crypt/sbsigntool/sbsigntool-0.6.ebuild,v 1.4 2013/09/05 07:31:21 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-crypt/sbsigntool/sbsigntool-0.6-r1.ebuild,v 1.1 2013/10/03 02:09:21 gregkh Exp $
 
 EAPI="4"
 
-inherit toolchain-funcs
+inherit eutils toolchain-funcs
 
 DESCRIPTION="Utilities for signing and verifying files for UEFI Secure Boot"
 HOMEPAGE="https://launchpad.net/ubuntu/+source/sbsigntool"
@@ -12,7 +12,7 @@ SRC_URI="https://launchpad.net/ubuntu/+archive/primary/+files/${PN}_${PV}.orig.t
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="amd64 x86"
+KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 RDEPEND="dev-libs/openssl
@@ -33,4 +33,6 @@ src_prepare() {
 	sed -i "/^EFI_ARCH=/s:=.*:=${iarch}:" configure || die
 	sed -i 's/-m64$/& -march=x86-64/' tests/Makefile.in || die
 	sed -i "/^AR /s:=.*:= $(tc-getAR):" lib/ccan/Makefile.in || die #481480
+	epatch "${FILESDIR}"/0002-image.c-clear-image-variable.patch
+	epatch "${FILESDIR}"/0003-Fix-for-multi-sign.patch
 }
