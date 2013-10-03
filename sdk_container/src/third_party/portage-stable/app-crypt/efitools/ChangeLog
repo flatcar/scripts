@@ -1,6 +1,11 @@
 # ChangeLog for app-crypt/efitools
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/app-crypt/efitools/ChangeLog,v 1.5 2013/10/02 23:49:35 gregkh Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-crypt/efitools/ChangeLog,v 1.6 2013/10/03 22:34:09 gregkh Exp $
+
+*efitools-1.4.2-r1 (03 Oct 2013)
+
+  03 Oct 2013; Greg Kroah-Hartman <gregkh@gentoo.org> +efitools-1.4.2-r1.ebuild:
+  add build dependancy for perl script as per bug #486844
 
 *efitools-1.4.2 (02 Oct 2013)
 
