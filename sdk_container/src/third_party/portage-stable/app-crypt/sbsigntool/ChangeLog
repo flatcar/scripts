@@ -1,6 +1,18 @@
 # ChangeLog for app-crypt/sbsigntool
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/app-crypt/sbsigntool/ChangeLog,v 1.3 2013/08/28 11:17:16 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-crypt/sbsigntool/ChangeLog,v 1.5 2013/10/03 02:09:21 gregkh Exp $
+
+*sbsigntool-0.6-r1 (03 Oct 2013)
+
+  03 Oct 2013; Greg Kroah-Hartman <gregkh@gentoo.org>
+  +files/0002-image.c-clear-image-variable.patch,
+  +files/0003-Fix-for-multi-sign.patch, +sbsigntool-0.6-r1.ebuild:
+  patches to fix multi-key signing, fixing bugs with new versions of UEFI
+  firmware. Taken from the openSUSE packages as the upstream Launchpad project
+  is now dead.
+
+  05 Sep 2013; Mike Frysinger <vapier@gentoo.org> sbsigntool-0.6.ebuild:
+  Fix $AR handling #481480 by Agostino Sarubbo.
 
   28 Aug 2013; Agostino Sarubbo <ago@gentoo.org> sbsigntool-0.6.ebuild:
   Stable for x86, wrt bug #481396
