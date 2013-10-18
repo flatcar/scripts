@@ -1,6 +1,14 @@
 # ChangeLog for net-misc/tlsdate
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/tlsdate/ChangeLog,v 1.6 2013/01/23 22:36:10 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-misc/tlsdate/ChangeLog,v 1.8 2013/03/18 17:16:18 vapier Exp $
+
+  18 Mar 2013; Mike Frysinger <vapier@gentoo.org> tlsdate-0.0.6.ebuild:
+  Stabilize for all.
+
+*tlsdate-0.0.6 (19 Feb 2013)
+
+  19 Feb 2013; Robin H. Johnson <robbat2@gentoo.org> +tlsdate-0.0.6.ebuild:
+  Version bump.
 
 *tlsdate-0.0.5 (23 Jan 2013)
 
