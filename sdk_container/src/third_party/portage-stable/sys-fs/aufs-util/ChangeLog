@@ -1,6 +1,46 @@
 # ChangeLog for sys-fs/aufs-util
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/aufs-util/ChangeLog,v 1.14 2013/05/27 11:20:55 jlec Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/aufs-util/ChangeLog,v 1.21 2013/09/17 10:19:24 jlec Exp $
+
+*aufs-util-3.9_p20130915 (17 Sep 2013)
+*aufs-util-3.2_p20130915 (17 Sep 2013)
+
+  17 Sep 2013; Justin Lecher <jlec@gentoo.org> +aufs-util-3.2_p20130915.ebuild,
+  +aufs-util-3.9_p20130915.ebuild:
+  Bump to latest aufs3 release
+
+  28 Aug 2013; Justin Lecher <jlec@gentoo.org> aufs-util-3.9_p20130821.ebuild,
+  aufs-util-3.9_p20130826.ebuild:
+  Fix Version for aufs-header dependency, #482710
+
+*aufs-util-3.9_p20130826 (26 Aug 2013)
+*aufs-util-3.2_p20130826 (26 Aug 2013)
+
+  26 Aug 2013; Justin Lecher <jlec@gentoo.org> +aufs-util-3.2_p20130826.ebuild,
+  +aufs-util-3.9_p20130826.ebuild:
+  Version Bump
+
+*aufs-util-3.9_p20130821 (21 Aug 2013)
+*aufs-util-3.2_p20130821 (21 Aug 2013)
+
+  21 Aug 2013; Justin Lecher <jlec@gentoo.org> +aufs-util-3.2_p20130821.ebuild,
+  -aufs-util-3.6.ebuild, -aufs-util-3.7.ebuild, -aufs-util-3.7-r1.ebuild,
+  -aufs-util-3.7.6.ebuild, -aufs-util-3.8_p20130318.ebuild,
+  -aufs-util-3.8_p20130422.ebuild, +aufs-util-3.9_p20130821.ebuild,
+  -aufs-util-3.10_p20130722.ebuild, -aufs-util-3.10_p20130807.ebuild:
+  Bump to latest, drop old; version schema is now following upstreams branches
+
+*aufs-util-3.10_p20130807 (07 Aug 2013)
+
+  07 Aug 2013; Justin Lecher <jlec@gentoo.org>
+  +aufs-util-3.10_p20130807.ebuild:
+  Latest release
+
+*aufs-util-3.10_p20130722 (22 Jul 2013)
+
+  22 Jul 2013; Justin Lecher <jlec@gentoo.org>
+  +aufs-util-3.10_p20130722.ebuild:
+  Version Bump, fixes #471412
 
   27 May 2013; Justin Lecher <jlec@gentoo.org> aufs-util-3.6.ebuild,
   aufs-util-3.7.ebuild, aufs-util-3.7-r1.ebuild, aufs-util-3.7.6.ebuild,
