@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain-binutils.eclass,v 1.123 2013/02/09 04:32:48 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain-binutils.eclass,v 1.125 2013/10/11 18:35:59 vapier Exp $
 #
 # Maintainer: Toolchain Ninjas <toolchain@gentoo.org>
 #
@@ -59,6 +59,9 @@ if [[ ${CTARGET} == ${CHOST} ]] ; then
 	fi
 fi
 is_cross() { [[ ${CHOST} != ${CTARGET} ]] ; }
+
+: ${ED:=${D}}
+: ${EROOT:=${ROOT}}
 
 DESCRIPTION="Tools necessary to build programs"
 HOMEPAGE="http://sourceware.org/binutils/"
@@ -262,7 +265,7 @@ toolchain-binutils_src_compile() {
 
 	use multitarget && myconf+=( --enable-targets=all --enable-64-bit-bfd )
 	[[ -n ${CBUILD} ]] && myconf+=( --build=${CBUILD} )
-	is_cross && myconf+=( --with-sysroot=/usr/${CTARGET} )
+	is_cross && myconf+=( --with-sysroot="${EPREFIX}"/usr/${CTARGET} )
 
 	# glibc-2.3.6 lacks support for this ... so rather than force glibc-2.5+
 	# on everyone in alpha (for now), we'll just enable it when possible
@@ -270,16 +273,16 @@ toolchain-binutils_src_compile() {
 	has_version ">=sys-libs/glibc-2.5" && myconf+=( --enable-secureplt )
 
 	myconf+=(
-		--prefix=/usr
+		--prefix="${EPREFIX}"/usr
 		--host=${CHOST}
 		--target=${CTARGET}
-		--datadir=${DATAPATH}
-		--infodir=${DATAPATH}/info
-		--mandir=${DATAPATH}/man
-		--bindir=${BINPATH}
-		--libdir=${LIBPATH}
-		--libexecdir=${LIBPATH}
-		--includedir=${INCPATH}
+		--datadir="${EPREFIX}"${DATAPATH}
+		--infodir="${EPREFIX}"${DATAPATH}/info
+		--mandir="${EPREFIX}"${DATAPATH}/man
+		--bindir="${EPREFIX}"${BINPATH}
+		--libdir="${EPREFIX}"${LIBPATH}
+		--libexecdir="${EPREFIX}"${LIBPATH}
+		--includedir="${EPREFIX}"${INCPATH}
 		--enable-obsolete
 		--enable-shared
 		--enable-threads
@@ -317,7 +320,7 @@ toolchain-binutils_src_compile() {
 				--with-bfd-include-dir=${MY_BUILDDIR}/bfd
 				--with-libbfd=${MY_BUILDDIR}/bfd/libbfd.a
 				--with-libiberty=${MY_BUILDDIR}/libiberty/libiberty.a
-				--with-binutils-ldscript-dir=${LIBPATH}/ldscripts
+				--with-binutils-ldscript-dir="${EPREFIX}"${LIBPATH}/ldscripts
 			)
 			echo ./configure "${myconf[@]}"
 			./configure "${myconf[@]}" || die
@@ -335,12 +338,12 @@ toolchain-binutils_src_install() {
 	local x d
 
 	cd "${MY_BUILDDIR}"
-	emake DESTDIR="${D}" tooldir="${LIBPATH}" install || die
-	rm -rf "${D}"/${LIBPATH}/bin
-	use static-libs || find "${D}" -name '*.la' -delete
+	emake DESTDIR="${D}" tooldir="${EPREFIX}${LIBPATH}" install || die
+	rm -rf "${ED}"/${LIBPATH}/bin
+	use static-libs || find "${ED}" -name '*.la' -delete
 
 	# Newer versions of binutils get fancy with ${LIBPATH} #171905
-	cd "${D}"/${LIBPATH}
+	cd "${ED}"/${LIBPATH}
 	for d in ../* ; do
 		[[ ${d} == ../${BVER} ]] && continue
 		mv ${d}/* . || die
@@ -351,15 +354,15 @@ toolchain-binutils_src_install() {
 	# When something is built to cross-compile, it installs into
 	# /usr/$CHOST/ by default ... we have to 'fix' that :)
 	if is_cross ; then
-		cd "${D}"/${BINPATH}
+		cd "${ED}"/${BINPATH}
 		for x in * ; do
 			mv ${x} ${x/${CTARGET}-}
 		done
 
-		if [[ -d ${D}/usr/${CHOST}/${CTARGET} ]] ; then
-			mv "${D}"/usr/${CHOST}/${CTARGET}/include "${D}"/${INCPATH}
-			mv "${D}"/usr/${CHOST}/${CTARGET}/lib/* "${D}"/${LIBPATH}/
-			rm -r "${D}"/usr/${CHOST}/{include,lib}
+		if [[ -d ${ED}/usr/${CHOST}/${CTARGET} ]] ; then
+			mv "${ED}"/usr/${CHOST}/${CTARGET}/include "${ED}"/${INCPATH}
+			mv "${ED}"/usr/${CHOST}/${CTARGET}/lib/* "${ED}"/${LIBPATH}/
+			rm -r "${ED}"/usr/${CHOST}/{include,lib}
 		fi
 	fi
 	insinto ${INCPATH}
@@ -374,9 +377,9 @@ toolchain-binutils_src_install() {
 		splay-tree.h
 	)
 	doins "${libiberty_headers[@]/#/${S}/include/}" || die
-	if [[ -d ${D}/${LIBPATH}/lib ]] ; then
-		mv "${D}"/${LIBPATH}/lib/* "${D}"/${LIBPATH}/
-		rm -r "${D}"/${LIBPATH}/lib
+	if [[ -d ${ED}/${LIBPATH}/lib ]] ; then
+		mv "${ED}"/${LIBPATH}/lib/* "${ED}"/${LIBPATH}/
+		rm -r "${ED}"/${LIBPATH}/lib
 	fi
 
 	# Insert elf2flt where appropriate
@@ -386,7 +389,7 @@ toolchain-binutils_src_install() {
 		doins elf2flt.ld || die "doins elf2flt.ld failed"
 		exeinto ${BINPATH}
 		doexe elf2flt flthdr || die "doexe elf2flt flthdr failed"
-		mv "${D}"/${BINPATH}/{ld,ld.real} || die
+		mv "${ED}"/${BINPATH}/{ld,ld.real} || die
 		newexe ld-elf2flt ld || die "doexe ld-elf2flt failed"
 		newdoc README README.elf2flt
 	fi
@@ -411,15 +414,14 @@ toolchain-binutils_src_install() {
 	[[ -n ${src}${dst} ]] && FAKE_TARGETS="${FAKE_TARGETS} ${CTARGET/${src}/${dst}}"
 
 	# Generate an env.d entry for this binutils
-	cd "${S}"
 	insinto /etc/env.d/binutils
-	cat <<-EOF > env.d
+	cat <<-EOF > "${T}"/env.d
 		TARGET="${CTARGET}"
 		VER="${BVER}"
-		LIBPATH="${LIBPATH}"
+		LIBPATH="${EPREFIX}${LIBPATH}"
 		FAKE_TARGETS="${FAKE_TARGETS}"
 	EOF
-	newins env.d ${CTARGET}-${BVER}
+	newins "${T}"/env.d ${CTARGET}-${BVER}
 
 	# Handle documentation
 	if ! is_cross ; then
@@ -441,14 +443,14 @@ toolchain-binutils_src_install() {
 		dodoc opcodes/ChangeLog*
 	fi
 	# Remove shared info pages
-	rm -f "${D}"/${DATAPATH}/info/{dir,configure.info,standards.info}
+	rm -f "${ED}"/${DATAPATH}/info/{dir,configure.info,standards.info}
 	# Trim all empty dirs
-	find "${D}" -type d | xargs rmdir >& /dev/null
+	find "${ED}" -type d | xargs rmdir >& /dev/null
 }
 
 toolchain-binutils_pkg_postinst() {
 	# Make sure this ${CTARGET} has a binutils version selected
-	[[ -e ${ROOT}/etc/env.d/binutils/config-${CTARGET} ]] && return 0
+	[[ -e ${EROOT}/etc/env.d/binutils/config-${CTARGET} ]] && return 0
 	binutils-config ${CTARGET}-${BVER}
 }
 
@@ -461,7 +463,7 @@ toolchain-binutils_pkg_postrm() {
 	#       rerun binutils-config if this is a remerge, as
 	#       we want the mtimes on the symlinks updated (if
 	#       it is the same as the current selected profile)
-	if [[ ! -e ${BINPATH}/ld ]] && [[ ${current_profile} == ${CTARGET}-${BVER} ]] ; then
+	if [[ ! -e ${EPREFIX}${BINPATH}/ld ]] && [[ ${current_profile} == ${CTARGET}-${BVER} ]] ; then
 		local choice=$(binutils-config -l | grep ${CTARGET} | awk '{print $2}')
 		choice=${choice//$'\n'/ }
 		choice=${choice/* }

@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/amd64/no-multilib/package.mask,v 1.25 2013/07/16 19:35:28 hasufell Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/amd64/no-multilib/package.mask,v 1.26 2013/10/14 18:28:59 pacho Exp $
 
 # These are broken as reported by Halcy0n, Aug, 23, 2011
 net-misc/teamviewer
@@ -179,6 +179,8 @@ net-im/skype
 net-im/skypetab-ng
 net-misc/icaclient
 net-misc/ps3mediaserver
+net-print/cndrvcups-common-lb
+net-print/cndrvcups-lb
 sci-biology/foldingathome
 sci-electronics/eagle
 sci-chemistry/cara-bin

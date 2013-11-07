@@ -1,6 +1,10 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/ia64/package.use.mask,v 1.125 2013/07/20 11:18:22 pacho Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/ia64/package.use.mask,v 1.126 2013/10/26 08:52:25 gienah Exp $
+
+# Mark Wright <gienah@gentoo.org> (26 Oct 2013)
+# template-haskell not yet available
+dev-haskell/dataenc test
 
 # Pacho Ramos <pacho@gentoo.org> (20 Jul 2013)
 # Keywords pending, bug #476710

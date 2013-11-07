@@ -14,7 +14,18 @@
 #
 # Licensed under the GNU General Public License, v2
 #
-# $Header: /var/cvsroot/gentoo-x86/eclass/java-ant-2.eclass,v 1.56 2013/04/20 18:23:57 sera Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/java-ant-2.eclass,v 1.57 2013/10/05 13:40:57 caster Exp $
+
+# @ECLASS: java-ant-2.eclass
+# @MAINTAINER:
+# java@gentoo.org
+# @AUTHOR:
+# kiorky (kiorky@cryptelium.net), Petteri Räty (betelgeuse@gentoo.org)
+# @BLURB: eclass for ant based Java packages
+# @DESCRIPTION:
+# Eclass for Ant-based Java packages. Provides support for both automatic and
+# manual manipulation of build.xml files. Should be inherited after java-pkg-2
+# or java-pkg-opt-2 eclass.
 
 inherit java-utils-2 multilib
 
@@ -22,22 +33,30 @@ inherit java-utils-2 multilib
 # ant to build. In particular, it will attempt to fix build.xml files, so that
 # they use the appropriate 'target' and 'source' attributes.
 
-# -----------------------------------------------------------------------------
-# @variable-preinherit WANT_ANT_TASKS
-# @variable-default ""
+# @ECLASS-VARIABLE: WANT_ANT_TASKS
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# An $IFS separated list of ant tasks.
+# Ebuild can specify this variable before inheriting java-ant-2 eclass to
+# determine ANT_TASKS it needs. They will be automatically translated to
+# DEPEND variable and ANT_TASKS variable. JAVA_PKG_FORCE_ANT_TASKS can override
+# ANT_TASKS set by WANT_ANT_TASKS, but not the DEPEND due to caching.
+# Ebuilds that need to depend conditionally on certain tasks and specify them
+# differently for different eant calls can't use this simplified approach.
+# You also cannot specify version or anything else than ant-*.
 #
-# Please see the description in java-utils-2.eclass.
+# @CODE
+# WANT_ANT_TASKS="ant-junit ant-trax"
+# @CODE
+
+#The implementation of dependencies is handled by java-utils-2.eclass
 #WANT_ANT_TASKS
 
-# -----------------------------------------------------------------------------
-# @variable-preinherit JAVA_ANT_DISABLE_ANT_CORE_DEP
-# @variable-default unset for java-pkg-2, true for java-pkg-opt-2
-#
+# @ECLASS-VARIABLE: JAVA_ANT_DISABLE_ANT_CORE_DEP
+# @DEFAULT_UNSET
+# @DESCRIPTION:
 # Setting this variable non-empty before inheriting java-ant-2 disables adding
 # dev-java/ant-core into DEPEND.
-
-# construct ant-speficic DEPEND
-# add ant-core into DEPEND, unless disabled
 if [[ -z "${JAVA_ANT_DISABLE_ANT_CORE_DEP}" ]]; then
 		JAVA_ANT_E_DEPEND="${JAVA_ANT_E_DEPEND} >=dev-java/ant-core-1.8.2"
 fi
@@ -70,79 +89,50 @@ fi
 
 DEPEND="${JAVA_ANT_E_DEPEND}"
 
-# ------------------------------------------------------------------------------
-# @global JAVA_PKG_BSFIX
-#
+# @ECLASS-VARIABLE: JAVA_PKG_BSFIX
+# @DESCRIPTION:
 # Should we attempt to 'fix' ant build files to include the source/target
 # attributes when calling javac?
-#
-# default: on
-# ------------------------------------------------------------------------------
 JAVA_PKG_BSFIX=${JAVA_PKG_BSFIX:-"on"}
 
-# ------------------------------------------------------------------------------
-# @global JAVA_PKG_BSFIX_ALL
-#
+# @ECLASS-VARIABLE: JAVA_PKG_BSFIX_ALL
+# @DESCRIPTION:
 # If we're fixing build files, should we try to fix all the ones we can find?
-#
-# default: yes
-# ------------------------------------------------------------------------------
 JAVA_PKG_BSFIX_ALL=${JAVA_PKG_BSFIX_ALL:-"yes"}
 
-# ------------------------------------------------------------------------------
-# @global JAVA_PKG_BSFIX_NAME
-#
+# @ECLASS-VARIABLE: JAVA_PKG_BSFIX_NAME
+# @DESCRIPTION:
 # Filename of build files to fix/search for
-#
-# default: build.xml
-# ------------------------------------------------------------------------------
 JAVA_PKG_BSFIX_NAME=${JAVA_PKG_BSFIX_NAME:-"build.xml"}
 
-# ------------------------------------------------------------------------------
-# @global JAVA_PKG_BSFIX_TARGETS_TAGS
-#
+# @ECLASS-VARIABLE: JAVA_PKG_BSFIX_TARGET_TAGS
+# @DESCRIPTION:
 # Targets to fix the 'source' attribute in
-#
-# default: javac xjavac javac.preset
-# ------------------------------------------------------------------------------
 JAVA_PKG_BSFIX_TARGET_TAGS=${JAVA_PKG_BSFIX_TARGET_TAGS:-"javac xjavac javac.preset"}
 
-# ------------------------------------------------------------------------------
-# @global JAVA_PKG_BSFIX_SOURCE_TAGS
-#
+# @ECLASS-VARIABLE: JAVA_PKG_BSFIX_SOURCE_TAGS
+# @DESCRIPTION:
 # Targets to fix the 'target' attribute in
-#
-# default: javacdoc javac xjavac javac.preset
-# ------------------------------------------------------------------------------
 JAVA_PKG_BSFIX_SOURCE_TAGS=${JAVA_PKG_BSFIX_SOURCE_TAGS:-"javadoc javac xjavac javac.preset"}
 
-# ------------------------------------------------------------------------------
-# @global JAVA_ANT_CLASSPATH_TAGS
-#
+# @ECLASS-VARIABLE: JAVA_ANT_CLASSPATH_TAGS
+# @DESCRIPTION:
 # Targets to add the classpath attribute to
-#
-# default: javac xjavac
-# ------------------------------------------------------------------------------
 JAVA_ANT_CLASSPATH_TAGS="javac xjavac"
 
-# ------------------------------------------------------------------------------
-# @global JAVA_ANT_IGNORE_SYSTEM_CLASSES
-#
-# Rewrites available tasks to ignore ant classpath.
-#
-# default: off
-# ------------------------------------------------------------------------------
+# @ECLASS-VARIABLE: JAVA_ANT_IGNORE_SYSTEM_CLASSES
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# When set, <available> Ant tasks are rewritten to ignore Ant's runtime classpath.
 
 case "${EAPI:-0}" in
 	0|1) : ;;
 	*) EXPORT_FUNCTIONS src_configure ;;
 esac
 
-# ------------------------------------------------------------------------------
-# @eclass-src_configure
-#
-# src_configure rewrites the build.xml files
-# ------------------------------------------------------------------------------
+# @FUNCTION: java-ant-2_src_configure
+# @DESCRIPTION:
+# src_configure rewrites the build.xml files automatically, unless EAPI is undefined, 0 or 1.
 java-ant-2_src_configure() {
 	# if java support is optional, don't perform this when the USE flag is off
 	if has java-pkg-opt-2 ${INHERITED}; then
@@ -159,15 +149,17 @@ java-ant-2_src_configure() {
 	touch "${T}/java-ant-2_src_configure-run"
 }
 
-# ------------------------------------------------------------------------------
-# @private java-ant_bsfix
+# @FUNCTION: java-ant_bsfix
+# @INTERNAL
+# @DESCRIPTION:
+# Attempts to fix build files.
 #
-# Attempts to fix build files. The following variables will affect its behavior
-# as listed above:
+# @CODE
+# Affected by variables:
 # 	JAVA_PKG_BSFIX
 #	JAVA_PKG_BSFIX_ALL
 #	JAVA_PKG_BSFIX_NAME,
-# ------------------------------------------------------------------------------
+# @CODE
 java-ant_bsfix() {
 	debug-print-function ${FUNCNAME} $*
 
@@ -210,11 +202,13 @@ _bsfix_die() {
 	fi
 }
 
-# ------------------------------------------------------------------------------
-# @public java-ant_bsfix_files
+# @FUNCTION: java-ant_bsfix_files
+# @USAGE: <path/to/first/build.xml> [path/to/second.build.xml ...]
+# @DESCRIPTION:
+# Attempts to fix named build files.
 #
-# Attempts to fix named build files. The following variables will affect its behavior
-# as listed above:
+# @CODE
+# Affected by variables:
 #	JAVA_PKG_BSFIX_SOURCE_TAGS
 #	JAVA_PKG_BSFIX_TARGET_TAGS
 #	JAVA_ANT_REWRITE_CLASSPATH
@@ -223,6 +217,7 @@ _bsfix_die() {
 #                                directories
 #	JAVA_ANT_BSFIX_EXTRA_ARGS: You can use this to pass extra variables to the
 #	                           rewriter if you know what you are doing.
+# @CODE
 #
 # If JAVA_ANT_JAVADOC_INPUT_DIRS is set, we will turn on the adding of a basic
 # javadoc target to the ant's build.xml with the javadoc xml-rewriter feature.
@@ -232,7 +227,6 @@ _bsfix_die() {
 
 # When changing this function, make sure that it works with paths with spaces in
 # them.
-# ------------------------------------------------------------------------------
 java-ant_bsfix_files() {
 	debug-print-function ${FUNCNAME} $*
 
@@ -374,14 +368,16 @@ java-ant_bsfix_files() {
 }
 
 
-# ------------------------------------------------------------------------------
-# @public java-ant_bsfix_one
-#
-# Attempts to fix named build file. The following variables will affect its behavior
-# as listed above:
+# @FUNCTION: java-ant_bsfix_one
+# @USAGE: <path/to/build.xml>
+# @DESCRIPTION:
+# Attempts to fix named build file.
+# 
+# @CODE
+# Affected by variables:
 #	JAVA_PKG_BSFIX_SOURCE_TAGS
 #	JAVA_PKG_BSFIX_TARGET_TAGS
-# ------------------------------------------------------------------------------
+# @CODE
 java-ant_bsfix_one() {
 	debug-print-function ${FUNCNAME} $*
 
@@ -393,14 +389,15 @@ java-ant_bsfix_one() {
 	java-ant_bsfix_files "${1}"
 }
 
-# ------------------------------------------------------------------------------
-# @public java-ant_rewrite-classpath
-#
+# @FUNCTION: java-ant_rewrite-classpath
+# @USAGE: [path/to/build.xml]
+# @DESCRIPTION:
 # Adds 'classpath="${gentoo.classpath}"' to specified build file.
+#
 # Affected by:
 #	JAVA_ANT_CLASSPATH_TAGS
-# @param $1 - the file to rewrite (defaults to build.xml)
-# ------------------------------------------------------------------------------
+#
+# Parameter defaults to build.xml when not specified
 java-ant_rewrite-classpath() {
 	debug-print-function ${FUNCNAME} $*
 
@@ -423,14 +420,13 @@ java-ant_rewrite-classpath() {
 	fi
 }
 
-# ------------------------------------------------------------------------------
-# @public java-ant_remove-taskdefs
-#
-# Removes (named) taskdef elements from the file.
-# Options:
-#   --name NAME : only remove taskdef with name NAME.
-# @param $1 - the file to rewrite (defaults to build.xml)
-# ------------------------------------------------------------------------------
+# @FUNCTION: java-ant_remove-taskdefs
+# @USAGE: [--name NAME] [path/to/build.xml]
+# @DESCRIPTION:
+# Removes (named) taskdef elements from the build.xml file.
+# When --name NAME is specified, only remove taskdef with name NAME. Otherwise,
+# all taskdefs are removed.
+# The file to rewrite defaults to build.xml when not specified.
 java-ant_remove-taskdefs() {
 	debug-print-function ${FUNCNAME} $*
 	local task_name
@@ -455,12 +451,11 @@ EOF
 	[[ $? != 0 ]] && die "Removing taskdefs failed"
 }
 
-# ------------------------------------------------------------------------------
-# @public java-ant_ignore-system-classes
-#
+# @FUNCTION: java-ant_ignore-system-classes
+# @USAGE: [path/to/build.xml]
+# @DESCRIPTION:
 # Makes the available task ignore classes in the system classpath
-# @param $1 - the file to rewrite (defaults to build.xml)
-# ------------------------------------------------------------------------------
+# Parameter defaults to build.xml when not specified
 java-ant_ignore-system-classes() {
 	debug-print-function ${FUNCNAME} $*
 	local file=${1:-build.xml}
@@ -469,10 +464,10 @@ java-ant_ignore-system-classes() {
 		-e available -a ignoresystemclasses -v "true"
 }
 
-# ------------------------------------------------------------------------------
-# @public java-ant_xml-rewrite
+# @FUNCTION: java-ant_xml-rewrite
+# @USAGE: <xml rewriter arguments>
+# @DESCRIPTION:
 # Run the right xml-rewrite binary with the given arguments
-# ------------------------------------------------------------------------------
 java-ant_xml-rewrite() {
 	local gen2="/usr/bin/xml-rewrite-2.py"
 	local gen2_1="/usr/$(get_libdir)/javatoolkit/bin/xml-rewrite-2.py"
@@ -488,22 +483,23 @@ java-ant_xml-rewrite() {
 	fi
 }
 
-# ------------------------------------------------------------------------------
-# @public java-ant_rewrite-bootclasspath
-#
+# @FUNCTION: java-ant_rewrite-bootclasspath
+# @USAGE: <version> [path/to/build.xml] [prepend] [append]
+# @DESCRIPTION:
 # Adds bootclasspath to javac-like tasks in build.xml filled with jars of a
 # bootclasspath package of given version.
 #
+# @CODE
 # Affected by:
 #	JAVA_PKG_BSFIX_TARGET_TAGS - the tags of javac tasks
 #
-# @param $1 - the version of bootclasspath (e.g. 1.5), 'auto' for bootclasspath
-#             of the current JDK
-# @param $2 - path to desired build.xml file, defaults to 'build.xml'
-# @param $3 - (optional) what to prepend the bootclasspath with (to override)
-# @param $4 - (optional) what to append to the bootclasspath
-# ------------------------------------------------------------------------------
-
+# Parameters:
+# $1 - the version of bootclasspath (e.g. 1.5), 'auto' for bootclasspath
+#      of the current JDK
+# $2 - path to desired build.xml file, defaults to 'build.xml'
+# $3 - (optional) what to prepend the bootclasspath with (to override)
+# $4 - (optional) what to append to the bootclasspath
+# @CODE
 java-ant_rewrite-bootclasspath() {
 	local version="${1}"
 	local file="${2-build.xml}"

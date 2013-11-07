@@ -1,6 +1,18 @@
 # ChangeLog for Gentoo/Alpha profile directory
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/alpha/ChangeLog,v 1.178 2013/09/10 16:19:39 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/alpha/ChangeLog,v 1.182 2013/10/26 08:55:51 gienah Exp $
+
+  26 Oct 2013; Mark Wright <gienah@gentoo.org> package.use.mask:
+  mask dev-haskell/dataenc test as template-haskell not yet available
+
+  21 Oct 2013; Tom Wijsman <TomWij@gentoo.org> package.use.mask:
+  Added bug reference to media-video/mpv luajit mask.
+
+  20 Oct 2013; Tom Wijsman <TomWij@gentoo.org> package.use.mask:
+  Adjusted media-video/mpv luajit USE mask to support future versions.
+
+  16 Oct 2013; Tom Wijsman <TomWij@gentoo.org> package.use.mask:
+  Mask luajit on ~media-video/mpv-0.2.0 because it only has amd64 x86 keywords.
 
   10 Sep 2013; Samuli Suominen <ssuominen@gentoo.org> package.use.mask:
   Remove mask for USE="pam" in sys-auth/polkit since it doesn't have the

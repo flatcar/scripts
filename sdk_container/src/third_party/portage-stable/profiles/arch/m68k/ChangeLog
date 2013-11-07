@@ -1,6 +1,9 @@
 # ChangeLog for Gentoo/m68k profile
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/m68k/ChangeLog,v 1.28 2013/08/22 16:07:40 chithanh Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/m68k/ChangeLog,v 1.29 2013/09/29 14:30:15 dilfridge Exp $
+
+  29 Sep 2013; Andreas K. Huettel <dilfridge@gentoo.org> make.defaults:
+  m68k goes unstable/testing as per concil decision
 
   22 Aug 2013; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> use.mask:
   Mask opencl flag due to lack of virtual/opencl keywording.

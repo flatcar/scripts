@@ -52,6 +52,7 @@ upnp
 systemd
 webm
 fdk
+valgrind
 
 # Stuff we don't want
 antlr

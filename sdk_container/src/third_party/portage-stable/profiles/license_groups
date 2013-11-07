@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/license_groups,v 1.223 2013/09/01 20:25:23 hasufell Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/license_groups,v 1.224 2013/09/19 13:30:57 dev-zero Exp $
 
 # Please report bugs or other requests at bugs.gentoo.org and assign to
 # licenses@gentoo.org
@@ -59,7 +59,7 @@ FREE-DOCUMENTS @FSF-APPROVED-OTHER @MISC-FREE-DOCS
 # and share modifications
 FREE @FREE-SOFTWARE @FREE-DOCUMENTS
 
-EULA AdobeFlash-10.3 AdobeFlash-11.x ArxFatalis-EULA-GOG ArxFatalis-EULA-JoWooD baudline BCS Broadcom CAPYBARA-EULA cadsoft CYANA DOOM3 ETQW FAH-EULA-2009 FraunhoferFDK GameFront Gameplay-Group-EULA GIMPS google-chrome googleearth Google-TOS IBM-J1.5 IBM-J1.6 Intel-SDP Introversion Livestation-EULA LOKI-EULA LRCTF MakeMKV-EULA MARBLEBLAST Mendeley-EULA MSjdbcEULA40 MTA-0.5 NVIDIA-CUDA Nero-AAC-EULA Nero-EULA-US Oracle-BCLA-JavaSE POMPOM postal2 Primate-Plunge PUEL Q3AEULA Q3AEULA-20000111 QUAKE4 Rain-Slick RTCW RTCW-ETEULA SCM-MICRO SJ-Labs skype-eula skype-4.0.0.7-copyright spin-commercial spin-educational sun-bcla-java-vm TeamViewer THINKTANKS UPEK-SDK-EULA ut2003 ut2003-demo
+EULA Adaptec-EULA AdobeFlash-10.3 AdobeFlash-11.x ArxFatalis-EULA-GOG ArxFatalis-EULA-JoWooD baudline BCS Broadcom CAPYBARA-EULA cadsoft CYANA DOOM3 ETQW FAH-EULA-2009 FraunhoferFDK GameFront Gameplay-Group-EULA GIMPS google-chrome googleearth Google-TOS IBM-J1.5 IBM-J1.6 Intel-SDP Introversion Livestation-EULA LOKI-EULA LRCTF MakeMKV-EULA MARBLEBLAST Mendeley-EULA MSjdbcEULA40 MTA-0.5 NVIDIA-CUDA Nero-AAC-EULA Nero-EULA-US Oracle-BCLA-JavaSE POMPOM postal2 Primate-Plunge PUEL Q3AEULA Q3AEULA-20000111 QUAKE4 Rain-Slick RTCW RTCW-ETEULA SCM-MICRO SJ-Labs skype-eula skype-4.0.0.7-copyright spin-commercial spin-educational sun-bcla-java-vm TeamViewer THINKTANKS UPEK-SDK-EULA ut2003 ut2003-demo
 
 # As proposed: http://archives.gentoo.org/gentoo-dev/msg_6c950b46c50fe72ebc5e650bbf70f77c.xml
 # Excerpt of the rules for this license group:

@@ -1,10 +1,11 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/package.use.force,v 1.7 2013/03/03 07:34:00 tetromino Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/package.use.force,v 1.8 2013/10/02 18:14:17 mgorny Exp $
 
-# Alexandre Rostovtsev <tetromino@gentoo.org> (03 Mar 2013)
-# wine64 is optional
+# Michał Górny <mgorny@gentoo.org> (02 Sep 2013)
+# Packages with optional 64-bit variant.
 app-emulation/wine -abi_x86_64
+www-plugins/adobe-flash -abi_x86_64
 
 # Diego Elio Pettenò <flameeyes@gmail.com> (21 Apr 2011)
 # The plugin is 32-bit only (and I'm not even sure if it works with

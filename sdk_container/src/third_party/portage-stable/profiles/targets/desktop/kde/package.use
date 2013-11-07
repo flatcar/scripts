@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/targets/desktop/kde/package.use,v 1.5 2013/03/22 22:53:26 dilfridge Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/targets/desktop/kde/package.use,v 1.6 2013/09/21 17:00:56 kensington Exp $
 
 # Required by kde-base/pykde4
 dev-python/PyQt4 script sql webkit
@@ -16,3 +16,6 @@ sys-libs/zlib minizip
 
 # Not required, but makes life easier with Qt; bug 457934
 app-arch/unzip natspec
+
+# Required by kde-base/libkexiv2
+media-gfx/exiv2 xmp

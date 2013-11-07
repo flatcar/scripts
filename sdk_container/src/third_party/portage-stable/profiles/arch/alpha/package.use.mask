@@ -1,18 +1,20 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/alpha/package.use.mask,v 1.135 2013/09/10 16:19:39 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/alpha/package.use.mask,v 1.140 2013/10/26 08:55:51 gienah Exp $
+
+# Mark Wright <gienah@gentoo.org> (26 Oct 2013)
+# template-haskell not yet available
+dev-haskell/dataenc test
+
+# Tom Wijsman <TomWij@gentoo.org> (16 Oct 2013)
+# Mask luajit on ~media-video/mpv-0.2.0 because it only has amd64 x86 keywords. See bug #488318.
+>=media-video/mpv-0.2.0 luajit
 
 # Pacho Ramos <pacho@gentoo.org> (01 Sep 2013)
 # CONFIG_AUDITSYSCALL=y is not implemented, bug #438368
 sys-apps/systemd pam
 sys-auth/consolekit pam
 sys-auth/pambase consolekit
-
-# Pacho Ramos <pacho@gentoo.org> (25 Jul 2013)
-# Missing keywords, bug #444688
->=gnome-base/gnome-control-center-3.8 cups
->=gnome-base/gnome-core-apps-3.8 cups
->=gnome-base/gnome-3.8 cups
 
 # Pacho Ramos <pacho@gentoo.org> (20 Jul 2013)
 # Keywords pending, bug #476710

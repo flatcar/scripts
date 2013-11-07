@@ -1,9 +1,14 @@
-# Copyright 1999-2012 Gentoo Foundation.
+# Copyright 1999-2013 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/uclibc/package.mask,v 1.2 2012/10/07 11:42:37 blueness Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/uclibc/package.mask,v 1.3 2013/10/31 22:42:34 blueness Exp $
 
 -sys-libs/uclibc
 sys-libs/glibc
 #
-dev-libs/elfutils
 sys-libs/pam
+#
+# Working on it, bug #470884
+dev-libs/elfutils
+#
+# Working on it, bug #490008
+>sys-kernel/linux-headers-3.9

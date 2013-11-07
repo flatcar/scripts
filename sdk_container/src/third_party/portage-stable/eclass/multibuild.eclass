@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/multibuild.eclass,v 1.13 2013/09/10 09:10:22 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/multibuild.eclass,v 1.14 2013/09/18 08:49:33 mgorny Exp $
 
 # @ECLASS: multibuild
 # @MAINTAINER:
@@ -28,7 +28,7 @@ if [[ ! ${_MULTIBUILD} ]]; then
 
 inherit multiprocessing
 
-RDEPEND="userland_GNU? ( >=sys-apps/coreutils-8.5 )"
+DEPEND="userland_GNU? ( >=sys-apps/coreutils-8.5 )"
 
 # @ECLASS-VARIABLE: MULTIBUILD_VARIANTS
 # @DESCRIPTION:

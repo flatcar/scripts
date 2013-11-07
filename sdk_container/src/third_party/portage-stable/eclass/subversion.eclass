@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/subversion.eclass,v 1.85 2013/07/27 10:18:13 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/subversion.eclass,v 1.86 2013/10/17 22:53:59 ottxor Exp $
 
 # @ECLASS: subversion.eclass
 # @MAINTAINER:
@@ -443,9 +443,10 @@ subversion_src_prepare() {
 # want the logs to stick around if packages are uninstalled without messing with
 # config protection.
 subversion_pkg_preinst() {
+	has "${EAPI:-0}" 0 1 2 && ! use prefix && EROOT="${ROOT}"
 	local pkgdate=$(date "+%Y%m%d %H:%M:%S")
 	if [[ -n ${ESCM_LOGDIR} ]]; then
-		local dir="${ROOT}/${ESCM_LOGDIR}/${CATEGORY}"
+		local dir="${EROOT}/${ESCM_LOGDIR}/${CATEGORY}"
 		if [[ ! -d ${dir} ]]; then
 			mkdir -p "${dir}" || eerror "Failed to create '${dir}' for logging svn revision"
 		fi

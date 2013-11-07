@@ -1,6 +1,12 @@
 # ChangeLog for Gentoo/ia64 profile
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/ia64/ChangeLog,v 1.194 2013/08/22 16:07:39 chithanh Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/ia64/ChangeLog,v 1.196 2013/10/26 08:52:25 gienah Exp $
+
+  26 Oct 2013; Mark Wright <gienah@gentoo.org> package.use.mask:
+  mask dev-haskell/dataenc test as template-haskell not yet available
+
+  28 Sep 2013; Mike Frysinger <vapier@gentoo.org> use.mask:
+  Mask USE=valgrind since the pkg is not keyworded.
 
   22 Aug 2013; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> use.mask:
   Mask opencl flag due to lack of virtual/opencl keywording.

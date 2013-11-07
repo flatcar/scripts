@@ -1,6 +1,22 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/package.use.mask,v 1.178 2013/09/08 14:24:18 pacho Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/package.use.mask,v 1.184 2013/10/31 07:23:00 pacho Exp $
+
+# Pacho Ramos <pacho@gentoo.org> (31 Oct 2013)
+# Missing keywords, bug #478254
+gnome-base/gnome classic
+
+# Mark Wright <gienah@gentoo.org> (26 Oct 2013)
+# template-haskell not yet available
+dev-haskell/dataenc test
+
+# Tom Wijsman <TomWij@gentoo.org> (16 Oct 2013)
+# Mask luajit on ~media-video/mpv-0.2.0 because it only has amd64 x86 keywords. See bug #488318.
+>=media-video/mpv-0.2.0 luajit
+
+# Johannes Huber <johu@gentoo.org> (15 Sep 2013)
+# # Depends on kde-misc/networkmanagement, not keyworded yet.
+kde-base/solid-runtime networkmanager
 
 # Pacho Ramos <pacho@gentoo.org> (08 Sep 2013)
 # monodevelop is not keyworded, bug #468030

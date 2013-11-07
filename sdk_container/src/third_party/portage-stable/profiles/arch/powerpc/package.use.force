@@ -1,9 +1,3 @@
-# Markos Chandras <hwoarang@gentoo.org> (21 Sep 2011)
-# dev-libs/botan is not keyworded for ppc64 but it is
-# required for qt-creator[-botan-bundled]. So force
-# the botan-bundled useflag
-dev-qt/qt-creator botan-bundled
-
 # Matti Bickel <mabi@gentoo.org> - 2007-12-31
 # only the java interface is usable on ppc
 net-p2p/sancho-bin java

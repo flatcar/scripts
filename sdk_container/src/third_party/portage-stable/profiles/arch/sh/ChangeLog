@@ -1,6 +1,9 @@
 # ChangeLog for Gentoo/sh profile directory
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/sh/ChangeLog,v 1.90 2013/08/22 16:07:41 chithanh Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/sh/ChangeLog,v 1.91 2013/09/29 14:36:30 dilfridge Exp $
+
+  29 Sep 2013; Andreas K. Huettel <dilfridge@gentoo.org> make.defaults:
+  sh goes unstable/testing as per council decision
 
   22 Aug 2013; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> use.mask:
   Mask opencl flag due to lack of virtual/opencl keywording.

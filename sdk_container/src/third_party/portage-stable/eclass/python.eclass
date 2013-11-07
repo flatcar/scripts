@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/python.eclass,v 1.167 2013/07/27 11:17:44 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/python.eclass,v 1.168 2013/09/18 18:47:59 mgorny Exp $
 
 # @ECLASS: python.eclass
 # @MAINTAINER:
@@ -30,6 +30,9 @@ _PYTHON_ECLASS_INHERITED="1"
 if ! has "${EAPI:-0}" 0 1 2 3 4 5; then
 	die "API of python.eclass in EAPI=\"${EAPI}\" not established"
 fi
+
+# Please do not add any new versions of Python here! Instead, please
+# focus on converting packages to use the new eclasses.
 
 _CPYTHON2_GLOBALLY_SUPPORTED_ABIS=(2.4 2.5 2.6 2.7)
 _CPYTHON3_GLOBALLY_SUPPORTED_ABIS=(3.1 3.2 3.3)

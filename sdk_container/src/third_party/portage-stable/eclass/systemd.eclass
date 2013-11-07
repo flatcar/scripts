@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/systemd.eclass,v 1.30 2013/09/12 11:46:41 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/systemd.eclass,v 1.31 2013/10/22 15:14:40 mgorny Exp $
 
 # @ECLASS: systemd.eclass
 # @MAINTAINER:
@@ -216,6 +216,53 @@ systemd_enable_service() {
 
 	dodir "${ud}"/"${target}".wants && \
 	dosym ../"${service}" "${ud}"/"${target}".wants/"${destname}"
+}
+
+# @FUNCTION: systemd_enable_ntpunit
+# @USAGE: <NN-name> <service>...
+# @DESCRIPTION:
+# Add an NTP service provider to the list of implementations
+# in timedated. <NN-name> defines the newly-created ntp-units.d priority
+# and name, while the remaining arguments list service units that will
+# be added to that file.
+#
+# Uses doins, thus it is fatal in EAPI 4 and non-fatal in earlier
+# EAPIs.
+#
+# Doc: http://www.freedesktop.org/wiki/Software/systemd/timedated/
+systemd_enable_ntpunit() {
+	debug-print-function ${FUNCNAME} "${@}"
+	if [[ ${#} -lt 2 ]]; then
+		die "Usage: systemd_enable_ntpunit <NN-name> <service>..."
+	fi
+
+	local ntpunit_name=${1}
+	local services=( "${@:2}" )
+
+	if [[ ${ntpunit_name} != [0-9][0-9]-* ]]; then
+		die "ntpunit.d file must be named NN-name where NN are digits."
+	elif [[ ${ntpunit_name} == *.list ]]; then
+		die "The .list suffix is appended implicitly to ntpunit.d name."
+	fi
+
+	local unitdir=$(systemd_get_unitdir)
+	local s
+	for s in "${services[@]}"; do
+		if [[ ! -f "${D}${unitdir}/${s}" ]]; then
+			die "ntp-units.d provider ${s} not installed (yet?) in \${D}."
+		fi
+		echo "${s}" >> "${T}"/${ntpunit_name}.list
+	done
+
+	(
+		insinto "$(_systemd_get_utildir)"/ntp-units.d
+		doins "${T}"/${ntpunit_name}.list
+	)
+	local ret=${?}
+
+	rm "${T}"/${ntpunit_name}.list || die
+
+	return ${ret}
 }
 
 # @FUNCTION: systemd_with_unitdir

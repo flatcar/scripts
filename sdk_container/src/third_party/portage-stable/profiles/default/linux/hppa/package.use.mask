@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/hppa/package.use.mask,v 1.13 2013/03/02 20:45:53 pesa Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/hppa/package.use.mask,v 1.14 2013/10/14 18:32:06 jer Exp $
 
 # DON'T TOUCH THIS FILE. Instead, file a bug and assign it to <hppa@gentoo.org>.
 
@@ -29,9 +29,5 @@ dev-qt/qtsvg pch
 dev-qt/qttest pch
 dev-qt/qtwebkit pch
 dev-qt/qtxmlpatterns pch
-
-# Jeroen Roovers <jer@gentoo.org> (15 Jul 2008)
-# media-libs/openinventor isn't ported to HPPA.
-sci-physics/geant openinventor
 
 # DON'T TOUCH THIS FILE. Instead, file a bug and assign it to <hppa@gentoo.org>.

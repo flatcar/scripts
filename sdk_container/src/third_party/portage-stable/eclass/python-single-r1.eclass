@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/python-single-r1.eclass,v 1.21 2013/09/17 13:33:55 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/python-single-r1.eclass,v 1.24 2013/10/30 19:14:02 mgorny Exp $
 
 # @ECLASS: python-single-r1
 # @MAINTAINER:
@@ -31,12 +31,11 @@
 # http://www.gentoo.org/proj/en/Python/python-r1/dev-guide.xml
 
 case "${EAPI:-0}" in
-	0|1|2|3|4)
+	0|1|2|3)
 		die "Unsupported EAPI=${EAPI:-0} (too old) for ${ECLASS}"
 		;;
-	5)
-		# EAPI=5 is required for meaningful USE default deps
-		# on USE_EXPAND flags
+	4|5)
+		# EAPI=4 is required for USE default deps on USE_EXPAND flags
 		;;
 	*)
 		die "Unsupported EAPI=${EAPI} (unknown) for ${ECLASS}"
@@ -110,7 +109,7 @@ fi
 #
 # Example value:
 # @CODE
-# dev-python/python-exec:0
+# dev-lang/python-exec:=
 # python_single_target_python2_6? ( dev-lang/python:2.6[gdbm] )
 # python_single_target_python2_7? ( dev-lang/python:2.7[gdbm] )
 # @CODE
@@ -194,20 +193,20 @@ _python_single_set_globals() {
 	# 2) python-exec should be built with all targets forced anyway
 	# but if new targets were added, we may need to force a rebuild
 	# 3) use whichever python-exec slot installed in EAPI 5. For EAPI 4,
-	# just fix :0 for now since := deps are not supported.
+	# just fix :2 since := deps are not supported.
 	if [[ ${EAPI} != 4 ]]; then
-		PYTHON_DEPS+="dev-python/python-exec:=[${PYTHON_USEDEP}]"
+		PYTHON_DEPS+="dev-lang/python-exec:=[${PYTHON_USEDEP}]"
 	else
-		PYTHON_DEPS+="dev-python/python-exec:0[${PYTHON_USEDEP}]"
+		PYTHON_DEPS+="dev-lang/python-exec:2[${PYTHON_USEDEP}]"
 	fi
 }
 _python_single_set_globals
 
-# @FUNCTION: python-single-r1_pkg_setup
+# @FUNCTION: python_setup
 # @DESCRIPTION:
-# Determine what the selected Python implementation is and set EPYTHON
-# and PYTHON accordingly.
-python-single-r1_pkg_setup() {
+# Determine what the selected Python implementation is and set
+# the Python build environment up for it.
+python_setup() {
 	debug-print-function ${FUNCNAME} "${@}"
 
 	unset EPYTHON
@@ -249,6 +248,15 @@ python-single-r1_pkg_setup() {
 		echo
 		die "No supported Python implementation in PYTHON_SINGLE_TARGET."
 	fi
+}
+
+# @FUNCTION: python-single-r1_pkg_setup
+# @DESCRIPTION:
+# Runs python_setup.
+python-single-r1_pkg_setup() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	python_setup
 }
 
 # @FUNCTION: python_fix_shebang

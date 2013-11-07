@@ -1,6 +1,12 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/python-distutils-ng.eclass,v 1.30 2013/07/27 11:17:44 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/python-distutils-ng.eclass,v 1.31 2013/09/29 15:04:51 mgorny Exp $
+
+# @DEAD
+# Michał Górny <mgorny@gentoo.org> (29 Sep 2013)
+# This eclass has been superseded by distutils-r1 and python-r1 eclasses
+# and will be removed on 2013-10-29. Please modify your ebuilds to use
+# the new eclasses instead. Bug #450770.
 
 # @ECLASS: python-distutils-ng
 # @MAINTAINER:

@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain.eclass,v 1.600 2013/08/15 04:39:24 dirtyepic Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain.eclass,v 1.602 2013/11/05 05:21:30 dirtyepic Exp $
 
 # Maintainer: Toolchain Ninjas <toolchain@gentoo.org>
 
@@ -112,7 +112,8 @@ if [[ ${PN} != "kgcc64" && ${PN} != gcc-* ]] ; then
 	[[ -n ${D_VER}   ]] && IUSE+=" d"
 	[[ -n ${SPECS_VER} ]] && IUSE+=" nossp"
 	tc_version_is_at_least 3 && IUSE+=" doc gcj gtk hardened multilib objc"
-	tc_version_is_at_least 4.0 && IUSE+=" objc-gc mudflap"
+	tc_version_is_at_least 4.0 && IUSE+=" objc-gc"
+	tc_version_is_at_least 4.0 && ! tc_version_is_at_least 4.9 && IUSE+=" mudflap"
 	tc_version_is_at_least 4.1 && IUSE+=" libssp objc++"
 	tc_version_is_at_least 4.2 && IUSE+=" openmp"
 	tc_version_is_at_least 4.3 && IUSE+=" fixed-point"
@@ -1640,6 +1641,7 @@ toolchain_src_install() {
 		if tc_version_is_at_least 4.0 ; then
 			newins "${GCC_FILESDIR}"/awk/fixlafiles.awk-no_gcc_la fixlafiles.awk || die
 			find "${D}/${LIBPATH}" -name libstdc++.la -type f -exec rm "{}" \;
+			find "${D}/${LIBPATH}" -name "lib?san.la" -type f -exec rm "{}" \; # 487550
 		else
 			doins "${GCC_FILESDIR}"/awk/fixlafiles.awk || die
 		fi

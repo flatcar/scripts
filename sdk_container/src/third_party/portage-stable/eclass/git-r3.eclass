@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/git-r3.eclass,v 1.5 2013/09/13 15:08:37 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/git-r3.eclass,v 1.22 2013/10/30 19:21:12 mgorny Exp $
 
 # @ECLASS: git-r3.eclass
 # @MAINTAINER:
@@ -29,6 +29,10 @@ EXPORT_FUNCTIONS src_unpack
 
 if [[ ! ${_GIT_R3} ]]; then
 
+if [[ ! ${_INHERITED_BY_GIT_2} ]]; then
+	DEPEND=">=dev-vcs/git-1.8.2.1"
+fi
+
 # @ECLASS-VARIABLE: EGIT3_STORE_DIR
 # @DESCRIPTION:
 # Storage directory for git sources.
@@ -43,6 +47,8 @@ if [[ ! ${_GIT_R3} ]]; then
 # if the first URI does not work.
 #
 # It can be overriden via env using ${PN}_LIVE_REPO variable.
+#
+# Can be a whitespace-separated list or an array.
 #
 # Example:
 # @CODE
@@ -84,8 +90,10 @@ if [[ ! ${_GIT_R3} ]]; then
 # a fair number of limitations. Therefore, if you'd like the eclass to
 # perform complete clones instead, set this to a non-null value.
 #
-# This variable is to be set in make.conf. Ebuilds are not allowed
-# to set it.
+# This variable can be set in make.conf and ebuilds. The make.conf
+# value specifies user-specific default, while ebuilds may use it
+# to force deep clones when the server does not support shallow clones
+# (e.g. Google Code).
 
 # @FUNCTION: _git-r3_env_setup
 # @INTERNAL
@@ -171,10 +179,15 @@ _git-r3_set_gitdir() {
 
 	local repo_name=${1#*://*/}
 
+	# strip the trailing slash
+	repo_name=${repo_name%/}
+
 	# strip common prefixes to make paths more likely to match
 	# e.g. git://X/Y.git vs https://X/git/Y.git
 	# (but just one of the prefixes)
 	case "${repo_name}" in
+		# gnome.org... who else?
+		browse/*) repo_name=${repo_name#browse/};;
 		# cgit can proxy requests to git
 		cgit/*) repo_name=${repo_name#cgit/};;
 		# pretty common
@@ -199,7 +212,7 @@ _git-r3_set_gitdir() {
 	if [[ ! -d ${EGIT3_STORE_DIR} ]]; then
 		(
 			addwrite /
-			mkdir -m0755 -p "${EGIT3_STORE_DIR}"
+			mkdir -m0755 -p "${EGIT3_STORE_DIR}" || die
 		) || die "Unable to create ${EGIT3_STORE_DIR}"
 	fi
 
@@ -208,8 +221,10 @@ _git-r3_set_gitdir() {
 		mkdir "${GIT_DIR}" || die
 		git init --bare || die
 
-		# avoid auto-unshallow :)
-		touch "${GIT_DIR}"/shallow || die
+		if [[ ! ${EGIT_NONSHALLOW} ]]; then
+			# avoid auto-unshallow :)
+			touch "${GIT_DIR}"/shallow || die
+		fi
 	fi
 }
 
@@ -237,14 +252,19 @@ _git-r3_set_submodules() {
 		l=${l#submodule.}
 		local subname=${l%%.url=*}
 
+		# skip modules that have 'update = none', bug #487262.
+		local upd=$(echo "${data}" | git config -f /dev/fd/0 \
+			submodule."${subname}".update)
+		[[ ${upd} == none ]] && continue
+
 		submodules+=(
 			"${subname}"
 			"$(echo "${data}" | git config -f /dev/fd/0 \
-				submodule."${subname}".url)"
+				submodule."${subname}".url || die)"
 			"$(echo "${data}" | git config -f /dev/fd/0 \
-				submodule."${subname}".path)"
+				submodule."${subname}".path || die)"
 		)
-	done < <(echo "${data}" | git config -f /dev/fd/0 -l)
+	done < <(echo "${data}" | git config -f /dev/fd/0 -l || die)
 }
 
 # @FUNCTION: _git-r3_smart_fetch
@@ -354,7 +374,7 @@ _git-r3_smart_fetch() {
 # <local-id> specifies the local branch identifier that will be used to
 # locally store the fetch result. It should be unique to multiple
 # fetches within the repository that can be performed at the same time
-# (including parallel merges). It defaults to ${CATEGORY}/${PN}/${SLOT}.
+# (including parallel merges). It defaults to ${CATEGORY}/${PN}/${SLOT%/*}.
 # This default should be fine unless you are fetching multiple trees
 # from the same repository in the same ebuild.
 #
@@ -365,20 +385,30 @@ _git-r3_smart_fetch() {
 git-r3_fetch() {
 	debug-print-function ${FUNCNAME} "$@"
 
-	local repos=( ${1:-${EGIT_REPO_URI}} )
+	[[ ${EVCS_OFFLINE} ]] && return
+
+	local repos
+	if [[ ${1} ]]; then
+		repos=( ${1} )
+	elif [[ $(declare -p EGIT_REPO_URI) == "declare -a"* ]]; then
+		repos=( "${EGIT_REPO_URI[@]}" )
+	else
+		repos=( ${EGIT_REPO_URI} )
+	fi
+
 	local branch=${EGIT_BRANCH:+refs/heads/${EGIT_BRANCH}}
 	local remote_ref=${2:-${EGIT_COMMIT:-${branch:-HEAD}}}
-	local local_id=${3:-${CATEGORY}/${PN}/${SLOT}}
+	local local_id=${3:-${CATEGORY}/${PN}/${SLOT%/*}}
 	local local_ref=refs/heads/${local_id}/__main__
 
 	[[ ${repos[@]} ]] || die "No URI provided and EGIT_REPO_URI unset"
 
 	local -x GIT_DIR
-	_git-r3_set_gitdir ${repos[0]}
+	_git-r3_set_gitdir "${repos[0]}"
 
 	# try to fetch from the remote
 	local r success
-	for r in ${repos[@]}; do
+	for r in "${repos[@]}"; do
 		einfo "Fetching ${remote_ref} from ${r} ..."
 
 		local is_branch lookup_ref
@@ -426,6 +456,8 @@ git-r3_fetch() {
 			if [[ -f ${GIT_DIR}/shallow ]]; then
 				ref_param+=( --unshallow )
 			fi
+			# fetch all branches
+			ref_param+=( "refs/heads/*:refs/remotes/origin/*" )
 		else
 			# 'git show-ref --heads' returns 1 when there are no branches
 			if ! git show-ref --heads -q; then
@@ -483,8 +515,13 @@ git-r3_fetch() {
 			if [[ ! ${commit} ]]; then
 				die "Unable to get commit id for submodule ${subname}"
 			fi
+			if [[ ${url} == ./* || ${url} == ../* ]]; then
+				local subrepos=( "${repos[@]/%//${url}}" )
+			else
+				local subrepos=( "${url}" )
+			fi
 
-			git-r3_fetch "${url}" "${commit}" "${local_id}/${subname}"
+			git-r3_fetch "${subrepos[*]}" "${commit}" "${local_id}/${subname}"
 
 			submodules=( "${submodules[@]:3}" ) # shift
 		done
@@ -514,14 +551,22 @@ git-r3_fetch() {
 git-r3_checkout() {
 	debug-print-function ${FUNCNAME} "$@"
 
-	local repos=( ${1:-${EGIT_REPO_URI}} )
+	local repos
+	if [[ ${1} ]]; then
+		repos=( ${1} )
+	elif [[ $(declare -p EGIT_REPO_URI) == "declare -a"* ]]; then
+		repos=( "${EGIT_REPO_URI[@]}" )
+	else
+		repos=( ${EGIT_REPO_URI} )
+	fi
+
 	local out_dir=${2:-${EGIT_CHECKOUT_DIR:-${WORKDIR}/${P}}}
-	local local_id=${3:-${CATEGORY}/${PN}/${SLOT}}
+	local local_id=${3:-${CATEGORY}/${PN}/${SLOT%/*}}
 
 	local -x GIT_DIR GIT_WORK_TREE
-	_git-r3_set_gitdir ${repos[0]}
+	_git-r3_set_gitdir "${repos[0]}"
 	GIT_WORK_TREE=${out_dir}
-	mkdir -p "${GIT_WORK_TREE}"
+	mkdir -p "${GIT_WORK_TREE}" || die
 
 	einfo "Checking out ${repos[0]} to ${out_dir} ..."
 
@@ -534,9 +579,25 @@ git-r3_checkout() {
 		fi
 	fi
 
+	# Note: this is a hack to avoid parallel checkout issues.
+	# I will try to handle it without locks when I have more time.
+	local lockfile=${GIT_DIR}/.git-r3_checkout_lock
+	local lockfile_l=${lockfile}.${BASHPID}
+	touch "${lockfile_l}" || die
+	until ln "${lockfile_l}" "${lockfile}" &>/dev/null; do
+		sleep 1
+	done
+	rm "${lockfile_l}" || die
+
 	set -- git checkout -f "${local_id}"/__main__ .
 	echo "${@}" >&2
-	"${@}" || die "git checkout ${local_id}/__main__ failed"
+	"${@}"
+	local ret=${?}
+
+	# Remove the lock!
+	rm "${lockfile}" || die
+
+	[[ ${ret} == 0 ]] || die "git checkout ${local_id}/__main__ failed"
 
 	# diff against previous revision (if any)
 	local new_commit_id=$(git rev-parse --verify "${local_id}"/__main__)
@@ -575,6 +636,10 @@ git-r3_checkout() {
 			local url=${submodules[1]}
 			local path=${submodules[2]}
 
+			if [[ ${url} == ./* || ${url} == ../* ]]; then
+				url=${repos[0]%%/}/${url}
+			fi
+
 			git-r3_checkout "${url}" "${GIT_WORK_TREE}/${path}" \
 				"${local_id}/${subname}"
 
@@ -585,6 +650,11 @@ git-r3_checkout() {
 	# keep this *after* submodules
 	export EGIT_DIR=${GIT_DIR}
 	export EGIT_VERSION=${new_commit_id}
+
+	# create a fake '.git' directory to satisfy 'git rev-parse HEAD'
+	GIT_DIR=${GIT_WORK_TREE}/.git
+	git init || die
+	echo "${EGIT_VERSION}" > "${GIT_WORK_TREE}"/.git/HEAD || die
 }
 
 # @FUNCTION: git-r3_peek_remote_ref
@@ -611,14 +681,22 @@ git-r3_checkout() {
 git-r3_peek_remote_ref() {
 	debug-print-function ${FUNCNAME} "$@"
 
-	local repos=( ${1:-${EGIT_REPO_URI}} )
+	local repos
+	if [[ ${1} ]]; then
+		repos=( ${1} )
+	elif [[ $(declare -p EGIT_REPO_URI) == "declare -a"* ]]; then
+		repos=( "${EGIT_REPO_URI[@]}" )
+	else
+		repos=( ${EGIT_REPO_URI} )
+	fi
+
 	local branch=${EGIT_BRANCH:+refs/heads/${EGIT_BRANCH}}
 	local remote_ref=${2:-${EGIT_COMMIT:-${branch:-HEAD}}}
 
 	[[ ${repos[@]} ]] || die "No URI provided and EGIT_REPO_URI unset"
 
 	local r success
-	for r in ${repos[@]}; do
+	for r in "${repos[@]}"; do
 		einfo "Peeking ${remote_ref} on ${r} ..." >&2
 
 		local is_branch lookup_ref
@@ -648,8 +726,6 @@ git-r3_peek_remote_ref() {
 
 git-r3_src_fetch() {
 	debug-print-function ${FUNCNAME} "$@"
-
-	[[ ${EVCS_OFFLINE} ]] && return
 
 	if [[ ! ${EGIT3_STORE_DIR} && ${EGIT_STORE_DIR} ]]; then
 		ewarn "You have set EGIT_STORE_DIR but not EGIT3_STORE_DIR. Please consider"

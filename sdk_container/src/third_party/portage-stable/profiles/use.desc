@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/use.desc,v 1.509 2013/08/09 06:48:02 xmw Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/use.desc,v 1.510 2013/10/14 12:44:09 jlec Exp $
 
 # Keep them sorted
 
@@ -102,7 +102,7 @@ flatfile - Add dbm support for flat files
 fltk - Add support for the Fast Light Toolkit gui interface
 fontconfig - Support for configuring and customizing font access via media-libs/fontconfig
 foomaticdb - Add support for the foomatic printing driver database
-fortran - Add support for fortran (formerly f77)
+fortran - Add support for fortran
 freetds - Add support for the TDS protocol to connect to MSSQL/Sybase databases
 freewnn - Add support for FreeWnn kana to kanji conversion engine
 frontbase - Add support for the frontbase sql server

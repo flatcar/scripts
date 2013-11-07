@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86/package.use.mask,v 1.125 2013/09/08 17:08:31 ottxor Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86/package.use.mask,v 1.126 2013/11/06 21:05:15 pacho Exp $
 
 # This file requires >=portage-2.1.1
 
@@ -25,10 +25,6 @@ sys-apps/hwloc -cuda -gl -opencl
 # Pacho Ramos <pacho@gentoo.org> (20 Jul 2013)
 # Keywords missing, bug #478104
 >=app-editors/gedit-plugins-3.8.3 git
-
-# Pacho Ramos <pacho@gentoo.org> (20 Jul 2013)
-# Keywords pending, bug #476710
->=gnome-base/gnome-extra-apps-3.8 games
 
 # Anthony G. Basile <blueness@gentoo.org> (18 Jun 2013)
 # Works on x86

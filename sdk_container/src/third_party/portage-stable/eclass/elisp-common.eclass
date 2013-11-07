@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/elisp-common.eclass,v 1.86 2013/09/04 19:16:40 ulm Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/elisp-common.eclass,v 1.87 2013/11/04 21:36:36 ulm Exp $
 #
 # @ECLASS: elisp-common.eclass
 # @MAINTAINER:
@@ -360,6 +360,11 @@ elisp-site-regen() {
 	if [[ ! -d ${T} ]]; then
 		eerror "elisp-site-regen: Temporary directory ${T} does not exist"
 		return 1
+	fi
+
+	if [[ ${EBUILD_PHASE} = *rm && ! -e ${sitelisp}/site-gentoo.el ]]; then
+		ewarn "Refusing to create site-gentoo.el in ${EBUILD_PHASE} phase."
+		return 0
 	fi
 
 	ebegin "Regenerating site-gentoo.el for GNU Emacs (${EBUILD_PHASE})"

@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/nvidia-driver.eclass,v 1.22 2013/05/16 14:25:13 jer Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/nvidia-driver.eclass,v 1.23 2013/10/12 15:12:59 jer Exp $
 
 # @ECLASS: nvidia-driver.eclass
 # @MAINTAINER:
@@ -12,9 +12,27 @@
 # Provide useful messages for nvidia-drivers based on currently installed Nvidia
 # card. It inherits versionator.
 
-inherit versionator
+inherit readme.gentoo versionator
 
 DEPEND="sys-apps/pciutils"
+
+# Variables for readme.gentoo.eclass:
+DISABLE_AUTOFORMATTING="yes"
+DOC_CONTENTS="You must be in the video group to use the NVIDIA device
+For more info, read the docs at
+http://www.gentoo.org/doc/en/nvidia-guide.xml#doc_chap3_sect6
+
+This ebuild installs a kernel module and X driver. Both must
+match explicitly in their version. This means, if you restart
+X, you must modprobe -r nvidia before starting it back up
+
+To use the NVIDIA GLX, run \"eselect opengl set nvidia\"
+
+To use the NVIDIA CUDA/OpenCL, run \"eselect opencl set nvidia\"
+
+NVIDIA has requested that any bug reports submitted have the
+output of nvidia-bug-report.sh included.
+"
 
 # the data below is derived from
 # http://us.download.nvidia.com/XFree86/Linux-x86_64/319.12/README/supportedchips.html

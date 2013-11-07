@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/base/use.mask,v 1.179 2013/09/05 10:09:05 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/base/use.mask,v 1.180 2013/09/28 09:23:23 pacho Exp $
 
 # masking here and unmasking in default/linux/
 kmod
@@ -340,3 +340,11 @@ systemd
 # Mask until Qt 5 is in portage. (The flag is here already
 # to permit the neccessary package preparation.)
 qt5
+
+# Pacho Ramos <pacho@gentoo.org> (28 Sep 2013)
+# This USE flag is available after long dicussion in
+# http://www.gossamer-threads.com/lists/gentoo/dev/276077
+# to let some prople not able to run systemd to skip the dep (#480336).
+# Enabling this you will get a fully unsupported Gnome setup that
+# could suffer unexpected problem, don't expect support for it then.
+openrc-force

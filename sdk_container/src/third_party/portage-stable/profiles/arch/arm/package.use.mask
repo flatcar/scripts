@@ -1,6 +1,30 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/arm/package.use.mask,v 1.169 2013/09/06 17:48:47 pinkbyte Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/arm/package.use.mask,v 1.179 2013/10/31 07:23:00 pacho Exp $
+
+# Pacho Ramos <pacho@gentoo.org> (31 Oct 2013)
+# Missing keywords, bug #478254
+gnome-base/gnome classic
+
+# Benda Xu <heroxbd@gentoo.org> (31 Oct 2013)
+# Missing keywords from dev-ml/lablgtk, bug #487722
+net-p2p/mldonkey gtk guionly
+
+# Tom Wijsman <TomWij@gentoo.org> (16 Oct 2013)
+# Mask luajit on ~media-video/mpv-0.2.0 because it only has amd64 x86 keywords. See bug #488318.
+>=media-video/mpv-0.2.0 luajit
+
+# Pacho Ramos <pacho@gentoo.org> (22 Sep 2013)
+# Missing keywords, bug #484734
+media-sound/rhythmbox visualizer
+
+# Markus Meier <maekke@gentoo.org> (15 Sep 2013)
+# Unkeyworded deps, bug #481462
+dev-python/ipython nbconvert
+
+# Johannes Huber <johu@gentoo.org> (15 Sep 2013)
+# Depends on kde-misc/networkmanagement, not keyworded yet.
+kde-base/solid-runtime networkmanager
 
 # Sergey Popov <pinkbyte@gentoo.org> (06 Sep 2013)
 # sci-libs/hdf does not build properly on arm
@@ -105,8 +129,7 @@ dev-vcs/subversion java
 =media-libs/libcaca-0.99_beta17 java
 media-libs/libjpeg-turbo java
 net-dns/libidn java
-=net-misc/tigervnc-1.1.0-r7 java
-=net-misc/tigervnc-1.2.0 java
+net-misc/tigervnc java
 net-print/cups java
 =sys-devel/gettext-0.18.1.1-r1 java
 =sys-devel/gettext-0.18.1.1-r3 java

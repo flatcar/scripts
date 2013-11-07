@@ -1,6 +1,6 @@
 # Copyright 2008 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/desc/netbeans_modules.desc,v 1.4 2012/01/06 11:50:29 fordfrog Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/desc/netbeans_modules.desc,v 1.5 2013/10/16 09:36:55 fordfrog Exp $
 
 # This file contains descriptions of NETBEANS_MODULES USE_EXPAND flags.
 
@@ -9,6 +9,7 @@ cnd - enables C/C++ development support
 dlight - enables framework for creation of Observability Tools using DTrace
 enterprise - enables enterprise development support
 ergonomics - enables ergonomics features
+extide - enables extide module
 groovy - enables Groovy and Grails development support
 gsf - enables support for web client development
 harness - enables harness support

@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/mercurial.eclass,v 1.22 2013/04/28 16:15:33 zmedico Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/mercurial.eclass,v 1.23 2013/11/04 22:05:31 floppym Exp $
 
 # @ECLASS: mercurial.eclass
 # @MAINTAINER:
@@ -85,7 +85,7 @@ mercurial_fetch() {
 	EHG_REPO_URI=${1-${EHG_REPO_URI}}
 	[[ -z "${EHG_REPO_URI}" ]] && die "EHG_REPO_URI is empty"
 
-	local cert_opt=
+	local cert_opt=()
 	[[ -f ${EPREFIX}/etc/ssl/certs/ca-certificates.crt ]] && \
 		cert_opt=( --config "web.cacerts=${EPREFIX}/etc/ssl/certs/ca-certificates.crt" )
 
