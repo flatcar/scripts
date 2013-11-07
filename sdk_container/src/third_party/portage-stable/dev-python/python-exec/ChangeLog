@@ -1,6 +1,59 @@
 # ChangeLog for dev-python/python-exec
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-python/python-exec/ChangeLog,v 1.51 2013/09/17 16:05:41 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-python/python-exec/ChangeLog,v 1.60 2013/10/30 19:13:54 mgorny Exp $
+
+*python-exec-10000.1 (30 Oct 2013)
+*python-exec-10000.2 (30 Oct 2013)
+
+  30 Oct 2013; Michał Górny <mgorny@gentoo.org> +python-exec-10000.1.ebuild,
+  +python-exec-10000.2.ebuild, -python-exec-0.3.1.ebuild,
+  -python-exec-0.9999.ebuild, -python-exec-2.0-r1.ebuild,
+  -python-exec-2.0-r2.ebuild, -python-exec-2.0-r3.ebuild,
+  -python-exec-2.9999.ebuild:
+  Replace dev-python/python-exec with virtual compatibility ebuilds.
+
+*python-exec-2.0-r3 (29 Oct 2013)
+*python-exec-2.0-r1 (29 Oct 2013)
+
+  29 Oct 2013; Michał Górny <mgorny@gentoo.org> +python-exec-2.0-r1.ebuild,
+  +python-exec-2.0-r3.ebuild, python-exec-2.0-r2.ebuild,
+  python-exec-2.9999.ebuild:
+  Add a temporarily PDEP hack to avoid breaking systems by removing python-
+  exec:0. Restore old ebuild names to make it possible to propagate it through
+  dynamic-deps.
+
+*python-exec-2.0-r2 (26 Oct 2013)
+
+  26 Oct 2013; Michał Górny <mgorny@gentoo.org> +python-exec-2.0-r2.ebuild,
+  -python-exec-2.0-r1.ebuild, python-exec-2.9999.ebuild:
+  Pass "g" option to sed to fix all the occurences of python-exec in dep trees.
+
+  19 Oct 2013; Mike Frysinger <vapier@gentoo.org> python-exec-0.3.1.ebuild,
+  python-exec-0.9999.ebuild, python-exec-2.0-r1.ebuild,
+  python-exec-2.9999.ebuild:
+  Add ~m68k love.
+
+  17 Oct 2013; Jeroen Roovers <jer@gentoo.org> python-exec-2.0-r1.ebuild:
+  Stable for HPPA (bug #487676).
+
+  14 Oct 2013; Michał Górny <mgorny@gentoo.org> python-exec-0.9999.ebuild,
+  python-exec-2.9999.ebuild:
+  Switch to git-r3.
+
+  07 Oct 2013; Michał Górny <mgorny@gentoo.org> python-exec-2.0-r1.ebuild,
+  python-exec-2.9999.ebuild:
+  Touch vardb after modifications as suggested by Arfrever.
+
+*python-exec-2.0-r1 (03 Oct 2013)
+
+  03 Oct 2013; Michał Górny <mgorny@gentoo.org> +python-exec-2.0-r1.ebuild,
+  -python-exec-2.0.ebuild, python-exec-2.9999.ebuild:
+  Fix unslotted python-exec deps in vardb when >=python-exec-2.0-r1 is
+  installed.
+
+  29 Sep 2013; Michał Górny <mgorny@gentoo.org> -python-exec-0.2.ebuild,
+  -python-exec-0.3.ebuild:
+  Drop old.
 
 *python-exec-2.0 (17 Sep 2013)
 *python-exec-2.9999 (17 Sep 2013)

@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/cvs.eclass,v 1.82 2013/06/18 04:31:44 ottxor Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/cvs.eclass,v 1.83 2013/09/28 16:22:29 ottxor Exp $
 
 # @ECLASS: cvs.eclass
 # @MAINTAINER:
@@ -202,6 +202,7 @@ fi
 
 # called from cvs_src_unpack
 cvs_fetch() {
+	has "${EAPI:-0}" 0 1 2 && ! use prefix && EPREFIX=
 
 	# Make these options local variables so that the global values are
 	# not affected by modifications in this function.
@@ -392,7 +393,7 @@ cvs_fetch() {
 
 			export CVS_RSH="${T}/cvs_sshwrapper"
 			cat > "${CVS_RSH}"<<EOF
-#!/usr/bin/python
+#!${EPREFIX}/usr/bin/python
 import fcntl
 import os
 import sys
@@ -436,7 +437,7 @@ EOF
 				>> "${CVS_RSH}"
 			echo "${CVS_ECLASS_STRICT_HOST_CHECKING}')" \
 				>> "${CVS_RSH}"
-			echo "os.execv('/usr/bin/ssh', newarglist)" \
+			echo "os.execv('${EPREFIX}/usr/bin/ssh', newarglist)" \
 				>> "${CVS_RSH}"
 
 			chmod a+x "${CVS_RSH}"

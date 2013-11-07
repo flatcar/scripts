@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/intel-sdp.eclass,v 1.14 2013/07/29 09:50:09 jlec Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/intel-sdp.eclass,v 1.15 2013/09/29 18:00:30 ottxor Exp $
 
 # @ECLASS: intel-sdp.eclass
 # @MAINTAINER:
@@ -364,10 +364,6 @@ intel-sdp_pkg_setup() {
 			INTEL_RPMS_FULL+=( ${p}-${_INTEL_PV4}-${_INTEL_PV1}.${_INTEL_PV2}-${_INTEL_PV3}.noarch.rpm )
 		fi
 	done
-
-	case "${EAPI:-0}" in
-		0|1|2|3) intel-sdp_pkg_pretend ;;
-	esac
 }
 
 # @FUNCTION: intel-sdp_src_unpack
@@ -472,6 +468,11 @@ intel-sdp_pkg_postinst() {
 			"<:${r%-${_INTEL_PV4}*}-${_INTEL_PV4}:${r}:${INTEL_SDP_EDIR}:${l}:>"
 	done
 	_isdp_run-test
+
+	if [[ ${PN} = icc ]] && has_version ">=dev-util/ccache-3.1.9-r2" ; then
+		#add ccache links as icc might get installed after ccache
+		"${EROOT}"/usr/bin/ccache-config --install-links
+	fi
 }
 
 # @FUNCTION: intel-sdp_pkg_postrm
@@ -487,11 +488,16 @@ intel-sdp_pkg_postrm() {
 				${INTEL_SDP_DB}
 		done
 	fi
+
+	if [[ ${PN} = icc ]] && has_version ">=dev-util/ccache-3.1.9-r2" && [[ -z ${REPLACED_BY_VERSION} ]]; then
+		# --remove-links would remove all links, --install-links updates them
+		"${EROOT}"/usr/bin/ccache-config --install-links
+	fi
 }
 
-EXPORT_FUNCTIONS pkg_setup src_unpack src_install pkg_postinst pkg_postrm
+EXPORT_FUNCTIONS pkg_setup src_unpack src_install pkg_postinst pkg_postrm pkg_pretend
 case "${EAPI:-0}" in
-	0|1|2|3) ;;
-	4|5) EXPORT_FUNCTIONS pkg_pretend ;;
+	0|1|2|3)die "EAPI=${EAPI} is not supported anymore" ;;
+	4|5) ;;
 	*) die "EAPI=${EAPI} is not supported" ;;
 esac

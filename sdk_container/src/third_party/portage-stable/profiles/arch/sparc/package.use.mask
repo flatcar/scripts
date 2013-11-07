@@ -1,16 +1,18 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/sparc/package.use.mask,v 1.144 2013/08/22 21:09:18 chithanh Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/sparc/package.use.mask,v 1.150 2013/10/26 09:10:58 gienah Exp $
+
+# Mark Wright <gienah@gentoo.org> (26 Oct 2013)
+# template-haskell not yet available
+dev-haskell/dataenc test
+
+# Tom Wijsman <TomWij@gentoo.org> (16 Oct 2013)
+# Mask luajit on ~media-video/mpv-0.2.0 because it only has amd64 x86 keywords. See bug #488318.
+>=media-video/mpv-0.2.0 luajit
 
 # Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (22 Aug 2013)
 # dev-libs/jemalloc is not keyworded
 www-plugins/gnash jemalloc
-
-# Pacho Ramos <pacho@gentoo.org> (25 Jul 2013)
-# Missing keywords, bug #444688
->=gnome-base/gnome-control-center-3.8 cups
->=gnome-base/gnome-core-apps-3.8 cups
->=gnome-base/gnome-3.8 cups
 
 # Pacho Ramos <pacho@gentoo.org> (20 Jul 2013)
 # Keywords pending, bug #476710
@@ -66,12 +68,6 @@ gnome-extra/libgda reports
 # MySQL 5.5 wants systemtap, tcmalloc & jemalloc
 >=dev-db/mysql-5.5 systemtap tcmalloc jemalloc
 >=dev-db/mariadb-5.5 systemtap tcmalloc jemalloc
-
-# Raúl Porcel <armin76@gentoo.org> (08 Jul 2012)
-# dev-qt/qtwebkit doesn't seem to work
-dev-python/PyQt4 webkit
-dev-qt/qtdeclarative webkit
-dev-qt/qthelp webkit
 
 # Diego Elio Pettenò <flameeyes@gentoo.org> (24 Jun 2012)
 # Requires libpcre with jit
@@ -173,11 +169,6 @@ sci-libs/gdal ecwj2k
 
 # uses games-board/ggz-gtk-client
 games-strategy/freeciv ggz
-
-# Raúl Porcel <armin76@gentoo.org> (02 Mar 2010)
-# needs dev-python/mako which depends on
-# dev-python/beaker which sigbuses
-media-sound/rhythmbox webkit
 
 # Alexey Shvetsov <alexxy@gentoo.org> (09 Feb 2010)
 # need dev-db/virtuoso-* keyworded

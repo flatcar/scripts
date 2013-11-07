@@ -1,6 +1,30 @@
 # ChangeLog for profiles/prefix
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/ChangeLog,v 1.396 2013/09/05 18:09:57 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/ChangeLog,v 1.400 2013/10/31 18:07:17 grobian Exp $
+
+  31 Oct 2013; Fabian Groffen <grobian@gentoo.org> +darwin/macos/10.9/eapi,
+  +darwin/macos/10.9/make.defaults, +darwin/macos/10.9/package.mask,
+  +darwin/macos/10.9/package.provided, +darwin/macos/10.9/package.use.mask,
+  +darwin/macos/10.9/parent, +darwin/macos/10.9/profile.bashrc,
+  +darwin/macos/10.9/x64/make.defaults, +darwin/macos/10.9/x64/package.mask,
+  +darwin/macos/10.9/x64/package.use.force,
+  +darwin/macos/10.9/x64/package.use.mask, +darwin/macos/10.9/x64/parent,
+  +darwin/macos/10.9/x64/use.mask, +darwin/macos/10.9/x86/make.defaults,
+  +darwin/macos/10.9/x86/package.mask,
+  +darwin/macos/10.9/x86/package.use.force,
+  +darwin/macos/10.9/x86/package.use.mask, +darwin/macos/10.9/x86/parent,
+  +darwin/macos/10.9/x86/use.mask:
+  Add profile for OS X Mavericks (10.9)
+
+  31 Oct 2013; Fabian Groffen <grobian@gentoo.org> mint/package.use.mask:
+  Drop sqlite:extensions USE-mask, as it's been fixed now, bug #488094
+
+  18 Sep 2013; Jonathan Callen <jcallen@gentoo.org> +linux/amd64/eapi,
+  linux/amd64/parent, +linux/arm/eapi, linux/arm/parent, +linux/ia64/eapi,
+  linux/ia64/parent, +linux/ppc64/eapi, linux/ppc64/parent, +linux/x86/eapi,
+  linux/x86/parent:
+  Update the linux profiles to the 13.0 (eapi=5) versions. Note that this may
+  break anyone that still has an old portage that doesn't support EAPI=5.
 
   05 Sep 2013; Michał Górny <mgorny@gentoo.org> package.mask:
   Remove obsolete Python 3 mask.

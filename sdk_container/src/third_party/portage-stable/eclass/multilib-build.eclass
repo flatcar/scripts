@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/multilib-build.eclass,v 1.20 2013/09/17 13:29:19 tommy Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/multilib-build.eclass,v 1.23 2013/10/01 18:06:06 mgorny Exp $
 
 # @ECLASS: multilib-build.eclass
 # @MAINTAINER:
@@ -28,13 +28,13 @@ inherit multibuild multilib
 # @ECLASS-VARIABLE: _MULTILIB_FLAGS
 # @INTERNAL
 # @DESCRIPTION:
-# The list of multilib flags and corresponding ABI values.
+# The list of multilib flags and corresponding ABI values. If the same
+# flag is reused for multiple ABIs (e.g. x86 on Linux&FreeBSD), multiple
+# ABIs may be separated by commas.
 _MULTILIB_FLAGS=(
-	abi_x86_32:x86
-	abi_x86_64:amd64
+	abi_x86_32:x86,x86_fbsd
+	abi_x86_64:amd64,amd64_fbsd
 	abi_x86_x32:x32
-	abi_x86_32:x86_fbsd
-	abi_x86_64:amd64_fbsd
 	abi_mips_n32:n32
 	abi_mips_n64:n64
 	abi_mips_o32:o32
@@ -75,13 +75,19 @@ multilib_get_enabled_abis() {
 	local abi i found
 	for abi in "${abis[@]}"; do
 		for i in "${_MULTILIB_FLAGS[@]}"; do
-			local m_abi=${i#*:}
+			local m_abis=${i#*:} m_abi
 			local m_flag=${i%:*}
 
-			if [[ ${m_abi} == ${abi} ]] && use "${m_flag}"; then
-				echo "${abi}"
-				found=1
-			fi
+			# split on ,; we can't switch IFS for function scope because
+			# paludis is broken (bug #486592), and switching it locally
+			# for the split is more complex than cheating like this
+			for m_abi in ${m_abis//,/ }; do
+				if [[ ${m_abi} == ${abi} ]] && use "${m_flag}"; then
+					echo "${abi}"
+					found=1
+					break 2
+				fi
+			done
 		done
 	done
 

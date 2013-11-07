@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/python-r1.eclass,v 1.61 2013/09/17 13:33:55 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/python-r1.eclass,v 1.64 2013/10/30 19:14:02 mgorny Exp $
 
 # @ECLASS: python-r1
 # @MAINTAINER:
@@ -122,7 +122,7 @@ fi
 #
 # Example value:
 # @CODE
-# dev-python/python-exec:=
+# dev-lang/python-exec:=
 # python_targets_python2_6? ( dev-lang/python:2.6[gdbm] )
 # python_targets_python2_7? ( dev-lang/python:2.7[gdbm] )
 # @CODE
@@ -204,11 +204,11 @@ _python_set_globals() {
 	# 2) python-exec should be built with all targets forced anyway
 	# but if new targets were added, we may need to force a rebuild
 	# 3) use whichever python-exec slot installed in EAPI 5. For EAPI 4,
-	# just fix :0 for now since := deps are not supported.
+	# just fix :2 since := deps are not supported.
 	if [[ ${EAPI} != 4 ]]; then
-		PYTHON_DEPS+="dev-python/python-exec:=[${PYTHON_USEDEP}]"
+		PYTHON_DEPS+="dev-lang/python-exec:=[${PYTHON_USEDEP}]"
 	else
-		PYTHON_DEPS+="dev-python/python-exec:0[${PYTHON_USEDEP}]"
+		PYTHON_DEPS+="dev-lang/python-exec:2[${PYTHON_USEDEP}]"
 	fi
 }
 _python_set_globals
@@ -418,7 +418,7 @@ _python_check_USE_PYTHON() {
 		_PYTHON_USE_PYTHON_CHECKED=1
 
 		# python-exec has profile-forced flags.
-		if [[ ${CATEGORY}/${PN} == dev-python/python-exec ]]; then
+		if [[ ${CATEGORY}/${PN} == dev-lang/python-exec ]]; then
 			return
 		fi
 
@@ -710,6 +710,21 @@ python_parallel_foreach_impl() {
 	local MULTIBUILD_VARIANTS
 	_python_obtain_impls
 	multibuild_parallel_foreach_variant _python_multibuild_wrapper "${@}"
+}
+
+# @FUNCTION: python_setup
+# @DESCRIPTION:
+# Find the best (most preferred) Python implementation enabled
+# and set the Python build environment up for it.
+#
+# This function needs to be used when Python is being called outside
+# of python_foreach_impl calls (e.g. for shared processes like doc
+# building). python_foreach_impl sets up the build environment itself.
+python_setup() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	python_export_best
+	python_wrapper_setup
 }
 
 # @FUNCTION: python_export_best

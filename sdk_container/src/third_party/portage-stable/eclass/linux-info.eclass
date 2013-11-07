@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/linux-info.eclass,v 1.100 2013/02/10 07:53:31 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/linux-info.eclass,v 1.102 2013/09/29 02:49:40 vapier Exp $
 
 # @ECLASS: linux-info.eclass
 # @MAINTAINER:
@@ -429,7 +429,7 @@ get_version_warning_done=
 # KBUILD_OUTPUT (in a decreasing priority list, we look for the env var, makefile var or the
 # symlink /lib/modules/${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}${KV_EXTRA}/build).
 get_version() {
-	local kbuild_output mkfunc tmplocal
+	local tmplocal
 
 	# no need to execute this twice assuming KV_FULL is populated.
 	# we can force by unsetting KV_FULL
@@ -493,20 +493,24 @@ get_version() {
 	# keep track of it
 	KERNEL_MAKEFILE="${KV_DIR}/Makefile"
 
-	# Decide the function used to extract makefile variables.
-	mkfunc="$(get_makefile_extract_function "${KERNEL_MAKEFILE}")"
+	if [[ -z ${OUTPUT_DIR} ]]; then
+		# Decide the function used to extract makefile variables.
+		local mkfunc=$(get_makefile_extract_function "${KERNEL_MAKEFILE}")
 
-	# And if we didn't pass it, we can take a nosey in the Makefile
-	kbuild_output="$(${mkfunc} KBUILD_OUTPUT ${KERNEL_MAKEFILE})"
-	OUTPUT_DIR="${OUTPUT_DIR:-${kbuild_output}}"
+		# And if we didn't pass it, we can take a nosey in the Makefile.
+		OUTPUT_DIR=$(${mkfunc} KBUILD_OUTPUT "${KERNEL_MAKEFILE}")
+	fi
 
 	# And contrary to existing functions I feel we shouldn't trust the
 	# directory name to find version information as this seems insane.
-	# so we parse ${KERNEL_MAKEFILE}
-	KV_MAJOR="$(${mkfunc} VERSION ${KERNEL_MAKEFILE})"
-	KV_MINOR="$(${mkfunc} PATCHLEVEL ${KERNEL_MAKEFILE})"
-	KV_PATCH="$(${mkfunc} SUBLEVEL ${KERNEL_MAKEFILE})"
-	KV_EXTRA="$(${mkfunc} EXTRAVERSION ${KERNEL_MAKEFILE})"
+	# So we parse ${KERNEL_MAKEFILE}.  We should be able to trust that
+	# the Makefile is simple enough to use the noexec extract function.
+	# This has been true for every release thus far, and it's faster
+	# than using make to evaluate the Makefile every time.
+	KV_MAJOR=$(getfilevar_noexec VERSION "${KERNEL_MAKEFILE}")
+	KV_MINOR=$(getfilevar_noexec PATCHLEVEL "${KERNEL_MAKEFILE}")
+	KV_PATCH=$(getfilevar_noexec SUBLEVEL "${KERNEL_MAKEFILE}")
+	KV_EXTRA=$(getfilevar_noexec EXTRAVERSION "${KERNEL_MAKEFILE}")
 
 	if [ -z "${KV_MAJOR}" -o -z "${KV_MINOR}" -o -z "${KV_PATCH}" ]
 	then

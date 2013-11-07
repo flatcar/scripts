@@ -101,13 +101,13 @@ ftend
 tbegin "append-cflags basic"
 CFLAGS=
 append-cflags -O0
-[[ ${CFLAGS} == "-O0" ]]
+[[ ${CFLAGS} == " -O0" ]]
 ftend
 
 tbegin "append-cflags -DFOO='a b c'"
 CFLAGS=
 append-cflags '-DFOO="a b c"'
-[[ ${CFLAGS} == '-DFOO="a b c"' ]]
+[[ ${CFLAGS} == ' -DFOO="a b c"' ]]
 ftend
 
 tbegin "raw-ldflags"

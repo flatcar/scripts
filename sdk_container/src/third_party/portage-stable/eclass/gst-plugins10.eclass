@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/gst-plugins10.eclass,v 1.10 2013/01/31 19:59:54 eva Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/gst-plugins10.eclass,v 1.11 2013/09/29 17:47:13 eva Exp $
 
 # @ECLASS: gst-plugins10.eclass
 # @MAINTAINER:
@@ -102,7 +102,11 @@ HOMEPAGE="http://gstreamer.freedesktop.org/"
 SRC_URI="http://gstreamer.freedesktop.org/src/${GST_ORG_MODULE}/${GST_ORG_MODULE}-${PV}.tar.${GST_TARBALL_SUFFIX}"
 
 LICENSE="GPL-2"
-SLOT="${GST_ORG_PVP}"
+case ${GST_ORG_PVP} in
+	0.10) SLOT="0.10" ;;
+	1.*) SLOT="1.0" ;;
+	*) die "Unkown gstreamer release."
+esac
 
 S="${WORKDIR}/${GST_ORG_MODULE}-${PV}"
 

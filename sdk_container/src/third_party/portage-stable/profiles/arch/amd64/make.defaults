@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/make.defaults,v 1.16 2013/02/01 21:28:56 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/make.defaults,v 1.18 2013/10/03 16:27:37 axs Exp $
 
 ARCH="amd64"
 ACCEPT_KEYWORDS="${ARCH}"
@@ -37,6 +37,10 @@ CHOST_x32="x86_64-pc-linux-gnux32"
 # They are masked, but we can enable them anyway for those who have 
 # >=portage-2.1.2_pre3-r4
 USE="mmx sse sse2"
+
+# Michał Górny <mgorny@gentoo.org> (03 Sep 2013)
+# Enable abi_x86_64 for packages that don't have it forced.
+ABI_X86="64"
 
 # 2006/08/18 - Donnie Berkholz <dberkholz@gentoo.org>
 # Defaults for video drivers

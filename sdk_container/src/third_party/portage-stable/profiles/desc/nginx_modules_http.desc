@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/desc/nginx_modules_http.desc,v 1.16 2013/05/23 20:29:05 dev-zero Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/desc/nginx_modules_http.desc,v 1.19 2013/10/24 06:25:03 dev-zero Exp $
 
 # This file contains descriptions of NGINX_MODULES_HTTP USE_EXPAND flags.
 
@@ -9,6 +9,7 @@ access - This module provides a simple host-based access control.
 addition - This module adds contents of other locations before and after the current location's content.
 auth_basic - This module protects your site or parts of it with username and password based on HTTP Basic Authentication.
 auth_pam - This module provides authentication via PAM.
+auth_request - Module implementing client authorization based on the result of a subrequest.
 autoindex - This module provides automatic directory listings.
 browser - This module creates variables, the values of which depend on the request header "User-agent".
 cache_purge - External module adding ability to purge content from nginx's FastCGI and proxy caches.
@@ -16,6 +17,7 @@ charset - This module can reencode data of one encoding into another.
 dav - This module adds the HTTP and WebDAV methods PUT, DELETE, MKCOL, COPY and MOVE.
 dav_ext - Add missing WebDAV methods PROPFIND & OPTIONS to the existing WebDAV module.
 degradation - Allows to return 204 or 444 code for some locations on low memory condition (reliable on FreeBSD only)
+echo - Brings shell-style goodies to Nginx config file.
 empty_gif - This module keeps a 1x1 transparent GIF in memory that can be served very quickly.
 fancyindex - This module makes possible the generation of file listings, like the built-in autoindex module does, but adding a touch of style.
 fastcgi - This module allows Nginx to interact with FastCGI processes and control what parameters are passed to the process.
@@ -41,12 +43,14 @@ passenger - Passenger makes deployment of Ruby web applications a breeze.
 perl - This module makes it possible to execute Perl directly within Nginx and call Perl via SSI.
 proxy - This module makes it possible to transfer requests to another server.
 push - External module turning Nginx into an adept HTTP Push and Comet server.
+push_stream - Push Stream module, supporting EventSource, WebSocket, Long Polling, and Forever Iframe.
 random_index - Pick a random directory index from a directory.
 realip - This module allows to change the client's IP address to value from request header (e. g. X-Real-IP or X-Forwarded-For).
 referer - This module makes it possible to block access to the site with the incorrect values of line "Referer" in the request header.
 rewrite - This module makes it possible to change URI using regular expressions (PCRE), and to redirect and select configuration depending on variables.
 scgi - An implementation of the Simple Common Gateway Interface.
 secure_link - This module computes and checks request URLs for a required security token.
+security - Web application firewall and Intrusion Detection System.
 slowfs_cache - This module adds the ability to cache static files
 split_clients - This module provides A/B testing support.
 ssi - This module provides a filter which processes Server-Side Includes (SSI) in the input.

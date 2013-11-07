@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/texlive-module.eclass,v 1.66 2013/07/05 22:43:41 aballier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/texlive-module.eclass,v 1.67 2013/09/25 15:18:28 ottxor Exp $
 
 # @ECLASS: texlive-module.eclass
 # @MAINTAINER:
@@ -21,7 +21,7 @@
 # care of unpacking and relocating the files that need it.
 #
 # It inherits texlive-common and base for supporting patching via the PATCHES
-# bash array with EAPI>=2.
+# bash array.
 
 # @ECLASS-VARIABLE: TEXLIVE_MODULE_CONTENTS
 # @DESCRIPTION:
@@ -63,6 +63,14 @@
 
 inherit texlive-common base
 
+case "${EAPI:-0}" in
+	0|1|2)
+		die "EAPI='${EAPI}' is not supported anymore"
+		;;
+	*)
+		;;
+esac
+
 HOMEPAGE="http://www.tug.org/texlive/"
 
 COMMON_DEPEND=">=app-text/texlive-core-${TL_PV:-${PV}}"
@@ -103,28 +111,12 @@ S="${WORKDIR}"
 # @FUNCTION: texlive-module_src_unpack
 # @DESCRIPTION:
 # Only for TeX Live 2009 and later.
-# Gives tar.xz unpack support until we can use an EAPI with that support.
-# If EAPI supports tar.xz then it calls unpack instead of its own unpacker.
 # After unpacking, the files that need to be relocated are moved accordingly.
 
 RELOC_TARGET=texmf-dist
 
 texlive-module_src_unpack() {
-	if has "${EAPI:-0}" 0 1 2 ; then
-		local i s
-		# Avoid installing world writable files
-		# Bugs #309997, #310039, #338881
-		umask 022
-		for i in ${A}
-		do
-			s="${DISTDIR%/}/${i}"
-			einfo "Unpacking ${s} to ${PWD}"
-			test -s "${s}" || die "${s} does not exist"
-			xz -dc -- "${s}" | tar xof - || die "Unpacking ${s} failed"
-		done
-	else
-		unpack ${A}
-	fi
+	unpack ${A}
 
 	grep RELOC tlpkg/tlpobj/* | awk '{print $2}' | sed 's#^RELOC/##' > "${T}/reloclist"
 	{ for i in $(<"${T}/reloclist"); do  dirname $i; done; } | uniq > "${T}/dirlist"
@@ -312,15 +304,15 @@ texlive-module_src_install() {
 
 	dodir /usr/share
 	if [ -z "${PN##*documentation*}" ] || use doc; then
-		[ -d texmf-doc ] && cp -pR texmf-doc "${D}/usr/share/"
+		[ -d texmf-doc ] && cp -pR texmf-doc "${ED}/usr/share/"
 	else
 		[ -d texmf/doc ] && rm -rf texmf/doc
 		[ -d texmf-dist/doc ] && rm -rf texmf-dist/doc
 	fi
 
-	[ -d texmf ] && cp -pR texmf "${D}/usr/share/"
-	[ -d texmf-dist ] && cp -pR texmf-dist "${D}/usr/share/"
-	[ -d tlpkg ] && use source && cp -pR tlpkg "${D}/usr/share/"
+	[ -d texmf ] && cp -pR texmf "${ED}/usr/share/"
+	[ -d texmf-dist ] && cp -pR texmf-dist "${ED}/usr/share/"
+	[ -d tlpkg ] && use source && cp -pR tlpkg "${ED}/usr/share/"
 
 	insinto /var/lib/texmf
 	[ -d texmf-var ] && doins -r texmf-var/*

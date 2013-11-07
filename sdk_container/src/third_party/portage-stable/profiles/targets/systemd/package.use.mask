@@ -1,0 +1,8 @@
+# Copyright 1999-2013 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/targets/systemd/package.use.mask,v 1.1 2013/10/09 18:07:18 pacho Exp $
+
+# 'static-libs' support on sys-apps/systemd is not provided
+virtual/udev static-libs
+sys-fs/cryptsetup static static-libs
+sys-fs/lvm2 static static-libs

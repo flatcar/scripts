@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/alternatives.eclass,v 1.17 2011/08/22 04:46:31 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/alternatives.eclass,v 1.18 2013/09/21 01:03:42 ottxor Exp $
 
 # @ECLASS: alternatives.eclass
 # @AUTHOR:
@@ -53,6 +53,7 @@
 # @DESCRIPTION:
 # automatic deduction based on a symlink and a regex mask
 alternatives_auto_makesym() {
+	has "${EAPI:-0}" 0 1 2 && ! use prefix && EROOT="${ROOT}"
 	local SYMLINK REGEX ALT myregex
 	SYMLINK=$1
 	REGEX=$2
@@ -67,20 +68,22 @@ alternatives_auto_makesym() {
 
 	# sort a space delimited string by converting it to a multiline list
 	# and then run sort -r over it.
-	# make sure we use ${ROOT} because otherwise stage-building will break
-	ALT="$(for i in $(echo ${ROOT}${myregex}); do echo ${i#${ROOT}}; done | sort -r)"
+	# make sure we use ${EROOT} because otherwise stage-building will break
+	ALT="$(for i in $(echo ${EROOT}${myregex}); do echo ${i#${EROOT}}; done | sort -r)"
 	alternatives_makesym ${SYMLINK} ${ALT}
 }
 
 alternatives_makesym() {
+	has "${EAPI:-0}" 0 1 2 && ! use prefix && EPREFIX=
 	local ALTERNATIVES=""
 	local SYMLINK=""
 	local alt pref
 
 	# usage: alternatives_makesym <resulting symlink> [alternative targets..]
-	SYMLINK=$1
+	# make sure it is in the prefix, allow it already to be in the prefix
+	SYMLINK=${EPREFIX}/${1#${EPREFIX}}
 	# this trick removes the trailing / from ${ROOT}
-	pref=$(echo ${ROOT} | sed 's:/$::')
+	pref=${ROOT%/}
 	shift
 	ALTERNATIVES=$@
 
@@ -88,6 +91,7 @@ alternatives_makesym() {
 	# and if one exists, link it and finish.
 
 	for alt in ${ALTERNATIVES}; do
+		alt=${EPREFIX}/${alt#${EPREFIX}}
 		if [ -f "${pref}${alt}" ]; then
 			#are files in same directory?
 			if [ "${alt%/*}" = "${SYMLINK%/*}" ]

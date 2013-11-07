@@ -1,9 +1,21 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/eapi-5-files/package.use.stable.mask,v 1.23 2013/09/12 18:07:19 cardoe Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/eapi-5-files/package.use.stable.mask,v 1.29 2013/10/28 11:10:33 pinkbyte Exp $
 
 # This file requires eapi 5 or later. New entries go on top.
 # Please use the same syntax as in package.use.mask
+
+# Sergey Popov <pinkbyte@gentoo.org> (28 Oct 2013)
+# sys-cluster/cman is still in ~arch.
+sys-cluster/pacemaker cman
+
+# Alexandre Rostovtsev <tetromino@gentoo.org> (02 Oct 2013)
+# We want to stabilize zukitwo before gnome-shell
+x11-themes/zukitwo gnome-shell
+
+# Mike Gilbert <floppym@gentoo.org> (21 Sep 2013)
+# sys-fs/zfs isn't going stable anytime soon.
+sys-boot/grub libzfs
 
 # Doug Goldstein <cardoe@gentoo.org> (12 Sep 2013)
 # Waiting on glusterfs maintainers in bug #484016
@@ -17,19 +29,9 @@ app-emulation/qemu glusterfs
 # Clang is not stable
 app-portage/eix clang
 
-# Alexandre Rostovtsev <tetromino@gentoo.org> (15 Aug 2013)
-# Remove when app-crypt/libsecret is stable
-=gnome-base/gvfs-1.14.2 gnome-keyring
-
 # Samuli Suominen <ssuominen@gentoo.org> (01 Aug 2013)
 # The dependencies for these flags are still in ~arch.
 sys-fs/lvm2 clvm cman
-
-# Agostino Sarubbo <ago@gentoo.org> (24 May 2013)
-# Justin Lecher <jlec@gentoo.org> (30 May 2313)
-# Temporary mask because it needs texinfo-5
-# hvm needs qemu #471122
->=app-emulation/xen-tools-4.2.1-r3 qemu hvm ocaml
 
 # Chris Reffett <creffett@gentoo.org> (23 Nov 2012)
 # CMake's PHP module can't find our install location, so

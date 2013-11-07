@@ -1,6 +1,259 @@
 # ChangeLog for eclass directory
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/ChangeLog,v 1.973 2013/09/17 17:33:39 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/ChangeLog,v 1.1048 2013/11/05 05:21:30 dirtyepic Exp $
+
+  05 Nov 2013; Ryan Hill <dirtyepic@gentoo.org> toolchain.eclass:
+  Update for libmudflap removal.
+
+  04 Nov 2013; Mike Gilbert <floppym@gentoo.org> mercurial.eclass:
+  Initialize cert_opt to an empty array instead of an empty string. Reported by
+  Kristian Fiskerstrand.
+
+  04 Nov 2013; Ulrich Müller <ulm@gentoo.org> elisp-common.eclass:
+  Don't create site-gentoo.el in postrm phase.
+
+  03 Nov 2013; Michał Górny <mgorny@gentoo.org> tests/python-utils-r1.sh:
+  Fix python-utils-r1 tests to accomodate versions in PYTHON_PKG_DEP.
+
+  02 Nov 2013; Tom Wijsman <TomWij@gentoo.org> kernel-2.eclass:
+  Trivial change to support patches with pre-defined patch levels.
+
+  02 Nov 2013; Ryan Hill <dirtyepic@gentoo.org> flag-o-matic.eclass:
+  Add -fno-builtin* to ALLOWED_FLAGS - requested by Justin Vrooman.
+
+  02 Nov 2013; Ryan Hill <dirtyepic@gentoo.org> tests/flag-o-matic.sh:
+  Account for leading whitespace in append-cflags tests.
+
+  30 Oct 2013; Michał Górny <mgorny@gentoo.org> git-r3.eclass:
+  Fix parallel checkout race conditions, bug #489280.
+
+  30 Oct 2013; Michał Górny <mgorny@gentoo.org> python-r1.eclass,
+  python-single-r1.eclass, python-utils-r1.eclass:
+  Switch the eclasses to use dev-lang/python-exec.
+
+  27 Oct 2013; Michał Górny <mgorny@gentoo.org> git-r3.eclass:
+  Create a fake ".git" directory inside the checkout to satisfy git rev-parse
+  uses in build systems. Bug #489100.
+
+  27 Oct 2013; Michał Górny <mgorny@gentoo.org> git-r3.eclass:
+  Strip sub-slot from local repo IDs.
+
+  27 Oct 2013; Michał Górny <mgorny@gentoo.org> python-utils-r1.eclass:
+  Remove deprecated functions.
+
+  27 Oct 2013; Michał Górny <mgorny@gentoo.org> flag-o-matic.eclass:
+  Consider -frecord-gcc-switches a safe flag and do not strip it with
+  strip-flags.
+
+  26 Oct 2013; Michał Górny <mgorny@gentoo.org> distutils-r1.eclass:
+  Fix distutils-r1_python_install to strip --install-scripts= rather than
+  passing "install" twice to override it. Fixes compatibility with
+  dev-python/paver.
+
+  26 Oct 2013; Michał Górny <mgorny@gentoo.org> git-r3.eclass:
+  Fix handling relative submodule paths.
+
+  22 Oct 2013; Michał Górny <mgorny@gentoo.org> distutils-r1.eclass:
+  Fix failing to pass default install arguments when user passes an additional
+  command. Reported by radhermit.
+
+  22 Oct 2013; Michał Górny <mgorny@gentoo.org> python-any-r1.eclass,
+  python-r1.eclass, python-single-r1.eclass:
+  Introduce a "common" python_setup function to set up Python for use in outer
+  scope.
+
+  22 Oct 2013; Michał Górny <mgorny@gentoo.org> distutils-r1.eclass:
+  Support installing Python scripts with custom --install-scripts argument. Bug
+  #487788.
+
+  22 Oct 2013; Michał Górny <mgorny@gentoo.org> systemd.eclass:
+  Add systemd_enable_ntpunit wrt bug #458132.
+
+  20 Oct 2013; Davide Pesavento <pesa@gentoo.org> qt4-build.eclass:
+  Updates from qt overlay: drop USE="c++0x" from 4.8.5 and later versions; warn
+  on downgrade instead of dying.
+
+  20 Oct 2013; Julian Ospald <hasufell@gentoo.org> multilib-minimal.eclass:
+  make doc installation part of default multilib_src_install_all() wrt #483304
+
+  17 Oct 2013; Christoph Junghans <ottxor@gentoo.org> subversion.eclass:
+  added prefix support (bug #485534)
+
+  15 Oct 2013; Ryan Hill <dirtyepic@gentoo.org> toolchain.eclass:
+  Remove .la files for libasan and libtsan. They reference non-existent
+  libstdc++.la when fixlafiles is disabled/unsupported, and -fsanitize doesn't
+  work with -static anyways. (bug #487550)
+
+  14 Oct 2013; Michał Górny <mgorny@gentoo.org> git-r3.eclass:
+  Fix over-use of ||die.
+
+  14 Oct 2013; Davide Pesavento <pesa@gentoo.org> qt4-build.eclass:
+  Add qtbearer to nolibx11_pkgs
+
+  14 Oct 2013; Davide Pesavento <pesa@gentoo.org> qt4-build.eclass:
+  Switch to git-r3.eclass
+
+  14 Oct 2013; Michał Górny <mgorny@gentoo.org> git-r3.eclass:
+  Add missing "die" calls as reported by Nikoli.
+
+  13 Oct 2013; Michał Górny <mgorny@gentoo.org> git-r3.eclass:
+  Respect EVCS_OFFLINE in git-r3_fetch.
+
+  12 Oct 2013; Jeroen Roovers <jer@gentoo.org> nvidia-driver.eclass:
+  Use readme.gentoo.eclass (bug #457594).
+
+  12 Oct 2013; Michał Górny <mgorny@gentoo.org> python-any-r1.eclass:
+  Do not look up Python for binary package install.
+
+  10 Oct 2013; Michał Górny <mgorny@gentoo.org> distutils-r1.eclass:
+  Do not alter HOME and TMPDIR when single impl is being used. This may
+  work-around bug #487260.
+
+  09 Oct 2013; Michał Górny <mgorny@gentoo.org> python-utils-r1.eclass:
+  Fix pypy dependency.
+
+  09 Oct 2013; Michał Górny <mgorny@gentoo.org> python-utils-r1.eclass:
+  Bump dependencies on Python interpreters to require newest stable versions.
+  Bug #463532.
+
+  09 Oct 2013; Michał Górny <mgorny@gentoo.org> git-r3.eclass:
+  Skip submodules that have update=none specified in config. Fixes bug #487262.
+
+  08 Oct 2013; Michał Górny <mgorny@gentoo.org> git-2.eclass, git-r3.eclass:
+  Fix git-r3 -> git-2 dependency leak, as noted in bug #487026.
+
+  08 Oct 2013; Michał Górny <mgorny@gentoo.org> autotools-utils.eclass:
+  Remove deprecated autotools-utils_autoreconf.
+
+  07 Oct 2013; Joerg Bornkessel <hd_brummy@gentoo.org> vdr-plugin-2.eclass:
+  small modification on output from function dev_check
+
+  06 Oct 2013; Vlastimil Babka <caster@gentoo.org> java-utils-2.eclass:
+  Convert comments for eclass manpages. Heavily based on work from ercpe, bug
+  #476946.
+
+  05 Oct 2013; Michał Górny <mgorny@gentoo.org> -git.eclass:
+  Remove lastrited git.eclass.
+
+  05 Oct 2013; Michał Górny <mgorny@gentoo.org> git-r3.eclass:
+  Add missing git DEPEND wrt bug #487026.
+
+  05 Oct 2013; Vlastimil Babka <caster@gentoo.org> java-ant-2.eclass:
+  Convert comments for eclass manpages. Heavily based on work from ercpe, bug
+  #476946.
+
+  05 Oct 2013; Vlastimil Babka <caster@gentoo.org> ant-tasks.eclass:
+  Convert comments for eclass manpages. Almost completely based on work from
+  'mren <bugs@rennings.net>' in bug #210723 and ercpe from bug #476946.
+
+  04 Oct 2013; Alexandre Rostovtsev <tetromino@gentoo.org> vala.eclass:
+  Prepare for vala-0.22
+
+  04 Oct 2013; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  enlightenment.eclass:
+  No stable keywords for mips
+
+  01 Oct 2013; Michał Górny <mgorny@gentoo.org> multilib-build.eclass:
+  Clean up the splitting code wrt suggestions from Ulrich Mueller.
+
+  01 Oct 2013; Michał Górny <mgorny@gentoo.org> multilib-build.eclass:
+  Split ABIs without altering IFS, to work-around bug in Paludis, bug #486592.
+
+  30 Sep 2013; Michał Górny <mgorny@gentoo.org> multilib-build.eclass:
+  Fix duplicate flags in MULTILIB_USEDEP. Thanks for the report and the patch
+  to Ulrich Mueller.
+
+  30 Sep 2013; Christoph Junghans <ottxor@gentoo.org>
+  toolchain-binutils.eclass:
+  add prefix support
+
+  29 Sep 2013; Christoph Junghans <ottxor@gentoo.org> intel-sdp.eclass:
+  EAPI bump, ccache support
+
+  29 Sep 2013; Gilles Dartiguelongue <eva@gentoo.org> gst-plugins10.eclass:
+  Add support for gstreamer 1.2 release series.
+
+  29 Sep 2013; Michał Górny <mgorny@gentoo.org> python-distutils-ng.eclass:
+  Last rite python-distutils-ng.
+
+  29 Sep 2013; Pacho Ramos <pacho@gentoo.org> gnome2.eclass:
+  Use einstalldocs (#484876)
+
+  28 Sep 2013; Mike Gilbert <floppym@gentoo.org> distutils-r1.eclass:
+  Truncate .pydistutils.cfg in case we call distutils-r1_python_compile more
+  than once.
+
+  28 Sep 2013; Christoph Junghans <ottxor@gentoo.org> cvs.eclass:
+  added prefix support
+
+  27 Sep 2013; Michał Górny <mgorny@gentoo.org> distutils-r1.eclass:
+  Use pydistutils.cfg to set build-dirs instead of passing commands explicitly.
+  This should reduce the amount of implicit behavior.
+
+  27 Sep 2013; Michał Górny <mgorny@gentoo.org> distutils-r1.eclass:
+  Make HOME per-implementation.
+
+  27 Sep 2013; Michał Górny <mgorny@gentoo.org> git-r3.eclass:
+  Always fetch all branches when doing non-shallow fetch.
+
+  26 Sep 2013; Michał Górny <mgorny@gentoo.org> git-r3.eclass:
+  Fix parsing EGIT_REPO_URI. Bug #486080.
+
+  26 Sep 2013; Michał Górny <mgorny@gentoo.org> git-r3.eclass:
+  Update doc on EGIT_NONSHALLOW.
+
+  26 Sep 2013; Michał Górny <mgorny@gentoo.org> distutils-r1.eclass:
+  Wrap symlinks installed to PYTHON_SCRIPTDIR as well.
+
+  26 Sep 2013; Michał Górny <mgorny@gentoo.org> python-r1.eclass,
+  python-single-r1.eclass, python-utils-r1.eclass:
+  Fix EAPI=4 on python-exec:2 since that is what pkgcore will require (the only
+  EAPI=4 consumer right now).
+
+  25 Sep 2013; Christoph Junghans <ottxor@gentoo.org> texlive-module.eclass:
+  Require EAPI>=2, add prefix support
+
+  25 Sep 2013; Michał Górny <mgorny@gentoo.org> git-r3.eclass:
+  Support EGIT_REPO_URI being an array. This is needed for tests.
+
+  25 Sep 2013; Michał Górny <mgorny@gentoo.org> git-r3.eclass:
+  Update git URI stripping for gnome.org.
+
+  24 Sep 2013; Michał Górny <mgorny@gentoo.org> python-any-r1.eclass:
+  Introduce python_gen_any_dep to generate any-of dependencies matching
+  python_check_deps() code.
+
+  24 Sep 2013; Maxim Koltsov <maksbotan@gentoo.org> leechcraft.eclass:
+  Correct official mirror url in SRC_URI.
+
+  21 Sep 2013; Christoph Junghans <ottxor@gentoo.org> alternatives.eclass:
+  added prefix support
+
+  19 Sep 2013; Christoph Junghans <ottxor@gentoo.org> distutils-r1.eclass:
+  Fixed prefix qa
+
+  19 Sep 2013; Michał Górny <mgorny@gentoo.org> git-r3.eclass:
+  Strip trailing slashes from repo URI when determining local copy directory.
+
+  19 Sep 2013; Michał Górny <mgorny@gentoo.org> git-r3.eclass:
+  Do not even create shallow repository when EGIT_NONSHALLOW is set. Otherwise,
+  the eclass tries to unshallow it and that breaks broken git servers like
+  Google Code.
+
+  18 Sep 2013; Michał Górny <mgorny@gentoo.org> distutils-r1.eclass:
+  Fix accepting arguments in distutils_install_for_testing.
+
+  18 Sep 2013; Michał Górny <mgorny@gentoo.org> python.eclass:
+  Add a note not to add new Python versions to python.eclass.
+
+  18 Sep 2013; Sergey Popov <pinkbyte@gentoo.org> leechcraft.eclass:
+  Add official mirror to LeechCraft SRC_URI, thanks to 0xd34df00d
+
+  18 Sep 2013; Michał Górny <mgorny@gentoo.org> multibuild.eclass:
+  Fix coreutils dep to be build-time.
+
+  17 Sep 2013; Michał Górny <mgorny@gentoo.org> python-utils-r1.eclass:
+  Fix missing variable replacement in _python_ln_rel.
 
   17 Sep 2013; Michał Górny <mgorny@gentoo.org> distutils-r1.eclass:
   Use einstalldocs.

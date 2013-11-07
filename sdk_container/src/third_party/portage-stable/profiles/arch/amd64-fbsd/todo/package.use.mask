@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64-fbsd/todo/package.use.mask,v 1.334 2013/08/28 18:28:22 aballier Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64-fbsd/todo/package.use.mask,v 1.335 2013/10/12 15:29:55 aballier Exp $
 
 # Mask useflags that require deps with missing keywords.
 # Anyone is allowed and _very welcome_ to add masks there.
@@ -209,3 +209,10 @@ media-gfx/graphviz devil
 
 # sys-apps/util-linux (libuuid)
 net-misc/wget uuid
+
+# dev-util/valgrind
+dev-libs/eina valgrind
+
+# dev-util/lcov
+dev-libs/eina test
+dev-libs/eet test

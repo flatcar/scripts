@@ -1,6 +1,64 @@
 # ChangeLog for Gentoo/AMD64 profile directory
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/ChangeLog,v 1.8 2013/08/03 21:18:24 blueness Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/ChangeLog,v 1.21 2013/10/31 22:42:34 blueness Exp $
+
+  31 Oct 2013; Anthony G. Basile <blueness@gentoo.org>
+  linux/uclibc/package.mask:
+  Mask >sys-kernel/linux-headers-3.9 on uclibc, bug #490008
+
+  26 Oct 2013; Anthony G. Basile <blueness@gentoo.org>
+  linux/uclibc/mips/package.mask:
+  Unmask latest perl on uclibc/mips
+
+  22 Oct 2013; Anthony G. Basile <blueness@gentoo.org> +linux/musl/amd64/eapi,
+  +linux/musl/x86/eapi:
+  Update all hardened musl arches to eapi 5
+
+  22 Oct 2013; Anthony G. Basile <blueness@gentoo.org>
+  +linux/uclibc/amd64/eapi, +linux/uclibc/arm/armv6j/eapi,
+  +linux/uclibc/arm/armv7a/eapi, +linux/uclibc/arm/eapi,
+  +linux/uclibc/mips/eapi, +linux/uclibc/ppc/eapi, +linux/uclibc/x86/eapi:
+  Update all hardened uclibc arches to eapi 5
+
+  22 Oct 2013; Anthony G. Basile <blueness@gentoo.org> +linux/ia64/eapi:
+  Update ia64 to eapi 5
+
+  21 Oct 2013; Anthony G. Basile <blueness@gentoo.org> +linux/powerpc/eapi,
+  +linux/powerpc/ppc32/eapi, +linux/powerpc/ppc64/32bit-userland/eapi,
+  +linux/powerpc/ppc64/64bit-userland/eapi, +linux/powerpc/ppc64/eapi:
+  Update powerpc to eapi 5
+
+  21 Oct 2013; Anthony G. Basile <blueness@gentoo.org> +linux/mips/eapi,
+  +linux/mips/mipsel/eapi, +linux/mips/mipsel/multilib/eapi,
+  +linux/mips/mipsel/multilib/n32/eapi, +linux/mips/mipsel/multilib/n64/eapi,
+  +linux/mips/mipsel/n32/eapi, +linux/mips/mipsel/n64/eapi,
+  +linux/mips/multilib/eapi, +linux/mips/multilib/n32/eapi,
+  +linux/mips/multilib/n64/eapi, +linux/mips/n32/eapi, +linux/mips/n64/eapi:
+  Update mips to eapi 5
+
+  21 Oct 2013; Anthony G. Basile <blueness@gentoo.org> linux/arm/armv4/eapi,
+  linux/arm/armv4t/eapi, linux/arm/armv5te/eapi, linux/arm/armv6j/eapi,
+  linux/arm/armv7a/eapi, linux/arm/armv7a/selinux/eapi, linux/arm/eapi:
+  Update arm to eapi 5
+
+  03 Oct 2013; Matt Turner <mattst88@gentoo.org>
+  linux/amd64/package.use.stable.mask:
+  Drop unneeded libtxc_dxtn abi_x86_32 stable use mask.
+
+  24 Sep 2013; Michał Górny <mgorny@gentoo.org>
+  linux/amd64/package.use.stable.mask:
+  Add missing abi_x86_32 masks as reported by Patrick Lauer.
+
+  24 Sep 2013; Michał Górny <mgorny@gentoo.org> linux/amd64/package.use.mask,
+  +linux/amd64/package.use.stable.mask:
+  Move the abi_x86_32 mask to stable.mask, since the profile is EAPI=5 now.
+
+  23 Sep 2013; Magnus Granberg <zorry@gentoo.org>
+  +linux/amd64/eapi +/linux/x86/eapi
+  update amd64 and x86 to eapi 5
+
+  22 Sep 2013; Michał Górny <mgorny@gentoo.org> linux/amd64/package.use.mask:
+  Mask abi_x86_32 on hardened as well, to make the way for stablereq.
 
   03 Aug 2013; Anthony G. Basile <blueness@gentoo.org>
   linux/uclibc/mips/make.defaults:

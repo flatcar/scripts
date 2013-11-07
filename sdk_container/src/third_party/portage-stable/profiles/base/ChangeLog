@@ -1,6 +1,22 @@
 # ChangeLog for Gentoo base-profile
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/base/ChangeLog,v 1.601 2013/09/12 13:37:39 flameeyes Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/base/ChangeLog,v 1.606 2013/10/30 19:10:02 mgorny Exp $
+
+  30 Oct 2013; Michał Górny <mgorny@gentoo.org> package.use.force:
+  Copy the forced flags to dev-lang/python-exec (the new name).
+
+  27 Oct 2013; Julian Ospald <hasufell@gentoo.org> package.use.mask:
+  mask luajit useflag for games-action/minetest
+
+  25 Oct 2013; Davide Pesavento <pesa@gentoo.org> package.use.force:
+  Remove obsolete entry.
+
+  21 Oct 2013; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  package.use.mask:
+  Mask mesa i965 driver for security bug #472280.
+
+  15 Sep 2013; Tom Wijsman <TomWij@gentoo.org> package.use.mask:
+  Masked JCE functionality of dev-java/diablo-jdk.
 
   12 Sep 2013; Diego E. Pettenò <flameeyes@gentoo.org> package.use,
   package.use.force:

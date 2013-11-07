@@ -1,10 +1,24 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/base/package.use.mask,v 1.512 2013/09/07 14:50:08 tomwij Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/base/package.use.mask,v 1.516 2013/10/30 20:27:37 maksbotan Exp $
 
 # This file requires >=portage-2.1.1
 # New entries go on top.
 #
+
+# Julian Ospald <hasufell@gentoo.org> (27 Oct 2013)
+# luajit is in ~arch, prepare for minetest stabilization
+games-action/minetest luajit
+
+# Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (13 Oct 2013)
+# Masked for security bug #472280, CVE 2013-1872
+<=media-libs/mesa-9.0.3 video_cards_intel video_cards_i965
+
+# Tom Wijsman <TomWij@gentoo.org> (15 Sep 2013)
+# Mask JCE functionality of diablo-jdk because it depends on masked sun-jce-bin,
+# this needs to be revisited to either be dropped from the Portage tree or to
+# use the new way of doing JCE as part of a revision or version bump.
+dev-java/diablo-jdk jce
 
 # Tom Wijsman <TomWij@gentoo.org> (7 Sep 2013)
 # Dependency (www-servers/mongrel) currently only
@@ -50,7 +64,8 @@ sys-apps/hwloc cuda gl opencl
 # Upstream removed entire support in future release:
 # http://code.google.com/p/clementine-player/source/detail?r=3d434f1c881890dd77fea6d0e3de3afc86971196
 # Remove this entry once <=media-sound/clementine-1.1.1 has left the building
-media-sound/clementine ios ipod
+media-sound/clementine ios
+<media-sound/clementine-1.2.0 ipod
 
 # Ben de Groot <yngwin@gentoo.org> (07 Aug 2013)
 # Newer lightdm doesn't work with current razorqt-lightdm-greeter, bug 479734

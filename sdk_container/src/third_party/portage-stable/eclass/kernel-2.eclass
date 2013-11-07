@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/kernel-2.eclass,v 1.288 2013/09/05 17:04:26 tomwij Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/kernel-2.eclass,v 1.289 2013/11/02 12:58:50 tomwij Exp $
 
 # Description: kernel.eclass rewrite for a clean base regarding the 2.6
 #              series of kernel with back-compatibility for 2.4
@@ -938,7 +938,7 @@ unipatch() {
 				     xz) PIPE_CMD="xz -dc";;
 				   lzma) PIPE_CMD="lzma -dc";;
 				    bz2) PIPE_CMD="bzip2 -dc";;
-				  patch) PIPE_CMD="cat";;
+				  patch*) PIPE_CMD="cat";;
 				   diff) PIPE_CMD="cat";;
 				 gz|Z|z) PIPE_CMD="gzip -dc";;
 				ZIP|zip) PIPE_CMD="unzip -p";;

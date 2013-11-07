@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation.
+# Copyright 1999-2013 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/desc/dracut_modules.desc,v 1.8 2012/08/20 16:16:25 aidecoe Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/desc/dracut_modules.desc,v 1.9 2013/09/14 14:30:28 aidecoe Exp $
 
 # This file contains descriptions of DRACUT_MODULES USE_EXPAND flags.
 
@@ -12,6 +12,7 @@ cifs - Support CIFS
 crypt - Decrypt devices encrypted with cryptsetup/LUKS
 crypt-gpg - Support for GPG-encrypted keys for crypt module
 crypt-loop - Support for LUKS-encrypted keys for crypt module
+dash - Allows use of dash instead of default bash (on your own risk)
 dmraid - Support dmraid devices, also known as ATA-RAID, or Fake RAID
 dmsquash-live - Module which might be used for Live CDs
 livenet - Similar to dmsquash-live but gets image via HTTP(S)

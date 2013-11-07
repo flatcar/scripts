@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/vdr-plugin-2.eclass,v 1.24 2013/04/13 19:07:31 hd_brummy Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/vdr-plugin-2.eclass,v 1.25 2013/10/07 12:21:14 hd_brummy Exp $
 
 # @ECLASS: vdr-plugin-2.eclass
 # @MAINTAINER:
@@ -203,7 +203,7 @@ dev_check() {
 	# A lot useful debug infos
 	# set VDR_MAINTAINER_MODE="1" in make.conf
 	if [[ -n ${VDR_MAINTAINER_MODE} ]]; then
-		eerror "\t Maintainer Info: $@"
+		eerror "\t Gentoo Developer Debug: $@"
 	fi
 }
 

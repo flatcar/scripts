@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/multiprocessing.eclass,v 1.2 2012/07/30 14:52:18 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/multiprocessing.eclass,v 1.3 2013/10/12 21:12:48 vapier Exp $
 
 # @ECLASS: multiprocessing.eclass
 # @MAINTAINER:
@@ -66,9 +66,12 @@ multijob_init() {
 	has wait ${EBUILD_DEATH_HOOKS} || EBUILD_DEATH_HOOKS+=" wait "
 
 	# Setup a pipe for children to write their pids to when they finish.
+	# We have to allocate two fd's because POSIX has undefined behavior
+	# when you open a FIFO for simultaneous read/write. #487056
 	local pipe="${T}/multijob.pipe"
-	mkfifo "${pipe}"
-	redirect_alloc_fd mj_control_fd "${pipe}"
+	mkfifo -m 600 "${pipe}"
+	redirect_alloc_fd mj_write_fd "${pipe}"
+	redirect_alloc_fd mj_read_fd "${pipe}"
 	rm -f "${pipe}"
 
 	# See how many children we can fork based on the user's settings.
@@ -120,7 +123,7 @@ multijob_child_init() {
 	esac
 
 	if [[ $# -eq 0 ]] ; then
-		trap 'echo ${BASHPID} $? >&'${mj_control_fd} EXIT
+		trap 'echo ${BASHPID} $? >&'${mj_write_fd} EXIT
 		trap 'exit 1' INT TERM
 	else
 		local ret
@@ -169,7 +172,7 @@ multijob_finish_one() {
 	[[ $# -eq 0 ]] || die "${FUNCNAME} takes no arguments"
 
 	local pid ret
-	read -r -u ${mj_control_fd} pid ret || die
+	read -r -u ${mj_read_fd} pid ret || die
 	: $(( --mj_num_jobs ))
 	return ${ret}
 }
