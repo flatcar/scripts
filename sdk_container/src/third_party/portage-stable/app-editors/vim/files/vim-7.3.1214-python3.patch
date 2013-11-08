@@ -1,0 +1,15 @@
+diff -r 6e9667d3f166 src/configure.in
+--- a/src/configure.in	Sun Jun 16 22:49:14 2013 +0200
++++ b/src/configure.in	Sun Jun 16 17:47:30 2013 -0700
+@@ -1107,9 +1107,9 @@
+       AC_CACHE_CHECK(Python's configuration directory,vi_cv_path_python3_conf,
+       [
+        vi_cv_path_python3_conf=
+-       config_dir="config"
++       config_dir="config-${vi_cv_var_python3_version}"
+        if test "${vi_cv_var_python3_abiflags}" != ""; then
+-         config_dir="${config_dir}-${vi_cv_var_python3_version}${vi_cv_var_python3_abiflags}"
++         config_dir="${config_dir}${vi_cv_var_python3_abiflags}"
+        fi
+        d=`${vi_cv_path_python3} -c "import distutils.sysconfig; print(distutils.sysconfig.get_config_var('LIBPL'))"`
+        if test -d "$d" && test -f "$d/config.c"; then

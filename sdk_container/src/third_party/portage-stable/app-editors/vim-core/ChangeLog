@@ -1,6 +1,108 @@
 # ChangeLog for app-editors/vim-core
-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/app-editors/vim-core/ChangeLog,v 1.405 2012/12/27 21:28:20 lack Exp $
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/app-editors/vim-core/ChangeLog,v 1.429 2013/10/15 23:13:15 radhermit Exp $
+
+*vim-core-7.4.52 (15 Oct 2013)
+
+  15 Oct 2013; Tim Harder <radhermit@gentoo.org> +vim-core-7.4.52.ebuild:
+  Version bump.
+
+*vim-core-7.4.41 (27 Sep 2013)
+
+  27 Sep 2013; Tim Harder <radhermit@gentoo.org> +vim-core-7.4.41.ebuild:
+  Version bump.
+
+  06 Sep 2013; Tim Harder <radhermit@gentoo.org> -vim-core-7.4.ebuild,
+  -vim-core-7.4.5.ebuild:
+  Remove old.
+
+*vim-core-7.4.22 (06 Sep 2013)
+
+  06 Sep 2013; Tim Harder <radhermit@gentoo.org> +vim-core-7.4.22.ebuild:
+  Version bump.
+
+  18 Aug 2013; Tim Harder <radhermit@gentoo.org> -vim-core-7.3.266.ebuild,
+  -vim-core-7.3.409.ebuild, -vim-core-7.3.444.ebuild, -vim-core-7.3.456.ebuild,
+  -vim-core-7.3.462.ebuild, -vim-core-7.3.487.ebuild, -vim-core-7.3.498.ebuild,
+  -vim-core-7.3.502.ebuild, -vim-core-7.3.515.ebuild, -vim-core-7.3.537.ebuild,
+  -vim-core-7.3.556.ebuild, -vim-core-7.3.566.ebuild, -vim-core-7.3.600.ebuild,
+  -vim-core-7.3.646.ebuild, -vim-core-7.3.905.ebuild, -vim-core-7.3.931.ebuild,
+  -vim-core-7.3.1163.ebuild, -files/vimrc-r3:
+  Remove old, drop m68k to ~arch.
+
+*vim-core-7.4.5 (18 Aug 2013)
+
+  18 Aug 2013; Tim Harder <radhermit@gentoo.org> +vim-core-7.4.5.ebuild,
+  vim-core-9999.ebuild:
+  Version bump, re-add gentoo-syntax dep.
+
+*vim-core-7.4 (13 Aug 2013)
+
+  13 Aug 2013; Tim Harder <radhermit@gentoo.org> +vim-core-7.4.ebuild,
+  vim-core-9999.ebuild:
+  Version bump (bug #480512), rename livecd useflag to minimal (fixes bug
+  #474516), migrate away from the vim eclass.
+
+  20 Jul 2013; Tim Harder <radhermit@gentoo.org> vim-core-9999.ebuild:
+  Update VIM_VERSION.
+
+*vim-core-7.3.1214 (17 Jun 2013)
+
+  17 Jun 2013; Tim Harder <radhermit@gentoo.org> +vim-core-7.3.1214.ebuild:
+  Version bump.
+
+*vim-core-7.3.1163 (11 Jun 2013)
+
+  11 Jun 2013; Tim Harder <radhermit@gentoo.org> +vim-core-7.3.1163.ebuild:
+  Version bump.
+
+  09 Jun 2013; Agostino Sarubbo <ago@gentoo.org> vim-core-7.3.762.ebuild:
+  Stable for sparc, wrt bug #469010
+
+  09 Jun 2013; Agostino Sarubbo <ago@gentoo.org> vim-core-7.3.762.ebuild:
+  Stable for sh, wrt bug #469010
+
+  09 Jun 2013; Agostino Sarubbo <ago@gentoo.org> vim-core-7.3.762.ebuild:
+  Stable for s390, wrt bug #469010
+
+  09 Jun 2013; Agostino Sarubbo <ago@gentoo.org> vim-core-7.3.762.ebuild:
+  Stable for alpha, wrt bug #469010
+
+  22 May 2013; Agostino Sarubbo <ago@gentoo.org> vim-core-7.3.762.ebuild:
+  Stable for ia64, wrt bug #469010
+
+*vim-core-9999 (17 May 2013)
+
+  17 May 2013; Tim Harder <radhermit@gentoo.org> +vim-core-9999.ebuild:
+  Add live ebuild.
+
+  12 May 2013; Agostino Sarubbo <ago@gentoo.org> vim-core-7.3.762.ebuild:
+  Stable for arm, wrt bug #469010
+
+  10 May 2013; Agostino Sarubbo <ago@gentoo.org> vim-core-7.3.762.ebuild:
+  Stable for ppc64, wrt bug #469010
+
+  10 May 2013; Agostino Sarubbo <ago@gentoo.org> vim-core-7.3.762.ebuild:
+  Stable for ppc, wrt bug #469010
+
+  10 May 2013; Agostino Sarubbo <ago@gentoo.org> vim-core-7.3.762.ebuild:
+  Stable for x86, wrt bug #469010
+
+  10 May 2013; Agostino Sarubbo <ago@gentoo.org> vim-core-7.3.762.ebuild:
+  Stable for amd64, wrt bug #469010
+
+  08 May 2013; Jeroen Roovers <jer@gentoo.org> vim-core-7.3.762.ebuild:
+  Stable for HPPA (bug #469010).
+
+*vim-core-7.3.931 (08 May 2013)
+
+  08 May 2013; Tim Harder <radhermit@gentoo.org> +vim-core-7.3.931.ebuild:
+  Version bump.
+
+*vim-core-7.3.905 (21 Apr 2013)
+
+  21 Apr 2013; Tim Harder <radhermit@gentoo.org> +vim-core-7.3.905.ebuild:
+  Version bump, update to EAPI 5.
 
 *vim-core-7.3.762 (27 Dec 2012)
 
@@ -1635,5 +1737,3 @@
   12 Sep 2002; Hannes Mehnert <hannes@gentoo.org> vim-core-6.1.ebuild:
 
   splitted vim into gvim, vim and vim-core
-
-
