@@ -1,6 +1,87 @@
 # ChangeLog for sys-block/thin-provisioning-tools
-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-block/thin-provisioning-tools/ChangeLog,v 1.13 2012/12/30 14:57:53 ago Exp $
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-block/thin-provisioning-tools/ChangeLog,v 1.29 2013/11/27 18:49:37 maekke Exp $
+
+  27 Nov 2013; Markus Meier <maekke@gentoo.org>
+  thin-provisioning-tools-0.2.8.ebuild:
+  arm stable, bug #486278
+
+  19 Nov 2013; Patrick Lauer <patrick@gentoo.org>
+  thin-provisioning-tools-0.2.8-r1.ebuild:
+  Whitespace
+
+*thin-provisioning-tools-0.2.8-r1 (15 Nov 2013)
+
+  15 Nov 2013; Robin H. Johnson <robbat2@gentoo.org>
+  +thin-provisioning-tools-0.2.8-r1.ebuild:
+  Put ruby behind a USE=test dep and add the other testing dependencies as well.
+
+  13 Nov 2013; Chema Alonso <nimiux@gentoo.org>
+  thin-provisioning-tools-0.2.8.ebuild:
+  Stable for amd64 wrt bug #486278
+
+  25 Oct 2013; Jeroen Roovers <jer@gentoo.org>
+  thin-provisioning-tools-0.2.8.ebuild:
+  Stable for HPPA (bug #486278).
+
+  20 Oct 2013; Samuli Suominen <ssuominen@gentoo.org>
+  thin-provisioning-tools-0.2.8.ebuild:
+  Remove now unnecessary GCC 4.7.x check because upstream stopped using
+  --std=c++11 wrt http://github.com/jthornber/thin-provisioning-
+  tools/commit/0029962f200ca4f256de114779bb5fad96836d89
+
+  20 Oct 2013; Samuli Suominen <ssuominen@gentoo.org>
+  -files/thin-provisioning-tools-0.2.1-LDFLAGS.patch,
+  -files/thin-provisioning-tools-0.2.7-LDFLAGS.patch,
+  -thin-provisioning-tools-0.2.1.ebuild, -thin-provisioning-tools-0.2.7.ebuild:
+  old
+
+*thin-provisioning-tools-0.2.8 (20 Oct 2013)
+
+  20 Oct 2013; Samuli Suominen <ssuominen@gentoo.org>
+  +thin-provisioning-tools-0.2.8.ebuild:
+  Version bump. Use || ( ) workaround in ruby slotting for Portage unefficiency
+  wrt #477050 by Michael Palimaka.
+
+*thin-provisioning-tools-0.2.7 (07 Oct 2013)
+
+  07 Oct 2013; Samuli Suominen <ssuominen@gentoo.org>
+  +files/thin-provisioning-tools-0.2.7-LDFLAGS.patch,
+  +thin-provisioning-tools-0.2.7.ebuild:
+  Version bump wrt #486144 by Manuel Rüger
+
+  16 Aug 2013; Patrick Lauer <patrick@gentoo.org>
+  thin-provisioning-tools-0.2.1.ebuild:
+  Add gcc version check #476910
+
+  14 Aug 2013; Patrick Lauer <patrick@gentoo.org>
+  thin-provisioning-tools-0.2.1.ebuild:
+  Whitespace
+
+*thin-provisioning-tools-0.2.1 (14 Jul 2013)
+
+  14 Jul 2013; Robin H. Johnson <robbat2@gentoo.org>
+  +files/thin-provisioning-tools-0.2.1-LDFLAGS.patch,
+  +thin-provisioning-tools-0.2.1.ebuild:
+  Bump.
+
+  24 Feb 2013; Agostino Sarubbo <ago@gentoo.org>
+  thin-provisioning-tools-0.1.5-r1.ebuild:
+  Stable for sh, wrt bug #443692
+
+  20 Feb 2013; Agostino Sarubbo <ago@gentoo.org>
+  thin-provisioning-tools-0.1.5-r1.ebuild:
+  Stable for s390, wrt bug #443692
+
+  08 Feb 2013; Jeroen Roovers <jer@gentoo.org>
+  thin-provisioning-tools-0.1.5-r1.ebuild:
+  Stable for HPPA (bug #443692).
+
+  06 Feb 2013; Tomáš Chvátal <scarabeus@gentoo.org>
+  -thin-provisioning-tools-0.1.5.ebuild,
+  thin-provisioning-tools-0.1.5-r1.ebuild:
+  Punt overshadowed testing version while newer is stable. Use
+  thirdpartymirrors.
 
   30 Dec 2012; Agostino Sarubbo <ago@gentoo.org>
   thin-provisioning-tools-0.1.5-r1.ebuild:
