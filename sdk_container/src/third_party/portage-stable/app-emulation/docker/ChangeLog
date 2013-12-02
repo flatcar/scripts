@@ -1,6 +1,32 @@
 # ChangeLog for app-emulation/docker
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/app-emulation/docker/ChangeLog,v 1.1 2013/09/25 03:22:15 gregkh Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-emulation/docker/ChangeLog,v 1.6 2013/11/26 15:17:48 gregkh Exp $
+
+*docker-0.7.0 (26 Nov 2013)
+
+  26 Nov 2013; Greg Kroah-Hartman <gregkh@gentoo.org> +docker-0.7.0.ebuild,
+  metadata.xml:
+  add 0.7.0 release
+
+*docker-0.6.7 (23 Nov 2013)
+
+  23 Nov 2013; Greg Kroah-Hartman <gregkh@gentoo.org> +docker-0.6.7.ebuild:
+  0.6.7 version bump
+
+*docker-0.6.6 (11 Nov 2013)
+
+  11 Nov 2013; Greg Kroah-Hartman <gregkh@gentoo.org> +docker-0.6.6.ebuild:
+  0.6.6 version bump
+
+*docker-0.6.5 (31 Oct 2013)
+
+  31 Oct 2013; Greg Kroah-Hartman <gregkh@gentoo.org> +docker-0.6.5.ebuild:
+  version bump to 0.6.5
+
+*docker-0.6.3-r1 (05 Oct 2013)
+
+  05 Oct 2013; Greg Kroah-Hartman <gregkh@gentoo.org> +docker-0.6.3-r1.ebuild:
+  add dependancy on app-arch/xz-utils as it is needed
 
 *docker-0.6.3 (25 Sep 2013)
 
