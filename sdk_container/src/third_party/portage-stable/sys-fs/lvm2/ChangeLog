@@ -1,6 +1,187 @@
 # ChangeLog for sys-fs/lvm2
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/lvm2/ChangeLog,v 1.294 2013/01/20 19:49:52 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/lvm2/ChangeLog,v 1.329 2013/11/27 18:50:06 maekke Exp $
+
+  27 Nov 2013; Markus Meier <maekke@gentoo.org> lvm2-2.02.103.ebuild:
+  arm stable, bug #486278
+
+  20 Nov 2013; Doug Goldstein <cardoe@gentoo.org> metadata.xml:
+  remove myself from maintainers since I haven't been involved in quite some
+  time
+
+*lvm2-2.02.104 (19 Nov 2013)
+
+  19 Nov 2013; Samuli Suominen <ssuominen@gentoo.org> +lvm2-2.02.104.ebuild:
+  Version bump (and make sure to pull in thin-provisioning-tools version that
+  doesn't pull in ruby by default)
+
+  13 Nov 2013; Chema Alonso <nimiux@gentoo.org> lvm2-2.02.103.ebuild:
+  Stable for amd64 wrt bug #486278
+
+  25 Oct 2013; Jeroen Roovers <jer@gentoo.org> lvm2-2.02.103.ebuild:
+  Stable for HPPA (bug #486278).
+
+  05 Oct 2013; Samuli Suominen <ssuominen@gentoo.org>
+  -files/lvm2-2.02.100-ignored_loop.patch, -files/lvm2-2.02.100-lvm_path.patch,
+  -files/lvm2-2.02.100-pvmove_segfault.patch,
+  -files/lvm2-2.02.100-respect_ar_and_cc.patch,
+  -files/lvm2-2.02.100-vg_free_segfault.patch, -files/lvm2-2.02.102-do-not-insta
+  ll-separate-command-symlink-for-lvm-devtypes.patch,
+  -files/lvm2-2.02.99-fix-mda-offset-size-overflow-4g-with-lvmetad.patch,
+  -files/lvm2-2.02.99-selinux-static.patch, -lvm2-2.02.100-r1.ebuild,
+  -lvm2-2.02.100-r2.ebuild, -lvm2-2.02.102.ebuild, -lvm2-2.02.99-r2.ebuild:
+  old
+
+*lvm2-2.02.103 (05 Oct 2013)
+
+  05 Oct 2013; Samuli Suominen <ssuominen@gentoo.org> +lvm2-2.02.103.ebuild:
+  Version bump.
+
+*lvm2-2.02.102 (27 Sep 2013)
+
+  27 Sep 2013; Samuli Suominen <ssuominen@gentoo.org> +files/lvm2-2.02.102-do-no
+  t-install-separate-command-symlink-for-lvm-devtypes.patch,
+  +lvm2-2.02.102.ebuild:
+  Version bump.
+
+  15 Sep 2013; Jory Pratt <anarchy@gentoo.org>
+  files/lvm2-2.02.100-selinux_and_udev_static.patch:
+  Fix busted selinux patch, need to subst SELINUX_STATIC_LIBS
+
+*lvm2-2.02.100-r2 (14 Sep 2013)
+
+  14 Sep 2013; Mike Gilbert <floppym@gentoo.org> +lvm2-2.02.100-r2.ebuild,
+  lvm2-2.02.100-r1.ebuild:
+  Restore --sbindir to work around broken @sbindir@ usage, bug 484752.
+
+*lvm2-2.02.100-r1 (14 Sep 2013)
+
+  14 Sep 2013; Mike Gilbert <floppym@gentoo.org> +lvm2-2.02.100-r1.ebuild,
+  -lvm2-2.02.100.ebuild:
+  Pass --exec-prefix to configure, bug 484752 by Alexander Tsoy.
+
+  14 Sep 2013; Pacho Ramos <pacho@gentoo.org> lvm2-2.02.100.ebuild:
+  Fix DEPEND on thin-provisioning-tools (#484722 by Alexander Tsoy)
+
+*lvm2-2.02.100 (12 Sep 2013)
+
+  12 Sep 2013; Samuli Suominen <ssuominen@gentoo.org> +lvm2-2.02.100.ebuild,
+  +files/lvm2-2.02.100-ignored_loop.patch, +files/lvm2-2.02.100-lvm_path.patch,
+  +files/lvm2-2.02.100-pvmove_segfault.patch,
+  +files/lvm2-2.02.100-respect_ar_and_cc.patch,
+  +files/lvm2-2.02.100-selinux_and_udev_static.patch,
+  +files/lvm2-2.02.100-vg_free_segfault.patch:
+  Version bump wrt #481154 by Alexander Tsoy. Respect CFLAGS wrt #480212 by
+  removing forced -O2 optimization flag. Backport two fixes from upstream
+  preventing segmentation fault. Backport fix from upstream for ignored loop
+  devices. Replace hardcoding sed for systemd activation generator with
+  upstream patch. Refresh -respect-cc.patch, -selinux-static.patch,
+  -udev-static.patch since they didn't apply anymore.
+
+  14 Aug 2013; Samuli Suominen <ssuominen@gentoo.org>
+  -files/lvm2-2.02.95-udev185.patch, -lvm2-2.02.98.ebuild,
+  -lvm2-2.02.99-r1.ebuild, -lvm2-2.02.99.ebuild:
+  old
+
+*lvm2-2.02.99-r2 (14 Aug 2013)
+
+  14 Aug 2013; Samuli Suominen <ssuominen@gentoo.org>
+  +files/lvm2-2.02.99-fix-mda-offset-size-overflow-4g-with-lvmetad.patch,
+  +lvm2-2.02.99-r2.ebuild:
+  Upstream patch for "Fix metadata area offset/size overflow if it's >= 4g and
+  while using lvmetad."
+
+  07 Aug 2013; Samuli Suominen <ssuominen@gentoo.org> lvm2-2.02.99-r1.ebuild:
+  Include check for value of UEVENT_HELPER_PATH wrt #479756 by Alexander Tsoy.
+  Remove useless warning about USE="-static" and sys-kernel/genkernel which now
+  works with dynamic libraries since version 3.4.30.
+
+  06 Aug 2013; Ian Stakenvicius <axs@gentoo.org>
+  +files/lvm2-2.02.97-selinux-static.patch,
+  +files/lvm2-2.02.99-selinux-static.patch, lvm2-2.02.97-r1.ebuild,
+  lvm2-2.02.98.ebuild, lvm2-2.02.99-r1.ebuild, lvm2-2.02.99.ebuild:
+  fixed compile error when building with USE='static selinux', bug 439414
+
+*lvm2-2.02.99-r1 (04 Aug 2013)
+
+  04 Aug 2013; Samuli Suominen <ssuominen@gentoo.org> +lvm2-2.02.99-r1.ebuild,
+  metadata.xml:
+  Create USE="lvm2create_initrd" and pull in sys-apps/makedev when required wrt
+  #401933 by Scott Alfter. The correct path to the lvm command is /sbin instead
+  of /usr/sbin wrt #479626 by Alexander Tsoy. Correct /run directory of
+  dmeventd wrt #479632 by Alexander Tsoy.
+
+  02 Aug 2013; Samuli Suominen <ssuominen@gentoo.org> lvm2-2.02.99.ebuild:
+  Revert last modification as useless wrt #479520#c6. Thanks to Michał Górny.
+
+  02 Aug 2013; Samuli Suominen <ssuominen@gentoo.org> lvm2-2.02.99.ebuild:
+  Set QA_MULTILIB_PATHS wrt #479520 by Andrey Ovcharov
+
+  02 Aug 2013; Samuli Suominen <ssuominen@gentoo.org> lvm2-2.02.99.ebuild:
+  Pass --with-default-pid-dir=/run and build lvm2_activation_generator_systemd
+  _red_hat wrt #453594 by Alexander Tsoy
+
+  01 Aug 2013; Samuli Suominen <ssuominen@gentoo.org> -lvm2-2.02.95-r4.ebuild,
+  -lvm2-2.02.97.ebuild:
+  old
+
+*lvm2-2.02.99 (01 Aug 2013)
+
+  01 Aug 2013; Samuli Suominen <ssuominen@gentoo.org> +lvm2-2.02.99.ebuild,
+  +files/lvm2-2.02.99-example.conf.in.patch,
+  +files/lvm2-2.02.99-locale-muck.patch:
+  Version bump wrt #478452. Include upstream systemd files wrt #453594 by
+  Enrico Tagliavini. Install libdaemonclient.a with USE="static-libs" wrt
+  #462908 by Oleksii Shevchuk.
+
+  01 Aug 2013; Ian Stakenvicius <axs@gentoo.org>
+  +files/lvm2-2.02.97-udev-static.patch, lvm2-2.02.97-r1.ebuild,
+  lvm2-2.02.98.ebuild:
+  fixed compile error when building with USE='static udev', bug 370217
+
+  19 Jun 2013; Lars Wendler <polynomial-c@gentoo.org> lvm2-2.02.95-r4.ebuild,
+  lvm2-2.02.97.ebuild, lvm2-2.02.97-r1.ebuild, lvm2-2.02.98.ebuild:
+  non-maintainer commit: Fixed dependency for static builds with "-udev" USE
+  flag (bug #448790).
+
+  05 Jun 2013; Mike Frysinger <vapier@gentoo.org> metadata.xml:
+  Add upstream CPE tag (security info) from ChromiumOS.
+
+  23 May 2013; Ian Stakenvicius <axs@gentoo.org> lvm2-2.02.95-r4.ebuild,
+  lvm2-2.02.97-r1.ebuild, lvm2-2.02.97.ebuild, lvm2-2.02.98.ebuild:
+  require static-libs from virtual/udev so that rdeps of lvm[static-libs] will
+  build, bug 466282
+
+  09 Apr 2013; Samuli Suominen <ssuominen@gentoo.org> metadata.xml:
+  Revert adding proxy-maintainers to metadata.xml since it's only upstream
+  there for reading bugmail. Remove unused USE description for "nolvmstatic".
+
+  09 Apr 2013; Samuli Suominen <ssuominen@gentoo.org>
+  -files/1.02.22-dmeventd.initd, -files/device-mapper.rc-1.02.51-r2,
+  -lvm2-2.01.13.ebuild, -files/lvm.rc-2.02.51-r2,
+  -files/lvm2-2.02.64-dmeventd-libs.patch, -files/device-mapper.rc-2.02.67-r1,
+  -files/lvm.rc-2.02.67-r1, -files/lvm2-stop.sh-2.02.67-r1,
+  -lvm2-2.02.67-r2.ebuild, -files/lvm2-2.02.70-locale-muck.patch,
+  -files/lvm2-2.02.72-dynamic-static-ldflags.patch, -lvm2-2.02.73.ebuild,
+  -lvm2-2.02.73-r1.ebuild, -files/lvm2-2.02.73-asneeded.patch,
+  -files/lvm2-2.02.73-locale-muck.patch,
+  -files/lvm2-2.02.84-udev-pkgconfig.patch, -lvm2-2.02.88.ebuild,
+  -files/dm-start.sh, -files/lvm2-start.sh, -files/lvm2-start.sh-2.02.49-r3,
+  -files/lvm2-start.sh-2.02.67-r1, -files/lvm2-start.sh-2.02.95,
+  -files/lvm2-stop.sh, -files/lvm2-stop.sh-2.02.49-r3:
+  old
+
+  17 Mar 2013; Markos Chandras <hwoarang@gentoo.org> metadata.xml:
+  Add proxy-maintainers to metadata.xml
+
+  24 Feb 2013; Agostino Sarubbo <ago@gentoo.org> lvm2-2.02.97-r1.ebuild:
+  Stable for sh, wrt bug #435076
+
+  20 Feb 2013; Agostino Sarubbo <ago@gentoo.org> lvm2-2.02.97-r1.ebuild:
+  Stable for s390, wrt bug #435076
+
+  08 Feb 2013; Jeroen Roovers <jer@gentoo.org> lvm2-2.02.97-r1.ebuild:
+  Stable for HPPA (bug #435076).
 
   20 Jan 2013; Agostino Sarubbo <ago@gentoo.org> lvm2-2.02.97-r1.ebuild:
   Stable for x86, wrt bug #435076
