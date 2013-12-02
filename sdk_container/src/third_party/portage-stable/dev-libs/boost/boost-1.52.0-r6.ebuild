@@ -1,9 +1,9 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/boost/boost-1.52.0-r5.ebuild,v 1.1 2012/12/15 14:45:27 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/boost/boost-1.52.0-r6.ebuild,v 1.12 2013/09/26 17:28:22 ago Exp $
 
 EAPI="5"
-PYTHON_COMPAT=( python{2_5,2_6,2_7,3_1,3_2,3_3} )
+PYTHON_COMPAT=( python{2_6,2_7,3_2,3_3} )
 
 inherit eutils flag-o-matic multilib multiprocessing python-r1 toolchain-funcs versionator
 
@@ -14,19 +14,20 @@ HOMEPAGE="http://www.boost.org/"
 SRC_URI="mirror://sourceforge/boost/${MY_P}.tar.bz2"
 
 LICENSE="Boost-1.0"
-SLOT=0
 MAJOR_V="$(get_version_component_range 1-2)"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd"
+SLOT="0/${MAJOR_V}"
+KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 ~s390 ~sh ~sparc x86 ~amd64-fbsd ~x86-fbsd"
 IUSE="debug doc icu +nls mpi python static-libs +threads tools"
 
 RDEPEND="icu? ( >=dev-libs/icu-3.6:= )
 	!icu? ( virtual/libiconv )
 	mpi? ( || ( sys-cluster/openmpi[cxx] sys-cluster/mpich2[cxx,threads] ) )
 	python? ( ${PYTHON_DEPS} )
+	app-arch/bzip2
 	sys-libs/zlib
 	!app-admin/eselect-boost"
 DEPEND="${RDEPEND}
-	=dev-util/boost-build-${MAJOR_V}*"
+	=dev-util/boost-build-1.52.0-r1"
 
 S=${WORKDIR}/${MY_P}
 
@@ -69,7 +70,8 @@ src_prepare() {
 		"${FILESDIR}/${PN}-1.48.0-python_linking.patch" \
 		"${FILESDIR}/${PN}-1.48.0-disable_icu_rpath.patch" \
 		"${FILESDIR}/remove-toolset-1.48.0.patch" \
-		"${FILESDIR}/${PN}-1.52.0-tuple.patch"
+		"${FILESDIR}/${PN}-1.52.0-tuple.patch" \
+		"${FILESDIR}/${P}-locale-utf.patch"
 
 	# Avoid a patch for now
 	for file in libs/context/src/asm/*.S; do
