@@ -1,6 +1,131 @@
 # ChangeLog for sys-kernel/linux-firmware
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-kernel/linux-firmware/ChangeLog,v 1.59 2013/01/01 13:18:30 chithanh Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-kernel/linux-firmware/ChangeLog,v 1.88 2013/09/26 17:27:12 ago Exp $
+
+  26 Sep 2013; Agostino Sarubbo <ago@gentoo.org> linux-firmware-20130728.ebuild:
+  Stable for arm, wrt bug #485376
+
+  25 Sep 2013; Agostino Sarubbo <ago@gentoo.org> linux-firmware-20130728.ebuild:
+  Stable for ppc, wrt bug #485376
+
+  23 Sep 2013; Agostino Sarubbo <ago@gentoo.org> linux-firmware-20130728.ebuild:
+  Stable for sparc, wrt bug #485376
+
+  23 Sep 2013; Agostino Sarubbo <ago@gentoo.org> linux-firmware-20130728.ebuild:
+  Stable for ppc64, wrt bug #485376
+
+  23 Sep 2013; Agostino Sarubbo <ago@gentoo.org> linux-firmware-20130728.ebuild:
+  Stable for alpha, wrt bug #485376
+
+  22 Sep 2013; Agostino Sarubbo <ago@gentoo.org> linux-firmware-20130728.ebuild:
+  Stable for x86, wrt bug #485376
+
+  21 Sep 2013; Agostino Sarubbo <ago@gentoo.org> linux-firmware-20130728.ebuild:
+  Stable for amd64, wrt bug #485376
+
+  19 Sep 2013; Jeroen Roovers <jer@gentoo.org> linux-firmware-20130728.ebuild:
+  Stable for HPPA (bug #485376).
+
+  05 Sep 2013; Mike Frysinger <vapier@gentoo.org>
+  linux-firmware-20130728.ebuild, linux-firmware-99999999.ebuild:
+  Add s390/sh/sparc love #457082.
+
+*linux-firmware-20130728 (29 Jul 2013)
+
+  29 Jul 2013; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  +linux-firmware-20130728.ebuild:
+  New snapshot.
+
+*linux-firmware-20130711 (17 Jul 2013)
+
+  17 Jul 2013; Rick Farina <zerochaos@gentoo.org>
+  +linux-firmware-20130711.ebuild, linux-firmware-99999999.ebuild:
+  linux-firmware git now includes amd-ucode, add blocker and new snapshot
+
+  26 Jun 2013; Agostino Sarubbo <ago@gentoo.org> linux-firmware-20130421.ebuild:
+  Stable for arm, wrt bug #473732
+
+  26 Jun 2013; Agostino Sarubbo <ago@gentoo.org> linux-firmware-20130421.ebuild:
+  Stable for ia64, wrt bug #473732
+
+  26 Jun 2013; Agostino Sarubbo <ago@gentoo.org> linux-firmware-20130421.ebuild:
+  Stable for alpha, wrt bug #473732
+
+  25 Jun 2013; Agostino Sarubbo <ago@gentoo.org> linux-firmware-20130421.ebuild:
+  Stable for amd64, wrt bug #473732
+
+  25 Jun 2013; Agostino Sarubbo <ago@gentoo.org> linux-firmware-20130421.ebuild:
+  Stable for x86, wrt bug #473732
+
+  25 Jun 2013; Agostino Sarubbo <ago@gentoo.org> linux-firmware-20130421.ebuild:
+  Stable for ppc64, wrt bug #473732
+
+  24 Jun 2013; Rick Farina <zerochaos@gentoo.org>
+  linux-firmware-20120719.ebuild, linux-firmware-20120816.ebuild,
+  linux-firmware-20120909.ebuild, linux-firmware-20120924.ebuild,
+  linux-firmware-20121030.ebuild, linux-firmware-20121225.ebuild,
+  linux-firmware-20130113.ebuild, linux-firmware-20130421.ebuild,
+  linux-firmware-20130530.ebuild, linux-firmware-99999999.ebuild:
+  adjust blockers as noted in bug #474130
+
+  24 Jun 2013; Agostino Sarubbo <ago@gentoo.org> linux-firmware-20130421.ebuild:
+  Stable for ppc, wrt bug #473732
+
+  19 Jun 2013; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  linux-firmware-20130421.ebuild, linux-firmware-20130530.ebuild,
+  linux-firmware-99999999.ebuild:
+  Add blockers against alsa-firmware[alsa_cards_ca0132], bug #473784.
+
+  18 Jun 2013; Jeroen Roovers <jer@gentoo.org> linux-firmware-20130421.ebuild:
+  Stable for HPPA (bug #473732).
+
+*linux-firmware-20130530 (18 Jun 2013)
+
+  18 Jun 2013; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  +linux-firmware-20130530.ebuild:
+  New snapshot.
+
+  14 May 2013; Anthony G. Basile <blueness@gentoo.org>
+  linux-firmware-20130421.ebuild, linux-firmware-99999999.ebuild:
+  Keywork ~ppc ~ppc64, bug #457082
+
+  11 May 2013; Matt Turner <mattst88@gentoo.org> linux-firmware-20130421.ebuild,
+  linux-firmware-99999999.ebuild:
+  Added ~alpha and ~mips, bug 457082.
+
+*linux-firmware-20130421 (21 Apr 2013)
+
+  21 Apr 2013; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  +linux-firmware-20130421.ebuild, linux-firmware-99999999.ebuild:
+  New snapshot.
+
+  16 Apr 2013; Samuli Suominen <ssuominen@gentoo.org>
+  linux-firmware-20120719.ebuild, linux-firmware-20120816.ebuild,
+  linux-firmware-20120909.ebuild, linux-firmware-20120924.ebuild,
+  linux-firmware-20121030.ebuild, linux-firmware-20121225.ebuild,
+  linux-firmware-20130113.ebuild, linux-firmware-99999999.ebuild:
+  Update dependencies for the alsa-firmware move from media-sound category to
+  sys-firmware category.
+
+  14 Feb 2013; Jeroen Roovers <jer@gentoo.org> linux-firmware-20120719.ebuild,
+  linux-firmware-20120816.ebuild, linux-firmware-20120909.ebuild,
+  linux-firmware-20120924.ebuild, linux-firmware-20121030.ebuild,
+  linux-firmware-20121225.ebuild, linux-firmware-20130113.ebuild:
+  Add HPPA keywording (bug #457082).
+
+  11 Feb 2013; Samuli Suominen <ssuominen@gentoo.org>
+  linux-firmware-20120719.ebuild, linux-firmware-20120816.ebuild,
+  linux-firmware-20120909.ebuild, linux-firmware-20120924.ebuild,
+  linux-firmware-20121030.ebuild, linux-firmware-20121225.ebuild,
+  linux-firmware-20130113.ebuild, linux-firmware-99999999.ebuild:
+  Block only old revision of ivtv-firmware for the v4l-cx25840.fw file
+  collision wrt #362361
+
+*linux-firmware-20130113 (06 Feb 2013)
+
+  06 Feb 2013; Rick Farina <zerochaos@gentoo.org>
+  +linux-firmware-20130113.ebuild, linux-firmware-99999999.ebuild, metadata.xml:
+  new snapshot and bump eapi for fun
 
 *linux-firmware-20121225 (01 Jan 2013)
 
