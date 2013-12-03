@@ -101,6 +101,8 @@ src_compile() {
 	export GOPATH="$GOPATH:$(pwd -P)/vendor"
 
 	# time to build!
+	export CGO_CFLAGS="-I${ROOT}/usr/include"
+	export CGO_LDFLAGS="-L${ROOT}/usr/lib"
 	./hack/make.sh dynbinary || die
 
 	if use doc; then
