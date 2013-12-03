@@ -1,6 +1,61 @@
 # ChangeLog for sys-kernel/linux-headers
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-kernel/linux-headers/ChangeLog,v 1.385 2013/06/09 23:05:10 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-kernel/linux-headers/ChangeLog,v 1.401 2013/11/26 22:03:07 vapier Exp $
+
+*linux-headers-3.12 (26 Nov 2013)
+
+  26 Nov 2013; Mike Frysinger <vapier@gentoo.org> +linux-headers-3.12.ebuild:
+  Version bump.
+
+  06 Sep 2013; Agostino Sarubbo <ago@gentoo.org> linux-headers-3.9.ebuild:
+  Stable for sparc, wrt bug #470648
+
+  05 Sep 2013; Agostino Sarubbo <ago@gentoo.org> linux-headers-3.9.ebuild:
+  Stable for x86, wrt bug #470648
+
+  05 Sep 2013; Agostino Sarubbo <ago@gentoo.org> linux-headers-3.9.ebuild:
+  Stable for ppc64, wrt bug #470648
+
+  04 Sep 2013; Agostino Sarubbo <ago@gentoo.org> linux-headers-3.9.ebuild:
+  Stable for ppc, wrt bug #470648
+
+  03 Sep 2013; Zac Medico <zmedico@gentoo.org> linux-headers-3.10.ebuild,
+  linux-headers-3.11.ebuild, linux-headers-3.9.ebuild:
+  Move blockers from DEPEND to RDEPEND
+
+  03 Sep 2013; Agostino Sarubbo <ago@gentoo.org> linux-headers-3.9.ebuild:
+  Stable for ia64, wrt bug #470648
+
+*linux-headers-3.11 (03 Sep 2013)
+
+  03 Sep 2013; Mike Frysinger <vapier@gentoo.org> +linux-headers-3.11.ebuild:
+  Version bump.
+
+  02 Sep 2013; Rick Farina <zerochaos@gentoo.org> linux-headers-3.9.ebuild:
+  added a blocker to ease transition from alsa-headers to linux-headers
+
+  01 Sep 2013; Agostino Sarubbo <ago@gentoo.org> linux-headers-3.9.ebuild:
+  Stable for alpha, wrt bug #470648
+
+  31 Aug 2013; Agostino Sarubbo <ago@gentoo.org> linux-headers-3.9.ebuild:
+  Stable for arm, wrt bug #470648
+
+  31 Aug 2013; Agostino Sarubbo <ago@gentoo.org> linux-headers-3.9.ebuild:
+  Stable for amd64, wrt bug #470648
+
+  25 Aug 2013; Jeroen Roovers <jer@gentoo.org> linux-headers-3.9.ebuild:
+  Stable for HPPA (bug #470648).
+
+  17 Aug 2013; Patrick Lauer <patrick@gentoo.org> linux-headers-3.10.ebuild:
+  Fix alsa-headers block
+
+  17 Aug 2013; Patrick Lauer <patrick@gentoo.org> linux-headers-3.10.ebuild:
+  Add blocker for alsa-headers to avoid file collisions
+
+*linux-headers-3.10 (16 Aug 2013)
+
+  16 Aug 2013; Mike Frysinger <vapier@gentoo.org> +linux-headers-3.10.ebuild:
+  Version bump.
 
   09 Jun 2013; Mike Frysinger <vapier@gentoo.org> metadata.xml:
   Add upstream CPE tag (security info) from ChromiumOS.
