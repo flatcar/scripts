@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-vcs/git/git-9999.ebuild,v 1.48 2013/10/20 20:11:50 grobian Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-vcs/git/git-1.8.3.2-r1.ebuild,v 1.6 2013/11/09 15:49:15 pacho Exp $
 
 EAPI=5
 
@@ -32,7 +32,7 @@ if [[ ${PV} != *9999 ]]; then
 			${SRC_URI_KORG}/${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 			${SRC_URI_GOOG}/${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 			)"
-	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	KEYWORDS="alpha amd64 ~arm hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 else
 	SRC_URI=""
 	KEYWORDS=""
@@ -220,15 +220,15 @@ src_unpack() {
 
 src_prepare() {
 	# bug #350330 - automagic CVS when we don't want it is bad.
-	epatch "${FILESDIR}"/git-1.8.4-optional-cvs.patch
+	epatch "${FILESDIR}"/git-1.8.2-optional-cvs.patch
 
 	sed -i \
-		-e 's:^\(CFLAGS[[:space:]]*=\).*$:\1 $(OPTCFLAGS) -Wall:' \
-		-e 's:^\(LDFLAGS[[:space:]]*=\).*$:\1 $(OPTLDFLAGS):' \
-		-e 's:^\(CC[[:space:]]* =\).*$:\1$(OPTCC):' \
-		-e 's:^\(AR[[:space:]]* =\).*$:\1$(OPTAR):' \
-		-e "s:\(PYTHON_PATH[[:space:]]\+=[[:space:]]\+\)\(.*\)$:\1${EPREFIX}\2:" \
-		-e "s:\(PERL_PATH[[:space:]]\+=[[:space:]]\+\)\(.*\)$:\1${EPREFIX}\2:" \
+		-e 's:^\(CFLAGS =\).*$:\1 $(OPTCFLAGS) -Wall:' \
+		-e 's:^\(LDFLAGS =\).*$:\1 $(OPTLDFLAGS):' \
+		-e 's:^\(CC = \).*$:\1$(OPTCC):' \
+		-e 's:^\(AR = \).*$:\1$(OPTAR):' \
+		-e "s:\(PYTHON_PATH = \)\(.*\)$:\1${EPREFIX}\2:" \
+		-e "s:\(PERL_PATH = \)\(.*\)$:\1${EPREFIX}\2:" \
 		Makefile contrib/svn-fe/Makefile || die "sed failed"
 
 	# Never install the private copy of Error.pm (bug #296310)
@@ -237,7 +237,7 @@ src_prepare() {
 		perl/Makefile.PL
 
 	# Fix docbook2texi command
-	sed -r -i 's/DOCBOOK2X_TEXI[[:space:]]*=[[:space:]]*docbook2x-texi/DOCBOOK2X_TEXI = docbook2texi.pl/' \
+	sed -i 's/DOCBOOK2X_TEXI=docbook2x-texi/DOCBOOK2X_TEXI=docbook2texi.pl/' \
 		Documentation/Makefile || die "sed failed"
 
 	# Fix git-subtree missing DESTDIR
@@ -403,11 +403,6 @@ src_install() {
 	doexe contrib/git-jump/git-jump
 	newdoc contrib/git-jump/README git-jump.txt
 
-	# git-contacts
-	exeinto /usr/libexec/git-core/
-	doexe contrib/contacts/git-contacts
-	dodoc contrib/contacts/git-contacts.txt
-
 	if use gnome-keyring ; then
 		cd "${S}"/contrib/credential/gnome-keyring
 		dobin git-credential-gnome-keyring
@@ -446,7 +441,7 @@ src_install() {
 	# svnimport - use git-svn
 	# thunderbird-patch-inline - fixes thunderbird
 	for i in \
-		buildsystems ciabot convert-objects fast-import \
+		blameview buildsystems ciabot continuous convert-objects fast-import \
 		hg-to-git hooks remotes2config.sh rerere-train.sh \
 		stats vim workdir \
 		; do
