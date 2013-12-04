@@ -10,6 +10,10 @@
 	<email>chithanh@gentoo.org</email>
 	<name>Chí-Thanh Christopher Nguyễn</name>
 </maintainer>
+<maintainer>
+	<email>zerochaos@gentoo.org</email>
+	<name>Rick Farina</name>
+</maintainer>
 <use>
 	<flag name='savedconfig'>Allows individual selection of firmware files</flag>
 </use>

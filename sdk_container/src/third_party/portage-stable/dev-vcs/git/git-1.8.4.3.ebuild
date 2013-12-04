@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-vcs/git/git-9999.ebuild,v 1.48 2013/10/20 20:11:50 grobian Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-vcs/git/git-1.8.4.3.ebuild,v 1.1 2013/11/09 01:46:19 robbat2 Exp $
 
 EAPI=5
 

@@ -1,34 +1,36 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-kernel/linux-firmware/linux-firmware-20120909.ebuild,v 1.2 2012/10/03 20:45:59 chithanh Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-kernel/linux-firmware/linux-firmware-20130711.ebuild,v 1.1 2013/07/17 02:25:53 zerochaos Exp $
 
-EAPI=4
+EAPI=5
 inherit savedconfig
 
 if [[ ${PV} == 99999999* ]]; then
 	inherit git-2
 	SRC_URI=""
 	EGIT_REPO_URI="git://git.kernel.org/pub/scm/linux/kernel/git/firmware/${PN}.git"
+	KEYWORDS=""
 else
-	SRC_URI="mirror://gentoo/${P}.tar.xz"
+	SRC_URI="https://dev.gentoo.org/~zerochaos/distfiles/${P}.tar.xz"
+	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~x86"
 fi
 
 DESCRIPTION="Linux firmware files"
 HOMEPAGE="http://git.kernel.org/?p=linux/kernel/git/firmware/linux-firmware.git"
 
 LICENSE="GPL-1 GPL-2 GPL-3 BSD freedist"
-KEYWORDS="~amd64 ~arm ~ia64 ~x86"
 SLOT="0"
 IUSE="savedconfig"
 
 DEPEND=""
 RDEPEND="!savedconfig? (
-		!media-sound/alsa-firmware[alsa_cards_korg1212]
-		!media-sound/alsa-firmware[alsa_cards_maestro3]
-		!media-sound/alsa-firmware[alsa_cards_sb16]
-		!media-sound/alsa-firmware[alsa_cards_ymfpci]
+		!sys-firmware/alsa-firmware[alsa_cards_ca0132]
+		!sys-firmware/alsa-firmware[alsa_cards_korg1212]
+		!sys-firmware/alsa-firmware[alsa_cards_maestro3]
+		!sys-firmware/alsa-firmware[alsa_cards_sb16]
+		!sys-firmware/alsa-firmware[alsa_cards_ymfpci]
 		!media-tv/cx18-firmware
-		!media-tv/ivtv-firmware
+		!<sys-firmware/ivtv-firmware-20080701-r1
 		!media-tv/linuxtv-dvb-firmware[dvb_cards_cx231xx]
 		!media-tv/linuxtv-dvb-firmware[dvb_cards_cx23885]
 		!media-tv/linuxtv-dvb-firmware[dvb_cards_usb-dib0700]
@@ -37,11 +39,12 @@ RDEPEND="!savedconfig? (
 		!net-wireless/ar9271-firmware
 		!net-wireless/i2400m-fw
 		!net-wireless/libertas-firmware
-		!net-wireless/rt61-firmware
+		!sys-firmware/rt61-firmware
 		!net-wireless/rt73-firmware
 		!net-wireless/rt2860-firmware
 		!net-wireless/rt2870-firmware
 		!sys-block/qla-fc-firmware
+		!sys-firmware/amd-ucode
 		!sys-firmware/iwl1000-ucode
 		!sys-firmware/iwl2000-ucode
 		!sys-firmware/iwl2030-ucode
@@ -63,7 +66,7 @@ src_unpack() {
 	else
 		default
 		# rename directory from git snapshot tarball
-		mv ${PN}-*/ ${P} || die
+		#mv ${PN}-*/ ${P} || die #am I the only one that makes these manually?
 	fi
 }
 

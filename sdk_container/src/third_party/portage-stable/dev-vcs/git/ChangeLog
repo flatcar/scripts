@@ -1,6 +1,79 @@
 # ChangeLog for dev-vcs/git
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-vcs/git/ChangeLog,v 1.208 2013/09/28 10:08:18 pacho Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-vcs/git/ChangeLog,v 1.227 2013/11/21 01:04:47 robbat2 Exp $
+
+*git-1.8.4.4 (21 Nov 2013)
+
+  21 Nov 2013; Robin H. Johnson <robbat2@gentoo.org> +git-1.8.4.4.ebuild:
+  Bump.
+
+  09 Nov 2013; Pacho Ramos <pacho@gentoo.org> git-1.8.3.2-r1.ebuild:
+  amd64 stable, bug #480306
+
+*git-1.8.4.3 (09 Nov 2013)
+
+  09 Nov 2013; Robin H. Johnson <robbat2@gentoo.org> +git-1.8.4.3.ebuild:
+  Bump.
+
+  06 Nov 2013; Patrick Lauer <patrick@gentoo.org> git-1.8.3.2-r1.ebuild:
+  Un-stabling for amd64 as dependencies are not ready
+
+  05 Nov 2013; Mikle Kolyada <zlogene@gentoo.org> git-1.8.3.2-r1.ebuild:
+  amd64 stable wrt bug #480306
+
+  03 Nov 2013; Matt Turner <mattst88@gentoo.org> git-1.8.3.2-r1.ebuild:
+  alpha stable, bug 480306.
+
+  03 Nov 2013; Matthew Thode <prometheanfire@gentoo.org> metadata.xml:
+  just adding myself to the list of maintianers
+
+  01 Nov 2013; Lars Wendler <polynomial-c@gentoo.org> metadata.xml:
+  Added myself as maintainer.
+
+*git-1.8.4.2 (28 Oct 2013)
+
+  28 Oct 2013; Robin H. Johnson <robbat2@gentoo.org> +git-1.8.4.2.ebuild:
+  Bump.
+
+  20 Oct 2013; Fabian Groffen <grobian@gentoo.org> git-1.8.4.ebuild,
+  git-9999.ebuild:
+  Fix sed expression not to be too greedy, bug #488440
+
+  17 Oct 2013; Jeroen Roovers <jer@gentoo.org> git-1.8.3.2-r1.ebuild:
+  Stable for HPPA (bug #480306).
+
+*git-1.8.3.2-r1 (15 Oct 2013)
+
+  15 Oct 2013; Robin H. Johnson <robbat2@gentoo.org> +git-1.8.3.2-r1.ebuild:
+  Backport fixes for bug #477096: Fix git-remote-bzr file collision & bug
+  #479628: Fix pthread usage to 1.8.3.
+
+*git-1.8.4 (15 Oct 2013)
+
+  15 Oct 2013; Robin H. Johnson <robbat2@gentoo.org>
+  +files/git-1.8.4-optional-cvs.patch, +git-1.8.4.ebuild, git-9999.ebuild:
+  Bug #485844: Bump. Bug #477096: Fix git-remote-bzr file collision. Bug
+  #479628: Fix pthread usage.
+
+  15 Oct 2013; Mikle Kolyada <zlogene@gentoo.org> git-1.8.1.5-r1.ebuild:
+  x86 stable wrt bug #480054
+
+  14 Oct 2013; Tony Vroon <chainsaw@gentoo.org> git-1.8.1.5-r1.ebuild:
+  Marked stable on AMD64 based on arch tester report by Elijah "Armageddon" El
+  Lazkani in bug #480054.
+
+  07 Oct 2013; William Hubbs <williamh@gentoo.org> git-9999.ebuild:
+  sync live ebuild
+
+  07 Oct 2013; Rick Farina <zerochaos@gentoo.org> git-1.8.3.2.ebuild:
+  changing dep to make error message more useful because earlier version of dev-
+  python/pygtksourceview:2 have no []
+
+  06 Oct 2013; Jeroen Roovers <jer@gentoo.org> git-1.8.1.5-r1.ebuild:
+  Stable for HPPA (bug #480054).
+
+  06 Oct 2013; Markus Meier <maekke@gentoo.org> git-1.8.1.5-r1.ebuild:
+  arm stable, bug #480054
 
 *git-1.8.1.5-r1 (28 Sep 2013)
 
