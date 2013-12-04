@@ -1,6 +1,88 @@
 # ChangeLog for dev-libs/boost
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/boost/ChangeLog,v 1.287 2013/01/25 23:04:42 flameeyes Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/boost/ChangeLog,v 1.308 2013/11/30 20:32:19 vapier Exp $
+
+  30 Nov 2013; Mike Frysinger <vapier@gentoo.org>
+  +files/boost-1.55.0-context-x32.patch, boost-1.55.0.ebuild:
+  Fix x32 builds.
+
+  30 Nov 2013; Mike Frysinger <vapier@gentoo.org> boost-1.55.0.ebuild:
+  Drop GNU-stack fix since upstream has it now.
+
+*boost-1.55.0 (14 Nov 2013)
+
+  14 Nov 2013; Sergey Popov <pinkbyte@gentoo.org> +boost-1.55.0.ebuild:
+  Version bump, wrt bug #491064. Change subslot, wrt bug #486122, thanks to
+  Arfrever Frehtes Taifersar Arahesis <arfrever.fta AT gmail.com>
+
+  14 Nov 2013; Sergey Popov <pinkbyte@gentoo.org> boost-1.53.0.ebuild,
+  +files/boost-1.53.0-glibc-2.18-compat.patch, boost-1.54.0.ebuild:
+  Add compatibility with glibc 2.18, wrt bug #482372
+
+  26 Sep 2013; Agostino Sarubbo <ago@gentoo.org> boost-1.52.0-r6.ebuild:
+  Stable for arm, wrt bug #455464
+
+  22 Sep 2013; Agostino Sarubbo <ago@gentoo.org> boost-1.52.0-r6.ebuild:
+  Stable for alpha, wrt bug #455464
+
+  22 Sep 2013; Agostino Sarubbo <ago@gentoo.org> boost-1.52.0-r6.ebuild:
+  Stable for ppc, wrt bug #455464
+
+  22 Sep 2013; Agostino Sarubbo <ago@gentoo.org> boost-1.52.0-r6.ebuild:
+  Stable for ppc64, wrt bug #455464
+
+  22 Sep 2013; Agostino Sarubbo <ago@gentoo.org> boost-1.52.0-r6.ebuild:
+  Stable for ia64, wrt bug #455464
+
+  22 Sep 2013; Agostino Sarubbo <ago@gentoo.org> boost-1.52.0-r6.ebuild:
+  Stable for x86, wrt bug #455464
+
+  14 Sep 2013; Agostino Sarubbo <ago@gentoo.org> boost-1.52.0-r6.ebuild:
+  Stable for amd64, wrt bug #455464
+
+  05 Sep 2013; Michał Górny <mgorny@gentoo.org> boost-1.52.0-r6.ebuild,
+  boost-1.53.0.ebuild, boost-1.54.0.ebuild:
+  Clean up PYTHON_COMPAT from old implementations.
+
+  27 Aug 2013; Sergey Popov <pinkbyte@gentoo.org> boost-1.53.0.ebuild,
+  +files/boost-1.53.0-library_status.patch, boost-1.54.0.ebuild:
+  Fix building with USE='tools', wrt bug #459112
+
+*boost-1.54.0 (27 Aug 2013)
+
+  27 Aug 2013; Sergey Popov <pinkbyte@gentoo.org> +boost-1.54.0.ebuild:
+  Version bump, wrt bug #475712
+
+  25 Aug 2013; Jeroen Roovers <jer@gentoo.org> boost-1.52.0-r6.ebuild:
+  Stable for HPPA (bug #455464).
+
+  10 Jul 2013; Sergey Popov <pinkbyte@gentoo.org> boost-1.49.0-r2.ebuild,
+  boost-1.52.0-r6.ebuild, boost-1.53.0.ebuild:
+  Make app-arch/bzip2 dependency also run-time, wrt bug #469114
+
+  08 Jul 2013; Sergey Popov <pinkbyte@gentoo.org> boost-1.49.0-r2.ebuild,
+  boost-1.52.0-r6.ebuild, boost-1.53.0.ebuild:
+  Add missing build-time dependency on app-arch/bzip2, wrt bug #469114, thanks
+  to Matt Whitlock and Tomáš Pružina
+
+  28 Jun 2013; Sébastien Fabbro <bicatali@gentoo.org> boost-1.53.0.ebuild:
+  Convert a few variables to prefix, keyword amd64-linux and x86-linux
+
+  06 Jun 2013; Mike Gilbert <floppym@gentoo.org> boost-1.53.0.ebuild:
+  Add REQUIRED_USE for python_targets flags.
+
+*boost-1.52.0-r6 (03 Mar 2013)
+
+  03 Mar 2013; Diego E. Pettenò <flameeyes@gentoo.org> +boost-1.52.0-r6.ebuild,
+  +files/boost-1.52.0-locale-utf.patch, -boost-1.52.0-r5.ebuild:
+  Apply security patch for bug #455464; add subslot definition; depend on the
+  -r1 version of boost-build which might fix some build failures.
+
+*boost-1.53.0 (04 Feb 2013)
+
+  04 Feb 2013; Diego E. Pettenò <flameeyes@gentoo.org> +boost-1.53.0.ebuild,
+  -boost-1.53.0_beta1.ebuild:
+  Bump to final 1.53.0 version; add sub-slot.
 
 *boost-1.53.0_beta1 (25 Jan 2013)
 
