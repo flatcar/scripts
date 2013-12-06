@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/files/eblits/common.eblit,v 1.30 2013/06/29 03:22:32 heroxbd Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/files/eblits/common.eblit,v 1.31 2013/10/30 17:04:33 vapier Exp $
 
 alt_prefix() {
 	is_crosscompile && echo /usr/${CTARGET}
@@ -249,9 +249,13 @@ use_multiarch() {
 	local bver nver
 	bver=$($(tc-getLD ${CTARGET}) -v | sed -n -r '1{s:[^0-9]*::;s:^([0-9.]*).*:\1:;p}')
 	case $(tc-arch ${CTARGET}) in
-		amd64|x86) nver="2.20" ;;
-		sparc)     nver="2.21" ;;
-		*)         return 1 ;;
+	amd64|x86) nver="2.20" ;;
+	arm)       nver="2.22" ;;
+	hppa)      nver="2.23" ;;
+	ppc|ppc64) nver="2.20" ;;
+	s390)      nver="2.23" ;;
+	sparc)     nver="2.21" ;;
+	*)         return 1 ;;
 	esac
 	version_is_at_least ${nver} ${bver}
 }

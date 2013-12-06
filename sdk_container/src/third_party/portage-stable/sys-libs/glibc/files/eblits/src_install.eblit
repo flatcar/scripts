@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/files/eblits/src_install.eblit,v 1.31 2013/06/29 03:22:32 heroxbd Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/files/eblits/src_install.eblit,v 1.32 2013/10/06 08:51:11 pacho Exp $
 
 toolchain-glibc_src_install() {
 	local GBUILDDIR
@@ -170,6 +170,11 @@ toolchain-glibc_src_install() {
 		)
 		version_is_at_least 2.16 || nscd_args+=( -e 's: --foreground : :' )
 		sed -i "${nscd_args[@]}" "${ED}"/etc/init.d/nscd
+
+		if [[ $(type -t systemd_dounit) == "function" ]] ; then
+			systemd_dounit "${FILESDIR}"/nscd.service || die
+			systemd_newtmpfilesd "${FILESDIR}"/nscd.tmpfilesd nscd.conf || die
+		fi
 	else
 		# Do this since extra/etc/*.conf above might have nscd.conf.
 		rm -f "${ED}"/etc/nscd.conf

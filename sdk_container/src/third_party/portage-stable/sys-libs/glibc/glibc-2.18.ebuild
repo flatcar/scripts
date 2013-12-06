@@ -1,42 +1,33 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/glibc-2.16.0.ebuild,v 1.29 2013/11/28 18:45:27 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/glibc-2.18.ebuild,v 1.5 2013/11/24 17:46:11 vapier Exp $
 
 inherit eutils versionator toolchain-funcs flag-o-matic gnuconfig multilib systemd unpacker multiprocessing
 
 DESCRIPTION="GNU libc6 (also called glibc2) C library"
 HOMEPAGE="http://www.gnu.org/software/libc/libc.html"
 
-LICENSE="LGPL-2.1+ BSD HPND inner-net"
-KEYWORDS="-alpha amd64 arm -hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc x86"
+LICENSE="LGPL-2.1+ BSD HPND ISC inner-net rc PCRE"
+#KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86"
 RESTRICT="strip" # strip ourself #46186
 EMULTILIB_PKG="true"
 
 # Configuration variables
 RELEASE_VER=""
-BRANCH_UPDATE=""
-SNAP_VER=""
 case ${PV} in
 9999*)
-	EGIT_REPO_URIS=( "git://sourceware.org/git/glibc.git" "git://sourceware.org/git/glibc-ports.git" )
-	EGIT_SOURCEDIRS=( "${S}" "${S}/ports" )
+	EGIT_REPO_URIS="git://sourceware.org/git/glibc.git"
+	EGIT_SOURCEDIRS="${S}"
 	inherit git-2
-	;;
-*_p*)
-	RELEASE_VER=${PV%_p*}
-	SNAP_VER=${PV#*_p}
 	;;
 *)
 	RELEASE_VER=${PV}
 	;;
 esac
-LIBIDN_VER=""                                  # it's integrated into the main tarball now
-PATCH_VER="12"                                 # Gentoo patchset
-PORTS_VER=${RELEASE_VER}                       # version of glibc ports addon
+PATCH_VER="2"                                  # Gentoo patchset
 NPTL_KERN_VER=${NPTL_KERN_VER:-"2.6.16"}       # min kernel version nptl requires
 
-IUSE="debug gd hardened multilib selinux suid systemtap profile vanilla crosscompile_opts_headers-only"
-[[ -n ${RELEASE_VER} ]] && S=${WORKDIR}/glibc-${RELEASE_VER}${SNAP_VER:+-${SNAP_VER}}
+IUSE="debug gd hardened multilib nscd selinux systemtap profile suid vanilla crosscompile_opts_headers-only"
 
 # Here's how the cross-compile logic breaks down ...
 #  CTARGET - machine that will target the binaries
@@ -107,18 +98,8 @@ SRC_URI=$(
 		echo mirror://gentoo/$1 ${devspace//URI/$1}
 	}
 
-	TARNAME=${PN}
-	if [[ -n ${SNAP_VER} ]] ; then
-		TARNAME="${PN}-${RELEASE_VER}"
-		[[ -n ${PORTS_VER} ]] && PORTS_VER=${SNAP_VER}
-		upstream_uris ${TARNAME}-${SNAP_VER}.tar.bz2
-	elif [[ -z ${EGIT_REPO_URIS} ]] ; then
-		upstream_uris ${TARNAME}-${RELEASE_VER}.tar.xz
-	fi
-	[[ -n ${LIBIDN_VER}    ]] && upstream_uris glibc-libidn-${LIBIDN_VER}.tar.bz2
-	[[ -n ${PORTS_VER}     ]] && upstream_uris ${TARNAME}-ports-${PORTS_VER}.tar.xz
-	[[ -n ${BRANCH_UPDATE} ]] && gentoo_uris glibc-${RELEASE_VER}-branch-update-${BRANCH_UPDATE}.patch.bz2
-	[[ -n ${PATCH_VER}     ]] && gentoo_uris glibc-${RELEASE_VER}-patches-${PATCH_VER}.tar.bz2
+	[[ -z ${EGIT_REPO_URIS} ]] && upstream_uris ${P}.tar.xz
+	[[ -n ${PATCH_VER}      ]] && gentoo_uris ${P}-patches-${PATCH_VER}.tar.bz2
 )
 
 # eblit-include [--skip] <function> [version]
@@ -170,18 +151,22 @@ for x in setup {pre,post}inst ; do
 	fi
 done
 
+eblit-src_unpack-pre() {
+	GLIBC_PATCH_EXCLUDE+=" 00_all_0012-mips-add-clock_-g-s-ettime-symbol-compat-hacks.patch" #456912 #481438
+}
+
 eblit-src_unpack-post() {
 	if use hardened ; then
 		cd "${S}"
 		einfo "Patching to get working PIE binaries on PIE (hardened) platforms"
-		gcc-specs-pie && epatch "${FILESDIR}"/2.16/glibc-2.16-hardened-pie.patch
+		gcc-specs-pie && epatch "${FILESDIR}"/2.17/glibc-2.17-hardened-pie.patch
 		epatch "${FILESDIR}"/2.10/glibc-2.10-hardened-configure-picdefault.patch
-		epatch "${FILESDIR}"/2.10/glibc-2.10-hardened-inittls-nosysenter.patch
+		epatch "${FILESDIR}"/2.18/glibc-2.18-hardened-inittls-nosysenter.patch
 
 		einfo "Installing Hardened Gentoo SSP and FORTIFY_SOURCE handler"
-		cp -f "${FILESDIR}"/2.6/glibc-2.6-gentoo-stack_chk_fail.c \
+		cp -f "${FILESDIR}"/2.18/glibc-2.18-gentoo-stack_chk_fail.c \
 			debug/stack_chk_fail.c || die
-		cp -f "${FILESDIR}"/2.10/glibc-2.10-gentoo-chk_fail.c \
+		cp -f "${FILESDIR}"/2.18/glibc-2.18-gentoo-chk_fail.c \
 			debug/chk_fail.c || die
 
 		if use debug ; then

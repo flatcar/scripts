@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/files/eblits/src_compile.eblit,v 1.35 2013/04/05 18:25:21 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/files/eblits/src_compile.eblit,v 1.36 2013/09/30 05:28:25 vapier Exp $
 
 glibc_do_configure() {
 	local myconf=()
@@ -100,8 +100,8 @@ glibc_do_configure() {
 
 	# Overtime, generating info pages can be painful.  So disable this for
 	# versions older than the latest stable to avoid the issue (this ver
-	# should be updated from time to time).  #464394
-	if ! version_is_at_least 2.15 ; then
+	# should be updated from time to time).  #464394 #465816
+	if ! version_is_at_least 2.17 ; then
 		export ac_cv_prog_MAKEINFO=:
 	fi
 
