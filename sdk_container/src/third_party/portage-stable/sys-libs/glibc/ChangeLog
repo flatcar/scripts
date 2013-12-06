@@ -1,6 +1,56 @@
 # ChangeLog for sys-libs/glibc
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/ChangeLog,v 1.944 2013/06/29 03:22:33 heroxbd Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/ChangeLog,v 1.958 2013/11/28 18:45:27 ago Exp $
+
+  28 Nov 2013; Agostino Sarubbo <ago@gentoo.org> glibc-2.16.0.ebuild:
+  Stable for x86, wrt bug #467256
+
+  27 Nov 2013; Markus Meier <maekke@gentoo.org> glibc-2.16.0.ebuild:
+  arm stable, bug #467256
+
+  27 Nov 2013; Agostino Sarubbo <ago@gentoo.org> glibc-2.16.0.ebuild:
+  Stable for amd64, wrt bug #467256
+
+  23 Nov 2013; Mike Frysinger <vapier@gentoo.org> glibc-2.16.0.ebuild,
+  glibc-2.17.ebuild, glibc-2.18.ebuild:
+  Fix crash on alpha #480740. Fix crash on hppa/ia64 w/gcc-4.7 #486618 #486974.
+  Add missing fanotify_mark on hppa #480268. Fix building w/make-4 #487906.
+
+  30 Oct 2013; Mike Frysinger <vapier@gentoo.org> files/eblits/common.eblit:
+  Add ifunc checks for arm/hppa/ppc/s390.
+
+  06 Oct 2013; Pacho Ramos <pacho@gentoo.org> +files/nscd.service,
+  +files/nscd.tmpfilesd, files/eblits/src_install.eblit, glibc-2.16.0.ebuild,
+  glibc-2.17.ebuild, glibc-2.18.ebuild:
+  Add unit file (#479496 by Alexander Tsoy, redneb, Charles Nérot and SpanKY)
+
+  30 Sep 2013; Mike Frysinger <vapier@gentoo.org>
+  files/eblits/src_compile.eblit:
+  Disable info page generation for glibc-2.16 and older #465816 by Nikos
+  Chantziaras.
+
+  28 Sep 2013; Mike Frysinger <vapier@gentoo.org> files/eblits/src_unpack.eblit:
+  Tweak how we check the kernel header version to work w/clang #485146 by eroen.
+
+  11 Sep 2013; Magnus Granberg <zorry@gentoo.org> glibc-2.18.ebuild,
+  +files/2.18/glibc-2.18-gentoo-chk_fail.c,
+  +files/2.18/glibc-2.18-gentoo-stack_chk_fail.c,
+  +files/2.18/glibc-2.18-hardened-inittls-nosysenter.patch:
+  Fix hardened patches for glibc 2.18 bug 483804
+
+  17 Aug 2013; Mike Frysinger <vapier@gentoo.org> glibc-2.18.ebuild:
+  Re-add mips librt patch to exclude list #481438 by Manuel Lauss.
+
+*glibc-2.18 (16 Aug 2013)
+
+  16 Aug 2013; Mike Frysinger <vapier@gentoo.org> +glibc-2.18.ebuild:
+  Version bump.
+
+  16 Aug 2013; Mike Frysinger <vapier@gentoo.org> glibc-2.17.ebuild:
+  Mark as -alpha so that we know it missing is expected.
+
+  12 Aug 2013; Tobias Klausmann <klausman@gentoo.org> glibc-2.17.ebuild:
+  De-keyword glibc-2.17 on alpha due to bug 480740
 
   29 Jun 2013; Benda Xu <heroxbd@gentoo.org> files/eblits/common.eblit,
   files/eblits/pkg_preinst.eblit, files/eblits/pkg_setup.eblit,
