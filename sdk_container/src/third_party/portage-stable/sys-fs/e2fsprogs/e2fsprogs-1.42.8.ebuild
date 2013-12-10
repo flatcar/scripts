@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/e2fsprogs/e2fsprogs-1.42.6.ebuild,v 1.2 2013/02/22 15:43:21 zmedico Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/e2fsprogs/e2fsprogs-1.42.8.ebuild,v 1.1 2013/10/08 12:57:33 chainsaw Exp $
 
 EAPI=3
 

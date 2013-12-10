@@ -1,0 +1,32 @@
+From 266eb87990025e82a8884e30993ce93c00d19db3 Mon Sep 17 00:00:00 2001
+From: Mike Frysinger <vapier@gentoo.org>
+Date: Sat, 4 May 2013 01:00:58 -0400
+Subject: [PATCH] libext2fs: fix return value
+
+The ext2fs_test_block_bitmap_range2 func is not a void, so make sure we
+return a value.  I picked EINVAL as it looks like what other things in
+this func use.
+
+URL: http://bugs.gentoo.org/467986
+Reported-by: Vicente Olivert Riera <vincent@gentoo.org>
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+---
+ lib/ext2fs/gen_bitmap64.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/ext2fs/gen_bitmap64.c b/lib/ext2fs/gen_bitmap64.c
+index 42a97d4..44ac499 100644
+--- a/lib/ext2fs/gen_bitmap64.c
++++ b/lib/ext2fs/gen_bitmap64.c
+@@ -658,7 +658,7 @@ int ext2fs_test_block_bitmap_range2(ext2fs_block_bitmap bmap,
+ 	if ((block < bmap->start) || (block+num-1 > bmap->end)) {
+ 		ext2fs_warn_bitmap(EXT2_ET_BAD_BLOCK_TEST, block,
+ 				   bmap->description);
+-		return;
++		return EINVAL;
+ 	}
+ 
+ 	return bmap->bitmap_ops->test_clear_bmap_extent(bmap, block, num);
+-- 
+1.8.2.1
+

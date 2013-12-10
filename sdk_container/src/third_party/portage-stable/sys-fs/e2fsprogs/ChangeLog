@@ -1,6 +1,60 @@
 # ChangeLog for sys-fs/e2fsprogs
-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/e2fsprogs/ChangeLog,v 1.255 2012/10/07 16:22:17 vapier Exp $
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/e2fsprogs/ChangeLog,v 1.270 2013/10/08 12:57:33 chainsaw Exp $
+
+*e2fsprogs-1.42.8 (08 Oct 2013)
+
+  08 Oct 2013; Tony Vroon <chainsaw@gentoo.org> +e2fsprogs-1.42.8.ebuild:
+  Version bump, as requested by Laurent Bachelier in bug #476670. Stability &
+  safety fixes, including the patch for bug #467986 being applied upstream.
+
+  20 May 2013; Agostino Sarubbo <ago@gentoo.org> e2fsprogs-1.42.7.ebuild:
+  Stable for s390, wrt bug #467008
+
+  07 May 2013; Agostino Sarubbo <ago@gentoo.org> e2fsprogs-1.42.7.ebuild:
+  Stable for ppc64, wrt bug #467008
+
+  07 May 2013; Agostino Sarubbo <ago@gentoo.org> e2fsprogs-1.42.7.ebuild:
+  Stable for ia64, wrt bug #467008
+
+  05 May 2013; Agostino Sarubbo <ago@gentoo.org> e2fsprogs-1.42.7.ebuild:
+  Stable for alpha, wrt bug #467008
+
+  05 May 2013; Agostino Sarubbo <ago@gentoo.org> e2fsprogs-1.42.7.ebuild:
+  Stable for arm, wrt bug #467008
+
+  04 May 2013; Mike Frysinger <vapier@gentoo.org>
+  +files/e2fsprogs-1.42.7-libext2fs-fix-return-value.patch,
+  e2fsprogs-1.42.7.ebuild:
+  Fix return value in gen_bitmap64.c that breaks w/clang #467986 by Vicente
+  Olivert Riera.
+
+  01 May 2013; Agostino Sarubbo <ago@gentoo.org> e2fsprogs-1.42.7.ebuild:
+  Stable for sh, wrt bug #467008
+
+  26 Apr 2013; Agostino Sarubbo <ago@gentoo.org> e2fsprogs-1.42.7.ebuild:
+  Stable for ppc, wrt bug #467008
+
+  26 Apr 2013; Agostino Sarubbo <ago@gentoo.org> e2fsprogs-1.42.7.ebuild:
+  Stable for sparc, wrt bug #467008
+
+  25 Apr 2013; Agostino Sarubbo <ago@gentoo.org> e2fsprogs-1.42.7.ebuild:
+  Stable for x86, wrt bug #467008
+
+  25 Apr 2013; Agostino Sarubbo <ago@gentoo.org> e2fsprogs-1.42.7.ebuild:
+  Stable for amd64, wrt bug #467008
+
+  25 Apr 2013; Jeroen Roovers <jer@gentoo.org> e2fsprogs-1.42.7.ebuild:
+  Stable for HPPA (bug #467008).
+
+*e2fsprogs-1.42.7 (07 Mar 2013)
+
+  07 Mar 2013; Lars Wendler <polynomial-c@gentoo.org> +e2fsprogs-1.42.7.ebuild:
+  Non-maintainer commit: Version bump with kind permission from Chainsaw (bug
+  #454532).
+
+  22 Feb 2013; Zac Medico <zmedico@gentoo.org> e2fsprogs-1.42.6.ebuild:
+  Add ~arm-linux keyword.
 
 *e2fsprogs-1.42.6 (07 Oct 2012)
 

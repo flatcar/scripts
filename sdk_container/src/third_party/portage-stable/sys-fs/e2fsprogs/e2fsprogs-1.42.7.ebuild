@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/e2fsprogs/e2fsprogs-1.42.6.ebuild,v 1.2 2013/02/22 15:43:21 zmedico Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/e2fsprogs/e2fsprogs-1.42.7.ebuild,v 1.13 2013/05/20 17:42:41 ago Exp $
 
 EAPI=3
 
@@ -17,7 +17,7 @@ SRC_URI="mirror://sourceforge/e2fsprogs/${PN}-${UP_PV}.tar.gz"
 
 LICENSE="GPL-2 BSD"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 -x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x86-macos ~m68k-mint"
+KEYWORDS="alpha amd64 arm hppa ia64 ~m68k ~mips ppc ppc64 s390 sh sparc x86 -x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x86-macos ~m68k-mint"
 IUSE="nls static-libs elibc_FreeBSD"
 
 RDEPEND="~sys-libs/${PN}-libs-${PV}
@@ -42,6 +42,7 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-1.41.8-makefile.patch
 	epatch "${FILESDIR}"/${PN}-1.40-fbsd.patch
 	epatch "${FILESDIR}"/${PN}-1.41.12-darwin-makefile.patch
+	epatch "${FILESDIR}"/${PN}-1.42.7-libext2fs-fix-return-value.patch #467986
 	if [[ ${CHOST} == *-mint* ]] ; then
 		epatch "${FILESDIR}"/${PN}-1.41-mint.patch
 		epatch "${FILESDIR}"/${PN}-1.41.12-mint-blkid.patch
