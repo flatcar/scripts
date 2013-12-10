@@ -1,6 +1,60 @@
 # ChangeLog for sys-libs/e2fsprogs-libs
-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/e2fsprogs-libs/ChangeLog,v 1.93 2012/10/07 16:17:39 vapier Exp $
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/e2fsprogs-libs/ChangeLog,v 1.108 2013/10/08 12:55:02 chainsaw Exp $
+
+*e2fsprogs-libs-1.42.8 (08 Oct 2013)
+
+  08 Oct 2013; Tony Vroon <chainsaw@gentoo.org> +e2fsprogs-libs-1.42.8.ebuild:
+  Version bump, as requested by Laurent Bachelier in bug #476670.
+
+*e2fsprogs-libs-1.42.7-r1 (21 Aug 2013)
+
+  21 Aug 2013; Alexis Ballier <aballier@gentoo.org>
+  +e2fsprogs-libs-1.42.7-r1.ebuild:
+  Convert to multilib and stack it for baselibs -r13. Bug #481362.
+
+  20 May 2013; Agostino Sarubbo <ago@gentoo.org> e2fsprogs-libs-1.42.7.ebuild:
+  Stable for s390, wrt bug #467008
+
+  07 May 2013; Agostino Sarubbo <ago@gentoo.org> e2fsprogs-libs-1.42.7.ebuild:
+  Stable for ppc64, wrt bug #467008
+
+  07 May 2013; Agostino Sarubbo <ago@gentoo.org> e2fsprogs-libs-1.42.7.ebuild:
+  Stable for ia64, wrt bug #467008
+
+  05 May 2013; Agostino Sarubbo <ago@gentoo.org> e2fsprogs-libs-1.42.7.ebuild:
+  Stable for alpha, wrt bug #467008
+
+  05 May 2013; Agostino Sarubbo <ago@gentoo.org> e2fsprogs-libs-1.42.7.ebuild:
+  Stable for arm, wrt bug #467008
+
+  01 May 2013; Agostino Sarubbo <ago@gentoo.org> e2fsprogs-libs-1.42.7.ebuild:
+  Stable for sh, wrt bug #467008
+
+  26 Apr 2013; Agostino Sarubbo <ago@gentoo.org> e2fsprogs-libs-1.42.7.ebuild:
+  Stable for ppc, wrt bug #467008
+
+  26 Apr 2013; Agostino Sarubbo <ago@gentoo.org> e2fsprogs-libs-1.42.7.ebuild:
+  Stable for sparc, wrt bug #467008
+
+  25 Apr 2013; Agostino Sarubbo <ago@gentoo.org> e2fsprogs-libs-1.42.7.ebuild:
+  Stable for x86, wrt bug #467008
+
+  25 Apr 2013; Agostino Sarubbo <ago@gentoo.org> e2fsprogs-libs-1.42.7.ebuild:
+  Stable for amd64, wrt bug #467008
+
+  25 Apr 2013; Jeroen Roovers <jer@gentoo.org> e2fsprogs-libs-1.42.7.ebuild:
+  Stable for HPPA (bug #467008).
+
+*e2fsprogs-libs-1.42.7 (07 Mar 2013)
+
+  07 Mar 2013; Lars Wendler <polynomial-c@gentoo.org>
+  +e2fsprogs-libs-1.42.7.ebuild:
+  Non-maintainer commit: Version bump with kind permission from Chainsaw (bug
+  #454532).
+
+  21 Feb 2013; Zac Medico <zmedico@gentoo.org> e2fsprogs-libs-1.42.6.ebuild:
+  Add ~arm-linux keyword.
 
 *e2fsprogs-libs-1.42.6 (07 Oct 2012)
 

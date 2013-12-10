@@ -1,15 +1,15 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/e2fsprogs-libs/e2fsprogs-libs-1.42.6.ebuild,v 1.2 2013/02/21 18:19:43 zmedico Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/e2fsprogs-libs/e2fsprogs-libs-1.42.8.ebuild,v 1.1 2013/10/08 12:55:02 chainsaw Exp $
 
-EAPI="2"
+EAPI="4"
 
 case ${PV} in
 *_pre*) UP_PV="${PV%_pre*}-WIP-${PV#*_pre}" ;;
 *)      UP_PV=${PV} ;;
 esac
 
-inherit toolchain-funcs eutils
+inherit toolchain-funcs eutils multilib-minimal
 
 DESCRIPTION="e2fsprogs libraries (common error and subsystem)"
 HOMEPAGE="http://e2fsprogs.sourceforge.net/"
@@ -22,7 +22,11 @@ IUSE="nls static-libs"
 
 RDEPEND="!sys-libs/com_err
 	!sys-libs/ss
-	!<sys-fs/e2fsprogs-1.41.8"
+	!<sys-fs/e2fsprogs-1.41.8
+	abi_x86_32? (
+		!<=app-emulation/emul-linux-x86-baselibs-20130224-r12
+		!app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)]
+	)"
 DEPEND="nls? ( sys-devel/gettext )
 	virtual/pkgconfig"
 
@@ -32,7 +36,7 @@ src_prepare() {
 	printf 'all:\n%%:;@:\n' > doc/Makefile.in # don't bother with docs #305613
 }
 
-src_configure() {
+multilib_src_configure() {
 	# We want to use the "bsd" libraries while building on Darwin, but while
 	# building on other Gentoo/*BSD we prefer elf-naming scheme.
 	local libtype
@@ -46,6 +50,7 @@ src_configure() {
 	ac_cv_lib_blkid_blkid_get_cache=yes \
 	ac_cv_path_LDCONFIG=: \
 	QUOTA_CMT='#' \
+	ECONF_SOURCE="${S}" \
 	econf \
 		--disable-lib{blkid,uuid} \
 		--disable-quota \
@@ -54,9 +59,9 @@ src_configure() {
 		$(use_enable nls)
 }
 
-src_install() {
+multilib_src_install() {
 	emake STRIP=: DESTDIR="${D}" install || die
-	gen_usr_ldscript -a com_err ss
+	multilib_is_native_abi && gen_usr_ldscript -a com_err ss
 	# configure doesn't have an option to disable static libs :/
-	use static-libs || find "${D}" -name '*.a' -delete
+	use static-libs || find "${ED}" -name '*.a' -delete
 }
