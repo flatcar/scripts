@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/sandbox/sandbox-2.4.ebuild,v 1.12 2013/11/14 21:36:59 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/sandbox/sandbox-1.6-r2.ebuild,v 1.18 2013/11/14 21:36:59 vapier Exp $
 
 #
 # don't monkey with this ebuild unless contacting portage devs.
@@ -11,13 +11,13 @@ inherit eutils flag-o-matic toolchain-funcs multilib unpacker
 
 DESCRIPTION="sandbox'd LD_PRELOAD hack"
 HOMEPAGE="http://www.gentoo.org/proj/en/portage/sandbox/"
-SRC_URI="mirror://gentoo/${P}.tar.xz
-	http://dev.gentoo.org/~vapier/dist/${P}.tar.xz"
+SRC_URI="mirror://gentoo/${P}.tar.lzma
+	http://dev.gentoo.org/~vapier/dist/${P}.tar.lzma"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~sparc-fbsd -x86-fbsd"
-IUSE="multilib"
+IUSE=""
 
 DEPEND="app-arch/xz-utils
 	>=app-misc/pax-utils-0.1.19" #265376
@@ -31,17 +31,23 @@ sandbox_death_notice() {
 	ewarn "FEATURES=-sandbox emerge sandbox"
 }
 
-sb_get_install_abis() { use multilib && get_install_abis || echo ${ABI:-default} ; }
+src_unpack() {
+	unpacker_src_unpack
+	cd "${S}"
+	epatch "${FILESDIR}"/${P}-disable-qa-static.patch
+	epatch "${FILESDIR}"/${P}-disable-pthread.patch
+	epatch "${FILESDIR}"/0001-libsandbox-handle-more-at-functions.patch
+}
 
 src_compile() {
 	filter-lfs-flags #90228
 
 	local OABI=${ABI}
-	for ABI in $(sb_get_install_abis) ; do
+	for ABI in $(get_install_abis) ; do
 		mkdir "${WORKDIR}/build-${ABI}"
 		cd "${WORKDIR}/build-${ABI}"
 
-		use multilib && multilib_toolchain_setup ${ABI}
+		multilib_toolchain_setup ${ABI}
 
 		einfo "Configuring sandbox for ABI=${ABI}..."
 		ECONF_SOURCE="../${P}/" \
@@ -54,7 +60,7 @@ src_compile() {
 
 src_test() {
 	local OABI=${ABI}
-	for ABI in $(sb_get_install_abis) ; do
+	for ABI in $(get_install_abis) ; do
 		cd "${WORKDIR}/build-${ABI}"
 		einfo "Checking sandbox for ABI=${ABI}..."
 		emake check || die "make check failed for ${ABI}"
@@ -64,12 +70,10 @@ src_test() {
 
 src_install() {
 	local OABI=${ABI}
-	for ABI in $(sb_get_install_abis) ; do
+	for ABI in $(get_install_abis) ; do
 		cd "${WORKDIR}/build-${ABI}"
 		einfo "Installing sandbox for ABI=${ABI}..."
 		emake DESTDIR="${D}" install || die "make install failed for ${ABI}"
-		insinto /etc/sandbox.d #333131
-		doins etc/sandbox.d/00default || die
 	done
 	ABI=${OABI}
 
