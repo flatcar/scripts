@@ -1,6 +1,31 @@
 # ChangeLog for sys-libs/e2fsprogs-libs
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/e2fsprogs-libs/ChangeLog,v 1.108 2013/10/08 12:55:02 chainsaw Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/e2fsprogs-libs/ChangeLog,v 1.113 2014/01/18 02:37:17 vapier Exp $
+
+  18 Jan 2014; Mike Frysinger <vapier@gentoo.org> e2fsprogs-libs-1.42.7.ebuild,
+  e2fsprogs-libs-1.42.8.ebuild, e2fsprogs-libs-1.42.9.ebuild:
+  Add arm64 love.
+
+  17 Jan 2014; Christoph Junghans <ottxor@gentoo.org>
+  e2fsprogs-libs-1.42.9.ebuild:
+  added prefix support (bug #498212)
+
+  17 Jan 2014; Mike Frysinger <vapier@gentoo.org> e2fsprogs-libs-1.42.7.ebuild:
+  Mark m68k stable.
+
+  04 Jan 2014; Lars Wendler <polynomial-c@gentoo.org>
+  -e2fsprogs-libs-1.41.12.ebuild, -e2fsprogs-libs-1.41.14.ebuild,
+  -e2fsprogs-libs-1.42.ebuild, -e2fsprogs-libs-1.42.1.ebuild,
+  -e2fsprogs-libs-1.42.3.ebuild, -e2fsprogs-libs-1.42.4.ebuild,
+  -e2fsprogs-libs-1.42.5.ebuild, -e2fsprogs-libs-1.42.6.ebuild,
+  -e2fsprogs-libs-1.42.7-r1.ebuild, -files/e2fsprogs-libs-1.42.5-ldflags.patch:
+  Removed old versions and files.
+
+*e2fsprogs-libs-1.42.9 (31 Dec 2013)
+
+  31 Dec 2013; Mike Frysinger <vapier@gentoo.org> +e2fsprogs-libs-1.42.9.ebuild,
+  +files/e2fsprogs-libs-1.42.9-no-quota.patch:
+  Version bump #496594 by Ulenrich.
 
 *e2fsprogs-libs-1.42.8 (08 Oct 2013)
 
