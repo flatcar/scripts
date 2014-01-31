@@ -1,6 +1,15 @@
 # ChangeLog for net-libs/libtirpc
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-libs/libtirpc/ChangeLog,v 1.30 2013/02/18 21:56:35 vapier Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-libs/libtirpc/ChangeLog,v 1.32 2014/01/18 04:52:01 vapier Exp $
+
+  18 Jan 2014; Mike Frysinger <vapier@gentoo.org> libtirpc-0.2.2-r1.ebuild,
+  libtirpc-0.2.3.ebuild, libtirpc-0.2.4.ebuild:
+  Add arm64 love.
+
+*libtirpc-0.2.4 (10 Dec 2013)
+
+  10 Dec 2013; Mike Frysinger <vapier@gentoo.org> +libtirpc-0.2.4.ebuild:
+  Version bump.
 
 *libtirpc-0.2.3 (18 Feb 2013)
 

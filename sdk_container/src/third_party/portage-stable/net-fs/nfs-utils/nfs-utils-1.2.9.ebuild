@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-fs/nfs-utils/nfs-utils-1.2.7-r1.ebuild,v 1.10 2013/11/09 15:40:00 pacho Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-fs/nfs-utils/nfs-utils-1.2.9.ebuild,v 1.11 2014/01/18 20:02:58 ago Exp $
 
 EAPI="4"
 
@@ -12,8 +12,8 @@ SRC_URI="mirror://sourceforge/nfs/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 ~s390 ~sh ~sparc x86"
-IUSE="caps ipv6 kerberos nfsdcld +nfsidmap +nfsv4 nfsv41 selinux tcpd +uuid"
+KEYWORDS="alpha amd64 arm arm64 hppa ia64 ~mips ppc ppc64 s390 sh sparc x86"
+IUSE="caps ipv6 kerberos +libmount nfsdcld +nfsidmap +nfsv4 nfsv41 selinux tcpd +uuid"
 RESTRICT="test" #315573
 
 # kth-krb doesn't provide the right include
@@ -25,6 +25,7 @@ DEPEND_COMMON="tcpd? ( sys-apps/tcp-wrappers )
 	sys-libs/e2fsprogs-libs
 	>=net-nds/rpcbind-0.2.0-r1
 	net-libs/libtirpc
+	libmount? ( sys-apps/util-linux )
 	nfsdcld? ( >=dev-db/sqlite-3.3 )
 	nfsv4? (
 		>=dev-libs/libevent-1.0b
@@ -54,9 +55,7 @@ DEPEND="${DEPEND_COMMON}
 
 src_prepare() {
 	epatch "${FILESDIR}"/${PN}-1.1.4-mtab-sym.patch
-	epatch "${FILESDIR}"/${PN}-1.2.6-cross-build.patch
-	epatch "${FILESDIR}"/${PN}-1.2.7-nfsiostat-python3.patch #458934
-	epatch "${FILESDIR}"/${PN}-1.2.7-libio.patch #459200
+	epatch "${FILESDIR}"/${PN}-1.2.8-cross-build.patch
 	eautoreconf
 }
 
@@ -66,6 +65,7 @@ src_configure() {
 	econf \
 		--with-statedir=/var/lib/nfs \
 		--enable-tirpc \
+		$(use_enable libmount libmount-mount) \
 		$(use_with tcpd tcp-wrappers) \
 		$(use_enable nfsdcld nfsdcltrack) \
 		$(use_enable nfsv4) \
@@ -73,7 +73,8 @@ src_configure() {
 		$(use_enable ipv6) \
 		$(use_enable caps) \
 		$(use_enable uuid) \
-		$(usex nfsv4 "$(use_enable kerberos gss)" "--disable-gss")
+		$(usex nfsv4 "$(use_enable kerberos gss)" "--disable-gss") \
+		$(usex nfsv4 "$(use_with kerberos gssglue)" "--without-gssglue")
 }
 
 src_compile(){
@@ -85,7 +86,7 @@ src_compile(){
 src_install() {
 	default
 	rm linux-nfs/Makefile* || die
-	dodoc -r linux-nfs ChangeLog README
+	dodoc -r linux-nfs README
 
 	# Don't overwrite existing xtab/etab, install the original
 	# versions somewhere safe...  more info in pkg_postinst
