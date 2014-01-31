@@ -1,6 +1,73 @@
 # ChangeLog for net-fs/nfs-utils
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-fs/nfs-utils/ChangeLog,v 1.220 2013/08/27 07:00:20 radhermit Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-fs/nfs-utils/ChangeLog,v 1.240 2014/01/18 20:02:58 ago Exp $
+
+  18 Jan 2014; Agostino Sarubbo <ago@gentoo.org> nfs-utils-1.2.9.ebuild:
+  Stable for alpha, wrt bug #493422
+
+  18 Jan 2014; Mike Frysinger <vapier@gentoo.org> nfs-utils-1.2.9-r1.ebuild,
+  nfs-utils-1.2.9.ebuild:
+  Add arm64 love.
+
+  16 Jan 2014; Mike Frysinger <vapier@gentoo.org> nfs-utils-1.2.9.ebuild:
+  Mark s390/sh stable.
+
+  15 Jan 2014; Agostino Sarubbo <ago@gentoo.org> nfs-utils-1.2.9.ebuild:
+  Stable for ia64, wrt bug #493422
+
+  23 Dec 2013; Markus Meier <maekke@gentoo.org> nfs-utils-1.2.9.ebuild:
+  arm stable, bug #493422
+
+  23 Dec 2013; Agostino Sarubbo <ago@gentoo.org> nfs-utils-1.2.9.ebuild:
+  Stable for sparc, wrt bug #493422
+
+  22 Dec 2013; Agostino Sarubbo <ago@gentoo.org> nfs-utils-1.2.9.ebuild:
+  Stable for ppc64, wrt bug #493422
+
+*nfs-utils-1.2.9-r1 (22 Dec 2013)
+
+  22 Dec 2013; Pacho Ramos <pacho@gentoo.org> +files/rpc-statd.service-r1,
+  +nfs-utils-1.2.9-r1.ebuild:
+  Wants=remote-fs-pre.target is needed (#493798 by Vitaly Kirsanov)
+
+  21 Dec 2013; Agostino Sarubbo <ago@gentoo.org> nfs-utils-1.2.9.ebuild:
+  Stable for ppc, wrt bug #493422
+
+  09 Dec 2013; Pacho Ramos <pacho@gentoo.org> nfs-utils-1.2.9.ebuild:
+  amd64/x86 stable, bug #493422
+
+  09 Dec 2013; Jeroen Roovers <jer@gentoo.org> nfs-utils-1.2.9.ebuild:
+  Stable for HPPA (bug #493422).
+
+  09 Nov 2013; Pacho Ramos <pacho@gentoo.org> nfs-utils-1.2.7-r1.ebuild:
+  x86 stable, bug #480074
+
+*nfs-utils-1.2.9 (07 Nov 2013)
+
+  07 Nov 2013; Tim Harder <radhermit@gentoo.org> +nfs-utils-1.2.9.ebuild,
+  metadata.xml:
+  Version bump, add default enabled libmount use flag (bug #487962).
+
+  25 Sep 2013; Agostino Sarubbo <ago@gentoo.org> nfs-utils-1.2.7-r1.ebuild:
+  Stable for ppc, wrt bug #480074
+
+  23 Sep 2013; Jeroen Roovers <jer@gentoo.org> nfs-utils-1.2.7-r1.ebuild:
+  Stable for HPPA (bug #480074).
+
+  23 Sep 2013; Agostino Sarubbo <ago@gentoo.org> nfs-utils-1.2.7-r1.ebuild:
+  Stable for ppc64, wrt bug #480074
+
+  23 Sep 2013; Agostino Sarubbo <ago@gentoo.org> nfs-utils-1.2.7-r1.ebuild:
+  Stable for alpha, wrt bug #480074
+
+  22 Sep 2013; Agostino Sarubbo <ago@gentoo.org> nfs-utils-1.2.7-r1.ebuild:
+  Stable for ia64, wrt bug #480074
+
+  21 Sep 2013; Agostino Sarubbo <ago@gentoo.org> nfs-utils-1.2.7-r1.ebuild:
+  Stable for amd64, wrt bug #480074
+
+  19 Sep 2013; Markus Meier <maekke@gentoo.org> nfs-utils-1.2.7-r1.ebuild:
+  arm stable, bug #480074
 
 *nfs-utils-1.2.8-r2 (27 Aug 2013)
 

@@ -1,6 +1,20 @@
 # ChangeLog for net-libs/libnfsidmap
-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-libs/libnfsidmap/ChangeLog,v 1.41 2012/05/21 19:13:27 xarthisius Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-libs/libnfsidmap/ChangeLog,v 1.44 2014/01/18 04:50:16 vapier Exp $
+
+  18 Jan 2014; Mike Frysinger <vapier@gentoo.org> libnfsidmap-0.24.ebuild,
+  libnfsidmap-0.25.ebuild:
+  Add arm64 love.
+
+  20 Dec 2013; Mike Frysinger <vapier@gentoo.org>
+  files/libnfsidmap-0.19-getgrouplist.patch:
+  Fix building with getgrouplist in older versions #494770 by smkbot.
+
+*libnfsidmap-0.25 (17 Dec 2013)
+
+  17 Dec 2013; Mike Frysinger <vapier@gentoo.org> +libnfsidmap-0.25.ebuild,
+  files/libnfsidmap-0.19-getgrouplist.patch:
+  Version bump #489006 by michal.halenka.
 
   21 May 2012; Kacper Kowalik <xarthisius@gentoo.org>
   libnfsidmap-0.21-r1.ebuild, libnfsidmap-0.23-r1.ebuild,

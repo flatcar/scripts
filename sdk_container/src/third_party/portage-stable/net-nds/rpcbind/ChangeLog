@@ -1,6 +1,40 @@
 # ChangeLog for net-nds/rpcbind
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-nds/rpcbind/ChangeLog,v 1.23 2013/07/13 12:39:16 pacho Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-nds/rpcbind/ChangeLog,v 1.34 2014/01/18 04:53:00 vapier Exp $
+
+  18 Jan 2014; Mike Frysinger <vapier@gentoo.org> rpcbind-0.2.0-r1.ebuild,
+  rpcbind-9999.ebuild:
+  Add arm64 love.
+
+  16 Jan 2014; Mike Frysinger <vapier@gentoo.org> rpcbind-0.2.0-r1.ebuild:
+  Mark s390/sh stable.
+
+  23 Sep 2013; Agostino Sarubbo <ago@gentoo.org> rpcbind-0.2.0-r1.ebuild:
+  Stable for sparc, wrt bug #480094
+
+  14 Sep 2013; Agostino Sarubbo <ago@gentoo.org> rpcbind-0.2.0-r1.ebuild:
+  Stable for alpha, wrt bug #480094
+
+  14 Sep 2013; Agostino Sarubbo <ago@gentoo.org> rpcbind-0.2.0-r1.ebuild:
+  Stable for x86, wrt bug #480094
+
+  14 Sep 2013; Agostino Sarubbo <ago@gentoo.org> rpcbind-0.2.0-r1.ebuild:
+  Stable for ia64, wrt bug #480094
+
+  12 Sep 2013; Agostino Sarubbo <ago@gentoo.org> rpcbind-0.2.0-r1.ebuild:
+  Stable for ppc64, wrt bug #480094
+
+  12 Sep 2013; Agostino Sarubbo <ago@gentoo.org> rpcbind-0.2.0-r1.ebuild:
+  Stable for ppc, wrt bug #480094
+
+  10 Sep 2013; Markus Meier <maekke@gentoo.org> rpcbind-0.2.0-r1.ebuild:
+  arm stable, bug #480094
+
+  09 Sep 2013; Jeroen Roovers <jer@gentoo.org> rpcbind-0.2.0-r1.ebuild:
+  Stable for HPPA (bug #480094).
+
+  08 Sep 2013; Agostino Sarubbo <ago@gentoo.org> rpcbind-0.2.0-r1.ebuild:
+  Stable for amd64, wrt bug #480094
 
 *rpcbind-0.2.0-r1 (13 Jul 2013)
 
