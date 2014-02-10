@@ -1,10 +1,10 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/libgpg-error/libgpg-error-1.10-r1.ebuild,v 1.6 2013/03/20 22:14:06 alonbl Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/libgpg-error/libgpg-error-1.11.ebuild,v 1.2 2013/03/20 22:14:06 alonbl Exp $
 
 EAPI="4"
 
-inherit eutils libtool
+inherit libtool
 
 DESCRIPTION="Contains error handling functions used by GnuPG software"
 HOMEPAGE="http://www.gnupg.org/related_software/libgpg-error"
@@ -19,8 +19,6 @@ RDEPEND="nls? ( virtual/libintl )"
 DEPEND="nls? ( sys-devel/gettext )"
 
 src_prepare() {
-	epatch "${FILESDIR}"/${PN}-multilib-syspaths.patch
-	epunt_cxx
 	elibtoolize
 }
 
