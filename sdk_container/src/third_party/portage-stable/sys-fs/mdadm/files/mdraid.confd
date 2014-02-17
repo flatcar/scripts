@@ -1,0 +1,5 @@
+# /etc/conf.d/mdraid: config file for /etc/init.d/mdraid
+
+# For people who run raid on top of some other layer (like
+# dmcrypt), use rc_need to specify that requirement.  See
+# the runscript(8) man page for more information.
