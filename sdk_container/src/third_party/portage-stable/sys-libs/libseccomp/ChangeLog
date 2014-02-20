@@ -1,6 +1,35 @@
 # ChangeLog for sys-libs/libseccomp
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/libseccomp/ChangeLog,v 1.7 2013/01/22 17:26:00 ago Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/libseccomp/ChangeLog,v 1.15 2014/01/14 13:52:31 ago Exp $
+
+  14 Jan 2014; Agostino Sarubbo <ago@gentoo.org> libseccomp-2.1.1.ebuild:
+  Stable for x86, wrt bug #495966
+
+  12 Jan 2014; Pacho Ramos <pacho@gentoo.org> libseccomp-2.1.1.ebuild:
+  amd64 stable, bug #495966
+
+  05 Jan 2014; Markus Meier <maekke@gentoo.org> libseccomp-2.1.1.ebuild:
+  arm stable, bug #495966
+
+*libseccomp-2.1.1 (19 Nov 2013)
+
+  19 Nov 2013; Doug Goldstein <cardoe@gentoo.org> +libseccomp-2.1.1.ebuild:
+  Version bump
+
+  28 Aug 2013; Agostino Sarubbo <ago@gentoo.org> libseccomp-2.1.0.ebuild:
+  Stable for x86, wrt bug #481402
+
+  24 Aug 2013; Agostino Sarubbo <ago@gentoo.org> libseccomp-2.1.0.ebuild:
+  Stable for arm, wrt bug #481402
+
+  17 Aug 2013; Agostino Sarubbo <ago@gentoo.org> libseccomp-2.1.0.ebuild:
+  Stable for amd64, wrt bug #481402
+
+*libseccomp-2.1.0 (18 Jun 2013)
+
+  18 Jun 2013; Mike Frysinger <vapier@gentoo.org> +libseccomp-2.1.0.ebuild:
+  Version bump #473626 by Paul Moore.  Set V=1 when building #451820 by Agostino
+  Sarubbo.
 
   22 Jan 2013; Agostino Sarubbo <ago@gentoo.org> libseccomp-1.0.1.ebuild:
   Stable for x86, wrt bug #451496
