@@ -1,0 +1,43 @@
+From a7853944dacbe12097c1ef15836caeffbab8396c Mon Sep 17 00:00:00 2001
+From: Stefan Behnel <stefan_ml@behnel.de>
+Date: Sat, 4 May 2013 14:00:06 +0200
+Subject: [PATCH] prefer stdlib ET over externally installed version as the
+ stdlib has taken the lead now
+
+---
+ src/lxml/tests/common_imports.py | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/src/lxml/tests/common_imports.py b/src/lxml/tests/common_imports.py
+index 645a7db..c528a3c 100644
+--- a/src/lxml/tests/common_imports.py
++++ b/src/lxml/tests/common_imports.py
+@@ -19,10 +19,10 @@ def make_version_tuple(version_string):
+ IS_PYTHON3 = sys.version_info[0] >= 3
+ 
+ try:
+-    from elementtree import ElementTree # standard ET
++    from xml.etree import ElementTree # Python 2.5+
+ except ImportError:
+     try:
+-        from xml.etree import ElementTree # Python 2.5+
++        from elementtree import ElementTree # standard ET
+     except ImportError:
+         ElementTree = None
+ 
+@@ -32,10 +32,10 @@ def make_version_tuple(version_string):
+     ET_VERSION = (0,0,0)
+ 
+ try:
+-    import cElementTree # standard ET
++    from xml.etree import cElementTree # Python 2.5+
+ except ImportError:
+     try:
+-        from xml.etree import cElementTree # Python 2.5+
++        import cElementTree # standard ET
+     except ImportError:
+         cElementTree = None
+ 
+-- 
+1.8.1.6
+
