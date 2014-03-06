@@ -1,6 +1,40 @@
 # ChangeLog for net-misc/bridge-utils
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/bridge-utils/ChangeLog,v 1.59 2013/03/06 17:27:03 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-misc/bridge-utils/ChangeLog,v 1.69 2013/09/14 19:28:31 ssuominen Exp $
+
+  14 Sep 2013; Samuli Suominen <ssuominen@gentoo.org> -bridge-utils-1.2.ebuild,
+  -bridge-utils-1.4.ebuild, -files/bridge-utils-1.0.6-allow-without-sysfs.patch,
+  -files/bridge-utils-1.0.6-dont-error-on-no-ports.patch, -files/bridge.conf,
+  -files/bridge.rc:
+  old
+
+  14 Sep 2013; Agostino Sarubbo <ago@gentoo.org> bridge-utils-1.5.ebuild:
+  Stable for ia64, wrt bug #483892
+
+  08 Sep 2013; Markus Meier <maekke@gentoo.org> bridge-utils-1.5.ebuild:
+  arm stable, bug #483892
+
+  06 Sep 2013; Jeroen Roovers <jer@gentoo.org> bridge-utils-1.5.ebuild:
+  Stable for HPPA (bug #483892).
+
+  06 Sep 2013; Agostino Sarubbo <ago@gentoo.org> bridge-utils-1.5.ebuild:
+  Stable for sparc, wrt bug #483892
+
+  06 Sep 2013; Agostino Sarubbo <ago@gentoo.org> bridge-utils-1.5.ebuild:
+  Stable for ppc64, wrt bug #483892
+
+  06 Sep 2013; Agostino Sarubbo <ago@gentoo.org> bridge-utils-1.5.ebuild:
+  Stable for ppc, wrt bug #483892
+
+  06 Sep 2013; Agostino Sarubbo <ago@gentoo.org> bridge-utils-1.5.ebuild:
+  Stable for x86, wrt bug #483892
+
+  06 Sep 2013; Agostino Sarubbo <ago@gentoo.org> bridge-utils-1.5.ebuild:
+  Stable for amd64, wrt bug #483892
+
+  06 Sep 2013; Robin H. Johnson <robbat2@gentoo.org> bridge-utils-1.4.ebuild,
+  bridge-utils-1.5.ebuild:
+  Safety workaround for bug #483692 while 1.5 is stabilized.
 
   06 Mar 2013; Samuli Suominen <ssuominen@gentoo.org> bridge-utils-1.5.ebuild,
   +files/bridge-utils-1.5-linux-3.8.patch:

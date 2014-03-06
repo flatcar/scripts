@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/bridge-utils/bridge-utils-1.5.ebuild,v 1.3 2013/03/06 17:27:03 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-misc/bridge-utils/bridge-utils-1.5.ebuild,v 1.12 2013/09/14 07:42:52 ago Exp $
 
 EAPI="5"
 
@@ -12,7 +12,7 @@ SRC_URI="mirror://sourceforge/bridge/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86"
+KEYWORDS="amd64 arm hppa ia64 ~mips ppc ppc64 sparc x86"
 IUSE=""
 
 DEPEND="virtual/os-headers"
@@ -46,4 +46,5 @@ src_install () {
 	emake install DESTDIR="${D}"
 	dodoc AUTHORS ChangeLog README THANKS TODO \
 		doc/{FAQ,FIREWALL,HOWTO,PROJECTS,RPM-GPG-KEY,SMPNOTES,WISHLIST}
+	[ -f "${D}"/sbin/brctl ] || die "upstream makefile failed to install binary"
 }
