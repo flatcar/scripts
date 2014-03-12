@@ -1,16 +1,18 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-boot/syslinux/syslinux-4.06.ebuild,v 1.5 2013/01/11 17:24:42 zerochaos Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-boot/syslinux/syslinux-5.10.ebuild,v 1.2 2013/09/23 11:56:54 jlec Exp $
+
+EAPI=4
 
 inherit eutils toolchain-funcs
 
 DESCRIPTION="SYSLINUX, PXELINUX, ISOLINUX, EXTLINUX and MEMDISK bootloaders"
-HOMEPAGE="http://syslinux.zytor.com/"
-SRC_URI="mirror://kernel/linux/utils/boot/syslinux/${PV:0:1}.xx/${P/_/-}.tar.bz2"
+HOMEPAGE="http://www.syslinux.org/"
+SRC_URI="mirror://kernel/linux/utils/boot/syslinux/${PV:0:1}.xx/${P/_/-}.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="-* amd64 x86"
+KEYWORDS="-* ~amd64 ~x86"
 IUSE="custom-cflags"
 
 RDEPEND="sys-fs/mtools
@@ -26,11 +28,12 @@ S=${WORKDIR}/${P/_/-}
 # This departure is necessary since hpa doesn't support the rebuilding of anything other
 # than the installers.
 
+# These are executables which come precompiled and are run by the boot loader
+QA_PREBUILT="usr/share/${PN}/*.c32"
+
 # removed all the unpack/patching stuff since we aren't rebuilding the core stuff anymore
 
-src_unpack() {
-	unpack ${A}
-	cd "${S}"
+src_prepare() {
 	# Fix building on hardened
 	epatch "${FILESDIR}"/${PN}-4.05-nopie.patch
 
@@ -47,15 +50,34 @@ src_unpack() {
 			-e 's|-Os||g' \
 			-e 's|CFLAGS[[:space:]]\+=|CFLAGS +=|g' \
 			|| die "sed custom-cflags failed"
+	else
+		QA_FLAGS_IGNORED="
+			/sbin/extlinux
+			/usr/bin/memdiskfind
+			/usr/bin/gethostip
+			/usr/bin/isohybrid
+			/usr/bin/syslinux
+			"
 	fi
 
 }
 
 src_compile() {
-	emake CC=$(tc-getCC) installer || die
+	emake CC=$(tc-getCC) installer
 }
 
 src_install() {
-	emake INSTALLSUBDIRS=utils INSTALLROOT="${D}" MANDIR=/usr/share/man install || die
-	dodoc README NEWS doc/*.txt || die
+	emake INSTALLSUBDIRS=utils INSTALLROOT="${D}" MANDIR=/usr/share/man install
+	dodoc README NEWS doc/*.txt
+}
+
+pkg_postinst() {
+	# print warning for users upgrading from the previous stable version
+	if has 4.06 ${REPLACING_VERSIONS}; then
+		ewarn "syslinux now uses dynamically linked ELF executables. Before you reboot,"
+		ewarn "ensure that needed dependencies are fulfilled. For example, run from your"
+		ewarn "syslinux directory:"
+		ewarn
+		ewarn "LD_LIBRARY_PATH=\".\" ldd menu.c32"
+	fi
 }
