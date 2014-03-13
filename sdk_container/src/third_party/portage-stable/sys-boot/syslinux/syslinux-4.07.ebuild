@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-boot/syslinux/syslinux-4.05.ebuild,v 1.5 2012/05/28 08:47:21 chithanh Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-boot/syslinux/syslinux-4.07.ebuild,v 1.4 2013/09/23 11:56:54 jlec Exp $
 
 inherit eutils toolchain-funcs
 
@@ -18,7 +18,7 @@ RDEPEND="sys-fs/mtools
 		dev-perl/Digest-SHA1"
 DEPEND="${RDEPEND}
 	dev-lang/nasm
-	<sys-kernel/linux-headers-3.4"
+	virtual/os-headers"
 
 S=${WORKDIR}/${P/_/-}
 
@@ -34,9 +34,6 @@ src_unpack() {
 	# Fix building on hardened
 	epatch "${FILESDIR}"/${PN}-4.05-nopie.patch
 
-	# Fix building with --as-needed
-	epatch "${FILESDIR}"/${PN}-4.05-asneeded-linking-order.patch
-
 	rm -f gethostip #bug 137081
 
 	# Don't prestrip or override user LDFLAGS, bug #305783
@@ -50,6 +47,14 @@ src_unpack() {
 			-e 's|-Os||g' \
 			-e 's|CFLAGS[[:space:]]\+=|CFLAGS +=|g' \
 			|| die "sed custom-cflags failed"
+	else
+		QA_FLAGS_IGNORED="
+			/sbin/extlinux
+			/usr/bin/memdiskfind
+			/usr/bin/gethostip
+			/usr/bin/isohybrid
+			/usr/bin/syslinux
+			"
 	fi
 
 }

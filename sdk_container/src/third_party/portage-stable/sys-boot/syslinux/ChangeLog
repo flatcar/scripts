@@ -1,6 +1,85 @@
 # ChangeLog for sys-boot/syslinux
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-boot/syslinux/ChangeLog,v 1.94 2013/01/11 17:24:42 zerochaos Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-boot/syslinux/ChangeLog,v 1.108 2014/02/09 18:04:43 zerochaos Exp $
+
+  09 Feb 2014; Rick Farina <zerochaos@gentoo.org>
+  +files/syslinux-6.02-add-fno-stack-protector.patch,
+  +files/syslinux-6.03_pre1-add-fno-stack-protector.patch, syslinux-6.02.ebuild,
+  syslinux-6.03_pre1.ebuild:
+  hardened fixes by Zorry from bug 495146 with trivial backport and extensive
+  testing done by myself
+
+*syslinux-6.02 (09 Feb 2014)
+
+  09 Feb 2014; Rick Farina <zerochaos@gentoo.org> +syslinux-6.02.ebuild:
+  adding syslinux-6.02 for testing with permission from robbat2
+
+*syslinux-6.03_pre1 (11 Dec 2013)
+
+  11 Dec 2013; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  +syslinux-6.03_pre1.ebuild, -files/syslinux-4.00-nopie.patch,
+  -files/syslinux-4.05-asneeded-linking-order.patch, -syslinux-2.13.ebuild,
+  -syslinux-4.05.ebuild, -syslinux-4.06.ebuild, -syslinux-5.00.ebuild,
+  -syslinux-5.01.ebuild, -syslinux-6.02_pre15.ebuild,
+  -syslinux-6.02_pre16.ebuild:
+  Bump to latest prerelease. Remove some old versions.
+
+  23 Sep 2013; Justin Lecher <jlec@gentoo.org> syslinux-4.07.ebuild,
+  syslinux-5.00.ebuild, syslinux-5.01.ebuild, syslinux-5.10.ebuild,
+  syslinux-6.02_pre15.ebuild, syslinux-6.02_pre16.ebuild:
+  Drop QA check for CFLAGS with USE=-custom-cflags
+
+  22 Sep 2013; Agostino Sarubbo <ago@gentoo.org> syslinux-4.07.ebuild:
+  Stable for x86, wrt bug #485048
+
+  21 Sep 2013; Agostino Sarubbo <ago@gentoo.org> syslinux-4.07.ebuild:
+  Stable for amd64, wrt bug #485048
+
+*syslinux-6.02_pre16 (13 Aug 2013)
+
+  13 Aug 2013; Robin H. Johnson <robbat2@gentoo.org>
+  +syslinux-6.02_pre16.ebuild:
+  Bump.
+
+*syslinux-4.07 (30 Jul 2013)
+
+  30 Jul 2013; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  +syslinux-4.07.ebuild:
+  Version bump.
+
+*syslinux-6.02_pre15 (30 Jul 2013)
+
+  30 Jul 2013; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  +syslinux-6.02_pre15.ebuild, -syslinux-6.02_pre2.ebuild:
+  Bump to new prerelease.
+
+*syslinux-6.02_pre2 (08 Jul 2013)
+
+  08 Jul 2013; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  +syslinux-6.02_pre2.ebuild, -syslinux-6.01_pre6.ebuild:
+  Bump to new prerelease.
+
+*syslinux-6.01_pre6 (03 Jul 2013)
+
+  03 Jul 2013; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  +syslinux-6.01_pre6.ebuild:
+  Bump to prerelease with EFI support.
+
+*syslinux-5.10 (24 Jun 2013)
+
+  24 Jun 2013; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  +syslinux-5.10.ebuild:
+  Version bump. bug #473532.
+
+  02 Jun 2013; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  syslinux-5.01.ebuild:
+  Update HOMEPAGE, bug #472080.
+
+*syslinux-5.01 (18 Feb 2013)
+
+  18 Feb 2013; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  +syslinux-5.01.ebuild:
+  Version bump, bug #457974.
 
   11 Jan 2013; Rick Farina <zerochaos@gentoo.org> syslinux-4.06.ebuild,
   syslinux-5.00.ebuild:
