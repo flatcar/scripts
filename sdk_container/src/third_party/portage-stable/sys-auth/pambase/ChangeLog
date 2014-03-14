@@ -1,6 +1,103 @@
 # ChangeLog for sys-auth/pambase
-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-auth/pambase/ChangeLog,v 1.112 2012/06/19 07:55:53 ssuominen Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-auth/pambase/ChangeLog,v 1.138 2014/03/13 14:31:20 ssuominen Exp $
+
+  13 Mar 2014; Samuli Suominen <ssuominen@gentoo.org>
+  -pambase-20120417-r1.ebuild, -pambase-20120417-r2.ebuild,
+  -pambase-20120417.ebuild:
+  old
+
+*pambase-20140313 (13 Mar 2014)
+
+  13 Mar 2014; Samuli Suominen <ssuominen@gentoo.org> +pambase-20140313.ebuild:
+  Version bump (imported -systemd.patch, -systemd-auth.patch and -lastlog-
+  silent.patch)
+
+  18 Jan 2014; Mike Frysinger <vapier@gentoo.org> pambase-20120417-r3.ebuild:
+  Add arm64 love.
+
+  18 Jan 2014; Mike Frysinger <vapier@gentoo.org> pambase-20120417-r1.ebuild,
+  pambase-20120417-r3.ebuild, pambase-20120417.ebuild:
+  Mark m68k/s390/sh stable.
+
+  14 Jan 2014; Pacho Ramos <pacho@gentoo.org> pambase-20120417-r3.ebuild:
+  ia64 stable, bug #491034 (thanks to Emeric Maschino for testing)
+
+  23 Dec 2013; Agostino Sarubbo <ago@gentoo.org> pambase-20120417-r3.ebuild:
+  Stable for sparc, wrt bug #491034
+
+  23 Dec 2013; Agostino Sarubbo <ago@gentoo.org> pambase-20120417-r3.ebuild:
+  Stable for ppc, wrt bug #491034
+
+  22 Dec 2013; Agostino Sarubbo <ago@gentoo.org> pambase-20120417-r3.ebuild:
+  Stable for ppc64, wrt bug #491034
+
+  30 Nov 2013; Markus Meier <maekke@gentoo.org> pambase-20120417-r3.ebuild:
+  arm stable, bug #491034
+
+  17 Nov 2013; Matt Turner <mattst88@gentoo.org> pambase-20120417-r3.ebuild:
+  alpha stable, bug 491034.
+
+  16 Nov 2013; Pacho Ramos <pacho@gentoo.org> pambase-20120417-r3.ebuild:
+  amd64/x86 stable, bug #491034
+
+  12 Nov 2013; Jeroen Roovers <jer@gentoo.org> pambase-20120417-r3.ebuild:
+  Stable for HPPA (bug #491034).
+
+*pambase-20120417-r3 (27 Oct 2013)
+
+  27 Oct 2013; Pacho Ramos <pacho@gentoo.org>
+  +files/pambase-20120417-systemd-auth.patch, +pambase-20120417-r3.ebuild:
+  Load pam_systemd from system-auth instead of system-login, bug #485470 by
+  Benjamin Franzke
+
+  05 Sep 2013; Mike Frysinger <vapier@gentoo.org> pambase-20120417-r2.ebuild:
+  Mark m68k/s390/sh stable #454388.
+
+  21 Aug 2013; Samuli Suominen <ssuominen@gentoo.org>
+  pambase-20120417-r2.ebuild:
+  Warn people from enabling weird setup with USE="consolekit systemd" and
+  having 2 session trackers running at the same time wrt #478258
+
+  03 Aug 2013; Agostino Sarubbo <ago@gentoo.org> pambase-20120417-r2.ebuild:
+  Stable for sparc, wrt bug #454388
+
+  07 Jul 2013; Agostino Sarubbo <ago@gentoo.org> pambase-20120417-r2.ebuild:
+  Stable for ia64, wrt bug #454388
+
+  07 Jul 2013; Agostino Sarubbo <ago@gentoo.org> pambase-20120417-r2.ebuild:
+  Stable for arm, wrt bug #454388
+
+  06 Jul 2013; Agostino Sarubbo <ago@gentoo.org> pambase-20120417-r2.ebuild:
+  Stable for alpha, wrt bug #454388
+
+  04 Jul 2013; Agostino Sarubbo <ago@gentoo.org> pambase-20120417-r2.ebuild:
+  Stable for ppc64, wrt bug #454388
+
+  01 Jul 2013; Jeroen Roovers <jer@gentoo.org> pambase-20120417-r2.ebuild:
+  Stable for HPPA (bug #454388).
+
+  30 Jun 2013; Agostino Sarubbo <ago@gentoo.org> pambase-20120417-r2.ebuild:
+  Stable for ppc, wrt bug #454388
+
+  30 Jun 2013; Agostino Sarubbo <ago@gentoo.org> pambase-20120417-r2.ebuild:
+  Stable for x86, wrt bug #454388
+
+  30 Jun 2013; Agostino Sarubbo <ago@gentoo.org> pambase-20120417-r2.ebuild:
+  Stable for amd64, wrt bug #454388
+
+  28 Jun 2013; Alexis Ballier <aballier@gentoo.org> pambase-20101024-r2.ebuild,
+  pambase-20120417.ebuild, pambase-20120417-r1.ebuild,
+  pambase-20120417-r2.ebuild:
+  allow openpam for krb5
+
+*pambase-20120417-r2 (15 Jun 2013)
+
+  15 Jun 2013; Johannes Huber <johu@gentoo.org>
+  +files/pambase-20120417-lastlog-silent.patch, +pambase-20120417-r2.ebuild:
+  Revision bump adds patch to make lastlog messages silent by Dennis Schridde
+  <devurandom@gmx.net> wrt bug #468798. Acked by Diego Elio Pettenò
+  <flameeyes@gentoo.org> on irc.
 
 *pambase-20120417-r1 (19 Jun 2012)
 
@@ -490,4 +587,3 @@
   +pambase-20080219.ebuild:
   Initial import, pambase package provides the basic configuration files for
   PAM (either Linux-PAM or OpenPAM).
-

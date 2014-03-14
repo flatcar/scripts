@@ -1,8 +1,8 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-auth/pambase/pambase-20120417-r1.ebuild,v 1.1 2012/06/19 07:55:53 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-auth/pambase/pambase-20120417-r3.ebuild,v 1.11 2014/01/18 05:16:11 vapier Exp $
 
-EAPI=4
+EAPI=5
 inherit eutils
 
 DESCRIPTION="PAM base configuration files"
@@ -12,7 +12,7 @@ SRC_URI="http://dev.gentoo.org/~flameeyes/${PN}/${P}.tar.bz2
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 -sparc-fbsd -x86-fbsd ~x86-freebsd ~amd64-linux ~ia64-linux ~x86-linux"
+KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 -sparc-fbsd -x86-fbsd ~x86-freebsd ~amd64-linux ~ia64-linux ~x86-linux"
 IUSE="consolekit cracklib debug gnome-keyring minimal mktemp pam_krb5 pam_ssh passwdqc selinux +sha512 systemd"
 
 RESTRICT=binchecks
@@ -29,7 +29,7 @@ RDEPEND="
 	gnome-keyring? ( >=gnome-base/gnome-keyring-2.32[pam] )
 	mktemp? ( sys-auth/pam_mktemp )
 	pam_krb5? (
-		>=sys-libs/pam-${MIN_PAM_REQ}
+		|| ( >=sys-libs/pam-${MIN_PAM_REQ} sys-auth/openpam )
 		>=sys-auth/pam_krb5-4.3
 		)
 	pam_ssh? ( sys-auth/pam_ssh )
@@ -44,6 +44,8 @@ DEPEND="app-portage/portage-utils"
 
 src_prepare() {
 	epatch "${FILESDIR}"/${P}-systemd.patch
+	epatch "${FILESDIR}"/${P}-lastlog-silent.patch
+	epatch "${FILESDIR}"/${P}-systemd-auth.patch # 485470
 }
 
 src_compile() {
@@ -101,5 +103,11 @@ pkg_postinst() {
 		elog "Please note that the change only affects the newly-changed passwords"
 		elog "and that SHA512-hashed passwords will not work on earlier versions"
 		elog "of glibc or Linux-PAM."
+	fi
+
+	if use systemd && use consolekit; then
+		ewarn "You are enabling 2 session trackers, ConsoleKit and systemd-logind"
+		ewarn "at the same time. This is not recommended setup to have, please"
+		ewarn "consider disabling either USE=\"consolekit\" or USE=\"systemd\."
 	fi
 }
