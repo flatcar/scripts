@@ -1,10 +1,8 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-block/parted/parted-3.1.ebuild,v 1.1 2012/03/04 18:23:21 jer Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-block/parted/parted-3.1-r1.ebuild,v 1.18 2014/03/04 00:25:41 jer Exp $
 
-EAPI="3"
-
-WANT_AUTOMAKE="1.11"
+EAPI="4"
 
 inherit autotools eutils
 
@@ -14,23 +12,26 @@ SRC_URI="mirror://gnu/${PN}/${P}.tar.xz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc x86"
+KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 ~sh sparc x86"
 IUSE="+debug device-mapper nls readline selinux static-libs test"
 
 # specific version for gettext needed
 # to fix bug 85999
 RDEPEND="
 	>=sys-fs/e2fsprogs-1.27
-	>=sys-libs/ncurses-5.2
-	nls? ( >=sys-devel/gettext-0.12.1-r2 )
+	>=sys-libs/ncurses-5.7-r7
+	device-mapper? ( >=sys-fs/lvm2-2.02.45 )
 	readline? ( >=sys-libs/readline-5.2 )
 	selinux? ( sys-libs/libselinux )
-	device-mapper? ( || ( >=sys-fs/lvm2-2.02.45 sys-fs/device-mapper ) )
 "
 DEPEND="
 	${RDEPEND}
-	dev-util/pkgconfig
-	test? ( >=dev-libs/check-0.9.3 )
+	nls? ( >=sys-devel/gettext-0.12.1-r2 )
+	virtual/pkgconfig
+	test? (
+		>=dev-libs/check-0.9.3
+		dev-perl/Digest-CRC
+	)
 "
 
 src_prepare() {
@@ -45,18 +46,22 @@ src_prepare() {
 	sed -i configure.ac \
 		-e "s:have_check=[a-z]*:have_check=$(usex test):g" || die
 
+	epatch "${FILESDIR}"/${PN}-3.1-zfs.patch
+	epatch "${FILESDIR}"/${PN}-3.1-readline.patch
+
 	eautoreconf
 }
 
 src_configure() {
 	econf \
-		$(use_with readline) \
-		$(use_enable nls) \
 		$(use_enable debug) \
-		$(use_enable selinux) \
 		$(use_enable device-mapper) \
+		$(use_enable nls) \
+		$(use_enable selinux) \
 		$(use_enable static-libs static) \
-		--disable-rpath
+		$(use_with readline) \
+		--disable-rpath \
+		--disable-silent-rules
 }
 
 src_test() {
@@ -70,8 +75,8 @@ src_test() {
 }
 
 src_install() {
-	emake install DESTDIR="${D}" || die "Install failed"
+	emake install DESTDIR="${D}"
 	dodoc AUTHORS BUGS ChangeLog NEWS README THANKS TODO
 	dodoc doc/{API,FAT,USER.jp}
-	find "${ED}" -name '*.la' -exec rm -f '{}' +
+	find "${ED}" -name '*.la' -exec rm -f {} +
 }
