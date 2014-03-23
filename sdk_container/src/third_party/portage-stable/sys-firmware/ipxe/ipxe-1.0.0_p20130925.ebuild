@@ -1,13 +1,13 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-firmware/ipxe/ipxe-1.0.0_p20130624.ebuild,v 1.7 2013/09/06 16:11:44 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-firmware/ipxe/ipxe-1.0.0_p20130925.ebuild,v 1.1 2013/11/07 15:48:40 cardoe Exp $
 
 EAPI=5
 
 inherit toolchain-funcs
 
-GIT_REV="936134ed460618e18cc05d677a442d43d5e739a1"
-GIT_SHORT="936134e"
+GIT_REV="cba22d36b77da53890bd65fdadd0e63925687af0"
+GIT_SHORT="cba22d3"
 
 DESCRIPTION="Open source network boot (PXE) firmware"
 HOMEPAGE="http://ipxe.org"
@@ -15,7 +15,7 @@ SRC_URI="https://git.ipxe.org/ipxe.git/snapshot/${GIT_REV}.tar.bz2 -> ${P}-${GIT
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 x86"
+KEYWORDS="~amd64 ~x86"
 IUSE="iso +qemu undi usb vmware"
 
 DEPEND="sys-devel/make

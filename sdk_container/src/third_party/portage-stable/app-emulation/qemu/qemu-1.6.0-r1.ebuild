@@ -1,16 +1,16 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-emulation/qemu/qemu-1.4.2-r1.ebuild,v 1.2 2013/07/27 03:50:41 cardoe Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-emulation/qemu/qemu-1.6.0-r1.ebuild,v 1.1 2013/09/17 17:00:30 cardoe Exp $
 
 EAPI=5
 
-PYTHON_COMPAT=( python{2_5,2_6,2_7} )
+PYTHON_COMPAT=( python{2_6,2_7} )
 PYTHON_REQ_USE="ncurses,readline"
 
 inherit eutils flag-o-matic linux-info toolchain-funcs multilib python-r1 \
 	user udev fcaps readme.gentoo
 
-BACKPORTS=384a78f1
+BACKPORTS=4c9bed9d
 
 if [[ ${PV} = *9999* ]]; then
 	EGIT_REPO_URI="git://git.qemu.org/qemu.git"
@@ -29,16 +29,17 @@ HOMEPAGE="http://www.qemu.org http://www.linux-kvm.org"
 
 LICENSE="GPL-2 LGPL-2 BSD-2"
 SLOT="0"
-IUSE="accessibility +aio alsa bluetooth +caps +curl debug fdt iscsi +jpeg \
+IUSE="accessibility +aio alsa bluetooth +caps +curl debug +fdt glusterfs \
+gtk iscsi +jpeg \
 kernel_linux kernel_FreeBSD mixemu ncurses opengl +png pulseaudio python \
 rbd sasl +seccomp sdl selinux smartcard spice static static-softmmu \
 static-user systemtap tci test +threads tls usbredir +uuid vde +vhost-net \
 virtfs +vnc xattr xen xfs"
 
 COMMON_TARGETS="i386 x86_64 alpha arm cris m68k microblaze microblazeel mips
-mipsel or32 ppc ppc64 sh4 sh4eb sparc sparc64 s390x unicore32"
-IUSE_SOFTMMU_TARGETS="${COMMON_TARGETS} lm32 mips64 mips64el ppcemb xtensa xtensaeb"
-IUSE_USER_TARGETS="${COMMON_TARGETS} armeb ppc64abi32 sparc32plus"
+mipsel mips64 mips64el or32 ppc ppc64 sh4 sh4eb sparc sparc64 s390x unicore32"
+IUSE_SOFTMMU_TARGETS="${COMMON_TARGETS} lm32 moxie ppcemb xtensa xtensaeb"
+IUSE_USER_TARGETS="${COMMON_TARGETS} armeb mipsn32 mipsn32el ppc64abi32 sparc32plus"
 
 # Setup the default SoftMMU targets, while using the loops
 # below to setup the other targets.
@@ -58,8 +59,12 @@ REQUIRED_USE="${REQUIRED_USE} )"
 # Block USE flag configurations known to not work
 REQUIRED_USE="${REQUIRED_USE}
 	python? ( ${PYTHON_REQUIRED_USE} )
+	qemu_softmmu_targets_arm? ( fdt )
+	qemu_softmmu_targets_microblaze? ( fdt )
+	qemu_softmmu_targets_ppc? ( fdt )
+	qemu_softmmu_targets_ppc64? ( fdt )
 	static? ( static-softmmu static-user )
-	static-softmmu? ( !alsa !pulseaudio !bluetooth !opengl )
+	static-softmmu? ( !alsa !pulseaudio !bluetooth !opengl !gtk )
 	virtfs? ( xattr )"
 
 # Yep, you need both libcap and libcap-ng since virtfs only uses libcap.
@@ -70,14 +75,15 @@ LIB_DEPEND=">=dev-libs/glib-2.0[static-libs(+)]
 	aio? ( dev-libs/libaio[static-libs(+)] )
 	caps? ( sys-libs/libcap-ng[static-libs(+)] )
 	curl? ( >=net-misc/curl-7.15.4[static-libs(+)] )
-	fdt? ( >=sys-apps/dtc-1.2.0[static-libs(+)] )
+	fdt? ( >=sys-apps/dtc-1.4.0[static-libs(+)] )
+	glusterfs? ( >=sys-cluster/glusterfs-3.4.0[static-libs(+)] )
 	jpeg? ( virtual/jpeg[static-libs(+)] )
 	ncurses? ( sys-libs/ncurses[static-libs(+)] )
 	png? ( media-libs/libpng[static-libs(+)] )
 	rbd? ( sys-cluster/ceph[static-libs(+)] )
 	sasl? ( dev-libs/cyrus-sasl[static-libs(+)] )
 	sdl? ( >=media-libs/libsdl-1.2.11[static-libs(+)] )
-	seccomp? ( >=sys-libs/libseccomp-1.0.1[static-libs(+)] )
+	seccomp? ( >=sys-libs/libseccomp-2.1.0[static-libs(+)] )
 	spice? ( >=app-emulation/spice-0.12.0[static-libs(+)] )
 	tls? ( net-libs/gnutls[static-libs(+)] )
 	uuid? ( >=sys-apps/util-linux-2.16.0[static-libs(+)] )
@@ -87,20 +93,24 @@ LIB_DEPEND=">=dev-libs/glib-2.0[static-libs(+)]
 RDEPEND="!static-softmmu? ( ${LIB_DEPEND//\[static-libs(+)]} )
 	static-user? ( >=dev-libs/glib-2.0[static-libs(+)] )
 	qemu_softmmu_targets_i386? (
-		>=sys-firmware/ipxe-1.0.0_p20130225
-		~sys-firmware/seabios-1.7.2.2
+		>=sys-firmware/ipxe-1.0.0_p20130624
+		~sys-firmware/seabios-1.7.3
 		~sys-firmware/sgabios-0.1_pre8
 		~sys-firmware/vgabios-0.7a
 	)
 	qemu_softmmu_targets_x86_64? (
-		>=sys-firmware/ipxe-1.0.0_p20130225
-		~sys-firmware/seabios-1.7.2.2
+		>=sys-firmware/ipxe-1.0.0_p20130624
+		~sys-firmware/seabios-1.7.3
 		~sys-firmware/sgabios-0.1_pre8
 		~sys-firmware/vgabios-0.7a
 	)
 	accessibility? ( app-accessibility/brltty )
 	alsa? ( >=media-libs/alsa-lib-1.0.13 )
 	bluetooth? ( net-wireless/bluez )
+	gtk? (
+		x11-libs/gtk+:3
+		x11-libs/vte:2.90
+	)
 	iscsi? ( net-libs/libiscsi )
 	opengl? ( virtual/opengl )
 	pulseaudio? ( media-sound/pulseaudio )
@@ -132,7 +142,8 @@ QA_PREBUILT="
 	usr/share/qemu/openbios-ppc
 	usr/share/qemu/openbios-sparc64
 	usr/share/qemu/openbios-sparc32
-	usr/share/qemu/palcode-clipper"
+	usr/share/qemu/palcode-clipper
+	usr/share/qemu/s390-ccw.img"
 
 QA_WX_LOAD="usr/bin/qemu-i386
 	usr/bin/qemu-x86_64
@@ -273,6 +284,7 @@ qemu_src_configure() {
 		conf_opts+=" --disable-curses"
 		conf_opts+=" --disable-kvm"
 		conf_opts+=" --disable-libiscsi"
+		conf_opts+=" --disable-glusterfs"
 		conf_opts+=" $(use_enable seccomp)"
 		conf_opts+=" --disable-sdl"
 		conf_opts+=" --disable-smartcard-nss"
@@ -286,18 +298,20 @@ qemu_src_configure() {
 		conf_opts+=" --with-system-pixman"
 		conf_opts+=" --target-list=${softmmu_targets}"
 		conf_opts+=" $(use_enable bluetooth bluez)"
+		conf_opts+=" $(use_enable gtk)"
+		use gtk && conf_opts+=" --with-gtkabi=3.0"
 		conf_opts+=" $(use_enable sdl)"
 		conf_opts+=" $(use_enable aio linux-aio)"
 		conf_opts+=" $(use_enable accessibility brlapi)"
 		conf_opts+=" $(use_enable caps cap-ng)"
 		conf_opts+=" $(use_enable curl)"
 		conf_opts+=" $(use_enable fdt)"
+		conf_opts+=" $(use_enable glusterfs)"
 		conf_opts+=" $(use_enable iscsi libiscsi)"
 		conf_opts+=" $(use_enable jpeg vnc-jpeg)"
 		conf_opts+=" $(use_enable kernel_linux kvm)"
-		conf_opts+=" $(use_enable kernel_linux nptl)"
 		conf_opts+=" $(use_enable ncurses curses)"
-		conf_opts+=" $(use_enable opengl)"
+		conf_opts+=" $(use_enable opengl glx)"
 		conf_opts+=" $(use_enable png vnc-png)"
 		conf_opts+=" $(use_enable rbd)"
 		conf_opts+=" $(use_enable sasl vnc-sasl)"
@@ -455,7 +469,7 @@ src_install() {
 	mv "${ED}/usr/share/doc/${PF}/html/qmp-commands.txt" "${S}/QMP/"
 
 	cd "${S}"
-	dodoc Changelog MAINTAINERS TODO docs/specs/pci-ids.txt
+	dodoc Changelog MAINTAINERS docs/specs/pci-ids.txt
 	newdoc pc-bios/README README.pc-bios
 	dodoc QMP/qmp-commands.txt QMP/qmp-events.txt QMP/qmp-spec.txt
 
@@ -504,6 +518,14 @@ pkg_postinst() {
 
 	if qemu_support_kvm; then
 		readme.gentoo_print_elog
+		ewarn "Migration from qemu-kvm instances and loading qemu-kvm created"
+		ewarn "save states will be removed in the next release (1.7.x)"
+		ewarn
+		ewarn "It is recommended that you migrate any VMs that may be running"
+		ewarn "on qemu-kvm to a host with a newer qemu and regenerate"
+		ewarn "any saved states with a newer qemu."
+		ewarn
+		ewarn "qemu-kvm was the primary qemu provider in Gentoo through 1.2.x"
 	fi
 
 	virtfs_caps+="cap_chown,cap_dac_override,cap_fowner,cap_fsetid,"
