@@ -1,6 +1,17 @@
 # ChangeLog for sys-firmware/ipxe
 # Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-firmware/ipxe/ChangeLog,v 1.12 2013/07/04 12:25:59 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-firmware/ipxe/ChangeLog,v 1.15 2013/11/07 15:48:40 cardoe Exp $
+
+*ipxe-1.0.0_p20130925 (07 Nov 2013)
+
+  07 Nov 2013; Doug Goldstein <cardoe@gentoo.org> +ipxe-1.0.0_p20130925.ebuild:
+  Fix issue with register clobbering and gcc 4.8. bug #487254
+
+  06 Sep 2013; Agostino Sarubbo <ago@gentoo.org> ipxe-1.0.0_p20130624.ebuild:
+  Stable for x86, wrt bug #483770
+
+  06 Sep 2013; Agostino Sarubbo <ago@gentoo.org> ipxe-1.0.0_p20130624.ebuild:
+  Stable for amd64, wrt bug #483770
 
   04 Jul 2013; Agostino Sarubbo <ago@gentoo.org> ipxe-1.0.0_p20130225.ebuild:
   Stable for x86, wrt bug #475110

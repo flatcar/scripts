@@ -1,6 +1,32 @@
 # ChangeLog for sys-firmware/seabios
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-firmware/seabios/ChangeLog,v 1.20 2013/07/28 09:27:54 jcallen Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-firmware/seabios/ChangeLog,v 1.27 2014/01/19 23:01:55 cardoe Exp $
+
+*seabios-1.7.3.2 (19 Jan 2014)
+
+  19 Jan 2014; Doug Goldstein <cardoe@gentoo.org> +seabios-1.7.3.2.ebuild:
+  Version bump. The pre-built version is the binary shipped with qemu-1.7.0.
+
+  31 Dec 2013; Mike Gilbert <floppym@gentoo.org> seabios-1.7.3.ebuild:
+  Call python-any-r1_pkg_setup to avoid breaking binpkgs.
+
+  31 Dec 2013; Mike Gilbert <floppym@gentoo.org> seabios-1.7.3.ebuild:
+  Don't call python_setup if USE=binary, bug 496590.
+
+  14 Sep 2013; Agostino Sarubbo <ago@gentoo.org> seabios-1.7.2.2.ebuild:
+  Stable for x86, wrt bug #484686
+
+  14 Sep 2013; Agostino Sarubbo <ago@gentoo.org> seabios-1.7.2.2.ebuild:
+  Stable for amd64, wrt bug #484686
+
+  27 Aug 2013; Doug Goldstein <cardoe@gentoo.org> seabios-1.7.3.ebuild:
+  Attempt to utilize toolchain functions rather than having it use the defaults.
+
+*seabios-1.7.3 (20 Aug 2013)
+
+  20 Aug 2013; Doug Goldstein <cardoe@gentoo.org> +seabios-1.7.3.ebuild,
+  seabios-1.7.2.2.ebuild:
+  Add initial SeaBIOS 1.7.3
 
   28 Jul 2013; Jonathan Callen <jcallen@gentoo.org> seabios-1.7.2.2.ebuild:
   Add missing python dependency, switch to using python-any-r1 as it is usually
