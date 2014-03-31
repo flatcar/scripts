@@ -1,6 +1,28 @@
 # ChangeLog for dev-libs/openssl
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/openssl/ChangeLog,v 1.513 2014/01/26 11:59:33 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/openssl/ChangeLog,v 1.517 2014/03/22 18:56:05 vapier Exp $
+
+  22 Mar 2014; Mike Frysinger <vapier@gentoo.org> metadata.xml:
+  Note that USE=bindist changes ABI. #505306 by Thibaud CANALE.
+
+  21 Mar 2014; Lars Wendler <polynomial-c@gentoo.org>
+  openssl-1.0.2_beta1.ebuild, +files/openssl-1.0.2_beta1-perl-5.18.patch:
+  Fixed installation with perl-5.18
+
+*openssl-1.0.2_beta1 (20 Mar 2014)
+
+  20 Mar 2014; Mike Frysinger <vapier@gentoo.org>
+  +files/openssl-1.0.2-ipv6.patch, +files/openssl-1.0.2-parallel-build.patch,
+  +openssl-1.0.2_beta1.ebuild:
+  Version bump for testing.
+
+  21 Feb 2014; Lars Wendler <polynomial-c@gentoo.org> -openssl-1.0.1e.ebuild,
+  -openssl-1.0.1e-r1.ebuild, -openssl-1.0.1e-r2.ebuild,
+  -openssl-1.0.1e-r3.ebuild, -files/openssl-1.0.1e-bad-mac-aes-ni.patch,
+  -files/openssl-1.0.1e-perl-5.18.patch,
+  -files/openssl-1.0.1e-rdrand-explicit.patch,
+  -files/openssl-1.0.1e-tls-ver-crash.patch:
+  Removed vulnerable versions (bug #497838).
 
   26 Jan 2014; Agostino Sarubbo <ago@gentoo.org> openssl-1.0.1f.ebuild:
   Stable for sparc, wrt bug #497838
