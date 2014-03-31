@@ -1,6 +1,239 @@
 # ChangeLog for net-misc/openssh
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/openssh/ChangeLog,v 1.466 2013/02/21 05:30:13 zmedico Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-misc/openssh/ChangeLog,v 1.519 2014/03/23 09:55:55 ago Exp $
+
+  23 Mar 2014; Agostino Sarubbo <ago@gentoo.org> -openssh-5.9_p1-r4.ebuild,
+  -openssh-6.0_p1-r1.ebuild, -openssh-6.1_p1-r1.ebuild,
+  -openssh-6.2_p2-r5.ebuild, -openssh-6.3_p1-r1.ebuild,
+  -openssh-6.4_p1-r1.ebuild:
+  Remove old
+
+  23 Mar 2014; Agostino Sarubbo <ago@gentoo.org> openssh-6.6_p1-r1.ebuild:
+  Stable for alpha, wrt bug #505066
+
+  23 Mar 2014; Agostino Sarubbo <ago@gentoo.org> openssh-6.6_p1-r1.ebuild:
+  Stable for sparc, wrt bug #505066
+
+  23 Mar 2014; Agostino Sarubbo <ago@gentoo.org> openssh-6.6_p1-r1.ebuild:
+  Stable for ppc64, wrt bug #505066
+
+  23 Mar 2014; Agostino Sarubbo <ago@gentoo.org> openssh-6.6_p1-r1.ebuild:
+  Stable for ppc, wrt bug #505066
+
+  22 Mar 2014; Markus Meier <maekke@gentoo.org> openssh-6.6_p1-r1.ebuild:
+  arm stable, bug #505066
+
+  22 Mar 2014; Jeroen Roovers <jer@gentoo.org> openssh-6.6_p1-r1.ebuild:
+  Stable for HPPA (bug #505066).
+
+  21 Mar 2014; Mike Frysinger <vapier@gentoo.org> openssh-6.6_p1-r1.ebuild:
+  Also disable -ftrapv flag in configure.ac #505182 by Jeroen Roovers.
+
+  21 Mar 2014; Mike Frysinger <vapier@gentoo.org> openssh-6.6_p1-r1.ebuild:
+  Disable -ftrapv flag on hppa until gcc ICEs get sorted out #505182 by Jeroen
+  Roovers.
+
+  20 Mar 2014; Mike Frysinger <vapier@gentoo.org> openssh-6.6_p1-r1.ebuild:
+  Mark arm64/ia64/m68k/s390/sh stable #505066.
+
+*openssh-6.6_p1-r1 (20 Mar 2014)
+
+  20 Mar 2014; Lars Wendler <polynomial-c@gentoo.org> -openssh-6.6_p1.ebuild,
+  +openssh-6.6_p1-r1.ebuild:
+  Fixed hpn patch to not add a false patch level to ssh's version string
+  (6.6p2). Committed straight to stable where -r0 was stable.
+
+  20 Mar 2014; Agostino Sarubbo <ago@gentoo.org> openssh-6.6_p1.ebuild:
+  Stable for x86, wrt bug #505066
+
+  20 Mar 2014; Agostino Sarubbo <ago@gentoo.org> openssh-6.6_p1.ebuild:
+  Stable for amd64, wrt bug #505066
+
+  20 Mar 2014; Mike Frysinger <vapier@gentoo.org>
+  files/openssh-6.6_p1-openssl-ignore-status.patch:
+  link in upstream bug url
+
+  20 Mar 2014; Mike Frysinger <vapier@gentoo.org>
+  +files/openssh-6.6_p1-openssl-ignore-status.patch, openssh-6.6_p1.ebuild:
+  Fix openssl version check to accept dev/beta/release versions.
+
+*openssh-6.6_p1 (19 Mar 2014)
+
+  19 Mar 2014; Mike Frysinger <vapier@gentoo.org>
+  +files/openssh-6.6_p1-x509-glue.patch,
+  +files/openssh-6.6_p1-x509-hpn14v4-glue-p2.patch, +openssh-6.6_p1.ebuild,
+  -files/openssh-6.5_p1-x509-glue.patch,
+  -files/openssh-6.5_p1-x509-hpn14v4-glue-p2.patch, -openssh-6.5_p1-r1.ebuild:
+  Version bump.
+
+  14 Mar 2014; Mike Frysinger <vapier@gentoo.org>
+  files/openssh-6.5_p1-hpn-cipher-align.patch:
+  Fix build on 32bit systems #504616 by Toralf Förster.
+
+*openssh-6.5_p1-r1 (14 Mar 2014)
+
+  14 Mar 2014; Mike Frysinger <vapier@gentoo.org>
+  +files/openssh-6.5_p1-hpn-cipher-align.patch, +openssh-6.5_p1-r1.ebuild,
+  -openssh-6.5_p1.ebuild:
+  Avoid unaligned loads/stores in USE=hpn cipher code #498632 by Bruno.
+
+*openssh-6.5_p1 (14 Mar 2014)
+
+  14 Mar 2014; Mike Frysinger <vapier@gentoo.org>
+  +files/openssh-6.5_p1-x509-glue.patch,
+  +files/openssh-6.5_p1-x509-hpn14v4-glue-p2.patch, +openssh-6.5_p1.ebuild:
+  Version bump #499962 by Lars Wendler.
+
+  14 Feb 2014; Akinori Hattori <hattya@gentoo.org> openssh-6.4_p1-r1.ebuild:
+  ia64 stable wrt bug #477894
+
+  01 Feb 2014; Raúl Porcel <armin76@gentoo.org> openssh-6.4_p1-r1.ebuild:
+  Stable on sparc after p.use.masking hpn, bug #499552
+
+  31 Jan 2014; Raúl Porcel <armin76@gentoo.org> openssh-6.4_p1-r1.ebuild:
+  Move to -sparc, bug #499552
+
+  26 Jan 2014; Agostino Sarubbo <ago@gentoo.org> openssh-6.4_p1-r1.ebuild:
+  Stable for sparc, wrt bug #477894
+
+  23 Jan 2014; Joseph Jezak <josejx@gentoo.org> openssh-6.4_p1-r1.ebuild:
+  Marked ppc/ppc64 stable for bug #477894.
+
+  18 Jan 2014; Mike Frysinger <vapier@gentoo.org> openssh-6.4_p1-r1.ebuild:
+  Add arm64 love.
+
+  16 Jan 2014; Mike Frysinger <vapier@gentoo.org> openssh-6.4_p1-r1.ebuild:
+  Mark m68k/s390/sh stable.
+
+  02 Jan 2014; Lars Wendler <polynomial-c@gentoo.org> openssh-6.4_p1-r1.ebuild:
+  amd64 stable (bug #477894).
+
+  25 Dec 2013; Markus Meier <maekke@gentoo.org> openssh-6.4_p1-r1.ebuild:
+  arm stable, bug #477894
+
+  24 Dec 2013; Agostino Sarubbo <ago@gentoo.org> openssh-6.4_p1-r1.ebuild:
+  Stable for x86, wrt bug #477894
+
+  11 Dec 2013; Jeroen Roovers <jer@gentoo.org> openssh-6.4_p1-r1.ebuild:
+  Stable for HPPA (bug #477894).
+
+  11 Dec 2013; Tim Harder <radhermit@gentoo.org> openssh-5.9_p1-r4.ebuild,
+  openssh-6.0_p1-r1.ebuild, openssh-6.1_p1-r1.ebuild, openssh-6.2_p2-r5.ebuild,
+  openssh-6.3_p1-r1.ebuild, openssh-6.4_p1-r1.ebuild:
+  Make sure ldap support is truly enabled before installing the openldap
+  schema.
+
+  09 Nov 2013; Tim Harder <radhermit@gentoo.org> -openssh-6.4_p1.ebuild:
+  Remove insecure version due to improperly using the 6.3_p1 tarball.
+
+*openssh-6.4_p1-r1 (09 Nov 2013)
+
+  09 Nov 2013; Tim Harder <radhermit@gentoo.org> +openssh-6.4_p1-r1.ebuild,
+  +files/openssh-6.4_p1-x509-glue.patch:
+  Update x509 patch.
+
+*openssh-6.4_p1 (09 Nov 2013)
+
+  09 Nov 2013; Robin H. Johnson <robbat2@gentoo.org> +openssh-6.4_p1.ebuild:
+  Add real OpenSSH-6.4p1 release (nearly identical to 6.3, just with the AES-GCM
+  fix).
+
+  08 Nov 2013; Tim Harder <radhermit@gentoo.org> -openssh-6.2_p2-r3.ebuild,
+  -openssh-6.2_p2-r4.ebuild:
+  Remove insecure versions.
+
+*openssh-6.2_p2-r5 (08 Nov 2013)
+
+  08 Nov 2013; Tim Harder <radhermit@gentoo.org> +openssh-6.2_p2-r5.ebuild:
+  Apply AES-GCM cipher patch for the 6.2 series (bug #490728).
+
+  08 Nov 2013; Tim Harder <radhermit@gentoo.org> -openssh-6.3_p1.ebuild:
+  Remove insecure version.
+
+*openssh-6.3_p1-r1 (08 Nov 2013)
+
+  08 Nov 2013; Tim Harder <radhermit@gentoo.org> +openssh-6.3_p1-r1.ebuild,
+  +files/openssh-6.3_p1-aes-gcm.patch:
+  Apply patch to fix a memory corruption vulnerability with the AES-GCM cipher
+  (bug #490728).
+
+*openssh-6.3_p1 (05 Nov 2013)
+
+  05 Nov 2013; Tim Harder <radhermit@gentoo.org> +openssh-6.3_p1.ebuild,
+  +files/openssh-6.3_p1-x509-glue.patch,
+  +files/openssh-6.3_p1-x509-hpn14v2-glue.patch:
+  Version bump (bug #488482).
+
+*openssh-6.2_p2-r4 (15 Aug 2013)
+
+  15 Aug 2013; Tim Harder <radhermit@gentoo.org> +openssh-6.2_p2-r4.ebuild,
+  +files/openssh-6.2_p2-x509-hpn14v1-glue.patch:
+  Update to hpn14v1 patch that fixes the multi-threaded AES-CTR cipher when the
+  process forks to the background or when using the rlimit sandbox.
+
+*openssh-6.2_p2-r3 (21 Jul 2013)
+
+  21 Jul 2013; Tim Harder <radhermit@gentoo.org> -openssh-6.2_p2-r2.ebuild,
+  +openssh-6.2_p2-r3.ebuild:
+  Fix hpn support when pseudo-tty allocation is disabled (bug #477506).
+
+  18 Jul 2013; Tim Harder <radhermit@gentoo.org> -openssh-6.0_p1.ebuild,
+  -openssh-6.1_p1.ebuild, -openssh-6.2_p2.ebuild, -openssh-6.2_p2-r1.ebuild,
+  -files/openssh-5.2_p1-autoconf.patch, -files/openssh-5.2_p1-gsskex-fix.patch,
+  -files/openssh-5.2_p1-x509-hpn-glue.patch,
+  -files/openssh-5.6_p1-x509-hpn-glue.patch,
+  -files/openssh-5.7_p1-x509-hpn-glue.patch,
+  -files/openssh-5.8_p1-selinux.patch:
+  Remove old.
+
+*openssh-6.2_p2-r2 (18 Jul 2013)
+
+  18 Jul 2013; Tim Harder <radhermit@gentoo.org> +openssh-6.2_p2-r2.ebuild:
+  Fix xauth path (bug #477304 by Tobias Klausmann) and move into ~arch.
+
+  27 Jun 2013; Tim Harder <radhermit@gentoo.org> Manifest:
+  Update ldap patch to fix segfault issue.
+
+*openssh-6.2_p2-r1 (27 Jun 2013)
+
+  27 Jun 2013; Tim Harder <radhermit@gentoo.org> +openssh-6.2_p2-r1.ebuild:
+  Revision bump, add ldap and hpn support.
+
+*openssh-6.2_p2 (24 Jun 2013)
+
+  24 Jun 2013; Mike Frysinger <vapier@gentoo.org>
+  +files/openssh-6.2_p2-x509-glue.patch,
+  +files/openssh-6.2_p2-x509-hpn-glue.patch, +openssh-6.2_p2.ebuild,
+  -files/openssh-6.2_p1-x509-glue.patch,
+  -files/openssh-6.2_p1-x509-hpn-glue.patch, -openssh-6.2_p1.ebuild:
+  Version bump #470222 by Jason A. Donenfeld.
+
+  23 Jun 2013; Mike Frysinger <vapier@gentoo.org> openssh-6.2_p1.ebuild:
+  Move into ~arch w/hpn disabled as it randomly hangs.
+
+  19 Jun 2013; Mike Frysinger <vapier@gentoo.org> openssh-5.9_p1-r4.ebuild,
+  openssh-6.0_p1-r1.ebuild, openssh-6.1_p1-r1.ebuild, openssh-6.2_p1.ebuild:
+  Call epatch_user #473004 by Jan Pobrislo.
+
+  09 Jun 2013; Mike Frysinger <vapier@gentoo.org> metadata.xml:
+  Add upstream CPE tag (security info) from ChromiumOS.
+
+  24 Apr 2013; Mike Frysinger <vapier@gentoo.org> files/sshd.rc6.4:
+  Use new -A flag with ssh-keygen to take care of generating all the right keys
+  #457026 by Mike Gilbert.
+
+  04 Apr 2013; Mike Gilbert <floppym@gentoo.org> files/sshd.service:
+  Add ExecStartPre=/usr/bin/ssh-keygen -A to sshd.service. Bug 457026.
+
+  30 Mar 2013; Tim Harder <radhermit@gentoo.org> openssh-6.2_p1.ebuild,
+  +files/openssh-6.2_p1-x509-glue.patch,
+  +files/openssh-6.2_p1-x509-hpn-glue.patch:
+  Update glue patches for X509 support.
+
+*openssh-6.2_p1 (24 Mar 2013)
+
+  24 Mar 2013; Mike Frysinger <vapier@gentoo.org> +openssh-6.2_p1.ebuild:
+  Initial version.  Needs ldap, and a little more testing w/custom hpn patch.
 
   21 Feb 2013; Zac Medico <zmedico@gentoo.org> openssh-6.1_p1-r1.ebuild:
   Fix for prefix and add ~arm-linux + ~x86-linux keywords.

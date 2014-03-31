@@ -1,0 +1,13 @@
+http://www.openssh.org/txt/gcmrekey.adv
+
+--- openssh-6.3p1/monitor_wrap.c
++++ openssh-6.3p1/monitor_wrap.c
+@@ -482,7 +482,7 @@ mm_newkeys_from_blob(u_char *blob, int b
+ 	buffer_init(&b);
+ 	buffer_append(&b, blob, blen);
+ 
+-	newkey = xmalloc(sizeof(*newkey));
++	newkey = xcalloc(1, sizeof(*newkey));
+ 	enc = &newkey->enc;
+ 	mac = &newkey->mac;
+ 	comp = &newkey->comp;
