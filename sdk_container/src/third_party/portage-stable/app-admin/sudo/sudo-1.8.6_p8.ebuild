@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-admin/sudo/sudo-1.8.6_p3.ebuild,v 1.10 2013/01/22 17:34:33 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-admin/sudo/sudo-1.8.6_p8.ebuild,v 1.2 2013/05/27 21:35:20 zx2c4 Exp $
 
 EAPI=4
 
@@ -23,8 +23,8 @@ SRC_URI="http://www.sudo.ws/sudo/dist/${uri_prefix}${MY_P}.tar.gz
 # 3-clause BSD license
 LICENSE="ISC BSD"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~sparc-solaris"
-IUSE="ldap nls pam offensive selinux skey"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~sparc-solaris"
+IUSE="ldap nls pam offensive selinux skey +sendmail"
 
 DEPEND="pam? ( virtual/pam )
 	skey? ( >=sys-auth/skey-1.1.5-r1 )
@@ -39,7 +39,7 @@ RDEPEND="${DEPEND}
 	pam? ( sys-auth/pambase )
 	>=app-misc/editor-wrapper-3
 	virtual/editor
-	virtual/mta"
+	sendmail? ( virtual/mta )"
 DEPEND="${DEPEND}
 	sys-devel/bison"
 
@@ -115,6 +115,7 @@ src_configure() {
 		$(use_with pam) \
 		$(use_with skey) \
 		$(use_with selinux) \
+		$(use_with sendmail) \
 		--without-opie \
 		--without-linux-audit \
 		--with-timedir="${EPREFIX}"/var/db/sudo \
@@ -123,7 +124,7 @@ src_configure() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" install || die
+	default
 
 	if use ldap ; then
 		dodoc README.LDAP doc/schema.OpenLDAP

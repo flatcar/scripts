@@ -1,6 +1,106 @@
 # ChangeLog for app-admin/sudo
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/app-admin/sudo/ChangeLog,v 1.337 2013/02/01 17:16:32 flameeyes Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/app-admin/sudo/ChangeLog,v 1.362 2014/03/18 18:37:22 polynomial-c Exp $
+
+*sudo-1.8.10_p2 (18 Mar 2014)
+
+  18 Mar 2014; Lars Wendler <polynomial-c@gentoo.org> -sudo-1.8.10_p1.ebuild,
+  +sudo-1.8.10_p2.ebuild:
+  Version bump. Removed old.
+
+  17 Mar 2014; Lars Wendler <polynomial-c@gentoo.org> sudo-1.8.10_p1.ebuild:
+  Don't install into /var/run as that is a tmpfs most of the time (bug
+  #504854).
+
+*sudo-1.8.10_p1 (14 Mar 2014)
+
+  14 Mar 2014; Lars Wendler <polynomial-c@gentoo.org> -sudo-1.8.10.ebuild,
+  +sudo-1.8.10_p1.ebuild:
+  Version bump. Removed old.
+
+*sudo-1.8.10 (13 Mar 2014)
+
+  13 Mar 2014; Lars Wendler <polynomial-c@gentoo.org> +sudo-1.8.10.ebuild:
+  Version bump.
+
+*sudo-1.8.9_p5 (21 Feb 2014)
+
+  21 Feb 2014; Lars Wendler <polynomial-c@gentoo.org> +sudo-1.8.9_p5.ebuild:
+  Version bump (bug #501966).
+
+*sudo-1.8.8 (10 Oct 2013)
+
+  10 Oct 2013; Tony Vroon <chainsaw@gentoo.org> +sudo-1.8.8.ebuild:
+  Version bump, as requested by "teidakankan" & "Ulenrich" in bug #481392. Now
+  produces useful error messages if there is an error in the configuration
+  file. Line continuation with backslashes is now supported. Improved HP-UX &
+  Solaris support. No longer assumes BSD group semantics.
+
+  05 Jun 2013; Mike Frysinger <vapier@gentoo.org> metadata.xml:
+  Add upstream CPE tag (security info) from ChromiumOS.
+
+  27 May 2013; Jason A. Donenfeld <zx2c4@gentoo.org> metadata.xml,
+  sudo-1.8.5_p2.ebuild, sudo-1.8.6_p7.ebuild, sudo-1.8.6_p8.ebuild:
+  Per discussion with flameeyes and zmedico, introduce sendmail USE flag to make
+  packages.provided less compelling.
+
+*sudo-1.8.6_p8 (15 Apr 2013)
+
+  15 Apr 2013; Diego E. Pettenò <flameeyes@gentoo.org> +sudo-1.8.6_p8.ebuild,
+  -sudo-1.8.6_p3.ebuild:
+  Version bump and remove old.
+
+  14 Apr 2013; Agostino Sarubbo <ago@gentoo.org> sudo-1.8.6_p7.ebuild:
+  Stable for sh, wrt bug #459722
+
+  13 Apr 2013; Agostino Sarubbo <ago@gentoo.org> sudo-1.8.6_p7.ebuild:
+  Stable for s390, wrt bug #459722
+
+  13 Apr 2013; Agostino Sarubbo <ago@gentoo.org> sudo-1.8.6_p7.ebuild:
+  Stable for sparc, wrt bug #459722
+
+  12 Apr 2013; Agostino Sarubbo <ago@gentoo.org> sudo-1.8.6_p7.ebuild:
+  Stable for ia64, wrt bug #459722
+
+  12 Apr 2013; Agostino Sarubbo <ago@gentoo.org> sudo-1.8.6_p7.ebuild:
+  Stable for x86, wrt bug #459722
+
+  11 Apr 2013; Agostino Sarubbo <ago@gentoo.org> sudo-1.8.6_p7.ebuild:
+  Stable for alpha, wrt bug #459722
+
+  11 Apr 2013; Agostino Sarubbo <ago@gentoo.org> sudo-1.8.6_p7.ebuild:
+  Stable for ppc64, wrt bug #459722
+
+  11 Apr 2013; Agostino Sarubbo <ago@gentoo.org> sudo-1.8.6_p7.ebuild:
+  Stable for ppc, wrt bug #459722
+
+  09 Apr 2013; Jeroen Roovers <jer@gentoo.org> sudo-1.8.6_p7.ebuild:
+  Stable for HPPA (bug #459722).
+
+  09 Apr 2013; Sergey Popov <pinkbyte@gentoo.org> sudo-1.8.6_p7.ebuild:
+  Stable on arm, wrt bug #459722
+
+  09 Apr 2013; Sergey Popov <pinkbyte@gentoo.org> sudo-1.8.6_p7.ebuild:
+  Stable on amd64, wrt bug #459722
+
+*sudo-1.8.6_p7 (28 Feb 2013)
+
+  28 Feb 2013; Diego E. Pettenò <flameeyes@gentoo.org> +sudo-1.8.6_p7.ebuild,
+  -sudo-1.8.6_p6.ebuild:
+  Version bump; remove old.
+
+  24 Feb 2013; Agostino Sarubbo <ago@gentoo.org> sudo-1.8.6_p3.ebuild:
+  Stable for sh, wrt bug #452602
+
+  20 Feb 2013; Agostino Sarubbo <ago@gentoo.org> sudo-1.8.6_p3.ebuild:
+  Stable for s390, wrt bug #452602
+
+  08 Feb 2013; Mike Frysinger <vapier@gentoo.org> sudo-1.8.5_p2.ebuild,
+  sudo-1.8.6_p3.ebuild, sudo-1.8.6_p6.ebuild:
+  Use `default` to install.
+
+  04 Feb 2013; Agostino Sarubbo <ago@gentoo.org> sudo-1.8.6_p3.ebuild:
+  Stable for alpha, wrt bug #452602
 
 *sudo-1.8.6_p6 (01 Feb 2013)
 
