@@ -1,6 +1,11 @@
 # ChangeLog for dev-libs/openssl
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/openssl/ChangeLog,v 1.517 2014/03/22 18:56:05 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/openssl/ChangeLog,v 1.518 2014/04/07 18:10:03 vapier Exp $
+
+*openssl-1.0.1g (07 Apr 2014)
+
+  07 Apr 2014; Mike Frysinger <vapier@gentoo.org> +openssl-1.0.1g.ebuild:
+  Version bump.
 
   22 Mar 2014; Mike Frysinger <vapier@gentoo.org> metadata.xml:
   Note that USE=bindist changes ABI. #505306 by Thibaud CANALE.
