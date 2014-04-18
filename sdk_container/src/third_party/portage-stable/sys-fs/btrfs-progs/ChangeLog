@@ -1,6 +1,22 @@
 # ChangeLog for sys-fs/btrfs-progs
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/btrfs-progs/ChangeLog,v 1.74 2014/01/05 10:46:27 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/btrfs-progs/ChangeLog,v 1.77 2014/04/14 20:26:56 slyfox Exp $
+
+*btrfs-progs-3.14_pre20140414 (14 Apr 2014)
+
+  14 Apr 2014; Sergei Trofimovich <slyfox@gentoo.org>
+  +btrfs-progs-3.14_pre20140414.ebuild:
+  Bump snapshot up to latest stable upstream tag v3.14 (bug #507008 by Duncan).
+
+  07 Apr 2014; Sergei Trofimovich <slyfox@gentoo.org> btrfs-progs-9999.ebuild:
+  Drop upstreamed patches. Thanks to Duncan at #507008.
+
+*btrfs-progs-3.12-r2 (10 Mar 2014)
+
+  10 Mar 2014; Sergei Trofimovich <slyfox@gentoo.org>
+  +btrfs-progs-3.12-r2.ebuild, +files/btrfs-progs-3.12-defrag-sockets.patch,
+  btrfs-progs-9999.ebuild:
+  Fix recursive defrag failures on non-files (bug #503514 by Antoine Lemoine).
 
   05 Jan 2014; Agostino Sarubbo <ago@gentoo.org> btrfs-progs-3.12-r1.ebuild:
   Stable for x86, wrt bug #494114
