@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/btrfs-progs/btrfs-progs-9999.ebuild,v 1.33 2014/04/07 18:45:36 slyfox Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/btrfs-progs/btrfs-progs-3.14_pre20140414.ebuild,v 1.1 2014/04/14 20:26:56 slyfox Exp $
 
 EAPI=5
 
@@ -11,7 +11,8 @@ libbtrfs_soname=0
 if [[ ${PV} != 9999 ]]; then
 	MY_PV=v${PV}
 	KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86"
-	SRC_URI="https://www.kernel.org/pub/linux/kernel/people/mason/${PN}/${PN}-${MY_PV}.tar.xz"
+	#SRC_URI="https://www.kernel.org/pub/linux/kernel/people/mason/${PN}/${PN}-${MY_PV}.tar.xz"
+	SRC_URI="https://dev.gentoo.org/~slyfox/distfiles/${PN}-${MY_PV}.tar.xz"
 	S="${WORKDIR}"/${PN}-${MY_PV}
 else
 	inherit git-2
