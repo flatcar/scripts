@@ -1,0 +1,26 @@
+From 13294581f82c2e51754ba3dacd7ec304350244c0 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Amadeusz=20=C5=BBo=C5=82nowski?= <aidecoe@aidecoe.name>
+Date: Sun, 23 Feb 2014 17:43:57 +0100
+Subject: [PATCH 7/7] Added missing quotes
+
+See bug report at https://bugs.gentoo.org/show_bug.cgi?id=502064
+---
+ dracut.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/dracut.sh b/dracut.sh
+index d693d58..5508050 100755
+--- a/dracut.sh
++++ b/dracut.sh
+@@ -554,7 +554,7 @@ done
+ # the old fashioned way
+ 
+ while (($# > 0)); do
+-    if [ ${1%%=*} == "++include" ]; then
++    if [ "${1%%=*}" == "++include" ]; then
+         push include_src "$2"
+         push include_target "$3"
+         PARMS_TO_STORE+=" --include '$2' '$3'"
+-- 
+1.9.0
+
