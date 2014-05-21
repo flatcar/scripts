@@ -1,0 +1,88 @@
+Index: configure
+==================================================================
+--- configure
++++ configure
+@@ -11,14 +11,13 @@
+ CLOSEFROM=
+ GETLINE=
+ STRLCPY=
+ UDEV=
+ OS=
+-BUILD=
++BUILDCC=
+ HOST=
+ TARGET=
+-TARGETCC=
+ DEBUG=
+ FORK=
+ STATIC=
+ INCLUDEDIR=
+ DEVS=
+@@ -55,11 +54,11 @@
+ 	CC) CC=$var;;
+ 	CPPFLAGS) CPPFLAGS=$var;;
+ 	--with-hook) HOOKSCRIPTS="$HOOKSCRIPTS${HOOKSCRIPTS:+ }$var";;
+ 	--with-hooks|HOOKSCRIPTS) HOOKSCRIPTS=$var; HOOKSET=true;;
+ 	--build) BUILD=$var;;
+-	--host) HOST=$var;;
++	--host) HOST=$var; HOSTCC=$var-;;
+ 	--target) TARGET=$var;;
+ 	--libdir) LIBDIR=$var;;
+ 	--without-arc4random) ARC4RANDOM=no;;
+ 	--without-closefrom) CLOSEFROM=no;;
+ 	--without-getline) GETLINE=no;;
+@@ -188,27 +187,18 @@
+ CONFIG_MK=config.mk
+ 
+ if [ -z "$BUILD" ]; then
+ 	# autoconf target triplet: cpu-vendor-os
+ 	BUILD=$(uname -m)-unknown-$(uname -s | tr '[:upper:]' '[:lower:]')
+-else
+-	TARGETCC=$BUILD-
+ fi
+-if [ -n "$TARGET" ]; then
+-	TARGETCC=$TARGET-
+-elif [ -n "$HOST" ]; then
+-	TARGET=$HOST
+-else
+-	HOST=$BUILD
+-	TARGET=$HOST
+-fi
++: ${HOST:=$BUILD}
+ 
+ if [ -z "$OS" ]; then
+-	echo "Deriving operating system from ... $TARGET"
++	echo "Deriving operating system from ... $HOST"
+ 	# Derive OS from cpu-vendor-[kernel-]os
+-	CPU=${TARGET%%-*}
+-	REST=${TARGET#*-}
++	CPU=${HOST%%-*}
++	REST=${HOST#*-}
+ 	if [ "$CPU" != "$REST" ]; then
+ 		VENDOR=${REST%%-*}
+ 		REST=${REST#*-}
+ 		if [ "$VENDOR" != "$REST" ]; then
+ 			# Use kernel if given, otherwise os
+@@ -252,18 +242,18 @@
+ # Always obey CC.
+ # However, if CC is not specified and we are given GNU style
+ # --host or --build targets the expectation is we try and match that
+ # to a compiler.
+ if [ -n "$CC" ]; then
+-	TARGETCC=
++	HOSTCC=
+ else
+ 	CC=cc
+ 	_COMPILERS="cc clang gcc pcc icc"
+ fi
+-if [ -n "$TARGETCC" ]; then
++if [ -n "$HOSTCC" ]; then
+ 	for _CC in $_COMPILERS; do
+-		_CC=$(_which "$TARGETCC$_CC")
++		_CC=$(_which "$HOSTCC$_CC")
+ 		if [ -x "$_CC" ]; then
+ 			CC=$_CC
+ 			break
+ 		fi
+ 	done
+
