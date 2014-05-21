@@ -1,0 +1,109 @@
+Index: configure
+==================================================================
+--- configure
++++ configure
+@@ -14,10 +14,11 @@
+ UDEV=
+ OS=
+ BUILD=
+ HOST=
+ TARGET=
++TARGETCC=
+ DEBUG=
+ FORK=
+ STATIC=
+ INCLUDEDIR=
+ DEVS=
+@@ -49,10 +50,11 @@
+ 	--statedir|--localstatedir) STATEDIR=$var;;
+ 	--dbdir) DBDIR=$var;;
+ 	--rundir) RUNDIR=$var;;
+ 	--mandir) MANDIR=$var;;
+ 	--with-ccopts|CFLAGS) CFLAGS=$var;;
++	CC) CC=$var;;
+ 	CPPFLAGS) CPPFLAGS=$var;;
+ 	--with-hook) HOOKSCRIPTS="$HOOKSCRIPTS${HOOKSCRIPTS:+ }$var";;
+ 	--with-hooks|HOOKSCRIPTS) HOOKSCRIPTS=$var; HOOKSET=true;;
+ 	--build) BUILD=$var;;
+ 	--host) HOST=$var;;
+@@ -186,17 +188,19 @@
+ CONFIG_MK=config.mk
+ 
+ if [ -z "$BUILD" ]; then
+ 	# autoconf target triplet: cpu-vendor-os
+ 	BUILD=$(uname -m)-unknown-$(uname -s | tr '[:upper:]' '[:lower:]')
++else
++	TARGETCC=$BUILD-
+ fi
+-if [ -z "$HOST" ]; then
+-	[ -z "$TARGET" ] && TARGET=$BUILD
+-	HOST=$TARGET
+-fi
+-if [ -z "$TARGET" ]; then
+-	[ -z "$HOST" ] && HOST=$BUILD
++if [ -n "$TARGET" ]; then
++	TARGETCC=$TARGET-
++elif [ -n "$HOST" ]; then
++	TARGET=$HOST
++else
++	HOST=$BUILD
+ 	TARGET=$HOST
+ fi
+ 
+ if [ -z "$OS" ]; then
+ 	echo "Deriving operating system from ... $TARGET"
+@@ -243,20 +247,37 @@
+ 	echo "#define $x$t	\"$v\"" >>$CONFIG_H
+ done
+ echo "LIBDIR=		$LIBDIR" >>$CONFIG_MK
+ echo "MANDIR=		$MANDIR" >>$CONFIG_MK
+ 
+-: ${CC:=cc}
++# Always obey CC.
++# However, if CC is not specified and we are given GNU style
++# --host or --build targets the expectation is we try and match that
++# to a compiler.
++if [ -n "$CC" ]; then
++	TARGETCC=
++else
++	CC=cc
++	_COMPILERS="cc clang gcc pcc icc"
++fi
++if [ -n "$TARGETCC" ]; then
++	for _CC in $_COMPILERS; do
++		_CC=$(_which "$TARGETCC$_CC")
++		if [ -x "$_CC" ]; then
++			CC=$_CC
++			break
++		fi
++	done
++fi
+ if ! type "$CC" >/dev/null 2>&1; then
+-	for _CC in clang gcc pcc icc; do
++	for _CC in $_COMPILERS; do
+ 		_CC=$(_which "$_CC")
+ 		if [ -x "$_CC" ]; then
+ 			CC=$_CC
+ 			break
+ 		fi
+ 	done
+-	
+ fi
+ 
+ echo "Using compiler .. $CC"
+ if ! type "$CC" >/dev/null 2>&1; then
+ 	echo "$CC is not an executable"
+@@ -415,11 +436,11 @@
+ else
+ 	echo "no"
+ 	echo "libc support for clock_getttime is required - aborting" >&2
+ 	abort=true
+ fi
+-rm -f _clock_gettime.c _clockgettime
++rm -f _clock_gettime.c _clock_gettime
+ $abort && exit 1
+ 
+ if [ -z "$ARC4RANDOM" ]; then
+ 	printf "Testing for arc4random ... "
+ 	cat <<EOF >_arc4random.c
+
