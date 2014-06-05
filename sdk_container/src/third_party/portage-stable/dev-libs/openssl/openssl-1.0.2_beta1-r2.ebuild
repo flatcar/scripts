@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/openssl/openssl-1.0.2_beta1.ebuild,v 1.2 2014/03/21 19:12:26 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/openssl/openssl-1.0.2_beta1-r2.ebuild,v 1.1 2014/04/25 08:19:03 polynomial-c Exp $
 
 EAPI="4"
 
@@ -11,6 +11,7 @@ MY_P=${P/_/-}
 DESCRIPTION="full-strength general purpose cryptography library (including SSL and TLS)"
 HOMEPAGE="http://www.openssl.org/"
 SRC_URI="mirror://openssl/source/${MY_P}.tar.gz
+	http://dev.gentoo.org/~polynomial-c/${P}-patches-02.tar.xz
 	http://cvs.pld-linux.org/cgi-bin/cvsweb.cgi/packages/${PN}/${PN}-c_rehash.sh?rev=${REV} -> ${PN}-c_rehash.sh.${REV}"
 
 LICENSE="openssl"
@@ -38,17 +39,14 @@ PDEPEND="app-misc/ca-certificates"
 
 S="${WORKDIR}/${MY_P}"
 
-src_unpack() {
-	unpack ${MY_P}.tar.gz
+src_prepare() {
 	SSL_CNF_DIR="/etc/ssl"
 	sed \
 		-e "/^DIR=/s:=.*:=${EPREFIX}${SSL_CNF_DIR}:" \
 		-e "s:SSL_CMD=/usr:SSL_CMD=${EPREFIX}/usr:" \
 		"${DISTDIR}"/${PN}-c_rehash.sh.${REV} \
 		> "${WORKDIR}"/c_rehash || die #416717
-}
 
-src_prepare() {
 	# Make sure we only ever touch Makefile.org and avoid patching a file
 	# that gets blown away anyways by the Configure script in src_configure
 	rm -f Makefile
@@ -62,6 +60,12 @@ src_prepare() {
 		epatch "${FILESDIR}"/${PN}-1.0.2_beta1-perl-5.18.patch #497286
 		epatch "${FILESDIR}"/${PN}-1.0.1e-s_client-verify.patch #472584
 		epatch "${FILESDIR}"/${PN}-1.0.1f-revert-alpha-perl-generation.patch #499086
+
+		# upstream fixes taken from 1.0.2_stable branch at openssl.git
+		# repository.
+		EPATCH_SUFFIX="patch" EPATCH_FORCE="yes" \
+		epatch "${WORKDIR}/patches"
+
 		epatch_user #332661
 	fi
 
@@ -86,6 +90,7 @@ src_prepare() {
 
 	append-flags -fno-strict-aliasing
 	append-flags $(test-flags-CC -Wa,--noexecstack)
+	append-cppflags -DOPENSSL_NO_BUF_FREELISTS
 
 	sed -i '1s,^:$,#!'${EPREFIX}'/usr/bin/perl,' Configure #141906
 	# The config script does stupid stuff to prompt the user.  Kill it.
