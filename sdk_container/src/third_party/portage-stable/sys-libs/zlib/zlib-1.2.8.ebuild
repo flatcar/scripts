@@ -1,9 +1,9 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/zlib/zlib-1.2.6.ebuild,v 1.5 2013/03/03 09:18:24 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/zlib/zlib-1.2.8.ebuild,v 1.2 2013/06/17 02:33:13 vapier Exp $
 
 AUTOTOOLS_AUTO_DEPEND="no"
-inherit autotools eutils toolchain-funcs multilib
+inherit autotools toolchain-funcs multilib
 
 DESCRIPTION="Standard (de)compression library"
 HOMEPAGE="http://www.zlib.net/"
@@ -44,7 +44,13 @@ src_compile() {
 			zlib.pc.in > zlib.pc || die
 		;;
 	*)	# not an autoconf script, so can't use econf
-		echoit ./configure --shared --prefix=/usr --libdir=/usr/$(get_libdir) || die
+		local uname=$(/usr/share/gnuconfig/config.sub "${CHOST}" | cut -d- -f3) #347167
+		echoit ./configure \
+			--shared \
+			--prefix=/usr \
+			--libdir=/usr/$(get_libdir) \
+			${uname:+--uname=${uname}} \
+			|| die
 		emake || die
 		;;
 	esac
@@ -89,5 +95,5 @@ src_install() {
 		dodoc *.txt
 	fi
 
-	use static-libs || rm -f "${D}"/usr/$(get_libdir)/*.{a,la}
+	use static-libs || rm -f "${D}"/usr/$(get_libdir)/lib{z,minizip}.{a,la} #419645
 }

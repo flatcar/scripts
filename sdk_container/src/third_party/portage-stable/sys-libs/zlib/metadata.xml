@@ -5,4 +5,7 @@
 	<use>
 		<flag name="minizip">include the minizip library for quick and dirty zip extraction</flag>
 	</use>
+	<upstream>
+		<remote-id type="cpe">cpe:/a:gnu:zlib</remote-id>
+	</upstream>
 </pkgmetadata>

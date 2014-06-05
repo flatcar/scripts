@@ -1,6 +1,59 @@
 # ChangeLog for sys-libs/zlib
-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/zlib/ChangeLog,v 1.120 2012/09/30 17:26:34 armin76 Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/zlib/ChangeLog,v 1.136 2014/01/17 04:23:20 vapier Exp $
+
+  17 Jan 2014; Mike Frysinger <vapier@gentoo.org> zlib-1.2.8-r1.ebuild:
+  Add arm64 keywords.
+
+  16 Jan 2014; Mike Frysinger <vapier@gentoo.org> zlib-1.2.8-r1.ebuild:
+  Mark m68k/s390/sh stable.
+
+  27 Dec 2013; Akinori Hattori <hattya@gentoo.org> zlib-1.2.8-r1.ebuild:
+  ia64 stable wrt bug #488916
+
+  23 Dec 2013; Agostino Sarubbo <ago@gentoo.org> zlib-1.2.8-r1.ebuild:
+  Stable for sparc, wrt bug #488916
+
+  23 Dec 2013; Agostino Sarubbo <ago@gentoo.org> zlib-1.2.8-r1.ebuild:
+  Stable for ppc, wrt bug #488916
+
+  22 Dec 2013; Agostino Sarubbo <ago@gentoo.org> zlib-1.2.8-r1.ebuild:
+  Stable for ppc64, wrt bug #488916
+
+  21 Nov 2013; Sergey Popov <pinkbyte@gentoo.org> zlib-1.2.8-r1.ebuild:
+  Stable on arm, wrt bug #488916
+
+  03 Nov 2013; Matt Turner <mattst88@gentoo.org> zlib-1.2.8-r1.ebuild:
+  alpha stable, bug 488916.
+
+  01 Nov 2013; Agostino Sarubbo <ago@gentoo.org> zlib-1.2.8-r1.ebuild:
+  Stable for x86, wrt bug #488916
+
+  01 Nov 2013; Agostino Sarubbo <ago@gentoo.org> zlib-1.2.8-r1.ebuild:
+  Stable for amd64, wrt bug #488916
+
+  25 Oct 2013; Jeroen Roovers <jer@gentoo.org> zlib-1.2.8-r1.ebuild:
+  Stable for HPPA (bug #488916).
+
+  28 Jul 2013; Alexis Ballier <aballier@gentoo.org> zlib-1.2.8-r1.ebuild:
+  Fix blocker on emul-libs
+
+*zlib-1.2.8-r1 (23 Jun 2013)
+
+  23 Jun 2013; Pacho Ramos <pacho@gentoo.org> +zlib-1.2.8-r1.ebuild:
+  Add ebuild supporting native multilib (#457134, thanks to mgorny and vapier
+  for their help)
+
+  17 Jun 2013; Mike Frysinger <vapier@gentoo.org> zlib-1.2.8.ebuild:
+  Fix transposed emake #473370 by Michał Górny.
+
+  05 Jun 2013; Mike Frysinger <vapier@gentoo.org> metadata.xml:
+  Add upstream CPE tag (security info) from ChromiumOS.
+
+*zlib-1.2.8 (04 May 2013)
+
+  04 May 2013; Mike Frysinger <vapier@gentoo.org> +zlib-1.2.8.ebuild:
+  Version bump #468014 by Samuli Suominen.
 
   30 Sep 2012; Raúl Porcel <armin76@gentoo.org> zlib-1.2.7.ebuild:
   ia64/m68k/s390/sh/sparc stable wrt #435754
