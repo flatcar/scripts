@@ -1,6 +1,101 @@
 # ChangeLog for dev-libs/openssl
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/openssl/ChangeLog,v 1.518 2014/04/07 18:10:03 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/openssl/ChangeLog,v 1.541 2014/06/05 12:53:23 polynomial-c Exp $
+
+*openssl-1.0.1h (05 Jun 2014)
+*openssl-1.0.0m (05 Jun 2014)
+
+  05 Jun 2014; Lars Wendler <polynomial-c@gentoo.org> +openssl-1.0.0m.ebuild,
+  +openssl-1.0.1h.ebuild, +files/openssl-1.0.1h-ipv6.patch:
+  Security bump (bug #512506).
+
+  30 May 2014; Michał Górny <mgorny@gentoo.org> openssl-0.9.8y-r1.ebuild,
+  openssl-1.0.1g-r1.ebuild, openssl-1.0.2_beta1-r3.ebuild:
+  Enable multilib krb5 support.
+
+*openssl-0.9.8y-r1 (23 May 2014)
+
+  23 May 2014; Jonathan Callen <jcallen@gentoo.org> +openssl-0.9.8y-r1.ebuild:
+  Backport multilib support to SLOT=0.9.8 (bug 511078)
+
+  20 May 2014; Michał Górny <mgorny@gentoo.org> openssl-1.0.1g-r1.ebuild,
+  openssl-1.0.2_beta1-r3.ebuild:
+  Add missing multilib_native_use_ssl function, bug #510828.
+
+  13 May 2014; Michał Górny <mgorny@gentoo.org> openssl-1.0.1g-r1.ebuild,
+  openssl-1.0.2_beta1-r3.ebuild:
+  Clean up commented out wrapped headers.
+
+*openssl-1.0.1g-r1 (13 May 2014)
+
+  13 May 2014; Michał Górny <mgorny@gentoo.org> +openssl-1.0.1g-r1.ebuild:
+  Backport multilib support to keyworded 1.0.1g.
+
+*openssl-1.0.2_beta1-r3 (12 May 2014)
+
+  12 May 2014; Michał Górny <mgorny@gentoo.org> +openssl-1.0.2_beta1-r3.ebuild:
+  Introduce multilib support, bug #488418.
+
+  29 Apr 2014; Mike Frysinger <vapier@gentoo.org> openssl-0.9.8y.ebuild:
+  Drop upgrade logic for avoiding collisions as these versions are very old at
+  this point #229775 by Whit Blauvelt.
+
+  29 Apr 2014; Mike Frysinger <vapier@gentoo.org> openssl-1.0.1g.ebuild:
+  Stabilize for arm64/m68k/sh #507074.
+
+  27 Apr 2014; Mike Frysinger <vapier@gentoo.org>
+  files/openssl-0.9.8h-ldflags.patch, files/openssl-1.0.0a-ldflags.patch,
+  files/openssl-1.0.0d-windres.patch, files/openssl-1.0.0h-pkg-config.patch,
+  files/openssl-1.0.1f-revert-alpha-perl-generation.patch,
+  files/openssl-1.0.2-ipv6.patch, files/openssl-1.0.2-parallel-build.patch:
+  Add more links to upstream bug tracker.
+
+*openssl-1.0.2_beta1-r2 (25 Apr 2014)
+
+  25 Apr 2014; Lars Wendler <polynomial-c@gentoo.org>
+  -openssl-1.0.2_beta1-r1.ebuild, +openssl-1.0.2_beta1-r2.ebuild,
+  -files/openssl-1.0.2-free-list-fix.patch:
+  Added another bunch of upstream patches to openssl-1.0.2_beta1.
+
+*openssl-1.0.2_beta1-r1 (19 Apr 2014)
+
+  19 Apr 2014; Lars Wendler <polynomial-c@gentoo.org>
+  -openssl-1.0.2_beta1.ebuild, +openssl-1.0.2_beta1-r1.ebuild:
+  Added a bunch of upstream patches to openssl-1.0.2_beta1 (bug #508068).
+
+  13 Apr 2014; Mike Frysinger <vapier@gentoo.org>
+  +files/openssl-1.0.2-free-list-fix.patch, openssl-1.0.2_beta1.ebuild:
+  Enable OPENSSL_NO_BUF_FREELISTS in our builds.
+
+  08 Apr 2014; Samuli Suominen <ssuominen@gentoo.org> -openssl-1.0.1f.ebuild:
+  old
+
+  08 Apr 2014; Agostino Sarubbo <ago@gentoo.org> openssl-1.0.1g.ebuild:
+  Stable for ppc64, wrt bug #507074
+
+  08 Apr 2014; Agostino Sarubbo <ago@gentoo.org> openssl-1.0.1g.ebuild:
+  Stable for ppc, wrt bug #507074
+
+  08 Apr 2014; Mikle Kolyada <zlogene@gentoo.org> openssl-1.0.1g.ebuild:
+  ia64 stable wrt bug #507074
+
+  08 Apr 2014; Mikle Kolyada <zlogene@gentoo.org> openssl-1.0.1g.ebuild:
+  sparc stable wrt bug #507074
+
+  08 Apr 2014; Sergey Popov <pinkbyte@gentoo.org> openssl-1.0.1g.ebuild:
+  Stable on arm, wrt bug #507074
+
+  08 Apr 2014; Sergey Popov <pinkbyte@gentoo.org> openssl-1.0.1g.ebuild:
+  Stable on s390, wrt bug #507074
+
+  08 Apr 2014; Tobias Klausmann <klausman@gentoo.org> openssl-1.0.1g.ebuild:
+  Stable on alpha, bug #507074
+
+  08 Apr 2014; Samuli Suominen <ssuominen@gentoo.org> openssl-1.0.1g.ebuild:
+  amd64/x86 stable wrt #507074
+
+  08 Apr 2014; Jeroen Roovers <jer@gentoo.org> openssl-1.0.1g.ebuild:
+  Stable for HPPA (bug #507074).
 
 *openssl-1.0.1g (07 Apr 2014)
 

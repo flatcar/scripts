@@ -1,4 +1,6 @@
 http://bugs.gentoo.org/181438
+http://bugs.gentoo.org/327421
+https://rt.openssl.org/Ticket/Display.html?id=3332&user=guest&pass=guest
 
 make sure we respect LDFLAGS
 
