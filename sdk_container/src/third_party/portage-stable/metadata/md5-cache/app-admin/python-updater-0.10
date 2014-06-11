@@ -1,0 +1,9 @@
+DEFINED_PHASES=compile install
+DESCRIPTION=Script used to reinstall Python packages after changing of active Python versions
+HOMEPAGE=http://www.gentoo.org/proj/en/Python/
+KEYWORDS=alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~sparc-fbsd ~x86-fbsd
+LICENSE=GPL-2
+RDEPEND=dev-lang/python || ( >=sys-apps/portage-2.1.6 >=sys-apps/paludis-0.56.0 )
+SLOT=0
+SRC_URI=http://people.apache.org/~Arfrever/gentoo/python-updater-0.10.tar.bz2
+_md5_=c07fae21349cc8d1fae296be252f1189

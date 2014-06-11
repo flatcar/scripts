@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install postinst postrm prepare test
+DEPEND=dev-python/setuptools test? ( >=dev-python/webtest-1.0 ) =dev-lang/python-2*
+DESCRIPTION=CherryPy is a pythonic, object-oriented HTTP framework
+EAPI=3
+HOMEPAGE=http://www.cherrypy.org/ http://pypi.python.org/pypi/CherryPy
+IUSE=doc test
+KEYWORDS=~amd64 ~x86
+LICENSE=BSD
+RDEPEND==dev-lang/python-2*
+SLOT=0
+SRC_URI=http://download.cherrypy.org/cherrypy/2.3.0/CherryPy-2.3.0.tar.gz
+_eclasses_=distutils	34e0f373c466bb0e97ba194735f1acf2	multilib	892e597faee02a5b94eb02ab512e7622	python	305197b0aa1194fa3ef67ca21f6faa7e	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953
+_md5_=2e14314b365aa61ee01e6ccce6eac350

@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install postinst postrm prepare test
+DEPEND=dev-python/setuptools || ( =dev-lang/python-3.3* =dev-lang/python-3.2* =dev-lang/python-3.1* =dev-lang/python-2.7* =dev-lang/python-2.6* =dev-lang/python-2.5* ) test? ( dev-python/nose )
+DESCRIPTION=CherryPy is a pythonic, object-oriented HTTP framework
+EAPI=3
+HOMEPAGE=http://www.cherrypy.org/ http://pypi.python.org/pypi/CherryPy
+IUSE=doc test
+KEYWORDS=~amd64 ~ia64 ~ppc ~x86 ~amd64-linux ~x86-linux ~x86-macos
+LICENSE=BSD
+RDEPEND=|| ( =dev-lang/python-3.3* =dev-lang/python-3.2* =dev-lang/python-3.1* =dev-lang/python-2.7* =dev-lang/python-2.6* =dev-lang/python-2.5* )
+SLOT=0
+SRC_URI=http://download.cherrypy.org/cherrypy/3.2.1/CherryPy-3.2.1.tar.gz
+_eclasses_=distutils	34e0f373c466bb0e97ba194735f1acf2	multilib	892e597faee02a5b94eb02ab512e7622	python	305197b0aa1194fa3ef67ca21f6faa7e	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953
+_md5_=c2fc2371c6600da00a35b50b94a4a5e5

@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install postinst postrm prepare test
+DEPEND==dev-python/twisted-core-11.0* soap? ( dev-python/soappy ) =dev-lang/python-2*
+DESCRIPTION=Twisted web server, programmable in Python
+EAPI=3
+HOMEPAGE=http://www.twistedmatrix.com/
+IUSE=soap
+KEYWORDS=alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~x86-fbsd ~x86-freebsd ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris
+LICENSE=MIT
+RDEPEND==dev-python/twisted-core-11.0* soap? ( dev-python/soappy ) =dev-lang/python-2*
+SLOT=0
+SRC_URI=http://twistedmatrix.com/Releases/Web/11.0/TwistedWeb-11.0.0.tar.bz2
+_eclasses_=distutils	34e0f373c466bb0e97ba194735f1acf2	eutils	4878e7f88afc0ba0866ac112190b0fd4	multilib	892e597faee02a5b94eb02ab512e7622	python	305197b0aa1194fa3ef67ca21f6faa7e	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	twisted	fcb518bd0ad842f8f6ed16168341f5d4	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=c8e60b27625d9eff1c5f16ce3e3ac040

@@ -1,0 +1,14 @@
+DEFINED_PHASES=compile install postinst postrm prepare setup test
+DEPEND=dev-python/setuptools test? ( dev-python/m2crypto ) || ( =dev-lang/python-2.7* =dev-lang/python-2.6* =dev-lang/python-2.5* )
+DESCRIPTION=Amazon Web Services API
+EAPI=4
+HOMEPAGE=https://github.com/boto/boto http://pypi.python.org/pypi/boto
+IUSE=test
+KEYWORDS=amd64 ppc sparc x86 ~x86-linux ~ppc-macos ~x86-macos
+LICENSE=MIT
+RDEPEND=dev-python/m2crypto || ( =dev-lang/python-2.7* =dev-lang/python-2.6* =dev-lang/python-2.5* )
+RESTRICT=test
+SLOT=0
+SRC_URI=mirror://github/boto/boto/boto-2.3.0.tar.gz
+_eclasses_=distutils	34e0f373c466bb0e97ba194735f1acf2	multilib	892e597faee02a5b94eb02ab512e7622	python	305197b0aa1194fa3ef67ca21f6faa7e	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953
+_md5_=3ccd3d21c3c5dbf60a4968e7148de285

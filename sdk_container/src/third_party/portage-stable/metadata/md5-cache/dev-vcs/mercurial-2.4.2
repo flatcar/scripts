@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install postinst postrm prepare setup test
+DEPEND=emacs? ( virtual/emacs ) test? ( app-arch/unzip dev-python/pygments ) =dev-lang/python-2* =dev-lang/python-2*[threads]
+DESCRIPTION=Scalable distributed SCM
+EAPI=3
+HOMEPAGE=http://mercurial.selenic.com/
+IUSE=bugzilla emacs gpg test tk zsh-completion
+KEYWORDS=alpha amd64 arm hppa ia64 ~mips ppc ppc64 sparc x86 ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris
+LICENSE=GPL-2
+RDEPEND=bugzilla? ( dev-python/mysql-python ) gpg? ( app-crypt/gnupg ) tk? ( dev-lang/tk ) zsh-completion? ( app-shells/zsh ) app-misc/ca-certificates =dev-lang/python-2* =dev-lang/python-2*[threads]
+SLOT=0
+SRC_URI=http://mercurial.selenic.com/release/mercurial-2.4.2.tar.gz
+_eclasses_=bash-completion-r1	d339dd40b2014cf1edba8592580eef42	distutils	34e0f373c466bb0e97ba194735f1acf2	elisp-common	cec01e54df1bfd2fcca76a13ce2b2d27	eutils	4878e7f88afc0ba0866ac112190b0fd4	multilib	892e597faee02a5b94eb02ab512e7622	python	305197b0aa1194fa3ef67ca21f6faa7e	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=a9889c77030276a8df6b63f289268139

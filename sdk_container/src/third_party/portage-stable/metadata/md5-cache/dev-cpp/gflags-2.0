@@ -1,0 +1,10 @@
+DEFINED_PHASES=configure install
+DESCRIPTION=Google's C++ argument parsing library
+EAPI=3
+HOMEPAGE=http://code.google.com/p/gflags/
+IUSE=static-libs
+KEYWORDS=~amd64 ~arm ~x86 ~amd64-linux ~x86-linux
+LICENSE=BSD
+SLOT=0
+SRC_URI=http://gflags.googlecode.com/files/gflags-2.0.tar.gz
+_md5_=ef41c49341cf392b0d85f3327d3c41b1

@@ -1,0 +1,12 @@
+DEFINED_PHASES=compile config install postinst postrm preinst prerm test unpack
+DEPEND=ncurses? ( >=sys-libs/ncurses-5.2-r5 amd64? ( app-emulation/emul-linux-x86-baselibs ) ) || ( >=sys-devel/automake-1.12 >=sys-devel/automake-1.13 ) >=sys-devel/autoconf-2.68 sys-devel/libtool
+DESCRIPTION=GNU GRUB Legacy boot loader
+HOMEPAGE=http://www.gnu.org/software/grub/
+IUSE=custom-cflags ncurses netboot static
+KEYWORDS=amd64 x86 ~x86-fbsd
+LICENSE=GPL-2
+RDEPEND=ncurses? ( >=sys-libs/ncurses-5.2-r5 amd64? ( app-emulation/emul-linux-x86-baselibs ) )
+SLOT=0
+SRC_URI=mirror://gentoo/grub-0.97.tar.gz mirror://gnu-alpha/grub/grub-0.97.tar.gz mirror://gentoo/splash.xpm.gz mirror://gentoo/grub-0.97-patches-1.7.tar.bz2
+_eclasses_=autotools	16761a2f972abd686713e5967ff3c754	eutils	4878e7f88afc0ba0866ac112190b0fd4	flag-o-matic	65cef1287b9d62b1a0f180765d1e0c69	libtool	b1c8688e60f9580bcb9bb46e08737eb1	mount-boot	02dd3bb4c5f025fef0fc3ade0f27c217	multilib	892e597faee02a5b94eb02ab512e7622	multiprocessing	89580da5ec17ad687fcde876c542b91e	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=a54ad3b12f9932026a60c3642901b6dc

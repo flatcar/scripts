@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install postinst preinst unpack
+DEPEND=>=sys-libs/glibc-2.3.2-r3 mips? ( >=sys-devel/binutils-2.13.90.0.16 ) !mips? ( >=sys-devel/binutils-2.13.90.0.18 ) >=sys-devel/gcc-config-1.4 !build? ( >=sys-libs/ncurses-5.2-r2 nls? ( sys-devel/gettext ) )
+DESCRIPTION=The GNU Compiler Collection
+HOMEPAGE=http://gcc.gnu.org/
+IUSE=static nls bootstrap java build
+KEYWORDS=alpha -hppa ia64 ~mips ppc s390 sparc x86
+LICENSE=GPL-2+ LGPL-2.1+
+PDEPEND=sys-devel/gcc-config
+RDEPEND=>=sys-libs/glibc-2.3.2-r3 >=sys-devel/gcc-config-1.4 >=sys-libs/zlib-1.1.4 >=sys-apps/texinfo-4.2-r4 !build? ( >=sys-libs/ncurses-5.2-r2 )
+SLOT=3.2
+SRC_URI=ftp://gcc.gnu.org/pub/gcc/releases/gcc-3.2.3/gcc-3.2.3.tar.bz2 mirror://gentoo/protector-3.2.2-10.tar.gz http://www.research.ibm.com/trl/projects/security/ssp/gcc3_2_2/protector-3.2.2-10.tar.gz mirror://gentoo/gcc-3.2.3-manpages.tar.bz2 mirror://gentoo/gcc-3.2.3-tls-update.patch.bz2
+_eclasses_=eutils	4878e7f88afc0ba0866ac112190b0fd4	flag-o-matic	65cef1287b9d62b1a0f180765d1e0c69	libtool	b1c8688e60f9580bcb9bb46e08737eb1	multilib	892e597faee02a5b94eb02ab512e7622	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=7e1994cbeb53c2f7f8675645fffbfcca

@@ -1,0 +1,11 @@
+DEFINED_PHASES=compile install test unpack
+DEPEND=>=app-misc/pax-utils-0.1.10 !<sys-apps/sandbox-1.6 !<sys-apps/portage-2.1.2 selinux? ( sys-libs/libselinux ) >=sys-devel/binutils-2.20 >=sys-devel/gcc-4.3 virtual/os-headers !vanilla? ( >=sys-libs/timezone-data-2012c ) sys-devel/gnuconfig dev-vcs/git
+DESCRIPTION=GNU libc6 (also called glibc2) C library
+HOMEPAGE=http://www.gnu.org/software/libc/libc.html
+IUSE=debug gd hardened multilib nscd selinux systemtap profile suid vanilla crosscompile_opts_headers-only
+LICENSE=LGPL-2.1+ BSD HPND ISC inner-net rc PCRE
+RDEPEND=!sys-kernel/ps3-sources selinux? ( sys-libs/libselinux ) !sys-libs/nss-db vanilla? ( !sys-libs/timezone-data ) !vanilla? ( sys-libs/timezone-data )
+RESTRICT=strip
+SLOT=2.2
+_eclasses_=eutils	4878e7f88afc0ba0866ac112190b0fd4	flag-o-matic	65cef1287b9d62b1a0f180765d1e0c69	git-2	2027b81a576527fa16bece425941e094	git-r3	536297c3f55d49069f6d2785b061e4d9	gnuconfig	ee02e61d6c68cee478e2e69214b7caef	multilib	892e597faee02a5b94eb02ab512e7622	multiprocessing	89580da5ec17ad687fcde876c542b91e	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	unpacker	658a981a81fd7cb0767315a541bab01d	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=16abfc0d6a783c098dbe0d7c09758a6b

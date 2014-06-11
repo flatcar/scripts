@@ -1,13 +1,13 @@
 DEFINED_PHASES=compile install postinst postrm prepare setup test
-DEPEND=virtual/jpeg media-libs/freetype:2 lcms? ( media-libs/lcms:0 ) scanner? ( media-gfx/sane-backends ) X? ( x11-misc/xdg-utils ) >=app-admin/eselect-python-20091230 =dev-lang/python-2* tk? ( =dev-lang/python-2*[tk] )
+DEPEND=virtual/jpeg media-libs/freetype:2 lcms? ( media-libs/lcms:0 ) scanner? ( media-gfx/sane-backends ) X? ( x11-misc/xdg-utils ) =dev-lang/python-2* tk? ( =dev-lang/python-2*[tk] )
 DESCRIPTION=Python Imaging Library (PIL)
 EAPI=3
 HOMEPAGE=http://www.pythonware.com/products/pil/index.htm
 IUSE=doc examples lcms scanner tk X
 KEYWORDS=~alpha amd64 arm hppa ~ia64 ppc ppc64 ~sparc x86 ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~x86-solaris
 LICENSE=as-is
-RDEPEND=virtual/jpeg media-libs/freetype:2 lcms? ( media-libs/lcms:0 ) scanner? ( media-gfx/sane-backends ) X? ( x11-misc/xdg-utils ) >=app-admin/eselect-python-20091230 =dev-lang/python-2* tk? ( =dev-lang/python-2*[tk] )
+RDEPEND=virtual/jpeg media-libs/freetype:2 lcms? ( media-libs/lcms:0 ) scanner? ( media-gfx/sane-backends ) X? ( x11-misc/xdg-utils ) =dev-lang/python-2* tk? ( =dev-lang/python-2*[tk] )
 SLOT=0
 SRC_URI=http://www.effbot.org/downloads/Imaging-1.1.7.tar.gz
-_eclasses_=distutils	b4c334e216d998c4ce4b750cb091e42e	eutils	33ef77a15337022e05342d2c772a7a5a	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	portability	0be430f759a631e692678ed796e09f5c	python	6bbd984910e27780e5d0ea543d83ef84	toolchain-funcs	6526ac6fc9aedf391efb91fcd75ace68	user	9e552f935106ff0bc92af16da64b4b29
+_eclasses_=distutils	34e0f373c466bb0e97ba194735f1acf2	eutils	4878e7f88afc0ba0866ac112190b0fd4	multilib	892e597faee02a5b94eb02ab512e7622	python	305197b0aa1194fa3ef67ca21f6faa7e	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28
 _md5_=d5f4b5a6eb7b127feffdbf9f0df95d71

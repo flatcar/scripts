@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install
+DEPEND=atahpt? ( sys-apps/pciutils ) dediprog? ( virtual/libusb:0 ) drkaiser? ( sys-apps/pciutils ) ft2232_spi? ( dev-embedded/libftdi ) gfxnvidia? ( sys-apps/pciutils ) internal? ( sys-apps/pciutils ) nic3com? ( sys-apps/pciutils ) nicintel? ( sys-apps/pciutils ) nicintel_spi? ( sys-apps/pciutils ) nicnatsemi? ( sys-apps/pciutils ) nicrealtek? ( sys-apps/pciutils ) rayer_spi? ( sys-apps/pciutils ) satasii? ( sys-apps/pciutils ) satamv? ( sys-apps/pciutils ) ogp_spi? ( sys-apps/pciutils ) sys-apps/diffutils
+DESCRIPTION=Utility for reading, writing, erasing and verifying flash ROM chips
+EAPI=3
+HOMEPAGE=http://flashrom.org/
+IUSE=+atahpt +bitbang_spi +buspirate_spi dediprog +drkaiser +dummy ft2232_spi +gfxnvidia +internal +nic3com +nicintel +nicintel_spi +nicnatsemi +nicrealtek +ogp_spi +rayer_spi +satasii +satamv +serprog +wiki
+KEYWORDS=amd64 x86
+LICENSE=GPL-2
+RDEPEND=atahpt? ( sys-apps/pciutils ) dediprog? ( virtual/libusb:0 ) drkaiser? ( sys-apps/pciutils ) ft2232_spi? ( dev-embedded/libftdi ) gfxnvidia? ( sys-apps/pciutils ) internal? ( sys-apps/pciutils ) nic3com? ( sys-apps/pciutils ) nicintel? ( sys-apps/pciutils ) nicintel_spi? ( sys-apps/pciutils ) nicnatsemi? ( sys-apps/pciutils ) nicrealtek? ( sys-apps/pciutils ) rayer_spi? ( sys-apps/pciutils ) satasii? ( sys-apps/pciutils ) satamv? ( sys-apps/pciutils ) ogp_spi? ( sys-apps/pciutils ) internal? ( sys-apps/dmidecode )
+SLOT=0
+SRC_URI=http://download.flashrom.org/releases/flashrom-0.9.4.tar.bz2
+_eclasses_=multilib	892e597faee02a5b94eb02ab512e7622	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953
+_md5_=895446d19a15dbba475d6a47dc140156

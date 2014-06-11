@@ -1,0 +1,14 @@
+DEFINED_PHASES=compile configure install postinst prepare pretend
+DEPEND=app-arch/xz-utils >=sys-libs/ncurses-5.2-r5 debug? ( sdl? ( media-libs/libsdl ) ) device-mapper? ( >=sys-fs/lvm2-2.02.45 ) libzfs? ( sys-fs/zfs ) mount? ( sys-fs/fuse ) truetype? ( media-libs/freetype media-fonts/dejavu >=media-fonts/unifont-5 ) ppc? ( sys-apps/ibm-powerpc-utils sys-apps/powerpc-utils ) ppc64? ( sys-apps/ibm-powerpc-utils sys-apps/powerpc-utils ) >=dev-lang/python-2.5.2 sys-devel/flex sys-devel/bison sys-apps/help2man sys-apps/texinfo static? ( truetype? ( app-arch/bzip2[static-libs(+)] media-libs/freetype[static-libs(+)] sys-libs/zlib[static-libs(+)] ) ) >=sys-devel/autogen-5.10 || ( >=sys-devel/automake-1.12:1.12 >=sys-devel/automake-1.13:1.13 ) >=sys-devel/autoconf-2.68 sys-devel/libtool
+DESCRIPTION=GNU GRUB boot loader
+EAPI=4
+HOMEPAGE=http://www.gnu.org/software/grub/
+IUSE=custom-cflags debug device-mapper doc efiemu mount nls static sdl truetype libzfs grub_platforms_emu grub_platforms_qemu-mips grub_platforms_yeeloong grub_platforms_ieee1275 grub_platforms_coreboot grub_platforms_multiboot grub_platforms_efi-32 grub_platforms_pc grub_platforms_qemu grub_platforms_efi-64
+KEYWORDS=~amd64 ~x86
+LICENSE=GPL-3
+RDEPEND=app-arch/xz-utils >=sys-libs/ncurses-5.2-r5 debug? ( sdl? ( media-libs/libsdl ) ) device-mapper? ( >=sys-fs/lvm2-2.02.45 ) libzfs? ( sys-fs/zfs ) mount? ( sys-fs/fuse ) truetype? ( media-libs/freetype media-fonts/dejavu >=media-fonts/unifont-5 ) ppc? ( sys-apps/ibm-powerpc-utils sys-apps/powerpc-utils ) ppc64? ( sys-apps/ibm-powerpc-utils sys-apps/powerpc-utils ) grub_platforms_efi-32? ( sys-boot/efibootmgr ) grub_platforms_efi-64? ( sys-boot/efibootmgr )
+REQUIRED_USE=grub_platforms_qemu? ( truetype )
+SLOT=2
+SRC_URI=mirror://gnu/grub/grub-2.00.tar.xz mirror://gentoo/grub-2.00.tar.xz
+_eclasses_=autotools	16761a2f972abd686713e5967ff3c754	eutils	4878e7f88afc0ba0866ac112190b0fd4	flag-o-matic	65cef1287b9d62b1a0f180765d1e0c69	libtool	b1c8688e60f9580bcb9bb46e08737eb1	multilib	892e597faee02a5b94eb02ab512e7622	multiprocessing	89580da5ec17ad687fcde876c542b91e	pax-utils	2424f959506320f5196de8f79fa05297	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=f00db9d244c421ec534aca8fe664ca3f

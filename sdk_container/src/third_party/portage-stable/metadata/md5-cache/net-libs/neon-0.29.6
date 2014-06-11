@@ -1,5 +1,5 @@
 DEFINED_PHASES=configure install postinst prepare
-DEPEND=expat? ( dev-libs/expat ) !expat? ( dev-libs/libxml2 ) gnutls? ( app-misc/ca-certificates >=net-libs/gnutls-2.0 pkcs11? ( dev-libs/pakchois ) ) !gnutls? ( ssl? ( >=dev-libs/openssl-0.9.6f pkcs11? ( dev-libs/pakchois ) ) ) kerberos? ( virtual/krb5 ) libproxy? ( net-libs/libproxy ) nls? ( virtual/libintl ) zlib? ( sys-libs/zlib ) dev-util/pkgconfig || ( >=sys-devel/automake-1.11.1:1.11 ) >=sys-devel/autoconf-2.68 sys-devel/libtool
+DEPEND=expat? ( dev-libs/expat ) !expat? ( dev-libs/libxml2 ) gnutls? ( app-misc/ca-certificates >=net-libs/gnutls-2.0 pkcs11? ( dev-libs/pakchois ) ) !gnutls? ( ssl? ( >=dev-libs/openssl-0.9.6f pkcs11? ( dev-libs/pakchois ) ) ) kerberos? ( virtual/krb5 ) libproxy? ( net-libs/libproxy ) nls? ( virtual/libintl ) zlib? ( sys-libs/zlib ) dev-util/pkgconfig || ( >=sys-devel/automake-1.12:1.12 >=sys-devel/automake-1.13:1.13 ) >=sys-devel/autoconf-2.68 sys-devel/libtool
 DESCRIPTION=HTTP and WebDAV client library
 EAPI=3
 HOMEPAGE=http://www.webdav.org/neon/
@@ -10,5 +10,5 @@ RDEPEND=expat? ( dev-libs/expat ) !expat? ( dev-libs/libxml2 ) gnutls? ( app-mis
 RESTRICT=test
 SLOT=0
 SRC_URI=http://www.webdav.org/neon/neon-0.29.6.tar.gz
-_eclasses_=autotools	addbdf6cce5024ac93ad2084ad5e1d2d	eutils	33ef77a15337022e05342d2c772a7a5a	libtool	0fd90d183673bf1107465ec45849d1ea	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	6526ac6fc9aedf391efb91fcd75ace68	user	9e552f935106ff0bc92af16da64b4b29	versionator	865bc8b2fc9fcfb6d520bdf5a110f5ed
+_eclasses_=autotools	16761a2f972abd686713e5967ff3c754	eutils	4878e7f88afc0ba0866ac112190b0fd4	libtool	b1c8688e60f9580bcb9bb46e08737eb1	multilib	892e597faee02a5b94eb02ab512e7622	multiprocessing	89580da5ec17ad687fcde876c542b91e	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
 _md5_=e094419a551eea5e194fdd6b6aff073c

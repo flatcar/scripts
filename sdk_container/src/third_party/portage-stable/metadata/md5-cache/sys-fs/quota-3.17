@@ -1,0 +1,12 @@
+DEFINED_PHASES=compile install unpack
+DEPEND=ldap? ( >=net-nds/openldap-2.3.35 ) tcpd? ( sys-apps/tcp-wrappers ) rpc? ( || ( net-nds/portmap net-nds/rpcbind ) ) nls? ( sys-devel/gettext )
+DESCRIPTION=Linux quota tools
+HOMEPAGE=http://sourceforge.net/projects/linuxquota/
+IUSE=nls tcpd ldap rpc
+KEYWORDS=alpha amd64 arm hppa ia64 ~mips ppc ppc64 sparc x86
+LICENSE=GPL-2
+RDEPEND=ldap? ( >=net-nds/openldap-2.3.35 ) tcpd? ( sys-apps/tcp-wrappers ) rpc? ( || ( net-nds/portmap net-nds/rpcbind ) )
+SLOT=0
+SRC_URI=mirror://sourceforge/linuxquota/quota-3.17.tar.gz
+_eclasses_=eutils	4878e7f88afc0ba0866ac112190b0fd4	flag-o-matic	65cef1287b9d62b1a0f180765d1e0c69	multilib	892e597faee02a5b94eb02ab512e7622	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=6de7a1e6188cdfead6d5c68c760f1ef5

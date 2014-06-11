@@ -1,13 +1,13 @@
 DEFINED_PHASES=compile install postinst postrm prepare
-DEPEND=dev-python/setuptools >=app-admin/eselect-python-20091230 || ( =dev-lang/python-3.2* =dev-lang/python-3.1* =dev-lang/python-2.7* =dev-lang/python-2.6* =dev-lang/python-2.5* )
+DEPEND=dev-python/setuptools || ( =dev-lang/python-3.3* =dev-lang/python-3.2* =dev-lang/python-3.1* =dev-lang/python-2.7* =dev-lang/python-2.6* =dev-lang/python-2.5* )
 DESCRIPTION=Python module used for monitoring filesystems events
 EAPI=3
 HOMEPAGE=http://trac.dbzteam.org/pyinotify http://pypi.python.org/pypi/pyinotify
 IUSE=examples
-KEYWORDS=amd64 ~ppc ~x86 ~amd64-linux ~x86-linux
+KEYWORDS=~amd64 ~ppc ~x86 ~amd64-linux ~x86-linux
 LICENSE=MIT
-RDEPEND=>=app-admin/eselect-python-20091230 || ( =dev-lang/python-3.2* =dev-lang/python-3.1* =dev-lang/python-2.7* =dev-lang/python-2.6* =dev-lang/python-2.5* )
+RDEPEND=|| ( =dev-lang/python-3.3* =dev-lang/python-3.2* =dev-lang/python-3.1* =dev-lang/python-2.7* =dev-lang/python-2.6* =dev-lang/python-2.5* )
 SLOT=0
 SRC_URI=http://seb.dbzteam.org/pub/pyinotify/releases/pyinotify-0.9.3.tar.gz
-_eclasses_=distutils	b4c334e216d998c4ce4b750cb091e42e	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	python	6bbd984910e27780e5d0ea543d83ef84	toolchain-funcs	6526ac6fc9aedf391efb91fcd75ace68
-_md5_=835f8f8dd04ebf768c17a227173958b2
+_eclasses_=distutils	34e0f373c466bb0e97ba194735f1acf2	multilib	892e597faee02a5b94eb02ab512e7622	python	305197b0aa1194fa3ef67ca21f6faa7e	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953
+_md5_=5e38c9ba3861cce45ab147f9e105f199

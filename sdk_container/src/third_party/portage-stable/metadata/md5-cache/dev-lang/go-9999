@@ -1,0 +1,11 @@
+DEFINED_PHASES=compile install postinst postrm prepare test unpack
+DEPEND=dev-vcs/mercurial
+DESCRIPTION=A concurrent garbage collected and typesafe programming language
+EAPI=5
+HOMEPAGE=http://www.golang.org
+IUSE=bash-completion emacs vim-syntax zsh-completion
+LICENSE=BSD
+RDEPEND=bash-completion? ( app-shells/bash-completion ) emacs? ( virtual/emacs ) vim-syntax? ( || ( app-editors/vim app-editors/gvim ) ) zsh-completion? ( app-shells/zsh-completion )
+SLOT=0
+_eclasses_=bash-completion-r1	d339dd40b2014cf1edba8592580eef42	elisp-common	cec01e54df1bfd2fcca76a13ce2b2d27	eutils	4878e7f88afc0ba0866ac112190b0fd4	mercurial	6bb94b704fb44f17b02994ca3fa756a9	multilib	892e597faee02a5b94eb02ab512e7622	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=58551cfe6a66feed8d82abaf700f9506

@@ -1,0 +1,10 @@
+DEFINED_PHASES=compile install unpack
+DESCRIPTION=Tool for creating compressed filesystem type squashfs
+HOMEPAGE=http://squashfs.sourceforge.net/
+KEYWORDS=alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86
+LICENSE=GPL-2
+RDEPEND=sys-libs/zlib
+SLOT=3.0
+SRC_URI=mirror://sourceforge/squashfs/squashfs3.2-r2.tar.gz
+_eclasses_=multilib	892e597faee02a5b94eb02ab512e7622	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953
+_md5_=f59c01d377585027fe3419584c1cc839

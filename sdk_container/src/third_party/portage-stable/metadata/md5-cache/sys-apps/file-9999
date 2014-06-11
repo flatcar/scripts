@@ -1,0 +1,11 @@
+DEFINED_PHASES=compile configure install postinst postrm prepare setup unpack
+DEPEND=zlib? ( sys-libs/zlib ) python? ( dev-lang/python ) || ( >=sys-devel/automake-1.12:1.12 >=sys-devel/automake-1.13:1.13 ) >=sys-devel/autoconf-2.68 sys-devel/libtool dev-vcs/git
+DESCRIPTION=identify a file's format by scanning binary data for patterns
+EAPI=4
+HOMEPAGE=http://www.darwinsys.com/file/
+IUSE=python static-libs zlib
+LICENSE=BSD-2
+RDEPEND=zlib? ( sys-libs/zlib ) python? ( dev-lang/python )
+SLOT=0
+_eclasses_=autotools	16761a2f972abd686713e5967ff3c754	distutils	34e0f373c466bb0e97ba194735f1acf2	eutils	4878e7f88afc0ba0866ac112190b0fd4	git-2	2027b81a576527fa16bece425941e094	git-r3	536297c3f55d49069f6d2785b061e4d9	libtool	b1c8688e60f9580bcb9bb46e08737eb1	multilib	892e597faee02a5b94eb02ab512e7622	multiprocessing	89580da5ec17ad687fcde876c542b91e	python	305197b0aa1194fa3ef67ca21f6faa7e	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=e1faef8b5bb374abe74128eeca17e3f4
