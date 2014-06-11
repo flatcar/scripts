@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install postinst postrm prepare setup test unpack
+DEPEND=sys-libs/zlib icu? ( dev-libs/icu ) lzma? ( app-arch/xz-utils ) readline? ( sys-libs/readline ) hppa? ( >=sys-devel/binutils-2.15.92.0.2 ) python? ( =dev-lang/python-2* ) python? ( =dev-lang/python-2*[xml] ) || ( >=sys-devel/automake-1.12:1.12 >=sys-devel/automake-1.13:1.13 ) >=sys-devel/autoconf-2.68 sys-devel/libtool
+DESCRIPTION=Version 2 of the library to manipulate XML files
+EAPI=4
+HOMEPAGE=http://www.xmlsoft.org/
+IUSE=debug doc examples icu ipv6 lzma python readline static-libs test
+KEYWORDS=m68k
+LICENSE=MIT
+RDEPEND=sys-libs/zlib icu? ( dev-libs/icu ) lzma? ( app-arch/xz-utils ) readline? ( sys-libs/readline ) python? ( =dev-lang/python-2* ) python? ( =dev-lang/python-2*[xml] )
+SLOT=2
+SRC_URI=ftp://xmlsoft.org/libxml2/libxml2-2.8.0.tar.gz test? ( http://www.w3.org/XML/2004/xml-schema-test-suite/xmlschema2002-01-16/xsts-2002-01-16.tar.gz http://www.w3.org/XML/2004/xml-schema-test-suite/xmlschema2004-01-14/xsts-2004-01-14.tar.gz ) http://dev.gentoo.org/~tetromino/distfiles/libxml2/libxml2-2.8.0-namespace-node-patches.tar.bz2
+_eclasses_=autotools	16761a2f972abd686713e5967ff3c754	eutils	4878e7f88afc0ba0866ac112190b0fd4	flag-o-matic	65cef1287b9d62b1a0f180765d1e0c69	libtool	b1c8688e60f9580bcb9bb46e08737eb1	multilib	892e597faee02a5b94eb02ab512e7622	multiprocessing	89580da5ec17ad687fcde876c542b91e	prefix	21058c21ca48453d771df15500873ede	python	305197b0aa1194fa3ef67ca21f6faa7e	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=b26189d23c52480610979dd3d51bd1d3

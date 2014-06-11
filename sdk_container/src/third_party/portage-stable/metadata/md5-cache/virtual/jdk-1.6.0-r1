@@ -1,0 +1,7 @@
+DEFINED_PHASES=-
+DESCRIPTION=Virtual for JDK
+EAPI=4
+KEYWORDS=amd64 ~ia64 ppc ppc64 x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~hppa-hpux ~ia64-hpux ~amd64-linux ~x86-linux ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt
+RDEPEND=|| ( ppc? ( || ( =dev-java/ibm-jdk-bin-1.6.0* =dev-java/icedtea-6* ) ) ppc64? ( || ( =dev-java/ibm-jdk-bin-1.6.0* =dev-java/icedtea-6* ) ) prefix? ( || ( =dev-java/icedtea-bin-6* =dev-java/icedtea-bin-1* =dev-java/sun-jdk-1.6.0* ) ) =dev-java/icedtea-bin-6* =dev-java/icedtea-bin-1* =dev-java/icedtea-6* =dev-java/sun-jdk-1.6.0* =dev-java/ibm-jdk-bin-1.6.0* =dev-java/hp-jdk-bin-1.6.0* =dev-java/diablo-jdk-1.6.0* =dev-java/soylatte-jdk-bin-1.0* =dev-java/apple-jdk-bin-1.6.0* =dev-java/winjdk-bin-1.6.0* )
+SLOT=1.6
+_md5_=cd43852345e64a88035d356a7c3006f3

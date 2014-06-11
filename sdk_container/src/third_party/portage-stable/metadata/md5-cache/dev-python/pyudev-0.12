@@ -1,13 +1,13 @@
 DEFINED_PHASES=compile install postinst postrm prepare test
-DEPEND=>=sys-fs/udev-151 pygobject? ( dev-python/pygobject ) pyqt4? ( dev-python/PyQt4 ) pyside? ( dev-python/pyside ) dev-python/setuptools test? ( dev-python/mock ) >=app-admin/eselect-python-20091230 || ( =dev-lang/python-3.2* =dev-lang/python-3.1* =dev-lang/python-2.7* =dev-lang/python-2.6* ) test? ( dev-python/pytest )
+DEPEND=virtual/udev pygobject? ( dev-python/pygobject:2 ) pyqt4? ( dev-python/PyQt4 ) pyside? ( dev-python/pyside ) dev-python/setuptools test? ( dev-python/mock ) || ( =dev-lang/python-3.3* =dev-lang/python-3.2* =dev-lang/python-3.1* =dev-lang/python-2.7* =dev-lang/python-2.6* ) test? ( dev-python/pytest )
 DESCRIPTION=Python binding to libudev
 EAPI=3
 HOMEPAGE=http://packages.python.org/pyudev/ http://pypi.python.org/pypi/pyudev
 IUSE=pygobject pyqt4 pyside test
 KEYWORDS=~amd64 ~x86
-LICENSE=MIT
-RDEPEND=>=sys-fs/udev-151 pygobject? ( dev-python/pygobject ) pyqt4? ( dev-python/PyQt4 ) pyside? ( dev-python/pyside ) >=app-admin/eselect-python-20091230 || ( =dev-lang/python-3.2* =dev-lang/python-3.1* =dev-lang/python-2.7* =dev-lang/python-2.6* )
+LICENSE=LGPL-2.1
+RDEPEND=virtual/udev pygobject? ( dev-python/pygobject:2 ) pyqt4? ( dev-python/PyQt4 ) pyside? ( dev-python/pyside ) || ( =dev-lang/python-3.3* =dev-lang/python-3.2* =dev-lang/python-3.1* =dev-lang/python-2.7* =dev-lang/python-2.6* )
 SLOT=0
 SRC_URI=mirror://pypi/p/pyudev/pyudev-0.12.tar.gz
-_eclasses_=distutils	b4c334e216d998c4ce4b750cb091e42e	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	python	6bbd984910e27780e5d0ea543d83ef84	toolchain-funcs	6526ac6fc9aedf391efb91fcd75ace68
-_md5_=0e54a8f3c28defe84a2210339077c17a
+_eclasses_=distutils	34e0f373c466bb0e97ba194735f1acf2	multilib	892e597faee02a5b94eb02ab512e7622	python	305197b0aa1194fa3ef67ca21f6faa7e	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953
+_md5_=f2f8274e19ff664d92c4b65e1c773c48

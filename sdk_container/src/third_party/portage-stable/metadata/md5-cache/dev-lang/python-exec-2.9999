@@ -1,0 +1,11 @@
+DEFINED_PHASES=compile configure install prepare test unpack
+DEPEND=>=dev-vcs/git-1.8.2.1 || ( >=sys-devel/automake-1.12:1.12 >=sys-devel/automake-1.13:1.13 ) >=sys-devel/autoconf-2.68 sys-devel/libtool userland_GNU? ( >=sys-apps/coreutils-8.5 )
+DESCRIPTION=Python script wrapper
+EAPI=5
+HOMEPAGE=https://bitbucket.org/mgorny/python-exec/
+IUSE=python_targets_jython2_5 python_targets_jython2_7 python_targets_pypy2_0 python_targets_python3_2 python_targets_python3_3 python_targets_python2_6 python_targets_python2_7
+LICENSE=BSD
+RDEPEND=!<dev-python/python-exec-10000
+SLOT=2
+_eclasses_=autotools	16761a2f972abd686713e5967ff3c754	autotools-utils	5f912199ed4fdfb0bfbde29c7ac7dbdb	eutils	4878e7f88afc0ba0866ac112190b0fd4	git-r3	536297c3f55d49069f6d2785b061e4d9	libtool	b1c8688e60f9580bcb9bb46e08737eb1	multibuild	56d4120419072116417e8de1bd1040ff	multilib	892e597faee02a5b94eb02ab512e7622	multiprocessing	89580da5ec17ad687fcde876c542b91e	python-r1	b81583006559e9b008883355c9889e29	python-utils-r1	49ee0ca5e1019d8f256a23692dad2642	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=399921b47e4d7ef6a8797608560aa1e6

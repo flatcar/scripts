@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install postinst postrm test unpack
+DEPEND=doc? ( dev-lang/tcl ) tcl? ( dev-lang/tcl )
+DESCRIPTION=SQLite: an SQL Database Engine in a C Library.
+HOMEPAGE=http://www.sqlite.org/
+IUSE=doc nls tcl
+KEYWORDS=alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd
+LICENSE=public-domain
+RDEPEND=tcl? ( dev-lang/tcl )
+RESTRICT=!tcl? ( test )
+SLOT=0
+SRC_URI=http://www.sqlite.org/sqlite-2.8.16.tar.gz
+_eclasses_=alternatives	326031758c86cd08f5844f475f03ac01	eutils	4878e7f88afc0ba0866ac112190b0fd4	multilib	892e597faee02a5b94eb02ab512e7622	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=e718ddb252747ea2b5370eb83b0a69b1

@@ -1,0 +1,11 @@
+DEFINED_PHASES=configure install prepare setup unpack
+DEPEND=dev-libs/libnl:3 sys-apps/pciutils sys-devel/gettext sys-libs/ncurses[unicode?] virtual/pkgconfig dev-vcs/git || ( >=sys-devel/automake-1.12:1.12 >=sys-devel/automake-1.13:1.13 ) >=sys-devel/autoconf-2.68 sys-devel/libtool
+DESCRIPTION=tool that helps you find what software is using the most power
+EAPI=4
+HOMEPAGE=https://01.org/powertop/ http://www.lesswatts.org/projects/powertop/
+IUSE=unicode X
+LICENSE=GPL-2
+RDEPEND=dev-libs/libnl:3 sys-apps/pciutils sys-devel/gettext sys-libs/ncurses[unicode?] X? ( x11-apps/xset )
+SLOT=0
+_eclasses_=autotools	16761a2f972abd686713e5967ff3c754	eutils	4878e7f88afc0ba0866ac112190b0fd4	git-2	2027b81a576527fa16bece425941e094	git-r3	536297c3f55d49069f6d2785b061e4d9	libtool	b1c8688e60f9580bcb9bb46e08737eb1	linux-info	a9cbd6bbe2b28166e403321882f3c73c	multilib	892e597faee02a5b94eb02ab512e7622	multiprocessing	89580da5ec17ad687fcde876c542b91e	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=7162a2b0cc58d48162d0ae5e8ce47c15

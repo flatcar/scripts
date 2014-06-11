@@ -1,0 +1,11 @@
+DEFINED_PHASES=install unpack
+DEPEND=dev-lang/perl sys-devel/automake-wrapper >=sys-devel/autoconf-2.59-r6 >=sys-apps/texinfo-4.7 sys-devel/gnuconfig sys-apps/help2man
+DESCRIPTION=Used to generate Makefile.in from Makefile.am
+HOMEPAGE=http://www.gnu.org/software/automake/
+KEYWORDS=alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd
+LICENSE=GPL-2
+RDEPEND=dev-lang/perl sys-devel/automake-wrapper >=sys-devel/autoconf-2.59-r6 >=sys-apps/texinfo-4.7 sys-devel/gnuconfig
+SLOT=1.9
+SRC_URI=mirror://gnu/automake/automake-1.9.6.tar.bz2
+_eclasses_=eutils	4878e7f88afc0ba0866ac112190b0fd4	multilib	892e597faee02a5b94eb02ab512e7622	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=c5cf57d76bf6e7a3f24cc6bd99945389

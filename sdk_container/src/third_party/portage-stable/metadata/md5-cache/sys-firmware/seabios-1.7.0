@@ -1,0 +1,12 @@
+DEFINED_PHASES=compile configure install prepare pretend setup
+DEPEND==dev-lang/python-2*
+DESCRIPTION=Open Source implementation of a 16-bit x86 BIOS
+EAPI=4
+HOMEPAGE=http://www.seabios.org
+KEYWORDS=amd64 ~ppc ~ppc64 x86 ~amd64-fbsd ~x86-fbsd
+LICENSE=LGPL-3 GPL-3
+RDEPEND==dev-lang/python-2*
+SLOT=0
+SRC_URI=http://www.linuxtogo.org/~kevin/SeaBIOS/seabios-1.7.0.tar.gz http://dev.gentoo.org/~cardoe/distfiles/seabios-1.7.0-bins.tar.xz
+_eclasses_=multilib	892e597faee02a5b94eb02ab512e7622	python	305197b0aa1194fa3ef67ca21f6faa7e	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953
+_md5_=8f98c4d0f32db7b868524c2d594a6335

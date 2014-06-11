@@ -1,0 +1,11 @@
+DEFINED_PHASES=compile install prepare test
+DEPEND=sys-devel/flex sys-devel/bison
+DESCRIPTION=Open Firmware device-trees compiler
+EAPI=4
+HOMEPAGE=http://www.t2-project.org/packages/dtc.html
+KEYWORDS=amd64 ppc ppc64 x86
+LICENSE=GPL-2
+SLOT=0
+SRC_URI=http://www.jdl.com/software/dtc-v1.3.0.tgz
+_eclasses_=multilib	892e597faee02a5b94eb02ab512e7622	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953
+_md5_=1bdb16fcd314fbef9ca6babdc440bad8

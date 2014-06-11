@@ -1,5 +1,5 @@
 DEFINED_PHASES=install prepare
-DEPEND=virtual/libusb:1
+DEPEND=virtual/libusb:1 dev-util/pkgconfig
 DESCRIPTION=Tool to communicate with Samsung SMDK boards
 EAPI=4
 HOMEPAGE=http://www.fluff.org/ben/smdk/tools/
@@ -8,5 +8,5 @@ LICENSE=as-is
 RDEPEND=virtual/libusb:1
 SLOT=0
 SRC_URI=http://www.fluff.org/ben/smdk/tools/downloads/smdk-tools-v0.20.tar.gz
-_eclasses_=eutils	33ef77a15337022e05342d2c772a7a5a	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	6526ac6fc9aedf391efb91fcd75ace68	user	9e552f935106ff0bc92af16da64b4b29
-_md5_=ec9d18d713ced50fe9a6893cc7a29d7f
+_eclasses_=eutils	4878e7f88afc0ba0866ac112190b0fd4	multilib	892e597faee02a5b94eb02ab512e7622	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=403d5208b65eb984429b36ba8027cab2

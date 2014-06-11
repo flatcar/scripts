@@ -1,0 +1,10 @@
+DEFINED_PHASES=install prepare
+DESCRIPTION=Assembler and loader used to create kernel bootsector
+EAPI=4
+HOMEPAGE=http://www.debath.co.uk/
+KEYWORDS=-* ~amd64 ~x86 ~x86-fbsd
+LICENSE=GPL-2
+SLOT=0
+SRC_URI=http://www.debath.co.uk/dev86/bin86-0.16.18.tar.gz
+_eclasses_=eutils	4878e7f88afc0ba0866ac112190b0fd4	multilib	892e597faee02a5b94eb02ab512e7622	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=349d9da51b8e9facdfca04997ea4e526

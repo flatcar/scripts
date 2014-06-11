@@ -1,0 +1,11 @@
+DEFINED_PHASES=compile install postinst postrm test unpack
+DEPEND=sys-devel/gnuconfig >=sys-devel/binutils-config-1.9 zlib? ( sys-libs/zlib ) test? ( dev-util/dejagnu ) nls? ( sys-devel/gettext ) sys-devel/flex virtual/yacc
+DESCRIPTION=Tools necessary to build programs
+HOMEPAGE=http://sourceware.org/binutils/
+IUSE=cxx nls multitarget multislot static-libs test vanilla zlib
+LICENSE=|| ( GPL-3 LGPL-3 )
+RDEPEND=>=sys-devel/binutils-config-1.9 zlib? ( sys-libs/zlib )
+SLOT=0
+SRC_URI=mirror://kernel/linux/devel/binutils/binutils-2.23.51.0.2.tar.xz mirror://gentoo/binutils-2.23.51.0.2-patches-1.0.tar.xz http://dev.gentoo.org/~vapier/dist/binutils-2.23.51.0.2-patches-1.0.tar.xz
+_eclasses_=eutils	4878e7f88afc0ba0866ac112190b0fd4	flag-o-matic	65cef1287b9d62b1a0f180765d1e0c69	gnuconfig	ee02e61d6c68cee478e2e69214b7caef	libtool	b1c8688e60f9580bcb9bb46e08737eb1	multilib	892e597faee02a5b94eb02ab512e7622	toolchain-binutils	a04406f263e9c966c80e2b5c8e88560f	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	unpacker	658a981a81fd7cb0767315a541bab01d	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=cb6f2f75612ce9ac5e3b65fc70b43914

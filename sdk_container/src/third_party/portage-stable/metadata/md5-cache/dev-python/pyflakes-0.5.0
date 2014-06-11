@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install postinst postrm prepare test
+DEPEND==dev-lang/python-2* test? ( dev-python/twisted-core )
+DESCRIPTION=Passive checker for Python programs
+EAPI=3
+HOMEPAGE=https://launchpad.net/pyflakes http://pypi.python.org/pypi/pyflakes
+IUSE=test
+KEYWORDS=amd64 ~ppc ~ppc64 x86 ~amd64-linux ~x86-linux ~x86-macos
+LICENSE=MIT
+RDEPEND==dev-lang/python-2*
+SLOT=0
+SRC_URI=mirror://pypi/p/pyflakes/pyflakes-0.5.0.tar.gz
+_eclasses_=distutils	34e0f373c466bb0e97ba194735f1acf2	multilib	892e597faee02a5b94eb02ab512e7622	python	305197b0aa1194fa3ef67ca21f6faa7e	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953
+_md5_=87666dbf6b3730f140f2ac11a3ba6143

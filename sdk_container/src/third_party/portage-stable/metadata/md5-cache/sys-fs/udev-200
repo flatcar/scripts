@@ -1,0 +1,15 @@
+DEFINED_PHASES=compile configure install postinst preinst prepare setup
+DEPEND=>=sys-apps/util-linux-2.20 acl? ( sys-apps/acl ) gudev? ( >=dev-libs/glib-2 ) introspection? ( >=dev-libs/gobject-introspection-1.31.1 ) kmod? ( >=sys-apps/kmod-12 ) selinux? ( >=sys-libs/libselinux-2.1.9 ) !<sys-libs/glibc-2.11 !sys-apps/systemd app-text/docbook-xsl-stylesheets dev-libs/libxslt virtual/os-headers virtual/pkgconfig !<sys-kernel/linux-headers-2.6.32 doc? ( >=dev-util/gtk-doc-1.18 ) keymap? ( dev-util/gperf ) || ( >=sys-devel/automake-1.12:1.12 >=sys-devel/automake-1.13:1.13 ) >=sys-devel/autoconf-2.68 sys-devel/libtool
+DESCRIPTION=Linux dynamic and persistent device naming support (aka userspace devfs)
+EAPI=5
+HOMEPAGE=http://www.freedesktop.org/wiki/Software/systemd
+IUSE=acl doc +firmware-loader gudev hwdb introspection keymap +kmod +openrc selinux static-libs
+KEYWORDS=alpha amd64 arm hppa ia64 ~m68k ~mips ppc ppc64 s390 sh sparc x86
+LICENSE=LGPL-2.1 MIT GPL-2
+PDEPEND=>=virtual/udev-197-r1 hwdb? ( >=sys-apps/hwids-20130326.1[udev] ) openrc? ( >=sys-fs/udev-init-scripts-25 )
+RDEPEND=>=sys-apps/util-linux-2.20 acl? ( sys-apps/acl ) gudev? ( >=dev-libs/glib-2 ) introspection? ( >=dev-libs/gobject-introspection-1.31.1 ) kmod? ( >=sys-apps/kmod-12 ) selinux? ( >=sys-libs/libselinux-2.1.9 ) !<sys-libs/glibc-2.11 !sys-apps/systemd openrc? ( !<sys-apps/openrc-0.9.9 ) !sys-apps/coldplug !<sys-fs/lvm2-2.02.97-r1 !sys-fs/device-mapper !<sys-fs/udev-init-scripts-22 !<sys-kernel/dracut-017-r1 !<sys-kernel/genkernel-3.4.25 !<sec-policy/selinux-base-2.20120725-r10
+RESTRICT=test
+SLOT=0
+SRC_URI=http://www.freedesktop.org/software/systemd/systemd-200.tar.xz http://dev.gentoo.org/~ssuominen/udev-200-patches-1.tar.xz http://dev.gentoo.org/~williamh/dist/udev-200-patches-1.tar.xz
+_eclasses_=autotools	16761a2f972abd686713e5967ff3c754	eutils	4878e7f88afc0ba0866ac112190b0fd4	libtool	b1c8688e60f9580bcb9bb46e08737eb1	linux-info	a9cbd6bbe2b28166e403321882f3c73c	multilib	892e597faee02a5b94eb02ab512e7622	multiprocessing	89580da5ec17ad687fcde876c542b91e	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=b859079413c488f0a01d4e15de0cfe8f

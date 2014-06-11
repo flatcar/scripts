@@ -1,0 +1,12 @@
+DEFINED_PHASES=prepare setup
+DEPEND=!sys-fs/aufs2 !<sys-fs/aufs3-3_p20130318 >=sys-fs/aufs-headers-3.10_p20130826
+DESCRIPTION=Utilities are always necessary for aufs
+EAPI=5
+HOMEPAGE=http://aufs.sourceforge.net/
+KEYWORDS=~amd64 ~x86
+LICENSE=GPL-2
+RDEPEND=!sys-fs/aufs2 !<sys-fs/aufs3-3_p20130318
+SLOT=0
+SRC_URI=http://dev.gentoo.org/~jlec/distfiles/aufs-util-3.9_p20130826.tar.xz
+_eclasses_=eutils	4878e7f88afc0ba0866ac112190b0fd4	flag-o-matic	65cef1287b9d62b1a0f180765d1e0c69	linux-info	a9cbd6bbe2b28166e403321882f3c73c	multilib	892e597faee02a5b94eb02ab512e7622	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=a125c073217bad2ba3041fc1b00929c9

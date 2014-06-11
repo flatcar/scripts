@@ -1,0 +1,10 @@
+DEFINED_PHASES=compile configure install prepare test unpack
+DEPEND=!sys-apps/systemd[gtk] >=dev-libs/glib-2.26 dev-libs/libgee:0.8 sys-apps/dbus x11-libs/gtk+:2 >=x11-libs/libnotify-0.7 app-arch/xz-utils || ( dev-lang/vala:0.20 dev-lang/vala:0.18 dev-lang/vala:0.16 dev-lang/vala:0.14 ) app-text/docbook-xml-dtd:4.2 dev-vcs/git || ( >=sys-devel/automake-1.12:1.12 >=sys-devel/automake-1.13:1.13 ) >=sys-devel/autoconf-2.68 sys-devel/libtool
+DESCRIPTION=System and service manager for Linux
+EAPI=4
+HOMEPAGE=http://www.freedesktop.org/wiki/Software/systemd
+LICENSE=GPL-2
+RDEPEND=!sys-apps/systemd[gtk] >=dev-libs/glib-2.26 dev-libs/libgee:0.8 sys-apps/dbus x11-libs/gtk+:2 >=x11-libs/libnotify-0.7
+SLOT=0
+_eclasses_=autotools	16761a2f972abd686713e5967ff3c754	autotools-utils	5f912199ed4fdfb0bfbde29c7ac7dbdb	eutils	4878e7f88afc0ba0866ac112190b0fd4	git-2	2027b81a576527fa16bece425941e094	git-r3	536297c3f55d49069f6d2785b061e4d9	libtool	b1c8688e60f9580bcb9bb46e08737eb1	multilib	892e597faee02a5b94eb02ab512e7622	multiprocessing	89580da5ec17ad687fcde876c542b91e	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28	vala	b365480bc54c4e356dc1e953da9fe356
+_md5_=8279391f52599df6989ac7ed3cca2f95

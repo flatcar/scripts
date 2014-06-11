@@ -1,0 +1,12 @@
+DEFINED_PHASES=compile install postinst postrm prepare test
+DEPEND=dev-python/setuptools dev-lang/python
+DESCRIPTION=Implements a XML/HTML/XHTML Markup safe string for Python
+EAPI=3
+HOMEPAGE=http://pypi.python.org/pypi/MarkupSafe
+KEYWORDS=alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~amd64-linux ~x86-linux ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris
+LICENSE=BSD
+RDEPEND=dev-lang/python
+SLOT=0
+SRC_URI=mirror://pypi/M/MarkupSafe/MarkupSafe-0.12.tar.gz
+_eclasses_=distutils	34e0f373c466bb0e97ba194735f1acf2	multilib	892e597faee02a5b94eb02ab512e7622	python	305197b0aa1194fa3ef67ca21f6faa7e	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953
+_md5_=c191e88e3a93c1cad245c611d450ff58

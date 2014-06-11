@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install prepare test
+DEPEND=nls? ( virtual/libintl[abi_x86_32(-)?,abi_x86_64(-)?,abi_x86_x32(-)?,abi_mips_n32(-)?,abi_mips_n64(-)?,abi_mips_o32(-)?] ) abi_x86_32? ( !app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)] !<=app-emulation/emul-linux-x86-baselibs-20131008-r12 ) nls? ( sys-devel/gettext ) userland_GNU? ( >=sys-apps/coreutils-8.5 )
+DESCRIPTION=Contains error handling functions used by GnuPG software
+EAPI=5
+HOMEPAGE=http://www.gnupg.org/related_software/libgpg-error
+IUSE=common-lisp nls static-libs abi_x86_32 abi_x86_64 abi_x86_x32 abi_mips_n32 abi_mips_n64 abi_mips_o32
+KEYWORDS=~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris
+LICENSE=GPL-2 LGPL-2.1
+RDEPEND=nls? ( virtual/libintl[abi_x86_32(-)?,abi_x86_64(-)?,abi_x86_x32(-)?,abi_mips_n32(-)?,abi_mips_n64(-)?,abi_mips_o32(-)?] ) abi_x86_32? ( !app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)] !<=app-emulation/emul-linux-x86-baselibs-20131008-r12 )
+SLOT=0
+SRC_URI=mirror://gnupg/libgpg-error/libgpg-error-1.12.tar.bz2
+_eclasses_=eutils	4878e7f88afc0ba0866ac112190b0fd4	libtool	b1c8688e60f9580bcb9bb46e08737eb1	multibuild	56d4120419072116417e8de1bd1040ff	multilib	892e597faee02a5b94eb02ab512e7622	multilib-build	0bf1bbb0a7a26fc4daf3e660ef004ee5	multilib-minimal	6d23cf688d036d6971741fb66703f6f7	multiprocessing	89580da5ec17ad687fcde876c542b91e	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=e1db9799b69c925a0f02a55ec420230e

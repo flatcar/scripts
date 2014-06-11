@@ -1,0 +1,11 @@
+DEFINED_PHASES=configure install postinst prepare test unpack
+DEPEND=!dev-util/gdbserver >=sys-libs/ncurses-5.2-r2 sys-libs/readline expat? ( dev-libs/expat ) python? ( =dev-lang/python-2* ) zlib? ( sys-libs/zlib ) app-arch/xz-utils virtual/yacc test? ( dev-util/dejagnu ) nls? ( sys-devel/gettext ) dev-vcs/git
+DESCRIPTION=GNU debugger
+EAPI=3
+HOMEPAGE=http://sourceware.org/gdb/
+IUSE=+client expat multitarget nls +python +server test vanilla zlib
+LICENSE=GPL-2 LGPL-2
+RDEPEND=!dev-util/gdbserver >=sys-libs/ncurses-5.2-r2 sys-libs/readline expat? ( dev-libs/expat ) python? ( =dev-lang/python-2* ) zlib? ( sys-libs/zlib )
+SLOT=0
+_eclasses_=eutils	4878e7f88afc0ba0866ac112190b0fd4	flag-o-matic	65cef1287b9d62b1a0f180765d1e0c69	git-2	2027b81a576527fa16bece425941e094	git-r3	536297c3f55d49069f6d2785b061e4d9	multilib	892e597faee02a5b94eb02ab512e7622	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=5f1a724c64038b405f92019e81c332f7

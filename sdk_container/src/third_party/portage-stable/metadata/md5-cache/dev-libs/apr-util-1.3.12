@@ -1,0 +1,14 @@
+DEFINED_PHASES=compile configure install prepare
+DEPEND=dev-libs/expat >=dev-libs/apr-1.4.5:1 berkdb? ( >=sys-libs/db-4 ) freetds? ( dev-db/freetds ) gdbm? ( sys-libs/gdbm ) ldap? ( =net-nds/openldap-2* ) mysql? ( =virtual/mysql-5* ) odbc? ( dev-db/unixODBC ) postgres? ( dev-db/postgresql-base ) sqlite? ( dev-db/sqlite:3 ) doc? ( app-doc/doxygen ) || ( >=sys-devel/automake-1.12:1.12 >=sys-devel/automake-1.13:1.13 ) >=sys-devel/autoconf-2.68 sys-devel/libtool
+DESCRIPTION=Apache Portable Runtime Utility Library
+EAPI=4
+HOMEPAGE=http://apr.apache.org/
+IUSE=berkdb doc freetds gdbm ldap mysql odbc postgres sqlite static-libs
+KEYWORDS=alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~sparc-fbsd ~x86-fbsd
+LICENSE=Apache-2.0
+RDEPEND=dev-libs/expat >=dev-libs/apr-1.4.5:1 berkdb? ( >=sys-libs/db-4 ) freetds? ( dev-db/freetds ) gdbm? ( sys-libs/gdbm ) ldap? ( =net-nds/openldap-2* ) mysql? ( =virtual/mysql-5* ) odbc? ( dev-db/unixODBC ) postgres? ( dev-db/postgresql-base ) sqlite? ( dev-db/sqlite:3 )
+RESTRICT=test
+SLOT=1
+SRC_URI=mirror://apache/apr/apr-util-1.3.12.tar.bz2
+_eclasses_=autotools	16761a2f972abd686713e5967ff3c754	db-use	1c719875d6599536f956fafea9e1f404	eutils	4878e7f88afc0ba0866ac112190b0fd4	libtool	b1c8688e60f9580bcb9bb46e08737eb1	multilib	892e597faee02a5b94eb02ab512e7622	multiprocessing	89580da5ec17ad687fcde876c542b91e	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=8ab247b7c851103e8b83fc07ed89cf64

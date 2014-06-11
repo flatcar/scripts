@@ -1,13 +1,13 @@
 DEFINED_PHASES=configure install prepare
-DEPEND=fontconfig? ( media-libs/fontconfig ) jpeg? ( virtual/jpeg ) png? ( >=media-libs/libpng-1.2 ) truetype? ( >=media-libs/freetype-2.1.5 ) xpm? ( x11-libs/libXpm x11-libs/libXt ) zlib? ( sys-libs/zlib ) || ( >=sys-devel/automake-1.11.1:1.11 ) >=sys-devel/autoconf-2.68 sys-devel/libtool
+DEPEND=fontconfig? ( media-libs/fontconfig ) jpeg? ( virtual/jpeg ) png? ( >=media-libs/libpng-1.2:0 ) truetype? ( >=media-libs/freetype-2.1.5 ) xpm? ( x11-libs/libXpm x11-libs/libXt ) zlib? ( sys-libs/zlib ) virtual/pkgconfig || ( >=sys-devel/automake-1.12:1.12 >=sys-devel/automake-1.13:1.13 ) >=sys-devel/autoconf-2.68 sys-devel/libtool
 DESCRIPTION=A graphics library for fast image creation
 EAPI=2
 HOMEPAGE=http://libgd.org/ http://www.boutell.com/gd/
 IUSE=fontconfig jpeg png static-libs truetype xpm zlib
-KEYWORDS=alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~sparc-fbsd ~x86-fbsd
-LICENSE=|| ( as-is BSD )
-RDEPEND=fontconfig? ( media-libs/fontconfig ) jpeg? ( virtual/jpeg ) png? ( >=media-libs/libpng-1.2 ) truetype? ( >=media-libs/freetype-2.1.5 ) xpm? ( x11-libs/libXpm x11-libs/libXt ) zlib? ( sys-libs/zlib )
+KEYWORDS=alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd
+LICENSE=gd IJG HPND BSD
+RDEPEND=fontconfig? ( media-libs/fontconfig ) jpeg? ( virtual/jpeg ) png? ( >=media-libs/libpng-1.2:0 ) truetype? ( >=media-libs/freetype-2.1.5 ) xpm? ( x11-libs/libXpm x11-libs/libXt ) zlib? ( sys-libs/zlib )
 SLOT=2
 SRC_URI=http://libgd.org/releases/gd-2.0.35.tar.bz2
-_eclasses_=autotools	addbdf6cce5024ac93ad2084ad5e1d2d	eutils	33ef77a15337022e05342d2c772a7a5a	libtool	0fd90d183673bf1107465ec45849d1ea	multilib	5f4ad6cf85e365e8f0c6050ddd21659e	portability	0be430f759a631e692678ed796e09f5c	toolchain-funcs	6526ac6fc9aedf391efb91fcd75ace68	user	9e552f935106ff0bc92af16da64b4b29
-_md5_=dc34849b436bae8647097e7cf36b0859
+_eclasses_=autotools	16761a2f972abd686713e5967ff3c754	eutils	4878e7f88afc0ba0866ac112190b0fd4	libtool	b1c8688e60f9580bcb9bb46e08737eb1	multilib	892e597faee02a5b94eb02ab512e7622	multiprocessing	89580da5ec17ad687fcde876c542b91e	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28
+_md5_=2e35d6741af08a12155b46931ec557d6

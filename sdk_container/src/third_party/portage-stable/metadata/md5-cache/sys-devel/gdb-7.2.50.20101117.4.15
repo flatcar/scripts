@@ -1,0 +1,12 @@
+DEFINED_PHASES=configure install postinst prepare test unpack
+DEPEND=>=sys-libs/ncurses-5.2-r2 sys-libs/readline expat? ( dev-libs/expat ) python? ( =dev-lang/python-2* ) app-arch/xz-utils test? ( dev-util/dejagnu ) nls? ( sys-devel/gettext ) >=app-arch/rpm2targz-9.0.0.3g
+DESCRIPTION=GNU debugger
+EAPI=3
+HOMEPAGE=http://sourceware.org/gdb/
+IUSE=expat multitarget nls python test vanilla
+LICENSE=GPL-2 LGPL-2
+RDEPEND=>=sys-libs/ncurses-5.2-r2 sys-libs/readline expat? ( dev-libs/expat ) python? ( =dev-lang/python-2* )
+SLOT=0
+SRC_URI=mirror://fedora/development/source/SRPMS/gdb-7.2.50.20101117-4.fc15.src.rpm
+_eclasses_=eutils	4878e7f88afc0ba0866ac112190b0fd4	flag-o-matic	65cef1287b9d62b1a0f180765d1e0c69	multilib	892e597faee02a5b94eb02ab512e7622	rpm	b94b54b44f14d6bee3e966c8f5c86fba	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=3eb16c16778f7c11a46208b3d31a250c
