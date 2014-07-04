@@ -1,15 +1,16 @@
 #!/sbin/runscript
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-firewall/iptables/files/iptables-1.4.13-r1.init,v 1.1 2012/09/14 17:58:26 axs Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-firewall/iptables/files/iptables-1.4.13-r1.init,v 1.3 2013/04/27 17:29:09 vapier Exp $
 
-extra_commands="save panic"
+extra_commands="check save panic"
 extra_started_commands="reload"
 
 iptables_name=${SVCNAME}
-if [ "${iptables_name}" != "iptables" -a "${iptables_name}" != "ip6tables" ] ; then
-	iptables_name="iptables"
-fi
+case ${iptables_name} in
+iptables|ip6tables) ;;
+*) iptables_name="iptables" ;;
+esac
 
 iptables_bin="/sbin/${iptables_name}"
 case ${iptables_name} in
@@ -20,6 +21,7 @@ case ${iptables_name} in
 esac
 
 depend() {
+	need localmount #434774
 	before net
 }
 
@@ -79,6 +81,7 @@ stop() {
 
 reload() {
 	checkkernel || return 1
+	checkrules || return 1
 	ebegin "Flushing firewall"
 	local a
 	for a in $(cat ${iptables_proc}) ; do
@@ -88,6 +91,17 @@ reload() {
 	eend $?
 
 	start
+}
+
+checkrules() {
+	ebegin "Checking rules"
+	${iptables_bin}-restore --test ${SAVE_RESTORE_OPTIONS} < "${iptables_save}"
+	eend $?
+}
+
+check() {
+	# Short name for users of init.d script.
+	checkrules
 }
 
 save() {

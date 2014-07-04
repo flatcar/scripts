@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-firewall/iptables/iptables-1.4.17.ebuild,v 1.3 2013/04/27 17:45:54 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-firewall/iptables/iptables-1.4.19.1.ebuild,v 1.1 2013/06/01 02:21:40 radhermit Exp $
 
 EAPI="4"
 
@@ -10,8 +10,8 @@ AUTOTOOLS_AUTO_DEPEND=no
 inherit eutils multilib toolchain-funcs autotools
 
 DESCRIPTION="Linux kernel (2.4+) firewall, NAT and packet mangling tools"
-HOMEPAGE="http://www.iptables.org/"
-SRC_URI="http://iptables.org/projects/iptables/files/${P}.tar.bz2"
+HOMEPAGE="http://www.netfilter.org/projects/iptables/"
+SRC_URI="http://www.netfilter.org/projects/iptables/files/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -29,7 +29,6 @@ DEPEND="${RDEPEND}
 src_prepare() {
 	# use the saner headers from the kernel
 	rm -f include/linux/{kernel,types}.h
-	epatch "${FILESDIR}"/${P}-libip6tc.patch #449262
 
 	# Only run autotools if user patched something
 	epatch_user && eautoreconf || elibtoolize
@@ -83,5 +82,6 @@ src_install() {
 
 	# Move important libs to /lib
 	gen_usr_ldscript -a ip{4,6}tc iptc xtables
-	find "${ED}" -type f -name '*.la' -exec rm -rf '{}' '+' || die "la removal failed"
+
+	prune_libtool_files
 }

@@ -2,9 +2,6 @@
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
 <herd>base-system</herd>
-<maintainer>
-	<email>pva@gentoo.org</email>
-</maintainer>
 <use>
  <flag name='netlink'>Build against libnfnetlink which enables the nfnl_osf util</flag>
 </use>
@@ -20,4 +17,7 @@
   Note that some extensions (e.g. imq and l7filter) are not included into
   official kernel sources so you have to patch the sources before installation.
 </longdescription>
+<upstream>
+ <remote-id type="cpe">cpe:/a:netfilter_core_team:iptables</remote-id>
+</upstream>
 </pkgmetadata>

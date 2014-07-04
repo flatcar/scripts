@@ -1,8 +1,8 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-firewall/iptables/iptables-1.4.17.ebuild,v 1.3 2013/04/27 17:45:54 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-firewall/iptables/iptables-1.4.21.ebuild,v 1.2 2014/01/18 05:37:53 vapier Exp $
 
-EAPI="4"
+EAPI="5"
 
 # Force users doing their own patches to install their own tools
 AUTOTOOLS_AUTO_DEPEND=no
@@ -10,12 +10,12 @@ AUTOTOOLS_AUTO_DEPEND=no
 inherit eutils multilib toolchain-funcs autotools
 
 DESCRIPTION="Linux kernel (2.4+) firewall, NAT and packet mangling tools"
-HOMEPAGE="http://www.iptables.org/"
-SRC_URI="http://iptables.org/projects/iptables/files/${P}.tar.bz2"
+HOMEPAGE="http://www.netfilter.org/projects/iptables/"
+SRC_URI="http://www.netfilter.org/projects/iptables/files/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86"
 IUSE="ipv6 netlink static-libs"
 
 RDEPEND="
@@ -29,7 +29,6 @@ DEPEND="${RDEPEND}
 src_prepare() {
 	# use the saner headers from the kernel
 	rm -f include/linux/{kernel,types}.h
-	epatch "${FILESDIR}"/${P}-libip6tc.patch #449262
 
 	# Only run autotools if user patched something
 	epatch_user && eautoreconf || elibtoolize
@@ -83,5 +82,6 @@ src_install() {
 
 	# Move important libs to /lib
 	gen_usr_ldscript -a ip{4,6}tc iptc xtables
-	find "${ED}" -type f -name '*.la' -exec rm -rf '{}' '+' || die "la removal failed"
+
+	prune_libtool_files
 }
