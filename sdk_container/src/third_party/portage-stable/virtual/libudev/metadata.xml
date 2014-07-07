@@ -7,7 +7,4 @@
 	<maintainer>
 		<email>eudev@gentoo.org</email>
 	</maintainer>
-	<use>
-		<flag name='gudev'>Build the gobject interface library</flag>
-	</use>
 </pkgmetadata>

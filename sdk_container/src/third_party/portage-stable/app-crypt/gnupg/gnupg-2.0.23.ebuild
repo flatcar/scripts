@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-crypt/gnupg/gnupg-2.0.21.ebuild,v 1.1 2013/08/19 16:55:43 radhermit Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-crypt/gnupg/gnupg-2.0.23.ebuild,v 1.1 2014/06/06 05:57:26 radhermit Exp $
 
 EAPI="5"
 
@@ -13,12 +13,12 @@ SRC_URI="mirror://gnupg/gnupg/${P}.tar.bz2"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="adns bzip2 doc ldap nls mta readline static selinux smartcard usb"
 
 COMMON_DEPEND_LIBS="
 	>=dev-libs/libassuan-2
-	>=dev-libs/libgcrypt-1.4
+	>=dev-libs/libgcrypt-1.4:0=
 	>=dev-libs/libgpg-error-1.11
 	>=dev-libs/libksba-1.0.7
 	>=dev-libs/pth-1.3.7
@@ -36,8 +36,8 @@ DEPEND="${COMMON_DEPEND_LIBS}
 	${COMMON_DEPEND_BINS}
 	static? (
 		>=dev-libs/libassuan-2[static-libs]
-		>=dev-libs/libgcrypt-1.4[static-libs]
-		>=dev-libs/libgpg-error-1.7[static-libs]
+		>=dev-libs/libgcrypt-1.4:0=[static-libs]
+		>=dev-libs/libgpg-error-1.11[static-libs]
 		>=dev-libs/libksba-1.0.7[static-libs]
 		>=dev-libs/pth-1.3.7[static-libs]
 		>=net-misc/curl-7.10[static-libs]
@@ -57,11 +57,12 @@ RDEPEND="!static? ( ${COMMON_DEPEND_LIBS} )
 REQUIRED_USE="smartcard? ( !static )"
 
 src_prepare() {
-	epatch "${FILESDIR}"/${PN}-2.0.17-gpgsm-gencert.patch
+	epatch "${FILESDIR}/${PN}-2.0.17-gpgsm-gencert.patch"
+	epatch_user
 }
 
 src_configure() {
-	local myconf
+	local myconf=()
 
 	# 'USE=static' support was requested:
 	# gnupg1: bug #29299
@@ -69,9 +70,18 @@ src_configure() {
 	use static && append-ldflags -static
 
 	if use smartcard; then
-		myconf+=" --enable-scdaemon $(use_enable usb ccid-driver)"
+		myconf+=(
+			--enable-scdaemon
+			$(use_enable usb ccid-driver)
+		)
 	else
-		myconf+=" --disable-scdaemon"
+		myconf+=( --disable-scdaemon )
+	fi
+
+	if use elibc_SunOS || use elibc_AIX; then
+		myconf+=( --disable-symcryptrun )
+	else
+		myconf+=( --enable-symcryptrun )
 	fi
 
 	econf \
@@ -79,10 +89,9 @@ src_configure() {
 		--enable-gpg \
 		--enable-gpgsm \
 		--enable-agent \
-		${myconf} \
+		"${myconf[@]}" \
 		$(use_with adns) \
 		$(use_enable bzip2) \
-		$(use_enable !elibc_SunOS symcryptrun) \
 		$(use_enable nls) \
 		$(use_enable mta mailto) \
 		$(use_enable ldap) \
@@ -91,7 +100,7 @@ src_configure() {
 }
 
 src_compile() {
-	emake
+	default
 
 	if use doc; then
 		cd doc
@@ -100,7 +109,11 @@ src_compile() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" install
+	default
+
+	# bug#192151
+	dobin tools/gpgsplit tools/gpg-zip
+
 	emake DESTDIR="${D}" -f doc/Makefile uninstall-nobase_dist_docDATA
 	rm "${ED}"/usr/share/gnupg/help* || die
 
