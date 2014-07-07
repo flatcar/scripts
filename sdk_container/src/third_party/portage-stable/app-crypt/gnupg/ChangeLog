@@ -1,6 +1,186 @@
 # ChangeLog for app-crypt/gnupg
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/app-crypt/gnupg/ChangeLog,v 1.486 2013/08/19 16:59:42 radhermit Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/app-crypt/gnupg/ChangeLog,v 1.532 2014/07/05 11:29:15 ago Exp $
+
+  05 Jul 2014; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.18.ebuild,
+  gnupg-2.0.25.ebuild:
+  Stable for sparc, wrt bug #514718
+
+  05 Jul 2014; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.18.ebuild,
+  gnupg-2.0.25.ebuild:
+  Stable for arm, wrt bug #514718
+
+  05 Jul 2014; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.18.ebuild,
+  gnupg-2.0.25.ebuild:
+  Stable for ia64, wrt bug #514718
+
+  05 Jul 2014; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.18.ebuild,
+  gnupg-2.0.25.ebuild:
+  Stable for ppc64, wrt bug #514718
+
+  05 Jul 2014; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.18.ebuild,
+  gnupg-2.0.25.ebuild:
+  Stable for ppc, wrt bug #514718
+
+  05 Jul 2014; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.18.ebuild,
+  gnupg-2.0.25.ebuild:
+  Stable for alpha, wrt bug #514718
+
+  05 Jul 2014; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.18.ebuild,
+  gnupg-2.0.25.ebuild:
+  Stable for x86, wrt bug #514718
+
+  01 Jul 2014; Mikle Kolyada <zlogene@gentoo.org> gnupg-1.4.18.ebuild:
+  amd64 stable wrt bug #514718
+
+  01 Jul 2014; Richard Freeman <rich0@gentoo.org> gnupg-2.0.25.ebuild:
+  amd64 stable - 514718
+
+  01 Jul 2014; Jeroen Roovers <jer@gentoo.org> gnupg-2.0.25.ebuild:
+  Stable for HPPA (bug #514718).
+
+  01 Jul 2014; Jeroen Roovers <jer@gentoo.org> gnupg-1.4.18.ebuild:
+  Stable for HPPA (bug #514718).
+
+*gnupg-1.4.18 (30 Jun 2014)
+
+  30 Jun 2014; Alon Bar-Lev <alonbl@gentoo.org> +gnupg-1.4.18.ebuild,
+  -gnupg-1.4.17.ebuild:
+  Version bump, bug#514718
+
+*gnupg-2.0.25 (30 Jun 2014)
+
+  30 Jun 2014; Alon Bar-Lev <alonbl@gentoo.org> +gnupg-2.0.25.ebuild,
+  -gnupg-2.0.24.ebuild:
+  Version bump, bug#514718
+
+*gnupg-2.0.24 (24 Jun 2014)
+
+  24 Jun 2014; Alon Bar-Lev <alonbl@gentoo.org> +gnupg-2.0.24.ebuild:
+  Version bump, bug#514718
+
+*gnupg-1.4.17 (23 Jun 2014)
+
+  23 Jun 2014; Alon Bar-Lev <alonbl@gentoo.org> +gnupg-1.4.17.ebuild:
+  Version bump, bug#514718
+
+*gnupg-2.0.23 (06 Jun 2014)
+
+  06 Jun 2014; Tim Harder <radhermit@gentoo.org> +gnupg-2.0.23.ebuild:
+  Version bump, add libgcrypt slot operator (bug #494530).
+
+  03 Apr 2014; Michael Haubenwallner <haubi@gentoo.org> gnupg-2.0.22.ebuild:
+  Add ~ppc-aix keyword.
+
+  01 Mar 2014; Michał Górny <mgorny@gentoo.org> gnupg-2.0.22.ebuild:
+  Update libgcrypt dep to use slot :0.
+
+  21 Feb 2014; Alon Bar-Lev <alonbl@gentoo.org> -gnupg-1.4.15.ebuild:
+  Cleanup
+
+  16 Feb 2014; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.16.ebuild:
+  Stable for ia64, wrt bug #494658
+
+  16 Feb 2014; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.16.ebuild:
+  Stable for alpha, wrt bug #494658
+
+  14 Feb 2014; Markus Meier <maekke@gentoo.org> gnupg-1.4.16.ebuild:
+  arm stable, bug #494658
+
+  09 Feb 2014; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.16.ebuild:
+  Stable for sparc, wrt bug #494658
+
+  09 Feb 2014; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.16.ebuild:
+  Stable for ppc64, wrt bug #494658
+
+  09 Feb 2014; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.16.ebuild:
+  Stable for ppc, wrt bug #494658
+
+  09 Feb 2014; Pawel Hajdan jr <phajdan.jr@gentoo.org> gnupg-1.4.16.ebuild:
+  x86 stable wrt security bug #494658
+
+  08 Feb 2014; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.16.ebuild:
+  Stable for amd64, wrt bug #494658
+
+  08 Feb 2014; Jeroen Roovers <jer@gentoo.org> gnupg-1.4.16.ebuild:
+  Stable for HPPA (bug #494658).
+
+  18 Jan 2014; Mike Frysinger <vapier@gentoo.org> gnupg-1.4.15.ebuild,
+  gnupg-2.0.22.ebuild:
+  Mark s390/sh stable.
+
+*gnupg-1.4.16 (18 Dec 2013)
+
+  18 Dec 2013; Alon Bar-Lev <alonbl@gentoo.org> +gnupg-1.4.16.ebuild:
+  Version bump, bug#494658
+
+  05 Dec 2013; Alon Bar-Lev <alonbl@gentoo.org> gnupg-2.0.22.ebuild:
+  Disable symcryptrun on AIX, bug#493382, thanks to Michael Haubenwallner
+
+  28 Nov 2013; Sergey Popov <pinkbyte@gentoo.org> -gnupg-1.4.14.ebuild,
+  -gnupg-2.0.20.ebuild:
+  Security cleanup wrt bug #487230
+
+  12 Oct 2013; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.15.ebuild,
+  gnupg-2.0.22.ebuild:
+  Stable for ppc, wrt bug #487230
+
+  12 Oct 2013; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.15.ebuild,
+  gnupg-2.0.22.ebuild:
+  Stable for arm, wrt bug #487230
+
+  11 Oct 2013; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.15.ebuild,
+  gnupg-2.0.22.ebuild:
+  Stable for sparc, wrt bug #487230
+
+  11 Oct 2013; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.15.ebuild,
+  gnupg-2.0.22.ebuild:
+  Stable for ppc64, wrt bug #487230
+
+  11 Oct 2013; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.15.ebuild,
+  gnupg-2.0.22.ebuild:
+  Stable for ia64, wrt bug #487230
+
+  11 Oct 2013; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.15.ebuild,
+  gnupg-2.0.22.ebuild:
+  Stable for alpha, wrt bug #487230
+
+  09 Oct 2013; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.15.ebuild,
+  gnupg-2.0.22.ebuild:
+  Stable for x86, wrt bug #487230
+
+  08 Oct 2013; Agostino Sarubbo <ago@gentoo.org> gnupg-1.4.15.ebuild,
+  gnupg-2.0.22.ebuild:
+  Stable for amd64, wrt bug #487230
+
+  08 Oct 2013; Jeroen Roovers <jer@gentoo.org> gnupg-2.0.22.ebuild:
+  Stable for HPPA (bug #487230).
+
+  08 Oct 2013; Jeroen Roovers <jer@gentoo.org> gnupg-1.4.15.ebuild:
+  Stable for HPPA (bug #487230).
+
+  08 Oct 2013; Alon Bar-Lev <alonbl@gentoo.org> gnupg-2.0.22.ebuild:
+  Addd gpgsplit, gpg-zip, resolves bug#192151
+
+*gnupg-2.0.22 (07 Oct 2013)
+*gnupg-1.4.15 (07 Oct 2013)
+
+  07 Oct 2013; Alon Bar-Lev <alonbl@gentoo.org> +gnupg-1.4.15.ebuild,
+  +gnupg-2.0.22.ebuild, -files/gnupg-2.0.21-CVE-2013-4351.patch,
+  -gnupg-2.0.21-r2.ebuild, -gnupg-2.0.21.ebuild:
+  Version bump, fix bug#487230
+
+*gnupg-2.0.21-r2 (04 Oct 2013)
+
+  04 Oct 2013; Alon Bar-Lev <alonbl@gentoo.org>
+  +files/gnupg-2.0.21-CVE-2013-4351.patch, +gnupg-2.0.21-r2.ebuild,
+  -gnupg-2.0.21-r1.ebuild:
+  Fix CVE-2013-4351, bug#484836
+
+*gnupg-2.0.21-r1 (03 Oct 2013)
+
+  03 Oct 2013; Alon Bar-Lev <alonbl@gentoo.org> +gnupg-2.0.21-r1.ebuild:
+  Cleanup ebuild, add epatch_user, resolves bug#486882
 
   19 Aug 2013; Tim Harder <radhermit@gentoo.org> -gnupg-1.4.13.ebuild,
   -gnupg-1.4.13-r1.ebuild, -gnupg-2.0.19.ebuild, -gnupg-2.0.19-r1.ebuild,

@@ -1,0 +1,23 @@
+# ChangeLog for virtual/libudev
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/virtual/libudev/ChangeLog,v 1.5 2014/06/18 20:57:13 mgorny Exp $
+
+  18 Jun 2014; Michał Górny <mgorny@gentoo.org> libudev-208.ebuild:
+  Update dependencies to require guaranteed EAPI=5 or multilib ebuilds, bug
+  #513718.
+
+  09 Jun 2014; Mike Frysinger <vapier@gentoo.org> libudev-208.ebuild:
+  Mark arm64/m68k/s390/sh stable.
+
+  02 Jun 2014; Samuli Suominen <ssuominen@gentoo.org> libudev-208.ebuild:
+  Stabilize for everyone because providers have been marked stable wrt bugs
+  #506078 and #505962
+
+  29 Mar 2014; Anthony G. Basile <blueness@gentoo.org> metadata.xml:
+  Add eudev@g.o as a maintainer
+
+*libudev-208 (27 Mar 2014)
+
+  27 Mar 2014; Michał Górny <mgorny@gentoo.org> +libudev-208.ebuild,
+  +metadata.xml:
+  Introduce a new virtual for clear := deps on libudev provider.
