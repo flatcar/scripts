@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/linux-info.eclass,v 1.102 2013/09/29 02:49:40 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/linux-info.eclass,v 1.104 2014/06/28 07:54:27 robbat2 Exp $
 
 # @ECLASS: linux-info.eclass
 # @MAINTAINER:
@@ -164,7 +164,7 @@ qeerror() { qout eerror "${@}" ; }
 # done by including the configfile, and printing the variable with Make.
 # It WILL break if your makefile has missing dependencies!
 getfilevar() {
-	local ERROR basefname basedname myARCH="${ARCH}"
+	local ERROR basefname basedname myARCH="${ARCH}" M="${S}"
 	ERROR=0
 
 	[ -z "${1}" ] && ERROR=1
@@ -182,8 +182,11 @@ getfilevar() {
 
 		# We use nonfatal because we want the caller to take care of things #373151
 		[[ ${EAPI:-0} == [0123] ]] && nonfatal() { "$@"; }
+		case ${EBUILD_PHASE_FUNC} in
+			pkg_info|pkg_nofetch|pkg_pretend) M="${T}" ;;
+		esac
 		echo -e "e:\\n\\t@echo \$(${1})\\ninclude ${basefname}" | \
-			nonfatal emake -C "${basedname}" M="${S}" ${BUILD_FIXES} -s -f - 2>/dev/null
+			nonfatal emake -C "${basedname}" M="${M}" ${BUILD_FIXES} -s -f - 2>/dev/null
 
 		ARCH=${myARCH}
 	fi
@@ -449,7 +452,7 @@ get_version() {
 	then
 		if [ -z "${get_version_warning_done}" ]; then
 			get_version_warning_done=1
-			qeerror "Unable to find kernel sources at ${KERNEL_DIR}"
+			qewarn "Unable to find kernel sources at ${KERNEL_DIR}"
 			#qeinfo "This package requires Linux sources."
 			if [ "${KERNEL_DIR}" == "/usr/src/linux" ] ; then
 				qeinfo "Please make sure that ${KERNEL_DIR} points at your running kernel, "
