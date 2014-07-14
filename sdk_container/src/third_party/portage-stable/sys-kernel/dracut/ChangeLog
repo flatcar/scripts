@@ -1,6 +1,18 @@
 # ChangeLog for sys-kernel/dracut
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-kernel/dracut/ChangeLog,v 1.166 2014/05/14 07:09:46 aidecoe Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-kernel/dracut/ChangeLog,v 1.168 2014/06/12 18:47:17 aidecoe Exp $
+
+*dracut-037-r3 (12 Jun 2014)
+
+  12 Jun 2014; Amadeusz Żołnowski <aidecoe@gentoo.org> +dracut-037-r3.ebuild,
+  +files/037-0007-udev-rules-add-uaccess-rules.patch:
+  Include udev rules needed for Plymouth 0.9.0. Rels bug #512436.
+
+*dracut-037-r2 (20 May 2014)
+
+  20 May 2014; Amadeusz Żołnowski <aidecoe@gentoo.org> +dracut-037-r2.ebuild,
+  +files/037-0006-98systemd-fixup-rootfs-generator-insta.patch:
+  Fixes bug #510848 on behalf of Alexander Tsoy.
 
 *dracut-037-r1 (13 May 2014)
 
