@@ -1,6 +1,133 @@
 # ChangeLog for sys-fs/lvm2
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/lvm2/ChangeLog,v 1.329 2013/11/27 18:50:06 maekke Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/lvm2/ChangeLog,v 1.355 2014/07/16 00:28:28 robbat2 Exp $
+
+*lvm2-2.02.107 (16 Jul 2014)
+
+  16 Jul 2014; Robin H. Johnson <robbat2@gentoo.org>
+  +files/lvm2-2.02.107-static-pkgconfig-libs.patch, +lvm2-2.02.107.ebuild:
+  Bump per bug #516604.
+
+  20 Jun 2014; Samuli Suominen <ssuominen@gentoo.org> lvm2-2.02.106.ebuild:
+  Always pass --disable-udev-systemd-background-jobs with USE="device-mapper-
+  only" as per lvm2.spec from http://pkgs.fedoraproject.org/cgit/lvm2.git
+
+  20 Jun 2014; Samuli Suominen <ssuominen@gentoo.org> lvm2-2.02.106.ebuild:
+  Introduce USE="systemd" for --enable/--disable-udev-systemd-background-jobs
+  wrt #493936 by Alexander Tsoy
+
+  14 May 2014; Samuli Suominen <ssuominen@gentoo.org> -lvm2-2.02.97-r1.ebuild,
+  -lvm2-2.02.104.ebuild, -lvm2-2.02.105.ebuild, -lvm2-2.02.105-r1.ebuild,
+  -files/lvm2-2.02.88-respect-cc.patch, -files/lvm2-2.02.92-locale-muck.patch,
+  -files/lvm2-2.02.97-selinux-static.patch,
+  -files/lvm2-2.02.97-strict-aliasing.patch,
+  -files/lvm2-2.02.97-udev-static.patch, -files/lvm.rc-2.02.105,
+  -files/lvmetad.initd-2.02.105:
+  old
+
+  13 May 2014; Samuli Suominen <ssuominen@gentoo.org> lvm2-2.02.106.ebuild:
+  Fix install with USE="-thin" wrt #510202 by Patrick Lauer
+
+  12 May 2014; Samuli Suominen <ssuominen@gentoo.org> lvm2-2.02.106.ebuild,
+  metadata.xml:
+  Remove USE="cache" and always enable it, either "shared" or "internal" because
+  it doesn't introduce any dependencies.
+
+*lvm2-2.02.106 (12 May 2014)
+
+  12 May 2014; Samuli Suominen <ssuominen@gentoo.org>
+  +files/lvm2-2.02.106-pthread-pkgconfig.patch,
+  +files/lvm2-2.02.106-static-pkgconfig-libs.patch, +lvm2-2.02.106.ebuild,
+  metadata.xml:
+  Version bump wrt #507812 by Alexander Tsoy; introduce USE="cache" and refresh
+  2 patches so that they apply again (no real changes in them)
+
+  09 Mar 2014; Mike Frysinger <vapier@gentoo.org>
+  +files/lvm2-2.02.105-readline-6.3.patch, lvm2-2.02.105-r2.ebuild:
+  Add fix from upstream for building w/readline-6.3 #503234 by Thomas D..
+
+  08 Feb 2014; Robin H. Johnson <robbat2@gentoo.org>
+  files/dmeventd.initd-2.02.67-r1, files/lvmetad.initd-2.02.105,
+  files/lvmetad.initd-2.02.105-r2:
+  Bug #479464: change pidfile path to be consistently /run
+
+  04 Feb 2014; Robin H. Johnson <robbat2@gentoo.org> lvm2-2.02.105-r2.ebuild:
+  Bug #448354: Fix cross-compile with thin.
+
+  04 Feb 2014; Robin H. Johnson <robbat2@gentoo.org>
+  files/lvm2-2.02.105-pthread-pkgconfig.patch:
+  Bug #491806: Fix this in more cases for static build.
+
+  04 Feb 2014; Robin H. Johnson <robbat2@gentoo.org> lvm2-2.02.105-r1.ebuild,
+  lvm2-2.02.105-r2.ebuild, lvm2-2.02.105.ebuild:
+  Bug #500058: missing dep for static builds.
+
+  03 Feb 2014; Mike Frysinger <vapier@gentoo.org> lvm2-2.02.103.ebuild,
+  lvm2-2.02.104.ebuild, lvm2-2.02.105-r1.ebuild, lvm2-2.02.105-r2.ebuild,
+  lvm2-2.02.105.ebuild, lvm2-2.02.97-r1.ebuild:
+  Mark s390/sh stable.
+
+  03 Feb 2014; Mike Frysinger <vapier@gentoo.org> lvm2-2.02.103.ebuild,
+  lvm2-2.02.104.ebuild, lvm2-2.02.105-r1.ebuild, lvm2-2.02.105-r2.ebuild,
+  lvm2-2.02.105.ebuild, lvm2-2.02.97-r1.ebuild:
+  Add arm64 love.
+
+  02 Feb 2014; Robin H. Johnson <robbat2@gentoo.org>
+  +files/lvmetad.initd-2.02.105-r2, files/lvmetad.initd-2.02.105,
+  lvm2-2.02.105-r2.ebuild:
+  Bug #500074: lvmetad only supports short options, not long ones.
+
+*lvm2-2.02.105-r2 (02 Feb 2014)
+
+  02 Feb 2014; Robin H. Johnson <robbat2@gentoo.org>
+  +files/device-mapper.rc-2.02.105-r2, +files/lvm-monitoring.initd-2.02.105-r2,
+  +files/lvm.rc-2.02.105-r2, +lvm2-2.02.105-r2.ebuild:
+  Bug #438262: dmtab multi-line support. Bug #458262: require sysfs mounted. Bug
+  #437718: speed up lvm-monitoring.
+
+  02 Feb 2014; Agostino Sarubbo <ago@gentoo.org> lvm2-2.02.103.ebuild:
+  Stable for alpha, wrt bug #486278
+
+  02 Feb 2014; Patrick Lauer <patrick@gentoo.org> lvm2-2.02.105-r1.ebuild:
+  Whitespace
+
+*lvm2-2.02.105-r1 (02 Feb 2014)
+
+  02 Feb 2014; Robin H. Johnson <robbat2@gentoo.org> +lvm2-2.02.105-r1.ebuild,
+  metadata.xml:
+  Bug #479950: bring back dmsetup-only build to make some users happy. Please
+  note that this is unsupported at this point, you get to keep the pieces when
+  it breaks.
+
+  02 Feb 2014; Robin H. Johnson <robbat2@gentoo.org> files/lvm.rc-2.02.105:
+  Bug #334125: Ignore an error shutting down last LVs, if they are /usr or / we
+  will not be able to shut them down as we are running from them.
+
+*lvm2-2.02.105 (02 Feb 2014)
+
+  02 Feb 2014; Robin H. Johnson <robbat2@gentoo.org> +files/lvm.rc-2.02.105,
+  +files/lvm2-2.02.105-pthread-pkgconfig.patch,
+  +files/lvm2-2.02.105-static-pkgconfig-libs.patch,
+  +files/lvmetad.initd-2.02.105, +lvm2-2.02.105.ebuild:
+  Bump per bug #499972. LVM1 support is deprecated upstream and no longer built
+  by default. lvmetad init added. Bug #485082: init ordering adjusted. Bug
+  #492450: pthread fix for static builds. Bug #437714: fix startup/shutdown with
+  multiple VGs.
+
+  19 Jan 2014; Agostino Sarubbo <ago@gentoo.org> lvm2-2.02.103.ebuild:
+  Stable for ppc64, wrt bug #486278
+
+  19 Jan 2014; Agostino Sarubbo <ago@gentoo.org> lvm2-2.02.103.ebuild:
+  Stable for ppc, wrt bug #486278
+
+  19 Jan 2014; Agostino Sarubbo <ago@gentoo.org> lvm2-2.02.103.ebuild:
+  Stable for sparc, wrt bug #486278
+
+  14 Jan 2014; Pacho Ramos <pacho@gentoo.org> lvm2-2.02.103.ebuild:
+  ia64 stable, bug #486278 (thanks to Emeric Maschino for testing)
+
+  07 Dec 2013; Pacho Ramos <pacho@gentoo.org> lvm2-2.02.103.ebuild:
+  x86 stable, bug #486278
 
   27 Nov 2013; Markus Meier <maekke@gentoo.org> lvm2-2.02.103.ebuild:
   arm stable, bug #486278

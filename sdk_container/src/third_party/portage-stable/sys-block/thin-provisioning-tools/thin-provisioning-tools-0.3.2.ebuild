@@ -1,18 +1,19 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-block/thin-provisioning-tools/thin-provisioning-tools-0.2.8-r1.ebuild,v 1.7 2014/03/10 18:28:14 johu Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-block/thin-provisioning-tools/thin-provisioning-tools-0.3.2.ebuild,v 1.1 2014/05/12 12:16:09 ssuominen Exp $
 
 EAPI=5
-inherit autotools
+inherit autotools eutils
 
 DESCRIPTION="A suite of tools for thin provisioning on Linux."
-HOMEPAGE="https://github.com/jthornber/thin-provisioning-tools"
+HOMEPAGE="http://github.com/jthornber/thin-provisioning-tools"
 EXT=.tar.gz
-SRC_URI="http://github.com/jthornber/${PN}/archive/v${PV}${EXT} -> ${P}${EXT}"
+BASE_A=${P}${EXT}
+SRC_URI="http://github.com/jthornber/${PN}/archive/v${PV}${EXT} -> ${BASE_A}"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm hppa ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-linux ~x86-linux"
 IUSE="test"
 
 RDEPEND="dev-libs/expat"
@@ -27,6 +28,7 @@ DEPEND="${RDEPEND}
 	dev-libs/boost"
 
 src_prepare() {
+	epatch_user
 	eautoreconf
 }
 
