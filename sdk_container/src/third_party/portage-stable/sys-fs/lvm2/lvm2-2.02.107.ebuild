@@ -1,9 +1,9 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/lvm2/lvm2-2.02.104.ebuild,v 1.1 2013/11/19 11:02:09 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/lvm2/lvm2-2.02.107.ebuild,v 1.1 2014/07/16 00:28:28 robbat2 Exp $
 
 EAPI=5
-inherit autotools eutils linux-info multilib systemd toolchain-funcs udev
+inherit autotools eutils linux-info multilib systemd toolchain-funcs udev flag-o-matic
 
 DESCRIPTION="User-land utilities for LVM2 (device-mapper) software."
 HOMEPAGE="http://sources.redhat.com/lvm2/"
@@ -12,8 +12,9 @@ SRC_URI="ftp://sources.redhat.com/pub/lvm2/${PN/lvm/LVM}.${PV}.tgz
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-linux ~x86-linux"
-IUSE="readline static static-libs clvm cman +lvm1 lvm2create_initrd selinux +udev +thin"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-linux ~x86-linux"
+IUSE="readline static static-libs systemd clvm cman lvm1 lvm2create_initrd selinux +udev +thin device-mapper-only"
+REQUIRED_USE="device-mapper-only? ( !clvm !cman !lvm1 !lvm2create_initrd !thin )"
 
 DEPEND_COMMON="clvm? ( cman? ( =sys-cluster/cman-3* ) =sys-cluster/libdlm-3* )
 	readline? ( sys-libs/readline )
@@ -29,13 +30,15 @@ RDEPEND="${DEPEND_COMMON}
 	!!sys-fs/lvm-user
 	>=sys-apps/util-linux-2.16
 	lvm2create_initrd? ( sys-apps/makedev )
-	thin? ( >=sys-block/thin-provisioning-tools-0.2.8-r1 )"
+	thin? ( >=sys-block/thin-provisioning-tools-0.3.0 )"
+# note: thin- 0.3.0 is required to avoid --disable-thin_check_needs_check
 DEPEND="${DEPEND_COMMON}
 	virtual/pkgconfig
 	>=sys-devel/binutils-2.20.1-r1
 	static? (
 		selinux? ( sys-libs/libselinux[static-libs] )
 		udev? ( virtual/udev[static-libs] )
+		>=sys-apps/util-linux-2.16[static-libs]
 	)"
 
 S=${WORKDIR}/${PN/lvm/LVM}.${PV}
@@ -73,7 +76,7 @@ src_prepare() {
 		-e "s:CC ?= @CC@:CC = $(tc-getCC):" \
 		make.tmpl.in || die #444082
 
-	sed -i -e '/FLAG/s:-O2::' configure{,.in} || die #480212
+	sed -i -e '/FLAG/s:-O2::' configure{.in,} || die #480212
 
 	# For upstream -- review and forward:
 	epatch "${FILESDIR}"/${PN}-2.02.63-always-make-static-libdm.patch
@@ -82,20 +85,26 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-2.02.99-locale-muck.patch #330373
 	epatch "${FILESDIR}"/${PN}-2.02.70-asneeded.patch # -Wl,--as-needed
 	epatch "${FILESDIR}"/${PN}-2.02.92-dynamic-static-ldflags.patch #332905
-	epatch "${FILESDIR}"/${PN}-2.02.100-selinux_and_udev_static.patch #370217, #439414
+	epatch "${FILESDIR}"/${PN}-2.02.107-static-pkgconfig-libs.patch #370217, #439414 + blkid
+	epatch "${FILESDIR}"/${PN}-2.02.106-pthread-pkgconfig.patch #492450
+	# Upstream never tested with USE="-thin" wrt #510202
+	sed -i -e 's|_man7: $(MAN8)|_man7: $(MAN7)|' man/Makefile.in || die
+	use thin || { sed -i -e '/^install_lvm2/s:install_man7::' man/Makefile.in || die; }
 
 	eautoreconf
 }
 
 src_configure() {
+	filter-flags -flto
 	local myconf
 	local buildmode
 
-	myconf="${myconf} --enable-dmeventd"
-	myconf="${myconf} --enable-cmdlib"
-	myconf="${myconf} --enable-applib"
-	myconf="${myconf} --enable-fsadm"
-	myconf="${myconf} --enable-lvmetad"
+	myconf="${myconf} $(use_enable !device-mapper-only dmeventd)"
+	myconf="${myconf} $(use_enable !device-mapper-only cmdlib)"
+	myconf="${myconf} $(use_enable !device-mapper-only applib)"
+	myconf="${myconf} $(use_enable !device-mapper-only fsadm)"
+	myconf="${myconf} $(use_enable !device-mapper-only lvmetad)"
+	use device-mapper-only && myconf="${myconf} --disable-udev-systemd-background-jobs"
 
 	# Most of this package does weird stuff.
 	# The build options are tristate, and --without is NOT supported
@@ -107,14 +116,20 @@ src_configure() {
 	else
 		buildmode="shared"
 	fi
+	dmbuildmode=$(use !device-mapper-only && echo internal || echo none)
 
 	# dmeventd requires mirrors to be internal, and snapshot available
 	# so we cannot disable them
-	myconf="${myconf} --with-mirrors=internal"
-	myconf="${myconf} --with-snapshots=internal"
-	use thin \
-		&& myconf="${myconf} --with-thin=internal" \
-		|| myconf="${myconf} --with-thin=none"
+	myconf="${myconf} --with-mirrors=${dmbuildmode}"
+	myconf="${myconf} --with-snapshots=${dmbuildmode}"
+	if use thin; then
+		myconf="${myconf} --with-thin=internal"
+		myconf="${myconf} --with-thin-check=${EPREFIX}/sbin/thin_check"
+		myconf="${myconf} --with-thin-dump=${EPREFIX}/sbin/thin_dump"
+		myconf="${myconf} --with-thin-repair=${EPREFIX}/sbin/thin_repair"
+	else
+		myconf="${myconf} --with-thin=none"
+	fi
 
 	if use lvm1; then
 		myconf="${myconf} --with-lvm1=${buildmode}"
@@ -147,6 +162,8 @@ src_configure() {
 		myconf="${myconf} --with-clvmd=none --with-cluster=none"
 	fi
 
+	myconf="${myconf} --with-cache=${buildmode}"
+
 	econf \
 		$(use_enable readline) \
 		$(use_enable selinux) \
@@ -164,6 +181,7 @@ src_configure() {
 		$(use_enable udev udev_rules) \
 		$(use_enable udev udev_sync) \
 		$(use_with udev udevdir "$(get_udevdir)"/rules.d) \
+		$(use_enable systemd udev-systemd-background-jobs) \
 		"$(systemd_with_unitdir)" \
 		${myconf} \
 		CLDFLAGS="${LDFLAGS}"
@@ -174,25 +192,33 @@ src_compile() {
 	emake
 	popd >/dev/null
 
-	emake
-	emake CC="$(tc-getCC)" -C scripts lvm2_activation_generator_systemd_red_hat
+	if use device-mapper-only ; then
+		emake device-mapper
+	else
+		emake
+		emake CC="$(tc-getCC)" -C scripts lvm2_activation_generator_systemd_red_hat
+	fi
 }
 
 src_install() {
 	local inst
-	for inst in install install_systemd_units install_systemd_generators install_tmpfiles_configuration; do
+	INSTALL_TARGETS="install install_systemd_units install_systemd_generators install_tmpfiles_configuration"
+	use device-mapper-only && INSTALL_TARGETS="install_device-mapper"
+	for inst in ${INSTALL_TARGETS}; do
 		emake DESTDIR="${D}" ${inst}
 	done
 
-	newinitd "${FILESDIR}"/lvm.rc-2.02.95-r2 lvm
-	newconfd "${FILESDIR}"/lvm.confd-2.02.28-r2 lvm
-
-	newinitd "${FILESDIR}"/lvm-monitoring.initd-2.02.67-r2 lvm-monitoring
-
-	newinitd "${FILESDIR}"/device-mapper.rc-2.02.95-r2 device-mapper
+	newinitd "${FILESDIR}"/device-mapper.rc-2.02.105-r2 device-mapper
 	newconfd "${FILESDIR}"/device-mapper.conf-1.02.22-r3 device-mapper
 
-	newinitd "${FILESDIR}"/dmeventd.initd-2.02.67-r1 dmeventd
+	if use !device-mapper-only ; then
+		newinitd "${FILESDIR}"/dmeventd.initd-2.02.67-r1 dmeventd
+		newinitd "${FILESDIR}"/lvm.rc-2.02.105-r2 lvm
+		newconfd "${FILESDIR}"/lvm.confd-2.02.28-r2 lvm
+
+		newinitd "${FILESDIR}"/lvm-monitoring.initd-2.02.105-r2 lvm-monitoring
+		newinitd "${FILESDIR}"/lvmetad.initd-2.02.105-r2 lvmetad
+	fi
 
 	if use clvm; then
 		newinitd "${FILESDIR}"/clvmd.rc-2.02.39 clvmd
