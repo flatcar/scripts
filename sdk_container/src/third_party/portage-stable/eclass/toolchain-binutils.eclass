@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain-binutils.eclass,v 1.125 2013/10/11 18:35:59 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain-binutils.eclass,v 1.133 2014/06/07 05:08:19 vapier Exp $
 #
 # Maintainer: Toolchain Ninjas <toolchain@gentoo.org>
 #
@@ -39,7 +39,7 @@ cvs)
 git)
 	extra_eclass="git-2"
 	BVER="git"
-	EGIT_REPO_URI="git://sourceware.org/git/binutils.git"
+	EGIT_REPO_URI="git://sourceware.org/git/binutils-gdb.git"
 	;;
 snap)
 	BVER=${PV/9999_pre}
@@ -50,7 +50,13 @@ snap)
 esac
 
 inherit eutils libtool flag-o-matic gnuconfig multilib versionator unpacker ${extra_eclass}
-EXPORT_FUNCTIONS src_unpack src_compile src_test src_install pkg_postinst pkg_postrm
+case ${EAPI:-0} in
+0|1)
+	EXPORT_FUNCTIONS src_unpack src_compile src_test src_install pkg_postinst pkg_postrm ;;
+2|3|4|5)
+	EXPORT_FUNCTIONS src_unpack src_prepare src_configure src_compile src_test src_install pkg_postinst pkg_postrm ;;
+*) die "unsupported EAPI ${EAPI}" ;;
+esac
 
 export CTARGET=${CTARGET:-${CHOST}}
 if [[ ${CTARGET} == ${CHOST} ]] ; then
@@ -59,9 +65,6 @@ if [[ ${CTARGET} == ${CHOST} ]] ; then
 	fi
 fi
 is_cross() { [[ ${CHOST} != ${CTARGET} ]] ; }
-
-: ${ED:=${D}}
-: ${EROOT:=${ROOT}}
 
 DESCRIPTION="Tools necessary to build programs"
 HOMEPAGE="http://sourceware.org/binutils/"
@@ -96,7 +99,7 @@ if version_is_at_least 2.18 ; then
 else
 	LICENSE="|| ( GPL-2 LGPL-2 )"
 fi
-IUSE="cxx nls multitarget multislot static-libs test vanilla"
+IUSE="cxx multislot multitarget nls static-libs test vanilla"
 if version_is_at_least 2.19 ; then
 	IUSE+=" zlib"
 fi
@@ -179,7 +182,7 @@ tc-binutils_apply_patches() {
 	# fix locale issues if possible #122216
 	if [[ -e ${FILESDIR}/binutils-configure-LANG.patch ]] ; then
 		einfo "Fixing misc issues in configure files"
-		for f in $(grep -l 'autoconf version 2.13' $(find "${S}" -name configure)) ; do
+		for f in $(find "${S}" -name configure -exec grep -l 'autoconf version 2.13' {} +) ; do
 			ebegin "  Updating ${f/${S}\/}"
 			patch "${f}" "${FILESDIR}"/binutils-configure-LANG.patch >& "${T}"/configure-patch.log \
 				|| eerror "Please file a bug about this"
@@ -204,15 +207,21 @@ tc-binutils_apply_patches() {
 
 toolchain-binutils_src_unpack() {
 	tc-binutils_unpack
+	case ${EAPI:-0} in
+	0|1) toolchain-binutils_src_prepare ;;
+	esac
+}
+
+toolchain-binutils_src_prepare() {
 	tc-binutils_apply_patches
 }
 
-toolchain-binutils_src_compile() {
-	# prevent makeinfo from running in releases.  it may not always be
-	# installed, and older binutils may fail with newer texinfo.
-	# besides, we never patch the doc files anyways, so regenerating
-	# in the first place is useless. #193364
-	find . '(' -name '*.info' -o -name '*.texi' ')' -print0 | xargs -0 touch -r .
+_eprefix_init() {
+	has "${EAPI:-0}" 0 1 2 && ED=${D} EPREFIX= EROOT=${ROOT}
+}
+
+toolchain-binutils_src_configure() {
+	_eprefix_init
 
 	# make sure we filter $LINGUAS so that only ones that
 	# actually work make it through #42033
@@ -272,6 +281,8 @@ toolchain-binutils_src_compile() {
 	has_version ">=${CATEGORY}/glibc-2.5" && myconf+=( --enable-secureplt )
 	has_version ">=sys-libs/glibc-2.5" && myconf+=( --enable-secureplt )
 
+	local pkgver="Gentoo ${BVER}"
+	[[ -n ${PATCHVER} ]] && pkgver+=" p${PATCHVER}"
 	myconf+=(
 		--prefix="${EPREFIX}"/usr
 		--host=${CHOST}
@@ -286,14 +297,39 @@ toolchain-binutils_src_compile() {
 		--enable-obsolete
 		--enable-shared
 		--enable-threads
+		# Newer versions (>=2.24) make this an explicit option. #497268
+		--enable-install-libiberty
 		--disable-werror
 		--with-bugurl=http://bugs.gentoo.org/
+		--with-pkgversion="${pkgver}"
 		$(use_enable static-libs static)
 		${EXTRA_ECONF}
+		# Disable modules that are in a combined binutils/gdb tree. #490566
+		--disable-{gdb,libdecnumber,readline,sim}
 	)
 	echo ./configure "${myconf[@]}"
 	"${S}"/configure "${myconf[@]}" || die
 
+	# Prevent makeinfo from running in releases.  It may not always be
+	# installed, and older binutils may fail with newer texinfo.
+	# Besides, we never patch the doc files anyways, so regenerating
+	# in the first place is useless. #193364
+	# For older versions, it means we don't get any info pages at all.
+	# Oh well, tough luck. #294617
+	if [[ -e ${S}/gas/doc/as.info ]] || ! version_is_at_least 2.24 ; then
+		sed -i \
+			-e '/^MAKEINFO/s:=.*:= true:' \
+			Makefile || die
+	fi
+}
+
+toolchain-binutils_src_compile() {
+	_eprefix_init
+	case ${EAPI:-0} in
+	0|1) toolchain-binutils_src_configure ;;
+	esac
+
+	cd "${MY_BUILDDIR}"
 	emake all || die "emake failed"
 
 	# only build info pages if we user wants them, and if
@@ -303,7 +339,7 @@ toolchain-binutils_src_compile() {
 	fi
 	# we nuke the manpages when we're left with junk
 	# (like when we bootstrap, no perl -> no manpages)
-	find . -name '*.1' -a -size 0 | xargs rm -f
+	find . -name '*.1' -a -size 0 -delete
 
 	# elf2flt only works on some arches / targets
 	if [[ -n ${ELF2FLT_VER} ]] && [[ ${CTARGET} == *linux* || ${CTARGET} == *-elf* ]] ; then
@@ -335,6 +371,7 @@ toolchain-binutils_src_test() {
 }
 
 toolchain-binutils_src_install() {
+	_eprefix_init
 	local x d
 
 	cd "${MY_BUILDDIR}"
@@ -445,16 +482,18 @@ toolchain-binutils_src_install() {
 	# Remove shared info pages
 	rm -f "${ED}"/${DATAPATH}/info/{dir,configure.info,standards.info}
 	# Trim all empty dirs
-	find "${ED}" -type d | xargs rmdir >& /dev/null
+	find "${ED}" -depth -type d -exec rmdir {} + 2>/dev/null
 }
 
 toolchain-binutils_pkg_postinst() {
+	_eprefix_init
 	# Make sure this ${CTARGET} has a binutils version selected
 	[[ -e ${EROOT}/etc/env.d/binutils/config-${CTARGET} ]] && return 0
 	binutils-config ${CTARGET}-${BVER}
 }
 
 toolchain-binutils_pkg_postrm() {
+	_eprefix_init
 	local current_profile=$(binutils-config -c ${CTARGET})
 
 	# If no other versions exist, then uninstall for this
