@@ -1,6 +1,104 @@
 # ChangeLog for sys-devel/binutils
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/binutils/ChangeLog,v 1.489 2013/07/07 15:17:23 ago Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/binutils/ChangeLog,v 1.515 2014/06/14 22:26:00 vapier Exp $
+
+  14 Jun 2014; Mike Frysinger <vapier@gentoo.org> metadata.xml:
+  Add upstream CPE tag (security info).
+
+*binutils-2.24-r3 (03 Jun 2014)
+
+  03 Jun 2014; Mike Frysinger <vapier@gentoo.org> +binutils-2.24-r3.ebuild:
+  Fix from upstream for relax on alpha #366025 by Matt Turner.  Fix from
+  upstream for as-needed on hppa #466924 by Jeroen Roovers.
+
+*binutils-2.24.51.0.3 (01 Feb 2014)
+
+  01 Feb 2014; Mike Frysinger <vapier@gentoo.org> +binutils-2.24.51.0.3.ebuild:
+  Version bump.
+
+  29 Jan 2014; Naohiro Aota <naota@gentoo.org> binutils-2.24-r2.ebuild:
+  Add ~x86-fbsd. #499212
+
+*binutils-2.24-r2 (19 Jan 2014)
+
+  19 Jan 2014; Mike Frysinger <vapier@gentoo.org> +binutils-2.24-r2.ebuild,
+  -binutils-2.24-r1.ebuild:
+  Add fix from upstream for --as-needed handling #497976 by Lars Wendler.
+
+  17 Jan 2014; Mike Frysinger <vapier@gentoo.org> binutils-2.23.2.ebuild,
+  binutils-2.24-r1.ebuild:
+  Add arm64 keywords.
+
+  16 Jan 2014; Mike Frysinger <vapier@gentoo.org> binutils-2.23.2.ebuild:
+  Mark m68k/s390/sh stable.
+
+  13 Jan 2014; Mike Frysinger <vapier@gentoo.org> binutils-2.24-r1.ebuild:
+  Add upstream fix for libdl checks in gold #347931 by Andreas Turriff.
+
+*binutils-2.24-r1 (07 Jan 2014)
+
+  07 Jan 2014; Patrick Lauer <patrick@gentoo.org> +binutils-2.24-r1.ebuild,
+  -binutils-2.24.ebuild:
+  Bump 2.24 so that all users get the fixes
+
+  06 Jan 2014; Mike Frysinger <vapier@gentoo.org> binutils-2.24.51.0.1.ebuild,
+  binutils-2.24.51.0.2.ebuild, binutils-2.24.ebuild:
+  Fix install of libiberty #497268 by Small_Penguin.
+
+*binutils-2.24 (31 Dec 2013)
+
+  31 Dec 2013; Mike Frysinger <vapier@gentoo.org> +binutils-2.24.ebuild:
+  Version bump.
+
+  31 Dec 2013; Mike Frysinger <vapier@gentoo.org> binutils-9999.ebuild:
+  Start testing out EAPI=4.
+
+  26 Dec 2013; Markus Meier <maekke@gentoo.org> binutils-2.23.2.ebuild:
+  arm stable, bug #494670
+
+  24 Dec 2013; Agostino Sarubbo <ago@gentoo.org> binutils-2.23.2.ebuild:
+  Stable for x86, wrt bug #494670
+
+  23 Dec 2013; Agostino Sarubbo <ago@gentoo.org> binutils-2.23.2.ebuild:
+  Stable for sparc, wrt bug #494670
+
+  23 Dec 2013; Mike Frysinger <vapier@gentoo.org> binutils-2.23.2.ebuild:
+  Mark ia64 stable #494670.
+
+*binutils-2.24.51.0.2 (22 Dec 2013)
+
+  22 Dec 2013; Mike Frysinger <vapier@gentoo.org> +binutils-2.24.51.0.2.ebuild:
+  Version bump.
+
+  22 Dec 2013; Pacho Ramos <pacho@gentoo.org> binutils-2.23.2.ebuild:
+  amd64 stable, bug #494670
+
+  22 Dec 2013; Agostino Sarubbo <ago@gentoo.org> binutils-2.23.2.ebuild:
+  Stable for ppc64, wrt bug #494670
+
+  21 Dec 2013; Agostino Sarubbo <ago@gentoo.org> binutils-2.23.2.ebuild:
+  Stable for ppc, wrt bug #494670
+
+  20 Dec 2013; Matt Turner <mattst88@gentoo.org> binutils-2.23.2.ebuild:
+  alpha stable, bug 494670.
+
+  19 Dec 2013; Jeroen Roovers <jer@gentoo.org> binutils-2.23.2.ebuild:
+  Stable for HPPA (bug #494670).
+
+*binutils-2.24.51.0.1 (30 Nov 2013)
+
+  30 Nov 2013; Mike Frysinger <vapier@gentoo.org> +binutils-2.24.51.0.1.ebuild:
+  Version bump.
+
+  12 Aug 2013; Mike Frysinger <vapier@gentoo.org> binutils-2.23.2.ebuild:
+  Unmask again since we know better what is failing (the packages themselves)
+  #464152.
+
+  06 Aug 2013; Agostino Sarubbo <ago@gentoo.org> binutils-2.23.1.ebuild:
+  Stable for s390, wrt bug #475570
+
+  03 Aug 2013; Agostino Sarubbo <ago@gentoo.org> binutils-2.23.1.ebuild:
+  Stable for sparc, wrt bug #475570
 
   07 Jul 2013; Agostino Sarubbo <ago@gentoo.org> binutils-2.23.1.ebuild:
   Stable for ia64, wrt bug #475570
