@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/openssl/openssl-0.9.8y-r1.ebuild,v 1.3 2014/06/18 19:18:41 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/openssl/openssl-0.9.8z_p1-r2.ebuild,v 1.6 2014/07/28 13:43:11 ago Exp $
 
 # this ebuild is only for the libcrypto.so.0.9.8 and libssl.so.0.9.8 SONAME for ABI compat
 
@@ -8,13 +8,17 @@ EAPI="5"
 
 inherit eutils flag-o-matic toolchain-funcs multilib multilib-minimal
 
+PLEVEL=`echo ${PV##*_p} | tr [1-9] [a-i]`
+MY_PV=${PV/_p*/${PLEVEL}}
+MY_P=${PN}-${MY_PV}
+S="${WORKDIR}/${MY_P}"
 DESCRIPTION="Toolkit for SSL v2/v3 and TLS v1"
 HOMEPAGE="http://www.openssl.org/"
-SRC_URI="mirror://openssl/source/${P}.tar.gz"
+SRC_URI="mirror://openssl/source/${MY_P}.tar.gz"
 
 LICENSE="openssl"
 SLOT="0.9.8"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~sparc-fbsd ~x86-fbsd"
+KEYWORDS="~alpha amd64 ~arm ~hppa ~ia64 ~m68k ~mips ppc ~ppc64 ~s390 ~sh ~sparc x86 ~sparc-fbsd ~x86-fbsd"
 IUSE="bindist gmp kerberos sse2 test zlib"
 
 RDEPEND="gmp? ( >=dev-libs/gmp-5.1.3-r1[${MULTILIB_USEDEP}] )
@@ -67,7 +71,7 @@ src_prepare() {
 	append-flags -Wa,--noexecstack
 
 	sed -i '1s,^:$,#!/usr/bin/perl,' Configure #141906
-	sed -i '/^"debug-steve/d' Configure # 0.9.8k shipped broken
+	sed -i '/^"debug-bodo/d' Configure # 0.9.8za shipped broken
 	./config --test-sanity || die "I AM NOT SANE"
 
 	multilib_copy_sources
