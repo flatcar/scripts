@@ -1,8 +1,12 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/openssl/openssl-1.0.1g-r1.ebuild,v 1.5 2014/06/18 19:18:41 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/openssl/openssl-1.0.1h-r3.ebuild,v 1.2 2014/07/26 14:35:40 mgorny Exp $
 
 EAPI="4"
+
+# NOTE: please do not stabilize this revision. It was added purely to force
+# rebuild following eclass changes for ~arch users. Since -r2 was stabilized
+# after the eclass changes, stable users are safe already.
 
 inherit eutils flag-o-matic toolchain-funcs multilib multilib-minimal
 
@@ -60,8 +64,7 @@ src_prepare() {
 		epatch "${FILESDIR}"/${PN}-1.0.0h-pkg-config.patch
 		epatch "${FILESDIR}"/${PN}-1.0.1-parallel-build.patch
 		epatch "${FILESDIR}"/${PN}-1.0.1-x32.patch
-		epatch "${FILESDIR}"/${PN}-1.0.1e-ipv6.patch
-		epatch "${FILESDIR}"/${PN}-1.0.1f-perl-5.18.patch #497286
+		epatch "${FILESDIR}"/${PN}-1.0.1h-ipv6.patch
 		epatch "${FILESDIR}"/${PN}-1.0.1e-s_client-verify.patch #472584
 		epatch "${FILESDIR}"/${PN}-1.0.1f-revert-alpha-perl-generation.patch #499086
 		epatch_user #332661

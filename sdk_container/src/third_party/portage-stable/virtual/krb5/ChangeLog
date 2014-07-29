@@ -1,0 +1,25 @@
+# ChangeLog for virtual/krb5
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/virtual/krb5/ChangeLog,v 1.6 2014/07/28 13:49:48 ago Exp $
+
+  28 Jul 2014; Agostino Sarubbo <ago@gentoo.org> krb5-0-r1.ebuild:
+  Stable for ppc, wrt bug #512012
+
+  23 Jul 2014; Agostino Sarubbo <ago@gentoo.org> krb5-0-r1.ebuild:
+  Stable for x86, wrt bug #512012
+
+  22 Jul 2014; Agostino Sarubbo <ago@gentoo.org> krb5-0-r1.ebuild:
+  Stable for amd64, wrt bug #512912
+
+*krb5-0-r1 (15 May 2014)
+
+  15 May 2014; Michał Górny <mgorny@gentoo.org> +krb5-0-r1.ebuild:
+  Enable multilib support, bug #510354.
+
+  27 Jun 2013; Alexis Ballier <aballier@gentoo.org> krb5-0.ebuild:
+  keyword ~amd64-fbsd
+
+*krb5-0 (13 Mar 2011)
+
+  13 Mar 2011; Eray Aslan <eras@gentoo.org> +krb5-0.ebuild, +metadata.xml:
+  Initial commit
