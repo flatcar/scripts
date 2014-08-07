@@ -10,4 +10,4 @@ RDEPEND=gmp? ( dev-libs/gmp ) zlib? ( sys-libs/zlib ) kerberos? ( app-crypt/mit-
 SLOT=0.9.8
 SRC_URI=mirror://openssl/source/openssl-0.9.8za.tar.gz
 _eclasses_=eutils	4878e7f88afc0ba0866ac112190b0fd4	flag-o-matic	65cef1287b9d62b1a0f180765d1e0c69	multilib	892e597faee02a5b94eb02ab512e7622	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28
-_md5_=d5039930c2f4e90bc8714e09b7d66d10
+_md5_=f67eb9198488d3333773fe46d91ba4a6
