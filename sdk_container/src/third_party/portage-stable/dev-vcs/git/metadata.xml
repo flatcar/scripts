@@ -6,9 +6,6 @@
     <name>Robin H. Johnson</name>
   </maintainer>
   <maintainer>
-    <email>prometheanfire@gentoo.org</email>
-  </maintainer>
-  <maintainer>
     <email>polynomial-c@gentoo.org</email>
     <name>Lars Wendler</name>
   </maintainer>
@@ -33,7 +30,7 @@
     <flag name="gpg">Pull in gnupg for signing -- without gnupg, attempts at signing will fail at runtime!</flag>
     <flag name="gtk">Include the gitview contrib tool</flag>
     <flag name="highlight">GitWeb support for app-text/highlight</flag>
-    <flag name="mozsha1">Makes git use an optimized SHA1 routine from Mozilla that should be fast on non-x86 machines</flag>
+    <flag name="mediawiki">Support pulling and pushing from MediaWiki</flag>
     <flag name="ppcsha1">Make use of a bundled routine that is optimized for the PPC arch</flag>
     <flag name="subversion">Include git-svn for <pkg>dev-vcs/subversion</pkg> support</flag>
     <flag name="webdav">Adds support for push'ing to HTTP/HTTPS repositories via DAV</flag>

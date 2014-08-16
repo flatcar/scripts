@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/multilib.eclass,v 1.103 2013/04/22 01:18:51 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/multilib.eclass,v 1.106 2014/07/11 08:21:58 ulm Exp $
 
 # @ECLASS: multilib.eclass
 # @MAINTAINER:
@@ -10,8 +10,8 @@
 # @DESCRIPTION:
 # This eclass is for all functions pertaining to handling multilib configurations.
 
-if [[ ${___ECLASS_ONCE_MULTILIB} != "recur -_+^+_- spank" ]] ; then
-___ECLASS_ONCE_MULTILIB="recur -_+^+_- spank"
+if [[ -z ${_MULTILIB_ECLASS} ]]; then
+_MULTILIB_ECLASS=1
 
 inherit toolchain-funcs
 
@@ -280,8 +280,28 @@ get_modname() {
 # a crosscompiler (and thus they aren't set in the profile)
 multilib_env() {
 	local CTARGET=${1:-${CTARGET}}
+	local cpu=${CTARGET%%*-}
 
-	case ${CTARGET} in
+	case ${cpu} in
+		aarch64*)
+			# Not possible to do multilib with aarch64 and a single toolchain.
+			export CFLAGS_arm=${CFLAGS_arm-}
+			case ${cpu} in
+			aarch64*be) export CHOST_arm="armv8b-${CTARGET#*-}";;
+			*)          export CHOST_arm="armv8l-${CTARGET#*-}";;
+			esac
+			CHOST_arm=${CHOST_arm/%-gnu/-gnueabi}
+			export CTARGET_arm=${CHOST_arm}
+			export LIBDIR_arm="lib"
+
+			export CFLAGS_arm64=${CFLAGS_arm64-}
+			export CHOST_arm64=${CTARGET}
+			export CTARGET_arm64=${CHOST_arm64}
+			export LIBDIR_arm64="lib64"
+
+			: ${MULTILIB_ABIS=arm64}
+			: ${DEFAULT_ABI=arm64}
+		;;
 		x86_64*)
 			export CFLAGS_x86=${CFLAGS_x86--m32}
 			export CHOST_x86=${CTARGET/x86_64/i686}
@@ -394,13 +414,13 @@ multilib_toolchain_setup() {
 	export ABI=$1
 
 	# First restore any saved state we have laying around.
-	if [[ ${__DEFAULT_ABI_SAVED} == "true" ]] ; then
+	if [[ ${_DEFAULT_ABI_SAVED} == "true" ]] ; then
 		for v in CHOST CBUILD AS CC CXX LD PKG_CONFIG_{LIBDIR,PATH} ; do
-			vv="__abi_saved_${v}"
+			vv="_abi_saved_${v}"
 			[[ ${!vv+set} == "set" ]] && export ${v}="${!vv}" || unset ${v}
 			unset ${vv}
 		done
-		unset __DEFAULT_ABI_SAVED
+		unset _DEFAULT_ABI_SAVED
 	fi
 
 	# We want to avoid the behind-the-back magic of gcc-config as it
@@ -408,10 +428,10 @@ multilib_toolchain_setup() {
 	if [[ ${ABI} != ${DEFAULT_ABI} ]] ; then
 		# Back that multilib-ass up so we can restore it later
 		for v in CHOST CBUILD AS CC CXX LD PKG_CONFIG_{LIBDIR,PATH} ; do
-			vv="__abi_saved_${v}"
+			vv="_abi_saved_${v}"
 			[[ ${!v+set} == "set" ]] && export ${vv}="${!v}" || unset ${vv}
 		done
-		export __DEFAULT_ABI_SAVED="true"
+		export _DEFAULT_ABI_SAVED="true"
 
 		# Set the CHOST native first so that we pick up the native
 		# toolchain and not a cross-compiler by accident #202811.

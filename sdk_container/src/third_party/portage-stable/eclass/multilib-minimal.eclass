@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/multilib-minimal.eclass,v 1.6 2013/10/20 16:27:24 hasufell Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/multilib-minimal.eclass,v 1.9 2014/05/02 16:16:37 mgorny Exp $
 
 # @ECLASS: multilib-minimal.eclass
 # @MAINTAINER:
@@ -36,7 +36,11 @@ EXPORT_FUNCTIONS src_configure src_compile src_test src_install
 
 
 multilib-minimal_src_configure() {
+	debug-print-function ${FUNCNAME} "$@"
+
 	multilib-minimal_abi_src_configure() {
+		debug-print-function ${FUNCNAME} "$@"
+
 		mkdir -p "${BUILD_DIR}" || die
 		pushd "${BUILD_DIR}" >/dev/null || die
 		if declare -f multilib_src_configure >/dev/null ; then
@@ -47,11 +51,15 @@ multilib-minimal_src_configure() {
 		popd >/dev/null || die
 	}
 
-	multilib_foreach_abi multilib-minimal_abi_src_configure
+	multilib_parallel_foreach_abi multilib-minimal_abi_src_configure
 }
 
 multilib-minimal_src_compile() {
+	debug-print-function ${FUNCNAME} "$@"
+
 	multilib-minimal_abi_src_compile() {
+		debug-print-function ${FUNCNAME} "$@"
+
 		pushd "${BUILD_DIR}" >/dev/null || die
 		if declare -f multilib_src_compile >/dev/null ; then
 			multilib_src_compile
@@ -65,7 +73,11 @@ multilib-minimal_src_compile() {
 }
 
 multilib-minimal_src_test() {
+	debug-print-function ${FUNCNAME} "$@"
+
 	multilib-minimal_abi_src_test() {
+		debug-print-function ${FUNCNAME} "$@"
+
 		pushd "${BUILD_DIR}" >/dev/null || die
 		if declare -f multilib_src_test >/dev/null ; then
 			multilib_src_test
@@ -79,7 +91,11 @@ multilib-minimal_src_test() {
 }
 
 multilib-minimal_src_install() {
+	debug-print-function ${FUNCNAME} "$@"
+
 	multilib-minimal_abi_src_install() {
+		debug-print-function ${FUNCNAME} "$@"
+
 		pushd "${BUILD_DIR}" >/dev/null || die
 		if declare -f multilib_src_install >/dev/null ; then
 			multilib_src_install
@@ -92,11 +108,9 @@ multilib-minimal_src_install() {
 				emake DESTDIR="${D}" install
 			fi
 		fi
-		# Do multilib magic only when >1 ABI is used.
-		if [[ ${#MULTIBUILD_VARIANTS[@]} -gt 1 ]]; then
-			multilib_prepare_wrappers
-			multilib_check_headers
-		fi
+
+		multilib_prepare_wrappers
+		multilib_check_headers
 		popd >/dev/null || die
 	}
 	multilib_foreach_abi multilib-minimal_abi_src_install

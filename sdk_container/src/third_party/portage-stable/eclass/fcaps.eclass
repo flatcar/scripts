@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/fcaps.eclass,v 1.8 2013/06/27 01:18:57 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/fcaps.eclass,v 1.10 2014/07/31 10:21:05 vapier Exp $
 
 # @ECLASS: fcaps.eclass
 # @MAINTAINER:
@@ -28,8 +28,8 @@
 # )
 # @CODE
 
-if [[ ${___ECLASS_ONCE_FCAPS} != "recur -_+^+_- spank" ]] ; then
-___ECLASS_ONCE_FCAPS="recur -_+^+_- spank"
+if [[ -z ${_FCAPS_ECLASS} ]]; then
+_FCAPS_ECLASS=1
 
 IUSE="+filecaps"
 
@@ -73,14 +73,14 @@ DEPEND="filecaps? ( sys-libs/libcap )"
 #
 # If the system is unable to set capabilities, it will use the specified user,
 # group, and mode (presumably to make the binary set*id).  The defaults there
-# are root:root and 4711.  Otherwise, the ownership and permissions will be
+# are root:0 and 4711.  Otherwise, the ownership and permissions will be
 # unchanged.
 fcaps() {
 	debug-print-function ${FUNCNAME} "$@"
 
 	# Process the user options first.
 	local owner='root'
-	local group='root'
+	local group='0'
 	local mode='4711'
 	local caps_mode='711'
 
@@ -182,8 +182,8 @@ fcaps() {
 					continue 2
 				fi
 			done
-			if [[ ${notfound} -eq 2 ]] && [[ -z ${__FCAPS_WARNED} ]] ; then
-				__FCAPS_WARNED="true"
+			if [[ ${notfound} -eq 2 ]] && [[ -z ${_FCAPS_WARNED} ]] ; then
+				_FCAPS_WARNED="true"
 				ewarn "Could not find cap utils; make sure libcap or libcap-ng is available."
 			fi
 		fi

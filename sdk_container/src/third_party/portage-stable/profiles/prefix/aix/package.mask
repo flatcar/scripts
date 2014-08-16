@@ -1,6 +1,10 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/aix/package.mask,v 1.9 2011/03/04 04:18:57 abcd Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/aix/package.mask,v 1.10 2014/04/14 08:50:39 haubi Exp $
+
+# Michael Haubenwallner <haubi@gentoo.org> (14 Apr 2014)
+# Endless loop while compiling gcc-4.2.4 for yet unknown reason.
+~sys-devel/make-4.0
 
 # Michael Haubenwallner <haubi@gentoo.org> (23 Dec 2010)
 # Still breaks on AIX (openssh, ...) for yet unknown reason.

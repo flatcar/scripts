@@ -1,4 +1,4 @@
-# Oct 21 2007; armin76@gentoo.org
+# Raúl Porcel <armin76@gentoo.org> (21 Oct 2007)
 # It segfaults without debug use-flags
 # Remove when http://bugs.php.net/bug.php?id=42893 is fixed
 dev-lang/php debug

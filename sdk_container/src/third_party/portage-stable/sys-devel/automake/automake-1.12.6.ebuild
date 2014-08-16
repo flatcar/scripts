@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/automake/automake-1.12.6.ebuild,v 1.17 2013/04/17 17:53:52 aballier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/automake/automake-1.12.6.ebuild,v 1.19 2014/01/17 04:23:15 vapier Exp $
 
 inherit eutils versionator unpacker
 
@@ -22,11 +22,11 @@ HOMEPAGE="http://www.gnu.org/software/automake/"
 LICENSE="GPL-2"
 # Use Gentoo versioning for slotting.
 SLOT="${PV:0:4}"
-KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
+KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
 IUSE=""
 
 RDEPEND="dev-lang/perl
-	>=sys-devel/automake-wrapper-7
+	>=sys-devel/automake-wrapper-9
 	>=sys-devel/autoconf-2.62
 	sys-devel/gnuconfig"
 DEPEND="${RDEPEND}

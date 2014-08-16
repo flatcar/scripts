@@ -1,6 +1,19 @@
 # ChangeLog for dev-python/dbus-python
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-python/dbus-python/ChangeLog,v 1.136 2013/07/04 13:34:03 ago Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-python/dbus-python/ChangeLog,v 1.140 2014/06/20 16:05:41 idella4 Exp $
+
+  20 Jun 2014; Ian Delaney <idella4@gentoo.org> dbus-python-1.2.0.ebuild:
+  add py3.4 support
+
+  26 Apr 2014; Pacho Ramos <pacho@gentoo.org> dbus-python-1.2.0.ebuild:
+  Adapt to latest pygobject don't providing python2.6 support
+
+  05 Jan 2014; Fabian Groffen <grobian@gentoo.org> dbus-python-1.2.0.ebuild:
+  Marked ~m68k-mint, bug #494512
+
+  24 Aug 2013; Samuli Suominen <ssuominen@gentoo.org>
+  -dbus-python-1.1.1-r1.ebuild:
+  old
 
   04 Jul 2013; Agostino Sarubbo <ago@gentoo.org> dbus-python-1.2.0.ebuild:
   Stable for ppc64, wrt bug #453086

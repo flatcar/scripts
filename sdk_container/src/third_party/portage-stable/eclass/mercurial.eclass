@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/mercurial.eclass,v 1.23 2013/11/04 22:05:31 floppym Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/mercurial.eclass,v 1.24 2014/07/25 23:18:34 ottxor Exp $
 
 # @ECLASS: mercurial.eclass
 # @MAINTAINER:
@@ -28,7 +28,7 @@ DEPEND="dev-vcs/mercurial"
 
 # @ECLASS-VARIABLE: EHG_REVISION
 # @DESCRIPTION:
-# Create working directory for specified revision, defaults to tip.
+# Create working directory for specified revision, defaults to default.
 #
 # EHG_REVISION is passed as a value for --updaterev parameter, so it can be more
 # than just a revision, please consult `hg help revisions' for more details.
@@ -46,6 +46,12 @@ DEPEND="dev-vcs/mercurial"
 # This variable default to $PN, but can be changed to allow repository sharing
 # between several ebuilds.
 [[ -z "${EHG_PROJECT}" ]] && EHG_PROJECT="${PN}"
+
+# @ECLASS-VARIABLE: EGIT_CHECKOUT_DIR
+# @DESCRIPTION:
+# The directory to check the hg sources out to.
+#
+# EHG_CHECKOUT_DIR=${S}
 
 # @ECLASS-VARIABLE: EHG_QUIET
 # @DESCRIPTION:
@@ -76,7 +82,9 @@ EHG_OFFLINE="${EHG_OFFLINE:-${EVCS_OFFLINE}}"
 # Clone or update repository.
 #
 # If repository URI is not passed it defaults to EHG_REPO_URI, if module is
-# empty it defaults to basename of EHG_REPO_URI, sourcedir defaults to S.
+# empty it defaults to basename of EHG_REPO_URI, sourcedir defaults to 
+# EHG_CHECKOUT_DIR, which defaults to S.
+
 mercurial_fetch() {
 	debug-print-function ${FUNCNAME} "${@}"
 
@@ -85,12 +93,8 @@ mercurial_fetch() {
 	EHG_REPO_URI=${1-${EHG_REPO_URI}}
 	[[ -z "${EHG_REPO_URI}" ]] && die "EHG_REPO_URI is empty"
 
-	local cert_opt=()
-	[[ -f ${EPREFIX}/etc/ssl/certs/ca-certificates.crt ]] && \
-		cert_opt=( --config "web.cacerts=${EPREFIX}/etc/ssl/certs/ca-certificates.crt" )
-
 	local module="${2-$(basename "${EHG_REPO_URI}")}"
-	local sourcedir="${3-${S}}"
+	local sourcedir="${3:-${EHG_CHECKOUT_DIR:-${S}}}"
 
 	# Should be set but blank to prevent using $HOME/.hgrc
 	export HGRCPATH=
@@ -114,7 +118,7 @@ mercurial_fetch() {
 	# Clone/update repository:
 	if [[ ! -d "${module}" ]]; then
 		einfo "Cloning ${EHG_REPO_URI} to ${EHG_STORE_DIR}/${EHG_PROJECT}/${module}"
-		${EHG_CLONE_CMD} "${cert_opt[@]}" "${EHG_REPO_URI}" "${module}" || {
+		${EHG_CLONE_CMD} "${EHG_REPO_URI}" "${module}" || {
 			rm -rf "${module}"
 			die "failed to clone ${EHG_REPO_URI}"
 		}
@@ -122,11 +126,12 @@ mercurial_fetch() {
 	elif [[ -z "${EHG_OFFLINE}" ]]; then
 		einfo "Updating ${EHG_STORE_DIR}/${EHG_PROJECT}/${module} from ${EHG_REPO_URI}"
 		cd "${module}" || die "failed to cd to ${module}"
-		${EHG_PULL_CMD} "${cert_opt[@]}" "${EHG_REPO_URI}" || die "update failed"
+		${EHG_PULL_CMD} "${EHG_REPO_URI}" || die "update failed"
 	fi
 
 	# Checkout working copy:
 	einfo "Creating working directory in ${sourcedir} (target revision: ${EHG_REVISION})"
+	mkdir -p "${sourcedir}" || die "failed to create ${sourcedir}"
 	hg clone \
 		${EHG_QUIET_CMD_OPT} \
 		--updaterev="${EHG_REVISION}" \

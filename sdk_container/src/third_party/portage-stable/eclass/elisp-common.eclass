@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/elisp-common.eclass,v 1.87 2013/11/04 21:36:36 ulm Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/elisp-common.eclass,v 1.90 2014/06/11 09:13:36 ulm Exp $
 #
 # @ECLASS: elisp-common.eclass
 # @MAINTAINER:
@@ -30,15 +30,15 @@
 # to your DEPEND/RDEPEND line and use the functions provided here to
 # bring the files to the correct locations.
 #
-# If your package requires a minimum Emacs version, e.g. Emacs 23, then
-# the dependency should be on >=virtual/emacs-23 instead.  Because the
+# If your package requires a minimum Emacs version, e.g. Emacs 24, then
+# the dependency should be on >=virtual/emacs-24 instead.  Because the
 # user can select the Emacs executable with eselect, you should also
 # make sure that the active Emacs version is sufficient.  This can be
 # tested with function elisp-need-emacs(), which would typically be
 # called from pkg_setup(), as in the following example:
 #
 # @CODE
-# 	elisp-need-emacs 23 || die "Emacs version too low"
+# 	elisp-need-emacs 24 || die "Emacs version too low"
 # @CODE
 #
 # Please note that such tests should be limited to packages that are
@@ -342,46 +342,30 @@ elisp-site-file-install() {
 # Regenerate the site-gentoo.el file, based on packages' site
 # initialisation files in the /usr/share/emacs/site-lisp/site-gentoo.d/
 # directory.
-#
-# Note: Before December 2007, site initialisation files were installed
-# in /usr/share/emacs/site-lisp/.  For backwards compatibility, this
-# location is still supported when generating site-gentoo.el.
 
 elisp-site-regen() {
 	local sitelisp=${ROOT}${EPREFIX}${SITELISP}
-	local sf i null="" page=$'\f'
+	local sf i ret=0 null="" page=$'\f'
 	local -a sflist
-
-	if [[ ! -d ${sitelisp} ]]; then
-		eerror "elisp-site-regen: Directory ${sitelisp} does not exist"
-		return 1
-	fi
-
-	if [[ ! -d ${T} ]]; then
-		eerror "elisp-site-regen: Temporary directory ${T} does not exist"
-		return 1
-	fi
 
 	if [[ ${EBUILD_PHASE} = *rm && ! -e ${sitelisp}/site-gentoo.el ]]; then
 		ewarn "Refusing to create site-gentoo.el in ${EBUILD_PHASE} phase."
 		return 0
 	fi
 
+	[[ -d ${sitelisp} ]] \
+		|| die "elisp-site-regen: Directory ${sitelisp} does not exist"
+
+	[[ -d ${T} ]] \
+		|| die "elisp-site-regen: Temporary directory ${T} does not exist"
+
 	ebegin "Regenerating site-gentoo.el for GNU Emacs (${EBUILD_PHASE})"
 
-	for sf in "${sitelisp}"/[0-9][0-9]*-gentoo.el \
-		"${sitelisp}"/site-gentoo.d/[0-9][0-9]*.el
-	do
-		[[ -r ${sf} ]] || continue
-		# sort files by their basename. straight insertion sort.
-		for ((i=${#sflist[@]}; i>0; i--)); do
-			[[ ${sf##*/} < ${sflist[i-1]##*/} ]] || break
-			sflist[i]=${sflist[i-1]}
-		done
-		sflist[i]=${sf}
+	for sf in "${sitelisp}"/site-gentoo.d/[0-9][0-9]*.el; do
+		[[ -r ${sf} ]] && sflist+=("${sf}")
 	done
 
-	cat <<-EOF >"${T}"/site-gentoo.el
+	cat <<-EOF >"${T}"/site-gentoo.el || ret=$?
 	;;; site-gentoo.el --- site initialisation for Gentoo-installed packages
 
 	;;; Commentary:
@@ -391,8 +375,8 @@ elisp-site-regen() {
 	;;; Code:
 	EOF
 	# Use sed instead of cat here, since files may miss a trailing newline.
-	sed '$q' "${sflist[@]}" </dev/null >>"${T}"/site-gentoo.el
-	cat <<-EOF >>"${T}"/site-gentoo.el
+	sed '$q' "${sflist[@]}" </dev/null >>"${T}"/site-gentoo.el || ret=$?
+	cat <<-EOF >>"${T}"/site-gentoo.el || ret=$?
 
 	${page}
 	(provide 'site-gentoo)
@@ -405,7 +389,10 @@ elisp-site-regen() {
 	;;; site-gentoo.el ends here
 	EOF
 
-	if cmp -s "${sitelisp}"/site-gentoo.el "${T}"/site-gentoo.el; then
+	if [[ ${ret} -ne 0 ]]; then
+		eend ${ret} "elisp-site-regen: Writing site-gentoo.el failed."
+		die
+	elif cmp -s "${sitelisp}"/site-gentoo.el "${T}"/site-gentoo.el; then
 		# This prevents outputting unnecessary text when there
 		# was actually no change.
 		# A case is a remerge where we have doubled output.
@@ -414,7 +401,7 @@ elisp-site-regen() {
 		einfo "... no changes."
 	else
 		mv "${T}"/site-gentoo.el "${sitelisp}"/site-gentoo.el
-		eend
+		eend $? "elisp-site-regen: Replacing site-gentoo.el failed" || die
 		case ${#sflist[@]} in
 			0) [[ ${PN} = emacs-common-gentoo ]] \
 				|| ewarn "... Huh? No site initialisation files found." ;;

@@ -1,11 +1,11 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/desc/fftools.desc,v 1.3 2013/05/24 14:23:14 aballier Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/desc/fftools.desc,v 1.4 2014/01/16 17:24:37 jer Exp $
 
 # This file contains descriptions of FFTOOLS USE-EXPANDED variables.
 # Keep it sorted.
 
-aviocat - cat's an URL to another one, useful for dumping streams.
+aviocat - cat's a URL to another one, useful for dumping streams.
 cws2fws - converts cws files (Macromedia Flash, compressed) to fws ones (Macromedia Flash, uncompressed).
 ffescape - Escapes an input string, adopting the av_get_token() escaping logic.
 ffeval - A simple expression evalutor.

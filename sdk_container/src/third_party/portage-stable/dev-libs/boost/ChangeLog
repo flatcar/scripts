@@ -1,6 +1,102 @@
 # ChangeLog for dev-libs/boost
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/boost/ChangeLog,v 1.308 2013/11/30 20:32:19 vapier Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/boost/ChangeLog,v 1.330 2014/08/14 09:07:39 pinkbyte Exp $
+
+  14 Aug 2014; Sergey Popov <pinkbyte@gentoo.org> boost-1.52.0-r7.ebuild:
+  Stable for x86, wrt bug #518488
+
+  14 Aug 2014; Sergey Popov <pinkbyte@gentoo.org> boost-1.55.0-r2.ebuild:
+  Add proper blocker for app-emulation/emul-linux-x86-cpplibs, wrt bug #519744,
+  inherit multilib eclass explicitly
+
+  14 Aug 2014; Sergey Popov <pinkbyte@gentoo.org> boost-1.52.0-r7.ebuild,
+  boost-1.53.0-r1.ebuild, boost-1.54.0-r1.ebuild, boost-1.55.0-r1.ebuild,
+  boost-1.55.0-r2.ebuild:
+  Drop obsolete Python 2.6 support
+
+*boost-1.55.0-r2 (12 Aug 2014)
+
+  12 Aug 2014; Sergey Popov <pinkbyte@gentoo.org> +boost-1.55.0-r2.ebuild:
+  Revision bump: add multilib support, wrt bug #512884
+
+  09 Aug 2014; Markus Meier <maekke@gentoo.org> boost-1.52.0-r7.ebuild:
+  arm stable, bug #518488
+
+  07 Aug 2014; Jeroen Roovers <jer@gentoo.org> boost-1.52.0-r7.ebuild:
+  Stable for HPPA (bug #518488).
+
+  07 Aug 2014; Sergey Popov <pinkbyte@gentoo.org> boost-1.52.0-r7.ebuild:
+  Make dev-util/boost-build dependency less strict
+
+  07 Aug 2014; Sergey Popov <pinkbyte@gentoo.org> boost-1.52.0-r7.ebuild:
+  Backport fix for bug #498134, wrt bug #518840. Thanks to Michael Jones
+  <gentoo AT jonesmz.com> for discovering this issue
+
+  30 Jul 2014; Mikle Kolyada <zlogene@gentoo.org> boost-1.52.0-r7.ebuild:
+  Whitespace
+
+  30 Jul 2014; Julian Ospald <hasufell@gentoo.org> boost-1.52.0-r7.ebuild:
+  backport glibc-2.18 patch to stable candidate wrt #518544
+
+  29 Jul 2014; Mikle Kolyada <zlogene@gentoo.org> boost-1.52.0-r7.ebuild:
+  amd64 stable wrt bug #518488
+
+*boost-1.52.0-r7 (29 Jul 2014)
+
+  29 Jul 2014; Julian Ospald <hasufell@gentoo.org> +boost-1.52.0-r7.ebuild,
+  boost-1.53.0-r1.ebuild, boost-1.54.0-r1.ebuild, boost-1.55.0-r1.ebuild,
+  +files/boost-1.52.0-threads.patch:
+  fix build with USE=-threads wrt #458404
+
+  23 Jun 2014; Michał Górny <mgorny@gentoo.org> boost-1.55.0-r1.ebuild:
+  Enable python3.4.
+
+  28 Apr 2014; Sergey Popov <pinkbyte@gentoo.org> boost-1.52.0-r6.ebuild,
+  boost-1.53.0-r1.ebuild, boost-1.54.0-r1.ebuild, boost-1.55.0-r1.ebuild:
+  Add apropriate die message on unsupported overriden site-config.jam, wrt bug
+  #456792. Thanks to Raimar Sandner <gentoo-bugzilla AT 404not-found.de> for
+  reporting this issue
+
+  15 Apr 2014; Sergey Popov <pinkbyte@gentoo.org>
+  -files/boost-1.48.0-respect_python-buildid.patch,
+  -files/boost-1.48.0-support_dots_in_python-buildid.patch:
+  Drop obsolete patches
+
+  15 Apr 2014; Sergey Popov <pinkbyte@gentoo.org> -boost-1.49.0-r2.ebuild:
+  Drop old vulnerable version
+
+  07 Apr 2014; Sergey Popov <pinkbyte@gentoo.org> boost-1.53.0-r1.ebuild,
+  boost-1.54.0-r1.ebuild, boost-1.55.0-r1.ebuild:
+  Fix parallel compilation with high number of MAKEOPTS jobs, wrt bugs #506064
+  and #498134
+
+  07 Apr 2014; Sergey Popov <pinkbyte@gentoo.org> boost-1.52.0-r6.ebuild,
+  boost-1.53.0-r1.ebuild, boost-1.54.0-r1.ebuild, boost-1.55.0-r1.ebuild:
+  Add support for user patches via epatch_user
+
+  07 Apr 2014; Sergey Popov <pinkbyte@gentoo.org> boost-1.55.0-r1.ebuild,
+  +files/boost-1.55.0-tools-c98-compat.patch:
+  Fix building with USE='tools', wrt bug #506064, patch by Ed Catmur <ed AT
+  catmur.co.uk>
+
+*boost-1.55.0-r1 (27 Dec 2013)
+
+  27 Dec 2013; Sergey Popov <pinkbyte@gentoo.org> -boost-1.55.0.ebuild,
+  +boost-1.55.0-r1.ebuild, metadata.xml:
+  Revision bump: implement conditional building of Boost.Context library via
+  'context' USE-flag. Drop old revision
+
+*boost-1.54.0-r1 (27 Dec 2013)
+*boost-1.53.0-r1 (27 Dec 2013)
+
+  27 Dec 2013; Sergey Popov <pinkbyte@gentoo.org> -boost-1.53.0.ebuild,
+  +boost-1.53.0-r1.ebuild, -boost-1.54.0.ebuild, +boost-1.54.0-r1.ebuild:
+  Properly disable all code, which depends on Boost.Context and remove all
+  redundant headers, wrt bug #493116. Thanks to Mike Frysinger for discovering
+  this issue. Drop old revisions
+
+  14 Dec 2013; Agostino Sarubbo <ago@gentoo.org> boost-1.52.0-r6.ebuild:
+  Stable for sparc, wrt bug #455464
 
   30 Nov 2013; Mike Frysinger <vapier@gentoo.org>
   +files/boost-1.55.0-context-x32.patch, boost-1.55.0.ebuild:

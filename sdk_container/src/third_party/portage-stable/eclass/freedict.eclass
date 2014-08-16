@@ -1,10 +1,10 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/freedict.eclass,v 1.20 2012/06/02 19:16:31 zmedico Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/freedict.eclass,v 1.21 2014/01/05 11:39:48 pacho Exp $
 
 # @ECLASS: freedict.eclass
 # @MAINTAINER:
-# app-dicts@gentoo.org
+# maintainer-needed@gentoo.org
 # @AUTHOR:
 # Original author: Seemant Kulleen
 # @BLURB: Ease the installation of freedict translation dictionaries

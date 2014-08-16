@@ -1,13 +1,13 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/qmail.eclass,v 1.8 2013/05/27 00:59:06 robbat2 Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/qmail.eclass,v 1.9 2014/01/08 06:20:29 vapier Exp $
 
 # @ECLASS: qmail.eclass
 # @MAINTAINER:
 # qmail-bugs@gentoo.org
 # @BLURB: common qmail functions
 
-inherit flag-o-matic toolchain-funcs fixheadtails
+inherit flag-o-matic toolchain-funcs fixheadtails user
 
 # hardcoded paths
 QMAIL_HOME="/var/qmail"

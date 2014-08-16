@@ -1,6 +1,10 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/sparc/13.0/package.use.mask,v 1.1 2013/01/18 19:48:22 dilfridge Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/sparc/13.0/package.use.mask,v 1.2 2014/07/24 09:06:10 grobian Exp $
+
+# Fabian Groffen <grobian@gentoo.org> (Jul 24, 2014)
+# dmarc needs mail-filter/opendmarc, bug #489676
+mail-mta/exim dmarc
 
 # Anthony G. Basile <blueness@gentoo.org> (Dec 21, 2011)
 #

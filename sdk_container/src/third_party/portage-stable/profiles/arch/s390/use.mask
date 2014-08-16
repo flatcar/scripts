@@ -1,10 +1,12 @@
 # Unmask the flag which corresponds to ARCH.
 -s390
 
+# Unmask ABI flags for this arch.
+-abi_s390_32
+
 # Stuff we don't want/not tested
 pbins
 chicken
-clisp
 R
 octave
 xindy

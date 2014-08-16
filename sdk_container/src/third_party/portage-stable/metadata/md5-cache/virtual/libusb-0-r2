@@ -1,10 +1,9 @@
 DEFINED_PHASES=-
-DEPEND=userland_GNU? ( >=sys-apps/coreutils-8.5 )
 DESCRIPTION=Virtual for libusb
 EAPI=5
-IUSE=abi_x86_32 abi_x86_64 abi_x86_x32 abi_mips_n32 abi_mips_n64 abi_mips_o32
+IUSE=abi_x86_32 abi_x86_64 abi_x86_x32 abi_mips_n32 abi_mips_n64 abi_mips_o32 abi_ppc_32 abi_ppc_64 abi_s390_32 abi_s390_64
 KEYWORDS=alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~x86-fbsd ~x86-freebsd ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos
-RDEPEND=|| ( >=dev-libs/libusb-compat-0.1.5-r2[abi_x86_32(-)?,abi_x86_64(-)?,abi_x86_x32(-)?,abi_mips_n32(-)?,abi_mips_n64(-)?,abi_mips_o32(-)?] >=sys-freebsd/freebsd-lib-9.1-r11[usb,abi_x86_32(-)?,abi_x86_64(-)?,abi_x86_x32(-)?,abi_mips_n32(-)?,abi_mips_n64(-)?,abi_mips_o32(-)?] )
+RDEPEND=|| ( >=dev-libs/libusb-compat-0.1.5-r2[abi_x86_32(-)?,abi_x86_64(-)?,abi_x86_x32(-)?,abi_mips_n32(-)?,abi_mips_n64(-)?,abi_mips_o32(-)?,abi_ppc_32(-)?,abi_ppc_64(-)?,abi_s390_32(-)?,abi_s390_64(-)?] >=sys-freebsd/freebsd-lib-9.1-r11[usb,abi_x86_32(-)?,abi_x86_64(-)?,abi_x86_x32(-)?,abi_mips_n32(-)?,abi_mips_n64(-)?,abi_mips_o32(-)?,abi_ppc_32(-)?,abi_ppc_64(-)?,abi_s390_32(-)?,abi_s390_64(-)?] )
 SLOT=0
-_eclasses_=multibuild	56d4120419072116417e8de1bd1040ff	multilib	892e597faee02a5b94eb02ab512e7622	multilib-build	0bf1bbb0a7a26fc4daf3e660ef004ee5	multiprocessing	89580da5ec17ad687fcde876c542b91e	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953
+_eclasses_=multibuild	46527a4656956da3d58acff72c9b59b1	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	multilib-build	fbb9baa0b4039304643e36e9820fdecf	multiprocessing	d7f2985a2c76c365ee20269db5261414	toolchain-funcs	0f1760274637a138b99bb649202ea402
 _md5_=2f67f7a7cb4df4c86c88691d526ff9f9

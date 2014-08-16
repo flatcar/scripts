@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/virtuoso.eclass,v 1.14 2012/09/27 16:35:42 axs Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/virtuoso.eclass,v 1.15 2014/03/07 03:27:47 creffett Exp $
 
 # @ECLASS: virtuoso.eclass
 # @MAINTAINER:
@@ -16,7 +16,7 @@ case ${EAPI:-0} in
 	*) die "EAPI=${EAPI} is not supported" ;;
 esac
 
-inherit base autotools multilib
+inherit autotools multilib eutils
 
 MY_P="virtuoso-opensource-${PV}"
 
@@ -34,7 +34,7 @@ case ${PV} in
 		;;
 esac
 
-EXPORT_FUNCTIONS src_prepare src_configure src_compile src_install
+EXPORT_FUNCTIONS src_prepare src_configure
 
 # Set some defaults
 HOMEPAGE='http://virtuoso.openlinksw.com/wiki/main/Main/'
@@ -59,7 +59,12 @@ virtuoso_src_prepare() {
 	debug-print-function ${FUNCNAME} "$@"
 
 	EPATCH_SUFFIX='patch' EPATCH_FORCE='yes' epatch
-	base_src_prepare
+	pushd "${S}" >/dev/null
+	[[ ${PATCHES[@]} ]] && epatch "${PATCHES[@]}"
+
+	debug-print "$FUNCNAME: applying user patches"
+	epatch_user
+
 
 	# @ECLASS-VARIABLE: VOS_EXTRACT
 	# @DESCRIPTION:
@@ -123,22 +128,4 @@ virtuoso_src_configure() {
 		--with-pthreads \
 		--without-internal-zlib \
 		${myconf}
-}
-
-# @FUNCTION: virtuoso_src_compile
-# @DESCRIPTION:
-# Runs make for specified subdirs
-virtuoso_src_compile() {
-	debug-print-function ${FUNCNAME} "$@"
-
-	base_src_compile
-}
-
-# @FUNCTION: virtuoso_src_install
-# @DESCRIPTION:
-# Default src_install
-virtuoso_src_install() {
-	debug-print-function ${FUNCNAME} "$@"
-
-	base_src_install
 }

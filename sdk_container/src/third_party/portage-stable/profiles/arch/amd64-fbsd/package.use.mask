@@ -1,6 +1,23 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64-fbsd/package.use.mask,v 1.16 2013/08/27 21:26:47 aballier Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64-fbsd/package.use.mask,v 1.21 2014/06/01 14:16:33 pacho Exp $
+
+# Pacho Ramos <pacho@gentoo.org> (01 Jun 2014)
+# Missing keywords
+>=app-misc/geoclue-2.1 modemmanager
+>=x11-libs/gtk+-3.12 cloudprint
+
+# Lars Wendler <polynomial-c@gentoo.org> (09 May 2014)
+# Masked kde USE flag until bug #509892 is fixed
+dev-vcs/subversion kde
+
+# Johannes Huber <johu@gentoo.org> (16 Apr 2014)
+# unkeyworded deps
+kde-base/nepomuk-core migrator
+
+# Pacho Ramos <pacho@gentoo.org> (02 Dec 2013)
+# Missing keywords, bug #493156
+media-libs/libgphoto2 serial
 
 # nvidia-driver uses acpid
 x11-drivers/nvidia-drivers acpi

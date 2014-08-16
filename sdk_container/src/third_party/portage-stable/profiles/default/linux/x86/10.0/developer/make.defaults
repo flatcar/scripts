@@ -1,8 +1,0 @@
-# Copyright 1999-2010 Gentoo Foundation.
-# Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/x86/10.0/developer/make.defaults,v 1.1 2010/08/15 07:29:22 fauli Exp $
-
-# Adding -Wl,--hash-style=gnu to default LDFLAGS for linux/x86 dev profile
-# This will help developers track down packages, that don't respect LDFLAGS,
-# more easily
-LDFLAGS="-Wl,--hash-style=gnu ${LDFLAGS}"

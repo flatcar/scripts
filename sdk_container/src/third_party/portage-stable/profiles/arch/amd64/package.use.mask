@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/package.use.mask,v 1.172 2013/09/01 22:46:24 jdhore Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/package.use.mask,v 1.184 2014/08/04 02:13:15 vapier Exp $
 
 # When you add an entry to the top of this file, add your name, the date, and
 # an explanation of why something is getting masked. Please be extremely
@@ -18,6 +18,40 @@
 
 #--- END OF EXAMPLES ---
 
+# Mike Frysinger <vapier@gentoo.org> (04 Aug 2014)
+# Unmask flashrom drivers that only work on x86 due to in/out asm insns #454024
+sys-apps/flashrom -atahpt -nic3com -nicnatsemi -nicrealtek -rayer_spi -satamv
+
+# Jorge Manuel B. S. Vicetto <jmbsvicetto@gentoo.org> (24 Apr 2014)
+# It's only supported on amd64
+dev-db/mariadb -tokudb
+
+# Mike Gilbert <floppym@gentoo.org> (27 Mar 2014)
+# sys-libs/libseccomp is not keyworded on many archs.
+sys-apps/systemd -seccomp
+
+# Matt Turner <mattst88@gentoo.org> (07 Mar 2014)
+# media-libs/libomxil-bellagio keyworded on amd64/x86
+media-libs/mesa -openmax
+
+# Samuli Suominen <ssuominen@gentoo.org> (16 Feb 2014)
+# Still considered experimental by upstream:
+# http://sourceforge.net/p/mikmod/bugs/16/#17ea
+media-libs/libmikmod sse2
+
+# Andreas K. Huettel <dilfridge@gentoo.org> (4 Jan 2014)
+# While globally masked, the needed amd64 keywords are already present
+dev-vcs/git -mediawiki
+
+# Sergey Popov <pinkbyte@gentoo.org> (27 Dec 2013)
+# Boost.Context can be built on amd64
+dev-libs/boost	-context
+
+# Michał Górny <mgorny@gentoo.org> (15 Dec 2013)
+# mupen64plus' 2.0 new dynamic recompiler is supported on x86 and arm
+# only.
+games-emulation/mupen64plus-core new-dynarec
+
 # Jeff Horelick <jdhore@gentoo.org> (1 Sep 2013)
 # Dependency (media-libs/libsidplayfp) only keyworded
 # on x86 and amd64. (masked in base)
@@ -25,8 +59,9 @@
 
 # Tim Harder <radhermit@gentoo.org> (13 Aug 2013)
 # dev-lang/luajit keyworded for amd64 (masked in base) 
-app-editors/vim -luajit
-app-editors/gvim -luajit
+# dev-scheme/racket keyworded for amd64 (masked in base) 
+app-editors/vim -luajit -racket
+app-editors/gvim -luajit -racket
 
 # Kacper Kowalik <xarthisius@gentoo.org> (09 Aug 2013)
 # Works on amd64
@@ -35,10 +70,6 @@ sys-apps/hwloc -cuda -gl -opencl
 # Michał Górny <mgorny@gentoo.org> (22 Jul 2013)
 # Meaningless on amd64 (it controls the 32-bit x86 JIT).
 dev-python/pypy sse2
-
-# Anthony G. Basile <blueness@gentoo.org> (18 Jun 2013)
-# Works on amd64
-net-libs/cyassl -aes-ni
 
 # Michael Weber <xmw@gentoo.org> (18 Jun 2013)
 # unsatisfied multilib dep on curl[abi_x86_32]
@@ -51,6 +82,7 @@ www-plugins/adobe-flash debug
 # Justin Lecher <jlec@gentoo.org> (21 Feb 2013)
 # cuda only works on x86 and amd64
 sci-libs/cholmod -cuda
+sci-libs/flann -cuda
 
 # Alexandre Rostovtsev <tetromino@gentoo.org> (30 Dec 2012)
 # sys-apps/biosdevname, systemd work on this arch (masked in base)
@@ -141,14 +173,6 @@ dev-lang/path64 assembler
 # Use mask infiniband for stable corosync and glusterfs
 =sys-cluster/glusterfs-3.1.2 infiniband
 =sys-cluster/corosync-1.3.0 infiniband
-
-# Markos Chandras <hwoarang@gentoo.org> (10 Jun 2011)
-# Unmask firebird on qtsql per bug #337451
-dev-qt/qtsql -firebird
-
-# Markos Chandras <hwoarang@gentoo.org> (03 May 2011)
-# Unmask firebird only for php
-dev-lang/php -firebird
 
 # Luca Barbato <lu_zero@gentoo.org> (28 Feb 2011)
 # Masked in base, unmask for amd64/x86

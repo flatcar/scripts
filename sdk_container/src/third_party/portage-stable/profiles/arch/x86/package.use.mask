@@ -1,8 +1,37 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86/package.use.mask,v 1.126 2013/11/06 21:05:15 pacho Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86/package.use.mask,v 1.137 2014/08/04 02:13:16 vapier Exp $
 
 # This file requires >=portage-2.1.1
+
+# Mike Frysinger <vapier@gentoo.org> (04 Aug 2014)
+# Unmask flashrom drivers that only work on x86 due to in/out asm insns #454024
+sys-apps/flashrom -atahpt -nic3com -nicnatsemi -nicrealtek -rayer_spi -satamv
+
+# Yixun Lan <dlan@gentoo.org> (21 May 2014)
+# sys-fs/zfs not keyworded on x86
+sys-cluster/ceph zfs
+
+# Lars Wendler <polynomial-c@gentoo.org (23 Apr 2014)
+# Works on 32bit x86
+media-sound/lmms -vst
+
+# Mike Gilbert <floppym@gentoo.org> (27 Mar 2014)
+# sys-libs/libseccomp is not keyworded on many archs.
+sys-apps/systemd -seccomp
+
+# Matt Turner <mattst88@gentoo.org> (07 Mar 2014)
+# media-libs/libomxil-bellagio keyworded on amd64/x86
+media-libs/mesa -openmax
+
+# Samuli Suominen <ssuominen@gentoo.org> (16 Feb 2014)
+# Still considered experimental by upstream:
+# http://sourceforge.net/p/mikmod/bugs/16/#17ea
+media-libs/libmikmod sse2
+
+# Sergey Popov <pinkbyte@gentoo.org> (27 Dec 2013)
+# Boost.Context can be built on x86
+dev-libs/boost	-context
 
 # Christoph Junghans <ottxor@gentoo.org> (08 Sep 2013)
 # restrict USE=quad for x86 as there are too less registers
@@ -15,8 +44,9 @@ sci-libs/fftw quad
 
 # Tim Harder <radhermit@gentoo.org> (13 Aug 2013)
 # dev-lang/luajit keyworded for x86 (masked in base)
-app-editors/vim -luajit
-app-editors/gvim -luajit
+# dev-scheme/racket keyworded for amd64 (masked in base)
+app-editors/vim -luajit -racket
+app-editors/gvim -luajit -racket
 
 # Kacper Kowalik <xarthisius@gentoo.org> (09 Aug 2013)
 # Works on x86
@@ -26,13 +56,10 @@ sys-apps/hwloc -cuda -gl -opencl
 # Keywords missing, bug #478104
 >=app-editors/gedit-plugins-3.8.3 git
 
-# Anthony G. Basile <blueness@gentoo.org> (18 Jun 2013)
-# Works on x86
-net-libs/cyassl -aes-ni
-
 # Justin Lecher <jlec@gentoo.org> (21 Feb 2013)
 # cuda only works on x86 and amd64
 sci-libs/cholmod -cuda
+sci-libs/flann -cuda
 
 # Alexandre Rostovtsev <tetromino@gentoo.org> (30 Dec 2012)
 # sys-apps/biosdevname, systemd work on this arch (masked in base)
@@ -57,10 +84,6 @@ media-libs/phonon zeitgeist
 # Ben de Groot <yngwin@gentoo.org> (30 Jul 2012)
 # dependency keyworded here, masked in base
 media-libs/freetype -infinality
-
-# Anthony G. Basile <blueness@gentoo.org> (12 Jul 2012)
-# sha512 support in cyassl is broken on x86
-net-libs/cyassl sha512
 
 # Rick Farina <zerochaos@gentoo.org> (05 July 2012)
 # masked in base, unmask x86/amd64 only

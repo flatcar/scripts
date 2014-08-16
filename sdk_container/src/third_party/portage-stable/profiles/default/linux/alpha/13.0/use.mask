@@ -2,5 +2,4 @@
 # Pulls in net-libs/axtls or net-libs/polarssl which are
 # not keyworded for arch
 curl_ssl_axtls
-curl_ssl_cyassl
 curl_ssl_polarssl

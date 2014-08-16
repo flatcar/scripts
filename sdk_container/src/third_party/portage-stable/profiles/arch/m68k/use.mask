@@ -47,7 +47,6 @@ lua
 djvu
 nss
 chicken
-clisp
 diet
 emf
 fusion

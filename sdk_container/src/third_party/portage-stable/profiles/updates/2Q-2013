@@ -1,11 +1,6 @@
 move kde-misc/print-manager kde-base/print-manager
-slotmove =dev-haskell/cairo-0.12* 0 2
-slotmove =dev-haskell/gio-0.12* 0 2
 slotmove =dev-haskell/glade-0.12* 0 2
-slotmove =dev-haskell/glib-0.12* 0 2
 slotmove =dev-haskell/gtk-0.12* 0 2
-slotmove =dev-haskell/gtk2hs-buildtools-0.12* 0 2
-slotmove =dev-haskell/pango-0.12* 0 2
 slotmove =media-sound/ardour-2.8* 0 2
 slotmove =net-libs/libgrss-0.5.0* 0 0.5
 move games-engines/gambatte games-emulation/gambatte

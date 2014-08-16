@@ -1,8 +1,0 @@
-# Copyright 1999-2012 Gentoo Foundation
-# Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/x32/package.keywords,v 1.10 2012/12/06 06:26:14 vapier Exp $
-
-# We need newer versions of toolchain packages.
-~sys-apps/sandbox-2.6 amd64
-~sys-devel/gcc-4.7.1 amd64
-~sys-libs/glibc-2.16.0 amd64

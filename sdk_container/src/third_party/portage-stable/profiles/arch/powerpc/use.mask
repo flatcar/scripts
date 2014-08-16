@@ -1,5 +1,10 @@
 # PPC Specific use flags
 #
+
+# Anthony G. Basile <blueness@gentoo.org> (10 Jul 2014)
+# codec support x264, bug #516856
+-x264
+
 #Klibc does not work
 klibc
 
@@ -205,6 +210,6 @@ clvm
 # for gnome 3.6 keywording
 -zeitgeist
 
-# Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (22 Aug 2013)
-# virtual/opencl is not keyworded
-opencl
+# Pacho Ramos <pacho@gentoo.org> (08 Jan 2014)
+# Unmask systemd since it is keyworded here.
+-systemd

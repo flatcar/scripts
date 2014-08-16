@@ -6,5 +6,5 @@ KEYWORDS=~alpha amd64 arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sh ~sparc x86 ~x86-fbsd
 LICENSE=MIT boehm-gc GPL-2+
 SLOT=0
 SRC_URI=http://www.hpl.hp.com/personal/Hans_Boehm/gc/gc_source/gc-7.2d.tar.gz
-_eclasses_=multilib	892e597faee02a5b94eb02ab512e7622	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953
+_eclasses_=multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0f1760274637a138b99bb649202ea402
 _md5_=04b557753b83ad4b2c35e72fb8ded5f3

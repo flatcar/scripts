@@ -1,9 +1,12 @@
-# Copyright 1999-2011 Gentoo Foundation.
+# Copyright 1999-2014 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/features/selinux/make.defaults,v 1.1 2011/05/17 10:46:49 blueness Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/features/selinux/make.defaults,v 1.3 2014/05/17 14:44:03 swift Exp $
 #
 
-USE="-acl selinux open_perms"
+# selinux - Enable SELinux support
+# unconfined - Enable unconfined domains, needed due to 'targeted' policy type
+# open_perms - Enable open permission in SELinux subsystem
+USE="selinux unconfined open_perms"
 
 FEATURES="selinux sesandbox sfperms"
 

@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/kde4-meta.eclass,v 1.74 2013/08/21 19:08:18 kensington Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/kde4-meta.eclass,v 1.77 2014/07/11 08:21:58 ulm Exp $
 #
 # @ECLASS: kde4-meta.eclass
 # @MAINTAINER:
@@ -12,12 +12,12 @@
 # You must define KMNAME to use this eclass, and do so before inheriting it. All other variables are optional.
 # Do not include the same item in more than one of KMMODULE, KMMEXTRA, KMCOMPILEONLY, KMEXTRACTONLY.
 
-if [[ ${___ECLASS_ONCE_KDE4_META} != "recur -_+^+_- spank" ]] ; then
-___ECLASS_ONCE_KDE4_META="recur -_+^+_- spank"
+if [[ -z ${_KDE4_META_ECLASS} ]]; then
+_KDE4_META_ECLASS=1
 
 [[ -z ${KMNAME} ]] && die "kde4-meta.eclass inherited but KMNAME not defined - broken ebuild"
 
-inherit kde4-base versionator
+inherit kde4-base
 
 KDEMETA_EXPF="pkg_setup src_unpack src_prepare src_configure src_compile src_test src_install pkg_preinst pkg_postinst pkg_postrm"
 EXPORT_FUNCTIONS ${KDEMETA_EXPF}
@@ -130,7 +130,7 @@ kde4-meta_src_unpack() {
 				subversion_bootstrap
 				;;
 			git)
-				git-2_src_unpack
+				git-r3_src_unpack
 				;;
 		esac
 	fi
@@ -167,7 +167,7 @@ kde4-meta_src_extract() {
 						|| die "${escm}: can't export cmake files to '${S}'."
 				fi
 				# Copy all subdirectories
-				for subdir in $(__list_needed_subdirectories); do
+				for subdir in $(_list_needed_subdirectories); do
 					targetdir=""
 					if [[ $subdir = doc/* && ! -e "$wc_path/$subdir" ]]; then
 						continue
@@ -196,7 +196,7 @@ kde4-meta_src_extract() {
 		tarfile="${DISTDIR}/${tarball}"
 
 		# Detect real toplevel dir from tarball name - it will be used upon extraction
-		# and in __list_needed_subdirectories
+		# and in _list_needed_subdirectories
 		topdir="${tarball%.tar.*}/"
 
 		ebegin "Unpacking parts of ${tarball} to ${WORKDIR}"
@@ -207,7 +207,7 @@ kde4-meta_src_extract() {
 		do
 			extractlist+=" ${topdir}${f}"
 		done
-		extractlist+=" $(__list_needed_subdirectories)"
+		extractlist+=" $(_list_needed_subdirectories)"
 
 		pushd "${WORKDIR}" > /dev/null
 
@@ -228,7 +228,7 @@ kde4-meta_src_extract() {
 		eend $?
 
 		if [[ -n ${KDE4_STRICTER} ]]; then
-			for f in $(__list_needed_subdirectories fatal); do
+			for f in $(_list_needed_subdirectories fatal); do
 				if [[ ! -e ${S}/${f#*/} ]]; then
 					eerror "'${f#*/}' is missing"
 					abort=true
@@ -311,7 +311,7 @@ kde4-meta_create_extractlists() {
 	debug-print "line ${LINENO} ${ECLASS} ${FUNCNAME}: KMEXTRACTONLY ${KMEXTRACTONLY}"
 }
 
-__list_needed_subdirectories() {
+_list_needed_subdirectories() {
 	local i j kmextra kmextra_expanded kmmodule_expanded kmcompileonly_expanded extractlist
 
 	# We expand KMEXTRA by adding CMakeLists.txt files
@@ -365,7 +365,7 @@ __list_needed_subdirectories() {
 # @DESCRIPTION:
 # Meta-package build system configuration handling - commenting out targets, etc..
 kde4-meta_src_prepare() {
-	debug-print-function  ${FUNCNAME} "$@"
+	debug-print-function ${FUNCNAME} "$@"
 
 	kde4-meta_change_cmakelists
 	kde4-base_src_prepare
@@ -444,7 +444,7 @@ kde4-meta_change_cmakelists() {
 				-e 's/^#DONOTCOMPILE //g' \
 				-e '/install(.*)/I{s/^/#DONOTINSTALL /;}' \
 				-e '/^install(/,/)/I{s/^/#DONOTINSTALL /;}' \
-				-e '/kde4_install_icons(.*)/{s/^/#DONOTINSTALL /;}' || \
+				-e '/kde4_install_icons(.*)/I{s/^/#DONOTINSTALL /;}' || \
 				die "${LINENO}: sed died in the KMCOMPILEONLY section while processing ${i}"
 		_change_cmakelists_parent_dirs ${i}
 	done
@@ -503,6 +503,9 @@ kde4-meta_change_cmakelists() {
 			fi
 			;;
 		kde-runtime)
+			sed -e 's/TYPE REQUIRED/TYPE OPTIONAL/' -e '/LibGcrypt/s/REQUIRED//' -i CMakeLists.txt \
+				|| die "${LINENO}: sed died in kde-runtime dep reduction section"
+
 			# COLLISION PROTECT section
 			# Only install the kde4 script as part of kde-base/kdebase-data
 			if [[ ${PN} != kdebase-data && -f CMakeLists.txt ]]; then
@@ -517,7 +520,7 @@ kde4-meta_change_cmakelists() {
 			;;
 		kdepim)
 			# Disable hardcoded checks
-			sed -r -e '/find_package\(KdepimLibs/s/REQUIRED//' \
+			sed -r -e 's/TYPE REQUIRED/TYPE OPTIONAL/' -e '/find_package\(KdepimLibs/s/REQUIRED//' \
 				-e '/find_package\((KdepimLibs|Boost|QGpgme|Akonadi|ZLIB|Strigi|SharedDesktopOntologies|Soprano|Nepomuk)/{/macro_optional_/!s/find/macro_optional_&/}' \
 				-e '/macro_log_feature\((Boost|QGPGME|Akonadi|ZLIB|STRIGI|SHAREDDESKTOPONTOLOGIES|Soprano|Nepomuk)_FOUND/s/ TRUE / FALSE /' \
 				-e 's/if[[:space:]]*([[:space:]]*BUILD_.*)[[:space:]]*/if(1) # &/' \
@@ -572,7 +575,7 @@ kde4-meta_src_compile() {
 # Currently just calls its equivalent in kde4-base.eclass(5) if
 # I_KNOW_WHAT_I_AM_DOING is set. Use this in split ebuilds.
 kde4-meta_src_test() {
-	debug-print-function $FUNCNAME "$@"
+	debug-print-function ${FUNCNAME} "$@"
 
 	if [[ $I_KNOW_WHAT_I_AM_DOING ]]; then
 		kde4-base_src_test
@@ -585,7 +588,7 @@ kde4-meta_src_test() {
 # @DESCRIPTION:
 # Function for installing KDE4 split applications.
 kde4-meta_src_install() {
-	debug-print-function $FUNCNAME "$@"
+	debug-print-function ${FUNCNAME} "$@"
 
 	# Search ${S}/${KMMODULE} and install common documentation files found
 	local doc

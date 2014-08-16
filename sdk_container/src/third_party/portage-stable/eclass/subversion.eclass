@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/subversion.eclass,v 1.86 2013/10/17 22:53:59 ottxor Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/subversion.eclass,v 1.87 2014/01/07 01:59:10 floppym Exp $
 
 # @ECLASS: subversion.eclass
 # @MAINTAINER:
@@ -23,7 +23,7 @@ case "${EAPI:-0}" in
 		;;
 	*)
 		EXPORT_FUNCTIONS src_unpack src_prepare pkg_preinst
-		DEPEND="|| ( dev-vcs/subversion[webdav-neon] dev-vcs/subversion[webdav-serf] )"
+		DEPEND="|| ( dev-vcs/subversion[http] dev-vcs/subversion[webdav-neon] dev-vcs/subversion[webdav-serf] )"
 		;;
 esac
 

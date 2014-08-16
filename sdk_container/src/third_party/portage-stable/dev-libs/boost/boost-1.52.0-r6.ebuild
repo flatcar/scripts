@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/boost/boost-1.52.0-r6.ebuild,v 1.12 2013/09/26 17:28:22 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/boost/boost-1.52.0-r6.ebuild,v 1.15 2014/04/28 07:20:08 pinkbyte Exp $
 
 EAPI="5"
 PYTHON_COMPAT=( python{2_6,2_7,3_2,3_3} )
@@ -16,7 +16,7 @@ SRC_URI="mirror://sourceforge/boost/${MY_P}.tar.bz2"
 LICENSE="Boost-1.0"
 MAJOR_V="$(get_version_component_range 1-2)"
 SLOT="0/${MAJOR_V}"
-KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 ~s390 ~sh ~sparc x86 ~amd64-fbsd ~x86-fbsd"
+KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~x86-fbsd"
 IUSE="debug doc icu +nls mpi python static-libs +threads tools"
 
 RDEPEND="icu? ( >=dev-libs/icu-3.6:= )
@@ -60,6 +60,19 @@ ${python_configuration}
 __EOF__
 }
 
+pkg_setup() {
+	# Bail out on unsupported build configuration, bug #456792
+	if [[ -f "${EROOT}etc/site-config.jam" ]]; then
+		grep -q gentoorelease "${EROOT}etc/site-config.jam" && grep -q gentoodebug "${EROOT}etc/site-config.jam" ||
+		(
+			eerror "You are using custom ${EROOT}etc/site-config.jam without defined gentoorelease/gentoodebug targets."
+			eerror "Boost can not be built in such configuration."
+			eerror "Please, either remove this file or add targets from ${EROOT}usr/share/boost-build/site-config.jam to it."
+			die
+		)
+	fi
+}
+
 src_prepare() {
 	epatch \
 		"${FILESDIR}/${PN}-1.48.0-mpi_python3.patch" \
@@ -82,6 +95,8 @@ src_prepare() {
 #endif
 EOF
 	done
+
+	epatch_user
 }
 
 ejam() {

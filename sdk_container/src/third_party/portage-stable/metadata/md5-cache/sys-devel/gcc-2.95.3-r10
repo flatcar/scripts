@@ -1,14 +1,14 @@
 DEFINED_PHASES=compile install postinst postrm setup test unpack
-DEPEND=sys-devel/gnuconfig >=sys-apps/sed-4 sys-libs/zlib nls? ( sys-devel/gettext ) >=sys-devel/bison-1.875 >=sys-devel/flex-2.5.4 regression-test? ( >=dev-util/dejagnu-1.4.4 >=sys-devel/autogen-5.5.4 )
+DEPEND=>=sys-apps/sed-4 sys-devel/gnuconfig sys-libs/zlib nls? ( virtual/libintl ) >=sys-devel/bison-1.875 >=sys-devel/flex-2.5.4 nls? ( sys-devel/gettext ) regression-test? ( >=dev-util/dejagnu-1.4.4 >=sys-devel/autogen-5.5.4 )
 DESCRIPTION=The GNU Compiler Collection
 HOMEPAGE=http://gcc.gnu.org/
-IUSE=multislot nls nptl regression-test vanilla altivec cxx fortran
+IUSE=multislot regression-test vanilla altivec nls nptl cxx fortran
 KEYWORDS=~alpha ~ppc ~sparc ~x86
 LICENSE=GPL-2 LGPL-2.1
 PDEPEND=>=sys-devel/gcc-config-1.7
-RDEPEND=sys-libs/zlib nls? ( sys-devel/gettext )
+RDEPEND=sys-libs/zlib nls? ( virtual/libintl )
 RESTRICT=strip
 SLOT=2.95
-SRC_URI=mirror://gnu/gcc/gcc-2.95.3/gcc-2.95.3.tar.bz2 mirror://gentoo/gcc-2.95.3-patches-1.4.tar.bz2 http://dev.gentoo.org/~vapier/dist/gcc-2.95.3-patches-1.4.tar.bz2 http://dev.gentoo.org/~dirtyepic/dist/gcc-2.95.3-patches-1.4.tar.bz2 http://dev.gentoo.org/~halcy0n/patches/gcc-2.95.3-patches-1.4.tar.bz2 http://dev.gentoo.org/~zorry/patches/gcc/gcc-2.95.3-patches-1.4.tar.bz2
-_eclasses_=eutils	4878e7f88afc0ba0866ac112190b0fd4	fixheadtails	f96922acc9287f1e889a1e50a6c8986e	flag-o-matic	65cef1287b9d62b1a0f180765d1e0c69	gnuconfig	ee02e61d6c68cee478e2e69214b7caef	libtool	b1c8688e60f9580bcb9bb46e08737eb1	multilib	892e597faee02a5b94eb02ab512e7622	pax-utils	2424f959506320f5196de8f79fa05297	toolchain	b8d66d0068b213fc5c5ba85267487832	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+SRC_URI=mirror://gnu/gcc/gcc-2.95.3/gcc-2.95.3.tar.bz2 mirror://gentoo/gcc-2.95.3-patches-1.4.tar.bz2 http://dev.gentoo.org/~vapier/dist/gcc-2.95.3-patches-1.4.tar.bz2 http://dev.gentoo.org/~rhill/dist/gcc-2.95.3-patches-1.4.tar.bz2 http://dev.gentoo.org/~halcy0n/patches/gcc-2.95.3-patches-1.4.tar.bz2 http://dev.gentoo.org/~zorry/patches/gcc/gcc-2.95.3-patches-1.4.tar.bz2
+_eclasses_=eutils	06133990e861be0fe60c2b428fd025d9	fixheadtails	c6fd1fc49c9dc11924f28a1406f251a0	flag-o-matic	75e24bac8423c515dd9c5717f08feb83	gnuconfig	ee02e61d6c68cee478e2e69214b7caef	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	pax-utils	51ad5130f4a69b1a118ca5296de276ae	toolchain	5642cc160e7328a9cf574534317a4f9a	toolchain-funcs	0f1760274637a138b99bb649202ea402	versionator	cd0bcdb170807e4a1984115e9d53a26f
 _md5_=a874ecc1daea2f9b7f6867262af5fcd6

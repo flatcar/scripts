@@ -5,5 +5,5 @@ KEYWORDS=amd64 ppc x86
 LICENSE=GPL-2
 SLOT=0
 SRC_URI=http://dl.bytesex.org/cvs-snapshots/input-20051128-143821.tar.gz mirror://debian/pool/main/i/input-utils/input-utils_0.0.20051128-4.diff.gz
-_eclasses_=eutils	4878e7f88afc0ba0866ac112190b0fd4	multilib	892e597faee02a5b94eb02ab512e7622	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28
+_eclasses_=eutils	06133990e861be0fe60c2b428fd025d9	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0f1760274637a138b99bb649202ea402
 _md5_=40840d57e80f2ebea4e2b365f70c379e

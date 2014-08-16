@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/gst-plugins10.eclass,v 1.11 2013/09/29 17:47:13 eva Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/gst-plugins10.eclass,v 1.12 2014/04/05 09:19:19 tetromino Exp $
 
 # @ECLASS: gst-plugins10.eclass
 # @MAINTAINER:
@@ -142,7 +142,7 @@ DEPEND="${DEPEND} ${RDEPEND}"
 gst-plugins10_get_plugins() {
 	# Must be called from src_prepare/src_configure
 	GST_PLUGINS_LIST=$(sed -rn 's/^AG_GST_CHECK_FEATURE\((\w+),.*/ \1 /p' \
-		"${S}"/configure.* | tr '[:upper:]' '[:lower:]')
+		"${S}"/configure.* | LC_ALL='C' tr '[:upper:]' '[:lower:]')
 }
 
 # @FUNCTION: gst-plugins10_find_plugin_dir

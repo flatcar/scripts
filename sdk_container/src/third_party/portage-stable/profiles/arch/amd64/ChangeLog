@@ -1,6 +1,138 @@
 # ChangeLog for Gentoo/AMD64 profile directory
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/ChangeLog,v 1.233 2013/10/03 16:27:37 axs Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/ChangeLog,v 1.273 2014/08/04 02:13:15 vapier Exp $
+
+  04 Aug 2014; Mike Frysinger <vapier@gentoo.org> package.use.mask:
+  Unmask x86-specific flashrom USE flags.
+
+  30 Jul 2014; Sven Vermeulen <swift@gentoo.org> package.use.stable.mask:
+  Adding use-stable-mask on libsemanage (multilib) as well
+
+  30 Jul 2014; Sven Vermeulen <swift@gentoo.org> package.use.stable.mask:
+  Adding use-stable-mask on libselinux (multilib) as well
+
+  27 Jul 2014; Alexis Ballier <aballier@gentoo.org> use.mask:
+  unmask xop useflag on amd64
+
+  26 Jul 2014; Samuli Suominen <ssuominen@gentoo.org> package.use.stable.mask:
+  Remove useless entry for virtual/udev.
+
+  22 Jul 2014; Christoph Junghans <ottxor@gentoo.org> no-multilib/package.mask:
+  masked games-fps/enemy-territory-omnibot on no-multilib
+
+  01 Jul 2014; Michał Górny <mgorny@gentoo.org> x32/make.defaults:
+  Update default ABI_X86 in x32 profile.
+
+  29 Jun 2014; Andreas K. Huettel <dilfridge@gentoo.org> package.use.mask:
+  Mask use-flag firebird and package dev-db/firebird for bug 460780
+
+  28 Jun 2014; Michał Górny <mgorny@gentoo.org> package.use:
+  Enable abi_x86_32 by default on nvidia-cg-toolkit, to match default
+  USE=multilib.
+
+  25 Jun 2014; Michał Górny <mgorny@gentoo.org> make.defaults,
+  x32/make.defaults:
+  Fix typo.
+
+  25 Jun 2014; Michał Górny <mgorny@gentoo.org> make.defaults,
+  x32/make.defaults:
+  Experimentally mark native ABI USE flag implicit for better
+  user-friendliness.
+
+  15 Jun 2014; Michał Górny <mgorny@gentoo.org> package.use.stable.mask:
+  Stable-mask emul-linux-x86 flags that are used only to control abi_x86_32
+  deps.
+
+  15 Jun 2014; Michał Górny <mgorny@gentoo.org> package.use.stable.mask:
+  Update package.use.stable.mask for openssl stabilization.
+
+  02 Jun 2014; Samuli Suominen <ssuominen@gentoo.org> package.use.stable.mask:
+  Mask abi_x86_32 for virtual/libudev and virtual/libgudev.
+
+  28 May 2014; Sven Vermeulen <swift@gentoo.org> no-multilib/package.mask:
+  Remove huludesktop from package.mask (package has been removed)
+
+  24 May 2014; Michał Górny <mgorny@gentoo.org> package.use.stable.mask:
+  Stable-mask abi_x86_32 on net-libs/polarssl.
+
+  24 May 2014; Michał Górny <mgorny@gentoo.org> package.use.stable.mask:
+  Stable-mask abi_x86_32 on sys-libs/libcap.
+
+  08 May 2014; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  package.use.stable.mask:
+  Mask multilib for stable libxkbcommon.
+
+  05 May 2014; Alexandre Rostovtsev <tetromino@gentoo.org>
+  package.use.stable.mask:
+  Add harfbuzz and deps to abi_x86_32 mask in preparation for stabilization
+
+  08 Apr 2014; Mike Gilbert <floppym@gentoo.org> package.use.stable.mask,
+  use.mask, use.stable.mask:
+  Drop pypy2_0.
+
+  30 Mar 2014; Michał Górny <mgorny@gentoo.org> package.use.stable.mask:
+  Move abi_x86_32 package stable-mask to arch profile since it is EAPI=5 now.
+
+  30 Mar 2014; Michał Górny <mgorny@gentoo.org> package.use.stable.mask,
+  use.mask, use.stable.mask:
+  Move pypy flag masks to arch profile since it is EAPI=5 now.
+
+  30 Mar 2014; Michał Górny <mgorny@gentoo.org> use.mask:
+  Fix order of use.mask. Sorry for messing it up.
+
+  30 Mar 2014; Andrey Grozin <grozin@gentoo.org> +use.stable.mask:
+  Masking gcl
+
+  29 Mar 2014; Michał Górny <mgorny@gentoo.org> use.mask, +x32/use.mask:
+  Restore abi_x86_x32 mask since the relevant ABI is not in MULTILIB_ABIS and
+  causes breakage.
+
+  29 Mar 2014; Mike Frysinger <vapier@gentoo.org> use.mask, -x32/use.mask:
+  Unmask abi_x86_x32 for all amd64 systems.
+
+  27 Mar 2014; Mike Gilbert <floppym@gentoo.org> package.use.mask:
+  Negate sys-apps/systemd[seccomp] mask.
+
+  22 Mar 2014; Mike Gilbert <floppym@gentoo.org> +package.use.stable.mask:
+  Move the sys-boot/grub[libzfs] stable mask from base to here.
+
+  19 Mar 2014; Andreas K. Huettel <dilfridge@gentoo.org> +eapi,
+  +no-multilib/eapi, +x32/eapi:
+  Increase EAPI to 5
+
+  09 Mar 2014; Andrey Grozin <grozin@gentoo.org> use.mask:
+  Unmask gcl
+
+  08 Mar 2014; Matt Turner <mattst88@gentoo.org> package.use.mask:
+  Add media-libs/mesa -openmax to package.use.mask.
+
+  26 Feb 2014; Mike Gilbert <floppym@gentoo.org> use.mask:
+  Unmask avx2
+
+  16 Feb 2014; Samuli Suominen <ssuominen@gentoo.org> package.use.mask:
+  Mask experimental USE="sse2" for libmikmod.
+
+  18 Jan 2014; Mike Frysinger <vapier@gentoo.org> make.defaults:
+  Drop python targets hacks now that base/ has it #474128.
+
+  07 Jan 2014; Tom Wijsman <TomWij@gentoo.org> x32/parent:
+  [QA] Removed comment from x32/parent per PMS for bug #470094.
+
+  04 Jan 2014; Andreas K. Huettel <dilfridge@gentoo.org> package.use.mask:
+  Unmask dev-vcs/git mediawiki support on amd64 while other arches are still
+  keywording
+
+  27 Dec 2013; Sergey Popov <pinkbyte@gentoo.org> package.use.mask:
+  Unmask 'context' USE-flag for dev-libs/boost
+
+  15 Dec 2013; Michał Górny <mgorny@gentoo.org> package.use.mask:
+  Mask mupen64plus new dynamic recompiler since it does not work on amd64.
+
+  04 Dec 2013; Mike Gilbert <floppym@gentoo.org> make.defaults:
+  Set python_targets_python3_3 in BOOTSTRAP_USE.
+
+  19 Nov 2013; Tim Harder <radhermit@gentoo.org> package.use.mask:
+  Unmask racket USE flag for app-editors/(g)vim.
 
   03 Oct 2013; Ian Stakenvicius <axs@gentoo.org> make.defaults:
   swapped USE=abi_x86_64 for ABI_X86=64 per mgorny's recommendation

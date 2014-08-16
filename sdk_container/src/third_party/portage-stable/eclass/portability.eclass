@@ -1,18 +1,21 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/portability.eclass,v 1.24 2012/01/04 05:57:19 vapier Exp $
-#
-# Author: Diego Pettenò <flameeyes@gentoo.org>
-#
-# This eclass is created to avoid using non-portable GNUisms inside ebuilds
-#
-# NB:  If you add anything, please comment it!
+# $Header: /var/cvsroot/gentoo-x86/eclass/portability.eclass,v 1.26 2014/07/11 08:21:58 ulm Exp $
 
-if [[ ${___ECLASS_ONCE_PORTABILITY} != "recur -_+^+_- spank" ]] ; then
-___ECLASS_ONCE_PORTABILITY="recur -_+^+_- spank"
+# @ECLASS: portability.eclass
+# @MAINTAINER:
+# base-system@gentoo.org
+# @AUTHOR:
+# Diego Pettenò <flameeyes@gentoo.org>
+# @BLURB: This eclass is created to avoid using non-portable GNUisms inside ebuilds
 
-# treecopy orig1 orig2 orig3 .... dest
-#
+if [[ -z ${_PORTABILITY_ECLASS} ]]; then
+_PORTABILITY_ECLASS=1
+
+# @FUNCTION: treecopy
+# @USAGE: <orig1> [orig2 orig3 ....] <dest>
+# @RETURN:
+# @DESCRIPTION:
 # mimic cp --parents copy, but working on BSD userland as well
 treecopy() {
 	local dest=${!#}
@@ -20,21 +23,23 @@ treecopy() {
 
 	while (( $# > 1 )); do
 		local dirstruct=$(dirname "$1")
-		mkdir -p "${dest}/${dirstruct}"
-		cp -pPR "$1" "${dest}/${dirstruct}"
+		mkdir -p "${dest}/${dirstruct}" || die
+		cp -pPR "$1" "${dest}/${dirstruct}" || die
 
 		shift
 	done
 }
 
-# seq min max
-#
+# @FUNCTION: seq
+# @USAGE: [min] <max> [step]
+# @RETURN: sequence from min to max regardless of seq command being present on system
+# @DESCRIPTION:
 # compatibility function that mimes seq command if not available
 seq() {
 	# First try `seq`
 	local p=$(type -P seq)
 	if [[ -n ${p} ]] ; then
-		"${p}" "$@"
+		"${p}" "$@" || die
 		return $?
 	fi
 
@@ -57,7 +62,7 @@ seq() {
 			reps=0
 		fi
 
-		jot $reps $min $max $step
+		jot $reps $min $max $step || die
 		return $?
 	fi
 
@@ -71,6 +76,10 @@ seq() {
 	return 0
 }
 
+# @FUNCTION: dlopen_lib
+# @USAGE:
+# @RETURN: linker flag if needed
+# @DESCRIPTION:
 # Gets the linker flag to link to dlopen() function
 dlopen_lib() {
 	# - Solaris needs nothing
@@ -85,6 +94,10 @@ dlopen_lib() {
 	esac
 }
 
+# @FUNCTION: get_bmake
+# @USAGE:
+# @RETURN: system version of make
+# @DESCRIPTION:
 # Gets the name of the BSD-ish make command (pmake from NetBSD)
 #
 # This will return make (provided by system packages) for BSD userlands,
@@ -103,6 +116,11 @@ get_bmake() {
 	fi
 }
 
+# @FUNCTION: get_mounts
+# @USAGE:
+# @RETURN: table of mounts in form "point node fs opts"
+# @MAINTAINER:
+# @DESCRIPTION:
 # Portable method of getting mount names and points.
 # Returns as "point node fs options"
 # Remember to convert 040 back to a space.

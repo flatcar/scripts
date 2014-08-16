@@ -10,5 +10,5 @@ PDEPEND=!livecd? ( app-vim/gentoo-syntax )
 RDEPEND=>=app-admin/eselect-vi-1.1 >=sys-libs/ncurses-5.2-r2 nls? ( virtual/libintl )
 SLOT=0
 SRC_URI=ftp://ftp.vim.org/pub/vim/unix/vim-7.3.tar.bz2 http://dev.gentoo.org/~lack/vim/vim-core-7.3-gentoo-patches-r2.tar.bz2 http://dev.gentoo.org/~lack/vim/vim-patches-7.3.762.patch.bz2
-_eclasses_=bash-completion-r1	d339dd40b2014cf1edba8592580eef42	eutils	4878e7f88afc0ba0866ac112190b0fd4	fdo-mime	0acfe1a88fd8751a1d5dc671168219fa	flag-o-matic	65cef1287b9d62b1a0f180765d1e0c69	multilib	892e597faee02a5b94eb02ab512e7622	prefix	21058c21ca48453d771df15500873ede	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4	vim	6e7f75c8d79cd14d64f8eba22c9f26f9	vim-doc	1c18baeec98cec3287524cbf2fee2bd2
+_eclasses_=bash-completion-r1	db412e427e3317ffd3e15f17df269c5e	eutils	06133990e861be0fe60c2b428fd025d9	fdo-mime	0acfe1a88fd8751a1d5dc671168219fa	flag-o-matic	75e24bac8423c515dd9c5717f08feb83	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	prefix	21058c21ca48453d771df15500873ede	toolchain-funcs	0f1760274637a138b99bb649202ea402	versionator	cd0bcdb170807e4a1984115e9d53a26f	vim	0672fce36e8067fa486443678d40f43b	vim-doc	1c18baeec98cec3287524cbf2fee2bd2
 _md5_=1b44f0b9820b4113c85e92efbb59ddab

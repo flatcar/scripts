@@ -1,15 +1,11 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/ppc64/package.use.mask,v 1.55 2013/05/22 09:25:56 patrick Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/ppc64/package.use.mask,v 1.60 2014/07/03 16:45:25 pacho Exp $
 
-# Patrick Lauer <patrick@gentoo.org> (27 May 2013)
-# Mask useflags for stable things depending on systemd
-# as systemd is still ~ppc64
-media-sound/pulseaudio systemd
-sys-auth/polkit systemd
-sys-fs/udisks systemd
-sys-power/upower systemd
-x11-misc/colord systemd
+# Michael Sterrett <mr_bones_@gentoo.org (12 Nov 2013)
+# Mask openmedia use flag because the content generation tools
+# are missing keywords.
+games-simulation/openttd openmedia
 
 # Michael Palimaka <kensington@gentoo.org> (02 Apr 2013)
 # Requires dev-lang/mono which currently has some issues
@@ -35,7 +31,6 @@ net-misc/networkmanager wimax
 # Mask media-video/ffmpeg[vpx] and media-video/mplayer[vpx] 
 # on ppc64 as there is no stable version yet
 media-video/ffmpeg vpx
-media-video/mplayer vpx
 
 # Kacper Kowalik <xarthisius@gentoo.org> (02 Sep 2011)
 # Mask www-client/seamonkey[ipc] on ppc64 wrt #381191

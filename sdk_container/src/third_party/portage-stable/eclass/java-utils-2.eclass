@@ -6,7 +6,7 @@
 #
 # Licensed under the GNU General Public License, v2
 #
-# $Header: /var/cvsroot/gentoo-x86/eclass/java-utils-2.eclass,v 1.155 2013/10/06 14:37:31 caster Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/java-utils-2.eclass,v 1.156 2014/04/09 21:55:12 radhermit Exp $
 
 # @ECLASS: java-utils-2.eclass
 # @MAINTAINER:
@@ -192,6 +192,7 @@ java-pkg_doexamples() {
 	[[ ${#} -lt 1 ]] && die "At least one argument needed"
 
 	java-pkg_check-phase install
+	java-pkg_init_paths_
 
 	local dest=/usr/share/doc/${PF}/examples
 	if [[ ${1} == --subdir ]]; then
@@ -543,6 +544,7 @@ java-pkg_dojavadoc() {
 	# QA checks
 
 	java-pkg_check-phase install
+	java-pkg_init_paths_
 
 	[[ -z "${dir}" ]] && die "Must specify a directory!"
 	[[ ! -d "${dir}" ]] && die "${dir} does not exist, or isn't a directory!"
@@ -2060,7 +2062,6 @@ java-pkg_init() {
 		java-pkg_announce-qa-violation "Using old ant_src_unpack. Should be src_unpack"
 	fi
 
-	java-pkg_init_paths_
 	java-pkg_switch-vm
 	PATH=${JAVA_HOME}/bin:${PATH}
 
@@ -2221,7 +2222,6 @@ java-pkg_init_paths_() {
 	[[ -z "${JAVA_PKG_JARDEST}" ]] && JAVA_PKG_JARDEST="${JAVA_PKG_SHAREPATH}/lib"
 	[[ -z "${JAVA_PKG_LIBDEST}" ]] && JAVA_PKG_LIBDEST="${DESTTREE}/$(get_libdir)/${JAVA_PKG_NAME}"
 	[[ -z "${JAVA_PKG_WARDEST}" ]] && JAVA_PKG_WARDEST="${JAVA_PKG_SHAREPATH}/webapps"
-
 
 	# TODO maybe only print once?
 	debug-print "JAVA_PKG_SHAREPATH: ${JAVA_PKG_SHAREPATH}"

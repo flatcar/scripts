@@ -9,5 +9,5 @@ LICENSE=|| ( Artistic-2 GPL-1 GPL-2 GPL-3 )
 RDEPEND=>=media-libs/gd-2.0.33 png? ( media-libs/gd[png] media-libs/libpng sys-libs/zlib ) jpeg? ( media-libs/gd[jpeg] virtual/jpeg ) truetype? ( media-libs/gd[truetype] media-libs/freetype:2 ) xpm? ( media-libs/gd[xpm] x11-libs/libXpm ) gif? ( media-libs/giflib ) || ( >=dev-lang/perl-5.16 <dev-lang/perl-5.16[-build] )
 SLOT=0
 SRC_URI=mirror://cpan/authors/id/L/LD/LDS/GD-2.46.tar.gz
-_eclasses_=base	ec46b36a6f6fd1d0b505a33e0b74e413	eutils	4878e7f88afc0ba0866ac112190b0fd4	multilib	892e597faee02a5b94eb02ab512e7622	multiprocessing	89580da5ec17ad687fcde876c542b91e	perl-module	d93571ca1c77e98760e5aa406388b02d	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28
+_eclasses_=eutils	06133990e861be0fe60c2b428fd025d9	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	multiprocessing	d7f2985a2c76c365ee20269db5261414	perl-module	a6a2d5c77bdaeba2794b167689cafb7a	toolchain-funcs	0f1760274637a138b99bb649202ea402	unpacker	f300a7ca9131b1024a79762e8edd3c52
 _md5_=1f89459a8cdb02eb42d7a06ab86b4ba5

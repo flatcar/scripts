@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/alpha/make.defaults,v 1.4 2012/06/16 11:44:11 jlec Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/alpha/make.defaults,v 1.7 2014/07/01 14:18:07 mgorny Exp $
 
 ARCH="alpha"
 ACCEPT_KEYWORDS="alpha"
@@ -10,6 +10,15 @@ CFLAGS="-O2 -pipe"
 CXXFLAGS="${CFLAGS}"
 FFLAGS="${CFLAGS}"
 FCFLAGS="${CFLAGS}"
+
+# Michał Górny <mgorny@gentoo.org> (01 Jul 2014)
+# Set ABI & DEFAULT_ABI consistently with ${ARCH}, to make ebuild
+# checks simpler.
+ABI="alpha"
+DEFAULT_ABI="alpha"
+MULTILIB_ABIS="alpha"
+CHOST_alpha="${CHOST}"
+LIBDIR_alpha="lib"
 
 # 2006/08/18 - Donnie Berkholz <dberkholz@gentoo.org>
 # Defaults for video drivers

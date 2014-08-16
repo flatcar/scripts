@@ -9,5 +9,5 @@ LICENSE=BSD
 RDEPEND==dev-lang/python-2*
 SLOT=0
 SRC_URI=http://googletest.googlecode.com/files/gtest-1.6.0.zip
-_eclasses_=libtool	b1c8688e60f9580bcb9bb46e08737eb1	multilib	892e597faee02a5b94eb02ab512e7622	python	305197b0aa1194fa3ef67ca21f6faa7e	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953
+_eclasses_=libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	python	be9965681d83c3980660a2660ac95e95	toolchain-funcs	0f1760274637a138b99bb649202ea402
 _md5_=5955f62f4354f92e403511c53a893607

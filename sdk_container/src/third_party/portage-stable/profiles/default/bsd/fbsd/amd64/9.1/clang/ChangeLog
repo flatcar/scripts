@@ -1,6 +1,9 @@
 # ChangeLog for profile directory
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/default/bsd/fbsd/amd64/9.1/clang/ChangeLog,v 1.10 2013/07/27 23:27:39 aballier Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/default/bsd/fbsd/amd64/9.1/clang/ChangeLog,v 1.11 2014/03/19 22:03:10 dilfridge Exp $
+
+  19 Mar 2014; Andreas K. Huettel <dilfridge@gentoo.org> +eapi:
+  Increase EAPI to 5
 
   27 Jul 2013; Alexis Ballier <aballier@gentoo.org> package.use.force:
   build libcxx multilib, patch by Yuta SATOH in bug #475294

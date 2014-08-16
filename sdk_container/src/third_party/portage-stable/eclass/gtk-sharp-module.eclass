@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/gtk-sharp-module.eclass,v 1.36 2012/09/27 16:35:41 axs Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/gtk-sharp-module.eclass,v 1.37 2014/01/19 21:13:08 moult Exp $
 
 # @ECLASS: gtk-sharp-module.eclass
 # @MAINTAINER:
@@ -137,7 +137,7 @@ esac
 case ${PF} in
 	#gtk-sharp tarball
 	gtk-sharp-docs*)
-		add_depend ">=virtual/monodoc-2.0"
+		add_depend ">=dev-lang/mono-2.0"
 		;;
 	gtk-sharp-gapi*)
 		add_rdepend "!<=dev-dotnet/gtk-sharp-2.12.7:2"

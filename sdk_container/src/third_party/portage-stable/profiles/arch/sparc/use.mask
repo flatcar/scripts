@@ -1,11 +1,16 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License, v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/sparc/use.mask,v 1.113 2013/10/19 01:58:38 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/sparc/use.mask,v 1.116 2014/06/25 14:22:29 grozin Exp $
 
 # Unmask the flag which corresponds to ARCH.
 -sparc
 
 # This file contains a list of useflags that cannot be used on sparc.
+
+# Andrey Grozin <grozin@gentoo.org> (25 Jun 2014)
+# keyworded on sparc
+-ecls
+-sbcl
 
 # Alexandre Rostovtsev <tetromino@gentoo.org> (31 Dec 2012)
 # net-misc/connman is not keyworded, bug 348308
@@ -121,7 +126,6 @@ barcode
 xmms2
 gme
 aacplus
-systemd
 soundcloud
 devil
 gts
@@ -199,7 +203,6 @@ xvmc
 zoran
 
 # Other masks
-clisp
 hdf
 hdf5
 pike
@@ -335,3 +338,11 @@ opencl
 
 # Unmask once sys-libs/libunwind gets ported & keyworded.
 unwind
+
+# Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (10 Nov 2013)
+# sys-devel/llvm is not keyworded, bug #320221
+llvm
+
+# Pacho Ramos <pacho@gentoo.org> (19 Jan 2014)
+# Unmask systemd since it is keyworded here.  
+-systemd

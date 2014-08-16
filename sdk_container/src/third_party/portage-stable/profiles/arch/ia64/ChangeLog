@@ -1,6 +1,48 @@
 # ChangeLog for Gentoo/ia64 profile
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/ia64/ChangeLog,v 1.196 2013/10/26 08:52:25 gienah Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/ia64/ChangeLog,v 1.209 2014/08/13 02:28:44 reavertm Exp $
+
+  13 Aug 2014; Maciej Mrozowski <reavertm@gentoo.org> package.use.mask:
+  Mask gg11 flag due to missing keywords (bug 519772)
+
+  12 Aug 2014; Mike Frysinger <vapier@gentoo.org> use.mask:
+  Mask untested mumble. #509216 by Émeric Maschino.
+
+  29 Jul 2014; Robin H. Johnson <robbat2@gentoo.org> package.use.mask:
+  Update MySQL tcmalloc mask for percona-server.
+
+  22 Jul 2014; Christoph Junghans <ottxor@gentoo.org> package.use.mask:
+  mask libcerf useflag (bug 517726)
+
+  01 Jul 2014; Michał Górny <mgorny@gentoo.org> make.defaults:
+  Add missing LIBDIR_${ABI} and CHOST_${ABI} on non-multilib arches to avoid
+  issues.
+
+  01 Jul 2014; Michał Górny <mgorny@gentoo.org> make.defaults:
+  Set MULTILIB_ABIS as well, just in case.
+
+  01 Jul 2014; Michał Górny <mgorny@gentoo.org> make.defaults:
+  Set ABI & DEFAULT_ABI on remaining profiles for easy consistent checks in
+  ebuilds.
+
+  26 Apr 2014; Markos Chandras <hwoarang@gentoo.org> package.use.mask:
+  Mask json use flag on app-admin/ulogd. Bug #507428
+
+  19 Mar 2014; Andreas K. Huettel <dilfridge@gentoo.org> +eapi:
+  Increase EAPI to 5
+
+  16 Mar 2014; Mike Frysinger <vapier@gentoo.org> package.use.mask, use.mask:
+  Mask out various USE flags that need packages that are not yet
+  keyworded/ported.
+
+  22 Jan 2014; Gilles Dartiguelongue <eva@gentoo.org> package.use.mask:
+  libquvi is available stable on ia64.
+
+  04 Jan 2014; Julian Ospald <hasufell@gentoo.org> package.use.mask:
+  add useflag mask for dev-libs/DirectFB-1.7.1 version bump
+
+  10 Nov 2013; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> use.mask:
+  Mask llvm flag until sys-devel/llvm is keyworded, bug #320221.
 
   26 Oct 2013; Mark Wright <gienah@gentoo.org> package.use.mask:
   mask dev-haskell/dataenc test as template-haskell not yet available

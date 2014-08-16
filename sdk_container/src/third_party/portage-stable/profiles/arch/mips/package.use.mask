@@ -1,6 +1,26 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/mips/package.use.mask,v 1.57 2013/09/02 07:02:22 pinkbyte Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/mips/package.use.mask,v 1.63 2014/07/22 18:16:50 ssuominen Exp $
+
+# Davide Pesavento <pesa@gentoo.org> (02 Jun 2014)
+# dev-qt/qtdeclarative:4 is not keyworded on mips
+dev-qt/designer:4 declarative
+
+# Davide Pesavento <pesa@gentoo.org> (02 Jun 2014)
+# connman and networkmanager are not keyworded on mips
+dev-qt/qtbearer:4 connman networkmanager
+
+# Sergey Popov <pinkbyte@gentoo.org> (02 Feb 2014)
+# media-gfx/nvidia-texture-tools is not keyworded on mips
+media-libs/devil	nvtt
+
+# Ryan Hill <dirtyepic@gentoo.org> (07 Jan 2014)
+# req net-libs/webkit-gtk:2
+x11-libs/wxGTK webkit
+
+# Markos Chandras <hwoarang@gentoo.org> (05 Jan 2014)
+# Perl is heavily unkeyworded on MIPS. See 497068
+dev-vcs/git mediawiki
 
 # Sergey Popov <pinkbyte@gentoo.org> (02 Sep 2013)
 # Not tested
@@ -9,8 +29,8 @@ app-text/tesseract	webp
 
 # Pacho Ramos <pacho@gentoo.org> (01 Sep 2013)
 # CONFIG_AUDITSYSCALL=y is not implemented, bug #438368
-sys-apps/systemd pam
 sys-auth/consolekit pam
+sys-auth/pambase consolekit
 
 # Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (28 May 2013)
 # depends on sys-devel/llvm[video_cards_radeon]

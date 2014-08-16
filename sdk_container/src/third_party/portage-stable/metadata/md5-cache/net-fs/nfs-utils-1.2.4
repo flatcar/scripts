@@ -1,5 +1,5 @@
 DEFINED_PHASES=configure install postinst prepare
-DEPEND=tcpd? ( sys-apps/tcp-wrappers ) caps? ( sys-libs/libcap ) sys-libs/e2fsprogs-libs net-nds/rpcbind net-libs/libtirpc nfsv4? ( >=dev-libs/libevent-1.0b >=net-libs/libnfsidmap-0.21-r1 kerberos? ( net-libs/librpcsecgss net-libs/libgssglue net-libs/libtirpc[kerberos] app-crypt/mit-krb5 ) nfsidmap? ( >=net-libs/libnfsidmap-0.24 sys-apps/keyutils ) ) selinux? ( sec-policy/selinux-rpc sec-policy/selinux-rpcbind ) virtual/pkgconfig !<sys-apps/util-linux-2.12r-r7 || ( >=sys-devel/automake-1.12:1.12 >=sys-devel/automake-1.13:1.13 ) >=sys-devel/autoconf-2.68 sys-devel/libtool
+DEPEND=tcpd? ( sys-apps/tcp-wrappers ) caps? ( sys-libs/libcap ) sys-libs/e2fsprogs-libs net-nds/rpcbind net-libs/libtirpc nfsv4? ( >=dev-libs/libevent-1.0b >=net-libs/libnfsidmap-0.21-r1 kerberos? ( net-libs/librpcsecgss net-libs/libgssglue net-libs/libtirpc[kerberos] app-crypt/mit-krb5 ) nfsidmap? ( >=net-libs/libnfsidmap-0.24 sys-apps/keyutils ) ) selinux? ( sec-policy/selinux-rpc sec-policy/selinux-rpcbind ) virtual/pkgconfig !<sys-apps/util-linux-2.12r-r7 !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.14:1.14 ) >=sys-devel/autoconf-2.69 sys-devel/libtool
 DESCRIPTION=NFS client and server daemons
 EAPI=2
 HOMEPAGE=http://linux-nfs.org/
@@ -10,5 +10,5 @@ RDEPEND=tcpd? ( sys-apps/tcp-wrappers ) caps? ( sys-libs/libcap ) sys-libs/e2fsp
 RESTRICT=test
 SLOT=0
 SRC_URI=mirror://sourceforge/nfs/nfs-utils-1.2.4.tar.bz2
-_eclasses_=autotools	16761a2f972abd686713e5967ff3c754	eutils	4878e7f88afc0ba0866ac112190b0fd4	flag-o-matic	65cef1287b9d62b1a0f180765d1e0c69	libtool	b1c8688e60f9580bcb9bb46e08737eb1	multilib	892e597faee02a5b94eb02ab512e7622	multiprocessing	89580da5ec17ad687fcde876c542b91e	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28
+_eclasses_=autotools	ebea507d219855923e3438c953cf4ab8	eutils	06133990e861be0fe60c2b428fd025d9	flag-o-matic	75e24bac8423c515dd9c5717f08feb83	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	multiprocessing	d7f2985a2c76c365ee20269db5261414	toolchain-funcs	0f1760274637a138b99bb649202ea402
 _md5_=685dca1f8fb1b96d296e5efe94513004

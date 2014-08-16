@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/gnome2.eclass,v 1.124 2013/09/29 08:49:53 pacho Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/gnome2.eclass,v 1.125 2014/02/11 21:14:20 pacho Exp $
 
 # @ECLASS: gnome2.eclass
 # @MAINTAINER:
@@ -161,6 +161,11 @@ gnome2_src_configure() {
 	# Pass --enable-compile-warnings=minimum as we don't want -Werror* flags, bug #471336
 	if grep -q "enable-compile-warnings" "${ECONF_SOURCE:-.}"/configure; then
 		G2CONF="--enable-compile-warnings=minimum ${G2CONF}"
+	fi
+
+	# Pass --docdir with proper directory, bug #482646
+	if grep -q "^ *--docdir=" "${ECONF_SOURCE:-.}"/configure; then
+		G2CONF="--docdir="${EPREFIX}"/usr/share/doc/${PF} ${G2CONF}"
 	fi
 
 	# Avoid sandbox violations caused by gnome-vfs (bug #128289 and #345659)

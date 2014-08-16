@@ -1,7 +1,10 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/mint/package.use.mask,v 1.5 2013/10/31 15:03:06 grobian Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/mint/package.use.mask,v 1.6 2014/03/11 12:50:01 grobian Exp $
 
+# Alan Hourihane <alanh@fairlite.co.uk> (11 Mar 2014)
+# plays havoc with GNU pth bug #503764
+dev-lang/tcl threads
 
 # Alan Hourihane <alanh@fairlite.co.uk> (30 Dec 2011)
 # xz-utils plays havoc with GNU pth

@@ -1,18 +1,10 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/uclibc/package.mask,v 1.22 2012/04/27 00:54:23 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/uclibc/package.mask,v 1.23 2014/02/17 23:03:41 vapier Exp $
 
 # glib-2.x requires working locale/iconv which
 # isn't available atm in uclibc
 >=dev-libs/glib-2.5
-
-# Diego Elio Pettenò <flameeyes@gentoo.org> (8 Feb 2011)
-#  on behalf of QA team <qa@gentoo.org
-#
-# Make sure uClibc is available as sys-libs/uclibc only on uclibc
-# profiles, as the "dynamic slot generation" is broken. The package is
-# still available on default profiles to be used with crossdev.
--sys-libs/uclibc
 
 sys-libs/glibc
 

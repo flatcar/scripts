@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/license_groups,v 1.224 2013/09/19 13:30:57 dev-zero Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/license_groups,v 1.239 2014/07/16 21:31:41 axs Exp $
 
 # Please report bugs or other requests at bugs.gentoo.org and assign to
 # licenses@gentoo.org
@@ -13,7 +13,7 @@
 # http://www.gnu.org/licenses/license-list.html
 # GPL or LGPL with various exceptions are also included here, because
 # they are more permissive than the licenses they are based on.
-GPL-COMPATIBLE AGPL-3 Apache-2.0 Artistic-2 Boost-1.0 BSD BSD-2 CC0-1.0 CeCILL-2 Clarified-Artistic Clear-BSD ECL-2.0 FTL gcc-runtime-library-exception-3.1 GPL-1 GPL-1+ GPL-2 GPL-2+ GPL-2-with-exceptions GPL-2-with-font-exception GPL-2-with-linking-exception GPL-2-with-MySQL-FLOSS-exception GPL-3 GPL-3+ GPL-3-with-font-exception ISC LGPL-2 LGPL-2+ LGPL-2-with-linking-exception LGPL-2.1 LGPL-2.1+ LGPL-2.1-with-linking-exception LGPL-3 LGPL-3+ LGPL-3-with-linking-exception libgcc libstdc++ metapackage MIT MPL-2.0 Nokia-Qt-LGPL-Exception OPENLDAP PSF-2 PSF-2.2 PSF-2.3 PSF-2.4 public-domain PYTHON qwt Ruby Ruby-BSD SGI-B-2.0 Sleepycat tanuki-community unicode Unlicense UoI-NCSA vim W3C WTFPL-2 ZLIB ZPL
+GPL-COMPATIBLE AGPL-3 Apache-2.0 Artistic-2 Boost-1.0 BSD BSD-2 CC0-1.0 CeCILL-2 Clarified-Artistic Clear-BSD ECL-2.0 FTL gcc-runtime-library-exception-3.1 GPL-1 GPL-1+ GPL-2 GPL-2+ GPL-2-with-exceptions GPL-2-with-font-exception GPL-2-with-linking-exception GPL-2-with-MySQL-FLOSS-exception GPL-3 GPL-3+ GPL-3-with-font-exception ISC LGPL-2 LGPL-2+ LGPL-2-with-linking-exception LGPL-2.1 LGPL-2.1+ LGPL-2.1-with-linking-exception LGPL-3 LGPL-3+ LGPL-3-with-linking-exception libgcc libstdc++ metapackage MIT MPL-2.0 Nokia-Qt-LGPL-Exception OPENLDAP PSF-2 PSF-2.2 PSF-2.3 PSF-2.4 public-domain PYTHON qwt Ruby Ruby-BSD SGI-B-2.0 Sleepycat tanuki-community Transmission-OpenSSL-exception unicode Unlicense UoI-NCSA vim W3C WTFPL-2 ZLIB ZPL
 
 FSF-APPROVED @GPL-COMPATIBLE AFL-2.1 AFL-3.0 Apache-1.1 APSL-2 BitTorrent BSD-4 CDDL CNRI CPL-1.0 EPL-1.0 EUPL-1.1 IBM LPPL-1.2 MPL-1.0 MPL-1.1 Ms-PL NPL-1.1 openssl OSL-1.1 OSL-2.0 OSL-2.1 PHP-3.01 QPL QPL-1.0
 
@@ -30,7 +30,7 @@ OSI-APPROVED AFL-3.0 AGPL-3 Apache-1.1 Apache-2.0 APL-1.0 APSL-2 Artistic Artist
 # TODO: maybe add a category for BSD-alike MISC-FREE licenses for easy
 # separation?
 # BSD-4 alikes: dom4j FastCGI icu JDOM
-MISC-FREE ACE Allegro alternate ANTLR bea.ri.jsr173 BEER-WARE boehm-gc BSD-1 BSD-with-attribution buddy bufexplorer.vim BZIP2 canfep CDDL-Schily CeCILL-C CFS CMake CPL-0.5 CRACKLIB cryptopp czyborra DES docbook dom4j eGenixPublic-1.1 ElementTree Emacs ErlPL-1.1 FastCGI feh Flashpix FLEX flexmock FLTK freemarker FVWM GBuffy gd gnuplot gsm HTML-Tidy htmlc iASL IBPP-1.1 icu IDPL IJG imagemagick Info-ZIP inner-net ipadic ipx-utils Ispell JasPer2.0 JDOM JNIC JOVE keynote LambdaMOO LIBGLOSS libmng libodialog libpng libtiff LLGPL-2.1 LPPL-1.3 LPPL-1.3b lsof Mail-Sendmail mapm-4.9.5 matplotlib minpack MIT-with-advertising mm mpich2 nap NCSA-HDF netcat NEWLIB ngrep noweb Old-MIT openafs-krb5-a Openwall otter PCRE perforce photopc PHP-2.02 PIZZA-WARE pngcrush pngnq Princeton psutils qmail-nelson rc regexp-UofT RSA rwpng Sendmail shrimp skype-4.0.0.7-third-party_attributions.txt SMAIL Snd SNIA SSLeay Subversion SVFL tablelist tcltk tcp_wrappers_license TermReadKey TeX TeX-other-free Time-modules tm-align totd URT w3m wxWinLL-3 x2x xbatt xboing XC Xdebug xtrs xvt YaTeX zpaq ZSH
+MISC-FREE ACE Allegro alternate bea.ri.jsr173 BEER-WARE boehm-gc BSD-1 BSD-with-attribution buddy bufexplorer.vim BZIP2 canfep CDDL-Schily CeCILL-C CFS CMake CPL-0.5 CRACKLIB Crypt-IDEA cryptopp czyborra DES docbook dom4j eGenixPublic-1.1 ElementTree Emacs ErlPL-1.1 FastCGI feh Flashpix FLEX flexmock FLTK freemarker FVWM GBuffy gd gnuplot gsm HTML-Tidy htmlc iASL IBPP-1.1 icu IDPL IJG imagemagick Info-ZIP inner-net ipadic ipx-utils Ispell JasPer2.0 JDOM JNIC JOVE keynote LambdaMOO LIBGLOSS libmng libodialog libpng libtiff LLGPL-2.1 LPPL-1.3 LPPL-1.3b lsof Mail-Sendmail mapm-4.9.5 matplotlib Mini-XML minpack MIT-with-advertising mm mpich2 nap NCSA-HDF netcat NEWLIB ngrep noweb Old-MIT openafs-krb5-a Openwall otter PCRE perforce photopc PHP-2.02 PIZZA-WARE pngcrush pngnq Princeton psutils qmail-nelson rc regexp-UofT RSA rwpng scanlogd Sendmail Sendmail-Open-Source shrimp skype-4.0.0.7-third-party_attributions.txt SMAIL Snd SNIA SSLeay Subversion SVFL tablelist tcltk tcp_wrappers_license TermReadKey TeX TeX-other-free Time-modules tm-align totd URT w3m wxWinLL-3 x2x xbatt xboing XC Xdebug xtrs xvt YaTeX zpaq ZSH
 # The following are NOT valid in @MISC-FREE:
 # arj - usage restrictions
 # freedist - Doesn't grant the right to do modifications.
@@ -48,7 +48,7 @@ FSF-APPROVED-OTHER Arphic CC-BY-2.0 CC-BY-SA-2.0 DSL FDL-1.1 FDL-1.1+ FDL-1.2 FD
 # Misc licenses for free documents and other works (including fonts)
 # that follow the definition at http://freedomdefined.org/ but are NOT
 # listed in @FSF-APPROVED-OTHER
-MISC-FREE-DOCS BitstreamVera CC-PD CC-BY-2.5 CC-BY-3.0 CC-BY-SA-2.5 CC-BY-SA-3.0 CC-SA-1.0 LDP-1 LDP-1a man-pages man-pages-posix MaxMind2 mplus-fonts myspell-en_CA-KevinAtkinson quake1-textures Texinfo-manual UbuntuFontLicense-1.0 Unicode_Fonts_for_Ancient_Scripts vlgothic wxWinFDL-3
+MISC-FREE-DOCS BitstreamVera CC-PD CC-BY-2.5 CC-BY-3.0 CC-BY-SA-2.5 CC-BY-SA-3.0 CC-BY-SA-4.0 CC-SA-1.0 LDP-1 LDP-1a man-pages man-pages-posix man-pages-posix-2013 MaxMind2 mplus-fonts myspell-en_CA-KevinAtkinson quake1-textures Texinfo-manual UbuntuFontLicense-1.0 Unicode_Fonts_for_Ancient_Scripts vlgothic wxWinFDL-3
 
 # Metaset for all free documents
 FREE-DOCUMENTS @FSF-APPROVED-OTHER @MISC-FREE-DOCS
@@ -59,7 +59,7 @@ FREE-DOCUMENTS @FSF-APPROVED-OTHER @MISC-FREE-DOCS
 # and share modifications
 FREE @FREE-SOFTWARE @FREE-DOCUMENTS
 
-EULA Adaptec-EULA AdobeFlash-10.3 AdobeFlash-11.x ArxFatalis-EULA-GOG ArxFatalis-EULA-JoWooD baudline BCS Broadcom CAPYBARA-EULA cadsoft CYANA DOOM3 ETQW FAH-EULA-2009 FraunhoferFDK GameFront Gameplay-Group-EULA GIMPS google-chrome googleearth Google-TOS IBM-J1.5 IBM-J1.6 Intel-SDP Introversion Livestation-EULA LOKI-EULA LRCTF MakeMKV-EULA MARBLEBLAST Mendeley-EULA MSjdbcEULA40 MTA-0.5 NVIDIA-CUDA Nero-AAC-EULA Nero-EULA-US Oracle-BCLA-JavaSE POMPOM postal2 Primate-Plunge PUEL Q3AEULA Q3AEULA-20000111 QUAKE4 Rain-Slick RTCW RTCW-ETEULA SCM-MICRO SJ-Labs skype-eula skype-4.0.0.7-copyright spin-commercial spin-educational sun-bcla-java-vm TeamViewer THINKTANKS UPEK-SDK-EULA ut2003 ut2003-demo
+EULA Adaptec-EULA AdobeFlash-10.3 AdobeFlash-11.x ArxFatalis-EULA-GOG ArxFatalis-EULA-JoWooD baudline BCS bf1942-lnxded CAPYBARA-EULA cadsoft CYANA DOOM3 ETQW FAH-EULA-2009 FAH-EULA-2014 FraunhoferFDK GameFront Gameplay-Group-EULA GIMPS google-chrome googleearth Google-TOS IBM-J1.5 IBM-J1.6 Intel-SDP Introversion Livestation-EULA LOKI-EULA LRCTF MakeMKV-EULA MARBLEBLAST Mendeley-EULA MSjdbcEULA40 MTA-0.5 NVIDIA-CUDA Nero-AAC-EULA Nero-EULA-US Oracle-BCLA-JavaSE PAPERS-PLEASE POMPOM postal2 Primate-Plunge PUEL Q3AEULA Q3AEULA-20000111 QUAKE4 Rain-Slick RTCW RTCW-ETEULA SCM-MICRO SJ-Labs skype-eula skype-4.0.0.7-copyright spin-commercial spin-educational sun-bcla-java-vm TeamViewer THINKTANKS UPEK-SDK-EULA ut2003 ut2003-demo
 
 # As proposed: http://archives.gentoo.org/gentoo-dev/msg_6c950b46c50fe72ebc5e650bbf70f77c.xml
 # Excerpt of the rules for this license group:
@@ -71,11 +71,10 @@ EULA Adaptec-EULA AdobeFlash-10.3 AdobeFlash-11.x ArxFatalis-EULA-GOG ArxFatalis
 # - IF (and only if) there is an explicit inclusion requirement,
 #   USE=bindist MUST cause a copy of the license to be installed
 #   in a file location compliant with the license
-BINARY-REDISTRIBUTABLE @FREE atheros-hal Dina hashcat intel-psb intel-ucode ipw2100-fw ipw2200-fw ipw3945 NVIDIA-r1 qlogic-fibre-channel-firmware radeon-ucode shmux SmartLabs sun-concurrent-util sun-jlfgr
+BINARY-REDISTRIBUTABLE @FREE atheros-hal Broadcom Dina hashcat intel-psb intel-ucode ipw2100-fw ipw2200-fw ipw3945 no-source-code NVIDIA-r1 qlogic-fibre-channel-firmware radeon-ucode shmux SmartLabs sun-concurrent-util sun-jlfgr
 
 # Deprecated license labels, used by repoman
-# as-is: see note in licenses/as-is and bug 436214
-DEPRECATED as-is
+#DEPRECATED as-is
 
 # Local Variables:
 # mode: conf-space

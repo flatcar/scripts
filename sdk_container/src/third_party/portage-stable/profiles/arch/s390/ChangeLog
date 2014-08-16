@@ -1,6 +1,24 @@
 # ChangeLog for Gentoo/s390 profile directory
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/s390/ChangeLog,v 1.74 2013/09/29 14:34:29 dilfridge Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/s390/ChangeLog,v 1.79 2014/07/29 23:16:10 robbat2 Exp $
+
+  29 Jul 2014; Robin H. Johnson <robbat2@gentoo.org> package.use.mask:
+  Update MySQL tcmalloc mask for percona-server.
+
+  01 Jul 2014; Michał Górny <mgorny@gentoo.org> make.defaults,
+  s390x/make.defaults, +s390x/use.mask, use.mask:
+  Adjust use.mask properly and hide the flags since the both profiles are
+  non-multilib by default. Add IUSE_IMPLICIT.
+
+  05 Apr 2014; Mike Frysinger <vapier@gentoo.org> make.defaults,
+  s390x/make.defaults, s390x/use.force, use.force:
+  Adjust multilib settings after the multilib USE flag rework.
+
+  19 Mar 2014; Andreas K. Huettel <dilfridge@gentoo.org> +eapi, +s390x/eapi:
+  Increase EAPI to 5
+
+  11 Jan 2014; Mikle Kolyada <zlogene@gentoo.org> package.use.mask:
+  Masking dev-vcs/git mediawiki (bug #497068)
 
   29 Sep 2013; Andreas K. Huettel <dilfridge@gentoo.org> make.defaults:
   s390 goes unstable/testing as per council decision

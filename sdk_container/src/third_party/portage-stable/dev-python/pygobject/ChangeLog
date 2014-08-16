@@ -1,6 +1,282 @@
 # ChangeLog for dev-python/pygobject
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-python/pygobject/ChangeLog,v 1.190 2013/01/28 13:43:15 aballier Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-python/pygobject/ChangeLog,v 1.257 2014/08/07 18:19:31 jer Exp $
+
+  07 Aug 2014; Jeroen Roovers <jer@gentoo.org> pygobject-3.12.2.ebuild:
+  Stable for HPPA (bug #512012).
+
+  28 Jul 2014; Agostino Sarubbo <ago@gentoo.org> pygobject-3.12.2.ebuild:
+  Stable for ppc, wrt bug #512012
+
+  23 Jul 2014; Agostino Sarubbo <ago@gentoo.org> pygobject-3.12.2.ebuild:
+  Stable for x86, wrt bug #512012
+
+*pygobject-3.13.3 (23 Jul 2014)
+
+  23 Jul 2014; Ian Delaney <idella4@gentoo.org> +pygobject-3.13.3.ebuild:
+  bump
+
+  22 Jul 2014; Agostino Sarubbo <ago@gentoo.org> pygobject-3.12.2.ebuild:
+  Stable for amd64, wrt bug #512912
+
+  06 Jul 2014; Michał Górny <mgorny@gentoo.org> pygobject-3.10.2.ebuild,
+  pygobject-3.12.1.ebuild, pygobject-3.12.2.ebuild:
+  Clean up obsolete dependencies on virtual/python-argparse and virtual/python-
+  unittest2 (those packages were only required for <=python-2.6).
+
+  20 Jun 2014; Ian Delaney <idella4@gentoo.org> pygobject-3.10.2.ebuild,
+  pygobject-3.12.1.ebuild:
+  add py3.4 support to all of SLOT 3
+
+  20 Jun 2014; Ian Delaney <idella4@gentoo.org> pygobject-3.12.2.ebuild:
+  add py3.4 support
+
+*pygobject-3.12.2 (31 May 2014)
+
+  31 May 2014; Pacho Ramos <pacho@gentoo.org> +pygobject-3.12.2.ebuild:
+  Version bump
+
+*pygobject-3.12.1 (27 Apr 2014)
+
+  27 Apr 2014; Gilles Dartiguelongue <eva@gentoo.org> +pygobject-3.12.1.ebuild:
+  Version bump for Gnome 3.12.
+
+  26 Apr 2014; Pacho Ramos <pacho@gentoo.org>
+  -files/pygobject-3.2.2-cairo-gobject.patch,
+  -files/pygobject-3.2.2-cairo-tests.patch,
+  -files/pygobject-3.4.1.1-make_check.patch,
+  -files/pygobject-3.4.2-run-tests-with-old-python.patch,
+  -files/pygobject-3.7.90-make_check.patch,
+  -files/pygobject-3.8.0-stack-corruption.patch, -pygobject-2.28.6-r53.ebuild,
+  -pygobject-3.2.2-r1.ebuild, -pygobject-3.4.2-r1.ebuild,
+  -pygobject-3.8.3.ebuild:
+  drop old
+
+  21 Apr 2014; Agostino Sarubbo <ago@gentoo.org> pygobject-2.28.6-r55.ebuild,
+  pygobject-3.10.2.ebuild:
+  Stable for arm, wrt bug #507568
+
+  19 Apr 2014; Agostino Sarubbo <ago@gentoo.org> pygobject-2.28.6-r55.ebuild,
+  pygobject-3.10.2.ebuild:
+  Stable for sparc, wrt bug #507568
+
+  18 Apr 2014; Agostino Sarubbo <ago@gentoo.org> pygobject-2.28.6-r55.ebuild,
+  pygobject-3.10.2.ebuild:
+  Stable for alpha, wrt bug #507568
+
+  17 Apr 2014; Agostino Sarubbo <ago@gentoo.org> pygobject-2.28.6-r55.ebuild,
+  pygobject-3.10.2.ebuild:
+  Stable for ia64, wrt bug #507568
+
+  16 Apr 2014; Agostino Sarubbo <ago@gentoo.org> pygobject-2.28.6-r55.ebuild,
+  pygobject-3.10.2.ebuild:
+  Stable for ppc64, wrt bug #507568
+
+  14 Apr 2014; Agostino Sarubbo <ago@gentoo.org> pygobject-2.28.6-r55.ebuild,
+  pygobject-3.10.2.ebuild:
+  Stable for ppc, wrt bug #507568
+
+  28 Mar 2014; Jeroen Roovers <jer@gentoo.org> pygobject-3.10.2.ebuild:
+  Stable for HPPA (bug #499954).
+
+  11 Mar 2014; Alexandre Rostovtsev <tetromino@gentoo.org>
+  pygobject-3.2.2-r1.ebuild, pygobject-3.4.2-r1.ebuild, pygobject-3.8.3.ebuild,
+  pygobject-3.10.2.ebuild:
+  Further cairo dependency fixes (bug #504068, thanks to Arfrever).
+
+  11 Mar 2014; Alexandre Rostovtsev <tetromino@gentoo.org>
+  pygobject-3.4.2-r1.ebuild, pygobject-3.8.3.ebuild, pygobject-3.10.2.ebuild:
+  Hard build-time dependency on cairo not needed in >=pygobject-3.4.1 (bug
+  #504068, thanks to Arfrever).
+
+  09 Mar 2014; Pacho Ramos <pacho@gentoo.org> pygobject-3.10.2.ebuild:
+  x86 stable, bug 499954
+
+  09 Mar 2014; Pacho Ramos <pacho@gentoo.org> pygobject-3.10.2.ebuild:
+  amd64 stable, bug 499954
+
+  22 Feb 2014; Pacho Ramos <pacho@gentoo.org> pygobject-2.28.6-r55.ebuild:
+  Fix wrong commit, bug 502160
+
+  22 Feb 2014; Pacho Ramos <pacho@gentoo.org> pygobject-2.28.6-r55.ebuild,
+  pygobject-3.10.2.ebuild:
+  Fix wrong commit, bug 502160
+
+  22 Feb 2014; Akinori Hattori <hattya@gentoo.org> pygobject-3.8.3.ebuild:
+  ia64 stable wrt bug #494132
+
+*pygobject-3.10.2 (24 Dec 2013)
+
+  24 Dec 2013; Pacho Ramos <pacho@gentoo.org> +pygobject-3.10.2.ebuild,
+  -pygobject-2.28.6-r54.ebuild:
+  Version bump for Gnome 3.10, drop old
+
+  22 Dec 2013; Jeroen Roovers <jer@gentoo.org> pygobject-2.28.6-r55.ebuild,
+  pygobject-3.8.3.ebuild:
+  Stable for HPPA (bug #478252).
+
+  08 Dec 2013; Pacho Ramos <pacho@gentoo.org> pygobject-2.28.6-r55.ebuild,
+  pygobject-3.8.3.ebuild:
+  x86 stable, bug #478252
+
+  30 Nov 2013; Pacho Ramos <pacho@gentoo.org> pygobject-2.28.6-r55.ebuild,
+  pygobject-3.8.3.ebuild:
+  amd64 stable, bug #478252
+
+  31 Oct 2013; Michał Górny <mgorny@gentoo.org> pygobject-2.28.6-r53.ebuild,
+  pygobject-2.28.6-r54.ebuild, pygobject-2.28.6-r55.ebuild:
+  Update the ebuilds to dep on dev-lang/python-exec.
+
+  24 Oct 2013; Jeroen Roovers <jer@gentoo.org> pygobject-3.4.2-r1.ebuild:
+  Stable for HPPA (bug #476364).
+
+  17 Oct 2013; Markus Meier <maekke@gentoo.org> pygobject-3.4.2-r1.ebuild:
+  arm stable, bug #476364
+
+*pygobject-2.28.6-r55 (17 Oct 2013)
+
+  17 Oct 2013; Michał Górny <mgorny@gentoo.org> +pygobject-2.28.6-r55.ebuild:
+  Add a new revision using python-exec:2.
+
+  03 Oct 2013; Alexandre Rostovtsev <tetromino@gentoo.org>
+  pygobject-3.4.2-r1.ebuild, pygobject-3.8.3.ebuild:
+  Prevent test failure in chroots and tinderboxes (bug #449484, thanks to Diego
+  Elio Pettenò).
+
+*pygobject-2.28.6-r54 (02 Oct 2013)
+
+  02 Oct 2013; Alexandre Rostovtsev <tetromino@gentoo.org>
+  +pygobject-2.28.6-r54.ebuild,
+  +files/pygobject-2.28.6-glib-2.36-class_init.patch:
+  Fix class interface setup to be compatible with glib-2.36. Remove old
+  alternatives symlink removal hack since it fails badly with binpkgs (bug
+  #459180, thanks to Fabio Erculiani).
+
+  17 Sep 2013; Michał Górny <mgorny@gentoo.org> pygobject-2.28.6-r53.ebuild:
+  Force python-exec:0 since the ebuild does hackery on top of script wrapping.
+
+  05 Sep 2013; Michał Górny <mgorny@gentoo.org> pygobject-3.2.2-r1.ebuild,
+  pygobject-3.4.2-r1.ebuild, pygobject-3.8.3.ebuild:
+  Clean up PYTHON_COMPAT from old implementations.
+
+  05 Sep 2013; Mike Frysinger <vapier@gentoo.org> pygobject-3.2.2-r1.ebuild,
+  pygobject-3.4.2-r1.ebuild, pygobject-3.8.3.ebuild:
+  Add s390 KEYWORDS #466560.
+
+  28 Jul 2013; Gilles Dartiguelongue <eva@gentoo.org> pygobject-3.8.3.ebuild:
+  Fix dependencies per configure.
+
+  25 Jul 2013; Pacho Ramos <pacho@gentoo.org> -pygobject-3.8.2.ebuild,
+  pygobject-3.8.3.ebuild:
+  Add missing dep on gnome-common due eautoreconf (#478102 by Timo Kamph), drop
+  old.
+
+*pygobject-3.8.3 (07 Jul 2013)
+
+  07 Jul 2013; Pacho Ramos <pacho@gentoo.org> +pygobject-3.8.3.ebuild,
+  -pygobject-3.8.1.ebuild, pygobject-2.28.6-r53.ebuild:
+  Version bump, drop old and set PYTHON_REQUIRED_USE
+
+*pygobject-3.8.2 (13 May 2013)
+
+  13 May 2013; Pacho Ramos <pacho@gentoo.org> +pygobject-3.8.2.ebuild,
+  -pygobject-3.8.0.ebuild:
+  Version bump, drop old
+
+  27 Apr 2013; Samuli Suominen <ssuominen@gentoo.org>
+  pygobject-2.28.6-r53.ebuild, pygobject-3.4.2-r1.ebuild:
+  Fix automake-1.13 compability wrt #466970 by Alphat-PC
+
+*pygobject-3.8.1 (20 Apr 2013)
+
+  20 Apr 2013; Pacho Ramos <pacho@gentoo.org> +pygobject-3.8.1.ebuild,
+  -pygobject-2.28.6-r52.ebuild, -pygobject-3.2.2.ebuild,
+  -pygobject-3.4.2.ebuild:
+  Version bump, drop old
+
+  10 Apr 2013; Agostino Sarubbo <ago@gentoo.org> pygobject-2.28.6-r53.ebuild,
+  pygobject-3.2.2-r1.ebuild:
+  Stable for s390, wrt bug #458992
+
+  09 Apr 2013; Agostino Sarubbo <ago@gentoo.org> pygobject-2.28.6-r53.ebuild,
+  pygobject-3.2.2-r1.ebuild:
+  Stable for sh, wrt bug #458984
+
+  02 Apr 2013; Agostino Sarubbo <ago@gentoo.org> pygobject-3.2.2-r1.ebuild:
+  Stable for sh, wrt bug #458992
+
+  01 Apr 2013; Agostino Sarubbo <ago@gentoo.org> pygobject-2.28.6-r53.ebuild,
+  pygobject-3.2.2-r1.ebuild:
+  Stable for sparc, wrt bug #458984
+
+  01 Apr 2013; Agostino Sarubbo <ago@gentoo.org> pygobject-2.28.6-r53.ebuild,
+  pygobject-3.2.2-r1.ebuild:
+  Stable for alpha, wrt bug #458984
+
+  31 Mar 2013; Agostino Sarubbo <ago@gentoo.org> pygobject-3.2.2-r1.ebuild:
+  Stable for sparc, wrt bug #458992
+
+  31 Mar 2013; Pacho Ramos <pacho@gentoo.org>
+  +files/pygobject-3.8.0-stack-corruption.patch, pygobject-3.8.0.ebuild:
+  Fix stack corruption due to incorrect format for argument parser (#463700 by
+  Alphat-PC)
+
+  29 Mar 2013; Agostino Sarubbo <ago@gentoo.org> pygobject-2.28.6-r53.ebuild,
+  pygobject-3.2.2-r1.ebuild:
+  Stable for ia64, wrt bug #458984
+
+  28 Mar 2013; Agostino Sarubbo <ago@gentoo.org> pygobject-3.2.2-r1.ebuild:
+  Stable for ia64, wrt bug #458992
+
+*pygobject-3.8.0 (28 Mar 2013)
+
+  28 Mar 2013; Pacho Ramos <pacho@gentoo.org>
+  +files/pygobject-3.7.90-make_check.patch, +pygobject-3.8.0.ebuild:
+  Version bump for Gnome 3.8
+
+  28 Mar 2013; Agostino Sarubbo <ago@gentoo.org> pygobject-2.28.6-r53.ebuild,
+  pygobject-3.2.2-r1.ebuild:
+  Stable for arm, wrt bug #458984
+
+  27 Mar 2013; Agostino Sarubbo <ago@gentoo.org> pygobject-2.28.6-r53.ebuild,
+  pygobject-3.2.2-r1.ebuild:
+  Stable for ppc64, wrt bug #458984
+
+  26 Mar 2013; Agostino Sarubbo <ago@gentoo.org> pygobject-2.28.6-r53.ebuild,
+  pygobject-3.2.2-r1.ebuild:
+  Stable for ppc, wrt bug #458984
+
+  26 Mar 2013; Jeroen Roovers <jer@gentoo.org> pygobject-2.28.6-r53.ebuild:
+  Stable for HPPA (bug #458984).
+
+  25 Mar 2013; Agostino Sarubbo <ago@gentoo.org> pygobject-2.28.6-r53.ebuild,
+  pygobject-3.2.2-r1.ebuild:
+  Stable for x86, wrt bug #458984
+
+  25 Mar 2013; Agostino Sarubbo <ago@gentoo.org> pygobject-2.28.6-r53.ebuild,
+  pygobject-3.2.2-r1.ebuild:
+  Stable for amd64, wrt bug #458984
+
+  23 Mar 2013; Agostino Sarubbo <ago@gentoo.org> pygobject-3.2.2-r1.ebuild:
+  Stable for alpha, wrt bug #458992
+
+  23 Mar 2013; Agostino Sarubbo <ago@gentoo.org> pygobject-3.2.2-r1.ebuild:
+  Stable for arm, wrt bug #458992
+
+  23 Mar 2013; Agostino Sarubbo <ago@gentoo.org> pygobject-3.2.2-r1.ebuild:
+  Stable for ppc64, wrt bug #458992
+
+  22 Mar 2013; Agostino Sarubbo <ago@gentoo.org> pygobject-3.2.2-r1.ebuild:
+  Stable for ppc, wrt bug #458992
+
+  16 Mar 2013; Jeroen Roovers <jer@gentoo.org> pygobject-3.2.2-r1.ebuild:
+  Stable for HPPA (bug #458992).
+
+  15 Mar 2013; Agostino Sarubbo <ago@gentoo.org> pygobject-3.2.2-r1.ebuild:
+  Stable for x86, wrt bug #458992
+
+  15 Mar 2013; Agostino Sarubbo <ago@gentoo.org> pygobject-3.2.2-r1.ebuild:
+  Stable for amd64, wrt bug #458992
 
   28 Jan 2013; Alexis Ballier <aballier@gentoo.org> pygobject-3.4.2-r1.ebuild:
   keyword ~amd64-fbsd, bug #453136

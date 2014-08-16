@@ -1,8 +1,30 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/hppa/package.use.mask,v 1.131 2013/10/25 14:52:39 jer Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/hppa/package.use.mask,v 1.144 2014/08/13 11:41:50 jer Exp $
 
 # DON'T TOUCH THIS FILE. Instead, file a bug and assign it to <hppa@gentoo.org>.
+
+# Jeroen Roovers <jer@gentoo.org> (13 Aug 2014)
+# Needs dev-libs/protobuf{-c} which has not been ported to HPPA (bug #519772)
+net-libs/libgadu gg11
+
+# Jeroen Roovers <jer@gentoo.org> (29 Jul 2014)
+# Test phase requires dev-db/mongodb which requires dev-util/google-perftools
+# which has not been ported to HPPA (bug #517880)
+dev-libs/mongo-c-driver test
+
+# Jeroen Roovers <jer@gentoo.org> (6 Mar 2014)
+# USE=gui requires x11-libs/qscintilla,
+# USE=jit requires sys-devel/llvm (bug #503594)
+sci-mathematics/octave gui jit
+
+# Jeroen Roovers <jer@gentoo.org> (31 Jan 2014)
+# Mask x11-libs/libgksu dependency (bug #499900)
+xfce-extra/xfce4-taskmanager gksu
+
+# Julian Ospald <hasufell@gentoo.org> (23 Nov 2013)
+# needs app-arch/innoextract (bug #492326)
+games-fps/duke3d-data gog
 
 # Jeroen Roovers <jer@gentoo.org> (25 Oct 2013)
 # Building against libatomic_ops fails (bug #453704)
@@ -27,17 +49,8 @@ media-libs/mesa r600-llvm-compiler
 dev-python/pyquery test
 
 # Jeroen Roovers <jer@gentoo.org> (2 Jan 2013)
-# Mask sci-libs/proj for dev-perl/PDL (bug #417453)
-dev-perl/PDL proj
-
-# Jeroen Roovers <jer@gentoo.org> (2 Jan 2013)
 # Mask non-keyworded sci-libs/hdf5 for sci-mathematics/octave
 sci-mathematics/octave hdf5 qhull
-
-# Robin H Johnson <robbat2@gentoo.org> (01 Nov 2012)
-# MySQL 5.5 wants systemtap, tcmalloc & jemalloc
->=dev-db/mysql-5.5 systemtap tcmalloc
->=dev-db/mariadb-5.5 systemtap tcmalloc
 
 # Jeroen Roovers <jer@gentoo.org> (10 Jul 2012)
 # USE=clang needs sys-devel/llvm which has not been ported
@@ -58,7 +71,9 @@ dev-libs/libpcre jit
 # Arun Raghavan <ford_prefect@gentoo.org> (24 May 2012)
 # media-sound/pulseaudio needs PyQt4[dbus] for making the equalizer module
 # usable. Mask until this is available.
-media-sound/pulseaudio equalizer
+# Jeroen Roovers <jer@gentoo.org> (18 Feb 2014)
+# OSS is the only kernel audio interface that works on HPPA
+media-sound/pulseaudio equalizer -oss
 
 # Jeroen Roovers <jer@gentoo.org> (21 May 2012)
 # media-sound/lilypond has problems running mpost (bug #416961)
@@ -69,16 +84,15 @@ app-text/asciidoc test
 dev-qt/qtbearer connman
 
 # Jeroen Roovers <jer@gentoo.org> (19 Apr 2012)
-# Requires sys-power/upower which is not much use on HPPA
-xfce-extra/xfce4-systemload-plugin udev
+# Requires sys-power/upower or sys-power/upower-pm-utils which are
+# not much use on HPPA
+xfce-extra/xfce4-systemload-plugin upower
+xfce-base/xfce4-session upower
+xfce-base/xfce4-settings upower
 
 # Jeroen Roovers <jer@gentoo.org> (25 Oct 2011)
 # Depends upon an as yet unsupported version of dev-libs/dietlibc
 dev-libs/libowfat diet
-
-# Robin H. Johnson <robbat2@gentoo.org> (03 Sep 2011)
-# Remove this for your arch after you keyword dev-utils/google-perftools and virtual/gsasl (bug #381737
-dev-libs/libmemcached tcmalloc sasl
 
 # Jeroen Roovers <jer@gentoo.org> (5 Jun 2011)
 # app-office/gnumeric is not keyworded (bug #367513)
@@ -91,10 +105,6 @@ app-text/texlive pdfannotextractor
 # Jeroen Roovers <jer@gentoo.org> (21 Jan 2011)
 # Pulls in either GNOME or LXDE, neither are keyworded (bug #296548)
 sys-auth/polkit gtk
-
-# Samuli Suominen <ssuominen@gentoo.org> (6 Jan 2011)
-# Missing sys-power/upower keywording.
-xfce-base/xfce4-session udev
 
 # Jeroen Roovers <jer@gentoo.org> (5 Jan 2011)
 # Mask dev-lang/spidermonkey (bug #347827)

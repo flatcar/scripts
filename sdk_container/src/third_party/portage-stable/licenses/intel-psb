@@ -1,15 +1,15 @@
 License:
 
-Copyright (c) 2008, Intel Corporation. 
-Portions (c), Imagination Technologies, Ltd. 
+Copyright (c) 2008, Intel Corporation.
+Portions (c), Imagination Technologies, Ltd.
 All rights reserved.
 
 ***********************
 Redistribution and Use
-***********************  
+***********************
 
 Redistribution and use in binary form, without modification, of the
-software code provided with this license (�Software?, are permitted
+software code provided with this license (“Software”), are permitted
 provided that the following conditions are met:
 
 * Redistributions must reproduce the above copyright notice and this
@@ -32,11 +32,11 @@ license.
 
 ***********************
 Limited Patent License
-***********************  
+***********************
 
 Intel Corporation grants a world-wide, royalty-free, non-exclusive
 license under patents it now or hereafter owns or controls to make,
-have made, use, import, offer to sell and sell (�Utilize? the
+have made, use, import, offer to sell and sell (“Utilize”) the
 Software, but solely to the extent that any such patent is necessary
 to Utilize the Software alone.  The patent license shall not apply to
 any combinations which include the Software.  No hardware per se is
@@ -53,7 +53,7 @@ provisions.
 
 ***********
 DISCLAIMER
-***********  
+***********
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT

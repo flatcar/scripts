@@ -1,6 +1,163 @@
 # ChangeLog for profiles/prefix
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/ChangeLog,v 1.400 2013/10/31 18:07:17 grobian Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/ChangeLog,v 1.428 2014/08/12 08:08:55 grobian Exp $
+
+  12 Aug 2014; Fabian Groffen <grobian@gentoo.org> darwin/package.mask:
+  Masked libffi-3.1 for it needs some work, bug #513428
+
+  12 Aug 2014; Fabian Groffen <grobian@gentoo.org> darwin/package.mask:
+  Mask tar-1.28 on Darwin for bug #518444
+
+  28 Jul 2014; Michael Haubenwallner <haubi@gentoo.org> linux/profile.bashrc:
+  (<glibc-2.6) -fgnu89-inline is for C only; allow user to override.
+
+  09 Jul 2014; Michael Haubenwallner <haubi@gentoo.org> linux/profile.bashrc:
+  Enable -fgnu89-inline compiler flag for glibc-2.5 and older, bug#473524.
+
+  06 Jul 2014; Fabian Groffen <grobian@gentoo.org> mint/make.defaults:
+  Drop openmp from USE-default, bug #515616
+
+  06 Jul 2014; Mikle Kolyada <zlogene@gentoo.org> package.mask:
+  QA cleanup
+
+  05 Jul 2014; Fabian Groffen <grobian@gentoo.org> aix/make.defaults,
+  bsd/freebsd/arch/x64/make.defaults, bsd/freebsd/arch/x86/make.defaults,
+  darwin/macos/arch/ppc/make.defaults, darwin/macos/arch/x64/make.defaults,
+  darwin/macos/arch/x86/make.defaults, linux/amd64/make.defaults,
+  linux/x86/make.defaults, sunos/solaris/arch/x64/make.defaults,
+  sunos/solaris/arch/x86/make.defaults:
+  Add libdirs for ABIs to make get_libdir work again
+
+  03 Jul 2014; Fabian Groffen <grobian@gentoo.org> aix/make.defaults,
+  +bsd/freebsd/arch/x64/make.defaults, +bsd/freebsd/arch/x86/make.defaults,
+  +darwin/macos/arch/ppc/make.defaults, +darwin/macos/arch/x64/make.defaults,
+  +darwin/macos/arch/x86/make.defaults, linux/amd64/make.defaults,
+  linux/x86/make.defaults, +sunos/solaris/arch/x64/make.defaults,
+  +sunos/solaris/arch/x86/make.defaults:
+  Add some multilib vars necessary for multilib.eclass
+
+  12 Jun 2014; Fabian Groffen <grobian@gentoo.org> package.mask:
+  Mask nano-2.3.3 as it fails to build with USE=-unicode, bug #512064
+
+  05 Jun 2014; Fabian Groffen <grobian@gentoo.org> package.mask:
+  autogen: extend mask to 5.18.2
+
+  07 May 2014; redlizard <redlizard@gentoo.org> -bsd/freebsd/9.1/package.mask,
+  -bsd/freebsd/package.mask:
+  Removed obsolete freebsd toolchain masks.
+
+  30 Apr 2014; redlizard <redlizard@gentoo.org> +windows/cygwin/use.force,
+  windows/interix/use.force, windows/interix/use.mask, +windows/use.force,
+  +windows/use.mask, +windows/winnt/use.force, windows/winnt/use.mask:
+  Fixed windows kernel_ and elibc_ USE flags.
+
+  14 Apr 2014; Michael Haubenwallner <haubi@gentoo.org> aix/package.mask:
+  GNU make-4.0 on AIX endless loops with gcc-4.2.4, p.masked for now.
+
+  27 Mar 2014; Andreas K. Huettel <dilfridge@gentoo.org> +aix/5.2.0.0/eapi,
+  +aix/5.2.0.0/ppc/eapi, +aix/5.3.0.0/eapi, +aix/5.3.0.0/ppc/eapi,
+  +aix/6.1.0.0/eapi, +aix/6.1.0.0/ppc/eapi, +aix/7.1.0.0/eapi,
+  +aix/7.1.0.0/ppc/eapi, +aix/eapi, +bsd/eapi, +bsd/freebsd/7.1/eapi,
+  +bsd/freebsd/7.1/x64/eapi, +bsd/freebsd/7.1/x86/eapi, +bsd/freebsd/7.2/eapi,
+  +bsd/freebsd/7.2/x64/eapi, +bsd/freebsd/7.2/x86/eapi, +bsd/freebsd/8.0/eapi,
+  +bsd/freebsd/8.0/x64/eapi, +bsd/freebsd/8.0/x86/eapi, +bsd/freebsd/8.1/eapi,
+  +bsd/freebsd/8.1/sparc64/eapi, +bsd/freebsd/8.1/x64/eapi,
+  +bsd/freebsd/8.1/x86/eapi, +bsd/freebsd/8.2/eapi, +bsd/freebsd/8.2/x64/eapi,
+  +bsd/freebsd/8.2/x86/eapi, +bsd/freebsd/9.0/eapi, +bsd/freebsd/9.0/x64/eapi,
+  +bsd/freebsd/9.0/x86/eapi, +bsd/freebsd/9.1/eapi, +bsd/freebsd/9.1/x64/eapi,
+  +bsd/freebsd/9.1/x86/eapi, +bsd/freebsd/arch/eapi,
+  +bsd/freebsd/arch/sparc64/eapi, +bsd/freebsd/arch/x64/eapi,
+  +bsd/freebsd/arch/x86/eapi, +bsd/freebsd/eapi, +bsd/netbsd/4.0/eapi,
+  +bsd/netbsd/4.0/x86/eapi, +bsd/netbsd/eapi, +bsd/openbsd/4.2/eapi,
+  +bsd/openbsd/4.2/ppc/eapi, +bsd/openbsd/4.2/x64/eapi,
+  +bsd/openbsd/4.2/x86/eapi, +bsd/openbsd/eapi, +darwin/eapi,
+  darwin/macos/10.4/eapi, +darwin/macos/10.4/ppc/eapi,
+  +darwin/macos/10.4/ppc64/eapi, +darwin/macos/10.4/x86/eapi,
+  darwin/macos/10.5/eapi, +darwin/macos/10.5/ppc/eapi,
+  +darwin/macos/10.5/ppc64/eapi, +darwin/macos/10.5/x64/eapi,
+  +darwin/macos/10.5/x86/eapi, darwin/macos/10.6/eapi,
+  +darwin/macos/10.6/x64/eapi, +darwin/macos/10.6/x86/eapi,
+  darwin/macos/10.7/eapi, +darwin/macos/10.7/x64/eapi,
+  +darwin/macos/10.7/x86/eapi, darwin/macos/10.8/eapi,
+  +darwin/macos/10.8/x64/eapi, +darwin/macos/10.8/x86/eapi,
+  darwin/macos/10.9/eapi, +darwin/macos/10.9/x64/eapi,
+  +darwin/macos/10.9/x86/eapi, +darwin/macos/arch/eapi,
+  +darwin/macos/arch/ppc/eapi, +darwin/macos/arch/ppc64/eapi,
+  +darwin/macos/arch/x64/eapi, +darwin/macos/arch/x86/eapi, +darwin/macos/eapi,
+  +eapi, +hpux/B.11.11/eapi, +hpux/B.11.11/hppa2.0/eapi, +hpux/B.11.23/eapi,
+  +hpux/B.11.23/ia64/eapi, +hpux/B.11.31/eapi, +hpux/B.11.31/hppa2.0/eapi,
+  +hpux/B.11.31/ia64/eapi, +hpux/eapi, +linux/eapi, +mint/eapi,
+  +mint/m68k/eapi, +sunos/eapi, +sunos/solaris/5.9/eapi,
+  +sunos/solaris/5.9/sparc/eapi, +sunos/solaris/5.9/sparc64/eapi,
+  +sunos/solaris/5.10/eapi, +sunos/solaris/5.10/sparc/eapi,
+  +sunos/solaris/5.10/sparc64/eapi, +sunos/solaris/5.10/x64/eapi,
+  sunos/solaris/5.10/x86/eapi, +sunos/solaris/5.11/eapi,
+  +sunos/solaris/5.11/sparc/eapi, +sunos/solaris/5.11/sparc64/eapi,
+  +sunos/solaris/5.11/x64/eapi, +sunos/solaris/5.11/x86/eapi,
+  +sunos/solaris/arch/eapi, +sunos/solaris/arch/sparc/eapi,
+  +sunos/solaris/arch/sparc64/eapi, +sunos/solaris/arch/x64/eapi,
+  +sunos/solaris/arch/x86/eapi, +sunos/solaris/eapi, +windows/cygwin/1.7/eapi,
+  +windows/cygwin/1.7/x86/eapi, +windows/cygwin/eapi, +windows/eapi,
+  +windows/interix/3.5/eapi, +windows/interix/3.5/x86/eapi,
+  +windows/interix/5.2/eapi, +windows/interix/5.2/x86/eapi,
+  +windows/interix/6.0/eapi, +windows/interix/6.0/x86/eapi,
+  +windows/interix/6.1/eapi, +windows/interix/6.1/x86/eapi,
+  +windows/interix/eapi, +windows/winnt/3.5/eapi, +windows/winnt/3.5/x86/eapi,
+  +windows/winnt/5.2/eapi, +windows/winnt/5.2/x86/eapi,
+  +windows/winnt/6.0/eapi, +windows/winnt/6.0/x86/eapi,
+  +windows/winnt/6.1/eapi, +windows/winnt/6.1/x86/eapi, +windows/winnt/eapi:
+  Increase EAPI to 5
+
+  11 Mar 2014; Fabian Groffen <grobian@gentoo.org> mint/package.use.mask:
+  Mask USE=threads for tcl on FreeMiNT, bug #503764
+
+  11 Feb 2014; Fabian Groffen <grobian@gentoo.org> package.mask:
+  Mask autogen-5.18.1, bug #493464
+
+  07 Feb 2014; Fabian Groffen <grobian@gentoo.org> +linux/package.use:
+  Mask crypt and nis for python on Linux due to recurring issues, bug #500116
+
+  21 Jan 2014; Ryan Hill <dirtyepic@gentoo.org> linux/make.defaults,
+  mint/make.defaults:
+  Drop mudflap from default USE.
+
+  18 Jan 2014; Mike Frysinger <vapier@gentoo.org> make.defaults:
+  Drop explicit python 3.3 target updates now that the base profile does this
+  for us #474128.
+
+  18 Jan 2014; Ruud Koolen <redlizard@gentoo.org> eapi, make.defaults,
+  package.mask, packages, package.use.mask, parent, use.force, use.mask,
+  use.mask.stable:
+  Moved base prefix profile content to ../features/prefix, to be shared with
+  prefix-standalone profiles.
+
+  16 Jan 2014; Jeroen Roovers <jer@gentoo.org> bsd/package.use.mask,
+  linux/package.use.mask:
+  Spelling.
+
+  16 Jan 2014; Jeroen Roovers <jer@gentoo.org> package.use.mask:
+  Spelling.
+
+  15 Jan 2014; Fabian Groffen <grobian@gentoo.org> package.use.mask:
+  Drop pointless dante[upnp] mask again
+
+  15 Jan 2014; Fabian Groffen <grobian@gentoo.org> package.use.mask:
+  Mask net-proxy/dante[upnp], bug #497186
+
+  14 Jan 2014; Fabian Groffen <grobian@gentoo.org> darwin/package.mask,
+  sunos/solaris/package.mask:
+  Mask util-linux on platforms where it breaks more than it solves
+
+  25 Dec 2013; Fabian Groffen <grobian@gentoo.org>
+  darwin/macos/10.4/package.mask, darwin/macos/10.5/package.mask:
+  Mask dev-java/oracle-jdk-bin on Tiger and Leopard
+
+  17 Dec 2013; Fabian Groffen <grobian@gentoo.org> eapi, make.defaults,
+  +use.stable.mask:
+  Bump eapi to 5 to unmask python-3.3, bug #493836 and bug #474128
+
+  08 Dec 2013; Fabian Groffen <grobian@gentoo.org> use.mask:
+  Remove obsolete python3_3 unmasks
 
   31 Oct 2013; Fabian Groffen <grobian@gentoo.org> +darwin/macos/10.9/eapi,
   +darwin/macos/10.9/make.defaults, +darwin/macos/10.9/package.mask,

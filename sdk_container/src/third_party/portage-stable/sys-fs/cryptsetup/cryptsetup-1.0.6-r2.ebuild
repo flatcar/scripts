@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/cryptsetup/cryptsetup-1.0.6-r2.ebuild,v 1.17 2013/04/09 10:06:06 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/cryptsetup/cryptsetup-1.0.6-r2.ebuild,v 1.18 2014/07/25 19:59:10 ssuominen Exp $
 
 inherit linux-info eutils flag-o-matic multilib
 
@@ -17,7 +17,7 @@ RDEPEND=">=sys-fs/lvm2-2.02.45
 	>=dev-libs/libgcrypt-1.1.42
 	>=dev-libs/libgpg-error-1.0-r1
 	>=dev-libs/popt-1.7
-	virtual/udev
+	virtual/libudev
 	|| ( >=sys-libs/e2fsprogs-libs-1.41 <sys-fs/e2fsprogs-1.41 )
 	selinux? ( sys-libs/libselinux )
 	!sys-fs/cryptsetup-luks"

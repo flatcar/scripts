@@ -1,0 +1,10 @@
+# ChangeLog for profiles/features/prefix
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/features/prefix/Changelog,v 1.1 2014/01/18 02:01:20 redlizard Exp $
+
+  18 Jan 2014; Ruud Koolen <redlizard@gentoo.org> eapi, make.defaults,
+  package.mask, packages, package.use.mask, use.force, use.mask,
+  use.mask.stable, rpath/packages, rpath/parent, rpath/profile.bashrc,
+  rpath/use.mask:
+  Imported profile contents from ../../prefix
+

@@ -1,2 +1,3 @@
 # Unmask armv7 specific USE flags
 -neon
+-armvfp

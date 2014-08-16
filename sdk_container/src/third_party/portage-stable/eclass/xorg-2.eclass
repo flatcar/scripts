@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/xorg-2.eclass,v 1.63 2013/07/30 18:59:18 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/xorg-2.eclass,v 1.64 2014/03/02 15:41:20 mgorny Exp $
 
 # @ECLASS: xorg-2.eclass
 # @MAINTAINER:
@@ -22,7 +22,7 @@
 
 GIT_ECLASS=""
 if [[ ${PV} == *9999* ]]; then
-	GIT_ECLASS="git-2"
+	GIT_ECLASS="git-r3"
 	XORG_EAUTORECONF="yes"
 fi
 
@@ -330,7 +330,7 @@ xorg-2_src_unpack() {
 	debug-print-function ${FUNCNAME} "$@"
 
 	if [[ -n ${GIT_ECLASS} ]]; then
-		git-2_src_unpack
+		git-r3_src_unpack
 	else
 		unpack ${A}
 	fi

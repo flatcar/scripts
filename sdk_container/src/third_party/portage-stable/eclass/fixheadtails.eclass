@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/fixheadtails.eclass,v 1.12 2011/08/22 04:46:31 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/fixheadtails.eclass,v 1.13 2014/07/11 08:21:58 ulm Exp $
 
 # @ECLASS: fixheadtails.eclass
 # @MAINTAINER:
@@ -11,7 +11,7 @@
 
 DEPEND=">=sys-apps/sed-4"
 
-__do_sed_fix() {
+_do_sed_fix() {
 	einfo " - fixed $1"
 	sed -i \
 		-e 's/head \+-\([0-9]\)/head -n \1/g' \
@@ -28,7 +28,7 @@ ht_fix_file() {
 	local i
 	einfo "Replacing obsolete head/tail with POSIX compliant ones"
 	for i in "$@" ; do
-		__do_sed_fix "$i"
+		_do_sed_fix "$i"
 	done
 }
 

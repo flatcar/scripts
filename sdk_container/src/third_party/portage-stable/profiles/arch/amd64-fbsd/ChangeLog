@@ -1,6 +1,18 @@
 # ChangeLog for Gentoo/x86-fbsd profile directory
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64-fbsd/ChangeLog,v 1.49 2013/09/05 10:08:25 mgorny Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64-fbsd/ChangeLog,v 1.53 2014/07/01 07:49:04 mgorny Exp $
+
+  01 Jul 2014; Michał Górny <mgorny@gentoo.org> make.defaults:
+  Set default ABI_X86 and IUSE_IMPLICIT.
+
+  09 May 2014; Lars Wendler <polynomial-c@gentoo.org> package.use.mask:
+  Masked kde USE flag for dev-vcs/subversion until bug #509892 is fixed.
+
+  16 Apr 2014; Johannes Huber <johu@gentoo.org> package.use.mask:
+  Mask kde-base/nepomuk-core[migrator], because of unkeyworded dep.
+
+  19 Mar 2014; Andreas K. Huettel <dilfridge@gentoo.org> +eapi, +todo/eapi:
+  Increase EAPI to 5
 
   05 Sep 2013; Michał Górny <mgorny@gentoo.org> use.mask:
   Python 2.5 and 3.1 were removed from the tree.

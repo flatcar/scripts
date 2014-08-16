@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/cdrom.eclass,v 1.5 2012/01/18 12:42:06 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/cdrom.eclass,v 1.6 2014/07/11 08:21:58 ulm Exp $
 
 # @ECLASS: cdrom.eclass
 # @MAINTAINER:
@@ -15,8 +15,8 @@
 # and when the function returns, you can assume that the cd has been
 # found at CDROM_ROOT.
 
-if [[ -z ${___ECLASS_ONCE_CDROM} ]]; then
-___ECLASS_ONCE_CDROM=1
+if [[ -z ${_CDROM_ECLASS} ]]; then
+_CDROM_ECLASS=1
 
 inherit portability
 

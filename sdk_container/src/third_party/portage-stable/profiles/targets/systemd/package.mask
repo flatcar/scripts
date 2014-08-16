@@ -1,7 +1,11 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/targets/systemd/package.mask,v 1.1 2013/10/09 18:07:18 pacho Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/targets/systemd/package.mask,v 1.2 2014/06/06 16:24:22 zerochaos Exp $
 
 # sys-kernel/genkernel is not compatible with Systemd, you need
 # to use sys-kernel/genkernel-next instead
 sys-kernel/genkernel
+
+# Rick Farina <zerochaos@gentoo.org> (6 Jun 2014)
+# remove mask from base
+-<sys-power/upower-0.99.0

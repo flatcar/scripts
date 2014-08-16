@@ -1,10 +1,10 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/aspell-dict.eclass,v 1.43 2011/08/22 04:46:31 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/aspell-dict.eclass,v 1.44 2014/01/05 11:39:48 pacho Exp $
 
 # @ECLASS: aspell-dict.eclass
 # @MAINTAINER:
-# app-dicts@gentoo.org
+# maintainer-needed@gentoo.org
 # @AUTHOR:
 # Original author: Seemant Kulleen
 # @BLURB: An eclass to streamline the construction of ebuilds for new aspell dicts

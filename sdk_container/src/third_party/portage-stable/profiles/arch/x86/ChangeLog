@@ -1,6 +1,79 @@
 # ChangeLog for Gentoo/x86 profile directory
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86/ChangeLog,v 1.150 2013/09/08 17:08:31 ottxor Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86/ChangeLog,v 1.173 2014/08/04 02:13:16 vapier Exp $
+
+  04 Aug 2014; Mike Frysinger <vapier@gentoo.org> package.use.mask:
+  Unmask x86-specific flashrom USE flags.
+
+  27 Jul 2014; Alexis Ballier <aballier@gentoo.org> use.mask:
+  unmask xop useflag on x86
+
+  01 Jul 2014; Michał Górny <mgorny@gentoo.org> make.defaults:
+  Set default ABI_X86. Just in case.
+
+  29 Jun 2014; Andreas K. Huettel <dilfridge@gentoo.org> use.mask:
+  Mask use-flag firebird and package dev-db/firebird for bug 460780
+
+  29 Jun 2014; Andreas K. Huettel <dilfridge@gentoo.org>
+  package.use.stable.mask:
+  Stablemask firebird useflag on libreoffice until dependencies are stabilized
+
+  25 Jun 2014; Michał Górny <mgorny@gentoo.org> make.defaults:
+  Fix typo.
+
+  25 Jun 2014; Michał Górny <mgorny@gentoo.org> make.defaults:
+  Experimentally mark native ABI USE flag implicit for better
+  user-friendliness.
+
+  20 Jun 2014; Michał Górny <mgorny@gentoo.org> make.defaults:
+  Set amd64-compatible values for ABI and related variables.
+
+  23 Apr 2014; Lars Wendler <polynomial-c@gentoo.org> package.use.mask:
+  media-sound/lmms[vst] works on 32bit x86
+
+  08 Apr 2014; Mike Gilbert <floppym@gentoo.org> package.use.stable.mask,
+  use.mask, use.stable.mask:
+  Drop pypy2_0.
+
+  30 Mar 2014; Michał Górny <mgorny@gentoo.org> +package.use.stable.mask,
+  use.mask, use.stable.mask:
+  Move pypy flag masks to arch profile since it is EAPI=5 now.
+
+  30 Mar 2014; Michał Górny <mgorny@gentoo.org> use.mask:
+  Fix order of use.mask. Sorry for messing it up.
+
+  30 Mar 2014; Mike Gilbert <floppym@gentoo.org> package.use.mask:
+  Add missing '-' to systemd seccomp mask.
+
+  30 Mar 2014; Andrey Grozin <grozin@gentoo.org> +use.stable.mask:
+  Masking gcl
+
+  27 Mar 2014; Mike Gilbert <floppym@gentoo.org> package.use.mask:
+  Negate sys-apps/systemd[seccomp] mask.
+
+  19 Mar 2014; Andreas K. Huettel <dilfridge@gentoo.org> +eapi, +xbox/eapi:
+  Increase EAPI to 5
+
+  09 Mar 2014; Andrey Grozin <grozib@gentoo.org> use.mask:
+  Unmask gcl
+
+  08 Mar 2014; Matt Turner <mattst88@gentoo.org> package.use.mask:
+  Add media-libs/mesa -openmax to package.use.mask.
+
+  26 Feb 2014; Mike Gilbert <floppym@gentoo.org> use.mask:
+  Unmask avx2
+
+  16 Feb 2014; Samuli Suominen <ssuominen@gentoo.org> package.use.mask:
+  Mask experimental USE="sse2" for libmikmod.
+
+  18 Jan 2014; Mike Frysinger <vapier@gentoo.org> make.defaults:
+  Drop python targets hacks now that base/ has it #474128.
+
+  27 Dec 2013; Sergey Popov <pinkbyte@gentoo.org> package.use.mask:
+  Unmask 'context' USE-flag for dev-libs/boost
+
+  19 Nov 2013; Tim Harder <radhermit@gentoo.org> package.use.mask:
+  Unmask racket USE flag for app-editors/(g)vim.
 
   08 Sep 2013; Christoph Junghans <ottxor@gentoo.org> package.use.mask:
   masked sci-libs/fftw[quad]

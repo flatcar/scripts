@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/games.eclass,v 1.154 2013/04/08 07:36:25 mr_bones_ Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/games.eclass,v 1.158 2014/07/11 08:21:58 ulm Exp $
 
 # devlist: games@gentoo.org
 #
@@ -8,8 +8,8 @@
 # you better have a *good* reason why you're *not* using games.eclass
 # in a games-* ebuild
 
-if [[ ${___ECLASS_ONCE_GAMES} != "recur -_+^+_- spank" ]] ; then
-___ECLASS_ONCE_GAMES="recur -_+^+_- spank"
+if [[ -z ${_GAMES_ECLASS} ]]; then
+_GAMES_ECLASS=1
 
 inherit base multilib toolchain-funcs eutils user
 
@@ -18,6 +18,11 @@ case ${EAPI:-0} in
 	2|3|4|5) EXPORT_FUNCTIONS pkg_setup src_configure src_compile pkg_preinst pkg_postinst ;;
 	*) die "no support for EAPI=${EAPI} yet" ;;
 esac
+
+if [[ ${CATEGORY}/${PN} != "games-misc/games-envd" ]] ; then
+	# environment file
+	RDEPEND="games-misc/games-envd"
+fi
 
 export GAMES_PREFIX=${GAMES_PREFIX:-/usr/games}
 export GAMES_PREFIX_OPT=${GAMES_PREFIX_OPT:-/opt}
@@ -45,6 +50,11 @@ egamesconf() {
 		if grep -q -s disable-silent-rules "${ECONF_SOURCE:-.}"/configure ; then
 			_gamesconf="--disable-silent-rules"
 		fi
+	fi
+
+	# bug 493954
+	if grep -q -s datarootdir "${ECONF_SOURCE:-.}"/configure ; then
+		_gamesconf="${_gamesconf} --datarootdir=/usr/share"
 	fi
 
 	econf \
@@ -119,23 +129,6 @@ prepgamesdirs() {
 	find "${D}/${GAMES_BINDIR}" -maxdepth 1 -type f -exec chmod 750 '{}' \;
 }
 
-gamesenv() {
-	local d libdirs
-
-	for d in $(get_all_libdirs) ; do
-		libdirs="${libdirs}:${GAMES_PREFIX}/${d}"
-	done
-
-	# Wish we could use doevnd here, but we dont want the env
-	# file to be tracked in the CONTENTS of every game
-	cat <<-EOF > "${ROOT}"/etc/env.d/${GAMES_ENVD}
-	LDPATH="${libdirs:1}"
-	PATH="${GAMES_BINDIR}"
-	EOF
-	gamesowners "${ROOT}"/etc/env.d/${GAMES_ENVD}
-	gamesperms  "${ROOT}"/etc/env.d/${GAMES_ENVD}
-}
-
 games_pkg_setup() {
 	tc-export CC CXX LD AR RANLIB
 
@@ -153,7 +146,7 @@ games_pkg_setup() {
 }
 
 games_src_configure() {
-	[[ -x ./configure ]] && egamesconf
+	[[ -x "${ECONF_SOURCE:-.}"/configure ]] && egamesconf
 }
 
 games_src_compile() {
@@ -178,9 +171,8 @@ games_pkg_preinst() {
 	done < <(find "${D}/${GAMES_STATEDIR}" -type f -printf '%P\n' 2>/dev/null)
 }
 
-# pkg_postinst function ... create env.d entry and warn about games group
+# pkg_postinst function ... warn about games group
 games_pkg_postinst() {
-	gamesenv
 	if [[ -z "${GAMES_SHOW_WARNING}" ]] ; then
 		ewarn "Remember, in order to play games, you have to"
 		ewarn "be in the '${GAMES_GROUP}' group."

@@ -1,9 +1,24 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/mips/use.mask,v 1.70 2013/10/19 01:58:38 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/mips/use.mask,v 1.75 2014/06/30 15:34:54 mgorny Exp $
 
 # Unmask the flag which corresponds to ARCH.
 -mips
+-abi_mips_o32
+
+# Markos Chandras <hwoarang@gentoo.org>
+# app-arch/lz4 does not seem to build on MIPS
+# Original bug report: #501600
+lz4
+
+# Markos Chandras <hwoarang@gentoo.org>
+# Profiles are ISA agnostic so these
+# should be masked on per user basis
+# See #498082
+-mips32r2
+-mipsdspr1
+-mipsdspr2
+-mipsfpu
 
 # Markos Chandras <hwoarang@gentoo.org>
 # Needs packages that lack ~mips keywords
@@ -49,10 +64,6 @@ blas
 
 # Ryan Hill <dirtyepic@gentoo.org>
 dell
-
-# Alexander Færøy <eroyf@gentoo.org>
-# Masking for now.
-libnotify
 
 # Alexander Færøy <eroyf@gentoo.org>
 # ldap -- untested, masking for now.
@@ -284,23 +295,6 @@ smartcard
 #pike
 djbfft
 timidity
-
-# Mask all non-mips arch keywords
-alpha
-amd64
-arm
-hppa
-ia64
-m68k
-ppc
-ppc64
-ppc-macos
-s390
-sh
-sparc
-x86
-x86-fbsd
-sparc-fbsd
 
 # We don't use smartcards, afaik
 pcsc-lite

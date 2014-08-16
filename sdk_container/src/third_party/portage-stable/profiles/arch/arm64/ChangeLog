@@ -1,0 +1,16 @@
+# ChangeLog for Gentoo/ARM profile directory
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/arm64/ChangeLog,v 1.3 2014/08/04 02:13:15 vapier Exp $
+
+  04 Aug 2014; Mike Frysinger <vapier@gentoo.org> package.use.mask:
+  Drop flashrom masks that are in base now.
+
+  01 Jul 2014; Michał Górny <mgorny@gentoo.org> big-endian/make.defaults,
+  little-endian/make.defaults:
+  Set CHOST_${ABI} for consistence.
+
+  19 Mar 2014; Andreas K. Huettel <dilfridge@gentoo.org> +big-endian/eapi,
+  +eapi, +little-endian/eapi:
+  Add empty ChangeLog since obviously somebody forgot to create one. Increase
+  EAPI to 5.
+

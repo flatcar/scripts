@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain-funcs.eclass,v 1.123 2013/10/12 21:31:01 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain-funcs.eclass,v 1.127 2014/07/11 08:21:58 ulm Exp $
 
 # @ECLASS: toolchain-funcs.eclass
 # @MAINTAINER:
@@ -13,8 +13,8 @@
 # in such a way that you can rely on the function always returning
 # something sane.
 
-if [[ ${___ECLASS_ONCE_TOOLCHAIN_FUNCS} != "recur -_+^+_- spank" ]] ; then
-___ECLASS_ONCE_TOOLCHAIN_FUNCS="recur -_+^+_- spank"
+if [[ -z ${_TOOLCHAIN_FUNCS_ECLASS} ]]; then
+_TOOLCHAIN_FUNCS_ECLASS=1
 
 inherit multilib
 
@@ -368,7 +368,7 @@ ninj() { [[ ${type} == "kern" ]] && echo $1 || echo $2 ; }
 	ewarn "QA: Kernel version could not be determined, please inherit kernel-2 or linux-info"
 
 	case ${host} in
-		aarch64*)	ninj arm64 arm;;
+		aarch64*)	echo arm64;;
 		alpha*)		echo alpha;;
 		arm*)		echo arm;;
 		avr*)		ninj avr32 avr;;
@@ -475,6 +475,7 @@ tc-endian() {
 		m68*)		echo big;;
 		mips*l*)	echo little;;
 		mips*)		echo big;;
+		powerpc*le)	echo little;;
 		powerpc*)	echo big;;
 		s390*)		echo big;;
 		sh*b*)		echo big;;

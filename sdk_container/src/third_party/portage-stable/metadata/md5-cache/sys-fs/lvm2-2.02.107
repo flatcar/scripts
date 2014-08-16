@@ -1,5 +1,5 @@
 DEFINED_PHASES=compile configure install postinst prepare setup test
-DEPEND=clvm? ( cman? ( =sys-cluster/cman-3* ) =sys-cluster/libdlm-3* ) readline? ( sys-libs/readline ) udev? ( >=virtual/udev-200[static-libs?] ) virtual/pkgconfig >=sys-devel/binutils-2.20.1-r1 static? ( selinux? ( sys-libs/libselinux[static-libs] ) udev? ( virtual/udev[static-libs] ) >=sys-apps/util-linux-2.16[static-libs] ) || ( >=sys-devel/automake-1.12:1.12 >=sys-devel/automake-1.13:1.13 ) >=sys-devel/autoconf-2.68 sys-devel/libtool virtual/pkgconfig virtual/pkgconfig
+DEPEND=clvm? ( cman? ( =sys-cluster/cman-3* ) =sys-cluster/libdlm-3* ) readline? ( sys-libs/readline ) udev? ( >=virtual/udev-200[static-libs?] ) virtual/pkgconfig >=sys-devel/binutils-2.20.1-r1 static? ( selinux? ( sys-libs/libselinux[static-libs] ) udev? ( virtual/udev[static-libs] ) >=sys-apps/util-linux-2.16[static-libs] ) !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.14:1.14 ) >=sys-devel/autoconf-2.69 sys-devel/libtool virtual/pkgconfig virtual/pkgconfig
 DESCRIPTION=User-land utilities for LVM2 (device-mapper) software.
 EAPI=5
 HOMEPAGE=http://sources.redhat.com/lvm2/
@@ -10,5 +10,5 @@ RDEPEND=clvm? ( cman? ( =sys-cluster/cman-3* ) =sys-cluster/libdlm-3* ) readline
 REQUIRED_USE=device-mapper-only? ( !clvm !cman !lvm1 !lvm2create_initrd !thin )
 SLOT=0
 SRC_URI=ftp://sources.redhat.com/pub/lvm2/LVM2.2.02.107.tgz ftp://sources.redhat.com/pub/lvm2/old/LVM2.2.02.107.tgz
-_eclasses_=autotools	16761a2f972abd686713e5967ff3c754	eutils	4878e7f88afc0ba0866ac112190b0fd4	flag-o-matic	65cef1287b9d62b1a0f180765d1e0c69	libtool	b1c8688e60f9580bcb9bb46e08737eb1	linux-info	2b8c53f6065bdee2d757472215a3088f	multilib	892e597faee02a5b94eb02ab512e7622	multiprocessing	89580da5ec17ad687fcde876c542b91e	systemd	9f063b2cc19c5e8030911372aa246c4e	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	udev	a9a8d051efb42bfe884c1db82ce161de	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_eclasses_=autotools	ebea507d219855923e3438c953cf4ab8	eutils	06133990e861be0fe60c2b428fd025d9	flag-o-matic	75e24bac8423c515dd9c5717f08feb83	libtool	52d0e17251d04645ffaa61bfdd858944	linux-info	2b8c53f6065bdee2d757472215a3088f	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	multiprocessing	d7f2985a2c76c365ee20269db5261414	systemd	090342761f573a8280dd5aa6b0345f3b	toolchain-funcs	0f1760274637a138b99bb649202ea402	udev	da001465a2e939c93f7ae16947ce3438	versionator	cd0bcdb170807e4a1984115e9d53a26f
 _md5_=cdca66fc2bdc60250958157ee4207d3a

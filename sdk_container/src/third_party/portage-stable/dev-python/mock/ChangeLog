@@ -1,6 +1,38 @@
 # ChangeLog for dev-python/mock
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-python/mock/ChangeLog,v 1.69 2013/05/20 17:55:53 ago Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-python/mock/ChangeLog,v 1.77 2014/07/06 12:45:23 mgorny Exp $
+
+  06 Jul 2014; Michał Górny <mgorny@gentoo.org> mock-0.7.1.ebuild,
+  mock-0.7.2.ebuild, mock-0.8.0.ebuild, mock-1.0.0.ebuild, mock-1.0.1-r1.ebuild,
+  mock-1.0.1.ebuild:
+  Clean up obsolete dependencies on virtual/python-argparse and virtual/python-
+  unittest2 (those packages were only required for <=python-2.6).
+
+  21 Apr 2014; Michał Górny <mgorny@gentoo.org> mock-1.0.1-r2.ebuild:
+  Require unittest2 for Python 2.7 as well, bug #482488.
+
+*mock-1.0.1-r2 (11 Apr 2014)
+
+  11 Apr 2014; Samuel Damashek <sdamashek@gentoo.org> +mock-1.0.1-r2.ebuild,
+  mock-1.0.1-r1.ebuild:
+  Roll back stable mock-1.0.1-r1 to original state, create new keyworded
+  mock-1.0.1-r2 with python3.4 fixes
+
+  11 Apr 2014; Samuel Damashek <sdamashek@gentoo.org>
+  +files/mock-1.0.1-fix-python3.4.patch, mock-1.0.1-r1.ebuild:
+  Add python3.4 to PYTHON_COMPAT in mock-1.0.1-r1
+
+  31 Mar 2014; Michał Górny <mgorny@gentoo.org> mock-1.0.1-r1.ebuild:
+  Add support for the new PyPy slotting.
+
+  04 Mar 2014; Naohiro Aota <naota@gentoo.org> mock-1.0.1-r1.ebuild:
+  Add ~x86-fbsd wrt bug #503094
+
+  04 Mar 2014; Vicente Olivert Riera <vincent@gentoo.org> mock-1.0.1-r1.ebuild:
+  Add ~mips keyword.
+
+  05 Sep 2013; Michał Górny <mgorny@gentoo.org> mock-1.0.1-r1.ebuild:
+  Clean up PYTHON_COMPAT from old implementations.
 
   20 May 2013; Agostino Sarubbo <ago@gentoo.org> mock-1.0.1-r1.ebuild:
   Stable for s390, wrt bug #467308

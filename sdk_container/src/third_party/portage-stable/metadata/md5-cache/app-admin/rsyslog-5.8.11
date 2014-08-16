@@ -1,5 +1,5 @@
 DEFINED_PHASES=compile config configure install postinst prepare test
-DEPEND=dbi? ( dev-db/libdbi ) extras? ( net-libs/libnet ) kerberos? ( virtual/krb5 ) mysql? ( virtual/mysql ) postgres? ( dev-db/postgresql-base ) oracle? ( dev-db/oracle-instantclient-basic ) relp? ( >=dev-libs/librelp-0.1.3 ) snmp? ( net-analyzer/net-snmp ) ssl? ( net-libs/gnutls dev-libs/libgcrypt ) zeromq? ( net-libs/zeromq ) zlib? ( sys-libs/zlib ) virtual/pkgconfig || ( >=sys-devel/automake-1.12:1.12 >=sys-devel/automake-1.13:1.13 ) >=sys-devel/autoconf-2.68 sys-devel/libtool virtual/pkgconfig
+DEPEND=dbi? ( dev-db/libdbi ) extras? ( net-libs/libnet ) kerberos? ( virtual/krb5 ) mysql? ( virtual/mysql ) postgres? ( dev-db/postgresql-base ) oracle? ( dev-db/oracle-instantclient-basic ) relp? ( >=dev-libs/librelp-0.1.3 ) snmp? ( net-analyzer/net-snmp ) ssl? ( net-libs/gnutls dev-libs/libgcrypt ) zeromq? ( net-libs/zeromq ) zlib? ( sys-libs/zlib ) virtual/pkgconfig !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.14:1.14 ) >=sys-devel/autoconf-2.69 sys-devel/libtool virtual/pkgconfig
 DESCRIPTION=An enhanced multi-threaded syslogd with database support and more
 EAPI=4
 HOMEPAGE=http://www.rsyslog.com/
@@ -10,5 +10,5 @@ RDEPEND=dbi? ( dev-db/libdbi ) extras? ( net-libs/libnet ) kerberos? ( virtual/k
 RESTRICT=test
 SLOT=0
 SRC_URI=http://www.rsyslog.com/files/download/rsyslog/rsyslog-5.8.11.tar.gz zeromq? ( https://github.com/aggregateknowledge/rsyslog-zeromq/tarball/44b551abc29dd5b541884bd51b45b413855a93d8 -> rsyslog-zeromq.tar.gz )
-_eclasses_=autotools	16761a2f972abd686713e5967ff3c754	autotools-utils	5f912199ed4fdfb0bfbde29c7ac7dbdb	eutils	4878e7f88afc0ba0866ac112190b0fd4	libtool	b1c8688e60f9580bcb9bb46e08737eb1	multilib	892e597faee02a5b94eb02ab512e7622	multiprocessing	89580da5ec17ad687fcde876c542b91e	systemd	9f063b2cc19c5e8030911372aa246c4e	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28
+_eclasses_=autotools	ebea507d219855923e3438c953cf4ab8	autotools-utils	3727db64c7b960903d5033280f108080	eutils	06133990e861be0fe60c2b428fd025d9	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	multiprocessing	d7f2985a2c76c365ee20269db5261414	systemd	090342761f573a8280dd5aa6b0345f3b	toolchain-funcs	0f1760274637a138b99bb649202ea402
 _md5_=05d5a9f41a21bc9c0ec0c7233f165bc9

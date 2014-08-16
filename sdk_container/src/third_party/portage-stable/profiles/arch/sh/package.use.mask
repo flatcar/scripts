@@ -1,6 +1,15 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/sh/package.use.mask,v 1.28 2013/05/28 13:53:42 chithanh Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/sh/package.use.mask,v 1.30 2014/06/04 02:09:50 grknight Exp $
+
+# Brian Evans <grknight@gentoo.org> (03 Jun 2014)
+# unkeworded dependencies (bug #429708)
+>=dev-db/mysql-5.5 jemalloc
+>=dev-db/mariadb-5.5 jemalloc
+
+# Mikle Kolyada <zlogene@gentoo.org> (11 Jan 2014)
+# too much unkeyworded dependencies (bug #497068)
+dev-vcs/git mediawiki
 
 # Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (28 May 2013)
 # depends on sys-devel/llvm[video_cards_radeon]

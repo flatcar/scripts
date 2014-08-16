@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/mysql.eclass,v 1.177 2013/03/16 19:20:34 robbat2 Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/mysql.eclass,v 1.181 2014/07/29 20:24:00 robbat2 Exp $
 
 # @ECLASS: mysql.eclass
 # @MAINTAINER:
@@ -27,9 +27,10 @@ S="${WORKDIR}/mysql"
 
 [[ "${MY_EXTRAS_VER}" == "latest" ]] && MY_EXTRAS_VER="20090228-0714Z"
 if [[ "${MY_EXTRAS_VER}" == "live" ]]; then
-	EGIT_PROJECT=mysql-extras
 	EGIT_REPO_URI="git://git.overlays.gentoo.org/proj/mysql-extras.git"
-	inherit git-2
+	EGIT_CHECKOUT_DIR=${WORKDIR}/mysql-extras
+	EGIT_CLONE_TYPE=shallow
+	inherit git-r3
 fi
 
 case "${EAPI:-0}" in
@@ -458,7 +459,7 @@ configure_common() {
 	myconf="${myconf} $(use_with big-tables)"
 	myconf="${myconf} --enable-local-infile"
 	myconf="${myconf} --with-extra-charsets=all"
-	myconf="${myconf} --with-mysqld-user=mysql"
+	use prefix || myconf="${myconf} --with-mysqld-user=mysql"
 	myconf="${myconf} --with-server"
 	myconf="${myconf} --with-unix-socket-path=${EPREFIX}/var/run/mysqld/mysqld.sock"
 	myconf="${myconf} --without-libwrap"
@@ -878,7 +879,7 @@ mysql_src_unpack() {
 
 	unpack ${A}
 	# Grab the patches
-	[[ "${MY_EXTRAS_VER}" == "live" ]] && S="${WORKDIR}/mysql-extras" git_src_unpack
+	[[ "${MY_EXTRAS_VER}" == "live" ]] && S="${WORKDIR}/mysql-extras" git-r3_src_unpack
 
 	mv -f "${WORKDIR}/${MY_SOURCEDIR}" "${S}"
 
@@ -1153,7 +1154,7 @@ mysql_src_install() {
 		-e "s!= /var!= ${EPREFIX}/var!" \
 		"${FILESDIR}/${mycnf_src}" \
 		> "${TMPDIR}/my.cnf.ok"
-	use prefix && sed -i -e '/^user[ 	]*= mysql$/d' "${TMPDIR}/my.cnf.ok"
+	use prefix && sed -i -r -e '/^user[[:space:]]*=[[:space:]]*mysql$/d' "${TMPDIR}/my.cnf.ok"
 	if use latin1 ; then
 		sed -i \
 			-e "/character-set/s|utf8|latin1|g" \
@@ -1366,17 +1367,17 @@ mysql_pkg_config() {
 	MYSQL_LOG_BIN="$(mysql_getoptval mysqld log-bin)"
 	MYSQL_LOG_BIN=${MYSQL_LOG_BIN%/*}
 
-	if [[ ! -d "${EROOT}"/$MYSQL_TMPDIR ]]; then
+	if [[ ! -d "${ROOT}"/$MYSQL_TMPDIR ]]; then
 		einfo "Creating MySQL tmpdir $MYSQL_TMPDIR"
-		install -d -m 770 -o mysql -g mysql "${EROOT}"/$MYSQL_TMPDIR
+		install -d -m 770 -o mysql -g mysql "${ROOT}"/$MYSQL_TMPDIR
 	fi
-	if [[ ! -d "${EROOT}"/$MYSQL_LOG_BIN ]]; then
+	if [[ ! -d "${ROOT}"/$MYSQL_LOG_BIN ]]; then
 		einfo "Creating MySQL log-bin directory $MYSQL_LOG_BIN"
-		install -d -m 770 -o mysql -g mysql "${EROOT}"/$MYSQL_LOG_BIN
+		install -d -m 770 -o mysql -g mysql "${ROOT}"/$MYSQL_LOG_BIN
 	fi
-	if [[ ! -d "${EROOT}"/$MYSQL_RELAY_LOG ]]; then
+	if [[ ! -d "${ROOT}"/$MYSQL_RELAY_LOG ]]; then
 		einfo "Creating MySQL relay-log directory $MYSQL_RELAY_LOG"
-		install -d -m 770 -o mysql -g mysql "${EROOT}"/$MYSQL_RELAY_LOG
+		install -d -m 770 -o mysql -g mysql "${ROOT}"/$MYSQL_RELAY_LOG
 	fi
 
 	if [[ -d "${ROOT}/${MY_DATADIR}/mysql" ]] ; then
@@ -1467,7 +1468,7 @@ mysql_pkg_config() {
 	local pidfile="${EROOT}/var/run/mysqld/mysqld${RANDOM}.pid"
 	local mysqld="${EROOT}/usr/sbin/mysqld \
 		${options} \
-		--user=mysql \
+		$(use prefix || echo --user=mysql) \
 		--log-warnings=0 \
 		--basedir=${EROOT}/usr \
 		--datadir=${ROOT}/${MY_DATADIR} \

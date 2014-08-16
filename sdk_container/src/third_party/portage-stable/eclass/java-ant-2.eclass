@@ -14,7 +14,7 @@
 #
 # Licensed under the GNU General Public License, v2
 #
-# $Header: /var/cvsroot/gentoo-x86/eclass/java-ant-2.eclass,v 1.57 2013/10/05 13:40:57 caster Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/java-ant-2.eclass,v 1.58 2014/03/31 16:48:51 mgorny Exp $
 
 # @ECLASS: java-ant-2.eclass
 # @MAINTAINER:
@@ -76,8 +76,7 @@ fi
 JAVA_ANT_E_DEPEND="${JAVA_ANT_E_DEPEND}
 	   ${ANT_TASKS_DEPEND}
 	   ${JAVA_PKG_PORTAGE_DEP}
-	   >=dev-java/javatoolkit-0.3.0-r2
-	   >=dev-lang/python-2.4"
+	   >=dev-java/javatoolkit-0.3.0-r2"
 
 # this eclass must be inherited after java-pkg-2 or java-pkg-opt-2
 # if it's java-pkg-opt-2, ant dependencies are pulled based on USE flag
@@ -429,6 +428,9 @@ java-ant_rewrite-classpath() {
 # The file to rewrite defaults to build.xml when not specified.
 java-ant_remove-taskdefs() {
 	debug-print-function ${FUNCNAME} $*
+
+	die "${FUNCNAME} has been banned, see bug #479838."
+
 	local task_name
 	if [[ "${1}" == --name ]]; then
 		task_name="${2}"

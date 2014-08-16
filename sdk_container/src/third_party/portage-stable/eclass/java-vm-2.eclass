@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/java-vm-2.eclass,v 1.46 2012/07/23 19:06:20 sera Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/java-vm-2.eclass,v 1.47 2014/07/22 06:38:56 haubi Exp $
 
 # @ECLASS: java-vm-2.eclass
 # @MAINTAINER:
@@ -70,15 +70,16 @@ java-vm-2_pkg_setup() {
 # setting is invalid. Also update mime database.
 
 java-vm-2_pkg_postinst() {
+	has ${EAPI:-0} 0 1 2 && ! use prefix && EROOT=${ROOT}
 	# Note that we cannot rely on java-config here, as it will silently recognize
 	# e.g. icedtea6-bin as valid system VM if icedtea6 is set but invalid (e.g. due
 	# to the migration to icedtea-6)
-	if [[ ! -L "${ROOT}${JAVA_VM_SYSTEM}" ]]; then
+	if [[ ! -L "${EROOT}${JAVA_VM_SYSTEM}" ]]; then
 		java_set_default_vm_
 	else
-		local current_vm_path=$(readlink "${ROOT}${JAVA_VM_SYSTEM}")
+		local current_vm_path=$(readlink "${EROOT}${JAVA_VM_SYSTEM}")
 		local current_vm=$(basename "${ROOT}${current_vm_path}")
-		if [[ ! -L "${ROOT}${JAVA_VM_DIR}/${current_vm}" ]]; then
+		if [[ ! -L "${EROOT}${JAVA_VM_DIR}/${current_vm}" ]]; then
 			java_set_default_vm_
 		fi
 	fi

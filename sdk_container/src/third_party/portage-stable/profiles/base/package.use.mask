@@ -1,10 +1,212 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/base/package.use.mask,v 1.516 2013/10/30 20:27:37 maksbotan Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/base/package.use.mask,v 1.590 2014/08/09 19:07:27 grknight Exp $
 
 # This file requires >=portage-2.1.1
 # New entries go on top.
 #
+
+# Maxim Koltsov <maksbotan@gentoo.org> (05 Aug 2014)
+# net-libs/tox is in mva overlay only ATM
+app-leechcraft/lc-azoth sarin
+
+# Mike Frysinger <vapier@gentoo.org> (04 Aug 2014)
+# Mask flashrom drivers that only work on x86 due to in/out asm insns #454024
+sys-apps/flashrom atahpt nic3com nicnatsemi nicrealtek rayer_spi satamv
+
+# Brian Evans <grknight@gentoo.org> (30 Jul 2014)
+# Mask embedded due to upstream not supporting
+# https://bugs.launchpad.net/bugs/1236873
+dev-db/percona-server embedded
+
+# Pacho Ramos <pacho@gentoo.org> (27 Jul 2014)
+# Mask due bug #414903
+media-video/mplayer dxr3
+
+# Rick Farina <zerochaos@gentoo.org> (11 July 2014)
+# Mask ogdi use flag for sci-libs/gdal due to broken visibility rules
+sci-libs/gdal ogdi
+
+# Thomas Sachau <tommy@gentoo.org> (30 Jun 2014)
+# Mask pixman USE flag of dev-libs/efl for future removal, bug 501074
+dev-libs/efl pixman
+
+# Andreas K. Huettel <dilfridge@gentoo.org> (29 Jun 2014)
+# Mask use-flag firebird and package dev-db/firebird for bug 460780
+net-misc/stargazer module_store_firebird
+
+# Jeroen Roovers <jer@gentoo.org> (20 Jun 2014)
+# net-libs/adns is going away (bug #513982)
+net-analyzer/wireshark libadns
+
+# Zac Medico <zmedico@gentoo.org> (06 Jun 2014)
+# Needs hardmasked lua-5.2
+www-servers/mongoose lua
+
+# Sergey Popov <pinkbyte@gentoo.org> (05 Jun 2014)
+# Mask multislot USE flag for packages, where it breaks
+# metadata cache consistency.
+# See bugs #507808, #507810 and #507814
+sys-devel/autoconf	multislot
+sys-devel/gcc		multislot
+
+# Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (05 Jun 2014)
+# Needs libepoxy keywording, bug #510940
+x11-base/xorg-server glamor
+
+# Manuel Rüger <mrueg@gentoo.org> (05 Jun 2014)
+# Fails to build with net-libs/libotr-4.0.0
+net-im/climm otr
+
+
+# Pacho Ramos <pacho@gentoo.org> (01 Jun 2014)
+# Needs hardmasked lua-5.2
+>=media-plugins/grilo-plugins-0.2.12 lua
+
+# Rick Farina <zerochaos@gentoo.org> (22 May 2014)
+# mask test use flag for metasploit since tests do not pass
+net-analyzer/metasploit test
+
+# Tom Wijsman <TomWij@gentoo.org> (14 May 2014)
+# Documentation generation needs APIviz which is not in the Portage tree yet.
+# Tracked in Gentoo bug #509602.
+dev-java/jboss-logging doc
+
+# Tom Wijsman <TomWij@gentoo.org> (02 May 2014)
+# Bluetooth support in MATE has incompatibilities with recent BlueZ versions.
+# If you want to try to get this working, unmask net-wireless/mate-bluetooth as 
+# well as the bluetooth USE flag on mate-extra/mate-user-share; I can't support 
+# this until the relevant upstreams have moved forward with their compatibility.
+#
+# https://bugs.gentoo.org/show_bug.cgi?id=508086
+# https://github.com/mate-desktop/mate-bluetooth/issues/22
+# http://mate-desktop.org/blog/2014-03-11-mate-desktop-singing-the-bluez
+mate-base/mate bluetooth
+mate-extra/mate-user-share bluetooth
+
+# Michał Górny <mgorny@gentoo.org> (26 Apr 2014)
+# (on behalf of Python team)
+# Keep 2.6 enabled to ease the migration.
+dev-lang/python-exec -python_targets_python2_6 -python_single_target_python2_6
+dev-python/python-exec -python_targets_python2_6 -python_single_target_python2_6
+
+# Tim Harder <radhermit@gentoo.org> (26 Apr 2014)
+# Masked until qt5 is in the tree
+>=media-video/mkvtoolnix-6.9.0 qt5
+
+# Pacho Ramos <pacho@gentoo.org> (26 Apr 2014)
+# Depends on long time obsolete goi, bug #508742
+=x11-misc/lightdm-1.4* introspection
+
+# Jorge Manuel B. S. Vicetto <jmbsvicetto@gentoo.org> (24 Apr 2014)
+# It's only supported on amd64
+dev-db/mariadb tokudb
+
+# Lars Wendler <polynomial-c@gentoo.org> (23 Apr 2014)
+# Not working on 64bit systems
+media-sound/lmms vst
+
+# Markos Chandras <hwoarang@gentoo.org> (20 Apr 2014)
+# Fails to build with recent polarssl (>=1.3). Bug #503604
+media-video/rtmpdump polarssl
+
+# Alexey Shvetsov <alexxy@gentoo.org> (16 Apr 2014)
+# libehca only works on ppc*
+sys-infiniband/ofed ofed_drivers_ehca
+
+# Andreas K. Huettel <dilfridge@gentoo.org> (12 Apr 2014)
+# Upstream regularly forgets to update the bindings after changes in API,
+# leading to build failures. This is becoming more and more painful...
+>=kde-base/marble-4.12.49.9999 python
+
+# Lars Wendler <polynomial-c@gentoo.org> (12 Apr 2014)
+# Required ffmpeg version still is masked (#507474)
+>=media-libs/xine-lib-1.2.5 avformat
+
+# Julian Ospald <hasufell@gentoo.org> (06 Apr 2014)
+# broken wrt #501582
+<net-misc/openvpn-9999 polarssl
+
+# Mike Gilbert <floppym@gentoo.org> (27 Mar 2014)
+# sys-libs/libseccomp is not keyworded on many archs.
+sys-apps/systemd seccomp
+
+# Ben de Groot <yngwin@gentoo.org> (21 Mar 2014)
+# harfbuzz multilib ebuild is still masked
+media-libs/freetype harfbuzz
+
+# Manuel Rüger <mrueg@gentoo.org> (07 Mar 2014)
+# Mask ruby18-only compatible flags
+# Bugs: 483104, 483102
+=dev-ruby/rubygems-1.8* server
+media-libs/libcaca ruby
+=dev-vcs/subversion-1.7* ruby
+media-sound/podcatcher bittorrent
+
+# Michał Górny <mgorny@gentoo.org> (27 Feb 2014)
+# Very experimental with unstable kernel- and userspace API.
+# Lacks proper policy support that makes it very unsecure.
+# Suitable only for testing.
+sys-apps/systemd kdbus
+
+# Mike Frysinger <vapier@gentoo.org> (03 Feb 2014)
+# Upstream says to not use this for now.
+dev-libs/elfutils threads
+
+# Mike Gilbert <floppym@gentoo.org> (01 Feb 2014)
+# Build failures (bug 499072)
+=www-client/chromium-33* aura
+
+# Andreas K. Huettel <dilfridge@gentoo.org> (4 Jan 2014)
+# Mask until dependencies are keyworded (bug 497068)
+dev-vcs/git mediawiki
+
+# Sergey Popov <pinkbyte@gentoo.org> (27 Dec 2013)
+# Mask because Boost.Context library does not work on most of arches
+dev-libs/boost context
+
+# Lars Wendler <polynomial-c@gentoo.org> (26 Dec 2013)
+# Masked until upstream has fixed support with >=polarssl-1.3.0
+# (see upstream bug https://github.com/fatbob313/umurmur/issues/24)
+# and affected versions are removed from the tree.
+<media-sound/umurmur-0.2.14 polarssl
+
+# Gilles Dartiguelongue <eva@gentoo.org> (25 Dec 2013)
+# gjs: tests fail and support for it was purely and simply removed in master/1.9
+# python2_6: unit tests fail for this abi, must report usptream
+>=dev-libs/libpeas-1.9 gjs python_targets_python2_6
+
+# Gilles Dartiguelongue <eva@gentoo.org> (23 Dec 2013)
+# Gstreamer support fails to build due to libtool shortcomings when using
+# an intermediate library as a dependency of another libtool target dependency.
+# Since this is new and unused yet, keep it masked for now and check
+# with upstream if there is something that can be done to fix the issue.
+media-libs/cogl gstreamer
+
+# Johannes Huber <johu@gentoo.org> (18 Dec 2013)
+# net-libs/libotr-4.0.0 is masked. Please remove the use mask if package mask
+# is lifted.
+>=kde-base/kopete-4.12.0 otr
+
+# Alexandre Rostovtsev <tetromino@gentoo.org> (15 Dec 2013)
+# pulseaudio patchset breaks too often on live wine ebuild
+=app-emulation/wine-9999 pulseaudio
+
+# Pawel Hajdan jr <phajdan.jr@gentoo.org> (13 Nov 2013)
+# Depends on masked dev-lang/v8
+dev-db/drizzle v8
+
+# Andrey Grozin <grozin@gentoo.org> (12 Nov 2013)
+# berkdb support works only for sys-libs/db-6.0 which is masked
+sci-physics/reduze berkdb
+
+# Michał Górny <mgorny@gentoo.org> (10 Nov 2013)
+# (on behalf of python@)
+# USE=sandbox is not done properly in Gentoo and results in crippled
+# PyPy install that is not usable for non-sandbox clients (and there are
+# no real sandbox clients right now). Masked until the flag is
+# re-implemented or dropped. For more details, bug #429372.
+dev-python/pypy sandbox
 
 # Julian Ospald <hasufell@gentoo.org> (27 Oct 2013)
 # luajit is in ~arch, prepare for minetest stabilization
@@ -45,17 +247,17 @@ media-libs/libsdl2 custom-cflags
 >=www-plugins/gnash-0.8.10_p20130822 openvg
 
 # Tim Harder <radhermit@gentoo.org> (13 Aug 2013)
-# Requires dev-lang/luajit which is not keyworded by most arches.
-app-editors/vim luajit
-app-editors/gvim luajit
+# Related deps dev-lang/luajit and dev-scheme/racket are not keyworded by most arches.
+app-editors/vim luajit racket
+app-editors/gvim luajit racket
 
 # Alexis Ballier <aballier@gentoo.org> (11 Aug 2013)
 # Multilib migrated version for binary compatibility.
 # Those useflags have deps that are not migrated yet.
-=media-video/ffmpeg-0.10* libass pulseaudio frei0r openal gnutls rtmp vaapi sdl openssl
+=media-video/ffmpeg-0.10* frei0r
 
 # Kacper Kowalik <xarthisius@gentoo.org> (09 Aug 2013)
-# Doesn't work on most profiles. Easier to mask here and 
+# Doesn't work on most profiles. Easier to mask here and
 # unmask in particular profiles
 sys-apps/hwloc cuda gl opencl
 
@@ -92,28 +294,9 @@ sys-libs/libcxxrt libunwind
 # Not fit for production
 =www-client/netsurf-3.0* fbcon pdf-writer gstreamer
 
-# Anthony G. Basile <blueness@gentoo.org> (18 Jun 2013)
-# Only work on amd64/x86
-net-libs/cyassl aes-ni
-
 # Sergey Popov <pinkbyte@gentoo.org> (08 Jun 2013)
 # mask because requires unstable depends not ready for the stabilization
 app-leechcraft/leechcraft-meta unstable
-
-# Robin H. Johnson <robbat2@gentoo.org> (02 Jun 2013)
-# PBXT is no longer supported by upstream, and fails testcases.
->=dev-db/mysql-5.5 pbxt
->=dev-db/mariadb-5.5 pbxt
-# overlay -- no inline comments wrt bug #472292, ssuominen (04 Jun 2013)
->=dev-db/mysql-cluster-5.5 pbxt
->=dev-db/mariadb-galera-5.5 pbxt
->=dev-db/percona-server-5.5 pbxt
->=dev-db/google-mysql-5.5 pbxt
-
-# XFCE <xfce@gentoo.org> (01 Jun 2013)
-# Masked temporarily while waiting for >=net-libs/webkit-gtk-2 unmasking from
-# profiles/package.mask
->=www-client/midori-0.5.2 webkit2
 
 # Kacper Kowalik <xarthisius@gentoo.org> (19 May 2013)
 # Fails to build, haven't had time to debug
@@ -161,6 +344,7 @@ www-client/chromium system-sqlite
 # Justin Lecher <jlec@gentoo.org> (21 Feb 2013)
 # cuda only works on x86 and amd64
 sci-libs/cholmod cuda
+sci-libs/flann cuda
 
 # Agostino Sarubbo <ago@gentoo.org< (21 Feb 2013)
 # Mask vpx because requires new libvpx and is not ready to go to stable
@@ -199,8 +383,8 @@ app-misc/tracker eds
 sci-chemistry/gromacs cuda mkl openmm
 
 # Zac Medico <zmedico@gentoo.org> (13 Jun 2012)
-# Mask USE=pypy2_0 for sys-apps/portage, since pypy has limited KEYWORDS.
-sys-apps/portage pypy2_0
+# Mask USE=pypy* for sys-apps/portage, since pypy has limited KEYWORDS.
+sys-apps/portage pypy pypy2_0
 
 # Jory A. Pratt <anarchy@gentoo.org> (15 Dec 2012)
 # PGO is known to be busted with most configurations
@@ -228,8 +412,8 @@ dev-ml/eliom ocamlduce
 <gnome-base/gvfs-1.14 udisks
 
 # Pawel Hajdan jr <phajdan.jr@gentoo.org> (28 Sep 2012)
-# Causes problems with e.g. NVidia drivers, bug #413637.
-www-client/chromium tcmalloc
+# Causes problems with old NVidia drivers, bug #413637.
+<www-client/chromium-32.0.1700.19 tcmalloc
 
 # Diego Elio Pettenò (27 Aug 2012)
 # The libpci access is only used for linux.
@@ -275,11 +459,6 @@ dev-db/firebird client
 # Andreas K. Huettel <dilfridge@gentoo.org> (25 Mai 2012)
 # Requires icc which does not emerge (distfile unavailable)
 media-libs/opencv ipp
-
-# Alexandre Rostovtsev <tetromino@gentoo.org> (10 May 2012)
-# This entry can be removed by anyone after gnome-panel-3.* is stabilized
-# Mask to allow stabilization (bug #414983)
-=app-misc/gnote-0.8.2 applet
 
 # Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (02 May 2012)
 # Causes crashes and build failures, not needed by any package, bug #412177
@@ -415,11 +594,6 @@ media-video/mplayer2 bluray
 # Mask pdnsd's Linux-specific USE flags.
 net-dns/pdnsd isdn urandom
 
-# Gilles Dartiguelongue <eva@gentoo.org> (26 Mar 2011)
-# Mask due to unsatisfied dependencies
-# applet is required for the search panel applet
->=app-misc/tracker-0.10 applet
-
 # Raúl Porcel <armin76@gentoo.org> (13 Feb 2011)
 # Masked until devs know how to use repoman
 <media-video/mplayer-9999 bluray
@@ -429,10 +603,6 @@ net-dns/pdnsd isdn urandom
 =dev-db/mysql-5.1.51* debug
 =dev-db/mysql-5.1.52* debug
 =dev-db/mysql-5.1.53* debug
-
-# Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (28 Nov 2010)
-# sys-devel/llvm is not keyworded on many arches, bug #320221
-media-libs/mesa llvm
 
 # Justin Lecher <jlec@gentoo.org> (17 Nov 2010)
 # Upstream didn't release patches for aria yet

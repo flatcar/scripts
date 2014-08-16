@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/multiprocessing.eclass,v 1.3 2013/10/12 21:12:48 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/multiprocessing.eclass,v 1.9 2014/07/11 08:21:58 ulm Exp $
 
 # @ECLASS: multiprocessing.eclass
 # @MAINTAINER:
@@ -33,8 +33,25 @@
 # multijob_finish
 # @CODE
 
-if [[ ${___ECLASS_ONCE_MULTIPROCESSING} != "recur -_+^+_- spank" ]] ; then
-___ECLASS_ONCE_MULTIPROCESSING="recur -_+^+_- spank"
+if [[ -z ${_MULTIPROCESSING_ECLASS} ]]; then
+_MULTIPROCESSING_ECLASS=1
+
+# @FUNCTION: bashpid
+# @DESCRIPTION:
+# Return the process id of the current sub shell.  This is to support bash
+# versions older than 4.0 that lack $BASHPID support natively.  Simply do:
+# echo ${BASHPID:-$(bashpid)}
+#
+# Note: Using this func in any other way than the one above is not supported.
+bashpid() {
+	# Running bashpid plainly will return incorrect results.  This func must
+	# be run in a subshell of the current subshell to get the right pid.
+	# i.e. This will show the wrong value:
+	#   bashpid
+	# But this will show the right value:
+	#   (bashpid)
+	sh -c 'echo ${PPID}'
+}
 
 # @FUNCTION: makeopts_jobs
 # @USAGE: [${MAKEOPTS}]
@@ -53,6 +70,25 @@ makeopts_jobs() {
 		-e 's:.*[[:space:]](-j|--jobs[=[:space:]])[[:space:]]*([0-9]+).*:\2:p' \
 		-e 's:.*[[:space:]](-j|--jobs)[[:space:]].*:999:p')
 	echo ${jobs:-1}
+}
+
+# @FUNCTION: makeopts_loadavg
+# @USAGE: [${MAKEOPTS}]
+# @DESCRIPTION:
+# Searches the arguments (defaults to ${MAKEOPTS}) and extracts the value set
+# for load-average. For make and ninja based builds this will mean new jobs are
+# not only limited by the jobs-value, but also by the current load - which might
+# get excessive due to I/O and not just due to CPU load.
+# Be aware that the returned number might be a floating-point number. Test
+# whether your software supports that.
+makeopts_loadavg() {
+	[[ $# -eq 0 ]] && set -- ${MAKEOPTS}
+	# This assumes the first .* will be more greedy than the second .*
+	# since POSIX doesn't specify a non-greedy match (i.e. ".*?").
+	local lavg=$(echo " $* " | sed -r -n \
+		-e 's:.*[[:space:]](-l|--load-average[=[:space:]])[[:space:]]*([0-9]+|[0-9]+\.[0-9]+)[^0-9.]*:\2:p' \
+		-e 's:.*[[:space:]](-l|--load-average)[[:space:]].*:999:p')
+	echo ${lavg:-1}
 }
 
 # @FUNCTION: multijob_init
@@ -123,7 +159,7 @@ multijob_child_init() {
 	esac
 
 	if [[ $# -eq 0 ]] ; then
-		trap 'echo ${BASHPID} $? >&'${mj_write_fd} EXIT
+		trap 'echo ${BASHPID:-$(bashpid)} $? >&'${mj_write_fd} EXIT
 		trap 'exit 1' INT TERM
 	else
 		local ret
@@ -207,6 +243,13 @@ multijob_finish() {
 # about the exact fd #.
 redirect_alloc_fd() {
 	local var=$1 file=$2 redir=${3:-"<>"}
+
+	# Make sure /dev/fd is sane on Linux hosts. #479656
+	if [[ ! -L /dev/fd && ${CBUILD} == *linux* ]] ; then
+		eerror "You're missing a /dev/fd symlink to /proc/self/fd."
+		eerror "Please fix the symlink and check your boot scripts (udev/etc...)."
+		die "/dev/fd is broken"
+	fi
 
 	if [[ $(( (BASH_VERSINFO[0] << 8) + BASH_VERSINFO[1] )) -ge $(( (4 << 8) + 1 )) ]] ; then
 		# Newer bash provides this functionality.

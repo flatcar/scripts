@@ -1,0 +1,7 @@
+# Copyright 1999-2011 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/amd64/no-multilib/package.use,v 1.1 2014/07/17 21:22:55 zorry Exp $
+
+# Magnus Grenberg <zorry@gentoo.org> (17 Mar 2011)
+# Bug 358929 the pic flag need to be on don't know way.
+app-emulation/open-vm-tools pic

@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/waf-utils.eclass,v 1.17 2012/12/06 09:28:11 scarabeus Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/waf-utils.eclass,v 1.19 2014/04/16 11:33:18 hasufell Exp $
 
 # @ECLASS: waf-utils.eclass
 # @MAINTAINER:
@@ -8,7 +8,7 @@
 # @AUTHOR:
 # Original Author: Gilles Dartiguelongue <eva@gentoo.org>
 # Various improvements based on cmake-utils.eclass: Tomáš Chvátal <scarabeus@gentoo.org>
-# Proper prefix support: Jonathan Callen <abcd@gentoo.org>
+# Proper prefix support: Jonathan Callen <jcallen@gentoo.org>
 # @BLURB: common ebuild functions for waf-based packages
 # @DESCRIPTION:
 # The waf-utils eclass contains functions that make creating ebuild for
@@ -56,18 +56,18 @@ waf-utils_src_configure() {
 	[[ -z ${NO_WAF_LIBDIR} ]] && libdir="--libdir=${EPREFIX}/usr/$(get_libdir)"
 
 	tc-export AR CC CPP CXX RANLIB
-	echo "CCFLAGS=\"${CFLAGS}\" LINKFLAGS=\"${LDFLAGS}\" \"${WAF_BINARY}\" --prefix=${EPREFIX}/usr ${libdir} $@ configure"
+	echo "CCFLAGS=\"${CFLAGS}\" LINKFLAGS=\"${CFLAGS} ${LDFLAGS}\" \"${WAF_BINARY}\" --prefix=${EPREFIX}/usr ${libdir} $@ configure"
 
 	# This condition is required because waf takes even whitespace as function
 	# calls, awesome isn't it?
 	if [[ -z ${NO_WAF_LIBDIR} ]]; then
-		CCFLAGS="${CFLAGS}" LINKFLAGS="${LDFLAGS}" "${WAF_BINARY}" \
+		CCFLAGS="${CFLAGS}" LINKFLAGS="${CFLAGS} ${LDFLAGS}" "${WAF_BINARY}" \
 			"--prefix=${EPREFIX}/usr" \
 			"${libdir}" \
 			"$@" \
 			configure || die "configure failed"
 	else
-		CCFLAGS="${CFLAGS}" LINKFLAGS="${LDFLAGS}" "${WAF_BINARY}" \
+		CCFLAGS="${CFLAGS}" LINKFLAGS="${CFLAGS} ${LDFLAGS}" "${WAF_BINARY}" \
 			"--prefix=${EPREFIX}/usr" \
 			"$@" \
 			configure || die "configure failed"

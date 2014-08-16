@@ -1,6 +1,60 @@
 # ChangeLog for dev-libs/libxslt
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/libxslt/ChangeLog,v 1.272 2013/06/30 15:07:43 jlec Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/libxslt/ChangeLog,v 1.285 2014/08/07 18:14:54 jer Exp $
+
+  07 Aug 2014; Jeroen Roovers <jer@gentoo.org> libxslt-1.1.28-r3.ebuild:
+  Stable for HPPA (bug #512012).
+
+  28 Jul 2014; Agostino Sarubbo <ago@gentoo.org> libxslt-1.1.28-r3.ebuild:
+  Stable for ppc, wrt bug #512012
+
+  23 Jul 2014; Agostino Sarubbo <ago@gentoo.org> libxslt-1.1.28-r3.ebuild:
+  Stable for x86, wrt bug #512012
+
+  22 Jul 2014; Agostino Sarubbo <ago@gentoo.org> libxslt-1.1.28-r3.ebuild:
+  Stable for amd64, wrt bug #512912
+
+  24 Jun 2014; Michael Haubenwallner <haubi@gentoo.org>
+  libxslt-1.1.28-r3.ebuild:
+  add more prefix keywords
+
+*libxslt-1.1.28-r3 (24 Jun 2014)
+
+  24 Jun 2014; Alexandre Rostovtsev <tetromino@gentoo.org>
+  +libxslt-1.1.28-r3.ebuild:
+  Modernize python bindings build setup, fixing prefix issues (bug #514900,
+  thanks to Michael Haubenwallner).
+
+  18 Jun 2014; Michał Górny <mgorny@gentoo.org> libxslt-1.1.28-r2.ebuild:
+  Update dependencies to require guaranteed EAPI=5 or multilib ebuilds, bug
+  #513718.
+
+  28 Apr 2014; Michał Górny <mgorny@gentoo.org> libxslt-1.1.28-r2.ebuild:
+  Replace multilib_build_binaries with multilib_is_native_abi. The two are
+  equivalent now, and the team has decided to use the old name as being less
+  confusing.
+
+  04 Mar 2014; Alexandre Rostovtsev <tetromino@gentoo.org>
+  files/libxslt-1.1.28-libgcrypt-config.patch:
+  Update patch
+
+*libxslt-1.1.28-r2 (04 Mar 2014)
+
+  04 Mar 2014; Alexandre Rostovtsev <tetromino@gentoo.org>
+  -libxslt-1.1.28.ebuild, +libxslt-1.1.28-r2.ebuild,
+  +files/libxslt-1.1.28-libgcrypt-config.patch:
+  Add multilib support (bug #480402, thanks to David Heidelberger (okias) and
+  Michał Górny). Punt old.
+
+  01 Mar 2014; Michał Górny <mgorny@gentoo.org> libxslt-1.1.28-r1.ebuild,
+  libxslt-1.1.28.ebuild:
+  Update libgcrypt dep to use slot :0.
+
+  18 Jan 2014; Mike Frysinger <vapier@gentoo.org> libxslt-1.1.28-r1.ebuild:
+  Add arm64 love.
+
+  05 Sep 2013; Michał Górny <mgorny@gentoo.org> libxslt-1.1.28-r1.ebuild:
+  Clean up PYTHON_COMPAT from old implementations.
 
   30 Jun 2013; Justin Lecher <jlec@gentoo.org> libxslt-1.1.28-r1.ebuild,
   metadata.xml:
