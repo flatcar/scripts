@@ -30,4 +30,7 @@
 		exist above libffi that handles type conversions for values passed
 		between the two languages.
 	</longdescription>
+	<use>
+		<flag name='pax_kernel'>Use PaX emulated trampolines, for we can't use PROT_EXEC</flag>
+	</use>
 </pkgmetadata>

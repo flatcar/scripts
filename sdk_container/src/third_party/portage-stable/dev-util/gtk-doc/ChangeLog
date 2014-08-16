@@ -1,6 +1,85 @@
 # ChangeLog for dev-util/gtk-doc
-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-util/gtk-doc/ChangeLog,v 1.180 2012/07/15 17:15:34 armin76 Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-util/gtk-doc/ChangeLog,v 1.204 2014/04/26 07:28:38 pacho Exp $
+
+  26 Apr 2014; Pacho Ramos <pacho@gentoo.org> -gtk-doc-1.19.ebuild:
+  drop old
+
+  21 Apr 2014; Agostino Sarubbo <ago@gentoo.org> gtk-doc-1.20.ebuild:
+  Stable for arm, wrt bug #507568
+
+  19 Apr 2014; Agostino Sarubbo <ago@gentoo.org> gtk-doc-1.20.ebuild:
+  Stable for sparc, wrt bug #507568
+
+  18 Apr 2014; Agostino Sarubbo <ago@gentoo.org> gtk-doc-1.20.ebuild:
+  Stable for alpha, wrt bug #507568
+
+  17 Apr 2014; Agostino Sarubbo <ago@gentoo.org> gtk-doc-1.20.ebuild:
+  Stable for ia64, wrt bug #507568
+
+  16 Apr 2014; Agostino Sarubbo <ago@gentoo.org> gtk-doc-1.20.ebuild:
+  Stable for ppc64, wrt bug #507568
+
+  14 Apr 2014; Agostino Sarubbo <ago@gentoo.org> gtk-doc-1.20.ebuild:
+  Stable for ppc, wrt bug #507568
+
+  28 Mar 2014; Jeroen Roovers <jer@gentoo.org> gtk-doc-1.20.ebuild:
+  Stable for HPPA (bug #499954).
+
+  09 Mar 2014; Pacho Ramos <pacho@gentoo.org> gtk-doc-1.20.ebuild:
+  x86 stable, bug 499954
+
+  09 Mar 2014; Pacho Ramos <pacho@gentoo.org> gtk-doc-1.20.ebuild:
+  amd64 stable, bug 499954
+
+  22 Feb 2014; Pacho Ramos <pacho@gentoo.org> gtk-doc-1.20.ebuild:
+  Fix wrong commit, bug 502160
+
+  22 Feb 2014; Pacho Ramos <pacho@gentoo.org> gtk-doc-1.20.ebuild:
+  arch stable, bug 888
+
+*gtk-doc-1.20 (16 Feb 2014)
+
+  16 Feb 2014; Pacho Ramos <pacho@gentoo.org> +gtk-doc-1.20.ebuild,
+  -gtk-doc-1.18-r1.ebuild:
+  Version bump, drop old
+
+  07 Sep 2013; Agostino Sarubbo <ago@gentoo.org> gtk-doc-1.19.ebuild:
+  Stable for sparc, wrt bug #482886
+
+  05 Sep 2013; Agostino Sarubbo <ago@gentoo.org> gtk-doc-1.19.ebuild:
+  Stable for ppc64, wrt bug #482886
+
+  04 Sep 2013; Agostino Sarubbo <ago@gentoo.org> gtk-doc-1.19.ebuild:
+  Stable for ppc, wrt bug #482886
+
+  03 Sep 2013; Agostino Sarubbo <ago@gentoo.org> gtk-doc-1.19.ebuild:
+  Stable for ia64, wrt bug #482886
+
+  02 Sep 2013; Agostino Sarubbo <ago@gentoo.org> gtk-doc-1.19.ebuild:
+  Stable for alpha, wrt bug #482886
+
+  02 Sep 2013; Agostino Sarubbo <ago@gentoo.org> gtk-doc-1.19.ebuild:
+  Stable for x86, wrt bug #482886
+
+  31 Aug 2013; Agostino Sarubbo <ago@gentoo.org> gtk-doc-1.19.ebuild:
+  Stable for arm, wrt bug #482886
+
+  31 Aug 2013; Agostino Sarubbo <ago@gentoo.org> gtk-doc-1.19.ebuild:
+  Stable for amd64, wrt bug #482886
+
+  29 Aug 2013; Jeroen Roovers <jer@gentoo.org> gtk-doc-1.19.ebuild:
+  Stable for HPPA (bug #482886).
+
+*gtk-doc-1.19 (06 Jun 2013)
+
+  06 Jun 2013; Pacho Ramos <pacho@gentoo.org> +gtk-doc-1.19.ebuild:
+  Version bump
+
+  07 Mar 2013; Gilles Dartiguelongue <eva@gentoo.org> -gtk-doc-1.17.ebuild,
+  -gtk-doc-1.17-r1.ebuild, -files/gtk-doc-1.17-buildir-docs.patch,
+  -gtk-doc-1.18.ebuild:
+  Clean up old revisions.
 
   15 Jul 2012; Raúl Porcel <armin76@gentoo.org> gtk-doc-1.18-r1.ebuild:
   alpha/ia64/m68k/s390/sh/sparc stable wrt #410611

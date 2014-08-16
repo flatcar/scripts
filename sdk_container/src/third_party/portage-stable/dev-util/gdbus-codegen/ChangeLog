@@ -1,6 +1,165 @@
 # ChangeLog for dev-util/gdbus-codegen
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-util/gdbus-codegen/ChangeLog,v 1.49 2013/08/02 12:43:21 mgorny Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-util/gdbus-codegen/ChangeLog,v 1.91 2014/08/07 18:02:19 jer Exp $
+
+  07 Aug 2014; Jeroen Roovers <jer@gentoo.org> gdbus-codegen-2.40.0.ebuild:
+  Stable for HPPA (bug #512012).
+
+  04 Aug 2014; Christoph Junghans <ottxor@gentoo.org>
+  gdbus-codegen-2.40.0.ebuild:
+  added ~x86-macos (tested by me)
+
+  28 Jul 2014; Agostino Sarubbo <ago@gentoo.org> gdbus-codegen-2.40.0.ebuild:
+  Stable for ppc, wrt bug #512012
+
+  23 Jul 2014; Agostino Sarubbo <ago@gentoo.org> gdbus-codegen-2.40.0.ebuild:
+  Stable for x86, wrt bug #512012
+
+  22 Jul 2014; Agostino Sarubbo <ago@gentoo.org> gdbus-codegen-2.40.0.ebuild:
+  Stable for amd64, wrt bug #512912
+
+*gdbus-codegen-2.40.0 (27 Apr 2014)
+
+  27 Apr 2014; Gilles Dartiguelongue <eva@gentoo.org>
+  +gdbus-codegen-2.40.0.ebuild, +files/gdbus-codegen-2.40.0-sitedir.patch,
+  metadata.xml:
+  Version bump for Gnome 3.12.
+
+  25 Apr 2014; Pacho Ramos <pacho@gentoo.org>
+  -files/gdbus-codegen-2.32.4-sitedir.patch,
+  -files/gdbus-codegen-2.36.4-input-encoding.patch,
+  -gdbus-codegen-2.32.4-r1.ebuild, -gdbus-codegen-2.32.4-r2.ebuild,
+  -gdbus-codegen-2.34.3-r1.ebuild, -gdbus-codegen-2.36.4-r1.ebuild:
+  Drop old
+
+  21 Apr 2014; Agostino Sarubbo <ago@gentoo.org> gdbus-codegen-2.38.2.ebuild:
+  Stable for arm, wrt bug #507568
+
+  19 Apr 2014; Agostino Sarubbo <ago@gentoo.org> gdbus-codegen-2.38.2.ebuild:
+  Stable for sparc, wrt bug #507568
+
+  18 Apr 2014; Agostino Sarubbo <ago@gentoo.org> gdbus-codegen-2.38.2.ebuild:
+  Stable for alpha, wrt bug #507568
+
+  17 Apr 2014; Agostino Sarubbo <ago@gentoo.org> gdbus-codegen-2.38.2.ebuild:
+  Stable for ia64, wrt bug #507568
+
+  16 Apr 2014; Agostino Sarubbo <ago@gentoo.org> gdbus-codegen-2.38.2.ebuild:
+  Stable for ppc64, wrt bug #507568
+
+  14 Apr 2014; Agostino Sarubbo <ago@gentoo.org> gdbus-codegen-2.38.2.ebuild:
+  Stable for ppc, wrt bug #507568
+
+  28 Mar 2014; Jeroen Roovers <jer@gentoo.org> gdbus-codegen-2.38.2.ebuild:
+  Stable for HPPA (bug #499954).
+
+  26 Mar 2014; Mike Frysinger <vapier@gentoo.org> gdbus-codegen-2.38.2.ebuild:
+  Mark arm64/m68k/s390/sh stable.
+
+  13 Mar 2014; Christoph Junghans <ottxor@gentoo.org>
+  gdbus-codegen-2.38.2.ebuild:
+  added ~x64-macos (tested by me)
+
+  09 Mar 2014; Pacho Ramos <pacho@gentoo.org> gdbus-codegen-2.38.2.ebuild:
+  x86 stable, bug 499954
+
+  09 Mar 2014; Pacho Ramos <pacho@gentoo.org> gdbus-codegen-2.38.2.ebuild:
+  amd64 stable, bug 499954
+
+  22 Feb 2014; Pacho Ramos <pacho@gentoo.org> gdbus-codegen-2.38.2.ebuild:
+  Fix wrong commit, bug 502160
+
+  22 Feb 2014; Akinori Hattori <hattya@gentoo.org>
+  gdbus-codegen-2.36.4-r1.ebuild:
+  ia64 stable wrt bug #494132
+
+*gdbus-codegen-2.38.2 (23 Dec 2013)
+
+  23 Dec 2013; Gilles Dartiguelongue <eva@gentoo.org>
+  -gdbus-codegen-2.34.3.ebuild, -gdbus-codegen-2.36.4.ebuild,
+  +gdbus-codegen-2.38.2.ebuild:
+  Version bump for Gnome 3.10. Clean up old revisions.
+
+  22 Dec 2013; Jeroen Roovers <jer@gentoo.org> gdbus-codegen-2.36.4-r1.ebuild:
+  Stable for HPPA (bug #478252).
+
+  08 Dec 2013; Pacho Ramos <pacho@gentoo.org> gdbus-codegen-2.36.4-r1.ebuild:
+  x86 stable, bug #478252
+
+  30 Nov 2013; Pacho Ramos <pacho@gentoo.org> gdbus-codegen-2.36.4-r1.ebuild:
+  amd64 stable, bug #478252
+
+  14 Nov 2013; Matt Turner <mattst88@gentoo.org> gdbus-codegen-2.34.3-r1.ebuild:
+  alpha stable, bug 476364.
+
+  24 Oct 2013; Jeroen Roovers <jer@gentoo.org> gdbus-codegen-2.34.3-r1.ebuild:
+  Stable for HPPA (bug #476364).
+
+  17 Oct 2013; Markus Meier <maekke@gentoo.org> gdbus-codegen-2.34.3-r1.ebuild:
+  arm stable, bug #476364
+
+  29 Sep 2013; Michał Górny <mgorny@gentoo.org> -gdbus-codegen-2.32.4.ebuild:
+  Drop old.
+
+  06 Sep 2013; Agostino Sarubbo <ago@gentoo.org> gdbus-codegen-2.32.4-r1.ebuild:
+  Stable for sparc, wrt bug #479506
+
+  05 Sep 2013; Michał Górny <mgorny@gentoo.org> gdbus-codegen-2.32.4-r1.ebuild,
+  gdbus-codegen-2.32.4-r2.ebuild, gdbus-codegen-2.32.4.ebuild,
+  gdbus-codegen-2.34.3-r1.ebuild, gdbus-codegen-2.34.3.ebuild,
+  gdbus-codegen-2.36.4-r1.ebuild, gdbus-codegen-2.36.4.ebuild:
+  Remove Python 2.5 and 3.1 support.
+
+  02 Sep 2013; Agostino Sarubbo <ago@gentoo.org> gdbus-codegen-2.32.4-r1.ebuild:
+  Stable for alpha, wrt bug #479506
+
+*gdbus-codegen-2.36.4-r1 (01 Sep 2013)
+*gdbus-codegen-2.34.3-r1 (01 Sep 2013)
+*gdbus-codegen-2.32.4-r2 (01 Sep 2013)
+
+  01 Sep 2013; Alexandre Rostovtsev <tetromino@gentoo.org>
+  +gdbus-codegen-2.32.4-r2.ebuild, +gdbus-codegen-2.34.3-r1.ebuild,
+  -gdbus-codegen-2.36.3.ebuild, +gdbus-codegen-2.36.4-r1.ebuild,
+  +files/gdbus-codegen-2.36.4-input-encoding.patch:
+  Do not open input files as build-environment encoding text when using python3
+  as the python interpreter (bug #483060, thanks to Fernando V. (likewhoa)).
+
+  29 Aug 2013; Agostino Sarubbo <ago@gentoo.org> gdbus-codegen-2.32.4-r1.ebuild:
+  Stable for ia64, wrt bug #479506
+
+  18 Aug 2013; Agostino Sarubbo <ago@gentoo.org> gdbus-codegen-2.32.4-r1.ebuild:
+  Stable for x86, wrt bug #479506
+
+  16 Aug 2013; Jeroen Roovers <jer@gentoo.org> gdbus-codegen-2.32.4-r1.ebuild:
+  Stable for HPPA (bug #479506).
+
+*gdbus-codegen-2.36.4 (16 Aug 2013)
+
+  16 Aug 2013; Alexandre Rostovtsev <tetromino@gentoo.org>
+  -gdbus-codegen-2.36.2.ebuild, +gdbus-codegen-2.36.4.ebuild:
+  Version bump, remove old.
+
+  15 Aug 2013; Alexandre Rostovtsev <tetromino@gentoo.org>
+  gdbus-codegen-2.34.3.ebuild:
+  Don't patch twice (bug #481142, thanks to Patrick Lauer).
+
+  14 Aug 2013; Alexandre Rostovtsev <tetromino@gentoo.org>
+  gdbus-codegen-2.32.4-r1.ebuild, gdbus-codegen-2.34.3.ebuild,
+  gdbus-codegen-2.36.2.ebuild, gdbus-codegen-2.36.3.ebuild:
+  Silence distutils-r1 QA warnings (bug #481052, thanks to Michael Palimaka
+  (kensington)).
+
+  10 Aug 2013; Agostino Sarubbo <ago@gentoo.org> gdbus-codegen-2.32.4-r1.ebuild:
+  Stable for ppc64, wrt bug #479506
+
+  10 Aug 2013; Agostino Sarubbo <ago@gentoo.org> gdbus-codegen-2.32.4-r1.ebuild:
+  Stable for ppc, wrt bug #479506
+
+  10 Aug 2013; Agostino Sarubbo <ago@gentoo.org> gdbus-codegen-2.32.4-r1.ebuild:
+  Stable for amd64, wrt bug #479506
+
+  09 Aug 2013; Markus Meier <maekke@gentoo.org> gdbus-codegen-2.32.4-r1.ebuild:
+  arm stable, bug #479506
 
 *gdbus-codegen-2.32.4-r1 (02 Aug 2013)
 
