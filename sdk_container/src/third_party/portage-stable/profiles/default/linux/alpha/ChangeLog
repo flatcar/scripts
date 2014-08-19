@@ -1,6 +1,36 @@
 # ChangeLog for the default/linux/alpha profile directory
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/alpha/ChangeLog,v 1.11 2013/02/09 10:59:00 dilfridge Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/alpha/ChangeLog,v 1.17 2014/03/19 22:08:05 dilfridge Exp $
+
+  19 Mar 2014; Andreas K. Huettel <dilfridge@gentoo.org> 13.0/desktop/eapi,
+  13.0/desktop/gnome/eapi, +13.0/desktop/gnome/systemd/eapi,
+  13.0/desktop/kde/eapi, +13.0/desktop/kde/systemd/eapi, 13.0/developer/eapi,
+  +eapi:
+  Increase EAPI to 5
+
+  16 Mar 2014; Tom Wijsman <TomWij@gentoo.org> 13.0/package.use.stable.mask:
+  Mask unstable USE flags on media-video/vlc, see security bug #499806.
+
+  16 Mar 2014; Andreas K. Huettel <dilfridge@gentoo.org> -10.0/deprecated,
+  -10.0/desktop/deprecated, -10.0/desktop/eapi, -10.0/desktop/gnome/deprecated,
+  -10.0/desktop/gnome/eapi, -10.0/desktop/gnome/parent,
+  -10.0/desktop/kde/deprecated, -10.0/desktop/kde/eapi,
+  -10.0/desktop/kde/parent, -10.0/desktop/parent, -10.0/developer/deprecated,
+  -10.0/developer/eapi, -10.0/developer/parent, -10.0/eapi, -10.0/parent,
+  -10.0/server/deprecated, -10.0/server/eapi, -10.0/server/parent,
+  -10.0/use.mask:
+  Remove deprecated 10.0 profiles
+
+  11 Jan 2014; Tom Wijsman <TomWij@gentoo.org> +13.0/package.use.stable.mask:
+  [QA] Mask stable =dev-python/dbus-python-1.2.0[test] until
+  =dev-python/pygobject-3.8.3 is stable on the alpha architecture, see bug
+  #494132.
+
+  09 Jan 2014; Mike Gilbert <floppym@gentoo.org> 13.0/use.stable.mask:
+  Stable-mask systemd use flag, bug 497608.
+
+  13 Dec 2013; Matt Turner <mattst88@gentoo.org> +13.0/use.stable.mask:
+  Unmask dev-lang/python-3.3* targets (bug #474128).
 
   09 Feb 2013; Andreas K. Huettel <dilfridge@gentoo.org> +10.0/deprecated,
   +10.0/desktop/deprecated, +10.0/desktop/gnome/deprecated,

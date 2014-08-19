@@ -1,6 +1,66 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/ia64/package.use.mask,v 1.126 2013/10/26 08:52:25 gienah Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/ia64/package.use.mask,v 1.147 2014/08/13 02:28:44 reavertm Exp $
+
+# Maciej Mrozowski <reavertm@gentoo.org> (13 Aug 2014)
+# Missing keywords on dev-libs/protobuf-c (bug 519772)
+>=net-libs/libgadu-1.12.0 gg11
+
+# Christoph Junghans <ottxor@gentoo.org> (21 Jul 2014)
+# Missing keywords on sci-libs/libcerf (bug 517726)
+sci-visualization/gnuplot libcerf
+
+# Markos Chandras <hwoarang@gentoo.org> (26 Apr 2014)
+# dev-libs/jansson is not keyworded for ia64. Bug #507428
+app-admin/ulogd json
+
+# Pacho Ramos <pacho@gentoo.org> (12 Apr 2014)
+# Missing keywords, bug #507490
+net-misc/modemmanager mbim
+
+# Mike Frysinger <vapier@gentoo.org> (15 Mar 2014)
+# Various deps not ported to ia64.
+dev-python/ipython nbconvert notebook
+
+# Mike Frysinger <vapier@gentoo.org> (15 Mar 2014)
+# dev-python/greenlet is not ported to ia64.
+dev-python/pyzmq green test
+
+# Pacho Ramos <pacho@gentoo.org> (15 Mar 2014)
+# Missing keywords, bug #504672
+>=net-misc/vinagre-3.10 rdp
+
+# Pacho Ramos <pacho@gentoo.org> (23 Feb 2014)
+# Needed dependencies cannot be installed on ia64, bug #498638
+dev-util/dbus-test-runner test
+
+# Pacho Ramos <pacho@gentoo.org> (22 Feb 2014)
+# Missing keywords, bug #495250
+>=gnome-base/gnome-extra-apps-3.10 tracker
+
+# Pacho Ramos <pacho@gentoo.org> (10 Feb 2014)
+# Missing keywords, bug #495254
+>=dev-libs/totem-pl-parser-3.10 quvi
+>=media-video/totem-3.10 flash
+
+# Pacho Ramos <pacho@gentoo.org> (19 Jan 2014)  
+# Missing keywords, bug #478254
+gnome-base/gnome classic
+
+# Pacho Ramos <pacho@gentoo.org> (11 Jan 2014)
+sys-kernel/dracut -dracut_modules_systemd
+
+# Julian Ospald <hasufell@gentoo.org> (04 Jan 2014)
+# no keyword for media-libs/tremor
+>=dev-libs/DirectFB-1.7.1 tremor
+
+# Pacho Ramos <pacho@gentoo.org> (02 Dec 2013)
+# Missing keywords, bug #493156
+media-libs/libgphoto2 serial
+
+# Pacho Ramos <pacho@gentoo.org> (28 Nov 2013)
+# Missing keywords, bug #492820
+net-im/telepathy-connection-managers sipe
 
 # Mark Wright <gienah@gentoo.org> (26 Oct 2013)
 # template-haskell not yet available
@@ -51,12 +111,6 @@ net-misc/modemmanager qmi qmi-newest
 # remove mask if/when media-gfx/argyllcms is keywored here.
 x11-misc/colord extra-print-profiles
 
-# Alexandre Rostovtsev <tetromino@gentoo.org> (07 Jan 2012)
-# remove when media-libs/libquvi is stable on ia64
-=dev-libs/totem-pl-parser-2.32.6-r1 quvi
-=media-video/mplayer2-2.0_p20120828 quvi
-=media-video/totem-2.32.0-r2 youtube
-
 # Alexandre Rostovtsev <tetromino@gentoo.org> (31 Dec 2012)
 # remove mask if/when mail-client/thunderbird is keyworded here
 app-misc/tracker thunderbird
@@ -86,6 +140,7 @@ media-libs/phonon gstreamer vlc
 # MySQL 5.5 wants systemtap, tcmalloc & jemalloc
 >=dev-db/mysql-5.5 tcmalloc
 >=dev-db/mariadb-5.5 tcmalloc
+>=dev-db/percona-server-5.5 tcmalloc
 
 # Raúl Porcel <armin76@gentoo.org> (11 Sep 2012)
 # Upstream drops support on ia64 from 4.0 onwards, bug #430352

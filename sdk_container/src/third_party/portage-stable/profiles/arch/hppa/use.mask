@@ -1,6 +1,22 @@
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/hppa/use.mask,v 1.76 2013/10/25 15:25:43 jer Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/hppa/use.mask,v 1.81 2014/08/13 12:25:16 jer Exp $
 # DON'T TOUCH THIS FILE. Instead, file a bug and assign it to <hppa@gentoo.org>.
+
+# Jeroen Roovers <jer@gentoo.org> (20 May 2014)
+# Mask USE=systemtap generally until proper kernel support is in place
+systemtap
+
+# Jeroen Roovers <jer@gentoo.org> (20 May 2014)
+# USE=tcmalloc needs dev-util/google-perftools
+tcmalloc
+
+# Jeroen Roovers <jer@gentoo.org> (19 May 2014)
+# media-libs/x265 has not been ported to HPPA (bug #510340)
+x265
+
+# Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (10 Nov 2013)
+# sys-devel/llvm is not keyworded, bug #320221
+llvm
 
 # Jeroen Roovers <jer@gentoo.org> (22 Aug 2013)
 # No known OpenCL providers (bug #482096)
@@ -17,14 +33,6 @@ cg
 # Jeroen Roovers <jer@gentoo.org> (13 Nov 2012)
 # media-libs/fdk-aac is not supported on HPPA (bug #442806)
 fdk
-
-# Jeroen Roovers <jer@gentoo.org> (15 Oct 2012)
-# sys-auth/consolekit does not work without CONFIG_AUDITSYSCALL,
-# which is not supported on HPPA (bug #438368)
-colord
-consolekit
-policykit
-realtime
 
 # Jeroen Roovers <jer@gentoo.org> (23 May 2012)
 # sys-apps/gptfdisk creates partition tables incompatible with the HPPA

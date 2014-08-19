@@ -5,4 +5,7 @@
   <maintainer>
     <email>freedesktop-bugs@gentoo.org</email>
   </maintainer>
+  <upstream>
+    <remote-id type="cpe">cpe:/a:freedesktop:dbus-glib</remote-id>
+  </upstream>
 </pkgmetadata>

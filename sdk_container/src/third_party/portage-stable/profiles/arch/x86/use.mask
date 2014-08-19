@@ -1,9 +1,36 @@
-# Copyright 1999-2013 Gentoo Foundation.
+# Copyright 1999-2014 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License, v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86/use.mask,v 1.54 2013/08/22 16:10:39 chithanh Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86/use.mask,v 1.65 2014/07/27 09:22:08 aballier Exp $
 
 # Unmask the flag which corresponds to ARCH.
 -x86
+
+# Alexey Shvetsov <alexxy@gentoo.org> (08 Apr 2014)
+# Cuda works here
+-cuda
+
+# Michał Górny <mgorny@gentoo.org> (30 Mar 2014)
+# PyPy is keyworded on this arch.
+-python_targets_pypy
+-python_single_target_pypy
+
+# Michał Górny <mgorny@gentoo.org> (4 May 2013)
+# Unmask systemd since it is keyworded here.
+-systemd
+
+# Andrey Grozin <grozin@gentoo.org> (25 Jun 2014)
+# keyworded on x86
+-clisp
+-clozurecl
+-cmucl
+-ecls
+-gcl
+-sbcl
+
+# Michał Górny <mgorny@gentoo.org> (26 Jan 2013)
+# Unmask the flag corresponding to the only ABI. This allows x86 binary
+# packages to have uniform dependencies for amd64-multilib & x86.
+-abi_x86_32
 
 # Alexandre Rostovtsev <tetromino@gentoo.org> (09 Dec 2012)
 # Orc optimisations work fine on amd64 and x86
@@ -78,11 +105,16 @@
 -sse3
 -sse4
 -sse4_1
+-sse4_2
 -sse4a
 -ssse3
 -avx
 -avx128fma
+-avx2
 -avx256
+-fma3
+-fma4
+-xop
 -svga
 -kqemu
 -nvram
@@ -146,7 +178,6 @@ video_cards_newport
 # Shared with amd64
 -oci8
 -oracle7
--firebird
 -db2
 
 # Robert Buchholz <rbu@gentoo.org> (03 Jun 2007)
@@ -166,17 +197,3 @@ win64
 
 # fdk-aac is already keyworded here
 -fdk
-
-# Michał Górny <mgorny@gentoo.org> (26 Jan 2013)
-# Unmask the flag corresponding to the only ABI. This allows x86 binary
-# packages to have uniform dependencies for amd64-multilib & x86.
--abi_x86_32
-
-# Andrey Grozin <grozin@gentoo.org> (1 May 2013)
-# available on x86
--cmucl
--clozurecl
-
-# Michał Górny <mgorny@gentoo.org> (4 May 2013)
-# Unmask systemd since it is keyworded here.
--systemd

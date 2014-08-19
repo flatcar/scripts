@@ -1,8 +1,7 @@
-# Copyright 1999-2013 Gentoo Foundation.
+# Copyright 1999-2014 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/musl/use.mask,v 1.1 2013/06/22 21:32:09 blueness Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/musl/use.mask,v 1.2 2014/01/27 16:12:43 blueness Exp $
 
-nls
 pam
 
 emul-linux-x86

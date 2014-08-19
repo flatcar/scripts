@@ -1,12 +1,13 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/desc/elibc.desc,v 1.6 2013/06/16 00:04:10 blueness Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/desc/elibc.desc,v 1.7 2014/04/29 13:19:29 blueness Exp $
 
 # This file contains descriptions of ELIBC USE_EXPAND flags.
 
 # Keep it sorted.
 
 AIX - ELIBC setting for systems that use the AIX C library
+Cygwin - ELIBC setting for systems that use Cygwin
 Darwin - ELIBC setting for systems that use the Darwin C library
 DragonFly - ELIBC setting for systems that use the DragonFly C library
 FreeBSD - ELIBC setting for systems that use the FreeBSD C library
@@ -19,3 +20,4 @@ NetBSD - ELIBC setting for systems that use the NetBSD C library
 OpenBSD - ELIBC setting for systems that use the OpenBSD C library
 SunOS - ELIBC setting for systems that use the Sun Solaris C library
 uclibc - ELIBC setting for systems that use the uClibc C library
+Winnt - ELIBC setting for systems that use Winnt

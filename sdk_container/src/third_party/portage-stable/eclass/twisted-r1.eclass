@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License, v2 or later
-# $Header: /var/cvsroot/gentoo-x86/eclass/twisted-r1.eclass,v 1.1 2013/08/08 22:29:21 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/twisted-r1.eclass,v 1.2 2014/01/05 10:12:49 mgorny Exp $
 
 # @ECLASS: twisted-r1.eclass
 # @MAINTAINER:
@@ -99,7 +99,7 @@ _twisted-r1_camelcase() {
 : ${TWISTED_RELEASE:=$(get_version_component_range 1-2 ${PV})}
 
 HOMEPAGE="http://www.twistedmatrix.com/"
-SRC_URI="http://twistedmatrix.com/Releases/${TWISTED_PN}"
+SRC_URI="http://twistedmatrix.com/Releases/${TWISTED_PN#Twisted}"
 SRC_URI="${SRC_URI}/${TWISTED_RELEASE}/${TWISTED_P}.tar.bz2"
 
 LICENSE="MIT"

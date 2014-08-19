@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/intel-sdp.eclass,v 1.15 2013/09/29 18:00:30 ottxor Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/intel-sdp.eclass,v 1.17 2014/02/21 16:07:25 jlec Exp $
 
 # @ECLASS: intel-sdp.eclass
 # @MAINTAINER:
@@ -324,7 +324,7 @@ intel-sdp_pkg_pretend() {
 			die "Could not find license file"
 		fi
 	else
-		eqawarn "The ebuild doesn't check for a license!"
+		eqawarn "The ebuild doesn't check for presents of a proper intel license!"
 		eqawarn "This shouldn't be done unless there is a serious reason."
 	fi
 }
@@ -435,7 +435,8 @@ intel-sdp_src_install() {
 	fi
 
 	if [[ -d "${INTEL_SDP_DIR}"/man ]]; then
-		doman "${INTEL_SDP_DIR}"/man/en_US/man1/*
+		nonfatal doman "${INTEL_SDP_DIR}"/man/en_US/man1/*
+		nonfatal doman "${INTEL_SDP_DIR}"/man/man1/*
 		if has linguas_ja ${IUSE} && use linguas_ja; then
 			doman -i18n=ja_JP "${INTEL_SDP_DIR}"/man/ja_JP/man1/*
 		fi

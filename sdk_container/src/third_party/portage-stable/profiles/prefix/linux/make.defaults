@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/linux/make.defaults,v 1.6 2011/02/13 16:53:40 arfrever Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/linux/make.defaults,v 1.7 2014/01/21 04:30:29 dirtyepic Exp $
 
 # 'Sane' defaults
 ELIBC="glibc"
@@ -10,8 +10,8 @@ KERNEL="linux"
 # on glibc system you cannot turn it off
 USE="iconv"
 
-# build gcc with mudflap (pointer checking) and parallelization support
-USE="${USE} mudflap openmp"
+# build gcc with parallelization support
+USE="${USE} openmp"
 
 # Turn off acl to help with bootstrapping - it isn't as helpful for prefix as it
 # can be for a non-prefix install

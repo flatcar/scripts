@@ -1,22 +1,23 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/cmake-multilib.eclass,v 1.3 2013/09/06 17:11:52 axs Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/cmake-multilib.eclass,v 1.7 2014/05/09 10:48:59 mgorny Exp $
 
 # @ECLASS: cmake-multilib.eclass
 # @MAINTAINER:
-# Michał Górny <mgorny@gentoo.org>
+# gx86-multilib team <multilib@gentoo.org>
+# @AUTHOR:
+# Author: Michał Górny <mgorny@gentoo.org>
 # @BLURB: cmake-utils wrapper for multilib builds
 # @DESCRIPTION:
-# The cmake-multilib.eclass is a cmake-utils.eclass(5) wrapper
-# introducing support for building for more than one ABI (multilib).
+# The cmake-multilib.eclass provides a glue between cmake-utils.eclass(5)
+# and multilib-minimal.eclass(5), aiming to provide a convenient way
+# to build packages using cmake for multiple ABIs.
 #
-# Inheriting this eclass sets IUSE and exports cmake-utils phase
-# function wrappers which build the package for each supported ABI
-# if the appropriate flag is enabled.
-#
-# Note that the multilib support requires out-of-source builds to be
-# enabled. Thus, it is impossible to use CMAKE_IN_SOURCE_BUILD with
-# it.
+# Inheriting this eclass sets IUSE and exports default multilib_src_*()
+# sub-phases that call cmake-utils phase functions for each ABI enabled.
+# The multilib_src_*() functions can be defined in ebuild just like
+# in multilib-minimal, yet they ought to call appropriate cmake-utils
+# phase rather than 'default'.
 
 # EAPI=5 is required for meaningful MULTILIB_USEDEP.
 case ${EAPI:-0} in
@@ -28,31 +29,46 @@ if [[ ${CMAKE_IN_SOURCE_BUILD} ]]; then
 	die "${ECLASS}: multilib support requires out-of-source builds."
 fi
 
-inherit cmake-utils multilib-build
+inherit cmake-utils multilib-minimal
 
 EXPORT_FUNCTIONS src_configure src_compile src_test src_install
 
 cmake-multilib_src_configure() {
-	multilib_parallel_foreach_abi cmake-utils_src_configure "${@}"
+	local _cmake_args=( "${@}" )
+
+	multilib-minimal_src_configure
+}
+
+multilib_src_configure() {
+	cmake-utils_src_configure "${_cmake_args[@]}"
 }
 
 cmake-multilib_src_compile() {
-	multilib_foreach_abi cmake-utils_src_compile "${@}"
+	local _cmake_args=( "${@}" )
+
+	multilib-minimal_src_compile
+}
+
+multilib_src_compile() {
+	cmake-utils_src_compile "${_cmake_args[@]}"
 }
 
 cmake-multilib_src_test() {
-	multilib_foreach_abi cmake-utils_src_test "${@}"
+	local _cmake_args=( "${@}" )
+
+	multilib-minimal_src_test
+}
+
+multilib_src_test() {
+	cmake-utils_src_test "${_cmake_args[@]}"
 }
 
 cmake-multilib_src_install() {
-	cmake-multilib_secure_install() {
-		cmake-utils_src_install "${@}"
+	local _cmake_args=( "${@}" )
 
-		# Make sure all headers are the same for each ABI.
-		multilib_prepare_wrappers
-		multilib_check_headers
-	}
+	multilib-minimal_src_install
+}
 
-	multilib_foreach_abi cmake-multilib_secure_install "${@}"
-	multilib_install_wrappers
+multilib_src_install() {
+	cmake-utils_src_install "${_cmake_args[@]}"
 }

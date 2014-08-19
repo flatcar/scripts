@@ -1,5 +1,5 @@
 DEFINED_PHASES=configure install prepare
-DEPEND=test? ( amd64? ( dev-lang/yasm ) x86? ( dev-lang/yasm ) x86-fbsd? ( dev-lang/yasm ) ) || ( >=sys-devel/automake-1.12:1.12 >=sys-devel/automake-1.13:1.13 ) >=sys-devel/autoconf-2.68 sys-devel/libtool
+DEPEND=test? ( amd64? ( dev-lang/yasm ) x86? ( dev-lang/yasm ) x86-fbsd? ( dev-lang/yasm ) ) !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.14:1.14 ) >=sys-devel/autoconf-2.69 sys-devel/libtool
 DESCRIPTION=Disassembler library for the x86/-64 architecture sets.
 EAPI=3
 HOMEPAGE=http://udis86.sourceforge.net/
@@ -8,5 +8,5 @@ KEYWORDS=amd64 ~hppa ppc ~ppc64 x86 ~x86-fbsd
 LICENSE=BSD
 SLOT=0
 SRC_URI=mirror://sourceforge/udis86/udis86-1.7.tar.gz
-_eclasses_=autotools	16761a2f972abd686713e5967ff3c754	libtool	b1c8688e60f9580bcb9bb46e08737eb1	multilib	892e597faee02a5b94eb02ab512e7622	multiprocessing	89580da5ec17ad687fcde876c542b91e	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953
+_eclasses_=autotools	ebea507d219855923e3438c953cf4ab8	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	multiprocessing	d7f2985a2c76c365ee20269db5261414	toolchain-funcs	0f1760274637a138b99bb649202ea402
 _md5_=106370f6cd38b77fe5451531f6acb3d3

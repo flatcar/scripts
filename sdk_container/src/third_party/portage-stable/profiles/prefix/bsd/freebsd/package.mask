@@ -1,8 +1,0 @@
-# Copyright 1999-2011 Gentoo Foundation
-# Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/bsd/freebsd/package.mask,v 1.4 2011/09/26 18:53:37 grobian Exp $
-
-# Fabian Groffen <grobian@gentoo.org> (01 May 2011)
-# Fails to compile due to -ldl, after fixing makes compiler ICE, perhaps
-# not a recent Prefix gcc, but native FreeBSD gcc does, bug #347931
->=sys-devel/binutils-2.21.1

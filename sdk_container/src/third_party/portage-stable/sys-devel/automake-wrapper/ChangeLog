@@ -1,6 +1,36 @@
 # ChangeLog for sys-devel/automake-wrapper
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/automake-wrapper/ChangeLog,v 1.69 2013/06/23 04:50:40 vapier Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/automake-wrapper/ChangeLog,v 1.79 2014/01/17 04:23:05 vapier Exp $
+
+  17 Jan 2014; Mike Frysinger <vapier@gentoo.org> automake-wrapper-9.ebuild:
+  Add arm64 keywords.
+
+  26 Nov 2013; Markos Chandras <hwoarang@gentoo.org> automake-wrapper-9.ebuild:
+  amd64-fbsd has no stable keywords
+
+  05 Sep 2013; Mike Frysinger <vapier@gentoo.org> automake-wrapper-9.ebuild:
+  Mark m68k/ppc64/s390/sh/sparc stable #481904.
+
+  04 Sep 2013; Agostino Sarubbo <ago@gentoo.org> automake-wrapper-9.ebuild:
+  Stable for ppc, wrt bug #481904
+
+  03 Sep 2013; Agostino Sarubbo <ago@gentoo.org> automake-wrapper-9.ebuild:
+  Stable for ia64, wrt bug #481904
+
+  02 Sep 2013; Agostino Sarubbo <ago@gentoo.org> automake-wrapper-9.ebuild:
+  Stable for alpha, wrt bug #481904
+
+  02 Sep 2013; Agostino Sarubbo <ago@gentoo.org> automake-wrapper-9.ebuild:
+  Stable for x86, wrt bug #481904
+
+  31 Aug 2013; Agostino Sarubbo <ago@gentoo.org> automake-wrapper-9.ebuild:
+  Stable for arm, wrt bug #481904
+
+  31 Aug 2013; Agostino Sarubbo <ago@gentoo.org> automake-wrapper-9.ebuild:
+  Stable for amd64, wrt bug #481904
+
+  28 Aug 2013; Jeroen Roovers <jer@gentoo.org> automake-wrapper-9.ebuild:
+  Stable for HPPA (bug #481904).
 
 *automake-wrapper-9 (23 Jun 2013)
 

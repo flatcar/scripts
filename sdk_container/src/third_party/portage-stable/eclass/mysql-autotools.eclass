@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/mysql-autotools.eclass,v 1.18 2013/06/26 19:31:49 jmbsvicetto Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/mysql-autotools.eclass,v 1.20 2014/07/29 17:59:21 robbat2 Exp $
 
 # @ECLASS: mysql-autotools.eclass
 # @MAINTAINER:
@@ -112,7 +112,7 @@ mysql-autotools_configure_common() {
 	myconf="${myconf} $(use_with big-tables)"
 	myconf="${myconf} --enable-local-infile"
 	myconf="${myconf} --with-extra-charsets=all"
-	myconf="${myconf} --with-mysqld-user=mysql"
+	use prefix || myconf="${myconf} --with-mysqld-user=mysql"
 	myconf="${myconf} --with-server"
 	myconf="${myconf} --with-unix-socket-path=${EPREFIX}/var/run/mysqld/mysqld.sock"
 	myconf="${myconf} --without-libwrap"
@@ -377,23 +377,29 @@ mysql-autotools_src_prepare() {
 
 	cd "${S}"
 
-	# Apply the patches for this MySQL version
-	EPATCH_SUFFIX="patch"
-	mkdir -p "${EPATCH_SOURCE}" || die "Unable to create epatch directory"
-	# Clean out old items
-	rm -f "${EPATCH_SOURCE}"/*
-	# Now link in right patches
-	mysql_mv_patches
-	# And apply
-	epatch
+	if [[ ${MY_EXTRAS_VER} != none ]]; then
+
+		# Apply the patches for this MySQL version
+		EPATCH_SUFFIX="patch"
+		mkdir -p "${EPATCH_SOURCE}" || die "Unable to create epatch directory"
+		# Clean out old items
+		rm -f "${EPATCH_SOURCE}"/*
+		# Now link in right patches
+		mysql_mv_patches
+		# And apply
+		epatch
+	fi
 
 	# last -fPIC fixup, per bug #305873
 	i="${S}"/storage/innodb_plugin/plug.in
 	[[ -f ${i} ]] && sed -i -e '/CFLAGS/s,-prefer-non-pic,,g' "${i}"
 
-	# Additional checks, remove bundled zlib
-	rm -f "${S}/zlib/"*.[ch]
-	sed -i -e "s/zlib\/Makefile dnl/dnl zlib\/Makefile/" "${S}/configure.in"
+	# Additional checks, remove bundled zlib (Cluster needs this, for static
+	# memory management in zlib, leave available for Cluster)
+	if [[ "${PN}" != "mysql-cluster" ]] ; then
+		rm -f "${S}/zlib/"*.[ch]
+		sed -i -e "s/zlib\/Makefile dnl/dnl zlib\/Makefile/" "${S}/configure.in"
+	fi
 	rm -f "scripts/mysqlbug"
 
 	# Make charsets install in the right place
@@ -606,6 +612,7 @@ mysql-autotools_src_install() {
 		-e "s!= /var!= ${EPREFIX}/var!" \
 		"${FILESDIR}/${mycnf_src}" \
 		> "${TMPDIR}/my.cnf.ok"
+	use prefix && sed -i -r -e '/^user[[:space:]]*=[[:space:]]*mysql$/d' "${TMPDIR}/my.cnf.ok"
 	if use latin1 ; then
 		sed -i \
 			-e "/character-set/s|utf8|latin1|g" \

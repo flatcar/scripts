@@ -1,14 +1,15 @@
-# Copyright 1999-2013 Gentoo Foundation.
+# Copyright 1999-2014 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/desc/qemu_user_targets.desc,v 1.5 2013/05/31 15:33:44 slyfox Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/desc/qemu_user_targets.desc,v 1.6 2014/04/22 00:22:21 vapier Exp $
 
 # This file contains descriptions of QEMU_SOFTMMU_TARGETS USE_EXPAND flags.
 
 # Keep it sorted.
 
+aarch64 - ARM64 userspace emulation target
 alpha - userspace emulation target
-armeb - userspace emulation target
-arm - userspace emulation target
+armeb - ARM (big endian) userspace emulation target
+arm - ARM (little endian) userspace emulation target
 cris - userspace emulation target
 i386 - userspace emulation target
 m68k - userspace emulation target

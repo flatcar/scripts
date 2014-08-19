@@ -1,6 +1,100 @@
 # ChangeLog for Gentoo/PPC profile directory
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/ChangeLog,v 1.257 2013/10/27 06:22:54 gienah Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/ChangeLog,v 1.282 2014/08/15 13:41:19 blueness Exp $
+
+  15 Aug 2014; Anthony G. Basile <blueness@gentoo.org> package.use.mask:
+  Mask FEATURES=test on dev-ruby/haml since it pulls in rails, and so nodejs
+  which is broken on ppc/ppc64
+
+  15 Aug 2014; Anthony G. Basile <blueness@gentoo.org> package.use.mask:
+  Mask USE='doc examples test' on =dev-python/networkx-1.9 to avoid matplotlib
+
+  14 Aug 2014; Anthony G. Basile <blueness@gentoo.org> package.use.mask:
+  Also mask USE=matplotlib on dev-python/ipython since too many deps are not
+  keyworded
+
+  14 Aug 2014; Anthony G. Basile <blueness@gentoo.org> package.use.mask:
+  Mask USE='doc mongodb nbconvert notebook qt4' on dev-python/ipython since
+  mongodb is broken
+
+  13 Aug 2014; Christoph Junghans <ottxor@gentoo.org> package.use.mask:
+  unmask libcerf useflag (bug 517726)
+
+  13 Aug 2014; Maciej Mrozowski <reavertm@gentoo.org> package.use.mask:
+  Mask gg11 flag due to missing keywords (bug 519772)
+
+  12 Aug 2014; Anthony G. Basile <blueness@gentoo.org> ChangeLog:
+  Mask FEATURES=test on dev-ruby/actionpack since it eventually pulls in nodejs
+  which is broken on ppc/ppc64
+
+  12 Aug 2014; Anthony G. Basile <blueness@gentoo.org> package.use.mask:
+  Mask FEATURES=test on dev-ruby/tilt since it eventually pulls in nodejs which
+  is broken on ppc/ppc64
+
+  12 Aug 2014; Anthony G. Basile <blueness@gentoo.org> package.use.mask:
+  Mask USE=rbd on sys-block/fio since it pulls in ceph which is broken
+
+  08 Aug 2014; Anthony G. Basile <blueness@gentoo.org> package.mask:
+  Remove mask on dev-texlive/texlive-* tested okay on ppc and ppc64, bug
+  #475124
+
+  31 Jul 2014; Samuli Suominen <ssuominen@gentoo.org> +package.use.stable.mask:
+  Temporarily mask USE="test" for sys-block/thin-provisioning-tools because of
+  untested dev-lang/ruby based dependencies wrt #493780
+
+  29 Jul 2014; Robin H. Johnson <robbat2@gentoo.org> package.use.mask:
+  Update MySQL tcmalloc mask for percona-server.
+
+  22 Jul 2014; Christoph Junghans <ottxor@gentoo.org> package.use.mask:
+  mask libcerf useflag (bug 517726)
+
+  10 Jul 2014; Anthony G. Basile <blueness@gentoo.org> use.mask:
+  x264 works on pcc, bug #516856
+
+  27 Jun 2014; Michał Górny <mgorny@gentoo.org> make.defaults,
+  ppc32/make.defaults, ppc32/use.mask, ppc64/32ul/make.defaults,
+  ppc64/32ul/use.force, ppc64/32ul/use.mask, ppc64/make.defaults,
+  ppc64/use.mask, use.mask:
+  Clean up multilib flags. Add ABI values to the ppc32 profile for consistency
+  with ppc64 profiles.
+
+  14 Jun 2014; Andreas K. Huettel <dilfridge@gentoo.org> package.use.mask:
+  Use.mask vtk support of OpenCV
+
+  03 May 2014; Markos Chandras <hwoarang@gentoo.org> package.use.mask:
+  Mask app-emulation/lxc[seccomp] because it's not supported on powerpc
+
+  16 Apr 2014; Johannes Huber <johu@gentoo.org> package.use.mask:
+  Mask kde-base/gwenview[semantic-desktop], kde-base/okular[dpi] and
+  kde-base/nepomuk-core[migrator], because of unkeyworded deps.
+
+  29 Mar 2014; Mike Frysinger <vapier@gentoo.org> +make.defaults,
+  ppc32/make.defaults, ppc32/use.force, ppc64/make.defaults, ppc64/use.force,
+  use.mask:
+  Add ABI_PPC defines.
+
+  25 Mar 2014; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  +ppc32/use.stable.mask:
+  stable.mask opencl flag on ppc32
+
+  19 Mar 2014; Andreas K. Huettel <dilfridge@gentoo.org> +eapi, +ppc32/eapi,
+  +ppc32/pegasos/eapi, +ppc64/32ul/eapi, +ppc64/64ul/eapi, +ppc64/eapi:
+  Increase EAPI to 5
+
+  05 Feb 2014; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  package.use.mask:
+  Mask opencl flag for two more packages, bug #500326.
+
+  04 Feb 2014; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> use.mask:
+  Unmask opencl for powerpc.
+
+  04 Feb 2014; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  package.use.mask:
+  Mask opencl flag for imagemagick and johntheripper
+
+  04 Feb 2014; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  ppc64/64ul/use.mask:
+  Mask opencl flag on ppc64, in preparation for unmasking it on ppc
 
   25 Oct 2013; Davide Pesavento <pesa@gentoo.org> package.use.force:
   Remove obsolete entry.

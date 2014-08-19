@@ -1,6 +1,55 @@
 # ChangeLog for Gentoo/Alpha profile directory
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/alpha/ChangeLog,v 1.182 2013/10/26 08:55:51 gienah Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/alpha/ChangeLog,v 1.197 2014/08/13 02:28:43 reavertm Exp $
+
+  13 Aug 2014; Maciej Mrozowski <reavertm@gentoo.org> package.use.mask:
+  Mask gg11 flag due to missing keywords (bug 519772)
+
+  04 Aug 2014; Tobias Klausmann <klausman@gentoo.org> package.use.mask:
+  Mask x265 use flag for ffmpeg due to bug 519046
+
+  29 Jul 2014; Robin H. Johnson <robbat2@gentoo.org> package.use.mask:
+  Update MySQL tcmalloc mask for percona-server.
+
+  22 Jul 2014; Samuli Suominen <ssuominen@gentoo.org> package.use.mask:
+  Unmask USE="acl" for sys-auth/consolekit because alpha has recent enough
+  sys-fs/udev in stable now.
+
+  22 Jul 2014; Samuli Suominen <ssuominen@gentoo.org> package.use.mask:
+  Remove USE="consolekit" mask for sys-auth/pambase and USE="pam" mask for
+  sys-auth/consolekit because /usr/src/linux-3.15/arch/alpha/Kconfig has
+  "select HAVE_ARCH_AUDITSYSCALL" which means CONFIG_AUDITSYSCALL=y is a
+  possibility now.
+
+  22 Jul 2014; Samuli Suominen <ssuominen@gentoo.org> package.use.mask:
+  Remove USE="pam" mask for sys-apps/systemd wrt #506418#c3
+
+  22 Jul 2014; Christoph Junghans <ottxor@gentoo.org> package.use.mask:
+  mask libcerf useflag (bug 517726)
+
+  01 Jul 2014; Michał Górny <mgorny@gentoo.org> make.defaults:
+  Set ABI, DEFAULT_ABI and friends consistently with other profiles.
+
+  24 Jun 2014; Alexandre Rostovtsev <tetromino@gentoo.org> package.use.mask:
+  Remove obsolete gvfs[udisks] mask (bug #412801 and #440866).
+
+  06 Jun 2014; Brian Evans <grknight@gentoo.org> package.use.mask:
+  Remove USE mask on jemalloc for mysql/mariadb since it was keyworded
+
+  19 Mar 2014; Andreas K. Huettel <dilfridge@gentoo.org> +eapi:
+  Increase EAPI to 5
+
+  18 Jan 2014; Mike Frysinger <vapier@gentoo.org> make.defaults:
+  Drop python targets hacks now that base/ has it #474128.
+
+  09 Jan 2014; Mike Gilbert <floppym@gentoo.org> package.use.mask:
+  Mask sys-auth/pambase[systemd].
+
+  13 Dec 2013; Matt Turner <mattst88@gentoo.org> make.defaults:
+  Mask dev-lang/python-3.2*, unmask dev-lang/python-3.3* targets (bug #474128).
+
+  13 Nov 2013; Matt Turner <mattst88@gentoo.org> use.mask:
+  Drop systemd from use.mask, bug 478076.
 
   26 Oct 2013; Mark Wright <gienah@gentoo.org> package.use.mask:
   mask dev-haskell/dataenc test as template-haskell not yet available

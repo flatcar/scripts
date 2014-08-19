@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/cmake-utils.eclass,v 1.100 2013/07/24 20:57:38 scarabeus Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/cmake-utils.eclass,v 1.110 2014/08/12 14:58:40 kensington Exp $
 
 # @ECLASS: cmake-utils.eclass
 # @MAINTAINER:
@@ -17,45 +17,95 @@
 # builds (default), in-source builds and an implementation of the well-known use_enable
 # and use_with functions for CMake.
 
-if [[ ${___ECLASS_ONCE_CMAKE_UTILS} != "recur -_+^+_- spank" ]] ; then
-___ECLASS_ONCE_CMAKE_UTILS="recur -_+^+_- spank"
+if [[ -z ${_CMAKE_UTILS_ECLASS} ]]; then
+_CMAKE_UTILS_ECLASS=1
 
-# @ECLASS-VARIABLE: WANT_CMAKE
-# @DESCRIPTION:
-# Specify if cmake-utils eclass should depend on cmake optionaly or not.
-# This is usefull when only part of aplication is using cmake build system.
-# Valid values are: always [default], optional (where the value is the useflag
-# used for optionality)
-WANT_CMAKE="${WANT_CMAKE:-always}"
 
-# @ECLASS-VARIABLE: CMAKE_MIN_VERSION
+# @ECLASS-VARIABLE: BUILD_DIR
 # @DESCRIPTION:
-# Specify the minimum required CMake version.
-CMAKE_MIN_VERSION="${CMAKE_MIN_VERSION:-2.8.9}"
+# Build directory where all cmake processed files should be generated.
+# For in-source build it's fixed to ${CMAKE_USE_DIR}.
+# For out-of-source build it can be overridden, by default it uses
+# ${WORKDIR}/${P}_build.
+#
+# This variable has been called CMAKE_BUILD_DIR formerly.
+# It is set under that name for compatibility.
 
-# @ECLASS-VARIABLE: CMAKE_REMOVE_MODULES_LIST
+# @ECLASS-VARIABLE: CMAKE_BINARY
 # @DESCRIPTION:
-# Space-separated list of CMake modules that will be removed in $S during src_prepare,
-# in order to force packages to use the system version.
-CMAKE_REMOVE_MODULES_LIST="${CMAKE_REMOVE_MODULES_LIST:-FindBLAS FindLAPACK}"
+# Eclass can use different cmake binary than the one provided in by system.
+: ${CMAKE_BINARY:=cmake}
 
-# @ECLASS-VARIABLE: CMAKE_REMOVE_MODULES
+# @ECLASS-VARIABLE: CMAKE_BUILD_TYPE
 # @DESCRIPTION:
-# Do we want to remove anything? yes or whatever else for no
-CMAKE_REMOVE_MODULES="${CMAKE_REMOVE_MODULES:-yes}"
+# Set to override default CMAKE_BUILD_TYPE. Only useful for packages
+# known to make use of "if (CMAKE_BUILD_TYPE MATCHES xxx)".
+# If about to be set - needs to be set before invoking cmake-utils_src_configure.
+# You usualy do *NOT* want nor need to set it as it pulls CMake default build-type
+# specific compiler flags overriding make.conf.
+: ${CMAKE_BUILD_TYPE:=Gentoo}
+
+# @ECLASS-VARIABLE: CMAKE_IN_SOURCE_BUILD
+# @DESCRIPTION:
+# Set to enable in-source build.
 
 # @ECLASS-VARIABLE: CMAKE_MAKEFILE_GENERATOR
 # @DESCRIPTION:
 # Specify a makefile generator to be used by cmake.
 # At this point only "emake" and "ninja" are supported.
-CMAKE_MAKEFILE_GENERATOR="${CMAKE_MAKEFILE_GENERATOR:-emake}"
+: ${CMAKE_MAKEFILE_GENERATOR:=emake}
+
+# @ECLASS-VARIABLE: CMAKE_MIN_VERSION
+# @DESCRIPTION:
+# Specify the minimum required CMake version.
+: ${CMAKE_MIN_VERSION:=2.8.12}
+
+# @ECLASS-VARIABLE: CMAKE_REMOVE_MODULES
+# @DESCRIPTION:
+# Do we want to remove anything? yes or whatever else for no
+: ${CMAKE_REMOVE_MODULES:=yes}
+CMAKE_REMOVE_MODULES="${CMAKE_REMOVE_MODULES:-yes}"
+
+# @ECLASS-VARIABLE: CMAKE_REMOVE_MODULES_LIST
+# @DESCRIPTION:
+# Space-separated list of CMake modules that will be removed in $S during src_prepare,
+# in order to force packages to use the system version.
+: ${CMAKE_REMOVE_MODULES_LIST:=FindBLAS FindLAPACK}
+
+# @ECLASS-VARIABLE: CMAKE_USE_DIR
+# @DESCRIPTION:
+# Sets the directory where we are working with cmake.
+# For example when application uses autotools and only one
+# plugin needs to be done by cmake.
+# By default it uses ${S}.
+
+# @ECLASS-VARIABLE: CMAKE_VERBOSE
+# @DESCRIPTION:
+# Set to OFF to disable verbose messages during compilation
+: ${CMAKE_VERBOSE:=ON}
 
 # @ECLASS-VARIABLE: CMAKE_WARN_UNUSED_CLI
 # @DESCRIPTION:
 # Warn about variables that are declared on the command line
 # but not used. Might give false-positives.
 # "no" to disable (default) or anything else to enable.
-CMAKE_WARN_UNUSED_CLI="${CMAKE_WARN_UNUSED_CLI:-no}"
+: ${CMAKE_WARN_UNUSED_CLI:=no}
+
+# @ECLASS-VARIABLE: PREFIX
+# @DESCRIPTION:
+# Eclass respects PREFIX variable, though it's not recommended way to set
+# install/lib/bin prefixes.
+# Use -DCMAKE_INSTALL_PREFIX=... CMake variable instead.
+: ${PREFIX:=/usr}
+
+# @ECLASS-VARIABLE: WANT_CMAKE
+# @DESCRIPTION:
+# Specify if cmake-utils eclass should depend on cmake optionally or not.
+# This is useful when only part of application is using cmake build system.
+# Valid values are: always [default], optional (where the value is the useflag
+# used for optionality)
+: ${WANT_CMAKE:=always}
+
 
 CMAKEDEPEND=""
 case ${WANT_CMAKE} in
@@ -68,13 +118,12 @@ case ${WANT_CMAKE} in
 esac
 inherit toolchain-funcs multilib flag-o-matic eutils
 
-CMAKE_EXPF="src_compile src_test src_install"
 case ${EAPI:-0} in
-	2|3|4|5) CMAKE_EXPF+=" src_prepare src_configure" ;;
-	1|0) eerror "cmake-utils no longer supports EAPI 0-1." && die
-	;;
-	*) die "Unknown EAPI, bug eclass maintainers." ;;
+	2|3|4|5) : ;;
+	*) die "EAPI=${EAPI} is not supported" ;;
 esac
+
+CMAKE_EXPF="src_prepare src_configure src_compile src_test src_install"
 EXPORT_FUNCTIONS ${CMAKE_EXPF}
 
 case ${CMAKE_MAKEFILE_GENERATOR} in
@@ -136,53 +185,6 @@ _use_me_now_inverted() {
 		done
 	fi
 }
-
-# @ECLASS-VARIABLE: BUILD_DIR
-# @DESCRIPTION:
-# Build directory where all cmake processed files should be generated.
-# For in-source build it's fixed to ${CMAKE_USE_DIR}.
-# For out-of-source build it can be overriden, by default it uses
-# ${WORKDIR}/${P}_build.
-#
-# This variable has been called CMAKE_BUILD_DIR formerly.
-# It is set under that name for compatibility.
-
-# @ECLASS-VARIABLE: CMAKE_BUILD_TYPE
-# @DESCRIPTION:
-# Set to override default CMAKE_BUILD_TYPE. Only useful for packages
-# known to make use of "if (CMAKE_BUILD_TYPE MATCHES xxx)".
-# If about to be set - needs to be set before invoking cmake-utils_src_configure.
-# You usualy do *NOT* want nor need to set it as it pulls CMake default build-type
-# specific compiler flags overriding make.conf.
-: ${CMAKE_BUILD_TYPE:=Gentoo}
-
-# @ECLASS-VARIABLE: CMAKE_IN_SOURCE_BUILD
-# @DESCRIPTION:
-# Set to enable in-source build.
-
-# @ECLASS-VARIABLE: CMAKE_USE_DIR
-# @DESCRIPTION:
-# Sets the directory where we are working with cmake.
-# For example when application uses autotools and only one
-# plugin needs to be done by cmake.
-# By default it uses ${S}.
-
-# @ECLASS-VARIABLE: CMAKE_VERBOSE
-# @DESCRIPTION:
-# Set to OFF to disable verbose messages during compilation
-: ${CMAKE_VERBOSE:=ON}
-
-# @ECLASS-VARIABLE: PREFIX
-# @DESCRIPTION:
-# Eclass respects PREFIX variable, though it's not recommended way to set
-# install/lib/bin prefixes.
-# Use -DCMAKE_INSTALL_PREFIX=... CMake variable instead.
-: ${PREFIX:=/usr}
-
-# @ECLASS-VARIABLE: CMAKE_BINARY
-# @DESCRIPTION:
-# Eclass can use different cmake binary than the one provided in by system.
-: ${CMAKE_BINARY:=cmake}
 
 # Determine using IN or OUT source build
 _check_build_dir() {
@@ -261,7 +263,7 @@ cmake-utils_use_enable() { _use_me_now ENABLE_ "$@" ; }
 #
 # `cmake-utils_use_find_package foo LibFoo` echoes -DCMAKE_DISABLE_FIND_PACKAGE_LibFoo=OFF
 # if foo is enabled and -DCMAKE_DISABLE_FIND_PACKAGE_LibFoo=ON if it is disabled.
-# This can be used to make find_package optional (since cmake-2.8.6).
+# This can be used to make find_package optional.
 cmake-utils_use_find_package() { _use_me_now_inverted CMAKE_DISABLE_FIND_PACKAGE_ "$@" ; }
 
 # @FUNCTION: cmake-utils_use_disable
@@ -327,6 +329,15 @@ cmake-utils_use_use() { _use_me_now USE_ "$@" ; }
 # and -DFOO=OFF if it is disabled.
 cmake-utils_use() { _use_me_now "" "$@" ; }
 
+# @FUNCTION: cmake-utils_useno
+# @USAGE: <USE flag> [flag name]
+# @DESCRIPTION:
+# Based on use_enable. See ebuild(5).
+#
+# `cmake-utils_useno foo NOFOO` echoes -DNOFOO=OFF if foo is enabled
+# and -DNOFOO=ON if it is disabled.
+cmake-utils_useno() { _use_me_now_inverted "" "$@" ; }
+
 # Internal function for modifying hardcoded definitions.
 # Removes dangerous definitions that override Gentoo settings.
 _modify-cmakelists() {
@@ -363,16 +374,15 @@ _modify-cmakelists() {
 enable_cmake-utils_src_prepare() {
 	debug-print-function ${FUNCNAME} "$@"
 
-    debug-print "$FUNCNAME: PATCHES=$PATCHES"
+	pushd "${S}" > /dev/null
 
-    pushd "${S}" > /dev/null
-    [[ ${PATCHES[@]} ]] && epatch "${PATCHES[@]}"
+	debug-print "$FUNCNAME: PATCHES=$PATCHES"
+	[[ ${PATCHES[@]} ]] && epatch "${PATCHES[@]}"
 		
 	debug-print "$FUNCNAME: applying user patches"
-    epatch_user
+	epatch_user
 
-    popd > /dev/null
-
+	popd > /dev/null
 }
 
 # @VARIABLE: mycmakeargs
@@ -385,9 +395,10 @@ enable_cmake-utils_src_prepare() {
 # 	local mycmakeargs=(
 # 		$(cmake-utils_use_with openconnect)
 # 	)
+#
 # 	cmake-utils_src_configure
 # }
-
+# @CODE
 
 enable_cmake-utils_src_configure() {
 	debug-print-function ${FUNCNAME} "$@"
@@ -449,7 +460,7 @@ enable_cmake-utils_src_configure() {
 
 			ELSE ()
 
-			SET(CMAKE_PREFIX_PATH "${EPREFIX}${PREFIX}" CACHE STRING ""FORCE)
+			SET(CMAKE_PREFIX_PATH "${EPREFIX}${PREFIX}" CACHE STRING "" FORCE)
 			SET(CMAKE_SKIP_BUILD_RPATH OFF CACHE BOOL "" FORCE)
 			SET(CMAKE_SKIP_RPATH OFF CACHE BOOL "" FORCE)
 			SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE CACHE BOOL "")
@@ -510,8 +521,29 @@ enable_cmake-utils_src_configure() {
 enable_cmake-utils_src_compile() {
 	debug-print-function ${FUNCNAME} "$@"
 
-	has src_configure ${CMAKE_EXPF} || cmake-utils_src_configure
 	cmake-utils_src_make "$@"
+}
+
+_ninjaopts_from_makeopts() {
+	if [[ ${NINJAOPTS+set} == set ]]; then
+		return 0
+	fi
+	local ninjaopts=()
+	set -- ${MAKEOPTS}
+	while (( $# )); do
+		case $1 in
+			-j|-l|-k)
+				ninjaopts+=( $1 $2 )
+				shift 2
+				;;
+			-j*|-l*|-k*)
+				ninjaopts+=( $1 )
+				shift 1
+				;;
+			*) shift ;;
+		esac
+	done
+	export NINJAOPTS="${ninjaopts[*]}"
 }
 
 # @FUNCTION: ninja_src_make
@@ -521,14 +553,18 @@ enable_cmake-utils_src_compile() {
 ninja_src_make() {
 	debug-print-function ${FUNCNAME} "$@"
 
-		[[ -e build.ninja ]] || die "Makefile not found. Error during configure stage."
+	[[ -e build.ninja ]] || die "build.ninja not found. Error during configure stage."
 
-		if [[ "${CMAKE_VERBOSE}" != "OFF" ]]; then
-		# TODO: get load average from portage (-l option)
-		ninja ${MAKEOPTS} -v "$@" || die
+	_ninjaopts_from_makeopts
+
+	if [[ "${CMAKE_VERBOSE}" != "OFF" ]]; then
+		set -- ninja ${NINJAOPTS} -v "$@"
 	else
-		ninja "$@" || die
+		set -- ninja ${NINJAOPTS} "$@"
 	fi
+
+	echo "$@"
+	"$@" || die
 }
 
 # @FUNCTION: emake_src_make
@@ -538,11 +574,11 @@ ninja_src_make() {
 emake_src_make() {
 	debug-print-function ${FUNCNAME} "$@"
 
-		[[ -e Makefile ]] || die "Makefile not found. Error during configure stage."
+	[[ -e Makefile ]] || die "Makefile not found. Error during configure stage."
 
-		if [[ "${CMAKE_VERBOSE}" != "OFF" ]]; then
+	if [[ "${CMAKE_VERBOSE}" != "OFF" ]]; then
 		emake VERBOSE=1 "$@" || die
-		else
+	else
 		emake "$@" || die
 	fi
 
@@ -558,43 +594,7 @@ cmake-utils_src_make() {
 	_check_build_dir
 	pushd "${BUILD_DIR}" > /dev/null
 
-	${CMAKE_MAKEFILE_GENERATOR}_src_make $@
-
-	popd > /dev/null
-}
-
-enable_cmake-utils_src_install() {
-	debug-print-function ${FUNCNAME} "$@"
-
-	_check_build_dir
-	pushd "${BUILD_DIR}" > /dev/null
-	DESTDIR="${D}" ${CMAKE_MAKEFILE_GENERATOR} install "$@" || die "died running ${CMAKE_MAKEFILE_GENERATOR} install"
-	popd > /dev/null
-
-	pushd "${S}" > /dev/null
-    #Install docs, copied from base_src_install_docs
-	local x
-
-    if [[ "$(declare -p DOCS 2>/dev/null 2>&1)" == "declare -a"* ]]; then
-        for x in "${DOCS[@]}"; do
-            debug-print "$FUNCNAME: docs: creating document from ${x}"
-            dodoc "${x}" || die "dodoc failed"
-        done
-    fi
-    if [[ "$(declare -p HTML_DOCS 2>/dev/null 2>&1)" == "declare -a"* ]]; then
-        for x in "${HTML_DOCS[@]}"; do
-            debug-print "$FUNCNAME: docs: creating html document from ${x}"
-            dohtml -r "${x}" || die "dohtml failed"
-        done
-    fi
-
-	# Backward compatibility, for non-array variables
-	if [[ -n "${DOCS}" ]] && [[ "$(declare -p DOCS 2>/dev/null 2>&1)" != "declare -a"* ]]; then
-		dodoc ${DOCS} || die "dodoc failed"
-	fi
-	if [[ -n "${HTML_DOCS}" ]] && [[ "$(declare -p HTML_DOCS 2>/dev/null 2>&1)" != "declare -a"* ]]; then
-		dohtml -r ${HTML_DOCS} || die "dohtml failed"
-	fi
+	${CMAKE_MAKEFILE_GENERATOR}_src_make "$@"
 
 	popd > /dev/null
 }
@@ -630,11 +630,24 @@ enable_cmake-utils_src_test() {
 	fi
 }
 
+enable_cmake-utils_src_install() {
+	debug-print-function ${FUNCNAME} "$@"
+
+	_check_build_dir
+	pushd "${BUILD_DIR}" > /dev/null
+	DESTDIR="${D}" ${CMAKE_MAKEFILE_GENERATOR} install "$@" || die "died running ${CMAKE_MAKEFILE_GENERATOR} install"
+	popd > /dev/null
+
+	pushd "${S}" > /dev/null
+	einstalldocs
+	popd > /dev/null
+}
+
 # @FUNCTION: cmake-utils_src_prepare
 # @DESCRIPTION:
 # Apply ebuild and user patches.
 cmake-utils_src_prepare() {
-	_execute_optionaly "src_prepare" "$@"
+	_execute_optionally "src_prepare" "$@"
 }
 
 # @FUNCTION: cmake-utils_src_configure
@@ -642,34 +655,33 @@ cmake-utils_src_prepare() {
 # General function for configuring with cmake. Default behaviour is to start an
 # out-of-source build.
 cmake-utils_src_configure() {
-	_execute_optionaly "src_configure" "$@"
+	_execute_optionally "src_configure" "$@"
 }
 
 # @FUNCTION: cmake-utils_src_compile
 # @DESCRIPTION:
-# General function for compiling with cmake. Default behaviour is to check for
-# EAPI and respectively to configure as well or just compile.
+# General function for compiling with cmake.
 # Automatically detects the build type. All arguments are passed to emake.
 cmake-utils_src_compile() {
-	_execute_optionaly "src_compile" "$@"
-}
-
-# @FUNCTION: cmake-utils_src_install
-# @DESCRIPTION:
-# Function for installing the package. Automatically detects the build type.
-cmake-utils_src_install() {
-	_execute_optionaly "src_install" "$@"
+	_execute_optionally "src_compile" "$@"
 }
 
 # @FUNCTION: cmake-utils_src_test
 # @DESCRIPTION:
 # Function for testing the package. Automatically detects the build type.
 cmake-utils_src_test() {
-	_execute_optionaly "src_test" "$@"
+	_execute_optionally "src_test" "$@"
+}
+
+# @FUNCTION: cmake-utils_src_install
+# @DESCRIPTION:
+# Function for installing the package. Automatically detects the build type.
+cmake-utils_src_install() {
+	_execute_optionally "src_install" "$@"
 }
 
 # Optionally executes phases based on WANT_CMAKE variable/USE flag.
-_execute_optionaly() {
+_execute_optionally() {
 	local phase="$1" ; shift
 	if [[ ${WANT_CMAKE} = always ]]; then
 		enable_cmake-utils_${phase} "$@"

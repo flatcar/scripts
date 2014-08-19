@@ -3,6 +3,10 @@
 <pkgmetadata>
   <herd>cpp</herd>
   <use>
+    <flag name='context'>
+      Build and install the Boost.Context library and all other 
+      Boostlibraries that depends on it
+    </flag>
     <flag name='tools'>
       Build and install the boost tools (bcp, quickbook, inspect,
       wave)

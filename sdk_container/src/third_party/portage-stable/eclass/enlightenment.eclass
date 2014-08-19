@@ -1,14 +1,14 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/enlightenment.eclass,v 1.105 2013/10/12 15:30:23 aballier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/enlightenment.eclass,v 1.106 2014/07/11 08:21:58 ulm Exp $
 
 # @ECLASS: enlightenment.eclass
 # @MAINTAINER:
 # enlightenment@gentoo.org
 # @BLURB: simplify enlightenment package management
 
-if [[ ${___ECLASS_ONCE_ENLIGHTENMENT} != "recur -_+^+_- spank" ]] ; then
-___ECLASS_ONCE_ENLIGHTENMENT="recur -_+^+_- spank"
+if [[ -z ${_ENLIGHTENMENT_ECLASS} ]]; then
+_ENLIGHTENMENT_ECLASS=1
 
 inherit eutils libtool
 

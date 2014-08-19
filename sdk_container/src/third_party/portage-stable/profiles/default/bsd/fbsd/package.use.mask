@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/default/bsd/fbsd/package.use.mask,v 1.36 2013/08/27 22:07:31 aballier Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/default/bsd/fbsd/package.use.mask,v 1.39 2014/07/07 01:44:52 naota Exp $
 
 # As per UberLord's requests
 sys-apps/openrc pam
@@ -75,8 +75,13 @@ net-dns/bind gssapi
 dev-java/proguard j2me
 
 # Naohiro Aota <naota@gentoo.org> (20 Feb 2012)
-# Upstream does not support FreeBSD wifi nor crashreporter
+# Ian Stakenvicius <axs@gentoo.org> (30 Apr 2014)
+# Upstream does not support FreeBSD wifi nor crashreporter;
+# net-wireless/wireless-tools useless on fbsd, keep mozilla stuff
+# from bringing it in via mozconfig-3.eclass
+mail-client/thunderbird wifi
 www-client/firefox wifi
+www-client/seamonkey wifi
 
 # Naohiro Aota <naota@gentoo.org> (03 Oct 2012)
 # Mask gbm, udev is not supported on FreeBSD.
@@ -93,3 +98,11 @@ net-fs/samba dmapi
 # Naohiro Aota <naota@gentoo.org> (15 Oct 2012)
 # Mask numa on sys-apps/hwloc. numactl not available on FreeBSD
 sys-apps/hwloc numa
+
+# Matt Turner <mattst88@gentoo.org> (07 Mar 2014)
+# media-libs/libomxil-bellagio keyworded on amd64/x86
+media-libs/mesa openmax
+
+# Naohiro Aota <naota@gentoo.org> (07 Jul 2014)
+# xattr support is not available on BSD #501534
+sys-apps/portage xattr

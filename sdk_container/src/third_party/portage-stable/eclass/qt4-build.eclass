@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/qt4-build.eclass,v 1.153 2013/10/20 21:45:31 pesa Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/qt4-build.eclass,v 1.154 2013/11/11 19:47:39 pesa Exp $
 
 # @ECLASS: qt4-build.eclass
 # @MAINTAINER:
@@ -26,9 +26,6 @@ fi
 HOMEPAGE="http://qt-project.org/ http://qt.digia.com/"
 LICENSE="|| ( LGPL-2.1 GPL-3 )"
 
-MY_PV=${PV/_/-}
-MY_P=qt-everywhere-opensource-src-${MY_PV}
-
 case ${QT4_BUILD_TYPE} in
 	live)
 		EGIT_REPO_URI=(
@@ -38,7 +35,9 @@ case ${QT4_BUILD_TYPE} in
 		EGIT_BRANCH=${PV%.9999}
 		;;
 	release)
+		MY_P=qt-everywhere-opensource-src-${PV/_/-}
 		SRC_URI="http://download.qt-project.org/official_releases/qt/${PV%.*}/${PV}/${MY_P}.tar.gz"
+		S=${WORKDIR}/${MY_P}
 		;;
 esac
 
@@ -52,8 +51,6 @@ DEPEND="virtual/pkgconfig"
 if [[ ${QT4_BUILD_TYPE} == live ]]; then
 	DEPEND+=" dev-lang/perl"
 fi
-
-S=${WORKDIR}/${MY_P}
 
 # @FUNCTION: qt4-build_pkg_setup
 # @DESCRIPTION:

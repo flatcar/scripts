@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/elisp.eclass,v 1.57 2013/03/16 08:55:30 ulm Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/elisp.eclass,v 1.58 2014/06/07 10:28:16 ulm Exp $
 #
 # @ECLASS: elisp.eclass
 # @MAINTAINER:
@@ -29,7 +29,7 @@
 # @ECLASS-VARIABLE: NEED_EMACS
 # @DEFAULT_UNSET
 # @DESCRIPTION:
-# If you need anything different from Emacs 21, use the NEED_EMACS
+# If you need anything different from Emacs 23, use the NEED_EMACS
 # variable before inheriting elisp.eclass.  Set it to the major version
 # your package uses and the dependency will be adjusted.
 
@@ -74,7 +74,7 @@ case "${EAPI:-0}" in
 		pkg_{setup,postinst,postrm} ;;
 esac
 
-DEPEND=">=virtual/emacs-${NEED_EMACS:-21}"
+DEPEND=">=virtual/emacs-${NEED_EMACS:-23}"
 RDEPEND="${DEPEND}"
 
 # @FUNCTION: elisp_pkg_setup
@@ -83,7 +83,7 @@ RDEPEND="${DEPEND}"
 # version requirement of the NEED_EMACS variable.
 
 elisp_pkg_setup() {
-	elisp-need-emacs "${NEED_EMACS:-21}"
+	elisp-need-emacs "${NEED_EMACS:-23}"
 	case $? in
 		0) ;;
 		1) die "Emacs version too low" ;;

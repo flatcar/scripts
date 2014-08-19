@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation.
+# Copyright 1999-2014 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/desc/ofed_drivers.desc,v 1.2 2012/04/18 16:35:06 alexxy Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/desc/ofed_drivers.desc,v 1.3 2014/04/16 07:34:42 alexxy Exp $
 
 # This file contains descriptions of OFED_DRIVERS USE_EXPAND flags.
 
@@ -11,6 +11,8 @@ cxgb4 - Chelsio T4 RNIC driver
 ehca - IBM InfiniBand HCA (ehca) driver
 ipath - QLogic InfiniPath HCA driver (verbs based)
 mlx4 - Mellanox ConnectX InfiniBand HCA driver
+mlx5 - Mellanox ConnectIB InfiniBand HCA driver
 mthca - Mellanox InfiniBand HCA driver
 nes - NetEffect Ethernet Server Cluster Adapter driver
+ocrdma - Emulex OneConnect RDMA HCA driver
 psm - QLogic InfiniPath HCA driver (psm based)

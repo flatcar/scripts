@@ -1,6 +1,18 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/base/use.mask,v 1.180 2013/09/28 09:23:23 pacho Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/base/use.mask,v 1.202 2014/07/27 09:22:08 aballier Exp $
+
+# Mask use-flag firebird and package dev-db/firebird for bug 460780
+firebird
+
+# CURL_SSL=winssl is for prefix/windows/winnt only
+curl_ssl_winssl
+
+# cuda only works on amd64/x86
+cuda
+
+# on the way out
+ruby_targets_ruby18
 
 # masking here and unmasking in default/linux/
 kmod
@@ -20,9 +32,8 @@ vdpau
 # Infiniband stuff should generaly work on all arches but keyworded only on amd64/x86
 infiniband
 
-# These ABIs are in constant change and currently only available for SVN snapshots
-php_targets_php5-2
-#php_targets_php5-4
+# PHP 5.6 still has no stable version
+php_targets_php5-6
 
 # Its deps are not mature enough yet
 ayatana
@@ -58,10 +69,15 @@ sse3
 sse4
 sse4a
 sse4_1
+sse4_2
 ssse3
 avx
 avx128fma
+avx2
 avx256
+fma3
+fma4
+xop
 svga
 nvram
 
@@ -75,6 +91,10 @@ n32
 n64
 fixed-point
 loongson2f
+mips32r2
+mipsdspr1
+mipsdspr2
+mipsfpu
 
 # ppc64 arch specific USE flags
 ibm
@@ -85,6 +105,10 @@ vis
 ultra1
 
 # arm arch specific USE flags
+armvfp
+armv5te
+armv6
+armv6t2
 iwmmxt
 neon
 
@@ -148,6 +172,7 @@ psyco
 userland_BSD
 
 elibc_AIX
+elibc_Cygwin
 elibc_Darwin
 elibc_DragonFly
 elibc_FreeBSD
@@ -159,6 +184,7 @@ elibc_NetBSD
 elibc_OpenBSD
 elibc_SunOS
 elibc_uclibc
+elibc_Winnt
 
 kernel_AIX
 kernel_Darwin
@@ -256,8 +282,9 @@ tcc
 pam_console
 
 # Jeremy Olexa <darkside@gentoo.org>
-# The prefix USE flag should never be used on non prefix profiles
+# The prefix USE flags should never be used on non prefix profiles
 prefix
+prefix-guest
 
 # Diego E. Pettenò <flameeyes@gentoo.org> (6 Dec 2009)
 #  on behalf of QA Team
@@ -310,6 +337,8 @@ orc
 # please switch to one of the testing 13.0 profiles to get it.
 python_targets_pypy2_0
 python_single_target_pypy2_0
+python_targets_pypy
+python_single_target_pypy
 
 # Michał Górny <mgorny@gentoo.org> (26 Jan 2013)
 # Mask the multilib flags globally. Unmasked in specific arches.
@@ -320,16 +349,19 @@ abi_x86_x32
 abi_mips_o32
 abi_mips_n32
 abi_mips_n64
+abi_ppc_32
+abi_ppc_64
+abi_s390_32
+abi_s390_64
 
-# Zac Medico <zmedico@gentoo.org> (21 Mar 2013)
-# Python 3.4 pre-releases not available in main tree yet.
-python_targets_python3_4
-
-# Andrey Grozin <grozin@gentoo.org> (1 May 2013)
-# gcl is masked, cmucl only available on x86, clozurecl on x86 and amd64
-gcl
-cmucl
+# Andrey Grozin <grozin@gentoo.org> (25 Jun 2014)
+# These lisps are available only on some arches
+clisp
 clozurecl
+cmucl
+ecls
+gcl
+sbcl
 
 # Michał Górny <mgorny@gentoo.org> (4 May 2013)
 # Mask systemd flag globally, unmasked on arches on which systemd
@@ -348,3 +380,11 @@ qt5
 # Enabling this you will get a fully unsupported Gnome setup that
 # could suffer unexpected problem, don't expect support for it then.
 openrc-force
+
+# Michał Górny <mgorny@gentoo.org> (26 Apr 2014)
+# (on behalf of Python team)
+# Python 2.6 is no longer supported upstream and security issue fixes
+# are not provided anymore. Python 2.7 is almost drop-in replacement.
+# The support for implementations will be disabled in 30 days.
+python_targets_python2_6
+python_single_target_python2_6

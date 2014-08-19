@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/unpacker.eclass,v 1.13 2013/04/10 14:47:49 jer Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/unpacker.eclass,v 1.18 2014/07/11 08:21:58 ulm Exp $
 
 # @ECLASS: unpacker.eclass
 # @MAINTAINER:
@@ -15,14 +15,21 @@
 #  - merge rpm unpacking
 #  - support partial unpacks?
 
-if [[ ${___ECLASS_ONCE_UNPACKER} != "recur -_+^+_- spank" ]] ; then
-___ECLASS_ONCE_UNPACKER="recur -_+^+_- spank"
+if [[ -z ${_UNPACKER_ECLASS} ]]; then
+_UNPACKER_ECLASS=1
 
 # @ECLASS-VARIABLE: UNPACKER_BZ2
 # @DEFAULT_UNSET
 # @DESCRIPTION:
 # Utility to use to decompress bzip2 files.  Will dynamically pick between
-# `pbzip2` and `bzip2`.  Make sure your choice accepts the "-c" option.
+# `pbzip2` and `bzip2`.  Make sure your choice accepts the "-dc" options.
+# Note: this is meant for users to set, not ebuilds.
+
+# @ECLASS-VARIABLE: UNPACKER_LZIP
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# Utility to use to decompress lzip files.  Will dynamically pick between
+# `plzip`, `pdlzip` and `lzip`.  Make sure your choice accepts the "-dc" options.
 # Note: this is meant for users to set, not ebuilds.
 
 # for internal use only (unpack_pdv and unpack_makeself)
@@ -74,9 +81,9 @@ unpack_banner() {
 # parameter.  Here is an example:
 #
 # @CODE
-# 	vapier@vapier 0 pdv_unpack # strings hldsupdatetool.bin | grep lseek
+# 	$ strings hldsupdatetool.bin | grep lseek
 # 	lseek
-# 	vapier@vapier 0 pdv_unpack # strace -elseek ./hldsupdatetool.bin
+# 	$ strace -elseek ./hldsupdatetool.bin
 # 	lseek(3, -4, SEEK_END)					= 2981250
 # @CODE
 #
@@ -196,7 +203,7 @@ unpack_makeself() {
 				skip=`grep -a ^offset= "${src}" | awk '{print $3}'`
 				(( skip++ ))
 				;;
-			2.1.4|2.1.5|2.1.6)
+			2.1.4|2.1.5|2.1.6|2.2.0)
 				skip=$(grep -a offset=.*head.*wc "${src}" | awk '{print $3}' | head -n 1)
 				skip=$(head -n ${skip} "${src}" | wc -c)
 				exe="dd"
@@ -344,6 +351,9 @@ _unpacker() {
 		comp="gzip -dc" ;;
 	*.lzma|*.xz|*.txz)
 		comp="xz -dc" ;;
+	*.lz)
+		: ${UNPACKER_LZIP:=$(type -P plzip || type -P pdlzip || type -P lzip)}
+		comp="${UNPACKER_LZIP} -dc" ;;
 	*)	comp="" ;;
 	esac
 
@@ -438,6 +448,8 @@ unpacker_src_uri_depends() {
 			d="app-arch/xz-utils" ;;
 		*.zip)
 			d="app-arch/unzip" ;;
+		*.lz)
+			d="|| ( app-arch/plzip app-arch/pdlzip app-arch/lzip )" ;;
 		esac
 		deps+=" ${d}"
 	done

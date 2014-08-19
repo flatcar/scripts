@@ -1,13 +1,13 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/openib.eclass,v 1.9 2012/10/14 18:18:20 alexxy Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/openib.eclass,v 1.11 2014/04/16 10:09:29 alexxy Exp $
 
 # @ECLASS: openib.eclass
 # @AUTHOR:
 # Original Author: Alexey Shvetsov <alexxy@gentoo.org>
 # @BLURB: Simplify working with OFED packages
 
-inherit base eutils rpm versionator
+inherit eutils rpm versionator
 
 EXPORT_FUNCTIONS src_unpack
 
@@ -42,14 +42,9 @@ SLOT="${OFED_VER}"
 # Defines array of ofed version supported by eclass
 
 OFED_VERSIONS=(
-	"1.5.1"
-	"1.5.2"
-	"1.5.3"
-	"1.5.3.1"
-	"1.5.3.2"
-	"1.5.4"
 	"1.5.4.1"
 	"3.5"
+	"3.12"
 	)
 
 # @FUNCTION: block_other_ofed_versions
@@ -68,9 +63,9 @@ block_other_ofed_versions() {
 OFED_BASE_VER=$(get_version_component_range 1-3 ${OFED_VER})
 
 if [ -z $OFED_RC ] ; then
-	SRC_URI="http://www.openfabrics.org/downloads/OFED/ofed-${OFED_BASE_VER}/OFED-${OFED_VER}.tgz"
+	SRC_URI="https://www.openfabrics.org/downloads/OFED/ofed-${OFED_BASE_VER}/OFED-${OFED_VER}.tgz"
 else
-	SRC_URI="http://www.openfabrics.org/downloads/OFED/ofed-${OFED_BASE_VER}/OFED-${OFED_VER}-rc${OFED_RC_VER}.tgz"
+	SRC_URI="https://www.openfabrics.org/downloads/OFED/ofed-${OFED_BASE_VER}/OFED-${OFED_VER}-rc${OFED_RC_VER}.tgz"
 fi
 
 case ${PN} in
@@ -120,13 +115,41 @@ fi
 openib_src_unpack() {
 	unpack ${A}
 	if [ -z ${OFED_RC} ]; then
-		rpm_unpack "./OFED-${OFED_VER}/SRPMS/${MY_PN}-${MY_PV}-${OFED_SUFFIX}.src.rpm"
+		case ${PN} in
+			ofed)
+				rpm_unpack "./OFED-${OFED_VER}/SRPMS/${MY_PN}-${OFED_VER}-${OFED_SUFFIX}.src.rpm"
+				;;
+			*)
+				rpm_unpack "./OFED-${OFED_VER}/SRPMS/${MY_PN}-${MY_PV}-${OFED_SUFFIX}.src.rpm"
+				;;
+		esac
 	else
-		rpm_unpack "./OFED-${OFED_VER}-rc${OFED_RC_VER}/SRPMS/${MY_PN}-${MY_PV}-${OFED_SUFFIX}.src.rpm"
+		case ${PN} in
+			ofed)
+				rpm_unpack "./OFED-${OFED_VER}-rc${OFED_RC_VER}/SRPMS/${MY_PN}-${OFED_VER}-${OFED_SUFFIX}.src.rpm"
+				;;
+			*)
+				rpm_unpack "./OFED-${OFED_VER}-rc${OFED_RC_VER}/SRPMS/${MY_PN}-${MY_PV}-${OFED_SUFFIX}.src.rpm"
+				;;
+		esac
 	fi
 	if [ -z ${OFED_SNAPSHOT} ]; then
-		unpack ./${MY_PN}-${MY_PV}.${EXT}
+		case ${PN} in
+			ofed)
+				unpack ./${MY_PN}-${OFED_VER}.${EXT}
+				;;
+			*)
+				unpack ./${MY_PN}-${MY_PV}.${EXT}
+				;;
+		esac
 	else
-		unpack ./${MY_PN}-${MY_PV}-${OFED_SUFFIX}.${EXT}
+		case ${PN} in
+			ofed)
+				unpack ./${MY_PN}-${OFED_VER}-${OFED_SUFFIX}.${EXT}
+				;;
+			*)
+				unpack ./${MY_PN}-${MY_PV}-${OFED_SUFFIX}.${EXT}
+				;;
+		esac
 	fi
 }

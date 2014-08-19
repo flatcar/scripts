@@ -1,6 +1,35 @@
 # ChangeLog for Gentoo/sparc profile
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/sparc/ChangeLog,v 1.215 2013/10/25 15:19:56 pesa Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/sparc/ChangeLog,v 1.224 2014/08/15 17:46:59 armin76 Exp $
+
+  15 Aug 2014; Raúl Porcel <armin76@gentoo.org> package.use.stable.mask:
+  Remove sys-block/thin-provisioning-tools test from p.use.stable.mask as deps
+  are solved now
+
+  13 Aug 2014; Maciej Mrozowski <reavertm@gentoo.org> package.use.mask:
+  Mask gg11 flag due to missing keywords (bug 519772)
+
+  31 Jul 2014; Samuli Suominen <ssuominen@gentoo.org> package.use.stable.mask:
+  Temporarily mask USE="test" for sys-block/thin-provisioning-tools because of
+  untested dev-lang/ruby based dependencies wrt #493780
+
+  29 Jul 2014; Robin H. Johnson <robbat2@gentoo.org> package.use.mask:
+  Update MySQL tcmalloc mask for percona-server.
+
+  22 Jul 2014; Christoph Junghans <ottxor@gentoo.org> package.use.mask:
+  mask libcerf useflag (bug 517726)
+
+  24 Jun 2014; Alexandre Rostovtsev <tetromino@gentoo.org> package.use.mask:
+  Remove obsolete gvfs[udisks] mask (bug #412801 and #440866).
+
+  19 Mar 2014; Andreas K. Huettel <dilfridge@gentoo.org> +eapi:
+  Increase EAPI to 5
+
+  01 Feb 2014; Raúl Porcel <armin76@gentoo.org> package.use.mask:
+  P.use.mask net-misc/openssh hpn as it sigbuses, bug #499552
+
+  10 Nov 2013; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> use.mask:
+  Mask llvm flag until sys-devel/llvm is keyworded, bug #320221.
 
   25 Oct 2013; Davide Pesavento <pesa@gentoo.org> package.use.mask:
   Remove redundant entries (webkit is already use.mask-ed globally on sparc).

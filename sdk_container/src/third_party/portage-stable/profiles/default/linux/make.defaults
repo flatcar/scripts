@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/make.defaults,v 1.19 2013/01/21 09:26:05 dilfridge Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/make.defaults,v 1.20 2014/01/21 04:30:28 dirtyepic Exp $
 #
 # System-wide defaults for the Portage system
 # See portage(5) manpage
@@ -15,7 +15,7 @@
 USE="berkdb crypt ipv6 ncurses nls pam readline ssl tcpd zlib"
 
 # make sure toolchain has sane defaults <tooclhain@gentoo.org>
-USE="${USE} mudflap fortran openmp"
+USE="${USE} fortran openmp"
 
 # 2010/10/21 - Ole Markus With <olemarkus@gentoo.org>
 # These USE flags were originally inserted here because of PHP

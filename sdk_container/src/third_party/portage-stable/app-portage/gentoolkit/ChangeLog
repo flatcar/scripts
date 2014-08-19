@@ -1,6 +1,84 @@
 # ChangeLog for app-portage/gentoolkit
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/app-portage/gentoolkit/ChangeLog,v 1.298 2013/09/05 18:25:00 mgorny Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/app-portage/gentoolkit/ChangeLog,v 1.314 2014/07/06 12:35:20 mgorny Exp $
+
+  06 Jul 2014; Michał Górny <mgorny@gentoo.org> gentoolkit-0.3.0.8-r2.ebuild,
+  gentoolkit-0.3.0.9-r1.ebuild, gentoolkit-0.3.0.9.ebuild,
+  gentoolkit-9999.ebuild:
+  Clean up obsolete dependencies on virtual/python-argparse and virtual/python-
+  unittest2 (those packages were only required for <=python-2.6).
+
+  06 Apr 2014; Michał Górny <mgorny@gentoo.org> gentoolkit-0.3.0.9-r1.ebuild,
+  gentoolkit-9999.ebuild:
+  Enable PYTHON_TARGETS=pypy.
+
+  20 Mar 2014; Paul Varner <fuzzyray@gentoo.org> gentoolkit-0.3.0.9-r1.ebuild,
+  gentoolkit-9999.ebuild:
+  Update sys-apps/gentoo-functions dependency for prefix.
+
+*gentoolkit-0.3.0.9-r1 (19 Mar 2014)
+
+  19 Mar 2014; Paul Varner <fuzzyray@gentoo.org> +gentoolkit-0.3.0.9-r1.ebuild,
+  gentoolkit-9999.ebuild, +files/0.3.0.9-revdep-rebuild-py-504654-1.patch,
+  +files/0.3.0.9-revdep-rebuild-py-504654-2.patch:
+  Revision bump to fix issues with revdep-rebuild.py (Bug 504654).
+  Fix portage dependency and add dependency on sys-apps/gentoo-functions.
+
+*gentoolkit-0.3.0.9 (12 Mar 2014)
+
+  12 Mar 2014; Paul Varner <fuzzyray@gentoo.org> -gentoolkit-0.3.0.6-r3.ebuild,
+  -gentoolkit-0.3.0.7.ebuild, -gentoolkit-0.3.0.7-r1.ebuild,
+  -gentoolkit-0.3.0.7-r2.ebuild, -gentoolkit-0.3.0.8.ebuild,
+  -gentoolkit-0.3.0.8-r1.ebuild, +gentoolkit-0.3.0.9.ebuild,
+  -files/0.3.0.6-gentoolkit-304125.patch, -files/0.3.0.6-eshowkw-409449.patch,
+  -files/0.3.0.6-euse-410365.patch, -files/0.3.0.7-configroot.patch,
+  -files/0.3.0.6-eread-413577.patch, -files/0.3.0.6-eshowkw-414627.patch,
+  -files/0.3.0.6-euse-422675.patch, -files/0.3.0.7-root.patch:
+  Version bump for bug fixes. See
+  http://git.overlays.gentoo.org/gitweb/?p=proj/gentoolkit.git;a=shortlog;h=ref
+  s/heads/gentoolkit
+  for full list of changes. Removed old ebuilds.
+
+  19 Jan 2014; Mike Frysinger <vapier@gentoo.org> gentoolkit-0.3.0.8-r2.ebuild:
+  Add arm64 love.
+
+  22 Dec 2013; Agostino Sarubbo <ago@gentoo.org> gentoolkit-0.3.0.8-r2.ebuild:
+  Stable for ppc64, wrt bug #492234
+
+  21 Dec 2013; Agostino Sarubbo <ago@gentoo.org> gentoolkit-0.3.0.8-r2.ebuild:
+  Stable for ppc, wrt bug #492234
+
+  17 Dec 2013; Raúl Porcel <armin76@gentoo.org> gentoolkit-0.3.0.8-r2.ebuild:
+  alpha/ia64/m68k/s390/sh/sparc stable wrt #492234
+
+  01 Dec 2013; Markus Meier <maekke@gentoo.org> gentoolkit-0.3.0.8-r2.ebuild:
+  arm stable, bug #492234
+
+  01 Dec 2013; Johannes Huber <johu@gentoo.org> gentoolkit-0.3.0.8-r2.ebuild:
+  x86 stable wrt bug #492234
+
+  26 Nov 2013; Pacho Ramos <pacho@gentoo.org> gentoolkit-0.3.0.8-r2.ebuild:
+  amd64 stable, bug #492234
+
+  26 Nov 2013; Jeroen Roovers <jer@gentoo.org> gentoolkit-0.3.0.8-r2.ebuild:
+  Stable for HPPA (bug #492234).
+
+*gentoolkit-0.3.0.8-r2 (02 Oct 2013)
+
+  02 Oct 2013; Justin Lecher <jlec@gentoo.org> +gentoolkit-0.3.0.8-r2.ebuild,
+  metadata.xml:
+  Fix pyABI specific installation of revdep-rebuild.py
+
+  11 Sep 2013; Paul Varner <fuzzyray@gentoo.org> gentoolkit-0.3.0.8-r1.ebuild,
+  gentoolkit-9999.ebuild:
+  Change fowners call to use gid 0 for compatibilty with FreeBSD (Bug 484006).
+
+*gentoolkit-0.3.0.8-r1 (10 Sep 2013)
+
+  10 Sep 2013; Paul Varner <fuzzyray@gentoo.org> +gentoolkit-0.3.0.8-r1.ebuild,
+  +files/0.3.0.8-revdep-rebuild-476740.patch,
+  +files/0.3.0.8-revdep-rebuild-484340.patch:
+  Revison bump to add patches to fix revdep-rebuild bugs 476740 and 484340.
 
   05 Sep 2013; Michał Górny <mgorny@gentoo.org> gentoolkit-9999.ebuild:
   Clean up PYTHON_COMPAT from old implementations.

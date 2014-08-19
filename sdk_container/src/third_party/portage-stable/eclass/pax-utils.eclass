@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/pax-utils.eclass,v 1.21 2013/05/18 13:43:20 zorry Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/pax-utils.eclass,v 1.22 2014/07/11 08:21:58 ulm Exp $
 
 # @ECLASS: pax-utils.eclass
 # @MAINTAINER:
@@ -22,8 +22,8 @@
 # to contain either "PT", "XT" or "none".  The default is to attempt both
 # PT_PAX and XATTR_PAX.
 
-if [[ ${___ECLASS_ONCE_PAX_UTILS} != "recur -_+^+_- spank" ]] ; then
-___ECLASS_ONCE_PAX_UTILS="recur -_+^+_- spank"
+if [[ -z ${_PAX_UTILS_ECLASS} ]]; then
+_PAX_UTILS_ECLASS=1
 
 # @ECLASS-VARIABLE: PAX_MARKINGS
 # @DESCRIPTION:

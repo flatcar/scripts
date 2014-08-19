@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/eutils.eclass,v 1.427 2013/09/14 19:00:10 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/eutils.eclass,v 1.436 2014/07/11 08:21:58 ulm Exp $
 
 # @ECLASS: eutils.eclass
 # @MAINTAINER:
@@ -15,10 +15,10 @@
 # Due to the nature of this eclass, some functions may have maintainers
 # different from the overall eclass!
 
-if [[ ${___ECLASS_ONCE_EUTILS} != "recur -_+^+_- spank" ]] ; then
-___ECLASS_ONCE_EUTILS="recur -_+^+_- spank"
+if [[ -z ${_EUTILS_ECLASS} ]]; then
+_EUTILS_ECLASS=1
 
-inherit multilib toolchain-funcs user
+inherit multilib toolchain-funcs
 
 if has "${EAPI:-0}" 0 1 2; then
 
@@ -114,7 +114,7 @@ esvn_clean() {
 # @CODE
 estack_push() {
 	[[ $# -eq 0 ]] && die "estack_push: incorrect # of arguments"
-	local stack_name="__ESTACK_$1__" ; shift
+	local stack_name="_ESTACK_$1_" ; shift
 	eval ${stack_name}+=\( \"\$@\" \)
 }
 
@@ -127,23 +127,23 @@ estack_push() {
 estack_pop() {
 	[[ $# -eq 0 || $# -gt 2 ]] && die "estack_pop: incorrect # of arguments"
 
-	# We use the fugly __estack_xxx var names to avoid collision with
+	# We use the fugly _estack_xxx var names to avoid collision with
 	# passing back the return value.  If we used "local i" and the
 	# caller ran `estack_pop ... i`, we'd end up setting the local
-	# copy of "i" rather than the caller's copy.  The __estack_xxx
+	# copy of "i" rather than the caller's copy.  The _estack_xxx
 	# garbage is preferable to using $1/$2 everywhere as that is a
 	# bit harder to read.
-	local __estack_name="__ESTACK_$1__" ; shift
-	local __estack_retvar=$1 ; shift
-	eval local __estack_i=\${#${__estack_name}\[@\]}
+	local _estack_name="_ESTACK_$1_" ; shift
+	local _estack_retvar=$1 ; shift
+	eval local _estack_i=\${#${_estack_name}\[@\]}
 	# Don't warn -- let the caller interpret this as a failure
 	# or as normal behavior (akin to `shift`)
-	[[ $(( --__estack_i )) -eq -1 ]] && return 1
+	[[ $(( --_estack_i )) -eq -1 ]] && return 1
 
-	if [[ -n ${__estack_retvar} ]] ; then
-		eval ${__estack_retvar}=\"\${${__estack_name}\[${__estack_i}\]}\"
+	if [[ -n ${_estack_retvar} ]] ; then
+		eval ${_estack_retvar}=\"\${${_estack_name}\[${_estack_i}\]}\"
 	fi
-	eval unset ${__estack_name}\[${__estack_i}\]
+	eval unset ${_estack_name}\[${_estack_i}\]
 }
 
 # @FUNCTION: evar_push
@@ -174,7 +174,7 @@ evar_push() {
 	for var ; do
 		[[ ${!var+set} == "set" ]] \
 			&& val=${!var} \
-			|| val="${___ECLASS_ONCE_EUTILS}"
+			|| val="unset_76fc3c462065bb4ca959f939e6793f94"
 		estack_push evar "${var}" "${val}"
 	done
 }
@@ -211,7 +211,7 @@ evar_pop() {
 	while (( cnt-- )) ; do
 		estack_pop evar val || die "${FUNCNAME}: unbalanced push"
 		estack_pop evar var || die "${FUNCNAME}: unbalanced push"
-		[[ ${val} == "${___ECLASS_ONCE_EUTILS}" ]] \
+		[[ ${val} == "unset_76fc3c462065bb4ca959f939e6793f94" ]] \
 			&& unset ${var} \
 			|| printf -v "${var}" '%s' "${val}"
 	done
@@ -659,7 +659,7 @@ epatch() {
 # @USAGE:
 # @DESCRIPTION:
 # Applies user-provided patches to the source tree. The patches are
-# taken from /etc/portage/patches/<CATEGORY>/<PF|P|PN>[:SLOT]/, where the first
+# taken from /etc/portage/patches/<CATEGORY>/<P-PR|P|PN>[:SLOT]/, where the first
 # of these three directories to exist will be the one to use, ignoring
 # any more general directories which might exist as well. They must end
 # in ".patch" to be applied.
@@ -948,6 +948,14 @@ make_desktop_entry() {
 	) || die "installing desktop file failed"
 }
 
+# @FUNCTION: _eutils_eprefix_init
+# @INTERNAL
+# @DESCRIPTION:
+# Initialized prefix variables for EAPI<3.
+_eutils_eprefix_init() {
+	has "${EAPI:-0}" 0 1 2 && : ${ED:=${D}} ${EPREFIX:=} ${EROOT:=${ROOT}}
+}
+
 # @FUNCTION: validate_desktop_entries
 # @USAGE: [directories]
 # @MAINTAINER:
@@ -955,11 +963,12 @@ make_desktop_entry() {
 # @DESCRIPTION:
 # Validate desktop entries using desktop-file-utils
 validate_desktop_entries() {
-	if [[ -x /usr/bin/desktop-file-validate ]] ; then
+	_eutils_eprefix_init
+	if [[ -x "${EPREFIX}"/usr/bin/desktop-file-validate ]] ; then
 		einfo "Checking desktop entry validity"
 		local directories=""
 		for d in /usr/share/applications $@ ; do
-			[[ -d ${D}${d} ]] && directories="${directories} ${D}${d}"
+			[[ -d ${ED}${d} ]] && directories="${directories} ${ED}${d}"
 		done
 		if [[ -n ${directories} ]] ; then
 			for FILE in $(find ${directories} -name "*\.desktop" \
@@ -967,7 +976,7 @@ validate_desktop_entries() {
 			do
 				local temp=$(desktop-file-validate ${FILE} | grep -v "warning:" | \
 								sed -e "s|error: ||" -e "s|${FILE}:|--|g" )
-				[[ -n $temp ]] && elog ${temp/--/${FILE/${D}/}:}
+				[[ -n $temp ]] && elog ${temp/--/${FILE/${ED}/}:}
 			done
 		fi
 		echo ""
@@ -1160,7 +1169,7 @@ doicon() {
 # results in: insinto /usr/share/pixmaps
 #             newins foobar.png NEWNAME.png
 #
-# example 2: newicon -s 48 foobar.png NEWNAME.png 
+# example 2: newicon -s 48 foobar.png NEWNAME.png
 # results in: insinto /usr/share/icons/hicolor/48x48/apps
 #             newins foobar.png NEWNAME.png
 # @CODE
@@ -1227,6 +1236,7 @@ strip-linguas() {
 # solution, so instead you can call this from pkg_preinst.  See also the
 # preserve_old_lib_notify function.
 preserve_old_lib() {
+	_eutils_eprefix_init
 	if [[ ${EBUILD_PHASE} != "preinst" ]] ; then
 		eerror "preserve_old_lib() must be called from pkg_preinst() only"
 		die "Invalid preserve_old_lib() usage"
@@ -1238,11 +1248,11 @@ preserve_old_lib() {
 
 	local lib dir
 	for lib in "$@" ; do
-		[[ -e ${ROOT}/${lib} ]] || continue
+		[[ -e ${EROOT}/${lib} ]] || continue
 		dir=${lib%/*}
 		dodir ${dir} || die "dodir ${dir} failed"
-		cp "${ROOT}"/${lib} "${D}"/${lib} || die "cp ${lib} failed"
-		touch "${D}"/${lib}
+		cp "${EROOT}"/${lib} "${ED}"/${lib} || die "cp ${lib} failed"
+		touch "${ED}"/${lib}
 	done
 }
 
@@ -1259,9 +1269,11 @@ preserve_old_lib_notify() {
 	# let portage worry about it
 	has preserve-libs ${FEATURES} && return 0
 
+	_eutils_eprefix_init
+
 	local lib notice=0
 	for lib in "$@" ; do
-		[[ -e ${ROOT}/${lib} ]] || continue
+		[[ -e ${EROOT}/${lib} ]] || continue
 		if [[ ${notice} -eq 0 ]] ; then
 			notice=1
 			ewarn "Old versions of installed libraries were detected on your system."
@@ -1297,6 +1309,7 @@ preserve_old_lib_notify() {
 # Remember that this function isn't terribly intelligent so order of optional
 # flags matter.
 built_with_use() {
+	_eutils_eprefix_init
 	local hidden="no"
 	if [[ $1 == "--hidden" ]] ; then
 		hidden="yes"
@@ -1320,8 +1333,8 @@ built_with_use() {
 	[[ -z ${PKG} ]] && die "Unable to resolve $1 to an installed package"
 	shift
 
-	local USEFILE=${ROOT}/var/db/pkg/${PKG}/USE
-	local IUSEFILE=${ROOT}/var/db/pkg/${PKG}/IUSE
+	local USEFILE=${EROOT}/var/db/pkg/${PKG}/USE
+	local IUSEFILE=${EROOT}/var/db/pkg/${PKG}/IUSE
 
 	# if the IUSE file doesn't exist, the read will error out, we need to handle
 	# this gracefully
@@ -1401,24 +1414,31 @@ epunt_cxx() {
 # first optionally setting LD_LIBRARY_PATH to the colon-delimited
 # libpaths followed by optionally changing directory to chdir.
 make_wrapper() {
+	_eutils_eprefix_init
 	local wrapper=$1 bin=$2 chdir=$3 libdir=$4 path=$5
 	local tmpwrapper=$(emktemp)
 
 	(
 	echo '#!/bin/sh'
-	[[ -n ${chdir} ]] && printf 'cd "%s"\n' "${chdir}"
+	[[ -n ${chdir} ]] && printf 'cd "%s"\n' "${EPREFIX}${chdir}"
 	if [[ -n ${libdir} ]] ; then
+		local var
+		if [[ ${CHOST} == *-darwin* ]] ; then
+			var=DYLD_LIBRARY_PATH
+		else
+			var=LD_LIBRARY_PATH
+		fi
 		cat <<-EOF
-			if [ "\${LD_LIBRARY_PATH+set}" = "set" ] ; then
-				export LD_LIBRARY_PATH="\${LD_LIBRARY_PATH}:${libdir}"
+			if [ "\${${var}+set}" = "set" ] ; then
+				export ${var}="\${${var}}:${EPREFIX}${libdir}"
 			else
-				export LD_LIBRARY_PATH="${libdir}"
+				export ${var}="${EPREFIX}${libdir}"
 			fi
 		EOF
 	fi
 	# We don't want to quote ${bin} so that people can pass complex
 	# things as ${bin} ... "./someprog --args"
-	printf 'exec %s "$@"\n' "${bin}"
+	printf 'exec %s "$@"\n' "${bin/#\//${EPREFIX}\/}"
 	) > "${tmpwrapper}"
 	chmod go+rx "${tmpwrapper}"
 
@@ -1529,6 +1549,7 @@ prune_libtool_files() {
 	debug-print-function ${FUNCNAME} "$@"
 
 	local removing_all removing_modules opt
+	_eutils_eprefix_init
 	for opt; do
 		case "${opt}" in
 			--all)
@@ -1638,13 +1659,37 @@ prune_libtool_files() {
 			einfo "Removing unnecessary ${f#${D%/}} (${reason})"
 			queue+=( "${f}" )
 		fi
-	done < <(find "${D}" -xtype f -name '*.la' -print0)
+	done < <(find "${ED}" -xtype f -name '*.la' -print0)
 
 	if [[ ${queue[@]} ]]; then
 		rm -f "${queue[@]}"
 	fi
 }
 
+# @FUNCTION: einstalldocs
+# @DESCRIPTION:
+# Install documentation using DOCS and HTML_DOCS.
+#
+# If DOCS is declared and non-empty, all files listed in it are
+# installed. The files must exist, otherwise the function will fail.
+# In EAPI 4 and subsequent EAPIs DOCS may specify directories as well,
+# in other EAPIs using directories is unsupported.
+#
+# If DOCS is not declared, the files matching patterns given
+# in the default EAPI implementation of src_install will be installed.
+# If this is undesired, DOCS can be set to empty value to prevent any
+# documentation from being installed.
+#
+# If HTML_DOCS is declared and non-empty, all files and/or directories
+# listed in it are installed as HTML docs (using dohtml).
+#
+# Both DOCS and HTML_DOCS can either be an array or a whitespace-
+# separated list. Whenever directories are allowed, '<directory>/.' may
+# be specified in order to install all files within the directory
+# without creating a sub-directory in docdir.
+#
+# Passing additional options to dodoc and dohtml is not supported.
+# If you needed such a thing, you need to call those helpers explicitly.
 einstalldocs() {
 	debug-print-function ${FUNCNAME} "${@}"
 
@@ -1683,5 +1728,50 @@ einstalldocs() {
 }
 
 check_license() { die "you no longer need this as portage supports ACCEPT_LICENSE itself"; }
+
+# @FUNCTION: optfeature
+# @USAGE: <short description> <package atom to match> [other atoms]
+# @DESCRIPTION:
+# Print out a message suggesting an optional package (or packages) which
+# provide the described functionality
+#
+# The following snippet would suggest app-misc/foo for optional foo support,
+# app-misc/bar or app-misc/baz[bar] for optional bar support
+# and either both app-misc/a and app-misc/b or app-misc/c for alphabet support.
+# @CODE
+#	optfeature "foo support" app-misc/foo
+#	optfeature "bar support" app-misc/bar app-misc/baz[bar]
+#	optfeature "alphabet support" "app-misc/a app-misc/b" app-misc/c
+# @CODE
+optfeature() {
+	debug-print-function ${FUNCNAME} "$@"
+	local i j msg
+	local desc=$1
+	local flag=0
+	shift
+	for i; do
+		for j in ${i}; do
+			if has_version "${j}"; then
+				flag=1
+			else
+				flag=0
+				break
+			fi
+		done
+		if [[ ${flag} -eq 1 ]]; then
+			break
+		fi
+	done
+	if [[ ${flag} -eq 0 ]]; then
+		for i; do
+			msg=" "
+			for j in ${i}; do
+				msg+=" ${j} and"
+			done
+			msg="${msg:0: -4} for ${desc}"
+			elog "${msg}"
+		done
+	fi
+}
 
 fi

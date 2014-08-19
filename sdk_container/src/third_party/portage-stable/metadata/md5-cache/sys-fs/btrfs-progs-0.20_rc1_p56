@@ -8,5 +8,5 @@ LICENSE=GPL-2
 RDEPEND=sys-libs/zlib sys-apps/acl sys-fs/e2fsprogs
 SLOT=0
 SRC_URI=http://dev.gentoo.org/~floppym/dist/btrfs-progs-0.20_rc1_p56.tar.gz
-_eclasses_=multilib	892e597faee02a5b94eb02ab512e7622	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953
+_eclasses_=multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0f1760274637a138b99bb649202ea402
 _md5_=bb6cd38823c39f4413da9b18d4410942

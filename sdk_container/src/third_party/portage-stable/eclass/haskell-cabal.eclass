@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/haskell-cabal.eclass,v 1.41 2013/07/29 12:31:35 slyfox Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/haskell-cabal.eclass,v 1.46 2014/06/27 07:26:18 slyfox Exp $
 
 # @ECLASS: haskell-cabal.eclass
 # @MAINTAINER:
@@ -33,7 +33,7 @@
 #                  on cabal, but still use this eclass (e.g. haskell-updater).
 #   test-suite --  add support for cabal test-suites (introduced in Cabal-1.8)
 
-inherit eutils ghc-package multilib
+inherit eutils ghc-package multilib multiprocessing
 
 # @ECLASS-VARIABLE: CABAL_EXTRA_CONFIGURE_FLAGS
 # @DESCRIPTION:
@@ -62,6 +62,11 @@ inherit eutils ghc-package multilib
 : ${CABAL_DEBUG_LOOSENING:=}
 
 HASKELL_CABAL_EXPF="pkg_setup src_compile src_test src_install"
+
+# 'dev-haskell/cabal' passes those options with ./configure-based
+# configuration, but most packages don't need/don't accept it:
+# #515362, #515362
+QA_CONFIGURE_OPTIONS+=" --with-compiler --with-hc --with-hc-pkg --with-gcc"
 
 case "${EAPI:-0}" in
 	2|3|4|5) HASKELL_CABAL_EXPF+=" src_configure" ;;
@@ -180,10 +185,11 @@ cabal-bootstrap() {
 
 	make_setup() {
 		set -- -package "${cabalpackage}" --make "${setupmodule}" \
+			${HCFLAGS} \
 			${GHC_BOOTSTRAP_FLAGS} \
 			"$@" \
 			-o setup
-		echo $(ghc-getghc) ${HCFLAGS} "$@"
+		echo $(ghc-getghc) "$@"
 		$(ghc-getghc) "$@"
 	}
 	if $(ghc-supports-shared-libraries); then
@@ -209,18 +215,14 @@ cabal-bootstrap() {
 }
 
 cabal-mksetup() {
-	local setupdir
+	local setupdir=${1:-${S}}
+	local setup_src=${setupdir}/Setup.hs
 
-	if [[ -n $1 ]]; then
-		setupdir=$1
-	else
-		setupdir=${S}
-	fi
-
-	rm -f "${setupdir}"/Setup.{lhs,hs}
+	rm -vf "${setupdir}"/Setup.{lhs,hs}
+	elog "Creating 'Setup.hs' for 'Simple' build type."
 
 	echo 'import Distribution.Simple; main = defaultMainWithHooks defaultUserHooks' \
-		> $setupdir/Setup.hs || die "failed to create default Setup.hs"
+		> "${setup_src}" || die "failed to create default Setup.hs"
 }
 
 cabal-hscolour() {
@@ -252,10 +254,12 @@ cabal-die-if-nonempty() {
 }
 
 cabal-show-brokens() {
+	elog "ghc-pkg check: 'checking for other broken packages:'"
 	# pretty-printer
 	$(ghc-getghcpkg) check 2>&1 \
 		| egrep -v '^Warning: haddock-(html|interfaces): ' \
-		| egrep -v '^Warning: include-dirs: '
+		| egrep -v '^Warning: include-dirs: ' \
+		| head -n 20
 
 	cabal-die-if-nonempty 'broken' \
 		$($(ghc-getghcpkg) check --simple-output)
@@ -274,47 +278,60 @@ cabal-show-brokens-and-die() {
 }
 
 cabal-configure() {
+	local cabalconf=()
 	has "${EAPI:-0}" 0 1 2 && ! use prefix && EPREFIX=
 
 	if [[ -n "${CABAL_USE_HADDOCK}" ]] && use doc; then
-		cabalconf="${cabalconf} --with-haddock=${EPREFIX}/usr/bin/haddock"
+		cabalconf+=(--with-haddock=${EPREFIX}/usr/bin/haddock)
 	fi
 	if [[ -n "${CABAL_USE_PROFILE}" ]] && use profile; then
-		cabalconf="${cabalconf} --enable-library-profiling"
+		cabalconf+=(--enable-library-profiling)
 	fi
 	if [[ -n "${CABAL_USE_ALEX}" ]]; then
-		cabalconf="${cabalconf} --with-alex=${EPREFIX}/usr/bin/alex"
+		cabalconf+=(--with-alex=${EPREFIX}/usr/bin/alex)
 	fi
 
 	if [[ -n "${CABAL_USE_HAPPY}" ]]; then
-		cabalconf="${cabalconf} --with-happy=${EPREFIX}/usr/bin/happy"
+		cabalconf+=(--with-happy=${EPREFIX}/usr/bin/happy)
 	fi
 
 	if [[ -n "${CABAL_USE_C2HS}" ]]; then
-		cabalconf="${cabalconf} --with-c2hs=${EPREFIX}/usr/bin/c2hs"
+		cabalconf+=(--with-c2hs=${EPREFIX}/usr/bin/c2hs)
 	fi
 	if [[ -n "${CABAL_USE_CPPHS}" ]]; then
-		cabalconf="${cabalconf} --with-cpphs=${EPREFIX}/usr/bin/cpphs"
+		cabalconf+=(--with-cpphs=${EPREFIX}/usr/bin/cpphs)
 	fi
 	if [[ -n "${CABAL_TEST_SUITE}" ]]; then
-		cabalconf="${cabalconf} $(use_enable test tests)"
+		cabalconf+=($(use_enable test tests))
 	fi
 
 	local option
 	for option in ${HCFLAGS}
 	do
-		cabalconf+=" --ghc-option=$option"
+		cabalconf+=(--ghc-option="$option")
 	done
+
+	# parallel on all available cores
+	if ghc-supports-parallel-make; then
+		local max_jobs=$(makeopts_jobs)
+
+		# limit to very small value, as parallelism
+		# helps slightly, but makes things severely worse
+		# when amount of threads is Very Large.
+		[[ ${max_jobs} -gt 4 ]] && max_jobs=4
+
+		cabalconf+=(--ghc-option=-j"$max_jobs")
+	fi
 
 	# Building GHCi libs on ppc64 causes "TOC overflow".
 	if use ppc64; then
-		cabalconf="${cabalconf} --disable-library-for-ghci"
+		cabalconf+=(--disable-library-for-ghci)
 	fi
 
 	# currently cabal does not respect CFLAGS and LDFLAGS on it's own (bug #333217)
 	# so translate LDFLAGS to ghc parameters (without filtering)
 	local flag
-	for flag in $LDFLAGS; do cabalconf="${cabalconf} --ghc-option=-optl$flag"; done
+	for flag in $LDFLAGS; do cabalconf+=(--ghc-option="-optl$flag"); done
 
 	# disable executable stripping for the executables, as portage will
 	# strip by itself, and pre-stripping gives a QA warning.
@@ -322,24 +339,34 @@ cabal-configure() {
 	# not accept the flag.
 	# this fixes numerous bugs, amongst them;
 	# bug #251881, bug #251882, bug #251884, bug #251886, bug #299494
-	cabalconf="${cabalconf} --disable-executable-stripping"
+	cabalconf+=(--disable-executable-stripping)
 
-	cabalconf="${cabalconf} --docdir=${EPREFIX}/usr/share/doc/${PF}"
+	cabalconf+=(--docdir="${EPREFIX}"/usr/share/doc/${PF})
 	# As of Cabal 1.2, configure is quite quiet. For diagnostic purposes
 	# it's better if the configure chatter is in the build logs:
-	cabalconf="${cabalconf} --verbose"
+	cabalconf+=(--verbose)
 
 	# We build shared version of our Cabal where ghc ships it's shared
 	# version of it. We will link ./setup as dynamic binary againt Cabal later.
 	[[ ${CATEGORY}/${PN} == "dev-haskell/cabal" ]] && \
 		$(ghc-supports-shared-libraries) && \
-			cabalconf="${cabalconf} --enable-shared"
+			cabalconf+=(--enable-shared)
 
 	if $(ghc-supports-shared-libraries); then
 		# maybe a bit lower
 		if $(ghc-supports-dynamic-by-default); then
-			cabalconf="${cabalconf} --enable-shared"
+			cabalconf+=(--enable-shared)
 		fi
+	fi
+
+	# --sysconfdir appeared in Cabal-1.18+
+	if ./setup configure --help | grep -q -- --sysconfdir; then
+		cabalconf+=(--sysconfdir="${EPREFIX}"/etc)
+	fi
+
+	# appeared in Cabal-1.18+ (see '--disable-executable-stripping')
+	if ./setup configure --help | grep -q -- --disable-library-stripping; then
+		cabalconf+=(--disable-library-stripping)
 	fi
 
 	set -- configure \
@@ -351,7 +378,7 @@ cabal-configure() {
 		--libsubdir=${P}/ghc-$(ghc-version) \
 		--datadir="${EPREFIX}"/usr/share/ \
 		--datasubdir=${P}/ghc-$(ghc-version) \
-		${cabalconf} \
+		"${cabalconf[@]}" \
 		${CABAL_CONFIGURE_FLAGS} \
 		${CABAL_EXTRA_CONFIGURE_FLAGS} \
 		"$@"
@@ -360,7 +387,6 @@ cabal-configure() {
 }
 
 cabal-build() {
-	unset LANG LC_ALL LC_MESSAGES
 	set --  build ${CABAL_EXTRA_BUILD_FLAGS} "$@"
 	echo ./setup "$@"
 	./setup "$@" \
@@ -598,7 +624,8 @@ cabal_flag() {
 #}
 #
 cabal_chdeps() {
-	local cf=${CABAL_FILE:-${S}/${PN}.cabal}
+	local cabal_fn=${MY_PN:-${PN}}.cabal
+	local cf=${CABAL_FILE:-${S}/${cabal_fn}}
 	local from_ss # ss - substring
 	local to_ss
 	local orig_c # c - contents
@@ -637,4 +664,26 @@ cabal_chdeps() {
 
 	echo "${new_c}" > "$cf" ||
 		die "failed to update"
+}
+
+# @FUNCTION: replace-hcflags
+# @USAGE: <old> <new>
+# @DESCRIPTION:
+# Replace the <old> flag with <new> in HCFLAGS. Accepts shell globs for <old>.
+# The implementation is picked from flag-o-matic.eclass:replace-flags()
+replace-hcflags() {
+	[[ $# != 2 ]] && die "Usage: replace-hcflags <old flag> <new flag>"
+
+	local f new=()
+	for f in ${HCFLAGS} ; do
+		# Note this should work with globs like -O*
+		if [[ ${f} == ${1} ]]; then
+			einfo "HCFLAGS: replacing '${f}' to '${2}'"
+			f=${2}
+		fi
+		new+=( "${f}" )
+	done
+	export HCFLAGS="${new[*]}"
+
+	return 0
 }

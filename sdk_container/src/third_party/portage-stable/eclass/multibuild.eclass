@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/multibuild.eclass,v 1.14 2013/09/18 08:49:33 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/multibuild.eclass,v 1.18 2014/05/10 21:36:49 mgorny Exp $
 
 # @ECLASS: multibuild
 # @MAINTAINER:
@@ -27,8 +27,6 @@ esac
 if [[ ! ${_MULTIBUILD} ]]; then
 
 inherit multiprocessing
-
-DEPEND="userland_GNU? ( >=sys-apps/coreutils-8.5 )"
 
 # @ECLASS-VARIABLE: MULTIBUILD_VARIANTS
 # @DESCRIPTION:
@@ -213,9 +211,16 @@ multibuild_copy_sources() {
 
 	einfo "Will copy sources from ${_MULTIBUILD_INITIAL_BUILD_DIR}"
 
+	local cp_args=()
+	if cp --reflink=auto --version &>/dev/null; then
+		# enable reflinking if possible to make this faster
+		cp_args+=( --reflink=auto )
+	fi
+
 	_multibuild_create_source_copy() {
 		einfo "${MULTIBUILD_VARIANT}: copying to ${BUILD_DIR}"
-		cp -pr "${_MULTIBUILD_INITIAL_BUILD_DIR}" "${BUILD_DIR}" || die
+		cp -pr "${cp_args[@]}" \
+			"${_MULTIBUILD_INITIAL_BUILD_DIR}" "${BUILD_DIR}" || die
 	}
 
 	multibuild_foreach_variant _multibuild_create_source_copy
@@ -266,21 +271,29 @@ multibuild_merge_root() {
 	rm "${lockfile_l}" || die
 
 	if use userland_BSD; then
-		# 'cp -a -n' is broken:
-		# http://www.freebsd.org/cgi/query-pr.cgi?pr=174489
-		# using tar instead which is universal but terribly slow.
+		# Most of BSD variants fail to copy broken symlinks, #447370
+		# also, they do not support --version
 
 		tar -C "${src}" -f - -c . \
 			| tar -x -f - -C "${dest}"
 		[[ ${PIPESTATUS[*]} == '0 0' ]]
 		ret=${?}
-	elif use userland_GNU; then
-		# cp works with '-a -n'.
-
-		cp -a -l -n "${src}"/. "${dest}"/
-		ret=${?}
 	else
-		die "Unsupported userland (${USERLAND}), please report."
+		local cp_args=()
+
+		if cp -a --version &>/dev/null; then
+			cp_args+=( -a )
+		else
+			cp_args+=( -P -R -p )
+		fi
+
+		if cp --reflink=auto --version &>/dev/null; then
+			# enable reflinking if possible to make this faster
+			cp_args+=( --reflink=auto )
+		fi
+
+		cp "${cp_args[@]}" "${src}"/. "${dest}"/
+		ret=${?}
 	fi
 
 	# Remove the lock.

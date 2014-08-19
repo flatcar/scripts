@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/ssl-cert.eclass,v 1.20 2013/01/03 19:19:55 alonbl Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/ssl-cert.eclass,v 1.24 2014/03/20 19:33:13 vapier Exp $
 
 # @ECLASS: ssl-cert.eclass
 # @MAINTAINER:
@@ -16,16 +16,14 @@
 # @ECLASS-VARIABLE: SSL_CERT_MANDATORY
 # @DESCRIPTION:
 # Set to non zero if ssl-cert is mandatory for ebuild.
-#
-SSL_CERT_MANDATORY="${SSL_CERT_MANDATORY:-0}"
+: ${SSL_CERT_MANDATORY:=0}
 
 # @ECLASS-VARIABLE: SSL_CERT_USE
 # @DESCRIPTION:
 # Use flag to append dependency to.
-#
-SSL_CERT_USE="${SSL_CERT_USE:-ssl}"
+: ${SSL_CERT_USE:=ssl}
 
-if [[ "${SSL_CERT_MANDATORY}" = 0 ]]; then
+if [[ "${SSL_CERT_MANDATORY}" == "0" ]]; then
 	DEPEND="${SSL_CERT_USE}? ( dev-libs/openssl )"
 	IUSE="${SSL_CERT_USE}"
 else
@@ -106,9 +104,9 @@ get_base() {
 #
 # Access: private
 gen_key() {
-	local base=`get_base $1`
+	local base=$(get_base "$1")
 	ebegin "Generating ${SSL_BITS} bit RSA key${1:+ for CA}"
-	/usr/bin/openssl genrsa -rand "${SSL_RANDOM}" \
+	openssl genrsa -rand "${SSL_RANDOM}" \
 		-out "${base}.key" "${SSL_BITS}" &> /dev/null
 	eend $?
 
@@ -123,9 +121,9 @@ gen_key() {
 #
 # Access: private
 gen_csr() {
-	local base=`get_base $1`
+	local base=$(get_base "$1")
 	ebegin "Generating Certificate Signing Request${1:+ for CA}"
-	/usr/bin/openssl req -config "${SSL_CONF}" -new \
+	openssl req -config "${SSL_CONF}" -new \
 		-key "${base}.key" -out "${base}.csr" &>/dev/null
 	eend $?
 
@@ -142,16 +140,16 @@ gen_csr() {
 #
 # Access: private
 gen_crt() {
-	local base=`get_base $1`
+	local base=$(get_base "$1")
 	if [ "${1}" ] ; then
 		ebegin "Generating self-signed X.509 Certificate for CA"
-		/usr/bin/openssl x509 -extfile "${SSL_CONF}" \
+		openssl x509 -extfile "${SSL_CONF}" \
 			-days ${SSL_DAYS} -req -signkey "${base}.key" \
 			-in "${base}.csr" -out "${base}.crt" &>/dev/null
 	else
-		local ca=`get_base 1`
+		local ca=$(get_base 1)
 		ebegin "Generating authority-signed X.509 Certificate"
-		/usr/bin/openssl x509 -extfile "${SSL_CONF}" \
+		openssl x509 -extfile "${SSL_CONF}" \
 			-days ${SSL_DAYS} -req -CAserial "${SSL_SERIAL}" \
 			-CAkey "${ca}.key" -CA "${ca}.crt" \
 			-in "${base}.csr" -out "${base}.crt" &>/dev/null
@@ -169,19 +167,12 @@ gen_crt() {
 #
 # Access: private
 gen_pem() {
-	local base=`get_base $1`
+	local base=$(get_base "$1")
 	ebegin "Generating PEM Certificate"
 	(cat "${base}.key"; echo; cat "${base}.crt") > "${base}.pem"
 	eend $?
 
 	return $?
-}
-
-# Removed due to bug 174759
-docert() {
-	eerror "Function \"docert\" has been removed for security reasons."
-	eerror "\"install_cert\" should be used instead. See bug 174759."
-	die
 }
 
 # @FUNCTION: install_cert
@@ -201,9 +192,9 @@ install_cert() {
 	fi
 
 	case ${EBUILD_PHASE} in
-		unpack|compile|test|install)
-			eerror "install_cert cannot be called in ${EBUILD_PHASE}"
-			return 1 ;;
+	unpack|prepare|configure|compile|test|install)
+		die "install_cert cannot be called in ${EBUILD_PHASE}"
+		;;
 	esac
 
 	# Generate a CA environment #164601
@@ -246,7 +237,7 @@ install_cert() {
 		install -m0444 "${base}.csr" "${ROOT}${cert}.csr"
 		install -m0444 "${base}.crt" "${ROOT}${cert}.crt"
 		install -m0400 "${base}.pem" "${ROOT}${cert}.pem"
-		count=$((${count}+1))
+		: $(( ++count ))
 	done
 
 	# Resulting status

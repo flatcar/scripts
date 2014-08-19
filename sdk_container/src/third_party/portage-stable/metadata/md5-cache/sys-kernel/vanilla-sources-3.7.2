@@ -1,5 +1,5 @@
 DEFINED_PHASES=compile install postinst postrm preinst setup test unpack
-DEPEND=!build? ( sys-apps/sed >=sys-devel/binutils-2.11.90.0.31 ) deblob? ( =dev-lang/python-2* )
+DEPEND=!build? ( sys-apps/sed >=sys-devel/binutils-2.11.90.0.31 ) deblob? ( || ( >=dev-lang/python-2.7.5-r2:2.7 ) )
 DESCRIPTION=Full sources for the Linux kernel
 EAPI=2
 HOMEPAGE=http://www.kernel.org
@@ -11,5 +11,5 @@ RDEPEND=!build? ( >=sys-libs/ncurses-5.2 sys-devel/make dev-lang/perl sys-devel/
 RESTRICT=binchecks strip
 SLOT=3.7.2
 SRC_URI=mirror://kernel/linux/kernel/v3.x/patch-3.7.2.xz mirror://kernel/linux/kernel/v3.x/linux-3.7.tar.xz deblob? ( http://www.fsfla.org/svnwiki/selibre/linux-libre//download/releases/LATEST-3.7.N/deblob-3.7 http://www.fsfla.org/svnwiki/selibre/linux-libre//download/releases/LATEST-3.7.N/deblob-check -> deblob-check-3.7 )
-_eclasses_=eutils	4878e7f88afc0ba0866ac112190b0fd4	kernel-2	cfcb408286f35bb67644ce1a46310880	multilib	892e597faee02a5b94eb02ab512e7622	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_eclasses_=eutils	06133990e861be0fe60c2b428fd025d9	kernel-2	6fb31411472936acc8287129d3df7f43	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	python-any-r1	4560effd96d3d2a82e50af7cf87166da	python-utils-r1	8c66c6dabd0295878b68b40dbd0b087b	toolchain-funcs	0f1760274637a138b99bb649202ea402	versionator	cd0bcdb170807e4a1984115e9d53a26f
 _md5_=101b5517fdd1d9eae6e3fcd766bdc41d

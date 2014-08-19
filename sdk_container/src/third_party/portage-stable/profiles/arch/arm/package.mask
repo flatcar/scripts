@@ -1,10 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/arm/package.mask,v 1.31 2013/08/15 17:03:57 tomwij Exp $
-
-# Tom Wijsman <TomWij@gentoo.org> (15 Aug 2013)
-# Broken due to not building patches that upstream slipped through.
-=sys-kernel/gentoo-sources-3.4.58
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/arm/package.mask,v 1.32 2014/01/03 03:22:03 creffett Exp $
 
 # Zac Medico <zmedico@gentoo.org> (09 Aug 2011)
 # Bug #377907 - Use package.mask for compatibility with PMS section 5.2.7, and

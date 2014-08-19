@@ -9,5 +9,5 @@ LICENSE=MIT
 RDEPEND=>=net-zope/zope-interface-3.0.1 crypt? ( >=dev-python/pyopenssl-0.5.1 ) gtk? ( >=dev-python/pygtk-1.99 ) serial? ( dev-python/pyserial ) !dev-python/twisted =dev-lang/python-2*
 SLOT=0
 SRC_URI=http://twistedmatrix.com/Releases/Core/10.2/TwistedCore-10.2.0.tar.bz2
-_eclasses_=distutils	34e0f373c466bb0e97ba194735f1acf2	eutils	4878e7f88afc0ba0866ac112190b0fd4	multilib	892e597faee02a5b94eb02ab512e7622	python	305197b0aa1194fa3ef67ca21f6faa7e	toolchain-funcs	51e6c948e72c43bcc8edc7544411c953	twisted	fcb518bd0ad842f8f6ed16168341f5d4	user	d0a4d0735a6c0183d707ca919bd72f28	versionator	6601b4c5b3f019a993db59a50e1854e4
+_eclasses_=distutils	34e0f373c466bb0e97ba194735f1acf2	eutils	06133990e861be0fe60c2b428fd025d9	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	python	be9965681d83c3980660a2660ac95e95	toolchain-funcs	0f1760274637a138b99bb649202ea402	twisted	fcb518bd0ad842f8f6ed16168341f5d4	versionator	cd0bcdb170807e4a1984115e9d53a26f
 _md5_=ddd0490a3886c6d611e96f76e060e3f6

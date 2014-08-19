@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/python-any-r1.eclass,v 1.16 2013/10/22 15:16:56 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/python-any-r1.eclass,v 1.17 2014/04/08 16:05:30 mgorny Exp $
 
 # @ECLASS: python-any-r1
 # @MAINTAINER:
@@ -230,10 +230,7 @@ _python_EPYTHON_supported() {
 	local i=${EPYTHON/./_}
 
 	case "${i}" in
-		python*|jython*)
-			;;
-		pypy-c*)
-			i=${i/-c/}
+		python*|jython*|pypy*)
 			;;
 		*)
 			ewarn "Invalid EPYTHON: ${EPYTHON}"

@@ -475,10 +475,6 @@ vim_src_configure() {
 		myconf="${myconf} $(use_enable nls) $(use_enable acl)"
 	fi
 
-	# Note: If USE=gpm, then ncurses will still be required. See bug #93970
-	# for the reasons behind the USE flag change.
-	myconf="${myconf} --with-tlib=curses"
-
 	myconf="${myconf} --disable-selinux"
 
 	# Let Portage do the stripping. Some people like that.

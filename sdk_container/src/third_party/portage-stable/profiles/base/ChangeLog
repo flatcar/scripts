@@ -1,6 +1,336 @@
 # ChangeLog for Gentoo base-profile
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/base/ChangeLog,v 1.606 2013/10/30 19:10:02 mgorny Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/base/ChangeLog,v 1.709 2014/08/10 11:42:38 jlec Exp $
+
+  10 Aug 2014; Justin Lecher <jlec@gentoo.org> package.use.force:
+  Force acl for netatalk, #516626
+
+  09 Aug 2014; Brian Evans <grknight@gentoo.org> package.use.mask:
+  Remove use masks on pbxt as it is no longer included on any mysql variant
+
+  05 Aug 2014; Maxim Koltsov <maksbotan@gentoo.org> package.use.mask:
+  Mask app-leechcraft/lc-azoth[sarin]
+
+  04 Aug 2014; Mike Frysinger <vapier@gentoo.org> package.use.mask:
+  Mask x86-specific flashrom USE flags in base.
+
+  01 Aug 2014; Samuli Suominen <ssuominen@gentoo.org> package.use.stable.mask:
+  Mask USE="java mono" for media-libs/libcaca as unrequired and too fragile
+  (multiple race condition build errors) for stable.
+
+  30 Jul 2014; Brian Evans <grknight@gentoo.org> package.use.mask:
+  Mask embedded useflag on dev-db/percona-server
+
+  27 Jul 2014; Alexis Ballier <aballier@gentoo.org> use.mask:
+  mask xop useflag (amd cpu optimizations)
+
+  21 Jul 2014; Anthony G. Basile <blueness@gentoo.org> package.mask:
+  It is safe to unmask sys-lib/musl now
+
+  21 Jul 2014; Alon Bar-Lev <alonbl@gentoo.org> package.use.stable.mask:
+  Add 'app-crypt/tpm-tools pkcs11' per bug#510204
+
+  14 Jul 2014; Hans de Graaff <graaff@gentoo.org> use.stable.mask:
+  Revert masking of ruby_targets_ruby21 since it is not needed for bug 505920
+  although it was listed, incorrectly, in an alpha specific list. Discussed
+  with phajdan.jr via email.
+
+  14 Jul 2014; Pawel Hajdan jr <phajdan.jr@gentoo.org> use.stable.mask:
+  Mask ruby_targets_ruby21 on stable, dev-lang/ruby:2.1 is not stable. This is
+  needed for bug #505920 .
+
+  11 Jul 2014; Rick Farina <zerochaos@gentoo.org> package.use.mask:
+  Mask ogdi for sci-libs/gdal due to repoman errors, please fix and remove mask
+
+  08 Jul 2014; Mikle Kolyada <zlogene@gentoo.org> package.use.stable.mask:
+  Stablemask libcaca and sdl use flags due to bug #514906
+
+  30 Jun 2014; Thomas Sachau (Tommy[D]) <tommy@gentoo.org> package.use.mask:
+  Mask pixman USE flag of dev-libs/efl for future removal, bug 501074
+
+  29 Jun 2014; Andreas K. Huettel <dilfridge@gentoo.org> package.use.mask,
+  use.mask:
+  Mask use-flag firebird and package dev-db/firebird for bug 460780
+
+  29 Jun 2014; Andreas K. Huettel <dilfridge@gentoo.org>
+  package.use.stable.mask:
+  Stablemask firebird useflag on libreoffice until dependencies are stabilized
+
+  20 Jun 2014; Jeroen Roovers <jer@gentoo.org> package.use.mask:
+  Mask USE=libadns (bug #513982).
+
+  14 Jun 2014; Anthony G. Basile <blueness@gentoo.org> package.use.mask:
+  net-libs/cyassl is being tree cleaned, bug #495848
+
+  06 Jun 2014; Rick Farina <zerochaos@gentoo.org> package.mask:
+  masking <upower-0.99.0 due to portage failure to negotiate the upgrade for openrc users
+
+  06 Jun 2014; Zac Medico <zmedico@gentoo.org> package.use.mask:
+  Mask lua for www-servers/mongoose.
+
+  05 Jun 2014; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  package.use.mask:
+  Mask glamor flag for xorg-server, bug #510940.
+
+  05 Jun 2014; Sergey Popov <pinkbyte@gentoo.org> package.use.mask:
+  Mask USE='multislot' wrt bugs #507808, #507810 and #507814
+
+  05 Jun 2014; Manuel Rüger <mrueg@gentoo.org> package.use.mask:
+  Mask otr on net-im/climm.
+
+  30 May 2014; Mike Gilbert <floppym@gentoo.org> package.use.stable.mask:
+  Stable-mask sys-apps/systemd[ssl].
+
+  22 May 2014; Rick Farina <zerochaos@dev.gentoo.org> package.use.mask:
+  metasploit tests do not pass at this time
+
+  14 May 2014; Tom Wijsman <TomWij@gentoo.org> package.use.mask:
+  Documentation generation needs APIviz which is not in the Portage tree yet.
+  Tracked in Gentoo bug #509602.
+
+  26 Apr 2014; Michał Górny <mgorny@gentoo.org> package.use.mask, use.mask:
+  Mask USE flags for Python 2.6 to prepare for the removal.
+
+  26 Apr 2014; Tim Harder <radhermit@gentoo.org> package.use.mask:
+  Mask qt5 use flag on >=media-video/mkvtoolnix-6.9.0 until qt5 pkgs are added
+  to the tree.
+
+  23 Apr 2014; Lars Wendler <polynomial-c@gentoo.org> package.use.mask:
+  medias-ound/lmms[vst] not working on 64bit systems.
+
+  22 Apr 2014; Mike Frysinger <vapier@gentoo.org> make.defaults:
+  Build pkgconfig with USE=internal-glib in stage2 #507930.
+
+  21 Apr 2014; Rick Farina <zerochaos@gentoo.org> package.use.mask:
+  remove masks on metasploit[test,development] now that we have rake 10
+
+  20 Apr 2014; Richard Freeman <rich0@gentoo.org> package.use.stable.mask:
+  Removing mythplugins stable mask - DateTime is now stable on relevant archs.
+
+  20 Apr 2014; Markos Chandras <hwoarang@gentoo.org> package.use.mask:
+  Mask media-video/rtmpdump[polarssl] because it fails to build with recent
+  polarssl (>=1.3). Bug #503604
+
+  19 Apr 2014; Richard Freeman <rich0@gentoo.org> package.use.stable.mask:
+  Stable mask media-plugins/mythplugins[mythweather] - 508198/471536.
+
+  12 Apr 2014; Andreas K. Huettel <dilfridge@gentoo.org> package.use.mask:
+  Mask marble python bindings in future releases
+
+  12 Apr 2014; Lars Wendler <polynomial-c@gentoo.org> package.use.mask:
+  Masked avformat USE flag for >=media-libs/xine-lib-1.2.5 until required
+  ffmpeg version got unmasked (#507474).
+
+  09 Apr 2014; Michał Górny <mgorny@gentoo.org> make.defaults:
+  Fix mailing list address.
+
+  08 Apr 2014; Alexey Shvetsov <alexxy@gentoo.org> use.mask:
+  Mask cuda globaly
+
+  06 Apr 2014; Michał Górny <mgorny@gentoo.org> package.use.mask:
+  Mask USE=pypy for sys-apps/portage, since pypy has limited KEYWORDS.
+
+  05 Apr 2014; Andreas K. Huettel <dilfridge@gentoo.org>
+  package.use.stable.mask:
+  Migrate app-portage/eix[clang] stable mask from eapi-5-files after review
+
+  01 Apr 2014; Mike Frysinger <vapier@gentoo.org> make.defaults, use.mask:
+  Add ABI_S390 defines.
+
+  30 Mar 2014; Mike Gilbert <floppym@gentoo.org> use.mask, use.stable.mask:
+  Convert python_targets_python3_4 into a stable mask.
+
+  29 Mar 2014; Samuli Suominen <ssuominen@gentoo.org> package.use.mask:
+  Unmask USE="webkit2" for www-client/midori wrt #489936 by "A. Person"
+
+  29 Mar 2014; Mike Frysinger <vapier@gentoo.org> make.defaults, use.mask:
+  Add ABI_PPC defines.
+
+  27 Mar 2014; Andreas K. Huettel <dilfridge@gentoo.org>
+  package.use.stable.mask:
+  Migrate several entries from eapi-5-files after review
+
+  27 Mar 2014; Mike Gilbert <floppym@gentoo.org> package.use.mask:
+  Mask sys-apps/systemd[seccomp].
+
+  22 Mar 2014; Mike Gilbert <floppym@gentoo.org> package.use.stable.mask:
+  Move sys-boot/grub[libzfs] mask to arch/amd64.
+
+  22 Mar 2014; Mike Gilbert <floppym@gentoo.org> package.use.stable.mask:
+  Transfer sys-boot/grub[libzfs] stable mask.
+
+  22 Mar 2014; Mike Gilbert <floppym@gentoo.org> package.use.stable.mask:
+  Reorder the file correctly.
+
+  20 Mar 2014; Manuel Rüger <mrueg@gentoo.org> package.use.mask:
+  Mask server useflag for rubygems-1.8.x due to ruby1.8 deprecation
+
+  19 Mar 2014; Samuli Suominen <ssuominen@gentoo.org> package.use.stable.mask:
+  Mask USE="opencl" for stable users of media-gfx/imagemagick wrt #472766
+
+  19 Mar 2014; Andrey Grozin <grozinge@gentoo.org>
+  use.stable.mask:
+  Mask gcl
+
+  18 Mar 2014; Andreas K. Huettel <dilfridge@gentoo.org>
+  package.use.stable.mask:
+  Migrate net-libs/libkolab entry from eapi-5-files
+
+  16 Mar 2014; Andreas K. Huettel <dilfridge@gentoo.org>
+  -package.use.mask.example:
+  We have enough examples in the real file now.
+
+  16 Mar 2014; Andreas K. Huettel <dilfridge@gentoo.org>
+  package.use.stable.mask:
+  Migrate kde-base/kalzium entry from eapi-5-files
+
+  16 Mar 2014; Andreas K. Huettel <dilfridge@gentoo.org>
+  +package.use.stable.mask:
+  Add empty file for migrating entries
+
+  16 Mar 2014; Andreas K. Huettel <dilfridge@gentoo.org> +eapi,
+  +package.use.stable.force, +use.stable.force, +use.stable.mask:
+  Increase EAPI to 5 and move empty stable mask/force files here
+
+  16 Mar 2014; Michał Górny <mgorny@gentoo.org> use.mask:
+  Mask new PyPy flags.
+
+  16 Mar 2014; Patrick Lauer <patrick@gentoo.org> use.mask:
+  Mask ruby_targets_ruby18 so that it's properly gone
+
+  16 Mar 2014; Manuel Rüger <mrueg@gentoo.org> make.defaults:
+  Remove ruby18, add ruby20 to default RUBY_TARGETS
+
+  14 Mar 2014; Manuel Rüger <mrueg@gentoo.org> package.use.mask:
+  Update ruby1.8-only mask.
+
+  13 Mar 2014; Mike Gilbert <floppym@gentoo.org> package.use.force:
+  Force python_targets_pypy rather than pypy on python-exec.
+
+  12 Mar 2014; Michał Górny <mgorny@gentoo.org> package.use.force:
+  Force pypy on python-exec.
+
+  07 Mar 2014; Manuel Rüger <mrueg@gentoo.org> package.use.mask:
+  Mask ruby18-only compatible flags
+
+  27 Feb 2014; Pawel Hajdan jr <phajdan.jr@gentoo.org> package.use.mask:
+  Unmask aura for chromium-34 (build works now).
+
+  27 Feb 2014; Michał Górny <mgorny@gentoo.org> package.use.mask:
+  Mask experimental USE=kdbus on systemd.
+
+  26 Feb 2014; Mike Gilbert <floppym@gentoo.org> use.mask:
+  Mask avx2
+
+  18 Feb 2014; Pawel Hajdan jr <phajdan.jr@gentoo.org> package.use.mask:
+  Mask aura for chromium-34 (build failures).
+
+  17 Feb 2014; Mike Gilbert <floppym@gentoo.org> package.use.force:
+  Force-enable python_targets_python3_4 for python-exec.
+
+  17 Feb 2014; Mike Gilbert <floppym@gentoo.org> use.mask:
+  Mask python_single_target_python3_4.
+
+  03 Feb 2014; Mike Frysinger <vapier@gentoo.org> package.use.mask:
+  Mask elfutils[threads] for now. #465754 by Toralf Förster.
+
+  02 Feb 2014; Sven Vermeulen <swift@gentoo.org> package.mask:
+  Remove selinux mask as it is fully managed and controlled through
+  USE=selinux, which is only available through profiles/features/selinux. See
+  also bug 499946
+
+  01 Feb 2014; Mike Gilbert <floppym@gentoo.org> package.use.mask:
+  Mask aura for chromium-33.
+
+  01 Feb 2014; Mike Frysinger <vapier@gentoo.org> package.mask:
+  Drop bogus uclibc mask.
+
+  22 Jan 2014; Gilles Dartiguelongue <eva@gentoo.org> package.use.mask:
+  Clean up outdated tracker/gnote use mask entries.
+
+  19 Jan 2014; Sven Vermeulen <swift@gentoo.org> package.mask:
+  Adding cachefilesd policy to the tree
+
+  18 Jan 2014; Mike Frysinger <vapier@gentoo.org> make.defaults:
+  Update PYTHON_TARGETS from 3.2 to 3.3 now that it is stable #474128.
+
+  16 Jan 2014; Ultrabug <ultrabug@gentoo.org> make.defaults:
+  add new USWGI_PLUGINS USE_EXPAND
+
+  14 Jan 2014; Ruud Koolen <redlizard@gentoo.org> use.mask:
+  Add prefix-guest use mask for new prefix profiles.
+
+  13 Jan 2014; Lars Wendler <polynomial-c@gentoo.org> package.use.mask:
+  Removed use.mask entry for seamonkey's crypt USE flag.
+
+  05 Jan 2014; Lars Wendler <polynomial-c@gentoo.org> package.use.mask:
+  Adjusted polarssl use.mask for media-sound/umurmur.
+
+  04 Jan 2014; Andreas K. Huettel <dilfridge@gentoo.org> package.use.mask:
+  Mask dev-vcs/git[mediawiki] until dependencies are keyworded
+
+  01 Jan 2014; Patrick Lauer <patrick@gentoo.org> use.mask:
+  Masking ruby_targets_ruby18 as there's now cascading breakage of deps and
+  deps-of-deps and it's going to be removed anyway
+
+  30 Dec 2013; Alexis Ballier <aballier@gentoo.org> package.use.mask:
+  unmask pulseaudio and openal on multilib ffmpeg
+
+  29 Dec 2013; Sven Vermeulen <swift@gentoo.org> package.mask:
+  Add mask for selinux-mandb
+
+  27 Dec 2013; Sergey Popov <pinkbyte@gentoo.org> package.use.mask:
+  Mask 'context' USE-flag for dev-libs/boost
+
+  26 Dec 2013; Gilles Dartiguelongue <eva@gentoo.org> package.use.mask:
+  Add missing version to libpeas python mask.
+
+  24 Dec 2013; Gilles Dartiguelongue <eva@gentoo.org> package.use.mask:
+  Add relevant USE mask for libpeas.
+
+  23 Dec 2013; Gilles Dartiguelongue <eva@gentoo.org> package.use.mask:
+  Add gstreamer use mask for new cogl release.
+
+  20 Dec 2013; Rick Farina <zerochaos@gentoo.org> package.use.mask:
+  Masking test and development for metasploit until gentoo has rake 10
+
+  18 Dec 2013; Johannes Huber <johu@gentoo.org> package.use.mask:
+  Mask >=kde-base/kopete-4.12.0[otr] because of package mask on 
+  >=net-libs/libotr-0.4.0.
+
+  16 Dec 2013; Sven Vermeulen <swift@gentoo.org> package.mask:
+  Mask selinux-rngd (new SELinux policy package)
+
+  15 Dec 2013; Alexandre Rostovtsev <tetromino@gentoo.org> package.use.mask:
+  Simplify wine ebuilds: apply winepulse patchset only when USE=pulseaudio (bug
+  #489004), and allow -9999 users to enable it if they really want.
+
+  13 Dec 2013; Lars Wendler <polynomial-c@gentoo.org> package.use.mask:
+  Mask crypt USE flag for >=seamonkey-2.23 until enigmail provides a build
+  system fix. package.use.mask
+
+  12 Dec 2013; Andreas K. Huettel <dilfridge@gentoo.org> package.use.mask:
+  LibreOffice kde support has been fixed, hooray
+
+  06 Dec 2013; Andreas K. Huettel <dilfridge@gentoo.org> package.use.mask:
+  Mask kde integration of libreoffice
+
+  23 Nov 2013; Mike Frysinger <vapier@gentoo.org> make.defaults:
+  Add ublox to GPSD_PROTOCOLS.
+
+  19 Nov 2013; Tim Harder <radhermit@gentoo.org> package.use.mask:
+  Mask racket USE flag for app-editors/(g)vim.
+
+  12 Nov 2013; Andrey Grozin <grozin@gentoo.org>
+  package.use.mask:
+  Mask USE=berkdb on sci-physics/reduze (needs masked db-6.0).
+
+  10 Nov 2013; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  package.use.mask:
+  Drop mesa[llvm] mask which lives in individual arch profiles now.
+
+  10 Nov 2013; Michał Górny <mgorny@gentoo.org> package.use.mask:
+  Mask USE=sandbox on pypy wrt bug #429372.
 
   30 Oct 2013; Michał Górny <mgorny@gentoo.org> package.use.force:
   Copy the forced flags to dev-lang/python-exec (the new name).

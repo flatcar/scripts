@@ -1,6 +1,6 @@
-# Copyright 2010-2012 Gentoo Foundation
+# Copyright 2010-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/mips/mipsel/mips64el/n64/make.defaults,v 1.4 2013/07/28 02:41:59 mattst88 Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/mips/mipsel/mips64el/n64/make.defaults,v 1.6 2014/06/30 15:16:17 mgorny Exp $
 
 PROFILE_ARCH="mips64el"
 
@@ -8,3 +8,8 @@ CHOST="mips64el-unknown-linux-gnu"
 
 DEFAULT_ABI="n64"
 ABI="${DEFAULT_ABI}"
+MULTILIB_ABIS="n64"
+CHOST_n64=${CHOST}
+
+ABI_MIPS="n64"
+IUSE_IMPLICIT="abi_mips_n64"

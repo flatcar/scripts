@@ -1,7 +1,7 @@
 #!/bin/bash
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/scripts/bootstrap.sh,v 1.97 2013/06/27 21:04:49 zmedico Exp $
+# $Header: /var/cvsroot/gentoo-x86/scripts/bootstrap.sh,v 1.98 2014/03/13 16:11:27 williamh Exp $
 
 # people who were here:
 # (drobbins, 06 Jun 2003)
@@ -12,22 +12,25 @@
 # (azarah, Mar 2005)
 # (uberlord, May 2007)
 # (kumba, May 2007)
+# (williamh, Mar 2014)
 
 # sanity check
 [[ -e /etc/profile ]] && . /etc/profile
 
-if [[ -e /etc/init.d/functions.sh ]] ; then
+if [[ -e /lib/gentoo/functions.sh ]] ; then
+	source /lib/gentoo/functions.sh
+	elif [[ -e /etc/init.d/functions.sh ]] ; then
 	source /etc/init.d/functions.sh
-
-	# Use our own custom script, else logger cause things to
-	# 'freeze' if we do not have a system logger running
-	esyslog() {
-		:
-	}
 else
 	eerror() { echo "!!! $*"; }
 	einfo() { echo "* $*"; }
 fi
+
+# Use our own custom script, else logger cause things to
+# 'freeze' if we do not have a system logger running
+esyslog() {
+	:
+}
 
 show_status() {
 	local num=$1
@@ -52,7 +55,7 @@ v_echo() {
 	env "$@"
 }
 
-cvsver="$Header: /var/cvsroot/gentoo-x86/scripts/bootstrap.sh,v 1.97 2013/06/27 21:04:49 zmedico Exp $"
+cvsver="$Header: /var/cvsroot/gentoo-x86/scripts/bootstrap.sh,v 1.98 2014/03/13 16:11:27 williamh Exp $"
 cvsver=${cvsver##*,v }
 cvsver=${cvsver%%Exp*}
 cvsyear=${cvsver#* }

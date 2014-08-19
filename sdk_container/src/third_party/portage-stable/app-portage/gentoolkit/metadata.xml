@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-<herd>tools-portage</herd>
-
-<longdescription>
+  <herd>tools-portage</herd>
+  <longdescription>
 Gentoolkit is a collection of useful adminstration scripts particular to
 the Gentoo Linux distribution. It contains rough drafts and
 implementations of features that may in time make it into Portage, or

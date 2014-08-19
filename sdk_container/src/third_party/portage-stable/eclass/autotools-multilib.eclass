@@ -1,23 +1,23 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/autotools-multilib.eclass,v 1.17 2013/06/28 12:42:48 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/autotools-multilib.eclass,v 1.23 2014/05/02 16:16:37 mgorny Exp $
 
 # @ECLASS: autotools-multilib.eclass
 # @MAINTAINER:
-# Michał Górny <mgorny@gentoo.org>
+# gx86-multilib team <multilib@gentoo.org>
+# @AUTHOR:
+# Author: Michał Górny <mgorny@gentoo.org>
 # @BLURB: autotools-utils wrapper for multilib builds
 # @DESCRIPTION:
-# The autotools-multilib.eclass is an autotools-utils.eclass(5) wrapper
-# introducing support for building for more than one ABI (multilib).
+# The autotools-multilib.eclass provides a glue between
+# autotools-utils.eclass(5) and multilib-minimal.eclass(5), aiming
+# to provide a convenient way to build packages using autotools
+# for multiple ABIs.
 #
-# Inheriting this eclass sets the USE flags and exports autotools-utils
-# phase function wrappers which build the package for each supported ABI
-# when the relevant flag is enabled. Other than that, it works like
-# regular autotools-utils.
-#
-# Note that the multilib support requires out-of-source builds to be
-# enabled. Thus, it is impossible to use AUTOTOOLS_IN_SOURCE_BUILD with
-# it.
+# Inheriting this eclass sets IUSE and exports default multilib_src_*()
+# sub-phases that call autotools-utils phase functions for each ABI
+# enabled. The multilib_src_*() functions can be defined in ebuild just
+# like in multilib-minimal.
 
 # EAPI=4 is required for meaningful MULTILIB_USEDEP.
 case ${EAPI:-0} in
@@ -25,44 +25,66 @@ case ${EAPI:-0} in
 	*) die "EAPI=${EAPI} is not supported" ;;
 esac
 
-if [[ ${AUTOTOOLS_IN_SOURCE_BUILD} ]]; then
-	die "${ECLASS}: multilib support requires out-of-source builds."
-fi
-
-inherit autotools-utils multilib-build
+inherit autotools-utils eutils multilib-build multilib-minimal
 
 EXPORT_FUNCTIONS src_prepare src_configure src_compile src_test src_install
 
+# Note: _at_args[@] passing is a backwards compatibility measure.
+# Don't use it in new packages.
+
 autotools-multilib_src_prepare() {
 	autotools-utils_src_prepare "${@}"
+
+	[[ ${AUTOTOOLS_IN_SOURCE_BUILD} ]] && multilib_copy_sources
+}
+
+multilib_src_configure() {
+	[[ ${AUTOTOOLS_IN_SOURCE_BUILD} ]] && local ECONF_SOURCE=${BUILD_DIR}
+	autotools-utils_src_configure "${_at_args[@]}"
 }
 
 autotools-multilib_src_configure() {
-	multilib_parallel_foreach_abi autotools-utils_src_configure "${@}"
+	local _at_args=( "${@}" )
+
+	multilib-minimal_src_configure
+}
+
+multilib_src_compile() {
+	emake "${_at_args[@]}"
 }
 
 autotools-multilib_src_compile() {
-	multilib_foreach_abi autotools-utils_src_compile "${@}"
+	local _at_args=( "${@}" )
+
+	multilib-minimal_src_compile
+}
+
+multilib_src_test() {
+	autotools-utils_src_test "${_at_args[@]}"
 }
 
 autotools-multilib_src_test() {
-	multilib_foreach_abi autotools-utils_src_test "${@}"
+	local _at_args=( "${@}" )
+
+	multilib-minimal_src_test
+}
+
+multilib_src_install() {
+	emake DESTDIR="${D}" "${_at_args[@]}" install
+}
+
+multilib_src_install_all() {
+	einstalldocs
+
+	# Remove libtool files and unnecessary static libs
+	local prune_ltfiles=${AUTOTOOLS_PRUNE_LIBTOOL_FILES}
+	if [[ ${prune_ltfiles} != none ]]; then
+		prune_libtool_files ${prune_ltfiles:+--${prune_ltfiles}}
+	fi
 }
 
 autotools-multilib_src_install() {
-	autotools-multilib_secure_install() {
-		autotools-utils_src_install "${@}"
+	local _at_args=( "${@}" )
 
-		# Do multilib magic only when >1 ABI is used.
-		if [[ ${#MULTIBUILD_VARIANTS[@]} -gt 1 ]]; then
-			multilib_prepare_wrappers
-			# Make sure all headers are the same for each ABI.
-			multilib_check_headers
-		fi
-	}
-
-	multilib_foreach_abi autotools-multilib_secure_install "${@}"
-
-	# merge the wrappers
-	multilib_install_wrappers
+	multilib-minimal_src_install
 }

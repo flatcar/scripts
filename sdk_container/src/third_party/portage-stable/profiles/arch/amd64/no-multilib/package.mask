@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/no-multilib/package.mask,v 1.129 2013/10/14 18:23:43 pacho Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/no-multilib/package.mask,v 1.136 2014/08/09 17:35:26 ryao Exp $
 
 # AMD64 Team <amd64@gentoo.org>
 # Mask packages that rely on amd64 multilib
@@ -14,9 +14,6 @@ app-emulation/crossover-office-bin
 app-emulation/crossover-office-pro-bin
 app-emulation/playonlinux
 app-emulation/q4wine
-app-emulation/virtualbox
-app-emulation/virtualbox-extpack-oracle
-app-emulation/virtualbox-guest-additions
 app-emulation/vmware-player
 >=app-i18n/atokx3-3.0.0
 app-office/ooextras
@@ -51,8 +48,6 @@ dev-perl/Archive-Rar
 dev-python/skype4py
 dev-util/android-sdk-update-manager
 dev-util/biew
-dev-util/dialogblocks
-dev-util/helpblocks
 games-action/cs2d
 games-action/descent3
 games-action/descent3-demo
@@ -70,6 +65,7 @@ games-arcade/aquaria
 games-arcade/barbarian-bin
 games-arcade/jardinains
 games-arcade/gish-demo
+games-arcade/thinktanks-demo
 games-emulation/caps
 games-emulation/nestra
 games-emulation/zinc
@@ -90,6 +86,7 @@ games-fps/doom3-roe
 games-fps/doom3
 games-fps/enemy-territory-etpro
 games-fps/enemy-territory-fortress
+games-fps/enemy-territory-omnibot
 games-fps/enemy-territory-truecombat
 games-fps/enemy-territory
 games-fps/etqw-bin
@@ -148,17 +145,12 @@ games-strategy/majesty-demo
 games-strategy/savage-bin
 games-strategy/smac
 games-strategy/spaz
-games-strategy/x2
-games-strategy/x2-demo
 media-fonts/acroread-asianfonts
-media-gfx/picasa
 media-sound/aucdtect
 media-sound/shoutcast-server-bin
 media-sound/shoutcast-trans-bin
 media-sound/skype-call-recorder
 media-sound/ventrilo-server-bin
-media-tv/huludesktop
-media-tv/livestation
 media-video/binkplayer
 media-video/tsmuxer
 net-im/skype
@@ -174,12 +166,12 @@ sci-chemistry/cyana
 sci-chemistry/icm
 sci-chemistry/icm-browser
 sci-chemistry/mars
-<sci-geosciences/googleearth-7.1
 sci-libs/ipp
 sys-apps/memtest86
 sys-apps/memtest86+
 sys-libs/lib-compat-loki
 www-plugins/nspluginwrapper
+www-plugins/pipelight
 
 # AMD64 Team; <amd64@gentoo.org>
 # grub-1 is not available on no-multilib-profiles

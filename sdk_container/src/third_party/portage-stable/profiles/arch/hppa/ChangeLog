@@ -1,6 +1,77 @@
 # ChangeLog for Gentoo/hppa profile
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/hppa/ChangeLog,v 1.198 2013/10/25 15:25:43 jer Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/hppa/ChangeLog,v 1.220 2014/08/13 12:25:16 jer Exp $
+
+  13 Aug 2014; Jeroen Roovers <jer@gentoo.org> use.mask:
+  Remove USE flag masks which require CONFIG_AUDITSYSCALL (bug #517804).
+
+  13 Aug 2014; Jeroen Roovers <jer@gentoo.org> package.use.mask:
+  Mask USE=gg11 for net-libs/libgadu (bug #519772).
+
+  29 Jul 2014; Jeroen Roovers <jer@gentoo.org> package.use.mask:
+  Mask dev-libs/mongo-c-driver USE=test (bug #517880).
+
+  24 Jul 2014; Samuli Suominen <ssuominen@gentoo.org> package.use.mask:
+  USE="udev" was renamed to USE="upower" for xfce4-systemload-plugin,
+  xfce4-session and xfce4-settings
+
+  01 Jul 2014; Jeroen Roovers <jer@gentoo.org> make.defaults:
+  CXXFLAGS=-O2 should be safe.
+
+  01 Jul 2014; Michał Górny <mgorny@gentoo.org> make.defaults:
+  Add missing LIBDIR_${ABI} and CHOST_${ABI} on non-multilib arches to avoid
+  issues.
+
+  01 Jul 2014; Michał Górny <mgorny@gentoo.org> make.defaults:
+  Set MULTILIB_ABIS as well, just in case.
+
+  01 Jul 2014; Michał Górny <mgorny@gentoo.org> make.defaults:
+  Set ABI & DEFAULT_ABI on remaining profiles for easy consistent checks in
+  ebuilds.
+
+  01 Jun 2014; Samuli Suominen <ssuominen@gentoo.org> package.use.mask:
+  Mask USE="udev" for xfce-base/xfce4-settings right next to already masked
+  xfce-base/xfce4-session wrt #512002
+
+  20 May 2014; Jeroen Roovers <jer@gentoo.org> package.use.mask, use.mask:
+  Mask USE=systemtap generally until proper kernel support is in place.
+
+  20 May 2014; Jeroen Roovers <jer@gentoo.org> package.use.mask:
+  Drop USE=sasl mask for dev-libs/libmemcached.
+
+  20 May 2014; Jeroen Roovers <jer@gentoo.org> package.use.mask, use.mask:
+  Generally mask USE=tcmalloc.
+
+  19 May 2014; Jeroen Roovers <jer@gentoo.org> use.mask:
+  Mask USE=x265 (bug #510340).
+
+  19 Mar 2014; Andreas K. Huettel <dilfridge@gentoo.org> +eapi:
+  Increase EAPI to 5
+
+  06 Mar 2014; Jeroen Roovers <jer@gentoo.org> package.use.mask:
+  Mask USE=gui and USE=jit for sci-mathematics/octave (bug #503594).
+
+  18 Feb 2014; Jeroen Roovers <jer@gentoo.org> package.use.mask:
+  Unmask USE=oss as nothing else works properly.
+
+  31 Jan 2014; Jeroen Roovers <jer@gentoo.org> package.use.mask:
+  Mask x11-libs/libgksu dependency for xfce-extra/xfce4-taskmanager (bug
+  #499900).
+
+  23 Jan 2014; Mikle Kolyada <zlogene@gentoo.org> package.use.mask
+  Remove obsolete dev-perl/PDL[proj] entry. See bug #497328 for more info.
+
+  18 Jan 2014; Mike Frysinger <vapier@gentoo.org> make.defaults:
+  Drop python targets hacks now that base/ has it #474128.
+
+  30 Nov 2013; Jeroen Roovers <jer@gentoo.org> make.defaults:
+  Mask dev-lang/python-3.2*, unmask dev-lang/python-3.3* targets (bug #474128).
+
+  24 Nov 2013; Jeroen Roovers <jer@gentoo.org> package.use.mask:
+  Properly describe mask entry (bug #492326).
+
+  10 Nov 2013; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> use.mask:
+  Mask llvm flag as sys-devel/llvm is not keyworded, bug #320221.
 
   25 Oct 2013; Jeroen Roovers <jer@gentoo.org> use.mask:
   Unmask USE=unwind (bug #453704).

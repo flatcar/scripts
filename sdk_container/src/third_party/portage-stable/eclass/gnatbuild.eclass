@@ -1,8 +1,10 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/gnatbuild.eclass,v 1.56 2013/08/02 17:38:57 george Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/gnatbuild.eclass,v 1.61 2014/07/13 16:19:33 ulm Exp $
 #
-# Author: George Shapovalov <george@gentoo.org>
+# Authors: George Shapovalov <george@gentoo.org>
+#          Steve Arnold <nerdboy@gentoo.org>
+#
 # Belongs to: ada herd <ada@gentoo.org>
 #
 # Notes:
@@ -25,7 +27,10 @@ EXPORT_FUNCTIONS pkg_setup pkg_postinst pkg_postrm src_unpack src_compile src_in
 IUSE="nls"
 # multilib is supported via profiles now, multilib usevar is deprecated
 
-DEPEND=">=app-admin/eselect-gnat-1.3"
+DEPEND=">=app-admin/eselect-gnat-1.3
+          sys-devel/bc
+"
+
 RDEPEND="app-admin/eselect-gnat"
 
 # Note!
@@ -208,7 +213,7 @@ should_we_eselect_gnat() {
 	# if the current config is invalid, we definitely want a new one
 	# Note: due to bash quirkiness, the following must not be 1 line
 	local curr_config
-	curr_config=$(eselect --no-color gnat show | grep ${CTARGET} | awk '{ print $1 }') || return 0
+	curr_config=$(eselect gnat show | grep ${CTARGET} | awk '{ print $1 }') || return 0
 	[[ -z ${curr_config} ]] && return 0
 
 	# The logic is basically "try to keep the same profile if possible"
@@ -485,15 +490,47 @@ gnatbuild_src_compile() {
 					confgcc="${confgcc} --disable-nls"
 				fi
 
+				if version_is_at_least 4.6 ; then
+					confgcc+=( $(use_enable lto) )
+				else
+					confgcc+=( --disable-lto )
+				fi
+
 				# reasonably sane globals (from toolchain)
 				# also disable mudflap and ssp
 				confgcc="${confgcc} \
 					--with-system-zlib \
 					--disable-checking \
 					--disable-werror \
+					--disable-libgomp \
 					--disable-libmudflap \
 					--disable-libssp \
 					--disable-libunwind-exceptions"
+
+				if in_iuse openmp ; then
+					# Make sure target has pthreads support. #326757 #335883
+					# There shouldn't be a chicken&egg problem here as openmp won't
+					# build without a C library, and you can't build that w/out
+					# already having a compiler ...
+					if ! is_crosscompile || \
+						$(tc-getCPP ${CTARGET}) -E - <<<"#include <pthread.h>" >& /dev/null
+					then
+						case $(tc-arch) in
+							arm)
+								confgcc+=( --disable-libgomp )
+								;;
+							*)
+								confgcc+=( $(use_enable openmp libgomp) )
+								;;
+						esac
+					else
+						# Force disable as the configure script can be dumb #359855
+						confgcc+=( --disable-libgomp )
+					fi
+				else
+					# For gcc variants where we don't want openmp (e.g. kgcc)
+					confgcc+=( --disable-libgomp )
+				fi
 
 				# ACT's gnat-gpl does not like libada for whatever reason..
 				if version_is_at_least 4.2 ; then
@@ -529,6 +566,11 @@ gnatbuild_src_compile() {
 
 				einfo "confgcc=${confgcc}"
 
+				# need to strip graphite flags or we'll get the
+				# dreaded C compiler cannot create executables...
+				# error.
+				strip-flags -floop-interchange -floop-strip-mine -floop-block
+
 				cd "${GNATBUILD}"
 				CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" "${S}"/configure \
 					--prefix=${PREFIX} \
@@ -554,6 +596,11 @@ gnatbuild_src_compile() {
 				cp "${S}"/gcc/ada/xeinfo.adb   .
 				cp "${S}"/gcc/ada/xnmake.adb   .
 				cp "${S}"/gcc/ada/xutil.ad{s,b}   .
+				if (( ${GNATMINOR} > 5 )) ; then
+					cp "${S}"/gcc/ada/einfo.ad{s,b}  .
+					cp "${S}"/gcc/ada/csinfo.adb  .
+					cp "${S}"/gcc/ada/ceinfo.adb  .
+				fi
 				gnatmake xtreeprs && \
 				gnatmake xsinfo   && \
 				gnatmake xeinfo   && \
@@ -644,8 +691,13 @@ gnatbuild_src_install() {
 		cd "${GNATBUILD}"
 		make DESTDIR="${D}" install || die
 
-		#make a convenience info link
-		dosym ${DATAPATH}/info/gnat_ugn_unw.info ${DATAPATH}/info/gnat.info
+		if use doc ; then
+			if (( $(bc <<< "${GNATBRANCH} > 4.3") )) ; then
+				#make a convenience info link
+				elog "Yay!  Math is good."
+				dosym gnat_ugn.info ${DATAPATH}/info/gnat.info
+			fi
+		fi
 		;;
 
 	move_libs)
@@ -713,6 +765,14 @@ EOF
 		# remove duplicate docs
 		rm -f  "${D}${DATAPATH}"/info/{dir,gcc,cpp}*
 		rm -rf "${D}${DATAPATH}"/man/man7/
+
+		# fix .la path for lto plugin
+		if use lto ; then
+			sed -i -e \
+				"/libdir=/c\libdir='${LIBEXECPATH}'" \
+				"${D}${LIBEXECPATH}"/liblto_plugin.la \
+				|| die "sed update of .la file failed!"
+		fi
 		;;
 
 	prep_env)

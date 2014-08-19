@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/texlive-module.eclass,v 1.67 2013/09/25 15:18:28 ottxor Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/texlive-module.eclass,v 1.69 2014/03/09 18:56:00 ulm Exp $
 
 # @ECLASS: texlive-module.eclass
 # @MAINTAINER:
@@ -20,7 +20,7 @@
 # Starting from TeX Live 2009, the eclass provides a src_unpack function taking
 # care of unpacking and relocating the files that need it.
 #
-# It inherits texlive-common and base for supporting patching via the PATCHES
+# It inherits texlive-common.  Patching is supported via the PATCHES
 # bash array.
 
 # @ECLASS-VARIABLE: TEXLIVE_MODULE_CONTENTS
@@ -61,7 +61,11 @@
 # Information to display about the package.
 # e.g. for enabling/disabling a feature
 
-inherit texlive-common base
+# @ECLASS-VARIABLE: PATCHES
+# @DESCRIPTION:
+# Array variable specifying any patches to be applied.
+
+inherit texlive-common eutils
 
 case "${EAPI:-0}" in
 	0|1|2)
@@ -126,6 +130,15 @@ texlive-module_src_unpack() {
 	for i in $(<"${T}/reloclist"); do
 		mv "${i}" "${RELOC_TARGET}"/$(dirname "${i}") || die "failed to relocate ${i} to ${RELOC_TARGET}/$(dirname ${i})"
 	done
+}
+
+# @FUNCTION: texlive-module_src_prepare
+# @DESCRIPTION:
+# Apply patches from the PATCHES array and user patches, if any.
+
+texlive-module_src_prepare() {
+	[[ ${#PATCHES[@]} -gt 0 ]] && epatch "${PATCHES[@]}"
+	epatch_user
 }
 
 # @FUNCTION: texlive-module_add_format
@@ -343,7 +356,7 @@ texlive-module_src_install() {
 	if [ -n "${TEXLIVE_MODULE_BINLINKS}" ] ; then
 		for i in ${TEXLIVE_MODULE_BINLINKS} ; do
 			[ -f "${ED}/usr/bin/${i%:*}" ] || die "Trying to install an invalid	BINLINK. This should not happen. Please file a bug."
-			dosym ${i%:*} /usr/bin/${i#*:} 
+			dosym ${i%:*} /usr/bin/${i#*:}
 		done
 	fi
 
@@ -372,4 +385,5 @@ texlive-module_pkg_postrm() {
 	etexmf-update
 }
 
-EXPORT_FUNCTIONS src_unpack src_compile src_install pkg_postinst pkg_postrm
+EXPORT_FUNCTIONS src_unpack src_prepare src_compile src_install \
+	pkg_postinst pkg_postrm

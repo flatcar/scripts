@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/libtool.eclass,v 1.106 2013/05/11 11:17:58 aballier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/libtool.eclass,v 1.112 2014/07/11 08:21:58 ulm Exp $
 
 # @ECLASS: libtool.eclass
 # @MAINTAINER:
@@ -14,18 +14,18 @@
 # generated libtool files.  We do not run the libtoolize program because that
 # requires a regeneration of the main autotool files in order to work properly.
 
-if [[ ${___ECLASS_ONCE_LIBTOOL} != "recur -_+^+_- spank" ]] ; then
-___ECLASS_ONCE_LIBTOOL="recur -_+^+_- spank"
+if [[ -z ${_LIBTOOL_ECLASS} ]]; then
+_LIBTOOL_ECLASS=1
 
 # If an overlay has eclass overrides, but doesn't actually override the
 # libtool.eclass, we'll have ECLASSDIR pointing to the active overlay's
 # eclass/ dir, but libtool.eclass is still in the main Gentoo tree.  So
 # add a check to locate the ELT-patches/ regardless of what's going on.
-ECLASSDIR_LOCAL=${BASH_SOURCE[0]%/*}
+_LIBTOOL_ECLASSDIR_LOCAL=${BASH_SOURCE[0]%/*}
 elt_patch_dir() {
 	local d="${ECLASSDIR}/ELT-patches"
 	if [[ ! -d ${d} ]] ; then
-		d="${ECLASSDIR_LOCAL}/ELT-patches"
+		d="${_LIBTOOL_ECLASSDIR_LOCAL}/ELT-patches"
 	fi
 	echo "${d}"
 }
@@ -43,8 +43,8 @@ ELT_try_and_apply_patch() {
 	local disp="${src} patch"
 	local log="${T}/elibtool.log"
 
-	if [[ -z ${__ELT_NOTED_TMP} ]] ; then
-		__ELT_NOTED_TMP=true
+	if [[ -z ${_ELT_NOTED_TMP} ]] ; then
+		_ELT_NOTED_TMP=true
 		printf 'temp patch: %s\n' "${patch}" > "${log}"
 	fi
 	printf '\nTrying %s\n' "${disp}" >> "${log}"
@@ -135,6 +135,7 @@ ELT_walk_patches() {
 # The other options should be avoided in general unless you know what's going on.
 elibtoolize() {
 	local x
+	local dirs=()
 	local do_portage="no"
 	local do_reversedeps="no"
 	local do_only_patches="no"
@@ -179,16 +180,18 @@ elibtoolize() {
 			--force)
 				force="true"
 				;;
-			*)
+			-*)
 				eerror "Invalid elibtoolize option: ${x}"
 				die "elibtoolize called with ${x} ??"
+				;;
+			*)	dirs+=( "${x}" )
 		esac
 	done
 
 	[[ ${do_uclibc} == "yes" ]] && elt_patches+=" uclibc-conf uclibc-ltconf"
 
 	case ${CHOST} in
-		*-aix*)     elt_patches+=" hardcode aixrtl aix-noundef" ;; #213277
+		*-aix*)     elt_patches+=" hardcode aixrtl" ;; #213277
 		*-darwin*)  elt_patches+=" darwin-ltconf darwin-ltmain darwin-conf" ;;
 		*-solaris*) elt_patches+=" sol2-conf sol2-ltmain" ;;
 		*-freebsd*) elt_patches+=" fbsd-conf fbsd-ltconf" ;;
@@ -201,16 +204,17 @@ elibtoolize() {
 		elt_patches+=" gold-conf"
 	fi
 
-	# Reuse "$@" for dirs to patch
-	set --
+	# Find out what dirs to scan.
 	if [[ ${do_shallow} == "yes" ]] ; then
-		[[ -f ${S}/ltmain.sh ]] && set -- "${S}"
+		[[ ${#dirs[@]} -ne 0 ]] && die "Using --shallow with explicit dirs doesn't make sense"
+		[[ -f ${S}/ltmain.sh || -f ${S}/configure ]] && dirs+=( "${S}" )
 	else
-		set -- $(find "${S}" -name ltmain.sh -printf '%h ')
+		[[ ${#dirs[@]} -eq 0 ]] && dirs+=( "${S}" )
+		dirs=( $(find "${dirs[@]}" '(' -name ltmain.sh -o -name configure ')' -printf '%h\n' | sort -u) )
 	fi
 
-	local d p
-	for d in "$@" ; do
+	local d p ret
+	for d in "${dirs[@]}" ; do
 		export ELT_APPLIED_PATCHES=
 
 		if [[ -f ${d}/.elibtoolized ]] ; then
@@ -225,8 +229,10 @@ elibtoolize() {
 			ewarn "  avoid this if possible (perhaps by filing a bug)"
 		fi
 
+		# patching ltmain.sh
+		[[ -f ${d}/ltmain.sh ]] &&
 		for p in ${elt_patches} ; do
-			local ret=0
+			ret=0
 
 			case ${p} in
 				portage)
@@ -258,17 +264,6 @@ elibtoolize() {
 					ELT_walk_patches "${d}/ltmain.sh" "${p}"
 					ret=$?
 					;;
-				uclibc-conf)
-					if grep -qs 'Transform linux' "${d}/configure" ; then
-						ELT_walk_patches "${d}/configure" "${p}"
-						ret=$?
-					# ltmain.sh and co might be in a subdirectory ...
-					elif [[ ! -e ${d}/configure ]] && \
-						 grep -qs 'Transform linux' "${d}/../configure" ; then
-						ELT_walk_patches "${d}/../configure" "${p}"
-						ret=$?
-					fi
-					;;
 				uclibc-ltconf)
 					# Newer libtoolize clears ltconfig, as not used anymore
 					if [[ -s ${d}/ltconfig ]] ; then
@@ -276,31 +271,9 @@ elibtoolize() {
 						ret=$?
 					fi
 					;;
-				fbsd-conf)
-					if grep -qs 'version_type=freebsd-' "${d}/configure" ; then
-						ELT_walk_patches "${d}/configure" "${p}"
-						ret=$?
-					# ltmain.sh and co might be in a subdirectory ...
-					elif [[ ! -e ${d}/configure ]] && \
-						 grep -qs 'version_type=freebsd-' "${d}/../configure" ; then
-						ELT_walk_patches "${d}/../configure" "${p}"
-						ret=$?
-					fi
-					;;
 				fbsd-ltconf)
 					if [[ -s ${d}/ltconfig ]] ; then
 						ELT_walk_patches "${d}/ltconfig" "${p}"
-						ret=$?
-					fi
-					;;
-				darwin-conf)
-					if grep -qs '&& echo \.so ||' "${d}/configure" ; then
-						ELT_walk_patches "${d}/configure" "${p}"
-						ret=$?
-					# ltmain.sh and co might be in a subdirectory ...
-					elif [[ ! -e ${d}/configure ]] && \
-						 grep -qs '&& echo \.so ||' "${d}/../configure" ; then
-						ELT_walk_patches "${d}/../configure" "${p}"
 						ret=$?
 					fi
 					;;
@@ -320,49 +293,6 @@ elibtoolize() {
 						ELT_walk_patches "${d}/ltmain.sh" "${p}"
 						ret=$?
 					fi
-					;;
-				aixrtl|hpux-conf)
-					ret=1
-					local subret=0
-					# apply multiple patches as often as they match
-					while [[ $subret -eq 0 ]]; do
-						subret=1
-						if [[ -e ${d}/configure ]]; then
-							ELT_walk_patches "${d}/configure" "${p}"
-							subret=$?
-						# ltmain.sh and co might be in a subdirectory ...
-						elif [[ ! -e ${d}/configure && -e ${d}/../configure ]] ; then
-							ELT_walk_patches "${d}/../configure" "${p}"
-							subret=$?
-						fi
-						if [[ $subret -eq 0 ]]; then
-							# have at least one patch succeeded.
-							ret=0
-						fi
-					done
-					;;
-				mint-conf|gold-conf|sol2-conf)
-					ret=1
-					local subret=1
-					if [[ -e ${d}/configure ]]; then
-						ELT_walk_patches "${d}/configure" "${p}"
-						subret=$?
-					# ltmain.sh and co might be in a subdirectory ...
-					elif [[ -e ${d}/../configure ]] ; then
-						ELT_walk_patches "${d}/../configure" "${p}"
-						subret=$?
-					elif [[ -e ${d}/../../configure ]] ; then
-						ELT_walk_patches "${d}/../../configure" "${p}"
-						subret=$?
-					fi
-					if [[ $subret -eq 0 ]]; then
-						# have at least one patch succeeded.
-						ret=0
-					fi
-					;;
-				target-nm)
-					ELT_walk_patches "${d}/configure" "${p}"
-					ret=$?
 					;;
 				install-sh)
 					ELT_walk_patches "${d}/install-sh" "${p}"
@@ -418,13 +348,88 @@ elibtoolize() {
 							ELT_APPLIED_PATCHES="portage"
 						fi
 						;;
+					darwin-*)
+						[[ ${CHOST} == *"-darwin"* ]] && ewarn "  Darwin patch set '${p}' failed to apply!"
+						;;
+				esac
+			fi
+		done
+
+		# makes sense for ltmain.sh patches only
+		[[ -f ${d}/ltmain.sh ]] &&
+		if [[ -z ${ELT_APPLIED_PATCHES} ]] ; then
+			if [[ ${do_portage} == "no" && \
+				  ${do_reversedeps} == "no" && \
+				  ${do_only_patches} == "no" && \
+				  ${deptoremove} == "" ]]
+			then
+				ewarn "Cannot apply any patches, please file a bug about this"
+				die
+			fi
+		fi
+
+		# patching configure
+		[[ -f ${d}/configure ]] &&
+		for p in ${elt_patches} ; do
+			ret=0
+
+			case ${p} in
+				uclibc-conf)
+					if grep -qs 'Transform linux' "${d}/configure" ; then
+						ELT_walk_patches "${d}/configure" "${p}"
+						ret=$?
+					fi
+					;;
+				fbsd-conf)
+					if grep -qs 'version_type=freebsd-' "${d}/configure" ; then
+						ELT_walk_patches "${d}/configure" "${p}"
+						ret=$?
+					fi
+					;;
+				darwin-conf)
+					if grep -qs '&& echo \.so ||' "${d}/configure" ; then
+						ELT_walk_patches "${d}/configure" "${p}"
+						ret=$?
+					fi
+					;;
+				aixrtl|hpux-conf)
+					ret=1
+					local subret=0
+					# apply multiple patches as often as they match
+					while [[ $subret -eq 0 ]]; do
+						subret=1
+						if [[ -e ${d}/configure ]]; then
+							ELT_walk_patches "${d}/configure" "${p}"
+							subret=$?
+						fi
+						if [[ $subret -eq 0 ]]; then
+							# have at least one patch succeeded.
+							ret=0
+						fi
+					done
+					;;
+				mint-conf|gold-conf|sol2-conf)
+					ELT_walk_patches "${d}/configure" "${p}"
+					ret=$?
+					;;
+				target-nm)
+					ELT_walk_patches "${d}/configure" "${p}"
+					ret=$?
+					;;
+				*)
+					# ltmain.sh patches are applied above
+					;;
+			esac
+
+			if [[ ${ret} -ne 0 ]] ; then
+				case ${p} in
 					uclibc-*)
 						[[ ${CHOST} == *-uclibc ]] && ewarn "  uClibc patch set '${p}' failed to apply!"
 						;;
 					fbsd-*)
 						if [[ ${CHOST} == *-freebsd* ]] ; then
 							if [[ -z $(grep 'Handle Gentoo/FreeBSD as it was Linux' \
-								"${d}/configure" "${d}/../configure" 2>/dev/null) ]]; then
+								"${d}/configure" 2>/dev/null) ]]; then
 								eerror "  FreeBSD patch set '${p}' failed to apply!"
 								die "FreeBSD patch set '${p}' failed to apply!"
 							fi
@@ -436,17 +441,6 @@ elibtoolize() {
 				esac
 			fi
 		done
-
-		if [[ -z ${ELT_APPLIED_PATCHES} ]] ; then
-			if [[ ${do_portage} == "no" && \
-				  ${do_reversedeps} == "no" && \
-				  ${do_only_patches} == "no" && \
-				  ${deptoremove} == "" ]]
-			then
-				ewarn "Cannot apply any patches, please file a bug about this"
-				die
-			fi
-		fi
 
 		rm -f "${d}/libtool"
 

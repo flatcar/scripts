@@ -7,6 +7,10 @@
 # doomsday ebuild is not available on this architecture
 doomsday
 
+# Andrey Grozin <grozin@gentoo.org> (16 May 2014)
+# gcl keyworded ~arm, bug #509842
+-gcl
+
 # Markus Meier <maekke@gentoo.org> (22 Aug 2010)
 # unmask synaptics input driver
 -input_devices_synaptics
@@ -61,7 +65,6 @@ dmi
 
 # Stuff we don't want
 chicken
-clisp
 fuse
 R
 octave
@@ -98,7 +101,6 @@ scanner
 madwifi
 libupnp
 zvbi
-dvd
 fluidsynth
 gnomecd
 cblas
@@ -117,7 +119,6 @@ ladspa
 ggi
 nut
 xanim
-dvd
 fits
 tokyocabinet
 vaapi
@@ -127,7 +128,6 @@ iplayer
 plotutils
 lpsol
 upnp
-quvi
 bluray
 libtar
 zvbi
@@ -236,3 +236,10 @@ clvm
 # Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (22 Aug 2013)
 # virtual/opencl is not keyworded
 opencl
+
+# Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (10 Nov 2013)
+# sys-devel/llvm is keyworded
+-llvm
+
+# Missing sys-process/numactl keywords.
+numa

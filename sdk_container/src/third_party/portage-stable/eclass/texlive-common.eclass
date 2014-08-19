@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/texlive-common.eclass,v 1.20 2013/06/26 15:54:48 aballier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/texlive-common.eclass,v 1.21 2014/03/18 16:52:10 ottxor Exp $
 
 # @ECLASS: texlive-common.eclass
 # @MAINTAINER:
@@ -14,6 +14,13 @@
 #
 # Note that this eclass *must* not assume the presence of any standard tex tool
 
+case "${EAPI:-0}" in
+	0|1|2)
+		die "EAPI='${EAPI}' is not supported anymore"
+		;;
+	*)
+		;;
+esac
 
 TEXMF_PATH=/usr/share/texmf
 TEXMF_DIST_PATH=/usr/share/texmf-dist
@@ -28,15 +35,15 @@ TEXMF_VAR_PATH=/var/lib/texmf
 
 texlive-common_handle_config_files() {
 	# Handle config files properly
-	[ -d "${D}${TEXMF_PATH}" ] || return
-	cd "${D}${TEXMF_PATH}"
+	[ -d "${ED}${TEXMF_PATH}" ] || return
+	cd "${ED}${TEXMF_PATH}"
 	for f in $(find . -name '*.cnf' -type f -o -name '*.cfg' -type f | sed -e "s:\./::g") ; do
 		if [ "${f#*config}" != "${f}" -o "${f#doc}" != "${f}" ] ; then
 			continue
 		fi
 		dodir /etc/texmf/$(dirname ${f}).d
-		einfo "Moving (and symlinking) ${TEXMF_PATH}/${f} to /etc/texmf/$(dirname ${f}).d"
-		mv "${D}/${TEXMF_PATH}/${f}" "${D}/etc/texmf/$(dirname ${f}).d" || die "mv ${f} failed."
+		einfo "Moving (and symlinking) ${EPREFIX}${TEXMF_PATH}/${f} to ${EPREFIX}/etc/texmf/$(dirname ${f}).d"
+		mv "${ED}/${TEXMF_PATH}/${f}" "${ED}/etc/texmf/$(dirname ${f}).d" || die "mv ${f} failed."
 		dosym /etc/texmf/$(dirname ${f}).d/$(basename ${f}) ${TEXMF_PATH}/${f}
 	done
 }
@@ -78,7 +85,7 @@ texlive-common_do_symlinks() {
 				if [ $1 = $2 ];
 				then
 					einfo "Symlink $1 -> $2 skipped"
-				elif [ -e "${D}/usr/bin/$1" ];
+				elif [ -e "${ED}/usr/bin/$1" ];
 				then
 					einfo "Symlink $1 skipped (file exists)"
 				else
@@ -119,7 +126,7 @@ dobin_texmf_scripts() {
 	while [ $# -gt 0 ] ; do
 		local trg=$(basename ${1} | sed 's,\.[^/]*$,,' | tr '[:upper:]' '[:lower:]')
 		einfo "Installing ${1} as ${trg} bin wrapper"
-		[ -x "${D}/usr/share/${1}" ] || die "Trying to install a non existing or non executable symlink to /usr/bin: ${1}"
+		[ -x "${ED}/usr/share/${1}" ] || die "Trying to install a non existing or non executable symlink to /usr/bin: ${1}"
 		dosym ../share/${1} /usr/bin/${trg} || die "failed to install ${1} as $trg"
 		shift
 	done
@@ -133,8 +140,8 @@ dobin_texmf_scripts() {
 
 etexmf-update() {
 	if has_version 'app-text/texlive-core' ; then
-		if [ "$ROOT" = "/" ] && [ -x /usr/sbin/texmf-update ] ; then
-			/usr/sbin/texmf-update
+		if [ "$ROOT" = "/" ] && [ -x "${EPREFIX}"/usr/sbin/texmf-update ] ; then
+			"${EPREFIX}"/usr/sbin/texmf-update
 		else
 			ewarn "Cannot run texmf-update for some reason."
 			ewarn "Your texmf tree might be inconsistent with your configuration"
@@ -151,9 +158,9 @@ etexmf-update() {
 
 efmtutil-sys() {
 	if has_version 'app-text/texlive-core' ; then
-		if [ "$ROOT" = "/" ] && [ -x /usr/bin/fmtutil-sys ] ; then
+		if [ "$ROOT" = "/" ] && [ -x "${EPREFIX}"/usr/bin/fmtutil-sys ] ; then
 			einfo "Rebuilding formats"
-			/usr/bin/fmtutil-sys --all &> /dev/null
+			"${EPREFIX}"/usr/bin/fmtutil-sys --all &> /dev/null
 		else
 			ewarn "Cannot run fmtutil-sys for some reason."
 			ewarn "Your formats might be inconsistent with your installed ${PN} version"

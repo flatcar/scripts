@@ -1,6 +1,103 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/arm/package.use.mask,v 1.179 2013/10/31 07:23:00 pacho Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/arm/package.use.mask,v 1.215 2014/08/04 02:13:15 vapier Exp $
+
+# Rick Farina <zerochaos@gentoo.org> (27 Jul 2014)
+# net-misc/dahdi doesn't build
+net-voip/yate dahdi
+
+# Rick Farina <zerochaos@gentoo.org> (22 Jul 2014)
+# sci-libs/mpir doesn't build
+dev-python/gmpy mpir
+
+# Maxim Koltsov <maksbotan@gentoo.org> (9 Jul 2014)
+# Missing keywords on dev-python/rst2pdf, bug #515222
+media-video/mpv doc-pdf
+
+# Markus Meier <maekke@gentoo.org> (24 Jun 2014)
+# Unkeyworded deps, bug #513108
+>=net-misc/spice-gtk-0.25 smartcard
+
+# Jauhien Piatlicki <jauhien@gentoo.org> (29 May 2014)
+# Unkeyworded deps
+lxqt-base/lxqt-meta lximage
+
+# Markus Meier <maekke@gentoo.org> (04 May 2014)
+# Unkeyworded deps, bug #509082
+mail-filter/opendkim opendbx
+
+# Markus Meier <maekke@gentoo.org> (04 May 2014)
+# Unkeyworded deps, bug #507896
+dev-qt/qt-mobility messaging
+
+# Andreas K. Huettel <dilfridge@gentoo.org> (3 May 2014)
+# Missing keywords, should only be a transitionary problem
+kde-base/baloo alternatekcm
+
+# Julian Ospald <hasufell@gentoo.org> (20 Apr 2014)
+# Missing keywords, bug #508226
+media-video/mpv sdl
+
+# S. Suominen <ssuominen@g.o> (17 Apr 2014)
+# First GTK+-3.x version of EasyTAG!
+# Keyword as reqiuired, ~arch is enough for now:
+# media-libs/opusfile for USE opus
+# media-libs/opus for USE opus
+# app-text/apadata-tools for FEAATURES and USE test
+# Do it! No reason to ask permission before!
+>=media-sound/easytag-2.2.0 opus test
+
+# Johannes Huber <johu@gentoo.org> (16 Apr 2014)
+# unkeyworded deps
+kde-base/gwenview semantic-desktop
+kde-base/okular dpi
+kde-base/nepomuk-core migrator
+
+# Yixun Lan <dlan@gentoo.org> (12 Apr 2014)
+# app-emulation/qemu is not keyworded on arm arch.
+app-emulation/xen-tools system-qemu
+
+# Mike Gilbert <floppym@gentoo.org> (27 Mar 2014)
+# sys-libs/libseccomp is not keyworded on many archs.
+sys-apps/systemd -seccomp
+
+# Markus Meier <maekke@gentoo.org> (25 Feb 2014)
+# stable reverse deps of media-libs/libquvi, bug #495254
+=dev-libs/totem-pl-parser-2.32.6-r3 quvi
+=media-video/mplayer2-2.0_p20130126 quvi
+=media-video/mplayer2-2.0_p20130428-r1 quvi
+
+# Markus Meier <maekke@gentoo.org> (23 Feb 2014)
+# unkeyworded dep, bug #499974
+dev-libs/efl physics
+
+# Jason A. Donenfeld <zx2c4@gentoo.org> (27 Jan 2014)
+# luajit isn't keyworded for arm yet, which is a bummer
+net-im/prosody jit
+
+# Rick Farina <zerochaos@gentoo.org> (09 Jan 2014)
+# rjb doesn't work on arm, so no java hacks for metasploit
+net-analyzer/metasploit java
+
+# Julian Ospald <hasufell@gentoo.org> (04 Jan 2014)
+# no keyword for media-libs/swfdec and media-libs/libtimidity
+>=dev-libs/DirectFB-1.7.1 timidity swfdec
+
+# Markus Meier <maekke@gentoo.org> (26 Dec 2013)
+# Unkeyworded deps, bug #493780
+=dev-ruby/rack-1.4.5 test
+
+# Markus Meier <maekke@gentoo.org> (26 Dec 2013)
+# Unkeyworded deps, bug #488724
+app-office/gnumeric libgda
+
+# Pacho Ramos <pacho@gentoo.org> (28 Nov 2013)
+# Missing keywords, bug #492820
+net-im/telepathy-connection-managers sipe
+
+# Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (10 Nov 2013)
+# <sys-devel/llvm-3.2 is not keyworded
+=media-libs/mesa-7.10* llvm
 
 # Pacho Ramos <pacho@gentoo.org> (31 Oct 2013)
 # Missing keywords, bug #478254
@@ -28,7 +125,8 @@ kde-base/solid-runtime networkmanager
 
 # Sergey Popov <pinkbyte@gentoo.org> (06 Sep 2013)
 # sci-libs/hdf does not build properly on arm
-dev-perl/PDL	hdf
+# sci-libs/plplot not keyworded
+dev-perl/PDL	hdf plplot
 
 # Michael Weber <xmw@gentoo.org> (23 Aug 2013)
 # Unkeyworded deps
@@ -66,10 +164,6 @@ media-libs/mesa r600-llvm-compiler
 # Firmware loader not keyworded yet
 sci-libs/linux-gpib firmware
 
-# Christian Ruppert <idl0r@gentoo.org> (13 May 2013)
-# Mask nic3com re bug 454024
-sys-apps/flashrom nic3com
-
 # Markus Meier <maekke@gentoo.org> (11 May 2013)
 # unkeyworded deps for x11-wm/enlightenment
 x11-wm/enlightenment emotion
@@ -80,7 +174,7 @@ dev-python/ipython mongodb
 
 # Markus Meier <maekke@gentoo.org> (09 May 2013)
 # unkeyworded deps for x11-misc/lightdm
-x11-misc/lightdm razor
+x11-misc/lightdm razor kde
 
 # Agostino Sarubbo <ago@gentoo.org> (05 May 2013)
 # dev-util/google-perftools is not keyworded for arm
@@ -104,7 +198,7 @@ dev-libs/xapian-bindings java
 
 # Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (20 Feb 2013)
 # Mask flags of calligra and dependencies due to lack of keywords
-app-office/calligra openexr postgres spacenav
+app-office/calligra openexr postgres spacenav vc
 media-gfx/pstoedit emf
 
 # Eray Aslan <eras@gentoo.org> (16 Feb 2013)
@@ -127,6 +221,7 @@ dev-vcs/subversion java
 =media-gfx/graphviz-2.26.3-r3 java
 =media-gfx/graphviz-2.26.3-r4 java
 =media-libs/libcaca-0.99_beta17 java
+=media-libs/libcaca-0.99_beta18-r2 java
 media-libs/libjpeg-turbo java
 net-dns/libidn java
 net-misc/tigervnc java
@@ -134,6 +229,7 @@ net-print/cups java
 =sys-devel/gettext-0.18.1.1-r1 java
 =sys-devel/gettext-0.18.1.1-r3 java
 =sys-devel/gettext-0.18.2 java
+=sys-devel/gettext-0.18.3.2 java
 =sys-libs/db-1.85-r3 java
 =sys-libs/db-3.2.9_p2 java
 =sys-libs/db-4.2.52_p5-r1 java
@@ -143,11 +239,8 @@ net-print/cups java
 =sys-libs/db-4.6.21_p4 java
 =sys-libs/db-4.7.25_p4 java
 =sys-libs/db-4.8.30 java
+=sys-libs/db-4.8.30-r1 java
 =www-client/seamonkey-2.0.14-r1 java
-
-# Michał Górny <mgorny@gentoo.org> (01 Feb 2013)
-# virtual/cblas not keyworded on arm, bug #455050.
-dev-python/numpy lapack
 
 # Alexandre Rostovtsev <tetromino@gentoo.org> (22 Jan 2013)
 # remove mask if/when media-gfx/argyllcms is keywored here.
@@ -181,7 +274,7 @@ dev-util/devhelp gedit
 
 # Markus Meier <maekke@gentoo.org> (25 Dez 2012)
 # unkeyworded deps for app-accessibility/speech-dispatcher
-app-accessibility/speech-dispatcher espeak flite
+app-accessibility/speech-dispatcher flite
 
 # Markus Meier <maekke@gentoo.org> (23 Dec 2012)
 # mask kde-base/* flags due to unkeyworded dependencies
@@ -267,11 +360,11 @@ dev-libs/libmemcached sasl
 
 # Pacho Ramos <pacho@gentoo.org> (19 Jul 2011)
 # Missing keywords on dependencies
-app-cdr/brasero vcd
+app-cdr/brasero vcd dvd
 
 # Pacho Ramos <pacho@gentoo.org> (02 Apr 2011)
 # quvi support is needed to play youtube files now
-media-video/totem flash youtube
+media-video/totem youtube
 
 # Markus Meier <maekke@gentoo.org> (13 Mar 2011)
 # needs stable kde stuff
@@ -288,10 +381,6 @@ net-libs/libproxy kde
 # Justin Lecher <jlec@gentoo.org> (14 Jen 2011)
 # x11-libs/fltk is not keyworded for arm
 app-misc/nut X
-
-# Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (28 Nov 2010)
-# sys-devel/llvm is keyworded on x86
->=media-libs/mesa-8 -llvm
 
 # Nirbheek Chauhan <nirbheek@gentoo.org> (26 Jun 2010)
 # Inter-process communication doesn't work on anything except x86/amd64/arm
@@ -330,10 +419,10 @@ dev-libs/boost mpi
 
 # missing keywords
 media-sound/sox ladspa
-media-plugins/gst-plugins-meta aac dts dv lame libvisual taglib vcd wavpack
+media-plugins/gst-plugins-meta aac dts dv lame libvisual taglib vcd wavpack dvd
 
 # projectm not keyworded, bug #314969
-media-video/vlc projectm
+media-video/vlc projectm chromaprint opencv
 
 # Ultrabug <ultrabug@gentoo.org) (05 Sept 2011)
 # missing keyword for net-libs/zeromq

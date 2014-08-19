@@ -49,10 +49,12 @@ lensfun
 kde
 metalink
 upnp
-systemd
 webm
 fdk
 valgrind
+matplotlib
+mongodb
+pgm
 
 # Stuff we don't want
 antlr
@@ -95,7 +97,6 @@ clang
 
 # Stuff that doesn't compile on ia64
 chicken
-clisp
 diet
 emf
 fusion
@@ -110,6 +111,9 @@ xemacs
 # Needs to be tested
 video_cards_nouveau
 
+# Matt Turner <mattst88@gmail.com> (06 May 2011)
+# media-sound/mumble not keyworded on ppc
+mumble
 
 # Samuli Suominen <ssuominen@gentoo.org> (02 Dec 2009)
 # This will need media-sound/musepack-tools
@@ -251,3 +255,11 @@ cg
 # Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (22 Aug 2013)
 # virtual/opencl is not keyworded
 opencl
+
+# Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (10 Nov 2013)
+# sys-devel/llvm s not keyworded, bug #320221
+llvm
+
+# Pacho Ramos <pacho@gentoo.org> (08 Jan 2014)
+# Unmask systemd since it is keyworded here.
+-systemd

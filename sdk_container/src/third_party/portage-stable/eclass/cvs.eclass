@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/cvs.eclass,v 1.83 2013/09/28 16:22:29 ottxor Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/cvs.eclass,v 1.84 2014/07/11 08:21:58 ulm Exp $
 
 # @ECLASS: cvs.eclass
 # @MAINTAINER:
@@ -13,8 +13,8 @@
 # cvs_src_unpack. If you find that you need to call the cvs_* functions
 # directly, I'd be interested to hear about it.
 
-if [[ ${___ECLASS_ONCE_CVS} != "recur -_+^+_- spank" ]] ; then
-___ECLASS_ONCE_CVS="recur -_+^+_- spank"
+if [[ -z ${_CVS_ECLASS} ]]; then
+_CVS_ECLASS=1
 
 inherit eutils
 

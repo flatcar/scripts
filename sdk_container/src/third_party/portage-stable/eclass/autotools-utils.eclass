@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/autotools-utils.eclass,v 1.71 2013/10/08 10:34:45 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/autotools-utils.eclass,v 1.74 2014/07/31 23:24:56 reavertm Exp $
 
 # @ECLASS: autotools-utils.eclass
 # @MAINTAINER:
@@ -96,7 +96,7 @@ esac
 # @ECLASS-VARIABLE: AUTOTOOLS_AUTORECONF
 # @DEFAULT_UNSET
 # @DESCRIPTION:
-# Set to a non-empty value in order to enable running autoreconf
+# Set to a non-empty value before calling inherit to enable running autoreconf
 # in src_prepare() and adding autotools dependencies.
 #
 # This is usually necessary when using live sources or applying patches
@@ -191,22 +191,22 @@ EXPORT_FUNCTIONS src_prepare src_configure src_compile src_install src_test
 # Determine using IN or OUT source build
 _check_build_dir() {
 	: ${ECONF_SOURCE:=${S}}
-	if [[ -n ${AUTOTOOLS_IN_SOURCE_BUILD} ]]; then
-		BUILD_DIR="${ECONF_SOURCE}"
+	# Respect both the old variable and the new one, depending
+	# on which one was set by the ebuild.
+	if [[ ! ${BUILD_DIR} && ${AUTOTOOLS_BUILD_DIR} ]]; then
+		eqawarn "The AUTOTOOLS_BUILD_DIR variable has been renamed to BUILD_DIR."
+		eqawarn "Please migrate the ebuild to use the new one."
+
+		# In the next call, both variables will be set already
+		# and we'd have to know which one takes precedence.
+		_RESPECT_AUTOTOOLS_BUILD_DIR=1
+	fi
+
+	if [[ ${_RESPECT_AUTOTOOLS_BUILD_DIR} ]]; then
+		BUILD_DIR=${AUTOTOOLS_BUILD_DIR:-${WORKDIR}/${P}_build}
 	else
-		# Respect both the old variable and the new one, depending
-		# on which one was set by the ebuild.
-		if [[ ! ${BUILD_DIR} && ${AUTOTOOLS_BUILD_DIR} ]]; then
-			eqawarn "The AUTOTOOLS_BUILD_DIR variable has been renamed to BUILD_DIR."
-			eqawarn "Please migrate the ebuild to use the new one."
-
-			# In the next call, both variables will be set already
-			# and we'd have to know which one takes precedence.
-			_RESPECT_AUTOTOOLS_BUILD_DIR=1
-		fi
-
-		if [[ ${_RESPECT_AUTOTOOLS_BUILD_DIR} ]]; then
-			BUILD_DIR=${AUTOTOOLS_BUILD_DIR:-${WORKDIR}/${P}_build}
+		if [[ -n ${AUTOTOOLS_IN_SOURCE_BUILD} ]]; then
+			: ${BUILD_DIR:=${ECONF_SOURCE}}
 		else
 			: ${BUILD_DIR:=${WORKDIR}/${P}_build}
 		fi
@@ -468,9 +468,9 @@ autotools-utils_src_test() {
 	_check_build_dir
 	pushd "${BUILD_DIR}" > /dev/null || die
 
-	if make -n check "${@}" &>/dev/null; then
+	if make -ni check "${@}" &>/dev/null; then
 		emake check "${@}" || die 'emake check failed.'
-	elif make -n test "${@}" &>/dev/null; then
+	elif make -ni test "${@}" &>/dev/null; then
 		emake test "${@}" || die 'emake test failed.'
 	fi
 

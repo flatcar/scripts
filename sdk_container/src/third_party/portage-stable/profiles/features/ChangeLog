@@ -1,6 +1,41 @@
 # ChangeLog for Gentoo/AMD64 profile directory
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/features/ChangeLog,v 1.72 2013/10/09 18:20:27 mgorny Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/features/ChangeLog,v 1.81 2014/07/22 01:33:40 ottxor Exp $
+
+  22 Jul 2014; Christoph Junghans <ottxor@gentoo.org>
+  64bit-native/package.mask:
+  masked games-fps/enemy-territory-omnibot on no-multilib
+
+  17 May 2014; Sven Vermeulen <swift@gentoo.org> selinux/make.defaults:
+  Remove USE=-acl default setting for SELinux profile, we do not really care
+
+  03 May 2014; Sven Vermeulen <swift@gentoo.org> selinux/make.defaults:
+  Have unconfined as a default USE flag (needed because targeted is a default
+  policy store)
+
+  27 Mar 2014; Andreas K. Huettel <dilfridge@gentoo.org> +32bit-native/eapi,
+  +32bit-userland/eapi, +64bit-native/eapi, +eapi, +multilib/eapi,
+  +multilib/lib32/eapi, +prefix/rpath/eapi, +selinux/eapi:
+  Increase EAPI to 5
+
+  02 Feb 2014; Sven Vermeulen <swift@gentoo.org> selinux/package.mask:
+  Cleanup of SELinux profile
+
+  02 Feb 2014; Sven Vermeulen <swift@gentoo.org> selinux/package.mask:
+  Drop SELinux related unmasking from selinux feature as base no longer masks
+  it
+
+  19 Jan 2014; Sven Vermeulen <swift@gentoo.org> selinux/package.mask:
+  Adding cachefilesd SELinux policy to the tree
+
+  18 Jan 2014; Ruud Koolen <redlizard@gentoo.org> prefix:
+  Created prefix feature profile tree
+
+  29 Dec 2013; Sven Vermeulen <swift@gentoo.org> selinux/package.mask:
+  Unmask selinux-mandb
+
+  16 Dec 2013; Sven Vermeulen <swift@gentoo.org> selinux/package.mask:
+  Unmasking selinux-rngd (new policy package)
 
   09 Oct 2013; Michał Górny <mgorny@gentoo.org> multilib/make.defaults:
   Exempt python-exec from multilib-strict.

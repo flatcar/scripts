@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/xfconf.eclass,v 1.45 2012/11/28 12:41:23 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/xfconf.eclass,v 1.46 2014/02/27 17:12:01 ssuominen Exp $
 
 # @ECLASS: xfconf.eclass
 # @MAINTAINER:
@@ -22,7 +22,7 @@ AUTOTOOLS_AUTO_DEPEND=no
 unset _xfconf_live
 [[ $PV == *9999* ]] && _xfconf_live=git-2
 
-inherit ${_xfconf_live} autotools base eutils fdo-mime gnome2-utils libtool
+inherit ${_xfconf_live} autotools eutils fdo-mime gnome2-utils libtool
 
 EGIT_BOOTSTRAP=autogen.sh
 EGIT_REPO_URI="git://git.xfce.org/xfce/${MY_PN:-${PN}}"
@@ -78,10 +78,13 @@ xfconf_src_unpack() {
 
 # @FUNCTION: xfconf_src_prepare
 # @DESCRIPTION:
-# Run base_src_prepare and eautoreconf or elibtoolize
+# Process PATCHES with epatch and run epatch_user followed by run of
+# elibtoolize, or eautoreconf if EAUTORECONF is set.
 xfconf_src_prepare() {
 	debug-print-function ${FUNCNAME} "$@"
-	base_src_prepare
+
+	[[ ${PATCHES[@]} ]] && epatch "${PATCHES[@]}"
+	epatch_user
 
 	if [[ -n $EAUTORECONF ]]; then
 		AT_M4DIR=${EPREFIX}/usr/share/xfce4/dev-tools/m4macros eautoreconf
@@ -101,7 +104,8 @@ xfconf_src_configure() {
 
 # @FUNCTION: xfconf_src_install
 # @DESCRIPTION:
-# Run emake install and install documentation in the DOCS array
+# Run emake install to DESTDIR, einstalldocs to process DOCS and
+# prune_libtool_files --all to always remove libtool files (.la)
 xfconf_src_install() {
 	debug-print-function ${FUNCNAME} "$@"
 
@@ -110,7 +114,9 @@ xfconf_src_install() {
 		touch ChangeLog
 	fi
 
-	base_src_install "$@" || die
+	emake DESTDIR="${D}" "$@" install
+
+	einstalldocs
 
 	prune_libtool_files --all
 }

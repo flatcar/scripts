@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/kde4-functions.eclass,v 1.67 2013/08/15 15:10:05 kensington Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/kde4-functions.eclass,v 1.71 2014/07/17 13:02:11 kensington Exp $
 
 inherit versionator
 
@@ -12,8 +12,8 @@ inherit versionator
 # This eclass contains all functions shared by the different eclasses,
 # for KDE 4 ebuilds.
 
-if [[ ${___ECLASS_ONCE_KDE4_FUNCTIONS} != "recur -_+^+_- spank" ]] ; then
-___ECLASS_ONCE_KDE4_FUNCTIONS="recur -_+^+_- spank"
+if [[ -z ${_KDE4_FUNCTIONS_ECLASS} ]]; then
+_KDE4_FUNCTIONS_ECLASS=1
 
 # @ECLASS-VARIABLE: EAPI
 # @DESCRIPTION:
@@ -121,6 +121,21 @@ buildsycoca() {
 	done
 }
 
+# @FUNCTION: comment_add_subdirectory
+# @USAGE: subdirectory
+# @DESCRIPTION:
+# Comment out an add_subdirectory call in CMakeLists.txt in the current directory
+comment_add_subdirectory() {
+	if [[ -z ${1} ]]; then
+		die "comment_add_subdirectory must be passed the directory name to comment"
+	fi
+
+	if [[ -a "CMakeLists.txt" ]]; then
+		sed -e "/add_subdirectory[[:space:]]*([[:space:]]*${1}[[:space:]]*)/s/^/#DONOTCOMPILE /" \
+			-i CMakeLists.txt || die "failed to comment add_subdirectory(${1})"
+	fi
+}
+
 # @FUNCTION: comment_all_add_subdirectory
 # @USAGE: [list of directory names]
 # @DESCRIPTION:
@@ -201,6 +216,14 @@ enable_selected_doc_linguas() {
 
 			# Disable subdirectories recursively
 			comment_all_add_subdirectory "${handbookdir}"
+
+			# In certain packages, the default handbook is en_US instead of the usual en. Since there is no en_US 'translation',
+			# it makes no sense to add to KDE_LINGUAS which causes this type of handbook to not be installed.
+			if [[ -d "${handbookdir}/en_US" && ! -d "${handbookdir}/en" ]]; then
+				mv "${handbookdir}/en_US" "${handbookdir}/en" || die
+				sed -e "s/en_US/en/" -i "${handbookdir}/CMakeLists.txt"
+			fi
+
 			# Add requested translations
 			local lingua
 			for lingua in en ${KDE_LINGUAS}; do
@@ -261,68 +284,6 @@ load_library_dependencies() {
 			die "Failed to include library dependencies for ${pn}"
 	done
 	eend $?
-}
-
-# @FUNCTION: add_blocker
-# @DESCRIPTION:
-# Create correct RDEPEND value for blocking correct package.
-# Useful for file-collision blocks.
-# Parameters are package and version(s) to block.
-# add_blocker kdelibs 4.2.4
-# If no version is specified, then all versions will be blocked.
-# If the version is 0, then no versions will be blocked.
-# If a second version ending in ":3.5" is passed, then the version listed for
-# that slot will be blocked as well.
-#
-# Examples:
-#    # Block all versions of kdelibs
-#    add_blocker kdelibs
-#
-#    # Block all versions of kdelibs older than 4.3.50
-#    add_blocker kdelibs 4.3.50
-#
-#    # Block kdelibs 3.5.10 and older, but not any version of
-#    # kdelibs from KDE 4
-#    add_blocker kdelibs 0 3.5.10:3.5
-add_blocker() {
-	debug-print-function ${FUNCNAME} "$@"
-
-	[[ -z ${1} ]] && die "Missing parameter"
-	local pkg=kde-base/$1 atom old_ver="unset" use
-	if [[ $pkg == *\[*\] ]]; then
-		use=${pkg/#*\[/[}
-		pkg=${pkg%\[*\]}
-	fi
-
-	[[ "$3" == *:3.5 ]] && old_ver=${3%:3.5}
-
-	# If the version passed is "0", do nothing
-	if [[ ${2} != 0 ]]; then
-		# If no version was passed, block all versions in this slot
-		if [[ -z ${2} ]]; then
-			atom=${pkg}
-		# If the version passed begins with a "<", then use "<" instead of "<="
-		elif [[ ${2::1} == "<" ]]; then
-			# this also removes the first character of the version, which is a "<"
-			atom="<${pkg}-${2:1}"
-		else
-			atom="<=${pkg}-${2}"
-		fi
-		RDEPEND+=" !${atom}:4${use}"
-	fi
-
-	# Do the same thing as above for :3.5, except that we don't want any
-	# output if no parameter was passed.
-	if [[ ${old_ver} != "unset" ]]; then
-		if [[ -z ${old_ver} ]]; then
-			atom=${pkg}
-		elif [[ ${old_ver::1} == "<" ]]; then
-			atom="<${pkg}-${old_ver:1}"
-		else
-			atom="<=${pkg}-${old_ver}"
-		fi
-		RDEPEND+=" !${atom}:3.5${use}"
-	fi
 }
 
 # @FUNCTION: add_kdebase_dep

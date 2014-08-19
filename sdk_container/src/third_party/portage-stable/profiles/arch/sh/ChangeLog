@@ -1,6 +1,26 @@
 # ChangeLog for Gentoo/sh profile directory
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/sh/ChangeLog,v 1.91 2013/09/29 14:36:30 dilfridge Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/sh/ChangeLog,v 1.97 2014/07/01 14:13:01 mgorny Exp $
+
+  01 Jul 2014; Michał Górny <mgorny@gentoo.org> make.defaults:
+  Add missing LIBDIR_${ABI} and CHOST_${ABI} on non-multilib arches to avoid
+  issues.
+
+  01 Jul 2014; Michał Górny <mgorny@gentoo.org> make.defaults:
+  Set MULTILIB_ABIS as well, just in case.
+
+  01 Jul 2014; Michał Górny <mgorny@gentoo.org> make.defaults:
+  Set ABI & DEFAULT_ABI on remaining profiles for easy consistent checks in
+  ebuilds.
+
+  03 Jun 2014; Brian Evans <grknight@gentoo.org> package.use.mask:
+  Mask jemalloc on dev-db/mysql and dev-db/mariadb bug #429708
+
+  19 Mar 2014; Andreas K. Huettel <dilfridge@gentoo.org> +eapi:
+  Increase EAPI to 5
+
+  11 Jan 2014; Mikle Kolyada <zlogene@gentoo.org> package.use.mask:
+  Masking dev-vcs/git mediawiki (bug #497068)
 
   29 Sep 2013; Andreas K. Huettel <dilfridge@gentoo.org> make.defaults:
   sh goes unstable/testing as per council decision

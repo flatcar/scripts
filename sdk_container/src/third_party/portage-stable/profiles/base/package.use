@@ -1,16 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/base/package.use,v 1.30 2013/09/12 13:37:39 flameeyes Exp $
-
-# Hans de Graaff <graaff@gentoo.org> (3 Sep 2013)
-# Enable ruby20 on the core ruby packages so we don't
-# need to include ruby20 in RUBY_TARGETS right now.
-# bug 483254
->=dev-ruby/rubygems-2.0.3 ruby_targets_ruby20
->=dev-ruby/rake-0.9.6 ruby_targets_ruby20
->=dev-ruby/json-1.8.0 ruby_targets_ruby20
->=dev-ruby/racc-1.4.9 ruby_targets_ruby20
->=dev-ruby/rdoc-4.0.1-r1 ruby_targets_ruby20
+# $Header: /var/cvsroot/gentoo-x86/profiles/base/package.use,v 1.31 2014/06/01 18:16:29 graaff Exp $
 
 # Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (27 Jul 2012)
 # Modular X: Build the Xorg X server by default

@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/darcs.eclass,v 1.16 2012/06/08 03:39:50 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/darcs.eclass,v 1.17 2014/05/22 16:30:59 slyfox Exp $
 
 # @ECLASS: darcs.eclass
 # @MAINTAINER:
@@ -88,7 +88,7 @@ DEPEND="dev-vcs/darcs
 # @DESCRIPTION:
 # Internal function to determine amount of patches in repository.
 darcs_patchcount() {
-	set -- $(${EDARCS_DARCS_CMD} show repo | grep "Num Patches")
+	set -- $(HOME="${EDARCS_TOP_DIR}" ${EDARCS_DARCS_CMD} show repo | grep "Num Patches")
 	# handle string like: "    Num Patches: 3860"
 	echo ${3}
 }
@@ -148,12 +148,12 @@ darcs_fetch() {
 
 	if [[ ${mode} == "get" ]]; then
 		einfo "Running ${cmdget}"
-		eval ${cmdget} || die "darcs get command failed"
+		HOME="${EDARCS_TOP_DIR}" ${cmdget} || die "darcs get command failed"
 	elif [[ -n ${EDARCS_OFFLINE} ]] ; then
 		einfo "Offline update"
 	elif [[ ${mode} == "update" ]]; then
 		einfo "Running ${cmdupdate}"
-		eval ${cmdupdate} || die "darcs update command failed"
+		HOME="${EDARCS_TOP_DIR}" ${cmdupdate} || die "darcs update command failed"
 	fi
 
 	export EDARCS_PATCHCOUNT=$(darcs_patchcount)

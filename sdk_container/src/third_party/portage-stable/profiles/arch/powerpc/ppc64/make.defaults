@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/ppc64/make.defaults,v 1.10 2012/11/12 15:36:54 floppym Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/ppc64/make.defaults,v 1.12 2014/06/27 22:17:30 mgorny Exp $
 
 # All extra USE/etc should be specified in sub-profiles.
 # DO NOT POLLUTE USE ON THIS PROFILE.
@@ -30,6 +30,13 @@ CFLAGS_ppc="-m32"
 LDFLAGS_ppc="-m elf32ppc"
 CHOST_ppc="powerpc-unknown-linux-gnu"
 
+# Michał Górny <mgorny@gentoo.org> (27 Jun 2014)
+# Make the ABI flag implicit for compatibility with native ebuilds.
+IUSE_IMPLICIT="abi_ppc_64"
+
 # 2006/08/18 - Donnie Berkholz <dberkholz@gentoo.org>
 # Defaults for video drivers
 VIDEO_CARDS="fbdev mach64 mga nv r128 radeon vesa"
+
+# Enable abi_ppc_64 for packages that don't have it forced.
+ABI_PPC="64"

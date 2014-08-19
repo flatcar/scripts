@@ -1,7 +1,19 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/darwin/package.mask,v 1.39 2013/06/19 05:04:21 ottxor Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/darwin/package.mask,v 1.43 2014/08/12 08:08:55 grobian Exp $
 
+
+# Fabian Groffen <grobian@gentoo.org> (12 Aug 2014)
+# Needs some patching, bug #513428
+~dev-libs/libffi-3.1
+
+# Fabian Groffen <grobian@gentoo.org> (12 Aug 2014)
+# Fails to compile on xattr stuff, next release should solve that, #518444
+=app-arch/tar-1.28
+
+# Fabian Groffen <grobian@gentoo.org> (14 Jan 2014)
+# util-linux has no business on Darwin systems
+sys-apps/util-linux
 
 # Fabian Groffen <grobian@gentoo.org> (19 Feb 2012)
 # Using FSF GCC on Mac OS X is not supported by Gentoo Prefix.  While
@@ -32,15 +44,6 @@ media-libs/mesa
 ~sys-devel/gcc-4.4.2
 ~sys-devel/gcc-4.4.3
 ~sys-devel/gcc-4.4.4
-
-# Fabian Groffen <grobian@gentoo.org> (30 Jun 2009)
-# platform.h:81: error: conflicting types for ‘setmode’
-# /usr/include/unistd.h:570: error: previous declaration of ‘setmode’ was here
-=app-crypt/ccrypt-1.8
-
-# Elias Pipping <pipping@gentoo.org> (22 Dec 2007)
-# bug #211712: archive has no table of contents
-sci-libs/blas-atlas
 
 # Elias Pipping <pipping@gentoo.org> (09 Oct 2007)
 # darwin-miscutils are only available on darwin

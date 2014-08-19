@@ -1,6 +1,61 @@
 # ChangeLog for sys-devel/automake
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/automake/ChangeLog,v 1.198 2013/06/23 04:51:17 vapier Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/automake/ChangeLog,v 1.212 2014/01/17 04:23:15 vapier Exp $
+
+  17 Jan 2014; Mike Frysinger <vapier@gentoo.org> automake-1.10.3.ebuild,
+  automake-1.11.6.ebuild, automake-1.12.6.ebuild, automake-1.13.4.ebuild,
+  automake-1.14.1.ebuild, automake-1.14.ebuild, automake-1.4_p6-r1.ebuild,
+  automake-1.5-r1.ebuild, automake-1.6.3-r1.ebuild, automake-1.7.9-r2.ebuild,
+  automake-1.8.5-r4.ebuild, automake-1.9.6-r3.ebuild:
+  Add arm64 keywords.
+
+  16 Jan 2014; Mike Frysinger <vapier@gentoo.org> automake-1.13.4.ebuild:
+  Mark m68k/s390/sh stable.
+
+  16 Jan 2014; Mike Frysinger <vapier@gentoo.org> automake-1.13.1.ebuild,
+  automake-1.13.2.ebuild, automake-1.13.3.ebuild, automake-1.13.4.ebuild,
+  automake-1.14.ebuild, automake-1.14.1.ebuild:
+  Drop old testing comment.
+
+*automake-1.14.1 (24 Dec 2013)
+
+  24 Dec 2013; Lars Wendler <polynomial-c@gentoo.org> +automake-1.14.1.ebuild:
+  Version bump.
+
+  24 Dec 2013; Mike Frysinger <vapier@gentoo.org> automake-1.10.3.ebuild,
+  automake-1.11.6.ebuild, automake-1.12.6.ebuild, automake-1.13.1.ebuild,
+  automake-1.13.2.ebuild, automake-1.13.3.ebuild, automake-1.13.4.ebuild,
+  automake-1.4_p6-r1.ebuild, automake-1.5-r1.ebuild, automake-1.6.3-r1.ebuild,
+  automake-1.7.9-r2.ebuild, automake-1.8.5-r4.ebuild, automake-1.9.6-r3.ebuild,
+  automake-9999.ebuild:
+  Force latest automake-wrapper to keep people up-to-date.
+
+  07 Sep 2013; Agostino Sarubbo <ago@gentoo.org> automake-1.13.4.ebuild:
+  Stable for sparc, wrt bug #481904
+
+  05 Sep 2013; Agostino Sarubbo <ago@gentoo.org> automake-1.13.4.ebuild:
+  Stable for ppc64, wrt bug #481904
+
+  04 Sep 2013; Agostino Sarubbo <ago@gentoo.org> automake-1.13.4.ebuild:
+  Stable for ppc, wrt bug #481904
+
+  03 Sep 2013; Agostino Sarubbo <ago@gentoo.org> automake-1.13.4.ebuild:
+  Stable for ia64, wrt bug #481904
+
+  02 Sep 2013; Agostino Sarubbo <ago@gentoo.org> automake-1.13.4.ebuild:
+  Stable for alpha, wrt bug #481904
+
+  02 Sep 2013; Agostino Sarubbo <ago@gentoo.org> automake-1.13.4.ebuild:
+  Stable for x86, wrt bug #481904
+
+  31 Aug 2013; Agostino Sarubbo <ago@gentoo.org> automake-1.13.4.ebuild:
+  Stable for arm, wrt bug #481904
+
+  31 Aug 2013; Agostino Sarubbo <ago@gentoo.org> automake-1.13.4.ebuild:
+  Stable for amd64, wrt bug #481904
+
+  28 Aug 2013; Jeroen Roovers <jer@gentoo.org> automake-1.13.4.ebuild:
+  Stable for HPPA (bug #481904).
 
 *automake-1.14 (23 Jun 2013)
 

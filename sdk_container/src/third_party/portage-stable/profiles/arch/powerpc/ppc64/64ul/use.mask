@@ -87,3 +87,7 @@ clang
 # unregisterised ghc arch for now.
 # no ghci - no TH
 template_haskell
+
+# virtual/opencl is not keyworded
+opencl
+

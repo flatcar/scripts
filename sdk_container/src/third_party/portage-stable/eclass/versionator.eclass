@@ -1,10 +1,10 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/versionator.eclass,v 1.23 2011/12/27 17:55:12 fauli Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/versionator.eclass,v 1.25 2014/07/11 08:21:58 ulm Exp $
 
 # @ECLASS: versionator.eclass
 # @MAINTAINER:
-# Jonathan Callen <abcd@gentoo.org>
+# Jonathan Callen <jcallen@gentoo.org>
 # base-system@gentoo.org
 # @BLURB: functions which simplify manipulation of ${PV} and similar version strings
 # @DESCRIPTION:
@@ -26,8 +26,8 @@
 #     version_is_at_least             want      have
 #  which may be buggy, so use with caution.
 
-if [[ ${___ECLASS_ONCE_VERSIONATOR} != "recur -_+^+_- spank" ]] ; then
-___ECLASS_ONCE_VERSIONATOR="recur -_+^+_- spank"
+if [[ -z ${_VERSIONATOR_ECLASS} ]]; then
+_VERSIONATOR_ECLASS=1
 
 inherit eutils
 

@@ -1,11 +1,12 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/use.desc,v 1.510 2013/10/14 12:44:09 jlec Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/use.desc,v 1.516 2014/07/24 11:05:11 ssuominen Exp $
 
 # Keep them sorted
 
 3dfx - Enable support for Voodoo chipsets, also called as 3DFX and TDFX
-3dnow - Add support for 3dnow multimedia processor instructions
+3dnow - Use the 3DNow! instruction set
+3dnowext - Use the Enhanced 3DNow! instruction set
 X - Add support for X11
 Xaw3d - Add support for the 3d athena widget set
 a52 - Enable support for decoding ATSC A/52 streams used in DVD
@@ -25,8 +26,10 @@ apm - Add APM (Advanced Power Management) support
 aqua - Include support for the Mac OS X Aqua (Carbon/Cocoa) GUI
 atm - Enable Asynchronous Transfer Mode protocol support
 audiofile - Add support for libaudiofile where applicable
-ayatana - Build in support for Ayatana notification using the libindicate or libappindicator plugin
 avahi - Add avahi/Zeroconf support
+avx - Use the AVX instruction set
+avx2 - Use the AVX2 instruction set
+ayatana - Build in support for Ayatana notification using the libindicate or libappindicator plugin
 bash-completion - Enable bash-completion support
 bcmath - Add support for libbcmath
 berkdb - Add support for sys-libs/db (Berkeley DB for MySQL)
@@ -205,7 +208,8 @@ mime - Add MIME support
 minimal - Install a very minimal build (disables, for example, plugins, fonts, most drivers, non-critical features)
 mmap - Add mmap (memory map) support
 mms - Support for Microsoft Media Server (MMS) streams
-mmx - Add support for optimizations for Pentium MMX and Athlon class processors
+mmx - Use the MMX instruction set
+mmxext - Use the Extended MMX instruction set (intersection of Enhanced 3DNow! and SSE instruction sets) (3dnowext or sse in cpuinfo)
 mng - Add support for libmng (MNG images)
 modplug - Add libmodplug support for playing SoundTracker-style music files
 modules - Build the kernel modules
@@ -321,13 +325,15 @@ speex - Add support for the speex audio codec (used for speech)
 spell - Add dictionary support
 sqlite - Add support for sqlite - embedded sql database
 sqlite3 - Add support for sqlite3 - embedded sql database
-sse - Fast floating point optimization for PentiumIII+ class chips
-sse2 - Faster floating point optimization for SSE2 capable chips
-sse3 - Faster floating point optimization for SSE3 capable chips
+sse - Use the SSE instruction set
+sse2 - Use the SSE2 instruction set
+sse3 - Use the SSE3 instruction set (pni in cpuinfo)
+ssse3 - Use the SSSE3 instruction set
+sse4_1 - Use the SSE4.1 instruction set
 ssl - Add support for Secure Socket Layer connections
 startup-notification - Enable application startup event feedback mechanism
 static - !!do not set this during bootstrap!! Causes binaries to be statically linked instead of dynamically
-static-libs - Build static libraries
+static-libs - Build static versions of dynamic libraries as well
 subversion - Enable subversion (version control system) support
 suid - Enable setuid root program, with potential security risks
 svg - Add support for SVG (Scalable Vector Graphics)
@@ -353,10 +359,12 @@ tk - Add support for Tk GUI toolkit
 tokenizer - Add support for the PHP file parser
 truetype - Add support for FreeType and/or FreeType2 fonts
 uclibc - Enable uclibc specific patches and build or link uclibc
-udev - Enable sys-fs/udev integration (device discovery, power and storage device support, etc)
+udev - Enable virtual/udev integration (device discovery, power and storage device support, etc)
+udisks - Enable storage management support (automounting, volume monitoring, etc)
 unicode - Add support for Unicode
 upnp - Enable UPnP port mapping support
 upnp-av - Enable UPnP audio/video streaming support
+upower - Enable power management support
 usb - Add USB support to applications that have optional USB support (e.g. cups)
 v4l - Enable support for video4linux (using linux-headers or userspace libv4l libraries)
 vala - Enable bindings for dev-lang/vala

@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/user.eclass,v 1.22 2012/06/22 19:18:24 axs Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/user.eclass,v 1.24 2014/07/11 08:21:58 ulm Exp $
 
 # @ECLASS: user.eclass
 # @MAINTAINER:
@@ -13,8 +13,8 @@
 # The user eclass contains a suite of functions that allow ebuilds
 # to quickly make sure users in the installed system are sane.
 
-if [[ ${___ECLASS_ONCE_USER} != "recur -_+^+_- spank" ]] ; then
-___ECLASS_ONCE_USER="recur -_+^+_- spank"
+if [[ -z ${_USER_ECLASS} ]]; then
+_USER_ECLASS=1
 
 # @FUNCTION: _assert_pkg_ebuild_phase
 # @INTERNAL
@@ -392,7 +392,7 @@ egetshell() {
 # @DESCRIPTION:
 # Update the home directory in a platform-agnostic way.
 # Required parameters is the username and the new home directory.
-# Specify -1 if you want to set home to the enewuser default 
+# Specify -1 if you want to set home to the enewuser default
 # of /dev/null.
 # If the new home directory does not exist, it is created.
 # Any previously existing home directory is NOT moved.

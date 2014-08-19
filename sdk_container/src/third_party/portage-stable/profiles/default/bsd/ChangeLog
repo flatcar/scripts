@@ -1,6 +1,36 @@
 # ChangeLog for profile directory
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/default/bsd/ChangeLog,v 1.159 2013/10/14 04:53:56 naota Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/default/bsd/ChangeLog,v 1.167 2014/08/03 00:54:15 jmbsvicetto Exp $
+
+  03 Aug 2014; Jorge Manuel B. S. Vicetto <jmbsvicetto@gentoo.org>
+  fbsd/packages.build:
+  Drop sys-apps/which from fbsd/packages.build - fixes bug 517152.
+
+  26 Jul 2014; Samuli Suominen <ssuominen@gentoo.org> package.mask:
+  Since virtual/udev is masked here, mask virtual/libudev and virtual/libgudev
+  as well.
+
+  07 Jul 2014; Naohiro Aota <naota@gentoo.org> fbsd/package.use.mask:
+  Add use mask on USE=xattr for sys-apps/portage
+
+  19 Mar 2014; Andreas K. Huettel <dilfridge@gentoo.org> +eapi,
+  +fbsd/amd64/9.1/eapi, +fbsd/amd64/9.2/eapi, +fbsd/amd64/eapi, +fbsd/eapi,
+  +fbsd/sparc/8.2/eapi, +fbsd/sparc/eapi, +fbsd/x86/9.1/eapi,
+  +fbsd/x86/9.2/eapi, +fbsd/x86/eapi:
+  Increase EAPI to 5
+
+  13 Mar 2014; Matt Turner <mattst88@gentoo.org> package.use.mask:
+  Add media-libs/mesa dri3 to package.use.mask because of its dependence on
+  udev.
+
+  08 Mar 2014; Matt Turner <mattst88@gentoo.org> fbsd/package.use.mask:
+  Add media-libs/mesa openmax to package.use.mask.
+
+  05 Jan 2014; Robin H. Johnson <robbat2@gentoo.org> package.use.mask:
+  Pending keywording of net-libs/miniupnpc per bug #497186
+
+  26 Nov 2013; Naohiro Aota <naota@gentoo.org> fbsd/make.defaults:
+  set FEATURES="-usersandbox" on FreeBSD. #491860
 
   14 Oct 2013; Naohiro Aota <naota@gentoo.org> package.use.mask:
   Add USE mask for tcpdump. #482930

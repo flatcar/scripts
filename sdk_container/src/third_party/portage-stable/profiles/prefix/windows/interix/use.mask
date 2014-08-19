@@ -1,10 +1,9 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/windows/interix/use.mask,v 1.11 2011/11/01 00:56:22 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/windows/interix/use.mask,v 1.12 2014/04/30 22:30:21 redlizard Exp $
 
 # Re-add Interix libc
 -elibc_Interix
--kernel_Interix
 
 # these will more than likely never work on Interix
 3dfx

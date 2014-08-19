@@ -1,0 +1,24 @@
+From 838b49ead77c35d94fa16d48a6d7271bab082a71 Mon Sep 17 00:00:00 2001
+From: Patrick Welche <prlw1@cam.ac.uk>
+Date: Thu, 07 Nov 2013 10:58:46 +0000
+Subject: configure: test(1) uses = to test for string equality
+
+https://bugzilla.gnome.org/show_bug.cgi?id=711600
+---
+(limited to 'm4macros/glibtests.m4')
+
+diff --git a/m4macros/glibtests.m4 b/m4macros/glibtests.m4
+index 27e9024..7d5920a 100644
+--- a/m4macros/glibtests.m4
++++ b/m4macros/glibtests.m4
+@@ -21,7 +21,7 @@ AC_DEFUN([GLIB_TESTS],
+                   *) AC_MSG_ERROR([bad value ${enableval} for --enable-always-build-tests]) ;;
+                  esac])
+   AM_CONDITIONAL([ENABLE_ALWAYS_BUILD_TESTS], test "$ENABLE_ALWAYS_BUILD_TESTS" = "1")
+-  if test "$ENABLE_INSTALLED_TESTS" == "1"; then
++  if test "$ENABLE_INSTALLED_TESTS" = "1"; then
+     AC_SUBST(installed_test_metadir, [${datadir}/installed-tests/]AC_PACKAGE_NAME)
+     AC_SUBST(installed_testdir, [${libexecdir}/installed-tests/]AC_PACKAGE_NAME)
+   fi
+--
+cgit v0.9.2

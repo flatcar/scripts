@@ -1,0 +1,7 @@
+# Copyright 1999-2014 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/mips/mipsel/mips64el/use.mask,v 1.1 2014/06/30 15:34:54 mgorny Exp $
+
+# Michał Górny <mgorny@gentoo.org> (30 Jun 2014)
+# Mask o32 back for mips64el subprofiles.
+abi_mips_o32

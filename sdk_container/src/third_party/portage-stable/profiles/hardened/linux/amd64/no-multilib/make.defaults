@@ -1,6 +1,9 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/amd64/no-multilib/make.defaults,v 1.3 2013/05/16 19:29:27 zorry Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/amd64/no-multilib/make.defaults,v 1.4 2014/07/17 21:22:55 zorry Exp $
+
+# We don't need to have pic on
+USE="-pic"
 
 ARCH="amd64"
 ACCEPT_KEYWORDS="${ARCH}"

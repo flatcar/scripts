@@ -1,10 +1,12 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/windows/winnt/use.mask,v 1.8 2011/11/01 00:56:22 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/windows/winnt/use.mask,v 1.10 2014/06/16 15:08:32 blueness Exp $
 
-# Re-add Interix libc
+# Re-add Winnt libc
 -elibc_Winnt
--kernel_Winnt
+
+# CURL_SSL=winssl is allowd on Winnt libc
+-curl_ssl_winssl
 
 # these need a review, since they are just copied from interix
 # these will more than likely never work on Windows

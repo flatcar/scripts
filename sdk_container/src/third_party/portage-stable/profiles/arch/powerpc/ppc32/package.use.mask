@@ -1,8 +1,12 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/ppc32/package.use.mask,v 1.34 2012/12/30 21:50:11 tetromino Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/ppc32/package.use.mask,v 1.37 2014/07/03 16:45:25 pacho Exp $
 
 # This file requires >=portage-2.1.1
+
+# Julian Ospald <hasufell@gentoo.org> (23 Nov 2013)
+# FIXME: app-arch/innoextract not available under ppc yet
+games-fps/duke3d-data gog
 
 # Alexandre Rostovtsev <tetromino@gentoo.org> (30 Dec 2012)
 # mono works on this arch (masked in base)

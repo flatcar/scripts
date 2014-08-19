@@ -1,6 +1,15 @@
 # ChangeLog for Gentoo base-profile
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/embedded/ChangeLog,v 1.37 2013/07/30 01:27:48 mattst88 Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/embedded/ChangeLog,v 1.40 2014/04/29 12:47:16 blueness Exp $
+
+  29 Apr 2014; Anthony G. Basile <blueness@gentoo.org> make.defaults:
+  Add musl to USE_EXPAND_VALUES_ELIBC, bug #509036
+
+  09 Apr 2014; Michał Górny <mgorny@gentoo.org> make.defaults:
+  Fix mailing list address.
+
+  27 Mar 2014; Andreas K. Huettel <dilfridge@gentoo.org> +eapi:
+  Increase EAPI to 5
 
   30 Jul 2013; Matt Turner <mattst88@gentoo.org> make.defaults:
   Add ABI_MIPS to USE_EXPAND.

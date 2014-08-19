@@ -1,6 +1,161 @@
 # ChangeLog for Gentoo/MIPS profile directory
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/mips/ChangeLog,v 1.122 2013/10/11 22:27:28 hwoarang Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/mips/ChangeLog,v 1.144 2014/07/22 18:16:50 ssuominen Exp $
+
+  22 Jul 2014; Samuli Suominen <ssuominen@gentoo.org> package.use.mask:
+  Mask USE="consolekit" for sys-auth/pambase to match
+  arch/alpha/package.use.mask because USE="pam" is masked for
+  sys-auth/consolekit here due to missing CONFIG_AUDITSYSCALL support in kernel
+  for this arch.
+
+  22 Jul 2014; Samuli Suominen <ssuominen@gentoo.org> package.use.mask:
+  Remove USE="pam" mask for sys-apps/systemd wrt #506418#c3
+
+  10 Jul 2014; Anthony G. Basile <blueness@gentoo.org>
+  -mips64/multilib/n32-n64/deprecated, -mips64/multilib/n32-n64/eapi,
+  -mips64/multilib/n32-n64/make.defaults, -mips64/multilib/n32-n64/parent,
+  -mips64/multilib/n32-o32/deprecated, -mips64/multilib/n32-o32/eapi,
+  -mips64/multilib/n32-o32/make.defaults, -mips64/multilib/n32-o32/parent,
+  -mips64/multilib/n64-n32/deprecated, -mips64/multilib/n64-n32/eapi,
+  -mips64/multilib/n64-n32/make.defaults, -mips64/multilib/n64-n32/parent,
+  -mips64/multilib/n64-o32/deprecated, -mips64/multilib/n64-o32/eapi,
+  -mips64/multilib/n64-o32/make.defaults, -mips64/multilib/n64-o32/parent,
+  -mips64/multilib/o32-n32/deprecated, -mips64/multilib/o32-n32/eapi,
+  -mips64/multilib/o32-n32/make.defaults, -mips64/multilib/o32-n32/parent,
+  -mips64/multilib/o32-n64/deprecated, -mips64/multilib/o32-n64/eapi,
+  -mips64/multilib/o32-n64/make.defaults, -mips64/multilib/o32-n64/parent,
+  -mipsel/mips64el/multilib/n32-n64/deprecated,
+  -mipsel/mips64el/multilib/n32-n64/eapi,
+  -mipsel/mips64el/multilib/n32-n64/make.defaults,
+  -mipsel/mips64el/multilib/n32-n64/parent,
+  -mipsel/mips64el/multilib/n32-o32/deprecated,
+  -mipsel/mips64el/multilib/n32-o32/eapi,
+  -mipsel/mips64el/multilib/n32-o32/make.defaults,
+  -mipsel/mips64el/multilib/n32-o32/parent,
+  -mipsel/mips64el/multilib/n64-n32/deprecated,
+  -mipsel/mips64el/multilib/n64-n32/eapi,
+  -mipsel/mips64el/multilib/n64-n32/make.defaults,
+  -mipsel/mips64el/multilib/n64-n32/parent,
+  -mipsel/mips64el/multilib/n64-o32/deprecated,
+  -mipsel/mips64el/multilib/n64-o32/eapi,
+  -mipsel/mips64el/multilib/n64-o32/make.defaults,
+  -mipsel/mips64el/multilib/n64-o32/parent,
+  -mipsel/mips64el/multilib/o32-n32/deprecated,
+  -mipsel/mips64el/multilib/o32-n32/eapi,
+  -mipsel/mips64el/multilib/o32-n32/make.defaults,
+  -mipsel/mips64el/multilib/o32-n32/parent,
+  -mipsel/mips64el/multilib/o32-n64/deprecated,
+  -mipsel/mips64el/multilib/o32-n64/eapi,
+  -mipsel/mips64el/multilib/o32-n64/make.defaults,
+  -mipsel/mips64el/multilib/o32-n64/parent:
+  Remove the two-abi multilib profiles
+
+  01 Jul 2014; Michał Górny <mgorny@gentoo.org> make.defaults,
+  mipsel/make.defaults:
+  Set CHOST_o32 for consistence.
+
+  30 Jun 2014; Michał Górny <mgorny@gentoo.org> make.defaults,
+  mips64/make.defaults, +mips64/use.force, +mips64/use.mask,
+  mipsel/mips64el/make.defaults, +mipsel/mips64el/use.force,
+  +mipsel/mips64el/use.mask, use.force, use.mask:
+  Set all ABI-related variables in the generic o32 profile, and revert them
+  properly for n{32,64} profiles.
+
+  30 Jun 2014; Michał Górny <mgorny@gentoo.org> mips64/n32/make.defaults,
+  +mips64/n32/use.force, +mips64/n32/use.mask, mips64/n64/make.defaults,
+  +mips64/n64/use.force, +mips64/n64/use.mask,
+  mipsel/mips64el/n32/make.defaults, +mipsel/mips64el/n32/use.force,
+  +mipsel/mips64el/n32/use.mask, mipsel/mips64el/n64/make.defaults,
+  +mipsel/mips64el/n64/use.force, +mipsel/mips64el/n64/use.mask:
+  Add IUSE_IMPLICIT, default ABI_MIPS and proper USE unmask & force to
+  non-multilib n32 & n64 profiles.
+
+  30 Jun 2014; Michał Górny <mgorny@gentoo.org>
+  mips64/multilib/n32/make.defaults, mips64/multilib/n64/make.defaults,
+  mips64/multilib/o32/make.defaults,
+  mipsel/mips64el/multilib/n32/make.defaults,
+  mipsel/mips64el/multilib/n64/make.defaults,
+  mipsel/mips64el/multilib/o32/make.defaults:
+  Add IUSE_IMPLICIT & default ABI_MIPS values to supported multilib profiles.
+
+  30 Jun 2014; Michał Górny <mgorny@gentoo.org>
+  mips64/multilib/n32/make.defaults, mips64/multilib/n64/make.defaults,
+  mips64/multilib/o32/make.defaults,
+  mipsel/mips64el/multilib/n32/make.defaults,
+  mipsel/mips64el/multilib/n64/make.defaults,
+  mipsel/mips64el/multilib/o32/make.defaults:
+  Use different CHOSTs for non-native mips ABIs.
+
+  30 Jun 2014; Michał Górny <mgorny@gentoo.org> mips64/n32/make.defaults,
+  mips64/n64/make.defaults, mipsel/mips64el/n32/make.defaults,
+  mipsel/mips64el/n64/make.defaults:
+  Set MULTILIB_ABIS in all profiles to have matching ABI in multilib and
+  non-multilib ebuilds. Add CHOST_${DEFAULT_ABI} everywhere to avoid issues.
+
+  29 Jun 2014; Anthony G. Basile <blueness@gentoo.org>
+  +mips64/multilib/n32-n64/deprecated, +mips64/multilib/n32-o32/deprecated,
+  +mips64/multilib/n64-n32/deprecated, +mips64/multilib/n64-o32/deprecated,
+  +mips64/multilib/o32-n32/deprecated, +mips64/multilib/o32-n64/deprecated,
+  +mipsel/mips64el/multilib/n32-n64/deprecated,
+  +mipsel/mips64el/multilib/n32-o32/deprecated,
+  +mipsel/mips64el/multilib/n64-n32/deprecated,
+  +mipsel/mips64el/multilib/n64-o32/deprecated,
+  +mipsel/mips64el/multilib/o32-n32/deprecated,
+  +mipsel/mips64el/multilib/o32-n64/deprecated:
+  Deprecate the two-abi multilib profiles
+
+  02 Jun 2014; Davide Pesavento <pesa@gentoo.org> package.use.mask:
+  Mask USE=declarative for dev-qt/designer. Mask USE="connman networkmanager"
+  for dev-qt/qtbearer. Both due to unkeyworded deps.
+
+  19 Mar 2014; Andreas K. Huettel <dilfridge@gentoo.org> +eapi, +mips64/eapi,
+  +mips64/multilib/eapi, +mips64/multilib/n32-n64/eapi,
+  +mips64/multilib/n32-o32/eapi, +mips64/multilib/n32/eapi,
+  +mips64/multilib/n64-n32/eapi, +mips64/multilib/n64-o32/eapi,
+  +mips64/multilib/n64/eapi, +mips64/multilib/o32-n32/eapi,
+  +mips64/multilib/o32-n64/eapi, +mips64/multilib/o32/eapi, +mips64/n32/eapi,
+  +mips64/n64/eapi, +mipsel/eapi, +mipsel/mips64el/eapi,
+  +mipsel/mips64el/multilib/eapi, +mipsel/mips64el/multilib/n32-n64/eapi,
+  +mipsel/mips64el/multilib/n32-o32/eapi, +mipsel/mips64el/multilib/n32/eapi,
+  +mipsel/mips64el/multilib/n64-n32/eapi,
+  +mipsel/mips64el/multilib/n64-o32/eapi, +mipsel/mips64el/multilib/n64/eapi,
+  +mipsel/mips64el/multilib/o32-n32/eapi,
+  +mipsel/mips64el/multilib/o32-n64/eapi, +mipsel/mips64el/multilib/o32/eapi,
+  +mipsel/mips64el/n32/eapi, +mipsel/mips64el/n64/eapi:
+  Increase EAPI to 5
+
+  06 Mar 2014; Markos Chandras <hwoarang@gentoo.org> use.mask:
+  Mask lz4 per #501600
+
+  02 Feb 2014; Sergey Popov <pinkbyte@gentoo.org> package.use.mask:
+  Mask nvtt USE flag in media-libs/devil
+
+  23 Jan 2014; Mikle Kolyada <zlogene@gentoo.org> package.mask:
+  Remove old gentoo-sources entry.
+
+  23 Jan 2014; Markos Chandras <hwoarang@gentoo.org> use.mask:
+  Unmask ffmpeg MIPS use flags per #498082
+
+  14 Jan 2014; Mike Frysinger <vapier@gentoo.org> parent, use.mask:
+  Use unified arch/base/ like all other arches.
+
+  14 Jan 2014; Markos Chandras <hwoarang@gentoo.org> use.mask:
+  Remove old libnotify entry
+
+  08 Jan 2014; Ryan Hill <dirtyepic@gentoo.org> package.use.mask:
+  Mask webkit USE flag for wxGTK.
+
+  05 Jan 2014; Markos Chandras <hwoarang@gentoo.org> package.use.mask:
+  Masking dev-vcs/git mediawiki per #497068
+
+  24 Dec 2013; Anthony G. Basile <blueness@gentoo.org> package.mask:
+  Just drop to -mips for spidermonkey after talking to ssuominen, bug ##491294
+
+  23 Dec 2013; Anthony G. Basile <blueness@gentoo.org> package.mask:
+  Relax masking on spidermonkey after discussion with desktop folks
+
+  23 Dec 2013; Anthony G. Basile <blueness@gentoo.org> package.mask:
+  Mask >dev-lang/spidermonkey-1.8.5-r4 becuase of bug #491294
 
   11 Oct 2013; Markos Chandras <hwoarang@gentoo.org> use.mask:
   Mask m17n-lib for MIPS. Bug #485366

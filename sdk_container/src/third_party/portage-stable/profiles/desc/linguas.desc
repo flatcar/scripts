@@ -1,16 +1,19 @@
-# Copyright 1999-2013 Gentoo Foundation.
+# Copyright 1999-2014 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/desc/linguas.desc,v 1.75 2013/08/03 09:40:27 pinkbyte Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/desc/linguas.desc,v 1.82 2014/07/29 19:35:04 blueness Exp $
 
 # This file contains descriptions of LINGUAS USE_EXPAND flags.
 
 # Keep it sorted.
 
+ach - Acoli locale
 af - Afrikaans locale
 af_ZA - Afrikaans locale for South Africa
 ak - Akan locale
 am - Amharic locale
+an - Aragonese locale
 ar - Arabic locale
+ar_JO - Arabic locale for Jordan
 ar_SA - Arabic locale for Saudi-Arabia
 ar_SY - Arabic locale for Syria
 as - Assamese locale
@@ -19,25 +22,30 @@ ast - Asturian locale
 az - Azeri locale
 be - Belarusian locale
 be_BY - Belarusian locale
+be@latin - Belarusian (latin) locale
 bg - Bulgarian locale
 bg_BG - Bulgarian locale
 bn - Bengali locale
-bn_BD - Bengalie locale for Bangladesh
+bn_BD - Bengali locale for Bangladesh
 bn_IN - Bengali locale for India
 bo - Tibetan locale
+bo_CN - Tibetan locale for China
 br - Breton locale
 brx - Bodo locale for India
 bs - Bosnian locale
+byn - Bilin (Bilen, Blin) locale
 ca - Catalan locale
 ca_ES - Catalan locale for Spain
 ca_XV - Asturian and Catalan locale (Valencia)
 ca@valencia - Catalan locale (Valencia)
+cmn - Chinese (Mandarin) locale
 crh - Crimean Tatar (Crimean Turkish) locale
 cs - Czech locale
 cs_CZ - Czech locale for Czech Republic
 csb - Kashubian locale
 cy - Welsh locale
 da - Danish locale
+da_DK - Danish locale for Denmark
 de - German locale
 de_DE - German locale for Germany
 de_FR - German locale for France
@@ -52,16 +60,20 @@ en_CA - English locale for Canada
 en_GB - English locale for Britain
 en_US - English locale
 en_ZA - English locale for South Africa
+en@shaw - Shavian locale
 eo - Esperanto locale
+eo_UY - Esperanto locale for Uruguay
 es - Spanish locale
 es_AR - Spanish locale for Argentina
 es_CL - Spanish locale for Chile
 es_CO - Spanish locale for Columbia
 es_CR - Spanish locale for Costa Rica
+es_DO - Spanish locale for Dominican Republic
 es_ES - Spanish locale for Spain
 es_LA - Spanish locale for Latin America
 es_MX - Spanish locale for Mexico
 es_VE - Spanish locale for Venezuela
+es_UY - Spanish locale for Uruguay
 et - Estonian locale
 et_EE - Estonian locale
 eu - Basque locale
@@ -80,9 +92,12 @@ fy_NL - Frisian language locale for the Netherlands
 ga - Irish locale
 ga_IE - Irish locale for Ireland
 gd - Gaelic locale
+gez - Ge'ez locale
 gl - Galician locale
+gl_ES - Galician locale for Spain
 gu - Gujarati locale
 gu_IN - Gujarati locale for India
+haw - Hawaiian locale
 he - Hebrew locale
 he_IL - Hebrew locale for Israel
 hi - Hindi locale
@@ -107,6 +122,7 @@ jv - Javanese locale
 ka - Georgian locale
 ka_GE - Georgian locale
 kk - Kazakh locale
+kk_KZ - Kazakh (Kazakhstan) locale
 km - Khmer locale
 kn - Kannada locale
 kn_IN - Kannada locale for India
@@ -114,11 +130,14 @@ ko - Korean locale
 ko_KR - Korean locale
 kok - Konkani locale
 ks - Kashmiri locale
+ksw - S'gaw Karen locale
 ku - Kurdish (latin) locale
 ky - Kyrgyz (Kirghiz) locale
+ky_KG -  Kyrgyz (Kirghiz) locale for Kyrgyzstan
 la - Latin2 locale
 lb - Luxembourgish locale
 lg - Ganda locale
+li - Limburgian locale
 lo - Lao locale
 lt - Lithuanian locale
 lt_LT - Lithuanian locale
@@ -126,6 +145,8 @@ lv - Latvian locale
 lv_LV - Latvian locale for Latvia
 mai - Maithili locale
 me - Montenegrin (Crnogorski) locale
+mg - Malagasy locale
+mi - Maori locale
 mk - Macedonian locale
 ml - Malayalam locale
 ml_IN - Malayalam locale for India
@@ -137,6 +158,7 @@ ms - Malay locale
 ms_MY - Malay locale for Malaysia
 mt - Maltese locale
 my - Burmese locale
+my_MM - Burmese  locale for Myanmar
 nan - Min Nan locale
 nb - Norwegian (Bokmal) locale
 nb_NO - Norwegian (Bokmal) locale for Norway
@@ -148,6 +170,7 @@ nl_NL - Dutch locale for Netherlands
 nn - Nynorsk locale
 nn_NO - Nynorsk locale for Norway
 no - Norwegian locale
+nqo - N'Ko locale
 nr - Ndebele (South) locale
 ns - Northern Sotho locale
 nso - Northern Sotho locale
@@ -157,7 +180,8 @@ or - Oriya locale
 or_IN - Oriya locale for India
 pa - Punjabi locale for India
 pa_IN - Punjabi locale for India
-pap - Paiamento local
+pam - Kapampangan locale
+pap - Paiamento locale
 pl - Polish locale
 pl_PL - Polish locale
 ps - Pushto locale
@@ -169,14 +193,18 @@ ro - Romanian locale
 ro_RO - Romanian locale for Romania
 ru - Russian locale
 ru_RU - Russian locale for Russia
+rue - Rusyn locale
 rw - Kinyarwanda locale
 sa_IN - Sanskrit locale
+sah - Sakha (Yakut)
 sat - Santali locale
 sco - Scots locale
 sd - Sindhi locale
 se - Northern Saami locale
 sh - Serbo-Croatian locale
 sh_YU - Serbo-Croatian locale
+shn - Shan locale
+so - Somali locale
 son - Songhai locale
 si - Sinhala locale
 si_LK - Sinhala locale
@@ -191,6 +219,7 @@ sr@ijekavianlatin - Serbian-Ijekavian (latin) locale
 sr@latin - Serbian (latin) locale
 sr@Latn - Serbian (latin) locale
 sr_BA - Serbian locale for Bosnia and Herzegovina
+sr_BA@latin - Serbian (latin) locale for Bosnia and Herzegovina
 sr_CS - Serbian locale
 sr_RS - Serbian locale for Serbia
 sr_RS@cyrillic - Serbian (cyrillic) locale for Serbia
@@ -212,12 +241,17 @@ th - Thai locale
 th_TH - Thai locale Thailand
 ti - Tigrinya locale
 ti_ER - Tigrinya locale for Eritrea
+tig - Tigre locale
 tk - Turkmen locale
 tl - Tagalog locale
+tlh - Klingon locale
 tn - Tswana locale
+tpi - Tok Pisin locale
 tr - Turkish locale
+tr_TR - Turkish locale for Turkey
 ts - Tsonga locale
 tt - Tatar locale
+tt@iqtelif - Tatar (iqtelif) locale
 ug - Uighur locale
 uk - Ukrainian locale
 uk_UA - Ukrainian locale for Ukraine
@@ -225,11 +259,16 @@ ur - Urdu locale
 ur_IN - Urdu locale for India
 ur_PK - Urdu language locale for Pakistan
 uz - Uzbek locale
+uz_UZ - Uzbek locale for Uzbekistan
 uz@cyrillic - Uzbek (cyrillic) locale
+uz@Cyrl - Uzbek (Cyrillic) locale
+uz@Latn - Uzbek (latin) locale
 ve - Venda locale
 vi - Vietnamese locale
 vi_VN - Vietnamese locale
 wa - Walloon locale
+wal - Wolaytta (Walamo) locale
+wo - Wolof locale
 xh - Xhosa locale
 yi - Yiddish locale
 zh - Chinese locale

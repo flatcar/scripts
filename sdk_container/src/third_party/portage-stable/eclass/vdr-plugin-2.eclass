@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/vdr-plugin-2.eclass,v 1.25 2013/10/07 12:21:14 hd_brummy Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/vdr-plugin-2.eclass,v 1.28 2014/02/08 00:56:30 hd_brummy Exp $
 
 # @ECLASS: vdr-plugin-2.eclass
 # @MAINTAINER:
@@ -43,7 +43,7 @@
 #
 # For more details about it please take a look at the eutils.class.
 
-inherit base eutils flag-o-matic multilib toolchain-funcs
+inherit eutils flag-o-matic multilib toolchain-funcs unpacker
 
 case ${EAPI:-0} in
     4|5) ;;
@@ -410,7 +410,7 @@ vdr-plugin-2_src_util() {
 			vdr-plugin-2_src_util add_local_patch patchmakefile linguas_patch i18n
 			;;
 		unpack)
-			base_src_unpack
+			unpacker_src_unpack
 			;;
 		add_local_patch)
 			cd "${S}" || die "Could not change to plugin-source-directory!"
@@ -457,7 +457,9 @@ vdr-plugin-2_src_prepare() {
 		die "vdr-plugin-2_src_prepare not called!"
 	fi
 
-	base_src_prepare
+	[[ ${PATCHES[@]} ]] && epatch "${PATCHES[@]}"
+	debug-print "$FUNCNAME: applying user patches"
+
 	vdr-plugin-2_src_util prepare
 }
 
@@ -525,7 +527,6 @@ vdr-plugin-2_src_install() {
 
 	local SOFILE_STRING=$(grep SOFILE Makefile)
 	if [[ -n ${SOFILE_STRING} ]]; then
-		dev_check "einstall with new Makefile handling"
 		BUILD_TARGETS=${BUILD_TARGETS:-${VDRPLUGIN_MAKE_TARGET:-install }}
 		einstall ${BUILD_PARAMS} \
 			${BUILD_TARGETS} \
@@ -533,6 +534,7 @@ vdr-plugin-2_src_install() {
 			DESTDIR="${D}" \
 			|| die "einstall (makefile target) failed"
 	else
+		dev_check "Plugin use still the old Makefile handling"
 		insinto "${VDR_PLUGIN_DIR}"
 		doins libvdr-*.so.*
 	fi

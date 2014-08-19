@@ -1,6 +1,119 @@
 # ChangeLog for dev-python/logilab-common
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-python/logilab-common/ChangeLog,v 1.118 2013/02/02 22:29:16 ago Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-python/logilab-common/ChangeLog,v 1.144 2014/07/06 12:44:25 mgorny Exp $
+
+  06 Jul 2014; Michał Górny <mgorny@gentoo.org> logilab-common-0.61.0.ebuild:
+  Clean up obsolete dependencies on virtual/python-argparse and virtual/python-
+  unittest2 (those packages were only required for <=python-2.6).
+
+  04 Jun 2014; Ian Delaney <idella4@gentoo.org> logilab-common-0.61.0.ebuild:
+  Fix epydoc doc build, fixes Bug #512112
+
+  08 May 2014; Ian Delaney <idella4@gentoo.org> logilab-common-0.61.0.ebuild:
+  drop py2.6 pypy2_0 add py3.4 support, minor tidy, upgrade test phase
+
+  19 Apr 2014; Michał Górny <mgorny@gentoo.org> logilab-common-0.61.0.ebuild:
+  Use ${PYTHON_USEDEP} substitution support added to python_gen_cond_dep().
+
+  07 Apr 2014; Ian Delaney <idella4@gentoo.org>
+  -files/logilab-common-0.59.0-syntax.patch,
+  -files/logilab-common-0.59.0-utf8-test.patch,
+  -files/logilab-common-sec-CVE-2014-1838-9.patch,
+  -logilab-common-0.58.1.ebuild, -logilab-common-0.60.1-r1.ebuild:
+  rm old ebuilds & patches wrt sec bug #499872
+
+  05 Apr 2014; Agostino Sarubbo <ago@gentoo.org> logilab-common-0.61.0.ebuild:
+  Stable for ppc, wrt bug #499872
+
+  05 Apr 2014; Agostino Sarubbo <ago@gentoo.org> logilab-common-0.61.0.ebuild:
+  Stable for x86, wrt bug #499872
+
+  05 Apr 2014; Agostino Sarubbo <ago@gentoo.org> logilab-common-0.61.0.ebuild:
+  Stable for amd64, wrt bug #499872
+
+  31 Mar 2014; Michał Górny <mgorny@gentoo.org> logilab-common-0.60.1-r1.ebuild,
+  logilab-common-0.61.0.ebuild:
+  Add support for the new PyPy slotting.
+
+*logilab-common-0.60.1-r1 (27 Mar 2014)
+
+  27 Mar 2014; Ian Delaney <idella4@gentoo.org>
+  +files/logilab-common-sec-CVE-2014-1838-9.patch,
+  +logilab-common-0.60.1-r1.ebuild, -logilab-common-0.59.1.ebuild,
+  -logilab-common-0.60.0.ebuild, -logilab-common-0.60.1.ebuild,
+  logilab-common-0.61.0.ebuild:
+  revbump; sec fix wrt sec Bug #499872, rm old unstable versions
+
+*logilab-common-0.61.0 (12 Feb 2014)
+
+  12 Feb 2014; Ian Delaney <idella4@gentoo.org> +logilab-common-0.61.0.ebuild:
+  bump; add py3.3 support
+
+*logilab-common-0.60.1 (08 Jan 2014)
+
+  08 Jan 2014; Patrick Lauer <patrick@gentoo.org> +logilab-common-0.60.1.ebuild:
+  Bump
+
+  02 Dec 2013; Michał Górny <mgorny@gentoo.org> logilab-common-0.59.1.ebuild,
+  logilab-common-0.60.0.ebuild:
+  Fix test invocation to write to TEST_DIR rather than BUILD_DIR.
+
+  05 Sep 2013; Michał Górny <mgorny@gentoo.org> logilab-common-0.59.1.ebuild,
+  logilab-common-0.60.0.ebuild:
+  Clean up PYTHON_COMPAT from old implementations.
+
+  02 Sep 2013; Mike Gilbert <floppym@gentoo.org>
+  +files/logilab-common-0.60.0-skip-doctest.patch, logilab-common-0.60.0.ebuild:
+  Fix deps and skip a faulty doctest.
+
+  26 Aug 2013; Dirkjan Ochtman <djc@gentoo.org> -logilab-common-0.55.2.ebuild,
+  -logilab-common-0.57.1.ebuild, -logilab-common-0.57.2.ebuild,
+  -logilab-common-0.58.1-r1.ebuild, -logilab-common-0.58.3-r1.ebuild,
+  -logilab-common-0.58.3.ebuild, -logilab-common-0.59.0.ebuild:
+  Clean out old versions.
+
+*logilab-common-0.60.0 (10 Aug 2013)
+
+  10 Aug 2013; Patrick Lauer <patrick@gentoo.org> +logilab-common-0.60.0.ebuild:
+  Bump
+
+  26 Jun 2013; Patrick McLean <chutz@gentoo.org> logilab-common-0.59.1.ebuild:
+  Restore ~arm keyword dropped in 0.59.0 bump.
+
+  25 Jun 2013; Mike Gilbert <floppym@gentoo.org>
+  +files/logilab-common-0.59.1-zipsafe.patch, logilab-common-0.59.1.ebuild:
+  Apply 'zipsafe' patch to make test install behave consistently. Drop python3.3
+  support, bug 449276.
+
+  18 Jun 2013; Ian Delaney <idella4@gentoo.org> logilab-common-0.59.1.ebuild:
+  add py3.3 support
+
+*logilab-common-0.59.1 (22 Apr 2013)
+
+  22 Apr 2013; Patrick Lauer <patrick@gentoo.org> +logilab-common-0.59.1.ebuild:
+  Bump
+
+  10 Feb 2013; Michał Górny <mgorny@gentoo.org> logilab-common-0.59.0.ebuild:
+  Use distutils_install_for_testing().
+
+  10 Feb 2013; Ian Delaney <idella4@gentoo.org>
+  +logilab-common-0.59.0-utf8-test.patch:
+  Reinstated patch to fix locale/utf8 in test, py3 specific, cited and tested
+  in Bug #454402
+
+  09 Feb 2013; Mike Gilbert <floppym@gentoo.org>
+  -files/logilab-common-0.59.0-utf8-test.patch, logilab-common-0.59.0.ebuild:
+  Revert utf8 patch as it breaks python2.
+
+  09 Feb 2013; Ian Delaney <idella4@gentoo.org>
+  +files/logilab-common-0.59.0-utf8-test.patch, logilab-common-0.59.0.ebuild:
+  Add utf8-test.patch to fix locale/utf8 issue in unittest_umessage.py, no bug
+  made
+
+  09 Feb 2013; Ian Delaney <idella4@gentoo.org>
+  +files/logilab-common-0.59.0-syntax.patch, logilab-common-0.59.0.ebuild:
+  Add -syntax.patch to correct minor syntax inconsistency in 1 module wrt Bug
+  #454402 causing a test fail in py3.2, filed upstream
 
   02 Feb 2013; Agostino Sarubbo <ago@gentoo.org>
   logilab-common-0.58.3-r1.ebuild:
