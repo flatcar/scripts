@@ -1,0 +1,11 @@
+diff -ur xen-4.2.2.orig/tools/debugger/gdbsx/xg/xg_main.c xen-4.2.2/tools/debugger/gdbsx/xg/xg_main.c
+--- tools/debugger/gdbsx/xg/xg_main.c	2013-04-24 00:42:55.000000000 +0800
++++ tools/debugger/gdbsx/xg/xg_main.c	2013-05-16 00:22:39.263704336 +0800
+@@ -50,6 +50,7 @@
+ #include "xg_public.h"
+ #include <xen/version.h>
+ #include <xen/domctl.h>
++#include <sys/types.h>
+ #include <xen/sys/privcmd.h>
+ #include <xen/foreign/x86_32.h>
+ #include <xen/foreign/x86_64.h>

@@ -1,0 +1,15 @@
+DEFINED_PHASES=compile configure install postinst prepare setup
+DEPEND=dev-libs/lzo:2 dev-libs/glib:2 dev-libs/yajl dev-libs/libaio dev-libs/libgcrypt:0 sys-libs/zlib dev-python/lxml[python_targets_python2_7(-)?,python_single_target_python2_7(+)?] pam? ( dev-python/pypam[python_targets_python2_7(-)?,python_single_target_python2_7(+)?] ) hvm? ( media-libs/libsdl ) python_single_target_python2_7? ( >=dev-lang/python-2.7.5-r2:2.7[xml,threads] ) dev-lang/python-exec:=[python_targets_python2_7(-)?,python_single_target_python2_7(+)?] api? ( dev-libs/libxml2 net-misc/curl ) pygrub? ( python_single_target_python2_7? ( >=dev-lang/python-2.7.5-r2:2.7[ncurses] ) dev-lang/python-exec:=[python_targets_python2_7(-)?,python_single_target_python2_7(+)?] ) arm? ( >=sys-apps/dtc-1.4.0 ) !arm? ( sys-devel/bin86 system-seabios? ( sys-firmware/seabios ) sys-firmware/ipxe sys-devel/dev86 sys-power/iasl ) dev-lang/perl app-misc/pax-utils dev-python/markdown doc? ( app-doc/doxygen dev-tex/latex2html[png,gif] media-gfx/graphviz dev-tex/xcolor media-gfx/transfig dev-texlive/texlive-latexextra virtual/latex-base dev-tex/latexmk dev-texlive/texlive-latex dev-texlive/texlive-pictures dev-texlive/texlive-latexrecommended ) hvm? ( x11-proto/xproto !net-libs/libiscsi ) qemu? ( x11-libs/pixman ) system-qemu? ( app-emulation/qemu[xen] ) ocaml? ( dev-ml/findlib >=dev-lang/ocaml-4 ) virtual/pkgconfig
+DESCRIPTION=Xend daemon and tools
+EAPI=5
+HOMEPAGE=http://xen.org/
+IUSE=api custom-cflags debug doc flask hvm qemu ocaml +pam python pygrub screen static-libs system-qemu system-seabios python_targets_python2_7 python_single_target_python2_7
+KEYWORDS=~amd64 ~arm -x86
+LICENSE=GPL-2
+RDEPEND=dev-libs/lzo:2 dev-libs/glib:2 dev-libs/yajl dev-libs/libaio dev-libs/libgcrypt:0 sys-libs/zlib sys-apps/iproute2 net-misc/bridge-utils screen? ( app-misc/screen app-admin/logrotate ) virtual/udev
+REQUIRED_USE=hvm? ( || ( qemu system-qemu ) ) python_single_target_python2_7? ( python_targets_python2_7 ) ^^ ( python_single_target_python2_7 ) pygrub? ( python ) qemu? ( !system-qemu )
+RESTRICT=test
+SLOT=0
+SRC_URI=http://bits.xensource.com/oss-xen/release/4.4.0/xen-4.4.0.tar.gz http://code.coreboot.org/p/seabios/downloads/get/seabios-1.7.3.1.tar.gz http://dev.gentoo.org/~dlan/distfiles/seabios-1.7.3.1.tar.gz http://dev.gentoo.org/~dlan/distfiles/xen-4.4.0-upstream-patches-5.tar.xz
+_eclasses_=bash-completion-r1	db412e427e3317ffd3e15f17df269c5e	eutils	06133990e861be0fe60c2b428fd025d9	flag-o-matic	75e24bac8423c515dd9c5717f08feb83	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	python-single-r1	a71a169a881e0a11d04a7fe12dc39f6e	python-utils-r1	8c66c6dabd0295878b68b40dbd0b087b	toolchain-funcs	0f1760274637a138b99bb649202ea402	udev	da001465a2e939c93f7ae16947ce3438
+_md5_=ad6a5b5224f7b3a364937d0665665e6b

@@ -1,0 +1,30 @@
+fix invalid installs of docs/man and config into /usr/local
+
+--- xen-4.2.2-orig/tools/Makefile	2013-04-23 18:42:55.000000000 +0200
++++ xen-4.2.2/tools/Makefile	2013-07-29 17:01:33.764093405 +0200
+@@ -199,6 +199,9 @@
+ 		--bindir=$(LIBEXEC) \
+ 		--datadir=$(SHAREDIR)/qemu-xen \
+ 		--disable-kvm \
++		--mandir=/usr/share/man \
++		--docdir=/usr/share/doc/xen \
++		--sysconfdir=/etc \
+ 		--python=$(PYTHON) \
+ 		$(IOEMU_CONFIGURE_CROSS); \
+ 	$(MAKE) all
+diff --git a/tools/qemu-xen-traditional/configure b/tools/qemu-xen-traditional/configure
+index 904e019..b70ee25 100755
+--- a/tools/qemu-xen-traditional/configure
++++ b/tools/qemu-xen-traditional/configure
+@@ -1107,10 +1107,7 @@ elif $cc $ARCH_CFLAGS -o $TMPE $TMPC -lrt > /dev/null 2> /dev/null ; then
+   rt=yes
+ fi
+ 
+-if test "$rt" = "yes" ; then
+-  # Hack, we should have a general purpose LIBS for this sort of thing
+-  AIOLIBS="$AIOLIBS -lrt"
+-fi
++AIOLIBS="$AIOLIBS -lrt"
+ 
+ if test "$mingw32" = "yes" ; then
+   if test -z "$prefix" ; then

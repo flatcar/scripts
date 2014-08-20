@@ -1,0 +1,87 @@
+diff -ur xen-4.3.0.orig/tools/qemu-xen/.gitignore xen-4.3.0/tools/qemu-xen/.gitignore
+--- tools/qemu-xen/.gitignore	2013-06-28 19:23:16.000000000 +0800
++++ tools/qemu-xen/.gitignore	2013-07-26 23:05:24.487998947 +0800
+@@ -37,7 +37,7 @@
+ qemu-img-cmds.h
+ qemu-io
+ qemu-ga
+-qemu-bridge-helper
++xen-bridge-helper
+ qemu-monitor.texi
+ vscclient
+ QMP/qmp-commands.txt
+diff -ur xen-4.3.0.orig/tools/qemu-xen/Makefile xen-4.3.0/tools/qemu-xen/Makefile
+--- tools/qemu-xen/Makefile	2013-06-28 19:23:16.000000000 +0800
++++ tools/qemu-xen/Makefile	2013-07-26 23:03:35.800991899 +0800
+@@ -50,7 +50,7 @@
+ 
+ LIBS+=-lz $(LIBS_TOOLS)
+ 
+-HELPERS-$(CONFIG_LINUX) = qemu-bridge-helper$(EXESUF)
++HELPERS-$(CONFIG_LINUX) = xen-bridge-helper$(EXESUF)
+ 
+ ifdef BUILD_DOCS
+ DOCS=qemu-doc.html qemu-tech.html qemu.1 qemu-img.1 qemu-nbd.8 QMP/qmp-commands.txt
+@@ -195,7 +195,7 @@
+ qemu-nbd$(EXESUF): qemu-nbd.o $(tools-obj-y) $(block-obj-y) libqemustub.a
+ qemu-io$(EXESUF): qemu-io.o cmd.o $(tools-obj-y) $(block-obj-y) libqemustub.a
+ 
+-qemu-bridge-helper$(EXESUF): qemu-bridge-helper.o
++xen-bridge-helper$(EXESUF): xen-bridge-helper.o
+ 
+ vscclient$(EXESUF): $(libcacard-y) $(oslib-obj-y) $(trace-obj-y) libcacard/vscclient.o libqemustub.a
+ 	$(call quiet-command,$(CC) $(LDFLAGS) -o $@ $^ $(libcacard_libs) $(LIBS),"  LINK  $@")
+diff -ur xen-4.3.0.orig/tools/qemu-xen/net.h xen-4.3.0/tools/qemu-xen/net.h
+--- tools/qemu-xen/net.h	2013-06-28 19:23:16.000000000 +0800
++++ tools/qemu-xen/net.h	2013-07-26 23:05:01.823997477 +0800
+@@ -163,7 +163,7 @@
+ 
+ #define DEFAULT_NETWORK_SCRIPT "/etc/qemu-ifup"
+ #define DEFAULT_NETWORK_DOWN_SCRIPT "/etc/qemu-ifdown"
+-#define DEFAULT_BRIDGE_HELPER CONFIG_QEMU_HELPERDIR "/qemu-bridge-helper"
++#define DEFAULT_BRIDGE_HELPER CONFIG_QEMU_HELPERDIR "/xen-bridge-helper"
+ #define DEFAULT_BRIDGE_INTERFACE "br0"
+ 
+ void qdev_set_nic_properties(DeviceState *dev, NICInfo *nd);
+diff -ur xen-4.3.0.orig/tools/qemu-xen/qemu-bridge-helper.c xen-4.3.0/tools/qemu-xen/qemu-bridge-helper.c
+--- tools/qemu-xen/qemu-bridge-helper.c	2013-06-28 19:23:16.000000000 +0800
++++ tools/qemu-xen/qemu-bridge-helper.c	2013-07-26 23:04:11.880994239 +0800
+@@ -67,7 +67,7 @@
+ static void usage(void)
+ {
+     fprintf(stderr,
+-            "Usage: qemu-bridge-helper [--use-vnet] --br=bridge --fd=unixfd\n");
++            "Usage: xen-bridge-helper [--use-vnet] --br=bridge --fd=unixfd\n");
+ }
+ 
+ static int parse_acl_file(const char *filename, ACLList *acl_list)
+diff -ur xen-4.3.0.orig/tools/qemu-xen/qemu-options.hx xen-4.3.0/tools/qemu-xen/qemu-options.hx
+--- tools/qemu-xen/qemu-options.hx	2013-06-28 19:23:16.000000000 +0800
++++ tools/qemu-xen/qemu-options.hx	2013-07-26 23:05:17.239998477 +0800
+@@ -1560,7 +1560,7 @@
+ 
+ If running QEMU as an unprivileged user, use the network helper
+ @var{helper} to configure the TAP interface. The default network
+-helper executable is @file{/usr/local/libexec/qemu-bridge-helper}.
++helper executable is @file{/usr/local/libexec/xen-bridge-helper}.
+ 
+ @option{fd}=@var{h} can be used to specify the handle of an already
+ opened host TAP interface.
+@@ -1584,7 +1584,7 @@
+ #launch a QEMU instance with the default network helper to
+ #connect a TAP device to bridge br0
+ qemu-system-i386 linux.img \
+-                 -net nic -net tap,"helper=/usr/local/libexec/qemu-bridge-helper"
++                 -net nic -net tap,"helper=/usr/local/libexec/xen-bridge-helper"
+ @end example
+ 
+ @item -netdev bridge,id=@var{id}[,br=@var{bridge}][,helper=@var{helper}]
+@@ -1593,7 +1593,7 @@
+ 
+ Use the network helper @var{helper} to configure the TAP interface and
+ attach it to the bridge. The default network helper executable is
+-@file{/usr/local/libexec/qemu-bridge-helper} and the default bridge
++@file{/usr/local/libexec/xen-bridge-helper} and the default bridge
+ device is @file{br0}.
+ 
+ Examples:

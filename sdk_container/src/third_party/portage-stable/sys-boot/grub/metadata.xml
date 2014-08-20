@@ -11,7 +11,7 @@
 </maintainer>
 <use>
 	<flag name='device-mapper'>
-		Enable support for <pkg>sys-fs/device-mapper</pkg>
+		Enable support for device-mapper from <pkg>sys-fs/lvm2</pkg>
 	</flag>
 	<flag name='efiemu'>
 		Build and install the efiemu runtimes
@@ -21,6 +21,10 @@
 	</flag>
 	<flag name='libzfs'>
 		Enable support for <pkg>sys-fs/zfs</pkg>
+	</flag>
+	<flag name='multislot'>
+		Allow concurrent installation of <pkg>sys-boot/grub:0</pkg> and
+		<pkg>sys-boot/grub:2</pkg> by renaming all programs.
 	</flag>
 </use>
 </pkgmetadata>
