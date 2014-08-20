@@ -1,0 +1,48 @@
+diff --git a/tools/configure b/tools/configure
+index afc3000..6187468 100755
+--- a/tools/configure
++++ b/tools/configure
+@@ -4615,7 +4615,7 @@ if test x"${PERL}" = x"no"
+ then
+     as_fn_error $? "Unable to find perl, please install perl" "$LINENO" 5
+ fi
+-if test "x$xapi" = "xy"; then :
++if test "x$xenapi" = "xy"; then :
+ 
+     # Extract the first word of "curl-config", so it can be a program name with args.
+ set dummy curl-config; ac_word=$2
+diff --git a/tools/configure.ac b/tools/configure.ac
+index 0754f0e..cc884f7 100644
+--- a/tools/configure.ac
++++ b/tools/configure.ac
+@@ -150,7 +150,7 @@ AC_PROG_INSTALL
+ AC_PATH_PROG([BISON], [bison])
+ AC_PATH_PROG([FLEX], [flex])
+ AX_PATH_PROG_OR_FAIL([PERL], [perl])
+-AS_IF([test "x$xapi" = "xy"], [
++AS_IF([test "x$xenapi" = "xy"], [
+     AX_PATH_PROG_OR_FAIL([CURL], [curl-config])
+     AX_PATH_PROG_OR_FAIL([XML], [xml2-config])
+ ])
+diff --git a/tools/libxen/Makefile b/tools/libxen/Makefile
+index b66f0bc..94b854b 100644
+--- a/tools/libxen/Makefile
++++ b/tools/libxen/Makefile
+@@ -22,12 +22,15 @@ MAJOR = 1.0
+ MINOR = 0
+ 
+ CFLAGS += -Iinclude                     \
+-          $(shell $(XML2_CONFIG) --cflags) \
+-          $(shell $(CURL_CONFIG) --cflags) \
+           -fPIC
+ 
++ifeq ($(LIBXENAPI_BINDINGS),y)
++CFLAGS += $(shell $(XML2_CONFIG) --cflags) \
++          $(shell $(CURL_CONFIG) --cflags)
++
+ LDFLAGS += $(shell $(XML2_CONFIG) --libs) \
+            $(shell $(CURL_CONFIG) --libs)
++endif
+ 
+ LIBXENAPI_HDRS = $(wildcard include/xen/api/*.h) include/xen/api/xen_all.h
+ LIBXENAPI_OBJS = $(patsubst %.c, %.o, $(wildcard src/*.c))

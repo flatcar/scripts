@@ -1,0 +1,12 @@
+diff --git a/tools/firmware/Makefile b/tools/firmware/Makefile
+index cb13212..d83c51a 100644
+--- a/tools/firmware/Makefile
++++ b/tools/firmware/Makefile
+@@ -22,7 +22,6 @@ ovmf-dir:
+ 	cp ovmf-makefile ovmf-dir/Makefile;
+ 
+ seabios-dir:
+-	GIT=$(GIT) $(XEN_ROOT)/scripts/git-checkout.sh $(SEABIOS_UPSTREAM_URL) $(SEABIOS_UPSTREAM_TAG) seabios-dir
+ 	cp seabios-config seabios-dir/.config;
+ 
+ .PHONY: all

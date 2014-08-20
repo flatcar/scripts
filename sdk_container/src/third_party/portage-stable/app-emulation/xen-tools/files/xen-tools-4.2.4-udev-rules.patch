@@ -1,0 +1,13 @@
+--- xen-4.2.4.org/tools/hotplug/Linux/Makefile	2014-05-22 05:39:57.090009337 +0000
++++ xen-4.2.4/tools/hotplug/Linux/Makefile	2014-05-22 05:41:03.816009464 +0000
+@@ -31,8 +31,8 @@
+ XEN_HOTPLUG_SCRIPTS = xen-backend.agent
+ 
+ UDEVVER = 0
+-ifeq ($(shell [ -x /sbin/udevadm ] && echo 1),1)
+-UDEVVER = $(shell /sbin/udevadm info -V | sed -e 's/^[^0-9]* \([0-9]\{1,\}\)[^0-9]\{0,\}/\1/' )
++ifeq ($(shell [ -x $(shell which udevadm) ] && echo 1),1)
++UDEVVER = $(shell $(shell which udevadm) info -V | sed -e 's/^[^0-9]* \([0-9]\{1,\}\)[^0-9]\{0,\}/\1/' )
+ endif
+ ifeq ($(shell [ -x /usr/bin/udevinfo ] && echo 1),1)
+ UDEVVER = $(shell /usr/bin/udevinfo -V | sed -e 's/^[^0-9]* \([0-9]\{1,\}\)[^0-9]\{0,\}/\1/' )

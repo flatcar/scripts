@@ -1,6 +1,290 @@
 # ChangeLog for sys-boot/grub
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-boot/grub/ChangeLog,v 1.250 2013/02/03 22:39:46 floppym Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-boot/grub/ChangeLog,v 1.312 2014/06/22 18:02:08 floppym Exp $
+
+  22 Jun 2014; Mike Gilbert <floppym@gentoo.org> grub-2.02_beta2.ebuild,
+  grub-9999-r1.ebuild:
+  Update to unifont-7.0.01.
+
+  26 Apr 2014; Mike Gilbert <floppym@gentoo.org> grub-2.02_beta2.ebuild,
+  grub-9999-r1.ebuild:
+  Replace -O3 with -O2 to prevent segfault in grub-mkimage, bug 508758 by Roc
+  Vallès.
+
+  15 Apr 2014; Mike Gilbert <floppym@gentoo.org> grub-2.02_beta2.ebuild,
+  grub-9999-r1.ebuild:
+  Add python3.4.
+
+  15 Mar 2014; Mike Gilbert <floppym@gentoo.org> grub-2.00_p5107-r2.ebuild,
+  grub-2.02_beta2.ebuild, grub-9999-r1.ebuild:
+  Add runtime dep on gettext, bug 503858 by Nikoli.
+
+  09 Mar 2014; Mike Frysinger <vapier@gentoo.org> grub-2.00_p5107-r2.ebuild,
+  grub-2.02_beta2.ebuild, grub-9999-r1.ebuild:
+  Use single quotes around ~ to get consistent behavior in <=bash-4.2 and
+  >=bash-4.3 versions #503860 by Lars Wendler.
+
+  28 Feb 2014; Mike Gilbert <floppym@gentoo.org>
+  -files/1.99-call_proper_grub_probe.patch,
+  -files/1.99-do_not_stat_so_often.patch, -files/1.99-improve_devmapper.patch,
+  -files/1.99-stat_root_device_properly-p1.patch,
+  -files/1.99-stat_root_device_properly-p2.patch,
+  -files/grub-2.00-20_linux_xen.patch, -files/grub-2.00-compression.patch,
+  -files/grub-2.00-config-quoting.patch, -files/grub-2.00-dmraid.patch,
+  -files/grub-2.00-freebsd.patch, -files/grub-2.00-hardcoded-awk.patch,
+  -files/grub-2.00-no-gets.patch, -files/grub-2.00-os-prober-efi-system.patch,
+  -files/grub-2.00-parallel-make.patch, -files/grub-2.00-texinfo.patch,
+  -files/grub-2.00-tftp-endian.patch,
+  -files/grub-2.00-zfs-feature-flag-support-r1.patch,
+  -files/grub-2.00-zfs-feature-flag-support.patch,
+  -files/grub-2.02_beta1-only-use-scripts-that-are-executable.patch,
+  -files/grub.default:
+  Remove unused files in FILESDIR.
+
+  28 Feb 2014; Mike Gilbert <floppym@gentoo.org> -grub-0.97-r10.ebuild,
+  -grub-0.97-r11.ebuild, -grub-1.99-r2.ebuild, -grub-2.00-r4.ebuild,
+  -grub-2.00_p5107.ebuild, -grub-2.02_beta1-r1.ebuild:
+  Remove old ebuilds.
+
+  28 Feb 2014; Mike Gilbert <floppym@gentoo.org> files/grub.default-3:
+  Add a couple of examples for GRUB_CMDLINE_LINUX.
+
+  13 Feb 2014; Mike Gilbert <floppym@gentoo.org> grub-2.02_beta2.ebuild,
+  grub-9999-r1.ebuild:
+  Warn people about the /boot/grub2 to /boot/grub move regardless of the version
+  they are upgrading from.
+
+  27 Jan 2014; Mike Gilbert <floppym@gentoo.org> grub-2.02_beta2.ebuild,
+  grub-9999-r1.ebuild:
+  Add support for the xen platform.
+
+  07 Jan 2014; Lars Wendler <polynomial-c@gentoo.org> -grub-0.92-r1.ebuild,
+  -grub-0.94-r1.ebuild, -grub-0.96-r1.ebuild, -grub-0.96-r2.ebuild,
+  -grub-0.96-r3.ebuild, -grub-0.97.ebuild, -grub-0.97-r2.ebuild,
+  -grub-0.97-r3.ebuild, -grub-0.97-r4.ebuild, -grub-0.97-r5.ebuild,
+  -grub-0.97-r6.ebuild, -grub-0.97-r8.ebuild, -grub-0.97-r9.ebuild,
+  -files/grub-0.97-gpt.patch:
+  Removed old versions and files.
+
+*grub-2.02_beta2 (24 Dec 2013)
+
+  24 Dec 2013; Mike Gilbert <floppym@gentoo.org> +grub-2.02_beta2.ebuild,
+  grub-9999-r1.ebuild:
+  Version bump.
+
+  24 Dec 2013; Mike Gilbert <floppym@gentoo.org> -grub-2.02_beta1.ebuild,
+  grub-2.02_beta1-r1.ebuild, grub-9999-r1.ebuild:
+  Host binaries no longer have executable stacks.
+
+*grub-2.02_beta1-r1 (23 Dec 2013)
+
+  23 Dec 2013; Lars Wendler <polynomial-c@gentoo.org>
+  +grub-2.02_beta1-r1.ebuild,
+  +files/grub-2.02_beta1-only-use-scripts-that-are-executable.patch:
+  Let grub-mkconfig only use scripts that are executable (bug #494716).
+
+  19 Dec 2013; Mike Gilbert <floppym@gentoo.org> +files/grub.default-3,
+  grub-2.02_beta1.ebuild, grub-9999-r1.ebuild:
+  Adjust default menu options for grub-2.02.
+
+*grub-2.02_beta1 (19 Dec 2013)
+
+  19 Dec 2013; Mike Gilbert <floppym@gentoo.org> +grub-2.02_beta1.ebuild,
+  grub-9999-r1.ebuild:
+  Version bump.
+
+  09 Dec 2013; Mike Gilbert <floppym@gentoo.org>
+  +files/grub-2.00-freetype-2.5.1.patch, grub-2.00_p5107-r2.ebuild:
+  Fix build with freetype-2.5.1, bug 493634 by Thomas Axelsson.
+
+  09 Dec 2013; Mike Gilbert <floppym@gentoo.org> grub-9999-r1.ebuild:
+  Adjust *FLAGS logic and drop custom-cflags use flag.
+
+  09 Dec 2013; Mike Gilbert <floppym@gentoo.org> grub-9999-r1.ebuild:
+  Re-enable python3.
+
+  04 Dec 2013; Mike Gilbert <floppym@gentoo.org> grub-9999-r1.ebuild:
+  Require python2 and drop autogen dep.
+
+  26 Oct 2013; Mike Gilbert <floppym@gentoo.org> grub-2.00_p5107-r2.ebuild,
+  grub-9999-r1.ebuild:
+  Add dependency on app-arch/unzip, bug 489400.
+
+  23 Oct 2013; Mike Gilbert <floppym@gentoo.org> grub-2.00_p5107-r2.ebuild:
+  Apply previous change.
+
+  23 Oct 2013; Mike Gilbert <floppym@gentoo.org> grub-9999-r1.ebuild:
+  Remove build-time dependency on dejavu and unifont by downloading our own
+  copies. Add GRUB_AUTOGEN variable to control autogen separately from
+  autoreconf.
+
+*grub-9999-r1 (22 Oct 2013)
+
+  22 Oct 2013; Mike Gilbert <floppym@gentoo.org> +grub-9999-r1.ebuild,
+  -grub-9999.ebuild:
+  Revbump for git migration.
+
+  22 Oct 2013; Mike Gilbert <floppym@gentoo.org> grub-9999.ebuild:
+  Upstream migrated to git.
+
+  21 Oct 2013; Mike Gilbert <floppym@gentoo.org> grub-2.00_p5107-r2.ebuild,
+  grub-9999.ebuild:
+  Remove dejavu and unifont from RDEPEND, bug 488670.
+
+  17 Oct 2013; Mike Gilbert <floppym@gentoo.org> metadata.xml:
+  We don't rename /boot/grub.
+
+  17 Oct 2013; Mike Gilbert <floppym@gentoo.org> grub-2.00_p5107-r2.ebuild,
+  grub-9999.ebuild:
+  Work around funky emu platform with USE=static by setting HOST_LDFLAGS instead
+  of LDFLAGS. Bug 488182 by Hodur.
+
+*grub-2.00_p5107-r2 (16 Oct 2013)
+
+  16 Oct 2013; Lars Wendler <polynomial-c@gentoo.org>
+  -grub-2.00_p5107-r1.ebuild, +grub-2.00_p5107-r2.ebuild:
+  Fixed automagic linking against libdevmapper.so (bug #488234). Permission
+  kindly granted by floppym. Revbump comitted straight to stable.
+
+  14 Oct 2013; Mike Gilbert <floppym@gentoo.org> grub-2.00_p5107-r1.ebuild:
+  Stable on amd64 and x86, bug 455544.
+
+  21 Sep 2013; Mike Gilbert <floppym@gentoo.org> grub-2.00_p5107-r1.ebuild,
+  grub-9999.ebuild:
+  Need to call mount-boot_mount_boot_partition first.
+
+  21 Sep 2013; Mike Gilbert <floppym@gentoo.org> grub-2.00_p5107-r1.ebuild,
+  grub-9999.ebuild:
+  Make a symlink from /boot/grub/grub.cfg to /boot/grub2/grub.cfg in case people
+  don't read the warning.
+
+  21 Sep 2013; Mike Gilbert <floppym@gentoo.org> grub-2.00_p5107-r1.ebuild,
+  grub-9999.ebuild:
+  Link to the migration guide if grub:0 is installed.
+
+  21 Sep 2013; Mike Gilbert <floppym@gentoo.org> files/grub.default-2:
+  Change references from /boot/grub2 to /boot/grub.
+
+  21 Sep 2013; Mike Gilbert <floppym@gentoo.org> grub-2.00_p5107-r1.ebuild,
+  grub-9999.ebuild:
+  Move BUILD_CC from grub_configure to src_configure.
+
+  21 Sep 2013; Mike Gilbert <floppym@gentoo.org> grub-2.00_p5107-r1.ebuild,
+  grub-9999.ebuild:
+  No reason to localize BUILD_CC variable.
+
+  21 Sep 2013; Mike Gilbert <floppym@gentoo.org> grub-2.00_p5107-r1.ebuild,
+  grub-9999.ebuild:
+  Export BUILD_CC before calling configure, bug 486592 by ago.
+
+  20 Sep 2013; Mike Gilbert <floppym@gentoo.org> -grub-2.00-r1.ebuild,
+  -grub-2.00-r2.ebuild, -grub-2.00-r3.ebuild, -grub-2.00_beta6.ebuild,
+  -grub-2.00_p5086.ebuild:
+  Remove old ebuilds.
+
+*grub-2.00_p5107-r1 (07 Sep 2013)
+
+  07 Sep 2013; Mike Gilbert <floppym@gentoo.org> +grub-2.00_p5107-r1.ebuild,
+  grub-9999.ebuild:
+  Drop the --with-grubdir=grub2 option and emit a warning on upgrades.
+
+*grub-2.00_p5107 (16 Aug 2013)
+
+  16 Aug 2013; Mike Gilbert <floppym@gentoo.org> +grub-2.00_p5107.ebuild:
+  New snapshot, resolves multiboot build failure, bug 479764.
+
+  14 Aug 2013; Patrick Lauer <patrick@gentoo.org> grub-2.00-r4.ebuild,
+  grub-2.00_p5086.ebuild, grub-9999.ebuild:
+  Whitespace
+
+  04 Aug 2013; Mike Gilbert <floppym@gentoo.org> -grub-2.00_p4946.ebuild:
+  Remove old snapshot.
+
+*grub-2.00_p5086 (04 Aug 2013)
+
+  04 Aug 2013; Mike Gilbert <floppym@gentoo.org> +grub-2.00_p5086.ebuild,
+  grub-9999.ebuild:
+  New snapshot, resolves bug 468136. Append -fuse-ld=bfd to LDFLAGS for gcc-4.8+
+  as a workaround for bug 439082.
+
+  28 Jul 2013; Mike Gilbert <floppym@gentoo.org> grub-2.00_p4946.ebuild,
+  grub-9999.ebuild:
+  We don't need autogen with a pristine snapshot.
+
+*grub-2.00_p4946 (28 Jul 2013)
+
+  28 Jul 2013; Mike Gilbert <floppym@gentoo.org> +grub-2.00_p4946.ebuild,
+  grub-9999.ebuild:
+  Add new snapshot for bug 468136.
+
+  21 Jul 2013; Mike Gilbert <floppym@gentoo.org> grub-2.00-r4.ebuild,
+  grub-9999.ebuild:
+  Let configure auto-detect efiemu support.
+
+*grub-2.00-r4 (21 Jul 2013)
+
+  21 Jul 2013; Mike Gilbert <floppym@gentoo.org>
+  +files/grub-2.00-os-prober-efi-system.patch, +grub-2.00-r4.ebuild,
+  grub-9999.ebuild:
+  Add support for probing EFI system partition, bug 477314 by Ben Kohler.
+  Respect bashcompdir, bug 477392 by Alphat-PC.
+
+  07 Jul 2013; Mike Gilbert <floppym@gentoo.org> grub-2.00-r3.ebuild:
+  sed || die
+
+  30 Jun 2013; Mike Gilbert <floppym@gentoo.org> grub-9999.ebuild:
+  Restore addpredict call to grub-9999.
+
+  13 May 2013; Mike Gilbert <floppym@gentoo.org> files/grub.default-2:
+  Describe the GRUB_CMDLINE_LINUX variables.
+
+  01 May 2013; Mike Gilbert <floppym@gentoo.org> grub-9999.ebuild:
+  Enable mulitslot by default.
+
+  29 Apr 2013; Mike Gilbert <floppym@gentoo.org> grub-9999.ebuild:
+  Add test dependencies.
+
+  29 Apr 2013; Mike Gilbert <floppym@gentoo.org> grub-9999.ebuild:
+  Override src_test.
+
+  28 Apr 2013; Mike Gilbert <floppym@gentoo.org> grub-2.00-r3.ebuild,
+  grub-9999.ebuild:
+  Minor tweaks.
+
+  28 Apr 2013; Mike Gilbert <floppym@gentoo.org> grub-9999.ebuild, metadata.xml:
+  Rewrite ebuild around autotools-utils and multibuild eclasses. Add
+  USE=multislot to toggle renaming of binaries and grubdir.
+
+  27 Apr 2013; Mike Gilbert <floppym@gentoo.org> grub-9999.ebuild:
+  Refresh live ebuild.
+
+*grub-2.00-r3 (27 Apr 2013)
+
+  27 Apr 2013; Mike Gilbert <floppym@gentoo.org> +files/grub-2.00-dmraid.patch,
+  +files/grub-2.00-texinfo.patch, +grub-2.00-r3.ebuild:
+  Resolve infinte-loop in grub-probe #462740 and fix dmraid support #430748.
+  Also fix issue with texinfo-5.1.
+
+  24 Apr 2013; Richard Yao <ryao@gentoo.org>
+  +files/grub-2.00-zfs-feature-flag-support-r1.patch:
+  Commit grub-2.00-zfs-feature-flag-support-r1.patch in preparation for sys-
+  boot/grub-2.00-r3, bug \#462740
+
+  09 Apr 2013; Samuli Suominen <ssuominen@gentoo.org> metadata.xml:
+  Replace reference of sys-fs/device-mapper with sys-fs/lvm2 in USE
+  description.
+
+  31 Mar 2013; Mike Gilbert <floppym@gentoo.org>
+  +files/grub-2.00-20_linux_xen.patch, grub-2.00-r2.ebuild:
+  Fix detection of genkernel initramfs on xen.
+
+  05 Feb 2013; Mike Gilbert <floppym@gentoo.org> grub-2.00-r2.ebuild,
+  grub-9999.ebuild:
+  Restore missing patches and FreeBSD compat, bug 455580.
+
+  04 Feb 2013; Richard Yao <ryao@gentoo.org> grub-2.00-r2.ebuild:
+  Warn people using ZFS that grub2-install needs to be run to properly support
+  feature flags.
 
   03 Feb 2013; Mike Gilbert <floppym@gentoo.org> grub-2.00-r2.ebuild:
   Restore keywords after testing.

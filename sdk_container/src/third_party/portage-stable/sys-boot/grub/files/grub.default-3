@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-boot/grub/files/grub.default-2,v 1.4 2013/09/21 18:10:55 floppym Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-boot/grub/files/grub.default-3,v 1.2 2014/02/28 18:07:13 floppym Exp $
 #
 # To populate all changes in this file you need to regenerate your
 # grub configuration file afterwards:
@@ -11,13 +11,23 @@
 
 GRUB_DISTRIBUTOR="Gentoo"
 
-GRUB_DEFAULT=0
-GRUB_HIDDEN_TIMEOUT=0
-GRUB_HIDDEN_TIMEOUT_QUIET=true
-GRUB_TIMEOUT=10
+# Default menu entry
+#GRUB_DEFAULT=0
+
+# Boot the default entry this many seconds after the menu is displayed
+#GRUB_TIMEOUT=5
+#GRUB_TIMEOUT_STYLE=menu
 
 # Append parameters to the linux kernel command line
-# GRUB_CMDLINE_LINUX=""
+#GRUB_CMDLINE_LINUX=""
+#
+# Examples:
+#
+# Boot with network interface renaming disabled
+# GRUB_CMDLINE_LINUX="net.ifnames=0"
+#
+# Boot with systemd instead of sysvinit (openrc)
+# GRUB_CMDLINE_LINUX="init=/usr/lib/systemd/systemd"
 
 # Append parameters to the linux kernel command line for non-recovery entries
 #GRUB_CMDLINE_LINUX_DEFAULT=""

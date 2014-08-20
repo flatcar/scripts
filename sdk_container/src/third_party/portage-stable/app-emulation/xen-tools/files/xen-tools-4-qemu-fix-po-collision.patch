@@ -1,0 +1,26 @@
+diff --git a/tools/qemu-xen/po/Makefile b/tools/qemu-xen/po/Makefile
+index 705166e..2e7cdcb 100644
+--- a/tools/qemu-xen/po/Makefile
++++ b/tools/qemu-xen/po/Makefile
+@@ -30,7 +30,7 @@ install: $(OBJS)
+ 	for obj in $(OBJS); do \
+ 	    base=`basename $$obj .mo`; \
+ 	    $(INSTALL) -d $(DESTDIR)$(prefix)/share/locale/$$base/LC_MESSAGES; \
+-	    $(INSTALL) -m644 $$obj $(DESTDIR)$(prefix)/share/locale/$$base/LC_MESSAGES/qemu.mo; \
++	    $(INSTALL) -m644 $$obj $(DESTDIR)$(prefix)/share/locale/$$base/LC_MESSAGES/xenqemu.mo; \
+ 	done
+ 
+ %.mo: %.po
+diff --git a/tools/qemu-xen/ui/gtk.c b/tools/qemu-xen/ui/gtk.c
+index c38146f..d3c331b 100644
+--- a/tools/qemu-xen/ui/gtk.c
++++ b/tools/qemu-xen/ui/gtk.c
+@@ -31,7 +31,7 @@
+  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
+  */
+ 
+-#define GETTEXT_PACKAGE "qemu"
++#define GETTEXT_PACKAGE "xenqemu"
+ #define LOCALEDIR "po"
+ 
+ #include "qemu-common.h"

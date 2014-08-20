@@ -1,0 +1,22 @@
+--- xen-4.2.0/tools/firmware/Makefile.orig	2012-05-12 16:40:47.000000000 +0100
++++ xen-4.2.0/tools/firmware/Makefile	2012-05-27 21:55:23.438076078 +0100
+@@ -7,7 +7,7 @@
+ 
+ SUBDIRS-y :=
+ SUBDIRS-$(CONFIG_OVMF) += ovmf
+-SUBDIRS-$(CONFIG_SEABIOS) += seabios-dir
++#SUBDIRS-$(CONFIG_SEABIOS) += seabios-dir
+ SUBDIRS-$(CONFIG_ROMBIOS) += rombios
+ SUBDIRS-$(CONFIG_ROMBIOS) += vgabios
+ SUBDIRS-$(CONFIG_ROMBIOS) += etherboot
+--- xen-4.2.0/tools/firmware/hvmloader/Makefile.orig	2012-05-12 16:40:47.000000000 +0100
++++ xen-4.2.0/tools/firmware/hvmloader/Makefile	2012-05-27 21:53:45.625298906 +0100
+@@ -70,7 +70,7 @@
+ ifeq ($(CONFIG_SEABIOS),y)
+ OBJS += seabios.o
+ CFLAGS += -DENABLE_SEABIOS
+-SEABIOS_ROM := $(SEABIOS_DIR)/out/bios.bin
++SEABIOS_ROM := /usr/share/seabios/bios.bin
+ ROMS += $(SEABIOS_ROM)
+ endif
+ 

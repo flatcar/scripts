@@ -1,0 +1,14 @@
+diff --git a/tools/libfsimage/common/Makefile b/tools/libfsimage/common/Makefile
+index cbd60b4..d2b83dd 100644
+--- a/tools/libfsimage/common/Makefile
++++ b/tools/libfsimage/common/Makefile
+@@ -5,7 +5,7 @@ MAJOR = 1.0
+ MINOR = 0
+ 
+ LDFLAGS-$(CONFIG_SunOS) = -Wl,-M -Wl,mapfile-SunOS
+-LDFLAGS-$(CONFIG_Linux) = -Wl,mapfile-GNU
++LDFLAGS-$(CONFIG_Linux) =
+ LDFLAGS = $(LDFLAGS-y)
+ 
+ CFLAGS += $(PTHREAD_CFLAGS)
+
