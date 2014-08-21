@@ -1,10 +1,12 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/gcc-2.95.3-r10.ebuild,v 1.10 2012/12/29 06:58:20 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/gcc-2.95.3-r10.ebuild,v 1.11 2014/01/19 01:51:34 dirtyepic Exp $
+
+EAPI="2"
 
 PATCH_VER="1.4"
 
-inherit toolchain eutils flag-o-matic
+inherit eutils flag-o-matic toolchain
 
 DESCRIPTION="The GNU Compiler Collection"
 
@@ -27,13 +29,9 @@ gcc2-flags() {
 	replace-cpu-flags ev6{7,8} ev6
 }
 
-src_unpack() {
-	toolchain_src_unpack
+src_prepare() {
 	rm -rf texinfo
-}
-
-src_compile() {
 	strip-linguas -u */po
 	gcc2-flags
-	toolchain_src_compile
+	toolchain_src_prepare
 }
