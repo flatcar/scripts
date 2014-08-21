@@ -1,12 +1,14 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/gcc-3.3.6-r1.ebuild,v 1.24 2012/07/23 16:00:30 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/gcc-3.3.6-r1.ebuild,v 1.25 2014/01/19 01:51:34 dirtyepic Exp $
+
+EAPI="2"
 
 PATCH_VER="1.8"
 UCLIBC_VER="1.0"
 HTB_VER="1.00-r2"
 
-inherit toolchain eutils
+inherit eutils toolchain
 
 DESCRIPTION="The GNU Compiler Collection"
 
@@ -20,8 +22,8 @@ RDEPEND=">=sys-devel/binutils-2.14.90.0.6-r1"
 DEPEND="${RDEPEND}
 	amd64? ( >=sys-devel/binutils-2.15.90.0.1.1-r1 )"
 
-src_unpack() {
-	toolchain_src_unpack
+src_prepare() {
+	toolchain_src_prepare
 
 	if [[ -n ${UCLIBC_VER} ]] && [[ ${CTARGET} == *-uclibc* ]] ; then
 		mv "${S}"/gcc-3.3.2/libstdc++-v3/config/os/uclibc "${S}"/libstdc++-v3/config/os/ || die

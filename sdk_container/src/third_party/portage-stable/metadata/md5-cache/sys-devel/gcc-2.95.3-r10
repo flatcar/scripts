@@ -1,8 +1,9 @@
-DEFINED_PHASES=compile install postinst postrm setup test unpack
+DEFINED_PHASES=compile configure install postinst postrm prepare setup test unpack
 DEPEND=>=sys-apps/sed-4 sys-devel/gnuconfig sys-libs/zlib nls? ( virtual/libintl ) >=sys-devel/bison-1.875 >=sys-devel/flex-2.5.4 nls? ( sys-devel/gettext ) regression-test? ( >=dev-util/dejagnu-1.4.4 >=sys-devel/autogen-5.5.4 )
 DESCRIPTION=The GNU Compiler Collection
+EAPI=2
 HOMEPAGE=http://gcc.gnu.org/
-IUSE=multislot regression-test vanilla altivec nls nptl cxx fortran
+IUSE=multislot regression-test vanilla altivec +nls +nptl +cxx +fortran
 KEYWORDS=~alpha ~ppc ~sparc ~x86
 LICENSE=GPL-2 LGPL-2.1
 PDEPEND=>=sys-devel/gcc-config-1.7
@@ -11,4 +12,4 @@ RESTRICT=strip
 SLOT=2.95
 SRC_URI=mirror://gnu/gcc/gcc-2.95.3/gcc-2.95.3.tar.bz2 mirror://gentoo/gcc-2.95.3-patches-1.4.tar.bz2 http://dev.gentoo.org/~vapier/dist/gcc-2.95.3-patches-1.4.tar.bz2 http://dev.gentoo.org/~rhill/dist/gcc-2.95.3-patches-1.4.tar.bz2 http://dev.gentoo.org/~halcy0n/patches/gcc-2.95.3-patches-1.4.tar.bz2 http://dev.gentoo.org/~zorry/patches/gcc/gcc-2.95.3-patches-1.4.tar.bz2
 _eclasses_=eutils	06133990e861be0fe60c2b428fd025d9	fixheadtails	c6fd1fc49c9dc11924f28a1406f251a0	flag-o-matic	75e24bac8423c515dd9c5717f08feb83	gnuconfig	ee02e61d6c68cee478e2e69214b7caef	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	pax-utils	51ad5130f4a69b1a118ca5296de276ae	toolchain	5642cc160e7328a9cf574534317a4f9a	toolchain-funcs	0f1760274637a138b99bb649202ea402	versionator	cd0bcdb170807e4a1984115e9d53a26f
-_md5_=a874ecc1daea2f9b7f6867262af5fcd6
+_md5_=6db6836667917e3bed58cc988429d4a2

@@ -1,6 +1,8 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/gcc-4.3.6-r1.ebuild,v 1.13 2013/04/12 06:47:58 ulm Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/gcc-4.3.6-r1.ebuild,v 1.15 2014/01/19 01:51:34 dirtyepic Exp $
+
+EAPI="2"
 
 PATCH_VER="1.1"
 UCLIBC_VER="1.0"
@@ -15,12 +17,12 @@ PIE_UCLIBC_STABLE="x86 arm"
 #SSP_STABLE="amd64 x86 ppc ppc64 ~arm ~sparc"
 #SSP_UCLIBC_STABLE=""
 
-inherit toolchain
+inherit eutils toolchain
 
 DESCRIPTION="The GNU Compiler Collection"
 
 LICENSE="GPL-3+ LGPL-3+ || ( GPL-3+ libgcc libstdc++ ) FDL-1.2+"
-KEYWORDS="alpha amd64 arm -hppa ia64 ~m68k ~mips ppc ppc64 s390 sh sparc x86 ~x86-fbsd"
+KEYWORDS="alpha amd64 arm -hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~x86-fbsd"
 
 RDEPEND=""
 DEPEND="${RDEPEND}
@@ -31,8 +33,8 @@ if [[ ${CATEGORY} != cross-* ]] ; then
 	PDEPEND="${PDEPEND} elibc_glibc? ( >=sys-libs/glibc-2.8 )"
 fi
 
-src_unpack() {
-	toolchain_src_unpack
+src_prepare() {
+	toolchain_src_prepare
 
 	use vanilla && return 0
 

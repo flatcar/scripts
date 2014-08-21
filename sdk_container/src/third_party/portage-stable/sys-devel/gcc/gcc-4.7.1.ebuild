@@ -1,6 +1,8 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/gcc-4.7.1.ebuild,v 1.11 2013/05/20 10:56:06 aballier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/gcc-4.7.1.ebuild,v 1.13 2014/01/19 01:51:34 dirtyepic Exp $
+
+EAPI="2"
 
 PATCH_VER="1.5"
 UCLIBC_VER="1.0"
@@ -18,7 +20,7 @@ SSP_STABLE="amd64 x86 ppc ppc64 arm"
 SSP_UCLIBC_STABLE="x86 amd64 ppc ppc64 arm"
 #end Hardened stuff
 
-inherit toolchain
+inherit eutils toolchain
 
 DESCRIPTION="The GNU Compiler Collection"
 
@@ -34,7 +36,7 @@ if [[ ${CATEGORY} != cross-* ]] ; then
 	PDEPEND="${PDEPEND} elibc_glibc? ( >=sys-libs/glibc-2.8 )"
 fi
 
-src_unpack() {
+src_prepare() {
 	if has_version '<sys-libs/glibc-2.12' ; then
 		ewarn "Your host glibc is too old; disabling automatic fortify."
 		ewarn "Please rebuild gcc after upgrading to >=glibc-2.12 #362315"
@@ -46,20 +48,9 @@ src_unpack() {
 		EPATCH_EXCLUDE+=" 90_all_gcc-4.7-x32.patch"
 	fi
 
-	toolchain_src_unpack
+	toolchain_src_prepare
 
 	use vanilla && return 0
 
 	[[ ${CHOST} == ${CTARGET} ]] && epatch "${FILESDIR}"/gcc-spec-env.patch
-}
-
-pkg_setup() {
-	toolchain_pkg_setup
-
-	if use lto ; then
-		ewarn
-		ewarn "LTO support is still experimental and unstable."
-		ewarn "Any bugs resulting from the use of LTO will not be fixed."
-		ewarn
-	fi
 }
