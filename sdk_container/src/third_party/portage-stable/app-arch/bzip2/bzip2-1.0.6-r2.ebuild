@@ -1,9 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-arch/bzip2/bzip2-1.0.6-r3.ebuild,v 1.12 2014/01/18 01:43:22 vapier Exp $
-
-# XXX: atm, libbz2.a is always PIC :(, so it is always built quickly
-#      (since we're building shared libs) ...
+# $Header: /var/cvsroot/gentoo-x86/app-arch/bzip2/bzip2-1.0.6-r2.ebuild,v 1.7 2011/08/29 06:25:24 jer Exp $
 
 EAPI="2"
 
@@ -15,8 +12,8 @@ SRC_URI="http://www.bzip.org/${PV}/${P}.tar.gz"
 
 LICENSE="BZIP2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
-IUSE="static static-libs"
+KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~sparc-fbsd ~x86-fbsd"
+IUSE="static"
 
 src_prepare() {
 	epatch "${FILESDIR}"/${PN}-1.0.4-makefile-CFLAGS.patch
@@ -25,7 +22,6 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-1.0.6-progress.patch
 	epatch "${FILESDIR}"/${PN}-1.0.3-no-test.patch
 	epatch "${FILESDIR}"/${PN}-1.0.4-POSIX-shell.patch #193365
-	epatch "${FILESDIR}"/${PN}-1.0.6-mingw.patch #393573
 
 	# - Use right man path
 	# - Generate symlinks instead of hardlinks
@@ -67,9 +63,6 @@ src_install() {
 
 	if ! use static ; then
 		newbin bzip2-shared bzip2 || die
-	fi
-	if ! use static-libs ; then
-		rm -f "${D}"/usr/lib*/libbz2.a || die
 	fi
 
 	# move "important" bzip2 binaries to /bin and use the shared libbz2.so

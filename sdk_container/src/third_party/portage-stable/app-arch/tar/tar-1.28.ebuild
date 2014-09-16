@@ -1,10 +1,10 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-arch/tar/tar-1.26-r1.ebuild,v 1.17 2014/01/18 01:55:14 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-arch/tar/tar-1.28.ebuild,v 1.2 2014/08/03 14:22:07 polynomial-c Exp $
 
-EAPI="3"
+EAPI=4
 
-inherit flag-o-matic eutils autotools
+inherit flag-o-matic eutils
 
 DESCRIPTION="Use this to make tarballs :)"
 HOMEPAGE="http://www.gnu.org/software/tar/"
@@ -13,18 +13,16 @@ SRC_URI="mirror://gnu/tar/${P}.tar.bz2
 
 LICENSE="GPL-3+"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="minimal nls static userland_GNU xattr"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+IUSE="acl minimal nls selinux static userland_GNU xattr"
 
-RDEPEND="xattr? ( sys-apps/attr )"
+RDEPEND="acl? ( virtual/acl )
+	selinux? ( sys-libs/libselinux )"
 DEPEND="${RDEPEND}
-	nls? ( >=sys-devel/gettext-0.10.35 )"
+	nls? ( >=sys-devel/gettext-0.10.35 )
+	xattr? ( sys-apps/attr )"
 
 src_prepare() {
-	epatch "${FILESDIR}"/${P}-xattr.patch #382067
-	epatch "${FILESDIR}"/${P}-no-gets.patch
-	eautoreconf
-
 	if ! use userland_GNU ; then
 		sed -i \
 			-e 's:/backup\.sh:/gbackup.sh:' \
@@ -41,18 +39,20 @@ src_configure() {
 		--bindir="${EPREFIX}"/bin \
 		--libexecdir="${EPREFIX}"/usr/sbin \
 		$(usex userland_GNU "" "--program-prefix=g") \
+		$(use_with acl posix-acls) \
 		$(use_enable nls) \
-		$(use_enable xattr)
+		$(use_with selinux) \
+		$(use_with xattr xattrs)
 }
 
 src_install() {
-	emake DESTDIR="${D}" install || die
+	emake DESTDIR="${D}" install
 
 	local p=$(usex userland_GNU "" "g")
 	if [[ -z ${p} ]] ; then
 		# a nasty yet required piece of baggage
 		exeinto /etc
-		doexe "${FILESDIR}"/rmt || die
+		doexe "${FILESDIR}"/rmt
 	fi
 
 	# autoconf looks for gtar before tar (in configure scripts), hence
@@ -64,13 +64,12 @@ src_install() {
 	fi
 
 	dodoc AUTHORS ChangeLog* NEWS README* THANKS
-	newman "${FILESDIR}"/tar.1 ${p}tar.1
-	mv "${ED}"/usr/sbin/${p}backup{,-tar}
-	mv "${ED}"/usr/sbin/${p}restore{,-tar}
+	mv "${ED}"/usr/sbin/${p}backup{,-tar} || die
+	mv "${ED}"/usr/sbin/${p}restore{,-tar} || die
 
 	if use minimal ; then
 		find "${ED}"/etc "${ED}"/*bin/ "${ED}"/usr/*bin/ \
 			-type f -a '!' '(' -name tar -o -name ${p}tar ')' \
-			-delete
+			-delete || die
 	fi
 }

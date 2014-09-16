@@ -1,12 +1,12 @@
 DEFINED_PHASES=compile configure install prepare test
 DESCRIPTION=Parallel bzip2 utility
-EAPI=4
+EAPI=5
 HOMEPAGE=https://github.com/kjn/lbzip2/
 IUSE=debug symlink
-KEYWORDS=alpha amd64 arm hppa ia64 ~m68k ~mips ppc ppc64 s390 sh sparc x86 ~x86-fbsd ~amd64-linux ~x86-linux
+KEYWORDS=~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-fbsd ~amd64-linux ~x86-linux
 LICENSE=GPL-3
 RDEPEND=symlink? ( !app-arch/pbzip2[symlink] )
 SLOT=0
-SRC_URI=mirror://github/kjn/lbzip2/lbzip2-2.2.tar.gz
+SRC_URI=http://archive.lbzip2.org/lbzip2-2.5.tar.gz
 _eclasses_=autotools	ebea507d219855923e3438c953cf4ab8	autotools-utils	3727db64c7b960903d5033280f108080	eutils	06133990e861be0fe60c2b428fd025d9	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	multiprocessing	d7f2985a2c76c365ee20269db5261414	toolchain-funcs	0f1760274637a138b99bb649202ea402
-_md5_=3f0e29a10133135372c7378676acdff5
+_md5_=aaf47e71d611a50175f59df2e1747b19

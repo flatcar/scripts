@@ -1,6 +1,68 @@
 # ChangeLog for app-arch/lbzip2
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/app-arch/lbzip2/ChangeLog,v 1.52 2013/06/02 08:37:27 ago Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/app-arch/lbzip2/ChangeLog,v 1.69 2014/05/05 19:13:37 jlec Exp $
+
+*lbzip2-2.5 (05 May 2014)
+
+  05 May 2014; Justin Lecher <jlec@gentoo.org> +lbzip2-2.5.ebuild:
+  Version Bump, #509436
+
+  27 Jan 2014; Justin Lecher <jlec@gentoo.org> -lbzip2-2.2-r1.ebuild,
+  -lbzip2-2.3.ebuild, -files/lbzip2-2.2-assertion.patch,
+  -files/lbzip2-2.2-s_isreg.patch:
+  Drop old
+
+  26 Jan 2014; Agostino Sarubbo <ago@gentoo.org> lbzip2-2.3-r1.ebuild:
+  Stable for sparc, wrt bug #495322
+
+  19 Jan 2014; Agostino Sarubbo <ago@gentoo.org> lbzip2-2.3-r1.ebuild:
+  Stable for ppc64, wrt bug #495322
+
+  18 Jan 2014; Agostino Sarubbo <ago@gentoo.org> lbzip2-2.3-r1.ebuild:
+  Stable for alpha, wrt bug #495322
+
+  18 Jan 2014; Mike Frysinger <vapier@gentoo.org> lbzip2-2.3-r1.ebuild:
+  Add arm64 love.
+
+  18 Jan 2014; Mike Frysinger <vapier@gentoo.org> lbzip2-2.3-r1.ebuild:
+  Mark m68k/s390/sh stable.
+
+  15 Jan 2014; Agostino Sarubbo <ago@gentoo.org> lbzip2-2.3-r1.ebuild:
+  Stable for ia64, wrt bug #495322
+
+  14 Jan 2014; Agostino Sarubbo <ago@gentoo.org> lbzip2-2.3-r1.ebuild:
+  Stable for ppc, wrt bug #495322
+
+  09 Jan 2014; Lars Wendler <polynomial-c@gentoo.org> lbzip2-2.3-r1.ebuild:
+  amd64 stable (bug #495322).
+
+  09 Jan 2014; Lars Wendler <polynomial-c@gentoo.org> lbzip2-2.3-r1.ebuild:
+  x86 stable (bug #495322).
+
+  29 Dec 2013; Markus Meier <maekke@gentoo.org> lbzip2-2.3-r1.ebuild:
+  arm stable, bug #495322
+
+  25 Dec 2013; Jeroen Roovers <jer@gentoo.org> lbzip2-2.3-r1.ebuild:
+  Stable for HPPA (bug #495322).
+
+  25 Dec 2013; Justin Lecher <jlec@gentoo.org> lbzip2-2.3-r1.ebuild:
+  Resort some lines
+
+*lbzip2-2.3-r1 (10 Nov 2013)
+
+  10 Nov 2013; Justin Lecher <jlec@gentoo.org> +lbzip2-2.3-r1.ebuild:
+  Also install bunzip2 symlink
+
+  10 Oct 2013; Justin Lecher <jlec@gentoo.org> -lbzip2-2.2.ebuild:
+  Drop old
+
+*lbzip2-2.3 (23 Sep 2013)
+
+  23 Sep 2013; Justin Lecher <jlec@gentoo.org> +lbzip2-2.3.ebuild,
+  -files/0.23-Makefile.patch, +files/lbzip2-2.3-s_isreg.patch,
+  -files/0.23-s_isreg.patch, -files/0.23-test.sh.patch,
+  -files/2.1-crc-missmatch.patch:
+  Version Bump; clean old patches
 
   02 Jun 2013; Agostino Sarubbo <ago@gentoo.org> lbzip2-2.2-r1.ebuild:
   Stable for sh, wrt bug #457218
