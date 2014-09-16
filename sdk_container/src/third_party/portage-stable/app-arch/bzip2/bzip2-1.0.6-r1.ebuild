@@ -1,11 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-arch/bzip2/bzip2-1.0.6-r3.ebuild,v 1.12 2014/01/18 01:43:22 vapier Exp $
-
-# XXX: atm, libbz2.a is always PIC :(, so it is always built quickly
-#      (since we're building shared libs) ...
-
-EAPI="2"
+# $Header: /var/cvsroot/gentoo-x86/app-arch/bzip2/bzip2-1.0.6-r1.ebuild,v 1.1 2010/09/23 09:19:49 vapier Exp $
 
 inherit eutils multilib toolchain-funcs flag-o-matic
 
@@ -15,17 +10,18 @@ SRC_URI="http://www.bzip.org/${PV}/${P}.tar.gz"
 
 LICENSE="BZIP2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
-IUSE="static static-libs"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~sparc-fbsd ~x86-fbsd"
+IUSE="static"
 
-src_prepare() {
+src_unpack() {
+	unpack ${A}
+	cd "${S}"
 	epatch "${FILESDIR}"/${PN}-1.0.4-makefile-CFLAGS.patch
 	epatch "${FILESDIR}"/${PN}-1.0.6-saneso.patch
 	epatch "${FILESDIR}"/${PN}-1.0.4-man-links.patch #172986
-	epatch "${FILESDIR}"/${PN}-1.0.6-progress.patch
+	epatch "${FILESDIR}"/${PN}-1.0.2-progress.patch
 	epatch "${FILESDIR}"/${PN}-1.0.3-no-test.patch
 	epatch "${FILESDIR}"/${PN}-1.0.4-POSIX-shell.patch #193365
-	epatch "${FILESDIR}"/${PN}-1.0.6-mingw.patch #393573
 
 	# - Use right man path
 	# - Generate symlinks instead of hardlinks
@@ -67,9 +63,6 @@ src_install() {
 
 	if ! use static ; then
 		newbin bzip2-shared bzip2 || die
-	fi
-	if ! use static-libs ; then
-		rm -f "${D}"/usr/lib*/libbz2.a || die
 	fi
 
 	# move "important" bzip2 binaries to /bin and use the shared libbz2.so
