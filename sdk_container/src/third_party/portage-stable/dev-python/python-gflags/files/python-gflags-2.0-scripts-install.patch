@@ -1,3 +1,6 @@
+The scripts are installed as 'data' rather than scripts.
+http://code.google.com/p/python-gflags/issues/detail?id=12
+
 From d544cdad63faa5a53ba524e39f091f4a18e1eeb8 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Micha=C5=82=20G=C3=B3rny?= <mgorny@gentoo.org>
 Date: Sun, 16 Dec 2012 16:27:13 +0100

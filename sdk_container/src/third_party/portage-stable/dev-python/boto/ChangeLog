@@ -1,6 +1,156 @@
 # ChangeLog for dev-python/boto
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-python/boto/ChangeLog,v 1.66 2013/07/24 23:30:49 radhermit Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-python/boto/ChangeLog,v 1.99 2014/07/10 23:52:54 radhermit Exp $
+
+*boto-2.31.1 (10 Jul 2014)
+
+  10 Jul 2014; Tim Harder <radhermit@gentoo.org> +boto-2.31.1.ebuild:
+  Version bump.
+
+  04 Jun 2014; Mike Frysinger <vapier@gentoo.org> boto-2.27.0.ebuild:
+  Mark arm/ppc/sparc stable #508570 by Tim Harder.
+
+*boto-2.29.1 (02 Jun 2014)
+
+  02 Jun 2014; Tim Harder <radhermit@gentoo.org> +boto-2.29.1.ebuild:
+  Version bump.
+
+  20 May 2014; Tim Harder <radhermit@gentoo.org> boto-2.27.0.ebuild:
+  Keywording amd64/x86 (bug #508570).
+
+*boto-2.28.0 (09 May 2014)
+
+  09 May 2014; Tim Harder <radhermit@gentoo.org> +boto-2.28.0.ebuild:
+  Version bump.
+
+*boto-2.27.0 (07 Mar 2014)
+
+  07 Mar 2014; Tim Harder <radhermit@gentoo.org> +boto-2.27.0.ebuild:
+  Version bump.
+
+*boto-2.26.1 (06 Mar 2014)
+
+  06 Mar 2014; Tim Harder <radhermit@gentoo.org> +boto-2.26.1.ebuild:
+  Version bump.
+
+*boto-2.26.0 (28 Feb 2014)
+
+  28 Feb 2014; Tim Harder <radhermit@gentoo.org> +boto-2.26.0.ebuild:
+  Version bump.
+
+  24 Feb 2014; Mike Frysinger <vapier@gentoo.org> boto-2.25.0.ebuild:
+  Add arm love for Chromium OS.
+
+*boto-2.25.0 (08 Feb 2014)
+
+  08 Feb 2014; Tim Harder <radhermit@gentoo.org> +boto-2.25.0.ebuild:
+  Version bump.
+
+*boto-2.24.0 (30 Jan 2014)
+
+  30 Jan 2014; Tim Harder <radhermit@gentoo.org> +boto-2.24.0.ebuild:
+  Version bump.
+
+*boto-2.23.0 (23 Jan 2014)
+
+  23 Jan 2014; Tim Harder <radhermit@gentoo.org> +boto-2.23.0.ebuild:
+  Version bump.
+
+*boto-2.22.0 (03 Jan 2014)
+
+  03 Jan 2014; Tim Harder <radhermit@gentoo.org> +boto-2.22.0.ebuild:
+  Version bump.
+
+*boto-2.21.1 (24 Dec 2013)
+
+  24 Dec 2013; Tim Harder <radhermit@gentoo.org> +boto-2.21.1.ebuild:
+  Version bump.
+
+  20 Dec 2013; Tim Harder <radhermit@gentoo.org> -boto-2.1.1.ebuild,
+  -boto-2.3.0.ebuild, -boto-2.9.9.ebuild, -boto-2.10.0.ebuild,
+  -boto-2.13.3.ebuild, -boto-2.15.0.ebuild, -boto-2.16.0.ebuild,
+  -boto-2.17.0.ebuild, -boto-2.18.0.ebuild:
+  Remove old.
+
+*boto-2.21.0 (20 Dec 2013)
+
+  20 Dec 2013; Tim Harder <radhermit@gentoo.org> +boto-2.21.0.ebuild:
+  Version bump.
+
+*boto-2.20.1 (17 Dec 2013)
+
+  17 Dec 2013; Tim Harder <radhermit@gentoo.org> +boto-2.20.1.ebuild:
+  Version bump.
+
+*boto-2.20.0 (13 Dec 2013)
+
+  13 Dec 2013; Tim Harder <radhermit@gentoo.org> +boto-2.20.0.ebuild:
+  Version bump.
+
+*boto-2.19.0 (28 Nov 2013)
+
+  28 Nov 2013; Tim Harder <radhermit@gentoo.org> +boto-2.19.0.ebuild:
+  Version bump.
+
+*boto-2.18.0 (24 Nov 2013)
+
+  24 Nov 2013; Tim Harder <radhermit@gentoo.org> +boto-2.18.0.ebuild:
+  Version bump.
+
+  24 Nov 2013; Agostino Sarubbo <ago@gentoo.org> boto-2.11.0.ebuild:
+  Stable for ppc, wrt bug #486280
+
+  24 Nov 2013; Agostino Sarubbo <ago@gentoo.org> boto-2.11.0.ebuild:
+  Stable for sparc, wrt bug #486280
+
+*boto-2.17.0 (14 Nov 2013)
+
+  14 Nov 2013; Tim Harder <radhermit@gentoo.org> +boto-2.17.0.ebuild:
+  Version bump, drop m2crypto dep (bug #491142).
+
+*boto-2.16.0 (09 Nov 2013)
+
+  09 Nov 2013; Tim Harder <radhermit@gentoo.org> +boto-2.16.0.ebuild:
+  Version bump.
+
+  22 Oct 2013; Fabian Groffen <grobian@gentoo.org> boto-2.15.0.ebuild:
+  Marked ~x64-macos, bug #487670
+
+*boto-2.15.0 (18 Oct 2013)
+
+  18 Oct 2013; Tim Harder <radhermit@gentoo.org> +boto-2.15.0.ebuild:
+  Version bump.
+
+  30 Sep 2013; Agostino Sarubbo <ago@gentoo.org> boto-2.11.0.ebuild:
+  Stable for x86, wrt bug #486280
+
+  28 Sep 2013; Agostino Sarubbo <ago@gentoo.org> boto-2.11.0.ebuild:
+  Stable for amd64, wrt bug #486280
+
+*boto-2.13.3 (17 Sep 2013)
+
+  17 Sep 2013; Tim Harder <radhermit@gentoo.org> +boto-2.13.3.ebuild:
+  Version bump.
+
+  05 Sep 2013; Michał Górny <mgorny@gentoo.org> boto-2.1.1.ebuild,
+  boto-2.10.0.ebuild, boto-2.11.0.ebuild, boto-2.9.9.ebuild:
+  Clean up PYTHON_COMPAT from old implementations.
+
+*boto-2.11.0 (29 Aug 2013)
+
+  29 Aug 2013; Tim Harder <radhermit@gentoo.org> +boto-2.11.0.ebuild:
+  Version bump.
+
+  27 Aug 2013; Tim Harder <radhermit@gentoo.org> -boto-2.6.0.ebuild,
+  -boto-2.7.0.ebuild, -boto-2.8.0.ebuild, -boto-2.9.2.ebuild,
+  -boto-2.9.3.ebuild, -boto-2.9.4.ebuild, -boto-2.9.5.ebuild,
+  -boto-2.9.6.ebuild, -boto-2.9.7.ebuild, -boto-2.9.8.ebuild:
+  Remove old.
+
+*boto-2.10.0 (27 Aug 2013)
+
+  27 Aug 2013; Tim Harder <radhermit@gentoo.org> +boto-2.10.0.ebuild:
+  Version bump.
 
 *boto-2.9.9 (24 Jul 2013)
 
