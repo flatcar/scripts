@@ -1,6 +1,44 @@
 # ChangeLog for net-misc/gsutil
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/gsutil/ChangeLog,v 1.11 2013/01/25 05:49:50 vapier Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-misc/gsutil/ChangeLog,v 1.18 2014/09/09 22:47:39 vapier Exp $
+
+*gsutil-4.6 (09 Sep 2014)
+
+  09 Sep 2014; Mike Frysinger <vapier@gentoo.org> +gsutil-4.6.ebuild:
+  Version bump.
+
+*gsutil-4.5 (20 Aug 2014)
+
+  20 Aug 2014; Mike Frysinger <vapier@gentoo.org> +gsutil-4.5.ebuild:
+  Version bump.
+
+*gsutil-4.4 (12 Aug 2014)
+
+  12 Aug 2014; Mike Frysinger <vapier@gentoo.org>
+  +files/gsutil-4.4-use-friendy-version-checks.patch, +gsutil-4.4.ebuild:
+  Version bump #516026 by Bruno Ricci.
+
+*gsutil-3.38 (25 Feb 2014)
+
+  25 Feb 2014; Mike Frysinger <vapier@gentoo.org>
+  +files/gsutil-3.38-use-friendy-version-checks.patch, +gsutil-3.38.ebuild:
+  Version bump.
+
+  24 Feb 2014; Mike Frysinger <vapier@gentoo.org> gsutil-3.42.ebuild:
+  Add arm love for Chromium OS.
+
+*gsutil-3.42 (03 Feb 2014)
+
+  03 Feb 2014; Mike Frysinger <vapier@gentoo.org>
+  +files/gsutil-3.42-use-friendy-version-checks.patch, +gsutil-3.42.ebuild:
+  Version bump.
+
+*gsutil-3.37 (09 Dec 2013)
+
+  09 Dec 2013; Mike Frysinger <vapier@gentoo.org> +files/dummy.boto,
+  +files/gsutil-3.37-drop-http_proxy-clearing.patch,
+  +files/gsutil-3.37-use-friendy-version-checks.patch, +gsutil-3.37.ebuild:
+  Version bump #468080 by Ben Sagal.
 
 *gsutil-3.21 (25 Jan 2013)
 

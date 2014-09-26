@@ -1,3 +1,6 @@
+Tests try to write to /tmp (sandbox).
+http://code.google.com/p/python-gflags/issues/detail?id=13
+
 From 4a430830e75bfe2228e9d953b12f74a20ec2cb8f Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Micha=C5=82=20G=C3=B3rny?= <mgorny@gentoo.org>
 Date: Sun, 16 Dec 2012 16:53:24 +0100

@@ -1,6 +1,32 @@
 # ChangeLog for dev-python/python-gflags
-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-python/python-gflags/ChangeLog,v 1.11 2012/12/17 19:59:53 mgorny Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-python/python-gflags/ChangeLog,v 1.18 2014/03/31 20:42:14 mgorny Exp $
+
+  31 Mar 2014; Michał Górny <mgorny@gentoo.org> python-gflags-2.0.ebuild:
+  Add support for the new PyPy slotting.
+
+  24 Feb 2014; Mike Frysinger <vapier@gentoo.org> python-gflags-2.0.ebuild:
+  Add arm love for Chromium OS.
+
+  03 Feb 2014; Mike Frysinger <vapier@gentoo.org>
+  +files/python-gflags-2.0-tests-python-2.7.patch, python-gflags-2.0.ebuild:
+  Add fix from upstream for running tests w/python-2.7 #447482 by Michał Górny.
+
+  03 Feb 2014; Mike Frysinger <vapier@gentoo.org> python-gflags-2.0.ebuild,
+  files/python-gflags-2.0-scripts-install.patch,
+  files/python-gflags-2.0-skip-test-as-root.patch,
+  files/python-gflags-2.0-tests-respect-tmpdir.patch:
+  Move patch comments out of the ebuild and into the patches where they belong.
+
+  05 Sep 2013; Michał Górny <mgorny@gentoo.org> python-gflags-2.0.ebuild:
+  Clean up PYTHON_COMPAT from old implementations.
+
+  08 Jul 2013; Ian Delaney <idella4@gentoo.org> python-gflags-2.0.ebuild:
+  Add missing $ to {FILESDIR}, fixes Bug #475848
+
+  04 Jul 2013; Ian Delaney <idella4@gentoo.org>
+  +files/python-gflags-2.0-skip-test-as-root.patch, python-gflags-2.0.ebuild:
+  drop pypy1_8, add pypy2_0, patch by M. Marineau from Bug #475134
 
   17 Dec 2012; Michał Górny <mgorny@gentoo.org> python-gflags-2.0.ebuild:
   Bump to EAPI=5 to make Paludis happy, bug #447524.

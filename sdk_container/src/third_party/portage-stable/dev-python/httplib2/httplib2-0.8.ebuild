@@ -1,9 +1,9 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-python/httplib2/httplib2-0.8.ebuild,v 1.1 2013/06/17 09:20:59 djc Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-python/httplib2/httplib2-0.8.ebuild,v 1.4 2014/05/24 09:53:40 idella4 Exp $
 
 EAPI="5"
-PYTHON_COMPAT=( python{2_5,2_6,2_7,3_2,3_3} )
+PYTHON_COMPAT=( python{2_7,3_2,3_3,3_4} pypy )
 
 inherit distutils-r1
 

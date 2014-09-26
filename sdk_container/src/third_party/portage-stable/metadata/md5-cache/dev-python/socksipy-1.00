@@ -1,0 +1,14 @@
+DEFINED_PHASES=install
+DEPEND=python_targets_python2_7? ( >=dev-lang/python-2.7.5-r2:2.7 ) dev-lang/python-exec:=[python_targets_python2_7(-)?,-python_single_target_python2_7(-)]
+DESCRIPTION=SOCKS proxy implementation for python
+EAPI=5
+HOMEPAGE=http://socksipy.sourceforge.net/
+IUSE=python_targets_python2_7
+KEYWORDS=~amd64
+LICENSE=BSD
+RDEPEND=python_targets_python2_7? ( >=dev-lang/python-2.7.5-r2:2.7 ) dev-lang/python-exec:=[python_targets_python2_7(-)?,-python_single_target_python2_7(-)]
+REQUIRED_USE=|| ( python_targets_python2_7 )
+SLOT=0
+SRC_URI=mirror://sourceforge/socksipy/socksipy/SocksiPy%201.00/SocksiPy.tar.gz -> socksipy-1.00.tar.gz
+_eclasses_=eutils	06133990e861be0fe60c2b428fd025d9	multibuild	46527a4656956da3d58acff72c9b59b1	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	multiprocessing	d7f2985a2c76c365ee20269db5261414	python-r1	c820706d8b22c1d0fe215a9d4a47671d	python-utils-r1	8c66c6dabd0295878b68b40dbd0b087b	toolchain-funcs	0f1760274637a138b99bb649202ea402
+_md5_=ed3f44d6cb3391a2e6594d0f98674703
