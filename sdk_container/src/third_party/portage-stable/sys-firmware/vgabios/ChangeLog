@@ -1,6 +1,18 @@
 # ChangeLog for sys-firmware/vgabios
-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-firmware/vgabios/ChangeLog,v 1.3 2012/12/04 11:14:36 ago Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-firmware/vgabios/ChangeLog,v 1.6 2014/05/18 17:44:35 vapier Exp $
+
+*vgabios-0.7a-r1 (18 May 2014)
+
+  18 May 2014; Mike Frysinger <vapier@gentoo.org> +vgabios-0.7a-r1.ebuild,
+  metadata.xml:
+  Add USE=binary support with upstream tarball #459346 by reno reckling.
+
+  30 Apr 2014; Mike Frysinger <vapier@gentoo.org> vgabios-0.7a.ebuild:
+  Add epatch_user support #487100 by Hristo Venev.
+
+  26 Nov 2013; Markos Chandras <hwoarang@gentoo.org> vgabios-0.6c-r1.ebuild:
+  amd64-fbsd has no stable keywords
 
   04 Dec 2012;  <ago@gentoo.org> vgabios-0.7a.ebuild:
   Stable for x86, wrt bug #439418

@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-firmware/vgabios/vgabios-0.7a.ebuild,v 1.4 2014/04/30 21:06:47 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-firmware/vgabios/vgabios-0.7a-r1.ebuild,v 1.1 2014/05/18 17:44:35 vapier Exp $
 
 EAPI=4
 
@@ -17,11 +17,10 @@ SRC_URI="http://savannah.gnu.org/download/${PN}/${P}.tgz
 
 LICENSE="LGPL-2.1"
 SLOT="0"
-KEYWORDS="amd64 x86"
-IUSE="debug"
+KEYWORDS="~amd64 ~ppc ~ppc64 ~x86"
+IUSE="binary debug"
 
-DEPEND="amd64? ( sys-devel/dev86 )
-	x86? ( sys-devel/dev86 )"
+DEPEND="!binary? ( sys-devel/dev86 )"
 RDEPEND=""
 
 src_prepare() {
@@ -33,7 +32,7 @@ src_prepare() {
 }
 
 src_compile() {
-	if use amd64 || use x86 ; then
+	if ! use binary ; then
 		emake clean # Necessary to clean up the pre-built pieces
 		emake biossums
 		emake
@@ -43,16 +42,16 @@ src_compile() {
 src_install() {
 	insinto /usr/share/vgabios
 
-	if use amd64 || use x86 ; then
-		# Stock VGABIOS
-		newins VGABIOS-lgpl-latest.bin vgabios.bin
-		use debug && newins VGABIOS-lgpl-latest.debug.bin vgabios.debug.bin
+	# Stock VGABIOS
+	newins VGABIOS-lgpl-latest.bin vgabios.bin
+	use debug && newins VGABIOS-lgpl-latest.debug.bin vgabios.debug.bin
 
-		# Cirrus
-		newins VGABIOS-lgpl-latest.cirrus.bin vgabios-cirrus.bin
-		use debug && newins VGABIOS-lgpl-latest.cirrus.debug.bin \
-			vgabios-cirrus.debug.bin
+	# Cirrus
+	newins VGABIOS-lgpl-latest.cirrus.bin vgabios-cirrus.bin
+	use debug && newins VGABIOS-lgpl-latest.cirrus.debug.bin \
+		vgabios-cirrus.debug.bin
 
+	if ! use binary ; then
 		# QXL
 		newins VGABIOS-lgpl-latest.qxl.bin vgabios-qxl.bin
 		use debug && newins VGABIOS-lgpl-latest.qxl.debug.bin \
@@ -68,6 +67,6 @@ src_install() {
 		use debug && newins VGABIOS-lgpl-latest.vmware.debug.bin \
 			vgabios-vmware.debug.bin
 	else
-		doins bins/*
+		ewarn "USE=binary only includes default & cirrus bios builds"
 	fi
 }

@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-firmware/seabios/seabios-1.7.2.2.ebuild,v 1.4 2013/09/14 10:04:38 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-firmware/seabios/seabios-1.7.2.2.ebuild,v 1.5 2014/04/30 21:15:33 vapier Exp $
 
 EAPI=5
 
@@ -18,8 +18,6 @@ inherit eutils python-any-r1
 if [[ ${PV} = *9999* || ! -z "${EGIT_COMMIT}" ]]; then
 	EGIT_REPO_URI="git://git.seabios.org/seabios.git"
 	inherit git-2
-	KEYWORDS=""
-	SRC_URI=""
 else
 	KEYWORDS="amd64 ~ppc ~ppc64 x86 ~amd64-fbsd ~x86-fbsd"
 	SRC_URI="http://code.coreboot.org/p/seabios/downloads/get/${P}.tar.gz

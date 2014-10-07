@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-firmware/seabios/seabios-1.6.3.ebuild,v 1.3 2013/03/12 14:50:52 cardoe Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-firmware/seabios/seabios-1.6.3.ebuild,v 1.4 2014/04/30 21:15:33 vapier Exp $
 
 EAPI=4
 
@@ -11,7 +11,6 @@ PYTHON_DEPEND="2"
 if [[ ${PV} = *9999* || ! -z "${EGIT_COMMIT}" ]]; then
 	EGIT_REPO_URI="git://git.seabios.org/seabios.git"
 	GIT_ECLASS="git-2"
-	SRC_URI=""
 else
 	SRC_URI="http://www.linuxtogo.org/~kevin/SeaBIOS/${P}.tar.gz
 	${BACKPORTS:+http://dev.gentoo.org/~cardoe/distfiles/${P}-bp-${BACKPORTS}.tar.bz2}"

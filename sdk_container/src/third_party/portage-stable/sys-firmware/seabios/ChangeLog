@@ -1,6 +1,39 @@
 # ChangeLog for sys-firmware/seabios
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-firmware/seabios/ChangeLog,v 1.27 2014/01/19 23:01:55 cardoe Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-firmware/seabios/ChangeLog,v 1.35 2014/09/13 17:07:07 ago Exp $
+
+  13 Sep 2014; Agostino Sarubbo <ago@gentoo.org> seabios-1.7.5.ebuild:
+  Stable for x86, wrt bug #520688
+
+  13 Sep 2014; Agostino Sarubbo <ago@gentoo.org> seabios-1.7.5.ebuild:
+  Stable for amd64, wrt bug #520688
+
+*seabios-1.7.5 (09 Jun 2014)
+
+  09 Jun 2014; Patrick Lauer <patrick@gentoo.org> +seabios-1.7.5.ebuild:
+  Bump
+
+  04 Jun 2014; Agostino Sarubbo <ago@gentoo.org> seabios-1.7.4.ebuild:
+  Stable for x86, wrt bug #507796
+
+  04 Jun 2014; Agostino Sarubbo <ago@gentoo.org> seabios-1.7.4.ebuild:
+  Stable for amd64, wrt bug #507796
+
+*seabios-1.7.4 (16 May 2014)
+
+  16 May 2014; Yixun Lan <dlan@gentoo.org> +seabios-1.7.4.ebuild:
+  version bump, fix bug 510052, 510492
+
+  30 Apr 2014; Mike Frysinger <vapier@gentoo.org> seabios-1.7.3.ebuild,
+  seabios-1.7.3.2.ebuild:
+  Only require python deps when USE=-binary #496590 by Rafal Kupiec.
+
+  30 Apr 2014; Mike Frysinger <vapier@gentoo.org> seabios-1.6.3.ebuild,
+  seabios-1.7.0.ebuild, seabios-1.7.1.ebuild, seabios-1.7.2.ebuild,
+  seabios-1.7.2.1.ebuild, seabios-1.7.2.2.ebuild, seabios-1.7.3.ebuild,
+  seabios-1.7.3.2.ebuild:
+  Drop empty KEYWORDS/SRC_URI settings in git code path as it is unneeded and
+  ekeyword dislikes it.
 
 *seabios-1.7.3.2 (19 Jan 2014)
 
