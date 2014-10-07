@@ -1,6 +1,226 @@
 # ChangeLog for app-emulation/qemu
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/app-emulation/qemu/ChangeLog,v 1.247 2014/02/24 02:20:18 phajdan.jr Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-emulation/qemu/ChangeLog,v 1.297 2014/09/26 15:44:01 floppym Exp $
+
+  26 Sep 2014; Mike Gilbert <floppym@gentoo.org> qemu-2.1.1.ebuild,
+  qemu-9999.ebuild:
+  Utilize PYTHON_REQUIRED_USE unconditionally. We always need at least one
+  python version enabled for building.
+
+  13 Sep 2014; Agostino Sarubbo <ago@gentoo.org>
+  -files/qemu-2.0.0-CVE-2013-4541.patch, -files/qemu-2.0.0-CVE-2014-0222.patch,
+  -files/qemu-2.0.0-CVE-2014-0223.patch,
+  -files/qemu-2.0.0-qcow-check-max-sizes.patch,
+  -files/qemu-2.0.0-usb-post-load-checks.patch, -qemu-2.0.0-r1.ebuild,
+  -qemu-2.1.0.ebuild:
+  Remove old
+
+  13 Sep 2014; Agostino Sarubbo <ago@gentoo.org> qemu-2.1.0-r1.ebuild:
+  Stable for x86, wrt bug #520688
+
+  13 Sep 2014; Agostino Sarubbo <ago@gentoo.org> qemu-2.1.0-r1.ebuild:
+  Stable for amd64, wrt bug #520688
+
+*qemu-2.1.1 (12 Sep 2014)
+
+  12 Sep 2014; Mike Frysinger <vapier@gentoo.org>
+  +files/qemu-2.1.1-readlink-self.patch, +qemu-2.1.1.ebuild:
+  Version bump.
+
+  06 Sep 2014; Mike Frysinger <vapier@gentoo.org> qemu-2.1.0-r1.ebuild,
+  qemu-9999.ebuild:
+  Move USE=xattr logic to common code path since qemu-user uses it too #522202
+  by Thomas Reitmayr.
+
+  28 Aug 2014; Mike Frysinger <vapier@gentoo.org> qemu-2.1.0-r1.ebuild,
+  qemu-9999.ebuild:
+  Mark u-boot binaries as prebuilt #521286 by Agostino Sarubbo.
+
+  28 Aug 2014; Mike Frysinger <vapier@gentoo.org>
+  +files/qemu-2.1.0-CVE-2014-5388.patch, -files/CVE-2014-5388.patch,
+  qemu-2.1.0-r1.ebuild:
+  Clean up CVE patch #520688 by Agostino Sarubbo.
+
+*qemu-2.1.0-r1 (27 Aug 2014)
+
+  27 Aug 2014; Agostino Sarubbo <ago@gentoo.org> +files/CVE-2014-5388.patch,
+  +qemu-2.1.0-r1.ebuild:
+  Fix CVE-2014-5388 wrt bug #520688
+
+  27 Aug 2014; Patrick Lauer <patrick@gentoo.org> metadata.xml:
+  Remove unneeded useflag description from metadata.xml
+
+  26 Aug 2014; Agostino Sarubbo <ago@gentoo.org> -qemu-1.4.2.ebuild,
+  -qemu-1.5.3.ebuild, -qemu-1.6.0-r1.ebuild, -qemu-1.6.1.ebuild,
+  -qemu-1.6.2.ebuild, -qemu-1.7.0.ebuild, -qemu-1.7.1.ebuild,
+  -qemu-2.0.0.ebuild:
+  Remove old
+
+  20 Aug 2014; Agostino Sarubbo <ago@gentoo.org> qemu-2.0.0-r1.ebuild:
+  Stable for x86, wrt bug #510208
+
+  20 Aug 2014; Agostino Sarubbo <ago@gentoo.org> qemu-2.0.0-r1.ebuild:
+  Stable for amd64, wrt bug #510208
+
+  11 Aug 2014; Mike Frysinger <vapier@gentoo.org> qemu-2.0.0-r1.ebuild:
+  Hack lzo/snappy flags in the older release #519520 by Luis Ressel.
+
+  08 Aug 2014; Mike Frysinger <vapier@gentoo.org> qemu-2.0.0-r1.ebuild,
+  qemu-2.1.0.ebuild, qemu-9999.ebuild:
+  Require new enough libnfs #519226 by Mirko Guenther.
+
+  05 Aug 2014; Mike Frysinger <vapier@gentoo.org> metadata.xml,
+  qemu-2.1.0.ebuild, qemu-9999.ebuild:
+  Add USE=pin-upstream-blobs so people can opt to use any version of
+  seabios/etc... on their local systems.
+
+  05 Aug 2014; Mike Frysinger <vapier@gentoo.org> qemu-2.1.0.ebuild,
+  qemu-9999.ebuild:
+  Unify configure lists so that we disable all the softmmu flags when building
+  the user targets to avoid automagic deps leaking in.
+
+  05 Aug 2014; Mike Frysinger <vapier@gentoo.org> qemu-2.0.0-r1.ebuild,
+  qemu-2.1.0.ebuild, qemu-9999.ebuild:
+  Add USE=infiniband to control librdma automagic dep.
+
+  05 Aug 2014; Mike Frysinger <vapier@gentoo.org> metadata.xml,
+  qemu-2.1.0.ebuild, qemu-9999.ebuild:
+  Add USE=numa to control numactl automagic dep.
+
+  05 Aug 2014; Mike Frysinger <vapier@gentoo.org> metadata.xml,
+  qemu-2.0.0-r1.ebuild, qemu-2.1.0.ebuild, qemu-9999.ebuild:
+  Add USE=lzo/snappy to control liblzo/snappy automagic deps.
+
+  05 Aug 2014; Mike Frysinger <vapier@gentoo.org> metadata.xml,
+  qemu-2.0.0-r1.ebuild, qemu-2.1.0.ebuild, qemu-9999.ebuild:
+  Add USE=nfs to control libnfs automagic dep.
+
+  05 Aug 2014; Mike Frysinger <vapier@gentoo.org> metadata.xml,
+  qemu-2.0.0-r1.ebuild, qemu-2.0.0.ebuild, qemu-2.1.0.ebuild, qemu-9999.ebuild:
+  Control quorum via USE=tls since it also relies on gnutls.
+
+  04 Aug 2014; Mike Frysinger <vapier@gentoo.org> files/qemu-binfmt.initd-r1:
+  actually use the new $QEMU_BINFMT_FLAGS
+
+*qemu-2.1.0 (04 Aug 2014)
+
+  04 Aug 2014; Mike Frysinger <vapier@gentoo.org> +qemu-2.1.0.ebuild,
+  files/qemu-binfmt.initd-r1:
+  Version bump #518806 by José Romildo Malaquias.  Add aarch64 to the init
+  script, and switch flags from P to OC until qemu itself can understand the
+  extra argv[0] #512780 by Bertrand Jacquin.
+
+  29 Jul 2014; Mike Frysinger <vapier@gentoo.org> qemu-2.0.0-r1.ebuild,
+  qemu-9999.ebuild:
+  Do not try to mung blobs when they are not installed.
+
+  29 Jul 2014; Mike Frysinger <vapier@gentoo.org> qemu-2.0.0-r1.ebuild,
+  qemu-9999.ebuild:
+  Add USE=nls support #515544 by Nikoli.
+
+  29 Jul 2014; Mike Frysinger <vapier@gentoo.org> qemu-2.0.0-r1.ebuild,
+  qemu-9999.ebuild:
+  Do not attempt to set fcaps on virtfs-proxy-helper when it does not exist
+  #516874 by Joakim Tjernlund.
+
+  29 Jul 2014; Mike Frysinger <vapier@gentoo.org> qemu-2.0.0-r1.ebuild,
+  qemu-9999.ebuild:
+  Update PaX markings on system binaries before executing tests with them
+  #515550 by Nikoli.
+
+  06 Jun 2014; Mike Frysinger <vapier@gentoo.org> qemu-2.0.0-r1.ebuild,
+  qemu-2.0.0.ebuild, qemu-9999.ebuild:
+  Disable mprotect on qemu binaries #459348 by Alon Bar-Lev.
+
+  04 Jun 2014; Mike Frysinger <vapier@gentoo.org> qemu-2.0.0-r1.ebuild,
+  qemu-2.0.0.ebuild, qemu-9999.ebuild:
+  Fix src_test when softmmu is disabled. Fix install of test results when
+  generating them failed #512010 by Markus Oehme.
+
+  04 Jun 2014; Agostino Sarubbo <ago@gentoo.org> qemu-2.0.0.ebuild:
+  Stable for x86, wrt bug #507796
+
+  04 Jun 2014; Agostino Sarubbo <ago@gentoo.org> qemu-2.0.0.ebuild:
+  Stable for amd64, wrt bug #507796
+
+  04 Jun 2014; Mike Frysinger <vapier@gentoo.org> qemu-2.0.0-r1.ebuild,
+  qemu-2.0.0.ebuild, qemu-9999.ebuild:
+  Check for config files still using `qemu-kvm`.
+
+  31 May 2014; Mike Frysinger <vapier@gentoo.org> qemu-2.0.0-r1.ebuild,
+  qemu-2.0.0.ebuild:
+  Update seabios dep to match what is included in the source #510680 by Pat
+  Erley.
+
+*qemu-2.0.0-r1 (31 May 2014)
+
+  31 May 2014; Mike Frysinger <vapier@gentoo.org>
+  +files/qemu-2.0.0-CVE-2013-4541.patch, +files/qemu-2.0.0-CVE-2014-0222.patch,
+  +files/qemu-2.0.0-CVE-2014-0223.patch,
+  +files/qemu-2.0.0-qcow-check-max-sizes.patch,
+  +files/qemu-2.0.0-usb-post-load-checks.patch, +qemu-2.0.0-r1.ebuild:
+  Add fixes from upstream for various CVEs #510208 #510234.
+
+  31 May 2014; Mike Frysinger <vapier@gentoo.org> qemu-2.0.0.ebuild,
+  qemu-9999.ebuild:
+  Drop qemu-kvm wrapper entirely and tell people to use -enable-kvm instead.
+  #506566 by nobody.
+
+  18 May 2014; Mike Frysinger <vapier@gentoo.org> qemu-2.0.0.ebuild,
+  qemu-9999.ebuild:
+  Set --cxx unconditionally.
+
+  12 May 2014; Mike Frysinger <vapier@gentoo.org> qemu-9999.ebuild:
+  Drop patch now that it is merged upstream #510068 by Hristo Venev.
+
+  25 Apr 2014; Mike Frysinger <vapier@gentoo.org> qemu-2.0.0.ebuild,
+  qemu-9999.ebuild:
+  Fix static lib requirements for USE=static-user #487918 by jannis.
+
+  25 Apr 2014; Mike Frysinger <vapier@gentoo.org> qemu-2.0.0.ebuild,
+  qemu-9999.ebuild:
+  Simplify style for generating USE flags and configure options -- should be no
+  functional changes here.
+
+  22 Apr 2014; Mike Frysinger <vapier@gentoo.org> qemu-2.0.0.ebuild,
+  qemu-9999.ebuild:
+  Add aarch64 targets.
+
+  20 Apr 2014; Mike Frysinger <vapier@gentoo.org> qemu-1.7.0.ebuild,
+  qemu-1.7.1.ebuild, qemu-2.0.0.ebuild, qemu-9999.ebuild:
+  Drop USE=mixemu as the configure flag no longer exists #508194 by OGINO
+  Masanori.
+
+*qemu-2.0.0 (19 Apr 2014)
+
+  19 Apr 2014; Mike Frysinger <vapier@gentoo.org> +qemu-2.0.0.ebuild:
+  Version bump.
+
+  19 Apr 2014; Mike Frysinger <vapier@gentoo.org>
+  +files/qemu-9999-virtfs-proxy-helper-accept.patch, qemu-9999.ebuild:
+  Fix by Tim Comer for stack overflow in virtfs-proxy-helper #486714.
+
+  19 Apr 2014; Mike Frysinger <vapier@gentoo.org> qemu-1.4.2.ebuild,
+  qemu-1.5.3.ebuild, qemu-1.6.0-r1.ebuild, qemu-1.6.1.ebuild, qemu-1.6.2.ebuild,
+  qemu-1.7.0.ebuild, qemu-1.7.1.ebuild, qemu-9999.ebuild:
+  Export a sane default AR #484974 by Agostino Sarubbo.
+
+  19 Apr 2014; Mike Frysinger <vapier@gentoo.org> qemu-1.4.2.ebuild,
+  qemu-1.5.3.ebuild, qemu-1.6.0-r1.ebuild, qemu-1.6.1.ebuild, qemu-1.6.2.ebuild,
+  qemu-1.7.0.ebuild, qemu-1.7.1.ebuild, qemu-9999.ebuild:
+  Move python_export_best call to src_configure to avoid binpkg issues #496554
+  by Rafal Kupiec.
+
+*qemu-1.7.1 (19 Apr 2014)
+
+  19 Apr 2014; Mike Frysinger <vapier@gentoo.org> +qemu-1.7.1.ebuild:
+  Version bump.
+
+  24 Mar 2014; Samuli Suominen <ssuominen@gentoo.org> metadata.xml,
+  qemu-1.4.2.ebuild, qemu-1.5.3.ebuild, qemu-1.6.0-r1.ebuild, qemu-1.6.1.ebuild,
+  qemu-1.6.2.ebuild, qemu-1.7.0.ebuild, qemu-9999.ebuild:
+  Replace dependency to libusbx >= 1.0.13 with libusb >= 1.0.18 (because this is
+  where the libusbx code moved)
 
   24 Feb 2014; Pawel Hajdan jr <phajdan.jr@gentoo.org> qemu-1.5.3.ebuild:
   x86 stable wrt bug #483760
