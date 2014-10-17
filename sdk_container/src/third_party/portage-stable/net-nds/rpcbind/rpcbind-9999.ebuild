@@ -1,14 +1,14 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-nds/rpcbind/rpcbind-9999.ebuild,v 1.9 2014/01/18 04:53:00 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-nds/rpcbind/rpcbind-9999.ebuild,v 1.11 2014/01/30 21:06:30 radhermit Exp $
 
-EAPI="2"
+EAPI="4"
+
+inherit eutils systemd
 
 if [[ ${PV} == "9999" ]] ; then
 	EGIT_REPO_URI="git://git.infradead.org/~steved/rpcbind.git"
-	inherit autotools git-2
-	SRC_URI=""
-	#KEYWORDS=""
+	inherit autotools git-r3
 else
 	SRC_URI="mirror://sourceforge/${PN}/${P}.tar.bz2"
 	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86"
@@ -19,33 +19,34 @@ HOMEPAGE="http://sourceforge.net/projects/rpcbind/"
 
 LICENSE="BSD"
 SLOT="0"
-IUSE="selinux tcpd"
+IUSE="debug selinux tcpd warmstarts"
 
-RDEPEND="net-libs/libtirpc
+RDEPEND=">=net-libs/libtirpc-0.2.3
 	selinux? ( sec-policy/selinux-rpcbind )
 	tcpd? ( sys-apps/tcp-wrappers )"
 DEPEND="${RDEPEND}
 	virtual/pkgconfig"
 
 src_prepare() {
-	if [[ ${PV} == "9999" ]] ; then
-		eautoreconf
-	else
-		# fix busted timestamps
-		find . -type f -print0 | xargs -0 touch -r .
-	fi
+	[[ ${PV} == "9999" ]] && eautoreconf
+	epatch_user
 }
 
 src_configure() {
 	econf \
-		--bindir=/sbin \
-		$(use_enable tcpd libwrap)
+		--bindir="${EPREFIX}"/sbin \
+		--with-statedir="${EPREFIX}"/run/${PN} \
+		--with-rpcuser=root \
+		$(use_enable tcpd libwrap) \
+		$(use_enable debug) \
+		$(use_enable warmstarts)
 }
 
 src_install() {
-	emake DESTDIR="${D}" install || die
-	doman man/rpc{bind,info}.8
-	dodoc AUTHORS ChangeLog NEWS README
-	newinitd "${FILESDIR}"/rpcbind.initd rpcbind || die
-	newconfd "${FILESDIR}"/rpcbind.confd rpcbind || die
+	default
+
+	newinitd "${FILESDIR}"/${PN}.initd ${PN}
+	newconfd "${FILESDIR}"/${PN}.confd ${PN}
+
+	systemd_dounit "${FILESDIR}"/${PN}.service
 }

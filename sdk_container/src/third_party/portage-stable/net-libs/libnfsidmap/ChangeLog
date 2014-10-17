@@ -1,6 +1,11 @@
 # ChangeLog for net-libs/libnfsidmap
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-libs/libnfsidmap/ChangeLog,v 1.44 2014/01/18 04:50:16 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-libs/libnfsidmap/ChangeLog,v 1.45 2014/03/15 16:20:45 vapier Exp $
+
+*libnfsidmap-0.25-r1 (15 Mar 2014)
+
+  15 Mar 2014; Mike Frysinger <vapier@gentoo.org> +libnfsidmap-0.25-r1.ebuild:
+  Set plugins dir to right libdir #504666 by Sergey Popov.
 
   18 Jan 2014; Mike Frysinger <vapier@gentoo.org> libnfsidmap-0.24.ebuild,
   libnfsidmap-0.25.ebuild:

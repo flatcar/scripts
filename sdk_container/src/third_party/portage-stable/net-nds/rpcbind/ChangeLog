@@ -1,6 +1,25 @@
 # ChangeLog for net-nds/rpcbind
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-nds/rpcbind/ChangeLog,v 1.34 2014/01/18 04:53:00 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-nds/rpcbind/ChangeLog,v 1.38 2014/01/30 21:06:30 radhermit Exp $
+
+  30 Jan 2014; Tim Harder <radhermit@gentoo.org> rpcbind-9999.ebuild:
+  Sync live ebuild.
+
+  30 Jan 2014; Tim Harder <radhermit@gentoo.org> -rpcbind-0.2.0.ebuild,
+  -rpcbind-0.2.1.ebuild:
+  Remove old.
+
+*rpcbind-0.2.1-r1 (30 Jan 2014)
+
+  30 Jan 2014; Tim Harder <radhermit@gentoo.org> +rpcbind-0.2.1-r1.ebuild:
+  Explicitly set rpcuser to root (bug #499776).
+
+*rpcbind-0.2.1 (30 Jan 2014)
+
+  30 Jan 2014; Tim Harder <radhermit@gentoo.org> +rpcbind-0.2.1.ebuild,
+  rpcbind-9999.ebuild, metadata.xml:
+  Version bump. Update to EAPI 4, add debug use flag, add warmstarts use flag
+  (bug #440286 by Sean McGovern), add support for epatch_user.
 
   18 Jan 2014; Mike Frysinger <vapier@gentoo.org> rpcbind-0.2.0-r1.ebuild,
   rpcbind-9999.ebuild:

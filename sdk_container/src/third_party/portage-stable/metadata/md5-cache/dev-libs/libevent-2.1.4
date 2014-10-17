@@ -1,0 +1,12 @@
+DEFINED_PHASES=configure install prepare test
+DEPEND=ssl? ( dev-libs/openssl )
+DESCRIPTION=A library to execute a function when a specific event occurs on a file descriptor
+EAPI=5
+HOMEPAGE=http://libevent.org/
+IUSE=+ssl static-libs test
+LICENSE=BSD
+RDEPEND=ssl? ( dev-libs/openssl ) !<=dev-libs/9libs-1.0
+SLOT=0
+SRC_URI=mirror://sourceforge/levent/files/libevent-2.1.4-alpha.tar.gz
+_eclasses_=eutils	06133990e861be0fe60c2b428fd025d9	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0f1760274637a138b99bb649202ea402
+_md5_=d6dee9c5f11b5f2fe10899bd3fa2e320
