@@ -1,7 +1,7 @@
 #!/sbin/runscript
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-fs/nfs-utils/files/nfs.initd,v 1.27 2013/03/24 19:37:22 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-fs/nfs-utils/files/nfs.initd,v 1.28 2014/06/20 06:21:22 vapier Exp $
 
 extra_started_commands="reload"
 
@@ -36,7 +36,7 @@ depend() {
 
 mkdir_nfsdirs() {
 	local d
-	for d in rpc_pipefs v4recovery v4root ; do
+	for d in v4recovery v4root ; do
 		d="/var/lib/nfs/${d}"
 		[ ! -d "${d}" ] && mkdir -p "${d}"
 	done
@@ -62,7 +62,7 @@ mount_nfsd() {
 
 	# This is the new "kernel 2.6 way" to handle the exports file
 	if grep -qs nfsd /proc/filesystems ; then
-		if ! grep -qs "nfsd /proc/fs/nfsd" /proc/mounts ; then
+		if ! mountinfo -q /proc/fs/nfsd ; then
 			ebegin "Mounting nfsd filesystem in /proc"
 			mount -t nfsd -o nodev,noexec,nosuid nfsd /proc/fs/nfsd
 			eend $?

@@ -22,3 +22,11 @@ pkgconfig and during manual build.
  device-mapper: $(TARGETS_DM)
  
  CFLAGS_dmsetup.o += $(UDEV_CFLAGS) $(EXTRA_EXEC_CFLAGS)
+--- libdm/libdevmapper.pc.in
++++ libdm/libdevmapper.pc.in
+@@ -8,4 +8,5 @@
+ Version: @DM_LIB_PATCHLEVEL@
+ Cflags: -I${includedir} 
+ Libs: -L${libdir} -ldevmapper
++Libs.private: -L${libdir} @PTHREAD_LIBS@
+ Requires.private: @SELINUX_PC@ @UDEV_PC@

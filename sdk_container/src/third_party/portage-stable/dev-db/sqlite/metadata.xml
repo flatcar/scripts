@@ -7,13 +7,9 @@
 	<description>Proxy maintainer</description>
 </maintainer>
 <use>
-  <flag name='extensions'>Enable support for dynamic loading of extensions</flag>
-  <flag name='fts3'>Full text search using the fts3 module</flag>
   <flag name='secure-delete'>Overwrite deleted information with zeros in addition to marking the space as available for reuse. This causes a performance penalty.</flag>
-  <flag name='soundex'>Enable the soundex function to compute soundex
-    encodings of strings</flag>
-  <flag name='threadsafe'>Enable thread safe operation of sqlite</flag>
-  <flag name='unlock-notify'>Adds API for notifications when a database is 
-    unlocked in shared-cache mode</flag>
 </use>
+<upstream>
+  <remote-id type="cpe">cpe:/a:sqlite:sqlite</remote-id>
+</upstream>
 </pkgmetadata>

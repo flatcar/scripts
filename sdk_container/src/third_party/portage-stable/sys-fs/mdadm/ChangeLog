@@ -1,6 +1,78 @@
 # ChangeLog for sys-fs/mdadm
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/mdadm/ChangeLog,v 1.175 2014/01/07 10:11:58 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/mdadm/ChangeLog,v 1.189 2014/09/13 12:21:00 maekke Exp $
+
+  13 Sep 2014; Markus Meier <maekke@gentoo.org> mdadm-3.3.1-r2.ebuild:
+  arm stable, bug #520342
+
+  28 Aug 2014; Jeroen Roovers <jer@gentoo.org> mdadm-3.3.1-r2.ebuild:
+  Stable for HPPA (bug #520342).
+
+  22 Aug 2014; Samuli Suominen <ssuominen@gentoo.org> mdadm-3.3.1-r2.ebuild:
+  amd64/x86 stable wrt #520342
+
+*mdadm-3.3.2 (21 Aug 2014)
+
+  21 Aug 2014; Samuli Suominen <ssuominen@gentoo.org> +mdadm-3.3.2.ebuild:
+  Version bump.
+
+  18 Jul 2014; Samuli Suominen <ssuominen@gentoo.org> mdadm-3.3.1-r2.ebuild:
+  Stop defining MAP_DIR in the ebuild because it's the default wrt http://git.ne
+  il.brown.name/?p=mdadm.git;a=commit;h=96fd06edce9ae2d41908b9703642dfe50f376ca9
+
+  18 Jul 2014; Samuli Suominen <ssuominen@gentoo.org> -mdadm-3.3-r4.ebuild,
+  -mdadm-3.3.1-r1.ebuild, -files/mdadm.service-r1:
+  old
+
+*mdadm-3.3.1-r2 (18 Jul 2014)
+
+  18 Jul 2014; Samuli Suominen <ssuominen@gentoo.org>
+  +files/mdadm-3.3.1-DDF-validate-metadata_update-size-before-using-it.patch,
+  +files/mdadm-3.3.1-Grow-Do-not-try-to-restart-if-reshape-is-running.patch,
+  +files/mdadm-3.3.1-Grow-fix-removal-of-line-in-wrong-case.patch,
+  +files/mdadm-3.3.1-IMSM-use-strcpy-rather-than-pointless-strncpy.patch,
+  +files/mdadm-3.3.1-IMSM-validate-metadata_update-size-before-using-it.patch,
+  +files/mdadm-3.3.1-Makefile-install-mdadm-grow-continue-.service.patch,
+  +files/mdadm-3.3.1-mdmon-allow-prepare_update-to-report-failure.patch,
+  +files/mdadm-3.3.1-mdmon-ensure-Unix-domain-socket-is-created-with-safe.patch,
+  +mdadm-3.3.1-r2.ebuild:
+  The purpose of this commit is to fix installation of mdadm-grow-
+  continue@.service which was missing from Makefile. While at it, grab other
+  important bugfixes from upstream git as well.
+
+  17 Jul 2014; Samuli Suominen <ssuominen@gentoo.org> mdadm-3.3-r4.ebuild:
+  Backport parallel make fix from 3.3.1-r1 wrt #516768
+
+  17 Jul 2014; Samuli Suominen <ssuominen@gentoo.org> -mdadm-3.3-r2.ebuild,
+  -mdadm-3.3-r3.ebuild, -mdadm-3.3.1.ebuild:
+  old
+
+*mdadm-3.3.1-r1 (17 Jul 2014)
+
+  17 Jul 2014; Samuli Suominen <ssuominen@gentoo.org> +mdadm-3.3.1-r1.ebuild:
+  Fix possible corruption of udev rules and/or systemd services because parallel
+  make can get confused by running "install" and "install-systemd" targets
+  in the same line wrt #517218 by Mark R. Pariente
+
+*mdadm-3.3.1 (14 Jul 2014)
+
+  14 Jul 2014; Samuli Suominen <ssuominen@gentoo.org> +mdadm-3.3.1.ebuild:
+  Version bump. Requested by "chutzpah" from Freenode. Use mdadm_emake also in
+  src_install() to get UDEVDIR and SYSTEMD_DIR values. Stop installing custom
+  mdadm.service since upstream seems to have it's own systemd files (untested).
+
+*mdadm-3.3-r4 (12 Jul 2014)
+
+  12 Jul 2014; Mike Gilbert <floppym@gentoo.org> +files/mdadm.weekly,
+  +mdadm-3.3-r4.ebuild:
+  Replace cron.d file with a cron.weekly script, disabled by default. Bug
+  493706.
+
+*mdadm-3.3-r3 (13 Apr 2014)
+
+  13 Apr 2014; Pacho Ramos <pacho@gentoo.org> +files/mdadm.service-r1,
+  +mdadm-3.3-r3.ebuild:
+  Fix unit file following policy and solving bug #507396 by Szymon Jaranowski
 
   07 Jan 2014; Lars Wendler <polynomial-c@gentoo.org> -mdadm-3.1.4.ebuild,
   -mdadm-3.1.5.ebuild, -mdadm-3.2.3-r2.ebuild, -mdadm-3.2.5-r1.ebuild,

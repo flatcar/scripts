@@ -1,6 +1,87 @@
 # ChangeLog for sys-fs/lvm2
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/lvm2/ChangeLog,v 1.355 2014/07/16 00:28:28 robbat2 Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/lvm2/ChangeLog,v 1.372 2014/09/21 20:10:23 maekke Exp $
+
+  21 Sep 2014; Markus Meier <maekke@gentoo.org> lvm2-2.02.109.ebuild:
+  arm stable, bug #493892
+
+  29 Aug 2014; Samuli Suominen <ssuominen@gentoo.org> lvm2-2.02.110.ebuild:
+  Enable use_lvmetad only if USE="udev" is enabled.
+
+*lvm2-2.02.110 (29 Aug 2014)
+
+  29 Aug 2014; Samuli Suominen <ssuominen@gentoo.org> +lvm2-2.02.110.ebuild:
+  Version bump. Enable "use_lvmetad = 1" by default also for non-systemd users.
+
+  27 Aug 2014; Samuli Suominen <ssuominen@gentoo.org> lvm2-2.02.109.ebuild:
+  Restrict old 2.02.109-r0 to old sys-apps/util-linux < 2.25 for USE="static"
+  wrt #520450
+
+*lvm2-2.02.109-r1 (27 Aug 2014)
+
+  27 Aug 2014; Samuli Suominen <ssuominen@gentoo.org> +lvm2-2.02.109-r1.ebuild:
+  Revision bump for last correction in files/lvm2-2.02.106-pthread-
+  pkgconfig.patch and to have ~arch version with REQUIRED_USE blocking usage of
+  USE="static udev" wrt #520450.
+
+  24 Aug 2014; Samuli Suominen <ssuominen@gentoo.org>
+  files/lvm2-2.02.106-pthread-pkgconfig.patch:
+  Restore @PTHREAD_LIBS@ to Libs.private: in devmapper.pc wrt #516224
+
+  24 Aug 2014; Jeroen Roovers <jer@gentoo.org> lvm2-2.02.109.ebuild:
+  Stable for HPPA (bug #493892).
+
+  22 Aug 2014; Samuli Suominen <ssuominen@gentoo.org> lvm2-2.02.109.ebuild:
+  Fix building with USE="lvm1" wrt #520640 (caused by 1 missing char in
+  configure script)
+
+  22 Aug 2014; Samuli Suominen <ssuominen@gentoo.org>
+  -files/lvm.conf-2.02.67.patch, -files/lvm2-2.02.105-pthread-pkgconfig.patch,
+  -files/lvm2-2.02.105-readline-6.3.patch,
+  -files/lvm2-2.02.105-static-pkgconfig-libs.patch,
+  -files/lvm2-2.02.106-static-pkgconfig-libs.patch,
+  -files/lvm2-2.02.95-lvmpath.patch, -lvm2-2.02.105-r2.ebuild,
+  -lvm2-2.02.106.ebuild, -lvm2-2.02.107.ebuild, -lvm2-2.02.108.ebuild:
+  old
+
+  22 Aug 2014; Samuli Suominen <ssuominen@gentoo.org> lvm2-2.02.109.ebuild:
+  amd64/x86 stable wrt #493892
+
+*lvm2-2.02.109 (20 Aug 2014)
+
+  20 Aug 2014; Samuli Suominen <ssuominen@gentoo.org> +lvm2-2.02.109.ebuild:
+  Version bump.
+
+  10 Aug 2014; Sergei Trofimovich <slyfox@gentoo.org> lvm2-2.02.103.ebuild,
+  lvm2-2.02.105-r2.ebuild, lvm2-2.02.106.ebuild, lvm2-2.02.107.ebuild,
+  lvm2-2.02.108.ebuild:
+  QA: drop trailing '.' from DESCRIPTION
+
+  31 Jul 2014; Samuli Suominen <ssuominen@gentoo.org> lvm2-2.02.108.ebuild:
+  Use type -P to get path of true instead of hardcoding it.
+
+  30 Jul 2014; Samuli Suominen <ssuominen@gentoo.org> lvm2-2.02.108.ebuild:
+  Punt "&& use lvmetad" typing error (IUSE error)
+
+  30 Jul 2014; Samuli Suominen <ssuominen@gentoo.org> lvm2-2.02.108.ebuild:
+  Use /bin/true instead of /usr/bin/true in
+  scripts/blk_availability_systemd_red_hat.service.in because Gentoo doesn't
+  have the so called usr -merge wrt #517514 by Markos Chandras. Enable
+  "use_lvmetad = 1" by default in lvm.conf with USE="systemd lvmetad -device-
+  mapper-only" wrt #514196 by Pacho Ramos.
+
+*lvm2-2.02.108 (30 Jul 2014)
+
+  30 Jul 2014; Samuli Suominen <ssuominen@gentoo.org>
+  +files/lvm2-2.02.108-example.conf.in.patch,
+  +files/lvm2-2.02.108-static-pkgconfig-libs.patch, +lvm2-2.02.108.ebuild:
+  Version bump. Fix configure logic for cache since it's tied to thin-
+  provisioning-tools.
+
+  25 Jul 2014; Samuli Suominen <ssuominen@gentoo.org> lvm2-2.02.103.ebuild,
+  lvm2-2.02.105-r2.ebuild, lvm2-2.02.106.ebuild, lvm2-2.02.107.ebuild:
+  Use virtual/libudev (prereq. for dropping compability USE flag "static-libs"
+  from virtual/udev)
 
 *lvm2-2.02.107 (16 Jul 2014)
 
