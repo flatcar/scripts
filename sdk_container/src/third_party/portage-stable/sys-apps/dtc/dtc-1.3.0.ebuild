@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/dtc/dtc-1.3.0.ebuild,v 1.5 2012/11/10 01:52:23 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/dtc/dtc-1.3.0.ebuild,v 1.6 2013/04/08 22:09:22 vapier Exp $
 
 EAPI=4
 inherit toolchain-funcs
@@ -13,7 +13,7 @@ SRC_URI="http://www.jdl.com/software/${MY_P}.tgz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 ppc ppc64 x86"
+KEYWORDS="amd64 arm ppc ppc64 x86"
 IUSE=""
 
 RDEPEND=""
