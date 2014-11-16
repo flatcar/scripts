@@ -1,6 +1,92 @@
 # ChangeLog for sys-fs/cryptsetup
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/cryptsetup/ChangeLog,v 1.170 2014/07/25 19:59:10 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/cryptsetup/ChangeLog,v 1.195 2014/11/09 05:48:12 zerochaos Exp $
+
+  09 Nov 2014; Rick Farina <zerochaos@gentoo.org> cryptsetup-1.6.6.ebuild:
+  fix bug 525208 per klondike's testing
+
+  01 Nov 2014; Rick Farina <zerochaos@gentoo.org> cryptsetup-1.6.6.ebuild:
+  fixed my own typo this time
+
+  01 Nov 2014; Rick Farina <zerochaos@gentoo.org> cryptsetup-1.6.6.ebuild:
+  fix minor typos and version number inconsistency for bug 525208 fix
+
+  01 Nov 2014; Mike Frysinger <vapier@gentoo.org> cryptsetup-1.6.5.ebuild,
+  cryptsetup-1.6.6.ebuild:
+  Only run eautoreconf when user patches are applied #496526 by vonabarak.
+
+  01 Nov 2014; Mike Frysinger <vapier@gentoo.org> cryptsetup-1.6.5.ebuild:
+  Mark alpha/s390/sh stable #510342.
+
+  01 Nov 2014; Mike Frysinger <vapier@gentoo.org> cryptsetup-1.6.2.ebuild,
+  cryptsetup-1.6.5.ebuild, cryptsetup-1.6.6.ebuild:
+  Drop e2fsprogs-libs as it is not used #481774 by Sven E..
+
+  01 Nov 2014; Mike Frysinger <vapier@gentoo.org> cryptsetup-1.6.6.ebuild:
+  Warn USE=gcrypt users about broken whirlpool hashes #525208 by Francisco Blas
+  Izquierdo Riera.
+
+  29 Oct 2014; Agostino Sarubbo <ago@gentoo.org> cryptsetup-1.6.5.ebuild:
+  Stable for sparc, wrt bug #510342
+
+  28 Oct 2014; Agostino Sarubbo <ago@gentoo.org> cryptsetup-1.6.5.ebuild:
+  Stable for ia64, wrt bug #510342
+
+  19 Oct 2014; Mike Frysinger <vapier@gentoo.org> files/1.5.1-dmcrypt.rc:
+  Move from "luksOpen" to "open" since they are the same and the former is
+  deprecated #525524 by tokiclover.
+
+  12 Oct 2014; Agostino Sarubbo <ago@gentoo.org> cryptsetup-1.6.5.ebuild:
+  Stable for x86, wrt bug #510342
+
+  19 Sep 2014; Agostino Sarubbo <ago@gentoo.org> cryptsetup-1.6.5.ebuild:
+  Stable for ppc64, wrt bug #510342
+
+  13 Sep 2014; Markus Meier <maekke@gentoo.org> cryptsetup-1.6.5.ebuild:
+  arm stable, bug #510342
+
+  10 Sep 2014; Rick Farina <zerochaos@gentoo.org> cryptsetup-1.6.2.ebuild,
+  cryptsetup-1.6.5.ebuild, cryptsetup-1.6.6.ebuild:
+  add missing subslot dep for libgcrypt
+
+  07 Sep 2014; Agostino Sarubbo <ago@gentoo.org> cryptsetup-1.6.5.ebuild:
+  Stable for ppc, wrt bug #510342
+
+  30 Aug 2014; Chema Alonso <nimiux@gentoo.org> cryptsetup-1.6.5.ebuild:
+  Stable for amd64 wrt bug #510342
+
+  28 Aug 2014; Jeroen Roovers <jer@gentoo.org> cryptsetup-1.6.5.ebuild:
+  Stable for HPPA (bug #510342).
+
+  27 Aug 2014; Patrick Lauer <patrick@gentoo.org> metadata.xml:
+  Remove unneeded useflag description from metadata.xml
+
+  26 Aug 2014; Samuli Suominen <ssuominen@gentoo.org>
+  -cryptsetup-1.0.6-r2.ebuild, -cryptsetup-1.1.3-r3.ebuild,
+  -cryptsetup-1.2.0-r1.ebuild, -cryptsetup-1.4.3.ebuild,
+  -cryptsetup-1.5.1.ebuild, -files/1.0.5-dm-crypt-stop.sh,
+  -files/1.0.5-dmcrypt.rc, -files/1.0.6-r2-dm-crypt-start.sh,
+  -files/1.1.3-dm-crypt-start.sh, -files/1.1.3-dm-crypt-stop.sh,
+  -files/cryptsetup-1.0.6-udevsettle.patch, -files/dmcrypt.rc:
+  old
+
+  26 Aug 2014; Samuli Suominen <ssuominen@gentoo.org> cryptsetup-1.6.2.ebuild,
+  cryptsetup-1.6.5.ebuild, cryptsetup-1.6.6.ebuild:
+  Block use of USE gcrypt with USE static in stable, next stable and latest wrt
+  #496612
+
+  20 Aug 2014; Mike Frysinger <vapier@gentoo.org> cryptsetup-1.6.6.ebuild:
+  Add epatch_user #520276 by Nikoli.
+
+  19 Aug 2014; Lars Wendler <polynomial-c@gentoo.org> cryptsetup-1.6.5.ebuild,
+  cryptsetup-1.6.6.ebuild:
+  Adjusted PYTHON_COMPAT variable as requested by Arfrever in IRC.
+
+*cryptsetup-1.6.6 (19 Aug 2014)
+
+  19 Aug 2014; Lars Wendler <polynomial-c@gentoo.org> -cryptsetup-1.6.3.ebuild,
+  -cryptsetup-1.6.4.ebuild, +cryptsetup-1.6.6.ebuild:
+  Version bump (bug #520172). Removed old.
 
   25 Jul 2014; Samuli Suominen <ssuominen@gentoo.org>
   cryptsetup-1.0.6-r2.ebuild, cryptsetup-1.1.3-r3.ebuild,
