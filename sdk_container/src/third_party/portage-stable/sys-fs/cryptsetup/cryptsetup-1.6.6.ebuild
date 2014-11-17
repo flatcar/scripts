@@ -1,15 +1,16 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/cryptsetup/cryptsetup-1.6.3.ebuild,v 1.3 2014/07/25 19:59:10 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/cryptsetup/cryptsetup-1.6.6.ebuild,v 1.11 2014/11/09 05:48:12 zerochaos Exp $
 
 EAPI=5
-PYTHON_COMPAT=( python{2_6,2_7} )
+PYTHON_COMPAT=( python{2_7,3_3,3_4} )
 
-inherit autotools python-single-r1 linux-info libtool eutils
+inherit autotools python-single-r1 linux-info libtool eutils versionator
 
 DESCRIPTION="Tool to setup encrypted devices with dm-crypt"
 HOMEPAGE="http://code.google.com/p/cryptsetup/"
-SRC_URI="http://cryptsetup.googlecode.com/files/${P}.tar.bz2"
+SRC_URI="http://cryptsetup.googlecode.com/files/${P}.tar.xz"
+SRC_URI="mirror://kernel/linux/utils/${PN}/v$(get_version_component_range 1-2)/${P}.tar.xz"
 
 LICENSE="GPL-2+"
 SLOT="0"
@@ -19,16 +20,16 @@ CRYPTO_BACKENDS="+gcrypt kernel nettle openssl"
 # and it's missing ripemd160 support so it can't provide full backward compatibility
 IUSE="${CRYPTO_BACKENDS} nls python reencrypt static static-libs udev urandom"
 REQUIRED_USE="^^ ( ${CRYPTO_BACKENDS//+/} )
-	python? ( ${PYTHON_REQUIRED_USE} )"
+	python? ( ${PYTHON_REQUIRED_USE} )
+	static? ( !gcrypt )" #496612
 
 LIB_DEPEND="dev-libs/libgpg-error[static-libs(+)]
 	dev-libs/popt[static-libs(+)]
 	sys-apps/util-linux[static-libs(+)]
-	gcrypt? ( dev-libs/libgcrypt:0[static-libs(+)] )
+	gcrypt? ( dev-libs/libgcrypt:0=[static-libs(+)] )
 	nettle? ( >=dev-libs/nettle-2.4[static-libs(+)] )
 	openssl? ( dev-libs/openssl[static-libs(+)] )
 	sys-fs/lvm2[static-libs(+)]
-	sys-libs/e2fsprogs-libs[static-libs(+)]
 	udev? ( virtual/libudev[static-libs(+)] )"
 # We have to always depend on ${LIB_DEPEND} rather than put behind
 # !static? () because we provide a shared library which links against
@@ -52,7 +53,7 @@ pkg_setup() {
 
 src_prepare() {
 	sed -i '/^LOOPDEV=/s:$: || exit 0:' tests/{compat,mode}-test || die
-	eautoreconf
+	epatch_user && eautoreconf
 }
 
 src_configure() {
@@ -101,6 +102,12 @@ src_install() {
 }
 
 pkg_postinst() {
+	if use gcrypt ; then
+		elog "If you were using the whirlpool hash with libgcrypt, you might be impacted"
+		elog "by broken code in <libgcrypt-1.6.0 versions.  See this page for more details:"
+		elog "https://code.google.com/p/cryptsetup/wiki/FrequentlyAskedQuestions#8._Issues_with_Specific_Versions_of_cryptsetup"
+	fi
+
 	if [[ -z ${REPLACING_VERSIONS} ]] ; then
 		elog "Please see the example for configuring a LUKS mountpoint"
 		elog "in /etc/conf.d/dmcrypt"

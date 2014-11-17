@@ -3,7 +3,6 @@
 <pkgmetadata>
 	<herd>base-system</herd>
 	<use>
-		<flag name="dynamic">Build cryptsetup dynamically</flag>
 		<flag name="gcrypt">Use <pkg>dev-libs/libgcrypt</pkg> crypto backend</flag>
 		<flag name="kernel">Use kernel crypto backend (mainly for embedded systems)</flag>
 		<flag name="nettle">Use <pkg>dev-libs/nettle</pkg> crypto backend</flag>
