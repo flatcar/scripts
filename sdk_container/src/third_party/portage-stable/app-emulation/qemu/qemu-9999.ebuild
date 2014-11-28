@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-emulation/qemu/qemu-9999.ebuild,v 1.90 2014/09/26 15:44:01 floppym Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-emulation/qemu/qemu-9999.ebuild,v 1.91 2014/11/02 11:57:18 swift Exp $
 
 EAPI=5
 
@@ -108,7 +108,7 @@ X86_FIRMWARE_DEPEND="
 		sys-firmware/sgabios
 		sys-firmware/vgabios
 	)"
-RDEPEND="!static-softmmu? ( ${SOFTMMU_LIB_DEPEND//\[static-libs(+)]} )
+CDEPEND="!static-softmmu? ( ${SOFTMMU_LIB_DEPEND//\[static-libs(+)]} )
 	!static-user? ( ${USER_LIB_DEPEND//\[static-libs(+)]} )
 	qemu_softmmu_targets_i386? ( ${X86_FIRMWARE_DEPEND} )
 	qemu_softmmu_targets_x86_64? ( ${X86_FIRMWARE_DEPEND} )
@@ -124,14 +124,13 @@ RDEPEND="!static-softmmu? ( ${SOFTMMU_LIB_DEPEND//\[static-libs(+)]} )
 	pulseaudio? ( media-sound/pulseaudio )
 	python? ( ${PYTHON_DEPS} )
 	sdl? ( media-libs/libsdl[X] )
-	selinux? ( sec-policy/selinux-qemu )
 	smartcard? ( dev-libs/nss !app-emulation/libcacard )
 	spice? ( >=app-emulation/spice-protocol-0.12.3 )
 	systemtap? ( dev-util/systemtap )
 	usbredir? ( >=sys-apps/usbredir-0.6 )
 	virtfs? ( sys-libs/libcap )
 	xen? ( app-emulation/xen-tools )"
-DEPEND="${RDEPEND}
+DEPEND="${CDEPEND}
 	dev-lang/perl
 	=dev-lang/python-2*
 	sys-apps/texinfo
@@ -144,6 +143,9 @@ DEPEND="${RDEPEND}
 		dev-libs/glib[utils]
 		sys-devel/bc
 	)"
+RDEPEND="${CDEPEND}
+	selinux? ( sec-policy/selinux-qemu )
+"
 
 STRIP_MASK="/usr/share/qemu/palcode-clipper"
 

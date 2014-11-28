@@ -1,6 +1,39 @@
 # ChangeLog for app-emulation/qemu
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/app-emulation/qemu/ChangeLog,v 1.297 2014/09/26 15:44:01 floppym Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-emulation/qemu/ChangeLog,v 1.305 2014/11/08 18:11:51 ago Exp $
+
+  08 Nov 2014; Agostino Sarubbo <ago@gentoo.org>
+  -files/qemu-2.1.0-CVE-2014-5388.patch, -qemu-2.1.0-r1.ebuild,
+  -qemu-2.1.1.ebuild, -qemu-2.1.2.ebuild:
+  Remove old
+
+  08 Nov 2014; Agostino Sarubbo <ago@gentoo.org> qemu-2.1.2-r1.ebuild:
+  Stable for x86, wrt bug #527088
+
+  08 Nov 2014; Agostino Sarubbo <ago@gentoo.org> qemu-2.1.2-r1.ebuild:
+  Stable for amd64, wrt bug #527088
+
+  02 Nov 2014; Sven Vermeulen <swift@gentoo.org> qemu-2.1.1.ebuild,
+  qemu-2.1.2-r1.ebuild, qemu-2.1.2.ebuild, qemu-9999.ebuild:
+  Remove sec-policy/selinux-* dependency from DEPEND but keep in RDEPEND (bug
+  #527698)
+
+*qemu-2.1.2-r1 (31 Oct 2014)
+
+  31 Oct 2014; Mike Frysinger <vapier@gentoo.org>
+  +files/qemu-2.1.2-vnc-sanitize-bits.patch, +qemu-2.1.2-r1.ebuild:
+  Add fix from upstream for vnc arg sanitizing #527088 by Agostino Sarubbo.
+
+  23 Oct 2014; Agostino Sarubbo <ago@gentoo.org> qemu-2.1.1.ebuild:
+  Stable for x86, wrt bug #522364
+
+  23 Oct 2014; Agostino Sarubbo <ago@gentoo.org> qemu-2.1.1.ebuild:
+  Stable for amd64, wrt bug #522364
+
+*qemu-2.1.2 (16 Oct 2014)
+
+  16 Oct 2014; Mike Frysinger <vapier@gentoo.org> +qemu-2.1.2.ebuild:
+  Version bump #523428 by Agostino Sarubbo.
 
   26 Sep 2014; Mike Gilbert <floppym@gentoo.org> qemu-2.1.1.ebuild,
   qemu-9999.ebuild:

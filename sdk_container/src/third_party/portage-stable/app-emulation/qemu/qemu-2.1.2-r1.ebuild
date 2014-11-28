@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-emulation/qemu/qemu-2.1.0-r1.ebuild,v 1.6 2014/09/13 17:07:04 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-emulation/qemu/qemu-2.1.2-r1.ebuild,v 1.4 2014/11/08 18:09:33 ago Exp $
 
 EAPI=5
 
@@ -52,7 +52,7 @@ IUSE+=" ${use_targets}"
 # Require at least one softmmu or user target.
 # Block USE flag configurations known to not work.
 REQUIRED_USE="|| ( ${use_targets} )
-	python? ( ${PYTHON_REQUIRED_USE} )
+	${PYTHON_REQUIRED_USE}
 	qemu_softmmu_targets_arm? ( fdt )
 	qemu_softmmu_targets_microblaze? ( fdt )
 	qemu_softmmu_targets_ppc? ( fdt )
@@ -108,7 +108,7 @@ X86_FIRMWARE_DEPEND="
 		sys-firmware/sgabios
 		sys-firmware/vgabios
 	)"
-RDEPEND="!static-softmmu? ( ${SOFTMMU_LIB_DEPEND//\[static-libs(+)]} )
+CDEPEND="!static-softmmu? ( ${SOFTMMU_LIB_DEPEND//\[static-libs(+)]} )
 	!static-user? ( ${USER_LIB_DEPEND//\[static-libs(+)]} )
 	qemu_softmmu_targets_i386? ( ${X86_FIRMWARE_DEPEND} )
 	qemu_softmmu_targets_x86_64? ( ${X86_FIRMWARE_DEPEND} )
@@ -124,14 +124,13 @@ RDEPEND="!static-softmmu? ( ${SOFTMMU_LIB_DEPEND//\[static-libs(+)]} )
 	pulseaudio? ( media-sound/pulseaudio )
 	python? ( ${PYTHON_DEPS} )
 	sdl? ( media-libs/libsdl[X] )
-	selinux? ( sec-policy/selinux-qemu )
 	smartcard? ( dev-libs/nss !app-emulation/libcacard )
 	spice? ( >=app-emulation/spice-protocol-0.12.3 )
 	systemtap? ( dev-util/systemtap )
 	usbredir? ( >=sys-apps/usbredir-0.6 )
 	virtfs? ( sys-libs/libcap )
 	xen? ( app-emulation/xen-tools )"
-DEPEND="${RDEPEND}
+DEPEND="${CDEPEND}
 	dev-lang/perl
 	=dev-lang/python-2*
 	sys-apps/texinfo
@@ -144,6 +143,9 @@ DEPEND="${RDEPEND}
 		dev-libs/glib[utils]
 		sys-devel/bc
 	)"
+RDEPEND="${CDEPEND}
+	selinux? ( sec-policy/selinux-qemu )
+"
 
 STRIP_MASK="/usr/share/qemu/palcode-clipper"
 
@@ -255,7 +257,8 @@ src_prepare() {
 	use nls || rm -f po/*.po
 
 	epatch "${FILESDIR}"/qemu-1.7.0-cflags.patch
-	epatch "${FILESDIR}"/${P}-CVE-2014-5388.patch #520688
+	epatch "${FILESDIR}"/${PN}-2.1.1-readlink-self.patch
+	epatch "${FILESDIR}"/${PN}-2.1.2-vnc-sanitize-bits.patch #527088
 	[[ -n ${BACKPORTS} ]] && \
 		EPATCH_FORCE=yes EPATCH_SUFFIX="patch" EPATCH_SOURCE="${S}/patches" \
 			epatch
