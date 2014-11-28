@@ -1,6 +1,77 @@
 # ChangeLog for app-emulation/xen-tools
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/app-emulation/xen-tools/ChangeLog,v 1.255 2014/08/19 14:16:01 dlan Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-emulation/xen-tools/ChangeLog,v 1.267 2014/11/26 03:25:14 dlan Exp $
+
+*xen-tools-4.4.1-r4 (26 Nov 2014)
+*xen-tools-4.3.3-r2 (26 Nov 2014)
+
+  26 Nov 2014; Yixun Lan <dlan@gentoo.org> +xen-tools-4.3.3-r2.ebuild,
+  -xen-tools-4.4.1-r1.ebuild, -xen-tools-4.4.1-r2.ebuild,
+  +xen-tools-4.4.1-r4.ebuild:
+  security version bump, bug 530182
+
+*xen-tools-4.4.1-r3 (06 Nov 2014)
+
+  06 Nov 2014; Yixun Lan <dlan@gentoo.org> +xen-tools-4.4.1-r3.ebuild,
+  files/gentoo-patches.conf, files/xenqemudev.initd, metadata.xml:
+  enable ovmf bios support, bug 526080
+
+*xen-tools-4.4.1-r2 (01 Nov 2014)
+
+  01 Nov 2014; Yixun Lan <dlan@gentoo.org> xen-tools-4.2.5-r1.ebuild,
+  xen-tools-4.3.3-r1.ebuild, -xen-tools-4.4.1.ebuild,
+  +xen-tools-4.4.1-r2.ebuild, files/gentoo-patches.conf:
+  fix bashcomp problem, bug 472438, fix ncurses[tinfo] build failure, bug
+  526526
+
+  15 Oct 2014; Yixun Lan <dlan@gentoo.org> metadata.xml:
+  drop USE xend
+
+  15 Oct 2014; Yixun Lan <dlan@gentoo.org> -xen-tools-4.2.4-r6.ebuild,
+  -xen-tools-4.2.4-r7.ebuild, -xen-tools-4.2.5.ebuild,
+  -xen-tools-4.3.2-r5.ebuild, -xen-tools-4.3.2-r6.ebuild,
+  -xen-tools-4.3.3.ebuild,
+  -files/*.patch,
+  clean old version, also patches move to devspace
+
+  14 Oct 2014; Agostino Sarubbo <ago@gentoo.org> xen-tools-4.2.5-r1.ebuild:
+  Stable for x86, wrt bug #524200
+
+  14 Oct 2014; Agostino Sarubbo <ago@gentoo.org> xen-tools-4.2.5-r1.ebuild,
+  xen-tools-4.3.3-r1.ebuild:
+  Stable for amd64, wrt bug #524200
+
+*xen-tools-4.4.1-r1 (10 Oct 2014)
+*xen-tools-4.3.3-r1 (10 Oct 2014)
+*xen-tools-4.2.5-r1 (10 Oct 2014)
+
+  10 Oct 2014; Yixun Lan <dlan@gentoo.org> +xen-tools-4.2.5-r1.ebuild,
+  +xen-tools-4.3.3-r1.ebuild, +xen-tools-4.4.1-r1.ebuild:
+  version bump, fix bug 522642, 494604
+
+  07 Oct 2014; Ian Delaney <idella4@gentoo.org> xen-tools-4.3.2-r5.ebuild,
+  xen-tools-4.3.2-r6.ebuild, xen-tools-4.3.3.ebuild, xen-tools-4.4.1.ebuild:
+  correction to dep dev-python/markdown in all versions
+
+  12 Sep 2014; Yixun Lan <dlan@gentoo.org> -files/xen-tools-4.2-pod-docs.patch,
+  -files/xen-tools-4.2-pod-utf8-chars.patch, -files/xen-tools-4.2-pod-xl.patch,
+  -files/xend.initd-r1:
+  drop patches/no-need file since move to devspace
+
+  12 Sep 2014; Yixun Lan <dlan@gentoo.org> xen-tools-4.2.5.ebuild,
+  xen-tools-4.3.3.ebuild, -xen-tools-4.4.0-r9.ebuild, xen-tools-4.4.1.ebuild,
+  +files/gentoo-patches.conf:
+  shrink patches, move to devspace; drop USE=xend for 4.2.5 4.3.3
+
+*xen-tools-4.4.1 (11 Sep 2014)
+*xen-tools-4.3.3 (11 Sep 2014)
+*xen-tools-4.2.5 (11 Sep 2014)
+
+  11 Sep 2014; Yixun Lan <dlan@gentoo.org> +xen-tools-4.2.5.ebuild,
+  +xen-tools-4.3.3.ebuild, +xen-tools-4.4.1.ebuild,
+  +files/xen-tools-4.2-pod-docs.patch,
+  +files/xen-tools-4.2-pod-utf8-chars.patch, +files/xen-tools-4.2-pod-xl.patch:
+  version bump, fix 4.2.x pod2man build error
 
 *xen-tools-4.4.0-r9 (19 Aug 2014)
 *xen-tools-4.3.2-r6 (19 Aug 2014)

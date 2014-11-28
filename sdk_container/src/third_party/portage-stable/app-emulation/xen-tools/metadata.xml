@@ -11,8 +11,8 @@
 		<flag name='screen'>Enable support for running domain U console in an <pkg>app-misc/screen</pkg> session</flag>
 		<flag name='system-qemu'>Using <pkg>app-emulation/qemu</pkg> instead of the bundled one</flag>
 		<flag name='system-seabios'>Using <pkg>sys-firmware/seabios</pkg> instead of the bundled one</flag>
-		<flag name='xend'>Enable support the xend and xm to manage xen</flag>
 		<flag name='ocaml'>Enable support for the ocaml language</flag>
+		<flag name='ovmf'>Enable support to boot UEFI guest vm, needed by hvm</flag>
 		<flag name='pam'>Enable pam support</flag>
 	</use>
 </pkgmetadata>
