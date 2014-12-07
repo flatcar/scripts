@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/python.eclass,v 1.169 2014/02/06 05:34:07 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/python.eclass,v 1.170 2014/11/20 15:32:09 mgorny Exp $
 
 # @ECLASS: python.eclass
 # @MAINTAINER:
@@ -8,6 +8,9 @@
 # @BLURB: Eclass for Python packages
 # @DESCRIPTION:
 # The python eclass contains miscellaneous, useful functions for Python packages.
+#
+# This eclass is DEPRECATED. Please use python-r1, python-single-r1
+# or python-any-r1 instead.
 
 if [[ ${_PYTHON_UTILS_R1} ]]; then
 	die 'python.eclass can not be used with python-r1 suite eclasses.'

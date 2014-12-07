@@ -1,8 +1,22 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/hppa/package.use.mask,v 1.144 2014/08/13 11:41:50 jer Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/hppa/package.use.mask,v 1.150 2014/11/29 12:46:49 jer Exp $
 
 # DON'T TOUCH THIS FILE. Instead, file a bug and assign it to <hppa@gentoo.org>.
+
+# Jeroen Roovers <jer@gentoo.org> (13 Aug 2014)
+# Needs dev-libs/protobuf{-c} which has not been ported to HPPA (bug #531068)
+net-dns/unbound dnstap
+
+# Jeroen Roovers <jer@gentoo.org> (22 Oct 2014)
+# needs www-servers/tornado
+dev-python/urllib3 test
+
+# Jeroen Roovers <jer@gentoo.org> (19 Oct 2014)
+# requires dev-python/restkit which requires
+# dev-python/socketpool which requires dev-python/gevent which requires
+# dev-python/greenlet which has not been ported to HPPA (bug #525246)
+dev-python/wsgiproxy2 test
 
 # Jeroen Roovers <jer@gentoo.org> (13 Aug 2014)
 # Needs dev-libs/protobuf{-c} which has not been ported to HPPA (bug #519772)
@@ -10,8 +24,9 @@ net-libs/libgadu gg11
 
 # Jeroen Roovers <jer@gentoo.org> (29 Jul 2014)
 # Test phase requires dev-db/mongodb which requires dev-util/google-perftools
-# which has not been ported to HPPA (bug #517880)
+# which has not been ported to HPPA (bug #517880, bug #525246)
 dev-libs/mongo-c-driver test
+dev-python/pymongo test
 
 # Jeroen Roovers <jer@gentoo.org> (6 Mar 2014)
 # USE=gui requires x11-libs/qscintilla,
@@ -101,14 +116,6 @@ app-office/lyx gnumeric
 # Jeroen Roovers <jer@gentoo.org> (24 Feb 2011)
 # Needs Java (bug #355353)
 app-text/texlive pdfannotextractor
-
-# Jeroen Roovers <jer@gentoo.org> (21 Jan 2011)
-# Pulls in either GNOME or LXDE, neither are keyworded (bug #296548)
-sys-auth/polkit gtk
-
-# Jeroen Roovers <jer@gentoo.org> (5 Jan 2011)
-# Mask dev-lang/spidermonkey (bug #347827)
-www-client/elinks javascript
 
 # Jeroen Roovers <jer@gentoo.org> (30 Nov 2010)
 # Mask doc-pdf because of Java dependencies (bug #347259)

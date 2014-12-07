@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/python-any-r1.eclass,v 1.17 2014/04/08 16:05:30 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/python-any-r1.eclass,v 1.18 2014/11/09 22:27:58 mgorny Exp $
 
 # @ECLASS: python-any-r1
 # @MAINTAINER:
@@ -239,9 +239,7 @@ _python_EPYTHON_supported() {
 	esac
 
 	if has "${i}" "${PYTHON_COMPAT[@]}"; then
-		local PYTHON_PKG_DEP
-		python_export "${i}" PYTHON_PKG_DEP
-		if ROOT=/ has_version "${PYTHON_PKG_DEP}"; then
+		if python_is_installed "${i}"; then
 			if declare -f python_check_deps >/dev/null; then
 				local PYTHON_USEDEP="python_targets_${i}(-),python_single_target_${i}(+)"
 				python_check_deps

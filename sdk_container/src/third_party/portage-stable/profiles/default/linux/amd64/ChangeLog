@@ -1,6 +1,37 @@
 # ChangeLog for the default/linux/amd64 profile directory
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/amd64/ChangeLog,v 1.18 2014/03/30 21:44:17 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/amd64/ChangeLog,v 1.23 2014/11/30 17:49:02 mgorny Exp $
+
+  30 Nov 2014; Michał Górny <mgorny@gentoo.org>
+  13.0/no-emul-linux-x86/desktop/gnome/systemd/parent:
+  Correct the parents correctly.
+
+  30 Nov 2014; Michał Górny <mgorny@gentoo.org>
+  13.0/no-emul-linux-x86/desktop/gnome/systemd/parent,
+  13.0/no-emul-linux-x86/desktop/parent:
+  Correct the parents in no-emul-linux-x86 profiles.
+
+  30 Nov 2014; Michał Górny <mgorny@gentoo.org>
+  +13.0/no-emul-linux-x86/desktop/gnome/eapi,
+  +13.0/no-emul-linux-x86/desktop/gnome/parent,
+  +13.0/no-emul-linux-x86/desktop/gnome/systemd/eapi,
+  +13.0/no-emul-linux-x86/desktop/gnome/systemd/parent,
+  +13.0/no-emul-linux-x86/desktop/kde/eapi,
+  +13.0/no-emul-linux-x86/desktop/kde/parent,
+  +13.0/no-emul-linux-x86/desktop/kde/systemd/eapi,
+  +13.0/no-emul-linux-x86/desktop/kde/systemd/parent,
+  +13.0/no-emul-linux-x86/developer/eapi,
+  +13.0/no-emul-linux-x86/developer/make.defaults,
+  +13.0/no-emul-linux-x86/developer/parent,
+  +13.0/no-emul-linux-x86/selinux/eapi, +13.0/no-emul-linux-x86/selinux/parent:
+  Create more no-emul-linux-x86 subprofiles for testing.
+
+  21 Oct 2014; Mike Frysinger <vapier@gentoo.org> +package.use.mask:
+  Unmask sys-devel/gcc[sanitize] #504200.
+
+  14 Oct 2014; Michał Górny <mgorny@gentoo.org> +13.0/no-emul-linux-x86/eapi,
+  +13.0/no-emul-linux-x86/parent:
+  Add a no-emul-linux-x86 subprofile for testing emul-linux-x86-free system.
 
   30 Mar 2014; Michał Górny <mgorny@gentoo.org> 13.0/package.use.stable.mask:
   Move abi_x86_32 package stable-mask to arch profile since it is EAPI=5 now.

@@ -1,10 +1,9 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/bzr.eclass,v 1.20 2013/07/11 18:38:59 ulm Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/bzr.eclass,v 1.21 2014/11/13 07:15:54 ulm Exp $
 #
 # @ECLASS: bzr.eclass
 # @MAINTAINER:
-# Emacs team <emacs@gentoo.org>
 # Bazaar team <bazaar@gentoo.org>
 # @AUTHOR:
 # Jorge Manuel B. S. Vicetto <jmbsvicetto@gentoo.org>

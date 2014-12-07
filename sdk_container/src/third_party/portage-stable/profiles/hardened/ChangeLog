@@ -1,6 +1,61 @@
 # ChangeLog for Gentoo/AMD64 profile directory
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/ChangeLog,v 1.64 2014/08/13 11:13:38 blueness Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/ChangeLog,v 1.74 2014/11/18 22:08:00 blueness Exp $
+
+  18 Nov 2014; Anthony G. Basile <blueness@gentoo.org>
+  linux/musl/ppc/make.defaults:
+  linux/musl/ppc/make.defaults: add mutlib ABI, thanks Felix Janda
+
+  23 Oct 2014; Anthony G. Basile <blueness@gentoo.org>
+  +linux/musl/package.use.mask:
+  Mask USE=sanitize on musl profiles, bug #504200
+
+  20 Oct 2014; Anthony G. Basile <blueness@gentoo.org> linux/musl/package.mask:
+  Mask >app-misc/pax-utils-0.7 on musl for bug #526048
+
+  18 Oct 2014; Anthony G. Basile <blueness@gentoo.org> linux/musl/package.mask:
+  Mask >sys-apps/file-5.17 on musl for bug #525816
+
+  12 Oct 2014; Magnus Granberg <zorry@gentoo.org> linux/amd64/package.use:
+  Add pic for media-libs/libpostpros needed for the x86 part #523736
+
+  14 Oct 2014; Anthony G. Basile <blueness@gentoo.org>
+  linux/musl/make.defaults:
+  BOOTSTRAP_USE=-nls to avoid a clash between musl and gettext in stage2
+
+  11 Oct 2014; Tim Harder <radhermit@gentoo.org> linux/package.use.mask:
+  Mask skype use flag for net-im/bitlbee since skype doesn't work under
+  hardened.
+
+  22 Sep 2014; Anthony G. Basile <blueness@gentoo.org> linux/make.defaults,
+  linux/package.use.force:
+  Default USE=xattr on for all hardened profiles, and force on for tar,
+  coreutils and portage
+
+  21 Aug 2014; Anthony G. Basile <blueness@gentoo.org>
+  +linux/musl/mips/package.mask:
+  Mask some packages for musl/mipsel
+
+  16 Aug 2014; Anthony G. Basile <blueness@gentoo.org>
+  -linux/uclibc/amd64/make.defaults, -linux/uclibc/amd64/package.mask,
+  linux/uclibc/amd64/parent, -linux/uclibc/amd64/use.force,
+  -linux/uclibc/amd64/use.mask, -linux/uclibc/arm/armv6j/make.defaults,
+  linux/uclibc/arm/armv6j/parent, -linux/uclibc/arm/armv7a/make.defaults,
+  linux/uclibc/arm/armv7a/parent, -linux/uclibc/arm/make.defaults,
+  -linux/uclibc/arm/parent, -linux/uclibc/arm/use.force,
+  -linux/uclibc/arm/use.mask, linux/uclibc/make.defaults,
+  -linux/uclibc/mips/make.defaults, -linux/uclibc/mips/mipsel/make.defaults,
+  linux/uclibc/mips/mipsel/parent, -linux/uclibc/mips/package.mask,
+  linux/uclibc/mips/parent, -linux/uclibc/mips/use.force,
+  -linux/uclibc/mips/use.mask, -linux/uclibc/package.mask,
+  -linux/uclibc/packages, -linux/uclibc/packages.build, -linux/uclibc/parent,
+  -linux/uclibc/ppc/make.defaults, -linux/uclibc/ppc/package.mask,
+  -linux/uclibc/ppc/package.use.mask, linux/uclibc/ppc/parent,
+  -linux/uclibc/ppc/use.force, -linux/uclibc/ppc/use.mask,
+  -linux/uclibc/use.force, linux/uclibc/use.mask,
+  -linux/uclibc/x86/make.defaults, linux/uclibc/x86/parent,
+  -linux/uclibc/x86/use.force, -linux/uclibc/x86/use.mask:
+  Inherit hardened/linux/uclibc from default/linux/uclibc
 
   13 Aug 2014; Anthony G. Basile <blueness@gentoo.org> linux/musl/package.mask,
   linux/uclibc/package.mask:

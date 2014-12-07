@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/gnatbuild.eclass,v 1.61 2014/07/13 16:19:33 ulm Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/gnatbuild.eclass,v 1.63 2014/10/17 13:17:30 george Exp $
 #
 # Authors: George Shapovalov <george@gentoo.org>
 #          Steve Arnold <nerdboy@gentoo.org>
@@ -309,11 +309,12 @@ gnatbuild_pkg_postinst() {
 	elog
 	. ${GnatCommon} || die "failed to source common code"
 	if [[ ! -f ${PRIMELIST} ]] || [[ ! -s ${PRIMELIST} ]]; then
+		mkdir -p ${SETTINGSDIR}
 		echo "${gnat_profile}" > ${PRIMELIST}
 		elog "The list of primary compilers was empty and got assigned ${gnat_profile}."
 	fi
 	elog "Please edit ${PRIMELIST} and list there gnat profiles intended"
-	elog "for common use."
+	elog "for common use, one per line."
 }
 
 
@@ -773,6 +774,9 @@ EOF
 				"${D}${LIBEXECPATH}"/liblto_plugin.la \
 				|| die "sed update of .la file failed!"
 		fi
+
+		# add config directory (bug 440660)
+		keepdir /etc/ada
 		;;
 
 	prep_env)

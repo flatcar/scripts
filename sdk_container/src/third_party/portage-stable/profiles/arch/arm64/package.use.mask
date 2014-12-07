@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/arm64/package.use.mask,v 1.4 2014/08/04 02:13:15 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/arm64/package.use.mask,v 1.5 2014/10/25 17:19:22 kensington Exp $
 
 # Needs testing.
 sys-devel/gcc gcj graphite regression-test
@@ -216,7 +216,6 @@ kde-base/okular ebook chm
 kde-base/kstars indi
 kde-base/kdeutils-meta floppy
 kde-base/kdenetwork-meta ppp
-kde-base/kdesdk-misc extras
 kde-base/smokeqt qscintilla qwt
 kde-base/qtruby qscintilla qwt
 kde-base/perlqt qscintilla qwt

@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/autotools.eclass,v 1.163 2014/08/12 12:15:55 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/autotools.eclass,v 1.170 2014/11/21 09:17:07 vapier Exp $
 
 # @ECLASS: autotools.eclass
 # @MAINTAINER:
@@ -13,10 +13,20 @@
 # Note: We require GNU m4, as does autoconf.  So feel free to use any features
 # from the GNU version of m4 without worrying about other variants (i.e. BSD).
 
+if [[ ${__AUTOTOOLS_AUTO_DEPEND+set} == "set" ]] ; then
+	# See if we were included already, but someone changed the value
+	# of AUTOTOOLS_AUTO_DEPEND on us.  We could reload the entire
+	# eclass at that point, but that adds overhead, and it's trivial
+	# to re-order inherit in eclasses/ebuilds instead.  #409611
+	if [[ ${__AUTOTOOLS_AUTO_DEPEND} != ${AUTOTOOLS_AUTO_DEPEND} ]] ; then
+		die "AUTOTOOLS_AUTO_DEPEND changed value between inherits; please inherit autotools.eclass first! ${__AUTOTOOLS_AUTO_DEPEND} -> ${AUTOTOOLS_AUTO_DEPEND}"
+	fi
+fi
+
 if [[ -z ${_AUTOTOOLS_ECLASS} ]]; then
 _AUTOTOOLS_ECLASS=1
 
-inherit libtool multiprocessing
+inherit libtool
 
 # @ECLASS-VARIABLE: WANT_AUTOCONF
 # @DESCRIPTION:
@@ -80,7 +90,7 @@ if [[ -n ${WANT_AUTOCONF} ]] ; then
 	export WANT_AUTOCONF
 fi
 
-_libtool_atom="sys-devel/libtool"
+_libtool_atom=">=sys-devel/libtool-2.4"
 if [[ -n ${WANT_LIBTOOL} ]] ; then
 	case ${WANT_LIBTOOL} in
 		none)   _libtool_atom="" ;;
@@ -107,6 +117,7 @@ RDEPEND=""
 if [[ ${AUTOTOOLS_AUTO_DEPEND} != "no" ]] ; then
 	DEPEND=${AUTOTOOLS_DEPEND}
 fi
+__AUTOTOOLS_AUTO_DEPEND=${AUTOTOOLS_AUTO_DEPEND} # See top of eclass
 
 unset _automake_atom _autoconf_atom
 
@@ -152,26 +163,22 @@ unset _automake_atom _autoconf_atom
 # Should do a full autoreconf - normally what most people will be interested in.
 # Also should handle additional directories specified by AC_CONFIG_SUBDIRS.
 eautoreconf() {
-	local x g multitop
+	local x g
 
-	if [[ -z ${AT_TOPLEVEL_EAUTORECONF} ]] ; then
-		AT_TOPLEVEL_EAUTORECONF="yes"
-		multitop="yes"
-		multijob_init
-	fi
-
+	# Subdirs often share a common build dir #529404.  If so, we can't safely
+	# run in parallel because many tools clobber the content in there.  Libtool
+	# and automake both `rm && cp` while aclocal reads the output.  We might be
+	# able to handle this if we split the steps and grab locks on the dirs the
+	# tools actually write to.  Then we'd run all the common tools that use
+	# those inputs.  Doing this in bash does not scale easily.
+	# If we do re-enable parallel support, make sure #426512 is handled.
 	if [[ -z ${AT_NO_RECURSIVE} ]] ; then
 		# Take care of subdirs
 		for x in $(autotools_check_macro_val AC_CONFIG_SUBDIRS) ; do
 			if [[ -d ${x} ]] ; then
 				pushd "${x}" >/dev/null
-				if [[ -z ${PAST_TOPLEVEL_EAUTORECONF} ]] ; then
-					PAST_TOPLEVEL_EAUTORECONF="yes" AT_NOELIBTOOLIZE="yes" \
-						multijob_child_init eautoreconf || die
-				else
-					# Avoid unsafe nested multijob_finish_one for bug #426512.
-					AT_NOELIBTOOLIZE="yes" eautoreconf || die
-				fi
+				# Avoid unsafe nested multijob_finish_one for bug #426512.
+				AT_NOELIBTOOLIZE="yes" eautoreconf || die
 				popd >/dev/null
 			fi
 		done
@@ -223,11 +230,6 @@ eautoreconf() {
 		# Call it here to prevent failures due to elibtoolize called _before_
 		# eautoreconf.
 		elibtoolize --force "${PWD}"
-	fi
-
-	if [[ -n ${multitop} ]] ; then
-		unset AT_TOPLEVEL_EAUTORECONF
-		multijob_finish || die
 	fi
 
 	return 0
@@ -301,19 +303,15 @@ eaclocal() {
 
 # @FUNCTION: _elibtoolize
 # @DESCRIPTION:
-# Runs libtoolize.  If --install is the first arg, automatically drop it if
-# the active libtool version doesn't support it.
+# Runs libtoolize.
 #
-# Note the '_' prefix .. to not collide with elibtoolize() from libtool.eclass.
+# Note the '_' prefix: avoid collision with elibtoolize() from libtool.eclass.
 _elibtoolize() {
 	local LIBTOOLIZE=${LIBTOOLIZE:-$(type -P glibtoolize > /dev/null && echo glibtoolize || echo libtoolize)}
 
 	[[ -f GNUmakefile.am || -f Makefile.am ]] && set -- "$@" --automake
-	if [[ $1 == "--install" ]] ; then
-		${LIBTOOLIZE} -n --install >& /dev/null || shift
-	fi
 
-	autotools_run_tool ${LIBTOOLIZE} "$@" ${opts}
+	autotools_run_tool ${LIBTOOLIZE} "$@"
 }
 
 # @FUNCTION: eautoheader
@@ -334,6 +332,11 @@ eautoconf() {
 		echo
 		die "No configure.{ac,in} present!"
 	fi
+	if [[ -e configure.in ]] ; then
+		eqawarn "This package has a configure.in file which has long been deprecated.  Please"
+		eqawarn "update it to use configure.ac instead as newer versions of autotools will die"
+		eqawarn "when it finds this file.  See https://bugs.gentoo.org/426262 for details."
+	fi
 
 	autotools_run_tool --at-m4flags autoconf "$@"
 }
@@ -353,7 +356,8 @@ eautomake() {
 	done
 
 	_automake_version() {
-		autotools_run_tool automake --version 2>/dev/null | sed -n -e '1{s:.*(GNU automake) ::p;q}'
+		autotools_run_tool --at-output automake --version 2>/dev/null |
+			sed -n -e '1{s:.*(GNU automake) ::p;q}'
 	}
 
 	if [[ -z ${makefile_name} ]] ; then
@@ -368,8 +372,9 @@ eautomake() {
 			sed -e 's:.*by automake \(.*\) from .*:\1:')
 
 		if [[ ${installed_automake} != ${used_automake} ]]; then
-			einfo "Automake used for the package (${used_automake}) differs from"
-			einfo "the installed version (${installed_automake})."
+			ewarn "Automake used for the package (${used_automake}) differs from" \
+				"the installed version (${installed_automake})."
+			ewarn "Forcing a full rebuild of the autotools to workaround."
 			eautoreconf
 			return 0
 		fi
@@ -429,25 +434,26 @@ autotools_env_setup() {
 			ROOT=/ has_version "=sys-devel/automake-${pv}*" && export WANT_AUTOMAKE="${pv}"
 		done
 		[[ ${WANT_AUTOMAKE} == "latest" ]] && \
-			die "Cannot find the latest automake! Tried ${_LATEST_AUTOMAKE}"
+			die "Cannot find the latest automake! Tried ${_LATEST_AUTOMAKE[*]}"
 	fi
 	[[ ${WANT_AUTOCONF} == "latest" ]] && export WANT_AUTOCONF=2.5
 }
 
 # @FUNCTION: autotools_run_tool
-# @USAGE: [--at-no-fail] [--at-m4flags] [--at-missing] <autotool> [tool-specific flags]
+# @USAGE: [--at-no-fail] [--at-m4flags] [--at-missing] [--at-output] <autotool> [tool-specific flags]
 # @INTERNAL
 # @DESCRIPTION:
 # Run the specified autotool helper, but do logging and error checking
 # around it in the process.
 autotools_run_tool() {
 	# Process our own internal flags first
-	local autofail=true m4flags=false missing_ok=false
+	local autofail=true m4flags=false missing_ok=false return_output=false
 	while [[ -n $1 ]] ; do
 		case $1 in
 		--at-no-fail) autofail=false;;
 		--at-m4flags) m4flags=true;;
 		--at-missing) missing_ok=true;;
+		--at-output)  return_output=true;;
 		# whatever is left goes to the actual tool
 		*) break;;
 		esac
@@ -479,6 +485,12 @@ autotools_run_tool() {
 
 	if ${m4flags} ; then
 		set -- "${1}" $(autotools_m4dir_include) "${@:2}" $(autotools_m4sysdir_include)
+	fi
+
+	# If the caller wants to probe something, then let them do it directly.
+	if ${return_output} ; then
+		"$@"
+		return
 	fi
 
 	printf "***** $1 *****\n***** PWD: ${PWD}\n***** $*\n\n" > "${STDERR_TARGET}"

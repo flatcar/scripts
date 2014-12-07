@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/sparc/package.use.stable.mask,v 1.5 2014/08/15 17:46:59 armin76 Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/sparc/package.use.stable.mask,v 1.6 2014/10/15 10:27:20 pacho Exp $
 
 # When you add an entry to the top of this file, add your name, the date, and
 # an explanation of why something is getting masked. Please be extremely
@@ -20,6 +20,7 @@
 
 # Pacho Ramos <pacho@gentoo.org> (02 Jul 2014)
 # Mask due Gnome3 not going to be stabilized on this arch
+dev-util/geany-plugins devhelp markdown webkit
 >=gnome-base/gnome-desktop-2.32.1-r2 license-docs
 >=net-libs/webkit-gtk-2.4 geoloc
 >=x11-libs/gtk+-3.12.2 cloudprint

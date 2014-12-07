@@ -1,6 +1,356 @@
 # ChangeLog for eclass directory
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/ChangeLog,v 1.1351 2014/08/12 14:58:40 kensington Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/ChangeLog,v 1.1453 2014/12/04 10:32:10 mrueg Exp $
+
+  04 Dec 2014; Manuel Rüger <mrueg@gentoo.org> kde4-base.eclass:
+  Sync kde4-base.eclass with overlay.
+
+  04 Dec 2014; Ian Stakenvicius (_AxS_) <axs@gentoo.org>
+  mozconfig-v5.34.eclass:
+  mozconfig-v5.34.eclass - make glibc check based on elibc_glibc so that it
+  works on prefix
+
+  04 Dec 2014; Ian Stakenvicius (_AxS_) <axs@gentoo.org>
+  mozconfig-v5.34.eclass:
+  fixed typo in mozconfig-v5.34 eclass comments
+
+  03 Dec 2014; Ian Stakenvicius (_AxS_) <axs@gentoo.org>
+  mozconfig-v5.31.eclass, +mozconfig-v5.34.eclass:
+  mozilla eclass modifications for package bumps
+
+  01 Dec 2014; Andreas K. Huettel <dilfridge@gentoo.org> perl-module.eclass:
+  Replace exlicitly listing all GPL variants with GPL-1+
+
+  29 Nov 2014; Michał Górny <mgorny@gentoo.org> python-utils-r1.eclass:
+  Remove leftover code for Python 3.2.
+
+  28 Nov 2014; Michael Pagano <mpagano@gentoo.org> kernel-2.eclass:
+  Adjust sparc warning. See bug #529682
+
+  26 Nov 2014; Brian Evans <grknight@gentoo.org> musql-cmake.eclass,
+  mysql-multilib.eclass:
+  Sync from mysql overlay
+
+  24 Nov 2014; Mike Gilbert <floppym@gentoo.org> distutils-r1.eclass:
+  eqawarn about /usr/lib/pypy/share instead of dying.
+
+  23 Nov 2014; Michał Górny <mgorny@gentoo.org> gnome2-utils.eclass:
+  Support multilib in gnome2_query_immodules_gtk2() as well.
+
+  23 Nov 2014; Pacho Ramos <pacho@gentoo.org> gnome2.eclass:
+  Deprecate eapis 0 and 1 for gnome2.eclass (#530046)
+
+  23 Nov 2014; Mike Gilbert <floppym@gentoo.org> python-utils-r1.eclass:
+  Adjust _python_impl_supported as well.
+
+  23 Nov 2014; Mike Gilbert <floppym@gentoo.org> python-utils-r1.eclass:
+  Remove python3_2.
+
+  23 Nov 2014; Michał Górny <mgorny@gentoo.org> gnome2-utils.eclass:
+  Support multilib for gnome2_query_immodules_gtk3(), needed by
+  x11-libs/gtk+:3.
+
+  22 Nov 2014; Andreas K. Huettel <dilfridge@gentoo.org> perl-module.eclass:
+  Make calling perl-module_pkg_prerm trigger a real warning
+
+  22 Nov 2014; Sebastian Pipping <sping@gentoo.org> python-r1.eclass:
+  Fix docs about REQUIRED_USE in python-r1 (bug #530086)
+
+  21 Nov 2014; Julian Ospald <hasufell@gentoo.org> games.eclass:
+  add documentation for games.eclass, rm unnecessary exports
+
+  21 Nov 2014; Mike Gilbert <floppym@gentoo.org> -twisted.eclass:
+  Remove unused eclass.
+
+  21 Nov 2014; Andreas K. Huettel <dilfridge@gentoo.org> perl-module.eclass:
+  Add usage warnings to pkg_postinst and pkg_postrm, deprecate pkg_prerm
+
+  20 Nov 2014; Michał Górny <mgorny@gentoo.org> git-2.eclass,
+  distutils.eclass, python.eclass, twisted.eclass:
+  Deprecate the few eclasses.
+
+  20 Nov 2014; Michał Górny <mgorny@gentoo.org> git-2.eclass:
+  Remove the experimental git-r3 testing support. It is not needed anymore,
+  git-r3 has been proven to work and we can happily use it instead.
+
+  20 Nov 2014; Davide Pesavento <pesa@gentoo.org> qt5-build.eclass:
+  Add RDEPEND on dev-qt/qtchooser.
+
+  19 Nov 2014; Andreas K. Huettel <dilfridge@gentoo.org> perl-module.eclass:
+  Make calling perl-module_pkg_preinst trigger a real warning
+
+  19 Nov 2014; Andreas K. Huettel <dilfridge@gentoo.org> perl-module.eclass:
+  Make calling perl-module_pkg_setup trigger a real warning
+
+  18 Nov 2014; Andreas K. Huettel <dilfridge@gentoo.org> perl-module.eclass:
+  Deprecate perl-module_pkg_setup and perl-module_pkg_preinst
+
+  18 Nov 2014; Justin Lecher <jlec@gentoo.org> cuda.eclass:
+  Add missing quotes, thanks mgorny for heads up
+
+  18 Nov 2014; Justin Lecher <jlec@gentoo.org> cuda.eclass:
+  Fix gcc detection when using multislot, #529710
+
+  17 Nov 2014; Andreas K. Huettel <dilfridge@gentoo.org> perl-module.eclass:
+  Make calling fixlocalpod trigger a real warning
+
+  17 Nov 2014; Davide Pesavento <pesa@gentoo.org> qmake-utils.eclass:
+  Stop setting QTDIR. It's only relevant when building qt itself, and in any
+  case qmake doesn't use it.
+
+  17 Nov 2014; Davide Pesavento <pesa@gentoo.org> qt4-build-multilib.eclass:
+  Add blocker on emul-linux-x86-qtlibs wrt bug 529370.
+
+  16 Nov 2014; Andreas K. Huettel <dilfridge@gentoo.org> perl-module.eclass:
+  Make calling perlinfo trigger a real warning
+
+  16 Nov 2014; Patrice Clement <monsieurp@gentoo.org> perl-app.eclass:
+  Documented all functions.
+
+  14 Nov 2014; Sven Vermeulen <swift@gentoo.org> selinux-policy-2.eclass:
+  Using RDEPEND checks in SELinux eclass reverse dependency checking
+
+  14 Nov 2014; Davide Pesavento <pesa@gentoo.org> qt5-build.eclass:
+  Install global docs (part of bug 457028). Generate and install qtchooser
+  configuration file.
+
+  13 Nov 2014; Ulrich Müller <ulm@gentoo.org> bzr.eclass:
+  Remove Emacs team from maintainers of bzr.eclass.
+
+  13 Nov 2014; Michael Palimaka <kensington@gentoo.org> kde5.eclass:
+  Sync with KDE overlay. Raise kde-frameworks/kf-env dependency and update
+  SRC_URI for Frameworks 5.4.0
+
+  13 Nov 2014; Michael Palimaka <kensington@gentoo.org> kde4-base.eclass:
+  Add kde-workspace 4.11.14 SRC_URI.
+
+  13 Nov 2014; Davide Pesavento <pesa@gentoo.org> +qt4-build-multilib.eclass:
+  Initial commit of qt4-build-multilib.eclass
+
+  12 Nov 2014; Patrice Clement <monsieurp@gentoo.org> perl-module.eclass:
+  Documented nearly all functions.
+
+  11 Nov 2014; Pacho Ramos <pacho@gentoo.org> vala.eclass:
+  0.20 is our new lower version
+
+  11 Nov 2014; Patrice Clement <monsieurp@gentoo.org> perl-module.eclass:
+  Added documentation to undocumented functions. 
+
+  09 Nov 2014; Michał Górny <mgorny@gentoo.org> python-any-r1.eclass,
+  python-utils-r1.eclass:
+  Move the has_version checks on installed implementations to
+  python_is_installed() function. Accept PyPy when the implementation is
+  installed, even if the virtual is not.
+
+  09 Nov 2014; Andreas K. Huettel <dilfridge@gentoo.org> perl-module.eclass:
+  Add docs and deprecate perlinfo and fixlocalpod
+
+  09 Nov 2014; Andreas K. Huettel <dilfridge@gentoo.org> perl-module.eclass:
+  All in-tree ebuilds with EAPI=4 using perl-module.eclass are gone. Switch
+  deprecation message to super-annoying mode.
+
+  09 Nov 2014; Sebastian Pipping <sping@gentoo.org> python-r1.eclass:
+  Use python 3.4 rather than dead 3.2 in python-r1 examples
+
+  07 Nov 2014; Ian Stakenvicius (_AxS_) <axs@gentoo.org>
+  python-single-r1.eclass:
+  Help PMs figure out what to do by turning off unimplemented
+  python_single_target_* flags in PYTHON_USEDEP; thanks to mgorny, floppym and
+  Arfrever for reviews
+
+  07 Nov 2014; Ian Stakenvicius (_AxS_) <axs@gentoo.org>
+  python-single-r1.eclass:
+  fixed whitespace
+
+  06 Nov 2014; Ian Stakenvicius <axs@gentoo.org> python-single-r1.eclass:
+  When only one supported python implementation can satisfy an ebuild, do
+  not provide python_single_target_* flags in IUSE -- effectively, rely
+  only on PYTHON_TARGETS rather than the value specified in PYTHON_SINGLE_TARGET.
+
+  05 Nov 2014; Ian Stakenvicius <axs@gentoo.org> mozconfig-v5.33.eclass:
+  Move IUSE=selinux to the eclass
+
+  05 Nov 2014; Michał Górny <mgorny@gentoo.org> python-r1.eclass,
+  python-utils-r1.eclass, tests/python-utils-r1.sh:
+  Add support for PyPy3.
+
+  05 Nov 2014; Andreas K. Huettel <dilfridge@gentoo.org> perl-module.eclass:
+  Remove unused function perl_set_eprefix
+
+  04 Nov 2014; Justin Lecher <jlec@gentoo.org> toolchain.eclass:
+  Fix broken dependencies due to gcc multislotting, #528194, #528196
+
+  02 Nov 2014; Andreas K. Huettel <dilfridge@gentoo.org> perl-app.eclass:
+  Remove handling of EAPI=0,1,2 since that codepath cannot run anymore anyway
+
+  01 Nov 2014; Davide Pesavento <pesa@gentoo.org> qmake-utils.eclass:
+  eqmake4(): support new qmake install location (patch by mgorny).
+
+  01 Nov 2014; Andreas K. Huettel <dilfridge@gentoo.org> perl-module.eclass:
+  Drop EAPI=0,1,2,3 support in perl-module.eclass, this time for real. Further
+  cleanups will follow.
+
+  31 Oct 2014; Davide Pesavento <pesa@gentoo.org> multibuild.eclass:
+  Make sure BUILD_DIR exists before pushd'ing into it.
+
+  30 Oct 2014; Pacho Ramos <pacho@gentoo.org> vala.eclass:
+  Fix repoman warnings (#521980 by Arfrever Frehtes Taifersar Arahesis)
+
+  28 Oct 2014; Michael Palimaka <kensington@gentoo.org> kde5-functions.eclass:
+  Fix handling of frameworks version dependencies within kde-frameworks.
+
+  27 Oct 2014; Hans de Graaff <graaff@gentoo.org> ruby-ng-gnome2.eclass:
+  Enable verbose compilation output for the ruby gnome packages.
+
+  27 Oct 2014; Alexis Ballier <aballier@gentoo.org> cmake-utils.eclass:
+  improve/fix cross-compilation support, bug #503216 by James Le Cuirot and
+  myself
+
+  26 Oct 2014; Ulrich Müller <ulm@gentoo.org> toolchain.eclass:
+  [QA] Code from revisions 1.636 and 1.640 commented out. This causes several
+  file collisions, see bug 526144 and related bugs.
+
+  25 Oct 2014; Michael Palimaka <kensington@gentoo.org> kde4-base.eclass:
+  Add kde-workspace 4.11.13 SRC_URI.
+
+  20 Oct 2014; Andreas K. Huettel <dilfridge@gentoo.org> perl-module.eclass:
+  Output which ebuild actually has bad EAPI
+
+  19 Oct 2014; Andreas K. Huettel <dilfridge@gentoo.org> perl-module.eclass:
+  Move EAPI=0,1,2,3 warning into global scope to become ultra-annoying. Add QA
+  deprecation warning about EAPI=4.
+
+  18 Oct 2014; Mike Gilbert <floppym@gentoo.org> python-utils-r1.eclass:
+  Improve error messaging when python_export is called without a defined python
+  implementation.
+
+  17 Oct 2014; Ian Stakenvicius (_AxS_) <axs@gentoo.org>
+  mozconfig-v5.33.eclass:
+  added some missing deps, dropped unnecessary expat dep and redundant
+  --with-system-zlib; deps already brought in by mesa so need for end users to
+  update vdb
+
+  15 Oct 2014; Ian Stakenvicius (_AxS_) <axs@gentoo.org> perl-app.eclass:
+  Allow ebuild to override GENTOO_DEPEND_ON_PERL_SUBSLOT in perl-app.eclass if
+  necessary
+
+  15 Oct 2014; Michael Palimaka <kensington@gentoo.org> cmake-utils.eclass:
+  Introduce comment_add_subdirectory function. Make EAPI check more technically
+  correct.
+
+  15 Oct 2014; Michael Palimaka <kensington@gentoo.org> +kde5-functions.eclass,
+  +kde5.eclass:
+  Import from KDE overlay.
+
+  14 Oct 2014; Ian Stakenvicius (_AxS_) <axs@gentoo.org>
+  -mozconfig-v4.1.eclass, +mozconfig-v5.31.eclass, +mozconfig-v5.33.eclass,
+  +mozcoreconf-v3.eclass:
+  added bumps to mozilla config eclasses and removed old
+
+  09 Oct 2014; Davide Pesavento <pesa@gentoo.org> qt5-build.eclass:
+  Fix assignments to RESTRICT.
+
+  08 Oct 2014; Brian Evans <grknight@gentoo.org> mysql-cmake.eclass,
+  mysql-multilib.eclass:
+  Sync from overlay
+
+  07 Oct 2014; Davide Pesavento <pesa@gentoo.org> qt5-build.eclass:
+  Restrict mirror for qtwebkit wrt bug #524584
+
+  28 Sep 2014; Anthony G. Basile <blueness@gentoo.org> pax-utils.eclass:
+  Suppress annoying warning, see
+  https://forums.gentoo.org/viewtopic-p-7624560.html
+
+  27 Sep 2014; Andreas K. Huettel <dilfridge@gentoo.org> perl-module.eclass:
+  Deprecate EAPI=0,1,2,3 in perl-module.eclass with a big fat ewarn instead of
+  making the ebuild fail
+
+  27 Sep 2014; Pacho Ramos <pacho@gentoo.org> gnome-python-common-r1.eclass:
+  Fix typo (#523856 by Kent Fredric)
+
+  26 Sep 2014; Brian Evans <grknight@gentoo.org> mysql-multilib.eclass:
+  Fix up invalid general IUSE with underscores
+
+  26 Sep 2014; Brian Evans <grknight@gentoo.org> mysql-multilib.eclass:
+  Adjust deps for >=mariadb-10.0.14 and add USE base deps for mariadb-galera
+
+  22 Sep 2014; Davide Pesavento <pesa@gentoo.org> qt4-build.eclass,
+  qt5-build.eclass:
+  Fix SRC_URI (bug 523408) and update HOMEPAGE.
+
+  19 Sep 2014; Andreas K. Huettel <dilfridge@gentoo.org> perl-module.eclass:
+  Remove support for EAPI 1, 2, 3 in perl-module.eclass (no packages left in
+  the tree)
+
+  17 Sep 2014; Justin Lecher <jlec@gentoo.org> cuda.eclass:
+  nvcc always needs tp know the compiler location
+
+  16 Sep 2014; Johannes Huber <johu@gentoo.org> kde4-base.eclass:
+  Add kde-workspace 4.11.12 SRC_URI, remove obsolete.
+
+  16 Sep 2014; Davide Pesavento <pesa@gentoo.org> qt5-build.eclass:
+  Exclude installed_cmake tests as well.
+
+  15 Sep 2014; Justin Lecher <jlec@gentoo.org> intel-sdp.eclass:
+  Allow RPMS specified as array
+
+  11 Sep 2014; Ian Stakenvicius (_AxS_) <axs@gentoo.org>
+  +mozconfig-v4.31.eclass, -mozconfig-v4.eclass:
+  dropped unused mozconfig-v4 and added new mozconfig-v4.31 eclasses
+
+  11 Sep 2014; Davide Pesavento <pesa@gentoo.org> qt5-build.eclass:
+  Restrict tests on 5.3.x (except live).
+
+  04 Sep 2014; Michał Górny <mgorny@gentoo.org> python-utils-r1.eclass,
+  tests/python-utils-r1.sh:
+  Preserve all whitespace in shebangs, and add regression test for that. Also,
+  prevent filename expansion when word-splitting it. Bug #522080.
+
+  04 Sep 2014; Michał Górny <mgorny@gentoo.org> tests/python-utils-r1.sh:
+  Fix tests for python_is_python3.
+
+  03 Sep 2014; Ian Stakenvicius (_AxS_) <axs@gentoo.org>
+  +mozconfig-v4.1.eclass:
+  committed new eclass to support mozilla ebuilds
+
+  03 Sep 2014; Brian Evans <grknight@gentoo.org> mysql-multilib.eclass:
+  Fix libedit MULTILIB_USEDEP wrt bug 521964
+
+  02 Sep 2014; Michał Górny <mgorny@gentoo.org> bash-completion-r1.eclass:
+  Add bashcomp_alias function to create command aliases for completion.
+
+  30 Aug 2014; Anthony G. Basile <blueness@gentoo.org> pax-utils.eclass:
+  Update pax-utils.eclass according to bug #520198
+
+  30 Aug 2014; Davide Pesavento <pesa@gentoo.org> +qt5-build.eclass:
+  Initial commit of qt5-build.eclass
+
+  30 Aug 2014; Brian Evans <grknight@gentoo.org> mysql-multilib.eclass:
+  Fix percona-server SRC_URI, add missing dep on mariadb-galera for rsync sst,
+  Add future deps for packages.
+
+  28 Aug 2014; Sven Vermeulen <swift@gentoo.org> selinux-policy-2.eclass:
+  Simplify rlpkg call and optimize package relabeling thanks to Jason Perfinion
+
+  27 Aug 2014; Michał Górny <mgorny@gentoo.org> bash-completion-r1.eclass:
+  Make completionsdir default to the new location (for new installs). Eselect
+  support is provided in app-shells/bash-completion-2.1-r1.
+
+  24 Aug 2014; Michał Górny <mgorny@gentoo.org> distutils-r1.eclass:
+  Pass install paths to distutils via setup.cfg.
+
+  23 Aug 2014; Sven Vermeulen <swift@gentoo.org> selinux-policy-2.eclass:
+  Adding relabeling support for SELinux depending packages
+
+  18 Aug 2014; Michał Górny <mgorny@gentoo.org> python-r1.eclass:
+  Add extra quoting to prevent accidental globbing.
+
+  18 Aug 2014; Brian Evans <grknight@gentoo.org> mysql-multilib.eclass:
+  Move ENABLE_DTRACE check to the multilib_src_configure wrt bug 520028
+
+  17 Aug 2014; Jonathan Callen <jcallen@gentoo.org> multilib-build.eclass:
+  Add new multilib_native_enable and multilib_native_with functions; fix
+  documentation
 
   12 Aug 2014; Michael Palimaka <kensington@gentoo.org> cmake-utils.eclass:
   Sync with KDE overlay, including a large number of cosmetic changes and

@@ -1,8 +1,0 @@
-# Copyright 2010-2014 Gentoo Foundation
-# Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/mips/mipsel/make.defaults,v 1.3 2014/07/01 14:34:52 mgorny Exp $
-
-PROFILE_ARCH="mipsel"
-
-CHOST="mipsel-unknown-linux-gnu"
-CHOST_o32="mipsel-unknown-linux-gnu"

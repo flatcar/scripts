@@ -1,0 +1,22 @@
+# Copyright 1999-2014 Gentoo Foundation.
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/uclibc/package.mask,v 1.2 2014/08/29 18:21:40 mr_bones_ Exp $
+
+sys-libs/musl
+sys-libs/glibc
+sys-libs/pam
+
+# We use eudev which is tested on both uclibc and musl
+sys-apps/systemd
+sys-fs/udev
+
+# Working on it, bug #470884
+dev-libs/elfutils
+
+# These binary pkgs have a hard dep on glibc; make repoman shut up
+www-plugins/adobe-flash
+games-action/shadowgrounds-bin
+games-action/shadowgrounds-survivor-bin
+
+# Broken due to fallocate64(), bug #516988
+>sys-fs/e2fsprogs-1.42.7

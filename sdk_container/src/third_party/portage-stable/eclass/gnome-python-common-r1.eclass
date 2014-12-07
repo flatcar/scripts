@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/gnome-python-common-r1.eclass,v 1.1 2014/05/26 17:20:14 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/gnome-python-common-r1.eclass,v 1.2 2014/09/27 16:15:19 pacho Exp $
 
 # @ECLASS: gnome-python-common-r1
 # @MAINTAINER:
@@ -61,7 +61,7 @@ RDEPEND="~dev-python/${GNOME_ORG_MODULE}-base-${PV}
 DEPEND="${RDEPEND}
 	virtual/pkgconfig"
 
-REQUIRED_USE=${PYTHON_REQUIRED_SUE}
+REQUIRED_USE=${PYTHON_REQUIRED_USE}
 
 gnome-python-common-r1_src_prepare() {
 	gnome2_src_prepare

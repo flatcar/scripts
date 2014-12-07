@@ -243,3 +243,7 @@ opencl
 
 # Missing sys-process/numactl keywords.
 numa
+
+# toolkit for nvidia binary drivers
+cg
+

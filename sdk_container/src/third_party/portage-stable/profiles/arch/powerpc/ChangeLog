@@ -1,6 +1,54 @@
 # ChangeLog for Gentoo/PPC profile directory
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/ChangeLog,v 1.282 2014/08/15 13:41:19 blueness Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/ChangeLog,v 1.296 2014/11/23 15:55:11 floppym Exp $
+
+  23 Nov 2014; Mike Gilbert <floppym@gentoo.org> make.defaults:
+  Disable python3_4 default for this arch.
+
+  20 Nov 2014; Davide Pesavento <pesa@gentoo.org> package.mask:
+  Move Qt 4.8.6 mask from global package.mask to arch profiles.
+
+  18 Nov 2014; Manuel Rüger <mrueg@gentoo.org> package.use.stable.mask:
+  Test dependencies for sys-block/thin-provisioning-tools are marked stable
+  now. Unmask test.
+
+  15 Nov 2014; Mike Gilbert <floppym@gentoo.org> use.stable.mask:
+  Move python3_4 mask to arch profiles.
+
+  30 Oct 2014; Michał Górny <mgorny@gentoo.org> package.use.mask:
+  Temporarily mask sys-apps/systemd[terminal] due to non-keyworded deps.
+
+  25 Oct 2014; Michael Palimaka <kensington@gentoo.org> package.use.mask:
+  Mask kde-base/systemsettings[kscreen] due to unkeyworded dependencies (bug
+  #525558).
+
+  05 Oct 2014; Anthony G. Basile <blueness@gentoo.org> package.use.mask:
+  Unmask braille USE flag, bug #524352
+
+  05 Oct 2014; Anthony G. Basile <blueness@gentoo.org> package.use.mask:
+  Unmask media-libs/libgphoto2 serial, bug #493156
+
+  30 Sep 2014; Anthony G. Basile <blueness@gentoo.org> use.mask:
+  sys-libs/libseccomp has not been ported to ppc/ppc64, bug #524148
+
+  16 Sep 2014; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  package.use.mask:
+  Mask xorg-server glamor/wayland flags
+
+  01 Sep 2014; Julian Ospald <hasufell@gentoo.org> package.mask:
+  mask >=media-video/mpv-0.4.2 explicitly wrt #521808
+
+  31 Aug 2014; Anthony G. Basile <blueness@gentoo.org>
+  -ppc32/pegasos/deprecated, -ppc32/pegasos/eapi, -ppc32/pegasos/parent:
+  Remove pegasos profiles
+
+  17 Aug 2014; Anthony G. Basile <blueness@gentoo.org> package.use.mask:
+  Mask USE=smartcard for =net-misc/spice-gtk-0.25-r1 since it pulls in
+  qemu[smartcard] which is masked
+
+  16 Aug 2014; Anthony G. Basile <blueness@gentoo.org> package.use.mask:
+  Mask FEATURES=test on dev-ruby/sprockets since it pulls in execjs and
+  coffee-script, and so nodejs which is broken on ppc/ppc64
 
   15 Aug 2014; Anthony G. Basile <blueness@gentoo.org> package.use.mask:
   Mask FEATURES=test on dev-ruby/haml since it pulls in rails, and so nodejs

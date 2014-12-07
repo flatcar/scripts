@@ -1,6 +1,9 @@
 # ChangeLog for profile directory
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/default/bsd/ChangeLog,v 1.167 2014/08/03 00:54:15 jmbsvicetto Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/default/bsd/ChangeLog,v 1.168 2014/10/25 17:17:26 kensington Exp $
+
+  25 Oct 2014; Michael Palimaka <kensington@gentoo.org> package.use.mask:
+  Remove obsolete mask for package no longer in the tree.
 
   03 Aug 2014; Jorge Manuel B. S. Vicetto <jmbsvicetto@gentoo.org>
   fbsd/packages.build:

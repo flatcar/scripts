@@ -231,11 +231,8 @@ clvm
 # virtual/opencl is not keyworded
 opencl
 
-# We don't care about older python versions.  Time to upgrade.
-python_targets_python2_6
-python_targets_python3_0
-python_targets_python3_1
-python_targets_python3_2
-
 # This one we need to test ...
 python_targets_python3_3
+
+# sys-libs/libseccomp has not been ported to this arch yet #524148
+seccomp

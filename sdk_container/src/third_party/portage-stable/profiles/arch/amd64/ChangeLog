@@ -1,6 +1,76 @@
 # ChangeLog for Gentoo/AMD64 profile directory
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/ChangeLog,v 1.273 2014/08/04 02:13:15 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/ChangeLog,v 1.293 2014/11/30 16:58:15 mgorny Exp $
+
+  30 Nov 2014; Michał Górny <mgorny@gentoo.org>
+  +no-emul-linux-x86/package.use.mask:
+  Mask sys-devel/gcc[gcj] since the multilib deps are broken for a long time
+  with no will from the maintainer to accept a patch.
+
+  16 Nov 2014; Mike Gilbert <floppym@gentoo.org> use.stable.mask:
+  Drop unneeded python3_4 (un)mask.
+
+  15 Nov 2014; Mike Gilbert <floppym@gentoo.org> package.use.stable.mask:
+  Move pyudev[python3_4] mask to base profile.
+
+  09 Nov 2014; Michał Górny <mgorny@gentoo.org> package.use.stable.mask,
+  use.mask, use.stable.mask:
+  Unmask PyPy3.
+
+  09 Nov 2014; Michał Górny <mgorny@gentoo.org> package.use.stable.mask:
+  Remove stale masks on dev-python/python-exec.
+
+  06 Nov 2014; Michał Górny <mgorny@gentoo.org> package.use.mask:
+  Update USE=sse2 flag to extend to all PyPy variants.
+
+  04 Nov 2014; Mike Gilbert <floppym@gentoo.org> package.use.stable.mask,
+  use.stable.mask:
+  Negate python3_4 stable mask.
+
+  24 Oct 2014; Michał Górny <mgorny@gentoo.org>
+  no-emul-linux-x86/package.use.stable.mask, package.use.stable.mask:
+  Stable-mask abi_x86_32 on dev-libs/{cloog,isl}, bug #516152. Sort lexically.
+
+  19 Oct 2014; Mike Gilbert <floppym@gentoo.org> use.mask, use.stable.mask:
+  Unmask/stable-mask apparmor.
+
+  18 Oct 2014; Mike Frysinger <vapier@gentoo.org> package.use.mask:
+  Drop systemd-specific seccomp mask since the USE flag itself is handled
+  properly #524148 by Christian Ruppert.
+
+  17 Oct 2014; Michał Górny <mgorny@gentoo.org>
+  no-emul-linux-x86/package.mask:
+  Start masking packages that cause repoman failures due to unmigrated deps.
+
+  14 Oct 2014; Michał Górny <mgorny@gentoo.org> +no-emul-linux-x86/eapi,
+  +no-emul-linux-x86/package.mask, +no-emul-linux-x86/package.use.stable.mask,
+  +no-emul-linux-x86/parent, package.use.stable.mask:
+  Add a no-emul-linux-x86 subprofile for testing emul-linux-x86-free system.
+
+  13 Oct 2014; Tobias Klausmann <klausman@gentoo.org> package.use.stable.mask:
+  Stable-mask abi_x86_32 on dev-lua/luaexpat, bug #520864
+
+  13 Oct 2014; Michał Górny <mgorny@gentoo.org> package.use.stable.mask:
+  Stable-mask abi_x86_32 on dev-lang/lua, bug #520864.
+
+  13 Oct 2014; Michał Górny <mgorny@gentoo.org> package.use.stable.mask:
+  Stable-mask abi_x86_32 on net-dns/avahi, bug #520338.
+
+  13 Oct 2014; Michał Górny <mgorny@gentoo.org> package.use.stable.mask:
+  Stable-mask abi_x86_32 on media-libs/jasper, bug #513812.
+
+  11 Oct 2014; Tim Harder <radhermit@gentoo.org> package.use.mask,
+  package.use.stable.mask:
+  Unmask skype use flag for net-im/bitlbee on unstable systems.
+
+  08 Oct 2014; Ulrich Müller <ulm@gentoo.org> package.use.mask:
+  Unmask apulse, bug 524164.
+
+  13 Sep 2014; Markos Chandras <hwoarang@gentoo.org> package.use.mask:
+  midori[jit] works on amd64
+
+  02 Sep 2014; Hans de Graaff <graaff@gentoo.org> use.mask:
+  ruby_targets_jruby is now masked everywhere.
 
   04 Aug 2014; Mike Frysinger <vapier@gentoo.org> package.use.mask:
   Unmask x86-specific flashrom USE flags.

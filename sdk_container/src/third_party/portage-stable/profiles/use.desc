@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/use.desc,v 1.516 2014/07/24 11:05:11 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/use.desc,v 1.517 2014/11/15 20:12:59 vapier Exp $
 
 # Keep them sorted
 
@@ -270,6 +270,7 @@ pda - Add support for portable devices
 pdf - Add general support for PDF (Portable Document Format), this replaces the pdflib and cpdflib flags
 perl - Add optional support/bindings for the Perl language
 php - Include support for the PHP language
+pie - Build programs as Position Independent Executables (a security hardening technique)
 plasma - Build optional KDE plasma addons
 plotutils - Add support for plotutils (library for 2-D vector graphics)
 png - Add support for libpng (PNG images)

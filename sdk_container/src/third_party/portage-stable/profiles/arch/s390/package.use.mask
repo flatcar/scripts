@@ -1,6 +1,10 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/s390/package.use.mask,v 1.27 2014/07/29 23:16:10 robbat2 Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/s390/package.use.mask,v 1.28 2014/09/16 17:12:06 chithanh Exp $
+
+# Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (16 Sep 2014)
+# Needs libepoxy keywording, bug #510940
+x11-base/xorg-server glamor wayland
 
 # Mikle Kolyada <zlogene@gentoo.org> (11 Jan 2014)
 # too much unkeyworded dependencies (bug #497068)

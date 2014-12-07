@@ -1,6 +1,9 @@
 # ChangeLog for profiles/features/prefix
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/features/prefix/Changelog,v 1.1 2014/01/18 02:01:20 redlizard Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/features/prefix/Changelog,v 1.2 2014/11/23 19:44:36 redlizard Exp $
+
+  23 Nov 2014; Ruud Koolen <redlizard@gentoo.org> make.defaults:
+  Switched python version to 3.3 from base 3.4.
 
   18 Jan 2014; Ruud Koolen <redlizard@gentoo.org> eapi, make.defaults,
   package.mask, packages, package.use.mask, use.force, use.mask,

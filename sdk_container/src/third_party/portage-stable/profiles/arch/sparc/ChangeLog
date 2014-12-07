@@ -1,6 +1,47 @@
 # ChangeLog for Gentoo/sparc profile
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/sparc/ChangeLog,v 1.224 2014/08/15 17:46:59 armin76 Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/sparc/ChangeLog,v 1.236 2014/11/23 15:54:44 floppym Exp $
+
+  23 Nov 2014; Mike Gilbert <floppym@gentoo.org> make.defaults:
+  Disable python3_4 default for this arch.
+
+  20 Nov 2014; Davide Pesavento <pesa@gentoo.org> package.mask:
+  Move Qt 4.8.6 mask from global package.mask to arch profiles.
+
+  17 Nov 2014; Raúl Porcel <armin76@gentoo.org> package.mask:
+  Mask sys-devel/kgcc64 since >=gcc-4.4 can compile 64bit kernels
+
+  15 Nov 2014; Mike Gilbert <floppym@gentoo.org> use.stable.mask:
+  Move python3_4 mask to arch profiles.
+
+  30 Oct 2014; Michał Górny <mgorny@gentoo.org> package.use.mask:
+  Temporarily mask sys-apps/systemd[terminal] due to non-keyworded deps.
+
+  18 Oct 2014; Mike Frysinger <vapier@gentoo.org> use.mask:
+  Mask USE=seccomp until the kernel/library gets support #524148 by Christian
+  Ruppert.
+
+  16 Sep 2014; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  package.use.mask:
+  Mask xorg-server glamor/wayland flags
+
+  01 Sep 2014; Julian Ospald <hasufell@gentoo.org> package.mask:
+  mask >=media-video/mpv-0.4.2 explicitly wrt #521808
+
+  25 Aug 2014; Raúl Porcel <armin76@gentoo.org> use.mask:
+  Use.mask zmq, bug #442188
+
+  21 Aug 2014; Raúl Porcel <armin76@gentoo.org> package.use.mask, use.mask:
+  Use.mask tcmalloc and jemalloc as they aren't keyworded on sparc
+
+  21 Aug 2014; Raúl Porcel <armin76@gentoo.org> package.use.mask:
+  Remove net-dns/rbldnsd test from p.use.mask, bug #476198
+
+  21 Aug 2014; Raúl Porcel <armin76@gentoo.org> package.use.mask:
+  Remove dev-libs/libpcre jit from p.use.mask now that it works, bug #505062
+
+  20 Aug 2014; Raúl Porcel <armin76@gentoo.org> use.mask:
+  Use.mask redis
 
   15 Aug 2014; Raúl Porcel <armin76@gentoo.org> package.use.stable.mask:
   Remove sys-block/thin-provisioning-tools test from p.use.stable.mask as deps

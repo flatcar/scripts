@@ -1,9 +1,27 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/base/package.use.stable.mask,v 1.20 2014/08/01 19:50:51 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/base/package.use.stable.mask,v 1.31 2014/11/15 21:23:39 floppym Exp $
 
 # This file requires eapi 5 or later. New entries go on top.
 # Please use the same syntax as in package.use.mask
+
+# Mike Gilbert <floppym@gentoo.org> (15 Nov 2014)
+# Awaiting PyQt4 stabilization (bug 523322).
+dev-python/pyudev python_targets_python3_4
+
+# Andreas K. Huettel <dilfridge@gentoo.org> (30 Oct 2014)
+# Pulls in sci-libs/vtk with a lot of new dependencies; stabilizing
+# that will take some more time
+media-libs/opencv vtk
+
+# Michael Palimaka <kensington@gentoo.org> (09 Oct 2014)
+# Requires net-libs/libotr-4.0.0 which just came out of
+# hard mask.
+>=kde-base/kopete-4.12.0 otr
+
+# Mikle Kolyada <zlogene@gentoo.org> (16 Aug 2014)
+# Not yet stabilized dependency, need more testing
+>=dev-perl/PDL-2.4.11 pdl2 pgplot plplot
 
 # Samuli Suominen <ssuominen@gentoo.org> (01 Aug 2014)
 # Optional (not required by anything in gentoo-x86) and fragile (based on
@@ -18,7 +36,7 @@ app-crypt/tpm-tools pkcs11
 
 # Mikle Kolyada <zlogene@gentoo.org>
 # Not yet stabilized dependency (bug #514906)
-media-video/mpv libcaca sdl
+media-video/mpv libcaca
 
 # Andreas K. Huettel <dilfridge@gentoo.org> (29 Jun 2014)
 # Not yet stabilized dependencies blocking sec bug 514886

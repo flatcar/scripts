@@ -1,7 +1,11 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/darwin/package.mask,v 1.43 2014/08/12 08:08:55 grobian Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/darwin/package.mask,v 1.44 2014/10/19 07:52:14 grobian Exp $
 
+
+# Fabian Groffen <grobian@gentoo.org> (19 Oct 2014)
+# Fails during bootstrap, has install_name problems for libstdbuf
+=sys-apps/coreutils-8.23
 
 # Fabian Groffen <grobian@gentoo.org> (12 Aug 2014)
 # Needs some patching, bug #513428

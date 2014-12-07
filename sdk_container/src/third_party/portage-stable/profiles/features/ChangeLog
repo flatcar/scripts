@@ -1,6 +1,12 @@
 # ChangeLog for Gentoo/AMD64 profile directory
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/features/ChangeLog,v 1.81 2014/07/22 01:33:40 ottxor Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/features/ChangeLog,v 1.83 2014/12/03 13:20:02 perfinion Exp $
+
+  03 Dec 2014; Jason Zaman <perfinion@gentoo.org> selinux/package.use.force:
+  Force static-libs so stages build properly
+
+  06 Nov 2014; Michał Górny <mgorny@gentoo.org> selinux/package.use.mask:
+  Update the SELinux mask to apply to PyPy3 as well.
 
   22 Jul 2014; Christoph Junghans <ottxor@gentoo.org>
   64bit-native/package.mask:

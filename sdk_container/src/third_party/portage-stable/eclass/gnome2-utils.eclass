@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/gnome2-utils.eclass,v 1.36 2014/03/01 10:18:35 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/gnome2-utils.eclass,v 1.38 2014/11/23 21:46:29 mgorny Exp $
 
 # @ECLASS: gnome2-utils.eclass
 # @MAINTAINER:
@@ -439,39 +439,15 @@ gnome2_gdk_pixbuf_update() {
 	eend $?
 }
 
-
 # @FUNCTION: gnome2_query_immodules_gtk2
 # @USAGE: gnome2_query_immodules_gtk2
 # @DESCRIPTION:
 # Updates gtk2 immodules/gdk-pixbuf loaders listing.
 gnome2_query_immodules_gtk2() {
-	if has_version ">=x11-libs/gtk+-2.24.20:2"; then
-		"${EPREFIX}/usr/bin/gtk-query-immodules-2.0" --update-cache
-	else
-		local GTK2_CONFDIR="/etc/gtk-2.0/$(get_abi_CHOST)"
+	local updater=${EPREFIX}/usr/bin/${CHOST}-gtk-query-immodules-2.0
+	[[ ! -x ${updater} ]] && updater=${EPREFIX}/usr/bin/gtk-query-immodules-2.0
 
-		local query_exec="${EPREFIX}/usr/bin/gtk-query-immodules-2.0"
-		local gtk_conf="${EPREFIX}${GTK2_CONFDIR}/gtk.immodules"
-		local gtk_conf_dir=$(dirname "${gtk_conf}")
-
-		einfo "Generating Gtk2 immodules/gdk-pixbuf loaders listing:"
-		einfo "-> ${gtk_conf}"
-
-		mkdir -p "${gtk_conf_dir}"
-		local tmp_file=$(mktemp -t tmp.XXXXXXXXXXgtk_query_immodules)
-		if [ -z "${tmp_file}" ]; then
-			ewarn "gtk_query_immodules: cannot create temporary file"
-			return 1
-		fi
-
-		if ${query_exec} > "${tmp_file}"; then
-			cat "${tmp_file}" > "${gtk_conf}" || \
-				ewarn "Failed to write to ${gtk_conf}"
-		else
-			ewarn "Cannot update gtk.immodules, file generation failed"
-		fi
-		rm "${tmp_file}"
-	fi
+	"${updater}" --update-cache
 }
 
 # @FUNCTION: gnome2_query_immodules_gtk3
@@ -479,7 +455,10 @@ gnome2_query_immodules_gtk2() {
 # @DESCRIPTION:
 # Updates gtk3 immodules/gdk-pixbuf loaders listing.
 gnome2_query_immodules_gtk3() {
-	"${EPREFIX}/usr/bin/gtk-query-immodules-3.0" --update-cache
+	local updater=${EPREFIX}/usr/bin/${CHOST}-gtk-query-immodules-3.0
+	[[ ! -x ${updater} ]] && updater=${EPREFIX}/usr/bin/gtk-query-immodules-3.0
+
+	"${updater}" --update-cache
 }
 
 # @FUNCTION: gnome2_disable_deprecation_warning

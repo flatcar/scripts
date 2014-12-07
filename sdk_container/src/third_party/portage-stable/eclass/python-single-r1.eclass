@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/python-single-r1.eclass,v 1.26 2014/05/26 16:13:35 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/python-single-r1.eclass,v 1.29 2014/11/07 18:11:58 axs Exp $
 
 # @ECLASS: python-single-r1
 # @MAINTAINER:
@@ -15,8 +15,9 @@
 # This mostly includes tools embedding Python.
 #
 # This eclass extends the IUSE and REQUIRED_USE set by python-r1
-# to request correct PYTHON_SINGLE_TARGET. It also replaces
-# PYTHON_USEDEP and PYTHON_DEPS with a more suitable form.
+# to request the PYTHON_SINGLE_TARGET when the inheriting ebuild
+# can be supported by more than one Python implementation. It also
+# replaces PYTHON_USEDEP and PYTHON_DEPS with a more suitable form.
 #
 # Please note that packages support multiple Python implementations
 # (using python-r1 eclass) can not depend on packages not supporting
@@ -136,7 +137,8 @@ fi
 
 # @ECLASS-VARIABLE: PYTHON_REQUIRED_USE
 # @DESCRIPTION:
-# This is an eclass-generated required-use expression which ensures the following:
+# This is an eclass-generated required-use expression which ensures the following
+# when more than one python implementation is possible:
 # 1. Exactly one PYTHON_SINGLE_TARGET value has been enabled.
 # 2. The selected PYTHON_SINGLE_TARGET value is enabled in PYTHON_TARGETS.
 #
@@ -157,21 +159,14 @@ fi
 
 _python_single_set_globals() {
 	local impls=()
+	local unimpls=()
 
 	PYTHON_DEPS=
 	local i PYTHON_PKG_DEP
-	for i in "${PYTHON_COMPAT[@]}"; do
-		_python_impl_supported "${i}" || continue
-
-		# The chosen targets need to be in PYTHON_TARGETS as well.
-		# This is in order to enforce correct dependencies on packages
-		# supporting multiple implementations.
-		PYTHON_REQUIRED_USE+=" python_single_target_${i}? ( python_targets_${i} )"
-
-		python_export "${i}" PYTHON_PKG_DEP
-		PYTHON_DEPS+="python_single_target_${i}? ( ${PYTHON_PKG_DEP} ) "
-
-		impls+=( "${i}" )
+	for i in "${_PYTHON_ALL_IMPLS[@]}"; do
+		has "${i}" "${PYTHON_COMPAT[@]}" \
+			&& impls+=( "${i}" ) \
+			|| unimpls+=( "${i}" )
 	done
 
 	if [[ ${#impls[@]} -eq 0 ]]; then
@@ -180,12 +175,41 @@ _python_single_set_globals() {
 
 	local flags_mt=( "${impls[@]/#/python_targets_}" )
 	local flags=( "${impls[@]/#/python_single_target_}" )
+	local unflags=( "${unimpls[@]/#/-python_single_target_}" )
 
-	local optflags=${flags_mt[@]/%/(-)?}
-	optflags+=,${flags[@]/%/(+)?}
+	local optflags=${flags_mt[@]/%/(-)?},${unflags[@]/%/(-)}
 
-	IUSE="${flags_mt[*]} ${flags[*]}"
-	PYTHON_REQUIRED_USE+=" ^^ ( ${flags[*]} )"
+	IUSE="${flags_mt[*]}"
+
+	if [[ ${#impls[@]} -eq 1 ]]; then
+		# There is only one supported implementation; set IUSE and other
+		# variables without PYTHON_SINGLE_TARGET.
+		PYTHON_REQUIRED_USE="${flags_mt[*]}"
+		python_export "${impls[0]}" PYTHON_PKG_DEP
+		PYTHON_DEPS="${PYTHON_PKG_DEP} "
+		# Force on the python_single_target_* flag for this impl, so
+		# that any dependencies that inherit python-single-r1 and
+		# happen to have multiple implementations will still need
+		# to bound by the implementation used by this package.
+		optflags+=,${flags[0]/%/(+)}
+	else
+		# Multiple supported implementations; honor PYTHON_SINGLE_TARGET.
+		IUSE+=" ${flags[*]}"
+		PYTHON_REQUIRED_USE="^^ ( ${flags[*]} )"
+		# Ensure deps honor the same python_single_target_* flag as is set
+		# on this package.
+		optflags+=,${flags[@]/%/(+)?}
+
+		for i in "${impls[@]}"; do
+			# The chosen targets need to be in PYTHON_TARGETS as well.
+			# This is in order to enforce correct dependencies on packages
+			# supporting multiple implementations.
+			PYTHON_REQUIRED_USE+=" python_single_target_${i}? ( python_targets_${i} )"
+
+			python_export "${i}" PYTHON_PKG_DEP
+			PYTHON_DEPS+="python_single_target_${i}? ( ${PYTHON_PKG_DEP} ) "
+		done
+	fi
 	PYTHON_USEDEP=${optflags// /,}
 
 	# 1) well, python-exec would suffice as an RDEP
@@ -213,42 +237,57 @@ python_setup() {
 
 	unset EPYTHON
 
-	local impl
-	for impl in "${_PYTHON_ALL_IMPLS[@]}"; do
-		if has "${impl}" "${PYTHON_COMPAT[@]}" \
-			&& use "python_single_target_${impl}"
-		then
-			if [[ ${EPYTHON} ]]; then
-				eerror "Your PYTHON_SINGLE_TARGET setting lists more than a single Python"
-				eerror "implementation. Please set it to just one value. If you need"
-				eerror "to override the value for a single package, please use package.env"
-				eerror "or an equivalent solution (man 5 portage)."
-				echo
-				die "More than one implementation in PYTHON_SINGLE_TARGET."
-			fi
+	local impl impls=()
+	for impl in "${PYTHON_COMPAT[@]}"; do
+		_python_impl_supported "${impl}" || continue
+		impls+=( "${impl}" )
+	done
 
-			if ! use "python_targets_${impl}"; then
-				eerror "The implementation chosen as PYTHON_SINGLE_TARGET must be added"
-				eerror "to PYTHON_TARGETS as well. This is in order to ensure that"
-				eerror "dependencies are satisfied correctly. We're sorry"
-				eerror "for the inconvenience."
-				echo
-				die "Build target (${impl}) not in PYTHON_TARGETS."
-			fi
-
-			python_export "${impl}" EPYTHON PYTHON
+	if [[ ${#impls[@]} -eq 1 ]]; then
+		if use "python_targets_${impls[0]}"; then
+			# Only one supported implementation, enable it explicitly
+			python_export "${impls[0]}" EPYTHON PYTHON
 			python_wrapper_setup
 		fi
-	done
+	else
+		for impl in "${impls[@]}"; do
+			if use "python_single_target_${impl}"; then
+				if [[ ${EPYTHON} ]]; then
+					eerror "Your PYTHON_SINGLE_TARGET setting lists more than a single Python"
+					eerror "implementation. Please set it to just one value. If you need"
+					eerror "to override the value for a single package, please use package.env"
+					eerror "or an equivalent solution (man 5 portage)."
+					echo
+					die "More than one implementation in PYTHON_SINGLE_TARGET."
+				fi
+
+				if ! use "python_targets_${impl}"; then
+					eerror "The implementation chosen as PYTHON_SINGLE_TARGET must be added"
+					eerror "to PYTHON_TARGETS as well. This is in order to ensure that"
+					eerror "dependencies are satisfied correctly. We're sorry"
+					eerror "for the inconvenience."
+					echo
+					die "Build target (${impl}) not in PYTHON_TARGETS."
+				fi
+
+				python_export "${impl}" EPYTHON PYTHON
+				python_wrapper_setup
+			fi
+		done
+	fi
 
 	if [[ ! ${EPYTHON} ]]; then
 		eerror "No Python implementation selected for the build. Please set"
-		eerror "the PYTHON_SINGLE_TARGET variable in your make.conf to one"
+		if [[ ${#impls[@]} -eq 1 ]]; then
+			eerror "the PYTHON_TARGETS variable in your make.conf to include one"
+		else
+			eerror "the PYTHON_SINGLE_TARGET variable in your make.conf to one"
+		fi
 		eerror "of the following values:"
 		eerror
-		eerror "${PYTHON_COMPAT[@]}"
+		eerror "${impls[@]}"
 		echo
-		die "No supported Python implementation in PYTHON_SINGLE_TARGET."
+		die "No supported Python implementation in PYTHON_SINGLE_TARGET/PYTHON_TARGETS."
 	fi
 }
 

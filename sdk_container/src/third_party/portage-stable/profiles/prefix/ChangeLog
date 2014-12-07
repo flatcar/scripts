@@ -1,6 +1,51 @@
 # ChangeLog for profiles/prefix
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/ChangeLog,v 1.428 2014/08/12 08:08:55 grobian Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/ChangeLog,v 1.438 2014/11/29 13:08:08 zlogene Exp $
+
+  29 Nov 2014; Mikle Kolyada <zlogene@gentoo.org> package.use.mask:
+  Mask dev-vcs/git[mediawiki] (bug #497068)
+
+  24 Nov 2014; Ruud Koolen <redlizard@gentoo.org>
+  darwin/macos/10.10/profile.bashrc:
+  Use clang to compile selected packages on Yosemite. Patch by soon-to-be
+  dev Guilherme Amadio.
+
+  23 Nov 2014; Ruud Koolen <redlizard@gentoo.org> package.mask:
+  Remove obsolete bison-3.0.2 mask.
+
+  19 Nov 2014; Ruud Koolen <redlizard@gentoo.org> package.mask:
+  Lift portage-2.2.14 mask.
+
+  12 Nov 2014; Fabian Groffen <grobian@gentoo.org> package.mask:
+  Update portage mask to make sure people first upgrade to 2.2.10.1-r1
+
+  21 Oct 2014; Fabian Groffen <grobian@gentoo.org>
+  darwin/macos/10.10/profile.bashrc:
+  Force older deployment target on Yosemite for gcc-apple
+
+  19 Oct 2014; Fabian Groffen <grobian@gentoo.org> +darwin/macos/10.10/eapi,
+  +darwin/macos/10.10/make.defaults, +darwin/macos/10.10/package.mask,
+  +darwin/macos/10.10/package.provided, +darwin/macos/10.10/package.use.mask,
+  +darwin/macos/10.10/parent, +darwin/macos/10.10/profile.bashrc,
+  +darwin/macos/10.10/x64/eapi, +darwin/macos/10.10/x64/make.defaults,
+  +darwin/macos/10.10/x64/package.mask,
+  +darwin/macos/10.10/x64/package.use.force,
+  +darwin/macos/10.10/x64/package.use.mask, +darwin/macos/10.10/x64/parent,
+  +darwin/macos/10.10/x64/use.mask, +darwin/macos/10.10/x86/eapi,
+  +darwin/macos/10.10/x86/make.defaults, +darwin/macos/10.10/x86/package.mask,
+  +darwin/macos/10.10/x86/package.use.force,
+  +darwin/macos/10.10/x86/package.use.mask, +darwin/macos/10.10/x86/parent,
+  +darwin/macos/10.10/x86/use.mask:
+  Add profile for OS X Yosemite (10.10) a.k.a. Darwin 14
+
+  19 Oct 2014; Fabian Groffen <grobian@gentoo.org> darwin/package.mask:
+  Mask sys-apps/coreutils-8.23 on Darwin for multiple reasons
+
+  05 Oct 2014; Fabian Groffen <grobian@gentoo.org> package.mask:
+  Mask portage-2.2.14_rc1 due to multiple breakages
+
+  24 Aug 2014; Fabian Groffen <grobian@gentoo.org> package.mask:
+  Mask bison-3.0.2 for it is not ready for general use yet
 
   12 Aug 2014; Fabian Groffen <grobian@gentoo.org> darwin/package.mask:
   Masked libffi-3.1 for it needs some work, bug #513428

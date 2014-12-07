@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/desc/linguas.desc,v 1.82 2014/07/29 19:35:04 blueness Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/desc/linguas.desc,v 1.84 2014/10/28 16:05:45 jer Exp $
 
 # This file contains descriptions of LINGUAS USE_EXPAND flags.
 
@@ -21,8 +21,8 @@ as_IN - Assamese locale for India
 ast - Asturian locale
 az - Azeri locale
 be - Belarusian locale
-be_BY - Belarusian locale
 be@latin - Belarusian (latin) locale
+be_BY - Belarusian locale
 bg - Bulgarian locale
 bg_BG - Bulgarian locale
 bn - Bengali locale
@@ -35,9 +35,9 @@ brx - Bodo locale for India
 bs - Bosnian locale
 byn - Bilin (Bilen, Blin) locale
 ca - Catalan locale
+ca@valencia - Catalan locale (Valencia)
 ca_ES - Catalan locale for Spain
 ca_XV - Asturian and Catalan locale (Valencia)
-ca@valencia - Catalan locale (Valencia)
 cmn - Chinese (Mandarin) locale
 crh - Crimean Tatar (Crimean Turkish) locale
 cs - Czech locale
@@ -55,15 +55,16 @@ ee - Ewe locale
 el - Greek locale
 el_GR - Greek locale
 en - English locale
+en@shaw - Shavian locale
 en_AU - English locale for Australia
 en_CA - English locale for Canada
 en_GB - English locale for Britain
 en_US - English locale
 en_ZA - English locale for South Africa
-en@shaw - Shavian locale
 eo - Esperanto locale
 eo_UY - Esperanto locale for Uruguay
 es - Spanish locale
+es_419 - Latin American Spanish locale
 es_AR - Spanish locale for Argentina
 es_CL - Spanish locale for Chile
 es_CO - Spanish locale for Columbia
@@ -72,8 +73,8 @@ es_DO - Spanish locale for Dominican Republic
 es_ES - Spanish locale for Spain
 es_LA - Spanish locale for Latin America
 es_MX - Spanish locale for Mexico
-es_VE - Spanish locale for Venezuela
 es_UY - Spanish locale for Uruguay
+es_VE - Spanish locale for Venezuela
 et - Estonian locale
 et_EE - Estonian locale
 eu - Basque locale
@@ -104,6 +105,7 @@ hi - Hindi locale
 hi_IN - Hindi locale
 hne - Chhattisgarhi locale
 hr - Croatian locale
+hr_HR - Croatian locale
 hsb - Upper Sorbian locale
 ht - Haitian locale
 hu - Hungarian locale
@@ -204,20 +206,20 @@ se - Northern Saami locale
 sh - Serbo-Croatian locale
 sh_YU - Serbo-Croatian locale
 shn - Shan locale
-so - Somali locale
-son - Songhai locale
 si - Sinhala locale
 si_LK - Sinhala locale
 sk - Slovak locale
 sk_SK - Slovak locale
 sl - Slovenian locale
 sl_SI - Slovenian locale
+so - Somali locale
+son - Songhai locale
 sq - Albanian locale
 sr - Serbian locale
+sr@Latn - Serbian (latin) locale
 sr@ijekavian - Serbian-Ijekavian locale
 sr@ijekavianlatin - Serbian-Ijekavian (latin) locale
 sr@latin - Serbian (latin) locale
-sr@Latn - Serbian (latin) locale
 sr_BA - Serbian locale for Bosnia and Herzegovina
 sr_BA@latin - Serbian (latin) locale for Bosnia and Herzegovina
 sr_CS - Serbian locale
@@ -259,10 +261,10 @@ ur - Urdu locale
 ur_IN - Urdu locale for India
 ur_PK - Urdu language locale for Pakistan
 uz - Uzbek locale
-uz_UZ - Uzbek locale for Uzbekistan
-uz@cyrillic - Uzbek (cyrillic) locale
 uz@Cyrl - Uzbek (Cyrillic) locale
 uz@Latn - Uzbek (latin) locale
+uz@cyrillic - Uzbek (cyrillic) locale
+uz_UZ - Uzbek locale for Uzbekistan
 ve - Venda locale
 vi - Vietnamese locale
 vi_VN - Vietnamese locale

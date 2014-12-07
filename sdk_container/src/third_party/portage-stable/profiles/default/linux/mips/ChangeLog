@@ -1,6 +1,12 @@
 # ChangeLog for the default/linux/mips profile directory
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/mips/ChangeLog,v 1.5 2014/03/19 22:16:02 dilfridge Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/mips/ChangeLog,v 1.6 2014/10/11 09:46:59 blueness Exp $
+
+  11 Oct 2014; Anthony G. Basile <blueness@gentoo.org>
+  +13.0/mipsel/o32/desktop/eapi, +13.0/mipsel/o32/desktop/parent,
+  +13.0/mipsel/o32/developer/eapi, +13.0/mipsel/o32/developer/parent,
+  +13.0/mipsel/o32/eapi, +13.0/mipsel/o32/parent:
+  Restructure to accomodate new multilib scheme
 
   19 Mar 2014; Andreas K. Huettel <dilfridge@gentoo.org> 13.0/desktop/eapi,
   13.0/developer/eapi, 13.0/eapi, +13.0/mipsel/desktop/eapi,

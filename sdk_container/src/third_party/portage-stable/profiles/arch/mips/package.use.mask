@@ -1,6 +1,10 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/mips/package.use.mask,v 1.63 2014/07/22 18:16:50 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/mips/package.use.mask,v 1.68 2014/09/16 17:12:06 chithanh Exp $
+
+# Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (16 Sep 2014)
+# Needs libepoxy keywording, bug #510940
+x11-base/xorg-server glamor wayland
 
 # Davide Pesavento <pesa@gentoo.org> (02 Jun 2014)
 # dev-qt/qtdeclarative:4 is not keyworded on mips

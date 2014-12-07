@@ -1,6 +1,11 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/targets/desktop/package.use,v 1.40 2014/07/24 20:18:53 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/targets/desktop/package.use,v 1.41 2014/09/17 22:21:23 chithanh Exp $
+
+# Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (17 Sep 2014)
+# Disable glamor for xf86-video-intel since it also needs uxa, which is
+# disabled by default
+x11-drivers/xf86-video-intel -glamor
 
 # Samuli Suominen <ssuominen@gentoo.org> (24 Jul 2014)
 # Because targets/desktop/make.defaults has USE="bluetooth" but net-libs/libpcap doesn't

@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/amd64/package.use,v 1.5 2014/07/08 22:25:25 zorry Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/amd64/package.use,v 1.6 2014/10/12 07:40:21 zorry Exp $
 
 # Magnus Granberg <zorry@gentoo.org> (06 Mar 2011)
 # We will have pic enable on older package but not
@@ -19,9 +19,10 @@ app-emulation/open-vm-tools pic
 
 # Magnus Granberg <zorry@gentoo.org> (08 Jul, 2014)
 # We need to have the pic flag on for the 32bit part on multilib build.
-# Bugs 490276, 513464 and 512208
+# Bugs 490276, 513464, 523736 and 512208
 media-libs/x264 pic
 media-video/ffmpeg pic
 media-video/libav pic
 =media-libs/mesa-9.2.5-r1 pic
 >=media-libs/mesa-10.1.6 pic
+media-libs/libpostproc pic
