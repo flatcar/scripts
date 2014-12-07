@@ -4,11 +4,11 @@ DESCRIPTION=A Pythonic binding for the libxml2 and libxslt libraries
 EAPI=5
 HOMEPAGE=http://lxml.de/ http://pypi.python.org/pypi/lxml/
 IUSE=beautifulsoup3 doc examples +threads python_targets_python2_7 python_targets_python3_3 python_targets_python3_4
-KEYWORDS=alpha amd64 arm hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris
+KEYWORDS=~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris
 LICENSE=BSD ElementTree GPL-2 PSF-2
 RDEPEND=>=dev-libs/libxml2-2.7.2 >=dev-libs/libxslt-1.1.15 beautifulsoup3? ( python_targets_python2_7? ( dev-python/beautifulsoup:python-2[python_targets_python2_7(-)?,-python_single_target_python2_7(-)] ) python_targets_python3_3? ( dev-python/beautifulsoup:python-3[python_targets_python3_3(-)?,-python_single_target_python3_3(-),python_targets_python3_4(-)?,-python_single_target_python3_4(-)] ) python_targets_python3_4? ( dev-python/beautifulsoup:python-3[python_targets_python3_3(-)?,-python_single_target_python3_3(-),python_targets_python3_4(-)?,-python_single_target_python3_4(-)] ) ) python_targets_python2_7? ( >=dev-lang/python-2.7.5-r2:2.7 ) python_targets_python3_3? ( >=dev-lang/python-3.3.2-r2:3.3 ) python_targets_python3_4? ( dev-lang/python:3.4 ) dev-lang/python-exec:=[python_targets_python2_7(-)?,python_targets_python3_3(-)?,python_targets_python3_4(-)?,-python_single_target_python2_7(-),-python_single_target_python3_3(-),-python_single_target_python3_4(-)]
 REQUIRED_USE=|| ( python_targets_python2_7 python_targets_python3_3 python_targets_python3_4 )
 SLOT=0
-SRC_URI=mirror://pypi/l/lxml/lxml-3.3.5.tar.gz
+SRC_URI=mirror://pypi/l/lxml/lxml-3.3.6.tar.gz
 _eclasses_=distutils-r1	b3dd8b90e41a1570ee3117a7c1adb598	eutils	6faef4c127028ccbba3a11400d24ae34	flag-o-matic	eda1c0b5ba85b3eeb555a071d69eb819	multibuild	ddc59d206214ef1c240093e1bb2513cf	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	multiprocessing	d7f2985a2c76c365ee20269db5261414	python-r1	b63f5ef61876823ab0bd05d867697d75	python-utils-r1	d5328656d500f65898a5f51634722f61	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
-_md5_=1428a93eb73d7bcb3a37a93b9870b454
+_md5_=22ec665cc0f33f1308bafddfae51a067

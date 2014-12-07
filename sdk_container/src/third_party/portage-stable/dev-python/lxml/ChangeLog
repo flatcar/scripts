@@ -1,6 +1,29 @@
 # ChangeLog for dev-python/lxml
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-python/lxml/ChangeLog,v 1.201 2014/06/10 12:24:12 djc Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-python/lxml/ChangeLog,v 1.206 2014/11/24 16:02:53 floppym Exp $
+
+  24 Nov 2014; Mike Gilbert <floppym@gentoo.org> lxml-3.3.5.ebuild,
+  lxml-3.3.6.ebuild, lxml-3.4.0.ebuild, lxml-3.4.1.ebuild:
+  Convert hard-coded python_targets to python_gen_cond_dep calls.
+
+  24 Nov 2014; Rick Farina <zerochaos@gentoo.org> lxml-3.3.5.ebuild,
+  lxml-3.3.6.ebuild, lxml-3.4.0.ebuild:
+  remove references to python3_2 since it's no longer in IUSE
+
+*lxml-3.4.1 (21 Nov 2014)
+
+  21 Nov 2014; Tim Harder <radhermit@gentoo.org> +lxml-3.4.1.ebuild:
+  Version bump.
+
+*lxml-3.4.0 (11 Sep 2014)
+
+  11 Sep 2014; Tim Harder <radhermit@gentoo.org> +lxml-3.4.0.ebuild:
+  Version bump.
+
+*lxml-3.3.6 (29 Aug 2014)
+
+  29 Aug 2014; Tim Harder <radhermit@gentoo.org> +lxml-3.3.6.ebuild:
+  Version bump.
 
   10 Jun 2014; Dirkjan Ochtman <djc@gentoo.org>
   -files/lxml-3.0.1-skip-failing-test.patch, -files/lxml-test-elementtree.patch,
