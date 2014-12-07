@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-vcs/git/git-2.0.1.ebuild,v 1.1 2014/07/18 14:04:11 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-vcs/git/git-2.2.0.ebuild,v 1.1 2014/12/02 07:32:57 polynomial-c Exp $
 
 EAPI=5
 
@@ -33,7 +33,7 @@ if [[ ${PV} != *9999 ]]; then
 			${SRC_URI_KORG}/${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 			${SRC_URI_GOOG}/${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 			)"
-	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 else
 	SRC_URI=""
 	KEYWORDS=""
@@ -67,7 +67,7 @@ RDEPEND="${CDEPEND}
 			dev-perl/Net-SMTP-SSL
 			dev-perl/Authen-SASL
 			cgi? ( virtual/perl-CGI highlight? ( app-text/highlight ) )
-			cvs? ( >=dev-vcs/cvsps-2.1 dev-perl/DBI dev-perl/DBD-SQLite )
+			cvs? ( >=dev-vcs/cvsps-2.1:0 dev-perl/DBI dev-perl/DBD-SQLite )
 			subversion? ( dev-vcs/subversion[-dso,perl] dev-perl/libwww-perl dev-perl/TermReadKey )
 			)
 	python? ( gtk?
@@ -231,6 +231,8 @@ src_prepare() {
 	# hack, needs better upstream solution
 	epatch "${FILESDIR}"/git-1.8.5-mw-vendor.patch
 
+	epatch "${FILESDIR}"/git-2.2.0-svn-fe-linking.patch
+
 	epatch_user
 
 	sed -i \
@@ -325,7 +327,12 @@ src_compile() {
 
 	if use subversion ; then
 		cd "${S}"/contrib/svn-fe
-		git_emake EXTLIBS="${EXTLIBS}" || die "emake svn-fe failed"
+		# by defining EXTLIBS we override the detection for libintl and
+		# libiconv, bug #516168
+		local nlsiconv=
+		use nls && use !elibc_glibc && nlsiconv+=" -lintl"
+		use iconv && use !elibc_glibc && nlsiconv+=" -liconv"
+		git_emake EXTLIBS="${EXTLIBS} ${nlsiconv}" || die "emake svn-fe failed"
 		if use doc ; then
 			git_emake svn-fe.{1,html} || die "emake svn-fe.1 svn-fe.html failed"
 		fi
@@ -373,6 +380,7 @@ src_install() {
 	use doc && doinfo Documentation/{git,gitman}.info
 
 	newbashcomp contrib/completion/git-completion.bash ${PN}
+	bashcomp_alias git gitk
 	# Not really a bash-completion file (bug #477920)
 	# but still needed uncompressed (bug #507480)
 	insinto /usr/share/${PN}
@@ -415,10 +423,6 @@ src_install() {
 		cd "${S}"
 	fi
 
-	# git-diffall
-	dobin contrib/diffall/git-diffall
-	newdoc contrib/diffall/README git-diffall.txt
-
 	# diff-highlight
 	dobin contrib/diff-highlight/diff-highlight
 	newdoc contrib/diff-highlight/README README.diff-highlight
@@ -446,19 +450,11 @@ src_install() {
 		cd "${S}"
 	fi
 
-	# remote-helpers
-	if use python ; then
-		python_scriptinto /usr/libexec/git-core/
-		python_doscript "${S}"/contrib/remote-helpers/git-remote-{bzr,hg}
-		python_optimize
-	fi
-
 	dodir /usr/share/${PN}/contrib
 	# The following are excluded:
 	# completion - installed above
 	# credential/gnome-keyring TODO
 	# diff-highlight - done above
-	# diffall - done above
 	# emacs - installed above
 	# examples - these are stuff that is not used in Git anymore actually
 	# git-jump - done above
@@ -473,7 +469,7 @@ src_install() {
 	for i in \
 		buildsystems convert-objects fast-import \
 		hg-to-git hooks remotes2config.sh rerere-train.sh \
-		stats vim workdir \
+		stats workdir \
 		; do
 		cp -rf \
 			"${S}"/contrib/${i} \
@@ -517,11 +513,11 @@ src_install() {
 		systemd_dounit "${FILESDIR}/git-daemon.socket"
 	fi
 
-	fixlocalpod
+	perl_delete_localpod
 }
 
 src_test() {
-	local disabled=""
+	local disabled="" #t7004-tag.sh" #520270
 	local tests_cvs="t9200-git-cvsexportcommit.sh \
 					t9400-git-cvsserver-server.sh \
 					t9401-git-cvsserver-crlf.sh \
