@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/distutils-r1.eclass,v 1.101 2014/07/08 08:49:10 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/distutils-r1.eclass,v 1.103 2014/11/24 01:39:55 floppym Exp $
 
 # @ECLASS: distutils-r1
 # @MAINTAINER:
@@ -217,6 +217,10 @@ fi
 # 1. ${mydistutilsargs[@]}
 # 2. additional arguments passed to the esetup.py function.
 #
+# Please note that setup.py will respect defaults (unless overriden
+# via command-line options) from setup.cfg that is created
+# in distutils-r1_python_compile and in distutils-r1_python_install.
+#
 # This command dies on failure.
 esetup.py() {
 	debug-print-function ${FUNCNAME} "${@}"
@@ -338,7 +342,7 @@ distutils-r1_python_configure() {
 # @INTERNAL
 # @DESCRIPTION:
 # Create implementation-specific configuration file for distutils,
-# setting proper build-dir paths.
+# setting proper build-dir (and install-dir) paths.
 _distutils-r1_create_setup_cfg() {
 	cat > "${HOME}"/.pydistutils.cfg <<-_EOF_ || die
 		[build]
@@ -365,6 +369,25 @@ _distutils-r1_create_setup_cfg() {
 		[bdist_egg]
 		dist-dir = ${BUILD_DIR}/dist
 	_EOF_
+
+	# we can't refer to ${D} before src_install()
+	if [[ ${EBUILD_PHASE} == install ]]; then
+		cat >> "${HOME}"/.pydistutils.cfg <<-_EOF_ || die
+
+			# installation paths -- allow calling extra install targets
+			# without the default 'install'
+			[install]
+			compile = True
+			optimize = 2
+			root = ${D}
+		_EOF_
+
+		if [[ ! ${DISTUTILS_SINGLE_IMPL} ]] && _python_want_python_exec2; then
+			cat >> "${HOME}"/.pydistutils.cfg <<-_EOF_ || die
+				install-scripts = $(python_get_scriptdir)
+			_EOF_
+		fi
+	fi
 }
 
 # @FUNCTION: _distutils-r1_copy_egg_info
@@ -385,6 +408,9 @@ _distutils-r1_copy_egg_info() {
 # The default python_compile(). Runs 'esetup.py build'. Any parameters
 # passed to this function will be appended to setup.py invocation,
 # i.e. passed as options to the 'build' command.
+#
+# This phase also sets up initial setup.cfg with build directories
+# and copies upstream egg-info files if supplied.
 distutils-r1_python_compile() {
 	debug-print-function ${FUNCNAME} "${@}"
 
@@ -406,8 +432,11 @@ _distutils-r1_wrap_scripts() {
 	local path=${1}
 	local bindir=${2}
 
-	if ! _python_want_python_exec2; then
-		local PYTHON_SCRIPTDIR=${bindir}
+	local PYTHON_SCRIPTDIR
+	if _python_want_python_exec2; then
+		python_export PYTHON_SCRIPTDIR
+	else
+		PYTHON_SCRIPTDIR=${bindir}
 	fi
 
 	local f python_files=() non_python_files=()
@@ -457,36 +486,28 @@ _distutils-r1_wrap_scripts() {
 # @FUNCTION: distutils-r1_python_install
 # @USAGE: [additional-args...]
 # @DESCRIPTION:
-# The default python_install(). Runs 'esetup.py install', appending
-# the optimization flags. Then renames the installed scripts.
+# The default python_install(). Runs 'esetup.py install', doing
+# intermediate root install and handling script wrapping afterwards.
 # Any parameters passed to this function will be appended
 # to the setup.py invocation (i.e. as options to the 'install' command).
+#
+# This phase updates the setup.cfg file with install directories.
 distutils-r1_python_install() {
 	debug-print-function ${FUNCNAME} "${@}"
 
 	local args=( "${@}" )
-	local flags
-
-	case "${EPYTHON}" in
-		jython*)
-			flags=(--compile);;
-		*)
-			flags=(--compile -O2);;
-	esac
-	debug-print "${FUNCNAME}: [${EPYTHON}] flags: ${flags}"
 
 	# enable compilation for the install phase.
 	local -x PYTHONDONTWRITEBYTECODE=
+
+	# re-create setup.cfg with install paths
+	_distutils-r1_create_setup_cfg
 
 	# python likes to compile any module it sees, which triggers sandbox
 	# failures if some packages haven't compiled their modules yet.
 	addpredict "$(python_get_sitedir)"
 	addpredict /usr/lib/portage/pym
 	addpredict /usr/local # bug 498232
-
-	local root=${D}/_${EPYTHON}
-	[[ ${DISTUTILS_SINGLE_IMPL} ]] && root=${D}
-	flags+=( --root="${root}" )
 
 	if [[ ! ${DISTUTILS_SINGLE_IMPL} ]]; then
 		# user may override --install-scripts
@@ -525,21 +546,18 @@ distutils-r1_python_install() {
 					;;
 			esac
 		done
-
-		if _python_want_python_exec2; then
-			local PYTHON_SCRIPTDIR
-			python_export PYTHON_SCRIPTDIR
-			flags+=( --install-scripts="${PYTHON_SCRIPTDIR}" )
-		fi
 	fi
 
-	esetup.py install "${flags[@]}" "${args[@]}"
+	local root=${D}/_${EPYTHON}
+	[[ ${DISTUTILS_SINGLE_IMPL} ]] && root=${D}
+
+	esetup.py install --root="${root}" "${args[@]}"
 
 	if [[ -d ${root}$(python_get_sitedir)/tests ]]; then
 		die "Package installs 'tests' package, file collisions likely."
 	fi
 	if [[ -d ${root}/usr/$(get_libdir)/pypy/share ]]; then
-		die "Package installs 'share' in PyPy prefix, see bug #465546."
+		eqawarn "Package installs 'share' in PyPy prefix, see bug #465546."
 	fi
 
 	if [[ ! ${DISTUTILS_SINGLE_IMPL} ]]; then

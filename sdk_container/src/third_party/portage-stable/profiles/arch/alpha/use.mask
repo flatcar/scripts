@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License, v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/alpha/use.mask,v 1.91 2014/07/20 14:08:12 klausman Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/alpha/use.mask,v 1.92 2014/10/18 18:13:15 vapier Exp $
 
 # Unmask the flag which corresponds to ARCH.
 -alpha
@@ -235,3 +235,6 @@ unwind
 # Mask redis USE flag everywhere since redis depends on google-perftools,
 # which are not supported on Alpha at all (assembly).
 redis
+
+# sys-libs/libseccomp has not been ported to this arch yet #524148
+seccomp

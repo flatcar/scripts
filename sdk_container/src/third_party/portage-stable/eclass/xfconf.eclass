@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/xfconf.eclass,v 1.46 2014/02/27 17:12:01 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/xfconf.eclass,v 1.47 2014/11/15 07:49:11 vapier Exp $
 
 # @ECLASS: xfconf.eclass
 # @MAINTAINER:
@@ -13,11 +13,15 @@
 # @DESCRIPTION:
 # Run eautoreconf instead of elibtoolize if the variable is set
 
+if [[ -n ${EAUTORECONF} ]] ; then
+	AUTOTOOLS_AUTO_DEPEND=yes
+else
+	: ${AUTOTOOLS_AUTO_DEPEND:=no}
+fi
+
 # @ECLASS-VARIABLE: XFCONF
 # @DESCRIPTION:
 # This should be an array defining arguments for econf
-
-AUTOTOOLS_AUTO_DEPEND=no
 
 unset _xfconf_live
 [[ $PV == *9999* ]] && _xfconf_live=git-2
@@ -28,7 +32,7 @@ EGIT_BOOTSTRAP=autogen.sh
 EGIT_REPO_URI="git://git.xfce.org/xfce/${MY_PN:-${PN}}"
 
 _xfconf_deps=""
-_xfconf_m4=">=dev-util/xfce4-dev-tools-4.10 ${AUTOTOOLS_DEPEND}"
+_xfconf_m4=">=dev-util/xfce4-dev-tools-4.10"
 
 [[ -n $_xfconf_live ]] && _xfconf_deps+=" dev-util/gtk-doc ${_xfconf_m4}"
 [[ -n $EAUTORECONF ]] && _xfconf_deps+=" ${_xfconf_m4}"

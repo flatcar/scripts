@@ -1,6 +1,34 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/arm/package.mask,v 1.32 2014/01/03 03:22:03 creffett Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/arm/package.mask,v 1.33 2014/11/20 01:52:50 pesa Exp $
+
+# Davide Pesavento <pesa@gentoo.org> (20 Nov 2014)
+# Qt4 multilib ebuilds, masked until dev-qt/qtchooser
+# gets keyworded. See bug 529196.
+=dev-qt/assistant-4.8.6*
+=dev-qt/designer-4.8.6*
+=dev-qt/linguist-4.8.6*
+=dev-qt/pixeltool-4.8.6*
+=dev-qt/qdbusviewer-4.8.6*
+=dev-qt/qt3support-4.8.6*
+=dev-qt/qtbearer-4.8.6*
+=dev-qt/qtcore-4.8.6*
+=dev-qt/qtdbus-4.8.6*
+=dev-qt/qtdeclarative-4.8.6*
+=dev-qt/qtdemo-4.8.6*
+=dev-qt/qtgui-4.8.6*
+=dev-qt/qthelp-4.8.6*
+=dev-qt/qtmultimedia-4.8.6*
+=dev-qt/qtopengl-4.8.6*
+=dev-qt/qtopenvg-4.8.6*
+=dev-qt/qtphonon-4.8.6*
+=dev-qt/qtscript-4.8.6*
+=dev-qt/qtsql-4.8.6*
+=dev-qt/qtsvg-4.8.6*
+=dev-qt/qttest-4.8.6*
+=dev-qt/qttranslations-4.8.6*
+=dev-qt/qtwebkit-4.8.6*
+=dev-qt/qtxmlpatterns-4.8.6*
 
 # Zac Medico <zmedico@gentoo.org> (09 Aug 2011)
 # Bug #377907 - Use package.mask for compatibility with PMS section 5.2.7, and

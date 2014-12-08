@@ -1,12 +1,11 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain.eclass,v 1.635 2014/08/05 01:41:01 floppym Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain.eclass,v 1.647 2014/11/15 08:45:33 vapier Exp $
 
 # Maintainer: Toolchain Ninjas <toolchain@gentoo.org>
 
 DESCRIPTION="The GNU Compiler Collection"
 HOMEPAGE="http://gcc.gnu.org/"
-LICENSE="GPL-2 LGPL-2.1"
 RESTRICT="strip" # cross-compilers need controlled stripping
 
 inherit eutils fixheadtails flag-o-matic gnuconfig libtool multilib pax-utils toolchain-funcs versionator
@@ -77,17 +76,19 @@ GCCMICRO=$(get_version_component_range 3 ${GCC_PV})
 GCC_CONFIG_VER=${GCC_CONFIG_VER:-$(replace_version_separator 3 '-' ${GCC_PV})}
 
 # Pre-release support
-if [[ ${GCC_PV} != ${GCC_PV/_pre/-} ]] ; then
+if [[ ${GCC_PV} == *_pre* ]] ; then
 	PRERELEASE=${GCC_PV/_pre/-}
-fi
-
-# make _alpha and _beta ebuilds automatically use a snapshot
-if [[ ${GCC_PV} == *_alpha* ]] ; then
+elif [[ ${GCC_PV} == *_alpha* ]] ; then
 	SNAPSHOT=${GCC_BRANCH_VER}-${GCC_PV##*_alpha}
 elif [[ ${GCC_PV} == *_beta* ]] ; then
 	SNAPSHOT=${GCC_BRANCH_VER}-${GCC_PV##*_beta}
 elif [[ ${GCC_PV} == *_rc* ]] ; then
 	SNAPSHOT=${GCC_PV%_rc*}-RC-${GCC_PV##*_rc}
+fi
+
+if [[ ${SNAPSHOT} == 5.0-* ]] ; then
+	# The gcc-5 release has dropped the .0 for some reason.
+	SNAPSHOT=${SNAPSHOT/5.0/5}
 fi
 
 export GCC_FILESDIR=${GCC_FILESDIR:-${FILESDIR}}
@@ -113,14 +114,28 @@ DATAPATH=${TOOLCHAIN_DATAPATH:-${PREFIX}/share/gcc-data/${CTARGET}/${GCC_CONFIG_
 # We will handle /usr/include/g++-v3/ with gcc-config ...
 STDCXX_INCDIR=${TOOLCHAIN_STDCXX_INCDIR:-${LIBPATH}/include/g++-v${GCC_BRANCH_VER/\.*/}}
 
-#---->> SLOT+IUSE logic <<----
+#---->> LICENSE+SLOT+IUSE logic <<----
+
+if tc_version_is_at_least 4.6 ; then
+	LICENSE="GPL-3+ LGPL-3+ || ( GPL-3+ libgcc libstdc++ gcc-runtime-library-exception-3.1 ) FDL-1.3+"
+elif tc_version_is_at_least 4.4 ; then
+	LICENSE="GPL-3+ LGPL-3+ || ( GPL-3+ libgcc libstdc++ gcc-runtime-library-exception-3.1 ) FDL-1.2+"
+elif tc_version_is_at_least 4.3 ; then
+	LICENSE="GPL-3+ LGPL-3+ || ( GPL-3+ libgcc libstdc++ ) FDL-1.2+"
+elif tc_version_is_at_least 4.2 ; then
+	LICENSE="GPL-3+ LGPL-2.1+ || ( GPL-3+ libgcc libstdc++ ) FDL-1.2+"
+elif tc_version_is_at_least 3.3 ; then
+	LICENSE="GPL-2+ LGPL-2.1+ FDL-1.2+"
+else
+	LICENSE="GPL-2+ LGPL-2.1+ FDL-1.1+"
+fi
 
 IUSE="multislot regression-test vanilla"
-IUSE_DEF="nls nptl"
+IUSE_DEF=( nls nptl )
 
 if [[ ${PN} != "kgcc64" && ${PN} != gcc-* ]] ; then
 	IUSE+=" altivec"
-	IUSE_DEF+=" cxx fortran"
+	IUSE_DEF+=( cxx fortran )
 	[[ -n ${PIE_VER} ]] && IUSE+=" nopie"
 	[[ -n ${HTB_VER} ]] && IUSE+=" boundschecking"
 	[[ -n ${D_VER}   ]] && IUSE+=" d"
@@ -129,14 +144,15 @@ if [[ ${PN} != "kgcc64" && ${PN} != gcc-* ]] ; then
 	tc_version_is_at_least 4.0 && IUSE+=" objc-gc"
 	tc_version_is_between 4.0 4.9 && IUSE+=" mudflap"
 	tc_version_is_at_least 4.1 && IUSE+=" libssp objc++"
-	tc_version_is_at_least 4.2 && IUSE_DEF+=" openmp"
+	tc_version_is_at_least 4.2 && IUSE_DEF+=( openmp )
 	tc_version_is_at_least 4.3 && IUSE+=" fixed-point"
 	tc_version_is_at_least 4.6 && IUSE+=" graphite"
 	tc_version_is_at_least 4.7 && IUSE+=" go"
+	tc_version_is_at_least 4.8 && IUSE_DEF+=( sanitize )
 fi
 
-[[ ${EAPI:-0} != 0 ]] && IUSE_DEF="+${IUSE_DEF// / +}"
-IUSE+=" ${IUSE_DEF}"
+[[ ${EAPI:-0} != 0 ]] && IUSE_DEF=( "${IUSE_DEF[@]/#/+}" )
+IUSE+=" ${IUSE_DEF[*]}"
 
 # Support upgrade paths here or people get pissed
 if use multislot ; then
@@ -298,11 +314,14 @@ get_gcc_src_uri() {
 
 	# Set where to download gcc itself depending on whether we're using a
 	# prerelease, snapshot, or release tarball.
-	if [[ -n ${PRERELEASE} ]] ; then
+	if [[ ${PV} == *9999* ]] ; then
+		# Nothing to do w/git snapshots.
+		:
+	elif [[ -n ${PRERELEASE} ]] ; then
 		GCC_SRC_URI="ftp://gcc.gnu.org/pub/gcc/prerelease-${PRERELEASE}/gcc-${PRERELEASE}.tar.bz2"
 	elif [[ -n ${SNAPSHOT} ]] ; then
 		GCC_SRC_URI="ftp://gcc.gnu.org/pub/gcc/snapshots/${SNAPSHOT}/gcc-${SNAPSHOT}.tar.bz2"
-	elif [[ ${PV} != *9999* ]] ; then
+	else
 		GCC_SRC_URI="mirror://gnu/gcc/gcc-${GCC_PV}/gcc-${GCC_RELEASE_VER}.tar.bz2"
 		# we want all branch updates to be against the main release
 		[[ -n ${BRANCH_UPDATE} ]] && \
@@ -891,6 +910,16 @@ toolchain_src_configure() {
 		confgcc+=( --enable-libstdcxx-time )
 	fi
 
+	# # Turn on the -Wl,--build-id flag by default for ELF targets. #525942
+	# # This helps with locating debug files.
+	# case ${CTARGET} in
+	# *-linux-*|*-elf|*-eabi)
+	# 	tc_version_is_at_least 4.5 && confgcc+=(
+	# 		--enable-linker-build-id
+	# 	)
+	# 	;;
+	# esac
+
 	# newer gcc versions like to bootstrap themselves with C++,
 	# so we need to manually disable it ourselves
 	if tc_version_is_between 4.7 4.8 && ! is_cxx ; then
@@ -1011,9 +1040,9 @@ toolchain_src_configure() {
 	*)
 		# If they've explicitly opt-ed in, do hardfloat,
 		# otherwise let the gcc default kick in.
-		[[ ${CTARGET//_/-} == *-hardfloat-* ]] \
-			&& confgcc+=( --with-float=hard )
-		;;
+		case ${CTARGET//_/-} in
+		*-hardfloat-*|*eabihf) confgcc+=( --with-float=hard ) ;;
+		esac
 	esac
 
 	local with_abi_map=()
@@ -1168,6 +1197,10 @@ toolchain_src_configure() {
 	elif tc_version_is_at_least 4.4 ; then
 		confgcc+=( --without-cloog )
 		confgcc+=( --without-ppl )
+	fi
+
+	if tc_version_is_at_least 4.8 ; then
+		confgcc+=( $(use_enable sanitize libsanitizer) )
 	fi
 
 	# Disable gcc info regeneration -- it ships with generated info pages
@@ -1938,6 +1971,12 @@ toolchain_pkg_postinst() {
 	if use regression-test ; then
 		elog "Testsuite results have been installed into /usr/share/doc/${PF}/testsuite"
 		echo
+	fi
+
+	if [[ -n ${PRERELEASE}${SNAPSHOT} ]] ; then
+		einfo "This GCC ebuild is provided for your convenience, and the use"
+		einfo "of this compiler is not supported by the Gentoo Developers."
+		einfo "Please report bugs to upstream at http://gcc.gnu.org/bugzilla/"
 	fi
 }
 

@@ -1,6 +1,12 @@
 # ChangeLog for the default/linux/sparc profile directory
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/sparc/ChangeLog,v 1.8 2014/07/24 09:06:10 grobian Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/sparc/ChangeLog,v 1.10 2014/11/17 11:47:00 armin76 Exp $
+
+  17 Nov 2014; Raúl Porcel <armin76@gentoo.org> 13.0/packages:
+  Remove sys-devel/kgcc64 since >=gcc-4.4 can compile 64bit kernels
+
+  21 Oct 2014; Mike Frysinger <vapier@gentoo.org> +package.use.mask:
+  Unmask sys-devel/gcc[sanitize] #504200.
 
   24 Jul 2014; Fabian Groffen <grobian@gentoo.org> 13.0/package.use.mask:
   mask USE=dmarc for mail-mta/exim, bug #489676

@@ -1,0 +1,16 @@
+# ChangeLog for the default/linux/uclibc profile directory
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/uclibc/ChangeLog,v 1.3 2014/11/20 02:07:15 pesa Exp $
+
+  20 Nov 2014; Davide Pesavento <pesa@gentoo.org> +arm/package.mask,
+  mips/package.mask, ppc/package.mask:
+  Move Qt 4.8.6 mask from global package.mask to arch profiles.
+
+  17 Oct 2014; Matthias Maier <tamiko@gentoo.org> +arm/package.use.mask,
+  mips/package.use.mask:
+  Add net-print/cups java due to missing keyword for virtual/jre
+
+  17 Aug 2014; Anthony G. Basile <blueness@gentoo.org> +mips/package.use,
+  ppc/package.mask:
+  USE=internal-glib for dev-util/pkgconfig on mips to avoid pull in glib
+

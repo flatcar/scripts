@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation.
+# Copyright 1999-2014 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License, v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/base/packages,v 1.66 2014/05/26 13:25:27 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/base/packages,v 1.67 2014/11/02 18:17:04 vapier Exp $
 
 # Gentoo Base Profile
 
@@ -51,7 +51,6 @@
 *sys-process/procps
 *sys-process/psmisc
 *sys-apps/sed
-*sys-apps/texinfo
 *sys-apps/which
 #*sys-devel/autoconf
 #*sys-devel/automake

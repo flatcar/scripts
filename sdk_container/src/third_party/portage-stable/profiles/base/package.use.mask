@@ -1,10 +1,89 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/base/package.use.mask,v 1.590 2014/08/09 19:07:27 grknight Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/base/package.use.mask,v 1.630 2014/11/30 15:57:20 mgorny Exp $
 
 # This file requires >=portage-2.1.1
 # New entries go on top.
-#
+
+# Michał Górny <mgorny@gentoo.org> (30 Nov 2014)
+# Not supported at the moment. DirectFB lacks multilib support,
+# and we have to decide if we want it.
+x11-libs/cairo directfb
+
+# Brian Evans <grknight@gentoo.org> (29 Nov 2014)
+# Strongly recommened by upstream to disable lzo and zlib due to memory leaks
+# https://github.com/groonga/groonga/issues/6 (Japanese)
+app-text/groonga lzo zlib
+
+# Christoph Junghans <ottxor@gentoo.org> (24 Nov 2014)
+# needs boost auto_index tool (bug #529066)
+>=sys-cluster/hpx-0.9.9 doc
+
+# Jeroen Roovers <jer@gentoo.org> (18 Nov 2014)
+# Requires dev-lang/lua-5.2 (bug #253269)
+net-analyzer/nmap system-lua
+
+# Patrick Lauer <patrick@gentoo.org> (17 Nov 2014)
+# libnsfb is temporarily broken, so mask useflag until things work
+=www-client/netsurf-3.2 fbcon
+
+# Patrick Lauer <patrick@gentoo.org> (08 Nov 2014)
+# razorqt has been masked for removal
+x11-misc/lightdm razor
+
+# Mike Frysinger <vapier@gentoo.org> (21 Oct 2014)
+# Most targets do not support ASAN/etc... #504200.
+sys-devel/gcc sanitize
+
+# Pacho Ramos <pacho@gentoo.org> (19 Oct 2014)
+# swfdec is masked for removal, bug #525834
+dev-libs/DirectFB swfdec
+
+# Tim Harder <radhermit@gentoo.org> (10 Oct 2014)
+# Masked since skype isn't stable
+net-im/bitlbee skype
+
+# Jauhien Piatlicki <jauhien@gentoo.org> (5 Oct 2014)
+# Masked because of bug 524390: privilege escalation
+# until upstream fixes this security issue.
+# Use at your own risk
+lxqt-base/lxqt-meta sddm
+
+# Sergey Popov <pinkbyte@gentoo.org> (01 Oct 2014)
+# Mask multislot USE flag for packages, where it breaks
+# metadata cache consistency.
+# See bugs #507808, #507810 and #507814
+sys-devel/autoconf	multislot
+sys-devel/binutils	multislot
+sys-devel/gcc		multislot
+
+# Michał Górny <mgorny@gentoo.org> (15 Sep 2014)
+# Unsuccessful version bump of net-libs/libzrtpcpp, seems to cause
+# undefined references few layers deeper. Need further investigation,
+# if anybody cares.
+net-libs/ortp zrtp
+
+# Johannes Huber <johu@gentoo.org> (14 Sep 2014)
+# Masked until dev-libs/extra-cmake-modules is in tree.
+dev-libs/libattica qt5
+
+# Johannes Huber <johu@gentoo.org> (12 Sep 2014)
+# Masked until all dependencies are packaged.
+media-sound/tomahawk qt5
+
+# Michał Górny <mgorny@gentoo.org> (06 Sep 2014)
+# Mask the removed/deprecated flags for old ebuilds that do not use
+# the python-r1 eclass.
+sys-apps/portage python_targets_pypy2_0 python_targets_python2_6 python_targets_python3_2
+
+# Michał Górny <mgorny@gentoo.org> (06 Sep 2014)
+# (on behalf of Python team)
+# Keep 3.2 enabled to ease the migration.
+dev-lang/python-exec -python_targets_python3_2 -python_single_target_python3_2
+
+# Rick Farina <zerochaos@gentoo.org> (26 Aug 2014)
+# mirisdr does not seem to like making releases
+<net-wireless/gr-osmosdr-9999 mirisdr
 
 # Maxim Koltsov <maksbotan@gentoo.org> (05 Aug 2014)
 # net-libs/tox is in mva overlay only ATM
@@ -23,17 +102,9 @@ dev-db/percona-server embedded
 # Mask due bug #414903
 media-video/mplayer dxr3
 
-# Rick Farina <zerochaos@gentoo.org> (11 July 2014)
-# Mask ogdi use flag for sci-libs/gdal due to broken visibility rules
-sci-libs/gdal ogdi
-
 # Thomas Sachau <tommy@gentoo.org> (30 Jun 2014)
 # Mask pixman USE flag of dev-libs/efl for future removal, bug 501074
 dev-libs/efl pixman
-
-# Andreas K. Huettel <dilfridge@gentoo.org> (29 Jun 2014)
-# Mask use-flag firebird and package dev-db/firebird for bug 460780
-net-misc/stargazer module_store_firebird
 
 # Jeroen Roovers <jer@gentoo.org> (20 Jun 2014)
 # net-libs/adns is going away (bug #513982)
@@ -43,21 +114,9 @@ net-analyzer/wireshark libadns
 # Needs hardmasked lua-5.2
 www-servers/mongoose lua
 
-# Sergey Popov <pinkbyte@gentoo.org> (05 Jun 2014)
-# Mask multislot USE flag for packages, where it breaks
-# metadata cache consistency.
-# See bugs #507808, #507810 and #507814
-sys-devel/autoconf	multislot
-sys-devel/gcc		multislot
-
-# Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (05 Jun 2014)
-# Needs libepoxy keywording, bug #510940
-x11-base/xorg-server glamor
-
 # Manuel Rüger <mrueg@gentoo.org> (05 Jun 2014)
 # Fails to build with net-libs/libotr-4.0.0
 net-im/climm otr
-
 
 # Pacho Ramos <pacho@gentoo.org> (01 Jun 2014)
 # Needs hardmasked lua-5.2
@@ -83,12 +142,6 @@ dev-java/jboss-logging doc
 # http://mate-desktop.org/blog/2014-03-11-mate-desktop-singing-the-bluez
 mate-base/mate bluetooth
 mate-extra/mate-user-share bluetooth
-
-# Michał Górny <mgorny@gentoo.org> (26 Apr 2014)
-# (on behalf of Python team)
-# Keep 2.6 enabled to ease the migration.
-dev-lang/python-exec -python_targets_python2_6 -python_single_target_python2_6
-dev-python/python-exec -python_targets_python2_6 -python_single_target_python2_6
 
 # Tim Harder <radhermit@gentoo.org> (26 Apr 2014)
 # Masked until qt5 is in the tree
@@ -126,10 +179,6 @@ sys-infiniband/ofed ofed_drivers_ehca
 # Julian Ospald <hasufell@gentoo.org> (06 Apr 2014)
 # broken wrt #501582
 <net-misc/openvpn-9999 polarssl
-
-# Mike Gilbert <floppym@gentoo.org> (27 Mar 2014)
-# sys-libs/libseccomp is not keyworded on many archs.
-sys-apps/systemd seccomp
 
 # Ben de Groot <yngwin@gentoo.org> (21 Mar 2014)
 # harfbuzz multilib ebuild is still masked
@@ -173,8 +222,7 @@ dev-libs/boost context
 
 # Gilles Dartiguelongue <eva@gentoo.org> (25 Dec 2013)
 # gjs: tests fail and support for it was purely and simply removed in master/1.9
-# python2_6: unit tests fail for this abi, must report usptream
->=dev-libs/libpeas-1.9 gjs python_targets_python2_6
+>=dev-libs/libpeas-1.9 gjs
 
 # Gilles Dartiguelongue <eva@gentoo.org> (23 Dec 2013)
 # Gstreamer support fails to build due to libtool shortcomings when using
@@ -182,11 +230,6 @@ dev-libs/boost context
 # Since this is new and unused yet, keep it masked for now and check
 # with upstream if there is something that can be done to fix the issue.
 media-libs/cogl gstreamer
-
-# Johannes Huber <johu@gentoo.org> (18 Dec 2013)
-# net-libs/libotr-4.0.0 is masked. Please remove the use mask if package mask
-# is lifted.
->=kde-base/kopete-4.12.0 otr
 
 # Alexandre Rostovtsev <tetromino@gentoo.org> (15 Dec 2013)
 # pulseaudio patchset breaks too often on live wine ebuild
@@ -207,6 +250,7 @@ sci-physics/reduze berkdb
 # no real sandbox clients right now). Masked until the flag is
 # re-implemented or dropped. For more details, bug #429372.
 dev-python/pypy sandbox
+dev-python/pypy3 sandbox
 
 # Julian Ospald <hasufell@gentoo.org> (27 Oct 2013)
 # luajit is in ~arch, prepare for minetest stabilization
@@ -318,6 +362,7 @@ gnustep-apps/cynthiune flac
 # Richard Freeman <rich0@gentoo.org> (24 Mar 2013)
 # Dependency is masked for buffer overflows for now
 app-text/yagf cuneiform
+dev-python/pyocr cuneiform
 
 # Michael Weber <xmw@gentoo.org> (23 Mar 2013)
 # Does not build.
@@ -345,10 +390,6 @@ www-client/chromium system-sqlite
 # cuda only works on x86 and amd64
 sci-libs/cholmod cuda
 sci-libs/flann cuda
-
-# Agostino Sarubbo <ago@gentoo.org< (21 Feb 2013)
-# Mask vpx because requires new libvpx and is not ready to go to stable
->=media-plugins/gst-plugins-meta-1.0 vpx
 
 # Julian Ospald <hasufell@gentoo.org> (20 Feb 2013)
 # Unsupported and experimental.
@@ -491,10 +532,6 @@ media-sound/pulseaudio webrtc-aec xen
 <dev-cpp/gtkmm-3.7 wayland
 <x11-libs/gtk+-3.7 egl wayland
 
-# Tim Harder <radhermit@gentoo.org> (22 Mar 2012)
-# Masked since skype isn't stable
-net-im/bitlbee skype
-
 # Samuli Suominen <ssuominen@gentoo.org> (20 Mar 2012)
 # This is for udev-acl. Unmasked in default/linux/package.use.mask.
 sys-auth/consolekit acl
@@ -525,6 +562,7 @@ app-arch/libarchive e2fsprogs
 # it's masked here and unmasked in individual profiles (bug #396313).
 net-libs/webkit-gtk jit
 www-client/epiphany jit
+www-client/midori jit
 
 # Mike Frysinger <vapier@gentoo.org> (06 Dec 2011)
 # No one should be mucking with libssp unless they really know what they're
@@ -597,12 +635,6 @@ net-dns/pdnsd isdn urandom
 # Raúl Porcel <armin76@gentoo.org> (13 Feb 2011)
 # Masked until devs know how to use repoman
 <media-video/mplayer-9999 bluray
-
-# Robin H. Johnson <robbat2@gentoo.org> (28 Nov 2010)
-# bug 344885: USE=debug causes compile to fail presently.
-=dev-db/mysql-5.1.51* debug
-=dev-db/mysql-5.1.52* debug
-=dev-db/mysql-5.1.53* debug
 
 # Justin Lecher <jlec@gentoo.org> (17 Nov 2010)
 # Upstream didn't release patches for aria yet

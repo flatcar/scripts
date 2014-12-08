@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/distutils.eclass,v 1.84 2013/08/03 13:28:22 patrick Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/distutils.eclass,v 1.85 2014/11/20 15:32:09 mgorny Exp $
 
 # @ECLASS: distutils.eclass
 # @MAINTAINER:
@@ -8,6 +8,8 @@
 # @BLURB: Eclass for packages with build systems using Distutils
 # @DESCRIPTION:
 # The distutils eclass defines phase functions for packages with build systems using Distutils.
+#
+# This eclass is DEPRECATED. Please use distutils-r1 instead.
 
 if [[ -z "${_PYTHON_ECLASS_INHERITED}" ]]; then
 	inherit python

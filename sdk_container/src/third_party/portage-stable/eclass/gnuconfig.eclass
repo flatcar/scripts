@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/gnuconfig.eclass,v 1.35 2013/05/22 06:03:08 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/gnuconfig.eclass,v 1.36 2014/11/15 06:20:07 vapier Exp $
 #
 # THIS ECLASS IS DEAD: It has been integrated into portage
 #
@@ -88,10 +88,10 @@ gnuconfig_do_update() {
 # returns the directory where they can be found.
 gnuconfig_findnewest() {
 	local locations=(
-		/usr/share/misc/config.sub
-		/usr/share/gnuconfig/config.sub
-		/usr/share/automake*/config.sub
-		/usr/share/libtool/config.sub
+		"${EPREFIX}"/usr/share/misc/config.sub
+		"${EPREFIX}"/usr/share/gnuconfig/config.sub
+		"${EPREFIX}"/usr/share/automake*/config.sub
+		"${EPREFIX}"/usr/share/libtool/config.sub
 	)
 	grep -s '^timestamp' "${locations[@]}" | \
 		sort -r -n -t\' -k2 | \

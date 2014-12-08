@@ -1,6 +1,9 @@
 # ChangeLog for the default/linux/powerpc profile directory
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/powerpc/ChangeLog,v 1.9 2014/07/24 09:06:09 grobian Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/powerpc/ChangeLog,v 1.10 2014/10/21 12:13:34 vapier Exp $
+
+  21 Oct 2014; Mike Frysinger <vapier@gentoo.org> +package.use.mask:
+  Unmask sys-devel/gcc[sanitize] #504200.
 
   24 Jul 2014; Fabian Groffen <grobian@gentoo.org>
   +ppc32/13.0/package.use.mask, +ppc64/13.0/package.use.mask:

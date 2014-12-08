@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/python-utils-r1.eclass,v 1.60 2014/07/06 11:45:20 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/python-utils-r1.eclass,v 1.67 2014/11/29 23:03:42 mgorny Exp $
 
 # @ECLASS: python-utils-r1
 # @MAINTAINER:
@@ -41,8 +41,8 @@ inherit eutils multilib toolchain-funcs
 # All supported Python implementations, most preferred last.
 _PYTHON_ALL_IMPLS=(
 	jython2_5 jython2_7
-	pypy
-	python3_2 python3_3 python3_4
+	pypy pypy3
+	python3_3 python3_4
 	python2_7
 )
 
@@ -66,13 +66,13 @@ _python_impl_supported() {
 	# keep in sync with _PYTHON_ALL_IMPLS!
 	# (not using that list because inline patterns shall be faster)
 	case "${impl}" in
-		python2_7|python3_[234]|jython2_[57])
+		python2_7|python3_[34]|jython2_[57])
 			return 0
 			;;
-		pypy1_[89]|pypy2_0|python2_[56]|python3_1)
+		pypy1_[89]|pypy2_0|python2_[56]|python3_[12])
 			return 1
 			;;
-		pypy)
+		pypy|pypy3)
 			if [[ ${EAPI:-0} == [01234] ]]; then
 				die "PyPy is supported in EAPI 5 and newer only."
 			fi
@@ -235,13 +235,15 @@ python_export() {
 			impl=${1/_/.}
 			shift
 			;;
-		pypy)
+		pypy|pypy3)
 			impl=${1}
 			shift
 			;;
 		*)
 			impl=${EPYTHON}
-			[[ ${impl} ]] || die "python_export: no impl nor EPYTHON"
+			if [[ -z ${impl} ]]; then
+				die "python_export called without a python implementation and EPYTHON is unset"
+			fi
 			;;
 	esac
 	debug-print "${FUNCNAME}: implementation: ${impl}"
@@ -259,7 +261,7 @@ python_export() {
 			PYTHON_SITEDIR)
 				local dir
 				case "${impl}" in
-					python*|pypy)
+					python*|pypy|pypy3)
 						dir=/usr/$(get_libdir)/${impl}
 						;;
 					jython*)
@@ -276,7 +278,7 @@ python_export() {
 					python*)
 						dir=/usr/include/${impl}
 						;;
-					pypy)
+					pypy|pypy3)
 						dir=/usr/$(get_libdir)/${impl}/include
 						;;
 					*)
@@ -340,14 +342,14 @@ python_export() {
 				case ${impl} in
 					python2.7)
 						PYTHON_PKG_DEP='>=dev-lang/python-2.7.5-r2:2.7';;
-					python3.2)
-						PYTHON_PKG_DEP='>=dev-lang/python-3.2.5-r2:3.2';;
 					python3.3)
 						PYTHON_PKG_DEP='>=dev-lang/python-3.3.2-r2:3.3';;
 					python*)
 						PYTHON_PKG_DEP="dev-lang/python:${impl#python}";;
 					pypy)
 						PYTHON_PKG_DEP='virtual/pypy:0=';;
+					pypy3)
+						PYTHON_PKG_DEP='virtual/pypy3:0=';;
 					jython2.5)
 						PYTHON_PKG_DEP='>=dev-java/jython-2.5.3-r2:2.5';;
 					jython2.7)
@@ -912,7 +914,39 @@ python_is_python3() {
 	local impl=${1:-${EPYTHON}}
 	[[ ${impl} ]] || die "python_is_python3: no impl nor EPYTHON"
 
-	[[ ${impl} == python3* ]]
+	[[ ${impl} == python3* || ${impl} == pypy3 ]]
+}
+
+# @FUNCTION: python_is_installed
+# @USAGE: [<impl>]
+# @DESCRIPTION:
+# Check whether the interpreter for <impl> (or ${EPYTHON}) is installed.
+# Uses has_version with a proper dependency string.
+#
+# Returns 0 (true) if it is, 1 (false) otherwise.
+python_is_installed() {
+	local impl=${1:-${EPYTHON}}
+	[[ ${impl} ]] || die "${FUNCNAME}: no impl nor EPYTHON"
+
+	# for has_version
+	local -x ROOT=/
+	case "${impl}" in
+		pypy|pypy3)
+			local append=
+			if [[ ${PYTHON_REQ_USE} ]]; then
+				append=[${PYTHON_REQ_USE}]
+			fi
+
+			# be happy with just the interpeter, no need for the virtual
+			has_version "dev-python/${impl}${append}" \
+				|| has_version "dev-python/${impl}-bin${append}"
+			;;
+		*)
+			local PYTHON_PKG_DEP
+			python_export "${impl}" PYTHON_PKG_DEP
+			has_version "${PYTHON_PKG_DEP}"
+			;;
+	esac
 }
 
 # @FUNCTION: python_fix_shebang
@@ -960,13 +994,16 @@ python_fix_shebang() {
 			local shebang i
 			local error= from=
 
-			read shebang <"${f}"
+			IFS= read -r shebang <${f}
 
 			# First, check if it's shebang at all...
 			if [[ ${shebang} == '#!'* ]]; then
+				local split_shebang=()
+				read -r -a split_shebang <<<${shebang}
+
 				# Match left-to-right in a loop, to avoid matching random
 				# repetitions like 'python2.7 python2'.
-				for i in ${shebang}; do
+				for i in "${split_shebang[@]}"; do
 					case "${i}" in
 						*"${EPYTHON}")
 							debug-print "${FUNCNAME}: in file ${f#${D}}"
@@ -996,7 +1033,7 @@ python_fix_shebang() {
 							fi
 							break
 							;;
-						*python[23].[0123456789]|*pypy|*jython[23].[0123456789])
+						*python[23].[0123456789]|*pypy|*pypy3|*jython[23].[0123456789])
 							# Explicit mismatch.
 							if [[ ! ${force} ]]; then
 								error=1
@@ -1006,6 +1043,8 @@ python_fix_shebang() {
 										from="python[23].[0123456789]";;
 									*pypy)
 										from="pypy";;
+									*pypy3)
+										from="pypy3";;
 									*jython[23].[0123456789])
 										from="jython[23].[0123456789]";;
 									*)

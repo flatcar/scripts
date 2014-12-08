@@ -159,3 +159,6 @@ opencl
 
 # Unmask once sys-libs/libunwind gets ported & keyworded.
 unwind
+
+# sys-libs/libseccomp has not been ported to this arch yet #524148
+seccomp

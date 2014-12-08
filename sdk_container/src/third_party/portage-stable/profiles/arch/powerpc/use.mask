@@ -1,6 +1,10 @@
 # PPC Specific use flags
 #
 
+# Anthony G. Basile <blueness@gentoo.org> (30 Sep 2014)
+# sys-libs/libseccomp has not been ported to ppc/ppc64, bug #524148
+seccomp
+
 # Anthony G. Basile <blueness@gentoo.org> (10 Jul 2014)
 # codec support x264, bug #516856
 -x264

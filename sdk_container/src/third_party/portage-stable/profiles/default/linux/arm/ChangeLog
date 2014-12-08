@@ -1,6 +1,9 @@
 # ChangeLog for the default/linux/arm profile directory
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/arm/ChangeLog,v 1.9 2014/04/05 21:58:23 dilfridge Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/arm/ChangeLog,v 1.10 2014/10/21 12:13:27 vapier Exp $
+
+  21 Oct 2014; Mike Frysinger <vapier@gentoo.org> +package.use.mask:
+  Unmask sys-devel/gcc[sanitize] #504200.
 
   05 Apr 2014; Andreas K. Huettel <dilfridge@gentoo.org>
   -13.0/package.use.stable.mask:

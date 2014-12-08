@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/desc/gpsd_protocols.desc,v 1.3 2013/11/23 04:26:30 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/desc/gpsd_protocols.desc,v 1.4 2014/10/30 21:15:54 vapier Exp $
 
 # This file contains descriptions of possible protocols for gpsd package.
 # Keep it sorted. :)
@@ -20,6 +20,7 @@ itrax - iTrax protocol support
 mtk3301 - MTK-3301 protocol support
 navcom - Navcom protocol support
 nmea - NMEA protocol support
+nmea0183 - NMEA protocol support
 nmea2000 - NMEA2000/CAN support
 ntrip - NTRIP protocol support
 oceanserver - OceanServer protocol support

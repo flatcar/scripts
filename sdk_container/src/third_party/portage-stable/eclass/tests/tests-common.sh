@@ -5,11 +5,21 @@ if ! source /etc/init.d/functions.sh ; then
 	exit 1
 fi
 
+# Let overlays override this so they can add their own testsuites.
+TESTS_ECLASS_SEARCH_PATHS=( .. )
+
 inherit() {
-	local e
+	local e path
 	for e in "$@" ; do
-		source ../${e}.eclass
+		for path in "${TESTS_ECLASS_SEARCH_PATHS[@]}" ; do
+			local eclass=${path}/${e}.eclass
+			if [[ -e "${eclass}" ]] ; then
+				source "${eclass}"
+				return 0
+			fi
+		done
 	done
+	die "could not find ${eclass}"
 }
 EXPORT_FUNCTIONS() { :; }
 

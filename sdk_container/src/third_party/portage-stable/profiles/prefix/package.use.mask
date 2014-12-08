@@ -1,6 +1,10 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/package.use.mask,v 1.22 2014/01/18 02:01:21 redlizard Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/package.use.mask,v 1.23 2014/11/29 13:08:08 zlogene Exp $
+
+# Mikle Kolyada <zlogene@gentoo.org> (29 Nov 2014)
+# Masked because of lack of manpower/time (bug #497068)
+dev-vcs/git mediawiki
 
 # Michael Haubenwallner <haubi@gentoo.org> (17 Sep 2010)
 # sys-apps/keyutils is a linux only package

@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/oasis.eclass,v 1.4 2013/02/07 13:42:12 aballier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/oasis.eclass,v 1.5 2014/10/29 14:21:52 aballier Exp $
 
 # @ECLASS: oasis.eclass
 # @MAINTAINER: 
@@ -77,7 +77,7 @@ oasis_src_configure() {
 	local confargs=""
 	[ -n "${OASIS_BUILD_TESTS}" ] && confargs="${confargs} $(use_enable test tests)"
 	[ -n "${OASIS_NO_DEBUG}"    ] || confargs="${confargs} $(oasis_use_enable debug debug)"
-	ocaml setup.ml -configure \
+	${OASIS_SETUP_COMMAND:-ocaml setup.ml} -configure \
 		--prefix "${EPREFIX}/usr" \
 		--libdir "${EPREFIX}/usr/$(get_libdir)" \
 		--docdir "${EPREFIX}/usr/share/doc/${PF}/html" \
@@ -94,7 +94,7 @@ oasis_src_configure() {
 # Will build documentation if OASIS_BUILD_DOCS is defined and the doc useflag is
 # enabled. 
 oasis_src_compile() {
-	ocaml setup.ml -build || die
+	${OASIS_SETUP_COMMAND:-ocaml setup.ml} -build || die
 	if [ -n "${OASIS_BUILD_DOCS}" ] && use doc; then
 		ocaml setup.ml -doc || die
 	fi
@@ -104,7 +104,7 @@ oasis_src_compile() {
 # @DESCRIPTION:
 # Runs the testsuite of an oasis-based package.
 oasis_src_test() {
-	 LD_LIBRARY_PATH="${S}/_build/lib" ocaml setup.ml -test || die
+	 LD_LIBRARY_PATH="${S}/_build/lib" ${OASIS_SETUP_COMMAND:-ocaml setup.ml} -test || die
 }
 
 # @FUNCTION: oasis_src_install
@@ -114,7 +114,7 @@ oasis_src_test() {
 # DOCS variable.
 oasis_src_install() {
 	findlib_src_preinst
-	ocaml setup.ml -install || die
+	${OASIS_SETUP_COMMAND:-ocaml setup.ml} -install || die
 	base_src_install_docs
 }
 

@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/qmake-utils.eclass,v 1.3 2014/07/28 21:19:52 pesa Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/qmake-utils.eclass,v 1.5 2014/11/17 02:15:42 pesa Exp $
 
 # @ECLASS: qmake-utils.eclass
 # @MAINTAINER:
@@ -158,10 +158,12 @@ eqmake4() {
 
 	[[ -n ${EQMAKE4_EXCLUDE} ]] && eshopts_pop
 
-	"${EPREFIX}"/usr/bin/qmake \
+	# determine qmake binary location
+	local qmake_path=${EPREFIX}/usr/$(get_libdir)/qt4/bin/qmake
+	[[ ! -x ${qmake_path} ]] && qmake_path=${EPREFIX}/usr/bin/qmake
+
+	"${qmake_path}" \
 		-makefile \
-		QTDIR="${EPREFIX}"/usr/$(get_libdir) \
-		QMAKE="${EPREFIX}"/usr/bin/qmake \
 		QMAKE_AR="$(tc-getAR) cqs" \
 		QMAKE_CC="$(tc-getCC)" \
 		QMAKE_CXX="$(tc-getCXX)" \

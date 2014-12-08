@@ -1,6 +1,37 @@
 # ChangeLog for Gentoo/hppa profile
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/hppa/ChangeLog,v 1.220 2014/08/13 12:25:16 jer Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/hppa/ChangeLog,v 1.230 2014/11/29 12:46:49 jer Exp $
+
+  29 Nov 2014; Jeroen Roovers <jer@gentoo.org> package.use.mask:
+  Mask USE=dnstap for net-dns/unbound (bug #531068).
+
+  07 Nov 2014; Jeroen Roovers <jer@gentoo.org> use.mask:
+  Mask USE=luajit.
+
+  22 Oct 2014; Jeroen Roovers <jer@gentoo.org> package.use.mask:
+  Mask USE=test for dev-python/urllib3.
+
+  19 Oct 2014; Jeroen Roovers <jer@gentoo.org> use.mask:
+  sys-devel/gcc says USE=sanitize has not been ported to HPPA (bug #504200).
+
+  19 Oct 2014; Jeroen Roovers <jer@gentoo.org> package.use.mask:
+  Mask test deps for dev-python/wsgiproxy2.
+
+  13 Oct 2014; Jeroen Roovers <jer@gentoo.org> package.use.mask:
+  Mask USE=test for dev-python/pymongo (bug #525246).
+
+  30 Sep 2014; Jeroen Roovers <jer@gentoo.org> use.mask:
+  Mask USE=seccomp (bug #524148).
+
+  19 Sep 2014; Jeroen Roovers <jer@gentoo.org> use.mask:
+  Mask USE=gadu (>=net-libs/libgadu-1.12.0 (bug #519854) requires
+  dev-libs/protobuf-c (bug #519772)).
+
+  17 Aug 2014; Jeroen Roovers <jer@gentoo.org> package.use.mask:
+  Remove USE=javascript mask for www-client/elinks.
+
+  17 Aug 2014; Jeroen Roovers <jer@gentoo.org> package.use.mask:
+  Unmask USE=gtk for sys-auth/polkit (bug #517804).
 
   13 Aug 2014; Jeroen Roovers <jer@gentoo.org> use.mask:
   Remove USE flag masks which require CONFIG_AUDITSYSCALL (bug #517804).

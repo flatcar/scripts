@@ -1,0 +1,7 @@
+# Copyright 1999-2014 Gentoo Foundation.
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/musl/mips/package.mask,v 1.1 2014/08/21 00:54:03 blueness Exp $
+
+>app-misc/pax-utils-0.7
+dev-util/pkgconfig
+>sys-apps/kbd-1.15.5-r99

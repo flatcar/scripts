@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/qt4-r2.eclass,v 1.30 2014/06/23 08:53:48 pinkbyte Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/qt4-r2.eclass,v 1.31 2014/11/01 23:48:16 pesa Exp $
 
 # @ECLASS: qt4-r2.eclass
 # @MAINTAINER:
@@ -69,10 +69,10 @@ unset x
 #
 # Example:
 # @CODE
-#   PATCHES=(
-#       "${FILESDIR}/mypatch.patch"
-#       "${FILESDIR}/mypatch2.patch"
-#   )
+# PATCHES=(
+# 	"${FILESDIR}/mypatch.patch"
+# 	"${FILESDIR}/mypatch2.patch"
+# )
 # @CODE
 
 # @FUNCTION: qt4-r2_src_unpack

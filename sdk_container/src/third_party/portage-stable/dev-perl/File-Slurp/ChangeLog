@@ -1,6 +1,29 @@
 # ChangeLog for dev-perl/File-Slurp
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-perl/File-Slurp/ChangeLog,v 1.61 2013/09/04 07:26:35 ago Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-perl/File-Slurp/ChangeLog,v 1.67 2014/08/21 17:20:34 axs Exp $
+
+*File-Slurp-9999.190.0-r1 (21 Aug 2014)
+
+  21 Aug 2014; Ian Stakenvicius (_AxS_) <axs@gentoo.org>
+  +File-Slurp-9999.190.0-r1.ebuild, -File-Slurp-9999.190.0.ebuild:
+  bumped EAPI to 5; committed directly to stable as no other changes present and
+  revbump helps stable systems to keep from dieing on perl-5.18 upgrade
+
+  09 Jun 2014; Mike Frysinger <vapier@gentoo.org> File-Slurp-9999.190.0.ebuild:
+  Add arm64 love.
+
+  10 Mar 2014; Mikle Kolyada <zlogene@gentoo.org> -File-Slurp-9999.13.ebuild:
+  Remove version with old EAPI
+
+  23 Feb 2014; Naohiro Aota <naota@gentoo.org> File-Slurp-9999.190.0.ebuild:
+  Add ~x86-fbsd wrt bug #501346
+
+  12 Oct 2013; Alexis Ballier <aballier@gentoo.org>
+  File-Slurp-9999.190.0.ebuild:
+  keyword ~amd64-fbsd, bug #485002
+
+  05 Sep 2013; Mike Frysinger <vapier@gentoo.org> File-Slurp-9999.190.0.ebuild:
+  Mark ppc64/s390/sh/x86 stable #455834.
 
   04 Sep 2013; Agostino Sarubbo <ago@gentoo.org> File-Slurp-9999.190.0.ebuild:
   Stable for ppc, wrt bug #455834

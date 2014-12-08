@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-vcs/git/git-2.0.4.ebuild,v 1.1 2014/08/02 00:20:15 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-vcs/git/git-2.0.4.ebuild,v 1.13 2014/11/16 22:54:52 dilfridge Exp $
 
 EAPI=5
 
@@ -33,10 +33,10 @@ if [[ ${PV} != *9999 ]]; then
 			${SRC_URI_KORG}/${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 			${SRC_URI_GOOG}/${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 			)"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 else
 	SRC_URI=""
-	KEYWORDS=""
+	KEYWORDS="alpha amd64 arm hppa ia64 ppc ppc64 sparc x86"
 fi
 
 LICENSE="GPL-2"
@@ -67,7 +67,7 @@ RDEPEND="${CDEPEND}
 			dev-perl/Net-SMTP-SSL
 			dev-perl/Authen-SASL
 			cgi? ( virtual/perl-CGI highlight? ( app-text/highlight ) )
-			cvs? ( >=dev-vcs/cvsps-2.1 dev-perl/DBI dev-perl/DBD-SQLite )
+			cvs? ( >=dev-vcs/cvsps-2.1:0 dev-perl/DBI dev-perl/DBD-SQLite )
 			subversion? ( dev-vcs/subversion[-dso,perl] dev-perl/libwww-perl dev-perl/TermReadKey )
 			)
 	python? ( gtk?
@@ -451,13 +451,6 @@ src_install() {
 		cd "${S}"
 	fi
 
-	# remote-helpers
-	if use python ; then
-		python_scriptinto /usr/libexec/git-core/
-		python_doscript "${S}"/contrib/remote-helpers/git-remote-{bzr,hg}
-		python_optimize
-	fi
-
 	dodir /usr/share/${PN}/contrib
 	# The following are excluded:
 	# completion - installed above
@@ -522,7 +515,7 @@ src_install() {
 		systemd_dounit "${FILESDIR}/git-daemon.socket"
 	fi
 
-	fixlocalpod
+	perl_delete_localpod
 }
 
 src_test() {

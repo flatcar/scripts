@@ -1,0 +1,14 @@
+DEFINED_PHASES=compile configure install prepare test
+DEPEND=sys-apps/attr dev-python/setuptools[python_targets_python2_7(-)?,python_targets_python3_3(-)?,python_targets_python3_4(-)?,python_targets_pypy(-)?,-python_single_target_python2_7(-),-python_single_target_python3_3(-),-python_single_target_python3_4(-),-python_single_target_pypy(-)] doc? ( dev-python/sphinx[python_targets_python2_7(-)?,python_targets_python3_3(-)?,python_targets_python3_4(-)?,python_targets_pypy(-)?,-python_single_target_python2_7(-),-python_single_target_python3_3(-),-python_single_target_python3_4(-),-python_single_target_pypy(-)] ) test? ( dev-python/nose[python_targets_python2_7(-)?,python_targets_python3_3(-)?,python_targets_python3_4(-)?,python_targets_pypy(-)?,-python_single_target_python2_7(-),-python_single_target_python3_3(-),-python_single_target_python3_4(-),-python_single_target_pypy(-)] ) python_targets_python2_7? ( >=dev-lang/python-2.7.5-r2:2.7 ) python_targets_python3_3? ( >=dev-lang/python-3.3.2-r2:3.3 ) python_targets_python3_4? ( dev-lang/python:3.4 ) python_targets_pypy? ( virtual/pypy:0= ) dev-lang/python-exec:=[python_targets_python2_7(-)?,python_targets_python3_3(-)?,python_targets_python3_4(-)?,python_targets_pypy(-)?,-python_single_target_python2_7(-),-python_single_target_python3_3(-),-python_single_target_python3_4(-),-python_single_target_pypy(-)]
+DESCRIPTION=Python interface to xattr
+EAPI=5
+HOMEPAGE=http://pyxattr.k1024.org/
+IUSE=doc test python_targets_python2_7 python_targets_python3_3 python_targets_python3_4 python_targets_pypy
+KEYWORDS=~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-linux ~arm-linux ~x86-linux
+LICENSE=LGPL-2.1
+RDEPEND=sys-apps/attr python_targets_python2_7? ( >=dev-lang/python-2.7.5-r2:2.7 ) python_targets_python3_3? ( >=dev-lang/python-3.3.2-r2:3.3 ) python_targets_python3_4? ( dev-lang/python:3.4 ) python_targets_pypy? ( virtual/pypy:0= ) dev-lang/python-exec:=[python_targets_python2_7(-)?,python_targets_python3_3(-)?,python_targets_python3_4(-)?,python_targets_pypy(-)?,-python_single_target_python2_7(-),-python_single_target_python3_3(-),-python_single_target_python3_4(-),-python_single_target_pypy(-)]
+REQUIRED_USE=|| ( python_targets_python2_7 python_targets_python3_3 python_targets_python3_4 python_targets_pypy )
+SLOT=0
+SRC_URI=mirror://pypi/p/pyxattr/pyxattr-0.5.3.tar.gz http://pyxattr.k1024.org/downloads/pyxattr-0.5.3.tar.gz
+_eclasses_=distutils-r1	b3dd8b90e41a1570ee3117a7c1adb598	eutils	6faef4c127028ccbba3a11400d24ae34	multibuild	ddc59d206214ef1c240093e1bb2513cf	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	multiprocessing	d7f2985a2c76c365ee20269db5261414	python-r1	b63f5ef61876823ab0bd05d867697d75	python-utils-r1	d5328656d500f65898a5f51634722f61	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
+_md5_=834ffede12802aa5df41a4c0c92cff18

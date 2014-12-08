@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86/package.use.stable.mask,v 1.4 2014/06/29 16:32:35 dilfridge Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86/package.use.stable.mask,v 1.9 2014/11/15 21:23:39 floppym Exp $
 
 # When you add an entry to the top of this file, add your name, the date, and
 # an explanation of why something is getting masked. Please be extremely
@@ -18,6 +18,10 @@
 
 #--- END OF EXAMPLES ---
 
+# Tim Harder <radhermit@gentoo.org> (11 Oct 2014)
+# Masked since skype isn't stable
+net-im/bitlbee skype
+
 # Andreas K. Huettel <dilfridge@gentoo.org> (29 Jun 2014)
 # Not yet stabilized dependencies blocking sec bug 514886
 # we need to repeat this here likely because of the use.mask entry
@@ -28,8 +32,8 @@ app-office/libreoffice firebird
 # impl there anyway. Please keep this in sync with use.stable.mask.
 dev-lang/python-exec -python_targets_pypy
 dev-lang/python-exec -python_single_target_pypy
-dev-python/python-exec -python_targets_pypy
-dev-python/python-exec -python_single_target_pypy
+dev-lang/python-exec -python_targets_pypy3
+dev-lang/python-exec -python_single_target_pypy3
 
 # Tom Wijsman <TomWij@gentoo.org (16 Mar 2014)
 # Mask unstable USE flags on media-video/vlc, see security bug #499806.

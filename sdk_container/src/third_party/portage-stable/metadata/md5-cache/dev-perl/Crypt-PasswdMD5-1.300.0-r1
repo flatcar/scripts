@@ -1,0 +1,12 @@
+DEFINED_PHASES=compile configure install prepare test unpack
+DEPEND=dev-lang/perl:=[-build(-)]
+DESCRIPTION=Provides interoperable MD5-based crypt() functions
+EAPI=5
+HOMEPAGE=http://search.cpan.org/dist/Crypt-PasswdMD5/
+KEYWORDS=amd64 ~arm ~mips ~ppc ~ppc64 ~sparc x86
+LICENSE=|| ( Artistic GPL-1+ ) BEER-WARE
+RDEPEND=dev-lang/perl:=[-build(-)]
+SLOT=0
+SRC_URI=mirror://cpan/authors/id/L/LU/LUISMUNOZ/Crypt-PasswdMD5-1.3.tar.gz
+_eclasses_=eutils	6faef4c127028ccbba3a11400d24ae34	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	multiprocessing	d7f2985a2c76c365ee20269db5261414	perl-module	28ca2b834dd6b64c9179af421c4d763e	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac	unpacker	f300a7ca9131b1024a79762e8edd3c52
+_md5_=209a5f685f36bb258172c84babcf9106

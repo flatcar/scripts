@@ -1,2 +1,0 @@
-#Fails to find openssl headers, bug #517160
-net-misc/openssh

@@ -1,6 +1,88 @@
 # ChangeLog for dev-perl/URI
-# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-perl/URI/ChangeLog,v 1.87 2011/07/30 10:45:59 tove Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-perl/URI/ChangeLog,v 1.112 2014/09/05 15:28:35 zlogene Exp $
+
+  05 Sep 2014; Mikle Kolyada <zlogene@gentoo.org> -URI-1.600.0.ebuild:
+  Drop old.
+
+*URI-1.600.0-r1 (26 Jul 2014)
+
+  26 Jul 2014; Andreas K. Huettel <dilfridge@gentoo.org> +URI-1.600.0-r1.ebuild:
+  EAPI bump
+
+  20 Jan 2014; Mike Frysinger <vapier@gentoo.org> URI-1.600.0.ebuild:
+  Add arm64 love.
+
+  20 Jan 2014; Mike Frysinger <vapier@gentoo.org> URI-1.600.0.ebuild:
+  Add arm64 love.
+
+  19 Feb 2013; Zac Medico <zmedico@gentoo.org> URI-1.600.0.ebuild:
+  Add ~arm-linux keyword.
+
+  02 Sep 2012; Torsten Veller <tove@gentoo.org> -URI-1.55.ebuild,
+  -URI-1.590.0.ebuild:
+  Cleanup
+
+  27 Aug 2012; Raúl Porcel <armin76@gentoo.org> URI-1.600.0.ebuild:
+  alpha/ia64/s390/sh/sparc stable wrt #418861
+
+  09 Aug 2012; Brent Baude <ranger@gentoo.org> URI-1.600.0.ebuild:
+  Marking URI-1.600.0 ppc for bug 418861
+
+  07 Aug 2012; Brent Baude <ranger@gentoo.org> URI-1.600.0.ebuild:
+  Marking URI-1.600.0 ppc64 for bug 418861
+
+  05 Aug 2012; Markus Meier <maekke@gentoo.org> URI-1.600.0.ebuild:
+  arm stable, bug #418861
+
+  04 Aug 2012; Jeroen Roovers <jer@gentoo.org> URI-1.600.0.ebuild:
+  Stable for HPPA (bug #418861).
+
+  03 Aug 2012; Agostino Sarubbo <ago@gentoo.org> URI-1.600.0.ebuild:
+  Stable for amd64, wrt bug #418861
+
+  02 Aug 2012; Jeff Horelick <jdhore@gentoo.org> URI-1.600.0.ebuild:
+  marked x86 per bug 418861
+
+  24 Jun 2012; Torsten Veller <tove@gentoo.org> metadata.xml:
+  Update CPAN upstream info
+
+  05 May 2012; Alexis Ballier <aballier@gentoo.org> URI-1.600.0.ebuild:
+  keyword ~amd64-fbsd
+
+*URI-1.600.0 (29 Mar 2012)
+
+  29 Mar 2012; Torsten Veller <tove@gentoo.org> +URI-1.600.0.ebuild:
+  Version bump
+
+  25 Mar 2012; Raúl Porcel <armin76@gentoo.org> URI-1.590.0.ebuild:
+  alpha/ia64/s390/sh/sparc stable wrt #400253
+
+  09 Mar 2012; Pawel Hajdan jr <phajdan.jr@gentoo.org> URI-1.590.0.ebuild:
+  x86 stable wrt bug #400253
+
+  03 Mar 2012; Brent Baude <ranger@gentoo.org> URI-1.590.0.ebuild:
+  Marking URI-1.590.0 ppc64 for bug 400253
+
+  02 Mar 2012; Markus Meier <maekke@gentoo.org> URI-1.590.0.ebuild:
+  arm stable, bug #400253
+
+  27 Feb 2012; Brent Baude <ranger@gentoo.org> URI-1.590.0.ebuild:
+  Marking URI-1.590.0 ppc for bug 400253
+
+  24 Feb 2012; Jeroen Roovers <jer@gentoo.org> URI-1.590.0.ebuild:
+  Stable for HPPA (bug #400253).
+
+  24 Feb 2012; Agostino Sarubbo <ago@gentoo.org> URI-1.590.0.ebuild:
+  Stable for amd64, wrt bug #400253
+
+  04 Sep 2011; Torsten Veller <tove@gentoo.org> -URI-1.580.ebuild:
+  Cleanup
+
+*URI-1.590.0 (16 Aug 2011)
+
+  16 Aug 2011; Torsten Veller <tove@gentoo.org> +URI-1.590.0.ebuild:
+  Version bump
 
   30 Jul 2011; Torsten Veller <tove@gentoo.org> URI-1.55.ebuild,
   URI-1.580.ebuild:

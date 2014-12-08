@@ -94,6 +94,7 @@ aacplus
 devil
 gts
 clang
+redis
 
 # Stuff that doesn't compile on ia64
 chicken
@@ -106,6 +107,11 @@ pike
 xemacs
 
 # Other
+
+# Raúl Porcel <armin76@gentoo.org> (20 Aug 2014)
+# Upstream drops support on ia64 from 4.0 onwards, bug #430352
+ocamlopt
+
 
 # Raúl Porcel <armin76@gentoo.org> (23 Apr 2011)
 # Needs to be tested
@@ -263,3 +269,12 @@ llvm
 # Pacho Ramos <pacho@gentoo.org> (08 Jan 2014)
 # Unmask systemd since it is keyworded here.
 -systemd
+
+# sys-libs/libseccomp has not been ported to this arch yet #524148
+seccomp
+
+# need to test sys-cluster/glusterfs #519618
+glusterfs
+
+# need to test ceph and friends #519618
+rbd

@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-vcs/git/git-1.8.3.2-r1.ebuild,v 1.13 2014/06/24 01:44:07 tetromino Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-vcs/git/git-1.8.3.2-r1.ebuild,v 1.15 2014/11/16 22:54:52 dilfridge Exp $
 
 EAPI=5
 
@@ -62,7 +62,7 @@ RDEPEND="${CDEPEND}
 			dev-perl/Net-SMTP-SSL
 			dev-perl/Authen-SASL
 			cgi? ( virtual/perl-CGI highlight? ( app-text/highlight ) )
-			cvs? ( >=dev-vcs/cvsps-2.1 dev-perl/DBI dev-perl/DBD-SQLite )
+			cvs? ( >=dev-vcs/cvsps-2.1:0 dev-perl/DBI dev-perl/DBD-SQLite )
 			subversion? ( dev-vcs/subversion[-dso,perl] dev-perl/libwww-perl dev-perl/TermReadKey )
 			)
 	python? ( gtk?
@@ -486,7 +486,7 @@ src_install() {
 		systemd_dounit "${FILESDIR}/git-daemon.socket"
 	fi
 
-	fixlocalpod
+	perl_delete_localpod
 }
 
 src_test() {

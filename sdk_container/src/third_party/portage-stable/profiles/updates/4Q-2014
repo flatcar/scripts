@@ -1,0 +1,7 @@
+move dev-perl/IO-Socket-IP perl-core/IO-Socket-IP
+move dev-perl/Template-Latex dev-perl/Template-Plugin-Latex
+move dev-ml/async_core dev-ml/async_kernel
+move razorqt-base/libqtxdg dev-libs/libqtxdg
+move app-shells/zsh-completion app-shells/gentoo-zsh-completions
+move www-servers/ocsigen www-servers/ocsigenserver
+slotmove =dev-cpp/gstreamermm-0.10* 0 0.10

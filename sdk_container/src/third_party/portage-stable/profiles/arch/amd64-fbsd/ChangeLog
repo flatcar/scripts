@@ -1,6 +1,15 @@
 # ChangeLog for Gentoo/x86-fbsd profile directory
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64-fbsd/ChangeLog,v 1.53 2014/07/01 07:49:04 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64-fbsd/ChangeLog,v 1.56 2014/11/20 01:51:03 pesa Exp $
+
+  20 Nov 2014; Davide Pesavento <pesa@gentoo.org> +package.mask:
+  Move Qt 4.8.6 mask from global package.mask to arch profiles.
+
+  17 Nov 2014; Patrick Lauer <patrick@gentoo.org> package.use.mask:
+  Mask sctp useflag for openssh until keywords are there
+
+  06 Sep 2014; Michał Górny <mgorny@gentoo.org> use.mask:
+  Wipe out references to removed Python targets.
 
   01 Jul 2014; Michał Górny <mgorny@gentoo.org> make.defaults:
   Set default ABI_X86 and IUSE_IMPLICIT.

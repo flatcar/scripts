@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64-fbsd/todo/package.use.mask,v 1.337 2014/07/15 10:20:31 blueness Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64-fbsd/todo/package.use.mask,v 1.338 2014/09/16 17:12:06 chithanh Exp $
 
 # Mask useflags that require deps with missing keywords.
 # Anyone is allowed and _very welcome_ to add masks there.
@@ -137,6 +137,9 @@ x11-libs/libdrm libkms
 media-libs/mesa video_cards_vmware
 media-libs/mesa video_cards_r600
 media-libs/mesa video_cards_radeon
+
+# media-libs/libepoxy
+x11-base/xorg-server glamor wayland
 
 # x11-libs/libdrm[libkms]
 media-libs/mesa xorg

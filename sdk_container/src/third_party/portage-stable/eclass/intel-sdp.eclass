@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/intel-sdp.eclass,v 1.17 2014/02/21 16:07:25 jlec Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/intel-sdp.eclass,v 1.18 2014/09/15 17:54:11 jlec Exp $
 
 # @ECLASS: intel-sdp.eclass
 # @MAINTAINER:
@@ -348,7 +348,12 @@ intel-sdp_pkg_setup() {
 	fi
 	INTEL_RPMS=()
 	INTEL_RPMS_FULL=()
-	for p in ${INTEL_BIN_RPMS}; do
+	if [[ $(declare -p INTEL_BIN_RPMS) = "declare -a "* ]] ; then
+		_INTEL_BIN_RPMS=( ${INTEL_BIN_RPMS[@]} )
+	else
+		read -r -d '' -a _INTEL_BIN_RPMS <<<"${INTEL_BIN_RPMS}"
+	fi
+	for p in "${_INTEL_BIN_RPMS[@]}"; do
 		for a in ${arch}; do
 			if [ ${p} == $(basename ${p}) ]; then
 				INTEL_RPMS+=( intel-${p}-${_INTEL_PV4}-${_INTEL_PV1}.${_INTEL_PV2}-${_INTEL_PV3}.${a}.rpm )
@@ -357,7 +362,12 @@ intel-sdp_pkg_setup() {
 			fi
 		done
 	done
-	for p in ${INTEL_DAT_RPMS}; do
+	if [[ $(declare -p INTEL_DAT_RPMS) = "declare -a "* ]] ; then
+		_INTEL_DAT_RPMS=( ${INTEL_DAT_RPMS[@]} )
+	else
+		read -r -d '' -a _INTEL_DAT_RPMS <<<"${INTEL_DAT_RPMS}"
+	fi
+	for p in "${_INTEL_DAT_RPMS[@]}"; do
 		if [ ${p} == $(basename ${p}) ]; then
 			INTEL_RPMS+=( intel-${p}-${_INTEL_PV4}-${_INTEL_PV1}.${_INTEL_PV2}-${_INTEL_PV3}.noarch.rpm )
 		else
@@ -373,12 +383,12 @@ intel-sdp_src_unpack() {
 	local l r subdir rb t list=() debug_list
 
 	for t in ${A}; do
-		for r in ${INTEL_RPMS[@]}; do
+		for r in "${INTEL_RPMS[@]}"; do
 			rpmdir=${t%%.*}/${INTEL_RPMS_DIR}
 			list+=( ${rpmdir}/${r} )
 		done
 
-		for r in ${INTEL_RPMS_FULL[@]}; do
+		for r in "${INTEL_RPMS_FULL[@]}"; do
 			list+=( ${t%%.*}/${r} )
 		done
 

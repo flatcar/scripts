@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/perl-module.eclass,v 1.139 2014/03/30 19:25:14 zlogene Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/perl-module.eclass,v 1.158 2014/12/01 20:41:08 dilfridge Exp $
 
 # @ECLASS: perl-module.eclass
 # @MAINTAINER:
@@ -18,10 +18,7 @@ inherit eutils multiprocessing unpacker
 PERL_EXPF="src_unpack src_compile src_test src_install"
 
 case "${EAPI:-0}" in
-	0|1)
-		PERL_EXPF+=" pkg_setup pkg_preinst pkg_postinst pkg_prerm pkg_postrm"
-		;;
-	2|3|4|5)
+	4|5)
 		PERL_EXPF+=" src_prepare src_configure"
 		[[ ${CATEGORY} == "perl-core" ]] && \
 			PERL_EXPF+=" pkg_postinst pkg_postrm"
@@ -52,6 +49,20 @@ case "${EAPI:-0}" in
 		;;
 esac
 
+case "${EAPI:-0}" in
+	5)
+		;;
+	*)
+		ewarn
+		ewarn "******************************************************************"
+		ewarn "${EBUILD}:"
+		ewarn "Support for EAPI=${EAPI:-0} in perl-module.eclass will be removed"
+		ewarn "on 1/Feb/2015. Please fix your overlay ebuilds to use EAPI=5."
+		ewarn "******************************************************************"
+		ewarn
+		;;
+esac
+
 case "${PERL_EXPORT_PHASE_FUNCTIONS:-yes}" in
 	yes)
 		EXPORT_FUNCTIONS ${PERL_EXPF}
@@ -64,7 +75,7 @@ case "${PERL_EXPORT_PHASE_FUNCTIONS:-yes}" in
 		;;
 esac
 
-LICENSE="${LICENSE:-|| ( Artistic GPL-1 GPL-2 GPL-3 )}"
+LICENSE="${LICENSE:-|| ( Artistic GPL-1+ )}"
 
 if [[ -n ${MY_PN} || -n ${MY_PV} || -n ${MODULE_VERSION} ]] ; then
 	: ${MY_P:=${MY_PN:-${PN}}-${MY_PV:-${MODULE_VERSION:-${PV}}}}
@@ -85,34 +96,64 @@ PREFER_BUILDPL="yes"
 pm_echovar=""
 perlinfo_done=false
 
+# @FUNCTION: perl-module_src_unpack
+# @USAGE: perl-module_src_unpack
+# @DESCRIPTION:
+# Unpack the ebuild tarball(s).
+# This function is to be called during the ebuild src_unpack() phase.
 perl-module_src_unpack() {
 	debug-print-function $FUNCNAME "$@"
+
 	unpacker_src_unpack
 	has src_prepare ${PERL_EXPF} || perl-module_src_prepare
 }
 
+# @FUNCTION: perl-module_src_prepare
+# @USAGE: perl-module_src_prepare
+# @DESCRIPTION:
+# Get the ebuild sources ready.
+# This function is to be called during the ebuild src_prepare() phase.
 perl-module_src_prepare() {
 	debug-print-function $FUNCNAME "$@"
 	has src_prepare ${PERL_EXPF} && \
 	[[ ${PATCHES[@]} ]] && epatch "${PATCHES[@]}"
 	debug-print "$FUNCNAME: applying user patches"
 	epatch_user
+	if [[ ${PERL_RM_FILES[@]} ]]; then
+		debug-print "$FUNCNAME: stripping unneeded files"
+		perl_rm_files "${PERL_RM_FILES[@]}"
+	fi
 	perl_fix_osx_extra
 	esvn_clean
 }
 
+# @FUNCTION: perl-module_src_configure
+# @USAGE: perl-module_src_configure
+# @DESCRIPTION:
+# Configure the ebuild sources.
+# This function is to be called during the ebuild src_configure() phase.
 perl-module_src_configure() {
 	debug-print-function $FUNCNAME "$@"
 	perl-module_src_prep
 }
 
+# @FUNCTION: perl-module_src_prep
+# @USAGE: perl-module_src_prep
+# @DESCRIPTION:
+# Configure the ebuild sources (bis).
+#
+# This function is still around for historical reasons 
+# and will be soon deprecated.
+#
+# Please use the function above instead, perl-module_src_configure().
+#
+# TODO: Move code to perl-module_src_configure().
 perl-module_src_prep() {
 	debug-print-function $FUNCNAME "$@"
 	[[ ${SRC_PREP} = yes ]] && return 0
 	SRC_PREP="yes"
 
 	perl_set_version
-	perl_set_eprefix
 
 	[[ -z ${pm_echovar} ]] && export PERL_MM_USE_DEFAULT=1
 	# Disable ExtUtils::AutoInstall from prompting
@@ -161,6 +202,11 @@ perl-module_src_prep() {
 	fi
 }
 
+# @FUNCTION: perl-module_src_compile
+# @USAGE: perl-module_src_compile
+# @DESCRIPTION:
+# Compile the ebuild sources.
+# This function is to be called during the ebuild src_compile() phase.
 perl-module_src_compile() {
 	debug-print-function $FUNCNAME "$@"
 	perl_set_version
@@ -187,27 +233,28 @@ perl-module_src_compile() {
 	fi
 }
 
-# For testers:
-#  This code attempts to work out your threadingness from MAKEOPTS
-#  and apply them to Test::Harness.
+# @FUNCTION: perl-module_src-test
+# @USAGE: perl-module_src_test()
+# @DESCRIPTION:
+# This code attempts to work out your threadingness from MAKEOPTS
+# and apply them to Test::Harness.
 #
-#  If you want more verbose testing, set TEST_VERBOSE=1
-#  in your bashrc | /etc/portage/make.conf | ENV
+# If you want more verbose testing, set TEST_VERBOSE=1
+# in your bashrc | /etc/portage/make.conf | ENV
 #
-# For ebuild writers:
-#  If you wish to enable default tests w/ 'make test' ,
+# or ebuild writers:
+# If you wish to enable default tests w/ 'make test' ,
 #
-#   SRC_TEST="do"
+#  SRC_TEST="do"
 #
-#  If you wish to have threads run in parallel ( using the users makeopts )
-#  all of the following have been tested to work.
+# If you wish to have threads run in parallel ( using the users makeopts )
+# all of the following have been tested to work.
 #
-#   SRC_TEST="do parallel"
-#   SRC_TEST="parallel"
-#   SRC_TEST="parallel do"
-#   SRC_TEST=parallel
+#  SRC_TEST="do parallel"
+#  SRC_TEST="parallel"
+#  SRC_TEST="parallel do"
+#  SRC_TEST=parallel
 #
-
 perl-module_src_test() {
 	debug-print-function $FUNCNAME "$@"
 	if has 'do' ${SRC_TEST} || has 'parallel' ${SRC_TEST} ; then
@@ -224,11 +271,15 @@ perl-module_src_test() {
 	fi
 }
 
+# @FUNCTION: perl-module_src_install
+# @USAGE: perl-module_src_install
+# @DESCRIPTION:
+# Install a Perl ebuild.
+# This function is to be called during the ebuild src_install() phase.
 perl-module_src_install() {
 	debug-print-function $FUNCNAME "$@"
 
 	perl_set_version
-	perl_set_eprefix
 
 	local f
 
@@ -265,35 +316,82 @@ perl-module_src_install() {
 	perl_link_duallife_scripts
 }
 
+# @FUNCTION: perl-module_pkg_setup
+# @USAGE: perl-module_pkg_setup
+# @DESCRIPTION:
+# This function was to be called during the pkg_setup() phase.
+# Deprecated, to be removed. Where it is called, place a call to perl_set_version instead.
 perl-module_pkg_setup() {
 	debug-print-function $FUNCNAME "$@"
+	ewarn "perl-modules.eclass: perl-module_pkg_setup is deprecated and will be removed. Please use perl_set_version instead."
 	perl_set_version
 }
 
+# @FUNCTION: perl-module_pkg_preinst
+# @USAGE: perl-module_pkg_preinst
+# @DESCRIPTION:
+# This function was to be called during the pkg_preinst() phase.
+# Deprecated, to be removed. Where it is called, place a call to perl_set_version instead.
 perl-module_pkg_preinst() {
 	debug-print-function $FUNCNAME "$@"
+	ewarn "perl-modules.eclass: perl-module_pkg_preinst is deprecated and will be removed. Please use perl_set_version instead."
 	perl_set_version
 }
 
+# @FUNCTION: perl-module_pkg_postinst
+# @USAGE: perl-module_pkg_postinst
+# @DESCRIPTION:
+# This function is to be called during the pkg_postinst() phase. It only does 
+# useful things for the perl-core category, where it handles the file renaming and symbolic
+# links that prevent file collisions for dual-life packages installing scripts. 
+# In any other category it immediately exits.
 perl-module_pkg_postinst() {
 	debug-print-function $FUNCNAME "$@"
+	if [[ ${CATEGORY} != perl-core ]] ; then
+		eqawarn "perl-module.eclass: You are calling perl-module_pkg_postinst outside the perl-core category."
+		eqawarn "   This does not do anything; the call can be safely removed."
+		return 0
+	fi
 	perl_link_duallife_scripts
 }
 
+# @FUNCTION: perl-module_pkg_prerm
+# @USAGE: perl-module_pkg_prerm
+# @DESCRIPTION:
+# This function was to be called during the pkg_prerm() phase.
+# It does not do anything. Deprecated, to be removed.
 perl-module_pkg_prerm() {
 	debug-print-function $FUNCNAME "$@"
+	ewarn "perl-module.eclass: perl-module_pkg_prerm does not do anything and will be removed. Please remove the call."
 }
 
+# @FUNCTION: perl-module_pkg_postrm
+# @USAGE: perl-module_pkg_postrm
+# @DESCRIPTION:
+# This function is to be called during the pkg_postrm() phase. It only does 
+# useful things for the perl-core category, where it handles the file renaming and symbolic
+# links that prevent file collisions for dual-life packages installing scripts. 
+# In any other category it immediately exits.
 perl-module_pkg_postrm() {
 	debug-print-function $FUNCNAME "$@"
+	if [[ ${CATEGORY} != perl-core ]] ; then
+		eqawarn "perl-module.eclass: You are calling perl-module_pkg_postrm outside the perl-core category."
+		eqawarn "   This does not do anything; the call can be safely removed."
+		return 0
+	fi
 	perl_link_duallife_scripts
 }
 
-perlinfo() {
-	debug-print-function $FUNCNAME "$@"
-	perl_set_version
-}
-
+# @FUNCTION: perl_set_version
+# @USAGE: perl_set_version
+# @DESCRIPTION:
+# Extract version information and installation paths from the current Perl 
+# interpreter. 
+#
+# This sets the following variables: PERL_VERSION, SITE_ARCH, SITE_LIB, 
+# ARCH_LIB, VENDOR_LIB, VENDOR_ARCH
+#
+# This function used to be called perlinfo as well.
 perl_set_version() {
 	debug-print-function $FUNCNAME "$@"
 	debug-print "$FUNCNAME: perlinfo_done=${perlinfo_done}"
@@ -310,11 +408,24 @@ perl_set_version() {
 	VENDOR_ARCH=${installvendorarch}
 }
 
-fixlocalpod() {
+# @FUNCTION: perlinfo
+# @USAGE: perlinfo
+# @DESCRIPTION:
+# This function is deprecated.
+# 
+# Please use the function above instead, perl_set_version().
+perlinfo() {
 	debug-print-function $FUNCNAME "$@"
-	perl_delete_localpod
+	ewarn "perl-modules.eclass: perlinfo is deprecated and will be removed. Please use perl_set_version instead."
+	perl_set_version
 }
 
+# @FUNCTION: perl_delete_localpod
+# @USAGE: perl_delete_localpod
+# @DESCRIPTION:
+# Remove stray perllocal.pod files in the temporary install directory D.
+#
+# This function used to be called fixlocalpod as well.
 perl_delete_localpod() {
 	debug-print-function $FUNCNAME "$@"
 
@@ -322,36 +433,54 @@ perl_delete_localpod() {
 	find "${D}" -depth -mindepth 1 -type d -empty -delete
 }
 
+# @FUNCTION: fixlocalpod
+# @USAGE: fixlocalpod
+# @DESCRIPTION:
+# This function is deprecated. 
+#
+# Please use the function above instead, perl_delete_localpod().
+fixlocalpod() {
+	debug-print-function $FUNCNAME "$@"
+	ewarn "perl-modules.eclass: fixlocalpod is deprecated and will be removed. Please use perl_delete_localpod instead."
+	perl_delete_localpod
+}
+
+# @FUNCTION: perl_fix_osx_extra
+# @USAGE: perl_fix_osx_extra
+# @DESCRIPTION:
+# Look through ${S} for AppleDouble encoded files and get rid of them.
 perl_fix_osx_extra() {
 	debug-print-function $FUNCNAME "$@"
 
-	# Remove "AppleDouble encoded Macintosh file"
 	local f
 	find "${S}" -type f -name "._*" -print0 | while read -rd '' f ; do
 		einfo "Removing AppleDouble encoded Macintosh file: ${f#${S}/}"
 		rm -f "${f}"
 		f=${f#${S}/}
-	#	f=${f//\//\/}
-	#	f=${f//\./\.}
-	#	sed -i "/${f}/d" "${S}"/MANIFEST || die
 		grep -q "${f}" "${S}"/MANIFEST && \
 			elog "AppleDouble encoded Macintosh file in MANIFEST: ${f#${S}/}"
 	done
 }
 
+# @FUNCTION: perl_delete_module_manpages
+# @USAGE: perl_delete_module_manpages
+# @DESCRIPTION:
+# Bump off manpages installed by the current module such as *.3pm files as well
+# as empty directories.
 perl_delete_module_manpages() {
 	debug-print-function $FUNCNAME "$@"
 
-	perl_set_eprefix
-
 	if [[ -d "${ED}"/usr/share/man ]] ; then
-#		einfo "Cleaning out stray man files"
 		find "${ED}"/usr/share/man -type f -name "*.3pm" -delete
 		find "${ED}"/usr/share/man -depth -type d -empty -delete
 	fi
 }
 
-
+# @FUNCTION: perl_delete_packlist
+# @USAGE: perl_delete_packlist
+# @DESCRIPTION:
+# Look through ${D} for .packlist files, empty .bs files and empty directories,
+# and get rid of items found.
 perl_delete_packlist() {
 	debug-print-function $FUNCNAME "$@"
 	perl_set_version
@@ -362,6 +491,11 @@ perl_delete_packlist() {
 	fi
 }
 
+# @FUNCTION: perl_remove_temppath
+# @USAGE: perl_remove_temppath
+# @DESCRIPTION:
+# Look through ${D} for text files containing the temporary installation
+# folder (i.e. ${D}). If the pattern is found (i.e. " text"), replace it with `/'.
 perl_remove_temppath() {
 	debug-print-function $FUNCNAME "$@"
 
@@ -373,13 +507,53 @@ perl_remove_temppath() {
 	done
 }
 
+# @FUNCTION: perl_rm_files
+# @USAGE: perl_rm_files "file_1" "file_2"
+# @DESCRIPTION:
+# Remove certain files from a Perl release and remove them from the MANIFEST
+# while we're there.
+#
+# Most useful in src_prepare for nuking bad tests, and is highly recommended
+# for any tests like 'pod.t', 'pod-coverage.t' or 'kwalitee.t', as what they
+# test is completely irrelevant to end users, and frequently fail simply
+# because the authors of Test::Pod... changed their recommendations, and thus
+# failures are only useful feedback to Authors, not users.
+#
+# Removing from MANIFEST also avoids needless log messages warning
+# users about files "missing from their kit".
+perl_rm_files() {
+	debug-print-function $FUNCNAME "$@"
+	local skipfile="${T}/.gentoo_makefile_skip"
+	local manifile="${S}/MANIFEST"
+	local manitemp="${T}/.gentoo_manifest_temp"
+	oldifs="$IFS"
+	IFS="\n"
+	for filename in "$@"; do
+		einfo "Removing un-needed ${filename}";
+		# Remove the file
+		rm -f "${S}/${filename}"
+		[[ -e "${manifile}" ]] && echo "${filename}" >> "${skipfile}"
+	done
+	if [[ -e "${manifile}" && -e "${skipfile}" ]]; then
+		einfo "Fixing Manifest"
+		grep -v -F -f "${skipfile}" "${manifile}" > "${manitemp}"
+		mv -f -- "${manitemp}" "${manifile}"
+		rm -- "${skipfile}";
+	fi
+	IFS="$oldifs"
+}
+
+# @FUNCTION: perl_link_duallife_scripts
+# @USAGE: perl_link_duallife_scripts
+# @DESCRIPTION:
+# Moves files and generates symlinks so dual-life packages installing scripts do not
+# lead to file collisions. Mainly for use in pkg_postinst and pkg_postrm, and makes 
+# only sense for perl-core packages.
 perl_link_duallife_scripts() {
 	debug-print-function $FUNCNAME "$@"
 	if [[ ${CATEGORY} != perl-core ]] || ! has_version ">=dev-lang/perl-5.8.8-r8" ; then
 		return 0
 	fi
-
-	perl_set_eprefix
 
 	local i ff
 	if has "${EBUILD_PHASE:-none}" "postinst" "postrm" ; then
@@ -404,17 +578,4 @@ perl_link_duallife_scripts() {
 		done
 		popd > /dev/null
 	fi
-}
-
-perl_set_eprefix() {
-	debug-print-function $FUNCNAME "$@"
-	case ${EAPI:-0} in
-		0|1|2)
-			if ! use prefix; then
-				EPREFIX=
-				ED=${D}
-				EROOT=${ROOT}
-			fi
-			;;
-	esac
 }

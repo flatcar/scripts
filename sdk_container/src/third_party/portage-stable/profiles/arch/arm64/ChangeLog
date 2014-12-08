@@ -1,6 +1,16 @@
 # ChangeLog for Gentoo/ARM profile directory
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/arm64/ChangeLog,v 1.3 2014/08/04 02:13:15 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/arm64/ChangeLog,v 1.6 2014/10/25 17:19:22 kensington Exp $
+
+  25 Oct 2014; Michael Palimaka <kensington@gentoo.org> package.use.mask:
+  Remove obsolete mask for package no longer in the tree.
+
+  18 Oct 2014; Mike Frysinger <vapier@gentoo.org> use.mask:
+  Mask USE=seccomp until the kernel/library gets support #524148 by Christian
+  Ruppert.
+
+  06 Sep 2014; Michał Górny <mgorny@gentoo.org> use.mask:
+  Wipe out references to removed Python targets.
 
   04 Aug 2014; Mike Frysinger <vapier@gentoo.org> package.use.mask:
   Drop flashrom masks that are in base now.

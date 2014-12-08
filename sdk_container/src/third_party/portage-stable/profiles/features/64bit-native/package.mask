@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/features/64bit-native/package.mask,v 1.99 2014/07/22 01:33:40 ottxor Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/features/64bit-native/package.mask,v 1.102 2014/10/02 10:29:30 ulm Exp $
 
 # AMD64 Team <amd64@gentoo.org>
 # Mask packages that rely on amd64 multilib
@@ -22,7 +22,6 @@ app-emulation/vmware-player
 app-office/lotus-notes
 app-office/ooextras
 app-emulation/emul-linux-x86-baselibs
-app-emulation/emul-linux-x86-compat
 app-emulation/emul-linux-x86-cpplibs
 app-emulation/emul-linux-x86-db
 app-emulation/emul-linux-x86-gstplugins

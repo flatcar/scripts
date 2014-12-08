@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/ruby-ng-gnome2.eclass,v 1.16 2012/08/18 07:28:39 graaff Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/ruby-ng-gnome2.eclass,v 1.17 2014/10/27 19:48:35 graaff Exp $
 
 # @ECLASS: ruby-ng-gnome2.eclass
 # @MAINTAINER:
@@ -61,7 +61,7 @@ each_ruby_compile() {
 		-e "s/^ldflags  = /ldflags = $\(LDFLAGS\) /" \
 		|| die "--no-undefined removal failed"
 
-	emake || die "emake failed"
+	emake V=1 || die "emake failed"
 }
 
 # @FUNCTION: each_ruby_install

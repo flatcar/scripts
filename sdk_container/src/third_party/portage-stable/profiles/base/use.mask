@@ -1,9 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/base/use.mask,v 1.202 2014/07/27 09:22:08 aballier Exp $
-
-# Mask use-flag firebird and package dev-db/firebird for bug 460780
-firebird
+# $Header: /var/cvsroot/gentoo-x86/profiles/base/use.mask,v 1.214 2014/11/23 16:40:45 floppym Exp $
 
 # CURL_SSL=winssl is for prefix/windows/winnt only
 curl_ssl_winssl
@@ -13,6 +10,7 @@ cuda
 
 # on the way out
 ruby_targets_ruby18
+ruby_targets_jruby
 
 # masking here and unmasking in default/linux/
 kmod
@@ -32,8 +30,8 @@ vdpau
 # Infiniband stuff should generaly work on all arches but keyworded only on amd64/x86
 infiniband
 
-# PHP 5.6 still has no stable version
-php_targets_php5-6
+# PHP 5.3 har reached EOL and should be removed soon
+php_targets_php5-3
 
 # Its deps are not mature enough yet
 ayatana
@@ -335,10 +333,10 @@ orc
 # Mike Gilbert <floppym@gentoo.org> (02 Jan 2013)
 # PyPy is unkeyworded on most arches. If you are running amd64 or x86,
 # please switch to one of the testing 13.0 profiles to get it.
-python_targets_pypy2_0
-python_single_target_pypy2_0
 python_targets_pypy
 python_single_target_pypy
+python_targets_pypy3
+python_single_target_pypy3
 
 # Michał Górny <mgorny@gentoo.org> (26 Jan 2013)
 # Mask the multilib flags globally. Unmasked in specific arches.
@@ -381,10 +379,6 @@ qt5
 # could suffer unexpected problem, don't expect support for it then.
 openrc-force
 
-# Michał Górny <mgorny@gentoo.org> (26 Apr 2014)
-# (on behalf of Python team)
-# Python 2.6 is no longer supported upstream and security issue fixes
-# are not provided anymore. Python 2.7 is almost drop-in replacement.
-# The support for implementations will be disabled in 30 days.
-python_targets_python2_6
-python_single_target_python2_6
+# Mike Gilbert <floppym@gentoo.org> (19 Oct 2014)
+# sys-libs/libapparmor
+apparmor

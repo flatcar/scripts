@@ -1,6 +1,40 @@
 # ChangeLog for Gentoo/x86 profile directory
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86/ChangeLog,v 1.173 2014/08/04 02:13:16 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86/ChangeLog,v 1.183 2014/11/16 02:25:27 floppym Exp $
+
+  16 Nov 2014; Mike Gilbert <floppym@gentoo.org> use.stable.mask:
+  Drop unneeded python3_4 (un)mask.
+
+  15 Nov 2014; Mike Gilbert <floppym@gentoo.org> package.use.stable.mask:
+  Move pyudev[python3_4] mask to base profile.
+
+  09 Nov 2014; Michał Górny <mgorny@gentoo.org> package.use.stable.mask,
+  use.mask, use.stable.mask:
+  Unmask PyPy3.
+
+  09 Nov 2014; Michał Górny <mgorny@gentoo.org> package.use.stable.mask:
+  Remove stale masks on dev-python/python-exec.
+
+  04 Nov 2014; Mike Gilbert <floppym@gentoo.org> package.use.stable.mask,
+  use.stable.mask:
+  Negate python3_4 stable mask.
+
+  19 Oct 2014; Mike Gilbert <floppym@gentoo.org> use.mask, use.stable.mask:
+  Unmask/stable-mask apparmor.
+
+  18 Oct 2014; Mike Frysinger <vapier@gentoo.org> package.use.mask:
+  Drop systemd-specific seccomp mask since the USE flag itself is handled
+  properly #524148 by Christian Ruppert.
+
+  11 Oct 2014; Tim Harder <radhermit@gentoo.org> package.use.mask,
+  package.use.stable.mask:
+  Unmask skype use flag for net-im/bitlbee on unstable systems.
+
+  13 Sep 2014; Markos Chandras <hwoarang@gentoo.org> package.use.mask:
+  midori[jit] works on x86
+
+  02 Sep 2014; Hans de Graaff <graaff@gentoo.org> use.mask:
+  ruby_targets_jruby is now masked everywhere.
 
   04 Aug 2014; Mike Frysinger <vapier@gentoo.org> package.use.mask:
   Unmask x86-specific flashrom USE flags.

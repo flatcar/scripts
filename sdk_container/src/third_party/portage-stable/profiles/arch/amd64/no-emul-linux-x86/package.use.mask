@@ -1,0 +1,8 @@
+# Copyright 1999-2014 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/no-emul-linux-x86/package.use.mask,v 1.1 2014/11/30 16:58:15 mgorny Exp $
+
+# Michał Górny <mgorny@gentoo.org> (14 Sep 2014)
+# on behalf of gx86-multilib project <multilib@gentoo.org>
+# Has incorrect dependencies and maintainer is unwilling to fix them.
+sys-devel/gcc gcj

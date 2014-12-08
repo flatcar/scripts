@@ -1,7 +1,0 @@
-# Copyright 1999-2012 Gentoo Foundation.
-# Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/uclibc/packages,v 1.2 2012/10/07 11:42:37 blueness Exp $
-
-*app-misc/pax-utils
-*dev-libs/libiconv
--*sys-apps/man-pages

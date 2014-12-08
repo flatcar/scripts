@@ -1,6 +1,10 @@
 # ChangeLog for Gentoo/m68k profile
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/m68k/ChangeLog,v 1.34 2014/07/01 14:13:01 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/m68k/ChangeLog,v 1.35 2014/10/18 18:14:20 vapier Exp $
+
+  18 Oct 2014; Mike Frysinger <vapier@gentoo.org> use.mask:
+  Mask USE=seccomp until the kernel/library gets support #524148 by Christian
+  Ruppert.
 
   01 Jul 2014; Michał Górny <mgorny@gentoo.org> make.defaults:
   Add missing LIBDIR_${ABI} and CHOST_${ABI} on non-multilib arches to avoid

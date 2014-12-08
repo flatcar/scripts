@@ -1,6 +1,33 @@
 # ChangeLog for Gentoo/MIPS profile directory
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/mips/ChangeLog,v 1.144 2014/07/22 18:16:50 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/mips/ChangeLog,v 1.150 2014/11/20 01:56:23 pesa Exp $
+
+  20 Nov 2014; Davide Pesavento <pesa@gentoo.org> package.mask:
+  Move Qt 4.8.6 mask from global package.mask to arch profiles.
+
+  18 Oct 2014; Mike Frysinger <vapier@gentoo.org> use.mask:
+  Mask USE=seccomp until the library gets support #524148 by Christian Ruppert.
+
+  11 Oct 2014; Anthony G. Basile <blueness@gentoo.org> make.defaults,
+  mips64/make.defaults, mips64/n32/use.mask, mips64/n64/use.mask,
+  -mips64/use.force, -mips64/use.mask, -mipsel/eapi, -mipsel/make.defaults,
+  mipsel/mips64el/n32/use.mask, mipsel/mips64el/n64/use.mask,
+  -mipsel/mips64el/use.force, -mipsel/mips64el/use.mask, +mipsel/o32/eapi,
+  +mipsel/o32/make.defaults, +mipsel/o32/parent, +mipsel/o32/use.force,
+  +mipsel/o32/use.mask, +o32/eapi, +o32/make.defaults, +o32/parent,
+  +o32/use.force, +o32/use.mask, use.force, use.mask:
+  Restructure to accomodate new multilib scheme
+
+  04 Oct 2014; Markos Chandras <hwoarang@gentoo.org> use.mask:
+  Drop qt4 mask. The package is keyworded on MIPS. Mask it again on a
+  subprofile if necessary
+
+  16 Sep 2014; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  package.use.mask:
+  Mask xorg-server glamor/wayland flags
+
+  13 Sep 2014; Markos Chandras <hwoarang@gentoo.org> package.use.mask:
+  midori[jit] is now masked globally
 
   22 Jul 2014; Samuli Suominen <ssuominen@gentoo.org> package.use.mask:
   Mask USE="consolekit" for sys-auth/pambase to match

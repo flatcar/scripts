@@ -1,9 +1,13 @@
 # Copyright 1999-2014 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License, v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86/use.mask,v 1.65 2014/07/27 09:22:08 aballier Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86/use.mask,v 1.68 2014/11/09 08:29:40 mgorny Exp $
 
 # Unmask the flag which corresponds to ARCH.
 -x86
+
+# Mike Gilbert <floppym@gentoo.org (19 Oct 2014)
+# sys-libs/libapparmor
+-apparmor
 
 # Alexey Shvetsov <alexxy@gentoo.org> (08 Apr 2014)
 # Cuda works here
@@ -13,6 +17,8 @@
 # PyPy is keyworded on this arch.
 -python_targets_pypy
 -python_single_target_pypy
+-python_targets_pypy3
+-python_single_target_pypy3
 
 # Michał Górny <mgorny@gentoo.org> (4 May 2013)
 # Unmask systemd since it is keyworded here.
@@ -88,7 +94,7 @@
 
 # 2010/01/08 - Diego E. Pettenò <flameeyes@gentoo.org>
 # Add support for JRuby targets where jruby is available
--ruby_targets_jruby
+#-ruby_targets_jruby
 
 # pbbuttonsd and macbook for KDE and pbuttonsd it
 #-pbbuttonsd

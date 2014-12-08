@@ -1,14 +1,13 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/pax-utils.eclass,v 1.22 2014/07/11 08:21:58 ulm Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/pax-utils.eclass,v 1.24 2014/09/28 20:11:05 blueness Exp $
 
 # @ECLASS: pax-utils.eclass
 # @MAINTAINER:
 # The Gentoo Linux Hardened Team <hardened@gentoo.org>
 # @AUTHOR:
 # Original Author: Kevin F. Quinn <kevquinn@gentoo.org>
-# Modifications for bug #365825, @ ECLASS markup: Anthony G. Basile <blueness@gentoo.org>
-# Modifications for bug #431092: Anthony G. Basile <blueness@gentoo.org>
+# Modifications for bugs #365825, #431092, #520198, @ ECLASS markup: Anthony G. Basile <blueness@gentoo.org>
 # @BLURB: functions to provide pax markings
 # @DESCRIPTION:
 #
@@ -56,8 +55,6 @@ pax-mark() {
 
 	local f								# loop over paxables
 	local flags							# pax flags
-	local pt_fail=0 pt_failures=""		# record PT_PAX failures
-	local xt_fail=0 xt_failures=""		# record xattr PAX marking failures
 	local ret=0							# overal return code of this function
 
 	# Only the actual PaX flags and z are accepted
@@ -75,12 +72,12 @@ pax-mark() {
 	[[ "${flags//[!z]}" ]] && dodefault="yes"
 
 	if has PT ${PAX_MARKINGS}; then
+		_pax_list_files einfo "$@"
+		for f in "$@"; do
 
-		#First try paxctl -> this might try to create/convert program headers
-		if type -p paxctl > /dev/null; then
-			einfo "PT PaX marking -${flags} with paxctl"
-			_pax_list_files einfo "$@"
-			for f in "$@"; do
+			#First try paxctl -> this might try to create/convert program headers
+			if type -p paxctl > /dev/null; then
+				einfo "PT PaX marking -${flags} ${f} with paxctl"
 				# First, try modifying the existing PAX_FLAGS header
 				paxctl -q${flags} "${f}" && continue
 				# Second, try creating a PT_PAX header (works on ET_EXEC)
@@ -88,81 +85,55 @@ pax-mark() {
 				paxctl -qC${flags} "${f}" && continue
 				# Third, try stealing the (unused under PaX) PT_GNU_STACK header
 				paxctl -qc${flags} "${f}" && continue
-				pt_fail=1
-				pt_failures="${pt_failures} ${f}"
-			done
+			fi
 
-		#Next try paxctl-ng -> this will not create/convert any program headers
-		elif type -p paxctl-ng > /dev/null && paxctl-ng -L ; then
-			einfo "PT PaX marking -${flags} with paxctl-ng"
-			flags="${flags//z}"
-			_pax_list_files einfo "$@"
-			for f in "$@"; do
+			#Next try paxctl-ng -> this will not create/convert any program headers
+			if type -p paxctl-ng > /dev/null && paxctl-ng -L ; then
+				einfo "PT PaX marking -${flags} ${f} with paxctl-ng"
+				flags="${flags//z}"
 				[[ ${dodefault} == "yes" ]] && paxctl-ng -L -z "${f}"
 				[[ "${flags}" ]] || continue
 				paxctl-ng -L -${flags} "${f}" && continue
-				pt_fail=1
-				pt_failures="${pt_failures} ${f}"
-			done
+			fi
 
-		#Finally fall back on scanelf
-		elif type -p scanelf > /dev/null && [[ ${PAX_MARKINGS} != "none" ]]; then
-			einfo "Fallback PaX marking -${flags} with scanelf"
-			_pax_list_files einfo "$@"
-			scanelf -Xxz ${flags} "$@"
-
-		#We failed to set PT_PAX flags
-		elif [[ ${PAX_MARKINGS} != "none" ]]; then
-			pt_failures="$*"
-			pt_fail=1
-		fi
-
-		if [[ ${pt_fail} == 1 ]]; then
-			elog "Failed to set PT_PAX markings -${flags} for:"
-			_pax_list_files elog ${pt_failures}
-			ret=1
-		fi
+			#Finally fall back on scanelf
+			if type -p scanelf > /dev/null && [[ ${PAX_MARKINGS} != "none" ]]; then
+				scanelf -Xxz ${flags} "$f"
+			#We failed to set PT_PAX flags
+			elif [[ ${PAX_MARKINGS} != "none" ]]; then
+				elog "Failed to set PT_PAX markings -${flags} ${f}."
+				ret=1
+			fi
+		done
 	fi
 
 	if has XT ${PAX_MARKINGS}; then
-
+		_pax_list_files einfo "$@"
 		flags="${flags//z}"
+		for f in "$@"; do
 
-		#First try paxctl-ng
-		if type -p paxctl-ng > /dev/null && paxctl-ng -l ; then
-			einfo "XT PaX marking -${flags} with paxctl-ng"
-			_pax_list_files einfo "$@"
-			for f in "$@"; do
+			#First try paxctl-ng
+			if type -p paxctl-ng > /dev/null && paxctl-ng -l ; then
+				einfo "XT PaX marking -${flags} ${f} with paxctl-ng"
 				[[ ${dodefault} == "yes" ]] && paxctl-ng -d "${f}"
 				[[ "${flags}" ]] || continue
 				paxctl-ng -l -${flags} "${f}" && continue
-				xt_fail=1
-				xt_failures="${tx_failures} ${f}"
-			done
+			fi
 
-		#Next try setfattr
-		elif type -p setfattr > /dev/null; then
-			[[ "${flags//[!Ee]}" ]] || flags+="e" # bug 447150
-			einfo "XT PaX marking -${flags} with setfattr"
-			_pax_list_files einfo "$@"
-			for f in "$@"; do
+			#Next try setfattr
+			if type -p setfattr > /dev/null; then
+				[[ "${flags//[!Ee]}" ]] || flags+="e" # bug 447150
+				einfo "XT PaX marking -${flags} ${f} with setfattr"
 				[[ ${dodefault} == "yes" ]] && setfattr -x "user.pax.flags" "${f}"
 				setfattr -n "user.pax.flags" -v "${flags}" "${f}" && continue
-				xt_fail=1
-				xt_failures="${tx_failures} ${f}"
-			done
+			fi
 
-		#We failed to set XATTR_PAX flags
-		elif [[ ${PAX_MARKINGS} != "none" ]]; then
-			xt_failures="$*"
-			xt_fail=1
-		fi
-
-		if [[ ${xt_fail} == 1 ]]; then
-			elog "Failed to set XATTR_PAX markings -${flags} for:"
-			_pax_list_files elog ${xt_failures}
-			ret=1
-		fi
+			#We failed to set XATTR_PAX flags
+			if [[ ${PAX_MARKINGS} != "none" ]]; then
+				elog "Failed to set XATTR_PAX markings -${flags} ${f}."
+				ret=1
+			fi
+		done
 	fi
 
 	# [[ ${ret} == 1 ]] && elog "Executables may be killed by PaX kernels."

@@ -1,11 +1,16 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64-fbsd/package.use.mask,v 1.21 2014/06/01 14:16:33 pacho Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64-fbsd/package.use.mask,v 1.23 2014/11/17 02:52:00 patrick Exp $
+
+# Patrick Lauer <patrick@gentoo.org> (17 Nov 2014)
+# Missing keywords
+net-misc/openssh sctp
 
 # Pacho Ramos <pacho@gentoo.org> (01 Jun 2014)
 # Missing keywords
 >=app-misc/geoclue-2.1 modemmanager
 >=x11-libs/gtk+-3.12 cloudprint
+>=app-crypt/libsecret-0.16 test
 
 # Lars Wendler <polynomial-c@gentoo.org> (09 May 2014)
 # Masked kde USE flag until bug #509892 is fixed

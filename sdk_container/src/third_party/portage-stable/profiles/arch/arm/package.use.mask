@@ -1,6 +1,39 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/arm/package.use.mask,v 1.215 2014/08/04 02:13:15 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/arm/package.use.mask,v 1.229 2014/11/29 20:06:42 maekke Exp $
+
+# Markus Meier <maekke@gentoo.org> (29 Nov 2014)
+# Unkeyworded deps, bug #518742
+dev-python/ipython doc
+dev-python/oct2py doc
+
+# Patrick Lauer <patrick@gentoo.org> (19 Nov 2014)
+# Missing keywords #529820
+app-office/libreoffice collada
+
+# Michael Weber <xmw@gentoo.org> (15 Nov 2014)
+# missing keywords on media-libs/libharu
+www-client/netsurf pdf-writer
+
+# Markus Meier <maekke@gentoo.org> (14 Nov 2014)
+# Unkeyworded deps, bug #511532
+net-im/prosody libevent mysql postgres sqlite
+
+# Michael Palimaka <kensington@gentoo.org> (25 Oct 2014)
+# Unkeyworded deps, bug #525558
+kde-base/systemsettings kscreen
+
+# Alexis Ballier <aballier@gentoo.org> (24 Oct 2014)
+# sci-libs/hdf is not supported on arm
+sci-libs/netcdf hdf
+
+# Markus Meier <maekke@gentoo.org> (23 Oct 2014)
+# Unkeyworded deps, bug #523468
+net-misc/networkmanager teamd
+
+# Markus Meier <maekke@gentoo.org> (24 Sep 2014)
+# Unkeyworded deps, bug #519618
+sys-block/fio glusterfs rbd
 
 # Rick Farina <zerochaos@gentoo.org> (27 Jul 2014)
 # net-misc/dahdi doesn't build
@@ -30,10 +63,6 @@ mail-filter/opendkim opendbx
 # Unkeyworded deps, bug #507896
 dev-qt/qt-mobility messaging
 
-# Andreas K. Huettel <dilfridge@gentoo.org> (3 May 2014)
-# Missing keywords, should only be a transitionary problem
-kde-base/baloo alternatekcm
-
 # Julian Ospald <hasufell@gentoo.org> (20 Apr 2014)
 # Missing keywords, bug #508226
 media-video/mpv sdl
@@ -56,10 +85,6 @@ kde-base/nepomuk-core migrator
 # Yixun Lan <dlan@gentoo.org> (12 Apr 2014)
 # app-emulation/qemu is not keyworded on arm arch.
 app-emulation/xen-tools system-qemu
-
-# Mike Gilbert <floppym@gentoo.org> (27 Mar 2014)
-# sys-libs/libseccomp is not keyworded on many archs.
-sys-apps/systemd -seccomp
 
 # Markus Meier <maekke@gentoo.org> (25 Feb 2014)
 # stable reverse deps of media-libs/libquvi, bug #495254
@@ -201,19 +226,12 @@ dev-libs/xapian-bindings java
 app-office/calligra openexr postgres spacenav vc
 media-gfx/pstoedit emf
 
-# Eray Aslan <eras@gentoo.org> (16 Feb 2013)
-# Mask further java flag
-=dev-libs/cyrus-sasl-2.1.25-r4 java
-=dev-libs/cyrus-sasl-2.1.26-r3 java
-=dev-libs/cyrus-sasl-2.1.23-r7 java
-
 # Rick Farina <zerochaos@gentoo.org> (05 Feb 2013)
 # masking all stable packages with java use flag
 dev-util/oprofile java
 =dev-db/qdbm-1.8.78-r1 java
 =dev-libs/beecrypt-4.2.1 java
-=dev-libs/cyrus-sasl-2.1.23-r6 java
-=dev-libs/cyrus-sasl-2.1.25-r3 java
+dev-libs/cyrus-sasl java
 =dev-libs/xapian-bindings-1.2.12 java
 =dev-libs/xapian-bindings-1.2.12-r1 java
 dev-tex/tex4ht java
@@ -286,7 +304,6 @@ kde-base/okular ebook chm
 kde-base/kstars indi
 kde-base/kdeutils-meta floppy
 kde-base/kdenetwork-meta ppp
-kde-base/kdesdk-misc extras
 kde-base/smokeqt qscintilla qwt
 kde-base/qtruby qscintilla qwt
 kde-base/perlqt qscintilla qwt
@@ -297,7 +314,7 @@ kde-base/perlqt qscintilla qwt
 
 # Markus Meier <maekke@gentoo.org> (08 Dec 2012)
 # mask app-office/libreoffice java extensions
-app-office/libreoffice libreoffice_extensions_scripting-beanshell libreoffice_extensions_scripting-javascript libreoffice_extensions_wiki-publisher
+app-office/libreoffice libreoffice_extensions_scripting-beanshell libreoffice_extensions_scripting-javascript libreoffice_extensions_wiki-publisher coinmp gltf
 
 # Markus Meier <maekke@gentoo.org> (17 Oct 2012)
 # spidermonkey is broken on arm see bug #420471
@@ -329,6 +346,7 @@ app-admin/syslog-ng json
 # it's masked in base profile and unmasked here (bug #396313).
 net-libs/webkit-gtk -jit
 www-client/epiphany -jit
+www-client/midori -jit
 
 # Anthony G. Basile <blueness@gentoo.org> (Dec 21, 2011)
 # Mask the vde flag on tinc because net-misc/vde is not

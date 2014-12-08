@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/kde4-base.eclass,v 1.140 2014/08/10 22:40:21 johu Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/kde4-base.eclass,v 1.144 2014/12/04 10:32:10 mrueg Exp $
 
 # @ECLASS: kde4-base.eclass
 # @MAINTAINER:
@@ -186,7 +186,7 @@ case ${KDEBASE} in
 		# packages that will never be mirrored. (As they only will ever be in
 		# the overlay).
 		case ${PV} in
-			*9999* | 4.?.[6-9]? | 4.??.[6-9]?)
+			*9999* | 4.?.[6-9]? | 4.??.[6-9]? | ??.?.[6-9]? | ??.??.[6-9]?)
 				RESTRICT+=" mirror"
 				;;
 		esac
@@ -329,15 +329,19 @@ kdedepend="
 
 kderdepend=""
 
+if [[ ${CATEGORY} == kde-apps ]]; then
+	kderdepend+=" !kde-base/${PN}"
+fi
+
 # all packages needs oxygen icons for basic iconset
 if [[ ${PN} != oxygen-icons ]]; then
-	kderdepend+=" $(add_kdebase_dep oxygen-icons)"
+	kderdepend+=" || ( kde-apps/oxygen-icons $(add_kdebase_dep oxygen-icons) )"
 fi
 
 # add a dependency over kde-l10n
 if [[ ${KDEBASE} != "kde-base" && -n ${KDE_LINGUAS} ]]; then
 	for _lingua in ${KDE_LINGUAS}; do
-		# if our package has lignuas, pull in kde-l10n with selected lingua enabled,
+		# if our package has linguas, pull in kde-l10n with selected lingua enabled,
 		# but only for selected ones.
 		# this can't be done on one line because if user doesn't use any localisation
 		# then he is probably not interested in kde-l10n at all.
@@ -442,15 +446,30 @@ _calculate_src_uri() {
 				4.11.9)
 					# Part of 4.12 actually, sigh. Not stable for next release!
 					SRC_URI="mirror://kde/stable/4.12.5/src/${_kmname_pv}.tar.xz" ;;
-				4.11.10)
-					# Part of 4.13 actually, sigh. Not stable for next release!
-					SRC_URI="mirror://kde/stable/4.13.2/src/${_kmname_pv}.tar.xz" ;;
 				4.11.11)
 					# Part of 4.13 actually, sigh. Not stable for next release!
 					SRC_URI="mirror://kde/stable/4.13.3/src/${_kmname_pv}.tar.xz" ;;
+				4.11.12)
+					# Part of 4.14 actually, sigh. Not stable for next release!
+					SRC_URI="mirror://kde/stable/4.14.1/src/${_kmname_pv}.tar.xz" ;;
+				4.11.13)
+					# Part of 4.14 actually, sigh. Not stable for next release!
+					SRC_URI="mirror://kde/stable/4.14.2/src/${_kmname_pv}.tar.xz" ;;
+				4.11.14)
+					# Part of 4.14 actually, sigh. Not stable for next release!
+					SRC_URI="mirror://kde/stable/4.14.3/src/${_kmname_pv}.tar.xz" ;;
+				??.?.[6-9]? | ??.??.[4-9]?)
+					# Unstable KDE Applications releases
+					SRC_URI="mirror://kde/unstable/applications/${PV}/src/${_kmname}-${PV}.tar.xz" ;;
 				*)
-					# Stable KDE SC releases
-					SRC_URI="mirror://kde/stable/${PV}/src/${_kmname_pv}.tar.xz" ;;
+					if [[ ${CATEGORY} == kde-apps ]]; then
+						# Stable KDE Applications releases
+						SRC_URI="mirror://kde/stable/applications/${PV}/src/${_kmname}-${PV}.tar.xz"
+					else
+						# Stable KDE SC releases
+						SRC_URI="mirror://kde/stable/${PV}/src/${_kmname_pv}.tar.xz"
+					fi
+				;;
 			esac
 			;;
 		kdevelop|kdevelop-php*|kdevplatform)
@@ -600,7 +619,7 @@ kde4-base_pkg_setup() {
 	# Check if gcc compiler is fresh enough.
 	# In theory should be in pkg_pretend but we check it only for kdelibs there
 	# and for others we do just quick scan in pkg_setup because pkg_pretend
-	# executions consume quite some time.
+	# executions consume quite some time (ie. when merging 300 packages at once will cause 300 checks)
 	if [[ ${MERGE_TYPE} != binary ]]; then
 		[[ $(gcc-major-version) -lt 4 ]] || \
 				( [[ $(gcc-major-version) -eq 4 && $(gcc-minor-version) -le 6 ]] ) \

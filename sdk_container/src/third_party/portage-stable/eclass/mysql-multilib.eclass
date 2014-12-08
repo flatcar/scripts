@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/mysql-multilib.eclass,v 1.4 2014/07/31 22:26:07 grknight Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/mysql-multilib.eclass,v 1.11 2014/11/26 00:34:41 grknight Exp $
 
 # @ECLASS: mysql-multilib.eclass
 # @MAINTAINER:
@@ -73,7 +73,8 @@ fi
 # MariaDB has left the numbering schema but keeping compatibility
 if [[ ${PN} == "mariadb" || ${PN} == "mariadb-galera" ]]; then
 	case ${PV} in
-		10.0*|10.1*) MYSQL_PV_MAJOR="5.6" ;;
+		10.0*) MYSQL_PV_MAJOR="5.6" ;;
+		10.1*) MYSQL_PV_MAJOR="5.7" ;;
 	esac
 fi
 
@@ -135,7 +136,7 @@ if [[ -z ${SERVER_URI} ]]; then
 		MY_PV=$(get_version_component_range 1-3 ${PV})
 		PERCONA_RELEASE=$(get_version_component_range 4-5 ${PV})
 		PERCONA_RC=$(get_version_component_range 6 ${PV})
-		SERVER_URI="http://www.percona.com/redir/downloads/${PERCONA_PN}-${MIRROR_PV}/${PERCONA_PN}-${MY_PV}-${PERCONA_RC}${PERCONA_RELEASE}/source/tarball/${PERCONA_PN}-${MY_PV}-${PERCONA_RC}${PERCONA_RELEASE}.tar.gz"
+		SERVER_URI="http://www.percona.com/redir/downloads/${PERCONA_PN}-${MIRROR_PV}/${PERCONA_PN}-${MY_PV}-${PERCONA_RC}${PERCONA_RELEASE}/source/tarball/${PN}-${MY_PV}-${PERCONA_RC}${PERCONA_RELEASE}.tar.gz"
 #		http://www.percona.com/redir/downloads/Percona-Server-5.5/LATEST/source/tarball/Percona-Server-5.5.30-rel30.2.tar.gz
 #		http://www.percona.com/redir/downloads/Percona-Server-5.6/Percona-Server-5.6.13-rc60.5/source/tarball/Percona-Server-5.6.13-rc60.5.tar.gz
 	else
@@ -187,7 +188,8 @@ IUSE="+community cluster debug embedded extraengine jemalloc latin1 max-idx-128 
 	+perl profiling selinux ssl systemtap static static-libs tcmalloc test"
 
 # This probably could be simplified, but the syntax would have to be just right
-if [[ ${PN} == "mariadb" || ${PN} == "mariadb-galera" ]] ; then
+if [[ ${PN} == "mariadb" || ${PN} == "mariadb-galera" ]] && \
+        mysql_check_version_range "5.5.37 to 10.0.13.99" ; then
 	IUSE="bindist ${IUSE}"
 elif [[ ${PN} == "mysql" || ${PN} == "percona-server" ]] && \
 	mysql_check_version_range "5.5.37 to 5.6.11.99" ; then
@@ -203,6 +205,19 @@ if [[ ${PN} == "mariadb" || ${PN} == "mariadb-galera" ]]; then
 	mysql_version_is_at_least "10.0.5" && IUSE="${IUSE} odbc xml" && \
 		REQUIRED_USE="odbc? ( extraengine !minimal ) xml? ( extraengine !minimal )"
 	REQUIRED_USE="${REQUIRED_USE} minimal? ( !oqgraph !sphinx ) tokudb? ( jemalloc )"
+
+	# MariaDB 10.1 introduces InnoDB/XtraDB compression with external libraries
+	# Choices are bzip2, lz4, lzma, lzo.  bzip2 and lzma enabled by default as they are system libraries
+	mysql_version_is_at_least "10.1.1" && IUSE="${IUSE} innodb-lz4 innodb-lzo"
+fi
+
+if [[ -n "${WSREP_REVISION}" ]]; then
+	if [[ ${PN} == "mariadb" ]]; then
+		IUSE="${IUSE} galera sst-rsync sst-xtrabackup"
+		REQUIRED_USE="${REQUIRED_USE} sst-rsync? ( galera ) sst-xtrabackup? ( galera )"
+	else
+		IUSE="${IUSE} +sst-rsync sst-xtrabackup"
+	fi
 fi
 
 if [[ ${PN} == "percona-server" ]]; then
@@ -236,14 +251,22 @@ DEPEND="
 "
 
 # dev-db/mysql-5.6.12+ only works with dev-libs/libedit
+# mariadb 10.0.14 fixes libedit detection. changed to follow mysql
 # This probably could be simplified
 if [[ ${PN} == "mysql" || ${PN} == "percona-server" ]] && \
 	mysql_version_is_at_least "5.6.12" ; then
-	DEPEND="${DEPEND} dev-libs/libedit"
+	DEPEND="${DEPEND} dev-libs/libedit:0=[${MULTILIB_USEDEP}]"
 elif [[ ${PN} == "mysql-cluster" ]] && mysql_version_is_at_least "7.3"; then
-	DEPEND="${DEPEND} dev-libs/libedit"
+	DEPEND="${DEPEND} dev-libs/libedit:0=[${MULTILIB_USEDEP}]"
+elif [[ ${PN} == "mariadb" || ${PN} == "mariadb-galera" ]] && \
+	mysql_version_is_at_least "10.0.14" ; then
+	DEPEND="${DEPEND} dev-libs/libedit:0=[${MULTILIB_USEDEP}]"
 else
 	DEPEND="${DEPEND} !bindist? ( >=sys-libs/readline-4.1:0=[${MULTILIB_USEDEP}] )"
+fi
+
+if [[ ${PN} == "mysql" || ${PN} == "percona-server" ]] ; then
+	mysql_version_is_at_least "5.7.5" && DEPEND="${DEPEND} >=dev-libs/boost-1.56.0:0="
 fi
 
 if [[ ${PN} == "mariadb" || ${PN} == "mariadb-galera" ]] ; then
@@ -259,10 +282,15 @@ if [[ ${PN} == "mariadb" || ${PN} == "mariadb-galera" ]] ; then
 			"
 	fi
 	mysql_version_is_at_least "10.0.7" && DEPEND="${DEPEND} oqgraph? ( dev-libs/judy:0= )"
-	if mysql_version_is_at_least "10.0.9" ; then
-		DEPEND="${DEPEND} >=dev-libs/libpcre-8.35:3="
-	fi
+	mysql_version_is_at_least "10.0.9" && DEPEND="${DEPEND} >=dev-libs/libpcre-8.35:3=[${MULTILIB_USEDEP}]"
+
+	mysql_version_is_at_least "10.1.1" && DEPEND="${DEPEND}
+		innodb-lz4? ( app-arch/lz4 )
+		innodb-lzo? ( dev-libs/lzo )
+		"
 fi
+
+[[ ${PN} == "percona-server" ]] && DEPEND="${DEPEND} !minimal? ( pam? ( virtual/pam:0= ) )"
 
 # Having different flavours at the same time is not a good idea
 for i in "mysql" "mariadb" "mariadb-galera" "percona-server" "mysql-cluster" ; do
@@ -294,12 +322,25 @@ if [[ ${PN} == "mariadb" || ${PN} == "mariadb-galera" ]] ; then
 		virtual/perl-Time-HiRes ) "
 fi
 
-if [[ ${PN} == "mariadb-galera" ]] ; then
+if [[ -n "${WSREP_REVISION}" ]] ; then
 	# The wsrep API version must match between the ebuild and sys-cluster/galera.
 	# This will be indicated by WSREP_REVISION in the ebuild and the first number
 	# in the version of sys-cluster/galera
-	RDEPEND="${RDEPEND}
+	#
+	# lsof is required as of 5.5.38 and 10.0.11 for the rsync sst
+
+	GALERA_RDEPEND="sys-apps/iproute2
 		=sys-cluster/galera-${WSREP_REVISION}*
+		"
+	if [[ ${PN} == "mariadb" ]]; then
+		GALERA_RDEPEND="galera? ( ${GALERA_RDEPEND} )"
+	fi
+	RDEPEND="${RDEPEND} ${GALERA_RDEPEND}
+		sst-rsync? ( sys-process/lsof )
+		sst-xtrabackup? (
+			>=dev-db/xtrabackup-bin-2.2.4
+			net-misc/socat[ssl]
+		)
 	"
 fi
 
@@ -322,6 +363,12 @@ PDEPEND="perl? ( >=dev-perl/DBD-mysql-2.9004 )
 
 # my_config.h includes ABI specific data
 MULTILIB_WRAPPED_HEADERS=( /usr/include/mysql/my_config.h /usr/include/mysql/private/embedded_priv.h )
+
+[[ ${PN} == "mariadb" ]] && mysql_version_is_at_least "10.1.1" && \
+	MULTILIB_WRAPPED_HEADERS+=( /usr/include/mysql/mysql_version.h )
+
+# wrap the config script
+MULTILIB_CHOST_TOOLS=( /usr/bin/mysql_config )
 
 #
 # HELPER FUNCTIONS:
@@ -368,7 +415,8 @@ mysql-multilib_pkg_setup() {
 		mysql_version_is_at_least "7.2.9" && java-pkg-opt-2_pkg_setup
 	fi
 
-	if use_if_iuse tokudb && [[ $(gcc-major-version) -lt 4 || $(gcc-major-version) -eq 4 && $(gcc-minor-version) -lt 7 ]] ; then
+	if use_if_iuse tokudb && [[ "${MERGE_TYPE}" != "binary" && $(gcc-major-version) -lt 4 || \
+		$(gcc-major-version) -eq 4 && $(gcc-minor-version) -lt 7 ]] ; then
 		eerror "${PN} with tokudb needs to be built with gcc-4.7 or later."
 		eerror "Please use gcc-config to switch to gcc-4.7 or later version."
 		die
@@ -445,10 +493,18 @@ multilib_src_configure() {
 		-DWITHOUT_LIBWRAP=1
 		-DENABLED_LOCAL_INFILE=1
 		-DMYSQL_UNIX_ADDR=${EPREFIX}/var/run/mysqld/mysqld.sock
+		-DINSTALL_UNIX_ADDRDIR=${EPREFIX}/var/run/mysqld/mysqld.sock
 		-DWITH_SSL=$(usex ssl system bundled)
 		-DWITH_DEFAULT_COMPILER_OPTIONS=0
 		-DWITH_DEFAULT_FEATURE_SET=0
 	)
+
+	# systemtap only works on native ABI  bug 530132
+	if multilib_is_native_abi; then
+		mycmakeargs+=( $(cmake-utils_use_enable systemtap DTRACE) )
+	else
+		mycmakeargs+=( -DENABLE_DTRACE=0 )
+	fi
 
 	if in_iuse bindist ; then
 		mycmakeargs+=(
@@ -480,14 +536,14 @@ multilib_src_configure() {
 	filter-flags "-O" "-O[01]"
 
 	CXXFLAGS="${CXXFLAGS} -fno-strict-aliasing"
-	CXXFLAGS="${CXXFLAGS} -felide-constructors -fno-rtti"
+	CXXFLAGS="${CXXFLAGS} -felide-constructors"
 	# Causes linkage failures.  Upstream bug #59607 removes it
 	if ! mysql_version_is_at_least "5.6" ; then
 		CXXFLAGS="${CXXFLAGS} -fno-implicit-templates"
 	fi
 	# As of 5.7, exceptions are used!
 	if ! mysql_version_is_at_least "5.7" ; then
-		CXXFLAGS="${CXXFLAGS} -fno-exceptions"
+		CXXFLAGS="${CXXFLAGS} -fno-exceptions -fno-rtti"
 	fi
 	export CXXFLAGS
 

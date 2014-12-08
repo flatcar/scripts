@@ -1,6 +1,29 @@
 # ChangeLog for Gentoo/ia64 profile
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/ia64/ChangeLog,v 1.209 2014/08/13 02:28:44 reavertm Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/ia64/ChangeLog,v 1.216 2014/11/20 01:53:39 pesa Exp $
+
+  20 Nov 2014; Davide Pesavento <pesa@gentoo.org> package.mask:
+  Move Qt 4.8.6 mask from global package.mask to arch profiles.
+
+  30 Oct 2014; Michał Górny <mgorny@gentoo.org> package.use.mask:
+  Temporarily mask sys-apps/systemd[terminal] due to non-keyworded deps.
+
+  21 Oct 2014; Mike Frysinger <vapier@gentoo.org> use.mask:
+  Mask glusterfs/rbd USE flags #519618.
+
+  18 Oct 2014; Mike Frysinger <vapier@gentoo.org> use.mask:
+  Mask USE=seccomp until the kernel/library gets support #524148 by Christian
+  Ruppert.
+
+  16 Sep 2014; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  package.use.mask:
+  Mask xorg-server glamor/wayland flags
+
+  20 Aug 2014; Raúl Porcel <armin76@gentoo.org> use.mask:
+  Use.mask redis
+
+  20 Aug 2014; Raúl Porcel <armin76@gentoo.org> package.use.mask, use.mask:
+  Move ocamlopt from p.use.mask to use.mask as instructed in bug #430352
 
   13 Aug 2014; Maciej Mrozowski <reavertm@gentoo.org> package.use.mask:
   Mask gg11 flag due to missing keywords (bug 519772)
