@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/bison/bison-1.875d.ebuild,v 1.13 2011/02/06 11:31:15 leio Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/bison/bison-1.875d.ebuild,v 1.14 2014/01/18 03:19:42 vapier Exp $
 
 inherit toolchain-funcs flag-o-matic eutils
 
@@ -10,7 +10,7 @@ SRC_URI="ftp://alpha.gnu.org/pub/gnu/bison/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86"
+KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86"
 IUSE="nls static"
 
 DEPEND="sys-devel/m4

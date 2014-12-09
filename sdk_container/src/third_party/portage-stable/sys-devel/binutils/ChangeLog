@@ -1,6 +1,55 @@
 # ChangeLog for sys-devel/binutils
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/binutils/ChangeLog,v 1.515 2014/06/14 22:26:00 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/binutils/ChangeLog,v 1.525 2014/11/08 17:08:50 vapier Exp $
+
+  08 Nov 2014; Mike Frysinger <vapier@gentoo.org> -binutils-2.22.52.0.4.ebuild,
+  -binutils-2.22.90.ebuild, -binutils-2.23.1.ebuild,
+  -binutils-2.23.51.0.1.ebuild, -binutils-2.23.51.0.2.ebuild,
+  -binutils-2.23.51.0.3.ebuild, -binutils-2.23.51.0.5.ebuild,
+  -binutils-2.23.51.0.6.ebuild, -binutils-2.23.51.0.7.ebuild,
+  -binutils-2.23.51.0.8.ebuild, -binutils-2.23.51.0.9.ebuild,
+  -binutils-2.23.52.0.1.ebuild, -binutils-2.23.52.0.2.ebuild,
+  -binutils-2.23.ebuild, -binutils-2.24-r2.ebuild, -binutils-2.24.51.0.1.ebuild,
+  -binutils-2.24.51.0.2.ebuild, -binutils-2.24.51.0.3.ebuild:
+  Move old versions to toolchain overlay.
+
+  08 Nov 2014; Mike Frysinger <vapier@gentoo.org> binutils-2.19.1-r1.ebuild,
+  binutils-2.20.1-r1.ebuild, binutils-2.21.1-r1.ebuild, binutils-2.22-r1.ebuild,
+  binutils-2.22.52.0.4.ebuild, binutils-2.22.90.ebuild, binutils-2.23.1.ebuild,
+  binutils-2.23.2.ebuild, binutils-2.23.51.0.1.ebuild,
+  binutils-2.23.51.0.2.ebuild, binutils-2.23.51.0.3.ebuild,
+  binutils-2.23.51.0.5.ebuild, binutils-2.23.51.0.6.ebuild,
+  binutils-2.23.51.0.7.ebuild, binutils-2.23.51.0.8.ebuild,
+  binutils-2.23.51.0.9.ebuild, binutils-2.23.52.0.1.ebuild,
+  binutils-2.23.52.0.2.ebuild, binutils-2.23.ebuild, binutils-2.24-r2.ebuild,
+  binutils-2.24.51.0.1.ebuild, binutils-2.24.51.0.2.ebuild:
+  Migrate older ebuilds to EAPI=4.
+
+  04 Nov 2014; Agostino Sarubbo <ago@gentoo.org> binutils-2.24-r3.ebuild:
+  Stable for sparc, wrt bug #526482
+
+  02 Nov 2014; Agostino Sarubbo <ago@gentoo.org> binutils-2.24-r3.ebuild:
+  Stable for alpha, wrt bug #526482
+
+  30 Oct 2014; Agostino Sarubbo <ago@gentoo.org> binutils-2.24-r3.ebuild:
+  Stable for x86, wrt bug #526482
+
+  29 Oct 2014; Agostino Sarubbo <ago@gentoo.org> binutils-2.24-r3.ebuild:
+  Stable for amd64, wrt bug #526482
+
+  23 Oct 2014; Anthony G. Basile <blueness@gentoo.org> binutils-2.24-r3.ebuild:
+  Stable ppc and ppc64, bug #526482
+
+  22 Oct 2014; Mike Frysinger <vapier@gentoo.org> binutils-2.24-r3.ebuild:
+  Mark arm/arm64/ia64/m68k/s390/sh stable #526482.
+
+  22 Oct 2014; Jeroen Roovers <jer@gentoo.org> binutils-2.24-r3.ebuild:
+  Stable for HPPA (bug #526482).
+
+*binutils-2.24.90 (22 Oct 2014)
+
+  22 Oct 2014; Mike Frysinger <vapier@gentoo.org> +binutils-2.24.90.ebuild:
+  Version bump.
 
   14 Jun 2014; Mike Frysinger <vapier@gentoo.org> metadata.xml:
   Add upstream CPE tag (security info).

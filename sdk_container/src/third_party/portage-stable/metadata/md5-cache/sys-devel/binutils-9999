@@ -1,11 +1,11 @@
 DEFINED_PHASES=compile configure install postinst postrm prepare test unpack
-DEPEND=sys-devel/gnuconfig dev-vcs/git >=sys-devel/binutils-config-1.9 zlib? ( sys-libs/zlib ) test? ( dev-util/dejagnu ) nls? ( sys-devel/gettext ) sys-devel/flex virtual/yacc
+DEPEND=sys-devel/gnuconfig dev-vcs/git >=sys-devel/binutils-config-3 zlib? ( sys-libs/zlib ) test? ( dev-util/dejagnu ) nls? ( sys-devel/gettext ) sys-devel/flex virtual/yacc
 DESCRIPTION=Tools necessary to build programs
 EAPI=4
 HOMEPAGE=http://sourceware.org/binutils/
 IUSE=cxx multislot multitarget nls static-libs test vanilla zlib
 LICENSE=|| ( GPL-3 LGPL-3 )
-RDEPEND=>=sys-devel/binutils-config-1.9 zlib? ( sys-libs/zlib )
-SLOT=0
-_eclasses_=eutils	06133990e861be0fe60c2b428fd025d9	flag-o-matic	75e24bac8423c515dd9c5717f08feb83	git-2	2027b81a576527fa16bece425941e094	git-r3	6ebae45064cb04482f3c702632dd9528	gnuconfig	ee02e61d6c68cee478e2e69214b7caef	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-binutils	9954816db56bf9c75f4c71287824dde9	toolchain-funcs	0f1760274637a138b99bb649202ea402	unpacker	f300a7ca9131b1024a79762e8edd3c52	versionator	cd0bcdb170807e4a1984115e9d53a26f
+RDEPEND=>=sys-devel/binutils-config-3 zlib? ( sys-libs/zlib )
+SLOT=git
+_eclasses_=eutils	6faef4c127028ccbba3a11400d24ae34	flag-o-matic	eda1c0b5ba85b3eeb555a071d69eb819	git-2	e28f0d8a9b321431b1e699782851b827	gnuconfig	00a0530e40148c254cebb925df0e87ef	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-binutils	56d2bb68faf9e5fccc15fe6722b0a04c	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac	unpacker	f300a7ca9131b1024a79762e8edd3c52	versionator	cd0bcdb170807e4a1984115e9d53a26f
 _md5_=fa20d2147bc458352a0bf23b9101e55a

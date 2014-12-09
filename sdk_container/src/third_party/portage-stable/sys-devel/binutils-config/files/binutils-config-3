@@ -1,7 +1,7 @@
 #!/bin/bash
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/binutils-config/files/binutils-config-3,v 1.9 2012/08/18 03:57:50 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/binutils-config/files/binutils-config-3,v 1.11 2013/05/05 05:20:42 vapier Exp $
 
 # Format of /etc/env.d/binutils/:
 #  config-TARGET:	CURRENT=version for TARGET
@@ -258,8 +258,11 @@ uninstall_target() {
 
 	# XXX: we still leave behind FAKE_TARGETS in /usr/bin ...
 	local x
-	for x in addr2line ar as c++filt elf2flt flthdr gprof ld ld.real \
-	         nm objcopy objdump ranlib readelf size strings strip ; do
+	for x in \
+		addr2line ar as c++filt elf2flt elfedit flthdr gprof \
+		ld ld.{bfd,gold,real} \
+		nm objcopy objdump ranlib readelf size strings strip
+	do
 		x=(
 			"${ROOT}"/usr/bin/${TARGET}-${x}
 			"${ROOT}"/usr/{${HOST}/,}${TARGET}/bin/${x}
@@ -281,6 +284,8 @@ uninstall_target() {
 		"${destdir}"/{bin,include,lib,usr} \
 		"${destdir}" \
 		"${ROOT}"/var/db/pkg/cross-${TARGET} \
+		"${ROOT}"/usr/{${HOST}/,}${TARGET}/bin \
+		"${ROOT}"/usr/libexec/gcc/${TARGET} \
 		2>/dev/null
 
 	rm -f "${ENV_D}"/${TARGET}-*
@@ -411,7 +416,7 @@ while [[ $# -gt 0 ]] ; do
 		-h|--help)                 usage 0 ;;
 		-V|--version)
 			unset Header
-			cvsver="$Header: /var/cvsroot/gentoo-x86/sys-devel/binutils-config/files/binutils-config-3,v 1.9 2012/08/18 03:57:50 vapier Exp $"
+			cvsver="$Header: /var/cvsroot/gentoo-x86/sys-devel/binutils-config/files/binutils-config-3,v 1.11 2013/05/05 05:20:42 vapier Exp $"
 			cvsver=${cvsver##*binutils-config-}
 			bver=${cvsver%%,v *}
 			cvsver=${cvsver#* }
