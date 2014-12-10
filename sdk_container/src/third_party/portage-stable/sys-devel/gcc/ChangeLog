@@ -1,6 +1,83 @@
 # ChangeLog for sys-devel/gcc
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/ChangeLog,v 1.1016 2014/08/07 00:40:11 rhill Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/ChangeLog,v 1.1033 2014/11/04 03:20:47 vapier Exp $
+
+  04 Nov 2014; Mike Frysinger <vapier@gentoo.org> gcc-4.8.3.ebuild:
+  Mark arm64/m68k/s390/sh stable.
+
+  03 Nov 2014; Agostino Sarubbo <ago@gentoo.org> gcc-4.8.3.ebuild:
+  Stable for x86, wrt bug #516152
+
+*gcc-4.9.2 (01 Nov 2014)
+
+  01 Nov 2014; Mike Frysinger <vapier@gentoo.org> +gcc-4.9.2.ebuild:
+  Version bump #527480 by Markus.
+
+  24 Oct 2014; Mikle Kolyada <zlogene@gentoo.org> gcc-4.8.3.ebuild:
+  amd64 stable wrt bug #516152
+
+  24 Oct 2014; Mike Frysinger <vapier@gentoo.org> gcc-2.95.3-r10.ebuild,
+  gcc-3.3.6-r1.ebuild, gcc-3.4.6-r2.ebuild, gcc-4.0.4.ebuild, gcc-4.1.2.ebuild,
+  gcc-4.2.4-r1.ebuild, gcc-4.3.6-r1.ebuild, gcc-4.4.7.ebuild,
+  gcc-4.5.1-r1.ebuild, gcc-4.5.2.ebuild, gcc-4.5.3-r2.ebuild, gcc-4.5.4.ebuild,
+  gcc-4.6.0.ebuild, gcc-4.6.1-r1.ebuild, gcc-4.6.2.ebuild, gcc-4.6.3.ebuild,
+  gcc-4.6.4.ebuild, gcc-4.7.0.ebuild, gcc-4.7.1.ebuild, gcc-4.7.2-r1.ebuild,
+  gcc-4.7.3-r1.ebuild, gcc-4.7.4.ebuild, gcc-4.8.0.ebuild, gcc-4.8.1-r1.ebuild,
+  gcc-4.8.2.ebuild, gcc-4.8.3.ebuild, gcc-4.9.0.ebuild, gcc-4.9.1.ebuild:
+  Move LICENSE to the eclass.
+
+  23 Oct 2014; Mike Frysinger <vapier@gentoo.org> gcc-2.95.3-r10.ebuild,
+  gcc-3.3.6-r1.ebuild, gcc-3.4.6-r2.ebuild, gcc-4.0.4.ebuild, gcc-4.1.2.ebuild,
+  gcc-4.2.4-r1.ebuild, gcc-4.3.6-r1.ebuild, gcc-4.4.7.ebuild,
+  gcc-4.5.1-r1.ebuild, gcc-4.5.2.ebuild, gcc-4.5.3-r2.ebuild, gcc-4.5.4.ebuild,
+  gcc-4.6.0.ebuild, gcc-4.6.1-r1.ebuild, gcc-4.6.2.ebuild, gcc-4.6.3.ebuild,
+  gcc-4.6.4.ebuild, gcc-4.7.0.ebuild, gcc-4.7.1.ebuild, gcc-4.7.2-r1.ebuild,
+  gcc-4.7.3-r1.ebuild, gcc-4.7.4.ebuild, gcc-4.8.0.ebuild, gcc-4.8.1-r1.ebuild,
+  gcc-4.8.2.ebuild, gcc-4.8.3.ebuild, gcc-4.9.0.ebuild, gcc-4.9.1.ebuild:
+  Use DESCRIPTION from the eclass.
+
+  22 Oct 2014; Anthony G. Basile <blueness@gentoo.org> gcc-4.8.3.ebuild:
+  Stable on ppc and ppc64, bug #516152
+
+  22 Oct 2014; Markus Meier <maekke@gentoo.org> gcc-4.8.3.ebuild:
+  arm stable, bug #516152
+
+  19 Oct 2014; Mike Frysinger <vapier@gentoo.org> metadata.xml:
+  Document new USE=sanitize flag #525174 by Lukas Lihotzki.
+
+  17 Oct 2014; Mike Frysinger <vapier@gentoo.org> gcc-3.3.6-r1.ebuild,
+  gcc-3.4.6-r2.ebuild, gcc-4.1.2.ebuild, gcc-4.2.4-r1.ebuild,
+  gcc-4.3.6-r1.ebuild:
+  Drop $GCC_SPECS support in older versions.
+
+  17 Oct 2014; Mike Frysinger <vapier@gentoo.org>
+  -files/3.4.4/gcc-3.4.4-softfloat.patch,
+  -files/4.0.2/gcc-4.0.2-softfloat.patch,
+  -files/4.3.2/gcc-4.3.2-softfloat.patch,
+  -files/4.4.0/gcc-4.4.0-softfloat.patch, gcc-3.4.6-r2.ebuild, gcc-4.1.2.ebuild,
+  gcc-4.2.4-r1.ebuild, gcc-4.3.6-r1.ebuild, gcc-4.4.7.ebuild,
+  gcc-4.5.1-r1.ebuild, gcc-4.5.2.ebuild:
+  Drop softfloat support in older versions.
+
+  17 Oct 2014; Mike Frysinger <vapier@gentoo.org>
+  -files/4.0.2/gcc-4.0.2-cross-compile.patch, gcc-4.0.4.ebuild:
+  Push out queued patches and move stuff from FILESDIR to the patchset.
+
+  02 Oct 2014; Ryan Hill <rhill@gentoo.org> gcc-4.7.3-r1.ebuild:
+  4.7.3 p1.5: Backport PR60155 fix to stable (bug #512586).
+
+  29 Sep 2014; Ryan Hill <rhill@gentoo.org> gcc-4.7.4.ebuild:
+  4.7.4 p1.2: Fix openssh build on alpha (bug #512586).
+
+  28 Sep 2014; Jeroen Roovers <jer@gentoo.org> gcc-4.8.3.ebuild:
+  Stable for HPPA (bug #516152).
+
+  24 Sep 2014; Anthony G. Basile <blueness@gentoo.org> gcc-4.8.0.ebuild,
+  gcc-4.8.1-r1.ebuild, gcc-4.8.2.ebuild, gcc-4.8.3.ebuild:
+  Keyword 4.8 ~ppc and ~ppc64
+
+  15 Sep 2014; Agostino Sarubbo <ago@gentoo.org> gcc-4.6.4.ebuild:
+  Stable for sparc, wrt bug #512012
 
 *gcc-4.9.1 (07 Aug 2014)
 

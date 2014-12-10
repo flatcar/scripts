@@ -56,31 +56,6 @@ not all options supported by the bfd linker are supportd by the gold linker.
 \fB\-\-bfd\fR
 Change the default linker for the specified \fIPROFILE\fR to the [older but
 stable] bfd linker.  If unsure, stick to this one.
-.TP
-\fB\-\-amd64\fR
-A nice feature of the amd64/x86 toolchain is that each can produce code for 
-other.  The typical user could care less, but some may want to be able to 
-cross-compile for an amd64 on a x86 system.  This will install the extra 
-symlinks ('x86_64') to facilitate this process.
-.TP
-\fB\-\-arm\fR
-The arm architecture comes in both big and little endian versions.  Typically 
-you only need support for the native target, but sometimes it's helpful to 
-have links for the other endian target.  This will make sure you have both the 
-big endian target ('armeb') and the little endian target ('arm').
-.TP
-\fB\-\-mips\fR
-The mips architecture (like arm) comes in both big and little endian versions.  
-Typically you only need support for the native target, but sometimes it's 
-helpful to have links for the other endian target.  This will make sure you 
-have both the big endian target ('mips') and the little endian target 
-('mipsel').
-.TP
-\fB\-\-x86\fR
-One oddity of the x86 toolchain is that they may be named 'i386', or 'i486', 
-or 'i586', or 'i686', yet still produce the same exact code.  When dealing 
-with distcc systems that are mixed (some i586 and some i686), you will need 
-symlinks for all these targets.  This option will install those extra targets.
 .SH "REPORTING BUGS"
 Please report bugs via http://bugs.gentoo.org/
 .SH "SEE ALSO"

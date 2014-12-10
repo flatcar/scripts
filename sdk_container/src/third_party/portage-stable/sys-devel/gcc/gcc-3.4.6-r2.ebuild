@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/gcc-3.4.6-r2.ebuild,v 1.35 2014/01/19 01:51:34 dirtyepic Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/gcc-3.4.6-r2.ebuild,v 1.38 2014/10/23 23:48:17 vapier Exp $
 
 EAPI="2"
 
@@ -12,8 +12,6 @@ HTB_GCC_VER="3.4.4"
 D_VER="0.24"
 
 inherit eutils toolchain
-
-DESCRIPTION="The GNU Compiler Collection"
 
 KEYWORDS="-* alpha amd64 arm ~ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~x86-fbsd"
 IUSE="ip28 ip32r10k n32 n64"
@@ -30,9 +28,6 @@ DEPEND="${RDEPEND}
 src_prepare() {
 	toolchain_src_prepare
 
-	# misc patches that havent made it into a patch tarball yet
-	[[ ${CHOST} == ${CTARGET} ]] && epatch "${FILESDIR}"/gcc-spec-env.patch
-
 	# Anything useful and objc will require libffi. Seriously. Lets just force
 	# libffi to install with USE="objc", even though it normally only installs
 	# if you attempt to build gcj.
@@ -43,8 +38,6 @@ src_prepare() {
 
 	# Fix cross-compiling
 	epatch "${FILESDIR}"/3.4.4/gcc-3.4.4-cross-compile.patch
-
-	[[ ${CTARGET} == *-softfloat-* ]] && epatch "${FILESDIR}"/3.4.4/gcc-3.4.4-softfloat.patch
 
 	# Arch stuff
 	case $(tc-arch) in

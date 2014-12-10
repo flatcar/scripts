@@ -1,6 +1,22 @@
 # ChangeLog for sys-devel/bison
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/bison/ChangeLog,v 1.126 2013/11/13 08:14:45 radhermit Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/bison/ChangeLog,v 1.129 2014/01/18 03:19:42 vapier Exp $
+
+  18 Jan 2014; Mike Frysinger <vapier@gentoo.org> bison-1.875d.ebuild,
+  bison-2.4.3.ebuild, bison-2.7.1.ebuild, bison-3.0.2.ebuild:
+  Add arm64 love.
+
+  07 Jan 2014; Lars Wendler <polynomial-c@gentoo.org> -bison-2.4.2.ebuild,
+  -bison-2.5.1.ebuild, -bison-2.6.5.ebuild, -bison-2.7.ebuild,
+  -bison-3.0.ebuild, -bison-3.0.1.ebuild,
+  -files/bison-2.4.2-gcc45_testsuite.patch,
+  -files/bison-2.4.2-gnulib_spawn.patch:
+  Removed old versions and files.
+
+*bison-3.0.2 (16 Dec 2013)
+
+  16 Dec 2013; Tim Harder <radhermit@gentoo.org> +bison-3.0.2.ebuild:
+  Version bump.
 
 *bison-3.0.1 (13 Nov 2013)
 

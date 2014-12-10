@@ -8,5 +8,5 @@ KEYWORDS=amd64 x86
 LICENSE=GPL-2
 SLOT=0
 SRC_URI=https://git.ipxe.org/ipxe.git/snapshot/936134ed460618e18cc05d677a442d43d5e739a1.tar.bz2 -> ipxe-1.0.0_p20130624-936134e.tar.bz2
-_eclasses_=multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0f1760274637a138b99bb649202ea402
+_eclasses_=multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
 _md5_=bcb7858055c1906c33f465d341e8b6c9

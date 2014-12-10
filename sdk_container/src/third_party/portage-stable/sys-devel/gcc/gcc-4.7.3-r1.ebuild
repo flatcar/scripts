@@ -1,10 +1,10 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/gcc-4.7.3-r1.ebuild,v 1.17 2014/02/16 07:32:05 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/gcc-4.7.3-r1.ebuild,v 1.20 2014/10/24 00:23:04 vapier Exp $
 
 EAPI="2"
 
-PATCH_VER="1.4"
+PATCH_VER="1.5"
 UCLIBC_VER="1.0"
 
 # Hardened gcc 4 stuff
@@ -21,10 +21,6 @@ SSP_UCLIBC_STABLE="x86 amd64 ppc ppc64 arm"
 #end Hardened stuff
 
 inherit eutils toolchain
-
-DESCRIPTION="The GNU Compiler Collection"
-
-LICENSE="GPL-3+ LGPL-3+ || ( GPL-3+ libgcc libstdc++ gcc-runtime-library-exception-3.1 ) FDL-1.3+"
 
 KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 -amd64-fbsd -x86-fbsd"
 
