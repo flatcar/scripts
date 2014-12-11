@@ -1,0 +1,50 @@
+From 8b90ab2b1cfa3974097b0466d8f7563323dda0c2 Mon Sep 17 00:00:00 2001
+From: Andreas Dilger <adilger@dilger.ca>
+Date: Fri, 25 Jul 2014 21:43:08 -0400
+Subject: [PATCH] build: fix unused/uninitialized variable warnings
+
+Fix a few warnings about unused and uninitialized variables.
+
+Also fix util/subst.c to include <sys/time.h> to avoid using
+undeclared functions gettimeofday() and futimes().
+
+Signed-off-by: Andreas Dilger <adilger@dilger.ca>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+---
+ debugfs/debugfs.c        | 3 ---
+ e2fsck/pass5.c           | 3 ---
+ lib/ext2fs/blkmap64_rb.c | 2 +-
+ lib/quota/mkquota.c      | 1 -
+ misc/mk_hugefiles.c      | 2 +-
+ util/subst.c             | 3 +++
+ 6 files changed, 5 insertions(+), 9 deletions(-)
+
+diff --git a/lib/quota/mkquota.c b/lib/quota/mkquota.c
+index 58803d0..0ece088 100644
+--- a/lib/quota/mkquota.c
++++ b/lib/quota/mkquota.c
+@@ -580,7 +580,6 @@ out:
+ errcode_t quota_compare_and_update(quota_ctx_t qctx, int qtype,
+ 				   int *usage_inconsistent)
+ {
+-	ext2_filsys fs = qctx->fs;
+ 	struct quota_handle qh;
+ 	struct scan_dquots_data scan_data;
+ 	struct dquot *dq;
+diff --git a/util/subst.c b/util/subst.c
+index 6244831..36eaa94 100644
+--- a/util/subst.c
++++ b/util/subst.c
+@@ -14,6 +14,9 @@
+ #include <unistd.h>
+ #include <string.h>
+ #include <ctype.h>
++#ifdef HAVE_SYS_TIME_H
++#include <sys/time.h>
++#endif
+ #include <sys/types.h>
+ #include <sys/stat.h>
+ #include <fcntl.h>
+-- 
+2.0.0
+
