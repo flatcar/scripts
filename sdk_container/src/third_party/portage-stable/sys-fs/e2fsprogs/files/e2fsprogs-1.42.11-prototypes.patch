@@ -1,0 +1,118 @@
+From 8b90ab2b1cfa3974097b0466d8f7563323dda0c2 Mon Sep 17 00:00:00 2001
+From: Andreas Dilger <adilger@dilger.ca>
+Date: Fri, 25 Jul 2014 21:43:08 -0400
+Subject: [PATCH] build: fix unused/uninitialized variable warnings
+
+Fix a few warnings about unused and uninitialized variables.
+
+Also fix util/subst.c to include <sys/time.h> to avoid using
+undeclared functions gettimeofday() and futimes().
+
+Signed-off-by: Andreas Dilger <adilger@dilger.ca>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+---
+ debugfs/debugfs.c        | 3 ---
+ e2fsck/pass5.c           | 3 ---
+ lib/ext2fs/blkmap64_rb.c | 2 +-
+ lib/quota/mkquota.c      | 1 -
+ misc/mk_hugefiles.c      | 2 +-
+ util/subst.c             | 3 +++
+ 6 files changed, 5 insertions(+), 9 deletions(-)
+
+diff --git a/debugfs/debugfs.c b/debugfs/debugfs.c
+index b41626c..b6ba1da 100644
+--- a/debugfs/debugfs.c
++++ b/debugfs/debugfs.c
+@@ -2347,7 +2347,6 @@ try_again:
+ 
+ void do_dump_mmp(int argc EXT2FS_ATTR((unused)), char *argv[])
+ {
+-	struct ext2_super_block *sb;
+ 	struct mmp_struct *mmp_s;
+ 	time_t t;
+ 	errcode_t retval = 0;
+@@ -2355,8 +2354,6 @@ void do_dump_mmp(int argc EXT2FS_ATTR((unused)), char *argv[])
+ 	if (check_fs_open(argv[0]))
+ 		return;
+ 
+-	sb  = current_fs->super;
+-
+ 	if (current_fs->mmp_buf == NULL) {
+ 		retval = ext2fs_get_mem(current_fs->blocksize,
+ 					&current_fs->mmp_buf);
+diff --git a/e2fsck/pass5.c b/e2fsck/pass5.c
+index b31490f..d0b1ced 100644
+--- a/e2fsck/pass5.c
++++ b/e2fsck/pass5.c
+@@ -206,7 +206,6 @@ static void check_block_bitmaps(e2fsck_t ctx)
+ 	problem_t	problem, save_problem;
+ 	int		fixit, had_problem;
+ 	errcode_t	retval;
+-	int		csum_flag;
+ 	int	old_desc_blocks = 0;
+ 	int	count = 0;
+ 	int	cmp_block = 0;
+@@ -253,8 +252,6 @@ static void check_block_bitmaps(e2fsck_t ctx)
+ 		goto errout;
+ 	}
+ 
+-	csum_flag = EXT2_HAS_RO_COMPAT_FEATURE(fs->super,
+-					       EXT4_FEATURE_RO_COMPAT_GDT_CSUM);
+ redo_counts:
+ 	had_problem = 0;
+ 	save_problem = 0;
+diff --git a/lib/ext2fs/blkmap64_rb.c b/lib/ext2fs/blkmap64_rb.c
+index 4dcb03f..a1dde6d 100644
+--- a/lib/ext2fs/blkmap64_rb.c
++++ b/lib/ext2fs/blkmap64_rb.c
+@@ -83,7 +83,7 @@ static void print_tree(struct rb_root *root)
+ 
+ static void check_tree(struct rb_root *root, const char *msg)
+ {
+-	struct rb_node *new_node, *node, *next;
++	struct rb_node *node;
+ 	struct bmap_rb_extent *ext, *old = NULL;
+ 
+ 	for (node = ext2fs_rb_first(root); node;
+diff --git a/lib/quota/mkquota.c b/lib/quota/mkquota.c
+index 58803d0..0ece088 100644
+--- a/lib/quota/mkquota.c
++++ b/lib/quota/mkquota.c
+@@ -580,7 +580,6 @@ out:
+ errcode_t quota_compare_and_update(quota_ctx_t qctx, int qtype,
+ 				   int *usage_inconsistent)
+ {
+-	ext2_filsys fs = qctx->fs;
+ 	struct quota_handle qh;
+ 	struct scan_dquots_data scan_data;
+ 	struct dquot *dq;
+diff --git a/misc/mk_hugefiles.c b/misc/mk_hugefiles.c
+index 6bc25e6..7f1be2e 100644
+--- a/misc/mk_hugefiles.c
++++ b/misc/mk_hugefiles.c
+@@ -468,7 +468,7 @@ errcode_t mk_hugefiles(ext2_filsys fs, const char *device_name)
+ 	unsigned long	i;
+ 	ext2_ino_t	dir;
+ 	errcode_t	retval;
+-	blk64_t		fs_blocks, part_offset;
++	blk64_t		fs_blocks, part_offset = 0;
+ 	unsigned long	align;
+ 	int		d, dsize;
+ 	char		*t;
+diff --git a/util/subst.c b/util/subst.c
+index 6244831..36eaa94 100644
+--- a/util/subst.c
++++ b/util/subst.c
+@@ -14,6 +14,9 @@
+ #include <unistd.h>
+ #include <string.h>
+ #include <ctype.h>
++#ifdef HAVE_SYS_TIME_H
++#include <sys/time.h>
++#endif
+ #include <sys/types.h>
+ #include <sys/stat.h>
+ #include <fcntl.h>
+-- 
+2.0.0
+
