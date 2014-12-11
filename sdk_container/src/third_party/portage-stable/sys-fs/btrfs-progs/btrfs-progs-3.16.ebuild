@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/btrfs-progs/btrfs-progs-9999.ebuild,v 1.37 2014/09/23 17:53:52 floppym Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/btrfs-progs/btrfs-progs-3.16.ebuild,v 1.1 2014/09/03 20:19:37 slyfox Exp $
 
 EAPI=5
 
@@ -11,12 +11,12 @@ libbtrfs_soname=0
 if [[ ${PV} != 9999 ]]; then
 	MY_PV=v${PV}
 	KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86"
-	SRC_URI="https://www.kernel.org/pub/linux/kernel/people/kdave/${PN}/${PN}-${MY_PV}.tar.xz"
+	SRC_URI="https://www.kernel.org/pub/linux/kernel/people/mason/${PN}/${PN}-${MY_PV}.tar.xz"
 	S="${WORKDIR}"/${PN}-${MY_PV}
 else
-	inherit git-r3
-	EGIT_REPO_URI="git://git.kernel.org/pub/scm/linux/kernel/git/kdave/btrfs-progs.git
-		https://git.kernel.org/pub/scm/linux/kernel/git/kdave/btrfs-progs.git"
+	inherit git-2
+	EGIT_REPO_URI="git://git.kernel.org/pub/scm/linux/kernel/git/mason/btrfs-progs.git
+		https://git.kernel.org/pub/scm/linux/kernel/git/mason/btrfs-progs.git"
 fi
 
 DESCRIPTION="Btrfs filesystem utilities"
