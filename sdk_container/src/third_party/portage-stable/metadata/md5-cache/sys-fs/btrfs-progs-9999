@@ -1,10 +1,11 @@
 DEFINED_PHASES=compile install prepare unpack
-DEPEND=dev-libs/lzo sys-libs/zlib sys-apps/acl sys-fs/e2fsprogs dev-vcs/git
+DEPEND=dev-libs/lzo:2= sys-libs/zlib:0= sys-fs/e2fsprogs:0= sys-apps/acl app-text/asciidoc app-text/docbook-xml-dtd:4.5 app-text/xmlto >=dev-vcs/git-1.8.2.1
 DESCRIPTION=Btrfs filesystem utilities
 EAPI=5
 HOMEPAGE=https://btrfs.wiki.kernel.org
 LICENSE=GPL-2
-RDEPEND=dev-libs/lzo sys-libs/zlib sys-apps/acl sys-fs/e2fsprogs
+RDEPEND=dev-libs/lzo:2= sys-libs/zlib:0= sys-fs/e2fsprogs:0=
+RESTRICT=test
 SLOT=0/0
-_eclasses_=eutils	06133990e861be0fe60c2b428fd025d9	git-2	2027b81a576527fa16bece425941e094	git-r3	6ebae45064cb04482f3c702632dd9528	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0f1760274637a138b99bb649202ea402
-_md5_=67d46201d5a4c26f4439751f2f094d5c
+_eclasses_=eutils	6faef4c127028ccbba3a11400d24ae34	git-r3	6ebae45064cb04482f3c702632dd9528	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
+_md5_=c6281c34d3cc5740aee7c2e17d1fe4f4
