@@ -1,6 +1,49 @@
 # ChangeLog for dev-lang/go
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-lang/go/ChangeLog,v 1.45 2014/08/15 00:33:15 williamh Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-lang/go/ChangeLog,v 1.57 2014/12/11 17:28:16 williamh Exp $
+
+  11 Dec 2014; William Hubbs <williamh@gentoo.org> go-9999.ebuild:
+  sync live ebuild
+
+  11 Dec 2014; William Hubbs <williamh@gentoo.org> go-1.4.ebuild:
+  Fix #532246 -- remove all optional support for editors, plugins, IDES, etc.
+
+*go-1.4 (11 Dec 2014)
+
+  11 Dec 2014; Patrick Lauer <patrick@gentoo.org> +go-1.4.ebuild:
+  Bump
+
+  21 Nov 2014; Tim Harder <radhermit@gentoo.org> go-1.3.3.ebuild:
+  Rename zsh-completion to gentoo-zsh-completions.
+
+  03 Nov 2014; Fabian Groffen <grobian@gentoo.org> go-1.3.3.ebuild,
+  go-9999.ebuild:
+  Darwin: make sure we build with GCC by default instead of Clang, bug #528076
+
+  24 Oct 2014; Michał Górny <mgorny@gentoo.org> go-1.3.3.ebuild:
+  Alias additional commands for bash-completion, bug #526240.
+
+  17 Oct 2014; William Hubbs <williamh@gentoo.org> -go-1.3.1.ebuild,
+  -go-1.3.ebuild:
+  remove old versions wrt bug #523848
+
+  17 Oct 2014; Mikle Kolyada <zlogene@gentoo.org> go-1.3.3.ebuild:
+  arm stable wrt bug #523848
+
+  12 Oct 2014; Mikle Kolyada <zlogene@gentoo.org> go-1.3.3.ebuild:
+  x86 stable wrt bug #523848
+
+  12 Oct 2014; William Hubbs <williamh@gentoo.org> go-1.3.3.ebuild:
+  amd64 stable wrt #523848
+
+*go-1.3.3 (07 Oct 2014)
+
+  07 Oct 2014; William Hubbs <williamh@gentoo.org> +go-1.3.3.ebuild:
+  version bump
+
+  28 Aug 2014; Michał Górny <mgorny@gentoo.org> go-1.3.1.ebuild:
+  Remove USE=bash-completion, install the completion file unconditionally
+  following the Council decision.
 
   15 Aug 2014; William Hubbs <williamh@gentoo.org> go-9999.ebuild:
   sync live ebuild
