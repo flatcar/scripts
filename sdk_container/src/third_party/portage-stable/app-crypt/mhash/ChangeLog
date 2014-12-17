@@ -1,6 +1,19 @@
 # ChangeLog for app-crypt/mhash
-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/app-crypt/mhash/ChangeLog,v 1.66 2012/12/26 19:51:08 jer Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/app-crypt/mhash/ChangeLog,v 1.70 2014/04/15 20:49:42 redlizard Exp $
+
+  15 Apr 2014; redlizard <redlizard@gentoo.org> mhash-0.9.9.9-r1.ebuild:
+  Keyworded ~{x86,x64}-freebsd.
+
+  18 Jan 2014; Mike Frysinger <vapier@gentoo.org> mhash-0.9.9.9-r1.ebuild:
+  Add arm64 love.
+
+  04 Jan 2014; Robin H. Johnson <robbat2@gentoo.org> mhash-0.9.9.9-r1.ebuild:
+  Build fix per bug #488898.
+
+  22 Nov 2013; Michael Haubenwallner <haubi@gentoo.org>
+  mhash-0.9.9.9-r1.ebuild:
+  Mock useless malloc check breaking AIX, bug#490748. Add ~ppc-aix keyword.
 
   26 Dec 2012; Jeroen Roovers <jer@gentoo.org> mhash-0.9.9.9-r1.ebuild:
   Stable for HPPA (bug #287397).

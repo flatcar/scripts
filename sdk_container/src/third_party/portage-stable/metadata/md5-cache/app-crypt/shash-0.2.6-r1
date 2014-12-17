@@ -3,11 +3,11 @@ DEPEND=>=app-crypt/mhash-0.8.18-r1
 DESCRIPTION=Generate or check digests or MACs of files
 HOMEPAGE=http://mcrypt.hellug.gr/shash/
 IUSE=static bash-completion
-KEYWORDS=alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x86-freebsd ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos
+KEYWORDS=alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x86-freebsd ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos
 LICENSE=GPL-2
 PDEPEND=bash-completion? ( app-shells/bash-completion )
 RDEPEND=>=app-crypt/mhash-0.8.18-r1 bash-completion? ( app-admin/eselect )
 SLOT=0
 SRC_URI=ftp://mcrypt.hellug.gr/pub/mcrypt/shash/shash-0.2.6.tar.gz
-_eclasses_=bash-completion	f913ed18b57a2d3372c4291680454db4	eutils	06133990e861be0fe60c2b428fd025d9	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0f1760274637a138b99bb649202ea402
-_md5_=e06f88b6fcab26740c46d8106fa1b971
+_eclasses_=bash-completion	f913ed18b57a2d3372c4291680454db4	eutils	6faef4c127028ccbba3a11400d24ae34	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
+_md5_=82874fb6fa2c76e484d0229f0d2a2ae6
