@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-kernel/dracut/dracut-037-r1.ebuild,v 1.1 2014/05/14 07:09:46 aidecoe Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-kernel/dracut/dracut-040.ebuild,v 1.3 2014/11/09 08:44:21 aidecoe Exp $
 
 EAPI=4
 
@@ -18,7 +18,6 @@ RESTRICT="test"
 
 CDEPEND="virtual/udev
 	systemd? ( >=sys-apps/systemd-199 )
-	selinux? ( sec-policy/selinux-dracut )
 	"
 RDEPEND="${CDEPEND}
 	app-arch/cpio
@@ -28,7 +27,11 @@ RDEPEND="${CDEPEND}
 	>=sys-apps/util-linux-2.21
 
 	debug? ( dev-util/strace )
-	selinux? ( sys-libs/libselinux sys-libs/libsepol )
+	selinux? (
+		sys-libs/libselinux
+		sys-libs/libsepol
+		sec-policy/selinux-dracut
+	)
 	"
 DEPEND="${CDEPEND}
 	app-text/asciidoc
@@ -46,7 +49,8 @@ PATCHES=(
 	"${FILESDIR}/${PV}-0002-gentoo.conf-let-udevdir-be-handled-by-.patch"
 	"${FILESDIR}/${PV}-0003-Use-the-same-paths-in-dracut.sh-as-tho.patch"
 	"${FILESDIR}/${PV}-0004-Install-dracut-install-into-libexec-di.patch"
-	"${FILESDIR}/${PV}-0005-modsign-do-not-hardcode-path-to-keyctl.patch"
+	"${FILESDIR}/${PV}-0005-NEWS-add-040-entry.patch"
+	"${FILESDIR}/${PV}-0006-Don-t-pass-rsyncable-option-to-gzip-Ge.patch"
 	)
 
 #
@@ -234,7 +238,7 @@ pkg_postinst() {
 		sys-apps/iproute2
 	optfeature \
 		"Measure performance of the boot process for later visualisation" \
-		app-benchmarks/bootchart2 sys-apps/usleep sys-process/acct
+		app-benchmarks/bootchart2 app-admin/killproc sys-process/acct
 	optfeature "Scan for Btrfs on block devices"  sys-fs/btrfs-progs
 	optfeature "Load kernel modules and drop this privilege for real init" \
 		sys-libs/libcap
@@ -258,7 +262,7 @@ pkg_postinst() {
 	optfeature "Support NFS" net-fs/nfs-utils net-nds/rpcbind
 	optfeature \
 		"Install ssh and scp along with config files and specified keys" \
-		dev-libs/openssl
+		net-misc/openssh
 	optfeature "Enable logging with syslog-ng or rsyslog" app-admin/syslog-ng \
 		app-admin/rsyslog
 }
