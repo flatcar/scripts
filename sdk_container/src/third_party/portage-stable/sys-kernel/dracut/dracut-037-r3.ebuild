@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-kernel/dracut/dracut-037-r3.ebuild,v 1.1 2014/06/12 18:47:17 aidecoe Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-kernel/dracut/dracut-037-r3.ebuild,v 1.3 2014/11/09 08:44:21 aidecoe Exp $
 
 EAPI=4
 
@@ -236,7 +236,7 @@ pkg_postinst() {
 		sys-apps/iproute2
 	optfeature \
 		"Measure performance of the boot process for later visualisation" \
-		app-benchmarks/bootchart2 sys-apps/usleep sys-process/acct
+		app-benchmarks/bootchart2 app-admin/killproc sys-process/acct
 	optfeature "Scan for Btrfs on block devices"  sys-fs/btrfs-progs
 	optfeature "Load kernel modules and drop this privilege for real init" \
 		sys-libs/libcap
@@ -260,7 +260,7 @@ pkg_postinst() {
 	optfeature "Support NFS" net-fs/nfs-utils net-nds/rpcbind
 	optfeature \
 		"Install ssh and scp along with config files and specified keys" \
-		dev-libs/openssl
+		net-misc/openssh
 	optfeature "Enable logging with syslog-ng or rsyslog" app-admin/syslog-ng \
 		app-admin/rsyslog
 }

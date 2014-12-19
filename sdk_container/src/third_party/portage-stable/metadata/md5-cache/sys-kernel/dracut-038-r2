@@ -9,6 +9,6 @@ LICENSE=GPL-2
 RDEPEND=virtual/udev systemd? ( >=sys-apps/systemd-199 ) selinux? ( sec-policy/selinux-dracut ) app-arch/cpio >=app-shells/bash-4.0 >sys-apps/kmod-5[tools] || ( >=sys-apps/sysvinit-2.87-r3 sys-apps/systemd-sysv-utils ) >=sys-apps/util-linux-2.21 debug? ( dev-util/strace ) selinux? ( sys-libs/libselinux sys-libs/libsepol )
 RESTRICT=test
 SLOT=0
-SRC_URI=mirror://kernel/linux/utils/boot/dracut/dracut-037.tar.xz
-_eclasses_=bash-completion-r1	db412e427e3317ffd3e15f17df269c5e	eutils	06133990e861be0fe60c2b428fd025d9	linux-info	2b8c53f6065bdee2d757472215a3088f	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	systemd	090342761f573a8280dd5aa6b0345f3b	toolchain-funcs	0f1760274637a138b99bb649202ea402	versionator	cd0bcdb170807e4a1984115e9d53a26f
-_md5_=2c3362ec1d8e79d2089fcfc34a2da164
+SRC_URI=mirror://kernel/linux/utils/boot/dracut/dracut-038.tar.xz
+_eclasses_=bash-completion-r1	c8399c7c7ecbcf7ed6e5bd3abb3d4af3	eutils	6faef4c127028ccbba3a11400d24ae34	linux-info	2b8c53f6065bdee2d757472215a3088f	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	systemd	090342761f573a8280dd5aa6b0345f3b	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac	versionator	cd0bcdb170807e4a1984115e9d53a26f
+_md5_=be40bba7a77297916afa1347e59a1ec1
