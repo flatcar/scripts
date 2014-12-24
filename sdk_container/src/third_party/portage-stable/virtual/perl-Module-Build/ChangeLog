@@ -1,6 +1,162 @@
 # ChangeLog for virtual/perl-Module-Build
-# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/virtual/perl-Module-Build/ChangeLog,v 1.57 2011/07/30 11:52:48 tove Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/virtual/perl-Module-Build/ChangeLog,v 1.89 2014/11/29 20:02:38 dilfridge Exp $
+
+*perl-Module-Build-0.420.500-r1 (29 Nov 2014)
+
+  29 Nov 2014; Andreas K. Huettel <dilfridge@gentoo.org>
+  -perl-Module-Build-0.420.500.ebuild, +perl-Module-Build-0.420.500-r1.ebuild:
+  The Perl 5.20 bundled version is deprecated and throws warnings, therefore we
+  install from CPAN; bug 531052
+
+*perl-Module-Build-0.420.500 (09 Jul 2014)
+*perl-Module-Build-0.400.300-r1 (09 Jul 2014)
+
+  09 Jul 2014; Andreas K. Huettel <dilfridge@gentoo.org>
+  -perl-Module-Build-0.36.07.ebuild, -perl-Module-Build-0.362.400.ebuild,
+  -perl-Module-Build-0.380.0-r2.ebuild, -perl-Module-Build-0.400.0.ebuild,
+  -perl-Module-Build-0.400.100.ebuild, -perl-Module-Build-0.400.200.ebuild,
+  -perl-Module-Build-0.400.300.ebuild, +perl-Module-Build-0.400.300-r1.ebuild,
+  -perl-Module-Build-0.400.700.ebuild, +perl-Module-Build-0.420.500.ebuild:
+  Add perl-5.20 version; improve dependencies; remove old
+
+*perl-Module-Build-0.420.0 (10 Mar 2014)
+
+  10 Mar 2014; Vladimir Smirnov <civil@gentoo.org>
+  +perl-Module-Build-0.420.0.ebuild:
+  Version bump
+
+  20 Jan 2014; Mike Frysinger <vapier@gentoo.org>
+  perl-Module-Build-0.36.07.ebuild, perl-Module-Build-0.362.400.ebuild,
+  perl-Module-Build-0.400.0.ebuild, perl-Module-Build-0.400.100.ebuild,
+  perl-Module-Build-0.400.200.ebuild, perl-Module-Build-0.400.300.ebuild,
+  perl-Module-Build-0.400.700.ebuild:
+  Add arm64 love.
+
+  17 Jan 2014; Mike Frysinger <vapier@gentoo.org>
+  perl-Module-Build-0.400.300.ebuild:
+  Mark m68k stable.
+
+  31 Dec 2013; Mikle Kolyada <zlogene@gentoo.org>
+  -perl-Module-Build-0.34.0201.ebuild:
+  Drop old
+
+*perl-Module-Build-0.400.700 (15 Aug 2013)
+
+  15 Aug 2013; Patrick Lauer <patrick@gentoo.org>
+  +perl-Module-Build-0.400.700.ebuild:
+  Bump
+
+  02 Mar 2013; Agostino Sarubbo <ago@gentoo.org>
+  perl-Module-Build-0.400.300.ebuild:
+  Stable for sh, wrt bug #458122
+
+  23 Feb 2013; Agostino Sarubbo <ago@gentoo.org>
+  perl-Module-Build-0.400.300.ebuild:
+  Stable for sparc, wrt bug #458122
+
+  21 Feb 2013; Agostino Sarubbo <ago@gentoo.org>
+  perl-Module-Build-0.400.300.ebuild:
+  Stable for ia64, wrt bug #458122
+
+  19 Feb 2013; Agostino Sarubbo <ago@gentoo.org>
+  perl-Module-Build-0.400.300.ebuild:
+  Stable for arm, wrt bug #458122
+
+  19 Feb 2013; Agostino Sarubbo <ago@gentoo.org>
+  perl-Module-Build-0.400.300.ebuild:
+  Stable for s390, wrt bug #458122
+
+  19 Feb 2013; Agostino Sarubbo <ago@gentoo.org>
+  perl-Module-Build-0.400.300.ebuild:
+  Stable for alpha, wrt bug #458122
+
+  19 Feb 2013; Agostino Sarubbo <ago@gentoo.org>
+  perl-Module-Build-0.400.300.ebuild:
+  Stable for hppa, wrt bug #458122
+
+  19 Feb 2013; Zac Medico <zmedico@gentoo.org>
+  perl-Module-Build-0.400.300.ebuild:
+  Add ~arm-linux keyword.
+
+  18 Feb 2013; Agostino Sarubbo <ago@gentoo.org>
+  perl-Module-Build-0.400.300.ebuild:
+  Stable for ppc, wrt bug #458122
+
+  18 Feb 2013; Agostino Sarubbo <ago@gentoo.org>
+  perl-Module-Build-0.400.300.ebuild:
+  Stable for ppc64, wrt bug #458122
+
+  18 Feb 2013; Agostino Sarubbo <ago@gentoo.org>
+  perl-Module-Build-0.400.300.ebuild:
+  Stable for x86, wrt bug #458122
+
+  18 Feb 2013; Agostino Sarubbo <ago@gentoo.org>
+  perl-Module-Build-0.400.300.ebuild:
+  Stable for amd64, wrt bug #458122
+
+  07 Jan 2013; Mike Frysinger <vapier@gentoo.org>
+  perl-Module-Build-0.34.0201.ebuild, perl-Module-Build-0.36.07.ebuild,
+  perl-Module-Build-0.362.400.ebuild, perl-Module-Build-0.380.0-r2.ebuild,
+  perl-Module-Build-0.400.0.ebuild, perl-Module-Build-0.400.100.ebuild,
+  perl-Module-Build-0.400.200.ebuild, perl-Module-Build-0.400.300.ebuild:
+  Add m68k love.
+
+*perl-Module-Build-0.400.300 (22 Aug 2012)
+
+  22 Aug 2012; Torsten Veller <tove@gentoo.org>
+  +perl-Module-Build-0.400.300.ebuild:
+  Version bump
+
+*perl-Module-Build-0.400.200 (27 Jul 2012)
+
+  27 Jul 2012; Torsten Veller <tove@gentoo.org>
+  +perl-Module-Build-0.400.200.ebuild:
+  Version bump
+
+*perl-Module-Build-0.400.100 (28 Jun 2012)
+
+  28 Jun 2012; Torsten Veller <tove@gentoo.org>
+  +perl-Module-Build-0.400.100.ebuild:
+  Version bump
+
+  15 May 2012; Mark Loeser <halcy0n@gentoo.org>
+  perl-Module-Build-0.380.0-r2.ebuild:
+  Stable for ppc64; bug #393397
+
+  28 Apr 2012; Alexis Ballier <aballier@gentoo.org>
+  perl-Module-Build-0.400.0.ebuild:
+  keyword ~amd64-fbsd
+
+*perl-Module-Build-0.400.0 (25 Feb 2012)
+
+  25 Feb 2012; Torsten Veller <tove@gentoo.org>
+  +perl-Module-Build-0.400.0.ebuild:
+  Version bump
+
+  02 Feb 2012; Brent Baude <ranger@gentoo.org>
+  perl-Module-Build-0.380.0-r2.ebuild:
+  Marking perl-Module-Build-0.380.0-r2 ppc stable for bug 393397
+
+  15 Jan 2012; Raúl Porcel <armin76@gentoo.org>
+  perl-Module-Build-0.380.0-r2.ebuild:
+  alpha/ia64/s390/sh/sparc stable wrt #393397
+
+  22 Dec 2011; Markus Meier <maekke@gentoo.org>
+  perl-Module-Build-0.380.0-r2.ebuild:
+  x86 stable, bug #393397
+
+  20 Dec 2011; Agostino Sarubbo <ago@gentoo.org>
+  perl-Module-Build-0.380.0-r2.ebuild:
+  Stable for AMD64, wrt bug #393397
+
+  14 Dec 2011; Markus Meier <maekke@gentoo.org>
+  perl-Module-Build-0.380.0-r2.ebuild:
+  arm stable, bug #393397
+
+  07 Dec 2011; Jeroen Roovers <jer@gentoo.org>
+  perl-Module-Build-0.380.0-r2.ebuild:
+  Stable for HPPA (bug #393397).
 
   30 Jul 2011; Torsten Veller <tove@gentoo.org>
   perl-Module-Build-0.34.0201.ebuild, perl-Module-Build-0.36.07.ebuild:
@@ -268,4 +424,3 @@
   +perl-Module-Build-0.28-r1.ebuild, +perl-Module-Build-0.28.08.ebuild,
   +perl-Module-Build-0.30.ebuild:
   Adding virtuals for dual-lifed modules that come with perl-5.10
-
