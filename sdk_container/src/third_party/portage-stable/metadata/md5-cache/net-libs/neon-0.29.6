@@ -1,5 +1,5 @@
 DEFINED_PHASES=configure install postinst prepare
-DEPEND=expat? ( dev-libs/expat ) !expat? ( dev-libs/libxml2 ) gnutls? ( app-misc/ca-certificates >=net-libs/gnutls-2.0 pkcs11? ( dev-libs/pakchois ) ) !gnutls? ( ssl? ( >=dev-libs/openssl-0.9.6f pkcs11? ( dev-libs/pakchois ) ) ) kerberos? ( virtual/krb5 ) libproxy? ( net-libs/libproxy ) nls? ( virtual/libintl ) zlib? ( sys-libs/zlib ) dev-util/pkgconfig !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.14:1.14 ) >=sys-devel/autoconf-2.69 sys-devel/libtool
+DEPEND=expat? ( dev-libs/expat ) !expat? ( dev-libs/libxml2 ) gnutls? ( app-misc/ca-certificates >=net-libs/gnutls-2.0 pkcs11? ( dev-libs/pakchois ) ) !gnutls? ( ssl? ( >=dev-libs/openssl-0.9.6f pkcs11? ( dev-libs/pakchois ) ) ) kerberos? ( virtual/krb5 ) libproxy? ( net-libs/libproxy ) nls? ( virtual/libintl ) zlib? ( sys-libs/zlib ) dev-util/pkgconfig !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.14:1.14 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
 DESCRIPTION=HTTP and WebDAV client library
 EAPI=3
 HOMEPAGE=http://www.webdav.org/neon/
@@ -10,5 +10,5 @@ RDEPEND=expat? ( dev-libs/expat ) !expat? ( dev-libs/libxml2 ) gnutls? ( app-mis
 RESTRICT=test
 SLOT=0
 SRC_URI=http://www.webdav.org/neon/neon-0.29.6.tar.gz
-_eclasses_=autotools	ebea507d219855923e3438c953cf4ab8	eutils	06133990e861be0fe60c2b428fd025d9	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	multiprocessing	d7f2985a2c76c365ee20269db5261414	toolchain-funcs	0f1760274637a138b99bb649202ea402	versionator	cd0bcdb170807e4a1984115e9d53a26f
+_eclasses_=autotools	c118b9a8e93bfef124f2d7a2fe56a95e	eutils	6faef4c127028ccbba3a11400d24ae34	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac	versionator	cd0bcdb170807e4a1984115e9d53a26f
 _md5_=e094419a551eea5e194fdd6b6aff073c

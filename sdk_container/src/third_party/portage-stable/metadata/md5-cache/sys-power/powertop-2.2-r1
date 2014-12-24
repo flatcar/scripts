@@ -9,5 +9,5 @@ LICENSE=GPL-2
 RDEPEND=dev-libs/libnl:3 sys-apps/pciutils sys-libs/ncurses[unicode?] X? ( x11-apps/xset ) virtual/libintl
 SLOT=0
 SRC_URI=https://01.org/powertop/sites/default/files/downloads/powertop-2.2.tar.gz
-_eclasses_=eutils	06133990e861be0fe60c2b428fd025d9	linux-info	2b8c53f6065bdee2d757472215a3088f	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0f1760274637a138b99bb649202ea402	versionator	cd0bcdb170807e4a1984115e9d53a26f
+_eclasses_=eutils	6faef4c127028ccbba3a11400d24ae34	linux-info	2b8c53f6065bdee2d757472215a3088f	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac	versionator	cd0bcdb170807e4a1984115e9d53a26f
 _md5_=e90904b488ac028f9c03f28c9c2b2c76

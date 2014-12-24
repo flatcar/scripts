@@ -1,15 +1,15 @@
 DEFINED_PHASES=compile configure install postinst postrm preinst prepare setup unpack
-DEPEND=>=dev-libs/gobject-introspection-common-1.38.0 >=dev-libs/glib-2.36:2 doctool? ( dev-python/mako ) virtual/libffi:= virtual/pkgconfig !<dev-lang/vala-0.20.0 python_single_target_python2_7? ( >=dev-lang/python-2.7.5-r2:2.7[xml] ) dev-lang/python-exec:=[python_targets_python2_7(-)?,python_single_target_python2_7(+)?] >=dev-util/gtk-doc-am-1.15 sys-devel/bison sys-devel/flex app-arch/xz-utils >=sys-apps/sed-4
+DEPEND=>=dev-libs/gobject-introspection-common-1.38.0 >=dev-libs/glib-2.36:2 doctool? ( dev-python/mako ) virtual/libffi:= virtual/pkgconfig !<dev-lang/vala-0.20.0 >=dev-lang/python-2.7.5-r2:2.7[xml] dev-lang/python-exec:=[python_targets_python2_7(-)?,-python_single_target_jython2_5(-),-python_single_target_jython2_7(-),-python_single_target_pypy(-),-python_single_target_pypy3(-),-python_single_target_python3_3(-),-python_single_target_python3_4(-),python_single_target_python2_7(+)] >=dev-util/gtk-doc-am-1.15 sys-devel/bison sys-devel/flex app-arch/xz-utils >=sys-apps/sed-4
 DESCRIPTION=Introspection infrastructure for generating gobject library bindings for various languages
 EAPI=5
 HOMEPAGE=http://live.gnome.org/GObjectIntrospection/
-IUSE=cairo doctool test python_targets_python2_7 python_single_target_python2_7
+IUSE=cairo doctool test python_targets_python2_7
 KEYWORDS=alpha amd64 arm arm64 hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~x86-fbsd ~x86-freebsd ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris
 LICENSE=LGPL-2+ GPL-2+
 PDEPEND=cairo? ( x11-libs/cairo[glib] )
-RDEPEND=>=dev-libs/gobject-introspection-common-1.38.0 >=dev-libs/glib-2.36:2 doctool? ( dev-python/mako ) virtual/libffi:= virtual/pkgconfig !<dev-lang/vala-0.20.0 python_single_target_python2_7? ( >=dev-lang/python-2.7.5-r2:2.7[xml] ) dev-lang/python-exec:=[python_targets_python2_7(-)?,python_single_target_python2_7(+)?]
-REQUIRED_USE=python_single_target_python2_7? ( python_targets_python2_7 ) ^^ ( python_single_target_python2_7 ) test? ( cairo )
+RDEPEND=>=dev-libs/gobject-introspection-common-1.38.0 >=dev-libs/glib-2.36:2 doctool? ( dev-python/mako ) virtual/libffi:= virtual/pkgconfig !<dev-lang/vala-0.20.0 >=dev-lang/python-2.7.5-r2:2.7[xml] dev-lang/python-exec:=[python_targets_python2_7(-)?,-python_single_target_jython2_5(-),-python_single_target_jython2_7(-),-python_single_target_pypy(-),-python_single_target_pypy3(-),-python_single_target_python3_3(-),-python_single_target_python3_4(-),python_single_target_python2_7(+)]
+REQUIRED_USE=python_targets_python2_7 test? ( cairo )
 SLOT=0
 SRC_URI=mirror://gnome/sources/gobject-introspection/1.38/gobject-introspection-1.38.0.tar.xz
-_eclasses_=eutils	06133990e861be0fe60c2b428fd025d9	fdo-mime	0acfe1a88fd8751a1d5dc671168219fa	gnome.org	8fef8f967214f56e08fa92d61163d891	gnome2	9637c29fc715b17a6328f24251129557	gnome2-utils	f658eba3cc594a21cf6eef4af47daa90	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	python-single-r1	a71a169a881e0a11d04a7fe12dc39f6e	python-utils-r1	8c66c6dabd0295878b68b40dbd0b087b	toolchain-funcs	0f1760274637a138b99bb649202ea402	versionator	cd0bcdb170807e4a1984115e9d53a26f
+_eclasses_=eutils	6faef4c127028ccbba3a11400d24ae34	fdo-mime	0acfe1a88fd8751a1d5dc671168219fa	gnome.org	8fef8f967214f56e08fa92d61163d891	gnome2	45916e43d354f01469675d59c24f3a07	gnome2-utils	5cdfd22a2163c9d3a891648bd19453a7	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	python-single-r1	cc5b6367244dc2070b496eb9a92d5b87	python-utils-r1	d5328656d500f65898a5f51634722f61	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac	versionator	cd0bcdb170807e4a1984115e9d53a26f
 _md5_=39dd0a86555b35abcb792b9410f90a92

@@ -1,5 +1,5 @@
 DEFINED_PHASES=configure install postinst prepare setup
-DEPEND=!sys-apps/module-init-tools !sys-apps/modutils lzma? ( >=app-arch/xz-utils-5.0.4-r1 ) openrc? ( !<sys-apps/openrc-0.12 ) zlib? ( >=sys-libs/zlib-1.2.6 ) dev-libs/libxslt doc? ( dev-util/gtk-doc ) lzma? ( virtual/pkgconfig ) zlib? ( virtual/pkgconfig ) !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.14:1.14 ) >=sys-devel/autoconf-2.69 sys-devel/libtool
+DEPEND=!sys-apps/module-init-tools !sys-apps/modutils lzma? ( >=app-arch/xz-utils-5.0.4-r1 ) openrc? ( !<sys-apps/openrc-0.12 ) zlib? ( >=sys-libs/zlib-1.2.6 ) dev-libs/libxslt doc? ( dev-util/gtk-doc ) lzma? ( virtual/pkgconfig ) zlib? ( virtual/pkgconfig ) !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.14:1.14 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
 DESCRIPTION=library and tools for managing linux kernel modules
 EAPI=5
 HOMEPAGE=http://git.kernel.org/?p=utils/kernel/kmod/kmod.git
@@ -10,5 +10,5 @@ RDEPEND=!sys-apps/module-init-tools !sys-apps/modutils lzma? ( >=app-arch/xz-uti
 RESTRICT=test
 SLOT=0
 SRC_URI=mirror://kernel/linux/utils/kernel/kmod/kmod-15.tar.xz
-_eclasses_=autotools	ebea507d219855923e3438c953cf4ab8	eutils	06133990e861be0fe60c2b428fd025d9	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	multiprocessing	d7f2985a2c76c365ee20269db5261414	toolchain-funcs	0f1760274637a138b99bb649202ea402	versionator	cd0bcdb170807e4a1984115e9d53a26f
+_eclasses_=autotools	c118b9a8e93bfef124f2d7a2fe56a95e	eutils	6faef4c127028ccbba3a11400d24ae34	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac	versionator	cd0bcdb170807e4a1984115e9d53a26f
 _md5_=ced869cde5aab1e9ef3ff5304b49ba3d

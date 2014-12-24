@@ -11,5 +11,5 @@ RDEPEND=!build? ( >=sys-libs/ncurses-5.2 sys-devel/make dev-lang/perl sys-devel/
 RESTRICT=binchecks strip
 SLOT=3.4.28
 SRC_URI=mirror://kernel/linux/kernel/v3.x/patch-3.4.28.xz mirror://kernel/linux/kernel/v3.x/linux-3.4.tar.xz deblob? ( http://www.fsfla.org/svnwiki/selibre/linux-libre//download/releases/LATEST-3.4.N/deblob-3.4 http://www.fsfla.org/svnwiki/selibre/linux-libre//download/releases/LATEST-3.4.N/deblob-check -> deblob-check-3.4 )
-_eclasses_=eutils	06133990e861be0fe60c2b428fd025d9	kernel-2	6fb31411472936acc8287129d3df7f43	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	python-any-r1	4560effd96d3d2a82e50af7cf87166da	python-utils-r1	8c66c6dabd0295878b68b40dbd0b087b	toolchain-funcs	0f1760274637a138b99bb649202ea402	versionator	cd0bcdb170807e4a1984115e9d53a26f
+_eclasses_=eutils	6faef4c127028ccbba3a11400d24ae34	kernel-2	e0363401e3e385deca89bb9a22b528bb	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	python-any-r1	da352ea9da8eb9bf158d56cca65d6c82	python-utils-r1	d5328656d500f65898a5f51634722f61	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac	versionator	cd0bcdb170807e4a1984115e9d53a26f
 _md5_=9c1b237497247f6adb9c68239ace170a

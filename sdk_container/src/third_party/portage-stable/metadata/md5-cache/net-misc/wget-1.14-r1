@@ -1,5 +1,5 @@
 DEFINED_PHASES=configure install prepare
-DEPEND=!static? ( idn? ( net-dns/libidn ) pcre? ( dev-libs/libpcre ) ssl? ( gnutls? ( net-libs/gnutls ) !gnutls? ( dev-libs/openssl:0 ) ) uuid? ( sys-apps/util-linux ) zlib? ( sys-libs/zlib ) ) app-arch/xz-utils virtual/pkgconfig static? ( idn? ( net-dns/libidn[static-libs(+)] ) pcre? ( dev-libs/libpcre[static-libs(+)] ) ssl? ( gnutls? ( net-libs/gnutls[static-libs(+)] ) !gnutls? ( dev-libs/openssl:0[static-libs(+)] ) ) uuid? ( sys-apps/util-linux[static-libs(+)] ) zlib? ( sys-libs/zlib[static-libs(+)] ) ) nls? ( sys-devel/gettext ) !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.14:1.14 ) >=sys-devel/autoconf-2.69 sys-devel/libtool
+DEPEND=!static? ( idn? ( net-dns/libidn ) pcre? ( dev-libs/libpcre ) ssl? ( gnutls? ( net-libs/gnutls ) !gnutls? ( dev-libs/openssl:0 ) ) uuid? ( sys-apps/util-linux ) zlib? ( sys-libs/zlib ) ) app-arch/xz-utils virtual/pkgconfig static? ( idn? ( net-dns/libidn[static-libs(+)] ) pcre? ( dev-libs/libpcre[static-libs(+)] ) ssl? ( gnutls? ( net-libs/gnutls[static-libs(+)] ) !gnutls? ( dev-libs/openssl:0[static-libs(+)] ) ) uuid? ( sys-apps/util-linux[static-libs(+)] ) zlib? ( sys-libs/zlib[static-libs(+)] ) ) nls? ( sys-devel/gettext ) !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.14:1.14 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
 DESCRIPTION=Network utility to retrieve files from the WWW
 EAPI=4
 HOMEPAGE=http://www.gnu.org/software/wget/
@@ -10,5 +10,5 @@ RDEPEND=!static? ( idn? ( net-dns/libidn ) pcre? ( dev-libs/libpcre ) ssl? ( gnu
 REQUIRED_USE=ntlm? ( !gnutls ssl ) gnutls? ( ssl )
 SLOT=0
 SRC_URI=mirror://gnu/wget/wget-1.14.tar.xz
-_eclasses_=autotools	ebea507d219855923e3438c953cf4ab8	eutils	06133990e861be0fe60c2b428fd025d9	flag-o-matic	75e24bac8423c515dd9c5717f08feb83	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	multiprocessing	d7f2985a2c76c365ee20269db5261414	toolchain-funcs	0f1760274637a138b99bb649202ea402
+_eclasses_=autotools	c118b9a8e93bfef124f2d7a2fe56a95e	eutils	6faef4c127028ccbba3a11400d24ae34	flag-o-matic	eda1c0b5ba85b3eeb555a071d69eb819	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
 _md5_=68b25a442103219884ca73be0eb3db4f

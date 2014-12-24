@@ -10,5 +10,5 @@ PDEPEND=>=app-admin/perl-cleaner-2.5
 RDEPEND=berkdb? ( sys-libs/db ) gdbm? ( >=sys-libs/gdbm-1.8.3 ) >=sys-devel/libperl-5.10.1 !!<sys-devel/libperl-5.10.1 app-arch/bzip2 sys-libs/zlib
 SLOT=0
 SRC_URI=mirror://cpan/src/perl-5.12.4.tar.bz2 mirror://cpan/authors/id/L/LB/LBROCARD/perl-5.12.4.tar.bz2 mirror://gentoo/perl-5.12.4-1.tar.bz2 http://dev.gentoo.org/~tove/distfiles/dev-lang/perl/perl-5.12.4-1.tar.bz2
-_eclasses_=alternatives	326031758c86cd08f5844f475f03ac01	eutils	06133990e861be0fe60c2b428fd025d9	flag-o-matic	75e24bac8423c515dd9c5717f08feb83	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0f1760274637a138b99bb649202ea402
+_eclasses_=alternatives	326031758c86cd08f5844f475f03ac01	eutils	6faef4c127028ccbba3a11400d24ae34	flag-o-matic	eda1c0b5ba85b3eeb555a071d69eb819	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
 _md5_=931be1ceeb6f77201d0fde6a515d90a6

@@ -9,5 +9,5 @@ LICENSE=BSD
 RDEPEND=ssl? ( dev-libs/openssl ) !<=dev-libs/9libs-1.0
 SLOT=0
 SRC_URI=mirror://github/libevent/libevent/libevent-2.0.21-stable.tar.gz
-_eclasses_=eutils	06133990e861be0fe60c2b428fd025d9	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0f1760274637a138b99bb649202ea402
+_eclasses_=eutils	6faef4c127028ccbba3a11400d24ae34	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
 _md5_=c328e94c39fe04b75132ef631e0384c2

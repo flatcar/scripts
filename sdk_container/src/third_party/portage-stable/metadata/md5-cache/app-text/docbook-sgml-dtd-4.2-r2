@@ -7,5 +7,5 @@ LICENSE=as-is
 RDEPEND=app-text/sgml-common
 SLOT=4.2
 SRC_URI=http://www.oasis-open.org/docbook/sgml/4.2/docbook-4.2.zip
-_eclasses_=base	87f7447ccfc06fd0729ff4684e11e0d6	eutils	06133990e861be0fe60c2b428fd025d9	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	sgml-catalog	115ce04390f5bb32de8fef875ea71b4b	toolchain-funcs	0f1760274637a138b99bb649202ea402
+_eclasses_=base	87f7447ccfc06fd0729ff4684e11e0d6	eutils	6faef4c127028ccbba3a11400d24ae34	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	sgml-catalog	115ce04390f5bb32de8fef875ea71b4b	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
 _md5_=8b7051a2d839f7ec3d1cd7fb0f657218
