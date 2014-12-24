@@ -1,5 +1,5 @@
 DEFINED_PHASES=compile configure install prepare test unpack
-DEPEND=dev-libs/expat test? ( || ( dev-lang/ruby:2.9 dev-lang/ruby:2.8 dev-lang/ruby:2.7 dev-lang/ruby:2.6 dev-lang/ruby:2.5 dev-lang/ruby:2.4 dev-lang/ruby:2.3 dev-lang/ruby:2.2 dev-lang/ruby:2.1 dev-lang/ruby:2.0 dev-lang/ruby:1.9 dev-lang/ruby:1.8 ) dev-cpp/gmock dev-util/cucumber dev-util/aruba ) dev-libs/boost !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.14:1.14 ) >=sys-devel/autoconf-2.69 sys-devel/libtool
+DEPEND=dev-libs/expat test? ( || ( dev-lang/ruby:2.9 dev-lang/ruby:2.8 dev-lang/ruby:2.7 dev-lang/ruby:2.6 dev-lang/ruby:2.5 dev-lang/ruby:2.4 dev-lang/ruby:2.3 dev-lang/ruby:2.2 dev-lang/ruby:2.1 dev-lang/ruby:2.0 dev-lang/ruby:1.9 dev-lang/ruby:1.8 ) dev-cpp/gmock dev-util/cucumber dev-util/aruba ) dev-libs/boost !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.14:1.14 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
 DESCRIPTION=A suite of tools for thin provisioning on Linux.
 EAPI=5
 HOMEPAGE=https://github.com/jthornber/thin-provisioning-tools
@@ -9,5 +9,5 @@ LICENSE=GPL-3
 RDEPEND=dev-libs/expat
 SLOT=0
 SRC_URI=http://github.com/jthornber/thin-provisioning-tools/archive/v0.2.8.tar.gz -> thin-provisioning-tools-0.2.8.tar.gz https://github.com/denys-duchier/thin-provisioning-tools/commit/3a4c06b772bc8ca27bcf7c2d82abc46c65c23795.diff -> thin-provisioning-tools-0.2.8-boost.patch
-_eclasses_=autotools	ebea507d219855923e3438c953cf4ab8	base	87f7447ccfc06fd0729ff4684e11e0d6	eutils	06133990e861be0fe60c2b428fd025d9	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	multiprocessing	d7f2985a2c76c365ee20269db5261414	toolchain-funcs	0f1760274637a138b99bb649202ea402
+_eclasses_=autotools	c118b9a8e93bfef124f2d7a2fe56a95e	base	87f7447ccfc06fd0729ff4684e11e0d6	eutils	6faef4c127028ccbba3a11400d24ae34	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
 _md5_=c7d3a7b1f5ee424c71aee81237a1c8ac

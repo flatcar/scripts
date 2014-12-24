@@ -9,5 +9,5 @@ LICENSE=GPL-2
 RDEPEND=ldap? ( >=net-nds/openldap-2.3.35 ) netlink? ( sys-apps/dbus dev-libs/libnl:1.1 ) rpc? ( net-nds/rpcbind ) tcpd? ( sys-apps/tcp-wrappers )
 SLOT=0
 SRC_URI=mirror://sourceforge/linuxquota/quota-4.01.tar.gz
-_eclasses_=eutils	06133990e861be0fe60c2b428fd025d9	flag-o-matic	75e24bac8423c515dd9c5717f08feb83	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0f1760274637a138b99bb649202ea402
+_eclasses_=eutils	6faef4c127028ccbba3a11400d24ae34	flag-o-matic	eda1c0b5ba85b3eeb555a071d69eb819	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
 _md5_=539b2e59e314ac927b6d9fe06b706271

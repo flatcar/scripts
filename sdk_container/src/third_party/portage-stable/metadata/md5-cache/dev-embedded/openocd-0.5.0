@@ -11,5 +11,5 @@ REQUIRED_USE=blaster? ( || ( ftdi ftd2xx ) ) ftdi? ( !ftd2xx )
 RESTRICT=strip
 SLOT=0
 SRC_URI=mirror://sourceforge/project/openocd/openocd/0.5.0/openocd-0.5.0.tar.bz2
-_eclasses_=eutils	06133990e861be0fe60c2b428fd025d9	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0f1760274637a138b99bb649202ea402
+_eclasses_=eutils	6faef4c127028ccbba3a11400d24ae34	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
 _md5_=2306331dabdb85c5ce1b52eee27c1818

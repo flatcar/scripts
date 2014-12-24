@@ -9,5 +9,5 @@ LICENSE=GPL-2
 RDEPEND=>=sys-libs/ncurses-5.1 dev-util/dialog >=media-libs/alsa-lib-1.0.25 media-libs/libsamplerate !minimal? ( sys-apps/pciutils )
 SLOT=0.9
 SRC_URI=mirror://alsaproject/utils/alsa-utils-1.0.25.tar.bz2 mirror://alsaproject/driver/alsa-driver-1.0.25.tar.bz2
-_eclasses_=base	87f7447ccfc06fd0729ff4684e11e0d6	eutils	06133990e861be0fe60c2b428fd025d9	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	systemd	090342761f573a8280dd5aa6b0345f3b	toolchain-funcs	0f1760274637a138b99bb649202ea402
+_eclasses_=base	87f7447ccfc06fd0729ff4684e11e0d6	eutils	6faef4c127028ccbba3a11400d24ae34	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	systemd	090342761f573a8280dd5aa6b0345f3b	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
 _md5_=a9aa392e347f04d3cb1bce0d98546d00

@@ -1,16 +1,16 @@
 DEFINED_PHASES=compile configure install postinst postrm prepare test
-DEPEND=python_targets_python2_7? ( >=dev-lang/python-2.7.5-r2:2.7 ) python_targets_python3_2? ( >=dev-lang/python-3.2.5-r2:3.2 ) python_targets_python3_3? ( >=dev-lang/python-3.3.2-r2:3.3 ) dev-lang/python-exec:=[python_targets_python2_7(-)?,python_targets_python3_2(-)?,python_targets_python3_3(-)?,-python_single_target_python2_7(-),-python_single_target_python3_2(-),-python_single_target_python3_3(-)] >=sys-apps/sed-4
+DEPEND=python_targets_python2_7? ( >=dev-lang/python-2.7.5-r2:2.7 ) python_targets_python3_3? ( >=dev-lang/python-3.3.2-r2:3.3 ) dev-lang/python-exec:=[python_targets_python2_7(-)?,python_targets_python3_3(-)?,-python_single_target_python2_7(-),-python_single_target_python3_3(-)] >=sys-apps/sed-4
 DESCRIPTION=Java environment configuration tool
 EAPI=5
 HOMEPAGE=http://www.gentoo.org/proj/en/java/
-IUSE=python_targets_python2_7 python_targets_python3_2 python_targets_python3_3
+IUSE=python_targets_python2_7 python_targets_python3_3
 KEYWORDS=amd64 ~arm ~ia64 ppc ppc64 x86 ~amd64-fbsd ~x86-fbsd
 LICENSE=GPL-2
 PDEPEND=>=virtual/jre-1.5
-RDEPEND=>=dev-java/java-config-wrapper-0.15 !sys-apps/baselayout-java !app-admin/eselect-java python_targets_python2_7? ( >=dev-lang/python-2.7.5-r2:2.7 ) python_targets_python3_2? ( >=dev-lang/python-3.2.5-r2:3.2 ) python_targets_python3_3? ( >=dev-lang/python-3.3.2-r2:3.3 ) dev-lang/python-exec:=[python_targets_python2_7(-)?,python_targets_python3_2(-)?,python_targets_python3_3(-)?,-python_single_target_python2_7(-),-python_single_target_python3_2(-),-python_single_target_python3_3(-)]
-REQUIRED_USE=|| ( python_targets_python2_7 python_targets_python3_2 python_targets_python3_3 )
+RDEPEND=>=dev-java/java-config-wrapper-0.15 !sys-apps/baselayout-java !app-admin/eselect-java python_targets_python2_7? ( >=dev-lang/python-2.7.5-r2:2.7 ) python_targets_python3_3? ( >=dev-lang/python-3.3.2-r2:3.3 ) dev-lang/python-exec:=[python_targets_python2_7(-)?,python_targets_python3_3(-)?,-python_single_target_python2_7(-),-python_single_target_python3_3(-)]
+REQUIRED_USE=|| ( python_targets_python2_7 python_targets_python3_3 )
 RESTRICT=test
 SLOT=2
 SRC_URI=mirror://gentoo/java-config-2.1.12.tar.bz2
-_eclasses_=distutils-r1	d48d51c220f1678179fc4ab13b534ec1	eutils	06133990e861be0fe60c2b428fd025d9	fdo-mime	0acfe1a88fd8751a1d5dc671168219fa	gnome2-utils	f658eba3cc594a21cf6eef4af47daa90	multibuild	46527a4656956da3d58acff72c9b59b1	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	multiprocessing	d7f2985a2c76c365ee20269db5261414	python-r1	c820706d8b22c1d0fe215a9d4a47671d	python-utils-r1	8c66c6dabd0295878b68b40dbd0b087b	toolchain-funcs	0f1760274637a138b99bb649202ea402
+_eclasses_=distutils-r1	b3dd8b90e41a1570ee3117a7c1adb598	eutils	6faef4c127028ccbba3a11400d24ae34	fdo-mime	0acfe1a88fd8751a1d5dc671168219fa	gnome2-utils	5cdfd22a2163c9d3a891648bd19453a7	multibuild	ddc59d206214ef1c240093e1bb2513cf	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	multiprocessing	d7f2985a2c76c365ee20269db5261414	python-r1	b63f5ef61876823ab0bd05d867697d75	python-utils-r1	d5328656d500f65898a5f51634722f61	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
 _md5_=0204724c80fad09fdec284e6d014351f

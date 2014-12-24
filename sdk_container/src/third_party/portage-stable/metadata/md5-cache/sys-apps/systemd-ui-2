@@ -1,5 +1,5 @@
 DEFINED_PHASES=compile configure install prepare test
-DEPEND=!sys-apps/systemd[gtk] >=dev-libs/glib-2.26 dev-libs/libgee:0.8 sys-apps/dbus x11-libs/gtk+:2 >=x11-libs/libnotify-0.7 app-arch/xz-utils || ( dev-lang/vala:0.20 dev-lang/vala:0.18 dev-lang/vala:0.16 dev-lang/vala:0.14 )
+DEPEND=!sys-apps/systemd[gtk] >=dev-libs/glib-2.26 dev-libs/libgee:0.8 sys-apps/dbus x11-libs/gtk+:2 >=x11-libs/libnotify-0.7 app-arch/xz-utils || ( dev-lang/vala:0.20 )
 DESCRIPTION=System and service manager for Linux
 EAPI=4
 HOMEPAGE=http://www.freedesktop.org/wiki/Software/systemd
@@ -8,5 +8,5 @@ LICENSE=GPL-2
 RDEPEND=!sys-apps/systemd[gtk] >=dev-libs/glib-2.26 dev-libs/libgee:0.8 sys-apps/dbus x11-libs/gtk+:2 >=x11-libs/libnotify-0.7
 SLOT=0
 SRC_URI=http://www.freedesktop.org/software/systemd/systemd-ui-2.tar.xz
-_eclasses_=autotools	ebea507d219855923e3438c953cf4ab8	autotools-utils	3727db64c7b960903d5033280f108080	eutils	06133990e861be0fe60c2b428fd025d9	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	multiprocessing	d7f2985a2c76c365ee20269db5261414	toolchain-funcs	0f1760274637a138b99bb649202ea402	vala	d8f392783fdc2395fc64af046f2ca961
+_eclasses_=autotools	c118b9a8e93bfef124f2d7a2fe56a95e	autotools-utils	3727db64c7b960903d5033280f108080	eutils	6faef4c127028ccbba3a11400d24ae34	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac	vala	28e26c72b0f5257aa135444ffc6730b5
 _md5_=be5d263579b988c659065988a7ffb315

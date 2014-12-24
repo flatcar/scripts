@@ -1,5 +1,5 @@
 DEFINED_PHASES=compile configure install prepare
-DEPEND=>=sys-apps/texinfo-4.7-r1 X? ( x11-libs/libX11 x11-libs/libXt x11-libs/libXmu x11-libs/libXaw x11-libs/libSM x11-libs/libICE ) linguas_ja? ( virtual/yacc ) !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.14:1.14 ) >=sys-devel/autoconf-2.69 sys-devel/libtool
+DEPEND=>=sys-apps/texinfo-4.7-r1 X? ( x11-libs/libX11 x11-libs/libXt x11-libs/libXmu x11-libs/libXaw x11-libs/libSM x11-libs/libICE ) linguas_ja? ( virtual/yacc ) !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.14:1.14 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
 DESCRIPTION=Text formatter used for man pages
 EAPI=4
 HOMEPAGE=http://www.gnu.org/software/groff/groff.html
@@ -9,5 +9,5 @@ LICENSE=GPL-2
 RDEPEND=>=sys-apps/texinfo-4.7-r1 X? ( x11-libs/libX11 x11-libs/libXt x11-libs/libXmu x11-libs/libXaw x11-libs/libSM x11-libs/libICE )
 SLOT=0
 SRC_URI=mirror://gnu/groff/groff-1.22.2.tar.gz linguas_ja? ( http://dev.gentoo.org/~naota/patch/groff-1.22.1-japanese.patch.bz2 )
-_eclasses_=autotools	ebea507d219855923e3438c953cf4ab8	eutils	06133990e861be0fe60c2b428fd025d9	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	multiprocessing	d7f2985a2c76c365ee20269db5261414	toolchain-funcs	0f1760274637a138b99bb649202ea402
+_eclasses_=autotools	c118b9a8e93bfef124f2d7a2fe56a95e	eutils	6faef4c127028ccbba3a11400d24ae34	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
 _md5_=256221c21242c9df04c662a9f77aad74

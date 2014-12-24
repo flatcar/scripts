@@ -1,5 +1,5 @@
 DEFINED_PHASES=configure install postinst prepare
-DEPEND=tcpd? ( sys-apps/tcp-wrappers ) caps? ( sys-libs/libcap ) sys-libs/e2fsprogs-libs net-nds/rpcbind net-libs/libtirpc nfsv4? ( >=dev-libs/libevent-1.0b >=net-libs/libnfsidmap-0.21-r1 kerberos? ( net-libs/librpcsecgss net-libs/libgssglue net-libs/libtirpc[kerberos] app-crypt/mit-krb5 ) ) >=sys-apps/util-linux-2.12r-r7 !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.14:1.14 ) >=sys-devel/autoconf-2.69 sys-devel/libtool
+DEPEND=tcpd? ( sys-apps/tcp-wrappers ) caps? ( sys-libs/libcap ) sys-libs/e2fsprogs-libs net-nds/rpcbind net-libs/libtirpc nfsv4? ( >=dev-libs/libevent-1.0b >=net-libs/libnfsidmap-0.21-r1 kerberos? ( net-libs/librpcsecgss net-libs/libgssglue net-libs/libtirpc[kerberos] app-crypt/mit-krb5 ) ) >=sys-apps/util-linux-2.12r-r7 !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.14:1.14 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
 DESCRIPTION=NFS client and server daemons
 EAPI=2
 HOMEPAGE=http://linux-nfs.org/
@@ -10,5 +10,5 @@ RDEPEND=tcpd? ( sys-apps/tcp-wrappers ) caps? ( sys-libs/libcap ) sys-libs/e2fsp
 RESTRICT=test
 SLOT=0
 SRC_URI=mirror://sourceforge/nfs/nfs-utils-1.2.2.tar.bz2
-_eclasses_=autotools	ebea507d219855923e3438c953cf4ab8	eutils	06133990e861be0fe60c2b428fd025d9	flag-o-matic	75e24bac8423c515dd9c5717f08feb83	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	multiprocessing	d7f2985a2c76c365ee20269db5261414	toolchain-funcs	0f1760274637a138b99bb649202ea402
+_eclasses_=autotools	c118b9a8e93bfef124f2d7a2fe56a95e	eutils	6faef4c127028ccbba3a11400d24ae34	flag-o-matic	eda1c0b5ba85b3eeb555a071d69eb819	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
 _md5_=a23cf5969ff9f769aaf9e6574361dd0b

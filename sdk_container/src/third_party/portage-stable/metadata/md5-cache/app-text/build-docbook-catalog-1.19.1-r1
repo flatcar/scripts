@@ -8,5 +8,5 @@ LICENSE=GPL-2
 RDEPEND=kernel_linux? ( sys-apps/util-linux ) !kernel_linux? ( app-misc/getopt ) !<app-text/docbook-xsl-stylesheets-1.73.1 userland_BSD? ( sys-apps/flock ) dev-libs/libxml2
 SLOT=0
 SRC_URI=mirror://gentoo/build-docbook-catalog-1.19.1.tar.xz http://dev.gentoo.org/~floppym/distfiles/build-docbook-catalog-1.19.1.tar.xz http://dev.gentoo.org/~vapier/dist/build-docbook-catalog-1.19.1.tar.xz
-_eclasses_=eutils	06133990e861be0fe60c2b428fd025d9	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0f1760274637a138b99bb649202ea402
+_eclasses_=eutils	6faef4c127028ccbba3a11400d24ae34	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
 _md5_=6725de96a9b3696deaf21a99b983bfde

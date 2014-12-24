@@ -1,5 +1,5 @@
 DEFINED_PHASES=compile configure install prepare test
-DEPEND=>=dev-libs/libxml2-2.8.0:2 crypt? ( >=dev-libs/libgcrypt-1.1.42:0= ) python? ( python_targets_python2_7? ( >=dev-lang/python-2.7.5-r2:2.7[xml] ) dev-lang/python-exec:=[python_targets_python2_7(-)?,-python_single_target_python2_7(-)] dev-libs/libxml2:2[python,python_targets_python2_7(-)?,-python_single_target_python2_7(-)] ) !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.14:1.14 ) >=sys-devel/autoconf-2.69 sys-devel/libtool
+DEPEND=>=dev-libs/libxml2-2.8.0:2 crypt? ( >=dev-libs/libgcrypt-1.1.42:0= ) python? ( python_targets_python2_7? ( >=dev-lang/python-2.7.5-r2:2.7[xml] ) dev-lang/python-exec:=[python_targets_python2_7(-)?,-python_single_target_python2_7(-)] dev-libs/libxml2:2[python,python_targets_python2_7(-)?,-python_single_target_python2_7(-)] ) !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.14:1.14 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
 DESCRIPTION=XSLT libraries and tools
 EAPI=5
 HOMEPAGE=http://www.xmlsoft.org/
@@ -10,5 +10,5 @@ RDEPEND=>=dev-libs/libxml2-2.8.0:2 crypt? ( >=dev-libs/libgcrypt-1.1.42:0= ) pyt
 REQUIRED_USE=python? ( || ( python_targets_python2_7 ) )
 SLOT=0
 SRC_URI=ftp://xmlsoft.org/libxslt/libxslt-1.1.28.tar.gz
-_eclasses_=autotools	ebea507d219855923e3438c953cf4ab8	eutils	06133990e861be0fe60c2b428fd025d9	libtool	52d0e17251d04645ffaa61bfdd858944	multibuild	46527a4656956da3d58acff72c9b59b1	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	multiprocessing	d7f2985a2c76c365ee20269db5261414	python-r1	c820706d8b22c1d0fe215a9d4a47671d	python-utils-r1	8c66c6dabd0295878b68b40dbd0b087b	toolchain-funcs	0f1760274637a138b99bb649202ea402
+_eclasses_=autotools	c118b9a8e93bfef124f2d7a2fe56a95e	eutils	6faef4c127028ccbba3a11400d24ae34	libtool	52d0e17251d04645ffaa61bfdd858944	multibuild	ddc59d206214ef1c240093e1bb2513cf	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	multiprocessing	d7f2985a2c76c365ee20269db5261414	python-r1	b63f5ef61876823ab0bd05d867697d75	python-utils-r1	d5328656d500f65898a5f51634722f61	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
 _md5_=32f07cb6c9c903f8642fb49f7417229c
