@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-kernel/dracut/dracut-040-r1.ebuild,v 1.1 2014/11/13 18:45:40 maksbotan Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-kernel/dracut/dracut-040-r1.ebuild,v 1.2 2014/12/19 17:31:07 pacho Exp $
 
 EAPI=4
 
@@ -23,7 +23,7 @@ RDEPEND="${CDEPEND}
 	app-arch/cpio
 	>=app-shells/bash-4.0
 	>sys-apps/kmod-5[tools]
-	|| ( >=sys-apps/sysvinit-2.87-r3 sys-apps/systemd-sysv-utils )
+	|| ( >=sys-apps/sysvinit-2.87-r3 sys-apps/systemd[sysv-utils] sys-apps/systemd-sysv-utils )
 	>=sys-apps/util-linux-2.21
 
 	debug? ( dev-util/strace )

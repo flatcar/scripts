@@ -1,6 +1,11 @@
 # ChangeLog for sys-kernel/dracut
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-kernel/dracut/ChangeLog,v 1.181 2014/11/18 20:12:34 aidecoe Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-kernel/dracut/ChangeLog,v 1.182 2014/12/19 17:31:07 pacho Exp $
+
+  19 Dec 2014; Pacho Ramos <pacho@gentoo.org> dracut-034-r4.ebuild,
+  dracut-036-r4.ebuild, dracut-037-r3.ebuild, dracut-038-r2.ebuild,
+  dracut-040-r1.ebuild, dracut-040-r2.ebuild, dracut-040.ebuild:
+  sys-apps/systemd[sysv-utils] is another option now
 
   18 Nov 2014; Amadeusz Żołnowski <aidecoe@gentoo.org> dracut-040-r2.ebuild:
   Fix repoman warning about whitespaces.
