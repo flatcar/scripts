@@ -1,6 +1,22 @@
 # ChangeLog for dev-util/ccache
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-util/ccache/ChangeLog,v 1.143 2014/11/20 00:06:03 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-util/ccache/ChangeLog,v 1.146 2014/12/21 15:32:09 floppym Exp $
+
+  21 Dec 2014; Mike Gilbert <floppym@gentoo.org> ccache-3.1.9-r4.ebuild:
+  Move stable keywords forward.
+
+*ccache-3.2.1-r1 (21 Dec 2014)
+*ccache-3.1.9-r4 (21 Dec 2014)
+
+  21 Dec 2014; Mike Gilbert <floppym@gentoo.org> +ccache-3.1.9-r4.ebuild,
+  +ccache-3.2.1-r1.ebuild, +files/ccache-config-3:
+  ccache-config: Source /lib/gentoo/functions.sh, bug 504380.
+
+*ccache-3.2.1 (12 Dec 2014)
+
+  12 Dec 2014; Justin Lecher <jlec@gentoo.org> -ccache-3.2.ebuild,
+  +ccache-3.2.1.ebuild, metadata.xml:
+  Version Bump, fixes #529998
 
 *ccache-3.2 (20 Nov 2014)
 
