@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/openssh/openssh-6.6_p1-r1.ebuild,v 1.10 2014/03/23 09:54:17 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-misc/openssh/openssh-6.7_p1-r3.ebuild,v 1.2 2014/12/31 07:29:47 vapier Exp $
 
 EAPI="4"
 inherit eutils user flag-o-matic multilib autotools pam systemd versionator
@@ -9,32 +9,36 @@ inherit eutils user flag-o-matic multilib autotools pam systemd versionator
 # and _p? releases.
 PARCH=${P/_}
 
-#HPN_PATCH="${PN}-6.6p1-hpnssh14v4.diff.gz"
-HPN_PATCH="${PN}-6.6p1-hpnssh14v4.diff.xz"
-LDAP_PATCH="${PN}-lpk-6.5p1-0.3.14.patch.gz"
-X509_VER="7.9" X509_PATCH="${PARCH}+x509-${X509_VER}.diff.gz"
+HPN_PATCH="${PN}-6.7p1-hpnssh14v5.tar.xz"
+LDAP_PATCH="${PN}-lpk-6.7p1-0.3.14.patch.xz"
+X509_VER="8.2" X509_PATCH="${PARCH}+x509-${X509_VER}.diff.gz"
 
 DESCRIPTION="Port of OpenBSD's free SSH release"
 HOMEPAGE="http://www.openssh.org/"
 SRC_URI="mirror://openbsd/OpenSSH/portable/${PARCH}.tar.gz
-	${HPN_PATCH:+hpn? ( http://dev.gentoo.org/~polynomial-c/${HPN_PATCH} )}
+	mirror://gentoo/${P}-sctp.patch.xz
+	${HPN_PATCH:+hpn? (
+		mirror://gentoo/${HPN_PATCH}
+		http://dev.gentoo.org/~vapier/dist/${HPN_PATCH}
+		mirror://sourceforge/hpnssh/${HPN_PATCH}
+	)}
 	${LDAP_PATCH:+ldap? ( mirror://gentoo/${LDAP_PATCH} )}
 	${X509_PATCH:+X509? ( http://roumenpetrov.info/openssh/x509-${X509_VER}/${X509_PATCH} )}
 	"
-	#${HPN_PATCH:+hpn? ( mirror://sourceforge/hpnssh/${HPN_PATCH} )}
 
 LICENSE="BSD GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~arm-linux ~x86-linux"
-IUSE="bindist ${HPN_PATCH:++}hpn kerberos ldap ldns libedit pam selinux skey static tcpd X X509"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~arm-linux ~x86-linux"
+IUSE="bindist ${HPN_PATCH:++}hpn kerberos kernel_linux ldap ldns libedit pam +pie sctp selinux skey static X X509"
+REQUIRED_USE="pie? ( !static )"
 
-LIB_DEPEND="selinux? ( >=sys-libs/libselinux-1.28[static-libs(+)] )
+LIB_DEPEND="sctp? ( net-misc/lksctp-tools[static-libs(+)] )
+	selinux? ( >=sys-libs/libselinux-1.28[static-libs(+)] )
 	skey? ( >=sys-auth/skey-1.1.5-r1[static-libs(+)] )
 	libedit? ( dev-libs/libedit[static-libs(+)] )
 	>=dev-libs/openssl-0.9.6d:0[bindist=]
 	dev-libs/openssl[static-libs(+)]
-	>=sys-libs/zlib-1.2.3[static-libs(+)]
-	tcpd? ( >=sys-apps/tcp-wrappers-7.6[static-libs(+)] )"
+	>=sys-libs/zlib-1.2.3[static-libs(+)]"
 RDEPEND="
 	!static? (
 		${LIB_DEPEND//\[static-libs(+)]}
@@ -100,11 +104,11 @@ src_prepare() {
 	# don't break .ssh/authorized_keys2 for fun
 	sed -i '/^AuthorizedKeysFile/s:^:#:' sshd_config || die
 
-	epatch "${FILESDIR}"/${PN}-5.9_p1-sshd-gssapi-multihomed.patch #378361
+	epatch "${FILESDIR}"/${PN}-6.7_p1-sshd-gssapi-multihomed.patch #378361
 	if use X509 ; then
 		pushd .. >/dev/null
-		epatch "${FILESDIR}"/${PN}-6.6_p1-x509-glue.patch
-		use hpn && epatch "${FILESDIR}"/${PN}-6.6_p1-x509-hpn14v4-glue-p2.patch
+		epatch "${FILESDIR}"/${P}-x509-glue.patch
+		epatch "${FILESDIR}"/${P}-sctp-x509-glue.patch
 		popd >/dev/null
 		epatch "${WORKDIR}"/${X509_PATCH%.*}
 		epatch "${FILESDIR}"/${PN}-6.3_p1-x509-hpn14v2-glue.patch
@@ -119,10 +123,10 @@ src_prepare() {
 		use ldap && ewarn "Sorry, X509 and LDAP conflict internally, disabling LDAP"
 	fi
 	epatch "${FILESDIR}"/${PN}-4.7_p1-GSSAPI-dns.patch #165444 integrated into gsskex
-	epatch "${FILESDIR}"/${PN}-6.6_p1-openssl-ignore-status.patch
+	epatch "${FILESDIR}"/${PN}-6.7_p1-openssl-ignore-status.patch
+	epatch "${WORKDIR}"/${PN}-6.7_p1-sctp.patch
 	if [[ -n ${HPN_PATCH} ]] && use hpn; then
-		epatch "${WORKDIR}"/${HPN_PATCH%.*}
-		epatch "${FILESDIR}"/${PN}-6.5_p1-hpn-cipher-align.patch #498632
+		epatch "${WORKDIR}"/${HPN_PATCH%.*}/*
 		save_version HPN
 	fi
 
@@ -169,7 +173,7 @@ static_use_with() {
 }
 
 src_configure() {
-	local myconf
+	local myconf=()
 	addwrite /dev/ptmx
 	addpredict /etc/skey/skeykeys #skey configure code triggers this
 
@@ -177,14 +181,14 @@ src_configure() {
 
 	# Special settings for Gentoo/FreeBSD 9.0 or later (see bug #391011)
 	if use elibc_FreeBSD && version_is_at_least 9.0 "$(uname -r|sed 's/\(.\..\).*/\1/')" ; then
-		myconf="${myconf} --disable-utmp --disable-wtmp --disable-wtmpx"
+		myconf+=( --disable-utmp --disable-wtmp --disable-wtmpx )
 		append-ldflags -lutil
 	fi
 
 	econf \
 		--with-ldflags="${LDFLAGS}" \
 		--disable-strip \
-		--with-pid-dir="${EPREFIX}"/var/run \
+		--with-pid-dir="${EPREFIX}"$(usex kernel_linux '' '/var')/run \
 		--sysconfdir="${EPREFIX}"/etc/ssh \
 		--libexecdir="${EPREFIX}"/usr/$(get_libdir)/misc \
 		--datadir="${EPREFIX}"/usr/share/openssh \
@@ -193,14 +197,15 @@ src_configure() {
 		--with-md5-passwords \
 		--with-ssl-engine \
 		$(static_use_with pam) \
-		$(static_use_with kerberos kerberos5 /usr) \
+		$(static_use_with kerberos kerberos5 "${EPREFIX}"/usr) \
 		${LDAP_PATCH:+$(use X509 || ( use ldap && use_with ldap ))} \
 		$(use_with ldns) \
 		$(use_with libedit) \
+		$(use_with pie) \
+		$(use_with sctp) \
 		$(use_with selinux) \
 		$(use_with skey) \
-		$(use_with tcpd tcp-wrappers) \
-		${myconf}
+		"${myconf[@]}"
 }
 
 src_install() {
@@ -310,8 +315,9 @@ pkg_postinst() {
 	# This instruction is from the HPN webpage,
 	# Used for the server logging functionality
 	if [[ -n ${HPN_PATCH} ]] && use hpn ; then
-		echo
 		einfo "For the HPN server logging patch, you must ensure that"
 		einfo "your syslog application also listens at /var/empty/dev/log."
 	fi
+	elog "Note: openssh-6.7 versions no longer support USE=tcpd as upstream has"
+	elog "      dropped it.  Make sure to update any configs that you might have."
 }
