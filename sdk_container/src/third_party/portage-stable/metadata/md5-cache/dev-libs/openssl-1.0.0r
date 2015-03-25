@@ -3,12 +3,13 @@ DEPEND=static-libs? ( gmp? ( dev-libs/gmp[static-libs(+)] ) zlib? ( sys-libs/zli
 DESCRIPTION=full-strength general purpose cryptography library (including SSL v2/v3 and TLS v1)
 EAPI=4
 HOMEPAGE=http://www.openssl.org/
-IUSE=bindist gmp kerberos rfc3779 sse2 static-libs test zlib
+IUSE=bindist gmp kerberos rfc3779 cpu_flags_x86_sse2 static-libs test zlib
 KEYWORDS=~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~sparc-fbsd ~x86-fbsd
 LICENSE=openssl
 PDEPEND=app-misc/ca-certificates
 RDEPEND=static-libs? ( gmp? ( dev-libs/gmp[static-libs(+)] ) zlib? ( sys-libs/zlib[static-libs(+)] ) kerberos? ( app-crypt/mit-krb5 ) ) !static-libs? ( gmp? ( dev-libs/gmp ) zlib? ( sys-libs/zlib ) kerberos? ( app-crypt/mit-krb5 ) )
+RESTRICT=!bindist? ( bindist )
 SLOT=0
-SRC_URI=mirror://openssl/source/openssl-1.0.0p.tar.gz http://cvs.pld-linux.org/cgi-bin/cvsweb.cgi/packages/openssl/openssl-c_rehash.sh?rev=1.7 -> openssl-c_rehash.sh.1.7
+SRC_URI=mirror://openssl/source/openssl-1.0.0r.tar.gz http://cvs.pld-linux.org/cgi-bin/cvsweb.cgi/packages/openssl/openssl-c_rehash.sh?rev=1.7 -> openssl-c_rehash.sh.1.7
 _eclasses_=eutils	6faef4c127028ccbba3a11400d24ae34	flag-o-matic	eda1c0b5ba85b3eeb555a071d69eb819	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
-_md5_=c75e857cf12edce4326b14c991d6a75f
+_md5_=e9cde23b934ade988aeeec42672d2c6b
