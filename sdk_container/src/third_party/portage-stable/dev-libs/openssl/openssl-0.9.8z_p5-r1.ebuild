@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/openssl/openssl-0.9.8z_p4.ebuild,v 1.2 2015/01/08 20:20:40 zlogene Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/openssl/openssl-0.9.8z_p5-r1.ebuild,v 1.3 2015/03/19 17:55:24 ulm Exp $
 
 # this ebuild is only for the libcrypto.so.0.9.8 and libssl.so.0.9.8 SONAME for ABI compat
 
@@ -18,8 +18,9 @@ SRC_URI="mirror://openssl/source/${MY_P}.tar.gz"
 
 LICENSE="openssl"
 SLOT="0.9.8"
-KEYWORDS="~alpha amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~sparc-fbsd ~x86-fbsd"
-IUSE="bindist gmp kerberos sse2 test zlib"
+KEYWORDS="alpha amd64 arm ~hppa ia64 ~m68k ~mips ppc ppc64 s390 sh sparc x86 ~sparc-fbsd ~x86-fbsd"
+IUSE="bindist gmp kerberos cpu_flags_x86_sse2 test zlib"
+RESTRICT="!bindist? ( bindist )"
 
 RDEPEND="gmp? ( >=dev-libs/gmp-5.1.3-r1[${MULTILIB_USEDEP}] )
 	zlib? ( >=sys-libs/zlib-1.2.8-r1[${MULTILIB_USEDEP}] )
@@ -41,6 +42,7 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-0.9.8e-bsd-sparc64.patch
 	epatch "${FILESDIR}"/${PN}-0.9.8h-ldflags.patch #181438
 	epatch "${FILESDIR}"/${PN}-0.9.8m-binutils.patch #289130
+	epatch "${FILESDIR}"/${PN}-0.9.8ze-CVE-2015-0286.patch #543552
 
 	# disable fips in the build
 	# make sure the man pages are suffixed #302165
@@ -113,7 +115,7 @@ multilib_src_configure() {
 	echoit \
 	./${config} \
 		${sslout} \
-		$(use sse2 || echo "no-sse2") \
+		$(use cpu_flags_x86_sse2 || echo "no-sse2") \
 		enable-camellia \
 		$(use_ssl !bindist ec) \
 		enable-idea \
