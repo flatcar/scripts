@@ -1,11 +1,12 @@
-DEFINED_PHASES=configure install postinst prepare test unpack
-DEPEND=!dev-util/gdbserver >=sys-libs/ncurses-5.2-r2 sys-libs/readline expat? ( dev-libs/expat ) python? ( =dev-lang/python-2* ) zlib? ( sys-libs/zlib ) app-arch/xz-utils virtual/yacc test? ( dev-util/dejagnu ) nls? ( sys-devel/gettext ) dev-vcs/git
+DEFINED_PHASES=configure install postinst prepare setup test unpack
+DEPEND=server? ( !dev-util/gdbserver ) client? ( >=sys-libs/ncurses-5.2-r2 sys-libs/readline:0= expat? ( dev-libs/expat ) lzma? ( app-arch/xz-utils ) python? ( python_single_target_python3_3? ( >=dev-lang/python-3.3.2-r2:3.3 ) python_single_target_python3_4? ( dev-lang/python:3.4 ) python_single_target_python2_7? ( >=dev-lang/python-2.7.5-r2:2.7 ) dev-lang/python-exec:=[python_targets_python3_3(-)?,python_targets_python3_4(-)?,python_targets_python2_7(-)?,-python_single_target_jython2_5(-),-python_single_target_jython2_7(-),-python_single_target_pypy(-),-python_single_target_pypy3(-),python_single_target_python3_3(+)?,python_single_target_python3_4(+)?,python_single_target_python2_7(+)?] ) zlib? ( sys-libs/zlib ) ) app-arch/xz-utils client? ( virtual/yacc test? ( dev-util/dejagnu ) nls? ( sys-devel/gettext ) ) dev-vcs/git
 DESCRIPTION=GNU debugger
-EAPI=3
+EAPI=5
 HOMEPAGE=http://sourceware.org/gdb/
-IUSE=+client expat multitarget nls +python +server test vanilla zlib
+IUSE=+client expat lzma multitarget nls +python +server test vanilla zlib python_targets_python3_3 python_targets_python3_4 python_targets_python2_7 python_single_target_python3_3 python_single_target_python3_4 python_single_target_python2_7
 LICENSE=GPL-2 LGPL-2
-RDEPEND=!dev-util/gdbserver >=sys-libs/ncurses-5.2-r2 sys-libs/readline expat? ( dev-libs/expat ) python? ( =dev-lang/python-2* ) zlib? ( sys-libs/zlib )
+RDEPEND=server? ( !dev-util/gdbserver ) client? ( >=sys-libs/ncurses-5.2-r2 sys-libs/readline:0= expat? ( dev-libs/expat ) lzma? ( app-arch/xz-utils ) python? ( python_single_target_python3_3? ( >=dev-lang/python-3.3.2-r2:3.3 ) python_single_target_python3_4? ( dev-lang/python:3.4 ) python_single_target_python2_7? ( >=dev-lang/python-2.7.5-r2:2.7 ) dev-lang/python-exec:=[python_targets_python3_3(-)?,python_targets_python3_4(-)?,python_targets_python2_7(-)?,-python_single_target_jython2_5(-),-python_single_target_jython2_7(-),-python_single_target_pypy(-),-python_single_target_pypy3(-),python_single_target_python3_3(+)?,python_single_target_python3_4(+)?,python_single_target_python2_7(+)?] ) zlib? ( sys-libs/zlib ) )
+REQUIRED_USE=python? ( ^^ ( python_single_target_python3_3 python_single_target_python3_4 python_single_target_python2_7 ) python_single_target_python3_3? ( python_targets_python3_3 ) python_single_target_python3_4? ( python_targets_python3_4 ) python_single_target_python2_7? ( python_targets_python2_7 ) ) || ( client server )
 SLOT=0
-_eclasses_=eutils	6faef4c127028ccbba3a11400d24ae34	flag-o-matic	eda1c0b5ba85b3eeb555a071d69eb819	git-2	e28f0d8a9b321431b1e699782851b827	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
-_md5_=5f1a724c64038b405f92019e81c332f7
+_eclasses_=eutils	6faef4c127028ccbba3a11400d24ae34	flag-o-matic	eda1c0b5ba85b3eeb555a071d69eb819	git-2	e28f0d8a9b321431b1e699782851b827	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	python-single-r1	cc5b6367244dc2070b496eb9a92d5b87	python-utils-r1	d5328656d500f65898a5f51634722f61	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
+_md5_=4a0a6387cfe91767d5c969655ce4b8dd

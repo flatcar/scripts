@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gdb/gdb-7.6.ebuild,v 1.2 2013/06/23 02:16:26 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/gdb/gdb-7.6.ebuild,v 1.9 2015/02/27 08:14:05 vapier Exp $
 
 EAPI="3"
 
@@ -8,8 +8,8 @@ inherit flag-o-matic eutils
 
 export CTARGET=${CTARGET:-${CHOST}}
 if [[ ${CTARGET} == ${CHOST} ]] ; then
-	if [[ ${CATEGORY/cross-} != ${CATEGORY} ]] ; then
-		export CTARGET=${CATEGORY/cross-}
+	if [[ ${CATEGORY} == cross-* ]] ; then
+		export CTARGET=${CATEGORY#cross-}
 	fi
 fi
 is_cross() { [[ ${CHOST} != ${CTARGET} ]] ; }
@@ -31,7 +31,7 @@ case ${PV} in
 	;;
 9999*)
 	# live git tree
-	EGIT_REPO_URI="git://sourceware.org/git/gdb.git"
+	EGIT_REPO_URI="git://sourceware.org/git/binutils-gdb.git"
 	inherit git-2
 	SRC_URI=""
 	;;
@@ -42,7 +42,7 @@ case ${PV} in
 	;;
 esac
 
-PATCH_VER="2"
+PATCH_VER="3"
 DESCRIPTION="GNU debugger"
 HOMEPAGE="http://sourceware.org/gdb/"
 SRC_URI="${SRC_URI} ${PATCH_VER:+mirror://gentoo/${P}-patches-${PATCH_VER}.tar.xz}"
@@ -50,14 +50,15 @@ SRC_URI="${SRC_URI} ${PATCH_VER:+mirror://gentoo/${P}-patches-${PATCH_VER}.tar.x
 LICENSE="GPL-2 LGPL-2"
 SLOT="0"
 if [[ ${PV} != 9999* ]] ; then
-	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~amd64-linux ~arm-linux ~x86-linux ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~amd64-linux ~arm-linux ~x86-linux ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 fi
-IUSE="+client expat multitarget nls +python +server test vanilla zlib"
+IUSE="+client expat lzma multitarget nls +python +server test vanilla zlib"
 
 RDEPEND="!dev-util/gdbserver
 	>=sys-libs/ncurses-5.2-r2
 	sys-libs/readline
 	expat? ( dev-libs/expat )
+	lzma? ( app-arch/xz-utils )
 	python? ( =dev-lang/python-2* )
 	zlib? ( sys-libs/zlib )"
 DEPEND="${RDEPEND}
@@ -70,7 +71,7 @@ S=${WORKDIR}/${PN}-${MY_PV}
 
 src_prepare() {
 	[[ -n ${RPM} ]] && rpm_spec_epatch "${WORKDIR}"/gdb.spec
-	use vanilla || [[ -n ${PATCH_VER} ]] && EPATCH_SUFFIX="patch" epatch "${WORKDIR}"/patch
+	! use vanilla && [[ -n ${PATCH_VER} ]] && EPATCH_SUFFIX="patch" epatch "${WORKDIR}"/patch
 	strip-linguas -u bfd/po opcodes/po
 }
 
@@ -86,14 +87,15 @@ gdb_branding() {
 src_configure() {
 	strip-unsupported-flags
 
-	local sysroot="${EPREFIX}"/usr/${CTARGET}
 	local myconf=(
 		--with-pkgversion="$(gdb_branding)"
 		--with-bugurl='http://bugs.gentoo.org/'
 		--disable-werror
-		$(is_cross && echo \
-			--with-sysroot="${sysroot}" \
-			--includedir="${sysroot}/usr/include")
+	)
+	local sysroot="${EPREFIX}/usr/${CTARGET}"
+	is_cross && myconf+=(
+		--with-sysroot="${sysroot}"
+		--includedir="${sysroot}/usr/include"
 	)
 
 	if use server && ! use client ; then
@@ -120,6 +122,7 @@ src_configure() {
 			--with-system-readline
 			--with-separate-debug-dir="${EPREFIX}"/usr/lib/debug
 			$(use_with expat)
+			$(use_with lzma)
 			$(use_enable nls)
 			$(use multitarget && echo --enable-targets=all)
 			$(use_with python python "${EPREFIX}/usr/bin/python2")

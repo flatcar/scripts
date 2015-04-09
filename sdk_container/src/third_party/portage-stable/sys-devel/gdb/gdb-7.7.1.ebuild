@@ -1,15 +1,16 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gdb/gdb-7.4.ebuild,v 1.5 2013/02/09 04:38:58 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/gdb/gdb-7.7.1.ebuild,v 1.14 2015/03/22 03:14:14 zerochaos Exp $
 
-EAPI="3"
+EAPI="5"
+PYTHON_COMPAT=( python{2_7,3_3,3_4} )
 
-inherit flag-o-matic eutils
+inherit flag-o-matic eutils python-single-r1
 
 export CTARGET=${CTARGET:-${CHOST}}
 if [[ ${CTARGET} == ${CHOST} ]] ; then
-	if [[ ${CATEGORY/cross-} != ${CATEGORY} ]] ; then
-		export CTARGET=${CATEGORY/cross-}
+	if [[ ${CATEGORY} == cross-* ]] ; then
+		export CTARGET=${CATEGORY#cross-}
 	fi
 fi
 is_cross() { [[ ${CHOST} != ${CTARGET} ]] ; }
@@ -31,7 +32,7 @@ case ${PV} in
 	;;
 9999*)
 	# live git tree
-	EGIT_REPO_URI="git://sourceware.org/git/gdb.git"
+	EGIT_REPO_URI="git://sourceware.org/git/binutils-gdb.git"
 	inherit git-2
 	SRC_URI=""
 	;;
@@ -50,15 +51,17 @@ SRC_URI="${SRC_URI} ${PATCH_VER:+mirror://gentoo/${P}-patches-${PATCH_VER}.tar.x
 LICENSE="GPL-2 LGPL-2"
 SLOT="0"
 if [[ ${PV} != 9999* ]] ; then
-	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sparc ~x86 ~ppc-aix ~x86-fbsd ~x64-freebsd ~amd64-linux ~x86-linux ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 sparc x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~amd64-linux ~arm-linux ~x86-linux ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 fi
-IUSE="+client expat multitarget nls +python +server test vanilla zlib"
+IUSE="+client expat lzma multitarget nls +python +server test vanilla zlib"
+REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
 RDEPEND="!dev-util/gdbserver
 	>=sys-libs/ncurses-5.2-r2
 	sys-libs/readline
 	expat? ( dev-libs/expat )
-	python? ( =dev-lang/python-2* )
+	lzma? ( app-arch/xz-utils )
+	python? ( ${PYTHON_DEPS} )
 	zlib? ( sys-libs/zlib )"
 DEPEND="${RDEPEND}
 	app-arch/xz-utils
@@ -68,10 +71,25 @@ DEPEND="${RDEPEND}
 
 S=${WORKDIR}/${PN}-${MY_PV}
 
+pkg_setup() {
+	use python && python-single-r1_pkg_setup
+}
+
 src_prepare() {
 	[[ -n ${RPM} ]] && rpm_spec_epatch "${WORKDIR}"/gdb.spec
-	use vanilla || [[ -n ${PATCH_VER} ]] && EPATCH_SUFFIX="patch" epatch "${WORKDIR}"/patch
+	! use vanilla && [[ -n ${PATCH_VER} ]] && EPATCH_SUFFIX="patch" epatch "${WORKDIR}"/patch
+	epatch_user
 	strip-linguas -u bfd/po opcodes/po
+	if [[ ${CHOST} == *-darwin* ]] ; then
+		# make sure we have a python-config that matches our install,
+		# such that the python check doesn't fail just because the
+		# gdb-provided copy isn't quite what our python installed
+		# version is
+		rm -f "${S}"/gdb/python/python-config.py || die
+		pushd "${S}"/gdb/python > /dev/null || die
+		ln -s "${T}"/${EPYTHON}/bin/python-config python-config.py || die
+		popd > /dev/null || die
+	fi
 }
 
 gdb_branding() {
@@ -86,14 +104,17 @@ gdb_branding() {
 src_configure() {
 	strip-unsupported-flags
 
-	local sysroot="${EPREFIX}"/usr/${CTARGET}
 	local myconf=(
 		--with-pkgversion="$(gdb_branding)"
 		--with-bugurl='http://bugs.gentoo.org/'
 		--disable-werror
-		$(is_cross && echo \
-			--with-sysroot="${sysroot}" \
-			--includedir="${sysroot}/usr/include")
+		# Disable modules that are in a combined binutils/gdb tree. #490566
+		--disable-{binutils,etc,gas,gold,gprof,ld}
+	)
+	local sysroot="${EPREFIX}/usr/${CTARGET}"
+	is_cross && myconf+=(
+		--with-sysroot="${sysroot}"
+		--includedir="${sysroot}/usr/include"
 	)
 
 	if use server && ! use client ; then
@@ -117,12 +138,16 @@ src_configure() {
 			--enable-64-bit-bfd
 			--disable-install-libbfd
 			--disable-install-libiberty
+			# This only disables building in the readline subdir.
+			# For gdb itself, it'll use the system version.
+			--disable-readline
 			--with-system-readline
 			--with-separate-debug-dir="${EPREFIX}"/usr/lib/debug
 			$(use_with expat)
+			$(use_with lzma)
 			$(use_enable nls)
 			$(use multitarget && echo --enable-targets=all)
-			$(use_with python python "${EPREFIX}/usr/bin/python2")
+			$(use_with python python "${EPYTHON}")
 			$(use_with zlib)
 		)
 	fi
@@ -131,13 +156,13 @@ src_configure() {
 }
 
 src_test() {
-	emake check || ewarn "tests failed"
+	nonfatal emake check || ewarn "tests failed"
 }
 
 src_install() {
 	use server && ! use client && cd gdb/gdbserver
-	emake DESTDIR="${D}" install || die
-	use client && { find "${ED}"/usr -name libiberty.a -delete || die ; }
+	default
+	use client && find "${ED}"/usr -name libiberty.a -delete
 	cd "${S}"
 
 	# Don't install docs when building a cross-gdb
@@ -149,9 +174,8 @@ src_install() {
 	# http://sourceware.org/ml/gdb-patches/2011-12/msg00915.html
 	# Only install if it exists due to the twisted behavior (see
 	# notes in src_configure above).
-	[[ -e gdb/gdbserver/gdbreplay ]] && { dobin gdb/gdbserver/gdbreplay || die ; }
+	[[ -e gdb/gdbserver/gdbreplay ]] && dobin gdb/gdbserver/gdbreplay
 
-	dodoc README
 	if use client ; then
 		docinto gdb
 		dodoc gdb/CONTRIBUTE gdb/README gdb/MAINTAINERS \
