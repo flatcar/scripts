@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gdb/gdb-9999.ebuild,v 1.36 2015/04/04 18:28:46 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/gdb/gdb-7.7-r1.ebuild,v 1.6 2015/03/22 03:14:14 zerochaos Exp $
 
 EAPI="5"
 PYTHON_COMPAT=( python{2_7,3_3,3_4} )
@@ -28,7 +28,7 @@ case ${PV} in
 	;;
 *.*.50.*)
 	# weekly snapshots
-	SRC_URI="ftp://sourceware.org/pub/gdb/snapshots/current/gdb-weekly-${PV}.tar.xz"
+	SRC_URI="ftp://sourceware.org/pub/gdb/snapshots/current/gdb-weekly-${PV}.tar.bz2"
 	;;
 9999*)
 	# live git tree
@@ -38,12 +38,12 @@ case ${PV} in
 	;;
 *)
 	# Normal upstream release
-	SRC_URI="mirror://gnu/gdb/${P}.tar.xz
-		ftp://sourceware.org/pub/gdb/releases/${P}.tar.xz"
+	SRC_URI="mirror://gnu/gdb/${P}.tar.bz2
+		ftp://sourceware.org/pub/gdb/releases/${P}.tar.bz2"
 	;;
 esac
 
-PATCH_VER=""
+PATCH_VER="1"
 DESCRIPTION="GNU debugger"
 HOMEPAGE="http://sourceware.org/gdb/"
 SRC_URI="${SRC_URI} ${PATCH_VER:+mirror://gentoo/${P}-patches-${PATCH_VER}.tar.xz}"
@@ -54,27 +54,20 @@ if [[ ${PV} != 9999* ]] ; then
 	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~amd64-linux ~arm-linux ~x86-linux ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 fi
 IUSE="+client expat lzma multitarget nls +python +server test vanilla zlib"
-REQUIRED_USE="
-	python? ( ${PYTHON_REQUIRED_USE} )
-	|| ( client server )
-"
+REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
-RDEPEND="server? ( !dev-util/gdbserver )
-	client? (
-		>=sys-libs/ncurses-5.2-r2
-		sys-libs/readline:0=
-		expat? ( dev-libs/expat )
-		lzma? ( app-arch/xz-utils )
-		python? ( ${PYTHON_DEPS} )
-		zlib? ( sys-libs/zlib )
-	)"
+RDEPEND="!dev-util/gdbserver
+	>=sys-libs/ncurses-5.2-r2
+	sys-libs/readline
+	expat? ( dev-libs/expat )
+	lzma? ( app-arch/xz-utils )
+	python? ( ${PYTHON_DEPS} )
+	zlib? ( sys-libs/zlib )"
 DEPEND="${RDEPEND}
 	app-arch/xz-utils
-	client? (
-		virtual/yacc
-		test? ( dev-util/dejagnu )
-		nls? ( sys-devel/gettext )
-	)"
+	virtual/yacc
+	test? ( dev-util/dejagnu )
+	nls? ( sys-devel/gettext )"
 
 S=${WORKDIR}/${PN}-${MY_PV}
 
@@ -112,7 +105,6 @@ src_configure() {
 	is_cross && myconf+=(
 		--with-sysroot="${sysroot}"
 		--includedir="${sysroot}/usr/include"
-		--with-gdb-datadir="\${datadir}/gdb/${CTARGET}"
 	)
 
 	if use server && ! use client ; then
@@ -165,13 +157,7 @@ src_install() {
 
 	# Don't install docs when building a cross-gdb
 	if [[ ${CTARGET} != ${CHOST} ]] ; then
-		rm -r "${ED}"/usr/share/{doc,info,locale}
-		local f
-		for f in "${ED}"/usr/share/man/*/* ; do
-			if [[ ${f##*/} != ${CTARGET}-* ]] ; then
-				mv "${f}" "${f%/*}/${CTARGET}-${f##*/}" || die
-			fi
-		done
+		rm -r "${ED}"/usr/share
 		return 0
 	fi
 	# Install it by hand for now:
