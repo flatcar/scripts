@@ -1,6 +1,72 @@
 # ChangeLog for app-emulation/qemu
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/app-emulation/qemu/ChangeLog,v 1.305 2014/11/08 18:11:51 ago Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/app-emulation/qemu/ChangeLog,v 1.321 2015/04/08 07:30:33 mgorny Exp $
+
+  08 Apr 2015; Michał Górny <mgorny@gentoo.org> qemu-2.1.2-r2.ebuild,
+  qemu-2.1.3.ebuild, qemu-2.2.0.ebuild, qemu-2.2.1.ebuild:
+  Remove old Python implementations
+
+  05 Apr 2015; Matthias Maier <tamiko@gentoo.org> qemu-2.1.3.ebuild,
+  qemu-2.2.0.ebuild:
+  Ebuild maintenance: Remove backports SRC_URI to my devspace where not needed
+
+  04 Apr 2015; Mike Frysinger <vapier@gentoo.org> metadata.xml,
+  qemu-9999.ebuild:
+  Add USE=gtk2 so people can force older GTK versions #545158 by nzqr.
+
+  28 Mar 2015; Mike Frysinger <vapier@gentoo.org> qemu-9999.ebuild:
+  Put softmmu/user deps behind the respective flags so we do not pull in one set
+  when they are not enabled #538958 by Anthoine Bourgeois.
+
+  25 Mar 2015; Agostino Sarubbo <ago@gentoo.org> qemu-2.2.0.ebuild:
+  Stable for x86, wrt bug #542910
+
+  16 Mar 2015; Mike Frysinger <vapier@gentoo.org> qemu-9999.ebuild:
+  Handle renamed opengl configure flag #543386 by Chase Rayfield.
+
+  12 Mar 2015; Agostino Sarubbo <ago@gentoo.org> qemu-2.2.0.ebuild:
+  Stable for amd64, wrt bug #542910
+
+*qemu-2.2.1 (11 Mar 2015)
+
+  11 Mar 2015; Mike Frysinger <vapier@gentoo.org> +qemu-2.2.1.ebuild,
+  qemu-9999.ebuild:
+  Version bump #542900 by Thomas Stein.
+
+  28 Feb 2015; Andrew Savchenko <bircoph@gentoo.org> metadata.xml:
+  seccomp USE flag is now global, removing from metadata
+
+*qemu-2.1.3 (27 Jan 2015)
+
+  27 Jan 2015; Matthias Maier <tamiko@gentoo.org> +qemu-2.1.3.ebuild,
+  qemu-2.1.2-r2.ebuild, qemu-2.2.0.ebuild:
+  version bump, bug #537648
+
+  21 Dec 2014; Matthias Maier <tamiko@gentoo.org> -qemu-2.1.2-r1.ebuild:
+  drop vulnerable, bug #531666 (CVE-2014-8106)
+
+  21 Dec 2014; Agostino Sarubbo <ago@gentoo.org> qemu-2.1.2-r2.ebuild:
+  Stable for x86, wrt bug #531666
+
+  21 Dec 2014; Agostino Sarubbo <ago@gentoo.org> qemu-2.1.2-r2.ebuild:
+  Stable for amd64, wrt bug #531666
+
+*qemu-2.1.2-r2 (14 Dec 2014)
+
+  14 Dec 2014; Matthias Maier <tamiko@gentoo.org> +qemu-2.1.2-r2.ebuild:
+  backport fixes for bugs #530498, #531666 (CVE-2014-8106), #529030
+  (CVE-2014-7840), #528922 (528922)
+
+*qemu-2.2.0 (14 Dec 2014)
+
+  14 Dec 2014; Matthias Maier <tamiko@gentoo.org> +qemu-2.2.0.ebuild,
+  metadata.xml:
+  version bump; cleanup whitespace in metadata.xml
+
+  11 Dec 2014; Michał Górny <mgorny@gentoo.org> qemu-2.1.2-r1.ebuild,
+  qemu-9999.ebuild:
+  Add missing udev_reload call in case udev rules are installed, fixes
+  https://bugs.funtoo.org/browse/FL-1626.
 
   08 Nov 2014; Agostino Sarubbo <ago@gentoo.org>
   -files/qemu-2.1.0-CVE-2014-5388.patch, -qemu-2.1.0-r1.ebuild,
