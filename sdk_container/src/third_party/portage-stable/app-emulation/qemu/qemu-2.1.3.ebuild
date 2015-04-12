@@ -1,16 +1,16 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-emulation/qemu/qemu-2.1.2-r1.ebuild,v 1.4 2014/11/08 18:09:33 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-emulation/qemu/qemu-2.1.3.ebuild,v 1.3 2015/04/08 07:30:33 mgorny Exp $
 
 EAPI=5
 
-PYTHON_COMPAT=( python{2_6,2_7} )
+PYTHON_COMPAT=( python2_7 )
 PYTHON_REQ_USE="ncurses,readline"
 
 inherit eutils flag-o-matic linux-info toolchain-funcs multilib python-r1 \
 	user udev fcaps readme.gentoo pax-utils
 
-BACKPORTS=
+BACKPORTS=""
 
 if [[ ${PV} = *9999* ]]; then
 	EGIT_REPO_URI="git://git.qemu.org/qemu.git"
@@ -21,7 +21,7 @@ else
 	SRC_URI="http://wiki.qemu-project.org/download/${P}.tar.bz2
 	${BACKPORTS:+
 		http://dev.gentoo.org/~cardoe/distfiles/${P}-${BACKPORTS}.tar.xz}"
-	KEYWORDS="amd64 ~ppc ~ppc64 x86 ~x86-fbsd"
+	KEYWORDS="~amd64 ~ppc ~ppc64 ~x86 ~x86-fbsd"
 fi
 
 DESCRIPTION="QEMU + Kernel-based Virtual Machine userland tools"
@@ -260,8 +260,8 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-2.1.1-readlink-self.patch
 	epatch "${FILESDIR}"/${PN}-2.1.2-vnc-sanitize-bits.patch #527088
 	[[ -n ${BACKPORTS} ]] && \
-		EPATCH_FORCE=yes EPATCH_SUFFIX="patch" EPATCH_SOURCE="${S}/patches" \
-			epatch
+		EPATCH_FORCE=yes EPATCH_SUFFIX="patch" \
+			EPATCH_SOURCE="${WORKDIR}/patches" epatch
 
 	# Fix ld and objcopy being called directly
 	tc-export AR LD OBJCOPY
@@ -575,6 +575,10 @@ pkg_postinst() {
 			ewarn "installed.  In order to use kvm acceleration, pass the flag"
 			ewarn "-enable-kvm when running your system target."
 		fi
+	fi
+
+	if [[ -n ${softmmu_targets} ]] && use kernel_linux; then
+		udev_reload
 	fi
 
 	fcaps cap_net_admin /usr/libexec/qemu-bridge-helper
