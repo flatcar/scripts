@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-admin/sudo/sudo-1.8.9_p5.ebuild,v 1.1 2014/02/21 09:39:21 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-admin/sudo/sudo-1.8.11_p2.ebuild,v 1.1 2014/10/30 16:22:39 flameeyes Exp $
 
 EAPI=5
 
@@ -23,7 +23,7 @@ SRC_URI="http://www.sudo.ws/sudo/dist/${uri_prefix}${MY_P}.tar.gz
 # 3-clause BSD license
 LICENSE="ISC BSD"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~sparc-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~sparc-solaris"
 IUSE="ldap nls pam offensive selinux skey +sendmail"
 
 DEPEND="pam? ( virtual/pam )
@@ -118,7 +118,8 @@ src_configure() {
 		$(use_with sendmail) \
 		--without-opie \
 		--without-linux-audit \
-		--with-timedir="${EPREFIX}"/var/db/sudo \
+		--with-rundir="${EPREFIX}"/var/run/sudo \
+		--with-vardir="${EPREFIX}"/var/db/sudo \
 		--with-plugindir="${EPREFIX}"/usr/$(get_libdir)/sudo \
 		--docdir="${EPREFIX}"/usr/share/doc/${PF}
 }
@@ -148,6 +149,10 @@ src_install() {
 
 	keepdir /var/db/sudo
 	fperms 0700 /var/db/sudo
+
+	# Don't install into /var/run as that is a tmpfs most of the time
+	# (bug #504854)
+	rm -rf "${D}"/var/run
 }
 
 pkg_postinst() {

@@ -1,6 +1,108 @@
 # ChangeLog for app-admin/sudo
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/app-admin/sudo/ChangeLog,v 1.362 2014/03/18 18:37:22 polynomial-c Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/app-admin/sudo/ChangeLog,v 1.389 2015/04/11 15:06:13 zlogene Exp $
+
+  11 Apr 2015; Mikle Kolyada <zlogene@gentoo.org> sudo-1.8.12.ebuild:
+  ia64/ppc stable wrt bug #539532
+
+  10 Apr 2015; Anthony G. Basile <blueness@gentoo.org>
+  +files/sudo-1.8.12-include-sys-types-h.patch, sudo-1.8.12.ebuild:
+  Fix builds on uClibc and musl.  Bug #546086.
+
+*sudo-9999 (09 Apr 2015)
+
+  09 Apr 2015; Anthony G. Basile <blueness@gentoo.org> +sudo-9999.ebuild:
+  Add live ebuild for testing.
+
+  02 Apr 2015; Markus Meier <maekke@gentoo.org> sudo-1.8.12.ebuild:
+  arm stable, bug #539532
+
+  31 Mar 2015; Agostino Sarubbo <ago@gentoo.org> sudo-1.8.12.ebuild:
+  Stable for ppc64, wrt bug #539532
+
+  30 Mar 2015; Jeroen Roovers <jer@gentoo.org> sudo-1.8.12.ebuild:
+  Stable for HPPA (bug #539532).
+
+  30 Mar 2015; Agostino Sarubbo <ago@gentoo.org> sudo-1.8.12.ebuild:
+  Stable for alpha, wrt bug #539532
+
+  30 Mar 2015; Agostino Sarubbo <ago@gentoo.org> sudo-1.8.12.ebuild:
+  Stable for sparc, wrt bug #539532
+
+  29 Mar 2015; Agostino Sarubbo <ago@gentoo.org> sudo-1.8.12.ebuild:
+  Stable for x86, wrt bug #539532
+
+  29 Mar 2015; Mikle Kolyada <zlogene@gentoo.org> sudo-1.8.12.ebuild:
+  amd64 stable wrt bug #539532
+
+*sudo-1.8.13 (29 Mar 2015)
+
+  29 Mar 2015; Lars Wendler <polynomial-c@gentoo.org> +sudo-1.8.13.ebuild:
+  Version bump.
+
+*sudo-1.8.12 (10 Feb 2015)
+
+  10 Feb 2015; Lars Wendler <polynomial-c@gentoo.org> -sudo-1.8.6_p7.ebuild,
+  +sudo-1.8.12.ebuild:
+  Security bump (bug #539532). Removed old.
+
+  02 Nov 2014; Agostino Sarubbo <ago@gentoo.org> sudo-1.8.11_p1.ebuild:
+  Stable for alpha, wrt bug #524752
+
+*sudo-1.8.11_p2 (30 Oct 2014)
+
+  30 Oct 2014; Diego E. Pettenò <flameeyes@gentoo.org> +sudo-1.8.11_p2.ebuild,
+  -sudo-1.8.5_p2.ebuild:
+  Version bump; remove one old.
+
+  29 Oct 2014; Agostino Sarubbo <ago@gentoo.org> sudo-1.8.11_p1.ebuild:
+  Stable for sparc, wrt bug #524752
+
+  27 Oct 2014; Agostino Sarubbo <ago@gentoo.org> sudo-1.8.11_p1.ebuild:
+  Stable for ppc64, wrt bug #524752
+
+  18 Oct 2014; Agostino Sarubbo <ago@gentoo.org> sudo-1.8.11_p1.ebuild:
+  Stable for ppc, wrt bug #524752
+
+  16 Oct 2014; Mike Frysinger <vapier@gentoo.org> sudo-1.8.11_p1.ebuild:
+  Mark arm64/ia64/m68k/s390/sh stable.
+
+  11 Oct 2014; Mikle Kolyada <zlogene@gentoo.org> sudo-1.8.11_p1.ebuild:
+  arm stable wrt bug #524752
+
+  10 Oct 2014; Agostino Sarubbo <ago@gentoo.org> sudo-1.8.11_p1.ebuild:
+  Stable for x86, wrt bug #524752
+
+  09 Oct 2014; Agostino Sarubbo <ago@gentoo.org> sudo-1.8.11_p1.ebuild:
+  Stable for amd64, wrt bug #524752
+
+  08 Oct 2014; Jeroen Roovers <jer@gentoo.org> sudo-1.8.11_p1.ebuild:
+  Stable for HPPA (bug #524752).
+
+*sudo-1.8.11_p1 (08 Oct 2014)
+
+  08 Oct 2014; Diego E. Pettenò <flameeyes@gentoo.org> +sudo-1.8.11_p1.ebuild,
+  -files/sudo-1.8.11-shadow.patch, -sudo-1.8.10_p3.ebuild, -sudo-1.8.11.ebuild:
+  Update and remove old and old patch.
+
+  06 Oct 2014; Diego E. Pettenò <flameeyes@gentoo.org>
+  +files/sudo-1.8.11-shadow.patch, sudo-1.8.11.ebuild:
+  Add upstream patch for bug #524074.
+
+*sudo-1.8.11 (29 Sep 2014)
+
+  29 Sep 2014; Diego E. Pettenò <flameeyes@gentoo.org> +sudo-1.8.11.ebuild,
+  -sudo-1.8.10_p2.ebuild, -sudo-1.8.6_p8.ebuild, -sudo-1.8.8.ebuild,
+  -sudo-1.8.9_p5.ebuild:
+  Version bump and remove old.
+
+*sudo-1.8.10_p3 (09 May 2014)
+
+  09 May 2014; Diego E. Pettenò <flameeyes@gentoo.org> +sudo-1.8.10_p3.ebuild:
+  Version bump.
+
+  25 Apr 2014; Lars Wendler <polynomial-c@gentoo.org> sudo-1.8.10_p2.ebuild:
+  Removed unused versionator eclass.
 
 *sudo-1.8.10_p2 (18 Mar 2014)
 

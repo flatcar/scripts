@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-admin/sudo/sudo-1.8.8.ebuild,v 1.1 2013/10/10 18:49:58 chainsaw Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-admin/sudo/sudo-1.8.12.ebuild,v 1.10 2015/04/11 15:06:13 zlogene Exp $
 
 EAPI=5
 
@@ -23,7 +23,7 @@ SRC_URI="http://www.sudo.ws/sudo/dist/${uri_prefix}${MY_P}.tar.gz
 # 3-clause BSD license
 LICENSE="ISC BSD"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~sparc-solaris"
+KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~sparc-solaris"
 IUSE="ldap nls pam offensive selinux skey +sendmail"
 
 DEPEND="pam? ( virtual/pam )
@@ -50,6 +50,7 @@ REQUIRED_USE="pam? ( !skey ) skey? ( !pam )"
 MAKEOPTS+=" SAMPLES="
 
 src_prepare() {
+	epatch "${FILESDIR}"/${P}-include-sys-types-h.patch
 	elibtoolize
 }
 
@@ -118,7 +119,8 @@ src_configure() {
 		$(use_with sendmail) \
 		--without-opie \
 		--without-linux-audit \
-		--with-timedir="${EPREFIX}"/var/db/sudo \
+		--with-rundir="${EPREFIX}"/var/run/sudo \
+		--with-vardir="${EPREFIX}"/var/db/sudo \
 		--with-plugindir="${EPREFIX}"/usr/$(get_libdir)/sudo \
 		--docdir="${EPREFIX}"/usr/share/doc/${PF}
 }
@@ -148,6 +150,10 @@ src_install() {
 
 	keepdir /var/db/sudo
 	fperms 0700 /var/db/sudo
+
+	# Don't install into /var/run as that is a tmpfs most of the time
+	# (bug #504854)
+	rm -rf "${D}"/var/run
 }
 
 pkg_postinst() {
