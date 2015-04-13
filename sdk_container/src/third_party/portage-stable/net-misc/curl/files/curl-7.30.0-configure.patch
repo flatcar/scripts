@@ -1,0 +1,44 @@
+From 1436c8690383aaf91ea340df94d0b18ed4908820 Mon Sep 17 00:00:00 2001
+From: naota <naota@elisp.net>
+Date: Sun, 23 Feb 2014 22:32:51 +0900
+Subject: [PATCH] configure: Tiny fix to honor POSIX
+
+Change "==" to "=" to honor POSIX test construction.
+---
+ configure.ac | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 9dc6866..ee207f9 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -2469,19 +2469,19 @@ AC_HELP_STRING([--disable-versioned-symbols], [Disable versioned symbols in shar
+         AC_MSG_RESULT(yes)
+         if test "x$OPENSSL_ENABLED" = "x1"; then
+           versioned_symbols_flavour="OPENSSL_"
+-        elif test "x$GNUTLS_ENABLED" == "x1"; then
++        elif test "x$GNUTLS_ENABLED" = "x1"; then
+           versioned_symbols_flavour="GNUTLS_"
+-        elif test "x$NSS_ENABLED" == "x1"; then
++        elif test "x$NSS_ENABLED" = "x1"; then
+           versioned_symbols_flavour="NSS_"
+-        elif test "x$POLARSSL_ENABLED" == "x1"; then
++        elif test "x$POLARSSL_ENABLED" = "x1"; then
+           versioned_symbols_flavour="POLARSSL_"
+-        elif test "x$CYASSL_ENABLED" == "x1"; then
++        elif test "x$CYASSL_ENABLED" = "x1"; then
+           versioned_symbols_flavour="CYASSL_"
+-        elif test "x$AXTLS_ENABLED" == "x1"; then
++        elif test "x$AXTLS_ENABLED" = "x1"; then
+           versioned_symbols_flavour="AXTLS_"
+-        elif test "x$WINSSL_ENABLED" == "x1"; then
++        elif test "x$WINSSL_ENABLED" = "x1"; then
+           versioned_symbols_flavour="WINSSL_"
+-        elif test "x$DARWINSSL_ENABLED" == "x1"; then
++        elif test "x$DARWINSSL_ENABLED" = "x1"; then
+           versioned_symbols_flavour="DARWINSSL_"
+         else
+           versioned_symbols_flavour=""
+-- 
+1.8.5.5
+

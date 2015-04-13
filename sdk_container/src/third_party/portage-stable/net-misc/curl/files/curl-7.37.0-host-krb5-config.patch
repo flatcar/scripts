@@ -1,0 +1,43 @@
+From 6a733c43489cf6e6570e24b38a45fa47d18b9de1 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Micha=C5=82=20G=C3=B3rny?= <mgorny@gentoo.org>
+Date: Sun, 15 Jun 2014 12:42:30 +0200
+Subject: [PATCH] Respect host tool prefixes for krb5-config.
+
+That is, use ${host_alias}-krb5-config if available. This improves
+cross-compilation support and fixes multilib on Gentoo.
+---
+ configure.ac | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index d9b7a24..1c33b37 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1209,7 +1209,9 @@ if test x"$want_gss" = xyes; then
+   AC_MSG_RESULT(yes)
+ 
+   if test -z "$GSSAPI_INCS"; then
+-     if test -f "$GSSAPI_ROOT/bin/krb5-config"; then
++     if test -n "$host_alias" -a -f "$GSSAPI_ROOT/bin/$host_alias-krb5-config"; then
++        GSSAPI_INCS=`$GSSAPI_ROOT/bin/$host_alias-krb5-config --cflags gssapi`
++     elif test -f "$GSSAPI_ROOT/bin/krb5-config"; then
+         GSSAPI_INCS=`$GSSAPI_ROOT/bin/krb5-config --cflags gssapi`
+      elif test "$GSSAPI_ROOT" != "yes"; then
+         GSSAPI_INCS="-I$GSSAPI_ROOT/include"
+@@ -1301,7 +1303,12 @@ if test x"$want_gss" = xyes; then
+         LIBS="-lgss $LIBS"
+         ;;
+      *)
+-        if test -f "$GSSAPI_ROOT/bin/krb5-config"; then
++        if test -n "$host_alias" -a -f "$GSSAPI_ROOT/bin/$host_alias-krb5-config"; then
++           dnl krb5-config doesn't have --libs-only-L or similar, put everything
++           dnl into LIBS
++           gss_libs=`$GSSAPI_ROOT/bin/$host_alias-krb5-config --libs gssapi`
++           LIBS="$gss_libs $LIBS"
++        elif test -f "$GSSAPI_ROOT/bin/krb5-config"; then
+            dnl krb5-config doesn't have --libs-only-L or similar, put everything
+            dnl into LIBS
+            gss_libs=`$GSSAPI_ROOT/bin/krb5-config --libs gssapi`
+-- 
+2.0.0
+
