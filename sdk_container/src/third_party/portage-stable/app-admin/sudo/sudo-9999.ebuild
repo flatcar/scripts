@@ -1,10 +1,14 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-admin/sudo/sudo-1.8.10_p2.ebuild,v 1.1 2014/03/18 18:37:22 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-admin/sudo/sudo-9999.ebuild,v 1.1 2015/04/09 20:51:23 blueness Exp $
 
 EAPI=5
 
-inherit eutils pam multilib libtool versionator
+inherit eutils pam multilib libtool
+if [[ ${PV} == "9999" ]] ; then
+	EHG_REPO_URI="http://www.sudo.ws/repos/sudo"
+	inherit mercurial
+fi
 
 MY_P=${P/_/}
 MY_P=${MY_P/beta/b}
@@ -16,14 +20,16 @@ esac
 
 DESCRIPTION="Allows users or groups to run commands as other users"
 HOMEPAGE="http://www.sudo.ws/"
-SRC_URI="http://www.sudo.ws/sudo/dist/${uri_prefix}${MY_P}.tar.gz
-	ftp://ftp.sudo.ws/pub/sudo/${uri_prefix}${MY_P}.tar.gz"
+if [[ ${PV} != "9999" ]] ; then
+	SRC_URI="http://www.sudo.ws/sudo/dist/${uri_prefix}${MY_P}.tar.gz
+		ftp://ftp.sudo.ws/pub/sudo/${uri_prefix}${MY_P}.tar.gz"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~sparc-solaris"
+fi
 
 # Basic license is ISC-style as-is, some files are released under
 # 3-clause BSD license
 LICENSE="ISC BSD"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~sparc-solaris"
 IUSE="ldap nls pam offensive selinux skey +sendmail"
 
 DEPEND="pam? ( virtual/pam )
