@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-kernel/linux-headers/linux-headers-3.13.ebuild,v 1.10 2014/06/14 21:36:26 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-kernel/linux-headers/linux-headers-3.16.ebuild,v 1.6 2014/12/31 09:22:42 vapier Exp $
 
 EAPI="4"
 
@@ -31,13 +31,6 @@ src_prepare() {
 
 src_install() {
 	kernel-2_src_install
-	cd "${ED}"
-	egrep -r \
-		-e '(^|[[:space:](])(asm|volatile|inline)[[:space:](]' \
-		-e '\<([us](8|16|32|64))\>' \
-		.
-
-	egrep -l -r -e '__[us](8|16|32|64)' "${ED}" | xargs grep -L linux/types.h
 
 	# hrm, build system sucks
 	find "${ED}" '(' -name '.install' -o -name '*.cmd' ')' -delete
@@ -48,5 +41,14 @@ src_install() {
 }
 
 src_test() {
-	emake ARCH=$(tc-arch-kernel) headers_check || die
+	einfo "Possible unescaped attribute/type usage"
+	egrep -r \
+		-e '(^|[[:space:](])(asm|volatile|inline)[[:space:](]' \
+		-e '\<([us](8|16|32|64))\>' \
+		.
+
+	einfo "Missing linux/types.h include"
+	egrep -l -r -e '__[us](8|16|32|64)' "${ED}" | xargs grep -L linux/types.h
+
+	emake ARCH=$(tc-arch-kernel) headers_check
 }
