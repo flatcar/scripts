@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-editors/vim-core/vim-core-7.4.22.ebuild,v 1.1 2013/09/06 06:20:32 radhermit Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-editors/vim-core/vim-core-7.4.273.ebuild,v 1.10 2014/10/12 09:02:05 ago Exp $
 
 EAPI=5
 VIM_VERSION="7.4"
@@ -14,9 +14,9 @@ else
 	VIM_ORG_PATCHES="vim-patches-${PV}.patch.bz2"
 
 	SRC_URI="ftp://ftp.vim.org/pub/vim/unix/vim-${VIM_VERSION}.tar.bz2
-		http://dev.gentoo.org/~radhermit/vim/${PN}-7.3-gentoo-patches-r3.tar.bz2
+		http://dev.gentoo.org/~radhermit/vim/${PN}-7.3-gentoo-patches-r4.tar.bz2
 		http://dev.gentoo.org/~radhermit/vim/${VIM_ORG_PATCHES}"
-	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	KEYWORDS="alpha amd64 arm hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 fi
 
 DESCRIPTION="vim and gvim shared files"
@@ -59,9 +59,6 @@ src_prepare() {
 	sed -i '1s|.*|#!'"${EPREFIX}"'/usr/bin/awk -f|' "${S}"/runtime/tools/mve.awk \
 		|| die "mve.awk sed failed"
 
-	# Patch to build with ruby-1.8.0_pre5 and following
-	sed -i 's/defout/stdout/g' "${S}"/src/if_ruby.c
-
 	# Read vimrc and gvimrc from /etc/vim
 	echo '#define SYS_VIMRC_FILE "'${EPREFIX}'/etc/vim/vimrc"' >> "${S}"/src/feature.h
 	echo '#define SYS_GVIMRC_FILE "'${EPREFIX}'/etc/vim/gvimrc"' >> "${S}"/src/feature.h
@@ -103,6 +100,8 @@ src_prepare() {
 		sed -i "s:\\\$(PERLLIB)/ExtUtils/xsubpp:${EPREFIX}/usr/bin/xsubpp:"	\
 			"${S}"/src/Makefile || die 'sed for ExtUtils-ParseXS failed'
 	fi
+
+	epatch_user
 }
 
 src_configure() {

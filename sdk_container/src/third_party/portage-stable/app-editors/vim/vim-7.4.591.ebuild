@@ -1,12 +1,12 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-editors/vim/vim-9999.ebuild,v 1.27 2015/03/31 17:37:10 ulm Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-editors/vim/vim-7.4.591.ebuild,v 1.4 2015/03/31 17:37:10 ulm Exp $
 
 EAPI=5
 VIM_VERSION="7.4"
 PYTHON_COMPAT=( python{2_7,3_3,3_4} )
 PYTHON_REQ_USE=threads
-inherit eutils vim-doc flag-o-matic fdo-mime versionator bash-completion-r1 python-r1
+inherit eutils vim-doc flag-o-matic fdo-mime versionator bash-completion-r1 python-single-r1
 
 if [[ ${PV} == 9999* ]] ; then
 	inherit mercurial
@@ -16,8 +16,8 @@ else
 	VIM_ORG_PATCH="vim-${PV}.patch.xz"
 	SRC_URI="ftp://ftp.vim.org/pub/vim/unix/vim-${VIM_VERSION}.tar.bz2
 		http://dev.gentoo.org/~radhermit/vim/${VIM_ORG_PATCH}
-		http://dev.gentoo.org/~radhermit/vim/vim-${PV}-gentoo-patches.tar.bz2"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+		http://dev.gentoo.org/~radhermit/vim/vim-7.4.542-gentoo-patches.tar.bz2"
+	KEYWORDS="~alpha ~amd64 ~arm arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 fi
 
 DESCRIPTION="Vim, an improved vi-style text editor"
@@ -27,12 +27,8 @@ SLOT="0"
 LICENSE="vim"
 IUSE="X acl cscope debug gpm lua luajit minimal nls perl python racket ruby selinux tcl vim-pager"
 REQUIRED_USE="
+	python? ( ${PYTHON_REQUIRED_USE} )
 	luajit? ( lua )
-	python? (
-		|| ( $(python_gen_useflags '*') )
-		?? ( $(python_gen_useflags 'python2*') )
-		?? ( $(python_gen_useflags 'python3*') )
-	)
 "
 
 RDEPEND="
@@ -73,6 +69,8 @@ pkg_setup() {
 	# Gnome sandbox silliness. bug #114475.
 	mkdir -p "${T}"/home
 	export HOME="${T}"/home
+
+	use python && python-single-r1_pkg_setup
 }
 
 src_prepare() {
@@ -216,17 +214,13 @@ src_configure() {
 		)
 
 		if use python ; then
-			py_add_interp() {
-				local v
-
-				[[ ${EPYTHON} == python3* ]] && v=3
-				myconf+=(
-					--enable-python${v}interp
-					vi_cv_path_python${v}="${PYTHON}"
-				)
-			}
-
-			python_foreach_impl py_add_interp
+			if [[ ${EPYTHON} == python3* ]] ; then
+				myconf+=( --enable-python3interp )
+				export vi_cv_path_python3="${PYTHON}"
+			else
+				myconf+=( --enable-pythoninterp )
+				export vi_cv_path_python="${PYTHON}"
+			fi
 		else
 			myconf+=(
 				--disable-pythoninterp

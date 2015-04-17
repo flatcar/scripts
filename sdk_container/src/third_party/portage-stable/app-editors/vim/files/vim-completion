@@ -31,6 +31,6 @@ _vim()
     fi
 }
 
-complete -o filenames -F _vim vim ex view evim rvim rview
+complete -o filenames -F _vim vim ex vi view rvim rview vimdiff
 
 # vim: set ft=sh sw=4 et sts=4 :
