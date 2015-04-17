@@ -1,9 +1,12 @@
-# Copyright 1999-2014 Gentoo Foundation.
+# Copyright 1999-2015 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/musl/package.mask,v 1.5 2014/10/20 11:39:45 blueness Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/musl/package.mask,v 1.9 2015/03/28 12:39:38 blueness Exp $
 
 sys-libs/uclibc
 sys-libs/glibc
+
+# We mask these until we sort out bug #544476.
+>sys-kernel/linux-headers-3.16
 
 # We use eudev which is tested on both uclibc and musl
 sys-apps/systemd
@@ -12,8 +15,20 @@ sys-fs/udev
 dev-libs/elfutils
 sys-libs/pam
 
-# bug #525816
->sys-apps/file-5.17
-
 # bug #526048
 >app-misc/pax-utils-0.7
+
+# packages with a hard dep on sys-libs/glibc
+games-action/descent3
+games-action/descent3-demo
+games-action/lugaru
+games-action/lugaru-demo
+games-action/shadowgrounds-bin
+games-action/shadowgrounds-survivor-bin
+games-action/trine-bin
+games-arcade/marbleblastgold-demo
+games-puzzle/world-of-goo
+games-puzzle/world-of-goo-demo
+games-strategy/defcon-demo
+games-strategy/knights-demo
+games-strategy/majesty-demo

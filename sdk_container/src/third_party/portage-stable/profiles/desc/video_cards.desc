@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/desc/video_cards.desc,v 1.35 2013/05/28 13:23:46 chithanh Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/desc/video_cards.desc,v 1.36 2015/01/29 16:47:20 chithanh Exp $
 
 # This file contains descriptions of VIDEO_CARDS USE_EXPAND flags.
 
@@ -63,6 +63,7 @@ sunffb - VIDEO_CARDS setting to build driver for sunffb video cards
 sunleo - VIDEO_CARDS setting to build driver for sunleo video cards
 suntcx - VIDEO_CARDS setting to build driver for suntcx video cards
 tdfx - VIDEO_CARDS setting to build driver for tdfx video cards
+tegra - VIDEO_CARDS setting to build driver for tegra video cards
 tga - VIDEO_CARDS setting to build driver for tga video cards
 trident - VIDEO_CARDS setting to build driver for trident video cards
 tseng - VIDEO_CARDS setting to build driver for tseng video cards

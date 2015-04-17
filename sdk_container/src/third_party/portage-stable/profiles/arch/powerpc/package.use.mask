@@ -1,14 +1,50 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/package.use.mask,v 1.219 2014/10/30 08:41:51 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/package.use.mask,v 1.240 2015/04/01 11:00:12 gienah Exp $
+
+# Mike Frysinger <vapier@gentoo.org> (16 Mar 2015)
+# Needs sci-physics/bullet & media-libs/libsdl2 tested #499974
+dev-libs/efl physics sdl
+
+# Ben de Groot <yngwin@gentoo.org> (15 Mar 2015)
+# Waiting for keywording in bug 543398
+>=media-sound/picard-1.3.2 cdda
+
+# Michał Górny <mgorny@gentoo.org> (21 Feb 2015)
+# The external QCA plugins are not keyworded on this arch. Since
+# this is only a temporary measure and nothing depends on them,
+# just masking them until the new version goes stable.
+<app-crypt/qca-2.1 logger pkcs11 sasl
+
+# Andreas K. Huettel <dilfridge@gentoo.org> (15 Feb 2015)
+# There's no keyworded office implementation anymore.
+gnome-extra/sushi office
+
+# Alexis Ballier <aballier@gentoo.org> (11 Feb 2015)
+# Missing ffmpeg deps, bug #510340
+media-video/ffmpeg x265
+
+# Patrick Lauer <patrick@gentoo.org> (10 Feb 2015)
+# Missing keywords for media-libs/x265
+media-video/libav x265
+
+# Markos Chandras <hwoarang@gentoo.org> (07 Feb 2015)
+# app-admin/cgmanager misses PPC/PPC64 keywords. Bug #539208
+app-emulation/lxc cgmanager
+
+# Mark Wright <gienah@gentoo.org> (14-24 Dec 2014, 1 Apr 2015)
+# test dependencies need keywording
+dev-haskell/binary test
+dev-haskell/dlist test
+dev-haskell/haskell-src-exts test
+dev-haskell/text test
+dev-haskell/vector test
+dev-util/bnfc test
 
 # Michał Górny <mgorny@gentoo.org> (30 Oct 2014)
 # Requires non-keyworded >=x11-libs/libxkbcommon-0.4.
 sys-apps/systemd terminal
-
-# Michael Palimaka <kensington@gentoo.org> (25 Oct 2014)
-# Unkeyworded deps, bug #525558
-kde-base/systemsettings kscreen
+sys-apps/systemd xkb
 
 # Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (16 Sep 2014)
 # Needs libepoxy keywording, bug #510940
@@ -99,11 +135,11 @@ sys-kernel/dracut -dracut_modules_systemd
 
 # Pacho Ramos <pacho@gentoo.org> (28 Nov 2013)
 # Missing keywords, bug #492820
-net-im/telepathy-connection-managers sipe     
+net-im/telepathy-connection-managers sipe
 
 # Pacho Ramos <pacho@gentoo.org> (31 Oct 2013)
 # Missing keywords, bug #478254
-gnome-base/gnome classic
+gnome-base/gnome classic extras
 
 # Mark Wright <gienah@gentoo.org> (26 Oct 2013)
 # template-haskell not yet available
@@ -151,7 +187,7 @@ net-misc/modemmanager qmi qmi-newest
 
 # Alexandre Rostovtsev <tetromino@gentoo.org> (22 Jan 2013)
 # remove mask if/when media-gfx/argyllcms is keywored here.
-x11-misc/colord extra-print-profiles
+x11-misc/colord argyllcms extra-print-profiles
 
 # Sergei Trofimovich <slyfox@gentoo.org> (11 Jan 2013)
 # Current sys-libs/libseccomp (up to 1.0.1) support
@@ -162,6 +198,7 @@ app-emulation/qemu seccomp
 # Mask telepathy, no stable net-libs/telepathy-qt, bug #441456
 kde-base/krdc telepathy
 kde-base/krfb telepathy
+net-im/choqok telepathy
 
 # Robin H Johnson <robbat2@gentoo.org> (01 Nov 2012)
 # MySQL 5.5 wants systemtap, tcmalloc & jemalloc
@@ -285,10 +322,6 @@ sci-chemistry/vmd msms
 # MKL not available on this arch
 media-gfx/povray mkl
 
-# Steve Arnold <nerdboy@gentoo.org> (12 Jun 2010)
-# masking for gdal (see bug 315659)
-sci-libs/gdal ecwj2k
-
 # Bernard Cafarelli <voyageur@gentoo.org> (26 Apr 2010)
 # This is for x86/amd64 only
 sys-devel/llvm udis86
@@ -324,7 +357,3 @@ net-im/pidgin zephyr
 # Masked Parallel LCD devices for bug #180683
 # app-misc/lcd4linux
 app-misc/lcd4linux lcd_devices_hd44780
-
-# Tobias Scherbaum <dertobi123@gentoo.org> (1 Feb 2008)
-# Mask mono flag for gnome as tomboy is segfaulting.
-gnome-base/gnome mono

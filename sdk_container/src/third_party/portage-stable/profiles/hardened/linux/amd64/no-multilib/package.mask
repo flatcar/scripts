@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/amd64/no-multilib/package.mask,v 1.40 2014/10/02 10:29:30 ulm Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/amd64/no-multilib/package.mask,v 1.41 2015/03/24 09:37:19 perfinion Exp $
 
 # These are broken as reported by Halcy0n, Aug, 23, 2011
 net-misc/teamviewer
@@ -65,6 +65,7 @@ dev-lang/ifc
 dev-perl/Archive-Rar
 dev-python/skype4py
 dev-util/android-sdk-update-manager
+dev-util/android-studio
 dev-util/biew
 games-action/awesomenauts
 games-action/cs2d

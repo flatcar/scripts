@@ -1,6 +1,11 @@
 # ChangeLog for the default/linux/amd64 profile directory
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/amd64/ChangeLog,v 1.23 2014/11/30 17:49:02 mgorny Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/amd64/ChangeLog,v 1.24 2015/02/01 18:51:52 kensington Exp $
+
+  01 Feb 2015; Michael Palimaka <kensington@gentoo.org> +13.0/desktop/plasma/eapi,
+  +13.0/desktop/plasma/parent, +13.0/desktop/plasma/systemd/eapi,
+  +13.0/desktop/plasma/systemd/parent:
+  Add initial profile for KDE Plasma 5.
 
   30 Nov 2014; Michał Górny <mgorny@gentoo.org>
   13.0/no-emul-linux-x86/desktop/gnome/systemd/parent:

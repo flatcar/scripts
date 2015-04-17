@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/gnatbuild.eclass,v 1.63 2014/10/17 13:17:30 george Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/gnatbuild.eclass,v 1.64 2015/03/31 18:43:33 ulm Exp $
 #
 # Authors: George Shapovalov <george@gentoo.org>
 #          Steve Arnold <nerdboy@gentoo.org>
@@ -27,11 +27,11 @@ EXPORT_FUNCTIONS pkg_setup pkg_postinst pkg_postrm src_unpack src_compile src_in
 IUSE="nls"
 # multilib is supported via profiles now, multilib usevar is deprecated
 
-DEPEND=">=app-admin/eselect-gnat-1.3
-          sys-devel/bc
+DEPEND=">=app-eselect/eselect-gnat-1.3
+	sys-devel/bc
 "
 
-RDEPEND="app-admin/eselect-gnat"
+RDEPEND="app-eselect/eselect-gnat"
 
 # Note!
 # It may not be safe to source this at top level. Only source inside local

@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/license_groups,v 1.249 2014/12/06 21:31:33 dilfridge Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/license_groups,v 1.259 2015/04/12 21:36:04 ulm Exp $
 
 # Please report bugs or other requests at bugs.gentoo.org and assign to
 # licenses@gentoo.org
@@ -15,10 +15,10 @@
 # they are more permissive than the licenses they are based on.
 GPL-COMPATIBLE AGPL-3 Apache-2.0 Artistic-2 Boost-1.0 BSD BSD-2 CC0-1.0 CeCILL-2 Clarified-Artistic Clear-BSD ECL-2.0 FTL gcc-runtime-library-exception-3.1 GPL-1 GPL-1+ GPL-2 GPL-2+ GPL-2-with-exceptions GPL-2-with-font-exception GPL-2-with-linking-exception GPL-2-with-MySQL-FLOSS-exception GPL-3 GPL-3+ GPL-3-with-font-exception ISC LGPL-2 LGPL-2+ LGPL-2-with-linking-exception LGPL-2.1 LGPL-2.1+ LGPL-2.1-with-linking-exception LGPL-3 LGPL-3+ LGPL-3-with-linking-exception libgcc libstdc++ metapackage MIT MPL-2.0 Nokia-Qt-LGPL-Exception OPENLDAP PSF-2 PSF-2.2 PSF-2.3 PSF-2.4 public-domain PYTHON qwt Ruby Ruby-BSD SGI-B-2.0 Sleepycat tanuki-community Transmission-OpenSSL-exception unicode Unlicense UoI-NCSA vim W3C WTFPL-2 ZLIB ZPL
 
-FSF-APPROVED @GPL-COMPATIBLE AFL-2.1 AFL-3.0 Apache-1.1 APSL-2 BitTorrent BSD-4 CDDL CNRI CPL-1.0 EPL-1.0 EUPL-1.1 IBM LPPL-1.2 MPL-1.0 MPL-1.1 Ms-PL NPL-1.1 openssl OSL-1.1 OSL-2.0 OSL-2.1 PHP-3.01 QPL QPL-1.0
+FSF-APPROVED @GPL-COMPATIBLE AFL-2.1 AFL-3.0 Apache-1.1 APSL-2 BitTorrent BSD-4 CDDL CNRI CPAL-1.0 CPL-1.0 EPL-1.0 EUPL-1.1 gnuplot IBM LPPL-1.2 MPL-1.0 MPL-1.1 Ms-PL NPL-1.1 openssl OSL-1.1 OSL-2.0 OSL-2.1 PHP-3.01 QPL QPL-1.0
 
 # http://www.opensource.org/licenses
-OSI-APPROVED AFL-3.0 AGPL-3 Apache-1.1 Apache-2.0 APL-1.0 APSL-2 Artistic Artistic-2 Boost-1.0 BSD BSD-2 CDDL CNRI CPAL-1.0 CPL-1.0 ECL-2.0 EPL-1.0 EUPL-1.1 GPL-1+ GPL-2 GPL-2+ GPL-3 GPL-3+ HPND IBM IPAfont ISC LGPL-2+ LGPL-2.1 LGPL-2.1+ LGPL-3 LGPL-3+ LPPL-1.3c MIT MPL-1.0 MPL-1.1 MPL-2.0 Ms-PL nethack NOSA OFL-1.1 PHP-3 PHP-3.01 POSTGRESQL PSF-2 QPL Sleepycat W3C Watcom-1.0 wxWinLL-3 wxWinLL-3.1 ZLIB ZPL
+OSI-APPROVED AFL-3.0 AGPL-3 Apache-1.1 Apache-2.0 APL-1.0 APSL-2 Artistic Artistic-2 Boost-1.0 BSD BSD-2 CDDL CNRI CPAL-1.0 CPL-1.0 ECL-2.0 EPL-1.0 EUPL-1.1 GPL-1+ GPL-2 GPL-2+ GPL-3 GPL-3+ HPND IBM IPAfont ISC LGPL-2+ LGPL-2.1 LGPL-2.1+ LGPL-3 LGPL-3+ LPPL-1.3c MIT MPL-1.0 MPL-1.1 MPL-2.0 Ms-PL nethack NOSA OFL-1.1 OSL-2.1 PHP-3 PHP-3.01 POSTGRESQL PSF-2 QPL Sleepycat UoI-NCSA W3C Watcom-1.0 wxWinLL-3 wxWinLL-3.1 ZLIB ZPL
 
 # Misc licenses that are probably free software, i.e. follow the
 # Free Software Definition at http://www.gnu.org/philosophy/free-sw.html
@@ -30,7 +30,7 @@ OSI-APPROVED AFL-3.0 AGPL-3 Apache-1.1 Apache-2.0 APL-1.0 APSL-2 Artistic Artist
 # TODO: maybe add a category for BSD-alike MISC-FREE licenses for easy
 # separation?
 # BSD-4 alikes: dom4j FastCGI icu JDOM
-MISC-FREE ACE Allegro alternate bea.ri.jsr173 BEER-WARE boehm-gc BSD-1 BSD-with-attribution buddy bufexplorer.vim BZIP2 canfep CDDL-Schily CeCILL-C CFS CMake CPL-0.5 CRACKLIB Crypt-IDEA cryptopp czyborra DES docbook dom4j eGenixPublic-1.1 ElementTree Emacs ErlPL-1.1 FastCGI feh File-MMagic Flashpix FLEX flexmock FLTK freemarker FVWM gd gnuplot gsm HTML-Tidy htmlc iASL IBPP-1.1 icu IDPL IJG imagemagick Info-ZIP inner-net ipadic ipx-utils Ispell JasPer2.0 JDOM JNIC JOVE keynote LambdaMOO LIBGLOSS libmng libodialog libpng libtiff LLGPL-2.1 LPPL-1.3 LPPL-1.3b lsof Mail-Sendmail mapm-4.9.5 matplotlib Mini-XML minpack MIT-with-advertising mm mpich2 nap NCSA-HDF netcat NEWLIB ngrep noweb Old-MIT openafs-krb5-a Openwall otter PCRE perforce photopc PHP-2.02 PIZZA-WARE pngcrush pngnq Princeton psutils qmail-nelson rc regexp-UofT RSA rwpng scanlogd Sendmail Sendmail-Open-Source shrimp SMAIL Snd SNIA SSLeay Subversion SVFL tablelist tcltk tcp_wrappers_license TermReadKey TeX TeX-other-free Time-Format Time-modules tm-align totd URT w3m wxWinLL-3 x2x xbatt xboing XC Xdebug xtrs xvt YaTeX zpaq ZSH
+MISC-FREE ACE Allegro alternate bea.ri.jsr173 BEER-WARE boehm-gc BSD-1 BSD-with-attribution buddy bufexplorer.vim BZIP2 canfep CDDL-Schily CeCILL-C CFS CLX CMake CPL-0.5 CRACKLIB Crypt-IDEA cryptopp czyborra DES docbook dom4j eGenixPublic-1.1 ElementTree Emacs ErlPL-1.1 FastCGI feh File-MMagic Flashpix FLEX flexmock FLTK freemarker FVWM gd gsm HTML-Tidy htmlc iASL IBPP-1.1 icu IDPL IJG imagemagick Info-ZIP inner-net ipadic ipx-utils Ispell JasPer2.0 JDOM JNIC JOVE keynote LambdaMOO LIBGLOSS libmng libodialog libpng libtiff LLGPL-2.1 LPPL-1.3 LPPL-1.3b lsof Mail-Sendmail mapm-4.9.5 matplotlib Mini-XML minpack MIT-with-advertising mm mpich2 nap NCSA-HDF netcat NEWLIB ngrep noweb Old-MIT openafs-krb5-a Openwall otter PCRE perforce photopc PHP-2.02 PIZZA-WARE pngcrush pngnq Princeton psutils qmail-nelson rc regexp-UofT RSA rwpng scanlogd Sendmail Sendmail-Open-Source shrimp SMAIL Snd SNIA SSLeay Subversion SVFL tablelist tcltk tcp_wrappers_license TermReadKey TeX TeX-other-free Time-Format Time-modules tm-align totd URT VTK w3m wxWinLL-3 x2x xbatt xboing XC Xdebug xtrs xvt YaTeX zpaq ZSH
 # The following are NOT valid in @MISC-FREE:
 # arj - usage restrictions
 # freedist - Doesn't grant the right to do modifications.
@@ -43,12 +43,12 @@ FREE-SOFTWARE @FSF-APPROVED @OSI-APPROVED @MISC-FREE
 
 # FSF-approved licenses for "free documentation" and "works of
 # practical use besides software and documentation" (including fonts)
-FSF-APPROVED-OTHER Arphic CC-BY-2.0 CC-BY-SA-2.0 DSL FDL-1.1 FDL-1.1+ FDL-1.2 FDL-1.2+ FDL-1.3 FDL-1.3+ FreeArt GPL-1 GPL-1+ GPL-2 GPL-2+ GPL-3 GPL-3+ IPAfont ODbL-1.0 OFL OFL-1.1 OPL
+FSF-APPROVED-OTHER Arphic CC-BY-2.0 CC-BY-2.5 CC-BY-3.0 CC-BY-SA-2.0 CC-BY-SA-2.5 CC-BY-SA-3.0 CC-BY-SA-4.0 DSL FDL-1.1 FDL-1.1+ FDL-1.2 FDL-1.2+ FDL-1.3 FDL-1.3+ FreeArt GPL-1 GPL-1+ GPL-2 GPL-2+ GPL-3 GPL-3+ IPAfont ODbL-1.0 OFL OFL-1.1 OPL
 
 # Misc licenses for free documents and other works (including fonts)
 # that follow the definition at http://freedomdefined.org/ but are NOT
 # listed in @FSF-APPROVED-OTHER
-MISC-FREE-DOCS BitstreamVera CC-PD CC-BY-2.5 CC-BY-3.0 CC-BY-SA-2.5 CC-BY-SA-3.0 CC-BY-SA-4.0 CC-SA-1.0 LDP-1 LDP-1a man-pages man-pages-posix man-pages-posix-2013 MaxMind2 mplus-fonts myspell-en_CA-KevinAtkinson quake1-textures Texinfo-manual UbuntuFontLicense-1.0 Unicode_Fonts_for_Ancient_Scripts vlgothic wxWinFDL-3
+MISC-FREE-DOCS BitstreamVera CC-PD CC-SA-1.0 LDP-1 LDP-1a man-pages man-pages-posix man-pages-posix-2013 MaxMind2 mplus-fonts myspell-en_CA-KevinAtkinson quake1-textures Texinfo-manual UbuntuFontLicense-1.0 Unicode_Fonts_for_Ancient_Scripts vlgothic wxWinFDL-3
 
 # Metaset for all free documents
 FREE-DOCUMENTS @FSF-APPROVED-OTHER @MISC-FREE-DOCS
@@ -59,7 +59,7 @@ FREE-DOCUMENTS @FSF-APPROVED-OTHER @MISC-FREE-DOCS
 # and share modifications
 FREE @FREE-SOFTWARE @FREE-DOCUMENTS
 
-EULA Adaptec-EULA AdobeFlash-11.x ArxFatalis-EULA-JoWooD baudline BCS bf1942-lnxded CAPYBARA-EULA cadsoft CYANA DOOM3 ETQW FAH-EULA-2009 FAH-EULA-2014 FraunhoferFDK GameFront Gameplay-Group-EULA GIMPS GOG-EULA google-chrome googleearth Google-TOS IBM-J1.6 Intel-SDP Introversion LastPass LOKI-EULA LRCTF MakeMKV-EULA MARBLEBLAST Mendeley-EULA MSjdbcEULA40 MTA-0.5 NVIDIA-CUDA Nero-AAC-EULA Nero-EULA-US Oracle-BCLA-JavaSE PAPERS-PLEASE POMPOM postal2 Primate-Plunge PUEL Q3AEULA Q3AEULA-20000111 QUAKE4 Rain-Slick RTCW RTCW-ETEULA SCM-MICRO SJ-Labs skype-4.0.0.7-copyright spin-commercial spin-educational sun-bcla-java-vm TeamViewer THINKTANKS UPEK-SDK-EULA ut2003 ut2003-demo
+EULA Adaptec-EULA AdobeFlash-11.x ArxFatalis-EULA-JoWooD baudline BCS bf1942-lnxded CAPYBARA-EULA cadsoft Coherent-Graphics CYANA DOOM3 ETQW FAH-EULA-2009 FAH-EULA-2014 FraunhoferFDK GameFront Gameplay-Group-EULA GIMPS GOG-EULA google-chrome googleearth Google-TOS IBM-J1.6 Intel-SDP Introversion LastPass LOKI-EULA LRCTF MakeMKV-EULA MARBLEBLAST Mendeley-terms MSjdbcEULA40 MTA-0.5 NVIDIA-CUDA Nero-AAC-EULA Nero-EULA-US Oracle-BCLA-JavaSE PAPERS-PLEASE POMPOM postal2 Primate-Plunge PUEL Q3AEULA Q3AEULA-20000111 QUAKE4 Rain-Slick RTCW RTCW-ETEULA SCM-MICRO SJ-Labs skype-4.0.0.7-copyright spin-commercial spin-educational sun-bcla-java-vm TeamViewer THINKTANKS UPEK-SDK-EULA ut2003 ut2003-demo Vivaldi
 
 # As proposed: http://archives.gentoo.org/gentoo-dev/msg_6c950b46c50fe72ebc5e650bbf70f77c.xml
 # Excerpt of the rules for this license group:
@@ -71,7 +71,7 @@ EULA Adaptec-EULA AdobeFlash-11.x ArxFatalis-EULA-JoWooD baudline BCS bf1942-lnx
 # - IF (and only if) there is an explicit inclusion requirement,
 #   USE=bindist MUST cause a copy of the license to be installed
 #   in a file location compliant with the license
-BINARY-REDISTRIBUTABLE @FREE atheros-hal bh-luxi Broadcom Dina hashcat intel-psb intel-ucode ipw2100-fw ipw2200-fw ipw3945 no-source-code NVIDIA-r1 qlogic-fibre-channel-firmware radeon-ucode shmux SmartLabs sun-concurrent-util sun-jlfgr
+BINARY-REDISTRIBUTABLE @FREE atheros-hal bh-luxi Broadcom Dina hashcat intel-ucode ipw2100-fw ipw2200-fw ipw3945 no-source-code NVIDIA-r1 qlogic-fibre-channel-firmware radeon-ucode shmux SmartLabs sun-concurrent-util sun-jlfgr
 
 # Deprecated license labels, used by repoman
 #DEPRECATED as-is

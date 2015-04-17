@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/qt4-build-multilib.eclass,v 1.2 2014/11/17 00:24:43 pesa Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/qt4-build-multilib.eclass,v 1.9 2015/04/01 18:45:04 pesa Exp $
 
 # @ECLASS: qt4-build-multilib.eclass
 # @MAINTAINER:
@@ -19,7 +19,7 @@ esac
 
 inherit eutils flag-o-matic multilib multilib-minimal toolchain-funcs
 
-HOMEPAGE="https://www.qt.io/ https://qt-project.org/"
+HOMEPAGE="https://www.qt.io/"
 LICENSE="|| ( LGPL-2.1 GPL-3 )"
 SLOT="4"
 
@@ -27,8 +27,9 @@ case ${PV} in
 	4.?.9999)
 		QT4_BUILD_TYPE="live"
 		EGIT_REPO_URI=(
-			"git://gitorious.org/qt/qt.git"
-			"https://git.gitorious.org/qt/qt.git"
+			"git://code.qt.io/qt/qt.git"
+			"https://code.qt.io/git/qt/qt.git"
+			"https://github.com/qtproject/qt.git"
 		)
 		EGIT_BRANCH=${PV%.9999}
 		inherit git-r3
@@ -36,7 +37,7 @@ case ${PV} in
 	*)
 		QT4_BUILD_TYPE="release"
 		MY_P=qt-everywhere-opensource-src-${PV/_/-}
-		SRC_URI="http://download.qt-project.org/archive/qt/${PV%.*}/${PV}/${MY_P}.tar.gz"
+		SRC_URI="http://download.qt.io/official_releases/qt/${PV%.*}/${PV}/${MY_P}.tar.gz"
 		S=${WORKDIR}/${MY_P}
 		;;
 esac
@@ -167,15 +168,23 @@ qt4-build-multilib_src_prepare() {
 		fi
 	fi
 
+	if [[ ${PN} == qtcore ]]; then
+		# Bug 373061
+		# qmake bus errors with -O2 or -O3 but -O1 works
+		if [[ ${CHOST} == *86*-apple-darwin* ]]; then
+			replace-flags -O[23] -O1
+		fi
+
+		# Bug 503500
+		# undefined reference with -Os and --as-needed
+		if use x86 || use_if_iuse abi_x86_32; then
+			replace-flags -Os -O2
+		fi
+	fi
+
 	# Bug 261632
 	if use ppc64; then
 		append-flags -mminimal-toc
-	fi
-
-	# Bug 373061
-	# qmake bus errors with -O2 or -O3 but -O1 works
-	if [[ ${CHOST} == *86*-apple-darwin* ]]; then
-		replace-flags -O[23] -O1
 	fi
 
 	# Bug 417105
@@ -272,10 +281,14 @@ qt4_multilib_src_configure() {
 
 	qt4_symlink_tools_to_build_dir
 
-	# toolchain setup
-	tc-export CC CXX OBJCOPY STRIP
-	export AR="$(tc-getAR) cqs"
-	export LD="$(tc-getCXX)"
+	# toolchain setup ('local -x' because of bug 532510)
+	local -x \
+		AR="$(tc-getAR) cqs" \
+		CC=$(tc-getCC) \
+		CXX=$(tc-getCXX) \
+		LD=$(tc-getCXX) \
+		OBJCOPY=$(tc-getOBJCOPY) \
+		STRIP=$(tc-getSTRIP)
 
 	# convert tc-arch to the values supported by Qt
 	local arch=
@@ -287,7 +300,7 @@ qt4_multilib_src_configure() {
 		x86-macos)		  arch=x86 ;;
 		x86*)			  arch=i386 ;;
 		alpha|arm|ia64|mips|s390) arch=$(tc-arch) ;;
-		hppa|sh)		  arch=generic ;;
+		arm64|hppa|sh)		  arch=generic ;;
 		*) die "qt4-build-multilib.eclass: unsupported tc-arch '$(tc-arch)'" ;;
 	esac
 

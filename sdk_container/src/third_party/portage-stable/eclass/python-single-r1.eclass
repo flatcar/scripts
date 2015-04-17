@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/python-single-r1.eclass,v 1.29 2014/11/07 18:11:58 axs Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/python-single-r1.eclass,v 1.38 2015/03/22 13:41:16 mgorny Exp $
 
 # @ECLASS: python-single-r1
 # @MAINTAINER:
@@ -35,8 +35,28 @@ case "${EAPI:-0}" in
 	0|1|2|3)
 		die "Unsupported EAPI=${EAPI:-0} (too old) for ${ECLASS}"
 		;;
-	4|5)
-		# EAPI=4 is required for USE default deps on USE_EXPAND flags
+	4)
+		# EAPI=4 is only allowed on legacy packages
+		if [[ ${CATEGORY}/${P} == app-arch/threadzip-1.2 ]]; then
+			:
+		elif [[ ${CATEGORY}/${P} == media-libs/lv2-1.8.0 ]]; then
+			:
+		elif [[ ${CATEGORY}/${P} == media-libs/lv2-1.10.0 ]]; then
+			:
+		elif [[ ${CATEGORY}/${P} == sys-apps/paludis-1* ]]; then
+			:
+		elif [[ ${CATEGORY}/${P} == sys-apps/paludis-2.[02].0 ]]; then
+			:
+		elif [[ ${CATEGORY}/${P} == sys-apps/util-linux-2.2[456]* ]]; then
+			:
+		elif [[ ${CATEGORY}/${P} == */gdb-7.[78]* ]]; then
+			:
+		else
+			die "Unsupported EAPI=${EAPI:-4} (too old, allowed only on restricted set of packages) for ${ECLASS}"
+		fi
+		;;
+	5)
+		# EAPI=5 is required for sane USE_EXPAND dependencies
 		;;
 	*)
 		die "Unsupported EAPI=${EAPI} (unknown) for ${ECLASS}"
@@ -219,14 +239,158 @@ _python_single_set_globals() {
 	# 3) use whichever python-exec slot installed in EAPI 5. For EAPI 4,
 	# just fix :2 since := deps are not supported.
 	if [[ ${_PYTHON_WANT_PYTHON_EXEC2} == 0 ]]; then
-		PYTHON_DEPS+="dev-lang/python-exec:0[${PYTHON_USEDEP}]"
+		die "python-exec:0 is no longer supported, please fix your ebuild to work with python-exec:2"
 	elif [[ ${EAPI} != 4 ]]; then
-		PYTHON_DEPS+="dev-lang/python-exec:=[${PYTHON_USEDEP}]"
+		PYTHON_DEPS+=">=dev-lang/python-exec-2:=[${PYTHON_USEDEP}]"
 	else
 		PYTHON_DEPS+="dev-lang/python-exec:2[${PYTHON_USEDEP}]"
 	fi
 }
 _python_single_set_globals
+
+# @FUNCTION: python_gen_usedep
+# @USAGE: <pattern> [...]
+# @DESCRIPTION:
+# Output a USE dependency string for Python implementations which
+# are both in PYTHON_COMPAT and match any of the patterns passed
+# as parameters to the function.
+#
+# Remember to escape or quote the patterns to prevent shell filename
+# expansion.
+#
+# When all implementations are requested, please use ${PYTHON_USEDEP}
+# instead. Please also remember to set an appropriate REQUIRED_USE
+# to avoid ineffective USE flags.
+#
+# Example:
+# @CODE
+# PYTHON_COMPAT=( python{2_7,3_4} )
+# DEPEND="doc? ( dev-python/epydoc[$(python_gen_usedep 'python2*')] )"
+# @CODE
+#
+# It will cause the dependency to look like:
+# @CODE
+# DEPEND="doc? ( dev-python/epydoc[python_targets_python2_7(-)?,...] )"
+# @CODE
+python_gen_usedep() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	local impl pattern
+	local matches=()
+
+	for impl in "${PYTHON_COMPAT[@]}"; do
+		_python_impl_supported "${impl}" || continue
+
+		for pattern; do
+			if [[ ${impl} == ${pattern} ]]; then
+				matches+=(
+					"python_targets_${impl}(-)?"
+					"python_single_target_${impl}(+)?"
+				)
+				break
+			fi
+		done
+	done
+
+	[[ ${matches[@]} ]] || die "No supported implementations match python_gen_usedep patterns: ${@}"
+
+	local out=${matches[@]}
+	echo "${out// /,}"
+}
+
+# @FUNCTION: python_gen_useflags
+# @USAGE: <pattern> [...]
+# @DESCRIPTION:
+# Output a list of USE flags for Python implementations which
+# are both in PYTHON_COMPAT and match any of the patterns passed
+# as parameters to the function.
+#
+# Example:
+# @CODE
+# PYTHON_COMPAT=( python{2_7,3_4} )
+# REQUIRED_USE="doc? ( ^^ ( $(python_gen_useflags 'python2*') ) )"
+# @CODE
+#
+# It will cause the variable to look like:
+# @CODE
+# REQUIRED_USE="doc? ( ^^ ( python_single_target_python2_7 ) )"
+# @CODE
+python_gen_useflags() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	local impl pattern
+	local matches=()
+
+	for impl in "${PYTHON_COMPAT[@]}"; do
+		_python_impl_supported "${impl}" || continue
+
+		for pattern; do
+			if [[ ${impl} == ${pattern} ]]; then
+				matches+=( "python_single_target_${impl}" )
+				break
+			fi
+		done
+	done
+
+	echo "${matches[@]}"
+}
+
+# @FUNCTION: python_gen_cond_dep
+# @USAGE: <dependency> <pattern> [...]
+# @DESCRIPTION:
+# Output a list of <dependency>-ies made conditional to USE flags
+# of Python implementations which are both in PYTHON_COMPAT and match
+# any of the patterns passed as the remaining parameters.
+#
+# In order to enforce USE constraints on the packages, verbatim
+# '${PYTHON_USEDEP}' (quoted!) may be placed in the dependency
+# specification. It will get expanded within the function into a proper
+# USE dependency string.
+#
+# Example:
+# @CODE
+# PYTHON_COMPAT=( python{2_5,2_6,2_7} )
+# RDEPEND="$(python_gen_cond_dep \
+#   'dev-python/unittest2[${PYTHON_USEDEP}]' python{2_5,2_6})"
+# @CODE
+#
+# It will cause the variable to look like:
+# @CODE
+# RDEPEND="python_single_target_python2_5? (
+#     dev-python/unittest2[python_targets_python2_5(-)?,...] )
+#	python_single_target_python2_6? (
+#     dev-python/unittest2[python_targets_python2_6(-)?,...] )"
+# @CODE
+python_gen_cond_dep() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	local impl pattern
+	local matches=()
+
+	local dep=${1}
+	shift
+
+	for impl in "${PYTHON_COMPAT[@]}"; do
+		_python_impl_supported "${impl}" || continue
+
+		for pattern; do
+			if [[ ${impl} == ${pattern} ]]; then
+				# substitute ${PYTHON_USEDEP} if used
+				# (since python_gen_usedep() will not return ${PYTHON_USEDEP}
+				#  the code is run at most once)
+				if [[ ${dep} == *'${PYTHON_USEDEP}'* ]]; then
+					local PYTHON_USEDEP=$(python_gen_usedep "${@}")
+					dep=${dep//\$\{PYTHON_USEDEP\}/${PYTHON_USEDEP}}
+				fi
+
+				matches+=( "python_single_target_${impl}? ( ${dep} )" )
+				break
+			fi
+		done
+	done
+
+	echo "${matches[@]}"
+}
 
 # @FUNCTION: python_setup
 # @DESCRIPTION:
@@ -297,7 +461,7 @@ python_setup() {
 python-single-r1_pkg_setup() {
 	debug-print-function ${FUNCNAME} "${@}"
 
-	python_setup
+	[[ ${MERGE_TYPE} != binary ]] && python_setup
 }
 
 _PYTHON_SINGLE_R1=1

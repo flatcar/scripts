@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/kde5.eclass,v 1.2 2014/11/13 04:34:05 kensington Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/kde5.eclass,v 1.6 2015/04/11 17:11:22 kensington Exp $
 
 # @ECLASS: kde5.eclass
 # @MAINTAINER:
@@ -11,8 +11,6 @@
 
 if [[ -z ${_KDE5_ECLASS} ]]; then
 _KDE5_ECLASS=1
-
-CMAKE_MIN_VERSION="2.8.12"
 
 # @ECLASS-VARIABLE: VIRTUALX_REQUIRED
 # @DESCRIPTION:
@@ -35,12 +33,12 @@ EXPORT_FUNCTIONS pkg_pretend pkg_setup src_unpack src_prepare src_configure src_
 # @ECLASS-VARIABLE: QT_MINIMAL
 # @DESCRIPTION:
 # Minimal Qt version to require for the package.
-: ${QT_MINIMAL:=5.3.0}
+: ${QT_MINIMAL:=5.4.1}
 
 # @ECLASS-VARIABLE: KDE_AUTODEPS
 # @DESCRIPTION:
 # If set to "false", do nothing.
-# For any other value, add a dependency on dev-libs/extra-cmake-modules and dev-qt/qtcore:5.
+# For any other value, add a dependency on dev-qt/qtcore:5 and kde-frameworks/extra-cmake-modules:5.
 : ${KDE_AUTODEPS:=true}
 
 # @ECLASS-VARIABLE: KDE_DEBUG
@@ -83,6 +81,13 @@ else
 	: ${KDE_TEST:=false}
 fi
 
+# @ECLASS-VARIABLE: KDE_SELINUX_MODULE
+# @DESCRIPTION:
+# If set to "none", do nothing.
+# For any other value, add selinux to IUSE, and depending on that useflag
+# add a dependency on sec-policy/selinux-${KDE_SELINUX_MODULE} to (R)DEPEND
+: ${KDE_SELINUX_MODULE:=none}
+
 if [[ ${KDEBASE} = kdevelop ]]; then
 	HOMEPAGE="http://www.kdevelop.org/"
 else
@@ -101,22 +106,34 @@ case ${KDE_AUTODEPS} in
 	false)	;;
 	*)
 		if [[ ${KDE_BUILD_TYPE} = live ]]; then
-			ecm_version=9999
-		elif [[ ${CATEGORY} = kde-frameworks ]]; then
-			ecm_version=1.$(get_version_component_range 2).0
-		else
-			ecm_version=1.3.0
+			case ${CATEGORY} in
+				kde-frameworks)
+					FRAMEWORKS_MINIMAL=9999
+				;;
+				kde-plasma)
+					FRAMEWORKS_MINIMAL=9999
+				;;
+				*) ;;
+			esac
 		fi
 
-		DEPEND+=" >=dev-libs/extra-cmake-modules-${ecm_version}"
+		DEPEND+=" $(add_frameworks_dep extra-cmake-modules)"
 		RDEPEND+=" >=kde-frameworks/kf-env-3"
 		COMMONDEPEND+="	>=dev-qt/qtcore-${QT_MINIMAL}:5"
 
-		if [[ ${CATEGORY} = kde-base ]]; then
-			RDEPEND+=" !kde-base/kde-l10n:4"
+		if [[ ${CATEGORY} = kde-plasma ]]; then
+			RDEPEND+="
+				!kde-apps/kde-l10n[-minimal]
+				!kde-base/kde-l10n:4[-minimal(-)]
+			"
 		fi
 
-		unset ecm_version
+		if [[ ${CATEGORY} == kde-apps ]]; then
+			RDEPEND+="
+				!kde-apps/${PN}:4
+				!kde-base/${PN}
+			"
+		fi
 		;;
 esac
 
@@ -161,6 +178,14 @@ case ${KDE_TEST} in
 		;;
 esac
 
+case ${KDE_SELINUX_MODULE} in
+	none)   ;;
+	*)
+		IUSE+=" selinux"
+		COMMONDEPEND+=" selinux? ( sec-policy/selinux-${KDE_SELINUX_MODULE} )"
+		;;
+esac
+
 DEPEND+=" ${COMMONDEPEND} dev-util/desktop-file-utils"
 RDEPEND+=" ${COMMONDEPEND}"
 unset COMMONDEPEND
@@ -196,24 +221,25 @@ _calculate_src_uri() {
 	DEPEND+=" app-arch/xz-utils"
 
 	case ${CATEGORY} in
-		kde-frameworks)
-			case ${PV} in 
-				5.0.0|5.1.0|5.2.0|5.3.0)
-				SRC_URI="mirror://kde/stable/frameworks/${PV}/${_kmname}-${PV}.tar.xz" ;;
+		kde-apps)
+			case ${PV} in
+				??.?.[6-9]? | ??.??.[6-9]? )
+					SRC_URI="mirror://kde/unstable/applications/${PV}/src/${_kmname}-${PV}.tar.xz"
+					RESTRICT+=" mirror"
+					;;
 				*)
-				SRC_URI="mirror://kde/stable/frameworks/${PV%.*}/${_kmname}-${PV}.tar.xz" ;;
+					SRC_URI="mirror://kde/stable/applications/${PV}/src/${_kmname}-${PV}.tar.xz" ;;
 			esac
 			;;
-		kde-base)
+		kde-frameworks)
+			SRC_URI="mirror://kde/stable/frameworks/${PV%.*}/${_kmname}-${PV}.tar.xz" ;;
+		kde-plasma)
 			case ${PV} in
 				5.?.[6-9]? )
 					# Plasma 5 beta releases
 					SRC_URI="mirror://kde/unstable/plasma/${PV}/${_kmname}-${PV}.tar.xz"
 					RESTRICT+=" mirror"
 					;;
-				5.1.0.1)
-					# Plasma 5 stable releases
-					SRC_URI="mirror://kde/stable/plasma/5.1.0/${_kmname}-${PV}.tar.xz" ;;
 				*)
 					# Plasma 5 stable releases
 					SRC_URI="mirror://kde/stable/plasma/${PV}/${_kmname}-${PV}.tar.xz" ;;
@@ -235,7 +261,14 @@ _calculate_live_repo() {
 			# This variable allows easy overriding of default kde mirror service
 			# (anonsvn) with anything else you might want to use.
 			ESVN_MIRROR=${ESVN_MIRROR:=svn://anonsvn.kde.org/home/kde}
-			ESVN_REPO_URI="${ESVN_MIRROR}/trunk/KDE/${PN}"
+
+			local branch_prefix="KDE"
+
+			if [[ -n ${KMNAME} ]]; then
+				branch_prefix="${KMNAME}"
+			fi
+
+			ESVN_REPO_URI="${ESVN_MIRROR}/trunk/${branch_prefix}/${PN}"
 			;;
 		git)
 			# @ECLASS-VARIABLE: EGIT_MIRROR
@@ -259,7 +292,7 @@ _calculate_live_repo() {
 				_kmname=${PN}
 			fi
 
-			if [[ ${PV} != 9999 && ${KDEBASE} = kde-base ]]; then
+			if [[ ${PV} != 9999 && ${CATEGORY} = kde-plasma ]]; then
 				EGIT_BRANCH="Plasma/$(get_version_component_range 1-2)"
 			fi
 
@@ -330,11 +363,21 @@ kde5_src_prepare() {
 	# enable only the requested translations
 	# when required
 	if [[ ${KDE_BUILD_TYPE} = release ]] ; then
-		for lang in $(ls po) ; do
+		for lang in $(ls po 2> /dev/null) ; do
 			if ! has ${lang} ${LINGUAS} ; then
 				rm -rf po/${lang}
 			fi
 		done
+
+		if [[ ${KDE_HANDBOOK} = true ]] ; then
+			pushd doc > /dev/null
+			for lang in $(ls) ; do
+				if ! has ${lang} ${LINGUAS} ; then
+					comment_add_subdirectory ${lang}
+				fi
+			done
+			popd > /dev/null
+		fi
 	else
 		rm -rf po
 	fi
@@ -348,9 +391,10 @@ kde5_src_prepare() {
 	# only build unit tests when required
 	if ! use_if_iuse test ; then
 		comment_add_subdirectory autotests
+		comment_add_subdirectory tests
 	fi
 
-	if [[ ${CATEGORY} = kde-base ]]; then
+	if [[ ${CATEGORY} = kde-plasma ]]; then
 		punt_bogus_deps
 	fi
 
@@ -373,9 +417,6 @@ kde5_src_configure() {
 	if ! use_if_iuse test ; then
 		cmakeargs+=( -DBUILD_TESTING=OFF )
 	fi
-
-	# make sure config files go to /etc instead of /usr/etc
-	cmakeargs+=(-DSYSCONF_INSTALL_DIR="${EPREFIX}"/etc)
 
 	# install mkspecs in the same directory as qt stuff
 	cmakeargs+=(-DKDE_INSTALL_USE_QT_SYS_PATHS=ON)
@@ -412,7 +453,7 @@ kde5_src_test() {
 		fi
 
 		cmake-utils_src_test
-	}		
+	}
 
 	# When run as normal user during ebuild development with the ebuild command, the
 	# kde tests tend to access the session DBUS. This however is not possible in a real

@@ -1,6 +1,15 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/targets/desktop/package.use,v 1.41 2014/09/17 22:21:23 chithanh Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/targets/desktop/package.use,v 1.43 2015/02/19 02:58:02 tetromino Exp $
+
+# Alexandre Rostovtsev <tetromino@gentoo.org> (19 Feb 2015)
+# Set reasonable default toolkit for all desktops to prevent emerge error
+# when USE=tools
+x11-drivers/nvidia-drivers gtk2
+
+# Ben de Groot <yngwin@gentoo.org> (18 Feb 2015)
+# Enable sensible defaults for desktop users (bug #540046)
+dev-python/PyQt5 declarative gui network printsupport sql widgets xmlpatterns
 
 # Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (17 Sep 2014)
 # Disable glamor for xf86-video-intel since it also needs uxa, which is
@@ -14,7 +23,7 @@ net-libs/libpcap -bluetooth
 
 # Rick Farina <zerochaos@gentoo.org> (31 May 2014)
 # wireshark 1.10.x has a mostly non-functional qt4 interface so keep
-# gtk3 the default until 1.11.x or higher is stabilized 
+# gtk3 the default until 1.11.x or higher is stabilized
 <net-analyzer/wireshark-1.11.0 -qt4
 
 # Michał Górny <mgorny@gentoo.org> (27 May 2014)

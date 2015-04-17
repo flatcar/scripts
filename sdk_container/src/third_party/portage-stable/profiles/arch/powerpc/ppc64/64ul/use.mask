@@ -76,13 +76,9 @@ hb
 hb2
 
 # USE=audit masked prior to testing on alpha, arm, hppa, ppc64, s390, sh.
-# Bug #184563, 18 Sep 2007 
+# Bug #184563, 18 Sep 2007
 # Robin H. Johnson <robbat2@gentoo.org>
 audit
-
-# see bug #446900 and bug #425494
-llvm
-clang
 
 # unregisterised ghc arch for now.
 # no ghci - no TH

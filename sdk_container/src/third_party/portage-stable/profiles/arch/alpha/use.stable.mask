@@ -1,14 +1,9 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/alpha/use.stable.mask,v 1.9 2014/11/15 21:23:39 floppym Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/alpha/use.stable.mask,v 1.10 2015/01/19 16:12:25 floppym Exp $
 
 # This file requires eapi 5 or later. New entries go on top.
 # Please use the same syntax as in use.mask
-
-# Mike Gilbert <floppym@gentoo.org> (15 Nov 2014)
-# Waiting for stabilization (bug 525510).
-python_targets_python3_4
-python_single_target_python3_4
 
 # Pacho Ramos <pacho@gentoo.org> (17 Apr 2014)
 # Dropped stable keywords after the discussion caused by

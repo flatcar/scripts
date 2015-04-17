@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/intel-sdp.eclass,v 1.18 2014/09/15 17:54:11 jlec Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/intel-sdp.eclass,v 1.19 2015/01/31 10:16:12 jer Exp $
 
 # @ECLASS: intel-sdp.eclass
 # @MAINTAINER:
@@ -212,7 +212,7 @@ _isdp_big-warning() {
 	esac
 
 	echo ""
-	ewarn "Make sure you have recieved the an Intel license."
+	ewarn "Make sure you have received an Intel license."
 	ewarn "To receive a non-commercial license, you need to register at:"
 	ewarn "http://software.intel.com/en-us/articles/non-commercial-software-development/"
 	ewarn "Install the license file into ${INTEL_SDP_EDIR}/licenses/"

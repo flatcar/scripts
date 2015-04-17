@@ -1,6 +1,18 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/mips/package.use.mask,v 1.68 2014/09/16 17:12:06 chithanh Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/mips/package.use.mask,v 1.72 2015/04/12 11:26:16 zlogene Exp $
+
+# Mikle Kolyada <zlogene@gentoo.org> (12 Apr 2015)
+# GNOME Shell does not work on mips
+net-misc/wicd gnome-shell
+
+# Mike Frysinger <vapier@gentoo.org> (16 Mar 2015)
+# Needs sci-physics/bullet tested #499974
+dev-libs/efl physics
+
+# Matthias Maier <tamiko@gentoo.org> (24 Dec 2014)
+# sys-devel/clang is not keyworded
+app-doc/doxygen clang
 
 # Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (16 Sep 2014)
 # Needs libepoxy keywording, bug #510940
@@ -113,4 +125,4 @@ dev-vcs/git cgi
 
 # Matt Turner <mattst88@gentoo.org> (09 Feb 2012)
 # mips only use flags
->=sci-libs/fftw-3 -paired-single -zbus
+>=sci-libs/fftw-3 -zbus

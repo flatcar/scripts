@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/targets/desktop/gnome/package.use,v 1.28 2014/06/29 00:41:07 tetromino Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/targets/desktop/gnome/package.use,v 1.29 2015/02/19 02:58:02 tetromino Exp $
 
 # For eautoreconf in =app-crypt/seahorse-3.10.2-r1
 app-crypt/gcr vala
@@ -78,3 +78,8 @@ www-servers/apache apache2_modules_dav apache2_modules_dav_fs apache2_modules_au
 
 # Required by app-admin/sabayon
 x11-base/xorg-server kdrive
+
+# Alexandre Rostovtsev <tetromino@gentoo.org> (19 Feb 2015)
+# Set reasonable default toolkit for gnome users to prevent emerge error
+# when USE=tools
+x11-drivers/nvidia-drivers -gtk2 gtk3

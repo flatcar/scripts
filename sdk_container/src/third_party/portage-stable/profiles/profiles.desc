@@ -24,14 +24,6 @@ amd64           default/linux/amd64/13.0/desktop/gnome/systemd     stable
 amd64           default/linux/amd64/13.0/desktop/kde               stable
 amd64           default/linux/amd64/13.0/desktop/kde/systemd       stable
 amd64           default/linux/amd64/13.0/developer                 stable
-amd64           default/linux/amd64/13.0/no-emul-linux-x86                           dev
-amd64           default/linux/amd64/13.0/no-emul-linux-x86/desktop                   dev
-amd64           default/linux/amd64/13.0/no-emul-linux-x86/desktop/gnome             dev
-amd64           default/linux/amd64/13.0/no-emul-linux-x86/desktop/gnome/systemd     dev
-amd64           default/linux/amd64/13.0/no-emul-linux-x86/desktop/kde               dev
-amd64           default/linux/amd64/13.0/no-emul-linux-x86/desktop/kde/systemd       dev
-amd64           default/linux/amd64/13.0/no-emul-linux-x86/developer                 dev
-amd64           default/linux/amd64/13.0/no-emul-linux-x86/selinux                   dev
 amd64           default/linux/amd64/13.0/no-multilib               dev
 amd64           default/linux/amd64/13.0/x32                       dev
 
@@ -165,13 +157,16 @@ x86             default/linux/x86/13.0/desktop/kde/systemd      stable
 x86             default/linux/x86/13.0/developer                stable
 
 # Gentoo/FreeBSD Profiles
-amd64-fbsd	default/bsd/fbsd/amd64/9.1			stable
+amd64-fbsd	default/bsd/fbsd/amd64/9.1			dev
 amd64-fbsd	default/bsd/fbsd/amd64/9.2			dev
+amd64-fbsd	default/bsd/fbsd/amd64/10.1			dev
 amd64-fbsd	default/bsd/fbsd/amd64/9.1/clang		exp
 amd64-fbsd	default/bsd/fbsd/amd64/9.2/clang		exp
+amd64-fbsd	default/bsd/fbsd/amd64/10.1/clang		exp
 sparc-fbsd      default/bsd/fbsd/sparc/8.2                      exp
 x86-fbsd	default/bsd/fbsd/x86/9.1			dev
 x86-fbsd	default/bsd/fbsd/x86/9.2			dev
+x86-fbsd	default/bsd/fbsd/x86/10.1			dev
 
 # Hardened Profiles
 amd64		hardened/linux/amd64					stable
@@ -236,6 +231,10 @@ arm-linux		prefix/linux/arm				exp
 ia64-linux		prefix/linux/ia64				exp
 ppc64-linux		prefix/linux/ppc64				exp
 x86-linux		prefix/linux/x86				exp
+
+# Linux Standalone Profiles
+amd64-linux		prefix/linux-standalone/amd64			exp
+x86-linux		prefix/linux-standalone/x86			exp
 
 # Mac OS X Profiles
 ppc-macos		prefix/darwin/macos/10.4/ppc			exp

@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/desc/gpsd_protocols.desc,v 1.4 2014/10/30 21:15:54 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/desc/gpsd_protocols.desc,v 1.5 2015/02/27 18:11:58 vapier Exp $
 
 # This file contains descriptions of possible protocols for gpsd package.
 # Keep it sorted. :)
@@ -26,6 +26,7 @@ ntrip - NTRIP protocol support
 oceanserver - OceanServer protocol support
 oldstyle - Oldstyle (pre-JSON) protocol support
 oncore - OnCore protocol support
+passthrough - Pass through JSON data
 rtcm104v2 - RTCM104V2 protocol support
 rtcm104v3 - RTCM104V3 protocol support
 sirf - SiRF protocol support

@@ -1,6 +1,14 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/ppc64/package.use.mask,v 1.60 2014/07/03 16:45:25 pacho Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/ppc64/package.use.mask,v 1.62 2015/01/28 00:42:57 johu Exp $
+
+# Johannes Huber <johu@gentoo.org> (28 Jan 2015)
+# Missing keyword on dev-libs/botan, bug #458438
+app-crypt/qca botan
+
+# Matthias Maier <tamiko@gentoo.org> (24 Dec 2014)
+# sys-devel/clang is not keyworded
+app-doc/doxygen clang
 
 # Michael Sterrett <mr_bones_@gentoo.org (12 Nov 2013)
 # Mask openmedia use flag because the content generation tools

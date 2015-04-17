@@ -1,6 +1,10 @@
 # ChangeLog for Gentoo/m68k profile
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/m68k/ChangeLog,v 1.35 2014/10/18 18:14:20 vapier Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/m68k/ChangeLog,v 1.36 2015/03/17 01:42:33 vapier Exp $
+
+  17 Mar 2015; Mike Frysinger <vapier@gentoo.org> package.use.force,
+  package.use.mask:
+  Mask dev-libs/ef[oldlua,physics] #499974.
 
   18 Oct 2014; Mike Frysinger <vapier@gentoo.org> use.mask:
   Mask USE=seccomp until the kernel/library gets support #524148 by Christian

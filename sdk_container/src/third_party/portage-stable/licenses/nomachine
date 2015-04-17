@@ -1,301 +1,313 @@
-End-User License Agreement
+﻿End-User License Agreement
 
-NoMachine - Rome - Italy
+NoMachine - Luxembourg
 
-NoMachine NX Products License
+NoMachine Product License
 
-Copyright (c) 2002-2007 NoMachine. All Rights Reserved.
+Copyright (c) 2002-2015 NoMachine S.à.r.l. All Rights Reserved.
 
-Do not install or use NX products until you have read and accepted this
-Agreement. By installing or using NX products you accept this Agreement.
+This is a legal agreement ("Agreement") between you, the "Licensee", 
+and NoMachine S.à.r.l. ("NoMachine"), owner and titleholder of all
+copyrights, intellectual property and trademarks of the NoMachine
+Software.
 
-If you do not agree to the terms of this license, you must not install
-or use the NoMachine NX products. When applicable you may return NX
-product you purchased, including all packaging, media, and documentation,
-to the place of purchase for a refund, provided that the return is made
-within ten days of the date of purchase.
+Notice to User:
+This NoMachine Software Technology License Agreement ("License Agree-
+ment") covers your use of NoMachine Software that accompanies this 
+License Agreement and related software components, which may include 
+associated media, printed materials, and "online" or electronic 
+documentation. If you do not agree to the terms of this License 
+Agreement, do not install or use the Software. By explicitly accepting 
+this License Agreement, however, or by installing, copying, downloading,
+accessing, or otherwise using the Software, you are acknowledging and 
+agreeing to be bound by the following terms.
 
-1. Licensee
 
-"Licensee" is the person, company or entity who uses this NX Product.
-The Licensee must accept and agree to this Agreement before installing
-or using the NX Product.
 
-2. License of NoMachine NX Product
 
-Subject to the other provisions of this Agreement, NoMachine grants to
-Licensee a nonexclusive, nontransferable license ("the License") to use
-the NX Product on a single computer system. Additionally, this product
-may be installed on more than one computer system in a non-commercial
-setting. Rights to NoMachine not expressly granted to Licensee in this
-Agreement are reserved by NoMachine.
+1.Definitions
 
-3. NX Product
 
-The "NX Product" includes the NX Software (NX Client, NX Server, NX
-Server Manager, NX Web Companion any edition and add-on software) and,
-depending on the product, a License Certificate.
+"Permitted Number" means one (1) unless indicated otherwise by a valid 
+license certificate.
 
-4. NX Software
+"Documentation" means the online documentation and printed documentation, 
+if any, provided to Licensee in connection with Software, except for 
+documentation provided under third party or open source licenses as 
+provided in Sections 4.2 and 4.3 below. Whenever the context reasonably 
+permits, any reference in this Agreement to Software shall also apply to 
+Documentation. The Documentation may be used by Licensee, but only 
+in connection with this Software.
 
-The "NX Software" includes three categories of computer programs:
-Commercial Software developed by NoMachine, Open Source Software
-developed by NoMachine, Third Party Open Source Software. The term
-"Software" is used to mean any or all of the Commercial, Open Source,
-and Third Party Software.
 
-4.1 Commercial NoMachine Software
+"Software" means (a) all of the contents of the files (delivered electron-
+ically or on physical media), or disk(s) or other media with which this 
+agreement is provided, which may include (i) NoMachine software, 
+Open Source Software or Third Party Software; (ii) related explanatory 
+written materials or files ("Documentation"); and (iii) fonts; and
+(b)images, sounds, clip art and other artistic works ("Media") bundled 
+with NoMachine software; and (c) upgrades, modified versions, updates, 
+additions, and copies of the foregoing, provided to you by NoMachine at 
+any time (collectively, "Updates").
 
-NoMachine Commercial Software consists of the following computer programs
-that have been developed by NoMachine:
 
- - nxserver
- - nxnode
- - nxmanager
- - nxclient
- - nxapplet
+"Open Source Software" components (or portions thereof) included 
+with this NoMachine software product are distributed under the original 
+license terms. Copyright statements and licenses applied to Open Source 
+Software components (or portions thereof) can be found in the 
+"credits" file.
 
-NoMachine owns the copyrights and intellectual property in and to each
-item of NoMachine Commercial Software. Redistribution of NX Server
-software is forbidden without written permission by NoMachine.
-Redistribution of NX Client software, including commercial Closed Source
-packages, is allowed, free of charge, for commercial and non-commercial
-use providing any copyright notices that pertain to the origins of the
-Software are not altered in any way or removed.
 
-No modification, adaptation, translation of the software is permitted,
-including modification to the graphical contents, without specific and
-prior permission from NoMachine.
+"Third-Party Software". Some of the Software Programs included in the 
+Software are distributed under the terms of agreements with third parties 
+which may expand or limit your rights to use certain Software Programs 
+as set forth in Sections 2, 3 and 4. 
 
-4.2 Open Source NoMachine Software
 
-Open Source NoMachine Software consists of packages developed by NoMachine
-for inclusion in NX products. NoMachine Open Source software packages
-and modifications to existing Open Source packages are released by
-NoMachine under the terms of the GNU Public License version 2. The license
-governs the software and the copying, distribution, modification, and
-use of the software. Source code of the Open Source software packages
-is included and distributed to Licensee, consistent with the requirements
-of the license agreement. Open Source Software developed by NoMachine
-is owned by NoMachine and distributed by NoMachine to Licensee for use
-by Licensee. NoMachine releases as Open Source software the following
-packages:
 
- - nxproxy
- - nxcomp
- - nxcompext
- - nxssh
- - nxuexec
- - nxspool
- - nxsensor
- - nx-X11
- - nxwin
- - nxauth
- - nxagent
- - nxviewer
- - nxdesktop
- - nxesd
- - nxscripts
- - nxcompsh
- - nxkill
- - nxservice
- - nxbuilder
+2. GRANT OF LICENSE AND TERMS OF USE
 
-4.3 Third Party Open Source Software
 
-Many of the Software Programs included in the Software are distributed
-under the terms of agreements with third parties ("Third Party Agreements")
-which may expand or limit your rights to use certain Software Programs
-as set forth in Section 2. Certain Software Programs may be licensed
-(or sublicensed) under the GNU General Public License and other similar
-open source license agreements ("OSLAs") which, among other rights,
-permit the copying, modification and redistribution of certain Software
-Programs, or portions thereof, and give access to the source code of
-certain Software Programs, or portions thereof. In addition, certain
-Software Programs, or portions thereof, may be licensed (or sublicensed)
-under terms stricter than those set forth in Section 2. The Third Party
-Agreements, related online documentation, source code, and other information
-about such Software Programs are available at the relevant websites:
+2.1     Subject to your compliance with the terms and conditions of this 
+Agreement, NoMachine and its authorized suppliers grant you a limited,
+nonexclusive and nontransferable license to install and use the Software 
+on a compatible device or Computer in the manner and for the purposes in
+accordance with (i) the Documentation; (ii) the License Type for which you
+have paid the fees where applicable.
 
- - Cygwin [Cygwin License, http://www.cygwin.com/]
- - XFree86 [XFree86 License, http://www.xfree.org/]
- - OpenSSH [OpenSSH License, http://www.openssh.org/]
- - RDesktop [GPL, http://www.rdesktop.org/]
- - TightVNC [GPL, http://www.tightvnc.org/]
- - CUPS [GPL, http://www.cups.org/]
- - SAMBA [GPL, http://www.samba.net/]
- - ESD [GPL, http://www.tux.org/~ricdude/EsounD.html]
- - GKrellM [GPL, http://www.gkrellm.net/]
- - SQLite [SQLite License, http://www.sqlite.org/] 
+(a) Individual Use. You may install and use the Permitted Number of copies 
+of the Software on a compatible Computer for your private non-commercial 
+use unless otherwise specified in the Software documentation. 
 
-Upon request NoMachine will deliver all the relative third-party source
-code, consistent with the licensing terms of the original software, and
-documentation at the cost of the postage charges incurred.
+(b) Commercial Use. Commercial use of the Software is governed by the 
+accompanying License Type acquired separately from NoMachine and for which, 
+where applicable, a fee has been paid. Unless otherwise provided in the 
+Software Documentation, you may install and use the Permitted Number of 
+copies of the Software on a compatible device. A "Commercial User" is 
+defined as an individual or entity, or an individual acting on behalf of 
+an entity, who uses the Software for commercial or business purposes. 
 
-You acknowledge that you have read, understood and agreed to the terms
-and conditions of each such Third Party Agreement. To the extent any
-Third Party Agreements require that Licensor provide rights to use, copy
-or modify a Software Program that are broader than the rights granted
-in Section 2, then such rights shall take precedence over the rights
-and restrictions granted in this Agreement solely for such Software
-Programs.
+(c) Distribution: Redistribution of Software developed by NoMachine is 
+strictly forbidden without written permission by NoMachine.
 
-Licensed, Not Sold Open Source Software, NoMachine Software and Third
-Party Software are not sold, but are licensed and distributed to Licensee.
-Any reference to the purchase or sale of the NX Product means, with respect
-to the NX Software and Third Party Software, a purchase or sale of the
-applicable licenses. The license fees for such licenses are included in
-the NX product purchase price. No fee is charged for any Open Source
-Software license, but a fee for distribution (e.g., transferring a copy
-or copies to Licensee) is included in the NX product purchase price.
-Ownership of copies of Open Source Software, NoMachine Software and Third
-Party Software is governed by the applicable license agreement.
+(d) Back up Copy. You may not copy the Software except for a reasonable 
+number of machine-readable copies of the Software for backup or archival 
+purposes and except as expressly permitted in this EULA. All copies of the 
+Software must reproduce all proprietary notices, labels, or marks. 
 
-Maintenance Releases All maintenance releases, fixes, patches, work-around
-solutions, upgrades, and updates for or to the Open Source Software,
-NoMachine Software and Third Party Software made available by NoMachine
-or its distributors, OEMs, VARs or other resellers to Licensee shall be
-deemed part of the NoMachine Software, Third Party Software or Open
-Source Software as applicable, and shall be governed by this Agreement
-and the license agreements referred to herein, unless a different license
-agreement is provided with or made applicable to such maintenance releases,
-fixes, patches, work-around solutions, upgrades, and updates.
+Notwithstanding the foregoing, this Agreement shall not prevent or restrict 
+you from exercising additional or different rights to any free, Open Source 
+Software, documentation and materials contained in or provided with the 
+Software in accordance with the applicable free, open source license for 
+such code, documentation, and materials.
 
-5. Documentation
 
-"Documentation" means the online documentation and printed documentation,
-if any, provided to Licensee in connection with NX, except for documentation
-provided under third party or open source licenses as provided in Sections
-4.2 and 4.3 above. Whenever the context reasonably permits, any reference
-in this Agreement to NoMachine Software shall also apply to Documentation.
-The Documentation may be used by Licensee, but only in connection with
-this NX Product.
+3. DESCRIPTION OF OTHER RIGHTS, LIMITATIONS, AND OBLIGATIONS
 
-6. NoMachine Artwork
+3.1     Transfer. You may not rent, lease, sublicense, assign or trans-
+fer your rights in the Software, or authorize all or any portion of 
+the Software to be copied onto another user's Computer except as may 
+be expressly permitted by this Agreement. You may, however, transfer all
+your rights to use the Software to another person or legal entity provided 
+that (a) you also transfer ( i)  this agreement, and (ii) the Software and 
+all other Software or hardware bundled or pre-installed with the Software, 
+including all copies, updates prior  versions, to such person or entity (b) 
+you retain no copies, including backups and copies stored on a Computer, 
+and (c) the receiving party accepts the terms and conditions of this Agreement 
+and any other terms and conditions upon which you obtained a valid license to 
+the Software. Notwithstanding the foregoing you may not transfer pre-release, 
+or not for resale copies of the Software.
 
-"NoMachine Artwork" includes the [!M] logo, the NoMachine and NX logos,
-included icon sets, and other trademarks. NoMachine holds all rights,
-including the right of distribution, to NoMachine Artwork.
+3.2     No Modification, Reverse Engineering or Leasing.  No modification, 
+adaptation, translation of the software is permitted, including modification 
+to the graphical contents, without specific and prior permission from
+NoMachine. You may not decompile, decrypt, reverse engineer, disassemble 
+or otherwise reduce the Software to human-readable form to gain access to 
+trade secrets or confidential information in the Software, except to the 
+extent the foregoing restriction is expressly prohibited by applicable law. 
+Nor shall you, or permit any other person to do, the foregoing without 
+explicit permission from NoMachine; (ii) remove, alter, cover or obfuscate 
+any copyright notices or other proprietary rights notices placed or embedded 
+by NoMachine on or in any Software or Documentation; (iii) sell, resell 
+for a profit, rent, lease or lend the Software or Documentation or use it 
+for commercial time sharing, rental or service bureau use; (iv) use the 
+Software or any component thereof for any illegal purposes; or (v) use 
+the Software or Documentation, or any component thereof, to enable 
+copyright protection-circumvention devices or to violate or circumvent 
+in any manner any content copyright, content protection scheme, or content 
+copy policies. Notwithstanding the foregoing, this Agreement shall not 
+prevent or restrict you from exercising additional or different rights to 
+any free, open source code, documentation and materials contained in or 
+provided with the  Software in accordance with the applicable free, open 
+source license for such code, documentation, and materials.
 
-7. Limited Warranty
+3.3    Licensed, Not Sold. The Software, including Third Party Software, is 
+not sold, but is licensed and distributed to Licensee. Any reference to the 
+purchase or sale of a product means, with respect to NoMachine Software 
+and Third Party Software, a purchase or sale of the applicable licenses. 
+The license fees for such licenses are included in the product purchase 
+price. No fee is charged for any Open Source Software license, but a fee 
+for distribution (e.g., transferring a copy or copies to Licensee) is 
+included in the product purchase price. Ownership of copies of Open 
+Source Software, NoMachine Software and Third Party Software is governed 
+by the applicable license agreement.
 
-Media And Documentation. NoMachine warrants that if the NX Product media
-or printed documentation, if any, provided by NoMachine are in a damaged
-or physically defective condition when delivered and if they are returned
-to NoMachine (postage prepaid) within 30 days of the date of purchase,
-then NoMachine will provide Licensee with replacements at no charge.
+3.4  Proprietary Rights. No title to or ownership of the Software is 
+transferred to you. NoMachine and/or its licensors own and retain all title 
+and ownership of all intellectual property rights in and to the Software, 
+including any adaptations or copies.
 
-NoMachine Software. NoMachine warrants that if the NoMachne Software
-fails to substantially conform to the specifications in the Documentation
-or to any other NoMachine Software specifications published by NoMachine
-and if the nonconformity is reported in writing by Licensee to NoMachine
-within 30 days from the date the License is purchased, then NoMachine
-shall either remedy the nonconformity or offer to refund the purchase
-price to Licensee upon a return of the NX Product (including all packaging,
-media, and documentation) to NoMachine. In the event of a refund, the
-License shall terminate.
+4. LIMITED WARRANTY AND DISCLAIMER & LIABILITIES
 
-Third Party Software. Warranties, if any, applicable to Third Party
-Software will be the warranties made by the third party licensors in
-the applicable license agreements.
+4.1     NoMachine Software. NoMachine warrants that if Software fails 
+to substantially conform to the specifications in the Documentation or to 
+any other Software specifications published by NoMachine, and if the non-
+conformity is reported in writing by Licensee to NoMachine within 30 days 
+from the date the License is purchased, then NoMachine shall either remedy 
+the nonconformity or offer to refund the purchase price, if applicable, 
+to Licensee. In the event of a refund, the License shall terminate.
 
-Open Source Software. Pursuant to the various open source licenses
+4.2    Third Party Software. Warranties, if any, applicable to Third Party 
+Software will be the warranties made by the third party licensors in the 
+applicable license agreements.
+
+4.3    Open Source Software. Pursuant to the various open source licenses 
 there is no warranty applicable to Open Source Software.
 
-8. Disclaimers And Limitations
 
-Disclaimer Of Warranties. NOMACHINE MAKES NO WARRANTY, PROMISE OR
-REPRESENTATION NOT EXPRESSLY SET FORTH IN THIS AGREEMENT. EXCEPT AS
-EXPRESSLY WARRANTED HEREIN, THE NX SOFTWARE IS PROVIDED "AS IS" WITHOUT
-WARRANTY OR REPRESENTATION OF ANY KIND. NOMACHINE MAKES NO WARRANTY OR
-REPRESENTATION WITH RESPECT TO THIRD PARTY SOFTWARE. OPEN SOURCE SOFTWARE
-IS PROVIDED "AS IS" WITHOUT WARRANTY OR REPRESENTATION OF ANY KIND.
-NOMACHINE DISCLAIMS AND EXCLUDES ALL IMPLIED WARRANTIES INCLUDING, WITHOUT
-LIMITATION, THE IMPLIED WARRANTIES OF NONINFRINGEMENT, MERCHANTABILITY
-AND FITNESS FOR A PARTICULAR PURPOSE. NOMACHINE DOES NOT WARRANT THAT
-ANY THE SOFTWARE WILL SATISFY LICENSEE'S REQUIREMENTS OR THAT IT IS
-WITHOUT DEFECT OR ERROR OR THAT THE OPERATION THEREOF WILL BE UNINTERRUPTED.
-THIS AGREEMENT GIVES LICENSEE SPECIFIC LEGAL RIGHTS. LICENSEE MIGHT
-HAVE OTHER RIGHTS, WHICH VARY FROM STATE/JURISDICTION TO STATE/JURISDICTION.
+4.4    Disclaimer Of Warranties. NOMACHINE MAKES NO WARRANTY, PROMISE OR 
+REPRESENTATION NOT EXPRESSLY SET FORTH IN THIS AGREEMENT. EXCEPT AS 
+EXPRESSLY WARRANTED HEREIN, THE Software IS PROVIDED "AS IS" WITHOUT 
+WARRANTY OR REPRESENTATION OF ANY KIND. NOMACHINE  MAKES NO WARRANTY OR 
+REPRESENTATION WITH RESPECT TO THIRD PARTY SOFTWARE. OPEN SOURCE SOFT-
+WARE IS PROVIDED "AS IS" WITHOUT WARRANTY OR REPRESENTATION OF ANY KIND. 
+NOMACHINE DISCLAIMS AND EXCLUDES ALL IMPLIED WARRANTIES INCLUDING, 
+WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF NONINFRINGEMENT, MERCH-
+ANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. NOMACHINE DOES NOT 
+WARRANT THAT ANY SOFTWARE WILL SATISFY LICENSEE'S REQUIREMENTS OR 
+THAT IT IS WITHOUT DEFECT OR ERROR OR THAT THE OPERATION THEREOF WILL 
+BE UNINTERRUPTED. THIS AGREEMENT GIVES LICENSEE SPECIFIC LEGAL RIGHTS. 
+LICENSEE MIGHT HAVE OTHER RIGHTS, WHICH VARY FROM STATE/JURISDICTION 
+TO STATE/JURISDICTION. The provisions of Section 3 shall survive the 
+termination of this Agreement, howsoever caused, but this shall not 
+imply or create any continued right to use the Software after term-
+ination of this Agreement.
 
-Limitation On Liability. THE AGGREGATE LIABILITY OF NOMACHINE ARISING
-FROM OR RELATING TO THIS AGREEMENT OR ANY OF THE SOFTWARE (REGARDLESS
-OF THE FORM OF ACTION OR CLAIM - E.G., CONTRACT, WARRANTY, TORT, STRICT
-LIABILITY, MALPRACTICE, FRAUD AND/OR OTHERWISE) SHALL NOT EXCEED THE
-TOTAL PAYMENT MADE BY LICENSEE TO PURCHASE THIS NX PRODUCT. NOMACHINE
-SHALL NOT IN ANY CASE BE LIABLE FOR ANY SPECIAL, INCIDENTAL, CONSEQUENTIAL,
-INDIRECT OR PUNITIVE DAMAGES, OR FOR LOSS OF PROFIT, REVENUE, DATA, OR
-PROGRAMS, EVEN IF NoMachine HAS BEEN ADVISED OF THE POSSIBILITY THEREOF.
-Because some states/jurisdictions do not allow the exclusion or limitation
-of liability, the above limitation might not apply.
+4.5    Limitation On Liability. IN NO EVENT WILL NOMACHINE OR ITS 
+SUPPLIERS BE LIABLE TO YOU FOR ANY DAMAGES, CLAIMS OR COSTS WHAT-
+SOEVER OR ANY CONSEQUENTIAL, INDIRECT, INCIDENTAL, DAMAGES, OR ANY 
+LOST PROFITS OR LOST SAVINGS. THE FOREGOING LIMITATIONS AND EXCLUS-
+IONS APPLY TO THE EXTENT PERMITTED BY APPLICABLE LAW IN YOUR JURIS-
+DICTION. THE AGGREGATE LIABILITY OF NOMACHINE ARISING FROM OR RELAT-
+ING TO THIS AGREEMENT OR ANY OF THE SOFTWARE (REGARDLESS OF THE FORM 
+OF ACTION OR CLAIM - E.G., CONTRACT,WARRANTY, TORT, STRICT LIABILITY, 
+MALPRACTICE, FRAUD AND/OR OTHERWISE) SHALL NOT EXCEED THE TOTAL PAYMENT 
+MADE BY LICENSEE TO PURCHASE THE SOFTWARE. NOMACHINE SHALL NOT IN ANY 
+CASE BE LIABLE FOR ANY SPECIAL, INCIDENTAL, CONSEQUENTIAL, INDIRECT OR 
+PUNITIVE DAMAGES, OR FOR LOSS OF PROFIT, REVENUE, DATA, OR PROGRAMS, EVEN 
+IF NOMACHINE HAS BEEN ADVISED OF THE POSSIBILITY THEREOF.
 
-Responsibility For Decisions. Licensee is responsible for decisions
-made and actions taken based on the Software.
+5. AUTHORIZED DISTRIBUTORS AND RESELLERS
+NoMachine authorized distributors and resellers do not have the right to 
+make modifications to this Agreement or to make any additional represent-
+ations, commitments, or warranties binding on NoMachine.
 
-Non-Parties. The officers, directors, employees, shareholders and
-representatives of NoMachine are not parties to this Agreement and shall
-have no obligation or liability to Licensee relating to this Agreement
-or the Software.
+6. RESPONSIBILITY FOR DECISIONS
+Licensee is responsible for decisions made and actions taken based on the 
+Software.
 
-9. Sole Remedy And Allocation Of Risk
+7. NON-PARTIES
+The officers, directors, employees, shareholders and representatives of 
+NoMachine are not parties to this Agreement and shall have no obligation 
+or liability to Licensee relating to this Agreement or the Software.
 
-LICENSEE'S SOLE AND EXCLUSIVE REMEDY IS SET FORTH IN THIS AGREEMENT.
-This Agreement defines a mutually agreed-upon allocation of risk and
-the License fees reflect such allocation of risk.
+8. SOLE REMEDY AND ALLOCATION OF RISK
+Licensee's sole and exclusive remedy is set forth in this agreement.This 
+Agreement defines a mutually agreed-upon allocation of risk and the 
+License fees reflect such allocation of risk.
 
-10. Support
+9. SUPPORT
+Nothing in this Agreement entitles Licensee to any support, maintenance 
+or new versions or distributions of any Software. Licensee may contact 
+NoMachine to determine the availability of support, maintenance and new 
+versions and distributions of the Software, and the fees, terms and cond-
+itions applicable there to.
 
-Nothing in this Agreement entitles Licensee to any support, maintenance
-or new versions or distributions of any Software. Licensee may contact
-NoMachine to determine the availability of support, maintenance and new
-versions and distributions of Software, and the fees, terms and conditions
-applicable there to.
-
-11. Governing Law
-
-This Agreement shall be governed by the laws of the state of Italy without
-giving effect to conflict or choice of law principles. The parties agree
-to exclude application of the "United Nations Convention on Contracts
-for the International Sale of Goods" to this Agreement. Any litigation
-between the parties shall be conducted exclusively in Rome state courts.
+10. GOVERNING LAW
+This Agreement shall be governed by the laws of the state of Luxembourg
+without giving effect to conflict or choice of law principles. The parties 
+agree to exclude application of the "United Nations Convention on Contracts 
+for the International Sale of Goods" to this Agreement. Any litigation between 
+the Parties shall be conducted exclusively by the courts of Luxembourg City. 
 The parties agree and submit to such exclusive jurisdiction and venue.
 
-12. Entire Agreement
+11. ENTIRE AGREEMENT
+This Agreement sets forth the entire understanding and agreement between 
+the parties relating to the subject matter of this Agreement and may be 
+amended only in a writing signed by both parties. No vendor, distributor, 
+OEM, VAR, reseller, dealer, retailer, sales person or other person is 
+authorized by NoMachine to modify this Agreement or to make any warranty, 
+representation or promise which is different than, or in addition to, the 
+warranties, representations and promises of this Agreement.
 
-This Agreement sets forth the entire understanding and agreement between
-the parties relating to the subject matter of this Agreement and may be
-amended only in a writing signed by both parties. No vendor, distributor,
-OEM, VAR, reseller, dealer, retailer, sales person or other person is
-authorized by NoMachine to modify this Agreement or to make any warranty,
-representation or promise which is different than, or in addition to,
-the warranties, representations and promises of this Agreement.
+12. TERMINATION
+The License shall automatically terminate if Licensee materially breaches 
+this Agreement. Upon termination of the License, Licensee shall cease all 
+use of the Software and shall destroy all copies of the Software within 
+the possession or control of Licensee and shall return the original Soft-
+ware and Documentation, if any, to NoMachine.
 
-13. Termination
+13. EXPORT LAWS
+Licensee shall not export, disclose or distribute any Software in violation 
+of any applicable laws or regulations, including the export laws and 
+regulations of Luxembourg, and shall comply with all such laws and regulations.
 
-The License shall automatically terminate if Licensee materially breaches
-this Agreement. Upon termination of the License, Licensee shall cease
-all use of the NX Software and shall destroy all copies of the NX Software
-within the possession or control of Licensee and shall return the original
-NX Software media and Documentation, if any, to NoMachine.
+14. CONSTRUCTION
+In the construction and interpretation of this Agreement, no rule of strict 
+construction shall apply against either party.
 
-14. Export Laws
-
-Licensee shall not export, disclose or distribute any Software in violation
-of any applicable laws or regulations, including the export laws and
-regulations of Italy, and shall comply with all such laws and regulations.
-
-15. Construction
-
-In the construction and interpretation of this Agreement, no rule of
-strict construction shall apply against either party.
-
-16. Severability
-
-If any provision in this Agreement is invalid or unenforceable or contrary
-to applicable law, such provision shall be construed, limited, or altered,
-as necessary, to eliminate the invalidity or unenforceability or the
-conflict with applicable law, and all other provisions of this Agreement
+15. SEVERABILITY
+If any provision in this Agreement is invalid or unenforceable or contrary to 
+applicable law, such provision shall be construed, limited, or altered, as 
+necessary, to eliminate the invalidity or unenforceability or the conflict 
+with applicable law, and all other provisions of this Agreement
 shall remain in effect.
 
-NoMachine's End User License Agreement is subject to revisions. Please
-see http://www.nomachine.com for any updates
+16. H.264/AVC NOTICE
+THIS PRODUCT IS LICENSED UNDER THE AVC PATENT PORTFOLIO LICENSE FOR THE 
+PERSONAL USE OF A CONSUMER OR OTHER USES IN WHICH IT DOES NOT RECEIVE
+REMUNERATION TO (i) ENCODE VIDEO IN COMPLIANCE WITH THE AVC STANDARD 
+("AVC VIDEO") AND/OR (ii) DECODE AVC VIDEO THAT WAS ENCODED BY A CONSUMER 
+ENGAGED IN A PERSONAL ACTIVITY AND/OR WAS OBTAINED FROM A VIDEO PROVIDER
+LICENSED TO PROVIDE AVC VIDEO. NO LICENSE IS GRANTED OR SHALL BE IMPLIED 
+FOR ANY OTHER USE. ADDITIONAL AVC PATENT PORTFOLIO LICENSE INFORMATION 
+MAY BE OBTAINED FROM MPEG LA, L.L.C. SEE HTTP://WWW.MPEGLA.COM
+
+NoMachine's End User License Agreement is subject to revisions. Please see 
+http://www.nomachine.com/ for any updates.
+
+
+
+ACKNOWLEDGEMENTS
+
+NoMachine Software contains Open Source software for which this
+EULA does not apply. Such software, which are subject to other terms and
+conditions, are listed together with their original copyright statements
+and license terms in the "credits" file accompanying this Software.
+
+
+Certain components of the NoMachine Software have been released by
+NoMachine under an open source license. Such components are listed in the 
+"credits" file and must be used in accordance with the applicable open source 
+license terms and conditions.
+
+In accordance with Open Source Software license terms, NoMachine makes
+available the corresponding source files at: 
+
+http://www.nomachine.com/opensource
+
+
+For those components not eventually available for download, upon request
+NoMachine will deliver all the relative third-party source code, consistent 
+with the licensing terms of the original software, and documentation at the 
+cost of the postage charges incurred.

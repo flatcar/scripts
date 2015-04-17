@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86/make.defaults,v 1.16 2014/07/01 07:50:38 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86/make.defaults,v 1.17 2015/01/30 21:48:00 mgorny Exp $
 
 # All extra USE/etc should be specified in sub-profiles.
 # DO NOT POLLUTE USE ON THIS PROFILE.
@@ -13,6 +13,10 @@ CFLAGS="-O2 -march=i686 -pipe"
 CXXFLAGS="${CFLAGS}"
 FFLAGS="${CFLAGS}"
 FCFLAGS="${CFLAGS}"
+
+# Michał Górny <mgorny@gentoo.org> (30 Jan 2015)
+# Unhide the CPU_FLAGS_X86 USE_EXPANDs.
+USE_EXPAND_HIDDEN="-CPU_FLAGS_X86"
 
 # Michał Górny <mgorny@gentoo.org> (20 Jun 2014)
 # Provide values for ABI-related variables that are compatible with

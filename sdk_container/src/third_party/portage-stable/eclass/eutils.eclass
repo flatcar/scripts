@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/eutils.eclass,v 1.440 2014/11/15 09:49:10 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/eutils.eclass,v 1.444 2015/03/20 18:28:11 vapier Exp $
 
 # @ECLASS: eutils.eclass
 # @MAINTAINER:
@@ -523,6 +523,10 @@ epatch() {
 			einfo "  ${patchname} ..."
 		fi
 
+		# Handle aliased patch command #404447 #461568
+		local patch="patch"
+		eval $(alias patch 2>/dev/null | sed 's:^alias ::')
+
 		# most of the time, there will only be one run per unique name,
 		# but if there are more, make sure we get unique log filenames
 		local STDERR_TARGET="${T}/${patchname}.out"
@@ -530,7 +534,13 @@ epatch() {
 			STDERR_TARGET="${T}/${patchname}-$$.out"
 		fi
 
-		printf "***** %s *****\nPWD: %s\n\n" "${patchname}" "${PWD}" > "${STDERR_TARGET}"
+		printf "***** %s *****\nPWD: %s\nPATCH TOOL: %s -> %s\nVERSION INFO:\n%s\n\n" \
+			"${patchname}" \
+			"${PWD}" \
+			"${patch}" \
+			"$(type -P "${patch}")" \
+			"$(${patch} --version)" \
+			> "${STDERR_TARGET}"
 
 		# Decompress the patch if need be
 		local count=0
@@ -574,9 +584,6 @@ epatch() {
 
 		# Dynamically detect the correct -p# ... i'm lazy, so shoot me :/
 		local patch_cmd
-		# Handle aliased patch command #404447 #461568
-		local patch="patch"
-		eval $(alias patch 2>/dev/null | sed 's:^alias ::')
 		while [[ ${count} -lt 5 ]] ; do
 			patch_cmd="${patch} -p${count} ${EPATCH_OPTS}"
 
@@ -702,11 +709,20 @@ epatch_user() {
 			EPATCH_MULTI_MSG="Applying user patches from ${EPATCH_SOURCE} ..." \
 			epatch
 			echo "${EPATCH_SOURCE}" > "${applied}"
+			has epatch_user_death_notice ${EBUILD_DEATH_HOOKS} || EBUILD_DEATH_HOOKS+=" epatch_user_death_notice"
 			return 0
 		fi
 	done
 	echo "none" > "${applied}"
 	return 1
+}
+# @FUNCTION: epatch_user_death_notice
+# @INTERNAL
+# @DESCRIPTION:
+# Include an explicit notice in the die message itself that user patches were
+# applied to this build.
+epatch_user_death_notice() {
+	ewarn "!!! User patches were applied to this build!"
 }
 
 # @FUNCTION: emktemp
@@ -1082,7 +1098,7 @@ _iconins() {
 				size=${2}
 			fi
 			case ${size} in
-			16|22|24|32|36|48|64|72|96|128|192|256)
+			16|22|24|32|36|48|64|72|96|128|192|256|512)
 				size=${size}x${size};;
 			scalable)
 				;;
@@ -1578,7 +1594,7 @@ prune_libtool_files() {
 		fi
 
 		[[ ${f} != ${archivefile} ]] || die 'regex sanity check failed'
-		local reason pkgconfig_scanned
+		local reason= pkgconfig_scanned=
 		local snotlink=$(sed -n -e 's:^shouldnotlink=::p' "${f}")
 
 		if [[ ${snotlink} == yes ]]; then

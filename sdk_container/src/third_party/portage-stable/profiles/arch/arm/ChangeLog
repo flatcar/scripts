@@ -1,6 +1,75 @@
 # ChangeLog for Gentoo/ARM profile directory
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/arm/ChangeLog,v 1.330 2014/11/29 20:06:42 maekke Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/arm/ChangeLog,v 1.351 2015/04/03 08:10:26 maekke Exp $
+
+  03 Apr 2015; Markus Meier <maekke@gentoo.org> package.use.mask:
+  package.use.mask net-misc/openconnect[java] for bug #542444
+
+  03 Apr 2015; Markus Meier <maekke@gentoo.org> package.use.mask:
+  package.use.mask media-libs/libsdl2[fusionsound] due to unkeyworded/unstable
+  deps
+
+  02 Apr 2015; Alexis Ballier <aballier@gentoo.org> package.use.mask:
+  mask media-libs/freeimage[tiff]
+
+  03 Mar 2015; Markus Meier <maekke@gentoo.org> package.use.mask:
+  package.use.mask sys-auth/sssd[augeas], bug #540540
+
+  21 Feb 2015; Michał Górny <mgorny@gentoo.org> package.use.mask:
+  Mask non-keyworded qca plugin flags for old qca version, part of
+  https://github.com/gentoo/gentoo-portage-rsync-mirror/pull/27 /
+  https://bugs.funtoo.org/browse/FL-2119.
+
+  11 Feb 2015; Jason A. Donenfeld <zx2c4@gentoo.org> package.use.mask:
+  Mask widevine for www-client/chromium, because there's no public
+  ARM release of it.
+
+  07 Feb 2015; Markos Chandras <hwoarang@gentoo.org> package.use.mask:
+  Mask app-emulation/lxc cgmanager. Bug #539208
+
+  02 Feb 2015; Mikle Kolyada <zlogene@gentoo.org> package.mask, use.mask:
+  Drop qt5 packages and use flag masks
+
+  01 Feb 2015; Michael Palimaka <kensington@gentoo.org> package.mask:
+  Fix invalid atom.
+
+  01 Feb 2015; Ben de Groot <yngwin@gentoo.org> package.mask, use.mask:
+  Add Qt5 mask until keyworded
+
+  29 Jan 2015; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> use.mask:
+  Unmask video_cards_tegra flag.
+
+  18 Jan 2015; Markus Meier <maekke@gentoo.org> package.use.mask:
+  package.use.mask sys-devel/gettext[java] for all versions
+
+  17 Jan 2015; Markus Meier <maekke@gentoo.org> package.use.mask:
+  package.use.mask net-misc/strongswan[strongswan_plugins_unbound] for bug
+  #536226
+
+  17 Jan 2015; Markus Meier <maekke@gentoo.org> package.use.mask:
+  package.use.mask net-im/gajim[jingle,gnome,kde] for bug #533404
+
+  09 Jan 2015; Davide Pesavento <pesa@gentoo.org> package.mask:
+  Unmask Qt 4.8.6 since qtchooser has been keyworded.
+
+  06 Jan 2015; Alexis Ballier <aballier@gentoo.org> package.use.mask:
+  mask vtk[kaapi] as xkaapi doesnt build here
+
+  03 Jan 2015; Benda Xu <heroxbd@gentoo.org> package.use.mask:
+  Mask anthy[kasumi] and scim-anthy[canna-2ch] use flags: not tested.
+
+  23 Dec 2014; Gilles Dartiguelongue <eva@gentoo.org> package.use.mask:
+  Add mask for USE=kms for x11-wm/mutter-3.14, bug #533420.
+
+  23 Dec 2014; Gilles Dartiguelongue <eva@gentoo.org> package.use.mask:
+  Add package.use.mask entry for clutter, bug #533420.
+
+  20 Dec 2014; Markus Meier <maekke@gentoo.org> package.use.mask:
+  package.use.mask sys-libs/db[java] for all versions
+
+  09 Dec 2014; Michael Palimaka <kensington@gentoo.org> package.use.mask:
+  Unmask kde-base/systemsettings[kscreen] as dependencies are now keyworded
+  (bug #525558).
 
   29 Nov 2014; Markus Meier <maekke@gentoo.org> package.use.mask:
   package.use.mask dev-python/oct2py[doc] for bug #518742

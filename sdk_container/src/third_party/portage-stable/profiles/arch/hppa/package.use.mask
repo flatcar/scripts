@@ -1,16 +1,21 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/hppa/package.use.mask,v 1.150 2014/11/29 12:46:49 jer Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/hppa/package.use.mask,v 1.157 2015/03/21 09:37:48 jer Exp $
 
 # DON'T TOUCH THIS FILE. Instead, file a bug and assign it to <hppa@gentoo.org>.
 
-# Jeroen Roovers <jer@gentoo.org> (13 Aug 2014)
+# Mike Frysinger <vapier@gentoo.org> (16 Mar 2015)
+# Needs sci-physics/bullet tested #499974
+dev-libs/efl physics
+
+# Jeroen Roovers <jer@gentoo.org> (2 Feb 2015)
+# dev-python/gevent requires dev-python/greenlet which has not been ported to
+# HPPA (bug #538510)
+dev-python/pyzor gevent
+
+# Jeroen Roovers <jer@gentoo.org> (29 Nov 2014)
 # Needs dev-libs/protobuf{-c} which has not been ported to HPPA (bug #531068)
 net-dns/unbound dnstap
-
-# Jeroen Roovers <jer@gentoo.org> (22 Oct 2014)
-# needs www-servers/tornado
-dev-python/urllib3 test
 
 # Jeroen Roovers <jer@gentoo.org> (19 Oct 2014)
 # requires dev-python/restkit which requires
@@ -66,10 +71,6 @@ dev-python/pyquery test
 # Jeroen Roovers <jer@gentoo.org> (2 Jan 2013)
 # Mask non-keyworded sci-libs/hdf5 for sci-mathematics/octave
 sci-mathematics/octave hdf5 qhull
-
-# Jeroen Roovers <jer@gentoo.org> (10 Jul 2012)
-# USE=clang needs sys-devel/llvm which has not been ported
-app-portage/eix clang
 
 # Jeroen Roovers <jer@gentoo.org> (8 Jul 2012)
 # media-libs/devil has not been fully tested on HPPA

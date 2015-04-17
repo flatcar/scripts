@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/gstreamer.eclass,v 1.2 2014/06/19 09:28:09 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/gstreamer.eclass,v 1.3 2014/12/28 22:55:58 eva Exp $
 
 # @ECLASS: gstreamer.eclass
 # @MAINTAINER:
@@ -125,6 +125,20 @@ fi
 
 DEPEND="${DEPEND} ${RDEPEND}"
 
+# @FUNCTION: gstreamer_environment_reset
+# @INTERNAL
+# @DESCRIPTION:
+# Clean up environment for clean builds.
+# >=dev-lang/orc-0.4.23 rely on environment variables to find a place to
+# allocate files to mmap.
+gstreamer_environment_reset() {
+	export XDG_RUNTIME_DIR="${T}/run"
+	mkdir -p "${XDG_RUNTIME_DIR}"
+	# This directory needs to be owned by the user, and chmod 0700
+	# http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
+	chmod 0700 "${XDG_RUNTIME_DIR}"
+}
+
 # @FUNCTION: gstreamer_get_plugins
 # @INTERNAL
 # @DESCRIPTION:
@@ -189,6 +203,7 @@ gstreamer_multilib_src_configure() {
 	local plugin gst_conf=() ECONF_SOURCE=${ECONF_SOURCE:-${S}}
 
 	gstreamer_get_plugins
+	gstreamer_environment_reset
 
 	for plugin in ${GST_PLUGINS_LIST} ; do
 		if has ${plugin} ${GST_PLUGINS_BUILD} ; then

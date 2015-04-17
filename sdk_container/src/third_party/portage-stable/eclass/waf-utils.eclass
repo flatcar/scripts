@@ -1,10 +1,10 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/waf-utils.eclass,v 1.19 2014/04/16 11:33:18 hasufell Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/waf-utils.eclass,v 1.22 2015/01/03 14:50:34 mgorny Exp $
 
 # @ECLASS: waf-utils.eclass
 # @MAINTAINER:
-# gnome@gentoo.org
+# maintainer-needed@gentoo.org
 # @AUTHOR:
 # Original Author: Gilles Dartiguelongue <eva@gentoo.org>
 # Various improvements based on cmake-utils.eclass: Tomáš Chvátal <scarabeus@gentoo.org>
@@ -40,6 +40,34 @@ DEPEND="${DEPEND}
 # General function for configuring with waf.
 waf-utils_src_configure() {
 	debug-print-function ${FUNCNAME} "$@"
+
+	if [[ ! ${_PYTHON_ANY_R1} && ! ${_PYTHON_SINGLE_R1} && ! ${_PYTHON_R1} ]]; then
+		eqawarn "Using waf-utils.eclass without any python-r1 suite eclass is not supported"
+		eqawarn "and will be banned on 2015-01-24. Please make sure to configure and inherit"
+		eqawarn "appropriate -r1 eclass. For more information and examples, please see:"
+		eqawarn "    https://wiki.gentoo.org/wiki/Project:Python/waf-utils_integration"
+	else
+		if [[ ! ${EPYTHON} ]]; then
+			eqawarn "EPYTHON is unset while calling waf-utils. This most likely means that"
+			eqawarn "the ebuild did not call the appropriate eclass function before calling waf."
+			if [[ ${_PYTHON_ANY_R1} ]]; then
+				eqawarn "Please ensure that python-any-r1_pkg_setup is called in pkg_setup()."
+			elif [[ ${_PYTHON_SINGLE_R1} ]]; then
+				eqawarn "Please ensure that python-single-r1_pkg_setup is called in pkg_setup()."
+			else # python-r1
+				eqawarn "Please ensure that python_setup is called before waf-utils_src_configure(),"
+				eqawarn "or that the latter is used within python_foreach_impl as appropriate."
+			fi
+			eqawarn
+		fi
+
+		if [[ ${PYTHON_REQ_USE} != *threads* ]]; then
+			eqawarn "Waf requires threading support in Python. To accomodate this requirement,"
+			eqawarn "please add 'threads(+)' to PYTHON_REQ_USE variable (above inherit line)."
+			eqawarn "For more information and examples, please see:"
+			eqawarn "    https://wiki.gentoo.org/wiki/Project:Python/waf-utils_integration"
+		fi
+	fi
 
 	local libdir=""
 

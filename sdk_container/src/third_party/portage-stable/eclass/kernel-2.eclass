@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/kernel-2.eclass,v 1.297 2014/11/28 17:40:20 mpagano Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/kernel-2.eclass,v 1.301 2015/03/20 00:13:32 mpagano Exp $
 
 # Description: kernel.eclass rewrite for a clean base regarding the 2.6
 #              series of kernel with back-compatibility for 2.4
@@ -162,7 +162,6 @@ handle_genpatches() {
 			UNIPATCH_LIST_GENPATCHES+=" ${DISTDIR}/${tarball}"
 			debug-print "genpatches tarball: $tarball"
 		fi
-
 		GENPATCHES_URI+=" ${use_cond_start}mirror://gentoo/${tarball}${use_cond_end}"
 	done
 }
@@ -361,13 +360,12 @@ detect_version() {
 			UNIPATCH_LIST_DEFAULT="${DISTDIR}/patch-${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}${RELEASE/-git*}.xz ${DISTDIR}/patch-${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}${RELEASE}.xz"
 		fi
 	else
+		KV_PATCH_ARR=(${KV_PATCH//\./ })
+
+		# the different majorminor versions have different patch start versions
+		OKV_DICT=(["2"]="${KV_MAJOR}.$((${KV_PATCH_ARR} - 1))" ["3"]="2.6.39" ["4"]="3.19")
 		if [[ ${RELEASETYPE} == -rc ]] || [[ ${RELEASETYPE} == -pre ]]; then
-			if [[ ${KV_MAJOR}${KV_PATCH} -eq 30 ]]; then
-				OKV="2.6.39"
-			else
-				KV_PATCH_ARR=(${KV_PATCH//\./ })
-				OKV="${KV_MAJOR}.$((${KV_PATCH_ARR} - 1))"
-			fi
+			OKV=${OKV_DICT["${KV_MAJOR}"]}
 			KERNEL_URI="${KERNEL_BASE_URI}/testing/patch-${CKV//_/-}.xz
 						${KERNEL_BASE_URI}/linux-${OKV}.tar.xz"
 			UNIPATCH_LIST_DEFAULT="${DISTDIR}/patch-${CKV//_/-}.xz"
@@ -380,12 +378,7 @@ detect_version() {
 		fi
 
 		if [[ ${RELEASETYPE} == -rc-git ]]; then
-			if [[ ${KV_MAJOR}${KV_PATCH} -eq 30 ]]; then
-				OKV="2.6.39"
-			else
-				KV_PATCH_ARR=(${KV_PATCH//\./ })
-				OKV="${KV_MAJOR}.$((${KV_PATCH_ARR} - 1))"
-			fi
+			OKV=${OKV_DICT["${KV_MAJOR}"]}
 			KERNEL_URI="${KERNEL_BASE_URI}/snapshots/patch-${KV_MAJOR}.${KV_PATCH}${RELEASE}.xz
 						${KERNEL_BASE_URI}/testing/patch-${KV_MAJOR}.${KV_PATCH}${RELEASE/-git*}.xz
 						${KERNEL_BASE_URI}/linux-${OKV}.tar.xz"
@@ -395,8 +388,7 @@ detect_version() {
 
 
 	fi
-
-
+	
 	debug-print-kernel2-variables
 
 	handle_genpatches
@@ -998,6 +990,22 @@ unipatch() {
 				done
 				UNIPATCH_DROP+=" $(basename ${j})"
 			done
+		else 
+			UNIPATCH_LIST_GENPATCHES+=" ${DISTDIR}/${tarball}"
+			debug-print "genpatches tarball: $tarball"
+
+			# check gcc version < 4.9.X uses patch 5000 and = 4.9.X uses patch 5010			
+			if [[ $(gcc-major-version) -eq 4 ]] && [[ $(gcc-minor-version) -ne 9 ]]; then
+				# drop 5000_enable-additional-cpu-optimizations-for-gcc-4.9.patch
+				if [[ $UNIPATCH_DROP != *"5010_enable-additional-cpu-optimizations-for-gcc-4.9.patch"* ]]; then
+					UNIPATCH_DROP+=" 5010_enable-additional-cpu-optimizations-for-gcc-4.9.patch"
+				fi
+			else
+				if [[ $UNIPATCH_DROP != *"5000_enable-additional-cpu-optimizations-for-gcc.patch"* ]]; then
+					#drop 5000_enable-additional-cpu-optimizations-for-gcc.patch
+					UNIPATCH_DROP+=" 5000_enable-additional-cpu-optimizations-for-gcc.patch"
+				fi
+			fi
 		fi
 	done
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/scripts/bootstrap.sh,v 1.98 2014/03/13 16:11:27 williamh Exp $
+# $Header: /var/cvsroot/gentoo-x86/scripts/bootstrap.sh,v 1.99 2015/02/04 10:07:32 kumba Exp $
 
 # people who were here:
 # (drobbins, 06 Jun 2003)
@@ -13,6 +13,7 @@
 # (uberlord, May 2007)
 # (kumba, May 2007)
 # (williamh, Mar 2014)
+# (kumba, Feb 2015)
 
 # sanity check
 [[ -e /etc/profile ]] && . /etc/profile
@@ -55,7 +56,7 @@ v_echo() {
 	env "$@"
 }
 
-cvsver="$Header: /var/cvsroot/gentoo-x86/scripts/bootstrap.sh,v 1.98 2014/03/13 16:11:27 williamh Exp $"
+cvsver="$Header: /var/cvsroot/gentoo-x86/scripts/bootstrap.sh,v 1.99 2015/02/04 10:07:32 kumba Exp $"
 cvsver=${cvsver##*,v }
 cvsver=${cvsver%%Exp*}
 cvsyear=${cvsver#* }
@@ -333,13 +334,11 @@ if [ ${BOOTSTRAP_STAGE} -le 2 ] ; then
 		STRAP_EMERGE_OPTS="${STRAP_EMERGE_OPTS} --resume"
 		cp /var/run/bootstrap-mtimedb /var/cache/edb
 	else
-		# Why do we need this?  It will pull in python that needs g++
-		# among others, and add a few IMHO unneeded deps ...
-		#STRAP_EMERGE_OPTS="${STRAP_EMERGE_OPTS} -e"
-		:
+		STRAP_EMERGE_OPTS="${STRAP_EMERGE_OPTS} \
+			${myOS_HEADERS} ${myTEXINFO} ${myGETTEXT} ${myBINUTILS} \
+			${myGCC} ${myLIBC} ${myBASELAYOUT} ${myZLIB}"
 	fi
-	${V_ECHO} emerge ${STRAP_EMERGE_OPTS} ${myOS_HEADERS} ${myTEXINFO} ${myGETTEXT} ${myBINUTILS} \
-		${myGCC} ${myLIBC} ${myBASELAYOUT} ${myZLIB} || cleanup 1
+	${V_ECHO} emerge ${STRAP_EMERGE_OPTS} || cleanup 1
 	echo -------------------------------------------------------------------------------
 	set_bootstrap_stage 3
 fi

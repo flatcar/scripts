@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation.
+# Copyright 1999-2015 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/musl/x86/make.defaults,v 1.6 2014/07/01 12:37:36 blueness Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/musl/x86/make.defaults,v 1.7 2015/01/30 22:04:37 blueness Exp $
 
 ARCH="x86"
 ACCEPT_KEYWORDS="${ARCH}"
@@ -19,3 +19,7 @@ MULTILIB_ABIS="x86"
 CHOST_x86=${CHOST}
 LIBDIR_x86="lib"
 IUSE_IMPLICIT="abi_x86_32"
+
+# Anthony G. Basile <blueness@gentoo.org> (26 Jan 2013)
+# Unhide the CPU_FLAGS_X86 USE_EXPANDs.
+USE_EXPAND_HIDDEN="-CPU_FLAGS_X86"

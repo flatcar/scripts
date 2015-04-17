@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/games.eclass,v 1.159 2014/11/21 21:47:16 hasufell Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/games.eclass,v 1.160 2015/02/20 10:22:42 ulm Exp $
 
 # @ECLASS: games
 # @MAINTAINER:
@@ -246,10 +246,11 @@ prepgamesdirs() {
 			[[ ${dir} = ${GAMES_STATEDIR} ]] && mode=o-rwx,g+r
 			find "${D}/${dir}" -type f -print0 | xargs -0 chmod $mode
 
-			# common trees should not be games owned #264872
-			if [[ ${dir} == "${GAMES_PREFIX_OPT}" ]] ; then
-				fowners root:root "${dir}"
-				fperms 755 "${dir}"
+			# common trees should not be games owned #264872 #537580
+			fowners root:root "${dir}"
+			fperms 755 "${dir}"
+			if [[ ${dir} == "${GAMES_PREFIX}" \
+						|| ${dir} == "${GAMES_PREFIX_OPT}" ]] ; then
 				for d in $(get_libdir) bin ; do
 					# check if dirs exist to avoid "nonfatal" option
 					if [[ -e ${D}/${dir}/${d} ]] ; then

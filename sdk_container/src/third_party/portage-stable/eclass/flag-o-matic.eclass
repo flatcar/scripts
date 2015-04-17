@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/flag-o-matic.eclass,v 1.203 2014/11/01 03:45:53 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/flag-o-matic.eclass,v 1.204 2014/12/31 08:26:48 vapier Exp $
 
 # @ECLASS: flag-o-matic.eclass
 # @MAINTAINER:
@@ -25,7 +25,7 @@ all-flag-vars() {
 setup-allowed-flags() {
 	ALLOWED_FLAGS="-pipe"
 	ALLOWED_FLAGS+=" -O -O1 -O2 -Os -Og -mcpu -march -mtune"
-	ALLOWED_FLAGS+=" -fstack-protector*"
+	ALLOWED_FLAGS+=" -fstack-protector* -fsanitize=*"
 	ALLOWED_FLAGS+=" -fbounds-checking -fno-strict-overflow"
 	ALLOWED_FLAGS+=" -fno-PIE -fno-pie -nopie -fno-unit-at-a-time"
 	ALLOWED_FLAGS+=" -g -g[0-9] -ggdb -ggdb[0-9] -gdwarf-* gstabs -gstabs+"

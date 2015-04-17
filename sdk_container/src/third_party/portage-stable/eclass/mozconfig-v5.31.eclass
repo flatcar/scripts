@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/mozconfig-v5.31.eclass,v 1.2 2014/12/03 23:10:06 axs Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/mozconfig-v5.31.eclass,v 1.3 2015/02/26 20:41:10 axs Exp $
 #
 # @ECLASS: mozconfig-v5.31.eclass
 # @MAINTAINER:
@@ -78,7 +78,7 @@ RDEPEND=">=app-text/hunspell-1.2
 	x11-libs/libXrender
 	x11-libs/libXt
 	system-cairo? ( >=x11-libs/cairo-1.12[X] >=x11-libs/pixman-0.19.2 )
-	system-icu? ( >=dev-libs/icu-51.1 )
+	system-icu? ( >=dev-libs/icu-51.1:= )
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
 	system-sqlite? ( >=dev-db/sqlite-3.8.4.2:3[secure-delete,debug=] )
 	system-libvpx? ( =media-libs/libvpx-1.3.0* )

@@ -17,7 +17,7 @@ fi
 if [[ ${EBUILD_PHASE} == setup ]]; then
     VERS=$(/usr/bin/ldd --version | head -n1 | grep -o ") [0-9]\.[0-9]\+" | cut -d. -f2 )
     if [[ $VERS -lt 6 && "${CFLAGS} " != *'gnu89-inline '* ]]; then # compare host glibc 2.x to 2.6
-        elog "Your host glibc is too old; enabling -fgnu89-inline compiler flag. bug 473524"
+        einfo "Your host glibc is too old; enabling -fgnu89-inline compiler flag. bug 473524"
         CFLAGS="${CFLAGS} -fgnu89-inline" # for C only
     fi  
 fi

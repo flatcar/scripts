@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/kde4-base.eclass,v 1.144 2014/12/04 10:32:10 mrueg Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/kde4-base.eclass,v 1.150 2015/03/29 17:13:04 kensington Exp $
 
 # @ECLASS: kde4-base.eclass
 # @MAINTAINER:
@@ -10,7 +10,7 @@
 # The kde4-base.eclass provides support for building KDE4 based ebuilds
 # and KDE4 applications.
 #
-# NOTE: KDE 4 ebuilds currently support EAPIs 4 and 5.  This will be
+# NOTE: KDE 4 ebuilds currently support EAPI 5. This will be
 # reviewed over time as new EAPI versions are approved.
 
 if [[ -z ${_KDE4_BASE_ECLASS} ]]; then
@@ -66,14 +66,7 @@ KDE_MINIMAL="${KDE_MINIMAL:-4.4}"
 # Set slot for KDEBASE known packages
 case ${KDEBASE} in
 	kde-base)
-		case ${EAPI} in
-			5)
-				SLOT=4/$(get_version_component_range 1-2)
-				;;
-			*)
-				SLOT=4
-				;;
-		esac
+		SLOT=4/$(get_version_component_range 1-2)
 		KDE_MINIMAL="${PV}"
 		;;
 	kdevelop)
@@ -288,7 +281,7 @@ kdecommondepend="
 	>=dev-qt/qt3support-${QT_MINIMAL}:4[accessibility]
 	>=dev-qt/qtcore-${QT_MINIMAL}:4[qt3support,ssl]
 	>=dev-qt/qtdbus-${QT_MINIMAL}:4
-	>=dev-qt/designer-${QT_MINIMAL}:4[-phonon]
+	>=dev-qt/designer-${QT_MINIMAL}:4
 	>=dev-qt/qtgui-${QT_MINIMAL}:4[accessibility,dbus(+)]
 	>=dev-qt/qtscript-${QT_MINIMAL}:4
 	>=dev-qt/qtsql-${QT_MINIMAL}:4[qt3support]
@@ -335,7 +328,7 @@ fi
 
 # all packages needs oxygen icons for basic iconset
 if [[ ${PN} != oxygen-icons ]]; then
-	kderdepend+=" || ( kde-apps/oxygen-icons $(add_kdebase_dep oxygen-icons) )"
+	kderdepend+=" || ( kde-apps/oxygen-icons $(add_kdebase_dep oxygen-icons '' 4.14.3) )"
 fi
 
 # add a dependency over kde-l10n
@@ -346,7 +339,7 @@ if [[ ${KDEBASE} != "kde-base" && -n ${KDE_LINGUAS} ]]; then
 		# this can't be done on one line because if user doesn't use any localisation
 		# then he is probably not interested in kde-l10n at all.
 		kderdepend+="
-			linguas_${_lingua}? ( $(add_kdebase_dep kde-l10n "linguas_${_lingua}(+)") )
+		linguas_${_lingua}? ( || ( kde-apps/kde-l10n[linguas_${_lingua}(+)] $(add_kdebase_dep kde-l10n "linguas_${_lingua}(+)") ) )
 		"
 	done
 	unset _lingua
@@ -440,24 +433,15 @@ _calculate_src_uri() {
 				4.?.[6-9]? | 4.??.[6-9]?)
 					# Unstable KDE SC releases
 					SRC_URI="mirror://kde/unstable/${PV}/src/${_kmname_pv}.tar.xz" ;;
-				4.[1-7].[12345])
-					# Stable KDE SC with old .bz2 support
-					SRC_URI="mirror://kde/stable/${PV}/src/${_kmname_pv}.tar.bz2" ;;
-				4.11.9)
-					# Part of 4.12 actually, sigh. Not stable for next release!
-					SRC_URI="mirror://kde/stable/4.12.5/src/${_kmname_pv}.tar.xz" ;;
-				4.11.11)
-					# Part of 4.13 actually, sigh. Not stable for next release!
-					SRC_URI="mirror://kde/stable/4.13.3/src/${_kmname_pv}.tar.xz" ;;
-				4.11.12)
-					# Part of 4.14 actually, sigh. Not stable for next release!
-					SRC_URI="mirror://kde/stable/4.14.1/src/${_kmname_pv}.tar.xz" ;;
-				4.11.13)
-					# Part of 4.14 actually, sigh. Not stable for next release!
-					SRC_URI="mirror://kde/stable/4.14.2/src/${_kmname_pv}.tar.xz" ;;
 				4.11.14)
 					# Part of 4.14 actually, sigh. Not stable for next release!
 					SRC_URI="mirror://kde/stable/4.14.3/src/${_kmname_pv}.tar.xz" ;;
+				4.11.17)
+					# Part of 14.12.3 actually, sigh. Not stable for next release!
+					SRC_URI="mirror://kde/stable/applications/14.12.3/src/${_kmname_pv}.tar.xz" ;;
+				4.14.6)
+					# Part of 14.12.3 actually, sigh. Not stable for next release!
+					SRC_URI="mirror://kde/stable/applications/14.12.3/src/${_kmname_pv}.tar.xz" ;;
 				??.?.[6-9]? | ??.??.[4-9]?)
 					# Unstable KDE Applications releases
 					SRC_URI="mirror://kde/unstable/applications/${PV}/src/${_kmname}-${PV}.tar.xz" ;;
@@ -474,8 +458,8 @@ _calculate_src_uri() {
 			;;
 		kdevelop|kdevelop-php*|kdevplatform)
 			case ${KDEVELOP_VERSION} in
-				4.[123].[6-9]*) SRC_URI="mirror://kde/unstable/kdevelop/${KDEVELOP_VERSION}/src/${P}.tar.bz2" ;;
-				*) SRC_URI="mirror://kde/stable/kdevelop/${KDEVELOP_VERSION}/src/${P}.tar.bz2" ;;
+				4.[123].[6-9]*) SRC_URI="mirror://kde/unstable/kdevelop/${KDEVELOP_VERSION}/src/${P}.tar.xz" ;;
+				*) SRC_URI="mirror://kde/stable/kdevelop/${KDEVELOP_VERSION}/src/${P}.tar.xz" ;;
 			esac
 			;;
 	esac
@@ -490,7 +474,7 @@ _calculate_live_repo() {
 			# Determine branch URL based on live type
 			local branch_prefix
 			case ${PV} in
-				4.9999*)
+				9999*)
 					# trunk
 					branch_prefix="trunk/KDE"
 					;;
@@ -577,7 +561,7 @@ _calculate_live_repo() {
 			fi
 
 			# default branching
-			[[ ${PV} != 4.9999* && ${KDEBASE} == kde-base ]] && \
+			[[ ${PV} != 4.9999* && ${PV} != 9999 && ${KDEBASE} == kde-base ]] && \
 				EGIT_BRANCH="KDE/$(get_kde_version)"
 
 			# default repo uri

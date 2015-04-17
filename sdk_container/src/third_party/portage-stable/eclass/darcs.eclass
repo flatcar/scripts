@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/darcs.eclass,v 1.17 2014/05/22 16:30:59 slyfox Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/darcs.eclass,v 1.18 2015/01/01 21:09:28 slyfox Exp $
 
 # @ECLASS: darcs.eclass
 # @MAINTAINER:
@@ -88,7 +88,7 @@ DEPEND="dev-vcs/darcs
 # @DESCRIPTION:
 # Internal function to determine amount of patches in repository.
 darcs_patchcount() {
-	set -- $(HOME="${EDARCS_TOP_DIR}" ${EDARCS_DARCS_CMD} show repo | grep "Num Patches")
+	set -- $(HOME="${EDARCS_TOP_DIR}" ${EDARCS_DARCS_CMD} show repo --repodir="${EDARCS_TOP_DIR}/${EDARCS_LOCALREPO}" | grep "Num Patches")
 	# handle string like: "    Num Patches: 3860"
 	echo ${3}
 }

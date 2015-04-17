@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/package.use.mask,v 1.192 2014/11/06 15:07:05 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/package.use.mask,v 1.197 2015/03/28 22:11:21 mgorny Exp $
 
 # When you add an entry to the top of this file, add your name, the date, and
 # an explanation of why something is getting masked. Please be extremely
@@ -17,6 +17,26 @@
 #
 
 #--- END OF EXAMPLES ---
+
+# Michał Górny <mgorny@gentoo.org> (14 Sep 2014)
+# on behalf of gx86-multilib project <multilib@gentoo.org>
+# gcc[awt] is only used by gcj-jdk[X], and gcj-jdk[X] is not really
+# used by anything. The deps are hard to fix properly thanks
+# to toolchain.eclass.
+sys-devel/gcc awt
+dev-java/gcj-jdk X
+
+# Ben de Groot <yngwin@gentoo.org> (15 Mar 2015)
+# media-libs/libbdplus is keyworded on amd64, so unmask the useflag
+media-libs/libbluray -bdplus
+
+# Michał Górny <mgorny@gentoo.org> (01 Mar 2015)
+# pidgin-opensteamworks is only available for amd64, ppc32 and x86
+net-im/telepathy-connection-managers -steam
+
+# Andrey Grozin <grozin@gentoo.org> (23 Feb 2015)
+# Does not compile with this flag
+=dev-lisp/ecls-15.2.21 cpu_flags_x86_sse
 
 # Tim Harder <radhermit@gentoo.org> (11 Oct 2014)
 # Unmask skype support for unstable keywords
@@ -38,6 +58,7 @@ media-libs/mesa -openmax
 # Still considered experimental by upstream:
 # http://sourceforge.net/p/mikmod/bugs/16/#17ea
 media-libs/libmikmod sse2
+media-libs/libmikmod cpu_flags_x86_sse2
 
 # Andreas K. Huettel <dilfridge@gentoo.org> (4 Jan 2014)
 # While globally masked, the needed amd64 keywords are already present
@@ -58,8 +79,8 @@ games-emulation/mupen64plus-core new-dynarec
 >=media-plugins/audacious-plugins-3.4 -sid
 
 # Tim Harder <radhermit@gentoo.org> (13 Aug 2013)
-# dev-lang/luajit keyworded for amd64 (masked in base) 
-# dev-scheme/racket keyworded for amd64 (masked in base) 
+# dev-lang/luajit keyworded for amd64 (masked in base)
+# dev-scheme/racket keyworded for amd64 (masked in base)
 app-editors/vim -luajit -racket
 app-editors/gvim -luajit -racket
 
@@ -69,10 +90,10 @@ sys-apps/hwloc -cuda -gl -opencl
 
 # Michał Górny <mgorny@gentoo.org> (22 Jul 2013)
 # Meaningless on amd64 (it controls the 32-bit x86 JIT).
-dev-python/pypy sse2
-dev-python/pypy-bin sse2
-dev-python/pypy3 sse2
-dev-python/pypy3-bin sse2
+dev-python/pypy cpu_flags_x86_sse2
+dev-python/pypy-bin cpu_flags_x86_sse2
+dev-python/pypy3 cpu_flags_x86_sse2
+dev-python/pypy3-bin cpu_flags_x86_sse2
 
 # Michael Weber <xmw@gentoo.org> (18 Jun 2013)
 # unsatisfied multilib dep on curl[abi_x86_32]
@@ -223,6 +244,7 @@ app-backup/backup-manager s3
 # USE=mmx on imlib2 causes issues with other apps. See bug 218382 (comments
 # 11-12)
 media-libs/imlib2 mmx
+media-libs/imlib2 cpu_flags_x86_mmx
 
 # Serkan Kaba <serkan@gentoo.org> (5 Feb 2009)
 # finally a 64bit java plugin
@@ -253,10 +275,12 @@ app-text/enchant -zemberek
 # Oct 23th 2006; blubb@gentoo.org
 # the asm is 64bit save, but it doesn't compile anyway
 games-emulation/visualboyadvance mmx
+games-emulation/visualboyadvance cpu_flags_x86_mmx
 
 # Oct 23th 2006; blubb@gentoo.org
 # upstream forces sse2 for amd64; mmx flag does nothing
 app-crypt/johntheripper mmx
+app-crypt/johntheripper cpu_flags_x86_mmx
 
 # Oct 23th 2006; blubb@gentoo.org
 # x86 asm only:
@@ -271,9 +295,21 @@ net-irc/xchat-gnome mmx
 net-misc/asterisk mmx
 x11-terms/eterm mmx
 media-tv/xawtv mmx
+games-emulation/xmess cpu_flags_x86_mmx
+media-gfx/inkscape cpu_flags_x86_mmx
+media-libs/allegro cpu_flags_x86_mmx cpu_flags_x86_sse
+media-libs/libfame cpu_flags_x86_mmx
+media-libs/sdl-gfx cpu_flags_x86_mmx
+media-libs/smpeg cpu_flags_x86_mmx
+net-irc/xchat cpu_flags_x86_mmx
+net-irc/xchat-gnome cpu_flags_x86_mmx
+net-misc/asterisk cpu_flags_x86_mmx
+x11-terms/eterm cpu_flags_x86_mmx
+media-tv/xawtv cpu_flags_x86_mmx
 
 # x86_64 opts are enabled with USE sse. so masking the rest
 media-sound/mpg123 mmx 3dnow 3dnowext
+media-sound/mpg123 cpu_flags_x86_mmx cpu_flags_x86_3dnow cpu_flags_x86_3dnowext
 
 # 8 May 2007: Alistair Bush <ali_bush@gentoo.org>
 # Mask doc flag for fop as nearly impossible to
@@ -285,6 +321,7 @@ media-sound/mpg123 mmx 3dnow 3dnowext
 # saves people from needlessly installing nasm
 # Refs bug #93279
 media-sound/lame mmx
+media-sound/lame cpu_flags_x86_mmx
 
 # Robert Buchholz <rbu@gentoo.org> (16 Aug 2008)
 # masked in base, unmask for x86/amd64

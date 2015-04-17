@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/selinux-policy-2.eclass,v 1.29 2014/12/05 09:23:03 perfinion Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/selinux-policy-2.eclass,v 1.31 2015/04/04 17:11:35 perfinion Exp $
 
 # Eclass for installing SELinux policy, and optionally
 # reloading the reference-policy based modules.
@@ -86,14 +86,14 @@ inherit eutils ${extra_eclass}
 
 IUSE=""
 
-HOMEPAGE="http://www.gentoo.org/proj/en/hardened/selinux/"
+HOMEPAGE="https://wiki.gentoo.org/wiki/Project:SELinux"
 if [[ -n ${BASEPOL} ]] && [[ "${BASEPOL}" != "9999" ]];
 then
-	SRC_URI="http://oss.tresys.com/files/refpolicy/refpolicy-${PV}.tar.bz2
+	SRC_URI="https://raw.githubusercontent.com/wiki/TresysTechnology/refpolicy/files/refpolicy-${PV}.tar.bz2
 		http://dev.gentoo.org/~swift/patches/selinux-base-policy/patchbundle-selinux-base-policy-${BASEPOL}.tar.bz2"
 elif [[ "${BASEPOL}" != "9999" ]];
 then
-	SRC_URI="http://oss.tresys.com/files/refpolicy/refpolicy-${PV}.tar.bz2"
+	SRC_URI="https://raw.githubusercontent.com/wiki/TresysTechnology/refpolicy/files/refpolicy-${PV}.tar.bz2"
 else
 	SRC_URI=""
 fi
@@ -117,18 +117,16 @@ DEPEND="${RDEPEND}
 	sys-devel/m4
 	>=sys-apps/checkpolicy-2.0.21"
 
-SELINUX_EXPF="src_unpack src_compile src_install pkg_postinst pkg_postrm"
 case "${EAPI:-0}" in
-	2|3|4|5) SELINUX_EXPF+=" src_prepare" ;;
-	*) ;;
+	0|1|2|3|4) die "EAPI<5 is not supported";;
+	*) : ;;
 esac
 
-EXPORT_FUNCTIONS ${SELINUX_EXPF}
+EXPORT_FUNCTIONS "src_unpack src_prepare src_compile src_install pkg_postinst pkg_postrm"
 
 # @FUNCTION: selinux-policy-2_src_unpack
 # @DESCRIPTION:
-# Unpack the policy sources as offered by upstream (refpolicy). In case of EAPI
-# older than 2, call src_prepare too.
+# Unpack the policy sources as offered by upstream (refpolicy).
 selinux-policy-2_src_unpack() {
 	if [[ "${BASEPOL}" != "9999" ]];
 	then
@@ -136,9 +134,6 @@ selinux-policy-2_src_unpack() {
 	else
 		git-2_src_unpack
 	fi
-
-	# Call src_prepare explicitly for EAPI 0 or 1
-	has "${EAPI:-0}" 0 1 && selinux-policy-2_src_prepare
 }
 
 # @FUNCTION: selinux-policy-2_src_prepare
@@ -338,17 +333,17 @@ selinux-policy-2_pkg_postinst() {
 # deactivating the policy on the system.
 selinux-policy-2_pkg_postrm() {
 	# Only if we are not upgrading
-	if [[ "${EAPI}" -lt 4 || -z "${REPLACED_BY_VERSION}" ]];
+	if [[ -z "${REPLACED_BY_VERSION}" ]];
 	then
 		# build up the command in the case of multiple modules
 		local COMMAND
 		for i in ${MODS}; do
 			COMMAND="-r ${i} ${COMMAND}"
 		done
-	
+
 		for i in ${POLICY_TYPES}; do
 			einfo "Removing the following modules from the $i module store: ${MODS}"
-	
+
 			semodule -s ${i} ${COMMAND}
 			if [ $? -ne 0 ];
 			then

@@ -1,6 +1,38 @@
 # ChangeLog for Gentoo/ia64 profile
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/ia64/ChangeLog,v 1.216 2014/11/20 01:53:39 pesa Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/ia64/ChangeLog,v 1.227 2015/03/17 01:39:24 vapier Exp $
+
+  17 Mar 2015; Mike Frysinger <vapier@gentoo.org> package.use.force,
+  package.use.mask, use.mask:
+  Mask dev-libs/ef[oldlua,physics,scim,sdl] #499974.
+
+  08 Mar 2015; Michał Górny <mgorny@gentoo.org> package.use.mask:
+  Mask xfce-base/xfce4-settings[libinput] because of missing deps, bug #542570.
+
+  20 Feb 2015; Raúl Porcel <armin76@gentoo.org> use.stable.mask:
+  Add mkl to use.stable.mkl since mkl is not stable
+
+  11 Feb 2015; Alexis Ballier <aballier@gentoo.org> package.use.mask:
+  Mask ffmpeg useflags with unkeyworded deps, bug #510340
+
+  10 Feb 2015; Patrick Lauer <patrick@gentoo.org> package.use.mask:
+  Mask media-libs/libav[x265] until keywords catch up
+
+  01 Feb 2015; Michael Palimaka <kensington@gentoo.org> package.mask:
+  Fix invalid atom.
+
+  01 Feb 2015; Ben de Groot <yngwin@gentoo.org> package.mask, use.mask:
+  Add Qt5 mask until keyworded
+
+  23 Dec 2014; Gilles Dartiguelongue <eva@gentoo.org> package.use.mask:
+  Add package.use.mask entry for clutter, bug #533420.
+
+  14 Dec 2014; Mike Gilbert <floppym@gentoo.org> package.use.mask:
+  Mask sys-apps/systemd[xkb].
+
+  14 Dec 2014; Mark Wright <gienah@gentoo.org> package.use.mask:
+  Mask test for dev-haskell/{binary, text, vector}
+  as test dependencies need keywording.
 
   20 Nov 2014; Davide Pesavento <pesa@gentoo.org> package.mask:
   Move Qt 4.8.6 mask from global package.mask to arch profiles.

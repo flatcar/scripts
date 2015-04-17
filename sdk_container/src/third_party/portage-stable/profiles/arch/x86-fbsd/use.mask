@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation.
+# Copyright 1999-2015 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License, v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86-fbsd/use.mask,v 1.15 2013/08/22 16:07:41 chithanh Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86-fbsd/use.mask,v 1.16 2015/01/28 21:33:57 mgorny Exp $
 
 # Unmask the flag which corresponds to ARCH.
 -x86-fbsd
@@ -20,6 +20,25 @@
 -sse4
 -sse4a
 -ssse3
+-cpu_flags_x86_3dnow
+-cpu_flags_x86_3dnowext
+-cpu_flags_x86_aes
+-cpu_flags_x86_avx
+-cpu_flags_x86_avx2
+-cpu_flags_x86_fma3
+-cpu_flags_x86_fma4
+-cpu_flags_x86_mmx
+-cpu_flags_x86_mmxext
+-cpu_flags_x86_padlock
+-cpu_flags_x86_popcnt
+-cpu_flags_x86_sse
+-cpu_flags_x86_sse2
+-cpu_flags_x86_sse3
+-cpu_flags_x86_sse4_1
+-cpu_flags_x86_sse4_2
+-cpu_flags_x86_sse4a
+-cpu_flags_x86_ssse3
+-cpu_flags_x86_xop
 
 # nvidia drivers works on x86
 -xvmc

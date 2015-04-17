@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation.
+# Copyright 1999-2015 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License, v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64-fbsd/use.mask,v 1.19 2014/09/06 10:31:30 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64-fbsd/use.mask,v 1.21 2015/01/28 21:31:06 mgorny Exp $
 
 # Unmask the flag which corresponds to ARCH.
 -amd64-fbsd
@@ -15,6 +15,25 @@
 -sse4
 -sse4a
 -ssse3
+-cpu_flags_x86_3dnow
+-cpu_flags_x86_3dnowext
+-cpu_flags_x86_aes
+-cpu_flags_x86_avx
+-cpu_flags_x86_avx2
+-cpu_flags_x86_fma3
+-cpu_flags_x86_fma4
+-cpu_flags_x86_mmx
+-cpu_flags_x86_mmxext
+-cpu_flags_x86_padlock
+-cpu_flags_x86_popcnt
+-cpu_flags_x86_sse
+-cpu_flags_x86_sse2
+-cpu_flags_x86_sse3
+-cpu_flags_x86_sse4_1
+-cpu_flags_x86_sse4_2
+-cpu_flags_x86_sse4a
+-cpu_flags_x86_ssse3
+-cpu_flags_x86_xop
 
 # nvidia drivers works on x86
 -xvmc
@@ -45,3 +64,7 @@
 # Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (22 Aug 2013)
 # virtual/opencl is not keyworded
 opencl
+
+# Hans de Graaff <graaff@gentoo.org> (27 Dec 2014)
+# dev-libs/jemalloc is not keyworded
+jemalloc

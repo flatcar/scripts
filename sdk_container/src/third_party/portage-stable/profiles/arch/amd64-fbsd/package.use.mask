@@ -1,9 +1,20 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64-fbsd/package.use.mask,v 1.23 2014/11/17 02:52:00 patrick Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64-fbsd/package.use.mask,v 1.28 2015/01/28 00:35:01 johu Exp $
+
+# Johannes Huber <johu@gentoo.org> (28 Jan 2015)
+# Missing keyword on dev-libs/botan,dev-libs/pkcs11-helper
+app-crypt/qca botan pkcs11
+
+# Michael Palimaka <kensington@gentoo.org) (26 Dec 2014)
+# Unkeyworded media-libs/opencv
+media-plugins/frei0r-plugins facedetect
+media-video/vlc opencv
 
 # Patrick Lauer <patrick@gentoo.org> (17 Nov 2014)
+# Lars Wendler <polynomial-c@gentoo.org> (23 Jan 2015)
 # Missing keywords
+dev-libs/openssl sctp
 net-misc/openssh sctp
 
 # Pacho Ramos <pacho@gentoo.org> (01 Jun 2014)
@@ -11,6 +22,7 @@ net-misc/openssh sctp
 >=app-misc/geoclue-2.1 modemmanager
 >=x11-libs/gtk+-3.12 cloudprint
 >=app-crypt/libsecret-0.16 test
+media-plugins/gst-plugins-meta modplug vaapi
 
 # Lars Wendler <polynomial-c@gentoo.org> (09 May 2014)
 # Masked kde USE flag until bug #509892 is fixed
