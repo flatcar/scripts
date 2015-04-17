@@ -1,5 +1,5 @@
 DEFINED_PHASES=compile configure install postinst postrm prepare
-DEPEND=app-eselect/eselect-pinentry caps? ( sys-libs/libcap ) gtk? ( x11-libs/gtk+:2 ) ncurses? ( sys-libs/ncurses ) qt4? ( >=dev-qt/qtgui-4.4.1:4 ) static? ( >=sys-libs/ncurses-5.7-r5[static-libs,-gpm] ) sys-devel/gettext gtk? ( virtual/pkgconfig ) qt4? ( virtual/pkgconfig ) ppc-aix? ( dev-libs/gnulib ) !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.14:1.14 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
+DEPEND=app-eselect/eselect-pinentry caps? ( sys-libs/libcap ) gtk? ( x11-libs/gtk+:2 ) ncurses? ( sys-libs/ncurses ) qt4? ( >=dev-qt/qtgui-4.4.1:4 ) static? ( >=sys-libs/ncurses-5.7-r5[static-libs,-gpm] ) sys-devel/gettext gtk? ( virtual/pkgconfig ) qt4? ( virtual/pkgconfig ) ppc-aix? ( dev-libs/gnulib ) !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.15:1.15 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
 DESCRIPTION=Collection of simple PIN or passphrase entry dialogs which utilize the Assuan protocol
 EAPI=5
 HOMEPAGE=http://gnupg.org/aegypten2/index.html
@@ -10,5 +10,5 @@ RDEPEND=app-eselect/eselect-pinentry caps? ( sys-libs/libcap ) gtk? ( x11-libs/g
 REQUIRED_USE=|| ( ncurses gtk qt4 ) gtk? ( !static ) qt4? ( !static ) static? ( ncurses )
 SLOT=0
 SRC_URI=mirror://gnupg/pinentry/pinentry-0.9.0.tar.bz2
-_eclasses_=autotools	c118b9a8e93bfef124f2d7a2fe56a95e	eutils	6faef4c127028ccbba3a11400d24ae34	flag-o-matic	eda1c0b5ba85b3eeb555a071d69eb819	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	qmake-utils	9e0174de733aecba0a7e66b2b01841d2	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
+_eclasses_=autotools	999c8f6cf5d91495cb0779588f20716c	eutils	9fb270e417e0e83d64ca52586c4a79de	flag-o-matic	c263990f1b677b0f0be0a3299f179762	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	qmake-utils	ea709b525d28e3087eddedb2f884dbbe	toolchain-funcs	c961250d50160cd37d6b7fd9e8429c92
 _md5_=369fb8dd471e02367f76abdc7338db1b

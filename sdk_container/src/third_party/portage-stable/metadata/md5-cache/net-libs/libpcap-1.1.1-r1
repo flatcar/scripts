@@ -1,5 +1,5 @@
 DEFINED_PHASES=compile configure install prepare
-DEPEND=bluetooth? ( net-wireless/bluez ) libnl? ( dev-libs/libnl ) sys-devel/flex virtual/yacc !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.14:1.14 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
+DEPEND=bluetooth? ( net-wireless/bluez ) libnl? ( dev-libs/libnl ) sys-devel/flex virtual/yacc !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.15:1.15 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
 DESCRIPTION=A system-independent library for user-level network packet capture
 EAPI=2
 HOMEPAGE=http://www.tcpdump.org/
@@ -9,5 +9,5 @@ LICENSE=BSD
 RDEPEND=bluetooth? ( net-wireless/bluez ) libnl? ( dev-libs/libnl )
 SLOT=0
 SRC_URI=http://www.tcpdump.org/release/libpcap-1.1.1.tar.gz http://www.jp.tcpdump.org/release/libpcap-1.1.1.tar.gz
-_eclasses_=autotools	c118b9a8e93bfef124f2d7a2fe56a95e	eutils	6faef4c127028ccbba3a11400d24ae34	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
+_eclasses_=autotools	999c8f6cf5d91495cb0779588f20716c	eutils	9fb270e417e0e83d64ca52586c4a79de	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	c961250d50160cd37d6b7fd9e8429c92
 _md5_=623af10309fe95a5e7c08f08f62d11d6

@@ -8,5 +8,5 @@ LICENSE=GPL-2
 RDEPEND=sys-libs/zlib sys-apps/acl sys-fs/e2fsprogs
 SLOT=0
 SRC_URI=http://dev.gentoo.org/~slyfox/btrfs-progs-0.20-rc1.tar.gz
-_eclasses_=multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
+_eclasses_=multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	c961250d50160cd37d6b7fd9e8429c92
 _md5_=45e1d9a8b45c5da68acce8f12e75918b

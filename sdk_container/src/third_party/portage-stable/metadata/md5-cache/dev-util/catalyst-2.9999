@@ -1,12 +1,12 @@
 DEFINED_PHASES=compile configure install prepare test unpack
-DEPEND=app-text/asciidoc >=dev-python/snakeoil-0.5.2 python_targets_python2_7? ( >=dev-lang/python-2.7.5-r2:2.7 ) dev-lang/python-exec:=[python_targets_python2_7(-)?,-python_single_target_python2_7(-)] dev-vcs/git
+DEPEND=app-text/asciidoc >=dev-python/snakeoil-0.5.2 python_targets_python2_7? ( >=dev-lang/python-2.7.5-r2:2.7 ) >=dev-lang/python-exec-2:=[python_targets_python2_7(-)?,-python_single_target_python2_7(-)] dev-vcs/git
 DESCRIPTION=Release metatool used for creating releases based on Gentoo Linux
 EAPI=5
 HOMEPAGE=http://www.gentoo.org/proj/en/releng/catalyst/
 IUSE=ccache doc kernel_linux python_targets_python2_7
 LICENSE=GPL-2
-RDEPEND=app-arch/lbzip2 app-crypt/shash virtual/cdrtools amd64? ( >=sys-boot/syslinux-3.72 ) ia64? ( sys-fs/dosfstools ) x86? ( >=sys-boot/syslinux-3.72 ) ccache? ( dev-util/ccache ) kernel_linux? ( app-misc/zisofs-tools >=sys-fs/squashfs-tools-2.1 ) python_targets_python2_7? ( >=dev-lang/python-2.7.5-r2:2.7 ) dev-lang/python-exec:=[python_targets_python2_7(-)?,-python_single_target_python2_7(-)]
+RDEPEND=app-arch/lbzip2 app-crypt/shash virtual/cdrtools amd64? ( >=sys-boot/syslinux-3.72 ) ia64? ( sys-fs/dosfstools ) x86? ( >=sys-boot/syslinux-3.72 ) ccache? ( dev-util/ccache ) kernel_linux? ( app-misc/zisofs-tools >=sys-fs/squashfs-tools-2.1 ) python_targets_python2_7? ( >=dev-lang/python-2.7.5-r2:2.7 ) >=dev-lang/python-exec-2:=[python_targets_python2_7(-)?,-python_single_target_python2_7(-)]
 REQUIRED_USE=|| ( python_targets_python2_7 )
 SLOT=0
-_eclasses_=distutils-r1	b3dd8b90e41a1570ee3117a7c1adb598	eutils	6faef4c127028ccbba3a11400d24ae34	git-2	e28f0d8a9b321431b1e699782851b827	multibuild	ddc59d206214ef1c240093e1bb2513cf	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	multiprocessing	d7f2985a2c76c365ee20269db5261414	python-r1	b63f5ef61876823ab0bd05d867697d75	python-utils-r1	d5328656d500f65898a5f51634722f61	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
+_eclasses_=distutils-r1	c01d5c4af34f4a37a51fc9638299c222	eutils	9fb270e417e0e83d64ca52586c4a79de	git-2	e28f0d8a9b321431b1e699782851b827	multibuild	6d4858dc00f8bc51caf3f957f8430eb0	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	multiprocessing	d7f2985a2c76c365ee20269db5261414	python-r1	6d3a3cb5705b9fff1aeb7cfa4e3336fe	python-utils-r1	096f8247eae93026af13ab88cf4305cd	toolchain-funcs	c961250d50160cd37d6b7fd9e8429c92
 _md5_=c4bfcf85609d95147331e842dee3176e

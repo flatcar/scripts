@@ -7,5 +7,5 @@ KEYWORDS=alpha amd64 ia64 ppc ppc64 sparc x86 x86-fbsd
 LICENSE=GPL-2-with-exceptions
 SLOT=0
 SRC_URI=https://fedorahosted.org/releases/l/i/liberation-fonts/liberation-fonts-1.04.tar.gz
-_eclasses_=eutils	6faef4c127028ccbba3a11400d24ae34	font	37271e0911f39dd15a28adcaf94f6956	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
+_eclasses_=eutils	9fb270e417e0e83d64ca52586c4a79de	font	b3239d2dc442d1717b9725e2be7cb5d6	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	c961250d50160cd37d6b7fd9e8429c92
 _md5_=c4e1779a8143f0644dfbdbc498632e2b

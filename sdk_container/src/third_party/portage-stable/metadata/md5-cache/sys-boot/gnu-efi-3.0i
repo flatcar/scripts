@@ -7,5 +7,5 @@ LICENSE=GPL-2
 RDEPEND=sys-apps/pciutils
 SLOT=0
 SRC_URI=mirror://sourceforge/gnu-efi/gnu-efi_3.0i.orig.tar.gz mirror://debian/pool/main/g/gnu-efi/gnu-efi_3.0i-2.diff.gz
-_eclasses_=eutils	6faef4c127028ccbba3a11400d24ae34	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
+_eclasses_=eutils	9fb270e417e0e83d64ca52586c4a79de	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	c961250d50160cd37d6b7fd9e8429c92
 _md5_=31472859f4c8482e0af7384657460d9f

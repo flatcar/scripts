@@ -1,14 +1,14 @@
 DEFINED_PHASES=compile configure install postinst postrm prepare test
-DEPEND=emacs? ( virtual/emacs ) test? ( app-arch/unzip dev-python/pygments[python_targets_python2_7(-)?,-python_single_target_python2_7(-)] ) python_targets_python2_7? ( >=dev-lang/python-2.7.5-r2:2.7[threads] ) dev-lang/python-exec:=[python_targets_python2_7(-)?,-python_single_target_python2_7(-)]
+DEPEND=emacs? ( virtual/emacs ) test? ( app-arch/unzip dev-python/pygments[python_targets_python2_7(-)?,-python_single_target_python2_7(-)] ) python_targets_python2_7? ( >=dev-lang/python-2.7.5-r2:2.7[threads] ) >=dev-lang/python-exec-2:=[python_targets_python2_7(-)?,-python_single_target_python2_7(-)]
 DESCRIPTION=Scalable distributed SCM
 EAPI=5
 HOMEPAGE=http://mercurial.selenic.com/
 IUSE=bugzilla emacs gpg test tk zsh-completion python_targets_python2_7
 KEYWORDS=~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris
 LICENSE=GPL-2
-RDEPEND=bugzilla? ( dev-python/mysql-python[python_targets_python2_7(-)?,-python_single_target_python2_7(-)] ) gpg? ( app-crypt/gnupg ) tk? ( dev-lang/tk ) zsh-completion? ( app-shells/zsh ) app-misc/ca-certificates python_targets_python2_7? ( >=dev-lang/python-2.7.5-r2:2.7[threads] ) dev-lang/python-exec:=[python_targets_python2_7(-)?,-python_single_target_python2_7(-)]
+RDEPEND=bugzilla? ( dev-python/mysql-python[python_targets_python2_7(-)?,-python_single_target_python2_7(-)] ) gpg? ( app-crypt/gnupg ) tk? ( dev-lang/tk ) zsh-completion? ( app-shells/zsh ) app-misc/ca-certificates python_targets_python2_7? ( >=dev-lang/python-2.7.5-r2:2.7[threads] ) >=dev-lang/python-exec-2:=[python_targets_python2_7(-)?,-python_single_target_python2_7(-)]
 REQUIRED_USE=|| ( python_targets_python2_7 )
 SLOT=0
 SRC_URI=http://mercurial.selenic.com/release/mercurial-2.5.4.tar.gz
-_eclasses_=bash-completion-r1	c8399c7c7ecbcf7ed6e5bd3abb3d4af3	distutils-r1	b3dd8b90e41a1570ee3117a7c1adb598	elisp-common	1aa23b3de5dae55456fa2071428eb5bf	eutils	6faef4c127028ccbba3a11400d24ae34	flag-o-matic	eda1c0b5ba85b3eeb555a071d69eb819	multibuild	ddc59d206214ef1c240093e1bb2513cf	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	multiprocessing	d7f2985a2c76c365ee20269db5261414	python-r1	b63f5ef61876823ab0bd05d867697d75	python-utils-r1	d5328656d500f65898a5f51634722f61	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
+_eclasses_=bash-completion-r1	c8399c7c7ecbcf7ed6e5bd3abb3d4af3	distutils-r1	c01d5c4af34f4a37a51fc9638299c222	elisp-common	1aa23b3de5dae55456fa2071428eb5bf	eutils	9fb270e417e0e83d64ca52586c4a79de	flag-o-matic	c263990f1b677b0f0be0a3299f179762	multibuild	6d4858dc00f8bc51caf3f957f8430eb0	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	multiprocessing	d7f2985a2c76c365ee20269db5261414	python-r1	6d3a3cb5705b9fff1aeb7cfa4e3336fe	python-utils-r1	096f8247eae93026af13ab88cf4305cd	toolchain-funcs	c961250d50160cd37d6b7fd9e8429c92
 _md5_=00d0be53348e69283e94c66435f7678a

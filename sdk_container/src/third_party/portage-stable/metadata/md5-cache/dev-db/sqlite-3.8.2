@@ -1,5 +1,5 @@
 DEFINED_PHASES=compile configure install prepare setup test
-DEPEND=icu? ( dev-libs/icu:= ) readline? ( sys-libs/readline ) tcl? ( dev-lang/tcl:= ) doc? ( app-arch/unzip ) tcl? ( app-arch/unzip ) test? ( app-arch/unzip dev-lang/tcl ) !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.14:1.14 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
+DEPEND=icu? ( dev-libs/icu:= ) readline? ( sys-libs/readline ) tcl? ( dev-lang/tcl:= ) doc? ( app-arch/unzip ) tcl? ( app-arch/unzip ) test? ( app-arch/unzip dev-lang/tcl ) !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.15:1.15 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
 DESCRIPTION=A SQL Database Engine in a C Library
 EAPI=5
 HOMEPAGE=http://sqlite.org/
@@ -9,5 +9,5 @@ LICENSE=public-domain
 RDEPEND=icu? ( dev-libs/icu:= ) readline? ( sys-libs/readline ) tcl? ( dev-lang/tcl:= )
 SLOT=3
 SRC_URI=doc? ( http://sqlite.org/2013/sqlite-doc-3080200.zip ) tcl? ( http://sqlite.org/2013/sqlite-src-3080200.zip ) !tcl? ( test? ( http://sqlite.org/2013/sqlite-src-3080200.zip ) !test? ( http://sqlite.org/2013/sqlite-autoconf-3080200.tar.gz ) )
-_eclasses_=autotools	c118b9a8e93bfef124f2d7a2fe56a95e	eutils	6faef4c127028ccbba3a11400d24ae34	flag-o-matic	eda1c0b5ba85b3eeb555a071d69eb819	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac	versionator	cd0bcdb170807e4a1984115e9d53a26f
+_eclasses_=autotools	999c8f6cf5d91495cb0779588f20716c	eutils	9fb270e417e0e83d64ca52586c4a79de	flag-o-matic	c263990f1b677b0f0be0a3299f179762	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	c961250d50160cd37d6b7fd9e8429c92	versionator	cd0bcdb170807e4a1984115e9d53a26f
 _md5_=35b3ce3667aed06fd7902a2d6f957d53
