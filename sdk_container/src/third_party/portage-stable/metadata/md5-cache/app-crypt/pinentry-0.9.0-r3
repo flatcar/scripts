@@ -1,0 +1,14 @@
+DEFINED_PHASES=compile configure install postinst postrm prepare
+DEPEND=app-eselect/eselect-pinentry caps? ( sys-libs/libcap ) gtk? ( x11-libs/gtk+:2 ) ncurses? ( sys-libs/ncurses ) qt4? ( >=dev-qt/qtgui-4.4.1:4 ) static? ( >=sys-libs/ncurses-5.7-r5[static-libs,-gpm] ) sys-devel/gettext gtk? ( virtual/pkgconfig ) qt4? ( virtual/pkgconfig ) ppc-aix? ( dev-libs/gnulib ) !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.14:1.14 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
+DESCRIPTION=Collection of simple PIN or passphrase entry dialogs which utilize the Assuan protocol
+EAPI=5
+HOMEPAGE=http://gnupg.org/aegypten2/index.html
+IUSE=clipboard gtk ncurses qt4 caps static
+KEYWORDS=~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris
+LICENSE=GPL-2
+RDEPEND=app-eselect/eselect-pinentry caps? ( sys-libs/libcap ) gtk? ( x11-libs/gtk+:2 ) ncurses? ( sys-libs/ncurses ) qt4? ( >=dev-qt/qtgui-4.4.1:4 ) static? ( >=sys-libs/ncurses-5.7-r5[static-libs,-gpm] )
+REQUIRED_USE=|| ( ncurses gtk qt4 ) gtk? ( !static ) qt4? ( !static ) static? ( ncurses )
+SLOT=0
+SRC_URI=mirror://gnupg/pinentry/pinentry-0.9.0.tar.bz2
+_eclasses_=autotools	c118b9a8e93bfef124f2d7a2fe56a95e	eutils	6faef4c127028ccbba3a11400d24ae34	flag-o-matic	eda1c0b5ba85b3eeb555a071d69eb819	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	qmake-utils	9e0174de733aecba0a7e66b2b01841d2	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
+_md5_=369fb8dd471e02367f76abdc7338db1b

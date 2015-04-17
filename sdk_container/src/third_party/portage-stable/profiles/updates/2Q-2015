@@ -1,0 +1,9 @@
+move dev-perl/config-general dev-perl/Config-General
+move dev-util/pkgcore-checks dev-util/pkgcheck
+slotmove dev-libs/libdbusmenu 3 0
+move dev-perl/log-dispatch dev-perl/Log-Dispatch
+move dev-libs/extra-cmake-modules kde-frameworks/extra-cmake-modules
+slotmove kde-frameworks/extra-cmake-modules 0 5
+slotmove =dev-lang/scala-2.9* 0 2.9
+slotmove =dev-lang/scala-2.10* 0 2.10
+slotmove =dev-lang/scala-2.11* 0 2.11

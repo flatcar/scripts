@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-admin/eselect/eselect-9999.ebuild,v 1.16 2013/10/29 21:08:27 ulm Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-admin/eselect/eselect-9999.ebuild,v 1.17 2015/04/01 00:55:33 ulm Exp $
 
 EAPI=5
 
@@ -23,8 +23,7 @@ RDEPEND="sys-apps/sed
 	)"
 DEPEND="${RDEPEND}
 	doc? ( dev-python/docutils )"
-RDEPEND="!app-admin/eselect-news
-	${RDEPEND}
+RDEPEND="${RDEPEND}
 	sys-apps/file
 	sys-libs/ncurses"
 

@@ -2,6 +2,10 @@
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
 <herd>shell-tools</herd>
+<maintainer>
+	<email>mgorny@gentoo.org</email>
+	<name>Michał Górny</name>
+</maintainer>
 <longdescription>
   Since v2.04, bash has allowed you to intelligently program and extend its
   standard completion behavior to achieve complex command lines with just a
