@@ -1,6 +1,44 @@
 # ChangeLog for sys-apps/util-linux
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/util-linux/ChangeLog,v 1.493 2015/03/13 16:37:58 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/util-linux/ChangeLog,v 1.503 2015/04/17 07:58:58 zlogene Exp $
+
+  17 Apr 2015; Mikle Kolyada <zlogene@gentoo.org> util-linux-2.25.2-r2.ebuild:
+  sparc stable wrt bug #536906
+
+  14 Apr 2015; Agostino Sarubbo <ago@gentoo.org> util-linux-2.25.2-r2.ebuild:
+  Stable for ia64, wrt bug #536906
+
+  11 Apr 2015; Mikle Kolyada <zlogene@gentoo.org> util-linux-2.25.2-r2.ebuild:
+  alpha stable wrt bug #536906
+
+  08 Apr 2015; Michał Górny <mgorny@gentoo.org> util-linux-2.24.1-r2.ebuild,
+  util-linux-2.24.1-r3.ebuild, util-linux-2.24.2.ebuild,
+  util-linux-2.25.1-r1.ebuild, util-linux-2.25.1.ebuild,
+  util-linux-2.25.2-r1.ebuild, util-linux-2.25.2-r2.ebuild,
+  util-linux-2.25.2.ebuild, util-linux-2.26.1.ebuild, util-linux-2.26.ebuild:
+  Drop old Python implementations
+
+  04 Apr 2015; Mike Frysinger <vapier@gentoo.org> util-linux-2.25.2-r2.ebuild:
+  Mark arm64/m68k/s390/sh stable.
+
+  03 Apr 2015; Mike Frysinger <vapier@gentoo.org> util-linux-2.26.1-r1.ebuild,
+  util-linux-9999.ebuild:
+  Fix another pam header check for USE=-pam builds #545042 by nzqr.
+
+  28 Mar 2015; Mikle Kolyada <zlogene@gentoo.org> util-linux-2.25.2-r2.ebuild:
+  x86 stable wrt bug #536906
+
+  24 Mar 2015; Markus Meier <maekke@gentoo.org> util-linux-2.25.2-r2.ebuild:
+  arm stable, bug #536906
+
+*util-linux-2.26.1-r1 (21 Mar 2015)
+
+  21 Mar 2015; Michał Górny <mgorny@gentoo.org> +util-linux-2.26.1-r1.ebuild,
+  util-linux-9999.ebuild:
+  EAPI bump, bug #543176.
+
+  16 Mar 2015; Jeroen Roovers <jer@gentoo.org> util-linux-2.25.2-r2.ebuild:
+  Stable for HPPA (bug #536906).
 
 *util-linux-2.26.1 (13 Mar 2015)
 
