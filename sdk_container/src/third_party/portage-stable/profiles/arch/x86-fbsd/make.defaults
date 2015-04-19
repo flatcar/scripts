@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation.
+# Copyright 1999-2015 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License, v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86-fbsd/make.defaults,v 1.7 2014/07/01 07:49:58 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86-fbsd/make.defaults,v 1.8 2015/02/01 13:40:43 mgorny Exp $
 # System-wide defaults for the G/FBSD Portage system
 
 ARCH="x86-fbsd"
@@ -23,6 +23,9 @@ LIBDIR_x86_fbsd="lib"
 VIDEO_CARDS="apm ark chips cirrus cyrix dummy i128 intel mach64 mga \
 	nv r128 radeon rendition s3 s3virge savage siliconmotion sis \
 	sisusb tga trident tseng via vmware"
+
+# Unhide the CPU_FLAGS_X86 USE_EXPANDs.
+USE_EXPAND_HIDDEN="-CPU_FLAGS_X86"
 
 # Michał Górny <mgorny@gentoo.org> (01 Jul 2014)
 # Default to abi_x86_32 for packages that don't have it forced.

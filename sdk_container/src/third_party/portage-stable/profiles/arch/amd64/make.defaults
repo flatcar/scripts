@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/make.defaults,v 1.23 2014/06/25 12:05:02 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/make.defaults,v 1.26 2015/03/21 19:15:02 mgorny Exp $
 
 ARCH="amd64"
 ACCEPT_KEYWORDS="${ARCH}"
@@ -36,7 +36,8 @@ CHOST_x32="x86_64-pc-linux-gnux32"
 # 2006/10/24 - Simon Stelling <blubb@gentoo.org>
 # They are masked, but we can enable them anyway for those who have 
 # >=portage-2.1.2_pre3-r4
-USE="mmx sse sse2"
+USE="mmx mmxext sse sse2"
+CPU_FLAGS_X86="mmx mmxext sse sse2"
 
 # Michał Górny <mgorny@gentoo.org> (03 Sep 2013)
 # Enable abi_x86_64 for packages that don't have it forced.
@@ -51,8 +52,8 @@ VIDEO_CARDS="fbdev glint intel mach64 mga nouveau nv r128 radeon savage sis tdfx
 ALSA_CARDS="ali5451 als4000 atiixp atiixp-modem bt87x ca0106 cmipci emu10k1x ens1370 ens1371 es1938 es1968 fm801 hda-intel intel8x0 intel8x0m maestro3 trident usb-audio via82xx via82xx-modem ymfpci"
 
 # Michał Górny <mgorny@gentoo.org> (26 Jan 2013)
-# Unhide the ABI_X86 USE_EXPAND.
-USE_EXPAND_HIDDEN="-ABI_X86"
+# Unhide the x86-specific USE_EXPANDs.
+USE_EXPAND_HIDDEN="-ABI_X86 -CPU_FLAGS_X86"
 
 # Michał Górny <mgorny@gentoo.org> (25 Jun 2014)
 # Make the native ABI implicit so that MULTILIB_USEDEP can be satisfied

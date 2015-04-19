@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/freebsd.eclass,v 1.35 2013/08/28 15:56:11 aballier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/freebsd.eclass,v 1.36 2015/02/22 14:16:03 mgorny Exp $
 #
 # Diego Pettenò <flameeyes@gentoo.org>
 
@@ -129,6 +129,12 @@ freebsd_rename_libraries() {
 freebsd_src_unpack() {
 	if [[ ${MY_PV} == *9999* ]]; then
 		S="${WORKDIR}" subversion_src_unpack
+
+		# When share/mk exists in ${WORKDIR}, it is used on FreeBSD 10.0
+		# Removed "${WORKDIR}"/share/mk/*.mk, use to force /usr/share/mk.
+		if [[ ${PN} != freebsd-mk-defs ]] ; then
+			[[ -e "${WORKDIR}"/share/mk ]] && rm -rf "${WORKDIR}"/share/mk/*.mk
+		fi
 	else
 		unpack ${A}
 	fi
@@ -141,7 +147,7 @@ freebsd_src_unpack() {
 
 	# Starting from FreeBSD 9.2, its install command supports the -l option and
 	# they now use it. Emulate it if we are on a system that does not have it.
-	if [[ ${RV} > 9.1 ]] && ! has_version '>=sys-freebsd/freebsd-ubin-9.2_beta1' ; then
+	if version_is_at_least 9.2 ${RV} && ! has_version '>=sys-freebsd/freebsd-ubin-9.2_beta1' ; then
 		export INSTALL_LINK="ln -f"
 		export INSTALL_SYMLINK="ln -fs"
 	fi

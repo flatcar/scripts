@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/font.eclass,v 1.57 2013/07/25 13:13:18 pva Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/font.eclass,v 1.58 2015/02/21 07:20:22 yngwin Exp $
 
 # @ECLASS: font.eclass
 # @MAINTAINER:
@@ -19,10 +19,9 @@ EXPORT_FUNCTIONS pkg_setup src_install pkg_postinst pkg_postrm
 FONT_SUFFIX=${FONT_SUFFIX:-}
 
 # @ECLASS-VARIABLE: FONT_S
-# @DEFAULT_UNSET
 # @REQUIRED
 # @DESCRIPTION:
-# Working directory containing the fonts.
+# Space delimited list of directories containing the fonts.
 FONT_S=${FONT_S:-${S}}
 
 # @ECLASS-VARIABLE: FONT_PN
@@ -61,17 +60,19 @@ RDEPEND=""
 # @DESCRIPTION:
 # Generate Xorg font files (mkfontscale/mkfontdir).
 font_xfont_config() {
+	local dir_name
 	if has X ${IUSE//+} && use X ; then
-		ebegin "Creating fonts.scale & fonts.dir"
-		rm -f "${ED}${FONTDIR}"/fonts.{dir,scale}
-		mkfontscale "${ED}${FONTDIR}"
+		dir_name="${1:-${FONT_PN}}"
+		ebegin "Creating fonts.scale & fonts.dir in ${dir_name##*/}"
+		rm -f "${ED}${FONTDIR}/${1//${S}/}"/{fonts.{dir,scale},encodings.dir}
+		mkfontscale "${ED}${FONTDIR}/${1//${S}/}"
 		mkfontdir \
 			-e ${EPREFIX}/usr/share/fonts/encodings \
 			-e ${EPREFIX}/usr/share/fonts/encodings/large \
-			"${ED}${FONTDIR}"
+			"${ED}${FONTDIR}/${1//${S}/}"
 		eend $?
-		if [[ -e ${FONT_S}/fonts.alias ]] ; then
-			doins "${FONT_S}"/fonts.alias
+		if [[ -e fonts.alias ]] ; then
+			doins fonts.alias
 		fi
 	fi
 }
@@ -162,22 +163,32 @@ font_pkg_setup() {
 # @DESCRIPTION:
 # The font src_install function.
 font_src_install() {
-	local suffix commondoc
+	local dir suffix commondoc
 
-	pushd "${FONT_S}" > /dev/null
+	set -- ${FONT_S:-${S}}
+	if [[ $# -gt 1 ]]; then
+		# if we have multiple FONT_S elements then we want to recreate the dir
+		# structure
+		for dir in ${FONT_S}; do
+			pushd "${dir}" > /dev/null
+			insinto "${FONTDIR}/${dir//${S}/}"
+			for suffix in ${FONT_SUFFIX}; do
+				doins *.${suffix}
+			done
+			font_xfont_config "${dir}"
+			popd > /dev/null
+		done
+	else
+		pushd "${FONT_S}" > /dev/null
+		insinto "${FONTDIR}"
+		for suffix in ${FONT_SUFFIX}; do
+			doins *.${suffix}
+		done
+		font_xfont_config
+		popd > /dev/null
+	fi
 
-	insinto "${FONTDIR}"
-
-	for suffix in ${FONT_SUFFIX}; do
-		doins *.${suffix}
-	done
-
-	rm -f fonts.{dir,scale} encodings.dir
-
-	font_xfont_config
 	font_fontconfig
-
-	popd > /dev/null
 
 	[[ -n ${DOCS} ]] && { dodoc ${DOCS} || die "docs installation failed" ; }
 

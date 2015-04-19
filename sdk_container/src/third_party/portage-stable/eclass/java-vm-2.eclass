@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/java-vm-2.eclass,v 1.47 2014/07/22 06:38:56 haubi Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/java-vm-2.eclass,v 1.48 2015/03/31 18:43:33 ulm Exp $
 
 # @ECLASS: java-vm-2.eclass
 # @MAINTAINER:
@@ -16,7 +16,7 @@ EXPORT_FUNCTIONS pkg_setup pkg_postinst pkg_prerm pkg_postrm
 
 RDEPEND="
 	=dev-java/java-config-2*
-	|| ( app-admin/eselect-java <dev-java/java-config-2.2 )"
+	|| ( app-eselect/eselect-java <dev-java/java-config-2.2 )"
 DEPEND="${RDEPEND}"
 has "${EAPI}" 0 1 && DEPEND="${DEPEND} >=sys-apps/portage-2.1"
 
@@ -50,7 +50,7 @@ JAVA_VM_BUILD_ONLY="${JAVA_VM_BUILD_ONLY:-FALSE}"
 # @FUNCTION: java-vm-2_pkg_setup
 # @DESCRIPTION:
 # default pkg_setup
-# 
+#
 # Initialize vm handle.
 
 java-vm-2_pkg_setup() {
@@ -254,7 +254,7 @@ set_java_env() {
 # @DESCRIPTION:
 # Set PaX markings on all JDK/JRE executables to allow code-generation on
 # the heap by the JIT compiler.
-# 
+#
 # The markings need to be set prior to the first invocation of the the freshly
 # built / installed VM. Be it before creating the Class Data Sharing archive or
 # generating cacerts. Otherwise a PaX enabled kernel will kill the VM.

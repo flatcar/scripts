@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/multibuild.eclass,v 1.19 2014/10/31 00:57:49 pesa Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/multibuild.eclass,v 1.20 2014/12/13 08:42:42 mgorny Exp $
 
 # @ECLASS: multibuild
 # @MAINTAINER:
@@ -25,8 +25,6 @@ case "${EAPI:-0}" in
 esac
 
 if [[ ! ${_MULTIBUILD} ]]; then
-
-inherit multiprocessing
 
 # @ECLASS-VARIABLE: MULTIBUILD_VARIANTS
 # @DESCRIPTION:
@@ -138,8 +136,8 @@ multibuild_foreach_variant() {
 # @USAGE: [<argv>...]
 # @DESCRIPTION:
 # Run the passed command repeatedly for each of the enabled package
-# variants alike multibuild_foreach_variant. Multiple invocations of the command
-# will be performed in parallel, up to MULTIBUILD_JOBS tasks.
+# variants. This used to run the commands in parallel but now it's
+# just a deprecated alias to multibuild_foreach_variant.
 #
 # The function returns 0 if all commands return 0, or the first non-zero
 # exit status otherwise. However, it performs all the invocations
@@ -148,31 +146,7 @@ multibuild_foreach_variant() {
 multibuild_parallel_foreach_variant() {
 	debug-print-function ${FUNCNAME} "${@}"
 
-	local ret lret
-
-	_multibuild_parallel() {
-		(
-			multijob_child_init
-			"${@}"
-		) &
-		multijob_post_fork
-	}
-
-	local opts
-	if [[ ${MULTIBUILD_JOBS} ]]; then
-		opts=-j${MULTIBUILD_JOBS}
-	else
-		opts=${MAKEOPTS}
-	fi
-
-	multijob_init "${opts}"
-	multibuild_foreach_variant _multibuild_parallel "${@}"
-	ret=${?}
-	multijob_finish
-	lret=${?}
-
-	[[ ${ret} -eq 0 ]] && ret=${lret}
-	return ${ret}
+	multibuild_foreach_variant "${@}"
 }
 
 # @FUNCTION: multibuild_for_best_variant
@@ -252,24 +226,11 @@ run_in_build_dir() {
 # Merge the directory tree (fake root) from <src-root> to <dest-root>
 # (the real root). Both directories have to be real, absolute paths
 # (i.e. including ${D}). Source root will be removed.
-#
-# This functions uses locking to support merging during parallel
-# installs.
 multibuild_merge_root() {
 	local src=${1}
 	local dest=${2}
 
-	local lockfile=${T}/.multibuild_merge_lock
-	local lockfile_l=${lockfile}.${BASHPID}
 	local ret
-
-	# Lock the install tree for merge. The touch+ln method ensures race
-	# condition-free locking with maximum portability.
-	touch "${lockfile_l}" || die
-	until ln "${lockfile_l}" "${lockfile}" &>/dev/null; do
-		sleep 1
-	done
-	rm "${lockfile_l}" || die
 
 	if use userland_BSD; then
 		# Most of BSD variants fail to copy broken symlinks, #447370
@@ -296,9 +257,6 @@ multibuild_merge_root() {
 		cp "${cp_args[@]}" "${src}"/. "${dest}"/
 		ret=${?}
 	fi
-
-	# Remove the lock.
-	rm "${lockfile}" || die
 
 	if [[ ${ret} -ne 0 ]]; then
 		die "${MULTIBUILD_VARIANT:-(unknown)}: merging image failed."

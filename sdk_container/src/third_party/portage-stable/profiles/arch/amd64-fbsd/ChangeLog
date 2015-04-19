@@ -1,6 +1,41 @@
 # ChangeLog for Gentoo/x86-fbsd profile directory
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64-fbsd/ChangeLog,v 1.56 2014/11/20 01:51:03 pesa Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64-fbsd/ChangeLog,v 1.66 2015/03/21 19:15:02 mgorny Exp $
+
+  21 Mar 2015; Michał Górny <mgorny@gentoo.org> make.defaults:
+  Enable mmxext by default since it is implied by sse, and required for ffmpeg.
+
+  14 Mar 2015; Michał Górny <mgorny@gentoo.org> clang/package.use.force,
+  clang/packages.build:
+  Force llvm[static-analyzer] as needed for clang, in clang profile. Cleanup
+  packages.build. https://github.com/gentoo/gentoo-portage-rsync-mirror/pull/45
+  by nigoro.
+
+  08 Feb 2015; Michał Górny <mgorny@gentoo.org> +clang/eapi,
+  +clang/make.defaults, +clang/package.use.force, +clang/package.use.mask,
+  +clang/packages, +clang/packages.build, +clang/parent, +clang/profile.bashrc:
+  Move clang fbsd profile data to arch/amd64-fbsd. Bug #491654 by Yuta SATOH.
+
+  01 Feb 2015; Michał Górny <mgorny@gentoo.org> make.defaults:
+  Unhide CPU_FLAGS_X86 on {amd64,x86}-fbsd profiles, bug #538322 by Yuta SATOH.
+
+  28 Jan 2015; Michał Górny <mgorny@gentoo.org> use.mask:
+  Unmask CPU_FLAGS_X86.
+
+  28 Jan 2015; Mike Gilbert <floppym@gentoo.org> make.defaults:
+  Set CPU_FLAGS_X86 to a reasonable default.
+
+  28 Jan 2015; Johannes Huber <johu@gentoo.org> package.use.mask:
+  Mask app-crypt/qca[botan,pkcs11].
+
+  23 Jan 2015; Lars Wendler <polynomial-c@gentoo.org> package.use.mask:
+  Mask sctp useflag for openssl until keywords are there
+
+  27 Dec 2014; Hans de Graaff <graaff@gentoo.org> use.mask:
+  dev-libs/malloc is not keyworded, mask associated USE flag.
+
+  26 Dec 2014; Michael Palimaka <kensington@gentoo.org> package.use.mask:
+  Mask media-libs/opencv consumers due to missing keyword.
 
   20 Nov 2014; Davide Pesavento <pesa@gentoo.org> +package.mask:
   Move Qt 4.8.6 mask from global package.mask to arch profiles.

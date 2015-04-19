@@ -217,3 +217,7 @@ clvm
 # Pacho Ramos <pacho@gentoo.org> (08 Jan 2014)
 # Unmask systemd since it is keyworded here.
 -systemd
+
+# Ben de Groot <yngwin@gentoo.org> (01 Feb 2015)
+# please remove when keyworded
+qt5

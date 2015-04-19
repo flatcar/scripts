@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/ghc-package.eclass,v 1.39 2014/02/11 19:00:06 slyfox Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/ghc-package.eclass,v 1.41 2015/03/28 13:32:40 slyfox Exp $
 
 # @ECLASS: ghc-package.eclass
 # @MAINTAINER:
@@ -36,16 +36,28 @@ ghc-getghcpkg() {
 # because for some reason the global package file
 # must be specified
 ghc-getghcpkgbin() {
-	# the ghc-pkg executable changed name in ghc 6.10, as it no longer needs
-	# the wrapper script with the static flags
-	echo '[]' > "${T}/empty.conf"
-	if version_is_at_least "7.7.20121101" "$(ghc-version)"; then
+	if version_is_at_least "7.9.20141222" "$(ghc-version)"; then
+		# ghc-7.10 stopped supporting single-file database
+		local empty_db="${T}/empty.conf.d" ghc_pkg="$(ghc-libdir)/bin/ghc-pkg"
+		if [[ ! -d ${empty_db} ]]; then
+			"${ghc_pkg}" init "${empty_db}" || die "Failed to initialize empty global db"
+		fi
+		echo "$(ghc-libdir)/bin/ghc-pkg" "--global-package-db=${empty_db}"
+
+	elif version_is_at_least "7.7.20121101" "$(ghc-version)"; then
+		# the ghc-pkg executable changed name in ghc 6.10, as it no longer needs
+		# the wrapper script with the static flags
 		# was moved to bin/ subtree by:
 		# http://www.haskell.org/pipermail/cvs-ghc/2012-September/076546.html
+		echo '[]' > "${T}/empty.conf"
 		echo "$(ghc-libdir)/bin/ghc-pkg" "--global-package-db=${T}/empty.conf"
+
 	elif version_is_at_least "7.5.20120516" "$(ghc-version)"; then
+		echo '[]' > "${T}/empty.conf"
 		echo "$(ghc-libdir)/ghc-pkg" "--global-package-db=${T}/empty.conf"
+
 	else
+		echo '[]' > "${T}/empty.conf"
 		echo "$(ghc-libdir)/ghc-pkg" "--global-conf=${T}/empty.conf"
 	fi
 }
@@ -61,14 +73,19 @@ ghc-version() {
 	echo "${_GHC_VERSION_CACHE}"
 }
 
-# @FUNCTION: ghc-bestcabalversion
+# @FUNCTION: ghc-cabal-version
 # @DESCRIPTION:
-# return the best version of the Cabal library that is available
-ghc-bestcabalversion() {
-	# We ask portage, not ghc, so that we only pick up
-	# portage-installed cabal versions.
-	local cabalversion="$(ghc-extractportageversion dev-haskell/cabal)"
-	echo "Cabal-${cabalversion}"
+# return version of the Cabal library bundled with ghc
+ghc-cabal-version() {
+	if version_is_at_least "7.9.20141222" "$(ghc-version)"; then
+		# outputs in format: 'version: 1.18.1.5'
+		set -- `$(ghc-getghcpkg) --package-db=$(ghc-libdir)/package.conf.d.initial field Cabal version`
+		echo "$2"
+	else
+		local cabal_package=`echo "$(ghc-libdir)"/Cabal-*`
+		# /path/to/ghc/Cabal-${VER} -> ${VER}
+		echo "${cabal_package/*Cabal-/}"
+	fi
 }
 
 # @FUNCTION: ghc-sanecabal
@@ -107,13 +124,6 @@ ghc-supports-threaded-runtime() {
 # checks if ghc is built with support for multiple cores runtime
 ghc-supports-smp() {
 	$(ghc-getghc) --info | grep "Support SMP" | grep -q "YES"
-}
-
-# @FUNCTION: ghc-supports-dynamic-by-default
-# @DESCRIPTION:
-# checks if ghc links against shared haskell libraries by default
-ghc-supports-dynamic-by-default() {
-	$(ghc-getghc) --info | grep "Dynamic by default" | grep -q "YES"
 }
 
 # @FUNCTION: ghc-supports-interpreter
@@ -158,26 +168,26 @@ ghc-libdir() {
 
 # @FUNCTION: ghc-confdir
 # @DESCRIPTION:
-# returns the (Gentoo) library configuration directory
+# returns the (Gentoo) library configuration directory, we
+# store here a hint for 'haskell-updater' about packages
+# installed for old ghc versions and current ones.
 ghc-confdir() {
 	echo "$(ghc-libdir)/gentoo"
 }
 
-# @FUNCTION: ghc-localpkgconf
+# @FUNCTION: ghc-package-db
+# @DESCRIPTION:
+# returns the global package database directory
+ghc-package-db() {
+	echo "$(ghc-libdir)/package.conf.d"
+}
+
+# @FUNCTION: ghc-localpkgconfd
 # @DESCRIPTION:
 # returns the name of the local (package-specific)
 # package configuration file
-ghc-localpkgconf() {
-	echo "${PF}.conf"
-}
-
-# @FUNCTION: ghc-makeghcilib
-# @DESCRIPTION:
-# make a ghci foo.o file from a libfoo.a file
-ghc-makeghcilib() {
-	local outfile
-	outfile="$(dirname $1)/$(basename $1 | sed 's:^lib\?\(.*\)\.a$:\1.o:')"
-	ld --relocatable --discard-all --output="${outfile}" --whole-archive "$1"
+ghc-localpkgconfd() {
+	echo "${PF}.conf.d"
 }
 
 # @FUNCTION: ghc-package-exists
@@ -187,33 +197,26 @@ ghc-package-exists() {
 	$(ghc-getghcpkg) describe "$1" > /dev/null 2>&1
 }
 
-# @FUNCTION: ghc-setup-pkg
-# @DESCRIPTION:
-# creates a local (package-specific) package
-# configuration file; the arguments should be
-# uninstalled package description files, each
-# containing a single package description; if
-# no arguments are given, the resulting file is
-# empty
-ghc-setup-pkg() {
-	local localpkgconf="${S}/$(ghc-localpkgconf)"
-	echo '[]' > "${localpkgconf}"
+# @FUNCTION: check-for-collisions
+# @DESCRIPTION: makes sure no packages
+# have the same version as initial package setup
+check-for-collisions() {
+	local localpkgconf=$1
+	local checked_pkg
+	local initial_pkg_db="$(ghc-libdir)/package.conf.d.initial"
 
-	for pkg in $*; do
-		$(ghc-getghcpkgbin) -f "${localpkgconf}" update - --force \
-			< "${pkg}" || die "failed to register ${pkg}"
+	for checked_pkg in `$(ghc-getghcpkgbin) -f "${localpkgconf}" list --simple-output`
+	do
+		# should return empty output
+		local collided=`$(ghc-getghcpkgbin) -f ${initial_pkg_db} list --simple-output "${checked_pkg}"`
+
+		if [[ -n ${collided} ]]; then
+			eerror "Package ${checked_pkg} is shipped with $(ghc-version)."
+			eerror "Ebuild author forgot CABAL_CORE_LIB_GHC_PV entry."
+			eerror "Found in ${initial_pkg_db}."
+			die
+		fi
 	done
-}
-
-# @FUNCTION: ghc-fixlibpath
-# @DESCRIPTION:
-# fixes the library and import directories path
-# of the package configuration file
-ghc-fixlibpath() {
-	sed -i "s|$1|$(ghc-libdir)|g" "${S}/$(ghc-localpkgconf)"
-	if [[ -n "$2" ]]; then
-		sed -i "s|$2|$(ghc-libdir)/imports|g" "${S}/$(ghc-localpkgconf)"
-	fi
 }
 
 # @FUNCTION: ghc-install-pkg
@@ -221,9 +224,34 @@ ghc-fixlibpath() {
 # moves the local (package-specific) package configuration
 # file to its final destination
 ghc-install-pkg() {
-	mkdir -p "${D}/$(ghc-confdir)"
-	cat "${S}/$(ghc-localpkgconf)" | sed "s|${D}||g" \
-		> "${D}/$(ghc-confdir)/$(ghc-localpkgconf)"
+	local pkg_config_file=$1
+	local localpkgconf="${T}/$(ghc-localpkgconfd)"
+	local pkg_path pkg pkg_db="${D}/$(ghc-package-db)" hint_db="${D}/$(ghc-confdir)"
+
+	$(ghc-getghcpkgbin) init "${localpkgconf}" || die "Failed to initialize empty local db"
+	$(ghc-getghcpkgbin) -f "${localpkgconf}" update - --force \
+		< "${pkg_config_file}" || die "failed to register ${pkg}"
+
+	check-for-collisions "${localpkgconf}"
+
+	mkdir -p "${pkg_db}" || die
+	for pkg_path in "${localpkgconf}"/*.conf; do
+		pkg=$(basename "${pkg_path}")
+		cp "${pkg_path}" "${pkg_db}/${pkg}" || die
+	done
+
+	mkdir -p "${hint_db}" || die
+	cp "${pkg_config_file}" "${hint_db}/${PF}.conf" || die
+	chmod 0644 "${hint_db}/${PF}.conf" || die
+}
+
+# @FUNCTION: ghc-recache-db
+# @DESCRIPTION:
+# updates 'package.cache' binary cacne for registered '*.conf'
+# packages
+ghc-recache-db() {
+	einfo "Recaching GHC package DB"
+	$(ghc-getghcpkg) recache
 }
 
 # @FUNCTION: ghc-register-pkg
@@ -231,16 +259,7 @@ ghc-install-pkg() {
 # registers all packages in the local (package-specific)
 # package configuration file
 ghc-register-pkg() {
-	local localpkgconf="$(ghc-confdir)/$1"
-
-	if [[ -f "${localpkgconf}" ]]; then
-		for pkg in $(ghc-listpkg "${localpkgconf}"); do
-			ebegin "Registering ${pkg} "
-			$(ghc-getghcpkgbin) -f "${localpkgconf}" describe "${pkg}" \
-				| $(ghc-getghcpkg) update - --force > /dev/null
-			eend $?
-		done
-	fi
+	ghc-recache-db
 }
 
 # @FUNCTION: ghc-reregister
@@ -248,99 +267,46 @@ ghc-register-pkg() {
 # re-adds all available .conf files to the global
 # package conf file, to be used on a ghc reinstallation
 ghc-reregister() {
-	has "${EAPI:-0}" 0 1 2 && ! use prefix && EPREFIX=
-	einfo "Re-adding packages (may cause several harmless warnings) ..."
-	PATH="${EPREFIX}/usr/bin:${PATH}" CONFDIR="$(ghc-confdir)"
-	if [ -d "${CONFDIR}" ]; then
-		pushd "${CONFDIR}" > /dev/null
-		for conf in *.conf; do
-			PATH="${EPREFIX}/usr/bin:${PATH}" ghc-register-pkg "${conf}"
-		done
-		popd > /dev/null
-	fi
+	ghc-recache-db
 }
 
 # @FUNCTION: ghc-unregister-pkg
 # @DESCRIPTION:
 # unregisters a package configuration file
-# protected are all packages that are still contained in
-# another package configuration file
 ghc-unregister-pkg() {
-	local localpkgconf="$(ghc-confdir)/$1"
-	local i
-	local pkg
-
-	if [[ -f "${localpkgconf}" ]]; then
-		for pkg in $(ghc-reverse "$(ghc-listpkg ${localpkgconf})"); do
-		  if ! ghc-package-exists "${pkg}"; then
-			einfo "Package ${pkg} is not installed for ghc-$(ghc-version)."
-		  else
-			ebegin "Unregistering ${pkg} "
-			$(ghc-getghcpkg) unregister "${pkg}" --force > /dev/null
-			eend $?
-		  fi
-		done
-	fi
+	ghc-recache-db
 }
 
-# @FUNCTION: ghc-reverse
+# @FUNCTION: ghc-pkgdeps
 # @DESCRIPTION:
-# help-function: reverse a list
-ghc-reverse() {
-	local result
-	local i
-	for i in $1; do
-		result="${i} ${result}"
-	done
-	echo "${result}"
-}
-
-# @FUNCTION: ghc-elem
-# @DESCRIPTION:
-# help-function: element-check
-ghc-elem() {
-	local i
-	for i in $2; do
-		[[ "$1" == "${i}" ]] && return 0
-	done
-	return 1
-}
-
-# @FUNCTION: ghc-listpkg
-# @DESCRIPTION:
-# show the packages in a package configuration file
-ghc-listpkg() {
-	local ghcpkgcall
-	local i
-	local extra_flags
-	if version_is_at_least '6.12.3' "$(ghc-version)"; then
-		extra_flags="${extra_flags} -v0"
-	fi
-	for i in $*; do
-		echo $($(ghc-getghcpkg) list ${extra_flags} -f "${i}") \
-			| sed \
-				-e "s|^.*${i}:\([^:]*\).*$|\1|" \
-				-e "s|/.*$||" \
-				-e "s|,| |g" -e "s|[(){}]||g"
-	done
+# exported function: loads a package dependency in a form
+# cabal_package version
+ghc-pkgdeps() {
+	echo $($(ghc-getghcpkg) describe "${1}") \
+	| sed \
+			-e '/depends/,/^.*:/ !d' \
+			-e 's/\(.*\)-\(.*\)-\(.*\)/\1 \2/' \
+			-e 's/^.*://g'
 }
 
 # @FUNCTION: ghc-package_pkg_postinst
 # @DESCRIPTION:
-# exported function: registers the package-specific package
-# configuration file
+# updates package.cache after package install
 ghc-package_pkg_postinst() {
-	ghc-register-pkg "$(ghc-localpkgconf)"
+	ghc-recache-db
 }
 
 # @FUNCTION: ghc-package_pkg_prerm
 # @DESCRIPTION:
-# exported function: unregisters the package-specific package
-# configuration file; a package contained therein is unregistered
-# only if it the same package is not also contained in another
-# package configuration file ...
+# updates package.cache after package deinstall
 ghc-package_pkg_prerm() {
-	ghc-unregister-pkg "$(ghc-localpkgconf)"
+	ewarn "ghc-package.eclass: 'ghc-package_pkg_prerm()' is a noop"
+	ewarn "ghc-package.eclass: consider 'haskell-cabal_pkg_postrm()' instead"
 }
 
-EXPORT_FUNCTIONS pkg_postinst pkg_prerm
+# @FUNCTION: ghc-package_pkg_postrm
+# @DESCRIPTION:
+# updates package.cache after package deinstall
+ghc-package_pkg_postrm() {
+	ghc-recache-db
+}

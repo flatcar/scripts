@@ -1,15 +1,15 @@
 DEFINED_PHASES=install postinst postrm prerm setup
-DEPEND==dev-java/java-config-2* || ( app-admin/eselect-java <dev-java/java-config-2.2 )
+DEPEND==dev-java/java-config-2* || ( app-eselect/eselect-java <dev-java/java-config-2.2 )
 DESCRIPTION=A Gentoo-made binary build of the IcedTea JDK
 EAPI=4
 HOMEPAGE=http://icedtea.classpath.org
 IUSE=+X +alsa cjk +cups doc examples nsplugin source
 KEYWORDS=-* ~amd64 ~x86
 LICENSE=GPL-2-with-linking-exception
-RDEPEND=>=media-libs/giflib-4.1.6-r1 media-libs/lcms:2 >=media-libs/libpng-1.5 >=sys-devel/gcc-4.3 >=sys-libs/glibc-2.11.2 >=sys-libs/zlib-1.2.3-r1 virtual/jpeg X? ( >=net-print/cups-1.4 >=dev-libs/atk-1.30.0 >=dev-libs/glib-2.20.5:2 >=media-libs/fontconfig-2.6.0-r2:1.0 >=media-libs/freetype-2.3.9:2 >=x11-libs/cairo-1.8.8 x11-libs/gdk-pixbuf:2 >=x11-libs/gtk+-2.20.1:2 >=x11-libs/libX11-1.3 >=x11-libs/libXext-1.1 >=x11-libs/libXi-1.3 x11-libs/libXrender >=x11-libs/libXtst-1.1 >=x11-libs/pango-1.24.5 media-fonts/dejavu cjk? ( media-fonts/arphicfonts media-fonts/baekmuk-fonts media-fonts/lklug media-fonts/lohit-fonts media-fonts/sazanami ) ) alsa? ( >=media-libs/alsa-lib-1.0.20 ) cups? ( >=net-print/cups-1.4 ) =dev-java/java-config-2* || ( app-admin/eselect-java <dev-java/java-config-2.2 )
+RDEPEND=>=media-libs/giflib-4.1.6-r1 media-libs/lcms:2 >=media-libs/libpng-1.5 >=sys-devel/gcc-4.3 >=sys-libs/glibc-2.11.2 >=sys-libs/zlib-1.2.3-r1 virtual/jpeg X? ( >=net-print/cups-1.4 >=dev-libs/atk-1.30.0 >=dev-libs/glib-2.20.5:2 >=media-libs/fontconfig-2.6.0-r2:1.0 >=media-libs/freetype-2.3.9:2 >=x11-libs/cairo-1.8.8 x11-libs/gdk-pixbuf:2 >=x11-libs/gtk+-2.20.1:2 >=x11-libs/libX11-1.3 >=x11-libs/libXext-1.1 >=x11-libs/libXi-1.3 x11-libs/libXrender >=x11-libs/libXtst-1.1 >=x11-libs/pango-1.24.5 media-fonts/dejavu cjk? ( media-fonts/arphicfonts media-fonts/baekmuk-fonts media-fonts/lklug media-fonts/lohit-fonts media-fonts/sazanami ) ) alsa? ( >=media-libs/alsa-lib-1.0.20 ) cups? ( >=net-print/cups-1.4 ) =dev-java/java-config-2* || ( app-eselect/eselect-java <dev-java/java-config-2.2 )
 REQUIRED_USE=nsplugin? ( X )
 RESTRICT=strip
 SLOT=7
 SRC_URI=amd64? ( http://dev.gentoo.org/~caster/distfiles//icedtea-bin-core-7.2.3.4-amd64.tar.bz2 ) x86? ( http://dev.gentoo.org/~caster/distfiles//icedtea-bin-core-7.2.3.4-x86.tar.bz2 ) doc? ( http://dev.gentoo.org/~caster/distfiles//icedtea-bin-doc-7.2.3.4.tar.bz2 ) examples? ( amd64? ( http://dev.gentoo.org/~caster/distfiles//icedtea-bin-examples-7.2.3.4-amd64.tar.bz2 ) x86? ( http://dev.gentoo.org/~caster/distfiles//icedtea-bin-examples-7.2.3.4-x86.tar.bz2 ) ) nsplugin? ( amd64? ( http://dev.gentoo.org/~caster/distfiles//icedtea-bin-nsplugin-7.2.3.4-amd64.tar.bz2 ) x86? ( http://dev.gentoo.org/~caster/distfiles//icedtea-bin-nsplugin-7.2.3.4-x86.tar.bz2 ) ) source? ( http://dev.gentoo.org/~caster/distfiles//icedtea-bin-src-7.2.3.4.tar.bz2 )
-_eclasses_=eutils	6faef4c127028ccbba3a11400d24ae34	fdo-mime	0acfe1a88fd8751a1d5dc671168219fa	java-vm-2	834752b84da3c4deea95f5b186aada54	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	pax-utils	dfe060cb70d89757fde5c1ff8405e950	prefix	21058c21ca48453d771df15500873ede	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
+_eclasses_=eutils	9fb270e417e0e83d64ca52586c4a79de	fdo-mime	0acfe1a88fd8751a1d5dc671168219fa	java-vm-2	3be2b41fb351dbaa00c7d14a732c75cd	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	pax-utils	dfe060cb70d89757fde5c1ff8405e950	prefix	21058c21ca48453d771df15500873ede	toolchain-funcs	c961250d50160cd37d6b7fd9e8429c92
 _md5_=8faf006c8cdf3949c267de17328aed4a

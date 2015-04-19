@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/mips/use.mask,v 1.78 2014/10/18 18:14:29 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/mips/use.mask,v 1.83 2015/04/16 22:05:25 vapier Exp $
 
 # Unmask the flag which corresponds to ARCH.
 -mips
@@ -188,11 +188,6 @@ mono
 # Quick fix to my tree b0rkage
 ieee1394
 
-# Hardave Riar <hardave@gentoo.org>
-# Temporarily masking wifi until I can test it
-# Preventing kde from going stable
-wifi
-
 # Henrik Brix Andersen <brix@gentoo.org>
 # According to the mips herd, we currently have no way of testing
 # pcmcia on mips, bug #90359
@@ -326,10 +321,6 @@ ladspa
 rpm
 
 # Matt Turner <mattst88@gentoo.org> (13 Dec 2010)
-# We don't care much about bluetooth
-bluetooth
-
-# Matt Turner <mattst88@gentoo.org> (13 Dec 2010)
 # We don't have net-libs/libsmi keyworded
 smi
 
@@ -384,3 +375,7 @@ unwind
 
 # sys-libs/libseccomp has not been ported to this arch yet #524148
 seccomp
+
+# Ben de Groot <yngwin@gentoo.org> (01 Feb 2015)
+# please remove when keyworded
+qt5

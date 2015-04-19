@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/fcaps.eclass,v 1.10 2014/07/31 10:21:05 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/fcaps.eclass,v 1.11 2015/02/18 16:11:53 vapier Exp $
 
 # @ECLASS: fcaps.eclass
 # @MAINTAINER:
@@ -9,6 +9,8 @@
 # @BLURB: function to set POSIX file-based capabilities
 # @DESCRIPTION:
 # This eclass provides a function to set file-based capabilities on binaries.
+# This is not the same as USE=caps which controls runtime capability changes,
+# often via packages like libcap.
 #
 # Due to probable capability-loss on moving or copying, this happens in
 # pkg_postinst-phase (at least for now).

@@ -1,28 +1,29 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/vdr-plugin-2.eclass,v 1.28 2014/02/08 00:56:30 hd_brummy Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/vdr-plugin-2.eclass,v 1.32 2015/03/31 18:43:33 ulm Exp $
 
 # @ECLASS: vdr-plugin-2.eclass
 # @MAINTAINER:
-# vdr@gentoo.org
-# @BLURB: common vdr plugin ebuild functions
-# @DESCRIPTION:
-# Eclass for easing maitenance of vdr plugin ebuilds
-
-# Authors:
+# Gentoo VDR Project <vdr@gentoo.org>
+# @AUTHOR:
 # Matthias Schwarzott <zzam@gentoo.org>
 # Joerg Bornkessel <hd_brummy@gentoo.org>
 # Christian Ruppert <idl0r@gentoo.org>
+# (undisclosed contributors)
+# @BLURB: common vdr plugin ebuild functions
+# @DESCRIPTION:
+# Eclass for easing maintenance of vdr plugin ebuilds
 
-# Plugin config file installation:
-#
+# @ECLASS-VARIABLE: VDR_CONFD_FILE
+# @DEFAULT_UNSET
+# @DESCRIPTION:
 # A plugin config file can be specified through the $VDR_CONFD_FILE variable, it
 # defaults to ${FILESDIR}/confd. Each config file will be installed as e.g.
 # ${D}/etc/conf.d/vdr.${VDRPLUGIN}
 
-# Installation of rc-addon files:
-# NOTE: rc-addon files must be valid shell scripts!
-#
+# @ECLASS-VARIABLE: VDR_RCADDON_FILE
+# @DEFAULT_UNSET
+# @DESCRIPTION:
 # Installing rc-addon files is basically the same as for plugin config files
 # (see above), it's just using the $VDR_RCADDON_FILE variable instead.
 # The default value when $VDR_RCADDON_FILE is undefined is:
@@ -33,10 +34,64 @@
 # has been enabled.
 # rc-addon files may be used to prepare everything that is necessary for the
 # plugin start/stop, like passing extra command line options and so on.
+#
+# NOTE: rc-addon files must be valid shell scripts!
+
+# @ECLASS-VARIABLE: GENTOO_VDR_CONDITIONAL
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# This is a hack for ebuilds like vdr-xineliboutput that want to
+# conditionally install a vdr-plugin
+
+# @ECLASS-VARIABLE: PO_SUBDIR
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# By default, translation are found in"${S}"/po but this
+# default can be overridden by defining PO_SUBDIR.
+#
+# Example:
+# @CODE
+# PO_SUBDIR="bla foo/bla"
+# @CODE
+
+# @ECLASS-VARIABLE: VDR_MAINTAINER_MODE
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# Output from function dev_check if it is defined in ebuild or eclass,
+# helpfull for gentoo ebuild developer
+#
+# This will also install any debug files in /usr/share/vdr/maintainer-data
+#
+# This is intended to be set by user in make.conf. Ebuilds must not set
+# it.
+#
+# VDR_MAINTAINER_MODE=1
+
+# @FUNCTION: fix_vdr_libsi_include
+# @DESCRIPTION:
+# Plugins failed on compile with wrong path of libsi includes,
+# this can be fixed by 'function + space separated list of files'
+#
+# Example:
+# @CODE
+# fix_vdr_libsi_include bla.c foo.c
+# @CODE
+
+# @FUNCTION: remove_i18n_include
+# @DESCRIPTION:
+# Compile will fail if plugin still use the old i18n language handling,
+# most parts are fixed by vdr-plugin-2.eclass internal functions itself.
+# Remove unneeded i18.n includes from files, if they are still wrong there,
+# this can be fixed by 'function + space separated list of files"
+#
+# Example:
+# @CODE
+# remove_i18n_include bla.n foo.n
+# @CODE
 
 # Applying your own local/user patches:
 # This is done by using the epatch_user() function of the eutils.eclass.
-# Simply put your patches into one of these directories:
+# Simply add your patches into one of these directories:
 # /etc/portage/patches/<CATEGORY>/<PF|P|PN>/
 # Quote: where the first of these three directories to exist will be the one to
 # use, ignoring any more general directories which might exist as well.
@@ -46,8 +101,8 @@
 inherit eutils flag-o-matic multilib toolchain-funcs unpacker
 
 case ${EAPI:-0} in
-    4|5) ;;
-    *) die "EAPI ${EAPI} unsupported."
+	4|5) ;;
+	*) die "EAPI ${EAPI} unsupported."
 esac
 
 EXPORT_FUNCTIONS pkg_setup src_unpack src_prepare src_compile src_install pkg_postinst pkg_postrm pkg_config
@@ -70,10 +125,8 @@ COMMON_DEPEND=">=media-tv/gentoo-vdr-scripts-0.4.2"
 DEPEND="${COMMON_DEPEND}
 	virtual/linuxtv-dvb-headers"
 RDEPEND="${COMMON_DEPEND}
-	>=app-admin/eselect-vdr-0.0.2"
+	>=app-eselect/eselect-vdr-0.0.2"
 
-# This is a hack for ebuilds like vdr-xineliboutput that want to
-# conditionally install a vdr-plugin
 if [[ "${GENTOO_VDR_CONDITIONAL:-no}" = "yes" ]]; then
 	IUSE="${IUSE} vdr"
 	DEPEND="vdr? ( ${DEPEND} )"
@@ -198,7 +251,6 @@ vdr_patchmakefile() {
 	touch "${WORKDIR}"/.vdr-plugin_makefile_patched
 }
 
-# Begin new vdr-plugin-2.eclass content
 dev_check() {
 	# A lot useful debug infos
 	# set VDR_MAINTAINER_MODE="1" in make.conf
@@ -217,10 +269,7 @@ gettext_missing() {
 }
 
 detect_po_dir() {
-#	Some plugins have /po in a subdir
-#	set PO_SUBDIR in .ebuild
-#	i.e media-plugins/vdr-streamdev
-#	PO_SUBDIR="client server"
+	# helper function
 
 	[[ -f po ]] && local po_dir="${S}"
 	local po_subdir=( ${S}/${PO_SUBDIR} )
@@ -292,7 +341,6 @@ vdr_i18n() {
 
 remove_i18n_include() {
 	# remove uneeded i18.n includes
-	# call 'remove_i18n_include bla foo'
 
 	local f
 	for f; do
@@ -302,7 +350,6 @@ remove_i18n_include() {
 
 	dev_check "removed i18n.h include in ${@}"
 }
-# end new vdr-plugin-2.eclass content
 
 vdr-plugin-2_print_enable_command() {
 	local p_name c=0 l=""
@@ -344,6 +391,7 @@ vdr-plugin-2_pkg_setup() {
 	if has_version ">=media-video/vdr-1.7.34"; then
 		VDR_PLUGIN_DIR=$(pkg-config --variable=libdir vdr)
 	else
+		# obsolete, as we have only >=media-video/vdr-2
 		VDR_PLUGIN_DIR="/usr/$(get_libdir)/vdr/plugins"
 	fi
 
@@ -362,6 +410,7 @@ vdr-plugin-2_pkg_setup() {
 	if has_version ">=media-video/vdr-1.7.34"; then
 		LOCDIR=$(pkg-config --variable=locdir vdr)
 	else
+		# obsolete, as we have only >=media-video/vdr-2
 		LOCDIR="/usr/share/locale"
 	fi
 
@@ -383,6 +432,7 @@ vdr-plugin-2_pkg_setup() {
 		VDRVERSION=$(awk -F'"' '/define VDRVERSION/ {print $2}' "${VDR_INCLUDE_DIR}"/config.h)
 		APIVERSION=$(pkg-config --variable=apiversion vdr)
 	else
+		# obsolete, as we have only >=media-video/vdr-2
 		VDRVERSION=$(awk -F'"' '/define VDRVERSION/ {print $2}' "${VDR_INCLUDE_DIR}"/config.h)
 		APIVERSION=$(awk -F'"' '/define APIVERSION/ {print $2}' "${VDR_INCLUDE_DIR}"/config.h)
 	[[ -z ${APIVERSION} ]] && APIVERSION="${VDRVERSION}"

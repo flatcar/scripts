@@ -9,5 +9,5 @@ LICENSE=BSD-2
 RDEPEND=zlib? ( sys-libs/zlib ) python? ( dev-lang/python )
 SLOT=0
 SRC_URI=ftp://ftp.astron.com/pub/file/file-5.08.tar.gz ftp://ftp.gw.com/mirrors/pub/unix/file/file-5.08.tar.gz
-_eclasses_=distutils	92e738ea29389cb3f34778d7a349ac71	eutils	6faef4c127028ccbba3a11400d24ae34	flag-o-matic	eda1c0b5ba85b3eeb555a071d69eb819	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	python	cd022f89fef846d083fc994b9e3d8c04	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
+_eclasses_=distutils	92e738ea29389cb3f34778d7a349ac71	eutils	9fb270e417e0e83d64ca52586c4a79de	flag-o-matic	c263990f1b677b0f0be0a3299f179762	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	python	3a270b7b1d1e679847ff0faeac25c5a3	toolchain-funcs	c961250d50160cd37d6b7fd9e8429c92
 _md5_=cc5a58a54da3a195a134f6663f8095d0

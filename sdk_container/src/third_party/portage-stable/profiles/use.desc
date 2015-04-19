@@ -1,12 +1,10 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/use.desc,v 1.517 2014/11/15 20:12:59 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/use.desc,v 1.524 2015/02/28 21:33:20 bircoph Exp $
 
 # Keep them sorted
 
 3dfx - Enable support for Voodoo chipsets, also called as 3DFX and TDFX
-3dnow - Use the 3DNow! instruction set
-3dnowext - Use the Enhanced 3DNow! instruction set
 X - Add support for X11
 Xaw3d - Add support for the 3d athena widget set
 a52 - Enable support for decoding ATSC A/52 streams used in DVD
@@ -27,8 +25,6 @@ aqua - Include support for the Mac OS X Aqua (Carbon/Cocoa) GUI
 atm - Enable Asynchronous Transfer Mode protocol support
 audiofile - Add support for libaudiofile where applicable
 avahi - Add avahi/Zeroconf support
-avx - Use the AVX instruction set
-avx2 - Use the AVX2 instruction set
 ayatana - Build in support for Ayatana notification using the libindicate or libappindicator plugin
 bash-completion - Enable bash-completion support
 bcmath - Add support for libbcmath
@@ -96,9 +92,9 @@ expat - Enable the use of dev-libs/expat for XML parsing
 fam - Enable FAM (File Alteration Monitor) support
 fastcgi - Add support for the FastCGI interface
 fbcon - Add framebuffer support for the console, via the kernel
-ffmpeg - Enable ffmpeg-based audio/video codec support
+ffmpeg - Enable ffmpeg/libav-based audio/video codec support
 fftw - Use FFTW library for computing Fourier transforms
-filecaps - Use Linux file capabilities to control privilege rather than set*id
+filecaps - Use Linux file capabilities to control privilege rather than set*id (this is orthogonal to USE=caps which uses capabilities at runtime e.g. libcap)
 firebird - Add support for the Firebird relational database
 flac - Add support for FLAC: Free Lossless Audio Codec
 flatfile - Add dbm support for flat files
@@ -132,7 +128,6 @@ gsl - Use the GNU scientific library for calculations
 gsm - Add support for the gsm lossy speech compression codec
 gstreamer - Add support for media-libs/gstreamer (Streaming media)
 gtk - Add support for x11-libs/gtk+ (The GIMP Toolkit)
-gtkhtml - Add support for gnome-extra/gtkhtml
 guile - Add support for the guile Scheme interpreter
 gzip - Compress files with Lempel-Ziv coding (LZ77)
 handbook - Enable handbooks generation for KDE4.
@@ -181,6 +176,7 @@ latex - Add support for LaTeX (typesetting package)
 lcms - Add lcms support (color management engine)
 ldap - Add LDAP support (Lightweight Directory Access Protocol)
 libass - SRT/SSA/ASS (SubRip / SubStation Alpha) subtitle support
+libav - Prefer libav over ffmpeg whenever both are supported
 libcaca - Add support for colored ASCII-art graphics
 libedit - Use the libedit library (replacement for readline)
 libffi - Enable support for Foreign Function Interface library
@@ -208,8 +204,6 @@ mime - Add MIME support
 minimal - Install a very minimal build (disables, for example, plugins, fonts, most drivers, non-critical features)
 mmap - Add mmap (memory map) support
 mms - Support for Microsoft Media Server (MMS) streams
-mmx - Use the MMX instruction set
-mmxext - Use the Extended MMX instruction set (intersection of Enhanced 3DNow! and SSE instruction sets) (3dnowext or sse in cpuinfo)
 mng - Add support for libmng (MNG images)
 modplug - Add libmodplug support for playing SoundTracker-style music files
 modules - Build the kernel modules
@@ -251,7 +245,6 @@ odbc - Add ODBC Support (Open DataBase Connectivity)
 offensive - Enable potentially offensive items in packages
 ofx - Enable support for importing (and exporting) OFX (Open Financial eXchange) data files
 ogg - Add support for the Ogg container format (commonly used by Vorbis, Theora and flac)
-old-linux - Add support for linux-2.4 and older
 openal - Add support for the Open Audio Library
 openexr - Support for the OpenEXR graphics file format
 opengl - Add support for OpenGL (3D graphics)
@@ -303,6 +296,7 @@ savedconfig - Use this to restore your config from /etc/portage/savedconfig ${CA
 scanner - Add support for scanner hardware (e.g. build the sane frontend in kdegraphics)
 sdl - Add support for Simple Direct Layer (media library)
 seamonkey - Add support for the Seamonkey web-browser
+seccomp - Enable seccomp for system call filtering
 selinux - !!internal use only!! Security Enhanced Linux support, this must be set by the selinux profile or breakage will occur
 semantic-desktop - Cross-KDE support for semantic search and information retrieval
 session - Add persistent session support
@@ -326,11 +320,6 @@ speex - Add support for the speex audio codec (used for speech)
 spell - Add dictionary support
 sqlite - Add support for sqlite - embedded sql database
 sqlite3 - Add support for sqlite3 - embedded sql database
-sse - Use the SSE instruction set
-sse2 - Use the SSE2 instruction set
-sse3 - Use the SSE3 instruction set (pni in cpuinfo)
-ssse3 - Use the SSSE3 instruction set
-sse4_1 - Use the SSE4.1 instruction set
 ssl - Add support for Secure Socket Layer connections
 startup-notification - Enable application startup event feedback mechanism
 static - !!do not set this during bootstrap!! Causes binaries to be statically linked instead of dynamically
@@ -368,6 +357,7 @@ upnp-av - Enable UPnP audio/video streaming support
 upower - Enable power management support
 usb - Add USB support to applications that have optional USB support (e.g. cups)
 v4l - Enable support for video4linux (using linux-headers or userspace libv4l libraries)
+vaapi - Enable Video Acceleration API for hardware decoding
 vala - Enable bindings for dev-lang/vala
 vanilla - Do not add extra patches which change default behaviour; DO NOT USE THIS ON A GLOBAL SCALE as the severity of the meaning changes drastically
 vcd - Video CD support
@@ -401,7 +391,6 @@ xmpp - Enable support for Extensible Messaging and Presence Protocol (XMPP) form
 xosd - Sends display using the X On Screen Display library
 xpm - Add support for XPM graphics format
 xscreensaver - Add support for XScreenSaver extension
-xsl - Check/Support flag for XSL library (version 1)
 xv - Add in optional support for the Xvideo extension (an X API for video playback)
 xvid - Add support for xvid.org's open-source mpeg-4 codec
 yahoo - Enable Yahoo Messenger IM protocol support

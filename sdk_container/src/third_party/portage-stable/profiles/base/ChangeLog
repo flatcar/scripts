@@ -1,6 +1,113 @@
 # ChangeLog for Gentoo base-profile
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/base/ChangeLog,v 1.755 2014/11/30 15:57:20 mgorny Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/base/ChangeLog,v 1.789 2015/04/05 08:51:33 chewi Exp $
+
+  05 Apr 2015; James Le Cuirot <chewi@gentoo.org> package.use.mask:
+  Mask dev-java/proguard[j2me].
+
+  03 Apr 2015; Christoph Junghans <ottxor@gentoo.org> package.use.mask:
+  masked sys-devel/byfl[dragonegg]
+
+  02 Apr 2015; <mgorny@gentoo.org> package.use.mask:
+  Mask freevo[directfb] due to unsolvable deps, bug #545246.
+
+  02 Apr 2015; <mgorny@gentoo.org> package.use.mask:
+  Fix ordering in package.use.mask.
+
+  29 Mar 2015; Mike Frysinger <vapier@gentoo.org> use.mask:
+  Mask USE=cilk for everyone by default.
+
+  25 Mar 2015; Mike Frysinger <vapier@gentoo.org> package.use.mask:
+  Revert openssh[hpn] masking #544254.
+
+  24 Mar 2015; Patrick Lauer <patrick@gentoo.org> package.use.mask:
+  Mask hpn useflag for openssh #544254
+
+  19 Mar 2015; Lars Wendler <polynomial-c@gentoo.org> package.use.mask:
+  >=games-strategy/freeciv-2.5.0 requires >=dev-lang/lua-5.2
+
+  18 Mar 2015; Alexis Ballier <aballier@gentoo.org> package.use.mask:
+  unmask ruby useflag for newest libcaca versions, bug #483104
+
+  18 Mar 2015; Michael Palimaka <kensington@gentoo.org> package.use.mask:
+  Unmask dev-qt/designer[phonon] as blockers have been resolved (bug #477632).
+
+  17 Mar 2015; <grknight@gentoo.org> package.use.mask:
+  Mask the cluster flag for deprecation. Use dev-db/mysql-cluster if you need
+  NDB
+
+  13 Mar 2015; Matthias Maier <tamiko@gentoo.org> package.use.stable.mask:
+  Add a package.use.stable.mask entry for app-emulation/libvirt glusterfs
+
+  08 Mar 2015; Alexandre Rostovtsev <tetromino@gentoo.org> package.use.mask:
+  Unmask wine-9999[pulseaudio], the patchset is now much more actively
+  maintained.
+
+  05 Mar 2015; Justin Lecher <jlec@gentoo.org> package.use.mask:
+  Cleaned invalid entries in package.use.mask
+
+  01 Mar 2015; Michał Górny <mgorny@gentoo.org> package.use.mask:
+  Mask telepathy-connection-managers[steam] on unsupported arches.
+
+  27 Feb 2015; Andreas K. Huettel <dilfridge@gentoo.org> package.use.mask:
+  Mask atlas support in newer armadillo versions since atlas is not in the main
+  tree yet
+
+  23 Feb 2015; Alexis Ballier <aballier@gentoo.org> package.use.mask:
+  drop use mask on long gone x264-encoder versions
+
+  20 Feb 2015; Zac Medico <zmedico@gentoo.org> make.defaults:
+  Use UNINSTALL_IGNORE to protect /var/{run,lock} symlinks for bug 519620.
+
+  18 Feb 2015; Alexandre Rostovtsev <tetromino@gentoo.org> package.use.mask:
+  Mask cairo[openvg], experimental backend, no longer supported with
+  >=mesa-10.4 (bug #536434)
+
+  12 Feb 2015; Andreas K. Huettel <dilfridge@gentoo.org>
+  package.use.stable.mask:
+  Stablemask coinmp feature of LibreOffice
+
+  11 Feb 2015; Andrew Savchenko <bircoph@gentoo.org> package.use.mask:
+  Mask cluster code for evaluation and testing.
+
+  10 Feb 2015; Jauhien Piatlicki <jauhien@gentoo.org> package.use.mask:
+  mask system-llvm for dev-lang/rust
+
+  08 Feb 2015; Michael Palimaka <kensington@gentoo.org> package.use.stable.mask:
+  Unmask kde-base/kopete[otr] since libotr-4 is now stable.
+
+  04 Feb 2015; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> use.mask:
+  Mask input_devices_libinput flag for bug #538828.
+
+  03 Feb 2015; Michael Palimaka <kensington@gentoo.org> package.use.mask:
+  Mask app-office/akonadi-server[qt5] due to unsatisfied dependencies.
+
+  01 Feb 2015; Michał Górny <mgorny@gentoo.org> make.defaults:
+  Set USE=libav to default to libav.
+
+  30 Jan 2015; Michał Górny <mgorny@gentoo.org> make.defaults:
+  Hide CPU_FLAGS_X86 everywhere but on amd64 & x86.
+
+  29 Jan 2015; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> use.mask:
+  Mask video_cards_tegra flag.
+
+  28 Jan 2015; Michał Górny <mgorny@gentoo.org> use.mask:
+  Mask CPU_FLAGS_X86 for non-x86 arches.
+
+  28 Jan 2015; Michał Górny <mgorny@gentoo.org> make.defaults:
+  Add CPU_FLAGS_X86 to USE_EXPAND.
+
+  22 Jan 2015; Brian Evans <grknight@gentoo.org> package.use.mask:
+  Change media-libs/ming USE=php mask to allow for new dev-php/ming-php package
+
+  25 Dec 2014; Michał Górny <mgorny@gentoo.org> package.use.mask:
+  Mask USE=ssl on www-servers/pshs for it requires non-keyworded libevent-2.1.
+
+  24 Dec 2014; Christoph Junghans <ottxor@gentoo.org> package.use.mask:
+  dropped hpx[doc] mask as bug #529066 got fixed
+
+  16 Dec 2014; Ruud Koolen <redlizard@gentoo.org> make.defaults:
+  Add prefix-guest to IUSE_IMPLICIT.
 
   30 Nov 2014; Michał Górny <mgorny@gentoo.org> package.use.mask:
   Temporarily mask x11-libs/cairo[directfb] until we figure out what to do

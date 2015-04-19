@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if ! source /etc/init.d/functions.sh ; then
-	echo "Missing functions.sh.  Please to install!" 1>&2
+if ! source /lib/gentoo/functions.sh ; then
+	echo "Missing functions.sh.  Please install sys-apps/gentoo-functions!" 1>&2
 	exit 1
 fi
 

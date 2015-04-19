@@ -1,8 +1,28 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86/package.use.mask,v 1.142 2014/10/18 18:15:58 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86/package.use.mask,v 1.151 2015/03/15 01:55:12 yngwin Exp $
 
 # This file requires >=portage-2.1.1
+
+# Ben de Groot <yngwin@gentoo.org> (15 Mar 2015)
+# media-libs/libbdplus is keyworded on x86, so unmask the useflag
+media-libs/libbluray -bdplus
+
+# Michał Górny <mgorny@gentoo.org> (01 Mar 2015)
+# pidgin-opensteamworks is only available for amd64, ppc32 and x86
+net-im/telepathy-connection-managers -steam
+
+# Andrey Grozin <grozin@gentoo.org> (23 Feb 2015)
+# Does not compile with this flag
+=dev-lisp/ecls-15.2.21 cpu_flags_x86_sse
+
+# Jeroen Roovers <jer@gentoo.org> (31 Jan 2015)
+# >x11-drivers/nvidia-drivers-346 on x86 has no UVM support (bug #534156)
+>x11-drivers/nvidia-drivers-346 uvm
+
+# Pacho Ramos <pacho@gentoo.org> (18 Jan 2015)
+# Missing keywords
+media-plugins/gst-plugins-meta vaapi
 
 # Tim Harder <radhermit@gentoo.org> (11 Oct 2014)
 # Unmask skype support for unstable keywords
@@ -28,6 +48,7 @@ media-libs/mesa -openmax
 # Still considered experimental by upstream:
 # http://sourceforge.net/p/mikmod/bugs/16/#17ea
 media-libs/libmikmod sse2
+media-libs/libmikmod cpu_flags_x86_sse2
 
 # Sergey Popov <pinkbyte@gentoo.org> (27 Dec 2013)
 # Boost.Context can be built on x86
@@ -212,6 +233,7 @@ dev-python/kaa-base -tls
 app-text/enchant -zemberek
 
 x11-terms/eterm sse2
+x11-terms/eterm cpu_flags_x86_sse2
 
 # Christian Faulhammer <opfer@gentoo.org> (14 Jan 2008)
 # only works on x86

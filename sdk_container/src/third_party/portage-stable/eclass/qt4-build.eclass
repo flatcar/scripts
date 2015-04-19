@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/qt4-build.eclass,v 1.157 2014/11/17 01:31:41 pesa Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/qt4-build.eclass,v 1.163 2015/04/01 18:45:04 pesa Exp $
 
 # @ECLASS: qt4-build.eclass
 # @MAINTAINER:
@@ -16,7 +16,7 @@ esac
 
 inherit eutils flag-o-matic multilib toolchain-funcs
 
-HOMEPAGE="https://www.qt.io/ https://qt-project.org/"
+HOMEPAGE="https://www.qt.io/"
 LICENSE="|| ( LGPL-2.1 GPL-3 )"
 SLOT="4"
 
@@ -24,8 +24,9 @@ case ${PV} in
 	4.?.9999)
 		QT4_BUILD_TYPE="live"
 		EGIT_REPO_URI=(
-			"git://gitorious.org/qt/qt.git"
-			"https://git.gitorious.org/qt/qt.git"
+			"git://code.qt.io/qt/qt.git"
+			"https://code.qt.io/git/qt/qt.git"
+			"https://github.com/qtproject/qt.git"
 		)
 		EGIT_BRANCH=${PV%.9999}
 		inherit git-r3
@@ -33,7 +34,7 @@ case ${PV} in
 	*)
 		QT4_BUILD_TYPE="release"
 		MY_P=qt-everywhere-opensource-src-${PV/_/-}
-		SRC_URI="http://download.qt-project.org/archive/qt/${PV%.*}/${PV}/${MY_P}.tar.gz"
+		SRC_URI="http://download.qt.io/archive/qt/${PV%.*}/${PV}/${MY_P}.tar.gz"
 		S=${WORKDIR}/${MY_P}
 		;;
 esac
@@ -172,10 +173,18 @@ qt4-build_src_prepare() {
 		skip_qmake_build
 		skip_project_generation
 		symlink_binaries_to_buildtree
-	fi
+	else
+		# Bug 373061
+		# qmake bus errors with -O2 or -O3 but -O1 works
+		if [[ ${CHOST} == *86*-apple-darwin* ]]; then
+			replace-flags -O[23] -O1
+		fi
 
-	if use_if_iuse c++0x; then
-		append-cxxflags -std=c++0x
+		# Bug 503500
+		# undefined reference with -Os and --as-needed
+		if use x86; then
+			replace-flags -Os -O2
+		fi
 	fi
 
 	# Bug 261632
@@ -183,16 +192,14 @@ qt4-build_src_prepare() {
 		append-flags -mminimal-toc
 	fi
 
-	# Bug 373061
-	# qmake bus errors with -O2 or -O3 but -O1 works
-	if [[ ${CHOST} == *86*-apple-darwin* ]]; then
-		replace-flags -O[23] -O1
-	fi
-
 	# Bug 417105
 	# graphite on gcc 4.7 causes miscompilations
 	if [[ $(gcc-version) == "4.7" ]]; then
 		filter-flags -fgraphite-identity
+	fi
+
+	if use_if_iuse c++0x; then
+		append-cxxflags -std=c++0x
 	fi
 
 	# Respect CC, CXX, {C,CXX,LD}FLAGS in .qmake.cache
@@ -326,7 +333,7 @@ qt4-build_src_configure() {
 		x86-macos)		  conf+=" -arch x86" ;;
 		x86|x86-*)		  conf+=" -arch i386" ;;
 		alpha|arm|ia64|mips|s390) conf+=" -arch $(tc-arch)" ;;
-		hppa|sh)		  conf+=" -arch generic" ;;
+		arm64|hppa|sh)		  conf+=" -arch generic" ;;
 		*) die "$(tc-arch) is unsupported by this eclass. Please file a bug." ;;
 	esac
 

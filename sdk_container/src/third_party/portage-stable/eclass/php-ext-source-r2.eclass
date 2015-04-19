@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/php-ext-source-r2.eclass,v 1.33 2013/06/01 18:51:57 robbat2 Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/php-ext-source-r2.eclass,v 1.34 2015/03/26 16:15:33 grknight Exp $
 
 # @ECLASS: php-ext-source-r2.eclass
 # @MAINTAINER:
@@ -16,7 +16,7 @@
 # This eclass provides a unified interface for compiling and installing standalone
 # PHP extensions (modules).
 
-inherit flag-o-matic autotools multilib
+inherit flag-o-matic autotools multilib eutils
 
 EXPORT_FUNCTIONS src_unpack src_prepare src_configure src_compile src_install
 
@@ -53,7 +53,8 @@ esac
 # @ECLASS-VARIABLE: USE_PHP
 # @DESCRIPTION:
 # Lists the PHP slots compatibile the extension is compatibile with
-[[ -z "${USE_PHP}" ]] && USE_PHP="php5-3"
+[[ -z "${USE_PHP}" ]] && USE_PHP="php5-3" \
+	&& eqawarn "An empty USE_PHP is deprecated and support will be removed on 2015-05-01"
 
 # @ECLASS-VARIABLE: PHP_EXT_OPTIONAL_USE
 # @DESCRIPTION:

@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/python-utils-r1.eclass,v 1.67 2014/11/29 23:03:42 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/python-utils-r1.eclass,v 1.82 2015/03/21 14:55:33 mgorny Exp $
 
 # @ECLASS: python-utils-r1
 # @MAINTAINER:
@@ -635,21 +635,14 @@ python_newexe() {
 	[[ ${EPYTHON} ]] || die 'No Python implementation set (EPYTHON is null).'
 	[[ ${#} -eq 2 ]] || die "Usage: ${FUNCNAME} <path> <new-name>"
 
-	local d=${python_scriptroot:-${DESTTREE}/bin}
-	local wrapd=${d}
+	local wrapd=${python_scriptroot:-${DESTTREE}/bin}
 
 	local f=${1}
-	local barefn=${2}
-	local newfn
+	local newfn=${2}
 
-	if _python_want_python_exec2; then
-		local PYTHON_SCRIPTDIR
-		python_export PYTHON_SCRIPTDIR
-		d=${PYTHON_SCRIPTDIR#${EPREFIX}}
-		newfn=${barefn}
-	else
-		newfn=${barefn}-${EPYTHON}
-	fi
+	local PYTHON_SCRIPTDIR d
+	python_export PYTHON_SCRIPTDIR
+	d=${PYTHON_SCRIPTDIR#${EPREFIX}}
 
 	(
 		dodir "${wrapd}"
@@ -658,8 +651,8 @@ python_newexe() {
 	)
 
 	# install the wrapper
-	_python_ln_rel "${ED%/}"$(_python_get_wrapper_path) \
-		"${ED%/}/${wrapd}/${barefn}" || die
+	_python_ln_rel "${ED%/}"/usr/lib/python-exec/python-exec2 \
+		"${ED%/}/${wrapd}/${newfn}" || die
 
 	# don't use this at home, just call python_doscript() instead
 	if [[ ${_PYTHON_REWRITE_SHEBANG} ]]; then
@@ -842,6 +835,8 @@ python_wrapper_setup() {
 	[[ ${impl} ]] || die "${FUNCNAME}: no impl nor EPYTHON specified."
 
 	if [[ ! -x ${workdir}/bin/python ]]; then
+		_python_check_dead_variables
+
 		mkdir -p "${workdir}"/{bin,pkgconfig} || die
 
 		# Clean up, in case we were supposed to do a cheap update.
@@ -1097,40 +1092,6 @@ python_fix_shebang() {
 	done
 }
 
-# @FUNCTION: _python_want_python_exec2
-# @INTERNAL
-# @DESCRIPTION:
-# Check whether we should be using python-exec:2.
-_python_want_python_exec2() {
-	debug-print-function ${FUNCNAME} "${@}"
-
-	# EAPI 4 lacks slot operators, so just fix it on python-exec:2.
-	[[ ${EAPI} == 4 ]] && return 0
-
-	# Check if we cached the result, or someone put an override.
-	if [[ ! ${_PYTHON_WANT_PYTHON_EXEC2+1} ]]; then
-		has_version 'dev-lang/python-exec:2'
-		_PYTHON_WANT_PYTHON_EXEC2=$(( ! ${?} ))
-	fi
-
-	# Non-zero means 'yes', zero means 'no'.
-	[[ ${_PYTHON_WANT_PYTHON_EXEC2} != 0 ]]
-}
-
-# @FUNCTION: _python_get_wrapper_path
-# @INTERNAL
-# @DESCRIPTION:
-# Output path to proper python-exec slot.
-_python_get_wrapper_path() {
-	debug-print-function ${FUNCNAME} "${@}"
-
-	if _python_want_python_exec2; then
-		echo /usr/lib/python-exec/python-exec2
-	else
-		echo /usr/bin/python-exec
-	fi
-}
-
 # @FUNCTION: python_export_utf8_locale
 # @RETURN: 0 on success, 1 on failure.
 # @DESCRIPTION:
@@ -1164,6 +1125,174 @@ python_export_utf8_locale() {
 	fi  
 
 	return 0
+}
+
+# -- python.eclass functions --
+
+_python_check_dead_variables() {
+	local v
+
+	for v in PYTHON_DEPEND PYTHON_USE_WITH{,_OR,_OPT} {RESTRICT,SUPPORT}_PYTHON_ABIS
+	do
+		if [[ ${!v} ]]; then
+			die "${v} is invalid for python-r1 suite, please take a look @ https://wiki.gentoo.org/wiki/Project:Python/Python.eclass_conversion#Ebuild_head"
+		fi
+	done
+
+	for v in PYTHON_{CPPFLAGS,CFLAGS,CXXFLAGS,LDFLAGS}
+	do
+		if [[ ${!v} ]]; then
+			die "${v} is invalid for python-r1 suite, please take a look @ https://wiki.gentoo.org/wiki/Project:Python/Python.eclass_conversion#PYTHON_CFLAGS"
+		fi
+	done
+
+	for v in PYTHON_TESTS_RESTRICTED_ABIS PYTHON_EXPORT_PHASE_FUNCTIONS \
+		PYTHON_VERSIONED_{SCRIPTS,EXECUTABLES} PYTHON_NONVERSIONED_EXECUTABLES
+	do
+		if [[ ${!v} ]]; then
+			die "${v} is invalid for python-r1 suite"
+		fi
+	done
+
+	for v in DISTUTILS_USE_SEPARATE_SOURCE_DIRECTORIES DISTUTILS_SETUP_FILES \
+		DISTUTILS_GLOBAL_OPTIONS DISTUTILS_SRC_TEST PYTHON_MODNAME
+	do
+		if [[ ${!v} ]]; then
+			die "${v} is invalid for distutils-r1, please take a look @ https://wiki.gentoo.org/wiki/Project:Python/Python.eclass_conversion#${v}"
+		fi
+	done
+
+	if [[ ${DISTUTILS_DISABLE_TEST_DEPENDENCY} ]]; then
+		die "${v} is invalid for distutils-r1, please take a look @ https://wiki.gentoo.org/wiki/Project:Python/Python.eclass_conversion#DISTUTILS_SRC_TEST"
+	fi
+
+	# python.eclass::progress
+	for v in PYTHON_BDEPEND PYTHON_MULTIPLE_ABIS PYTHON_ABI_TYPE \
+		PYTHON_RESTRICTED_ABIS PYTHON_TESTS_FAILURES_TOLERANT_ABIS \
+		PYTHON_CFFI_MODULES_GENERATION_COMMANDS
+	do
+		if [[ ${!v} ]]; then
+			die "${v} is invalid for python-r1 suite"
+		fi
+	done
+}
+
+python_pkg_setup() {
+	die "${FUNCNAME}() is invalid for python-r1 suite, please take a look @ https://wiki.gentoo.org/wiki/Project:Python/Python.eclass_conversion#pkg_setup"
+}
+
+python_convert_shebangs() {
+	die "${FUNCNAME}() is invalid for python-r1 suite, please take a look @ https://wiki.gentoo.org/wiki/Project:Python/Python.eclass_conversion#python_convert_shebangs"
+}
+
+python_clean_py-compile_files() {
+	die "${FUNCNAME}() is invalid for python-r1 suite"
+}
+
+python_clean_installation_image() {
+	die "${FUNCNAME}() is invalid for python-r1 suite"
+}
+
+python_execute_function() {
+	die "${FUNCNAME}() is invalid for python-r1 suite, please take a look @ https://wiki.gentoo.org/wiki/Project:Python/Python.eclass_conversion#python_execute_function"
+}
+
+python_generate_wrapper_scripts() {
+	die "${FUNCNAME}() is invalid for python-r1 suite"
+}
+
+python_merge_intermediate_installation_images() {
+	die "${FUNCNAME}() is invalid for python-r1 suite"
+}
+
+python_set_active_version() {
+	die "${FUNCNAME}() is invalid for python-r1 suite, please take a look @ https://wiki.gentoo.org/wiki/Project:Python/Python.eclass_conversion#pkg_setup"
+}
+
+python_need_rebuild() {
+	die "${FUNCNAME}() is invalid for python-r1 suite"
+}
+
+PYTHON() {
+	die "${FUNCNAME}() is invalid for python-r1 suite, please take a look @ https://wiki.gentoo.org/wiki/Project:Python/Python.eclass_conversion#.24.28PYTHON.29.2C_.24.7BEPYTHON.7D"
+}
+
+python_get_implementation() {
+	die "${FUNCNAME}() is invalid for python-r1 suite"
+}
+
+python_get_implementational_package() {
+	die "${FUNCNAME}() is invalid for python-r1 suite"
+}
+
+python_get_libdir() {
+	die "${FUNCNAME}() is invalid for python-r1 suite"
+}
+
+python_get_library() {
+	die "${FUNCNAME}() is invalid for python-r1 suite"
+}
+
+python_get_version() {
+	die "${FUNCNAME}() is invalid for python-r1 suite"
+}
+
+python_get_implementation_and_version() {
+	die "${FUNCNAME}() is invalid for python-r1 suite"
+}
+
+python_execute_nosetests() {
+	die "${FUNCNAME}() is invalid for python-r1 suite"
+}
+
+python_execute_py.test() {
+	die "${FUNCNAME}() is invalid for python-r1 suite"
+}
+
+python_execute_trial() {
+	die "${FUNCNAME}() is invalid for python-r1 suite"
+}
+
+python_enable_pyc() {
+	die "${FUNCNAME}() is invalid for python-r1 suite"
+}
+
+python_disable_pyc() {
+	die "${FUNCNAME}() is invalid for python-r1 suite"
+}
+
+python_mod_optimize() {
+	die "${FUNCNAME}() is invalid for python-r1 suite, please take a look @ https://wiki.gentoo.org/wiki/Project:Python/Python.eclass_conversion#Python_byte-code_compilation"
+}
+
+python_mod_cleanup() {
+	die "${FUNCNAME}() is invalid for python-r1 suite, please take a look @ https://wiki.gentoo.org/wiki/Project:Python/Python.eclass_conversion#Python_byte-code_compilation"
+}
+
+# python.eclass::progress
+
+python_abi_depend() {
+	die "${FUNCNAME}() is invalid for python-r1 suite"
+}
+
+python_install_executables() {
+	die "${FUNCNAME}() is invalid for python-r1 suite"
+}
+
+python_get_extension_module_suffix() {
+	die "${FUNCNAME}() is invalid for python-r1 suite"
+}
+
+python_byte-compile_modules() {
+	die "${FUNCNAME}() is invalid for python-r1 suite"
+}
+
+python_clean_byte-compiled_modules() {
+	die "${FUNCNAME}() is invalid for python-r1 suite"
+}
+
+python_generate_cffi_modules() {
+	die "${FUNCNAME}() is invalid for python-r1 suite"
 }
 
 _PYTHON_UTILS_R1=1

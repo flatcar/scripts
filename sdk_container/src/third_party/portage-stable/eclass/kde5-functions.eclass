@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/kde5-functions.eclass,v 1.2 2014/10/28 16:45:38 kensington Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/kde5-functions.eclass,v 1.6 2015/04/11 17:11:22 kensington Exp $
 
 # @ECLASS: kde5-functions.eclass
 # @MAINTAINER:
@@ -26,7 +26,17 @@ esac
 # @ECLASS-VARIABLE: FRAMEWORKS_MINIMAL
 # @DESCRIPTION:
 # Minimal Frameworks version to require for the package.
-: ${FRAMEWORKS_MINIMAL:=5.3.0}
+: ${FRAMEWORKS_MINIMAL:=5.8.0}
+
+# @ECLASS-VARIABLE: PLASMA_MINIMAL
+# @DESCRIPTION:
+# Minimal Plasma version to require for the package.
+: ${PLASMA_MINIMAL:=5.2.0}
+
+# @ECLASS-VARIABLE: KDE_APPS_MINIMAL
+# @DESCRIPTION:
+# Minimal KDE Applicaions version to require for the package.
+: ${KDE_APPS_MINIMAL:=14.12.0}
 
 # @ECLASS-VARIABLE: KDEBASE
 # @DESCRIPTION:
@@ -79,7 +89,7 @@ _check_gcc_version() {
 # @FUNCTION: _add_kdecategory_dep
 # @INTERNAL
 # @DESCRIPTION:
-# Implementation of add_kdebase_dep and add_frameworks_dep.
+# Implementation of add_plasma_dep and add_frameworks_dep.
 _add_kdecategory_dep() {
 	debug-print-function ${FUNCNAME} "$@"
 
@@ -87,6 +97,7 @@ _add_kdecategory_dep() {
 	local package=${2}
 	local use=${3}
 	local version=${4}
+	local slot=
 
 	if [[ -n ${use} ]] ; then
 		local use="[${use}]"
@@ -94,10 +105,14 @@ _add_kdecategory_dep() {
 
 	if [[ -n ${version} ]] ; then
 		local operator=">="
-		local version="-${version}"
+		local version="-$(get_version_component_range 1-3 ${version})"
 	fi
 
-	echo " ${operator}${category}/${package}${version}:5${use}"
+	if [[ ${SLOT} = 4 || ${SLOT} = 5 ]] && ! has kde5-meta-pkg ${INHERITED} ; then
+		slot=":${SLOT}"
+	fi
+
+	echo " ${operator}${category}/${package}${version}${slot}${use}"
 }
 
 # @FUNCTION: add_frameworks_dep
@@ -119,11 +134,6 @@ add_frameworks_dep() {
 		version=${3}
 	elif [[ ${CATEGORY} = kde-frameworks ]]; then
 		version=$(get_version_component_range 1-2)
-	elif [[ ${CATEGORY} = kde-base ]]; then
-		case $(get_kde_version) in
-			5.1) version=5.3.0 ;;
-			*) version=${FRAMEWORKS_MINIMAL} ;;
-		esac
 	elif [[ -z "${version}" ]] ; then
 		version=${FRAMEWORKS_MINIMAL}
 	fi
@@ -131,7 +141,7 @@ add_frameworks_dep() {
 	_add_kdecategory_dep kde-frameworks "${1}" "${2}" "${version}"
 }
 
-# @FUNCTION: add_kdebase_dep
+# @FUNCTION: add_plasma_dep
 # @USAGE: <package> [USE flags] [minimum version]
 # @DESCRIPTION:
 # Create proper dependency for kde-base/ dependencies.
@@ -141,18 +151,47 @@ add_frameworks_dep() {
 # The output of this should be added directly to DEPEND/RDEPEND, and may be
 # wrapped in a USE conditional (but not an || conditional without an extra set
 # of parentheses).
-add_kdebase_dep() {
+add_plasma_dep() {
 	debug-print-function ${FUNCNAME} "$@"
 
 	local version
 
 	if [[ -n ${3} ]]; then
 		version=${3}
-	elif [[ ${CATEGORY} = kde-base ]]; then
+	elif [[ ${CATEGORY} = kde-plasma ]]; then
 		version=${PV}
+	elif [[ -z "${version}" ]] ; then
+		version=${PLASMA_MINIMAL}
 	fi
 
-	_add_kdecategory_dep kde-base "${1}" "${2}" "${version}"
+	_add_kdecategory_dep kde-plasma "${1}" "${2}" "${version}"
+}
+
+# @FUNCTION: add_kdeapps_dep
+# @USAGE: <package> [USE flags] [minimum version]
+# @DESCRIPTION:
+# Create proper dependency for kde-apps/ dependencies.
+# This takes 1 to 3 arguments. The first being the package name, the optional
+# second is additional USE flags to append, and the optional third is the
+# version to use instead of the automatic version (use sparingly).
+# The output of this should be added directly to DEPEND/RDEPEND, and may be
+# wrapped in a USE conditional (but not an || conditional without an extra set
+# of parentheses).
+add_kdeapps_dep() {
+	debug-print-function ${FUNCNAME} "$@"
+
+	local version
+
+	if [[ -n ${3} ]]; then
+		version=${3}
+	elif [[ ${CATEGORY} = kde-apps ]]; then
+		version=${PV}
+	elif [[ -z "${version}" ]] ; then
+		# In KDE applications world, 5.9999 > yy.mm.x
+		[[ ${PV} = 5.9999 ]] && version=5.9999 || version=${KDE_APPS_MINIMAL}
+	fi
+
+	_add_kdecategory_dep kde-apps "${1}" "${2}" "${version}"
 }
 
 # @FUNCTION: get_kde_version

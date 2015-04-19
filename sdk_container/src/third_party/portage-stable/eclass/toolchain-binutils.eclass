@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain-binutils.eclass,v 1.137 2014/11/08 17:12:09 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain-binutils.eclass,v 1.140 2015/02/09 19:34:02 vapier Exp $
 #
 # Maintainer: Toolchain Ninjas <toolchain@gentoo.org>
 #
@@ -8,17 +8,14 @@
 # us easily merge multiple versions for multiple targets (if we wish) and
 # then switch the versions on the fly (with `binutils-config`).
 #
-# binutils-99999999       -> live cvs
 # binutils-9999           -> live git
 # binutils-9999_preYYMMDD -> nightly snapshot date YYMMDD
 # binutils-#              -> normal release
 
-extra_eclass=""
 if [[ -n ${BINUTILS_TYPE} ]] ; then
 	BTYPE=${BINUTILS_TYPE}
 else
 	case ${PV} in
-	99999999)  BTYPE="cvs";;
 	9999)      BTYPE="git";;
 	9999_pre*) BTYPE="snap";;
 	*.*.90)    BTYPE="snap";;
@@ -28,18 +25,10 @@ else
 fi
 
 case ${BTYPE} in
-cvs)
-	extra_eclass="cvs"
-	ECVS_SERVER="sourceware.org:/cvs/src"
-	ECVS_MODULE="binutils"
-	ECVS_USER="anoncvs"
-	ECVS_PASS="anoncvs"
-	BVER="cvs"
-	;;
 git)
-	extra_eclass="git-2"
 	BVER="git"
 	EGIT_REPO_URI="git://sourceware.org/git/binutils-gdb.git"
+	inherit git-2
 	;;
 snap)
 	BVER=${PV/9999_pre}
@@ -49,7 +38,7 @@ snap)
 	;;
 esac
 
-inherit eutils libtool flag-o-matic gnuconfig multilib versionator unpacker ${extra_eclass}
+inherit eutils libtool flag-o-matic gnuconfig multilib versionator unpacker
 case ${EAPI:-0} in
 0|1)
 	EXPORT_FUNCTIONS src_unpack src_compile src_test src_install pkg_postinst pkg_postrm ;;
@@ -70,7 +59,7 @@ DESCRIPTION="Tools necessary to build programs"
 HOMEPAGE="http://sourceware.org/binutils/"
 
 case ${BTYPE} in
-	cvs|git) SRC_URI="" ;;
+	git) SRC_URI="" ;;
 	snap)
 		SRC_URI="ftp://gcc.gnu.org/pub/binutils/snapshots/binutils-${BVER}.tar.bz2
 			ftp://sourceware.org/pub/binutils/snapshots/binutils-${BVER}.tar.bz2" ;;
@@ -103,7 +92,7 @@ IUSE="cxx multislot multitarget nls static-libs test vanilla"
 if version_is_at_least 2.19 ; then
 	IUSE+=" zlib"
 fi
-if ! version_is_at_least 2.23.90 || [[ ${PV} == "9999" ]] || use multislot ; then
+if ! version_is_at_least 2.23.90 || [[ ${BTYPE} != "rel" ]] || is_cross || use multislot ; then
 	SLOT="${BVER}"
 else
 	SLOT="0"
@@ -119,7 +108,7 @@ DEPEND="${RDEPEND}
 
 S=${WORKDIR}/binutils
 case ${BVER} in
-cvs|git) ;;
+git) ;;
 *) S=${S}-${BVER} ;;
 esac
 
@@ -135,7 +124,6 @@ fi
 
 tc-binutils_unpack() {
 	case ${BTYPE} in
-	cvs) cvs_src_unpack ;;
 	git) git-2_src_unpack ;;
 	*)   unpacker ${A} ;;
 	esac

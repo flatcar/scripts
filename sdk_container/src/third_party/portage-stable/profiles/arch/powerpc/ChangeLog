@@ -1,6 +1,80 @@
 # ChangeLog for Gentoo/PPC profile directory
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/ChangeLog,v 1.296 2014/11/23 15:55:11 floppym Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/ChangeLog,v 1.319 2015/03/17 01:38:40 vapier Exp $
+
+  17 Mar 2015; Mike Frysinger <vapier@gentoo.org> package.use.force,
+  package.use.mask:
+  Mask dev-libs/ef[oldlua,physics,sdl] #499974.
+
+  05 Mar 2015; Justin Lecher <jlec@gentoo.org> package.use.mask:
+  Cleaned obsolete entries in package.use.mask
+
+  01 Mar 2015; Michał Górny <mgorny@gentoo.org> ppc32/package.use.mask:
+  Mask telepathy-connection-managers[steam] on unsupported arches.
+
+  21 Feb 2015; Justin Lecher <jlec@gentoo.org> package.use.stable.mask:
+  Mask USE=tracker for net-fs/netatalk as it needs a stable gnome-3
+
+  21 Feb 2015; Michał Górny <mgorny@gentoo.org> package.use.mask:
+  Mask non-keyworded qca plugin flags for old qca version, part of
+  https://github.com/gentoo/gentoo-portage-rsync-mirror/pull/27 /
+  https://bugs.funtoo.org/browse/FL-2119.
+
+  15 Feb 2015; Andreas K. Huettel <dilfridge@gentoo.org> package.use.mask:
+  Mask office useflag of gnome-extra/sushi, there is no ppc-keyworded office
+  implementation anymore
+
+  11 Feb 2015; Alexis Ballier <aballier@gentoo.org> package.use.mask:
+  Mask ffmpeg useflags with unkeyworded deps, bug #510340
+
+  10 Feb 2015; Patrick Lauer <patrick@gentoo.org> package.use.mask:
+  Mask media-libs/libav[x265] until keywords catch up
+
+  08 Feb 2015; Michael Palimaka <kensington@gentoo.org>
+  ppc64/package.use.stable.mask:
+  Stable mask kde-base/kopete[otr] since net-libs/libotr is not yet stable.
+
+  07 Feb 2015; Markos Chandras <hwoarang@gentoo.org> package.use.mask:
+  Mask app-emulation/lxc cgmanager. Bug #539208
+
+  01 Feb 2015; Michael Palimaka <kensington@gentoo.org> package.mask:
+  Fix invalid atom.
+
+  01 Feb 2015; Ben de Groot <yngwin@gentoo.org> package.mask, use.mask:
+  Add Qt5 mask until keyworded
+
+  28 Jan 2015; Johannes Huber <johu@gentoo.org> ppc64/package.use.mask:
+  Mask app-crypt/qca[botan].
+
+  26 Jan 2015; Johannes Huber <johu@gentoo.org> package.use.mask:
+  Expand package.use.mask for telepathy use flag.
+
+  22 Jan 2015; Sergey Popov <pinkbyte@gentoo.org> package.mask:
+  Unmask Qt 4.8.6 since qtchooser has been keyworded
+
+  19 Jan 2015; Mike Gilbert <floppym@gentoo.org> use.stable.mask:
+  Remove python3_4 mask.
+
+  24 Dec 2014; Matthias Maier <tamiko@gentoo.org> ppc64/package.use.mask:
+  mask clang use flag for app-doc/doxygen
+
+  24 Dec 2014; Mark Wright <gienah@gentoo.org> package.use.mask:
+  Mask test for dev-util/bnfc as test dependencies need keywording.
+
+  23 Dec 2014; Gilles Dartiguelongue <eva@gentoo.org> package.use.mask:
+  Add package.use.mask entry for clutter, bug #533420.
+
+  14 Dec 2014; Mike Gilbert <floppym@gentoo.org> package.use.mask:
+  Mask sys-apps/systemd[xkb].
+
+  14 Dec 2014; Mark Wright <gienah@gentoo.org> package.use.mask:
+  Mask test for dev-haskell/{binary, haskell-src-exts, text, vector}
+  as test dependencies need keywording.
+
+  11 Dec 2014; Michael Palimaka <kensington@gentoo.org> package.use.mask,
+  package.use.stable.mask:
+  Move kde-base/systemsettings[kscreen] to stable USE mask as the dependencies
+  are now keyworded.
 
   23 Nov 2014; Mike Gilbert <floppym@gentoo.org> make.defaults:
   Disable python3_4 default for this arch.

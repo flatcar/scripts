@@ -78,6 +78,7 @@ java-virtuals
 kde-base
 kde-frameworks
 kde-misc
+kde-plasma
 lxde-base
 lxqt-base
 mail-client
@@ -112,11 +113,7 @@ net-print
 net-proxy
 net-voip
 net-wireless
-net-zope
 perl-core
-razorqt-base
-rox-base
-rox-extra
 sci-astronomy
 sci-biology
 sci-calculators

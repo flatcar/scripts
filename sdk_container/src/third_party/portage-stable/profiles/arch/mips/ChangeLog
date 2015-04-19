@@ -1,6 +1,41 @@
 # ChangeLog for Gentoo/MIPS profile directory
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/mips/ChangeLog,v 1.150 2014/11/20 01:56:23 pesa Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/mips/ChangeLog,v 1.161 2015/04/16 22:05:25 vapier Exp $
+
+  16 Apr 2015; Mike Frysinger <vapier@gentoo.org> use.mask:
+  Drop USE=wifi mask since it works on mips.
+
+  12 Apr 2015; Mikle Kolyada <zlogene@gentoo.org> package.use.mask:
+  Mask gnome-shell use flag for net-misc/wicd (bug #537040)
+
+  17 Mar 2015; Mike Frysinger <vapier@gentoo.org> package.use.force,
+  package.use.mask:
+  Mask dev-libs/ef[oldlua,physics] #499974.
+
+  05 Mar 2015; Justin Lecher <jlec@gentoo.org> package.use.mask:
+  Cleaned obsolete entries in package.use.mask
+
+  11 Feb 2015; Mike Frysinger <vapier@gentoo.org> use.mask:
+  Stop masking USE=bluetooth since it works on mips.
+
+  01 Feb 2015; Michael Palimaka <kensington@gentoo.org> package.mask:
+  Fix invalid atom.
+
+  01 Feb 2015; Ben de Groot <yngwin@gentoo.org> package.mask, use.mask:
+  Add Qt5 mask until keyworded
+
+  09 Jan 2015; Davide Pesavento <pesa@gentoo.org> package.mask:
+  Unmask Qt 4.8.6 since qtchooser has been keyworded.
+
+  28 Dec 2014; Anthony G. Basile <blueness@gentoo.org> use.mask:
+  Remove USE mask on jemalloc since it is now keyworded.
+
+  27 Dec 2014; Hans de Graaff <graaff@gentoo.org> use.mask:
+  Mask jemalloc USE flag since dev-libs/jemalloc is not yet keyworded. Added
+  for dev-lang/ruby.
+
+  24 Dec 2014; Matthias Maier <tamiko@gentoo.org> package.use.mask:
+  mask clang use flag for app-doc/doxygen
 
   20 Nov 2014; Davide Pesavento <pesa@gentoo.org> package.mask:
   Move Qt 4.8.6 mask from global package.mask to arch profiles.

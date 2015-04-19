@@ -1,6 +1,9 @@
 # ChangeLog for the default/linux profile directory
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/ChangeLog,v 1.5 2014/09/30 19:08:56 grobian Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/ChangeLog,v 1.8 2015/01/30 22:06:52 blueness Exp $
+
+  05 Jan 2015; William Hubbs <williamh@gentoo.org> packages:
+  Add iproute2 to system set for bug #189149
 
   30 Sep 2014; Fabian Groffen <grobian@gentoo.org> +ia64/13.0/package.use.mask,
   ia64/13.0/use.mask, powerpc/ppc32/13.0/package.use.mask,

@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/darwin/macos/10.10/x64/use.mask,v 1.1 2014/10/19 17:42:23 grobian Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/darwin/macos/10.10/x64/use.mask,v 1.2 2015/01/28 21:53:42 mgorny Exp $
 
 # This file masks out USE flags that are simply NOT allowed in the default
 # x86 profile.  This works, for example, if another architecture's
@@ -15,6 +15,11 @@
 -sse
 -sse2
 -ssse3
+-cpu_flags_x86_mmx
+-cpu_flags_x86_mmxext
+-cpu_flags_x86_sse
+-cpu_flags_x86_sse2
+-cpu_flags_x86_ssse3
 -svga
 -kqemu
 

@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/multilib-minimal.eclass,v 1.9 2014/05/02 16:16:37 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/multilib-minimal.eclass,v 1.10 2014/12/13 08:41:37 mgorny Exp $
 
 # @ECLASS: multilib-minimal.eclass
 # @MAINTAINER:
@@ -51,7 +51,7 @@ multilib-minimal_src_configure() {
 		popd >/dev/null || die
 	}
 
-	multilib_parallel_foreach_abi multilib-minimal_abi_src_configure
+	multilib_foreach_abi multilib-minimal_abi_src_configure
 }
 
 multilib-minimal_src_compile() {

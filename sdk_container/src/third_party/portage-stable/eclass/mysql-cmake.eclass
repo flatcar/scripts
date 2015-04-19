@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/mysql-cmake.eclass,v 1.26 2014/11/26 00:34:41 grknight Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/mysql-cmake.eclass,v 1.27 2015/01/28 13:48:58 grknight Exp $
 
 # @ECLASS: mysql-cmake.eclass
 # @MAINTAINER:
@@ -231,6 +231,10 @@ configure_cmake_standard() {
 		if mysql_version_is_at_least "10.1.1" ; then
 			mycmakeargs+=(  $(cmake-utils_use_with innodb-lz4 INNODB_LZ4)
 					$(cmake-utils_use_with innodb-lzo INNODB_LZO) )
+		fi
+
+		if mysql_version_is_at_least "10.1.2" ; then
+			mycmakeargs+=( $(mysql-cmake_use_plugin cracklib CRACKLIB_PASSWORD_CHECK ) )
 		fi
 	else
 		mycmakeargs+=( $(cmake-utils_use_with extraengine FEDERATED_STORAGE_ENGINE) )

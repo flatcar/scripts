@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/autotools.eclass,v 1.170 2014/11/21 09:17:07 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/autotools.eclass,v 1.174 2015/03/19 19:27:02 vapier Exp $
 
 # @ECLASS: autotools.eclass
 # @MAINTAINER:
@@ -56,7 +56,7 @@ inherit libtool
 # Do NOT change this variable in your ebuilds!
 # If you want to force a newer minor version, you can specify the correct
 # WANT value by using a colon:  <PV>:<WANT_AUTOMAKE>
-_LATEST_AUTOMAKE=( 1.13:1.13 1.14:1.14 )
+_LATEST_AUTOMAKE=( 1.13:1.13 1.15:1.15 )
 
 _automake_atom="sys-devel/automake"
 _autoconf_atom="sys-devel/autoconf"
@@ -222,7 +222,11 @@ eautoreconf() {
 	done
 	${rerun_aclocal} && eaclocal
 
-	eautoconf
+	if [[ ${WANT_AUTOCONF} = 2.1 ]] ; then
+		eautoconf
+	else
+		eautoconf --force
+	fi
 	eautoheader
 	[[ ${AT_NOEAUTOMAKE} != "yes" ]] && FROM_EAUTORECONF="yes" eautomake ${AM_OPTS}
 
@@ -332,7 +336,7 @@ eautoconf() {
 		echo
 		die "No configure.{ac,in} present!"
 	fi
-	if [[ -e configure.in ]] ; then
+	if [[ ${WANT_AUTOCONF} != "2.1" && -e configure.in ]] ; then
 		eqawarn "This package has a configure.in file which has long been deprecated.  Please"
 		eqawarn "update it to use configure.ac instead as newer versions of autotools will die"
 		eqawarn "when it finds this file.  See https://bugs.gentoo.org/426262 for details."

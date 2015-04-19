@@ -1,5 +1,5 @@
 DEFINED_PHASES=configure install postinst preinst prepare unpack
-DEPEND=sys-devel/gnuconfig !<sys-devel/autoconf-2.62:2.5 !<sys-devel/automake-1.11.1:1.11 !=sys-devel/libtool-2*:1.5 test? ( !<sys-devel/binutils-2.20 ) app-arch/xz-utils !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.14:1.14 ) >=sys-devel/autoconf-2.69
+DEPEND=sys-devel/gnuconfig !<sys-devel/autoconf-2.62:2.5 !<sys-devel/automake-1.11.1:1.11 !=sys-devel/libtool-2*:1.5 test? ( !<sys-devel/binutils-2.20 ) app-arch/xz-utils !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.15:1.15 ) >=sys-devel/autoconf-2.69
 DESCRIPTION=A shared library tool for developers
 EAPI=2
 HOMEPAGE=http://www.gnu.org/software/libtool/
@@ -9,5 +9,5 @@ LICENSE=GPL-2
 RDEPEND=sys-devel/gnuconfig !<sys-devel/autoconf-2.62:2.5 !<sys-devel/automake-1.11.1:1.11 !=sys-devel/libtool-2*:1.5
 SLOT=2
 SRC_URI=mirror://gnu/libtool/libtool-2.4.tar.xz
-_eclasses_=autotools	c118b9a8e93bfef124f2d7a2fe56a95e	eutils	6faef4c127028ccbba3a11400d24ae34	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
+_eclasses_=autotools	999c8f6cf5d91495cb0779588f20716c	eutils	9fb270e417e0e83d64ca52586c4a79de	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	c961250d50160cd37d6b7fd9e8429c92
 _md5_=2bcbcfd74e08e81449f113f841d67fa7

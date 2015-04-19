@@ -2,11 +2,11 @@
 #
 # Copyright (c) 2004-2005, Thomas Matthijs <axxo@gentoo.org>
 # Copyright (c) 2004, Karl Trygve Kalleberg <karltk@gentoo.org>
-# Copyright (c) 2004-2011, Gentoo Foundation
+# Copyright (c) 2004-2015, Gentoo Foundation
 #
 # Licensed under the GNU General Public License, v2
 #
-# $Header: /var/cvsroot/gentoo-x86/eclass/java-utils-2.eclass,v 1.156 2014/04/09 21:55:12 radhermit Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/java-utils-2.eclass,v 1.158 2015/04/14 14:08:34 chewi Exp $
 
 # @ECLASS: java-utils-2.eclass
 # @MAINTAINER:
@@ -21,7 +21,7 @@
 # This eclass should not be inherited this directly from an ebuild. Instead,
 # you should inherit java-pkg-2 for Java packages or java-pkg-opt-2 for packages
 # that have optional Java support. In addition you can inherit java-ant-2 for
-# Ant-based packages. 
+# Ant-based packages.
 inherit eutils versionator multilib
 
 IUSE="elibc_FreeBSD"
@@ -1808,7 +1808,7 @@ java-utils-2_pkg_preinst() {
 # Ant wrapper function. Will use the appropriate compiler, based on user-defined
 # compiler. Will also set proper ANT_TASKS from the variable ANT_TASKS,
 # variables:
-# 
+#
 # @CODE
 # Variables:
 # EANT_GENTOO_CLASSPATH - calls java-pkg_getjars for the value and adds to the
@@ -1962,6 +1962,23 @@ ejavac() {
 
 	[[ -n ${JAVA_PKG_DEBUG} ]] && echo ${compiler_executable} ${javac_args} "${@}"
 	${compiler_executable} ${javac_args} "${@}" || die "ejavac failed"
+}
+
+# @FUNCTION: ejavadoc
+# @USAGE: <javadoc_arguments>
+# @DESCRIPTION:
+# javadoc wrapper function. Will set some flags based on the VM version
+# due to strict javadoc rules in 1.8.
+ejavadoc() {
+	debug-print-function ${FUNCNAME} $*
+
+	local javadoc_args=""
+
+	if java-pkg_is-vm-version-ge "1.8" ; then
+		javadoc_args="-Xdoclint:none"
+	fi
+
+	javadoc ${javadoc_args} "${@}" || die "ejavadoc failed"
 }
 
 # @FUNCTION: java-pkg_filter-compiler
@@ -2670,42 +2687,54 @@ java-pkg_ensure-dep() {
 	local target_pkg="${2}"
 	local dev_error=""
 
-	# remove the version specification, which may include globbing (* and [123])
-	local stripped_pkg=$(echo "${target_pkg}" | sed \
-		's/-\([0-9*]*\(\[[0-9]*\]\)*\)*\(\.\([0-9*]*\(\[[0-9]*\]\)*\)*\)*$//')
+	# Transform into a regular expression to look for a matching package
+	# and SLOT. SLOTs don't have to be numeric so foo-bar could either
+	# mean foo-bar:0 or foo:bar. So you want to get your head around the
+	# line below?
+	#
+	# * The target package first has any dots escaped, e.g. foo-1.2
+	#   becomes foo-1\.2.
+	#
+	# * sed then looks at the component following the last - character,
+	#   or the whole string if there is no - character. It uses this to
+	#   build a new regexp with two significant branches.
+	#
+	# * The first checks for the whole target package string, optionally
+	#   followed by a version number, and then :0.
+	#
+	# * The second checks for the first part of the target package
+	#   string, optionally followed by a version number, followed by the
+	#   aforementioned component, treating that as a SLOT.
+	#
+	local stripped_pkg=/$(sed -r 's/-?([^-]+)$/(\0(-[^:]+)?:0|(-[^:]+)?:\1)/' <<< "${target_pkg//./\\.}")\\b
 
 	debug-print "Matching against: ${stripped_pkg}"
 
-	if [[ ${limit_to} != runtime && ! ( "${DEPEND}" =~ "$stripped_pkg" ) ]]; then
-		dev_error="The ebuild is attempting to use ${target_pkg} that is not"
-		dev_error="${dev_error} declared in DEPEND."
+	if [[ ${limit_to} != runtime && ! ( "${DEPEND}" =~ $stripped_pkg ) ]]; then
+		dev_error="The ebuild is attempting to use ${target_pkg}, which is not "
+		dev_error+="declared with a SLOT in DEPEND."
 		if is-java-strict; then
-			eerror "${dev_error}"
 			die "${dev_error}"
-		elif [[ ${BASH_SUBSHELL} = 0 ]]; then
-			eerror "${dev_error}"
-			elog "Because you have this package installed the package will"
-			elog "build without problems, but please report this to"
-			elog "http://bugs.gentoo.org"
+		else
+			eqawarn "${dev_error}"
+			# Uncomment this once we've dealt with more of these or
+			# we'll get hit with a wave of bug reports. :(
+#			eerror "Because you have ${target_pkg} installed,"
+#			eerror "the package will build without problems, but please"
+#			eerror "report this to http://bugs.gentoo.org."
 		fi
-	fi
-
-	if [[ ${limit_to} != build ]]; then
-		if [[ ! ( ${RDEPEND} =~ "${stripped_pkg}" ) ]]; then
-			if [[ ! ( ${PDEPEND} =~ "${stripped_pkg}" ) ]]; then
-				dev_error="The ebuild is attempting to use ${target_pkg},"
-				dev_error="${dev_error} without specifying --build-only, that is not declared in RDEPEND"
-				dev_error="${dev_error} or PDEPEND."
-				if is-java-strict; then
-					eerror "${dev_error}"
-					die "${dev_error}"
-				elif [[ ${BASH_SUBSHELL} = 0 ]]; then
-					eerror "${dev_error}"
-					elog "The package will build without problems, but may fail to run"
-					elog "if you don't have ${target_pkg} installed, so please report"
-					elog "this to http://bugs.gentoo.org"
-				fi
-			fi
+	elif [[ ${limit_to} != build && ! ( "${RDEPEND}${PDEPEND}" =~ ${stripped_pkg} ) ]]; then
+		dev_error="The ebuild is attempting to use ${target_pkg}, which is not "
+		dev_error+="declared with a SLOT in [RP]DEPEND and --build-only wasn't given."
+		if is-java-strict; then
+			die "${dev_error}"
+		else
+			eqawarn "${dev_error}"
+			# Uncomment this once we've dealt with more of these or
+			# we'll get hit with a wave of bug reports. :(
+#			eerror "The package will build without problems, but may fail to run"
+#			eerror "if you don't have ${target_pkg} installed,"
+#			eerror "so please report this to http://bugs.gentoo.org."
 		fi
 	fi
 }

@@ -1,6 +1,40 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/sparc/package.use.mask,v 1.175 2014/11/11 11:17:14 pacho Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/sparc/package.use.mask,v 1.192 2015/04/01 11:00:24 gienah Exp $
+
+# Mike Frysinger <vapier@gentoo.org> (16 Mar 2015)
+# Needs sci-physics/bullet & media-libs/libsdl2 tested #499974
+dev-libs/efl physics sdl
+
+# Michał Górny <mgorny@gentoo.org> (08 Mar 2015)
+# Dependency not keyworded on this arch, bug #542570.
+xfce-base/xfce4-settings libinput
+
+# Alexis Ballier <aballier@gentoo.org> (11 Feb 2015)
+# Missing ffmpeg deps, bug #510340
+media-video/ffmpeg x265
+
+# Patrick Lauer <patrick@gentoo.org> (10 Feb 2015)
+# Missing keywords for media-libs/x265
+media-video/libav x265
+
+# Pacho Ramos <pacho@gentoo.org> (10 Jan 2014)
+# Missing keywords
+net-misc/networkmanager teamd
+
+# Gilles Dartiguelongue <eva@gentoo.org> (23 Dec 2014)
+# New dependencies for wayland support in Gnome 3.14
+# See bug #533420.
+media-libs/clutter egl
+x11-wm/mutter kms
+
+# Mark Wright <gienah@gentoo.org> (14-23 Dec 2014, 1 Apr 2015)
+# test dependencies need keywording
+dev-haskell/binary test
+dev-haskell/dlist test
+dev-haskell/haskell-src-exts test
+dev-haskell/text test
+dev-haskell/vector test
 
 # Pacho Ramos <pacho@gentoo.org> (11 Nov 2014)
 # Missing keywords, bug #523686
@@ -9,6 +43,7 @@
 # Michał Górny <mgorny@gentoo.org> (30 Oct 2014)
 # Requires non-keyworded >=x11-libs/libxkbcommon-0.4.
 sys-apps/systemd terminal
+sys-apps/systemd xkb
 
 # Pacho Ramos <pacho@gentoo.org> (03 Oct 2014)
 # Missing keywords, bug #524352
@@ -57,7 +92,7 @@ net-misc/openssh hpn
 
 # Pacho Ramos <pacho@gentoo.org> (19 Jan 2014)  
 # Missing keywords, bug #478254
-gnome-base/gnome classic
+gnome-base/gnome classic extras
 
 # Pacho Ramos <pacho@gentoo.org> (19 Jan 2014)  
 sys-kernel/dracut -dracut_modules_systemd 
@@ -109,7 +144,7 @@ net-misc/modemmanager qmi qmi-newest
 
 # Alexandre Rostovtsev <tetromino@gentoo.org> (22 Jan 2013)
 # remove mask if/when media-gfx/argyllcms is keywored here.
-x11-misc/colord extra-print-profiles
+x11-misc/colord argyllcms extra-print-profiles
 
 # Alexandre Rostovtsev <tetromino@gentoo.org> (31 Dec 2012)
 # requires firefox, which is not keyworded on sparc
@@ -206,7 +241,7 @@ app-cdr/brasero vcd
 
 # Pacho Ramos <pacho@gentoo.org> (27 Jan 2011)
 # missing keywords on needed plugins
-media-plugins/gst-plugins-meta dts dv libvisual vcd wavpack
+media-plugins/gst-plugins-meta dts dv libvisual modplug vcd wavpack
 
 # Michael Weber <xmw@gentoo.org> (03 Jan 2011)
 # dev-libs/libev is not keyworded
@@ -219,10 +254,6 @@ net-analyzer/wireshark doc-pdf
 # Justin Lecher <jlec@gentoo.org> (13 Aug 2010)
 # MKL not available on this arch
 media-gfx/povray mkl
-
-# Steve Arnold <nerdboy@gentoo.org> (12 Jun 2010)
-# masking for gdal (see bug 315659)
-sci-libs/gdal ecwj2k
 
 # uses games-board/ggz-gtk-client
 games-strategy/freeciv ggz

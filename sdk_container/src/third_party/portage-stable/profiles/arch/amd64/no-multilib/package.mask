@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/no-multilib/package.mask,v 1.139 2014/10/02 10:29:30 ulm Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/no-multilib/package.mask,v 1.140 2015/03/24 09:37:19 perfinion Exp $
 
 # AMD64 Team <amd64@gentoo.org>
 # Mask packages that rely on amd64 multilib
@@ -46,6 +46,7 @@ dev-lang/ifc
 dev-perl/Archive-Rar
 dev-python/skype4py
 dev-util/android-sdk-update-manager
+dev-util/android-studio
 dev-util/biew
 games-action/cs2d
 games-action/descent3

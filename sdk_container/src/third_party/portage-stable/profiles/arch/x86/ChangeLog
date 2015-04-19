@@ -1,6 +1,37 @@
 # ChangeLog for Gentoo/x86 profile directory
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86/ChangeLog,v 1.183 2014/11/16 02:25:27 floppym Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86/ChangeLog,v 1.193 2015/03/29 19:01:38 vapier Exp $
+
+  29 Mar 2015; Mike Frysinger <vapier@gentoo.org> use.mask:
+  Unmask USE=cilk.
+
+  01 Mar 2015; Michał Górny <mgorny@gentoo.org> package.use.mask:
+  Mask telepathy-connection-managers[steam] on unsupported arches.
+
+  21 Feb 2015; Michał Górny <mgorny@gentoo.org> package.use.stable.mask:
+  Stable-mask non-stable qca plugin flags for old qca version.
+
+  31 Jan 2015; Jeroen Roovers <jer@gentoo.org> package.use.mask:
+  Mask USE=uvm for >x11-drivers/nvidia-drivers-346 on x86 (bug #534156).
+
+  30 Jan 2015; Michał Górny <mgorny@gentoo.org> make.defaults:
+  Hide CPU_FLAGS_X86 everywhere but on amd64 & x86.
+
+  28 Jan 2015; Michał Górny <mgorny@gentoo.org> package.use.mask:
+  Update package.use.* entries for CPU_FLAGS_X86. Keep duplicate with old flags
+  until conversion is complete.
+
+  28 Jan 2015; Mike Gilbert <floppym@gentoo.org> xbox/make.defaults:
+  Set CPU_FLAGS_X86 to a reasonable default.
+
+  28 Jan 2015; Michał Górny <mgorny@gentoo.org> use.mask:
+  Mask CPU_FLAGS_X86 for non-x86 arches.
+
+  23 Dec 2014; Gilles Dartiguelongue <eva@gentoo.org> package.use.mask:
+  Add mask for USE=kms for x11-wm/mutter-3.14, bug #533420.
+
+  23 Dec 2014; Gilles Dartiguelongue <eva@gentoo.org> package.use.mask:
+  Add package.use.mask entry for clutter, bug #533420.
 
   16 Nov 2014; Mike Gilbert <floppym@gentoo.org> use.stable.mask:
   Drop unneeded python3_4 (un)mask.

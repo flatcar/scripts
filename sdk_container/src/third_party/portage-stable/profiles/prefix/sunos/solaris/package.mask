@@ -1,7 +1,11 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/sunos/solaris/package.mask,v 1.39 2014/01/14 20:03:52 grobian Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/sunos/solaris/package.mask,v 1.40 2015/02/17 18:00:53 haubi Exp $
 
+
+# Michael Haubenwallner <haubi@gentoo.org> (17 Feb 2015)
+# Ships without gnulib module faccessat.
+=sys-devel/patch-2.7.4
 
 # Fabian Groffen <grobian@gentoo.org> (14 Jan 2014)
 # util-linux has no business on Solaris systems

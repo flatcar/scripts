@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/package.use.force,v 1.8 2013/10/02 18:14:17 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/package.use.force,v 1.9 2015/01/28 21:29:48 mgorny Exp $
 
 # Michał Górny <mgorny@gentoo.org> (02 Sep 2013)
 # Packages with optional 64-bit variant.
@@ -14,7 +14,7 @@ media-gfx/iscan-plugin-gt-f500 minimal
 
 # <blubb@gentoo.org> (23 Oct 2006)
 # upstream forces sse2 on regardless of what the use flag is
-dev-libs/openssl sse2
+dev-libs/openssl cpu_flags_x86_sse2
 
 # Santiago M. Mola <coldwind@gentoo.org> (17 Sep 2008)
 # x86emu is the only backend available for amd64 (bug #224987)

@@ -1,6 +1,9 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/base/use.mask,v 1.214 2014/11/23 16:40:45 floppym Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/base/use.mask,v 1.220 2015/03/29 19:02:05 vapier Exp $
+
+# cilk has been ported only to x86 systems
+cilk
 
 # CURL_SSL=winssl is for prefix/windows/winnt only
 curl_ssl_winssl
@@ -11,6 +14,7 @@ cuda
 # on the way out
 ruby_targets_ruby18
 ruby_targets_jruby
+ruby_targets_ree18
 
 # masking here and unmasking in default/linux/
 kmod
@@ -78,6 +82,25 @@ fma4
 xop
 svga
 nvram
+cpu_flags_x86_3dnow
+cpu_flags_x86_3dnowext
+cpu_flags_x86_aes
+cpu_flags_x86_avx
+cpu_flags_x86_avx2
+cpu_flags_x86_fma3
+cpu_flags_x86_fma4
+cpu_flags_x86_mmx
+cpu_flags_x86_mmxext
+cpu_flags_x86_padlock
+cpu_flags_x86_popcnt
+cpu_flags_x86_sse
+cpu_flags_x86_sse2
+cpu_flags_x86_sse3
+cpu_flags_x86_sse4_1
+cpu_flags_x86_sse4_2
+cpu_flags_x86_sse4a
+cpu_flags_x86_ssse3
+cpu_flags_x86_xop
 
 # ppc arch specific USE flags
 altivec
@@ -155,6 +178,7 @@ video_cards_exynos
 video_cards_freedreno
 video_cards_omap
 video_cards_omapfb
+video_cards_tegra
 
 # linux-only drivers
 video_cards_qxl
@@ -162,6 +186,9 @@ video_cards_qxl
 # not needed on non-x86, non-amd64, non-ppc systems
 input_devices_synaptics
 input_devices_wacom
+
+# awaiting keywording, bug #538828
+input_devices_libinput
 
 # psyco only works on x86
 psyco
@@ -290,9 +317,7 @@ prefix-guest
 pvm
 
 # Alex Legler <a3li@gentoo.org> (7 Dec 2009)
-# JRuby, REE18, and Rubinius are whitelisted on supported arches
-ruby_targets_jruby
-ruby_targets_ree18
+# Rubinius is whitelisted on supported arches
 ruby_targets_rbx
 
 # Diego E. Pettenò <flameeyes@gentoo.org> (19 Oct 2010)
@@ -365,11 +390,6 @@ sbcl
 # Mask systemd flag globally, unmasked on arches on which systemd
 # is keyworded.
 systemd
-
-# Michael Palimaka <kensington@gentoo.org> (1 May 2013)
-# Mask until Qt 5 is in portage. (The flag is here already
-# to permit the neccessary package preparation.)
-qt5
 
 # Pacho Ramos <pacho@gentoo.org> (28 Sep 2013)
 # This USE flag is available after long dicussion in

@@ -1,6 +1,45 @@
 # ChangeLog for profile directory
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/default/bsd/ChangeLog,v 1.168 2014/10/25 17:17:26 kensington Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/default/bsd/ChangeLog,v 1.175 2015/04/05 14:49:29 mgorny Exp $
+
+  05 Apr 2015; Michał Górny <mgorny@gentoo.org>
+  +fbsd/amd64/9.1/clang/deprecated, +fbsd/amd64/9.1/deprecated,
+  +fbsd/amd64/9.2/clang/deprecated, +fbsd/amd64/9.2/deprecated,
+  +fbsd/x86/9.1/deprecated, +fbsd/x86/9.2/deprecated:
+  Deprecate FreeBSD 9.* profiles,
+  https://github.com/gentoo/gentoo-portage-rsync-mirror/pull/80 by nigoro.
+
+  01 Mar 2015; Michał Górny <mgorny@gentoo.org>
+  +fbsd/amd64/10.1/clang/parent, +fbsd/amd64/10.1/eapi,
+  +fbsd/amd64/10.1/make.defaults, +fbsd/amd64/10.1/package.use.force,
+  +fbsd/amd64/10.1/parent, +fbsd/x86/10.1/eapi, +fbsd/x86/10.1/make.defaults,
+  +fbsd/x86/10.1/parent:
+  Introduce support for FreeBSD 10.1,
+  https://github.com/gentoo/gentoo-portage-rsync-mirror/pull/46 by nigoro.
+
+  08 Feb 2015; Michał Górny <mgorny@gentoo.org> -fbsd/amd64/9.1/clang/eapi,
+  -fbsd/amd64/9.1/clang/make.defaults, -fbsd/amd64/9.1/clang/package.use.force,
+  -fbsd/amd64/9.1/clang/package.use.mask, -fbsd/amd64/9.1/clang/packages,
+  -fbsd/amd64/9.1/clang/packages.build, fbsd/amd64/9.1/clang/parent,
+  -fbsd/amd64/9.1/clang/profile.bashrc, -fbsd/amd64/9.2/clang/eapi,
+  -fbsd/amd64/9.2/clang/make.defaults, -fbsd/amd64/9.2/clang/package.use.force,
+  -fbsd/amd64/9.2/clang/package.use.mask, -fbsd/amd64/9.2/clang/packages,
+  -fbsd/amd64/9.2/clang/packages.build, fbsd/amd64/9.2/clang/parent,
+  -fbsd/amd64/9.2/clang/profile.bashrc:
+  Move clang fbsd profile data to arch/amd64-fbsd. Bug #491654 by Yuta SATOH.
+
+  24 Dec 2014; Matthias Maier <tamiko@gentoo.org> package.use.mask:
+  mask doxysearch use flag for app-doc/doxygen
+
+  24 Dec 2014; Matthias Maier <tamiko@gentoo.org> package.use.mask:
+  app-doc/doxygen remove use mask again, as this is now taken care of with a
+  full rekeywording #533458
+
+  24 Dec 2014; Matthias Maier <tamiko@gentoo.org> package.use.mask:
+  mask app-doc/doxygen doxysearch use flag
+
+  07 Dec 2014; Mikle Kolyada <zlogene@gentoo.org> package.use.mask:
+  Mask dev-vcs/git mediawiki (bug #497068)
 
   25 Oct 2014; Michael Palimaka <kensington@gentoo.org> package.use.mask:
   Remove obsolete mask for package no longer in the tree.

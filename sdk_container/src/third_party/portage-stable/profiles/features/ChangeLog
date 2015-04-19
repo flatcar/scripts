@@ -1,6 +1,11 @@
 # ChangeLog for Gentoo/AMD64 profile directory
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/features/ChangeLog,v 1.83 2014/12/03 13:20:02 perfinion Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/features/ChangeLog,v 1.84 2015/04/03 21:09:53 dilfridge Exp $
+
+  03 Apr 2015; Andreas K. Huettel <dilfridge@gentoo.org>
+  64bit-native/package.mask:
+  The Novell Groupwise client needs a 32bit java vm and will never work on
+  no-multilib.
 
   03 Dec 2014; Jason Zaman <perfinion@gentoo.org> selinux/package.use.force:
   Force static-libs so stages build properly

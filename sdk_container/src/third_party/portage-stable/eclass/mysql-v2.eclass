@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/mysql-v2.eclass,v 1.35 2014/08/10 05:47:24 robbat2 Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/mysql-v2.eclass,v 1.37 2015/03/08 09:39:55 ulm Exp $
 
 # @ECLASS: mysql-v2.eclass
 # @MAINTAINER:
@@ -222,12 +222,15 @@ IUSE="${IUSE} latin1 extraengine cluster max-idx-128 +community profiling"
 if [[ ${PN} == "mariadb" || ${PN} == "mariadb-galera" ]] && \
 	mysql_version_is_at_least "5.5" ; then
 	IUSE="bindist ${IUSE}"
+	RESTRICT="${RESTRICT} !bindist? ( bindist )"
 elif [[ ${PN} == "mysql" || ${PN} == "percona-server" ]] && \
 	mysql_check_version_range "5.5.37 to 5.6.11.99" ; then
 	IUSE="bindist ${IUSE}"
+	RESTRICT="${RESTRICT} !bindist? ( bindist )"
 elif [[ ${PN} == "mysql-cluster" ]] && \
 	mysql_check_version_range "7.2 to 7.2.99.99"  ; then
 	IUSE="bindist ${IUSE}"
+	RESTRICT="${RESTRICT} !bindist? ( bindist )"
 fi
 
 if [[ ${PN} == "mariadb" || ${PN} == "mariadb-galera" ]]; then
@@ -266,7 +269,7 @@ REQUIRED_USE="${REQUIRED_USE} minimal? ( !cluster !extraengine !embedded ) stati
 # Be warned, *DEPEND are version-dependant
 # These are used for both runtime and compiletime
 DEPEND="
-	ssl? ( >=dev-libs/openssl-0.9.6d )
+	ssl? ( >=dev-libs/openssl-0.9.6d:0 )
 	kernel_linux? ( sys-process/procps )
 	>=sys-apps/sed-4
 	>=sys-apps/texinfo-4.7-r1
@@ -284,9 +287,9 @@ elif [[ ${PN} == "mysql-cluster" ]] && mysql_version_is_at_least "7.3"; then
 	DEPEND="${DEPEND} dev-libs/libedit"
 else
 	if mysql_version_is_at_least "5.5" ; then
-		DEPEND="${DEPEND} !bindist? ( >=sys-libs/readline-4.1 )"
+		DEPEND="${DEPEND} !bindist? ( >=sys-libs/readline-4.1:0 )"
 	else
-		DEPEND="${DEPEND} >=sys-libs/readline-4.1"
+		DEPEND="${DEPEND} >=sys-libs/readline-4.1:0"
 	fi
 fi
 

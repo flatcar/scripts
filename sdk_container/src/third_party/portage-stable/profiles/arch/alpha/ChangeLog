@@ -1,6 +1,46 @@
 # ChangeLog for Gentoo/Alpha profile directory
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/alpha/ChangeLog,v 1.207 2014/11/23 15:55:19 floppym Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/alpha/ChangeLog,v 1.220 2015/03/17 01:36:02 vapier Exp $
+
+  17 Mar 2015; Mike Frysinger <vapier@gentoo.org> package.use.force,
+  package.use.mask:
+  Mask dev-libs/ef[oldlua,physics] #499974.
+
+  08 Mar 2015; Michał Górny <mgorny@gentoo.org> package.use.mask:
+  Mask xfce-base/xfce4-settings[libinput] because of missing deps, bug #542570.
+
+  22 Feb 2015; Michał Górny <mgorny@gentoo.org> package.use.mask:
+  Mask media-libs/gegl[umfpack] because of non-keyworded dep.
+
+  21 Feb 2015; Michał Górny <mgorny@gentoo.org> package.use.mask:
+  Mask non-keyworded qca plugin flags for old qca version, part of
+  https://github.com/gentoo/gentoo-portage-rsync-mirror/pull/27 /
+  https://bugs.funtoo.org/browse/FL-2119.
+
+  10 Feb 2015; Patrick Lauer <patrick@gentoo.org> package.use.mask:
+  Mask media-libs/libav[x265] until keywords catch up
+
+  01 Feb 2015; Michael Palimaka <kensington@gentoo.org> package.mask:
+  Fix invalid atom.
+
+  01 Feb 2015; Ben de Groot <yngwin@gentoo.org> package.mask, use.mask:
+  Add Qt5 mask until keyworded
+
+  28 Jan 2015; Johannes Huber <johu@gentoo.org> package.use.mask:
+  Mask app-crypt/qca[botan].
+
+  19 Jan 2015; Mike Gilbert <floppym@gentoo.org> use.stable.mask:
+  Remove python3_4 mask.
+
+  23 Dec 2014; Gilles Dartiguelongue <eva@gentoo.org> package.use.mask:
+  Add package.use.mask entry for clutter, bug #533420.
+
+  14 Dec 2014; Mike Gilbert <floppym@gentoo.org> package.use.mask:
+  Mask sys-apps/systemd[xkb].
+
+  14 Dec 2014; Mark Wright <gienah@gentoo.org> package.use.mask:
+  Mask test for dev-haskell/{binary, text, vector}
+  as test dependencies need keywording.
 
   23 Nov 2014; Mike Gilbert <floppym@gentoo.org> make.defaults:
   Disable python3_4 default for this arch.

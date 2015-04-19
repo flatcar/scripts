@@ -1,7 +1,11 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/darwin/package.mask,v 1.44 2014/10/19 07:52:14 grobian Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/darwin/package.mask,v 1.45 2015/02/08 09:22:57 grobian Exp $
 
+
+# Fabian Groffen <grobian@gentoo.org> (08 Feb 2015)
+# missing faccesstat (missing gnulib), bug #538502
+=sys-devel/patch-2.7.4
 
 # Fabian Groffen <grobian@gentoo.org> (19 Oct 2014)
 # Fails during bootstrap, has install_name problems for libstdbuf

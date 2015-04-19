@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/features/prefix/package.use.mask,v 1.1 2014/01/18 02:01:20 redlizard Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/features/prefix/package.use.mask,v 1.2 2014/12/15 20:52:04 redlizard Exp $
 
 # Kacper Kowalik <xarthisius@gentoo.org> (14 Jan 2012)
 # sci-libs/mkl don't have prefix keywords
@@ -11,12 +11,6 @@ dev-python/numexpr mkl
 # when you're absolutely sure what you're doing.  Do NOT report bugs
 # about failing packages when using a vanilla compiler!
 sys-devel/gcc vanilla
-
-# Fabian Groffen <grobian@gentoo.org> (23 Oct 2010)
-# IPC relies on pipes, selects, polls, and more stuff that Python is
-# very bad with, that really causes way more issues than it is worth to
-# have some boundary bugs solved and more robust subshell die support
-sys-apps/portage ipc
 
 # Rafael Goncalves Martins <rafaelmartins@gentoo.org> (29 Sep 2010)
 # dev-libs/judy without prefix keywords

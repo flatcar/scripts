@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/multilib-build.eclass,v 1.64 2014/08/17 03:34:32 jcallen Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/multilib-build.eclass,v 1.65 2014/12/13 08:41:37 mgorny Exp $
 
 # @ECLASS: multilib-build.eclass
 # @MAINTAINER:
@@ -223,18 +223,18 @@ multilib_foreach_abi() {
 # @DESCRIPTION:
 # If multilib support is enabled, sets the toolchain up for each
 # supported ABI along with the ABI variable and correct BUILD_DIR,
-# and runs the given commands with them. The commands are run
-# in parallel with number of jobs being determined from MAKEOPTS.
+# and runs the given commands with them.
 #
 # If multilib support is disabled, it just runs the commands. No setup
 # is done.
 #
-# Useful for running configure scripts.
+# This function used to run multiple commands in parallel. Now it's just
+# a deprecated alias to multilib_foreach_abi.
 multilib_parallel_foreach_abi() {
 	debug-print-function ${FUNCNAME} "${@}"
 
 	local MULTIBUILD_VARIANTS=( $(multilib_get_enabled_abi_pairs) )
-	multibuild_parallel_foreach_variant _multilib_multibuild_wrapper "${@}"
+	multibuild_foreach_variant _multilib_multibuild_wrapper "${@}"
 }
 
 # @FUNCTION: multilib_for_best_abi

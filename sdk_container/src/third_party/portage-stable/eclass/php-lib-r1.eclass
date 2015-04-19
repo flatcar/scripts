@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/php-lib-r1.eclass,v 1.11 2012/02/12 21:48:58 mabi Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/php-lib-r1.eclass,v 1.12 2015/04/14 18:32:51 grknight Exp $
 
 # @ECLASS: php-lib-r1.eclass
 # @MAINTAINER:
@@ -16,8 +16,16 @@
 inherit depend.php
 
 EXPORT_FUNCTIONS src_install
+# Silence repoman warnings
+case "${EAPI:-0}" in
+	0|1|2|3|4)
+		DEPEND="dev-lang/php"
+		;;
+	*)
+		DEPEND="dev-lang/php:*"
+		;;
+esac
 
-DEPEND="dev-lang/php"
 RDEPEND="${DEPEND}"
 
 # @ECLASS-VARIABLE: PHP_LIB_NAME

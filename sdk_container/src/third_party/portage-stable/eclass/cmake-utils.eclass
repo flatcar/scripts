@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/cmake-utils.eclass,v 1.112 2014/10/27 09:49:05 aballier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/cmake-utils.eclass,v 1.114 2015/02/18 06:19:32 bircoph Exp $
 
 # @ECLASS: cmake-utils.eclass
 # @MAINTAINER:
@@ -450,6 +450,7 @@ enable_cmake-utils_src_configure() {
 	if [[ ${CMAKE_BUILD_TYPE} = Gentoo ]]; then
 		# Handle release builds
 		if ! has debug ${IUSE//+} || ! use debug; then
+			local CPPFLAGS=${CPPFLAGS}
 			append-cppflags -DNDEBUG
 		fi
 	fi
@@ -461,6 +462,7 @@ enable_cmake-utils_src_configure() {
 		SET (CMAKE_ASM_COMPILE_OBJECT "<CMAKE_C_COMPILER> <DEFINES> ${CFLAGS} <FLAGS> -o <OBJECT> -c <SOURCE>" CACHE STRING "ASM compile command" FORCE)
 		SET (CMAKE_C_COMPILE_OBJECT "<CMAKE_C_COMPILER> <DEFINES> ${CPPFLAGS} <FLAGS> -o <OBJECT> -c <SOURCE>" CACHE STRING "C compile command" FORCE)
 		SET (CMAKE_CXX_COMPILE_OBJECT "<CMAKE_CXX_COMPILER> <DEFINES> ${CPPFLAGS} <FLAGS> -o <OBJECT> -c <SOURCE>" CACHE STRING "C++ compile command" FORCE)
+		SET (CMAKE_Fortran_COMPILE_OBJECT "<CMAKE_Fortran_COMPILER> <DEFINES> ${FCFLAGS} <FLAGS> -o <OBJECT> -c <SOURCE>" CACHE STRING "Fortran compile command" FORCE)
 		SET (CMAKE_RANLIB $(type -P $(tc-getRANLIB)) CACHE FILEPATH "Archive index generator" FORCE)
 		SET (PKG_CONFIG_EXECUTABLE $(type -P $(tc-getPKG_CONFIG)) CACHE FILEPATH "pkg-config executable" FORCE)
 	_EOF_
@@ -469,6 +471,7 @@ enable_cmake-utils_src_configure() {
 	cat > ${toolchain_file} <<- _EOF_
 		SET (CMAKE_C_COMPILER $(tc-getCC))
 		SET (CMAKE_CXX_COMPILER $(tc-getCXX))
+		SET (CMAKE_Fortran_COMPILER $(tc-getFC))
 	_EOF_
 
 	if tc-is-cross-compiler; then

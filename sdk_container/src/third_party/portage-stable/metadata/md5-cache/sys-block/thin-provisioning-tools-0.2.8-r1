@@ -1,5 +1,5 @@
 DEFINED_PHASES=configure install prepare test
-DEPEND=dev-libs/expat test? ( || ( dev-lang/ruby:2.9 dev-lang/ruby:2.8 dev-lang/ruby:2.7 dev-lang/ruby:2.6 dev-lang/ruby:2.5 dev-lang/ruby:2.4 dev-lang/ruby:2.3 dev-lang/ruby:2.2 dev-lang/ruby:2.1 dev-lang/ruby:2.0 dev-lang/ruby:1.9 dev-lang/ruby:1.8 ) dev-cpp/gmock dev-util/cucumber dev-util/aruba ) dev-libs/boost !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.14:1.14 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
+DEPEND=dev-libs/expat test? ( || ( dev-lang/ruby:2.9 dev-lang/ruby:2.8 dev-lang/ruby:2.7 dev-lang/ruby:2.6 dev-lang/ruby:2.5 dev-lang/ruby:2.4 dev-lang/ruby:2.3 dev-lang/ruby:2.2 dev-lang/ruby:2.1 dev-lang/ruby:2.0 dev-lang/ruby:1.9 dev-lang/ruby:1.8 ) dev-cpp/gmock dev-util/cucumber dev-util/aruba ) dev-libs/boost !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.15:1.15 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
 DESCRIPTION=A suite of tools for thin provisioning on Linux.
 EAPI=5
 HOMEPAGE=https://github.com/jthornber/thin-provisioning-tools
@@ -9,5 +9,5 @@ LICENSE=GPL-3
 RDEPEND=dev-libs/expat
 SLOT=0
 SRC_URI=http://github.com/jthornber/thin-provisioning-tools/archive/v0.2.8.tar.gz -> thin-provisioning-tools-0.2.8.tar.gz
-_eclasses_=autotools	c118b9a8e93bfef124f2d7a2fe56a95e	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
+_eclasses_=autotools	999c8f6cf5d91495cb0779588f20716c	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	c961250d50160cd37d6b7fd9e8429c92
 _md5_=95432ba1e1d971205159c0896095cf09

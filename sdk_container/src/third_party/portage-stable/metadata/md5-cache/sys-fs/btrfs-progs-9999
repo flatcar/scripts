@@ -7,5 +7,5 @@ LICENSE=GPL-2
 RDEPEND=dev-libs/lzo:2= sys-libs/zlib:0= sys-fs/e2fsprogs:0=
 RESTRICT=test
 SLOT=0/0
-_eclasses_=eutils	6faef4c127028ccbba3a11400d24ae34	git-r3	6ebae45064cb04482f3c702632dd9528	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac
+_eclasses_=eutils	9fb270e417e0e83d64ca52586c4a79de	git-r3	3a2bd0ae504c33a50061885480f3def3	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	c961250d50160cd37d6b7fd9e8429c92
 _md5_=c6281c34d3cc5740aee7c2e17d1fe4f4

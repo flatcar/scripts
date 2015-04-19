@@ -1,6 +1,72 @@
 # ChangeLog for profiles/prefix
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/ChangeLog,v 1.438 2014/11/29 13:08:08 zlogene Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/ChangeLog,v 1.453 2015/02/17 18:00:53 haubi Exp $
+
+  17 Feb 2015; Michael Haubenwallner <haubi@gentoo.org>
+  sunos/solaris/package.mask:
+  mask =patch-2.7.4 even on solaris
+
+  17 Feb 2015; Michael Haubenwallner <haubi@gentoo.org> aix/package.mask:
+  p.mask gnuplot-5.0.0
+
+  17 Feb 2015; Michael Haubenwallner <haubi@gentoo.org> aix/package.mask:
+  unmask gcc-4.8.4, mask patch-2.7.4
+
+  08 Feb 2015; Fabian Groffen <grobian@gentoo.org> darwin/package.mask:
+  Mask patch-2.7.4 on Darwin, bug #538502
+
+  28 Jan 2015; Michał Górny <mgorny@gentoo.org>
+  darwin/macos/10.4/x86/use.mask, darwin/macos/10.5/x64/use.mask,
+  darwin/macos/10.5/x86/use.mask, darwin/macos/10.6/x64/use.mask,
+  darwin/macos/10.6/x86/use.mask, darwin/macos/10.7/x64/use.mask,
+  darwin/macos/10.7/x86/use.mask, darwin/macos/10.8/x64/use.mask,
+  darwin/macos/10.8/x86/use.mask, darwin/macos/10.9/x64/use.mask,
+  darwin/macos/10.9/x86/use.mask, darwin/macos/10.10/x64/use.mask,
+  darwin/macos/10.10/x86/use.mask:
+  Unmask some of CPU_FLAGS_X86 in darwin profiles.
+
+  28 Jan 2015; Michał Górny <mgorny@gentoo.org>
+  darwin/macos/arch/x64/package.use.mask,
+  darwin/macos/arch/x86/package.use.mask:
+  Update package.use.* entries for CPU_FLAGS_X86 for darwin/macos. Keep
+  duplicate with old flags until conversion is complete.
+
+  28 Jan 2015; Mike Gilbert <floppym@gentoo.org>
+  darwin/macos/10.4/x86/make.defaults, darwin/macos/10.5/x64/make.defaults,
+  darwin/macos/10.5/x86/make.defaults, darwin/macos/10.6/x64/make.defaults,
+  darwin/macos/10.6/x86/make.defaults, darwin/macos/10.7/x64/make.defaults,
+  darwin/macos/10.7/x86/make.defaults, darwin/macos/10.8/x64/make.defaults,
+  darwin/macos/10.8/x86/make.defaults, darwin/macos/10.9/x64/make.defaults,
+  darwin/macos/10.9/x86/make.defaults, darwin/macos/10.10/x64/make.defaults,
+  darwin/macos/10.10/x86/make.defaults:
+  Set CPU_FLAGS_X86 to a reasonable default.
+
+  26 Jan 2015; Michael Haubenwallner <haubi@gentoo.org> linux/profile.bashrc:
+  Do not elog but einfo 'old host glibc (gnu89-inline)' message, bug#537660.
+
+  03 Jan 2015; Ruud Koolen <redlizard@gentoo.org>
+  linux-standalone/amd64/make.defaults, linux-standalone/x86/make.defaults:
+  Switched linux-standalone profiles to the same multilib settings as default.
+
+  28 Dec 2014; Christoph Junghans <ottxor@gentoo.org>
+  darwin/macos/arch/x64/package.use.mask:
+  masked media-libs/xvid[pic], bug #529584
+
+  15 Dec 2014; Ruud Koolen <redlizard@gentoo.org> linux-standalone/amd64/eapi,
+  linux-standalone/amd64/make.defaults, linux-standalone/amd64/parent,
+  linux-standalone/eapi, linux-standalone/make.defaults,
+  linux-standalone/parent, linux-standalone/x86/eapi,
+  linux-standalone/x86/make.defaults, linux-standalone/x86/parent:
+  Added linux prefix-libc profiles.
+
+  15 Dec 2014; Ruud Koolen <redlizard@gentoo.org> package.use.mask, packages,
+  linux/package.use.mask, linux/packages, linux/use.force, linux/use.mask:
+  Moved several nonlinux-specific clauses from /profiles/features/prefix
+  to /profiles/prefix.
+
+  15 Dec 2014; Ruud Koolen <redlizard@gentoo.org> linux/amd64/package.use.mask,
+  linux/amd64/use.force, linux/x86/package.use.mask, linux/x86/use.force:
+  Removed redundant multilib clauses.
 
   29 Nov 2014; Mikle Kolyada <zlogene@gentoo.org> package.use.mask:
   Mask dev-vcs/git[mediawiki] (bug #497068)

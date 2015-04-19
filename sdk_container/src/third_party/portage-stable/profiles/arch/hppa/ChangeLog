@@ -1,6 +1,54 @@
 # ChangeLog for Gentoo/hppa profile
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/hppa/ChangeLog,v 1.230 2014/11/29 12:46:49 jer Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/hppa/ChangeLog,v 1.245 2015/03/21 09:37:48 jer Exp $
+
+  21 Mar 2015; Jeroen Roovers <jer@gentoo.org> package.use.mask:
+  Unmask USE=test for dev-python/urllib3.
+
+  18 Mar 2015; Jeroen Roovers <jer@gentoo.org> use.mask:
+  Drop USE=x265 mask (bug #510340).
+
+  17 Mar 2015; Mike Frysinger <vapier@gentoo.org> package.use.force,
+  package.use.mask:
+  Mask dev-libs/ef[oldlua,physics] #499974.
+
+  22 Feb 2015; Jeroen Roovers <jer@gentoo.org> package.use.stable.mask:
+  Say plz.
+
+  21 Feb 2015; Michał Górny <mgorny@gentoo.org> +package.use.stable.mask:
+  Stable-mask non-stable qca plugin flags for old qca version.
+
+  21 Feb 2015; Jeroen Roovers <jer@gentoo.org> package.use.mask:
+  Drop unrequested USE flag masks.
+
+  21 Feb 2015; Michał Górny <mgorny@gentoo.org> package.use.mask:
+  Mask non-keyworded qca plugin flags for old qca version, part of
+  https://github.com/gentoo/gentoo-portage-rsync-mirror/pull/27 /
+  https://bugs.funtoo.org/browse/FL-2119.
+
+  03 Feb 2015; Jeroen Roovers <jer@gentoo.org> -package.mask, use.mask:
+  Unmask Qt5.
+
+  02 Feb 2015; Jeroen Roovers <jer@gentoo.org> use.mask:
+  Sort.
+
+  02 Feb 2015; Jeroen Roovers <jer@gentoo.org> package.use.mask:
+  Mask USE=gevent for dev-python/pyzor (bug #531068).
+
+  01 Feb 2015; Michael Palimaka <kensington@gentoo.org> package.mask:
+  Fix invalid atom.
+
+  01 Feb 2015; Ben de Groot <yngwin@gentoo.org> +package.mask, use.mask:
+  Add Qt5 mask until keyworded
+
+  28 Jan 2015; Johannes Huber <johu@gentoo.org> package.use.mask:
+  Mask app-crypt/qca[botan].
+
+  18 Jan 2015; Jeroen Roovers <jer@gentoo.org> use.mask:
+  Mask USE=vaapi (bug #536956).
+
+  24 Dec 2014; Jeroen Roovers <jer@gentoo.org> package.use.mask, use.mask:
+  Generally mask USE=clang.
 
   29 Nov 2014; Jeroen Roovers <jer@gentoo.org> package.use.mask:
   Mask USE=dnstap for net-dns/unbound (bug #531068).

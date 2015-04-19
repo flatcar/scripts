@@ -1,6 +1,14 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/s390/package.use.mask,v 1.28 2014/09/16 17:12:06 chithanh Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/s390/package.use.mask,v 1.30 2015/03/17 01:42:50 vapier Exp $
+
+# Mike Frysinger <vapier@gentoo.org> (16 Mar 2015)
+# Needs sci-physics/bullet tested #499974
+dev-libs/efl physics
+
+# Sergey Popov <pinkbyte@gentoo.org> (18 Feb 2015)
+# Not tested
+app-portage/layman g-sorcery
 
 # Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (16 Sep 2014)
 # Needs libepoxy keywording, bug #510940

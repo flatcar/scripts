@@ -1,5 +1,5 @@
 DEFINED_PHASES=compile configure install postinst preinst prepare setup
-DEPEND=>=sys-apps/util-linux-2.20 acl? ( sys-apps/acl ) gudev? ( >=dev-libs/glib-2 ) introspection? ( >=dev-libs/gobject-introspection-1.31.1 ) kmod? ( >=sys-apps/kmod-12 ) selinux? ( >=sys-libs/libselinux-2.1.9 ) !<sys-libs/glibc-2.11 !<sys-apps/systemd-197 virtual/os-headers virtual/pkgconfig !<sys-kernel/linux-headers-2.6.32 doc? ( >=dev-util/gtk-doc-1.18 ) keymap? ( dev-util/gperf ) !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.14:1.14 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4 virtual/pkgconfig
+DEPEND=>=sys-apps/util-linux-2.20 acl? ( sys-apps/acl ) gudev? ( >=dev-libs/glib-2 ) introspection? ( >=dev-libs/gobject-introspection-1.31.1 ) kmod? ( >=sys-apps/kmod-12 ) selinux? ( >=sys-libs/libselinux-2.1.9 ) !<sys-libs/glibc-2.11 !<sys-apps/systemd-197 virtual/os-headers virtual/pkgconfig !<sys-kernel/linux-headers-2.6.32 doc? ( >=dev-util/gtk-doc-1.18 ) keymap? ( dev-util/gperf ) !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.15:1.15 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4 virtual/pkgconfig
 DESCRIPTION=Linux dynamic and persistent device naming support (aka userspace devfs)
 EAPI=4
 HOMEPAGE=http://www.freedesktop.org/wiki/Software/systemd
@@ -11,5 +11,5 @@ RDEPEND=>=sys-apps/util-linux-2.20 acl? ( sys-apps/acl ) gudev? ( >=dev-libs/gli
 RESTRICT=test
 SLOT=0
 SRC_URI=http://www.freedesktop.org/software/systemd/systemd-197.tar.xz http://dev.gentoo.org/~williamh/dist/udev-197-patches-5.tar.bz2 http://dev.gentoo.org/~ssuominen/udev-197-patches-5.tar.bz2
-_eclasses_=autotools	c118b9a8e93bfef124f2d7a2fe56a95e	eutils	6faef4c127028ccbba3a11400d24ae34	libtool	52d0e17251d04645ffaa61bfdd858944	linux-info	2b8c53f6065bdee2d757472215a3088f	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	systemd	090342761f573a8280dd5aa6b0345f3b	toolchain-funcs	0dfbfa13f57c6184f4728d12ac002aac	versionator	cd0bcdb170807e4a1984115e9d53a26f
+_eclasses_=autotools	999c8f6cf5d91495cb0779588f20716c	eutils	9fb270e417e0e83d64ca52586c4a79de	libtool	52d0e17251d04645ffaa61bfdd858944	linux-info	2b8c53f6065bdee2d757472215a3088f	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	systemd	090342761f573a8280dd5aa6b0345f3b	toolchain-funcs	c961250d50160cd37d6b7fd9e8429c92	versionator	cd0bcdb170807e4a1984115e9d53a26f
 _md5_=a1f7c58ea074bf66de54c749e25cbb4e
