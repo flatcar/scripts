@@ -1,7 +1,7 @@
-From bf3d75a2ebf4ad80313d7ced8478f21d9a96f87b Mon Sep 17 00:00:00 2001
+From 7498b3128103cf77fdef5ccd97205dfd0338fb82 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Amadeusz=20=C5=BBo=C5=82nowski?= <aidecoe@aidecoe.name>
 Date: Wed, 2 Oct 2013 22:40:43 +0200
-Subject: [PATCH 5/5] Install dracut-install into libexec dir instead of lib
+Subject: [PATCH 4/5] Install dracut-install into libexec dir instead of lib
  dir
 
 dracut-install script is the only thing ABI specific atm.
@@ -16,7 +16,7 @@ problem.
  4 files changed, 9 insertions(+), 1 deletion(-)
 
 diff --git a/Makefile b/Makefile
-index cab7755..fd936f2 100644
+index 41968b0..b072a23 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -104,6 +104,7 @@ install: dracut-version.sh
@@ -38,10 +38,10 @@ index cab7755..fd936f2 100644
  	if [ -f skipcpio/skipcpio ]; then \
  		install -m 0755 skipcpio/skipcpio $(DESTDIR)$(pkglibdir)/skipcpio; \
 diff --git a/configure b/configure
-index 19b5e1f..d2ffc2c 100755
+index 0bd3d2d..17370de 100755
 --- a/configure
 +++ b/configure
-@@ -61,6 +61,7 @@ sbindir ?= ${sbindir:-${prefix}/sbin}
+@@ -59,6 +59,7 @@ sbindir ?= ${sbindir:-${prefix}/sbin}
  mandir ?= ${mandir:-${prefix}/share/man}
  enable_documentation ?= ${enable_documentation:-yes}
  bindir ?= ${bindir:-${prefix}/bin}
@@ -50,10 +50,10 @@ index 19b5e1f..d2ffc2c 100755
  
  {
 diff --git a/dracut-functions.sh b/dracut-functions.sh
-index 86a69a8..e8ec335 100755
+index 0eb36da..4484e71 100755
 --- a/dracut-functions.sh
 +++ b/dracut-functions.sh
-@@ -695,6 +695,10 @@ if ! [[ $DRACUT_INSTALL ]]; then
+@@ -733,6 +733,10 @@ if ! [[ $DRACUT_INSTALL ]]; then
      DRACUT_INSTALL=$(find_binary dracut-install)
  fi
  
@@ -63,12 +63,12 @@ index 86a69a8..e8ec335 100755
 +
  if ! [[ $DRACUT_INSTALL ]] && [[ -x $dracutbasedir/dracut-install ]]; then
      DRACUT_INSTALL=$dracutbasedir/dracut-install
- fi
+ elif ! [[ $DRACUT_INSTALL ]] && [[ -x $dracutbasedir/install/dracut-install ]]; then
 diff --git a/dracut.sh b/dracut.sh
-index 9657230..08335d0 100755
+index 89a711e..527b32e 100755
 --- a/dracut.sh
 +++ b/dracut.sh
-@@ -27,6 +27,7 @@
+@@ -25,6 +25,7 @@
  dracut_args=( "$@" )
  
  # base dirs
@@ -77,5 +77,5 @@ index 9657230..08335d0 100755
  dracutbasedir="$pkglibdir"
  
 -- 
-1.8.5.5
+2.3.0
 

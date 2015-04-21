@@ -1,4 +1,4 @@
-From 5ade0eafee011a55c408ab315c33e7fb76220ce7 Mon Sep 17 00:00:00 2001
+From d6d86dcc914f6f8a054d24a8d033f645a51509a9 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Amadeusz=20=C5=BBo=C5=82nowski?= <aidecoe@aidecoe.name>
 Date: Sun, 6 Jan 2013 13:35:01 +0100
 Subject: [PATCH 1/5] dracut-functions.sh: support for alternative udev dirs -
@@ -16,10 +16,10 @@ Conflicts:
  1 file changed, 10 insertions(+)
 
 diff --git a/dracut-functions.sh b/dracut-functions.sh
-index d30e835..70444b8 100755
+index 37ddca2..0eb36da 100755
 --- a/dracut-functions.sh
 +++ b/dracut-functions.sh
-@@ -928,6 +928,16 @@ inst_rules() {
+@@ -937,6 +937,16 @@ inst_rules() {
      inst_dir "$_target"
      for _rule in "$@"; do
          if [ "${_rule#/}" = "$_rule" ]; then
@@ -37,5 +37,5 @@ index d30e835..70444b8 100755
                  if [[ -e $r/$_rule ]]; then
                      _found="$r/$_rule"
 -- 
-2.0.0
+2.3.0
 

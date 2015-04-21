@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-kernel/dracut/dracut-036-r4.ebuild,v 1.8 2014/12/19 17:31:07 pacho Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-kernel/dracut/dracut-041-r2.ebuild,v 1.2 2015/03/31 10:54:29 aidecoe Exp $
 
 EAPI=4
 
@@ -17,20 +17,25 @@ IUSE="debug selinux systemd"
 RESTRICT="test"
 
 CDEPEND="virtual/udev
-	!>=sys-fs/udev-210
-	!>=sys-apps/systemd-210
 	systemd? ( >=sys-apps/systemd-199 )
-	selinux? ( sec-policy/selinux-dracut )
 	"
 RDEPEND="${CDEPEND}
 	app-arch/cpio
 	>=app-shells/bash-4.0
 	>sys-apps/kmod-5[tools]
-	|| ( >=sys-apps/sysvinit-2.87-r3 sys-apps/systemd[sysv-utils] sys-apps/systemd-sysv-utils )
+	|| (
+		>=sys-apps/sysvinit-2.87-r3
+		sys-apps/systemd[sysv-utils]
+		sys-apps/systemd-sysv-utils
+	)
 	>=sys-apps/util-linux-2.21
 
 	debug? ( dev-util/strace )
-	selinux? ( sys-libs/libselinux sys-libs/libsepol )
+	selinux? (
+		sys-libs/libselinux
+		sys-libs/libsepol
+		sec-policy/selinux-dracut
+	)
 	"
 DEPEND="${CDEPEND}
 	app-text/asciidoc
@@ -44,15 +49,14 @@ DOCS=( AUTHORS HACKING NEWS README README.generic README.kernel README.modules
 	README.testsuite TODO )
 MY_LIBDIR=/usr/lib
 PATCHES=(
-	"${FILESDIR}/${PV}-0001-NEWS-update-for-version-036.patch"
-	"${FILESDIR}/${PV}-0002-dracut-functions.sh-support-for-altern.patch"
-	"${FILESDIR}/${PV}-0003-gentoo.conf-let-udevdir-be-handled-by-.patch"
-	"${FILESDIR}/${PV}-0004-Use-the-same-paths-in-dracut.sh-as-tho.patch"
-	"${FILESDIR}/${PV}-0005-Install-dracut-install-into-libexec-di.patch"
-	"${FILESDIR}/${PV}-0006-dracut.sh-Fix-variable-name-typo.patch"
-	"${FILESDIR}/${PV}-0007-Added-missing-quotes.patch"
-	"${FILESDIR}/${PV}-0008-Add-legacy-flag-l-to-lz4-and-update-ma.patch"
+	"${FILESDIR}/${PVR}-0001-Use-the-same-paths-in-dracut.sh-as-tho.patch"
+	"${FILESDIR}/${PVR}-0002-Install-dracut-install-and-skipcpio-in.patch"
+	"${FILESDIR}/${PVR}-0003-Take-into-account-lib64-dirs-when-dete.patch"
 	)
+QA_MULTILIB_PATHS="
+	usr/lib/dracut/dracut-install
+	usr/lib/dracut/skipcpio
+	"
 
 #
 # Helper functions
@@ -96,7 +100,10 @@ src_prepare() {
 	epatch "${PATCHES[@]}"
 
 	local libdirs="/$(get_libdir) /usr/$(get_libdir)"
-	[[ $libdirs =~ /lib\  ]] || libdirs+=" /lib /usr/lib"
+	if [[ ${SYMLINK_LIB} = yes ]]; then
+		# Preserve lib -> lib64 symlinks in initramfs
+		[[ $libdirs =~ /lib\  ]] || libdirs+=" /lib /usr/lib"
+	fi
 	einfo "Setting libdirs to \"${libdirs}\" ..."
 	sed -e "3alibdirs=\"${libdirs}\"" \
 		-i "${S}/dracut.conf.d/gentoo.conf.example" || die
@@ -122,6 +129,12 @@ src_prepare() {
 		einfo "Setting systemdsystemconfdir to ${systemdsystemconfdir}..."
 		sed -e "7asystemdsystemconfdir=\"${systemdsystemconfdir}\"" \
 			-i "${S}/dracut.conf.d/gentoo.conf.example" || die
+	else
+		local systemdutildir="/lib/systemd"
+		einfo "Setting systemdutildir for standalone udev to" \
+			"${systemdutildir}..."
+		sed -e "5asystemdutildir=\"${systemdutildir}\"" \
+			-i "${S}/dracut.conf.d/gentoo.conf.example" || die
 	fi
 
 	epatch_user
@@ -140,7 +153,7 @@ src_configure() {
 
 src_compile() {
 	tc-export CC
-	emake doc install/dracut-install
+	emake doc install/dracut-install skipcpio/skipcpio
 }
 
 src_install() {
@@ -160,6 +173,11 @@ src_install() {
 	dodir /var/lib/dracut/overlay
 
 	dohtml dracut.html
+
+	if ! use systemd; then
+		# Scripts in kernel/install.d are systemd-specific
+		rm -r "${D%/}/${my_libdir}/kernel" || die
+	fi
 
 	#
 	# Modules
@@ -236,7 +254,7 @@ pkg_postinst() {
 		sys-libs/libcap
 	optfeature "Support CIFS" net-fs/cifs-utils
 	optfeature "Decrypt devices encrypted with cryptsetup/LUKS" \
-		sys-fs/cryptsetup
+		"sys-fs/cryptsetup[-static-libs]"
 	optfeature "Support for GPG-encrypted keys for crypt module" \
 		app-crypt/gnupg
 	optfeature \
@@ -249,7 +267,7 @@ pkg_postinst() {
 	optfeature "Support MD devices, also known as software RAID devices" \
 		sys-fs/mdadm
 	optfeature "Support Device Mapper multipathing" sys-fs/multipath-tools
-	optfeature "Plymouth boot splash" '>=sys-boot/plymouth-0.8.5-r5'
+	optfeature "Plymouth boot splash"  '>=sys-boot/plymouth-0.8.5-r5'
 	optfeature "Support network block devices" sys-block/nbd
 	optfeature "Support NFS" net-fs/nfs-utils net-nds/rpcbind
 	optfeature \
