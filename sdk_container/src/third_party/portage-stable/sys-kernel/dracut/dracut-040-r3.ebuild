@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-kernel/dracut/dracut-040-r2.ebuild,v 1.3 2014/12/19 17:31:07 pacho Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-kernel/dracut/dracut-040-r3.ebuild,v 1.2 2015/03/31 10:54:29 aidecoe Exp $
 
 EAPI=4
 
@@ -50,6 +50,7 @@ PATCHES=(
 	"${FILESDIR}/${PV}-0003-Use-the-same-paths-in-dracut.sh-as-tho.patch"
 	"${FILESDIR}/${PV}-0005-NEWS-add-040-entry.patch"
 	"${FILESDIR}/${PV}-0006-Don-t-pass-rsyncable-option-to-gzip-Ge.patch"
+	"${FILESDIR}/${PV}-0007-Take-into-account-lib64-dirs-when-dete.patch"
 	)
 QA_MULTILIB_PATHS="
 	usr/lib/dracut/dracut-install
@@ -247,7 +248,7 @@ pkg_postinst() {
 		sys-libs/libcap
 	optfeature "Support CIFS" net-fs/cifs-utils
 	optfeature "Decrypt devices encrypted with cryptsetup/LUKS" \
-		sys-fs/cryptsetup
+		"sys-fs/cryptsetup[-static-libs]"
 	optfeature "Support for GPG-encrypted keys for crypt module" \
 		app-crypt/gnupg
 	optfeature \

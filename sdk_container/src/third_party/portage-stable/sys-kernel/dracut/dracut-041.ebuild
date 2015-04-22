@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-kernel/dracut/dracut-037-r3.ebuild,v 1.4 2014/12/19 17:31:07 pacho Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-kernel/dracut/dracut-041.ebuild,v 1.2 2015/03/31 10:54:29 aidecoe Exp $
 
 EAPI=4
 
@@ -18,7 +18,6 @@ RESTRICT="test"
 
 CDEPEND="virtual/udev
 	systemd? ( >=sys-apps/systemd-199 )
-	selinux? ( sec-policy/selinux-dracut )
 	"
 RDEPEND="${CDEPEND}
 	app-arch/cpio
@@ -28,7 +27,11 @@ RDEPEND="${CDEPEND}
 	>=sys-apps/util-linux-2.21
 
 	debug? ( dev-util/strace )
-	selinux? ( sys-libs/libselinux sys-libs/libsepol )
+	selinux? (
+		sys-libs/libselinux
+		sys-libs/libsepol
+		sec-policy/selinux-dracut
+	)
 	"
 DEPEND="${CDEPEND}
 	app-text/asciidoc
@@ -46,10 +49,12 @@ PATCHES=(
 	"${FILESDIR}/${PV}-0002-gentoo.conf-let-udevdir-be-handled-by-.patch"
 	"${FILESDIR}/${PV}-0003-Use-the-same-paths-in-dracut.sh-as-tho.patch"
 	"${FILESDIR}/${PV}-0004-Install-dracut-install-into-libexec-di.patch"
-	"${FILESDIR}/${PV}-0005-modsign-do-not-hardcode-path-to-keyctl.patch"
-	"${FILESDIR}/${PV}-0006-98systemd-fixup-rootfs-generator-insta.patch"
-	"${FILESDIR}/${PV}-0007-udev-rules-add-uaccess-rules.patch"
+	"${FILESDIR}/${PV}-0005-Take-into-account-lib64-dirs-when-dete.patch"
 	)
+QA_MULTILIB_PATHS="
+	usr/lib/dracut/dracut-install
+	usr/lib/dracut/skipcpio
+	"
 
 #
 # Helper functions
@@ -146,7 +151,7 @@ src_configure() {
 
 src_compile() {
 	tc-export CC
-	emake doc install/dracut-install
+	emake doc install/dracut-install skipcpio/skipcpio
 }
 
 src_install() {
@@ -242,7 +247,7 @@ pkg_postinst() {
 		sys-libs/libcap
 	optfeature "Support CIFS" net-fs/cifs-utils
 	optfeature "Decrypt devices encrypted with cryptsetup/LUKS" \
-		sys-fs/cryptsetup
+		"sys-fs/cryptsetup[-static-libs]"
 	optfeature "Support for GPG-encrypted keys for crypt module" \
 		app-crypt/gnupg
 	optfeature \
