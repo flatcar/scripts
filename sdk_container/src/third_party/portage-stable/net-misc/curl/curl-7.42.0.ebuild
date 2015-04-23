@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/curl/curl-7.40.0.ebuild,v 1.1 2015/01/11 22:16:14 blueness Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-misc/curl/curl-7.42.0.ebuild,v 1.5 2015/04/23 11:18:19 ago Exp $
 
 EAPI="5"
 
@@ -12,7 +12,7 @@ SRC_URI="http://curl.haxx.se/download/${P}.tar.bz2"
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 ~arm ~arm64 hppa ~ia64 ~m68k ~mips ~ppc ppc64 ~s390 ~sh ~sparc x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="adns idn ipv6 kerberos ldap metalink rtmp samba ssh ssl static-libs test threads"
 IUSE="${IUSE} curl_ssl_axtls curl_ssl_gnutls curl_ssl_nss +curl_ssl_openssl curl_ssl_polarssl curl_ssl_winssl"
 IUSE="${IUSE} elibc_Winnt"
@@ -163,7 +163,7 @@ multilib_src_configure() {
 		fi
 		if use curl_ssl_openssl; then
 			einfo "SSL provided by openssl"
-			myconf+=( --with-ssl --without-ca-bundle --with-ca-path="${EPREFIX}"/etc/ssl/certs )
+			myconf+=( --with-ssl --with-ca-path="${EPREFIX}"/etc/ssl/certs )
 		fi
 		if use curl_ssl_winssl; then
 			einfo "SSL provided by Windows"
