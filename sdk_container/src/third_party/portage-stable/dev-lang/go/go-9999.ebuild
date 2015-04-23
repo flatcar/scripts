@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-lang/go/go-9999.ebuild,v 1.21 2014/12/11 17:28:16 williamh Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-lang/go/go-9999.ebuild,v 1.25 2015/01/20 04:02:26 williamh Exp $
 
 EAPI=5
 
@@ -9,8 +9,8 @@ export CTARGET=${CTARGET:-${CHOST}}
 inherit eutils toolchain-funcs
 
 if [[ ${PV} = 9999 ]]; then
-	EHG_REPO_URI="https://go.googlecode.com/hg"
-	inherit mercurial
+	EGIT_REPO_URI="git://github.com/golang/go.git"
+	inherit git-r3
 else
 	SRC_URI="https://storage.googleapis.com/golang/go${PV}.src.tar.gz"
 	# Upstream only supports go on amd64, arm and x86 architectures.
@@ -24,7 +24,7 @@ LICENSE="BSD"
 SLOT="0"
 IUSE=""
 
-DEPEND=""
+DEPEND=">=dev-lang/go-bootstrap-1.4.1"
 RDEPEND=""
 
 # The tools in /usr/lib/go should not cause the multilib-strict check to fail.
@@ -41,13 +41,15 @@ fi
 src_prepare()
 {
 	if [[ ${PV} != 9999 ]]; then
-		epatch "${FILESDIR}"/${PN}-1.2-no-Werror.patch
+		sed -i -e 's/"-Werror",//g' src/cmd/dist/build.go ||
+			die 'sed failed'
 	fi
 	epatch_user
 }
 
 src_compile()
 {
+	export GOROOT_BOOTSTRAP="${EPREFIX}"/usr/lib/go1.4
 	export GOROOT_FINAL="${EPREFIX}"/usr/lib/go
 	export GOROOT="$(pwd)"
 	export GOBIN="${GOROOT}/bin"
@@ -71,7 +73,7 @@ src_test()
 src_install()
 {
 	dobin bin/*
-	dodoc AUTHORS CONTRIBUTORS PATENTS README
+	dodoc AUTHORS CONTRIBUTORS PATENTS README.md
 
 	dodir /usr/lib/go
 	insinto /usr/lib/go
@@ -79,7 +81,7 @@ src_install()
 	# There is a known issue which requires the source tree to be installed [1].
 	# Once this is fixed, we can consider using the doc use flag to control
 	# installing the doc and src directories.
-	# [1] http://code.google.com/p/go/issues/detail?id=2775
+	# [1] https://golang.org/issue/2775
 	doins -r doc include lib pkg src
 	fperms -R +x /usr/lib/go/pkg/tool
 }
