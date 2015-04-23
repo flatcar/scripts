@@ -1,9 +1,9 @@
 DEFINED_PHASES=compile install postinst preinst prepare test unpack
-DEPEND=dev-vcs/mercurial
+DEPEND=>=dev-lang/go-bootstrap-1.4.1 >=dev-vcs/git-1.8.2.1
 DESCRIPTION=A concurrent garbage collected and typesafe programming language
 EAPI=5
 HOMEPAGE=http://www.golang.org
 LICENSE=BSD
 SLOT=0
-_eclasses_=eutils	9fb270e417e0e83d64ca52586c4a79de	mercurial	2fbda5894dda6392b71334ee9a92de0b	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	c961250d50160cd37d6b7fd9e8429c92
-_md5_=c083f727eb5d8188b31e85445f6a90ee
+_eclasses_=eutils	9fb270e417e0e83d64ca52586c4a79de	git-r3	3a2bd0ae504c33a50061885480f3def3	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	c961250d50160cd37d6b7fd9e8429c92
+_md5_=c8a246893c33fe76e06ffd5e4ff78efe

@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-lang/go/go-1.4.ebuild,v 1.2 2014/12/11 17:03:50 williamh Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-lang/go/go-1.4.2.ebuild,v 1.3 2015/04/08 12:57:46 zlogene Exp $
 
 EAPI=5
 
@@ -9,12 +9,12 @@ export CTARGET=${CTARGET:-${CHOST}}
 inherit eutils toolchain-funcs
 
 if [[ ${PV} = 9999 ]]; then
-	EHG_REPO_URI="https://go.googlecode.com/hg"
-	inherit mercurial
+	EGIT_REPO_URI="git://github.com/golang/go.git"
+	inherit git-r3
 else
 	SRC_URI="https://storage.googleapis.com/golang/go${PV}.src.tar.gz"
 	# Upstream only supports go on amd64, arm and x86 architectures.
-	KEYWORDS="-* ~amd64 ~arm ~x86 ~amd64-fbsd ~x86-fbsd ~x64-macos ~x86-macos"
+	KEYWORDS="-* amd64 ~arm x86 ~amd64-fbsd ~x86-fbsd ~x64-macos ~x86-macos"
 fi
 
 DESCRIPTION="A concurrent garbage collected and typesafe programming language"
@@ -41,7 +41,8 @@ fi
 src_prepare()
 {
 	if [[ ${PV} != 9999 ]]; then
-		epatch "${FILESDIR}"/${PN}-1.2-no-Werror.patch
+		sed -i -e 's#"-Werror",##g' src/cmd/dist/build.c ||
+			die "sed failed"
 	fi
 	epatch_user
 }
@@ -79,7 +80,7 @@ src_install()
 	# There is a known issue which requires the source tree to be installed [1].
 	# Once this is fixed, we can consider using the doc use flag to control
 	# installing the doc and src directories.
-	# [1] http://code.google.com/p/go/issues/detail?id=2775
+	# [1] https://golang.org/issue/2775
 	doins -r doc include lib pkg src
 	fperms -R +x /usr/lib/go/pkg/tool
 }
@@ -105,7 +106,7 @@ pkg_postinst()
 
 	if [[ ${PV} != 9999 && -n ${REPLACING_VERSIONS} &&
 		${REPLACING_VERSIONS} != ${PV} ]]; then
-		elog "Release notes are located at http://golang.org/doc/go${PV}"
+		elog "Release notes are located at http://golang.org/doc/go1.4"
 	fi
 
 	if $had_support_files; then
