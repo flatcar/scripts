@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/gcc-4.7.4.ebuild,v 1.5 2014/10/24 00:23:04 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/gcc-4.7.4.ebuild,v 1.6 2015/03/17 06:41:31 vapier Exp $
 
 EAPI="4"
 
@@ -40,10 +40,8 @@ src_prepare() {
 		EPATCH_EXCLUDE+=" 10_all_default-fortify-source.patch"
 	fi
 
-	# drop the x32 stuff once 4.7 goes stable
-	if [[ ${CTARGET} != x86_64* ]] || ! has x32 $(get_all_abis TARGET) ; then
-		EPATCH_EXCLUDE+=" 90_all_gcc-4.7-x32.patch"
-	fi
+	# drop the x32 stuff in the next patchset #543578
+	EPATCH_EXCLUDE+=" 90_all_gcc-4.7-x32.patch"
 
 	toolchain_src_prepare
 
