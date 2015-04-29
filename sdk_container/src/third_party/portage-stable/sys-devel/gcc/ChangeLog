@@ -1,6 +1,125 @@
 # ChangeLog for sys-devel/gcc
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/ChangeLog,v 1.1033 2014/11/04 03:20:47 vapier Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/ChangeLog,v 1.1066 2015/04/26 17:43:59 zorry Exp $
+
+  26 Apr 2015; Magnus Granberg <zorry@gentoo.org> gcc-5.1.0.ebuild:
+  Add hardened support to gcc 5.1
+
+*gcc-5.1.0 (23 Apr 2015)
+
+  23 Apr 2015; Mike Frysinger <vapier@gentoo.org> +gcc-5.1.0.ebuild:
+  Version bump #547470.
+
+  23 Apr 2015; Mike Frysinger <vapier@gentoo.org> gcc-4.8.4.ebuild,
+  gcc-4.9.2.ebuild:
+  Fix building with isl-0.13+ #547480.
+
+  23 Apr 2015; Mikle Kolyada <zlogene@gentoo.org> gcc-4.8.4.ebuild:
+  sparc stable wrt bug #545124
+
+  17 Apr 2015; Mikle Kolyada <zlogene@gentoo.org> gcc-4.8.4.ebuild:
+  x86 stable wrt bug #545124
+
+  13 Apr 2015; Agostino Sarubbo <ago@gentoo.org> gcc-4.8.4.ebuild:
+  Stable for alpha, wrt bug #545124
+
+  06 Apr 2015; Mike Frysinger <vapier@gentoo.org> gcc-3.3.6-r1.ebuild,
+  gcc-3.4.6-r2.ebuild:
+  Fix building with newer bison-3 #519704 by Andrew Church.
+
+  04 Apr 2015; Mike Frysinger <vapier@gentoo.org> gcc-4.8.4.ebuild:
+  Mark arm64/m68k/s390/sh stable.
+
+  01 Apr 2015; Mikle Kolyada <zlogene@gentoo.org> gcc-4.8.4.ebuild:
+  amd64 stable wrt bug #545124
+
+  01 Apr 2015; Anthony G. Basile <blueness@gentoo.org> gcc-4.8.4.ebuild:
+  Stable for ppc and ppc64.  Bug #545124.
+
+  31 Mar 2015; Jeroen Roovers <jer@gentoo.org> gcc-4.8.4.ebuild:
+  Stable for HPPA (bug #545124).
+
+  31 Mar 2015; Mike Frysinger <vapier@gentoo.org> gcc-4.8.4.ebuild,
+  gcc-4.9.2.ebuild:
+  Add fix from upstream for config.h/bconfig.h parallel build problems #487398
+  and #545010 by Thomas D.
+
+  29 Mar 2015; Mike Frysinger <vapier@gentoo.org>
+  -files/3.4.1/gcc-3.4.1-mips-n32only.patch,
+  -files/3.4.1/gcc-3.4.1-mips-n64only.patch,
+  -files/3.4.2/gcc-3.4.2-mips-ip28_cache_barriers-v4.patch,
+  -files/3.4.2/gcc-3.4.x-mips-add-march-r10k.patch, gcc-3.4.6-r2.ebuild,
+  metadata.xml:
+  Drop old mips-specific patches -- they can use newer gcc-4 versions.  The r10k
+  patch has been moved to the gentoo patchset.
+
+  29 Mar 2015; Mike Frysinger <vapier@gentoo.org> metadata.xml:
+  Add USE=cilk to control support for the Cilk Plus language.
+
+  17 Mar 2015; Mike Frysinger <vapier@gentoo.org> gcc-4.7.0.ebuild,
+  gcc-4.7.1.ebuild, gcc-4.7.2-r1.ebuild, gcc-4.7.3-r1.ebuild, gcc-4.7.4.ebuild:
+  Mask out the x32 patches all the time #543578.
+
+  13 Mar 2015; Mike Frysinger <vapier@gentoo.org> -gcc-4.5.1-r1.ebuild,
+  -gcc-4.5.2.ebuild, -gcc-4.5.3-r2.ebuild, -gcc-4.6.0.ebuild,
+  -gcc-4.6.1-r1.ebuild, -gcc-4.6.2.ebuild, -gcc-4.6.3.ebuild:
+  Move old ebuilds to toolchain overlay.
+
+  28 Feb 2015;  <tgall@gentoo.org> gcc-4.9.2.ebuild:
+  add ~arm64
+
+  21 Feb 2015; Anthony G. Basile <blueness@gentoo.org> gcc-4.8.4.ebuild:
+  Bump gentoo gcc patchset for 4.8.4 for alpha, bug #539950
+
+  19 Feb 2015; Magnus Granberg <zorry@gentoo.org> gcc-4.8.4.ebuild,
+  gcc-4.9.2.ebuild:
+  Bump gentoo gcc patchset for 4.8.4 and 4.9.2 to fix mips bug #516548
+
+  10 Feb 2015; Anthony G. Basile <blueness@gentoo.org> gcc-4.8.4.ebuild,
+  gcc-4.9.2.ebuild:
+  Forward port msgfmt link fix from 4.7.4 to 4.8.4 and 4.9.2, bug #372377
+
+  05 Feb 2015; Anthony G. Basile <blueness@gentoo.org> gcc-4.9.2.ebuild:
+  Add ~mips, bug #536874
+
+  31 Jan 2015; Agostino Sarubbo <ago@gentoo.org> gcc-4.9.2.ebuild:
+  Add ~x86, wrt bug #536874
+
+  31 Jan 2015; Agostino Sarubbo <ago@gentoo.org> gcc-4.9.2.ebuild:
+  Add ~sparc, wrt bug #536874
+
+  25 Jan 2015; Agostino Sarubbo <ago@gentoo.org> gcc-4.9.2.ebuild:
+  Add ~alpha, wrt bug #536874
+
+  24 Jan 2015; Agostino Sarubbo <ago@gentoo.org> gcc-4.9.2.ebuild:
+  Add ~ia64, wrt bug #536874
+
+  22 Jan 2015; Markus Meier <maekke@gentoo.org> gcc-4.9.2.ebuild:
+  add ~arm, bug #536874
+
+  19 Jan 2015; Agostino Sarubbo <ago@gentoo.org> gcc-4.9.2.ebuild:
+  Add ~ppc, wrt bug #536874
+
+  19 Jan 2015; Agostino Sarubbo <ago@gentoo.org> gcc-4.9.2.ebuild:
+  Add ~ppc64, wrt bug #536874
+
+  18 Jan 2015; Agostino Sarubbo <ago@gentoo.org> gcc-4.9.2.ebuild:
+  Add ~amd64, wrt bug #536874
+
+  17 Jan 2015; Jeroen Roovers <jer@gentoo.org> gcc-4.9.0.ebuild,
+  gcc-4.9.1.ebuild, gcc-4.9.2.ebuild:
+  Marked ~hppa (bug #536874).
+
+  05 Jan 2015; Magnus Granberg <zorry@gentoo.org> gcc-4.9.2.ebuild:
+  Update piepatchset to 0.6.2 fix #528968 #528690
+
+*gcc-4.8.4 (26 Dec 2014)
+
+  26 Dec 2014; Magnus Granberg <zorry@gentoo.org> +gcc-4.8.4.ebuild:
+  Add gcc 4.8.4, wrt bug #533116
+
+  26 Dec 2014; Agostino Sarubbo <ago@gentoo.org> gcc-4.8.3.ebuild:
+  Stable for sparc, wrt bug #516152
 
   04 Nov 2014; Mike Frysinger <vapier@gentoo.org> gcc-4.8.3.ebuild:
   Mark arm64/m68k/s390/sh stable.
