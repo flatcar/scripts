@@ -1,6 +1,227 @@
 # ChangeLog for net-misc/dhcpcd
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/dhcpcd/ChangeLog,v 1.399 2014/04/20 23:21:06 williamh Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-misc/dhcpcd/ChangeLog,v 1.455 2015/05/05 13:20:12 williamh Exp $
+
+*dhcpcd-6.8.2 (05 May 2015)
+
+  05 May 2015; William Hubbs <williamh@gentoo.org> +dhcpcd-6.8.2.ebuild:
+  version bump
+
+  26 Apr 2015; Mikle Kolyada <zlogene@gentoo.org> dhcpcd-6.6.7.ebuild:
+  ia64 stable wrt bug #538418
+
+  22 Apr 2015; Jeroen Roovers <jer@gentoo.org> dhcpcd-6.6.7.ebuild:
+  Stable for PPC64 (bug #538418).
+
+  17 Apr 2015; Mikle Kolyada <zlogene@gentoo.org> dhcpcd-6.6.7.ebuild:
+  sparc stable wrt bug #538418
+
+  27 Mar 2015; William Hubbs <williamh@gentoo.org> -dhcpcd-6.4.5.ebuild,
+  -dhcpcd-6.5.0.ebuild, -dhcpcd-6.5.1.ebuild, -dhcpcd-6.6.6.ebuild:
+  remove unstable versions
+
+*dhcpcd-6.8.1 (27 Mar 2015)
+
+  27 Mar 2015; William Hubbs <williamh@gentoo.org> +dhcpcd-6.8.1.ebuild:
+  version bump
+
+  02 Mar 2015; Agostino Sarubbo <ago@gentoo.org> dhcpcd-6.6.7.ebuild:
+  Stable for ppc, wrt bug #538418
+
+  28 Feb 2015;  <tgall@gentoo.org> dhcpcd-6.7.1.ebuild:
+  stable on arm64
+
+  22 Feb 2015; Mikle Kolyada <zlogene@gentoo.org> dhcpcd-6.6.7.ebuild:
+  x86 stable wrt bug #538418
+
+  17 Feb 2015; Markus Meier <maekke@gentoo.org> dhcpcd-6.6.7.ebuild:
+  arm stable, bug #538418
+
+  02 Feb 2015; Jeroen Roovers <jer@gentoo.org> dhcpcd-6.6.7.ebuild:
+  Stable for HPPA (bug #538418).
+
+  01 Feb 2015; Mikle Kolyada <zlogene@gentoo.org> dhcpcd-6.6.7.ebuild:
+  amd64 stable wrt bug #538418
+
+  30 Jan 2015; William Hubbs <williamh@gentoo.org> dhcpcd-6.7.1.ebuild,
+  dhcpcd-9999.ebuild:
+  Add the embedded use flag for #535960.
+
+*dhcpcd-6.7.1 (30 Jan 2015)
+
+  30 Jan 2015; Lars Wendler <polynomial-c@gentoo.org> -dhcpcd-6.6.0.ebuild,
+  -dhcpcd-6.6.1.ebuild, -dhcpcd-6.6.2.ebuild, -dhcpcd-6.6.4.ebuild,
+  -dhcpcd-6.6.5.ebuild, +dhcpcd-6.7.1.ebuild:
+  Version bump. Removed old.
+
+  10 Jan 2015; Tobias Klausmann <klausman@gentoo.org> dhcpcd-6.4.7.ebuild:
+  Stable on alpha, bug 523900
+
+*dhcpcd-6.6.7 (06 Jan 2015)
+
+  06 Jan 2015; William Hubbs <williamh@gentoo.org> +dhcpcd-6.6.7.ebuild:
+  version bump
+
+*dhcpcd-6.6.6 (18 Dec 2014)
+
+  18 Dec 2014; William Hubbs <williamh@gentoo.org> +dhcpcd-6.6.6.ebuild:
+  version bump
+
+*dhcpcd-6.6.5 (10 Dec 2014)
+
+  10 Dec 2014; William Hubbs <williamh@gentoo.org> +dhcpcd-6.6.5.ebuild:
+  version bump
+
+*dhcpcd-6.6.4 (29 Nov 2014)
+
+  29 Nov 2014; Jason Zaman <perfinon@gentoo.org> +dhcpcd-6.6.4.ebuild:
+  Version bump on behalf of rsmarples
+
+*dhcpcd-6.6.2 (14 Nov 2014)
+
+  14 Nov 2014; William Hubbs <williamh@gentoo.org> +dhcpcd-6.6.2.ebuild:
+  version bump
+
+*dhcpcd-6.6.1 (07 Nov 2014)
+
+  07 Nov 2014; William Hubbs <williamh@gentoo.org> +dhcpcd-6.6.1.ebuild:
+  version bump
+
+*dhcpcd-6.6.0 (29 Oct 2014)
+
+  29 Oct 2014; William Hubbs <williamh@gentoo.org> +dhcpcd-6.6.0.ebuild:
+  version bump
+
+*dhcpcd-6.5.1 (17 Oct 2014)
+
+  17 Oct 2014; William Hubbs <williamh@gentoo.org> +dhcpcd-6.5.1.ebuild:
+  version bump
+
+  10 Oct 2014; Markus Meier <maekke@gentoo.org> dhcpcd-6.4.7.ebuild:
+  arm stable, bug #523900
+
+*dhcpcd-6.5.0 (06 Oct 2014)
+
+  06 Oct 2014; William Hubbs <williamh@gentoo.org> +dhcpcd-6.5.0.ebuild:
+  version bump
+
+  28 Sep 2014; Jeroen Roovers <jer@gentoo.org> dhcpcd-6.4.7.ebuild:
+  Stable for HPPA (bug #523900).
+
+  28 Sep 2014; Agostino Sarubbo <ago@gentoo.org> dhcpcd-6.4.7.ebuild:
+  Stable for ppc64, wrt bug #523900
+
+  28 Sep 2014; Agostino Sarubbo <ago@gentoo.org> dhcpcd-6.4.7.ebuild:
+  Stable for ppc, wrt bug #523900
+
+  27 Sep 2014; Mikle Kolyada <zlogene@gentoo.org> dhcpcd-6.4.7.ebuild:
+  x86 stable wrt bug #523900
+
+  27 Sep 2014; William Hubbs <williamh@gentoo.org> dhcpcd-6.4.7.ebuild:
+  amd64 stable for bug #523900
+
+*dhcpcd-6.4.7 (27 Sep 2014)
+
+  27 Sep 2014; William Hubbs <williamh@gentoo.org> +dhcpcd-6.4.7.ebuild:
+  version bump
+
+  20 Sep 2014; William Hubbs <williamh@gentoo.org> dhcpcd-6.4.3.ebuild,
+  dhcpcd-6.4.5.ebuild, dhcpcd-9999.ebuild:
+  Pass the value of CC as an argument to configure instead of using tc-export.
+
+  20 Sep 2014; William Hubbs <williamh@gentoo.org> dhcpcd-6.4.3.ebuild,
+  dhcpcd-6.4.5.ebuild, dhcpcd-9999.ebuild:
+  make sure we use the correct compiler by running tc-export CC
+
+*dhcpcd-6.4.5 (18 Sep 2014)
+
+  18 Sep 2014; William Hubbs <williamh@gentoo.org> +dhcpcd-6.4.5.ebuild,
+  -dhcpcd-6.4.4-r1.ebuild, -files/dhcpcd-6.4.4-fix-ipv6.patch:
+  new upstream release
+
+  18 Sep 2014; William Hubbs <williamh@gentoo.org> -dhcpcd-6.4.4.ebuild:
+  remove old
+
+*dhcpcd-6.4.4-r1 (18 Sep 2014)
+
+  18 Sep 2014; William Hubbs <williamh@gentoo.org> +dhcpcd-6.4.4-r1.ebuild,
+  +files/dhcpcd-6.4.4-fix-ipv6.patch:
+  import upstream patch to fix ipv6 related segmentation fault for bug #523128
+
+*dhcpcd-6.4.4 (16 Sep 2014)
+
+  16 Sep 2014; William Hubbs <williamh@gentoo.org> +dhcpcd-6.4.4.ebuild:
+  version bump
+
+  11 Sep 2014; William Hubbs <williamh@gentoo.org>
+  +files/dhcpcd-6.4.3-uclibc-fix.patch, dhcpcd-6.4.3.ebuild:
+  Add build-time fix for uclibc for bug #522158, thanks to David Flogeras for
+  the patch; Roy suggested that I should use this one for 6.4.3 instead of what
+  he has added to upstream.
+
+  01 Aug 2014; William Hubbs <williamh@gentoo.org> -dhcpcd-5.6.4.ebuild,
+  -dhcpcd-6.2.0-r1.ebuild, -files/dhcpcd-6.2.0-dynamic-init.patch,
+  -files/dhcpcd-6.2.0-no_ipv6_fix.patch:
+  remove vulnerable versions wrt bug #518596
+
+  01 Aug 2014; Mikle Kolyada <zlogene@gentoo.org> dhcpcd-6.4.3.ebuild:
+  arm stable wrt bug #518596
+
+  01 Aug 2014; Mikle Kolyada <zlogene@gentoo.org> dhcpcd-6.4.3.ebuild:
+  sparc stable wrt bug #518596
+
+  01 Aug 2014; Mikle Kolyada <zlogene@gentoo.org> dhcpcd-6.4.3.ebuild:
+  ia64 stable wrt bug #518596
+
+  31 Jul 2014; Joseph Jezak <josejx@gentoo.org> dhcpcd-6.4.3.ebuild:
+  Marked ppc/ppc64 stable for bug #518596.
+
+  31 Jul 2014; Tobias Klausmann <klausman@gentoo.org> dhcpcd-6.4.3.ebuild:
+  Stable on alpha, bug #518596
+
+  30 Jul 2014; Jeroen Roovers <jer@gentoo.org> dhcpcd-6.4.3.ebuild:
+  Stable for HPPA (bug #518596).
+
+  30 Jul 2014; William Hubbs <williamh@gentoo.org> -dhcpcd-6.4.2.ebuild:
+  remove unstable version
+
+  30 Jul 2014; Mikle Kolyada <zlogene@gentoo.org> dhcpcd-6.4.3.ebuild:
+  x86 stable wrt bug #518596
+
+  30 Jul 2014; William Hubbs <williamh@gentoo.org> dhcpcd-6.4.3.ebuild:
+  amd64 stable for bug #518596.
+
+*dhcpcd-6.4.3 (30 Jul 2014)
+
+  30 Jul 2014; William Hubbs <williamh@gentoo.org> +dhcpcd-6.4.3.ebuild:
+  version bump
+
+  14 Jul 2014; William Hubbs <williamh@gentoo.org> -dhcpcd-6.3.2.ebuild,
+  -dhcpcd-6.4.0.ebuild, -files/dhcpcd-6.3.2-fix-cc-setting.patch,
+  -files/dhcpcd-6.3.2-fix-host.patch, -files/dhcpcd-6.3.2-gettime-dlopen.patch:
+  remove old unstable versions
+
+  14 Jul 2014; William Hubbs <williamh@gentoo.org> dhcpcd-9999.ebuild:
+  sync live ebuild
+
+*dhcpcd-6.4.2 (14 Jul 2014)
+
+  14 Jul 2014; William Hubbs <williamh@gentoo.org> +dhcpcd-6.4.2.ebuild:
+  version bump to fix compile errors, bug #516228.
+
+  05 Jul 2014; Mikle Kolyada <zlogene@gentoo.org> dhcpcd-6.2.0-r1.ebuild:
+  ppc64 stable wrt bug #499262
+
+  05 Jul 2014; Mikle Kolyada <zlogene@gentoo.org> dhcpcd-6.2.0-r1.ebuild:
+  ia64 stable wrt bug #499262
+
+  05 Jul 2014; Tobias Klausmann <klausman@gentoo.org> dhcpcd-6.2.0-r1.ebuild:
+  Stable on alpha, bug #499262
+
+*dhcpcd-6.4.0 (20 Jun 2014)
+
+  20 Jun 2014; William Hubbs <william@gentoo.org> +dhcpcd-6.4.0.ebuild:
+  version bump
 
   20 Apr 2014; William Hubbs <williamh@gentoo.org>
   +files/dhcpcd-6.3.2-fix-cc-setting.patch, +files/dhcpcd-6.3.2-fix-host.patch,

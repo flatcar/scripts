@@ -8,5 +8,10 @@
   </maintainer>
   <upstream>
     <remote-id type="cpe">cpe:/a:roy_marples:dhcpcd</remote-id>
-  </upstream>
+</upstream>
+<use>
+	<flag name="embedded">
+		Embed the definitions of dhcp options in the dhcpcd executable
+	</flag>
+</use>
 </pkgmetadata>
