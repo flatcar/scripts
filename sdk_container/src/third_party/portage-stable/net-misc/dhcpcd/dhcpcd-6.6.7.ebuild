@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/dhcpcd/dhcpcd-6.3.2.ebuild,v 1.2 2014/04/20 23:21:06 williamh Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-misc/dhcpcd/dhcpcd-6.6.7.ebuild,v 1.9 2015/04/26 19:17:11 zlogene Exp $
 
 EAPI=5
 
@@ -11,7 +11,7 @@ else
 	MY_P="${MY_P/_beta/-beta}"
 	MY_P="${MY_P/_rc/-rc}"
 	SRC_URI="http://roy.marples.name/downloads/${PN}/${MY_P}.tar.bz2"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux"
+	KEYWORDS="~alpha amd64 arm ~arm64 hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux"
 	S="${WORKDIR}/${MY_P}"
 fi
 
@@ -52,9 +52,6 @@ fi
 
 src_prepare()
 {
-	epatch "${FILESDIR}"/${P}-gettime-dlopen.patch
-	epatch "${FILESDIR}"/${P}-fix-cc-setting.patch
-	epatch "${FILESDIR}"/${P}-fix-host.patch
 	epatch_user
 }
 
@@ -73,6 +70,7 @@ src_configure()
 		${rundir} \
 		$(use_enable ipv6) \
 		${dev} \
+		CC="$(tc-getCC)" \
 		${hooks}
 }
 
@@ -97,19 +95,21 @@ pkg_postinst()
 		cp -p "${old_duid}" "${new_duid}"
 	fi
 
-	elog
-	elog "dhcpcd has zeroconf support active by default."
-	elog "This means it will always obtain an IP address even if no"
-	elog "DHCP server can be contacted, which will break any existing"
-	elog "failover support you may have configured in your net configuration."
-	elog "This behaviour can be controlled with the noipv4ll configuration"
-	elog "file option or the -L command line switch."
-	elog "See the dhcpcd and dhcpcd.conf man pages for more details."
+	if [ -z "$REPLACING_VERSIONS" ]; then
+		elog
+	 elog "dhcpcd has zeroconf support active by default."
+		elog "This means it will always obtain an IP address even if no"
+		elog "DHCP server can be contacted, which will break any existing"
+		elog "failover support you may have configured in your net configuration."
+		elog "This behaviour can be controlled with the noipv4ll configuration"
+		elog "file option or the -L command line switch."
+		elog "See the dhcpcd and dhcpcd.conf man pages for more details."
 
-	elog
-	elog "Dhcpcd has duid enabled by default, and this may cause issues"
-	elog "with some dhcp servers. For more information, see"
-	elog "https://bugs.gentoo.org/show_bug.cgi?id=477356"
+		elog
+		elog "Dhcpcd has duid enabled by default, and this may cause issues"
+		elog "with some dhcp servers. For more information, see"
+		elog "https://bugs.gentoo.org/show_bug.cgi?id=477356"
+	fi
 
 	if ! has_version net-dns/bind-tools; then
 		elog

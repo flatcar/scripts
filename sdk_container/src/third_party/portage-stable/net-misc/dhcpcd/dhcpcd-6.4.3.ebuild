@@ -1,22 +1,21 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/dhcpcd/dhcpcd-6.2.0-r1.ebuild,v 1.8 2014/04/06 14:41:57 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-misc/dhcpcd/dhcpcd-6.4.3.ebuild,v 1.12 2014/09/20 16:44:51 williamh Exp $
 
 EAPI=5
 
 if [[ ${PV} == "9999" ]]; then
-	EGIT_REPO_URI="git://roy.marples.name/${PN}.git"
-	inherit git-r3
+	FOSSIL_URI="http://roy.marples.name/projects/dhcpcd"
 else
 	MY_P="${P/_alpha/-alpha}"
 	MY_P="${MY_P/_beta/-beta}"
 	MY_P="${MY_P/_rc/-rc}"
 	SRC_URI="http://roy.marples.name/downloads/${PN}/${MY_P}.tar.bz2"
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~mips ppc ~ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux"
+	KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux"
 	S="${WORKDIR}/${MY_P}"
 fi
 
-inherit eutils systemd
+inherit eutils systemd toolchain-funcs
 
 DESCRIPTION="A fully featured, yet light weight RFC2131 compliant DHCP client"
 HOMEPAGE="http://roy.marples.name/projects/dhcpcd/"
@@ -28,10 +27,32 @@ COMMON_DEPEND="udev? ( virtual/udev )"
 DEPEND="${COMMON_DEPEND}"
 RDEPEND="${COMMON_DEPEND}"
 
+if [[ ${PV} == "9999" ]]; then
+	DEPEND+=" dev-vcs/fossil"
+
+	src_unpack()
+	{
+		local distdir=${PORTAGE_ACTUAL_DISTDIR:-${DISTDIR}}
+		local repo=${distdir}/fossil/${PN}.fossil
+
+		addwrite "${distdir}"
+
+		if [[ -e "${repo}" ]]; then
+			fossil pull "${FOSSIL_URI}" -R "${repo}" || die
+		else
+			mkdir -p "${distdir}/fossil" || die
+			fossil clone "${FOSSIL_URI}" "${repo}" || die
+		fi
+
+		mkdir -p "${S}" || die
+		cd "${S}" || die
+		fossil open "${repo}" || die
+	}
+fi
+
 src_prepare()
 {
-	epatch "${FILESDIR}/${P}-dynamic-init.patch" #496870
-	epatch "${FILESDIR}/${P}-no_ipv6_fix.patch" #497098
+	epatch "${FILESDIR}"/${P}-uclibc-fix.patch
 	epatch_user
 }
 
@@ -50,6 +71,7 @@ src_configure()
 		${rundir} \
 		$(use_enable ipv6) \
 		${dev} \
+		CC="$(tc-getCC)" \
 		${hooks}
 }
 
@@ -74,19 +96,21 @@ pkg_postinst()
 		cp -p "${old_duid}" "${new_duid}"
 	fi
 
-	elog
-	elog "dhcpcd has zeroconf support active by default."
-	elog "This means it will always obtain an IP address even if no"
-	elog "DHCP server can be contacted, which will break any existing"
-	elog "failover support you may have configured in your net configuration."
-	elog "This behaviour can be controlled with the noipv4ll configuration"
-	elog "file option or the -L command line switch."
-	elog "See the dhcpcd and dhcpcd.conf man pages for more details."
+	if [ -z "$REPLACING_VERSIONS" ]; then
+		elog
+	 elog "dhcpcd has zeroconf support active by default."
+		elog "This means it will always obtain an IP address even if no"
+		elog "DHCP server can be contacted, which will break any existing"
+		elog "failover support you may have configured in your net configuration."
+		elog "This behaviour can be controlled with the noipv4ll configuration"
+		elog "file option or the -L command line switch."
+		elog "See the dhcpcd and dhcpcd.conf man pages for more details."
 
-	elog
-	elog "Dhcpcd has duid enabled by default, and this may cause issues"
-	elog "with some dhcp servers. For more information, see"
-	elog "https://bugs.gentoo.org/show_bug.cgi?id=477356"
+		elog
+		elog "Dhcpcd has duid enabled by default, and this may cause issues"
+		elog "with some dhcp servers. For more information, see"
+		elog "https://bugs.gentoo.org/show_bug.cgi?id=477356"
+	fi
 
 	if ! has_version net-dns/bind-tools; then
 		elog
