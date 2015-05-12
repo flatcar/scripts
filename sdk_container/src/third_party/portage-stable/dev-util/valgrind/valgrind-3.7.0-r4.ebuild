@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-util/valgrind/valgrind-3.8.1.ebuild,v 1.8 2013/05/26 12:17:05 blueness Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-util/valgrind/valgrind-3.7.0-r4.ebuild,v 1.7 2013/04/19 12:11:00 blueness Exp $
 
 EAPI="4"
 inherit autotools eutils flag-o-matic toolchain-funcs multilib pax-utils
@@ -11,7 +11,7 @@ SRC_URI="http://www.valgrind.org/downloads/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="-* amd64 ~arm ppc ppc64 x86 ~amd64-linux ~x86-linux ~x64-macos ~x86-macos"
+KEYWORDS="-* amd64 ppc ppc64 x86 ~amd64-linux ~x86-linux ~x64-macos ~x86-macos"
 IUSE="mpi"
 
 DEPEND="mpi? ( virtual/mpi )"
@@ -35,10 +35,16 @@ src_prepare() {
 
 	# Don't build in empty assembly files for other platforms or we'll get a QA
 	# warning about executable stacks.
-	epatch "${FILESDIR}"/${PN}-3.8.0-non-exec-stack.patch
+	epatch "${FILESDIR}"/${PN}-3.7.0-non-exec-stack-v2.patch
 
-	# Fix for glibc 2.18, bug #458326
-	epatch "${FILESDIR}"/${PN}-3.8.1-glibc-2.17.patch
+	# Fix the regex to get gcc's version
+	epatch "${FILESDIR}"/${PN}-3.7.0-fix-gcc-regex.patch
+
+	# Fix stricter use of dir variables, bug #397429
+	epatch "${FILESDIR}"/${PN}-3.7.0-automake-1.11.2.patch
+
+	# Fix for glibc 2.15, bug #398921
+	epatch "${FILESDIR}"/${PN}-3.7.0-glibc-2.15.patch
 
 	# Regenerate autotools files
 	eautoreconf
@@ -46,9 +52,6 @@ src_prepare() {
 
 src_configure() {
 	local myconf
-
-	# Respect ar, bug #468114
-	tc-export AR
 
 	# -fomit-frame-pointer	"Assembler messages: Error: junk `8' after expression"
 	#                       while compiling insn_sse.c in none/tests/x86
