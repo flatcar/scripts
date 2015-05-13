@@ -1,6 +1,42 @@
 # ChangeLog for dev-libs/openssl
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/openssl/ChangeLog,v 1.644 2015/03/21 11:02:41 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/openssl/ChangeLog,v 1.653 2015/05/13 09:25:11 ago Exp $
+
+  13 May 2015; Agostino Sarubbo <ago@gentoo.org> openssl-0.9.8z_p6.ebuild,
+  openssl-1.0.1m.ebuild:
+  Stable for x86, wrt bug #547992
+
+  11 May 2015; Mikle Kolyada <zlogene@gentoo.org> openssl-0.9.8z_p6.ebuild,
+  openssl-1.0.1m.ebuild:
+  amd64 stable wrt bug #547992
+
+  06 May 2015; Mike Frysinger <vapier@gentoo.org> openssl-1.0.1m.ebuild:
+  Mark arm64/ia64/m68k/s390/sh stable #547992.
+
+  30 Apr 2015; Jeroen Roovers <jer@gentoo.org> openssl-1.0.1m.ebuild:
+  Stable for HPPA (bug #547992).
+
+  29 Apr 2015; Jeroen Roovers <jer@gentoo.org> openssl-1.0.1m.ebuild:
+  Stable for PPC64 (bug #547992).
+
+  03 Apr 2015; Mike Frysinger <vapier@gentoo.org>
+  files/openssl-1.0.0a-ldflags.patch, files/openssl-1.0.2a-parallel-build.patch:
+  Fix upstream bug url.
+
+  03 Apr 2015; Mike Frysinger <vapier@gentoo.org>
+  +files/openssl-1.0.2a-parallel-symlinking.patch, openssl-1.0.2a.ebuild:
+  Fix parallel build wrt symlinking of generated libs #545028 by Martin von
+  Gagern.
+
+  02 Apr 2015; Mike Frysinger <vapier@gentoo.org> openssl-1.0.2a.ebuild,
+  files/openssl-1.0.2a-parallel-build.patch,
+  +files/openssl-1.0.2a-parallel-install-dirs.patch,
+  +files/openssl-1.0.2a-parallel-obj-headers.patch:
+  Split parallel build patch up a bit to match how they've been sent upstream.
+
+  02 Apr 2015; Mike Frysinger <vapier@gentoo.org> openssl-1.0.2a.ebuild,
+  files/openssl-1.0.2a-malloc-typo.patch, files/openssl-1.0.2a-x32-asm.patch:
+  Add links to upstream bug reports.
 
   21 Mar 2015; Mike Frysinger <vapier@gentoo.org>
   +files/openssl-1.0.2a-x32-asm.patch, openssl-1.0.2a.ebuild:
