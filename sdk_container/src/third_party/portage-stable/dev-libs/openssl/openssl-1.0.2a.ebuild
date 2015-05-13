@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/openssl/openssl-1.0.2a.ebuild,v 1.6 2015/03/21 11:02:41 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/openssl/openssl-1.0.2a.ebuild,v 1.9 2015/04/03 05:44:45 vapier Exp $
 
 EAPI="4"
 
@@ -60,9 +60,12 @@ src_prepare() {
 		epatch "${FILESDIR}"/${PN}-1.0.0a-ldflags.patch #327421
 		epatch "${FILESDIR}"/${PN}-1.0.0d-windres.patch #373743
 		epatch "${FILESDIR}"/${PN}-1.0.2a-parallel-build.patch
+		epatch "${FILESDIR}"/${PN}-1.0.2a-parallel-obj-headers.patch
+		epatch "${FILESDIR}"/${PN}-1.0.2a-parallel-install-dirs.patch
+		epatch "${FILESDIR}"/${PN}-1.0.2a-parallel-symlinking.patch #545028
 		epatch "${FILESDIR}"/${PN}-1.0.2-ipv6.patch
 		epatch "${FILESDIR}"/${PN}-1.0.2-s_client-verify.patch #472584
-		epatch "${FILESDIR}"/${PN}-1.0.2a-malloc-typo.patch #543828
+		epatch "${FILESDIR}"/${P}-malloc-typo.patch #543828
 		epatch "${FILESDIR}"/${PN}-1.0.2a-x32-asm.patch #542618
 
 		epatch_user #332661
