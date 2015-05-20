@@ -4,7 +4,7 @@ service rsync
 	protocol    = tcp
 	wait        = no
 	user        = root
-	server      = /usr/bin/rsync
+	server      = @GENTOO_PORTAGE_EPREFIX@/usr/bin/rsync
 	server_args = --daemon
 	disable     = yes
 }
