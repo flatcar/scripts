@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/curl/curl-7.39.0.ebuild,v 1.9 2014/12/01 09:14:20 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-misc/curl/curl-7.42.1-r1.ebuild,v 1.1 2015/05/24 13:55:23 vapier Exp $
 
 EAPI="5"
 
@@ -12,10 +12,10 @@ SRC_URI="http://curl.haxx.se/download/${P}.tar.bz2"
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="adns idn ipv6 kerberos ldap metalink rtmp ssh ssl static-libs test threads"
-IUSE="${IUSE} curl_ssl_axtls curl_ssl_gnutls curl_ssl_nss +curl_ssl_openssl curl_ssl_polarssl curl_ssl_winssl"
-IUSE="${IUSE} elibc_Winnt"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+IUSE="adns http2 idn ipv6 kerberos ldap metalink rtmp samba ssh ssl static-libs test threads"
+IUSE+=" curl_ssl_axtls curl_ssl_gnutls curl_ssl_nss +curl_ssl_openssl curl_ssl_polarssl curl_ssl_winssl"
+IUSE+=" elibc_Winnt"
 
 #lead to lots of false negatives, bug #285669
 RESTRICT="test"
@@ -55,6 +55,7 @@ RDEPEND="ldap? ( >=net-nds/openldap-2.4.38-r1[${MULTILIB_USEDEP}] )
 			app-misc/ca-certificates
 		)
 	)
+	http2? ( =net-libs/nghttp2-0.7*[${MULTILIB_USEDEP}] )
 	idn? ( >=net-dns/libidn-1.28[static-libs?,${MULTILIB_USEDEP}] )
 	adns? ( >=net-dns/c-ares-1.10.0-r1[${MULTILIB_USEDEP}] )
 	kerberos? ( >=virtual/krb5-0-r1[${MULTILIB_USEDEP}] )
@@ -163,7 +164,7 @@ multilib_src_configure() {
 		fi
 		if use curl_ssl_openssl; then
 			einfo "SSL provided by openssl"
-			myconf+=( --with-ssl --without-ca-bundle --with-ca-path="${EPREFIX}"/etc/ssl/certs )
+			myconf+=( --with-ssl --with-ca-path="${EPREFIX}"/etc/ssl/certs )
 		fi
 		if use curl_ssl_winssl; then
 			einfo "SSL provided by Windows"
@@ -195,6 +196,7 @@ multilib_src_configure() {
 		$(use_enable ldap ldaps) \
 		--enable-pop3 \
 		--enable-rtsp \
+		$(use_enable samba smb) \
 		$(use_with ssh libssh2) \
 		--enable-smtp \
 		--enable-telnet \
@@ -217,7 +219,7 @@ multilib_src_configure() {
 		$(use_with kerberos gssapi "${EPREFIX}"/usr) \
 		--without-krb4 \
 		$(use_with metalink libmetalink) \
-		--without-nghttp2 \
+		$(use_with http2 nghttp2) \
 		$(use_with rtmp librtmp) \
 		--without-spnego \
 		--without-winidn \

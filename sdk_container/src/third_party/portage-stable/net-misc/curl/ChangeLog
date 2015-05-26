@@ -1,6 +1,56 @@
 # ChangeLog for net-misc/curl
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/curl/ChangeLog,v 1.399 2015/04/23 11:18:19 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-misc/curl/ChangeLog,v 1.414 2015/05/24 13:55:23 vapier Exp $
+
+*curl-7.42.1-r1 (24 May 2015)
+
+  24 May 2015; Mike Frysinger <vapier@gentoo.org> +curl-7.42.1-r1.ebuild,
+  metadata.xml:
+  Add USE=http2 support to enable HTTP/2.0 support via nghttp2.
+
+  20 May 2015; Mikle Kolyada <zlogene@gentoo.org> curl-7.42.1.ebuild:
+  sparc stable wrt bug #548130
+
+  20 May 2015; Matt Turner <mattst88@gentoo.org> curl-7.42.1.ebuild:
+  alpha stable, bug 548130.
+
+  15 May 2015; Mikle Kolyada <zlogene@gentoo.org> curl-7.42.1.ebuild:
+  x86 stable wrt bug #548130
+
+  13 May 2015; Jack Morgan <jmorgan@gentoo.org> curl-7.42.1.ebuild:
+  ia64 stable wrt bug #548130
+
+  12 May 2015; Anthony G. Basile <blueness@gentoo.org> -curl-7.39.0.ebuild:
+  Remove older stable.
+
+  04 May 2015; Agostino Sarubbo <ago@gentoo.org> curl-7.42.1.ebuild:
+  Stable for amd64, wrt bug #548130
+
+  03 May 2015; Jeroen Roovers <jer@gentoo.org> curl-7.42.1.ebuild:
+  Stable for HPPA (bug #548130).
+
+  02 May 2015; Anthony G. Basile <blueness@gentoo.org> curl-7.42.1.ebuild:
+  Stable on arm, ppc and ppc64.  Bug #548130.
+
+*curl-7.42.1 (29 Apr 2015)
+
+  29 Apr 2015; Anthony G. Basile <blueness@gentoo.org> +curl-7.42.1.ebuild:
+  Version bump.
+
+  29 Apr 2015; Agostino Sarubbo <ago@gentoo.org> curl-7.42.0.ebuild:
+  Stable for sparc, wrt bug #547376
+
+  28 Apr 2015; Agostino Sarubbo <ago@gentoo.org> curl-7.42.0.ebuild:
+  Stable for ia64, wrt bug #547376
+
+  28 Apr 2015; Agostino Sarubbo <ago@gentoo.org> curl-7.42.0.ebuild:
+  Stable for alpha, wrt bug #547376
+
+  26 Apr 2015; Anthony G. Basile <blueness@gentoo.org> curl-7.42.0.ebuild:
+  Stable for arm.  Bug #547376.
+
+  25 Apr 2015; Anthony G. Basile <blueness@gentoo.org> curl-7.42.0.ebuild:
+  Stable for ppc.  Bug #547376.
 
   23 Apr 2015; Agostino Sarubbo <ago@gentoo.org> curl-7.42.0.ebuild:
   Stable for x86, wrt bug #547376
