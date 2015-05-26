@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/sed/sed-4.2.1-r1.ebuild,v 1.14 2014/02/08 13:24:00 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/sed/sed-4.2.2.ebuild,v 1.5 2014/02/08 13:24:00 vapier Exp $
 
 inherit eutils flag-o-matic toolchain-funcs
 
@@ -10,11 +10,12 @@ SRC_URI="mirror://gnu/sed/${P}.tar.bz2"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
 IUSE="acl nls selinux static"
 
 RDEPEND="acl? ( virtual/acl )
-	nls? ( virtual/libintl )"
+	nls? ( virtual/libintl )
+	selinux? ( sys-libs/libselinux )"
 DEPEND="${RDEPEND}
 	nls? ( sys-devel/gettext )"
 
@@ -34,7 +35,6 @@ src_unpack() {
 	unpack ${A}
 	cd "${S}"
 	epatch "${FILESDIR}"/${PN}-4.1.5-alloca.patch
-	epatch "${FILESDIR}"/${P}-handle-incomplete-sequences-as-if-they-were-invalid.patch #284403
 	# don't use sed here if we have to recover a broken host sed
 }
 
@@ -51,6 +51,8 @@ src_compile() {
 		bindir=/usr/bin
 	fi
 
+	# Should be able to drop this hack in next release. #333887
+	tc-is-cross-compiler && export gl_cv_func_working_acl_get_file=yes
 	export ac_cv_search_setfilecon=$(usex selinux -lselinux)
 	export ac_cv_header_selinux_{context,selinux}_h=$(usex selinux)
 	use static && append-ldflags -static

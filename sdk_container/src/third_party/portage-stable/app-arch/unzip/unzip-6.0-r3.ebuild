@@ -1,7 +1,8 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-arch/unzip/unzip-6.0-r1.ebuild,v 1.13 2010/08/14 20:10:09 truedfx Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-arch/unzip/unzip-6.0-r3.ebuild,v 1.10 2014/01/18 05:01:26 vapier Exp $
 
+EAPI="2"
 inherit eutils toolchain-funcs flag-o-matic
 
 MY_P="${PN}${PV/.}"
@@ -12,18 +13,18 @@ SRC_URI="mirror://sourceforge/infozip/${MY_P}.tar.gz"
 
 LICENSE="Info-ZIP"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm hppa ~ia64 m68k ppc ppc64 s390 sh ~sparc x86"
-IUSE="bzip2 unicode"
+KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~x86-fbsd ~arm-linux ~x86-linux"
+IUSE="bzip2 natspec unicode"
 
-DEPEND="bzip2? ( app-arch/bzip2 )"
+DEPEND="bzip2? ( app-arch/bzip2 )
+	natspec? ( dev-libs/libnatspec )"
 RDEPEND="${DEPEND}"
 
 S="${WORKDIR}/${MY_P}"
 
-src_unpack() {
-	unpack ${A}
-	cd "${S}"
+src_prepare() {
 	epatch "${FILESDIR}"/${P}-no-exec-stack.patch
+	use natspec && epatch "${FILESDIR}/${PN}-6.0-natspec.patch" #275244
 	sed -i \
 		-e '/^CFLAGS/d' \
 		-e '/CFLAGS/s:-O[0-9]\?:$(CFLAGS) $(CPPFLAGS):' \
@@ -36,6 +37,7 @@ src_unpack() {
 		-e 's:SL = :SL = $(LDFLAGS) :' \
 		-e 's:FL = :FL = $(LDFLAGS) :' \
 		-e "/^#L_BZ2/s:^$(use bzip2 && echo .)::" \
+		-e 's:$(AS) :$(AS) $(ASFLAGS) :g' \
 		unix/Makefile \
 		|| die "sed unix/Makefile failed"
 }
@@ -57,7 +59,7 @@ src_compile() {
 	use unicode && append-cppflags -DUNICODE_SUPPORT -DUNICODE_WCHAR -DUTF8_MAYBE_NATIVE
 	append-cppflags -DLARGE_FILE_SUPPORT #281473
 
-	emake \
+	ASFLAGS="${ASFLAGS} $(get_abi_var CFLAGS)" emake \
 		-f unix/Makefile \
 		${TARGET} || die "emake failed"
 }

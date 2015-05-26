@@ -1,7 +1,8 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-arch/unzip/unzip-6.0-r1.ebuild,v 1.13 2010/08/14 20:10:09 truedfx Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-arch/unzip/unzip-6.0-r2.ebuild,v 1.9 2011/12/18 15:24:14 naota Exp $
 
+EAPI="2"
 inherit eutils toolchain-funcs flag-o-matic
 
 MY_P="${PN}${PV/.}"
@@ -12,18 +13,18 @@ SRC_URI="mirror://sourceforge/infozip/${MY_P}.tar.gz"
 
 LICENSE="Info-ZIP"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm hppa ~ia64 m68k ppc ppc64 s390 sh ~sparc x86"
-IUSE="bzip2 unicode"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-fbsd"
+IUSE="bzip2 natspec unicode"
 
-DEPEND="bzip2? ( app-arch/bzip2 )"
+DEPEND="bzip2? ( app-arch/bzip2 )
+	natspec? ( dev-libs/libnatspec )"
 RDEPEND="${DEPEND}"
 
 S="${WORKDIR}/${MY_P}"
 
-src_unpack() {
-	unpack ${A}
-	cd "${S}"
+src_prepare() {
 	epatch "${FILESDIR}"/${P}-no-exec-stack.patch
+	use natspec && epatch "${FILESDIR}/${PN}-6.0-natspec.patch" #275244
 	sed -i \
 		-e '/^CFLAGS/d' \
 		-e '/CFLAGS/s:-O[0-9]\?:$(CFLAGS) $(CPPFLAGS):' \
