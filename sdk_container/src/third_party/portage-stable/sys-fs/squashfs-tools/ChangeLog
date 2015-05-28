@@ -1,6 +1,125 @@
 # ChangeLog for sys-fs/squashfs-tools
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/squashfs-tools/ChangeLog,v 1.89 2013/02/20 20:26:54 zmedico Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/squashfs-tools/ChangeLog,v 1.117 2015/04/17 08:35:17 zlogene Exp $
+
+  17 Apr 2015; Mikle Kolyada <zlogene@gentoo.org> squashfs-tools-4.3.ebuild:
+  sparc stable wrt bug #542226
+
+  14 Apr 2015; Agostino Sarubbo <ago@gentoo.org> squashfs-tools-4.3.ebuild:
+  Stable for ia64, wrt bug #542226
+
+  13 Apr 2015; Agostino Sarubbo <ago@gentoo.org> squashfs-tools-4.3.ebuild:
+  Stable for alpha, wrt bug #542226
+
+  02 Apr 2015; Markus Meier <maekke@gentoo.org> squashfs-tools-4.3.ebuild:
+  arm stable, bug #542226
+
+  31 Mar 2015; Agostino Sarubbo <ago@gentoo.org> squashfs-tools-4.3.ebuild:
+  Stable for ppc64, wrt bug #542226
+
+  28 Mar 2015; Agostino Sarubbo <ago@gentoo.org> squashfs-tools-4.3.ebuild:
+  Stable for ppc, wrt bug #542226
+
+  25 Mar 2015; Agostino Sarubbo <ago@gentoo.org> squashfs-tools-4.3.ebuild:
+  Stable for x86, wrt bug #542226
+
+  10 Mar 2015; Jeroen Roovers <jer@gentoo.org> squashfs-tools-4.3.ebuild:
+  Stable for HPPA (bug #542226).
+
+  09 Mar 2015; Agostino Sarubbo <ago@gentoo.org> squashfs-tools-4.3.ebuild:
+  Stable for amd64, wrt bug #542226
+
+  05 Mar 2015; Jeroen Roovers <jer@gentoo.org> squashfs-tools-4.3.ebuild,
+  -files/squashfs-tools-3.3-posix.patch,
+  -files/squashfs-tools-4.0-progress-bar.patch,
+  -files/squashfs-tools-4.0-read-ret.patch:
+  Remove obsolete pkg_postinst() messages (bug #440586).
+
+  28 Sep 2014; Anthony G. Basile <blueness@gentoo.org>
+  squashfs-tools-4.3.ebuild:
+  Keyword ~ppc ~ppc64, bug #499468
+
+  26 Aug 2014; Raúl Porcel <armin76@gentoo.org> squashfs-tools-4.3.ebuild:
+  Add ~m68k/~sh/~sparc wrt bug #499468
+
+  11 Jul 2014; Mikle Kolyada <zlogene@gentoo.org> squashfs-tools-4.3.ebuild:
+  Add ~s390 keyword
+
+  11 Jul 2014;  <tgall@gentoo.org> squashfs-tools-4.3.ebuild:
+  Keyworded on arm64, bug #499468
+
+  05 Jul 2014; Tobias Klausmann <klausman@gentoo.org>
+  squashfs-tools-4.3.ebuild:
+  Keyworded on alpha, bug #499468
+
+*squashfs-tools-4.3 (08 Jun 2014)
+
+  08 Jun 2014; Jeroen Roovers <jer@gentoo.org>
+  -squashfs-tools-4.2_p20140119-r1.ebuild, +squashfs-tools-4.3.ebuild:
+  Version bump.
+
+  28 Apr 2014; Sergey Popov <pinkbyte@gentoo.org>
+  squashfs-tools-4.2_p20140119-r1.ebuild:
+  Add ~x86 keyword, wrt bug #499468
+
+  28 Apr 2014; Sergey Popov <pinkbyte@gentoo.org>
+  squashfs-tools-4.2_p20140119-r1.ebuild:
+  Add ~mips keyword, wrt bug #499468
+
+  14 Feb 2014; Markus Meier <maekke@gentoo.org>
+  squashfs-tools-4.2_p20140119-r1.ebuild:
+  add ~arm, bug #499468
+
+  08 Feb 2014; Akinori Hattori <hattya@gentoo.org>
+  squashfs-tools-4.2_p20140119-r1.ebuild:
+  keyword ~ia64 wrt bug #499468
+
+  06 Feb 2014; Jeroen Roovers <jer@gentoo.org>
+  squashfs-tools-4.2_p20140119-r1.ebuild:
+  Marked ~hppa (bug #499468).
+
+*squashfs-tools-4.2_p20140119-r1 (27 Jan 2014)
+
+  27 Jan 2014; Jeroen Roovers <jer@gentoo.org>
+  +squashfs-tools-4.2_p20140119-r1.ebuild, metadata.xml:
+  Add lz4 support.
+
+*squashfs-tools-4.2_p20140119 (23 Jan 2014)
+
+  23 Jan 2014; Jeroen Roovers <jer@gentoo.org>
+  -squashfs-tools-4.2_p20121216.ebuild, +squashfs-tools-4.2_p20140119.ebuild,
+  -squashfs-tools-4.3_pre20130621-r2.ebuild,
+  -files/squashfs-tools-4.3_pre20130621-xattr.patch:
+  Version bump.
+
+*squashfs-tools-4.3_pre20130621-r2 (21 Jan 2014)
+
+  21 Jan 2014; Jeroen Roovers <jer@gentoo.org>
+  -squashfs-tools-4.3_pre20130621-r1.ebuild,
+  +squashfs-tools-4.3_pre20130621-r2.ebuild,
+  +files/squashfs-tools-4.3_pre20130621-xattr.patch, metadata.xml:
+  Fix USE=-xattr properly. Restore old USE flag behaviour.
+
+  21 Jan 2014; Jeroen Roovers <jer@gentoo.org>
+  squashfs-tools-4.3_pre20130621-r1.ebuild, metadata.xml:
+  sys-apps/attr is not optional in this build. Describe USE=xattr specially.
+
+*squashfs-tools-4.3_pre20130621-r1 (21 Jan 2014)
+
+  21 Jan 2014; Jeroen Roovers <jer@gentoo.org>
+  -squashfs-tools-4.3_pre20130621.ebuild,
+  +squashfs-tools-4.3_pre20130621-r1.ebuild:
+  Fix USE=-xattr. Drop the horrible use_sed in favour of usex.
+
+*squashfs-tools-4.3_pre20130621 (21 Jan 2014)
+
+  21 Jan 2014; Justin Lecher <jlec@gentoo.org>
+  +squashfs-tools-4.3_pre20130621.ebuild, metadata.xml:
+  Version bump, following Fedora, #479904
+
+  18 Jan 2014; Mike Frysinger <vapier@gentoo.org> squashfs-tools-4.2-r1.ebuild,
+  squashfs-tools-4.2.ebuild, squashfs-tools-4.2_p20121216.ebuild:
+  Add arm64 love.
 
   20 Feb 2013; Zac Medico <zmedico@gentoo.org>
   squashfs-tools-4.2_p20121216.ebuild:
