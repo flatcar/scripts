@@ -1,13 +1,13 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-util/boost-build/boost-build-1.52.0-r1.ebuild,v 1.14 2015/01/01 03:30:46 patrick Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-util/boost-build/boost-build-1.54.0.ebuild,v 1.4 2015/01/01 03:30:46 patrick Exp $
 
 EAPI="5"
 PYTHON_DEPEND="python? 2"
 
 RESTRICT="test"
 
-inherit eutils flag-o-matic python toolchain-funcs versionator
+inherit eutils flag-o-matic multilib python toolchain-funcs versionator
 
 MY_PV=$(replace_all_version_separators _)
 
@@ -17,7 +17,7 @@ SRC_URI="mirror://sourceforge/boost/boost_${MY_PV}.tar.bz2"
 
 LICENSE="Boost-1.0"
 SLOT=0
-KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~ia64-hpux ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~ppc-aix ~ia64-hpux ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="examples python test"
 
 REQUIRED_USE="test? ( python )"
@@ -42,16 +42,19 @@ src_unpack() {
 
 src_prepare() {
 	epatch \
-		"${FILESDIR}/${PN}-1.48.0-support_dots_in_python-buildid.patch" \
 		"${FILESDIR}/${PN}-1.48.0-disable_python_rpath.patch" \
 		"${FILESDIR}/${PN}-1.50.0-respect-c_ld-flags.patch" \
-		"${FILESDIR}/${PN}-1.50.0-fix-test.patch" \
 		"${FILESDIR}/${PN}-1.49.0-darwin-gentoo-toolchain.patch" \
-		"${FILESDIR}/${PN}-1.52.0-darwin-no-python-framework.patch"
+		"${FILESDIR}/${PN}-1.52.0-darwin-no-python-framework.patch" \
+		"${FILESDIR}/${PN}-1.54.0-fix-test.patch" \
+		"${FILESDIR}/${PN}-1.54.0-support_dots_in_python-buildid.patch"
 
 	# Remove stripping option
+	# Fix python components build on multilib systems, bug #496446
 	cd "${S}/engine"
-	sed -i -e 's|-s\b||' \
+	sed -i \
+		-e 's|-s\b||' \
+		-e "/libpython/s/lib ]/$(get_libdir) ]/" \
 		build.jam || die "sed failed"
 
 	# Force regeneration
