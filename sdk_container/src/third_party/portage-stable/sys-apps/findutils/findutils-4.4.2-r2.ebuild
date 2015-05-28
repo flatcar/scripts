@@ -1,8 +1,10 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/findutils/findutils-4.4.2-r1.ebuild,v 1.12 2014/01/18 03:28:44 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/findutils/findutils-4.4.2-r2.ebuild,v 1.1 2014/09/08 23:14:34 vapier Exp $
 
-inherit eutils flag-o-matic toolchain-funcs multilib
+EAPI="4"
+
+inherit eutils flag-o-matic toolchain-funcs
 
 SELINUX_PATCH="findutils-4.4.2-selinux.diff"
 
@@ -13,18 +15,15 @@ SRC_URI="mirror://gnu-alpha/${PN}/${P}.tar.gz
 
 LICENSE="GPL-3+"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86"
-IUSE="nls selinux static"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86"
+IUSE="debug nls selinux static"
 
 RDEPEND="selinux? ( sys-libs/libselinux )
 	nls? ( virtual/libintl )"
 DEPEND="${RDEPEND}
 	nls? ( sys-devel/gettext )"
 
-src_unpack() {
-	unpack ${A}
-	cd "${S}"
-
+src_prepare() {
 	epatch "${FILESDIR}"/${P}-gnulib-date-x32.patch
 
 	# Don't build or install locate because it conflicts with slocate,
@@ -34,21 +33,24 @@ src_unpack() {
 	use selinux && epatch "${FILESDIR}/${SELINUX_PATCH}"
 }
 
-src_compile() {
+src_configure() {
 	use static && append-ldflags -static
 
-	local myconf
-	use userland_GNU || myconf=" --program-prefix=g"
-
+	program_prefix=$(usex userland_GNU '' g)
 	econf \
+		--program-prefix=${program_prefix} \
+		$(use_enable debug) \
 		$(use_enable nls) \
-		--libexecdir=/usr/$(get_libdir)/find \
-		${myconf} \
-		|| die "configure failed"
-	emake AR="$(tc-getAR)" || die "make failed"
+		--libexecdir='$(libdir)'/find
+}
+
+src_compile() {
+	emake AR="$(tc-getAR)"
 }
 
 src_install() {
-	emake DESTDIR="${D}" install || die
-	dodoc NEWS README TODO ChangeLog
+	default
+
+	# We don't need this, so punt it.
+	rm "${ED}"/usr/bin/${program_prefix}oldfind || die
 }
