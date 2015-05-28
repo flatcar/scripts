@@ -1,21 +1,23 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-util/boost-build/boost-build-1.52.0-r1.ebuild,v 1.3 2012/12/08 12:11:22 grobian Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-util/boost-build/boost-build-1.52.0-r1.ebuild,v 1.14 2015/01/01 03:30:46 patrick Exp $
 
 EAPI="5"
 PYTHON_DEPEND="python? 2"
+
+RESTRICT="test"
 
 inherit eutils flag-o-matic python toolchain-funcs versionator
 
 MY_PV=$(replace_all_version_separators _)
 
-DESCRIPTION="A system for large project software construction, which is simple to use and powerful."
+DESCRIPTION="A system for large project software construction, which is simple to use and powerful"
 HOMEPAGE="http://www.boost.org/doc/tools/build/index.html"
 SRC_URI="mirror://sourceforge/boost/boost_${MY_PV}.tar.bz2"
 
 LICENSE="Boost-1.0"
 SLOT=0
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~ppc-aix ~ia64-hpux ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~ia64-hpux ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="examples python test"
 
 REQUIRED_USE="test? ( python )"

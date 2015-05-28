@@ -1,6 +1,131 @@
 # ChangeLog for dev-util/boost-build
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-util/boost-build/ChangeLog,v 1.112 2013/01/25 23:03:15 flameeyes Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-util/boost-build/ChangeLog,v 1.143 2015/04/16 12:54:26 zlogene Exp $
+
+  16 Apr 2015; Mikle Kolyada <zlogene@gentoo.org> boost-build-1.55.0.ebuild:
+  sparc stable wrt bug #525286
+
+  14 Apr 2015; Agostino Sarubbo <ago@gentoo.org> boost-build-1.55.0.ebuild:
+  Stable for ia64, wrt bug #525286
+
+  13 Apr 2015; Agostino Sarubbo <ago@gentoo.org> boost-build-1.55.0.ebuild:
+  Stable for alpha, wrt bug #525286
+
+  10 Mar 2015; Mike Frysinger <vapier@gentoo.org> boost-build-1.55.0-r1.ebuild,
+  boost-build-1.55.0.ebuild, boost-build-1.56.0.ebuild,
+  boost-build-1.57.0.ebuild:
+  Expand arm64 keywords.
+
+  02 Mar 2015; Yixun Lan <dlan@gentoo.org> boost-build-1.56.0.ebuild:
+  add arm64 support, tested on A53 board
+
+  27 Feb 2015; Sergey Popov <pinkbyte@gentoo.org> boost-build-1.55.0.ebuild,
+  boost-build-1.55.0-r1.ebuild, boost-build-1.56.0.ebuild,
+  boost-build-1.57.0.ebuild, +files/boost-build-1.55.0-ppc-aix.patch:
+  Fix building on Gentoo Prefix on AIX, wrt bug #515102. Thanks to Michael
+  Haubenwallner
+
+*boost-build-1.57.0 (18 Feb 2015)
+
+  18 Feb 2015; Sergey Popov <pinkbyte@gentoo.org> +boost-build-1.57.0.ebuild:
+  Version bump, wrt bug #528204
+
+  02 Jan 2015; Agostino Sarubbo <ago@gentoo.org> boost-build-1.55.0.ebuild:
+  Stable for x86, wrt bug #525286
+
+  01 Jan 2015; Patrick Lauer <patrick@gentoo.org> boost-build-1.52.0-r1.ebuild,
+  boost-build-1.53.0.ebuild, boost-build-1.54.0.ebuild,
+  boost-build-1.55.0-r1.ebuild, boost-build-1.55.0.ebuild,
+  boost-build-1.56.0.ebuild:
+  Disable test phase as it hasn't worked in over 2 years #442576 etc.
+
+  26 Dec 2014; Anthony G. Basile <blueness@gentoo.org>
+  boost-build-1.55.0.ebuild:
+  Stable on ppc and ppc64, bug #525286
+
+  16 Nov 2014; Michał Górny <mgorny@gentoo.org> boost-build-1.55.0-r1.ebuild,
+  boost-build-1.56.0.ebuild:
+  Support using tests without enabling Python linking, bug #529480.
+
+*boost-build-1.55.0-r1 (16 Nov 2014)
+
+  16 Nov 2014; Michał Górny <mgorny@gentoo.org> +boost-build-1.55.0-r1.ebuild,
+  boost-build-1.56.0.ebuild:
+  Use python-single-r1 and a run-time dependency on Python since bjam links to
+  libpython. Backport the conversion into non-masked 1.55.0 branch.
+
+  12 Nov 2014; Sergey Popov <pinkbyte@gentoo.org> boost-build-1.55.0.ebuild:
+  Stable on amd64, wrt bug #525286
+
+  11 Nov 2014; Markus Meier <maekke@gentoo.org> boost-build-1.55.0.ebuild:
+  arm stable, bug #525286
+
+  06 Nov 2014; Jeroen Roovers <jer@gentoo.org> boost-build-1.55.0.ebuild:
+  Stable for HPPA (bug #525286).
+
+*boost-build-1.56.0 (15 Aug 2014)
+
+  15 Aug 2014; Sergey Popov <pinkbyte@gentoo.org> +boost-build-1.56.0.ebuild:
+  Version bump, wrt bug #519476. Migrate to python-any-r1 eclass, add support
+  for user patches
+
+  10 Aug 2014; Sergei Trofimovich <slyfox@gentoo.org>
+  boost-build-1.52.0-r1.ebuild, boost-build-1.53.0.ebuild,
+  boost-build-1.54.0.ebuild, boost-build-1.55.0.ebuild:
+  QA: drop trailing '.' from DESCRIPTION
+
+  16 May 2014; Sergey Popov <pinkbyte@gentoo.org> boost-build-1.53.0.ebuild,
+  boost-build-1.54.0.ebuild, boost-build-1.55.0.ebuild:
+  Respect multilib during building Python-related stuff, bug #496446
+
+  15 Apr 2014; Sergey Popov <pinkbyte@gentoo.org> -boost-build-1.49.0.ebuild,
+  -files/boost-build-1.42-env-whitespace.patch:
+  Drop old vulnerable version
+
+  14 Dec 2013; Agostino Sarubbo <ago@gentoo.org> boost-build-1.52.0-r1.ebuild:
+  Stable for sparc, wrt bug #455464
+
+*boost-build-1.55.0 (14 Nov 2013)
+
+  14 Nov 2013; Sergey Popov <pinkbyte@gentoo.org> +boost-build-1.55.0.ebuild:
+  Version bump, wrt bug #491064
+
+  26 Sep 2013; Agostino Sarubbo <ago@gentoo.org> boost-build-1.52.0-r1.ebuild:
+  Stable for arm, wrt bug #455464
+
+  22 Sep 2013; Agostino Sarubbo <ago@gentoo.org> boost-build-1.52.0-r1.ebuild:
+  Stable for alpha, wrt bug #455464
+
+  22 Sep 2013; Agostino Sarubbo <ago@gentoo.org> boost-build-1.52.0-r1.ebuild:
+  Stable for ppc, wrt bug #455464
+
+  22 Sep 2013; Agostino Sarubbo <ago@gentoo.org> boost-build-1.52.0-r1.ebuild:
+  Stable for ppc64, wrt bug #455464
+
+  22 Sep 2013; Agostino Sarubbo <ago@gentoo.org> boost-build-1.52.0-r1.ebuild:
+  Stable for ia64, wrt bug #455464
+
+  22 Sep 2013; Agostino Sarubbo <ago@gentoo.org> boost-build-1.52.0-r1.ebuild:
+  Stable for x86, wrt bug #455464
+
+  14 Sep 2013; Agostino Sarubbo <ago@gentoo.org> boost-build-1.52.0-r1.ebuild:
+  Stable for amd64, wrt bug #455464
+
+*boost-build-1.54.0 (27 Aug 2013)
+
+  27 Aug 2013; Sergey Popov <pinkbyte@gentoo.org> +boost-build-1.54.0.ebuild,
+  +files/boost-build-1.54.0-fix-test.patch,
+  +files/boost-build-1.54.0-support_dots_in_python-buildid.patch:
+  Version bump, wrt bug #475712
+
+  25 Aug 2013; Jeroen Roovers <jer@gentoo.org> boost-build-1.52.0-r1.ebuild:
+  Stable for HPPA (bug #455464).
+
+*boost-build-1.53.0 (12 Feb 2013)
+
+  12 Feb 2013; Diego E. Pettenò <flameeyes@gentoo.org>
+  +boost-build-1.53.0.ebuild, -boost-build-1.53.0_beta1.ebuild:
+  Bump to 1.53.0 final.
 
 *boost-build-1.53.0_beta1 (25 Jan 2013)
 

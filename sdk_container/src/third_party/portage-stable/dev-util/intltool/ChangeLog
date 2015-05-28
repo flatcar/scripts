@@ -1,6 +1,49 @@
 # ChangeLog for dev-util/intltool
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-util/intltool/ChangeLog,v 1.166 2013/05/26 07:26:43 pacho Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-util/intltool/ChangeLog,v 1.180 2014/04/06 15:44:41 vapier Exp $
+
+  06 Apr 2014; Mike Frysinger <vapier@gentoo.org> intltool-0.50.2-r1.ebuild:
+  Add arm64 love.
+
+  24 Dec 2013; Pacho Ramos <pacho@gentoo.org> -intltool-0.50.2.ebuild:
+  Drop old
+
+  12 Nov 2013; Michael Haubenwallner <haubi@gentoo.org>
+  intltool-0.50.2-r1.ebuild:
+  Add ~ppc-aix keyword.
+
+  02 Jul 2013; Agostino Sarubbo <ago@gentoo.org> intltool-0.50.2-r1.ebuild:
+  Stable for sh, wrt bug #473998
+
+  30 Jun 2013; Agostino Sarubbo <ago@gentoo.org> intltool-0.50.2-r1.ebuild:
+  Stable for s390, wrt bug #473998
+
+  29 Jun 2013; Agostino Sarubbo <ago@gentoo.org> intltool-0.50.2-r1.ebuild:
+  Stable for sparc, wrt bug #473998
+
+  26 Jun 2013; Agostino Sarubbo <ago@gentoo.org> intltool-0.50.2-r1.ebuild:
+  Stable for arm, wrt bug #473998
+
+  26 Jun 2013; Jeroen Roovers <jer@gentoo.org> intltool-0.50.2-r1.ebuild:
+  Stable for HPPA (bug #473998).
+
+  26 Jun 2013; Agostino Sarubbo <ago@gentoo.org> intltool-0.50.2-r1.ebuild:
+  Stable for ia64, wrt bug #473998
+
+  26 Jun 2013; Agostino Sarubbo <ago@gentoo.org> intltool-0.50.2-r1.ebuild:
+  Stable for alpha, wrt bug #473998
+
+  25 Jun 2013; Agostino Sarubbo <ago@gentoo.org> intltool-0.50.2-r1.ebuild:
+  Stable for amd64, wrt bug #473998
+
+  25 Jun 2013; Agostino Sarubbo <ago@gentoo.org> intltool-0.50.2-r1.ebuild:
+  Stable for x86, wrt bug #473998
+
+  25 Jun 2013; Agostino Sarubbo <ago@gentoo.org> intltool-0.50.2-r1.ebuild:
+  Stable for ppc64, wrt bug #473998
+
+  24 Jun 2013; Agostino Sarubbo <ago@gentoo.org> intltool-0.50.2-r1.ebuild:
+  Stable for ppc, wrt bug #473998
 
 *intltool-0.50.2-r1 (26 May 2013)
 
