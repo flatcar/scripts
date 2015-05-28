@@ -1,9 +1,11 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-cpp/gtest/gtest-1.6.0-r2.ebuild,v 1.5 2015/04/08 17:46:42 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-cpp/gtest/gtest-1.7.0.ebuild,v 1.9 2015/04/21 19:04:11 pacho Exp $
 
 EAPI="5"
 
+AUTOTOOLS_AUTORECONF=1
+AUTOTOOLS_IN_SOURCE_BUILD=1
 # Python is required for tests and some build tasks.
 PYTHON_COMPAT=( python2_7 )
 
@@ -15,7 +17,7 @@ SRC_URI="http://googletest.googlecode.com/files/${P}.zip"
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos"
+KEYWORDS="alpha amd64 arm hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos"
 IUSE="examples static-libs"
 
 DEPEND="app-arch/unzip
@@ -26,37 +28,25 @@ PATCHES=(
 	"${FILESDIR}/configure-fix-pthread-linking.patch" #371647
 )
 
-AUTOTOOLS_AUTORECONF="1"
-
 src_prepare() {
 	sed -i -e "s|/tmp|${T}|g" test/gtest-filepath_test.cc || die
 	sed -i -r \
 		-e '/^install-(data|exec)-local:/s|^.*$|&\ndisabled-&|' \
 		Makefile.am || die
 	autotools-multilib_src_prepare
-
-	multilib_copy_sources
 }
 
-src_configure() {
-	multilib_parallel_foreach_abi gtest_src_configure
+multilib_src_install() {
+	default
+	multilib_is_native_abi && dobin scripts/gtest-config
 }
 
-src_install() {
-	autotools-multilib_src_install
-	multilib_for_best_abi gtest-config_install
+multilib_src_install_all() {
+	prune_libtool_files --all
+	einstalldocs
 
 	if use examples ; then
 		insinto /usr/share/doc/${PF}/examples
 		doins samples/*.{cc,h}
 	fi
-}
-
-gtest_src_configure() {
-	ECONF_SOURCE="${BUILD_DIR}"
-	autotools-utils_src_configure
-}
-
-gtest-config_install() {
-	dobin "${BUILD_DIR}/scripts/gtest-config"
 }
