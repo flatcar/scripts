@@ -1,6 +1,84 @@
 # ChangeLog for dev-libs/boost
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/boost/ChangeLog,v 1.330 2014/08/14 09:07:39 pinkbyte Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/boost/ChangeLog,v 1.352 2015/04/27 13:02:44 pinkbyte Exp $
+
+  27 Apr 2015; Sergey Popov <pinkbyte@gentoo.org> -boost-1.52.0-r6.ebuild,
+  boost-1.52.0-r7.ebuild:
+  Transfer stable keywords to newer revision, drop really old one
+
+  16 Apr 2015; Mikle Kolyada <zlogene@gentoo.org> boost-1.55.0-r2.ebuild:
+  sparc stable wrt bug #525286
+
+  14 Apr 2015; Agostino Sarubbo <ago@gentoo.org> boost-1.55.0-r2.ebuild:
+  Stable for ia64, wrt bug #525286
+
+  13 Apr 2015; Agostino Sarubbo <ago@gentoo.org> boost-1.55.0-r2.ebuild:
+  Stable for alpha, wrt bug #525286
+
+  08 Apr 2015; Michał Górny <mgorny@gentoo.org> boost-1.52.0-r6.ebuild,
+  boost-1.52.0-r7.ebuild, boost-1.53.0-r1.ebuild, boost-1.54.0-r1.ebuild,
+  boost-1.55.0-r2.ebuild, boost-1.56.0-r1.ebuild, boost-1.57.0.ebuild:
+  Drop old Python implementations
+
+  10 Mar 2015; Mike Frysinger <vapier@gentoo.org> boost-1.55.0-r2.ebuild,
+  boost-1.57.0.ebuild:
+  Expand arm64 keywords.
+
+  02 Mar 2015; Yixun Lan <dlan@gentoo.org> boost-1.56.0-r1.ebuild:
+  add arm64 support, tested on A53 board
+
+  27 Feb 2015; Sergey Popov <pinkbyte@gentoo.org> boost-1.55.0-r2.ebuild,
+  boost-1.56.0-r1.ebuild, boost-1.57.0.ebuild:
+  Set MPI dependency to virtual/mpi, wrt bug #525596
+
+*boost-1.57.0 (27 Feb 2015)
+
+  27 Feb 2015; Sergey Popov <pinkbyte@gentoo.org> +boost-1.57.0.ebuild:
+  Version bump, wrt bug #528204
+
+  05 Jan 2015; Christoph Junghans <ottxor@gentoo.org> boost-1.56.0-r1.ebuild:
+  added prefix keywords (ebuild does not differ from prefix overlay)
+
+  05 Jan 2015; Alexis Ballier <aballier@gentoo.org> boost-1.56.0-r1.ebuild:
+  fix cross compile of boost_python; leave native path as is
+
+  02 Jan 2015; Agostino Sarubbo <ago@gentoo.org> boost-1.55.0-r2.ebuild:
+  Stable for x86, wrt bug #525286
+
+  26 Dec 2014; Anthony G. Basile <blueness@gentoo.org> boost-1.55.0-r2.ebuild:
+  Stable on ppc and ppc64, bug #525286
+
+*boost-1.56.0-r1 (24 Dec 2014)
+
+  24 Dec 2014; Sergey Popov <pinkbyte@gentoo.org> -boost-1.55.0-r1.ebuild,
+  -boost-1.56.0.ebuild, +boost-1.56.0-r1.ebuild,
+  +files/boost-1.56.0-build-auto_index-tool.patch:
+  Build auto_index tool when USE tools is enabled, wrt bug #529066. Drop old
+
+  12 Nov 2014; Sergey Popov <pinkbyte@gentoo.org> boost-1.55.0-r2.ebuild:
+  Stable on amd64, wrt bug #525286
+
+  11 Nov 2014; Markus Meier <maekke@gentoo.org> boost-1.55.0-r2.ebuild:
+  arm stable, bug #525286
+
+  06 Nov 2014; Jeroen Roovers <jer@gentoo.org> boost-1.55.0-r2.ebuild:
+  Stable for HPPA (bug #525286).
+
+  14 Oct 2014; Sergey Popov <pinkbyte@gentoo.org> boost-1.52.0-r7.ebuild,
+  boost-1.53.0-r1.ebuild, boost-1.54.0-r1.ebuild, boost-1.55.0-r1.ebuild,
+  boost-1.55.0-r2.ebuild, boost-1.56.0.ebuild:
+  Building with MPI support requires threads, add REQUIRED_USE for that
+
+  26 Sep 2014; Sergey Popov <pinkbyte@gentoo.org> boost-1.56.0.ebuild:
+  Add workaround for building with USE=tools, wrt bug #522682
+
+*boost-1.56.0 (04 Sep 2014)
+
+  04 Sep 2014; Sergey Popov <pinkbyte@gentoo.org> +boost-1.56.0.ebuild:
+  Version bump, wrt bug #519476
+
+  19 Aug 2014; Raúl Porcel <armin76@gentoo.org> boost-1.52.0-r7.ebuild:
+  alpha/ia64/sparc stable wrt #518488
 
   14 Aug 2014; Sergey Popov <pinkbyte@gentoo.org> boost-1.52.0-r7.ebuild:
   Stable for x86, wrt bug #518488
