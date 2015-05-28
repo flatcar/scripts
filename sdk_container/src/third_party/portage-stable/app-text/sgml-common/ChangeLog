@@ -1,6 +1,17 @@
 # ChangeLog for app-text/sgml-common
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/app-text/sgml-common/ChangeLog,v 1.60 2013/02/17 20:39:27 zmedico Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/app-text/sgml-common/ChangeLog,v 1.63 2014/04/06 14:52:58 vapier Exp $
+
+  06 Apr 2014; Mike Frysinger <vapier@gentoo.org> sgml-common-0.6.3-r5.ebuild:
+  Add arm64 love.
+
+  12 Nov 2013; Michael Haubenwallner <haubi@gentoo.org>
+  sgml-common-0.6.3-r5.ebuild:
+  Add ~ppc-aix keyword.
+
+  21 Jul 2013; Pacho Ramos <pacho@gentoo.org> metadata.xml:
+  Cleanup due http://gentoo.2317880.n4.nabble.com/sgml-herd-has-no-maintainers-
+  again-td259655.html
 
   17 Feb 2013; Zac Medico <zmedico@gentoo.org> sgml-common-0.6.3-r5.ebuild:
   Add ~arm-linux keyword.

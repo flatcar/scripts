@@ -1,6 +1,52 @@
 # ChangeLog for sys-apps/usbutils
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/usbutils/ChangeLog,v 1.181 2014/04/07 16:53:25 ssuominen Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/usbutils/ChangeLog,v 1.195 2015/03/03 09:51:34 dlan Exp $
+
+  03 Mar 2015; Yixun Lan <dlan@gentoo.org> usbutils-008.ebuild:
+  add arm64 support, tested on A53 board
+
+  28 Feb 2015; Agostino Sarubbo <ago@gentoo.org> usbutils-008.ebuild:
+  Stable for ia64, wrt bug #535656
+
+  27 Feb 2015; Agostino Sarubbo <ago@gentoo.org> usbutils-008.ebuild:
+  Stable for sparc, wrt bug #535656
+
+  24 Feb 2015; Agostino Sarubbo <ago@gentoo.org> usbutils-008.ebuild:
+  Stable for alpha, wrt bug #535656
+
+  21 Feb 2015; Tim Harder <radhermit@gentoo.org> usbutils-008-r1.ebuild:
+  Add missing slotdep for libudev.
+
+  21 Feb 2015; Tim Harder <radhermit@gentoo.org> usbutils-008-r1.ebuild:
+  Use correct virtual libudev dep.
+
+*usbutils-008-r1 (21 Feb 2015)
+
+  21 Feb 2015; Tim Harder <radhermit@gentoo.org> +usbutils-008-r1.ebuild:
+  Add missing udev dep (bug #536310) and drop unused zlib dep (bug #540932).
+
+  26 Jan 2015; Agostino Sarubbo <ago@gentoo.org> usbutils-008.ebuild:
+  Stable for x86, wrt bug #535656
+
+  18 Jan 2015; Agostino Sarubbo <ago@gentoo.org> usbutils-008.ebuild:
+  Stable for ppc64, wrt bug #535656
+
+  17 Jan 2015; Agostino Sarubbo <ago@gentoo.org> usbutils-008.ebuild:
+  Stable for ppc, wrt bug #535656
+
+  09 Jan 2015; Agostino Sarubbo <ago@gentoo.org> usbutils-008.ebuild:
+  Stable for amd64, wrt bug #535656
+
+  08 Jan 2015; Jeroen Roovers <jer@gentoo.org> usbutils-008.ebuild:
+  Stable for HPPA (bug #535656).
+
+  08 Jan 2015; Markus Meier <maekke@gentoo.org> usbutils-008.ebuild:
+  arm stable, bug #535656
+
+*usbutils-008 (04 Dec 2014)
+
+  04 Dec 2014; Tim Harder <radhermit@gentoo.org> +usbutils-008.ebuild:
+  Version bump.
 
   07 Apr 2014; Samuli Suominen <ssuominen@gentoo.org> -files/usbmodules.sh,
   -files/usbutils.cron, -usbutils-004.ebuild, -usbutils-006-r1.ebuild,
