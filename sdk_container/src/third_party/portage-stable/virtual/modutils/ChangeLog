@@ -1,6 +1,9 @@
 # ChangeLog for virtual/modutils
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/virtual/modutils/ChangeLog,v 1.6 2013/07/23 11:14:54 ssuominen Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/virtual/modutils/ChangeLog,v 1.7 2014/01/18 04:58:28 vapier Exp $
+
+  18 Jan 2014; Mike Frysinger <vapier@gentoo.org> modutils-0.ebuild:
+  Add arm64 love.
 
   23 Jul 2013; Samuli Suominen <ssuominen@gentoo.org> modutils-0.ebuild:
   Remove sys-apps/module-init-tools from the || ( ).
@@ -25,4 +28,3 @@
   03 Feb 2012; William Hubbs <williamh@gentoo.org> +metadata.xml,
   +modutils-0.ebuild:
   initial import for bug #401899
-
