@@ -1,6 +1,55 @@
 # ChangeLog for sys-devel/autoconf
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/autoconf/ChangeLog,v 1.185 2013/04/04 22:59:16 vapier Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/autoconf/ChangeLog,v 1.195 2015/03/19 23:49:17 vapier Exp $
+
+*autoconf-2.69-r1 (19 Mar 2015)
+
+  19 Mar 2015; Mike Frysinger <vapier@gentoo.org> +autoconf-2.69-r1.ebuild,
+  +files/eblits/main.eblit, +files/eblits/src_configure.eblit,
+  +files/eblits/src_install.eblit, +files/eblits/src_prepare.eblit,
+  autoconf-2.13.ebuild, autoconf-2.59-r7.ebuild, autoconf-2.61-r2.ebuild,
+  autoconf-2.62-r1.ebuild, autoconf-2.63-r1.ebuild, autoconf-2.64.ebuild,
+  autoconf-2.65-r1.ebuild, autoconf-2.67.ebuild, autoconf-2.68.ebuild,
+  autoconf-9999.ebuild:
+  Copy info page SLOT logic from automake #543730 by Tupone Alfredo. Unify
+  duplicated logic into eblits. Migrate to EAPI=5 for non-default SLOTs.
+
+  03 Dec 2014; Benda Xu <heroxbd@gentoo.org> autoconf-2.59-r7.ebuild,
+  autoconf-2.61-r2.ebuild, autoconf-2.62-r1.ebuild, autoconf-2.63-r1.ebuild,
+  autoconf-2.64.ebuild, autoconf-2.65-r1.ebuild, autoconf-2.67.ebuild,
+  autoconf-2.68.ebuild, autoconf-2.69.ebuild, autoconf-9999.ebuild:
+  Prefix: replacing D with ED in src_install for EAPI>=3 ebuilds.
+
+  24 Oct 2014; Mike Frysinger <vapier@gentoo.org> autoconf-2.59-r7.ebuild,
+  autoconf-2.61-r2.ebuild, autoconf-2.62-r1.ebuild, autoconf-2.63-r1.ebuild,
+  autoconf-2.64.ebuild, autoconf-2.65-r1.ebuild, autoconf-2.67.ebuild,
+  autoconf-2.68.ebuild, autoconf-2.69.ebuild, autoconf-9999.ebuild:
+  Upgrade old ebuilds to EAPI=4 and enable SLOTing all the time.
+
+  24 Oct 2014; Mike Frysinger <vapier@gentoo.org> autoconf-2.67.ebuild,
+  autoconf-2.68.ebuild, autoconf-2.69.ebuild, autoconf-9999.ebuild:
+  Drop unused KEYWORDS/SRC_URI.
+
+  16 Aug 2014; Mike Frysinger <vapier@gentoo.org> autoconf-2.62-r1.ebuild,
+  autoconf-2.64.ebuild:
+  Mark stable for all.
+
+  14 Feb 2014; Mike Frysinger <vapier@gentoo.org> autoconf-9999.ebuild:
+  Upgrade to EAPI=4.
+
+  17 Jan 2014; Mike Frysinger <vapier@gentoo.org> autoconf-2.13.ebuild,
+  autoconf-2.59-r7.ebuild, autoconf-2.61-r2.ebuild, autoconf-2.62-r1.ebuild,
+  autoconf-2.63-r1.ebuild, autoconf-2.64.ebuild, autoconf-2.65-r1.ebuild,
+  autoconf-2.67.ebuild, autoconf-2.68.ebuild, autoconf-2.69.ebuild,
+  autoconf-9999.ebuild:
+  Add arm64 keywords.
+
+  23 Dec 2013; Mike Frysinger <vapier@gentoo.org> autoconf-2.13.ebuild,
+  autoconf-2.59-r7.ebuild, autoconf-2.61-r2.ebuild, autoconf-2.62-r1.ebuild,
+  autoconf-2.63-r1.ebuild, autoconf-2.64.ebuild, autoconf-2.65-r1.ebuild,
+  autoconf-2.67.ebuild, autoconf-2.68.ebuild, autoconf-2.69.ebuild,
+  autoconf-9999.ebuild:
+  Force latest autoconf-wrapper to keep people up-to-date.
 
   04 Apr 2013; Mike Frysinger <vapier@gentoo.org> -autoconf-2.65.ebuild,
   autoconf-2.59-r7.ebuild, autoconf-2.61-r2.ebuild, autoconf-2.62-r1.ebuild,

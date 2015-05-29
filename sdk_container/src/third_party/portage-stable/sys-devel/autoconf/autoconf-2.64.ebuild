@@ -1,50 +1,27 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/autoconf/autoconf-2.64.ebuild,v 1.4 2013/04/04 22:59:16 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/autoconf/autoconf-2.64.ebuild,v 1.10 2015/03/19 23:49:17 vapier Exp $
 
-inherit eutils
+EAPI="5"
 
 DESCRIPTION="Used to create autoconfiguration files"
 HOMEPAGE="http://www.gnu.org/software/autoconf/autoconf.html"
-SRC_URI="mirror://gnu/${PN}/${P}.tar.bz2
-	ftp://alpha.gnu.org/pub/gnu/${PN}/${P}.tar.bz2"
+SRC_URI="mirror://gnu/${PN}/${P}.tar.xz"
 
 LICENSE="GPL-2"
-SLOT=$(usex multislot "${PV}" "2.5")
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~sparc-fbsd ~x86 ~x86-fbsd"
-IUSE="emacs multislot"
+SLOT="${PV}"
+KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~sparc-fbsd ~x86-fbsd"
+IUSE=""
 
 DEPEND=">=sys-devel/m4-1.4.6
 	dev-lang/perl"
 RDEPEND="${DEPEND}
-	>=sys-devel/autoconf-wrapper-7"
-PDEPEND="emacs? ( app-emacs/autoconf-mode )"
+	!~sys-devel/${P}:0
+	>=sys-devel/autoconf-wrapper-13"
 
-src_unpack() {
-	unpack ${A}
-	cd "${S}"
-	use multislot && find -name Makefile.in -exec sed -i '/^pkgdatadir/s:$:-@VERSION@:' {} +
-}
-
-src_compile() {
-	# Disable Emacs in the build system since it is in a separate package.
-	export EMACS=no
-	econf --program-suffix="-${PV}" || die
-	# econf updates config.{sub,guess} which forces the manpages
-	# to be regenerated which we dont want to do #146621
-	touch man/*.1
-	emake || die
-}
-
-src_install() {
-	emake DESTDIR="${D}" install || die
-	dodoc AUTHORS BUGS NEWS README TODO THANKS \
-		ChangeLog ChangeLog.0 ChangeLog.1 ChangeLog.2
-
-	if use multislot ; then
-		local f
-		for f in "${D}"/usr/share/info/*.info* ; do
-			mv "${f}" "${f/.info/-${SLOT}.info}" || die
-		done
-	fi
-}
+if [[ -z ${__EBLITS__} && -n ${FILESDIR} ]] ; then
+	source "${FILESDIR}"/eblits/main.eblit || die
+fi
+src_prepare()   { eblit-run src_prepare   ; }
+src_configure() { eblit-run src_configure ; }
+src_install()   { eblit-run src_install   ; }
