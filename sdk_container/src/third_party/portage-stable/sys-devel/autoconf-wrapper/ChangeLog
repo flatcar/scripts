@@ -1,6 +1,42 @@
 # ChangeLog for sys-devel/autoconf-wrapper
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/autoconf-wrapper/ChangeLog,v 1.98 2013/04/16 18:48:33 vapier Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/autoconf-wrapper/ChangeLog,v 1.110 2014/01/17 04:23:10 vapier Exp $
+
+  17 Jan 2014; Mike Frysinger <vapier@gentoo.org> autoconf-wrapper-13.ebuild:
+  Add arm64 keywords.
+
+  16 Jan 2014; Mike Frysinger <vapier@gentoo.org> autoconf-wrapper-13.ebuild:
+  Mark m68k/sh stable.
+
+  10 Aug 2013; Agostino Sarubbo <ago@gentoo.org> autoconf-wrapper-13.ebuild:
+  Stable for ppc, wrt bug #470574
+
+  07 Aug 2013; Agostino Sarubbo <ago@gentoo.org> autoconf-wrapper-13.ebuild:
+  Stable for x86, wrt bug #470574
+
+  06 Aug 2013; Agostino Sarubbo <ago@gentoo.org> autoconf-wrapper-13.ebuild:
+  Stable for s390, wrt bug #470574
+
+  04 Aug 2013; Agostino Sarubbo <ago@gentoo.org> autoconf-wrapper-13.ebuild:
+  Stable for ppc64, wrt bug #470574
+
+  04 Aug 2013; Agostino Sarubbo <ago@gentoo.org> autoconf-wrapper-13.ebuild:
+  Stable for ia64, wrt bug #470574
+
+  03 Aug 2013; Agostino Sarubbo <ago@gentoo.org> autoconf-wrapper-13.ebuild:
+  Stable for sparc, wrt bug #470574
+
+  31 Jul 2013; Jeroen Roovers <jer@gentoo.org> autoconf-wrapper-13.ebuild:
+  Stable for HPPA (bug #470574).
+
+  30 Jul 2013; Agostino Sarubbo <ago@gentoo.org> autoconf-wrapper-13.ebuild:
+  Stable for alpha, wrt bug #470574
+
+  30 Jul 2013; Agostino Sarubbo <ago@gentoo.org> autoconf-wrapper-13.ebuild:
+  Stable for amd64, wrt bug #470574
+
+  28 Jul 2013; Agostino Sarubbo <ago@gentoo.org> autoconf-wrapper-13.ebuild:
+  Stable for arm, wrt bug #470574
 
 *autoconf-wrapper-13 (16 Apr 2013)
 
