@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-lang/rust/rust-1.0.0_beta3.ebuild,v 1.1 2015/05/03 16:25:22 jauhien Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-lang/rust/rust-1.0.0.ebuild,v 1.1 2015/06/04 10:47:28 jauhien Exp $
 
 EAPI=5
 
@@ -8,7 +8,7 @@ PYTHON_COMPAT=( python2_7 )
 
 inherit eutils python-any-r1
 
-RUST_CHANNEL="beta"
+RUST_CHANNEL="stable"
 
 BETA_NUM="${PV##*beta}"
 MY_PV="${PV/_/-}"
@@ -31,7 +31,7 @@ IUSE="clang debug doc libcxx +system-llvm"
 REQUIRED_USE="libcxx? ( clang )"
 
 CDEPEND="libcxx? ( sys-libs/libcxx )
-	>=app-eselect/eselect-rust-0.3_pre20150428
+	>=app-eselect/eselect-rust-0.3_pre20150425
 	!dev-lang/rust:0
 "
 DEPEND="${CDEPEND}
@@ -83,6 +83,8 @@ src_compile() {
 }
 
 src_install() {
+	unset SUDO_USER
+
 	default
 
 	mv "${D}/usr/bin/rustc" "${D}/usr/bin/rustc-${PV}" || die
@@ -91,16 +93,15 @@ src_install() {
 
 	dodoc COPYRIGHT LICENSE-APACHE LICENSE-MIT
 
-	rm "${D}/usr/share/doc/rust" -rf
-
 	# le kludge that fixes https://github.com/Heather/gentoo-rust/issues/41
-	mv "${D}/usr/lib/rust-${PV}/rust-${PV}/rustlib"/* "${D}/usr/lib/rust-${PV}/rustlib/"
-	rmdir "${D}/usr/lib/rust-${PV}/rust-${PV}/rustlib"
-	mv "${D}/usr/lib/rust-${PV}/rust-${PV}/"/* "${D}/usr/lib/rust-${PV}/"
-	rmdir "${D}/usr/lib/rust-${PV}/rust-${PV}/"
+	mv "${D}/usr/lib/rust-${PV}/rust-${PV}/rustlib"/* "${D}/usr/lib/rust-${PV}/rustlib/" || die
+	rmdir "${D}/usr/lib/rust-${PV}/rust-${PV}/rustlib" || die
+	mv "${D}/usr/lib/rust-${PV}/rust-${PV}/"/* "${D}/usr/lib/rust-${PV}/" || die
+	rmdir "${D}/usr/lib/rust-${PV}/rust-${PV}/" || die
 
-	mv "${D}/usr/share/doc/rust"/* "${D}/usr/share/doc/rust-${PV}/"
-	rmdir "${D}/usr/share/doc/rust/"
+	dodir "/usr/share/doc/rust-${PV}/"
+	mv "${D}/usr/share/doc/rust"/* "${D}/usr/share/doc/rust-${PV}/" || die
+	rmdir "${D}/usr/share/doc/rust/" || die
 
 	cat <<-EOF > "${T}"/50${P}
 	LDPATH="/usr/lib/${P}"

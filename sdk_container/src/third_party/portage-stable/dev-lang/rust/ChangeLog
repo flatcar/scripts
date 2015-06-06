@@ -1,6 +1,12 @@
 # ChangeLog for dev-lang/rust
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-lang/rust/ChangeLog,v 1.18 2015/05/03 16:25:22 jauhien Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-lang/rust/ChangeLog,v 1.19 2015/06/04 10:47:28 jauhien Exp $
+
+*rust-1.0.0 (04 Jun 2015)
+
+  04 Jun 2015; Jauhien Piatlicki <jauhien@gentoo.org> +rust-1.0.0.ebuild,
+  -rust-1.0.0_beta2.ebuild, -rust-1.0.0_beta3.ebuild:
+  version bump (bug 550878), fix bug 549220
 
 *rust-1.0.0_beta3 (03 May 2015)
 
