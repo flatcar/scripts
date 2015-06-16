@@ -1,10 +1,10 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/gdbm/gdbm-1.9.1-r2.ebuild,v 1.6 2014/01/18 03:55:06 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/gdbm/gdbm-1.10.ebuild,v 1.4 2014/01/18 03:55:06 vapier Exp $
 
-EAPI="3"
+EAPI="4"
 
-inherit eutils libtool flag-o-matic
+inherit libtool flag-o-matic
 
 EX_P="${PN}-1.8.3"
 DESCRIPTION="Standard GNU database libraries"
@@ -14,13 +14,12 @@ SRC_URI="mirror://gnu/gdbm/${P}.tar.gz
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~x86-interix ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="+berkdb exporter static-libs"
 
 EX_S="${WORKDIR}"/${EX_P}
 
 src_prepare() {
-	epatch "${FILESDIR}"/${P}-compat-link.patch #383743
 	elibtoolize
 }
 
@@ -46,17 +45,16 @@ src_configure() {
 
 src_compile() {
 	if use exporter ; then
-		emake -C "${WORKDIR}"/${EX_P} libgdbm.la || die
+		emake -C "${WORKDIR}"/${EX_P} libgdbm.la
 	fi
 
-	emake || die
+	emake
 }
 
 src_install() {
-	emake DESTDIR="${D}" install || die
+	default
 	use static-libs || find "${ED}" -name '*.la' -delete
 	mv "${ED}"/usr/include/gdbm/gdbm.h "${ED}"/usr/include/ || die
-	dodoc ChangeLog NEWS README
 }
 
 pkg_preinst() {
