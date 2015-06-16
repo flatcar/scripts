@@ -1,8 +1,8 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/pciutils/pciutils-3.1.10.ebuild,v 1.3 2012/10/02 12:55:22 blueness Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/pciutils/pciutils-3.2.1.ebuild,v 1.3 2014/01/18 04:55:35 vapier Exp $
 
-EAPI="4"
+EAPI="5"
 
 inherit eutils multilib toolchain-funcs
 
@@ -12,20 +12,21 @@ SRC_URI="ftp://atrey.karlin.mff.cuni.cz/pub/linux/pci/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm hppa ~ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh ~sparc x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux"
-IUSE="static-libs zlib"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~amd64-linux ~arm-linux ~x86-linux"
+IUSE="dns +kmod static-libs zlib"
 
 # Have the sub-libs in RDEPEND with [static-libs] since, logically,
 # our libssl.a depends on libz.a/etc... at runtime.
 LIB_DEPEND="zlib? ( sys-libs/zlib[static-libs(+)] )"
-DEPEND="static-libs? ( ${LIB_DEPEND} )
+DEPEND="kmod? ( sys-apps/kmod )
+	static-libs? ( ${LIB_DEPEND} )
 	!static-libs? ( ${LIB_DEPEND//\[static-libs(+)]} )"
 RDEPEND="${DEPEND}
 	sys-apps/hwids"
+DEPEND="${DEPEND}
+	kmod? ( virtual/pkgconfig )"
 
 src_prepare() {
-	epatch "${FILESDIR}"/${PN}-3.1.7-install-lib.patch #273489
-	epatch "${FILESDIR}"/${PN}-3.1.7-fbsd.patch #262321
 	epatch "${FILESDIR}"/${PN}-3.1.9-static-pc.patch
 
 	if use static-libs ; then
@@ -38,7 +39,7 @@ pemake() {
 		HOST="${CHOST}" \
 		CROSS_COMPILE="${CHOST}-" \
 		CC="$(tc-getCC)" \
-		DNS="yes" \
+		DNS=$(usex dns) \
 		IDSDIR='$(SHAREDIR)/misc' \
 		MANDIR='$(SHAREDIR)/man' \
 		PREFIX="${EPREFIX}/usr" \
@@ -48,6 +49,7 @@ pemake() {
 		PCI_COMPRESSED_IDS=0 \
 		PCI_IDS=pci.ids \
 		LIBDIR="\${PREFIX}/$(get_libdir)" \
+		LIBKMOD=$(usex kmod) \
 		"$@"
 }
 
@@ -75,8 +77,8 @@ src_install() {
 }
 
 pkg_postinst() {
-	elog "The 'pcimodules' program has been replaced by 'lspci -k'"
-	elog ""
-	elog "The 'network-cron' USE flag is gone; if you want a more up-to-date"
-	elog "pci.ids file, you should use sys-apps/hwids-99999999 (live ebuild)."
+	if [[ ${REPLACING_VERSIONS} ]] && [[ ${REPLACING_VERSIONS} < 3.2.0 ]]; then
+		elog "The 'network-cron' USE flag is gone; if you want a more up-to-date"
+		elog "pci.ids file, you should use sys-apps/hwids-99999999 (live ebuild)."
+	fi
 }
