@@ -1,14 +1,14 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/apr-util/apr-util-1.5.1.ebuild,v 1.1 2012/11/28 07:45:27 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/apr-util/apr-util-1.5.2.ebuild,v 1.17 2014/12/28 15:28:44 titanofold Exp $
 
 EAPI="4"
 
 # Usually apr-util has the same PV as apr, but in case of security fixes, this may change.
 # APR_PV="${PV}"
-APR_PV="1.4.5"
+APR_PV="1.4.6"
 
-inherit autotools db-use eutils libtool multilib
+inherit autotools db-use eutils libtool multilib toolchain-funcs
 
 DESCRIPTION="Apache Portable Runtime Utility Library"
 HOMEPAGE="http://apr.apache.org/"
@@ -16,7 +16,7 @@ SRC_URI="mirror://apache/apr/${P}.tar.bz2"
 
 LICENSE="Apache-2.0"
 SLOT="1"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="alpha amd64 arm arm64 hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="berkdb doc freetds gdbm ldap mysql nss odbc openssl postgres sqlite static-libs"
 RESTRICT="test"
 
@@ -30,7 +30,7 @@ RDEPEND="dev-libs/expat
 	nss? ( dev-libs/nss )
 	odbc? ( dev-db/unixODBC )
 	openssl? ( dev-libs/openssl )
-	postgres? ( dev-db/postgresql-base )
+	postgres? ( dev-db/postgresql )
 	sqlite? ( dev-db/sqlite:3 )"
 DEPEND="${RDEPEND}
 	doc? ( app-doc/doxygen )"
@@ -46,7 +46,7 @@ src_prepare() {
 src_configure() {
 	local myconf
 
-	[[ ${CHOST} == *-mint* ]] && myconf="${myconf} --disable-util-dso"
+	tc-is-static-only && myconf+=" --disable-util-dso"
 
 	if use berkdb; then
 		local db_version
