@@ -1,9 +1,9 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/popt/popt-1.16-r1.ebuild,v 1.11 2014/01/18 05:05:46 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/popt/popt-1.16-r2.ebuild,v 1.9 2015/03/13 19:55:13 zlogene Exp $
 
-EAPI=3
-inherit eutils
+EAPI=5
+inherit eutils multilib-minimal
 
 DESCRIPTION="Parse Options - Command line parser"
 HOMEPAGE="http://rpm5.org/"
@@ -14,7 +14,7 @@ SLOT="0"
 KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~arm-linux ~x86-linux"
 IUSE="nls static-libs"
 
-RDEPEND="nls? ( virtual/libintl )"
+RDEPEND="nls? ( >=virtual/libintl-0-r1[${MULTILIB_USEDEP}] )"
 DEPEND="nls? ( sys-devel/gettext )"
 
 src_prepare() {
@@ -22,16 +22,15 @@ src_prepare() {
 	sed -i -e 's:lt-test1:test1:' testit.sh || die
 }
 
-src_configure() {
+multilib_src_configure() {
+	ECONF_SOURCE=${S} \
 	econf \
 		--disable-dependency-tracking \
 		$(use_enable static-libs static) \
 		$(use_enable nls)
 }
 
-src_install() {
-	emake DESTDIR="${D}" install || die
-	dodoc CHANGES README || die
-
-	find "${ED}" -name '*.la' -exec rm -f {} +
+multilib_src_install_all() {
+	dodoc CHANGES README
+	prune_libtool_files --all
 }
