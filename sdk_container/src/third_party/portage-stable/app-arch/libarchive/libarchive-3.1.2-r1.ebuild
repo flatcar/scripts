@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-arch/libarchive/libarchive-3.1.2-r1.ebuild,v 1.13 2013/07/12 19:59:33 grobian Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-arch/libarchive/libarchive-3.1.2-r1.ebuild,v 1.14 2014/06/10 00:24:29 vapier Exp $
 
 EAPI=5
 inherit eutils libtool multilib toolchain-funcs
@@ -11,7 +11,7 @@ SRC_URI="http://www.libarchive.org/downloads/${P}.tar.gz"
 
 LICENSE="BSD BSD-2 BSD-4 public-domain"
 SLOT="0/13"
-KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="acl +bzip2 +e2fsprogs expat +iconv kernel_linux +lzma lzo nettle static-libs xattr +zlib"
 
 RDEPEND="dev-libs/openssl:0
