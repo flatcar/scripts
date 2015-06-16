@@ -15,14 +15,6 @@
        push @CONFIG_FILES, 
          split(/:/,$params{'langfile'})      if $params{'langfile'};
        
-@@ -446,7 +446,6 @@
-       
-       $_[2] = $langmode;
-       $_[3] = $alt_langmode;
--      print "==> append : to filename to switch off syntax highlighting\n";
-       return \$code;
-   };
- 
 @@ -3192,7 +3192,7 @@
  #
  
