@@ -14,5 +14,7 @@
 	<flag name='script'>Enable support for calling scripts when leases change.</flag>
 	<flag name='tftp'>Enables built in TFTP server for netbooting.</flag>
 </use>
+<upstream>
+	<remote-id type="cpe">cpe:/a:thekelleys:dnsmasq</remote-id>
+</upstream>
 </pkgmetadata>
-

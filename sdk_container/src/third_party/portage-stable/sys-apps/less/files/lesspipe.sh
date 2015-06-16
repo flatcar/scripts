@@ -13,8 +13,9 @@ guesscompress() {
 	case "$1" in
 		*.gz|*.z)   echo "gunzip -c" ;;
 		*.bz2|*.bz) echo "bunzip2 -c" ;;
-		*.lz)       echo "lzip -c" ;;
+		*.lz)       echo "lzip -dc" ;;
 		*.lzma)     echo "unlzma -c" ;;
+		*.lzo)      echo "lzop -dc" ;;
 		*.xz)       echo "xzdec" ;;
 		*)          echo "cat" ;;
 	esac
@@ -46,7 +47,7 @@ lesspipe() {
 	local match=$2
 	[[ -z ${match} ]] && match=$1
 
-	local DECOMPRESSOR=$(guesscompress "$match")
+	local DECOMPRESSOR=$(guesscompress "${match}")
 
 	# User filters
 	if [[ -x ~/.lessfilter ]] ; then
@@ -58,13 +59,14 @@ lesspipe() {
 		[[ ${match} == *.${ignore} ]] && exit 0
 	done
 
-	case "$match" in
+	case "${match}" in
 
 	### Doc files ###
 	*.[0-9n]|*.man|\
 	*.[0-9n].bz2|*.man.bz2|\
 	*.[0-9n].gz|*.man.gz|\
 	*.[0-9n].lzma|*.man.lzma|\
+	*.[0-9n].xz|*.man.xz|\
 	*.[0-9][a-z].gz|*.[0-9][a-z].gz)
 		local out=$(${DECOMPRESSOR} -- "$1" | file -)
 		case ${out} in
@@ -115,7 +117,7 @@ lesspipe() {
 	*.gz|*.z|\
 	*.lz|\
 	*.lzma|*.xz)  ${DECOMPRESSOR} -- "$1" ;;
-	*.rpm)        rpm -qpivl --changelog -- "$1" ;;
+	*.rpm)        rpm -qpivl --changelog -- "$1" || rpm2tar -O "$1" | tar tvvf -;;
 	*.cpi|*.cpio) cpio -itv < "$1" ;;
 	*.ace)        unace l "$1" ;;
 	*.arc)        arc v "$1" ;;
@@ -123,10 +125,10 @@ lesspipe() {
 	*.cab)        cabextract -l -- "$1" ;;
 	*.lha|*.lzh)  lha v "$1" ;;
 	*.zoo)        zoo -list "$1" || unzoo -l "$1" ;;
-	*.7z|*.exe)   7z l -- "$1" || 7za l -- "$1" ;;
+	*.7z|*.exe)   7z l -- "$1" || 7za l -- "$1" || 7zr l -- "$1" ;;
 	*.a)          ar tv "$1" ;;
-	*.elf)        readelf -a -- "$1" ;;
-	*.so)         readelf -h -d -s -- "$1" ;;
+	*.elf)        readelf -a -W -- "$1" ;;
+	*.so)         readelf -h -d -s -W -- "$1" ;;
 	*.mo|*.gmo)   msgunfmt -- "$1" ;;
 
 	*.rar|.r[0-9][0-9])  unrar l -- "$1" ;;
@@ -149,10 +151,10 @@ lesspipe() {
 	*.squashfs)   unsquashfs -s "$1" && unsquashfs -ll "$1" ;;
 
 	### Media ###
-	*.bmp|*.gif|*.jpeg|*.jpg|*.ico|*.pcd|*.pcx|*.png|*.ppm|*.tga|*.tiff|*.tif)
+	*.bmp|*.gif|*.jpeg|*.jpg|*.ico|*.pcd|*.pcx|*.png|*.ppm|*.tga|*.tiff|*.tif|*.webp)
 		identify "$1" || file -L -- "$1"
 		;;
-	*.avi|*.mpeg|*.mpg|*.mov|*.qt|*.wmv|*.asf|*.rm|*.ram)
+	*.asf|*.avi|*.mov|*.mp4|*.mpeg|*.mpg|*.qt|*.ram|*.rm|*.webm|*.wmv)
 		midentify "$1" || file -L -- "$1"
 		;;
 	*.mp3)        mp3info "$1" || id3info "$1" ;;
@@ -160,8 +162,12 @@ lesspipe() {
 	*.flac)       metaflac --list "$1" ;;
 	*.torrent)    torrentinfo "$1" || torrentinfo-console "$1" || ctorrent -x "$1" ;;
 	*.bin|*.cue|*.raw)
-		# not all .bin/.raw files are cd images, so fall back to hexdump
-		cd-info --no-header --no-device-info "$1" || lesspipe_file "$1"
+		# not all .bin/.raw files are cd images #285507
+		# fall back to lesspipe_file if .cue doesn't exist, or if
+		# cd-info failed to parse things sanely
+		[[ -e ${1%.*}.cue ]] \
+			&& cd-info --no-header --no-device-info "$1" \
+			|| lesspipe_file "$1"
 		;;
 	*.iso)
 		iso_info=$(isoinfo -d -i "$1")
@@ -177,7 +183,8 @@ lesspipe() {
 
 	### Encryption stuff ###
 	*.crl) openssl crl -hash -text -noout -in "$1" ;;
-	*.pem) openssl x509 -hash -text -noout -in "$1" ;;
+	*.csr) openssl req -text -noout -in "$1" ;;
+	*.crt|*.pem) openssl x509 -hash -text -noout -in "$1" ;;
 
 # May not be such a good idea :)
 #	### Device nodes ###
@@ -214,7 +221,7 @@ lesspipe() {
 			# 1: ... or we know less will handle raw codes -- this will
 			#    not detect -seiRM, so set LESSCOLORIZER yourself
 			if [[ ${LESSCOLOR} == "2" ]] || [[ " ${LESS} " == *" -"[rR]" "* ]] ; then
-				${LESSCOLORIZER} "$1"
+				LESSQUIET=true ${LESSCOLORIZER} "$1"
 			fi
 		fi
 
@@ -229,8 +236,8 @@ if [[ -z $1 ]] ; then
 elif [[ $1 == "-V" || $1 == "--version" ]] ; then
 	Id="cvsid"
 	cat <<-EOF
-		$Id: lesspipe.sh,v 1.45 2011/01/20 03:26:14 vapier Exp $
-		Copyright 2001-2010 Gentoo Foundation
+		$Id: lesspipe.sh,v 1.54 2013/12/31 02:25:30 vapier Exp $
+		Copyright 2001-2013 Gentoo Foundation
 		Mike Frysinger <vapier@gentoo.org>
 		     (with plenty of ideas stolen from other projects/distros)
 
@@ -239,7 +246,7 @@ elif [[ $1 == "-V" || $1 == "--version" ]] ; then
 	less -V
 elif [[ $1 == "-h" || $1 == "--help" ]] ; then
 	cat <<-EOF
-		lesspipe: preproccess files before sending them to less
+		lesspipe: preprocess files before sending them to less
 
 		Usage: lesspipe <file>
 

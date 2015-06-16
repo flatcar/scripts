@@ -1,6 +1,74 @@
 # ChangeLog for app-admin/python-updater
-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/app-admin/python-updater/ChangeLog,v 1.78 2012/05/28 16:14:43 xarthisius Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/app-admin/python-updater/ChangeLog,v 1.96 2015/04/21 11:34:00 mrueg Exp $
+
+  21 Apr 2015; Manuel Rüger <mrueg@gentoo.org> python-updater-0.11.ebuild,
+  python-updater-0.12.ebuild, python-updater-0.13.ebuild,
+  python-updater-9999.ebuild:
+  Fix EGIT_REPO_URI.
+
+*python-updater-0.13 (07 Apr 2014)
+
+  07 Apr 2014; Mike Gilbert <floppym@gentoo.org> +python-updater-0.13.ebuild:
+  Version bump. Fix path to sed on BSD, bug 370935.
+
+*python-updater-0.12 (16 Mar 2014)
+
+  16 Mar 2014; Mike Gilbert <floppym@gentoo.org> +python-updater-0.12.ebuild,
+  python-updater-9999.ebuild:
+  Version bump. Incorporate prefix support. Source /lib/gentoo/functions.sh, bug
+  504130.
+
+  20 Jan 2014; Mike Gilbert <floppym@gentoo.org> python-updater-0.11.ebuild,
+  python-updater-9999.ebuild:
+  Avoid a circular dependency on dev-lang/python.
+
+  20 Jan 2014; Mike Gilbert <floppym@gentoo.org> -python-updater-0.10-r2.ebuild,
+  -python-updater-0.10.ebuild:
+  Remove old.
+
+  18 Jan 2014; Mike Frysinger <vapier@gentoo.org> python-updater-0.11.ebuild,
+  python-updater-9999.ebuild:
+  Add arm64 love.
+
+  18 Jan 2014; Mike Frysinger <vapier@gentoo.org> python-updater-0.11.ebuild:
+  Mark m68k/sh stable.
+
+  07 Aug 2013; Agostino Sarubbo <ago@gentoo.org> python-updater-0.11.ebuild:
+  Stable for x86, wrt bug #477950
+
+  06 Aug 2013; Agostino Sarubbo <ago@gentoo.org> python-updater-0.11.ebuild:
+  Stable for s390, wrt bug #477950
+
+  04 Aug 2013; Agostino Sarubbo <ago@gentoo.org> python-updater-0.11.ebuild:
+  Stable for ppc64, wrt bug #477950
+
+  04 Aug 2013; Agostino Sarubbo <ago@gentoo.org> python-updater-0.11.ebuild:
+  Stable for ia64, wrt bug #477950
+
+  03 Aug 2013; Agostino Sarubbo <ago@gentoo.org> python-updater-0.11.ebuild:
+  Stable for sparc, wrt bug #477950
+
+  30 Jul 2013; Agostino Sarubbo <ago@gentoo.org> python-updater-0.11.ebuild:
+  Stable for alpha, wrt bug #477950
+
+  28 Jul 2013; Agostino Sarubbo <ago@gentoo.org> python-updater-0.11.ebuild:
+  Stable for arm, wrt bug #477950
+
+  28 Jul 2013; Agostino Sarubbo <ago@gentoo.org> python-updater-0.11.ebuild:
+  Stable for ppc, wrt bug #477950
+
+  24 Jul 2013; Agostino Sarubbo <ago@gentoo.org> python-updater-0.11.ebuild:
+  Stable for amd64, wrt bug #477950
+
+  24 Jul 2013; Jeroen Roovers <jer@gentoo.org> python-updater-0.11.ebuild:
+  Stable for HPPA (bug #477950).
+
+*python-updater-0.11 (24 Mar 2013)
+
+  24 Mar 2013; Mike Gilbert <floppym@gentoo.org> +python-updater-0.11.ebuild,
+  python-updater-9999.ebuild:
+  Version bump. Update the ebuilds to point at gentoo infrastructure.
 
   28 May 2012; Kacper Kowalik <xarthisius@gentoo.org>
   -files/python-updater-0.9-sed.patch, -python-updater-0.10-r1.ebuild,
@@ -308,4 +376,3 @@
   06 May 2007; Bryan Østergaard <kloeri@gentoo.org>
   +python-updater-0.1.ebuild:
   Initial import of stand-alone python-updater.
-

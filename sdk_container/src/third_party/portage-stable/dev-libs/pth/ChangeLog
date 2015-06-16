@@ -1,6 +1,12 @@
 # ChangeLog for dev-libs/pth
-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/pth/ChangeLog,v 1.74 2012/09/18 04:50:29 radhermit Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/pth/ChangeLog,v 1.76 2014/03/16 02:38:02 vapier Exp $
+
+  16 Mar 2014; Mike Frysinger <vapier@gentoo.org> pth-2.0.7-r3.ebuild:
+  Add arm64 love.
+
+  20 Feb 2013; Zac Medico <zmedico@gentoo.org> pth-2.0.7-r3.ebuild:
+  Add ~arm-linux keyword.
 
   18 Sep 2012; Tim Harder <radhermit@gentoo.org> metadata.xml:
   Remove redundant maintainer from metadata.

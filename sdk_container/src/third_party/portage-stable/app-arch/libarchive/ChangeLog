@@ -1,6 +1,9 @@
 # ChangeLog for app-arch/libarchive
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/app-arch/libarchive/ChangeLog,v 1.157 2013/07/12 19:59:33 grobian Exp $
+# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/app-arch/libarchive/ChangeLog,v 1.158 2014/06/10 00:24:29 vapier Exp $
+
+  10 Jun 2014; Mike Frysinger <vapier@gentoo.org> libarchive-3.1.2-r1.ebuild:
+  Add arm64/m68k love.
 
   12 Jul 2013; Fabian Groffen <grobian@gentoo.org> libarchive-3.1.2-r1.ebuild:
   Don't request shared libraries on static-only systems such as FreeMiNT, bug

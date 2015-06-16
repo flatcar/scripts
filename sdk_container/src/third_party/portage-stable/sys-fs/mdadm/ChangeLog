@@ -1,6 +1,25 @@
 # ChangeLog for sys-fs/mdadm
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/mdadm/ChangeLog,v 1.189 2014/09/13 12:21:00 maekke Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/mdadm/ChangeLog,v 1.194 2015/04/11 20:51:01 robbat2 Exp $
+
+*mdadm-3.3.2-r1 (11 Apr 2015)
+
+  11 Apr 2015; Robin H. Johnson <robbat2@gentoo.org> +files/etc-default-mdadm,
+  +mdadm-3.3.2-r1.ebuild, files/mdadm.weekly:
+  Actually make the monthly auto-check work.
+
+  04 Apr 2015; Mike Frysinger <vapier@gentoo.org> files/mdraid.confd,
+  files/mdraid.rc:
+  Add a conf.d setting to pass options to the assemble step #531604 by Adrian.
+
+  04 Apr 2015; Mike Frysinger <vapier@gentoo.org> mdadm-3.3.1-r2.ebuild:
+  Mark ia64/ppc64/sparc stable #520342.
+
+  02 Mar 2015; Agostino Sarubbo <ago@gentoo.org> mdadm-3.3.1-r2.ebuild:
+  Stable for ppc, wrt bug #520342
+
+  21 Nov 2014; Tobias Klausmann <klausman@gentoo.org> mdadm-3.3.1-r2.ebuild:
+  Stable on alpha, bug 520342
 
   13 Sep 2014; Markus Meier <maekke@gentoo.org> mdadm-3.3.1-r2.ebuild:
   arm stable, bug #520342

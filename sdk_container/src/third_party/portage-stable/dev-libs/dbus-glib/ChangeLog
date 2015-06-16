@@ -1,6 +1,33 @@
 # ChangeLog for dev-libs/dbus-glib
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/dbus-glib/ChangeLog,v 1.154 2014/06/24 22:07:15 mgorny Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/dbus-glib/ChangeLog,v 1.163 2015/04/30 04:37:51 jer Exp $
+
+  30 Apr 2015; Jeroen Roovers <jer@gentoo.org> dbus-glib-0.102.ebuild:
+  Stable for PPC64 (bug #545844).
+
+  28 Apr 2015; Agostino Sarubbo <ago@gentoo.org> dbus-glib-0.102.ebuild:
+  Stable for sparc, wrt bug #545844
+
+  21 Apr 2015; Pacho Ramos <pacho@gentoo.org> dbus-glib-0.102.ebuild:
+  ppc stable wrt bug #545844
+
+  19 Apr 2015; Agostino Sarubbo <ago@gentoo.org> dbus-glib-0.102.ebuild:
+  Stable for x86, wrt bug #545844
+
+  14 Apr 2015; Agostino Sarubbo <ago@gentoo.org> dbus-glib-0.102.ebuild:
+  Stable for ia64, wrt bug #545844
+
+  13 Apr 2015; Agostino Sarubbo <ago@gentoo.org> dbus-glib-0.102.ebuild:
+  Stable for alpha, wrt bug #545844
+
+  08 Apr 2015; Jeroen Roovers <jer@gentoo.org> dbus-glib-0.102.ebuild:
+  Stable for HPPA (bug #545844).
+
+  08 Apr 2015; Agostino Sarubbo <ago@gentoo.org> dbus-glib-0.102.ebuild:
+  Stable for amd64, wrt bug #545844
+
+  02 Mar 2015; Yixun Lan <dlan@gentoo.org> dbus-glib-0.102.ebuild:
+  add arm64 support, tested on A53 board
 
   24 Jun 2014; Michał Górny <mgorny@gentoo.org> dbus-glib-0.100.2-r1.ebuild,
   dbus-glib-0.102.ebuild:

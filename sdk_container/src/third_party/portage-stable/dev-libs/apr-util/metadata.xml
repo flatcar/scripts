@@ -2,7 +2,8 @@
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
 	<maintainer>
-		<email>maintainer-needed@gentoo.org</email>
+		<email>polynomial-c@gentoo.org</email>
+		<name>Lars Wendler</name>
 	</maintainer>
 	<use>
 		<flag name="nss">Install apr_crypto_nss module</flag>

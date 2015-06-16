@@ -2,11 +2,11 @@
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
 	<maintainer>
-		<email>maintainer-needed@gentoo.org</email>
+		<email>polynomial-c@gentoo.org</email>
+		<name>Lars Wendler</name>
 	</maintainer>
 	<use>
 		<flag name="older-kernels-compatibility">Enable binary compatibility with older kernels</flag>
 		<flag name="urandom">Use /dev/urandom instead of /dev/random</flag>
-		<flag name="uuid">Enable UUID support</flag>
 	</use>
 </pkgmetadata>
