@@ -1,13 +1,13 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-dns/dnsmasq/dnsmasq-2.71-r1.ebuild,v 1.2 2014/11/02 08:48:02 swift Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-dns/dnsmasq/dnsmasq-2.72-r2.ebuild,v 1.3 2015/05/05 15:32:16 vapier Exp $
 
 EAPI=5
 
 inherit eutils toolchain-funcs flag-o-matic user systemd
 
 DESCRIPTION="Small forwarding DNS server"
-HOMEPAGE="http://www.thekelleys.org.uk/dnsmasq/"
+HOMEPAGE="http://www.thekelleys.org.uk/dnsmasq/doc.html"
 SRC_URI="http://www.thekelleys.org.uk/dnsmasq/${P}.tar.xz"
 
 LICENSE="|| ( GPL-2 GPL-3 )"
@@ -21,8 +21,13 @@ done
 
 CDEPEND="dbus? ( sys-apps/dbus )
 	idn? ( net-dns/libidn )
-	lua? ( dev-lang/lua )
-	conntrack? ( !s390? ( net-libs/libnetfilter_conntrack ) )
+	lua? (
+		|| (
+			dev-lang/lua:0
+			dev-lang/lua:5.1
+		)
+	)
+	conntrack? ( net-libs/libnetfilter_conntrack )
 	nls? (
 		sys-devel/gettext
 		net-dns/libidn
@@ -49,8 +54,7 @@ RDEPEND="${CDEPEND}
 "
 
 REQUIRED_USE="dhcp-tools? ( dhcp )
-	lua? ( script )
-	s390? ( !conntrack )"
+	lua? ( script )"
 
 use_have() {
 	local useflag no_only uword
@@ -92,6 +96,9 @@ pkg_setup() {
 src_prepare() {
 	sed -i -r 's:lua5.[0-9]+:lua:' Makefile
 	sed -i "s:%%PREFIX%%:${EPREFIX}/usr:" dnsmasq.conf.example
+
+	epatch "${FILESDIR}"/${P}-Fix-crash-on-receipt-of-certain-malformed-DNS-requests.patch
+	epatch "${FILESDIR}"/${P}-Fix-crash-caused-by-looking-up-servers.bind-when-many-servers-defined.patch
 }
 
 src_configure() {
@@ -145,8 +152,8 @@ src_install() {
 	dodoc CHANGELOG FAQ
 	dohtml *.html
 
-	newinitd "${FILESDIR}"/dnsmasq-init-r2 dnsmasq
-	newconfd "${FILESDIR}"/dnsmasq.confd-r1 dnsmasq
+	newinitd "${FILESDIR}"/dnsmasq-init-r2 ${PN}
+	newconfd "${FILESDIR}"/dnsmasq.confd-r1 ${PN}
 
 	insinto /etc
 	newins dnsmasq.conf.example dnsmasq.conf
@@ -156,10 +163,8 @@ src_install() {
 
 	if use dhcp; then
 		dodir /var/lib/misc
-		touch "${D}"/var/lib/misc/${PN}.leases
-		fowners dnsmasq:dnsmasq /var/lib/misc/${PN}.leases
+		newinitd "${FILESDIR}"/dnsmasq-init-dhcp-r1 ${PN}
 	fi
-
 	if use dbus; then
 		insinto /etc/dbus-1/system.d
 		doins dbus/dnsmasq.conf
@@ -171,4 +176,15 @@ src_install() {
 	fi
 
 	systemd_newunit "${FILESDIR}"/${PN}.service-r1 ${PN}.service
+
+}
+
+pkg_preinst() {
+	# temporary workaround to (hopefully) prevent leases file from being removed
+	[[ -f /var/lib/misc/dnsmasq.leases ]] && cp /var/lib/misc/dnsmasq.leases "${T}"
+}
+
+pkg_postinst() {
+	# temporary workaround to (hopefully) prevent leases file from being removed
+	[[ -f "${T}"/dnsmasq.leases ]] && cp "${T}"/dnsmasq.leases /var/lib/misc/dnsmasq.leases
 }

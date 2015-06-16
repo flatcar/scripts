@@ -1,6 +1,30 @@
 # ChangeLog for net-dns/dnsmasq
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-dns/dnsmasq/ChangeLog,v 1.264 2014/12/04 08:32:02 ago Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-dns/dnsmasq/ChangeLog,v 1.269 2015/05/05 15:32:16 vapier Exp $
+
+  05 May 2015; Mike Frysinger <vapier@gentoo.org> dnsmasq-2.72-r2.ebuild:
+  Drop s390 arch protections now that the dep is keyworded.
+
+  30 Apr 2015; Mike Frysinger <vapier@gentoo.org> metadata.xml:
+  Add CPE info.
+
+  30 Apr 2015; Mike Frysinger <vapier@gentoo.org> dnsmasq-2.72-r2.ebuild:
+  Better HOMEPAGE.
+
+*dnsmasq-2.72-r2 (29 Apr 2015)
+
+  29 Apr 2015; Patrick McLean <chutzpah@gentoo.org> +dnsmasq-2.72-r2.ebuild:
+  Revision bump, allow lua to come from either slot 0 or slot 5.1 (bug #548104)
+
+*dnsmasq-2.72-r1 (28 Apr 2015)
+
+  28 Apr 2015; Patrick McLean <chutzpah@gentoo.org> +dnsmasq-2.72-r1.ebuild, +fi
+  les/dnsmasq-2.72-Fix-crash-caused-by-looking-up-servers.bind-when-many-servers
+  -defined.patch, +files/dnsmasq-2.72-Fix-crash-on-receipt-of-certain-malformed-
+  DNS-requests.patch, -dnsmasq-2.71-r1.ebuild, -dnsmasq-2.71.ebuild:
+  Revision bump, pull in a couple of crasher fixes from upstream including one
+  that could lead to an information leak (bug #547966). Update dependency on lua
+  to include slot operator. Clean out a couple of old versions.
 
   04 Dec 2014; Agostino Sarubbo <ago@gentoo.org> dnsmasq-2.72.ebuild:
   Stable for ppc64, wrt bug #527536

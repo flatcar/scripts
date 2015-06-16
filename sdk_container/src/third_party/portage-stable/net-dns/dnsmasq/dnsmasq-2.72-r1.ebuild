@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-dns/dnsmasq/dnsmasq-2.71.ebuild,v 1.3 2014/11/02 08:48:02 swift Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-dns/dnsmasq/dnsmasq-2.72-r1.ebuild,v 1.1 2015/04/28 18:16:54 chutzpah Exp $
 
 EAPI=5
 
@@ -20,52 +20,61 @@ for dm_lingua in ${DM_LINGUAS}; do
 done
 
 CDEPEND="dbus? ( sys-apps/dbus )
-		idn? ( net-dns/libidn )
-		lua? ( dev-lang/lua )
-		conntrack? ( !s390? ( net-libs/libnetfilter_conntrack ) )
-		nls? (
-			sys-devel/gettext
-			net-dns/libidn
-		)"
+	idn? ( net-dns/libidn )
+	lua? ( dev-lang/lua:0 )
+	conntrack? ( !s390? ( net-libs/libnetfilter_conntrack ) )
+	nls? (
+		sys-devel/gettext
+		net-dns/libidn
+	)
+"
 
 DEPEND="${CDEPEND}
-		app-arch/xz-utils
-		dnssec? (
-			dev-libs/nettle[gmp]
-			static? (
-				dev-libs/nettle[static-libs(+)]
-			)
+	app-arch/xz-utils
+	dnssec? (
+		dev-libs/nettle[gmp]
+		static? (
+			dev-libs/nettle[static-libs(+)]
 		)
-		virtual/pkgconfig"
+	)
+	virtual/pkgconfig"
 
 RDEPEND="${CDEPEND}
-		dnssec? (
-			!static? (
-				dev-libs/nettle[gmp]
-			)
+	dnssec? (
+		!static? (
+			dev-libs/nettle[gmp]
 		)
-		selinux? ( sec-policy/selinux-dnsmasq )
+	)
+	selinux? ( sec-policy/selinux-dnsmasq )
 "
 
 REQUIRED_USE="dhcp-tools? ( dhcp )
-			  lua? ( script )
-			  s390? ( !conntrack )"
+	lua? ( script )
+	s390? ( !conntrack )"
 
 use_have() {
-	local NO_ONLY=""
-	if [ $1 == '-n' ]; then
-		NO_ONLY=1
+	local useflag no_only uword
+	if [[ $1 == '-n' ]]; then
+		no_only=1
 		shift
 	fi
+	useflag="${1}"
+	shift
 
-	local UWORD=${2:-$1}
-	UWORD=${UWORD^^*}
+	uword="${1:-${useflag}}"
+	shift
 
-	if ! use ${1}; then
-		echo " -DNO_${UWORD}"
-	elif [ -z "${NO_ONLY}" ]; then
-		echo " -DHAVE_${UWORD}"
-	fi
+	while [[ ${uword} ]]; do
+		uword=${uword^^*}
+
+		if ! use "${useflag}"; then
+			echo -n " -DNO_${uword}"
+		elif [[ -z "${no_only}" ]]; then
+			echo -n " -DHAVE_${uword}"
+		fi
+		uword="${1}"
+		shift
+	done
 }
 
 pkg_pretend() {
@@ -83,19 +92,21 @@ pkg_setup() {
 src_prepare() {
 	sed -i -r 's:lua5.[0-9]+:lua:' Makefile
 	sed -i "s:%%PREFIX%%:${EPREFIX}/usr:" dnsmasq.conf.example
+
+	epatch "${FILESDIR}"/${P}-Fix-crash-on-receipt-of-certain-malformed-DNS-requests.patch
+	epatch "${FILESDIR}"/${P}-Fix-crash-caused-by-looking-up-servers.bind-when-many-servers-defined.patch
 }
 
 src_configure() {
 	COPTS="$(use_have -n auth-dns auth)"
 	COPTS+="$(use_have conntrack)"
 	COPTS+="$(use_have dbus)"
-	COPTS+="$(use_have -n dhcp)"
 	COPTS+="$(use_have idn)"
-	COPTS+="$(use_have -n ipv6)"
+	COPTS+="$(use_have -n dhcp dhcp dhcp6)"
+	COPTS+="$(use_have -n ipv6 ipv6 dhcp6)"
 	COPTS+="$(use_have lua luascript)"
 	COPTS+="$(use_have -n script)"
 	COPTS+="$(use_have -n tftp)"
-	COPTS+="$(use ipv6 && use dhcp || echo " -DNO_DHCP6")"
 	COPTS+="$(use_have dnssec)"
 	COPTS+="$(use_have static dnssec_static)"
 }
@@ -119,26 +130,26 @@ src_compile() {
 }
 
 src_install() {
+	local lingua puid
 	emake \
 		PREFIX=/usr \
 		MANDIR=/usr/share/man \
 		DESTDIR="${D}" \
 		install$(use nls && echo "-i18n")
 
-	local lingua
 	for lingua in ${DM_LINGUAS}; do
 		use linguas_${lingua} || rm -rf "${D}"/usr/share/locale/${lingua}
 	done
 	[[ -d "${D}"/usr/share/locale/ ]] && rmdir --ignore-fail-on-non-empty "${D}"/usr/share/locale/
 
-	dodoc CHANGELOG CHANGELOG.archive FAQ
+	dodoc CHANGELOG CHANGELOG.archive FAQ dnsmasq.conf.example
 	dodoc -r logo
 
 	dodoc CHANGELOG FAQ
 	dohtml *.html
 
-	newinitd "${FILESDIR}"/dnsmasq-init-r2 dnsmasq
-	newconfd "${FILESDIR}"/dnsmasq.confd-r1 dnsmasq
+	newinitd "${FILESDIR}"/dnsmasq-init-r2 ${PN}
+	newconfd "${FILESDIR}"/dnsmasq.confd-r1 ${PN}
 
 	insinto /etc
 	newins dnsmasq.conf.example dnsmasq.conf
@@ -146,6 +157,10 @@ src_install() {
 	insinto /usr/share/dnsmasq
 	doins trust-anchors.conf
 
+	if use dhcp; then
+		dodir /var/lib/misc
+		newinitd "${FILESDIR}"/dnsmasq-init-dhcp-r1 ${PN}
+	fi
 	if use dbus; then
 		insinto /etc/dbus-1/system.d
 		doins dbus/dnsmasq.conf
@@ -157,4 +172,15 @@ src_install() {
 	fi
 
 	systemd_newunit "${FILESDIR}"/${PN}.service-r1 ${PN}.service
+
+}
+
+pkg_preinst() {
+	# temporary workaround to (hopefully) prevent leases file from being removed
+	[[ -f /var/lib/misc/dnsmasq.leases ]] && cp /var/lib/misc/dnsmasq.leases "${T}"
+}
+
+pkg_postinst() {
+	# temporary workaround to (hopefully) prevent leases file from being removed
+	[[ -f "${T}"/dnsmasq.leases ]] && cp "${T}"/dnsmasq.leases /var/lib/misc/dnsmasq.leases
 }
