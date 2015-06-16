@@ -1,18 +1,18 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-libs/neon/neon-0.29.6-r1.ebuild,v 1.15 2012/11/01 15:52:27 qnikst Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-libs/neon/neon-0.30.0.ebuild,v 1.11 2014/03/16 02:51:12 vapier Exp $
 
-EAPI="4"
+EAPI="5"
 
-inherit autotools eutils libtool
+inherit autotools libtool
 
 DESCRIPTION="HTTP and WebDAV client library"
 HOMEPAGE="http://www.webdav.org/neon/"
 SRC_URI="http://www.webdav.org/neon/${P}.tar.gz"
 
 LICENSE="GPL-2"
-SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+SLOT="0/27"
+KEYWORDS="alpha amd64 arm arm64 hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="doc expat gnutls kerberos libproxy nls pkcs11 ssl static-libs zlib"
 IUSE_LINGUAS="cs de fr ja nn pl ru tr zh_CN"
 for lingua in ${IUSE_LINGUAS}; do
@@ -21,21 +21,21 @@ done
 unset lingua
 RESTRICT="test"
 
-RDEPEND="expat? ( dev-libs/expat )
-	!expat? ( dev-libs/libxml2 )
+RDEPEND="expat? ( dev-libs/expat:0= )
+	!expat? ( dev-libs/libxml2:2= )
 	gnutls? (
 		app-misc/ca-certificates
-		>=net-libs/gnutls-2.0
-		pkcs11? ( dev-libs/pakchois )
+		net-libs/gnutls:0=
+		pkcs11? ( dev-libs/pakchois:0= )
 	)
 	!gnutls? ( ssl? (
-		>=dev-libs/openssl-0.9.6f
-		pkcs11? ( dev-libs/pakchois )
+		dev-libs/openssl:0=
+		pkcs11? ( dev-libs/pakchois:0= )
 	) )
-	kerberos? ( virtual/krb5 )
-	libproxy? ( net-libs/libproxy )
-	nls? ( virtual/libintl )
-	zlib? ( sys-libs/zlib )"
+	kerberos? ( virtual/krb5:0= )
+	libproxy? ( net-libs/libproxy:0= )
+	nls? ( virtual/libintl:0= )
+	zlib? ( sys-libs/zlib:0= )"
 DEPEND="${RDEPEND}
 	virtual/pkgconfig"
 
@@ -44,11 +44,8 @@ src_prepare() {
 	for lingua in ${IUSE_LINGUAS}; do
 		use linguas_${lingua} && linguas+=" ${lingua}"
 	done
-	sed -i -e "s/ALL_LINGUAS=.*/ALL_LINGUAS=\"${linguas}\"/g" configure.in
+	sed -e "s/ALL_LINGUAS=.*/ALL_LINGUAS=\"${linguas}\"/" -i configure.in
 
-	epatch "${FILESDIR}"/${PN}-0.29.6-no-ssl-check.patch
-	epatch "${FILESDIR}"/${PN}-0.29.6-gnutls-3-functions.patch
-	epatch "${FILESDIR}"/${PN}-0.29.6-gnutls-3-types.patch
 	AT_M4DIR="macros" eautoreconf
 
 	elibtoolize
@@ -74,10 +71,8 @@ src_configure() {
 		myconf+=(--with-ssl=openssl)
 	fi
 
-	# work around broken check, we really need -lintl on Solaris
-	[[ ${CHOST} == *-solaris* ]] && export ne_cv_libsfor_bindtextdomain=-lintl
-
 	econf \
+		--docdir="${EPREFIX}/usr/share/doc/${PF}" \
 		--enable-shared \
 		$(use_with kerberos gssapi) \
 		$(use_with libproxy) \
@@ -89,14 +84,13 @@ src_configure() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" install-lib install-headers install-config install-nls || die "emake install failed"
+	emake DESTDIR="${D}" install-{config,headers,lib,man,nls}
 
-	find "${ED}" -name "*.la" -print0 | xargs -0 rm -f
+	find "${ED}" -name "*.la" -delete
 
 	if use doc; then
-		emake DESTDIR="${D}" install-docs || die "emake install-docs failed"
+		emake DESTDIR="${D}" install-html
 	fi
 
 	dodoc AUTHORS BUGS NEWS README THANKS TODO
-	doman doc/man/*.[1-8]
 }
