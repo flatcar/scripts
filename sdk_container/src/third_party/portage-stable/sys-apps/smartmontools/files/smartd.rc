@@ -1,7 +1,7 @@
 #!/sbin/runscript
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/smartmontools/files/smartd.rc,v 1.9 2011/09/15 07:58:50 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/smartmontools/files/smartd.rc,v 1.10 2013/09/14 10:32:46 hwoarang Exp $
 
 depend() {
     need localmount
@@ -24,20 +24,20 @@ start() {
 
 	ebegin "Starting S.M.A.R.T. monitoring daemon"
 	start-stop-daemon --start --exec /usr/sbin/smartd \
-	    --pidfile /var/run/smartd.pid \
-	    -- -p /var/run/smartd.pid ${SMARTD_OPTS}
+	    --pidfile /run/smartd.pid \
+	    -- -p /run/smartd.pid ${SMARTD_OPTS}
 	eend $?
 }
 
 stop() {
 	ebegin "Stopping S.M.A.R.T. monitoring daemon"
 	start-stop-daemon --stop --exec /usr/sbin/smartd \
-	    --pidfile /var/run/smartd.pid
+	    --pidfile /run/smartd.pid
 	eend $?
 }
 
 reload() {
 	ebegin "Reloading configuration"
-	start-stop-daemon --signal HUP --pidfile /var/run/smartd.pid smartd
+	start-stop-daemon --signal HUP --pidfile /run/smartd.pid smartd
 	eend $?
 }
