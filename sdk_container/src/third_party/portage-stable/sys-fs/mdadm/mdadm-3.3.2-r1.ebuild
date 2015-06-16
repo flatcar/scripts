@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/mdadm/mdadm-3.3.1-r2.ebuild,v 1.10 2015/04/04 21:48:46 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/mdadm/mdadm-3.3.2-r1.ebuild,v 1.1 2015/04/11 20:51:01 robbat2 Exp $
 
 EAPI=4
 inherit eutils flag-o-matic multilib systemd toolchain-funcs udev
@@ -13,7 +13,7 @@ SRC_URI="mirror://kernel/linux/utils/raid/mdadm/${P}.tar.xz
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 sparc x86"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86"
 IUSE="static"
 
 DEPEND="virtual/pkgconfig
@@ -35,20 +35,6 @@ mdadm_emake() {
 		"$@"
 }
 
-src_prepare() {
-	# These are important bugfixes from upstream git after 3.3.1 release,
-	# and before and including 17 Jul 2014:
-	epatch \
-		"${FILESDIR}"/${P}-Makefile-install-mdadm-grow-continue-.service.patch \
-		"${FILESDIR}"/${P}-Grow-fix-removal-of-line-in-wrong-case.patch \
-		"${FILESDIR}"/${P}-IMSM-use-strcpy-rather-than-pointless-strncpy.patch \
-		"${FILESDIR}"/${P}-mdmon-ensure-Unix-domain-socket-is-created-with-safe.patch \
-		"${FILESDIR}"/${P}-mdmon-allow-prepare_update-to-report-failure.patch \
-		"${FILESDIR}"/${P}-DDF-validate-metadata_update-size-before-using-it.patch \
-		"${FILESDIR}"/${P}-IMSM-validate-metadata_update-size-before-using-it.patch \
-		"${FILESDIR}"/${P}-Grow-Do-not-try-to-restart-if-reshape-is-running.patch
-}
-
 src_compile() {
 	use static && append-ldflags -static
 	mdadm_emake all mdassemble
@@ -61,9 +47,7 @@ src_test() {
 }
 
 src_install() {
-	# Use split lines because of bug #517218
-	mdadm_emake DESTDIR="${D}" install
-	mdadm_emake DESTDIR="${D}" install-systemd
+	mdadm_emake DESTDIR="${D}" install install-systemd
 	into /
 	dosbin mdassemble
 	dodoc ChangeLog INSTALL TODO README* ANNOUNCE-${PV}
@@ -79,6 +63,8 @@ src_install() {
 	into /usr
 	dodoc "${WORKDIR}"/debian/README.checkarray
 	dosbin "${WORKDIR}"/debian/checkarray
+	insinto /etc/default
+	newins "${FILESDIR}"/etc-default-mdadm mdadm
 
 	insinto /etc/cron.weekly
 	newins "${FILESDIR}"/mdadm.weekly mdadm
