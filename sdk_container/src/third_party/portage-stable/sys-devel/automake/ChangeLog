@@ -1,6 +1,62 @@
 # ChangeLog for sys-devel/automake
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/automake/ChangeLog,v 1.212 2014/01/17 04:23:15 vapier Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/automake/ChangeLog,v 1.221 2015/05/20 05:56:59 vapier Exp $
+
+  20 May 2015; Mike Frysinger <vapier@gentoo.org> automake-1.14.1.ebuild:
+  Mark stable for all #547876.
+
+  20 May 2015; Matt Turner <mattst88@gentoo.org> automake-1.14.1.ebuild:
+  alpha stable, bug 547876.
+
+  15 May 2015; Pacho Ramos <pacho@gentoo.org> automake-1.14.1.ebuild:
+  ppc stable wrt bug #547876
+
+*automake-1.15 (07 Jan 2015)
+
+  07 Jan 2015; Lars Wendler <polynomial-c@gentoo.org> +automake-1.15.ebuild:
+  Version bump.
+
+*automake-1.4_p6-r2 (15 Nov 2014)
+
+  15 Nov 2014; Mike Frysinger <vapier@gentoo.org> +automake-1.4_p6-r2.ebuild,
+  +files/automake-1.4-perl-dyn-call.patch, -automake-1.4_p6-r1.ebuild:
+  Fix perl syntax to work with latest versions
+
+*automake-1.10.3-r1 (15 Nov 2014)
+*automake-1.11.6-r1 (15 Nov 2014)
+
+  15 Nov 2014; Mike Frysinger <vapier@gentoo.org> +automake-1.10.3-r1.ebuild,
+  +automake-1.11.6-r1.ebuild, +files/automake-1.10-perl-5.16.patch,
+  -automake-1.10.3.ebuild, -automake-1.11.6.ebuild:
+  Backport fix from upstream for warnings with perl-5.16+ #424453 by Alexander
+  Huemer.
+
+*automake-1.8.5-r5 (15 Nov 2014)
+*automake-1.5-r2 (15 Nov 2014)
+*automake-1.7.9-r3 (15 Nov 2014)
+*automake-1.9.6-r4 (15 Nov 2014)
+*automake-1.6.3-r2 (15 Nov 2014)
+
+  15 Nov 2014; Mike Frysinger <vapier@gentoo.org> +automake-1.5-r2.ebuild,
+  +automake-1.6.3-r2.ebuild, +automake-1.7.9-r3.ebuild,
+  +automake-1.8.5-r5.ebuild, +automake-1.9.6-r4.ebuild,
+  +files/automake-1.4-perl-5.11.patch, +files/automake-1.5-perl-5.11.patch,
+  +files/automake-1.8-perl-5.11.patch, -automake-1.5-r1.ebuild,
+  -automake-1.6.3-r1.ebuild, -automake-1.7.9-r2.ebuild,
+  -automake-1.8.5-r4.ebuild, -automake-1.9.6-r3.ebuild,
+  automake-1.4_p6-r1.ebuild:
+  Backport fix from upstream for warnings when using perl-5.11+.
+
+  15 Nov 2014; Mike Frysinger <vapier@gentoo.org> automake-1.10.3.ebuild,
+  automake-1.11.6.ebuild, automake-1.12.6.ebuild, automake-1.13.4.ebuild,
+  automake-1.14.1.ebuild, automake-1.4_p6-r1.ebuild, automake-1.5-r1.ebuild,
+  automake-1.6.3-r1.ebuild, automake-1.7.9-r2.ebuild, automake-1.8.5-r4.ebuild,
+  automake-1.9.6-r3.ebuild, automake-9999.ebuild:
+  Update to EAPI=4 and unify behavior across versions.
+
+  15 Nov 2014; Mike Frysinger <vapier@gentoo.org> -automake-1.13.1.ebuild,
+  -automake-1.13.2.ebuild, -automake-1.13.3.ebuild, -automake-1.14.ebuild:
+  Old.
 
   17 Jan 2014; Mike Frysinger <vapier@gentoo.org> automake-1.10.3.ebuild,
   automake-1.11.6.ebuild, automake-1.12.6.ebuild, automake-1.13.4.ebuild,

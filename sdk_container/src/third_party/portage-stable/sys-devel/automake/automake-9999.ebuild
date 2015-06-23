@@ -1,8 +1,9 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/automake/automake-9999.ebuild,v 1.9 2013/12/24 06:48:21 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/automake/automake-9999.ebuild,v 1.10 2014/11/15 06:07:49 vapier Exp $
 
-EAPI="2"
+EAPI="4"
+
 EGIT_REPO_URI="git://git.savannah.gnu.org/${PN}.git
 	http://git.savannah.gnu.org/r/${PN}.git"
 
@@ -13,13 +14,14 @@ HOMEPAGE="http://www.gnu.org/software/automake/"
 SRC_URI=""
 
 LICENSE="GPL-3"
+# Use Gentoo versioning for slotting.
 SLOT="${PV:0:4}"
 KEYWORDS=""
 IUSE=""
 
 RDEPEND="dev-lang/perl
 	>=sys-devel/automake-wrapper-9
-	>=sys-devel/autoconf-2.60
+	>=sys-devel/autoconf-2.69
 	>=sys-apps/texinfo-4.7
 	sys-devel/gnuconfig"
 DEPEND="${RDEPEND}
@@ -29,11 +31,15 @@ src_prepare() {
 	export WANT_AUTOCONF=2.5
 	# Don't try wrapping the autotools this thing runs as it tends
 	# to be a bit esoteric, and the script does `set -e` itself.
-	./bootstrap
+	./bootstrap.sh
 }
 
 src_configure() {
 	econf --docdir=/usr/share/doc/${PF}
+}
+
+src_test() {
+	emake check
 }
 
 # slot the info pages.  do this w/out munging the source so we don't have
@@ -66,9 +72,8 @@ slot_info_pages() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" install || die
+	default
 	slot_info_pages
-	dodoc NEWS README THANKS TODO AUTHORS ChangeLog
 
 	# SLOT the docs and junk
 	local x

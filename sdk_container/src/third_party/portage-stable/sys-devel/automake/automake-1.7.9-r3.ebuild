@@ -1,55 +1,36 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/automake/automake-1.11.6.ebuild,v 1.10 2014/01/17 04:23:15 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/automake/automake-1.7.9-r3.ebuild,v 1.1 2014/11/15 06:21:57 vapier Exp $
 
-inherit eutils versionator unpacker
+EAPI="4"
 
-if [[ ${PV/_beta} == ${PV} ]]; then
-	MY_P=${P}
-	SRC_URI="mirror://gnu/${PN}/${P}.tar.xz
-		ftp://alpha.gnu.org/pub/gnu/${PN}/${MY_P}.tar.xz"
-else
-	MY_PV="$(get_major_version).$(($(get_version_component_range 2)-1))b"
-	MY_P="${PN}-${MY_PV}"
-
-	# Alpha/beta releases are not distributed on the usual mirrors.
-	SRC_URI="ftp://alpha.gnu.org/pub/gnu/${PN}/${MY_P}.tar.xz"
-fi
-
-S="${WORKDIR}/${MY_P}"
-
-# Use Gentoo versioning for slotting.
-SLOT="${PV:0:4}"
+inherit eutils
 
 DESCRIPTION="Used to generate Makefile.in from Makefile.am"
 HOMEPAGE="http://www.gnu.org/software/automake/"
+SRC_URI="mirror://gnu/${PN}/${P}.tar.bz2"
 
 LICENSE="GPL-2"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
+# Use Gentoo versioning for slotting.
+SLOT="${PV:0:3}"
+KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~sparc-fbsd ~x86-fbsd"
 IUSE=""
 
 RDEPEND="dev-lang/perl
 	>=sys-devel/automake-wrapper-9
-	>=sys-devel/autoconf-2.62
+	>=sys-devel/autoconf-2.69
 	sys-devel/gnuconfig"
-DEPEND="${RDEPEND}
-	sys-apps/help2man"
+DEPEND="${RDEPEND}"
 
-src_unpack() {
-	unpacker_src_unpack
-	cd "${S}"
-	chmod a+rx tests/*.test
+src_prepare() {
 	export WANT_AUTOCONF=2.5
-}
-
-src_compile() {
-	econf --docdir=/usr/share/doc/${PF} HELP2MAN=true || die
-	emake APIVERSION="${SLOT}" pkgvdatadir="/usr/share/${PN}-${SLOT}" || die
-
-	local x
-	for x in aclocal automake; do
-		help2man "perl -Ilib ${x}" > doc/${x}-${SLOT}.1
-	done
+	epatch "${FILESDIR}"/${P}-infopage-namechange.patch
+	epatch "${FILESDIR}"/${P}-test-fixes.patch
+	epatch "${FILESDIR}"/${PN}-1.9.6-subst-test.patch #222225
+	epatch "${FILESDIR}"/${P}-libtool-2.patch #257544
+	epatch "${FILESDIR}"/${PN}-1.10-ccnoco-ldflags.patch #203914
+	epatch "${FILESDIR}"/${PN}-1.5-CVE-2009-4029.patch #295357
+	epatch "${FILESDIR}"/${PN}-1.5-perl-5.11.patch
 }
 
 # slot the info pages.  do this w/out munging the source so we don't have
@@ -82,14 +63,9 @@ slot_info_pages() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" install \
-		APIVERSION="${SLOT}" pkgvdatadir="/usr/share/${PN}-${SLOT}" || die
+	default
 	slot_info_pages
-	dodoc NEWS README THANKS TODO AUTHORS ChangeLog
-
-	rm \
-		"${D}"/usr/bin/{aclocal,automake} \
-		"${D}"/usr/share/man/man1/{aclocal,automake}.1
+	rm -f "${D}"/usr/bin/{aclocal,automake}
 
 	# remove all config.guess and config.sub files replacing them
 	# w/a symlink to a specific gnuconfig version

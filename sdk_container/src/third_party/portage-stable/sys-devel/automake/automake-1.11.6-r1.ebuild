@@ -1,34 +1,45 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/automake/automake-1.7.9-r2.ebuild,v 1.11 2014/01/17 04:23:14 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/automake/automake-1.11.6-r1.ebuild,v 1.1 2014/11/15 06:30:36 vapier Exp $
+
+EAPI="4"
 
 inherit eutils
 
 DESCRIPTION="Used to generate Makefile.in from Makefile.am"
 HOMEPAGE="http://www.gnu.org/software/automake/"
-SRC_URI="mirror://gnu/${PN}/${P}.tar.bz2"
+SRC_URI="mirror://gnu/${PN}/${P}.tar.xz"
 
 LICENSE="GPL-2"
-SLOT="${PV:0:3}"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~sparc-fbsd ~x86-fbsd"
+# Use Gentoo versioning for slotting.
+SLOT="${PV:0:4}"
+KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
 IUSE=""
 
 RDEPEND="dev-lang/perl
 	>=sys-devel/automake-wrapper-9
-	>=sys-devel/autoconf-2.59-r6
+	>=sys-devel/autoconf-2.69
 	sys-devel/gnuconfig"
-DEPEND="${RDEPEND}"
+DEPEND="${RDEPEND}
+	sys-apps/help2man"
 
-src_unpack() {
-	unpack ${A}
-	cd "${S}"
-	epatch "${FILESDIR}"/${P}-infopage-namechange.patch
-	epatch "${FILESDIR}"/${P}-test-fixes.patch
-	epatch "${FILESDIR}"/${PN}-1.9.6-subst-test.patch #222225
-	epatch "${FILESDIR}"/${P}-libtool-2.patch #257544
-	epatch "${FILESDIR}"/${PN}-1.10-ccnoco-ldflags.patch #203914
-	epatch "${FILESDIR}"/${PN}-1.5-CVE-2009-4029.patch #295357
+src_prepare() {
 	export WANT_AUTOCONF=2.5
+	epatch "${FILESDIR}"/${PN}-1.10-perl-5.16.patch #424453
+	chmod a+rx tests/*.test
+}
+
+src_configure() {
+	econf --docdir=/usr/share/doc/${PF} HELP2MAN=true
+}
+
+src_compile() {
+	emake APIVERSION="${SLOT}" pkgvdatadir="/usr/share/${PN}-${SLOT}"
+
+	local x
+	for x in aclocal automake; do
+		help2man "perl -Ilib ${x}" > doc/${x}-${SLOT}.1
+	done
 }
 
 # slot the info pages.  do this w/out munging the source so we don't have
@@ -61,15 +72,18 @@ slot_info_pages() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" install || die
+	emake DESTDIR="${D}" install \
+		APIVERSION="${SLOT}" pkgvdatadir="/usr/share/${PN}-${SLOT}"
 	slot_info_pages
-	rm -f "${D}"/usr/bin/{aclocal,automake}
-
 	dodoc NEWS README THANKS TODO AUTHORS ChangeLog
+
+	rm \
+		"${D}"/usr/bin/{aclocal,automake} \
+		"${D}"/usr/share/man/man1/{aclocal,automake}.1 || die
 
 	# remove all config.guess and config.sub files replacing them
 	# w/a symlink to a specific gnuconfig version
-	local x=
+	local x
 	for x in guess sub ; do
 		dosym ../gnuconfig/config.${x} /usr/share/${PN}-${SLOT}/config.${x}
 	done
