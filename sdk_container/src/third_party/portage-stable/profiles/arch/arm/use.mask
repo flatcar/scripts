@@ -4,6 +4,11 @@
 # Unmask arm arch specific flags
 -iwmmxt
 
+# Patrick Lauer <patrick@gentoo.org> (28 Apr 2015)
+# Dependencies not keyworded
+ayatana
+
+# Mike Frysinger <vapier@gentoo.org> (25 Feb 2013)
 # doomsday ebuild is not available on this architecture
 doomsday
 

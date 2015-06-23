@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/desc/linguas.desc,v 1.85 2015/01/31 13:04:04 yngwin Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/desc/linguas.desc,v 1.90 2015/05/20 05:04:42 jer Exp $
 
 # This file contains descriptions of LINGUAS USE_EXPAND flags.
 
@@ -44,12 +44,16 @@ cs - Czech locale
 cs_CZ - Czech locale for Czech Republic
 csb - Kashubian locale
 cy - Welsh locale
+cy_GB - Welsh locale
 da - Danish locale
 da_DK - Danish locale for Denmark
 de - German locale
+de_1901 - German locale with old spelling
+de_CH - German locale for Switzerland
 de_DE - German locale for Germany
 de_FR - German locale for France
 dgo - Dogri locale for India
+doi - Dogri locale
 dz - Dzongkha locale
 ee - Ewe locale
 el - Greek locale
@@ -58,6 +62,7 @@ en - English locale
 en@shaw - Shavian locale
 en_AU - English locale for Australia
 en_CA - English locale for Canada
+en_EN - English locale
 en_GB - English locale for Britain
 en_US - English locale
 en_ZA - English locale for South Africa
@@ -116,6 +121,7 @@ ia - Interlingua locale
 id - Indonesian locale
 id_ID - Indonesian locale
 is - Icelandic locale
+is_IS - Icelandic locale for Iceland
 it - Italian locale
 it_IT - Italian locale
 ja - Japanese locale
@@ -168,7 +174,7 @@ nds - Low Saxon locale
 ne - Nepali locale
 nl - Dutch locale
 nl_BE - Dutch locale for Belgium (Flemish)
-nl_NL - Dutch locale for Netherlands
+nl_NL - Dutch locale for the Netherlands
 nn - Nynorsk locale
 nn_NO - Nynorsk locale for Norway
 no - Norwegian locale
@@ -195,9 +201,11 @@ ro - Romanian locale
 ro_RO - Romanian locale for Romania
 ru - Russian locale
 ru_RU - Russian locale for Russia
+ru_RU_0 - Russian locale for Russia
 rue - Rusyn locale
 rw - Kinyarwanda locale
-sa_IN - Sanskrit locale
+sa - Sanskrit locale
+sa_IN - Sanskrit locale for India
 sah - Sakha (Yakut)
 sat - Santali locale
 sco - Scots locale
@@ -233,6 +241,7 @@ sv - Swedish locale
 sv_SE - Swedish locale for Sweden
 sw - Swahili locale
 sw_TZ - Swahili locale for Tanzania
+syc - Syriac locale
 ta - Tamil locale
 ta_IN - Tamil locale
 ta_LK - Tamil locale for Sri Lanka
@@ -255,6 +264,7 @@ tr_TR - Turkish locale for Turkey
 ts - Tsonga locale
 tt - Tatar locale
 tt@iqtelif - Tatar (iqtelif) locale
+tt_RU - Tatar language locale for Russia
 ug - Uighur locale
 uk - Ukrainian locale
 uk_UA - Ukrainian locale for Ukraine

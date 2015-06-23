@@ -7,6 +7,7 @@ hppa
 ia64
 m68k
 mips
+nios2
 ppc
 ppc64
 s390
@@ -42,4 +43,5 @@ sparc64-solaris
 x64-solaris
 x86-solaris
 x86-winnt
+x64-cygwin
 x86-cygwin

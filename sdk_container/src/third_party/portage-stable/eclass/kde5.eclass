@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/kde5.eclass,v 1.6 2015/04/11 17:11:22 kensington Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/kde5.eclass,v 1.10 2015/05/31 15:51:21 mrueg Exp $
 
 # @ECLASS: kde5.eclass
 # @MAINTAINER:
@@ -40,6 +40,12 @@ EXPORT_FUNCTIONS pkg_pretend pkg_setup src_unpack src_prepare src_configure src_
 # If set to "false", do nothing.
 # For any other value, add a dependency on dev-qt/qtcore:5 and kde-frameworks/extra-cmake-modules:5.
 : ${KDE_AUTODEPS:=true}
+
+# @ECLASS-VARIABLE: KDE_BLOCK_SLOT4
+# @DESCRIPTION:
+# This variable is used when KDE_AUTODEPS is set.
+# If set to "true", add RDEPEND block on kde-{base,apps}/${PN}:4
+: ${KDE_BLOCK_SLOT4:=true}
 
 # @ECLASS-VARIABLE: KDE_DEBUG
 # @DESCRIPTION:
@@ -81,11 +87,18 @@ else
 	: ${KDE_TEST:=false}
 fi
 
+# @ECLASS-VARIABLE: KDE_PUNT_BOGUS_DEPS
+# @DESCRIPTION:
+# If set to "false", do nothing.
+# For any other value, do black magic to make hardcoded-but-optional dependencies
+# optional again. An upstream solution is preferable and this is a last resort.
+: ${KDE_PUNT_BOGUS_DEPS:=false}
+
 # @ECLASS-VARIABLE: KDE_SELINUX_MODULE
 # @DESCRIPTION:
 # If set to "none", do nothing.
 # For any other value, add selinux to IUSE, and depending on that useflag
-# add a dependency on sec-policy/selinux-${KDE_SELINUX_MODULE} to (R)DEPEND
+# add a dependency on sec-policy/selinux-${KDE_SELINUX_MODULE} to (R)DEPEND.
 : ${KDE_SELINUX_MODULE:=none}
 
 if [[ ${KDEBASE} = kdevelop ]]; then
@@ -123,12 +136,12 @@ case ${KDE_AUTODEPS} in
 
 		if [[ ${CATEGORY} = kde-plasma ]]; then
 			RDEPEND+="
-				!kde-apps/kde-l10n[-minimal]
+				!kde-apps/kde4-l10n[-minimal]
 				!kde-base/kde-l10n:4[-minimal(-)]
 			"
 		fi
 
-		if [[ ${CATEGORY} == kde-apps ]]; then
+		if [[ ${KDE_BLOCK_SLOT4} = true && ${CATEGORY} = kde-apps ]]; then
 			RDEPEND+="
 				!kde-apps/${PN}:4
 				!kde-base/${PN}
@@ -182,7 +195,7 @@ case ${KDE_SELINUX_MODULE} in
 	none)   ;;
 	*)
 		IUSE+=" selinux"
-		COMMONDEPEND+=" selinux? ( sec-policy/selinux-${KDE_SELINUX_MODULE} )"
+		RDEPEND+=" selinux? ( sec-policy/selinux-${KDE_SELINUX_MODULE} )"
 		;;
 esac
 
@@ -388,15 +401,25 @@ kde5_src_prepare() {
 		comment_add_subdirectory tests
 	fi
 
-	# only build unit tests when required
-	if ! use_if_iuse test ; then
-		comment_add_subdirectory autotests
-		comment_add_subdirectory tests
+	if [[ ${CATEGORY} = kde-frameworks || ${CATEGORY} = kde-plasma || ${CATEGORY} = kde-apps ]] ; then
+		# only build unit tests when required
+		if ! use_if_iuse test ; then
+			comment_add_subdirectory autotests
+			comment_add_subdirectory tests
+		fi
 	fi
 
-	if [[ ${CATEGORY} = kde-plasma ]]; then
-		punt_bogus_deps
-	fi
+	case ${KDE_PUNT_BOGUS_DEPS} in
+		false)	;;
+		*)
+			if ! use_if_iuse test ; then
+				punt_bogus_dep Qt5 Test
+			fi
+			if ! use_if_iuse handbook ; then
+				punt_bogus_dep KF5 DocTools
+			fi
+			;;
+	esac
 
 	cmake-utils_src_prepare
 }

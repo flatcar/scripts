@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License, v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64-fbsd/use.mask,v 1.21 2015/01/28 21:31:06 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64-fbsd/use.mask,v 1.22 2015/05/19 21:04:58 chewi Exp $
 
 # Unmask the flag which corresponds to ARCH.
 -amd64-fbsd
@@ -44,8 +44,9 @@
 #-video_cards_vmware
 -input_devices_vmmouse
 
-# Diablo Latte and Caffe (JRE and JDK) works here
--java
+# James Le Cuirot <chewi@gentoo.org> (19 May 2015)
+# icedtea needs testing and gcj isn't supported
+java
 
 # Other
 

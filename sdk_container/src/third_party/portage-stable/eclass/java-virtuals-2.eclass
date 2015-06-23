@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/java-virtuals-2.eclass,v 1.9 2012/07/18 19:13:23 sera Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/java-virtuals-2.eclass,v 1.10 2015/05/09 22:20:44 chewi Exp $
 
 # @ECLASS: java-virtuals-2.eclass
 # @MAINTAINER:
@@ -14,7 +14,7 @@
 
 inherit java-utils-2
 
-DEPEND=">=dev-java/java-config-2.1.6"
+DEPEND=">=dev-java/java-config-2.2.0"
 RDEPEND="${DEPEND}"
 
 S="${WORKDIR}"

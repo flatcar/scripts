@@ -1,10 +1,8 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/use.mask,v 1.18 2013/01/12 12:36:18 zorry Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/use.mask,v 1.19 2015/06/02 09:15:36 ulm Exp $
 
 -hardened
-
-emul-linux-x86
 
 # tcc is x86-only
 tcc

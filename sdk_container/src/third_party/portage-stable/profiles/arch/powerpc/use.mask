@@ -1,6 +1,14 @@
 # PPC Specific use flags
 #
 
+# Jeroen Roovers <jer@gentoo.org> (25 May 2015)
+# PowerPC has no support for this bootloader (bug #550322)
+gnuefi
+
+# Patrick Lauer <patrick@gentoo.org> (28 Apr 2015)
+# dependencies not keyworded yet
+ayatana
+
 # Anthony G. Basile <blueness@gentoo.org> (30 Sep 2014)
 # sys-libs/libseccomp has not been ported to ppc/ppc64, bug #524148
 seccomp
@@ -217,7 +225,3 @@ clvm
 # Pacho Ramos <pacho@gentoo.org> (08 Jan 2014)
 # Unmask systemd since it is keyworded here.
 -systemd
-
-# Ben de Groot <yngwin@gentoo.org> (01 Feb 2015)
-# please remove when keyworded
-qt5

@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/bitcoincore.eclass,v 1.3 2015/03/03 23:56:08 blueness Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/bitcoincore.eclass,v 1.4 2015/05/27 00:18:02 blueness Exp $
 #
 # @ECLASS: bitcoincore.eclass
 # @MAINTAINER:
@@ -62,16 +62,22 @@ if [[ ! ${_BITCOINCORE_ECLASS} ]]; then
 # Set this variable before the inherit line, to a space-delimited list of
 # supported policies.
 
+MyPV="${PV/_/}"
+MyPN="bitcoin"
+MyP="${MyPN}-${MyPV}"
+
 # These are expected to change in future versions
 DOCS="${DOCS} doc/README.md doc/release-notes.md"
 OPENSSL_DEPEND="dev-libs/openssl:0[-bindist]"
 WALLET_DEPEND="sys-libs/db:$(db_ver_to_slot "${DB_VER}")[cxx]"
+[ -n "${BITCOINCORE_LJR_PV}" ] || BITCOINCORE_LJR_PV="${PV}"
 
 case "${PV}" in
 0.10*)
 	BITCOINCORE_SERIES="0.10.x"
 	LIBSECP256K1_DEPEND="=dev-libs/libsecp256k1-0.0.0_pre20141212"
-	BITCOINCORE_RBF_DIFF="e43f25c5b1c7b38d28cd0fba09098a9d56d9ac6b...eb22364e5a7cd2595d98c890e3668e97c0905a06"
+	BITCOINCORE_RBF_DIFF="16f45600c8c372a738ffef544292864256382601...a23678edc70204599299459a206709a00e039db7"
+	BITCOINCORE_RBF_PATCHFILE="${MyPN}-rbf-v0.10.2.patch"
 	BITCOINCORE_XT_DIFF="047a89831760ff124740fe9f58411d57ee087078...d4084b62c42c38bfe302d712b98909ab26ecce2f"
 	;;
 9999*)
@@ -83,10 +89,7 @@ case "${PV}" in
 	;;
 esac
 
-MyPV="${PV/_/}"
-MyPN="bitcoin"
-MyP="${MyPN}-${MyPV}"
-LJR_PV() { echo "${MyPV}.${1}${BITCOINCORE_LJR_DATE}"; }
+LJR_PV() { echo "${BITCOINCORE_LJR_PV}.${1}${BITCOINCORE_LJR_DATE}"; }
 LJR_PATCHDIR="${MyPN}-$(LJR_PV ljr).patches"
 LJR_PATCH() { echo "${WORKDIR}/${LJR_PATCHDIR}/${MyPN}-$(LJR_PV ljr).$@.patch"; }
 LJR_PATCH_DESC="http://luke.dashjr.org/programs/${MyPN}/files/${MyPN}d/luke-jr/${BITCOINCORE_SERIES}/$(LJR_PV ljr)/${MyPN}-$(LJR_PV ljr).desc.txt"
@@ -106,7 +109,6 @@ else
 		SRC_URI="${SRC_URI} xt? ( https://github.com/bitcoinxt/bitcoinxt/compare/${BITCOINCORE_XT_DIFF}.diff -> ${BITCOINXT_PATCHFILE} )"
 	fi
 	if in_bcc_policy rbf; then
-		BITCOINCORE_RBF_PATCHFILE="${MyPN}-rbf-v${PV}.patch"
 		SRC_URI="${SRC_URI} bitcoin_policy_rbf? ( https://github.com/petertodd/bitcoin/compare/${BITCOINCORE_RBF_DIFF}.diff -> ${BITCOINCORE_RBF_PATCHFILE} )"
 	fi
 	S="${WORKDIR}/${MyPN}-${BITCOINCORE_COMMITHASH}"

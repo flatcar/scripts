@@ -1,6 +1,9 @@
 # ChangeLog for profiles/features/prefix
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/features/prefix/Changelog,v 1.7 2015/01/05 23:16:00 pinkbyte Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/features/prefix/Changelog,v 1.8 2015/06/04 19:43:37 kensington Exp $
+
+  04 Jun 2015; Michael Palimaka <kensington@gentoo.org> package.use.mask:
+  Move various kde-base packages to kde-apps.
 
   06 Jan 2015: Sergey Popov <pinkbyte@gentoo.org> packages:
   net-misc/iproute2 is not necessary in Prefix installations,

@@ -1,6 +1,38 @@
 # ChangeLog for Gentoo/AMD64 profile directory
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/ChangeLog,v 1.316 2015/04/16 09:27:50 zlogene Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/ChangeLog,v 1.326 2015/06/14 14:12:55 zlogene Exp $
+
+  14 Jun 2015; Mikle Kolyada <zlogene@gentoo.org> package.use.stable.mask:
+  Mask app-emulation/docker[lxc] for bug #550894
+
+  09 Jun 2015; Michael Weber <xmw@gentoo.org> package.use.mask:
+  Drop mask www-client/netsurf[abi_x86_32].
+
+  31 May 2015; Johannes Huber <johu@gentoo.org> package.use.mask:
+  Revert mask kde-plasma/plasma-workspace[prison], will be handled in base for
+  uclibs.
+
+  31 May 2015; Johannes Huber <johu@gentoo.org> package.use.mask:
+  Mask kde-plasma/plasma-workspace[prison].
+
+  28 May 2015; Brian Evans <grknight@gentoo.org> package.use.mask:
+  Remove use mask for dev-db/mysql-init-scripts
+
+  27 May 2015; <grknight@gentoo.org> package.use.mask:
+  Unmask s6 USE on dev-db/mysql-init-scripts since amd64 has it keyworded
+
+  20 May 2015; James Le Cuirot <chewi@gentoo.org> package.use.mask:
+  Unmask icedtea[infinality] as I'm about to mask it in base.
+
+  11 May 2015; Mikle Kolyada <zlogene@gentoo.org> package.use.stable.mask:
+  Drop media-video/ffmpeg[x265] and media-video/mpv[libav] stable masks, as
+  both dependencies are stable on amd64
+
+  27 Apr 2015; Hans de Graaff <graaff@gentoo.org> use.mask:
+  Mask rbx RUBY_TARGET now that dev-lang/rubinius-1.x is masked.
+
+  19 Apr 2015; Chris Reffett <creffett@gentoo.org> no-multilib/package.mask:
+  Mask multilib package games-roguelike/dwarf-fortress on no-multilib profile
 
   16 Apr 2015; Mikle Kolyada <zlogene@gentoo.org> package.use.stable.mask:
   Mask libav USE flag for >=media-video/mpv/mpv-0.7.3 (bug #525148)

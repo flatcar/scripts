@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/kernel-2.eclass,v 1.301 2015/03/20 00:13:32 mpagano Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/kernel-2.eclass,v 1.305 2015/05/30 16:09:05 mpagano Exp $
 
 # Description: kernel.eclass rewrite for a clean base regarding the 2.6
 #              series of kernel with back-compatibility for 2.4
@@ -37,6 +37,8 @@
 # K_EXTRAEWARN			- same as K_EXTRAEINFO except using ewarn instead of einfo
 # K_SYMLINK				- if this is set, then forcably create symlink anyway
 #
+# K_BASE_VER			- for git-sources, declare the base version this patch is 
+#						  based off of.
 # K_DEFCONFIG			- Allow specifying a different defconfig target.
 #						  If length zero, defaults to "defconfig".
 # K_WANT_GENPATCHES		- Apply genpatches to kernel source. Provide any
@@ -54,6 +56,8 @@
 # K_DEBLOB_AVAILABLE	- A value of "0" will disable all of the optional deblob
 #						  code. If empty, will be set to "1" if deblobbing is
 #						  possible. Test ONLY for "1".
+# K_DEBLOB_TAG     		- This will be the version of deblob script. It's a upstream SVN tag
+#						  such asw -gnu or -gnu1. 
 # K_PREDEBLOBBED		- This kernel was already deblobbed elsewhere.
 #						  If false, either optional deblobbing will be available
 #						  or the license will note the inclusion of freedist
@@ -364,8 +368,9 @@ detect_version() {
 
 		# the different majorminor versions have different patch start versions
 		OKV_DICT=(["2"]="${KV_MAJOR}.$((${KV_PATCH_ARR} - 1))" ["3"]="2.6.39" ["4"]="3.19")
+
 		if [[ ${RELEASETYPE} == -rc ]] || [[ ${RELEASETYPE} == -pre ]]; then
-			OKV=${OKV_DICT["${KV_MAJOR}"]}
+			OKV=${K_BASE_VER:-$OKV_DICT["${KV_MAJOR}"]}
 			KERNEL_URI="${KERNEL_BASE_URI}/testing/patch-${CKV//_/-}.xz
 						${KERNEL_BASE_URI}/linux-${OKV}.tar.xz"
 			UNIPATCH_LIST_DEFAULT="${DISTDIR}/patch-${CKV//_/-}.xz"
@@ -378,7 +383,7 @@ detect_version() {
 		fi
 
 		if [[ ${RELEASETYPE} == -rc-git ]]; then
-			OKV=${OKV_DICT["${KV_MAJOR}"]}
+			OKV=${K_BASE_VER:-$OKV_DICT["${KV_MAJOR}"]}
 			KERNEL_URI="${KERNEL_BASE_URI}/snapshots/patch-${KV_MAJOR}.${KV_PATCH}${RELEASE}.xz
 						${KERNEL_BASE_URI}/testing/patch-${KV_MAJOR}.${KV_PATCH}${RELEASE/-git*}.xz
 						${KERNEL_BASE_URI}/linux-${OKV}.tar.xz"
@@ -441,7 +446,6 @@ if [[ ${ETYPE} == sources ]]; then
 		dev-lang/perl
 		sys-devel/bc
 	)"
-	PDEPEND="!build? ( virtual/dev-manager )"
 
 	SLOT="${PVR}"
 	DESCRIPTION="Sources based on the Linux Kernel."
@@ -473,15 +477,18 @@ if [[ ${ETYPE} == sources ]]; then
 				DEBLOB_PV="${KV_MAJOR}.${KV_MINOR}"
 			fi
 
+			# deblob svn tag, default is -gnu, to change, use K_DEBLOB_TAG in ebuild
+			K_DEBLOB_TAG=${K_DEBLOB_TAG:--gnu}
 			DEBLOB_A="deblob-${DEBLOB_PV}"
 			DEBLOB_CHECK_A="deblob-check-${DEBLOB_PV}"
-			DEBLOB_HOMEPAGE="http://www.fsfla.org/svnwiki/selibre/linux-libre/"
-			DEBLOB_URI_PATH="download/releases/LATEST-${DEBLOB_PV}.N"
+			DEBLOB_HOMEPAGE="http://www.fsfla.org/svn/fsfla/software/linux-libre/releases/tags"
+			DEBLOB_URI_PATH="${DEBLOB_PV}${K_DEBLOB_TAG}"
 			if ! has "${EAPI:-0}" 0 1 ; then
 				DEBLOB_CHECK_URI="${DEBLOB_HOMEPAGE}/${DEBLOB_URI_PATH}/deblob-check -> ${DEBLOB_CHECK_A}"
 			else
 				DEBLOB_CHECK_URI="mirror://gentoo/${DEBLOB_CHECK_A}"
 			fi
+
 			DEBLOB_URI="${DEBLOB_HOMEPAGE}/${DEBLOB_URI_PATH}/${DEBLOB_A}"
 			HOMEPAGE="${HOMEPAGE} ${DEBLOB_HOMEPAGE}"
 

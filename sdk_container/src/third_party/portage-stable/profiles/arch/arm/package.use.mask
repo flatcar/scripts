@@ -1,6 +1,18 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/arm/package.use.mask,v 1.250 2015/04/03 08:10:26 maekke Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/arm/package.use.mask,v 1.257 2015/06/04 18:46:48 kensington Exp $
+
+# Ben de Groot <yngwin@gentoo.org> (03 May 2015)
+# media-libs/rubberband lacks arm keyword, bug 548446
+media-video/mpv rubberband
+
+# Patrick Lauer <patrick@gentoo.org> (20 Apr 2015)
+# qt5/kf5 not keyworded on arm
+net-irc/quassel qt5
+
+# Markos Chandras <hwoarang@gentoo.org> (18 Apr 2015)
+# samba-4 not keyworded on arm
+sys-auth/sssd samba
 
 # Markus Meier <maekke@gentoo.org> (03 Apr 2015)
 # Deps not yet stable or keyworded
@@ -124,9 +136,9 @@ media-video/mpv sdl
 
 # Johannes Huber <johu@gentoo.org> (16 Apr 2014)
 # unkeyworded deps
-kde-base/gwenview semantic-desktop
-kde-base/okular dpi
-kde-base/nepomuk-core migrator
+kde-apps/gwenview semantic-desktop
+kde-apps/okular dpi
+kde-apps/nepomuk-core migrator
 
 # Yixun Lan <dlan@gentoo.org> (12 Apr 2014)
 # app-emulation/qemu is not keyworded on arm arch.
@@ -192,7 +204,7 @@ dev-python/ipython nbconvert
 
 # Johannes Huber <johu@gentoo.org> (15 Sep 2013)
 # Depends on kde-misc/networkmanagement, not keyworded yet.
-kde-base/solid-runtime networkmanager
+kde-apps/solid-runtime networkmanager
 
 # Sergey Popov <pinkbyte@gentoo.org> (06 Sep 2013)
 # sci-libs/hdf does not build properly on arm
@@ -226,10 +238,6 @@ media-libs/phonon zeitgeist
 # Patrick Lauer <patrick@gentoo.org> (31 May 2013)
 # no stable jdk+java-config
 net-misc/tightvnc java
-
-# Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (28 May 2013)
-# depends on sys-devel/llvm[video_cards_radeon]
-media-libs/mesa r600-llvm-compiler
 
 # Andreas K. Huettel <dilfridge@gentoo.org> (27 May 2013)
 # Firmware loader not keyworded yet
@@ -331,14 +339,14 @@ app-accessibility/speech-dispatcher flite
 
 # Markus Meier <maekke@gentoo.org> (23 Dec 2012)
 # mask kde-base/* flags due to unkeyworded dependencies
-kde-base/kalzium editor solver
-kde-base/krdc rdesktop
-kde-base/kopete jingle msn sms
+kde-apps/kalzium editor solver
+kde-apps/krdc rdesktop
+kde-apps/kopete jingle msn sms
 kde-base/kdeplasma-addons fcitx oauth qwt scim
-kde-base/okular ebook chm
-kde-base/kstars indi
-kde-base/kdeutils-meta floppy
-kde-base/kdenetwork-meta ppp
+kde-apps/okular ebook chm
+kde-apps/kstars indi
+kde-apps/kdeutils-meta floppy
+kde-apps/kdenetwork-meta ppp
 kde-base/smokeqt qscintilla qwt
 kde-base/qtruby qscintilla qwt
 kde-base/perlqt qscintilla qwt

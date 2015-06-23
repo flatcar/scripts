@@ -1,6 +1,21 @@
 # ChangeLog for Gentoo/Alpha profile directory
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/alpha/ChangeLog,v 1.220 2015/03/17 01:36:02 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/alpha/ChangeLog,v 1.225 2015/06/09 15:35:00 eva Exp $
+
+  09 Jun 2015; Gilles Dartiguelongue <eva@gentoo.org> package.use.mask:
+  Add gnome-base/gvfs nfs USE mask, bug #551576 ChangeLog package.use.mask
+
+  09 Jun 2015; Gilles Dartiguelongue <eva@gentoo.org> package.use.mask:
+  Add dev-libs/libpeas USE mask, bug #551540.
+
+  24 May 2015; Matt Turner <mattst88@gentoo.org> use.mask:
+  Remove audit from use.mask.
+
+  24 May 2015; Matt Turner <mattst88@gentoo.org> package.use.mask:
+  Drop dead r600-llvm-compiler USE flag from package.use.mask.
+
+  11 May 2015; Davide Pesavento <pesa@gentoo.org> package.mask:
+  Extend Qt4-multilib mask to cover 4.8.7 as well.
 
   17 Mar 2015; Mike Frysinger <vapier@gentoo.org> package.use.force,
   package.use.mask:

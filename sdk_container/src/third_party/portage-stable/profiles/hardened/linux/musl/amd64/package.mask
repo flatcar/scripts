@@ -1,26 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation.
+# Copyright 1999-2015 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/musl/amd64/package.mask,v 1.4 2014/10/02 10:29:31 ulm Exp $
-
-#
-# Anthony G. Basile <blueness@gentoo.org> (07 Oct 2012)
-# profile hardened/linux/uclibc/amd64 is not mutlilib
-#
-app-emulation/emul-linux-x86-baselibs
-app-emulation/emul-linux-x86-cpplibs
-app-emulation/emul-linux-x86-db
-app-emulation/emul-linux-x86-gstplugins
-app-emulation/emul-linux-x86-gtklibs
-app-emulation/emul-linux-x86-gtkmmlibs
-app-emulation/emul-linux-x86-java
-app-emulation/emul-linux-x86-jna
-app-emulation/emul-linux-x86-medialibs
-app-emulation/emul-linux-x86-motif
-app-emulation/emul-linux-x86-opengl
-app-emulation/emul-linux-x86-qtlibs
-app-emulation/emul-linux-x86-sdl
-app-emulation/emul-linux-x86-soundlibs
-app-emulation/emul-linux-x86-xlibs
+# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/musl/amd64/package.mask,v 1.5 2015/06/02 09:15:36 ulm Exp $
 
 #
 # Alfredo Tupone <tupone@gentoo.org> (02 Feb 2013)

@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/php-ezc.eclass,v 1.7 2011/12/27 17:55:12 fauli Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/php-ezc.eclass,v 1.8 2015/06/17 19:23:34 grknight Exp $
 
 # @ECLASS: php-ezc.eclass
 # @MAINTAINER:
@@ -9,6 +9,8 @@
 # @DESCRIPTION:
 # This eclass provides means for an easy installation of the eZ components.
 # For more information on eZcomponents see http://ez.no/products/ez_components
+# This eclass is no longer in use and scheduled to be removed on 2015-07-17
+# @DEAD
 
 inherit php-pear-r1
 

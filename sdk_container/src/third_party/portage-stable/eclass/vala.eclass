@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/vala.eclass,v 1.11 2014/12/21 12:25:49 eva Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/vala.eclass,v 1.12 2015/06/09 10:18:38 eva Exp $
 
 # @ECLASS: vala.eclass
 # @MAINTAINER:
@@ -31,8 +31,8 @@ VALA_MIN_API_VERSION=${VALA_MIN_API_VERSION:-0.20}
 
 # @ECLASS-VARIABLE: VALA_MAX_API_VERSION
 # @DESCRIPTION:
-# Maximum vala API version (e.g. 0.26).
-VALA_MAX_API_VERSION=${VALA_MAX_API_VERSION:-0.26}
+# Maximum vala API version (e.g. 0.28).
+VALA_MAX_API_VERSION=${VALA_MAX_API_VERSION:-0.28}
 
 # @ECLASS-VARIABLE: VALA_USE_DEPEND
 # @DEFAULT_UNSET

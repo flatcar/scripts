@@ -1,6 +1,18 @@
 # ChangeLog for Gentoo/x86 profile directory
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86/ChangeLog,v 1.193 2015/03/29 19:01:38 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86/ChangeLog,v 1.197 2015/06/09 23:57:34 eva Exp $
+
+  09 Jun 2015; Gilles Dartiguelongue <eva@gentoo.org> package.use.mask:
+  Add package.use.mask for media-plugins/grilo-plugins[upnp-av], bug #551634.
+
+  28 May 2015; Brian Evans <grknight@gentoo.org> package.use.mask:
+  Remove use mask for dev-db/mysql-init-scripts
+
+  27 May 2015; <grknight@gentoo.org> package.use.mask:
+  Unmask s6 USE on dev-db/mysql-init-scripts since x86 has it keyworded
+
+  20 May 2015; James Le Cuirot <chewi@gentoo.org> package.use.mask:
+  Unmask icedtea[infinality] as I'm about to mask it in base.
 
   29 Mar 2015; Mike Frysinger <vapier@gentoo.org> use.mask:
   Unmask USE=cilk.

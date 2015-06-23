@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/targets/desktop/package.use,v 1.43 2015/02/19 02:58:02 tetromino Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/targets/desktop/package.use,v 1.45 2015/06/10 12:40:51 floppym Exp $
 
 # Alexandre Rostovtsev <tetromino@gentoo.org> (19 Feb 2015)
 # Set reasonable default toolkit for all desktops to prevent emerge error
@@ -25,11 +25,6 @@ net-libs/libpcap -bluetooth
 # wireshark 1.10.x has a mostly non-functional qt4 interface so keep
 # gtk3 the default until 1.11.x or higher is stabilized
 <net-analyzer/wireshark-1.11.0 -qt4
-
-# Michał Górny <mgorny@gentoo.org> (27 May 2014)
-# Disable mng support by default since it is seldom used, and it
-# requires old libmng-1.
-app-emulation/emul-linux-x86-qtlibs -mng
 
 # Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (08 May 2014)
 # Enable x11-libs/libxcb[xkb] as it is needed by x11-libs/libxkbcommon[X]
@@ -62,6 +57,7 @@ media-libs/libpng apng
 # Samuli Suominen <ssuominen@gentoo.org> (19 Dec 2010)
 # gudev, required by freedesktop.org udev helpers like udisks and upower
 # introspection, exception, enabled from here instead of ebuild to skip extra deps for a system package
+dev-libs/libgudev introspection
 sys-apps/systemd gudev introspection
 sys-fs/eudev gudev introspection
 sys-fs/udev gudev introspection

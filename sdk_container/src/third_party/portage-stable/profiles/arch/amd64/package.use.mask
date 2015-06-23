@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/package.use.mask,v 1.197 2015/03/28 22:11:21 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/package.use.mask,v 1.204 2015/06/09 22:21:20 xmw Exp $
 
 # When you add an entry to the top of this file, add your name, the date, and
 # an explanation of why something is getting masked. Please be extremely
@@ -17,6 +17,11 @@
 #
 
 #--- END OF EXAMPLES ---
+
+# Michael Sterrett <mr_bones_@gentoo.org> (21 Apr 2015)
+# None of the fusionsound deps support multilib currently, maybe later.
+# Hiding the use flag fixes bug #545662 for now.
+media-libs/libsdl2 fusionsound
 
 # Michał Górny <mgorny@gentoo.org> (14 Sep 2014)
 # on behalf of gx86-multilib project <multilib@gentoo.org>
@@ -95,10 +100,6 @@ dev-python/pypy-bin cpu_flags_x86_sse2
 dev-python/pypy3 cpu_flags_x86_sse2
 dev-python/pypy3-bin cpu_flags_x86_sse2
 
-# Michael Weber <xmw@gentoo.org> (18 Jun 2013)
-# unsatisfied multilib dep on curl[abi_x86_32]
-www-client/netsurf abi_x86_32
-
 # Jeroen Roovers <jer@gentoo.org> (11 Jun 2013)
 # The debug version of www-plugins/adobe-flash is 32-bit only
 www-plugins/adobe-flash debug
@@ -135,6 +136,10 @@ dev-php/pecl-memcached igbinary
 # Ben de Groot <yngwin@gentoo.org> (30 Jul 2012)
 # dependency keyworded here, masked in base
 media-libs/freetype -infinality
+
+# James Le Cuirot <chewi@gentoo.org> (20 May 2015)
+# Masked in base like the above.
+dev-java/icedtea -infinality
 
 # Rick Farina <zerochaos@gentoo.org> (05 July 2012)
 # masked in base, unmask x86/amd64 only

@@ -1,10 +1,27 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/base/package.use.stable.mask,v 1.37 2015/03/13 12:53:22 tamiko Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/base/package.use.stable.mask,v 1.43 2015/06/04 18:47:33 kensington Exp $
 
 # This file requires eapi 5 or later. New entries go on top.
 # Please use the same syntax as in package.use.mask
 
+# Pacho Ramos <pacho@gentoo.org> (15 May 2015)
+# Version compatible with current ffmpeg is not ready to be stabilized
+# bug #539212
+app-emulation/vice ffmpeg
+
+# Pacho Ramos <pacho@gentoo.org> (13 May 2015)
+# texinfo-5 cannot be stabilized yet
+=dev-lang/gnat-gcc-4.6* doc
+
+# Justin Lecher <jlec@gentoo.org> (05 May 2015)
+# no stable qt5
+app-office/texmaker qt5
+
+# Jeroen Roovers <jer@gentoo.org> (26 Apr 2015)
+# mongodb support is nice, but dev-libs/mongo-c-driver upstream is not ready
+# yet (bug #542210)
+net-analyzer/pmacct mongodb
 
 # Matthias Maier <tamiko@gentoo.org> (13 Mar 2015)
 # Masking glusterfs for the time being, see entry for app-emulation/qemu of
@@ -27,10 +44,6 @@ app-text/qpdfview fitz
 # Andreas K. Huettel <dilfridge@gentoo.org> (12 Feb 2015)
 # Pulls in way too many unstable sci packages
 app-office/libreoffice coinmp
-
-# Mike Gilbert <floppym@gentoo.org> (15 Nov 2014)
-# Awaiting PyQt4 stabilization (bug 523322).
-dev-python/pyudev python_targets_python3_4
 
 # Andreas K. Huettel <dilfridge@gentoo.org> (30 Oct 2014)
 # Pulls in sci-libs/vtk with a lot of new dependencies; stabilizing
@@ -98,7 +111,7 @@ media-gfx/imagemagick opencl
 
 # Andreas K. Huettel <dilfridge@gentoo.org> (28 Mar 2013)
 # No stable sci-chemistry/avogadro yet but we want kde-4.10 to go stable
->=kde-base/kalzium-4.10.0 editor
+>=kde-apps/kalzium-4.10.0 editor
 
 # Chris Reffett <creffett@gentoo.org> (23 Nov 2012)
 # CMake's PHP module can't find our install location, so

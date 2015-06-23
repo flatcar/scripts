@@ -1,7 +1,11 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/sunos/solaris/package.mask,v 1.40 2015/02/17 18:00:53 haubi Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/sunos/solaris/package.mask,v 1.41 2015/06/13 05:54:24 grobian Exp $
 
+
+# Fabian Groffen <grobian@gentoo.org> (13 Jun 2015)
+# Needs patching to compile (d_type and DT_REG), bug #551696
+=app-portage/portage-utils-0.56
 
 # Michael Haubenwallner <haubi@gentoo.org> (17 Feb 2015)
 # Ships without gnulib module faccessat.

@@ -1,6 +1,53 @@
 # ChangeLog for profiles/prefix
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/ChangeLog,v 1.453 2015/02/17 18:00:53 haubi Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/ChangeLog,v 1.464 2015/06/16 13:00:05 grobian Exp $
+
+  16 Jun 2015; Fabian Groffen <grobian@gentoo.org> package.mask:
+  Unmask Portage-2.2.20, the host that had the problem is unreliable due to a
+  corporate virus scanner policy
+
+  16 Jun 2015; Fabian Groffen <grobian@gentoo.org> darwin/package.mask:
+  Masked Python 2.7.10 on Darwin
+
+  13 Jun 2015; Fabian Groffen <grobian@gentoo.org> package.mask:
+  Mask latest portage, bug #551678
+
+  13 Jun 2015; Fabian Groffen <grobian@gentoo.org> sunos/solaris/package.mask:
+  Mask latest portage-utils on Solaris, bug #551696
+
+  05 Jun 2015; Michael Haubenwallner <haubi@gentoo.org>
+  +windows/cygwin/2.0/eapi, +windows/cygwin/2.0/package.provided,
+  +windows/cygwin/2.0/parent, +windows/cygwin/2.0/x64/eapi,
+  +windows/cygwin/2.0/x64/make.defaults, +windows/cygwin/2.0/x64/parent,
+  +windows/cygwin/2.0/x86/eapi, +windows/cygwin/2.0/x86/make.defaults,
+  +windows/cygwin/2.0/x86/parent:
+  add cygwin/2.0 profiles x86 and x64, see
+  https://sourceware.org/ml/cygwin/2015-04/msg00595.html
+
+  01 Jun 2015; Fabian Groffen <grobian@gentoo.org> package.mask:
+  Drop mask for pkgconfig since the cycle was fixed
+
+  31 May 2015; Fabian Groffen <grobian@gentoo.org> package.mask:
+  Mask pkgconfig-0.28-r3 since it depends on automake, which causes a dep-cycle
+  during bootstrap, bug #550856
+
+  31 May 2015; Fabian Groffen <grobian@gentoo.org>
+  darwin/macos/10.10/profile.bashrc, darwin/macos/package.use.force,
+  darwin/macos/packages:
+  From now on, Mac OS X/Darwin is built with Clang
+
+  31 May 2015; Fabian Groffen <grobian@gentoo.org> darwin/package.mask:
+  Mask llvm/clang >=3.6 on Darwin due to compile issues
+
+  29 May 2015; Michael Haubenwallner <haubi@gentoo.org>
+  windows/cygwin/make.defaults, windows/interix/make.defaults,
+  windows/use.force, windows/use.mask, windows/winnt/make.defaults:
+  Cygwin,Interix are pure ELIBC values, KERNEL is Winnt (bug#544518)
+
+  26 May 2015; Fabian Groffen <grobian@gentoo.org> darwin/package.use.mask,
+  sunos/solaris/package.use.mask:
+  Mask USE=uuid on Solaris and Darwin for ossp-uuid doesn't compile and isn't
+  actually necessary, bug #324527
 
   17 Feb 2015; Michael Haubenwallner <haubi@gentoo.org>
   sunos/solaris/package.mask:

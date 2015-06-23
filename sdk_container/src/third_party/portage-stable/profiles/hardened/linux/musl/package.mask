@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/musl/package.mask,v 1.9 2015/03/28 12:39:38 blueness Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/musl/package.mask,v 1.10 2015/05/19 22:45:54 blueness Exp $
 
 sys-libs/uclibc
 sys-libs/glibc
@@ -14,9 +14,6 @@ sys-fs/udev
 #
 dev-libs/elfutils
 sys-libs/pam
-
-# bug #526048
->app-misc/pax-utils-0.7
 
 # packages with a hard dep on sys-libs/glibc
 games-action/descent3

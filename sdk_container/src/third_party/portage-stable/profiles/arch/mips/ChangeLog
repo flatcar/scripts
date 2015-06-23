@@ -1,6 +1,9 @@
 # ChangeLog for Gentoo/MIPS profile directory
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/mips/ChangeLog,v 1.161 2015/04/16 22:05:25 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/mips/ChangeLog,v 1.162 2015/05/24 04:32:58 mattst88 Exp $
+
+  24 May 2015; Matt Turner <mattst88@gentoo.org> package.use.mask:
+  Drop dead r600-llvm-compiler USE flag from package.use.mask.
 
   16 Apr 2015; Mike Frysinger <vapier@gentoo.org> use.mask:
   Drop USE=wifi mask since it works on mips.

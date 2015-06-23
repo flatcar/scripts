@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/windows/use.mask,v 1.1 2014/04/30 22:30:20 redlizard Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/windows/use.mask,v 1.2 2015/05/29 09:08:51 haubi Exp $
 
 # Re-add Windows kernel
--kernel_Interix
+-kernel_Winnt

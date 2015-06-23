@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/linux-info.eclass,v 1.104 2014/06/28 07:54:27 robbat2 Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/linux-info.eclass,v 1.107 2015/06/02 07:39:52 vapier Exp $
 
 # @ECLASS: linux-info.eclass
 # @MAINTAINER:
@@ -529,7 +529,15 @@ get_version() {
 	# but before we do this, we need to find if we use a different object directory.
 	# This *WILL* break if the user is using localversions, but we assume it was
 	# caught before this if they are.
-	OUTPUT_DIR="${OUTPUT_DIR:-/lib/modules/${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}${KV_EXTRA}/build}"
+	if [[ -z ${OUTPUT_DIR} ]] ; then
+		# Try to locate a kernel that is most relevant for us.
+		for OUTPUT_DIR in "${SYSROOT}" "${ROOT}" "" ; do
+			OUTPUT_DIR+="/lib/modules/${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}${KV_EXTRA}/build"
+			if [[ -e ${OUTPUT_DIR} ]] ; then
+				break
+			fi
+		done
+	fi
 
 	[ -h "${OUTPUT_DIR}" ] && KV_OUT_DIR="$(readlink -f ${OUTPUT_DIR})"
 	[ -d "${OUTPUT_DIR}" ] && KV_OUT_DIR="${OUTPUT_DIR}"
@@ -599,7 +607,7 @@ get_running_version() {
 		return $?
 	else
 		# This handles a variety of weird kernel versions.  Make sure to update
-		# tests/linux-info:get_running_version.sh if you want to change this.
+		# tests/linux-info_get_running_version.sh if you want to change this.
 		local kv_full=${KV_FULL//[-+_]*}
 		KV_MAJOR=$(get_version_component_range 1 ${kv_full})
 		KV_MINOR=$(get_version_component_range 2 ${kv_full})

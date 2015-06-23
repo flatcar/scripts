@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/netsurf.eclass,v 1.2 2014/12/24 09:58:27 xmw Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/netsurf.eclass,v 1.3 2015/06/09 22:00:44 xmw Exp $
 
 # @ECLASS: netsurf.eclass
 # @MAINTAINER:
@@ -98,6 +98,8 @@ multilib_src_configure() {
 		sed -e "/^libdir/s:/lib:/$(get_libdir):g" \
 			-i ${PN}.pc.in || die
 	fi
+	sed -e 's:/bin/which:which:' \
+		-i ../${NETSURF_BUILDSYSTEM}/makefiles/Makefile.tools || die
 }
 
 # @FUNCTION: netsurf_make
@@ -112,7 +114,7 @@ netsurf_make() {
 			fi
 		fi
 		emake CC="$(tc-getCC)" LD="$(tc-getLD)" "${netsurf_makeconf[@]}" \
-			COMPONENT_TYPE=${COMPONENT_TYPE} "$@"
+			COMPONENT_TYPE=${COMPONENT_TYPE} LIBDIR="$(get_libdir)" "$@"
 	done
 }
 

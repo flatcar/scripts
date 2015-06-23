@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/uclibc/amd64/package.mask,v 1.6 2014/10/22 20:20:51 axs Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/uclibc/amd64/package.mask,v 1.9 2015/06/18 12:36:02 blueness Exp $
 
 # AMD64 Team <amd64@gentoo.org>
 # Mask packages that rely on amd64 multilib
@@ -21,21 +21,6 @@ app-emulation/vmware-player
 >=app-i18n/atokx3-3.0.0
 app-office/lotus-notes
 app-office/ooextras
-app-emulation/emul-linux-x86-baselibs
-app-emulation/emul-linux-x86-cpplibs
-app-emulation/emul-linux-x86-db
-app-emulation/emul-linux-x86-gstplugins
-app-emulation/emul-linux-x86-gtklibs
-app-emulation/emul-linux-x86-gtkmmlibs
-app-emulation/emul-linux-x86-jna
-app-emulation/emul-linux-x86-medialibs
-app-emulation/emul-linux-x86-motif
-app-emulation/emul-linux-x86-opengl
-app-emulation/emul-linux-x86-qtlibs
-app-emulation/emul-linux-x86-sdl
-app-emulation/emul-linux-x86-soundlibs
-app-emulation/emul-linux-x86-xlibs
-app-emulation/emul-linux-x86-java
 app-emulation/winetricks
 app-emulation/wine-doors
 app-text/acroread

@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/freebsd.eclass,v 1.36 2015/02/22 14:16:03 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/freebsd.eclass,v 1.38 2015/06/05 16:38:21 mgorny Exp $
 #
 # Diego Pettenò <flameeyes@gentoo.org>
 
@@ -66,9 +66,18 @@ if [[ ${MY_PV} == *9999* ]]; then
 	ESVN_PROJECT="freebsd-${BRANCH}"
 fi
 
-if [[ ${PN} != "freebsd-share" ]] && [[ ${PN} != freebsd-sources ]]; then
-	IUSE="profile"
+# use the original source code.
+if [[ ${MY_PV} != *9999* ]] && version_is_at_least 10.0 ${RV} ; then
+	DL_PV=${MY_PV/_rc/-RC}
+	DL_PV=${DL_PV/_beta/-BETA}
+	DL_PV=${DL_PV/_alpha/-ALPHA}
+	if [[ ${DL_PV} == ${MY_PV} ]]; then
+		DL_PV="${DL_PV}-RELEASE"
+	fi
+	SRC_URI="mirror://freebsd/releases/i386/${DL_PV}/src.txz -> freebsd-src-${MY_PV}.tar.xz"
 fi
+
+IUSE="profile"
 
 #unalias -a
 alias install-info='/usr/bin/bsdinstall-info'
@@ -95,6 +104,22 @@ freebsd_get_bmake() {
 	echo "${bmake}"
 }
 
+# Generates a patch SRC_URI or DISTDIR of upstream.
+freebsd_upstream_patches() {
+	local opt=$1
+	[[ ${#UPSTREAM_PATCHES[@]} -eq 0 ]] && return 1
+	for x in "${UPSTREAM_PATCHES[@]}"
+	do
+		local out=${PN}-${x/\//-}
+		out=${out/:/}
+		if [[ ${opt} == -s ]] ; then
+			echo "${DISTDIR}/${out}"
+		else
+			echo "https://security.freebsd.org/patches/${x} -> ${out}"
+		fi
+	done
+}
+
 freebsd_do_patches() {
 	if [[ ${#PATCHES[@]} -gt 1 ]] ; then
 		for x in "${PATCHES[@]}"; do
@@ -105,6 +130,7 @@ freebsd_do_patches() {
 			epatch "${x}"
 		done
 	fi
+	[[ ${#UPSTREAM_PATCHES[@]} -gt 0 ]] && epatch $(freebsd_upstream_patches -s)
 	epatch_user
 }
 
@@ -136,7 +162,22 @@ freebsd_src_unpack() {
 			[[ -e "${WORKDIR}"/share/mk ]] && rm -rf "${WORKDIR}"/share/mk/*.mk
 		fi
 	else
-		unpack ${A}
+		if version_is_at_least 10.0 ${RV} ; then
+			local tarball="freebsd-src-${MY_PV}.tar.xz"
+			local topdir="usr/src/"
+			local extractlist=()
+			for i in ${EXTRACTONLY} ; do
+				extractlist+=( ${topdir}${i} )
+			done
+			ebegin "Unpacking parts of ${tarball} to ${WORKDIR}"
+			cd "${WORKDIR}" || die
+			tar -xJpf "${DISTDIR}/${tarball}" --strip-components=2 "${extractlist[@]}" 2> /dev/null || die "tar extract command failed"
+			cd - || die
+		else
+			for f in ${A} ; do
+				[[ ${f} == *.tar.* ]] && unpack ${f}
+			done
+		fi
 	fi
 	cd "${S}"
 

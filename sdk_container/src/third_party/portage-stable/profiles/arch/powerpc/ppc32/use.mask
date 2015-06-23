@@ -1,6 +1,10 @@
 # Unmask the flag which corresponds to ARCH.
 -ppc
 
+# Ben de Groot <yngwin@gentoo.org> (01 Feb 2015)
+# please remove when keyworded
+qt5
+
 # Michał Górny <mgorny@gentoo.org> (27 Jun 2014)
 # Unmask multilib flag for the ABI.
 -abi_ppc_32

@@ -1,6 +1,22 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/package.use.mask,v 1.240 2015/04/01 11:00:12 gienah Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/package.use.mask,v 1.248 2015/06/12 10:56:52 mgorny Exp $
+
+# Gilles Dartiguelongue <eva@gentoo.org> (10 Jun 2015)
+# net-libs/dleyna-connector-dbus lack ppc/ppc64 keyword, bug #551634
+>=media-plugins/grilo-plugins-0.2.14 upnp-av
+
+# Justin Lecher <jlec@gentoo> (18 May 2015)
+# missing keywords
+dev-python/matplotlib qt5
+
+# Pacho Ramos <pacho@gentoo.org> (15 May 2015)
+# Missing keywords
+net-dns/unbound dnstap
+
+# Markos Chandras <hwoarang@gentoo.org> (18 Apr 2015)
+# samba-4 not keyworded on ppc/ppc64
+sys-auth/sssd samba
 
 # Mike Frysinger <vapier@gentoo.org> (16 Mar 2015)
 # Needs sci-physics/bullet & media-libs/libsdl2 tested #499974
@@ -53,7 +69,7 @@ x11-drivers/xf86-video-nouveau glamor
 
 # Anthony G. Basile <blueness@gentoo.org> (17 Aug 2014)
 # This pulls in qemu[smartcard] which is masked
-=net-misc/spice-gtk-0.25-r1 smartcard
+net-misc/spice-gtk smartcard
 
 # Anthony G. Basile <blueness@gentoo.org> (16 Aug 2014)
 # Ultimately pulls in nodejs which is broken.
@@ -106,8 +122,8 @@ media-video/mpv sdl
 
 # Johannes Huber <johu@gentoo.org> (16 Apr 2014)
 # unkeyworded deps
-kde-base/gwenview semantic-desktop
-kde-base/okular dpi
+kde-apps/gwenview semantic-desktop
+kde-apps/okular dpi
 kde-base/nepomuk-core migrator
 
 # Pacho Ramos <pacho@gentoo.org> (12 Apr 2014)
@@ -122,13 +138,6 @@ net-misc/modemmanager mbim
 # Missing keywords, bug #495254
 >=dev-libs/totem-pl-parser-3.10 quvi
 >=media-video/totem-3.10 flash
-
-# Chí-Thanh Christopher Nguyễn (04 Feb 2014)
-# depends on opencl enabled mesa
-<=media-gfx/imagemagick-6.8.6.8 opencl
-<=app-crypt/johntheripper-1.7.9-r6 opencl
-<=media-libs/opencv-2.4.5 opencl
-<=sci-libs/gdal-1.10-r1 opencl
 
 # Pacho Ramos <pacho@gentoo.org> (11 Jan 2013)
 sys-kernel/dracut -dracut_modules_systemd
@@ -151,7 +160,7 @@ dev-haskell/dataenc test
 
 # Johannes Huber <johu@gentoo.org> (15 Sep 2013)
 # # Depends on kde-misc/networkmanagement, not keyworded yet.
-kde-base/solid-runtime networkmanager
+kde-apps/solid-runtime networkmanager
 
 # Pacho Ramos <pacho@gentoo.org> (08 Sep 2013)
 # monodevelop is not keyworded, bug #468030
@@ -196,8 +205,8 @@ app-emulation/qemu seccomp
 
 # Anthony G. Basile <blueness@gentoo.org> (15 Nove 2012)
 # Mask telepathy, no stable net-libs/telepathy-qt, bug #441456
-kde-base/krdc telepathy
-kde-base/krfb telepathy
+kde-apps/krdc telepathy
+kde-apps/krfb telepathy
 net-im/choqok telepathy
 
 # Robin H Johnson <robbat2@gentoo.org> (01 Nov 2012)
@@ -223,11 +232,6 @@ x11-themes/gtk-engines-qtcurve mozilla
 # Anthony G. Basile <blueness@gentoo.org> (21 Aug 2012)
 # Does not work on ppc/ppc64
 net-misc/tor tor-hardening
-
-# Johannes Huber <johu@gentoo.org> (9 Jul 2012)
-# dev-qt/qtopenvg not keyworded correctly.
-# ppc/ppc64 team please validate.
-=dev-qt/qtdemo-4.8* openvg
 
 # Michael Weber <xmw@gentoo.org> (3 Jun 2012)
 # pymol got stabled (bug 366229) but USE=apbs deps aren't keyworded

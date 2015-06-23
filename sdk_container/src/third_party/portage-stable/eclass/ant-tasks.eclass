@@ -1,9 +1,9 @@
 # Eclass for building dev-java/ant-* packages
 #
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License, v2 or later
 # Author Vlastimil Babka <caster@gentoo.org>
-# $Header: /var/cvsroot/gentoo-x86/eclass/ant-tasks.eclass,v 1.16 2013/10/05 12:07:01 caster Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/ant-tasks.eclass,v 1.17 2015/04/28 20:35:40 chewi Exp $
 
 # @ECLASS: ant-tasks.eclass
 # @MAINTAINER:
@@ -98,7 +98,7 @@ SRC_URI="${UPSTREAM_PREFIX}/${MY_P}-src.tar.bz2
 LICENSE="Apache-2.0"
 SLOT="0"
 
-RDEPEND="~dev-java/ant-core-${PV}"
+RDEPEND="~dev-java/ant-core-${PV}:0"
 DEPEND="${RDEPEND}"
 
 if [[ -z "${ANT_TASK_DISABLE_VM_DEPS}" ]]; then

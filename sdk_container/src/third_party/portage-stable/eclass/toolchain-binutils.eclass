@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain-binutils.eclass,v 1.140 2015/02/09 19:34:02 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain-binutils.eclass,v 1.142 2015/05/25 08:41:16 vapier Exp $
 #
 # Maintainer: Toolchain Ninjas <toolchain@gentoo.org>
 #
@@ -49,8 +49,8 @@ esac
 
 export CTARGET=${CTARGET:-${CHOST}}
 if [[ ${CTARGET} == ${CHOST} ]] ; then
-	if [[ ${CATEGORY/cross-} != ${CATEGORY} ]] ; then
-		export CTARGET=${CATEGORY/cross-}
+	if [[ ${CATEGORY} == cross-* ]] ; then
+		export CTARGET=${CATEGORY#cross-}
 	fi
 fi
 is_cross() { [[ ${CHOST} != ${CTARGET} ]] ; }
@@ -271,7 +271,10 @@ toolchain-binutils_src_configure() {
 
 	use multitarget && myconf+=( --enable-targets=all --enable-64-bit-bfd )
 	[[ -n ${CBUILD} ]] && myconf+=( --build=${CBUILD} )
-	is_cross && myconf+=( --with-sysroot="${EPREFIX}"/usr/${CTARGET} )
+	is_cross && myconf+=(
+		--with-sysroot="${EPREFIX}"/usr/${CTARGET}
+		--enable-poison-system-directories
+	)
 
 	# glibc-2.3.6 lacks support for this ... so rather than force glibc-2.5+
 	# on everyone in alpha (for now), we'll just enable it when possible

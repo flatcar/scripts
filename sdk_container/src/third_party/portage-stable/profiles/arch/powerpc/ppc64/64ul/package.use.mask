@@ -1,10 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/ppc64/64ul/package.use.mask,v 1.20 2013/05/28 13:53:42 chithanh Exp $
-
-# Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (28 May 2013)
-# depends on sys-devel/llvm[video_cards_radeon]
-media-libs/mesa r600-llvm-compiler
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/ppc64/64ul/package.use.mask,v 1.22 2015/06/04 18:47:17 kensington Exp $
 
 # Agostino Sarubbo <ago@gentoo.org> (31 Jan 2012)
 # Mask because requires a lot of unstable depends not ready for the stabilization
@@ -28,7 +24,7 @@ app-admin/conky apcupsd
 
 # Brent Baude <ranger@gentoo.org> (6  Feb 2009)
 # Masking solver/ocaml USE from kalzium to fix tree borkage
-kde-base/kalzium solver
+kde-apps/kalzium solver
 
 # Brent Baude <ranger@gentoo.org> (28 January 2009)
 # Masking zemberek for enchant

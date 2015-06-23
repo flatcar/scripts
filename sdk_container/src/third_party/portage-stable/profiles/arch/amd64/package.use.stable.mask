@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/package.use.stable.mask,v 1.130 2015/04/16 09:52:25 zlogene Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/package.use.stable.mask,v 1.135 2015/06/14 14:12:55 zlogene Exp $
 
 # When you add an entry to the top of this file, add your name, the date, and
 # an explanation of why something is getting masked. Please be extremely
@@ -18,13 +18,9 @@
 
 #--- END OF EXAMPLES ---
 
-# Mikle Kolyada <zlogene@gentoo.org> (16 Apr 2015)
-# Newer libav is not stable (bug #525148, bug #541664)
->=media-video/mpv-0.7.3 libav
-
-# Mikle Kolyada <zlogene@gentoo.org> (11 Apr 2015)
-# media-libs/x265 is not stable (bug #538798)
-media-video/ffmpeg x265
+# Mikle Kolyada <zlogene@gentoo.org> (14 Jun 2015)
+# app-emulation/lxc has no stable versions
+app-emulation/docker lxc
 
 # Yixun Lan <dlan@gentoo.org> (02 Apr 2015)
 # sys-fs/zfs is not stable.
@@ -56,10 +52,10 @@ dev-lang/python-exec -python_single_target_pypy3
 # sys-fs/zfs is not stable.
 sys-boot/grub libzfs
 
-# Tom Wijsman <TomWij@gentoo.org (16 Mar 2014)
-# Mask unstable USE flags on media-video/vlc, see security bug #499806.
-media-video/vlc gnutls opus vdpau
-
 # Tom Wijsman <TomWij@gentoo.org> (06 Feb 2014)
 # [QA] Masked jit USE flag on www-apps/cgit as dev-lang/luajit is not stable.
 www-apps/cgit jit
+
+# Ben de Groot <yngwin@gentoo.org (19 Apr 2015)
+# >=opus-1.0.3 is still not stable (bug 500868)
+media-video/vlc opus

@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/mips/package.use.mask,v 1.72 2015/04/12 11:26:16 zlogene Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/mips/package.use.mask,v 1.73 2015/05/24 04:32:58 mattst88 Exp $
 
 # Mikle Kolyada <zlogene@gentoo.org> (12 Apr 2015)
 # GNOME Shell does not work on mips
@@ -47,10 +47,6 @@ app-text/tesseract	webp
 # CONFIG_AUDITSYSCALL=y is not implemented, bug #438368
 sys-auth/consolekit pam
 sys-auth/pambase consolekit
-
-# Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (28 May 2013)
-# depends on sys-devel/llvm[video_cards_radeon]
-media-libs/mesa r600-llvm-compiler
 
 # Kacper Kowalik <xarthisius@gentoo.org> (20 May 2011)
 # depends on dev-libs/dmalloc which is not keyworded

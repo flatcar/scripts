@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/php-ext-source-r2.eclass,v 1.34 2015/03/26 16:15:33 grknight Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/php-ext-source-r2.eclass,v 1.36 2015/05/04 20:02:26 grknight Exp $
 
 # @ECLASS: php-ext-source-r2.eclass
 # @MAINTAINER:
@@ -32,6 +32,7 @@ case ${EAPI} in
 esac
 
 # @ECLASS-VARIABLE: PHP_EXT_NAME
+# @REQUIRED
 # @DESCRIPTION:
 # The extension name. This must be set, otherwise the eclass dies.
 # Only automagically set by php-ext-pecl-r2.eclass, so unless your ebuild
@@ -51,10 +52,14 @@ esac
 [[ -z "${PHP_EXT_ZENDEXT}" ]] && PHP_EXT_ZENDEXT="no"
 
 # @ECLASS-VARIABLE: USE_PHP
+# @REQUIRED
 # @DESCRIPTION:
 # Lists the PHP slots compatibile the extension is compatibile with
-[[ -z "${USE_PHP}" ]] && USE_PHP="php5-3" \
-	&& eqawarn "An empty USE_PHP is deprecated and support will be removed on 2015-05-01"
+# Example:
+# @CODE
+# USE_PHP="php5-5 php5-6"
+# @CODE
+[[ -z "${USE_PHP}" ]] && die "USE_PHP is not set for the php-ext-source-r2 eclass"
 
 # @ECLASS-VARIABLE: PHP_EXT_OPTIONAL_USE
 # @DESCRIPTION:
@@ -97,11 +102,12 @@ DEPEND="${DEPEND}
 # @DESCRIPTION:
 # runs standard src_unpack + _phpize
 
-# @VARIABLE: PHP_EXT_SKIP_PHPIZE
+# @ECLASS-VARIABLE: PHP_EXT_SKIP_PHPIZE
 # @DESCRIPTION:
 # phpize will be run by default for all ebuilds that use
 # php-ext-source-r2_src_unpack
 # Set PHP_EXT_SKIP_PHPIZE="yes" in your ebuild if you do not want to run phpize.
+
 php-ext-source-r2_src_unpack() {
 	unpack ${A}
 	local slot orig_s="${PHP_EXT_S}"
@@ -138,9 +144,10 @@ php-ext-source-r2_phpize() {
 # @DESCRIPTION:
 # Takes care of standard configure for PHP extensions (modules).
 
-# @VARIABLE: my_conf
+# @ECLASS-VARIABLE: my_conf
 # @DESCRIPTION:
 # Set this in the ebuild to pass configure options to econf.
+
 php-ext-source-r2_src_configure() {
 	# net-snmp creates this file #385403
 	addpredict /usr/share/snmp/mibs/.index
@@ -176,7 +183,7 @@ php-ext-source-r2_src_compile() {
 # @DESCRIPTION:
 # Takes care of standard install for PHP extensions (modules).
 
-# @VARIABLE: DOCS
+# @ECLASS-VARIABLE: DOCS
 # @DESCRIPTION:
 # Set in ebuild if you wish to install additional, package-specific documentation.
 php-ext-source-r2_src_install() {

@@ -149,7 +149,6 @@ gts
 anthy
 ace
 csharp
-icu
 gtk
 qt4
 qt5
