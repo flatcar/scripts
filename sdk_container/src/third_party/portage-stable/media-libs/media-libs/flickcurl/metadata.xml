@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
-<pkgmetadata>
-	<herd>graphics</herd>
-	<use>
-		<flag name="raptor">Use <pkg>media-libs/raptor</pkg> for proper RDF serializing</flag>
-		<flag name="oauth">Enable experimental OAuth support</flag>
-	</use>
-</pkgmetadata>
