@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/gentoo-functions/gentoo-functions-9999.ebuild,v 1.7 2015/05/26 06:21:05 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/gentoo-functions/gentoo-functions-0.10.ebuild,v 1.2 2015/05/26 06:21:05 vapier Exp $
 
 EAPI=5
 
