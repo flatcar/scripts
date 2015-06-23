@@ -7,5 +7,5 @@ KEYWORDS=~amd64 ~ia64 ~x86
 LICENSE=GPL-2
 SLOT=0
 SRC_URI=mirror://sourceforge/gnu-efi/gnu-efi_3.0u.orig.tar.gz mirror://debian/pool/main/g/gnu-efi/gnu-efi_3.0i-4.diff.gz
-_eclasses_=eutils	9fb270e417e0e83d64ca52586c4a79de	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	c961250d50160cd37d6b7fd9e8429c92
+_eclasses_=eutils	9fb270e417e0e83d64ca52586c4a79de	multilib	62927b3db3a589b0806255f3a002d5d3	toolchain-funcs	42408102d713fbad60ca21349865edb4
 _md5_=32736952e6121d9c4afb7cafb670f8aa

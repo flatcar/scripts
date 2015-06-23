@@ -1,5 +1,5 @@
 DEFINED_PHASES=configure install prepare
-DEPEND=!static? ( idn? ( net-dns/libidn ) pcre? ( dev-libs/libpcre ) ssl? ( gnutls? ( net-libs/gnutls ) !gnutls? ( dev-libs/openssl:0 ) ) uuid? ( sys-apps/util-linux ) zlib? ( sys-libs/zlib ) ) app-arch/xz-utils virtual/pkgconfig static? ( idn? ( net-dns/libidn[static-libs(+)] ) pcre? ( dev-libs/libpcre[static-libs(+)] ) ssl? ( gnutls? ( net-libs/gnutls[static-libs(+)] ) !gnutls? ( dev-libs/openssl:0[static-libs(+)] ) ) uuid? ( sys-apps/util-linux[static-libs(+)] ) zlib? ( sys-libs/zlib[static-libs(+)] ) ) nls? ( sys-devel/gettext ) !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.13:1.13 >=sys-devel/automake-1.15:1.15 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
+DEPEND=!static? ( idn? ( net-dns/libidn ) pcre? ( dev-libs/libpcre ) ssl? ( gnutls? ( net-libs/gnutls ) !gnutls? ( dev-libs/openssl:0 ) ) uuid? ( sys-apps/util-linux ) zlib? ( sys-libs/zlib ) ) app-arch/xz-utils virtual/pkgconfig static? ( idn? ( net-dns/libidn[static-libs(+)] ) pcre? ( dev-libs/libpcre[static-libs(+)] ) ssl? ( gnutls? ( net-libs/gnutls[static-libs(+)] ) !gnutls? ( dev-libs/openssl:0[static-libs(+)] ) ) uuid? ( sys-apps/util-linux[static-libs(+)] ) zlib? ( sys-libs/zlib[static-libs(+)] ) ) nls? ( sys-devel/gettext ) !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.14.1:1.14 >=sys-devel/automake-1.15:1.15 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
 DESCRIPTION=Network utility to retrieve files from the WWW
 EAPI=4
 HOMEPAGE=http://www.gnu.org/software/wget/
@@ -10,5 +10,5 @@ RDEPEND=!static? ( idn? ( net-dns/libidn ) pcre? ( dev-libs/libpcre ) ssl? ( gnu
 REQUIRED_USE=ntlm? ( !gnutls ssl ) gnutls? ( ssl )
 SLOT=0
 SRC_URI=mirror://gnu/wget/wget-1.14.tar.xz
-_eclasses_=autotools	999c8f6cf5d91495cb0779588f20716c	eutils	9fb270e417e0e83d64ca52586c4a79de	flag-o-matic	c263990f1b677b0f0be0a3299f179762	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	c961250d50160cd37d6b7fd9e8429c92
+_eclasses_=autotools	a9597abac7226d89ad9d010abeef6cfb	eutils	9fb270e417e0e83d64ca52586c4a79de	flag-o-matic	c9602887773166fe300444712fc7ff98	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	62927b3db3a589b0806255f3a002d5d3	toolchain-funcs	42408102d713fbad60ca21349865edb4
 _md5_=f34b7e4830567ce547e3eb2cd477844f
