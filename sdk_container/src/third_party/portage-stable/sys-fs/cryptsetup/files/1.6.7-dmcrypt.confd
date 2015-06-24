@@ -26,8 +26,14 @@
 # Global options:
 #----------------
 
-# Max number of checks to perform (1 per second)
-#dmcrypt_max_timeout=120
+# How long to wait for each timeout (in seconds).
+dmcrypt_key_timeout=1
+
+# Max number of checks to perform (see dmcrypt_key_timeout).
+#dmcrypt_max_timeout=300
+
+# Number of password retries.
+dmcrypt_retries=5
 
 # Arguments:
 #-----------
@@ -84,13 +90,13 @@
 #key='/full/path/to/homekey'
 #remdev='/dev/sda1'
 
-##/home with gpg protected key on removable media(such as usb-stick)
+## /home with gpg protected key on removable media(such as usb-stick)
 #target=crypt-home
 #source='/dev/hda5'
 #key='/full/path/to/homekey:gpg'
 #remdev='/dev/sda1'
 
-##/tmp with regular keyfile
+## /tmp with regular keyfile
 #target=crypt-tmp
 #source='/dev/hda6'
 #key='/full/path/to/tmpkey'

@@ -1,7 +1,7 @@
 #!/sbin/runscript
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/cryptsetup/files/1.5.1-dmcrypt.rc,v 1.9 2015/04/12 22:04:22 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/cryptsetup/files/1.6.7-dmcrypt.rc,v 1.1 2015/04/12 22:25:40 vapier Exp $
 
 depend() {
 	before checkfs fsck
@@ -27,6 +27,11 @@ dm_crypt_execute() {
 	if [ -z "${target}" -a -z "${swap}" ] ; then
 		return
 	fi
+
+	# Set up default values.
+	: ${dmcrypt_key_timeout:=1}
+	: ${dmcrypt_max_timeout:=300}
+	: ${dmcrypt_retries:=5}
 
 	# Handle automatic look up of the source path.
 	if [ -z "${source}" -a -n "${loop_file}" ] ; then
@@ -97,7 +102,7 @@ dm_crypt_execute() {
 			resettty='stty ${savetty}; trap - EXIT HUP INT TERM'
 			trap 'eval "${resettty}"' EXIT HUP INT TERM
 			stty -icanon
-			[ "${1}" = -t ] && stty min 0 time "$(( $2 * 10 ))"
+			stty min 0 time "$(( $2 * 10 ))"
 			ans=$(dd count=1 bs=1 2>/dev/null) || ans=''
 			eval "${resettty}"
 			if [ -z "${ans}" ] ; then
@@ -129,7 +134,7 @@ dm_crypt_execute() {
 				fi
 				i=0
 				einfo "Please insert removable device for ${target}"
-				while [ ${i} -lt ${dmcrypt_max_timeout:-120} ] ; do
+				while [ ${i} -lt ${dmcrypt_max_timeout} ] ; do
 					foo=""
 					if mount -n -o ro "${remdev}" "${mntrem}" 2>/dev/null >/dev/null ; then
 						# keyfile exists?
@@ -137,7 +142,7 @@ dm_crypt_execute() {
 							umount -n "${mntrem}"
 							rmdir "${mntrem}"
 							einfo "Cannot find ${key} on removable media."
-							read_abort "Abort" ${read_timeout:--t 1} && return
+							read_abort "Abort" ${dmcrypt_key_timeout} && return
 						else
 							key="${mntrem}${key}"
 							break
@@ -172,12 +177,16 @@ dm_crypt_execute() {
 		: ${gpg_options:='-q -d'}
 		# gpg available ?
 		if command -v gpg >/dev/null ; then
-			for i in 0 1 2 ; do
+			i=0
+			while [ ${i} -lt ${dmcrypt_retries} ] ; do
 				# paranoid, don't store key in a variable, pipe it so it stays very little in ram unprotected.
 				# save stdin stdout stderr "values"
-				gpg ${gpg_options} ${key} 2>/dev/null | cryptsetup --key-file - ${options} ${arg1} ${arg2} ${arg3}
+				timeout ${dmcrypt_max_timeout} gpg ${gpg_options} ${key} 2>/dev/null | \
+					cryptsetup --key-file - ${options} ${arg1} ${arg2} ${arg3}
 				ret=$?
-				[ ${ret} -eq 0 ] && break
+				# The timeout command exits 124 when it times out.
+				[ ${ret} -eq 0 -o ${ret} -eq 124 ] && break
+				: $(( i += 1 ))
 			done
 			eend ${ret} "failure running cryptsetup"
 		else
@@ -221,9 +230,8 @@ get_bootparam_val() {
 	#    foo=bar=cow
 	# Return the "bar=cow" part.
 	case $1 in
-	*\=*)
-		local key=$(echo "$1" | cut -f1 -d=)
-		echo "$1" | cut -c $(( ${#key} + 2 ))
+	*=*)
+		echo "${1#*=}"
 		;;
 	esac
 }
@@ -235,12 +243,9 @@ start() {
 	local x
 	for x in $(cat /proc/cmdline) ; do
 		case "${x}" in
-		key_timeout\=*)
-			local KEY_TIMEOUT=$(get_bootparam_val "${x}")
-			if [ ${KEY_TIMEOUT} -gt 0 ] ; then
-				read_timeout="-t ${KEY_TIMEOUT}"
-			fi
-		;;
+		key_timeout=*)
+			dmcrypt_key_timeout=$(get_bootparam_val "${x}")
+			;;
 		esac
 	done
 
@@ -272,7 +277,7 @@ start() {
 			fi
 			;;
 
-		dmcrypt_max_timeout=*)
+		dmcrypt_*=*)
 			# ignore global options
 			continue
 			;;
