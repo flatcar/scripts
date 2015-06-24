@@ -1,12 +1,12 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-firewall/ipset/ipset-6.21.1.ebuild,v 1.1 2014/06/20 20:57:10 robbat2 Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-firewall/ipset/ipset-6.21.1.ebuild,v 1.2 2014/08/10 20:55:50 slyfox Exp $
 
 EAPI="5"
 MODULES_OPTIONAL_USE=modules
 inherit autotools linux-info linux-mod
 
-DESCRIPTION="IPset tool for iptables, successor to ippool."
+DESCRIPTION="IPset tool for iptables, successor to ippool"
 HOMEPAGE="http://ipset.netfilter.org/"
 SRC_URI="http://ipset.netfilter.org/${P}.tar.bz2"
 

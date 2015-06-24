@@ -1,6 +1,17 @@
 # ChangeLog for net-firewall/ipset
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-firewall/ipset/ChangeLog,v 1.77 2014/06/21 20:25:57 robbat2 Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-firewall/ipset/ChangeLog,v 1.79 2015/05/14 06:25:02 dlan Exp $
+
+*ipset-6.24 (14 May 2015)
+
+  14 May 2015; Yixun Lan <dlan@gentoo.org> +ipset-6.24.ebuild:
+  version bump, bug 532754; drop check_header_patch() which only required by <
+  kernel-2.6.35
+
+  10 Aug 2014; Sergei Trofimovich <slyfox@gentoo.org> ipset-6.15.ebuild,
+  ipset-6.16.1.ebuild, ipset-6.16.ebuild, ipset-6.17.ebuild, ipset-6.19.ebuild,
+  ipset-6.20.1.ebuild, ipset-6.21.1.ebuild:
+  QA: drop trailing '.' from DESCRIPTION
 
   21 Jun 2014; Robin H. Johnson <robbat2@gentoo.org> ipset-6.20.1.ebuild:
   Stable on amd64 per bug #502870, works for infra (actually do it this time)
