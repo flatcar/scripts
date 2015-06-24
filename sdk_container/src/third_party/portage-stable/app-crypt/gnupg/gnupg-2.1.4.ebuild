@@ -1,45 +1,47 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-crypt/gnupg/gnupg-2.0.23.ebuild,v 1.1 2014/06/06 05:57:26 radhermit Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-crypt/gnupg/gnupg-2.1.4.ebuild,v 1.2 2015/05/21 04:39:45 mattst88 Exp $
 
 EAPI="5"
 
-inherit eutils flag-o-matic toolchain-funcs
+inherit autotools eutils flag-o-matic toolchain-funcs
 
-DESCRIPTION="The GNU Privacy Guard, a GPL pgp replacement"
+DESCRIPTION="The GNU Privacy Guard, a GPL OpenPGP implementation"
 HOMEPAGE="http://www.gnupg.org/"
-SRC_URI="mirror://gnupg/gnupg/${P}.tar.bz2"
-# SRC_URI="ftp://ftp.gnupg.org/gcrypt/${PN}/${P}.tar.bz2"
+MY_P="${P/_/-}"
+SRC_URI="mirror://gnupg/gnupg/${MY_P}.tar.bz2"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="adns bzip2 doc ldap nls mta readline static selinux smartcard usb"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~mips ~ppc ~ppc64 ~x86"
+IUSE="bzip2 doc +gnutls ldap nls readline static selinux smartcard tools usb"
 
 COMMON_DEPEND_LIBS="
+	dev-libs/npth
 	>=dev-libs/libassuan-2
-	>=dev-libs/libgcrypt-1.4:0=
-	>=dev-libs/libgpg-error-1.11
+	>=dev-libs/libgcrypt-1.6.2
+	>=dev-libs/libgpg-error-1.17
 	>=dev-libs/libksba-1.0.7
-	>=dev-libs/pth-1.3.7
 	>=net-misc/curl-7.10
+	gnutls? ( >=net-libs/gnutls-3.0 )
 	sys-libs/zlib
-	adns? ( >=net-libs/adns-1.4 )
+	ldap? ( net-nds/openldap )
 	bzip2? ( app-arch/bzip2 )
 	readline? ( sys-libs/readline )
 	smartcard? ( usb? ( virtual/libusb:0 ) )
-	ldap? ( net-nds/openldap )"
-COMMON_DEPEND_BINS="|| ( app-crypt/pinentry app-crypt/pinentry-qt )"
+	"
+COMMON_DEPEND_BINS="app-crypt/pinentry
+		   !app-crypt/dirmngr"
 
 # Existence of executables is checked during configuration.
 DEPEND="${COMMON_DEPEND_LIBS}
 	${COMMON_DEPEND_BINS}
 	static? (
 		>=dev-libs/libassuan-2[static-libs]
-		>=dev-libs/libgcrypt-1.4:0=[static-libs]
-		>=dev-libs/libgpg-error-1.11[static-libs]
+		>=dev-libs/libgcrypt-1.6.2[static-libs]
+		>=dev-libs/libgpg-error-1.17[static-libs]
 		>=dev-libs/libksba-1.0.7[static-libs]
-		>=dev-libs/pth-1.3.7[static-libs]
+		dev-libs/npth[static-libs]
 		>=net-misc/curl-7.10[static-libs]
 		sys-libs/zlib[static-libs]
 		bzip2? ( app-arch/bzip2[static-libs] )
@@ -49,12 +51,12 @@ DEPEND="${COMMON_DEPEND_LIBS}
 
 RDEPEND="!static? ( ${COMMON_DEPEND_LIBS} )
 	${COMMON_DEPEND_BINS}
-	mta? ( virtual/mta )
-	!<=app-crypt/gnupg-2.0.1
 	selinux? ( sec-policy/selinux-gpg )
 	nls? ( virtual/libintl )"
 
 REQUIRED_USE="smartcard? ( !static )"
+
+S="${WORKDIR}/${MY_P}"
 
 src_prepare() {
 	epatch "${FILESDIR}/${PN}-2.0.17-gpgsm-gencert.patch"
@@ -88,13 +90,13 @@ src_configure() {
 		--docdir="${EPREFIX}/usr/share/doc/${PF}" \
 		--enable-gpg \
 		--enable-gpgsm \
-		--enable-agent \
+		--enable-large-secmem \
+		--without-adns \
 		"${myconf[@]}" \
-		$(use_with adns) \
 		$(use_enable bzip2) \
+		$(use_enable gnutls) \
+		$(use_with ldap) \
 		$(use_enable nls) \
-		$(use_enable mta mailto) \
-		$(use_enable ldap) \
 		$(use_with readline) \
 		CC_FOR_BUILD="$(tc-getBUILD_CC)"
 }
@@ -111,8 +113,8 @@ src_compile() {
 src_install() {
 	default
 
-	# bug#192151
-	dobin tools/gpgsplit tools/gpg-zip
+	use tools && dobin tools/{convert-from-106,gpg-check-pattern} \
+		tools/{gpg-zip,gpgconf,gpgsplit,lspgpot,mail-signed-keys,make-dns-cert}
 
 	emake DESTDIR="${D}" -f doc/Makefile uninstall-nobase_dist_docDATA
 	rm "${ED}"/usr/share/gnupg/help* || die
@@ -122,12 +124,6 @@ src_install() {
 
 	dosym gpg2 /usr/bin/gpg
 	dosym gpgv2 /usr/bin/gpgv
-	dosym gpg2keys_hkp /usr/libexec/gpgkeys_hkp
-	dosym gpg2keys_finger /usr/libexec/gpgkeys_finger
-	dosym gpg2keys_curl /usr/libexec/gpgkeys_curl
-	if use ldap; then
-		dosym gpg2keys_ldap /usr/libexec/gpgkeys_ldap
-	fi
 	echo ".so man1/gpg2.1" > "${ED}"/usr/share/man/man1/gpg.1
 	echo ".so man1/gpgv2.1" > "${ED}"/usr/share/man/man1/gpgv.1
 
@@ -161,4 +157,11 @@ pkg_postinst() {
 	ewarn "of the agent is currently used. If you are unsure of the gpg"
 	ewarn "agent you are using please run 'killall gpg-agent',"
 	ewarn "and to start a fresh daemon just run 'gpg-agent --daemon'."
+
+	if [[ -n ${REPLACING_VERSIONS} ]]; then
+		elog "If upgrading from a version prior than 2.1 you might have to re-import"
+		elog "secret keys after restarting the gpg-agent as the new version is using"
+		elog "a new storage mechanism."
+		elog "You can migrate the keys using gpg --import \$HOME/.gnupg/secring.gpg"
+	fi
 }

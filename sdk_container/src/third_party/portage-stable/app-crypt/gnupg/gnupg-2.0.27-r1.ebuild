@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-crypt/gnupg/gnupg-2.0.22.ebuild,v 1.15 2014/04/03 19:45:39 haubi Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-crypt/gnupg/gnupg-2.0.27-r1.ebuild,v 1.1 2015/04/19 21:06:27 alonbl Exp $
 
 EAPI="5"
 
@@ -13,31 +13,30 @@ SRC_URI="mirror://gnupg/gnupg/${P}.tar.bz2"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="adns bzip2 doc ldap nls mta readline static selinux smartcard usb"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+IUSE="bzip2 doc ldap nls mta readline static selinux smartcard tools usb"
 
 COMMON_DEPEND_LIBS="
 	>=dev-libs/libassuan-2
-	>=dev-libs/libgcrypt-1.4:0
+	>=dev-libs/libgcrypt-1.4:0=
 	>=dev-libs/libgpg-error-1.11
 	>=dev-libs/libksba-1.0.7
 	>=dev-libs/pth-1.3.7
 	>=net-misc/curl-7.10
 	sys-libs/zlib
-	adns? ( >=net-libs/adns-1.4 )
 	bzip2? ( app-arch/bzip2 )
 	readline? ( sys-libs/readline )
 	smartcard? ( usb? ( virtual/libusb:0 ) )
 	ldap? ( net-nds/openldap )"
-COMMON_DEPEND_BINS="|| ( app-crypt/pinentry app-crypt/pinentry-qt )"
+COMMON_DEPEND_BINS="app-crypt/pinentry"
 
 # Existence of executables is checked during configuration.
 DEPEND="${COMMON_DEPEND_LIBS}
 	${COMMON_DEPEND_BINS}
 	static? (
 		>=dev-libs/libassuan-2[static-libs]
-		>=dev-libs/libgcrypt-1.4:0[static-libs]
-		>=dev-libs/libgpg-error-1.7[static-libs]
+		>=dev-libs/libgcrypt-1.4:0=[static-libs]
+		>=dev-libs/libgpg-error-1.11[static-libs]
 		>=dev-libs/libksba-1.0.7[static-libs]
 		>=dev-libs/pth-1.3.7[static-libs]
 		>=net-misc/curl-7.10[static-libs]
@@ -89,8 +88,9 @@ src_configure() {
 		--enable-gpg \
 		--enable-gpgsm \
 		--enable-agent \
+		--enable-large-secmem \
+		--without-adns \
 		"${myconf[@]}" \
-		$(use_with adns) \
 		$(use_enable bzip2) \
 		$(use_enable nls) \
 		$(use_enable mta mailto) \
@@ -111,8 +111,8 @@ src_compile() {
 src_install() {
 	default
 
-	# bug#192151
-	dobin tools/gpgsplit tools/gpg-zip
+	use tools && dobin tools/{convert-from-106,gpg-check-pattern} \
+		tools/{gpg-zip,gpgconf,gpgsplit,lspgpot,mail-signed-keys,make-dns-cert}
 
 	emake DESTDIR="${D}" -f doc/Makefile uninstall-nobase_dist_docDATA
 	rm "${ED}"/usr/share/gnupg/help* || die

@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-crypt/gnupg/gnupg-1.4.18.ebuild,v 1.10 2014/07/05 11:29:15 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-crypt/gnupg/gnupg-1.4.19.ebuild,v 1.11 2015/03/30 10:02:07 ago Exp $
 
 EAPI="5"
 
@@ -18,7 +18,7 @@ SRC_URI="mirror://gnupg/gnupg/${P}.tar.bz2"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~x86-fbsd ~x86-freebsd ~amd64-linux ~x86-linux ~x86-macos"
-IUSE="bzip2 curl ldap mta nls readline selinux smartcard static usb zlib linguas_ru"
+IUSE="bzip2 curl ldap mta nls readline selinux smartcard static usb zlib"
 
 COMMON_DEPEND="
 	ldap? ( net-nds/openldap )
@@ -41,9 +41,6 @@ DEPEND="${COMMON_DEPEND}
 S="${WORKDIR}/${MY_P}"
 
 src_prepare() {
-	# Install RU man page in right location
-	sed -e "/^man_MANS =/s/ gpg\.ru\.1//" -i doc/Makefile.in || die "sed doc/Makefile.in failed"
-
 	# bug#469388
 	sed -i -e 's/--batch --dearmor/--homedir . --batch --dearmor/' checks/Makefile.in
 
@@ -98,12 +95,6 @@ src_install() {
 
 	exeinto /usr/libexec/gnupg
 	doexe tools/make-dns-cert
-
-	# install RU documentation in right location
-	if use linguas_ru; then
-		cp doc/gpg.ru.1 "${T}/gpg.1" || die
-		doman -i18n=ru "${T}/gpg.1"
-	fi
 }
 
 pkg_postinst() {

@@ -3,9 +3,8 @@
 <pkgmetadata>
   <herd>crypto</herd>
   <longdescription>
-    GnuPG is a complete and free replacement for PGP. Because it does
-    not use the patented IDEA algorithm, it can be used without any
-    restrictions. GnuPG is a RFC2440 (OpenPGP) compliant application.
+    GnuPG is a complete and free implementation of the OpenPGP standard as
+    defined by RFC4880.
   </longdescription>
   <use>
     <flag name='smartcard' restrict='&lt;app-crypt/gnupg-2.0.17-r1'>
@@ -24,6 +23,9 @@
     <flag name='mta'>
       Build mta support using
       <pkg>virtual/mta</pkg>.
+    </flag>
+    <flag name='tools'>
+      Install extra tools.
     </flag>
   </use>
 </pkgmetadata>
