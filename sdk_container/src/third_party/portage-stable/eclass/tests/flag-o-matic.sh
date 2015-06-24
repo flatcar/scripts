@@ -1,4 +1,7 @@
 #!/bin/bash
+# Copyright 1999-2015 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/eclass/tests/flag-o-matic.sh,v 1.9 2015/05/10 16:38:08 ulm Exp $
 
 source tests-common.sh
 
@@ -115,5 +118,32 @@ LDFLAGS='-Wl,-O1 -Wl,--as-needed -Wl,-z,now -flto'
 LDFLAGS=$(raw-ldflags)
 [[ ${LDFLAGS} == '-O1 --as-needed -z now' ]]
 ftend
+
+tbegin "test-flags-CC (valid flags)"
+out=$(test-flags-CC -O3)
+[[ $? -eq 0 && ${out} == "-O3" ]]
+ftend
+
+tbegin "test-flags-CC (invalid flags)"
+out=$(test-flags-CC -finvalid-flag)
+[[ $? -ne 0 && -z ${out} ]]
+ftend
+
+if type -P clang >/dev/null ; then
+tbegin "test-flags-CC (valid flags w/clang)"
+out=$(CC=clang test-flags-CC -O3)
+[[ $? -eq 0 && ${out} == "-O3" ]]
+ftend
+
+tbegin "test-flags-CC (invalid flags w/clang)"
+out=$(CC=clang test-flags-CC -finvalid-flag)
+[[ $? -ne 0 && -z ${out} ]]
+ftend
+
+tbegin "test-flags-CC (gcc-valid but clang-invalid flags)"
+out=$(CC=clang test-flags-CC -finline-limit=1200)
+[[ $? -ne 0 && -z ${out} ]]
+ftend
+fi
 
 texit

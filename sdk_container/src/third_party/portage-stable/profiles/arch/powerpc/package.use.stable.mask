@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/package.use.stable.mask,v 1.5 2015/02/21 17:29:28 jlec Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/package.use.stable.mask,v 1.12 2015/06/10 20:30:08 pacho Exp $
 
 # When you add an entry to the top of this file, add your name, the date, and
 # an explanation of why something is getting masked. Please be extremely
@@ -18,9 +18,15 @@
 
 #--- END OF EXAMPLES ---
 
+# Pacho Ramos <pacho@gentoo.org> (15 May 2015)
+# Missing stable
+dev-libs/protobuf python
+
 # Justin Lecher <jlec@gentoo.org> (21 Feb 2015)
 # Needs stable GNOME-3
 net-fs/netatalk tracker
+app-office/homebank ofx
+net-libs/aqbanking ofx
 
 # Michael Palimaka <kensington@gentoo.org> (11 Dec 2014)
 # Dependencies not yet stable

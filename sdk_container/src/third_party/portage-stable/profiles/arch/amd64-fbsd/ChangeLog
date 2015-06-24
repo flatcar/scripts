@@ -1,6 +1,12 @@
 # ChangeLog for Gentoo/x86-fbsd profile directory
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64-fbsd/ChangeLog,v 1.66 2015/03/21 19:15:02 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64-fbsd/ChangeLog,v 1.68 2015/05/19 21:04:58 chewi Exp $
+
+  19 May 2015; James Le Cuirot <chewi@gentoo.org> use.mask:
+  Mask java because icedtea needs testing and gcj isn't supported.
+
+  11 May 2015; Davide Pesavento <pesa@gentoo.org> package.mask:
+  Extend Qt4-multilib mask to cover 4.8.7 as well.
 
   21 Mar 2015; Michał Górny <mgorny@gentoo.org> make.defaults:
   Enable mmxext by default since it is implied by sse, and required for ffmpeg.

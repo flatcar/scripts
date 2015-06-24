@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/features/64bit-native/package.mask,v 1.103 2015/04/03 21:09:53 dilfridge Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/features/64bit-native/package.mask,v 1.104 2015/06/02 09:15:35 ulm Exp $
 
 # Andreas K. Huettel <dilfridge@gentoo.org>
 # Novell Groupwise Client sadly needs a 32bit java vm (bundled)
@@ -25,21 +25,6 @@ app-emulation/vmware-player
 >=app-i18n/atokx3-3.0.0
 app-office/lotus-notes
 app-office/ooextras
-app-emulation/emul-linux-x86-baselibs
-app-emulation/emul-linux-x86-cpplibs
-app-emulation/emul-linux-x86-db
-app-emulation/emul-linux-x86-gstplugins
-app-emulation/emul-linux-x86-gtklibs
-app-emulation/emul-linux-x86-gtkmmlibs
-app-emulation/emul-linux-x86-jna
-app-emulation/emul-linux-x86-medialibs
-app-emulation/emul-linux-x86-motif
-app-emulation/emul-linux-x86-opengl
-app-emulation/emul-linux-x86-qtlibs
-app-emulation/emul-linux-x86-sdl
-app-emulation/emul-linux-x86-soundlibs
-app-emulation/emul-linux-x86-xlibs
-app-emulation/emul-linux-x86-java
 app-emulation/winetricks
 app-emulation/wine-doors
 app-text/acroread

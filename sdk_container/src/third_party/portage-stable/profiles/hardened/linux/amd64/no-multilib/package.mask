@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/amd64/no-multilib/package.mask,v 1.41 2015/03/24 09:37:19 perfinion Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/amd64/no-multilib/package.mask,v 1.43 2015/06/02 09:15:36 ulm Exp $
 
 # These are broken as reported by Halcy0n, Aug, 23, 2011
 net-misc/teamviewer
@@ -37,21 +37,6 @@ app-emulation/virtualbox-guest-additions
 app-emulation/vmware-player
 >=app-i18n/atokx3-3.0.0
 app-office/ooextras
-app-emulation/emul-linux-x86-baselibs
-app-emulation/emul-linux-x86-cpplibs
-app-emulation/emul-linux-x86-db
-app-emulation/emul-linux-x86-gstplugins
-app-emulation/emul-linux-x86-gtklibs
-app-emulation/emul-linux-x86-gtkmmlibs
-app-emulation/emul-linux-x86-jna
-app-emulation/emul-linux-x86-medialibs
-app-emulation/emul-linux-x86-motif
-app-emulation/emul-linux-x86-opengl
-app-emulation/emul-linux-x86-qtlibs
-app-emulation/emul-linux-x86-sdl
-app-emulation/emul-linux-x86-soundlibs
-app-emulation/emul-linux-x86-xlibs
-app-emulation/emul-linux-x86-java
 app-emulation/winetricks
 app-emulation/wine-doors
 app-text/acroread
@@ -139,6 +124,7 @@ games-misc/little-inferno
 games-puzzle/drod-bin
 games-puzzle/hoh-bin
 games-roguelike/adom
+games-roguelike/dwarf-fortress
 games-rpg/dear-esther
 games-rpg/eschalon-book-1-demo
 games-rpg/nwmouse

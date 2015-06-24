@@ -1,6 +1,22 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/sparc/package.use.mask,v 1.192 2015/04/01 11:00:24 gienah Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/sparc/package.use.mask,v 1.200 2015/06/21 07:22:58 pacho Exp $
+
+# Pacho Ramos <pacho@gentoo.org> (13 Jun 2015)
+# Missing keywords, bug #513108
+net-misc/spice-gtk smartcard webdav
+
+# Gilles Dartiguelongue <eva@gentoo.org> (09 Jun 2015)
+# net-fs/libnfs lacks sparc keyword, bug #551576
+gnome-base/gvfs nfs
+
+# Gilles Dartiguelongue <eva@gentoo.org> (09 Jun 2015)
+# dev-lang/luajit and dev-lua/lgi and lack sparc keyword, bug #551540
+dev-libs/libpeas lua jit
+
+# Ben de Groot <yngwin@gentoo.org> (03 May 2015)
+# media-libs/rubberband lacks sparc keyword, bug #548446
+media-video/mpv rubberband
 
 # Mike Frysinger <vapier@gentoo.org> (16 Mar 2015)
 # Needs sci-physics/bullet & media-libs/libsdl2 tested #499974
@@ -35,10 +51,6 @@ dev-haskell/dlist test
 dev-haskell/haskell-src-exts test
 dev-haskell/text test
 dev-haskell/vector test
-
-# Pacho Ramos <pacho@gentoo.org> (11 Nov 2014)
-# Missing keywords, bug #523686
->=dev-libs/libgdata-0.16.1 test
 
 # Michał Górny <mgorny@gentoo.org> (30 Oct 2014)
 # Requires non-keyworded >=x11-libs/libxkbcommon-0.4.
@@ -90,20 +102,20 @@ net-misc/modemmanager mbim
 # Sigbuses
 net-misc/openssh hpn
 
-# Pacho Ramos <pacho@gentoo.org> (19 Jan 2014)  
+# Pacho Ramos <pacho@gentoo.org> (19 Jan 2014)
 # Missing keywords, bug #478254
 gnome-base/gnome classic extras
 
-# Pacho Ramos <pacho@gentoo.org> (19 Jan 2014)  
-sys-kernel/dracut -dracut_modules_systemd 
+# Pacho Ramos <pacho@gentoo.org> (19 Jan 2014)
+sys-kernel/dracut -dracut_modules_systemd
 
-# Pacho Ramos <pacho@gentoo.org> (02 Dec 2013)        
+# Pacho Ramos <pacho@gentoo.org> (02 Dec 2013)
 # Missing keywords, bug #493156
 media-libs/libgphoto2 serial
 
 # Pacho Ramos <pacho@gentoo.org> (28 Nov 2013)
 # Missing keywords, bug #492820
-net-im/telepathy-connection-managers sipe     
+net-im/telepathy-connection-managers sipe
 
 # Mark Wright <gienah@gentoo.org> (26 Oct 2013)
 # template-haskell not yet available
@@ -124,10 +136,6 @@ www-plugins/gnash jemalloc
 # Patrick Lauer <patrick@gentoo.org> (17 June 2013)
 # Fix per-arch mask of phonon[zeitgeist] #460140
 media-libs/phonon zeitgeist
-
-# Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (28 May 2013)
-# depends on sys-devel/llvm[video_cards_radeon]
-media-libs/mesa r600-llvm-compiler
 
 # Patrick Lauer <patrick@gentoo.org> (27 May 2013)
 # stable keywords missing on tagpy/coherence

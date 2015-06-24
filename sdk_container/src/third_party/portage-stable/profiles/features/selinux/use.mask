@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation.
+# Copyright 1999-2015 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/features/selinux/use.mask,v 1.3 2011/07/17 19:35:56 blueness Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/features/selinux/use.mask,v 1.4 2015/06/02 09:15:36 ulm Exp $
 
 # This file masks out USE flags that are simply NOT allowed in the default
 # profile for any architecture.  This works, for example, if a non-default
@@ -9,9 +9,6 @@
 
 -hardened
 -selinux
-
-# amd64 only:
-emul-linux-x86
 
 # tcc is x86-only
 tcc

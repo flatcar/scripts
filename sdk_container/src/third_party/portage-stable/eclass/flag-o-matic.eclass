@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/flag-o-matic.eclass,v 1.204 2014/12/31 08:26:48 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/flag-o-matic.eclass,v 1.206 2015/05/24 07:05:30 vapier Exp $
 
 # @ECLASS: flag-o-matic.eclass
 # @MAINTAINER:
@@ -26,7 +26,7 @@ setup-allowed-flags() {
 	ALLOWED_FLAGS="-pipe"
 	ALLOWED_FLAGS+=" -O -O1 -O2 -Os -Og -mcpu -march -mtune"
 	ALLOWED_FLAGS+=" -fstack-protector* -fsanitize=*"
-	ALLOWED_FLAGS+=" -fbounds-checking -fno-strict-overflow"
+	ALLOWED_FLAGS+=" -fbounds-check -fbounds-checking -fno-strict-overflow"
 	ALLOWED_FLAGS+=" -fno-PIE -fno-pie -nopie -fno-unit-at-a-time"
 	ALLOWED_FLAGS+=" -g -g[0-9] -ggdb -ggdb[0-9] -gdwarf-* gstabs -gstabs+"
 	ALLOWED_FLAGS+=" -fno-ident -fpermissive -frecord-gcc-switches"
@@ -35,7 +35,7 @@ setup-allowed-flags() {
 
 	# allow a bunch of flags that negate features / control ABI
 	ALLOWED_FLAGS+=" -fno-stack-protector* -fabi-version=* \
-		-fno-strict-aliasing -fno-bounds-checking -fstrict-overflow \
+		-fno-strict-aliasing -fno-bounds-check -fno-bounds-checking -fstrict-overflow \
 		-fno-omit-frame-pointer -fno-builtin*"
 	ALLOWED_FLAGS+=" -mregparm -mno-app-regs -mapp-regs -mno-mmx -mno-sse \
 		-mno-sse2 -mno-sse3 -mno-ssse3 -mno-sse4 -mno-sse4.1 -mno-sse4.2 \
@@ -415,13 +415,18 @@ test-flag-PROG() {
 
 	[[ -z ${comp} || -z ${flag} ]] && return 1
 
-	# use -c so we can test the assembler as well
-	local PROG=$(tc-get${comp})
-	if ${PROG} -c -o /dev/null -x${lang} - < /dev/null > /dev/null 2>&1 ; then
-		${PROG} "${flag}" -c -o /dev/null -x${lang} - < /dev/null \
-			> /dev/null 2>&1
+	local cmdline=(
+		$(tc-get${comp})
+		# Clang will warn about unknown gcc flags but exit 0.
+		# Need -Werror to force it to exit non-zero.
+		-Werror
+		# Use -c so we can test the assembler as well.
+		-c -o /dev/null
+	)
+	if "${cmdline[@]}" -x${lang} - </dev/null >/dev/null 2>&1 ; then
+		"${cmdline[@]}" "${flag}" -x${lang} - </dev/null >/dev/null 2>&1
 	else
-		${PROG} "${flag}" -c -o /dev/null /dev/null > /dev/null 2>&1
+		"${cmdline[@]}" "${flag}" -c -o /dev/null /dev/null >/dev/null 2>&1
 	fi
 }
 

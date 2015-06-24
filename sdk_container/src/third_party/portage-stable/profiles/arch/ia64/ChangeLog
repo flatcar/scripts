@@ -1,6 +1,31 @@
 # ChangeLog for Gentoo/ia64 profile
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/ia64/ChangeLog,v 1.227 2015/03/17 01:39:24 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/ia64/ChangeLog,v 1.234 2015/06/20 21:45:27 chewi Exp $
+
+  20 Jun 2015; James Le Cuirot <chewi@gentoo.org> use.mask:
+  Remove some unused Java-related flags.
+
+  11 Jun 2015; <chewi@gentoo.org> package.use.mask:
+  Temporarily mask rdeps of rhino, which has EAPI 1, until I have a chance to
+  drop Java support on ia64 entirely.
+
+  09 Jun 2015; Gilles Dartiguelongue <eva@gentoo.org> package.use.mask:
+  Add gnome-base/gvfs nfs USE mask, bug #551576
+
+  09 Jun 2015; Gilles Dartiguelongue <eva@gentoo.org> package.use.mask:
+  Add dev-libs/libpeas USE mask, bug #551540.
+
+  24 May 2015; Matt Turner <mattst88@gentoo.org> package.use.mask:
+  Drop dead r600-llvm-compiler USE flag from package.use.mask.
+
+  20 May 2015; James Le Cuirot <chewi@gentoo.org> package.use.mask:
+  Temporarily mask rdeps of icedtea-web to deal with bug #549134 until I have a
+  chance to drop Java support on ia64 entirely. Remove entry about systemtap
+  because that is keyworded now and icedtea will drop ia64 keywords soon
+  anyway.
+
+  11 May 2015; Davide Pesavento <pesa@gentoo.org> package.mask:
+  Extend Qt4-multilib mask to cover 4.8.7 as well.
 
   17 Mar 2015; Mike Frysinger <vapier@gentoo.org> package.use.force,
   package.use.mask, use.mask:

@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/php-common-r1.eclass,v 1.19 2013/04/28 16:15:33 zmedico Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/php-common-r1.eclass,v 1.20 2015/06/17 19:23:34 grknight Exp $
 
 # Based on robbat2's work on the php4 sapi eclass
 # Based on stuart's work on the php5 sapi eclass
@@ -13,7 +13,8 @@
 # This eclass provides common functions which are shared between the PHP4 and PHP5 packages.
 # It is only used by php*-sapi eclasses currently and the functions are not intended
 # for direct use in ebuilds.
-
+# This eclass is no longer in use and scheduled to be removed on 2015-07-17
+# @DEAD
 
 # ========================================================================
 # CFLAG SANITY

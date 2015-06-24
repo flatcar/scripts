@@ -11,5 +11,5 @@ REQUIRED_USE=dracut_modules_bootchart? ( !dracut_modules_systemd ) dracut_module
 RESTRICT=test
 SLOT=0
 SRC_URI=mirror://kernel/linux/utils/boot/dracut/dracut-034.tar.bz2 http://dev.gentoo.org/~aidecoe/distfiles/sys-kernel/dracut/034-0010-module-setup.sh-add-comments.patch.bz2
-_eclasses_=bash-completion-r1	c8399c7c7ecbcf7ed6e5bd3abb3d4af3	eutils	9fb270e417e0e83d64ca52586c4a79de	linux-info	2b8c53f6065bdee2d757472215a3088f	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	systemd	090342761f573a8280dd5aa6b0345f3b	toolchain-funcs	c961250d50160cd37d6b7fd9e8429c92	versionator	cd0bcdb170807e4a1984115e9d53a26f
+_eclasses_=bash-completion-r1	c8399c7c7ecbcf7ed6e5bd3abb3d4af3	eutils	9fb270e417e0e83d64ca52586c4a79de	linux-info	8cbc678e083c23e4ad546ca6509cf304	multilib	62927b3db3a589b0806255f3a002d5d3	systemd	090342761f573a8280dd5aa6b0345f3b	toolchain-funcs	42408102d713fbad60ca21349865edb4	versionator	cd0bcdb170807e4a1984115e9d53a26f
 _md5_=650766d3242ee4258584c293547ffa3b

@@ -2,7 +2,6 @@ iconv
 nls
 nis
 
-emul-linux-x86
 -uclibc
 
 -elibc_uclibc

@@ -1,6 +1,9 @@
 # ChangeLog for Gentoo/sh profile directory
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/sh/ChangeLog,v 1.99 2015/03/17 01:42:57 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/sh/ChangeLog,v 1.100 2015/05/24 04:34:39 mattst88 Exp $
+
+  24 May 2015; Matt Turner <mattst88@gentoo.org> package.use.mask:
+  Drop dead r600-llvm-compiler USE flag from package.use.mask.
 
   17 Mar 2015; Mike Frysinger <vapier@gentoo.org> +package.use.force,
   package.use.mask:

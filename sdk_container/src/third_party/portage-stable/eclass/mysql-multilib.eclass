@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/mysql-multilib.eclass,v 1.18 2015/03/17 19:39:43 grknight Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/mysql-multilib.eclass,v 1.21 2015/06/10 18:08:02 grknight Exp $
 
 # @ECLASS: mysql-multilib.eclass
 # @MAINTAINER:
@@ -51,7 +51,7 @@ S="${WORKDIR}/mysql"
 
 [[ ${MY_EXTRAS_VER} == "latest" ]] && MY_EXTRAS_VER="20090228-0714Z"
 if [[ ${MY_EXTRAS_VER} == "live" ]]; then
-	EGIT_REPO_URI="git://git.overlays.gentoo.org/proj/mysql-extras.git"
+	EGIT_REPO_URI="git://anongit.gentoo.org/proj/mysql-extras.git"
 	EGIT_CHECKOUT_DIR=${WORKDIR}/mysql-extras
 	EGIT_CLONE_TYPE=shallow
 fi
@@ -101,16 +101,6 @@ MYSQL_VERSION_ID=${MYSQL_VERSION_ID##"0"}
 # This eclass should only be used with at least mysql-5.5.35
 mysql_version_is_at_least "5.5.35" || die "This eclass should only be used with >=mysql-5.5.35"
 
-# @ECLASS-VARIABLE: XTRADB_VER
-# @DEFAULT_UNSET
-# @DESCRIPTION:
-# Version of the XTRADB storage engine
-
-# @ECLASS-VARIABLE: PERCONA_VER
-# @DEFAULT_UNSET
-# @DESCRIPTION:
-# Designation by PERCONA for a MySQL version to apply an XTRADB release
-
 # Work out the default SERVER_URI correctly
 if [[ -z ${SERVER_URI} ]]; then
 	[[ -z ${MY_PV} ]] && MY_PV="${PV//_/-}"
@@ -120,8 +110,13 @@ if [[ -z ${SERVER_URI} ]]; then
 			MARIA_FULL_PV=$(replace_version_separator 3 '-' ${MY_PV})
 		MARIA_FULL_P="${PN}-${MARIA_FULL_PV}"
 		SERVER_URI="
-		http://ftp.osuosl.org/pub/mariadb/${MARIA_FULL_P}/kvm-tarbake-jaunty-x86/${MARIA_FULL_P}.tar.gz
 		http://ftp.osuosl.org/pub/mariadb/${MARIA_FULL_P}/source/${MARIA_FULL_P}.tar.gz
+		http://mirror.jmu.edu/pub/mariadb/${MARIA_FULL_P}/source/${MARIA_FULL_P}.tar.gz
+		http://mirrors.coreix.net/mariadb/${MARIA_FULL_P}/source/${MARIA_FULL_P}.tar.gz
+		http://mirrors.syringanetworks.net/mariadb/${MARIA_FULL_P}/source/${MARIA_FULL_P}.tar.gz
+		http://mirrors.fe.up.pt/pub/mariadb/${MARIA_FULL_P}/source/${MARIA_FULL_P}.tar.gz
+		http://mirror2.hs-esslingen.de/mariadb/${MARIA_FULL_P}/source/${MARIA_FULL_P}.tar.gz
+		http://ftp.osuosl.org/pub/mariadb/${MARIA_FULL_P}/kvm-tarbake-jaunty-x86/${MARIA_FULL_P}.tar.gz
 		http://mirror.jmu.edu/pub/mariadb/${MARIA_FULL_P}/kvm-tarbake-jaunty-x86/${MARIA_FULL_P}.tar.gz
 		http://mirrors.coreix.net/mariadb/${MARIA_FULL_P}/kvm-tarbake-jaunty-x86/${MARIA_FULL_P}.tar.gz
 		http://mirrors.syringanetworks.net/mariadb/${MARIA_FULL_P}/kvm-tarbake-jaunty-x86/${MARIA_FULL_P}.tar.gz
@@ -353,6 +348,11 @@ if [[ ${PN} == "mariadb" || ${PN} == "mariadb-galera" ]] ; then
 		virtual/perl-Time-HiRes ) "
 fi
 
+# @ECLASS-VARIABLE: WSREP_REVISION
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# Version of the sys-cluster/galera API (major version in portage) to use for galera clustering
+
 if [[ -n "${WSREP_REVISION}" ]] ; then
 	# The wsrep API version must match between the ebuild and sys-cluster/galera.
 	# This will be indicated by WSREP_REVISION in the ebuild and the first number
@@ -369,10 +369,11 @@ if [[ -n "${WSREP_REVISION}" ]] ; then
 	RDEPEND="${RDEPEND} ${GALERA_RDEPEND}
 		sst-rsync? ( sys-process/lsof )
 		sst-xtrabackup? (
-			>=dev-db/xtrabackup-bin-2.2.4
 			net-misc/socat[ssl]
 		)
 	"
+	# Causes a circular dependency if DBD-mysql is not already installed
+	PDEPEND="${PDEPEND} sst-xtrabackup? ( >=dev-db/xtrabackup-bin-2.2.4 )"
 fi
 
 if [[ ${PN} == "mysql-cluster" ]] ; then
@@ -391,7 +392,7 @@ DEPEND="${DEPEND}
 
 # For other stuff to bring us in
 # dev-perl/DBD-mysql is needed by some scripts installed by MySQL
-PDEPEND="perl? ( >=dev-perl/DBD-mysql-2.9004 )
+PDEPEND="${PDEPEND} perl? ( >=dev-perl/DBD-mysql-2.9004 )
 	 ~virtual/mysql-${MYSQL_PV_MAJOR}"
 
 # my_config.h includes ABI specific data
@@ -433,6 +434,9 @@ mysql-multilib_pkg_pretend() {
 			die
 		fi
 	fi
+	if use_if_iuse cluster && [[ "${PN}" != "mysql-cluster" ]]; then
+		die "NDB Cluster support has been removed from all packages except mysql-cluster"
+	fi
 }
 
 # @FUNCTION: mysql-multilib_pkg_setup
@@ -454,12 +458,6 @@ mysql-multilib_pkg_setup() {
 	# This should come after all of the die statements
 	enewgroup mysql 60 || die "problem adding 'mysql' group"
 	enewuser mysql 60 -1 /dev/null mysql || die "problem adding 'mysql' user"
-
-	if use cluster && [[ "${PN}" != "mysql-cluster" ]]; then
-		ewarn "The NDB cluster support is no longer built."
-		ewarn "Please use dev-db/mysql-cluster for NDB."
-		ewarn "In the near future, the USE flag will be removed."
-	fi
 
 	if [[ ${PN} == "mysql-cluster" ]] ; then
 		mysql_version_is_at_least "7.2.9" && java-pkg-opt-2_pkg_setup
@@ -572,11 +570,18 @@ multilib_src_configure() {
 	fi
 
 	if in_iuse bindist ; then
-		mycmakeargs+=(
-			-DWITH_READLINE=$(usex bindist 1 0)
-			-DNOT_FOR_DISTRIBUTION=$(usex bindist 0 1)
-			$(usex bindist -DHAVE_BFD_H=0 '')
-		)
+		# bfd.h is only used starting with 10.1 and can be controlled by NOT_FOR_DISTRIBUTION
+		if multilib_is_native_abi; then
+			mycmakeargs+=(
+				-DWITH_READLINE=$(usex bindist 1 0)
+				-DNOT_FOR_DISTRIBUTION=$(usex bindist 0 1)
+			)
+		else
+			mycmakeargs+=(
+				-DWITH_READLINE=1
+				-DNOT_FOR_DISTRIBUTION=0
+			)
+		fi
 	fi
 
 	### TODO: make this system but issues with UTF-8 prevent it
@@ -879,8 +884,7 @@ mysql-multilib_pkg_config() {
 		mysql_version_is_at_least "5.6" || options="${options} --loose-skip-innodb"
 	fi
 
-	einfo "Creating the mysql database and setting proper"
-	einfo "permissions on it ..."
+	einfo "Creating the mysql database and setting proper permissions on it ..."
 
 	# Now that /var/run is a tmpfs mount point, we need to ensure it exists before using it
 	PID_DIR="${EROOT}/var/run/mysqld"
@@ -955,7 +959,7 @@ mysql-multilib_pkg_config() {
 		-e "${sql}"
 	eend $?
 
-	ebegin "Loading \"zoneinfo\", this step may require a few seconds ..."
+	ebegin "Loading \"zoneinfo\", this step may require a few seconds"
 	"${EROOT}/usr/bin/mysql" \
 		--socket=${socket} \
 		-hlocalhost \

@@ -1,6 +1,43 @@
 # ChangeLog for Gentoo/AMD64 profile directory
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/ChangeLog,v 1.80 2015/03/28 22:11:55 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/ChangeLog,v 1.88 2015/06/14 18:15:38 blueness Exp $
+
+  14 Jun 2015; Anthony G. Basile <blueness@gentoo.org>
+  +linux/musl/mips/package.use.force:
+  The only working option is USE=pkg-config for dev-util/pkgconf on mips musl.
+
+  14 Jun 2015; Anthony G. Basile <blueness@gentoo.org>
+  linux/musl/package.use.mask:
+  Mask USE=nls for packages causing collisions with <libintl.h> on musl.
+
+  14 Jun 2015; Anthony G. Basile <blueness@gentoo.org>
+  +linux/musl/ppc/package.mask:
+  Mask >sys-devel/gcc-4.8 on ppc musl.
+
+  19 May 2015; Anthony G. Basile <blueness@gentoo.org>
+  linux/musl/mips/package.mask, linux/musl/package.mask:
+  Remove masking on >app-misc/pax-utils-0.7 for musl. Bug #549920.
+
+  09 May 2015; Anthony G. Basile <blueness@gentoo.org> linux/arm/package.mask:
+  Mask >=sys-libs/glibc-2.20 because it requires >=sys-devel/gcc-4.8, pending
+  the fix of bug #518598.
+
+  08 May 2015; Anthony G. Basile <blueness@gentoo.org> +linux/arm/package.mask,
+  +linux/musl/arm/package.mask, linux/uclibc/arm/armv6j/parent,
+  linux/uclibc/arm/armv7a/parent, +linux/uclibc/arm/package.mask:
+  Mask gcc 4.8 and above pending the fix of bug #518598.
+  Restructure linux/uclibc/arm slightly.
+
+  01 May 2015; Andrew Savchenko <bircoph@gentoo.org> linux/package.mask,
+  linux/package.use.mask:
+  Mask net-fs/openafs-kernel since it can't be used on hardened
+  kernels due to lack of C99 support by upstream (and they can't do
+  that) and hardened kernel requirement of C99 struct init.
+  See bug 540196, comment 9.
+
+  19 Apr 2015; Chris Reffett <creffett@gentoo.org>
+  linux/amd64/no-multilib/package.mask:
+  Mask multilib package games-roguelike/dwarf-fortress on no-multilib profile
 
   28 Mar 2015; Michał Górny <mgorny@gentoo.org>
   -linux/amd64/no-emul-linux-x86/eapi, -linux/amd64/no-emul-linux-x86/parent:

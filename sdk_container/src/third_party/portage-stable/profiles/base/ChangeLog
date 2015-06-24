@@ -1,6 +1,84 @@
 # ChangeLog for Gentoo base-profile
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/base/ChangeLog,v 1.789 2015/04/05 08:51:33 chewi Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/base/ChangeLog,v 1.814 2015/06/21 15:28:16 floppym Exp $
+
+  21 Jun 2015; Mike Gilbert <floppym@gentoo.org> package.use.mask:
+  Drop sys-apps/systemd[kdbus] mask; upstream enables this by default.
+
+  19 Jun 2015; Johannes Huber <johu@gentoo.org> package.use.mask:
+  Update media-sound/tomahawk[qt5] mask
+
+  18 Jun 2015; NP-Hardass <NP-Hardass@gentoo.org> package.use.mask:
+  Unmask system-wine use flag for >=net-misc/teamviewer-10
+
+  18 Jun 2015; Patrick Lauer <patrick@gentoo.org> package.use.mask:
+  Remove obsolete freevo[directfb] mask
+
+  09 Jun 2015; Michael Weber <xmw@gentoo.org> package.use.mask:
+  Drop old masks on netsurf.
+
+  05 Jun 2015; Michael Haubenwallner <haubi@gentoo.org> make.defaults:
+  add USE_EXPAND_VALUES_ARCH x64-cygwin, as Cygwin 2.0 supports 64-bits:
+  https://sourceware.org/ml/cygwin/2015-04/msg00595.html
+
+  04 Jun 2015; Michael Palimaka <kensington@gentoo.org> package.use.mask,
+  package.use.stable.mask:
+  Move various kde-base packages to kde-apps.
+
+  31 May 2015; Johannes Huber <johu@gentoo.org> package.use.mask:
+  Mask kde-plasma/plasma-workspace[prison].
+
+  29 May 2015; Jason A. Donenfeld <zx2c4@gentoo.org> package.use.mask:
+  Unfix fix opensmtpd-extras[filter-lua]
+
+  29 May 2015; Michael Haubenwallner <haubi@gentoo.org> make.defaults,
+  use.mask:
+  Cygwin,Interix are pure ELIBC values, KERNEL is Winnt (bug#544518)
+
+  29 May 2015; Patrick Lauer <patrick@gentoo.org> package.use.mask:
+  Fix opensmtpd-extras[filter-lua]
+
+  28 May 2015; Brian Evans <grknight@gentoo.org> package.use.mask:
+  Remove use mask for dev-db/mysql-init-scripts
+
+  27 May 2015; Matthias Maier <tamiko@gentoo.org> package.use.mask:
+  mask lcms use flag for media-gfx/dcraw-9.10 that depends on lcms:0
+
+  27 May 2015; <grknight@gentoo.org> package.use.mask:
+  Mask s6 USE since all arches do not have sys-apps/s6 keyworded
+
+  23 May 2015; Patrice Clement <monsieurp@gentoo.org> package.use.stable.mask:
+  Remove dev-python/pyudev entry. Signed off by floppym.
+
+  20 May 2015; James Le Cuirot <chewi@gentoo.org> package.use.mask:
+  Mask icedtea[infinality] in conjunction with freetype[infinality].
+
+  19 May 2015; James Le Cuirot <chewi@gentoo.org> package.use.mask:
+  Remove dev-java/diablo-jdk entry as it has gone away.
+
+  16 May 2015; Mike Gilbert <floppym@gentoo.org> package.use.mask:
+  Reinstate dev-lang/python[berkdb] mask.
+
+  16 May 2015; Mike Gilbert <floppym@gentoo.org> package.use.mask:
+  Revert dev-lang/python[berkdb] mask since it breaks dev-nds/nsscache.
+
+  16 May 2015; Mike Gilbert <floppym@gentoo.org> package.use.mask:
+  Mask dev-lang/python[berkdb].
+
+  07 May 2015; Jason Zaman <perfinion@gentoo.org> package.use.mask:
+  mask app-admin/setools[java]
+
+  03 May 2015; Matthias Maier <tamiko@gentoo.org> package.use.mask:
+  mask wireshark-plugins use flag for libvirt-1.2.14
+
+  28 Apr 2015; Patrick Lauer <patrick@gentoo.org> use.stable.mask:
+  Stable-mask ayatana useflag until dependencies catch up
+
+  27 Apr 2015; Michael Palimaka <kensington@gentoo.org> use.mask:
+  Unmask ayatana USE flag.
+
+  18 Apr 2015; Mike Frysinger <vapier@gentoo.org> make.defaults:
+  Add Nios II (nios2) arch support.
 
   05 Apr 2015; James Le Cuirot <chewi@gentoo.org> package.use.mask:
   Mask dev-java/proguard[j2me].

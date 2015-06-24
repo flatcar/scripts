@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/package.mask,v 1.45 2015/04/06 19:51:46 axs Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/package.mask,v 1.46 2015/05/01 15:57:39 bircoph Exp $
 
 # Hardened versions of gcc-4.0* through gcc-4.2* are not available.
 =sys-devel/gcc-4.0*
@@ -26,3 +26,8 @@ dev-python/skype4py
 sys-devel/prelink
 # depends on prelink
 app-crypt/hmaccalc
+
+# OpenAFS kernel module is not compatible with hardened kernels
+# due to C99 struct init requirement by hardened kernels,
+# see bug 540196 comment 9.
+net-fs/openafs-kernel

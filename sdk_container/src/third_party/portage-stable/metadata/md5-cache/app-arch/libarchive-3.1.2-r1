@@ -9,5 +9,5 @@ LICENSE=BSD BSD-2 BSD-4 public-domain
 RDEPEND=dev-libs/openssl:0 acl? ( virtual/acl ) bzip2? ( app-arch/bzip2 ) expat? ( dev-libs/expat ) !expat? ( dev-libs/libxml2 ) iconv? ( virtual/libiconv ) kernel_linux? ( xattr? ( sys-apps/attr ) ) lzma? ( app-arch/xz-utils ) lzo? ( >=dev-libs/lzo-2 ) nettle? ( dev-libs/nettle ) zlib? ( sys-libs/zlib )
 SLOT=0/13
 SRC_URI=http://www.libarchive.org/downloads/libarchive-3.1.2.tar.gz
-_eclasses_=eutils	9fb270e417e0e83d64ca52586c4a79de	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	c961250d50160cd37d6b7fd9e8429c92
+_eclasses_=eutils	9fb270e417e0e83d64ca52586c4a79de	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	62927b3db3a589b0806255f3a002d5d3	toolchain-funcs	42408102d713fbad60ca21349865edb4
 _md5_=5ee967fdf2b91204fbe495d852abe6bc

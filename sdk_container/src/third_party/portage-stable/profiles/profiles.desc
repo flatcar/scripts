@@ -23,8 +23,11 @@ amd64           default/linux/amd64/13.0/desktop/gnome             stable
 amd64           default/linux/amd64/13.0/desktop/gnome/systemd     stable
 amd64           default/linux/amd64/13.0/desktop/kde               stable
 amd64           default/linux/amd64/13.0/desktop/kde/systemd       stable
+amd64           default/linux/amd64/13.0/desktop/plasma            stable
+amd64           default/linux/amd64/13.0/desktop/plasma/systemd    stable
 amd64           default/linux/amd64/13.0/developer                 stable
 amd64           default/linux/amd64/13.0/no-multilib               dev
+amd64           default/linux/amd64/13.0/systemd                   stable
 amd64           default/linux/amd64/13.0/x32                       dev
 
 # ARM Profiles
@@ -101,6 +104,9 @@ mips            default/linux/mips/13.0/mipsel/multilib/o32     dev
 mips            default/linux/mips/13.0/mipsel/multilib/n32     dev
 mips            default/linux/mips/13.0/mipsel/multilib/n64     exp
 
+# Nios II Profiles
+nios2           default/linux/nios2/13.0                        exp
+
 # PPC32 Profiles
 ppc             default/linux/powerpc/ppc32/13.0                       stable
 ppc             default/linux/powerpc/ppc32/13.0/desktop               stable
@@ -154,6 +160,8 @@ x86             default/linux/x86/13.0/desktop/gnome            stable
 x86             default/linux/x86/13.0/desktop/gnome/systemd    stable
 x86             default/linux/x86/13.0/desktop/kde              stable
 x86             default/linux/x86/13.0/desktop/kde/systemd      stable
+x86             default/linux/x86/13.0/desktop/plasma           stable
+x86             default/linux/x86/13.0/desktop/plasma/systemd   stable
 x86             default/linux/x86/13.0/developer                stable
 
 # Gentoo/FreeBSD Profiles
@@ -279,6 +287,8 @@ x86-winnt		prefix/windows/winnt/6.1/x86			exp
 
 # Cygwin Profiles
 x86-cygwin		prefix/windows/cygwin/1.7/x86			exp
+x86-cygwin		prefix/windows/cygwin/2.0/x86			exp
+x64-cygwin		prefix/windows/cygwin/2.0/x64			exp
 
 # HP-UX Profiles
 ia64-hpux		prefix/hpux/B.11.23/ia64			exp

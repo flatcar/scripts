@@ -8,5 +8,5 @@ PDEPEND=app-shells/gentoo-bashcomp
 RDEPEND=|| ( app-eselect/eselect-bashcomp <app-admin/eselect-1.3.7 ) || ( >=app-shells/bash-3.2 app-shells/zsh ) sys-apps/miscfiles
 SLOT=0
 SRC_URI=http://bash-completion.alioth.debian.org/files/bash-completion-2.1.tar.bz2
-_eclasses_=bash-completion-r1	c8399c7c7ecbcf7ed6e5bd3abb3d4af3	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	prefix	21058c21ca48453d771df15500873ede	toolchain-funcs	c961250d50160cd37d6b7fd9e8429c92
+_eclasses_=bash-completion-r1	c8399c7c7ecbcf7ed6e5bd3abb3d4af3	multilib	62927b3db3a589b0806255f3a002d5d3	prefix	21058c21ca48453d771df15500873ede	toolchain-funcs	42408102d713fbad60ca21349865edb4
 _md5_=0175dddd24b14f4b639183e36bdc3a99

@@ -1,6 +1,15 @@
 # ChangeLog for Gentoo/ARM profile directory
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/arm64/ChangeLog,v 1.10 2015/03/17 01:41:23 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/arm64/ChangeLog,v 1.13 2015/06/04 18:47:03 kensington Exp $
+
+  04 Jun 2015; Michael Palimaka <kensington@gentoo.org> package.use.mask:
+  Move various kde-base packages to kde-apps.
+
+  29 May 2015; Mike Frysinger <vapier@gentoo.org> use.mask:
+  Unmask USE=icu.
+
+  24 May 2015; Matt Turner <mattst88@gentoo.org> package.use.mask:
+  Drop dead r600-llvm-compiler USE flag from package.use.mask.
 
   17 Mar 2015; Mike Frysinger <vapier@gentoo.org> +package.use.force,
   package.use.mask:

@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86/package.use.stable.mask,v 1.11 2015/03/08 10:34:28 pacho Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86/package.use.stable.mask,v 1.14 2015/04/19 06:45:35 yngwin Exp $
 
 # When you add an entry to the top of this file, add your name, the date, and
 # an explanation of why something is getting masked. Please be extremely
@@ -45,10 +45,10 @@ dev-lang/python-exec -python_single_target_pypy
 dev-lang/python-exec -python_targets_pypy3
 dev-lang/python-exec -python_single_target_pypy3
 
-# Tom Wijsman <TomWij@gentoo.org (16 Mar 2014)
-# Mask unstable USE flags on media-video/vlc, see security bug #499806.
-media-video/vlc gnutls opus vdpau
-
 # Tom Wijsman <TomWij@gentoo.org> (06 Feb 2014)
 # [QA] Masked jit USE flag on www-apps/cgit as dev-lang/luajit is not stable.
 www-apps/cgit jit
+
+# Ben de Groot <yngwin@gentoo.org (19 Apr 2015)
+# >=opus-1.0.3 is still not stable (bug 500868)
+media-video/vlc opus

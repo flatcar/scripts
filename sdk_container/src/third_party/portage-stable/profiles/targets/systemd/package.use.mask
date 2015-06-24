@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/targets/systemd/package.use.mask,v 1.5 2014/07/25 20:05:24 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/targets/systemd/package.use.mask,v 1.6 2015/06/10 02:24:39 floppym Exp $
 
 # Pacho Ramos <pacho@gentoo.org> (29 May 2014)
 # upower support is not needed on setups running systemd, also
@@ -15,3 +15,4 @@ virtual/libudev static-libs
 sys-fs/cryptsetup static static-libs
 sys-fs/lvm2 static static-libs
 sys-fs/dmraid static
+dev-libs/libgudev static-libs

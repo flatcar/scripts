@@ -8,5 +8,5 @@ LICENSE=MIT
 RDEPEND=!media-libs/libungif X? ( x11-libs/libXt x11-libs/libX11 x11-libs/libICE x11-libs/libSM ) rle? ( media-libs/urt )
 SLOT=0
 SRC_URI=mirror://sourceforge/giflib/giflib-4.1.6.tar.bz2
-_eclasses_=eutils	9fb270e417e0e83d64ca52586c4a79de	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	3bf24e6abb9b76d9f6c20600f0b716bf	toolchain-funcs	c961250d50160cd37d6b7fd9e8429c92
+_eclasses_=eutils	9fb270e417e0e83d64ca52586c4a79de	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	62927b3db3a589b0806255f3a002d5d3	toolchain-funcs	42408102d713fbad60ca21349865edb4
 _md5_=35204d44e212a474ffa88d82de3e5bcc

@@ -4,7 +4,7 @@
 #
 # Licensed under the GNU General Public License, v2
 #
-# $Header: /var/cvsroot/gentoo-x86/eclass/java-pkg-simple.eclass,v 1.5 2015/04/04 21:04:49 chewi Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/java-pkg-simple.eclass,v 1.6 2015/05/24 20:40:40 chewi Exp $
 
 inherit java-utils-2
 
@@ -111,10 +111,6 @@ S="${WORKDIR}"
 # ------------------------------------------------------------------------------
 java-pkg-simple_src_compile() {
 	local sources=sources.lst classes=target/classes apidoc=target/api
-
-	# QA checks
-	[[ "$(find . -name build.xml -o -name pom.xml)" ]] &&
-		java-pkg_announce-qa-violation "Package ships with a build file, use that instead of java-pkg-simple!"
 
 	# gather sources
 	find ${JAVA_SRC_DIR:-*} -name \*.java > ${sources}

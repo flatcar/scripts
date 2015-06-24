@@ -1,5 +1,11 @@
-# this is a list of USE flags
-# that should not be used on PPC64
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/ppc64/64ul/use.mask,v 1.14 2015/05/10 18:19:16 jer Exp $
+
+# Jeroen Roovers <jer@gentoo.org> (10 May 2015)
+# virtual/opencl requires media-libs/mesa[opencl] (bug #549096)
+opencl
+
+# this is a list of USE flags that should not be used on PPC64
 # Tom Gall <tgall@gentoo.org> manages this list
 directfb
 krb4
@@ -83,7 +89,3 @@ audit
 # unregisterised ghc arch for now.
 # no ghci - no TH
 template_haskell
-
-# virtual/opencl is not keyworded
-opencl
-

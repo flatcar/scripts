@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/kde5-functions.eclass,v 1.6 2015/04/11 17:11:22 kensington Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/kde5-functions.eclass,v 1.8 2015/06/08 12:27:32 mrueg Exp $
 
 # @ECLASS: kde5-functions.eclass
 # @MAINTAINER:
@@ -26,12 +26,12 @@ esac
 # @ECLASS-VARIABLE: FRAMEWORKS_MINIMAL
 # @DESCRIPTION:
 # Minimal Frameworks version to require for the package.
-: ${FRAMEWORKS_MINIMAL:=5.8.0}
+: ${FRAMEWORKS_MINIMAL:=5.10.0}
 
 # @ECLASS-VARIABLE: PLASMA_MINIMAL
 # @DESCRIPTION:
 # Minimal Plasma version to require for the package.
-: ${PLASMA_MINIMAL:=5.2.0}
+: ${PLASMA_MINIMAL:=5.3.0}
 
 # @ECLASS-VARIABLE: KDE_APPS_MINIMAL
 # @DESCRIPTION:
@@ -210,11 +210,30 @@ get_kde_version() {
 	fi
 }
 
-# @FUNCTION: punt_bogus_deps
+# @FUNCTION: punt_bogus_dep
+# @USAGE: <prefix> <dependency>
 # @DESCRIPTION:
-# Remove hard-coded upstream dependencies that are not correct.
-punt_bogus_deps() {
-	sed -e "/find_package(Qt5 /s/ Test//" -i CMakeLists.txt || die
+# Removes a specified dependency from a find_package call with multiple components.
+punt_bogus_dep() {
+	local prefix=${1}
+	local dep=${2}
+
+	pcregrep -Mn "(?s)find_package\(\s*${prefix}.[^)]*?${dep}.*?\)" CMakeLists.txt > "${T}/bogus${dep}"
+
+	# pcregrep returns non-zero on no matches/error
+	if [[ $? != 0 ]] ; then
+		return
+	fi
+
+	local length=$(wc -l "${T}/bogus${dep}" | cut -d " " -f 1)
+	local first=$(head -n 1 "${T}/bogus${dep}" | cut -d ":" -f 1)
+	local last=$(( ${length} + ${first} - 1))
+
+	sed -e "${first},${last}s/${dep}//" -i CMakeLists.txt || die
+
+	if [[ ${length} = 1 ]] ; then
+		sed -e "/find_package(\s*${prefix}\s*REQUIRED\s*COMPONENTS\s*)/d" -i CMakeLists.txt || die
+	fi
 }
 
 fi

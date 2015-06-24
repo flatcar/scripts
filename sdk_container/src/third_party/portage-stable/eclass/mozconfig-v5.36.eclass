@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/mozconfig-v5.36.eclass,v 1.1 2015/02/26 20:41:10 axs Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/mozconfig-v5.36.eclass,v 1.2 2015/04/25 09:13:40 polynomial-c Exp $
 #
 # @ECLASS: mozconfig-v5.33.eclass
 # @MAINTAINER:
@@ -89,7 +89,7 @@ RDEPEND=">=app-text/hunspell-1.2
 	system-icu? ( >=dev-libs/icu-51.1:= )
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
 	system-sqlite? ( >=dev-db/sqlite-3.8.7.4:3[secure-delete,debug=] )
-	system-libvpx? ( =media-libs/libvpx-1.3.0*[postproc] )
+	system-libvpx? ( >=media-libs/libvpx-1.3.0[postproc] )
 "
 
 if [[ -n ${MOZCONFIG_OPTIONAL_WIFI} ]]; then

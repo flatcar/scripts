@@ -1,6 +1,28 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/ia64/package.use.mask,v 1.165 2015/03/17 01:39:24 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/ia64/package.use.mask,v 1.172 2015/06/13 16:03:46 pacho Exp $
+
+# Pacho Ramos <pacho@gentoo.org> (13 Jun 2015)
+# Missing keywords, bug #513108
+net-misc/spice-gtk smartcard webdav
+
+# James Le Cuirot <chewi@gentoo.org> (11 Jun 2015)
+# Temporarily mask rdeps of rhino, which has EAPI 1, until I have a
+# chance to drop Java support on ia64 entirely.
+dev-java/icedtea javascript
+
+# Gilles Dartiguelongue <eva@gentoo.org> (09 Jun 2015)
+# net-fs/libnfs lacks ia64 keyword, bug #551576
+gnome-base/gvfs nfs
+
+# Gilles Dartiguelongue <eva@gentoo.org> (09 Jun 2015)
+# dev-lang/luajit and dev-lua/lgi and lack ia64 keyword, bug #551540
+dev-libs/libpeas lua jit
+
+# James Le Cuirot <chewi@gentoo.org> (20 May 2015)
+# Temporarily mask rdeps of icedtea-web to deal with bug #549134 until
+# I have a chance to drop Java support on ia64 entirely.
+dev-java/icedtea nsplugin webstart
 
 # Mike Frysinger <vapier@gentoo.org> (16 Mar 2015)
 # Needs sci-physics/bullet & media-libs/libsdl2 tested #499974
@@ -118,10 +140,6 @@ dev-haskell/dataenc test
 # Patrick Lauer <patrick@gentoo.org> (17 Jun 2013)
 # Fix per-arch mask of phonon[zeitgeist] #460140
 media-libs/phonon zeitgeist
-
-# Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (28 May 2013)
-# depends on sys-devel/llvm[video_cards_radeon]
-media-libs/mesa r600-llvm-compiler
 
 # Tom Wijsman <TomWij@gentoo.org> (9 May 2013)
 # Unmasking dev-java/antlr[java] as per bug #412223, acked by sera.
@@ -266,11 +284,6 @@ sys-apps/smartmontools caps
 net-analyzer/wireshark doc-pdf
 # Needs testing
 www-client/elinks javascript
-
-# Vlastimil Babka <caster@gentoo.org> (13 Oct 2010)
-# dev-util/systemtap not keyworded on ia64 arches. Note that this currently applies for java-overlay
-# icedtea only, but the plan is to move it to main tree.
-dev-java/icedtea systemtap
 
 # Raúl Porcel <armin76@gentoo.org> (19 Sep 2010)
 # dev-ruby/ffi fails to build

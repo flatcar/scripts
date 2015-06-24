@@ -1,8 +1,16 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/ppc32/package.use.mask,v 1.40 2015/03/01 13:20:06 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/ppc32/package.use.mask,v 1.44 2015/06/02 18:24:49 pacho Exp $
 
 # This file requires >=portage-2.1.1
+
+# Pacho Ramos <pacho@gentoo.org> (02 Jun 2015)
+# Missing keywords (02 Jun 2015)
+net-misc/connman openconnect
+
+# Pacho Ramos <pacho@gentoo.org> (15 May 2015)
+# Missing stable
+dev-libs/protobuf python
 
 # Michał Górny <mgorny@gentoo.org> (01 Mar 2015)
 # pidgin-opensteamworks is only available for amd64, ppc32 and x86

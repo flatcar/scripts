@@ -1,7 +1,11 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/darwin/package.use.mask,v 1.13 2014/01/03 03:26:12 creffett Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/darwin/package.use.mask,v 1.14 2015/05/26 08:05:08 grobian Exp $
 
+
+# Fabian Groffen <grobian@gentoo.org> (26 May 2015)
+# Avoid pulling in broken and unnecessary ossp-uuid, bug #324527
+dev-db/postgresql uuid
 
 # Christoph Junghans <ottxor@gentoo.org> (26 Aug 2012)
 # libutempter support does not work on Darwin (bug #388791)

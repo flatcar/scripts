@@ -1,6 +1,67 @@
 # ChangeLog for Gentoo/PPC profile directory
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/ChangeLog,v 1.319 2015/03/17 01:38:40 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/ChangeLog,v 1.338 2015/06/16 08:27:24 jlec Exp $
+
+  16 Jun 2015; Justin Lecher <jlec@gentoo.org> ppc64/package.use.mask:
+  Mask USE=osg for app-office/scribus-1.5.0-r1, bug 550818
+
+  12 Jun 2015; Michał Górny <mgorny@gentoo.org> package.use.mask:
+  Extend spice-gtk[smartcard] mask to all versions.
+
+  09 Jun 2015; Gilles Dartiguelongue <eva@gentoo.org> package.use.mask:
+  Add package.use.mask for media-plugins/grilo-plugins[upnp-av], bug #551634.
+
+  09 Jun 2015; Gilles Dartiguelongue <eva@gentoo.org> ppc64/package.use.mask:
+  Add dev-libs/libpeas USE mask, bug #551540.
+
+  09 Jun 2015; Jeroen Roovers <jer@gentoo.org> package.use.stable.mask,
+  ppc32/package.use.stable.mask:
+  Move USE mask to the correct place, unmask USE=l2tp for PPC64 (bug #547806).
+
+  04 Jun 2015; Michael Palimaka <kensington@gentoo.org> package.use.mask,
+  ppc64/64ul/package.use.mask, ppc64/package.use.mask:
+  Move various kde-base packages to kde-apps.
+
+  02 Jun 2015; Michael Palimaka <kensington@gentoo.org>
+  ppc64/package.use.stable.mask:
+  Remove obsolete mask.
+
+  25 May 2015; Jeroen Roovers <jer@gentoo.org> use.mask:
+  Mask USE=gnuefi for PowerPC (bug #550322).
+
+  24 May 2015; Matt Turner <mattst88@gentoo.org> ppc64/64ul/package.use.mask:
+  Drop dead r600-llvm-compiler USE flag from package.use.mask.
+
+  20 May 2015; James Le Cuirot <chewi@gentoo.org> ppc64/package.use.mask:
+  Mask rdeps of icedtea-web on ppc64 to deal with bug #549134. I had hoped to
+  apply the ppc64 keyword today but it segfaulted upon testing.
+
+  18 May 2015; Justin Lecher <jlec@gentoo.org> package.use.mask:
+  Mask dev-python/matplotlib[qt5] due to missing keywords at PyQt5, #549774
+
+  16 May 2015; Jeroen Roovers <jer@gentoo.org> package.mask, use.mask:
+  Unmask dev-qt/*-5 for PPC64.
+
+  11 May 2015; Davide Pesavento <pesa@gentoo.org> package.use.mask,
+  ppc64/package.use.stable.mask:
+  Move entry for dev-qt/qtdemo to ppc64/ as it's needed only there, and only
+  stable mask it.
+
+  10 May 2015; Jeroen Roovers <jer@gentoo.org> package.use.mask,
+  ppc64/64ul/use.mask:
+  Replace package.use.mask entries for USE=opencl with a single use.mask entry.
+
+  08 May 2015; Jeroen Roovers <jer@gentoo.org> ppc64/package.use.mask:
+  Drop USE=rubberband mask for media-video/mpv (bug #548446).
+
+  28 Apr 2015; Patrick Lauer <patrick@gentoo.org> use.mask:
+  Mask ayatana useflag until dependencies catch up
+
+  26 Apr 2015; Jeroen Roovers <jer@gentoo.org> ppc64/package.use.mask:
+  Mask USE=lxpanel for xfce-extra/xfce4-power-manager (bug #520296).
+
+  18 Apr 2015; Markos Chandras <hwoarang@gentoo.org> package.use.mask:
+  Mask samba useflag for sys-auth/sssd
 
   17 Mar 2015; Mike Frysinger <vapier@gentoo.org> package.use.force,
   package.use.mask:

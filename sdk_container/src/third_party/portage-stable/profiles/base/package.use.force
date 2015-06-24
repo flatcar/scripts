@@ -1,6 +1,12 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/base/package.use.force,v 1.54 2014/11/09 08:02:26 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/base/package.use.force,v 1.56 2015/06/09 22:57:57 eva Exp $
+
+# Gilles Dartiguelongue <eva@gentoo.org> (25 May 2015)
+# webkit fails to build with USE=wayland, bug #549228
+# https://bugs.webkit.org/show_bug.cgi?id=142879
+# https://bugs.webkit.org/show_bug.cgi?id=136831
+>=net-libs/webkit-gtk-2.8 X
 
 # Alexnader Vershilov <qnikst@gentoo.org) (04 Nov 2014)
 # Due to bug #490604: version without oracle is not supported
@@ -15,11 +21,6 @@
 # Chromium builds in PIC mode on most arches anyway,
 # i.e. this use flag has no effect on them.
 www-client/chromium pic
-
-# Michał Gorny <mgorny@gentoo.org> (26 Feb 2013)
-# Meta-packages which use multilib ebuilds always install development
-# headers. The flag is there to satisfy deps only.
->=app-emulation/emul-linux-x86-xlibs-20130224-r1 development
 
 # Zac Medico <zmedico@gentoo.org> (4 Dec 2012)
 # Force app-shells/bash[readline] in stage1 builds, so that compgen is

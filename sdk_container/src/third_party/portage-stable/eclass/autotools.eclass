@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/autotools.eclass,v 1.174 2015/03/19 19:27:02 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/autotools.eclass,v 1.176 2015/06/03 04:06:08 vapier Exp $
 
 # @ECLASS: autotools.eclass
 # @MAINTAINER:
@@ -56,7 +56,7 @@ inherit libtool
 # Do NOT change this variable in your ebuilds!
 # If you want to force a newer minor version, you can specify the correct
 # WANT value by using a colon:  <PV>:<WANT_AUTOMAKE>
-_LATEST_AUTOMAKE=( 1.13:1.13 1.15:1.15 )
+_LATEST_AUTOMAKE=( 1.14.1:1.14 1.15:1.15 )
 
 _automake_atom="sys-devel/automake"
 _autoconf_atom="sys-devel/autoconf"
@@ -591,6 +591,17 @@ _autotools_m4dir_include() {
 	echo ${include_opts}
 }
 autotools_m4dir_include()    { _autotools_m4dir_include ${AT_M4DIR} ; }
-autotools_m4sysdir_include() { _autotools_m4dir_include $(eval echo ${AT_SYS_M4DIR}) ; }
+autotools_m4sysdir_include() {
+	# First try to use the paths the system integrator has set up.
+	local paths=( $(eval echo ${AT_SYS_M4DIR}) )
+
+	if [[ ${#paths[@]} -eq 0 && -n ${SYSROOT} ]] ; then
+		# If they didn't give us anything, then default to the SYSROOT.
+		# This helps when cross-compiling.
+		local path="${SYSROOT}/usr/share/aclocal"
+		[[ -d ${path} ]] && paths+=( "${path}" )
+	fi
+	_autotools_m4dir_include "${paths[@]}"
+}
 
 fi

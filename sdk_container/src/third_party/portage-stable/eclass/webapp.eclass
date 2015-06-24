@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/webapp.eclass,v 1.72 2012/07/18 14:59:29 blueness Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/webapp.eclass,v 1.73 2015/05/12 15:15:31 voyageur Exp $
 
 # @ECLASS: webapp.eclass
 # @MAINTAINER:
@@ -244,7 +244,6 @@ _webapp_serverowned() {
 	local my_file="$(webapp_strip_appdir "${1}")"
 	my_file="$(webapp_strip_cwd "${my_file}")"
 
-	elog "(server owned) ${my_file}"
 	echo "${my_file}" >> "${D}/${WA_SOLIST}"
 }
 

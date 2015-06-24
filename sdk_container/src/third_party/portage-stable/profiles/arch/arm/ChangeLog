@@ -1,6 +1,37 @@
 # ChangeLog for Gentoo/ARM profile directory
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/arm/ChangeLog,v 1.351 2015/04/03 08:10:26 maekke Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/arm/ChangeLog,v 1.361 2015/06/04 18:46:48 kensington Exp $
+
+  04 Jun 2015; Michael Palimaka <kensington@gentoo.org> package.use.mask:
+  Move various kde-base packages to kde-apps.
+
+  24 May 2015; James Le Cuirot <chewi@gentoo.org> +armv7a/package.mask,
+  package.mask:
+  Mask icedtea-bin in non-armv7a profiles instead of relying on pkg_pretend.
+
+  24 May 2015; Matt Turner <mattst88@gentoo.org> package.use.mask:
+  Drop dead r600-llvm-compiler USE flag from package.use.mask.
+
+  23 May 2015; James Le Cuirot <chewi@gentoo.org> package.use.mask:
+  icedtea-web has now been keyworded so remove the nsplugin and webstart USE
+  masks wrt bug #549134.
+
+  20 May 2015; James Le Cuirot <chewi@gentoo.org> package.use.mask:
+  Temporarily mask rdeps of icedtea-web to deal with bug #549134 until I have a
+  chance to test it.
+
+  11 May 2015; Michael Palimaka <kensington@gentoo.org>
+  package.use.stable.mask:
+  Mask www-client/qupzilla[kde] as KDE is not stable on arm.
+
+  28 Apr 2015; Patrick Lauer <patrick@gentoo.org> use.mask:
+  Mask ayatana useflag until dependencies catch up
+
+  20 Apr 2015; Patrick Lauer <patrick@gentoo.org> package.use.mask:
+  Mask qt5 useflag for quassel
+
+  18 Apr 2015; Markos Chandras <hwoarang@gentoo.org> package.use.mask:
+  Mask samba useflag for sys-auth/sssd
 
   03 Apr 2015; Markus Meier <maekke@gentoo.org> package.use.mask:
   package.use.mask net-misc/openconnect[java] for bug #542444

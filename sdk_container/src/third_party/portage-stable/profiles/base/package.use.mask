@@ -1,9 +1,37 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/base/package.use.mask,v 1.668 2015/04/05 08:51:33 chewi Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/base/package.use.mask,v 1.690 2015/06/21 15:28:16 floppym Exp $
 
 # This file requires >=portage-2.1.1
 # New entries go on top.
+
+# Gilles Dartiguelongue <eva@gentoo.org> (25 May 2015)
+# webkit fails to build with USE=wayland, bug #549228
+# https://bugs.webkit.org/show_bug.cgi?id=142879
+# https://bugs.webkit.org/show_bug.cgi?id=136831
+>=net-libs/webkit-gtk-2.8 wayland
+
+# Johannes Huber <johu@gentoo.org> (31 Nay 2015)
+# No released version available
+kde-plasma/plasma-workspace prison
+
+# Matthias Maier <tamiko@gentoo.org> (27 May 2015)
+# mask lcms use flag for old dcraw versions that depends on lcms:0
+=media-gfx/dcraw-9.10 lcms
+
+# Mike Gilbert <floppym@gentoo.org> (16 May 2015)
+# dev-lang/python[berkdb] fails with recent multilib sys-libs/db (bug 519584).
+dev-lang/python berkdb
+net-nds/nsscache nssdb
+www-apps/venus test
+
+# Jason Zaman <perfinion@gentoo.org> (08 May 2015)
+# java wrappers fail to build (bug #548858)
+=app-admin/setools-3.3.8-r7 java
+
+# Matthias Maier <tamiko@gentoo.org> (03 May 2015)
+# mask use flag until #546126 is resolved
+>=app-emulation/libvirt-1.2.14 wireshark-plugins
 
 # James Le Cuirot <chewi@gentoo.org> (05 Apr 2015)
 # dev-java/sun-j2me-bin is going away.
@@ -13,14 +41,10 @@ dev-java/proguard j2me
 # >=~sys-devel/dragonegg-3.6 is broken (bug #543644)
 sys-devel/byfl dragonegg
 
-# Michał Górny <mgorny@gentoo.org> (02 Apr 2015)
-# DirectFB support was removed from libsdl, mask the relevant flag
-# due to unsolvable deps, bug #545246.
-media-tv/freevo directfb
-
 # Lars Wendler <polynomial-c@gentoo.org> (19 Mar 2015)
 # >=games-strategy/freeciv-2.5.0 requires >=dev-lang/lua-5.2
-games-strategy/freeciv system-lua
+# No stable qt5 yet.
+games-strategy/freeciv system-lua qt5
 
 # Brian Evans <grknight@gentoo.org> (17 Mar 2015)
 # Mask the cluster flag for deprecation. Use dev-db/mysql-cluster if
@@ -56,10 +80,6 @@ x11-libs/cairo openvg
 # Cluster code is still under development, only base functionality
 # is implemented. Masking for testing and evaluation.
 app-admin/clsync cluster mhash
-
-# Jauhien Piatlicki <jauhien@gentoo.org> (10 Feb 2015)
-# Mask until sys-devel/llvm-3.6 is in the tree
-dev-lang/rust system-llvm
 
 # Ben de Groot <yngwin@gentoo.org> (07 Feb 2015)
 # Mask for all arches, can be unmasked on arm once keyworded there
@@ -134,7 +154,7 @@ net-libs/ortp zrtp
 dev-libs/libattica qt5
 
 # Johannes Huber <johu@gentoo.org> (12 Sep 2014)
-# Masked until all dependencies are packaged.
+# Segmentation fault, needs further investigation.
 media-sound/tomahawk qt5
 
 # Michał Górny <mgorny@gentoo.org> (06 Sep 2014)
@@ -232,7 +252,7 @@ sys-infiniband/ofed ofed_drivers_ehca
 # Andreas K. Huettel <dilfridge@gentoo.org> (12 Apr 2014)
 # Upstream regularly forgets to update the bindings after changes in API,
 # leading to build failures. This is becoming more and more painful...
->=kde-base/marble-4.12.49.9999 python
+>=kde-apps/marble-4.12.49.9999 python
 
 # Lars Wendler <polynomial-c@gentoo.org> (12 Apr 2014)
 # Required ffmpeg version still is masked (#507474)
@@ -249,12 +269,6 @@ sys-infiniband/ofed ofed_drivers_ehca
 <media-libs/libcaca-0.99_beta19 ruby
 =dev-vcs/subversion-1.7* ruby
 media-sound/podcatcher bittorrent
-
-# Michał Górny <mgorny@gentoo.org> (27 Feb 2014)
-# Very experimental with unstable kernel- and userspace API.
-# Lacks proper policy support that makes it very unsecure.
-# Suitable only for testing.
-sys-apps/systemd kdbus
 
 # Mike Frysinger <vapier@gentoo.org> (03 Feb 2014)
 # Upstream says to not use this for now.
@@ -313,12 +327,6 @@ games-action/minetest luajit
 # Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (13 Oct 2013)
 # Masked for security bug #472280, CVE 2013-1872
 <=media-libs/mesa-9.0.3 video_cards_intel video_cards_i965
-
-# Tom Wijsman <TomWij@gentoo.org> (15 Sep 2013)
-# Mask JCE functionality of diablo-jdk because it depends on masked sun-jce-bin,
-# this needs to be revisited to either be dropped from the Portage tree or to
-# use the new way of doing JCE as part of a revision or version bump.
-dev-java/diablo-jdk jce
 
 # Tom Wijsman <TomWij@gentoo.org> (7 Sep 2013)
 # Dependency (www-servers/mongrel) currently only
@@ -383,10 +391,6 @@ dev-libs/weston gles2 rpi
 # moment there is not much point in enabling this.
 sys-libs/libcxxrt libunwind
 
-# Michael Weber <xmw@gentoo.org>  (19 Jun 2013)
-# Not fit for production
-=www-client/netsurf-3.0* fbcon pdf-writer gstreamer
-
 # Sergey Popov <pinkbyte@gentoo.org> (08 Jun 2013)
 # mask because requires unstable depends not ready for the stabilization
 app-leechcraft/leechcraft-meta unstable
@@ -442,7 +446,9 @@ sci-libs/flann cuda
 
 # Julian Ospald <hasufell@gentoo.org> (20 Feb 2013)
 # Unsupported and experimental.
-net-misc/teamviewer system-wine
+# NP-Hardass <NP-Hardass@gentoo.org> (18 Jun 2015)
+# Change to <10
+<net-misc/teamviewer-10 system-wine
 
 # Alexis Ballier <aballier@gentoo.org> (15 Feb 2013)
 # Needs a huge patch to build against recent releases of FFmpeg/libav.
@@ -512,14 +518,14 @@ sys-auth/pam_mktemp prevent-removal
 # fontconfig-infinality dependency not yet keyworded on most arches
 media-libs/freetype infinality
 
+# James Le Cuirot <chewi@gentoo.org> (20 May 2015)
+# Mask this in conjunction with the above.
+dev-java/icedtea infinality
+
 # Ralph Sennhauser <sera@gentoo.org> (18 Jul 2012)
 # Requires masked eclipse-sdk.
 dev-lang/icc eclipse
 dev-lang/idb eclipse
-
-# Michael Weber<xmw@gentoo.org>  (18 Jun 2012)
-# Not fit for production
-=www-client/netsurf-2.9 pdf-writer javascript gstreamer
 
 # Diego Elio Pettenò <flameeyes@gentoo.org> (16 Jul 2012)
 # Stop glibc/uclibc from using iconv in blender

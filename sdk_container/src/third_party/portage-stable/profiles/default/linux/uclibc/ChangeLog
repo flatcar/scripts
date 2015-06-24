@@ -1,6 +1,9 @@
 # ChangeLog for the default/linux/uclibc profile directory
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/uclibc/ChangeLog,v 1.10 2015/03/29 00:32:37 blueness Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/uclibc/ChangeLog,v 1.11 2015/06/18 12:36:01 blueness Exp $
+
+  18 Jun 2015; Anthony G. Basile <blueness@gentoo.org> amd64/package.mask:
+  Unmask >sys-fs/e2fsprogs-1.42.11. Bug #548950 is fixed.
 
   29 Mar 2015; Anthony G. Basile <blueness@gentoo.org> mips/package.mask:
   Fix bad atom.

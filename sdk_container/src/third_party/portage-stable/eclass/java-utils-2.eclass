@@ -6,7 +6,7 @@
 #
 # Licensed under the GNU General Public License, v2
 #
-# $Header: /var/cvsroot/gentoo-x86/eclass/java-utils-2.eclass,v 1.158 2015/04/14 14:08:34 chewi Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/java-utils-2.eclass,v 1.164 2015/06/19 14:11:24 chewi Exp $
 
 # @ECLASS: java-utils-2.eclass
 # @MAINTAINER:
@@ -43,7 +43,7 @@ has "${EAPI}" 0 1 && JAVA_PKG_PORTAGE_DEP=">=sys-apps/portage-2.1.2.7"
 # This is a convience variable to be used from the other java eclasses. This is
 # the version of java-config we want to use. Usually the latest stable version
 # so that ebuilds can use new features without depending on specific versions.
-JAVA_PKG_E_DEPEND=">=dev-java/java-config-2.1.9-r1 ${JAVA_PKG_PORTAGE_DEP}"
+JAVA_PKG_E_DEPEND=">=dev-java/java-config-2.2.0 ${JAVA_PKG_PORTAGE_DEP}"
 has source ${JAVA_PKG_IUSE} && JAVA_PKG_E_DEPEND="${JAVA_PKG_E_DEPEND} source? ( app-arch/zip )"
 
 # @ECLASS-VARIABLE: JAVA_PKG_WANT_BOOTCLASSPATH
@@ -217,6 +217,37 @@ java-pkg_doexamples() {
 	dosym "${dest}" "${JAVA_PKG_SHAREPATH}/examples" || die
 }
 
+# @FUNCTION: java-pkg_addres
+# @USAGE: <jar> <dir> [<find arguments> ...]
+# @DESCRIPTION:
+# Adds resource files to an existing jar.
+# It is important that the directory given is actually the root of the
+# corresponding resource tree. The target directory as well as
+# sources.lst, MANIFEST.MF, *.class, *.jar, and *.java files are
+# automatically excluded. Symlinks are always followed. Additional
+# arguments are passed through to find.
+#
+# @CODE
+#	java-pkg_addres ${PN}.jar resources ! -name "*.html"
+# @CODE
+#
+# @param $1 - jar file
+# @param $2 - resource tree directory
+# @param $* - arguments to pass to find
+java-pkg_addres() {
+	debug-print-function ${FUNCNAME} $*
+
+	[[ ${#} -lt 2 ]] && die "at least two arguments needed"
+
+	local jar=$(realpath "$1" || die "realpath $1 failed")
+	local dir="$2"
+	shift 2
+
+	pushd "${dir}" > /dev/null || die "pushd ${dir} failed"
+	find -L -type f ! -path "./target/*" ! -path "./sources.lst" ! -name "MANIFEST.MF" ! -regex ".*\.\(class\|jar\|java\)" "${@}" -print0 | xargs -0 jar uf "${jar}" || die "jar failed"
+	popd > /dev/null || die "popd failed"
+}
+
 # @FUNCTION: java-pkg_dojar
 # @USAGE: <jar1> [<jar2> ...]
 # @DESCRIPTION:
@@ -280,18 +311,6 @@ java-pkg_dojar() {
 	done
 
 	java-pkg_do_write_
-}
-
-# @FUNCTION: depend-java-query
-# @INTERNAL
-# @DESCRIPTION:
-# Wrapper for the depend-java-query binary to enable passing USE in env.
-# Using env variables keeps this eclass working with java-config versions that
-# do not handle use flags.
-depend-java-query() {
-	# Used to have a which call here but it caused endless loops for some people
-	# that had some weird bashrc voodoo for which.
-	USE="${USE}" /usr/bin/depend-java-query "${@}"
 }
 
 # @FUNCTION: java-pkg_regjar
@@ -412,7 +431,7 @@ java-pkg_doso() {
 			# install if it isn't a symlink
 			if [[ ! -L "${lib}" ]] ; then
 				INSDESTTREE="${JAVA_PKG_LIBDEST}" \
-					INSOPTIONS="${LIBOPTIONS}" \
+					INSOPTIONS="-m0755" \
 					doins "${lib}" || die "failed to install ${lib}"
 				java-pkg_append_ JAVA_PKG_LIBRARY "${JAVA_PKG_LIBDEST}"
 				debug-print "Installing ${lib} to ${JAVA_PKG_LIBDEST}"
@@ -920,7 +939,7 @@ java-pkg_jar-from() {
 					java-pkg_record-jar_ --build-only "${target_pkg}" "${jar}"
 				fi
 			fi
-			# otherwise, if the current jar is the target jar, link it
+		# otherwise, if the current jar is the target jar, link it
 		elif [[ "${jar_name}" == "${target_jar}" ]] ; then
 			[[ -f "${destjar}" ]]  && rm "${destjar}"
 			ln -snf "${jar}" "${destjar}" \
@@ -929,7 +948,7 @@ java-pkg_jar-from() {
 				if [[ -z "${build_only}" ]]; then
 					java-pkg_record-jar_ "${target_pkg}" "${jar}"
 				else
-					java-pkg_record-jar_ --build-only "${target_jar}" "${jar}"
+					java-pkg_record-jar_ --build-only "${target_pkg}" "${jar}"
 				fi
 			fi
 			popd > /dev/null
@@ -1784,18 +1803,13 @@ java-utils-2_src_prepare() {
 # Don't call directly, but via java-pkg-2_pkg_preinst!
 java-utils-2_pkg_preinst() {
 	if is-java-strict; then
+		if [[ ! -e "${JAVA_PKG_ENV}" ]] || has ant-tasks ${INHERITED}; then
+			return
+		fi
+
 		if has_version dev-java/java-dep-check; then
-			[[ -e "${JAVA_PKG_ENV}" ]] || return
 			local output=$(GENTOO_VM= java-dep-check --image "${D}" "${JAVA_PKG_ENV}")
-			if [[ ${output} && has_version <=dev-java/java-dep-check-0.2 ]]; then
-				ewarn "Possibly unneeded dependencies found in package.env:"
-				for dep in ${output}; do
-					ewarn "\t${dep}"
-				done
-			fi
-			if [[ ${output} && has_version >dev-java/java-dep-check-0.2 ]]; then
-				ewarn "${output}"
-			fi
+			[[ ${output} ]] && ewarn "${output}"
 		else
 			eerror "Install dev-java/java-dep-check for dependency checking"
 		fi
@@ -1909,8 +1923,10 @@ eant() {
 
 	if [[ ${EBUILD_PHASE} = "test" ]]; then
 		antflags="${antflags} -DJunit.present=true"
-		[[ ${ANT_TASKS} = *ant-junit* ]] && gcp="${gcp} junit"
 		getjarsarg="--with-dependencies"
+
+		local re="\bant-junit4?([-:]\S+)?\b"
+		[[ ${ANT_TASKS} =~ ${re} ]] && gcp+=" ${BASH_REMATCH[0]}"
 	else
 		antflags="${antflags} -Dmaven.test.skip=true"
 	fi
@@ -1918,17 +1934,15 @@ eant() {
 	local cp
 
 	for atom in ${gcp}; do
-		cp="${cp}:$(java-pkg_getjars ${getjarsarg} ${atom})"
+		cp+=":$(java-pkg_getjars ${getjarsarg} ${atom})"
 	done
 
-	[[ -n "${EANT_NEEDS_TOOLS}" ]] && cp="${cp}:$(java-config --tools)"
+	[[ ${EANT_NEEDS_TOOLS} ]] && cp+=":$(java-config --tools)"
+	[[ ${EANT_GENTOO_CLASSPATH_EXTRA} ]] && cp+=":${EANT_GENTOO_CLASSPATH_EXTRA}"
 
-	if [[ ${cp} ]]; then
+	if [[ ${cp#:} ]]; then
 		# It seems ant does not like single quotes around ${cp}
-		cp=${cp#:}
-		[[ ${EANT_GENTOO_CLASSPATH_EXTRA} ]] && \
-			cp="${cp}:${EANT_GENTOO_CLASSPATH_EXTRA}"
-		antflags="${antflags} -Dgentoo.classpath=\"${cp}\""
+		antflags="${antflags} -Dgentoo.classpath=\"${cp#:}\""
 	fi
 
 	[[ -n ${JAVA_PKG_DEBUG} ]] && echo ant ${antflags} "${@}"
@@ -2673,7 +2687,8 @@ java-pkg_verify-classes() {
 # @INTERNAL
 # @DESCRIPTION:
 # Check that a package being used in jarfrom, getjars and getjar is contained
-# within DEPEND or RDEPEND.
+# within DEPEND or RDEPEND with the correct SLOT. See this mail for details:
+# https://archives.gentoo.org/gentoo-dev/message/dcb644f89520f4bbb61cc7bbe45fdf6e
 # @CODE
 # Parameters:
 # $1 - empty - check both vars; "runtime" or "build" - check only
@@ -2695,9 +2710,10 @@ java-pkg_ensure-dep() {
 	# * The target package first has any dots escaped, e.g. foo-1.2
 	#   becomes foo-1\.2.
 	#
-	# * sed then looks at the component following the last - character,
-	#   or the whole string if there is no - character. It uses this to
-	#   build a new regexp with two significant branches.
+	# * sed then looks at the component following the last - or :
+	#   character, or the whole string if there is no - or :
+	#   character. It uses this to build a new regexp with two
+	#   significant branches.
 	#
 	# * The first checks for the whole target package string, optionally
 	#   followed by a version number, and then :0.
@@ -2706,36 +2722,36 @@ java-pkg_ensure-dep() {
 	#   string, optionally followed by a version number, followed by the
 	#   aforementioned component, treating that as a SLOT.
 	#
-	local stripped_pkg=/$(sed -r 's/-?([^-]+)$/(\0(-[^:]+)?:0|(-[^:]+)?:\1)/' <<< "${target_pkg//./\\.}")\\b
+	local stripped_pkg=/$(sed -r 's/[-:]?([^-:]+)$/(\0(-[^:]+)?:0|(-[^:]+)?:\1)/' <<< "${target_pkg//./\\.}")\\b
 
 	debug-print "Matching against: ${stripped_pkg}"
+
+	# Uncomment the lines below once we've dealt with more of these
+	# otherwise we'll be tempted to turn JAVA_PKG_STRICT off while
+	# getting hit with a wave of bug reports. :(
 
 	if [[ ${limit_to} != runtime && ! ( "${DEPEND}" =~ $stripped_pkg ) ]]; then
 		dev_error="The ebuild is attempting to use ${target_pkg}, which is not "
 		dev_error+="declared with a SLOT in DEPEND."
-		if is-java-strict; then
-			die "${dev_error}"
-		else
-			eqawarn "${dev_error}"
-			# Uncomment this once we've dealt with more of these or
-			# we'll get hit with a wave of bug reports. :(
+#		if is-java-strict; then
+#			die "${dev_error}"
+#		else
+			eqawarn "java-pkg_ensure-dep: ${dev_error}"
 #			eerror "Because you have ${target_pkg} installed,"
 #			eerror "the package will build without problems, but please"
 #			eerror "report this to http://bugs.gentoo.org."
-		fi
+#		fi
 	elif [[ ${limit_to} != build && ! ( "${RDEPEND}${PDEPEND}" =~ ${stripped_pkg} ) ]]; then
 		dev_error="The ebuild is attempting to use ${target_pkg}, which is not "
 		dev_error+="declared with a SLOT in [RP]DEPEND and --build-only wasn't given."
-		if is-java-strict; then
-			die "${dev_error}"
-		else
-			eqawarn "${dev_error}"
-			# Uncomment this once we've dealt with more of these or
-			# we'll get hit with a wave of bug reports. :(
+#		if is-java-strict; then
+#			die "${dev_error}"
+#		else
+			eqawarn "java-pkg_ensure-dep: ${dev_error}"
 #			eerror "The package will build without problems, but may fail to run"
 #			eerror "if you don't have ${target_pkg} installed,"
 #			eerror "so please report this to http://bugs.gentoo.org."
-		fi
+#		fi
 	fi
 }
 

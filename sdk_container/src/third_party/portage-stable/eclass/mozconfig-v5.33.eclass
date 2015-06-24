@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/mozconfig-v5.33.eclass,v 1.3 2014/11/05 23:18:07 axs Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/mozconfig-v5.33.eclass,v 1.5 2015/05/28 06:37:16 polynomial-c Exp $
 #
 # @ECLASS: mozconfig-v5.33.eclass
 # @MAINTAINER:
@@ -21,7 +21,8 @@
 inherit multilib flag-o-matic toolchain-funcs mozcoreconf-v3
 
 case ${EAPI} in
-	0|1|2|3|4) die "EAPI=${EAPI} not supported"
+	0|1|2|3|4) die "EAPI=${EAPI} not supported" ;;
+	*) die "This eclass has been disabled and will be removed on 2015-06-30.  If you need it, copy to your overlay and remove this line." ;;
 esac
 
 # @ECLASS-VARIABLE: MOZCONFIG_OPTIONAL_WIFI

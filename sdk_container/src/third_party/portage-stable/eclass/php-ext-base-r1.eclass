@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/php-ext-base-r1.eclass,v 1.17 2011/08/22 04:46:32 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/php-ext-base-r1.eclass,v 1.18 2015/06/17 19:23:34 grknight Exp $
 
 # @ECLASS: php-ext-base-r1.eclass
 # @MAINTAINER:
@@ -17,6 +17,8 @@
 #
 # Combined with php-ext-source-r1, we have a standardised solution for supporting
 # PHP extensions.
+# This eclass is no longer in use and scheduled to be removed on 2015-07-17
+# @DEAD
 
 # Block ebuilds with minor version slotting. Quite temporary fix
 DEPEND="!=dev-lang/php-5.3.3-r2

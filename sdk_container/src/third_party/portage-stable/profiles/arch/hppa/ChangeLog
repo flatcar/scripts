@@ -1,6 +1,19 @@
 # ChangeLog for Gentoo/hppa profile
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/hppa/ChangeLog,v 1.245 2015/03/21 09:37:48 jer Exp $
+# $Header: /var/cvsroot/gentoo-x86/profiles/arch/hppa/ChangeLog,v 1.249 2015/05/24 04:35:58 mattst88 Exp $
+
+  24 May 2015; Matt Turner <mattst88@gentoo.org> package.use.mask:
+  Drop dead r600-llvm-compiler USE flag from package.use.mask.
+
+  17 May 2015; Jeroen Roovers <jer@gentoo.org> package.use.mask:
+  Mask USE=rados for net-analyzer/rrdtool since sys-cluster/ceph is not
+  keyworded (bug #549516).
+
+  11 May 2015; Mike Frysinger <vapier@gentoo.org> use.mask:
+  Drop USE=sanitize mask since it is already handled in base/.
+
+  26 Apr 2015; Jeroen Roovers <jer@gentoo.org> package.use.mask:
+  Mask USE=garbd for dev-db/mariadb (bug #544378).
 
   21 Mar 2015; Jeroen Roovers <jer@gentoo.org> package.use.mask:
   Unmask USE=test for dev-python/urllib3.

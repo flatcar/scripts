@@ -1,6 +1,12 @@
 # ChangeLog for the default/linux/alpha profile directory
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/alpha/ChangeLog,v 1.17 2014/03/19 22:08:05 dilfridge Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/alpha/ChangeLog,v 1.19 2015/05/24 18:42:59 mattst88 Exp $
+
+  24 May 2015; Matt Turner <mattst88@gentoo.org> 13.0/package.use.stable.mask:
+  Drop stale dbus-python test entry.
+
+  9 May 2015; Ian Delaney <idella4@gentoo.org> 13.0/package.use.stable.mask
+  remove stale entry masking media-video/vlc from 13.0/package.use.stable.mask
 
   19 Mar 2014; Andreas K. Huettel <dilfridge@gentoo.org> 13.0/desktop/eapi,
   13.0/desktop/gnome/eapi, +13.0/desktop/gnome/systemd/eapi,
