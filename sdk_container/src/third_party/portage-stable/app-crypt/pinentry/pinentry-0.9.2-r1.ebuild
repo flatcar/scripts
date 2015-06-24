@@ -1,10 +1,10 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-crypt/pinentry/pinentry-0.9.0-r1.ebuild,v 1.2 2015/03/31 17:18:11 ulm Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-crypt/pinentry/pinentry-0.9.2-r1.ebuild,v 1.1 2015/05/14 08:12:20 k_f Exp $
 
 EAPI=5
 
-inherit autotools multilib eutils flag-o-matic
+inherit qmake-utils autotools multilib eutils flag-o-matic toolchain-funcs
 
 DESCRIPTION="Collection of simple PIN or passphrase entry dialogs which utilize the Assuan protocol"
 HOMEPAGE="http://gnupg.org/aegypten2/index.html"
@@ -13,7 +13,7 @@ SRC_URI="mirror://gnupg/${PN}/${P}.tar.bz2"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="clipboard gtk ncurses qt4 caps static"
+IUSE="clipboard gtk ncurses qt4 caps gnome-keyring static"
 
 RDEPEND="
 	app-eselect/eselect-pinentry
@@ -27,7 +27,7 @@ DEPEND="${RDEPEND}
 	sys-devel/gettext
 	gtk? ( virtual/pkgconfig )
 	qt4? ( virtual/pkgconfig )
-	ppc-aix? ( dev-libs/gnulib )
+	gnome-keyring? ( app-crypt/libsecret )
 "
 REQUIRED_USE="
 	|| ( ncurses gtk qt4 )
@@ -39,25 +39,20 @@ REQUIRED_USE="
 DOCS=( AUTHORS ChangeLog NEWS README THANKS TODO )
 
 src_prepare() {
-	if use qt4; then
-		local f
-		for f in qt4/*.moc; do
-			"${EPREFIX}"/usr/bin/moc ${f/.moc/.h} > ${f} || die
-		done
-	fi
 	epatch "${FILESDIR}/${PN}-0.8.2-ncurses.patch"
-	epatch "${FILESDIR}/${PN}-0.8.2-texi.patch"
+	epatch "${FILESDIR}/${P}-handlers-return.patch"
+	epatch "${FILESDIR}/${P}-gnome3.patch"
+	epatch "${FILESDIR}/${P}-simplify.patch"
+	epatch "${FILESDIR}/${P}-cmd_confirm.patch"
+	epatch "${FILESDIR}/${P}-memory.patch"
+	epatch "${FILESDIR}/${P}-management.patch"
+	epatch "${FILESDIR}/${P}-linking-order.patch"
 	eautoreconf
 }
 
 src_configure() {
 	use static && append-ldflags -static
-
-	if [[ ${CHOST} == *-aix* ]] ; then
-		append-flags -I"${EPREFIX}/usr/$(get_libdir)/gnulib/include"
-		append-ldflags -L"${EPREFIX}/usr/$(get_libdir)/gnulib/$(get_libdir)"
-		append-libs -lgnu
-	fi
+	[[ "$(gcc-major-version)" -ge 5 ]] && append-cxxflags -std=gnu++11
 
 	# Issues finding qt on multilib systems
 	export QTLIB="${QTDIR}/$(get_libdir)"
@@ -69,11 +64,10 @@ src_configure() {
 		$(use_enable ncurses fallback-curses) \
 		$(use_enable qt4 pinentry-qt4) \
 		$(use qt4 && use_enable clipboard pinentry-qt4-clipboard) \
-		$(use_with caps libcap)
-}
-
-src_compile() {
-	emake AR="$(tc-getAR)"
+		$(use_with caps libcap) \
+		$(use_enable gnome-keyring libsecret) \
+		$(use_enable gnome-keyring pinentry-gnome3) \
+		MOC="$(qt4_get_bindir)"/moc
 }
 
 src_install() {

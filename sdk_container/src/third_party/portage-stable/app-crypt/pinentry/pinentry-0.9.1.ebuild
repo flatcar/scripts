@@ -1,10 +1,10 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-crypt/pinentry/pinentry-0.9.0-r2.ebuild,v 1.2 2015/03/31 17:18:11 ulm Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-crypt/pinentry/pinentry-0.9.1.ebuild,v 1.2 2015/05/05 16:24:05 alonbl Exp $
 
 EAPI=5
 
-inherit autotools multilib eutils flag-o-matic
+inherit qmake-utils autotools multilib eutils flag-o-matic toolchain-funcs
 
 DESCRIPTION="Collection of simple PIN or passphrase entry dialogs which utilize the Assuan protocol"
 HOMEPAGE="http://gnupg.org/aegypten2/index.html"
@@ -27,7 +27,6 @@ DEPEND="${RDEPEND}
 	sys-devel/gettext
 	gtk? ( virtual/pkgconfig )
 	qt4? ( virtual/pkgconfig )
-	ppc-aix? ( dev-libs/gnulib )
 "
 REQUIRED_USE="
 	|| ( ncurses gtk qt4 )
@@ -39,26 +38,14 @@ REQUIRED_USE="
 DOCS=( AUTHORS ChangeLog NEWS README THANKS TODO )
 
 src_prepare() {
-	if use qt4; then
-		local f
-		for f in qt4/*.moc; do
-			"${EPREFIX}"/usr/bin/moc ${f/.moc/.h} > ${f} || die
-		done
-	fi
 	epatch "${FILESDIR}/${PN}-0.8.2-ncurses.patch"
-	epatch "${FILESDIR}/${PN}-0.8.2-texi.patch"
-	epatch "${FILESDIR}/${PN}-0.9.0-accessibility.patch"
+	epatch "${FILESDIR}/${P}-memleak.patch"
 	eautoreconf
 }
 
 src_configure() {
 	use static && append-ldflags -static
-
-	if [[ ${CHOST} == *-aix* ]] ; then
-		append-flags -I"${EPREFIX}/usr/$(get_libdir)/gnulib/include"
-		append-ldflags -L"${EPREFIX}/usr/$(get_libdir)/gnulib/$(get_libdir)"
-		append-libs -lgnu
-	fi
+	[[ "$(gcc-major-version)" -ge 5 ]] && append-cxxflags -std=gnu++11
 
 	# Issues finding qt on multilib systems
 	export QTLIB="${QTDIR}/$(get_libdir)"
@@ -70,11 +57,8 @@ src_configure() {
 		$(use_enable ncurses fallback-curses) \
 		$(use_enable qt4 pinentry-qt4) \
 		$(use qt4 && use_enable clipboard pinentry-qt4-clipboard) \
-		$(use_with caps libcap)
-}
-
-src_compile() {
-	emake AR="$(tc-getAR)"
+		$(use_with caps libcap) \
+		MOC="$(qt4_get_bindir)"/moc
 }
 
 src_install() {
