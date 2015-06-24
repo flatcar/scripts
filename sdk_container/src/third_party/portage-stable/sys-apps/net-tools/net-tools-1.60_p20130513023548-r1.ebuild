@@ -1,20 +1,19 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/net-tools/net-tools-1.60_p20120127084908.ebuild,v 1.17 2015/04/25 16:36:44 floppym Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/net-tools/net-tools-1.60_p20130513023548-r1.ebuild,v 1.2 2015/04/25 16:36:44 floppym Exp $
 
-EAPI="3"
+EAPI="5"
 
 inherit flag-o-matic toolchain-funcs eutils
 
 if [[ ${PV} == "9999" ]] ; then
 	EGIT_REPO_URI="git://net-tools.git.sourceforge.net/gitroot/net-tools/net-tools"
 	inherit git-2
-	KEYWORDS=""
 else
-	PATCH_VER="1"
+	PATCH_VER="2"
 	SRC_URI="mirror://gentoo/${P}.tar.xz
 		mirror://gentoo/${P}-patches-${PATCH_VER}.tar.xz"
-	KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-linux ~arm-linux ~x86-linux"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-linux ~x86-linux"
 fi
 
 DESCRIPTION="Standard Linux networking tools"
@@ -22,10 +21,12 @@ HOMEPAGE="http://net-tools.sourceforge.net/"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="nls old-output static"
+IUSE="nls old-output selinux static"
 
-RDEPEND="!<sys-apps/openrc-0.9.9.3"
+RDEPEND="!<sys-apps/openrc-0.9.9.3
+	selinux? ( sys-libs/libselinux )"
 DEPEND="${RDEPEND}
+	selinux? ( virtual/pkgconfig )
 	app-arch/xz-utils"
 
 maint_pkg_create() {
@@ -34,14 +35,10 @@ maint_pkg_create() {
 	local stamp=$(date --date="$(git log -n1 --pretty=format:%ci master)" -u +%Y%m%d%H%M%S)
 	local pv="${PV/_p*}_p${stamp}"; pv=${pv/9999/1.60}
 	local p="${PN}-${pv}"
-	git archive --prefix="nt/" master | tar xf - -C "${T}"
+	git archive --prefix="${p}/" master | tar xf - -C "${T}"
 	pushd "${T}" >/dev/null
-	pushd nt >/dev/null
-	sed -i "/^RELEASE/s:=.*:=${pv}:" Makefile || die
-	emake dist >/dev/null
-	popd >/dev/null
-	zcat ${p}.tar.gz | xz > ${p}.tar.xz
-	rm -f ${p}.tar.gz
+	sed -i "/^RELEASE/s:=.*:=${pv}:" */Makefile || die
+	tar cf - ${p}/ | xz > ${p}.tar.xz
 	popd >/dev/null
 
 	local patches="${p}-patches-${PATCH_VER:-1}"
@@ -79,6 +76,7 @@ src_configure() {
 	set_opt HAVE_HWIB has_version '>=sys-kernel/linux-headers-2.6'
 	set_opt HAVE_HWTR has_version '<sys-kernel/linux-headers-3.5'
 	set_opt HAVE_HWSTRIP has_version '<sys-kernel/linux-headers-3.6'
+	set_opt SELINUX use selinux
 	if use static ; then
 		append-flags -static
 		append-ldflags -static

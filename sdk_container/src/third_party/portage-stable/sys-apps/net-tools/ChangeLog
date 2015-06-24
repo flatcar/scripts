@@ -1,6 +1,95 @@
 # ChangeLog for sys-apps/net-tools
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/net-tools/ChangeLog,v 1.134 2013/01/02 19:22:52 armin76 Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/net-tools/ChangeLog,v 1.154 2015/04/25 16:36:44 floppym Exp $
+
+  25 Apr 2015; Mike Gilbert <floppym@gentoo.org>
+  net-tools-1.60_p20110409135728.ebuild, net-tools-1.60_p20111120203157.ebuild,
+  net-tools-1.60_p20120127084908.ebuild,
+  net-tools-1.60_p20130513023548-r1.ebuild,
+  net-tools-1.60_p20130513023548.ebuild, net-tools-1.60_p20141019041918.ebuild,
+  net-tools-9999.ebuild:
+  Replace links pointing at git.overlays.gentoo.org.
+
+  01 Nov 2014; Sven Vermeulen <swift@gentoo.org> net-tools-9999.ebuild:
+  Enable SELinux support in net-tools (bug #520700)
+
+  20 Oct 2014; Mike Frysinger <vapier@gentoo.org> net-tools-9999.ebuild:
+  Drop USE=old-output flag.
+
+*net-tools-1.60_p20141019041918 (19 Oct 2014)
+
+  19 Oct 2014; Mike Frysinger <vapier@gentoo.org>
+  +net-tools-1.60_p20141019041918.ebuild:
+  Version bump #522566.
+
+*net-tools-1.60_p20130513023548-r1 (08 Sep 2014)
+
+  08 Sep 2014; Joshua Kinard <kumba@gentoo.org>
+  +net-tools-1.60_p20130513023548-r1.ebuild:
+  Add several patches from Fedora to fix various issues.
+
+  19 Jul 2014; Mikle Kolyada <zlogene@gentoo.org>
+  net-tools-1.60_p20130513023548.ebuild:
+  sparc stable wrt bug #506702
+
+  19 Jul 2014; Mikle Kolyada <zlogene@gentoo.org>
+  net-tools-1.60_p20130513023548.ebuild:
+  ppc64 stable wrt bug #506702
+
+  19 Jul 2014; Mikle Kolyada <zlogene@gentoo.org>
+  net-tools-1.60_p20130513023548.ebuild:
+  ppc stable wrt bug #506702
+
+  11 Jul 2014; Mikle Kolyada <zlogene@gentoo.org>
+  net-tools-1.60_p20130513023548.ebuild:
+  alpha stable wrt bug #506702
+
+  14 Jun 2014; Pawel Hajdan jr <phajdan.jr@gentoo.org>
+  net-tools-1.60_p20130513023548.ebuild:
+  x86 stable wrt bug #506702
+
+  25 May 2014; Mike Frysinger <vapier@gentoo.org>
+  net-tools-1.60_p20130513023548.ebuild:
+  Mark ia64 stable #506702.
+
+  29 Apr 2014; Chema Alonso <nimiux@gentoo.org>
+  net-tools-1.60_p20130513023548.ebuild:
+  Stable for amd64 wrt bug #506702
+
+  07 Apr 2014; Mike Frysinger <vapier@gentoo.org>
+  net-tools-1.60_p20130513023548.ebuild:
+  Mark arm64/m68k/s390/sh stable #506702.
+
+  07 Apr 2014; Mike Frysinger <vapier@gentoo.org>
+  net-tools-1.60_p20130513023548.ebuild, net-tools-9999.ebuild:
+  Delete KEYWORDS from live git paths to avoid confusing ekeyword.
+
+  07 Apr 2014; Markus Meier <maekke@gentoo.org>
+  net-tools-1.60_p20130513023548.ebuild:
+  arm stable, bug #506702
+
+  05 Apr 2014; Jeroen Roovers <jer@gentoo.org>
+  net-tools-1.60_p20130513023548.ebuild:
+  Stable for HPPA (bug #506702).
+
+  18 Jan 2014; Mike Frysinger <vapier@gentoo.org>
+  net-tools-1.60_p20120127084908.ebuild, net-tools-1.60_p20130513023548.ebuild,
+  net-tools-9999.ebuild:
+  Add arm64 love.
+
+*net-tools-1.60_p20130513023548 (13 May 2013)
+
+  13 May 2013; Mike Frysinger <vapier@gentoo.org>
+  +net-tools-1.60_p20130513023548.ebuild, net-tools-9999.ebuild:
+  Version bump w/cleaned up selinux support #469224 by Sven Vermeulen.
+
+  17 Feb 2013; Zac Medico <zmedico@gentoo.org>
+  net-tools-1.60_p20120127084908.ebuild:
+  Add ~arm-linux keyword.
+
+  08 Feb 2013; Jeroen Roovers <jer@gentoo.org>
+  net-tools-1.60_p20120127084908.ebuild:
+  Stable for HPPA (bug #432280).
 
   02 Jan 2013; Raúl Porcel <armin76@gentoo.org>
   net-tools-1.60_p20120127084908.ebuild:
