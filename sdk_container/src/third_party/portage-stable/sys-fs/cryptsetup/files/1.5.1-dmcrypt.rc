@@ -1,16 +1,17 @@
 #!/sbin/runscript
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/cryptsetup/files/1.5.1-dmcrypt.rc,v 1.2 2014/10/19 04:37:19 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/cryptsetup/files/1.5.1-dmcrypt.rc,v 1.9 2015/04/12 22:04:22 vapier Exp $
 
 depend() {
 	before checkfs fsck
+
+	if grep -qs ^swap= "${conf_file}" ; then
+		before swap
+	fi
 }
 
 # We support multiple dmcrypt instances based on $SVCNAME
-execute_hook="dm_crypt_execute_dmcrypt"
-# XXX: Should we drop this ?
-# execute_hook="dm_crypt_execute_localmount"
 conf_file="/etc/conf.d/${SVCNAME}"
 
 # Get splash helpers if available.
@@ -20,8 +21,26 @@ fi
 
 # Setup mappings for an individual target/swap
 # Note: This relies on variables localized in the main body below.
-dm_crypt_execute_dmcrypt() {
+dm_crypt_execute() {
 	local dev ret mode foo
+
+	if [ -z "${target}" -a -z "${swap}" ] ; then
+		return
+	fi
+
+	# Handle automatic look up of the source path.
+	if [ -z "${source}" -a -n "${loop_file}" ] ; then
+		source=$(losetup --show -f "${loop_file}")
+	fi
+	case ${source} in
+	*=*)
+		source=$(blkid -l -t "${source}" -o device)
+		;;
+	esac
+	if [ -z "${source}" ] || [ ! -e "${source}" ] ; then
+		ewarn "source \"${source}\" for ${target} missing, skipping..."
+		return
+	fi
 
 	if [ -n "${target}" ] ; then
 		# let user set options, otherwise leave empty
@@ -36,16 +55,6 @@ dm_crypt_execute_dmcrypt() {
 		# suspend2 users should have initramfs's init handling their swap partition either way.
 		: ${options:='-c aes -h sha1 -d /dev/urandom'}
 		: ${pre_mount:='mkswap ${dev}'}
-	else
-		return
-	fi
-	if [ "x${source#UUID}" != "x${source}" ]; then
-		source=${source#UUID=}
-		source="$(blkid -U ${source})"
-	fi
-	if [ -z "${source}" ] && [ ! -e "${source}" ] ; then
-		ewarn "source \"${source}\" for ${target} missing, skipping..."
-		return
 	fi
 
 	if [ -n "${loop_file}" ] ; then
@@ -103,8 +112,8 @@ dm_crypt_execute_dmcrypt() {
 		}
 
 		# Notes: sed not used to avoid case where /usr partition is encrypted.
-		mode=${key/*:/} && ( [ "${mode}" = "${key}" ] || [ -z "${mode}" ] ) && mode=reg
-		key=${key/:*/}
+		mode=${key##*:} && ( [ "${mode}" = "${key}" ] || [ -z "${mode}" ] ) && mode=reg
+		key=${key%:*}
 		case "${mode}" in
 		gpg|reg)
 			# handle key on removable device
@@ -162,11 +171,11 @@ dm_crypt_execute_dmcrypt() {
 	if [ "${mode}" = "gpg" ] ; then
 		: ${gpg_options:='-q -d'}
 		# gpg available ?
-		if type -p gpg >/dev/null ; then
+		if command -v gpg >/dev/null ; then
 			for i in 0 1 2 ; do
 				# paranoid, don't store key in a variable, pipe it so it stays very little in ram unprotected.
 				# save stdin stdout stderr "values"
-				gpg ${gpg_options} ${key} 2>/dev/null | cryptsetup ${options} ${arg1} ${arg2} ${arg3}
+				gpg ${gpg_options} ${key} 2>/dev/null | cryptsetup --key-file - ${options} ${arg1} ${arg2} ${arg3}
 				ret=$?
 				[ ${ret} -eq 0 ] && break
 			done
@@ -199,37 +208,10 @@ dm_crypt_execute_dmcrypt() {
 	else
 		if [ -n "${pre_mount}" ] ; then
 			dev="/dev/mapper/${target}"
-			ebegin "    pre_mount: ${pre_mount}"
+			eval ebegin \""    pre_mount: ${pre_mount}"\"
 			eval "${pre_mount}" > /dev/null
 			ewend $? || cryptfs_status=1
 		fi
-	fi
-}
-
-# Run any post_mount commands for an individual mount
-#
-# Note: This relies on variables localized in the main body below.
-dm_crypt_execute_localmount() {
-	local mount_point
-
-	[ -z "${target}" ] && [ -z "${post_mount}" ] && return
-
-	if ! cryptsetup status ${target} | egrep -q '\<active:' ; then
-		ewarn "Skipping unmapped target ${target}"
-		cryptfs_status=1
-		return
-	fi
-
-	mount_point=$(grep "/dev/mapper/${target}" /proc/mounts | cut -d' ' -f2)
-	if [ -z "${mount_point}" ] ; then
-		ewarn "Failed to find mount point for ${target}, skipping"
-		cryptfs_status=1
-	fi
-
-	if [ -n "${post_mount}" ] ; then
-		ebegin "Running post_mount commands for target ${target}"
-		eval "${post_mount}" >/dev/null
-		eend $? || cryptfs_status=1
 	fi
 }
 
@@ -262,7 +244,7 @@ start() {
 		esac
 	done
 
-	while read -u 3 targetline ; do
+	while read targetline <&3 ; do
 		case ${targetline} in
 		# skip comments and blank lines
 		""|"#"*) continue ;;
@@ -277,7 +259,7 @@ start() {
 		case ${targetline} in
 		target=*|swap=*)
 			# If we have a target queued up, then execute it
-			${execute_hook}
+			dm_crypt_execute
 
 			# Prepare for the next target/swap by resetting variables
 			unset gpg_options key loop_file target options pre_mount post_mount source swap remdev
@@ -300,12 +282,12 @@ start() {
 			;;
 		esac
 
-		# Queue this setting for the next call to dm_crypt_execute_xxx
+		# Queue this setting for the next call to dm_crypt_execute
 		eval "${targetline}"
 	done 3< ${conf_file}
 
 	# If we have a target queued up, then execute it
-	${execute_hook}
+	dm_crypt_execute
 
 	ewend ${cryptfs_status} "Failed to setup dm-crypt devices"
 }

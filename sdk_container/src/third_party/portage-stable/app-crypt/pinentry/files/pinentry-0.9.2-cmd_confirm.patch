@@ -1,0 +1,47 @@
+From 29236f84aca64be72c97a9b5513457a4e45afbc6 Mon Sep 17 00:00:00 2001
+From: "Neal H. Walfield" <neal@gnu.org>
+Date: Mon, 11 May 2015 16:14:58 +0200
+Subject: [PATCH] Implement cmd_confirm in terms of cmd_message.
+
+* pinentry/pinentry.c (cmd_confirm): Implement cmd_confirm in terms of
+cmd_message.
+---
+ pinentry/pinentry.c | 22 +---------------------
+ 1 file changed, 1 insertion(+), 21 deletions(-)
+
+diff --git a/pinentry/pinentry.c b/pinentry/pinentry.c
+index f28c576..11a8027 100644
+--- a/pinentry/pinentry.c
++++ b/pinentry/pinentry.c
+@@ -1146,27 +1146,7 @@ cmd_confirm (ASSUAN_CONTEXT ctx, char *line)
+ static int
+ cmd_message (ASSUAN_CONTEXT ctx, char *line)
+ {
+-  int result;
+-
+-  pinentry.one_button = 1;
+-  pinentry.quality_bar = 0;
+-  pinentry.close_button = 0;
+-  pinentry.locale_err = 0;
+-  pinentry.specific_err = 0;
+-  result = (*pinentry_cmd_handler) (&pinentry);
+-  if (pinentry.error)
+-    {
+-      free (pinentry.error);
+-      pinentry.error = NULL;
+-    }
+-
+-  if (pinentry.close_button)
+-    assuan_write_status (ctx, "BUTTON_INFO", "close");
+-
+-  return result ? 0
+-                : (pinentry.specific_err? pinentry.specific_err :
+-                   pinentry.locale_err? ASSUAN_Locale_Problem
+-                                      : 0);
++  return cmd_confirm (ctx, "--one-button");
+ }
+ 
+ /* GETINFO <what>
+-- 
+2.1.4
+

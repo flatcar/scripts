@@ -1,0 +1,17 @@
+Fix build with emacs-24.4.
+
+http://debbugs.gnu.org/cgi/bugreport.cgi?bug=18845
+
+--- protobuf-2.5.0/editors/protobuf-mode.el
++++ protobuf-2.5.0/editors/protobuf-mode.el
+@@ -66,6 +66,10 @@
+ (require 'cc-mode)
+
+ (eval-when-compile
++  (and (= emacs-major-version 24)
++       (= emacs-minor-version 4)
++       (null emacs-repository-version)
++       (require 'cl))
+   (require 'cc-langs)
+   (require 'cc-fonts))
+

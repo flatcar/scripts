@@ -1,6 +1,54 @@
 # ChangeLog for sys-fs/cryptsetup
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/cryptsetup/ChangeLog,v 1.195 2014/11/09 05:48:12 zerochaos Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/cryptsetup/ChangeLog,v 1.207 2015/04/12 22:25:40 vapier Exp $
+
+*cryptsetup-1.6.7 (12 Apr 2015)
+
+  12 Apr 2015; Mike Frysinger <vapier@gentoo.org> +cryptsetup-1.6.7.ebuild,
+  +files/1.6.7-dmcrypt.confd, +files/1.6.7-dmcrypt.rc:
+  Adapt the timeout logic to apply to the gpg command too #357449 by Vespian.
+  Version bump #546140 by Nikoli.
+
+  12 Apr 2015; Mike Frysinger <vapier@gentoo.org> files/1.0.6-dmcrypt.confd,
+  files/1.5.1-dmcrypt.rc:
+  Allow loopbacks to be allocated dynamically from a free one #282626 by Zeev
+  Tarantov.
+
+  12 Apr 2015; Mike Frysinger <vapier@gentoo.org> files/1.0.6-dmcrypt.confd,
+  files/1.5.1-dmcrypt.rc:
+  Use blkid -t to look up devices via tag values (like UUID/PARTUUID) #525524 by
+  tokiclover.
+
+  12 Apr 2015; Mike Frysinger <vapier@gentoo.org> files/1.5.1-dmcrypt.rc:
+  Delete old dm_crypt_execute_localmount hook as no one uses it anymore #321507
+  by forums.
+
+  12 Apr 2015; Mike Frysinger <vapier@gentoo.org> files/1.5.1-dmcrypt.rc:
+  Run ebegin message through eval so the output is expanded #442374 by Toralf
+  Förster.
+
+  12 Apr 2015; Mike Frysinger <vapier@gentoo.org> files/1.0.6-dmcrypt.confd:
+  Note that the config file must be terminated by a newline #426986 by klamp.
+
+  12 Apr 2015; Mike Frysinger <vapier@gentoo.org> files/1.5.1-dmcrypt.rc:
+  Explicitly have cryptsetup read the key from stdin #266546 by forums.
+
+  12 Apr 2015; Mike Frysinger <vapier@gentoo.org> files/1.5.1-dmcrypt.rc:
+  Automatically run before swap when creating swap files #509412 by Toralf
+  Förster.
+
+  12 Apr 2015; Mike Frysinger <vapier@gentoo.org> files/1.5.1-dmcrypt.rc:
+  Fix bashisms in init script #451460 by Alexander Tsoy.
+
+  12 Apr 2015; Mike Frysinger <vapier@gentoo.org> cryptsetup-1.6.5.ebuild,
+  cryptsetup-1.6.6.ebuild, metadata.xml:
+  Add USE=pwquality to control libpwquality dep #492624 by Nikoli.
+
+  08 Apr 2015; Michał Górny <mgorny@gentoo.org> cryptsetup-1.6.2.ebuild:
+  Drop old Python implementations
+
+  10 Feb 2015; Michał Górny <mgorny@gentoo.org> files/1.0.6-dmcrypt.confd:
+  Fix example in conf.d, bug #518592, patch by Michael Mair-Keimberger.
 
   09 Nov 2014; Rick Farina <zerochaos@gentoo.org> cryptsetup-1.6.6.ebuild:
   fix bug 525208 per klondike's testing

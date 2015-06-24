@@ -34,11 +34,16 @@
 # target=<name>                      == Mapping name for partition.
 # swap=<name>                        == Mapping name for swap partition.
 # source='<dev>'                     == Real device for partition.
+#                                    Note: You can (and should) specify a tag like UUID
+#                                    for blkid (see -t option).  This is safer than using
+#                                    the full path to the device.
 # key='</path/to/keyfile>[:<mode>]'  == Fullpath from / or from inside removable media.
 # remdev='<dev>'                     == Device that will be assigned to removable media.
 # gpg_options='<opts>'               == Default are --quiet --decrypt
 # options='<opts>'                   == cryptsetup, for LUKS you can only use --readonly
 # loop_file='<file>'                 == Loopback file.
+#                                    Note: If you omit $source, then a free loopback will
+#                                    be looked up automatically.
 # pre_mount='cmds'                   == commands to execute before mounting partition.
 # post_mount='cmds'                  == commands to execute after mounting partition.
 #-----------
@@ -93,6 +98,8 @@
 #post_mount='chown root:root ${mount_point}; chmod 1777 ${mount_point}'
 
 ## Loopback file example
-#mount='crypt-loop-home'
+#target='crypt-loop-home'
 #source='/dev/loop0'
 #loop_file='/mnt/crypt/home'
+
+# The file must be terminated by a newline.  Or leave this comment last.

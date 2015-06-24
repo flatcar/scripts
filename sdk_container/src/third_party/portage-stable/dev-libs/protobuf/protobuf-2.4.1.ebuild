@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/protobuf/protobuf-2.4.1.ebuild,v 1.5 2012/11/19 18:29:50 bicatali Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/protobuf/protobuf-2.4.1.ebuild,v 1.13 2014/08/14 00:03:40 jer Exp $
 
 EAPI="3"
 
@@ -16,7 +16,7 @@ SRC_URI="http://protobuf.googlecode.com/files/${P}.tar.bz2"
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~ia64 ~mips ~ppc ~ppc64 ~x86 ~amd64-linux ~x64-macos ~x86-linux"
+KEYWORDS="amd64 arm -hppa ~ia64 ~mips ppc ppc64 x86 ~amd64-linux ~arm-linux ~x86-linux ~x64-macos"
 IUSE="emacs examples java python static-libs vim-syntax"
 
 DEPEND="${DEPEND} java? ( >=virtual/jdk-1.5 )
@@ -33,6 +33,7 @@ pkg_setup() {
 		python_set_active_version 2
 		python_pkg_setup
 	fi
+	use java && java-pkg-opt-2_pkg_setup
 }
 
 src_prepare() {

@@ -1,0 +1,32 @@
+From aa04dac66f2ee949e8789a3c91090b01646f2e57 Mon Sep 17 00:00:00 2001
+From: "Neal H. Walfield" <neal@gnu.org>
+Date: Mon, 11 May 2015 16:14:18 +0200
+Subject: [PATCH] Fix memory allocation in pinentry_setbufferlen.
+
+* pinentry/pinentry.c (pinentry_setbufferlen): Set PIN->PIN to a
+buffer that is LEN bytes large, not 2 * PIN->PIN_LENGTH.
+---
+ pinentry/pinentry.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/pinentry/pinentry.c b/pinentry/pinentry.c
+index 51c873c..f28c576 100644
+--- a/pinentry/pinentry.c
++++ b/pinentry/pinentry.c
+@@ -356,11 +356,11 @@ pinentry_setbufferlen (pinentry_t pin, int len)
+   char *newp;
+   if (len < pinentry.pin_len)
+     return NULL;
+-  newp = secmem_realloc (pin->pin, 2 * pin->pin_len);
++  newp = secmem_realloc (pin->pin, len);
+   if (newp)
+     {
+       pin->pin = newp;
+-      pin->pin_len *= 2;
++      pin->pin_len = len;
+     }
+   else
+     {
+-- 
+2.1.4
+

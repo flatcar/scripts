@@ -1,6 +1,113 @@
 # ChangeLog for dev-libs/libassuan
-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/libassuan/ChangeLog,v 1.94 2012/12/23 21:18:53 grobian Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/libassuan/ChangeLog,v 1.125 2015/05/14 15:09:53 k_f Exp $
+
+*libassuan-2.2.1 (14 May 2015)
+
+  14 May 2015; Kristian Fiskerstrand <k_f@gentoo.org> +libassuan-2.2.1.ebuild:
+  Version bump
+
+*libassuan-2.2.0 (17 Dec 2014)
+
+  17 Dec 2014; Tim Harder <radhermit@gentoo.org> +libassuan-2.2.0.ebuild:
+  Version bump.
+
+*libassuan-2.1.3 (04 Dec 2014)
+
+  04 Dec 2014; Tim Harder <radhermit@gentoo.org> +libassuan-2.1.3.ebuild:
+  Version bump.
+
+  14 Nov 2014; Fabian Groffen <grobian@gentoo.org> libassuan-2.1.2.ebuild:
+  Fix building shared libary on Solaris
+
+*libassuan-2.1.2 (08 Oct 2014)
+
+  08 Oct 2014; Alon Bar-Lev <alonbl@gentoo.org> +libassuan-2.1.2.ebuild,
+  -libassuan-2.0.3.ebuild, -libassuan-2.1.0.ebuild:
+  Version bump, bug#524740, cleanup
+
+  05 Feb 2014; Mike Frysinger <vapier@gentoo.org> libassuan-2.0.3.ebuild,
+  libassuan-2.1.0.ebuild, libassuan-2.1.1.ebuild:
+  Mark s390/sh stable.
+
+  20 Jan 2014; Mike Frysinger <vapier@gentoo.org> libassuan-2.1.1.ebuild:
+  Add arm64 love.
+
+  18 Jan 2014; Agostino Sarubbo <ago@gentoo.org> libassuan-2.1.1.ebuild:
+  Stable for alpha, wrt bug #492032
+
+  15 Jan 2014; Agostino Sarubbo <ago@gentoo.org> libassuan-2.1.1.ebuild:
+  Stable for ia64, wrt bug #492032
+
+  24 Dec 2013; Agostino Sarubbo <ago@gentoo.org> libassuan-2.1.1.ebuild:
+  Stable for x86, wrt bug #492032
+
+  23 Dec 2013; Markus Meier <maekke@gentoo.org> libassuan-2.1.1.ebuild:
+  arm stable, bug #492032
+
+  23 Dec 2013; Agostino Sarubbo <ago@gentoo.org> libassuan-2.1.1.ebuild:
+  Stable for sparc, wrt bug #492032
+
+  22 Dec 2013; Pacho Ramos <pacho@gentoo.org> libassuan-2.1.1.ebuild:
+  amd64 stable, bug #492032
+
+  22 Dec 2013; Agostino Sarubbo <ago@gentoo.org> libassuan-2.1.1.ebuild:
+  Stable for ppc64, wrt bug #492032
+
+  21 Dec 2013; Agostino Sarubbo <ago@gentoo.org> libassuan-2.1.1.ebuild:
+  Stable for ppc, wrt bug #492032
+
+  05 Dec 2013; Michael Haubenwallner <haubi@gentoo.org> libassuan-2.1.1.ebuild:
+  add ~ppc-aix keyword
+
+  30 Nov 2013; Jeroen Roovers <jer@gentoo.org> libassuan-2.1.1.ebuild:
+  Stable for HPPA (bug #492032).
+
+  30 Jun 2013; Agostino Sarubbo <ago@gentoo.org> libassuan-2.1.0.ebuild:
+  Stable for s390, wrt bug #471410
+
+*libassuan-2.1.1 (30 Jun 2013)
+
+  30 Jun 2013; Tim Harder <radhermit@gentoo.org> +libassuan-2.1.1.ebuild:
+  Version bump.
+
+  29 Jun 2013; Agostino Sarubbo <ago@gentoo.org> libassuan-2.1.0.ebuild:
+  Stable for sparc, wrt bug #471410
+
+  26 Jun 2013; Agostino Sarubbo <ago@gentoo.org> libassuan-2.1.0.ebuild:
+  Stable for ia64, wrt bug #471410
+
+  26 Jun 2013; Agostino Sarubbo <ago@gentoo.org> libassuan-2.1.0.ebuild:
+  Stable for alpha, wrt bug #471410
+
+  25 Jun 2013; Agostino Sarubbo <ago@gentoo.org> libassuan-2.1.0.ebuild:
+  Stable for amd64, wrt bug #471410
+
+  25 Jun 2013; Agostino Sarubbo <ago@gentoo.org> libassuan-2.1.0.ebuild:
+  Stable for x86, wrt bug #471410
+
+  25 Jun 2013; Agostino Sarubbo <ago@gentoo.org> libassuan-2.1.0.ebuild:
+  Stable for ppc64, wrt bug #471410
+
+  24 Jun 2013; Agostino Sarubbo <ago@gentoo.org> libassuan-2.1.0.ebuild:
+  Stable for ppc, wrt bug #471410
+
+  09 Jun 2013; Agostino Sarubbo <ago@gentoo.org> libassuan-2.1.0.ebuild:
+  Stable for sh, wrt bug #471410
+
+  09 Jun 2013; Markus Meier <maekke@gentoo.org> libassuan-2.1.0.ebuild:
+  arm stable, bug #471410
+
+  03 Jun 2013; Jeroen Roovers <jer@gentoo.org> libassuan-2.1.0.ebuild:
+  Stable for HPPA (bug #471410).
+
+*libassuan-2.1.0 (06 Mar 2013)
+
+  06 Mar 2013; Alon Bar-Lev <alonbl@gentoo.org> +libassuan-2.1.0.ebuild:
+  Version bump, per bug#460336
+
+  19 Feb 2013; Zac Medico <zmedico@gentoo.org> libassuan-2.0.3.ebuild:
+  Add ~arm-linux keyword.
 
   23 Dec 2012; Fabian Groffen <grobian@gentoo.org> libassuan-2.0.3.ebuild:
   Marked ~sparc64-solaris
