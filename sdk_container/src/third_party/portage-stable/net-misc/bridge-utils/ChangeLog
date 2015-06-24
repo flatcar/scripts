@@ -1,6 +1,12 @@
 # ChangeLog for net-misc/bridge-utils
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/bridge-utils/ChangeLog,v 1.69 2013/09/14 19:28:31 ssuominen Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-misc/bridge-utils/ChangeLog,v 1.71 2015/05/16 06:30:55 robbat2 Exp $
+
+  16 May 2015; Robin H. Johnson <robbat2@gentoo.org> bridge-utils-1.5.ebuild:
+  Bug #538022: selinux policy rdepend.
+
+  03 Mar 2015; Yixun Lan <dlan@gentoo.org> bridge-utils-1.5.ebuild:
+  add arm64 support, tested on A53 board
 
   14 Sep 2013; Samuli Suominen <ssuominen@gentoo.org> -bridge-utils-1.2.ebuild,
   -bridge-utils-1.4.ebuild, -files/bridge-utils-1.0.6-allow-without-sysfs.patch,
