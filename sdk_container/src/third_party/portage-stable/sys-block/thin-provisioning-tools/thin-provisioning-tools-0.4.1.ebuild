@@ -1,23 +1,23 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-block/thin-provisioning-tools/thin-provisioning-tools-0.2.8-r2.ebuild,v 1.1 2013/12/28 00:39:05 robbat2 Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-block/thin-provisioning-tools/thin-provisioning-tools-0.4.1.ebuild,v 1.1 2014/09/13 08:20:29 ssuominen Exp $
 
 EAPI=5
-inherit base autotools
+inherit autotools eutils
 
-DESCRIPTION="A suite of tools for thin provisioning on Linux."
-HOMEPAGE="https://github.com/jthornber/thin-provisioning-tools"
+DESCRIPTION="A suite of tools for thin provisioning on Linux"
+HOMEPAGE="http://github.com/jthornber/thin-provisioning-tools"
 EXT=.tar.gz
 BASE_A=${P}${EXT}
-SRC_URI="http://github.com/jthornber/${PN}/archive/v${PV}${EXT} -> ${BASE_A}
-		https://github.com/denys-duchier/thin-provisioning-tools/commit/3a4c06b772bc8ca27bcf7c2d82abc46c65c23795.diff -> ${P}-boost.patch"
+SRC_URI="http://github.com/jthornber/${PN}/archive/v${PV}${EXT} -> ${BASE_A}"
 
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-linux ~x86-linux"
 IUSE="test"
 
-RDEPEND="dev-libs/expat"
+RDEPEND="dev-libs/expat
+	dev-libs/libaio"
 # || ( ) is a non-future proof workaround for Portage unefficiency wrt #477050
 DEPEND="${RDEPEND}
 	test? (
@@ -28,14 +28,9 @@ DEPEND="${RDEPEND}
 		)
 	dev-libs/boost"
 
-PATCHES=( "${DISTDIR}"/${P}-boost.patch )
-
-src_unpack() {
-	unpack ${BASE_A}
-}
-
 src_prepare() {
-	base_src_prepare
+	sed -i -e '/^INSTALL_PROGRAM/s:-s::' Makefile.in || die
+	epatch_user
 	eautoreconf
 }
 
@@ -48,7 +43,7 @@ src_configure() {
 }
 
 src_install() {
-	emake install DESTDIR="${D}" MANDIR=/usr/share/man
+	emake DESTDIR="${D}" MANPATH="${D}"/usr/share/man install
 	dodoc README.md TODO.org
 }
 
