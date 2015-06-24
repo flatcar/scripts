@@ -10,6 +10,6 @@
     <name>Sergei Trofimovich</name>
   </maintainer>
   <use>
-    <flag name='debug-utils'>Build additional utils for debugging</flag>
+    <flag name='convert'>Build ext2 conversion utility (btrfs-convert)</flag>
   </use>
 </pkgmetadata>

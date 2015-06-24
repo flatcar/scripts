@@ -1,6 +1,66 @@
 # ChangeLog for sys-fs/btrfs-progs
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/btrfs-progs/ChangeLog,v 1.93 2014/11/15 14:30:47 slyfox Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/btrfs-progs/ChangeLog,v 1.105 2015/05/09 23:23:01 floppym Exp $
+
+*btrfs-progs-4.0 (09 May 2015)
+
+  09 May 2015; Mike Gilbert <floppym@gentoo.org> +btrfs-progs-4.0.ebuild,
+  metadata.xml:
+  Version bump.
+
+  09 May 2015; Mike Gilbert <floppym@gentoo.org> -btrfs-progs-0.19-r3.ebuild,
+  -btrfs-progs-0.19.11.ebuild, -btrfs-progs-0.20_rc1.ebuild,
+  -btrfs-progs-0.20_rc1_p358.ebuild, -btrfs-progs-0.20_rc1_p56.ebuild,
+  -btrfs-progs-3.12-r1.ebuild, -btrfs-progs-3.12-r2.ebuild,
+  -btrfs-progs-3.12.ebuild, -btrfs-progs-3.16.1.ebuild,
+  -btrfs-progs-3.16.ebuild, -btrfs-progs-3.17.1.ebuild,
+  -btrfs-progs-3.17.ebuild, -btrfs-progs-3.18.ebuild, -btrfs-progs-3.19.ebuild:
+  Remove old.
+
+  19 Apr 2015; Mike Gilbert <floppym@gentoo.org> btrfs-progs-3.19.1.ebuild,
+  btrfs-progs-9999.ebuild:
+  Disable backtrace on non-glibc systems.
+
+*btrfs-progs-3.19.1 (26 Mar 2015)
+
+  26 Mar 2015; Mike Gilbert <floppym@gentoo.org> +btrfs-progs-3.19.1.ebuild,
+  btrfs-progs-9999.ebuild:
+  Version bump, bug 544602. Install bash completion file, bug 544414.
+
+  25 Mar 2015; Mike Gilbert <floppym@gentoo.org> btrfs-progs-9999.ebuild:
+  Add note about --enable-convert being broken.
+
+  25 Mar 2015; Mike Gilbert <floppym@gentoo.org> btrfs-progs-3.19.ebuild,
+  btrfs-progs-9999.ebuild, metadata.xml:
+  Make btrfs-convert optional. Move binaries back to /sbin.
+
+*btrfs-progs-3.19 (25 Mar 2015)
+
+  25 Mar 2015; Mike Gilbert <floppym@gentoo.org> +btrfs-progs-3.19.ebuild,
+  btrfs-progs-9999.ebuild:
+  Version bump, bug 544392.
+
+  03 Mar 2015; Yixun Lan <dlan@gentoo.org> btrfs-progs-3.18.2.ebuild:
+  add arm64 support, tested on A53 board
+
+  14 Feb 2015; Mike Gilbert <floppym@gentoo.org> btrfs-progs-9999.ebuild:
+  Move custom autogen logic to the ebuild and call eautoreconf.
+
+  09 Feb 2015; Sergei Trofimovich <slyfox@gentoo.org> btrfs-progs-9999.ebuild:
+  Run upstream ./autogen.sh (bug #539434 by Helmut Jarausch).
+
+*btrfs-progs-3.18.2 (29 Jan 2015)
+
+  29 Jan 2015; Sergei Trofimovich <slyfox@gentoo.org>
+  +btrfs-progs-3.18.2.ebuild:
+  Version bump.
+
+*btrfs-progs-3.18 (01 Jan 2015)
+*btrfs-progs-3.17.3 (01 Jan 2015)
+
+  01 Jan 2015; Mike Gilbert <floppym@gentoo.org> +btrfs-progs-3.17.3.ebuild,
+  +btrfs-progs-3.18.ebuild:
+  Version bump, bug 533850.
 
 *btrfs-progs-3.17.1 (15 Nov 2014)
 
