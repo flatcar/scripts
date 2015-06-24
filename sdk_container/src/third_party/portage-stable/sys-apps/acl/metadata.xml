@@ -7,4 +7,7 @@
 		add support for NFS acls
 	</flag>
 </use>
+<upstream>
+	<remote-id type="cpe">cpe:/a:xfs:acl</remote-id>
+</upstream>
 </pkgmetadata>
