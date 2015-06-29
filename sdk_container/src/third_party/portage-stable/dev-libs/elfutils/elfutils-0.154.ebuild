@@ -1,8 +1,8 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/elfutils/elfutils-0.154-r1.ebuild,v 1.3 2012/10/09 15:49:14 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/elfutils/elfutils-0.154.ebuild,v 1.2 2012/10/09 15:49:14 vapier Exp $
 
-EAPI="4"
+EAPI="3"
 
 inherit eutils flag-o-matic
 
@@ -15,7 +15,7 @@ SRC_URI="https://fedorahosted.org/releases/e/l/${PN}/${PV}/${P}.tar.bz2
 LICENSE="GPL-2-with-exceptions"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-linux ~x86-linux"
-IUSE="bzip2 lzma nls static-libs test +threads +utils zlib"
+IUSE="bzip2 lzma nls test zlib"
 
 # This pkg does not actually seem to compile currently in a uClibc
 # environment (xrealloc errs), but we need to ensure that glibc never
@@ -34,7 +34,6 @@ src_prepare() {
 	epatch "${DISTDIR}"/${P}-{portability,robustify}.patch
 	sed -i -e 's:-Werror::g' $(find -name Makefile.in) || die
 	use test || sed -i -e 's: tests::' Makefile.in #226349
-	use static-libs || sed -i -e '/^lib_LIBRARIES/s:=.*:=:' -e '/^%.os/s:%.o$::' lib{asm,dw,elf}/Makefile.in
 	# some patches touch both configure and configure.ac
 	find -type f -exec touch -r configure {} +
 }
@@ -42,9 +41,7 @@ src_prepare() {
 src_configure() {
 	use test && append-flags -g #407135
 	econf \
-		--disable-werror \
 		$(use_enable nls) \
-		$(use_enable threads thread-safety) \
 		--program-prefix="eu-" \
 		$(use_with zlib) \
 		$(use_with bzip2 bzlib) \
@@ -54,13 +51,10 @@ src_configure() {
 src_test() {
 	env LD_LIBRARY_PATH="${S}/libelf:${S}/libebl:${S}/libdw:${S}/libasm" \
 		LC_ALL="C" \
-		emake check || die
+		emake -j1 check || die "test failed"
 }
 
 src_install() {
-	default
-	dodoc NOTES
-	# These build quick, and are needed for most tests, so don't
-	# disable their building when the USE flag is disabled.
-	use utils || rm -rf "${ED}"/usr/bin
+	emake DESTDIR="${D}" install || die
+	dodoc AUTHORS ChangeLog NEWS NOTES README THANKS TODO
 }
