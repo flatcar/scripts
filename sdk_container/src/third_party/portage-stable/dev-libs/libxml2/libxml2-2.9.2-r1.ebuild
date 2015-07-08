@@ -1,9 +1,9 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/libxml2/libxml2-2.9.1-r4.ebuild,v 1.12 2014/06/24 19:59:48 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/libxml2/libxml2-2.9.2-r1.ebuild,v 1.12 2015/06/05 08:16:42 vapier Exp $
 
 EAPI="5"
-PYTHON_COMPAT=( python{2_6,2_7,3_2,3_3,3_4} )
+PYTHON_COMPAT=( python{2_7,3_3,3_4} )
 PYTHON_REQ_USE="xml"
 
 inherit libtool flag-o-matic eutils python-r1 autotools prefix multilib-minimal
@@ -29,7 +29,8 @@ SRC_URI="ftp://xmlsoft.org/${PN}/${PN}-${PV/_rc/-rc}.tar.gz
 		${XSTS_HOME}/${XSTS_NAME_2}/${XSTS_TARBALL_2}
 		http://www.w3.org/XML/Test/${XMLCONF_TARBALL} )"
 
-COMMON_DEPEND=">=sys-libs/zlib-1.2.8-r1:=[${MULTILIB_USEDEP}]
+COMMON_DEPEND="
+	>=sys-libs/zlib-1.2.8-r1:=[${MULTILIB_USEDEP}]
 	icu? ( >=dev-libs/icu-51.2-r1:=[${MULTILIB_USEDEP}] )
 	lzma? ( >=app-arch/xz-utils-5.0.5-r1:=[${MULTILIB_USEDEP}] )
 	python? ( ${PYTHON_DEPS} )
@@ -46,6 +47,10 @@ DEPEND="${COMMON_DEPEND}
 "
 
 S="${WORKDIR}/${PN}-${PV%_rc*}"
+
+MULTILIB_CHOST_TOOLS=(
+	/usr/bin/xml2-config
+)
 
 src_unpack() {
 	# ${A} isn't used to avoid unpacking of test tarballs into $WORKDIR,
@@ -73,27 +78,23 @@ src_prepare() {
 
 #	epunt_cxx # if we don't eautoreconf
 
-	# Important patches from 2.9.2
-	epatch "${FILESDIR}/${P}-missing-break.patch" \
-		"${FILESDIR}/${P}-python-2.6.patch" \
-		"${FILESDIR}/${P}-compression-detection.patch" \
-		"${FILESDIR}/${P}-non-ascii-cr-lf.patch" \
-		"${FILESDIR}/${PN}-2.9.1-python3.patch" \
-		"${FILESDIR}/${PN}-2.9.1-python3a.patch"
+	epatch "${FILESDIR}"/${PN}-2.9.2-cross-compile.patch
 
-	# Security fixes from 2.9.2
-	epatch "${FILESDIR}/${P}-external-param-entities.patch"
-
-	# https://bugzilla.gnome.org/show_bug.cgi?id=730290
-	epatch "${FILESDIR}/${PN}-2.9.1-xmllint-postvalid.patch"
+	# Important patches from master
+	epatch \
+		"${FILESDIR}/${PN}-2.9.2-revert-missing-initialization.patch" \
+		"${FILESDIR}/${PN}-2.9.2-missing-entities.patch" \
+		"${FILESDIR}/${PN}-2.9.2-threads-declarations.patch" \
+		"${FILESDIR}/${PN}-2.9.2-timsort.patch" \
+		"${FILESDIR}/${PN}-2.9.2-constant-memory.patch"
 
 	# Please do not remove, as else we get references to PORTAGE_TMPDIR
 	# in /usr/lib/python?.?/site-packages/libxml2mod.la among things.
 	# We now need to run eautoreconf at the end to prevent maintainer mode.
 #	elibtoolize
 
-	# Use pkgconfig to find icu to properly support multilib
-	epatch "${FILESDIR}/${PN}-2.9.1-icu-pkgconfig.patch"
+	# Use pkgconfig to find icu to properly support multilib, upstream bug #738751
+	epatch "${FILESDIR}/${PN}-2.9.2-icu-pkgconfig.patch"
 
 	eautoreconf
 }
@@ -133,7 +134,7 @@ multilib_src_configure() {
 	libxml2_configure --without-python # build python bindings separately
 
 	if multilib_is_native_abi && use python; then
-		python_parallel_foreach_impl libxml2_py_configure
+		python_foreach_impl libxml2_py_configure
 	fi
 }
 
