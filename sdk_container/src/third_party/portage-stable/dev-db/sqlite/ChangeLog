@@ -1,6 +1,181 @@
 # ChangeLog for dev-db/sqlite
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-db/sqlite/ChangeLog,v 1.533 2014/10/10 11:00:51 ago Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-db/sqlite/ChangeLog,v 1.580 2015/07/03 15:50:48 zlogene Exp $
+
+  03 Jul 2015; Mikle Kolyada <zlogene@gentoo.org> sqlite-3.8.10.2.ebuild:
+  arm stable wrt bug #552698
+
+  03 Jul 2015; Agostino Sarubbo <ago@gentoo.org> sqlite-3.8.10.2.ebuild:
+  Stable for alpha, wrt bug #552698
+
+  27 Jun 2015; Jeroen Roovers <jer@gentoo.org> sqlite-3.8.10.2.ebuild:
+  Stable for HPPA PPC64 (bug #552698).
+
+  26 Jun 2015; Agostino Sarubbo <ago@gentoo.org> sqlite-3.8.10.2.ebuild:
+  Stable for x86, wrt bug #552698
+
+  23 Jun 2015; Agostino Sarubbo <ago@gentoo.org> sqlite-3.8.10.2.ebuild:
+  Stable for amd64, wrt bug #552698
+
+  04 Jun 2015; Mike Gilbert <floppym@gentoo.org> -sqlite-3.8.6.ebuild,
+  -sqlite-3.8.7.1.ebuild, -sqlite-3.8.7.2.ebuild, -sqlite-3.8.7.3.ebuild,
+  -sqlite-3.8.7.4.ebuild, -sqlite-3.8.7.ebuild, -sqlite-3.8.8.1.ebuild,
+  -sqlite-3.8.8.2.ebuild, -sqlite-3.8.8.3.ebuild, -sqlite-3.8.9.ebuild:
+  Remove old.
+
+  02 Jun 2015; Jack Morgan <jmorgan@gentoo.org> sqlite-3.8.10.1.ebuild:
+  sparc stable wrt bug #549258
+
+  27 May 2015; Agostino Sarubbo <ago@gentoo.org> sqlite-3.8.10.1.ebuild:
+  Stable for arm, wrt bug #549258
+
+  27 May 2015; Agostino Sarubbo <ago@gentoo.org> sqlite-3.8.9.ebuild:
+  Stable for arm, wrt bug #546626
+
+*sqlite-3.8.10.2 (23 May 2015)
+
+  23 May 2015; Mike Gilbert <floppym@gentoo.org> +sqlite-3.8.10.2.ebuild:
+  Version bump. Ebuild by Arfrever.
+
+  20 May 2015; Matt Turner <mattst88@gentoo.org> sqlite-3.8.10.1.ebuild:
+  alpha stable, bug 549258.
+
+  19 May 2015; Agostino Sarubbo <ago@gentoo.org> sqlite-3.8.10.1.ebuild:
+  Stable for x86, wrt bug #549258
+
+  15 May 2015; Jack Morgan <jmorgan@gentoo.org> sqlite-3.8.10.1.ebuild:
+  ia64 stable wrt bug #549258
+
+  15 May 2015; Ian Delaney <idella4@gentoo.org> sqlite-3.8.10.1.ebuild:
+  Fix parallel building with USE="-tcl -test -tools" (bug #549412).
+  Patch by Arfrever.
+
+  15 May 2015; Pacho Ramos <pacho@gentoo.org> sqlite-3.8.10.1.ebuild:
+  ppc stable wrt bug #549258
+
+  15 May 2015; Ian Delaney <idella4@gentoo.org> sqlite-3.8.10.1.ebuild:
+  Use pread(), pread64(), pwrite() and pwrite64() (bug #549080). Update
+  dependencies, CPPFLAGS, configure options. Patch by Arfrever.
+
+  15 May 2015; Justin Lecher <jlec@gentoo.org> metadata.xml,
+  sqlite-3.8.10.1.ebuild:
+  Add REQUIERED_USE for tools -> tcl, bug #549308
+
+  13 May 2015; Agostino Sarubbo <ago@gentoo.org> sqlite-3.8.10.1.ebuild:
+  Stable for amd64, wrt bug #549258
+
+  13 May 2015; Jeroen Roovers <jer@gentoo.org> sqlite-3.8.10.1.ebuild:
+  Stable for HPPA PPC64 (bug #549258).
+
+*sqlite-3.8.10.1 (12 May 2015)
+
+  12 May 2015; Mike Gilbert <floppym@gentoo.org> +sqlite-3.8.10.1.ebuild,
+  metadata.xml:
+  Version bump. Add "tools" USE flag. Ebuild by Arfrever.
+
+  29 Apr 2015; Agostino Sarubbo <ago@gentoo.org> sqlite-3.8.9.ebuild:
+  Stable for sparc, wrt bug #546626
+
+  28 Apr 2015; Agostino Sarubbo <ago@gentoo.org> sqlite-3.8.9.ebuild:
+  Stable for ia64, wrt bug #546626
+
+  28 Apr 2015; Agostino Sarubbo <ago@gentoo.org> sqlite-3.8.9.ebuild:
+  Stable for alpha, wrt bug #546626
+
+  21 Apr 2015; Jeroen Roovers <jer@gentoo.org> sqlite-3.8.9.ebuild:
+  Stable for PPC64 (bug #546626).
+
+  21 Apr 2015; Pacho Ramos <pacho@gentoo.org> sqlite-3.8.9.ebuild:
+  ppc stable wrt bug #546626
+
+  17 Apr 2015; Agostino Sarubbo <ago@gentoo.org> sqlite-3.8.9.ebuild:
+  Stable for x86, wrt bug #546626
+
+  17 Apr 2015; Agostino Sarubbo <ago@gentoo.org> sqlite-3.8.9.ebuild:
+  Stable for amd64, wrt bug #546626
+
+  17 Apr 2015; Jeroen Roovers <jer@gentoo.org> sqlite-3.8.9.ebuild:
+  Stable for HPPA (bug #546626).
+
+*sqlite-3.8.9 (16 Apr 2015)
+
+  16 Apr 2015; Mike Gilbert <floppym@gentoo.org> +sqlite-3.8.9.ebuild:
+  Version bump. Ebuild by Arfrever.
+
+  25 Mar 2015; Justin Lecher <jlec@gentoo.org> sqlite-3.8.6.ebuild:
+  Fix tcl/tk slotting
+
+  20 Mar 2015; Justin Lecher <jlec@gentoo.org> sqlite-3.8.6.ebuild,
+  sqlite-3.8.7.1.ebuild, sqlite-3.8.7.2.ebuild, sqlite-3.8.7.3.ebuild,
+  sqlite-3.8.7.4.ebuild, sqlite-3.8.7.ebuild, sqlite-3.8.8.1.ebuild,
+  sqlite-3.8.8.2.ebuild, sqlite-3.8.8.3.ebuild:
+  Fix tcl/tk slotting; fix SLOT operators
+
+*sqlite-3.8.8.3 (11 Mar 2015)
+
+  11 Mar 2015; Mike Gilbert <floppym@gentoo.org> +sqlite-3.8.8.3.ebuild:
+  Version bump. Ebuild by Arfrever.
+
+  02 Mar 2015; Agostino Sarubbo <ago@gentoo.org> sqlite-3.8.7.4.ebuild:
+  Stable for ppc, wrt bug #536142
+
+*sqlite-3.8.8.2 (14 Feb 2015)
+
+  14 Feb 2015; Mike Gilbert <floppym@gentoo.org> +sqlite-3.8.8.2.ebuild:
+  Version bump by Arfrever.
+
+  22 Jan 2015; Markus Meier <maekke@gentoo.org> sqlite-3.8.7.4.ebuild:
+  arm stable, bug #536142
+
+*sqlite-3.8.8.1 (20 Jan 2015)
+
+  20 Jan 2015; Mike Gilbert <floppym@gentoo.org> +sqlite-3.8.8.1.ebuild:
+  Version bump. Ebuild by Arfrever.
+
+  16 Jan 2015; Patrick Lauer <patrick@gentoo.org> sqlite-3.8.7.4.ebuild:
+  Stable for amd64 and x86 #536142
+
+  13 Jan 2015; Jeroen Roovers <jer@gentoo.org> sqlite-3.8.7.4.ebuild:
+  Stable for HPPA (bug #536142).
+
+*sqlite-3.8.7.4 (12 Dec 2014)
+
+  12 Dec 2014; Mike Gilbert <floppym@gentoo.org> +sqlite-3.8.7.4.ebuild:
+  Version bump. Ebuild by Arfrever.
+
+*sqlite-3.8.7.3 (08 Dec 2014)
+
+  08 Dec 2014; Mike Gilbert <floppym@gentoo.org> +sqlite-3.8.7.3.ebuild:
+  Version bump. Ebuild by Arfrever.
+
+*sqlite-3.8.7.2 (19 Nov 2014)
+
+  19 Nov 2014; Mike Gilbert <floppym@gentoo.org> +sqlite-3.8.7.2.ebuild:
+  Version bump. Ebuild by Arfrever.
+
+  18 Nov 2014; Mike Gilbert <floppym@gentoo.org> -sqlite-3.8.2.ebuild,
+  -sqlite-3.8.3.1.ebuild, -sqlite-3.8.3.ebuild, -sqlite-3.8.4.1.ebuild,
+  -sqlite-3.8.4.3.ebuild, -sqlite-3.8.4.ebuild, -sqlite-3.8.5.ebuild:
+  Remove old.
+
+*sqlite-3.8.7.1 (05 Nov 2014)
+
+  05 Nov 2014; Mike Gilbert <floppym@gentoo.org> +sqlite-3.8.7.1.ebuild:
+  Version bump. Ebuild by Arfrever.
+
+  02 Nov 2014; Agostino Sarubbo <ago@gentoo.org> sqlite-3.8.6.ebuild:
+  Stable for alpha, wrt bug #523484
+
+  29 Oct 2014; Agostino Sarubbo <ago@gentoo.org> sqlite-3.8.6.ebuild:
+  Stable for sparc, wrt bug #523484
+
+  28 Oct 2014; Agostino Sarubbo <ago@gentoo.org> sqlite-3.8.6.ebuild:
+  Stable for ia64, wrt bug #523484
+
+*sqlite-3.8.7 (18 Oct 2014)
+
+  18 Oct 2014; Mike Gilbert <floppym@gentoo.org> +sqlite-3.8.7.ebuild:
+  Version bump. Ebuild by Arfrever.
 
   10 Oct 2014; Agostino Sarubbo <ago@gentoo.org> sqlite-3.8.6.ebuild:
   Stable for x86, wrt bug #523484
