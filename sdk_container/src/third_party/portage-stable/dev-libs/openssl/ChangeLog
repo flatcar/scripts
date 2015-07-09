@@ -1,6 +1,58 @@
 # ChangeLog for dev-libs/openssl
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/openssl/ChangeLog,v 1.658 2015/06/12 16:06:03 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/openssl/ChangeLog,v 1.671 2015/07/09 15:04:23 ago Exp $
+
+  09 Jul 2015; Agostino Sarubbo <ago@gentoo.org> openssl-1.0.1p.ebuild:
+  Stable for x86, wrt bug #554172
+
+  09 Jul 2015; Agostino Sarubbo <ago@gentoo.org> openssl-1.0.1p.ebuild:
+  Stable for amd64, wrt bug #554172
+
+*openssl-1.0.2d (09 Jul 2015)
+*openssl-1.0.1p (09 Jul 2015)
+
+  09 Jul 2015; Mike Frysinger <vapier@gentoo.org>
+  +files/openssl-1.0.1p-parallel-build.patch,
+  +files/openssl-1.0.2d-parallel-build.patch, +openssl-1.0.1p.ebuild,
+  +openssl-1.0.2d.ebuild:
+  Version bump #554172 by Tobias Heinlein.
+
+  21 Jun 2015; Mikle Kolyada <zlogene@gentoo.org> openssl-0.9.8z_p7.ebuild,
+  openssl-1.0.1o.ebuild:
+  alpha stable wrt bug #551832
+
+  17 Jun 2015; Mikle Kolyada <zlogene@gentoo.org> openssl-0.9.8z_p7.ebuild,
+  openssl-1.0.1o.ebuild:
+  ia64 stable wrt bug #551832
+
+  17 Jun 2015; Agostino Sarubbo <ago@gentoo.org> openssl-0.9.8z_p7.ebuild,
+  openssl-1.0.1o.ebuild:
+  Stable for sparc, wrt bug #551832
+
+  15 Jun 2015; Mike Frysinger <vapier@gentoo.org> openssl-0.9.8z_p7.ebuild,
+  openssl-1.0.1o.ebuild:
+  Mark arm64/m68k/s390/sh stable #551832.
+
+  13 Jun 2015; Mikle Kolyada <zlogene@gentoo.org> openssl-0.9.8z_p7.ebuild,
+  openssl-1.0.1o.ebuild:
+  arm stable wrt bug #551832
+
+  13 Jun 2015; Anthony G. Basile <blueness@gentoo.org> openssl-0.9.8z_p7.ebuild:
+  Stable for ppc and ppc64.  Bug #551832.
+
+  13 Jun 2015; Anthony G. Basile <blueness@gentoo.org> openssl-1.0.1o.ebuild:
+  Stable for ppc.  Bug #551832.
+
+  13 Jun 2015; Agostino Sarubbo <ago@gentoo.org> openssl-0.9.8z_p7.ebuild,
+  openssl-1.0.1o.ebuild:
+  Stable for x86, wrt bug #551832
+
+  13 Jun 2015; Mikle Kolyada <zlogene@gentoo.org> openssl-0.9.8z_p7.ebuild,
+  openssl-1.0.1o.ebuild:
+  amd64 stable wrt bug #551832
+
+  13 Jun 2015; Jeroen Roovers <jer@gentoo.org> openssl-1.0.1o.ebuild:
+  Stable for HPPA PPC64 (bug #551832).
 
 *openssl-1.0.1o (12 Jun 2015)
 *openssl-1.0.2c (12 Jun 2015)
