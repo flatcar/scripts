@@ -1,6 +1,158 @@
 # ChangeLog for virtual/perl-MIME-Base64
-# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/virtual/perl-MIME-Base64/ChangeLog,v 1.45 2011/07/30 11:51:56 tove Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/virtual/perl-MIME-Base64/ChangeLog,v 1.81 2015/06/07 14:31:11 dilfridge Exp $
+
+*perl-MIME-Base64-3.150.0 (07 Jun 2015)
+
+  07 Jun 2015; Andreas K. Huettel <dilfridge@gentoo.org>
+  -perl-MIME-Base64-3.130.0-r4.ebuild, +perl-MIME-Base64-3.150.0.ebuild:
+  Add Perl 5.22 version, remove old
+
+  04 Apr 2015; Mike Frysinger <vapier@gentoo.org>
+  perl-MIME-Base64-3.130.0-r4.ebuild, perl-MIME-Base64-3.140.0-r1.ebuild:
+  Mark arm64/m68k/s390/sh stable.
+
+  18 Feb 2015; Agostino Sarubbo <ago@gentoo.org>
+  perl-MIME-Base64-3.140.0-r1.ebuild:
+  Stable for alpha, wrt bug #536790
+
+  17 Feb 2015; Markus Meier <maekke@gentoo.org>
+  perl-MIME-Base64-3.140.0-r1.ebuild:
+  arm stable, bug #536790
+
+  17 Feb 2015; Agostino Sarubbo <ago@gentoo.org>
+  perl-MIME-Base64-3.140.0-r1.ebuild:
+  Stable for ia64, wrt bug #536790
+
+  16 Feb 2015; Agostino Sarubbo <ago@gentoo.org>
+  perl-MIME-Base64-3.140.0-r1.ebuild:
+  Stable for sparc, wrt bug #536790
+
+  15 Feb 2015; Agostino Sarubbo <ago@gentoo.org>
+  perl-MIME-Base64-3.140.0-r1.ebuild:
+  Stable for ppc64, wrt bug #536790
+
+  14 Feb 2015; Agostino Sarubbo <ago@gentoo.org>
+  perl-MIME-Base64-3.140.0-r1.ebuild:
+  Stable for ppc, wrt bug #536790
+
+  13 Feb 2015; Jeroen Roovers <jer@gentoo.org>
+  perl-MIME-Base64-3.140.0-r1.ebuild:
+  Stable for HPPA (bug #536790).
+
+  13 Feb 2015; Agostino Sarubbo <ago@gentoo.org>
+  perl-MIME-Base64-3.140.0-r1.ebuild:
+  Stable for x86, wrt bug #536790
+
+  08 Feb 2015; Mikle Kolyada <zlogene@gentoo.org>
+  perl-MIME-Base64-3.140.0-r1.ebuild:
+  amd64 stable wrt bug #536790
+
+*perl-MIME-Base64-3.130.0-r4 (08 Nov 2014)
+
+  08 Nov 2014; Andreas K. Huettel <dilfridge@gentoo.org>
+  -perl-MIME-Base64-3.130.0-r3.ebuild, +perl-MIME-Base64-3.130.0-r4.ebuild:
+  Remove Perl 5.16 as provider
+
+*perl-MIME-Base64-3.140.0-r1 (09 Jul 2014)
+
+  09 Jul 2014; Andreas K. Huettel <dilfridge@gentoo.org>
+  -perl-MIME-Base64-3.130.0-r2.ebuild, +perl-MIME-Base64-3.130.0-r3.ebuild,
+  -perl-MIME-Base64-3.140.0.ebuild, +perl-MIME-Base64-3.140.0-r1.ebuild:
+  Improve dependencies
+
+  20 Jan 2014; Mike Frysinger <vapier@gentoo.org>
+  perl-MIME-Base64-3.130.0-r2.ebuild, perl-MIME-Base64-3.140.0.ebuild:
+  Add arm64 love.
+
+  20 Jan 2014; Mike Frysinger <vapier@gentoo.org>
+  perl-MIME-Base64-3.130.0-r2.ebuild, perl-MIME-Base64-3.140.0.ebuild:
+  Add arm64 love.
+
+  17 Jan 2014; Mike Frysinger <vapier@gentoo.org>
+  perl-MIME-Base64-3.130.0-r2.ebuild:
+  Mark m68k stable.
+
+  30 Dec 2013; Mikle Kolyada <zlogene@gentoo.org> -perl-MIME-Base64-3.08.ebuild:
+  Drop old
+
+  05 Sep 2013; Patrick Lauer <patrick@gentoo.org>
+  -perl-MIME-Base64-3.130.0-r3.ebuild, perl-MIME-Base64-3.140.0.ebuild:
+  Restore keywords
+
+*perl-MIME-Base64-3.140.0 (16 Aug 2013)
+
+  16 Aug 2013; Patrick Lauer <patrick@gentoo.org>
+  +perl-MIME-Base64-3.140.0.ebuild:
+  Bump
+
+*perl-MIME-Base64-3.130.0-r3 (14 Aug 2013)
+
+  14 Aug 2013; Patrick Lauer <patrick@gentoo.org>
+  +perl-MIME-Base64-3.130.0-r3.ebuild:
+  Import from perl-experimental overlay
+
+  02 Mar 2013; Agostino Sarubbo <ago@gentoo.org>
+  perl-MIME-Base64-3.130.0-r2.ebuild:
+  Stable for sh, wrt bug #458122
+
+  23 Feb 2013; Agostino Sarubbo <ago@gentoo.org>
+  perl-MIME-Base64-3.130.0-r2.ebuild:
+  Stable for sparc, wrt bug #458122
+
+  21 Feb 2013; Agostino Sarubbo <ago@gentoo.org>
+  perl-MIME-Base64-3.130.0-r2.ebuild:
+  Stable for ia64, wrt bug #458122
+
+  19 Feb 2013; Agostino Sarubbo <ago@gentoo.org>
+  perl-MIME-Base64-3.130.0-r2.ebuild:
+  Stable for arm, wrt bug #458122
+
+  19 Feb 2013; Agostino Sarubbo <ago@gentoo.org>
+  perl-MIME-Base64-3.130.0-r2.ebuild:
+  Stable for s390, wrt bug #458122
+
+  19 Feb 2013; Agostino Sarubbo <ago@gentoo.org>
+  perl-MIME-Base64-3.130.0-r2.ebuild:
+  Stable for alpha, wrt bug #458122
+
+  19 Feb 2013; Agostino Sarubbo <ago@gentoo.org>
+  perl-MIME-Base64-3.130.0-r2.ebuild:
+  Stable for hppa, wrt bug #458122
+
+  18 Feb 2013; Agostino Sarubbo <ago@gentoo.org>
+  perl-MIME-Base64-3.130.0-r2.ebuild:
+  Stable for ppc, wrt bug #458122
+
+  18 Feb 2013; Agostino Sarubbo <ago@gentoo.org>
+  perl-MIME-Base64-3.130.0-r2.ebuild:
+  Stable for ppc64, wrt bug #458122
+
+  18 Feb 2013; Zac Medico <zmedico@gentoo.org>
+  perl-MIME-Base64-3.130.0-r2.ebuild:
+  Add ~arm-linux keyword.
+
+  18 Feb 2013; Agostino Sarubbo <ago@gentoo.org>
+  perl-MIME-Base64-3.130.0-r2.ebuild:
+  Stable for x86, wrt bug #458122
+
+  18 Feb 2013; Agostino Sarubbo <ago@gentoo.org>
+  perl-MIME-Base64-3.130.0-r2.ebuild:
+  Stable for amd64, wrt bug #458122
+
+*perl-MIME-Base64-3.130.0-r2 (21 May 2012)
+
+  21 May 2012; Torsten Veller <tove@gentoo.org>
+  -perl-MIME-Base64-3.130.0-r1.ebuild, +perl-MIME-Base64-3.130.0-r2.ebuild:
+  Add perl-5.16 as provider
+
+  05 May 2012; Alexis Ballier <aballier@gentoo.org>
+  perl-MIME-Base64-3.130.0-r1.ebuild:
+  keyword ~amd64-fbsd
+
+  10 Dec 2011; Fabian Groffen <grobian@gentoo.org>
+  perl-MIME-Base64-3.130.0-r1.ebuild:
+  Marked ~x86-freebsd and ~x64-freebsd
 
   30 Jul 2011; Torsten Veller <tove@gentoo.org>
   perl-MIME-Base64-3.130.0-r1.ebuild:
@@ -188,4 +340,3 @@
   +perl-MIME-Base64-3.00.ebuild, +perl-MIME-Base64-3.01.ebuild,
   +perl-MIME-Base64-3.05.ebuild, +perl-MIME-Base64-3.07.ebuild:
   New virtual for perl-core/MIME-Base64
-
