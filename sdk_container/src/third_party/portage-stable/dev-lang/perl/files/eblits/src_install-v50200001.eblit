@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-lang/perl/files/eblits/src_install-v50160001.eblit,v 1.3 2013/03/14 12:46:31 tove Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-lang/perl/files/eblits/src_install-v50200001.eblit,v 1.1 2014/12/19 18:52:46 dilfridge Exp $
 
 eblit-perl-src_install() {
 	local i
@@ -8,8 +8,8 @@ eblit-perl-src_install() {
 
 	emake DESTDIR="${D}" install
 
-	rm -f "${ED}"/usr/bin/perl
-	ln -s perl${MY_PV} "${ED}"/usr/bin/perl || die
+	rm -f "${ED}/usr/bin/perl${MY_PV}"
+	ln -s perl "${ED}"/usr/bin/perl${MY_PV} || die
 
 	if ! tc-is-static-only ; then
 		dolib.so "${ED}"${coredir}/${LIBPERL}
@@ -23,12 +23,6 @@ eblit-perl-src_install() {
 
 	rm -rf "${ED}"/usr/share/man/man3 || die "Unable to remove module man pages"
 
-#	# A poor fix for the miniperl issues
-#	dosed 's:./miniperl:/usr/bin/perl:' /usr/$(get_libdir)/perl5/${MY_PV}/ExtUtils/xsubpp
-#	fperms 0444 /usr/$(get_libdir)/perl5/${MY_PV}/ExtUtils/xsubpp
-#	dosed 's:./miniperl:/usr/bin/perl:' /usr/bin/xsubpp
-#	fperms 0755 /usr/bin/xsubpp
-
 	# This removes ${D} from Config.pm
 	for i in $(find "${D}" -iname "Config.pm" ) ; do
 		einfo "Removing ${D} from ${i}..."
@@ -36,10 +30,6 @@ eblit-perl-src_install() {
 	done
 
 	find "${ED}" -type f -name .packlist -delete || die
-
-	# Note: find out from psm why we would need/want this.
-	# ( use berkdb && has_version '=sys-libs/db-1*' ) ||
-	#	find "${ED}" -name "*NDBM*" | xargs rm -f
 
 	dodoc Changes* README AUTHORS
 

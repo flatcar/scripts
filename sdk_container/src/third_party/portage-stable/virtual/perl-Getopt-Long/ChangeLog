@@ -1,6 +1,110 @@
 # ChangeLog for virtual/perl-Getopt-Long
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/virtual/perl-Getopt-Long/ChangeLog,v 1.53 2013/12/31 20:21:22 zlogene Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/virtual/perl-Getopt-Long/ChangeLog,v 1.77 2015/06/06 17:49:52 dilfridge Exp $
+
+*perl-Getopt-Long-2.450.0 (06 Jun 2015)
+
+  06 Jun 2015; Andreas K. Huettel <dilfridge@gentoo.org>
+  -perl-Getopt-Long-2.390.0-r1.ebuild, +perl-Getopt-Long-2.450.0.ebuild:
+  Add Perl 5.22 version, remove old
+
+  04 Apr 2015; Mike Frysinger <vapier@gentoo.org>
+  perl-Getopt-Long-2.420.0-r1.ebuild:
+  Mark arm64/m68k/s390/sh stable.
+
+  18 Feb 2015; Agostino Sarubbo <ago@gentoo.org>
+  perl-Getopt-Long-2.420.0-r1.ebuild:
+  Stable for alpha, wrt bug #536790
+
+  17 Feb 2015; Markus Meier <maekke@gentoo.org>
+  perl-Getopt-Long-2.420.0-r1.ebuild:
+  arm stable, bug #536790
+
+  17 Feb 2015; Agostino Sarubbo <ago@gentoo.org>
+  perl-Getopt-Long-2.420.0-r1.ebuild:
+  Stable for ia64, wrt bug #536790
+
+  16 Feb 2015; Agostino Sarubbo <ago@gentoo.org>
+  perl-Getopt-Long-2.420.0-r1.ebuild:
+  Stable for sparc, wrt bug #536790
+
+  15 Feb 2015; Agostino Sarubbo <ago@gentoo.org>
+  perl-Getopt-Long-2.420.0-r1.ebuild:
+  Stable for ppc64, wrt bug #536790
+
+  14 Feb 2015; Agostino Sarubbo <ago@gentoo.org>
+  perl-Getopt-Long-2.420.0-r1.ebuild:
+  Stable for ppc, wrt bug #536790
+
+  13 Feb 2015; Jeroen Roovers <jer@gentoo.org>
+  perl-Getopt-Long-2.420.0-r1.ebuild:
+  Stable for HPPA (bug #536790).
+
+  13 Feb 2015; Agostino Sarubbo <ago@gentoo.org>
+  perl-Getopt-Long-2.420.0-r1.ebuild:
+  Stable for x86, wrt bug #536790
+
+  08 Feb 2015; Mikle Kolyada <zlogene@gentoo.org>
+  perl-Getopt-Long-2.420.0-r1.ebuild:
+  amd64 stable wrt bug #536790
+
+  05 Jan 2015; Yixun Lan <dlan@gentoo.org> perl-Getopt-Long-2.420.0-r1.ebuild:
+  keyword ~arm64, test on board
+
+  08 Nov 2014; Andreas K. Huettel <dilfridge@gentoo.org>
+  perl-Getopt-Long-2.390.0-r1.ebuild:
+  Copy stable keywords from dev-lang/perl-5.18 provider
+
+  08 Nov 2014; Andreas K. Huettel <dilfridge@gentoo.org>
+  -perl-Getopt-Long-2.380.0-r3.ebuild:
+  Remove old
+
+  23 Sep 2014; Agostino Sarubbo <ago@gentoo.org>
+  perl-Getopt-Long-2.390.0-r1.ebuild:
+  Stable for sparc, wrt bug #504786
+
+  22 Sep 2014; Agostino Sarubbo <ago@gentoo.org>
+  perl-Getopt-Long-2.390.0-r1.ebuild:
+  Stable for x86, wrt bug #504786
+
+  22 Sep 2014; Agostino Sarubbo <ago@gentoo.org>
+  perl-Getopt-Long-2.390.0-r1.ebuild:
+  Stable for ia64, wrt bug #504786
+
+  21 Sep 2014; Agostino Sarubbo <ago@gentoo.org>
+  perl-Getopt-Long-2.390.0-r1.ebuild:
+  Stable for ppc, wrt bug #504786
+
+  21 Sep 2014; Agostino Sarubbo <ago@gentoo.org>
+  perl-Getopt-Long-2.390.0-r1.ebuild:
+  Stable for ppc64, wrt bug #504786
+
+  17 Sep 2014; Jeroen Roovers <jer@gentoo.org>
+  perl-Getopt-Long-2.390.0-r1.ebuild:
+  Stable for HPPA (bug #504786).
+
+  31 Aug 2014; Mikle Kolyada <zlogene@gentoo.org>
+  perl-Getopt-Long-2.390.0-r1.ebuild:
+  arm stable wrt bug #504786
+
+  28 Jul 2014; Mikle Kolyada <zlogene@gentoo.org>
+  perl-Getopt-Long-2.390.0-r1.ebuild:
+  amd64 stable wrt bug #381424
+
+  24 Jul 2014; Tobias Klausmann <klausman@gentoo.org>
+  perl-Getopt-Long-2.390.0-r1.ebuild:
+  Stable on alpha, bug #381424
+
+*perl-Getopt-Long-2.420.0-r1 (07 Jul 2014)
+*perl-Getopt-Long-2.390.0-r1 (07 Jul 2014)
+*perl-Getopt-Long-2.380.0-r3 (07 Jul 2014)
+
+  07 Jul 2014; Andreas K. Huettel <dilfridge@gentoo.org>
+  -perl-Getopt-Long-2.380.0-r2.ebuild, +perl-Getopt-Long-2.380.0-r3.ebuild,
+  -perl-Getopt-Long-2.390.0.ebuild, +perl-Getopt-Long-2.390.0-r1.ebuild,
+  -perl-Getopt-Long-2.410.0.ebuild, -perl-Getopt-Long-2.420.0.ebuild,
+  +perl-Getopt-Long-2.420.0-r1.ebuild:
+  Improve dependencies; remove old
 
   31 Dec 2013; Mikle Kolyada <zlogene@gentoo.org>
   perl-Getopt-Long-2.380.0-r2.ebuild:
