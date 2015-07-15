@@ -1,6 +1,12 @@
 # ChangeLog for app-editors/vim
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/app-editors/vim/ChangeLog,v 1.495 2015/04/08 07:30:35 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-editors/vim/ChangeLog,v 1.496 2015/05/03 07:03:35 radhermit Exp $
+
+*vim-7.4.712 (03 May 2015)
+
+  03 May 2015; Tim Harder <radhermit@gentoo.org> +vim-7.4.712.ebuild,
+  vim-9999.ebuild:
+  Version bump. Set tab indentation to 8 spaces for vimmanpager (bug #545628).
 
   08 Apr 2015; Michał Górny <mgorny@gentoo.org> vim-7.4.273.ebuild:
   Remove old Python implementations
