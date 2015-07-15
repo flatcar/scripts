@@ -1,6 +1,32 @@
 # ChangeLog for dev-libs/apr
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/apr/ChangeLog,v 1.227 2015/04/30 10:33:20 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/apr/ChangeLog,v 1.235 2015/06/28 18:00:29 zlogene Exp $
+
+  28 Jun 2015; Mikle Kolyada <zlogene@gentoo.org> apr-1.5.2.ebuild:
+  alpha stable wrt bug #551068
+
+  21 Jun 2015; Markus Meier <maekke@gentoo.org> apr-1.5.2.ebuild:
+  arm stable, bug #551068
+
+  11 Jun 2015; Agostino Sarubbo <ago@gentoo.org> apr-1.5.2.ebuild:
+  Stable for ppc, wrt bug #551068
+
+  09 Jun 2015; Agostino Sarubbo <ago@gentoo.org> apr-1.5.2.ebuild:
+  Stable for x86, wrt bug #551068
+
+  08 Jun 2015; Agostino Sarubbo <ago@gentoo.org> apr-1.5.2.ebuild:
+  Stable for amd64, wrt bug #551068
+
+  08 Jun 2015; Jeroen Roovers <jer@gentoo.org> apr-1.5.2.ebuild:
+  Stable for PPC64 (bug #551068).
+
+  07 Jun 2015; Jeroen Roovers <jer@gentoo.org> apr-1.5.2.ebuild:
+  Stable for HPPA (bug #551068).
+
+  30 May 2015; Lars Wendler <polynomial-c@gentoo.org> apr-1.5.0-r2.ebuild,
+  apr-1.5.1-r1.ebuild, apr-1.5.2.ebuild:
+  Added selinux dependency (bug #548264). Removed _elibtoolize kludge now that
+  bug #527506 is fixed.
 
 *apr-1.5.2 (30 Apr 2015)
 
