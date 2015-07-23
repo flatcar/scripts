@@ -1,6 +1,15 @@
 # ChangeLog for sys-apps/attr
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/attr/ChangeLog,v 1.172 2014/07/13 20:30:00 tgall Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/attr/ChangeLog,v 1.174 2015/05/10 16:31:06 vapier Exp $
+
+*attr-2.4.47-r2 (10 May 2015)
+
+  10 May 2015; Mike Frysinger <vapier@gentoo.org> +attr-2.4.47-r2.ebuild:
+  Stop installing attr(5) as man-pages handles it now #548900 by Albert W.
+  Hopkins.
+
+  27 Oct 2014; Mike Frysinger <vapier@gentoo.org> attr-2.4.47-r1.ebuild:
+  Mark m68k/s390/sh stable.
 
   13 Jul 2014;  <tgall@gentoo.org> attr-2.4.47-r1.ebuild:
   arm64 stable, bug #474296
