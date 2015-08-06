@@ -1,6 +1,144 @@
 # ChangeLog for app-emulation/qemu
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/app-emulation/qemu/ChangeLog,v 1.321 2015/04/08 07:30:33 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-emulation/qemu/ChangeLog,v 1.348 2015/08/05 06:47:50 vapier Exp $
+
+  05 Aug 2015; Mike Frysinger <vapier@gentoo.org> qemu-9999.ebuild:
+  Allow disabling of all user & softmmu targets so that the ebuild only installs
+  the various helper tools #556712 by Matthew Thode.
+
+  05 Aug 2015; Mike Frysinger <vapier@gentoo.org> qemu-2.3.0-r5.ebuild,
+  qemu-9999.ebuild:
+  Move seabios bin clean up under the softmmu check since user tools do not
+  install blobs.
+
+  05 Aug 2015; Mike Frysinger <vapier@gentoo.org> qemu-9999.ebuild:
+  Unify target logic a bit.
+
+  04 Aug 2015; Agostino Sarubbo <ago@gentoo.org> qemu-2.3.0-r5.ebuild:
+  Stable for x86, wrt bug #556630
+
+  04 Aug 2015; Agostino Sarubbo <ago@gentoo.org> qemu-2.3.0-r5.ebuild:
+  Stable for amd64, wrt bug #556630
+
+  03 Aug 2015; Doug Goldstein <cardoe@gentoo.org> -qemu-2.2.1-r2.ebuild,
+  -qemu-2.3.0-r1.ebuild, -qemu-2.3.0-r2.ebuild, -qemu-2.3.0-r3.ebuild:
+  Remove older versions due to vulnerabilities.
+
+*qemu-2.3.0-r5 (03 Aug 2015)
+
+  03 Aug 2015; Doug Goldstein <cardoe@gentoo.org>
+  +files/qemu-2.3.0-CVE-2015-5165-1.patch,
+  +files/qemu-2.3.0-CVE-2015-5165-2.patch,
+  +files/qemu-2.3.0-CVE-2015-5165-3.patch,
+  +files/qemu-2.3.0-CVE-2015-5165-4.patch,
+  +files/qemu-2.3.0-CVE-2015-5165-5.patch,
+  +files/qemu-2.3.0-CVE-2015-5165-6.patch,
+  +files/qemu-2.3.0-CVE-2015-5165-7.patch,
+  +files/qemu-2.3.0-CVE-2015-5166.patch, +qemu-2.3.0-r5.ebuild:
+  bump to fix CVE-2015-5165 and CVE-2015-5166. bug #556304
+
+  28 Jul 2015; Agostino Sarubbo <ago@gentoo.org> qemu-2.3.0-r4.ebuild:
+  Stable for x86, wrt bug #556052
+
+  28 Jul 2015; Agostino Sarubbo <ago@gentoo.org> qemu-2.3.0-r4.ebuild:
+  Stable for amd64, wrt bug #556052
+
+*qemu-2.3.0-r4 (27 Jul 2015)
+
+  27 Jul 2015; Doug Goldstein <cardoe@gentoo.org>
+  +files/qemu-2.3.0-CVE-2015-3214.patch,
+  +files/qemu-2.3.0-CVE-2015-5154-1.patch,
+  +files/qemu-2.3.0-CVE-2015-5154-2.patch,
+  +files/qemu-2.3.0-CVE-2015-5154-3.patch, +qemu-2.3.0-r4.ebuild:
+  Fix for CVE-2015-3214, handle out-of-bounds memory access when reading from
+  the PIT Mode/Command register. Fix for CVE-2015-5154, handle ATAPI heap
+  overflow during I/O access.
+
+*qemu-2.3.0-r3 (25 Jul 2015)
+
+  25 Jul 2015; Doug Goldstein <cardoe@gentoo.org>
+  +files/qemu-2.3.0-CVE-2015-5158.patch, +qemu-2.3.0-r3.ebuild:
+  Add fix from upstream for CVE-2015-5158 #555680 by Agostino Sarubbo.
+
+  25 Jul 2015; Doug Goldstein <cardoe@gentoo.org> qemu-9999.ebuild:
+  Upstream made VNC WebSockets unconditional. As of commit
+  8e9b0d24fb986d4241ae3b77752eca5dab4cb486 --{enable,disable}-vnc-wc
+  has been removed. Thanks to Daniel Scharrer <daniel@constexpr.org> for
+  noticing this. fixes bug #555834
+
+  20 Jul 2015; Mike Frysinger <vapier@gentoo.org> metadata.xml:
+  Use the herd tag only so people assign bugs correctly.
+
+  20 Jul 2015; Mike Frysinger <vapier@gentoo.org> metadata.xml,
+  qemu-9999.ebuild:
+  Drop quorum configure flag to match upstream which made it unconditional
+  #554274 by Guy.
+
+  06 Jul 2015; Mike Frysinger <vapier@gentoo.org> metadata.xml,
+  qemu-9999.ebuild:
+  Add USE=vte to control the dep explicitly and fix SLOT handling for diff gtk
+  versions #545158 by nzqr.
+
+  06 Jul 2015; Agostino Sarubbo <ago@gentoo.org> qemu-2.3.0-r2.ebuild:
+  Stable for x86, wrt bug #551752
+
+  06 Jul 2015; Agostino Sarubbo <ago@gentoo.org> qemu-2.3.0-r2.ebuild:
+  Stable for amd64, wrt bug #551752
+
+*qemu-2.3.0-r2 (12 Jun 2015)
+
+  12 Jun 2015; Mike Frysinger <vapier@gentoo.org>
+  +files/qemu-2.3.0-CVE-2015-3209.patch, +qemu-2.3.0-r2.ebuild:
+  Add fix from upstream for CVE-2015-3209 #551752 by Agostino Sarubbo.
+
+  16 May 2015; Mike Frysinger <vapier@gentoo.org> qemu-9999.ebuild:
+  Require mesa[gles2] for USE=opengl to match upstream #549558 by Michal
+  Privoznik.
+
+  14 May 2015; Agostino Sarubbo <ago@gentoo.org>
+  -files/qemu-2.1.1-readlink-self.patch,
+  -files/qemu-2.1.2-vnc-sanitize-bits.patch, -qemu-2.1.2-r2.ebuild,
+  -qemu-2.1.3-r1.ebuild, -qemu-2.1.3.ebuild, -qemu-2.2.0.ebuild,
+  -qemu-2.2.1-r1.ebuild, -qemu-2.2.1.ebuild, -qemu-2.3.0.ebuild,
+  qemu-2.2.1-r2.ebuild:
+  Stable for amd64/x86 - remove old.
+
+  14 May 2015; Mike Frysinger <vapier@gentoo.org> qemu-9999.ebuild:
+  Drop kvm warning as it has been ~1 year now since the changes landed.
+
+  13 May 2015; Mike Frysinger <vapier@gentoo.org> metadata.xml,
+  qemu-9999.ebuild:
+  Add USE=sdl2 to prefer libsdl2 over libsdl #547306 by Nikoli.
+
+  13 May 2015; Mike Frysinger <vapier@gentoo.org>
+  +files/qemu-2.3.0-CVE-2015-3456.patch, qemu-2.1.3-r1.ebuild,
+  qemu-2.2.1-r2.ebuild, qemu-2.3.0-r1.ebuild:
+  Move patch to $FILESDIR as it is small and matches what we do everywhere else.
+
+*qemu-2.2.1-r2 (13 May 2015)
+*qemu-2.3.0-r1 (13 May 2015)
+*qemu-2.1.3-r1 (13 May 2015)
+
+  13 May 2015; Robin H. Johnson <robbat2@gentoo.org> +qemu-2.1.3-r1.ebuild,
+  +qemu-2.2.1-r2.ebuild, +qemu-2.3.0-r1.ebuild:
+  Security bugfix for CVE-2015-3456 / VENOM.
+
+  05 May 2015; Mike Frysinger <vapier@gentoo.org> -files/qemu-9999-cflags.patch,
+  -files/qemu-9999-virtfs-proxy-helper-accept.patch, -files/qemu-kvm-1.4:
+  Drop files no longer referenced by ebuilds.
+
+*qemu-2.3.0 (28 Apr 2015)
+
+  28 Apr 2015; Mike Frysinger <vapier@gentoo.org> +qemu-2.3.0.ebuild,
+  qemu-9999.ebuild:
+  Version bump.
+
+*qemu-2.2.1-r1 (12 Apr 2015)
+
+  12 Apr 2015; Mike Frysinger <vapier@gentoo.org>
+  +files/qemu-2.2.1-CVE-2015-1779-1.patch,
+  +files/qemu-2.2.1-CVE-2015-1779-2.patch, +qemu-2.2.1-r1.ebuild:
+  Add fixes from upstream for CVE-2015-1779 #544328 by Agostino Sarubbo.
 
   08 Apr 2015; Michał Górny <mgorny@gentoo.org> qemu-2.1.2-r2.ebuild,
   qemu-2.1.3.ebuild, qemu-2.2.0.ebuild, qemu-2.2.1.ebuild:
