@@ -21,12 +21,12 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x86-solaris"
 
-IUSE="ipv6 +lua system-lua ncat ndiff nls nmap-update nping ssl zenmap"
+IUSE="ipv6 +nse system-lua ncat ndiff nls nmap-update nping ssl zenmap"
 NMAP_LINGUAS=( de fr hr it ja pl pt_BR ru )
 IUSE+=" ${NMAP_LINGUAS[@]/#/linguas_}"
 
 REQUIRED_USE="
-	system-lua? ( lua )
+	system-lua? ( nse )
 	ndiff? ( ${PYTHON_REQUIRED_USE} )
 	zenmap? ( ${PYTHON_REQUIRED_USE} )
 "
@@ -72,7 +72,8 @@ src_prepare() {
 		"${FILESDIR}"/${PN}-6.25-liblua-ar.patch \
 		"${FILESDIR}"/${PN}-6.46-uninstaller.patch \
 		"${FILESDIR}"/${PN}-6.47-no-libnl.patch \
-		"${FILESDIR}"/${PN}-6.47-no-FORTIFY_SOURCE.patch
+		"${FILESDIR}"/${PN}-6.47-ncat-lua.patch \
+		"${FILESDIR}"/${PN}-6.49-no-FORTIFY_SOURCE.patch
 
 	if use nls; then
 		local lingua=''
@@ -111,7 +112,7 @@ src_configure() {
 		$(use_enable ipv6) \
 		$(use_enable nls) \
 		$(use_with zenmap) \
-		$(usex lua --with-liblua=$(usex system-lua /usr included '' '') --without-liblua) \
+		$(usex nse --with-liblua=$(usex system-lua /usr included '' '') --without-liblua) \
 		$(use_with ncat) \
 		$(use_with ndiff) \
 		$(use_with nmap-update) \
