@@ -1,6 +1,21 @@
 # ChangeLog for net-analyzer/nmap
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-analyzer/nmap/ChangeLog,v 1.345 2015/05/15 04:36:08 jer Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-analyzer/nmap/ChangeLog,v 1.348 2015/07/02 05:02:41 jer Exp $
+
+*nmap-6.49_beta2 (02 Jul 2015)
+
+  02 Jul 2015; Jeroen Roovers <jer@gentoo.org> -nmap-6.49_beta1.ebuild,
+  +nmap-6.49_beta2.ebuild:
+  Version bump.
+
+  14 Jun 2015; Jeroen Roovers <jer@gentoo.org> nmap-9999.ebuild:
+  Switch to git.
+
+*nmap-6.49_beta1 (14 Jun 2015)
+
+  14 Jun 2015; Jeroen Roovers <jer@gentoo.org> +nmap-6.49_beta1.ebuild,
+  +files/nmap-6.49-no-FORTIFY_SOURCE.patch:
+  Version bump.
 
   15 May 2015; Jeroen Roovers <jer@gentoo.org> nmap-9999.ebuild:
   Unset one variable (bug #549470).
