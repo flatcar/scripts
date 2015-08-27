@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/smartmontools/smartmontools-6.2.ebuild,v 1.3 2013/11/30 01:15:13 hwoarang Exp $
+# $Id$
 
 EAPI="4"
 
@@ -11,7 +11,7 @@ if [[ ${PV} == "9999" ]] ; then
 	inherit subversion autotools
 else
 	SRC_URI="mirror://sourceforge/${PN}/${P}.tar.gz"
-	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd ~x86-freebsd ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~x64-macos"
+	KEYWORDS="alpha amd64 arm hppa ia64 ~mips ~ppc ~ppc64 ~sparc x86 ~x86-fbsd ~x86-freebsd ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~x64-macos"
 fi
 
 DESCRIPTION="Self-Monitoring, Analysis and Reporting Technology System (S.M.A.R.T.) monitoring tools"
@@ -28,10 +28,11 @@ DEPEND="
 	)
 	selinux? (
 		sys-libs/libselinux
-		sec-policy/selinux-smartmon
 	)"
 RDEPEND="${DEPEND}
-	!minimal? ( virtual/mailx )"
+	!minimal? ( virtual/mailx )
+	selinux? ( sec-policy/selinux-smartmon )
+"
 
 src_prepare() {
 	if [[ ${PV} == "9999" ]] ; then
@@ -46,7 +47,7 @@ src_configure() {
 	# The build installs /etc/init.d/smartd, but we clobber it
 	# in our src_install, so no need to manually delete it.
 	econf \
-		--with-docdir="${EPREFIX}/usr/share/doc/${PF}" \
+		--docdir="${EPREFIX}/usr/share/doc/${PF}" \
 		--with-initscriptdir="${EPREFIX}/etc/init.d" \
 		$(use_with caps libcap-ng) \
 		$(use_with selinux) \
@@ -59,7 +60,7 @@ src_install() {
 		doman smartctl.8
 	else
 		default
-		newinitd "${FILESDIR}"/smartd.rc smartd
+		newinitd "${FILESDIR}"/smartd-r1.rc smartd
 		newconfd "${FILESDIR}"/smartd.confd smartd
 	fi
 }

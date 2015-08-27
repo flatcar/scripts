@@ -1,6 +1,22 @@
 # ChangeLog for sys-apps/smartmontools
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/smartmontools/ChangeLog,v 1.146 2014/11/11 10:44:45 ago Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/smartmontools/ChangeLog,v 1.150 2015/08/06 13:40:36 klausman Exp $
+
+  06 Aug 2015; Tobias Klausmann <klausman@gentoo.org> smartmontools-6.4.ebuild:
+  Stable on alpha, bug 555528
+
+  02 Aug 2015; Agostino Sarubbo <ago@gentoo.org> smartmontools-6.4.ebuild:
+  Stable for x86, wrt bug #555528
+
+  31 Jul 2015; Agostino Sarubbo <ago@gentoo.org> smartmontools-6.4.ebuild:
+  Stable for amd64, wrt bug #555528
+
+*smartmontools-6.4 (07 Jun 2015)
+
+  07 Jun 2015; Lars Wendler <polynomial-c@gentoo.org>
+  -smartmontools-6.1.ebuild, -smartmontools-6.2.ebuild,
+  +smartmontools-6.4.ebuild, smartmontools-9999.ebuild, -files/smartd.rc:
+  Version bump. Removed old.
 
   11 Nov 2014; Agostino Sarubbo <ago@gentoo.org> smartmontools-6.3.ebuild:
   Stable for ia64, wrt bug #526444
