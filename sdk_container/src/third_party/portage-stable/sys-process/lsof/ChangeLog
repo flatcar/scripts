@@ -1,6 +1,39 @@
 # ChangeLog for sys-process/lsof
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-process/lsof/ChangeLog,v 1.112 2015/04/14 22:51:33 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-process/lsof/ChangeLog,v 1.122 2015/07/30 12:28:37 ago Exp $
+
+  30 Jul 2015; Agostino Sarubbo <ago@gentoo.org> lsof-4.88-r1.ebuild:
+  Stable for sparc, wrt bug #554848
+
+  23 Jul 2015; Pacho Ramos <pacho@gentoo.org> lsof-4.88-r1.ebuild:
+  ppc stable wrt bug #554848
+
+  19 Jul 2015; Mikle Kolyada <zlogene@gentoo.org> lsof-4.88-r1.ebuild:
+  ia64 stable wrt bug #554848
+
+  17 Jul 2015; Markus Meier <maekke@gentoo.org> lsof-4.88-r1.ebuild:
+  arm stable, bug #554848
+
+  17 Jul 2015; Mikle Kolyada <zlogene@gentoo.org> lsof-4.88-r1.ebuild:
+  x86 stable wrt bug #554848
+
+  17 Jul 2015; Tobias Klausmann <klausman@gentoo.org> lsof-4.88-r1.ebuild:
+  Stable on alpha, bug 554848
+
+  17 Jul 2015; Jeroen Roovers <jer@gentoo.org> lsof-4.88-r1.ebuild:
+  Stable for HPPA PPC64 (bug #554848).
+
+  16 Jul 2015; Mike Frysinger <vapier@gentoo.org> lsof-4.89.ebuild:
+  Add http://www.mirrorservice.org to the SRC_URI list #554940.
+
+  15 Jul 2015; Mikle Kolyada <zlogene@gentoo.org> lsof-4.88-r1.ebuild:
+  amd64 stable wrt bug #554848
+
+*lsof-4.89 (14 Jul 2015)
+
+  14 Jul 2015; Lars Wendler <polynomial-c@gentoo.org> -lsof-4.85-r2.ebuild,
+  -lsof-4.88.ebuild, +lsof-4.89.ebuild:
+  Version bump. Removed old.
 
 *lsof-4.88-r1 (14 Apr 2015)
 
