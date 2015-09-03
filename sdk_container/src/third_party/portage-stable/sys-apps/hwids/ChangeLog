@@ -1,6 +1,220 @@
 # ChangeLog for sys-apps/hwids
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/hwids/ChangeLog,v 1.118 2013/09/16 07:33:36 ssuominen Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/hwids/ChangeLog,v 1.171 2015/07/18 16:55:47 floppym Exp $
+
+*hwids-20150421-r1 (18 Jul 2015)
+*hwids-20150717-r1 (18 Jul 2015)
+
+  18 Jul 2015; Mike Gilbert <floppym@gentoo.org> +hwids-20150421-r1.ebuild,
+  +hwids-20150717-r1.ebuild, hwids-99999999.ebuild, metadata.xml:
+  Add workaround for mapping change in 60-keyboard.hwdb, bug 555204, patch by
+  axs.
+
+*hwids-20150717 (18 Jul 2015)
+
+  18 Jul 2015; Mike Gilbert <floppym@gentoo.org> +hwids-20150717.ebuild:
+  Bump.
+
+  27 May 2015; Mikle Kolyada <zlogene@gentoo.org> hwids-20150129.ebuild:
+  arm stable wrt bug #546184
+
+  26 Apr 2015; Jeroen Roovers <jer@gentoo.org> hwids-20150129.ebuild:
+  Stable for PPC64 (bug #546184).
+
+*hwids-20150421 (21 Apr 2015)
+
+  21 Apr 2015; Mike Gilbert <floppym@gentoo.org> +hwids-20150421.ebuild:
+  Bump. Adds udev/70-pointingstick.hwdb.
+
+  21 Apr 2015; Pacho Ramos <pacho@gentoo.org> hwids-20150129.ebuild:
+  ppc stable wrt bug #546184
+
+*hwids-20150417 (19 Apr 2015)
+
+  19 Apr 2015; Mike Gilbert <floppym@gentoo.org> +hwids-20150417.ebuild:
+  Version bump.
+
+  19 Apr 2015; Agostino Sarubbo <ago@gentoo.org> hwids-20150129.ebuild:
+  Stable for x86, wrt bug #546184
+
+  17 Apr 2015; Mikle Kolyada <zlogene@gentoo.org> hwids-20150129.ebuild:
+  sparc stable wrt bug #546184
+
+  14 Apr 2015; Agostino Sarubbo <ago@gentoo.org> hwids-20150129.ebuild:
+  Stable for ia64, wrt bug #546184
+
+  14 Apr 2015; Jeroen Roovers <jer@gentoo.org> hwids-20150129.ebuild:
+  Stable for HPPA (bug #546184).
+
+  13 Apr 2015; Agostino Sarubbo <ago@gentoo.org> hwids-20150129.ebuild:
+  Stable for alpha, wrt bug #546184
+
+  12 Apr 2015; Mikle Kolyada <zlogene@gentoo.org> hwids-20150129.ebuild:
+  amd64 stable wrt bug #546184
+
+*hwids-20150129 (29 Jan 2015)
+
+  29 Jan 2015; Mike Gilbert <floppym@gentoo.org> +hwids-20150129.ebuild:
+  Bump. Adds udev touchpad database.
+
+*hwids-20150107 (07 Jan 2015)
+
+  07 Jan 2015; Diego E. Pettenò <flameeyes@gentoo.org> +hwids-20150107.ebuild:
+  Version bump.
+
+*hwids-20141214 (14 Dec 2014)
+
+  14 Dec 2014; Mike Gilbert <floppym@gentoo.org> +hwids-20141214.ebuild:
+  Version bump. Added udev/70-mouse.hwdb.
+
+*hwids-20141110 (10 Nov 2014)
+
+  10 Nov 2014; Diego E. Pettenò <flameeyes@gentoo.org> +hwids-20141110.ebuild,
+  -hwids-20140317.ebuild:
+  Version bump; remove old.
+
+  19 Oct 2014; Mike Frysinger <vapier@gentoo.org> hwids-20141010.ebuild:
+  Mark alpha/ppc64/sparc stable #524976.
+
+  18 Oct 2014; Agostino Sarubbo <ago@gentoo.org> hwids-20141010.ebuild:
+  Stable for ppc, wrt bug #524976
+
+  16 Oct 2014; Mike Frysinger <vapier@gentoo.org> hwids-20141010.ebuild:
+  Mark arm/arm64/ia64/m68k/s390/sh stable.
+
+  12 Oct 2014; Agostino Sarubbo <ago@gentoo.org> hwids-20141010.ebuild:
+  Stable for x86, wrt bug #524976
+
+  10 Oct 2014; Jeroen Roovers <jer@gentoo.org> hwids-20141010.ebuild:
+  Stable for HPPA (bug #524976).
+
+  10 Oct 2014; Mikle Kolyada <zlogene@gentoo.org> hwids-20141010.ebuild:
+  amd64 stable wrt bug #524976
+
+  10 Oct 2014; Diego E. Pettenò <flameeyes@gentoo.org> -hwids-20140627.ebuild,
+  -hwids-20140927.ebuild:
+  Remove old.
+
+*hwids-20141010 (10 Oct 2014)
+
+  10 Oct 2014; Diego E. Pettenò <flameeyes@gentoo.org> +hwids-20141010.ebuild:
+  Version bump.
+
+*hwids-20140927 (27 Sep 2014)
+
+  27 Sep 2014; Diego E. Pettenò <flameeyes@gentoo.org> +hwids-20140927.ebuild,
+  -hwids-20130915.1.ebuild, -hwids-20140509.ebuild, -hwids-20140602-r1.ebuild,
+  -hwids-20140602.ebuild:
+  Version bump and clean old.
+
+*hwids-20140627 (27 Jun 2014)
+
+  27 Jun 2014; Diego E. Pettenò <flameeyes@gentoo.org> +hwids-20140627.ebuild:
+  Version bump.
+
+*hwids-20140602-r1 (06 Jun 2014)
+
+  06 Jun 2014; Mike Frysinger <vapier@gentoo.org> +hwids-20140602-r1.ebuild,
+  hwids-99999999.ebuild, metadata.xml:
+  Add USE flags to control the install of the net/pci/usb databases. Unify the
+  live & release ebuilds.
+
+*hwids-20140602 (02 Jun 2014)
+
+  02 Jun 2014; Diego E. Pettenò <flameeyes@gentoo.org> +hwids-20140602.ebuild:
+  Version bump.
+
+  30 May 2014; Mike Frysinger <vapier@gentoo.org> hwids-20140509.ebuild,
+  hwids-99999999.ebuild:
+  Simplify the ROOT check in pkg_postinst.
+
+  30 May 2014; Mike Frysinger <vapier@gentoo.org> hwids-20140317.ebuild:
+  Stabilize for everyone else #506026.
+
+*hwids-20140509 (09 May 2014)
+
+  09 May 2014; Diego E. Pettenò <flameeyes@gentoo.org> +hwids-20140509.ebuild,
+  -hwids-20140228.ebuild, -hwids-20140304.ebuild:
+  Version bump.
+
+  28 Mar 2014; Samuli Suominen <ssuominen@gentoo.org> hwids-20140317.ebuild:
+  amd64/arm/x86 stable wrt #506026
+
+  28 Mar 2014; Jeroen Roovers <jer@gentoo.org> hwids-20140317.ebuild:
+  Stable for HPPA (bug #506026).
+
+*hwids-20140317 (17 Mar 2014)
+
+  17 Mar 2014; Diego E. Pettenò <flameeyes@gentoo.org> +hwids-20140317.ebuild:
+  Version bump.
+
+*hwids-20140304 (04 Mar 2014)
+
+  04 Mar 2014; Diego E. Pettenò <flameeyes@gentoo.org> +hwids-20140304.ebuild,
+  -hwids-20140206.ebuild:
+  Version bump.
+
+*hwids-20140228 (01 Mar 2014)
+
+  01 Mar 2014; Diego E. Pettenò <flameeyes@gentoo.org> +hwids-20140228.ebuild:
+  Version bump.
+
+*hwids-20140206 (06 Feb 2014)
+
+  06 Feb 2014; Diego E. Pettenò <flameeyes@gentoo.org> +hwids-20140206.ebuild,
+  -hwids-20130329.ebuild, -hwids-20131226.ebuild, -hwids-20140103.ebuild:
+  Version bump; remove old.
+
+  26 Jan 2014; Agostino Sarubbo <ago@gentoo.org> hwids-20130915.1.ebuild:
+  Stable for sparc, wrt bug #487342
+
+  26 Jan 2014; Agostino Sarubbo <ago@gentoo.org> hwids-20130915.1.ebuild:
+  Stable for ia64, wrt bug #487342
+
+  26 Jan 2014; Agostino Sarubbo <ago@gentoo.org> hwids-20130915.1.ebuild:
+  Stable for ppc64, wrt bug #487342
+
+  26 Jan 2014; Agostino Sarubbo <ago@gentoo.org> hwids-20130915.1.ebuild:
+  Stable for ppc, wrt bug #487342
+
+  18 Jan 2014; Mike Frysinger <vapier@gentoo.org> hwids-20130915.1.ebuild,
+  hwids-20131226.ebuild, hwids-20140103.ebuild:
+  Add arm64 love.
+
+  17 Jan 2014; Mike Frysinger <vapier@gentoo.org> hwids-20130915.1.ebuild:
+  Mark m68k/s390/sh stable.
+
+*hwids-20140103 (03 Jan 2014)
+
+  03 Jan 2014; Diego E. Pettenò <flameeyes@gentoo.org> +hwids-20140103.ebuild:
+  Update.
+
+*hwids-20131226 (26 Dec 2013)
+
+  26 Dec 2013; Diego E. Pettenò <flameeyes@gentoo.org> +hwids-20131226.ebuild:
+  Long time no update.
+
+  08 Dec 2013; Markus Meier <maekke@gentoo.org> hwids-20130915.1.ebuild:
+  arm stable, bug #487342
+
+  01 Dec 2013; Johannes Huber <johu@gentoo.org> hwids-20130915.1.ebuild:
+  x86 stable, bug #487342
+
+  24 Nov 2013; Pacho Ramos <pacho@gentoo.org> hwids-20130915.1.ebuild:
+  amd64 stable, bug #487342
+
+  13 Nov 2013; Matt Turner <mattst88@gentoo.org> hwids-20130915.1.ebuild:
+  alpha stable, bug 487342.
+
+  12 Nov 2013; Jeroen Roovers <jer@gentoo.org> hwids-20130915.1.ebuild:
+  Stable for HPPA (bug #487342).
+
+  08 Oct 2013; Samuli Suominen <ssuominen@gentoo.org> hwids-20130915.1.ebuild:
+  Revert stabilization for HPPA because this version of hwids needs >=sys-
+  fs/udev-206 as well as >=sys-apps/systemd-206 stable first.
+
+  08 Oct 2013; Jeroen Roovers <jer@gentoo.org> hwids-20130915.1.ebuild:
+  Stable for HPPA (bug #487238).
 
   16 Sep 2013; Samuli Suominen <ssuominen@gentoo.org> hwids-20130915.1.ebuild:
   Synchronize with hwids-9999.ebuild to correct udev dependency and hwdb update.
