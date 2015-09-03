@@ -1,6 +1,140 @@
 # ChangeLog for net-misc/openssh
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/openssh/ChangeLog,v 1.544 2015/02/27 22:06:53 chutzpah Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-misc/openssh/ChangeLog,v 1.575 2015/08/05 08:21:17 vapier Exp $
+
+  05 Aug 2015; Mike Frysinger <vapier@gentoo.org> openssh-6.9_p1-r2.ebuild:
+  Use the rlimit sandbox for x32 ABI until the seccomp one is fixed #553748 by
+  Kyle Sanderson.
+
+  28 Jul 2015; Mike Frysinger <vapier@gentoo.org> openssh-6.9_p1-r2.ebuild:
+  List USE=ssl as a requirement for USE=ldns and clean up the ldns deps a bit
+  #555708 by Nicholas Fish.
+
+  23 Jul 2015; Agostino Sarubbo <ago@gentoo.org> openssh-6.9_p1-r2.ebuild:
+  Stable for sparc, wrt bug #553724
+
+  23 Jul 2015; Agostino Sarubbo <ago@gentoo.org> openssh-6.9_p1-r2.ebuild:
+  Stable for ppc, wrt bug #553724
+
+  20 Jul 2015; Tobias Klausmann <klausman@gentoo.org> openssh-6.9_p1-r2.ebuild:
+  Stable on alpha, bug 553724
+
+  20 Jul 2015; Mike Frysinger <vapier@gentoo.org> openssh-6.9_p1-r2.ebuild:
+  Mark arm64/ia64/m68k/s390/sh stable #553724.
+
+  19 Jul 2015; Markus Meier <maekke@gentoo.org> openssh-6.9_p1-r2.ebuild:
+  arm stable, bug #554724
+
+  19 Jul 2015; Mikle Kolyada <zlogene@gentoo,org> openssh-6.9_p1-r2.ebuild:
+  x86 stable wrt bug #553724
+
+  19 Jul 2015; Jeroen Roovers <jer@gentoo.org> openssh-6.9_p1-r2.ebuild:
+  Stable for HPPA (bug #553724).
+
+  19 Jul 2015; Jeroen Roovers <jer@gentoo.org> openssh-6.9_p1-r2.ebuild:
+  Stable for PPC64 (bug #553724).
+
+  18 Jul 2015; Mikle Kolyada <zlogene@gentoo.org> openssh-6.9_p1-r2.ebuild:
+  amd64 stable wrt bug #553724
+
+*openssh-6.9_p1-r2 (08 Jul 2015)
+
+  08 Jul 2015; Mike Frysinger <vapier@gentoo.org> +openssh-6.9_p1-r2.ebuild:
+  Update hpn patchset and drop the server logging patch from it.
+
+*openssh-6.9_p1-r1 (01 Jul 2015)
+
+  01 Jul 2015; Patrick McLean <chutzpah@gentoo.org>
+  +files/openssh-6.9_p1-x509-warnings.patch, +openssh-6.9_p1-r1.ebuild,
+  -openssh-6.9_p1.ebuild:
+  Revision bump, add the updated X509 patch, drop 5.9_p1-r0 ebuild.
+
+*openssh-6.9_p1 (01 Jul 2015)
+
+  01 Jul 2015; Lars Wendler <polynomial-c@gentoo.org>
+  -openssh-6.7_p1-r3.ebuild, -openssh-6.8_p1.ebuild, -openssh-6.8_p1-r1.ebuild,
+  -openssh-6.8_p1-r2.ebuild, -openssh-6.8_p1-r3.ebuild,
+  -openssh-6.8_p1-r4.ebuild, +openssh-6.9_p1.ebuild:
+  Security bump (bug #553724). Removed old.
+
+  04 May 2015; Mike Frysinger <vapier@gentoo.org> files/sshd.rc6.4:
+  Clean up depend scan logic a bit.
+
+*openssh-6.8_p1-r5 (28 Apr 2015)
+
+  28 Apr 2015; Mike Frysinger <vapier@gentoo.org>
+  +files/openssh-6.8_p1-teraterm-hpn-glue.patch,
+  +files/openssh-6.8_p1-teraterm.patch, +openssh-6.8_p1-r5.ebuild:
+  Add fix from upstream for old TeraTerm clients #547944 by William Hubbs. Pull
+  in some upstream hpn updates.
+
+  13 Apr 2015; Mike Frysinger <vapier@gentoo.org> files/sshd.rc6.4:
+  Use SSHD_CONFIG everywhere #546008 by Alexander Sulfrian.
+
+*openssh-6.8_p1-r4 (06 Apr 2015)
+
+  06 Apr 2015; Patrick McLean <chutzpah@gentoo.org> +openssh-6.8_p1-r4.ebuild:
+  Revision bump, bump the X509 patch to version 8.3.1.
+
+*openssh-6.8_p1-r3 (25 Mar 2015)
+
+  25 Mar 2015; Mike Frysinger <vapier@gentoo.org> +openssh-6.8_p1-r3.ebuild:
+  Fix the server logging patch to work on IPv6 & x86 (socketcall) #544254 by
+  Thomas D..
+
+  25 Mar 2015; Mike Frysinger <vapier@gentoo.org>
+  files/openssh-6.8_p1-ssh-keygen-no-ssh1.patch:
+  Update to the version merged upstream that also fixes USE=-ssl behavior.
+
+  24 Mar 2015; Patrick Lauer <patrick@gentoo.org> openssh-6.8_p1-r1.ebuild,
+  openssh-6.8_p1-r2.ebuild:
+  Undo changes and use package.use.mask instead
+
+  24 Mar 2015; Patrick Lauer <patrick@gentoo.org> openssh-6.8_p1-r1.ebuild,
+  openssh-6.8_p1-r2.ebuild:
+  Disable hpn in 6.8 #544254
+
+  23 Mar 2015; Mike Frysinger <vapier@gentoo.org> openssh-6.8_p1-r2.ebuild:
+  Fix building on systems w/out getpeername syscall #544196 by Patrick Lauer.
+
+*openssh-6.8_p1-r2 (22 Mar 2015)
+
+  22 Mar 2015; Mike Frysinger <vapier@gentoo.org>
+  +files/openssh-6.8_p1-ssh-keygen-no-ssh1.patch, +openssh-6.8_p1-r2.ebuild:
+  Fix ssh-keygen -A behavior when USE=-ssh1 #544078 by Thomas D.  Update hpn
+  patchset to pass tests and work under seccomp sandbox.
+
+  22 Mar 2015; Mike Frysinger <vapier@gentoo.org> openssh-6.8_p1-r1.ebuild:
+  Also note hosts.allow in the error message #531156#20 by Arfrever Frehtes
+  Taifersar Arahesis.
+
+  20 Mar 2015; Mike Frysinger <vapier@gentoo.org> openssh-6.8_p1-r1.ebuild:
+  Also check /etc/hosts.allow for tcp-wrappers #531156#18 by Martin Mokrejš.
+
+  19 Mar 2015; Mike Frysinger <vapier@gentoo.org> openssh-6.8_p1-r1.ebuild:
+  Refresh ldap patch #543822 by Anton Gubarkov. Move configure options to an
+  array so we can put inline comments; restore the X509/openssl configure check
+  as pointed out by Patrick.
+
+  19 Mar 2015; Mike Frysinger <vapier@gentoo.org> openssh-6.8_p1-r1.ebuild:
+  Fix hpn usage of openssl checks #543736 by Andrei Slavoiu.
+
+  19 Mar 2015; Mike Frysinger <vapier@gentoo.org> openssh-6.8_p1-r1.ebuild:
+  Move more conflicting USE flag checks to REQUIRED_USE.
+
+*openssh-6.8_p1-r1 (19 Mar 2015)
+
+  19 Mar 2015; Patrick McLean <chutzpah@gentoo.org>
+  +files/openssh-6.8_p1-sctp-x509-glue.patch, +openssh-6.8_p1-r1.ebuild:
+  Revision bump, re-enable X509 USE flag.
+
+*openssh-6.8_p1 (18 Mar 2015)
+
+  18 Mar 2015; Mike Frysinger <vapier@gentoo.org>
+  +files/openssh-6.8_p1-sshd-gssapi-multihomed.patch,
+  +files/openssh-6.8_p1-ssl-engine-configure.patch, +openssh-6.8_p1.ebuild,
+  metadata.xml:
+  Version bump #543694 by Jason A. Donenfeld.
 
 *openssh-6.7_p1-r4 (27 Feb 2015)
 
