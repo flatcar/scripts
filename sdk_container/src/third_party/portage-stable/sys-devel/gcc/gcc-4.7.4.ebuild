@@ -1,10 +1,10 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/gcc-4.7.4.ebuild,v 1.6 2015/03/17 06:41:31 vapier Exp $
+# $Id$
 
 EAPI="4"
 
-PATCH_VER="1.2"
+PATCH_VER="1.4"
 UCLIBC_VER="1.0"
 
 # Hardened gcc 4 stuff
@@ -22,7 +22,7 @@ SSP_UCLIBC_STABLE="x86 amd64 ppc ppc64 arm"
 
 inherit eutils toolchain
 
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 -amd64-fbsd -x86-fbsd"
+KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 -amd64-fbsd -x86-fbsd"
 
 RDEPEND=""
 DEPEND="${RDEPEND}
@@ -39,9 +39,6 @@ src_prepare() {
 		ewarn "Please rebuild gcc after upgrading to >=glibc-2.12 #362315"
 		EPATCH_EXCLUDE+=" 10_all_default-fortify-source.patch"
 	fi
-
-	# drop the x32 stuff in the next patchset #543578
-	EPATCH_EXCLUDE+=" 90_all_gcc-4.7-x32.patch"
 
 	toolchain_src_prepare
 
