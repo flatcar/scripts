@@ -1,8 +1,8 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/util-linux/util-linux-2.26.ebuild,v 1.4 2015/04/08 18:27:32 mgorny Exp $
+# $Id$
 
-EAPI="4"
+EAPI="5"
 
 PYTHON_COMPAT=( python2_7 python3_{3,4} )
 
@@ -21,7 +21,7 @@ else
 fi
 
 DESCRIPTION="Various useful Linux utilities"
-HOMEPAGE="http://www.kernel.org/pub/linux/utils/util-linux/"
+HOMEPAGE="https://www.kernel.org/pub/linux/utils/util-linux/"
 
 LICENSE="GPL-2 LGPL-2.1 BSD-4 MIT public-domain"
 SLOT="0"
@@ -36,15 +36,15 @@ RDEPEND="!sys-process/schedutils
 	!<app-shells/bash-completion-1.3-r2
 	caps? ( sys-libs/libcap-ng )
 	cramfs? ( sys-libs/zlib )
-	ncurses? ( >=sys-libs/ncurses-5.2-r2 )
+	ncurses? ( >=sys-libs/ncurses-5.2-r2:0=[unicode?] )
 	pam? ( sys-libs/pam )
 	python? ( ${PYTHON_DEPS} )
 	selinux? ( >=sys-libs/libselinux-2.2.2-r4[${MULTILIB_USEDEP}] )
 	slang? ( sys-libs/slang )
 	systemd? ( sys-apps/systemd )
-	udev? ( virtual/libudev )
+	udev? ( virtual/libudev:= )
 	abi_x86_32? (
-		!<=app-emulation/emul-linux-x86-baselibs-20140406-r2
+		!<=app-emulation/emul-linux-x86-baselibs-20150406-r2
 		!app-emulation/emul-linux-x86-baselibs[-abi_x86_32]
 	)"
 DEPEND="${RDEPEND}
@@ -84,7 +84,12 @@ lfs_fallocate_test() {
 
 multilib_src_configure() {
 	lfs_fallocate_test
+	# The scanf test in a run-time test which fails while cross-compiling.
+	# Blindly assume a POSIX setup since we require libmount, and libmount
+	# itself fails when the scanf test fails. #531856
+	tc-is-cross-compiler && export scanf_cv_alloc_modifier=ms
 	export ac_cv_header_security_pam_misc_h=$(multilib_native_usex pam) #485486
+	export ac_cv_header_security_pam_appl_h=$(multilib_native_usex pam) #545042
 	# We manually set --libdir to the default since on prefix, econf will set it to
 	# a value which the configure script does not recognize.  This makes it set the
 	# usrlib_execdir to a bad value. bug #518898#c2, fixed upstream for >2.25
