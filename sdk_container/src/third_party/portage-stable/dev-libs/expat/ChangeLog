@@ -1,6 +1,68 @@
 # ChangeLog for dev-libs/expat
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/expat/ChangeLog,v 1.164 2014/04/28 17:27:28 mgorny Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/expat/ChangeLog,v 1.183 2015/08/06 04:54:29 maekke Exp $
+
+  06 Aug 2015; Markus Meier <maekke@gentoo.org> expat-2.1.0-r5.ebuild:
+  arm stable, bug #555642
+
+  05 Aug 2015; Jeroen Roovers <jer@gentoo.org> expat-2.1.0-r5.ebuild:
+  Stable for HPPA PPC64 (bug #555642).
+
+  04 Aug 2015; Mike Frysinger <vapier@gentoo.org> expat-2.1.0-r5.ebuild:
+  Mark arm64/m68k/s390/sh stable.
+
+  30 Jul 2015; Mikle Kolyada <zlogene@gentoo.org> expat-2.1.0-r5.ebuild:
+  ia64 stable wrt bug #555642
+
+  30 Jul 2015; Agostino Sarubbo <ago@gentoo.org> expat-2.1.0-r5.ebuild:
+  Stable for sparc, wrt bug #555642
+
+  30 Jul 2015; Tobias Klausmann <klausman@gentoo.org> expat-2.1.0-r5.ebuild:
+  Stable on alpha, bug 555642
+
+  30 Jul 2015; Agostino Sarubbo <ago@gentoo.org> expat-2.1.0-r5.ebuild:
+  Stable for x86, wrt bug #555642
+
+  30 Jul 2015; Agostino Sarubbo <ago@gentoo.org> expat-2.1.0-r5.ebuild:
+  Stable for amd64, wrt bug #555642
+
+*expat-2.1.0-r5 (30 Jul 2015)
+
+  30 Jul 2015; Alexandre Rostovtsev <tetromino@gentoo.org>
+  -expat-2.1.0-r2.ebuild, -expat-2.1.0-r3.ebuild, expat-2.1.0-r4.ebuild,
+  +expat-2.1.0-r5.ebuild, +files/expat-2.1.0-mozilla-sanity-check-size.patch:
+  Fix buffer overflow (bug #555642, CVE-2015-1283, thanks to Agostino Sarubbo
+  and Paweł Hajdan, Jr.). Improve description. Clean out old ebuilds.
+
+  09 Jun 2015; Justin Lecher <jlec@gentoo.org> metadata.xml:
+  Updating remote-id in metadata.xml
+
+  27 May 2015; Mikle Kolyada <zlogene@gentoo.org> expat-2.1.0-r4.ebuild:
+  arm stable wrt bug #545846
+
+  30 Apr 2015; Jeroen Roovers <jer@gentoo.org> expat-2.1.0-r4.ebuild:
+  Stable for PPC64 (bug #545846).
+
+  26 Apr 2015; Mikle Kolyada <zlogene@gentoo.org> expat-2.1.0-r4.ebuild:
+  sparc stable wrt bug #545846
+
+  21 Apr 2015; Pacho Ramos <pacho@gentoo.org> expat-2.1.0-r4.ebuild:
+  ppc stable wrt bug #545846
+
+  19 Apr 2015; Agostino Sarubbo <ago@gentoo.org> expat-2.1.0-r4.ebuild:
+  Stable for x86, wrt bug #545846
+
+  14 Apr 2015; Agostino Sarubbo <ago@gentoo.org> expat-2.1.0-r4.ebuild:
+  Stable for ia64, wrt bug #545846
+
+  13 Apr 2015; Agostino Sarubbo <ago@gentoo.org> expat-2.1.0-r4.ebuild:
+  Stable for alpha, wrt bug #545846
+
+  08 Apr 2015; Jeroen Roovers <jer@gentoo.org> expat-2.1.0-r4.ebuild:
+  Stable for HPPA (bug #545846).
+
+  08 Apr 2015; Agostino Sarubbo <ago@gentoo.org> expat-2.1.0-r4.ebuild:
+  Stable for amd64, wrt bug #545846
 
   28 Apr 2014; Michał Górny <mgorny@gentoo.org> expat-2.1.0-r3.ebuild,
   expat-2.1.0-r4.ebuild:

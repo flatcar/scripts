@@ -1,11 +1,11 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/expat/expat-2.1.0-r3.ebuild,v 1.15 2014/04/28 17:27:28 mgorny Exp $
+# $Id$
 
 EAPI=5
 inherit eutils libtool multilib toolchain-funcs multilib-minimal
 
-DESCRIPTION="XML parsing libraries"
+DESCRIPTION="Stream-oriented XML parser library"
 HOMEPAGE="http://expat.sourceforge.net/"
 SRC_URI="mirror://sourceforge/expat/${P}.tar.gz"
 
@@ -17,6 +17,8 @@ RDEPEND="abi_x86_32? ( !<=app-emulation/emul-linux-x86-baselibs-20130224-r6
 		!app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)] )"
 
 src_prepare() {
+	epatch "${FILESDIR}"/${P}-xmlwfargs.patch
+	epatch "${FILESDIR}"/${P}-mozilla-sanity-check-size.patch #555642
 	elibtoolize
 }
 
