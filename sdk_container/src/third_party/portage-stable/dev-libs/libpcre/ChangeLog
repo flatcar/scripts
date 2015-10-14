@@ -1,6 +1,38 @@
 # ChangeLog for dev-libs/libpcre
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/libpcre/ChangeLog,v 1.250 2015/05/10 08:25:15 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/libpcre/ChangeLog,v 1.259 2015/07/14 07:42:31 vapier Exp $
+
+  14 Jul 2015; Mike Frysinger <vapier@gentoo.org> libpcre-8.37-r2.ebuild:
+  Update to EAPI=5 and use subslots with readline.
+
+*libpcre-8.37-r2 (06 Jul 2015)
+
+  06 Jul 2015; Mike Frysinger <vapier@gentoo.org>
+  +files/libpcre-8.37-CVE-2015-3210.patch,
+  +files/libpcre-8.37-CVE-2015-5073.patch, +libpcre-8.37-r2.ebuild:
+  Add backport from upstream for CVE-2015-3210 #551240 by Thomas D.  Add
+  backport from upstream for CVE-2015-5073 #553300 by Agostino Sarubbo.
+
+  09 Jun 2015; Justin Lecher <jlec@gentoo.org> metadata.xml:
+  Updating remote-id in metadata.xml
+
+  02 Jun 2015; Jack Morgan <jmorgan@gentoo.org> libpcre-8.36.ebuild:
+  sparc stable wrt bug #548234
+
+  30 May 2015; Mikle Kolyada <zlogene@gentoo.org> libpcre-8.36.ebuild:
+  x86 stable wrt bug #548234
+
+  30 May 2015; Mikle Kolyada <zlogene@gentoo.org> libpcre-8.36.ebuild:
+  arm stable wrt bug #548234
+
+  20 May 2015; Matt Turner <mattst88@gentoo.org> libpcre-8.36.ebuild:
+  alpha stable, bug 548234.
+
+  15 May 2015; Pacho Ramos <pacho@gentoo.org> libpcre-8.36.ebuild:
+  ppc stable wrt bug #548234
+
+  13 May 2015; Jack Morgan <jmorgan@gentoo.org> libpcre-8.36.ebuild:
+  ia64 stable wrt bug #548234
 
 *libpcre-8.37-r1 (10 May 2015)
 
