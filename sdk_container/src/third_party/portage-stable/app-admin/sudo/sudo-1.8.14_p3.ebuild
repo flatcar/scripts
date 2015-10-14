@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-admin/sudo/sudo-1.8.11_p2.ebuild,v 1.1 2014/10/30 16:22:39 flameeyes Exp $
+# $Id$
 
 EAPI=5
 
