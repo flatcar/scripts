@@ -1,8 +1,8 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI="5"
+EAPI=5
 
 inherit eutils autotools systemd toolchain-funcs
 
@@ -12,19 +12,23 @@ SRC_URI="mirror://sourceforge/gkernel/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 ia64 ppc x86"
+KEYWORDS="~alpha ~amd64 ~arm ~ia64 ppc ~x86"
 IUSE="selinux"
 
-RDEPEND="selinux? ( sec-policy/selinux-rngd )"
-DEPEND=""
+DEPEND="dev-libs/libgcrypt:0
+	dev-libs/libgpg-error"
+RDEPEND="${DEPEND}
+	selinux? ( sec-policy/selinux-rngd )"
 
 src_prepare() {
 	echo 'bin_PROGRAMS = randstat' >> contrib/Makefile.am
 	epatch "${FILESDIR}"/test-for-argp.patch
-	epatch "${FILESDIR}"/fix-textrels-on-PIC-x86.patch
+	epatch "${FILESDIR}"/${P}-fix-textrels-on-PIC-x86.patch #469962
+	epatch "${FILESDIR}"/${P}-man-fill-watermark.patch #555094
+	epatch "${FILESDIR}"/${P}-man-rng-device.patch #555106
 	eautoreconf
 
-	sed -i '/^AR /d' Makefile.in
+	sed -i '/^AR /d' Makefile.in || die
 	tc-export AR
 }
 
