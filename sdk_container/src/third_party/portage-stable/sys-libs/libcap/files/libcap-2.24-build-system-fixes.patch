@@ -1,4 +1,4 @@
-From 5540f3c2a3bd70ebc8140b74ac5a0aecdbc53234 Mon Sep 17 00:00:00 2001
+From 0485ff3e7f62a331aa4f1e8ec4c2fdcee400e324 Mon Sep 17 00:00:00 2001
 From: Mike Frysinger <vapier@gentoo.org>
 Date: Sun, 16 Nov 2008 09:10:31 -0500
 Subject: [PATCH] build system fixes
@@ -14,25 +14,25 @@ box" for people.  Specifically:
 
 Signed-off-by: Mike Frysinger <vapier@gentoo.org>
 ---
- Make.Rules       |   25 +++++++++++++------------
- libcap/Makefile  |   11 ++++++-----
- pam_cap/Makefile |    8 +++++---
- progs/Makefile   |    2 +-
- 4 files changed, 25 insertions(+), 21 deletions(-)
+ Make.Rules       | 26 ++++++++++++++------------
+ libcap/Makefile  | 11 ++++++-----
+ pam_cap/Makefile |  8 +++++---
+ progs/Makefile   |  2 +-
+ 4 files changed, 26 insertions(+), 21 deletions(-)
 
 diff --git a/Make.Rules b/Make.Rules
-index 011aa14..6e432a6 100644
+index 18b7cf7..5364c46 100644
 --- a/Make.Rules
 +++ b/Make.Rules
-@@ -44,27 +44,28 @@ MINOR=19
+@@ -45,27 +45,29 @@ MINOR=24
  
  # Compilation specifics
  
--KERNEL_HEADERS := $(topdir)/libcap/include
--IPATH += -fPIC -I$(topdir)/libcap/include -I$(KERNEL_HEADERS)
+-KERNEL_HEADERS := $(topdir)/libcap/include/uapi
+-IPATH += -fPIC -I$(KERNEL_HEADERS) -I$(topdir)/libcap/include
 -
 -CC := gcc
--CFLAGS := -O2
+-CFLAGS := -O2 -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64
 -BUILD_CC := $(CC)
 -BUILD_CFLAGS := $(CFLAGS) $(IPATH)
 -AR := ar
@@ -53,8 +53,9 @@ index 011aa14..6e432a6 100644
 +LDFLAGS ?= #-g
  
 -SYSTEM_HEADERS = /usr/include
-+KERNEL_HEADERS = $(topdir)/libcap/include
-+LIBCAP_CPPFLAGS = -I$(topdir)/libcap/include -I$(KERNEL_HEADERS)
++KERNEL_HEADERS = $(topdir)/libcap/include/uapi
++LIBCAP_CPPFLAGS = -I$(KERNEL_HEADERS) -I$(topdir)/libcap/include
++LIBCAP_CPPFLAGS += -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64
 +CPPFLAGS += $(LIBCAP_CPPFLAGS)
 +BUILD_CPPFLAGS += $(LIBCAP_CPPFLAGS)
  INCS=$(topdir)/libcap/include/sys/capability.h
@@ -63,10 +64,10 @@ index 011aa14..6e432a6 100644
 +CPPFLAGS += -Dlinux
 +CFLAGS += $(WARNINGS) $(DEBUG)
  PAM_CAP := $(shell if [ -f /usr/include/security/pam_modules.h ]; then echo yes ; else echo no ; fi)
- INDENT := $(shell if [ -n "$(which indent 2>/dev/null)" ]; then echo "| indent -kr" ; fi)
+ INDENT := $(shell if [ -n "$$(which indent 2>/dev/null)" ]; then echo "| indent -kr" ; fi)
  DYNAMIC := $(shell if [ ! -d "$(topdir)/.git" ]; then echo yes; fi)
 diff --git a/libcap/Makefile b/libcap/Makefile
-index 4762c60..cf99523 100644
+index 0ccd2e7..6b446ea 100644
 --- a/libcap/Makefile
 +++ b/libcap/Makefile
 @@ -16,7 +16,7 @@ FILES=cap_alloc cap_proc cap_extint cap_flag cap_text
@@ -75,19 +76,19 @@ index 4762c60..cf99523 100644
  FILES += cap_file
 -LDFLAGS += -lattr
 +LDLIBS += -lattr
+ DEPS = -lattr
  endif
  
- INCLS=libcap.h cap_names.h $(INCS)
-@@ -24,6 +24,7 @@ OBJS=$(addsuffix .o, $(FILES))
+@@ -25,6 +25,7 @@ OBJS=$(addsuffix .o, $(FILES))
  MAJLIBNAME=$(LIBNAME).$(VERSION)
  MINLIBNAME=$(MAJLIBNAME).$(MINOR)
  GPERF_OUTPUT = _caps_output.gperf
 +CFLAGS += -fPIC
  
- all: $(MINLIBNAME) $(STALIBNAME)
+ all: $(MINLIBNAME) $(STALIBNAME) libcap.pc
  
-@@ -33,7 +34,7 @@ INCLUDE_GPERF_OUTPUT = -include $(GPERF_OUTPUT)
- endif
+@@ -43,7 +44,7 @@ libcap.pc: libcap.pc.in
+ 		$< >$@
  
  _makenames: _makenames.c cap_names.list.h
 -	$(BUILD_CC) $(BUILD_CFLAGS) $< -o $@
@@ -95,7 +96,7 @@ index 4762c60..cf99523 100644
  
  cap_names.h: _makenames
  	./_makenames > cap_names.h
-@@ -50,15 +51,15 @@ $(STALIBNAME): $(OBJS)
+@@ -60,15 +61,15 @@ $(STALIBNAME): $(OBJS)
  	$(RANLIB) $@
  
  $(MINLIBNAME): $(OBJS)
@@ -113,9 +114,9 @@ index 4762c60..cf99523 100644
 +	$(CC) $(CFLAGS) $(CPPFLAGS) $(INCLUDE_GPERF_OUTPUT) -c $< -o $@
  
  install: all
- 	mkdir -p -m 0755 $(INCDIR)/sys
+ 	mkdir -p -m 0755 $(FAKEROOT)$(INCDIR)/sys
 diff --git a/pam_cap/Makefile b/pam_cap/Makefile
-index 9ca5bef..bdae933 100644
+index cc32fb6..6f07b6b 100644
 --- a/pam_cap/Makefile
 +++ b/pam_cap/Makefile
 @@ -9,6 +9,8 @@ include ../Make.Rules
@@ -128,7 +129,7 @@ index 9ca5bef..bdae933 100644
  	$(MAKE) testcompile
  
 @@ -17,13 +19,13 @@ install: all
- 	install -m 0755 pam_cap.so $(LIBDIR)/security
+ 	install -m 0755 pam_cap.so $(FAKEROOT)$(LIBDIR)/security
  
  pam_cap.so: pam_cap.o
 -	$(LD) $(LDFLAGS) -o pam_cap.so $< $(LDLIBS)
@@ -145,7 +146,7 @@ index 9ca5bef..bdae933 100644
  clean:
  	rm -f *.o *.so testcompile *~
 diff --git a/progs/Makefile b/progs/Makefile
-index ef51dc6..c261f57 100644
+index 778149e..8f4e2e6 100644
 --- a/progs/Makefile
 +++ b/progs/Makefile
 @@ -22,7 +22,7 @@ $(BUILD): %: %.o
@@ -156,7 +157,7 @@ index ef51dc6..c261f57 100644
 +	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
  
  install: all
- 	mkdir -p -m 0755 $(SBINDIR)
+ 	mkdir -p -m 0755 $(FAKEROOT)$(SBINDIR)
 -- 
-1.7.4.rc2
+2.4.1
 
