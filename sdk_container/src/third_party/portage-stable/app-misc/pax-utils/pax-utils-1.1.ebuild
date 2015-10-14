@@ -1,31 +1,35 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-misc/pax-utils/pax-utils-0.9.1.ebuild,v 1.1 2014/10/19 17:13:37 vapier Exp $
+# $Id$
 
 EAPI="4"
 
 inherit eutils toolchain-funcs unpacker
 
 DESCRIPTION="ELF related utils for ELF 32/64 binaries that can check files for security relevant properties"
-HOMEPAGE="http://hardened.gentoo.org/pax-utils.xml"
+HOMEPAGE="https://wiki.gentoo.org/index.php?title=Project:Hardened/PaX_Utilities"
 SRC_URI="mirror://gentoo/pax-utils-${PV}.tar.xz
-	http://dev.gentoo.org/~solar/pax/pax-utils-${PV}.tar.xz
-	http://dev.gentoo.org/~vapier/dist/pax-utils-${PV}.tar.xz"
+	https://dev.gentoo.org/~solar/pax/pax-utils-${PV}.tar.xz
+	https://dev.gentoo.org/~vapier/dist/pax-utils-${PV}.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
-IUSE="caps python"
+IUSE="caps python seccomp"
 
-RDEPEND="caps? ( sys-libs/libcap )
-	python? ( dev-python/pyelftools )"
+RDEPEND="caps? ( >=sys-libs/libcap-2.24 )
+	python? ( dev-python/pyelftools )
+	seccomp? ( sys-libs/libseccomp )"
 DEPEND="${RDEPEND}
+	caps? ( virtual/pkgconfig )
+	seccomp? ( virtual/pkgconfig )
 	app-arch/xz-utils"
 
 _emake() {
 	emake \
 		USE_CAP=$(usex caps) \
 		USE_PYTHON=$(usex python) \
+		USE_SECCOMP=$(usex seccomp) \
 		"$@"
 }
 
@@ -34,7 +38,7 @@ src_configure() {
 	if use prefix || ! use kernel_linux || \
 	   has_version '<sys-libs/glibc-2.10'
 	then
-		econf $(use_with caps) $(use_with python)
+		econf $(use_with caps) $(use_with python) $(use_with seccomp)
 	else
 		tc-export CC
 	fi
