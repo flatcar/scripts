@@ -1,6 +1,35 @@
 # ChangeLog for sys-apps/less
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/less/ChangeLog,v 1.196 2015/05/27 09:15:05 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/less/ChangeLog,v 1.205 2015/07/23 09:35:09 ago Exp $
+
+  23 Jul 2015; Agostino Sarubbo <ago@gentoo.org> less-478.ebuild:
+  Stable for sparc, wrt bug #553692
+
+  23 Jul 2015; Agostino Sarubbo <ago@gentoo.org> less-478.ebuild:
+  Stable for ppc, wrt bug #553692
+
+  14 Jul 2015; Tobias Klausmann <klausman@gentoo.org> less-478.ebuild:
+  Stable on alpha, bug 553692
+
+  09 Jul 2015; Mikle Kolyada <zlogene@gentoo.org> less-478.ebuild:
+  arm stable wrt bug #553692
+
+  07 Jul 2015; Mikle Kolyada <zlogene@gentoo.org> less-478.ebuild:
+  x86 stable wrt bug #553692
+
+  07 Jul 2015; Jeroen Roovers <jer@gentoo.org> less-478.ebuild:
+  Stable for HPPA PPC64 (bug #553692).
+
+*less-479 (07 Jul 2015)
+
+  07 Jul 2015; Mike Frysinger <vapier@gentoo.org> +less-479.ebuild:
+  Version bump.
+
+  07 Jul 2015; Mike Frysinger <vapier@gentoo.org> less-478.ebuild:
+  Mark arm64/ia64/m68k/s390/sh stable #553692.
+
+  06 Jul 2015; Mikle Kolyada <zlogene@gentoo.org> less-478.ebuild:
+  amd64 stable wrt bug #553692
 
 *less-478 (27 May 2015)
 
