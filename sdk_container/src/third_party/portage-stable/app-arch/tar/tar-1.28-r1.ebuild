@@ -1,4 +1,4 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -29,6 +29,8 @@ src_prepare() {
 			scripts/{backup,dump-remind,restore}.in \
 			|| die "sed non-GNU"
 	fi
+	epatch "${FILESDIR}"/${P}-concat-listed.patch #546294
+	epatch "${FILESDIR}"/${P}-xattr.patch #548024
 }
 
 src_configure() {
@@ -46,7 +48,7 @@ src_configure() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" install
+	default
 
 	local p=$(usex userland_GNU "" "g")
 	if [[ -z ${p} ]] ; then
@@ -63,7 +65,6 @@ src_install() {
 		dosym tar /bin/gtar
 	fi
 
-	dodoc AUTHORS ChangeLog* NEWS README* THANKS
 	mv "${ED}"/usr/sbin/${p}backup{,-tar} || die
 	mv "${ED}"/usr/sbin/${p}restore{,-tar} || die
 
