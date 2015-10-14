@@ -13,8 +13,8 @@ SRC_URI="http://curl.haxx.se/download/${P}.tar.bz2"
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="adns idn ipv6 kerberos ldap metalink rtmp samba ssh ssl static-libs test threads"
-IUSE+=" curl_ssl_axtls curl_ssl_gnutls curl_ssl_nss +curl_ssl_openssl curl_ssl_polarssl curl_ssl_winssl"
+IUSE="adns http2 idn ipv6 kerberos ldap metalink rtmp samba ssh ssl static-libs test threads"
+IUSE+=" curl_ssl_axtls curl_ssl_gnutls curl_ssl_libressl curl_ssl_nss +curl_ssl_openssl curl_ssl_polarssl curl_ssl_winssl"
 IUSE+=" elibc_Winnt"
 
 #lead to lots of false negatives, bug #285669
@@ -43,6 +43,9 @@ RDEPEND="ldap? ( >=net-nds/openldap-2.4.38-r1[${MULTILIB_USEDEP}] )
 			)
 			app-misc/ca-certificates
 		)
+		curl_ssl_libressl? (
+			dev-libs/libressl[static-libs?,${MULTILIB_USEDEP}]
+		)
 		curl_ssl_openssl? (
 			>=dev-libs/openssl-1.0.1h-r2[static-libs?,${MULTILIB_USEDEP}]
 		)
@@ -55,6 +58,7 @@ RDEPEND="ldap? ( >=net-nds/openldap-2.4.38-r1[${MULTILIB_USEDEP}] )
 			app-misc/ca-certificates
 		)
 	)
+	http2? ( net-libs/nghttp2[${MULTILIB_USEDEP}] )
 	idn? ( >=net-dns/libidn-1.28[static-libs?,${MULTILIB_USEDEP}] )
 	adns? ( >=net-dns/c-ares-1.10.0-r1[${MULTILIB_USEDEP}] )
 	kerberos? ( >=virtual/krb5-0-r1[${MULTILIB_USEDEP}] )
@@ -95,6 +99,7 @@ REQUIRED_USE="
 		^^ (
 			curl_ssl_axtls
 			curl_ssl_gnutls
+			curl_ssl_libressl
 			curl_ssl_openssl
 			curl_ssl_nss
 			curl_ssl_polarssl
@@ -161,6 +166,10 @@ multilib_src_configure() {
 			einfo "may not be the best choice as an ssl provider"
 			myconf+=( --with-polarssl )
 		fi
+		if use curl_ssl_libressl; then
+			einfo "SSL provided by LibreSSL"
+			myconf+=( --with-ssl --with-ca-path="${EPREFIX}"/etc/ssl/certs )
+		fi
 		if use curl_ssl_openssl; then
 			einfo "SSL provided by openssl"
 			myconf+=( --with-ssl --with-ca-path="${EPREFIX}"/etc/ssl/certs )
@@ -194,6 +203,7 @@ multilib_src_configure() {
 		$(use_enable ldap) \
 		$(use_enable ldap ldaps) \
 		--enable-pop3 \
+		--enable-rt  \
 		--enable-rtsp \
 		$(use_enable samba smb) \
 		$(use_with ssh libssh2) \
@@ -218,7 +228,7 @@ multilib_src_configure() {
 		$(use_with kerberos gssapi "${EPREFIX}"/usr) \
 		--without-krb4 \
 		$(use_with metalink libmetalink) \
-		--without-nghttp2 \
+		$(use_with http2 nghttp2) \
 		$(use_with rtmp librtmp) \
 		--without-spnego \
 		--without-winidn \
