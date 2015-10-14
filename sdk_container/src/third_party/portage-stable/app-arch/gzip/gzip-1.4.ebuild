@@ -1,11 +1,11 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-arch/gzip/gzip-1.4.ebuild,v 1.12 2012/07/06 17:58:32 vapier Exp $
+# $Id$
 
 inherit eutils flag-o-matic
 
 DESCRIPTION="Standard GNU compressor"
-HOMEPAGE="http://www.gnu.org/software/gzip/"
+HOMEPAGE="https://www.gnu.org/software/gzip/"
 SRC_URI="mirror://gnu-alpha/gzip/${P}.tar.gz
 	mirror://gnu/gzip/${P}.tar.gz
 	mirror://gentoo/${P}.tar.gz"
