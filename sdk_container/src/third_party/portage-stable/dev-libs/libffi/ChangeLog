@@ -1,6 +1,36 @@
 # ChangeLog for dev-libs/libffi
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/libffi/ChangeLog,v 1.193 2014/08/10 20:35:34 slyfox Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/libffi/ChangeLog,v 1.200 2015/03/20 15:47:45 vapier Exp $
+
+  20 Mar 2015; Mike Frysinger <vapier@gentoo.org> libffi-3.1-r3.ebuild:
+  Drop Darwin patch as it does not apply cleanly and it is already in newer
+  versions #543856 by Hans de Graaff.
+
+  18 Jan 2015; Fabian Groffen <grobian@gentoo.org>
+  +files/libffi-3.1-darwin-x32.patch, libffi-3.1-r3.ebuild, libffi-3.2.1.ebuild,
+  libffi-3.2.ebuild:
+  Allow to compile on 32-bits Darwin, bug #536764
+
+  16 Jan 2015; Tobias Klausmann <klausman@gentoo.org>
+  +files/libffi-3.2.1-complex_alpha.patch, libffi-3.2.1.ebuild:
+  Update src/alpha/osf.S to match ffi.h
+
+  31 Dec 2014; Mike Frysinger <vapier@gentoo.org>
+  +files/libffi-3.2.1-o-tmpfile-eacces.patch, libffi-3.2.1.ebuild:
+  Workaround O_TMPFILE bugs in the system #529044 by Simon MARCHUK.
+
+*libffi-3.2.1 (05 Dec 2014)
+
+  05 Dec 2014; William Hubbs <williamh@gentoo.org> +libffi-3.2.1.ebuild:
+  version bump
+
+  19 Nov 2014; Mike Frysinger <vapier@gentoo.org> libffi-3.2.ebuild:
+  Drop KEYWORDS until we can sort out #529044 a bit more.
+
+*libffi-3.2 (12 Nov 2014)
+
+  12 Nov 2014; Samuli Suominen <ssuominen@gentoo.org> +libffi-3.2.ebuild:
+  Version bump.
 
   10 Aug 2014; Sergei Trofimovich <slyfox@gentoo.org> libffi-3.0.13-r1.ebuild,
   libffi-3.1-r3.ebuild:
