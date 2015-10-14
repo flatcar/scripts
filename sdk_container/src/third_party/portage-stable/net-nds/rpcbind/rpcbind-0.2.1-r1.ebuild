@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-nds/rpcbind/rpcbind-0.2.1-r1.ebuild,v 1.1 2014/01/30 21:04:39 radhermit Exp $
+# $Id$
 
 EAPI="4"
 
@@ -21,12 +21,13 @@ LICENSE="BSD"
 SLOT="0"
 IUSE="debug selinux tcpd warmstarts"
 
-RDEPEND=">=net-libs/libtirpc-0.2.3
-	selinux? ( sec-policy/selinux-rpcbind )
+CDEPEND=">=net-libs/libtirpc-0.2.3
 	tcpd? ( sys-apps/tcp-wrappers )"
-DEPEND="${RDEPEND}
+DEPEND="${CDEPEND}
 	virtual/pkgconfig"
-
+RDEPEND="${CDEPEND}
+	selinux? ( sec-policy/selinux-rpcbind )
+"
 src_prepare() {
 	[[ ${PV} == "9999" ]] && eautoreconf
 	epatch_user

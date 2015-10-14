@@ -1,6 +1,31 @@
 # ChangeLog for net-nds/rpcbind
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-nds/rpcbind/ChangeLog,v 1.38 2014/01/30 21:06:30 radhermit Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-nds/rpcbind/ChangeLog,v 1.43 2015/04/28 01:50:51 vapier Exp $
+
+*rpcbind-0.2.3 (28 Apr 2015)
+
+  28 Apr 2015; Mike Frysinger <vapier@gentoo.org> +rpcbind-0.2.3.ebuild,
+  rpcbind-9999.ebuild:
+  Version bump.
+
+  23 Dec 2014; Tim Harder <radhermit@gentoo.org> rpcbind-9999.ebuild:
+  Sync changes to live ebuild.
+
+*rpcbind-0.2.2-r1 (23 Dec 2014)
+
+  23 Dec 2014; Tim Harder <radhermit@gentoo.org> -rpcbind-0.2.2.ebuild,
+  +rpcbind-0.2.2-r1.ebuild:
+  Add systemd use flag (fixes bug #533356).
+
+*rpcbind-0.2.2 (22 Dec 2014)
+
+  22 Dec 2014; Tim Harder <radhermit@gentoo.org> +rpcbind-0.2.2.ebuild:
+  Version bump.
+
+  02 Nov 2014; Sven Vermeulen <swift@gentoo.org> rpcbind-0.2.0-r1.ebuild,
+  rpcbind-0.2.1-r1.ebuild, rpcbind-9999.ebuild:
+  Remove sec-policy/selinux-* dependency from DEPEND but keep in RDEPEND (bug
+  #527698)
 
   30 Jan 2014; Tim Harder <radhermit@gentoo.org> rpcbind-9999.ebuild:
   Sync live ebuild.
