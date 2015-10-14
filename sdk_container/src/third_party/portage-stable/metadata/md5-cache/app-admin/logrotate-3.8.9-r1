@@ -10,4 +10,4 @@ RDEPEND=>=dev-libs/popt-1.5 selinux? ( sys-libs/libselinux ) acl? ( virtual/acl 
 SLOT=0
 SRC_URI=https://fedorahosted.org/releases/l/o/logrotate/logrotate-3.8.9.tar.gz
 _eclasses_=autotools	a9597abac7226d89ad9d010abeef6cfb	eutils	9fb270e417e0e83d64ca52586c4a79de	flag-o-matic	c9602887773166fe300444712fc7ff98	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	62927b3db3a589b0806255f3a002d5d3	toolchain-funcs	42408102d713fbad60ca21349865edb4
-_md5_=de8f0f37c9599d6448e314a7c5248f9a
+_md5_=19388b9338e2e3769c1d92f64464e985
