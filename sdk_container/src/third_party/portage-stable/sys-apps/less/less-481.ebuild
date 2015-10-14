@@ -1,8 +1,8 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/less/less-458.ebuild,v 1.7 2014/09/11 05:20:34 vapier Exp $
+# $Id$
 
-EAPI="4"
+EAPI="5"
 
 inherit eutils
 
@@ -15,11 +15,11 @@ SRC_URI="http://www.greenwoodsoftware.com/less/${P}.tar.gz
 
 LICENSE="|| ( GPL-3 BSD-2 )"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="pcre unicode"
 
 DEPEND=">=app-misc/editor-wrapper-3
-	>=sys-libs/ncurses-5.2
+	>=sys-libs/ncurses-5.2:0=
 	pcre? ( dev-libs/libpcre )"
 RDEPEND="${DEPEND}"
 
@@ -30,6 +30,7 @@ src_unpack() {
 
 src_prepare() {
 	epatch "${FILESDIR}"/${CODE2COLOR_P}.patch
+	chmod a+x configure || die
 }
 
 src_configure() {
