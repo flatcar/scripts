@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/iputils/iputils-20121221.ebuild,v 1.14 2013/02/08 16:47:03 ago Exp $
+# $Id$
 
 # For released versions, we precompile the man/html pages and store
 # them in a tarball on our mirrors.  This avoids ugly issues while
@@ -16,13 +16,13 @@ if [[ ${PV} == "99999999" ]] ; then
 else
 	SRC_URI="http://www.skbuff.net/iputils/iputils-s${PV}.tar.bz2
 		mirror://gentoo/iputils-s${PV}-manpages.tar.bz2"
-	KEYWORDS="alpha amd64 arm hppa ia64 ~m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~amd64-linux ~x86-linux"
+	KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~amd64-linux ~x86-linux"
 fi
 
 DESCRIPTION="Network monitoring tools including ping and ping6"
 HOMEPAGE="http://www.linuxfoundation.org/collaborate/workgroups/networking/iputils"
 
-LICENSE="BSD"
+LICENSE="BSD-4"
 SLOT="0"
 IUSE="caps doc gnutls idn ipv6 SECURITY_HAZARD ssl static"
 

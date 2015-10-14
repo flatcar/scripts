@@ -24,7 +24,7 @@ HOMEPAGE="http://www.linuxfoundation.org/collaborate/workgroups/networking/iputi
 
 LICENSE="BSD-4"
 SLOT="0"
-IUSE="arping caps clockdiff doc gnutls idn ipv6 libressl rarpd rdisc SECURITY_HAZARD ssl static tftpd tracepath traceroute"
+IUSE="arping caps clockdiff doc gnutls idn ipv6 rarpd rdisc SECURITY_HAZARD ssl static tftpd tracepath traceroute"
 
 LIB_DEPEND="caps? ( sys-libs/libcap[static-libs(+)] )
 	idn? ( net-dns/libidn[static-libs(+)] )
@@ -33,10 +33,7 @@ LIB_DEPEND="caps? ( sys-libs/libcap[static-libs(+)] )
 			net-libs/gnutls[openssl(+)]
 			net-libs/gnutls[static-libs(+)]
 		)
-		!gnutls? (
-			!libressl? ( dev-libs/openssl:0[static-libs(+)] )
-			libressl? ( dev-libs/libressl[static-libs(+)] )
-		)
+		!gnutls? ( dev-libs/openssl:0[static-libs(+)] )
 	) )"
 RDEPEND="arping? ( !net-misc/arping )
 	rarpd? ( !net-misc/rarpd )
@@ -58,10 +55,15 @@ S=${WORKDIR}/${PN}-s${PV}
 
 src_prepare() {
 	epatch "${FILESDIR}"/021109-uclibc-no-ether_ntohost.patch
-	epatch "${FILESDIR}"/${PN}-99999999-openssl.patch #335436
-	epatch "${FILESDIR}"/${PN}-99999999-tftpd-syslog.patch
+	epatch "${FILESDIR}"/${PN}-20121221-openssl.patch #335436
+	epatch "${FILESDIR}"/${PN}-20121221-crypto-build.patch
+	epatch "${FILESDIR}"/${PN}-20100418-so_mark.patch #335347
+	epatch "${FILESDIR}"/${PN}-20121221-tftpd-setid.patch
+	epatch "${FILESDIR}"/${PN}-20121221-tftpd-syslog.patch
 	epatch "${FILESDIR}"/${PN}-20121221-makefile.patch
 	epatch "${FILESDIR}"/${PN}-20121221-parallel-doc.patch
+	epatch "${FILESDIR}"/${PN}-20121221-printf-size.patch
+	epatch "${FILESDIR}"/${PN}-20121221-owl-pingsock.diff
 	epatch "${FILESDIR}"/${PN}-20121221-strtod.patch #472592
 	use SECURITY_HAZARD && epatch "${FILESDIR}"/${PN}-20071127-nonroot-floodping.patch
 }
