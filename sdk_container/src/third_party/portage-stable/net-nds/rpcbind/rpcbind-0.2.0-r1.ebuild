@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-nds/rpcbind/rpcbind-0.2.0-r1.ebuild,v 1.12 2014/01/18 04:53:00 vapier Exp $
+# $Id$
 
 EAPI="2"
 
@@ -23,12 +23,13 @@ LICENSE="BSD"
 SLOT="0"
 IUSE="selinux tcpd"
 
-RDEPEND="net-libs/libtirpc
-	selinux? ( sec-policy/selinux-rpcbind )
+CDEPEND="net-libs/libtirpc
 	tcpd? ( sys-apps/tcp-wrappers )"
-DEPEND="${RDEPEND}
+DEPEND="${CDEPEND}
 	virtual/pkgconfig"
-
+RDEPEND="${CDEPEND}
+	selinux? ( sec-policy/selinux-rpcbind )
+"
 src_prepare() {
 	if [[ ${PV} == "9999" ]] ; then
 		eautoreconf
