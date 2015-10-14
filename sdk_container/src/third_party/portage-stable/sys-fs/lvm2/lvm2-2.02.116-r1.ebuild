@@ -12,9 +12,10 @@ SRC_URI="ftp://sources.redhat.com/pub/lvm2/${PN/lvm/LVM}.${PV}.tgz
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-linux ~x86-linux"
 IUSE="readline static static-libs systemd clvm cman lvm1 lvm2create_initrd selinux +udev +thin device-mapper-only"
-REQUIRED_USE="device-mapper-only? ( !clvm !cman !lvm1 !lvm2create_initrd !thin )"
+REQUIRED_USE="device-mapper-only? ( !clvm !cman !lvm1 !lvm2create_initrd !thin )
+	systemd? ( udev )"
 
 DEPEND_COMMON="clvm? ( cman? ( =sys-cluster/cman-3* ) =sys-cluster/libdlm-3* )
 	readline? ( sys-libs/readline:0= )
@@ -32,13 +33,14 @@ RDEPEND="${DEPEND_COMMON}
 	lvm2create_initrd? ( sys-apps/makedev )
 	thin? ( >=sys-block/thin-provisioning-tools-0.3.0 )"
 # note: thin- 0.3.0 is required to avoid --disable-thin_check_needs_check
+# USE 'static' currently only works with eudev, bug 520450
 DEPEND="${DEPEND_COMMON}
 	virtual/pkgconfig
 	>=sys-devel/binutils-2.20.1-r1
 	static? (
 		selinux? ( sys-libs/libselinux[static-libs] )
-		udev? ( >=virtual/libudev-208:=[static-libs] )
-		<sys-apps/util-linux-2.25[static-libs]
+		udev? ( >=sys-fs/eudev-3.1.2[static-libs] )
+		>=sys-apps/util-linux-2.16[static-libs]
 	)"
 
 S=${WORKDIR}/${PN/lvm/LVM}.${PV}
@@ -78,8 +80,11 @@ src_prepare() {
 
 	sed -i -e '/FLAG/s:-O2::' configure{.in,} || die #480212
 
-	if use systemd && ! use device-mapper-only; then
+	if use udev && ! use device-mapper-only; then
 		sed -i -e '/use_lvmetad =/s:0:1:' conf/example.conf.in || die #514196
+		elog "Notice that \"use_lvmetad\" setting is enabled with USE=\"udev\" in"
+		elog "/etc/lvm/lvm.conf, which will require restart of udev, lvm, and lvmetad"
+		elog "if it was previously disabled."
 	fi
 
 	sed -i -e "s:/usr/bin/true:$(type -P true):" scripts/blk_availability_systemd_red_hat.service.in || die #517514
@@ -96,8 +101,6 @@ src_prepare() {
 
 	# Without thin-privision-tools, there is nothing to install for target install_man7:
 	use thin || { sed -i -e '/^install_lvm2/s:install_man7::' man/Makefile.in || die; }
-
-	sed -i -e 's:|share):|shared):' configure.in || die #520640
 
 	eautoreconf
 }
