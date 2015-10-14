@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-firewall/ebtables/ebtables-2.0.10.4.ebuild,v 1.5 2014/08/10 20:55:27 slyfox Exp $
+# $Id$
 
 EAPI="4"
 
@@ -42,10 +42,6 @@ src_compile() {
 	# This package uses _init functions to initialise extensions. With
 	# --as-needed this will not work.
 	append-ldflags $(no-as-needed)
-	# This package correctly aliases pointers, but gcc is unable to know that:
-	# unsigned char ip[4];
-	# if (*((uint32_t*)ip) == 0) {
-	#append-cflags -Wno-strict-aliasing
 	emake \
 		CC="$(tc-getCC)" \
 		CFLAGS="${CFLAGS}" \
@@ -64,5 +60,5 @@ src_install() {
 		insinto /etc
 		doins ethertypes
 	fi
-	dodoc ChangeLog THANKS || die
+	dodoc ChangeLog THANKS
 }

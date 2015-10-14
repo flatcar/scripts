@@ -1,6 +1,13 @@
 # ChangeLog for net-firewall/ebtables
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-firewall/ebtables/ChangeLog,v 1.52 2014/08/10 20:55:27 slyfox Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-firewall/ebtables/ChangeLog,v 1.53 2015/05/30 23:57:12 mrueg Exp $
+
+  30 May 2015; Manuel Rüger <mrueg@gentoo.org> -ebtables-2.0.10.2.ebuild,
+  -ebtables-2.0.9.2-r1.ebuild, -ebtables-2.0.9.2-r2.ebuild,
+  -files/ebtables-v2.0.8-2-ethertype-DESTDIR-mkdir.patch,
+  -files/ebtables-v2.0.9-2-LDFLAGS.diff,
+  -files/ebtables-v2.0.9-2-compilation.patch:
+  Remove old.
 
   10 Aug 2014; Sergei Trofimovich <slyfox@gentoo.org> ebtables-2.0.10.2.ebuild,
   ebtables-2.0.10.4-r1.ebuild, ebtables-2.0.10.4.ebuild,

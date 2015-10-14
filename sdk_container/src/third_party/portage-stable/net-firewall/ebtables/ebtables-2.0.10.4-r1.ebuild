@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-firewall/ebtables/ebtables-2.0.10.4-r1.ebuild,v 1.2 2014/08/10 20:55:27 slyfox Exp $
+# $Id$
 
 EAPI="4"
 
@@ -13,10 +13,13 @@ DESCRIPTION="Utility that enables basic Ethernet frame filtering on a Linux brid
 HOMEPAGE="http://ebtables.sourceforge.net/"
 SRC_URI="mirror://sourceforge/${PN}/${MY_P}.tar.gz"
 
-KEYWORDS="~amd64 ~ppc ~x86"
-IUSE="static"
 LICENSE="GPL-2"
 SLOT="0"
+KEYWORDS="~amd64 ~arm ~arm64 ~ppc ~x86"
+IUSE="+perl static"
+
+# The ebtables-save script is written in perl.
+RDEPEND="perl? ( dev-lang/perl )"
 
 S=${WORKDIR}/${MY_P}
 
@@ -42,10 +45,6 @@ src_compile() {
 	# This package uses _init functions to initialise extensions. With
 	# --as-needed this will not work.
 	append-ldflags $(no-as-needed)
-	# This package correctly aliases pointers, but gcc is unable to know that:
-	# unsigned char ip[4];
-	# if (*((uint32_t*)ip) == 0) {
-	#append-cflags -Wno-strict-aliasing
 	emake \
 		CC="$(tc-getCC)" \
 		CFLAGS="${CFLAGS}" \
@@ -54,15 +53,18 @@ src_compile() {
 
 src_install() {
 	if ! use static; then
-		make DESTDIR="${D}" install
+		emake DESTDIR="${D}" install
 		keepdir /var/lib/ebtables/
 		newinitd "${FILESDIR}"/ebtables.initd-r1 ebtables
 		newconfd "${FILESDIR}"/ebtables.confd-r1 ebtables
+		if ! use perl; then
+			rm "${ED}"/sbin/ebtables-save || die
+		fi
 	else
 		into /
 		newsbin static ebtables
 		insinto /etc
 		doins ethertypes
 	fi
-	dodoc ChangeLog THANKS || die
+	dodoc ChangeLog THANKS
 }
