@@ -1,6 +1,29 @@
 # ChangeLog for dev-libs/libusb
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/libusb/ChangeLog,v 1.167 2014/06/19 10:51:43 ssuominen Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/libusb/ChangeLog,v 1.174 2015/06/09 14:43:24 jlec Exp $
+
+  09 Jun 2015; Justin Lecher <jlec@gentoo.org> metadata.xml:
+  Updating remote-id in metadata.xml
+
+  10 May 2015; Mike Gilbert <floppym@gentoo.org> libusb-1.0.18.ebuild,
+  libusb-1.0.19.ebuild:
+  Update HOMEPAGE.
+
+  15 Jan 2015; Raúl Porcel <armin76@gentoo.org> libusb-1.0.19.ebuild:
+  arm64/ia64/m68k/s390/sparc stable wrt #528834
+
+  23 Nov 2014; Mikle Kolyada <zlogene@gentoo.org> libusb-1.0.19.ebuild:
+  alpha stable wrt bug #528834
+
+  12 Nov 2014; Samuli Suominen <ssuominen@gentoo.org> libusb-1.0.19.ebuild:
+  amd64/arm/ppc/ppc64/x86 stable wrt #528834
+
+  11 Nov 2014; Jeroen Roovers <jer@gentoo.org> libusb-1.0.19.ebuild:
+  Stable for HPPA (bug #528834).
+
+  26 Jul 2014; Samuli Suominen <ssuominen@gentoo.org> libusb-1.0.18.ebuild,
+  libusb-1.0.19.ebuild:
+  Use virtual/libudev instead of virtual/udev.
 
 *libusb-1.0.19 (19 Jun 2014)
 
