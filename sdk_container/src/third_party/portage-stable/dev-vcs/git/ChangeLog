@@ -1,6 +1,119 @@
 # ChangeLog for dev-vcs/git
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-vcs/git/ChangeLog,v 1.328 2015/05/11 17:55:03 zlogene Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-vcs/git/ChangeLog,v 1.354 2015/08/04 08:21:19 polynomial-c Exp $
+
+*git-2.4.8 (04 Aug 2015)
+
+  04 Aug 2015; Lars Wendler <polynomial-c@gentoo.org> +git-2.4.8.ebuild:
+  Version bump.
+
+  02 Aug 2015; Agostino Sarubbo <ago@gentoo.org> git-2.3.8.ebuild,
+  git-2.4.6.ebuild:
+  Stable for x86, wrt bug #556126
+
+*git-2.4.7 (31 Jul 2015)
+
+  31 Jul 2015; Lars Wendler <polynomial-c@gentoo.org> +git-2.4.7.ebuild:
+  Version bump.
+
+  30 Jul 2015; Mikle Kolyada <zlogene@gentoo.org> git-2.3.8.ebuild,
+  git-2.4.6.ebuild:
+  ia64 stable wrt bug #556126
+
+  30 Jul 2015; Markus Meier <maekke@gentoo.org> git-2.4.6.ebuild:
+  arm stable, bug #556126
+
+  30 Jul 2015; Markus Meier <maekke@gentoo.org> git-2.3.8.ebuild:
+  arm stable, bug #556126
+
+  30 Jul 2015; Agostino Sarubbo <ago@gentoo.org> git-2.3.8.ebuild,
+  git-2.4.6.ebuild:
+  Stable for sparc, wrt bug #556126
+
+  29 Jul 2015; Mikle Kolyada <zlogene@gentoo.org> git-2.3.8.ebuild,
+  git-2.4.6.ebuild:
+  amd64 stable wrt bug #556126
+
+  29 Jul 2015; Tobias Klausmann <klausman@gentoo.org> git-2.4.6.ebuild:
+  Stable on alpha, bug 556126
+
+  29 Jul 2015; Tobias Klausmann <klausman@gentoo.org> git-2.3.8.ebuild:
+  Stable on alpha, bug 556126
+
+*git-2.5.0 (28 Jul 2015)
+
+  28 Jul 2015; Lars Wendler <polynomial-c@gentoo.org> -git-2.4.5.ebuild,
+  +git-2.5.0.ebuild:
+  Version bump. Removed old.
+
+  17 Jul 2015; Lars Wendler <polynomial-c@gentoo.org> files/git-daemon.confd:
+  Fixed typo in comment.
+
+*git-2.4.6 (17 Jul 2015)
+
+  17 Jul 2015; Lars Wendler <polynomial-c@gentoo.org> -git-2.4.4.ebuild,
+  +git-2.4.6.ebuild:
+  Version bump. Removed old.
+
+  01 Jul 2015; Lars Wendler <polynomial-c@gentoo.org> git-2.4.5.ebuild:
+  Fixed compilation with cgi USE flag (bug #553438).
+
+*git-2.4.5 (27 Jun 2015)
+
+  27 Jun 2015; Lars Wendler <polynomial-c@gentoo.org> -git-2.3.7.ebuild,
+  -git-2.4.3.ebuild, +git-2.4.5.ebuild:
+  Version bump. Removed old.
+
+  21 Jun 2015; Mikle Kolyada <zlogene@gentoo.org> git-2.3.6.ebuild:
+  alpha stable wrt bug #548350
+
+*git-2.4.4 (17 Jun 2015)
+
+  17 Jun 2015; Lars Wendler <polynomial-c@gentoo.org> -git-2.4.2.ebuild,
+  +git-2.4.4.ebuild:
+  Version bump. Removed old.
+
+  13 Jun 2015; Andreas K. Huettel <dilfridge@gentoo.org> git-1.8.5.6.ebuild,
+  git-1.9.5.ebuild, git-2.0.5.ebuild, git-2.1.4.ebuild, git-2.2.2.ebuild,
+  git-2.3.6.ebuild, git-2.3.7.ebuild, git-2.3.8.ebuild, git-2.4.2.ebuild,
+  git-2.4.3.ebuild, git-9999.ebuild, git-9999-r1.ebuild, git-9999-r2.ebuild,
+  git-9999-r3.ebuild:
+  The CGI module is no longer part of core Perl and has been moved to dev-perl
+
+*git-2.4.3 (09 Jun 2015)
+
+  09 Jun 2015; Lars Wendler <polynomial-c@gentoo.org> -git-2.4.1.ebuild,
+  +git-2.4.3.ebuild:
+  Version bump. Removed old.
+
+*git-2.4.2 (27 May 2015)
+
+  27 May 2015; Lars Wendler <polynomial-c@gentoo.org> -git-2.4.0.ebuild,
+  +git-2.4.2.ebuild:
+  Version bump. Removed old.
+
+*git-2.3.8 (24 May 2015)
+
+  24 May 2015; Lars Wendler <polynomial-c@gentoo.org> +git-2.3.8.ebuild:
+  Version bump.
+
+*git-2.4.1 (18 May 2015)
+
+  18 May 2015; Lars Wendler <polynomial-c@gentoo.org> -git-2.3.5.ebuild,
+  +git-2.4.1.ebuild:
+  Version bump. Removed old.
+
+  15 May 2015; Mikle Kolyada <zlogene@gentoo.org> git-2.3.6.ebuild:
+  arm stable wrt bug #548350
+
+  13 May 2015; Jack Morgan <jmorgan@gentoo.org> git-2.3.6.ebuild:
+  ppc stable wrt bug #548350
+
+  13 May 2015; Jack Morgan <jmorgan@gentoo.org> git-2.3.6.ebuild:
+  sparc stable wrt bug #548350
+
+  13 May 2015; Jack Morgan <jmorgan@gentoo.org> git-2.3.6.ebuild:
+  ia64 stable wrt bug #548350
 
   11 May 2015; Mikle Kolyada <zlogene@gentoo.org> git-2.3.6.ebuild:
   x86 stable wrt bug #548350
