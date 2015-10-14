@@ -20,7 +20,7 @@ SRC_URI="doc? ( http://sqlite.org/2015/${PN}-doc-${DOC_PV}.zip )
 
 LICENSE="public-domain"
 SLOT="3"
-KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="debug doc icu +readline secure-delete static-libs tcl test tools"
 
 RDEPEND="icu? ( dev-libs/icu:0=[${MULTILIB_USEDEP}] )
@@ -54,15 +54,8 @@ pkg_setup() {
 src_prepare() {
 	if amalgamation; then
 		epatch "${FILESDIR}/${PN}-3.8.1-autoconf-dlopen_check.patch"
-
-		# http://www.sqlite.org/cgi/src/info/85bfa9a67f997084
-		sed \
-			-e "s/^sqlite3_SOURCES = shell.c sqlite3.h$/sqlite3_SOURCES = shell.c sqlite3.c sqlite3.h/" \
-			-e "s/^sqlite3_LDADD = sqlite3.\$(OBJEXT) @READLINE_LIBS@$/sqlite3_LDADD = @READLINE_LIBS@\nsqlite3_CFLAGS = \$(AM_CFLAGS)/" \
-			-i Makefile.am
 	else
 		epatch "${FILESDIR}/${PN}-3.8.1-src-dlopen_check.patch"
-		epatch "${FILESDIR}/${PN}-3.8.1-tests-icu-52.patch"
 
 		# Fix shell1-5.0 test.
 		# http://mailinglists.sqlite.org/cgi-bin/mailman/private/sqlite-dev/2015-May/002575.html
@@ -73,6 +66,14 @@ src_prepare() {
 
 	# At least ppc-aix, x86-interix and *-solaris need newer libtool.
 	# use prefix && eautoreconf
+
+	# Fix building with Full-Text Search version 5.
+	sed \
+		-e "/^LIBOBJS1 =/s/$/ fts5.lo/" \
+		-e "s/\$(LIBOBJ) \$(TLIBS)/& -lm/" \
+		-e "/^TESTFIXTURE_SRC1 =/s/$/ fts5.c/" \
+		-e "s/\$(TESTFIXTURE_SRC) \$(LIBTCL) \$(TLIBS)/& -lm/" \
+		-i Makefile.in || die "sed failed"
 
 	if use icu; then
 		if amalgamation; then
@@ -107,9 +108,14 @@ src_configure() {
 	# http://sqlite.org/dbstat.html
 	append-cppflags -DSQLITE_ENABLE_DBSTAT_VTAB
 
-	# Support Full-Text Search versions 3 and 4.
+	# Support Full-Text Search versions 3, 4 and 5.
 	# http://sqlite.org/fts3.html
-	append-cppflags -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_PARENTHESIS -DSQLITE_ENABLE_FTS4
+	# http://sqlite.org/fts5.html
+	append-cppflags -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_PARENTHESIS -DSQLITE_ENABLE_FTS4 -DSQLITE_ENABLE_FTS5
+
+	# Support Resumable Bulk Update extension.
+	# http://sqlite.org/rbu.html
+	append-cppflags -DSQLITE_ENABLE_RBU
 
 	# Support R*Trees.
 	# http://sqlite.org/rtree.html
