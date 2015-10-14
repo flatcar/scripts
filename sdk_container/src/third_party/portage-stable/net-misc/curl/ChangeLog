@@ -1,6 +1,47 @@
 # ChangeLog for net-misc/curl
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/curl/ChangeLog,v 1.414 2015/05/24 13:55:23 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-misc/curl/ChangeLog,v 1.427 2015/07/23 09:33:50 ago Exp $
+
+  23 Jul 2015; Agostino Sarubbo <ago@gentoo.org> curl-7.43.0.ebuild:
+  Stable for sparc, wrt bug #552618
+
+  20 Jul 2015; Mike Frysinger <vapier@gentoo.org> curl-7.43.0.ebuild:
+  Mark arm64/m68k/s390/sh stable.
+
+  17 Jul 2015; Mikle Kolyada <zlogene@gentoo.org> curl-7.43.0.ebuild:
+  ia64 stable wrt bug #552618
+
+  14 Jul 2015; Tobias Klausmann <klausman@gentoo.org> curl-7.43.0.ebuild:
+  Stable on alpha, bug 552618
+
+  06 Jul 2015; Anthony G. Basile <blueness@gentoo.org> -curl-7.42.0.ebuild:
+  Cleanup vulnerable version.  Bug #548130.
+
+  05 Jul 2015; Mikle Kolyada <zlogene@gentoo.org> curl-7.43.0.ebuild:
+  arm stable wrt bug #552618
+
+  05 Jul 2015; Mikle Kolyada <zlogene@gentoo.org> curl-7.43.0.ebuild:
+  x86 stable wrt bug #552618
+
+  04 Jul 2015; Mikle Kolyada <zlogene@gentoo.org> curl-7.43.0.ebuild:
+  amd64 stable wrt bug #552618
+
+  04 Jul 2015; Anthony G. Basile <blueness@gentoo.org> curl-7.43.0.ebuild:
+  Stable on ppc and ppc64.  Bug #552618.
+
+  03 Jul 2015; Jeroen Roovers <jer@gentoo.org> curl-7.43.0.ebuild:
+  Stable for HPPA (bug #552618).
+
+  17 Jun 2015; Mike Frysinger <vapier@gentoo.org> curl-7.43.0.ebuild:
+  Update nghttp2 dep since this works with the 1.0 series now.
+
+  17 Jun 2015; Anthony G. Basile <blueness@gentoo.org> ChangeLog:
+  Fix gpg signature.
+
+*curl-7.43.0 (17 Jun 2015)
+
+  17 Jun 2015; Anthony G. Basile <blueness@gentoo.org> +curl-7.43.0.ebuild:
+  Version bump.
 
 *curl-7.42.1-r1 (24 May 2015)
 
