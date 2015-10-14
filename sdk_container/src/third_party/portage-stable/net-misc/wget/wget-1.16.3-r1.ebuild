@@ -1,19 +1,20 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/wget/wget-1.14.ebuild,v 1.14 2014/01/18 05:35:17 vapier Exp $
+# $Id$
 
 EAPI="4"
+PYTHON_COMPAT=( python{3_3,3_4} )
 
-inherit flag-o-matic toolchain-funcs autotools
+inherit flag-o-matic python-any-r1 toolchain-funcs
 
 DESCRIPTION="Network utility to retrieve files from the WWW"
-HOMEPAGE="http://www.gnu.org/software/wget/"
+HOMEPAGE="https://www.gnu.org/software/wget/"
 SRC_URI="mirror://gnu/wget/${P}.tar.xz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="debug gnutls idn ipv6 nls ntlm pcre +ssl static uuid zlib"
+KEYWORDS="alpha amd64 arm ~arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+IUSE="debug gnutls idn ipv6 nls ntlm pcre +ssl static test uuid zlib"
 
 LIB_DEPEND="idn? ( net-dns/libidn[static-libs(+)] )
 	pcre? ( dev-libs/libpcre[static-libs(+)] )
@@ -28,28 +29,31 @@ DEPEND="${RDEPEND}
 	app-arch/xz-utils
 	virtual/pkgconfig
 	static? ( ${LIB_DEPEND} )
+	test? (
+		${PYTHON_DEPS}
+		dev-lang/perl
+		dev-perl/HTTP-Daemon
+		dev-perl/HTTP-Message
+		dev-perl/IO-Socket-SSL
+	)
 	nls? ( sys-devel/gettext )"
 
 REQUIRED_USE="ntlm? ( !gnutls ssl ) gnutls? ( ssl )"
 
 DOCS=( AUTHORS MAILING-LIST NEWS README doc/sample.wgetrc )
 
+pkg_setup() {
+	use test && python-any-r1_pkg_setup
+}
+
 src_prepare() {
-	epatch "${FILESDIR}"/${PN}-1.13.4-openssl-pkg-config.patch \
-		"${FILESDIR}"/${P}-texi2pod.patch
-	eautoreconf
+	epatch "${FILESDIR}"/${P}-ftp-pasv-ip.patch #560418
 }
 
 src_configure() {
-	# openssl-0.9.8 now builds with -pthread on the BSD's
-	use elibc_FreeBSD && use ssl && append-ldflags -pthread
 	# fix compilation on Solaris, we need filio.h for FIONBIO as used in
 	# the included gnutls -- force ioctl.h to include this header
-	[[ ${CHOST} == *-solaris* ]] && append-flags -DBSD_COMP=1
-
-	# some libraries tests lack configure options :( #432468
-	eval export ac_cv_{header_pcre_h,lib_pcre_pcre_compile}=$(usex pcre)
-	eval export ac_cv_{header_uuid_uuid_h,lib_uuid_uuid_generate}=$(usex uuid)
+	[[ ${CHOST} == *-solaris* ]] && append-cppflags -DBSD_COMP=1
 
 	if use static ; then
 		append-ldflags -static
@@ -57,6 +61,7 @@ src_configure() {
 		PKG_CONFIG+=" --static"
 	fi
 	econf \
+		--disable-assert \
 		--disable-rpath \
 		$(use_with ssl ssl $(usex gnutls gnutls openssl)) \
 		$(use_enable ssl opie) \
@@ -65,8 +70,14 @@ src_configure() {
 		$(use_enable ipv6) \
 		$(use_enable nls) \
 		$(use_enable ntlm) \
+		$(use_enable pcre) \
 		$(use_enable debug) \
+		$(use_with uuid libuuid) \
 		$(use_with zlib)
+}
+
+src_test() {
+	emake check
 }
 
 src_install() {

@@ -1,6 +1,44 @@
 # ChangeLog for net-misc/wget
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/wget/ChangeLog,v 1.191 2014/10/30 19:03:07 maekke Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-misc/wget/ChangeLog,v 1.202 2015/03/09 17:46:59 vapier Exp $
+
+*wget-1.16.3 (09 Mar 2015)
+
+  09 Mar 2015; Mike Frysinger <vapier@gentoo.org> +wget-1.16.3.ebuild:
+  Version bump.
+
+*wget-1.16.2 (28 Feb 2015)
+
+  28 Feb 2015; Mike Frysinger <vapier@gentoo.org> +wget-1.16.2.ebuild:
+  Version bump.
+
+  08 Dec 2014; Lars Wendler <polynomial-c@gentoo.org> wget-1.16.1.ebuild:
+  Disable progress bar assertion as recommended by upstream.
+
+*wget-1.16.1 (08 Dec 2014)
+
+  08 Dec 2014; Lars Wendler <polynomial-c@gentoo.org> +wget-1.16.1.ebuild:
+  Version bump.
+
+  16 Nov 2014; Mikle Kolyada <zlogene@gentoo.org> -wget-1.14-r1.ebuild,
+  -wget-1.14.ebuild, -wget-1.15-r1.ebuild:
+  Drop old (bug #527056), acked by Chainsaw
+
+  09 Nov 2014; Mikle Kolyada <zlogene@gentoo.org> wget-1.16.ebuild:
+  ppc/ppc64 stable wrt bug #527056
+
+  06 Nov 2014; Mike Frysinger <vapier@gentoo.org> wget-1.16.ebuild:
+  Pull in perl deps for tests #528348 by Nikoli.
+
+  06 Nov 2014; Mike Frysinger <vapier@gentoo.org> wget-1.16.ebuild:
+  Fix by Mike Gilbert to require python-3 in order to run tests #528348#1 by
+  Nikoli.
+
+  02 Nov 2014; Mike Frysinger <vapier@gentoo.org> wget-1.16.ebuild:
+  Mark arm64/m68k/s390/sh stable.
+
+  02 Nov 2014; Agostino Sarubbo <ago@gentoo.org> wget-1.16.ebuild:
+  Stable for ia64, wrt bug #527056
 
   30 Oct 2014; Markus Meier <maekke@gentoo.org> wget-1.16.ebuild:
   arm stable, bug #527056
