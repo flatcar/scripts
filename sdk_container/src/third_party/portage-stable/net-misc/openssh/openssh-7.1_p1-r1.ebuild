@@ -11,7 +11,7 @@ PARCH=${P/_}
 
 HPN_PATCH="${PN}-7.0p1-hpnssh14v5.tar.xz"
 LDAP_PATCH="${PN}-lpk-6.8p1-0.3.14.patch.xz"
-X509_VER="8.5" X509_PATCH="${PN}-${PV//_/}+x509-${X509_VER}.diff.gz"
+X509_VER="8.6" X509_PATCH="${PN}-${PV//_/}+x509-${X509_VER}.diff.gz"
 
 DESCRIPTION="Port of OpenBSD's free SSH release"
 HOMEPAGE="http://www.openssh.org/"
@@ -30,7 +30,7 @@ LICENSE="BSD GPL-2"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~arm-linux ~x86-linux"
 # Probably want to drop ssl defaulting to on in a future version.
-IUSE="bindist debug ${HPN_PATCH:++}hpn kerberos kernel_linux ldap ldns libedit pam +pie sctp selinux skey ssh1 +ssl static X X509"
+IUSE="bindist debug ${HPN_PATCH:++}hpn kerberos kernel_linux ldap ldns libedit libressl pam +pie sctp selinux skey ssh1 +ssl static X X509"
 REQUIRED_USE="ldns? ( ssl )
 	pie? ( !static )
 	ssh1? ( ssl )
@@ -48,8 +48,11 @@ LIB_DEPEND="
 	selinux? ( >=sys-libs/libselinux-1.28[static-libs(+)] )
 	skey? ( >=sys-auth/skey-1.1.5-r1[static-libs(+)] )
 	ssl? (
-		>=dev-libs/openssl-0.9.8f:0[bindist=]
-		dev-libs/openssl:0[static-libs(+)]
+		!libressl? (
+			>=dev-libs/openssl-0.9.8f:0[bindist=]
+			dev-libs/openssl:0[static-libs(+)]
+		)
+		libressl? ( dev-libs/libressl[static-libs(+)] )
 	)
 	>=sys-libs/zlib-1.2.3[static-libs(+)]"
 RDEPEND="
@@ -113,7 +116,7 @@ src_prepare() {
 
 	if use X509 ; then
 		pushd .. >/dev/null
-		#epatch "${WORKDIR}"/${PN}-6.8_p1-x509-${X509_VER}-glue.patch
+		epatch "${FILESDIR}"/${PN}-7.1_p1-hpn-x509-glue.patch
 		epatch "${FILESDIR}"/${PN}-7.0_p1-sctp-x509-glue.patch
 		popd >/dev/null
 		epatch "${WORKDIR}"/${X509_PATCH%.*}
@@ -312,7 +315,7 @@ pkg_postinst() {
 	if has_version "<${CATEGORY}/${PN}-7.1_p1" ; then #557388
 		elog "Starting with openssh-7.0, support for ssh-dss keys were disabled due to their"
 		elog "weak sizes.  If you rely on these key types, you can re-enable the key types by"
-		elog "adding to your sshd_config:"
+		elog "adding to your sshd_config or ~/.ssh/config files:"
 		elog "	PubkeyAcceptedKeyTypes=+ssh-dss"
 		elog "You should however generate new keys using rsa or ed25519."
 	fi
