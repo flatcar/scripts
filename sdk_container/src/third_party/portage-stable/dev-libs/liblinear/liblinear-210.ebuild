@@ -10,8 +10,8 @@ HOMEPAGE="http://www.csie.ntu.edu.tw/~cjlin/liblinear/ https://github.com/cjlin1
 SRC_URI="https://github.com/cjlin1/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="BSD"
-SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86"
+SLOT="0/3"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86"
 
 src_prepare() {
 	sed -i \
@@ -38,8 +38,8 @@ src_compile() {
 }
 
 src_install() {
-	dolib ${PN}.so.2
-	dosym ${PN}.so.2 /usr/$(get_libdir)/${PN}.so
+	dolib ${PN}.so.3
+	dosym ${PN}.so.3 /usr/$(get_libdir)/${PN}.so
 
 	newbin predict ${PN}-predict
 	newbin train ${PN}-train
