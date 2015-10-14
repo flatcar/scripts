@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/libffi/libffi-3.1-r3.ebuild,v 1.2 2014/08/10 20:35:34 slyfox Exp $
+# $Id$
 
 EAPI=5
 inherit eutils libtool multilib multilib-minimal toolchain-funcs
@@ -23,7 +23,7 @@ DOCS="ChangeLog* README"
 ECONF_SOURCE=${S}
 
 pkg_setup() {
-	# Check for orphaned libffi, see http://bugs.gentoo.org/354903 for example
+	# Check for orphaned libffi, see https://bugs.gentoo.org/354903 for example
 	if [[ ${ROOT} == "/" && ${EPREFIX} == "" ]] && ! has_version ${CATEGORY}/${PN}; then
 		local base="${T}"/conftest
 		echo 'int main() { }' > "${base}".c
