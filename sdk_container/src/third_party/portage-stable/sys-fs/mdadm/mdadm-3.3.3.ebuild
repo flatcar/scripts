@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/mdadm/mdadm-3.3.2.ebuild,v 1.1 2014/08/21 12:04:07 ssuominen Exp $
+# $Id$
 
 EAPI=4
 inherit eutils flag-o-matic multilib systemd toolchain-funcs udev
@@ -63,6 +63,8 @@ src_install() {
 	into /usr
 	dodoc "${WORKDIR}"/debian/README.checkarray
 	dosbin "${WORKDIR}"/debian/checkarray
+	insinto /etc/default
+	newins "${FILESDIR}"/etc-default-mdadm mdadm
 
 	insinto /etc/cron.weekly
 	newins "${FILESDIR}"/mdadm.weekly mdadm
