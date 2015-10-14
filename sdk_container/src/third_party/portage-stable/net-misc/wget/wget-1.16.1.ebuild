@@ -13,7 +13,7 @@ SRC_URI="mirror://gnu/wget/${P}.tar.xz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="debug gnutls idn ipv6 nls ntlm pcre +ssl static test uuid zlib"
 
 LIB_DEPEND="idn? ( net-dns/libidn[static-libs(+)] )
@@ -47,11 +47,6 @@ pkg_setup() {
 }
 
 src_prepare() {
-	epatch "${FILESDIR}"/${PN}-1.16-pkg-config.patch
-	epatch "${FILESDIR}"/${PN}-1.16-openssl-header.patch
-	epatch "${FILESDIR}"/${PN}-1.16-tests-skip.patch
-	epatch "${FILESDIR}"/${P}-openssl-no-ssl3.patch
-	epatch "${FILESDIR}"/${P}-fix-proxy-test-race.patch
 	eautoreconf
 }
 
@@ -68,6 +63,7 @@ src_configure() {
 		PKG_CONFIG+=" --static"
 	fi
 	econf \
+		--disable-assert \
 		--disable-rpath \
 		$(use_with ssl ssl $(usex gnutls gnutls openssl)) \
 		$(use_enable ssl opie) \
