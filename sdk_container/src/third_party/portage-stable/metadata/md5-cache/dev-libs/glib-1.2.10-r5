@@ -9,4 +9,4 @@ LICENSE=LGPL-2.1+
 SLOT=1
 SRC_URI=ftp://ftp.gtk.org/pub/gtk/v1.2/glib-1.2.10.tar.gz ftp://ftp.gnome.org/pub/GNOME/stable/sources/glib/glib-1.2.10.tar.gz mirror://gentoo/glib-1.2.10-r1-as-needed.patch.bz2
 _eclasses_=autotools	a9597abac7226d89ad9d010abeef6cfb	eutils	9fb270e417e0e83d64ca52586c4a79de	flag-o-matic	c9602887773166fe300444712fc7ff98	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	62927b3db3a589b0806255f3a002d5d3	portability	a45c088f246ef5091e029f6285d7ce42	toolchain-funcs	42408102d713fbad60ca21349865edb4
-_md5_=169dff7e13efca23f58daa7245e55cc9
+_md5_=fcf7d32bce2c9543253dbb874720d375
