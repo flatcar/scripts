@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/libcap-ng/libcap-ng-0.7.3.ebuild,v 1.14 2014/01/19 20:11:39 vapier Exp $
+# $Id$
 
 EAPI=5
 
@@ -10,8 +10,8 @@ RESTRICT_PYTHON_ABIS="*-jython *-pypy-*"
 inherit autotools flag-o-matic python
 
 DESCRIPTION="POSIX 1003.1e capabilities"
-HOMEPAGE="http://people.redhat.com/sgrubb/libcap-ng/"
-SRC_URI="http://people.redhat.com/sgrubb/${PN}/${P}.tar.gz"
+HOMEPAGE="https://people.redhat.com/sgrubb/libcap-ng/"
+SRC_URI="https://people.redhat.com/sgrubb/${PN}/${P}.tar.gz"
 
 LICENSE="LGPL-2.1"
 SLOT="0"

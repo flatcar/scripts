@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/libcap-ng/libcap-ng-0.7.7.ebuild,v 1.1 2015/05/28 01:15:39 blueness Exp $
+# $Id$
 
 EAPI=5
 
@@ -11,18 +11,20 @@ PYTHON_COMPAT=( python{2_7,3_3,3_4} )
 inherit autotools-utils flag-o-matic python-r1
 
 DESCRIPTION="POSIX 1003.1e capabilities"
-HOMEPAGE="http://people.redhat.com/sgrubb/libcap-ng/"
-SRC_URI="http://people.redhat.com/sgrubb/${PN}/${P}.tar.gz"
+HOMEPAGE="https://people.redhat.com/sgrubb/libcap-ng/"
+SRC_URI="https://people.redhat.com/sgrubb/${PN}/${P}.tar.gz"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~arm-linux ~x86-linux"
+KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~arm-linux ~x86-linux"
 IUSE="python static-libs"
 
 RDEPEND="python? ( ${PYTHON_DEPS} )"
 DEPEND="${RDEPEND}
 	sys-kernel/linux-headers
 	python? ( >=dev-lang/swig-2 )"
+
+RESTRICT="test"
 
 src_prepare() {
 	sed -i -e 's:AM_CONFIG_HEADER:AC_CONFIG_HEADERS:' configure.ac || die
@@ -33,16 +35,22 @@ src_prepare() {
 }
 
 src_configure() {
-	local myeconfargs=(
-		--without-python
-	)
-
 	# set up the library build
+	local myeconfargs=( --without-python --without-python3 )
 	autotools-utils_src_configure
 
-	if use python; then
-		python_parallel_foreach_impl \
-			autotools-utils_src_configure --with-python
+	# set up python bindings build(s)
+	if use python ; then
+		setup_python_flags_configure() {
+			if [[ ${EPYTHON} == python2* ]] ; then
+				myeconfargs=( --with-python --without-python3 )
+			else
+				myeconfargs=( --with-python --with-python3 )
+			fi
+			autotools-utils_src_configure
+		}
+
+		python_foreach_impl setup_python_flags_configure
 	fi
 }
 
