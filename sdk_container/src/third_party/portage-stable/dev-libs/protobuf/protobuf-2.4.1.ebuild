@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/protobuf/protobuf-2.4.1.ebuild,v 1.13 2014/08/14 00:03:40 jer Exp $
+# $Id$
 
 EAPI="3"
 
@@ -11,8 +11,8 @@ DISTUTILS_SRC_TEST="setup.py"
 inherit autotools eutils distutils java-pkg-opt-2 elisp-common
 
 DESCRIPTION="Google's Protocol Buffers -- an efficient method of encoding structured data"
-HOMEPAGE="http://code.google.com/p/protobuf/"
-SRC_URI="http://protobuf.googlecode.com/files/${P}.tar.bz2"
+HOMEPAGE="https://code.google.com/p/protobuf/"
+SRC_URI="https://protobuf.googlecode.com/files/${P}.tar.bz2"
 
 LICENSE="Apache-2.0"
 SLOT="0"
