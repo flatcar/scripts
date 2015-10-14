@@ -1,24 +1,28 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI="4"
+EAPI=5
+GNOME_TARBALL_SUFFIX="gz"
+GNOME2_LA_PUNT="yes"
 
-inherit autotools libtool flag-o-matic eutils portability
+inherit autotools eutils gnome2 libtool flag-o-matic portability multilib-minimal
 
 DESCRIPTION="The GLib library of C routines"
 HOMEPAGE="http://www.gtk.org/"
-SRC_URI="ftp://ftp.gtk.org/pub/gtk/v1.2/${P}.tar.gz
-	 ftp://ftp.gnome.org/pub/GNOME/stable/sources/glib/${P}.tar.gz
-	 mirror://gentoo/glib-1.2.10-r1-as-needed.patch.bz2"
+SRC_URI="${SRC_URI}
+	 mirror://gentoo/glib-1.2.10-r1-as-needed.patch.bz2
+"
 
 LICENSE="LGPL-2.1+"
 SLOT="1"
-KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~x86-fbsd"
-IUSE="hardened"
+KEYWORDS="alpha amd64 arm hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~x86-fbsd"
+IUSE="hardened static-libs"
 
 DEPEND=""
 RDEPEND=""
+
+MULTILIB_CHOST_TOOLS=(/usr/bin/glib-config)
 
 src_prepare() {
 	epatch "${FILESDIR}"/${P}-automake.patch
@@ -35,14 +39,18 @@ src_prepare() {
 	epatch "${FILESDIR}/${P}-automake-1.13.patch"
 
 	use ppc64 && use hardened && replace-flags -O[2-3] -O1
-	append-ldflags $(dlopen_lib)
+	sed -i "/libglib_la_LDFLAGS/i libglib_la_LIBADD = $(dlopen_lib)" Makefile.am || die
 
 	rm -f acinclude.m4 #168198
+
+	mv configure.in configure.ac || die
+
 	eautoreconf
 	elibtoolize
+	gnome2_src_prepare
 }
 
-src_configure() {
+multilib_src_configure() {
 	# Bug 48839: pam fails to build on ia64
 	# The problem is that it attempts to link a shared object against
 	# libglib.a; this library needs to be built with -fPIC.  Since
@@ -50,17 +58,20 @@ src_configure() {
 	# whole thing with -fPIC (23 Apr 2004 agriffis)
 	append-flags -fPIC
 
-	econf \
+	ECONF_SOURCE="${S}" \
+	gnome2_src_configure \
 		--with-threads=posix \
-		--enable-debug=yes
+		--enable-debug=yes \
+		$(use_enable static-libs static)
 }
 
-src_install() {
-	default
+multilib_src_install() {
+	gnome2_src_install
 
-	dodoc AUTHORS ChangeLog README* INSTALL NEWS
+	chmod 755 "${ED}"/usr/$(get_libdir)/libgmodule-1.2.so.* || die
+}
+
+multilib_src_install_all() {
+	einstalldocs
 	dohtml -r docs
-
-	cd "${D}"/usr/$(get_libdir) || die
-	chmod 755 libgmodule-1.2.so.*
 }
