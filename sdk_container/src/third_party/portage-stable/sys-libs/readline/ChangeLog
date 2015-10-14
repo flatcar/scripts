@@ -1,6 +1,42 @@
 # ChangeLog for sys-libs/readline
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/readline/ChangeLog,v 1.220 2015/01/21 11:50:44 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/readline/ChangeLog,v 1.231 2015/07/13 07:18:09 vapier Exp $
+
+  13 Jul 2015; Mike Frysinger <vapier@gentoo.org> readline-6.3_p8-r2.ebuild:
+  Mark sparc stable #548756.
+
+*readline-7.0_alpha (13 Jul 2015)
+
+  13 Jul 2015; Mike Frysinger <vapier@gentoo.org> +readline-7.0_alpha.ebuild:
+  Version bump.
+
+  30 May 2015; Mikle Kolyada <zlogene@gentoo.org> readline-6.3_p8-r2.ebuild:
+  ppc stable wrt bug #548756
+
+  27 May 2015; Jeroen Roovers <jer@gentoo.org> readline-6.3_p8-r2.ebuild:
+  Stable for PPC64 (bug #548756).
+
+  27 May 2015; Jeroen Roovers <jer@gentoo.org> readline-6.3_p8-r2.ebuild:
+  Stable for HPPA (bug #548756).
+
+  26 May 2015; Mike Frysinger <vapier@gentoo.org> metadata.xml,
+  readline-6.3_p8-r2.ebuild:
+  Add USE=utils to control install of rlfe util.
+
+  23 May 2015; Mikle Kolyada <zlogene@gentoo.org> readline-6.3_p8-r2.ebuild:
+  ia64 stable wrt bug #548756
+
+  22 May 2015; Mikle Kolyada <zlogene@gentoo.org> readline-6.3_p8-r2.ebuild:
+  arm stable wrt bug #548756
+
+  22 May 2015; Mikle Kolyada <zlogene@gentoo.org> readline-6.3_p8-r2.ebuild:
+  x86 stable wrt bug #548756
+
+  21 May 2015; Mikle Kolyada <zlogene@gentoo.org> readline-6.3_p8-r2.ebuild:
+  amd64 stable wrt bug #548756
+
+  21 May 2015; Matt Turner <mattst88@gentoo.org> readline-6.3_p8-r2.ebuild:
+  alpha stable, bug 548756.
 
 *readline-6.3_p8-r2 (21 Jan 2015)
 

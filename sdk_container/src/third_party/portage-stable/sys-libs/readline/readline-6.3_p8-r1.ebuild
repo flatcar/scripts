@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/readline/readline-6.3_p8-r1.ebuild,v 1.2 2014/12/29 07:42:08 polynomial-c Exp $
+# $Id$
 
 EAPI=4
 
@@ -77,7 +77,7 @@ src_prepare() {
 src_configure() {
 	# fix implicit decls with widechar funcs
 	append-cppflags -D_GNU_SOURCE
-	# http://lists.gnu.org/archive/html/bug-readline/2010-07/msg00013.html
+	# https://lists.gnu.org/archive/html/bug-readline/2010-07/msg00013.html
 	append-cppflags -Dxrealloc=_rl_realloc -Dxmalloc=_rl_malloc -Dxfree=_rl_free
 
 	# Make sure configure picks a better ar than `ar`. #484866
