@@ -1,13 +1,13 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/pth/pth-2.0.7-r3.ebuild,v 1.10 2014/03/16 02:38:02 vapier Exp $
+# $Id$
 
 EAPI=4
 
 inherit eutils fixheadtails libtool flag-o-matic
 
 DESCRIPTION="GNU Portable Threads"
-HOMEPAGE="http://www.gnu.org/software/pth/"
+HOMEPAGE="https://www.gnu.org/software/pth/"
 SRC_URI="mirror://gnu/${PN}/${P}.tar.gz"
 
 LICENSE="LGPL-2.1"
