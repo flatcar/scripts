@@ -1,6 +1,35 @@
 # ChangeLog for sys-apps/ethtool
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/ethtool/ChangeLog,v 1.115 2014/12/15 01:51:09 radhermit Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/ethtool/ChangeLog,v 1.124 2015/07/30 12:24:39 ago Exp $
+
+  30 Jul 2015; Agostino Sarubbo <ago@gentoo.org> ethtool-3.18.ebuild:
+  Stable for sparc, wrt bug #536740
+
+  29 Jul 2015; Mikle Kolyada <zlogene@gentoo.org> ethtool-3.18.ebuild:
+  ia64 stable wrt bug #536740
+
+  23 Jul 2015; Pacho Ramos <pacho@gentoo.org> ethtool-3.18.ebuild:
+  ppc stable wrt bug #536740
+
+  28 Jun 2015; Mikle Kolyada <zlogene@gentoo.org> ethtool-3.18.ebuild:
+  alpha stable wrt bug #536740
+
+  13 Jun 2015; Mikle Kolyada <zlogene@gentoo.org> ethtool-3.18.ebuild:
+  x86 stable wrt bug #536740
+
+  13 Jun 2015; Mikle Kolyada <zlogene@gentoo.org> ethtool-3.18.ebuild:
+  amd64 stable wrt bug #536740
+
+  11 Jun 2015; Markus Meier <maekke@gentoo.org> ethtool-3.18.ebuild:
+  arm stable, bug #536740
+
+  07 Jun 2015; Jeroen Roovers <jer@gentoo.org> ethtool-3.18.ebuild:
+  Stable for HPPA PPC64 (bug #536740).
+
+*ethtool-4.0 (02 Jun 2015)
+
+  02 Jun 2015; Lars Wendler <polynomial-c@gentoo.org> +ethtool-4.0.ebuild:
+  Version bump.
 
 *ethtool-3.18 (15 Dec 2014)
 
