@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/e2fsprogs/e2fsprogs-1.41.7-r1.ebuild,v 1.4 2012/05/04 19:09:17 jdhore Exp $
+# $Id$
 
 inherit eutils flag-o-matic toolchain-funcs multilib
 
@@ -90,7 +90,7 @@ src_compile() {
 	if [[ ${CHOST} != *-uclibc ]] && grep -qs 'USE_INCLUDED_LIBINTL.*yes' config.{log,status} ; then
 		eerror "INTL sanity check failed, aborting build."
 		eerror "Please post your ${S}/config.log file as an"
-		eerror "attachment to http://bugs.gentoo.org/show_bug.cgi?id=81096"
+		eerror "attachment to https://bugs.gentoo.org/show_bug.cgi?id=81096"
 		die "Preventing included intl cruft from building"
 	fi
 	emake COMPILE_ET=compile_et MK_CMDS=mk_cmds || die
