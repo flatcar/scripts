@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/iputils/iputils-20121221-r1.ebuild,v 1.3 2013/01/28 20:05:01 vapier Exp $
+# $Id$
 
 # For released versions, we precompile the man/html pages and store
 # them in a tarball on our mirrors.  This avoids ugly issues while
@@ -16,22 +16,25 @@ if [[ ${PV} == "99999999" ]] ; then
 else
 	SRC_URI="http://www.skbuff.net/iputils/iputils-s${PV}.tar.bz2
 		mirror://gentoo/iputils-s${PV}-manpages.tar.bz2"
-	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-linux ~x86-linux"
+	KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~amd64-linux ~x86-linux"
 fi
 
 DESCRIPTION="Network monitoring tools including ping and ping6"
 HOMEPAGE="http://www.linuxfoundation.org/collaborate/workgroups/networking/iputils"
 
-LICENSE="BSD"
+LICENSE="BSD-4"
 SLOT="0"
 IUSE="caps doc gnutls idn ipv6 SECURITY_HAZARD ssl static"
 
 LIB_DEPEND="caps? ( sys-libs/libcap[static-libs(+)] )
 	idn? ( net-dns/libidn[static-libs(+)] )
-	ipv6? (
-		gnutls? ( net-libs/gnutls[static-libs(+)] )
-		ssl? ( dev-libs/openssl:0[static-libs(+)] )
-	)"
+	ipv6? ( ssl? (
+		gnutls? (
+			net-libs/gnutls[openssl(+)]
+			net-libs/gnutls[static-libs(+)]
+		)
+		!gnutls? ( dev-libs/openssl:0[static-libs(+)] )
+	) )"
 RDEPEND="!net-misc/rarpd
 	!static? ( ${LIB_DEPEND//\[static-libs(+)]} )"
 DEPEND="${RDEPEND}

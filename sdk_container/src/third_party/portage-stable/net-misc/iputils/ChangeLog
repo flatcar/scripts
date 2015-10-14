@@ -1,6 +1,100 @@
 # ChangeLog for net-misc/iputils
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/iputils/ChangeLog,v 1.123 2013/06/09 23:01:13 vapier Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-misc/iputils/ChangeLog,v 1.145 2015/05/04 02:35:57 vapier Exp $
+
+  04 May 2015; Mike Frysinger <vapier@gentoo.org> iputils-20121221-r2.ebuild,
+  iputils-99999999.ebuild:
+  Fix install of clockdiff #547752 by Robert Sebastian Gerus.
+
+  25 Apr 2015; Mike Frysinger <vapier@gentoo.org> iputils-20121221-r2.ebuild,
+  iputils-99999999.ebuild:
+  Fix install of arping and add blocker against net-misc/arping.
+
+*iputils-20121221-r2 (25 Apr 2015)
+
+  25 Apr 2015; Mike Frysinger <vapier@gentoo.org>
+  +files/iputils-20121221-parallel-doc.patch,
+  +files/iputils-20121221-tftpd-setid.patch,
+  +files/iputils-20121221-tftpd-syslog.patch, +iputils-20121221-r2.ebuild,
+  iputils-99999999.ebuild, metadata.xml:
+  Add fix from upstream for checking tftpd set*id calls. Add USE flags to
+  control all the utils (other than ping) as they are all fairly uncommon.  Drop
+  ipg entirely as it is a pretty useless script.  Re-add support for traceroute
+  via the new USE flag.
+
+  25 Apr 2015; Mike Frysinger <vapier@gentoo.org> +files/rarpd.conf.d,
+  +files/rarpd.init.d, iputils-99999999.ebuild:
+  Add init.d script for rarpd #312623 by Weeve.
+
+  25 Apr 2015; Mike Frysinger <vapier@gentoo.org>
+  +files/iputils-20121221-strtod.patch, iputils-99999999.ebuild:
+  Fix -i number parsing in some locales #472592 by Sergey Fionov.
+
+  25 Apr 2015; Mike Frysinger <vapier@gentoo.org> iputils-20121221-r1.ebuild,
+  iputils-99999999.ebuild:
+  Require gnutls be built w/USE=openssl #546116 by Patrick Lauer.
+
+  25 Apr 2015; Mike Frysinger <vapier@gentoo.org>
+  +files/iputils-99999999-openssl.patch,
+  +files/iputils-99999999-tftpd-syslog.patch, -files/iputils-20070202-idn.patch,
+  -files/iputils-20071127-infiniband.patch,
+  -files/iputils-20071127-kernel-ifaddr.patch,
+  -files/iputils-20100418-aliasing.patch,
+  -files/iputils-20100418-makefile.patch, -files/iputils-20100418-openssl.patch,
+  -files/iputils-20100418-printf-size.patch,
+  -files/iputils-20100418-proper-libs.patch,
+  -files/iputils-20101006-owl-pingsock.diff, iputils-99999999.ebuild:
+  Update patches against latest git.
+
+  04 Apr 2015; Mike Frysinger <vapier@gentoo.org> iputils-20121221-r1.ebuild:
+  Mark arm64/m68k/s390/sh stable.
+
+  07 Dec 2014; Markus Meier <maekke@gentoo.org> iputils-20121221-r1.ebuild:
+  arm stable, bug #517720
+
+  06 Dec 2014; Agostino Sarubbo <ago@gentoo.org> iputils-20121221-r1.ebuild:
+  Stable for ia64, wrt bug #517720
+
+  04 Dec 2014; Agostino Sarubbo <ago@gentoo.org> iputils-20121221-r1.ebuild:
+  Stable for ppc64, wrt bug #517720
+
+  03 Dec 2014; Agostino Sarubbo <ago@gentoo.org> iputils-20121221-r1.ebuild:
+  Stable for ppc, wrt bug #517720
+
+  02 Dec 2014; Agostino Sarubbo <ago@gentoo.org> iputils-20121221-r1.ebuild:
+  Stable for alpha, wrt bug #517720
+
+  01 Dec 2014; Agostino Sarubbo <ago@gentoo.org> iputils-20121221-r1.ebuild:
+  Stable for sparc, wrt bug #517720
+
+  25 Nov 2014; Agostino Sarubbo <ago@gentoo.org> iputils-20121221-r1.ebuild:
+  Stable for x86, wrt bug #517720
+
+  22 Nov 2014; Mikle Kolyada <zlogene@gentoo.org> iputils-20121221-r1.ebuild:
+  amd64 stable wrt bug #517720
+
+  22 Nov 2014; Jeroen Roovers <jer@gentoo.org> iputils-20121221-r1.ebuild:
+  Stable for HPPA (bug #517720).
+
+  03 Nov 2014; Mike Frysinger <vapier@gentoo.org> iputils-20121221.ebuild:
+  Mark m68k stable.
+
+  25 Aug 2014; Christopher Reffett <2011creffett@gentoo.org>
+  -iputils-20101006-r2.ebuild:
+  Security cleanup wrt bug 408183
+
+  29 Apr 2014; Mike Frysinger <vapier@gentoo.org> iputils-20121221-r1.ebuild,
+  iputils-99999999.ebuild:
+  Put USE=gnutls behind USE=ssl since only one of openssl/gnutls can be used at
+  a time #509100 by David Heidelberger.
+
+  18 Jan 2014; Mike Frysinger <vapier@gentoo.org> iputils-20121221-r1.ebuild,
+  iputils-20121221.ebuild, iputils-99999999.ebuild:
+  Add arm64 love.
+
+  26 Oct 2013; Mike Frysinger <vapier@gentoo.org> iputils-20101006-r2.ebuild,
+  iputils-20121221-r1.ebuild, iputils-20121221.ebuild, iputils-99999999.ebuild:
+  Fix license to reflect source -- BSD-4.
 
   09 Jun 2013; Mike Frysinger <vapier@gentoo.org> metadata.xml:
   Add upstream CPE tag (security info) from ChromiumOS.
