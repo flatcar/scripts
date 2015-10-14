@@ -1,6 +1,33 @@
 # ChangeLog for sys-apps/usbutils
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/usbutils/ChangeLog,v 1.195 2015/03/03 09:51:34 dlan Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/usbutils/ChangeLog,v 1.204 2015/07/30 12:27:26 ago Exp $
+
+  30 Jul 2015; Agostino Sarubbo <ago@gentoo.org> usbutils-008-r1.ebuild:
+  Stable for sparc, wrt bug #541040
+
+  17 Jul 2015; Mikle Kolyada <zlogene@gentoo.org> usbutils-008-r1.ebuild:
+  ia64 stable wrt bug #541040
+
+  28 Jun 2015; Mikle Kolyada <zlogene@gentoo.org> usbutils-008-r1.ebuild:
+  alpha stable wrt bug #541040
+
+  11 Jun 2015; Markus Meier <maekke@gentoo.org> usbutils-008-r1.ebuild:
+  arm stable, bug #541040
+
+  11 Jun 2015; Agostino Sarubbo <ago@gentoo.org> usbutils-008-r1.ebuild:
+  Stable for ppc, wrt bug #541040
+
+  09 Jun 2015; Agostino Sarubbo <ago@gentoo.org> usbutils-008-r1.ebuild:
+  Stable for x86, wrt bug #541040
+
+  08 Jun 2015; Jeroen Roovers <jer@gentoo.org> usbutils-008-r1.ebuild:
+  Stable for HPPA (bug #541040).
+
+  07 Jun 2015; Jeroen Roovers <jer@gentoo.org> usbutils-008-r1.ebuild:
+  Stable for PPC64 (bug #541040).
+
+  31 May 2015; Mikle Kolyada <zlogene@gentoo.org> usbutils-008-r1.ebuild:
+  amd64 stable wrt bug #541040
 
   03 Mar 2015; Yixun Lan <dlan@gentoo.org> usbutils-008.ebuild:
   add arm64 support, tested on A53 board
