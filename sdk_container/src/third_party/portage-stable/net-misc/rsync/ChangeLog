@@ -1,6 +1,9 @@
 # ChangeLog for net-misc/rsync
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/rsync/ChangeLog,v 1.266 2015/04/30 09:13:35 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-misc/rsync/ChangeLog,v 1.267 2015/05/15 12:03:06 pacho Exp $
+
+  15 May 2015; Pacho Ramos <pacho@gentoo.org> rsync-3.1.1.ebuild:
+  ppc stable wrt bug #540000
 
   30 Apr 2015; Mike Frysinger <vapier@gentoo.org> metadata.xml:
   Add CPE info via Chromium OS.
