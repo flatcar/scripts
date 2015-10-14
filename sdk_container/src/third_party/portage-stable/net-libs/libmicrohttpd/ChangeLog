@@ -1,6 +1,50 @@
 # ChangeLog for net-libs/libmicrohttpd
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-libs/libmicrohttpd/ChangeLog,v 1.92 2015/04/30 11:35:47 blueness Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-libs/libmicrohttpd/ChangeLog,v 1.104 2015/07/30 12:29:54 ago Exp $
+
+  30 Jul 2015; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.42.ebuild:
+  Stable for sparc, wrt bug #553930
+
+  24 Jul 2015; Mikle Kolyada <zlogene@gentoo.org> libmicrohttpd-0.9.42.ebuild:
+  ia64 stable wrt bug #553930
+
+  17 Jul 2015; Tobias Klausmann <klausman@gentoo.org>
+  libmicrohttpd-0.9.42.ebuild:
+  Stable on alpha, bug 553930
+
+  16 Jul 2015; Mikle Kolyada <zlogene@gentoo.org> libmicrohttpd-0.9.42.ebuild:
+  amd64 stable wrt bug #553930
+
+  11 Jul 2015; Mikle Kolyada <zlogene@gentoo.org> libmicrohttpd-0.9.42.ebuild:
+  x86 stable wrt bug #553930
+
+  11 Jul 2015; Jeroen Roovers <jer@gentoo.org> libmicrohttpd-0.9.42.ebuild:
+  Stable for HPPA (bug #553930).
+
+  04 Jul 2015; Anthony G. Basile <blueness@gentoo.org>
+  libmicrohttpd-0.9.42.ebuild:
+  Stable on arm, ppc and ppc64.  Bug #553930.
+
+  04 Jul 2015; Anthony G. Basile <blueness@gentoo.org>
+  -libmicrohttpd-0.9.40.ebuild, -libmicrohttpd-0.9.41.ebuild:
+  Remove older unstable versions.
+
+  04 Jul 2015; Anthony G. Basile <blueness@gentoo.org>
+  libmicrohttpd-0.9.42.ebuild:
+  Unconditionally enable postprocessor.  Bug #550718.
+
+  18 May 2015; Mike Frysinger <vapier@gentoo.org> libmicrohttpd-0.9.42.ebuild:
+  Disable building of examples as they are not actually installed; fix from Nam
+  Nguyen (Chromium OS).
+
+  14 May 2015; Anthony G. Basile <blueness@gentoo.org> ChangeLog:
+  Fix gpg signature.
+
+*libmicrohttpd-0.9.42 (14 May 2015)
+
+  14 May 2015; Anthony G. Basile <blueness@gentoo.org>
+  +libmicrohttpd-0.9.42.ebuild:
+  Version bump.
 
   30 Apr 2015; Anthony G. Basile <blueness@gentoo.org>
   -libmicrohttpd-0.9.37.ebuild, -libmicrohttpd-0.9.38.ebuild:
