@@ -1,13 +1,13 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/gawk/gawk-4.1.1-r1.ebuild,v 1.2 2015/03/31 20:22:33 ulm Exp $
+# $Id$
 
-EAPI="4"
+EAPI="5"
 
 inherit eutils toolchain-funcs multilib
 
 DESCRIPTION="GNU awk pattern-matching language"
-HOMEPAGE="http://www.gnu.org/software/gawk/gawk.html"
+HOMEPAGE="https://www.gnu.org/software/gawk/gawk.html"
 SRC_URI="mirror://gnu/gawk/${P}.tar.xz"
 
 LICENSE="GPL-2"
@@ -15,16 +15,12 @@ SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="mpfr nls readline"
 
-RDEPEND="mpfr? ( dev-libs/mpfr )
-	readline? ( sys-libs/readline )"
+RDEPEND="mpfr? ( dev-libs/mpfr:0= )
+	readline? ( sys-libs/readline:0= )"
 DEPEND="${RDEPEND}
 	nls? ( sys-devel/gettext )"
 
 src_prepare() {
-	EPATCH_OPTS="-Z" \
-	epatch "${FILESDIR}"/${P}-sandbox_issue.patch
-	epatch "${FILESDIR}"/${P}-sigpipe.patch #507340
-
 	# use symlinks rather than hardlinks, and disable version links
 	sed -i \
 		-e '/^LN =/s:=.*:= $(LN_S):' \
@@ -35,6 +31,9 @@ src_prepare() {
 	sed -i \
 		-e '/check-recursive all-recursive: check-for-shared-lib-support/d' \
 		extension/Makefile.in || die
+
+	EPATCH_OPTS="-Z" \
+	epatch "${FILESDIR}/${P}-bsd_configure_readline.patch" #507468
 }
 
 src_configure() {
