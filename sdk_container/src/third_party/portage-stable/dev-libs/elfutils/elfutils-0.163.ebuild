@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/elfutils/elfutils-0.157.ebuild,v 1.3 2014/06/18 19:10:28 mgorny Exp $
+# $Id$
 
 EAPI="4"
 
@@ -9,12 +9,11 @@ inherit eutils flag-o-matic multilib-minimal
 DESCRIPTION="Libraries/utilities to handle ELF objects (drop in replacement for libelf)"
 HOMEPAGE="https://fedorahosted.org/elfutils/"
 SRC_URI="https://fedorahosted.org/releases/e/l/${PN}/${PV}/${P}.tar.bz2
-	https://fedorahosted.org/releases/e/l/${PN}/${PV}/${PN}-portability.patch -> ${P}-portability.patch
-	https://fedorahosted.org/releases/e/l/${PN}/${PV}/${PN}-robustify.patch -> ${P}-robustify.patch"
+	https://fedorahosted.org/releases/e/l/${PN}/${PV}/${PN}-portability-${PV}.patch -> ${P}-portability.patch"
 
 LICENSE="GPL-2-with-exceptions"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-linux ~arm-linux ~x86-linux"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-linux ~arm-linux ~x86-linux"
 IUSE="bzip2 lzma nls static-libs test +threads +utils zlib"
 
 # This pkg does not actually seem to compile currently in a uClibc
@@ -35,8 +34,9 @@ DEPEND="${RDEPEND}
 
 src_prepare() {
 	epatch "${FILESDIR}"/${PN}-0.118-PaX-support.patch
-	epatch "${DISTDIR}"/${P}-{portability,robustify}.patch
+	epatch "${DISTDIR}"/${P}-portability.patch
 	use static-libs || sed -i -e '/^lib_LIBRARIES/s:=.*:=:' -e '/^%.os/s:%.o$::' lib{asm,dw,elf}/Makefile.in
+	sed -i 's:-Werror::' */Makefile.in
 	# some patches touch both configure and configure.ac
 	find -type f -exec touch -r configure {} +
 }
