@@ -1,13 +1,13 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/findutils/findutils-4.5.14.ebuild,v 1.1 2014/08/01 23:02:32 polynomial-c Exp $
+# $Id$
 
 EAPI="5"
 
 inherit eutils flag-o-matic toolchain-funcs multilib
 
 DESCRIPTION="GNU utilities for finding files"
-HOMEPAGE="http://www.gnu.org/software/findutils/"
+HOMEPAGE="https://www.gnu.org/software/findutils/"
 SRC_URI="mirror://gnu-alpha/${PN}/${P}.tar.gz"
 
 LICENSE="GPL-3+"
@@ -33,7 +33,7 @@ src_configure() {
 	econf \
 		--with-packager="Gentoo" \
 		--with-packager-version="${PVR}" \
-		--with-packager-bug-reports="http://bugs.gentoo.org/" \
+		--with-packager-bug-reports="https://bugs.gentoo.org/" \
 		--program-prefix=${program_prefix} \
 		$(use_enable nls) \
 		$(use_with selinux) \
