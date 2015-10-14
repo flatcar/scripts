@@ -1,6 +1,9 @@
 # ChangeLog for sys-libs/libseccomp
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/libseccomp/ChangeLog,v 1.16 2015/04/09 17:59:44 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/libseccomp/ChangeLog,v 1.17 2015/06/07 04:38:28 vapier Exp $
+
+  07 Jun 2015; Mike Frysinger <vapier@gentoo.org> libseccomp-2.2.0.ebuild:
+  Force recent kernel header versions #551248 by Mike Gilbert.
 
 *libseccomp-2.2.0 (09 Apr 2015)
 

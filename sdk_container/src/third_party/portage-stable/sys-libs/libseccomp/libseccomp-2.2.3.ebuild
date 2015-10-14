@@ -36,4 +36,5 @@ multilib_src_configure() {
 
 multilib_src_install_all() {
 	find "${ED}" -name libseccomp.la -delete
+	einstalldocs
 }
