@@ -1,6 +1,36 @@
 # ChangeLog for sys-fs/btrfs-progs
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/btrfs-progs/ChangeLog,v 1.105 2015/05/09 23:23:01 floppym Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/btrfs-progs/ChangeLog,v 1.113 2015/08/06 07:16:58 ago Exp $
+
+  06 Aug 2015; Agostino Sarubbo <ago@gentoo.org> btrfs-progs-4.0.1.ebuild:
+  Stable for x86, wrt bug #552446
+
+  03 Aug 2015; Agostino Sarubbo <ago@gentoo.org> btrfs-progs-4.0.1.ebuild:
+  Stable for amd64, wrt bug #552446
+
+  23 Jul 2015; Pacho Ramos <pacho@gentoo.org> btrfs-progs-4.0.1.ebuild:
+  ppc stable wrt bug #552446
+
+*btrfs-progs-4.1.2 (19 Jul 2015)
+
+  19 Jul 2015; Mike Gilbert <floppym@gentoo.org> +btrfs-progs-4.1.2.ebuild:
+  Version bump.
+
+  11 Jul 2015; Markus Meier <maekke@gentoo.org> btrfs-progs-4.0.1.ebuild:
+  arm stable, bug #552446
+
+*btrfs-progs-4.1 (04 Jul 2015)
+
+  04 Jul 2015; Mike Gilbert <floppym@gentoo.org> +btrfs-progs-4.1.ebuild:
+  Version bump, bug 553258.
+
+  17 Jun 2015; Mike Gilbert <floppym@gentoo.org> btrfs-progs-9999.ebuild:
+  Set EGIT_BRANCH=devel.
+
+*btrfs-progs-4.0.1 (13 Jun 2015)
+
+  13 Jun 2015; Sergei Trofimovich <slyfox@gentoo.org> +btrfs-progs-4.0.1.ebuild:
+  Version bump, bug #551842 by akiraba_honata@yahoo.co.jp.
 
 *btrfs-progs-4.0 (09 May 2015)
 

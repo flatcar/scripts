@@ -18,6 +18,7 @@ else
 	inherit autotools git-r3
 	EGIT_REPO_URI="git://git.kernel.org/pub/scm/linux/kernel/git/kdave/btrfs-progs.git
 		https://git.kernel.org/pub/scm/linux/kernel/git/kdave/btrfs-progs.git"
+	EGIT_BRANCH="devel"
 fi
 
 DESCRIPTION="Btrfs filesystem utilities"
