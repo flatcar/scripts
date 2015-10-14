@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/gptfdisk/gptfdisk-1.0.0.ebuild,v 1.1 2015/04/16 10:07:18 polynomial-c Exp $
+# $Id$
 
 EAPI=5
 
@@ -15,8 +15,9 @@ SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86 ~amd64-linux ~arm-linux ~x86-linux"
 IUSE="kernel_linux ncurses static"
 
-LIB_DEPEND="dev-libs/popt[static-libs(+)]
-	ncurses? ( >=sys-libs/ncurses-5.7-r7[static-libs(+)] )
+LIB_DEPEND="
+	dev-libs/popt[static-libs(+)]
+	ncurses? ( >=sys-libs/ncurses-5.7-r7:0=[static-libs(+)] )
 	kernel_linux? ( sys-apps/util-linux[static-libs(+)] )" # libuuid
 RDEPEND="!static? ( ${LIB_DEPEND//\[static-libs(+)]} )"
 DEPEND="${RDEPEND}
