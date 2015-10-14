@@ -1,6 +1,21 @@
 # ChangeLog for app-arch/xz-utils
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/app-arch/xz-utils/ChangeLog,v 1.93 2015/01/02 15:00:21 zlogene Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-arch/xz-utils/ChangeLog,v 1.96 2015/06/03 02:34:55 mgorny Exp $
+
+*xz-utils-5.2.1-r1 (03 Jun 2015)
+
+  03 Jun 2015; Michał Górny <mgorny@gentoo.org> +xz-utils-5.2.1-r1.ebuild,
+  -xz-utils-5.2.1.ebuild, xz-utils-9999.ebuild:
+  Disable sha256.h on *BSD, bug #545714. https://github.com/gentoo/gentoo-
+  portage-rsync-mirror/pull/139 by nigoro.
+
+  04 Apr 2015; Mike Frysinger <vapier@gentoo.org> xz-utils-5.0.8.ebuild:
+  Mark arm64/m68k/s390/sh stable.
+
+*xz-utils-5.2.1 (26 Feb 2015)
+
+  26 Feb 2015; Mike Frysinger <vapier@gentoo.org> +xz-utils-5.2.1.ebuild:
+  Version bump.
 
   02 Jan 2015; Mikle Kolyada <zlogene@gentoo.org> xz-utils-5.0.8.ebuild:
   ia64 stable wrt bug #533274
