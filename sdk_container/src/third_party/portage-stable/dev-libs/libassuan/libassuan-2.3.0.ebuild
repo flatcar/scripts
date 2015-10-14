@@ -1,10 +1,10 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
 EAPI=5
 
-inherit libtool
+inherit libtool eutils
 
 DESCRIPTION="IPC library used by GnuPG and GPGME"
 HOMEPAGE="http://www.gnupg.org/related_software/libassuan/index.en.html"
@@ -23,7 +23,8 @@ DOCS=( AUTHORS ChangeLog NEWS README THANKS TODO )
 src_prepare() {
 	default
 
-	elibtoolize  # for Solaris .so
+	# for Solaris .so
+	elibtoolize
 }
 
 src_configure() {
@@ -33,5 +34,5 @@ src_configure() {
 src_install() {
 	default
 	# ppl need to use libassuan-config for --cflags and --libs
-	rm -f "${ED}"usr/lib*/${PN}.la
+	prune_libtool_files
 }
