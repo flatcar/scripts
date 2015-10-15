@@ -1,10 +1,10 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-util/gdbus-codegen/gdbus-codegen-2.40.0.ebuild,v 1.6 2014/08/07 18:02:19 jer Exp $
+# $Id$
 
 EAPI="5"
 GNOME_ORG_MODULE="glib"
-PYTHON_COMPAT=( python{2_6,2_7,3_2,3_3} )
+PYTHON_COMPAT=( python{2_7,3_3,3_4} )
 PYTHON_REQ_USE="xml"
 
 inherit eutils gnome.org distutils-r1
@@ -14,7 +14,7 @@ HOMEPAGE="http://www.gtk.org/"
 
 LICENSE="LGPL-2+"
 SLOT="0"
-KEYWORDS="~alpha amd64 ~arm ~arm64 hppa ~ia64 ~m68k ~mips ppc ~ppc64 ~s390 ~sh ~sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~x64-macos ~x86-macos"
+KEYWORDS="alpha amd64 arm ~arm64 hppa ~ia64 ~m68k ~mips ~ppc ppc64 ~s390 ~sh ~sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~x64-macos ~x86-macos"
 IUSE=""
 
 RDEPEND="${PYTHON_DEPS}"
@@ -30,8 +30,6 @@ python_prepare_all() {
 		"${FILESDIR}/${PN}-2.40.0-sitedir.patch"
 	)
 	distutils-r1_python_prepare_all
-	sed -e "s:\"/usr/local\":\"${EPREFIX}/usr\":" \
-		-i config.py || die "sed config.py failed"
 
 	sed -e 's:#!@PYTHON@:#!/usr/bin/env python:' gdbus-codegen.in > gdbus-codegen || die
 	cp "${FILESDIR}/setup.py-2.32.4" setup.py || die "cp failed"
