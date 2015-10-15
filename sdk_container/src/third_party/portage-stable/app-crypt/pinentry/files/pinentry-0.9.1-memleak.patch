@@ -1,0 +1,26 @@
+From 03e4207f11e228a4c079af991f82507539793bae Mon Sep 17 00:00:00 2001
+From: Daniel Kahn Gillmor <dkg@fifthhorseman.net>
+Date: Tue, 28 Apr 2015 13:01:16 -0400
+Subject: [PATCH] fix small memory leak in pinentry-curses
+
+* pinentry/pinentry-curses.c: free internally allocated local string.
+---
+ pinentry/pinentry-curses.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/pinentry/pinentry-curses.c b/pinentry/pinentry-curses.c
+index 4b7080e..043f8a9 100644
+--- a/pinentry/pinentry-curses.c
++++ b/pinentry/pinentry-curses.c
+@@ -199,6 +199,8 @@ utf8_to_local (char *lc_ctype, char *string)
+   memset (&ps, 0, sizeof(mbstate_t));
+   mbsrtowcs (wcs, &p, len, &ps);
+ 
++  free (local);
++  
+  leave:
+   if (old_ctype)
+     {
+-- 
+2.1.4
+
