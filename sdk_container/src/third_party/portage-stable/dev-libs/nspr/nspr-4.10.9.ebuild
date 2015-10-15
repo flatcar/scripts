@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/nspr/nspr-4.10.6-r1.ebuild,v 1.4 2014/06/19 03:15:41 tetromino Exp $
+# $Id$
 
 EAPI=5
 WANT_AUTOCONF="2.5"
@@ -11,7 +11,7 @@ MIN_PV="$(get_version_component_range 2)"
 
 DESCRIPTION="Netscape Portable Runtime"
 HOMEPAGE="http://www.mozilla.org/projects/nspr/"
-SRC_URI="ftp://ftp.mozilla.org/pub/mozilla.org/nspr/releases/v${PV}/src/${P}.tar.gz"
+SRC_URI="http://archive.mozilla.org/pub/mozilla.org/nspr/releases/v${PV}/src/${P}.tar.gz"
 
 LICENSE="|| ( MPL-2.0 GPL-2 LGPL-2.1 )"
 SLOT="0"
@@ -38,6 +38,11 @@ src_prepare() {
 	# We do not need to pass -L$libdir via nspr-config --libs
 	epatch "${FILESDIR}"/${PN}-4.9.5_nspr_config.patch
 
+	# rename configure.in to configure.ac for new autotools compatibility
+	if [[ -e "${S}"/nspr/configure.in ]] ; then
+		einfo "Renaming configure.in to configure.ac"
+		mv "${S}"/nspr/configure.{in,ac} || die
+	fi
 	# We must run eautoconf to regenerate configure
 	eautoconf
 
@@ -106,5 +111,10 @@ multilib_src_install() {
 	dobin config/nspr-config
 
 	# Remove stupid files in /usr/bin
-	rm "${ED}"/usr/bin/prerr.properties || die "failed to cleanup unneeded files"
+	rm "${ED}"/usr/bin/prerr.properties || die
+
+	# This is used only to generate prerr.c and prerr.h at build time.
+	# No other projects use it, and we don't want to depend on perl.
+	# Talked to upstream and they agreed w/punting.
+	rm "${ED}"/usr/bin/compile-et.pl || die
 }
