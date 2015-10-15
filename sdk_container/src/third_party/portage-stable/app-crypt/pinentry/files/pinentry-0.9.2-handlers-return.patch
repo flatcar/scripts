@@ -1,0 +1,28 @@
+From 3062742b945f95d72001896f8ba5468b9e63aa9b Mon Sep 17 00:00:00 2001
+From: "Neal H. Walfield" <neal@gnu.org>
+Date: Wed, 13 May 2015 14:20:23 +0200
+Subject: [PATCH 1/1] Don't interpret the handler's return value as the
+ passphrase's length.
+
+* pinentry/pinentry.c (cmd_getpin): Don't interpret the return value
+as the passphrase length.  Use strlen instead.
+---
+ pinentry/pinentry.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/pinentry/pinentry.c b/pinentry/pinentry.c
+index 53216fc..836ee14 100644
+--- a/pinentry/pinentry.c
++++ b/pinentry/pinentry.c
+@@ -1109,7 +1109,7 @@ cmd_getpin (ASSUAN_CONTEXT ctx, char *line)
+     {
+       if (pinentry.repeat_okay)
+         assuan_write_status (ctx, "PIN_REPEATED", "");
+-      result = assuan_send_data (ctx, pinentry.pin, result);
++      result = assuan_send_data (ctx, pinentry.pin, strlen(pinentry.pin));
+       if (!result)
+ 	result = assuan_send_data (ctx, NULL, 0);
+ 
+-- 
+2.1.4
+
