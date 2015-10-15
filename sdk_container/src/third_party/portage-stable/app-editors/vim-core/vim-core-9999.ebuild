@@ -1,20 +1,18 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-editors/vim-core/vim-core-9999.ebuild,v 1.14 2015/01/26 23:25:08 radhermit Exp $
+# $Id$
 
 EAPI=5
 VIM_VERSION="7.4"
 inherit eutils vim-doc flag-o-matic versionator bash-completion-r1 prefix
 
 if [[ ${PV} == 9999* ]] ; then
-	inherit mercurial
-	EHG_REPO_URI="https://vim.googlecode.com/hg/"
-	EHG_PROJECT="vim"
+	inherit git-r3
+	EGIT_REPO_URI="https://github.com/vim/vim.git"
+	EGIT_CHECKOUT_DIR=${WORKDIR}/vim-${PV}
 else
-	VIM_ORG_PATCH="vim-${PV}.patch.xz"
-	SRC_URI="ftp://ftp.vim.org/pub/vim/unix/vim-${VIM_VERSION}.tar.bz2
-		http://dev.gentoo.org/~radhermit/vim/${VIM_ORG_PATCH}
-		http://dev.gentoo.org/~radhermit/vim/vim-${PV}-gentoo-patches.tar.bz2"
+	SRC_URI="https://github.com/vim/vim/archive/v${PV}.tar.gz -> vim-${PV}.tar.gz
+		https://dev.gentoo.org/~radhermit/vim/vim-7.4.827-gentoo-patches.tar.bz2"
 	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 fi
 
@@ -28,7 +26,7 @@ IUSE="nls acl minimal"
 DEPEND="sys-devel/autoconf"
 PDEPEND="!minimal? ( app-vim/gentoo-syntax )"
 
-S=${WORKDIR}/vim${VIM_VERSION/.}
+S=${WORKDIR}/vim-${PV}
 
 pkg_setup() {
 	# people with broken alphabets run into trouble. bug 82186.
@@ -42,11 +40,6 @@ pkg_setup() {
 
 src_prepare() {
 	if [[ ${PV} != 9999* ]] ; then
-		if [[ -f "${WORKDIR}"/${VIM_ORG_PATCH%.xz} ]] ; then
-			# Apply any patches available from vim.org for this version
-			epatch "${WORKDIR}"/${VIM_ORG_PATCH%.xz}
-		fi
-
 		if [[ -d "${WORKDIR}"/patches/ ]]; then
 			# Gentoo patches to fix runtime issues, cross-compile errors, etc
 			EPATCH_SUFFIX="patch" EPATCH_FORCE="yes" \
