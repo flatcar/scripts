@@ -1,6 +1,50 @@
 # ChangeLog for net-libs/libpcap
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-libs/libpcap/ChangeLog,v 1.222 2015/05/01 15:47:41 jer Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-libs/libpcap/ChangeLog,v 1.235 2015/07/25 04:46:49 jer Exp $
+
+  25 Jul 2015; Jeroen Roovers <jer@gentoo.org> -libpcap-1.5.3.ebuild,
+  -libpcap-1.6.2-r1.ebuild, -files/libpcap-1.6.2-dbus.patch:
+  Old.
+
+  24 Jul 2015; Mikle Kolyada <zlogene@gentoo.org> libpcap-1.7.4.ebuild:
+  ia64 stable wrt bug #553758
+
+  23 Jul 2015; Agostino Sarubbo <ago@gentoo.org> libpcap-1.7.4.ebuild:
+  Stable for sparc, wrt bug #552632
+
+  03 Jul 2015; Agostino Sarubbo <ago@gentoo.org> libpcap-1.7.4.ebuild:
+  Stable for alpha, wrt bug #552632
+
+  03 Jul 2015; Jeroen Roovers <jer@gentoo.org> libpcap-9999.ebuild,
+  -files/libpcap-1.7.2-scanner.patch:
+  Drop scanner patch.
+
+*libpcap-1.7.4 (02 Jul 2015)
+
+  02 Jul 2015; Jeroen Roovers <jer@gentoo.org> -libpcap-1.7.3.ebuild,
+  +libpcap-1.7.4.ebuild:
+  Version bump.
+
+  28 Jun 2015; Mikle Kolyada <zlogene@gentoo.org> libpcap-1.6.2-r1.ebuild:
+  alpha stable wrt bug #526030
+
+  28 Jun 2015; Markus Meier <maekke@gentoo.org> libpcap-1.7.3.ebuild:
+  arm stable, bug #552632
+
+  26 Jun 2015; Agostino Sarubbo <ago@gentoo.org> libpcap-1.7.3.ebuild:
+  Stable for x86, wrt bug #552632
+
+  25 Jun 2015; Jeroen Roovers <jer@gentoo.org> libpcap-1.7.3.ebuild:
+  Stable for HPPA (bug #552632).
+
+  24 Jun 2015; Agostino Sarubbo <ago@gentoo.org> libpcap-1.7.3.ebuild:
+  Stable for ppc, wrt bug #552632
+
+  22 Jun 2015; Jeroen Roovers <jer@gentoo.org> libpcap-1.7.3.ebuild:
+  Stable for PPC64 (bug #552632).
+
+  21 Jun 2015; Agostino Sarubbo <ago@gentoo.org> libpcap-1.7.3.ebuild:
+  Stable for amd64, wrt bug #552632
 
 *libpcap-1.7.3 (01 May 2015)
 
