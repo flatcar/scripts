@@ -1,6 +1,37 @@
 # ChangeLog for app-misc/pax-utils
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/app-misc/pax-utils/ChangeLog,v 1.174 2015/03/29 20:11:59 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-misc/pax-utils/ChangeLog,v 1.183 2015/07/20 04:15:55 vapier Exp $
+
+*pax-utils-1.0.5 (20 Jul 2015)
+
+  20 Jul 2015; Mike Frysinger <vapier@gentoo.org> +pax-utils-1.0.5.ebuild:
+  Version bump.
+
+*pax-utils-1.0.4 (13 Jul 2015)
+
+  13 Jul 2015; Mike Frysinger <vapier@gentoo.org> +pax-utils-1.0.4.ebuild:
+  Version bump.
+
+  21 Jun 2015; Mikle Kolyada <zlogene@gentoo.org> pax-utils-1.0.3.ebuild:
+  alpha stable wrt bug #550300
+
+  02 Jun 2015; Jack Morgan <jmorgan@gentoo.org> pax-utils-1.0.3.ebuild:
+  sparc stable wrt bug #550300
+
+  28 May 2015; Jeroen Roovers <jer@gentoo.org> pax-utils-1.0.3.ebuild:
+  Stable for HPPA (bug #550300).
+
+  25 May 2015; Mikle Kolyada <zlogene@gentoo.org> pax-utils-1.0.3.ebuild:
+  x86 stable wrt bug #550300
+
+  25 May 2015; Mike Frysinger <vapier@gentoo.org> pax-utils-1.0.3.ebuild:
+  Mark arm/arm64/ia64/m68k/s390/sh stable #550300.
+
+  25 May 2015; Anthony G. Basile <blueness@gentoo.org> pax-utils-1.0.3.ebuild:
+  Stable on ppc and ppc64.  Bug #550300.
+
+  24 May 2015; Mikle Kolyada <zlogene@gentoo.org> pax-utils-1.0.3.ebuild:
+  amd64 stable wrt bug #550300
 
 *pax-utils-1.0.3 (29 Mar 2015)
 
