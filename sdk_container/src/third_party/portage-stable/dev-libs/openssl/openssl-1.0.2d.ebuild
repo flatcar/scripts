@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/openssl/openssl-1.0.2d.ebuild,v 1.1 2015/07/09 14:08:16 vapier Exp $
 
 EAPI="4"
 
@@ -15,7 +15,7 @@ SRC_URI="mirror://openssl/source/${MY_P}.tar.gz
 
 LICENSE="openssl"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~arm-linux ~x86-linux"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~arm-linux ~x86-linux"
 IUSE="+asm bindist gmp kerberos rfc3779 sctp cpu_flags_x86_sse2 static-libs test +tls-heartbeat vanilla zlib"
 RESTRICT="!bindist? ( bindist )"
 
@@ -32,12 +32,10 @@ RDEPEND="gmp? ( >=dev-libs/gmp-5.1.3-r1[static-libs(+)?,${MULTILIB_USEDEP}] )
 	!<net-misc/openssh-5.9_p1-r4
 	!<net-libs/neon-0.29.6-r1"
 DEPEND="${RDEPEND}
+	sys-apps/diffutils
 	>=dev-lang/perl-5
 	sctp? ( >=net-misc/lksctp-tools-1.0.12 )
-	test? (
-		sys-apps/diffutils
-		sys-devel/bc
-	)"
+	test? ( sys-devel/bc )"
 PDEPEND="app-misc/ca-certificates"
 
 S="${WORKDIR}/${MY_P}"
@@ -67,7 +65,6 @@ src_prepare() {
 		epatch "${FILESDIR}"/${PN}-1.0.2a-parallel-symlinking.patch #545028
 		epatch "${FILESDIR}"/${PN}-1.0.2-ipv6.patch
 		epatch "${FILESDIR}"/${PN}-1.0.2a-x32-asm.patch #542618
-		epatch "${FILESDIR}"/${PN}-1.0.1p-default-source.patch #554338
 
 		epatch_user #332661
 	fi
@@ -98,7 +95,7 @@ src_prepare() {
 	[[ ${CC} == *clang* ]] && append-flags -Qunused-arguments
 
 	# allow openssl to be cross-compiled
-	cp "${FILESDIR}"/gentoo.config-1.0.2 gentoo.config || die
+	cp "${FILESDIR}"/gentoo.config-1.0.1 gentoo.config || die
 	chmod a+rx gentoo.config
 
 	append-flags -fno-strict-aliasing
