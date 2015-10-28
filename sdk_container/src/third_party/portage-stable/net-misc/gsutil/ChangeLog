@@ -1,6 +1,42 @@
 # ChangeLog for net-misc/gsutil
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/gsutil/ChangeLog,v 1.18 2014/09/09 22:47:39 vapier Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-misc/gsutil/ChangeLog,v 1.25 2015/07/09 10:26:42 vapier Exp $
+
+*gsutil-4.13 (09 Jul 2015)
+
+  09 Jul 2015; Mike Frysinger <vapier@gentoo.org>
+  +files/gsutil-4.13-use-friendy-version-checks.patch, +gsutil-4.13.ebuild:
+  Version bump.
+
+*gsutil-4.12 (20 May 2015)
+
+  20 May 2015; Mike Frysinger <vapier@gentoo.org> +gsutil-4.12.ebuild:
+  Version bump from Chromium OS.
+
+*gsutil-4.11 (17 Apr 2015)
+
+  17 Apr 2015; Mike Frysinger <vapier@gentoo.org> +gsutil-4.11.ebuild:
+  Version bump.
+
+  08 Apr 2015; Michał Górny <mgorny@gentoo.org> gsutil-3.37.ebuild,
+  gsutil-3.38.ebuild, gsutil-3.42.ebuild, gsutil-4.4.ebuild:
+  Drop old Python implementations
+
+*gsutil-4.8 (27 Jan 2015)
+
+  27 Jan 2015; Mike Frysinger <vapier@gentoo.org> +gsutil-4.8.ebuild:
+  Version bump.
+
+*gsutil-4.7 (31 Dec 2014)
+
+  31 Dec 2014; Mike Frysinger <vapier@gentoo.org>
+  +files/gsutil-4.7-drop-http_proxy-clearing.patch,
+  +files/gsutil-4.7-use-friendy-version-checks.patch, +gsutil-4.7.ebuild:
+  Version bump.
+
+  30 Nov 2014; Michał Górny <mgorny@gentoo.org> gsutil-4.4.ebuild,
+  gsutil-4.5.ebuild, gsutil-4.6.ebuild:
+  Add missing PYTHON_USEDEPs.
 
 *gsutil-4.6 (09 Sep 2014)
 

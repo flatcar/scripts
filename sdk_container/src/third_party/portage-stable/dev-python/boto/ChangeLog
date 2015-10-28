@@ -1,6 +1,67 @@
 # ChangeLog for dev-python/boto
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-python/boto/ChangeLog,v 1.99 2014/07/10 23:52:54 radhermit Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-python/boto/ChangeLog,v 1.114 2015/06/08 01:37:31 idella4 Exp $
+
+*boto-2.38.0 (08 Jun 2015)
+
+  08 Jun 2015; Ian Delaney <idella4@gentoo.org> +boto-2.38.0.ebuild,
+  -boto-2.11.0.ebuild, -boto-2.19.0.ebuild, -boto-2.20.0.ebuild,
+  -boto-2.20.1.ebuild, -boto-2.21.0.ebuild, -boto-2.21.1.ebuild,
+  -boto-2.22.0.ebuild, -boto-2.23.0.ebuild, -boto-2.24.0.ebuild,
+  -boto-2.25.0.ebuild, -boto-2.26.0.ebuild, -boto-2.26.1.ebuild,
+  -boto-2.28.0.ebuild, -boto-2.29.1.ebuild:
+  bump add doc build, rm old
+
+  06 Jun 2015; Justin Lecher <jlec@gentoo.org> metadata.xml:
+  Add github to remote-id in metadata.xml
+
+  03 Jun 2015; Justin Lecher <jlec@gentoo.org> metadata.xml:
+  Add pypi to remote-id in metadata.xml
+
+  08 Apr 2015; Michał Górny <mgorny@gentoo.org> boto-2.11.0.ebuild,
+  boto-2.19.0.ebuild, boto-2.20.0.ebuild, boto-2.20.1.ebuild,
+  boto-2.21.0.ebuild, boto-2.21.1.ebuild, boto-2.22.0.ebuild,
+  boto-2.23.0.ebuild, boto-2.24.0.ebuild, boto-2.25.0.ebuild,
+  boto-2.26.0.ebuild, boto-2.26.1.ebuild, boto-2.27.0.ebuild,
+  boto-2.28.0.ebuild, boto-2.29.1.ebuild:
+  Drop old Python implementations
+
+  08 Mar 2015; Pacho Ramos <pacho@gentoo.org> boto-2.35.1.ebuild:
+  x86 stable, bug 540290
+
+  07 Mar 2015; Pacho Ramos <pacho@gentoo.org> boto-2.35.1.ebuild:
+  ppc stable, bug 540290
+
+  06 Mar 2015; Pacho Ramos <pacho@gentoo.org> boto-2.35.1.ebuild:
+  amd64 stable, bug 540290
+
+  27 Feb 2015; Agostino Sarubbo <ago@gentoo.org> boto-2.35.1.ebuild:
+  Stable for sparc, wrt bug #535316
+
+  26 Feb 2015; Markus Meier <maekke@gentoo.org> boto-2.35.1.ebuild:
+  arm stable, bug #535316
+
+  25 Feb 2015; Agostino Sarubbo <ago@gentoo.org> boto-2.35.1.ebuild:
+  Stable for x86, wrt bug #535316
+
+  21 Feb 2015; Agostino Sarubbo <ago@gentoo.org> boto-2.35.1.ebuild:
+  Stable for ppc, wrt bug #535316
+
+  19 Feb 2015; Agostino Sarubbo <ago@gentoo.org> boto-2.35.1.ebuild:
+  Stable for amd64, wrt bug #535316
+
+  10 Jan 2015; Tim Harder <radhermit@gentoo.org> boto-2.35.1.ebuild:
+  Add python3_3 and python3_4 to PYTHON_COMPAT and update test functionality.
+
+*boto-2.35.1 (10 Jan 2015)
+
+  10 Jan 2015; Tim Harder <radhermit@gentoo.org> +boto-2.35.1.ebuild:
+  Version bump.
+
+*boto-2.34.0 (18 Nov 2014)
+
+  18 Nov 2014; Matthew Thode <prometheanfire@gentoo.org> +boto-2.34.0.ebuild:
+  bup for glance
 
 *boto-2.31.1 (10 Jul 2014)
 

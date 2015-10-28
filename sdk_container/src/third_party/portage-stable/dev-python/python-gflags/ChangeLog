@@ -1,6 +1,36 @@
 # ChangeLog for dev-python/python-gflags
-# Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-python/python-gflags/ChangeLog,v 1.18 2014/03/31 20:42:14 mgorny Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-python/python-gflags/ChangeLog,v 1.28 2015/07/29 14:42:52 klausman Exp $
+
+  29 Jul 2015; Tobias Klausmann <klausman@gentoo.org> python-gflags-2.0.ebuild:
+  Stable on alpha, bug 519772
+
+  16 Jul 2015; Jeroen Roovers <jer@gentoo.org> python-gflags-2.0.ebuild:
+  Mark ~hppa (bug #519772).
+
+  15 Jul 2015; Tobias Klausmann <klausman@gentoo.org> python-gflags-2.0.ebuild:
+  Keyworded on alpha, bug 519772
+
+  07 Jun 2015; Markus Meier <maekke@gentoo.org> python-gflags-2.0.ebuild:
+  arm stable, bug #540290
+
+  25 Apr 2015; Jeroen Roovers <jer@gentoo.org> python-gflags-2.0.ebuild:
+  Marked ~ppc64 too.
+
+  08 Apr 2015; Michał Górny <mgorny@gentoo.org> python-gflags-2.0.ebuild:
+  Drop old Python implementations
+
+  13 Mar 2015; Mike Frysinger <vapier@gentoo.org> python-gflags-2.0.ebuild:
+  Add ia64 love.
+
+  10 Mar 2015; Mike Frysinger <vapier@gentoo.org> python-gflags-2.0.ebuild:
+  Add arm64/m68k/mips/s390/sh love.
+
+  08 Mar 2015; Pacho Ramos <pacho@gentoo.org> python-gflags-2.0.ebuild:
+  x86 stable, bug 540290
+
+  06 Mar 2015; Pacho Ramos <pacho@gentoo.org> python-gflags-2.0.ebuild:
+  amd64 stable, bug 540290
 
   31 Mar 2014; Michał Górny <mgorny@gentoo.org> python-gflags-2.0.ebuild:
   Add support for the new PyPy slotting.
