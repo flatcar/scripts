@@ -10,5 +10,5 @@ RDEPEND=!build? ( >=sys-libs/ncurses-5.2 sys-devel/make dev-lang/perl sys-devel/
 RESTRICT=binchecks strip
 SLOT=2.6.32.60
 SRC_URI=mirror://kernel/linux/kernel/v2.6/longterm/v2.6.32/patch-2.6.32.60.xz mirror://kernel/linux/kernel/v2.6/longterm/v2.6.32/linux-2.6.32.tar.xz deblob? ( http://www.fsfla.org/svn/fsfla/software/linux-libre/releases/tags/2.6.32-gnu/deblob-2.6.32 http://www.fsfla.org/svn/fsfla/software/linux-libre/releases/tags/2.6.32-gnu/deblob-check -> deblob-check-2.6.32 )
-_eclasses_=eutils	9fb270e417e0e83d64ca52586c4a79de	kernel-2	4da0de8e87de8d48f4576790a3034be2	multilib	62927b3db3a589b0806255f3a002d5d3	python-any-r1	da352ea9da8eb9bf158d56cca65d6c82	python-utils-r1	096f8247eae93026af13ab88cf4305cd	toolchain-funcs	42408102d713fbad60ca21349865edb4	versionator	cd0bcdb170807e4a1984115e9d53a26f
+_eclasses_=eutils	9fb270e417e0e83d64ca52586c4a79de	kernel-2	4da0de8e87de8d48f4576790a3034be2	multilib	62927b3db3a589b0806255f3a002d5d3	python-any-r1	da352ea9da8eb9bf158d56cca65d6c82	python-utils-r1	21de8071fd8a56553628301b0342f973	toolchain-funcs	42408102d713fbad60ca21349865edb4	versionator	cd0bcdb170807e4a1984115e9d53a26f
 _md5_=67dbc5092b5ddfe3487e3172c20215d7

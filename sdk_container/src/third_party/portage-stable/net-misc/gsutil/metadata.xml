@@ -6,5 +6,6 @@
 	</maintainer>
 	<upstream>
 		<remote-id type="google-code">gsutil</remote-id>
+		<remote-id type="github">GoogleCloudPlatform/gsutil</remote-id>
 	</upstream>
 </pkgmetadata>
