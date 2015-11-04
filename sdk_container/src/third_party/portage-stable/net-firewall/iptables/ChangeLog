@@ -1,6 +1,19 @@
 # ChangeLog for net-firewall/iptables
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-firewall/iptables/ChangeLog,v 1.311 2014/06/14 11:52:14 zlogene Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-firewall/iptables/ChangeLog,v 1.315 2014/08/02 18:06:48 ago Exp $
+
+  02 Aug 2014; Agostino Sarubbo <ago@gentoo.org> iptables-1.4.21-r1.ebuild:
+  Stable for ppc64, wrt bug #506798
+
+  01 Aug 2014; Raúl Porcel <armin76@gentoo.org> iptables-1.4.21-r1.ebuild:
+  ia64/sparc stable wrt #506798
+
+  19 Jul 2014; Tobias Klausmann <klausman@gentoo.org>
+  iptables-1.4.21-r1.ebuild:
+  Stable on alpha, bug #506798
+
+  13 Jul 2014; Agostino Sarubbo <ago@gentoo.org> iptables-1.4.21-r1.ebuild:
+  Stable for ppc, wrt bug #506798
 
   14 Jun 2014; Mikle Kolyada <zlogene@gentoo.org> iptables-1.4.21-r1.ebuild:
   amd64 stable wrt bug #506798
