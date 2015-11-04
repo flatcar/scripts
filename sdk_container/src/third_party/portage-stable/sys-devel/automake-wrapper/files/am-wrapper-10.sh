@@ -1,7 +1,7 @@
 #!/bin/sh
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/automake-wrapper/files/am-wrapper-8.sh,v 1.2 2013/02/04 14:00:23 aballier Exp $
+# $Id$
 
 # Executes the correct automake version.
 #
@@ -71,7 +71,7 @@ fi
 # Set up bindings between actual version and WANT_AUTOMAKE;
 # Start with last known versions to speed up lookup process.
 #
-LAST_KNOWN_AUTOMAKE_VER="13"
+LAST_KNOWN_AUTOMAKE_VER="15"
 vers=$(printf '1.%s ' `seq ${LAST_KNOWN_AUTOMAKE_VER} -1 4`)
 
 #
@@ -127,8 +127,14 @@ fi
 #
 do_awk() {
 	local file=$1 ; shift
-	local arg=$1 ; shift
-	local v=$(gawk "{ if (match(\$0, \"$*\", res)) { print res[${arg}]; exit } }" "${file}")
+	local v=$(awk -v regex="$*" '{
+		if (ret = match($0, regex)) {
+			s = substr($0, ret, RLENGTH)
+			ret = match(s, "[0-9]\\.[0-9]+")
+			print substr(s, ret, RLENGTH)
+			exit
+		}
+		}' "${file}")
 	case " ${auto_vers} " in
 	*" ${v} "*) ;;
 	*) auto_vers="${auto_vers:+${auto_vers} }${v}" ;;
@@ -141,11 +147,11 @@ do_awk() {
 if [ -z "${WANT_AUTOMAKE}" ] ; then
 	auto_vers=
 	if [ -r "Makefile.in" ] ; then
-		do_awk Makefile.in 2 "^# Makefile.in generated (automatically )?by automake ([0-9].[0-9]+)"
+		do_awk Makefile.in '^# Makefile.in generated (automatically )?by automake [0-9]\\.[0-9]+'
 	fi
 	if [ -r "aclocal.m4" ] ; then
-		do_awk aclocal.m4 1 'generated automatically by aclocal ([0-9].[0-9]+)'
-		do_awk aclocal.m4 1 '[[:space:]]*\\[?AM_AUTOMAKE_VERSION\\(\\[?([0-9].[0-9]+)[^)]*\\]?\\)'
+		do_awk aclocal.m4 'generated automatically by aclocal [0-9]\\.[0-9]+'
+		do_awk aclocal.m4 '[[:space:]]*\\[?AM_AUTOMAKE_VERSION\\(\\[?[0-9]\\.[0-9]+[^)]*\\]?\\)'
 	fi
 	# We don't need to set $binary here as it has already been setup for us
 	# earlier to the latest available version.
