@@ -1,6 +1,144 @@
 # ChangeLog for x11-libs/pixman
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/x11-libs/pixman/ChangeLog,v 1.162 2013/06/05 00:43:48 vapier Exp $
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/x11-libs/pixman/ChangeLog,v 1.201 2015/08/03 19:42:23 mrueg Exp $
+
+  03 Aug 2015; Manuel Rüger <mrueg@gentoo.org> -pixman-0.32.4.ebuild:
+  Version bump. Remove old.
+
+*pixman-0.33.2 (03 Aug 2015)
+
+  03 Aug 2015; Manuel Rüger <mrueg@gentoo.org> +pixman-0.33.2.ebuild:
+  Version bump. Remove old.
+
+  14 Mar 2015; Markus Meier <maekke@gentoo.org> pixman-0.32.6.ebuild:
+  arm stable, bug #530652
+
+  06 Mar 2015; Jeroen Roovers <jer@gentoo.org> pixman-0.32.6.ebuild:
+  Stable for HPPA (bug #530652).
+
+  03 Mar 2015; Yixun Lan <dlan@gentoo.org> pixman-0.32.6.ebuild:
+  add arm64 support, tested on A53 board
+
+  24 Feb 2015; Agostino Sarubbo <ago@gentoo.org> pixman-0.32.6.ebuild:
+  Stable for alpha, wrt bug #530652
+
+  23 Feb 2015; Agostino Sarubbo <ago@gentoo.org> pixman-0.32.6.ebuild:
+  Stable for sparc, wrt bug #530652
+
+  22 Feb 2015; Agostino Sarubbo <ago@gentoo.org> pixman-0.32.6.ebuild:
+  Stable for ia64, wrt bug #530652
+
+  21 Feb 2015; Agostino Sarubbo <ago@gentoo.org> pixman-0.32.6.ebuild:
+  Stable for ppc64, wrt bug #530652
+
+  20 Feb 2015; Agostino Sarubbo <ago@gentoo.org> pixman-0.32.6.ebuild:
+  Stable for ppc, wrt bug #530652
+
+  19 Feb 2015; Agostino Sarubbo <ago@gentoo.org> pixman-0.32.6.ebuild:
+  Stable for x86, wrt bug #530652
+
+  18 Feb 2015; Agostino Sarubbo <ago@gentoo.org> pixman-0.32.6.ebuild:
+  Stable for amd64, wrt bug #530652
+
+  28 Jan 2015; Michał Górny <mgorny@gentoo.org> pixman-0.32.4.ebuild,
+  pixman-0.32.6.ebuild:
+  Switch to CPU_FLAGS_X86.
+
+*pixman-0.32.6 (22 Oct 2014)
+
+  22 Oct 2014; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  +pixman-0.32.6.ebuild, pixman-0.32.4.ebuild:
+  Version bump.
+
+  27 Dec 2013; Matt Turner <mattst88@gentoo.org> -pixman-0.28.0.ebuild,
+  -pixman-0.28.2.ebuild, -pixman-0.30.0.ebuild, -pixman-0.30.2-r1.ebuild,
+  -pixman-0.30.2.ebuild:
+  Drop vulnerable versions, bug 493292.
+
+  26 Dec 2013; Mikle Kolyada <zlogene@gentoo.org> pixman-0.32.4.ebuild:
+  ia64 stable wrt bug #493292
+
+  18 Dec 2013; Matt Turner <mattst88@gentoo.org> metadata.xml:
+  Drop mmxext and ssse3 local descriptions, now that they are global USE flags.
+
+  14 Dec 2013; Agostino Sarubbo <ago@gentoo.org> pixman-0.32.4.ebuild:
+  Stable for sparc, wrt bug #493292
+
+  08 Dec 2013; Agostino Sarubbo <ago@gentoo.org> pixman-0.32.4.ebuild:
+  Stable for alpha, wrt bug #493292
+
+  07 Dec 2013; Agostino Sarubbo <ago@gentoo.org> pixman-0.32.4.ebuild:
+  Stable for arm, wrt bug #493292
+
+  07 Dec 2013; Agostino Sarubbo <ago@gentoo.org> pixman-0.32.4.ebuild:
+  Stable for ppc64, wrt bug #493292
+
+  07 Dec 2013; Agostino Sarubbo <ago@gentoo.org> pixman-0.32.4.ebuild:
+  Stable for ppc, wrt bug #493292
+
+  06 Dec 2013; Agostino Sarubbo <ago@gentoo.org> pixman-0.32.4.ebuild:
+  Stable for x86, wrt bug #493292
+
+  06 Dec 2013; Agostino Sarubbo <ago@gentoo.org> pixman-0.32.4.ebuild:
+  Stable for amd64, wrt bug #493292
+
+  05 Dec 2013; Jeroen Roovers <jer@gentoo.org> pixman-0.32.4.ebuild:
+  Stable for HPPA (bug #493292).
+
+  04 Dec 2013; Matt Turner <mattst88@gentoo.org> metadata.xml,
+  pixman-0.32.4.ebuild:
+  Add ssse3 USE flag, bug 493152.
+
+*pixman-0.32.4 (18 Nov 2013)
+
+  18 Nov 2013; Matt Turner <mattst88@gentoo.org> +pixman-0.32.4.ebuild,
+  -pixman-0.32.2.ebuild:
+  Version bump to 0.32.4, bug 491110.
+
+*pixman-0.32.2 (14 Nov 2013)
+
+  14 Nov 2013; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  +pixman-0.32.2.ebuild:
+  Version bump.
+
+*pixman-0.30.2-r1 (26 Oct 2013)
+
+  26 Oct 2013; Alexis Ballier <aballier@gentoo.org> +pixman-0.30.2-r1.ebuild:
+  Convert to multilib, by Andrew Church , bug #488662, slat if for
+  emul-gtklibs-20131008-r1
+
+  08 Oct 2013; Agostino Sarubbo <ago@gentoo.org> pixman-0.30.2.ebuild:
+  Stable for x86, wrt bug #475480
+
+  07 Oct 2013; Agostino Sarubbo <ago@gentoo.org> pixman-0.30.2.ebuild:
+  Stable for sparc, wrt bug #475480
+
+  06 Oct 2013; Agostino Sarubbo <ago@gentoo.org> pixman-0.30.2.ebuild:
+  Stable for ia64, wrt bug #475480
+
+  05 Oct 2013; Markus Meier <maekke@gentoo.org> pixman-0.30.2.ebuild:
+  arm stable, bug #475480
+
+  05 Oct 2013; Agostino Sarubbo <ago@gentoo.org> pixman-0.30.2.ebuild:
+  Stable for alpha, wrt bug #475480
+
+  04 Oct 2013; Agostino Sarubbo <ago@gentoo.org> pixman-0.30.2.ebuild:
+  Stable for ppc64, wrt bug #475480
+
+  03 Oct 2013; Agostino Sarubbo <ago@gentoo.org> pixman-0.30.2.ebuild:
+  Stable for ppc, wrt bug #475480
+
+  02 Oct 2013; Jeroen Roovers <jer@gentoo.org> pixman-0.30.2.ebuild:
+  Stable for HPPA (bug #475480).
+
+  29 Sep 2013; Agostino Sarubbo <ago@gentoo.org> pixman-0.30.2.ebuild:
+  Stable for amd64, wrt bug #475480
+
+*pixman-0.30.2 (08 Aug 2013)
+
+  08 Aug 2013; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+  +pixman-0.30.2.ebuild:
+  Version bump.
 
   05 Jun 2013; Mike Frysinger <vapier@gentoo.org> metadata.xml:
   Add upstream CPE tag (security info) from ChromiumOS.
