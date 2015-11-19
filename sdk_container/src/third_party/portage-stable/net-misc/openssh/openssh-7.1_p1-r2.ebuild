@@ -9,7 +9,7 @@ inherit eutils user flag-o-matic multilib autotools pam systemd versionator
 # and _p? releases.
 PARCH=${P/_}
 
-HPN_PATCH="${PN}-7.0p1-hpnssh14v5.tar.xz"
+HPN_PATCH="${PARCH}-hpnssh14v9.tar.xz"
 LDAP_PATCH="${PN}-lpk-6.8p1-0.3.14.patch.xz"
 X509_VER="8.6" X509_PATCH="${PN}-${PV//_/}+x509-${X509_VER}.diff.gz"
 
@@ -28,7 +28,7 @@ SRC_URI="mirror://openbsd/OpenSSH/portable/${PARCH}.tar.gz
 
 LICENSE="BSD GPL-2"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~arm-linux ~x86-linux"
+KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~arm-linux ~x86-linux"
 # Probably want to drop ssl defaulting to on in a future version.
 IUSE="bindist debug ${HPN_PATCH:++}hpn kerberos kernel_linux ldap ldns libedit libressl pam +pie sctp selinux skey ssh1 +ssl static X X509"
 REQUIRED_USE="ldns? ( ssl )
@@ -206,12 +206,6 @@ src_configure() {
 	# The seccomp sandbox is broken on x32, so use the older method for now. #553748
 	use amd64 && [[ ${ABI} == "x32" ]] && myconf+=( --with-sandbox=rlimit )
 
-	# Special settings for Gentoo/FreeBSD 9.0 or later (see bug #391011)
-	if use elibc_FreeBSD && version_is_at_least 9.0 "$(uname -r|sed 's/\(.\..\).*/\1/')" ; then
-		myconf+=( --disable-utmp --disable-wtmp --disable-wtmpx )
-		append-ldflags -lutil
-	fi
-
 	econf "${myconf[@]}"
 }
 
@@ -313,12 +307,16 @@ pkg_postinst() {
 		elog "Make sure to update any configs that you might have.  Note that xinetd might"
 		elog "be an alternative for you as it supports USE=tcpd."
 	fi
-	if has_version "<${CATEGORY}/${PN}-7.1_p1" ; then #557388
+	if has_version "<${CATEGORY}/${PN}-7.1_p1" ; then #557388 #555518
 		elog "Starting with openssh-7.0, support for ssh-dss keys were disabled due to their"
 		elog "weak sizes.  If you rely on these key types, you can re-enable the key types by"
 		elog "adding to your sshd_config or ~/.ssh/config files:"
 		elog "	PubkeyAcceptedKeyTypes=+ssh-dss"
 		elog "You should however generate new keys using rsa or ed25519."
+
+		elog "Starting with openssh-7.0, the default for PermitRootLogin changed from 'yes'"
+		elog "to 'prohibit-password'.  That means password auth for root users no longer works"
+		elog "out of the box.  If you need this, please update your sshd_config explicitly."
 	fi
 	if ! use ssl && has_version "${CATEGORY}/${PN}[ssl]" ; then
 		elog "Be aware that by disabling openssl support in openssh, the server and clients"

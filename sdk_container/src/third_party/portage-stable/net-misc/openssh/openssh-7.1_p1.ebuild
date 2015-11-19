@@ -113,7 +113,9 @@ src_prepare() {
 
 	if use X509 ; then
 		pushd .. >/dev/null
+		pushd ${HPN_PATCH%.*.*} >/dev/null
 		epatch "${FILESDIR}"/${PN}-7.1_p1-hpn-x509-glue.patch
+		popd >/dev/null
 		epatch "${FILESDIR}"/${PN}-7.0_p1-sctp-x509-glue.patch
 		popd >/dev/null
 		epatch "${WORKDIR}"/${X509_PATCH%.*}
@@ -167,7 +169,6 @@ src_prepare() {
 
 src_configure() {
 	addwrite /dev/ptmx
-	addpredict /etc/skey/skeykeys # skey configure code triggers this
 
 	use debug && append-cppflags -DSANDBOX_SECCOMP_FILTER_DEBUG
 	use static && append-ldflags -static
