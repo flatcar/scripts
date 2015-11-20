@@ -1,10 +1,10 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-firmware/seabios/seabios-1.7.4.ebuild,v 1.3 2014/06/04 16:04:55 ago Exp $
+# $Id$
 
 EAPI=5
 
-PYTHON_COMPAT=( python{2_6,2_7} )
+PYTHON_COMPAT=( python2_7 )
 
 inherit eutils toolchain-funcs python-any-r1
 
@@ -19,12 +19,15 @@ if [[ ${PV} = *9999* || ! -z "${EGIT_COMMIT}" ]]; then
 	EGIT_REPO_URI="git://git.seabios.org/seabios.git"
 	inherit git-2
 else
-	KEYWORDS="amd64 ~ppc ~ppc64 x86 ~amd64-fbsd ~x86-fbsd"
-	SRC_URI="http://code.coreboot.org/p/seabios/downloads/get/${P}.tar.gz
-	http://code.coreboot.org/p/seabios/downloads/get/bios.bin-${PV}.gz
-	http://dev.gentoo.org/~cardoe/distfiles/${P}.tar.gz
-	http://dev.gentoo.org/~cardoe/distfiles/bios.bin-${PV}.gz
-	${BACKPORTS:+http://dev.gentoo.org/~cardoe/distfiles/${P}-${BACKPORTS}.tar.xz}"
+	KEYWORDS="~amd64 ~ppc ~ppc64 ~x86 ~amd64-fbsd ~x86-fbsd"
+	SRC_URI="!binary? ( http://code.coreboot.org/p/seabios/downloads/get/${P}.tar.gz )
+		binary? (
+			http://code.coreboot.org/p/seabios/downloads/get/bios.bin-${PV}.gz
+			seavgabios? (
+				mirror://debian/pool/main/s/${PN}/${PN}_${PV}-1_all.deb
+			)
+		)
+		${BACKPORTS:+https://dev.gentoo.org/~cardoe/distfiles/${P}-${BACKPORTS}.tar.xz}"
 fi
 
 DESCRIPTION="Open Source implementation of a 16-bit x86 BIOS"
@@ -32,7 +35,7 @@ HOMEPAGE="http://www.seabios.org"
 
 LICENSE="LGPL-3 GPL-3"
 SLOT="0"
-IUSE="+binary"
+IUSE="+binary +seavgabios"
 
 REQUIRED_USE="ppc? ( binary )
 	ppc64? ( binary )"
@@ -55,52 +58,84 @@ pkg_pretend() {
 		ewarn "own SeaBIOS. Virtual machines subtly fail based on changes"
 		ewarn "in SeaBIOS."
 	fi
-
-	local myld=$(tc-getLD)
-
-	${myld} -v | grep -q "GNU gold" && \
-	ewarn "gold linker unable to handle 16-bit code using ld.bfd.  bug #438058"
 }
 
 pkg_setup() {
 	use binary || python-any-r1_pkg_setup
 }
 
+src_unpack() {
+	default
+	if use binary && use seavgabios ; then
+		unpack ./data.tar.xz
+		mv usr/share/seabios/vgabios*.bin ./ || die
+	fi
+
+	# This simplifies the logic between binary & source builds.
+	mkdir -p "${S}"
+}
+
 src_prepare() {
+	use binary && return
+
 	if [[ -z "${EGIT_COMMIT}" ]]; then
 		sed -e "s/VERSION=.*/VERSION=${PV}/" \
-			-i "${S}/Makefile"
+			-i Makefile || die
 	else
 		sed -e "s/VERSION=.*/VERSION=${PV}_pre${EGIT_COMMIT}/" \
-			-i "${S}/Makefile"
+			-i Makefile || die
 	fi
 
 	epatch_user
 }
 
 src_configure() {
-	:
+	use binary || tc-ld-disable-gold #438058
+}
+
+_emake() {
+	LANG=C \
+	emake V=1 \
+		CC="$(tc-getCC)" \
+		LD="$(tc-getLD)" \
+		AR="$(tc-getAR)" \
+		OBJCOPY="$(tc-getOBJCOPY)" \
+		RANLIB="$(tc-getRANLIB)" \
+		OBJDUMP="$(tc-getOBJDUMP)" \
+		HOST_CC="$(tc-getBUILD_CC)" \
+		"$@"
 }
 
 src_compile() {
-	if ! use binary ; then
-		LANG=C emake \
-			CC=$(tc-getCC) \
-			LD="$(tc-getLD).bfd" \
-			AR=$(tc-getAR) \
-			OBJCOPY=$(tc-getOBJCOPY) \
-			RANLIB=$(tc-getRANLIB) \
-			OBJDUMP=$(tc-getPROG OBJDUMP objdump) \
-			HOST_CC=$(tc-getBUILD_CC) \
-			out/bios.bin
+	use binary && return
+
+	_emake out/bios.bin
+	mv out/bios.bin ../bios.bin
+
+	if use seavgabios ; then
+		local config t targets=(
+			cirrus
+			isavga
+			qxl
+			stdvga
+			vmware
+		)
+		for t in "${targets[@]}" ; do
+			emake clean distclean
+			cp "${FILESDIR}/seavgabios/config.vga-${t}" .config || die
+			_emake oldnoconfig
+			_emake out/vgabios.bin
+			cp out/vgabios.bin ../vgabios-${t}.bin || die
+		done
 	fi
 }
 
 src_install() {
 	insinto /usr/share/seabios
-	if ! use binary ; then
-		doins out/bios.bin
-	else
-		newins ../bios.bin-${PV} bios.bin
+	newins ../bios.bin* bios.bin
+
+	if use seavgabios ; then
+		insinto /usr/share/seavgabios
+		doins ../vgabios*.bin
 	fi
 }
