@@ -20,7 +20,7 @@ else
 	SRC_URI="http://wiki.qemu-project.org/download/${P}.tar.bz2
 	${BACKPORTS:+
 		https://dev.gentoo.org/~cardoe/distfiles/${P}-${BACKPORTS}.tar.xz}"
-	KEYWORDS="amd64 ~ppc ~ppc64 x86 ~x86-fbsd"
+	KEYWORDS="~amd64 ~ppc ~ppc64 ~x86 ~x86-fbsd"
 fi
 
 DESCRIPTION="QEMU + Kernel-based Virtual Machine userland tools"
@@ -272,6 +272,7 @@ src_prepare() {
 	epatch "${FILESDIR}"/${P}-CVE-2015-5165-6.patch #556304
 	epatch "${FILESDIR}"/${P}-CVE-2015-5165-7.patch #556304
 	epatch "${FILESDIR}"/${P}-CVE-2015-5166.patch #556304
+	epatch "${FILESDIR}"/${P}-virtio-serial.patch #557206
 	[[ -n ${BACKPORTS} ]] && \
 		EPATCH_FORCE=yes EPATCH_SUFFIX="patch" EPATCH_SOURCE="${S}/patches" \
 			epatch

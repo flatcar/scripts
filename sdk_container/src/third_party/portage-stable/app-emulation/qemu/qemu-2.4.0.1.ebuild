@@ -20,7 +20,7 @@ else
 	SRC_URI="http://wiki.qemu-project.org/download/${P}.tar.bz2
 	${BACKPORTS:+
 		https://dev.gentoo.org/~cardoe/distfiles/${P}-${BACKPORTS}.tar.xz}"
-	KEYWORDS="amd64 ~ppc ~ppc64 x86 ~x86-fbsd"
+	KEYWORDS="~amd64 ~ppc ~ppc64 ~x86 ~x86-fbsd"
 fi
 
 DESCRIPTION="QEMU + Kernel-based Virtual Machine userland tools"
@@ -32,32 +32,33 @@ IUSE="accessibility +aio alsa bluetooth +caps +curl debug +fdt glusterfs \
 gtk gtk2 infiniband iscsi +jpeg \
 kernel_linux kernel_FreeBSD lzo ncurses nfs nls numa opengl +pin-upstream-blobs
 +png pulseaudio python \
-rbd sasl +seccomp sdl selinux smartcard snappy spice ssh static static-softmmu \
+rbd sasl +seccomp sdl sdl2 selinux smartcard snappy spice ssh static static-softmmu
 static-user systemtap tci test +threads tls usb usbredir +uuid vde +vhost-net \
-virtfs +vnc xattr xen xfs"
+virtfs +vnc vte xattr xen xfs"
 
 COMMON_TARGETS="aarch64 alpha arm cris i386 m68k microblaze microblazeel mips
 mips64 mips64el mipsel or32 ppc ppc64 s390x sh4 sh4eb sparc sparc64 unicore32
 x86_64"
-IUSE_SOFTMMU_TARGETS="${COMMON_TARGETS} lm32 moxie ppcemb xtensa xtensaeb"
-IUSE_USER_TARGETS="${COMMON_TARGETS} armeb mipsn32 mipsn32el ppc64abi32 sparc32plus"
+IUSE_SOFTMMU_TARGETS="${COMMON_TARGETS} lm32 moxie ppcemb tricore xtensa xtensaeb"
+IUSE_USER_TARGETS="${COMMON_TARGETS} armeb mipsn32 mipsn32el ppc64abi32 ppc64le sparc32plus"
 
 use_softmmu_targets=$(printf ' qemu_softmmu_targets_%s' ${IUSE_SOFTMMU_TARGETS})
 use_user_targets=$(printf ' qemu_user_targets_%s' ${IUSE_USER_TARGETS})
 IUSE+=" ${use_softmmu_targets} ${use_user_targets}"
 
-# Require at least one softmmu or user target.
+# Allow no targets to be built so that people can get a tools-only build.
 # Block USE flag configurations known to not work.
-REQUIRED_USE="|| ( ${use_softmmu_targets} ${use_user_targets} )
-	${PYTHON_REQUIRED_USE}
+REQUIRED_USE="${PYTHON_REQUIRED_USE}
 	gtk2? ( gtk )
 	qemu_softmmu_targets_arm? ( fdt )
 	qemu_softmmu_targets_microblaze? ( fdt )
 	qemu_softmmu_targets_ppc? ( fdt )
 	qemu_softmmu_targets_ppc64? ( fdt )
+	sdl2? ( sdl )
 	static? ( static-softmmu static-user )
 	static-softmmu? ( !alsa !pulseaudio !bluetooth !opengl !gtk !gtk2 )
-	virtfs? ( xattr )"
+	virtfs? ( xattr )
+	vte? ( gtk )"
 
 # Yep, you need both libcap and libcap-ng since virtfs only uses libcap.
 #
@@ -69,35 +70,71 @@ COMMON_LIB_DEPEND=">=dev-libs/glib-2.0[static-libs(+)]
 	xattr? ( sys-apps/attr[static-libs(+)] )"
 SOFTMMU_LIB_DEPEND="${COMMON_LIB_DEPEND}
 	>=x11-libs/pixman-0.28.0[static-libs(+)]
+	accessibility? ( app-accessibility/brltty[static-libs(+)] )
 	aio? ( dev-libs/libaio[static-libs(+)] )
+	alsa? ( >=media-libs/alsa-lib-1.0.13 )
+	bluetooth? ( net-wireless/bluez )
 	caps? ( sys-libs/libcap-ng[static-libs(+)] )
 	curl? ( >=net-misc/curl-7.15.4[static-libs(+)] )
 	fdt? ( >=sys-apps/dtc-1.4.0[static-libs(+)] )
 	glusterfs? ( >=sys-cluster/glusterfs-3.4.0[static-libs(+)] )
+	gtk? (
+		gtk2? (
+			x11-libs/gtk+:2
+			vte? ( x11-libs/vte:0 )
+		)
+		!gtk2? (
+			x11-libs/gtk+:3
+			vte? ( x11-libs/vte:2.90 )
+		)
+	)
 	infiniband? ( sys-infiniband/librdmacm:=[static-libs(+)] )
+	iscsi? ( net-libs/libiscsi )
 	jpeg? ( virtual/jpeg:=[static-libs(+)] )
 	lzo? ( dev-libs/lzo:2[static-libs(+)] )
 	ncurses? ( sys-libs/ncurses:0=[static-libs(+)] )
 	nfs? ( >=net-fs/libnfs-1.9.3[static-libs(+)] )
 	numa? ( sys-process/numactl[static-libs(+)] )
+	opengl? (
+		virtual/opengl
+		media-libs/libepoxy[static-libs(+)]
+		media-libs/mesa[static-libs(+)]
+		media-libs/mesa[egl,gles2]
+	)
 	png? ( media-libs/libpng:0=[static-libs(+)] )
+	pulseaudio? ( media-sound/pulseaudio )
 	rbd? ( sys-cluster/ceph[static-libs(+)] )
 	sasl? ( dev-libs/cyrus-sasl[static-libs(+)] )
-	sdl? ( >=media-libs/libsdl-1.2.11[static-libs(+)] )
+	sdl? (
+		!sdl2? (
+			media-libs/libsdl[X]
+			>=media-libs/libsdl-1.2.11[static-libs(+)]
+		)
+		sdl2? (
+			media-libs/libsdl2[X]
+			media-libs/libsdl2[static-libs(+)]
+		)
+	)
 	seccomp? ( >=sys-libs/libseccomp-2.1.0[static-libs(+)] )
+	smartcard? ( dev-libs/nss !app-emulation/libcacard )
 	snappy? ( app-arch/snappy[static-libs(+)] )
-	spice? ( >=app-emulation/spice-0.12.0[static-libs(+)] )
+	spice? (
+		>=app-emulation/spice-protocol-0.12.3
+		>=app-emulation/spice-0.12.0[static-libs(+)]
+	)
 	ssh? ( >=net-libs/libssh2-1.2.8[static-libs(+)] )
 	tls? ( net-libs/gnutls[static-libs(+)] )
-	usb? ( >=virtual/libusb-1-r1[static-libs(+)] )
+	usb? ( >=virtual/libusb-1-r2[static-libs(+)] )
+	usbredir? ( >=sys-apps/usbredir-0.6[static-libs(+)] )
 	uuid? ( >=sys-apps/util-linux-2.16.0[static-libs(+)] )
 	vde? ( net-misc/vde[static-libs(+)] )
+	virtfs? ( sys-libs/libcap )
 	xfs? ( sys-fs/xfsprogs[static-libs(+)] )"
 USER_LIB_DEPEND="${COMMON_LIB_DEPEND}"
 X86_FIRMWARE_DEPEND="
 	>=sys-firmware/ipxe-1.0.0_p20130624
 	pin-upstream-blobs? (
-		~sys-firmware/seabios-1.7.5
+		~sys-firmware/seabios-1.8.2
 		~sys-firmware/sgabios-0.1_pre8
 		~sys-firmware/vgabios-0.7a
 	)
@@ -111,24 +148,8 @@ CDEPEND="
 	!static-user? ( $(printf "%s? ( ${USER_LIB_DEPEND//\[static-libs(+)]} ) " ${use_user_targets}) )
 	qemu_softmmu_targets_i386? ( ${X86_FIRMWARE_DEPEND} )
 	qemu_softmmu_targets_x86_64? ( ${X86_FIRMWARE_DEPEND} )
-	accessibility? ( app-accessibility/brltty )
-	alsa? ( >=media-libs/alsa-lib-1.0.13 )
-	bluetooth? ( net-wireless/bluez )
-	gtk? (
-		gtk2? ( x11-libs/gtk+:2 )
-		!gtk2? ( x11-libs/gtk+:3 )
-		x11-libs/vte:2.90
-	)
-	iscsi? ( net-libs/libiscsi )
-	opengl? ( virtual/opengl )
-	pulseaudio? ( media-sound/pulseaudio )
 	python? ( ${PYTHON_DEPS} )
-	sdl? ( media-libs/libsdl[X] )
-	smartcard? ( dev-libs/nss !app-emulation/libcacard )
-	spice? ( >=app-emulation/spice-protocol-0.12.3 )
 	systemtap? ( dev-util/systemtap )
-	usbredir? ( >=sys-apps/usbredir-0.6 )
-	virtfs? ( sys-libs/libcap )
 	xen? ( app-emulation/xen-tools )"
 DEPEND="${CDEPEND}
 	dev-lang/perl
@@ -247,7 +268,30 @@ pkg_setup() {
 	enewgroup kvm 78
 }
 
+# Sanity check to make sure target lists are kept up-to-date.
+check_targets() {
+	local var=$1 mak=$2
+	local detected sorted
+
+	pushd "${S}"/default-configs >/dev/null || die
+
+	# Force C locale until glibc is updated. #564936
+	detected=$(echo $(printf '%s\n' *-${mak}.mak | sed "s:-${mak}.mak::" | LC_COLLATE=C sort -u))
+	sorted=$(echo $(printf '%s\n' ${!var} | LC_COLLATE=C sort -u))
+	if [[ ${sorted} != "${detected}" ]] ; then
+		eerror "The ebuild needs to be kept in sync."
+		eerror "${var}: ${sorted}"
+		eerror "$(printf '%-*s' ${#var} configure): ${detected}"
+		die "sync ${var} to the list of targets"
+	fi
+
+	popd >/dev/null
+}
+
 src_prepare() {
+	check_targets IUSE_SOFTMMU_TARGETS softmmu
+	check_targets IUSE_USER_TARGETS linux-user
+
 	# Alter target makefiles to accept CFLAGS set via flag-o
 	sed -i -r \
 		-e 's/^(C|OP_C|HELPER_C)FLAGS=/\1FLAGS+=/' \
@@ -257,21 +301,9 @@ src_prepare() {
 	use nls || rm -f po/*.po
 
 	epatch "${FILESDIR}"/qemu-1.7.0-cflags.patch
-	epatch "${FILESDIR}"/${P}-CVE-2015-3456.patch #549404
-	epatch "${FILESDIR}"/${P}-CVE-2015-3209.patch #551752
-	epatch "${FILESDIR}"/${P}-CVE-2015-5158.patch #555680
-	epatch "${FILESDIR}"/${P}-CVE-2015-3214.patch #556052
-	epatch "${FILESDIR}"/${P}-CVE-2015-5154-1.patch #556050 / #555532
-	epatch "${FILESDIR}"/${P}-CVE-2015-5154-2.patch #556050 / #555532
-	epatch "${FILESDIR}"/${P}-CVE-2015-5154-3.patch #556050 / #555532
-	epatch "${FILESDIR}"/${P}-CVE-2015-5165-1.patch #556304
-	epatch "${FILESDIR}"/${P}-CVE-2015-5165-2.patch #556304
-	epatch "${FILESDIR}"/${P}-CVE-2015-5165-3.patch #556304
-	epatch "${FILESDIR}"/${P}-CVE-2015-5165-4.patch #556304
-	epatch "${FILESDIR}"/${P}-CVE-2015-5165-5.patch #556304
-	epatch "${FILESDIR}"/${P}-CVE-2015-5165-6.patch #556304
-	epatch "${FILESDIR}"/${P}-CVE-2015-5165-7.patch #556304
-	epatch "${FILESDIR}"/${P}-CVE-2015-5166.patch #556304
+	epatch "${FILESDIR}"/${PN}-2.4.0-block-mirror-crash.patch #558396
+	epatch "${FILESDIR}"/${PN}-2.4.0-CVE-2015-7295-{1,2,3}.patch #560760
+	epatch "${FILESDIR}"/${PN}-2.4.0-CVE-2015-6855.patch #560422
 	[[ -n ${BACKPORTS} ]] && \
 		EPATCH_FORCE=yes EPATCH_SUFFIX="patch" EPATCH_SOURCE="${S}/patches" \
 			epatch
@@ -293,14 +325,10 @@ qemu_src_configure() {
 	debug-print-function ${FUNCNAME} "$@"
 
 	local buildtype=$1
-	local builddir=$2
+	local builddir="${S}/${buildtype}-build"
 	local static_flag="static-${buildtype}"
 
-	# audio options
-	local audio_opts="oss"
-	use alsa && audio_opts="alsa,${audio_opts}"
-	use sdl && audio_opts="sdl,${audio_opts}"
-	use pulseaudio && audio_opts="pa,${audio_opts}"
+	mkdir "${builddir}"
 
 	local conf_opts=(
 		--prefix=/usr
@@ -358,9 +386,7 @@ qemu_src_configure() {
 		$(conf_softmmu snappy)
 		$(conf_softmmu spice)
 		$(conf_softmmu ssh libssh2)
-		$(conf_softmmu tls quorum)
 		$(conf_softmmu tls vnc-tls)
-		$(conf_softmmu tls vnc-ws)
 		$(conf_softmmu usb libusb)
 		$(conf_softmmu usbredir usb-redir)
 		$(conf_softmmu uuid)
@@ -368,6 +394,7 @@ qemu_src_configure() {
 		$(conf_softmmu vhost-net)
 		$(conf_softmmu virtfs)
 		$(conf_softmmu vnc)
+		$(conf_softmmu vte)
 		$(conf_softmmu xen)
 		$(conf_softmmu xen xen-pci-passthrough)
 		$(conf_softmmu xfs xfsctl)
@@ -378,22 +405,38 @@ qemu_src_configure() {
 		conf_opts+=(
 			--enable-linux-user
 			--disable-system
-			--target-list="${user_targets}"
 			--disable-blobs
 			--disable-tools
 		)
 		;;
 	softmmu)
+		# audio options
+		local audio_opts="oss"
+		use alsa && audio_opts="alsa,${audio_opts}"
+		use sdl && audio_opts="sdl,${audio_opts}"
+		use pulseaudio && audio_opts="pa,${audio_opts}"
+
 		conf_opts+=(
 			--disable-linux-user
 			--enable-system
-			--target-list="${softmmu_targets}"
 			--with-system-pixman
 			--audio-drv-list="${audio_opts}"
 		)
 		use gtk && conf_opts+=( --with-gtkabi=$(usex gtk2 2.0 3.0) )
+		use sdl && conf_opts+=( --with-sdlabi=$(usex sdl2 2.0 1.2) )
+		;;
+	tools)
+		conf_opts+=(
+			--disable-linux-user
+			--disable-system
+			--disable-blobs
+		)
+		static_flag="static"
 		;;
 	esac
+
+	local targets="${buildtype}_targets"
+	[[ -n ${targets} ]] && conf_opts+=( --target-list="${!targets}" )
 
 	# Add support for SystemTAP
 	use systemtap && conf_opts+=( --enable-trace-backend=dtrace )
@@ -407,7 +450,7 @@ qemu_src_configure() {
 		gcc-specs-pie && conf_opts+=( --enable-pie )
 	fi
 
-	einfo "../configure ${conf_opts[*]}"
+	echo "../configure ${conf_opts[*]}"
 	cd "${builddir}"
 	../configure "${conf_opts[@]}" || die "configure failed"
 
@@ -439,21 +482,12 @@ src_configure() {
 		fi
 	done
 
-	[[ -n ${softmmu_targets} ]] && \
-		einfo "Building the following softmmu targets: ${softmmu_targets}"
+	softmmu_targets=${softmmu_targets#,}
+	user_targets=${user_targets#,}
 
-	[[ -n ${user_targets} ]] && \
-		einfo "Building the following user targets: ${user_targets}"
-
-	if [[ -n ${softmmu_targets} ]]; then
-		mkdir "${S}/softmmu-build"
-		qemu_src_configure "softmmu" "${S}/softmmu-build"
-	fi
-
-	if [[ -n ${user_targets} ]]; then
-		mkdir "${S}/user-build"
-		qemu_src_configure "user" "${S}/user-build"
-	fi
+	[[ -n ${softmmu_targets} ]] && qemu_src_configure "softmmu"
+	[[ -n ${user_targets}    ]] && qemu_src_configure "user"
+	[[ -z ${softmmu_targets}${user_targets} ]] && qemu_src_configure "tools"
 }
 
 src_compile() {
@@ -464,6 +498,11 @@ src_compile() {
 
 	if [[ -n ${softmmu_targets} ]]; then
 		cd "${S}/softmmu-build"
+		default
+	fi
+
+	if [[ -z ${softmmu_targets}${user_targets} ]]; then
+		cd "${S}/tools-build"
 		default
 	fi
 }
@@ -509,6 +548,11 @@ src_install() {
 		if use python; then
 			python_foreach_impl qemu_python_install
 		fi
+	fi
+
+	if [[ -z ${softmmu_targets}${user_targets} ]]; then
+		cd "${S}/tools-build"
+		emake DESTDIR="${ED}" install
 	fi
 
 	# Disable mprotect on the qemu binaries as they use JITs to be fast #459348
@@ -573,21 +617,6 @@ src_install() {
 pkg_postinst() {
 	if qemu_support_kvm; then
 		readme.gentoo_print_elog
-		ewarn "Migration from qemu-kvm instances and loading qemu-kvm created"
-		ewarn "save states has been removed starting with the 1.6.2 release"
-		ewarn
-		ewarn "It is recommended that you migrate any VMs that may be running"
-		ewarn "on qemu-kvm to a host with a newer qemu and regenerate"
-		ewarn "any saved states with a newer qemu."
-		ewarn
-		ewarn "qemu-kvm was the primary qemu provider in Gentoo through 1.2.x"
-
-		if use x86 || use amd64; then
-			ewarn
-			ewarn "The /usr/bin/kvm and /usr/bin/qemu-kvm wrappers are no longer"
-			ewarn "installed.  In order to use kvm acceleration, pass the flag"
-			ewarn "-enable-kvm when running your system target."
-		fi
 	fi
 
 	if [[ -n ${softmmu_targets} ]] && use kernel_linux; then
@@ -606,7 +635,7 @@ pkg_info() {
 	echo "  $(best_version app-emulation/spice-protocol)"
 	echo "  $(best_version sys-firmware/ipxe)"
 	echo "  $(best_version sys-firmware/seabios)"
-	if has_version sys-firmware/seabios[binary]; then
+	if has_version 'sys-firmware/seabios[binary]'; then
 		echo "    USE=binary"
 	else
 		echo "    USE=''"

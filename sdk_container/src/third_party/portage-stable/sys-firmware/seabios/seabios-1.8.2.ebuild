@@ -2,13 +2,11 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=5
+EAPI="5"
 
 PYTHON_COMPAT=( python2_7 )
 
 inherit eutils toolchain-funcs python-any-r1
-
-#BACKPORTS=1
 
 # SeaBIOS maintainers sometimes don't release stable tarballs or stable
 # binaries to generate the stable tarball the following is necessary:
@@ -20,9 +18,13 @@ if [[ ${PV} = *9999* || ! -z "${EGIT_COMMIT}" ]]; then
 	inherit git-2
 else
 	KEYWORDS="amd64 ~ppc ~ppc64 x86 ~amd64-fbsd ~x86-fbsd"
+	# Upstream hasn't released a new binary.  We snipe ours from Fedora for now.
+	# http://code.coreboot.org/p/seabios/downloads/get/bios.bin-${PV}.gz
 	SRC_URI="!binary? ( http://code.coreboot.org/p/seabios/downloads/get/${P}.tar.gz )
-		binary? ( http://code.coreboot.org/p/seabios/downloads/get/bios.bin-${PV}.gz )
-		${BACKPORTS:+https://dev.gentoo.org/~cardoe/distfiles/${P}-${BACKPORTS}.tar.xz}"
+		binary? (
+			mirror://gentoo/bios.bin-${PV}.xz
+			seavgabios? ( mirror://gentoo/seavgabios-${PV}.tar.xz )
+		)"
 fi
 
 DESCRIPTION="Open Source implementation of a 16-bit x86 BIOS"
@@ -30,9 +32,10 @@ HOMEPAGE="http://www.seabios.org"
 
 LICENSE="LGPL-3 GPL-3"
 SLOT="0"
-IUSE="+binary"
+IUSE="+binary debug +seavgabios"
 
-REQUIRED_USE="ppc? ( binary )
+REQUIRED_USE="debug? ( !binary )
+	ppc? ( binary )
 	ppc64? ( binary )"
 
 DEPEND="
@@ -69,40 +72,66 @@ src_unpack() {
 src_prepare() {
 	use binary && return
 
-	if [[ -z "${EGIT_COMMIT}" ]]; then
-		sed -e "s/VERSION=.*/VERSION=${PV}/" \
-			-i Makefile || die
-	else
-		sed -e "s/VERSION=.*/VERSION=${PV}_pre${EGIT_COMMIT}/" \
-			-i Makefile || die
-	fi
-
+	epatch "${FILESDIR}"/${P}-fstack-check.patch #559980
 	epatch_user
 }
 
 src_configure() {
-	use binary || tc-ld-disable-gold #438058
+	use binary && return
+
+	tc-ld-disable-gold #438058
+
+	if use debug ; then
+		echo "CONFIG_DEBUG_LEVEL=8" >.config
+	fi
+	_emake config
+}
+
+_emake() {
+	LANG=C \
+	emake V=1 \
+		CC="$(tc-getCC)" \
+		LD="$(tc-getLD)" \
+		AR="$(tc-getAR)" \
+		OBJCOPY="$(tc-getOBJCOPY)" \
+		RANLIB="$(tc-getRANLIB)" \
+		OBJDUMP="$(tc-getOBJDUMP)" \
+		HOST_CC="$(tc-getBUILD_CC)" \
+		VERSION="Gentoo/${EGIT_COMMIT:-${PVR}}" \
+		"$@"
 }
 
 src_compile() {
-	if ! use binary ; then
-		LANG=C emake \
-			CC="$(tc-getCC)" \
-			LD="$(tc-getLD)" \
-			AR="$(tc-getAR)" \
-			OBJCOPY="$(tc-getOBJCOPY)" \
-			RANLIB="$(tc-getRANLIB)" \
-			OBJDUMP="$(tc-getOBJDUMP)" \
-			HOST_CC="$(tc-getBUILD_CC)" \
-			out/bios.bin
+	use binary && return
+
+	_emake out/bios.bin
+	mv out/bios.bin ../bios.bin
+
+	if use seavgabios ; then
+		local config t targets=(
+			cirrus
+			isavga
+			qxl
+			stdvga
+			virtio
+			vmware
+		)
+		for t in "${targets[@]}" ; do
+			emake clean distclean
+			cp "${FILESDIR}/seavgabios/config.vga-${t}" .config || die
+			_emake oldnoconfig
+			_emake out/vgabios.bin
+			cp out/vgabios.bin ../vgabios-${t}.bin || die
+		done
 	fi
 }
 
 src_install() {
 	insinto /usr/share/seabios
-	if ! use binary ; then
-		doins out/bios.bin
-	else
-		newins ../bios.bin-${PV} bios.bin
+	newins ../bios.bin* bios.bin
+
+	if use seavgabios ; then
+		insinto /usr/share/seavgabios
+		doins ../vgabios*.bin
 	fi
 }

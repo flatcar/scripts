@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-emulation/qemu/qemu-2.3.0-r4.ebuild,v 1.3 2015/07/28 15:04:54 ago Exp $
+# $Id$
 
 EAPI=5
 
@@ -19,8 +19,8 @@ if [[ ${PV} = *9999* ]]; then
 else
 	SRC_URI="http://wiki.qemu-project.org/download/${P}.tar.bz2
 	${BACKPORTS:+
-		http://dev.gentoo.org/~cardoe/distfiles/${P}-${BACKPORTS}.tar.xz}"
-	KEYWORDS="amd64 ~ppc ~ppc64 x86 ~x86-fbsd"
+		https://dev.gentoo.org/~cardoe/distfiles/${P}-${BACKPORTS}.tar.xz}"
+	KEYWORDS="~amd64 ~ppc ~ppc64 ~x86 ~x86-fbsd"
 fi
 
 DESCRIPTION="QEMU + Kernel-based Virtual Machine userland tools"
@@ -77,7 +77,7 @@ SOFTMMU_LIB_DEPEND="${COMMON_LIB_DEPEND}
 	infiniband? ( sys-infiniband/librdmacm:=[static-libs(+)] )
 	jpeg? ( virtual/jpeg:=[static-libs(+)] )
 	lzo? ( dev-libs/lzo:2[static-libs(+)] )
-	ncurses? ( sys-libs/ncurses[static-libs(+)] )
+	ncurses? ( sys-libs/ncurses:0=[static-libs(+)] )
 	nfs? ( >=net-fs/libnfs-1.9.3[static-libs(+)] )
 	numa? ( sys-process/numactl[static-libs(+)] )
 	png? ( media-libs/libpng:0=[static-libs(+)] )
@@ -89,7 +89,7 @@ SOFTMMU_LIB_DEPEND="${COMMON_LIB_DEPEND}
 	spice? ( >=app-emulation/spice-0.12.0[static-libs(+)] )
 	ssh? ( >=net-libs/libssh2-1.2.8[static-libs(+)] )
 	tls? ( net-libs/gnutls[static-libs(+)] )
-	usb? ( >=dev-libs/libusb-1.0.18[static-libs(+)] )
+	usb? ( >=virtual/libusb-1-r1[static-libs(+)] )
 	uuid? ( >=sys-apps/util-linux-2.16.0[static-libs(+)] )
 	vde? ( net-misc/vde[static-libs(+)] )
 	xfs? ( sys-fs/xfsprogs[static-libs(+)] )"
@@ -257,13 +257,8 @@ src_prepare() {
 	use nls || rm -f po/*.po
 
 	epatch "${FILESDIR}"/qemu-1.7.0-cflags.patch
-	epatch "${FILESDIR}"/${P}-CVE-2015-3456.patch #549404
-	epatch "${FILESDIR}"/${P}-CVE-2015-3209.patch #551752
-	epatch "${FILESDIR}"/${P}-CVE-2015-5158.patch #555680
-	epatch "${FILESDIR}"/${P}-CVE-2015-3214.patch #556052
-	epatch "${FILESDIR}"/${P}-CVE-2015-5154-1.patch #556050 / #555532
-	epatch "${FILESDIR}"/${P}-CVE-2015-5154-2.patch #556050 / #555532
-	epatch "${FILESDIR}"/${P}-CVE-2015-5154-3.patch #556050 / #555532`
+	epatch "${FILESDIR}"/${PN}-2.3.0-CVE-2015-3209.patch #551752
+	epatch "${FILESDIR}"/${PN}-2.3.0-virtio-serial.patch #557206
 	[[ -n ${BACKPORTS} ]] && \
 		EPATCH_FORCE=yes EPATCH_SUFFIX="patch" EPATCH_SOURCE="${S}/patches" \
 			epatch
@@ -520,14 +515,14 @@ src_install() {
 	newdoc pc-bios/README README.pc-bios
 	dodoc docs/qmp/*.txt
 
-	# Remove SeaBIOS since we're using the SeaBIOS packaged one
-	rm "${ED}/usr/share/qemu/bios.bin"
-	if use qemu_softmmu_targets_x86_64 || use qemu_softmmu_targets_i386; then
-		dosym ../seabios/bios.bin /usr/share/qemu/bios.bin
-	fi
-
-	# Remove vgabios since we're using the vgabios packaged one
 	if [[ -n ${softmmu_targets} ]]; then
+		# Remove SeaBIOS since we're using the SeaBIOS packaged one
+		rm "${ED}/usr/share/qemu/bios.bin"
+		if use qemu_softmmu_targets_x86_64 || use qemu_softmmu_targets_i386; then
+			dosym ../seabios/bios.bin /usr/share/qemu/bios.bin
+		fi
+
+		# Remove vgabios since we're using the vgabios packaged one
 		rm "${ED}/usr/share/qemu/vgabios.bin"
 		rm "${ED}/usr/share/qemu/vgabios-cirrus.bin"
 		rm "${ED}/usr/share/qemu/vgabios-qxl.bin"
