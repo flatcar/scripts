@@ -1,0 +1,23 @@
+# ChangeLog for app-misc/c_rehash
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# (auto-generated from git log)
+
+*c_rehash-1.7 (20 Sep 2015)
+
+  20 Sep 2015; Julian Ospald <hasufell@gentoo.org> +c_rehash-1.7.ebuild,
+  +metadata.xml:
+  initial import of version 1.7 for libressl compat
+
+*c_rehash-1.7-r1 (01 Oct 2015)
+
+  01 Oct 2015; Julian Ospald <hasufell@gentoo.org> +c_rehash-1.7-r1.ebuild:
+  update openssl blocker
+
+  Gentoo-Bug: 561852
+
+  01 Oct 2015; Julian Ospald <hasufell@gentoo.org> metadata.xml:
+  add base-system to maintainers
+
+  01 Oct 2015; Julian Ospald <hasufell@gentoo.org> -c_rehash-1.7.ebuild:
+  drop old
+
