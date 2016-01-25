@@ -1,8 +1,8 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/python-single-r1.eclass,v 1.38 2015/03/22 13:41:16 mgorny Exp $
+# $Id$
 
-# @ECLASS: python-single-r1
+# @ECLASS: python-single-r1.eclass
 # @MAINTAINER:
 # Python team <python@gentoo.org>
 # @AUTHOR:
@@ -28,8 +28,8 @@
 # in the packages using python-single-r1, and there is no need ever
 # to inherit both.
 #
-# For more information, please see the python-r1 Developer's Guide:
-# http://www.gentoo.org/proj/en/Python/python-r1/dev-guide.xml
+# For more information, please see the wiki:
+# https://wiki.gentoo.org/wiki/Project:Python/python-single-r1
 
 case "${EAPI:-0}" in
 	0|1|2|3)
@@ -55,7 +55,7 @@ case "${EAPI:-0}" in
 			die "Unsupported EAPI=${EAPI:-4} (too old, allowed only on restricted set of packages) for ${ECLASS}"
 		fi
 		;;
-	5)
+	5|6)
 		# EAPI=5 is required for sane USE_EXPAND dependencies
 		;;
 	*)
@@ -88,11 +88,32 @@ if [[ ! ${_PYTHON_SINGLE_R1} ]]; then
 #
 # Example:
 # @CODE
-# PYTHON_COMPAT=( python{2_5,2_6,2_7} )
+# PYTHON_COMPAT=( python2_7 python3_3 python3_4} )
 # @CODE
-if ! declare -p PYTHON_COMPAT &>/dev/null; then
-	die 'PYTHON_COMPAT not declared.'
-fi
+#
+# Please note that you can also use bash brace expansion if you like:
+# @CODE
+# PYTHON_COMPAT=( python2_7 python3_{3,4} )
+# @CODE
+
+# @ECLASS-VARIABLE: PYTHON_COMPAT_OVERRIDE
+# @INTERNAL
+# @DESCRIPTION:
+# This variable can be used when working with ebuilds to override
+# the in-ebuild PYTHON_COMPAT. It is a string naming the implementation
+# which package will be built for. It needs to be specified
+# in the calling environment, and not in ebuilds.
+#
+# It should be noted that in order to preserve metadata immutability,
+# PYTHON_COMPAT_OVERRIDE does not affect IUSE nor dependencies.
+# The state of PYTHON_TARGETS and PYTHON_SINGLE_TARGET is ignored,
+# and the implementation in PYTHON_COMPAT_OVERRIDE is built instead.
+# Dependencies need to be satisfied manually.
+#
+# Example:
+# @CODE
+# PYTHON_COMPAT_OVERRIDE='pypy' emerge -1v dev-python/bar
+# @CODE
 
 # @ECLASS-VARIABLE: PYTHON_REQ_USE
 # @DEFAULT_UNSET
@@ -131,8 +152,8 @@ fi
 # Example value:
 # @CODE
 # dev-lang/python-exec:=
-# python_single_target_python2_6? ( dev-lang/python:2.6[gdbm] )
 # python_single_target_python2_7? ( dev-lang/python:2.7[gdbm] )
+# python_single_target_pypy? ( virtual/pypy[gdbm] )
 # @CODE
 
 # @ECLASS-VARIABLE: PYTHON_USEDEP
@@ -152,7 +173,7 @@ fi
 #
 # Example value:
 # @CODE
-# python_targets_python2_7(-)?,python_single_target_python2_7(+)?
+# python_targets_python2_7(-)?,python_single_target_python3_4(+)?
 # @CODE
 
 # @ECLASS-VARIABLE: PYTHON_REQUIRED_USE
@@ -172,40 +193,30 @@ fi
 #
 # Example value:
 # @CODE
-# python_single_target_python2_6? ( python_targets_python2_6 )
 # python_single_target_python2_7? ( python_targets_python2_7 )
-# ^^ ( python_single_target_python2_6 python_single_target_python2_7 )
+# python_single_target_python3_3? ( python_targets_python3_3 )
+# ^^ ( python_single_target_python2_7 python_single_target_python3_3 )
 # @CODE
 
 _python_single_set_globals() {
-	local impls=()
-	local unimpls=()
+	_python_set_impls
 
 	PYTHON_DEPS=
 	local i PYTHON_PKG_DEP
-	for i in "${_PYTHON_ALL_IMPLS[@]}"; do
-		has "${i}" "${PYTHON_COMPAT[@]}" \
-			&& impls+=( "${i}" ) \
-			|| unimpls+=( "${i}" )
-	done
 
-	if [[ ${#impls[@]} -eq 0 ]]; then
-		die "No supported implementation in PYTHON_COMPAT."
-	fi
-
-	local flags_mt=( "${impls[@]/#/python_targets_}" )
-	local flags=( "${impls[@]/#/python_single_target_}" )
-	local unflags=( "${unimpls[@]/#/-python_single_target_}" )
+	local flags_mt=( "${_PYTHON_SUPPORTED_IMPLS[@]/#/python_targets_}" )
+	local flags=( "${_PYTHON_SUPPORTED_IMPLS[@]/#/python_single_target_}" )
+	local unflags=( "${_PYTHON_UNSUPPORTED_IMPLS[@]/#/-python_single_target_}" )
 
 	local optflags=${flags_mt[@]/%/(-)?},${unflags[@]/%/(-)}
 
 	IUSE="${flags_mt[*]}"
 
-	if [[ ${#impls[@]} -eq 1 ]]; then
+	if [[ ${#_PYTHON_SUPPORTED_IMPLS[@]} -eq 1 ]]; then
 		# There is only one supported implementation; set IUSE and other
 		# variables without PYTHON_SINGLE_TARGET.
 		PYTHON_REQUIRED_USE="${flags_mt[*]}"
-		python_export "${impls[0]}" PYTHON_PKG_DEP
+		python_export "${_PYTHON_SUPPORTED_IMPLS[0]}" PYTHON_PKG_DEP
 		PYTHON_DEPS="${PYTHON_PKG_DEP} "
 		# Force on the python_single_target_* flag for this impl, so
 		# that any dependencies that inherit python-single-r1 and
@@ -220,7 +231,7 @@ _python_single_set_globals() {
 		# on this package.
 		optflags+=,${flags[@]/%/(+)?}
 
-		for i in "${impls[@]}"; do
+		for i in "${_PYTHON_SUPPORTED_IMPLS[@]}"; do
 			# The chosen targets need to be in PYTHON_TARGETS as well.
 			# This is in order to enforce correct dependencies on packages
 			# supporting multiple implementations.
@@ -245,8 +256,10 @@ _python_single_set_globals() {
 	else
 		PYTHON_DEPS+="dev-lang/python-exec:2[${PYTHON_USEDEP}]"
 	fi
+	readonly PYTHON_DEPS PYTHON_REQUIRED_USE PYTHON_USEDEP
 }
 _python_single_set_globals
+unset -f _python_single_set_globals
 
 # @FUNCTION: python_gen_usedep
 # @USAGE: <pattern> [...]
@@ -278,9 +291,7 @@ python_gen_usedep() {
 	local impl pattern
 	local matches=()
 
-	for impl in "${PYTHON_COMPAT[@]}"; do
-		_python_impl_supported "${impl}" || continue
-
+	for impl in "${_PYTHON_SUPPORTED_IMPLS[@]}"; do
 		for pattern; do
 			if [[ ${impl} == ${pattern} ]]; then
 				matches+=(
@@ -318,15 +329,19 @@ python_gen_usedep() {
 python_gen_useflags() {
 	debug-print-function ${FUNCNAME} "${@}"
 
-	local impl pattern
+	local flag_prefix impl pattern
 	local matches=()
 
-	for impl in "${PYTHON_COMPAT[@]}"; do
-		_python_impl_supported "${impl}" || continue
+	if [[ ${#_PYTHON_SUPPORTED_IMPLS[@]} -eq 1 ]]; then
+		flag_prefix=python_targets
+	else
+		flag_prefix=python_single_target
+	fi
 
+	for impl in "${_PYTHON_SUPPORTED_IMPLS[@]}"; do
 		for pattern; do
 			if [[ ${impl} == ${pattern} ]]; then
-				matches+=( "python_single_target_${impl}" )
+				matches+=( "${flag_prefix}_${impl}" )
 				break
 			fi
 		done
@@ -349,41 +364,103 @@ python_gen_useflags() {
 #
 # Example:
 # @CODE
-# PYTHON_COMPAT=( python{2_5,2_6,2_7} )
+# PYTHON_COMPAT=( python{2_7,3_{3,4}} pypy )
 # RDEPEND="$(python_gen_cond_dep \
-#   'dev-python/unittest2[${PYTHON_USEDEP}]' python{2_5,2_6})"
+#   'dev-python/unittest2[${PYTHON_USEDEP}]' python2_7 pypy )"
 # @CODE
 #
 # It will cause the variable to look like:
 # @CODE
-# RDEPEND="python_single_target_python2_5? (
-#     dev-python/unittest2[python_targets_python2_5(-)?,...] )
-#	python_single_target_python2_6? (
-#     dev-python/unittest2[python_targets_python2_6(-)?,...] )"
+# RDEPEND="python_single_target_python2_7? (
+#     dev-python/unittest2[python_targets_python2_7(-)?,...] )
+#	python_single_target_pypy? (
+#     dev-python/unittest2[python_targets_pypy(-)?,...] )"
 # @CODE
 python_gen_cond_dep() {
 	debug-print-function ${FUNCNAME} "${@}"
 
-	local impl pattern
+	local flag_prefix impl pattern
 	local matches=()
+
+	if [[ ${#_PYTHON_SUPPORTED_IMPLS[@]} -eq 1 ]]; then
+		flag_prefix=python_targets
+	else
+		flag_prefix=python_single_target
+	fi
 
 	local dep=${1}
 	shift
 
-	for impl in "${PYTHON_COMPAT[@]}"; do
-		_python_impl_supported "${impl}" || continue
-
+	for impl in "${_PYTHON_SUPPORTED_IMPLS[@]}"; do
 		for pattern; do
 			if [[ ${impl} == ${pattern} ]]; then
 				# substitute ${PYTHON_USEDEP} if used
 				# (since python_gen_usedep() will not return ${PYTHON_USEDEP}
 				#  the code is run at most once)
 				if [[ ${dep} == *'${PYTHON_USEDEP}'* ]]; then
-					local PYTHON_USEDEP=$(python_gen_usedep "${@}")
-					dep=${dep//\$\{PYTHON_USEDEP\}/${PYTHON_USEDEP}}
+					local usedep=$(python_gen_usedep "${@}")
+					dep=${dep//\$\{PYTHON_USEDEP\}/${usedep}}
 				fi
 
-				matches+=( "python_single_target_${impl}? ( ${dep} )" )
+				matches+=( "${flag_prefix}_${impl}? ( ${dep} )" )
+				break
+			fi
+		done
+	done
+
+	echo "${matches[@]}"
+}
+
+# @FUNCTION: python_gen_impl_dep
+# @USAGE: [<requested-use-flags> [<impl-pattern>...]]
+# @DESCRIPTION:
+# Output a dependency on Python implementations with the specified USE
+# dependency string appended, or no USE dependency string if called
+# without the argument (or with empty argument). If any implementation
+# patterns are passed, the output dependencies will be generated only
+# for the implementations matching them.
+#
+# Use this function when you need to request different USE flags
+# on the Python interpreter depending on package's USE flags. If you
+# only need a single set of interpreter USE flags, just set
+# PYTHON_REQ_USE and use ${PYTHON_DEPS} globally.
+#
+# Example:
+# @CODE
+# PYTHON_COMPAT=( python{2_7,3_{3,4}} pypy )
+# RDEPEND="foo? ( $(python_gen_impl_dep 'xml(+)') )"
+# @CODE
+#
+# It will cause the variable to look like:
+# @CODE
+# RDEPEND="foo? (
+#   python_single_target_python2_7? (
+#     dev-lang/python:2.7[xml(+)] )
+#	python_single_target_pypy? (
+#     dev-python/pypy[xml(+)] ) )"
+# @CODE
+python_gen_impl_dep() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	local impl pattern
+	local matches=()
+
+	if [[ ${#_PYTHON_SUPPORTED_IMPLS[@]} -eq 1 ]]; then
+		flag_prefix=python_targets
+	else
+		flag_prefix=python_single_target
+	fi
+
+	local PYTHON_REQ_USE=${1}
+	shift
+
+	local patterns=( "${@-*}" )
+	for impl in "${_PYTHON_SUPPORTED_IMPLS[@]}"; do
+		for pattern in "${patterns[@]}"; do
+			if [[ ${impl} == ${pattern} ]]; then
+				local PYTHON_PKG_DEP
+				python_export "${impl}" PYTHON_PKG_DEP
+				matches+=( "${flag_prefix}_${impl}? ( ${PYTHON_PKG_DEP} )" )
 				break
 			fi
 		done
@@ -401,20 +478,32 @@ python_setup() {
 
 	unset EPYTHON
 
-	local impl impls=()
-	for impl in "${PYTHON_COMPAT[@]}"; do
-		_python_impl_supported "${impl}" || continue
-		impls+=( "${impl}" )
-	done
+	# support developer override
+	if [[ ${PYTHON_COMPAT_OVERRIDE} ]]; then
+		local impls=( ${PYTHON_COMPAT_OVERRIDE} )
+		[[ ${#impls[@]} -eq 1 ]] || die "PYTHON_COMPAT_OVERRIDE must name exactly one implementation for python-single-r1"
 
-	if [[ ${#impls[@]} -eq 1 ]]; then
-		if use "python_targets_${impls[0]}"; then
+		ewarn "WARNING: PYTHON_COMPAT_OVERRIDE in effect. The following Python"
+		ewarn "implementation will be used:"
+		ewarn
+		ewarn "	${PYTHON_COMPAT_OVERRIDE}"
+		ewarn
+		ewarn "Dependencies won't be satisfied, and PYTHON_SINGLE_TARGET flags will be ignored."
+
+		python_export "${impls[0]}" EPYTHON PYTHON
+		python_wrapper_setup
+		return
+	fi
+
+	if [[ ${#_PYTHON_SUPPORTED_IMPLS[@]} -eq 1 ]]; then
+		if use "python_targets_${_PYTHON_SUPPORTED_IMPLS[0]}"; then
 			# Only one supported implementation, enable it explicitly
-			python_export "${impls[0]}" EPYTHON PYTHON
+			python_export "${_PYTHON_SUPPORTED_IMPLS[0]}" EPYTHON PYTHON
 			python_wrapper_setup
 		fi
 	else
-		for impl in "${impls[@]}"; do
+		local impl
+		for impl in "${_PYTHON_SUPPORTED_IMPLS[@]}"; do
 			if use "python_single_target_${impl}"; then
 				if [[ ${EPYTHON} ]]; then
 					eerror "Your PYTHON_SINGLE_TARGET setting lists more than a single Python"
@@ -442,14 +531,14 @@ python_setup() {
 
 	if [[ ! ${EPYTHON} ]]; then
 		eerror "No Python implementation selected for the build. Please set"
-		if [[ ${#impls[@]} -eq 1 ]]; then
+		if [[ ${#_PYTHON_SUPPORTED_IMPLS[@]} -eq 1 ]]; then
 			eerror "the PYTHON_TARGETS variable in your make.conf to include one"
 		else
 			eerror "the PYTHON_SINGLE_TARGET variable in your make.conf to one"
 		fi
 		eerror "of the following values:"
 		eerror
-		eerror "${impls[@]}"
+		eerror "${_PYTHON_SUPPORTED_IMPLS[@]}"
 		echo
 		die "No supported Python implementation in PYTHON_SINGLE_TARGET/PYTHON_TARGETS."
 	fi
