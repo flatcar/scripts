@@ -1,6 +1,7 @@
 DEFINED_PHASES=compile install unpack
 DEPEND=sys-devel/m4 nls? ( sys-devel/gettext ) test? ( sys-devel/bison )
 DESCRIPTION=The Fast Lexical Analyzer
+EAPI=0
 HOMEPAGE=http://flex.sourceforge.net/
 IUSE=nls static test
 KEYWORDS=alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc ~sparc-fbsd x86 ~x86-fbsd

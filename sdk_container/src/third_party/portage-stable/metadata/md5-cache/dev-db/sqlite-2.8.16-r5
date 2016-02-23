@@ -1,6 +1,7 @@
 DEFINED_PHASES=compile install postinst postrm test unpack
 DEPEND=doc? ( dev-lang/tcl ) tcl? ( dev-lang/tcl )
 DESCRIPTION=SQLite: an SQL Database Engine in a C Library
+EAPI=0
 HOMEPAGE=http://www.sqlite.org/
 IUSE=doc nls tcl
 KEYWORDS=alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd

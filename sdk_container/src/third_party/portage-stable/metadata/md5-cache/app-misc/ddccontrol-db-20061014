@@ -1,6 +1,7 @@
 DEFINED_PHASES=compile install
 DEPEND=nls? ( sys-devel/gettext ) dev-util/intltool dev-perl/XML-Parser
 DESCRIPTION=DDCControl monitor database
+EAPI=0
 HOMEPAGE=http://ddccontrol.sourceforge.net/
 IUSE=nls
 KEYWORDS=amd64 ppc x86

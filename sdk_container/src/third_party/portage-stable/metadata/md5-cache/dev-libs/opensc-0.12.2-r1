@@ -10,5 +10,5 @@ RDEPEND=libtool? ( sys-devel/libtool ) zlib? ( sys-libs/zlib ) readline? ( sys-l
 REQUIRED_USE=pcsc-lite? ( !openct ) openct? ( !pcsc-lite )
 SLOT=0
 SRC_URI=http://www.opensc-project.org/files/opensc/opensc-0.12.2.tar.gz
-_eclasses_=autotools	a9597abac7226d89ad9d010abeef6cfb	eutils	9fb270e417e0e83d64ca52586c4a79de	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	62927b3db3a589b0806255f3a002d5d3	toolchain-funcs	42408102d713fbad60ca21349865edb4
+_eclasses_=autotools	199350adb9ae3c85e275b1409e43c90d	eutils	9fb270e417e0e83d64ca52586c4a79de	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	62927b3db3a589b0806255f3a002d5d3	toolchain-funcs	42408102d713fbad60ca21349865edb4
 _md5_=1188bfbde2fa06d0361d6868e5d23c39

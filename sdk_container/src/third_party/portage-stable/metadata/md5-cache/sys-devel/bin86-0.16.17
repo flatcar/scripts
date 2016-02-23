@@ -1,5 +1,6 @@
 DEFINED_PHASES=compile install unpack
 DESCRIPTION=Assembler and loader used to create kernel bootsector
+EAPI=0
 HOMEPAGE=http://www.debath.co.uk/
 KEYWORDS=-* amd64 x86
 LICENSE=GPL-2

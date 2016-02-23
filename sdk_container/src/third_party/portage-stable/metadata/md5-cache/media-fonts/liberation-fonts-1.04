@@ -1,6 +1,7 @@
 DEFINED_PHASES=install postinst postrm setup
 DEPEND=X? ( x11-apps/mkfontdir media-fonts/encodings )
 DESCRIPTION=A GPL-2 Helvetica/Times/Courier replacement TrueType font set, courtesy of Red Hat
+EAPI=0
 HOMEPAGE=https://fedorahosted.org/liberation-fonts
 IUSE=X X
 KEYWORDS=alpha amd64 ia64 ppc ppc64 sparc x86 x86-fbsd

@@ -8,5 +8,5 @@ KEYWORDS=alpha amd64 arm ppc ppc64 sparc x86 ~x86-fbsd
 LICENSE=GPL-2
 SLOT=0
 SRC_URI=mirror://sourceforge/tsocks/tsocks-1.8beta5.tar.gz tordns? ( mirror://gentoo/tsocks-1.8b5-tordns1-gentoo-r1.patch.gz )
-_eclasses_=autotools	a9597abac7226d89ad9d010abeef6cfb	eutils	9fb270e417e0e83d64ca52586c4a79de	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	62927b3db3a589b0806255f3a002d5d3	toolchain-funcs	42408102d713fbad60ca21349865edb4
+_eclasses_=autotools	199350adb9ae3c85e275b1409e43c90d	eutils	9fb270e417e0e83d64ca52586c4a79de	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	62927b3db3a589b0806255f3a002d5d3	toolchain-funcs	42408102d713fbad60ca21349865edb4
 _md5_=f709d8893f5eb1574990d712329c8de3

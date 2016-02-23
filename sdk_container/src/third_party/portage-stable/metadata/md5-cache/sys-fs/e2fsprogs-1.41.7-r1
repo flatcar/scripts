@@ -1,6 +1,7 @@
 DEFINED_PHASES=compile install preinst setup unpack
 DEPEND=~sys-libs/e2fsprogs-libs-1.41.7 nls? ( virtual/libintl ) nls? ( sys-devel/gettext ) virtual/pkgconfig sys-apps/texinfo
 DESCRIPTION=Standard EXT2/EXT3/EXT4 filesystem utilities
+EAPI=0
 HOMEPAGE=http://e2fsprogs.sourceforge.net/
 IUSE=nls elibc_FreeBSD
 KEYWORDS=~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-fbsd

@@ -1,5 +1,6 @@
 DEFINED_PHASES=compile install unpack
 DESCRIPTION=Newlib is a C library intended for use on embedded systems
+EAPI=0
 HOMEPAGE=http://sourceware.org/newlib/
 IUSE=nls threads unicode crosscompile_opts_headers-only
 KEYWORDS=-* arm hppa m68k mips ppc ppc64 sh sparc x86
