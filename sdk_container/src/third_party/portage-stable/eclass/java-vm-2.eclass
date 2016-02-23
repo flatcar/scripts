@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/java-vm-2.eclass,v 1.49 2015/05/09 22:20:44 chewi Exp $
+# $Id$
 
 # @ECLASS: java-vm-2.eclass
 # @MAINTAINER:
@@ -84,8 +84,11 @@ java-vm-2_pkg_postinst() {
 		fi
 	fi
 
-	java-vm_check-nsplugin
-	java_mozilla_clean_
+	if [[ "${_install_mozilla_plugin_called}" = 1 ]]; then
+		java-vm_check-nsplugin
+		java_mozilla_clean_
+	fi
+
 	fdo-mime_desktop_database_update
 }
 
@@ -360,6 +363,8 @@ java_get_plugin_dir_() {
 # Register a netscape java-plugin.
 
 install_mozilla_plugin() {
+	_install_mozilla_plugin_called=1
+
 	local plugin="${1}"
 	local variant="${2}"
 

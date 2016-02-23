@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/oasis.eclass,v 1.5 2014/10/29 14:21:52 aballier Exp $
+# $Id$
 
 # @ECLASS: oasis.eclass
 # @MAINTAINER: 
@@ -42,6 +42,13 @@
 # The eclass takes care of setting debug in IUSE.
 # Set before inheriting the eclass.
 
+# @ECLASS-VARIABLE: OASIS_DOC_DIR
+# @DESCRIPTION:
+# Specify where to install documentation. Default is for ocamldoc HTML.
+# Change it before inherit if this is not what you want.
+# EPREFIX is automatically prepended.
+: ${OASIS_DOC_DIR:="/usr/share/doc/${PF}/html"}
+
 inherit multilib findlib eutils base
 
 case ${EAPI:-0} in
@@ -80,7 +87,7 @@ oasis_src_configure() {
 	${OASIS_SETUP_COMMAND:-ocaml setup.ml} -configure \
 		--prefix "${EPREFIX}/usr" \
 		--libdir "${EPREFIX}/usr/$(get_libdir)" \
-		--docdir "${EPREFIX}/usr/share/doc/${PF}/html" \
+		--docdir "${EPREFIX}${OASIS_DOC_DIR}" \
 		--destdir "${D}" \
 		$(oasis_use_enable ocamlopt is_native) \
 		${confargs} \

@@ -1,6 +1,6 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/kde4-functions.eclass,v 1.76 2015/03/29 10:29:42 johu Exp $
+# $Id$
 
 # @ECLASS: kde4-functions.eclass
 # @MAINTAINER:
@@ -36,7 +36,7 @@ esac
 # @DESCRIPTION:
 # This gets set to a non-zero value when a package is considered a kde or
 # kdevelop ebuild.
-if [[ ${CATEGORY} = kde-base || ${CATEGORY} = kde-apps ]]; then
+if [[ ${CATEGORY} = kde-base || ${CATEGORY} = kde-apps || ${CATEGORY} = kde-frameworks ]]; then
 	debug-print "${ECLASS}: KDEBASE ebuild recognized"
 	KDEBASE=kde-base
 elif [[ ${KMNAME-${PN}} = kdevelop ]]; then
@@ -292,10 +292,11 @@ add_kdeapps_dep() {
 		ver=${KDE_OVERRIDE_MINIMAL}
 	elif [[ ${KDEBASE} != kde-base ]]; then
 		ver=${KDE_MINIMAL}
-	# if building stable-live version depend just on the raw KDE version
-	# to allow merging packages against more stable basic stuff
-	elif [[ ${PV} == *.9999 ]]; then
-		ver=$(get_kde_version)
+	# if building kde-apps, live master or stable-live branch,
+	# use the final SC version since there are no further general releases.
+	# except when it is kdepim split packages, which rely on same-version deps
+	elif [[ ${CATEGORY} == kde-apps || ${PV} == *9999 ]] && [[ ${KMNAME} != "kdepim" ]]; then
+		ver=4.14.3
 	else
 		ver=${PV}
 	fi
@@ -325,16 +326,15 @@ add_kdebase_dep() {
 		ver=${3}
 	elif [[ -n ${KDE_OVERRIDE_MINIMAL} ]]; then
 		ver=${KDE_OVERRIDE_MINIMAL}
-	elif [[ -n ${KDE_MINIMAL} ]]; then
+	elif [[ ${KDEBASE} != kde-base ]]; then
 		ver=${KDE_MINIMAL}
-	# if building live version depend on the final release since there will
-	# not be any more major development. this solves dep errors as not all
-	# packages have kde-base live versions now
-
-	# depend on the last sane released version where the normal >=${PV} dep
-	# is not possible
-	elif [[ ${CATEGORY} == kde-apps || ${PV} == *9999 ]]; then
+	# if building live master or kde-apps, use the final SC version
+	# since there are no further general releases.
+	elif [[ ${CATEGORY} == kde-apps || ${PV} == 9999 ]]; then
 		ver=4.14.3
+	# if building a live version branch (eg. 4.11.49.9999) use the major version
+	elif [[ ${PV} == *.9999 ]]; then
+		ver=$(get_kde_version)
 	else
 		ver=${PV}
 	fi
@@ -352,7 +352,7 @@ _enable_selected_linguas_dir() {
 
 	[[ -d  ${dir} ]] || die "linguas dir \"${dir}\" does not exist"
 	comment_all_add_subdirectory "${dir}"
-	pushd "${dir}" > /dev/null
+	pushd "${dir}" > /dev/null || die
 
 	# fix all various crazy sr@Latn variations
 	# this part is only ease for ebuilds, so there wont be any die when this
@@ -391,7 +391,7 @@ _enable_selected_linguas_dir() {
 	done
 	[[ -n ${linguas} ]] && echo ">>> Enabling languages: ${linguas}"
 
-	popd > /dev/null
+	popd > /dev/null || die
 }
 
 # @FUNCTION: get_kde_version

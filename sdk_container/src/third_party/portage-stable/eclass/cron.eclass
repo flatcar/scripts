@@ -1,8 +1,8 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/cron.eclass,v 1.16 2013/09/05 10:44:22 zx2c4 Exp $
+# $Id$
 
-# @ECLASS: cron
+# @ECLASS: cron.eclass
 # @MAINTAINER:
 # cron-bugs@gentoo.org
 # @AUTHOR:
@@ -156,6 +156,6 @@ cron_pkg_postinst() {
 
 	einfo "You may wish to read the Gentoo Linux Cron Guide, which can be"
 	einfo "found online at:"
-	einfo "    http://www.gentoo.org/doc/en/cron-guide.xml"
+	einfo "    https://www.gentoo.org/doc/en/cron-guide.xml"
 	echo
 }

@@ -1,6 +1,6 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/kde4-base.eclass,v 1.156 2015/06/15 14:04:44 kensington Exp $
+# $Id$
 
 # @ECLASS: kde4-base.eclass
 # @MAINTAINER:
@@ -168,7 +168,7 @@ fi
 # Setup packages inheriting this eclass
 case ${KDEBASE} in
 	kde-base)
-		HOMEPAGE="http://www.kde.org/"
+		HOMEPAGE="https://www.kde.org/"
 		LICENSE="GPL-2"
 		if [[ ${KDE_BUILD_TYPE} = live && -z ${I_KNOW_WHAT_I_AM_DOING} ]]; then
 			# Disable tests for live ebuilds by default
@@ -185,7 +185,7 @@ case ${KDEBASE} in
 		esac
 		;;
 	kdevelop)
-		HOMEPAGE="http://www.kdevelop.org/"
+		HOMEPAGE="https://www.kdevelop.org/"
 		LICENSE="GPL-2"
 		;;
 esac
@@ -323,21 +323,21 @@ kdedepend="
 kderdepend=""
 
 if [[ ${CATEGORY} == kde-apps ]]; then
-	kderdepend+=" !kde-base/${PN}"
+	kderdepend+=" !kde-base/${PN}:4"
 fi
 
 # all packages needs oxygen icons for basic iconset
 if [[ ${PN} != oxygen-icons ]]; then
-	kderdepend+=" kde-apps/oxygen-icons"
+	kderdepend+=" kde-frameworks/oxygen-icons"
 fi
 
-# add a dependency over kde-l10n
+# add a dependency over kde4-l10n
 if [[ ${KDEBASE} != "kde-base" && -n ${KDE_LINGUAS} ]]; then
 	for _lingua in ${KDE_LINGUAS}; do
-		# if our package has linguas, pull in kde-l10n with selected lingua enabled,
+		# if our package has linguas, pull in kde4-l10n with selected lingua enabled,
 		# but only for selected ones.
 		# this can't be done on one line because if user doesn't use any localisation
-		# then he is probably not interested in kde-l10n at all.
+		# then he is probably not interested in kde4-l10n at all.
 		kderdepend+="
 		linguas_${_lingua}? ( $(add_kdeapps_dep kde4-l10n "linguas_${_lingua}(+)") )
 		"
@@ -358,7 +358,11 @@ case ${KDE_HANDBOOK} in
 		[[ ${PN} != kdelibs ]] && kderdepend+=" ${kdehandbookrdepend}"
 		;;
 	optional)
-		IUSE+=" +handbook"
+		if [[ ${PN} == kdesu ]] ; then
+			IUSE+=" handbook"
+		else
+			IUSE+=" +handbook"
+		fi
 		kdedepend+=" handbook? ( ${kdehandbookdepend} )"
 		[[ ${PN} != kdelibs ]] && kderdepend+=" handbook? ( ${kdehandbookrdepend} )"
 		;;
@@ -430,39 +434,40 @@ _calculate_src_uri() {
 					# KDEPIM 4.4, special case
 					# TODO: Remove this part when KDEPIM 4.4 gets out of the tree
 					SRC_URI="mirror://kde/stable/kdepim-${PV}/src/${_kmname_pv}.tar.bz2" ;;
+				4.4.20*)
+					# KDEPIM 4.4 no-akonadi branch, special case
+					# TODO: Remove this part when KDEPIM 4.4 gets out of the tree
+					SRC_URI="https://dev.gentoo.org/~dilfridge/distfiles/${_kmname_pv}.tar.xz" ;;
 				4.?.[6-9]? | 4.??.[6-9]?)
 					# Unstable KDE SC releases
 					SRC_URI="mirror://kde/unstable/${PV}/src/${_kmname_pv}.tar.xz" ;;
-				4.11.14)
-					# Part of 4.14 actually, sigh. Not stable for next release!
-					SRC_URI="mirror://kde/stable/4.14.3/src/${_kmname_pv}.tar.xz" ;;
-				4.11.17)
-					# Part of 14.12.3 actually, sigh. Not stable for next release!
-					SRC_URI="mirror://kde/stable/applications/14.12.3/src/${_kmname_pv}.tar.xz" ;;
-				4.11.18)
-					# Part of 15.04.0 actually, sigh. Not stable for next release!
-					SRC_URI="mirror://kde/stable/applications/15.04.0/src/${_kmname_pv}.tar.xz" ;;
 				4.11.19)
 					# Part of 15.04.1 actually, sigh. Not stable for next release!
-					SRC_URI="mirror://kde/stable/applications/15.04.1/src/${_kmname_pv}.tar.xz" ;;
-				4.11.20)
-					# Part of 15.04.2 actually, sigh. Not stable for next release!
-					SRC_URI="mirror://kde/stable/applications/15.04.2/src/${_kmname_pv}.tar.xz" ;;
+					SRC_URI="mirror://kde/Attic/applications/15.04.1/src/${_kmname_pv}.tar.xz" ;;
+				4.11.22)
+					# Part of 15.08.0 actually, sigh. Not stable for next release!
+					SRC_URI="mirror://kde/stable/applications/15.08.0/src/${_kmname_pv}.tar.xz" ;;
 				4.14.3)
 					# Last SC release
 					SRC_URI="mirror://kde/stable/${PV}/src/${_kmname_pv}.tar.xz" ;;
-				4.14.6)
-					# Part of 14.12.3 actually, sigh. Not stable for next release!
-					SRC_URI="mirror://kde/stable/applications/14.12.3/src/${_kmname_pv}.tar.xz" ;;
-				4.14.7)
-					# Part of 15.04.0 actually, sigh. Not stable for next release!
-					SRC_URI="mirror://kde/stable/applications/15.04.0/src/${_kmname_pv}.tar.xz" ;;
 				4.14.8)
 					# Part of 15.04.1 actually, sigh. Not stable for next release!
-					SRC_URI="mirror://kde/stable/applications/15.04.1/src/${_kmname_pv}.tar.xz" ;;
-				4.14.9)
-					# Part of 15.04.2 actually, sigh. Not stable for next release!
-					SRC_URI="mirror://kde/stable/applications/15.04.2/src/${_kmname_pv}.tar.xz" ;;
+					SRC_URI="mirror://kde/Attic/applications/15.04.1/src/${_kmname_pv}.tar.xz" ;;
+				4.14.10)
+					# Part of 15.04.3 actually, sigh. Not stable for next release!
+					SRC_URI="mirror://kde/Attic/applications/15.04.3/src/${_kmname_pv}.tar.xz" ;;
+				4.14.14)
+					# Part of 15.08.3 actually, sigh. Not stable for next release!
+					SRC_URI="mirror://kde/stable/applications/15.08.3/src/${_kmname_pv}.tar.xz" ;;
+				4.14.15)
+					# Part of 15.12.0 actually, sigh. Not stable for next release!
+					SRC_URI="mirror://kde/stable/applications/15.12.0/src/${_kmname_pv}.tar.xz" ;;
+				4.14.16)
+					# Part of 15.12.1 actually, sigh. Not stable for next release!
+					SRC_URI="mirror://kde/stable/applications/15.12.1/src/${_kmname_pv}.tar.xz" ;;
+				15.04.3)
+					# Files moved to Attic
+					SRC_URI="mirror://kde/Attic/applications/15.04.3/src/${_kmname_pv}.tar.xz" ;;
 				??.?.[6-9]? | ??.??.[4-9]?)
 					# Unstable KDE Applications releases
 					SRC_URI="mirror://kde/unstable/applications/${PV}/src/${_kmname}-${PV}.tar.xz" ;;
@@ -497,6 +502,11 @@ _calculate_live_repo() {
 				*)
 					# branch
 					branch_prefix="branches/KDE/$(get_kde_version)"
+
+					if [[ ${PV} == ??.??.49.9999 && ${CATEGORY} = kde-apps ]]; then
+						branch_prefix="branches/Applications/$(get_kde_version)"
+					fi
+
 					# @ECLASS-VARIABLE: ESVN_PROJECT_SUFFIX
 					# @DESCRIPTION
 					# Suffix appended to ESVN_PROJECT depending on fetched branch.
@@ -678,11 +688,11 @@ kde4-base_src_prepare() {
 	fi
 
 	# Enable/disable handbooks for kde4-base packages
-	# kde-l10n inherits kde4-base but is metpackage, so no check for doc
+	# kde4-l10n inherits kde4-base but is metapackage, so no check for doc
 	# kdelibs inherits kde4-base but handle installing the handbook itself
 	if ! has kde4-meta ${INHERITED} && in_iuse handbook; then
 		if [[ ${KDEBASE} == kde-base ]]; then
-			if [[ ${PN} != kde-l10n && ${PN} != kdepim-l10n && ${PN} != kdelibs ]] && use !handbook; then
+			if [[ ${PN} != kde4-l10n && ${PN} != kdepim-l10n && ${PN} != kdelibs ]] && use !handbook; then
 				# documentation in kde4-functions
 				: ${KDE_DOC_DIRS:=doc}
 				local dir
@@ -902,12 +912,10 @@ kde4-base_pkg_postinst() {
 		fi
 		# for all 3rd party soft tell user that he SHOULD install kdebase-startkde or kdebase-runtime-meta
 		if [[ ${KDEBASE} != kde-base ]] && \
-				! has_version 'kde-apps/kdebase-runtime-meta' && \
-				! has_version 'kde-base/kdebase-startkde'; then
+				! has_version 'kde-apps/kdebase-runtime-meta'; then
 			if [[ ${KDE_REQUIRED} == always ]] || ( [[ ${KDE_REQUIRED} == optional ]] && use kde ); then
 				echo
-				ewarn "WARNING! Your system configuration contains neither \"kde-base/kdebase-runtime-meta\""
-				ewarn "nor \"kde-base/kdebase-startkde\". You need one of above."
+				ewarn "WARNING! Your system configuration does not contain \"kde-apps/kdebase-runtime-meta\"."
 				ewarn "With this setting you are unsupported by KDE team."
 				ewarn "All missing features you report for misc packages will be probably ignored or closed as INVALID."
 			fi

@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/s6.eclass,v 1.2 2015/06/03 17:37:46 grknight Exp $
+# $Id$
 
 # @ECLASS: s6.eclass
 # @MAINTAINER:
@@ -26,7 +26,7 @@
 # @CODE
 
 case ${EAPI:-0} in
-	5) ;;
+	5|6) ;;
 	*) die "${ECLASS}.eclass: API in EAPI ${EAPI} not yet established" ;;
 esac
 

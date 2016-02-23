@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain-funcs.eclass,v 1.138 2015/05/28 07:51:10 vapier Exp $
+# $Id$
 
 # @ECLASS: toolchain-funcs.eclass
 # @MAINTAINER:
@@ -725,6 +725,7 @@ gen_usr_ldscript() {
 	# Eventually we'd like to get rid of this func completely #417451
 	case ${CTARGET:-${CHOST}} in
 	*-darwin*) ;;
+	*-android*) return 0 ;;
 	*linux*|*-freebsd*|*-openbsd*|*-netbsd*)
 		use prefix && return 0 ;;
 	*) return 0 ;;
@@ -825,7 +826,7 @@ gen_usr_ldscript() {
 			   redirects the linker to the real lib.  And yes, this works in the cross-
 			   compiling scenario as the sysroot-ed linker will prepend the real path.
 
-			   See bug http://bugs.gentoo.org/4411 for more info.
+			   See bug https://bugs.gentoo.org/4411 for more info.
 			 */
 			${output_format}
 			GROUP ( ${EPREFIX}/${libdir}/${tlib} )

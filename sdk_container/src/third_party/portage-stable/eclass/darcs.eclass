@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/darcs.eclass,v 1.18 2015/01/01 21:09:28 slyfox Exp $
+# $Id$
 
 # @ECLASS: darcs.eclass
 # @MAINTAINER:
@@ -126,7 +126,7 @@ darcs_fetch() {
 
 	# in case EDARCS_DARCS_DIR is a symlink to a dir, get the real
 	# dir's path, otherwise addwrite() doesn't work.
-	pushd .
+	pushd . || die
 	cd -P "${EDARCS_TOP_DIR}" > /dev/null
 	EDARCS_TOP_DIR="`/bin/pwd`"
 
@@ -159,7 +159,7 @@ darcs_fetch() {
 	export EDARCS_PATCHCOUNT=$(darcs_patchcount)
 	einfo "    patches in repo: ${EDARCS_PATCHCOUNT}"
 
-	popd
+	popd || die
 }
 
 # @FUNCTION: darcs_src_unpack

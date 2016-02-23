@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/gnatbuild.eclass,v 1.64 2015/03/31 18:43:33 ulm Exp $
+# $Id$
 #
 # Authors: George Shapovalov <george@gentoo.org>
 #          Steve Arnold <nerdboy@gentoo.org>
@@ -246,7 +246,7 @@ do_gnat_config() {
 	elog "Ada handling in Gentoo allows you to have multiple gnat variants"
 	elog "installed in parallel and automatically manage Ada libs."
 	elog "Please take a look at the Ada project page for some documentation:"
-	elog "http://www.gentoo.org/proj/en/prog_lang/ada/index.xml"
+	elog "https://www.gentoo.org/proj/en/prog_lang/ada/index.xml"
 }
 
 

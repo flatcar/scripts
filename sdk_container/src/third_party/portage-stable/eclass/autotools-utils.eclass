@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/autotools-utils.eclass,v 1.75 2015/06/07 12:55:46 mgorny Exp $
+# $Id$
 
 # @ECLASS: autotools-utils.eclass
 # @MAINTAINER:
@@ -89,6 +89,7 @@
 # Keep variable names synced with cmake-utils and the other way around!
 
 case ${EAPI:-0} in
+	6) die "${ECLASS}.eclass is banned in EAPI ${EAPI}";;
 	2|3|4|5) ;;
 	*) die "EAPI=${EAPI} is not supported" ;;
 esac

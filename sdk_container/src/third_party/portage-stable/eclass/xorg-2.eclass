@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/xorg-2.eclass,v 1.65 2015/03/06 01:32:36 chithanh Exp $
+# $Id$
 
 # @ECLASS: xorg-2.eclass
 # @MAINTAINER:
@@ -516,9 +516,9 @@ xorg-2_src_install() {
 	fi
 
 	if [[ -n ${GIT_ECLASS} ]]; then
-		pushd "${EGIT_STORE_DIR}/${EGIT_CLONE_DIR}" > /dev/null
+		pushd "${EGIT_STORE_DIR}/${EGIT_CLONE_DIR}" > /dev/null || die
 		git log ${EGIT_COMMIT} > "${S}"/ChangeLog
-		popd > /dev/null
+		popd > /dev/null || die
 	fi
 
 	if [[ -e "${S}"/ChangeLog ]]; then

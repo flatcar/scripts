@@ -1,8 +1,8 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/gnome-games.eclass,v 1.2 2013/08/25 18:12:24 eva Exp $
+# $Id$
 
-# @ECLASS: gnome-games
+# @ECLASS: gnome-games.eclass
 # @MAINTAINER:
 # Gnome team <gnome@gentoo.org>
 # @AUTHOR:
@@ -95,7 +95,7 @@ gnome-games_pkg_preinst() {
 	games_pkg_preinst
 }
 
-# @FUNCTION: gnome-games_pkg_preinst
+# @FUNCTION: gnome-games_pkg_postinst
 # @DESCRIPTION:
 # Set proper phase defaults
 gnome-games_pkg_postinst() {

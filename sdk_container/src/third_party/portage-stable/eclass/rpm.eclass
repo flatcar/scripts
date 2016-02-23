@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/rpm.eclass,v 1.22 2011/12/27 17:55:12 fauli Exp $
+# $Id$
 
 # @ECLASS: rpm.eclass
 # @MAINTAINER:
@@ -51,7 +51,7 @@ srcrpm_unpack() {
 
 	# unpack everything
 	local a
-	for a in *.tar.{gz,bz2} *.t{gz,bz2} *.zip *.ZIP ; do
+	for a in *.tar.{gz,bz2,xz} *.t{gz,bz2,xz,pxz} *.zip *.ZIP ; do
 		unpack "./${a}"
 		rm -f "${a}"
 	done

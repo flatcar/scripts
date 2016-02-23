@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/gnome.org.eclass,v 1.15 2011/09/12 15:54:53 pacho Exp $
+# $Id$
 
 # @ECLASS: gnome.org.eclass
 # @MAINTAINER:
@@ -27,7 +27,7 @@ else
 fi
 
 # Even though xz-utils are in @system, they must still be added to DEPEND; see
-# http://archives.gentoo.org/gentoo-dev/msg_a0d4833eb314d1be5d5802a3b710e0a4.xml
+# https://archives.gentoo.org/gentoo-dev/msg_a0d4833eb314d1be5d5802a3b710e0a4.xml
 if [[ ${GNOME_TARBALL_SUFFIX} == "xz" ]]; then
 	DEPEND="${DEPEND} app-arch/xz-utils"
 fi

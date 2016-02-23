@@ -1,10 +1,9 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/nvidia-driver.eclass,v 1.25 2014/08/10 10:02:43 jer Exp $
+# $Id$
 
 # @ECLASS: nvidia-driver.eclass
 # @MAINTAINER:
-# Tony Vroon <chainsaw@gentoo.org>
 # Jeroen Roovers <jer@gentoo.org>
 # @AUTHOR:
 # Original author: Doug Goldstein <cardoe@gentoo.org>
@@ -13,7 +12,7 @@
 # Provide useful messages for nvidia-drivers based on currently installed Nvidia
 # card. It inherits versionator.
 
-inherit readme.gentoo versionator
+inherit readme.gentoo-r1 versionator
 
 DEPEND="sys-apps/pciutils"
 
@@ -21,7 +20,7 @@ DEPEND="sys-apps/pciutils"
 DISABLE_AUTOFORMATTING="yes"
 DOC_CONTENTS="You must be in the video group to use the NVIDIA device
 For more info, read the docs at
-http://www.gentoo.org/doc/en/nvidia-guide.xml#doc_chap3_sect6
+https://www.gentoo.org/doc/en/nvidia-guide.xml#doc_chap3_sect6
 
 This ebuild installs a kernel module and X driver. Both must
 match explicitly in their version. This means, if you restart

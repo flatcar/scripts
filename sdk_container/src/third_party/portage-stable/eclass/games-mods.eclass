@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/games-mods.eclass,v 1.44 2011/12/27 17:55:12 fauli Exp $
+# $Id$
 
 # Variables to specify in an ebuild which uses this eclass:
 # GAME - (doom3, quake4 or ut2004, etc), unless ${PN} starts with e.g. "doom3-"
@@ -111,7 +111,7 @@ games-mods_get_rdepend() {
 
 	case ${EAPI:-0} in
 		0|1) echo -n "${pkgs[@]}" ;;
-		2)
+		[23456])
 			local p
 			if [[ ${1} == "--ded" ]] ; then
 				echo -n "${DED_PKGS}"
@@ -124,6 +124,7 @@ games-mods_get_rdepend() {
 				done
 			fi
 			;;
+		*) die "EAPI ${EAPI} not supported"
 	esac
 
 	[[ ${#pkgs[@]} -gt 1 ]] && echo -n " )"

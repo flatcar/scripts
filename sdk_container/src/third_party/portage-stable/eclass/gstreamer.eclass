@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/gstreamer.eclass,v 1.3 2014/12/28 22:55:58 eva Exp $
+# $Id$
 
 # @ECLASS: gstreamer.eclass
 # @MAINTAINER:
@@ -23,7 +23,7 @@
 # plugin, consider adding media-plugins/gst-plugins-meta dependency, but
 # also list any packages that provide explicitly requested plugins.
 
-inherit eutils multilib multilib-minimal toolchain-funcs versionator
+inherit eutils multilib multilib-minimal toolchain-funcs versionator xdg-utils
 
 case "${EAPI:-0}" in
 	5)
@@ -58,7 +58,7 @@ esac
 : ${GST_TARBALL_SUFFIX:="xz"}
 
 # Even though xz-utils are in @system, they must still be added to DEPEND; see
-# http://archives.gentoo.org/gentoo-dev/msg_a0d4833eb314d1be5d5802a3b710e0a4.xml
+# https://archives.gentoo.org/gentoo-dev/msg_a0d4833eb314d1be5d5802a3b710e0a4.xml
 if [[ ${GST_TARBALL_SUFFIX} == "xz" ]]; then
 	DEPEND="${DEPEND} app-arch/xz-utils"
 fi
@@ -132,11 +132,7 @@ DEPEND="${DEPEND} ${RDEPEND}"
 # >=dev-lang/orc-0.4.23 rely on environment variables to find a place to
 # allocate files to mmap.
 gstreamer_environment_reset() {
-	export XDG_RUNTIME_DIR="${T}/run"
-	mkdir -p "${XDG_RUNTIME_DIR}"
-	# This directory needs to be owned by the user, and chmod 0700
-	# http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
-	chmod 0700 "${XDG_RUNTIME_DIR}"
+	xdg_environment_reset
 }
 
 # @FUNCTION: gstreamer_get_plugins
@@ -236,7 +232,7 @@ gstreamer_multilib_src_configure() {
 	einfo "Configuring to build ${GST_PLUGINS_BUILD} plugin(s) ..."
 	econf \
 		--with-package-name="Gentoo GStreamer ebuild" \
-		--with-package-origin="http://www.gentoo.org" \
+		--with-package-origin="https://www.gentoo.org" \
 		"${gst_conf[@]}" "${@}"
 }
 

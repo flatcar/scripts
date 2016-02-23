@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/gnome2.eclass,v 1.131 2015/04/18 13:19:47 pacho Exp $
+# $Id$
 
 # @ECLASS: gnome2.eclass
 # @MAINTAINER:
@@ -10,7 +10,7 @@
 # Exports portage base functions used by ebuilds written for packages using the
 # GNOME framework. For additional functions, see gnome2-utils.eclass.
 
-inherit eutils fdo-mime libtool gnome.org gnome2-utils
+inherit eutils libtool gnome.org gnome2-utils xdg
 
 case "${EAPI:-0}" in
 	4|5)
@@ -22,7 +22,8 @@ esac
 # @ECLASS-VARIABLE: G2CONF
 # @DEFAULT_UNSET
 # @DESCRIPTION:
-# Extra configure opts passed to econf
+# Extra configure opts passed to econf.
+# Deprecated, pass extra arguments to gnome2_src_configure.
 G2CONF=${G2CONF:-""}
 
 # @ECLASS-VARIABLE: GNOME2_LA_PUNT
@@ -56,6 +57,10 @@ ELTCONF=${ELTCONF:-""}
 # to handle it properly. It will enable minimal debug with USE=-debug.
 # Note that this is most commonly found in configure.ac as GNOME_DEBUG_CHECK.
 
+# @ECLASS-VARIABLE: GNOME2_ECLASS_GIO_MODULES
+# @INTERNAL
+# @DESCRIPTION:
+# Array containing glib GIO modules
 
 if [[ ${GCONF_DEBUG} != "no" ]]; then
 	IUSE="debug"
@@ -74,6 +79,8 @@ gnome2_src_unpack() {
 # Prepare environment for build, fix build of scrollkeeper documentation,
 # run elibtoolize.
 gnome2_src_prepare() {
+	xdg_src_prepare
+
 	# Prevent assorted access violations and test failures
 	gnome2_environment_reset
 
@@ -84,18 +91,24 @@ gnome2_src_prepare() {
 	gnome2_disable_deprecation_warning
 
 	# Run libtoolize
-	# Everything is fatal EAPI 4 onwards
-	nonfatal elibtoolize ${ELTCONF}
+	elibtoolize ${ELTCONF}
 }
 
 # @FUNCTION: gnome2_src_configure
 # @DESCRIPTION:
 # Gnome specific configure handling
 gnome2_src_configure() {
+	# Deprecated for a long time now, see Gnome team policies
+	if [[ -n ${G2CONF} ]] ; then
+		eqawarn "G2CONF set, please review documentation at https://wiki.gentoo.org/wiki/Project:GNOME/Gnome_Team_Ebuild_Policies#G2CONF_and_src_configure"
+	fi
+
+	local g2conf=()
+
 	# Update the GNOME configuration options
 	if [[ ${GCONF_DEBUG} != 'no' ]] ; then
 		if use debug ; then
-			G2CONF="--enable-debug=yes ${G2CONF}"
+			g2conf+=( --enable-debug=yes )
 		fi
 	fi
 
@@ -108,54 +121,59 @@ gnome2_src_configure() {
 	# Preserve old behavior for older EAPI.
 	if grep -q "enable-gtk-doc" "${ECONF_SOURCE:-.}"/configure ; then
 		if has ${EAPI:-0} 4 && in_iuse doc ; then
-			G2CONF="$(use_enable doc gtk-doc) ${G2CONF}"
+			g2conf+=( $(use_enable doc gtk-doc) )
 		else
-			G2CONF="--disable-gtk-doc ${G2CONF}"
+			g2conf+=( --disable-gtk-doc )
 		fi
 	fi
 
 	# Pass --disable-maintainer-mode when needed
 	if grep -q "^[[:space:]]*AM_MAINTAINER_MODE(\[enable\])" \
 		"${ECONF_SOURCE:-.}"/configure.*; then
-		G2CONF="--disable-maintainer-mode ${G2CONF}"
+		g2conf+=( --disable-maintainer-mode )
 	fi
 
 	# Pass --disable-scrollkeeper when possible
 	if grep -q "disable-scrollkeeper" "${ECONF_SOURCE:-.}"/configure; then
-		G2CONF="--disable-scrollkeeper ${G2CONF}"
+		g2conf+=( --disable-scrollkeeper )
 	fi
 
 	# Pass --disable-silent-rules when possible (not needed for eapi5), bug #429308
 	if has ${EAPI:-0} 4; then
 		if grep -q "disable-silent-rules" "${ECONF_SOURCE:-.}"/configure; then
-			G2CONF="--disable-silent-rules ${G2CONF}"
+			g2conf+=( --disable-silent-rules )
 		fi
 	fi
 
 	# Pass --disable-schemas-install when possible
 	if grep -q "disable-schemas-install" "${ECONF_SOURCE:-.}"/configure; then
-		G2CONF="--disable-schemas-install ${G2CONF}"
+		g2conf+=( --disable-schemas-install )
 	fi
 
 	# Pass --disable-schemas-compile when possible
 	if grep -q "disable-schemas-compile" "${ECONF_SOURCE:-.}"/configure; then
-		G2CONF="--disable-schemas-compile ${G2CONF}"
+		g2conf+=( --disable-schemas-compile )
+	fi
+
+	# Pass --disable-update-mimedb when possible
+	if grep -q "disable-update-mimedb" "${ECONF_SOURCE:-.}"/configure; then
+		g2conf+=( --disable-update-mimedb )
 	fi
 
 	# Pass --enable-compile-warnings=minimum as we don't want -Werror* flags, bug #471336
 	if grep -q "enable-compile-warnings" "${ECONF_SOURCE:-.}"/configure; then
-		G2CONF="--enable-compile-warnings=minimum ${G2CONF}"
+		g2conf+=( --enable-compile-warnings=minimum )
 	fi
 
 	# Pass --docdir with proper directory, bug #482646
 	if grep -q "^ *--docdir=" "${ECONF_SOURCE:-.}"/configure; then
-		G2CONF="--docdir="${EPREFIX}"/usr/share/doc/${PF} ${G2CONF}"
+		g2conf+=( --docdir="${EPREFIX}"/usr/share/doc/${PF} )
 	fi
 
 	# Avoid sandbox violations caused by gnome-vfs (bug #128289 and #345659)
 	addwrite "$(unset HOME; echo ~)/.gnome2"
 
-	econf ${G2CONF} "$@"
+	econf ${g2conf[@]} ${G2CONF} "$@"
 }
 
 # @FUNCTION: gnome2_src_compile
@@ -226,11 +244,21 @@ gnome2_src_install() {
 # @DESCRIPTION:
 # Finds Icons, GConf and GSettings schemas for later handling in pkg_postinst
 gnome2_pkg_preinst() {
+	xdg_pkg_preinst
 	gnome2_gconf_savelist
 	gnome2_icon_savelist
 	gnome2_schemas_savelist
 	gnome2_scrollkeeper_savelist
 	gnome2_gdk_pixbuf_savelist
+
+	local f
+
+	GNOME2_ECLASS_GIO_MODULES=()
+	while IFS= read -r -d '' f; do
+		GNOME2_ECLASS_GIO_MODULES+=( ${f} )
+	done < <(cd "${D}" && find usr/$(get_libdir)/gio/modules -type f -print0 2>/dev/null)
+
+	export GNOME2_ECLASS_GIO_MODULES
 }
 
 # @FUNCTION: gnome2_pkg_postinst
@@ -238,13 +266,16 @@ gnome2_pkg_preinst() {
 # Handle scrollkeeper, GConf, GSettings, Icons, desktop and mime
 # database updates.
 gnome2_pkg_postinst() {
+	xdg_pkg_postinst
 	gnome2_gconf_install
-	fdo-mime_desktop_database_update
-	fdo-mime_mime_database_update
 	gnome2_icon_cache_update
 	gnome2_schemas_update
 	gnome2_scrollkeeper_update
 	gnome2_gdk_pixbuf_update
+
+	if [[ ${#GNOME2_ECLASS_GIO_MODULES[@]} -gt 0 ]]; then
+		gnome2_giomodule_cache_update
+	fi
 }
 
 # # FIXME Handle GConf schemas removal
@@ -256,9 +287,12 @@ gnome2_pkg_postinst() {
 # @DESCRIPTION:
 # Handle scrollkeeper, GSettings, Icons, desktop and mime database updates.
 gnome2_pkg_postrm() {
-	fdo-mime_desktop_database_update
-	fdo-mime_mime_database_update
+	xdg_pkg_postrm
 	gnome2_icon_cache_update
 	gnome2_schemas_update
 	gnome2_scrollkeeper_update
+
+	if [[ ${#GNOME2_ECLASS_GIO_MODULES[@]} -gt 0 ]]; then
+		gnome2_giomodule_cache_update
+	fi
 }

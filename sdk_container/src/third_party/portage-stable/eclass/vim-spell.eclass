@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/vim-spell.eclass,v 1.9 2011/12/27 17:55:12 fauli Exp $
+# $Id$
 
 #
 # Original Author: Ciaran McCreesh <ciaranm@gentoo.org>
@@ -36,7 +36,7 @@
 #   files):
 #
 #     <?xml version="1.0" encoding="UTF-8"?>
-#     <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+#     <!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 #     <pkgmetadata>
 #     	<herd>vim</herd>
 #     	<maintainer>
