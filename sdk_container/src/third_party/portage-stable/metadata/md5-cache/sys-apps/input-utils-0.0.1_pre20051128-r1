@@ -1,5 +1,6 @@
 DEFINED_PHASES=install unpack
 DESCRIPTION=Small collection of linux input layer utils
+EAPI=0
 HOMEPAGE=http://dl.bytesex.org/cvs-snapshots/
 KEYWORDS=amd64 ppc x86
 LICENSE=GPL-2

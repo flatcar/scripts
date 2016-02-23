@@ -1,6 +1,7 @@
 DEFINED_PHASES=compile install unpack
 DEPEND=sys-devel/bin86 dev-util/gperf
 DESCRIPTION=Bruce's C compiler - Simple C compiler to generate 8086 code
+EAPI=0
 HOMEPAGE=http://www.debath.co.uk/
 KEYWORDS=amd64 x86
 LICENSE=GPL-2

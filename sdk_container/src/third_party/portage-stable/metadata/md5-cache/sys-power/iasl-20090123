@@ -1,6 +1,7 @@
 DEFINED_PHASES=compile install setup test unpack
 DEPEND=sys-devel/bison sys-devel/flex
 DESCRIPTION=Intel ACPI Source Language (ASL) compiler
+EAPI=0
 HOMEPAGE=http://www.intel.com/technology/iapc/acpi/
 IUSE=test
 KEYWORDS=amd64 ppc x86 ~x86-fbsd

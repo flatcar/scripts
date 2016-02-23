@@ -1,6 +1,6 @@
-# Copyright 1999-2005 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-text/tree/files/tree.bashcomp,v 1.1 2005/08/30 14:15:49 ka0ttic Exp $
+# $Id$
 
 # bash command-line completion for tree
 # Author: Aaron Walker <ka0ttic@gentoo.org>
@@ -15,7 +15,7 @@ _tree() {
     --dirsfirst --charset --help"
 
     if [[ ${cur} == -* ]] ; then
-        COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
         return 0
     fi
 
@@ -23,10 +23,10 @@ _tree() {
         -L|-P|-I|-H|-T|--charset|--help)
             ;;
         -o)
-            COMPREPLY=( $(compgen -f -- ${cur}) )
+	    _filedir
             ;;
         *)
-            COMPREPLY=( $(compgen -d -- ${cur}) )
+	    _filedir -d
             ;;
     esac
 }

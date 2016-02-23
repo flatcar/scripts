@@ -1,6 +1,7 @@
 DEFINED_PHASES=compile install unpack
 DEPEND=sys-apps/pciutils
 DESCRIPTION=Library for build EFI Applications
+EAPI=0
 HOMEPAGE=http://developer.intel.com/technology/efi
 KEYWORDS=ia64 x86
 LICENSE=GPL-2
