@@ -1,6 +1,22 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/base.eclass,v 1.59 2014/07/11 08:21:58 ulm Exp $
+# $Id$
+
+# DEPRECATED
+# This eclass has been deprecated and must not be used by any new
+# ebuilds or eclasses. Replacements for particular phase functions
+# in EAPI 2+:
+#
+# base_src_unpack() - default (or unpacker_src_unpack if unpacker.eclass
+#     was inherited)
+# base_src_prepare() - inherit eutils, inline:
+#     epatch "${PATCHES[@]}" # if PATCHES defined as array
+#     epatch ${PATCHES} # if PATCHES defined as string
+#     epatch_user
+# base_src_configure() - default
+# base_src_compile() - default
+# base_src_install() - default
+# base_src_install_docs() - einstalldocs from eutils.eclass
 
 # @ECLASS: base.eclass
 # @MAINTAINER:
@@ -18,6 +34,7 @@ inherit eutils
 
 BASE_EXPF="src_unpack src_compile src_install"
 case "${EAPI:-0}" in
+	6) die "${ECLASS}.eclass is banned in EAPI ${EAPI}";;
 	2|3|4|5) BASE_EXPF+=" src_prepare src_configure" ;;
 	*) ;;
 esac

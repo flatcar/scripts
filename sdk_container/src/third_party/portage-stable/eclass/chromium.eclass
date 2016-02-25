@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/chromium.eclass,v 1.12 2015/06/04 18:49:42 kensington Exp $
+# $Id$
 
 # @ECLASS: chromium.eclass
 # @MAINTAINER:
@@ -33,7 +33,11 @@ chromium_suid_sandbox_check_kernel_config() {
 		ERROR_NET_NS="NET_NS is required for sandbox to work"
 		ERROR_USER_NS="USER_NS is required for sandbox to work"
 		ERROR_SECCOMP_FILTER="SECCOMP_FILTER is required for sandbox to work"
-		CONFIG_CHECK="~PID_NS ~NET_NS ~SECCOMP_FILTER ~USER_NS"
+		# Warn if the kernel does not support features needed for the browser to work
+		# (bug #552576, bug #556286).
+		ERROR_ADVISE_SYSCALLS="CONFIG_ADVISE_SYSCALLS is required for the renderer (bug #552576)"
+		ERROR_COMPAT_VDSO="CONFIG_COMPAT_VDSO causes segfaults (bug #556286)"
+		CONFIG_CHECK="~PID_NS ~NET_NS ~SECCOMP_FILTER ~USER_NS ~ADVISE_SYSCALLS ~!COMPAT_VDSO"
 		check_extra_config
 	fi
 }
@@ -136,7 +140,7 @@ chromium_pkg_postinst() {
 		elog "Depending on your desktop environment, you may need"
 		elog "to install additional packages to get icons on the Downloads page."
 		elog
-		elog "For KDE, the required package is kde-apps/oxygen-icons."
+		elog "For KDE, the required package is kde-frameworks/oxygen-icons."
 		elog
 		elog "For other desktop environments, try one of the following:"
 		elog " - x11-themes/gnome-icon-theme"

@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/perl-app.eclass,v 1.16 2014/11/16 01:57:02 monsieurp Exp $
+# $Id$
 
 # Author: Michael Cummings <mcummings@gentoo.org>
 # Maintained by the Perl herd <perl@gentoo.org>
@@ -8,6 +8,17 @@
 # If the ebuild doesn't override this, ensure we do not depend on the perl subslot value
 : ${GENTOO_DEPEND_ON_PERL_SUBSLOT:="no"}
 inherit perl-module
+
+case "${EAPI:-0}" in
+	5)
+		;;
+	6)
+		die "EAPI=${EAPI} is not supported by perl-app.eclass. Please use perl-module.eclass instead."
+		;;
+	*)
+		die "EAPI=${EAPI} is not supported by perl-app.eclass"
+		;;
+esac
 
 # @FUNCTION: perl-app_src_prep
 # @USAGE: perl-app_src_prep

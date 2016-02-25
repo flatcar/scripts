@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/common-lisp-common-3.eclass,v 1.4 2012/06/02 19:16:31 zmedico Exp $
+# $Id$
 #
 # Author Matthew Kennedy <mkennedy@gentoo.org>
 #
@@ -32,7 +32,7 @@ do-debian-credits() {
 # The following `impl-*-timestamp-hack' functions SHOULD NOT be used
 # outside of this eclass.
 
-# Bug http://bugs.gentoo.org/show_bug.cgi?id=16162 should remove the
+# Bug https://bugs.gentoo.org/show_bug.cgi?id=16162 should remove the
 # need for this hack.
 
 impl-save-timestamp-hack() {

@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/texlive-module.eclass,v 1.70 2014/11/04 10:32:30 aballier Exp $
+# $Id$
 
 # @ECLASS: texlive-module.eclass
 # @MAINTAINER:
@@ -110,6 +110,17 @@ RDEPEND="${COMMON_DEPEND}"
 
 [ -z "${PN##*documentation*}" ] || IUSE="${IUSE} doc"
 
+# @ECLASS-VARIABLE: TEXLIVE_MODULE_OPTIONAL_ENGINE
+# @DESCRIPTION:
+# A space separated list of Tex engines that can be made optional.
+# e.g. "luatex luajittex"
+
+if [ -n "${TEXLIVE_MODULE_OPTIONAL_ENGINE}" ] ; then
+	for engine in ${TEXLIVE_MODULE_OPTIONAL_ENGINE} ; do
+		IUSE="${IUSE} +${engine}"
+	done
+fi
+
 S="${WORKDIR}"
 
 # @FUNCTION: texlive-module_src_unpack
@@ -154,6 +165,7 @@ texlive-module_add_format() {
 	einfo "Appending to format.${PN}.cnf for $@"
 	[ -d texmf-dist/fmtutil ] || mkdir -p texmf-dist/fmtutil
 	[ -f texmf-dist/fmtutil/format.${PN}.cnf ] || { echo "# Generated for ${PN}	by texlive-module.eclass" > texmf-dist/fmtutil/format.${PN}.cnf; }
+	[ -n "${TEXLIVE_MODULE_OPTIONAL_ENGINE}" ] && has ${engine} ${TEXLIVE_MODULE_OPTIONAL_ENGINE} && use !${engine} && mode="disabled"
 	if [ "${mode}" = "disabled" ]; then
 		printf "#! " >> texmf-dist/fmtutil/format.${PN}.cnf
 	fi
@@ -253,7 +265,7 @@ texlive-module_src_compile() {
 	# later
 	for i in "${S}"/tlpkg/tlpobj/*;
 	do
-		grep '^execute ' "${i}" | sed -e 's/^execute //' | tr ' \t' '##' |sort|uniq >> "${T}/jobs"
+		grep '^execute ' "${i}" | sed -e 's/^execute //' | tr ' \t' '##' >> "${T}/jobs"
 	done
 
 	for i in $(<"${T}/jobs");

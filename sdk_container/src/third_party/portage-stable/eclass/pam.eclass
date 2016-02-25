@@ -1,7 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
-# Distributed under the terms of the GNU General Public License, v2 or later
-# $Header: /var/cvsroot/gentoo-x86/eclass/pam.eclass,v 1.24 2014/07/11 08:21:58 ulm Exp $
-#
+# Copyright 1999-2015 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Id$
 
 # @ECLASS: pam.eclass
 # @MAINTAINER:

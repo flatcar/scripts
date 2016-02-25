@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/subversion.eclass,v 1.87 2014/01/07 01:59:10 floppym Exp $
+# $Id$
 
 # @ECLASS: subversion.eclass
 # @MAINTAINER:
@@ -343,7 +343,7 @@ subversion_fetch() {
 		mkdir -p "${S}"
 
 		# export to the ${WORKDIR}
-		#*  "svn export" has a bug.  see http://bugs.gentoo.org/119236
+		#*  "svn export" has a bug.  see https://bugs.gentoo.org/119236
 		#* svn export . "${S}" || die "${ESVN}: can't export to ${S}."
 		rsync -rlpgo --exclude=".svn/" . "${S}" || die "${ESVN}: can't export to ${S}."
 	fi

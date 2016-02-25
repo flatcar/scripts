@@ -1,35 +1,36 @@
 #!/bin/bash
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/tests/scons-utils.sh,v 1.5 2015/05/11 17:35:52 ulm Exp $
+# $Id$
 
 source tests-common.sh
 
 inherit scons-utils
 
 test-scons_clean_makeopts() {
-	local sconsopts=$(scons_clean_makeopts ${1})
+	tbegin "scons_clean_makeopts() for ${1}"
 
-	if [[ ${sconsopts} != ${2-${1}} ]]; then
+	local SCONSOPTS ret=0
+	_scons_clean_makeopts ${1}
+
+	if [[ ${SCONSOPTS} != ${2-${1}} ]]; then
 		eerror "Self-test failed:"
 		eindent
 		eerror "MAKEOPTS: ${1}"
 		eerror "Expected: ${2-${1}}"
-		eerror "Actual: ${sconsopts}"
+		eerror "Actual: ${SCONSOPTS}"
 		eoutdent
-		(( ++failed ))
-		return 1
+		ret=1
 	fi
 
-	return 0
+	tend ${ret}
+	return ${ret}
 }
 
 # jobcount expected for non-specified state
-jc=5
+jc=$(_scons_get_default_jobs)
 # failed test counter
 failed=0
-
-tbegin "scons_clean_makeopts()"
 
 # sane MAKEOPTS
 test-scons_clean_makeopts '--jobs=14 -k'
@@ -58,7 +59,5 @@ test-scons_clean_makeopts '--jobs funnystuff -k' "--jobs=${jc} -k"
 # bug #388961
 test-scons_clean_makeopts '--jobs -l3' "--jobs=${jc}"
 test-scons_clean_makeopts '-j -l3' "-j ${jc}"
-
-tend ${failed}
 
 texit

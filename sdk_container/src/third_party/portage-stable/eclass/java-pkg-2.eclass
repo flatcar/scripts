@@ -1,11 +1,6 @@
-# Eclass for Java packages
-#
-# Copyright (c) 2004-2005, Thomas Matthijs <axxo@gentoo.org>
-# Copyright (c) 2004-2015, Gentoo Foundation
-#
-# Licensed under the GNU General Public License, v2
-#
-# $Header: /var/cvsroot/gentoo-x86/eclass/java-pkg-2.eclass,v 1.41 2015/06/17 09:48:12 chewi Exp $
+# Copyright 2004-2015 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Id$
 
 # @ECLASS: java-pkg-2.eclass
 # @MAINTAINER:

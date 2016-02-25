@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/haskell-cabal.eclass,v 1.51 2015/04/04 20:33:05 slyfox Exp $
+# $Id$
 
 # @ECLASS: haskell-cabal.eclass
 # @MAINTAINER:
@@ -103,7 +103,13 @@ if [[ -n "${CABAL_USE_HADDOCK}" ]]; then
 	IUSE="${IUSE} doc"
 	# don't require depend on itself to build docs.
 	# ebuild bootstraps docs from just built binary
-	[[ ${CATEGORY}/${PN} = "dev-haskell/haddock" ]] || DEPEND="${DEPEND} doc? ( dev-haskell/haddock )"
+	#
+	# starting from ghc-7.10.2 we install haddock bundled with
+	# ghc to keep links to base and ghc library, otherwise
+	# newer haddock versions change index format and can't
+	# read index files for packages coming with ghc.
+	[[ ${CATEGORY}/${PN} = "dev-haskell/haddock" ]] || \
+		DEPEND="${DEPEND} doc? ( || ( dev-haskell/haddock >=dev-lang/ghc-7.10.2 ) )"
 fi
 
 if [[ -n "${CABAL_USE_HSCOLOUR}" ]]; then
@@ -172,6 +178,8 @@ cabal-version() {
 cabal-bootstrap() {
 	local setupmodule
 	local cabalpackage
+	local setup_bootstrap_args=()
+
 	if [[ -f "${S}/Setup.lhs" ]]; then
 		setupmodule="${S}/Setup.lhs"
 	elif [[ -f "${S}/Setup.hs" ]]; then
@@ -192,8 +200,16 @@ cabal-bootstrap() {
 	cabalpackage=Cabal-$(cabal-version)
 	einfo "Using cabal-$(cabal-version)."
 
+	if $(ghc-supports-threaded-runtime); then
+		# Cabal has a bug that deadlocks non-threaded RTS:
+		#     https://bugs.gentoo.org/537500
+		#     https://github.com/haskell/cabal/issues/2398
+		setup_bootstrap_args+=(-threaded)
+	fi
+
 	make_setup() {
 		set -- -package "${cabalpackage}" --make "${setupmodule}" \
+			"${setup_bootstrap_args[@]}" \
 			${HCFLAGS} \
 			${GHC_BOOTSTRAP_FLAGS} \
 			"$@" \
@@ -230,7 +246,7 @@ cabal-mksetup() {
 	rm -vf "${setupdir}"/Setup.{lhs,hs}
 	elog "Creating 'Setup.hs' for 'Simple' build type."
 
-	echo 'import Distribution.Simple; main = defaultMainWithHooks defaultUserHooks' \
+	echo 'import Distribution.Simple; main = defaultMain' \
 		> "${setup_src}" || die "failed to create default Setup.hs"
 }
 
@@ -311,7 +327,15 @@ cabal-configure() {
 	has "${EAPI:-0}" 0 1 2 && ! use prefix && EPREFIX=
 
 	if [[ -n "${CABAL_USE_HADDOCK}" ]] && use doc; then
-		cabalconf+=(--with-haddock=${EPREFIX}/usr/bin/haddock)
+		# We use the bundled with GHC version if exists
+		# Haddock is very picky about index files
+		# it generates for ghc's base and other packages.
+		local p=${EPREFIX}/usr/bin/haddock-ghc-$(ghc-version)
+		if [[ -f $p ]]; then
+			cabalconf+=(--with-haddock="${p}")
+		else
+			cabalconf+=(--with-haddock=${EPREFIX}/usr/bin/haddock)
+		fi
 	fi
 	if [[ -n "${CABAL_USE_PROFILE}" ]] && use profile; then
 		cabalconf+=(--enable-library-profiling)
@@ -469,12 +493,9 @@ cabal-pkg() {
 #     CABAL_CORE_LIB_GHC_PV="7.10.* PM:7.8.4-r1".
 cabal-is-dummy-lib() {
 	local bin_ghc_version=$(ghc-version)
-	local pm_ghc_p=$(best_version dev-lang/ghc)
-	local pm_ghc_version version
+	local pm_ghc_version=$(ghc-pm-version)
 
-	pm_ghc_version=PM:${pm_ghc_p#dev-lang/ghc-}
-
-	for version in ${CABAL_CORE_LIB_GHC_PV[*]}; do
+	for version in ${CABAL_CORE_LIB_GHC_PV}; do
 		[[ "${bin_ghc_version}" == ${version} ]] && return 0
 		[[ "${pm_ghc_version}"  == ${version} ]] && return 0
 	done
@@ -502,13 +523,13 @@ haskell-cabal_pkg_setup() {
 haskell-cabal_src_configure() {
 	cabal-is-dummy-lib && return
 
-	pushd "${S}" > /dev/null
+	pushd "${S}" > /dev/null || die
 
 	cabal-bootstrap
 
 	cabal-configure "$@"
 
-	popd > /dev/null
+	popd > /dev/null || die
 }
 
 # exported function: nice alias
@@ -571,15 +592,15 @@ cabal_src_compile() {
 }
 
 haskell-cabal_src_compile() {
-	pushd "${S}" > /dev/null
+	pushd "${S}" > /dev/null || die
 
 	cabal_src_compile "$@"
 
-	popd > /dev/null
+	popd > /dev/null || die
 }
 
 haskell-cabal_src_test() {
-	pushd "${S}" > /dev/null
+	pushd "${S}" > /dev/null || die
 
 	if cabal-is-dummy-lib; then
 		einfo ">>> No tests for dummy library: ${CATEGORY}/${PF}"
@@ -590,7 +611,7 @@ haskell-cabal_src_test() {
 		./setup "$@" || die "cabal test failed"
 	fi
 
-	popd > /dev/null
+	popd > /dev/null || die
 }
 
 # exported function: cabal-style copy and register
@@ -614,11 +635,11 @@ cabal_src_install() {
 }
 
 haskell-cabal_src_install() {
-	pushd "${S}" > /dev/null
+	pushd "${S}" > /dev/null || die
 
 	cabal_src_install
 
-	popd > /dev/null
+	popd > /dev/null || die
 }
 
 haskell-cabal_pkg_postinst() {

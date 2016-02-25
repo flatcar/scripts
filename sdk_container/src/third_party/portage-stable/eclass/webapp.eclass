@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/webapp.eclass,v 1.73 2015/05/12 15:15:31 voyageur Exp $
+# $Id$
 
 # @ECLASS: webapp.eclass
 # @MAINTAINER:
@@ -78,7 +78,7 @@ webapp_checkfileexists() {
 	if [[ ! -e "${my_prefix}${1}" ]]; then
 		msg="ebuild fault: file '${1}' not found"
 		eerror "$msg"
-		eerror "Please report this as a bug at http://bugs.gentoo.org/"
+		eerror "Please report this as a bug at https://bugs.gentoo.org/"
 		die "$msg"
 	fi
 }
@@ -338,12 +338,12 @@ webapp_src_preinst() {
 		eerror "This ebuild did not call webapp_pkg_setup() at the beginning"
 		eerror "of the pkg_setup() function"
 		eerror
-		eerror "Please log a bug on http://bugs.gentoo.org"
+		eerror "Please log a bug on https://bugs.gentoo.org"
 		eerror
 		eerror "You should use emerge -C to remove this package, as the"
 		eerror "installation is incomplete"
 		eerror
-		die "Ebuild did not call webapp_pkg_setup() - report to http://bugs.gentoo.org"
+		die "Ebuild did not call webapp_pkg_setup() - report to https://bugs.gentoo.org"
 	fi
 
 	# Hint, see the webapp_read_config() function to find where these are
@@ -473,12 +473,12 @@ webapp_pkg_postinst() {
 		eerror "This ebuild did not call webapp_src_install() at the end"
 		eerror "of the src_install() function"
 		eerror
-		eerror "Please log a bug on http://bugs.gentoo.org"
+		eerror "Please log a bug on https://bugs.gentoo.org"
 		eerror
 		eerror "You should use emerge -C to remove this package, as the"
 		eerror "installation is incomplete"
 		eerror
-		die "Ebuild did not call webapp_src_install() - report to http://bugs.gentoo.org"
+		die "Ebuild did not call webapp_src_install() - report to https://bugs.gentoo.org"
 	fi
 
 	if has vhosts ${IUSE}; then
@@ -502,12 +502,12 @@ webapp_pkg_postinst() {
 				elog "${PN}-${PVR} is not installed - using install mode"
 			fi
 
-			my_cmd="${WEBAPP_CONFIG} ${my_mode} -h localhost -u root -d ${INSTALL_DIR} ${PN} ${PVR}"
+			my_cmd="${WEBAPP_CONFIG} -h localhost -u root -d ${INSTALL_DIR} ${my_mode} ${PN} ${PVR}"
 			elog "Running ${my_cmd}"
 			${my_cmd}
 
 			echo
-			local cleaner="${WEBAPP_CLEANER} -p -C /${PN}"
+			local cleaner="${WEBAPP_CLEANER} -p -C ${CATEGORY}/${PN}"
 			einfo "Running ${cleaner}"
 			${cleaner}
 		else
@@ -518,7 +518,7 @@ webapp_pkg_postinst() {
 			elog
 			elog "To install ${PN}-${PVR} into a virtual host, run the following command:"
 			elog
-			elog "    webapp-config -I -h <host> -d ${PN} ${PN} ${PVR}"
+			elog "    webapp-config -h <host> -d ${PN} -I ${PN} ${PVR}"
 			elog
 			elog "For more details, see the webapp-config(8) man page"
 		fi
@@ -530,7 +530,7 @@ webapp_pkg_postinst() {
 		elog
 		elog "To install ${PN}-${PVR} into a virtual host, run the following command:"
 		elog
-		elog "    webapp-config -I -h <host> -d ${PN} ${PN} ${PVR}"
+		elog "    webapp-config -h <host> -d ${PN} -I ${PN} ${PVR}"
 		elog
 		elog "For more details, see the webapp-config(8) man page"
 	fi
@@ -554,7 +554,7 @@ webapp_pkg_prerm() {
 			if [[ -f "${x}"/.webapp ]]; then
 				. "${x}"/.webapp
 				if [[ -n "${WEB_HOSTNAME}" && -n "${WEB_INSTALLDIR}" ]]; then
-					${WEBAPP_CONFIG} -C -h ${WEB_HOSTNAME} -d ${WEB_INSTALLDIR} ${PN} ${PVR}
+					${WEBAPP_CONFIG} -h ${WEB_HOSTNAME} -d ${WEB_INSTALLDIR} -C ${PN} ${PVR}
 				fi
 			else
 				ewarn "Cannot find file ${x}/.webapp"

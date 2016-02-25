@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/mozconfig-v5.31.eclass,v 1.4 2015/05/27 19:00:31 axs Exp $
+# $Id$
 #
 # @ECLASS: mozconfig-v5.31.eclass
 # @MAINTAINER:
@@ -85,7 +85,7 @@ RDEPEND=">=app-text/hunspell-1.2
 
 # firefox-31.0-patches-0.3 and above carry a patch making newer libvpx compatible
 case ${PATCHFF##*31.0-patches-} in
-	0.3)	RDEPEND+=" system-libvpx? ( >=media-libs/libvpx-1.3.0 )" ;;
+	0.3)	RDEPEND+=" system-libvpx? ( >=media-libs/libvpx-1.3.0:0= )" ;;
 	*)	RDEPEND+=" system-libvpx? ( =media-libs/libvpx-1.3.0* )" ;;
 esac
 
@@ -213,6 +213,6 @@ mozconfig_config() {
 	mozconfig_use_enable system-sqlite
 	mozconfig_use_with system-jpeg
 	mozconfig_use_with system-icu
-	mozconfig_use_enable system-icu intl-api
+	mozconfig_use_with system-icu intl-api
 	mozconfig_use_with system-libvpx
 }
