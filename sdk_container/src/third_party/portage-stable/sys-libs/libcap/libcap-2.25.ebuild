@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI="4"
+EAPI=5
 
 inherit eutils multilib multilib-minimal toolchain-funcs pam
 
@@ -13,7 +13,7 @@ SRC_URI="mirror://kernel/linux/libs/security/linux-privs/libcap2/${P}.tar.xz"
 # it's available under either of the licenses
 LICENSE="|| ( GPL-2 BSD )"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux"
 IUSE="pam static-libs"
 
 RDEPEND=">=sys-apps/attr-2.4.47-r1[${MULTILIB_USEDEP}]
@@ -21,13 +21,15 @@ RDEPEND=">=sys-apps/attr-2.4.47-r1[${MULTILIB_USEDEP}]
 DEPEND="${RDEPEND}
 	sys-kernel/linux-headers"
 
-src_prepare() {
-	epatch "${FILESDIR}"/${PN}-2.24-build-system-fixes.patch
-	epatch "${FILESDIR}"/${PN}-2.22-no-perl.patch
-	epatch "${FILESDIR}"/${PN}-2.20-ignore-RAISE_SETFCAP-install-failures.patch
-	epatch "${FILESDIR}"/${PN}-2.21-include.patch
-	epatch "${FILESDIR}"/${PN}-2.24-setcap-errno.patch #551672
+PATCHES=(
+	"${FILESDIR}"/${PN}-2.25-build-system-fixes.patch
+	"${FILESDIR}"/${PN}-2.22-no-perl.patch
+	"${FILESDIR}"/${PN}-2.25-ignore-RAISE_SETFCAP-install-failures.patch
+	"${FILESDIR}"/${PN}-2.21-include.patch
+)
 
+src_prepare() {
+	epatch "${PATCHES[@]}"
 	multilib_copy_sources
 }
 
