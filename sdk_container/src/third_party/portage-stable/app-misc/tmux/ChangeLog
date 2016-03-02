@@ -1,0 +1,244 @@
+# ChangeLog for app-misc/tmux
+# Copyright 1999-2016 Gentoo Foundation; Distributed under the GPL v2
+# (auto-generated from git log)
+
+*tmux-9999 (09 Aug 2015)
+*tmux-2.0 (09 Aug 2015)
+*tmux-1.9a (09 Aug 2015)
+
+  09 Aug 2015; Robin H. Johnson <robbat2@gentoo.org>
+  +files/tmux-1.9a-flags.patch, +files/tmux-2.0-flags.patch, +files/tmux.vim,
+  +metadata.xml, +tmux-1.9a.ebuild, +tmux-2.0.ebuild, +tmux-9999.ebuild:
+  proj/gentoo: Initial commit
+
+  This commit represents a new era for Gentoo:
+  Storing the gentoo-x86 tree in Git, as converted from CVS.
+
+  This commit is the start of the NEW history.
+  Any historical data is intended to be grafted onto this point.
+
+  Creation process:
+  1. Take final CVS checkout snapshot
+  2. Remove ALL ChangeLog* files
+  3. Transform all Manifests to thin
+  4. Remove empty Manifests
+  5. Convert all stale $Header$/$Id$ CVS keywords to non-expanded Git $Id$
+  5.1. Do not touch files with -kb/-ko keyword flags.
+
+  Signed-off-by: Robin H. Johnson <robbat2@gentoo.org>
+  X-Thanks: Alec Warner <antarus@gentoo.org> - did the GSoC 2006 migration
+  tests
+  X-Thanks: Robin H. Johnson <robbat2@gentoo.org> - infra guy, herding this
+  project
+  X-Thanks: Nguyen Thai Ngoc Duy <pclouds@gentoo.org> - Former Gentoo
+  developer, wrote Git features for the migration
+  X-Thanks: Brian Harring <ferringb@gentoo.org> - wrote much python to improve
+  cvs2svn
+  X-Thanks: Rich Freeman <rich0@gentoo.org> - validation scripts
+  X-Thanks: Patrick Lauer <patrick@gentoo.org> - Gentoo dev, running new 2014
+  work in migration
+  X-Thanks: Michał Górny <mgorny@gentoo.org> - scripts, QA, nagging
+  X-Thanks: All of other Gentoo developers - many ideas and lots of paint on
+  the bikeshed
+
+  24 Aug 2015; Justin Lecher <jlec@gentoo.org> metadata.xml:
+  Use https by default
+
+  Convert all URLs for sites supporting encrypted connections from http to
+  https
+
+  Signed-off-by: Justin Lecher <jlec@gentoo.org>
+
+  24 Aug 2015; Mike Gilbert <floppym@gentoo.org> metadata.xml:
+  Revert DOCTYPE SYSTEM https changes in metadata.xml
+
+  repoman does not yet accept the https version.
+  This partially reverts eaaface92ee81f30a6ac66fe7acbcc42c00dc450.
+
+  Bug: https://bugs.gentoo.org/552720
+
+*tmux-2.0-r1 (25 Sep 2015)
+
+  25 Sep 2015; Patrice Clement <monsieurp@gentoo.org> +tmux-2.0-r1.ebuild:
+  Set up a blocker on sys-apps/utempter to prevent compilation from failing
+  when linking to this library. Fixes bug 560652.
+
+  Package-Manager: portage-2.2.18
+  Signed-off-by: Patrice Clement <monsieurp@gentoo.org>
+
+  25 Sep 2015; Patrice Clement <monsieurp@gentoo.org> -tmux-2.0.ebuild:
+  Clean up old.
+
+  Package-Manager: portage-2.2.18
+  Signed-off-by: Patrice Clement <monsieurp@gentoo.org>
+
+  06 Oct 2015; Tobias Klausmann <klausman@gentoo.org> tmux-1.9a.ebuild,
+  tmux-2.0-r1.ebuild:
+  Add blocker for broken libevent versions
+
+  Gentoo-Bug: 540456
+
+  Package-Manager: portage-2.2.22
+
+*tmux-2.0-r2 (07 Oct 2015)
+*tmux-1.9a-r1 (07 Oct 2015)
+
+  07 Oct 2015; Tobias Klausmann <klausman@gentoo.org> -tmux-1.9a.ebuild,
+  +tmux-1.9a-r1.ebuild, -tmux-2.0-r1.ebuild, +tmux-2.0-r2.ebuild:
+  Make the changes from f625f93 a revbump
+
+  As per the comments:
+  https://github.com/gentoo/gentoo/commit/f625f93c98cbed7524b3e808bee2981e0f57
+  d27c
+
+  Package-Manager: portage-2.2.22
+  RepoMan-Options: --force
+
+*tmux-2.0-r3 (07 Oct 2015)
+*tmux-1.9a-r2 (07 Oct 2015)
+
+  07 Oct 2015; Tobias Klausmann <klausman@gentoo.org> -tmux-1.9a-r1.ebuild,
+  +tmux-1.9a-r2.ebuild, -tmux-2.0-r2.ebuild, +tmux-2.0-r3.ebuild:
+  Fix dependencies yet again.
+
+  The changes in commit 0771be8c73e2a72f13137411237a17ff342dac92 (and before)
+  don't really work the way I intended. This change (which necessitates
+  another
+  revbump, unfortunately), actually work.
+
+  Package-Manager: portage-2.2.22
+  RepoMan-Options: --force
+
+*tmux-2.0-r4 (15 Oct 2015)
+
+  15 Oct 2015; Tobias Klausmann <klausman@gentoo.org> +tmux-2.0-r4.ebuild:
+  Add dependency on the fixed version of libevent
+
+  libevent has a patch for the Zombie bug, but it is in none of the released
+  versions. Let's use it to unbreak tmux after 6mo of Zombies.
+
+  Gentoo-Bug: 540456
+  Libevent-Bug: http://sourceforge.net/p/levent/bugs/350/
+
+  Package-Manager: portage-2.2.23
+
+  16 Oct 2015; Justin Lecher <jlec@gentoo.org> metadata.xml:
+  Update remote-ids
+
+  Signed-off-by: Justin Lecher <jlec@gentoo.org>
+
+*tmux-2.1 (09 Nov 2015)
+
+  09 Nov 2015; Lars Wendler <polynomial-c@gentoo.org> +tmux-2.1.ebuild:
+  Security bump to version 2.1 (bug #564400).
+
+  Package-Manager: portage-2.2.24
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
+  09 Nov 2015; Lars Wendler <polynomial-c@gentoo.org> -tmux-2.0-r3.ebuild:
+  Removed old.
+
+  Package-Manager: portage-2.2.24
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
+  10 Nov 2015; Agostino Sarubbo <ago@gentoo.org> tmux-2.1.ebuild:
+  amd64 stable wrt bug #564400
+
+  Package-Manager: portage-2.2.20.1
+  RepoMan-Options: --include-arches="amd64"
+
+  11 Nov 2015; Jeroen Roovers <jer@gentoo.org> tmux-2.1.ebuild:
+  Stable for HPPA PPC64 (bug #564400).
+
+  Package-Manager: portage-2.2.24
+  RepoMan-Options: --ignore-arches
+
+  11 Nov 2015; Agostino Sarubbo <ago@gentoo.org> tmux-2.1.ebuild:
+  x86 stable wrt bug #564400
+
+  Package-Manager: portage-2.2.20.1
+  RepoMan-Options: --include-arches="x86"
+
+  12 Nov 2015; Agostino Sarubbo <ago@gentoo.org> tmux-2.1.ebuild:
+  ppc stable wrt bug #564400
+
+  Package-Manager: portage-2.2.20.1
+  RepoMan-Options: --include-arches="ppc"
+
+  14 Nov 2015; Markus Meier <maekke@gentoo.org> tmux-2.1.ebuild:
+  arm stable, bug #564400
+
+  Package-Manager: portage-2.2.24
+  RepoMan-Options: --include-arches="arm"
+
+  18 Nov 2015; Agostino Sarubbo <ago@gentoo.org> tmux-2.1.ebuild:
+  ia64 stable wrt bug #564400
+
+  Package-Manager: portage-2.2.20.1
+  RepoMan-Options: --include-arches="ia64"
+
+  10 Jan 2016; Agostino Sarubbo <ago@gentoo.org> tmux-2.1.ebuild:
+  alpha stable wrt bug #564400
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="alpha"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  10 Jan 2016; Justin Lecher <jlec@gentoo.org> -files/tmux-1.9a-flags.patch,
+  metadata.xml, -tmux-1.9a-r2.ebuild, -tmux-2.0-r4.ebuild:
+  Drop versions vulnerable to 'Out of bounds heap read'
+
+  Gentoo-Bug: https://bugs.gentoo.org/show_bug.cgi?id=564400
+
+  Package-Manager: portage-2.2.26
+  Signed-off-by: Justin Lecher <jlec@gentoo.org>
+
+  10 Jan 2016; Justin Lecher <jlec@gentoo.org> tmux-2.1.ebuild,
+  tmux-9999.ebuild:
+  Ebuild style enhancements
+
+  * Add missing slot operators to ncurses dep
+  * Use REPLACING_VERSIONS instad of has_version
+  * Move user notice to pkg_postinst()
+
+  Package-Manager: portage-2.2.26
+  Signed-off-by: Justin Lecher <jlec@gentoo.org>
+
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Replace all herds with appropriate projects (GLEP 67)
+
+  Replace all uses of herd with appropriate project maintainers, or no
+  maintainers in case of herds requested to be disbanded.
+
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Set appropriate maintainer types in metadata.xml (GLEP 67)
+
+  21 Feb 2016; Jason A. Donenfeld <zx2c4@gentoo.org> tmux-2.1.ebuild,
+  tmux-9999.ebuild:
+  rely on libutempter
+
+  If utempter.h is installed, tmux unconditionally links against
+  libutempter, and there isn't a configure switch to disable it. As such,
+  systems that already had installed libutempter (for use with, say, mosh)
+  found that there would be issues when libutempter was removed, since it
+  wasn't an explicit dependency of this package. Meanwhile, there were
+  issues with the other utempter (non-lib prefix), causing that to be a
+  blocker. So, the fix for both of these at once is to replace the blocker
+  against utempter with a dependency on libutempter, because libutempter
+  already blocks utempter. This simplifes things greatly.
+
+  Fixes: 566990
+  Fixes: 560652
+  Signed-off-by: Jason A. Donenfeld <zx2c4@gentoo.org>
+
+  26 Feb 2016; Fabian Groffen <grobian@gentoo.org> tmux-2.1.ebuild,
+  tmux-9999.ebuild:
+  restrict utempter dependency by Yuta SATOH, bug #575712
+
+  Package-Manager: portage-2.2.27-prefix
+
+  01 Mar 2016; Zac Medico <zmedico@gentoo.org> tmux-9999.ebuild:
+  fix 9999 ebuild breakage for bug 574592
+
+  Package-Manager: portage-2.2.27
+

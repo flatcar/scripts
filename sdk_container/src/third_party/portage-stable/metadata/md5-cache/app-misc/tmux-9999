@@ -1,0 +1,12 @@
+DEFINED_PHASES=compile configure install postinst prepare test unpack
+DEPEND=>=dev-libs/libevent-2.0.10 kernel_linux? ( sys-libs/libutempter ) kernel_FreeBSD? ( || ( >=sys-freebsd/freebsd-lib-9.0 sys-libs/libutempter ) ) sys-libs/ncurses:0= virtual/pkgconfig !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.14.1:1.14 >=sys-devel/automake-1.15:1.15 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4 >=dev-vcs/git-1.8.2.1
+DESCRIPTION=Terminal multiplexer
+EAPI=5
+HOMEPAGE=http://tmux.github.io/
+IUSE=debug selinux vim-syntax kernel_FreeBSD kernel_linux
+LICENSE=ISC
+RDEPEND=>=dev-libs/libevent-2.0.10 kernel_linux? ( sys-libs/libutempter ) kernel_FreeBSD? ( || ( >=sys-freebsd/freebsd-lib-9.0 sys-libs/libutempter ) ) sys-libs/ncurses:0= selinux? ( sec-policy/selinux-screen ) vim-syntax? ( || ( app-editors/vim app-editors/gvim ) )
+SLOT=0
+SRC_URI=https://raw.githubusercontent.com/przepompownia/tmux-bash-completion/678a27616b70c649c6701cae9cd8c92b58cc051b/completions/tmux -> tmux-bash-completion-678a27616b70c649c6701cae9cd8c92b58cc051b vim-syntax? ( https://raw.githubusercontent.com/keith/tmux.vim/95f6126c187667cc7f9c573c45c3b356cf69f4ca/syntax/tmux.vim -> tmux.vim-95f6126c187667cc7f9c573c45c3b356cf69f4ca )
+_eclasses_=autotools	199350adb9ae3c85e275b1409e43c90d	autotools-utils	419811142edf3516b0d0cf1a254d93cb	bash-completion-r1	acf715fa09463f043fbfdc1640f3fb85	eutils	9fb270e417e0e83d64ca52586c4a79de	flag-o-matic	c9602887773166fe300444712fc7ff98	git-r3	ab80045e5d080584334f33013f4df21d	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	62927b3db3a589b0806255f3a002d5d3	toolchain-funcs	7a212e5e01adfa4805c9978366e6ee85	versionator	99ae9d758cbe7cfed19170e7d48f5a9c
+_md5_=297b2adb010da56a5f17b67b31aeeb35
