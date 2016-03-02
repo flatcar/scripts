@@ -9,16 +9,16 @@ inherit multilib python-r1 toolchain-funcs eutils multilib-minimal
 
 MY_P="${P//_/-}"
 
-SEPOL_VER="2.3"
-SELNX_VER="2.3"
+SEPOL_VER="${PV}"
+SELNX_VER="${PV}"
 
 DESCRIPTION="SELinux kernel and policy management library"
-HOMEPAGE="http://userspace.selinuxproject.org"
-SRC_URI="https://raw.githubusercontent.com/wiki/SELinuxProject/selinux/files/releases/20140506/${MY_P}.tar.gz"
+HOMEPAGE="https://github.com/SELinuxProject/selinux/wiki"
+SRC_URI="https://raw.githubusercontent.com/wiki/SELinuxProject/selinux/files/releases/20150202/${MY_P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 x86"
+KEYWORDS="amd64 ~arm ~arm64 ~mips x86"
 IUSE="python"
 
 RDEPEND=">=sys-libs/libsepol-${SEPOL_VER}[${MULTILIB_USEDEP}]
@@ -65,6 +65,13 @@ src_prepare() {
 	echo "# decompression of modules in the module store." >> "${S}/src/semanage.conf"
 	echo "bzip-small=true" >> "${S}/src/semanage.conf"
 
+	epatch "${FILESDIR}/0001-libsemanage-do-not-copy-contexts-in-semanage_migrate.patch" \
+		"${FILESDIR}/0002-libsemanage-Add-policy-binary-and-file_contexts.loca.patch" \
+		"${FILESDIR}/0003-libsemanage-Add-file_contexts-and-seusers-to-the-sto.patch" \
+		"${FILESDIR}/0004-libsemanage-save-homedir_template-in-the-policy-stor.patch" \
+		"${FILESDIR}/0005-libsemanage-store-users_extra-in-the-policy-store.patch"
+	epatch "${FILESDIR}"/${PN}-2.4-build-paths.patch
+
 	epatch_user
 
 	multilib_copy_sources
@@ -81,7 +88,6 @@ multilib_src_compile() {
 		building_py() {
 			python_export PYTHON_INCLUDEDIR PYTHON_LIBPATH
 			emake CC="$(tc-getCC)" PYINC="-I${PYTHON_INCLUDEDIR}" PYTHONLBIDIR="${PYTHON_LIBPATH}" PYPREFIX="${EPYTHON##*/}" "$@"
-			python_optimize # bug 531638
 		}
 		python_foreach_impl building_py swigify
 		python_foreach_impl building_py pywrap
@@ -98,7 +104,29 @@ multilib_src_install() {
 		installation_py() {
 			emake DESTDIR="${ED}" LIBDIR="${ED}/usr/$(get_libdir)" \
 				SHLIBDIR="${ED}/usr/$(get_libdir)" install-pywrap
+			python_optimize # bug 531638
 		}
 		python_foreach_impl installation_py
 	fi
+}
+
+pkg_postinst() {
+	# Migrate the SELinux semanage configuration store if not done already
+	local selinuxtype=$(awk -F'=' '/SELINUXTYPE=/ {print $2}' "${EROOT}"/etc/selinux/config 2>/dev/null)
+	if [ -n "${selinuxtype}" ] && [ ! -d "${EROOT}"/var/lib/selinux/${mcs}/active ] ; then
+		ewarn "Since the 2.4 SELinux userspace, the policy module store is moved"
+		ewarn "from /etc/selinux to /var/lib/selinux. The migration will be run now."
+		ewarn "If there are any issues, it can be done manually by running:"
+		ewarn "/usr/libexec/selinux/semanage_migrate_store"
+		ewarn "For more information, please see"
+		ewarn "- https://github.com/SELinuxProject/selinux/wiki/Policy-Store-Migration"
+	fi
+
+	# Run the store migration without rebuilds
+	for POLICY_TYPE in ${POLICY_TYPES} ; do
+		if [ ! -d "${EROOT}/var/lib/selinux/${POLICY_TYPE}/active" ] ; then
+			einfo "Migrating store ${POLICY_TYPE} (without policy rebuild)."
+			/usr/libexec/selinux/semanage_migrate_store -n -s "${POLICY_TYPE}" || die "Failed to migrate store ${POLICY_TYPE}"
+		fi
+	done
 }
