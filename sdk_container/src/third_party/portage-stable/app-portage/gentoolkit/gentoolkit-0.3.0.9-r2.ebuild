@@ -4,10 +4,10 @@
 
 EAPI="5"
 
-PYTHON_COMPAT=(python{2_7,3_3})
+PYTHON_COMPAT=(python{2_7,3_3,3_4} pypy)
 PYTHON_REQ_USE="xml(+),threads(+)"
 
-inherit distutils-r1
+inherit distutils-r1 eutils
 
 DESCRIPTION="Collection of administration scripts for Gentoo"
 HOMEPAGE="https://www.gentoo.org/proj/en/portage/tools/index.xml"
@@ -17,21 +17,26 @@ LICENSE="GPL-2"
 SLOT="0"
 IUSE=""
 
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 
-DEPEND="sys-apps/portage"
+DEPEND="sys-apps/portage[${PYTHON_USEDEP}]"
 RDEPEND="${DEPEND}
 	!<=app-portage/gentoolkit-dev-0.2.7
 	|| ( >=sys-apps/coreutils-8.15 app-misc/realpath sys-freebsd/freebsd-bin )
 	sys-apps/gawk
+	sys-apps/gentoo-functions
 	sys-apps/grep"
 
 PATCHES=(
-	"${FILESDIR}"/${PV}-revdep-rebuild-484340.patch
-	"${FILESDIR}"/${PV}-revdep-rebuild-476740.patch
+	"${FILESDIR}"/${PV}-revdep-rebuild-py-504654-1.patch
+	"${FILESDIR}"/${PV}-revdep-rebuild-py-504654-2.patch
+	"${FILESDIR}"/${PV}-equery-508114.patch
+	"${FILESDIR}"/${PV}-equery-strip-XXXFLAGS.patch
+	"${FILESDIR}"/${PV}-revdep-rebuild-526400.patch
 )
 
 python_prepare_all() {
+	epatch "${FILESDIR}/0.3.1-setup.py-print.patch"
 	python_setup
 	echo VERSION="${PVR}" "${PYTHON}" setup.py set_version
 	VERSION="${PVR}" "${PYTHON}" setup.py set_version
@@ -48,6 +53,7 @@ python_install_all() {
 	# testing by a wider audience.
 	dosym revdep-rebuild.sh /usr/bin/revdep-rebuild
 
+	# TODO: Fix this as it is now a QA violation
 	# Create cache directory for revdep-rebuild
 	keepdir /var/cache/revdep-rebuild
 	use prefix || fowners root:0 /var/cache/revdep-rebuild
