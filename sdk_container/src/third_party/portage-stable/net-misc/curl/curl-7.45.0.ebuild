@@ -12,7 +12,7 @@ SRC_URI="http://curl.haxx.se/download/${P}.tar.bz2"
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="adns http2 idn ipv6 kerberos ldap metalink rtmp samba ssh ssl static-libs test threads"
 IUSE+=" curl_ssl_axtls curl_ssl_gnutls curl_ssl_libressl curl_ssl_nss +curl_ssl_openssl curl_ssl_polarssl curl_ssl_winssl"
 IUSE+=" elibc_Winnt"
@@ -27,27 +27,15 @@ RDEPEND="ldap? ( >=net-nds/openldap-2.4.38-r1[${MULTILIB_USEDEP}] )
 			app-misc/ca-certificates
 		)
 		curl_ssl_gnutls? (
-			|| (
-				(
-					>=net-libs/gnutls-3.2.15[static-libs?,${MULTILIB_USEDEP}]
-					>=dev-libs/nettle-2.6[${MULTILIB_USEDEP}]
-				)
-				(
-					=net-libs/gnutls-2.12*[nettle,static-libs?,${MULTILIB_USEDEP}]
-					>=dev-libs/nettle-2.6[${MULTILIB_USEDEP}]
-				)
-				(
-					=net-libs/gnutls-2.12*[-nettle,static-libs?,${MULTILIB_USEDEP}]
-					>=dev-libs/libgcrypt-1.5.3[static-libs?,${MULTILIB_USEDEP}]
-				)
-			)
+			>=net-libs/gnutls-3.2.15[static-libs?,${MULTILIB_USEDEP}]
+			>=dev-libs/nettle-2.6[${MULTILIB_USEDEP}]
 			app-misc/ca-certificates
 		)
 		curl_ssl_libressl? (
 			dev-libs/libressl[static-libs?,${MULTILIB_USEDEP}]
 		)
 		curl_ssl_openssl? (
-			>=dev-libs/openssl-1.0.1h-r2[static-libs?,${MULTILIB_USEDEP}]
+			>=dev-libs/openssl-1.0.1h-r2:=[static-libs?,${MULTILIB_USEDEP}]
 		)
 		curl_ssl_nss? (
 			>=dev-libs/nss-3.15.4[${MULTILIB_USEDEP}]

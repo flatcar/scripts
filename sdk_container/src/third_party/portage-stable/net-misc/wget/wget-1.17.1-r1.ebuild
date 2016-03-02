@@ -1,11 +1,12 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI="4"
+EAPI="5"
+
 PYTHON_COMPAT=( python{3_3,3_4} )
 
-inherit flag-o-matic python-any-r1 toolchain-funcs
+inherit flag-o-matic python-any-r1 toolchain-funcs eutils
 
 DESCRIPTION="Network utility to retrieve files from the WWW"
 HOMEPAGE="https://www.gnu.org/software/wget/"
@@ -13,14 +14,18 @@ SRC_URI="mirror://gnu/wget/${P}.tar.xz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="debug gnutls idn ipv6 nls ntlm pcre +ssl static test uuid zlib"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+IUSE="debug gnutls idn ipv6 libressl nls ntlm pcre +ssl static test uuid zlib"
+REQUIRED_USE=" ntlm? ( !gnutls ssl ) gnutls? ( ssl )"
 
 LIB_DEPEND="idn? ( net-dns/libidn[static-libs(+)] )
 	pcre? ( dev-libs/libpcre[static-libs(+)] )
 	ssl? (
-		gnutls? ( net-libs/gnutls[static-libs(+)] )
-		!gnutls? ( dev-libs/openssl:0[static-libs(+)] )
+		gnutls? ( net-libs/gnutls:0=[static-libs(+)] )
+		!gnutls? (
+			!libressl? ( dev-libs/openssl:0=[static-libs(+)] )
+			libressl? ( dev-libs/libressl[static-libs(+)] )
+		)
 	)
 	uuid? ( sys-apps/util-linux[static-libs(+)] )
 	zlib? ( sys-libs/zlib[static-libs(+)] )"
@@ -38,8 +43,6 @@ DEPEND="${RDEPEND}
 	)
 	nls? ( sys-devel/gettext )"
 
-REQUIRED_USE="ntlm? ( !gnutls ssl ) gnutls? ( ssl )"
-
 DOCS=( AUTHORS MAILING-LIST NEWS README doc/sample.wgetrc )
 
 pkg_setup() {
@@ -47,7 +50,7 @@ pkg_setup() {
 }
 
 src_prepare() {
-	epatch "${FILESDIR}"/${P}-ftp-pasv-ip.patch #560418
+	epatch "${FILESDIR}"/${P}-progress-bar-segv.patch
 }
 
 src_configure() {
