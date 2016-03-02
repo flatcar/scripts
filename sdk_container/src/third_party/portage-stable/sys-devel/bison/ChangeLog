@@ -132,3 +132,45 @@
   24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
   Set appropriate maintainer types in metadata.xml (GLEP 67)
 
+  13 Feb 2016; Mike Frysinger <vapier@gentoo.org> bison-3.0.4-r1.ebuild:
+  clarify bison.1 touching
+
+  13 Feb 2016; Mike Frysinger <vapier@gentoo.org> bison-3.0.4-r1.ebuild:
+  avoid bison.info regeneration #574492
+
+  The build logic generates a timestamp from the info pages, but does so
+  with a timezone aware function, and then truncates it to granularity of
+  days.  If your TZ happens to wrap the timezone over to a diff day, then
+  the build logic updates some files and runs makeinfo.
+
+  Clobber the info timestamp so it's newer than the sources and the TZ
+  state doesn't work.
+
+  13 Feb 2016; Agostino Sarubbo <ago@gentoo.org> bison-3.0.4-r1.ebuild:
+  amd64 stable wrt bug #574600
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="amd64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  14 Feb 2016; Jeroen Roovers <jer@gentoo.org> bison-3.0.4-r1.ebuild:
+  Stable for PPC64 (bug #574600).
+
+  Package-Manager: portage-2.2.27
+  RepoMan-Options: --ignore-arches
+
+  14 Feb 2016; Jeroen Roovers <jer@gentoo.org> bison-3.0.4-r1.ebuild:
+  Stable for HPPA (bug #574600).
+
+  Package-Manager: portage-2.2.27
+  RepoMan-Options: --ignore-arches
+
+  20 Feb 2016; Markus Meier <maekke@gentoo.org> bison-3.0.4-r1.ebuild:
+  arm stable, bug #574600
+
+  Package-Manager: portage-2.2.27
+  RepoMan-Options: --include-arches="arm"
+
+  23 Feb 2016; Mike Frysinger <vapier@gentoo.org> bison-3.0.4-r1.ebuild:
+  rework info page regen #574492
+
