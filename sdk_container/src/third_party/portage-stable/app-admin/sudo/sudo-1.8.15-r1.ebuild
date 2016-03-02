@@ -23,7 +23,7 @@ SRC_URI="http://www.sudo.ws/sudo/dist/${uri_prefix}${MY_P}.tar.gz
 # 3-clause BSD license
 LICENSE="ISC BSD"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~sparc-solaris"
+KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~sparc-solaris"
 IUSE="ldap nls pam offensive selinux skey +sendmail"
 
 DEPEND="pam? ( virtual/pam )
@@ -50,7 +50,6 @@ REQUIRED_USE="pam? ( !skey ) skey? ( !pam )"
 MAKEOPTS+=" SAMPLES="
 
 src_prepare() {
-	epatch "${FILESDIR}"/${P}-include-sys-types-h.patch
 	elibtoolize
 }
 
@@ -129,7 +128,7 @@ src_install() {
 	default
 
 	if use ldap ; then
-		dodoc README.LDAP doc/schema.OpenLDAP
+		dodoc README.LDAP
 		dosbin plugins/sudoers/sudoers2ldif
 
 		cat <<-EOF > "${T}"/ldap.conf.sudo
@@ -138,12 +137,15 @@ src_install() {
 
 		# supported directives: host, port, ssl, ldap_version
 		# uri, binddn, bindpw, sudoers_base, sudoers_debug
-		# tls_{checkpeer,cacertfile,cacertdir,randfile,ciphers,cert,key
+		# tls_{checkpeer,cacertfile,cacertdir,randfile,ciphers,cert,key}
 		EOF
 
 		insinto /etc
 		doins "${T}"/ldap.conf.sudo
 		fperms 0440 /etc/ldap.conf.sudo
+
+		insinto /etc/openldap/schema
+		newins doc/schema.OpenLDAP sudo.schema
 	fi
 
 	pamd_mimic system-auth sudo auth account session
