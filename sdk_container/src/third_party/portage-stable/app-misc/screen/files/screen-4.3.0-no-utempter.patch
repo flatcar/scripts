@@ -1,6 +1,6 @@
---- screen-4.0.2/configure.in.orig	2004-12-17 19:55:45.314670411 +0100
-+++ screen-4.0.2/configure.in	2004-12-17 19:55:50.575941541 +0100
-@@ -855,11 +855,6 @@
+--- screen-4.3.0/configure.ac
++++ screen-4.3.0/configure.ac
+@@ -878,11 +878,6 @@
  #include <utmp.h>
  #endif
  ],[struct utmp u; u.ut_host[0] = 0;], AC_DEFINE(UTHOST))
