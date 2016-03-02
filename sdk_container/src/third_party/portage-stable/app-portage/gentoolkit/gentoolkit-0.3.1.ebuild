@@ -4,49 +4,39 @@
 
 EAPI="5"
 
-PYTHON_COMPAT=(python{2_7,3_3})
+PYTHON_COMPAT=(python{2_7,3_3,3_4,3_5} pypy)
 PYTHON_REQ_USE="xml(+),threads(+)"
 
-inherit distutils-r1
+inherit distutils-r1 eutils
 
 DESCRIPTION="Collection of administration scripts for Gentoo"
 HOMEPAGE="https://www.gentoo.org/proj/en/portage/tools/index.xml"
-SRC_URI="mirror://gentoo/${P}.tar.gz"
+SRC_URI="http://dev.gentoo.org/~dolsen/releases/gentoolkit/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
 IUSE=""
 
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 
-DEPEND="sys-apps/portage"
+DEPEND="sys-apps/portage[${PYTHON_USEDEP}]"
 RDEPEND="${DEPEND}
 	!<=app-portage/gentoolkit-dev-0.2.7
 	|| ( >=sys-apps/coreutils-8.15 app-misc/realpath sys-freebsd/freebsd-bin )
 	sys-apps/gawk
+	sys-apps/gentoo-functions
 	sys-apps/grep"
 
-PATCHES=(
-	"${FILESDIR}"/${PV}-revdep-rebuild-484340.patch
-	"${FILESDIR}"/${PV}-revdep-rebuild-476740.patch
-)
-
 python_prepare_all() {
+	epatch "${FILESDIR}/0.3.1-setup.py-print.patch"
 	python_setup
 	echo VERSION="${PVR}" "${PYTHON}" setup.py set_version
 	VERSION="${PVR}" "${PYTHON}" setup.py set_version
-	mv ./bin/revdep-rebuild{,.py} || die
 	distutils-r1_python_prepare_all
 }
 
 python_install_all() {
 	distutils-r1_python_install_all
-
-	# Rename the python versions of revdep-rebuild, since we are not ready
-	# to switch to the python version yet. Link /usr/bin/revdep-rebuild to
-	# revdep-rebuild.sh. Leaving the python version available for potential
-	# testing by a wider audience.
-	dosym revdep-rebuild.sh /usr/bin/revdep-rebuild
 
 	# Create cache directory for revdep-rebuild
 	keepdir /var/cache/revdep-rebuild
