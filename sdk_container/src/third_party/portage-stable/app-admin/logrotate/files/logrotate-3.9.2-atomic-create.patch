@@ -1,7 +1,7 @@
 diff -Nuar a/logrotate.c b/logrotate.c
---- a/logrotate.c	2015-03-01 11:50:36.569999862 +0100
-+++ b/logrotate.c	2015-03-01 11:56:26.329999853 +0100
-@@ -372,15 +372,18 @@
+--- a/logrotate.c	2016-01-25 19:55:46.740039999 +0100
++++ b/logrotate.c	2016-01-25 20:03:15.290049030 +0100
+@@ -367,15 +367,18 @@
  int createOutputFile(char *fileName, int flags, struct stat *sb, acl_type acl, int force_mode)
  {
      int fd;
@@ -22,22 +22,21 @@ diff -Nuar a/logrotate.c b/logrotate.c
      if (fd < 0) {
 -	message(MESS_ERROR, "error creating output file %s: %s\n",
 -		fileName, strerror(errno));
-+	message(MESS_ERROR, "error creating unique temp file: %s\n",
-+	        strerror(errno));
++       message(MESS_ERROR, "error creating unique temp file: %s\n",
++       strerror(errno));
  	return -1;
      }
      if (fchmod(fd, (S_IRUSR | S_IWUSR) & sb->st_mode)) {
-@@ -431,6 +434,13 @@
+@@ -425,6 +428,12 @@
+ 		return -1;
  		}
  	}
- 
 +    if (rename(template, fileName)) {
 +        message(MESS_ERROR, "error renaming temp file to %s: %s\n",
 +        fileName, strerror(errno));
 +        close(fd);
 +        return -1;
 +    }
-+
+ 
      return fd;
  }
- 

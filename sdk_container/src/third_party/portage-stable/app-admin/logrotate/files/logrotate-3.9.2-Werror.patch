@@ -1,6 +1,6 @@
 diff -Nuar a/Makefile.am b/Makefile.am
---- a/Makefile.am	2015-02-13 07:11:21.000000000 +0100
-+++ b/Makefile.am	2015-03-01 11:19:47.279999912 +0100
+--- a/Makefile.am	2016-01-20 10:47:36.000000000 +0100
++++ b/Makefile.am	2016-01-25 20:04:28.270050499 +0100
 @@ -1,7 +1,7 @@
  MAN = logrotate.8
  MAN5 = logrotate.conf.5

@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -8,11 +8,11 @@ inherit autotools eutils toolchain-funcs flag-o-matic
 
 DESCRIPTION="Rotates, compresses, and mails system logs"
 HOMEPAGE="https://fedorahosted.org/logrotate/"
-SRC_URI="https://fedorahosted.org/releases/l/o/logrotate/${P}.tar.gz"
+SRC_URI="https://github.com/logrotate/logrotate/archive/${PV}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~x86-fbsd"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd"
 IUSE="acl +cron selinux"
 
 CDEPEND="
@@ -40,7 +40,8 @@ src_prepare() {
 		"${FILESDIR}"/${P}-fbsd.patch \
 		"${FILESDIR}"/${P}-noasprintf.patch \
 		"${FILESDIR}"/${P}-atomic-create.patch \
-		"${FILESDIR}"/${P}-Werror.patch
+		"${FILESDIR}"/${P}-Werror.patch \
+		"${FILESDIR}"/${P}-lfs.patch
 	eautoreconf
 }
 
