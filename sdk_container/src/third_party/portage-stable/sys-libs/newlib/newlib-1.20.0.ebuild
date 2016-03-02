@@ -2,6 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
+EAPI="4"
+
 inherit eutils flag-o-matic toolchain-funcs
 
 export CBUILD=${CBUILD:-${CHOST}}
@@ -36,12 +38,12 @@ pkg_setup() {
 	fi
 }
 
-src_unpack() {
-	unpack ${A}
-	mkdir -p "${NEWLIBBUILD}"
+src_prepare() {
+	epatch "${FILESDIR}"/${P}-cris-install.patch
+	epatch "${FILESDIR}"/${P}-arm-targets.patch #413547
 }
 
-src_compile() {
+src_configure() {
 	# we should fix this ...
 	unset LDFLAGS
 	CHOST=${CTARGET} strip-unsupported-flags
@@ -51,20 +53,23 @@ src_compile() {
 		&& myconf="${myconf} --disable-newlib-multithread" \
 		|| myconf="${myconf} $(use_enable threads newlib-multithread)"
 
+	mkdir -p "${NEWLIBBUILD}"
 	cd "${NEWLIBBUILD}"
 
 	ECONF_SOURCE=${S} \
 	econf \
 		$(use_enable unicode newlib-mb) \
 		$(use_enable nls) \
-		${myconf} \
-		|| die "econf failed"
-	emake || die "emake failed"
+		${myconf}
+}
+
+src_compile() {
+	emake -C "${NEWLIBBUILD}"
 }
 
 src_install() {
 	cd "${NEWLIBBUILD}"
-	emake -j1 DESTDIR="${D}" install || die
+	emake -j1 DESTDIR="${D}" install
 #	env -uRESTRICT CHOST=${CTARGET} prepallstrip
 	# minor hack to keep things clean
 	rm -fR "${D}"/usr/share/info
