@@ -1,10 +1,10 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-vcs/mercurial/mercurial-2.6.ebuild,v 1.1 2013/05/03 07:26:46 djc Exp $
+# $Id$
 
 EAPI=5
 
-PYTHON_COMPAT=( python{2_5,2_6,2_7} )
+PYTHON_COMPAT=( python2_7 )
 PYTHON_REQ_USE="threads"
 
 inherit bash-completion-r1 elisp-common eutils distutils-r1 flag-o-matic
@@ -15,19 +15,20 @@ SRC_URI="http://mercurial.selenic.com/release/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="bugzilla emacs gpg test tk zsh-completion"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+IUSE="bugzilla emacs gpg test tk"
 
 RDEPEND="bugzilla? ( dev-python/mysql-python[${PYTHON_USEDEP}] )
 	gpg? ( app-crypt/gnupg )
 	tk? ( dev-lang/tk )
-	zsh-completion? ( app-shells/zsh )
 	app-misc/ca-certificates"
 DEPEND="emacs? ( virtual/emacs )
 	test? ( app-arch/unzip
 		dev-python/pygments[${PYTHON_USEDEP}] )"
 
 SITEFILE="70${PN}-gentoo.el"
+
+PATCHES=( "${FILESDIR}/${PN}-3.0.1-po_fixes.patch" )
 
 python_prepare_all() {
 	# fix up logic that won't work in Gentoo Prefix (also won't outside in
@@ -56,15 +57,13 @@ python_compile_all() {
 python_install_all() {
 	distutils-r1_python_install_all
 
-	newbashcomp contrib/bash_completion ${PN}
+	newbashcomp contrib/bash_completion hg
 
-	if use zsh-completion ; then
-		insinto /usr/share/zsh/site-functions
-		newins contrib/zsh_completion _hg
-	fi
+	insinto /usr/share/zsh/site-functions
+	newins contrib/zsh_completion _hg
 
-	rm -f doc/*.?.txt || die
-	dodoc CONTRIBUTORS doc/*.txt
+	rm -f doc/*.?.txt
+	dodoc CONTRIBUTORS
 	cp hgweb*.cgi "${ED}"/usr/share/doc/${PF}/ || die
 
 	dobin hgeditor
@@ -79,7 +78,7 @@ python_install_all() {
 	local RM_CONTRIB=(hgk hg-ssh bash_completion zsh_completion wix buildrpm plan9
 	                  *.el mercurial.spec)
 	for f in ${RM_CONTRIB[@]}; do
-		rm -rf contrib/$f || die
+		rm -r contrib/$f || die
 	done
 
 	dodoc -r contrib
@@ -96,30 +95,19 @@ EOF
 }
 
 src_test() {
-	cd tests || die
-	rm -rf *svn* || die					# Subversion tests fail with 1.5
-	rm -f test-archive* || die			# Fails due to verbose tar output changes
-	rm -f test-convert-baz* || die		# GNU Arch baz
-	rm -f test-convert-cvs* || die		# CVS
-	rm -f test-convert-darcs* || die	# Darcs
-	rm -f test-convert-git* || die		# git
-	rm -f test-convert-mtn* || die		# monotone
-	rm -f test-convert-tla* || die		# GNU Arch tla
-	rm -f test-doctest* || die			# doctest always fails with python 2.5.x
-	rm -f test-largefiles* || die		# tends to time out
-	if [[ ${EUID} -eq 0 ]]; then
-		einfo "Removing tests which require user privileges to succeed"
-		rm -f test-command-template* || die	# Test is broken when run as root
-		rm -f test-convert* || die			# Test is broken when run as root
-		rm -f test-lock-badness* || die		# Test is broken when run as root
-		rm -f test-permissions* || die		# Test is broken when run as root
-		rm -f test-pull-permission* || die	# Test is broken when run as root
-		rm -f test-clone-failure* || die
-		rm -f test-journal-exists* || die
-		rm -f test-repair-strip* || die
-	fi
+	pushd tests &>/dev/null || die
+	rm -rf *svn*			# Subversion tests fail with 1.5
+	rm -f test-archive*		# Fails due to verbose tar output changes
+	rm -f test-convert-baz*		# GNU Arch baz
+	rm -f test-convert-cvs*		# CVS
+	rm -f test-convert-darcs*	# Darcs
+	rm -f test-convert-git*		# git
+	rm -f test-convert-mtn*		# monotone
+	rm -f test-convert-tla*		# GNU Arch tla
+	#rm -f test-doctest*		# doctest always fails with python 2.5.x
+	rm -f test-largefiles*		# tends to time out
 
-	cd .. || die
+	popd &>/dev/null || die
 	distutils-r1_src_test
 }
 
