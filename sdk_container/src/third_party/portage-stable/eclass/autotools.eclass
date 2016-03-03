@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/autotools.eclass,v 1.176 2015/06/03 04:06:08 vapier Exp $
+# $Id$
 
 # @ECLASS: autotools.eclass
 # @MAINTAINER:
@@ -56,7 +56,7 @@ inherit libtool
 # Do NOT change this variable in your ebuilds!
 # If you want to force a newer minor version, you can specify the correct
 # WANT value by using a colon:  <PV>:<WANT_AUTOMAKE>
-_LATEST_AUTOMAKE=( 1.14.1:1.14 1.15:1.15 )
+_LATEST_AUTOMAKE=( 1.15:1.15 )
 
 _automake_atom="sys-devel/automake"
 _autoconf_atom="sys-devel/autoconf"
@@ -198,7 +198,7 @@ eautoreconf() {
 		intltool    false "autotools_run_tool intltoolize --automake --copy --force"
 		gtkdoc      false "autotools_run_tool --at-missing gtkdocize --copy"
 		gnomedoc    false "autotools_run_tool --at-missing gnome-doc-prepare --copy --force"
-		libtool     false "_elibtoolize --install --copy --force"
+		libtool     false "_elibtoolize --auto-ltdl --install --copy --force"
 	)
 	for (( i = 0; i < ${#tools[@]}; i += 3 )) ; do
 		if _at_uses_${tools[i]} ; then
@@ -258,12 +258,13 @@ _at_uses_pkg() {
 }
 _at_uses_autoheader()  { _at_uses_pkg A{C,M}_CONFIG_HEADER{S,}; }
 _at_uses_automake()    { _at_uses_pkg AM_INIT_AUTOMAKE; }
-_at_uses_gettext()     { _at_uses_pkg AM_GNU_GETTEXT_VERSION; }
+_at_uses_gettext()     { _at_uses_pkg AM_GNU_GETTEXT_{,REQUIRE_}VERSION; }
 _at_uses_glibgettext() { _at_uses_pkg AM_GLIB_GNU_GETTEXT; }
 _at_uses_intltool()    { _at_uses_pkg {AC,IT}_PROG_INTLTOOL; }
 _at_uses_gtkdoc()      { _at_uses_pkg GTK_DOC_CHECK; }
 _at_uses_gnomedoc()    { _at_uses_pkg GNOME_DOC_INIT; }
 _at_uses_libtool()     { _at_uses_pkg A{C,M}_PROG_LIBTOOL LT_INIT; }
+_at_uses_libltdl()     { _at_uses_pkg LT_CONFIG_LTDL_DIR; }
 
 # @FUNCTION: eaclocal_amflags
 # @DESCRIPTION:
@@ -312,6 +313,11 @@ eaclocal() {
 # Note the '_' prefix: avoid collision with elibtoolize() from libtool.eclass.
 _elibtoolize() {
 	local LIBTOOLIZE=${LIBTOOLIZE:-$(type -P glibtoolize > /dev/null && echo glibtoolize || echo libtoolize)}
+
+	if [[ $1 == "--auto-ltdl" ]] ; then
+		shift
+		_at_uses_libltdl && set -- "$@" --ltdl
+	fi
 
 	[[ -f GNUmakefile.am || -f Makefile.am ]] && set -- "$@" --automake
 
@@ -475,13 +481,14 @@ autotools_run_tool() {
 
 	autotools_env_setup
 
-	local STDERR_TARGET="${T}/$1.out"
+	# Allow people to pass in full paths. #549268
+	local STDERR_TARGET="${T}/${1##*/}.out"
 	# most of the time, there will only be one run, but if there are
 	# more, make sure we get unique log filenames
 	if [[ -e ${STDERR_TARGET} ]] ; then
 		local i=1
 		while :; do
-			STDERR_TARGET="${T}/$1-${i}.out"
+			STDERR_TARGET="${T}/${1##*/}-${i}.out"
 			[[ -e ${STDERR_TARGET} ]] || break
 			: $(( i++ ))
 		done
@@ -518,13 +525,13 @@ autotools_run_tool() {
 # Keep a list of all the macros we might use so that we only
 # have to run the trace code once.  Order doesn't matter.
 ALL_AUTOTOOLS_MACROS=(
-	A{C,M}_PROG_LIBTOOL LT_INIT
+	A{C,M}_PROG_LIBTOOL LT_INIT LT_CONFIG_LTDL_DIR
 	A{C,M}_CONFIG_HEADER{S,}
 	AC_CONFIG_SUBDIRS
 	AC_CONFIG_AUX_DIR AC_CONFIG_MACRO_DIR
 	AM_INIT_AUTOMAKE
 	AM_GLIB_GNU_GETTEXT
-	AM_GNU_GETTEXT_VERSION
+	AM_GNU_GETTEXT_{,REQUIRE_}VERSION
 	{AC,IT}_PROG_INTLTOOL
 	GTK_DOC_CHECK
 	GNOME_DOC_INIT

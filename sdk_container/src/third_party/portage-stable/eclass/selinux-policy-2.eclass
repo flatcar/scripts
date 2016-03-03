@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/selinux-policy-2.eclass,v 1.32 2015/04/21 11:19:10 perfinion Exp $
+# $Id$
 
 # Eclass for installing SELinux policy, and optionally
 # reloading the reference-policy based modules.
@@ -90,7 +90,7 @@ HOMEPAGE="https://wiki.gentoo.org/wiki/Project:SELinux"
 if [[ -n ${BASEPOL} ]] && [[ "${BASEPOL}" != "9999" ]];
 then
 	SRC_URI="https://raw.githubusercontent.com/wiki/TresysTechnology/refpolicy/files/refpolicy-${PV}.tar.bz2
-		http://dev.gentoo.org/~swift/patches/selinux-base-policy/patchbundle-selinux-base-policy-${BASEPOL}.tar.bz2"
+		https://dev.gentoo.org/~swift/patches/selinux-base-policy/patchbundle-selinux-base-policy-${BASEPOL}.tar.bz2"
 elif [[ "${BASEPOL}" != "9999" ]];
 then
 	SRC_URI="https://raw.githubusercontent.com/wiki/TresysTechnology/refpolicy/files/refpolicy-${PV}.tar.bz2"
@@ -122,7 +122,7 @@ case "${EAPI:-0}" in
 	*) : ;;
 esac
 
-EXPORT_FUNCTIONS "src_unpack src_prepare src_compile src_install pkg_postinst pkg_postrm"
+EXPORT_FUNCTIONS src_unpack src_prepare src_compile src_install pkg_postinst pkg_postrm
 
 # @FUNCTION: selinux-policy-2_src_unpack
 # @DESCRIPTION:
@@ -198,6 +198,7 @@ selinux-policy-2_src_prepare() {
 	for i in ${MODS}; do
 		modfiles="$(find ${S}/refpolicy/policy/modules -iname $i.te) $modfiles"
 		modfiles="$(find ${S}/refpolicy/policy/modules -iname $i.fc) $modfiles"
+		modfiles="$(find ${S}/refpolicy/policy/modules -iname $i.cil) $modfiles"
 		if [ ${add_interfaces} -eq 1 ];
 		then
 			modfiles="$(find ${S}/refpolicy/policy/modules -iname $i.if) $modfiles"
@@ -228,18 +229,13 @@ selinux-policy-2_src_compile() {
 	for i in ${POLICY_TYPES}; do
 		# Support USE flags in builds
 		export M4PARAM="${makeuse}"
-		if [[ ${BASEPOL} == 2.20140311* ]]; then
-			# Parallel builds are broken in 2.20140311-r7 and earlier, bug 530178
-			emake -j1 NAME=$i -C "${S}"/${i} || die "${i} compile failed"
-		else
-			emake NAME=$i -C "${S}"/${i} || die "${i} compile failed"
-		fi
+		emake NAME=$i -C "${S}"/${i} || die "${i} compile failed"
 	done
 }
 
 # @FUNCTION: selinux-policy-2_src_install
 # @DESCRIPTION:
-# Install the built .pp files in the correct subdirectory within
+# Install the built .pp (or copied .cil) files in the correct subdirectory within
 # /usr/share/selinux.
 selinux-policy-2_src_install() {
 	local BASEDIR="/usr/share/selinux"
@@ -248,7 +244,11 @@ selinux-policy-2_src_install() {
 		for j in ${MODS}; do
 			einfo "Installing ${i} ${j} policy package"
 			insinto ${BASEDIR}/${i}
-			doins "${S}"/${i}/${j}.pp || die "Failed to add ${j}.pp to ${i}"
+			if [ -f "${S}/${i}/${j}.pp" ] ; then
+			  doins "${S}"/${i}/${j}.pp || die "Failed to add ${j}.pp to ${i}"
+			elif [ -f "${S}/${i}/${j}.cil" ] ; then
+			  doins "${S}"/${i}/${j}.cil || die "Failed to add ${j}.cil to ${i}"
+			fi
 
 			if [[ "${POLICY_FILES[@]}" == *"${j}.if"* ]];
 			then
@@ -261,14 +261,11 @@ selinux-policy-2_src_install() {
 
 # @FUNCTION: selinux-policy-2_pkg_postinst
 # @DESCRIPTION:
-# Install the built .pp files in the SELinux policy stores, effectively
+# Install the built .pp (or copied .cil) files in the SELinux policy stores, effectively
 # activating the policy on the system.
 selinux-policy-2_pkg_postinst() {
 	# build up the command in the case of multiple modules
 	local COMMAND
-	for i in ${MODS}; do
-		COMMAND="-i ${i}.pp ${COMMAND}"
-	done
 
 	for i in ${POLICY_TYPES}; do
 		if [ "${i}" == "strict" ] && [ "${MODS}" = "unconfined" ];
@@ -279,7 +276,14 @@ selinux-policy-2_pkg_postinst() {
 		einfo "Inserting the following modules into the $i module store: ${MODS}"
 
 		cd /usr/share/selinux/${i} || die "Could not enter /usr/share/selinux/${i}"
-		semodule -s ${i} ${COMMAND}
+		for j in ${MODS} ; do
+			if [ -f "${j}.pp" ] ; then
+				COMMAND="${j}.pp ${COMMAND}"
+			elif [ -f "${j}.cil" ] ; then
+				COMMAND="${j}.cil ${COMMAND}"
+			fi
+		done
+		semodule -s ${i} -i ${COMMAND}
 		if [ $? -ne 0 ];
 		then
 			ewarn "SELinux module load failed. Trying full reload...";
@@ -313,6 +317,7 @@ selinux-policy-2_pkg_postinst() {
 		else
 			einfo "SELinux modules loaded succesfully."
 		fi
+		COMMAND="";
 	done
 
 	# Relabel depending packages

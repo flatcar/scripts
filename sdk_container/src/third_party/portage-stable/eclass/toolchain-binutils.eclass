@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain-binutils.eclass,v 1.142 2015/05/25 08:41:16 vapier Exp $
+# $Id$
 #
 # Maintainer: Toolchain Ninjas <toolchain@gentoo.org>
 #
@@ -56,7 +56,7 @@ fi
 is_cross() { [[ ${CHOST} != ${CTARGET} ]] ; }
 
 DESCRIPTION="Tools necessary to build programs"
-HOMEPAGE="http://sourceware.org/binutils/"
+HOMEPAGE="https://sourceware.org/binutils/"
 
 case ${BTYPE} in
 	git) SRC_URI="" ;;
@@ -76,7 +76,7 @@ add_src_uri() {
 	else
 		a+=".bz2"
 	fi
-	set -- mirror://gentoo http://dev.gentoo.org/~vapier/dist
+	set -- mirror://gentoo https://dev.gentoo.org/~vapier/dist
 	SRC_URI="${SRC_URI} ${@/%//${a}}"
 }
 add_src_uri binutils-${BVER}-patches-${PATCHVER}.tar ${PATCHVER}
@@ -92,7 +92,7 @@ IUSE="cxx multislot multitarget nls static-libs test vanilla"
 if version_is_at_least 2.19 ; then
 	IUSE+=" zlib"
 fi
-if ! version_is_at_least 2.23.90 || [[ ${BTYPE} != "rel" ]] || is_cross || use multislot ; then
+if ! version_is_at_least 2.25 || [[ ${BTYPE} != "rel" ]] || is_cross || use multislot ; then
 	SLOT="${BVER}"
 else
 	SLOT="0"
@@ -164,6 +164,13 @@ tc-binutils_apply_patches() {
 			fi
 		fi
 		[[ ${#PATCHES[@]} -gt 0 ]] && epatch "${PATCHES[@]}"
+
+		# Make sure our explicit libdir paths don't get clobbered. #562460
+		sed -i \
+			-e 's:@bfdlibdir@:@libdir@:g' \
+			-e 's:@bfdincludedir@:@includedir@:g' \
+			{bfd,opcodes}/Makefile.in || die
+
 		epatch_user
 	fi
 
@@ -210,7 +217,7 @@ _eprefix_init() {
 
 # Intended for ebuilds to override to set their own versioning information.
 toolchain-binutils_bugurl() {
-	printf "http://bugs.gentoo.org/"
+	printf "https://bugs.gentoo.org/"
 }
 toolchain-binutils_pkgversion() {
 	printf "Gentoo ${BVER}"

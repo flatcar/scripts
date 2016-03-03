@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/git-r3.eclass,v 1.49 2015/06/22 08:39:36 mrueg Exp $
+# $Id$
 
 # @ECLASS: git-r3.eclass
 # @MAINTAINER:
@@ -11,7 +11,7 @@
 # git as remote repository.
 
 case "${EAPI:-0}" in
-	0|1|2|3|4|5)
+	0|1|2|3|4|5|6)
 		;;
 	*)
 		die "Unsupported EAPI=${EAPI} (unknown) for ${ECLASS}"
@@ -185,19 +185,19 @@ _git-r3_env_setup() {
 			;;
 		single)
 			if [[ ${EGIT_CLONE_TYPE} == shallow ]]; then
-				einfo "git-r3: ebuild needs to be cloned in 'single' mode, adjusting"
+				einfo "git-r3: ebuild needs to be cloned in '\e[1msingle\e[22m' mode, adjusting"
 				EGIT_CLONE_TYPE=single
 			fi
 			;;
 		single+tags)
 			if [[ ${EGIT_CLONE_TYPE} == shallow || ${EGIT_CLONE_TYPE} == single ]]; then
-				einfo "git-r3: ebuild needs to be cloned in 'single+tags' mode, adjusting"
+				einfo "git-r3: ebuild needs to be cloned in '\e[1msingle+tags\e[22m' mode, adjusting"
 				EGIT_CLONE_TYPE=single+tags
 			fi
 			;;
 		mirror)
 			if [[ ${EGIT_CLONE_TYPE} != mirror ]]; then
-				einfo "git-r3: ebuild needs to be cloned in 'mirror' mode, adjusting"
+				einfo "git-r3: ebuild needs to be cloned in '\e[1mmirror\e[22m' mode, adjusting"
 				EGIT_CLONE_TYPE=mirror
 			fi
 			;;
@@ -314,7 +314,7 @@ _git-r3_set_gitdir() {
 	if [[ ! -d ${EGIT3_STORE_DIR} ]]; then
 		(
 			addwrite /
-			mkdir -p "${EGIT3_STORE_DIR}" || die
+			mkdir -p "${EGIT3_STORE_DIR}"
 		) || die "Unable to create ${EGIT3_STORE_DIR}"
 	fi
 
@@ -362,8 +362,13 @@ _git-r3_set_submodules() {
 			submodule."${subname}".update)
 		[[ ${upd} == none ]] && continue
 
+		# https://github.com/git/git/blob/master/refs.c#L39
+		# for now, we just filter /. because of #572312
+		local enc_subname=${subname//\/.//_}
+		[[ ${enc_subname} == .* ]] && enc_subname=_${enc_subname#.}
+
 		submodules+=(
-			"${subname}"
+			"${enc_subname}"
 			"$(echo "${data}" | git config -f /dev/fd/0 \
 				submodule."${subname}".url || die)"
 			"$(echo "${data}" | git config -f /dev/fd/0 \
@@ -532,7 +537,7 @@ git-r3_fetch() {
 		umask "${EVCS_UMASK}" || die "Bad options to umask: ${EVCS_UMASK}"
 	fi
 	for r in "${repos[@]}"; do
-		einfo "Fetching ${r} ..."
+		einfo "Fetching \e[1m${r}\e[22m ..."
 
 		local fetch_command=( git fetch "${r}" )
 		local clone_type=${EGIT_CLONE_TYPE}
@@ -553,11 +558,11 @@ git-r3_fetch() {
 			# so automatically switch to single+tags mode.
 			if [[ ${clone_type} == shallow ]]; then
 				einfo "  Google Code does not support shallow clones"
-				einfo "  using EGIT_CLONE_TYPE=single+tags"
+				einfo "  using \e[1mEGIT_CLONE_TYPE=single+tags\e[22m"
 				clone_type=single+tags
 			elif [[ ${clone_type} == single ]]; then
 				einfo "  git-r3: Google Code does not send tags properly in 'single' mode"
-				einfo "  using EGIT_CLONE_TYPE=single+tags"
+				einfo "  using \e[1mEGIT_CLONE_TYPE=single+tags\e[22m"
 				clone_type=single+tags
 			fi
 		fi
@@ -581,11 +586,11 @@ git-r3_fetch() {
 			if [[ ${remote_ref} == HEAD ]]; then
 				# HEAD
 				fetch_l=HEAD
-			elif [[ ${remote_ref} == refs/heads/* ]]; then
-				# regular branch
+			elif [[ ${remote_ref} == refs/* ]]; then
+				# regular branch, tag or some other explicit ref
 				fetch_l=${remote_ref}
 			else
-				# tag or commit...
+				# tag or commit id...
 				# let ls-remote figure it out
 				local tagref=$(git ls-remote "${r}" "refs/tags/${remote_ref}")
 
@@ -594,8 +599,8 @@ git-r3_fetch() {
 					# tag
 					fetch_l=refs/tags/${remote_ref}
 				else
-					# commit
-					# so we need to fetch the branch
+					# commit id
+					# so we need to fetch the whole branch
 					if [[ ${branch} ]]; then
 						fetch_l=${branch}
 					else
@@ -697,7 +702,7 @@ git-r3_fetch() {
 	[[ ${success} ]] || die "Unable to fetch from any of EGIT_REPO_URI"
 
 	# submodules can reference commits in any branch
-	# always use the 'clone' mode to accomodate that, bug #503332
+	# always use the 'mirror' mode to accomodate that, bug #503332
 	local EGIT_CLONE_TYPE=mirror
 
 	# recursively fetch submodules
@@ -710,16 +715,23 @@ git-r3_fetch() {
 			local subname=${submodules[0]}
 			local url=${submodules[1]}
 			local path=${submodules[2]}
-			local commit=$(git rev-parse "${local_ref}:${path}")
 
-			if [[ ! ${commit} ]]; then
-				die "Unable to get commit id for submodule ${subname}"
+			# use only submodules for which path does exist
+			# (this is in par with 'git submodule'), bug #551100
+			# note: git cat-file does not work for submodules
+			if [[ $(git ls-tree -d "${local_ref}" "${path}") ]]
+			then
+				local commit=$(git rev-parse "${local_ref}:${path}" || die)
+
+				if [[ ! ${commit} ]]; then
+					die "Unable to get commit id for submodule ${subname}"
+				fi
+
+				local subrepos
+				_git-r3_set_subrepos "${url}" "${repos[@]}"
+
+				git-r3_fetch "${subrepos[*]}" "${commit}" "${local_id}/${subname}"
 			fi
-
-			local subrepos
-			_git-r3_set_subrepos "${url}" "${repos[@]}"
-
-			git-r3_fetch "${subrepos[*]}" "${commit}" "${local_id}/${subname}"
 
 			submodules=( "${submodules[@]:3}" ) # shift
 		done
@@ -764,7 +776,7 @@ git-r3_checkout() {
 	local -x GIT_DIR
 	_git-r3_set_gitdir "${repos[0]}"
 
-	einfo "Checking out ${repos[0]} to ${out_dir} ..."
+	einfo "Checking out \e[1m${repos[0]}\e[22m to \e[1m${out_dir}\e[22m ..."
 
 	if ! git cat-file -e refs/git-r3/"${local_id}"/__main__; then
 		if [[ ${EVCS_OFFLINE} ]]; then
@@ -814,6 +826,7 @@ git-r3_checkout() {
 		"${@}" || die "git checkout ${remote_ref:-${new_commit_id}} failed"
 	}
 	git-r3_sub_checkout
+	unset -f git-r3_sub_checkout
 
 	local old_commit_id=$(
 		git rev-parse --quiet --verify refs/git-r3/"${local_id}"/__old__
@@ -849,11 +862,16 @@ git-r3_checkout() {
 			local subname=${submodules[0]}
 			local url=${submodules[1]}
 			local path=${submodules[2]}
-			local subrepos
-			_git-r3_set_subrepos "${url}" "${repos[@]}"
 
-			git-r3_checkout "${subrepos[*]}" "${out_dir}/${path}" \
-				"${local_id}/${subname}"
+			# use only submodules for which path does exist
+			# (this is in par with 'git submodule'), bug #551100
+			if [[ -d ${out_dir}/${path} ]]; then
+				local subrepos
+				_git-r3_set_subrepos "${url}" "${repos[@]}"
+
+				git-r3_checkout "${subrepos[*]}" "${out_dir}/${path}" \
+					"${local_id}/${subname}"
+			fi
 
 			submodules=( "${submodules[@]:3}" ) # shift
 		done
@@ -904,12 +922,11 @@ git-r3_peek_remote_ref() {
 
 	local r success
 	for r in "${repos[@]}"; do
-		einfo "Peeking ${remote_ref} on ${r} ..." >&2
+		einfo "Peeking \e[1m${remote_ref}\e[22m on \e[1m${r}\e[22m ..." >&2
 
-		local is_branch lookup_ref
-		if [[ ${remote_ref} == refs/heads/* || ${remote_ref} == HEAD ]]
+		local lookup_ref
+		if [[ ${remote_ref} == refs/* || ${remote_ref} == HEAD ]]
 		then
-			is_branch=1
 			lookup_ref=${remote_ref}
 		else
 			# ls-remote by commit is going to fail anyway,
@@ -954,16 +971,23 @@ git-r3_src_unpack() {
 }
 
 # https://bugs.gentoo.org/show_bug.cgi?id=482666
-git-r3_pkg_outofdate() {
+git-r3_pkg_needrebuild() {
 	debug-print-function ${FUNCNAME} "$@"
 
 	local new_commit_id=$(git-r3_peek_remote_ref)
-	ewarn "old: ${EGIT_VERSION}"
-	ewarn "new: ${new_commit_id}"
-	[[ ${new_commit_id} && ${old_commit_id} ]] || return 2
+	[[ ${new_commit_id} && ${EGIT_VERSION} ]] || die "Lookup failed"
+
+	if [[ ${EGIT_VERSION} != ${new_commit_id} ]]; then
+		einfo "Update from \e[1m${EGIT_VERSION}\e[22m to \e[1m${new_commit_id}\e[22m"
+	else
+		einfo "Local and remote at \e[1m${EGIT_VERSION}\e[22m"
+	fi
 
 	[[ ${EGIT_VERSION} != ${new_commit_id} ]]
 }
+
+# 'export' locally until this gets into EAPI
+pkg_needrebuild() { git-r3_pkg_needrebuild; }
 
 _GIT_R3=1
 fi

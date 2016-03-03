@@ -1,11 +1,11 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/wxwidgets.eclass,v 1.39 2014/04/21 21:55:31 ottxor Exp $
+# $Id$
 
-# @ECLASS:			wxwidgets.eclass
+# @ECLASS: wxwidgets.eclass
 # @MAINTAINER:
-#  wxwidgets@gentoo.org
-# @BLURB:			Manages build configuration for wxGTK-using packages.
+# wxwidgets@gentoo.org
+# @BLURB: Manages build configuration for wxGTK-using packages.
 # @DESCRIPTION:
 #  This eclass gives ebuilds the ability to build against a specific wxGTK
 #  SLOT and profile without interfering with the system configuration.  Any
@@ -29,7 +29,7 @@
 #      DEPEND="wxwidgets? ( x11-libs/wxGTK:2.8[X?] )"
 #
 #      src_configure() {
-#          if use wxwidgets; then 
+#          if use wxwidgets; then
 #              WX_GTK_VER="2.8"
 #              if use X; then
 #                  need-wxwidgets unicode
@@ -52,21 +52,35 @@
 #
 # Note: unless you know your package works with wxbase (which is very
 # doubtful), always depend on wxGTK[X].
+#
+# Debugging: In wxGTK 3.0 and later debugging support is enabled in the
+# library by default and needs to be controlled at the package level.
+# Use the -DNDEBUG preprocessor flag to disable debugging features.
+# (Using need-wxwidgets will do this for you, see below.)
 
-inherit eutils multilib
+if [[ -z ${_WXWIDGETS_ECLASS} ]]; then
+
+case ${EAPI} in
+	0|1|2|3|4|5)
+		inherit eutils flag-o-matic multilib
+		;;
+	*)
+		die "EAPI=${EAPI:-0} is not supported"
+		;;
+esac
 
 # We do this in global scope so ebuilds can get sane defaults just by
 # inheriting.
 if [[ -z ${WX_CONFIG} ]]; then
 	if [[ -n ${WX_GTK_VER} ]]; then
-		for wxtoolkit in mac gtk2 base; do
+		for _wxtoolkit in mac gtk2 base; do
 			# newer versions don't have a seperate debug profile
-			for wxdebug in xxx release- debug-; do
-				wxconf="${wxtoolkit}-unicode-${wxdebug/xxx/}${WX_GTK_VER}"
+			for _wxdebug in xxx release- debug-; do
+				_wxconf="${_wxtoolkit}-unicode-${_wxdebug/xxx/}${WX_GTK_VER}"
 
-				[[ -f ${EPREFIX}/usr/$(get_libdir)/wx/config/${wxconf} ]] || continue
+				[[ -f ${EPREFIX}/usr/$(get_libdir)/wx/config/${_wxconf} ]] || continue
 
-				WX_CONFIG="${EPREFIX}/usr/$(get_libdir)/wx/config/${wxconf}"
+				WX_CONFIG="${EPREFIX}/usr/$(get_libdir)/wx/config/${_wxconf}"
 				WX_ECLASS_CONFIG="${WX_CONFIG}"
 				break
 			done
@@ -75,15 +89,26 @@ if [[ -z ${WX_CONFIG} ]]; then
 		[[ -n ${WX_CONFIG} ]] && export WX_CONFIG WX_ECLASS_CONFIG
 	fi
 fi
+unset _wxtoolkit
+unset _wxdebug
+unset _wxconf
 
 # @FUNCTION:    need-wxwidgets
 # @USAGE:       <profile>
 # @DESCRIPTION:
 #
-#  Available configurations are:
+#  Available profiles are:
 #
 #    unicode       (USE="X")
 #    base-unicode  (USE="-X")
+#
+#  This lets you choose which config file from /usr/lib/wx/config is used when
+#  building the package. It also exports ${WX_CONFIG} with the full path to
+#  that config.
+#
+#  If your ebuild does not have a debug USE flag, or it has one and it is
+#  disabled, -DNDEBUG will be automatically added to CPPFLAGS. This can be
+#  overridden by setting WX_DISABLE_DEBUG if you want to handle it yourself.
 
 need-wxwidgets() {
 	local wxtoolkit wxdebug wxconf
@@ -93,7 +118,7 @@ need-wxwidgets() {
 		echo
 		die
 	fi
-	
+
 	if [[ ${WX_GTK_VER} != 2.8 && ${WX_GTK_VER} != 2.9 && ${WX_GTK_VER} != 3.0 ]]; then
 		eerror "Invalid WX_GTK_VER: ${WX_GTK_VER} - must be set to a valid wxGTK SLOT."
 		echo
@@ -124,6 +149,10 @@ need-wxwidgets() {
 		else
 			wxdebug="release-"
 		fi
+	else
+		if [[ -z ${WX_DISABLE_DEBUG} ]]; then
+			use_if_iuse debug || append-cppflags -DNDEBUG
+		fi
 	fi
 
 	wxconf="${wxtoolkit}-unicode-${wxdebug}${WX_GTK_VER}"
@@ -143,3 +172,6 @@ need-wxwidgets() {
 	einfo "Using wxWidgets:            ${wxconf}"
 	echo
 }
+
+_WXWIDGETS_ECLASS=1
+fi
