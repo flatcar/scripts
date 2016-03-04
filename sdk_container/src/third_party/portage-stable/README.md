@@ -13,7 +13,7 @@ If you have a lot of related packages to update or just aren't quite
 sure what you are getting into please pull down a local copy to work
 from:
 
-    rsync -rtlv rsync://rsync.gentoo.org/gentoo-portage ~/
+    rsync -rtlv rsync://rsync.gentoo.org/gentoo-portage ~/gentoo-portage
     ./update_ebuilds --commit --portage ~/gentoo-portage app-fun/foo
 
 Licensing information can be found in the respective files, so consult
