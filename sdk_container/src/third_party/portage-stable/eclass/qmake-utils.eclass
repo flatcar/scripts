@@ -1,10 +1,10 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/qmake-utils.eclass,v 1.11 2015/06/22 14:18:19 pesa Exp $
+# $Id$
 
 # @ECLASS: qmake-utils.eclass
 # @MAINTAINER:
-# Qt herd <qt@gentoo.org>
+# qt@gentoo.org
 # @AUTHOR:
 # Davide Pesavento <pesa@gentoo.org>
 # @BLURB: Common functions for qmake-based packages.
@@ -17,11 +17,13 @@
 if [[ -z ${_QMAKE_UTILS_ECLASS} ]]; then
 _QMAKE_UTILS_ECLASS=1
 
-inherit eutils multilib toolchain-funcs
+[[ ${EAPI:-0} == [012345] ]] && inherit multilib
+inherit eutils toolchain-funcs
 
 # @FUNCTION: qt4_get_bindir
 # @DESCRIPTION:
 # Echoes the directory where Qt4 binaries are installed.
+# EPREFIX is already prepended to the returned path.
 qt4_get_bindir() {
 	has "${EAPI:-0}" 0 1 2 && use !prefix && EPREFIX=
 
@@ -36,7 +38,6 @@ qt4_get_bindir() {
 # @FUNCTION: qt4_get_headerdir
 # @DESCRIPTION:
 # Echoes the directory where Qt4 headers are installed.
-# Does not take EPREFIX into account.
 qt4_get_headerdir() {
 	echo /usr/include/qt4
 }
@@ -44,7 +45,6 @@ qt4_get_headerdir() {
 # @FUNCTION: qt4_get_libdir
 # @DESCRIPTION:
 # Echoes the directory where Qt4 libraries are installed.
-# Does not take EPREFIX into account.
 qt4_get_libdir() {
 	echo /usr/$(get_libdir)/qt4
 }
@@ -52,14 +52,21 @@ qt4_get_libdir() {
 # @FUNCTION: qt4_get_mkspecsdir
 # @DESCRIPTION:
 # Echoes the directory where Qt4 mkspecs are installed.
-# Does not take EPREFIX into account.
 qt4_get_mkspecsdir() {
 	echo /usr/share/qt4/mkspecs
+}
+
+# @FUNCTION: qt4_get_plugindir
+# @DESCRIPTION:
+# Echoes the directory where Qt4 plugins are installed.
+qt4_get_plugindir() {
+	echo $(qt4_get_libdir)/plugins
 }
 
 # @FUNCTION: qt5_get_bindir
 # @DESCRIPTION:
 # Echoes the directory where Qt5 binaries are installed.
+# EPREFIX is already prepended to the returned path.
 qt5_get_bindir() {
 	has "${EAPI:-0}" 0 1 2 && use !prefix && EPREFIX=
 
@@ -69,7 +76,6 @@ qt5_get_bindir() {
 # @FUNCTION: qt5_get_headerdir
 # @DESCRIPTION:
 # Echoes the directory where Qt5 headers are installed.
-# Does not take EPREFIX into account.
 qt5_get_headerdir() {
 	echo /usr/include/qt5
 }
@@ -77,7 +83,6 @@ qt5_get_headerdir() {
 # @FUNCTION: qt5_get_libdir
 # @DESCRIPTION:
 # Echoes the directory where Qt5 libraries are installed.
-# Does not take EPREFIX into account.
 qt5_get_libdir() {
 	echo /usr/$(get_libdir)
 }
@@ -85,9 +90,15 @@ qt5_get_libdir() {
 # @FUNCTION: qt5_get_mkspecsdir
 # @DESCRIPTION:
 # Echoes the directory where Qt5 mkspecs are installed.
-# Does not take EPREFIX into account.
 qt5_get_mkspecsdir() {
 	echo $(qt5_get_libdir)/qt5/mkspecs
+}
+
+# @FUNCTION: qt5_get_plugindir
+# @DESCRIPTION:
+# Echoes the directory where Qt5 plugins are installed.
+qt5_get_plugindir() {
+	echo $(qt5_get_libdir)/qt5/plugins
 }
 
 # @FUNCTION: qmake-utils_find_pro_file
@@ -136,10 +147,10 @@ qmake-utils_find_pro_file() {
 # @FUNCTION: eqmake4
 # @USAGE: [project_file] [parameters to qmake]
 # @DESCRIPTION:
-# Wrapper for Qt4's qmake. If project_file isn't specified, eqmake4 will
-# look for it in the current directory (${S}, non-recursively). If more
-# than one project file are found, then ${PN}.pro is processed, provided
-# that it exists. Otherwise eqmake4 fails.
+# Wrapper for Qt4's qmake. If project_file is not specified, eqmake4 looks
+# for one in the current directory (non-recursively). If multiple project
+# files are found, then ${PN}.pro is used, if it exists, otherwise eqmake4
+# will not be able to continue.
 #
 # All other arguments are appended unmodified to qmake command line.
 #
