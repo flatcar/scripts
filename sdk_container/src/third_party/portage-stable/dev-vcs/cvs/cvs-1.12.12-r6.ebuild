@@ -1,8 +1,8 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-vcs/cvs/cvs-1.12.12-r6.ebuild,v 1.1 2010/06/19 00:27:23 abcd Exp $
+# $Id$
 
-inherit eutils pam
+inherit eutils pam toolchain-funcs
 
 DESCRIPTION="Concurrent Versions System - source code revision control tools"
 HOMEPAGE="http://www.nongnu.org/cvs/"
@@ -14,9 +14,10 @@ SRC_URI="mirror://gnu/non-gnu/cvs/source/feature/${PV}/${P}.tar.bz2
 
 LICENSE="GPL-2 LGPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc ~sparc-fbsd x86 ~x86-fbsd"
+KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~sparc-fbsd ~x86-fbsd"
 
 IUSE="crypt doc kerberos nls pam server"
+RESTRICT='test'
 
 DEPEND=">=sys-libs/zlib-1.1.4
 	kerberos? ( virtual/krb5 )
@@ -31,10 +32,17 @@ src_unpack() {
 	cd "${S}"
 	epatch "${FILESDIR}"/${P}-cvs-gnulib-vasnprintf.patch
 	epatch "${FILESDIR}"/${P}-install-sh.patch
-	elog "If you want any CVS server functionality, you MUST emerge with USE=server!"
+	epatch "${FILESDIR}"/${P}-mktime-x32.patch # 395641
+	epatch "${FILESDIR}"/${P}-mktime-configure.patch #220040 #570208
+	use server || elog "If you want any CVS server functionality, you MUST emerge with USE=server!"
 }
 
 src_compile() {
+	if tc-is-cross-compiler ; then
+		# Sane defaults when cross-compiling (as these tests want to
+		# try and execute code).
+		export cvs_cv_func_printf_ptr="yes"
+	fi
 	econf \
 		--with-external-zlib \
 		--with-tmpdir=/tmp \
@@ -72,8 +80,4 @@ src_install() {
 	fi
 
 	newpamd "${FILESDIR}"/cvs.pam-include-1.12.12 cvs
-}
-
-src_test() {
-	einfo "FEATURES=\"maketest\" has been disabled for dev-vcs/cvs"
 }
