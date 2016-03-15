@@ -2,19 +2,19 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=5
+EAPI=6
 
-inherit eutils toolchain-funcs flag-o-matic multilib
+inherit toolchain-funcs flag-o-matic multilib
 
 DESCRIPTION="The extensible self-documenting text editor"
 HOMEPAGE="https://www.gnu.org/software/emacs/"
 SRC_URI="ftp://ftp.gnu.org/old-gnu/emacs/${P}.tar.gz
 	ftp://ftp.splode.com/pub/users/friedman/emacs/${P}-linux22x-elf-glibc21.diff.gz
-	https://dev.gentoo.org/~ulm/emacs/${P}-patches-8.tar.bz2"
+	https://dev.gentoo.org/~ulm/emacs/${P}-patches-9.tar.xz"
 
 LICENSE="GPL-1+ GPL-2+ BSD" #HPND
 SLOT="18"
-KEYWORDS="amd64 x86"
+KEYWORDS="~amd64 ~x86"
 IUSE="abi_x86_x32"
 
 RDEPEND=">=app-eselect/eselect-emacs-1.16
@@ -27,11 +27,7 @@ RDEPEND=">=app-eselect/eselect-emacs-1.16
 DEPEND="${RDEPEND}
 	virtual/pkgconfig"
 
-src_prepare() {
-	epatch "${WORKDIR}/${P}-linux22x-elf-glibc21.diff"
-	EPATCH_SUFFIX=patch epatch
-	epatch_user
-}
+PATCHES="../${P}-linux22x-elf-glibc21.diff ../patch"
 
 src_configure() {
 	# autoconf? What's autoconf? We are living in 1992. ;-)
@@ -68,6 +64,8 @@ src_configure() {
 	filter-flags -finline-functions
 	replace-flags -O[3-9] -O2
 	strip-flags
+	# Quieten GCC 5. Feel free to submit a patch adding all those prototypes.
+	append-flags -Wno-implicit
 }
 
 src_compile() {

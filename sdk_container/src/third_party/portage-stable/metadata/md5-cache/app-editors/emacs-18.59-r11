@@ -1,13 +1,13 @@
-DEFINED_PHASES=compile configure install postinst postrm preinst prepare
+DEFINED_PHASES=compile configure install postinst postrm preinst
 DEPEND=>=app-eselect/eselect-emacs-1.16 sys-libs/ncurses:0 amd64? ( abi_x86_x32? ( >=sys-libs/ncurses-5.9-r3:0[abi_x86_x32(-)?] ) !abi_x86_x32? ( >=sys-libs/ncurses-5.9-r3:0[abi_x86_32(-)] ) ) virtual/pkgconfig
 DESCRIPTION=The extensible self-documenting text editor
-EAPI=5
+EAPI=6
 HOMEPAGE=https://www.gnu.org/software/emacs/
 IUSE=abi_x86_x32
-KEYWORDS=amd64 x86
+KEYWORDS=~amd64 ~x86
 LICENSE=GPL-1+ GPL-2+ BSD
 RDEPEND=>=app-eselect/eselect-emacs-1.16 sys-libs/ncurses:0 amd64? ( abi_x86_x32? ( >=sys-libs/ncurses-5.9-r3:0[abi_x86_x32(-)?] ) !abi_x86_x32? ( >=sys-libs/ncurses-5.9-r3:0[abi_x86_32(-)] ) )
 SLOT=18
-SRC_URI=ftp://ftp.gnu.org/old-gnu/emacs/emacs-18.59.tar.gz ftp://ftp.splode.com/pub/users/friedman/emacs/emacs-18.59-linux22x-elf-glibc21.diff.gz https://dev.gentoo.org/~ulm/emacs/emacs-18.59-patches-8.tar.bz2
+SRC_URI=ftp://ftp.gnu.org/old-gnu/emacs/emacs-18.59.tar.gz ftp://ftp.splode.com/pub/users/friedman/emacs/emacs-18.59-linux22x-elf-glibc21.diff.gz https://dev.gentoo.org/~ulm/emacs/emacs-18.59-patches-9.tar.xz
 _eclasses_=eutils	9fb270e417e0e83d64ca52586c4a79de	flag-o-matic	c9602887773166fe300444712fc7ff98	multilib	62927b3db3a589b0806255f3a002d5d3	toolchain-funcs	7a212e5e01adfa4805c9978366e6ee85
-_md5_=3dbd4176805447df2042b35bd64f9632
+_md5_=b2159ba911f339eb4239b79dc83cb1ff
