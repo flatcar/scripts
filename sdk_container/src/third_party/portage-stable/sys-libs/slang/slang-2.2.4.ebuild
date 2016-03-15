@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/slang/slang-2.2.4.ebuild,v 1.13 2012/10/08 00:45:28 naota Exp $
+# $Id$
 
 EAPI=4
 inherit eutils
@@ -27,6 +27,7 @@ MAKEOPTS="${MAKEOPTS} -j1"
 
 src_prepare() {
 	epatch "${FILESDIR}"/${PN}-2.2.3-slsh-libs.patch
+	epatch "${FILESDIR}"/${PN}-2.2.4-memset.patch
 
 	# avoid linking to -ltermcap race with some systems
 	sed -i -e '/^TERMCAP=/s:=.*:=:' configure || die
