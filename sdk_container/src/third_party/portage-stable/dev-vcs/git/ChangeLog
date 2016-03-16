@@ -552,3 +552,44 @@
   Package-Manager: portage-2.2.27
   Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
 
+*git-2.7.3 (11 Mar 2016)
+
+  11 Mar 2016; Robin H. Johnson <robbat2@gentoo.org> +git-2.7.3.ebuild:
+  bump.
+
+  Package-Manager: portage-2.2.27
+
+  12 Mar 2016; Ulrich Müller <ulm@gentoo.org> git-2.4.10.ebuild,
+  git-2.5.4.ebuild, git-2.6.5.ebuild, git-2.7.1.ebuild, git-2.7.2.ebuild,
+  git-2.7.3.ebuild, git-9999.ebuild, git-9999-r1.ebuild, git-9999-r2.ebuild,
+  git-9999-r3.ebuild:
+  Add missing runtime dependency.
+
+  With USE=mediawiki, a dependency on dev-perl/DateTime-Format-ISO8601
+  was missing.
+
+  Bug: 576644
+
+  Package-Manager: portage-2.2.28
+
+  16 Mar 2016; Agostino Sarubbo <ago@gentoo.org> git-2.7.3.ebuild:
+  amd64 stable wrt bug #577482
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="amd64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  16 Mar 2016; Agostino Sarubbo <ago@gentoo.org> git-2.7.3.ebuild:
+  x86 stable wrt bug #577482
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="x86"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  16 Mar 2016; Agostino Sarubbo <ago@gentoo.org> git-2.7.3.ebuild:
+  ppc stable wrt bug #577482
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="ppc"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
