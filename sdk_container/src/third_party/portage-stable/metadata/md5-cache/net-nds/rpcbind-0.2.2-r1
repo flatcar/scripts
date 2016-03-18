@@ -9,5 +9,5 @@ LICENSE=BSD
 RDEPEND=>=net-libs/libtirpc-0.2.3 systemd? ( sys-apps/systemd:= ) tcpd? ( sys-apps/tcp-wrappers ) selinux? ( sec-policy/selinux-rpcbind )
 SLOT=0
 SRC_URI=mirror://sourceforge/rpcbind/rpcbind-0.2.2.tar.bz2
-_eclasses_=eutils	9fb270e417e0e83d64ca52586c4a79de	multilib	62927b3db3a589b0806255f3a002d5d3	systemd	090342761f573a8280dd5aa6b0345f3b	toolchain-funcs	42408102d713fbad60ca21349865edb4
+_eclasses_=eutils	9d81603248f2ba3ec59124320d123e5e	multilib	3972ca401cf7dbb430df9995f5d8d580	systemd	3165c885f3c71ffae7a867d931fb0e07	toolchain-funcs	7a212e5e01adfa4805c9978366e6ee85
 _md5_=f1643ff36ee94b328fb84e679b9f2280

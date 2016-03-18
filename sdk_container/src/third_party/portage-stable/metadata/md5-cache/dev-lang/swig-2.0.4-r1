@@ -10,5 +10,5 @@ RDEPEND=pcre? ( dev-libs/libpcre ) ccache? ( sys-libs/zlib )
 RESTRICT=test
 SLOT=0
 SRC_URI=mirror://sourceforge/swig/swig-2.0.4.tar.gz
-_eclasses_=base	87f7447ccfc06fd0729ff4684e11e0d6	eutils	9fb270e417e0e83d64ca52586c4a79de	multilib	62927b3db3a589b0806255f3a002d5d3	toolchain-funcs	42408102d713fbad60ca21349865edb4
+_eclasses_=base	3fe4f8980633fd7bc69e9887209ba2fe	eutils	9d81603248f2ba3ec59124320d123e5e	multilib	3972ca401cf7dbb430df9995f5d8d580	toolchain-funcs	7a212e5e01adfa4805c9978366e6ee85
 _md5_=9d0664987e89b1341dbdd77c159640cf

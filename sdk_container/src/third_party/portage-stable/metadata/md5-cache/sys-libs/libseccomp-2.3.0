@@ -8,5 +8,5 @@ KEYWORDS=-* ~amd64 ~arm ~arm64 ~mips ~ppc ~ppc64 ~s390 ~x86
 LICENSE=LGPL-2.1
 SLOT=0
 SRC_URI=https://github.com/seccomp/libseccomp/releases/download/v2.3.0/libseccomp-2.3.0.tar.gz
-_eclasses_=eutils	9fb270e417e0e83d64ca52586c4a79de	multibuild	6d4858dc00f8bc51caf3f957f8430eb0	multilib	62927b3db3a589b0806255f3a002d5d3	multilib-build	0983c7893df461213a05f791cc7dea6d	multilib-minimal	13dd976916c35a1e2c8d170e840c7018	toolchain-funcs	7a212e5e01adfa4805c9978366e6ee85
+_eclasses_=eutils	9d81603248f2ba3ec59124320d123e5e	multibuild	742139c87a9fa3766f0c2b155e5522bf	multilib	3972ca401cf7dbb430df9995f5d8d580	multilib-build	8fe2e81aeb36cdf8a6cc5f50443879cc	multilib-minimal	0224dee31c0f98405d572e14ad6dee65	toolchain-funcs	7a212e5e01adfa4805c9978366e6ee85
 _md5_=185f51f4acea1eb3efd307d698362bb1

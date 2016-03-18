@@ -1,4 +1,4 @@
-DEFINED_PHASES=compile configure install postinst postrm preinst prepare prerm setup
+DEFINED_PHASES=compile configure install postinst postrm preinst prepare prerm pretend setup
 DEPEND=|| ( >=dev-lang/python-2.7.5-r2:2.7 ) efi? ( >=sys-devel/binutils-2.22[multitarget] ) !efi? ( >=sys-devel/binutils-2.22[-multitarget] )
 DESCRIPTION=The Xen virtual machine monitor
 EAPI=5
@@ -11,5 +11,5 @@ REQUIRED_USE=flask? ( xsm )
 RESTRICT=test
 SLOT=0
 SRC_URI=http://bits.xensource.com/oss-xen/release/4.2.5/xen-4.2.5.tar.gz http://dev.gentoo.org/~dlan/distfiles/xen-4.2.5-upstream-patches-1.tar.xz
-_eclasses_=eutils	9fb270e417e0e83d64ca52586c4a79de	flag-o-matic	c9602887773166fe300444712fc7ff98	mount-boot	02dd3bb4c5f025fef0fc3ade0f27c217	multilib	62927b3db3a589b0806255f3a002d5d3	python-any-r1	8eb13cdf35f6e43c48107b911900b2cc	python-utils-r1	30887c5e8630bbf27b5cf0fd74564323	toolchain-funcs	42408102d713fbad60ca21349865edb4
+_eclasses_=eutils	9d81603248f2ba3ec59124320d123e5e	flag-o-matic	d270fa247153df66074f795fa42dba3e	mount-boot	41ed556fa5641393d5323e421c8e5bcf	multilib	3972ca401cf7dbb430df9995f5d8d580	python-any-r1	8eb13cdf35f6e43c48107b911900b2cc	python-utils-r1	2e6826f6a93ad2acf904eecf5b5fb6d2	toolchain-funcs	7a212e5e01adfa4805c9978366e6ee85
 _md5_=9a36343babb91893313ea9c072b7b87d

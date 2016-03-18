@@ -6,5 +6,5 @@ HOMEPAGE=http://www.gentoo.org/
 LICENSE=GPL-2
 RDEPEND=>=sys-apps/portage-2.1 app-shells/bash !sys-devel/crossdev-wrappers
 SLOT=0
-_eclasses_=git-2	e28f0d8a9b321431b1e699782851b827
+_eclasses_=git-2	df00117322129fb906bb0a53c3d6a020
 _md5_=1794df3947cde94a47acf645a6f21a7c

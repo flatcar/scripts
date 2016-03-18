@@ -9,5 +9,5 @@ LICENSE=GPL-2
 RDEPEND=ldap? ( >=net-nds/openldap-2.3.35 ) tcpd? ( sys-apps/tcp-wrappers ) rpc? ( || ( net-nds/portmap net-nds/rpcbind ) )
 SLOT=0
 SRC_URI=mirror://sourceforge/linuxquota/quota-3.17.tar.gz
-_eclasses_=eutils	9fb270e417e0e83d64ca52586c4a79de	flag-o-matic	c9602887773166fe300444712fc7ff98	multilib	62927b3db3a589b0806255f3a002d5d3	toolchain-funcs	42408102d713fbad60ca21349865edb4
+_eclasses_=eutils	9d81603248f2ba3ec59124320d123e5e	flag-o-matic	d270fa247153df66074f795fa42dba3e	multilib	3972ca401cf7dbb430df9995f5d8d580	toolchain-funcs	7a212e5e01adfa4805c9978366e6ee85
 _md5_=6de7a1e6188cdfead6d5c68c760f1ef5

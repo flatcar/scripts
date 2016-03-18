@@ -1,5 +1,5 @@
 DEFINED_PHASES=compile configure install postinst postrm preinst prepare test unpack
-DEPEND=python_targets_python2_7? ( >=dev-lang/python-2.7.5-r2:2.7 ) >=dev-lang/python-exec-2:=[python_targets_python2_7(-)?,-python_single_target_python2_7(-)] >=dev-libs/libxml2-2.6.12[python,python_targets_python2_7(-)?,-python_single_target_python2_7(-)] >=dev-libs/libxslt-1.1.8 app-text/docbook-xml-dtd:4.4 app-text/scrollkeeper-dtd >=dev-util/intltool-0.35 sys-devel/gettext virtual/awk virtual/pkgconfig app-arch/xz-utils >=sys-apps/sed-4
+DEPEND=python_targets_python2_7? ( >=dev-lang/python-2.7.5-r2:2.7 ) >=dev-lang/python-exec-2:=[python_targets_python2_7(-)?,-python_single_target_python2_7(-)] >=dev-libs/libxml2-2.6.12[python,python_targets_python2_7(-)?,-python_single_target_python2_7(-)] >=dev-libs/libxslt-1.1.8 app-text/docbook-xml-dtd:4.4 app-text/scrollkeeper-dtd >=dev-util/intltool-0.35 sys-devel/gettext virtual/awk virtual/pkgconfig app-arch/xz-utils >=sys-apps/sed-4 dev-util/desktop-file-utils x11-misc/shared-mime-info
 DESCRIPTION=A collection of documentation utilities for the Gnome project
 EAPI=5
 HOMEPAGE=http://live.gnome.org/GnomeDocUtils
@@ -9,5 +9,5 @@ LICENSE=GPL-2 LGPL-2.1
 RDEPEND=python_targets_python2_7? ( >=dev-lang/python-2.7.5-r2:2.7 ) >=dev-lang/python-exec-2:=[python_targets_python2_7(-)?,-python_single_target_python2_7(-)] >=dev-libs/libxml2-2.6.12[python,python_targets_python2_7(-)?,-python_single_target_python2_7(-)] >=dev-libs/libxslt-1.1.8
 SLOT=0
 SRC_URI=mirror://gnome/sources/gnome-doc-utils/0.20/gnome-doc-utils-0.20.10.tar.xz
-_eclasses_=eutils	9fb270e417e0e83d64ca52586c4a79de	fdo-mime	0acfe1a88fd8751a1d5dc671168219fa	gnome.org	8fef8f967214f56e08fa92d61163d891	gnome2	10c513def52488230abb60a4b19a03b9	gnome2-utils	5cdfd22a2163c9d3a891648bd19453a7	libtool	52d0e17251d04645ffaa61bfdd858944	multibuild	6d4858dc00f8bc51caf3f957f8430eb0	multilib	62927b3db3a589b0806255f3a002d5d3	python-r1	0f6937650a475d673baa5d0c8c0b37b3	python-utils-r1	30887c5e8630bbf27b5cf0fd74564323	toolchain-funcs	42408102d713fbad60ca21349865edb4	versionator	cd0bcdb170807e4a1984115e9d53a26f
+_eclasses_=eutils	9d81603248f2ba3ec59124320d123e5e	gnome.org	ad34f378a3d57a6f2f2b8b4aaca4543e	gnome2	e079aed86716c8f78e28040aa43db4fd	gnome2-utils	d19e7813f27c8f982134d657889b13cf	libtool	b75230758539a7da029e24afdb693960	multibuild	742139c87a9fa3766f0c2b155e5522bf	multilib	3972ca401cf7dbb430df9995f5d8d580	python-r1	0f6937650a475d673baa5d0c8c0b37b3	python-utils-r1	2e6826f6a93ad2acf904eecf5b5fb6d2	toolchain-funcs	7a212e5e01adfa4805c9978366e6ee85	versionator	99ae9d758cbe7cfed19170e7d48f5a9c	xdg	a5c4c5ce4f5ce9a2e777f5d9a40a8723	xdg-utils	e2b2bd56125ce8cf59ce30c642b59d48
 _md5_=86fd4203df151e9b4381e4626a309d2c
