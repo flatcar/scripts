@@ -1,443 +1,216 @@
 # ChangeLog for net-libs/libmicrohttpd
-# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-libs/libmicrohttpd/ChangeLog,v 1.104 2015/07/30 12:29:54 ago Exp $
+# Copyright 1999-2016 Gentoo Foundation; Distributed under the GPL v2
+# (auto-generated from git log)
 
-  30 Jul 2015; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.42.ebuild:
-  Stable for sparc, wrt bug #553930
+*libmicrohttpd-0.9.42 (09 Aug 2015)
+*libmicrohttpd-0.9.39 (09 Aug 2015)
 
-  24 Jul 2015; Mikle Kolyada <zlogene@gentoo.org> libmicrohttpd-0.9.42.ebuild:
-  ia64 stable wrt bug #553930
+  09 Aug 2015; Robin H. Johnson <robbat2@gentoo.org>
+  +libmicrohttpd-0.9.39.ebuild, +libmicrohttpd-0.9.42.ebuild, +metadata.xml:
+  proj/gentoo: Initial commit
 
-  17 Jul 2015; Tobias Klausmann <klausman@gentoo.org>
+  This commit represents a new era for Gentoo:
+  Storing the gentoo-x86 tree in Git, as converted from CVS.
+
+  This commit is the start of the NEW history.
+  Any historical data is intended to be grafted onto this point.
+
+  Creation process:
+  1. Take final CVS checkout snapshot
+  2. Remove ALL ChangeLog* files
+  3. Transform all Manifests to thin
+  4. Remove empty Manifests
+  5. Convert all stale $Header$/$Id$ CVS keywords to non-expanded Git $Id$
+  5.1. Do not touch files with -kb/-ko keyword flags.
+
+  Signed-off-by: Robin H. Johnson <robbat2@gentoo.org>
+  X-Thanks: Alec Warner <antarus@gentoo.org> - did the GSoC 2006 migration
+  tests
+  X-Thanks: Robin H. Johnson <robbat2@gentoo.org> - infra guy, herding this
+  project
+  X-Thanks: Nguyen Thai Ngoc Duy <pclouds@gentoo.org> - Former Gentoo
+  developer, wrote Git features for the migration
+  X-Thanks: Brian Harring <ferringb@gentoo.org> - wrote much python to improve
+  cvs2svn
+  X-Thanks: Rich Freeman <rich0@gentoo.org> - validation scripts
+  X-Thanks: Patrick Lauer <patrick@gentoo.org> - Gentoo dev, running new 2014
+  work in migration
+  X-Thanks: Michał Górny <mgorny@gentoo.org> - scripts, QA, nagging
+  X-Thanks: All of other Gentoo developers - many ideas and lots of paint on
+  the bikeshed
+
+  24 Aug 2015; Justin Lecher <jlec@gentoo.org> metadata.xml:
+  Use https by default
+
+  Convert all URLs for sites supporting encrypted connections from http to
+  https
+
+  Signed-off-by: Justin Lecher <jlec@gentoo.org>
+
+  24 Aug 2015; Justin Lecher <jlec@gentoo.org> libmicrohttpd-0.9.39.ebuild,
   libmicrohttpd-0.9.42.ebuild:
-  Stable on alpha, bug 553930
+  Use https for most gnu.org URLs
 
-  16 Jul 2015; Mikle Kolyada <zlogene@gentoo.org> libmicrohttpd-0.9.42.ebuild:
-  amd64 stable wrt bug #553930
+  Signed-off-by: Justin Lecher <jlec@gentoo.org>
 
-  11 Jul 2015; Mikle Kolyada <zlogene@gentoo.org> libmicrohttpd-0.9.42.ebuild:
-  x86 stable wrt bug #553930
+  24 Aug 2015; Mike Gilbert <floppym@gentoo.org> metadata.xml:
+  Revert DOCTYPE SYSTEM https changes in metadata.xml
 
-  11 Jul 2015; Jeroen Roovers <jer@gentoo.org> libmicrohttpd-0.9.42.ebuild:
-  Stable for HPPA (bug #553930).
+  repoman does not yet accept the https version.
+  This partially reverts eaaface92ee81f30a6ac66fe7acbcc42c00dc450.
 
-  04 Jul 2015; Anthony G. Basile <blueness@gentoo.org>
-  libmicrohttpd-0.9.42.ebuild:
-  Stable on arm, ppc and ppc64.  Bug #553930.
+  Bug: https://bugs.gentoo.org/552720
 
-  04 Jul 2015; Anthony G. Basile <blueness@gentoo.org>
-  -libmicrohttpd-0.9.40.ebuild, -libmicrohttpd-0.9.41.ebuild:
-  Remove older unstable versions.
+  14 Sep 2015; Pacho Ramos <pacho@gentoo.org> libmicrohttpd-0.9.42.ebuild:
+  It needs to be rebuilt with libgcrypt subslot bumps
 
-  04 Jul 2015; Anthony G. Basile <blueness@gentoo.org>
-  libmicrohttpd-0.9.42.ebuild:
-  Unconditionally enable postprocessor.  Bug #550718.
+  Package-Manager: portage-2.2.20.1
 
-  18 May 2015; Mike Frysinger <vapier@gentoo.org> libmicrohttpd-0.9.42.ebuild:
-  Disable building of examples as they are not actually installed; fix from Nam
-  Nguyen (Chromium OS).
+*libmicrohttpd-0.9.44 (02 Oct 2015)
 
-  14 May 2015; Anthony G. Basile <blueness@gentoo.org> ChangeLog:
-  Fix gpg signature.
+  02 Oct 2015; Anthony G. Basile <blueness@gentoo.org>
+  +libmicrohttpd-0.9.44.ebuild:
+  version bump to 0.9.44
 
-*libmicrohttpd-0.9.42 (14 May 2015)
+  Package-Manager: portage-2.2.20.1
 
-  14 May 2015; Anthony G. Basile <blueness@gentoo.org>
-  +libmicrohttpd-0.9.42.ebuild:
-  Version bump.
+  09 Oct 2015; Anthony G. Basile <blueness@gentoo.org>
+  -libmicrohttpd-0.9.39.ebuild:
+  remove older stable version.
 
-  30 Apr 2015; Anthony G. Basile <blueness@gentoo.org>
-  -libmicrohttpd-0.9.37.ebuild, -libmicrohttpd-0.9.38.ebuild:
-  Remove older versions.
+  Package-Manager: portage-2.2.20.1
 
-*libmicrohttpd-0.9.41 (30 Apr 2015)
+*libmicrohttpd-0.9.45 (31 Oct 2015)
 
-  30 Apr 2015; Anthony G. Basile <blueness@gentoo.org>
-  +libmicrohttpd-0.9.41.ebuild:
-  Version bump.
+  31 Oct 2015; Anthony G. Basile <blueness@gentoo.org>
+  +libmicrohttpd-0.9.45.ebuild:
+  version bump 0.9.45
 
-  28 Apr 2015; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.39.ebuild:
-  Stable for sparc, wrt bug #545814
+  Package-Manager: portage-2.2.20.1
 
-  19 Apr 2015; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.39.ebuild:
-  Stable for x86, wrt bug #545814
+  31 Oct 2015; Anthony G. Basile <blueness@gentoo.org>
+  -libmicrohttpd-0.9.44.ebuild:
+  remove older unstable.
 
-  14 Apr 2015; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.39.ebuild:
-  Stable for ia64, wrt bug #545814
+  Package-Manager: portage-2.2.20.1
 
-  13 Apr 2015; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.39.ebuild:
-  Stable for alpha, wrt bug #545814
+*libmicrohttpd-0.9.45-r1 (31 Oct 2015)
 
-  08 Apr 2015; Jeroen Roovers <jer@gentoo.org> libmicrohttpd-0.9.39.ebuild:
-  Stable for HPPA (bug #545814).
+  31 Oct 2015; Mike Gilbert <floppym@gentoo.org> -libmicrohttpd-0.9.45.ebuild,
+  +libmicrohttpd-0.9.45-r1.ebuild:
+  Add a subslot
 
-  08 Apr 2015; Anthony G. Basile <blueness@gentoo.org>
-  libmicrohttpd-0.9.39.ebuild:
-  Stable for arm, ppc and ppc64. Bug #545814.
+  The soname version changed from 10 to 11, so add a matching subslot.
 
-  08 Apr 2015; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.39.ebuild:
-  Stable for amd64, wrt bug #545814
+  Package-Manager: portage-2.2.23_p10
 
-*libmicrohttpd-0.9.40 (07 Apr 2015)
+*libmicrohttpd-0.9.46 (03 Dec 2015)
 
-  07 Apr 2015; Anthony G. Basile <blueness@gentoo.org>
-  +libmicrohttpd-0.9.40.ebuild:
-  Version bump.
+  03 Dec 2015; Anthony G. Basile <blueness@gentoo.org>
+  +libmicrohttpd-0.9.46.ebuild:
+  version bump to 0.9.46
 
-*libmicrohttpd-0.9.39 (27 Dec 2014)
+  Package-Manager: portage-2.2.20.1
 
-  27 Dec 2014; Anthony G. Basile <blueness@gentoo.org>
-  +libmicrohttpd-0.9.39.ebuild:
-  Version bump
+*libmicrohttpd-0.9.47 (04 Dec 2015)
 
-  24 Dec 2014; Anthony G. Basile <blueness@gentoo.org>
-  -libmicrohttpd-0.9.32.ebuild, -libmicrohttpd-0.9.33.ebuild,
-  -libmicrohttpd-0.9.34.ebuild, -libmicrohttpd-0.9.35.ebuild,
-  -libmicrohttpd-0.9.36.ebuild:
-  Remove older versions
+  04 Dec 2015; Anthony G. Basile <blueness@gentoo.org>
+  +libmicrohttpd-0.9.47.ebuild:
+  version bump to 0.9.47
 
-  02 Nov 2014; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.37.ebuild:
-  Stable for alpha, wrt bug #524760
+  Package-Manager: portage-2.2.20.1
 
-  29 Oct 2014; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.37.ebuild:
-  Stable for sparc, wrt bug #524760
+  06 Dec 2015; Anthony G. Basile <blueness@gentoo.org>
+  libmicrohttpd-0.9.47.ebuild:
+  remove --disable-spdy, bug #567620.
 
-  28 Oct 2014; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.37.ebuild:
-  Stable for ia64, wrt bug #524760
+  Package-Manager: portage-2.2.20.1
 
-  10 Oct 2014; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.37.ebuild:
-  Stable for x86, wrt bug #524760
+*libmicrohttpd-0.9.48 (19 Dec 2015)
 
-  09 Oct 2014; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.37.ebuild:
-  Stable for amd64, wrt bug #524760
+  19 Dec 2015; Anthony G. Basile <blueness@gentoo.org>
+  libmicrohttpd-0.9.42.ebuild, libmicrohttpd-0.9.45-r1.ebuild,
+  libmicrohttpd-0.9.46.ebuild, libmicrohttpd-0.9.47.ebuild,
+  +libmicrohttpd-0.9.48.ebuild:
+  version bump to 0.9.48
 
-  08 Oct 2014; Anthony G. Basile <blueness@gentoo.org>
-  libmicrohttpd-0.9.37.ebuild:
-  Stable on arm/ppc/ppc64, bug #524760
+  Package-Manager: portage-2.2.24
 
-*libmicrohttpd-0.9.38 (08 Oct 2014)
+  21 Dec 2015; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.47.ebuild:
+  amd64 stable wrt bug #568708
 
-  08 Oct 2014; Anthony G. Basile <blueness@gentoo.org>
-  +libmicrohttpd-0.9.38.ebuild:
-  Version bump
+  Package-Manager: portage-2.2.24
+  RepoMan-Options: --include-arches="amd64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
 
-  10 Aug 2014; Sergei Trofimovich <slyfox@gentoo.org>
-  libmicrohttpd-0.9.32.ebuild, libmicrohttpd-0.9.33.ebuild,
-  libmicrohttpd-0.9.34.ebuild, libmicrohttpd-0.9.35.ebuild,
-  libmicrohttpd-0.9.36.ebuild, libmicrohttpd-0.9.37.ebuild:
-  QA: drop trailing '.' from DESCRIPTION
+  25 Dec 2015; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.47.ebuild:
+  x86 stable wrt bug #568708
 
-*libmicrohttpd-0.9.37 (02 Jun 2014)
+  Package-Manager: portage-2.2.24
+  RepoMan-Options: --include-arches="x86"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
 
-  02 Jun 2014; Anthony G. Basile <blueness@gentoo.org>
-  +libmicrohttpd-0.9.37.ebuild:
-  Version bump
+  26 Dec 2015; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.47.ebuild:
+  ppc stable wrt bug #568708
 
-*libmicrohttpd-0.9.36 (26 May 2014)
+  Package-Manager: portage-2.2.24
+  RepoMan-Options: --include-arches="ppc"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
 
-  26 May 2014; Anthony G. Basile <blueness@gentoo.org>
-  +libmicrohttpd-0.9.36.ebuild:
-  Version bump
+  09 Jan 2016; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.47.ebuild:
+  sparc stable wrt bug #568708
 
-  25 May 2014; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.34.ebuild:
-  Stable for sparc, wrt bug #509094
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="sparc"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
 
-  25 May 2014; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.34.ebuild:
-  Stable for ia64, wrt bug #509094
+  09 Jan 2016; Markus Meier <maekke@gentoo.org> libmicrohttpd-0.9.47.ebuild:
+  arm stable, bug #568708
 
-  25 May 2014; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.34.ebuild:
-  Stable for alpha, wrt bug #509094
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="arm"
 
-  25 May 2014; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.34.ebuild:
-  Stable for x86, wrt bug #509094
+  10 Jan 2016; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.47.ebuild:
+  alpha stable wrt bug #568708
 
-  25 May 2014; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.34.ebuild:
-  Stable for amd64, wrt bug #509094
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="alpha"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
 
-  03 May 2014; Anthony G. Basile <blueness@gentoo.org>
-  libmicrohttpd-0.9.34.ebuild:
-  Stable on ppc, ppc64, arm.  Bug #509094
+  11 Jan 2016; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.47.ebuild:
+  ia64 stable wrt bug #568708
 
-*libmicrohttpd-0.9.35 (03 May 2014)
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="ia64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
 
-  03 May 2014; Anthony G. Basile <blueness@gentoo.org>
-  +libmicrohttpd-0.9.35.ebuild:
-  Version bump
+  23 Jan 2016; Jeroen Roovers <jer@gentoo.org> libmicrohttpd-0.9.47.ebuild:
+  Stable for HPPA (bug #568708).
 
-  27 Mar 2014; Mike Gilbert <floppym@gentoo.org> libmicrohttpd-0.9.33.ebuild,
-  libmicrohttpd-0.9.34.ebuild:
-  Add ~sparc keyword to newer ebuilds.
+  Package-Manager: portage-2.2.27
+  RepoMan-Options: --ignore-arches
 
-  01 Mar 2014; Michał Górny <mgorny@gentoo.org> libmicrohttpd-0.9.32.ebuild,
-  libmicrohttpd-0.9.33.ebuild, libmicrohttpd-0.9.34.ebuild:
-  Update libgcrypt dep to use slot :0.
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Unify quoting in metadata.xml files for machine processing
 
-*libmicrohttpd-0.9.34 (24 Feb 2014)
+  Force unified quoting in all metadata.xml files since lxml does not
+  preserve original use of single and double quotes. Ensuring unified
+  quoting before the process allows distinguishing the GLEP 67-related
+  metadata.xml changes from unrelated quoting changes.
 
-  24 Feb 2014; Anthony G. Basile <blueness@gentoo.org>
-  +libmicrohttpd-0.9.34.ebuild,
-  -files/libmicrohttpd-0.9.28-fix-no-messages.patch:
-  Version bump
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Set appropriate maintainer types in metadata.xml (GLEP 67)
 
-  02 Feb 2014; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.32.ebuild:
-  Stable for alpha, wrt bug #487344
+  12 Feb 2016; Anthony G. Basile <blueness@gentoo.org>
+  libmicrohttpd-0.9.47.ebuild:
+  net-libs/libmicrohttpd: stable on ppc64, bug #568708
 
-  19 Jan 2014; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.32.ebuild:
-  Stable for sparc, wrt bug #498494
+  Package-Manager: portage-2.2.26
 
-  19 Jan 2014; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.32.ebuild:
-  Stable for ia64, wrt bug #498494
+  12 Feb 2016; Anthony G. Basile <blueness@gentoo.org>
+  -libmicrohttpd-0.9.42.ebuild, -libmicrohttpd-0.9.45-r1.ebuild,
+  -libmicrohttpd-0.9.46.ebuild:
+  remove older version
 
-  07 Jan 2014; Pacho Ramos <pacho@gentoo.org> libmicrohttpd-0.9.32.ebuild,
-  libmicrohttpd-0.9.33.ebuild:
-  Keyword on ia64 (#497252 by Emeric Maschino)
+  Package-Manager: portage-2.2.26
 
-  22 Dec 2013; Anthony G. Basile <blueness@gentoo.org>
-  -libmicrohttpd-0.9.27.ebuild, -libmicrohttpd-0.9.28.ebuild,
-  -libmicrohttpd-0.9.30.ebuild, -libmicrohttpd-0.9.31.ebuild:
-  Remove older versions
-
-*libmicrohttpd-0.9.33 (22 Dec 2013)
-
-  22 Dec 2013; Anthony G. Basile <blueness@gentoo.org>
-  +libmicrohttpd-0.9.33.ebuild:
-  Version bump
-
-  22 Dec 2013; Pacho Ramos <pacho@gentoo.org> libmicrohttpd-0.9.30.ebuild:
-  amd64 stable, bug 488644
-
-  22 Dec 2013; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.30.ebuild:
-  Stable for ppc64, wrt bug #488644
-
-  21 Dec 2013; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.30.ebuild:
-  Stable for ppc, wrt bug #488644
-
-  13 Dec 2013; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.32.ebuild:
-  Stable for arm, wrt bug #493450
-
-  13 Dec 2013; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.32.ebuild:
-  Stable for ppc64, wrt bug #493450
-
-  13 Dec 2013; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.32.ebuild:
-  Stable for ppc, wrt bug #493450
-
-  10 Dec 2013; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.32.ebuild:
-  Stable for x86, wrt bug #493450
-
-  10 Dec 2013; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.32.ebuild:
-  Stable for amd64, wrt bug #493450
-
-*libmicrohttpd-0.9.32 (03 Dec 2013)
-
-  03 Dec 2013; Anthony G. Basile <blueness@gentoo.org>
-  +libmicrohttpd-0.9.32.ebuild:
-  Version bump
-
-  25 Nov 2013; Jeroen Roovers <jer@gentoo.org> libmicrohttpd-0.9.28.ebuild,
-  libmicrohttpd-0.9.30.ebuild, libmicrohttpd-0.9.31.ebuild:
-  Marked ~hppa too.
-
-  13 Nov 2013; Matt Turner <mattst88@gentoo.org> libmicrohttpd-0.9.31.ebuild:
-  Added ~alpha, bug 478076.
-
-  23 Oct 2013; Markus Meier <maekke@gentoo.org> libmicrohttpd-0.9.30.ebuild:
-  arm stable, bug #488644
-
-*libmicrohttpd-0.9.31 (19 Oct 2013)
-
-  19 Oct 2013; Anthony G. Basile <blueness@gentoo.org>
-  +libmicrohttpd-0.9.31.ebuild, metadata.xml:
-  Version bump
-
-  02 Sep 2013; Anthony G. Basile <blueness@gentoo.org>
-  -libmicrohttpd-0.9.21.ebuild, -libmicrohttpd-0.9.23.ebuild,
-  -libmicrohttpd-0.9.24.ebuild:
-  Remove older versions
-
-*libmicrohttpd-0.9.30 (02 Sep 2013)
-
-  02 Sep 2013; Anthony G. Basile <blueness@gentoo.org>
-  +libmicrohttpd-0.9.30.ebuild:
-  Version bump
-
-*libmicrohttpd-0.9.28 (24 Jul 2013)
-
-  24 Jul 2013; Anthony G. Basile <blueness@gentoo.org>
-  +files/libmicrohttpd-0.9.28-fix-no-messages.patch,
-  +libmicrohttpd-0.9.28.ebuild:
-  Version bump
-
-  20 Jul 2013; Jeroen Roovers <jer@gentoo.org> libmicrohttpd-0.9.27.ebuild:
-  Marked ~hppa too.
-
-  26 Jun 2013; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.27.ebuild:
-  Stable for arm, wrt bug #474266
-
-  25 Jun 2013; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.27.ebuild:
-  Stable for amd64, wrt bug #474266
-
-  25 Jun 2013; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.27.ebuild:
-  Stable for x86, wrt bug #474266
-
-  25 Jun 2013; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.27.ebuild:
-  Stable for ppc64, wrt bug #474266
-
-  24 Jun 2013; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.27.ebuild:
-  Stable for ppc, wrt bug #474266
-
-*libmicrohttpd-0.9.27 (06 May 2013)
-
-  06 May 2013; Anthony G. Basile <blueness@gentoo.org>
-  +libmicrohttpd-0.9.27.ebuild, -files/libmicrohttpd-0.9.26-fix-doc-build.patch,
-  -libmicrohttpd-0.9.25.ebuild, -libmicrohttpd-0.9.26.ebuild:
-  Version bump and remove 0.9.26 requiring autoreconf, bug #467852
-
-  30 Mar 2013; Anthony G. Basile <blueness@gentoo.org>
-  files/libmicrohttpd-0.9.26-fix-doc-build.patch:
-  Obsessing over patch style
-
-*libmicrohttpd-0.9.26 (30 Mar 2013)
-
-  30 Mar 2013; Anthony G. Basile <blueness@gentoo.org>
-  +files/libmicrohttpd-0.9.26-fix-doc-build.patch, +libmicrohttpd-0.9.26.ebuild:
-  Version bump
-
-*libmicrohttpd-0.9.25 (06 Feb 2013)
-
-  06 Feb 2013; Anthony G. Basile <blueness@gentoo.org>
-  +libmicrohttpd-0.9.25.ebuild:
-  Version bump
-
-  26 Dec 2012; Anthony G. Basile <blueness@gentoo.org>
-  -libmicrohttpd-0.9.19.ebuild, -libmicrohttpd-0.9.20.ebuild,
-  -libmicrohttpd-0.9.22.ebuild:
-  Remove older versions
-
-  26 Dec 2012; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.23.ebuild:
-  Stable for x86, wrt bug #448660
-
-  26 Dec 2012; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.23.ebuild:
-  Stable for amd64, wrt bug #448660
-
-  26 Dec 2012; Anthony G. Basile <blueness@gentoo.org>
-  libmicrohttpd-0.9.23.ebuild:
-  stable arm ppc ppc64, bug #448660
-
-*libmicrohttpd-0.9.24 (26 Dec 2012)
-
-  26 Dec 2012; Anthony G. Basile <blueness@gentoo.org>
-  +libmicrohttpd-0.9.24.ebuild:
-  Version bump
-
-  11 Nov 2012; Anthony G. Basile <blueness@gentoo.org>
-  libmicrohttpd-0.9.23.ebuild:
-  Enable auth by default
-
-*libmicrohttpd-0.9.23 (10 Nov 2012)
-
-  10 Nov 2012; Anthony G. Basile <blueness@gentoo.org>
-  +libmicrohttpd-0.9.23.ebuild:
-  Version bump
-
-  17 Oct 2012; Pawel Hajdan jr <phajdan.jr@gentoo.org>
-  libmicrohttpd-0.9.21.ebuild:
-  x86 stable wrt bug #433327
-
-  01 Oct 2012; Anthony G. Basile <blueness@gentoo.org>
-  libmicrohttpd-0.9.22.ebuild:
-  keyword ~mips ~ppc ~ppc64
-
-  30 Sep 2012; Anthony G. Basile <blueness@gentoo.org>
-  libmicrohttpd-0.9.22.ebuild:
-  keyword ~arm, bug #436728
-
-  15 Sep 2012; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.21.ebuild:
-  Stable for amd64, wrt bug #433327
-
-*libmicrohttpd-0.9.22 (15 Sep 2012)
-
-  15 Sep 2012; Anthony G. Basile <blueness@gentoo.org>
-  +libmicrohttpd-0.9.22.ebuild:
-  Version bump
-
-*libmicrohttpd-0.9.21 (20 Jul 2012)
-
-  20 Jul 2012; Anthony G. Basile <blueness@gentoo.org>
-  +libmicrohttpd-0.9.21.ebuild:
-  Version bump, bug #334067 no longer valid
-
-  25 Jun 2012; Anthony G. Basile <blueness@gentoo.org>
-  libmicrohttpd-0.9.19.ebuild, libmicrohttpd-0.9.20.ebuild:
-  Update HOMEPAGE
-
-  25 Jun 2012; Anthony G. Basile <blueness@gentoo.org> metadata.xml:
-  Add myself as maintainer
-
-*libmicrohttpd-0.9.20 (09 Jun 2012)
-
-  09 Jun 2012; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
-  +libmicrohttpd-0.9.20.ebuild:
-  Version bump. Drop runtime dependency on curl, bug #417911. Update for new
-  use_expand, bug #412445.
-
-  22 May 2012; Jeff Horelick <jdhore@gentoo.org> libmicrohttpd-0.9.19.ebuild:
-  marked x86 per bug 415907
-
-  14 May 2012; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.19.ebuild:
-  Stable for amd64, wrt bug #415907
-
-  14 May 2012; Tomáš Chvátal <scarabeus@gentoo.org> libmicrohttpd-0.9.19.ebuild:
-  Bump eapi and do not distribute static lib and la file unless needed.
-
-*libmicrohttpd-0.9.19 (03 Mar 2012)
-
-  03 Mar 2012; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
-  -libmicrohttpd-0.9.15.ebuild, +libmicrohttpd-0.9.19.ebuild:
-  Version bump, bug #406377.
-
-*libmicrohttpd-0.9.15 (16 Oct 2011)
-
-  16 Oct 2011; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
-  -libmicrohttpd-0.9.12.ebuild, +libmicrohttpd-0.9.15.ebuild:
-  Version bump, bug #385429.
-
-*libmicrohttpd-0.9.12 (04 Jul 2011)
-
-  04 Jul 2011; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
-  -libmicrohttpd-0.9.11.ebuild, +libmicrohttpd-0.9.12.ebuild:
-  Version bump.
-
-*libmicrohttpd-0.9.11 (30 May 2011)
-
-  30 May 2011; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
-  -libmicrohttpd-0.9.8.ebuild, +libmicrohttpd-0.9.11.ebuild:
-  Version bump.
-
-*libmicrohttpd-0.9.8 (20 Mar 2011)
-
-  20 Mar 2011; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
-  -libmicrohttpd-0.9.4.ebuild, +libmicrohttpd-0.9.8.ebuild:
-  Version bump.
-
-*libmicrohttpd-0.9.4 (28 Dec 2010)
-
-  28 Dec 2010; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
-  -libmicrohttpd-0.9.3.ebuild, +libmicrohttpd-0.9.4.ebuild:
-  Version bump.
-
-*libmicrohttpd-0.9.3 (01 Dec 2010)
-
-  01 Dec 2010; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
-  -libmicrohttpd-0.9.0.ebuild, +libmicrohttpd-0.9.3.ebuild:
-  New upstream release. Address some test failures, bug #334067
-
-  18 Sep 2010; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
-  libmicrohttpd-0.9.0.ebuild, metadata.xml:
-  Add USE flag for messages, bug #224165
-
-*libmicrohttpd-0.9.0 (14 Aug 2010)
-
-  14 Aug 2010; Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
-  +libmicrohttpd-0.9.0.ebuild, +metadata.xml:
-  New ebuild for bug #224165. Thanks to rpansky, Adam Coyne, candrews and
-  others
