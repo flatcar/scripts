@@ -12,8 +12,8 @@ SRC_URI="http://www.webdav.org/neon/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0/27"
-KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="doc expat gnutls kerberos libproxy nls pkcs11 ssl static-libs zlib"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+IUSE="doc expat gnutls kerberos libproxy libressl nls pkcs11 ssl static-libs zlib"
 IUSE_LINGUAS="cs de fr ja nn pl ru tr zh_CN"
 for lingua in ${IUSE_LINGUAS}; do
 	IUSE+=" linguas_${lingua}"
@@ -29,7 +29,8 @@ RDEPEND="expat? ( dev-libs/expat:0=[${MULTILIB_USEDEP}] )
 		pkcs11? ( dev-libs/pakchois:0=[${MULTILIB_USEDEP}] )
 	)
 	!gnutls? ( ssl? (
-		dev-libs/openssl:0=[${MULTILIB_USEDEP}]
+		!libressl? ( dev-libs/openssl:0=[${MULTILIB_USEDEP}] )
+		libressl? ( dev-libs/libressl:=[${MULTILIB_USEDEP}] )
 		pkcs11? ( dev-libs/pakchois:0=[${MULTILIB_USEDEP}] )
 	) )
 	kerberos? ( virtual/krb5:0=[${MULTILIB_USEDEP}] )
@@ -55,7 +56,8 @@ src_prepare() {
 	done
 	sed -e "s/ALL_LINGUAS=.*/ALL_LINGUAS=\"${linguas}\"/" -i configure.ac || die
 
-	epatch "${FILESDIR}"/${P}-xml2-config.patch
+	epatch "${FILESDIR}"/${P}-xml2-config.patch \
+		"${FILESDIR}"/${P}-gnutls3.4.patch
 	AT_M4DIR="macros" eautoreconf
 
 	elibtoolize
