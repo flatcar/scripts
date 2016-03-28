@@ -1,10 +1,10 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
 EAPI="4"
 
-inherit multilib toolchain-funcs eutils
+inherit multilib toolchain-funcs
 if [[ ${PV} == "9999" ]] ; then
 	EGIT_REPO_URI="git://repo.or.cz/${PN}.git
 		http://repo.or.cz/r/${PN}.git"
@@ -35,7 +35,6 @@ DEPEND="${RDEPEND}"
 S=${WORKDIR}/${PN}
 
 src_prepare() {
-	epatch "${FILESDIR}"/${P}-restrict.patch
 	sed -i \
 		-e '/^PREFIX=/s:=.*:=/usr:' \
 		-e '/^CFLAGS =/{s:=:+=:;s:-O2 -finline-functions:${CPPFLAGS}:}' \
