@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -47,7 +47,12 @@ src_prepare() {
 	use vanilla && return 0
 
 	epatch "${FILESDIR}"/${PN}-2.4.3-use-linux-version-in-fbsd.patch #109105
-	epatch "${FILESDIR}"/${P}-fuse-ld.patch
+	epatch "${FILESDIR}"/${P}-link-specs.patch
+	epatch "${FILESDIR}"/${P}-link-fsanitize.patch #573744
+	epatch "${FILESDIR}"/${P}-link-fuse-ld.patch
+	epatch "${FILESDIR}"/${P}-libtoolize-slow.patch
+	epatch "${FILESDIR}"/${P}-libtoolize-delay-help.patch
+	epatch "${FILESDIR}"/${P}-sed-quote-speedup.patch #542252
 	pushd libltdl >/dev/null
 	AT_NOELIBTOOLIZE=yes eautoreconf
 	popd >/dev/null
@@ -67,6 +72,10 @@ src_configure() {
 	# cause problems for people who switch /bin/sh on the fly to other
 	# shells, so just force libtool to use /bin/bash all the time.
 	export CONFIG_SHELL=/bin/bash
+
+	# Do not bother hardcoding the full path to sed.  Just rely on $PATH. #574550
+	export ac_cv_path_SED=$(basename "$(type -P sed)")
+
 	ECONF_SOURCE=${S} econf --disable-ltdl-install
 }
 

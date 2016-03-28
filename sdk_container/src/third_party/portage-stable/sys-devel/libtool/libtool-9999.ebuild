@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/libtool/libtool-9999.ebuild,v 1.19 2014/11/03 05:32:23 vapier Exp $
+# $Id$
 
 EAPI="4"
 
@@ -18,7 +18,7 @@ else
 fi
 
 DESCRIPTION="A shared library tool for developers"
-HOMEPAGE="http://www.gnu.org/software/libtool/"
+HOMEPAGE="https://www.gnu.org/software/libtool/"
 
 LICENSE="GPL-2"
 SLOT="2"
@@ -50,6 +50,12 @@ src_prepare() {
 	popd >/dev/null
 	AT_NOELIBTOOLIZE=yes eautoreconf
 	epunt_cxx
+
+	# Make sure timestamps don't trigger a rebuild of man pages. #556512
+	if [[ ${PV} != "9999" ]] ; then
+		touch doc/*.1
+		export HELP2MAN=false
+	fi
 }
 
 src_configure() {
