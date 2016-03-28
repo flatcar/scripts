@@ -1,116 +1,94 @@
 # ChangeLog for sys-devel/dev86
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/dev86/ChangeLog,v 1.27 2013/02/25 11:39:32 ago Exp $
+# Copyright 1999-2016 Gentoo Foundation; Distributed under the GPL v2
+# (auto-generated from git log)
 
-  25 Feb 2013; Agostino Sarubbo <ago@gentoo.org> dev86-0.16.19.ebuild:
-  Stable for x86, wrt bug #457478
+*dev86-0.16.21 (09 Aug 2015)
+*dev86-0.16.19 (09 Aug 2015)
 
-  25 Feb 2013; Agostino Sarubbo <ago@gentoo.org> dev86-0.16.19.ebuild:
-  Stable for amd64, wrt bug #457478
+  09 Aug 2015; Robin H. Johnson <robbat2@gentoo.org> +dev86-0.16.19.ebuild,
+  +dev86-0.16.21.ebuild, +files/dev86-0.16.17-fortify.patch,
+  +files/dev86-0.16.17-make382.patch, +files/dev86-0.16.19-fortify.patch,
+  +files/dev86-0.16.19-memmove.patch, +files/dev86-pic.patch, +metadata.xml:
+  proj/gentoo: Initial commit
 
-  28 Nov 2012; Lars Wendler <polynomial-c@gentoo.org> metadata.xml:
-  Dropped myself as maintainer.
+  This commit represents a new era for Gentoo:
+  Storing the gentoo-x86 tree in Git, as converted from CVS.
 
-*dev86-0.16.19 (02 Nov 2012)
+  This commit is the start of the NEW history.
+  Any historical data is intended to be grafted onto this point.
 
-  02 Nov 2012; Mike Frysinger <vapier@gentoo.org> +dev86-0.16.19.ebuild,
-  +files/dev86-0.16.19-fortify.patch, +files/dev86-0.16.19-memmove.patch:
-  Version bump.  Include fix from Debian for ncc #354351 by Joerg Neikes.  Fix
-  stripping errors #413275 by Michele Ciacci.  Also fix up libdir handling as
-  bcc had /usr/lib/gcc/ hardcoded.
+  Creation process:
+  1. Take final CVS checkout snapshot
+  2. Remove ALL ChangeLog* files
+  3. Transform all Manifests to thin
+  4. Remove empty Manifests
+  5. Convert all stale $Header$/$Id$ CVS keywords to non-expanded Git $Id$
+  5.1. Do not touch files with -kb/-ko keyword flags.
 
-  06 Aug 2012; Rick Farina <zerochaos@gentoo.org> dev86-0.16.18.ebuild:
-  fixed multilib-strict QA violation
+  Signed-off-by: Robin H. Johnson <robbat2@gentoo.org>
+  X-Thanks: Alec Warner <antarus@gentoo.org> - did the GSoC 2006 migration
+  tests
+  X-Thanks: Robin H. Johnson <robbat2@gentoo.org> - infra guy, herding this
+  project
+  X-Thanks: Nguyen Thai Ngoc Duy <pclouds@gentoo.org> - Former Gentoo
+  developer, wrote Git features for the migration
+  X-Thanks: Brian Harring <ferringb@gentoo.org> - wrote much python to improve
+  cvs2svn
+  X-Thanks: Rich Freeman <rich0@gentoo.org> - validation scripts
+  X-Thanks: Patrick Lauer <patrick@gentoo.org> - Gentoo dev, running new 2014
+  work in migration
+  X-Thanks: Michał Górny <mgorny@gentoo.org> - scripts, QA, nagging
+  X-Thanks: All of other Gentoo developers - many ideas and lots of paint on
+  the bikeshed
 
-  28 Jan 2012; Pawel Hajdan jr <phajdan.jr@gentoo.org> dev86-0.16.18.ebuild:
-  x86 stable wrt bug #400685
+  24 Aug 2015; Justin Lecher <jlec@gentoo.org> metadata.xml:
+  Use https by default
 
-  25 Jan 2012; Markos Chandras <hwoarang@gentoo.org> dev86-0.16.18.ebuild:
-  Stable on amd64 wrt bug #400685
+  Convert all URLs for sites supporting encrypted connections from http to
+  https
 
-  20 Apr 2011; Justin Lecher <jlec@gentoo.org> dev86-0.16.17-r6.ebuild,
-  dev86-0.16.18.ebuild:
-  Respect CC
+  Signed-off-by: Justin Lecher <jlec@gentoo.org>
 
-*dev86-0.16.18 (07 Dec 2010)
+  24 Aug 2015; Mike Gilbert <floppym@gentoo.org> metadata.xml:
+  Revert DOCTYPE SYSTEM https changes in metadata.xml
 
-  07 Dec 2010; Lars Wendler <polynomial-c@gentoo.org> +dev86-0.16.18.ebuild:
-  Version bump.
+  repoman does not yet accept the https version.
+  This partially reverts eaaface92ee81f30a6ac66fe7acbcc42c00dc450.
 
-  15 Nov 2010; Lars Wendler <polynomial-c@gentoo.org>
-  dev86-0.16.17-r6.ebuild:
-  Don't mess with CPPFLAGS as they tend to break compilation (bug #343655).
+  Bug: https://bugs.gentoo.org/552720
 
-  24 Oct 2010; Lars Wendler <polynomial-c@gentoo.org>
-  dev86-0.16.17-r6.ebuild, +files/dev86-0.16.17-make382.patch:
-  Fixed compilation with make-3.82 (bug #336544). Patch kindly provided by
-  upstream.
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Remove explicit notion of maintainer-needed, for GLEP 67
 
-  09 Nov 2009; Markus Meier <maekke@gentoo.org> dev86-0.16.17-r6.ebuild:
-  amd64 stable, bug #289014
+  GLEP 67 removes the explicit notion of maintainer-needed@g.o being used
+  for packages lacking maintainers, in favor of assuming maintainer-needed
+  whenever the package has no maintainers.
 
-  18 Oct 2009; Christian Faulhammer <fauli@gentoo.org>
-  dev86-0.16.17-r6.ebuild:
-  stable x86, bug 289014
+*dev86-0.16.21-r1 (06 Feb 2016)
 
-  05 Oct 2009; Mike Frysinger <vapier@gentoo.org> dev86-0.16.17-r6.ebuild:
-  Update HOMEPAGE/SRC_URI #259106 by Mr. Anderson, and clean up some of the
-  build code in the process.
+  06 Feb 2016; David Seifert <soap@gentoo.org> +dev86-0.16.21-r1.ebuild,
+  +files/dev86-0.16.21-non-void-return-clang.patch, files/dev86-pic.patch:
+  Include patch for building with clang
 
-*dev86-0.16.17-r6 (02 Feb 2009)
+  Gentoo-Bug: 523096
+  * EAPI=6
+  * Amend patches for -p1
+  * Thanks Fabio Scaccabarozzi for the patch
 
-  02 Feb 2009; Harald van Dĳk <truedfx@gentoo.org>
-  +files/dev86-0.16.17-fortify.patch, +dev86-0.16.17-r6.ebuild:
-  Fix possible buffer overflow (#256782)
+  Package-Manager: portage-2.2.27
 
-  06 Mar 2008; Christoph Mende <angelos@gentoo.org> dev86-0.16.17-r5.ebuild:
-  Stable on amd64, bug #208905
+*dev86-0.16.21-r2 (12 Feb 2016)
 
-*dev86-0.16.17-r5 (26 Feb 2008)
+  12 Feb 2016; David Seifert <soap@gentoo.org> -dev86-0.16.21-r1.ebuild,
+  +dev86-0.16.21-r2.ebuild:
+  Revbump to fix broken symlink
 
-  26 Feb 2008; Raúl Porcel <armin76@gentoo.org> -dev86-0.16.17-r3.ebuild,
-  -dev86-0.16.17-r4.ebuild, +dev86-0.16.17-r5.ebuild:
-  Fix bug #167790 and bug #201313
+  Gentoo-Bug: 574014
 
-*dev86-0.16.17-r4 (04 Nov 2007)
+  Package-Manager: portage-2.2.27
 
-  04 Nov 2007; Charlie Shepherd <masterdriverz@gentoo.org>
-  +dev86-0.16.17-r4.ebuild:
-  Move man pages from /usr/man to /usr/share/man. Bug 167790, thanks to Andy
-  Romeril for reporting.
+  28 Feb 2016; Ulrich Müller <ulm@gentoo.org> metadata.xml:
+  metadata.xml: Add maintainer-needed comment to packages without maintainer.
 
-  15 Jul 2007; Christian Heim <phreak@gentoo.org> metadata.xml:
-  Assigning to m-needed, as beu is being retired (#66608).
+  Bug: 575810
 
-  13 May 2007; Thilo Bangert <bangert@gentoo.org> metadata.xml:
-  add <herd>no-herd</herd>
-
-  11 Dec 2006; Elfyn McBratney <beu@gentoo.org> dev86-0.16.17-r3.ebuild:
-  Kill redundant DEPEND on virtual/libc.
-
-  11 Aug 2006; Chris Bainbridge <chrb@gentoo.org> -dev86-0.16.17-r2.ebuild,
-  dev86-0.16.17-r3.ebuild:
-  stable on x86
-
-*dev86-0.16.17-r3 (04 Aug 2006)
-
-  04 Aug 2006; Chris Bainbridge <chrb@gentoo.org> +dev86-0.16.17-r3.ebuild:
-  Add bin86 as a depend and fix collisions, bug #139188
-
-*dev86-0.16.17-r2 (11 Nov 2005)
-
-  11 Nov 2005; <chrb@gentoo.org> +files/dev86-pic.patch,
-  +dev86-0.16.17-r2.ebuild:
-  Fix PIC compile, CFLAGS (#111257)
-
-*dev86-0.16.17-r1 (10 Nov 2005)
-
-  10 Nov 2005; Robin H. Johnson <robbat2@gentoo.org>
-  +dev86-0.16.17-r1.ebuild:
-  New revision that compiles on amd64.
-
-*dev86-0.16.17 (26 Oct 2005)
-
-  26 Oct 2005; Chris Bainbridge <chrb@gentoo.org> +metadata.xml,
-  +dev86-0.16.17.ebuild:
-  This package was submitted by Olaf Wepner in bug #101754
