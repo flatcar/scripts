@@ -1,13 +1,13 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/autogen/autogen-5.17.4.ebuild,v 1.1 2013/05/27 09:56:36 radhermit Exp $
+# $Id$
 
 EAPI="4"
 
 inherit eutils
 
 DESCRIPTION="Program and text file generation"
-HOMEPAGE="http://www.gnu.org/software/autogen/"
+HOMEPAGE="https://www.gnu.org/software/autogen/"
 SRC_URI="mirror://gnu/${PN}/rel${PV}/${P}.tar.xz"
 
 LICENSE="GPL-2"
