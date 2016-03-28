@@ -1,13 +1,13 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/m4/m4-1.4.16.ebuild,v 1.14 2014/01/18 03:10:56 vapier Exp $
+# $Id$
 
 EAPI="3"
 
 inherit eutils
 
 DESCRIPTION="GNU macro processor"
-HOMEPAGE="http://www.gnu.org/software/m4/m4.html"
+HOMEPAGE="https://www.gnu.org/software/m4/m4.html"
 SRC_URI="mirror://gnu/${PN}/${P}.tar.xz"
 
 LICENSE="GPL-3"
@@ -22,6 +22,9 @@ RDEPEND=""
 src_prepare() {
 	epatch "${FILESDIR}"/${P}-fix-test-readlink.patch #376639
 	epatch "${FILESDIR}"/${P}-no-gets.patch #424978
+
+	# Disable gnulib build test that has no impact on the source.
+	echo 'exit 0' > tests/test-update-copyright.sh || die
 }
 
 src_configure() {

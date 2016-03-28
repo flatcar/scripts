@@ -1,11 +1,11 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/m4/m4-1.4.17.ebuild,v 1.2 2014/01/18 03:10:56 vapier Exp $
+# $Id$
 
 EAPI="4"
 
 DESCRIPTION="GNU macro processor"
-HOMEPAGE="http://www.gnu.org/software/m4/m4.html"
+HOMEPAGE="https://www.gnu.org/software/m4/m4.html"
 SRC_URI="mirror://gnu/${PN}/${P}.tar.xz"
 
 LICENSE="GPL-3"
@@ -16,6 +16,13 @@ IUSE="examples"
 # remember: cannot dep on autoconf since it needs us
 DEPEND="app-arch/xz-utils"
 RDEPEND=""
+
+src_prepare() {
+	# Disable gnulib build test that has no impact on the source.
+	# Re-enable w/next version bump (and gnulib is updated). #554728
+	[[ ${PV} != "1.4.17" ]] && die "re-enable test #554728"
+	echo 'exit 0' > tests/test-update-copyright.sh || die
+}
 
 src_configure() {
 	# Disable automagic dependency over libsigsegv; see bug #278026
