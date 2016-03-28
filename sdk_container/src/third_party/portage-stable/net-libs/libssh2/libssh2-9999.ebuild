@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-libs/libssh2/libssh2-9999.ebuild,v 1.1 2015/05/27 10:56:25 mgorny Exp $
+# $Id$
 
 EAPI=5
 
@@ -15,9 +15,13 @@ SRC_URI=""
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS=""
-IUSE="gcrypt static-libs test zlib"
+IUSE="gcrypt libressl static-libs test zlib"
 
-DEPEND="!gcrypt? ( >=dev-libs/openssl-1.0.1h-r2[${MULTILIB_USEDEP}] )
+DEPEND="
+	!gcrypt? (
+		!libressl? ( >=dev-libs/openssl-1.0.1h-r2:0[${MULTILIB_USEDEP}] )
+		libressl? ( dev-libs/libressl[${MULTILIB_USEDEP}] )
+	)
 	gcrypt? ( >=dev-libs/libgcrypt-1.5.3:0[${MULTILIB_USEDEP}] )
 	zlib? ( >=sys-libs/zlib-1.2.8-r1[${MULTILIB_USEDEP}] )"
 RDEPEND="${DEPEND}"
