@@ -1,10 +1,10 @@
-DEFINED_PHASES=install unpack
+DEFINED_PHASES=install prepare unpack
 DEPEND=app-arch/xz-utils dev-vcs/git
 DESCRIPTION=Gentoo Cross-toolchain generator
-EAPI=4
-HOMEPAGE=http://www.gentoo.org/
+EAPI=5
+HOMEPAGE=https://www.gentoo.org/
 LICENSE=GPL-2
-RDEPEND=>=sys-apps/portage-2.1 app-shells/bash !sys-devel/crossdev-wrappers
+RDEPEND=>=sys-apps/portage-2.1 >=app-portage/portage-utils-0.55 app-shells/bash sys-apps/gentoo-functions !sys-devel/crossdev-wrappers
 SLOT=0
-_eclasses_=git-2	df00117322129fb906bb0a53c3d6a020
-_md5_=1794df3947cde94a47acf645a6f21a7c
+_eclasses_=eutils	9d81603248f2ba3ec59124320d123e5e	git-2	df00117322129fb906bb0a53c3d6a020	multilib	3972ca401cf7dbb430df9995f5d8d580	toolchain-funcs	7a212e5e01adfa4805c9978366e6ee85
+_md5_=acbe2aa8dd5b435c94036373a87ba43d
