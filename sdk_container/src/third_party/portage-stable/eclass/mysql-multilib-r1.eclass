@@ -212,7 +212,8 @@ DEPEND="${DEPEND}
 # For other stuff to bring us in
 # dev-perl/DBD-mysql is needed by some scripts installed by MySQL
 PDEPEND="${PDEPEND} perl? ( >=dev-perl/DBD-mysql-2.9004 )
-	 ~virtual/mysql-${MYSQL_PV_MAJOR}"
+	 ~virtual/mysql-${MYSQL_PV_MAJOR}[embedded=,static=]
+	 virtual/libmysqlclient:${SLOT}[${MULTILIB_USEDEP},static-libs=]"
 
 # my_config.h includes ABI specific data
 MULTILIB_WRAPPED_HEADERS=( /usr/include/mysql/my_config.h /usr/include/mysql/private/embedded_priv.h )
@@ -400,6 +401,7 @@ multilib_src_configure() {
 		-DWITH_DEFAULT_COMPILER_OPTIONS=0
 		-DWITH_DEFAULT_FEATURE_SET=0
 		-DINSTALL_SYSTEMD_UNITDIR="$(systemd_get_systemunitdir)"
+		-DENABLE_STATIC_LIBS=$(usex static-libs)
 	)
 
 	if in_iuse systemd ; then
