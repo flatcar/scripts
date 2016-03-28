@@ -1,13 +1,13 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/make/make-3.82-r4.ebuild,v 1.16 2014/01/18 03:11:00 vapier Exp $
+# $Id$
 
 EAPI="2"
 
 inherit flag-o-matic eutils
 
 DESCRIPTION="Standard tool to compile source trees"
-HOMEPAGE="http://www.gnu.org/software/make/make.html"
+HOMEPAGE="https://www.gnu.org/software/make/make.html"
 SRC_URI="mirror://gnu//make/${P}.tar.bz2"
 
 LICENSE="GPL-3"
