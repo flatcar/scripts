@@ -1,7 +1,7 @@
 #!/bin/bash
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/binutils-config/files/binutils-config-3,v 1.11 2013/05/05 05:20:42 vapier Exp $
+# $Id$
 
 # Format of /etc/env.d/binutils/:
 #  config-TARGET:	CURRENT=version for TARGET
@@ -16,8 +16,9 @@ cd /
 trap ":" INT QUIT TSTP
 
 argv0=${0##*/}
-source /etc/init.d/functions.sh || {
-	echo "${argv0}: Could not source /etc/init.d/functions.sh!" 1>&2
+FUNCTIONS_SH="/lib/gentoo/functions.sh"
+source ${FUNCTIONS_SH} || {
+	echo "${argv0}: Could not source ${FUNCTIONS_SH}!" 1>&2
 	exit 1
 }
 esyslog() { :; }
@@ -36,12 +37,6 @@ ${HILITE}General Options:${NORMAL}
 
 ${HILITE}General Cruft:${NORMAL}
   ${GOOD}--linker${NORMAL} <linker>          Switch to specified linker (if supported)
-
-${HILITE}Arch Specific Cruft:${NORMAL}
-  ${GOOD}--amd64${NORMAL}                    Install extra amd64 links (x86_64)
-  ${GOOD}--arm${NORMAL}                      Install extra arm links (arm/armeb)
-  ${GOOD}--mips${NORMAL}                     Install extra mips links (mips/mipsel)
-  ${GOOD}--x86${NORMAL}                      Install extra x86 links (i[3-6]86)
 
 Profile names are of the form:  ${BRACKET}<CTARGET>-<binutils version>${NORMAL}
 For example:                    ${BRACKET}i686-pc-linux-gnu-2.15.92.0.2${NORMAL}
@@ -81,7 +76,7 @@ atomic_ln() {
 }
 
 setup_env() {
-	unset TARGET VER LIBPATH FAKE_TARGETS
+	unset TARGET VER LIBPATH
 	source "${ENV_D}/${PROFILE}"
 	if [[ -z ${TARGET} ]] ; then
 		eerror "${PROFILE} is invalid (no \$TARGET defined) :("
@@ -93,28 +88,7 @@ setup_env() {
 	fi
 
 	#
-	# Older installs don't have 'FAKE_TARGETS' defined, so lets
-	# update these env.d entries so that we don't force the poor
-	# user to re-emerge their binutils just for 1 envvar :/
-	#
-	if [[ ${FAKE_TARGETS-poor user} == "poor user" ]] ; then
-		local targ=${TARGET/-*}
-		local FAKE_TARGETS=${TARGET}
-		case ${targ} in
-			mips|powerpc|sparc)
-				FAKE_TARGETS="${FAKE_TARGETS} ${TARGET/-/64-}";;
-			mips64|powerpc64|sparc64)
-				FAKE_TARGETS="${FAKE_TARGETS} ${TARGET/64-/-}";;
-		esac
-		echo "FAKE_TARGETS=\"${FAKE_TARGETS}\"" >> "${ENV_D}/${PROFILE}"
-	fi
-	local fake_targ_append="${TARGET#*-}"
-	FAKE_TARGETS="${FAKE_TARGETS} ${FAKE_TARGETS_USER// /-${fake_targ_append} }"
-
-	#
 	# Generate binary symlinks
-	# On systems that do 32bit/64bit, we need to fake an
-	# extra set of binary names (${FAKE_TARGETS})
 	#
 	BINPATH=""
 	BINPATH_LINKS=""
@@ -134,7 +108,16 @@ setup_env() {
 	fi
 }
 
+# Lists of headers that various versions have installed.
+HEADERS=(
+	ansidecl.h bfd.h bfdlink.h demangle.h dis-asm.h dyn-string.h
+	fibheap.h hashtab.h libiberty.h objalloc.h plugin-api.h
+	splay-tree.h symcat.h
+)
+
 switch_profile() {
+	local x
+
 	ebegin "Switching to ${PROFILE}"
 
 	setup_env || return 1
@@ -143,11 +126,7 @@ switch_profile() {
 	mkdir -p "${ROOT}/${BINPATH_LINKS}" "${ROOT}/usr/bin"
 	for x in * ; do
 		atomic_ln "${BINPATH}/${x}" "${ROOT}/${BINPATH_LINKS}" "${x}"
-		atomic_ln "${BINPATH_LINKS}/${x}" "${ROOT}/usr/bin/" "${TARGET}-${x}"
-		for fake in ${FAKE_TARGETS} ; do
-			[[ -f ${ENV_D}/config-${fake} ]] && continue
-			atomic_ln "${BINPATH_LINKS}/${x}" "${ROOT}/usr/bin" "${fake}-${x}"
-		done
+		atomic_ln "${BINPATH_LINKS}/${x}" "${ROOT}/usr/bin" "${TARGET}-${x}"
 		if [[ ${TARGET} == ${HOST} ]] ; then
 			atomic_ln "${TARGET}-${x}" "${ROOT}/usr/bin" "${x}"
 		fi
@@ -163,25 +142,37 @@ switch_profile() {
 	else
 		dstlib=${ROOT}/usr/${HOST}/${TARGET}/lib
 	fi
-	# When upgrading, we need to clean up ldscripts and libs
+	# When upgrading, we need to clean up ldscripts and libs.
+	# Don't symlink back in the libs -- the binutils-lib package handles
+	# these now.
+	# TODO: Stop requiring even the ldscripts symlink.
 	mkdir -p "${dstlib}"
 	rm -rf "${ROOT}/${BINPATH_LINKS}"/ldscripts
 	atomic_ln "${LIBPATH}/ldscripts" "${dstlib}" "ldscripts"
-	find -L "${dstlib}" -type l -exec rm -v {} +
-	for x in lib* ; do
-		atomic_ln "${LIBPATH}/${x}" "${dstlib}" "${x}"
-	done
+	find -L "${dstlib}" -xtype l -name 'lib*' -delete
+	# Detect older binutils w/broken rpaths. #562460
+	# We can hardcode the "/lib" part since that's what the binutils
+	# configure scripts have.  They did not include any other path.
+	if [[ $(scanelf -qF '%r#F' "${ROOT}/${BINPATH}/as") == */lib ]] ; then
+		ewarn "Old cross-binutils detected; please re-emerge to fix (see bug #562460)."
+		for x in lib* ; do
+			atomic_ln "${LIBPATH}/${x}" "${dstlib}" "${x}"
+		done
+	fi
 
 	#
-	# Generate include symlinks
+	# Clean out old generated include symlinks
 	#
 	INCPATH=${LIBPATH}/include
 	if [[ -d ${ROOT}/${INCPATH} ]] ; then
 		cd "${ROOT}/${INCPATH}" || exit 1
 		if [[ ${HOST} == ${TARGET} ]] ; then
-			mkdir -p "${ROOT}/usr/include"
-			for x in * ; do
-				atomic_ln "${INCPATH}/${x}" "${ROOT}/usr/include" "${x}"
+			# The binutils-lib package handles these files now.
+			for x in libiberty "${HEADERS[@]}" ; do
+				x="${ROOT}/usr/include/${x}"
+				if [[ -L ${x} ]] ; then
+					rm "${x}"
+				fi
 			done
 		else
 			# Clean out old path -- cannot use '-exec {} +' syntax here
@@ -195,22 +186,24 @@ switch_profile() {
 	#
 	# Make sure proper paths get updated
 	#
+	local env_update_flag="--no-ldconfig"
 	if [[ ${TARGET} == ${HOST} ]] ; then
+		# Delete old config now that binutils-libs installs these files.
+		# Note: This skips ldconfig update if env.d had LDPATH, but meh.
+		# Most people have upgraded to ld.so.conf.d, and someone else will
+		# eventually re-run ldconfig for us.
+		x="${ROOT}"/etc/ld.so.conf.d/05binutils.conf
+		if [[ -e ${x} ]]; then
+			rm -f "${x}"
+			env_update_flag=""
+		fi
+
 		DATAPATH=/usr/share/binutils-data/${TARGET}/${VER}
 		local e="${ROOT}"/etc/env.d/05binutils
 		local ee="${e}.tmp"
 		rm -f "${ee}"
-		[[ -d ${DATAPATH}/man  ]] && echo "MANPATH=${DATAPATH}/man"   >> "${ee}"
-		[[ -d ${DATAPATH}/info ]] && echo "INFOPATH=${DATAPATH}/info" >> "${ee}"
-		# hmm, `ld` has this in SEARCH_DIR(), but ld.so does not ...
-		if [[ -d ${ROOT}/etc/ld.so.conf.d ]] ; then
-			local l="${ROOT}"/etc/ld.so.conf.d/05binutils.conf
-			local ll="${l}.tmp"
-			echo "/usr/${TARGET}/lib" > "${ll}"
-			mv_if_diff "${ll}" "${l}"
-		else
-			echo "LDPATH=/usr/${TARGET}/lib" >> "${ee}"
-		fi
+		[[ -d ${ROOT}/${DATAPATH}/man  ]] && echo "MANPATH=${DATAPATH}/man"   >> "${ee}"
+		[[ -d ${ROOT}/${DATAPATH}/info ]] && echo "INFOPATH=${DATAPATH}/info" >> "${ee}"
 		mv_if_diff "${ee}" "${e}"
 	fi
 
@@ -225,7 +218,7 @@ switch_profile() {
 	# Regen env.d if need/can be
 	#
 	if [[ ${ROOT} == "/" ]] && [[ ${TARGET} == ${HOST} ]] ; then
-		env-update
+		env-update ${env_update_flag}
 		echo
 		ewarn "Please remember to run:"
 		echo
@@ -254,12 +247,11 @@ uninstall_target() {
 		die "no profiles exist for '${TARGET}'"
 	fi
 
-	rm -f "${ENV_D}"/config-${TARGET} "${ROOT}"/etc/ld.so.conf.d/05binutils.conf
+	rm -f "${ENV_D}"/config-${TARGET}
 
-	# XXX: we still leave behind FAKE_TARGETS in /usr/bin ...
 	local x
 	for x in \
-		addr2line ar as c++filt elf2flt elfedit flthdr gprof \
+		addr2line ar as c++filt dwp elf2flt elfedit flthdr gprof \
 		ld ld.{bfd,gold,real} \
 		nm objcopy objdump ranlib readelf size strings strip
 	do
@@ -270,7 +262,7 @@ uninstall_target() {
 		)
 		rm -f "${x[@]}"
 	done
-	for x in ansidecl.h bfd.h bfdlink.h dis-asm.h symcat.h ; do
+	for x in "${HEADERS[@]}" ; do
 		rm -f "${ROOT}"/usr/{${HOST}/,}${TARGET}/{usr/,}include/${x}
 	done
 	for x in bfd iberty opcodes ; do
@@ -390,7 +382,6 @@ DEBUG="no"
 NEED_ACTION="yes"
 DOIT="switch_profile"
 PROFILE="current"
-FAKE_TARGETS_USER=""
 HOST=""
 TARGET=""
 unset UARG
@@ -416,24 +407,12 @@ while [[ $# -gt 0 ]] ; do
 		-h|--help)                 usage 0 ;;
 		-V|--version)
 			unset Header
-			cvsver="$Header: /var/cvsroot/gentoo-x86/sys-devel/binutils-config/files/binutils-config-3,v 1.11 2013/05/05 05:20:42 vapier Exp $"
+			cvsver="$Id$"
 			cvsver=${cvsver##*binutils-config-}
 			bver=${cvsver%%,v *}
 			cvsver=${cvsver#* }
 			echo "binutils-config-${bver} (r${cvsver%% *})"
 			exit 0
-			;;
-		--amd64|--arm|--mips|--x86)
-			if [[ ${NEED_ACTION} == "yes" ]] ; then
-				# Make sure we have a space after each target
-				NEED_ACTION="no"
-				case ${x} in
-					--amd64) FAKE_TARGETS_USER="x86_64 ";;
-					--arm)   FAKE_TARGETS_USER="arm armeb ";;
-					--x86)   FAKE_TARGETS_USER="i386 i486 i586 i686 ";;
-					--mips)  FAKE_TARGETS_USER="mips mips64 mipsel mipsel64 ";;
-				esac
-			fi
 			;;
 		-*)
 			die "invalid switch!  Try '--help'."

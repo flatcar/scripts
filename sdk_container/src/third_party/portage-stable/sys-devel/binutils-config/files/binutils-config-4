@@ -1,7 +1,7 @@
 #!/bin/bash
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/binutils-config/files/binutils-config-4,v 1.1 2014/07/29 11:15:38 vapier Exp $
+# $Id$
 
 # Format of /etc/env.d/binutils/:
 #  config-TARGET:	CURRENT=version for TARGET
@@ -16,8 +16,9 @@ cd /
 trap ":" INT QUIT TSTP
 
 argv0=${0##*/}
-source /etc/init.d/functions.sh || {
-	echo "${argv0}: Could not source /etc/init.d/functions.sh!" 1>&2
+FUNCTIONS_SH="/lib/gentoo/functions.sh"
+source ${FUNCTIONS_SH} || {
+	echo "${argv0}: Could not source ${FUNCTIONS_SH}!" 1>&2
 	exit 1
 }
 esyslog() { :; }
@@ -169,8 +170,8 @@ switch_profile() {
 		local e="${ROOT}"/etc/env.d/05binutils
 		local ee="${e}.tmp"
 		rm -f "${ee}"
-		[[ -d ${DATAPATH}/man  ]] && echo "MANPATH=${DATAPATH}/man"   >> "${ee}"
-		[[ -d ${DATAPATH}/info ]] && echo "INFOPATH=${DATAPATH}/info" >> "${ee}"
+		[[ -d ${ROOT}/${DATAPATH}/man  ]] && echo "MANPATH=${DATAPATH}/man"   >> "${ee}"
+		[[ -d ${ROOT}/${DATAPATH}/info ]] && echo "INFOPATH=${DATAPATH}/info" >> "${ee}"
 		# hmm, `ld` has this in SEARCH_DIR(), but ld.so does not ...
 		if [[ -d ${ROOT}/etc/ld.so.conf.d ]] ; then
 			local l="${ROOT}"/etc/ld.so.conf.d/05binutils.conf
@@ -223,7 +224,7 @@ uninstall_target() {
 		die "no profiles exist for '${TARGET}'"
 	fi
 
-	rm -f "${ENV_D}"/config-${TARGET} "${ROOT}"/etc/ld.so.conf.d/05binutils.conf
+	rm -f "${ENV_D}"/config-${TARGET}
 
 	local x
 	for x in \
@@ -383,7 +384,7 @@ while [[ $# -gt 0 ]] ; do
 		-h|--help)                 usage 0 ;;
 		-V|--version)
 			unset Header
-			cvsver="$Header: /var/cvsroot/gentoo-x86/sys-devel/binutils-config/files/binutils-config-4,v 1.1 2014/07/29 11:15:38 vapier Exp $"
+			cvsver="$Id$"
 			cvsver=${cvsver##*binutils-config-}
 			bver=${cvsver%%,v *}
 			cvsver=${cvsver#* }
