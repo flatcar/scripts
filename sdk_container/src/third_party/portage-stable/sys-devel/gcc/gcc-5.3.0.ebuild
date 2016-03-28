@@ -2,13 +2,13 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI="5"
+EAPI="4"
 
-PATCH_VER="1.3r1"
+PATCH_VER="1.0"
 UCLIBC_VER="1.0"
 
 # Hardened gcc 4 stuff
-PIE_VER="0.5.8r1"
+PIE_VER="0.6.5"
 SPECS_VER="0.2.0"
 SPECS_GCC_VER="4.4.3"
 # arch/libc configurations known to be stable with {PIE,SSP}-by-default
@@ -20,13 +20,14 @@ SSP_STABLE="amd64 x86 mips ppc ppc64 arm"
 SSP_UCLIBC_STABLE="x86 amd64 mips ppc ppc64 arm"
 #end Hardened stuff
 
-inherit eutils toolchain
+inherit toolchain
 
-KEYWORDS="~alpha ~amd64 ~arm arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd"
 
 RDEPEND=""
 DEPEND="${RDEPEND}
 	elibc_glibc? ( >=sys-libs/glibc-2.8 )
+	!multislot? ( !<${CATEGORY}/gcc-4.9 )
 	>=${CATEGORY}/binutils-2.20"
 
 if [[ ${CATEGORY} != cross-* ]] ; then
@@ -39,10 +40,7 @@ src_prepare() {
 		ewarn "Please rebuild gcc after upgrading to >=glibc-2.12 #362315"
 		EPATCH_EXCLUDE+=" 10_all_default-fortify-source.patch"
 	fi
+	is_crosscompile && EPATCH_EXCLUDE+=" 05_all_gcc-spec-env.patch"
 
 	toolchain_src_prepare
-
-	use vanilla && return 0
-	#Use -r1 for newer piepatchet that use DRIVER_SELF_SPECS for the hardened specs.
-	[[ ${CHOST} == ${CTARGET} ]] && epatch "${FILESDIR}"/gcc-spec-env-r1.patch
 }

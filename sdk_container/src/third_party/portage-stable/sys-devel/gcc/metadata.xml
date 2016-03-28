@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-  <herd>toolchain</herd>
+  <maintainer type="project">
+    <email>toolchain@gentoo.org</email>
+    <name>Gentoo Toolchain Project</name>
+  </maintainer>
   <use>
     <flag name="awt">Useful only when building GCJ, this enables Abstract Window Toolkit
       (AWT) peer support on top of GTK+</flag>
@@ -12,11 +15,12 @@
     <flag name="go">Build the GCC Go language frontend.</flag>
     <flag name="graphite">Add support for the framework for loop
       optimizations based on a polyhedral intermediate representation</flag>
+    <flag name="jit">Enable libgccjit so other applications can embed gcc for Just-In-Time compilation.
+      This will slow down the compiler a bit as it forces all of the toolchain to be shared libs.</flag>
     <flag name="libssp">Build SSP support into a dedicated library rather than use the
       code in the C library (DO NOT ENABLE THIS IF YOU DON'T KNOW WHAT IT DOES)</flag>
     <flag name="mudflap">Add support for mudflap, a pointer use checking library</flag>
-    <flag name="multislot">Allow for SLOTs to include minor version (3.3.4
-      instead of just 3.3)</flag>
+    <flag name="multislot">Allow for multiple versions to be emerged at once for same CTARGET</flag>
     <flag name="nopie">Disable PIE support (NOT FOR GENERAL USE)</flag>
     <flag name="nossp">Disable SSP support (NOT FOR GENERAL USE)</flag>
     <flag name="objc">Build support for the Objective C code language</flag>
@@ -28,5 +32,6 @@
   </use>
   <upstream>
     <remote-id type="cpe">cpe:/a:gnu:gcc</remote-id>
+    <remote-id type="sourceforge">dgcc</remote-id>
   </upstream>
 </pkgmetadata>
