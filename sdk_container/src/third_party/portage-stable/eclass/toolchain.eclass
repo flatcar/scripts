@@ -159,15 +159,7 @@ fi
 
 IUSE+=" ${IUSE_DEF[*]/#/+}"
 
-# Support upgrade paths here or people get pissed
-if ! tc_version_is_at_least 4.8 || is_crosscompile || use multislot || [[ ${GCC_PV} == *_alpha* ]] ; then
-	SLOT="${GCC_CONFIG_VER}"
-elif ! tc_version_is_at_least 5.0 ; then
-	SLOT="${GCC_BRANCH_VER}"
-else
-	# Upstream changed versioning w/gcc-5+, so SLOT matches major only. #555164
-	SLOT="${GCCMAJOR}"
-fi
+SLOT="${GCC_CONFIG_VER}"
 
 #---->> DEPEND <<----
 
@@ -1692,10 +1684,12 @@ toolchain_src_install() {
 			ln -sf ${CTARGET}-${x} ${CTARGET}-${x}-${GCC_CONFIG_VER}
 		fi
 	done
-	# Clear out the main go binaries as we don't want to clobber dev-lang/go
+	# Rename the main go binaries as we don't want to clobber dev-lang/go
 	# when gcc-config runs. #567806
 	if tc_version_is_at_least 5 && is_go ; then
-		rm -f go gofmt
+		for x in go gofmt; do
+			mv ${x} ${x}-${GCCMAJOR} || die
+		done
 	fi
 
 	# Now do the fun stripping stuff
