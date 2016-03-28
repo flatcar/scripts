@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-libs/gnutls/gnutls-3.3.15-r1.ebuild,v 1.1 2015/06/17 18:42:05 alonbl Exp $
+# $Id$
 
 EAPI=5
 
@@ -21,9 +21,8 @@ IUSE="+cxx +crywrap dane doc examples guile nls +openssl pkcs11 static-libs test
 
 # NOTICE: sys-devel/autogen is required at runtime as we
 # use system libopts
-RDEPEND=">=dev-libs/libtasn1-3.9[${MULTILIB_USEDEP}]
-	>=dev-libs/nettle-2.7[gmp,${MULTILIB_USEDEP}]
-	<dev-libs/nettle-3[gmp,${MULTILIB_USEDEP}]
+RDEPEND=">=dev-libs/libtasn1-4.3[${MULTILIB_USEDEP}]
+	>=dev-libs/nettle-2.7:=[gmp,${MULTILIB_USEDEP}]
 	>=dev-libs/gmp-5.1.3-r1[${MULTILIB_USEDEP}]
 	sys-devel/autogen
 	crywrap? ( net-dns/libidn )
@@ -39,13 +38,14 @@ RDEPEND=">=dev-libs/libtasn1-3.9[${MULTILIB_USEDEP}]
 DEPEND="${RDEPEND}
 	>=sys-devel/automake-1.11.6
 	>=virtual/pkgconfig-0-r1[${MULTILIB_USEDEP}]
-	doc? ( dev-util/gtk-doc )
+	doc? (
+		sys-apps/texinfo
+		dev-util/gtk-doc
+	)
 	nls? ( sys-devel/gettext )
 	test? ( app-misc/datefudge )"
 
 DOCS=( AUTHORS ChangeLog NEWS README THANKS doc/TODO )
-
-S="${WORKDIR}/${PN}-$(get_version_component_range 1-3)"
 
 pkg_setup() {
 	# bug#520818
@@ -97,6 +97,7 @@ multilib_src_configure() {
 		--enable-heartbeat-support \
 		$(use_enable cxx) \
 		$(use_enable dane libdane) \
+		$(multilib_native_use_enable doc) \
 		$(multilib_native_use_enable doc gtk-doc) \
 		$(multilib_native_use_enable guile) \
 		$(multilib_native_use_enable crywrap) \
