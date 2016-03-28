@@ -1,10 +1,10 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/flex/flex-2.5.38-r1.ebuild,v 1.2 2014/03/28 15:37:24 ottxor Exp $
+# $Id$
 
-EAPI="4"
+EAPI=5
 
-inherit flag-o-matic
+inherit eutils flag-o-matic multilib-minimal
 
 DESCRIPTION="The Fast Lexical Analyzer"
 HOMEPAGE="http://flex.sourceforge.net/"
@@ -22,19 +22,60 @@ DEPEND="${RDEPEND}
 	nls? ( sys-devel/gettext )
 	test? ( sys-devel/bison )"
 
+src_prepare() {
+	epatch "${FILESDIR}"/${P}-out-of-tree-build.patch #567332
+	epatch "${FILESDIR}"/${P}-out-of-tree-test.patch #567332
+
+	# Disable running in the tests/ subdir as it has a bunch of built sources
+	# that cannot be made conditional (automake limitation). #568842
+	if ! use test ; then
+		sed -i \
+			-e '/^SUBDIRS =/,/^$/{/tests/d}' \
+			Makefile.in || die
+	fi
+}
+
 src_configure() {
 	use static && append-ldflags -static
+
+	multilib-minimal_src_configure
+}
+
+multilib_src_configure() {
 	# Do not install shared libs #503522
+	ECONF_SOURCE=${S} \
 	econf \
 		--disable-shared \
 		$(use_enable nls) \
 		--docdir='$(datarootdir)/doc/'${PF}
 }
 
-src_install() {
-	default
+multilib_src_compile() {
+	if multilib_is_native_abi; then
+		default
+	else
+		cd src || die
+		emake -f Makefile -f - lib <<< 'lib: $(lib_LTLIBRARIES)'
+	fi
+}
+
+multilib_src_test() {
+	multilib_is_native_abi && emake check
+}
+
+multilib_src_install() {
+	if multilib_is_native_abi; then
+		default
+	else
+		cd src || die
+		emake DESTDIR="${D}" install-libLTLIBRARIES install-includeHEADERS
+	fi
+}
+
+multilib_src_install_all() {
+	einstalldocs
 	dodoc ONEWS
-	find "${ED}" -name '*.la' -delete
+	prune_libtool_files --all
 	rm "${ED}"/usr/share/doc/${PF}/{COPYING,flex.pdf} || die
 	dosym flex /usr/bin/lex
 }
