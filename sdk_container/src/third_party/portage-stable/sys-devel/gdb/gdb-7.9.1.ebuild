@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gdb/gdb-7.7.1.ebuild,v 1.14 2015/03/22 03:14:14 zerochaos Exp $
+# $Id$
 
 EAPI="5"
 PYTHON_COMPAT=( python{2_7,3_3,3_4} )
@@ -18,32 +18,38 @@ is_cross() { [[ ${CHOST} != ${CTARGET} ]] ; }
 RPM=
 MY_PV=${PV}
 case ${PV} in
-*.*.*.*.*.*)
-	# fedora version: gdb-6.8.50.20090302-8.fc11.src.rpm
-	inherit versionator rpm
-	gvcr() { get_version_component_range "$@"; }
-	MY_PV=$(gvcr 1-4)
-	RPM="${PN}-${MY_PV}-$(gvcr 5).fc$(gvcr 6).src.rpm"
-	SRC_URI="mirror://fedora/development/source/SRPMS/${RPM}"
-	;;
-*.*.50.*)
-	# weekly snapshots
-	SRC_URI="ftp://sourceware.org/pub/gdb/snapshots/current/gdb-weekly-${PV}.tar.bz2"
-	;;
 9999*)
 	# live git tree
 	EGIT_REPO_URI="git://sourceware.org/git/binutils-gdb.git"
 	inherit git-2
 	SRC_URI=""
 	;;
+*.*.50.2???????)
+	# weekly snapshots
+	SRC_URI="ftp://sourceware.org/pub/gdb/snapshots/current/gdb-weekly-${PV}.tar.xz"
+	;;
+*.*.*.*.*.*)
+	# fedora versions; note we swap the rpm & fedora core versions.
+	# gdb-6.8.50.20090302-8.fc11.src.rpm -> gdb-6.8.50.20090302.11.8.ebuild
+	# gdb-7.9-11.fc23.src.rpm -> gdb-7.9.23.11.ebuild
+	inherit versionator rpm
+	gvcr() { get_version_component_range "$@"; }
+	parse_fedora_ver() {
+		set -- $(get_version_components)
+		MY_PV=$(gvcr 1-$(( $# - 2 )))
+		RPM="${PN}-${MY_PV}-$(gvcr $#).fc$(gvcr $(( $# - 1 ))).src.rpm"
+	}
+	parse_fedora_ver
+	SRC_URI="mirror://fedora-dev/development/rawhide/source/SRPMS/g/${RPM}"
+	;;
 *)
 	# Normal upstream release
-	SRC_URI="mirror://gnu/gdb/${P}.tar.bz2
-		ftp://sourceware.org/pub/gdb/releases/${P}.tar.bz2"
+	SRC_URI="mirror://gnu/gdb/${P}.tar.xz
+		ftp://sourceware.org/pub/gdb/releases/${P}.tar.xz"
 	;;
 esac
 
-PATCH_VER="1"
+PATCH_VER=""
 DESCRIPTION="GNU debugger"
 HOMEPAGE="http://sourceware.org/gdb/"
 SRC_URI="${SRC_URI} ${PATCH_VER:+mirror://gentoo/${P}-patches-${PATCH_VER}.tar.xz}"
@@ -51,23 +57,30 @@ SRC_URI="${SRC_URI} ${PATCH_VER:+mirror://gentoo/${P}-patches-${PATCH_VER}.tar.x
 LICENSE="GPL-2 LGPL-2"
 SLOT="0"
 if [[ ${PV} != 9999* ]] ; then
-	KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 sparc x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~amd64-linux ~arm-linux ~x86-linux ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sparc x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~amd64-linux ~arm-linux ~x86-linux ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 fi
 IUSE="+client expat lzma multitarget nls +python +server test vanilla zlib"
-REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
+REQUIRED_USE="
+	python? ( ${PYTHON_REQUIRED_USE} )
+	|| ( client server )
+"
 
-RDEPEND="!dev-util/gdbserver
-	>=sys-libs/ncurses-5.2-r2
-	sys-libs/readline
-	expat? ( dev-libs/expat )
-	lzma? ( app-arch/xz-utils )
-	python? ( ${PYTHON_DEPS} )
-	zlib? ( sys-libs/zlib )"
+RDEPEND="server? ( !dev-util/gdbserver )
+	client? (
+		>=sys-libs/ncurses-5.2-r2:0=
+		sys-libs/readline:0=
+		expat? ( dev-libs/expat )
+		lzma? ( app-arch/xz-utils )
+		python? ( ${PYTHON_DEPS} )
+		zlib? ( sys-libs/zlib )
+	)"
 DEPEND="${RDEPEND}
 	app-arch/xz-utils
-	virtual/yacc
-	test? ( dev-util/dejagnu )
-	nls? ( sys-devel/gettext )"
+	client? (
+		virtual/yacc
+		test? ( dev-util/dejagnu )
+		nls? ( sys-devel/gettext )
+	)"
 
 S=${WORKDIR}/${PN}-${MY_PV}
 
@@ -80,16 +93,6 @@ src_prepare() {
 	! use vanilla && [[ -n ${PATCH_VER} ]] && EPATCH_SUFFIX="patch" epatch "${WORKDIR}"/patch
 	epatch_user
 	strip-linguas -u bfd/po opcodes/po
-	if [[ ${CHOST} == *-darwin* ]] ; then
-		# make sure we have a python-config that matches our install,
-		# such that the python check doesn't fail just because the
-		# gdb-provided copy isn't quite what our python installed
-		# version is
-		rm -f "${S}"/gdb/python/python-config.py || die
-		pushd "${S}"/gdb/python > /dev/null || die
-		ln -s "${T}"/${EPYTHON}/bin/python-config python-config.py || die
-		popd > /dev/null || die
-	fi
 }
 
 gdb_branding() {
@@ -106,7 +109,7 @@ src_configure() {
 
 	local myconf=(
 		--with-pkgversion="$(gdb_branding)"
-		--with-bugurl='http://bugs.gentoo.org/'
+		--with-bugurl='https://bugs.gentoo.org/'
 		--disable-werror
 		# Disable modules that are in a combined binutils/gdb tree. #490566
 		--disable-{binutils,etc,gas,gold,gprof,ld}
@@ -115,6 +118,7 @@ src_configure() {
 	is_cross && myconf+=(
 		--with-sysroot="${sysroot}"
 		--includedir="${sysroot}/usr/include"
+		--with-gdb-datadir="\${datadir}/gdb/${CTARGET}"
 	)
 
 	if use server && ! use client ; then
@@ -138,6 +142,8 @@ src_configure() {
 			--enable-64-bit-bfd
 			--disable-install-libbfd
 			--disable-install-libiberty
+			# Disable guile for now as it requires guile-2.x #562902
+			--without-guile
 			# This only disables building in the readline subdir.
 			# For gdb itself, it'll use the system version.
 			--disable-readline
@@ -167,7 +173,13 @@ src_install() {
 
 	# Don't install docs when building a cross-gdb
 	if [[ ${CTARGET} != ${CHOST} ]] ; then
-		rm -r "${ED}"/usr/share
+		rm -r "${ED}"/usr/share/{doc,info,locale}
+		local f
+		for f in "${ED}"/usr/share/man/*/* ; do
+			if [[ ${f##*/} != ${CTARGET}-* ]] ; then
+				mv "${f}" "${f%/*}/${CTARGET}-${f##*/}" || die
+			fi
+		done
 		return 0
 	fi
 	# Install it by hand for now:
