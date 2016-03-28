@@ -1,13 +1,13 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc-config/gcc-config-1.7.2.ebuild,v 1.1 2012/05/31 04:32:38 vapier Exp $
+# $Id$
 
 inherit unpacker toolchain-funcs multilib
 
 DESCRIPTION="utility to manage compilers"
-HOMEPAGE="http://git.overlays.gentoo.org/gitweb/?p=proj/gcc-config.git"
+HOMEPAGE="https://cgit.gentoo.org/proj/gcc-config.git"
 SRC_URI="mirror://gentoo/${P}.tar.xz
-	http://dev.gentoo.org/~vapier/dist/${P}.tar.xz"
+	https://dev.gentoo.org/~vapier/dist/${P}.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
