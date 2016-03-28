@@ -101,3 +101,36 @@
 
   Package-Manager: portage-2.2.27
 
+  05 Mar 2016; Mikle Kolyada <zlogene@gentoo.org> eselect-1.4.5.ebuild:
+  amd64 stable wrt bug #574974
+
+  Package-Manager: portage-2.2.26
+
+  15 Mar 2016; Agostino Sarubbo <ago@gentoo.org> eselect-1.4.5.ebuild:
+  x86 stable wrt bug #574974
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="x86"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  16 Mar 2016; Agostino Sarubbo <ago@gentoo.org> eselect-1.4.5.ebuild:
+  ppc stable wrt bug #574974
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="ppc"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  19 Mar 2016; Agostino Sarubbo <ago@gentoo.org> eselect-1.4.5.ebuild:
+  sparc stable wrt bug #574974
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="sparc"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  20 Mar 2016; Agostino Sarubbo <ago@gentoo.org> eselect-1.4.5.ebuild:
+  ia64 stable wrt bug #574974
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="ia64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
