@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -22,7 +22,7 @@ else
 	SRC_URI="http://wiki.qemu-project.org/download/${P}.tar.bz2
 	${BACKPORTS:+
 		https://dev.gentoo.org/~cardoe/distfiles/${P}-${BACKPORTS}.tar.xz}"
-	KEYWORDS="~amd64 ~ppc ~ppc64 ~x86 ~x86-fbsd"
+	KEYWORDS="amd64 ~arm64 ~ppc ~ppc64 x86 ~x86-fbsd"
 fi
 
 DESCRIPTION="QEMU + Kernel-based Virtual Machine userland tools"
@@ -336,6 +336,13 @@ src_prepare() {
 	[[ -n ${BACKPORTS} ]] && \
 		EPATCH_FORCE=yes EPATCH_SUFFIX="patch" EPATCH_SOURCE="${S}/patches" \
 			epatch
+
+	epatch "${FILESDIR}"/${PN}-2.5.0-CVE-2016-2198.patch #573314
+	epatch "${FILESDIR}"/${PN}-2.5.0-rng-stack-corrupt-{0,1,2,3}.patch #576420
+	epatch "${FILESDIR}"/${PN}-2.5.1-stellaris_enet-overflow.patch #579614
+	epatch "${FILESDIR}"/${PN}-2.5.1-CVE-2016-4020.patch #580040
+	epatch "${FILESDIR}"/${PN}-2.5.1-CVE-2015-8558.patch #568246 #580426
+	epatch "${FILESDIR}"/${PN}-2.5.0-sysmacros.patch
 
 	# Fix ld and objcopy being called directly
 	tc-export AR LD OBJCOPY

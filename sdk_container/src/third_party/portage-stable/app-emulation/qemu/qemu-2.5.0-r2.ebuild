@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -22,7 +22,7 @@ else
 	SRC_URI="http://wiki.qemu-project.org/download/${P}.tar.bz2
 	${BACKPORTS:+
 		https://dev.gentoo.org/~cardoe/distfiles/${P}-${BACKPORTS}.tar.xz}"
-	KEYWORDS="~amd64 ~ppc ~ppc64 ~x86 ~x86-fbsd"
+	KEYWORDS="amd64 ~arm64 ~ppc ~ppc64 x86 ~x86-fbsd"
 fi
 
 DESCRIPTION="QEMU + Kernel-based Virtual Machine userland tools"
@@ -214,14 +214,11 @@ QA_WX_LOAD="usr/bin/qemu-i386
 DOC_CONTENTS="If you don't have kvm compiled into the kernel, make sure
 you have the kernel module loaded before running kvm. The easiest way to
 ensure that the kernel module is loaded is to load it on boot.\n
-For AMD CPUs the module is called 'kvm-amd'.\n
-For Intel CPUs the module is called 'kvm-intel'.\n
-Please review /etc/conf.d/modules for how to load these.\n\n
+For AMD CPUs the module is called 'kvm-amd'\n
+For Intel CPUs the module is called 'kvm-intel'\n
+Please review /etc/conf.d/modules for how to load these\n\n
 Make sure your user is in the 'kvm' group\n
-Just run 'gpasswd -a <USER> kvm', then have <USER> re-login.\n\n
-For brand new installs, the default permissions on /dev/kvm might not let you
-access it.  You can tell udev to reset ownership/perms:\n
-udevadm trigger -c add /dev/kvm"
+Just run 'gpasswd -a <USER> kvm', then have <USER> re-login."
 
 qemu_support_kvm() {
 	if use qemu_softmmu_targets_x86_64 || use qemu_softmmu_targets_i386 \
@@ -336,6 +333,24 @@ src_prepare() {
 	[[ -n ${BACKPORTS} ]] && \
 		EPATCH_FORCE=yes EPATCH_SUFFIX="patch" EPATCH_SOURCE="${S}/patches" \
 			epatch
+
+	epatch "${FILESDIR}"/${P}-CVE-2015-8567.patch #567868
+	epatch "${FILESDIR}"/${P}-CVE-2015-8558.patch #568246
+	epatch "${FILESDIR}"/${P}-CVE-2015-8701.patch #570110
+	epatch "${FILESDIR}"/${P}-CVE-2015-8743.patch #570988
+	epatch "${FILESDIR}"/${P}-CVE-2016-1568.patch #571566
+	epatch "${FILESDIR}"/${P}-CVE-2015-8613.patch #569118
+	epatch "${FILESDIR}"/${P}-CVE-2015-8619.patch #569300
+	epatch "${FILESDIR}"/${P}-CVE-2016-1714.patch #571560
+	epatch "${FILESDIR}"/${P}-CVE-2016-1922.patch #572082
+	epatch "${FILESDIR}"/${P}-CVE-2016-1981.patch #572412
+	epatch "${FILESDIR}"/${P}-usb-ehci-oob.patch #572454
+	epatch "${FILESDIR}"/${P}-CVE-2016-2197.patch #573280
+	epatch "${FILESDIR}"/${P}-CVE-2016-2198.patch #573314
+	epatch "${FILESDIR}"/${P}-CVE-2016-2392.patch #574902
+	epatch "${FILESDIR}"/${P}-usb-ndis-int-overflow.patch #575492
+	epatch "${FILESDIR}"/${P}-rng-stack-corrupt-{0,1,2,3}.patch #576420
+	epatch "${FILESDIR}"/${P}-sysmacros.patch
 
 	# Fix ld and objcopy being called directly
 	tc-export AR LD OBJCOPY
