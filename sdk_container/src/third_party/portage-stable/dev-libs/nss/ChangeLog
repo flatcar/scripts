@@ -1,0 +1,370 @@
+# ChangeLog for dev-libs/nss
+# Copyright 1999-2016 Gentoo Foundation; Distributed under the GPL v2
+# (auto-generated from git log)
+
+*nss-3.19.2 (09 Aug 2015)
+
+  09 Aug 2015; Robin H. Johnson <robbat2@gentoo.org>
+  +files/nss-3.14.2-solaris-gcc.patch,
+  +files/nss-3.15-gentoo-fixup-warnings.patch,
+  +files/nss-3.15.4-enable-pem.patch, +files/nss-3.17.1-gentoo-fixups.patch,
+  +files/nss-cacert-class3.patch, +metadata.xml, +nss-3.19.2.ebuild:
+  proj/gentoo: Initial commit
+
+  This commit represents a new era for Gentoo:
+  Storing the gentoo-x86 tree in Git, as converted from CVS.
+
+  This commit is the start of the NEW history.
+  Any historical data is intended to be grafted onto this point.
+
+  Creation process:
+  1. Take final CVS checkout snapshot
+  2. Remove ALL ChangeLog* files
+  3. Transform all Manifests to thin
+  4. Remove empty Manifests
+  5. Convert all stale $Header$/$Id$ CVS keywords to non-expanded Git $Id$
+  5.1. Do not touch files with -kb/-ko keyword flags.
+
+  Signed-off-by: Robin H. Johnson <robbat2@gentoo.org>
+  X-Thanks: Alec Warner <antarus@gentoo.org> - did the GSoC 2006 migration
+  tests
+  X-Thanks: Robin H. Johnson <robbat2@gentoo.org> - infra guy, herding this
+  project
+  X-Thanks: Nguyen Thai Ngoc Duy <pclouds@gentoo.org> - Former Gentoo
+  developer, wrote Git features for the migration
+  X-Thanks: Brian Harring <ferringb@gentoo.org> - wrote much python to improve
+  cvs2svn
+  X-Thanks: Rich Freeman <rich0@gentoo.org> - validation scripts
+  X-Thanks: Patrick Lauer <patrick@gentoo.org> - Gentoo dev, running new 2014
+  work in migration
+  X-Thanks: Michał Górny <mgorny@gentoo.org> - scripts, QA, nagging
+  X-Thanks: All of other Gentoo developers - many ideas and lots of paint on
+  the bikeshed
+
+  24 Aug 2015; Justin Lecher <jlec@gentoo.org> metadata.xml,
+  nss-3.19.2.ebuild:
+  Use https by default
+
+  Convert all URLs for sites supporting encrypted connections from http to
+  https
+
+  Signed-off-by: Justin Lecher <jlec@gentoo.org>
+
+  24 Aug 2015; Mike Gilbert <floppym@gentoo.org> metadata.xml:
+  Revert DOCTYPE SYSTEM https changes in metadata.xml
+
+  repoman does not yet accept the https version.
+  This partially reverts eaaface92ee81f30a6ac66fe7acbcc42c00dc450.
+
+  Bug: https://bugs.gentoo.org/552720
+
+  28 Aug 2015; Ian Stakenvicius <axs@gentoo.org> nss-3.19.2.ebuild:
+  update SRC_URI per upstream location change
+
+  Package-Manager: portage-2.2.20.1
+
+*nss-3.20 (28 Aug 2015)
+
+  28 Aug 2015; Ian Stakenvicius <axs@gentoo.org> +nss-3.20.ebuild:
+  version bump
+
+  02 Oct 2015; Ian Stakenvicius <axs@gentoo.org> nss-3.19.2.ebuild,
+  nss-3.20.ebuild:
+  drop 'cp -t' as it is unsupported in fbsd
+
+  Bug: 539456
+
+  Package-Manager: portage-2.2.20.1
+
+*nss-3.20.1 (04 Nov 2015)
+
+  04 Nov 2015; Ian Stakenvicius <axs@gentoo.org> +nss-3.20.1.ebuild:
+  version bump, security bug 564834
+
+  Package-Manager: portage-2.2.20.1
+
+  05 Nov 2015; Agostino Sarubbo <ago@gentoo.org> nss-3.20.1.ebuild:
+  amd64 stable wrt bug #564834
+
+  Package-Manager: portage-2.2.20.1
+  RepoMan-Options: --include-arches="amd64"
+
+  05 Nov 2015; Agostino Sarubbo <ago@gentoo.org> nss-3.20.1.ebuild:
+  x86 stable wrt bug #564834
+
+  Package-Manager: portage-2.2.20.1
+  RepoMan-Options: --include-arches="x86"
+
+  06 Nov 2015; Jeroen Roovers <jer@gentoo.org> nss-3.20.1.ebuild:
+  Stable for HPPA PPC64 (bug #564834).
+
+  Package-Manager: portage-2.2.24
+  RepoMan-Options: --ignore-arches
+
+  09 Nov 2015; Agostino Sarubbo <ago@gentoo.org> nss-3.20.1.ebuild:
+  ppc stable wrt bug #564834
+
+  Package-Manager: portage-2.2.20.1
+  RepoMan-Options: --include-arches="ppc"
+
+  14 Nov 2015; Markus Meier <maekke@gentoo.org> nss-3.20.1.ebuild:
+  arm stable, bug #564834
+
+  Package-Manager: portage-2.2.24
+  RepoMan-Options: --include-arches="arm"
+
+  15 Nov 2015; Matt Turner <mattst88@gentoo.org> nss-3.20.1.ebuild:
+  alpha stable, bug 564834.
+
+  18 Nov 2015; Agostino Sarubbo <ago@gentoo.org> nss-3.20.1.ebuild:
+  ia64 stable wrt bug #564834
+
+  Package-Manager: portage-2.2.20.1
+  RepoMan-Options: --include-arches="ia64"
+
+*nss-3.21 (26 Nov 2015)
+
+  26 Nov 2015; Jory A. Pratt <anarchy@gentoo.org>
+  +files/nss-3.21-cacert-class3.patch, +files/nss-3.21-enable-pem.patch,
+  +files/nss-3.21-gentoo-fixup-warnings.patch,
+  +files/nss-3.21-gentoo-fixups.patch, +files/nss-3.21-pem-werror.patch,
+  +nss-3.21.ebuild:
+  basic version bump 3.21
+
+*nss-3.21-r1 (16 Dec 2015)
+
+  16 Dec 2015; Mike Frysinger <vapier@gentoo.org> metadata.xml,
+  +nss-3.21-r1.ebuild:
+  put cacert patches behind USE=cacert
+
+  25 Dec 2015; Jeroen Roovers <jer@gentoo.org>
+  +files/nss-3.21-hppa-byte_order.patch, nss-3.21-r1.ebuild:
+  Fix some definitions for HPPA.
+
+  Package-Manager: portage-2.2.26
+
+  27 Dec 2015; Mikle Kolyada <zlogene@gentoo.org> nss-3.20.1.ebuild:
+  sparc stable wrt bug #564834
+
+  Package-Manager: portage-2.2.24
+
+  05 Jan 2016; Mike Frysinger <vapier@gentoo.org> nss-3.21.ebuild,
+  nss-3.21-r1.ebuild:
+  disable building w/-Werror #567158
+
+*nss-3.21-r2 (05 Jan 2016)
+
+  05 Jan 2016; Mike Frysinger <vapier@gentoo.org> +nss-3.21-r2.ebuild:
+  switch to prelink.conf.d files
+
+  Avoid polluting the global environment via env.d just for prelink masks
+  now that the current prelink versions support prelink.conf.d fragments.
+
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Unify quoting in metadata.xml files for machine processing
+
+  Force unified quoting in all metadata.xml files since lxml does not
+  preserve original use of single and double quotes. Ensuring unified
+  quoting before the process allows distinguishing the GLEP 67-related
+  metadata.xml changes from unrelated quoting changes.
+
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Replace all herds with appropriate projects (GLEP 67)
+
+  Replace all uses of herd with appropriate project maintainers, or no
+  maintainers in case of herds requested to be disbanded.
+
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Set appropriate maintainer types in metadata.xml (GLEP 67)
+
+  30 Jan 2016; Jeroen Roovers <jer@gentoo.org> nss-3.21-r2.ebuild:
+  Stable for HPPA (bug #571086).
+
+  Package-Manager: portage-2.2.27
+  RepoMan-Options: --ignore-arches
+
+  30 Jan 2016; Tobias Klausmann <klausman@gentoo.org> nss-3.21-r2.ebuild:
+  add alpha keyword
+
+  Gentoo-Bug: 571086
+
+  Package-Manager: portage-2.2.27
+
+  31 Jan 2016; Jeroen Roovers <jer@gentoo.org> nss-3.21-r2.ebuild:
+  Stable for PPC64 (bug #571086).
+
+  Package-Manager: portage-2.2.27
+  RepoMan-Options: --ignore-arches
+
+  31 Jan 2016; Agostino Sarubbo <ago@gentoo.org> nss-3.21-r2.ebuild:
+  amd64 stable wrt bug #571086
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="amd64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  31 Jan 2016; Agostino Sarubbo <ago@gentoo.org> nss-3.21-r2.ebuild:
+  x86 stable wrt bug #571086
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="x86"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  03 Feb 2016; Markus Meier <maekke@gentoo.org> nss-3.21-r2.ebuild:
+  arm stable, bug #571086
+
+  Package-Manager: portage-2.2.27
+  RepoMan-Options: --include-arches="arm"
+
+*nss-3.22 (15 Feb 2016)
+
+  15 Feb 2016; Lars Wendler <polynomial-c@gentoo.org> +nss-3.22.ebuild:
+  Bump to version 3.22
+
+  Package-Manager: portage-2.2.27
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
+  15 Feb 2016; Lars Wendler <polynomial-c@gentoo.org> -nss-3.19.2.ebuild,
+  -nss-3.21.ebuild, -nss-3.21-r1.ebuild:
+  Removed old.
+
+  Package-Manager: portage-2.2.27
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
+  16 Feb 2016; Lars Wendler <polynomial-c@gentoo.org> nss-3.22.ebuild:
+  checkcert has been removed in 3.22 (bug #574848).
+
+  Thanks to Alexander Y. Fomichev for providing the background information
+  and a fix via email.
+
+  Package-Manager: portage-2.2.27
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
+*nss-3.22.2 (29 Feb 2016)
+
+  29 Feb 2016; Ian Stakenvicius <axs@gentoo.org> +nss-3.22.2.ebuild:
+  version bump to 3.22.2
+
+  This version uses the new PR_GetEnvSecure function in nspr-4.12, and
+  contains
+  the latest root CA updates.
+
+  Package-Manager: portage-2.2.26
+
+  29 Feb 2016; Ian Stakenvicius <axs@gentoo.org> -nss-3.22.2.ebuild:
+  Revert "dev-libs/nss: version bump to 3.22.2"
+
+  This reverts commit 8dacf4232b798af79879ca0f8e13a45d13479d0f, since
+  nspr-4.12 doesn't compile
+
+*nss-3.22.2 (29 Feb 2016)
+
+  29 Feb 2016; Ian Stakenvicius <axs@gentoo.org> +nss-3.22.2.ebuild:
+  recommit version bump to 3.22.2
+
+  This version uses the new PR_GetEnvSecure function in nspr-4.12, and
+  contains
+  root CA updates
+
+  Package-Manager: portage-2.2.26
+
+  14 Mar 2016; Agostino Sarubbo <ago@gentoo.org> nss-3.22.2.ebuild:
+  amd64 stable wrt bug #576862
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="amd64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  14 Mar 2016; Agostino Sarubbo <ago@gentoo.org> nss-3.22.2.ebuild:
+  x86 stable wrt bug #576862
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="x86"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+*nss-3.23 (15 Mar 2016)
+
+  15 Mar 2016; Lars Wendler <polynomial-c@gentoo.org>
+  files/nss-3.21-cacert-class3.patch, files/nss-3.21-enable-pem.patch,
+  files/nss-3.21-gentoo-fixup-warnings.patch,
+  files/nss-3.21-gentoo-fixups.patch, files/nss-3.21-pem-werror.patch,
+  +files/nss-3.23-hppa-byte_order.patch, +nss-3.23.ebuild:
+  Bump to version 3.23
+
+  Package-Manager: portage-2.2.28
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
+  15 Mar 2016; Lars Wendler <polynomial-c@gentoo.org> -nss-3.22.ebuild:
+  Removed old.
+
+  Package-Manager: portage-2.2.28
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
+  15 Mar 2016; Tobias Klausmann <klausman@gentoo.org> nss-3.22.2.ebuild:
+  3.22.2-r0: add alpha keyword
+
+  Gentoo-Bug: 576862
+
+  Package-Manager: portage-2.2.28
+
+  16 Mar 2016; Agostino Sarubbo <ago@gentoo.org> nss-3.21-r2.ebuild:
+  ppc stable wrt bug #571086
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="ppc"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  16 Mar 2016; Agostino Sarubbo <ago@gentoo.org> nss-3.22.2.ebuild:
+  ppc stable wrt bug #576862
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="ppc"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  17 Mar 2016; Agostino Sarubbo <ago@gentoo.org> nss-3.22.2.ebuild:
+  ppc64 stable wrt bug #576862
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="ppc64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  18 Mar 2016; Markus Meier <maekke@gentoo.org> nss-3.22.2.ebuild:
+  arm stable, bug #576862
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="arm"
+
+  19 Mar 2016; Jeroen Roovers <jer@gentoo.org> nss-3.22.2.ebuild:
+  Stable for HPPA (bug #576862).
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --ignore-arches
+
+  19 Mar 2016; Agostino Sarubbo <ago@gentoo.org> nss-3.21-r2.ebuild:
+  sparc stable wrt bug #571086
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="sparc"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  19 Mar 2016; Agostino Sarubbo <ago@gentoo.org> nss-3.22.2.ebuild:
+  sparc stable wrt bug #576862
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="sparc"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  20 Mar 2016; Agostino Sarubbo <ago@gentoo.org> nss-3.21-r2.ebuild:
+  ia64 stable wrt bug #571086
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="ia64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  20 Mar 2016; Agostino Sarubbo <ago@gentoo.org> nss-3.22.2.ebuild:
+  ia64 stable wrt bug #576862
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="ia64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
