@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/libtool/libtool-2.4.5.ebuild,v 1.1 2015/01/19 23:32:05 polynomial-c Exp $
+# $Id$
 
 EAPI="4"
 
@@ -18,7 +18,7 @@ else
 fi
 
 DESCRIPTION="A shared library tool for developers"
-HOMEPAGE="http://www.gnu.org/software/libtool/"
+HOMEPAGE="https://www.gnu.org/software/libtool/"
 
 LICENSE="GPL-2"
 SLOT="2"

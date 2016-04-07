@@ -1,11 +1,11 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/autoconf/autoconf-2.64.ebuild,v 1.10 2015/03/19 23:49:17 vapier Exp $
+# $Id$
 
 EAPI="5"
 
 DESCRIPTION="Used to create autoconfiguration files"
-HOMEPAGE="http://www.gnu.org/software/autoconf/autoconf.html"
+HOMEPAGE="https://www.gnu.org/software/autoconf/autoconf.html"
 SRC_URI="mirror://gnu/${PN}/${P}.tar.xz"
 
 LICENSE="GPL-2"
@@ -16,7 +16,7 @@ IUSE=""
 DEPEND=">=sys-devel/m4-1.4.6
 	dev-lang/perl"
 RDEPEND="${DEPEND}
-	!~sys-devel/${P}:0
+	!~sys-devel/${P}:2.5
 	>=sys-devel/autoconf-wrapper-13"
 
 if [[ -z ${__EBLITS__} && -n ${FILESDIR} ]] ; then

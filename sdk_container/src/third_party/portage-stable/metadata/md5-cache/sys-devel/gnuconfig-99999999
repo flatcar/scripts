@@ -1,9 +1,9 @@
 DEFINED_PHASES=compile install prepare test unpack
 DEPEND=dev-vcs/git
 DESCRIPTION=Updated config.sub and config.guess file from GNU
-EAPI=2
+EAPI=5
 HOMEPAGE=http://savannah.gnu.org/projects/config
 LICENSE=GPL-2
 SLOT=0
 _eclasses_=eutils	9d81603248f2ba3ec59124320d123e5e	git-2	df00117322129fb906bb0a53c3d6a020	multilib	3972ca401cf7dbb430df9995f5d8d580	toolchain-funcs	7a212e5e01adfa4805c9978366e6ee85
-_md5_=0613293350a82f70d86c4b6fe7167e3f
+_md5_=aca38167235160b45c3cc567aaf42fab

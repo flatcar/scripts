@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/smatch/smatch-1.57-r1.ebuild,v 1.1 2013/01/03 20:50:43 vapier Exp $
+# $Id$
 
 EAPI="4"
 
@@ -22,7 +22,7 @@ else
 	# so we have to cache our own copy of the snapshot.
 	#SRC_URI="http://repo.or.cz/w/smatch.git/snapshot/${PV}.tar.gz -> ${P}.tar.gz"
 	SRC_URI="mirror://gentoo/${P}.tar.gz"
-	KEYWORDS="amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86"
+	KEYWORDS="~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86"
 fi
 
 LICENSE="OSL-1.1"

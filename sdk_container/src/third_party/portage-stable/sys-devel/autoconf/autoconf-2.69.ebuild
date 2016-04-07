@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/autoconf/autoconf-2.69.ebuild,v 1.22 2014/12/03 05:52:22 heroxbd Exp $
+# $Id$
 
 EAPI="3"
 
@@ -17,16 +17,15 @@ else
 fi
 
 DESCRIPTION="Used to create autoconfiguration files"
-HOMEPAGE="http://www.gnu.org/software/autoconf/autoconf.html"
+HOMEPAGE="https://www.gnu.org/software/autoconf/autoconf.html"
 
 LICENSE="GPL-3"
-SLOT=$(usex multislot "${PV}" "2.5")
-IUSE="emacs multislot"
+SLOT="2.5"
+IUSE="emacs"
 
 DEPEND=">=sys-devel/m4-1.4.16
 	>=dev-lang/perl-5.6"
 RDEPEND="${DEPEND}
-	multislot? ( !~sys-devel/${P}:0 )
 	>=sys-devel/autoconf-wrapper-13"
 PDEPEND="emacs? ( app-emacs/autoconf-mode )"
 

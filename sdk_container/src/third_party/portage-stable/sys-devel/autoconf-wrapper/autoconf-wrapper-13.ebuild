@@ -1,11 +1,11 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/autoconf-wrapper/autoconf-wrapper-13.ebuild,v 1.13 2014/01/17 04:23:10 vapier Exp $
+# $Id$
 
 inherit multilib
 
 DESCRIPTION="wrapper for autoconf to manage multiple autoconf versions"
-HOMEPAGE="http://www.gentoo.org/"
+HOMEPAGE="https://www.gentoo.org/"
 SRC_URI=""
 
 LICENSE="GPL-2"

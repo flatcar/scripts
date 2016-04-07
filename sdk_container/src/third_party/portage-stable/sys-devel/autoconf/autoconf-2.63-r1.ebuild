@@ -1,13 +1,13 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/autoconf/autoconf-2.63-r1.ebuild,v 1.9 2015/03/19 23:49:17 vapier Exp $
+# $Id$
 
 EAPI="5"
 
 inherit eutils
 
 DESCRIPTION="Used to create autoconfiguration files"
-HOMEPAGE="http://www.gnu.org/software/autoconf/autoconf.html"
+HOMEPAGE="https://www.gnu.org/software/autoconf/autoconf.html"
 SRC_URI="mirror://gnu/${PN}/${P}.tar.bz2"
 
 LICENSE="GPL-2"
@@ -18,7 +18,7 @@ IUSE=""
 DEPEND=">=sys-devel/m4-1.4.6
 	dev-lang/perl"
 RDEPEND="${DEPEND}
-	!~sys-devel/${P}:0
+	!~sys-devel/${P}:2.5
 	>=sys-devel/autoconf-wrapper-13"
 
 PATCHES=(

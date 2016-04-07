@@ -9,4 +9,4 @@ RDEPEND=sys-devel/bin86
 SLOT=0
 SRC_URI=http://www.debath.co.uk/dev86/Dev86src-0.16.19.tar.gz
 _eclasses_=eutils	9d81603248f2ba3ec59124320d123e5e	multilib	3972ca401cf7dbb430df9995f5d8d580	toolchain-funcs	7a212e5e01adfa4805c9978366e6ee85
-_md5_=5edeba2ce5550be47b467a7a6c2dfba8
+_md5_=db90e069fad488e679b0d6b066565cdb

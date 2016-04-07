@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/libtool/libtool-2.4.2-r1.ebuild,v 1.12 2014/10/27 01:51:03 vapier Exp $
+# $Id$
 
 EAPI="4"
 
@@ -18,7 +18,7 @@ else
 fi
 
 DESCRIPTION="A shared library tool for developers"
-HOMEPAGE="http://www.gnu.org/software/libtool/"
+HOMEPAGE="https://www.gnu.org/software/libtool/"
 
 LICENSE="GPL-2"
 SLOT="2"

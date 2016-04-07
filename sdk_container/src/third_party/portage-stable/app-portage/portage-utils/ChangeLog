@@ -1,0 +1,117 @@
+# ChangeLog for app-portage/portage-utils
+# Copyright 1999-2016 Gentoo Foundation; Distributed under the GPL v2
+# (auto-generated from git log)
+
+*portage-utils-0.56 (09 Aug 2015)
+*portage-utils-0.55 (09 Aug 2015)
+*portage-utils-0.54 (09 Aug 2015)
+*portage-utils-0.53 (09 Aug 2015)
+
+  09 Aug 2015; Robin H. Johnson <robbat2@gentoo.org>
+  +files/portage-utils-0.56-qcheck-tz.patch,
+  +files/portage-utils-0.56-qlop-tz.patch, +files/post_sync,
+  +files/q-reinitialize, +metadata.xml, +portage-utils-0.53.ebuild,
+  +portage-utils-0.54.ebuild, +portage-utils-0.55.ebuild,
+  +portage-utils-0.56.ebuild:
+  proj/gentoo: Initial commit
+
+  This commit represents a new era for Gentoo:
+  Storing the gentoo-x86 tree in Git, as converted from CVS.
+
+  This commit is the start of the NEW history.
+  Any historical data is intended to be grafted onto this point.
+
+  Creation process:
+  1. Take final CVS checkout snapshot
+  2. Remove ALL ChangeLog* files
+  3. Transform all Manifests to thin
+  4. Remove empty Manifests
+  5. Convert all stale $Header$/$Id$ CVS keywords to non-expanded Git $Id$
+  5.1. Do not touch files with -kb/-ko keyword flags.
+
+  Signed-off-by: Robin H. Johnson <robbat2@gentoo.org>
+  X-Thanks: Alec Warner <antarus@gentoo.org> - did the GSoC 2006 migration
+  tests
+  X-Thanks: Robin H. Johnson <robbat2@gentoo.org> - infra guy, herding this
+  project
+  X-Thanks: Nguyen Thai Ngoc Duy <pclouds@gentoo.org> - Former Gentoo
+  developer, wrote Git features for the migration
+  X-Thanks: Brian Harring <ferringb@gentoo.org> - wrote much python to improve
+  cvs2svn
+  X-Thanks: Rich Freeman <rich0@gentoo.org> - validation scripts
+  X-Thanks: Patrick Lauer <patrick@gentoo.org> - Gentoo dev, running new 2014
+  work in migration
+  X-Thanks: Michał Górny <mgorny@gentoo.org> - scripts, QA, nagging
+  X-Thanks: All of other Gentoo developers - many ideas and lots of paint on
+  the bikeshed
+
+  09 Aug 2015; Ulrich Müller <ulm@gentoo.org> files/post_sync:
+  [QA] Remove executable bit from files, bug 550434.
+
+  10 Aug 2015; Sebastian Pipping <sping@gentoo.org> portage-utils-0.56.ebuild:
+  Limit dev-libs/iniparser reverse dendencies to slot 0 (not slot 4)
+
+  Signed-off-by: Sebastian Pipping <sping@gentoo.org>
+
+  24 Aug 2015; Justin Lecher <jlec@gentoo.org> metadata.xml,
+  portage-utils-0.53.ebuild, portage-utils-0.54.ebuild,
+  portage-utils-0.55.ebuild, portage-utils-0.56.ebuild:
+  Use https by default
+
+  Convert all URLs for sites supporting encrypted connections from http to
+  https
+
+  Signed-off-by: Justin Lecher <jlec@gentoo.org>
+
+  24 Aug 2015; Mike Gilbert <floppym@gentoo.org> metadata.xml:
+  Revert DOCTYPE SYSTEM https changes in metadata.xml
+
+  repoman does not yet accept the https version.
+  This partially reverts eaaface92ee81f30a6ac66fe7acbcc42c00dc450.
+
+  Bug: https://bugs.gentoo.org/552720
+
+  28 Nov 2015; Mike Frysinger <vapier@gentoo.org> -portage-utils-0.53.ebuild,
+  -portage-utils-0.54.ebuild, -portage-utils-0.55.ebuild:
+  drop old versions
+
+*portage-utils-0.60 (28 Nov 2015)
+
+  28 Nov 2015; Mike Frysinger <vapier@gentoo.org> +portage-utils-0.60.ebuild:
+  version bump to 0.60
+
+  14 Jan 2016; Ian Stakenvicius <axs@gentoo.org> metadata.xml:
+  change maintainer to just vapier, for GLEP67
+
+  Package-Manager: portage-2.2.26
+
+  14 Jan 2016; Fabian Groffen <grobian@gentoo.org>
+  +files/portage-utils-0.60-solaris.patch, portage-utils-0.60.ebuild:
+  add patch to allow compilation on Solaris
+
+  Package-Manager: portage-2.2.20-prefix
+
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Set appropriate maintainer types in metadata.xml (GLEP 67)
+
+*portage-utils-0.61 (14 Feb 2016)
+
+  14 Feb 2016; Mike Frysinger <vapier@gentoo.org> +portage-utils-0.61.ebuild:
+  version bump to 0.61
+
+  14 Feb 2016; Fabian Groffen <grobian@gentoo.org>
+  +files/portage-utils-0.61-solaris.patch, portage-utils-0.61.ebuild:
+  fix compilation on Solaris
+
+  Package-Manager: portage-2.2.20-prefix
+
+*portage-utils-0.62 (22 Feb 2016)
+
+  22 Feb 2016; Mike Frysinger <vapier@gentoo.org> +portage-utils-0.62.ebuild:
+  version bump to 0.62
+
+*portage-utils-0.63 (28 Mar 2016)
+
+  28 Mar 2016; Mike Frysinger <vapier@gentoo.org> +portage-utils-0.63.ebuild:
+  version bump to 0.63
+
