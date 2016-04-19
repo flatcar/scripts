@@ -9,4 +9,4 @@ RDEPEND=sys-apps/pciutils
 SLOT=0
 SRC_URI=mirror://sourceforge/gnu-efi/gnu-efi_3.0g.orig.tar.gz
 _eclasses_=eutils	9d81603248f2ba3ec59124320d123e5e	multilib	3972ca401cf7dbb430df9995f5d8d580	toolchain-funcs	7a212e5e01adfa4805c9978366e6ee85
-_md5_=9ed33d6b38a32abfda69d0235f189cbe
+_md5_=42d1751e471e5745f400d2ace6a69131

@@ -1,43 +1,34 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
 EAPI=5
 
-inherit eutils multilib
+inherit multilib
 
-MY_P="${PN}_${PV}"
-DEB_VER="3.0i-4"
 DESCRIPTION="Library for build EFI Applications"
-HOMEPAGE="http://developer.intel.com/technology/efi"
-SRC_URI="mirror://sourceforge/gnu-efi/${MY_P}.orig.tar.gz
-	mirror://debian/pool/main/g/gnu-efi/${PN}_${DEB_VER}.diff.gz"
+HOMEPAGE="http://gnu-efi.sourceforge.net/"
+SRC_URI="mirror://sourceforge/gnu-efi/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~ia64 ~x86"
+KEYWORDS="-* ~amd64 ia64 ~x86"
 IUSE=""
 
 DEPEND="sys-apps/pciutils"
 RDEPEND=""
 
-S=${WORKDIR}/${P%?}
-
 # These objects get run early boot (i.e. not inside of Linux),
 # so doing these QA checks on them doesn't make sense.
 QA_EXECSTACK="usr/*/lib*efi.a:* usr/*/crt*.o"
 
-src_prepare() {
-	EPATCH_OPTS="-p1" epatch "${WORKDIR}"/*.diff
-	if ! use amd64 && ! use x86 ; then
-		sed -i \
-			-e '/CPPFLAGS/s:-maccumulate-outgoing-args::' \
-			Make.defaults || die #503210
-	fi
-}
-
 _emake() {
-	emake prefix=${CHOST}- ARCH=${iarch} PREFIX=/usr "$@"
+	emake \
+		prefix=${CHOST}- \
+		ARCH=${iarch} \
+		PREFIX="${EPREFIX}/usr" \
+		LIBDIR='$(PREFIX)/'"$(get_libdir)" \
+		"$@"
 }
 
 src_compile() {
