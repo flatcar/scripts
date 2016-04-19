@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-boot/gnu-efi/gnu-efi-3.0s.ebuild,v 1.4 2013/07/07 15:19:32 ago Exp $
+# $Id$
 
 EAPI="4"
 
@@ -30,6 +30,12 @@ QA_EXECSTACK="usr/*/lib*efi.a:* usr/*/crt*.o"
 src_prepare() {
 	EPATCH_OPTS="-p1" epatch "${WORKDIR}"/*.diff
 	sed -i -e '/^CFLAGS/s:$: -fno-stack-protector:' Make.defaults || die #444246
+	if ! use amd64 && ! use x86 ; then
+		sed -i \
+			-e '/CPPFLAGS/s:-maccumulate-outgoing-args::' \
+			Make.defaults || die #503210
+	fi
+
 }
 
 _emake() {
