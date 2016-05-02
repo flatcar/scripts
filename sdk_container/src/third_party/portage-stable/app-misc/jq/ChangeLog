@@ -116,3 +116,17 @@
 
   Package-Manager: portage-2.2.27
 
+*jq-1.5-r2 (30 Apr 2016)
+
+  30 Apr 2016; Tim Harder <radhermit@gentoo.org>
+  +files/jq-1.5-heap_buffer_overflow_in_tokenadd.patch, +jq-1.5-r2.ebuild:
+  fix buffer overflow (bug #580606) and other updates
+
+  - add upstream metadata
+  - add arm architecture
+  - refactor econf args to an array
+  - move DOCS and PATCHES to their appropriate functions
+  - replace custom find with prune_libtool_files()
+
+  Gentoo-Bug: 580606
+
