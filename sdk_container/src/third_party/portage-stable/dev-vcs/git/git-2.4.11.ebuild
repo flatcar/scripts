@@ -2,25 +2,17 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=6
+EAPI=5
 
 GENTOO_DEPEND_ON_PERL=no
 
 # bug #329479: git-remote-testgit is not multiple-version aware
 PYTHON_COMPAT=( python2_7 )
-[[ ${PV} == *9999 ]] && SCM="git-r3"
-# Please ensure that all _four_ 9999 ebuilds get updated; they track the 4 upstream branches.
-# See https://git-scm.com/docs/gitworkflows#_graduation
-# In order of stability:
-# 9999-r0: maint
-# 9999-r1: master
-# 9999-r2: next
-# 9999-r3: pu
+[[ ${PV} == *9999 ]] && SCM="git-2"
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
-EGIT_BRANCH=next
-PLOCALES="bg ca de fr is it ko pt_PT ru sv vi zh_CN"
+EGIT_MASTER=pu
 
-inherit toolchain-funcs eutils elisp-common l10n perl-module bash-completion-r1 python-single-r1 systemd ${SCM}
+inherit toolchain-funcs eutils elisp-common perl-module bash-completion-r1 python-single-r1 systemd ${SCM}
 
 MY_PV="${PV/_rc/.rc}"
 MY_P="${PN}-${MY_PV}"
@@ -46,12 +38,11 @@ fi
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="+blksha1 +curl cgi doc emacs gnome-keyring +gpg gtk highlight +iconv libressl mediawiki mediawiki-experimental +nls +pcre +perl +python ppcsha1 tk +threads +webdav xinetd cvs subversion test"
+IUSE="+blksha1 +curl cgi doc emacs gnome-keyring +gpg gtk highlight +iconv mediawiki +nls +pcre +perl +python ppcsha1 tk +threads +webdav xinetd cvs subversion test"
 
 # Common to both DEPEND and RDEPEND
 CDEPEND="
-	!libressl? ( dev-libs/openssl:0= )
-	libressl? ( dev-libs/libressl:= )
+	dev-libs/openssl:0=
 	sys-libs/zlib
 	pcre? ( dev-libs/libpcre )
 	perl? ( dev-lang/perl:=[-build(-)] )
@@ -111,26 +102,11 @@ REQUIRED_USE="
 	cgi? ( perl )
 	cvs? ( perl )
 	mediawiki? ( perl )
-	mediawiki-experimental? ( mediawiki )
 	subversion? ( perl )
 	webdav? ( curl )
 	gtk? ( python )
 	python? ( ${PYTHON_REQUIRED_USE} )
 "
-
-PATCHES=(
-	# bug #350330 - automagic CVS when we don't want it is bad.
-	"${FILESDIR}"/git-2.2.2-optional-cvs.patch
-
-	# install mediawiki perl modules also in vendor_dir
-	# hack, needs better upstream solution
-	"${FILESDIR}"/git-1.8.5-mw-vendor.patch
-
-	"${FILESDIR}"/git-2.2.0-svn-fe-linking.patch
-
-	# Bug #493306, where FreeBSD 10.x merged libiconv into its libc.
-	"${FILESDIR}"/git-2.5.1-freebsd-10.x-no-iconv.patch
-)
 
 pkg_setup() {
 	if use subversion && has_version "dev-vcs/subversion[dso]"; then
@@ -212,8 +188,6 @@ exportmakeopts() {
 	fi
 	if [[ ${CHOST} == *-solaris* ]]; then
 		myopts+=" NEEDS_LIBICONV=YesPlease"
-		myopts+=" HAVE_CLOCK_MONOTONIC=1"
-		myopts+=" HAVE_GETDELIM=1"
 	fi
 
 	has_version '>=app-text/asciidoc-8.0' \
@@ -239,7 +213,7 @@ src_unpack() {
 			unpack ${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 		cd "${S}"
 	else
-		git-r3_src_unpack
+		git-2_src_unpack
 		cd "${S}"
 		#cp "${FILESDIR}"/GIT-VERSION-GEN .
 	fi
@@ -247,17 +221,16 @@ src_unpack() {
 }
 
 src_prepare() {
-	# add experimental patches to improve mediawiki support
-	# see patches for origin
-	if use mediawiki-experimental ; then
-		PATCHES+=(
-			"${FILESDIR}"/git-2.7.0-mediawiki-namespaces.patch
-			"${FILESDIR}"/git-2.7.0-mediawiki-subpages.patch
-			"${FILESDIR}"/git-2.7.0-mediawiki-500pages.patch
-		)
-	fi
+	# bug #350330 - automagic CVS when we don't want it is bad.
+	epatch "${FILESDIR}"/git-2.2.2-optional-cvs.patch
 
-	default
+	# install mediawiki perl modules also in vendor_dir
+	# hack, needs better upstream solution
+	epatch "${FILESDIR}"/git-1.8.5-mw-vendor.patch
+
+	epatch "${FILESDIR}"/git-2.2.0-svn-fe-linking.patch
+
+	epatch_user
 
 	sed -i \
 		-e 's:^\(CFLAGS[[:space:]]*=\).*$:\1 $(OPTCFLAGS) -Wall:' \
@@ -330,9 +303,8 @@ src_compile() {
 	fi
 
 	if [[ ${CHOST} == *-darwin* ]]; then
-		cd "${S}"/contrib/credential/osxkeychain || die
-		git_emake CC=$(tc-getCC) CFLAGS="${CFLAGS}" \
-			|| die "emake credential-osxkeychain"
+		cd "${S}"/contrib/credential/osxkeychain || die "cd credential/osxkeychain"
+		git_emake || die "emake credential-osxkeychain"
 	fi
 
 	cd "${S}"/Documentation
@@ -392,15 +364,13 @@ src_install() {
 	# manpages may exist in either OR both of these directories.
 	find man?/*.[157] >/dev/null 2>&1 && doman man?/*.[157]
 	find Documentation/*.[157] >/dev/null 2>&1 && doman Documentation/*.[157]
-	dodoc README* Documentation/{SubmittingPatches,CodingGuidelines}
+
+	dodoc README Documentation/{SubmittingPatches,CodingGuidelines}
 	use doc && dodir /usr/share/doc/${PF}/html
 	for d in / /howto/ /technical/ ; do
 		docinto ${d}
 		dodoc Documentation${d}*.txt
-		if use doc ; then
-			docinto ${d}/html
-			dodoc Documentation${d}*.html
-		fi
+		use doc && dohtml -p ${d} Documentation${d}*.html
 	done
 	docinto /
 	# Upstream does not ship this pre-built :-(
@@ -473,11 +443,7 @@ src_install() {
 		cd "${S}"/contrib/svn-fe
 		dobin svn-fe
 		dodoc svn-fe.txt
-		if use doc ; then
-			doman svn-fe.1
-			docinto html
-			dodoc svn-fe.html
-		fi
+		use doc && doman svn-fe.1 && dohtml svn-fe.html
 		cd "${S}"
 	fi
 
@@ -545,20 +511,10 @@ src_install() {
 	fi
 
 	perl_delete_localpod
-
-	# Remove disabled linguas
-	# we could remove sources in src_prepare, but install does not
-	# handle missing locale dir well
-	rm_loc() {
-		if [[ -e "${ED}/usr/share/locale/${1}" ]]; then
-			rm -r "${ED}/usr/share/locale/${1}" || die
-		fi
-	}
-	l10n_for_each_disabled_locale_do rm_loc
 }
 
 src_test() {
-	local disabled=""
+	local disabled="" #t7004-tag.sh" #520270
 	local tests_cvs="t9200-git-cvsexportcommit.sh \
 					t9400-git-cvsserver-server.sh \
 					t9401-git-cvsserver-crlf.sh \
@@ -674,7 +630,6 @@ pkg_postinst() {
 	showpkgdeps git-instaweb \
 		"|| ( www-servers/lighttpd www-servers/apache www-servers/nginx )"
 	echo
-	use mediawiki-experimental && ewarn "Using experimental git-mediawiki patches. The stability of cloned wiki filesystems is not guaranteed."
 }
 
 pkg_postrm() {

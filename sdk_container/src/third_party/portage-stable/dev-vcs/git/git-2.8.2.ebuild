@@ -8,11 +8,19 @@ GENTOO_DEPEND_ON_PERL=no
 
 # bug #329479: git-remote-testgit is not multiple-version aware
 PYTHON_COMPAT=( python2_7 )
-[[ ${PV} == *9999 ]] && SCM="git-2"
+[[ ${PV} == *9999 ]] && SCM="git-r3"
+# Please ensure that all _four_ 9999 ebuilds get updated; they track the 4 upstream branches.
+# See https://git-scm.com/docs/gitworkflows#_graduation
+# In order of stability:
+# 9999-r0: maint
+# 9999-r1: master
+# 9999-r2: next
+# 9999-r3: pu
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
-EGIT_MASTER=pu
+EGIT_BRANCH=pu
+PLOCALES="bg ca de fr is it ko pt_PT ru sv vi zh_CN"
 
-inherit toolchain-funcs eutils elisp-common perl-module bash-completion-r1 python-single-r1 systemd ${SCM}
+inherit toolchain-funcs eutils elisp-common l10n perl-module bash-completion-r1 python-single-r1 systemd ${SCM}
 
 MY_PV="${PV/_rc/.rc}"
 MY_P="${PN}-${MY_PV}"
@@ -204,6 +212,8 @@ exportmakeopts() {
 	fi
 	if [[ ${CHOST} == *-solaris* ]]; then
 		myopts+=" NEEDS_LIBICONV=YesPlease"
+		myopts+=" HAVE_CLOCK_MONOTONIC=1"
+		myopts+=" HAVE_GETDELIM=1"
 	fi
 
 	has_version '>=app-text/asciidoc-8.0' \
@@ -229,7 +239,7 @@ src_unpack() {
 			unpack ${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 		cd "${S}"
 	else
-		git-2_src_unpack
+		git-r3_src_unpack
 		cd "${S}"
 		#cp "${FILESDIR}"/GIT-VERSION-GEN .
 	fi
@@ -320,8 +330,9 @@ src_compile() {
 	fi
 
 	if [[ ${CHOST} == *-darwin* ]]; then
-		cd "${S}"/contrib/credential/osxkeychain || die "cd credential/osxkeychain"
-		git_emake || die "emake credential-osxkeychain"
+		cd "${S}"/contrib/credential/osxkeychain || die
+		git_emake CC=$(tc-getCC) CFLAGS="${CFLAGS}" \
+			|| die "emake credential-osxkeychain"
 	fi
 
 	cd "${S}"/Documentation
@@ -381,7 +392,7 @@ src_install() {
 	# manpages may exist in either OR both of these directories.
 	find man?/*.[157] >/dev/null 2>&1 && doman man?/*.[157]
 	find Documentation/*.[157] >/dev/null 2>&1 && doman Documentation/*.[157]
-	dodoc README Documentation/{SubmittingPatches,CodingGuidelines}
+	dodoc README* Documentation/{SubmittingPatches,CodingGuidelines}
 	use doc && dodir /usr/share/doc/${PF}/html
 	for d in / /howto/ /technical/ ; do
 		docinto ${d}
@@ -534,10 +545,20 @@ src_install() {
 	fi
 
 	perl_delete_localpod
+
+	# Remove disabled linguas
+	# we could remove sources in src_prepare, but install does not
+	# handle missing locale dir well
+	rm_loc() {
+		if [[ -e "${ED}/usr/share/locale/${1}" ]]; then
+			rm -r "${ED}/usr/share/locale/${1}" || die
+		fi
+	}
+	l10n_for_each_disabled_locale_do rm_loc
 }
 
 src_test() {
-	local disabled="t8005-blame-i18n.sh" #t7004-tag.sh" #520270
+	local disabled=""
 	local tests_cvs="t9200-git-cvsexportcommit.sh \
 					t9400-git-cvsserver-server.sh \
 					t9401-git-cvsserver-crlf.sh \
