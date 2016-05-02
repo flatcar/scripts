@@ -1,8 +1,8 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-util/valgrind/valgrind-3.10.1.ebuild,v 1.7 2015/03/25 13:40:39 ago Exp $
+# $Id$
 
-EAPI="4"
+EAPI="5"
 inherit autotools eutils flag-o-matic toolchain-funcs multilib pax-utils
 
 DESCRIPTION="An open-source memory debugger for GNU/Linux"
@@ -42,6 +42,12 @@ src_prepare() {
 
 	# valgrind works fine on linux-4, bug #543648
 	epatch "${FILESDIR}"/${PN}-3.10.1-linux-4.patch
+
+	# glibc 2.21 fix.  Bug #554808.
+	epatch "${FILESDIR}"/${PN}-3.10.1-glibc-2.21.patch
+
+	# glibc 2.22 fix.  Bug #580092
+	epatch "${FILESDIR}"/${PN}-3.10.1-glibc-2.22.patch
 
 	# Allow users to test their own patches
 	epatch_user

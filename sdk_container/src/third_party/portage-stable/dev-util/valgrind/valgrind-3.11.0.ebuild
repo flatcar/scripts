@@ -1,8 +1,8 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-util/valgrind/valgrind-3.8.1.ebuild,v 1.8 2013/05/26 12:17:05 blueness Exp $
+# $Id$
 
-EAPI="4"
+EAPI="5"
 inherit autotools eutils flag-o-matic toolchain-funcs multilib pax-utils
 
 DESCRIPTION="An open-source memory debugger for GNU/Linux"
@@ -11,7 +11,7 @@ SRC_URI="http://www.valgrind.org/downloads/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="-* amd64 ~arm ppc ppc64 x86 ~amd64-linux ~x86-linux ~x64-macos ~x86-macos"
+KEYWORDS="-* ~amd64 ~arm ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux ~x64-macos ~x86-macos"
 IUSE="mpi"
 
 DEPEND="mpi? ( virtual/mpi )"
@@ -35,10 +35,10 @@ src_prepare() {
 
 	# Don't build in empty assembly files for other platforms or we'll get a QA
 	# warning about executable stacks.
-	epatch "${FILESDIR}"/${PN}-3.8.0-non-exec-stack.patch
+	epatch "${FILESDIR}"/${PN}-3.11.0-non-exec-stack.patch
 
-	# Fix for glibc 2.18, bug #458326
-	epatch "${FILESDIR}"/${PN}-3.8.1-glibc-2.17.patch
+	# Allow users to test their own patches
+	epatch_user
 
 	# Regenerate autotools files
 	eautoreconf
@@ -52,14 +52,11 @@ src_configure() {
 
 	# -fomit-frame-pointer	"Assembler messages: Error: junk `8' after expression"
 	#                       while compiling insn_sse.c in none/tests/x86
-	# -fpie                 valgrind seemingly hangs when built with pie on
-	#                       amd64 (bug #102157)
 	# -fstack-protector     more undefined references to __guard and __stack_smash_handler
 	#                       because valgrind doesn't link to glibc (bug #114347)
 	# -m64 -mx32			for multilib-portage, bug #398825
 	# -ggdb3                segmentation fault on startup
 	filter-flags -fomit-frame-pointer
-	filter-flags -fpie
 	filter-flags -fstack-protector
 	filter-flags -m64 -mx32
 	replace-flags -ggdb3 -ggdb2
