@@ -134,3 +134,6 @@
   RepoMan-Options: --include-arches="ia64"
   Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
 
+  03 Apr 2016; Mike Frysinger <vapier@gentoo.org> eselect-1.4.5.ebuild:
+  mark 1.4.5 alpha/m68k/s390/sh stable #574974
+
