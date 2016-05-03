@@ -1,0 +1,96 @@
+# ChangeLog for sys-libs/binutils-libs
+# Copyright 1999-2016 Gentoo Foundation; Distributed under the GPL v2
+# (auto-generated from git log)
+
+*binutils-libs-2.25.1 (26 Sep 2015)
+
+  26 Sep 2015; Mike Frysinger <vapier@gentoo.org>
+  +binutils-libs-2.25.1.ebuild, +metadata.xml:
+  new package #528088
+
+  Since packages want to link against binutils libs (bfd/opcodes) and
+  properly track updates when the binutils SONAMEs change, split the
+  libs out into a dedicated package.  This way we can continue with
+  the multi-SLOT-ed binutils package w/out making the library users
+  go crazy.
+
+*binutils-libs-2.25.1-r1 (29 Sep 2015)
+
+  29 Sep 2015; Mike Frysinger <vapier@gentoo.org>
+  -binutils-libs-2.25.1.ebuild, +binutils-libs-2.25.1-r1.ebuild:
+  add multilib support #558902
+
+  29 Sep 2015; Mike Frysinger <vapier@gentoo.org>
+  binutils-libs-2.25.1-r1.ebuild:
+  add MULTILIB_USEDEP to zlib dep
+
+  01 Oct 2015; Michał Górny <mgorny@gentoo.org>
+  binutils-libs-2.25.1-r1.ebuild:
+  Fix cross-ABI header mismatch
+
+  Fixes: https://bugs.gentoo.org/show_bug.cgi?id=561918
+
+  Package-Manager: portage-2.2.20
+
+*binutils-libs-2.25.1-r2 (23 Nov 2015)
+
+  23 Nov 2015; Mike Frysinger <vapier@gentoo.org>
+  -binutils-libs-2.25.1-r1.ebuild, +binutils-libs-2.25.1-r2.ebuild,
+  metadata.xml:
+  sys-devel/binutils-libs: add multitarget & 64-bit bfd support
+
+  Some tools might want multitarget/64-bit bfd support,
+  so add flags to control support for these options.
+
+  23 Nov 2015; Mike Frysinger <vapier@gentoo.org> metadata.xml:
+  clarify USE=64-bit-bfd behavior on 64-bit hosts #566636
+
+  15 Dec 2015; Fabian Groffen <grobian@gentoo.org>
+  binutils-libs-2.25.1-r2.ebuild:
+  marked *-macos, *-solaris
+
+  Package-Manager: portage-2.2.20-prefix
+
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Unify quoting in metadata.xml files for machine processing
+
+  Force unified quoting in all metadata.xml files since lxml does not
+  preserve original use of single and double quotes. Ensuring unified
+  quoting before the process allows distinguishing the GLEP 67-related
+  metadata.xml changes from unrelated quoting changes.
+
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Replace all herds with appropriate projects (GLEP 67)
+
+  Replace all uses of herd with appropriate project maintainers, or no
+  maintainers in case of herds requested to be disbanded.
+
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Set appropriate maintainer types in metadata.xml (GLEP 67)
+
+  15 Mar 2016; Agostino Sarubbo <ago@gentoo.org>
+  binutils-libs-2.25.1-r2.ebuild:
+  amd64 stable wrt bug #564174
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="amd64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  24 Mar 2016; Markus Meier <maekke@gentoo.org>
+  binutils-libs-2.25.1-r2.ebuild:
+  arm stable, bug #564174
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="arm"
+
+  03 Apr 2016; Mike Frysinger <vapier@gentoo.org>
+  binutils-libs-2.25.1-r2.ebuild:
+  mark 2.25.1-r2 alpha/arm64/hppa/ia64/m68k/ppc/ppc64/s390/sh/sparc/x86 stable
+  #564174
+
+  03 Apr 2016; Alexey Shvetsov <alexxy@gentoo.org>
+  binutils-libs-2.25.1-r2.ebuild:
+  works on prefix
+
+  Package-Manager: portage-2.2.28
+
