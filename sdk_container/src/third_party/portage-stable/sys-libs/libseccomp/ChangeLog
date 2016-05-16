@@ -96,3 +96,44 @@
   29 Feb 2016; Mike Frysinger <vapier@gentoo.org> +libseccomp-2.3.0.ebuild:
   version bump to 2.3.0
 
+  06 Mar 2016; Agostino Sarubbo <ago@gentoo.org> libseccomp-2.2.3.ebuild:
+  amd64 stable wrt bug #576382
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="amd64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  15 Mar 2016; Agostino Sarubbo <ago@gentoo.org> libseccomp-2.2.3.ebuild:
+  x86 stable wrt bug #576382
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="x86"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  23 Mar 2016; Mike Frysinger <vapier@gentoo.org> libseccomp-2.2.3.ebuild:
+  mark 2.2.3 arm/arm64 stable #576382
+
+  23 Mar 2016; Mike Frysinger <vapier@gentoo.org> -libseccomp-2.1.1.ebuild,
+  -libseccomp-2.2.0.ebuild:
+  drop old <2.2.3 versions
+
+*libseccomp-2.3.1 (26 Apr 2016)
+
+  26 Apr 2016; Doug Goldstein <cardoe@gentoo.org> +libseccomp-2.3.1.ebuild:
+  version bump
+
+  Package-Manager: portage-2.2.26
+  Signed-off-by: Doug Goldstein <cardoe@gentoo.org>
+
+  09 May 2016; Zero_Chaos <zerochaos@gentoo.org> libseccomp-2.3.0.ebuild:
+  stable arm for bug #581440
+
+  Package-Manager: portage-2.2.28
+
+  13 May 2016; Agostino Sarubbo <ago@gentoo.org> libseccomp-2.3.0.ebuild:
+  amd64 stable wrt bug #581440
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="amd64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+

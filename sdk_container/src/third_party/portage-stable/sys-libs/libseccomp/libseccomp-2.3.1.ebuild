@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -14,12 +14,12 @@ SRC_URI="https://github.com/seccomp/libseccomp/releases/download/v${PV}/${P}.tar
 
 LICENSE="LGPL-2.1"
 SLOT="0"
-KEYWORDS="-* ~amd64 ~arm ~arm64 ~mips ~x86"
+KEYWORDS="-* ~amd64 ~arm ~arm64 ~mips ~ppc ~ppc64 ~s390 ~x86"
 IUSE="static-libs"
 
 # We need newer kernel headers; we don't keep strict control of the exact
 # version here, just be safe and pull in the latest stable ones. #551248
-DEPEND=">=sys-kernel/linux-headers-3.18"
+DEPEND=">=sys-kernel/linux-headers-4.3"
 
 src_prepare() {
 	sed -i \
@@ -36,4 +36,5 @@ multilib_src_configure() {
 
 multilib_src_install_all() {
 	find "${ED}" -name libseccomp.la -delete
+	einstalldocs
 }
