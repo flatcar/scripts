@@ -1,9 +1,9 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-analyzer/tcpdump/tcpdump-4.6.2-r1.ebuild,v 1.10 2015/01/16 08:08:00 ago Exp $
+# $Id$
 
 EAPI=5
-inherit eutils flag-o-matic toolchain-funcs user
+inherit flag-o-matic toolchain-funcs user
 
 DESCRIPTION="A Tool for network monitoring and data acquisition"
 HOMEPAGE="http://www.tcpdump.org/"
@@ -12,14 +12,17 @@ SRC_URI="http://www.tcpdump.org/release/${P}.tar.gz
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~x86-fbsd ~x86-freebsd ~amd64-linux ~arm-linux ~x86-linux"
-IUSE="+drop-root smi ssl ipv6 samba suid test"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-fbsd ~x86-freebsd ~amd64-linux ~arm-linux ~x86-linux"
+IUSE="+drop-root libressl smi ssl ipv6 samba suid test"
 
 RDEPEND="
 	drop-root? ( sys-libs/libcap-ng )
 	net-libs/libpcap
 	smi? ( net-libs/libsmi )
-	ssl? ( >=dev-libs/openssl-0.9.6m )
+	ssl? (
+		!libressl? ( >=dev-libs/openssl-0.9.6m:0 )
+		libressl? ( dev-libs/libressl )
+	)
 "
 DEPEND="
 	${RDEPEND}
@@ -35,10 +38,6 @@ pkg_setup() {
 		enewgroup tcpdump
 		enewuser tcpdump -1 -1 -1 tcpdump
 	fi
-}
-
-src_prepare() {
-	epatch "${FILESDIR}"/${P}-CVE-2014-{8767,8768,8769,9140}.patch
 }
 
 src_configure() {
