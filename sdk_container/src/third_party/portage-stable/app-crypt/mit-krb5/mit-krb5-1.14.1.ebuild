@@ -1,55 +1,59 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-crypt/mit-krb5/mit-krb5-1.12.2.ebuild,v 1.10 2014/09/19 10:34:32 ago Exp $
+# $Id$
 
 EAPI=5
 
-PYTHON_COMPAT=( python{2_6,2_7} )
+PYTHON_COMPAT=( python2_7 )
 inherit autotools eutils flag-o-matic multilib-minimal python-any-r1 versionator
 
 MY_P="${P/mit-}"
 P_DIR=$(get_version_component_range 1-2)
 DESCRIPTION="MIT Kerberos V"
 HOMEPAGE="http://web.mit.edu/kerberos/www/"
-SRC_URI="http://web.mit.edu/kerberos/dist/krb5/${P_DIR}/${MY_P}-signed.tar"
+SRC_URI="http://web.mit.edu/kerberos/dist/krb5/${P_DIR}/${MY_P}.tar.gz"
 
 LICENSE="openafs-krb5-a BSD MIT OPENLDAP BSD-2 HPND BSD-4 ISC RSA CC-BY-SA-3.0 || ( BSD-2 GPL-2+ )"
 SLOT="0"
 KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86"
-IUSE="doc +keyutils openldap +pkinit selinux +threads test xinetd"
+IUSE="doc +keyutils libressl openldap +pkinit selinux +threads test xinetd"
 
-RDEPEND="!!app-crypt/heimdal
+CDEPEND="
+	!!app-crypt/heimdal
 	>=sys-libs/e2fsprogs-libs-1.42.9[${MULTILIB_USEDEP}]
-	|| ( >=dev-libs/libverto-0.2.5[libev,${MULTILIB_USEDEP}]
+	|| (
+		>=dev-libs/libverto-0.2.5[libev,${MULTILIB_USEDEP}]
 		>=dev-libs/libverto-0.2.5[libevent,${MULTILIB_USEDEP}]
-		>=dev-libs/libverto-0.2.5[tevent,${MULTILIB_USEDEP}] )
+		>=dev-libs/libverto-0.2.5[tevent,${MULTILIB_USEDEP}]
+	)
 	keyutils? ( >=sys-apps/keyutils-1.5.8[${MULTILIB_USEDEP}] )
 	openldap? ( >=net-nds/openldap-2.4.38-r1[${MULTILIB_USEDEP}] )
-	pkinit? ( >=dev-libs/openssl-1.0.1h-r2[${MULTILIB_USEDEP}] )
-	selinux? ( sec-policy/selinux-kerberos )
+	pkinit? (
+		!libressl? ( >=dev-libs/openssl-1.0.1h-r2:0[${MULTILIB_USEDEP}] )
+		libressl? ( dev-libs/libressl[${MULTILIB_USEDEP}] )
+	)
 	xinetd? ( sys-apps/xinetd )
 	abi_x86_32? (
 		!<=app-emulation/emul-linux-x86-baselibs-20140508-r1
 		!app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)]
 	)"
-DEPEND="${RDEPEND}
+DEPEND="${CDEPEND}
 	${PYTHON_DEPS}
 	virtual/yacc
 	doc? ( virtual/latex-base )
-	test? ( ${PYTHON_DEPS}
-			dev-lang/tcl
-			dev-util/dejagnu )"
+	test? (
+		${PYTHON_DEPS}
+		dev-lang/tcl:0
+		dev-util/dejagnu
+	)"
+RDEPEND="${CDEPEND}
+	selinux? ( sec-policy/selinux-kerberos )"
 
 S=${WORKDIR}/${MY_P}/src
 
 MULTILIB_CHOST_TOOLS=(
 	/usr/bin/krb5-config
 )
-
-src_unpack() {
-	unpack ${A}
-	unpack ./"${MY_P}".tar.gz
-}
 
 src_prepare() {
 	epatch "${FILESDIR}/${PN}-1.12_warn_cflags.patch"
@@ -114,9 +118,12 @@ multilib_src_install_all() {
 		dodoc doc/pdf/*.pdf
 	fi
 
-	newinitd "${FILESDIR}"/mit-krb5kadmind.initd-r1 mit-krb5kadmind
-	newinitd "${FILESDIR}"/mit-krb5kdc.initd-r1 mit-krb5kdc
-	newinitd "${FILESDIR}"/mit-krb5kpropd.initd-r1 mit-krb5kpropd
+	newinitd "${FILESDIR}"/mit-krb5kadmind.initd-r2 mit-krb5kadmind
+	newinitd "${FILESDIR}"/mit-krb5kdc.initd-r2 mit-krb5kdc
+	newinitd "${FILESDIR}"/mit-krb5kpropd.initd-r2 mit-krb5kpropd
+	newconfd "${FILESDIR}"/mit-krb5kadmind.confd mit-krb5kadmind
+	newconfd "${FILESDIR}"/mit-krb5kdc.confd mit-krb5kdc
+	newconfd "${FILESDIR}"/mit-krb5kpropd.confd mit-krb5kpropd
 
 	insinto /etc
 	newins "${ED}/usr/share/doc/${PF}/examples/krb5.conf" krb5.conf.example

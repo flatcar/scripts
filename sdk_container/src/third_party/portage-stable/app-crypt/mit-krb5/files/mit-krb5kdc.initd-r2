@@ -1,19 +1,19 @@
 #!/sbin/runscript
 
 #---------------------------------------------------------------------------
-# This script starts/stops the MIT Kerberos 5 kpropd
+# This script starts/stops the MIT Kerberos 5 KDC
 #---------------------------------------------------------------------------
 
-daemon="MIT Kerberos 5 kpropd"
-exec="/usr/sbin/kpropd"
+daemon="MIT Kerberos 5 KDC"
+exec="/usr/sbin/krb5kdc"
 
 depend() {
-	use net mit-krb5kdc mit-krb5kadmind
+	use net
 }
 
 start() {
 	ebegin "Starting $daemon"
-	start-stop-daemon --start --quiet --exec ${exec} -- -S 1>&2
+	start-stop-daemon --start --quiet --exec ${exec} -- ${KDC_OPTS} 1>&2
 	eend $? "Error starting $daemon"
 }
 
