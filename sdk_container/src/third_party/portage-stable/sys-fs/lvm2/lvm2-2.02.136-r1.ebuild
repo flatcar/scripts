@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -12,13 +12,20 @@ SRC_URI="ftp://sourceware.org/pub/lvm2/${PN/lvm/LVM}.${PV}.tgz
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~amd64-linux ~x86-linux"
-IUSE="readline static static-libs systemd clvm cman lvm1 lvm2create_initrd selinux +udev +thin device-mapper-only"
-REQUIRED_USE="device-mapper-only? ( !clvm !cman !lvm1 !lvm2create_initrd !thin )
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-linux ~x86-linux"
+IUSE="readline static static-libs systemd clvm cman corosync lvm1 lvm2create_initrd openais selinux +udev +thin device-mapper-only"
+REQUIRED_USE="device-mapper-only? ( !clvm !cman !corosync !lvm1 !lvm2create_initrd !openais !thin )
 	systemd? ( udev )
-	static? ( !udev )" #520450
+	clvm? ( !systemd )"
 
-DEPEND_COMMON="clvm? ( cman? ( =sys-cluster/cman-3* ) =sys-cluster/libdlm-3* )
+DEPEND_COMMON="
+	clvm? (
+		cman? ( =sys-cluster/cman-3* )
+		corosync? ( sys-cluster/corosync )
+		openais? ( sys-cluster/openais )
+		=sys-cluster/libdlm-3*
+	)
+
 	readline? ( sys-libs/readline:0= )
 	udev? ( >=virtual/libudev-208:=[static-libs?] )"
 # /run is now required for locking during early boot. /var cannot be assumed to
@@ -34,12 +41,13 @@ RDEPEND="${DEPEND_COMMON}
 	lvm2create_initrd? ( sys-apps/makedev )
 	thin? ( >=sys-block/thin-provisioning-tools-0.3.0 )"
 # note: thin- 0.3.0 is required to avoid --disable-thin_check_needs_check
+# USE 'static' currently only works with eudev, bug 520450
 DEPEND="${DEPEND_COMMON}
 	virtual/pkgconfig
 	>=sys-devel/binutils-2.20.1-r1
 	static? (
 		selinux? ( sys-libs/libselinux[static-libs] )
-		udev? ( >=virtual/libudev-208:=[static-libs] )
+		udev? ( >=sys-fs/eudev-3.1.2[static-libs] )
 		>=sys-apps/util-linux-2.16[static-libs]
 	)"
 
@@ -71,7 +79,7 @@ pkg_setup() {
 
 src_prepare() {
 	# Gentoo specific modification(s):
-	epatch "${FILESDIR}"/${PN}-2.02.108-example.conf.in.patch
+	epatch "${FILESDIR}"/${PN}-2.02.129-example.conf.in.patch
 
 	sed -i \
 		-e "1iAR = $(tc-getAR)" \
@@ -95,9 +103,9 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-2.02.67-createinitrd.patch #301331
 	epatch "${FILESDIR}"/${PN}-2.02.99-locale-muck.patch #330373
 	epatch "${FILESDIR}"/${PN}-2.02.70-asneeded.patch # -Wl,--as-needed
-	epatch "${FILESDIR}"/${PN}-2.02.92-dynamic-static-ldflags.patch #332905
-	epatch "${FILESDIR}"/${PN}-2.02.108-static-pkgconfig-libs.patch #370217, #439414 + blkid
-	epatch "${FILESDIR}"/${PN}-2.02.106-pthread-pkgconfig.patch #492450
+	epatch "${FILESDIR}"/${PN}-2.02.129-dynamic-static-ldflags.patch #332905
+	epatch "${FILESDIR}"/${PN}-2.02.129-static-pkgconfig-libs.patch #370217, #439414 + blkid
+	epatch "${FILESDIR}"/${PN}-2.02.130-pthread-pkgconfig.patch #492450
 
 	# Without thin-privision-tools, there is nothing to install for target install_man7:
 	use thin || { sed -i -e '/^install_lvm2/s:install_man7::' man/Makefile.in || die; }
@@ -168,6 +176,8 @@ src_configure() {
 		local clvmd=""
 		use cman && clvmd="cman"
 		#clvmd="${clvmd/cmangulm/all}"
+		use corosync && clvmd="${clvmd:+$clvmd,}corosync"
+		use openais && clvmd="${clvmd:+$clvmd,}openais"
 		[ -z "${clvmd}" ] && clvmd="none"
 		myconf="${myconf} --with-clvmd=${clvmd}"
 		myconf="${myconf} --with-pool=${buildmode}"
@@ -213,7 +223,9 @@ src_compile() {
 
 src_install() {
 	local inst
-	INSTALL_TARGETS="install install_systemd_units install_systemd_generators install_tmpfiles_configuration"
+	INSTALL_TARGETS="install install_tmpfiles_configuration"
+	# install systemd related files only when requested, bug #522430
+	use systemd && INSTALL_TARGETS="${INSTALL_TARGETS} install_systemd_units install_systemd_generators"
 	use device-mapper-only && INSTALL_TARGETS="install_device-mapper"
 	for inst in ${INSTALL_TARGETS}; do
 		emake DESTDIR="${D}" ${inst}

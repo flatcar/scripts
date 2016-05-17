@@ -12,11 +12,11 @@ SRC_URI="ftp://sourceware.org/pub/lvm2/${PN/lvm/LVM}.${PV}.tgz
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-linux ~x86-linux"
 IUSE="readline static static-libs systemd clvm cman lvm1 lvm2create_initrd selinux +udev +thin device-mapper-only"
 REQUIRED_USE="device-mapper-only? ( !clvm !cman !lvm1 !lvm2create_initrd !thin )
 	systemd? ( udev )
-	static? ( !udev )" #520450
+	clvm? ( !systemd )"
 
 DEPEND_COMMON="clvm? ( cman? ( =sys-cluster/cman-3* ) =sys-cluster/libdlm-3* )
 	readline? ( sys-libs/readline:0= )
@@ -34,12 +34,13 @@ RDEPEND="${DEPEND_COMMON}
 	lvm2create_initrd? ( sys-apps/makedev )
 	thin? ( >=sys-block/thin-provisioning-tools-0.3.0 )"
 # note: thin- 0.3.0 is required to avoid --disable-thin_check_needs_check
+# USE 'static' currently only works with eudev, bug 520450
 DEPEND="${DEPEND_COMMON}
 	virtual/pkgconfig
 	>=sys-devel/binutils-2.20.1-r1
 	static? (
 		selinux? ( sys-libs/libselinux[static-libs] )
-		udev? ( >=virtual/libudev-208:=[static-libs] )
+		udev? ( >=sys-fs/eudev-3.1.2[static-libs] )
 		>=sys-apps/util-linux-2.16[static-libs]
 	)"
 
@@ -213,7 +214,9 @@ src_compile() {
 
 src_install() {
 	local inst
-	INSTALL_TARGETS="install install_systemd_units install_systemd_generators install_tmpfiles_configuration"
+	INSTALL_TARGETS="install install_tmpfiles_configuration"
+	# install systemd related files only when requested, bug #522430
+	use systemd && INSTALL_TARGETS="${INSTALL_TARGETS} install_systemd_units install_systemd_generators"
 	use device-mapper-only && INSTALL_TARGETS="install_device-mapper"
 	for inst in ${INSTALL_TARGETS}; do
 		emake DESTDIR="${D}" ${inst}
