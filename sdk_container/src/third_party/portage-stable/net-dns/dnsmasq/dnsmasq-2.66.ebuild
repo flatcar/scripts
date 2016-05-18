@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-dns/dnsmasq/dnsmasq-2.66.ebuild,v 1.15 2014/11/02 08:48:02 swift Exp $
+# $Id$
 
 EAPI=5
 
@@ -47,7 +47,9 @@ use_have() {
 	fi
 
 	local UWORD=${2:-$1}
-	UWORD=${UWORD^^*}
+	# Switch to ^^ when we switch to EAPI=6.
+	#UWORD=${UWORD^^}
+	UWORD=$(tr '[:lower:]' '[:upper:]' <<<"${UWORD}")
 
 	if ! use ${1}; then
 		echo " -DNO_${UWORD}"
