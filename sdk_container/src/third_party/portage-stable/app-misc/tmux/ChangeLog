@@ -242,3 +242,32 @@
 
   Package-Manager: portage-2.2.27
 
+  23 Mar 2016; Mike Frysinger <vapier@gentoo.org> tmux-2.1.ebuild:
+  mark 2.1 arm64/s390/sh/sparc stable
+
+*tmux-2.1-r1 (18 May 2016)
+
+  18 May 2016; Tobias Klausmann <klausman@gentoo.org> +files/tmux.terminfo.in,
+  +tmux-2.1-r1.ebuild:
+  Add 2.1-r1 and ship terminfo file.
+
+  By default, tmux does not ship its own terminfo file, piggybacking on
+  screen/screen-256color. Due to bugs in that terminfo file (around stand-out
+  and italics), the tmux FAQ[0] suggests making a derived terminfo file.
+
+  This new release ships that terminfo file (as tmux/tmux-256color). It will
+  not
+  be used by default, the user has to activate it themselves.
+
+  Package-Manager: portage-2.3.0_rc1
+
+  18 May 2016; Mike Gilbert <floppym@gentoo.org> -files/tmux.terminfo.in,
+  -tmux-2.1-r1.ebuild:
+  Revert "app-misc/tmux: Add 2.1-r1 and ship terminfo file."
+
+  This reverts commit baec651ecb38580f8b39c79b16e4d6a13cdbe061.
+
+  The terminfo files collide with >=sys-libs/ncurses-6.0.
+
+  Bug: https://bugs.gentoo.org/583428
+
