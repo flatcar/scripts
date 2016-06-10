@@ -611,3 +611,30 @@
   +files/qemu-2.5.1-stellaris_enet-overflow.patch, +qemu-2.5.1.ebuild:
   app-misc/qemu: version bump & bug fixes #579614 #580040 #580426
 
+  12 May 2016; Mike Frysinger <vapier@gentoo.org> qemu-2.5.1.ebuild,
+  qemu-9999.ebuild:
+  use subslots w/nettle & gnutls #582836
+
+*qemu-2.6.0 (17 May 2016)
+
+  17 May 2016; Mike Frysinger <vapier@gentoo.org> +qemu-2.6.0.ebuild,
+  qemu-9999.ebuild:
+  version bump to 2.6.0 #583212
+
+  17 May 2016; Mike Frysinger <vapier@gentoo.org>
+  +files/qemu-2.5.1-xfs-linux-headers.patch, qemu-2.5.1.ebuild:
+  workaround breakage in xfs/linux headers #577810
+
+  Add upstream patch to workaround some combinations of xfsprogs & linux
+  headers so we don't have to worry about stable breakage anymore.  This
+  fix is already in upstream & unstable versions.
+
+  18 May 2016; Austin English <wizardedit@gentoo.org>
+  files/qemu-binfmt.initd-r1:
+  use #!/sbin/openrc-run instead of #!/sbin/runscript
+
+  06 Jun 2016; Mike Frysinger <vapier@gentoo.org> qemu-2.5.0-r2.ebuild,
+  qemu-2.5.0-r3.ebuild, qemu-2.5.1.ebuild, qemu-2.6.0.ebuild,
+  qemu-9999.ebuild:
+  depend on jpeg SLOT=0 for building
+
