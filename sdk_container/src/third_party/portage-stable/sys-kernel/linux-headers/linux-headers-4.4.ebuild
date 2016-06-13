@@ -1,6 +1,6 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-kernel/linux-headers/linux-headers-3.19.ebuild,v 1.1 2015/02/09 19:25:54 vapier Exp $
+# $Id$
 
 EAPI="4"
 
@@ -35,12 +35,14 @@ src_install() {
 	# hrm, build system sucks
 	find "${ED}" '(' -name '.install' -o -name '*.cmd' ')' -delete
 	find "${ED}" -depth -type d -delete 2>/dev/null
-
-	# provided by libdrm (for now?)
-	rm -rf "${ED}"/$(kernel_header_destdir)/drm
 }
 
 src_test() {
+	# Make sure no uapi/ include paths are used by accident.
+	egrep -r \
+		-e '# *include.*["<]uapi/' \
+		"${D}" && die "#include uapi/xxx detected"
+
 	einfo "Possible unescaped attribute/type usage"
 	egrep -r \
 		-e '(^|[[:space:](])(asm|volatile|inline)[[:space:](]' \
