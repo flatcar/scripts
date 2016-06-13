@@ -1,0 +1,205 @@
+# ChangeLog for sys-devel/distcc
+# Copyright 1999-2016 Gentoo Foundation; Distributed under the GPL v2
+# (auto-generated from git log)
+
+*distcc-3.2_rc1-r3 (09 Aug 2015)
+*distcc-3.1-r10 (09 Aug 2015)
+
+  09 Aug 2015; Robin H. Johnson <robbat2@gentoo.org> +distcc-3.1-r10.ebuild,
+  +distcc-3.2_rc1-r3.ebuild, +files/2.18-r1/conf, +files/2.18-r1/init,
+  +files/2.18/conf, +files/2.18/init, +files/3.0/conf,
+  +files/3.0/distcc-config, +files/3.0/init, +files/3.1/conf, +files/3.1/init,
+  +files/distcc-3.0-fix-fortify.patch, +files/distcc-3.0-gentoo.patch,
+  +files/distcc-3.0-svn617.patch, +files/distcc-3.0-uninitialized.patch,
+  +files/distcc-3.0-xinetd.patch, +files/distcc-3.1-argc-fix.patch,
+  +files/distcc-3.1-freedesktop.patch, +files/distcc-3.1-python.patch,
+  +files/distcc-3.2_rc1-freedesktop.patch, +files/distcc-3.2_rc1-gssapi.patch,
+  +files/distcc-3.2_rc1-python.patch, +files/distcc-3.2_rc1-socks5.patch,
+  +files/distcc-as-needed.patch, +files/distcc-avahi-configure.patch,
+  +files/distcc-config, +files/distcc-config-3.2_rc1,
+  +files/distcc-create-dir.patch, +files/distcc-freedesktop.patch,
+  +files/distcc-gentoo-multilib-r1.patch, +files/distcc-gentoo-multilib.patch,
+  +files/distcc-hardened.patch, +files/distcc-march-native.patch,
+  +files/distccd.service, +files/distccd.service.conf, +metadata.xml:
+  proj/gentoo: Initial commit
+
+  This commit represents a new era for Gentoo:
+  Storing the gentoo-x86 tree in Git, as converted from CVS.
+
+  This commit is the start of the NEW history.
+  Any historical data is intended to be grafted onto this point.
+
+  Creation process:
+  1. Take final CVS checkout snapshot
+  2. Remove ALL ChangeLog* files
+  3. Transform all Manifests to thin
+  4. Remove empty Manifests
+  5. Convert all stale $Header$/$Id$ CVS keywords to non-expanded Git $Id$
+  5.1. Do not touch files with -kb/-ko keyword flags.
+
+  Signed-off-by: Robin H. Johnson <robbat2@gentoo.org>
+  X-Thanks: Alec Warner <antarus@gentoo.org> - did the GSoC 2006 migration
+  tests
+  X-Thanks: Robin H. Johnson <robbat2@gentoo.org> - infra guy, herding this
+  project
+  X-Thanks: Nguyen Thai Ngoc Duy <pclouds@gentoo.org> - Former Gentoo
+  developer, wrote Git features for the migration
+  X-Thanks: Brian Harring <ferringb@gentoo.org> - wrote much python to improve
+  cvs2svn
+  X-Thanks: Rich Freeman <rich0@gentoo.org> - validation scripts
+  X-Thanks: Patrick Lauer <patrick@gentoo.org> - Gentoo dev, running new 2014
+  work in migration
+  X-Thanks: Michał Górny <mgorny@gentoo.org> - scripts, QA, nagging
+  X-Thanks: All of other Gentoo developers - many ideas and lots of paint on
+  the bikeshed
+
+  09 Aug 2015; Ulrich Müller <ulm@gentoo.org> files/3.0/init, files/3.1/init:
+  [QA] Remove executable bit from files, bug 550434.
+
+  24 Aug 2015; Justin Lecher <jlec@gentoo.org> distcc-3.1-r10.ebuild,
+  distcc-3.2_rc1-r3.ebuild, metadata.xml:
+  Use https by default
+
+  Convert all URLs for sites supporting encrypted connections from http to
+  https
+
+  Signed-off-by: Justin Lecher <jlec@gentoo.org>
+
+  24 Aug 2015; Justin Lecher <jlec@gentoo.org> distcc-3.1-r10.ebuild,
+  distcc-3.2_rc1-r3.ebuild:
+  Convert URIs for googlecode.com to https
+
+  Signed-off-by: Justin Lecher <jlec@gentoo.org>
+
+  24 Aug 2015; Mike Gilbert <floppym@gentoo.org> metadata.xml:
+  Revert DOCTYPE SYSTEM https changes in metadata.xml
+
+  repoman does not yet accept the https version.
+  This partially reverts eaaface92ee81f30a6ac66fe7acbcc42c00dc450.
+
+  Bug: https://bugs.gentoo.org/552720
+
+  22 Oct 2015; Jeroen Roovers <jer@gentoo.org> -files/2.18-r1/conf,
+  -files/2.18-r1/init, -files/2.18/conf, -files/2.18/init, files/3.0/conf,
+  -files/3.0/init, files/3.1/conf, -files/distcc-3.0-gentoo.patch,
+  -files/distcc-3.0-svn617.patch, -files/distcc-3.0-uninitialized.patch,
+  -files/distcc-as-needed.patch, -files/distcc-avahi-configure.patch,
+  -files/distcc-create-dir.patch, -files/distcc-freedesktop.patch,
+  -files/distcc-gentoo-multilib-r1.patch, -files/distcc-gentoo-multilib.patch,
+  -files/distcc-march-native.patch:
+  Remove old. Fix one type.
+
+  Package-Manager: portage-2.2.23
+
+  22 Oct 2015; Sergey Popov <pinkbyte@gentoo.org> distcc-3.2_rc1-r3.ebuild:
+  fix path to make.conf in pkg_postinst tips section
+
+  Tips section about how to use distcc mentioned old location for make.conf
+  file
+
+  Gentoo-Bug: 555542
+
+  Package-Manager: portage-2.2.23
+
+*distcc-3.2_rc1-r4 (22 Oct 2015)
+
+  22 Oct 2015; Sergey Popov <pinkbyte@gentoo.org> -distcc-3.2_rc1-r3.ebuild,
+  +distcc-3.2_rc1-r4.ebuild, +files/3.2/conf, +files/3.2/distcc-config,
+  +files/3.2/init, -files/distcc-config-3.2_rc1:
+  revision bump
+
+  Distcc-config appears to be installed twice, which is wrong.
+  Also, create separate subdirectory for config files and initscripts,
+  related to 3.2 branch of package. Drop old revision.
+
+  Gentoo-Bug: 523658
+
+  Package-Manager: portage-2.2.20
+
+  22 Oct 2015; Sergey Popov <pinkbyte@gentoo.org> distcc-3.1-r10.ebuild,
+  distcc-3.2_rc1-r4.ebuild:
+  fix documentation path
+
+  Documentation about using distcc in Gentoo were moved to wiki,
+  fix apropriate URLs
+
+  Gentoo-Bug: 534502
+
+  Package-Manager: portage-2.2.20
+
+  24 Oct 2015; Jeroen Roovers <jer@gentoo.org> distcc-3.2_rc1-r4.ebuild:
+  Stable for HPPA PPC64 (bug #421481).
+
+  Package-Manager: portage-2.2.23
+  RepoMan-Options: --ignore-arches
+
+  27 Oct 2015; Agostino Sarubbo <ago@gentoo.org> distcc-3.2_rc1-r4.ebuild:
+  amd64 stable wrt bug #421481
+
+  Package-Manager: portage-2.2.20.1
+  RepoMan-Options: --include-arches="amd64"
+
+  28 Oct 2015; Justin Lecher <jlec@gentoo.org> distcc-3.1-r10.ebuild:
+  Fix for prefix
+
+  Package-Manager: portage-2.2.23
+  Signed-off-by: Justin Lecher <jlec@gentoo.org>
+
+  30 Oct 2015; Agostino Sarubbo <ago@gentoo.org> distcc-3.2_rc1-r4.ebuild:
+  ppc stable wrt bug #421481
+
+  Package-Manager: portage-2.2.20.1
+  RepoMan-Options: --include-arches="ppc"
+
+  01 Nov 2015; Tobias Klausmann <klausman@gentoo.org>
+  distcc-3.2_rc1-r4.ebuild:
+  add alpha keyword
+
+  Gentoo-Bug: 421481
+
+  Package-Manager: portage-2.2.23
+
+  03 Nov 2015; Agostino Sarubbo <ago@gentoo.org> distcc-3.2_rc1-r4.ebuild:
+  x86 stable wrt bug #421481
+
+  Package-Manager: portage-2.2.20.1
+  RepoMan-Options: --include-arches="x86"
+
+  05 Nov 2015; Agostino Sarubbo <ago@gentoo.org> distcc-3.2_rc1-r4.ebuild:
+  sparc stable wrt bug #421481
+
+  Package-Manager: portage-2.2.20.1
+  RepoMan-Options: --include-arches="sparc"
+
+  05 Nov 2015; Markus Meier <maekke@gentoo.org> distcc-3.2_rc1-r4.ebuild:
+  arm stable, bug #421481
+
+  Package-Manager: portage-2.2.23
+  RepoMan-Options: --include-arches="arm"
+
+  16 Nov 2015; Agostino Sarubbo <ago@gentoo.org> distcc-3.2_rc1-r4.ebuild:
+  ia64 stable wrt bug #421481
+
+  Package-Manager: portage-2.2.20.1
+  RepoMan-Options: --include-arches="ia64"
+
+  18 Nov 2015; Sergey Popov <pinkbyte@gentoo.org> distcc-3.2_rc1-r4.ebuild:
+  s390 stable
+
+  Gentoo-Bug: 421481
+
+  Package-Manager: portage-2.2.23
+
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Replace all herds with appropriate projects (GLEP 67)
+
+  Replace all uses of herd with appropriate project maintainers, or no
+  maintainers in case of herds requested to be disbanded.
+
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Set appropriate maintainer types in metadata.xml (GLEP 67)
+
+  18 May 2016; Austin English <wizardedit@gentoo.org> files/3.1/init,
+  files/3.2/init:
+  use #!/sbin/openrc-run instead of #!/sbin/runscript
+
