@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-libs/neon/neon-0.30.1.ebuild,v 1.10 2014/12/06 16:41:07 ago Exp $
+# $Id$
 
 EAPI="5"
 
@@ -53,8 +53,9 @@ src_prepare() {
 	for lingua in ${IUSE_LINGUAS}; do
 		use linguas_${lingua} && linguas+=" ${lingua}"
 	done
-	sed -e "s/ALL_LINGUAS=.*/ALL_LINGUAS=\"${linguas}\"/" -i configure.ac
+	sed -e "s/ALL_LINGUAS=.*/ALL_LINGUAS=\"${linguas}\"/" -i configure.ac || die
 
+	epatch "${FILESDIR}"/${P}-xml2-config.patch
 	AT_M4DIR="macros" eautoreconf
 
 	elibtoolize
