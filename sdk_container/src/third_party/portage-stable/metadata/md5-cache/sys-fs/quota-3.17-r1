@@ -10,4 +10,4 @@ RDEPEND=ldap? ( >=net-nds/openldap-2.3.35 ) tcpd? ( sys-apps/tcp-wrappers ) rpc?
 SLOT=0
 SRC_URI=mirror://sourceforge/linuxquota/quota-3.17.tar.gz
 _eclasses_=eutils	9d81603248f2ba3ec59124320d123e5e	flag-o-matic	d270fa247153df66074f795fa42dba3e	multilib	3972ca401cf7dbb430df9995f5d8d580	toolchain-funcs	7a212e5e01adfa4805c9978366e6ee85
-_md5_=3b55f64d714c49246f93e8f93646a160
+_md5_=9559a309da801d7e5f1b429b9b75ecff
