@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/quota/quota-3.17-r1.ebuild,v 1.8 2011/05/21 18:01:37 armin76 Exp $
+# $Id$
 
 inherit eutils flag-o-matic
 
@@ -54,7 +54,7 @@ src_install() {
 	insopts -m0644
 	doins warnquota.conf quotatab
 
-	rm -rf doc/CVS
+	ecvs_clean
 	dodoc doc/*
 	dodoc README.*
 	dodoc Changelog
