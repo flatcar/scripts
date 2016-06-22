@@ -1,8 +1,8 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=5
+EAPI=6
 
 if [[ ${PV} == "9999" ]]; then
 	FOSSIL_URI="http://roy.marples.name/projects/dhcpcd"
@@ -49,11 +49,6 @@ if [[ ${PV} == "9999" ]]; then
 		fossil open "${repo}" || die
 	}
 fi
-
-src_prepare()
-{
-	epatch_user
-}
 
 src_configure()
 {
