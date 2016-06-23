@@ -30,7 +30,6 @@ DOCS=( AUTHORS ChangeLog NEWS README THANKS TODO )
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.6.1-uscore.patch
 	"${FILESDIR}"/${PN}-multilib-syspath.patch
-	"${FILESDIR}"/${P}-freebsd-mpi.patch
 )
 
 MULTILIB_CHOST_TOOLS=(
@@ -45,7 +44,6 @@ multilib_src_configure() {
 		append-cflags -Wa,--divide
 	fi
 	local myeconfargs=(
-		--disable-padlock-support # bug 201917
 		--disable-dependency-tracking
 		--enable-noexecstack
 		--disable-O-flag-munging
