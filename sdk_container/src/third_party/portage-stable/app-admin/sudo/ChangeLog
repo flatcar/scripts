@@ -175,3 +175,29 @@
   24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
   Set appropriate maintainer types in metadata.xml (GLEP 67)
 
+  08 Mar 2016; Doug Goldstein <cardoe@gentoo.org>
+  -files/sudo-1.8.12-include-sys-types-h.patch, -sudo-1.8.12.ebuild,
+  -sudo-1.8.14_p3.ebuild:
+  remove vulnerable versions
+
+  Clean up versions vulnerable to CVE-2015-5602
+
+  Gentoo-Bug: 564774
+
+  Package-Manager: portage-2.2.26
+  Signed-off-by: Doug Goldstein <cardoe@gentoo.org>
+
+*sudo-1.8.16 (17 Mar 2016)
+
+  17 Mar 2016; Lars Wendler <polynomial-c@gentoo.org> +sudo-1.8.16.ebuild:
+  Bump to version 1.8.16
+
+  Package-Manager: portage-2.2.28
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
+  17 Mar 2016; Lars Wendler <polynomial-c@gentoo.org> sudo-9999.ebuild:
+  Bumped live ebuild to EAPI-6.
+
+  Package-Manager: portage-2.2.28
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
