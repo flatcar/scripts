@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=4
+EAPI=5
 
 inherit flag-o-matic eutils
 
@@ -13,7 +13,7 @@ SRC_URI="mirror://gnu/tar/${P}.tar.bz2
 
 LICENSE="GPL-3+"
 SLOT="0"
-KEYWORDS="alpha amd64 arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ppc64 ~s390 ~sh ~sparc x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="acl elibc_glibc minimal nls selinux static userland_GNU xattr"
 
 RDEPEND="acl? ( virtual/acl )
@@ -29,8 +29,6 @@ src_prepare() {
 			scripts/{backup,dump-remind,restore}.in \
 			|| die "sed non-GNU"
 	fi
-	epatch "${FILESDIR}"/${P}-concat-listed.patch #546294
-	epatch "${FILESDIR}"/${P}-xattr.patch #548024
 }
 
 src_configure() {
