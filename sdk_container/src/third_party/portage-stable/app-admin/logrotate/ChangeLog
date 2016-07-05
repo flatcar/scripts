@@ -201,3 +201,54 @@
   -files/logrotate-3.8.9-noasprintf.patch:
   Drop old patches
 
+  06 Mar 2016; Agostino Sarubbo <ago@gentoo.org> logrotate-3.9.2.ebuild:
+  amd64 stable wrt bug #575618
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="amd64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  15 Mar 2016; Agostino Sarubbo <ago@gentoo.org> logrotate-3.9.2.ebuild:
+  x86 stable wrt bug #575618
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="x86"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  16 Mar 2016; Agostino Sarubbo <ago@gentoo.org> logrotate-3.9.2.ebuild:
+  ppc stable wrt bug #575618
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="ppc"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  17 Mar 2016; Agostino Sarubbo <ago@gentoo.org> logrotate-3.9.2.ebuild:
+  ppc64 stable wrt bug #575618
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="ppc64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  19 Mar 2016; Agostino Sarubbo <ago@gentoo.org> logrotate-3.9.2.ebuild:
+  sparc stable wrt bug #575618
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="sparc"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  20 Mar 2016; Agostino Sarubbo <ago@gentoo.org> logrotate-3.9.2.ebuild:
+  ia64 stable wrt bug #575618
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="ia64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  24 Mar 2016; Markus Meier <maekke@gentoo.org> logrotate-3.9.2.ebuild:
+  arm stable, bug #575618
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="arm"
+
+  25 May 2016; Matt Turner <mattst88@gentoo.org> logrotate-3.9.2.ebuild:
+  alpha stable, bug 575618.
+
