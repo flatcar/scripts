@@ -277,3 +277,57 @@
 
   Package-Manager: portage-2.2.26
 
+*gnutls-3.4.11 (11 Apr 2016)
+
+  11 Apr 2016; Alon Bar-Lev <alonbl@gentoo.org> +gnutls-3.4.11.ebuild:
+  version bump
+
+  Package-Manager: portage-2.2.26
+
+*gnutls-3.5.0 (09 May 2016)
+
+  09 May 2016; Alon Bar-Lev <alonbl@gentoo.org>
+  +files/gnutls-3.5.0-build.patch, +gnutls-3.5.0.ebuild:
+  version bump
+
+  Package-Manager: portage-2.2.26
+
+  10 May 2016; Alon Bar-Lev <alonbl@gentoo.org> -gnutls-3.3.18.ebuild,
+  -gnutls-3.3.19.ebuild, -gnutls-3.3.19-r1.ebuild, -gnutls-3.3.20.ebuild,
+  -gnutls-3.3.21.ebuild, -gnutls-3.4.5.ebuild, -gnutls-3.4.6.ebuild,
+  -gnutls-3.4.7.ebuild, -gnutls-3.4.7-r1.ebuild, -gnutls-3.4.8.ebuild,
+  -gnutls-3.4.9.ebuild, -gnutls-3.4.10.ebuild:
+  cleanup
+
+  Package-Manager: portage-2.2.26
+
+*gnutls-3.4.12 (20 May 2016)
+*gnutls-3.3.23 (20 May 2016)
+
+  20 May 2016; Alon Bar-Lev <alonbl@gentoo.org> +gnutls-3.3.23.ebuild,
+  +gnutls-3.4.12.ebuild:
+  version bump
+
+  Package-Manager: portage-2.2.28
+
+*gnutls-3.4.13 (06 Jun 2016)
+
+  06 Jun 2016; Alon Bar-Lev <alonbl@gentoo.org> +gnutls-3.4.13.ebuild:
+  version bump
+
+  Package-Manager: portage-2.2.28
+
+  11 Jun 2016; Alon Bar-Lev <alonbl@gentoo.org> -gnutls-3.3.22.ebuild,
+  -gnutls-3.4.11.ebuild, -gnutls-3.4.12.ebuild:
+  cleanup
+
+  Package-Manager: portage-2.2.28
+
+*gnutls-3.5.1 (14 Jun 2016)
+
+  14 Jun 2016; Alon Bar-Lev <alonbl@gentoo.org>
+  -files/gnutls-3.5.0-build.patch, +gnutls-3.5.1.ebuild:
+  version bump
+
+  Package-Manager: portage-2.2.28
+
