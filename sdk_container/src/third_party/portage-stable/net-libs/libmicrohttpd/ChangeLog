@@ -214,3 +214,47 @@
 
   Package-Manager: portage-2.2.26
 
+*libmicrohttpd-0.9.49 (10 Apr 2016)
+
+  10 Apr 2016; Anthony G. Basile <blueness@gentoo.org>
+  +libmicrohttpd-0.9.49.ebuild:
+  version bump to 0.9.49
+
+  Package-Manager: portage-2.2.26
+
+*libmicrohttpd-0.9.50 (02 Jun 2016)
+
+  02 Jun 2016; Anthony G. Basile <blueness@gentoo.org>
+  +libmicrohttpd-0.9.50.ebuild:
+  version bump to 0.9.50
+
+  Package-Manager: portage-2.2.28
+
+  06 Jun 2016; Tobias Klausmann <klausman@gentoo.org>
+  libmicrohttpd-0.9.49.ebuild:
+  0.9.49-r0: add alpha keyword
+
+  Gentoo-Bug: 584884
+
+  Package-Manager: portage-2.3.0_rc1
+
+  11 Jun 2016; Markus Meier <maekke@gentoo.org> libmicrohttpd-0.9.49.ebuild:
+  arm stable, bug #584884
+
+  Package-Manager: portage-2.3.0_rc1
+  RepoMan-Options: --include-arches="arm"
+
+  11 Jun 2016; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.49.ebuild:
+  amd64 stable wrt bug #584884
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="amd64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  25 Jun 2016; Agostino Sarubbo <ago@gentoo.org> libmicrohttpd-0.9.49.ebuild:
+  x86 stable wrt bug #584884
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="x86"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+

@@ -114,3 +114,28 @@
 
   Package-Manager: portage-2.2.27
 
+  03 Apr 2016; Jeroen Roovers <jer@gentoo.org> http-parser-2.6.2.ebuild:
+  Mark ~ppc64 (bug #575322).
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --ignore-arches
+
+  18 May 2016; Fabian Groffen <grobian@gentoo.org> http-parser-2.6.2.ebuild:
+  marked ~amd64-linux
+
+  Package-Manager: portage-2.2.28
+
+  25 May 2016; Agostino Sarubbo <ago@gentoo.org> http-parser-2.6.2.ebuild:
+  amd64 stable wrt bug #568900
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="amd64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  25 May 2016; Agostino Sarubbo <ago@gentoo.org> http-parser-2.6.2.ebuild:
+  x86 stable wrt bug #568900
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="x86"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
