@@ -1,10 +1,10 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
 EAPI="5"
 
-PYTHON_COMPAT=( python2_7 )
+PYTHON_COMPAT=( python{2_7,3_3,3_4} )
 
 inherit autotools multilib multilib-minimal toolchain-funcs python-r1 linux-info eutils systemd
 
@@ -14,19 +14,21 @@ SRC_URI="https://people.redhat.com/sgrubb/audit/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 ~arm hppa ia64 ~mips ppc ppc64 ~s390 sparc x86"
-IUSE="ldap prelude python"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sparc ~x86"
+IUSE="ldap python"
 # Testcases are pretty useless as they are built for RedHat users/groups and
 # kernels.
 RESTRICT="test"
 
 RDEPEND="ldap? ( net-nds/openldap )
-		 prelude? ( dev-libs/libprelude )
 		 sys-libs/libcap-ng"
 DEPEND="${RDEPEND}
-	python? ( dev-lang/swig )
+	python? ( ${PYTHON_DEPS}
+		dev-lang/swig )
 	>=sys-kernel/linux-headers-2.6.34"
 # Do not use os-headers as this is linux specific
+
+REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
 CONFIG_CHECK="~AUDIT"
 
@@ -35,11 +37,7 @@ pkg_setup() {
 }
 
 src_prepare() {
-	# Old patch applies fine
-	#EPATCH_OPTS="-p0 -d${S}" epatch "${FILESDIR}"/${PN}-1.5.4-build.patch
-
-	# Applied by upstream
-	#EPATCH_OPTS="-p1 -d${S}" epatch "${FILESDIR}"/${PN}-1.5.4-swig-gcc-attribute.patch
+	epatch_user
 
 	# Do not build GUI tools
 	sed -i \
@@ -49,9 +47,6 @@ src_prepare() {
 		-e 's,system-config-audit,,g' \
 		"${S}"/Makefile.am || die
 	rm -rf "${S}"/system-config-audit
-
-	# Probably goes away in 1.6.9
-	#EPATCH_OPTS="-p1 -d${S}" epatch "${FILESDIR}"/audit-1.6.8-subdirs-fix.patch
 
 	if ! use ldap; then
 		sed -i \
@@ -63,16 +58,15 @@ src_prepare() {
 	fi
 
 	# Don't build static version of Python module.
-	epatch "${FILESDIR}"/${PN}-2.1.3-python.patch
+	epatch "${FILESDIR}"/${PN}-2.4.3-python.patch
 
 	# glibc/kernel upstreams suck with both defining ia64_fpreg
 	# This patch is a horribly workaround that is only valid as long as you
 	# don't need the OTHER definitions in fpu.h.
 	epatch "${FILESDIR}"/${PN}-2.1.3-ia64-compile-fix.patch
 
-	# Python bindings are built/installed manually.
-	sed -e "/^SUBDIRS =/s/ python//" -i bindings/Makefile.am
-	sed -e "/^SUBDIRS .*=/s/ swig//" -i Makefile.am
+	# there is no --without-golang conf option
+	sed -e "/^SUBDIRS =/s/ @gobind_dir@//" -i bindings/Makefile.am || die
 
 	# Regenerate autotooling
 	eautoreconf
@@ -84,18 +78,22 @@ src_prepare() {
 
 multilib_src_configure() {
 	local ECONF_SOURCE=${S}
-	#append-flags -D'__attribute__(x)='
 	econf \
 		--sbindir=/sbin \
 		--enable-systemd \
 		--without-python \
-		$(multilib_native_use_with prelude)
+		--without-python3
 
 	if multilib_is_native_abi; then
 		python_configure() {
 			mkdir -p "${BUILD_DIR}" || die
 			cd "${BUILD_DIR}" || die
-			econf --with-python
+
+			if python_is_python3; then
+				econf --without-python --with-python3
+			else
+				econf --with-python --without-python3
+			fi
 		}
 
 		use python && python_foreach_impl python_configure
@@ -107,15 +105,28 @@ multilib_src_compile() {
 		default
 
 		python_compile() {
-			emake -C "${BUILD_DIR}"/swig \
+			local pysuffix pydef
+			if python_is_python3; then
+				pysuffix=3
+				pydef='USE_PYTHON3=true'
+			else
+				pysuffix=2
+				pydef='HAVE_PYTHON=true'
+			fi
+
+			emake -C "${BUILD_DIR}"/bindings/swig \
 				VPATH="${native_build}/lib" \
-				LIBS="${native_build}/lib/libaudit.la"
-			emake -C "${BUILD_DIR}"/bindings/python \
-				VPATH="${S}/bindings/python:${native_build}/bindings/python" \
-				auparse_la_LIBADD="${native_build}/auparse/libauparse.la ${native_build}/lib/libaudit.la"
+				LIBS="${native_build}/lib/libaudit.la" \
+				_audit_la_LIBADD="${native_build}/lib/libaudit.la" \
+				_audit_la_DEPENDENCIES="${S}/lib/libaudit.h ${native_build}/lib/libaudit.la" \
+				${pydef}
+			emake -C "${BUILD_DIR}"/bindings/python/python${pysuffix} \
+				VPATH="${S}/bindings/python/python${pysuffix}:${native_build}/bindings/python/python${pysuffix}" \
+				auparse_la_LIBADD="${native_build}/auparse/libauparse.la ${native_build}/lib/libaudit.la" \
+				${pydef}
 		}
 
-		local native_build=${BUILD_DIR}
+		local native_build="${BUILD_DIR}"
 		use python && python_foreach_impl python_compile
 	else
 		emake -C lib
@@ -128,11 +139,26 @@ multilib_src_install() {
 		emake DESTDIR="${D}" initdir="$(systemd_get_unitdir)" install
 
 		python_install() {
-			emake -C "${BUILD_DIR}"/swig \
+			local pysuffix pydef
+			if python_is_python3; then
+				pysuffix=3
+				pydef='USE_PYTHON3=true'
+			else
+				pysuffix=2
+				pydef='HAVE_PYTHON=true'
+			fi
+
+			emake -C "${BUILD_DIR}"/bindings/swig \
 				VPATH="${native_build}/lib" \
+				LIBS="${native_build}/lib/libaudit.la" \
+				_audit_la_LIBADD="${native_build}/lib/libaudit.la" \
+				_audit_la_DEPENDENCIES="${S}/lib/libaudit.h ${native_build}/lib/libaudit.la" \
+				${pydef} \
 				DESTDIR="${D}" install
-			emake -C "${BUILD_DIR}"/bindings/python \
-				VPATH="${S}/bindings/python:${native_build}/bindings/python" \
+			emake -C "${BUILD_DIR}"/bindings/python/python${pysuffix} \
+				VPATH="${S}/bindings/python/python${pysuffix}:${native_build}/bindings/python/python${pysuffix}" \
+				auparse_la_LIBADD="${native_build}/auparse/libauparse.la ${native_build}/lib/libaudit.la" \
+				${pydef} \
 				DESTDIR="${D}" install
 		}
 
@@ -177,13 +203,13 @@ multilib_src_install_all() {
 
 pkg_preinst() {
 	# Preserve from the audit-1 series
-	preserve_old_lib /$(get_libdir)/libau{dit,parse}.so.0
+	preserve_old_lib /$(get_libdir)/libaudit.so.0
 }
 
 pkg_postinst() {
 	lockdown_perms "${ROOT}"
 	# Preserve from the audit-1 series
-	preserve_old_lib_notify /$(get_libdir)/libau{dit,parse}.so.0
+	preserve_old_lib_notify /$(get_libdir)/libaudit.so.0
 }
 
 lockdown_perms() {

@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-process/audit/audit-2.0.5.ebuild,v 1.9 2012/12/18 19:27:31 robbat2 Exp $
+# $Id$
 
 EAPI="3"
 PYTHON_DEPEND="2"
@@ -10,8 +10,8 @@ RESTRICT_PYTHON_ABIS="3.* *-jython 2.7-pypy-*"
 inherit autotools multilib toolchain-funcs python linux-info eutils
 
 DESCRIPTION="Userspace utilities for storing and processing auditing records"
-HOMEPAGE="http://people.redhat.com/sgrubb/audit/"
-SRC_URI="http://people.redhat.com/sgrubb/audit/${P}.tar.gz"
+HOMEPAGE="https://people.redhat.com/sgrubb/audit/"
+SRC_URI="https://people.redhat.com/sgrubb/audit/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
