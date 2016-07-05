@@ -10,4 +10,4 @@ RDEPEND=>=sys-libs/ncurses-5.7-r7 nls? ( virtual/libintl ) selinux? ( sys-libs/l
 SLOT=0
 SRC_URI=mirror://sourceforge/psmisc/psmisc-22.21.tar.gz
 _eclasses_=eutils	9d81603248f2ba3ec59124320d123e5e	multilib	3972ca401cf7dbb430df9995f5d8d580	toolchain-funcs	7a212e5e01adfa4805c9978366e6ee85
-_md5_=6dc05baa0f4920476468a828e97600f4
+_md5_=476f5caa94dc7cbe7e1159e175521174
