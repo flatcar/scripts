@@ -82,3 +82,51 @@
   24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
   Set appropriate maintainer types in metadata.xml (GLEP 67)
 
+  15 May 2016; Andreas K. Hüttel <dilfridge@gentoo.org>
+  -perl-cleaner-2.16.ebuild:
+  Remove old
+
+  Package-Manager: portage-2.2.28
+
+*perl-cleaner-2.21 (15 May 2016)
+
+  15 May 2016; Andreas K. Hüttel <dilfridge@gentoo.org>
+  +perl-cleaner-2.21.ebuild:
+  Version bump. Prefix support is coming back in 2.22.
+
+  Package-Manager: portage-2.2.28
+
+  23 May 2016; Pacho Ramos <pacho@gentoo.org> metadata.xml:
+  Reorder maintainers as talked with fuzzyray
+
+  Package-Manager: portage-2.3.0_rc1
+
+  24 May 2016; Markus Meier <maekke@gentoo.org> perl-cleaner-2.20.ebuild:
+  arm stable, bug #583122
+
+  Package-Manager: portage-2.3.0_rc1
+  RepoMan-Options: --include-arches="arm"
+
+  27 May 2016; Andreas K. Hüttel <dilfridge@gentoo.org>
+  perl-cleaner-2.20.ebuild:
+  Retroactively stable for remaining arches (ALLARCHES), bug 583122
+
+  Package-Manager: portage-2.3.0_rc1
+
+  27 May 2016; Andreas K. Hüttel <dilfridge@gentoo.org>
+  -perl-cleaner-2.19.ebuild:
+  Remove old
+
+  Package-Manager: portage-2.3.0_rc1
+
+*perl-cleaner-2.22 (28 May 2016)
+
+  28 May 2016; Andreas K. Hüttel <dilfridge@gentoo.org>
+  +perl-cleaner-2.22.ebuild, perl-cleaner-9999.ebuild:
+  Version bump, integrate prefix patch
+
+  Package-Manager: portage-2.3.0_rc1
+
+  29 May 2016; Mike Frysinger <vapier@gentoo.org> perl-cleaner-2.20.ebuild:
+  mark 2.20 arm64/m68k/s390/sh stable
+

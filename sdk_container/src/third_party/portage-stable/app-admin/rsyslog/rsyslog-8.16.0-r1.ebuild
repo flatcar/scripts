@@ -1,18 +1,22 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=5
-AUTOTOOLS_AUTORECONF=1
+EAPI=6
 
-inherit autotools-utils eutils systemd
+inherit autotools eutils systemd
 
 DESCRIPTION="An enhanced multi-threaded syslogd with database support and more"
 HOMEPAGE="http://www.rsyslog.com/"
 
 BRANCH="8-stable"
 
-PATCHES=()
+PATCHES=(
+	"${FILESDIR}"/8-stable/50-rsyslog-8.15.0-imtcp-tls-basic-vg-test-workaround.patch
+	"${FILESDIR}"/8-stable/50-rsyslog-8.15.0-imfile-readmode2-vg-test-workaround.patch
+	"${FILESDIR}"/8-stable/50-rsyslog-8.16.0-fix-queue-engine-issue-262.patch
+	"${FILESDIR}"/8-stable/50-rsyslog-8.16.0-fix-leap-year-handling.patch
+)
 
 if [[ ${PV} == "9999" ]]; then
 	EGIT_REPO_URI="
@@ -32,9 +36,6 @@ else
 		doc? ( http://www.rsyslog.com/files/download/${PN}/${PN}-doc-${PV}.tar.gz )
 	"
 	KEYWORDS="amd64 ~arm hppa x86"
-
-	PATCHES+=( "${FILESDIR}"/${BRANCH}/50-${PN}-8.12.0-fix-re_extract.patch )
-	PATCHES+=( "${FILESDIR}"/${BRANCH}/50-${PN}-8.13.0-lookup-table-reload-bugfix.patch )
 fi
 
 LICENSE="GPL-3 LGPL-3 Apache-2.0"
@@ -69,7 +70,7 @@ RDEPEND="
 		libressl? ( dev-libs/libressl:0= )
 	)
 	snmp? ( >=net-analyzer/net-snmp-5.7.2 )
-	ssl? ( >=net-libs/gnutls-2.12.23 )
+	ssl? ( >=net-libs/gnutls-2.12.23:0= )
 	systemd? ( >=sys-apps/systemd-208 )
 	zeromq? ( >=net-libs/czmq-1.2.0 )"
 DEPEND="${RDEPEND}
@@ -129,6 +130,12 @@ src_unpack() {
 	fi
 }
 
+src_prepare() {
+	default
+
+	eautoreconf
+}
+
 src_configure() {
 	# Maintainer notes:
 	# * Guardtime support is missing because libgt isn't yet available
@@ -170,11 +177,13 @@ src_configure() {
 		--enable-omstdout
 		--enable-omuxsock
 		# Misc
+		--disable-omkafka
 		--enable-pmaixforwardedfrom
 		--enable-pmciscoios
 		--enable-pmcisconames
 		--enable-pmlastmsg
 		--enable-pmsnare
+		--with-systemdsystemunitdir="$(systemd_get_systemunitdir)"
 		# DB
 		$(use_enable dbi libdbi)
 		$(use_enable mongodb ommongodb)
@@ -206,14 +215,13 @@ src_configure() {
 		$(use_enable usertools)
 		$(use_enable zeromq imzmq3)
 		$(use_enable zeromq omzmq3)
-		"$(systemd_with_unitdir)"
 	)
 
-	autotools-utils_src_configure
+	econf ${myeconfargs[@]}
 }
 
 src_compile() {
-	autotools-utils_src_compile
+	default
 
 	if use doc && [[ "${PV}" == "9999" ]]; then
 		einfo "Building documentation ..."
@@ -251,8 +259,7 @@ src_test() {
 }
 
 src_install() {
-	use doc && HTML_DOCS=( "${S}/docs/build/" )
-	autotools-utils_src_install
+	default
 
 	newconfd "${FILESDIR}/${BRANCH}/${PN}.confd-r1" ${PN}
 	newinitd "${FILESDIR}/${BRANCH}/${PN}.initd-r1" ${PN}
@@ -280,6 +287,8 @@ src_install() {
 		insinto /usr/share/doc/${PF}/scripts/pgsql
 		doins plugins/ompgsql/createDB.sql
 	fi
+
+	use doc && dohtml -r "${S}/docs/build/"
 }
 
 pkg_postinst() {
