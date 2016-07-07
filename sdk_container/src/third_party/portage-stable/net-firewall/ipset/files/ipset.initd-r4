@@ -70,7 +70,7 @@ reload() {
     running_ipset_list=$(ipset save | gawk '/^create/{printf "%s ",$2}')
 	running_ipset_list="${running_ipset_list% }"
     # Build a regular expression that matches those set names.
-    running_ipset_list_regex="${running_ipset_list// /|}"
+    running_ipset_list_regex="$(echo "$running_ipset_list" | tr -s ' ' '|' )"
 
     # Load up sets from the save file, but rename any set that already
     # exists to a temporary name that we will swap later.

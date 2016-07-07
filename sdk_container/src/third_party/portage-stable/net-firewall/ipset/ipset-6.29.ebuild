@@ -92,7 +92,7 @@ src_install() {
 	default
 	prune_libtool_files
 
-	newinitd "${FILESDIR}"/ipset.initd-r3 ${PN}
+	newinitd "${FILESDIR}"/ipset.initd-r4 ${PN}
 	newconfd "${FILESDIR}"/ipset.confd ${PN}
 	keepdir /var/lib/ipset
 
