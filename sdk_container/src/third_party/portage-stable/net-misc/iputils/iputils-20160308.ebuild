@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -6,8 +6,10 @@
 # them in a tarball on our mirrors.  This avoids ugly issues while
 # building stages, and when the jade/sgml packages are broken (which
 # seems to be more common than would be nice).
+# Required packages for doc generation:
+# app-text/docbook-sgml-utils
 
-EAPI="4"
+EAPI=5
 
 inherit flag-o-matic eutils toolchain-funcs fcaps
 if [[ ${PV} == "99999999" ]] ; then
@@ -29,7 +31,7 @@ IUSE="arping caps clockdiff doc gcrypt idn ipv6 libressl nettle +openssl rarpd r
 LIB_DEPEND="caps? ( sys-libs/libcap[static-libs(+)] )
 	idn? ( net-dns/libidn[static-libs(+)] )
 	ipv6? ( ssl? (
-		gcrypt? ( dev-libs/libgcrypt[static-libs(+)] )
+		gcrypt? ( dev-libs/libgcrypt:0=[static-libs(+)] )
 		nettle? ( dev-libs/nettle[static-libs(+)] )
 		openssl? (
 			!libressl? ( dev-libs/openssl:0[static-libs(+)] )
@@ -38,7 +40,7 @@ LIB_DEPEND="caps? ( sys-libs/libcap[static-libs(+)] )
 	) )"
 RDEPEND="arping? ( !net-misc/arping )
 	rarpd? ( !net-misc/rarpd )
-	traceroute? ( !net-misc/traceroute )
+	traceroute? ( !net-analyzer/traceroute )
 	!static? ( ${LIB_DEPEND//\[static-libs(+)]} )"
 DEPEND="${RDEPEND}
 	static? ( ${LIB_DEPEND} )
@@ -58,8 +60,6 @@ S=${WORKDIR}/${PN}-s${PV}
 
 PATCHES=(
 	"${FILESDIR}/021109-uclibc-no-ether_ntohost.patch"
-	"${FILESDIR}/${PN}-20150815-ping_default_ipv4.patch"
-	"${FILESDIR}/${PN}-20150815-ping6_crypto.patch"
 )
 
 src_prepare() {
@@ -113,10 +113,10 @@ src_compile() {
 src_install() {
 	into /
 	dobin ping
-	dosym ping "${EPREFIX}"/bin/ping4
+	dosym ping /bin/ping4
 	if use ipv6 ; then
-		dosym ping "${EPREFIX}"/bin/ping6
-		dosym ping.8 "${EPREFIX}"/usr/share/man/man8/ping6.8
+		dosym ping /bin/ping6
+		dosym ping.8 /usr/share/man/man8/ping6.8
 	fi
 	doman doc/ping.8
 
@@ -140,7 +140,7 @@ src_install() {
 
 	if use tracepath && use ipv6 ; then
 		dosbin tracepath6
-		dosym tracepath.8 "${EPREFIX}"/usr/share/man/man8/tracepath6.8
+		dosym tracepath.8 /usr/share/man/man8/tracepath6.8
 	fi
 
 	if use traceroute && use ipv6 ; then
