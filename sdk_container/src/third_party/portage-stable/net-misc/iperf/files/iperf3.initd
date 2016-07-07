@@ -4,12 +4,8 @@
 # $Id$
 
 description="IP bandwidth measurement server"
-command="/usr/bin/iperf"
+command="/usr/bin/iperf3"
 
 command_background="yes"
 pidfile="/run/${SVCNAME}.pid"
 command_args="-s ${IPERF_OPTS}"
-
-# note: iperf has a -D/--daemon flag but we seem to hit a bug
-#       where it starts to eat all CPU after client disconnect,
-#       see bug #344875
