@@ -1,63 +1,64 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-lang/python/python-2.7.9-r1.ebuild,v 1.7 2015/03/31 18:46:33 ulm Exp $
+# $Id$
 
-EAPI="4"
-WANT_AUTOMAKE="none"
+EAPI="5"
 WANT_LIBTOOL="none"
 
 inherit autotools eutils flag-o-matic multilib pax-utils python-utils-r1 toolchain-funcs multiprocessing
 
 MY_P="Python-${PV}"
-PATCHSET_VERSION="2.7.9-0"
+PATCHSET_VERSION="2.7.11-0"
 
 DESCRIPTION="An interpreted, interactive, object-oriented programming language"
 HOMEPAGE="http://www.python.org/"
 SRC_URI="http://www.python.org/ftp/python/${PV}/${MY_P}.tar.xz
-	http://dev.gentoo.org/~floppym/python/python-gentoo-patches-${PATCHSET_VERSION}.tar.xz"
+	https://dev.gentoo.org/~djc/python-gentoo-patches-${PATCHSET_VERSION}.tar.xz"
 
 LICENSE="PSF-2"
 SLOT="2.7"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
-IUSE="-berkdb build doc elibc_uclibc examples gdbm hardened ipv6 +ncurses +readline sqlite +ssl +threads tk +wide-unicode wininst +xml"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
+IUSE="-berkdb build doc elibc_uclibc examples gdbm hardened ipv6 libressl +ncurses +readline sqlite +ssl +threads tk +wide-unicode wininst +xml"
 
 # Do not add a dependency on dev-lang/python to this ebuild.
 # If you need to apply a patch which requires python for bootstrapping, please
 # run the bootstrap code on your dev box and include the results in the
 # patchset. See bug 447752.
 
-RDEPEND="app-arch/bzip2
-	>=sys-libs/zlib-1.1.3
+RDEPEND="app-arch/bzip2:0=
+	>=sys-libs/zlib-1.1.3:0=
 	virtual/libffi
 	virtual/libintl
-	!build? (
-		berkdb? ( || (
-			sys-libs/db:5.3
-			sys-libs/db:5.2
-			sys-libs/db:5.1
-			sys-libs/db:5.0
-			sys-libs/db:4.8
-			sys-libs/db:4.7
-			sys-libs/db:4.6
-			sys-libs/db:4.5
-			sys-libs/db:4.4
-			sys-libs/db:4.3
-			sys-libs/db:4.2
-		) )
-		gdbm? ( sys-libs/gdbm[berkdb] )
-		ncurses? (
-			>=sys-libs/ncurses-5.2
-			readline? ( >=sys-libs/readline-4.1 )
-		)
-		sqlite? ( >=dev-db/sqlite-3.3.8:3 )
-		ssl? ( dev-libs/openssl )
-		tk? (
-			>=dev-lang/tk-8.0
-			dev-tcltk/blt
-			dev-tcltk/tix
-		)
-		xml? ( >=dev-libs/expat-2.1 )
+	berkdb? ( || (
+		sys-libs/db:5.3
+		sys-libs/db:5.2
+		sys-libs/db:5.1
+		sys-libs/db:5.0
+		sys-libs/db:4.8
+		sys-libs/db:4.7
+		sys-libs/db:4.6
+		sys-libs/db:4.5
+		sys-libs/db:4.4
+		sys-libs/db:4.3
+		sys-libs/db:4.2
+	) )
+	gdbm? ( sys-libs/gdbm:0=[berkdb] )
+	ncurses? (
+		>=sys-libs/ncurses-5.2:0=
+		readline? ( >=sys-libs/readline-4.1:0= )
 	)
+	sqlite? ( >=dev-db/sqlite-3.3.8:3= )
+	ssl? (
+		!libressl? ( dev-libs/openssl:0= )
+		libressl? ( dev-libs/libressl:= )
+	)
+	tk? (
+		>=dev-lang/tcl-8.0:0=
+		>=dev-lang/tk-8.0:0=
+		dev-tcltk/blt:0=
+		dev-tcltk/tix
+	)
+	xml? ( >=dev-libs/expat-2.1 )
 	!!<sys-apps/portage-2.1.9"
 DEPEND="${RDEPEND}
 	virtual/pkgconfig
@@ -65,7 +66,7 @@ DEPEND="${RDEPEND}
 	!sys-devel/gcc[libffi]"
 RDEPEND+=" !build? ( app-misc/mime-types )
 	doc? ( dev-python/python-docs:${SLOT} )"
-PDEPEND="app-eselect/eselect-python
+PDEPEND=">=app-eselect/eselect-python-20140125-r1
 	app-admin/python-updater"
 
 S="${WORKDIR}/${MY_P}"
@@ -99,6 +100,11 @@ src_prepare() {
 
 	# Fix for cross-compiling.
 	epatch "${FILESDIR}/python-2.7.5-nonfatal-compileall.patch"
+	epatch "${FILESDIR}/python-2.7.9-ncurses-pkg-config.patch"
+	epatch "${FILESDIR}/python-2.7.10-cross-compile-warn-test.patch"
+	epatch "${FILESDIR}/python-2.7.10-system-libffi.patch"
+
+	epatch_user
 
 	sed -i -e "s:@@GENTOO_LIBDIR@@:$(get_libdir):g" \
 		Lib/distutils/command/install.py \
@@ -111,18 +117,10 @@ src_prepare() {
 		Modules/getpath.c \
 		setup.py || die "sed failed to replace @@GENTOO_LIBDIR@@"
 
-	epatch_user
-
-	eautoconf
-	eautoheader
+	eautoreconf
 }
 
 src_configure() {
-	if use build; then
-		# Disable extraneous modules with extra dependencies.
-		export PYTHON_DISABLE_MODULES="dbm _bsddb gdbm _curses _curses_panel readline _sqlite3 _tkinter _elementtree pyexpat"
-		export PYTHON_DISABLE_SSL="1"
-	else
 		# dbm module can be linked against berkdb or gdbm.
 		# Defaults to gdbm when both are enabled, #204343.
 		local disable
@@ -142,7 +140,6 @@ src_configure() {
 			ewarn "This is NOT a recommended configuration as you"
 			ewarn "may face problems parsing any XML documents."
 		fi
-	fi
 
 	if [[ -n "${PYTHON_DISABLE_MODULES}" ]]; then
 		einfo "Disabled modules: ${PYTHON_DISABLE_MODULES}"
@@ -153,8 +150,6 @@ src_configure() {
 	fi
 
 	filter-flags -malign-double
-
-	[[ "${ARCH}" == "alpha" ]] && append-flags -fPIC
 
 	# https://bugs.gentoo.org/show_bug.cgi?id=50309
 	if is-flagq -O3; then
@@ -200,6 +195,7 @@ src_configure() {
 		$(use wide-unicode && echo "--enable-unicode=ucs4" || echo "--enable-unicode=ucs2") \
 		--infodir='${prefix}/share/info' \
 		--mandir='${prefix}/share/man' \
+		--with-computed-gotos \
 		--with-dbmliborder="${dbmliborder}" \
 		--with-libc="" \
 		--enable-loadable-sqlite-extensions \
@@ -275,23 +271,16 @@ src_install() {
 
 	sed -e "s/\(LDFLAGS=\).*/\1/" -i "${libdir}/config/Makefile" || die "sed failed"
 
-	# Backwards compat with Gentoo divergence.
-	dosym python${SLOT}-config /usr/bin/python-config-${SLOT}
-
 	# Fix collisions between different slots of Python.
 	mv "${ED}usr/bin/2to3" "${ED}usr/bin/2to3-${SLOT}"
 	mv "${ED}usr/bin/pydoc" "${ED}usr/bin/pydoc${SLOT}"
 	mv "${ED}usr/bin/idle" "${ED}usr/bin/idle${SLOT}"
 	rm -f "${ED}usr/bin/smtpd.py"
 
-	if use build; then
-		rm -fr "${ED}usr/bin/idle${SLOT}" "${libdir}/"{bsddb,dbhash.py,idlelib,lib-tk,sqlite3,test}
-	else
 		use berkdb || rm -r "${libdir}/"{bsddb,dbhash.py,test/test_bsddb*} || die
 		use sqlite || rm -r "${libdir}/"{sqlite3,test/test_sqlite*} || die
 		use tk || rm -r "${ED}usr/bin/idle${SLOT}" "${libdir}/"{idlelib,lib-tk} || die
 		use elibc_uclibc && rm -fr "${libdir}/"{bsddb/test,test}
-	fi
 
 	use threads || rm -r "${libdir}/multiprocessing" || die
 	use wininst || rm -r "${libdir}/distutils/command/"wininst-*.exe || die
@@ -315,16 +304,43 @@ src_install() {
 		-i "${ED}etc/conf.d/pydoc-${SLOT}" "${ED}etc/init.d/pydoc-${SLOT}" || die "sed failed"
 
 	# for python-exec
-	python_export python${SLOT} EPYTHON PYTHON PYTHON_SITEDIR
+	local vars=( EPYTHON PYTHON_SITEDIR PYTHON_SCRIPTDIR )
 
 	# if not using a cross-compiler, use the fresh binary
 	if ! tc-is-cross-compiler; then
-		local PYTHON=./python
+		local -x PYTHON=./python
 		local -x LD_LIBRARY_PATH=${LD_LIBRARY_PATH+${LD_LIBRARY_PATH}:}.
+	else
+		vars=( PYTHON "${vars[@]}" )
 	fi
 
-	echo "EPYTHON='${EPYTHON}'" > epython.py
+	python_export "python${SLOT}" "${vars[@]}"
+	echo "EPYTHON='${EPYTHON}'" > epython.py || die
 	python_domodule epython.py
+
+	# python-exec wrapping support
+	local pymajor=${SLOT%.*}
+	mkdir -p "${D}${PYTHON_SCRIPTDIR}" || die
+	# python and pythonX
+	ln -s "../../../bin/python${SLOT}" \
+		"${D}${PYTHON_SCRIPTDIR}/python${pymajor}" || die
+	ln -s "python${pymajor}" \
+		"${D}${PYTHON_SCRIPTDIR}/python" || die
+	# python-config and pythonX-config
+	ln -s "../../../bin/python${SLOT}-config" \
+		"${D}${PYTHON_SCRIPTDIR}/python${pymajor}-config" || die
+	ln -s "python${pymajor}-config" \
+		"${D}${PYTHON_SCRIPTDIR}/python-config" || die
+	# 2to3, pydoc, pyvenv
+	ln -s "../../../bin/2to3-${SLOT}" \
+		"${D}${PYTHON_SCRIPTDIR}/2to3" || die
+	ln -s "../../../bin/pydoc${SLOT}" \
+		"${D}${PYTHON_SCRIPTDIR}/pydoc" || die
+	# idle
+	if use tk; then
+		ln -s "../../../bin/idle${SLOT}" \
+			"${D}${PYTHON_SCRIPTDIR}/idle" || die
+	fi
 }
 
 pkg_preinst() {
@@ -336,10 +352,6 @@ pkg_preinst() {
 eselect_python_update() {
 	if [[ -z "$(eselect python show)" || ! -f "${EROOT}usr/bin/$(eselect python show)" ]]; then
 		eselect python update
-	fi
-
-	if [[ -z "$(eselect python show --python${PV%%.*})" || ! -f "${EROOT}usr/bin/$(eselect python show --python${PV%%.*})" ]]; then
-		eselect python update --python${PV%%.*}
 	fi
 }
 

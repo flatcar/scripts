@@ -1,25 +1,24 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-lang/python/python-3.2.5-r6.ebuild,v 1.11 2015/03/31 18:46:33 ulm Exp $
+# $Id$
 
 EAPI="4"
-WANT_AUTOMAKE="none"
 WANT_LIBTOOL="none"
 
 inherit autotools eutils flag-o-matic multilib pax-utils python-utils-r1 toolchain-funcs multiprocessing
 
 MY_P="Python-${PV}"
-PATCHSET_REVISION="1"
+PATCHSET_VERSION="2.7.10-0"
 
 DESCRIPTION="An interpreted, interactive, object-oriented programming language"
 HOMEPAGE="http://www.python.org/"
 SRC_URI="http://www.python.org/ftp/python/${PV}/${MY_P}.tar.xz
-	http://dev.gentoo.org/~floppym/python/python-gentoo-patches-${PV}-${PATCHSET_REVISION}.tar.xz"
+	https://dev.gentoo.org/~floppym/python/python-gentoo-patches-${PATCHSET_VERSION}.tar.xz"
 
 LICENSE="PSF-2"
-SLOT="3.2"
-KEYWORDS="alpha amd64 arm hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
-IUSE="build doc elibc_uclibc examples gdbm hardened ipv6 +ncurses +readline sqlite +ssl +threads tk +wide-unicode wininst +xml"
+SLOT="2.7"
+KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
+IUSE="-berkdb build doc elibc_uclibc examples gdbm hardened ipv6 +ncurses +readline sqlite +ssl +threads tk +wide-unicode wininst +xml"
 
 # Do not add a dependency on dev-lang/python to this ebuild.
 # If you need to apply a patch which requires python for bootstrapping, please
@@ -30,10 +29,24 @@ RDEPEND="app-arch/bzip2
 	>=sys-libs/zlib-1.1.3
 	virtual/libffi
 	virtual/libintl
+	xml? ( >=dev-libs/expat-2.1 )
 	!build? (
+		berkdb? ( || (
+			sys-libs/db:5.3
+			sys-libs/db:5.2
+			sys-libs/db:5.1
+			sys-libs/db:5.0
+			sys-libs/db:4.8
+			sys-libs/db:4.7
+			sys-libs/db:4.6
+			sys-libs/db:4.5
+			sys-libs/db:4.4
+			sys-libs/db:4.3
+			sys-libs/db:4.2
+		) )
 		gdbm? ( sys-libs/gdbm[berkdb] )
 		ncurses? (
-			>=sys-libs/ncurses-5.2
+			>=sys-libs/ncurses-5.2:0
 			readline? ( >=sys-libs/readline-4.1 )
 		)
 		sqlite? ( >=dev-db/sqlite-3.3.8:3 )
@@ -43,8 +56,8 @@ RDEPEND="app-arch/bzip2
 			dev-tcltk/blt
 			dev-tcltk/tix
 		)
-		xml? ( >=dev-libs/expat-2.1 )
-	)"
+	)
+	!!<sys-apps/portage-2.1.9"
 DEPEND="${RDEPEND}
 	virtual/pkgconfig
 	>=sys-devel/autoconf-2.65
@@ -57,30 +70,35 @@ PDEPEND="app-eselect/eselect-python
 S="${WORKDIR}/${MY_P}"
 
 pkg_setup() {
-	if [[ "${PV}" =~ ^3\.2(\.[1234])?(_pre)? ]]; then
-		rm -f "${EROOT}usr/$(get_libdir)/llibpython3.so"
+	if use berkdb; then
+		ewarn "'bsddb' module is out-of-date and no longer maintained inside"
+		ewarn "dev-lang/python. 'bsddb' and 'dbhash' modules have been additionally"
+		ewarn "removed in Python 3. A maintained alternative of 'bsddb3' module"
+		ewarn "is provided by dev-python/bsddb3."
 	else
-		die "Deprecated code not deleted"
+		if has_version "=${CATEGORY}/${PN}-${PV%%.*}*[berkdb]"; then
+			ewarn "You are migrating from =${CATEGORY}/${PN}-${PV%%.*}*[berkdb]"
+			ewarn "to =${CATEGORY}/${PN}-${PV%%.*}*[-berkdb]."
+			ewarn "You might need to migrate your databases."
+		fi
 	fi
 }
 
 src_prepare() {
 	# Ensure that internal copies of expat, libffi and zlib are not used.
-	rm -r Modules/expat
-	rm -r Modules/_ctypes/libffi*
-	rm -r Modules/zlib
+	rm -r Modules/expat || die
+	rm -r Modules/_ctypes/libffi* || die
+	rm -r Modules/zlib || die
 
-	local excluded_patches
-	if ! tc-is-cross-compiler; then
-		excluded_patches="*_all_crosscompile.patch"
+	if tc-is-cross-compiler; then
+		local EPATCH_EXCLUDE="*_regenerate_platform-specific_modules.patch"
 	fi
 
-	EPATCH_EXCLUDE="${excluded_patches}" EPATCH_SUFFIX="patch" \
-		epatch "${WORKDIR}/patches"
+	EPATCH_SUFFIX="patch" epatch "${WORKDIR}/patches"
 
-	epatch "${FILESDIR}/python-3.2-CVE-2013-2099.patch"
-	epatch "${FILESDIR}/CVE-2013-4238_py33.patch"
-	epatch "${FILESDIR}/python-3.2-issue16248.patch"
+	# Fix for cross-compiling.
+	epatch "${FILESDIR}/python-2.7.5-nonfatal-compileall.patch"
+	epatch "${FILESDIR}/python-2.7.9-ncurses-pkg-config.patch"
 
 	sed -i -e "s:@@GENTOO_LIBDIR@@:$(get_libdir):g" \
 		Lib/distutils/command/install.py \
@@ -93,27 +111,22 @@ src_prepare() {
 		Modules/getpath.c \
 		setup.py || die "sed failed to replace @@GENTOO_LIBDIR@@"
 
-	# Disable ABI flags.
-	sed -e "s/ABIFLAGS=\"\${ABIFLAGS}.*\"/:/" -i configure.ac || die "sed failed"
-
-	# bug #514686
-	epatch "${FILESDIR}/${PN}-3.2-CVE-2014-4616.patch"
-	# bug #500518
-	epatch "${FILESDIR}/${PN}-3.2-CVE-2014-1912.patch"
-
 	epatch_user
 
-	eautoconf
-	eautoheader
+	eautoreconf
 }
 
 src_configure() {
 	if use build; then
 		# Disable extraneous modules with extra dependencies.
-		export PYTHON_DISABLE_MODULES="gdbm _curses _curses_panel readline _sqlite3 _tkinter _elementtree pyexpat"
+		export PYTHON_DISABLE_MODULES="dbm _bsddb gdbm _curses _curses_panel readline _sqlite3 _tkinter"
 		export PYTHON_DISABLE_SSL="1"
 	else
+		# dbm module can be linked against berkdb or gdbm.
+		# Defaults to gdbm when both are enabled, #204343.
 		local disable
+		use berkdb   || use gdbm || disable+=" dbm"
+		use berkdb   || disable+=" _bsddb"
 		use gdbm     || disable+=" gdbm"
 		use ncurses  || disable+=" _curses _curses_panel"
 		use readline || disable+=" readline"
@@ -148,35 +161,20 @@ src_configure() {
 		use hardened && replace-flags -O3 -O2
 	fi
 
-	# Run the configure scripts in parallel.
-	multijob_init
-
-	mkdir -p "${WORKDIR}"/{${CBUILD},${CHOST}}
-
 	if tc-is-cross-compiler; then
-		(
-		multijob_child_init
-		cd "${WORKDIR}"/${CBUILD} >/dev/null
-		OPT="-O1" CFLAGS="" CPPFLAGS="" LDFLAGS="" CC="" \
-		"${S}"/configure \
-			--{build,host}=${CBUILD} \
-			|| die "cross-configure failed"
-		) &
-		multijob_post_fork
-
-		# The configure script assumes it's buggy when cross-compiling.
-		export ac_cv_buggy_getaddrinfo=no
-		export ac_cv_have_long_long_format=yes
+		# Force some tests that try to poke fs paths.
+		export ac_cv_file__dev_ptc=no
+		export ac_cv_file__dev_ptmx=yes
 	fi
 
-	# Export CXX so it ends up in /usr/lib/python3.X/config/Makefile.
+	# Export CXX so it ends up in /usr/lib/python2.X/config/Makefile.
 	tc-export CXX
 	# The configure script fails to use pkg-config correctly.
 	# http://bugs.python.org/issue15506
 	export ac_cv_path_PKG_CONFIG=$(tc-getPKG_CONFIG)
 
-	# Set LDFLAGS so we link modules with -lpython3.2 correctly.
-	# Needed on FreeBSD unless Python 3.2 is already installed.
+	# Set LDFLAGS so we link modules with -lpython2.7 correctly.
+	# Needed on FreeBSD unless Python 2.7 is already installed.
 	# Please query BSD team before removing this!
 	append-ldflags "-L."
 
@@ -184,65 +182,43 @@ src_configure() {
 	if use gdbm; then
 		dbmliborder+="${dbmliborder:+:}gdbm"
 	fi
+	if use berkdb; then
+		dbmliborder+="${dbmliborder:+:}bdb"
+	fi
 
-	cd "${WORKDIR}"/${CHOST}
-	ECONF_SOURCE=${S} OPT="" \
+	BUILD_DIR="${WORKDIR}/${CHOST}"
+	mkdir -p "${BUILD_DIR}" || die
+	cd "${BUILD_DIR}" || die
+
+	ECONF_SOURCE="${S}" OPT="" \
 	econf \
 		--with-fpectl \
 		--enable-shared \
 		$(use_enable ipv6) \
 		$(use_with threads) \
-		$(use_with wide-unicode) \
+		$(use wide-unicode && echo "--enable-unicode=ucs4" || echo "--enable-unicode=ucs2") \
 		--infodir='${prefix}/share/info' \
 		--mandir='${prefix}/share/man' \
-		--with-computed-gotos \
 		--with-dbmliborder="${dbmliborder}" \
 		--with-libc="" \
 		--enable-loadable-sqlite-extensions \
 		--with-system-expat \
-		--with-system-ffi
+		--with-system-ffi \
+		--without-ensurepip
 
 	if use threads && grep -q "#define POSIX_SEMAPHORES_NOT_ENABLED 1" pyconfig.h; then
 		eerror "configure has detected that the sem_open function is broken."
 		eerror "Please ensure that /dev/shm is mounted as a tmpfs with mode 1777."
 		die "Broken sem_open function (bug 496328)"
 	fi
-
-	if tc-is-cross-compiler; then
-		# Modify the Makefile.pre so we don't regen for the host/ one.
-		# We need to link the host python programs into $PWD and run
-		# them from here because the distutils sysconfig module will
-		# parse Makefile/etc... from argv[0], and we need it to pick
-		# up the target settings, not the host ones.
-		sed -i \
-			-e '1iHOSTPYTHONPATH = ./hostpythonpath:' \
-			-e '/^HOSTPYTHON/s:=.*:= ./hostpython:' \
-			-e '/^HOSTPGEN/s:=.*:= ./Parser/hostpgen:' \
-			Makefile{.pre,} || die "sed failed"
-	fi
-
-	multijob_finish
 }
 
 src_compile() {
-	if tc-is-cross-compiler; then
-		cd "${WORKDIR}"/${CBUILD}
-		# Disable as many modules as possible -- but we need a few to install.
-		PYTHON_DISABLE_MODULES=$(
-			sed -n "/Extension('/{s:^.*Extension('::;s:'.*::;p}" "${S}"/setup.py | \
-				egrep -v '(unicodedata|time|cStringIO|_struct|binascii)'
-		) \
-		PTHON_DISABLE_SSL="1" \
-		SYSROOT= \
-		emake
-		# See comment in src_configure about these.
-		ln python ../${CHOST}/hostpython || die
-		ln Parser/pgen ../${CHOST}/Parser/hostpgen || die
-		ln -s ../${CBUILD}/build/lib.*/ ../${CHOST}/hostpythonpath || die
-	fi
+	# Avoid invoking pgen for cross-compiles.
+	touch Include/graminit.h Python/graminit.c
 
-	cd "${WORKDIR}"/${CHOST}
-	emake CPPFLAGS="" CFLAGS="" LDFLAGS=""
+	cd "${BUILD_DIR}" || die
+	emake
 
 	# Work around bug 329499. See also bug 413751 and 457194.
 	if has_version dev-libs/libffi[pax_kernel]; then
@@ -259,17 +235,17 @@ src_test() {
 		return
 	fi
 
-	cd "${WORKDIR}"/${CHOST}
+	cd "${BUILD_DIR}" || die
 
 	# Skip failing tests.
-	local skipped_tests="gdb"
+	local skipped_tests="distutils gdb"
 
 	for test in ${skipped_tests}; do
 		mv "${S}"/Lib/test/test_${test}.py "${T}"
 	done
 
 	# Rerun failed tests in verbose mode (regrtest -w).
-	PYTHONDONTWRITEBYTECODE="" emake test EXTRATESTOPTS="-w" CPPFLAGS="" CFLAGS="" LDFLAGS="" < /dev/tty
+	emake test EXTRATESTOPTS="-w" < /dev/tty
 	local result="$?"
 
 	for test in ${skipped_tests}; do
@@ -293,36 +269,36 @@ src_test() {
 src_install() {
 	local libdir=${ED}/usr/$(get_libdir)/python${SLOT}
 
-	cd "${WORKDIR}"/${CHOST}
+	cd "${BUILD_DIR}" || die
 	emake DESTDIR="${D}" altinstall
 
-	sed \
-		-e "s/\(CONFIGURE_LDFLAGS=\).*/\1/" \
-		-e "s/\(PY_LDFLAGS=\).*/\1/" \
-		-i "${libdir}/config-${SLOT}/Makefile" || die "sed failed"
+	sed -e "s/\(LDFLAGS=\).*/\1/" -i "${libdir}/config/Makefile" || die "sed failed"
 
 	# Backwards compat with Gentoo divergence.
 	dosym python${SLOT}-config /usr/bin/python-config-${SLOT}
 
 	# Fix collisions between different slots of Python.
-	rm "${ED}usr/$(get_libdir)/libpython3.so" || die
+	mv "${ED}usr/bin/2to3" "${ED}usr/bin/2to3-${SLOT}"
+	mv "${ED}usr/bin/pydoc" "${ED}usr/bin/pydoc${SLOT}"
+	mv "${ED}usr/bin/idle" "${ED}usr/bin/idle${SLOT}"
+	rm -f "${ED}usr/bin/smtpd.py"
 
 	if use build; then
-		rm -fr "${ED}usr/bin/idle${SLOT}" "${libdir}/"{idlelib,sqlite3,test,tkinter}
+		rm -fr "${ED}usr/bin/idle${SLOT}" "${libdir}/"{bsddb,dbhash.py,idlelib,lib-tk,sqlite3,test}
 	else
-		use elibc_uclibc && rm -fr "${libdir}/test"
-		use sqlite || rm -fr "${libdir}/"{sqlite3,test/test_sqlite*}
-		use tk || rm -fr "${ED}usr/bin/idle${SLOT}" "${libdir}/"{idlelib,tkinter,test/test_tk*}
+		use berkdb || rm -r "${libdir}/"{bsddb,dbhash.py,test/test_bsddb*} || die
+		use sqlite || rm -r "${libdir}/"{sqlite3,test/test_sqlite*} || die
+		use tk || rm -r "${ED}usr/bin/idle${SLOT}" "${libdir}/"{idlelib,lib-tk} || die
+		use elibc_uclibc && rm -fr "${libdir}/"{bsddb/test,test}
 	fi
 
-	use threads || rm -fr "${libdir}/multiprocessing"
-	use wininst || rm -f "${libdir}/distutils/command/"wininst-*.exe
+	use threads || rm -r "${libdir}/multiprocessing" || die
+	use wininst || rm -r "${libdir}/distutils/command/"wininst-*.exe || die
 
 	dodoc "${S}"/Misc/{ACKS,HISTORY,NEWS}
 
 	if use examples; then
 		insinto /usr/share/doc/${PF}/examples
-		find "${S}"/Tools -name __pycache__ -print0 | xargs -0 rm -fr
 		doins -r "${S}"/Tools
 	fi
 	insinto /usr/share/gdb/auto-load/usr/$(get_libdir) #443510
@@ -338,21 +314,23 @@ src_install() {
 		-i "${ED}etc/conf.d/pydoc-${SLOT}" "${ED}etc/init.d/pydoc-${SLOT}" || die "sed failed"
 
 	# for python-exec
-	python_export python${SLOT} EPYTHON PYTHON PYTHON_SITEDIR
+	local vars=( EPYTHON PYTHON_SITEDIR )
 
 	# if not using a cross-compiler, use the fresh binary
 	if ! tc-is-cross-compiler; then
-		local PYTHON=./python \
-			LD_LIBRARY_PATH=${LD_LIBRARY_PATH+${LD_LIBRARY_PATH}:}.
-		export LD_LIBRARY_PATH
+		local -x PYTHON=./python
+		local -x LD_LIBRARY_PATH=${LD_LIBRARY_PATH+${LD_LIBRARY_PATH}:}.
+	else
+		vars=( PYTHON "${vars[@]}" )
 	fi
 
-	echo "EPYTHON='${EPYTHON}'" > epython.py
+	python_export "python${SLOT}" "${vars[@]}"
+	echo "EPYTHON='${EPYTHON}'" > epython.py || die
 	python_domodule epython.py
 }
 
 pkg_preinst() {
-	if has_version "<${CATEGORY}/${PN}-${SLOT}" && ! has_version ">=${CATEGORY}/${PN}-${SLOT}_alpha"; then
+	if has_version "<${CATEGORY}/${PN}-${SLOT}" && ! has_version "${CATEGORY}/${PN}:2.7"; then
 		python_updater_warning="1"
 	fi
 }
@@ -368,15 +346,13 @@ eselect_python_update() {
 }
 
 pkg_postinst() {
-	ewarn "Please note that Python ${PV%.*} is no longer supported in Gentoo."
-	ewarn "The interpreter is not well maintained, and may contain security"
-	ewarn "vulnerabilities. Gentoo ebuilds will no longer be built with support"
-	ewarn "for Python ${PV%.*}."
-	ewarn
-	ewarn "If you wish to use Python ${PV%.*} for your own purposes (development,"
-	ewarn "testing), we suggest establishing a virtualenv for this interpreter,"
-	ewarn "and installing the necessary dependencies inside it. However, we also"
-	ewarn "strongly discourage using Python ${PV%.*} on production systems."
+	eselect_python_update
+
+	if [[ "${python_updater_warning}" == "1" ]]; then
+		ewarn "You have just upgraded from an older version of Python."
+		ewarn "You should switch active version of Python ${PV%%.*} and run"
+		ewarn "'python-updater [options]' to rebuild Python modules."
+	fi
 }
 
 pkg_postrm() {

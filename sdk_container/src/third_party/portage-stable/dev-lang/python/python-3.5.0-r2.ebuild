@@ -1,59 +1,58 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-lang/python/python-3.4.2.ebuild,v 1.2 2015/03/31 18:46:33 ulm Exp $
+# $Id$
 
-EAPI="4"
-WANT_AUTOMAKE="none"
+EAPI="5"
 WANT_LIBTOOL="none"
 
-inherit autotools eutils flag-o-matic multilib pax-utils python-utils-r1 toolchain-funcs multiprocessing
+inherit autotools eutils flag-o-matic multilib pax-utils python-utils-r1 toolchain-funcs
 
 MY_P="Python-${PV/_/}"
-PATCHSET_VERSION="3.4.2-0"
+PATCHSET_VERSION="3.5.0-0"
 
 DESCRIPTION="An interpreted, interactive, object-oriented programming language"
 HOMEPAGE="http://www.python.org/"
 SRC_URI="http://www.python.org/ftp/python/${PV%_rc*}/${MY_P}.tar.xz
-	http://dev.gentoo.org/~floppym/python/python-gentoo-patches-${PATCHSET_VERSION}.tar.xz"
+	https://dev.gentoo.org/~floppym/python/python-gentoo-patches-${PATCHSET_VERSION}.tar.xz"
 
 LICENSE="PSF-2"
-SLOT="3.4"
+SLOT="3.5"
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
-IUSE="build elibc_uclibc examples gdbm hardened ipv6 +ncurses +readline sqlite +ssl +threads tk wininst +xml"
+IUSE="build elibc_uclibc examples gdbm hardened ipv6 libressl +ncurses +readline sqlite +ssl +threads tk wininst +xml"
 
 # Do not add a dependency on dev-lang/python to this ebuild.
 # If you need to apply a patch which requires python for bootstrapping, please
 # run the bootstrap code on your dev box and include the results in the
 # patchset. See bug 447752.
 
-RDEPEND="app-arch/bzip2
-	app-arch/xz-utils
-	>=sys-libs/zlib-1.1.3
+RDEPEND="app-arch/bzip2:0=
+	app-arch/xz-utils:0=
+	>=sys-libs/zlib-1.1.3:0=
 	virtual/libffi
 	virtual/libintl
-	!build? (
-		gdbm? ( sys-libs/gdbm[berkdb] )
-		ncurses? (
-			>=sys-libs/ncurses-5.2
-			readline? ( >=sys-libs/readline-4.1 )
-		)
-		sqlite? ( >=dev-db/sqlite-3.3.8:3 )
-		ssl? ( dev-libs/openssl )
-		tk? (
-			>=dev-lang/tk-8.0
-			dev-tcltk/blt
-			dev-tcltk/tix
-		)
-		xml? ( >=dev-libs/expat-2.1 )
+	gdbm? ( sys-libs/gdbm:0=[berkdb] )
+	ncurses? (
+		>=sys-libs/ncurses-5.2:0=
+		readline? ( >=sys-libs/readline-4.1:0= )
 	)
+	sqlite? ( >=dev-db/sqlite-3.3.8:3= )
+	ssl? (
+		!libressl? ( dev-libs/openssl:0= )
+		libressl? ( dev-libs/libressl:= )
+	)
+	tk? (
+		>=dev-lang/tcl-8.0:0=
+		>=dev-lang/tk-8.0:0=
+		dev-tcltk/blt:0=
+		dev-tcltk/tix
+	)
+	xml? ( >=dev-libs/expat-2.1:0= )
 	!!<sys-apps/sandbox-2.6-r1"
 DEPEND="${RDEPEND}
 	virtual/pkgconfig
-	>=sys-devel/autoconf-2.65
-	!sys-devel/gcc[libffi]"
+	!sys-devel/gcc[libffi(-)]"
 RDEPEND+=" !build? ( app-misc/mime-types )"
-PDEPEND="app-eselect/eselect-python
-	app-admin/python-updater"
+PDEPEND="app-eselect/eselect-python"
 
 S="${WORKDIR}/${MY_P}"
 
@@ -69,48 +68,46 @@ src_prepare() {
 	fi
 
 	EPATCH_SUFFIX="patch" epatch "${WORKDIR}/patches"
+	epatch "${FILESDIR}/${PN}-3.4.3-ncurses-pkg-config.patch"
+	epatch "${FILESDIR}/3.5-secondary-targets.patch"
 
 	sed -i -e "s:@@GENTOO_LIBDIR@@:$(get_libdir):g" \
+		configure.ac \
 		Lib/distutils/command/install.py \
 		Lib/distutils/sysconfig.py \
 		Lib/site.py \
 		Lib/sysconfig.py \
 		Lib/test/test_site.py \
 		Makefile.pre.in \
-		Modules/Setup.dist \
 		Modules/getpath.c \
+		Modules/Setup.dist \
 		setup.py || die "sed failed to replace @@GENTOO_LIBDIR@@"
 
 	# Disable ABI flags.
 	sed -e "s/ABIFLAGS=\"\${ABIFLAGS}.*\"/:/" -i configure.ac || die "sed failed"
 
+	#sed -i -e 's/\$(GRAMMAR_H): \$(GRAMMAR_INPUT) \$(PGEN)/$(GRAMMAR_H): \$(GRAMMAR_INPUT)/' Makefile.pre.in || die
+
 	epatch_user
 
-	eautoconf
-	eautoheader
+	eautoreconf
 }
 
 src_configure() {
-	if use build; then
-		# Disable extraneous modules with extra dependencies.
-		export PYTHON_DISABLE_MODULES="gdbm _curses _curses_panel readline _sqlite3 _tkinter _elementtree pyexpat"
-		export PYTHON_DISABLE_SSL="1"
-	else
-		local disable
-		use gdbm     || disable+=" gdbm"
-		use ncurses  || disable+=" _curses _curses_panel"
-		use readline || disable+=" readline"
-		use sqlite   || disable+=" _sqlite3"
-		use ssl      || export PYTHON_DISABLE_SSL="1"
-		use tk       || disable+=" _tkinter"
-		use xml      || disable+=" _elementtree pyexpat" # _elementtree uses pyexpat.
-		export PYTHON_DISABLE_MODULES="${disable}"
+	local disable
+	use gdbm     || disable+=" gdbm"
+	use ncurses  || disable+=" _curses _curses_panel"
+	use readline || disable+=" readline"
+	use sqlite   || disable+=" _sqlite3"
+	use ssl      || export PYTHON_DISABLE_SSL="1"
+	use tk       || disable+=" _tkinter"
+	use xml      || disable+=" _elementtree pyexpat" # _elementtree uses pyexpat.
+	export PYTHON_DISABLE_MODULES="${disable}"
 
-		if ! use xml; then
-			ewarn "You have configured Python without XML support."
-			ewarn "This is NOT a recommended configuration as you"
-			ewarn "may face problems parsing any XML documents."
-		fi
+	if ! use xml; then
+		ewarn "You have configured Python without XML support."
+		ewarn "This is NOT a recommended configuration as you"
+		ewarn "may face problems parsing any XML documents."
 	fi
 
 	if [[ -n "${PYTHON_DISABLE_MODULES}" ]]; then
@@ -123,8 +120,6 @@ src_configure() {
 
 	filter-flags -malign-double
 
-	[[ "${ARCH}" == "alpha" ]] && append-flags -fPIC
-
 	# https://bugs.gentoo.org/show_bug.cgi?id=50309
 	if is-flagq -O3; then
 		is-flagq -fstack-protector-all && replace-flags -O3 -O2
@@ -133,6 +128,7 @@ src_configure() {
 
 	# Export CXX so it ends up in /usr/lib/python3.X/config/Makefile.
 	tc-export CXX
+
 	# The configure script fails to use pkg-config correctly.
 	# http://bugs.python.org/issue15506
 	export ac_cv_path_PKG_CONFIG=$(tc-getPKG_CONFIG)
@@ -151,21 +147,23 @@ src_configure() {
 	mkdir -p "${BUILD_DIR}" || die
 	cd "${BUILD_DIR}" || die
 
-	ECONF_SOURCE="${S}" OPT="" \
-	econf \
-		--with-fpectl \
-		--enable-shared \
-		$(use_enable ipv6) \
-		$(use_with threads) \
-		--infodir='${prefix}/share/info' \
-		--mandir='${prefix}/share/man' \
-		--with-computed-gotos \
-		--with-dbmliborder="${dbmliborder}" \
-		--with-libc="" \
-		--enable-loadable-sqlite-extensions \
-		--with-system-expat \
-		--with-system-ffi \
+	local myeconfargs=(
+		--with-fpectl
+		--enable-shared
+		$(use_enable ipv6)
+		$(use_with threads)
+		--infodir='${prefix}/share/info'
+		--mandir='${prefix}/share/man'
+		--with-computed-gotos
+		--with-dbmliborder="${dbmliborder}"
+		--with-libc=
+		--enable-loadable-sqlite-extensions
 		--without-ensurepip
+		--with-system-expat
+		--with-system-ffi
+	)
+
+	ECONF_SOURCE="${S}" OPT="" econf "${myeconfargs[@]}"
 
 	if use threads && grep -q "#define POSIX_SEMAPHORES_NOT_ENABLED 1" pyconfig.h; then
 		eerror "configure has detected that the sem_open function is broken."
@@ -175,11 +173,12 @@ src_configure() {
 }
 
 src_compile() {
-	# Avoid invoking pgen for cross-compiles.
-	touch Include/graminit.h Python/graminit.c || die
+	# Avoid regenerating these for cross-compiles
+	touch Include/graminit.h Python/graminit.c Python/importlib.h Python/importlib_external.h || die
 
 	cd "${BUILD_DIR}" || die
-	emake CPPFLAGS="" CFLAGS="" LDFLAGS=""
+
+	emake CPPFLAGS= CFLAGS= LDFLAGS=
 
 	# Work around bug 329499. See also bug 413751 and 457194.
 	if has_version dev-libs/libffi[pax_kernel]; then
@@ -245,13 +244,9 @@ src_install() {
 	# Fix collisions between different slots of Python.
 	rm -f "${ED}usr/$(get_libdir)/libpython3.so"
 
-	if use build; then
-		rm -fr "${ED}usr/bin/idle${SLOT}" "${libdir}/"{idlelib,sqlite3,test,tkinter}
-	else
-		use elibc_uclibc && rm -fr "${libdir}/test"
-		use sqlite || rm -fr "${libdir}/"{sqlite3,test/test_sqlite*}
-		use tk || rm -fr "${ED}usr/bin/idle${SLOT}" "${libdir}/"{idlelib,tkinter,test/test_tk*}
-	fi
+	use elibc_uclibc && rm -fr "${libdir}/test"
+	use sqlite || rm -fr "${libdir}/"{sqlite3,test/test_sqlite*}
+	use tk || rm -fr "${ED}usr/bin/idle${SLOT}" "${libdir}/"{idlelib,tkinter,test/test_tk*}
 
 	use threads || rm -fr "${libdir}/multiprocessing"
 	use wininst || rm -f "${libdir}/distutils/command/"wininst-*.exe
@@ -276,15 +271,18 @@ src_install() {
 		-i "${ED}etc/conf.d/pydoc-${SLOT}" "${ED}etc/init.d/pydoc-${SLOT}" || die "sed failed"
 
 	# for python-exec
-	python_export python${SLOT} EPYTHON PYTHON PYTHON_SITEDIR
+	local vars=( EPYTHON PYTHON_SITEDIR )
 
 	# if not using a cross-compiler, use the fresh binary
 	if ! tc-is-cross-compiler; then
-		local PYTHON=./python
+		local -x PYTHON=./python
 		local -x LD_LIBRARY_PATH=${LD_LIBRARY_PATH+${LD_LIBRARY_PATH}:}.
+	else
+		vars=( PYTHON "${vars[@]}" )
 	fi
 
-	echo "EPYTHON='${EPYTHON}'" > epython.py
+	python_export "python${SLOT}" "${vars[@]}"
+	echo "EPYTHON='${EPYTHON}'" > epython.py || die
 	python_domodule epython.py
 }
 
