@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-cpp/gtest/gtest-1.6.0-r2.ebuild,v 1.5 2015/04/08 17:46:42 mgorny Exp $
+# $Id$
 
 EAPI="5"
 
@@ -10,8 +10,8 @@ PYTHON_COMPAT=( python2_7 )
 inherit eutils python-any-r1 autotools-multilib
 
 DESCRIPTION="Google C++ Testing Framework"
-HOMEPAGE="http://code.google.com/p/googletest/"
-SRC_URI="http://googletest.googlecode.com/files/${P}.zip"
+HOMEPAGE="https://github.com/google/googletest"
+SRC_URI="https://googletest.googlecode.com/files/${P}.zip"
 
 LICENSE="BSD"
 SLOT="0"
