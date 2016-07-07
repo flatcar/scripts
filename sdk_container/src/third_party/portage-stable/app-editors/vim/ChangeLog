@@ -165,3 +165,24 @@
 
   Package-Manager: portage-2.2.27
 
+*vim-7.4.1583 (17 Mar 2016)
+
+  17 Mar 2016; Tim Harder <radhermit@gentoo.org> +vim-7.4.1583.ebuild:
+  version bump to 7.4.1583
+
+  17 Mar 2016; Tim Harder <radhermit@gentoo.org> vim-7.4.1583.ebuild,
+  vim-9999.ebuild:
+  drop unnecessary test hacks
+
+  20 Apr 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Fix racket category
+
+*vim-7.4.1821 (08 May 2016)
+
+  08 May 2016; Tim Harder <radhermit@gentoo.org> +vim-7.4.1821.ebuild:
+  version bump to 7.4.1821
+
+  08 May 2016; Tim Harder <radhermit@gentoo.org> -vim-7.4.1089.ebuild,
+  -vim-7.4.1229.ebuild, -vim-7.4.1342.ebuild:
+  remove old
+
