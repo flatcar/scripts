@@ -174,3 +174,17 @@
   23 Feb 2016; Mike Frysinger <vapier@gentoo.org> bison-3.0.4-r1.ebuild:
   rework info page regen #574492
 
+  25 Jun 2016; Agostino Sarubbo <ago@gentoo.org> bison-3.0.4-r1.ebuild:
+  x86 stable wrt bug #574600
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="x86"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  06 Jul 2016; Agostino Sarubbo <ago@gentoo.org> bison-3.0.4-r1.ebuild:
+  ppc stable wrt bug #574600
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="ppc"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
