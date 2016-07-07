@@ -1,6 +1,6 @@
 DEFINED_PHASES=compile configure install postinst postrm prepare setup test unpack
 DEPEND=!libressl? ( dev-libs/openssl:0= ) libressl? ( dev-libs/libressl:= ) sys-libs/zlib pcre? ( dev-libs/libpcre ) perl? ( dev-lang/perl:=[-build(-)] ) tk? ( dev-lang/tk:0= ) curl? ( net-misc/curl webdav? ( dev-libs/expat ) ) emacs? ( virtual/emacs ) gnome-keyring? ( gnome-base/libgnome-keyring ) doc? ( app-text/asciidoc app-text/docbook2X sys-apps/texinfo app-text/xmlto ) nls? ( sys-devel/gettext ) test? ( app-crypt/gnupg ) virtual/pkgconfig
-DESCRIPTION=GIT - the stupid content tracker, the revision control system heavily used by the Linux kernel team
+DESCRIPTION=stupid content tracker: distributed VCS designed for speed and efficiency
 EAPI=6
 HOMEPAGE=http://www.git-scm.com/
 IUSE=+blksha1 +curl cgi doc emacs gnome-keyring +gpg gtk highlight +iconv libressl mediawiki mediawiki-experimental +nls +pcre +perl +python ppcsha1 tk +threads +webdav xinetd cvs subversion test linguas_bg linguas_ca linguas_de linguas_fr linguas_is linguas_it linguas_ko linguas_pt_PT linguas_ru linguas_sv linguas_vi linguas_zh_CN python_targets_python2_7
@@ -11,4 +11,4 @@ REQUIRED_USE=cgi? ( perl ) cvs? ( perl ) mediawiki? ( perl ) mediawiki-experimen
 SLOT=0
 SRC_URI=https://git-core.googlecode.com/files/git-2.7.4.tar.xz mirror://kernel/software/scm/git/git-2.7.4.tar.xz https://git-core.googlecode.com/files/git-manpages-2.7.4.tar.xz mirror://kernel/software/scm/git/git-manpages-2.7.4.tar.xz doc? ( mirror://kernel/software/scm/git/git-htmldocs-2.7.4.tar.xz https://git-core.googlecode.com/files/git-htmldocs-2.7.4.tar.xz )
 _eclasses_=bash-completion-r1	acf715fa09463f043fbfdc1640f3fb85	elisp-common	9f56c4e9bf1282dbfc2a5a09e1124e74	eutils	9d81603248f2ba3ec59124320d123e5e	l10n	714aaf78929eade946da5eaff7d2001a	multilib	3972ca401cf7dbb430df9995f5d8d580	multiprocessing	e32940a7b2a9992ad217eccddb84d548	perl-functions	15aff0b9cba2282790142295ceb6be0c	perl-module	b2108b3c85ac7a6a6a9b035b54f6813c	python-single-r1	2ebea8fbab356d63110245129a67a6dd	python-utils-r1	2e6826f6a93ad2acf904eecf5b5fb6d2	systemd	3165c885f3c71ffae7a867d931fb0e07	toolchain-funcs	7a212e5e01adfa4805c9978366e6ee85
-_md5_=7864b9e7b1b46b0d8aeb04158f4a27b8
+_md5_=0b5f7098fe23d089f29695f5ebbcd4de
