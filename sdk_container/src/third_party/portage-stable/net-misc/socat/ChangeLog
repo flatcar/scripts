@@ -139,3 +139,24 @@
   RepoMan-Options: --include-arches="x86"
   Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
 
+  14 Feb 2016; Markus Meier <maekke@gentoo.org> socat-1.7.3.1.ebuild:
+  arm stable, bug #573602
+
+  Package-Manager: portage-2.2.27
+  RepoMan-Options: --include-arches="arm"
+
+  02 Mar 2016; Mike Frysinger <vapier@gentoo.org> socat-1.7.3.1.ebuild:
+  mark 1.7.3.1 ia64/ppc/sparc stable #573602
+
+  02 Mar 2016; Jeroen Roovers <jer@gentoo.org> -socat-1.7.3.0.ebuild:
+  Old.
+
+  Package-Manager: portage-2.2.27
+
+  05 Mar 2016; Jeroen Roovers <jer@gentoo.org>
+  +files/socat-1.7.3.1-stddef_h.patch, socat-1.7.3.1.ebuild,
+  socat-2.0.0_beta9.ebuild, socat-9999.ebuild:
+  Fix building with USE=-ssl (bug #576270 by Jan Chren (rindeal)).
+
+  Package-Manager: portage-2.2.27
+
