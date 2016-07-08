@@ -1,14 +1,14 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-cpp/gmock/gmock-1.6.0.ebuild,v 1.12 2014/08/15 17:45:56 armin76 Exp $
+# $Id$
 
 EAPI="4"
 
 inherit libtool
 
 DESCRIPTION="Google's C++ mocking framework"
-HOMEPAGE="http://code.google.com/p/googlemock/"
-SRC_URI="http://googlemock.googlecode.com/files/${P}.zip"
+HOMEPAGE="https://github.com/google/googlemock"
+SRC_URI="https://googlemock.googlecode.com/files/${P}.zip"
 
 LICENSE="BSD"
 SLOT="0"

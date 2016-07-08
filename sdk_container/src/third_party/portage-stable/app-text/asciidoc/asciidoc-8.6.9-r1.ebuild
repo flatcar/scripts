@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-text/asciidoc/asciidoc-8.6.9-r1.ebuild,v 1.11 2014/12/06 16:39:50 ago Exp $
+# $Id$
 
 EAPI=5
 
@@ -8,7 +8,7 @@ PYTHON_COMPAT=( python2_7 pypy )
 
 inherit python-single-r1
 
-DESCRIPTION="A text document format for writing short documents, articles, books and UNIX man pages"
+DESCRIPTION="AsciiDoc is a plain text human readable/writable document format"
 HOMEPAGE="http://asciidoc.org/"
 SRC_URI="mirror://sourceforge/project/${PN}/${PN}/${PV}/${P}.tar.gz"
 KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~x86-fbsd ~x86-freebsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x86-macos ~x86-solaris"

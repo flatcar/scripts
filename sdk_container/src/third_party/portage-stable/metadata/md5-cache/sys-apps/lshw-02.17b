@@ -11,4 +11,4 @@ REQUIRED_USE=static? ( !gtk )
 SLOT=0
 SRC_URI=http://ezix.org/software/files/lshw-B.02.17.tar.gz
 _eclasses_=eutils	9d81603248f2ba3ec59124320d123e5e	flag-o-matic	d270fa247153df66074f795fa42dba3e	multilib	3972ca401cf7dbb430df9995f5d8d580	toolchain-funcs	7a212e5e01adfa4805c9978366e6ee85
-_md5_=a94eab5dafd5e840f837a349cf5e8fa8
+_md5_=f490d181c15f63b71237c7b410c057db

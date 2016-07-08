@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-crypt/pinentry/pinentry-0.9.0-r3.ebuild,v 1.3 2015/04/30 19:51:33 alonbl Exp $
+# $Id$
 
 EAPI=5
 
@@ -19,9 +19,9 @@ RDEPEND="
 	app-eselect/eselect-pinentry
 	caps? ( sys-libs/libcap )
 	gtk? ( x11-libs/gtk+:2 )
-	ncurses? ( sys-libs/ncurses )
+	ncurses? ( sys-libs/ncurses:0= )
 	qt4? ( >=dev-qt/qtgui-4.4.1:4 )
-	static? ( >=sys-libs/ncurses-5.7-r5[static-libs,-gpm] )
+	static? ( >=sys-libs/ncurses-5.7-r5:0=[static-libs,-gpm] )
 "
 DEPEND="${RDEPEND}
 	sys-devel/gettext

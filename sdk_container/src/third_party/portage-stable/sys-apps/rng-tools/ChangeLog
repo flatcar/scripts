@@ -1,274 +1,223 @@
 # ChangeLog for sys-apps/rng-tools
-# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/rng-tools/ChangeLog,v 1.61 2015/07/23 19:59:40 pacho Exp $
+# Copyright 1999-2016 Gentoo Foundation; Distributed under the GPL v2
+# (auto-generated from git log)
 
-  23 Jul 2015; Pacho Ramos <pacho@gentoo.org> rng-tools-5.ebuild:
-  ppc stable wrt bug #555100
+*rng-tools-5 (09 Aug 2015)
+*rng-tools-4-r7 (09 Aug 2015)
 
-  17 Jul 2015; NP-Hardass <NP-Hardass@gentoo.org> -files/larger-poolsize.patch,
-  -rng-tools-5-r1.ebuild:
-  Revert -r1 due to change in bug #517942. Additionally, included patch has bugs
-  in it and will need to be reworked if it is to be readded later.
+  09 Aug 2015; Robin H. Johnson <robbat2@gentoo.org>
+  +files/fix-textrels-on-PIC-x86.patch,
+  +files/rng-tools-5-fix-textrels-on-PIC-x86.patch, +files/rngd-confd-4.1,
+  +files/rngd-initd-4.1, +files/rngd-initd-r1-4.1, +files/rngd.service,
+  +files/test-for-argp.patch, +metadata.xml, +rng-tools-4-r7.ebuild,
+  +rng-tools-5.ebuild:
+  proj/gentoo: Initial commit
+
+  This commit represents a new era for Gentoo:
+  Storing the gentoo-x86 tree in Git, as converted from CVS.
+
+  This commit is the start of the NEW history.
+  Any historical data is intended to be grafted onto this point.
+
+  Creation process:
+  1. Take final CVS checkout snapshot
+  2. Remove ALL ChangeLog* files
+  3. Transform all Manifests to thin
+  4. Remove empty Manifests
+  5. Convert all stale $Header$/$Id$ CVS keywords to non-expanded Git $Id$
+  5.1. Do not touch files with -kb/-ko keyword flags.
 
-  17 Jul 2015; Ian Delaney <idella4@gentoo.org> +files/larger-poolsize.patch,
-  rng-tools-5-r1.ebuild, rng-tools-5.ebuild:
-  patch to fix Bug 517942, sourced from Debian, attached to bug #517942 by
-  cilly, also prompted by proxy maintainer
+  Signed-off-by: Robin H. Johnson <robbat2@gentoo.org>
+  X-Thanks: Alec Warner <antarus@gentoo.org> - did the GSoC 2006 migration
+  tests
+  X-Thanks: Robin H. Johnson <robbat2@gentoo.org> - infra guy, herding this
+  project
+  X-Thanks: Nguyen Thai Ngoc Duy <pclouds@gentoo.org> - Former Gentoo
+  developer, wrote Git features for the migration
+  X-Thanks: Brian Harring <ferringb@gentoo.org> - wrote much python to improve
+  cvs2svn
+  X-Thanks: Rich Freeman <rich0@gentoo.org> - validation scripts
+  X-Thanks: Patrick Lauer <patrick@gentoo.org> - Gentoo dev, running new 2014
+  work in migration
+  X-Thanks: Michał Górny <mgorny@gentoo.org> - scripts, QA, nagging
+  X-Thanks: All of other Gentoo developers - many ideas and lots of paint on
+  the bikeshed
 
-*rng-tools-5-r1 (17 Jul 2015)
+  10 Aug 2015; Mikle Kolyada <zlogene@gentoo.org> rng-tools-5.ebuild:
+  add ~arm keyword wrt bug #542360
 
-  17 Jul 2015; Ian Delaney <idella4@gentoo.org> +files/rngd-initd-r1-4.1,
-  +rng-tools-5-r1.ebuild, metadata.xml:
-  rebump; fix to init script, patch by new proxy maintainer via Bug #481254,
-  metadata.xml updated accordingly
+  Package-Manager: portage-2.2.20
 
-*rng-tools-5 (18 Nov 2014)
+*rng-tools-5-r1 (14 Aug 2015)
 
-  18 Nov 2014; Manuel Rüger <mrueg@gentoo.org>
-  +files/rng-tools-5-fix-textrels-on-PIC-x86.patch, +rng-tools-5.ebuild,
-  -files/2/rngd, -files/2/rngd-conf, -files/rngd-confd-3, -files/rngd-confd-4,
-  -files/rngd-initd-3, -files/rngd-initd-4, -rng-tools-2-r1.ebuild,
-  -rng-tools-3-r1.ebuild, -rng-tools-3.ebuild, -rng-tools-4-r1.ebuild,
-  -rng-tools-4-r5.ebuild, -rng-tools-4-r6.ebuild:
-  Version bump. Thanks to klondike for updating the textrel patch. Fixes bug
-  #518210. Cleanup old.
+  14 Aug 2015; Mike Frysinger <vapier@gentoo.org>
+  +files/rng-tools-5-man-fill-watermark.patch,
+  +files/rng-tools-5-man-rng-device.patch, +rng-tools-5-r1.ebuild:
+  improve the man pages #555094 #555106
 
-  11 Nov 2014; Agostino Sarubbo <ago@gentoo.org> rng-tools-4-r7.ebuild:
-  Stable for ia64, wrt bug #516838
+  24 Aug 2015; Justin Lecher <jlec@gentoo.org> metadata.xml:
+  Use https by default
 
-  03 Nov 2014; Agostino Sarubbo <ago@gentoo.org> rng-tools-4-r7.ebuild:
-  Stable for x86, wrt bug #516838
+  Convert all URLs for sites supporting encrypted connections from http to
+  https
 
-  02 Nov 2014; Sven Vermeulen <swift@gentoo.org> rng-tools-4-r7.ebuild:
-  Remove sec-policy/selinux-* dependency from DEPEND but keep in RDEPEND (bug
-  #527698)
+  Signed-off-by: Justin Lecher <jlec@gentoo.org>
 
-  02 Nov 2014; Agostino Sarubbo <ago@gentoo.org> rng-tools-4-r7.ebuild:
-  Stable for alpha, wrt bug #516838
+  24 Aug 2015; Mike Gilbert <floppym@gentoo.org> metadata.xml:
+  Revert DOCTYPE SYSTEM https changes in metadata.xml
 
-  01 Nov 2014; Agostino Sarubbo <ago@gentoo.org> rng-tools-4-r7.ebuild:
-  Stable for ppc, wrt bug #516838
+  repoman does not yet accept the https version.
+  This partially reverts eaaface92ee81f30a6ac66fe7acbcc42c00dc450.
 
-  30 Oct 2014; Agostino Sarubbo <ago@gentoo.org> rng-tools-4-r7.ebuild:
-  Stable for amd64, wrt bug #516838
+  Bug: https://bugs.gentoo.org/552720
 
-  10 Aug 2014; Sergei Trofimovich <slyfox@gentoo.org> rng-tools-2-r1.ebuild,
-  rng-tools-3-r1.ebuild, rng-tools-3.ebuild:
-  QA: drop trailing '.' from DESCRIPTION
+  24 Sep 2015; Agostino Sarubbo <ago@gentoo.org> rng-tools-5.ebuild:
+  amd64 stable wrt bug #555100
 
-*rng-tools-4-r7 (24 May 2014)
+  Package-Manager: portage-2.2.20.1
+  RepoMan-Options: --include-arches="amd64"
 
-  24 May 2014; Pacho Ramos <pacho@gentoo.org> +files/rngd.service,
-  +rng-tools-4-r7.ebuild:
-  Add unit file (#510826 by Salah Coronya)
+  25 Sep 2015; Agostino Sarubbo <ago@gentoo.org> rng-tools-5.ebuild:
+  x86 stable wrt bug #555100
 
-  16 Dec 2013; Sven Vermeulen <swift@gentoo.org> rng-tools-4-r5.ebuild,
-  rng-tools-4-r6.ebuild:
-  Adding dependency to selinux-rngd
+  Package-Manager: portage-2.2.20.1
+  RepoMan-Options: --include-arches="x86"
 
-  22 May 2013; Mike Frysinger <vapier@gentoo.org> files/rngd-initd-3,
-  files/rngd-initd-4, files/rngd-initd-4.1:
-  Change the after clause from "random" (which does not seem to have ever
-  existed) to "urandom" (which has been around since very old baselayout-1 days)
-  #470014 by Roman Žilka.
+  01 Oct 2015; Gokturk Yuksek <gokturk@binghamton.edu>
+  files/rngd-initd-r1-4.1:
+  remove unused lines from the init script.
 
-*rng-tools-4-r6 (15 May 2013)
+  rngd-initd-r1-4.1 has been created as a result of the patch
+  proposed for bug 481254. However, one chunk has been missed
+  and did not make it to the commit.
 
-  15 May 2013; Anthony G. Basile <blueness@gentoo.org>
-  +files/fix-textrels-on-PIC-x86.patch, +rng-tools-4-r6.ebuild:
-  Fix assemby textrels on rdrand_asm.S on PIC x86, bug #469962
+  The variable DEFAULT_DEVICE isn't used by the init script.
+  Remove the related lines from the script.
 
-  14 May 2013; Agostino Sarubbo <ago@gentoo.org> rng-tools-4-r5.ebuild:
-  Stable for x86, wrt bug #458826
+  Package-Manager: portage-2.2.20.1
 
-  07 May 2013; Agostino Sarubbo <ago@gentoo.org> rng-tools-4-r5.ebuild:
-  Stable for ia64, wrt bug #458826
+*rng-tools-5-r2 (01 Oct 2015)
 
-  05 May 2013; Agostino Sarubbo <ago@gentoo.org> rng-tools-4-r5.ebuild:
-  Stable for alpha, wrt bug #458826
+  01 Oct 2015; Gokturk Yuksek <gokturk@binghamton.edu> +rng-tools-5-r2.ebuild:
+  do not specify rng device in init script #481254
 
-  03 May 2013; Agostino Sarubbo <ago@gentoo.org> rng-tools-4-r5.ebuild:
-  Stable for ppc, wrt bug #458826
+  Linux hw_random driver provides a unified interface for multiple RNGs
+  and the RNG source is exposed through /dev/hwrng device node. There is
+  no need for the init script to look for other device nodes under
+  /dev. By default, rngd uses /dev/hwrng as the entropy source,
+  therefore it's not required to specify it on the command line
+  explicitly.
 
-  02 May 2013; Agostino Sarubbo <ago@gentoo.org> rng-tools-4-r5.ebuild:
-  Stable for amd64, wrt bug #458826
+  The creation of /dev/hwrng requires CONFIG_DEVTMPFS support in the
+  kernel. Due to the way hw_random module is written, some device
+  managers may fail to create /dev/hwrng successfuly. Mdev, for example,
+  incorrectly creates /dev/hw_random instead of /dev/hwrng, mistaking
+  module's own name for the device node's name (see related bug
+  561102). However, per gentoo wiki [1], CONFIG_DEVTMPFS is part of the
+  mdev setup and these systems will have two device nodes
+  (/dev/hw_random and /dev/hwrng) that point to the same device. Even in
+  such setups, rngd will successfuly find /dev/hwrng.
 
-  24 Dec 2012; Diego E. Pettenò <flameeyes@gentoo.org> files/rngd-initd-4.1:
-  Fix typo. Thanks to Chris Mayo for reporting.
+  [1] https://wiki.gentoo.org/index.php?title=Mdev&oldid=246636
 
-  17 Dec 2012; Diego E. Pettenò <flameeyes@gentoo.org> files/rngd-confd-4.1,
-  files/rngd-initd-4.1:
-  Remove direct uses of /dev/urandom — if the user wants to, they can do it
-  explicitly; also update the upper limit for the watermark in the comment so
-  that users know to check the poolsize (hardened can be much bigger than 4k).
-  No revision bump since it's non-default behaviour anyway.
+  Gentoo-Bug: https://bugs.gentoo.org/481254
 
-*rng-tools-4-r5 (17 Dec 2012)
+  Package-Manager: portage-2.2.20.1
 
-  17 Dec 2012; Diego E. Pettenò <flameeyes@gentoo.org> +rng-tools-4-r5.ebuild,
-  -rng-tools-4-r4.ebuild, files/rngd-initd-4.1:
-  Handle NO_TPM the way NO_DRNG is handled, as otherwise it can fail the same
-  way.
+  01 Oct 2015; Gokturk Yuksek <gokturk@binghamton.edu> rng-tools-5-r2.ebuild:
+  handle if redirecting output to a file fails in ebuild
 
-*rng-tools-4-r4 (16 Dec 2012)
+  Use '|| die' to handle if redirecting output to a file fails.
 
-  16 Dec 2012; Diego E. Pettenò <flameeyes@gentoo.org> +rng-tools-4-r4.ebuild,
-  -rng-tools-4-r3.ebuild, files/rngd-initd-4.1:
-  Fix init script also when using an actual RNG device. Closes bug #447464 by
-  Toralf Förster.
+  Package-Manager: portage-2.2.20.1
 
-  16 Dec 2012; Pacho Ramos <pacho@gentoo.org> metadata.xml:
-  Cleanup due retirement, #95685
+  01 Oct 2015; Gokturk Yuksek <gokturk@binghamton.edu>
+  +files/rng-tools-5-fix-noctty.patch, rng-tools-5-r2.ebuild:
+  open entropy src with O_NOCTTY flag #556456
 
-*rng-tools-4-r3 (16 Dec 2012)
+  This revision patches the source file 'rngd_entsource.c', adding 'O_NOCTTY'
+  flag to the open() call that opens the entropy source for rngd.
 
-  16 Dec 2012; Diego E. Pettenò <flameeyes@gentoo.org> +rng-tools-4-r3.ebuild,
-  -rng-tools-4-r2.ebuild, files/rngd-confd-4.1, files/rngd-initd-4.1:
-  More fixes to the init script if there is no device at all. Also fix handling
-  of rdrand, as --no-drng=0 misbehaves.
+  Gentoo-Bug: https://bugs.gentoo.org/556456
 
-*rng-tools-4-r2 (16 Dec 2012)
+  Package-Manager: portage-2.2.20.1
 
-  16 Dec 2012; Diego E. Pettenò <flameeyes@gentoo.org> +files/rngd-confd-4.1,
-  +files/rngd-initd-4.1, +rng-tools-4-r2.ebuild:
-  Update init script so that OpenRC can check on the daemon, also fix stop with
-  rdrand-capable CPUs (bug #442238), and disallow /dev/urandom mixin by default
-  (bug #292239). The init script no longer tries to second-guess the
-  configuration parameters, leaving the erroring out for missing sources to rngd
-  itself, as it was broken and would have caused more trouble when rdrand is
-  present.
+  19 Oct 2015; Agostino Sarubbo <ago@gentoo.org> rng-tools-5-r2.ebuild:
+  amd64 stable wrt bug #562520
 
-*rng-tools-4-r1 (11 Nov 2012)
+  Package-Manager: portage-2.2.20.1
+  RepoMan-Options: --include-arches="amd64"
 
-  11 Nov 2012; Mike Frysinger <vapier@gentoo.org> +files/rngd-confd-4,
-  +files/rngd-initd-4, +rng-tools-4-r1.ebuild, -rng-tools-4.ebuild:
-  Update init.d script to match latest version #442036 by Manuel Rüger.
+  25 Oct 2015; Mikle Kolyada <zlogene@gentoo.org> rng-tools-5-r2.ebuild:
+  x86 stable wrt bug #562520
 
-*rng-tools-4 (06 Nov 2012)
+  Package-Manager: portage-2.2.20.1
 
-  06 Nov 2012; Mike Frysinger <vapier@gentoo.org> +rng-tools-4.ebuild:
-  Version bump #438648 by Manuel Rüger.
+  30 Oct 2015; Agostino Sarubbo <ago@gentoo.org> rng-tools-5-r2.ebuild:
+  ppc stable wrt bug #562520
 
-*rng-tools-3-r1 (19 Jul 2012)
+  Package-Manager: portage-2.2.20.1
+  RepoMan-Options: --include-arches="ppc"
 
-  19 Jul 2012; Anthony G. Basile <blueness@gentoo.org> +rng-tools-3-r1.ebuild,
-  +files/test-for-argp.patch:
-  Patch configure.ac to search for arpg in glibc or libargp, bug #292191
+  03 Nov 2015; Markus Meier <maekke@gentoo.org> rng-tools-5-r2.ebuild:
+  arm stable, bug #562520
 
-*rng-tools-3 (08 Nov 2010)
+  Package-Manager: portage-2.2.23
+  RepoMan-Options: --include-arches="arm"
 
-  08 Nov 2010; Krzysztof Pawlik <nelchael@gentoo.org>
-  -rng-tools-2-r2.ebuild, -rng-tools-2-r3.ebuild, +files/rngd-confd-3,
-  -files/2-r2/rngd, +files/rngd-initd-3, +rng-tools-3.ebuild,
-  -files/2-r2/rngd-conf, -files/rngd_tpm_support.patch,
-  -files/rngd_tpm_support2.patch:
-  Version bump, remove old versions. rng-tools-3 contains support for TPM
-  devices.
+  07 Nov 2015; Mikle Kolyada <zlogene@gentoo.org> rng-tools-5-r2.ebuild:
+  ia64 stable wrt bug #562520
 
-  15 Sep 2010; Robin H. Johnson <robbat2@gentoo.org> files/2-r2/rngd,
-  files/2-r2/rngd-conf:
-  Bug #292239: Make remix of /dev/urandom optional.
+  Package-Manager: portage-2.2.20.1
 
-*rng-tools-2-r3 (15 Sep 2010)
+  23 Nov 2015; Agostino Sarubbo <ago@gentoo.org> rng-tools-5-r2.ebuild:
+  alpha stable wrt bug #562520
 
-  15 Sep 2010; Robin H. Johnson <robbat2@gentoo.org>
-  +files/rngd_tpm_support2.patch, +rng-tools-2-r3.ebuild:
-  New spin of the TPM patch that does not fail when TPM hardware is not
-  present.
+  Package-Manager: portage-2.2.20.1
+  RepoMan-Options: --include-arches="alpha"
 
-*rng-tools-2-r2 (10 Nov 2009)
-  
-  10 Nov 2009; Robin H. Johnson <robbat2@gentoo.org> +rng-tools-2-r2.ebuild,
-  +files/2-r2/rngd, +files/2-r2/rngd-conf:
-  Add support to use TPM devices as RNG sources per Matt Domsch:
-  http://domsch.com/blog/?p=107. Also clean up the init script.
+  24 Nov 2015; Mike Frysinger <vapier@gentoo.org> metadata.xml:
+  standardize various metadata.xml style
 
-  04 Sep 2009; William Hubbs <williamh@gentoo.org> -rng-tools-2.ebuild:
-  removed old version
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Unify quoting in metadata.xml files for machine processing
 
-*rng-tools-2-r1 (03 Sep 2009)
+  Force unified quoting in all metadata.xml files since lxml does not
+  preserve original use of single and double quotes. Ensuring unified
+  quoting before the process allows distinguishing the GLEP 67-related
+  metadata.xml changes from unrelated quoting changes.
 
-  03 Sep 2009; William Hubbs <williamh@gentoo.org> +rng-tools-2-r1.ebuild:
-  rev bump per robbat2 so that all users will pick up the patch.
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Replace all herds with appropriate projects (GLEP 67)
 
-  15 Jul 2009; Krzysiek Pawlik <nelchael@gentoo.org> files/2/rngd:
-  Check /dev/hwrng, see bug #276973.
+  Replace all uses of herd with appropriate project maintainers, or no
+  maintainers in case of herds requested to be disbanded.
 
-  21 Mar 2009; Krzysiek Pawlik <nelchael@gentoo.org> rng-tools-2.ebuild:
-  Fix QA warnings.
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Set appropriate maintainer types in metadata.xml (GLEP 67)
 
-  16 Jun 2008; Krzysiek Pawlik <nelchael@gentoo.org> rng-tools-2.ebuild:
-  Fix autotools handling, bug #226619.
+  23 Apr 2016; Patrice Clement <monsieurp@gentoo.org> metadata.xml:
+  reorder maintainers, remove <description>, fix <name>
 
-  27 Oct 2007; Krzysiek Pawlik <nelchael@gentoo.org> rng-tools-2.ebuild:
-  Fix variable quoting.
+  Package-Manager: portage-2.2.26
+  Closes: https://github.com/gentoo/gentoo/pull/1316
 
-  21 Apr 2007; Krzysiek Pawlik <nelchael@gentoo.org> rng-tools-2.ebuild:
-  Use newinitd, newconfd and doenvd, see bug #174266.
+  Signed-off-by: Patrice Clement <monsieurp@gentoo.org>
 
-  03 Sep 2006; Krzysiek Pawlik <nelchael@gentoo.org> -files/rngd,
-  -rng-tools-1.1.ebuild:
-  Remove old version.
+  23 Apr 2016; Patrice Clement <monsieurp@gentoo.org> metadata.xml:
+  Fixes maintainer's name.
 
-  03 Sep 2006; Bryan Østergaard <kloeri@gentoo.org> rng-tools-2.ebuild:
-  Stable on Alpha, bug 139162.
+  18 May 2016; Austin English <wizardedit@gentoo.org> files/rngd-initd-4.1,
+  files/rngd-initd-r1-4.1:
+  use #!/sbin/openrc-run instead of #!/sbin/runscript
 
-  20 Aug 2006; Simon Stelling <blubb@gentoo.org> rng-tools-2.ebuild:
-  stable on amd64
+  22 May 2016; Göktürk Yüksek <gokturk@gentoo.org> metadata.xml:
+  update maintainer email and remove proxy-maint
 
-  13 Jul 2006; Aron Griffis <agriffis@gentoo.org> rng-tools-2.ebuild:
-  Mark 2 stable on ia64. #139162
+  Package-Manager: portage-2.2.28
 
-  08 Jul 2006; Lars Weiler <pylon@gentoo.org> rng-tools-2.ebuild:
-  Stable on ppc; bug #139162.
+  29 May 2016; Pacho Ramos <pacho@gentoo.org> metadata.xml:
+  Cleanup due to #390951
 
-  04 Jul 2006; Krzysiek Pawlik <nelchael@gentoo.org> rng-tools-2.ebuild:
-  Stable on x86.
+  Package-Manager: portage-2.3.0_rc1
 
-*rng-tools-2 (20 Mar 2006)
-
-  20 Mar 2006; Krzysiek Pawlik <nelchael@gentoo.org> +files/2/rngd-conf,
-  +files/2/rngd, metadata.xml, -rng-tools-1.0.ebuild, +rng-tools-2.ebuild:
-  Added myself as maintainer, version bump and better init.d/conf.d scripts
-  (see bug #126852).
-
-  08 Feb 2006; Aron Griffis <agriffis@gentoo.org> rng-tools-1.1.ebuild:
-  Mark 1.1 stable on alpha
-
-  07 Feb 2006; Aron Griffis <agriffis@gentoo.org> rng-tools-1.1.ebuild:
-  Mark 1.1 stable on ia64
-
-  01 Oct 2005; Bryan Østergaard <kloeri@gentoo.org> rng-tools-1.1.ebuild:
-  Add ~alpha + ~ia64 keywords.
-
-  12 Aug 2005; Robin H. Johnson <robbat2@gentoo.org> rng-tools-1.1.ebuild:
-  1.1 stable on x86.
-
-  03 Sep 2004; Pieter Van den Abeele <pvdabeel@gentoo.org>
-  rng-tools-1.1.ebuild:
-  Masked rng-tools-1.1.ebuild stable for ppc
-
-  01 Jul 2004; Jeremy Huddleston <eradicator@gentoo.org> rng-tools-1.0.ebuild,
-  rng-tools-1.1.ebuild:
-  virtual/glibc -> virtual/libc
-
-  09 Apr 2004; David Holm <dholm@gentoo.org> rng-tools-1.1.ebuild:
-  Added to ~ppc.
-
-*rng-tools-1.1 (07 Apr 2004)
-
-  07 Apr 2004; Robin H. Johnson <robbat2@gentoo.org> rng-tools-1.1.ebuild,
-  files/rngd:
-  bump version, add in change from bug #47107 to use urandom as a feedback input.
-
-  07 Apr 2004; Travis Tilley <lv@gentoo.org> rng-tools-1.0.ebuild:
-  added ~amd64 keyword
-
-*rng-tools-1.0 (05 Oct 2003)
-
-  05 Oct 2003; Hanno Boeck <hanno@gentoo.org> rng-tools-1.0.ebuild,
-  files/rngd:
-  Fix for latest 2.6 kernels. Mark as x86 stable.
-
-  20 Aug 2003; Hanno Boeck <hanno@gentoo.org> files/rngd:
-  New package for using random number generators.

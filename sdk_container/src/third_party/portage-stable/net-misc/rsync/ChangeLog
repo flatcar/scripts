@@ -159,3 +159,6 @@
   Package-Manager: portage-2.2.27
   Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
 
+  18 May 2016; Austin English <wizardedit@gentoo.org> files/rsyncd.init.d-r1:
+  use #!/sbin/openrc-run instead of #!/sbin/runscript
+

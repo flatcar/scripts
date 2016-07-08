@@ -1,269 +1,126 @@
 # ChangeLog for sys-block/thin-provisioning-tools
-# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-block/thin-provisioning-tools/ChangeLog,v 1.57 2015/04/18 12:48:36 pacho Exp $
+# Copyright 1999-2016 Gentoo Foundation; Distributed under the GPL v2
+# (auto-generated from git log)
 
-  18 Apr 2015; Pacho Ramos <pacho@gentoo.org>
-  thin-provisioning-tools-0.3.2-r1.ebuild:
-  ppc64 stable wrt bug #493892
+*thin-provisioning-tools-0.5.3 (09 Aug 2015)
+*thin-provisioning-tools-0.4.1 (09 Aug 2015)
+*thin-provisioning-tools-0.4.0 (09 Aug 2015)
+*thin-provisioning-tools-0.3.2-r1 (09 Aug 2015)
+*thin-provisioning-tools-0.2.8-r1 (09 Aug 2015)
 
-  02 Mar 2015; Agostino Sarubbo <ago@gentoo.org>
-  thin-provisioning-tools-0.3.2-r1.ebuild:
-  Stable for ppc, wrt bug #493892
+  09 Aug 2015; Robin H. Johnson <robbat2@gentoo.org> +files/thin-provisioning-
+  tools-0.3.2-Remove-ambiguity-between-boost-uint64_t-and-uint64_t.patch,
+  +metadata.xml, +thin-provisioning-tools-0.2.8-r1.ebuild,
+  +thin-provisioning-tools-0.3.2-r1.ebuild,
+  +thin-provisioning-tools-0.4.0.ebuild,
+  +thin-provisioning-tools-0.4.1.ebuild,
+  +thin-provisioning-tools-0.5.3.ebuild:
+  proj/gentoo: Initial commit
 
-  09 Jan 2015; Tobias Klausmann <klausman@gentoo.org>
-  thin-provisioning-tools-0.3.2-r1.ebuild:
-  Stable on alpha, bug 493892
+  This commit represents a new era for Gentoo:
+  Storing the gentoo-x86 tree in Git, as converted from CVS.
 
-  21 Sep 2014; Markus Meier <maekke@gentoo.org>
-  thin-provisioning-tools-0.3.2-r1.ebuild:
-  arm stable, bug #493892
+  This commit is the start of the NEW history.
+  Any historical data is intended to be grafted onto this point.
 
-*thin-provisioning-tools-0.4.1 (13 Sep 2014)
+  Creation process:
+  1. Take final CVS checkout snapshot
+  2. Remove ALL ChangeLog* files
+  3. Transform all Manifests to thin
+  4. Remove empty Manifests
+  5. Convert all stale $Header$/$Id$ CVS keywords to non-expanded Git $Id$
+  5.1. Do not touch files with -kb/-ko keyword flags.
 
-  13 Sep 2014; Samuli Suominen <ssuominen@gentoo.org>
-  +thin-provisioning-tools-0.4.1.ebuild:
-  Version bump.
+  Signed-off-by: Robin H. Johnson <robbat2@gentoo.org>
+  X-Thanks: Alec Warner <antarus@gentoo.org> - did the GSoC 2006 migration
+  tests
+  X-Thanks: Robin H. Johnson <robbat2@gentoo.org> - infra guy, herding this
+  project
+  X-Thanks: Nguyen Thai Ngoc Duy <pclouds@gentoo.org> - Former Gentoo
+  developer, wrote Git features for the migration
+  X-Thanks: Brian Harring <ferringb@gentoo.org> - wrote much python to improve
+  cvs2svn
+  X-Thanks: Rich Freeman <rich0@gentoo.org> - validation scripts
+  X-Thanks: Patrick Lauer <patrick@gentoo.org> - Gentoo dev, running new 2014
+  work in migration
+  X-Thanks: Michał Górny <mgorny@gentoo.org> - scripts, QA, nagging
+  X-Thanks: All of other Gentoo developers - many ideas and lots of paint on
+  the bikeshed
 
-*thin-provisioning-tools-0.4.0 (04 Sep 2014)
-
-  04 Sep 2014; Samuli Suominen <ssuominen@gentoo.org>
-  +thin-provisioning-tools-0.4.0.ebuild:
-  Version bump.
-
-  24 Aug 2014; Jeroen Roovers <jer@gentoo.org>
-  thin-provisioning-tools-0.3.2-r1.ebuild:
-  Stable for HPPA (bug #493892).
-
-  22 Aug 2014; Samuli Suominen <ssuominen@gentoo.org>
-  -thin-provisioning-tools-0.2.8-r2.ebuild,
-  -thin-provisioning-tools-0.3.2.ebuild:
-  old
-
-  22 Aug 2014; Samuli Suominen <ssuominen@gentoo.org>
-  thin-provisioning-tools-0.3.2-r1.ebuild:
-  amd64/x86 stable wrt #493892
-
-  10 Aug 2014; Sergei Trofimovich <slyfox@gentoo.org>
+  24 Aug 2015; Justin Lecher <jlec@gentoo.org>
   thin-provisioning-tools-0.2.8-r1.ebuild,
-  thin-provisioning-tools-0.2.8-r2.ebuild,
-  thin-provisioning-tools-0.3.2-r1.ebuild, thin-provisioning-tools-0.3.2.ebuild:
-  QA: drop trailing '.' from DESCRIPTION
+  thin-provisioning-tools-0.3.2-r1.ebuild,
+  thin-provisioning-tools-0.4.0.ebuild, thin-provisioning-tools-0.4.1.ebuild,
+  thin-provisioning-tools-0.5.3.ebuild:
+  Use https by default
 
-*thin-provisioning-tools-0.3.2-r1 (01 Aug 2014)
+  Signed-off-by: Justin Lecher <jlec@gentoo.org>
 
-  01 Aug 2014; Samuli Suominen <ssuominen@gentoo.org> +files/thin-provisioning-t
-  ools-0.3.2-Remove-ambiguity-between-boost-uint64_t-and-uint64_t.patch,
-  +thin-provisioning-tools-0.3.2-r1.ebuild:
-  Fix portability with, for example, sys-libs/uclibc using upstream patch
-  http://github.com/jthornber/thin-provisioning-
-  tools/commit/e77e8715b0a91a60cf2c4b85933b1063385da122
+  24 Aug 2015; Justin Lecher <jlec@gentoo.org> metadata.xml:
+  Use https by default
 
-  31 Jul 2014; Samuli Suominen <ssuominen@gentoo.org>
-  -files/thin-provisioning-tools-0.1.5-LDFLAGS.patch,
-  -thin-provisioning-tools-0.1.5-r1.ebuild,
-  -thin-provisioning-tools-0.2.8.ebuild:
-  old
+  Convert all URLs for sites supporting encrypted connections from http to
+  https
 
-  31 Jul 2014; Samuli Suominen <ssuominen@gentoo.org>
-  thin-provisioning-tools-0.2.8-r1.ebuild:
-  ppc/ppc64/sparc stable wrt #493400
+  Signed-off-by: Justin Lecher <jlec@gentoo.org>
 
-  23 Jul 2014; Tobias Klausmann <klausman@gentoo.org>
-  thin-provisioning-tools-0.2.8-r1.ebuild:
-  Stable on alpha, bug #493400
+  24 Aug 2015; Mike Gilbert <floppym@gentoo.org> metadata.xml:
+  Revert DOCTYPE SYSTEM https changes in metadata.xml
 
-*thin-provisioning-tools-0.3.2 (12 May 2014)
+  repoman does not yet accept the https version.
+  This partially reverts eaaface92ee81f30a6ac66fe7acbcc42c00dc450.
 
-  12 May 2014; Samuli Suominen <ssuominen@gentoo.org>
-  +thin-provisioning-tools-0.3.2.ebuild:
-  Version bump; remove use of obsolete base.eclass in favour of calling
-  epatch_user directly.
+  Bug: https://bugs.gentoo.org/552720
 
-  10 Mar 2014; Johannes Huber <johu@gentoo.org>
-  thin-provisioning-tools-0.2.8-r1.ebuild:
-  x86 stable, bug #493400
+  22 Sep 2015; Jeroen Roovers <jer@gentoo.org>
+  thin-provisioning-tools-0.4.1.ebuild:
+  Stable for PPC64 (bug #555116).
 
-  14 Feb 2014; Akinori Hattori <hattya@gentoo.org>
-  thin-provisioning-tools-0.2.8-r1.ebuild:
-  ia64 stable wrt bug #493400
+  Package-Manager: portage-2.2.20.1
+  RepoMan-Options: --ignore-arches
 
-  02 Feb 2014; Agostino Sarubbo <ago@gentoo.org>
-  thin-provisioning-tools-0.2.8.ebuild:
-  Stable for alpha, wrt bug #486278
+  24 Nov 2015; Mike Frysinger <vapier@gentoo.org> metadata.xml:
+  standardize various metadata.xml style
 
-  19 Jan 2014; Pacho Ramos <pacho@gentoo.org>
-  thin-provisioning-tools-0.2.8-r1.ebuild:
-  amd64 stable, bug #493400
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Unify quoting in metadata.xml files for machine processing
 
-  19 Jan 2014; Agostino Sarubbo <ago@gentoo.org>
-  thin-provisioning-tools-0.2.8.ebuild:
-  Stable for ppc64, wrt bug #486278
+  Force unified quoting in all metadata.xml files since lxml does not
+  preserve original use of single and double quotes. Ensuring unified
+  quoting before the process allows distinguishing the GLEP 67-related
+  metadata.xml changes from unrelated quoting changes.
 
-  19 Jan 2014; Agostino Sarubbo <ago@gentoo.org>
-  thin-provisioning-tools-0.2.8.ebuild:
-  Stable for ppc, wrt bug #486278
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Replace all herds with appropriate projects (GLEP 67)
 
-  19 Jan 2014; Agostino Sarubbo <ago@gentoo.org>
-  thin-provisioning-tools-0.2.8.ebuild:
-  Stable for sparc, wrt bug #486278
+  Replace all uses of herd with appropriate project maintainers, or no
+  maintainers in case of herds requested to be disbanded.
 
-  14 Jan 2014; Pacho Ramos <pacho@gentoo.org>
-  thin-provisioning-tools-0.2.8.ebuild:
-  ia64 stable, bug #486278 (thanks to Emeric Maschino for testing)
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Set appropriate maintainer types in metadata.xml (GLEP 67)
 
-*thin-provisioning-tools-0.2.8-r2 (28 Dec 2013)
+  09 May 2016; Mike Frysinger <vapier@gentoo.org>
+  thin-provisioning-tools-0.4.1.ebuild:
+  mark 0.4.1 hppa stable #555116
 
-  28 Dec 2013; Robin H. Johnson <robbat2@gentoo.org>
-  +thin-provisioning-tools-0.2.8-r2.ebuild:
-  Bug #491364: Fix complie with newer boost.
+  09 May 2016; Mike Frysinger <vapier@gentoo.org> -files/thin-provisioning-too
+  ls-0.3.2-Remove-ambiguity-between-boost-uint64_t-and-uint64_t.patch,
+  -thin-provisioning-tools-0.2.8-r1.ebuild,
+  -thin-provisioning-tools-0.3.2-r1.ebuild,
+  -thin-provisioning-tools-0.4.0.ebuild:
+  drop old <0.4.1 versions
 
-  26 Dec 2013; Markus Meier <maekke@gentoo.org>
-  thin-provisioning-tools-0.2.8-r1.ebuild:
-  arm stable, bug #493400
+  09 May 2016; Mike Frysinger <vapier@gentoo.org>
+  thin-provisioning-tools-0.4.1.ebuild, thin-provisioning-tools-0.5.3.ebuild:
+  enable verbose build #560882
 
-  22 Dec 2013; Jeroen Roovers <jer@gentoo.org>
-  thin-provisioning-tools-0.2.8-r1.ebuild:
-  Stable for HPPA (bug #493400).
+  09 May 2016; Mike Frysinger <vapier@gentoo.org>
+  thin-provisioning-tools-0.4.1.ebuild, thin-provisioning-tools-0.5.3.ebuild:
+  fix test builds #493440
 
-  07 Dec 2013; Pacho Ramos <pacho@gentoo.org>
-  thin-provisioning-tools-0.2.8.ebuild:
-  x86 stable, bug #486278
+*thin-provisioning-tools-0.6.1 (09 May 2016)
 
-  27 Nov 2013; Markus Meier <maekke@gentoo.org>
-  thin-provisioning-tools-0.2.8.ebuild:
-  arm stable, bug #486278
+  09 May 2016; Mike Frysinger <vapier@gentoo.org>
+  +thin-provisioning-tools-0.6.1.ebuild:
+  version bump to #581082
 
-  19 Nov 2013; Patrick Lauer <patrick@gentoo.org>
-  thin-provisioning-tools-0.2.8-r1.ebuild:
-  Whitespace
-
-*thin-provisioning-tools-0.2.8-r1 (15 Nov 2013)
-
-  15 Nov 2013; Robin H. Johnson <robbat2@gentoo.org>
-  +thin-provisioning-tools-0.2.8-r1.ebuild:
-  Put ruby behind a USE=test dep and add the other testing dependencies as well.
-
-  13 Nov 2013; Chema Alonso <nimiux@gentoo.org>
-  thin-provisioning-tools-0.2.8.ebuild:
-  Stable for amd64 wrt bug #486278
-
-  25 Oct 2013; Jeroen Roovers <jer@gentoo.org>
-  thin-provisioning-tools-0.2.8.ebuild:
-  Stable for HPPA (bug #486278).
-
-  20 Oct 2013; Samuli Suominen <ssuominen@gentoo.org>
-  thin-provisioning-tools-0.2.8.ebuild:
-  Remove now unnecessary GCC 4.7.x check because upstream stopped using
-  --std=c++11 wrt http://github.com/jthornber/thin-provisioning-
-  tools/commit/0029962f200ca4f256de114779bb5fad96836d89
-
-  20 Oct 2013; Samuli Suominen <ssuominen@gentoo.org>
-  -files/thin-provisioning-tools-0.2.1-LDFLAGS.patch,
-  -files/thin-provisioning-tools-0.2.7-LDFLAGS.patch,
-  -thin-provisioning-tools-0.2.1.ebuild, -thin-provisioning-tools-0.2.7.ebuild:
-  old
-
-*thin-provisioning-tools-0.2.8 (20 Oct 2013)
-
-  20 Oct 2013; Samuli Suominen <ssuominen@gentoo.org>
-  +thin-provisioning-tools-0.2.8.ebuild:
-  Version bump. Use || ( ) workaround in ruby slotting for Portage unefficiency
-  wrt #477050 by Michael Palimaka.
-
-*thin-provisioning-tools-0.2.7 (07 Oct 2013)
-
-  07 Oct 2013; Samuli Suominen <ssuominen@gentoo.org>
-  +files/thin-provisioning-tools-0.2.7-LDFLAGS.patch,
-  +thin-provisioning-tools-0.2.7.ebuild:
-  Version bump wrt #486144 by Manuel Rüger
-
-  16 Aug 2013; Patrick Lauer <patrick@gentoo.org>
-  thin-provisioning-tools-0.2.1.ebuild:
-  Add gcc version check #476910
-
-  14 Aug 2013; Patrick Lauer <patrick@gentoo.org>
-  thin-provisioning-tools-0.2.1.ebuild:
-  Whitespace
-
-*thin-provisioning-tools-0.2.1 (14 Jul 2013)
-
-  14 Jul 2013; Robin H. Johnson <robbat2@gentoo.org>
-  +files/thin-provisioning-tools-0.2.1-LDFLAGS.patch,
-  +thin-provisioning-tools-0.2.1.ebuild:
-  Bump.
-
-  24 Feb 2013; Agostino Sarubbo <ago@gentoo.org>
-  thin-provisioning-tools-0.1.5-r1.ebuild:
-  Stable for sh, wrt bug #443692
-
-  20 Feb 2013; Agostino Sarubbo <ago@gentoo.org>
-  thin-provisioning-tools-0.1.5-r1.ebuild:
-  Stable for s390, wrt bug #443692
-
-  08 Feb 2013; Jeroen Roovers <jer@gentoo.org>
-  thin-provisioning-tools-0.1.5-r1.ebuild:
-  Stable for HPPA (bug #443692).
-
-  06 Feb 2013; Tomáš Chvátal <scarabeus@gentoo.org>
-  -thin-provisioning-tools-0.1.5.ebuild,
-  thin-provisioning-tools-0.1.5-r1.ebuild:
-  Punt overshadowed testing version while newer is stable. Use
-  thirdpartymirrors.
-
-  30 Dec 2012; Agostino Sarubbo <ago@gentoo.org>
-  thin-provisioning-tools-0.1.5-r1.ebuild:
-  Stable for alpha, wrt bug #443692
-
-  29 Dec 2012; Agostino Sarubbo <ago@gentoo.org>
-  thin-provisioning-tools-0.1.5-r1.ebuild:
-  Stable for sparc, wrt bug #443692
-
-  17 Dec 2012; Agostino Sarubbo <ago@gentoo.org>
-  thin-provisioning-tools-0.1.5-r1.ebuild:
-  Stable for ia64, wrt bug #443692
-
-  09 Dec 2012; Agostino Sarubbo <ago@gentoo.org>
-  thin-provisioning-tools-0.1.5-r1.ebuild:
-  Stable for ppc64, wrt bug #443784
-
-  04 Dec 2012; <ago@gentoo.org> thin-provisioning-tools-0.1.5-r1.ebuild:
-  Stable for x86, wrt bug #443692
-
-  02 Dec 2012; Markus Meier <maekke@gentoo.org>
-  thin-provisioning-tools-0.1.5-r1.ebuild:
-  arm stable, bug #443692
-
-  28 Nov 2012; Brent Baude <ranger@gentoo.org>
-  thin-provisioning-tools-0.1.5-r1.ebuild:
-  Marking thin-provisioning-tools-0.1.5-r1 ppc for bug 443692
-
-  18 Nov 2012; Agostino Sarubbo <ago@gentoo.org>
-  thin-provisioning-tools-0.1.5-r1.ebuild:
-  Stable for amd64, wrt bug #443692
-
-  05 Jun 2012; Jeroen Roovers <jer@gentoo.org>
-  thin-provisioning-tools-0.1.5-r1.ebuild,
-  -filesthin-provisioning-tools-0.1.5-LDFLAGS.patch,
-  +files/thin-provisioning-tools-0.1.5-LDFLAGS.patch:
-  Fix FILESDIR problems by Arfrever on IRC.
-
-*thin-provisioning-tools-0.1.5-r1 (05 Jun 2012)
-
-  05 Jun 2012; Justin Lecher <jlec@gentoo.org>
-  +thin-provisioning-tools-0.1.5-r1.ebuild:
-  Bump to reach all users
-
-  05 Jun 2012; Justin Lecher <jlec@gentoo.org>
-  thin-provisioning-tools-0.1.5.ebuild,
-  +filesthin-provisioning-tools-0.1.5-LDFLAGS.patch:
-  Respect CXX/LDFLAGS, #417969
-
-  27 May 2012; Robin H. Johnson <robbat2@gentoo.org>
-  thin-provisioning-tools-0.1.5.ebuild:
-  Bug #417735: Missing boost dependency not declared in upstream README.
-
-*thin-provisioning-tools-0.1.5 (27 May 2012)
-
-  27 May 2012; Robin H. Johnson <robbat2@gentoo.org>
-  +thin-provisioning-tools-0.1.5.ebuild, +metadata.xml:
-  Initial commit, new dependency for LVM2.

@@ -697,3 +697,88 @@
   Package-Manager: portage-2.2.28
   Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
 
+  03 May 2016; Lars Wendler <polynomial-c@gentoo.org>
+  files/git-daemon-r1.initd:
+  Fixed openrc init script shebang.
+
+  Package-Manager: portage-2.2.28
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
+  08 May 2016; Mike Gilbert <floppym@gentoo.org> files/git-daemon_at.service:
+  for systemd, don't source /etc/conf.d/git-daemon
+
+  Package-Manager: portage-2.2.28_p97
+
+  08 May 2016; Mike Gilbert <floppym@gentoo.org> files/git-daemon_at.service:
+  Revert "dev-vcs/git: for systemd, don't source /etc/conf.d/git-daemon"
+
+  This reverts commit 843954e66426a8e87c42a2c3d3d99ca6fa7d4744.
+
+*git-2.8.2-r1 (08 May 2016)
+
+  08 May 2016; Mike Gilbert <floppym@gentoo.org>
+  +files/git-daemon_at-r1.service, +git-2.8.2-r1.ebuild, git-9999.ebuild,
+  git-9999-r1.ebuild, git-9999-r2.ebuild, git-9999-r3.ebuild:
+  reapply systemd unit changes in ~arch only
+
+  Package-Manager: portage-2.2.28_p97
+
+  08 May 2016; Mike Gilbert <floppym@gentoo.org> git-2.4.11.ebuild,
+  git-2.5.5.ebuild, git-2.6.6.ebuild, git-2.7.3-r1.ebuild, git-2.7.4.ebuild,
+  git-2.8.1.ebuild, git-2.8.2.ebuild, git-2.8.2-r1.ebuild, git-9999.ebuild,
+  git-9999-r1.ebuild, git-9999-r2.ebuild, git-9999-r3.ebuild:
+  shorten DESCRIPTION
+
+  Package-Manager: portage-2.2.28_p97
+
+*git-2.8.3 (20 May 2016)
+
+  20 May 2016; Lars Wendler <polynomial-c@gentoo.org> +git-2.8.3.ebuild:
+  Bump to version 2.8.3
+
+  Package-Manager: portage-2.2.28
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
+  20 May 2016; Lars Wendler <polynomial-c@gentoo.org> -git-2.8.1.ebuild,
+  -git-2.8.2.ebuild:
+  Removed old.
+
+  Package-Manager: portage-2.2.28
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
+*git-2.8.4 (07 Jun 2016)
+
+  07 Jun 2016; Lars Wendler <polynomial-c@gentoo.org>
+  +files/git-2.8.4-optional-cvs.patch, +git-2.8.4.ebuild:
+  Bump to version 2.8.4
+
+  Package-Manager: portage-2.2.28
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
+  07 Jun 2016; Lars Wendler <polynomial-c@gentoo.org> -git-2.8.2-r1.ebuild:
+  Removed old.
+
+  Package-Manager: portage-2.2.28
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
+  07 Jun 2016; Lars Wendler <polynomial-c@gentoo.org> git-9999.ebuild,
+  git-9999-r1.ebuild, git-9999-r2.ebuild, git-9999-r3.ebuild:
+  Adjusted optional-cvs patch in live ebuilds.
+
+  Package-Manager: portage-2.2.28
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
+*git-2.9.0 (14 Jun 2016)
+
+  14 Jun 2016; Lars Wendler <polynomial-c@gentoo.org> +git-2.9.0.ebuild:
+  Bump to version 2.9.0
+
+  Package-Manager: portage-2.2.28
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
+  14 Jun 2016; Lars Wendler <polynomial-c@gentoo.org> -git-2.8.3.ebuild:
+  Removed old.
+
+  Package-Manager: portage-2.2.28
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
