@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -29,8 +29,7 @@ RDEPEND="bzip2? ( app-arch/bzip2 )
 	libedit? ( dev-libs/libedit )
 	readline? ( sys-libs/readline:0= )"
 DEPEND="${RDEPEND}
-	virtual/pkgconfig
-	userland_GNU? ( >=sys-apps/findutils-4.4.0 )"
+	virtual/pkgconfig"
 RDEPEND="${RDEPEND}
 	abi_x86_32? (
 		!<=app-emulation/emul-linux-x86-baselibs-20131008-r2
@@ -43,9 +42,11 @@ MULTILIB_CHOST_TOOLS=(
 	/usr/bin/pcre-config
 )
 
+#PATCHES=(
+#)
+
 src_prepare() {
-	epatch "${FILESDIR}"/${P}-CVE-2015-3210.patch #551240
-	epatch "${FILESDIR}"/${P}-CVE-2015-5073.patch #553300
+	#epatch "${PATCHES[@]}"
 	sed -i -e "s:-lpcre ::" libpcrecpp.pc.in || die
 	elibtoolize
 }
@@ -78,7 +79,7 @@ multilib_src_install() {
 		DESTDIR="${D}" \
 		$(multilib_is_native_abi || echo "bin_PROGRAMS= dist_html_DATA=") \
 		install
-	multilib_is_native_abi && gen_usr_ldscript -a pcre
+	gen_usr_ldscript -a pcre
 }
 
 multilib_src_install_all() {
