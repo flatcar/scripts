@@ -1,13 +1,13 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-kernel/dracut/dracut-041-r2.ebuild,v 1.2 2015/03/31 10:54:29 aidecoe Exp $
+# $Id$
 
 EAPI=4
 
 inherit bash-completion-r1 eutils linux-info multilib systemd
 
 DESCRIPTION="Generic initramfs generation tool"
-HOMEPAGE="http://dracut.wiki.kernel.org"
+HOMEPAGE="https://dracut.wiki.kernel.org"
 SRC_URI="mirror://kernel/linux/utils/boot/${PN}/${P}.tar.xz"
 LICENSE="GPL-2"
 SLOT="0"
@@ -49,9 +49,10 @@ DOCS=( AUTHORS HACKING NEWS README README.generic README.kernel README.modules
 	README.testsuite TODO )
 MY_LIBDIR=/usr/lib
 PATCHES=(
-	"${FILESDIR}/${PVR}-0001-Use-the-same-paths-in-dracut.sh-as-tho.patch"
-	"${FILESDIR}/${PVR}-0002-Install-dracut-install-and-skipcpio-in.patch"
-	"${FILESDIR}/${PVR}-0003-Take-into-account-lib64-dirs-when-dete.patch"
+	"${FILESDIR}/${PV}-0001-Revert-lvm-Don-t-activate-LVs-with-act.patch"
+	"${FILESDIR}/${PV}-0002-Replace-echo-n-with-printf-in-code-wit.patch"
+	"${FILESDIR}/${PV}-0003-syncheck-Look-for-echo-n-usage-in-modu.patch"
+	"${FILESDIR}/${PV}-0004-dracut-initramfs-restore-make-mount-er.patch"
 	)
 QA_MULTILIB_PATHS="
 	usr/lib/dracut/dracut-install
@@ -77,24 +78,6 @@ rm_module() {
 		fi
 	done
 }
-
-# Grabbed from net-misc/netctl ebuild.
-optfeature() {
-	local desc=$1
-	shift
-	while (( $# )); do
-		if has_version "$1"; then
-			elog "  [I] $1 to ${desc}"
-		else
-			elog "  [ ] $1 to ${desc}"
-		fi
-		shift
-	done
-}
-
-#
-# ebuild functions
-#
 
 src_prepare() {
 	epatch "${PATCHES[@]}"
@@ -192,9 +175,9 @@ src_install() {
 		# With systemd following modules do not make sense
 		rm_module 96securityfs 97masterkey 98integrity
 	else
-		rm_module 98systemd
+		rm_module 00systemd 98dracut-systemd
 		# Without systemd following modules do not make sense
-		rm_module 00systemd-bootchart
+		rm_module 00systemd-bootchart 01systemd-initrd 02systemd-networkd
 	fi
 
 	# Remove modules which won't work for sure
@@ -204,7 +187,7 @@ src_install() {
 }
 
 pkg_postinst() {
-	if linux-info_get_any_version && linux_config_src_exists; then
+	if linux-info_get_any_version && linux_config_exists; then
 		ewarn ""
 		ewarn "If the following test report contains a missing kernel"
 		ewarn "configuration option, you should reconfigure and rebuild your"

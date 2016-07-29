@@ -1,13 +1,13 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-kernel/dracut/dracut-041.ebuild,v 1.2 2015/03/31 10:54:29 aidecoe Exp $
+# $Id$
 
-EAPI=4
+EAPI=5
 
 inherit bash-completion-r1 eutils linux-info multilib systemd
 
 DESCRIPTION="Generic initramfs generation tool"
-HOMEPAGE="http://dracut.wiki.kernel.org"
+HOMEPAGE="https://dracut.wiki.kernel.org"
 SRC_URI="mirror://kernel/linux/utils/boot/${PN}/${P}.tar.xz"
 LICENSE="GPL-2"
 SLOT="0"
@@ -23,7 +23,11 @@ RDEPEND="${CDEPEND}
 	app-arch/cpio
 	>=app-shells/bash-4.0
 	>sys-apps/kmod-5[tools]
-	|| ( >=sys-apps/sysvinit-2.87-r3 sys-apps/systemd[sysv-utils] sys-apps/systemd-sysv-utils )
+	|| (
+		>=sys-apps/sysvinit-2.87-r3
+		sys-apps/systemd[sysv-utils]
+		sys-apps/systemd-sysv-utils
+	)
 	>=sys-apps/util-linux-2.21
 
 	debug? ( dev-util/strace )
@@ -44,13 +48,6 @@ DEPEND="${CDEPEND}
 DOCS=( AUTHORS HACKING NEWS README README.generic README.kernel README.modules
 	README.testsuite TODO )
 MY_LIBDIR=/usr/lib
-PATCHES=(
-	"${FILESDIR}/${PV}-0001-dracut-functions.sh-support-for-altern.patch"
-	"${FILESDIR}/${PV}-0002-gentoo.conf-let-udevdir-be-handled-by-.patch"
-	"${FILESDIR}/${PV}-0003-Use-the-same-paths-in-dracut.sh-as-tho.patch"
-	"${FILESDIR}/${PV}-0004-Install-dracut-install-into-libexec-di.patch"
-	"${FILESDIR}/${PV}-0005-Take-into-account-lib64-dirs-when-dete.patch"
-	)
 QA_MULTILIB_PATHS="
 	usr/lib/dracut/dracut-install
 	usr/lib/dracut/skipcpio
@@ -76,27 +73,7 @@ rm_module() {
 	done
 }
 
-# Grabbed from net-misc/netctl ebuild.
-optfeature() {
-	local desc=$1
-	shift
-	while (( $# )); do
-		if has_version "$1"; then
-			elog "  [I] $1 to ${desc}"
-		else
-			elog "  [ ] $1 to ${desc}"
-		fi
-		shift
-	done
-}
-
-#
-# ebuild functions
-#
-
 src_prepare() {
-	epatch "${PATCHES[@]}"
-
 	local libdirs="/$(get_libdir) /usr/$(get_libdir)"
 	if [[ ${SYMLINK_LIB} = yes ]]; then
 		# Preserve lib -> lib64 symlinks in initramfs
@@ -172,6 +149,11 @@ src_install() {
 
 	dohtml dracut.html
 
+	if ! use systemd; then
+		# Scripts in kernel/install.d are systemd-specific
+		rm -r "${D%/}/${my_libdir}/kernel" || die
+	fi
+
 	#
 	# Modules
 	#
@@ -185,9 +167,9 @@ src_install() {
 		# With systemd following modules do not make sense
 		rm_module 96securityfs 97masterkey 98integrity
 	else
-		rm_module 98systemd
+		rm_module 00systemd 98dracut-systemd
 		# Without systemd following modules do not make sense
-		rm_module 00systemd-bootchart
+		rm_module 00systemd-bootchart 01systemd-initrd 02systemd-networkd
 	fi
 
 	# Remove modules which won't work for sure
@@ -197,7 +179,7 @@ src_install() {
 }
 
 pkg_postinst() {
-	if linux-info_get_any_version && linux_config_src_exists; then
+	if linux-info_get_any_version && linux_config_exists; then
 		ewarn ""
 		ewarn "If the following test report contains a missing kernel"
 		ewarn "configuration option, you should reconfigure and rebuild your"
