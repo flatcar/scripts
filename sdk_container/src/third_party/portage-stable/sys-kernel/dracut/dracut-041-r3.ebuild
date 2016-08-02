@@ -23,7 +23,11 @@ RDEPEND="${CDEPEND}
 	app-arch/cpio
 	>=app-shells/bash-4.0
 	>sys-apps/kmod-5[tools]
-	|| ( >=sys-apps/sysvinit-2.87-r3 sys-apps/systemd[sysv-utils] sys-apps/systemd-sysv-utils )
+	|| (
+		>=sys-apps/sysvinit-2.87-r3
+		sys-apps/systemd[sysv-utils]
+		sys-apps/systemd-sysv-utils
+	)
 	>=sys-apps/util-linux-2.21
 
 	debug? ( dev-util/strace )
@@ -45,12 +49,11 @@ DOCS=( AUTHORS HACKING NEWS README README.generic README.kernel README.modules
 	README.testsuite TODO )
 MY_LIBDIR=/usr/lib
 PATCHES=(
-	"${FILESDIR}/${PV}-0001-dracut-functions.sh-support-for-altern.patch"
-	"${FILESDIR}/${PV}-0002-gentoo.conf-let-udevdir-be-handled-by-.patch"
-	"${FILESDIR}/${PV}-0003-Use-the-same-paths-in-dracut.sh-as-tho.patch"
-	"${FILESDIR}/${PV}-0005-NEWS-add-040-entry.patch"
-	"${FILESDIR}/${PV}-0006-Don-t-pass-rsyncable-option-to-gzip-Ge.patch"
-	"${FILESDIR}/${PV}-0007-Take-into-account-lib64-dirs-when-dete.patch"
+	"${FILESDIR}/${PV}-0001-Use-the-same-paths-in-dracut.sh-as-tho.patch"
+	"${FILESDIR}/${PV}-0002-Install-dracut-install-and-skipcpio-in.patch"
+	"${FILESDIR}/${PV}-0003-Take-into-account-lib64-dirs-when-dete.patch"
+	"${FILESDIR}/${PV}-0004-Portability-fixes.patch"
+	"${FILESDIR}/${PV}-0005-base-dracut-lib.sh-remove-bashism.patch"
 	)
 QA_MULTILIB_PATHS="
 	usr/lib/dracut/dracut-install
@@ -154,6 +157,11 @@ src_install() {
 	dodir /var/lib/dracut/overlay
 
 	dohtml dracut.html
+
+	if ! use systemd; then
+		# Scripts in kernel/install.d are systemd-specific
+		rm -r "${D%/}/${my_libdir}/kernel" || die
+	fi
 
 	#
 	# Modules
