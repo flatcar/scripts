@@ -185,3 +185,175 @@
 
   Package-Manager: portage-2.2.26
 
+  02 Mar 2016; Zac Medico <zmedico@gentoo.org> curl-7.43.0.ebuild,
+  curl-7.45.0.ebuild, curl-7.46.0.ebuild, curl-7.46.0-r1.ebuild,
+  curl-7.47.1.ebuild:
+  use slot operator of openssl (bug #575548)
+
+  Package-Manager: portage-2.2.27
+
+  23 Mar 2016; Anthony G. Basile <blueness@gentoo.org> curl-7.45.0.ebuild,
+  curl-7.46.0.ebuild, curl-7.46.0-r1.ebuild, curl-7.47.1.ebuild:
+  fix libressl slot operator
+
+  Package-Manager: portage-2.2.26
+
+*curl-7.48.0 (23 Mar 2016)
+
+  23 Mar 2016; Anthony G. Basile <blueness@gentoo.org> +curl-7.48.0.ebuild:
+  version bump to 7.48.0
+
+  Package-Manager: portage-2.2.26
+
+  23 Mar 2016; Anthony G. Basile <blueness@gentoo.org> -curl-7.43.0.ebuild,
+  -curl-7.46.0.ebuild, -curl-7.46.0-r1.ebuild:
+  remove older versions
+
+  Package-Manager: portage-2.2.26
+
+  23 Mar 2016; Steev Klimaszewski <steev@gentoo.org> curl-7.47.1.ebuild:
+  Stable 7.47.1 for arm64 per bug #578058
+
+  Package-Manager: portage-2.2.28
+
+  24 Mar 2016; Anthony G. Basile <blueness@gentoo.org> curl-7.48.0.ebuild,
+  +files/curl-7.48.0-libressl.patch:
+  fix build for 7.48.0 for libressl, bug #578098
+
+  Package-Manager: portage-2.2.26
+
+  04 Apr 2016; Jeroen Roovers <jer@gentoo.org> curl-7.47.1.ebuild:
+  Stable for HPPA PPC64 (bug #578058).
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --ignore-arches
+
+  21 Apr 2016; Markus Meier <maekke@gentoo.org> curl-7.47.1.ebuild:
+  arm stable, bug #578058
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="arm"
+
+*curl-7.49.0 (18 May 2016)
+
+  18 May 2016; Anthony G. Basile <blueness@gentoo.org> +curl-7.49.0.ebuild:
+  bump for CVE-2016-3739, bug #583394
+
+  Package-Manager: portage-2.2.26
+
+  18 May 2016; Anthony G. Basile <blueness@gentoo.org> -curl-7.48.0.ebuild,
+  -files/curl-7.48.0-libressl.patch:
+  remove older unstable version for CVE-2016-3739
+
+  Package-Manager: portage-2.2.26
+
+  19 May 2016; Jeroen Roovers <jer@gentoo.org> curl-7.49.0.ebuild:
+  Stable for PPC64 (bug #583394).
+
+  Package-Manager: portage-2.3.0_rc1
+  RepoMan-Options: --ignore-arches
+
+  19 May 2016; Jeroen Roovers <jer@gentoo.org> curl-7.49.0.ebuild:
+  Stable for HPPA (bug #583394).
+
+  Package-Manager: portage-2.3.0_rc1
+  RepoMan-Options: --ignore-arches
+
+  21 May 2016; Tobias Klausmann <klausman@gentoo.org> curl-7.49.0.ebuild:
+  7.49.0-r0: add alpha keyword
+
+  Gentoo-Bug: 583394
+
+  Package-Manager: portage-2.3.0_rc1
+
+  24 May 2016; Markus Meier <maekke@gentoo.org> curl-7.49.0.ebuild:
+  arm stable, bug #583394
+
+  Package-Manager: portage-2.3.0_rc1
+  RepoMan-Options: --include-arches="arm"
+
+  25 May 2016; Agostino Sarubbo <ago@gentoo.org> curl-7.49.0.ebuild:
+  amd64 stable wrt bug #583394
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="amd64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  25 May 2016; Agostino Sarubbo <ago@gentoo.org> curl-7.49.0.ebuild:
+  x86 stable wrt bug #583394
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="x86"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+*curl-7.49.1 (30 May 2016)
+
+  30 May 2016; Anthony G. Basile <blueness@gentoo.org> +curl-7.49.1.ebuild:
+  version bump to 7.49.1
+
+  Package-Manager: portage-2.2.28
+
+  06 Jun 2016; Mike Frysinger <vapier@gentoo.org> curl-7.45.0.ebuild,
+  curl-7.47.1.ebuild, curl-7.49.0.ebuild, curl-7.49.1.ebuild:
+  curl: switch to https:// URI
+
+  08 Jun 2016; Mike Frysinger <vapier@gentoo.org> curl-7.45.0.ebuild:
+  mark 7.45.0 arm64/m68k/s390/sh stable #566864
+
+  08 Jun 2016; Mike Frysinger <vapier@gentoo.org> curl-7.47.1.ebuild,
+  curl-7.49.0.ebuild, curl-7.49.1.ebuild:
+  restore ia64 keywords #583394
+
+  08 Jun 2016; Mike Frysinger <vapier@gentoo.org> curl-7.49.0.ebuild,
+  curl-7.49.1.ebuild:
+  drop old libcurl.m4 install fix
+
+  Upstream merged this fix some time ago, and it's in these versions,
+  so stop installing the m4 file by hand.
+
+  08 Jun 2016; Anthony G. Basile <blueness@gentoo.org> curl-7.49.1.ebuild:
+  make static build more robust
+
+  See https://github.com/curl/curl/issues/864
+
+  Package-Manager: portage-2.2.28
+
+  08 Jun 2016; Anthony G. Basile <blueness@gentoo.org> curl-7.49.0.ebuild:
+  version 7.45.0 stable for ppc, bug #583394
+
+  Package-Manager: portage-2.2.28
+
+  08 Jul 2016; Agostino Sarubbo <ago@gentoo.org> curl-7.49.0.ebuild:
+  sparc stable wrt bug #583394
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="sparc"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  08 Jul 2016; Agostino Sarubbo <ago@gentoo.org> curl-7.49.0.ebuild:
+  ia64 stable wrt bug #583394
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="ia64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+*curl-7.50.0 (22 Jul 2016)
+
+  22 Jul 2016; Anthony G. Basile <blueness@gentoo.org> +curl-7.50.0.ebuild:
+  version bump to 7.50.0
+
+  Package-Manager: portage-2.2.28
+
+  22 Jul 2016; Anthony G. Basile <blueness@gentoo.org> -curl-7.45.0.ebuild,
+  -curl-7.47.1.ebuild:
+  clean up vulnerable versions, bug #583394
+
+  Package-Manager: portage-2.2.28
+
+*curl-7.50.1 (04 Aug 2016)
+
+  04 Aug 2016; Anthony G. Basile <blueness@gentoo.org> +curl-7.50.1.ebuild:
+  version bump to 7.50.1
+
+  Package-Manager: portage-2.2.28
+
