@@ -197,3 +197,155 @@
   RepoMan-Options: --include-arches="x86"
   Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
 
+  05 Mar 2016; Mikle Kolyada <zlogene@gentoo.org> emacs-18.59-r11.ebuild:
+  amd64 stable wrt bug #573488
+
+  Package-Manager: portage-2.2.26
+
+  05 Mar 2016; Ulrich Müller <ulm@gentoo.org> emacs-24.5-r1.ebuild:
+  Enable SSL/TLS support with ssl instead of gnutls flag.
+
+  Package-Manager: portage-2.2.27
+
+  05 Mar 2016; Mikle Kolyada <zlogene@gentoo.org> emacs-24.5-r1.ebuild:
+  amd64 stable wrt bug #576532
+
+  Package-Manager: portage-2.2.26
+
+  15 Mar 2016; Agostino Sarubbo <ago@gentoo.org> emacs-24.5-r1.ebuild:
+  x86 stable wrt bug #576532
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="x86"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  15 Mar 2016; Agostino Sarubbo <ago@gentoo.org> emacs-18.59-r11.ebuild:
+  x86 stable wrt bug #573488
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="x86"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  16 Mar 2016; Agostino Sarubbo <ago@gentoo.org> emacs-24.5-r1.ebuild:
+  ppc stable wrt bug #576532
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="ppc"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  16 Mar 2016; Agostino Sarubbo <ago@gentoo.org> emacs-23.4-r14.ebuild:
+  ppc stable wrt bug #573490
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="ppc"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  17 Mar 2016; Agostino Sarubbo <ago@gentoo.org> emacs-24.5-r1.ebuild:
+  ppc64 stable wrt bug #576532
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="ppc64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  17 Mar 2016; Agostino Sarubbo <ago@gentoo.org> emacs-23.4-r14.ebuild:
+  ppc64 stable wrt bug #573490
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="ppc64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  19 Mar 2016; Agostino Sarubbo <ago@gentoo.org> emacs-24.5-r1.ebuild:
+  sparc stable wrt bug #576532
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="sparc"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  19 Mar 2016; Agostino Sarubbo <ago@gentoo.org> emacs-23.4-r14.ebuild:
+  sparc stable wrt bug #573490
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="sparc"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  19 Mar 2016; Ulrich Müller <ulm@gentoo.org> -emacs-18.59-r10.ebuild:
+  Remove old.
+
+  Package-Manager: portage-2.2.28
+
+  20 Mar 2016; Agostino Sarubbo <ago@gentoo.org> emacs-24.5-r1.ebuild:
+  ia64 stable wrt bug #576532
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="ia64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  20 Mar 2016; Agostino Sarubbo <ago@gentoo.org> emacs-23.4-r14.ebuild:
+  ia64 stable wrt bug #573490
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="ia64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  20 Mar 2016; Ulrich Müller <ulm@gentoo.org> -emacs-23.4-r13.ebuild:
+  Remove old.
+
+  Package-Manager: portage-2.2.28
+
+  29 Mar 2016; Markus Meier <maekke@gentoo.org> emacs-24.5-r1.ebuild:
+  arm stable, bug #576532
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="arm"
+
+  26 May 2016; Tobias Klausmann <klausman@gentoo.org> emacs-24.5-r1.ebuild:
+  24.5-r1: add alpha keyword
+
+  Gentoo-Bug: 576532
+
+  Package-Manager: portage-2.3.0_rc1
+
+*emacs-24.5-r2 (14 Jul 2016)
+
+  14 Jul 2016; Ulrich Müller <ulm@gentoo.org> +emacs-24.5-r2.ebuild:
+  Fix icons in toolbar with GTK+ 3.20.6.
+
+  Bug: 588704
+
+  Package-Manager: portage-2.3.0
+
+*emacs-25.1_rc1 (24 Jul 2016)
+
+  24 Jul 2016; Ulrich Müller <ulm@gentoo.org> +emacs-25.1_rc1.ebuild,
+  metadata.xml:
+  Version bump.
+
+  First release candidate for Emacs 25.1.
+
+  Package-Manager: portage-2.3.0
+
+*emacs-24.5-r3 (24 Jul 2016)
+
+  24 Jul 2016; Ulrich Müller <ulm@gentoo.org> -emacs-24.5-r2.ebuild,
+  +emacs-24.5-r3.ebuild:
+  EAPI bump.
+
+  Package-Manager: portage-2.3.0
+
+  24 Jul 2016; Ulrich Müller <ulm@gentoo.org> emacs-25.1_rc1.ebuild:
+  Remove version test which is meaningless for slot 25.
+
+  Package-Manager: portage-2.3.0
+
+  22 Aug 2016; Ulrich Müller <ulm@gentoo.org> emacs-25.1_rc1.ebuild:
+  Add keywords to release candidate.
+
+  Package-Manager: portage-2.3.0
+
+*emacs-25.1_rc2 (22 Aug 2016)
+
+  22 Aug 2016; Ulrich Müller <ulm@gentoo.org> +emacs-25.1_rc2.ebuild:
+  Version bump.
+
+  Package-Manager: portage-2.3.0
+
