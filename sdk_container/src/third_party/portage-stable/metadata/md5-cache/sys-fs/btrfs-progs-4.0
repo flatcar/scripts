@@ -1,5 +1,5 @@
 DEFINED_PHASES=compile configure install prepare
-DEPEND=dev-libs/lzo:2= sys-libs/zlib:0= convert? ( sys-fs/e2fsprogs:0= sys-libs/e2fsprogs-libs:0= ) convert? ( sys-apps/acl ) app-text/asciidoc app-text/docbook-xml-dtd:4.5 app-text/xmlto
+DEPEND=dev-libs/lzo:2= sys-libs/zlib:0= convert? ( sys-fs/e2fsprogs:0= sys-libs/e2fsprogs-libs:0= ) convert? ( sys-apps/acl ) >=app-text/asciidoc-8.6.0 app-text/docbook-xml-dtd:4.5 app-text/xmlto
 DESCRIPTION=Btrfs filesystem utilities
 EAPI=5
 HOMEPAGE=https://btrfs.wiki.kernel.org
@@ -11,4 +11,4 @@ RESTRICT=test
 SLOT=0/0
 SRC_URI=https://www.kernel.org/pub/linux/kernel/people/kdave/btrfs-progs/btrfs-progs-v4.0.tar.xz
 _eclasses_=bash-completion-r1	acf715fa09463f043fbfdc1640f3fb85	eutils	9d81603248f2ba3ec59124320d123e5e	multilib	3972ca401cf7dbb430df9995f5d8d580	toolchain-funcs	7a212e5e01adfa4805c9978366e6ee85
-_md5_=a6c8a7b78ac2283fcb17dbad1569ab5c
+_md5_=1997396ce0cefa232e376dad0bdee270
