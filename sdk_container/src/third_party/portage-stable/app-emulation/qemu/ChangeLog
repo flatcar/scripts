@@ -638,3 +638,155 @@
   qemu-9999.ebuild:
   depend on jpeg SLOT=0 for building
 
+  07 Jun 2016; Mike Frysinger <vapier@gentoo.org>
+  +files/qemu-2.6.0-crypto-static.patch, qemu-2.6.0.ebuild, qemu-9999.ebuild:
+  fix static linking errors w/curl[ssl,curl_ssl_openssl]
+
+  21 Jun 2016; Mike Frysinger <vapier@gentoo.org> qemu-9999.ebuild:
+  drop kvm_stat to match upstream #586158
+
+  29 Jun 2016; Alexey Shvetsov <alexxy@gentoo.org> qemu-2.5.0-r2.ebuild,
+  qemu-2.5.0-r3.ebuild, qemu-2.5.1.ebuild, qemu-2.6.0.ebuild,
+  qemu-9999.ebuild:
+  adapt sys-infiniband to sys-fabric rename
+
+  Package-Manager: portage-2.3.0_rc1
+
+  01 Aug 2016; Mike Frysinger <vapier@gentoo.org> qemu-2.5.1.ebuild,
+  qemu-2.6.0.ebuild, qemu-9999.ebuild:
+  handle bzip2 dep #589968
+
+  The block layer uses it to support bzip2 compression in dmg images.
+  That code makes it into softmmu binaries and userland utils.
+
+  07 Aug 2016; Luca Barbato <lu_zero@gentoo.org>
+  +files/qemu-2.6.0-glib-size_t.patch, qemu-2.6.0.ebuild:
+  Drop a -Werror when it could cause a false positive
+
+  The check code could trigger recent compiler warnings.
+
+  Package-Manager: portage-2.2.26
+
+  15 Aug 2016; Luca Barbato <lu_zero@gentoo.org> files/qemu-binfmt.initd-r1:
+  Update ppc magic mask
+
+  Unbreak using qemu-user with current stage3.
+
+  Package-Manager: portage-2.3.0
+
+  21 Aug 2016; Luca Barbato <lu_zero@gentoo.org> qemu-9999.ebuild:
+  Update the languages list
+
+  Package-Manager: portage-2.3.0
+
+  21 Aug 2016; Luca Barbato <lu_zero@gentoo.org> qemu-9999.ebuild:
+  Drop a patch
+
+  It is already upstreamed.
+
+  Package-Manager: portage-2.3.0
+
+  05 Sep 2016; Matthias Maier <tamiko@gentoo.org> -qemu-2.5.0-r2.ebuild,
+  -qemu-2.5.0-r3.ebuild:
+  remove vulnerable 2.5.0
+
+  Package-Manager: portage-2.2.28
+
+*qemu-2.7.0 (05 Sep 2016)
+
+  05 Sep 2016; Matthias Maier <tamiko@gentoo.org> +qemu-2.7.0.ebuild:
+  version bump to 2.7.0, various security fixes
+
+  3af9187fc6caaf415ab9c0c6d92c9678f65cb17f -> CVE-2016-4001, bug #579734
+  3a15cc0e1ee7168db0782133d2607a6bfa422d66 -> CVE-2016-4002, bug #579734
+  c98c6c105f66f05aa0b7c1d2a4a3f716450907ef -> CVE-2016-4439, bug #583496
+  6c1fef6b59563cc415f21e03f81539ed4b33ad90 -> CVE-2016-4441, bug #583496
+  06630554ccbdd25780aa03c3548aaff1eb56dffd ->              , bug #583952
+  844864fbae66935951529408831c2f22367a57b6 -> CVE-2016-5337, bug #584094
+  b60bdd1f1ee1616b7a9aeeffb4088e1ce2710fb2 ->              , bug #584102
+  1b85898025c4cd95dce673d15e67e60e98e91731 ->              , bug #584146
+  521360267876d3b6518b328051a2e56bca55bef8 -> CVE-2016-4453, bug #584514
+  4e68a0ee17dad7b8d870df0081d4ab2e079016c2 -> CVE-2016-4454, bug #584514
+  a6b3167fa0e825aebb5a7cd8b437b6d41584a196 -> CVE-2016-5126, bug #584630
+  ff589551c8e8e9e95e211b9d8daafb4ed39f1aec -> CVE-2016-5338, bug #584918
+  d3cdc49138c30be1d3c2f83d18f85d9fdee95f1a -> CVE-2016-5238, bug #584918
+  1e7aed70144b4673fc26e73062064b6724795e5f ->              , bug #589924
+  afd9096eb1882f23929f5b5c177898ed231bac66 -> CVE-2016-5403, bug #589928
+  eb700029c7836798046191d62d595363d92c84d4 -> CVE-2016-6835, bug #591244
+  ead315e43ea0c2ca3491209c6c8db8ce3f2bbe05 -> CVE-2016-6834, bug #591374
+  6c352ca9b4ee3e1e286ea9e8434bd8e69ac7d0d8 -> CVE-2016-6833, bug #591380
+  47882fa4975bf0b58dd74474329fdd7154e8f04c -> CVE-2016-6888, bug #591678
+
+  805b5d98c649d26fc44d2d7755a97f18e62b438a
+  56f101ecce0eafd09e2daf1c4eeb1377d6959261
+  fff39a7ad09da07ef490de05c92c91f22f8002f2 ->              , bug #592430
+
+  Package-Manager: portage-2.2.28
+
+  05 Sep 2016; Matthias Maier <tamiko@gentoo.org>
+  +files/qemu-2.7.0-CVE-2016-6836.patch, qemu-2.7.0.ebuild:
+  apply patch for CVE-2016-6836, bug #591242
+
+  Package-Manager: portage-2.2.28
+
+  05 Sep 2016; Matthias Maier <tamiko@gentoo.org> -qemu-2.6.0.ebuild,
+  qemu-2.7.0.ebuild:
+  drop vulnerable 2.6.0
+
+  Package-Manager: portage-2.2.28
+
+  05 Sep 2016; Matthias Maier <tamiko@gentoo.org>
+  -files/qemu-2.5.0-9pfs-segfault.patch,
+  -files/qemu-2.5.0-CVE-2015-8567.patch,
+  -files/qemu-2.5.0-CVE-2015-8613.patch,
+  -files/qemu-2.5.0-CVE-2015-8619.patch,
+  -files/qemu-2.5.0-CVE-2015-8701.patch,
+  -files/qemu-2.5.0-CVE-2015-8743.patch,
+  -files/qemu-2.5.0-CVE-2016-1568.patch,
+  -files/qemu-2.5.0-CVE-2016-1714.patch,
+  -files/qemu-2.5.0-CVE-2016-1922.patch,
+  -files/qemu-2.5.0-CVE-2016-1981.patch,
+  -files/qemu-2.5.0-CVE-2016-2197.patch,
+  -files/qemu-2.5.0-CVE-2016-2392.patch,
+  -files/qemu-2.5.0-ne2000-reg-check.patch,
+  -files/qemu-2.5.0-usb-ehci-oob.patch,
+  -files/qemu-2.5.0-usb-ndis-int-overflow.patch,
+  -files/qemu-2.6.0-crypto-static.patch, -files/qemu-2.6.0-glib-size_t.patch:
+  drop obsolete patches
+
+  Package-Manager: portage-2.2.28
+
+  05 Sep 2016; Matthias Maier <tamiko@gentoo.org> qemu-2.7.0.ebuild:
+  fix installation with USE=python, bug #592908
+
+  Package-Manager: portage-2.2.28
+
+  05 Sep 2016; Agostino Sarubbo <ago@gentoo.org> qemu-2.7.0.ebuild:
+  amd64 stable wrt bug #592430
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="amd64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  05 Sep 2016; Agostino Sarubbo <ago@gentoo.org> qemu-2.7.0.ebuild:
+  x86 stable wrt bug #592430
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="x86"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  05 Sep 2016; Matthias Maier <tamiko@gentoo.org>
+  -files/qemu-2.5.0-CVE-2015-8558.patch,
+  -files/qemu-2.5.0-CVE-2016-2198.patch,
+  -files/qemu-2.5.0-rng-stack-corrupt-0.patch,
+  -files/qemu-2.5.0-rng-stack-corrupt-1.patch,
+  -files/qemu-2.5.0-rng-stack-corrupt-2.patch,
+  -files/qemu-2.5.0-rng-stack-corrupt-3.patch,
+  -files/qemu-2.5.1-CVE-2015-8558.patch,
+  -files/qemu-2.5.1-CVE-2016-4020.patch,
+  -files/qemu-2.5.1-stellaris_enet-overflow.patch,
+  -files/qemu-2.5.1-xfs-linux-headers.patch, -qemu-2.5.1.ebuild:
+  drop vulnerable 2.5.1, bug #592430, and 19 others
+
+  Package-Manager: portage-2.2.28
+
