@@ -782,3 +782,54 @@
   Package-Manager: portage-2.2.28
   Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
 
+*git-2.9.1 (12 Jul 2016)
+
+  12 Jul 2016; Lars Wendler <polynomial-c@gentoo.org> +git-2.9.1.ebuild:
+  Bump to version 2.9.1
+
+  Package-Manager: portage-2.3.0
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
+*git-2.9.2 (16 Jul 2016)
+
+  16 Jul 2016; Lars Wendler <polynomial-c@gentoo.org> +git-2.9.2.ebuild:
+  Bump to version 2.9.2
+
+  Package-Manager: portage-2.3.0
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
+  16 Jul 2016; Lars Wendler <polynomial-c@gentoo.org> -git-2.9.0.ebuild:
+  Removed old.
+
+  Package-Manager: portage-2.3.0
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
+*git-2.9.3 (13 Aug 2016)
+
+  13 Aug 2016; Lars Wendler <polynomial-c@gentoo.org> +git-2.9.3.ebuild:
+  Bump to version 2.9.3
+
+  Package-Manager: portage-2.3.0
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
+  13 Aug 2016; Lars Wendler <polynomial-c@gentoo.org> -git-2.9.1.ebuild:
+  Removed old.
+
+  Package-Manager: portage-2.3.0
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
+*git-2.10.0 (03 Sep 2016)
+
+  03 Sep 2016; Lars Wendler <polynomial-c@gentoo.org>
+  +files/git-2.10.0-optional-cvs.patch, +git-2.10.0.ebuild:
+  Bump to version 2.10.0
+
+  Package-Manager: portage-2.3.0
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
+  03 Sep 2016; Lars Wendler <polynomial-c@gentoo.org> -git-2.9.2.ebuild:
+  Removed old.
+
+  Package-Manager: portage-2.3.0
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
