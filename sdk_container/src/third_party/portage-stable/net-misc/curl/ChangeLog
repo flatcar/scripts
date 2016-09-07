@@ -357,3 +357,39 @@
 
   Package-Manager: portage-2.2.28
 
+  07 Aug 2016; Agostino Sarubbo <ago@gentoo.org> curl-7.50.1.ebuild:
+  amd64 stable wrt bug #590482
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="amd64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  08 Aug 2016; Jeroen Roovers <jer@gentoo.org> curl-7.50.1.ebuild:
+  Stable for HPPA PPC64 (bug #590482).
+
+  Package-Manager: portage-2.3.0
+  RepoMan-Options: --ignore-arches
+
+  12 Aug 2016; Markus Meier <maekke@gentoo.org> curl-7.50.1.ebuild:
+  arm stable, bug #590482
+
+  Package-Manager: portage-2.3.0
+  RepoMan-Options: --include-arches="arm"
+
+  19 Aug 2016; Pacho Ramos <pacho@gentoo.org> metadata.xml:
+  Cleanup due to bug #42273
+
+  Package-Manager: portage-2.3.0
+
+  02 Sep 2016; Tobias Klausmann <klausman@gentoo.org> curl-7.50.1.ebuild:
+  7.50.1-r0: add alpha keyword
+
+  Gentoo-Bug: 590482
+
+*curl-7.50.2 (07 Sep 2016)
+
+  07 Sep 2016; Anthony G. Basile <blueness@gentoo.org> +curl-7.50.2.ebuild:
+  version bump to 7.50.2
+
+  Package-Manager: portage-2.2.28
+
