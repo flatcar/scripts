@@ -427,3 +427,140 @@
 
   Package-Manager: portage-2.3.0_rc1
 
+  26 Jun 2016; Markus Meier <maekke@gentoo.org> libgcrypt-1.7.1.ebuild:
+  arm stable, bug #586056
+
+  Package-Manager: portage-2.3.0_rc1
+  RepoMan-Options: --include-arches="arm"
+
+*libgcrypt-1.7.2 (14 Jul 2016)
+
+  14 Jul 2016; Kristian Fiskerstrand <k_f@gentoo.org> +libgcrypt-1.7.2.ebuild:
+  New upstream version 1.7.2
+
+  Package-Manager: portage-2.3.0
+
+  14 Jul 2016; Kristian Fiskerstrand <k_f@gentoo.org>
+  -libgcrypt-1.6.3-r4.ebuild, -libgcrypt-1.6.3-r5.ebuild,
+  -libgcrypt-1.6.4.ebuild, -libgcrypt-1.7.0.ebuild:
+  Cleanup old versions
+
+  Package-Manager: portage-2.3.0
+
+  03 Aug 2016; Jeroen Roovers <jer@gentoo.org> libgcrypt-1.7.1.ebuild:
+  Stable for HPPA (bug #586056).
+
+  Package-Manager: portage-2.3.0
+  RepoMan-Options: --ignore-arches
+
+  06 Aug 2016; Kristian Fiskerstrand <k_f@gentoo.org> metadata.xml:
+  Add myself as maintainer
+
+  Add myself as maintainer to ensure being assigned/notified on bugs
+
+  Package-Manager: portage-2.3.0
+
+*libgcrypt-1.7.3 (17 Aug 2016)
+
+  17 Aug 2016; Kristian Fiskerstrand <k_f@gentoo.org> +libgcrypt-1.7.3.ebuild:
+  Critical security version bump to 1.7.3
+
+  Gentoo-Bug: 591534
+
+  Package-Manager: portage-2.3.0
+
+*libgcrypt-1.5.6-r101 (18 Aug 2016)
+
+  18 Aug 2016; Kristian Fiskerstrand <k_f@gentoo.org>
+  +libgcrypt-1.5.6-r101.ebuild:
+  Security bump of 11/11 slot to 1.5.6
+
+  Package-Manager: portage-2.3.0
+
+  18 Aug 2016; Kristian Fiskerstrand <k_f@gentoo.org>
+  -libgcrypt-1.5.4-r101.ebuild:
+  Cleanup vulnerable version in 11/11
+
+  Package-Manager: portage-2.3.0
+
+  18 Aug 2016; Kristian Fiskerstrand <k_f@gentoo.org> -libgcrypt-1.5.5.ebuild:
+  Remove vulnerable 1.5.5 in 0/11 slot
+
+  This is the final package version in 0/11 slot
+
+  Gentoo-Bug: 567382
+  Gentoo-Bug: 591534
+
+  Package-Manager: portage-2.3.0
+
+  18 Aug 2016; Agostino Sarubbo <ago@gentoo.org> libgcrypt-1.7.3.ebuild:
+  amd64 stable wrt bug #591534
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="amd64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  18 Aug 2016; Jeroen Roovers <jer@gentoo.org> libgcrypt-1.7.3.ebuild:
+  Stable for PPC64 (bug #591534).
+
+  Package-Manager: portage-2.3.0
+  RepoMan-Options: --ignore-arches
+
+  18 Aug 2016; Jeroen Roovers <jer@gentoo.org> libgcrypt-1.7.3.ebuild:
+  Stable for HPPA (bug #591534).
+
+  Package-Manager: portage-2.3.0
+  RepoMan-Options: --ignore-arches
+
+  31 Aug 2016; Tobias Klausmann <klausman@gentoo.org> libgcrypt-1.7.3.ebuild:
+  1.7.3-r0: add alpha keyword
+
+  Gentoo-Bug: 591534
+
+  01 Sep 2016; Markus Meier <maekke@gentoo.org> libgcrypt-1.7.3.ebuild:
+  arm stable, bug #591534
+
+  Package-Manager: portage-2.3.0
+  RepoMan-Options: --include-arches="arm"
+
+  09 Sep 2016; Alon Bar-Lev <alonbl@gentoo.org>
+  -files/libgcrypt-1.6.3-freebsd-mpi.patch:
+  remove unused patch
+
+  29 Sep 2016; Agostino Sarubbo <ago@gentoo.org> libgcrypt-1.7.3.ebuild:
+  x86 stable wrt bug #591534
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="x86"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  29 Sep 2016; Agostino Sarubbo <ago@gentoo.org> libgcrypt-1.7.3.ebuild:
+  sparc stable wrt bug #591534
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="sparc"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  29 Sep 2016; Agostino Sarubbo <ago@gentoo.org> libgcrypt-1.7.3.ebuild:
+  ppc stable wrt bug #591534
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="ppc"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  29 Sep 2016; Agostino Sarubbo <ago@gentoo.org> libgcrypt-1.7.3.ebuild:
+  ia64 stable wrt bug #591534
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="ia64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  03 Oct 2016; Kristian Fiskerstrand <k_f@gentoo.org> -libgcrypt-1.6.5.ebuild,
+  -libgcrypt-1.7.1.ebuild, -libgcrypt-1.7.2.ebuild:
+  Cleanup vulnerable version
+
+  Cleanup c.f
+  Gentoo-Bug: 591534
+
+  Package-Manager: portage-2.3.1
+
