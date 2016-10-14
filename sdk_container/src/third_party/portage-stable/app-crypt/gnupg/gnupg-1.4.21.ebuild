@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -26,7 +26,7 @@ COMMON_DEPEND="
 	zlib? ( sys-libs/zlib )
 	curl? ( net-misc/curl )
 	mta? ( virtual/mta )
-	readline? ( sys-libs/readline )
+	readline? ( sys-libs/readline:0= )
 	smartcard? ( =virtual/libusb-0* )
 	usb? ( =virtual/libusb-0* )"
 

@@ -1,6 +1,6 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-crypt/gnupg/gnupg-2.0.27-r1.ebuild,v 1.1 2015/04/19 21:06:27 alonbl Exp $
+# $Id$
 
 EAPI="5"
 
@@ -18,14 +18,14 @@ IUSE="bzip2 doc ldap nls mta readline static selinux smartcard tools usb"
 
 COMMON_DEPEND_LIBS="
 	>=dev-libs/libassuan-2
-	>=dev-libs/libgcrypt-1.4:0=
-	>=dev-libs/libgpg-error-1.11
+	>=dev-libs/libgcrypt-1.5:0=
+	>=dev-libs/libgpg-error-1.19
 	>=dev-libs/libksba-1.0.7
 	>=dev-libs/pth-1.3.7
 	>=net-misc/curl-7.10
 	sys-libs/zlib
 	bzip2? ( app-arch/bzip2 )
-	readline? ( sys-libs/readline )
+	readline? ( sys-libs/readline:= )
 	smartcard? ( usb? ( virtual/libusb:0 ) )
 	ldap? ( net-nds/openldap )"
 COMMON_DEPEND_BINS="app-crypt/pinentry"
@@ -83,6 +83,10 @@ src_configure() {
 		myconf+=( --enable-symcryptrun )
 	fi
 
+	# glib fails and picks up clang's internal stdint.h causing weird errors
+	[[ ${CC} == *clang ]] && \
+		export gl_cv_absolute_stdint_h=/usr/include/stdint.h
+
 	econf \
 		--docdir="${EPREFIX}/usr/share/doc/${PF}" \
 		--enable-gpg \
@@ -115,7 +119,9 @@ src_install() {
 		tools/{gpg-zip,gpgconf,gpgsplit,lspgpot,mail-signed-keys,make-dns-cert}
 
 	emake DESTDIR="${D}" -f doc/Makefile uninstall-nobase_dist_docDATA
-	rm "${ED}"/usr/share/gnupg/help* || die
+	# The help*txt files are read from the datadir by GnuPG directly.
+	# They do not work if compressed or moved!
+	#rm "${ED}"/usr/share/gnupg/help* || die
 
 	dodoc ChangeLog NEWS README THANKS TODO VERSION doc/FAQ doc/DETAILS \
 		doc/HACKING doc/TRANSLATE doc/OpenPGP doc/KEYSERVER doc/help*
