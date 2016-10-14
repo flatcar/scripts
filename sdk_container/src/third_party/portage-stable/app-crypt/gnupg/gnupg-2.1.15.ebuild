@@ -1,74 +1,58 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-crypt/gnupg/gnupg-2.0.26-r3.ebuild,v 1.12 2015/03/30 03:06:10 tgall Exp $
+# $Id$
 
 EAPI="5"
 
 inherit eutils flag-o-matic toolchain-funcs
 
-DESCRIPTION="The GNU Privacy Guard, a GPL pgp replacement"
+DESCRIPTION="The GNU Privacy Guard, a GPL OpenPGP implementation"
 HOMEPAGE="http://www.gnupg.org/"
-SRC_URI="mirror://gnupg/gnupg/${P}.tar.bz2"
-# SRC_URI="ftp://ftp.gnupg.org/gcrypt/${PN}/${P}.tar.bz2"
+MY_P="${P/_/-}"
+SRC_URI="mirror://gnupg/gnupg/${MY_P}.tar.bz2"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="bzip2 doc ldap nls mta readline static selinux smartcard tools usb"
+KEYWORDS="alpha amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86"
+IUSE="bzip2 doc +gnutls ldap nls readline selinux smartcard tofu tools usb"
 
 COMMON_DEPEND_LIBS="
-	>=dev-libs/libassuan-2
-	>=dev-libs/libgcrypt-1.4:0=
-	>=dev-libs/libgpg-error-1.11
-	>=dev-libs/libksba-1.0.7
-	>=dev-libs/pth-1.3.7
+	>=dev-libs/npth-1.2
+	>=dev-libs/libassuan-2.4.3
+	>=dev-libs/libgcrypt-1.7.3
+	>=dev-libs/libgpg-error-1.24
+	>=dev-libs/libksba-1.3.4
 	>=net-misc/curl-7.10
+	gnutls? ( >=net-libs/gnutls-3.0:0= )
 	sys-libs/zlib
+	ldap? ( net-nds/openldap )
 	bzip2? ( app-arch/bzip2 )
-	readline? ( sys-libs/readline )
+	readline? ( sys-libs/readline:0= )
 	smartcard? ( usb? ( virtual/libusb:0 ) )
-	ldap? ( net-nds/openldap )"
-COMMON_DEPEND_BINS="app-crypt/pinentry"
+	tofu? ( >=dev-db/sqlite-3.7 )
+	"
+COMMON_DEPEND_BINS="app-crypt/pinentry
+		   !app-crypt/dirmngr"
 
 # Existence of executables is checked during configuration.
 DEPEND="${COMMON_DEPEND_LIBS}
 	${COMMON_DEPEND_BINS}
-	static? (
-		>=dev-libs/libassuan-2[static-libs]
-		>=dev-libs/libgcrypt-1.4:0=[static-libs]
-		>=dev-libs/libgpg-error-1.11[static-libs]
-		>=dev-libs/libksba-1.0.7[static-libs]
-		>=dev-libs/pth-1.3.7[static-libs]
-		>=net-misc/curl-7.10[static-libs]
-		sys-libs/zlib[static-libs]
-		bzip2? ( app-arch/bzip2[static-libs] )
-	)
 	nls? ( sys-devel/gettext )
 	doc? ( sys-apps/texinfo )"
 
-RDEPEND="!static? ( ${COMMON_DEPEND_LIBS} )
+RDEPEND="${COMMON_DEPEND_LIBS}
 	${COMMON_DEPEND_BINS}
-	mta? ( virtual/mta )
-	!<=app-crypt/gnupg-2.0.1
 	selinux? ( sec-policy/selinux-gpg )
 	nls? ( virtual/libintl )"
 
-REQUIRED_USE="smartcard? ( !static )"
+S="${WORKDIR}/${MY_P}"
 
 src_prepare() {
-	epatch "${FILESDIR}/${PN}-2.0.17-gpgsm-gencert.patch"
-	epatch "${FILESDIR}/${P}-Need-to-init-the-trustdb-for-import.patch"
-	epatch "${FILESDIR}/${P}-misc-cve.patch"
 	epatch_user
 }
 
 src_configure() {
 	local myconf=()
-
-	# 'USE=static' support was requested:
-	# gnupg1: bug #29299
-	# gnupg2: bug #159623
-	use static && append-ldflags -static
 
 	if use smartcard; then
 		myconf+=(
@@ -85,18 +69,24 @@ src_configure() {
 		myconf+=( --enable-symcryptrun )
 	fi
 
+	# glib fails and picks up clang's internal stdint.h causing weird errors
+	[[ ${CC} == *clang ]] && \
+		export gl_cv_absolute_stdint_h=/usr/include/stdint.h
+
 	econf \
 		--docdir="${EPREFIX}/usr/share/doc/${PF}" \
 		--enable-gpg \
 		--enable-gpgsm \
-		--enable-agent \
+		--enable-large-secmem \
 		--without-adns \
 		"${myconf[@]}" \
 		$(use_enable bzip2) \
+		$(use_enable gnutls) \
+		$(use_with ldap) \
 		$(use_enable nls) \
-		$(use_enable mta mailto) \
-		$(use_enable ldap) \
 		$(use_with readline) \
+		$(use_enable tofu) \
+		$(use_enable tools wks-tools) \
 		CC_FOR_BUILD="$(tc-getBUILD_CC)"
 }
 
@@ -116,19 +106,15 @@ src_install() {
 		tools/{gpg-zip,gpgconf,gpgsplit,lspgpot,mail-signed-keys,make-dns-cert}
 
 	emake DESTDIR="${D}" -f doc/Makefile uninstall-nobase_dist_docDATA
-	rm "${ED}"/usr/share/gnupg/help* || die
+	# The help*txt files are read from the datadir by GnuPG directly.
+	# They do not work if compressed or moved!
+	#rm "${ED}"/usr/share/gnupg/help* || die
 
 	dodoc ChangeLog NEWS README THANKS TODO VERSION doc/FAQ doc/DETAILS \
 		doc/HACKING doc/TRANSLATE doc/OpenPGP doc/KEYSERVER doc/help*
 
 	dosym gpg2 /usr/bin/gpg
 	dosym gpgv2 /usr/bin/gpgv
-	dosym gpg2keys_hkp /usr/libexec/gpgkeys_hkp
-	dosym gpg2keys_finger /usr/libexec/gpgkeys_finger
-	dosym gpg2keys_curl /usr/libexec/gpgkeys_curl
-	if use ldap; then
-		dosym gpg2keys_ldap /usr/libexec/gpgkeys_ldap
-	fi
 	echo ".so man1/gpg2.1" > "${ED}"/usr/share/man/man1/gpg.1
 	echo ".so man1/gpgv2.1" > "${ED}"/usr/share/man/man1/gpgv.1
 
@@ -162,4 +148,11 @@ pkg_postinst() {
 	ewarn "of the agent is currently used. If you are unsure of the gpg"
 	ewarn "agent you are using please run 'killall gpg-agent',"
 	ewarn "and to start a fresh daemon just run 'gpg-agent --daemon'."
+
+	if [[ -n ${REPLACING_VERSIONS} ]]; then
+		elog "If upgrading from a version prior than 2.1 you might have to re-import"
+		elog "secret keys after restarting the gpg-agent as the new version is using"
+		elog "a new storage mechanism."
+		elog "You can migrate the keys using gpg --import \$HOME/.gnupg/secring.gpg"
+	fi
 }
