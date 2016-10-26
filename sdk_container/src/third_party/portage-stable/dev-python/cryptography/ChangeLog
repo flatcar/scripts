@@ -365,3 +365,139 @@
 
   Signed-off-by: Jason A. Donenfeld <zx2c4@gentoo.org>
 
+  02 Mar 2016; Mike Gilbert <floppym@gentoo.org> cryptography-1.1.2.ebuild,
+  files/cryptography-1.2.2-openssl-1.0.2g-mem_buf.patch:
+  Backport openssl 1.0.2g fix to stable ebuild
+
+  The replaces the patch by zx2c4 with a more flexible patch
+  from upstream. This ensures that the package can build against any
+  version of openssl in the tree.
+
+  Package-Manager: portage-2.2.27_p64
+
+*cryptography-1.2.3 (02 Mar 2016)
+
+  02 Mar 2016; Mike Frysinger <vapier@gentoo.org> +cryptography-1.2.3.ebuild:
+  verison bump to 1.2.3 and add openssl subslot #576128
+
+  16 Mar 2016; Agostino Sarubbo <ago@gentoo.org> cryptography-1.1.2.ebuild:
+  ppc stable wrt bug #574150
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="ppc"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  19 Mar 2016; Agostino Sarubbo <ago@gentoo.org> cryptography-1.1.2.ebuild:
+  sparc stable wrt bug #574150
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="sparc"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  20 Mar 2016; Dirkjan Ochtman <djc@gentoo.org> -cryptography-1.1.ebuild,
+  -cryptography-1.1.1.ebuild, -cryptography-1.2.1.ebuild,
+  -cryptography-1.2.2.ebuild:
+  remove old versions
+
+  Package-Manager: portage-2.2.26
+
+*cryptography-1.3 (20 Mar 2016)
+
+  20 Mar 2016; Dirkjan Ochtman <djc@gentoo.org> +cryptography-1.3.ebuild:
+  version bump to 1.3
+
+  Package-Manager: portage-2.2.26
+
+  22 Mar 2016; Agostino Sarubbo <ago@gentoo.org> cryptography-1.1.2.ebuild:
+  ia64 stable wrt bug #574150
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="ia64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  22 Mar 2016; Mike Frysinger <vapier@gentoo.org> cryptography-1.1.2.ebuild:
+  mark 1.1.2 arm64/m68k/s390/sh stable #574150
+
+*cryptography-1.3.1 (03 Apr 2016)
+
+  03 Apr 2016; Patrick Lauer <patrick@gentoo.org> +cryptography-1.3.1.ebuild:
+  Bump
+
+  Package-Manager: portage-2.2.28
+
+  01 Jun 2016; Tobias Klausmann <klausman@gentoo.org>
+  cryptography-1.3.1.ebuild:
+  1.3.1-r0: add alpha keyword
+
+  Gentoo-Bug: 583884
+
+  Package-Manager: portage-2.3.0_rc1
+
+  02 Jun 2016; Markus Meier <maekke@gentoo.org> cryptography-1.3.1.ebuild:
+  arm stable, bug #583884
+
+  Package-Manager: portage-2.3.0_rc1
+  RepoMan-Options: --include-arches="arm"
+
+  04 Jun 2016; Dirkjan Ochtman <djc@gentoo.org> -cryptography-1.0.2.ebuild,
+  -cryptography-1.2.3.ebuild, -cryptography-1.3.ebuild:
+  remove old versions
+
+  Package-Manager: portage-2.2.28
+
+*cryptography-1.3.4 (04 Jun 2016)
+
+  04 Jun 2016; Dirkjan Ochtman <djc@gentoo.org> +cryptography-1.3.4.ebuild:
+  version bump to 1.3.4 (fixes bug 584806)
+
+  Package-Manager: portage-2.2.28
+
+  06 Jun 2016; Agostino Sarubbo <ago@gentoo.org> cryptography-1.3.1.ebuild:
+  amd64 stable wrt bug #583884
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="amd64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  21 Jun 2016; Mike Frysinger <vapier@gentoo.org> cryptography-1.3.1.ebuild:
+  mark 1.3.1 arm64/ia64/m68k/ppc/ppc64/s390/sh/sparc stable #583884
+
+  22 Jul 2016; Bernard Cafarelli <voyageur@gentoo.org>
+  cryptography-1.3.1.ebuild:
+  x86 stable wrt bug #583884
+
+  Package-Manager: portage-2.3.0
+
+*cryptography-1.5 (10 Sep 2016)
+
+  10 Sep 2016; Dirkjan Ochtman <djc@gentoo.org> +cryptography-1.5.ebuild:
+  version bump to 1.5
+
+  Package-Manager: portage-2.2.28
+
+  22 Sep 2016; Tobias Klausmann <klausman@gentoo.org>
+  cryptography-1.3.4.ebuild:
+  1.3.4-r0: add alpha keyword
+
+  Gentoo-Bug: 592618
+
+  26 Sep 2016; Agostino Sarubbo <ago@gentoo.org> cryptography-1.3.4.ebuild:
+  amd64 stable wrt bug #592618
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="amd64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  01 Oct 2016; Jeroen Roovers <jer@gentoo.org> cryptography-1.3.4.ebuild:
+  Stable for HPPA (bug #592618).
+
+  Package-Manager: portage-2.3.1
+  RepoMan-Options: --ignore-arches
+
+*cryptography-1.5.2 (01 Oct 2016)
+
+  01 Oct 2016; Patrick Lauer <patrick@gentoo.org> +cryptography-1.5.2.ebuild:
+  Bump
+
+  Package-Manager: portage-2.3.0
+
