@@ -393,3 +393,95 @@
 
   Package-Manager: portage-2.2.28
 
+  09 Sep 2016; Jeroen Roovers <jer@gentoo.org> curl-7.50.2.ebuild:
+  Stable for HPPA (bug #592974).
+
+  Package-Manager: portage-2.3.0
+  RepoMan-Options: --ignore-arches
+
+  10 Sep 2016; Agostino Sarubbo <ago@gentoo.org> curl-7.50.2.ebuild:
+  amd64 stable wrt bug #592974
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="amd64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+*curl-7.50.3 (15 Sep 2016)
+
+  15 Sep 2016; Anthony G. Basile <blueness@gentoo.org> +curl-7.50.3.ebuild:
+  version bump to 7.50.3, CVE-2016-7167, bug #593716
+
+  Package-Manager: portage-2.2.28
+
+  16 Sep 2016; Agostino Sarubbo <ago@gentoo.org> curl-7.50.3.ebuild:
+  amd64 stable wrt bug #593716
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="amd64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  16 Sep 2016; Tobias Klausmann <klausman@gentoo.org> curl-7.50.3.ebuild:
+  7.50.3-r0: add alpha keyword
+
+  Gentoo-Bug: 593716
+
+  18 Sep 2016; Jeroen Roovers <jer@gentoo.org> curl-7.50.3.ebuild:
+  Stable for PPC64 (bug #593716).
+
+  Package-Manager: portage-2.3.0
+  RepoMan-Options: --ignore-arches
+
+  18 Sep 2016; Jeroen Roovers <jer@gentoo.org> curl-7.50.3.ebuild:
+  Stable for HPPA (bug #593716).
+
+  Package-Manager: portage-2.3.0
+  RepoMan-Options: --ignore-arches
+
+  24 Sep 2016; Markus Meier <maekke@gentoo.org> curl-7.50.3.ebuild:
+  arm stable, bug #593716
+
+  Package-Manager: portage-2.3.0
+  RepoMan-Options: --include-arches="arm"
+
+  28 Sep 2016; Anthony G. Basile <blueness@gentoo.org> curl-7.49.0.ebuild,
+  curl-7.49.1.ebuild, curl-7.50.0.ebuild, curl-7.50.1.ebuild,
+  curl-7.50.2.ebuild, curl-7.50.3.ebuild:
+  remove einfo banner header
+
+  Package-Manager: portage-2.2.28
+
+  29 Sep 2016; Agostino Sarubbo <ago@gentoo.org> curl-7.50.3.ebuild:
+  x86 stable wrt bug #593716
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="x86"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  29 Sep 2016; Agostino Sarubbo <ago@gentoo.org> curl-7.50.3.ebuild:
+  sparc stable wrt bug #593716
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="sparc"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  29 Sep 2016; Agostino Sarubbo <ago@gentoo.org> curl-7.50.3.ebuild:
+  ppc stable wrt bug #593716
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="ppc"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  29 Sep 2016; Agostino Sarubbo <ago@gentoo.org> curl-7.50.3.ebuild:
+  ia64 stable wrt bug #593716
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="ia64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  29 Sep 2016; Anthony G. Basile <blueness@gentoo.org> -curl-7.49.0.ebuild,
+  -curl-7.49.1.ebuild, -curl-7.50.0.ebuild, -curl-7.50.1.ebuild,
+  -curl-7.50.2.ebuild:
+  remove security vulnerable versions, bug #593716
+
+  Package-Manager: portage-2.2.28
+
