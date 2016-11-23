@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -34,6 +34,9 @@ pkg_setup() {
 
 src_prepare() {
 	if use apng; then
+		# fix windows path in patch file. Please check for each release if this can be removed again.
+		sed 's@scripts\\symbols.def@scripts/symbols.def@' \
+			-i "${WORKDIR}"/${PN}-*-apng.patch || die
 		epatch "${WORKDIR}"/${PN}-*-apng.patch
 		# Don't execute symbols check with apng patch wrt #378111
 		sed -i -e '/^check/s:scripts/symbols.chk::' Makefile.in || die
