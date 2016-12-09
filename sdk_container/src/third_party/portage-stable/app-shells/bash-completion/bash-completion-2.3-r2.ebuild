@@ -1,16 +1,16 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-shells/bash-completion/bash-completion-2.1_p20141224.ebuild,v 1.3 2015/03/31 18:26:57 ulm Exp $
+# $Id$
 
-EAPI=5
+EAPI=6
 
-BASHCOMP_P=bashcomp-2.0.1
+BASHCOMP_P=bashcomp-2.0.2
 inherit versionator
 
 DESCRIPTION="Programmable Completion for bash"
-HOMEPAGE="http://bash-completion.alioth.debian.org/"
-SRC_URI="http://dev.gentoo.org/~mgorny/dist/${P}.tar.xz
-	http://dev.gentoo.org/~mgorny/dist/${BASHCOMP_P}.tar.bz2"
+HOMEPAGE="https://github.com/scop/bash-completion"
+SRC_URI="https://github.com/scop/bash-completion/releases/download/${PV}/${P}.tar.xz
+	https://bitbucket.org/mgorny/bashcomp2/downloads/${BASHCOMP_P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -37,10 +37,19 @@ STRIP_COMPLETIONS=(
 
 	# Now-dead symlinks to deprecated completions
 	hd ncal
+
+	# Installed by sys-apps/util-linux-2.28
+	mount umount mount.linux umount.linux
+
+	# Dumb symlink to mplayer, removed upstream in git
+	mpv
 )
 
 src_prepare() {
-	epatch "${WORKDIR}/${BASHCOMP_P}/${P}"-*.patch
+	eapply "${WORKDIR}/${BASHCOMP_P}/${PN}"-2.1_p*.patch
+	# Bug 543100
+	eapply "${FILESDIR}/${PN}-2.1-escape-characters.patch"
+	eapply_user
 }
 
 src_test() { :; } # Skip testsuite because of interactive shell wrt #477066
@@ -58,7 +67,7 @@ src_install() {
 	# remove deprecated completions (moved to other packages)
 	rm "${ED}"/usr/share/bash-completion/completions/_* || die
 
-	dodoc AUTHORS CHANGES README
+	dodoc AUTHORS CHANGES CONTRIBUTING.md README.md
 
 	# install the eselect module
 	insinto /usr/share/eselect/modules

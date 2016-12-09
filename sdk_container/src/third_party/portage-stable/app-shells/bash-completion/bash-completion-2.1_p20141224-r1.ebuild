@@ -1,41 +1,48 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-shells/bash-completion/bash-completion-2.1-r93.ebuild,v 1.2 2015/03/31 18:26:57 ulm Exp $
+# $Id$
 
 EAPI=5
 
+BASHCOMP_P=bashcomp-2.0.1
 inherit versionator
 
 DESCRIPTION="Programmable Completion for bash"
 HOMEPAGE="http://bash-completion.alioth.debian.org/"
-SRC_URI="http://bash-completion.alioth.debian.org/files/${P}.tar.bz2
-	http://dev.gentoo.org/~mgorny/dist/bashcomp2-pre1.tar.gz"
+SRC_URI="https://dev.gentoo.org/~mgorny/dist/${P}.tar.xz
+	https://dev.gentoo.org/~mgorny/dist/${BASHCOMP_P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris"
+KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris"
 IUSE=""
 
 RDEPEND=">=app-shells/bash-4.3_p30-r1
 	sys-apps/miscfiles
 	!app-eselect/eselect-bashcomp"
+DEPEND="app-arch/xz-utils"
 PDEPEND=">=app-shells/gentoo-bashcomp-20140911"
 
 # Remove unwanted completions.
 STRIP_COMPLETIONS=(
-	# Included in util-linux, bug #468544
-	cal dmesg eject hd hexdump hwclock ionice look ncal renice rtcwake
-
 	# Slackware package stuff, quite generic names cause collisions
 	# (e.g. with sys-apps/pacman)
 	explodepkg installpkg makepkg pkgtool removepkg upgradepkg
 
 	# Debian/Red Hat network stuff
 	ifdown ifup ifstatus
+
+	# Installed in app-editors/vim-core
+	xxd
+
+	# Now-dead symlinks to deprecated completions
+	hd ncal
 )
 
 src_prepare() {
-	epatch "${WORKDIR}"/bashcomp2-pre1/*.patch
+	epatch "${WORKDIR}/${BASHCOMP_P}/${P}"-*.patch
+	# Bug 543100
+	epatch "${FILESDIR}/${PN}-2.1-escape-characters.patch"
 }
 
 src_test() { :; } # Skip testsuite because of interactive shell wrt #477066
@@ -44,27 +51,21 @@ src_install() {
 	# work-around race conditions, bug #526996
 	mkdir -p "${ED}"/usr/share/bash-completion/{completions,helpers} || die
 
-	emake DESTDIR="${D}" profiledir=/etc/bash/bashrc.d install
+	emake DESTDIR="${D}" profiledir="${EPREFIX}"/etc/bash/bashrc.d install
 
-	# use the copies from >=sys-apps/util-linux-2.23 wrt #468544 -> hd and ncal
-	# becomes dead symlinks as a result
 	local file
 	for file in "${STRIP_COMPLETIONS[@]}"; do
 		rm "${ED}"/usr/share/bash-completion/completions/${file} || die
 	done
-
-	# use the copy from app-editors/vim-core:
-	rm "${ED}"/usr/share/bash-completion/completions/xxd || die
-
-	# use the copy from net-misc/networkmanager:
-	rm "${ED}"/usr/share/bash-completion/completions/nmcli || die
+	# remove deprecated completions (moved to other packages)
+	rm "${ED}"/usr/share/bash-completion/completions/_* || die
 
 	dodoc AUTHORS CHANGES README
 
 	# install the eselect module
 	insinto /usr/share/eselect/modules
-	doins "${WORKDIR}"/bashcomp2-pre1/bashcomp.eselect
-	doman "${WORKDIR}"/bashcomp2-pre1/bashcomp.eselect.5
+	doins "${WORKDIR}/${BASHCOMP_P}/bashcomp.eselect"
+	doman "${WORKDIR}/${BASHCOMP_P}/bashcomp.eselect.5"
 }
 
 pkg_postinst() {

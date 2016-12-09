@@ -1,13 +1,13 @@
 DEFINED_PHASES=install postinst prepare test
 DEPEND=app-arch/xz-utils
 DESCRIPTION=Programmable Completion for bash
-EAPI=5
-HOMEPAGE=http://bash-completion.alioth.debian.org/
+EAPI=6
+HOMEPAGE=https://github.com/scop/bash-completion
 KEYWORDS=~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris
 LICENSE=GPL-2
 PDEPEND=>=app-shells/gentoo-bashcomp-20140911
 RDEPEND=>=app-shells/bash-4.3_p30-r1 sys-apps/miscfiles !app-eselect/eselect-bashcomp
 SLOT=0
-SRC_URI=http://dev.gentoo.org/~mgorny/dist/bash-completion-2.1_p20141224.tar.xz http://dev.gentoo.org/~mgorny/dist/bashcomp-2.0.1.tar.bz2
+SRC_URI=https://github.com/scop/bash-completion/releases/download/2.4/bash-completion-2.4.tar.xz https://bitbucket.org/mgorny/bashcomp2/downloads/bashcomp-2.0.2.tar.gz
 _eclasses_=eutils	9d81603248f2ba3ec59124320d123e5e	multilib	3972ca401cf7dbb430df9995f5d8d580	toolchain-funcs	7a212e5e01adfa4805c9978366e6ee85	versionator	99ae9d758cbe7cfed19170e7d48f5a9c
-_md5_=e0cb0a75a459e79b7f58ee4d9ff1ab21
+_md5_=ae42e21efc6f04b01b9a0a67d99a8c61
