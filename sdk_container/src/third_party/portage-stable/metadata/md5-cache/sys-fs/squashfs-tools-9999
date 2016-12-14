@@ -1,0 +1,11 @@
+DEFINED_PHASES=compile configure install unpack
+DEPEND=!static? ( sys-libs/zlib !xz? ( !lzo? ( sys-libs/zlib ) ) lz4? ( app-arch/lz4 ) lzma? ( app-arch/xz-utils ) lzo? ( dev-libs/lzo ) xattr? ( sys-apps/attr ) xz? ( app-arch/xz-utils ) ) static? ( sys-libs/zlib[static-libs(+)] !xz? ( !lzo? ( sys-libs/zlib[static-libs(+)] ) ) lz4? ( app-arch/lz4[static-libs(+)] ) lzma? ( app-arch/xz-utils[static-libs(+)] ) lzo? ( dev-libs/lzo[static-libs(+)] ) xattr? ( sys-apps/attr[static-libs(+)] ) xz? ( app-arch/xz-utils[static-libs(+)] ) ) >=dev-vcs/git-1.8.2.1
+DESCRIPTION=Tool for creating compressed filesystem type squashfs
+EAPI=6
+HOMEPAGE=http://squashfs.sourceforge.net
+IUSE=debug lz4 lzma lzo static xattr +xz
+LICENSE=GPL-2
+RDEPEND=!static? ( sys-libs/zlib !xz? ( !lzo? ( sys-libs/zlib ) ) lz4? ( app-arch/lz4 ) lzma? ( app-arch/xz-utils ) lzo? ( dev-libs/lzo ) xattr? ( sys-apps/attr ) xz? ( app-arch/xz-utils ) )
+SLOT=0
+_eclasses_=eutils	9d81603248f2ba3ec59124320d123e5e	flag-o-matic	d270fa247153df66074f795fa42dba3e	git-r3	ef66dfc3db09f327af21cf32f140fb2b	multilib	3972ca401cf7dbb430df9995f5d8d580	toolchain-funcs	7a212e5e01adfa4805c9978366e6ee85
+_md5_=faf27a8e1976e6a17b618cca55a61a2d
