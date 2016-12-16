@@ -8,7 +8,7 @@ WANT_LIBTOOL="none"
 inherit autotools eutils flag-o-matic multilib pax-utils python-utils-r1 toolchain-funcs
 
 MY_P="Python-${PV/_/}"
-PATCHSET_VERSION="3.5.1-0"
+PATCHSET_VERSION="3.5.2-0"
 
 DESCRIPTION="An interpreted, interactive, object-oriented programming language"
 HOMEPAGE="http://www.python.org/"
@@ -71,7 +71,7 @@ src_prepare() {
 
 	EPATCH_SUFFIX="patch" epatch "${WORKDIR}/patches"
 	epatch "${FILESDIR}/${PN}-3.4.3-ncurses-pkg-config.patch"
-	epatch "${FILESDIR}/3.5.1-cross-compile.patch"
+	epatch "${FILESDIR}/${PN}-3.5-distutils-OO-build.patch"
 
 	epatch_user
 
@@ -170,6 +170,10 @@ src_configure() {
 }
 
 src_compile() {
+	# Ensure sed works as expected
+	# https://bugs.gentoo.org/594768
+	local -x LC_ALL=C
+
 	cd "${BUILD_DIR}" || die
 
 	emake CPPFLAGS= CFLAGS= LDFLAGS=
