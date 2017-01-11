@@ -2,9 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=5
-VIM_VERSION="7.4"
-PYTHON_COMPAT=( python{2_7,3_4} )
+EAPI=6
+VIM_VERSION="8.0"
+PYTHON_COMPAT=( python{2_7,3_4,3_5} )
 PYTHON_REQ_USE=threads
 inherit eutils vim-doc flag-o-matic fdo-mime versionator bash-completion-r1 python-r1
 
@@ -13,12 +13,12 @@ if [[ ${PV} == 9999* ]] ; then
 	EGIT_REPO_URI="https://github.com/vim/vim.git"
 else
 	SRC_URI="https://github.com/vim/vim/archive/v${PV}.tar.gz -> ${P}.tar.gz
-		https://dev.gentoo.org/~radhermit/vim/vim-7.4.542-gentoo-patches.tar.bz2"
-	KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+		https://dev.gentoo.org/~radhermit/vim/vim-7.4.2102-gentoo-patches.tar.bz2"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 fi
 
 DESCRIPTION="Vim, an improved vi-style text editor"
-HOMEPAGE="http://www.vim.org/"
+HOMEPAGE="http://www.vim.org/ https://github.com/vim/vim"
 
 SLOT="0"
 LICENSE="vim"
@@ -34,7 +34,7 @@ REQUIRED_USE="
 
 RDEPEND="
 	>=app-eselect/eselect-vi-1.1
-	>=sys-libs/ncurses-5.2-r2
+	>=sys-libs/ncurses-5.2-r2:0=
 	nls? ( virtual/libintl )
 	acl? ( kernel_linux? ( sys-apps/acl ) )
 	cscope? ( dev-util/cscope )
@@ -50,7 +50,7 @@ RDEPEND="
 	perl? ( dev-lang/perl:= )
 	python? ( ${PYTHON_DEPS} )
 	racket? ( dev-scheme/racket )
-	ruby? ( || ( dev-lang/ruby:2.2 dev-lang/ruby:2.1 dev-lang/ruby:2.0 ) )
+	ruby? ( || ( dev-lang/ruby:2.3 dev-lang/ruby:2.2 dev-lang/ruby:2.1 dev-lang/ruby:2.0 ) )
 	selinux? ( sys-libs/libselinux )
 	tcl? ( dev-lang/tcl:0= )
 	X? ( x11-libs/libXt )
@@ -72,11 +72,8 @@ pkg_setup() {
 
 src_prepare() {
 	if [[ ${PV} != 9999* ]] ; then
-		if [[ -d "${WORKDIR}"/patches/ ]]; then
-			# Gentoo patches to fix runtime issues, cross-compile errors, etc
-			EPATCH_SUFFIX="patch" EPATCH_FORCE="yes" \
-				epatch "${WORKDIR}"/patches/
-		fi
+		# Gentoo patches to fix runtime issues, cross-compile errors, etc
+		eapply "${WORKDIR}"/patches/
 	fi
 
 	# Fixup a script to use awk instead of nawk
@@ -137,7 +134,7 @@ src_prepare() {
 			"${S}"/src/Makefile || die 'sed for ExtUtils-ParseXS failed'
 	fi
 
-	epatch_user
+	eapply_user
 }
 
 src_configure() {
@@ -240,10 +237,10 @@ src_configure() {
 		)
 	fi
 
-	# Let Portage do the stripping. Some people like that.
+	# let package manager strip binaries
 	export ac_cv_prog_STRIP="$(type -P true ) faking strip"
 
-	# Keep Gentoo Prefix env contained within the EPREFIX
+	# keep prefix env contained within the EPREFIX
 	use prefix && myconf+=( --without-local-dir )
 
 	econf \
@@ -271,19 +268,7 @@ src_test() {
 	# Don't let vim talk to X
 	unset DISPLAY
 
-	# We've got to call make test from within testdir, since the Makefiles
-	# don't pass through our VIMPROG argument
-	cd "${S}"/src/testdir
-
-	# Test 49 won't work inside a portage environment
-	einfo "Test 49 isn't sandbox-friendly, so it will be skipped."
-	sed -i 's~test49.out~~g' Makefile
-
-	# We don't want to rebuild vim before running the tests
-	sed -i 's,: \$(VIMPROG),: ,' Makefile
-
-	# Don't try to do the additional GUI test
-	emake -j1 VIMPROG=../vim nongui
+	emake -j1 -C src/testdir nongui
 }
 
 # Make convenience symlinks, hopefully without stepping on toes.  Some
@@ -350,26 +335,6 @@ src_install() {
 pkg_postinst() {
 	# Update documentation tags (from vim-doc.eclass)
 	update_vim_helptags
-
-	if [[ -z ${REPLACING_VERSIONS} ]] ; then
-		if use X ; then
-			echo
-			elog "The 'X' USE flag enables vim <-> X communication, like"
-			elog "updating the xterm titlebar. It does not install a GUI."
-		fi
-		echo
-		elog "To install a GUI version of vim, use the app-editors/gvim"
-		elog "package."
-		echo
-		elog "Vim 7 includes an integrated spell checker. You need to install"
-		elog "word list files before you can use it. There are ebuilds for"
-		elog "some of these named app-vim/vim-spell-*. If your language of"
-		elog "choice is not included, please consult vim-spell.eclass for"
-		elog "instructions on how to make a package."
-		echo
-		ewarn "Note that the English word lists are no longer installed by"
-		ewarn "default."
-	fi
 
 	# Make convenience symlinks
 	update_vim_symlinks
