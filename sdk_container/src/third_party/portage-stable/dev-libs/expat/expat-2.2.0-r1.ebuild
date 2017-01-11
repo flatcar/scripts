@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -7,19 +7,17 @@ inherit eutils libtool multilib toolchain-funcs multilib-minimal
 
 DESCRIPTION="Stream-oriented XML parser library"
 HOMEPAGE="http://expat.sourceforge.net/"
-SRC_URI="mirror://sourceforge/expat/${P}.tar.gz"
+SRC_URI="mirror://sourceforge/expat/${P}.tar.bz2"
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~arm-linux ~x86-linux"
+KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt"
 IUSE="elibc_FreeBSD examples static-libs unicode"
 RDEPEND="abi_x86_32? ( !<=app-emulation/emul-linux-x86-baselibs-20130224-r6
 		!app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)] )"
 
 src_prepare() {
-	epatch "${FILESDIR}"/${P}-xmlwfargs.patch
-	epatch "${FILESDIR}"/${P}-mozilla-sanity-check-size.patch #555642
-	elibtoolize
+	epatch "${FILESDIR}"/${PN}-2.1.1-CVE-2016-0718-regression.patch
 }
 
 multilib_src_configure() {
