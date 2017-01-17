@@ -1,10 +1,9 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=5
-
-PYTHON_COMPAT=( python2_7 python3_{3,4,5} )
+EAPI=6
+PYTHON_COMPAT=( python2_7 python3_{4,5} )
 PYTHON_REQ_USE="xml"
 
 inherit libtool flag-o-matic eutils python-r1 autotools prefix multilib-minimal
@@ -14,7 +13,7 @@ HOMEPAGE="http://www.xmlsoft.org/"
 
 LICENSE="MIT"
 SLOT="2"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt"
+KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt"
 IUSE="debug examples icu ipv6 lzma python readline static-libs test"
 
 XSTS_HOME="http://www.w3.org/XML/2004/xml-schema-test-suite"
@@ -30,18 +29,14 @@ SRC_URI="ftp://xmlsoft.org/${PN}/${PN}-${PV/_rc/-rc}.tar.gz
 		${XSTS_HOME}/${XSTS_NAME_2}/${XSTS_TARBALL_2}
 		http://www.w3.org/XML/Test/${XMLCONF_TARBALL} )"
 
-COMMON_DEPEND="
+RDEPEND="
 	>=sys-libs/zlib-1.2.8-r1:=[${MULTILIB_USEDEP}]
 	icu? ( >=dev-libs/icu-51.2-r1:=[${MULTILIB_USEDEP}] )
 	lzma? ( >=app-arch/xz-utils-5.0.5-r1:=[${MULTILIB_USEDEP}] )
 	python? ( ${PYTHON_DEPS} )
 	readline? ( sys-libs/readline:= )
 "
-RDEPEND="${COMMON_DEPEND}
-	abi_x86_32? ( !<=app-emulation/emul-linux-x86-baselibs-20131008-r6
-		!app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)] )
-"
-DEPEND="${COMMON_DEPEND}
+DEPEND="${EDEPEND}
 	dev-util/gtk-doc-am
 	virtual/pkgconfig
 	hppa? ( >=sys-devel/binutils-2.15.92.0.2 )
@@ -69,36 +64,45 @@ src_unpack() {
 }
 
 src_prepare() {
+	default
+
 	DOCS=( AUTHORS ChangeLog NEWS README* TODO* )
 
 	# Patches needed for prefix support
-	epatch "${FILESDIR}"/${PN}-2.7.1-catalog_path.patch
-	epatch "${FILESDIR}"/${PN}-2.8.0_rc1-winnt.patch
-
-	# Disable programs that we don't actually install.
-	epatch "${FILESDIR}"/${PN}-2.9.2-disable-tests.patch
+	eapply "${FILESDIR}"/${PN}-2.7.1-catalog_path.patch
 
 	eprefixify catalog.c xmlcatalog.c runtest.c xmllint.c
 
-#	epunt_cxx # if we don't eautoreconf
+	# Fix build for Windows platform
+	# https://bugzilla.gnome.org/show_bug.cgi?id=760456
+	eapply "${FILESDIR}"/${PN}-2.8.0_rc1-winnt.patch
 
-	epatch "${FILESDIR}"/${PN}-2.9.2-cross-compile.patch
+	# Disable programs that we don't actually install.
+	# https://bugzilla.gnome.org/show_bug.cgi?id=760457
+	eapply "${FILESDIR}"/${PN}-2.9.2-disable-tests.patch
 
-	# Important patches from master
-	epatch \
-		"${FILESDIR}/${PN}-2.9.2-revert-missing-initialization.patch" \
-		"${FILESDIR}/${PN}-2.9.2-missing-entities.patch" \
-		"${FILESDIR}/${PN}-2.9.2-threads-declarations.patch" \
-		"${FILESDIR}/${PN}-2.9.2-timsort.patch" \
-		"${FILESDIR}/${PN}-2.9.2-constant-memory.patch"
+	# Fix python detection, bug #567066
+	# https://bugzilla.gnome.org/show_bug.cgi?id=760458
+	eapply "${FILESDIR}"/${PN}-2.9.2-python-ABIFLAG.patch
+
+	# Apply latest round of security patches wrt bugs 
+	# 589816, 597112, 597114, 597116.  This will be included
+	# in the next upstream release
+	eapply "${FILESDIR}"/${PN}-2.9.4-CVE-2016-4658.patch
+	eapply "${FILESDIR}"/${PN}-2.9.4-CVE-2016-5131.patch
+	eapply "${FILESDIR}"/${PN}-2.9.4-nullptrderef.patch
+	eapply "${FILESDIR}"/${PN}-2.9.4-nullptrderef2.patch
+
+	# Avoid final linking arguments for python modules
+	if [[ ${CHOST} == *-darwin* ]] ; then
+		sed -i -e '/PYTHON_LIBS/s/ldflags/libs/' configure.ac || die
+	fi
 
 	# Please do not remove, as else we get references to PORTAGE_TMPDIR
 	# in /usr/lib/python?.?/site-packages/libxml2mod.la among things.
 	# We now need to run eautoreconf at the end to prevent maintainer mode.
 #	elibtoolize
-
-	# Use pkgconfig to find icu to properly support multilib, upstream bug #738751
-	epatch "${FILESDIR}/${PN}-2.9.2-icu-pkgconfig.patch"
+#	epunt_cxx # if we don't eautoreconf
 
 	eautoreconf
 }
@@ -119,7 +123,6 @@ multilib_src_configure() {
 	libxml2_configure() {
 		ECONF_SOURCE="${S}" econf \
 			--with-html-subdir=${PF}/html \
-			--docdir="${EPREFIX}/usr/share/doc/${PF}" \
 			$(use_with debug run-debug) \
 			$(use_with icu) \
 			$(use_with lzma) \
@@ -132,7 +135,7 @@ multilib_src_configure() {
 
 	libxml2_py_configure() {
 		mkdir -p "${BUILD_DIR}" || die # ensure python build dirs exist
-		run_in_build_dir libxml2_configure "--with-python=${PYTHON}" # odd build system
+		run_in_build_dir libxml2_configure "--with-python=${ROOT%/}${PYTHON}" # odd build system, also see bug #582130
 	}
 
 	libxml2_configure --without-python # build python bindings separately
@@ -160,7 +163,11 @@ multilib_src_install() {
 		EXAMPLES_DIR="${EPREFIX}"/usr/share/doc/${PF}/examples install
 
 	if multilib_is_native_abi && use python; then
-		python_foreach_impl libxml2_py_emake DESTDIR="${D}" install
+		python_foreach_impl libxml2_py_emake \
+			DESTDIR="${D}" \
+			docsdir="${EPREFIX}"/usr/share/doc/${PF}/python \
+			exampledir="${EPREFIX}"/usr/share/doc/${PF}/python/examples \
+			install
 		python_foreach_impl python_optimize
 	fi
 }
@@ -178,14 +185,9 @@ multilib_src_install_all() {
 	rm -rf "${ED}"/usr/share/doc/${P}
 	einstalldocs
 
-	if ! use python; then
-		rm -rf "${ED}"/usr/share/doc/${PF}/python
-		rm -rf "${ED}"/usr/share/doc/${PN}-python-${PV}
-	fi
-
 	if ! use examples; then
-		rm -rf "${ED}/usr/share/doc/${PF}/examples"
-		rm -rf "${ED}/usr/share/doc/${PF}/python/examples"
+		rm -rf "${ED}"/usr/share/doc/${PF}/examples
+		rm -rf "${ED}"/usr/share/doc/${PF}/python/examples
 	fi
 
 	prune_libtool_files --modules
