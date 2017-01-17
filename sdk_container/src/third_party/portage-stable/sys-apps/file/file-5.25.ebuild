@@ -1,9 +1,9 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/file/file-5.22-r1.ebuild,v 1.1 2015/03/21 09:42:37 mgorny Exp $
+# $Id$
 
 EAPI="5"
-PYTHON_COMPAT=( python{2_7,3_3,3_4} pypy )
+PYTHON_COMPAT=( python{2_7,3_4} pypy )
 DISTUTILS_OPTIONAL=1
 
 inherit eutils distutils-r1 libtool toolchain-funcs multilib-minimal
@@ -14,7 +14,7 @@ if [[ ${PV} == "9999" ]] ; then
 else
 	SRC_URI="ftp://ftp.astron.com/pub/file/${P}.tar.gz
 		ftp://ftp.gw.com/mirrors/pub/unix/file/${P}.tar.gz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
+	KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
 fi
 
 DESCRIPTION="identify a file's format by scanning binary data for patterns"
@@ -25,9 +25,7 @@ SLOT="0"
 IUSE="python static-libs zlib"
 
 DEPEND="python? ( ${PYTHON_DEPS} )
-	zlib? ( >=sys-libs/zlib-1.2.8-r1[${MULTILIB_USEDEP}] )
-	abi_x86_32? ( !<=app-emulation/emul-linux-x86-baselibs-20131008-r21
-		!app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)] )"
+	zlib? ( >=sys-libs/zlib-1.2.8-r1[${MULTILIB_USEDEP}] )"
 RDEPEND="${DEPEND}
 	python? ( !dev-python/python-magic )"
 
@@ -80,7 +78,7 @@ multilib_src_compile() {
 }
 
 src_compile() {
-	if tc-is-cross-compiler && ! ROOT=/ has_version ~${CATEGORY}/${P} ; then
+	if tc-is-cross-compiler && ! ROOT=/ has_version "~${CATEGORY}/${P}" ; then
 		emake -C "${WORKDIR}"/build/src file
 		PATH="${WORKDIR}/build/src:${PATH}"
 	fi
