@@ -1,10 +1,10 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=5
+EAPI=6
 
-inherit eutils multilib
+inherit eutils toolchain-funcs
 
 DESCRIPTION="Tools for manipulating signed PE-COFF binaries"
 HOMEPAGE="https://github.com/vathpela/pesign"
@@ -24,31 +24,24 @@ RDEPEND="
 DEPEND="${RDEPEND}
 	sys-apps/help2man
 	sys-boot/gnu-efi
+	sys-libs/efivar
 	virtual/pkgconfig
 "
 
-src_prepare() {
-	epatch "${FILESDIR}"/destdir.patch
+PATCHES=(
+	"${FILESDIR}"/${PN}-0.112-fix-cli-opts.patch
+	"${FILESDIR}"/${PN}-0.112-fix-initializer.patch
+)
+
+src_compile() {
+	emake CC="$(tc-getCC)"
 }
 
 src_install() {
-	default
+	emake DESTDIR="${ED}" VERSION="${PVR}" install
+	einstalldocs
 
 	# remove some files that don't make sense for Gentoo installs
-	rm -rf "${ED}/etc/" "${ED}/usr/share/doc/pesign/" || die
-
-	# create .so symlink
-	ln -s libdpe.so "${ED}/usr/$(get_libdir)/libdpe.so.0"
+	rm -rf "${ED%/}/etc/" "${ED%/}/var/" \
+	   "${ED%/}/usr/share/doc/${PF}/COPYING" || die
 }
-#
-#src_prepare() {
-#	local iarch
-#	case ${ARCH} in
-#		ia64)  iarch=ia64 ;;
-#		x86)   iarch=ia32 ;;
-#		amd64) iarch=x86_64 ;;
-#		*)     die "unsupported architecture: ${ARCH}" ;;
-#	esac
-#	sed -i "/^EFI_ARCH=/s:=.*:=${iarch}:" configure || die
-#	sed -i 's/-m64$/& -march=x86-64/' tests/Makefile.in || die
-#}
