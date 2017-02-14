@@ -1,10 +1,10 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/windows/winnt/packages,v 1.8 2015/05/31 14:24:11 vapier Exp $
+# $Id$
 
 # those are packages not available/required on winnt, since
 # winnt can be a child EPREFIX only, which tears it's DEPENDS
-# from a parent (e.g. x86-interix) prefix.
+# from a parent (e.g. x86-cygwin) prefix.
 
 -*sys-apps/grep
 -*app-arch/gzip
@@ -30,7 +30,7 @@
 -*virtual/pager
 -*sys-apps/diffutils
 -*sys-apps/baselayout-prefix
--*app-shells/bash
+-*app-shells/bash:0
 -*virtual/package-manager
 -*virtual/ssh
 -*sys-devel/autoconf

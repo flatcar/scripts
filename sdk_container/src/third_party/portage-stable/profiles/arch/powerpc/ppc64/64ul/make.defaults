@@ -1,6 +1,6 @@
-# Copyright 1999-2008 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/ppc64/64ul/make.defaults,v 1.1 2008/04/30 23:35:00 wolf31o2 Exp $
+# $Id$
 
 # All extra USE/etc should be specified in sub-profiles.
 # DO NOT POLLUTE USE ON THIS PROFILE.
@@ -9,3 +9,6 @@ MULTILIB_ABIS="ppc64"
 
 CFLAGS_ppc64="-m64"
 
+# moved from 64bit-native, TODO: move it upwards
+SYMLINK_LIB="yes"
+LIBDIR_ppc64="lib64"

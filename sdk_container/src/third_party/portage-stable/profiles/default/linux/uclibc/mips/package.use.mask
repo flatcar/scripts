@@ -1,6 +1,18 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/uclibc/mips/package.use.mask,v 1.4 2014/12/24 17:29:53 tamiko Exp $
+# $Id$
+
+# Felix Janda <felix.janda@posteo.de> (24 Sep 2016)
+# net-libs/libnetfilter_conntrack is not keyworded on mips
+net-dns/dnsmasq conntrack
+
+# Thomas Deutschmann <whissi@gentoo.org> (23 Aug 2016)
+# net-libs/openpgm is not keyworded on mips
+net-libs/zeromq pgm
+
+# Davide Pesavento <pesa@gentoo.org> (26 Oct 2015)
+# Tests require non-keyworded qt5
+dev-qt/qtchooser test
 
 # Matthias Maier <tamiko@gentoo.org> (24 Dec 2014)
 # sys-devel/clang is not keyworded on mips.

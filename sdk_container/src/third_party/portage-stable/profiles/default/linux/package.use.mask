@@ -1,10 +1,21 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/package.use.mask,v 1.48 2014/04/17 03:01:15 patrick Exp $
+# $Id$
 
-# Patrick Lauer <patrick@gentoo.org> (17 Mar 2014)
-# Fallout from ruby1.8 masking #505226
-=app-mobilephone/obexftp-0.23-r1 ruby
+# Jason Zaman <perfinion@gentoo.org> (06 Sep 2015)
+# This is masked in base/package.use.mask as Linux only.
+sys-auth/consolekit -cgroups
+
+# Michael Palimaka <kensington@gentoo.org> (03 Sep 2015)
+# Native inotify support is preferred on linux.
+kde-frameworks/kdelibs fam
+kde-frameworks/kcoreaddons fam
+
+# Christian Ruppert <idl0r@gentoo.org> (23 Aug 2015)
+# seccomp seems completely broken currently but has been added as global default
+# apparently... #558100
+# https://archives.gentoo.org/gentoo-dev/message/38503d86a1c41bccfa607745467b1be7
+net-dns/bind seccomp
 
 # Matt Turner <mattst88@gentoo.org> (07 Mar 2014)
 # media-libs/libomxil-bellagio keyworded on amd64/x86
@@ -21,10 +32,6 @@ net-p2p/fms frost
 # The polarssl use flag may go away if the rtmpdump
 # upstream will not fix this problem soon
 media-video/rtmpdump polarssl
-
-# Anthony G. Basile <blueness@gentoo.org> (10 Aug 2013)
-# mask php and mono bindings pending more testing
-=dev-libs/xapian-bindings-1.3.1 php mono
 
 # Diego Elio Pettenò (27 Aug 2012)
 # The libpci access is only used for linux.
@@ -63,12 +70,6 @@ app-arch/libarchive -e2fsprogs
 # Older versions also had an OSS compatibility wrapper on that USE so
 # they are excluded.
 >=media-sound/pulseaudio-0.9.16_rc5 oss
-
-# Diego E. Pettenò <flameeyes@gentoo.org> (9 Mar 2011)
-#
-# Mask usb USE flag for newest PCSC-Lite, since on Linux we want to
-# use libudev instead.
->=sys-apps/pcsc-lite-1.7.0 usb
 
 # Diego E. Pettenò <flameeyes@gentoo.org> (27 Mar 2011)
 #

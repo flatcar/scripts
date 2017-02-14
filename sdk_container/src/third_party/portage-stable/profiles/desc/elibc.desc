@@ -1,12 +1,13 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/desc/elibc.desc,v 1.8 2014/10/31 01:48:33 vapier Exp $
+# $Id$
 
 # This file contains descriptions of ELIBC USE_EXPAND flags.
 
 # Keep it sorted.
 
 AIX - ELIBC setting for systems that use the AIX C library
+bionic - ELIBC setting for systems that use Android's Bionic C library
 Cygwin - ELIBC setting for systems that use Cygwin
 Darwin - ELIBC setting for systems that use the Darwin C library
 DragonFly - ELIBC setting for systems that use the DragonFly C library

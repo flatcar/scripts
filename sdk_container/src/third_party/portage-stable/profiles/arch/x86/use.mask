@@ -1,6 +1,6 @@
-# Copyright 1999-2015 Gentoo Foundation.
+# Copyright 1999-2017 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License, v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86/use.mask,v 1.70 2015/03/29 19:01:38 vapier Exp $
+# $Id$
 
 # Unmask the flag which corresponds to ARCH.
 -x86
@@ -51,8 +51,6 @@
 
 # Ralph Sennhauser <sera@gentoo.org> (31 Jul 2012)
 # Keyworded on x86
--python_targets_jython2_5
--python_single_target_jython2_5
 -python_targets_jython2_7
 -python_single_target_jython2_7
 
@@ -80,10 +78,6 @@
 # Infiniband stuff works on x86
 -infiniband
 
-# 2010/07/27 - Matti Bickel <mabi@gentoo.org>
-# app-text/fdf is only supported on x86
--fdftk
-
 # 2010/02/14 - Samuli Suominen <ssuominen@gentoo.org>
 # Unmask amd64/x86 only SANE_BACKENDS
 -sane_backends_canon_pp
@@ -104,28 +98,9 @@
 -macbook
 
 # Unmask x86 instruction sets
--3dnow
--3dnowext
 -lilo
--mmx
--mmxext
--sse
--sse2
--sse3
--sse4
--sse4_1
--sse4_2
--sse4a
--ssse3
--avx
--avx128fma
--avx2
--avx256
--fma3
--fma4
--xop
+-mpx
 -svga
--kqemu
 -nvram
 -cpu_flags_x86_3dnow
 -cpu_flags_x86_3dnowext
@@ -154,24 +129,15 @@
 -oci8-instant-client
 -oracle
 
-# Unmask osp, used by asterisk; bug 115798
--osp
-
-# Unmask yellownet, used by aqbanking (bug 149970)
--yellownet
-
 # Modular X: unmask for architectures on which they are available
 -input_devices_synaptics
--input_devices_virtualbox
 -input_devices_vmmouse
 -input_devices_wacom
 -video_cards_nvidia
--video_cards_fglrx
 -video_cards_vmware
 -video_cards_geode
 -video_cards_via
 -video_cards_virtualbox
--video_cards_xgi
 -video_cards_qxl
 
 # Modular X: mask for architectures on which they aren't available
@@ -180,33 +146,11 @@ video_cards_newport
 #codec support
 -x264
 
-# lvm2 cluster
--gulm
-
-# psyco works on x86
--psyco
-
 # Diego Pettenò <flameeyes@gentoo.org> (4 Jan 2007)
 # Unmask the flags for PHP that are available only on x86
--fdftk
--sybase-ct
--ingres
--birdstep
--adabas
--filepro
--pfpro
--informix
--empress
--empress-bcs
--sybase
--frontbase
--dbmaker
--esoob
--solid
+#
 # Shared with amd64
 -oci8
--oracle7
--db2
 
 # Robert Buchholz <rbu@gentoo.org> (03 Jun 2007)
 # Unmask as it works on x86
@@ -216,12 +160,6 @@ video_cards_newport
 # George Shapovalov <george@gentoo.org> (8 Apr 2007)
 # supported on x86
 -ada
-
-# tcc is x86 only
--tcc
-
-# 64bit Windows doesn't work on 32bit systems
-win64
 
 # fdk-aac is already keyworded here
 -fdk

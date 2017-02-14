@@ -1,11 +1,17 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/targets/desktop/plasma/package.use,v 1.7 2015/06/04 18:57:38 kensington Exp $
+# $Id$
+
+# Required by kde-plasma/plasma-pa
+media-sound/pulseaudio gnome
+
+# Avoid circular dependency when installing from scratch
+dev-util/cmake -qt5
 
 # Not required, but makes life easier with Qt; bug 457934
 app-arch/unzip natspec
 
-# Required by app-office/akonadi-server
+# Required by kde-apps/akonadi
 dev-qt/qtsql mysql
 
 # Required by dev-qt/qtcore
@@ -14,10 +20,19 @@ dev-libs/libpcre pcre16
 # Required by media-gfx/graphviz which is required by kde-apps/kcachegrind
 media-libs/gd fontconfig
 
+# Required by kde-apps/kate[addons]
+dev-libs/libgit2 threads
+
+# Required by kde-apps/ktp-text-ui
+kde-apps/ktp-common-internals otr
+
 # Required by kde-apps/libkexiv2
 media-gfx/exiv2 xmp
 
-# Required by kde-base/pykde4
+# Required by kde-apps/okteta
+dev-qt/qtscript scripttools
+
+# Required by kde-apps/pykde4
 dev-python/PyQt4 script sql webkit
 
 # Required by kde-frameworks/kactivities
@@ -30,17 +45,35 @@ media-gfx/graphviz python
 dev-qt/qtcore icu
 
 # Required by kde-plasma/kwin
-media-libs/mesa egl
+media-libs/mesa egl wayland
+
+# Required by kde-frameworks/kwayland
+dev-qt/qtgui:5 egl
+dev-qt/qtwayland:5 egl
+
+# Required by kde-apps/kdenlive
+>=media-libs/mlt-0.9.8-r2 kdenlive melt
+
+# Required by app-office/libreoffice
+media-libs/phonon designer
 
 # Allow certain KDE 4 components to be coinstalled with Plasma 5
-<dev-util/kdevelop-4.8.0 -gdbui
-kde-apps/kde4-l10n minimal
-kde-apps/kdeartwork-meta minimal
-kde-apps/kdebase-kioslaves minimal
-kde-apps/kdebase-meta minimal
-kde-apps/kdebase-runtime-meta minimal
-kde-base/baloo minimal
-kde-base/kactivities minimal
-kde-base/kde-meta minimal
-net-libs/libkpeople minimal
+kde-apps/solid-runtime -bluetooth
+kde-frameworks/baloo minimal
 sys-auth/polkit-kde-agent minimal
+
+# FIXME: unnecessary REQUIRED_USE ^^ ( qt4 qt5 )
+<app-office/texmaker-4.5-r1 -qt4
+<dev-libs/quazip-0.7.2-r1 -qt4
+dev-python/qscintilla-python -qt4
+x11-libs/qscintilla -qt4
+
+# Fix REQUIRED_USE conflicts: qt5? ( !qt4 )
+>=app-crypt/pinentry-0.9.6-r5 -qt4
+<dev-games/openscenegraph-3.5.1-r1 -qt4
+>=kde-misc/kdiff3-0.9.98-r1 -kde -qt4
+>=media-libs/opencv-2.4.12-r1 -qt4
+<media-video/smplayer-16.4.0-r2 -qt4
+net-analyzer/wireshark -qt4
+<net-print/hplip-3.16.11-r3 -qt4
+<net-wireless/wpa_supplicant-2.6-r1 -qt4

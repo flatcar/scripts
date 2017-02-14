@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 #
@@ -185,6 +185,9 @@ kde4-meta_src_extract() {
 		if [[ ${PV} =~ 4.4.11 ]]; then
 			postfix="bz2"
 			KMTARPARAMS+=" --bzip2"
+		elif [[ ${PV} =~ _pre ]]; then
+			postfix="gz"
+			KMTARPARAMS+=" --gz"
 		else
 			postfix="xz"
 			KMTARPARAMS+=" --xz"
@@ -198,6 +201,9 @@ kde4-meta_src_extract() {
 		# Detect real toplevel dir from tarball name - it will be used upon extraction
 		# and in _list_needed_subdirectories
 		topdir="${tarball%.tar.*}/"
+		if [[ ${topdir} =~ _pre ]]; then
+			topdir="${topdir%-$PV*}/"
+		fi
 
 		ebegin "Unpacking parts of ${tarball} to ${WORKDIR}"
 
@@ -470,7 +476,7 @@ kde4-meta_change_cmakelists() {
 	case ${KMNAME} in
 		kde-workspace)
 			# COLLISION PROTECT section
-			# Install the startkde script just once, as a part of kde-base/kdebase-startkde,
+			# Install the startkde script just once, as a part of kde-plasma/kdebase-startkde,
 			# not as a part of every package.
 			if [[ ${PN} != kdebase-startkde && -f CMakeLists.txt ]]; then
 				# The startkde script moved to kdebase-workspace for KDE4 versions > 3.93.0.

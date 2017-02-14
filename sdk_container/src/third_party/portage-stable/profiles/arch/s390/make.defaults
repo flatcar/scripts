@@ -1,19 +1,22 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/s390/make.defaults,v 1.11 2014/07/01 08:28:31 mgorny Exp $
+# $Id$
 
 ARCH="s390"
 ACCEPT_KEYWORDS="s390 ~s390"
 
 MULTILIB_ABIS="s390"
 DEFAULT_ABI="s390"
-ABI=${DEFAULT_ABI}
+ABI="${DEFAULT_ABI}"
 
 CHOST="s390-ibm-linux-gnu"
 CFLAGS="-O2 -pipe"
 CXXFLAGS="${CFLAGS}"
 FFLAGS="${CFLAGS}"
 FCFLAGS="${CFLAGS}"
+
+LIBDIR_s390x="lib64"
+LIBDIR_s390="lib"
 
 INPUT_DEVICES="void"
 VIDEO_CARDS="dummy"

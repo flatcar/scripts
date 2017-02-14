@@ -47,7 +47,7 @@ if [ -n "${PYTHON_COMPAT}" ] ; then
 	PYTHON_ECLASS="python-r1 python-utils-r1"
 fi
 
-inherit ${SCM} ${PYTHON_ECLASS} cmake-utils
+inherit ${SCM} ${PYTHON_ECLASS} cmake-utils flag-o-matic
 
 CATKIN_DO_PYTHON_MULTIBUILD=""
 if [ -n "${PYTHON_COMPAT}" ] ; then
@@ -78,12 +78,13 @@ fi
 # In that case, CATKIN_MESSAGES_TRANSITIVE_DEPS should contain a space-separated list of atoms
 # representing those dependencies. The eclass uses it to ensure proper dependencies on these packages. 
 if [ -n "${CATKIN_HAS_MESSAGES}" ] ; then
-	IUSE="${IUSE} +ros_messages_python +ros_messages_cxx ros_messages_eus ros_messages_lisp"
+	IUSE="${IUSE} +ros_messages_python +ros_messages_cxx ros_messages_eus ros_messages_lisp ros_messages_nodejs"
 	RDEPEND="${RDEPEND}
-		ros_messages_cxx?    ( dev-ros/gencpp:=${CATKIN_PYTHON_USEDEP}  )
-		ros_messages_eus?    ( dev-ros/geneus:=${CATKIN_PYTHON_USEDEP}  )
-		ros_messages_python? ( dev-ros/genpy:=${CATKIN_PYTHON_USEDEP}   )
-		ros_messages_lisp?   ( dev-ros/genlisp:=${CATKIN_PYTHON_USEDEP} )
+		ros_messages_cxx?    ( dev-ros/gencpp:=${CATKIN_PYTHON_USEDEP}    )
+		ros_messages_eus?    ( dev-ros/geneus:=${CATKIN_PYTHON_USEDEP}    )
+		ros_messages_python? ( dev-ros/genpy:=${CATKIN_PYTHON_USEDEP}     )
+		ros_messages_lisp?   ( dev-ros/genlisp:=${CATKIN_PYTHON_USEDEP}   )
+		ros_messages_nodejs? ( dev-ros/gennodejs:=${CATKIN_PYTHON_USEDEP} )
 		dev-ros/message_runtime
 	"
 	DEPEND="${DEPEND} ${RDEPEND}
@@ -92,7 +93,7 @@ if [ -n "${CATKIN_HAS_MESSAGES}" ] ; then
 	"
 	if [ -n "${CATKIN_MESSAGES_TRANSITIVE_DEPS}" ] ; then
 		for i in ${CATKIN_MESSAGES_TRANSITIVE_DEPS} ; do
-			ds="${i}[ros_messages_python(-)?,ros_messages_cxx(-)?,ros_messages_lisp(-)?,ros_messages_eus(-)?] ros_messages_python? ( ${i}[${PYTHON_USEDEP}] )"
+			ds="${i}[ros_messages_python(-)?,ros_messages_cxx(-)?,ros_messages_lisp(-)?,ros_messages_eus(-)?,ros_messages_nodejs(-)?] ros_messages_python? ( ${i}[${PYTHON_USEDEP}] )"
 			RDEPEND="${RDEPEND} ${ds}"
 			DEPEND="${DEPEND} ${ds}"
 		done
@@ -119,6 +120,11 @@ CATKIN_MESSAGES_LISP_USEDEP="ros_messages_lisp(-)"
 # Use it as cat/pkg[${CATKIN_MESSAGES_EUS_USEDEP}] to indicate a dependency on the EusLisp messages of cat/pkg.
 CATKIN_MESSAGES_EUS_USEDEP="ros_messages_eus(-)"
 
+# @ECLASS-VARIABLE: CATKIN_MESSAGES_NODEJS_USEDEP
+# @DESCRIPTION:
+# Use it as cat/pkg[${CATKIN_MESSAGES_NODEJS_USEDEP}] to indicate a dependency on the nodejs messages of cat/pkg.
+CATKIN_MESSAGES_NODEJS_USEDEP="ros_messages_nodejs(-)"
+
 if [ "${PV#9999}" != "${PV}" ] ; then
 	SRC_URI=""
 	KEYWORDS=""
@@ -140,6 +146,10 @@ ros-catkin_src_prepare() {
 	if [ ! -f "${S}/CMakeLists.txt" ] ; then
 		catkin_init_workspace || die
 	fi
+
+	# Most packages require C++11 these days. Do it here, in src_prepare so that
+	# ebuilds can override it in src_configure.
+	append-cxxflags '-std=c++11'
 }
 
 # @FUNCTION: ros-catkin_src_configure_internal
@@ -147,7 +157,12 @@ ros-catkin_src_prepare() {
 # Internal decoration of cmake-utils_src_configure to handle multiple python installs.
 ros-catkin_src_configure_internal() {
 	if [ -n "${CATKIN_DO_PYTHON_MULTIBUILD}" ] ; then
-		local mycmakeargs=("${mycmakeargs[@]}" -DPYTHON_EXECUTABLE="${PYTHON}")
+		local sitedir="$(python_get_sitedir)"
+		local mycmakeargs=(
+			"${mycmakeargs[@]}"
+			-DPYTHON_EXECUTABLE="${PYTHON}"
+			-DPYTHON_INSTALL_DIR="${sitedir#${EPREFIX}/usr/}"
+		)
 		python_export PYTHON_SCRIPTDIR
 	fi
 	cmake-utils_src_configure "${@}"
@@ -171,6 +186,7 @@ ros-catkin_src_configure() {
 		use ros_messages_eus    || ROS_LANG_DISABLE="${ROS_LANG_DISABLE}:geneus"
 		use ros_messages_lisp   || ROS_LANG_DISABLE="${ROS_LANG_DISABLE}:genlisp"
 		use ros_messages_python || ROS_LANG_DISABLE="${ROS_LANG_DISABLE}:genpy"
+		use ros_messages_nodejs || ROS_LANG_DISABLE="${ROS_LANG_DISABLE}:gennodejs"
 		export ROS_LANG_DISABLE
 	fi
 	local mycmakeargs=(
@@ -202,7 +218,9 @@ ros-catkin_src_compile() {
 # Decorator around cmake-utils_src_test to ensure tests are built before running them.
 ros-catkin_src_test_internal() {
 	cd "${BUILD_DIR}" || die
-	if nonfatal cmake-utils_src_make tests -n &> /dev/null ; then
+	# Using cmake-utils_src_make with nonfatal does not work and breaks e.g.
+	# dev-ros/rviz.
+	if nonfatal emake tests -n &> /dev/null ; then
 		cmake-utils_src_make tests
 	fi
 	cmake-utils_src_test "${@}"
