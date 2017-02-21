@@ -1,19 +1,24 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=5
+EAPI=6
 inherit flag-o-matic toolchain-funcs user
 
 DESCRIPTION="A Tool for network monitoring and data acquisition"
-HOMEPAGE="http://www.tcpdump.org/"
-SRC_URI="http://www.tcpdump.org/release/${P}.tar.gz
-		http://www.jp.tcpdump.org/release/${P}.tar.gz"
+HOMEPAGE="
+	http://www.tcpdump.org/
+	https://github.com/the-tcpdump-group/tcpdump
+"
+SRC_URI="
+	https://dev.gentoo.org/~jer/${P}.tar.gz
+"
+#	https://github.com/the-${PN}-group/${PN}/archive/${P}.tar.gz
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-fbsd ~x86-freebsd ~amd64-linux ~arm-linux ~x86-linux"
-IUSE="+drop-root libressl smi ssl ipv6 samba suid test"
+KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux"
+IUSE="+drop-root libressl smi ssl samba suid test"
 
 RDEPEND="
 	drop-root? ( sys-libs/libcap-ng )
@@ -41,20 +46,12 @@ pkg_setup() {
 }
 
 src_configure() {
-	# tcpdump needs some optimization. see bug #108391
-	# but do not replace -Os
-	filter-flags -O[0-9]
-	has -O? ${CFLAGS} || append-cflags -O2
-
-	filter-flags -finline-functions
-
 	if use drop-root; then
 		append-cppflags -DHAVE_CAP_NG_H
 		export LIBS=$( $(tc-getPKG_CONFIG) --libs libcap-ng )
 	fi
 
 	econf \
-		$(use_enable ipv6) \
 		$(use_enable samba smb) \
 		$(use_with drop-root chroot '') \
 		$(use_with smi) \
