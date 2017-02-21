@@ -1,6 +1,5 @@
 # Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 EAPI="5"
 
@@ -13,17 +12,21 @@ inherit eutils toolchain-funcs python-any-r1
 # git clone git://git.seabios.org/seabios.git && cd seabios
 # git archive --output seabios-${PV}.tar.gz --prefix seabios-${PV}/ rel-${PV}
 
-if [[ ${PV} = *9999* || ! -z "${EGIT_COMMIT}" ]]; then
+if [[ ${PV} == *9999* || -n "${EGIT_COMMIT}" ]] ; then
 	EGIT_REPO_URI="git://git.seabios.org/seabios.git"
 	inherit git-2
 else
 	KEYWORDS="~alpha amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc x86 ~amd64-fbsd ~x86-fbsd"
 	# Upstream hasn't released a new binary.  We snipe ours from Fedora for now.
 	# https://code.coreboot.org/p/seabios/downloads/get/bios.bin-${PV}.gz
+	# http://fedora.mirror.lstn.net/
+	# http://download.fedoraproject.org/pub/fedora/linux/development/rawhide/Everything/x86_64/os/Packages/s/
+	#   seabios-bin-1.10.1-1.fc26.noarch.rpm
+	#   seavgabios-bin-1.10.1-1.fc26.noarch.rpm
 	SRC_URI="!binary? ( https://code.coreboot.org/p/seabios/downloads/get/${P}.tar.gz )
 		binary? (
 			mirror://gentoo/bios.bin-${PV}.xz
-			seavgabios? ( mirror://gentoo/seavgabios-${PV}.tar.xz )
+			seavgabios? ( mirror://gentoo/seavgabios-bin-${PV}.tar.xz )
 		)"
 fi
 
@@ -75,7 +78,6 @@ src_unpack() {
 src_prepare() {
 	use binary && return
 
-	epatch "${FILESDIR}"/${P}-fstack-check.patch #559980
 	epatch_user
 }
 
