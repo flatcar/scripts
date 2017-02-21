@@ -1,7 +1,0 @@
-# Copyright 1999-2015 Gentoo Foundation.
-# Distributed under the terms of the GNU General Public License, v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/default/bsd/fbsd/amd64/9.2/make.defaults,v 1.2 2015/06/20 21:55:23 chewi Exp $
-
-CHOST="x86_64-gentoo-freebsd9.2"
-CHOST_amd64_fbsd="x86_64-gentoo-freebsd9.2"
-CHOST_x86_fbsd="i686-gentoo-freebsd9.2"

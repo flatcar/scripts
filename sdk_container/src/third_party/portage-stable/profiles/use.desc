@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/use.desc,v 1.526 2015/06/20 23:04:05 chewi Exp $
+# $Id$
 
 # Keep them sorted
 
@@ -24,6 +24,7 @@ apm - Add APM (Advanced Power Management) support
 aqua - Include support for the Mac OS X Aqua (Carbon/Cocoa) GUI
 atm - Enable Asynchronous Transfer Mode protocol support
 audiofile - Add support for libaudiofile where applicable
+audit - Enable support for Linux audit subsystem using sys-process/audit
 avahi - Add avahi/Zeroconf support
 ayatana - Build in support for Ayatana notification using the libindicate or libappindicator plugin
 bash-completion - Enable bash-completion support
@@ -61,7 +62,6 @@ css - Enable reading of encrypted DVDs
 ctype - Enable ctype functions
 cups - Add support for CUPS (Common Unix Printing System)
 curl - Add support for client-side URL transfer library
-curlwrappers - Add support for using curl in streams
 custom-cflags - Build with user-specified CFLAGS (unsupported)
 cvs - Enable CVS (Concurrent Versions System) integration
 cxx - Build support for C++ (bindings, extra libraries, code generation, ...)
@@ -104,12 +104,12 @@ foomaticdb - Add support for the foomatic printing driver database
 fortran - Add support for fortran
 freetds - Add support for the TDS protocol to connect to MSSQL/Sybase databases
 freewnn - Add support for FreeWnn kana to kanji conversion engine
-frontbase - Add support for the frontbase sql server
 ftp - Add FTP (File Transfer Protocol) support
 gcj - Enable building with gcj (The GNU Compiler for the Javatm Programming Language)
 gd - Add support for media-libs/gd (to generate graphics on the fly)
 gdbm - Add support for sys-libs/gdbm (GNU database libraries)
 geoip - Add geoip support for country and city lookup based on IPs
+geolocation - Enable physical position determination
 ggi - Add support for media-libs/libggi (non-X video api/drivers)
 gif - Add GIF image support
 gimp - Build a plugin for the GIMP
@@ -123,6 +123,7 @@ gnutls - Add support for net-libs/gnutls (TLS 1.0 and SSL 3.0 support)
 gphoto2 - Add digital camera support
 gpm - Add support for sys-libs/gpm (Console-based mouse driver)
 gps - Add support for Global Positioning System
+graphicsmagick - Enable support for the GraphicsMagick image converter (fork of media-gfx/imagemagick)
 graphviz - Add support for the Graphviz library
 gsl - Use the GNU scientific library for calculations
 gsm - Add support for the gsm lossy speech compression codec
@@ -130,7 +131,7 @@ gstreamer - Add support for media-libs/gstreamer (Streaming media)
 gtk - Add support for x11-libs/gtk+ (The GIMP Toolkit)
 guile - Add support for the guile Scheme interpreter
 gzip - Compress files with Lempel-Ziv coding (LZ77)
-handbook - Enable handbooks generation for KDE4.
+handbook - Enable handbooks generation for packages by KDE
 hardened - Activate default security enhancements for toolchain (gcc, glibc, binutils)
 hddtemp - Enable monitoring of hdd temperature (app-admin/hddtemp)
 hdf5 - Add support for the Hierarchical Data Format v5
@@ -141,7 +142,7 @@ icq - Enable ICQ IM protocol support
 icu - Enable ICU (Internationalization Components for Unicode) support, using dev-libs/icu
 idn - Enable support for Internationalized Domain Names
 ieee1394 - Enable FireWire/iLink IEEE1394 support (dv, camera, ...)
-imagemagick - Enable support for Imagemagick (image converter)
+imagemagick - Enable support for the ImageMagick image converter
 imap - Add support for IMAP (Internet Mail Application Protocol)
 imlib - Add support for imlib, an image loading and rendering library
 infiniband - Enable Infiniband RDMA transport support
@@ -153,7 +154,6 @@ ios - Enable support for Apple's iDevice with iOS operating system (iPad, iPhone
 ipod - Enable support for iPod device access
 ipv6 - Add support for IP version 6
 iwmmxt - Add support for optimizations for ARM iwMMXt instructions
-jabber - Enable jabber IM protocol support
 jack - Add support for the JACK Audio Connection Kit
 java - Add support for Java
 javascript - Enable javascript support
@@ -166,7 +166,7 @@ jpeg2k - Support for JPEG 2000, a wavelet-based image compression format
 kde - Add support for KDE (K Desktop Environment)
 kerberos - Add kerberos support
 kolab - Add support for the Kolab groupware server
-kontact - Enable support for the KDE personal information manager (kde-base/kdepim*)
+kontact - Enable support for the KDE personal information manager (kde-apps/kdepim*)
 ladspa - Enable the ability to support ladspa plugins
 lame - Prefer using LAME libraries for MP3 encoding support
 lapack - Add support for the virtual/lapack numerical library
@@ -180,6 +180,7 @@ libcaca - Add support for colored ASCII-art graphics
 libedit - Use the libedit library (replacement for readline)
 libffi - Enable support for Foreign Function Interface library
 libnotify - Enable desktop notification support
+libressl - Use dev-libs/libressl as SSL provider (might need ssl USE flag), packages should not depend on this USE flag
 libsamplerate - Build with support for converting sample rates using libsamplerate
 libwww - Add libwww support (General purpose WEB API)
 lirc - Add support for lirc (Linux's Infra-Red Remote Control)
@@ -192,8 +193,8 @@ m17n-lib - Enable m17n-lib support
 mad - Add support for mad (high-quality mp3 decoder library and cli frontend)
 maildir - Add support for maildir (~/.maildir) style mail spools
 matroska - Add support for the matroska container format (extensions .mkv, .mka and .mks)
-matrox - Add Matrox MGA support to mplayer
 mbox - Add support for mbox (/var/spool/mail) style mail spools
+memcached - Add support for memcached
 memlimit - Add memory usage limiting in supporting programs
 mhash - Add support for the mhash library
 migemo - Enable migemo support for Japanese
@@ -284,7 +285,7 @@ qt5 - Add support for the Qt 5 application and UI framework
 quicktime - Add support for OpenQuickTime
 radius - Add support for RADIUS authentication
 raw - Add support for raw image formats
-rdesktop - Add support for the remote desktop protocol, usually used to connect to Windows servers
+rdp - Enables RDP/Remote Desktop support
 readline - Enable support for libreadline, a GNU line-editing library that almost everyone wants
 recode - Enable support for the GNU recode library
 rss - Enable support for RSS feeds
@@ -293,9 +294,10 @@ samba - Add support for SAMBA (Windows File and Printer sharing)
 sasl - Add support for the Simple Authentication and Security Layer
 savedconfig - Use this to restore your config from /etc/portage/savedconfig ${CATEGORY}/${PN}. Make sure your USE flags allow for appropriate dependencies
 scanner - Add support for scanner hardware (e.g. build the sane frontend in kdegraphics)
+sctp - Support for Stream Control Transmission Protocol
 sdl - Add support for Simple Direct Layer (media library)
 seamonkey - Add support for the Seamonkey web-browser
-seccomp - Enable seccomp for system call filtering
+seccomp - Enable seccomp (secure computing mode) to perform system call filtering at runtime to increase security of programs
 selinux - !!internal use only!! Security Enhanced Linux support, this must be set by the selinux profile or breakage will occur
 semantic-desktop - Cross-KDE support for semantic search and information retrieval
 session - Add persistent session support
@@ -318,7 +320,6 @@ sox - Add support for Sound eXchange (SoX)
 speex - Add support for the speex audio codec (used for speech)
 spell - Add dictionary support
 sqlite - Add support for sqlite - embedded sql database
-sqlite3 - Add support for sqlite3 - embedded sql database
 ssl - Add support for Secure Socket Layer connections
 startup-notification - Enable application startup event feedback mechanism
 static - !!do not set this during bootstrap!! Causes binaries to be statically linked instead of dynamically
@@ -370,6 +371,7 @@ wayland - Enable dev-libs/wayland backend
 wavpack - Add support for wavpack audio compression tools
 wddx - Add support for Web Distributed Data eXchange
 webkit - Add support for the WebKit HTML rendering/layout engine
+webp - Add support for the WebP image format
 wifi - Enable wireless network functions
 wmf - Add support for the Windows Metafile vector image format
 wxwidgets - Add support for wxWidgets/wxGTK GUI toolkit

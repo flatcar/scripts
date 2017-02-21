@@ -17,16 +17,44 @@ inherit toolchain-funcs versionator
 
 # @ECLASS-VARIABLE: EAPI
 # @DESCRIPTION:
-# Currently EAPI 5 and 6 is supported.
+# Currently EAPI 6 is supported.
 case ${EAPI} in
-	5|6) ;;
+	6) ;;
 	*) die "EAPI=${EAPI:-0} is not supported" ;;
 esac
+
+# determine the build type
+if [[ ${PV} = *9999* ]]; then
+	KDE_BUILD_TYPE="live"
+else
+	KDE_BUILD_TYPE="release"
+fi
+export KDE_BUILD_TYPE
+
+case ${CATEGORY} in
+	kde-frameworks)
+		[[ ${KDE_BUILD_TYPE} = live ]] && : ${FRAMEWORKS_MINIMAL:=9999}
+		;;
+	kde-plasma)
+		if ! [[ $(get_version_component_range 2) -le 8 && $(get_version_component_range 3) -lt 50 ]]; then
+			: ${QT_MINIMAL:=5.7.1}
+		fi
+		if [[ ${KDE_BUILD_TYPE} = live ]]; then
+			: ${FRAMEWORKS_MINIMAL:=9999}
+			: ${QT_MINIMAL:=5.7.1}
+		fi
+		;;
+esac
+
+# @ECLASS-VARIABLE: QT_MINIMAL
+# @DESCRIPTION:
+# Minimal Qt version to require for the package.
+: ${QT_MINIMAL:=5.6.1}
 
 # @ECLASS-VARIABLE: FRAMEWORKS_MINIMAL
 # @DESCRIPTION:
 # Minimal Frameworks version to require for the package.
-: ${FRAMEWORKS_MINIMAL:=5.17.0}
+: ${FRAMEWORKS_MINIMAL:=5.29.0}
 
 # @ECLASS-VARIABLE: PLASMA_MINIMAL
 # @DESCRIPTION:
@@ -35,13 +63,13 @@ esac
 
 # @ECLASS-VARIABLE: KDE_APPS_MINIMAL
 # @DESCRIPTION:
-# Minimal KDE Applicaions version to require for the package.
+# Minimal KDE Applications version to require for the package.
 : ${KDE_APPS_MINIMAL:=14.12.0}
 
 # @ECLASS-VARIABLE: KDE_GCC_MINIMAL
+# @DEFAULT_UNSET
 # @DESCRIPTION:
 # Minimal GCC version to require for the package.
-: ${KDE_GCC_MINIMAL:=4.8}
 
 # @ECLASS-VARIABLE: KDEBASE
 # @DESCRIPTION:
@@ -49,6 +77,8 @@ esac
 # kdevelop ebuild.
 if [[ ${KMNAME-${PN}} = kdevelop ]]; then
 	KDEBASE=kdevelop
+elif [[ ${KMNAME} = kde-l10n || ${PN} = kde-l10n ]]; then
+	KDEBASE=kdel10n
 fi
 
 debug-print "${ECLASS}: ${KDEBASE} ebuild recognized"
@@ -63,29 +93,31 @@ case ${KDE_SCM} in
 	*) die "KDE_SCM: ${KDE_SCM} is not supported" ;;
 esac
 
-# determine the build type
-if [[ ${PV} = *9999* ]]; then
-	KDE_BUILD_TYPE="live"
-else
-	KDE_BUILD_TYPE="release"
-fi
-export KDE_BUILD_TYPE
-
 # @FUNCTION: _check_gcc_version
 # @INTERNAL
 # @DESCRIPTION:
 # Determine if the current GCC version is acceptable, otherwise die.
 _check_gcc_version() {
-	if [[ ${MERGE_TYPE} != binary ]]; then
+	if [[ ${MERGE_TYPE} != binary && -v KDE_GCC_MINIMAL ]] && tc-is-gcc; then
+
 		local version=$(gcc-version)
 		local major=${version%.*}
 		local minor=${version#*.}
 		local min_major=${KDE_GCC_MINIMAL%.*}
 		local min_minor=${KDE_GCC_MINIMAL#*.}
 
+		debug-print "GCC version check activated"
+		debug-print "Version detected:"
+		debug-print "	- Full: ${version}"
+		debug-print "	- Major: ${major}"
+		debug-print "	- Minor: ${minor}"
+		debug-print "Version required:"
+		debug-print "	- Major: ${min_major}"
+		debug-print "	- Minor: ${min_minor}"
+
 		[[ ${major} -lt ${min_major} ]] || \
 				( [[ ${major} -eq ${min_major} && ${minor} -lt ${min_minor} ]] ) \
-			&& die "Sorry, but gcc-${KDE_GCC_MINIMAL} or later is required for this package."
+			&& die "Sorry, but gcc-${KDE_GCC_MINIMAL} or later is required for this package (found ${version})."
 	fi
 }
 
@@ -136,6 +168,10 @@ _add_category_dep() {
 add_frameworks_dep() {
 	debug-print-function ${FUNCNAME} "$@"
 
+	if [[ $# -gt 4 ]]; then
+		die "${FUNCNAME} was called with too many arguments"
+	fi
+
 	local version
 
 	if [[ -n ${3} ]]; then
@@ -164,6 +200,10 @@ add_frameworks_dep() {
 add_plasma_dep() {
 	debug-print-function ${FUNCNAME} "$@"
 
+	if [[ $# -gt 4 ]]; then
+		die "${FUNCNAME} was called with too many arguments"
+	fi
+
 	local version
 
 	if [[ -n ${3} ]]; then
@@ -191,6 +231,10 @@ add_plasma_dep() {
 # of parentheses).
 add_kdeapps_dep() {
 	debug-print-function ${FUNCNAME} "$@"
+
+	if [[ $# -gt 4 ]]; then
+		die "${FUNCNAME} was called with too many arguments"
+	fi
 
 	local version
 
@@ -225,15 +269,24 @@ add_kdeapps_dep() {
 add_qt_dep() {
 	debug-print-function ${FUNCNAME} "$@"
 
+	if [[ $# -gt 4 ]]; then
+		die "${FUNCNAME} was called with too many arguments"
+	fi
+
 	local version
+	local slot=${4}
 
 	if [[ -n ${3} ]]; then
 		version=${3}
-	elif [[ -z "${version}" ]] ; then
+	elif [[ -z "${version}" ]]; then
 		version=${QT_MINIMAL}
 	fi
 
-	_add_category_dep dev-qt "${1}" "${2}" "${version}" "${4}"
+	if [[ -z ${slot} ]]; then
+		slot="5"
+	fi
+
+	_add_category_dep dev-qt "${1}" "${2}" "${version}" "${slot}"
 }
 
 # @FUNCTION: get_kde_version
@@ -252,6 +305,26 @@ get_kde_version() {
 	fi
 }
 
+# @FUNCTION: kde_l10n2lingua
+# @USAGE: <l10n>...
+# @INTERNAL
+# @DESCRIPTION:
+# Output KDE lingua flag name(s) (without prefix(es)) appropriate for
+# given l10n(s).
+kde_l10n2lingua() {
+	local l
+	for l; do
+		case ${l} in
+			ca-valencia) echo ca@valencia;;
+			sr-ijekavsk) echo sr@ijekavian;;
+			sr-Latn-ijekavsk) echo sr@ijekavianlatin;;
+			sr-Latn) echo sr@latin;;
+			uz-Cyrl) echo uz@cyrillic;;
+			*) echo "${l/-/_}";;
+		esac
+	done
+}
+
 # @FUNCTION: punt_bogus_dep
 # @USAGE: <prefix> <dependency>
 # @DESCRIPTION:
@@ -259,6 +332,10 @@ get_kde_version() {
 punt_bogus_dep() {
 	local prefix=${1}
 	local dep=${2}
+
+	if [[ ! -e "CMakeLists.txt" ]]; then
+		return
+	fi
 
 	pcregrep -Mni "(?s)find_package\s*\(\s*${prefix}[^)]*?${dep}.*?\)" CMakeLists.txt > "${T}/bogus${dep}"
 
@@ -274,7 +351,7 @@ punt_bogus_dep() {
 	sed -e "${first},${last}s/${dep}//" -i CMakeLists.txt || die
 
 	if [[ ${length} = 1 ]] ; then
-		sed -e "/find_package\s*(\s*${prefix}\s*\(REQUIRED\)*\s*\(COMPONENTS\)*\s*)/I d" -i CMakeLists.txt || die
+		sed -e "/find_package\s*(\s*${prefix}\(\s\+\(REQUIRED\|CONFIG\|COMPONENTS\|\${[A-Z0-9_]*}\)\)\+\s*)/Is/^/# removed by kde5-functions.eclass - /" -i CMakeLists.txt || die
 	fi
 }
 

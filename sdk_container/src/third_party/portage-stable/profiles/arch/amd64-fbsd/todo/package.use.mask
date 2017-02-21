@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64-fbsd/todo/package.use.mask,v 1.338 2014/09/16 17:12:06 chithanh Exp $
+# $Id$
 
 # Mask useflags that require deps with missing keywords.
 # Anyone is allowed and _very welcome_ to add masks there.
@@ -45,7 +45,6 @@ sys-apps/hwloc numa
 # dev-lang/mono
 net-dns/libidn mono
 media-libs/libcaca mono
-dev-java/antlr mono
 
 # dev-lang/mono
 # >=dev-dotnet/gtk-sharp-2
@@ -66,7 +65,6 @@ media-gfx/ufraw gimp
 # net-libs/libproxy
 net-libs/neon libproxy
 net-libs/glib-networking libproxy
-media-video/vlc libproxy
 
 # dev-libs/pakchois
 net-libs/neon pkcs11
@@ -101,9 +99,6 @@ gnome-base/gvfs ios
 # >=sys-fs/fuse-2.8.0
 gnome-base/gvfs fuse
 
-# >=gnome-base/libgdu-3.0.2
-gnome-base/gvfs gdu
-
 # >=x11-libs/libva-0.32
 media-video/ffmpeg vaapi
 virtual/ffmpeg vaapi
@@ -133,16 +128,11 @@ dev-lang/php mysql mysqli
 net-libs/courier-authlib mysql
 
 # does not build
-x11-libs/libdrm libkms
 media-libs/mesa video_cards_vmware
-media-libs/mesa video_cards_r600
-media-libs/mesa video_cards_radeon
 
 # media-libs/libepoxy
 x11-base/xorg-server glamor wayland
-
-# x11-libs/libdrm[libkms]
-media-libs/mesa xorg
+x11-drivers/xf86-video-ati glamor
 
 # x11-drivers/xf86-video-sis
 x11-base/xorg-drivers video_cards_sis
@@ -150,17 +140,10 @@ x11-base/xorg-drivers video_cards_sis
 # x11-drivers/xf86-video-tdfx
 x11-base/xorg-drivers video_cards_tdfx
 
-# x11-drivers/xf86-video-vmware
-# x11-libs/libdrm[libkms,video_cards_vmware]
-x11-base/xorg-drivers video_cards_vmware
-
-# >=dev-cpp/clucene-0.9.21[-debug]
-app-misc/strigi clucene
-
 # >=sys-auth/polkit-qt-0.103.0
 # >=kde-misc/polkit-kde-kcmodules-0.98_pre20101127
 # >=sys-auth/polkit-kde-agent-0.99
-kde-base/kdelibs policykit
+kde-frameworks/kdelibs policykit
 
 # <=sci-geosciences/gpsd-2.95-r1
 app-misc/geoclue gps
@@ -177,16 +160,16 @@ media-video/vlc fluidsynth
 # sys-cluster/knem
 sys-cluster/openmpi openmpi_fabrics_knem
 
-# sys-infiniband/dapl
+# sys-fabric/dapl
 sys-cluster/openmpi openmpi_fabrics_dapl
 
-# sys-infiniband/ofed
+# sys-fabric/ofed
 sys-cluster/openmpi openmpi_fabrics_ofed
 
-# sys-infiniband/infinipath-psm
+# sys-fabric/infinipath-psm
 sys-cluster/openmpi openmpi_fabrics_psm
 
-# sys-infiniband/librdmacm
+# sys-fabric/librdmacm
 sys-cluster/openmpi openmpi_ofed_features_rdmacm
 
 # sys-cluster/open-mx
@@ -210,12 +193,8 @@ media-gfx/graphviz devil
 # sys-apps/util-linux (libuuid)
 net-misc/wget uuid
 
-# dev-util/valgrind
-dev-libs/eina valgrind
-
-# dev-util/lcov
-dev-libs/eina test
-dev-libs/eet test
-
 # net-misc/freerdp (doesnt build)
 media-video/vlc rdp
+
+# net-wireless/bluez
+media-sound/pulseaudio bluetooth

@@ -5,12 +5,14 @@ ACCEPT_KEYWORDS="arm64"
 
 MULTILIB_ABIS="arm64"
 DEFAULT_ABI="arm64"
-ABI=${DEFAULT_ABI}
+ABI="${DEFAULT_ABI}"
 
 CFLAGS="-O2"
 CXXFLAGS="${CFLAGS}"
 FFLAGS="${CFLAGS}"
 FCFLAGS="${CFLAGS}"
+
+LIBDIR_arm64="lib64"
 
 # Defaults for video drivers
 VIDEO_CARDS="fbdev"

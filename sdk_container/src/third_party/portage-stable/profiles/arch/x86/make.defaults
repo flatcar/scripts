@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86/make.defaults,v 1.17 2015/01/30 21:48:00 mgorny Exp $
+# $Id$
 
 # All extra USE/etc should be specified in sub-profiles.
 # DO NOT POLLUTE USE ON THIS PROFILE.
@@ -29,7 +29,7 @@ LIBDIR_x86="lib"
 
 # 2006/08/18 - Donnie Berkholz <dberkholz@gentoo.org>
 # Defaults for video drivers
-VIDEO_CARDS="fbdev glint intel mach64 mga nouveau nv r128 radeon savage sis tdfx trident vesa via vmware voodoo"
+VIDEO_CARDS="amdgpu fbdev intel nouveau radeon radeonsi vesa"
 
 # 2006/12/21 - Andrej Kacian <ticho@gentoo.org>
 # Defaults for audio drivers

@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64/x32/package.use.mask,v 1.4 2014/01/03 03:06:29 creffett Exp $
+# $Id$
 
 # This file requires >=portage-2.1.1
 
@@ -9,6 +9,7 @@
 app-emulation/wine abi_x86_x32
 
 # Davide Pesavento <pesa@gentoo.org> (30 Nov 2011)
-# JavaScriptCore JIT doesn't currently work on x32.
+# The QML (V4) and JSC JITs do not work on x32.
+dev-qt/qtdeclarative jit
 dev-qt/qtscript jit
 dev-qt/qtwebkit jit

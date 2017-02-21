@@ -61,7 +61,7 @@ esac
 EXPORT_FUNCTIONS ${EXPORTED_FUNCTIONS}
 
 IUSE=""
-HOMEPAGE="http://xorg.freedesktop.org/"
+HOMEPAGE="https://www.x.org/wiki/"
 
 # @ECLASS-VARIABLE: XORG_EAUTORECONF
 # @DESCRIPTION:
@@ -73,7 +73,7 @@ HOMEPAGE="http://xorg.freedesktop.org/"
 # @DESCRIPTION:
 # Set up SRC_URI for individual modular releases. If set to an empty
 # string, no SRC_URI will be provided by the eclass.
-: ${XORG_BASE_INDIVIDUAL_URI="http://xorg.freedesktop.org/releases/individual"}
+: ${XORG_BASE_INDIVIDUAL_URI="https://www.x.org/releases/individual"}
 
 # @ECLASS-VARIABLE: XORG_MODULE
 # @DESCRIPTION:
@@ -115,7 +115,7 @@ fi
 
 # Set up autotools shared dependencies
 # Remember that all versions here MUST be stable
-XORG_EAUTORECONF_ARCHES="x86-interix ppc-aix x86-winnt"
+XORG_EAUTORECONF_ARCHES="ppc-aix x86-winnt"
 EAUTORECONF_DEPEND+="
 	>=sys-devel/libtool-2.2.6a
 	sys-devel/m4"
@@ -359,7 +359,7 @@ xorg-2_reconf_source() {
 	debug-print-function ${FUNCNAME} "$@"
 
 	case ${CHOST} in
-		*-interix* | *-aix* | *-winnt*)
+		*-aix* | *-winnt*)
 			# some hosts need full eautoreconf
 			[[ -e "./configure.ac" || -e "./configure.in" ]] \
 				&& AUTOTOOLS_AUTORECONF=1
@@ -468,8 +468,14 @@ xorg-2_src_configure() {
 		local dep_track="--disable-dependency-tracking"
 	fi
 
+	# Check if package supports disabling of selective -Werror=...
+	if grep -q -s "disable-selective-werror" ${ECONF_SOURCE:-.}/configure; then
+		local selective_werror="--disable-selective-werror"
+	fi
+
 	local myeconfargs=(
 		${dep_track}
+		${selective_werror}
 		${FONT_OPTIONS}
 		"${xorgconfadd[@]}"
 	)

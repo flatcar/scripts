@@ -1,13 +1,18 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/amd64/no-multilib/package.use.mask,v 1.2 2013/05/16 19:29:27 zorry Exp $
+# $Id$
 
 # Mirror profile/amd64/no-multilib/package.use.mask
+
+# Mike Frysinger <vapier@gentoo.org> (12 Aug 2016)
+# Requires sys-boot/grub:0 which is masked here.
+sys-apps/memtest86+ floppy
+
 # Alexandre Rostovtsev <tetromino@gentoo.org> (24 Jun 2012)
 # Disable 32-bit parts of wine, bug #351436
-app-emulation/wine mono win32
+app-emulation/wine mono
 
-# Apr 28, 2008 SÃ©bastien Fabbro <bicatali@gentoo.org>
+# Apr 28, 2008 Sébastien Fabbro <bicatali@gentoo.org>
 # ifc masked
 sci-libs/acml ifc
 

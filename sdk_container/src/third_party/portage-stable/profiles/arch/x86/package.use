@@ -1,10 +1,11 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/x86/package.use,v 1.3 2015/05/03 05:15:22 yngwin Exp $
+# $Id$
 
-# Ben de Groot <yngwin@gentoo.org> (03 May 2015)
-# Enable luajit (for OSC) by default
-media-video/mpv lua luajit
+# Michał Górny <mgorny@gentoo.org> (24 Sep 2016)
+# Enable the GPU targets matching the default VIDEO_CARDS
+sys-devel/clang llvm_targets_AMDGPU llvm_targets_NVPTX
+sys-devel/llvm llvm_targets_AMDGPU llvm_targets_NVPTX
 
 # Doug Goldstein <cardoe@gentoo.org> (29 Oct 2012)
 # Enable the native arch as the default qemu target

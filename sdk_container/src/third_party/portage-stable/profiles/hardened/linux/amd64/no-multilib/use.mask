@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/amd64/no-multilib/use.mask,v 1.2 2013/05/16 19:29:27 zorry Exp $
+# $Id$
 
 # Mask the multilib flags back for non-multilib profile.
 abi_x86_32
@@ -15,10 +15,10 @@ mbrola
 # Xen HVM support requires building 32-bit binaries.
 hvm
 
+# 2008/02/13 - Chris Gianelloni <wolf31o2@gentoo.org>
+# Mask multilib, since we cannot use it.
+multilib
+
 # 2009/05/11 Doug Goldstein <cardoe@gentoo.org>
 # Mask 32bit since this will always require emulation packages
 32bit
-
-# Matt Turner <mattst88@gentoo.org) (10 Feb 2012)
-# mask d3d since wine is 32-bit
-d3d

@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64-fbsd/clang/package.use.force,v 1.2 2015/03/14 14:00:21 mgorny Exp $
+# $Id$
 
 # Force building libc++ over libcxxrt.
 sys-libs/libcxx libcxxrt
@@ -14,4 +14,4 @@ sys-libs/libcxx static-libs abi_x86_32
 net-misc/curl ssl curl_ssl_openssl
 
 # We obviously need clang
-sys-devel/llvm clang static-analyzer
+sys-devel/llvm clang static-analyzer default-compiler-rt default-libcxx

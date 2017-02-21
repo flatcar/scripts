@@ -4,6 +4,39 @@
 # doomsday ebuild is not available on this architecture
 doomsday
 
+# Mart Raudsepp <leio@gentoo.org> (05 Feb 2017)
+# dev-libs/DirectFB not tested on arm64 (and we probably don't want it)
+directfb
+
+# Mart Raudsepp <leio@gentoo.org> (04 Feb 2017)
+# net-fs/samba not tested on arm64 yet
+samba
+
+# Mart Raudsepp <leio@gentoo.org> (01 Feb 2017)
+# Unmask systemd since it is keyworded here.
+-systemd
+
+# Mart Raudsepp <leio@gentoo.org> (28 Jan 2017)
+# dev-libs/wayland not tested on arm64 yet
+wayland
+
+# Mart Raudsepp <leio@gentoo.org> (28 Jan 2017)
+# dev-util/valgrind not tested on arm64 yet
+# Upstream seems to have architecture support, however
+valgrind
+
+# Mart Raudsepp <leio@gentoo.org> (28 Jan 2017)
+# media-libs/portaudio not tested on arm64 yet
+portaudio
+
+# Mart Raudsepp <leio@gentoo.org> (28 Jan 2017)
+# media-sound/pulseaudio not tested on arm64 yet
+pulseaudio
+
+# Mart Raudsepp <leio@gentoo.org> (28 Jan 2017)
+# dev-libs/libressl not tested as an openssl alternative on arm64 yet
+libressl
+
 # Markus Meier <maekke@gentoo.org> (22 Aug 2010)
 # net-wireless/wimax not tested
 wimax
@@ -33,10 +66,6 @@ openexr
 amr
 
 # Samuli Suominen <drac@gentoo.org>
-# sci-visualization/grace not tested.
-grace
-
-# Samuli Suominen <drac@gentoo.org>
 # media-gfx/gimp not tested.
 gimp
 
@@ -47,13 +76,9 @@ ipod
 
 # Stuff that doesn't make sense on this arch
 3dfx
-cpufreq
-dell
-laptop
 dmi
 
 # Stuff we don't want
-chicken
 fuse
 R
 octave
@@ -62,8 +87,6 @@ xindy
 lyx
 mpi
 lasi
-fusion
-debug-utils
 schroedinger
 hardened
 frei0r
@@ -86,41 +109,27 @@ kerberos
 gpg
 gnome
 gnome-keyring
-cupsddk
 doc
 emacs
 gphoto2
-mythtv
 afs
 mono
-pike
 lirc
 lm_sensors
-netjack
-beagle
-nvtv
-mzscheme
 xemacs
 rpm
 scanner
-madwifi
-libupnp
 zvbi
 ldap
 mysql
-postgres
 dvd
 fluidsynth
-gnomecd
-cblas
-prolog
 sid
 mms
 mtp
 ieee1394
 sctp
 pm-utils
-wicd
 darcs
 bs2b
 toolame
@@ -128,14 +137,12 @@ ladspa
 ldns
 ggi
 nut
-xanim
 dvd
 fits
 tokyocabinet
 vaapi
 rtmp
 vpx
-iplayer
 plotutils
 lpsol
 upnp
@@ -148,26 +155,23 @@ devil
 gts
 anthy
 ace
-csharp
-gtk
 qt4
-qt5
 R
 sdl
 slang
 tk
 vim-syntax
-X
+
+# Unmask ARM-only video-cards
+-video_cards_vc4
 
 # 2006/02/05 - Donnie Berkholz <dberkholz@gentoo.org>
 # Modular X: mask for architectures on which they aren't available
 video_cards_apm
 video_cards_ark
 video_cards_ast
-video_cards_ati
 video_cards_cirrus
 video_cards_chips
-video_cards_cyrix
 video_cards_glint
 video_cards_i128
 video_cards_i740
@@ -197,6 +201,7 @@ video_cards_voodoo
 
 # Matt Turner <mattst88@gentoo.org>
 # Mask more VIDEO_CARDs added with mesa-8.0
+video_cards_amdgpu
 video_cards_r100
 video_cards_r200
 video_cards_r300
@@ -213,10 +218,6 @@ video_cards_vmware
 # Robin H. Johnson <robbat2@gentoo.org>
 audit
 
-# Matt Turner <mattst88@gentoo.org) (10 Feb 2012)
-# mask d3d since we don't have wine
-d3d
-
 # Alexandre Rostovtsev <tetromino@gentoo.org> (31 Dec 2012)
 # media-libs/xine-lib is not keyworded
 xine
@@ -229,12 +230,3 @@ clvm
 # Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (22 Aug 2013)
 # virtual/opencl is not keyworded
 opencl
-
-# This one we need to test ...
-python_targets_python3_3
-
-# sys-libs/libseccomp has not been ported to this arch yet #524148
-seccomp
-
-# No arm64 java support yet.
-java

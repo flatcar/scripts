@@ -7,5 +7,5 @@ IUSE=atahpt +bitbang_spi +buspirate_spi +dediprog doc +drkaiser +dummy ft2232_sp
 LICENSE=GPL-2
 RDEPEND=atahpt? ( sys-apps/pciutils ) dediprog? ( virtual/libusb:0 ) drkaiser? ( sys-apps/pciutils ) ft2232_spi? ( dev-embedded/libftdi ) gfxnvidia? ( sys-apps/pciutils ) internal? ( sys-apps/pciutils ) nic3com? ( sys-apps/pciutils ) nicintel? ( sys-apps/pciutils ) nicintel_spi? ( sys-apps/pciutils ) nicnatsemi? ( sys-apps/pciutils ) nicrealtek? ( sys-apps/pciutils ) rayer_spi? ( sys-apps/pciutils ) satasii? ( sys-apps/pciutils ) satamv? ( sys-apps/pciutils ) ogp_spi? ( sys-apps/pciutils ) internal? ( sys-apps/dmidecode )
 SLOT=0
-_eclasses_=eutils	9d81603248f2ba3ec59124320d123e5e	multilib	3972ca401cf7dbb430df9995f5d8d580	subversion	4fee0a764150bb4dda27ed4d2c4ed7ce	toolchain-funcs	7a212e5e01adfa4805c9978366e6ee85
+_eclasses_=eutils	ea170b525f6a38a006be05c9d9429f13	multilib	165fc17c38d1b11dac2008280dab6e80	subversion	750f91bd0705a41b26ba01bcee93aaad	toolchain-funcs	1b1da0c45c555989dc5d832b54880783
 _md5_=6ed572697ce7fb9806f95e3ae84c19c3

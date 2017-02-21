@@ -1,6 +1,11 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/prefix/darwin/macos/arch/x64/make.defaults,v 1.3 2014/07/05 13:08:34 grobian Exp $
+# $Id$
+
+ARCH="x64-macos"
+ACCEPT_KEYWORDS="~x64-macos"
+
+CPU_FLAGS_X86="mmx mmxext sse sse2"
 
 # multilib build stuff, single ABI (no multilib)
 MULTILIB_ABIS="amd64"
@@ -8,3 +13,5 @@ DEFAULT_ABI="amd64"
 ABI="amd64"
 IUSE_IMPLICIT="abi_x86_64"
 LIBDIR_amd64="lib"
+# We use Clang, let it figure out what is the best to use
+CFLAGS="-march=native"

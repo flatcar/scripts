@@ -7,5 +7,5 @@ LICENSE=GPL-2
 RDEPEND=app-shells/bash || ( >=sys-apps/coreutils-8.15 app-misc/realpath sys-freebsd/freebsd-bin ) dev-lang/perl || ( ( sys-apps/portage app-portage/portage-utils ) sys-apps/pkgcore sys-apps/paludis )
 SLOT=0
 SRC_URI=mirror://gentoo/perl-cleaner-2.22.tar.bz2 https://dev.gentoo.org/~dilfridge/distfiles/perl-cleaner-2.22.tar.bz2
-_eclasses_=prefix	e7f2b9c6e57342e5d25eac22fce23062
+_eclasses_=prefix	99dcca42e6528d8fe3c214bf5731aaf2
 _md5_=0031f92f5a954c3f00d318943a1c9dea

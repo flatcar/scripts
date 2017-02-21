@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License, v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/base/packages,v 1.67 2014/11/02 18:17:04 vapier Exp $
+# $Id$
 
 # Gentoo Base Profile
 
@@ -29,17 +29,16 @@
 *app-arch/gzip
 *app-arch/tar
 *app-arch/xz-utils
-*app-shells/bash
-#*dev-lang/perl
-#*dev-lang/python
+*app-shells/bash:0
 *net-misc/iputils
 *net-misc/rsync
 *net-misc/wget
 *sys-apps/coreutils
-#*sys-apps/debianutils
 *sys-apps/diffutils
 *sys-apps/file
-*sys-apps/findutils
+# Much of the tree relies on newer features like "-exec +".
+# Force a recent stable version so people stay up-to-date.
+*>=sys-apps/findutils-4.4
 *sys-apps/gawk
 *sys-apps/grep
 *sys-apps/kbd
@@ -47,22 +46,15 @@
 *sys-apps/less
 # stopgap solution for functions.sh #373219 and #504116
 *sys-apps/openrc
-#*>=sys-apps/portage-2.0.51.22
 *sys-process/procps
 *sys-process/psmisc
 *sys-apps/sed
 *sys-apps/which
-#*sys-devel/autoconf
-#*sys-devel/automake
 *sys-devel/binutils
-#*sys-devel/bison
-#*sys-devel/flex
 *sys-devel/gcc
 *sys-devel/gnuconfig
-#*sys-devel/libtool
-#*sys-devel/m4
 *sys-devel/make
-*>=sys-devel/patch-2.6.1
+*>=sys-devel/patch-2.7
 *sys-fs/e2fsprogs
 *virtual/dev-manager
 *virtual/editor

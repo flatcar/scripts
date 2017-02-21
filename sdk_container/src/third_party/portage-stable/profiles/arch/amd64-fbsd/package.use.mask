@@ -1,12 +1,20 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/amd64-fbsd/package.use.mask,v 1.28 2015/01/28 00:35:01 johu Exp $
+# $Id$
+
+# Alexis Ballier <aballier@gentoo.org> (31 Jan 2017)
+# nvidia drivers are unmasked here
+media-video/ffmpeg -nvenc
+
+# Davide Pesavento <pesa@gentoo.org> (26 Oct 2015)
+# Tests require non-keyworded qt5
+dev-qt/qtchooser test
 
 # Johannes Huber <johu@gentoo.org> (28 Jan 2015)
-# Missing keyword on dev-libs/botan,dev-libs/pkcs11-helper
+# Missing keyword on dev-libs/botan and dev-libs/pkcs11-helper
 app-crypt/qca botan pkcs11
 
-# Michael Palimaka <kensington@gentoo.org) (26 Dec 2014)
+# Michael Palimaka <kensington@gentoo.org> (26 Dec 2014)
 # Unkeyworded media-libs/opencv
 media-plugins/frei0r-plugins facedetect
 media-video/vlc opencv
@@ -28,10 +36,6 @@ media-plugins/gst-plugins-meta modplug vaapi
 # Masked kde USE flag until bug #509892 is fixed
 dev-vcs/subversion kde
 
-# Johannes Huber <johu@gentoo.org> (16 Apr 2014)
-# unkeyworded deps
-kde-base/nepomuk-core migrator
-
 # Pacho Ramos <pacho@gentoo.org> (02 Dec 2013)
 # Missing keywords, bug #493156
 media-libs/libgphoto2 serial
@@ -45,3 +49,7 @@ x11-drivers/nvidia-drivers multilib
 # requires nvidia-cg-toolkit which is not available on bsd
 # see http://developer.nvidia.com/cg-toolkit-download
 media-libs/libprojectm video_cards_nvidia
+
+# x11-drivers/xf86-video-vmware works fine without KMS- and 3D support.
+# Other packages will not work. keep video_cards_vmware in use.mask.
+x11-base/xorg-drivers -video_cards_vmware

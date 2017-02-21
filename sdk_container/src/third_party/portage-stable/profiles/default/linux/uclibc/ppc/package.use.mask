@@ -1,6 +1,21 @@
-# Copyright 1999-2014 Gentoo Foundation.
+# Copyright 1999-2017 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/default/linux/uclibc/ppc/package.use.mask,v 1.1 2014/08/16 20:43:29 blueness Exp $
+# $Id$
+
+# Davide Pesavento <pesa@gentoo.org> (21 Jan 2017)
+# Requires unkeyworded dev-python/PyQt5
+dev-python/qscintilla-python qt5
+
+# Arfrever Frehtes Taifersar Arahesis <arfrever.fta@gmail.com> (01 Aug 2016)
+# kde-frameworks/*:5 not keyworded.
+net-irc/kvirc kde
+
+# Davide Pesavento <pesa@gentoo.org> (06 Jun 2016)
+# Requires unkeyworded dev-qt/qtwebkit:5, which is a PITA to maintain on
+# minor arches and has been declared deprecated by upstream. So we'd like
+# to avoid keywording it, unless requested by users.
+dev-qt/designer webkit
+net-irc/kvirc webkit
 
 dev-libs/libpcre cxx
 sys-libs/ncurses cxx

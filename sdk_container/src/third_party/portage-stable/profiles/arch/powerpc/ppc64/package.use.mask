@@ -1,6 +1,62 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/profiles/arch/powerpc/ppc64/package.use.mask,v 1.70 2015/06/16 08:27:24 jlec Exp $
+# $Id$
+
+# Jeroen Roovers <jer@gentoo.org> <16 Jan 2017>
+# Incomplete support, bug #605878.
+net-misc/tor seccomp
+
+# Jeroen Roovers <jer@gentoo.org> <5 Feb 2017>
+# media-libs/libilbc has not been ported to PPC64
+media-video/ffmpeg libilbc
+
+# Robin H. Johnson <robbat2@gentoo.org> (18 Nov 2016)
+# dev-lang/luajit lacks ppc64 keyword. luajit upstream does not support ppc64
+dev-db/redis luajit
+
+# Arfrever Frehtes Taifersar Arahesis <arfrever.fta@gmail.com> (01 Aug 2016)
+# kde-frameworks/*:5 not keyworded.
+net-irc/kvirc kde
+
+# Alexandre Rostovtsev <tetromino@gentoo.org> (28 Jun 2016)
+# Missing keywords on app-text/gspell - bug #587368
+>=app-editors/gedit-3.20 spell
+
+# Jeroen Roovers <jer@gentoo.org> (19 May 2016)
+# pulls in many dev-ruby/asciidoctor dependencies (bug #583390)
+net-misc/chrony html
+
+# Patrice Clement <monsieurp@gentoo.org> (08 Feb 2016)
+# I would need to keyword an awful lot of packages on ppc64
+# that would need Java 7 otherwise.
+dev-java/batik python
+dev-java/bsf python
+dev-java/ant-apache-bsf python
+
+# Michael Weber <xmw@gentoo.org> (09 Jan 2016)
+# no ppc64 support in media-libs/glfw
+app-text/mupdf opengl
+
+# Ian Delaney <idella4@gentoo.org> (05 Jan 2016)
+# on behalf of Ilya Tumaykin <itumaykin+gentoo@gmail.com>
+# dev-lang/luajit lacks ppc64 keyword. See bug #488318.
+media-video/mpv luajit
+
+# Jeroen Roovers <jer@gentoo.org> (26 Dec 2015)
+# Mask until >sys-cluster/ceph-0.94 goes stable
+net-analyzer/rrdtool rados
+
+# Justin Lecher <jlec@gentoo.org> (3 Dec 2015)
+# Missing keywords on deps #567458
+kde-apps/kalzium editor
+
+# Michael Palimaka <kensington@gentoo.org> (17 Oct 2015)
+# Unkeyworded dependencies
+dev-qt/qtwebkit webchannel
+
+# Ben de Groot <yngwin@gentoo.org> (20 Jul 2015)
+# missing keywords
+media-sound/audacity midi
 
 # Justin Lecher <jlec@gentoo.org> (16 June 2015)
 # Pending bug upstream, #550818
@@ -10,19 +66,6 @@
 # dev-lang/luajit lack ppc64 keyword, bug #551540
 dev-libs/libpeas jit
 
-# James Le Cuirot <chewi@gentoo.org> (21 May 2015)
-# Mask rdeps of icedtea-web to deal with bug #549134. I had hoped to
-# apply the ppc64 keyword today but it segfaulted upon testing.
-dev-java/icedtea nsplugin webstart
-
-# Jeroen Roovers <jer@gentoo.org> (26 Apr 2015)
-# Needs the entire LXDE to be useful (bug #520296)
-xfce-extra/xfce4-power-manager lxpanel
-
-# Johannes Huber <johu@gentoo.org> (28 Jan 2015)
-# Missing keyword on dev-libs/botan, bug #458438
-app-crypt/qca botan
-
 # Matthias Maier <tamiko@gentoo.org> (24 Dec 2014)
 # sys-devel/clang is not keyworded
 app-doc/doxygen clang
@@ -31,12 +74,6 @@ app-doc/doxygen clang
 # Mask openmedia use flag because the content generation tools
 # are missing keywords.
 games-simulation/openttd openmedia
-
-# Michael Palimaka <kensington@gentoo.org> (02 Apr 2013)
-# Requires dev-lang/mono which currently has some issues
-# on ppc64.
-kde-base/kdebindings-meta csharp
-net-libs/libkolabxml csharp
 
 # Sergey Popov <pinkbyte@gentoo.org> (18 Feb 2013)
 # sys-cluster/ploop can not be build on ppc64, bug #447644
@@ -48,22 +85,9 @@ sys-cluster/vzctl ploop
 # keyworded here. Remove mask if this situation changes.
 gnome-extra/sushi office
 
-# Michael Weber <xmw@gentoo.org> (14 Jun 2012)
-# Mask net-misc/networkmanager[wimax] till bug 386121 is resolved
-net-misc/networkmanager wimax
-
-# Kacper Kowalik <xarthisius@gentoo.org> (09 Mar 2012)
-# Mask media-video/ffmpeg[vpx] and media-video/mplayer[vpx]
-# on ppc64 as there is no stable version yet
-media-video/ffmpeg vpx
-
 # Kacper Kowalik <xarthisius@gentoo.org> (02 Sep 2011)
 # Mask www-client/seamonkey[ipc] on ppc64 wrt #381191
 www-client/seamonkey ipc
-
-# Sergei Trofimovich <slyfox@gentoo.org> (03 Aug 2011)
-# sys-devel/llvm has no ppc64 keywords yet (bug #320221)
-dev-lang/ghc llvm
 
 # Kacper Kowalik <xarthisius@gentoo.org> (22 Mar 2011)
 # Mask polkit[kde] wrt #354509
@@ -73,10 +97,6 @@ sys-auth/polkit kde
 # Mask gps for marble
 kde-apps/marble	gps
 
-# Pacho Ramos <pacho@gentoo.org> (08 Jul 2010)
-# Needs app-mobilephone/obex-data-server keyworded, bug 305913
-gnome-base/gvfs bluetooth
-
 # Samuli Suominen <ssuominen@gentoo.org> (21 Jun 2010)
 # These need stable kdelibs-4.
 app-i18n/uim kde
@@ -85,25 +105,9 @@ dev-vcs/subversion kde
 media-video/vlc kde
 net-libs/libproxy kde
 
-# Tomáš Chvátal <scarabeus@gentoo.org> (06 June 2010)
-# requires more keywording per bug #323003
-kde-base/kde-meta sdk
-
 # Kacper Kowalik <xarthisius@gentoo.org> (30 May 2010)
 # quesoglc is not keyworded
 x11-misc/rss-glx quesoglc
-
-# uses games-board/ggz-gtk-client
-games-strategy/freeciv ggz
-
-# Mark Loeser <halcy0n@gentoo.org> (02 Mar 2010)
-# Mask webkit useflag since dev-python/mako and dev-python/pywebkitgtk are not
-# keyworded
-media-sound/rhythmbox webkit
-
-# Ben de Groot <yngwin@gentoo.org> (15 Jul 2009)
-# Mask dillo useflag as current version is unkeyworded (bug 253083)
-mail-client/claws-mail dillo
 
 # Brent Baude <ranger@gentoo.org> (05 May 2009)
 # Masking webkit from  libproxy due to TOC failure on webkit
