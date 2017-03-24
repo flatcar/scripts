@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-  <maintainer>
+  <maintainer type="person">
     <email>naota@gentoo.org</email>
+  </maintainer>
+  <maintainer type="person">
+    <email>dlan@gentoo.org</email>
+    <name>Yixun Lan</name>
   </maintainer>
   <use>
     <flag name="demangle">
@@ -18,8 +22,12 @@
       documentation handling tools that are not always welcome on user
       systems.
     </flag>
+	<flag name="numa">Enable NUMA support</flag>
     <flag name="perl">
       Add support for Perl as a scripting language for perf tools.
+    </flag>
+    <flag name="unwind">
+      Use sys-libs/libunwind for frame unwinding support.
     </flag>
   </use>
 </pkgmetadata>
