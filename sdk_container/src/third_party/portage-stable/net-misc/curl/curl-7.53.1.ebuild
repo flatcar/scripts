@@ -1,8 +1,7 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
-EAPI="5"
+EAPI="6"
 
 inherit autotools eutils prefix multilib-minimal
 
@@ -12,8 +11,7 @@ SRC_URI="https://curl.haxx.se/download/${P}.tar.bz2"
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ~mips ppc ppc64 x86 ~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-#KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~x64-cygwin ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="adns http2 idn ipv6 kerberos ldap metalink rtmp samba ssh ssl static-libs test threads"
 IUSE+=" curl_ssl_axtls curl_ssl_gnutls curl_ssl_libressl curl_ssl_mbedtls curl_ssl_nss +curl_ssl_openssl curl_ssl_polarssl curl_ssl_winssl"
 IUSE+=" elibc_Winnt"
@@ -24,7 +22,7 @@ RESTRICT="test"
 RDEPEND="ldap? ( net-nds/openldap[${MULTILIB_USEDEP}] )
 	ssl? (
 		curl_ssl_axtls? (
-			net-libs/axtls[${MULTILIB_USEDEP}]
+			net-libs/axtls:0=[${MULTILIB_USEDEP}]
 			app-misc/ca-certificates
 		)
 		curl_ssl_gnutls? (
@@ -111,15 +109,13 @@ MULTILIB_CHOST_TOOLS=(
 )
 
 src_prepare() {
-	epatch \
-		"${FILESDIR}"/${PN}-7.30.0-prefix.patch \
-		"${FILESDIR}"/${PN}-respect-cflags-3.patch \
-		"${FILESDIR}"/${PN}-fix-gnutls-nettle.patch \
-		"${FILESDIR}"/${PN}-fix-mbedtls.patch
+	eapply "${FILESDIR}"/${PN}-7.30.0-prefix.patch
+	eapply "${FILESDIR}"/${PN}-respect-cflags-3.patch
+	eapply "${FILESDIR}"/${PN}-fix-gnutls-nettle.patch
 
 	sed -i '/LD_LIBRARY_PATH=/d' configure.ac || die #382241
 
-	epatch_user
+	eapply_user
 	eprefixify curl-config.in
 	eautoreconf
 }
@@ -204,6 +200,7 @@ multilib_src_configure() {
 		--disable-sspi \
 		$(use_enable static-libs static) \
 		$(use_enable threads threaded-resolver) \
+		$(use_enable threads pthreads) \
 		--disable-versioned-symbols \
 		--without-cyassl \
 		--without-darwinssl \
