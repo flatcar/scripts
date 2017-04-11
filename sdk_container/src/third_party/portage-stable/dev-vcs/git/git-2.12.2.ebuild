@@ -1,18 +1,25 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
-EAPI=5
+EAPI=6
 
 GENTOO_DEPEND_ON_PERL=no
 
 # bug #329479: git-remote-testgit is not multiple-version aware
 PYTHON_COMPAT=( python2_7 )
-[[ ${PV} == *9999 ]] && SCM="git-2"
+[[ ${PV} == *9999 ]] && SCM="git-r3"
+# Please ensure that all _four_ 9999 ebuilds get updated; they track the 4 upstream branches.
+# See https://git-scm.com/docs/gitworkflows#_graduation
+# In order of stability:
+# 9999-r0: maint
+# 9999-r1: master
+# 9999-r2: next
+# 9999-r3: pu
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
-EGIT_MASTER=pu
+EGIT_BRANCH=maint
+PLOCALES="bg ca de fr is it ko pt_PT ru sv vi zh_CN"
 
-inherit toolchain-funcs eutils elisp-common perl-module bash-completion-r1 python-single-r1 systemd ${SCM}
+inherit toolchain-funcs eutils elisp-common l10n perl-module bash-completion-r1 python-single-r1 systemd ${SCM}
 
 MY_PV="${PV/_rc/.rc}"
 MY_P="${PN}-${MY_PV}"
@@ -24,22 +31,24 @@ HOMEPAGE="http://www.git-scm.com/"
 if [[ ${PV} != *9999 ]]; then
 	SRC_URI_SUFFIX="xz"
 	SRC_URI_KORG="mirror://kernel/software/scm/git"
+	[[ "${PV/rc}" != "${PV}" ]] && SRC_URI_KORG+='/testing'
 	SRC_URI="${SRC_URI_KORG}/${MY_P}.tar.${SRC_URI_SUFFIX}
 			${SRC_URI_KORG}/${PN}-manpages-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 			doc? (
 			${SRC_URI_KORG}/${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 			)"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~x64-cygwin ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 fi
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="+blksha1 +curl cgi doc emacs gnome-keyring +gpg gtk highlight +iconv libressl mediawiki +nls +pcre +perl +python ppcsha1 tk +threads +webdav xinetd cvs subversion test"
+IUSE="+blksha1 +curl cgi doc emacs +gpg highlight +iconv libressl libsecret mediawiki mediawiki-experimental +nls +pcre +perl +python ppcsha1 tk +threads +webdav xinetd cvs subversion test"
 
 # Common to both DEPEND and RDEPEND
 CDEPEND="
 	!libressl? ( dev-libs/openssl:0= )
 	libressl? ( dev-libs/libressl:= )
+	libsecret? ( app-crypt/libsecret )
 	sys-libs/zlib
 	pcre? ( dev-libs/libpcre )
 	perl? ( dev-lang/perl:=[-build(-)] )
@@ -49,7 +58,7 @@ CDEPEND="
 		webdav? ( dev-libs/expat )
 	)
 	emacs? ( virtual/emacs )
-	gnome-keyring? ( gnome-base/libgnome-keyring )"
+"
 
 RDEPEND="${CDEPEND}
 	gpg? ( app-crypt/gnupg )
@@ -65,12 +74,8 @@ RDEPEND="${CDEPEND}
 			cvs? ( >=dev-vcs/cvsps-2.1:0 dev-perl/DBI dev-perl/DBD-SQLite )
 			subversion? ( dev-vcs/subversion[-dso,perl] dev-perl/libwww-perl dev-perl/TermReadKey )
 			)
-	python? ( gtk?
-	(
-		>=dev-python/pygtk-2.8[${PYTHON_USEDEP}]
-		>=dev-python/pygtksourceview-2.10.1-r1:2[${PYTHON_USEDEP}]
-	)
-		${PYTHON_DEPS} )"
+	python? ( ${PYTHON_DEPS} )
+"
 
 # This is how info docs are created with Git:
 #   .txt/asciidoc --(asciidoc)---------> .xml/docbook
@@ -99,11 +104,25 @@ REQUIRED_USE="
 	cgi? ( perl )
 	cvs? ( perl )
 	mediawiki? ( perl )
+	mediawiki-experimental? ( mediawiki )
 	subversion? ( perl )
 	webdav? ( curl )
-	gtk? ( python )
 	python? ( ${PYTHON_REQUIRED_USE} )
 "
+
+PATCHES=(
+	# bug #350330 - automagic CVS when we don't want it is bad.
+	"${FILESDIR}"/git-2.12.0-optional-cvs.patch
+
+	# install mediawiki perl modules also in vendor_dir
+	# hack, needs better upstream solution
+	"${FILESDIR}"/git-1.8.5-mw-vendor.patch
+
+	"${FILESDIR}"/git-2.2.0-svn-fe-linking.patch
+
+	# Bug #493306, where FreeBSD 10.x merged libiconv into its libc.
+	"${FILESDIR}"/git-2.5.1-freebsd-10.x-no-iconv.patch
+)
 
 pkg_setup() {
 	if use subversion && has_version "dev-vcs/subversion[dso]"; then
@@ -168,6 +187,8 @@ exportmakeopts() {
 		|| myopts+=" NO_PTHREADS=YesPlease"
 	use cvs \
 		|| myopts+=" NO_CVS=YesPlease"
+	use elibc_musl \
+		&& myopts+=" NO_REGEX=YesPlease"
 # Disabled until ~m68k-mint can be keyworded again
 #	if [[ ${CHOST} == *-mint* ]] ; then
 #		myopts+=" NO_MMAP=YesPlease"
@@ -185,6 +206,8 @@ exportmakeopts() {
 	fi
 	if [[ ${CHOST} == *-solaris* ]]; then
 		myopts+=" NEEDS_LIBICONV=YesPlease"
+		myopts+=" HAVE_CLOCK_MONOTONIC=1"
+		myopts+=" HAVE_GETDELIM=1"
 	fi
 
 	has_version '>=app-text/asciidoc-8.0' \
@@ -210,7 +233,7 @@ src_unpack() {
 			unpack ${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 		cd "${S}"
 	else
-		git-2_src_unpack
+		git-r3_src_unpack
 		cd "${S}"
 		#cp "${FILESDIR}"/GIT-VERSION-GEN .
 	fi
@@ -218,19 +241,17 @@ src_unpack() {
 }
 
 src_prepare() {
-	# bug #350330 - automagic CVS when we don't want it is bad.
-	epatch "${FILESDIR}"/git-2.2.2-optional-cvs.patch
+	# add experimental patches to improve mediawiki support
+	# see patches for origin
+	if use mediawiki-experimental ; then
+		PATCHES+=(
+			"${FILESDIR}"/git-2.7.0-mediawiki-namespaces.patch
+			"${FILESDIR}"/git-2.7.0-mediawiki-subpages.patch
+			"${FILESDIR}"/git-2.7.0-mediawiki-500pages.patch
+		)
+	fi
 
-	# install mediawiki perl modules also in vendor_dir
-	# hack, needs better upstream solution
-	epatch "${FILESDIR}"/git-1.8.5-mw-vendor.patch
-
-	epatch "${FILESDIR}"/git-2.2.0-svn-fe-linking.patch
-
-	# Bug #493306, where FreeBSD 10.x merged libiconv into its libc.
-	epatch "${FILESDIR}"/git-2.5.1-freebsd-10.x-no-iconv.patch
-
-	epatch_user
+	default
 
 	sed -i \
 		-e 's:^\(CFLAGS[[:space:]]*=\).*$:\1 $(OPTCFLAGS) -Wall:' \
@@ -303,8 +324,9 @@ src_compile() {
 	fi
 
 	if [[ ${CHOST} == *-darwin* ]]; then
-		cd "${S}"/contrib/credential/osxkeychain || die "cd credential/osxkeychain"
-		git_emake || die "emake credential-osxkeychain"
+		cd "${S}"/contrib/credential/osxkeychain || die
+		git_emake CC=$(tc-getCC) CFLAGS="${CFLAGS}" \
+			|| die "emake credential-osxkeychain"
 	fi
 
 	cd "${S}"/Documentation
@@ -336,12 +358,12 @@ src_compile() {
 		cd "${S}"
 	fi
 
-	if use gnome-keyring ; then
-		cd "${S}"/contrib/credential/gnome-keyring
-		git_emake || die "emake git-credential-gnome-keyring failed"
+	if use libsecret ; then
+		cd "${S}"/contrib/credential/libsecret
+		git_emake || die "emake git-credential-libsecret failed"
 	fi
 
-	cd "${S}"/contrib/subtree
+	cd "${S}"/contrib/subtree || die
 	git_emake
 	use doc && git_emake doc
 
@@ -364,13 +386,15 @@ src_install() {
 	# manpages may exist in either OR both of these directories.
 	find man?/*.[157] >/dev/null 2>&1 && doman man?/*.[157]
 	find Documentation/*.[157] >/dev/null 2>&1 && doman Documentation/*.[157]
-
-	dodoc README Documentation/{SubmittingPatches,CodingGuidelines}
+	dodoc README* Documentation/{SubmittingPatches,CodingGuidelines}
 	use doc && dodir /usr/share/doc/${PF}/html
 	for d in / /howto/ /technical/ ; do
 		docinto ${d}
 		dodoc Documentation${d}*.txt
-		use doc && dohtml -p ${d} Documentation${d}*.html
+		if use doc ; then
+			docinto ${d}/html
+			dodoc Documentation${d}*.html
+		fi
 	done
 	docinto /
 	# Upstream does not ship this pre-built :-(
@@ -391,11 +415,6 @@ src_install() {
 		# can do a conditional loading
 		touch "${ED}${SITELISP}/${PN}/compat/.nosearch"
 		elisp-site-file-install "${FILESDIR}"/${SITEFILE}
-	fi
-
-	if use python && use gtk ; then
-		python_doscript "${S}"/contrib/gitview/gitview
-		dodoc "${S}"/contrib/gitview/gitview.txt
 	fi
 
 	#dobin contrib/fast-import/git-p4 # Moved upstream
@@ -434,23 +453,26 @@ src_install() {
 	doexe contrib/contacts/git-contacts
 	dodoc contrib/contacts/git-contacts.txt
 
-	if use gnome-keyring ; then
-		cd "${S}"/contrib/credential/gnome-keyring
-		dobin git-credential-gnome-keyring
+	if use libsecret ; then
+		cd "${S}"/contrib/credential/libsecret
+		dobin git-credential-libsecret
 	fi
 
 	if use subversion ; then
 		cd "${S}"/contrib/svn-fe
 		dobin svn-fe
 		dodoc svn-fe.txt
-		use doc && doman svn-fe.1 && dohtml svn-fe.html
+		if use doc ; then
+			doman svn-fe.1
+			docinto html
+			dodoc svn-fe.html
+		fi
 		cd "${S}"
 	fi
 
 	dodir /usr/share/${PN}/contrib
 	# The following are excluded:
 	# completion - installed above
-	# credential/gnome-keyring TODO
 	# diff-highlight - done above
 	# emacs - installed above
 	# examples - these are stuff that is not used in Git anymore actually
@@ -463,11 +485,17 @@ src_install() {
 	# subtree - build  seperately
 	# svnimport - use git-svn
 	# thunderbird-patch-inline - fixes thunderbird
-	for i in \
-		buildsystems convert-objects fast-import \
-		hg-to-git hooks remotes2config.sh rerere-train.sh \
-		stats workdir \
-		; do
+	local contrib_objects=(
+		buildsystems
+		fast-import
+		hg-to-git
+		hooks
+		remotes2config.sh
+		rerere-train.sh
+		stats
+		workdir
+	)
+	for i in "${contrib_objects[@]}" ; do
 		cp -rf \
 			"${S}"/contrib/${i} \
 			"${ED}"/usr/share/${PN}/contrib \
@@ -506,15 +534,25 @@ src_install() {
 	if use !prefix ; then
 		newinitd "${FILESDIR}"/git-daemon-r1.initd git-daemon
 		newconfd "${FILESDIR}"/git-daemon.confd git-daemon
-		systemd_newunit "${FILESDIR}/git-daemon_at.service" "git-daemon@.service"
+		systemd_newunit "${FILESDIR}/git-daemon_at-r1.service" "git-daemon@.service"
 		systemd_dounit "${FILESDIR}/git-daemon.socket"
 	fi
 
 	perl_delete_localpod
+
+	# Remove disabled linguas
+	# we could remove sources in src_prepare, but install does not
+	# handle missing locale dir well
+	rm_loc() {
+		if [[ -e "${ED}/usr/share/locale/${1}" ]]; then
+			rm -r "${ED}/usr/share/locale/${1}" || die
+		fi
+	}
+	l10n_for_each_disabled_locale_do rm_loc
 }
 
 src_test() {
-	local disabled="" #t7004-tag.sh" #520270
+	local disabled="t9128-git-svn-cmd-branch.sh"
 	local tests_cvs="t9200-git-cvsexportcommit.sh \
 					t9400-git-cvsserver-server.sh \
 					t9401-git-cvsserver-crlf.sh \
@@ -630,6 +668,7 @@ pkg_postinst() {
 	showpkgdeps git-instaweb \
 		"|| ( www-servers/lighttpd www-servers/apache www-servers/nginx )"
 	echo
+	use mediawiki-experimental && ewarn "Using experimental git-mediawiki patches. The stability of cloned wiki filesystems is not guaranteed."
 }
 
 pkg_postrm() {
