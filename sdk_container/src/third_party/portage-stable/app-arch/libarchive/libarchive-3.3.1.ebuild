@@ -1,9 +1,8 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 EAPI=6
-inherit autotools eutils multilib-minimal toolchain-funcs
+inherit eutils libtool multilib-minimal toolchain-funcs
 
 DESCRIPTION="BSD tar command"
 HOMEPAGE="http://www.libarchive.org/"
@@ -11,8 +10,8 @@ SRC_URI="http://www.libarchive.org/downloads/${P}.tar.gz"
 
 LICENSE="BSD BSD-2 BSD-4 public-domain"
 SLOT="0/13"
-KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="acl +bzip2 +e2fsprogs expat +iconv kernel_linux libressl lz4 +lzma lzo nettle static-libs xattr +zlib"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x64-cygwin ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+IUSE="acl +bzip2 +e2fsprogs expat +iconv kernel_linux libressl lz4 +lzma lzo nettle static-libs +threads xattr +zlib"
 
 RDEPEND="
 	acl? ( virtual/acl[${MULTILIB_USEDEP}] )
@@ -26,7 +25,7 @@ RDEPEND="
 	!libressl? ( dev-libs/openssl:0=[${MULTILIB_USEDEP}] )
 	libressl? ( dev-libs/libressl:0=[${MULTILIB_USEDEP}] )
 	lz4? ( >=app-arch/lz4-0_p131:0=[${MULTILIB_USEDEP}] )
-	lzma? ( app-arch/xz-utils[${MULTILIB_USEDEP}] )
+	lzma? ( app-arch/xz-utils[threads=,${MULTILIB_USEDEP}] )
 	lzo? ( >=dev-libs/lzo-2[${MULTILIB_USEDEP}] )
 	nettle? ( dev-libs/nettle:0=[${MULTILIB_USEDEP}] )
 	zlib? ( sys-libs/zlib[${MULTILIB_USEDEP}] )"
@@ -36,14 +35,9 @@ DEPEND="${RDEPEND}
 		e2fsprogs? ( sys-fs/e2fsprogs )
 	)"
 
-PATCHES=(
-	"${FILESDIR}/${P}-fix-tests-gnu99.patch"
-	"${FILESDIR}/${P}-osx-fix-acl.patch" #587890
-)
-
 src_prepare() {
 	default
-	eautoreconf # elibtoolize is required for Solaris sol2_ld linker fix
+	elibtoolize  # is required for Solaris sol2_ld linker fix
 }
 
 multilib_src_configure() {
@@ -74,12 +68,6 @@ multilib_src_configure() {
 		--disable-bsdtar
 	); fi
 
-	# We disable lzmadec because we support the newer liblzma from xz-utils
-	# and not liblzmadec with this version.
-	myconf+=(
-		--without-lzmadec
-	)
-
 	ECONF_SOURCE="${S}" econf "${myconf[@]}"
 }
 
@@ -102,7 +90,8 @@ multilib_src_install() {
 
 		# Create symlinks for FreeBSD
 		if ! use prefix && [[ ${CHOST} == *-freebsd* ]]; then
-			for bin in cat cpio tar; do
+			# Exclude cat for the time being #589876
+			for bin in cpio tar; do
 				dosym bsd${bin} /usr/bin/${bin}
 				echo '.so bsd${bin}.1' > "${T}"/${bin}.1
 				doman "${T}"/${bin}.1
