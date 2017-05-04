@@ -1,28 +1,27 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="5"
-PYTHON_COMPAT=( python{2_7,3_4} )
+EAPI=6
+PYTHON_COMPAT=( python{2_7,3_{4,5,6}} )
 
-inherit eutils flag-o-matic multilib multiprocessing python-r1 toolchain-funcs versionator multilib-minimal
+inherit eutils flag-o-matic multiprocessing python-r1 toolchain-funcs versionator multilib-minimal
 
 MY_P="${PN}_$(replace_all_version_separators _)"
 MAJOR_V="$(get_version_component_range 1-2)"
 
 DESCRIPTION="Boost Libraries for C++"
 HOMEPAGE="http://www.boost.org/"
-SRC_URI="mirror://sourceforge/boost/${MY_P}.tar.bz2"
+SRC_URI="https://downloads.sourceforge.net/project/boost/${PN}/${PV}/${MY_P}.tar.bz2"
 
 LICENSE="Boost-1.0"
 SLOT="0/${PV}" # ${PV} instead ${MAJOR_V} due to bug 486122
-KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x86-solaris ~x86-winnt"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x86-solaris ~x86-winnt"
 
 IUSE="context debug doc icu +nls mpi python static-libs +threads tools"
 
-RDEPEND="abi_x86_32? ( !app-emulation/emul-linux-x86-cpplibs[-abi_x86_32(-)] )
-	icu? ( >=dev-libs/icu-3.6:=[${MULTILIB_USEDEP}] )
+RDEPEND="icu? ( >=dev-libs/icu-3.6:=[${MULTILIB_USEDEP}] )
 	!icu? ( virtual/libiconv[${MULTILIB_USEDEP}] )
-	mpi? ( virtual/mpi[cxx,threads] )
+	mpi? ( >=virtual/mpi-2.0-r4[${MULTILIB_USEDEP},cxx,threads] )
 	python? ( ${PYTHON_DEPS} )
 	app-arch/bzip2[${MULTILIB_USEDEP}]
 	sys-libs/zlib[${MULTILIB_USEDEP}]
@@ -42,17 +41,19 @@ S="${WORKDIR}/${MY_P}"
 # there is no point in having them in the ebuild to begin with.
 RESTRICT="test"
 
+PATCHES=(
+	"${FILESDIR}/${PN}-1.48.0-disable_icu_rpath.patch"
+	"${FILESDIR}/${PN}-1.55.0-context-x32.patch"
+	"${FILESDIR}/${PN}-1.56.0-build-auto_index-tool.patch"
+	"${FILESDIR}/${PN}-1.63.0-fix-python.patch"
+)
+
 python_bindings_needed() {
 	multilib_is_native_abi && use python
 }
 
 tools_needed() {
 	multilib_is_native_abi && use tools
-}
-
-# MPI stuff is not ported on multilib yet, disabling it for non-native ABIs
-mpi_needed() {
-	multilib_is_native_abi && use mpi
 }
 
 create_user-config.jam() {
@@ -69,7 +70,7 @@ create_user-config.jam() {
 	fi
 	local mpi_configuration python_configuration
 
-	if mpi_needed; then
+	if use mpi; then
 		mpi_configuration="using mpi ;"
 	fi
 
@@ -90,7 +91,7 @@ create_user-config.jam() {
 		fi
 	fi
 
-	cat > "${BOOST_ROOT}/user-config.jam" << __EOF__
+	cat > "${BOOST_ROOT}/user-config.jam" << __EOF__ || die
 using ${compiler} : ${compiler_version} : ${compiler_executable} : <cflags>"${CFLAGS}" <cxxflags>"${CXXFLAGS}" <linkflags>"${LDFLAGS}" ;
 ${mpi_configuration}
 ${python_configuration}
@@ -99,52 +100,46 @@ __EOF__
 
 pkg_setup() {
 	# Bail out on unsupported build configuration, bug #456792
-	if [[ -f "${EROOT}etc/site-config.jam" ]]; then
-		grep -q gentoorelease "${EROOT}etc/site-config.jam" && grep -q gentoodebug "${EROOT}etc/site-config.jam" ||
+	if [[ -f "${EROOT%/}/etc/site-config.jam" ]]; then
+		grep -q gentoorelease "${EROOT%/}/etc/site-config.jam" && grep -q gentoodebug "${EROOT%/}/etc/site-config.jam" ||
 		(
-			eerror "You are using custom ${EROOT}etc/site-config.jam without defined gentoorelease/gentoodebug targets."
+			eerror "You are using custom ${EROOT%/}/etc/site-config.jam without defined gentoorelease/gentoodebug targets."
 			eerror "Boost can not be built in such configuration."
-			eerror "Please, either remove this file or add targets from ${EROOT}usr/share/boost-build/site-config.jam to it."
+			eerror "Please, either remove this file or add targets from ${EROOT%/}/usr/share/boost-build/site-config.jam to it."
 			die
 		)
 	fi
 }
 
 src_prepare() {
-	epatch \
-		"${FILESDIR}/${PN}-1.51.0-respect_python-buildid.patch" \
-		"${FILESDIR}/${PN}-1.51.0-support_dots_in_python-buildid.patch" \
-		"${FILESDIR}/${PN}-1.48.0-no_strict_aliasing_python2.patch" \
-		"${FILESDIR}/${PN}-1.48.0-disable_libboost_python3.patch" \
-		"${FILESDIR}/${PN}-1.48.0-python_linking.patch" \
-		"${FILESDIR}/${PN}-1.48.0-disable_icu_rpath.patch" \
-		"${FILESDIR}/${PN}-1.55.0-context-x32.patch" \
-		"${FILESDIR}/${PN}-1.55.0-tools-c98-compat.patch" \
-		"${FILESDIR}/${PN}-1.52.0-threads.patch" \
-		"${FILESDIR}/${PN}-1.56.0-build-auto_index-tool.patch" \
-		"${FILESDIR}/${PN}-1.55.0-variadic-templates.patch" \
-		"${FILESDIR}/${PN}-1.56.0-atomic.patch"
+	default
 
 	# Do not try to build missing 'wave' tool, bug #522682
 	# Upstream bugreport - https://svn.boost.org/trac/boost/ticket/10507
 	sed -i -e 's:wave/build//wave::' tools/Jamfile.v2 || die
 
-	epatch_user
-
 	multilib_copy_sources
 }
 
 ejam() {
-	local b2_opts="--user-config=${BOOST_ROOT}/user-config.jam $@"
-	echo b2 ${b2_opts}
-	b2 ${b2_opts}
+	local b2_opts=(
+		"--user-config=${BOOST_ROOT}/user-config.jam"
+		"$@"
+	)
+	echo b2 "${b2_opts[@]}"
+	b2 "${b2_opts[@]}"
 }
 
 src_configure() {
 	# Workaround for too many parallel processes requested, bug #506064
-	[ "$(makeopts_jobs)" -gt 64 ] && MAKEOPTS="${MAKEOPTS} -j64"
+	[[ "$(makeopts_jobs)" -gt 64 ]] && MAKEOPTS="${MAKEOPTS} -j64"
 
-	OPTIONS="$(usex debug gentoodebug gentoorelease) -j$(makeopts_jobs) -q -d+2"
+	OPTIONS=(
+		$(usex debug gentoodebug gentoorelease)
+		"-j$(makeopts_jobs)"
+		-q
+		-d+2
+	)
 
 	if [[ ${CHOST} == *-darwin* ]]; then
 		# We need to add the prefix, and in two cases this exceeds, so prepare
@@ -166,21 +161,46 @@ src_configure() {
 		[[ $(gcc-version) > 4.3 ]] && append-flags -mno-altivec
 	fi
 
-	# Do _not_ use C++11 yet, make sure to force GNU C++ 98 standard.
-	append-cxxflags -std=gnu++98
+	# Use C++14 globally as of 1.62
+	append-cxxflags -std=c++14
 
-	use icu && OPTIONS+=" -sICU_PATH=${EPREFIX}/usr"
-	use icu || OPTIONS+=" --disable-icu boost.locale.icu=off"
-	mpi_needed || OPTIONS+=" --without-mpi"
-	use nls || OPTIONS+=" --without-locale"
-	use context || OPTIONS+=" --without-context --without-coroutine"
+	use icu && OPTIONS+=(
+			"-sICU_PATH=${EPREFIX}/usr"
+		)
+	use icu || OPTIONS+=(
+			--disable-icu
+			boost.locale.icu=off
+		)
+	use mpi || OPTIONS+=(
+			--without-mpi
+		)
+	use nls || OPTIONS+=(
+			--without-locale
+		)
+	use context || OPTIONS+=(
+			--without-context
+			--without-coroutine
+			--without-coroutine2
+			--without-fiber
+		)
+	use threads || OPTIONS+=(
+			--without-thread
+		)
 
-	OPTIONS+=" pch=off"
-	OPTIONS+=" --boost-build=${EPREFIX}/usr/share/boost-build --prefix=\"${ED}usr\""
-	OPTIONS+=" --layout=system"
-	OPTIONS+=" threading=$(usex threads multi single) link=$(usex static-libs shared,static shared)"
+	OPTIONS+=(
+		pch=off
+		--boost-build="${EPREFIX}"/usr/share/boost-build
+		--prefix="${ED%/}/usr"
+		--layout=system
+		# building with threading=single is currently not possible
+		# https://svn.boost.org/trac/boost/ticket/7105
+		threading=multi
+		link=$(usex static-libs shared,static shared)
+	)
 
-	[[ ${CHOST} == *-winnt* ]] && OPTIONS+=" -sNO_BZIP2=1"
+	[[ ${CHOST} == *-winnt* ]] && OPTIONS+=(
+			-sNO_BZIP2=1
+		)
 }
 
 multilib_src_compile() {
@@ -199,7 +219,7 @@ multilib_src_compile() {
 		fi
 
 		ejam \
-			${OPTIONS} \
+			"${OPTIONS[@]}" \
 			${PYTHON_OPTIONS} \
 			|| die "Building of Boost libraries failed"
 
@@ -218,7 +238,7 @@ multilib_src_compile() {
 					|| die "Renaming of '${dir}' to '${dir}-${EPYTHON}' failed"
 			done
 
-			if mpi_needed; then
+			if use mpi; then
 				if [[ -z "${MPI_PYTHON_MODULE}" ]]; then
 					MPI_PYTHON_MODULE="$(find bin.v2/libs/mpi/build/*/gentoo* -name mpi.so)"
 					if [[ "$(echo "${MPI_PYTHON_MODULE}" | wc -l)" -ne 1 ]]; then
@@ -242,44 +262,44 @@ multilib_src_compile() {
 	fi
 
 	if tools_needed; then
-		pushd tools > /dev/null || die
+		pushd tools >/dev/null || die
 
 		ejam \
-			${OPTIONS} \
+			"${OPTIONS[@]}" \
 			${PYTHON_OPTIONS} \
 			|| die "Building of Boost tools failed"
-		popd > /dev/null || die
+		popd >/dev/null || die
 	fi
 }
 
 multilib_src_install_all() {
 	if ! use python; then
-		rm -r "${ED}"/usr/include/boost/python* || die
+		rm -r "${ED%/}"/usr/include/boost/python* || die
 	fi
 
 	if ! use nls; then
-		rm -r "${ED}"/usr/include/boost/locale || die
+		rm -r "${ED%/}"/usr/include/boost/locale || die
 	fi
 
 	if ! use context; then
-		rm -r "${ED}"/usr/include/boost/context || die
-		rm -r "${ED}"/usr/include/boost/coroutine || die
+		rm -r "${ED%/}"/usr/include/boost/context || die
+		rm -r "${ED%/}"/usr/include/boost/coroutine{,2} || die
+		rm "${ED%/}"/usr/include/boost/asio/spawn.hpp || die
 	fi
 
 	if use doc; then
-		find libs/*/* -iname "test" -or -iname "src" | xargs rm -rf
-		dohtml \
-			-A pdf,txt,cpp,hpp \
-			*.{htm,html,png,css} \
-			-r doc
-		dohtml -A pdf,txt -r tools
-		insinto /usr/share/doc/${PF}/html
-		doins -r libs
-		doins -r more
+		# find extraneous files that shouldn't be installed
+		# as part of the documentation and remove them.
+		find libs/*/* \( -iname 'test' -o -iname 'src' \) -exec rm -rf '{}' + || die
+		find doc \( -name 'Jamfile.v2' -o -name 'build' -o -name '*.manifest' \) -exec rm -rf '{}' + || die
+		find tools \( -name 'Jamfile.v2' -o -name 'src' -o -name '*.cpp' -o -name '*.hpp' \) -exec rm -rf '{}' + || die
+
+		docinto html
+		dodoc *.{htm,html,png,css}
+		dodoc -r doc libs more tools
 
 		# To avoid broken links
-		insinto /usr/share/doc/${PF}/html
-		doins LICENSE_1_0.txt
+		dodoc LICENSE_1_0.txt
 
 		dosym /usr/include/boost /usr/share/doc/${PF}/html/boost
 	fi
@@ -298,7 +318,7 @@ multilib_src_install() {
 					|| die "Copying of '${dir}-${EPYTHON}' to '${dir}' failed"
 			done
 
-			if mpi_needed; then
+			if use mpi; then
 				cp -p stage/lib/mpi.so-${EPYTHON} "${MPI_PYTHON_MODULE}" \
 					|| die "Copying of 'stage/lib/mpi.so-${EPYTHON}' to '${MPI_PYTHON_MODULE}' failed"
 				cp -p stage/lib/mpi.so-${EPYTHON} stage/lib/mpi.so \
@@ -310,10 +330,10 @@ multilib_src_install() {
 		fi
 
 		ejam \
-			${OPTIONS} \
+			"${OPTIONS[@]}" \
 			${PYTHON_OPTIONS} \
-			--includedir="${ED}usr/include" \
-			--libdir="${ED}usr/$(get_libdir)" \
+			--includedir="${ED%/}/usr/include" \
+			--libdir="${ED%/}/usr/$(get_libdir)" \
 			install || die "Installation of Boost libraries failed"
 
 		if python_bindings_needed; then
@@ -321,11 +341,11 @@ multilib_src_install() {
 
 			# Move mpi.so Python module to Python site-packages directory.
 			# https://svn.boost.org/trac/boost/ticket/2838
-			if mpi_needed; then
+			if use mpi; then
 				local moddir=$(python_get_sitedir)/boost
 				# moddir already includes eprefix
 				mkdir -p "${D}${moddir}" || die
-				mv "${ED}usr/$(get_libdir)/mpi.so" "${D}${moddir}" || die
+				mv "${ED%/}/usr/$(get_libdir)/mpi.so" "${D}${moddir}" || die
 				cat << EOF > "${D}${moddir}/__init__.py" || die
 import sys
 if sys.platform.startswith('linux'):
@@ -350,7 +370,7 @@ EOF
 		installation
 	fi
 
-	pushd "${ED}usr/$(get_libdir)" > /dev/null || die
+	pushd "${ED%/}/usr/$(get_libdir)" >/dev/null || die
 
 	local ext=$(get_libname)
 	if use threads; then
@@ -360,7 +380,7 @@ EOF
 		done
 	fi
 
-	popd > /dev/null || die
+	popd >/dev/null || die
 
 	if tools_needed; then
 		dobin dist/bin/*
@@ -377,7 +397,7 @@ EOF
 	if [[ ${CHOST} == *-darwin* ]]; then
 		einfo "Working around completely broken build-system(tm)"
 		local d
-		for d in "${ED}"usr/lib/*.dylib; do
+		for d in "${ED%/}"/usr/lib/*.dylib; do
 			if [[ -f ${d} ]]; then
 				# fix the "soname"
 				ebegin "  correcting install_name of ${d#${ED}}"
@@ -407,7 +427,14 @@ pkg_preinst() {
 	# resorting to dirty hacks like these. Removes lingering symlinks
 	# from the slotted versions.
 	local symlink
-	for symlink in "${EROOT}usr/include/boost" "${EROOT}usr/share/boostbook"; do
-		[[ -L ${symlink} ]] && rm -f "${symlink}"
+	for symlink in "${EROOT%/}/usr/include/boost" "${EROOT%/}/usr/share/boostbook"; do
+		if [[ -L ${symlink} ]]; then
+			rm -f "${symlink}" || die
+		fi
 	done
+
+	# some ancient installs still have boost cruft lying around
+	# for unknown reasons, causing havoc for reverse dependencies
+	# Bug: 607734
+	rm -rf "${EROOT%/}"/usr/include/boost-1_[3-5]? || die
 }

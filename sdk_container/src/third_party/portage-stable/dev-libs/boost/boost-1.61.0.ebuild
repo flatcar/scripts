@@ -1,11 +1,10 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/boost/boost-1.57.0.ebuild,v 1.4 2015/04/08 17:51:55 mgorny Exp $
 
-EAPI="5"
-PYTHON_COMPAT=( python{2_7,3_3,3_4} )
+EAPI="6"
+PYTHON_COMPAT=( python{2_7,3_4,3_5} )
 
-inherit eutils flag-o-matic multilib multiprocessing python-r1 toolchain-funcs versionator multilib-minimal
+inherit eutils flag-o-matic multiprocessing python-r1 toolchain-funcs versionator multilib-minimal
 
 MY_P="${PN}_$(replace_all_version_separators _)"
 MAJOR_V="$(get_version_component_range 1-2)"
@@ -20,8 +19,7 @@ KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~spa
 
 IUSE="context debug doc icu +nls mpi python static-libs +threads tools"
 
-RDEPEND="abi_x86_32? ( !app-emulation/emul-linux-x86-cpplibs[-abi_x86_32(-)] )
-	icu? ( >=dev-libs/icu-3.6:=[${MULTILIB_USEDEP}] )
+RDEPEND="icu? ( >=dev-libs/icu-3.6:=[${MULTILIB_USEDEP}] )
 	!icu? ( virtual/libiconv[${MULTILIB_USEDEP}] )
 	mpi? ( virtual/mpi[cxx,threads] )
 	python? ( ${PYTHON_DEPS} )
@@ -42,6 +40,17 @@ S="${WORKDIR}/${MY_P}"
 # (failing for no good reason) or completely useless (never failing)
 # there is no point in having them in the ebuild to begin with.
 RESTRICT="test"
+
+PATCHES=(
+	"${FILESDIR}/${PN}-1.51.0-respect_python-buildid.patch"
+	"${FILESDIR}/${PN}-1.51.0-support_dots_in_python-buildid.patch"
+	"${FILESDIR}/${PN}-1.48.0-no_strict_aliasing_python2.patch"
+	"${FILESDIR}/${PN}-1.48.0-disable_libboost_python3.patch"
+	"${FILESDIR}/${PN}-1.48.0-python_linking.patch"
+	"${FILESDIR}/${PN}-1.48.0-disable_icu_rpath.patch"
+	"${FILESDIR}/${PN}-1.55.0-context-x32.patch"
+	"${FILESDIR}/${PN}-1.56.0-build-auto_index-tool.patch"
+)
 
 python_bindings_needed() {
 	multilib_is_native_abi && use python
@@ -75,10 +84,19 @@ create_user-config.jam() {
 	fi
 
 	if python_bindings_needed; then
+		# boost expects libpython$(pyver) and doesn't allow overrides
+		# and the build system is so creepy that it's easier just to
+		# provide a symlink (linker's going to use SONAME anyway)
+		# TODO: replace it with proper override one day
+		ln -f -s "$(python_get_library_path)" "${T}/lib${EPYTHON}$(get_libname)" || die
+
 		if tc-is-cross-compiler; then
 			python_configuration="using python : ${EPYTHON#python} : : ${SYSROOT:-${EROOT}}/usr/include/${EPYTHON} : ${SYSROOT:-${EROOT}}/usr/$(get_libdir) ;"
 		else
-			python_configuration="using python : : ${PYTHON} ;"
+			# note: we need to provide version explicitly because of
+			# a bug in the build system:
+			# https://github.com/boostorg/build/pull/104
+			python_configuration="using python : ${EPYTHON#python} : ${PYTHON} : $(python_get_includedir) : ${T} ;"
 		fi
 	fi
 
@@ -103,38 +121,34 @@ pkg_setup() {
 }
 
 src_prepare() {
-	epatch \
-		"${FILESDIR}/${PN}-1.51.0-respect_python-buildid.patch" \
-		"${FILESDIR}/${PN}-1.51.0-support_dots_in_python-buildid.patch" \
-		"${FILESDIR}/${PN}-1.48.0-no_strict_aliasing_python2.patch" \
-		"${FILESDIR}/${PN}-1.48.0-disable_libboost_python3.patch" \
-		"${FILESDIR}/${PN}-1.48.0-python_linking.patch" \
-		"${FILESDIR}/${PN}-1.48.0-disable_icu_rpath.patch" \
-		"${FILESDIR}/${PN}-1.55.0-context-x32.patch" \
-		"${FILESDIR}/${PN}-1.55.0-tools-c98-compat.patch" \
-		"${FILESDIR}/${PN}-1.52.0-threads.patch" \
-		"${FILESDIR}/${PN}-1.56.0-build-auto_index-tool.patch"
+	default
 
 	# Do not try to build missing 'wave' tool, bug #522682
 	# Upstream bugreport - https://svn.boost.org/trac/boost/ticket/10507
 	sed -i -e 's:wave/build//wave::' tools/Jamfile.v2 || die
 
-	epatch_user
-
 	multilib_copy_sources
 }
 
 ejam() {
-	local b2_opts="--user-config=${BOOST_ROOT}/user-config.jam $@"
-	echo b2 ${b2_opts}
-	b2 ${b2_opts}
+	local b2_opts=(
+		"--user-config=${BOOST_ROOT}/user-config.jam"
+		"$@"
+	)
+	echo b2 "${b2_opts[@]}"
+	b2 "${b2_opts[@]}"
 }
 
 src_configure() {
 	# Workaround for too many parallel processes requested, bug #506064
 	[ "$(makeopts_jobs)" -gt 64 ] && MAKEOPTS="${MAKEOPTS} -j64"
 
-	OPTIONS="$(usex debug gentoodebug gentoorelease) -j$(makeopts_jobs) -q -d+2"
+	OPTIONS=(
+		$(usex debug gentoodebug gentoorelease)
+		"-j$(makeopts_jobs)"
+		-q
+		-d+2
+	)
 
 	if [[ ${CHOST} == *-darwin* ]]; then
 		# We need to add the prefix, and in two cases this exceeds, so prepare
@@ -159,18 +173,37 @@ src_configure() {
 	# Do _not_ use C++11 yet, make sure to force GNU C++ 98 standard.
 	append-cxxflags -std=gnu++98
 
-	use icu && OPTIONS+=" -sICU_PATH=${EPREFIX}/usr"
-	use icu || OPTIONS+=" --disable-icu boost.locale.icu=off"
-	mpi_needed || OPTIONS+=" --without-mpi"
-	use nls || OPTIONS+=" --without-locale"
-	use context || OPTIONS+=" --without-context --without-coroutine"
+	use icu && OPTIONS+=(
+			"-sICU_PATH=${EPREFIX}/usr"
+		)
+	use icu || OPTIONS+=(
+			--disable-icu
+			boost.locale.icu=off
+		)
+	mpi_needed || OPTIONS+=(
+			--without-mpi
+		)
+	use nls || OPTIONS+=(
+			--without-locale
+		)
+	use context || OPTIONS+=(
+			--without-context
+			--without-coroutine
+			--without-coroutine2
+		)
 
-	OPTIONS+=" pch=off"
-	OPTIONS+=" --boost-build=${EPREFIX}/usr/share/boost-build --prefix=\"${ED}usr\""
-	OPTIONS+=" --layout=system"
-	OPTIONS+=" threading=$(usex threads multi single) link=$(usex static-libs shared,static shared)"
+	OPTIONS+=(
+		pch=off
+		--boost-build="${EPREFIX}"/usr/share/boost-build
+		--prefix="${ED}usr"
+		--layout=system
+		threading=$(usex threads multi single)
+		link=$(usex static-libs shared,static shared)
+	)
 
-	[[ ${CHOST} == *-winnt* ]] && OPTIONS+=" -sNO_BZIP2=1"
+	[[ ${CHOST} == *-winnt* ]] && OPTIONS+=(
+			-sNO_BZIP2=1
+		)
 }
 
 multilib_src_compile() {
@@ -189,7 +222,7 @@ multilib_src_compile() {
 		fi
 
 		ejam \
-			${OPTIONS} \
+			"${OPTIONS[@]}" \
 			${PYTHON_OPTIONS} \
 			|| die "Building of Boost libraries failed"
 
@@ -235,7 +268,7 @@ multilib_src_compile() {
 		pushd tools > /dev/null || die
 
 		ejam \
-			${OPTIONS} \
+			"${OPTIONS[@]}" \
 			${PYTHON_OPTIONS} \
 			|| die "Building of Boost tools failed"
 		popd > /dev/null || die
@@ -253,23 +286,20 @@ multilib_src_install_all() {
 
 	if ! use context; then
 		rm -r "${ED}"/usr/include/boost/context || die
-		rm -r "${ED}"/usr/include/boost/coroutine || die
+		rm -r "${ED}"/usr/include/boost/coroutine{,2} || die
+		rm "${ED}"/usr/include/boost/asio/spawn.hpp || die
 	fi
 
 	if use doc; then
 		find libs/*/* -iname "test" -or -iname "src" | xargs rm -rf
-		dohtml \
-			-A pdf,txt,cpp,hpp \
-			*.{htm,html,png,css} \
-			-r doc
-		dohtml -A pdf,txt -r tools
-		insinto /usr/share/doc/${PF}/html
-		doins -r libs
-		doins -r more
+		find doc -name Jamfile.v2 -or -name build -or -name *.manifest | xargs rm -f
+		find tools -name Jamfile.v2 -or -name src -or -name *.cpp -or -name *.hpp | xargs rm -rf
+		docinto html
+		dodoc *.{htm,html,png,css}
+		dodoc -r doc libs more tools
 
 		# To avoid broken links
-		insinto /usr/share/doc/${PF}/html
-		doins LICENSE_1_0.txt
+		dodoc LICENSE_1_0.txt
 
 		dosym /usr/include/boost /usr/share/doc/${PF}/html/boost
 	fi
@@ -300,7 +330,7 @@ multilib_src_install() {
 		fi
 
 		ejam \
-			${OPTIONS} \
+			"${OPTIONS[@]}" \
 			${PYTHON_OPTIONS} \
 			--includedir="${ED}usr/include" \
 			--libdir="${ED}usr/$(get_libdir)" \
