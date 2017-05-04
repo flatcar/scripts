@@ -39,15 +39,12 @@ STRIP_COMPLETIONS=(
 
 	# Installed by sys-apps/util-linux-2.28
 	mount umount mount.linux umount.linux
-
-	# Dumb symlink to mplayer, removed upstream in git
-	mpv
 )
 
 src_prepare() {
 	eapply "${WORKDIR}/${BASHCOMP_P}/${PN}"-2.1_p*.patch
-	# Bug 543100
-	eapply "${FILESDIR}/${PN}-2.1-escape-characters.patch"
+	# Bug 543100, update bug 601194
+	eapply "${FILESDIR}/${PN}-2.1-escape-characters-r1.patch"
 	eapply_user
 }
 
