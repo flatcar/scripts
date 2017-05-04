@@ -1,12 +1,11 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 EAPI=5
 
 AUTOTOOLS_AUTORECONF=1
 AUTOTOOLS_PRUNE_LIBTOOL_FILES=all
-PYTHON_COMPAT=( python{2_7,3_3,3_4} )
+PYTHON_COMPAT=( python{2_7,3_4,3_5,3_6} )
 
 inherit autotools-utils flag-o-matic python-r1
 
@@ -16,7 +15,7 @@ SRC_URI="https://people.redhat.com/sgrubb/${PN}/${P}.tar.gz"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~arm-linux ~x86-linux"
+KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~arm-linux ~x86-linux"
 IUSE="python static-libs"
 
 RDEPEND="python? ( ${PYTHON_DEPS} )"
@@ -24,8 +23,9 @@ DEPEND="${RDEPEND}
 	sys-kernel/linux-headers
 	python? ( >=dev-lang/swig-2 )"
 
+RESTRICT="test"
+
 src_prepare() {
-	epatch "${FILESDIR}"/${PN}-0.7.5-add-unistd_h.patch
 	sed -i -e 's:AM_CONFIG_HEADER:AC_CONFIG_HEADERS:' configure.ac || die
 
 	autotools-utils_src_prepare
@@ -34,16 +34,22 @@ src_prepare() {
 }
 
 src_configure() {
-	local myeconfargs=(
-		--without-python
-	)
-
 	# set up the library build
+	local myeconfargs=( --without-python --without-python3 )
 	autotools-utils_src_configure
 
-	if use python; then
-		python_parallel_foreach_impl \
-			autotools-utils_src_configure --with-python
+	# set up python bindings build(s)
+	if use python ; then
+		setup_python_flags_configure() {
+			if [[ ${EPYTHON} == python2* ]] ; then
+				myeconfargs=( --with-python --without-python3 )
+			else
+				myeconfargs=( --with-python --with-python3 )
+			fi
+			autotools-utils_src_configure
+		}
+
+		python_foreach_impl setup_python_flags_configure
 	fi
 }
 
