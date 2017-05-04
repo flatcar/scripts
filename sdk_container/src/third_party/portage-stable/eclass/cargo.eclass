@@ -1,6 +1,5 @@
 # Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 # @ECLASS: cargo.eclass
 # @MAINTAINER:
@@ -126,7 +125,7 @@ cargo_src_install() {
 		|| die "cargo install failed"
 	rm -f "${D}/usr/.crates.toml"
 
-	[ -d "${S}/man" ] && doman "${S}/man"
+	[ -d "${S}/man" ] && doman "${S}/man" || return 0
 }
 
 fi

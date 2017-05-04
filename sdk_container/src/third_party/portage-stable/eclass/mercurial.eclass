@@ -1,6 +1,5 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 # @ECLASS: mercurial.eclass
 # @MAINTAINER:
@@ -82,7 +81,7 @@ EHG_OFFLINE="${EHG_OFFLINE:-${EVCS_OFFLINE}}"
 # Clone or update repository.
 #
 # If repository URI is not passed it defaults to EHG_REPO_URI, if module is
-# empty it defaults to basename of EHG_REPO_URI, sourcedir defaults to 
+# empty it defaults to basename of EHG_REPO_URI, sourcedir defaults to
 # EHG_CHECKOUT_DIR, which defaults to S.
 
 mercurial_fetch() {

@@ -1,6 +1,5 @@
 # Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 # @ECLASS: linux-mod.eclass
 # @MAINTAINER:
@@ -134,7 +133,7 @@ IUSE="kernel_linux ${MODULES_OPTIONAL_USE}"
 SLOT="0"
 RDEPEND="${MODULES_OPTIONAL_USE}${MODULES_OPTIONAL_USE:+? (} kernel_linux? ( virtual/modutils ) ${MODULES_OPTIONAL_USE:+)}"
 DEPEND="${RDEPEND}
-    ${MODULES_OPTIONAL_USE}${MODULES_OPTIONAL_USE:+? (} 
+    ${MODULES_OPTIONAL_USE}${MODULES_OPTIONAL_USE:+? (}
 	sys-apps/sed
 	kernel_linux? ( virtual/linux-sources )
 	${MODULES_OPTIONAL_USE:+)}"

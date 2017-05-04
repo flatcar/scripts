@@ -1,6 +1,5 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 # @ECLASS: netsurf.eclass
 # @MAINTAINER:
@@ -104,7 +103,7 @@ multilib_src_configure() {
 
 # @FUNCTION: netsurf_make
 # @DESCRIPTION:
-# Calls emake with netsurf_makeconf and toolchain CC/LD 
+# Calls emake with netsurf_makeconf and toolchain CC/LD
 # as arguments for every NETSURF_COMPONENT_TYPE if activated.
 netsurf_make() {
 	for COMPONENT_TYPE in ${NETSURF_COMPONENT_TYPE} ; do
@@ -126,7 +125,7 @@ netsurf_src_compile() {
 	local problems=$(egrep -Hn -- ' (-O.?|-g)( |$)' \
 		$(find . -type f -name 'Makefile*'))
 	if [ -n "${problems}" ] ; then
-		elog "found bad flags: 
+		elog "found bad flags:
 ${problems}"
 	fi
 

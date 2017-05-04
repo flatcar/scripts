@@ -1,6 +1,5 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 #
 # @ECLASS: mozconfig-v6.46.eclass
 # @MAINTAINER:
@@ -239,7 +238,7 @@ mozconfig_config() {
 		fi
 	fi
 
-	# Enable position independent executables 
+	# Enable position independent executables
 	mozconfig_annotate 'enabled by Gentoo' --enable-pie
 	mozconfig_use_enable debug
 	mozconfig_use_enable debug tests

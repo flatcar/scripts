@@ -1,6 +1,5 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 # @ECLASS: mysql-multilib.eclass
 # @MAINTAINER:
@@ -212,7 +211,7 @@ DEPEND="${DEPEND}
 # For other stuff to bring us in
 # dev-perl/DBD-mysql is needed by some scripts installed by MySQL
 PDEPEND="${PDEPEND} perl? ( >=dev-perl/DBD-mysql-2.9004 )
-	 ~virtual/mysql-${MYSQL_PV_MAJOR}[embedded=,static=]
+	 server? ( ~virtual/mysql-${MYSQL_PV_MAJOR}[embedded=,static=] )
 	 virtual/libmysqlclient:${SLOT}[${MULTILIB_USEDEP},static-libs=]"
 
 # my_config.h includes ABI specific data
@@ -393,7 +392,7 @@ multilib_src_configure() {
 		-DINSTALL_SQLBENCHDIR=share/mysql
 		-DINSTALL_SUPPORTFILESDIR=${EPREFIX}/usr/share/mysql
 		-DWITH_COMMENT="Gentoo Linux ${PF}"
-		-DWITH_UNIT_TESTS=$(usex test)
+		-DWITH_UNIT_TESTS=$(usex test ON OFF)
 		-DWITH_LIBEDIT=0
 		-DWITH_ZLIB=system
 		-DWITHOUT_LIBWRAP=1
@@ -403,7 +402,7 @@ multilib_src_configure() {
 		-DWITH_DEFAULT_COMPILER_OPTIONS=0
 		-DWITH_DEFAULT_FEATURE_SET=0
 		-DINSTALL_SYSTEMD_UNITDIR="$(systemd_get_systemunitdir)"
-		-DENABLE_STATIC_LIBS=$(usex static-libs)
+		-DENABLE_STATIC_LIBS=$(usex static-libs ON OFF)
 		# The build forces this to be defined when cross-compiling.  We pass it
 		# all the time for simplicity and to make sure it is actually correct.
 		-DSTACK_DIRECTION=$(tc-stack-grows-down && echo -1 || echo 1)
@@ -785,7 +784,7 @@ mysql-multilib-r1_pkg_config() {
 	mysql_init_vars
 
 	[[ -z "${MY_DATADIR}" ]] && die "Sorry, unable to find MY_DATADIR"
-	if ! built_with_use ${CATEGORY}/${PN} server ; then
+	if [[ ! -x "${EROOT}/usr/sbin/mysqld" ]] ; then
 		die "Minimal builds do NOT include the MySQL server"
 	fi
 
@@ -942,19 +941,19 @@ mysql-multilib-r1_pkg_config() {
         if [[ ${PN} == "mysql" || ${PN} == "percona-server" ]] && version_is_at_least "5.7.6" ; then
 		# --initialize-insecure will not set root password
 		# --initialize would set a random one in the log which we don't need as we set it ourselves
-		cmd="${EROOT}usr/sbin/mysqld"
-		initialize_options="--initialize-insecure  '--init-file=${sqltmp}'"
+		cmd=( "${EROOT}usr/sbin/mysqld" )
+		initialize_options="--initialize-insecure  --init-file='${sqltmp}'"
 		sqltmp="" # the initialize will take care of it
 	else
-		cmd="${EROOT}usr/share/mysql/scripts/mysql_install_db"
-		[[ -f "${cmd}" ]] || cmd="${EROOT}usr/bin/mysql_install_db"
+		cmd=( "${EROOT}usr/share/mysql/scripts/mysql_install_db" )
+		[[ -f "${cmd}" ]] || cmd=( "${EROOT}usr/bin/mysql_install_db" )
 		if [[ -r "${help_tables}" ]] ; then
 			cat "${help_tables}" >> "${sqltmp}"
 		fi
 	fi
-	cmd="'$cmd' '--basedir=${EPREFIX}/usr' ${options} '--datadir=${ROOT}/${MY_DATADIR}' '--tmpdir=${ROOT}/${MYSQL_TMPDIR}' ${initialize_options}"
-	einfo "Command: $cmd"
-	eval $cmd \
+	cmd+=( "--basedir=${EPREFIX}/usr" ${options} "--datadir=${ROOT}/${MY_DATADIR}" "--tmpdir=${ROOT}/${MYSQL_TMPDIR}" ${initialize_options} )
+	einfo "Command: ${cmd[*]}"
+	"${cmd[@]}" \
 		>"${TMPDIR}"/mysql_install_db.log 2>&1
 	if [ $? -ne 0 ]; then
 		grep -B5 -A999 -i "ERROR" "${TMPDIR}"/mysql_install_db.log 1>&2

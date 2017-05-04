@@ -1,6 +1,5 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 # @ECLASS: ros-catkin.eclass
 # @MAINTAINER:
@@ -33,6 +32,11 @@ EGIT_REPO_URI="${ROS_REPO_URI}"
 # Usually, a repository contains several packages, hence a typical value is:
 # ROS_SUBDIR=${PN}
 
+# @ECLASS-VARIABLE: CATKIN_IN_SOURCE_BUILD
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# Set to enable in-source build.
+
 SCM=""
 if [ "${PV#9999}" != "${PV}" ] ; then
 	SCM="git-r3"
@@ -44,7 +48,7 @@ fi
 PYTHON_ECLASS=""
 CATKIN_PYTHON_USEDEP=""
 if [ -n "${PYTHON_COMPAT}" ] ; then
-	PYTHON_ECLASS="python-r1 python-utils-r1"
+	PYTHON_ECLASS="python-r1"
 fi
 
 inherit ${SCM} ${PYTHON_ECLASS} cmake-utils flag-o-matic
@@ -53,6 +57,7 @@ CATKIN_DO_PYTHON_MULTIBUILD=""
 if [ -n "${PYTHON_COMPAT}" ] ; then
 	CATKIN_PYTHON_USEDEP="[${PYTHON_USEDEP}]"
 	CATKIN_DO_PYTHON_MULTIBUILD="yes"
+	REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 fi
 
 IUSE="test"
@@ -63,7 +68,7 @@ RDEPEND="
 DEPEND="${RDEPEND}"
 
 if [ -n "${CATKIN_DO_PYTHON_MULTIBUILD}" ] ; then
-	RDEPEND="${RDEPEND} dev-lang/python-exec:2 ${PYTHON_DEPS}"
+	RDEPEND="${RDEPEND} ${PYTHON_DEPS}"
 	DEPEND="${DEPEND} ${PYTHON_DEPS}"
 fi
 
@@ -76,7 +81,7 @@ fi
 # @DESCRIPTION:
 # Some messages have dependencies on other messages.
 # In that case, CATKIN_MESSAGES_TRANSITIVE_DEPS should contain a space-separated list of atoms
-# representing those dependencies. The eclass uses it to ensure proper dependencies on these packages. 
+# representing those dependencies. The eclass uses it to ensure proper dependencies on these packages.
 if [ -n "${CATKIN_HAS_MESSAGES}" ] ; then
 	IUSE="${IUSE} +ros_messages_python +ros_messages_cxx ros_messages_eus ros_messages_lisp ros_messages_nodejs"
 	RDEPEND="${RDEPEND}
@@ -141,11 +146,17 @@ HOMEPAGE="http://wiki.ros.org/${PN}"
 # Calls cmake-utils_src_prepare (so that PATCHES array is handled there) and initialises the workspace
 # by installing a recursive CMakeLists.txt to handle bundles.
 ros-catkin_src_prepare() {
+	# If no multibuild, just use cmake IN_SOURCE support
+	[ -n "${CATKIN_IN_SOURCE_BUILD}" ] && [ -z "${CATKIN_DO_PYTHON_MULTIBUILD}" ] && export CMAKE_IN_SOURCE_BUILD=yes
+
 	cmake-utils_src_prepare
 
 	if [ ! -f "${S}/CMakeLists.txt" ] ; then
 		catkin_init_workspace || die
 	fi
+
+	# If python multibuild, copy the sources
+	[ -n "${CATKIN_IN_SOURCE_BUILD}" ] && [ -n "${CATKIN_DO_PYTHON_MULTIBUILD}" ] && python_copy_sources
 
 	# Most packages require C++11 these days. Do it here, in src_prepare so that
 	# ebuilds can override it in src_configure.
@@ -164,6 +175,9 @@ ros-catkin_src_configure_internal() {
 			-DPYTHON_INSTALL_DIR="${sitedir#${EPREFIX}/usr/}"
 		)
 		python_export PYTHON_SCRIPTDIR
+		if [ -n "${CATKIN_IN_SOURCE_BUILD}" ] ; then
+			export CMAKE_USE_DIR="${BUILD_DIR}"
+		fi
 	fi
 	cmake-utils_src_configure "${@}"
 }
@@ -178,7 +192,7 @@ ros-catkin_src_configure_internal() {
 # @DESCRIPTION:
 # Configures a catkin-based package.
 ros-catkin_src_configure() {
-	export CMAKE_PREFIX_PATH="${EPREFIX}/usr"
+	export CATKIN_PREFIX_PATH="${EPREFIX}/usr"
 	export ROS_ROOT="${EPREFIX}/usr/share/ros"
 	if [ -n "${CATKIN_HAS_MESSAGES}" ] ; then
 		ROS_LANG_DISABLE=""
@@ -207,6 +221,9 @@ ros-catkin_src_configure() {
 # Builds a catkin-based package.
 ros-catkin_src_compile() {
 	if [ -n "${CATKIN_DO_PYTHON_MULTIBUILD}" ] ; then
+		if [ -n "${CATKIN_IN_SOURCE_BUILD}" ] ; then
+			export CMAKE_USE_DIR="${BUILD_DIR}"
+		fi
 		python_foreach_impl cmake-utils_src_compile "${@}"
 	else
 		cmake-utils_src_compile "${@}"
@@ -218,6 +235,11 @@ ros-catkin_src_compile() {
 # Decorator around cmake-utils_src_test to ensure tests are built before running them.
 ros-catkin_src_test_internal() {
 	cd "${BUILD_DIR}" || die
+	# Regenerate env for tests, PYTHONPATH is not set properly otherwise...
+	if [ -f catkin_generated/generate_cached_setup.py ] ; then
+		einfo "Regenerating setup_cached.sh for tests"
+		${PYTHON:-python} catkin_generated/generate_cached_setup.py || die
+	fi
 	# Using cmake-utils_src_make with nonfatal does not work and breaks e.g.
 	# dev-ros/rviz.
 	if nonfatal emake tests -n &> /dev/null ; then
@@ -242,6 +264,9 @@ ros-catkin_src_test() {
 # Decorator around cmake-utils_src_install to ensure python scripts are properly handled w.r.t. python-exec2.
 ros-catkin_src_install_with_python() {
 	python_export PYTHON_SCRIPTDIR
+	if [ -n "${CATKIN_IN_SOURCE_BUILD}" ] ; then
+		export CMAKE_USE_DIR="${BUILD_DIR}"
+	fi
 	cmake-utils_src_install "${@}"
 	if [ ! -f "${T}/.catkin_python_symlinks_generated" -a -d "${D}/${PYTHON_SCRIPTDIR}" ]; then
 		dodir /usr/bin

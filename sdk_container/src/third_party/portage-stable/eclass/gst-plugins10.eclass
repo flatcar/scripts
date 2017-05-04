@@ -1,6 +1,5 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 # @ECLASS: gst-plugins10.eclass
 # @MAINTAINER:
@@ -263,7 +262,7 @@ gst-plugins10_src_configure() {
 # Compiles requested gstreamer plugin.
 gst-plugins10_src_compile() {
 	local plugin_dir
-	
+
 	has ${EAPI:-0} 0 1 && gst-plugins10_src_configure "$@"
 
 	for plugin_dir in ${GST_PLUGINS_BUILD_DIR} ; do
@@ -282,7 +281,7 @@ gst-plugins10_src_compile() {
 # Installs requested gstreamer plugin.
 gst-plugins10_src_install() {
 	local plugin_dir
-	
+
 	for plugin_dir in ${GST_PLUGINS_BUILD_DIR} ; do
 		gst-plugins10_find_plugin_dir ${plugin_dir}
 
