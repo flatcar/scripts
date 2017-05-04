@@ -1,18 +1,17 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
-EAPI=5
+EAPI=6
 
-inherit autotools qmake-utils multilib eutils flag-o-matic toolchain-funcs
+inherit autotools qmake-utils multilib flag-o-matic toolchain-funcs
 
-DESCRIPTION="Collection of simple PIN or passphrase entry dialogs which utilize the Assuan protocol"
+DESCRIPTION="Simple passphrase entry dialogs which utilize the Assuan protocol"
 HOMEPAGE="http://gnupg.org/aegypten2/index.html"
 SRC_URI="mirror://gnupg/${PN}/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~x64-cygwin ~amd64-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="emacs gtk ncurses qt4 qt5 caps gnome-keyring static"
 
 CDEPEND="
@@ -55,8 +54,13 @@ REQUIRED_USE="
 
 DOCS=( AUTHORS ChangeLog NEWS README THANKS TODO )
 
+PATCHES=(
+	"${FILESDIR}/${PN}-0.8.2-ncurses.patch"
+	"${FILESDIR}/${P}-build.patch"
+)
+
 src_prepare() {
-	epatch "${FILESDIR}/${PN}-0.8.2-ncurses.patch"
+	default
 	eautoreconf
 }
 
@@ -65,17 +69,16 @@ src_configure() {
 	use static && append-ldflags -static
 	[[ "$(gcc-major-version)" -ge 5 ]] && append-cxxflags -std=gnu++11
 
-	QT_MOC=""
 	if use qt4; then
-		myconf+=( --enable-pinentry-qt
-			  --disable-pinentry-qt5
-			)
-		QT_MOC="$(qt4_get_bindir)"/moc
-		# Issues finding qt on multilib systems
+		myconf+=(
+			--enable-pinentry-qt
+			--disable-pinentry-qt5
+		)
+		export MOC="$(qt4_get_bindir)"/moc
 		export QTLIB="$(qt4_get_libdir)"
 	elif use qt5; then
 		myconf+=( --enable-pinentry-qt )
-		QT_MOC="$(qt5_get_bindir)"/moc
+		export MOC="$(qt5_get_bindir)"/moc
 		export QTLIB="$(qt5_get_libdir)"
 	else
 		myconf+=( --disable-pinentry-qt )
@@ -90,8 +93,7 @@ src_configure() {
 		$(use_with caps libcap) \
 		$(use_enable gnome-keyring libsecret) \
 		$(use_enable gnome-keyring pinentry-gnome3) \
-		"${myconf[@]}" \
-		MOC="${QT_MOC}"
+		"${myconf[@]}"
 }
 
 src_install() {
