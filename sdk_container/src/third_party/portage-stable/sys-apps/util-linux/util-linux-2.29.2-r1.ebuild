@@ -1,13 +1,12 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 EAPI="5"
 
-PYTHON_COMPAT=( python2_7 python3_{3,4} )
+PYTHON_COMPAT=( python2_7 python3_{4,5,6} )
 
 inherit eutils toolchain-funcs libtool flag-o-matic bash-completion-r1 \
-	python-single-r1 multilib-minimal systemd
+	pam python-single-r1 multilib-minimal systemd
 
 MY_PV=${PV/_/-}
 MY_P=${PN}-${MY_PV}
@@ -25,33 +24,37 @@ HOMEPAGE="https://www.kernel.org/pub/linux/utils/util-linux/"
 
 LICENSE="GPL-2 LGPL-2.1 BSD-4 MIT public-domain"
 SLOT="0"
-IUSE="caps +cramfs fdformat ncurses nls pam python selinux slang static-libs +suid systemd test tty-helpers udev unicode"
+IUSE="build caps +cramfs fdformat kill ncurses nls pam python +readline selinux slang static-libs +suid systemd test tty-helpers udev unicode"
 
-RDEPEND="!sys-process/schedutils
-	!sys-apps/setarch
-	!<sys-apps/sysvinit-2.88-r7
-	!sys-block/eject
-	!<sys-libs/e2fsprogs-libs-1.41.8
-	!<sys-fs/e2fsprogs-1.41.8
-	!<app-shells/bash-completion-1.3-r2
-	caps? ( sys-libs/libcap-ng )
+# Most lib deps here are related to programs rather than our libs,
+# so we rarely need to specify ${MULTILIB_USEDEP}.
+RDEPEND="caps? ( sys-libs/libcap-ng )
 	cramfs? ( sys-libs/zlib )
 	ncurses? ( >=sys-libs/ncurses-5.2-r2:0=[unicode?] )
 	pam? ( sys-libs/pam )
 	python? ( ${PYTHON_DEPS} )
+	readline? ( sys-libs/readline:0= )
 	selinux? ( >=sys-libs/libselinux-2.2.2-r4[${MULTILIB_USEDEP}] )
 	slang? ( sys-libs/slang )
-	systemd? ( sys-apps/systemd )
-	udev? ( virtual/libudev:= )
-	abi_x86_32? (
-		!<=app-emulation/emul-linux-x86-baselibs-20150406-r2
-		!app-emulation/emul-linux-x86-baselibs[-abi_x86_32]
-	)"
+	!build? ( systemd? ( sys-apps/systemd ) )
+	udev? ( virtual/libudev:= )"
 DEPEND="${RDEPEND}
 	virtual/pkgconfig
 	nls? ( sys-devel/gettext )
 	test? ( sys-devel/bc )
 	virtual/os-headers"
+RDEPEND+="
+	kill? (
+		!sys-apps/coreutils[kill]
+		!sys-process/procps[kill]
+	)
+	!sys-process/schedutils
+	!sys-apps/setarch
+	!<sys-apps/sysvinit-2.88-r7
+	!sys-block/eject
+	!<sys-libs/e2fsprogs-libs-1.41.8
+	!<sys-fs/e2fsprogs-1.41.8
+	!<app-shells/bash-completion-2.3-r2"
 
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
@@ -66,7 +69,14 @@ src_prepare() {
 		po/update-potfiles
 		eautoreconf
 	fi
+	# Undo bad ncurses handling by upstream. #601530
+	sed -i -E \
+		-e '/NCURSES_/s:(ncursesw?)[56]-config:$PKG_CONFIG \1:' \
+		-e 's:(ncursesw?)[56]-config --version:$PKG_CONFIG --exists --print-errors \1:' \
+		configure || die
 	elibtoolize
+
+	epatch_user
 }
 
 lfs_fallocate_test() {
@@ -90,41 +100,48 @@ multilib_src_configure() {
 	tc-is-cross-compiler && export scanf_cv_alloc_modifier=ms
 	export ac_cv_header_security_pam_misc_h=$(multilib_native_usex pam) #485486
 	export ac_cv_header_security_pam_appl_h=$(multilib_native_usex pam) #545042
-	ECONF_SOURCE=${S} \
-	econf \
-		--enable-fs-paths-extra="${EPREFIX}/usr/sbin:${EPREFIX}/bin:${EPREFIX}/usr/bin" \
-		--docdir='${datarootdir}'/doc/${PF} \
-		$(multilib_native_use_enable nls) \
-		--enable-agetty \
-		--with-bashcompletiondir="$(get_bashcompdir)" \
-		--enable-bash-completion \
-		$(multilib_native_use_enable caps setpriv) \
-		--disable-chfn-chsh \
-		$(multilib_native_use_enable cramfs) \
-		$(multilib_native_use_enable fdformat) \
-		--with-ncurses=$(multilib_native_usex ncurses $(usex unicode auto yes) no) \
-		--disable-kill \
-		--disable-login \
-		$(multilib_native_use_enable tty-helpers mesg) \
-		--disable-nologin \
-		--enable-partx \
-		$(multilib_native_use_with python) \
-		--enable-raw \
-		--enable-rename \
-		--disable-reset \
-		--enable-schedutils \
-		--disable-su \
-		$(multilib_native_use_enable tty-helpers wall) \
-		$(multilib_native_use_enable tty-helpers write) \
-		$(multilib_native_use_enable suid makeinstall-chown) \
-		$(multilib_native_use_enable suid makeinstall-setuid) \
-		$(use_with selinux) \
-		$(multilib_native_use_with slang) \
-		$(use_enable static-libs static) \
-		$(multilib_native_use_with systemd) \
-		--with-systemdsystemunitdir=$(multilib_native_usex systemd "$(systemd_get_unitdir)" "no") \
-		$(multilib_native_use_with udev) \
+
+	local myeconfargs=(
+		--enable-fs-paths-extra="${EPREFIX}/usr/sbin:${EPREFIX}/bin:${EPREFIX}/usr/bin"
+		--docdir='${datarootdir}'/doc/${PF}
+		$(multilib_native_use_enable nls)
+		--enable-agetty
+		--with-bashcompletiondir="$(get_bashcompdir)"
+		--enable-bash-completion
+		$(multilib_native_use_enable caps setpriv)
+		--disable-chfn-chsh
+		$(multilib_native_use_enable cramfs)
+		$(multilib_native_use_enable fdformat)
+		$(multilib_native_usex ncurses "$(use_with unicode ncursesw)" '--without-ncursesw')
+		$(multilib_native_usex ncurses "$(use_with !unicode ncurses)" '--without-ncurses')
+		$(usex ncurses '' '--without-tinfo')
+		$(use_enable unicode widechar)
+		$(use_enable kill)
+		--disable-login
+		$(multilib_native_use_enable tty-helpers mesg)
+		--disable-nologin
+		--enable-partx
+		$(multilib_native_use_with python)
+		--enable-raw
+		$(multilib_native_use_with readline)
+		--enable-rename
+		--disable-reset
+		--enable-schedutils
+		--disable-su
+		$(multilib_native_use_enable tty-helpers wall)
+		$(multilib_native_use_enable tty-helpers write)
+		$(multilib_native_use_enable suid makeinstall-chown)
+		$(multilib_native_use_enable suid makeinstall-setuid)
+		$(use_with selinux)
+		$(multilib_native_use_with slang)
+		$(use_enable static-libs static)
+		$(multilib_native_use_with systemd)
+		--with-systemdsystemunitdir=$(multilib_native_usex systemd "$(systemd_get_unitdir)" "no")
+		$(multilib_native_use_with udev)
 		$(tc-has-tls || echo --disable-tls)
+	)
+	ECONF_SOURCE=${S} \
+	econf "${myeconfargs[@]}"
 }
 
 multilib_src_compile() {
@@ -164,6 +181,11 @@ multilib_src_install_all() {
 
 	# e2fsprogs-libs didnt install .la files, and .pc work fine
 	prune_libtool_files
+
+	if use pam; then
+		newpamd "${FILESDIR}/runuser.pamd" runuser
+		newpamd "${FILESDIR}/runuser-l.pamd" runuser-l
+	fi
 }
 
 pkg_postinst() {
