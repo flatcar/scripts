@@ -1,8 +1,7 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
-EAPI=5
+EAPI=6
 
 inherit eutils pam multilib libtool
 
@@ -23,7 +22,9 @@ SRC_URI="http://www.sudo.ws/sudo/dist/${uri_prefix}${MY_P}.tar.gz
 # 3-clause BSD license
 LICENSE="ISC BSD"
 SLOT="0"
-KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~sparc-solaris"
+if [[ ${PV} != *_beta* ]] && [[ ${PV} != *_rc* ]] ; then
+	KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~sparc-solaris"
+fi
 IUSE="ldap nls pam offensive selinux skey +sendmail"
 
 DEPEND="pam? ( virtual/pam )
@@ -50,6 +51,7 @@ REQUIRED_USE="pam? ( !skey ) skey? ( !pam )"
 MAKEOPTS+=" SAMPLES="
 
 src_prepare() {
+	default
 	elibtoolize
 }
 

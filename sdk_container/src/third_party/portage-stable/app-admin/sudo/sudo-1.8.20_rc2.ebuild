@@ -1,6 +1,5 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 EAPI=6
 
@@ -11,7 +10,7 @@ MY_P=${MY_P/beta/b}
 
 uri_prefix=
 case ${P} in
-*_beta*|*_rc*) uri_prefix=beta/ ;;
+	*_beta*|*_rc*) uri_prefix=beta/ ;;
 esac
 
 DESCRIPTION="Allows users or groups to run commands as other users"
@@ -23,29 +22,43 @@ SRC_URI="http://www.sudo.ws/sudo/dist/${uri_prefix}${MY_P}.tar.gz
 # 3-clause BSD license
 LICENSE="ISC BSD"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~sparc-solaris"
-IUSE="ldap nls pam offensive selinux skey +sendmail"
+if [[ ${PV} != *_beta* ]] && [[ ${PV} != *_rc* ]] ; then
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~sparc-solaris"
+fi
+IUSE="gcrypt ldap nls pam offensive openssl selinux skey +sendmail"
 
-DEPEND="pam? ( virtual/pam )
+CDEPEND="
+	gcrypt? ( dev-libs/libgcrypt:= )
+	openssl? ( dev-libs/openssl:0= )
+	pam? ( virtual/pam )
 	skey? ( >=sys-auth/skey-1.1.5-r1 )
 	ldap? (
 		>=net-nds/openldap-2.1.30-r1
 		dev-libs/cyrus-sasl
 	)
-	sys-libs/zlib"
-RDEPEND="${DEPEND}
+	sys-libs/zlib
+"
+RDEPEND="
+	${CDEPEND}
 	selinux? ( sec-policy/selinux-sudo )
 	ldap? ( dev-lang/perl )
 	pam? ( sys-auth/pambase )
 	>=app-misc/editor-wrapper-3
 	virtual/editor
-	sendmail? ( virtual/mta )"
-DEPEND="${DEPEND}
-	sys-devel/bison"
+	sendmail? ( virtual/mta )
+"
+DEPEND="
+	${CDEPEND}
+	sys-devel/bison
+"
 
-S=${WORKDIR}/${MY_P}
+S="${WORKDIR}/${MY_P}"
 
-REQUIRED_USE="pam? ( !skey ) skey? ( !pam )"
+REQUIRED_USE="
+	pam? ( !skey )
+	skey? ( !pam )
+	?? ( gcrypt openssl )
+"
 
 MAKEOPTS+=" SAMPLES="
 
@@ -103,26 +116,29 @@ src_configure() {
 	# plugindir: autoconf code is crappy and does not delay evaluation
 	# until `make` time, so we have to use a full path here rather than
 	# basing off other values.
-	econf \
-		--enable-zlib=system \
-		--with-secure-path="${ROOTPATH}" \
-		--with-editor="${EPREFIX}"/usr/libexec/editor \
-		--with-env-editor \
-		$(use_with offensive insults) \
-		$(use_with offensive all-insults) \
-		$(use_with ldap ldap_conf_file /etc/ldap.conf.sudo) \
-		$(use_with ldap) \
-		$(use_enable nls) \
-		$(use_with pam) \
-		$(use_with skey) \
-		$(use_with selinux) \
-		$(use_with sendmail) \
-		--without-opie \
-		--without-linux-audit \
-		--with-rundir="${EPREFIX}"/var/run/sudo \
-		--with-vardir="${EPREFIX}"/var/db/sudo \
-		--with-plugindir="${EPREFIX}"/usr/$(get_libdir)/sudo \
-		--docdir="${EPREFIX}"/usr/share/doc/${PF}
+	myeconfargs=(
+		--enable-zlib=system
+		--with-editor="${EPREFIX}"/usr/libexec/editor
+		--with-env-editor
+		--with-plugindir="${EPREFIX}"/usr/$(get_libdir)/sudo
+		--with-rundir="${EPREFIX}"/var/run/sudo
+		--with-secure-path="${ROOTPATH}"
+		--with-vardir="${EPREFIX}"/var/db/sudo
+		--without-linux-audit
+		--without-opie
+		$(use_enable gcrypt)
+		$(use_enable nls)
+		$(use_enable openssl)
+		$(use_with offensive insults)
+		$(use_with offensive all-insults)
+		$(use_with ldap ldap_conf_file /etc/ldap.conf.sudo)
+		$(use_with ldap)
+		$(use_with pam)
+		$(use_with skey)
+		$(use_with selinux)
+		$(use_with sendmail)
+	)
+	econf "${myeconfargs[@]}"
 }
 
 src_install() {
