@@ -1,4 +1,4 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="5"
@@ -20,7 +20,7 @@ LICENSE="BSD"
 SLOT="0"
 IUSE="debug selinux systemd tcpd warmstarts"
 
-CDEPEND=">=net-libs/libtirpc-0.2.3:=
+CDEPEND=">=net-libs/libtirpc-1.0:=
 	systemd? ( sys-apps/systemd:= )
 	tcpd? ( sys-apps/tcp-wrappers )"
 DEPEND="${CDEPEND}
@@ -28,11 +28,13 @@ DEPEND="${CDEPEND}
 RDEPEND="${CDEPEND}
 	selinux? ( sec-policy/selinux-rpcbind )"
 
+PATCHES=(
+	"${FILESDIR}/${P}-CVE-2017-8779.patch"
+)
+
 src_prepare() {
 	[[ ${PV} == "9999" ]] && eautoreconf
-	epatch "${FILESDIR}"/${P}-libtirpc.patch
-	epatch "${FILESDIR}"/${P}-mem-corrupt.patch #560990
-	epatch "${FILESDIR}"/${P}-remove-P-macro.patch #589666
+	epatch "${PATCHES[@]}"
 	epatch_user
 }
 
