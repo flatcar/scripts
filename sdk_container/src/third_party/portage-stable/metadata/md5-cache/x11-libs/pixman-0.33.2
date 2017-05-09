@@ -1,5 +1,5 @@
 DEFINED_PHASES=compile configure install postinst postrm prepare test unpack
-DEPEND=!<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.15:1.15 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4 ppc-aix? ( >=sys-devel/libtool-2.2.6a sys-devel/m4 >=x11-misc/util-macros-1.18 >=media-fonts/font-util-1.2.0 ) x86-winnt? ( >=sys-devel/libtool-2.2.6a sys-devel/m4 >=x11-misc/util-macros-1.18 >=media-fonts/font-util-1.2.0 ) virtual/pkgconfig
+DEPEND=>=app-portage/elt-patches-20170317 !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.15:1.15 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4 ppc-aix? ( >=sys-devel/libtool-2.2.6a sys-devel/m4 >=x11-misc/util-macros-1.18 >=media-fonts/font-util-1.2.0 ) x86-winnt? ( >=sys-devel/libtool-2.2.6a sys-devel/m4 >=x11-misc/util-macros-1.18 >=media-fonts/font-util-1.2.0 ) virtual/pkgconfig
 DESCRIPTION=Low-level pixel manipulation routines
 EAPI=5
 HOMEPAGE=https://www.x.org/wiki/
@@ -9,5 +9,5 @@ LICENSE=MIT
 RDEPEND=abi_x86_32? ( !<=app-emulation/emul-linux-x86-gtklibs-20131008 !app-emulation/emul-linux-x86-gtklibs[-abi_x86_32(-)] ) abi_x86_32? ( !app-emulation/emul-linux-x86-xlibs[-abi_x86_32(-)] )
 SLOT=0
 SRC_URI=https://www.x.org/releases/individual/lib/pixman-0.33.2.tar.bz2
-_eclasses_=autotools	07e71b3b5690738ef7e8bc097077e00c	autotools-multilib	77afca16a6cb82823eed6366a10e7f75	autotools-utils	419811142edf3516b0d0cf1a254d93cb	eutils	ea170b525f6a38a006be05c9d9429f13	flag-o-matic	f3d2dfb12521ff699df43be5d9a51dc4	libtool	4890219c51da247200223277f993e054	multibuild	742139c87a9fa3766f0c2b155e5522bf	multilib	165fc17c38d1b11dac2008280dab6e80	multilib-build	8fe2e81aeb36cdf8a6cc5f50443879cc	multilib-minimal	0224dee31c0f98405d572e14ad6dee65	toolchain-funcs	1b1da0c45c555989dc5d832b54880783	xorg-2	31212c92baf2018dd17d89e5fd7faed4
+_eclasses_=autotools	7027963e8e8cc12c91117bdb9225dc26	autotools-multilib	f4848d9634439c7203cb7dd3b9650fff	autotools-utils	5a4611dfba155b1659528663fad4cd5e	epatch	8233751dc5105a6ae8fcd86ce2bb0247	estack	43ddf5aaffa7a8d0482df54d25a66a1f	eutils	9c113d6a64826c40154cad7be15d95ea	flag-o-matic	61cad4fb5d800b29d484b27cb033f59b	libtool	e32ea84bf82cf8987965b574672dba93	ltprune	2770eed66a9b8ef944714cd0e968182e	multibuild	72647e255187a1fadc81097b3657e5c3	multilib	0236be304ee52e7f179ed2f337075515	multilib-build	eed53a6313267c9fbcd35fc384bd0087	multilib-minimal	9139c3a57e077cb8e0d0f73ceb080b89	toolchain-funcs	6eb35f81556258a4bc9182ad3dfd58ee	xorg-2	85b1e64779a3286b1224aef7dcfbca28
 _md5_=ffbae7235aae486600fb8c9d33966e0b

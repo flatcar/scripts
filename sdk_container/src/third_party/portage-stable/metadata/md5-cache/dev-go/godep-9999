@@ -1,9 +1,9 @@
 DEFINED_PHASES=compile install test unpack
-DEPEND=>=dev-lang/go-1.4.2:=
+DEPEND=>=dev-lang/go-1.7:=
 DESCRIPTION=dependency tool for go
 EAPI=6
 HOMEPAGE=https://github.com/tools/godep
 LICENSE=BSD
 SLOT=0
-_eclasses_=eutils	ea170b525f6a38a006be05c9d9429f13	golang-base	08fe6e0e2b4750daff8887a7f0e1f873	golang-build	a44f10e6bd86ecccf2a07cc0d4cf6bec	golang-vcs	c46e447dc94466eabb5ce867f21b85bf	multilib	165fc17c38d1b11dac2008280dab6e80	toolchain-funcs	1b1da0c45c555989dc5d832b54880783
+_eclasses_=epatch	8233751dc5105a6ae8fcd86ce2bb0247	estack	43ddf5aaffa7a8d0482df54d25a66a1f	eutils	9c113d6a64826c40154cad7be15d95ea	golang-base	2983c8674b8e3b3a99ec61986356c76a	golang-build	b66349c110e4ddd6203bbe8bf4ae05c1	golang-vcs	0b4e2a941727a19d38600d1046c8c398	ltprune	2770eed66a9b8ef944714cd0e968182e	multilib	0236be304ee52e7f179ed2f337075515	toolchain-funcs	6eb35f81556258a4bc9182ad3dfd58ee
 _md5_=b14c461ff3de6201c7bd1dec917e15f9

@@ -1,5 +1,5 @@
 DEFINED_PHASES=compile install postinst preinst unpack
-DEPEND=berkdb? ( sys-libs/db )
+DEPEND=berkdb? ( sys-libs/db ) >=app-portage/elt-patches-20170317
 DESCRIPTION=Standard GNU database libraries
 EAPI=0
 HOMEPAGE=http://www.gnu.org/software/gdbm/gdbm.html
@@ -9,5 +9,5 @@ LICENSE=GPL-2
 RDEPEND=berkdb? ( sys-libs/db )
 SLOT=0
 SRC_URI=mirror://gnu/gdbm/gdbm-1.8.3.tar.gz
-_eclasses_=eutils	ea170b525f6a38a006be05c9d9429f13	libtool	4890219c51da247200223277f993e054	multilib	165fc17c38d1b11dac2008280dab6e80	toolchain-funcs	1b1da0c45c555989dc5d832b54880783
+_eclasses_=epatch	8233751dc5105a6ae8fcd86ce2bb0247	estack	43ddf5aaffa7a8d0482df54d25a66a1f	eutils	9c113d6a64826c40154cad7be15d95ea	libtool	e32ea84bf82cf8987965b574672dba93	ltprune	2770eed66a9b8ef944714cd0e968182e	multilib	0236be304ee52e7f179ed2f337075515	toolchain-funcs	6eb35f81556258a4bc9182ad3dfd58ee
 _md5_=e58f31ccf3aac016232f2ea5e100fd5c
