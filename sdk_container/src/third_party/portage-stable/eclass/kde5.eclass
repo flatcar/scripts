@@ -1,6 +1,5 @@
 # Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 # @ECLASS: kde5.eclass
 # @MAINTAINER:
@@ -173,13 +172,21 @@ case ${KDE_AUTODEPS} in
 		RDEPEND+=" >=kde-frameworks/kf-env-4"
 		COMMONDEPEND+=" $(add_qt_dep qtcore)"
 
-		if [[ ${CATEGORY} = kde-frameworks || ${CATEGORY} = kde-plasma && ${PN} != polkit-kde-agent ]]; then
-			RDEPEND+=" !<kde-apps/kde4-l10n-15.12.3-r1"
-		fi
-
-		if [[ ${KDE_BLOCK_SLOT4} = true && ${CATEGORY} = kde-apps ]]; then
-			RDEPEND+=" !kde-apps/${PN}:4"
-		fi
+		case ${CATEGORY} in
+			kde-frameworks | \
+			kde-plasma)
+				RDEPEND+=" !<kde-apps/kde4-l10n-15.12.3-r1"
+				;;
+			kde-apps)
+				[[ ${KDE_BLOCK_SLOT4} = true ]] && RDEPEND+=" !kde-apps/${PN}:4"
+				[[ $(get_version_component_range 1) -ge 17 ]] && \
+					RDEPEND+="
+						!kde-apps/kde-l10n
+						!<kde-apps/kde4-l10n-16.12.0:4
+						!kde-apps/kdepim-l10n:5
+					"
+				;;
+		esac
 		;;
 esac
 
@@ -242,9 +249,9 @@ fi
 
 if [[ -n ${KDEBASE} && ${KDEBASE} = kdevelop && ${KDE_BUILD_TYPE} = release ]]; then
 	if [[ -n ${KMNAME} ]]; then
-		S=${WORKDIR}/${KMNAME}-${PV%.0}	# kdevelop missing trailing .0 in first release
+		S=${WORKDIR}/${KMNAME}-${PV}
 	else
-		S=${WORKDIR}/${PN}-${PV%.0}	# kdevelop missing trailing .0 in first release
+		S=${WORKDIR}/${P}
 	fi
 fi
 
@@ -327,7 +334,7 @@ _calculate_src_uri() {
 				RESTRICT+=" mirror"
 				;;
 			*)
-				SRC_URI="mirror://kde/stable/${_kdebase}/${PV}/src/${_kmname}-${PV%.0}.tar.xz" ;;
+				SRC_URI="mirror://kde/stable/${_kdebase}/${PV}/src/${_kmname}-${PV}.tar.xz" ;;
 		esac
 		unset _kdebase
 	fi
@@ -533,28 +540,39 @@ kde5_src_prepare() {
 	fi
 
 	# drop translations when nls is not wanted
-	if [[ -d po ]] && in_iuse nls && ! use nls ; then
-		rm -r po || die
+	if in_iuse nls && ! use nls ; then
+		if [[ -d po ]] ; then
+			rm -r po || die
+		fi
+		if [[ -d poqm ]] ; then
+			rm -r poqm || die
+		fi
 	fi
 
-	# enable only the requested translations
-	# when required
-	if [[ -d po && -v LINGUAS ]] ; then
-		pushd po > /dev/null || die
-		local lang
-		for lang in *; do
-			if [[ -d ${lang} ]] && ! has ${lang} ${LINGUAS} ; then
-				rm -r ${lang} || die
-				if [[ -e CMakeLists.txt ]] ; then
-					cmake_comment_add_subdirectory ${lang}
+	# enable only the requested translations when required
+	if [[ -v LINGUAS ]] ; then
+		local po
+		for po in po poqm; do
+		if [[ -d ${po} ]] ; then
+			pushd ${po} > /dev/null || die
+			local lang
+			for lang in *; do
+				if [[ -d ${lang} ]] && ! has ${lang} ${LINGUAS} ; then
+					rm -r ${lang} || die
+					if [[ -e CMakeLists.txt ]] ; then
+						cmake_comment_add_subdirectory ${lang}
+						sed -e "/add_subdirectory([[:space:]]*${lang}\/.*[[:space:]]*)/d" \
+							-i CMakeLists.txt || die
+					fi
+				elif [[ -f ${lang} ]] && ! has ${lang/.po/} ${LINGUAS} ; then
+					if [[ ${lang} != CMakeLists.txt && ${lang} != ${PN}.pot ]] ; then
+						rm ${lang} || die
+					fi
 				fi
-			elif [[ -f ${lang} ]] && ! has ${lang/.po/} ${LINGUAS} ; then
-				if [[ ${lang} != CMakeLists.txt && ${lang} != ${PN}.pot ]] ; then
-					rm ${lang} || die
-				fi
-			fi
+			done
+			popd > /dev/null || die
+		fi
 		done
-		popd > /dev/null || die
 	fi
 
 	if [[ ${KDE_BUILD_TYPE} = release && ${CATEGORY} != kde-apps ]] ; then
@@ -705,7 +723,9 @@ kde5_pkg_preinst() {
 kde5_pkg_postinst() {
 	debug-print-function ${FUNCNAME} "$@"
 
-	gnome2_icon_cache_update
+	if [[ -n ${GNOME2_ECLASS_ICONS} ]]; then
+		gnome2_icon_cache_update
+	fi
 	xdg_pkg_postinst
 
 	if [[ -z ${I_KNOW_WHAT_I_AM_DOING} ]]; then

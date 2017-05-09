@@ -1,6 +1,5 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 # @ECLASS: xdg-utils.eclass
 # @MAINTAINER:
@@ -35,7 +34,7 @@ esac
 # @ECLASS-VARIABLE: MIMEINFO_DATABASE_UPDATE_BIN
 # @INTERNAL
 # @DESCRIPTION:
-# Path to update-desktop-database
+# Path to update-mime-database
 : ${MIMEINFO_DATABASE_UPDATE_BIN:="/usr/bin/update-mime-database"}
 
 # @ECLASS-VARIABLE: MIMEINFO_DATABASE_DIR

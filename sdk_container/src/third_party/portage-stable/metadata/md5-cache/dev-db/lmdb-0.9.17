@@ -8,5 +8,5 @@ LICENSE=OPENLDAP
 RDEPEND=!=net-nds/openldap-2.4.40
 SLOT=0/0.9.17
 SRC_URI=https://github.com/LMDB/lmdb/archive/LMDB_0.9.17.tar.gz
-_eclasses_=multilib	165fc17c38d1b11dac2008280dab6e80	toolchain-funcs	1b1da0c45c555989dc5d832b54880783
+_eclasses_=multilib	0236be304ee52e7f179ed2f337075515	toolchain-funcs	6eb35f81556258a4bc9182ad3dfd58ee
 _md5_=dab1f2d18a3c3c3401bee9568d1da6b9

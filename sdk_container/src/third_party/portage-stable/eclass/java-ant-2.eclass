@@ -1,6 +1,5 @@
-# Copyright 2004-2015 Gentoo Foundation
+# Copyright 2004-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 # @ECLASS: java-ant-2.eclass
 # @MAINTAINER:
@@ -161,31 +160,14 @@ java-ant_bsfix() {
 
 	find_args="${find_args} -type f ( -name ${JAVA_PKG_BSFIX_NAME// / -o -name } )"
 
-	# This voodoo is done for paths with spaces
-	local bsfix_these
-	while read line; do
-		[[ -z ${line} ]] && continue
-		bsfix_these="${bsfix_these} '${line}'"
-	done <<-EOF
-			$(find . ${find_args})
-		EOF
+	local bsfix_these=() line
+	while IFS= read -r -d $'\0' line; do
+		bsfix_these+=( "${line}" )
+	done < <(find . ${find_args} -print0)
 
-	[[ "${bsfix_these// /}" ]] && eval java-ant_bsfix_files ${bsfix_these}
+	[[ "${bsfix_these[@]}" ]] && java-ant_bsfix_files "${bsfix_these[@]}"
 
 	popd > /dev/null || die
-}
-
-_bsfix_die() {
-	if has_version dev-python/pyxml; then
-		eerror "If the output above contains:"
-		eerror "ImportError:"
-		eerror "/usr/lib/python2.4/site-packages/_xmlplus/parsers/pyexpat.so:"
-		eerror "undefined symbol: PyUnicodeUCS2_DecodeUTF8"
-		eerror "Try re-emerging dev-python/pyxml"
-		die ${1} " Look at the eerror message above"
-	else
-		die ${1}
-	fi
 }
 
 # @FUNCTION: java-ant_bsfix_files
@@ -228,7 +210,7 @@ java-ant_bsfix_files() {
 		eerror "Please file a bug about this on bugs.gentoo.org"
 		die "Could not find valid -source/-target values"
 	else
-		local files
+		local files=()
 
 		for file in "${@}"; do
 			debug-print "${FUNCNAME}: ${file}"
@@ -241,59 +223,30 @@ java-ant_bsfix_files() {
 				chmod u+w "${file}" || die "chmod u+w ${file} failed"
 			fi
 
-			files="${files} -f '${file}'"
+			files+=( -f "${file}" )
 		done
 
-		# for javadoc target and all in one pass, we need the new rewriter.
-		local rewriter3="${EPREFIX}/usr/share/javatoolkit/xml-rewrite-3.py"
-		if [[ ! -f ${rewriter3} ]]; then
-			rewriter3="${EPREFIX}/usr/$(get_libdir)/javatoolkit/bin/xml-rewrite-3.py"
-		fi
-
+		local rewriter3="${EPREFIX}/usr/$(get_libdir)/javatoolkit/bin/xml-rewrite-3.py"
 		local rewriter4="${EPREFIX}/usr/$(get_libdir)/javatoolkit/bin/build-xml-rewrite"
 
 		if [[ -x ${rewriter4} && ${JAVA_ANT_ENCODING} ]]; then
 			[[ ${JAVA_ANT_REWRITE_CLASSPATH} ]] && local gcp="-g"
 			[[ ${JAVA_ANT_ENCODING} ]] && local enc="-e ${JAVA_ANT_ENCODING}"
-			eval echo "cElementTree rewriter"
+			echo "cElementTree rewriter"
 			debug-print "${rewriter4} extra args: ${gcp} ${enc}"
 			${rewriter4} ${gcp} ${enc} \
 				-c "${JAVA_PKG_BSFIX_SOURCE_TAGS}" source ${want_source} \
 				-c "${JAVA_PKG_BSFIX_TARGET_TAGS}" target ${want_target} \
 				"${@}" || die "build-xml-rewrite failed"
-		elif [[ ! -f ${rewriter3} ]]; then
-			debug-print "Using second generation rewriter"
-			eval echo "Rewriting source attributes"
-			eval xml-rewrite-2.py ${files} \
-				-c -e ${JAVA_PKG_BSFIX_SOURCE_TAGS// / -e } \
-				-a source -v ${want_source} || _bsfix_die "xml-rewrite2 failed: ${file}"
-
-			eval echo "Rewriting target attributes"
-			eval xml-rewrite-2.py ${files} \
-				-c -e ${JAVA_PKG_BSFIX_TARGET_TAGS// / -e } \
-				-a target -v ${want_target} || _bsfix_die "xml-rewrite2 failed: ${file}"
-
-			eval echo "Rewriting nowarn attributes"
-			eval xml-rewrite-2.py ${files} \
-				-c -e ${JAVA_PKG_BSFIX_TARGET_TAGS// / -e } \
-				-a nowarn -v yes || _bsfix_die "xml-rewrite2 failed: ${file}"
-
-			if [[ ${JAVA_ANT_REWRITE_CLASSPATH} ]]; then
-				eval echo "Adding gentoo.classpath to javac tasks"
-				eval xml-rewrite-2.py ${files} \
-					 -c -e javac -e xjavac -a classpath -v \
-					 '\${gentoo.classpath}' \
-					 || _bsfix_die "xml-rewrite2 failed"
-			fi
 		else
 			debug-print "Using third generation rewriter"
-			eval echo "Rewriting attributes"
-			local bsfix_extra_args=""
+			echo "Rewriting attributes"
+			local bsfix_extra_args=()
 			# WARNING KEEP THE ORDER, ESPECIALLY FOR CHANGED ATTRIBUTES!
 			if [[ -n ${JAVA_ANT_REWRITE_CLASSPATH} ]]; then
 				local cp_tags="${JAVA_ANT_CLASSPATH_TAGS// / -e }"
-				bsfix_extra_args="${bsfix_extra_args} -g -e ${cp_tags}"
-				bsfix_extra_args="${bsfix_extra_args} -a classpath -v '\${gentoo.classpath}'"
+				bsfix_extra_args+=( -g -e ${cp_tags} )
+				bsfix_extra_args+=( -a classpath -v '${gentoo.classpath}' )
 			fi
 			if [[ -n ${JAVA_ANT_JAVADOC_INPUT_DIRS} ]]; then
 				if [[ -n ${JAVA_ANT_JAVADOC_OUTPUT_DIR} ]]; then
@@ -317,12 +270,12 @@ java-ant_bsfix_files() {
 								die "You must specify directories for javadoc input/output dirs."
 							fi
 						done
-						bsfix_extra_args="${bsfix_extra_args} --javadoc --source-directory "
+						bsfix_extra_args+=( --javadoc --source-directory )
 						# filter third/double spaces
 						JAVA_ANT_JAVADOC_INPUT_DIRS=${JAVA_ANT_JAVADOC_INPUT_DIRS//   /}
 						JAVA_ANT_JAVADOC_INPUT_DIRS=${JAVA_ANT_JAVADOC_INPUT_DIRS//  /}
-						bsfix_extra_args="${bsfix_extra_args} ${JAVA_ANT_JAVADOC_INPUT_DIRS// / --source-directory }"
-						bsfix_extra_args="${bsfix_extra_args} --output-directory ${JAVA_ANT_JAVADOC_OUTPUT_DIR}"
+						bsfix_extra_args+=( ${JAVA_ANT_JAVADOC_INPUT_DIRS// / --source-directory } )
+						bsfix_extra_args+=( --output-directory "${JAVA_ANT_JAVADOC_OUTPUT_DIR}" )
 					fi
 				else
 					die "You need to have doc in IUSE when using JAVA_ANT_JAVADOC_INPUT_DIRS"
@@ -330,18 +283,18 @@ java-ant_bsfix_files() {
 			fi
 
 			[[ -n ${JAVA_ANT_BSFIX_EXTRA_ARGS} ]] \
-				&& bsfix_extra_args="${bsfix_extra_args} ${JAVA_ANT_BSFIX_EXTRA_ARGS}"
+				&& bsfix_extra_args+=( ${JAVA_ANT_BSFIX_EXTRA_ARGS} )
 
-			debug-print "bsfix_extra_args: ${bsfix_extra_args}"
+			debug-print "bsfix_extra_args: ${bsfix_extra_args[*]}"
 
-			eval ${rewriter3}  ${files} \
+			${rewriter3} "${files[@]}" \
 				-c --source-element ${JAVA_PKG_BSFIX_SOURCE_TAGS// / --source-element } \
 				--source-attribute source --source-value ${want_source} \
 				--target-element   ${JAVA_PKG_BSFIX_TARGET_TAGS// / --target-element }  \
 				--target-attribute target --target-value ${want_target} \
 				--target-attribute nowarn --target-value yes \
-				${bsfix_extra_args} \
-				|| _bsfix_die "xml-rewrite2 failed: ${file}"
+				"${bsfix_extra_args[@]}" \
+				|| die "xml-rewrite-3 failed: ${file}"
 		fi
 
 		if [[ -n "${JAVA_PKG_DEBUG}" ]]; then

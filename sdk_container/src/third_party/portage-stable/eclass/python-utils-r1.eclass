@@ -1,6 +1,5 @@
 # Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 # @ECLASS: python-utils-r1.eclass
 # @MAINTAINER:
@@ -115,22 +114,39 @@ _python_set_impls() {
 		_python_impl_supported "${i}"
 	done
 
-	_PYTHON_SUPPORTED_IMPLS=()
-	_PYTHON_UNSUPPORTED_IMPLS=()
+	local supp=() unsupp=()
 
 	for i in "${_PYTHON_ALL_IMPLS[@]}"; do
 		if has "${i}" "${PYTHON_COMPAT[@]}"; then
-			_PYTHON_SUPPORTED_IMPLS+=( "${i}" )
+			supp+=( "${i}" )
 		else
-			_PYTHON_UNSUPPORTED_IMPLS+=( "${i}" )
+			unsupp+=( "${i}" )
 		fi
 	done
 
-	if [[ ${#_PYTHON_SUPPORTED_IMPLS[@]} -eq 0 ]]; then
+	if [[ ! ${supp[@]} ]]; then
 		die "No supported implementation in PYTHON_COMPAT."
 	fi
 
-	readonly _PYTHON_SUPPORTED_IMPLS _PYTHON_UNSUPPORTED_IMPLS
+	if [[ ${_PYTHON_SUPPORTED_IMPLS[@]} ]]; then
+		# set once already, verify integrity
+		if [[ ${_PYTHON_SUPPORTED_IMPLS[@]} != ${supp[@]} ]]; then
+			eerror "Supported impls (PYTHON_COMPAT) changed between inherits!"
+			eerror "Before: ${_PYTHON_SUPPORTED_IMPLS[*]}"
+			eerror "Now   : ${supp[*]}"
+			die "_PYTHON_SUPPORTED_IMPLS integrity check failed"
+		fi
+		if [[ ${_PYTHON_UNSUPPORTED_IMPLS[@]} != ${unsupp[@]} ]]; then
+			eerror "Unsupported impls changed between inherits!"
+			eerror "Before: ${_PYTHON_UNSUPPORTED_IMPLS[*]}"
+			eerror "Now   : ${unsupp[*]}"
+			die "_PYTHON_UNSUPPORTED_IMPLS integrity check failed"
+		fi
+	else
+		_PYTHON_SUPPORTED_IMPLS=( "${supp[@]}" )
+		_PYTHON_UNSUPPORTED_IMPLS=( "${unsupp[@]}" )
+		readonly _PYTHON_SUPPORTED_IMPLS _PYTHON_UNSUPPORTED_IMPLS
+	fi
 }
 
 # @ECLASS-VARIABLE: PYTHON
@@ -415,9 +431,9 @@ python_export() {
 					python*)
 						PYTHON_PKG_DEP="dev-lang/python:${impl#python}";;
 					pypy)
-						PYTHON_PKG_DEP='virtual/pypy:0=';;
+						PYTHON_PKG_DEP='>=virtual/pypy-5:0=';;
 					pypy3)
-						PYTHON_PKG_DEP='virtual/pypy3:0=';;
+						PYTHON_PKG_DEP='>=virtual/pypy3-5:0=';;
 					jython2.7)
 						PYTHON_PKG_DEP='dev-java/jython:2.7';;
 					*)
@@ -644,7 +660,7 @@ python_optimize() {
 				"${PYTHON}" -m compileall -q -f -d "${instpath}" "${d}"
 				"${PYTHON}" -OO -m compileall -q -f -d "${instpath}" "${d}"
 				;;
-			python*)
+			python*|pypy3)
 				# both levels of optimization are separate since 3.5
 				"${PYTHON}" -m compileall -q -f -d "${instpath}" "${d}"
 				"${PYTHON}" -O -m compileall -q -f -d "${instpath}" "${d}"
@@ -927,7 +943,7 @@ python_wrapper_setup() {
 		rm -f "${workdir}"/bin/2to3 || die
 		rm -f "${workdir}"/pkgconfig/python{,2,3}.pc || die
 
-		local EPYTHON PYTHON PYTHON_CONFIG
+		local EPYTHON PYTHON
 		python_export "${impl}" EPYTHON PYTHON
 
 		local pyver pyother
@@ -954,11 +970,9 @@ python_wrapper_setup() {
 
 		# CPython-specific
 		if [[ ${EPYTHON} == python* ]]; then
-			python_export "${impl}" PYTHON_CONFIG
-
 			cat > "${workdir}/bin/python-config" <<-_EOF_ || die
 				#!/bin/sh
-				exec "${PYTHON_CONFIG}" "\${@}"
+				exec "${PYTHON}-config" "\${@}"
 			_EOF_
 			cp "${workdir}/bin/python-config" \
 				"${workdir}/bin/python${pyver}-config" || die
@@ -985,18 +999,18 @@ python_wrapper_setup() {
 			_EOF_
 			chmod +x "${workdir}"/bin/${x} || die
 		done
-
-		# Now, set the environment.
-		# But note that ${workdir} may be shared with something else,
-		# and thus already on top of PATH.
-		if [[ ${PATH##:*} != ${workdir}/bin ]]; then
-			PATH=${workdir}/bin${PATH:+:${PATH}}
-		fi
-		if [[ ${PKG_CONFIG_PATH##:*} != ${workdir}/pkgconfig ]]; then
-			PKG_CONFIG_PATH=${workdir}/pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}
-		fi
-		export PATH PKG_CONFIG_PATH
 	fi
+
+	# Now, set the environment.
+	# But note that ${workdir} may be shared with something else,
+	# and thus already on top of PATH.
+	if [[ ${PATH##:*} != ${workdir}/bin ]]; then
+		PATH=${workdir}/bin${PATH:+:${PATH}}
+	fi
+	if [[ ${PKG_CONFIG_PATH##:*} != ${workdir}/pkgconfig ]]; then
+		PKG_CONFIG_PATH=${workdir}/pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}
+	fi
+	export PATH PKG_CONFIG_PATH
 }
 
 # @FUNCTION: python_is_python3
@@ -1254,14 +1268,14 @@ python_export_utf8_locale() {
 					fi
 					return 0
 				fi
-			fi  
+			fi
 		done
 
 		ewarn "Could not find a UTF-8 locale. This may trigger build failures in"
 		ewarn "some python packages. Please ensure that a UTF-8 locale is listed in"
 		ewarn "/etc/locale.gen and run locale-gen."
 		return 1
-	fi  
+	fi
 
 	return 0
 }

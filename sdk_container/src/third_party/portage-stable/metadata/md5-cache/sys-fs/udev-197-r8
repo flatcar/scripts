@@ -1,5 +1,5 @@
 DEFINED_PHASES=compile configure install postinst preinst prepare setup
-DEPEND=>=sys-apps/util-linux-2.20 acl? ( sys-apps/acl ) gudev? ( >=dev-libs/glib-2 ) introspection? ( >=dev-libs/gobject-introspection-1.31.1 ) kmod? ( >=sys-apps/kmod-12 ) selinux? ( >=sys-libs/libselinux-2.1.9 ) !<sys-libs/glibc-2.11 !<sys-apps/systemd-197 virtual/os-headers virtual/pkgconfig !<sys-kernel/linux-headers-2.6.32 doc? ( >=dev-util/gtk-doc-1.18 ) keymap? ( dev-util/gperf ) !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.15:1.15 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4 virtual/pkgconfig
+DEPEND=>=sys-apps/util-linux-2.20 acl? ( sys-apps/acl ) gudev? ( >=dev-libs/glib-2 ) introspection? ( >=dev-libs/gobject-introspection-1.31.1 ) kmod? ( >=sys-apps/kmod-12 ) selinux? ( >=sys-libs/libselinux-2.1.9 ) !<sys-libs/glibc-2.11 !<sys-apps/systemd-197 virtual/os-headers virtual/pkgconfig !<sys-kernel/linux-headers-2.6.32 doc? ( >=dev-util/gtk-doc-1.18 ) keymap? ( dev-util/gperf ) >=app-portage/elt-patches-20170317 !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.15:1.15 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4 virtual/pkgconfig
 DESCRIPTION=Linux dynamic and persistent device naming support (aka userspace devfs)
 EAPI=4
 HOMEPAGE=http://www.freedesktop.org/wiki/Software/systemd
@@ -11,5 +11,5 @@ RDEPEND=>=sys-apps/util-linux-2.20 acl? ( sys-apps/acl ) gudev? ( >=dev-libs/gli
 RESTRICT=test
 SLOT=0
 SRC_URI=http://www.freedesktop.org/software/systemd/systemd-197.tar.xz http://dev.gentoo.org/~williamh/dist/udev-197-patches-5.tar.bz2 http://dev.gentoo.org/~ssuominen/udev-197-patches-5.tar.bz2
-_eclasses_=autotools	07e71b3b5690738ef7e8bc097077e00c	eutils	ea170b525f6a38a006be05c9d9429f13	libtool	4890219c51da247200223277f993e054	linux-info	af49d8ab3be91bb1d38b7201dc9e5123	multilib	165fc17c38d1b11dac2008280dab6e80	systemd	5b6ca8b2fc1307ca593223f327342c96	toolchain-funcs	1b1da0c45c555989dc5d832b54880783	versionator	99ae9d758cbe7cfed19170e7d48f5a9c
+_eclasses_=autotools	7027963e8e8cc12c91117bdb9225dc26	epatch	8233751dc5105a6ae8fcd86ce2bb0247	estack	43ddf5aaffa7a8d0482df54d25a66a1f	eutils	9c113d6a64826c40154cad7be15d95ea	libtool	e32ea84bf82cf8987965b574672dba93	linux-info	ca370deef9d44125d829f2eb6ebc83e0	ltprune	2770eed66a9b8ef944714cd0e968182e	multilib	0236be304ee52e7f179ed2f337075515	systemd	ec2e9154031d942186c75c0aabb41900	toolchain-funcs	6eb35f81556258a4bc9182ad3dfd58ee	versionator	c80ccf29e90adea7c5cae94b42eb76d0
 _md5_=a1f7c58ea074bf66de54c749e25cbb4e

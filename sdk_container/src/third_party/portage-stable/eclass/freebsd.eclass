@@ -1,6 +1,5 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 #
 # @MAINTAINER:
 # maintainer-needed@gentoo.org
@@ -42,7 +41,7 @@ RV="$(get_version_component_range 1-2 ${MY_PV})"
 #	9.1.9999   -->	releng/9.1
 #   9.9999     -->	stable/9
 #	9999 -->	head
-# 
+#
 # svn revision can be specified by patch level:
 #	freebsd-lib-9.9999_p247000 --> set svn -r 247000
 
@@ -264,7 +263,7 @@ freebsd_src_compile() {
 }
 
 # Helper function to make a multilib build with FreeBSD Makefiles.
-# Usage: 
+# Usage:
 # MULTIBUILD_VARIANTS=( $(get_all_abis) )
 # multibuild_foreach_variant freebsd_multilib_multibuild_wrapper my_function
 #
@@ -297,9 +296,9 @@ freebsd_multilib_multibuild_wrapper() {
 	if [ ! -d "${MAKEOBJDIRPREFIX}" ] ; then
 		mkdir "${MAKEOBJDIRPREFIX}" || die "Could not create ${MAKEOBJDIRPREFIX}."
 	fi
-	
+
 	CTARGET="${CHOST}" "$@"
-	
+
 	# Restore the variables now.
 	for i in CFLAGS CXXFLAGS LDFLAGS LDADD mymakeopts ; do
 		ii="${i}_SAVE"
