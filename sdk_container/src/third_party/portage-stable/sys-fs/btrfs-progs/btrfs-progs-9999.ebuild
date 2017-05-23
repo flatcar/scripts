@@ -1,6 +1,5 @@
 # Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 EAPI=6
 
@@ -40,7 +39,7 @@ RDEPEND="
 "
 DEPEND="${RDEPEND}
 	convert? ( sys-apps/acl )
-	app-text/asciidoc
+	>=app-text/asciidoc-8.6.0
 	app-text/docbook-xml-dtd:4.5
 	app-text/xmlto
 	static? (
