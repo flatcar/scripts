@@ -1,6 +1,5 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 EAPI="5"
 
@@ -19,49 +18,64 @@ SRC_URI="ftp://ftp.openldap.org/pub/OpenLDAP/openldap-release/${P}.tgz
 
 LICENSE="OPENLDAP GPL-2"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x86-freebsd ~amd64-linux ~x86-linux ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~x86-solaris"
 
-IUSE_DAEMON="crypt icu samba slp tcpd experimental minimal"
+IUSE_DAEMON="crypt samba slp tcpd experimental minimal"
 IUSE_BACKEND="+berkdb"
 IUSE_OVERLAY="overlays perl"
-IUSE_OPTIONAL="gnutls iodbc sasl ssl odbc debug ipv6 +syslog selinux static-libs"
-IUSE_CONTRIB="smbkrb5passwd kerberos"
+IUSE_OPTIONAL="gnutls iodbc sasl ssl odbc debug ipv6 libressl +syslog selinux static-libs"
+IUSE_CONTRIB="smbkrb5passwd kerberos kinit pbkdf2"
 IUSE_CONTRIB="${IUSE_CONTRIB} -cxx"
 IUSE="${IUSE_DAEMON} ${IUSE_BACKEND} ${IUSE_OVERLAY} ${IUSE_OPTIONAL} ${IUSE_CONTRIB}"
 
-REQUIRED_USE="cxx? ( sasl )"
+REQUIRED_USE="cxx? ( sasl )
+	?? ( gnutls libressl )
+	pbkdf2? ( ssl )"
 
 # always list newer first
 # Do not add any AGPL-3 BDB here!
 # See bug 525110, comment 15.
-BDB_SLOTS='5.3 5.1 4.8 4.7 4.6 4.5 4.4'
+# Advanced usage: OPENLDAP_BDB_SLOTS in the environment can be used to force a slot during build.
+BDB_SLOTS="${OPENLDAP_BDB_SLOTS:=5.3 5.1 4.8 4.7 4.6 4.5 4.4}"
 BDB_PKGS=''
 for _slot in $BDB_SLOTS; do BDB_PKGS="${BDB_PKGS} sys-libs/db:${_slot}" ; done
 
 # openssl is needed to generate lanman-passwords required by samba
-CDEPEND="icu? ( dev-libs/icu:= )
-	ssl? ( !gnutls? ( >=dev-libs/openssl-1.0.1h-r2[${MULTILIB_USEDEP}] )
-		gnutls? ( >=net-libs/gnutls-2.12.23-r6[${MULTILIB_USEDEP}] >=dev-libs/libgcrypt-1.5.3:0[${MULTILIB_USEDEP}] ) )
+CDEPEND="
+	ssl? (
+		!gnutls? (
+			!libressl? ( >=dev-libs/openssl-1.0.1h-r2:0[${MULTILIB_USEDEP}] )
+		)
+		gnutls? ( >=net-libs/gnutls-2.12.23-r6[${MULTILIB_USEDEP}]
+		libressl? ( dev-libs/libressl[${MULTILIB_USEDEP}] )
+		>=dev-libs/libgcrypt-1.5.3:0[${MULTILIB_USEDEP}] ) )
 	sasl? ( dev-libs/cyrus-sasl:= )
 	!minimal? (
 		sys-devel/libtool
 		sys-libs/e2fsprogs-libs
-		>=dev-db/lmdb-0.9.14
+		>=dev-db/lmdb-0.9.18:=
 		tcpd? ( sys-apps/tcp-wrappers )
 		odbc? ( !iodbc? ( dev-db/unixODBC )
 			iodbc? ( dev-db/libiodbc ) )
 		slp? ( net-libs/openslp )
-		perl? ( dev-lang/perl[-build(-)] )
-		samba? ( dev-libs/openssl )
+		perl? ( dev-lang/perl:=[-build(-)] )
+		samba? (
+			!libressl? ( dev-libs/openssl:0 )
+			libressl? ( dev-libs/libressl )
+		)
 		berkdb? (
 			<sys-libs/db-6.0:=
 			|| ( ${BDB_PKGS} )
 			)
 		smbkrb5passwd? (
-			dev-libs/openssl
+			!libressl? ( dev-libs/openssl:0 )
+			libressl? ( dev-libs/libressl )
 			kerberos? ( app-crypt/heimdal )
 			)
-		kerberos? ( virtual/krb5 )
+		kerberos? (
+			virtual/krb5
+			kinit? ( !app-crypt/heimdal )
+			)
 		cxx? ( dev-libs/cyrus-sasl:= )
 	)
 	abi_x86_32? (
@@ -282,14 +296,18 @@ pkg_setup() {
 	# Bug #322787
 	if use minimal && ! has_version "net-nds/openldap" ; then
 		einfo "No datadir scan needed, openldap not installed"
-	elif use minimal && has_version "net-nds/openldap" && built_with_use net-nds/openldap minimal ; then
+	elif use minimal && has_version 'net-nds/openldap[minimal]' ; then
 		einfo "Skipping scan for previous datadirs as requested by minimal useflag"
 	else
 		openldap_find_versiontags
 	fi
 
-	enewgroup ldap 439
-	enewuser ldap 439 -1 /usr/$(get_libdir)/openldap ldap
+	# The user/group are only used for running daemons which are
+	# disabled in minimal builds, so elide the accounts too.
+	if ! use minimal ; then
+		enewgroup ldap 439
+		enewuser ldap 439 -1 /usr/$(get_libdir)/openldap ldap
+	fi
 }
 
 src_prepare() {
@@ -326,11 +344,8 @@ src_prepare() {
 	# bug #420959
 	epatch "${FILESDIR}"/${PN}-2.4.31-gcc47.patch
 
-	# bug #421463
-	#epatch "${FILESDIR}"/${PN}-2.4.33-gnutls.patch # merged upstream
-
 	# unbundle lmdb
-	epatch "${FILESDIR}"/${P}-mdb-unbundle.patch
+	epatch "${FILESDIR}"/${PN}-2.4.42-mdb-unbundle.patch
 	rm -rf "${S}"/libraries/liblmdb
 
 	cd "${S}"/build || die
@@ -385,8 +400,8 @@ multilib_src_configure() {
 
 	use debug && myconf+=( $(use_enable debug) )
 
-	# ICU usage is not configurable
-	export ac_cv_header_unicode_utypes_h="$(multilib_is_native_abi && use icu && echo yes || echo no)"
+	# ICU exists only in the configure, nowhere in the codebase, bug #510858
+	export ac_cv_header_unicode_utypes_h=no ol_cv_lib_icu=no
 
 	if ! use minimal && multilib_is_native_abi; then
 		local CPPFLAGS=${CPPFLAGS}
@@ -463,6 +478,11 @@ multilib_src_configure() {
 		$(multilib_native_use_with sasl cyrus-sasl)
 		$(multilib_native_use_enable sasl spasswd)
 		$(use_enable tcpd wrappers)
+	)
+
+	# Some cross-compiling tests don't pan out well.
+	tc-is-cross-compiler && myconf+=(
+		--with-yielding-select=yes
 	)
 
 	local ssl_lib="no"
@@ -554,7 +574,9 @@ multilib_src_compile() {
 		fi
 
 		if use kerberos ; then
-			build_contrib_module "kinit" "kinit.c" "kinit"
+			if use kinit ; then
+				build_contrib_module "kinit" "kinit.c" "kinit"
+			fi
 			cd "${S}/contrib/slapd-modules/passwd" || die
 			einfo "Compiling contrib-module: pw-kerberos"
 			"${lt}" --mode=compile --tag=CC \
@@ -575,6 +597,27 @@ multilib_src_compile() {
 				-o pw-kerberos.la \
 				kerberos.lo || die "linking pw-kerberos failed"
 		fi
+
+		if use pbkdf2; then
+			cd "${S}/contrib/slapd-modules/passwd/pbkdf2" || die
+			einfo "Compiling contrib-module: pw-pbkdf2"
+			"${lt}" --mode=compile --tag=CC \
+				"${CC}" \
+				-I"${BUILD_DIR}"/include \
+				-I../../../../include \
+				${CFLAGS} \
+				-o pbkdf2.lo \
+				-c pw-pbkdf2.c || die "compiling pw-pbkdf2 failed"
+			einfo "Linking contrib-module: pw-pbkdf2"
+			"${lt}" --mode=link --tag=CC \
+				"${CC}" -module \
+				${CFLAGS} \
+				${LDFLAGS} \
+				-rpath "${EPREFIX}"/usr/$(get_libdir)/openldap/openldap \
+				-o pw-pbkdf2.la \
+				pbkdf2.lo || die "linking pw-pbkdf2 failed"
+		fi
+
 		# We could build pw-radius if GNURadius would install radlib.h
 		cd "${S}/contrib/slapd-modules/passwd" || die
 		einfo "Compiling contrib-module: pw-netscape"
@@ -719,7 +762,8 @@ multilib_src_install() {
 
 		einfo "Installing contrib modules"
 		cd "${S}/contrib/slapd-modules" || die
-		for l in */*.la; do
+		for l in */*.la */*/*.la; do
+			[[ -e ${l} ]] || continue
 			"${lt}" --mode=install cp ${l} \
 				"${ED}"usr/$(get_libdir)/openldap/openldap || \
 				die "installing ${l} failed"

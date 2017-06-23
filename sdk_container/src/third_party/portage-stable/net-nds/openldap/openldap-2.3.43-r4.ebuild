@@ -1,11 +1,8 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 EAPI="2"
 
-WANT_AUTOCONF="latest"
-WANT_AUTOMAKE="latest"
 AT_M4DIR="./build"
 inherit autotools db-use eutils flag-o-matic multilib ssl-cert toolchain-funcs versionator user
 
@@ -180,7 +177,7 @@ pkg_setup() {
 		die "Please set ssl useflag"
 	fi
 
-	if use minimal && has_version "net-nds/openldap" && built_with_use net-nds/openldap minimal ; then
+	if use minimal && has_version 'net-nds/openldap[minimal]' ; then
 		einfo
 		einfo "Skipping scan for previous datadirs as requested by minimal useflag"
 		einfo
@@ -188,8 +185,12 @@ pkg_setup() {
 		openldap_find_versiontags
 	fi
 
-	enewgroup ldap 439
-	enewuser ldap 439 -1 /usr/$(get_libdir)/openldap ldap
+	# The user/group are only used for running daemons which are
+	# disabled in minimal builds, so elide the accounts too.
+	if ! use minimal ; then
+		enewgroup ldap 439
+		enewuser ldap 439 -1 /usr/$(get_libdir)/openldap ldap
+	fi
 }
 
 src_prepare() {
