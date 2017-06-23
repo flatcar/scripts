@@ -1,12 +1,11 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
-EAPI=5
+EAPI=6
 
 PYTHON_COMPAT=( python2_7 )
 PYTHON_REQ_USE="sqlite,xml"
-inherit eutils flag-o-matic python-single-r1 toolchain-funcs
+inherit autotools flag-o-matic python-single-r1 toolchain-funcs
 
 MY_P=${P/_beta/BETA}
 
@@ -34,12 +33,12 @@ REQUIRED_USE="
 RDEPEND="
 	dev-libs/liblinear:=
 	dev-libs/libpcre
-	net-libs/libpcap[ipv6?]
+	net-libs/libpcap
 	zenmap? (
 		dev-python/pygtk:2[${PYTHON_USEDEP}]
 		${PYTHON_DEPS}
 	)
-	system-lua? ( >=dev-lang/lua-5.2[deprecated] )
+	system-lua? ( >=dev-lang/lua-5.2:*[deprecated] )
 	ndiff? ( ${PYTHON_DEPS} )
 	nls? ( virtual/libintl )
 	nmap-update? ( dev-libs/apr dev-vcs/subversion )
@@ -54,6 +53,16 @@ DEPEND="
 "
 
 S="${WORKDIR}/${MY_P}"
+PATCHES=(
+	"${FILESDIR}"/${PN}-5.10_beta1-string.patch
+	"${FILESDIR}"/${PN}-5.21-python.patch
+	"${FILESDIR}"/${PN}-6.46-uninstaller.patch
+	"${FILESDIR}"/${PN}-6.25-liblua-ar.patch
+	"${FILESDIR}"/${PN}-7.25-no-FORTIFY_SOURCE.patch
+	"${FILESDIR}"/${PN}-7.25-CXXFLAGS.patch
+	"${FILESDIR}"/${PN}-7.25-libpcre.patch
+	"${FILESDIR}"/${PN}-7.31-libnl.patch
+)
 
 pkg_setup() {
 	if use ndiff || use zenmap; then
@@ -67,14 +76,11 @@ src_unpack() {
 }
 
 src_prepare() {
-	epatch \
-		"${FILESDIR}"/${PN}-4.75-nolua.patch \
-		"${FILESDIR}"/${PN}-5.10_beta1-string.patch \
-		"${FILESDIR}"/${PN}-5.21-python.patch \
-		"${FILESDIR}"/${PN}-6.46-uninstaller.patch \
-		"${FILESDIR}"/${PN}-6.47-no-libnl.patch \
-		"${FILESDIR}"/${PN}-6.49-no-FORTIFY_SOURCE.patch \
-		"${FILESDIR}"/${PN}-6.25-liblua-ar.patch
+	rm -r libpcap/ || die
+
+	cat "${FILESDIR}"/nls.m4 >> "${S}"/acinclude.m4 || die
+
+	default
 
 	if use nls; then
 		local lingua=''
@@ -103,12 +109,16 @@ src_prepare() {
 
 	# Fix desktop files wrt bug #432714
 	sed -i \
-		-e '/^Encoding/d' \
 		-e 's|^Categories=.*|Categories=Network;System;Security;|g' \
 		zenmap/install_scripts/unix/zenmap-root.desktop \
 		zenmap/install_scripts/unix/zenmap.desktop || die
 
-	epatch_user
+	cp libdnet-stripped/include/config.h.in{,.nmap-orig} || die
+	eautoreconf
+	if [[ ${CHOST} == *-darwin* ]] ; then
+		# we need the original for a Darwin-specific fix, bug #604432
+		mv libdnet-stripped/include/config.h.in{.nmap-orig,} || die
+	fi
 }
 
 src_configure() {
@@ -117,17 +127,18 @@ src_configure() {
 	econf \
 		$(use_enable ipv6) \
 		$(use_enable nls) \
-		$(use_with zenmap) \
-		$(usex nse --with-liblua=$(usex system-lua /usr included '' '') --without-liblua) \
 		$(use_with ncat) \
 		$(use_with ndiff) \
 		$(use_with nmap-update) \
 		$(use_with nping) \
 		$(use_with ssl openssl) \
+		$(use_with zenmap) \
+		$(usex nse --with-liblua=$(usex system-lua /usr included '' '') --without-liblua) \
+		--cache-file="${S}"/config.cache \
 		--with-libdnet=included \
 		--with-pcre=/usr
+	#	Commented out because configure does weird things
 	#	--with-liblinear=/usr \
-	#	Commented because configure does weird things, while autodetection works
 }
 
 src_compile() {
