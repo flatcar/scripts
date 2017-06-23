@@ -1,7 +1,7 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="5"
+EAPI="6"
 
 MY_P="${P/_/}"
 
@@ -36,7 +36,7 @@ src_configure() {
 		--enable-dauth \
 		--disable-examples \
 		--enable-postprocessor \
-		--runstatedir=/run \
+		--disable-thread-names \
 		$(use_enable epoll) \
 		$(use_enable test curl) \
 		$(use_enable messages) \
