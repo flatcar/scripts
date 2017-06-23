@@ -1,10 +1,9 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
-EAPI="4"
+EAPI=6
 
-inherit autotools eutils libtool multilib toolchain-funcs
+inherit autotools libtool multilib toolchain-funcs
 
 DESCRIPTION="Apache Portable Runtime Library"
 HOMEPAGE="http://apr.apache.org/"
@@ -12,7 +11,7 @@ SRC_URI="mirror://apache/apr/${P}.tar.bz2"
 
 LICENSE="Apache-2.0"
 SLOT="1"
-KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~x64-cygwin ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="doc elibc_FreeBSD older-kernels-compatibility selinux static-libs +urandom"
 
 CDEPEND="elibc_glibc? ( >=sys-apps/util-linux-2.16 )
@@ -23,24 +22,32 @@ DEPEND="${CDEPEND}
 	>=sys-devel/libtool-2.4.2
 	doc? ( app-doc/doxygen )"
 
-DOCS=(CHANGES NOTICE README)
+DOCS=( CHANGES NOTICE README )
+
+PATCHES=(
+	"${FILESDIR}"/${PN}-1.5.0-mint.patch
+	"${FILESDIR}"/${PN}-1.5.0-libtool.patch
+	"${FILESDIR}"/${PN}-1.5.0-cross-types.patch
+	"${FILESDIR}"/${PN}-1.5.0-sysroot.patch #385775
+)
 
 src_prepare() {
-	epatch "${FILESDIR}"/${PN}-1.5.0-mint.patch
-	epatch "${FILESDIR}"/${PN}-1.5.0-libtool.patch
-	epatch "${FILESDIR}"/${PN}-1.5.0-cross-types.patch
-	epatch "${FILESDIR}"/${PN}-1.5.0-sysroot.patch #385775
-
-	epatch_user #449048
+	default
 
 	AT_M4DIR="build" eautoreconf
 	elibtoolize
 
-	epatch "${FILESDIR}/config.layout.patch"
+	eapply "${FILESDIR}/config.layout.patch"
 }
 
 src_configure() {
-	local myconf=()
+	local myconf=(
+		--enable-layout=gentoo
+		--enable-nonportable-atomics
+		--enable-posix-shm
+		--enable-threads
+		$(use_enable static-libs static)
+	)
 
 	[[ ${CHOST} == *-mint* ]] && export ac_cv_func_poll=no
 
@@ -100,12 +107,7 @@ src_configure() {
 		esac
 	fi
 
-	econf \
-		--enable-layout=gentoo \
-		--enable-nonportable-atomics \
-		--enable-threads \
-		$(use_enable static-libs static) \
-		"${myconf[@]}"
+	econf "${myconf[@]}"
 }
 
 src_compile() {
@@ -127,14 +129,18 @@ src_compile() {
 src_install() {
 	default
 
-	find "${ED}" -name "*.la" -delete
+	# Prallel install breaks since apr-1.5.1
+	#make -j1 DESTDIR="${D}" install || die
+
+	find "${ED}" \( -name "*.a" -o -name "*.la" \) -delete || die
 
 	if use doc; then
-		dohtml -r docs/dox/html/*
+		docinto html
+		dodoc -r docs/dox/html/*
 	fi
 
 	# This file is only used on AIX systems, which Gentoo is not,
 	# and causes collisions between the SLOTs, so remove it.
 	# Even in Prefix, we don't need this on AIX.
-	rm -f "${ED}usr/$(get_libdir)/apr.exp"
+	rm -f "${ED%/}/usr/$(get_libdir)/apr.exp"
 }
