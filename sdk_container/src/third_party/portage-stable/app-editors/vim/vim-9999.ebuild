@@ -1,20 +1,19 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 EAPI=6
 VIM_VERSION="8.0"
-PYTHON_COMPAT=( python{2_7,3_4,3_5} )
+PYTHON_COMPAT=( python{2_7,3_4,3_5,3_6} )
 PYTHON_REQ_USE=threads
-inherit eutils vim-doc flag-o-matic fdo-mime versionator bash-completion-r1 python-r1
+inherit eutils vim-doc flag-o-matic fdo-mime versionator bash-completion-r1 python-single-r1
 
 if [[ ${PV} == 9999* ]] ; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/vim/vim.git"
 else
 	SRC_URI="https://github.com/vim/vim/archive/v${PV}.tar.gz -> ${P}.tar.gz
-		https://dev.gentoo.org/~radhermit/vim/vim-7.4.2102-gentoo-patches.tar.bz2"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+		https://dev.gentoo.org/~radhermit/vim/vim-8.0.0106-gentoo-patches.tar.bz2"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 fi
 
 DESCRIPTION="Vim, an improved vi-style text editor"
@@ -25,11 +24,7 @@ LICENSE="vim"
 IUSE="X acl cscope debug gpm lua luajit minimal nls perl python racket ruby selinux tcl vim-pager"
 REQUIRED_USE="
 	luajit? ( lua )
-	python? (
-		|| ( $(python_gen_useflags '*') )
-		?? ( $(python_gen_useflags 'python2*') )
-		?? ( $(python_gen_useflags 'python3*') )
-	)
+	python? ( ${PYTHON_REQUIRED_USE} )
 "
 
 RDEPEND="
@@ -50,7 +45,7 @@ RDEPEND="
 	perl? ( dev-lang/perl:= )
 	python? ( ${PYTHON_DEPS} )
 	racket? ( dev-scheme/racket )
-	ruby? ( || ( dev-lang/ruby:2.3 dev-lang/ruby:2.2 dev-lang/ruby:2.1 dev-lang/ruby:2.0 ) )
+	ruby? ( || ( dev-lang/ruby:2.4 dev-lang/ruby:2.3 dev-lang/ruby:2.2 dev-lang/ruby:2.1 ) )
 	selinux? ( sys-libs/libselinux )
 	tcl? ( dev-lang/tcl:0= )
 	X? ( x11-libs/libXt )
@@ -68,6 +63,8 @@ pkg_setup() {
 	# Gnome sandbox silliness. bug #114475.
 	mkdir -p "${T}"/home
 	export HOME="${T}"/home
+
+	use python && python-single-r1_pkg_setup
 }
 
 src_prepare() {
@@ -196,30 +193,13 @@ src_configure() {
 			$(use_with luajit)
 			$(use_enable nls)
 			$(use_enable perl perlinterp)
+			$(use_enable python pythoninterp)
+			$(use_enable python python3interp)
 			$(use_enable racket mzschemeinterp)
 			$(use_enable ruby rubyinterp)
 			$(use_enable selinux)
 			$(use_enable tcl tclinterp)
 		)
-
-		if use python ; then
-			py_add_interp() {
-				local v
-
-				[[ ${EPYTHON} == python3* ]] && v=3
-				myconf+=(
-					--enable-python${v}interp
-					vi_cv_path_python${v}="${PYTHON}"
-				)
-			}
-
-			python_foreach_impl py_add_interp
-		else
-			myconf+=(
-				--disable-pythoninterp
-				--disable-python3interp
-			)
-		fi
 
 		# --with-features=huge forces on cscope even if we --disable it. We need
 		# to sed this out to avoid screwiness. (1 Sep 2004 ciaranm)
