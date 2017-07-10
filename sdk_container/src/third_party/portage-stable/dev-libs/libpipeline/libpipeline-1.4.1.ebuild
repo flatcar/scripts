@@ -1,6 +1,5 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/libpipeline/libpipeline-1.2.4.ebuild,v 1.12 2014/01/18 02:32:16 vapier Exp $
 
 EAPI="5"
 
@@ -12,8 +11,13 @@ SRC_URI="mirror://nongnu/${PN}/${P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos"
 IUSE="static-libs test"
 
 DEPEND="virtual/pkgconfig
 	test? ( dev-libs/check )"
+
+PATCHES=(
+	"${FILESDIR}"/${P}-gnulib-cygwin-sys_select.patch
+	"${FILESDIR}"/${P}-gnulib-darwin-program_name.patch
+)
