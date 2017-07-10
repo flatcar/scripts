@@ -1,8 +1,7 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/man-db/man-db-2.7.1.ebuild,v 1.3 2015/02/16 09:34:44 haubi Exp $
 
-EAPI="4"
+EAPI=5
 
 inherit eutils user versionator
 
@@ -12,11 +11,11 @@ SRC_URI="mirror://nongnu/${PN}/${P}.tar.xz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~arm-linux ~x86-linux"
-IUSE="berkdb +gdbm nls selinux static-libs zlib"
+KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-linux ~arm-linux ~x86-linux"
+IUSE="berkdb +gdbm +manpager nls selinux static-libs zlib"
 
 CDEPEND=">=dev-libs/libpipeline-1.4.0
-	berkdb? ( sys-libs/db )
+	berkdb? ( sys-libs/db:= )
 	gdbm? ( sys-libs/gdbm )
 	!berkdb? ( !gdbm? ( sys-libs/gdbm ) )
 	sys-apps/groff
@@ -32,6 +31,7 @@ DEPEND="${CDEPEND}
 RDEPEND="${CDEPEND}
 	selinux? ( sec-policy/selinux-mandb )
 "
+PDEPEND="manpager? ( app-text/manpager )"
 
 pkg_setup() {
 	# Create user now as Makefile in src_install does setuid/chown
@@ -49,10 +49,16 @@ src_configure() {
 		--docdir='$(datarootdir)'/doc/${PF} \
 		--with-systemdtmpfilesdir="${EPREFIX}"/usr/lib/tmpfiles.d \
 		--enable-setuid \
+		--enable-cache-owner=man \
 		--with-sections="1 1p 8 2 3 3p 4 5 6 7 9 0p tcl n l p o 1x 2x 3x 4x 5x 6x 7x 8x" \
 		$(use_enable nls) \
 		$(use_enable static-libs static) \
 		--with-db=$(usex gdbm gdbm $(usex berkdb db gdbm))
+
+	# Disable color output from groff so that the manpager can add it. #184604
+	sed -i \
+		-e '/^#DEFINE.*\<[nt]roff\>/{s:^#::;s:$: -c:}' \
+		src/man_db.conf || die
 }
 
 src_install() {
@@ -62,22 +68,35 @@ src_install() {
 
 	exeinto /etc/cron.daily
 	newexe "${FILESDIR}"/man-db.cron man-db #289884
-
-	keepdir /var/cache/man
-	fowners man:0 /var/cache/man
-	fperms 2755 /var/cache/man
 }
 
 pkg_preinst() {
-	if [[ -f ${EROOT}var/cache/man/whatis ]] ; then
-		einfo "Cleaning ${EROOT}var/cache/man from sys-apps/man"
-		find "${EROOT}"var/cache/man -type f '!' '(' -name index.bt -o -name index.db ')' -delete
+	local cachedir="${EROOT}var/cache/man"
+	# If the system was already exploited, and the attacker is hiding in the
+	# cachedir of the old man-db, let's wipe them out.
+	# see bug  #602588 comment 18
+	local _replacing_version=
+	local _setgid_vuln=0
+	for _replacing_version in ${REPLACING_VERSIONS}; do
+		if version_is_at_least '2.7.6.1-r2' "${_replacing_version}"; then
+			debug-print "Skipping security bug #602588 ... existing installation (${_replacing_version}) should not be affected!"
+		else
+			_setgid_vuln=1
+			debug-print "Applying cleanup for security bug #602588"
+		fi
+	done
+	[[ ${_setgid_vuln} -eq 1 ]] && rm -rf "${cachedir}"
+
+	# Fall back to recreating the cachedir
+	if [[ ! -d ${cachedir} ]] ; then
+		mkdir -p "${cachedir}" || die
+		chown man:man "${cachedir}" || die
 	fi
-	if [[ ! -g ${EROOT}var/cache/man ]] ; then
-		einfo "Resetting permissions on ${EROOT}var/cache/man" #447944
-		mkdir -p "${EROOT}var/cache/man"
-		chown -R man:0 "${EROOT}"var/cache/man
-		find "${EROOT}"var/cache/man -type d '!' -perm /g=s -exec chmod 2755 {} +
+
+	# Update the whatis cache
+	if [[ -f ${cachedir}/whatis ]] ; then
+		einfo "Cleaning ${cachedir} from sys-apps/man"
+		find "${cachedir}" -type f '!' '(' -name index.bt -o -name index.db ')' -delete
 	fi
 }
 
