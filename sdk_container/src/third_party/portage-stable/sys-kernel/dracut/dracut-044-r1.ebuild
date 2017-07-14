@@ -1,6 +1,5 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 EAPI=5
 
@@ -11,7 +10,7 @@ HOMEPAGE="https://dracut.wiki.kernel.org"
 SRC_URI="mirror://kernel/linux/utils/boot/${PN}/${P}.tar.xz"
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~sparc ~x86"
+KEYWORDS="alpha amd64 ~arm ia64 ppc ~ppc64 sparc x86"
 IUSE="debug selinux systemd"
 
 RESTRICT="test"
@@ -36,7 +35,7 @@ RDEPEND="${CDEPEND}
 		sys-libs/libsepol
 		sec-policy/selinux-dracut
 	)
-	"
+	!>=app-shells/bash-4.4"
 DEPEND="${CDEPEND}
 	app-text/asciidoc
 	>=dev-libs/libxslt-1.1.26
@@ -52,6 +51,12 @@ QA_MULTILIB_PATHS="
 	usr/lib/dracut/dracut-install
 	usr/lib/dracut/skipcpio
 	"
+
+PATCHES=(
+	"${FILESDIR}"/044-0001-base-dracut-lib.sh-dev_unit_name-guard-against-dev-b.patch
+	"${FILESDIR}"/044-0002-systemd-initrd-add-initrd-root-device.target.patch
+	"${FILESDIR}"/044-0003-50-dracut.install-use-bin-bash-shebang.patch
+)
 
 #
 # Helper functions
@@ -112,18 +117,22 @@ src_prepare() {
 			-i "${S}/dracut.conf.d/gentoo.conf.example" || die
 	fi
 
+	epatch "${PATCHES[@]}"
+
 	epatch_user
 }
 
 src_configure() {
-	local myconf="--libdir=${MY_LIBDIR}"
-	myconf+=" --bashcompletiondir=$(get_bashcompdir)"
+	local myconf=(
+		--libdir="${MY_LIBDIR}"
+		--bashcompletiondir="$(get_bashcompdir)"
+	)
 
 	if use systemd; then
-		myconf+=" --systemdsystemunitdir='$(systemd_get_unitdir)'"
+		myconf+=( --systemdsystemunitdir="$(systemd_get_unitdir)" )
 	fi
 
-	econf ${myconf}
+	econf "${myconf[@]}"
 }
 
 src_compile() {
