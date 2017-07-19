@@ -7,7 +7,7 @@ WANT_LIBTOOL="none"
 inherit autotools eutils flag-o-matic multilib pax-utils python-utils-r1 toolchain-funcs multiprocessing
 
 MY_P="Python-${PV}"
-PATCHSET_VERSION="2.7.12-0"
+PATCHSET_VERSION="2.7.13-0"
 
 DESCRIPTION="An interpreted, interactive, object-oriented programming language"
 HOMEPAGE="http://www.python.org/"
@@ -16,7 +16,7 @@ SRC_URI="https://www.python.org/ftp/python/${PV}/${MY_P}.tar.xz
 
 LICENSE="PSF-2"
 SLOT="2.7"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
 IUSE="-berkdb build doc elibc_uclibc examples gdbm hardened ipv6 libressl +ncurses +readline sqlite +ssl +threads tk +wide-unicode wininst +xml"
 
 # Do not add a dependency on dev-lang/python to this ebuild.
@@ -280,10 +280,10 @@ src_install() {
 	mv "${ED}usr/bin/idle" "${ED}usr/bin/idle${SLOT}"
 	rm -f "${ED}usr/bin/smtpd.py"
 
-		use berkdb || rm -r "${libdir}/"{bsddb,dbhash.py,test/test_bsddb*} || die
-		use sqlite || rm -r "${libdir}/"{sqlite3,test/test_sqlite*} || die
-		use tk || rm -r "${ED}usr/bin/idle${SLOT}" "${libdir}/"{idlelib,lib-tk} || die
-		use elibc_uclibc && rm -fr "${libdir}/"{bsddb/test,test}
+	use berkdb || rm -r "${libdir}/"{bsddb,dbhash.py*,test/test_bsddb*} || die
+	use sqlite || rm -r "${libdir}/"{sqlite3,test/test_sqlite*} || die
+	use tk || rm -r "${ED}usr/bin/idle${SLOT}" "${libdir}/"{idlelib,lib-tk} || die
+	use elibc_uclibc && rm -fr "${libdir}/"{bsddb/test,test}
 
 	use threads || rm -r "${libdir}/multiprocessing" || die
 	use wininst || rm -r "${libdir}/distutils/command/"wininst-*.exe || die
