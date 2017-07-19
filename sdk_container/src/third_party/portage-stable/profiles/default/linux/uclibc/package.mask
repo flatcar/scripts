@@ -1,10 +1,13 @@
 # Copyright 1999-2017 Gentoo Foundation.
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 sys-libs/musl
 sys-libs/glibc
 sys-libs/pam
+
+# Currenlty =sys-apps/openrc-0.26.2 makes uclibc systems unbootable.
+# See bug #619370
+>sys-apps/openrc-0.23.2
 
 # We use eudev which is tested on both uclibc and musl
 sys-apps/systemd
@@ -14,6 +17,7 @@ sys-fs/udev
 dev-libs/elfutils
 
 # These binary pkgs have a hard dep on glibc; make repoman shut up
+app-arch/rar
 dev-games/gtkradiant
 dev-games/ps2-packer
 games-action/descent3

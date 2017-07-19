@@ -1,11 +1,22 @@
 # Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 # Unmask the flag which corresponds to ARCH.
 -amd64
 
 # SECTION: Unmask
+
+# Michael Palimaka <kensington@gentoo.org> (03 Jun 2017)
+# Unmask elogind since it is keyworded here.
+-elogind
+
+# Sven Wegener <swegener@gentoo.org> (31 May 2017)
+# libvirt is supported on amd64
+-libvirt
+
+# Andreas K. Hüttel <dilfridge@gentoo.org> (26 May 2017)
+# dev-db/firebird is keyworded ~amd64
+-firebird
 
 # cilk has been ported to this arch.
 -cilk
@@ -82,10 +93,6 @@
 # Add support for Ruby Enterprise Edition targets where rubyee is available
 # -ruby_targets_ree18
 
-# 2010/01/08 - Diego E. Pettenò <flameeyes@gentoo.org>
-# Add support for JRuby targets where jruby is available
-# -ruby_targets_jruby
-
 # 2011/10/21 - Hans de Graaff <graaff@gentoo.org>
 # Add support for Rubinius targets where rbx is available
 #-ruby_targets_rbx
@@ -105,10 +112,6 @@
 # 2005/09/14 - Diego Pettenò <flameeyes@gentoo.org>
 # nVidia XvMC support works on amd64
 -nvidia
-
-# 2006/03/03 - Luca Barbato <lu_zero@gentoo.org>
-# codec support x264
--x264
 
 # 2006/01/28 - Donnie Berkholz <dberkholz@gentoo.org>
 # Modular X: unmask for architectures on which they are available

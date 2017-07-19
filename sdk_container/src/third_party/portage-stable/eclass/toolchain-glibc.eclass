@@ -254,7 +254,7 @@ setup_flags() {
 	# this flag for us, so no need to do it manually.
 	version_is_at_least 2.16 ${PV} || append-cppflags -U_FORTIFY_SOURCE
 
-	# building glibc with SSP is fraught with difficulty, especially
+	# building glibc <2.25 with SSP is fraught with difficulty, especially
 	# due to __stack_chk_fail_local which would mean significant changes
 	# to the glibc build process. See bug #94325 #293721
 	# Note we have to handle both user-given CFLAGS and gcc defaults via
@@ -262,16 +262,24 @@ setup_flags() {
 	# added before user flags, and we can't just filter-flags because
 	# _filter_hardened doesn't support globs.
 	filter-flags -fstack-protector*
-	gcc-specs-ssp && append-flags $(test-flags -fno-stack-protector)
+	if ! version_is_at_least 2.25 ; then
+		tc-enables-ssp && append-flags $(test-flags -fno-stack-protector)
+	fi
 
-	if use hardened && gcc-specs-pie ; then
-		# Force PIC macro definition for all compilations since they're all
-		# either -fPIC or -fPIE with the default-PIE compiler.
-		append-cppflags -DPIC
-	else
-		# Don't build -fPIE without the default-PIE compiler and the
-		# hardened-pie patch
-		filter-flags -fPIE
+	if [[ $(gcc-major-version) -lt 6 ]]; then
+		# Starting with gcc-6 (and fully upstreamed pie patches) we control
+		# default enabled/disabled pie via use flags. So nothing to do
+		# here. #618160
+
+		if use hardened && tc-enables-pie ; then
+			# Force PIC macro definition for all compilations since they're all
+			# either -fPIC or -fPIE with the default-PIE compiler.
+			append-cppflags -DPIC
+		else
+			# Don't build -fPIE without the default-PIE compiler and the
+			# hardened-pie patch
+			filter-flags -fPIE
+		fi
 	fi
 }
 
@@ -311,7 +319,7 @@ want__thread() {
 
 	[[ -n ${WANT__THREAD} ]] && return ${WANT__THREAD}
 
-	# only test gcc -- cant test linking yet
+	# only test gcc -- can't test linking yet
 	tc-has-tls -c ${CTARGET}
 	WANT__THREAD=$?
 
@@ -533,7 +541,7 @@ toolchain-glibc_pkg_pretend() {
 		ewarn "hypervisor, which is probably not what you want."
 	fi
 
-	use hardened && ! gcc-specs-pie && \
+	use hardened && ! tc-enables-pie && \
 		ewarn "PIE hardening not applied, as your compiler doesn't default to PIE"
 
 	# Make sure host system is up to date #394453
@@ -585,7 +593,7 @@ get_kheader_version() {
 }
 
 check_nptl_support() {
-	# don't care about the compiler here as we arent using it
+	# don't care about the compiler here as we aren't using it
 	just_headers && return
 
 	local run_kv build_kv want_kv
@@ -778,9 +786,18 @@ glibc_do_configure() {
 	[[ -d ports ]] && addons+=",ports"
 	popd > /dev/null
 
-	myconf+=( $(use_enable hardened stackguard-randomization) )
 	if has_version '<sys-libs/glibc-2.13' ; then
 		myconf+=( --enable-old-ssp-compat )
+	fi
+
+	if version_is_at_least 2.25 ; then
+		myconf+=( --enable-stack-protector=all )
+	fi
+
+	if version_is_at_least 2.25 ; then
+		myconf+=( --enable-stackguard-randomization )
+	else
+		myconf+=( $(use_enable hardened stackguard-randomization) )
 	fi
 
 	[[ $(tc-is-softfloat) == "yes" ]] && myconf+=( --without-fp )
@@ -926,8 +943,8 @@ toolchain-glibc_headers_configure() {
 	mkdir -p "${builddir}"
 	cd "${builddir}"
 
-	# if we don't have a compiler yet, we cant really test it now ...
-	# hopefully they don't affect header geneation, so let's hope for
+	# if we don't have a compiler yet, we can't really test it now ...
+	# hopefully they don't affect header generation, so let's hope for
 	# the best here ...
 	local v vars=(
 		ac_cv_header_cpuid_h=yes
@@ -941,7 +958,7 @@ toolchain-glibc_headers_configure() {
 		libc_cv_mlong_double_128ibm=yes
 		libc_cv_ppc_machine=yes
 		libc_cv_ppc_rel16=yes
-		libc_cv_predef_{fortify_source,stack_protector}=no
+		libc_cv_predef_fortify_source=no
 		libc_cv_visibility_attribute=yes
 		libc_cv_z_combreloc=yes
 		libc_cv_z_execstack=yes
@@ -955,6 +972,11 @@ toolchain-glibc_headers_configure() {
 		ac_cv_lib_audit_audit_log_user_avc_message=no
 		ac_cv_lib_cap_cap_init=no
 	)
+	if ! version_is_at_least 2.25 ; then
+		vars+=(
+			libc_cv_predef_stack_protector=no
+		)
+	fi
 	einfo "Forcing cached settings:"
 	for v in "${vars[@]}" ; do
 		einfo " ${v}"
@@ -1314,7 +1336,7 @@ toolchain-glibc_src_install() {
 	src_strip
 }
 
-# Simple test to make sure our new glibc isnt completely broken.
+# Simple test to make sure our new glibc isn't completely broken.
 # Make sure we don't test with statically built binaries since
 # they will fail.  Also, skip if this glibc is a cross compiler.
 #
