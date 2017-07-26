@@ -1,6 +1,5 @@
 # Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 #
 # When you add an entry to the top of this file, add your name, the date, and
 # an explanation of why something is getting masked.  This file is for
@@ -8,6 +7,10 @@
 #
 # NOTE: Please add your entry at the top!
 #
+
+# Fabian Groffen <grobian@gentoo.org> (15 Apr 2017)
+# reentrant patch breaks prefix option, bug #615560
+=sys-devel/flex-2.6.3-r1
 
 # Elias Pipping <pipping@gentoo.org> (09 Oct 2007)
 # darwin-miscutils are only available on darwin
