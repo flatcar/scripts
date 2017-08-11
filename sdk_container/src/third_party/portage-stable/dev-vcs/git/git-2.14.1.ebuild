@@ -16,7 +16,7 @@ PYTHON_COMPAT=( python2_7 )
 # 9999-r2: next
 # 9999-r3: pu
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
-EGIT_BRANCH=next
+EGIT_BRANCH=maint
 PLOCALES="bg ca de fr is it ko pt_PT ru sv vi zh_CN"
 
 inherit toolchain-funcs eutils elisp-common l10n perl-module bash-completion-r1 python-single-r1 systemd ${SCM}
@@ -567,7 +567,7 @@ src_install() {
 }
 
 src_test() {
-	local disabled="t9128-git-svn-cmd-branch.sh"
+	local disabled=""
 	local tests_cvs="t9200-git-cvsexportcommit.sh \
 					t9400-git-cvsserver-server.sh \
 					t9401-git-cvsserver-crlf.sh \
