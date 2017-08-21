@@ -1,8 +1,8 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
-EAPI=5
+EAPI="5"
+
 inherit eutils flag-o-matic multilib toolchain-funcs
 
 MY_PN=${PN}src
@@ -13,7 +13,7 @@ SRC_URI="http://www.rarlab.com/rar/${MY_PN}-${PV}.tar.gz"
 
 LICENSE="unRAR"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x86-solaris"
+KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x86-solaris"
 IUSE=""
 
 RDEPEND="!<=app-arch/unrar-gpl-0.0.1_p20080417"
@@ -29,7 +29,13 @@ src_prepare() {
 	else
 		sed_args+=( -e "s:-shared:& -Wl,-soname -Wl,libunrar$(get_libname ${PV%.*.*}):" )
 	fi
-	sed -i "${sed_args[@]}" makefile
+	sed -i "${sed_args[@]}" makefile || die
+}
+
+src_configure() {
+	mkdir -p build-{lib,bin}
+	printf 'VPATH = ..\ninclude ../makefile' > build-lib/Makefile || die
+	cp build-{lib,bin}/Makefile || die
 }
 
 src_compile() {
@@ -37,22 +43,18 @@ src_compile() {
 		emake CXX="$(tc-getCXX)" CXXFLAGS="${CXXFLAGS}" STRIP=true "$@"
 	}
 
-	unrar_make CXXFLAGS+=" -fPIC" lib
-	ln -s libunrar$(get_libname ${PV%.*.*}) libunrar$(get_libname)
-	ln -s libunrar$(get_libname ${PV%.*.*}) libunrar$(get_libname ${PV})
+	unrar_make CXXFLAGS+=" -fPIC" -C build-lib lib
+	ln -s libunrar$(get_libname ${PV%.*.*}) build-lib/libunrar$(get_libname) || die
+	ln -s libunrar$(get_libname ${PV%.*.*}) build-lib/libunrar$(get_libname ${PV}) || die
 
-	# The stupid code compiles a lot of objects differently if
-	# they're going into a lib (-DRARDLL) or into the main app.
-	# So for now, we can't link the main app against the lib.
-	unrar_make clean
-	unrar_make
+	unrar_make -C build-bin
 }
 
 src_install() {
-	dobin unrar
+	dobin build-bin/unrar
 	dodoc readme.txt
 
-	dolib.so libunrar*
+	dolib.so build-lib/libunrar*
 
 	insinto /usr/include/libunrar${PV%.*.*}
 	doins *.hpp
