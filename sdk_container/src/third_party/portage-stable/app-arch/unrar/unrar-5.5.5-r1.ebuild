@@ -1,6 +1,5 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 EAPI="5"
 
@@ -10,11 +9,12 @@ MY_PN=${PN}src
 
 DESCRIPTION="Uncompress rar files"
 HOMEPAGE="http://www.rarlab.com/rar_add.htm"
-SRC_URI="http://www.rarlab.com/rar/${MY_PN}-${PV}.tar.gz"
+SRC_URI="http://www.rarlab.com/rar/${MY_PN}-${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="unRAR"
-SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x86-solaris"
+# subslot = soname version
+SLOT="0/5"
+KEYWORDS="alpha amd64 arm ~arm64 ~hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x86-solaris"
 IUSE=""
 
 RDEPEND="!<=app-arch/unrar-gpl-0.0.1_p20080417"
@@ -22,8 +22,10 @@ RDEPEND="!<=app-arch/unrar-gpl-0.0.1_p20080417"
 S=${WORKDIR}/unrar
 
 src_prepare() {
-	epatch "${FILESDIR}"/${PN}-5.0.2-build.patch
-	epatch "${FILESDIR}"/${PN}-5.2.2-no-auto-clean.patch #528218
+	epatch "${FILESDIR}"/${PN}-5.5.5-build.patch
+	epatch "${FILESDIR}"/${PN}-5.5.5-honor-flags.patch
+	epatch_user
+
 	local sed_args=( -e "/libunrar/s:.so:$(get_libname ${PV%.*.*}):" )
 	if [[ ${CHOST} == *-darwin* ]] ; then
 		sed_args+=( -e "s:-shared:-dynamiclib -install_name ${EPREFIX}/usr/$(get_libdir)/libunrar$(get_libname ${PV%.*.*}):" )
