@@ -1,68 +1,67 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
-EAPI=5
+EAPI=6
 
+CMAKE_MAKEFILE_GENERATOR="emake"
 CMAKE_REMOVE_MODULES="no"
-inherit bash-completion-r1 elisp-common toolchain-funcs eutils versionator cmake-utils virtualx
+inherit bash-completion-r1 elisp-common toolchain-funcs eutils versionator cmake-utils virtualx flag-o-matic
+
+MY_P="${P/_/-}"
 
 DESCRIPTION="Cross platform Make"
 HOMEPAGE="http://www.cmake.org/"
-SRC_URI="http://www.cmake.org/files/v$(get_version_component_range 1-2)/${P}.tar.gz
-	http://www.cmake.org/gitweb?p=cmake.git;a=patch;h=b9ec9392da21a3421e48c6961976060d872faffb -> ${PN}-3.3.1-FindPkgConfig_remove_variable_dereference.patch"
+SRC_URI="http://www.cmake.org/files/v$(get_version_component_range 1-2)/${MY_P}.tar.gz"
 
 LICENSE="CMake"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~arm64 ~hppa ~m68k ~mips ~ppc64 ~s390 ~sh ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
-IUSE="doc emacs system-jsoncpp ncurses qt4 qt5"
+[[ "${PV}" = *_rc* ]] || \
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
+IUSE="doc emacs server system-jsoncpp ncurses qt5"
 
 RDEPEND="
-	>=app-arch/libarchive-2.8.0:=
+	app-crypt/rhash
+	>=app-arch/libarchive-3.0.0:=
 	>=dev-libs/expat-2.0.1
-	>=net-misc/curl-7.20.0-r1[ssl]
+	>=net-misc/curl-7.21.5[ssl]
 	sys-libs/zlib
 	virtual/pkgconfig
 	emacs? ( virtual/emacs )
 	ncurses? ( sys-libs/ncurses:0= )
-	qt4? (
-		dev-qt/qtcore:4
-		dev-qt/qtgui:4
-	)
 	qt5? (
 		dev-qt/qtcore:5
 		dev-qt/qtgui:5
 		dev-qt/qtwidgets:5
 	)
+	server? ( >=dev-libs/libuv-1.0.0:= )
 	system-jsoncpp? ( >=dev-libs/jsoncpp-0.6.0_rc2:0= )
 "
 DEPEND="${RDEPEND}
 	doc? ( dev-python/sphinx )
 "
 
-SITEFILE="50${PN}-gentoo.el"
+S="${WORKDIR}/${MY_P}"
 
-CMAKE_BINARY="${S}/Bootstrap.cmk/cmake"
+SITEFILE="50${PN}-gentoo.el"
 
 PATCHES=(
 	# prefix
-	"${FILESDIR}"/${PN}-2.8.10-darwin-bundle.patch
+	"${FILESDIR}"/${PN}-3.4.0_rc1-darwin-bundle.patch
 	"${FILESDIR}"/${PN}-3.0.0-prefix-dirs.patch
 	"${FILESDIR}"/${PN}-3.1.0-darwin-isysroot.patch
 
 	# handle gentoo packaging in find modules
 	"${FILESDIR}"/${PN}-2.8.12.1-FindImageMagick.patch
 	"${FILESDIR}"/${PN}-3.0.0-FindBLAS.patch
-	"${FILESDIR}"/${PN}-3.0.0-FindBoost-python.patch
+	"${FILESDIR}"/${PN}-3.8.0_rc2-FindBoost-python.patch
 	"${FILESDIR}"/${PN}-3.0.2-FindLAPACK.patch
+	"${FILESDIR}"/${PN}-3.5.2-FindQt4.patch
 
 	# respect python eclasses
 	"${FILESDIR}"/${PN}-2.8.10.2-FindPythonLibs.patch
 	"${FILESDIR}"/${PN}-3.1.0-FindPythonInterp.patch
 
-	# upstream backports
-	"${FILESDIR}"/${PN}-3.2.3-musl-missing-include.patch
-	"${DISTDIR}"/${PN}-3.3.1-FindPkgConfig_remove_variable_dereference.patch
+	# upstream fixes (can usually be removed with a version bump)
 )
 
 cmake_src_bootstrap() {
@@ -75,6 +74,11 @@ cmake_src_bootstrap() {
 	else
 		par_arg="--parallel=1"
 	fi
+
+	# disable running of cmake in boostrap command
+	sed -i \
+		-e '/"${cmake_bootstrap_dir}\/cmake"/s/^/#DONOTRUN /' \
+		bootstrap || die "sed failed"
 
 	# execinfo.h on Solaris isn't quite what it is on Darwin
 	if [[ ${CHOST} == *-solaris* ]] ; then
@@ -108,9 +112,11 @@ cmake_src_test() {
 	#    CTest.updatecvs: which fails to commit as root
 	#    Fortran: requires fortran
 	#    Qt4Deploy, which tries to break sandbox and ignores prefix
+	#    RunCMake.CPack_RPM: breaks if app-arch/rpm is installed because
+	#        debugedit binary is not in the expected location
 	#    TestUpload, which requires network access
 	"${BUILD_DIR}"/bin/ctest ${ctestargs} \
-		-E "(BootstrapTest|BundleUtilities|CTest.UpdateCVS|Fortran|Qt4Deploy|TestUpload)" \
+		-E "(BootstrapTest|BundleUtilities|CTest.UpdateCVS|Fortran|Qt4Deploy|RunCMake.CPack_RPM|TestUpload)" \
 		|| die "Tests failed"
 
 	popd > /dev/null
@@ -119,21 +125,21 @@ cmake_src_test() {
 src_prepare() {
 	cmake-utils_src_prepare
 
-	# disable running of cmake in boostrap command
-	sed -i \
-		-e '/"${cmake_bootstrap_dir}\/cmake"/s/^/#DONOTRUN /' \
-		bootstrap || die "sed failed"
-
 	# Add gcc libs to the default link paths
 	sed -i \
 		-e "s|@GENTOO_PORTAGE_GCCLIBDIR@|${EPREFIX}/usr/${CHOST}/lib/|g" \
 		-e "s|@GENTOO_PORTAGE_EPREFIX@|${EPREFIX}/|g" \
 		Modules/Platform/{UnixPaths,Darwin}.cmake || die "sed failed"
-
-	cmake_src_bootstrap
+	if ! has_version \>=${CATEGORY}/${PN}-3.4.0_rc1 ; then
+		CMAKE_BINARY="${S}/Bootstrap.cmk/cmake"
+		cmake_src_bootstrap
+	fi
 }
 
 src_configure() {
+	# Fix linking on Solaris
+	[[ ${CHOST} == *-solaris* ]] && append-ldflags -lsocket -lnsl
+
 	local mycmakeargs=(
 		-DCMAKE_USE_SYSTEM_LIBRARIES=ON
 		-DCMAKE_USE_SYSTEM_LIBRARY_JSONCPP=$(usex system-jsoncpp)
@@ -143,10 +149,12 @@ src_configure() {
 		-DCMAKE_DATA_DIR=/share/${PN}
 		-DSPHINX_MAN=$(usex doc)
 		-DSPHINX_HTML=$(usex doc)
-		$(cmake-utils_use_build ncurses CursesDialog)
+		-DBUILD_CursesDialog="$(usex ncurses)"
+		-DCMake_ENABLE_SERVER_MODE="$(usex server)"
+		-DCMAKE_USE_LIBUV="$(usex server)"
 	)
 
-	if use qt4 || use qt5 ; then
+	if use qt5 ; then
 		mycmakeargs+=(
 			-DBUILD_QtDialog=ON
 			$(cmake-utils_use_find_package qt5 Qt5Widgets)
@@ -162,7 +170,7 @@ src_compile() {
 }
 
 src_test() {
-	VIRTUALX_COMMAND="cmake_src_test" virtualmake
+	virtx cmake_src_test
 }
 
 src_install() {
@@ -174,17 +182,17 @@ src_install() {
 	fi
 
 	insinto /usr/share/vim/vimfiles/syntax
-	doins Auxiliary/cmake-syntax.vim
+	doins Auxiliary/vim/syntax/cmake.vim
 
 	insinto /usr/share/vim/vimfiles/indent
-	doins Auxiliary/cmake-indent.vim
+	doins Auxiliary/vim/indent/cmake.vim
 
 	insinto /usr/share/vim/vimfiles/ftdetect
 	doins "${FILESDIR}/${PN}.vim"
 
 	dobashcomp Auxiliary/bash-completion/{${PN},ctest,cpack}
 
-	rm -rf "${D}"/usr/share/cmake/{completions,editors} || die
+	rm -r "${ED}"/usr/share/cmake/{completions,editors} || die
 }
 
 pkg_postinst() {

@@ -1,6 +1,6 @@
-From 65571942d4f19d508174f6f89aeaac5ffe380a6e Mon Sep 17 00:00:00 2001
-From: Michael Palimaka <kensington@gentoo.org>
-Date: Tue, 6 Nov 2012 23:35:34 +1100
+From b1f045122fb210728081ae2165197aebff4ee498 Mon Sep 17 00:00:00 2001
+From: Lars Wendler <polynomial-c@gentoo.org>
+Date: Fri, 9 Jun 2017 01:47:55 +0200
 Subject: [PATCH] Set some proper paths to make cmake find our tools.
 
 The ebuild now adds an extra / at the end of $EPREFIX so that it is
@@ -12,12 +12,20 @@ Updated by Chris Reffett (cmake-2.8.8)
 Updated by Johannes Huber (cmake-2.8.9)
 Updated by Michael Palimaka (cmake-2.8.10)
 Updated by Chris Reffett (cmake-2.8.11)
+Updated by Michael Palimaka (cmake-3.0.0)
+Updated by Lars Wendler (cmake-3.9.0_rc2)
+---
+ Modules/Platform/Darwin.cmake    | 12 ++++++++----
+ Modules/Platform/UnixPaths.cmake | 29 ++++++++++++++++++++++++-----
+ 2 files changed, 32 insertions(+), 9 deletions(-)
 
+diff --git a/Modules/Platform/Darwin.cmake b/Modules/Platform/Darwin.cmake
+index 727baa6e1..543d9e034 100644
 --- a/Modules/Platform/Darwin.cmake
 +++ b/Modules/Platform/Darwin.cmake
-@@ -252,9 +252,9 @@
-       "<CMAKE_CXX_COMPILER> <LANGUAGE_COMPILE_FLAGS> <CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS> <LINK_FLAGS> -o <TARGET> <SONAME_FLAG> <TARGET_INSTALLNAME_DIR><TARGET_SONAME> <OBJECTS> <LINK_LIBRARIES>")
- 
+@@ -108,9 +108,9 @@ set(CMAKE_C_FRAMEWORK_SEARCH_FLAG -F)
+ set(CMAKE_CXX_FRAMEWORK_SEARCH_FLAG -F)
+ set(CMAKE_Fortran_FRAMEWORK_SEARCH_FLAG -F)
  
 -# default to searching for frameworks first
 +# default to searching for frameworks last
@@ -27,16 +35,16 @@ Updated by Chris Reffett (cmake-2.8.11)
  endif()
  
  # Older OS X linkers do not report their framework search path
-@@ -276,6 +276,8 @@
+@@ -132,6 +132,8 @@ endif()
  
  # set up the default search directories for frameworks
  set(CMAKE_SYSTEM_FRAMEWORK_PATH
 +  @GENTOO_PORTAGE_EPREFIX@Frameworks
 +  @GENTOO_PORTAGE_EPREFIX@usr/lib
    ~/Library/Frameworks
-   /Library/Frameworks
-   /Network/Library/Frameworks
-@@ -298,13 +300,15 @@
+   )
+ if(_CMAKE_OSX_SYSROOT_PATH)
+@@ -178,13 +180,15 @@ if(CMAKE_OSX_SYSROOT)
    endif()
  endif()
  
@@ -54,9 +62,11 @@ Updated by Chris Reffett (cmake-2.8.11)
    "~/Applications"
    "/Applications"
    "${OSX_DEVELOPER_ROOT}/../Applications" # Xcode 4.3+
+diff --git a/Modules/Platform/UnixPaths.cmake b/Modules/Platform/UnixPaths.cmake
+index 5687653cf..be7695898 100644
 --- a/Modules/Platform/UnixPaths.cmake
 +++ b/Modules/Platform/UnixPaths.cmake
-@@ -33,6 +33,7 @@
+@@ -23,6 +23,7 @@ get_filename_component(_CMAKE_INSTALL_DIR "${_CMAKE_INSTALL_DIR}" PATH)
  # search types.
  list(APPEND CMAKE_SYSTEM_PREFIX_PATH
    # Standard
@@ -64,34 +74,18 @@ Updated by Chris Reffett (cmake-2.8.11)
    /usr/local /usr /
  
    # CMake install location
-@@ -44,43 +45,41 @@
+@@ -50,23 +51,41 @@ list(APPEND CMAKE_SYSTEM_PREFIX_PATH
  
  # List common include file locations not under the common prefixes.
  list(APPEND CMAKE_SYSTEM_INCLUDE_PATH
--  # Windows API on Cygwin
--  /usr/include/w32api
--
 -  # X11
--  /usr/X11R6/include /usr/include/X11
--
--  # Other
--  /usr/pkg/include
--  /opt/csw/include /opt/include
--  /usr/openwin/include
+-  /usr/include/X11
 +  @GENTOO_PORTAGE_EPREFIX@usr/include
    )
  
  list(APPEND CMAKE_SYSTEM_LIBRARY_PATH
--  # Windows API on Cygwin
--  /usr/lib/w32api
--
 -  # X11
--  /usr/X11R6/lib /usr/lib/X11
--
--  # Other
--  /usr/pkg/lib
--  /opt/csw/lib /opt/lib
--  /usr/openwin/lib
+-  /usr/lib/X11
 +  @GENTOO_PORTAGE_GCCLIBDIR@/gcc
 +  @GENTOO_PORTAGE_GCCLIBDIR@
 +  @GENTOO_PORTAGE_EPREFIX@usr/lib64
@@ -99,16 +93,15 @@ Updated by Chris Reffett (cmake-2.8.11)
 +  @GENTOO_PORTAGE_EPREFIX@usr/lib32
 +  @GENTOO_PORTAGE_EPREFIX@usr/lib
 +  @GENTOO_PORTAGE_EPREFIX@lib
-   )
- 
- list(APPEND CMAKE_SYSTEM_PROGRAM_PATH
--  /usr/pkg/bin
++  )
++
++list(APPEND CMAKE_SYSTEM_PROGRAM_PATH
 +  @GENTOO_PORTAGE_EPREFIX@usr/bin
 +  @GENTOO_PORTAGE_EPREFIX@bin
    )
  
  list(APPEND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES
--  /lib /usr/lib /usr/lib32 /usr/lib64
+-  /lib /lib32 /lib64 /usr/lib /usr/lib32 /usr/lib64
 +  @GENTOO_PORTAGE_GCCLIBDIR@/gcc
 +  @GENTOO_PORTAGE_GCCLIBDIR@
 +  @GENTOO_PORTAGE_EPREFIX@usr/lib64
@@ -128,3 +121,6 @@ Updated by Chris Reffett (cmake-2.8.11)
    /usr/include
    )
  
+-- 
+2.13.1
+
