@@ -1,9 +1,9 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="5"
 
-PATCHVER="1.1"
+PATCHVER="1.2"
 
 inherit eutils toolchain-funcs multilib-minimal
 
@@ -18,11 +18,12 @@ SRC_URI="mirror://gnu/binutils/${MY_P}.tar.bz2
 LICENSE="|| ( GPL-3 LGPL-3 )"
 # The shared lib SONAMEs use the ${PV} in them.
 SLOT="0/${PV}"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd -sparc-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="64-bit-bfd multitarget nls static-libs zlib"
+KEYWORDS="alpha amd64 arm ~arm64 ~hppa ~ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh ~sparc x86 ~amd64-fbsd -sparc-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+IUSE="64-bit-bfd multitarget nls static-libs"
 
-COMMON_DEPEND="zlib? ( sys-libs/zlib[${MULTILIB_USEDEP}] )"
+COMMON_DEPEND="sys-libs/zlib[${MULTILIB_USEDEP}]"
 DEPEND="${COMMON_DEPEND}
+	>=sys-apps/texinfo-4.7
 	nls? ( sys-devel/gettext )"
 # Need a newer binutils-config that'll reset include/lib symlinks for us.
 RDEPEND="${COMMON_DEPEND}
@@ -46,7 +47,6 @@ pkgversion() {
 
 multilib_src_configure() {
 	local myconf=(
-		$(use_with zlib)
 		--enable-obsolete
 		--enable-shared
 		--enable-threads
@@ -61,6 +61,10 @@ multilib_src_configure() {
 		# beyond a flag if people really want it, but otherwise leave
 		# it disabled as it can slow things down on 32bit arches. #438522
 		$(use_enable 64-bit-bfd)
+		# This only disables building in the zlib subdir.
+		# For binutils itself, it'll use the system version. #591516
+		--without-zlib
+		--with-system-zlib
 		# We only care about the libs, so disable programs. #528088
 		--disable-{binutils,etc,ld,gas,gold,gprof}
 		# Disable modules that are in a combined binutils/gdb tree. #490566
