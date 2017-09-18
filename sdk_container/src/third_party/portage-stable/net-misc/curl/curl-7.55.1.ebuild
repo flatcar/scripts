@@ -11,9 +11,9 @@ SRC_URI="https://curl.haxx.se/download/${P}.tar.bz2"
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~ppc-aix ~x64-cygwin ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="adns http2 idn ipv6 kerberos ldap metalink rtmp samba ssh ssl static-libs test threads"
-IUSE+=" curl_ssl_axtls curl_ssl_gnutls curl_ssl_libressl curl_ssl_mbedtls curl_ssl_nss +curl_ssl_openssl curl_ssl_polarssl curl_ssl_winssl"
+IUSE+=" curl_ssl_axtls curl_ssl_gnutls curl_ssl_libressl curl_ssl_mbedtls curl_ssl_nss +curl_ssl_openssl curl_ssl_winssl"
 IUSE+=" elibc_Winnt"
 
 #lead to lots of false negatives, bug #285669
@@ -42,10 +42,6 @@ RDEPEND="ldap? ( net-nds/openldap[${MULTILIB_USEDEP}] )
 		)
 		curl_ssl_nss? (
 			dev-libs/nss:0[${MULTILIB_USEDEP}]
-			app-misc/ca-certificates
-		)
-		curl_ssl_polarssl? (
-			net-libs/polarssl:0=[${MULTILIB_USEDEP}]
 			app-misc/ca-certificates
 		)
 	)
@@ -92,7 +88,6 @@ REQUIRED_USE="
 			curl_ssl_mbedtls
 			curl_ssl_nss
 			curl_ssl_openssl
-			curl_ssl_polarssl
 			curl_ssl_winssl
 		)
 	)"
@@ -112,6 +107,7 @@ src_prepare() {
 	eapply "${FILESDIR}"/${PN}-7.30.0-prefix.patch
 	eapply "${FILESDIR}"/${PN}-respect-cflags-3.patch
 	eapply "${FILESDIR}"/${PN}-fix-gnutls-nettle.patch
+	eapply "${FILESDIR}"/${P}-fix-build.patch
 
 	sed -i '/LD_LIBRARY_PATH=/d' configure.ac || die #382241
 
@@ -142,9 +138,6 @@ multilib_src_configure() {
 		elif use curl_ssl_nss; then
 			einfo "SSL provided by nss"
 			myconf+=( --with-nss )
-		elif use curl_ssl_polarssl; then
-			einfo "SSL provided by polarssl"
-			myconf+=( --with-polarssl )
 		elif use curl_ssl_openssl; then
 			einfo "SSL provided by openssl"
 			myconf+=( --with-ssl --with-ca-path="${EPREFIX}"/etc/ssl/certs )
