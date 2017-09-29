@@ -45,14 +45,14 @@ PATCHES=(
 	"${FILESDIR}"/${P}-CVE-2012-0804.patch
 	"${FILESDIR}"/${P}-format-security.patch
 	"${FILESDIR}"/${P}-musl.patch
+	"${FILESDIR}"/${P}-CVE-2017-12836-commandinjection.patch
 	)
 DOCS=( BUGS ChangeLog{,.zoo} DEVEL-CVS FAQ HACKING MINOR-BUGS NEWS \
 	PROJECTS README TESTS TODO )
 
 src_prepare() {
 	default
-
-	sed -i "/^AR/s/ar/$(tc-getAR)/" diff/Makefile.in lib/Makefile.in || die
+	sed -i "/^AR/s:ar:$(tc-getAR):" diff/Makefile.in lib/Makefile.in || die
 }
 
 src_configure() {
@@ -93,8 +93,4 @@ src_install() {
 	fi
 
 	newpamd "${FILESDIR}"/cvs.pam-include-1.12.12 cvs
-}
-
-pkg_postinst() {
-	use server || elog "If you want any CVS server functionality, you MUST emerge with USE=server!"
 }
