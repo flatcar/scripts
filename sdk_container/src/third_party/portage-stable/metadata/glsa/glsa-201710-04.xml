@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE glsa SYSTEM "http://www.gentoo.org/dtd/glsa.dtd">
-<glsa id="201705-15">
+<glsa id="201710-04">
   <title>sudo: Privilege escalation</title>
   <synopsis>A vulnerability in sudo allows local users to gain root privileges.</synopsis>
-  <product type="ebuild">sudo,privilege</product>
-  <announced>2017-05-30</announced>
-  <revised>2017-10-07: 3</revised>
-  <bug>620182</bug>
+  <product type="ebuild">sudo</product>
+  <announced>2017-10-08</announced>
+  <revised>2017-10-08: 1</revised>
+  <bug>620482</bug>
   <access>local</access>
   <affected>
     <package name="app-admin/sudo" auto="yes" arch="*">
@@ -22,20 +22,13 @@
     </p>
   </background>
   <description>
-    <p>Qualys discovered a vulnerability in sudo’s get_process_ttyname() for
-      Linux, that via sudo_ttyname_scan() can be directed to use a
-      user-controlled, arbitrary tty device during its traversal of “/dev”
-      by utilizing the world-writable /dev/shm.
+    <p>The fix present in app-admin/sudo-1.8.20_p1 (GLSA 201705-15) was
+      incomplete as it did not address the problem of a command with a newline
+      in the name.
     </p>
-    
-    <p>For further information, please see the Qualys Security Advisory</p>
   </description>
   <impact type="high">
-    <p>A local attacker can pretend that his tty is any character device on the
-      filesystem, and after two race conditions, an attacker can pretend that
-      the controlled tty is any file on the filesystem allowing for privilege
-      escalation
-    </p>
+    <p>A local attacker could execute arbitrary code with root privileges.</p>
   </impact>
   <workaround>
     <p>There is no known workaround at this time.</p>
@@ -47,16 +40,13 @@
       # emerge --sync
       # emerge --ask --oneshot --verbose "&gt;=app-admin/sudo-1.8.20_p2"
     </code>
-    
   </resolution>
   <references>
-    <uri link="https://nvd.nist.gov/nvd.cfm?cvename=CVE-2017-1000367">
-      CVE-2017-1000367
+    <uri link="https://nvd.nist.gov/nvd.cfm?cvename=CVE-2017-1000368">
+      CVE-2017-1000368
     </uri>
-    <uri link="https://www.qualys.com/2017/05/30/cve-2017-1000367/cve-2017-1000367.txt">
-      Qualys Security Advisory for CVE-2017-1000367
-    </uri>
+    <uri link="https://security.gentoo.org/glsa/201705-15">GLSA 201705-15</uri>
   </references>
-  <metadata tag="requester" timestamp="2017-05-30T07:27:08Z">K_F</metadata>
-  <metadata tag="submitter" timestamp="2017-10-07T14:23:55Z">K_F</metadata>
+  <metadata tag="requester" timestamp="2017-10-05T18:00:01Z">chrisadr</metadata>
+  <metadata tag="submitter" timestamp="2017-10-08T13:34:25Z">chrisadr</metadata>
 </glsa>
