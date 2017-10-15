@@ -3,7 +3,7 @@
 
 EAPI=6
 
-inherit multilib-minimal libtool
+inherit multilib-minimal libtool ltprune
 
 DESCRIPTION="ASN.1 library"
 HOMEPAGE="https://www.gnu.org/software/libtasn1/"
@@ -11,7 +11,7 @@ SRC_URI="mirror://gnu/${PN}/${P}.tar.gz"
 
 LICENSE="GPL-3 LGPL-2.1"
 SLOT="0/6" # subslot = libtasn1 soname version
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~x64-cygwin ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~x64-cygwin ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="doc static-libs valgrind"
 
 DEPEND=">=dev-lang/perl-5.6
@@ -25,6 +25,10 @@ RDEPEND="
 	)"
 
 DOCS=( AUTHORS ChangeLog NEWS README THANKS )
+
+PATCHES=(
+	"${FILESDIR}/${P}-CVE-2017-10790.patch"
+)
 
 pkg_setup() {
 	if use doc; then
@@ -46,5 +50,5 @@ multilib_src_configure() {
 
 multilib_src_install_all() {
 	einstalldocs
-	use static-libs || find "${ED}" -name '*.la' -delete
+	prune_libtool_files
 }
