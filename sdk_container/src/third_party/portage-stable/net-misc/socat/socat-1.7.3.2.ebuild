@@ -1,20 +1,20 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
-inherit autotools flag-o-matic git-r3 toolchain-funcs
+inherit autotools flag-o-matic toolchain-funcs
 
 DESCRIPTION="Multipurpose relay (SOcket CAT)"
 HOMEPAGE="http://www.dest-unreach.org/socat/"
 MY_P=${P/_beta/-b}
 S="${WORKDIR}/${MY_P}"
-EGIT_REPO_URI="git://repo.or.cz/${PN}.git"
+SRC_URI="http://www.dest-unreach.org/socat/download/${MY_P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS=""
-IUSE="libressl ssl readline ipv6 tcpd"
+KEYWORDS="alpha amd64 ~arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh ~sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos"
+IUSE="bindist libressl ssl readline ipv6 tcpd"
 
 DEPEND="
 	ssl? (
@@ -24,10 +24,7 @@ DEPEND="
 	readline? ( sys-libs/readline:= )
 	tcpd? ( sys-apps/tcp-wrappers )
 "
-DEPEND="
-	${RDEPEND}
-	app-text/yodl
-"
+RDEPEND="${DEPEND}"
 
 RESTRICT="test
 	ssl? ( readline? ( bindist ) )"
@@ -38,7 +35,6 @@ DOCS=(
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.7.3.0-filan-build.patch
-	"${FILESDIR}"/${PN}-1.7.3.1-stddef_h.patch
 )
 
 pkg_setup() {
