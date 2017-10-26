@@ -18,4 +18,9 @@ If you'd prefer to use a local copy of the portage tree, you can point
 Licensing information can be found in the respective files, so consult
 them directly. Most ebuilds are licensed under the GPL version 2.
 
+If you remove a package, make sure to delete the corresponding files in
+metadata/md5cache, or run use egencache to do it for you:
+
+    egencache --update portage-stable
+
 Upstream Gentoo sources: http://sources.gentoo.org/gentoo-x86/
