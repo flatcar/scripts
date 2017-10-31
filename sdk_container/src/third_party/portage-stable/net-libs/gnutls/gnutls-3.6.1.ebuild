@@ -11,12 +11,12 @@ SRC_URI="mirror://gnupg/gnutls/v$(get_version_component_range 1-2)/${P}.tar.xz"
 
 LICENSE="GPL-3 LGPL-2.1"
 SLOT="0/30" # libgnutls.so number
-KEYWORDS="alpha amd64 ~arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS=""
 IUSE_LINGUAS=" en cs de fi fr it ms nl pl sv uk vi zh_CN"
-IUSE="+cxx dane doc examples guile +idn nls openpgp +openssl pkcs11 seccomp sslv2 sslv3 static-libs test test-full +tls-heartbeat tools valgrind zlib ${IUSE_LINGUAS// / linguas_}"
+IUSE="+cxx dane doc examples guile +idn nls +openssl pkcs11 seccomp sslv2 sslv3 static-libs test test-full +tls-heartbeat tools valgrind ${IUSE_LINGUAS// / linguas_}"
 
 REQUIRED_USE="
-	test-full? ( guile pkcs11 openpgp openssl idn seccomp tools zlib )"
+	test-full? ( cxx dane doc examples guile idn nls openssl pkcs11 seccomp tls-heartbeat tools )"
 
 # NOTICE: sys-devel/autogen is required at runtime as we
 # use system libopts
@@ -29,7 +29,6 @@ RDEPEND=">=dev-libs/libtasn1-4.9:=[${MULTILIB_USEDEP}]
 	guile? ( >=dev-scheme/guile-1.8:=[networking] )
 	nls? ( >=virtual/libintl-0-r1[${MULTILIB_USEDEP}] )
 	pkcs11? ( >=app-crypt/p11-kit-0.23.1[${MULTILIB_USEDEP}] )
-	zlib? ( >=sys-libs/zlib-1.2.8-r1[${MULTILIB_USEDEP}] )
 	idn? ( >=net-dns/libidn2-0.16-r1[${MULTILIB_USEDEP}] )
 	abi_x86_32? (
 		!<=app-emulation/emul-linux-x86-baselibs-20140508
@@ -112,16 +111,13 @@ multilib_src_configure() {
 		$(use_enable cxx) \
 		$(use_enable dane libdane) \
 		$(use_enable nls) \
-		$(use_enable openpgp openpgp-authentication) \
 		$(use_enable openssl openssl-compatibility) \
 		$(use_enable sslv2 ssl2-support) \
 		$(use_enable sslv3 ssl3-support) \
 		$(use_enable static-libs static) \
 		$(use_enable tls-heartbeat heartbeat-support) \
-		$(use_with idn libidn2) \
 		$(use_with idn) \
 		$(use_with pkcs11 p11-kit) \
-		$(use_with zlib) \
 		--with-unbound-root-key-file="${EPREFIX}/etc/dnssec/root-anchors.txt" \
 		--without-included-libtasn1 \
 		"${libconf[@]}"
