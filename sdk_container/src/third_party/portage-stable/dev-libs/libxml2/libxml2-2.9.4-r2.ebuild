@@ -12,7 +12,7 @@ HOMEPAGE="http://www.xmlsoft.org/"
 
 LICENSE="MIT"
 SLOT="2"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~x64-cygwin ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~x64-cygwin ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt"
 IUSE="debug examples icu ipv6 lzma python readline static-libs test"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
@@ -85,13 +85,24 @@ src_prepare() {
 	# https://bugzilla.gnome.org/show_bug.cgi?id=760458
 	eapply "${FILESDIR}"/${PN}-2.9.2-python-ABIFLAG.patch
 
-	# Apply latest round of security patches wrt bugs 
+	# Apply round of security patches wrt bugs 
 	# 589816, 597112, 597114, 597116.  This will be included
 	# in the next upstream release
 	eapply "${FILESDIR}"/${PN}-2.9.4-CVE-2016-4658.patch
 	eapply "${FILESDIR}"/${PN}-2.9.4-CVE-2016-5131.patch
 	eapply "${FILESDIR}"/${PN}-2.9.4-nullptrderef.patch
 	eapply "${FILESDIR}"/${PN}-2.9.4-nullptrderef2.patch
+
+	# Apply round of security patches wrt bugs:
+	# 599192, 586886, 618604, 622914, 605208, 623206
+	# This will be included in the next upstream release
+	eapply "${FILESDIR}"/${P}-CVE-2017-5969.patch
+	eapply "${FILESDIR}"/${P}-osd-validation.patch
+	eapply "${FILESDIR}"/${P}-CVE-2017-9049-9050.patch
+	eapply "${FILESDIR}"/${P}-CVE-2017-9047-9048.patch
+	eapply "${FILESDIR}"/${P}-heap-buffer-overflow.patch
+	eapply "${FILESDIR}"/${P}-CVE-2016-9318.patch
+	eapply "${FILESDIR}"/${P}-CVE-2017-7375.patch
 
 	# Avoid final linking arguments for python modules
 	if [[ ${CHOST} == *-darwin* ]] ; then
