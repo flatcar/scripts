@@ -3,7 +3,8 @@
 
 EAPI="5"
 
-PATCHVER="1.0"
+PATCHVER="2"
+PATCH_BINUTILS_VER="2.29.1"
 
 inherit eutils toolchain-funcs multilib-minimal
 
@@ -13,12 +14,12 @@ MY_P="${MY_PN}-${PV}"
 DESCRIPTION="Core binutils libraries (libbfd, libopcodes, libiberty) for external packages"
 HOMEPAGE="https://sourceware.org/binutils/"
 SRC_URI="mirror://gnu/binutils/${MY_P}.tar.bz2
-	mirror://gentoo/${MY_P}-patches-${PATCHVER}.tar.xz"
+	mirror://gentoo/${MY_PN}-${PATCH_BINUTILS_VER}-patches-${PATCHVER}.tar.xz"
 
 LICENSE="|| ( GPL-3 LGPL-3 )"
 # The shared lib SONAMEs use the ${PV} in them.
 SLOT="0/${PV}"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh ~sparc x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="64-bit-bfd multitarget nls static-libs"
 
 COMMON_DEPEND="sys-libs/zlib[${MULTILIB_USEDEP}]"
