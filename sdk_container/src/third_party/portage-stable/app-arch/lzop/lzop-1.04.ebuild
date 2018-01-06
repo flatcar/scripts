@@ -9,18 +9,11 @@ SRC_URI="http://www.lzop.org/download/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 arm arm64 hppa ia64 ~mips ppc ppc64 sparc x86 ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos ~sparc-solaris ~x86-solaris"
+KEYWORDS="~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos ~sparc-solaris ~x86-solaris"
 IUSE=""
 
 RDEPEND=">=dev-libs/lzo-2"
 DEPEND="${RDEPEND}"
-
-PATCHES=(
-	"${FILESDIR}"/${P}-x32.patch #575450
-	"${FILESDIR}"/${P}-gcc6.patch #594472
-)
-
-HTML_DOCS=( doc/lzop.html )
 
 src_test() {
 	einfo "compressing config.status to test"
@@ -31,6 +24,7 @@ src_test() {
 }
 
 src_install() {
-	default
-	dodoc doc/lzop.{txt,ps}
+	# do not install COPYING or redundant conversions of manpage
+	emake DESTDIR="${D}" install \
+		dist_doc_DATA="AUTHORS NEWS README THANKS"
 }
