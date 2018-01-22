@@ -1,24 +1,24 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
 
 inherit systemd toolchain-funcs
 
+MY_P="${P/_/-}"
+
 DESCRIPTION="The GNU Privacy Guard, a GPL OpenPGP implementation"
 HOMEPAGE="http://www.gnupg.org/"
-LICENSE="GPL-3"
-
-MY_P="${P/_/-}"
 SRC_URI="mirror://gnupg/gnupg/${MY_P}.tar.bz2"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~x64-cygwin ~amd64-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 
+LICENSE="GPL-3"
 SLOT="0"
+KEYWORDS="~alpha amd64 ~arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh ~sparc x86 ~ppc-aix ~x64-cygwin ~amd64-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="bzip2 doc +gnutls ldap nls readline selinux +smartcard tofu tools usb wks-server"
 
 COMMON_DEPEND_LIBS="
 	>=dev-libs/npth-1.2
-	>=dev-libs/libassuan-2.4.3
+	>=dev-libs/libassuan-2.5.0
 	>=dev-libs/libgcrypt-1.7.3
 	>=dev-libs/libgpg-error-1.24
 	>=dev-libs/libksba-1.3.4
@@ -90,6 +90,7 @@ src_configure() {
 		--enable-gpg \
 		--enable-gpgsm \
 		--enable-large-secmem \
+		--enable-all-tests \
 		CC_FOR_BUILD="$(tc-getBUILD_CC)"
 }
 
@@ -97,6 +98,12 @@ src_compile() {
 	default
 
 	use doc && emake -C doc html
+}
+
+src_test() {
+	#Bug: 638574
+	use tofu && export TESTFLAGS=--parallel
+	default
 }
 
 src_install() {
@@ -108,13 +115,13 @@ src_install() {
 			tools/{gpg-zip,gpgconf,gpgsplit,lspgpot,mail-signed-keys} \
 			tools/make-dns-cert
 
-	dosym gpg2 /usr/bin/gpg
-	dosym gpgv2 /usr/bin/gpgv
-	echo ".so man1/gpg2.1" > "${ED}"/usr/share/man/man1/gpg.1
-	echo ".so man1/gpgv2.1" > "${ED}"/usr/share/man/man1/gpgv.1
+	dosym gpg /usr/bin/gpg2
+	dosym gpgv /usr/bin/gpgv2
+	echo ".so man1/gpg.1" > "${ED}"/usr/share/man/man1/gpg2.1 || die
+	echo ".so man1/gpgv.1" > "${ED}"/usr/share/man/man1/gpgv2.1 || die
 
 	dodir /etc/env.d
-	echo "CONFIG_PROTECT=/usr/share/gnupg/qualified.txt" >> "${ED}"/etc/env.d/30gnupg
+	echo "CONFIG_PROTECT=/usr/share/gnupg/qualified.txt" >> "${ED}"/etc/env.d/30gnupg || die
 
 	use doc && dodoc doc/gnupg.html/* doc/*.png
 
