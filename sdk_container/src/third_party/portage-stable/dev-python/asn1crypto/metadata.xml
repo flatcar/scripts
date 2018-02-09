@@ -6,7 +6,7 @@
     <name>Python</name>
   </maintainer>
   <upstream>
-    <remote-id type="pypi">idna</remote-id>
-    <remote-id type="github">kjd/idna</remote-id>
+    <remote-id type="pypi">cryptography</remote-id>
+    <remote-id type="github">pyca/cryptography</remote-id>
   </upstream>
 </pkgmetadata>
