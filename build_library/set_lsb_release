@@ -25,9 +25,10 @@ ROOT_FS_DIR="$FLAGS_root"
 [ -n "$ROOT_FS_DIR" ] || die "--root is required."
 [ -d "$ROOT_FS_DIR" ] || die "Root FS does not exist? ($ROOT_FS_DIR)"
 
-OS_NAME="Container Linux by CoreOS"
+OS_NAME="Flatcar Linux by Kinvolk"
 OS_CODENAME="Rhyolite"
-OS_ID="coreos"
+OS_ID="flatcar"
+OS_ID_LIKE="coreos"
 OS_PRETTY_NAME="$OS_NAME $COREOS_VERSION (${OS_CODENAME})"
 
 # temporarily point arm at a different appid until update support
@@ -52,13 +53,14 @@ sudo ln -sf "../usr/share/coreos/lsb-release" "${ROOT_FS_DIR}/etc/lsb-release"
 sudo_clobber "${ROOT_FS_DIR}/usr/lib/os-release" <<EOF
 NAME="$OS_NAME"
 ID=$OS_ID
+ID_LIKE=$OS_ID_LIKE
 VERSION=$COREOS_VERSION
 VERSION_ID=$COREOS_VERSION_ID
 BUILD_ID=$COREOS_BUILD_ID
 PRETTY_NAME="$OS_PRETTY_NAME"
 ANSI_COLOR="38;5;75"
-HOME_URL="https://coreos.com/"
-BUG_REPORT_URL="https://issues.coreos.com"
+HOME_URL="https://flatcar-linux.org/"
+BUG_REPORT_URL="https://issues.flatcar-linux.org"
 COREOS_BOARD="$FLAGS_board"
 EOF
 sudo ln -sf "../usr/lib/os-release" "${ROOT_FS_DIR}/etc/os-release"
@@ -72,7 +74,7 @@ COREOS_RELEASE_APPID=$COREOS_APPID
 EOF
 
 sudo_clobber "${ROOT_FS_DIR}/usr/share/coreos/update.conf" <<EOF
-SERVER=https://public.update.core-os.net/v1/update/
+SERVER=https://public.update.flatcar-linux.net/v1/update/
 GROUP=$FLAGS_group
 EOF
 

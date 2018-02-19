@@ -159,7 +159,7 @@ fi
 
 info "Updating chroot:"
 info " chroot version: $OLDVER"
-info " CoreOS version: $COREOS_VERSION"
+info " Flatcar version: $COREOS_VERSION"
 
 # Updates should be of the form 1.2.3_desc.sh
 for update_script in ${SCRIPTS_DIR}/sdk_lib/updates/*.sh; do
