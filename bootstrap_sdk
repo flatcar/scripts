@@ -59,11 +59,36 @@ GENTOO_MIRRORS=$(portageq envvar GENTOO_MIRRORS)
 GENTOO_MIRRORS="${GENTOO_MIRRORS//https:\/\//http://}"
 export GENTOO_MIRRORS
 
+# FIXME catalyst runs in a chroot where it doesn't have access to the packages in
+# the repo sync so it will try to get baselayout checking out the commit
+# specified in CROS_WORKON_COMMIT from the coreos repo. That won't work, so
+# we'll set the upstream commit and change flatcar mentions to coreos while
+# building the SDK.
+#
+# Once we make our repos public, we can just set the flatcar repo name (e.g.
+# "flatcar/baselayout") in the ebuild to avoid this hack.
+#
+# Hopefully, this doesn't break stuff.
+pushd /mnt/host/source/src/third_party/baselayout
+COREOS_OVERLAY_COMMIT=$(git rev-parse HEAD^)
+popd
+pushd /mnt/host/source/src/third_party/update_engine
+UPDATE_ENGINE_COMMIT=$(git rev-parse HEAD^)
+popd
+COREOS_OVERLAY_PATH="/mnt/host/source/src/third_party/coreos-overlay"
+BASELAYOUT_EBUILD="${COREOS_OVERLAY_PATH}/sys-apps/baselayout/baselayout-9999.ebuild"
+sed -i "s/CROS_WORKON_COMMIT=\".*\"/CROS_WORKON_COMMIT=\"${COREOS_OVERLAY_COMMIT}\"/g" "${BASELAYOUT_EBUILD}"
+sed -i "s/flatcar/coreos/g" "${BASELAYOUT_EBUILD}"
+
+UPDATE_ENGINE_EBUILD="${COREOS_OVERLAY_PATH}/coreos-base/update_engine/update_engine-9999.ebuild"
+sed -i "s/CROS_WORKON_COMMIT=\".*\"/CROS_WORKON_COMMIT=\"${UPDATE_ENGINE_COMMIT}\"/g" "${UPDATE_ENGINE_EBUILD}"
+sed -i "s/flatcar/coreos/g" "${UPDATE_ENGINE_EBUILD}"
+
 catalyst_init "$@"
 check_gsutil_opts
 
 if [[ "$STAGES" =~ stage4 ]]; then
-    info "Setting release to ${COREOS_VERSION}"
+    info "Setting release to ${FLATCAR_VERSION}"
     rm -rf "${TEMPDIR}/stage4_overlay"
     # need to setup the lib->lib64 symlink correctly
     libdir=$(get_sdk_libdir)
@@ -98,5 +123,8 @@ if [[ "$STAGES" =~ stage4 ]]; then
     sign_and_upload_files "packages" "${def_upload_path}" "pkgs/" \
         "${BINPKGS}"/*
 fi
+
+# FIXME reset coreos-overlay to its previous state.
+(cd "${COREOS_OVERLAY_PATH}" && git reset --hard HEAD)
 
 command_completed
