@@ -104,16 +104,16 @@ FLAGS_to=`eval readlink -f $FLAGS_to`
 # If source includes version.txt switch to its version information
 if [ -f "${FLAGS_from}/version.txt" ]; then
     source "${FLAGS_from}/version.txt"
-    COREOS_VERSION_STRING="${COREOS_VERSION}"
+    FLATCAR_VERSION_STRING="${FLATCAR_VERSION}"
 fi
 
 if [ ${FLAGS_dev_image} -eq ${FLAGS_TRUE} ]; then
-  set_vm_paths "${FLAGS_from}" "${FLAGS_to}" "${COREOS_DEVELOPER_IMAGE_NAME}"
+  set_vm_paths "${FLAGS_from}" "${FLAGS_to}" "${FLATCAR_DEVELOPER_IMAGE_NAME}"
   if [[ "${FLAGS_disk_layout}" == "" ]]; then
     FLAGS_disk_layout=devel
   fi
 else
-  set_vm_paths "${FLAGS_from}" "${FLAGS_to}" "${COREOS_PRODUCTION_IMAGE_NAME}"
+  set_vm_paths "${FLAGS_from}" "${FLAGS_to}" "${FLATCAR_PRODUCTION_IMAGE_NAME}"
 fi
 
 # Make sure things are cleaned up on failure

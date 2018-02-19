@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# Expects BOARD, BUILD_DIR, BUILD_LIBRARY_DIR, and COREOS_VERSION in env.
+# Expects BOARD, BUILD_DIR, BUILD_LIBRARY_DIR, and FLATCAR_VERSION in env.
 
 # There must be a manifest template included with the ebuild at
 # files/manifest.in, which will have some variable values substituted before
@@ -81,7 +81,7 @@ oem_aci_write_manifest() {
     sudo cp "${manifest_template}" "${manifest}"
     sudo sed "${manifest}" -i \
         -e "s,@ACI_NAME@,${name}," \
-        -e "s,@ACI_VERSION@,${COREOS_VERSION}," \
+        -e "s,@ACI_VERSION@,${FLATCAR_VERSION}," \
         -e "s,@ACI_ARCH@,${appc_arch},"
 }
 
