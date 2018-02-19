@@ -25,8 +25,8 @@ ROOT_FS_DIR="$FLAGS_root"
 [ -n "$ROOT_FS_DIR" ] || die "--root is required."
 [ -d "$ROOT_FS_DIR" ] || die "Root FS does not exist? ($ROOT_FS_DIR)"
 
-OS_NAME="Container Linux by CoreOS"
-OS_CODENAME="Ladybug"
+OS_NAME="Flatcar Linux by Kinvolk"
+OS_CODENAME="Rhyolite"
 OS_ID="coreos"
 OS_PRETTY_NAME="$OS_NAME $COREOS_VERSION (${OS_CODENAME})"
 
@@ -57,8 +57,8 @@ VERSION_ID=$COREOS_VERSION_ID
 BUILD_ID=$COREOS_BUILD_ID
 PRETTY_NAME="$OS_PRETTY_NAME"
 ANSI_COLOR="38;5;75"
-HOME_URL="https://coreos.com/"
-BUG_REPORT_URL="https://issues.coreos.com"
+HOME_URL="https://kinvolk.io/"
+BUG_REPORT_URL="https://issues.kinvolk.io"
 COREOS_BOARD="$FLAGS_board"
 EOF
 sudo ln -sf "../usr/lib/os-release" "${ROOT_FS_DIR}/etc/os-release"
@@ -72,7 +72,7 @@ COREOS_RELEASE_APPID=$COREOS_APPID
 EOF
 
 sudo_clobber "${ROOT_FS_DIR}/usr/share/coreos/update.conf" <<EOF
-SERVER=https://public.update.core-os.net/v1/update/
+SERVER=https://test.update.flatcar-linux.net/v1/update/
 GROUP=$FLAGS_group
 EOF
 
