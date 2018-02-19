@@ -15,7 +15,7 @@ configure_dev_portage() {
 
     sudo mkdir -p "$1/etc/portage/repos.conf"
     sudo_clobber "$1/etc/portage/make.conf" <<EOF
-# make.conf for CoreOS dev images
+# make.conf for Flatcar dev images
 ARCH=$(get_board_arch $BOARD)
 CHOST=$(get_board_chost $BOARD)
 
@@ -25,8 +25,8 @@ PKGDIR="/var/lib/portage/pkgs"
 PORT_LOGDIR="/var/log/portage"
 PORTDIR="/var/lib/portage/portage-stable"
 PORTDIR_OVERLAY="/var/lib/portage/coreos-overlay"
-PORTAGE_BINHOST="http://builds.developer.core-os.net/boards/${BOARD}/${COREOS_VERSION_ID}/pkgs/
-http://builds.developer.core-os.net/boards/${BOARD}/${COREOS_VERSION_ID}/toolchain/"
+PORTAGE_BINHOST="http://builds.developer.core-os.net/boards/${BOARD}/${FLATCAR_VERSION_ID}/pkgs/
+http://builds.developer.core-os.net/boards/${BOARD}/${FLATCAR_VERSION_ID}/toolchain/"
 EOF
 
 sudo_clobber "$1/etc/portage/repos.conf/coreos.conf" <<EOF
@@ -104,7 +104,7 @@ create_dev_image() {
   # Setup portage for emerge and gmerge
   configure_dev_portage "${root_fs_dir}" "${devserver}"
 
-  sudo_append "${root_fs_dir}/etc/coreos/update.conf" <<EOF
+  sudo_append "${root_fs_dir}/etc/flatcar/update.conf" <<EOF
 SERVER=${auserver}
 
 # For gmerge
