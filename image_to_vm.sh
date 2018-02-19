@@ -31,7 +31,7 @@ DEFINE_string board "${DEFAULT_BOARD}" \
 DEFINE_string format "" \
   "Output format, one of: ${VALID_IMG_TYPES[*]}"
 DEFINE_string from "" \
-  "Directory containing coreos_developer_image.bin or coreos_production_image.bin."
+  "Directory containing flatcar_developer_image.bin or flatcar_production_image.bin."
 DEFINE_string disk_layout "" \
   "The disk layout type to use for this image."
 DEFINE_integer mem "${DEFAULT_MEM}" \
@@ -104,14 +104,14 @@ FLAGS_to=`eval readlink -f $FLAGS_to`
 # If source includes version.txt switch to its version information
 if [ -f "${FLAGS_from}/version.txt" ]; then
     source "${FLAGS_from}/version.txt"
-    COREOS_VERSION_STRING="${COREOS_VERSION}"
+    FLATCAR_VERSION_STRING="${FLATCAR_VERSION}"
 fi
 
 if [ ${FLAGS_prod_image} -eq ${FLAGS_TRUE} ]; then
-  set_vm_paths "${FLAGS_from}" "${FLAGS_to}" "${COREOS_PRODUCTION_IMAGE_NAME}"
+  set_vm_paths "${FLAGS_from}" "${FLAGS_to}" "${FLATCAR_PRODUCTION_IMAGE_NAME}"
 else
   # Use the standard image
-  set_vm_paths "${FLAGS_from}" "${FLAGS_to}" "${COREOS_DEVELOPER_IMAGE_NAME}"
+  set_vm_paths "${FLAGS_from}" "${FLAGS_to}" "${FLATCAR_DEVELOPER_IMAGE_NAME}"
 fi
 
 # Make sure things are cleaned up on failure
