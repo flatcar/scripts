@@ -2,25 +2,26 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-inherit autotools git-r3 multilib-minimal ltprune
+inherit autotools multilib-minimal ltprune
 
 DESCRIPTION="A system-independent library for user-level network packet capture"
-EGIT_REPO_URI="https://github.com/the-tcpdump-group/libpcap"
 HOMEPAGE="
 	http://www.tcpdump.org/
-	${EGIT_REPO_URI}
+	https://github.com/the-tcpdump-group/libpcap
+"
+SRC_URI="
+	https://github.com/the-tcpdump-group/${PN}/archive/${P}.tar.gz
 "
 
 LICENSE="BSD"
 SLOT="0"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x86-solaris"
 IUSE="bluetooth dbus netlink static-libs usb"
-KEYWORDS=""
 
 RDEPEND="
 	bluetooth? ( net-wireless/bluez:=[${MULTILIB_USEDEP}] )
 	dbus? ( sys-apps/dbus[${MULTILIB_USEDEP}] )
 	netlink? ( dev-libs/libnl:3[${MULTILIB_USEDEP}] )
-	usb? ( virtual/libusb:1[${MULTILIB_USEDEP}] )
 "
 DEPEND="
 	${RDEPEND}
@@ -29,13 +30,24 @@ DEPEND="
 	dbus? ( virtual/pkgconfig[${MULTILIB_USEDEP}] )
 "
 
+S=${WORKDIR}/${PN}-${P}
+
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.6.1-prefix-solaris.patch
-	"${FILESDIR}"/${PN}-9999-prefix-darwin.patch
+	"${FILESDIR}"/${PN}-1.8.1-cross-compile.patch
+	"${FILESDIR}"/${PN}-1.8.1-darwin.patch
+	"${FILESDIR}"/${PN}-1.8.1-libnl.patch
+	"${FILESDIR}"/${PN}-1.8.1-usbmon.patch
+	"${FILESDIR}"/${PN}-1.8.1-disable-remote.patch
+	"${FILESDIR}"/${PN}-9999-parallel.patch
 )
 
 src_prepare() {
 	default
+
+	eapply_user
+
+	echo ${PV} > VERSION || die
 
 	eautoreconf
 }
@@ -44,9 +56,10 @@ multilib_src_configure() {
 	ECONF_SOURCE="${S}" \
 	econf \
 		$(use_enable bluetooth) \
-		$(use_enable dbus) \
 		$(use_enable usb) \
-		$(use_with netlink libnl)
+		$(use_enable dbus) \
+		$(use_with netlink libnl) \
+		--enable-ipv6
 }
 
 multilib_src_compile() {
@@ -54,7 +67,7 @@ multilib_src_compile() {
 }
 
 multilib_src_install_all() {
-	dodoc CREDITS CHANGES VERSION TODO README*
+	dodoc CREDITS CHANGES VERSION TODO README{,.dag,.linux,.macosx,.septel}
 
 	# remove static libraries (--disable-static does not work)
 	if ! use static-libs; then
