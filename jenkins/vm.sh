@@ -38,7 +38,7 @@ bin/cork download-image \
     --platform=qemu \
     --verify=true $verify_key
 
-img=src/coreos_production_image.bin
+img=src/flatcar_production_image.bin
 [[ "${img}.bz2" -nt "${img}" ]] &&
 enter lbunzip2 -k -f "/mnt/host/source/${img}.bz2"
 
