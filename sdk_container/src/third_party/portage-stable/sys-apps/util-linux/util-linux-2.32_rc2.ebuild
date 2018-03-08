@@ -1,19 +1,19 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
 PYTHON_COMPAT=( python2_7 python3_{4,5,6} )
 
-inherit ltprune toolchain-funcs libtool flag-o-matic bash-completion-r1 \
-	pam python-single-r1 multilib-minimal systemd
+inherit toolchain-funcs libtool flag-o-matic bash-completion-r1 \
+	pam python-single-r1 multilib-minimal multiprocessing systemd
 
 MY_PV="${PV/_/-}"
 MY_P="${PN}-${MY_PV}"
 
 if [[ ${PV} == 9999 ]] ; then
 	inherit git-r3 autotools
-	EGIT_REPO_URI="git://git.kernel.org/pub/scm/utils/util-linux/util-linux.git"
+	EGIT_REPO_URI="https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git"
 else
 	[[ "${PV}" = *_rc* ]] || \
 	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-linux ~arm-linux ~x86-linux"
@@ -30,7 +30,7 @@ IUSE="build caps +cramfs fdformat kill ncurses nls pam python +readline selinux 
 # Most lib deps here are related to programs rather than our libs,
 # so we rarely need to specify ${MULTILIB_USEDEP}.
 RDEPEND="caps? ( sys-libs/libcap-ng )
-	cramfs? ( sys-libs/zlib )
+	cramfs? ( sys-libs/zlib:= )
 	ncurses? ( >=sys-libs/ncurses-5.2-r2:0=[unicode?] )
 	pam? ( sys-libs/pam )
 	python? ( ${PYTHON_DEPS} )
@@ -53,10 +53,10 @@ RDEPEND+="
 	!sys-process/schedutils
 	!sys-apps/setarch
 	!<sys-apps/sysvinit-2.88-r7
-	!sys-block/eject
 	!<sys-libs/e2fsprogs-libs-1.41.8
 	!<sys-fs/e2fsprogs-1.41.8
-	!<app-shells/bash-completion-2.3-r2"
+	!<app-shells/bash-completion-2.7-r1
+	!<sys-apps/s390-tools-1.36.1-r1"
 
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
@@ -69,15 +69,22 @@ pkg_setup() {
 src_prepare() {
 	default
 
+	# Prevent uuidd test failure due to socket path limit. #593304
+	sed -i \
+		-e "s|UUIDD_SOCKET=\"\$(mktemp -u \"\${TS_OUTDIR}/uuiddXXXXXXXXXXXXX\")\"|UUIDD_SOCKET=\"\$(mktemp -u \"${T}/uuiddXXXXXXXXXXXXX.sock\")\"|g" \
+		tests/ts/uuid/uuidd || die "Failed to fix uuidd test"
+
 	if [[ ${PV} == 9999 ]] ; then
 		po/update-potfiles
 		eautoreconf
 	fi
+
 	# Undo bad ncurses handling by upstream. #601530
 	sed -i -E \
 		-e '/NCURSES_/s:(ncursesw?)[56]-config:$PKG_CONFIG \1:' \
 		-e 's:(ncursesw?)[56]-config --version:$PKG_CONFIG --exists --print-errors \1:' \
 		configure || die
+
 	elibtoolize
 }
 
@@ -157,7 +164,7 @@ multilib_src_compile() {
 }
 
 multilib_src_test() {
-	multilib_is_native_abi && emake check
+	multilib_is_native_abi && emake check TS_OPTS="--parallel=$(makeopts_jobs) --nonroot"
 }
 
 multilib_src_install() {
@@ -182,7 +189,7 @@ multilib_src_install_all() {
 	dodoc AUTHORS NEWS README* Documentation/{TODO,*.txt,releases/*}
 
 	# e2fsprogs-libs didnt install .la files, and .pc work fine
-	prune_libtool_files
+	find "${ED}" -name "*.la" -delete || die
 
 	if use pam; then
 		newpamd "${FILESDIR}/runuser.pamd" runuser
