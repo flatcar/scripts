@@ -21,7 +21,7 @@ while [[ $# -gt 0 ]]; do
 		# For this convoluded trick, we take an arbitrary URL, chop it
 		# up, and try to turn it into usable input for the rest of the
 		# script. This is based on urls of the form:
-		# https://storage.core-os.net/coreos/amd64-usr/master/version.txt
+		# https://storage.flatcar-linux.net/coreos/amd64-usr/master/version.txt
 		# where the following sed expression extracts the "master"
 		# portion
 		baseurl="${1%/*}"
@@ -46,7 +46,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -z "${baseurl}" ]]; then
-  baseurl="https://${release}.release.core-os.net/${board}/current"
+  baseurl="https://${release}.release.flatcar-linux.net/${board}/current"
 fi
 
 version_url="${baseurl}/version.txt"
