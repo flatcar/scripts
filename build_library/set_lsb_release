@@ -28,6 +28,7 @@ ROOT_FS_DIR="$FLAGS_root"
 OS_NAME="Flatcar Linux by Kinvolk"
 OS_CODENAME="Rhyolite"
 OS_ID="flatcar"
+OS_ID_LIKE="coreos"
 OS_PRETTY_NAME="$OS_NAME $FLATCAR_VERSION (${OS_CODENAME})"
 
 # temporarily point arm at a different appid until update support
@@ -52,6 +53,7 @@ sudo ln -sf "../usr/share/flatcar/lsb-release" "${ROOT_FS_DIR}/etc/lsb-release"
 sudo_clobber "${ROOT_FS_DIR}/usr/lib/os-release" <<EOF
 NAME="$OS_NAME"
 ID=$OS_ID
+ID_LIKE=$OS_ID_LIKE
 VERSION=$FLATCAR_VERSION
 VERSION_ID=$FLATCAR_VERSION_ID
 BUILD_ID=$FLATCAR_BUILD_ID
