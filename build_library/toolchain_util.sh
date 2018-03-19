@@ -39,7 +39,6 @@ declare -r \
 # Usage: get_portage_arch chost
 get_portage_arch() {
     case "$1" in
-        aarch64*)   echo arm64;;
         alpha*)     echo alpha;;
         arm*)       echo arm;;
         hppa*)      echo hppa;;
