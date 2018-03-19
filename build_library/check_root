@@ -116,7 +116,9 @@ IGNORE_SYMLINK = (
     b"/etc/motd",
 
     # Other
-    b"/etc/lsb-release"  # set later in the build process
+    b"/etc/lsb-release",  # set later in the build process
+    b"/usr/share/coreos", # set later in the build process
+    b"/etc/coreos"        # set later in the build process
 )
 
 
