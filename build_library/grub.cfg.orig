@@ -146,7 +146,11 @@ function gptprio {
     fi
 }
 
+<<<<<<< HEAD
+menuentry "CoreOS default" --id=coreos --unrestricted {
+=======
 menuentry "Flatcar default" --id=flatcar {
+>>>>>>> Change names of env vars, paths, files, etc. to Flatcar
     gptprio
     linux$suf $gptprio_kernel $gptprio_cmdline $linux_cmdline
 }
@@ -155,6 +159,6 @@ menuentry "Flatcar USR-A" --id=flatcar-a {
    linux$suf /flatcar/vmlinuz-a @@MOUNTUSR@@=PARTLABEL=USR-A $linux_cmdline
 }
 
-menuentry "CoreOS USR-B" --id=coreos-b {
-   linux$suf /coreos/vmlinuz-b @@MOUNTUSR@@=PARTLABEL=USR-B $linux_cmdline
+menuentry "Flatcar USR-B" --id=flatcar-b {
+   linux$suf /flatcar/vmlinuz-b @@MOUNTUSR@@=PARTLABEL=USR-B $linux_cmdline
 }
