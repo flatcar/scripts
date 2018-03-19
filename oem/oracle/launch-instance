@@ -84,7 +84,7 @@ if [[ "${ipxe}" = 1 ]]; then
         oempath="${bucket_base}/$(mktemp -u XXXXXXX)"
         gsutil -q cp "${tmpdir}/oem.cpio.gz" "gs://${oempath}"
 
-        ignition_initrd_args="initrd=ignition coreos.config.url=oem:///ign.ign"
+        ignition_initrd_args="initrd=ignition flatcar.config.url=oem:///ign.ign"
         ignition_initrd_cmd="initrd --name ignition http://${oempath}"
     fi
 
@@ -92,8 +92,8 @@ if [[ "${ipxe}" = 1 ]]; then
     cat >"${tmpdir}/ipxe" <<EOF
 #!ipxe
 
-kernel ${baseurl}/coreos_production_pxe.vmlinuz initrd=coreos_production_pxe_image.cpio.gz coreos.first_boot=1 ${ignition_initrd_args} console=ttyS0,9600 ${kargs}
-initrd ${baseurl}/coreos_production_pxe_image.cpio.gz
+kernel ${baseurl}/flatcar_production_pxe.vmlinuz initrd=flatcar_production_pxe_image.cpio.gz flatcar.first_boot=1 ${ignition_initrd_args} console=ttyS0,9600 ${kargs}
+initrd ${baseurl}/flatcar_production_pxe_image.cpio.gz
 ${ignition_initrd_cmd}
 boot
 EOF

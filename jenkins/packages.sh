@@ -15,7 +15,7 @@ enter() {
         bin/cork enter --experimental -- env \
             CCACHE_DIR=/mnt/host/source/.cache/ccache \
             CCACHE_MAXSIZE=5G \
-            COREOS_DEV_BUILDS="${DOWNLOAD_ROOT}" \
+            FLATCAR_DEV_BUILDS="${DOWNLOAD_ROOT}" \
             {FETCH,RESUME}COMMAND_GS="/usr/bin/gangue get \
 --json-key=/etc/portage/gangue.json $verify_key \
 "'"${URI}" "${DISTDIR}/${FILE}"' \
@@ -27,7 +27,7 @@ script() {
 }
 
 source .repo/manifests/version.txt
-export COREOS_BUILD_ID
+export FLATCAR_BUILD_ID
 
 # Set up GPG for signing uploads.
 gpg --import "${GPG_SECRET_KEY_FILE}"
@@ -37,13 +37,13 @@ enter ccache --zero-stats
 
 script setup_board \
     --board="${BOARD}" \
-    --getbinpkgver=${RELEASE_BASE:-"${COREOS_VERSION}" --toolchainpkgonly} \
+    --getbinpkgver=${RELEASE_BASE:-"${FLATCAR_VERSION}" --toolchainpkgonly} \
     --skip_chroot_upgrade \
     --force
 
 script build_packages \
     --board="${BOARD}" \
-    --getbinpkgver=${RELEASE_BASE:-"${COREOS_VERSION}" --toolchainpkgonly} \
+    --getbinpkgver=${RELEASE_BASE:-"${FLATCAR_VERSION}" --toolchainpkgonly} \
     --skip_chroot_upgrade \
     --skip_torcx_store \
     --sign="${SIGNING_USER}" \
