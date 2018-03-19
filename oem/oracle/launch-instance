@@ -14,7 +14,7 @@ shape="VM.Standard1.1"
 ipxe=0
 ignition=
 keyfile="$HOME/.ssh/id_rsa.pub"
-baseurl="http://alpha.release.core-os.net/amd64-usr/current"
+baseurl="http://alpha.release.flatcar-linux.net/amd64-usr/current"
 bucket_base="users.developer.core-os.net/$USER/bmcs"
 kargs=
 
