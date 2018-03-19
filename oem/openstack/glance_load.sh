@@ -47,7 +47,7 @@ if [[ -z "${baseurl}" ]]; then
 fi
 
 version_url="${baseurl}/version.txt"
-image_url="${baseurl}/coreos_production_openstack_image.img.bz2"
+image_url="${baseurl}/flatcar_production_openstack_image.img.bz2"
 
 # use the following location as our local work space
 tmplocation=$(mktemp -d /var/tmp/glanceload.XXX)
@@ -57,25 +57,25 @@ curl --fail -s -L -O ${version_url}
 . version.txt
  
 # if we already have the image don't waste time
-if glance image-show "CoreOS-${release}-v${COREOS_VERSION}"; then
+if glance image-show "Flatcar-${release}-v${Flatcar_VERSION}"; then
   echo "Image already exists."
   rm -rf ${tmplocation}
   exit 
 fi
 
-coreosimg="coreos_${COREOS_VERSION}_openstack_image.img"
+flatcarimg="flatcar_${FLATCAR_VERSION}_openstack_image.img"
 
 # change the following line to reflect the image to be chosen, openstack
 #  is used by default
-curl --fail -s -L ${image_url} |  bunzip2 > ${coreosimg}
+curl --fail -s -L ${image_url} |  bunzip2 > ${flatcarimg}
  
 # perform actual image creation
 #  here we set the os_release, os_verison, os_family, and os_distro variables
 #  for intelligent consumption of images by scripts
-glance --os-image-api-version 1 image-create --name CoreOS-${release}-v${COREOS_VERSION} --progress \
-  --is-public true --property os_distro=coreos --property os_family=coreos \
-  --property os_version=${COREOS_VERSION} \
-  --disk-format qcow2 --container-format bare --min-disk 6 --file $coreosimg
+glance --os-image-api-version 1 image-create --name Flatcar-${release}-v${FLATCAR_VERSION} --progress \
+  --is-public true --property os_distro=flatcar --property os_family=flatcar \
+  --property os_version=${FLATCAR_VERSION} \
+  --disk-format qcow2 --container-format bare --min-disk 6 --file $flatcarimg
 
 # optionally, set --property os_release=${release} in the glance image-create
 # command above and uncomment the two commands below to support searching by

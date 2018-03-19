@@ -166,16 +166,16 @@ fix_mtab
 
 if [[ "${CONTAINER}" -eq 1 ]]; then
   IMAGE_BUILD_TYPE="container"
-  create_dev_container "${COREOS_DEVELOPER_CONTAINER_NAME}" "${CONTAINER_LAYOUT}" "${FLAGS_group}" ${FLAGS_base_dev_pkg}
+  create_dev_container "${FLATCAR_DEVELOPER_CONTAINER_NAME}" "${CONTAINER_LAYOUT}" "${FLAGS_group}" ${FLAGS_base_dev_pkg}
 fi
 
 if [[ "${PROD_IMAGE}" -eq 1 ]]; then
   IMAGE_BUILD_TYPE="prod"
-  create_prod_image ${COREOS_PRODUCTION_IMAGE_NAME} ${DISK_LAYOUT} ${FLAGS_group} ${FLAGS_base_pkg}
+  create_prod_image ${FLATCAR_PRODUCTION_IMAGE_NAME} ${DISK_LAYOUT} ${FLAGS_group} ${FLAGS_base_pkg}
   if [[ ${FLAGS_generate_update} -eq ${FLAGS_TRUE} ]]; then
-    generate_update "${COREOS_PRODUCTION_IMAGE_NAME}" ${DISK_LAYOUT}
+    generate_update "${FLATCAR_PRODUCTION_IMAGE_NAME}" ${DISK_LAYOUT}
   elif [[ ${FLAGS_extract_update} -eq ${FLAGS_TRUE} ]]; then
-    extract_update "${COREOS_PRODUCTION_IMAGE_NAME}" "${DISK_LAYOUT}"
+    extract_update "${FLATCAR_PRODUCTION_IMAGE_NAME}" "${DISK_LAYOUT}"
   fi
 fi
 
@@ -186,15 +186,15 @@ then
 fi
 
 # Write out a version.txt file, this will be used by image_to_vm.sh
-split_ver "${COREOS_VERSION_ID}" SPLIT
+split_ver "${FLATCAR_VERSION_ID}" SPLIT
 tee "${BUILD_DIR}/version.txt" <<EOF
-COREOS_BUILD=${SPLIT[0]}
-COREOS_BRANCH=${SPLIT[1]}
-COREOS_PATCH=${SPLIT[2]}
-COREOS_VERSION=${COREOS_VERSION}
-COREOS_VERSION_ID=${COREOS_VERSION_ID}
-COREOS_BUILD_ID="${COREOS_BUILD_ID}"
-COREOS_SDK_VERSION=${COREOS_SDK_VERSION}
+FLATCAR_BUILD=${SPLIT[0]}
+FLATCAR_BRANCH=${SPLIT[1]}
+FLATCAR_PATCH=${SPLIT[2]}
+FLATCAR_VERSION=${FLATCAR_VERSION}
+FLATCAR_VERSION_ID=${FLATCAR_VERSION_ID}
+FLATCAR_BUILD_ID="${FLATCAR_BUILD_ID}"
+FLATCAR_SDK_VERSION=${FLATCAR_SDK_VERSION}
 EOF
 
 upload_image "${BUILD_DIR}/version.txt"
@@ -220,7 +220,7 @@ EOF
 
 # Print out the images we generated.
 if [[ "${PROD_IMAGE}" -eq 1 ]]; then
-  echo "CoreOS Production image created as ${COREOS_PRODUCTION_IMAGE_NAME}"
+  echo "Flatcar Production image created as ${FLATCAR_PRODUCTION_IMAGE_NAME}"
   print_image_to_vm
 fi
 
