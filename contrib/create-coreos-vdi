@@ -52,15 +52,15 @@ WORKDIR="${DEST}/tmp.${RANDOM}"
 mkdir "$WORKDIR"
 trap "rm -rf '${WORKDIR}'" EXIT
 
-RAW_IMAGE_NAME="coreos_production_image.bin"
+RAW_IMAGE_NAME="flatcar_production_image.bin"
 IMAGE_NAME="${RAW_IMAGE_NAME}.bz2"
 DIGESTS_NAME="${IMAGE_NAME}.DIGESTS.asc"
 
 case ${VERSION_ID}  in
-    stable) BASE_URL="https://stable.release.core-os.net/amd64-usr/current" ;;
-    alpha) BASE_URL="https://alpha.release.core-os.net/amd64-usr/current" ;;
-    beta) BASE_URL="https://beta.release.core-os.net/amd64-usr/current" ;;
-    *) BASE_URL="https://alpha.release.core-os.net/amd64-usr/${VERSION_ID}" ;;
+    stable) BASE_URL="https://stable.release.flatcar-linux.net/amd64-usr/current" ;;
+    alpha) BASE_URL="https://alpha.release.flatcar-linux.net/amd64-usr/current" ;;
+    beta) BASE_URL="https://beta.release.flatcar-linux.net/amd64-usr/current" ;;
+    *) BASE_URL="https://alpha.release.flatcar-linux.net/amd64-usr/${VERSION_ID}" ;;
 esac
 
 IMAGE_URL="${BASE_URL}/${IMAGE_NAME}"
