@@ -12,7 +12,7 @@
 # Use canonical path since some tools (e.g. mount) do not like symlinks.
 # Append build attempt to output directory.
 if [ -z "${FLAGS_version}" ]; then
-  IMAGE_SUBDIR="${FLAGS_group}-${COREOS_VERSION}-a${FLAGS_build_attempt}"
+  IMAGE_SUBDIR="${FLAGS_group}-${FLATCAR_VERSION}-a${FLAGS_build_attempt}"
 else
   IMAGE_SUBDIR="${FLAGS_group}-${FLAGS_version}"
 fi
@@ -66,7 +66,7 @@ extract_update() {
 
 zip_update_tools() {
   # There isn't a 'dev' variant of this zip, so always call it production.
-  local update_zip="coreos_production_update.zip"
+  local update_zip="flatcar_production_update.zip"
 
   info "Generating update tools zip"
   # Make sure some vars this script needs are exported
@@ -465,9 +465,9 @@ finish_image() {
   esac
 
   # Copy kernel to support dm-verity boots
-  sudo mkdir -p "${root_fs_dir}/boot/coreos"
+  sudo mkdir -p "${root_fs_dir}/boot/flatcar"
   sudo cp "${root_fs_dir}/usr/boot/vmlinuz" \
-       "${root_fs_dir}/boot/coreos/vmlinuz-a"
+       "${root_fs_dir}/boot/flatcar/vmlinuz-a"
 
   # Record directories installed to the state partition.
   # Explicitly ignore entries covered by existing configs.
@@ -488,14 +488,14 @@ finish_image() {
 
     # Create first-boot flag for grub and Ignition
     info "Writing first-boot flag"
-    sudo_clobber "${root_fs_dir}/boot/coreos/first_boot" <<EOF
+    sudo_clobber "${root_fs_dir}/boot/flatcar/first_boot" <<EOF
 If this file exists, Ignition will run and then delete the file.
 EOF
   fi
 
   if [[ -n "${FLAGS_developer_data}" ]]; then
-    local data_path="/usr/share/coreos/developer_data"
-    local unit_path="usr-share-coreos-developer_data"
+    local data_path="/usr/share/flatcar/developer_data"
+    local unit_path="usr-share-flatcar-developer_data"
     sudo cp "${FLAGS_developer_data}" "${root_fs_dir}/${data_path}"
     systemd_enable "${root_fs_dir}" system-config.target \
         "system-cloudinit@.service" "system-cloudinit@${unit_path}.service"
@@ -535,7 +535,7 @@ EOF
     # For arm64 an area between the EFI headers and the kernel text is used.
     # Our modified GRUB extracts the hash and adds it to the cmdline.
     printf %s "$(cat ${BUILD_DIR}/${image_name%.bin}_verity.txt)" | \
-        sudo dd of="${root_fs_dir}/boot/coreos/vmlinuz-a" conv=notrunc \
+        sudo dd of="${root_fs_dir}/boot/flatcar/vmlinuz-a" conv=notrunc \
         seek=${verity_offset} count=64 bs=1 status=none
   fi
 
@@ -543,22 +543,22 @@ EOF
   if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
       sudo sbsign --key /usr/share/sb_keys/DB.key \
 	   --cert /usr/share/sb_keys/DB.crt \
-	   "${root_fs_dir}/boot/coreos/vmlinuz-a"
-      sudo mv "${root_fs_dir}/boot/coreos/vmlinuz-a.signed" \
-	   "${root_fs_dir}/boot/coreos/vmlinuz-a"
+	   "${root_fs_dir}/boot/flatcar/vmlinuz-a"
+      sudo mv "${root_fs_dir}/boot/flatcar/vmlinuz-a.signed" \
+	   "${root_fs_dir}/boot/flatcar/vmlinuz-a"
   fi
 
   if [[ -n "${image_kernel}" ]]; then
     # copying kernel from vfat so ignore the permissions
     cp --no-preserve=mode \
-        "${root_fs_dir}/boot/coreos/vmlinuz-a" \
+        "${root_fs_dir}/boot/flatcar/vmlinuz-a" \
         "${BUILD_DIR}/${image_kernel}"
   fi
 
   if [[ -n "${pcr_policy}" ]]; then
     mkdir -p "${BUILD_DIR}/pcrs"
     ${BUILD_LIBRARY_DIR}/generate_kernel_hash.sh \
-        "${root_fs_dir}/boot/coreos/vmlinuz-a" ${COREOS_VERSION} \
+        "${root_fs_dir}/boot/flatcar/vmlinuz-a" ${FLATCAR_VERSION} \
         >"${BUILD_DIR}/pcrs/kernel.config"
   fi
 
@@ -605,7 +605,7 @@ EOF
 
   if [[ -n "${pcr_policy}" ]]; then
     ${BUILD_LIBRARY_DIR}/generate_grub_hashes.py \
-        "${disk_img}" /usr/lib/grub/ "${BUILD_DIR}/pcrs" ${COREOS_VERSION}
+        "${disk_img}" /usr/lib/grub/ "${BUILD_DIR}/pcrs" ${FLATCAR_VERSION}
 
     info "Generating $pcr_policy"
     pushd "${BUILD_DIR}" >/dev/null
