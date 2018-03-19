@@ -5,7 +5,7 @@ enter() {
 }
 
 source .repo/manifests/version.txt
-export COREOS_BUILD_ID
+export FLATCAR_BUILD_ID
 
 # Set up GPG for signing uploads.
 gpg --import "${GPG_SECRET_KEY_FILE}"
