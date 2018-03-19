@@ -22,12 +22,12 @@ download() {
     pushd "${dir}" >/dev/null
 
     gsutil -m cp \
-        "${gs}/coreos_production_image.vmlinuz" \
-        "${gs}/coreos_production_image.vmlinuz.sig" \
-        "${gs}/coreos_production_update.bin.bz2" \
-        "${gs}/coreos_production_update.bin.bz2.sig" \
-        "${gs}/coreos_production_update.zip" \
-        "${gs}/coreos_production_update.zip.sig" ./
+        "${gs}/flatcar_production_image.vmlinuz" \
+        "${gs}/flatcar_production_image.vmlinuz.sig" \
+        "${gs}/flatcar_production_update.bin.bz2" \
+        "${gs}/flatcar_production_update.bin.bz2.sig" \
+        "${gs}/flatcar_production_update.zip" \
+        "${gs}/flatcar_production_update.zip.sig" ./
 
     # torcx manifest: try embargoed release bucket first
     local torcx_base="gs://builds.release.core-os.net/embargoed/devfiles/torcx/manifests/${board}/${version}"
@@ -40,9 +40,9 @@ download() {
         "${torcx_base}/torcx_manifest.json.sig" \
         ./
 
-    gpg2 --verify "coreos_production_image.vmlinuz.sig"
-    gpg2 --verify "coreos_production_update.bin.bz2.sig"
-    gpg2 --verify "coreos_production_update.zip.sig"
+    gpg2 --verify "flatcar_production_image.vmlinuz.sig"
+    gpg2 --verify "flatcar_production_update.bin.bz2.sig"
+    gpg2 --verify "flatcar_production_update.zip.sig"
     gpg2 --verify "torcx_manifest.json.sig"
 
     popd >/dev/null
@@ -54,7 +54,7 @@ upload() {
     local board="$3"
 
     local dir="${BASEDIR}/${board}/${version}"
-    local payload="${dir}/coreos_production_update.gz"
+    local payload="${dir}/flatcar_production_update.gz"
     local torcx_manifest="${dir}/torcx_manifest.json"
     local torcx_manifest_sig="${dir}/torcx_manifest.json.asc"
     local path
