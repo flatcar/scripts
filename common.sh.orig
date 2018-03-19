@@ -389,8 +389,14 @@ fi
 BUILD_DIR=
 
 # Standard filenames
+<<<<<<< HEAD
+COREOS_DEVELOPER_CONTAINER_NAME="coreos_developer_container.bin"
+COREOS_PRODUCTION_IMAGE_NAME="coreos_production_image.bin"
+=======
+FLATCAR_DEVELOPER_IMAGE_NAME="flatcar_developer_image.bin"
 FLATCAR_DEVELOPER_CONTAINER_NAME="flatcar_developer_container.bin"
 FLATCAR_PRODUCTION_IMAGE_NAME="flatcar_production_image.bin"
+>>>>>>> Change names of env vars, paths, files, etc. to Flatcar
 
 # -----------------------------------------------------------------------------
 # Functions

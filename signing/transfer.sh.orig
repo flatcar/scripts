@@ -50,8 +50,13 @@ upload() {
     local channel="$1"
     local version="$2"
 
+<<<<<<< HEAD:signing/transfer.sh
     local dir="${BASEDIR}/${BOARD}/${version}"
+    local payload="${dir}/coreos_production_update.gz"
+=======
+    local dir="${BASEDIR}/${board}/${version}"
     local payload="${dir}/flatcar_production_update.gz"
+>>>>>>> Change names of env vars, paths, files, etc. to Flatcar:offline_signing/transfer.sh
     local torcx_manifest="${dir}/torcx_manifest.json"
     local torcx_manifest_sig="${dir}/torcx_manifest.json.asc"
     local path
@@ -129,7 +134,7 @@ roll() {
     # automatically activates the new one.
     echo "Creating linear rollout that will get to 100% in ${hours}h"
     updateservicectl \
-        --server="https://public.update.flatcar-linux.net" \
+        --server="https://public.update.core-os.net" \
         --user="${ROLLER_USERNAME}" \
         --key="${ROLLER_API_KEY}" \
         rollout create linear \

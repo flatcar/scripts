@@ -81,7 +81,18 @@ create_dev_container() {
   write_licenses "${root_fs_dir}" "${BUILD_DIR}/${image_licenses}"
 
   # Setup portage for emerge and gmerge
+<<<<<<< HEAD:build_library/dev_container_util.sh
   configure_dev_portage "${root_fs_dir}"
+=======
+  configure_dev_portage "${root_fs_dir}" "${devserver}"
+
+  sudo_append "${root_fs_dir}/etc/flatcar/update.conf" <<EOF
+SERVER=${auserver}
+
+# For gmerge
+DEVSERVER=${devserver}
+EOF
+>>>>>>> Change names of env vars, paths, files, etc. to Flatcar:build_library/dev_image_util.sh
 
   # Mark the image as a developer image (input to chromeos_startup).
   # TODO(arkaitzr): Remove this file when applications no longer rely on it
