@@ -112,7 +112,7 @@ init_users () {
   touch "${FLAGS_chroot}/etc/"{group,gshadow,passwd,shadow}
   chmod 640 "${FLAGS_chroot}/etc/"{gshadow,shadow}
 
-  # do nothing with the CoreOS system user
+  # do nothing with the Flatcar system user
   if [[ "${SUDO_USER}" == core ]]; then
     return
   fi
@@ -166,7 +166,7 @@ EOF
 
    # Add chromite/bin into the path globally
    # We rely on 'env-update' getting called below.
-   target="${FLAGS_chroot}/etc/env.d/99coreos"
+   target="${FLAGS_chroot}/etc/env.d/99flatcar"
    cat <<EOF > "${target}"
 PATH=${CHROOT_TRUNK_DIR}/chromite/bin
 ROOTPATH=${CHROOT_TRUNK_DIR}/chromite/bin
