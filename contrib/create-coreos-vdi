@@ -11,9 +11,9 @@ Options:
 This tool creates a Flatcar VDI image to be used with VirtualBox.
 "
 
-# Image signing key: buildbot@coreos.com
-GPG_KEY_URL="https://coreos.com/security/image-signing-key/CoreOS_Image_Signing_Key.pem"
-GPG_LONG_ID="50E0885593D2DCB4"
+# Image signing key: buildbot@flatcar-linux.org
+GPG_KEY_URL="https://flatcar-linux.org/security/image-signing-key/Flatcar_Image_Signing_Key.pem"
+GPG_LONG_ID="E25D9AED0593B34A"
 GPG_KEY="$(wget -qO- $GPG_KEY_URL)"
 
 while getopts "V:d:a:h" OPTION
