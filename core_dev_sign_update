@@ -23,7 +23,7 @@ mkdir -p "$output_dir"
 
 cleanup() {
 	# core_sign_update expects to unpack this too, so we'll clean it up.
-	rm -f "${data_dir}/coreos_production_update.bin"
+	rm -f "${data_dir}/flatcar_production_update.bin"
 
 	rm -f "${data_dir}/update"
 	rm -f "${data_dir}/update.hash"
@@ -41,16 +41,16 @@ done
 signature_sizes="${signature_sizes:1:${#signature_sizes}}"
 
 echo "===     Verifying update payload...     ==="
-gpg2 --verify "${data_dir}/coreos_production_update.bin.bz2.sig"
-gpg2 --verify "${data_dir}/coreos_production_image.vmlinuz.sig"
-gpg2 --verify "${data_dir}/coreos_production_update.zip.sig"
+gpg2 --verify "${data_dir}/flatcar_production_update.bin.bz2.sig"
+gpg2 --verify "${data_dir}/flatcar_production_image.vmlinuz.sig"
+gpg2 --verify "${data_dir}/flatcar_production_update.zip.sig"
 echo "===   Decompressing update payload...   ==="
-bunzip2 --keep "${data_dir}/coreos_production_update.bin.bz2"
+bunzip2 --keep "${data_dir}/flatcar_production_update.bin.bz2"
 
 echo "=== Creating signable update payload... ==="
 delta_generator \
-	-new_image "${data_dir}/coreos_production_update.bin" \
-	-new_kernel "${data_dir}/coreos_production_image.vmlinuz" \
+	-new_image "${data_dir}/flatcar_production_update.bin" \
+	-new_kernel "${data_dir}/flatcar_production_image.vmlinuz" \
 	-out_file "${data_dir}/update"
 delta_generator \
 	--signature_size ${signature_sizes} \

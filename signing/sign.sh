@@ -14,12 +14,12 @@ SERVER_ADDR="${3:-10.7.68.102}"
 SERVER_PORT="${4:-50051}"
 
 echo "===     Verifying update payload...     ==="
-gpg2 --verify "${DATA_DIR}/coreos_production_update.bin.bz2.sig"
-gpg2 --verify "${DATA_DIR}/coreos_production_image.vmlinuz.sig"
-gpg2 --verify "${DATA_DIR}/coreos_production_update.zip.sig"
+gpg2 --verify "${DATA_DIR}/flatcar_production_update.bin.bz2.sig"
+gpg2 --verify "${DATA_DIR}/flatcar_production_image.vmlinuz.sig"
+gpg2 --verify "${DATA_DIR}/flatcar_production_update.zip.sig"
 echo "===   Decompressing update payload...   ==="
-bunzip2 --keep "${DATA_DIR}/coreos_production_update.bin.bz2"
-unzip "${DATA_DIR}/coreos_production_update.zip" -d "${DATA_DIR}"
+bunzip2 --keep "${DATA_DIR}/flatcar_production_update.bin.bz2"
+unzip "${DATA_DIR}/flatcar_production_update.zip" -d "${DATA_DIR}"
 
 payload_signature_files=""
 for i in ${SIGS_DIR}/update.sig.*; do
@@ -29,9 +29,9 @@ payload_signature_files="${payload_signature_files:1:${#payload_signature_files}
 
 pushd "${DATA_DIR}"
 ./core_sign_update \
-	--image "${DATA_DIR}/coreos_production_update.bin" \
-	--kernel "${DATA_DIR}/coreos_production_image.vmlinuz" \
-	--output "${DATA_DIR}/coreos_production_update.gz" \
+	--image "${DATA_DIR}/flatcar_production_update.bin" \
+	--kernel "${DATA_DIR}/flatcar_production_image.vmlinuz" \
+	--output "${DATA_DIR}/flatcar_production_update.gz" \
 	--private_keys "${KEYS_DIR}/devel.key.pem+fero:coreos-image-signing-key" \
 	--public_keys  "${KEYS_DIR}/devel.pub.pem+${KEYS_DIR}/prod-2.pub.pem" \
 	--keys_separator "+" \

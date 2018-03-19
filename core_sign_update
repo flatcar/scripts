@@ -4,7 +4,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# usage: ./core_generate_update_payload  --image coreos_production_update.bin \
+# usage: ./core_generate_update_payload  --image flatcar_production_update.bin \
 # 		--output update.gz \
 #		--private_keys update.key.pem:update2.key.pem
 #		--public_keys update.pub.pem:update2.pub.pem
