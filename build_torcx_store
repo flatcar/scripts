@@ -265,7 +265,7 @@ done
 # order to get signed.
 sign_and_upload_files \
     'torcx manifest' \
-    "${UPLOAD_ROOT}/torcx/manifests/${BOARD}/${COREOS_VERSION}" \
+    "${UPLOAD_ROOT}/torcx/manifests/${BOARD}/${FLATCAR_VERSION}" \
     "" \
     "${manifest_path}"
 
