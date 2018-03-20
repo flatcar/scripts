@@ -13,8 +13,8 @@ SRC_URI="mirror://gnupg/gnupg/${MY_P}.tar.bz2"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh ~sparc x86 ~ppc-aix ~x64-cygwin ~amd64-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="bzip2 doc +gnutls ldap nls readline selinux +smartcard tofu tools usb wks-server"
+KEYWORDS="alpha amd64 ~arm arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh ~sparc x86 ~ppc-aix ~x64-cygwin ~amd64-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+IUSE="bzip2 doc ldap nls readline selinux +smartcard ssl tofu tools usb wks-server"
 
 COMMON_DEPEND_LIBS="
 	>=dev-libs/npth-1.2
@@ -23,7 +23,7 @@ COMMON_DEPEND_LIBS="
 	>=dev-libs/libgpg-error-1.24
 	>=dev-libs/libksba-1.3.4
 	>=net-misc/curl-7.10
-	gnutls? ( >=net-libs/gnutls-3.0:0= )
+	ssl? ( >=net-libs/gnutls-3.0:0= )
 	sys-libs/zlib
 	ldap? ( net-nds/openldap )
 	bzip2? ( app-arch/bzip2 )
@@ -54,6 +54,7 @@ DOCS=(
 
 PATCHES=(
 	"${FILESDIR}/${PN}-2.1.20-gpgscm-Use-shorter-socket-path-lengts-to-improve-tes.patch"
+	"${FILESDIR}/${P}-dirmngr-Handle-failures-related-to-missing-IPv6.patch"
 )
 
 src_configure() {
@@ -81,7 +82,7 @@ src_configure() {
 	econf \
 		"${myconf[@]}" \
 		$(use_enable bzip2) \
-		$(use_enable gnutls) \
+		$(use_enable ssl gnutls) \
 		$(use_enable nls) \
 		$(use_enable tofu) \
 		$(use_enable wks-server wks-tools) \
