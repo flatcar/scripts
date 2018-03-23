@@ -1,5 +1,9 @@
 #!/bin/bash -ex
 
+ORIGIN_SERVER="origin.release.flatcar-linux.net"
+REMOTE_UPLOAD_DIR="/var/www/origin.release.flatcar-linux.net/test"
+UPLOAD_ROOT="${ORIGIN_SERVER}:${REMOTE_UPLOAD_DIR}"
+
 # Clear out old images.
 sudo rm -rf chroot/build src/build torcx
 
@@ -73,4 +77,5 @@ script build_image \
     --torcx_manifest=/mnt/host/source/torcx/torcx_manifest.json \
     --torcx_root=/mnt/host/source/torcx/ \
     --upload_root="${UPLOAD_ROOT}" \
+    --upload_type="sftp" \
     --upload prod container

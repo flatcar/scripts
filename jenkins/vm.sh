@@ -1,5 +1,9 @@
 #!/bin/bash -ex
 
+ORIGIN_SERVER="origin.release.flatcar-linux.net"
+REMOTE_UPLOAD_DIR="/var/www/origin.release.flatcar-linux.net/test"
+UPLOAD_ROOT="${ORIGIN_SERVER}:${REMOTE_UPLOAD_DIR}"
+
 # Clear out old images.
 sudo rm -rf chroot/build tmp
 
@@ -53,4 +57,5 @@ script image_to_vm.sh \
     --sign_digests="${SIGNING_USER}" \
     --download_root="${DOWNLOAD_ROOT}" \
     --upload_root="${UPLOAD_ROOT}" \
+    --upload_type="sftp" \
     --upload

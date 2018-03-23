@@ -48,7 +48,7 @@ eval set -- "${FLAGS_ARGV}"
 switch_to_strict_mode
 
 # Initialize upload options
-check_gsutil_opts
+check_upload_opts
 
 # Define BUILD_DIR and set_build_symlinks.
 . "${BUILD_LIBRARY_DIR}/toolchain_util.sh" || exit 1
