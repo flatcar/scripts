@@ -57,7 +57,7 @@ eval set -- "${FLAGS_ARGV}"
 # Die on any errors.
 switch_to_strict_mode
 
-check_gsutil_opts
+check_upload_opts
 
 if [[ -z "${FLAGS_format}" ]]; then
     FLAGS_format="$(get_default_vm_type ${FLAGS_board})"

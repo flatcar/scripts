@@ -84,7 +84,7 @@ if [[ "${FLAGS_usepkgonly}" -eq "${FLAGS_TRUE}" ]]; then
   FLAGS_workon="${FLAGS_FALSE}"
 fi
 
-check_gsutil_opts
+check_upload_opts
 
 CHROMITE_BIN="${GCLIENT_ROOT}/chromite/bin"
 

@@ -31,7 +31,7 @@ if [[ -z "${FLAGS_board}" ]]; then
   exit 1
 fi
 
-check_gsutil_opts
+check_upload_opts
 
 # set BOARD and BOARD_ROOT
 . "${BUILD_LIBRARY_DIR}/toolchain_util.sh" || exit 1
