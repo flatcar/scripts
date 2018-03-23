@@ -26,6 +26,8 @@ DEFINE_string upload_root "${COREOS_UPLOAD_ROOT}" \
   "Upload prefix, board/version/etc will be appended. Must be a gs:// URL."
 DEFINE_string upload_path "" \
   "Full upload path, overrides --upload_root. Must be a full gs:// URL."
+DEFINE_string upload_type "" \
+  "Type of destination upload server, gs (Google Storage) or sftp (Fileserver with sftp access)."
 DEFINE_string download_root "" \
   "HTTP download prefix, board/version/etc will be appended."
 DEFINE_string download_path "" \
@@ -41,9 +43,23 @@ DEFINE_string sign "" \
 DEFINE_string sign_digests "" \
   "Sign image DIGESTS files with the given GPG key."
 
-check_gsutil_opts() {
+check_upload_opts() {
     [[ ${FLAGS_upload} -eq ${FLAGS_TRUE} ]] || return 0
 
+    if [[ -n "${FLAGS_upload_type}" == "sftp" ]]; then
+        check_sftp_opts
+    else
+        check_gsutil_opts
+    fi
+}
+
+check_sftp_opts() {
+    UPLOAD_ROOT="${FLAGS_upload_root%%/}"
+    TORCX_UPLOAD_ROOT="${FLAGS_torcx_upload_root%%/}"
+    UPLOAD_PATH="${FLAGS_upload_path%%/}"
+}
+
+check_gsutil_opts() {
     if [[ ${FLAGS_parallel} -eq ${FLAGS_TRUE} ]]; then
         GSUTIL_OPTS="-m"
     fi
@@ -102,11 +118,33 @@ upload_files() {
         die "upload suffix '${extra_upload_suffix}' doesn't end in /"
     fi
 
+    if [[ "${FLAGS_upload_type}" == "sftp" ]]; then
+        upload_files_sftp "$msg" "$local_upload_path" "$extra_upload_suffix"
+    else
+        upload_files_gs "$msg" "$local_upload_path" "$extra_upload_suffix"
+    fi
+}
+
+upload_files_gs() {
+    local msg="$1"
+    local local_upload_path="$2"
+    local extra_upload_suffix="$3"
+    shift 3
+
     info "Uploading ${msg} to ${local_upload_path}"
     gsutil ${GSUTIL_OPTS} cp -R "$@" \
         "${local_upload_path}/${extra_upload_suffix}"
 }
 
+upload_files_sftp() {
+    local msg="$1"
+    local local_upload_path="$2"
+    local extra_upload_suffix="$3"
+    shift 3
+
+    info "Uploading ${msg} to ${local_upload_path}"
+    scp -r "$@" "${local_upload_path}/${extra_upload_suffix}"
+}
 
 # Identical to upload_files but GPG signs every file if enabled.
 # Usage: sign_and_upload_files "file type" "${UPLOAD_ROOT}/default/path" "" files...

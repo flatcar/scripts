@@ -88,7 +88,7 @@ eval set -- "${FLAGS_ARGV:-prod}"
 # so will die prematurely if 'switch_to_strict_mode' is specified before now.
 switch_to_strict_mode
 
-check_gsutil_opts
+check_upload_opts
 
 # Patch around default values not being able to depend on other flags.
 if [ "x${FLAGS_torcx_manifest}" = "x${DEFAULT_BUILD_ROOT}/torcx/${DEFAULT_BOARD}/latest/torcx_manifest.json" ]; then

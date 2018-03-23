@@ -30,7 +30,7 @@ catalyst_stage_default
 }
 
 catalyst_init "$@"
-check_gsutil_opts
+check_upload_opts
 
 # toolchain_util.sh is required by catalyst_toolchains.sh
 mkdir -p "${ROOT_OVERLAY}/tmp"
