@@ -1,5 +1,8 @@
 #!/bin/bash -ex
 
+UPLOAD_ROOT="${UPLOAD_ROOT:-}"
+UPLOAD_TYPE="${UPLOAD_TYPE:-sftp}"
+
 enter() {
         bin/cork enter --experimental -- "$@"
 }
@@ -19,6 +22,7 @@ enter sudo ${S}/build_toolchains \
     --sign="${SIGNING_USER}" \
     --sign_digests="${SIGNING_USER}" \
     --upload_root="${UPLOAD_ROOT}" \
+    --upload_type="${UPLOAD_TYPE}" \
     --upload
 
 # Free some disk space only on success to allow debugging failures.

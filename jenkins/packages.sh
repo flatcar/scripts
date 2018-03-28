@@ -1,5 +1,8 @@
 #!/bin/bash -ex
 
+UPLOAD_ROOT="${UPLOAD_ROOT:-}"
+UPLOAD_TYPE="${UPLOAD_TYPE:-sftp}"
+
 # Use a ccache dir that persists across SDK recreations.
 # XXX: alternatively use a ccache dir that is usable by all jobs on a given node.
 mkdir -p .cache/ccache
@@ -49,6 +52,7 @@ script build_packages \
     --sign="${SIGNING_USER}" \
     --sign_digests="${SIGNING_USER}" \
     --upload_root="${UPLOAD_ROOT}" \
+    --upload_type="${UPLOAD_TYPE}" \
     --upload
 
 script build_torcx_store \
@@ -56,6 +60,7 @@ script build_torcx_store \
     --sign="${SIGNING_USER}" \
     --sign_digests="${SIGNING_USER}" \
     --upload_root="${UPLOAD_ROOT}" \
+    --upload_type="${UPLOAD_TYPE}" \
     --torcx_upload_root="${TORCX_PKG_DOWNLOAD_ROOT}" \
     --tectonic_torcx_download_root="${TECTONIC_TORCX_DOWNLOAD_ROOT}" \
     --upload

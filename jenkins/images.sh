@@ -1,5 +1,8 @@
 #!/bin/bash -ex
 
+UPLOAD_ROOT="${UPLOAD_ROOT:-}"
+UPLOAD_TYPE="${UPLOAD_TYPE:-sftp}"
+
 # Clear out old images.
 sudo rm -rf chroot/build src/build torcx
 
@@ -73,4 +76,5 @@ script build_image \
     --torcx_manifest=/mnt/host/source/torcx/torcx_manifest.json \
     --torcx_root=/mnt/host/source/torcx/ \
     --upload_root="${UPLOAD_ROOT}" \
+    --upload_type="${UPLOAD_TYPE}" \
     --upload prod container

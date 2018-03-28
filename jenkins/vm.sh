@@ -1,5 +1,8 @@
 #!/bin/bash -ex
 
+UPLOAD_ROOT="${UPLOAD_ROOT:-}"
+UPLOAD_TYPE="${UPLOAD_TYPE:-sftp}"
+
 # Clear out old images.
 sudo rm -rf chroot/build tmp
 
@@ -53,4 +56,5 @@ script image_to_vm.sh \
     --sign_digests="${SIGNING_USER}" \
     --download_root="${DOWNLOAD_ROOT}" \
     --upload_root="${UPLOAD_ROOT}" \
+    --upload_type="${UPLOAD_TYPE}" \
     --upload
