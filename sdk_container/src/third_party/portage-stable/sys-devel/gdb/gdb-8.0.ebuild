@@ -1,8 +1,8 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="5"
-PYTHON_COMPAT=( python{2_7,3_4,3_5} )
+EAPI="6"
+PYTHON_COMPAT=( python{2_7,3_4,3_5,3_6} )
 
 inherit flag-o-matic eutils python-single-r1
 
@@ -56,7 +56,8 @@ SRC_URI="${SRC_URI} ${PATCH_VER:+mirror://gentoo/${P}-patches-${PATCH_VER}.tar.x
 LICENSE="GPL-2 LGPL-2"
 SLOT="0"
 if [[ ${PV} != 9999* ]] ; then
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	# alpha #562128
+	KEYWORDS="-alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sparc ~x86 ~ppc-aix ~x64-cygwin ~amd64-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 fi
 IUSE="+client lzma multitarget nls +python +server test vanilla xml"
 REQUIRED_USE="
@@ -91,7 +92,9 @@ pkg_setup() {
 src_prepare() {
 	[[ -n ${RPM} ]] && rpm_spec_epatch "${WORKDIR}"/gdb.spec
 	! use vanilla && [[ -n ${PATCH_VER} ]] && EPATCH_SUFFIX="patch" epatch "${WORKDIR}"/patch
-	epatch_user
+
+	default
+
 	strip-linguas -u bfd/po opcodes/po
 }
 
@@ -161,6 +164,11 @@ src_configure() {
 			$(use_with python python "${EPYTHON}")
 		)
 	fi
+	if use sparc-solaris || use x86-solaris ; then
+		# disable largefile support
+		# https://sourceware.org/ml/gdb-patches/2014-12/msg00058.html
+		myconf+=( --disable-largefile )
+	fi
 
 	econf "${myconf[@]}"
 }
@@ -218,11 +226,6 @@ src_install() {
 
 	# Remove shared info pages
 	rm -f "${ED}"/usr/share/info/{annotate,bfd,configure,standards}.info*
-
-	# gcore is part of ubin on freebsd
-	if [[ ${CHOST} == *-freebsd* ]]; then
-		rm "${ED}"/usr/bin/gcore || die
-	fi
 }
 
 pkg_postinst() {
