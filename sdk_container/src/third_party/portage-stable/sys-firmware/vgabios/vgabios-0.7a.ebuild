@@ -1,6 +1,5 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-firmware/vgabios/vgabios-0.7a.ebuild,v 1.4 2014/04/30 21:06:47 vapier Exp $
 
 EAPI=4
 
@@ -12,8 +11,8 @@ inherit eutils
 
 DESCRIPTION="VGA BIOS implementation"
 HOMEPAGE="http://www.nongnu.org/vgabios/"
-SRC_URI="http://savannah.gnu.org/download/${PN}/${P}.tgz
-	http://dev.gentoo.org/~cardoe/distfiles/${P}-fixes-${FIXES}.tar.bz2"
+SRC_URI="https://savannah.gnu.org/download/${PN}/${P}.tgz
+	https://dev.gentoo.org/~cardoe/distfiles/${P}-fixes-${FIXES}.tar.bz2"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
