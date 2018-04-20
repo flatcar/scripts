@@ -20,7 +20,7 @@ LICENSE="MIT"
 # The subslot reflects the SONAME.
 SLOT="0/6"
 KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="ada +cxx debug doc gpm minimal profile static-libs test threads tinfo trace unicode"
+IUSE="ada +cxx debug doc gpm minimal profile static-libs symlink-usr test threads tinfo trace unicode"
 RESTRICT="!test? ( test )"
 
 DEPEND="gpm? ( sys-libs/gpm[${MULTILIB_USEDEP}] )"
@@ -33,6 +33,12 @@ RDEPEND="${DEPEND}
 	!<x11-terms/st-0.6-r1"
 
 S="${WORKDIR}/${MY_P}"
+
+MINIMAL_TERMINFO=(
+	ansi console dumb linux rxvt rxvt-256color rxvt-unicode rxvt-unicode-256color
+	screen screen-16color screen-256color sun vt{52,100,102,200,220}
+	xterm xterm-color xterm-256color xterm-xfree86
+)
 
 PATCHES=(
 	"${FILESDIR}/${PN}-5.7-nongnu.patch"
@@ -105,6 +111,8 @@ multilib_src_configure() {
 }
 
 do_configure() {
+	addwrite /dev/ptmx
+
 	local target=$1
 	shift
 
@@ -270,24 +278,11 @@ multilib_src_install() {
 }
 
 multilib_src_install_all() {
-#	if ! use berkdb ; then
+	if ! use symlink-usr ; then
 		# We need the basic terminfo files in /etc for embedded/recovery. #37026
 		einfo "Installing basic terminfo files in /etc..."
-		local terms=(
-			# Dumb/simple values that show up when using the in-kernel VT.
-			ansi console dumb linux
-			vt{52,100,102,200,220}
-			# [u]rxvt users used to be pretty common.  Probably should drop this
-			# since upstream is dead and people are moving away from it.
-			rxvt{,-unicode}{,-256color}
-			# xterm users are common, as is terminals re-using/spoofing it.
-			xterm xterm-{,256}color
-			# screen is common (and reused by tmux).
-			screen{,-256color}
-			screen.xterm-256color
-		)
 		local x
-		for x in "${terms[@]}"; do
+		for x in "${MINIMAL_TERMINFO[@]}"; do
 			local termfile=$(find "${ED}"/usr/share/terminfo/ -name "${x}" 2>/dev/null)
 			local basedir=$(basename "$(dirname "${termfile}")")
 
@@ -298,13 +293,19 @@ multilib_src_install_all() {
 					"/usr/share/terminfo/${basedir}/${x}"
 			fi
 		done
-#	fi
 
-	echo "CONFIG_PROTECT_MASK=\"/etc/terminfo\"" | newenvd - 50ncurses
+		echo "CONFIG_PROTECT_MASK=\"/etc/terminfo\"" | newenvd - 50ncurses
 
-	use minimal && rm -r "${ED}"/usr/share/terminfo*
-	# Because ncurses5-config --terminfo returns the directory we keep it
-	keepdir /usr/share/terminfo #245374
+		use minimal && rm -r "${ED}"/usr/share/terminfo*
+		# Because ncurses5-config --terminfo returns the directory we keep it
+		keepdir /usr/share/terminfo #245374
+	elif use minimal; then
+		# prune all files and symlinks not listed in MINIMAL_TERMINFO
+		find "${D}"/usr/share/terminfo ! -type d \
+			${MINIMAL_TERMINFO[@]/#/! -name } \
+			-delete || die
+		find "${D}"/usr/share/terminfo -type d -empty -delete || die
+	fi
 
 	cd "${S}" || die
 	dodoc ANNOUNCE MANIFEST NEWS README* TO-DO doc/*.doc
