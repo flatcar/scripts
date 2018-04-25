@@ -5,15 +5,16 @@ EAPI=5
 
 if [[ ${PV} == *9999* ]]; then
 	SRC_ECLASS="git-2"
-	EGIT_REPO_URI="git://anongit.gentoo.org/proj/catalyst.git"
+	EGIT_REPO_URI="anongit.gentoo.org/proj/catalyst.git"
 	EGIT_MASTER="master"
-	EGIT_BRANCH="2.X"
 	S="${WORKDIR}/${PN}"
 else
 	SRC_URI="mirror://gentoo/${P}.tar.bz2
 		https://dev.gentoo.org/~jmbsvicetto/distfiles/${P}.tar.bz2
-		https://dev.gentoo.org/~zerochaos/distfiles/${P}.tar.bz2"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-fbsd"
+		https://dev.gentoo.org/~mattst88/distfiles/${P}.tar.bz2
+		https://dev.gentoo.org/~zerochaos/distfiles/${P}.tar.bz2
+		https://dev.gentoo.org/~dolsen/releases/catalyst/${P}.tar.bz2"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~x86-fbsd"
 fi
 
 PYTHON_COMPAT=( python2_7 )
@@ -46,6 +47,13 @@ RDEPEND="
 
 REQUIRED_USE=${PYTHON_REQUIRED_USE}
 
+PATCHES=(
+	"${FILESDIR}/catalyst-2.0.18-Do-notuntarwith--acls.patch"
+	"${FILESDIR}/catalyst-2.0.18-fix-quotes.patch"
+	"${FILESDIR}/catalyst-2.0.18-remove-machine-id.patch"
+	"${FILESDIR}/catalyst-2.0.18-stage1-export-ROOT.patch"
+)
+
 pkg_setup() {
 	if use ccache ; then
 		einfo "Enabling ccache support for catalyst."
@@ -63,6 +71,10 @@ pkg_setup() {
 	echo
 
 	python-single-r1_pkg_setup
+}
+
+src_prepare() {
+	epatch "${PATCHES[@]}"
 }
 
 src_install() {
