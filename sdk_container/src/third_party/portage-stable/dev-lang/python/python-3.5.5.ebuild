@@ -1,23 +1,24 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="5"
 WANT_LIBTOOL="none"
 
-inherit autotools eutils flag-o-matic multilib pax-utils python-utils-r1 toolchain-funcs multiprocessing
+inherit autotools eutils flag-o-matic multilib pax-utils python-utils-r1 toolchain-funcs
 
 MY_P="Python-${PV/_/}"
-PATCHSET_VERSION="3.4.5-0"
+PATCHSET_VERSION="3.5.4-0"
 
 DESCRIPTION="An interpreted, interactive, object-oriented programming language"
-HOMEPAGE="http://www.python.org/"
-SRC_URI="http://www.python.org/ftp/python/${PV%_rc*}/${MY_P}.tar.xz
+HOMEPAGE="https://www.python.org/"
+SRC_URI="https://www.python.org/ftp/python/${PV%_rc*}/${MY_P}.tar.xz
 	https://dev.gentoo.org/~floppym/python/python-gentoo-patches-${PATCHSET_VERSION}.tar.xz"
 
 LICENSE="PSF-2"
-SLOT="3.4/3.4m"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
-IUSE="build elibc_uclibc examples gdbm hardened ipv6 libressl +ncurses +readline sqlite +ssl +threads tk wininst +xml"
+SLOT="3.5/3.5m"
+KEYWORDS="alpha amd64 arm arm64 ~hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~x86-fbsd"
+IUSE="build elibc_uclibc examples gdbm hardened ipv6 libressl +ncurses +readline sqlite +ssl test +threads tk wininst +xml"
+RESTRICT="!test? ( test )"
 
 # Do not add a dependency on dev-lang/python to this ebuild.
 # If you need to apply a patch which requires python for bootstrapping, please
@@ -30,14 +31,12 @@ RDEPEND="app-arch/bzip2:0=
 	virtual/libffi
 	virtual/libintl
 	gdbm? ( sys-libs/gdbm:0=[berkdb] )
-	ncurses? (
-		>=sys-libs/ncurses-5.2:0=
-		readline? ( >=sys-libs/readline-4.1:0= )
-	)
+	ncurses? ( >=sys-libs/ncurses-5.2:0= )
+	readline? ( >=sys-libs/readline-4.1:0= )
 	sqlite? ( >=dev-db/sqlite-3.3.8:3= )
 	ssl? (
 		!libressl? ( dev-libs/openssl:0= )
-		libressl? ( dev-libs/libressl:= )
+		libressl? ( dev-libs/libressl:0= )
 	)
 	tk? (
 		>=dev-lang/tcl-8.0:0=
@@ -48,8 +47,8 @@ RDEPEND="app-arch/bzip2:0=
 	xml? ( >=dev-libs/expat-2.1:0= )
 	!!<sys-apps/sandbox-2.6-r1"
 DEPEND="${RDEPEND}
+	test? ( app-arch/xz-utils[extra-filters(+)] )
 	virtual/pkgconfig
-	>=sys-devel/autoconf-2.65
 	!sys-devel/gcc[libffi(-)]"
 RDEPEND+=" !build? ( app-misc/mime-types )"
 PDEPEND=">=app-eselect/eselect-python-20140125-r1"
@@ -71,7 +70,10 @@ src_prepare() {
 
 	EPATCH_SUFFIX="patch" epatch "${WORKDIR}/patches"
 	epatch "${FILESDIR}/${PN}-3.4.3-ncurses-pkg-config.patch"
-	epatch "${FILESDIR}/${PN}-3.4.5-cross.patch"
+	epatch "${FILESDIR}/${PN}-3.5-distutils-OO-build.patch"
+	epatch "${FILESDIR}/3.6-disable-nis.patch"
+	epatch "${FILESDIR}/python-3.5.5-libressl-compatibility.patch"
+	epatch "${FILESDIR}/python-3.5.5-hash-unaligned.patch"
 
 	epatch_user
 
@@ -83,8 +85,8 @@ src_prepare() {
 		Lib/sysconfig.py \
 		Lib/test/test_site.py \
 		Makefile.pre.in \
-		Modules/Setup.dist \
 		Modules/getpath.c \
+		Modules/Setup.dist \
 		setup.py || die "sed failed to replace @@GENTOO_LIBDIR@@"
 
 	eautoreconf
@@ -144,21 +146,23 @@ src_configure() {
 	mkdir -p "${BUILD_DIR}" || die
 	cd "${BUILD_DIR}" || die
 
-	ECONF_SOURCE="${S}" OPT="" \
-	econf \
-		--with-fpectl \
-		--enable-shared \
-		$(use_enable ipv6) \
-		$(use_with threads) \
-		--infodir='${prefix}/share/info' \
-		--mandir='${prefix}/share/man' \
-		--with-computed-gotos \
-		--with-dbmliborder="${dbmliborder}" \
-		--with-libc="" \
-		--enable-loadable-sqlite-extensions \
-		--with-system-expat \
-		--with-system-ffi \
+	local myeconfargs=(
+		--with-fpectl
+		--enable-shared
+		$(use_enable ipv6)
+		$(use_with threads)
+		--infodir='${prefix}/share/info'
+		--mandir='${prefix}/share/man'
+		--with-computed-gotos
+		--with-dbmliborder="${dbmliborder}"
+		--with-libc=
+		--enable-loadable-sqlite-extensions
 		--without-ensurepip
+		--with-system-expat
+		--with-system-ffi
+	)
+
+	ECONF_SOURCE="${S}" OPT="" econf "${myeconfargs[@]}"
 
 	if use threads && grep -q "#define POSIX_SEMAPHORES_NOT_ENABLED 1" pyconfig.h; then
 		eerror "configure has detected that the sem_open function is broken."
@@ -171,9 +175,6 @@ src_compile() {
 	# Ensure sed works as expected
 	# https://bugs.gentoo.org/594768
 	local -x LC_ALL=C
-
-	# Avoid invoking pgen for cross-compiles.
-	touch Include/graminit.h Python/graminit.c || die
 
 	cd "${BUILD_DIR}" || die
 
@@ -252,6 +253,14 @@ src_install() {
 		dosym "python-${PYVER}.pc" "/usr/$(get_libdir)/pkgconfig/${abiver/${PYVER}/-${PYVER}}.pc"
 	fi
 
+	# python seems to get rebuilt in src_install (bug 569908)
+	# Work around it for now.
+	if has_version dev-libs/libffi[pax_kernel]; then
+		pax-mark E "${ED}usr/bin/${abiver}"
+	else
+		pax-mark m "${ED}usr/bin/${abiver}"
+	fi
+
 	use elibc_uclibc && rm -fr "${libdir}/test"
 	use sqlite || rm -fr "${libdir}/"{sqlite3,test/test_sqlite*}
 	use tk || rm -fr "${ED}usr/bin/idle${PYVER}" "${libdir}/"{idlelib,tkinter,test/test_tk*}
@@ -284,7 +293,7 @@ src_install() {
 	# if not using a cross-compiler, use the fresh binary
 	if ! tc-is-cross-compiler; then
 		local -x PYTHON=./python
-		local -x LD_LIBRARY_PATH=${LD_LIBRARY_PATH+${LD_LIBRARY_PATH}:}.
+		local -x LD_LIBRARY_PATH=${LD_LIBRARY_PATH+${LD_LIBRARY_PATH}:}${PWD}
 	else
 		vars=( PYTHON "${vars[@]}" )
 	fi
