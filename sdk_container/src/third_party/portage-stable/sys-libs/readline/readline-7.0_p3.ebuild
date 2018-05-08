@@ -1,13 +1,12 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
-EAPI=4
+EAPI="5"
 
 inherit eutils multilib toolchain-funcs flag-o-matic multilib-minimal
 
 # Official patches
-# See ftp://ftp.cwru.edu/pub/bash/readline-6.3-patches/
+# See ftp://ftp.cwru.edu/pub/bash/readline-7.0-patches/
 PLEVEL=${PV##*_p}
 MY_PV=${PV/_p*}
 MY_PV=${MY_PV/_/-}
@@ -30,18 +29,17 @@ patches() {
 
 DESCRIPTION="Another cute console display library"
 HOMEPAGE="http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html"
-SRC_URI="mirror://gnu/${PN}/${MY_P}.tar.gz $(patches)"
+case ${PV} in
+*_alpha*|*_beta*|*_rc*) SRC_URI+=" ftp://ftp.cwru.edu/pub/bash/${MY_P}.tar.gz" ;;
+*) SRC_URI="mirror://gnu/${PN}/${MY_P}.tar.gz $(patches)" ;;
+esac
 
 LICENSE="GPL-3"
-SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux"
+SLOT="0/7"  # subslot matches SONAME major
+KEYWORDS="alpha amd64 arm arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 sh sparc x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux"
 IUSE="static-libs utils"
 
-RDEPEND=">=sys-libs/ncurses-5.9-r3[${MULTILIB_USEDEP}]
-	abi_x86_32? (
-		!app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)]
-		!<=app-emulation/emul-linux-x86-baselibs-20131008-r7
-	)"
+RDEPEND=">=sys-libs/ncurses-5.9-r3:0=[static-libs?,${MULTILIB_USEDEP}]"
 DEPEND="${RDEPEND}
 	virtual/pkgconfig"
 
@@ -55,8 +53,8 @@ src_prepare() {
 	[[ ${PLEVEL} -gt 0 ]] && epatch $(patches -s)
 	epatch "${FILESDIR}"/${PN}-5.0-no_rpath.patch
 	epatch "${FILESDIR}"/${PN}-6.2-rlfe-tgoto.patch #385091
-	epatch "${FILESDIR}"/${PN}-6.3-fix-long-prompt-vi-search.patch
-	epatch "${FILESDIR}"/${PN}-6.3-read-eof.patch
+	epatch "${FILESDIR}"/${PN}-7.0-headers.patch
+	epatch "${FILESDIR}"/${PN}-7.0-missing-echo-proto.patch
 
 	# Force ncurses linking. #71420
 	# Use pkg-config to get the right values. #457558
@@ -107,7 +105,7 @@ multilib_src_configure() {
 	ECONF_SOURCE=${S} \
 	econf \
 		--cache-file="${BUILD_DIR}"/config.cache \
-		--docdir=/usr/share/doc/${PF} \
+		--docdir='$(datarootdir)'/doc/${PF} \
 		--with-curses \
 		$(use_enable static-libs static)
 
@@ -154,11 +152,12 @@ multilib_src_install_all() {
 	docinto ps
 	dodoc doc/*.ps
 }
-
 pkg_preinst() {
-	preserve_old_lib /$(get_libdir)/lib{history,readline}.so.{4,5} #29865
+	# bug #29865
+	# Reappeared in #595324 with paludis so keeping this for now...
+	preserve_old_lib /$(get_libdir)/lib{history,readline}.so.{4,5,6}
 }
 
 pkg_postinst() {
-	preserve_old_lib_notify /$(get_libdir)/lib{history,readline}.so.{4,5}
+	preserve_old_lib_notify /$(get_libdir)/lib{history,readline}.so.{4,5,6}
 }
