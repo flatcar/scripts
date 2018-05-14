@@ -1,8 +1,8 @@
 Fix building with dlopen() not available.
 
---- configure.ac
-+++ configure.ac
-@@ -89,6 +89,9 @@
+--- /configure.ac
++++ /configure.ac
+@@ -102,6 +102,9 @@
    [], [enable_dynamic_extensions=yes])
  if test x"$enable_dynamic_extensions" != "xno"; then
    AC_SEARCH_LIBS(dlopen, dl)

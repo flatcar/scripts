@@ -1,8 +1,7 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
-EAPI="5"
+EAPI="6"
 
 inherit autotools eutils flag-o-matic multilib multilib-minimal toolchain-funcs versionator
 
@@ -12,15 +11,15 @@ DOC_PV="${SRC_PV}"
 
 DESCRIPTION="A SQL Database Engine in a C Library"
 HOMEPAGE="https://sqlite.org/"
-SRC_URI="doc? ( https://sqlite.org/2016/${PN}-doc-${DOC_PV}.zip )
-	tcl? ( https://sqlite.org/2016/${PN}-src-${SRC_PV}.zip )
-	test? ( https://sqlite.org/2016/${PN}-src-${SRC_PV}.zip )
-	tools? ( https://sqlite.org/2016/${PN}-src-${SRC_PV}.zip )
-	!tcl? ( !test? ( !tools? ( https://sqlite.org/2016/${PN}-autoconf-${SRC_PV}.tar.gz ) ) )"
+SRC_URI="doc? ( https://sqlite.org/2017/${PN}-doc-${DOC_PV}.zip )
+	tcl? ( https://sqlite.org/2017/${PN}-src-${SRC_PV}.zip )
+	test? ( https://sqlite.org/2017/${PN}-src-${SRC_PV}.zip )
+	tools? ( https://sqlite.org/2017/${PN}-src-${SRC_PV}.zip )
+	!tcl? ( !test? ( !tools? ( https://sqlite.org/2017/${PN}-autoconf-${SRC_PV}.tar.gz ) ) )"
 
 LICENSE="public-domain"
 SLOT="3"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc x86 ~ppc-aix ~x64-cygwin ~amd64-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="debug doc icu +readline secure-delete static-libs tcl test tools"
 
 RDEPEND="icu? ( dev-libs/icu:0=[${MULTILIB_USEDEP}] )
@@ -36,12 +35,12 @@ DEPEND="${RDEPEND}
 	)
 	tools? ( app-arch/unzip )"
 
-full_tarball() {
+full_archive() {
 	use tcl || use test || use tools
 }
 
 pkg_setup() {
-	if full_tarball; then
+	if full_archive; then
 		S="${WORKDIR}/${PN}-src-${SRC_PV}"
 	else
 		S="${WORKDIR}/${PN}-autoconf-${SRC_PV}"
@@ -49,21 +48,28 @@ pkg_setup() {
 }
 
 src_prepare() {
-	if full_tarball; then
-		epatch "${FILESDIR}/${PN}-3.13.0-full_tarball-build.patch"
+	if full_archive; then
+		eapply "${FILESDIR}/${PN}-3.21.0-full_archive-build.patch"
+
+		eapply_user
 
 		# Fix AC_CHECK_FUNCS.
 		# https://mailinglists.sqlite.org/cgi-bin/mailman/private/sqlite-dev/2016-March/002762.html
-		sed -e "s/AC_CHECK_FUNCS(.*)/AC_CHECK_FUNCS([fdatasync fullfsync gmtime_r isnan localtime_r localtime_s malloc_usable_size posix_fallocate pread pread64 pwrite pwrite64 strchrnul usleep utime])/" -i configure.ac
+		sed -e "s/AC_CHECK_FUNCS(.*)/AC_CHECK_FUNCS([fdatasync fullfsync gmtime_r isnan localtime_r localtime_s malloc_usable_size posix_fallocate pread pread64 pwrite pwrite64 strchrnul usleep utime])/" -i configure.ac || die "sed failed"
+
+		# https://sqlite.org/src/info/bf09fa683ea42b75
+		sed -e "s:cp tsrc/shell\.c tsrc/sqlite3ext\.h \.:cp tsrc/sqlite3ext.h .:" -i Makefile.in || die "sed failed"
 	else
-		epatch "${FILESDIR}/${PN}-3.12.0-nonfull_tarball-build.patch"
+		eapply "${FILESDIR}/${PN}-3.21.0-nonfull_archive-build.patch"
+
+		eapply_user
 
 		# Fix AC_CHECK_FUNCS.
 		# https://mailinglists.sqlite.org/cgi-bin/mailman/private/sqlite-dev/2016-March/002762.html
 		sed \
 			-e "s/AC_CHECK_FUNCS(\[fdatasync.*/AC_CHECK_FUNCS([fdatasync fullfsync gmtime_r isnan localtime_r localtime_s malloc_usable_size posix_fallocate pread pread64 pwrite pwrite64 strchrnul usleep utime])/" \
 			-e "/AC_CHECK_FUNCS(posix_fallocate)/d" \
-			-i configure.ac
+			-i configure.ac || die "sed failed"
 	fi
 
 	eautoreconf
@@ -72,13 +78,13 @@ src_prepare() {
 }
 
 multilib_src_configure() {
-	local CPPFLAGS="${CPPFLAGS}" options=()
+	local CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" options=()
 
 	options+=(
-		--enable-$(full_tarball && echo load-extension || echo dynamic-extensions)
+		--enable-$(full_archive && echo load-extension || echo dynamic-extensions)
 		--enable-threadsafe
 	)
-	if ! full_tarball; then
+	if ! full_archive; then
 		options+=(--disable-static-shell)
 	fi
 
@@ -89,6 +95,10 @@ multilib_src_configure() {
 	# Support column metadata functions.
 	# https://sqlite.org/c3ref/column_database_name.html
 	append-cppflags -DSQLITE_ENABLE_COLUMN_METADATA
+
+	# Support sqlite_dbpage virtual table.
+	# https://sqlite.org/compile.html#enable_dbpage_vtab
+	append-cppflags -DSQLITE_ENABLE_DBPAGE_VTAB
 
 	# Support dbstat virtual table.
 	# https://sqlite.org/dbstat.html
@@ -111,6 +121,10 @@ multilib_src_configure() {
 	# https://sqlite.org/json1.html
 	append-cppflags -DSQLITE_ENABLE_JSON1
 
+	# Support memsys5 memory allocator.
+	# https://sqlite.org/malloc.html#memsys5
+	append-cppflags -DSQLITE_ENABLE_MEMSYS5
+
 	# Support Resumable Bulk Update extension.
 	# https://sqlite.org/rbu.html
 	append-cppflags -DSQLITE_ENABLE_RBU
@@ -124,20 +138,32 @@ multilib_src_configure() {
 	# https://sqlite.org/c3ref/stmt_scanstatus_reset.html
 	append-cppflags -DSQLITE_ENABLE_STMT_SCANSTATUS
 
+	# Support sqlite_stmt virtual table.
+	# https://sqlite.org/stmt.html
+	append-cppflags -DSQLITE_ENABLE_STMTVTAB
+
 	# Support Session extension.
 	# https://sqlite.org/sessionintro.html
 	options+=(--enable-session)
 
+	# Support unknown() function.
+	# https://sqlite.org/compile.html#enable_unknown_sql_function
+	append-cppflags -DSQLITE_ENABLE_UNKNOWN_SQL_FUNCTION
+
 	# Support unlock notification.
 	# https://sqlite.org/unlock_notify.html
 	append-cppflags -DSQLITE_ENABLE_UNLOCK_NOTIFY
+
+	# Support LIMIT and ORDER BY clauses on DELETE and UPDATE statements.
+	# https://sqlite.org/compile.html#enable_update_delete_limit
+	append-cppflags -DSQLITE_ENABLE_UPDATE_DELETE_LIMIT
 
 	# Support soundex() function.
 	# https://sqlite.org/lang_corefunc.html#soundex
 	append-cppflags -DSQLITE_SOUNDEX
 
 	# debug USE flag.
-	if full_tarball; then
+	if full_archive; then
 		options+=($(use_enable debug))
 	else
 		if use debug; then
@@ -152,7 +178,7 @@ multilib_src_configure() {
 		# Support ICU extension.
 		# https://sqlite.org/compile.html#enable_icu
 		append-cppflags -DSQLITE_ENABLE_ICU
-		if full_tarball; then
+		if full_archive; then
 			sed -e "s/^TLIBS = @LIBS@/& -licui18n -licuuc/" -i Makefile.in || die "sed failed"
 		else
 			sed -e "s/^LIBS = @LIBS@/& -licui18n -licuuc/" -i Makefile.in || die "sed failed"
@@ -164,7 +190,7 @@ multilib_src_configure() {
 		--disable-editline
 		$(use_enable readline)
 	)
-	if full_tarball && use readline; then
+	if full_archive && use readline; then
 		options+=(--with-readline-inc="-I${EPREFIX}/usr/include/readline")
 	fi
 
@@ -179,12 +205,20 @@ multilib_src_configure() {
 	options+=($(use_enable static-libs static))
 
 	# tcl, test, tools USE flags.
-	if full_tarball; then
+	if full_archive; then
 		options+=(--enable-tcl)
 	fi
 
 	if [[ "${CHOST}" == *-mint* ]]; then
 		append-cppflags -DSQLITE_OMIT_WAL
+	fi
+
+	if [[ "${ABI}" == "x86" ]]; then
+		if $(tc-getCC) ${CPPFLAGS} ${CFLAGS} -E -P -dM - < /dev/null 2> /dev/null | grep -q "^#define __SSE__ 1$"; then
+			append-cflags -mfpmath=sse
+		else
+			append-cflags -ffloat-store
+		fi
 	fi
 
 	econf "${options[@]}"
@@ -194,7 +228,7 @@ multilib_src_compile() {
 	emake HAVE_TCL="$(usex tcl 1 "")" TCLLIBDIR="${EPREFIX}/usr/$(get_libdir)/${P}"
 
 	if use tools && multilib_is_native_abi; then
-		emake changeset rbu showdb showjournal showstat4 showwal sqldiff sqlite3_analyzer
+		emake changeset dbdump dbhash rbu scrub showdb showjournal showstat4 showwal sqldiff sqlite3_analyzer
 	fi
 }
 
@@ -220,7 +254,10 @@ multilib_src_install() {
 		}
 
 		install_tool changeset sqlite3-changeset
+		install_tool dbdump sqlite3-db-dump
+		install_tool dbhash sqlite3-db-hash
 		install_tool rbu sqlite3-rbu
+		install_tool scrub sqlite3-scrub
 		install_tool showdb sqlite3-show-db
 		install_tool showjournal sqlite3-show-journal
 		install_tool showstat4 sqlite3-show-stat4
@@ -238,6 +275,10 @@ multilib_src_install_all() {
 	doman sqlite3.1
 
 	if use doc; then
-		dohtml -A ico,odf,odg,pdf,svg -r "${WORKDIR}/${PN}-doc-${DOC_PV}/"
+		rm "${WORKDIR}/${PN}-doc-${DOC_PV}/"*.{db,txt}
+		(
+			docinto html
+			dodoc -r "${WORKDIR}/${PN}-doc-${DOC_PV}/"*
+		)
 	fi
 }
