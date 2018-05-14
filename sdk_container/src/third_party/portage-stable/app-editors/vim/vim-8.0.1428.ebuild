@@ -4,10 +4,8 @@
 EAPI=6
 VIM_VERSION="8.0"
 PYTHON_COMPAT=( python{2_7,3_4,3_5,3_6} )
-PYTHON_REQ_USE="threads"
-USE_RUBY="ruby22 ruby23 ruby24 ruby25"
-
-inherit vim-doc flag-o-matic versionator bash-completion-r1 python-single-r1 ruby-single
+PYTHON_REQ_USE=threads
+inherit vim-doc flag-o-matic versionator bash-completion-r1 python-single-r1
 
 if [[ ${PV} == 9999* ]] ; then
 	inherit git-r3
@@ -47,7 +45,7 @@ RDEPEND="
 	perl? ( dev-lang/perl:= )
 	python? ( ${PYTHON_DEPS} )
 	racket? ( dev-scheme/racket )
-	ruby? ( ${RUBY_DEPS} )
+	ruby? ( || ( dev-lang/ruby:2.4 dev-lang/ruby:2.3 dev-lang/ruby:2.2 ) )
 	selinux? ( sys-libs/libselinux )
 	tcl? ( dev-lang/tcl:0= )
 	X? ( x11-libs/libXt )
