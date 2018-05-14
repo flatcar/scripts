@@ -1,25 +1,33 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
 BASHCOMP_P=bashcomp-2.0.2
-inherit versionator
+EGIT_REPO_URI="https://github.com/scop/bash-completion"
+inherit autotools git-r3 versionator
 
 DESCRIPTION="Programmable Completion for bash"
 HOMEPAGE="https://github.com/scop/bash-completion"
-SRC_URI="https://github.com/scop/bash-completion/releases/download/${PV}/${P}.tar.xz
-	https://bitbucket.org/mgorny/bashcomp2/downloads/${BASHCOMP_P}.tar.gz"
+SRC_URI="https://bitbucket.org/mgorny/bashcomp2/downloads/${BASHCOMP_P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris"
-IUSE=""
+KEYWORDS=""
+IUSE="test"
 
+# completion collision with net-fs/mc
 RDEPEND=">=app-shells/bash-4.3_p30-r1
 	sys-apps/miscfiles
-	!app-eselect/eselect-bashcomp"
-DEPEND="app-arch/xz-utils"
+	!app-eselect/eselect-bashcomp
+	!!net-fs/mc"
+DEPEND="app-arch/xz-utils
+	test? (
+		${RDEPEND}
+		app-misc/dtach
+		dev-util/dejagnu
+		dev-tcltk/tcllib
+	)"
 PDEPEND=">=app-shells/gentoo-bashcomp-20140911"
 
 # Remove unwanted completions.
@@ -37,18 +45,47 @@ STRIP_COMPLETIONS=(
 	# Now-dead symlinks to deprecated completions
 	hd ncal
 
-	# Installed by sys-apps/util-linux-2.28
-	mount umount mount.linux umount.linux
+	# Installed by sys-apps/util-linux-2.28 (and now deprecated)
+	_mount _umount _mount.linux _umount.linux
+
+	# Deprecated in favor of sys-apps/util-linux-2.31
+	_rfkill
 )
+
+src_unpack() {
+	git-r3_src_unpack
+	default
+}
 
 src_prepare() {
 	eapply "${WORKDIR}/${BASHCOMP_P}/${PN}"-2.1_p*.patch
-	# Bug 543100, update bug 601194
-	eapply "${FILESDIR}/${PN}-2.1-escape-characters-r1.patch"
 	eapply_user
+
+	eautoreconf
 }
 
-src_test() { :; } # Skip testsuite because of interactive shell wrt #477066
+src_test() {
+	# Tests need an interactive shell, #477066
+	# idea stolen from:
+	# http://pkgs.fedoraproject.org/cgit/rpms/bash-completion.git/tree/bash-completion.spec
+
+	# real-time output of the log ;-)
+	touch "${T}/dtach-test.log" || die
+	tail -f "${T}/dtach-test.log" &
+	local tail_pid=${!}
+
+	# override the default expect timeout and buffer size to avoid tests
+	# failing randomly due to cold cache, busy system or just more output
+	# than upstream anticipated (they run tests on pristine docker
+	# installs of binary distros)
+	nonfatal dtach -N "${T}/dtach.sock" \
+		bash -c 'emake check RUNTESTFLAGS="OPT_TIMEOUT=300 OPT_BUFFER_SIZE=1000000" \
+			&> "${T}"/dtach-test.log; echo ${?} > "${T}"/dtach-test.out'
+
+	kill "${tail_pid}"
+	[[ -f ${T}/dtach-test.out ]] || die "Unable to run tests"
+	[[ $(<"${T}"/dtach-test.out) == 0 ]] || die "Tests failed"
+}
 
 src_install() {
 	# work-around race conditions, bug #526996
@@ -58,7 +95,8 @@ src_install() {
 
 	local file
 	for file in "${STRIP_COMPLETIONS[@]}"; do
-		rm "${ED}"/usr/share/bash-completion/completions/${file} || die
+		rm "${ED}"/usr/share/bash-completion/completions/${file} ||
+			die "stripping ${file} failed"
 	done
 	# remove deprecated completions (moved to other packages)
 	rm "${ED}"/usr/share/bash-completion/completions/_* || die
