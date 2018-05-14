@@ -1,28 +1,29 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
 CMAKE_MAKEFILE_GENERATOR="emake"
 CMAKE_REMOVE_MODULES="no"
-inherit bash-completion-r1 elisp-common toolchain-funcs eutils versionator cmake-utils virtualx flag-o-matic
+inherit bash-completion-r1 elisp-common eutils flag-o-matic gnome2-utils toolchain-funcs versionator virtualx xdg-utils cmake-utils
 
 MY_P="${P/_/-}"
 
 DESCRIPTION="Cross platform Make"
-HOMEPAGE="http://www.cmake.org/"
-SRC_URI="http://www.cmake.org/files/v$(get_version_component_range 1-2)/${MY_P}.tar.gz"
+HOMEPAGE="https://cmake.org/"
+SRC_URI="https://cmake.org/files/v$(get_version_component_range 1-2)/${MY_P}.tar.gz"
 
 LICENSE="CMake"
 SLOT="0"
 [[ "${PV}" = *_rc* ]] || \
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
-IUSE="doc emacs server system-jsoncpp ncurses qt5"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
+IUSE="doc emacs system-jsoncpp ncurses qt5"
 
 RDEPEND="
 	app-crypt/rhash
 	>=app-arch/libarchive-3.0.0:=
 	>=dev-libs/expat-2.0.1
+	>=dev-libs/libuv-1.0.0:=
 	>=net-misc/curl-7.21.5[ssl]
 	sys-libs/zlib
 	virtual/pkgconfig
@@ -33,7 +34,6 @@ RDEPEND="
 		dev-qt/qtgui:5
 		dev-qt/qtwidgets:5
 	)
-	server? ( >=dev-libs/libuv-1.0.0:= )
 	system-jsoncpp? ( >=dev-libs/jsoncpp-0.6.0_rc2:0= )
 "
 DEPEND="${RDEPEND}
@@ -51,9 +51,7 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-3.1.0-darwin-isysroot.patch
 
 	# handle gentoo packaging in find modules
-	"${FILESDIR}"/${PN}-3.9.0_rc2-FindImageMagick.patch
-	"${FILESDIR}"/${PN}-3.0.0-FindBLAS.patch
-	"${FILESDIR}"/${PN}-3.8.0_rc2-FindBoost-python.patch
+	"${FILESDIR}"/${PN}-3.11.0_rc2-FindBLAS.patch
 	"${FILESDIR}"/${PN}-3.0.2-FindLAPACK.patch
 	"${FILESDIR}"/${PN}-3.5.2-FindQt4.patch
 
@@ -82,7 +80,8 @@ cmake_src_bootstrap() {
 
 	# execinfo.h on Solaris isn't quite what it is on Darwin
 	if [[ ${CHOST} == *-solaris* ]] ; then
-		sed -i -e 's/execinfo\.h/blablabla.h/' Source/kwsys/CMakeLists.txt || die
+		sed -i -e 's/execinfo\.h/blablabla.h/' \
+			Source/kwsys/CMakeLists.txt || die
 	fi
 
 	tc-export CC CXX LD
@@ -125,6 +124,12 @@ cmake_src_test() {
 src_prepare() {
 	cmake-utils_src_prepare
 
+	# disable Xcode hooks, bug #652134
+	if [[ ${CHOST} == *-darwin* ]] ; then
+		sed -i -e 's/__APPLE__/__DISABLED_APPLE__/' \
+			Source/cmGlobalXCodeGenerator.cxx || die
+	fi
+
 	# Add gcc libs to the default link paths
 	sed -i \
 		-e "s|@GENTOO_PORTAGE_GCCLIBDIR@|${EPREFIX}/usr/${CHOST}/lib/|g" \
@@ -150,8 +155,6 @@ src_configure() {
 		-DSPHINX_MAN=$(usex doc)
 		-DSPHINX_HTML=$(usex doc)
 		-DBUILD_CursesDialog="$(usex ncurses)"
-		-DCMake_ENABLE_SERVER_MODE="$(usex server)"
-		-DCMAKE_USE_LIBUV="$(usex server)"
 	)
 
 	if use qt5 ; then
@@ -197,8 +200,18 @@ src_install() {
 
 pkg_postinst() {
 	use emacs && elisp-site-regen
+	if use qt5; then
+		gnome2_icon_cache_update
+		xdg_desktop_database_update
+		xdg_mimeinfo_database_update
+	fi
 }
 
 pkg_postrm() {
 	use emacs && elisp-site-regen
+	if use qt5; then
+		gnome2_icon_cache_update
+		xdg_desktop_database_update
+		xdg_mimeinfo_database_update
+	fi
 }

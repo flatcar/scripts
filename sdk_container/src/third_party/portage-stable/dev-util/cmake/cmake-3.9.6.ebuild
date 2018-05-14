@@ -1,22 +1,22 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
 CMAKE_MAKEFILE_GENERATOR="emake"
 CMAKE_REMOVE_MODULES="no"
-inherit bash-completion-r1 elisp-common toolchain-funcs eutils versionator cmake-utils virtualx flag-o-matic
+inherit bash-completion-r1 elisp-common eutils flag-o-matic gnome2-utils toolchain-funcs versionator virtualx xdg-utils cmake-utils
 
 MY_P="${P/_/-}"
 
 DESCRIPTION="Cross platform Make"
-HOMEPAGE="http://www.cmake.org/"
-SRC_URI="http://www.cmake.org/files/v$(get_version_component_range 1-2)/${MY_P}.tar.gz"
+HOMEPAGE="https://cmake.org/"
+SRC_URI="https://cmake.org/files/v$(get_version_component_range 1-2)/${MY_P}.tar.gz"
 
 LICENSE="CMake"
 SLOT="0"
 [[ "${PV}" = *_rc* ]] || \
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="alpha amd64 arm arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
 IUSE="doc emacs server system-jsoncpp ncurses qt5"
 
 RDEPEND="
@@ -47,11 +47,11 @@ SITEFILE="50${PN}-gentoo.el"
 PATCHES=(
 	# prefix
 	"${FILESDIR}"/${PN}-3.4.0_rc1-darwin-bundle.patch
-	"${FILESDIR}"/${PN}-3.0.0-prefix-dirs.patch
+	"${FILESDIR}"/${PN}-3.9.0_rc2-prefix-dirs.patch
 	"${FILESDIR}"/${PN}-3.1.0-darwin-isysroot.patch
 
 	# handle gentoo packaging in find modules
-	"${FILESDIR}"/${PN}-2.8.12.1-FindImageMagick.patch
+	"${FILESDIR}"/${PN}-3.9.0_rc2-FindImageMagick.patch
 	"${FILESDIR}"/${PN}-3.0.0-FindBLAS.patch
 	"${FILESDIR}"/${PN}-3.8.0_rc2-FindBoost-python.patch
 	"${FILESDIR}"/${PN}-3.0.2-FindLAPACK.patch
@@ -59,7 +59,7 @@ PATCHES=(
 
 	# respect python eclasses
 	"${FILESDIR}"/${PN}-2.8.10.2-FindPythonLibs.patch
-	"${FILESDIR}"/${PN}-3.1.0-FindPythonInterp.patch
+	"${FILESDIR}"/${PN}-3.9.0_rc2-FindPythonInterp.patch
 
 	# upstream fixes (can usually be removed with a version bump)
 )
@@ -197,8 +197,18 @@ src_install() {
 
 pkg_postinst() {
 	use emacs && elisp-site-regen
+	if use qt5; then
+		gnome2_icon_cache_update
+		xdg_desktop_database_update
+		xdg_mimeinfo_database_update
+	fi
 }
 
 pkg_postrm() {
 	use emacs && elisp-site-regen
+	if use qt5; then
+		gnome2_icon_cache_update
+		xdg_desktop_database_update
+		xdg_mimeinfo_database_update
+	fi
 }
