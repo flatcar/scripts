@@ -5,7 +5,7 @@ Fix building with dlopen() not available.
 
 --- /Makefile.in
 +++ /Makefile.in
-@@ -307,6 +307,9 @@
+@@ -309,6 +309,9 @@
  # Source code for extensions
  #
  SRC += \
@@ -15,7 +15,7 @@ Fix building with dlopen() not available.
    $(TOP)/ext/fts1/fts1.c \
    $(TOP)/ext/fts1/fts1.h \
    $(TOP)/ext/fts1/fts1_hash.c \
-@@ -355,8 +358,11 @@
+@@ -357,8 +360,11 @@
    $(TOP)/ext/rbu/sqlite3rbu.h \
    $(TOP)/ext/rbu/sqlite3rbu.c
  SRC += \
@@ -28,7 +28,7 @@ Fix building with dlopen() not available.
  
  # Generated source code files
  #
-@@ -425,7 +431,6 @@
+@@ -427,7 +433,6 @@
  # Statically linked extensions
  #
  TESTSRC += \
@@ -36,7 +36,7 @@ Fix building with dlopen() not available.
    $(TOP)/ext/expert/test_expert.c \
    $(TOP)/ext/misc/amatch.c \
    $(TOP)/ext/misc/carray.c \
-@@ -447,8 +452,7 @@
+@@ -450,8 +455,7 @@
    $(TOP)/ext/misc/spellfix.c \
    $(TOP)/ext/misc/totype.c \
    $(TOP)/ext/misc/unionvtab.c \
@@ -46,7 +46,7 @@ Fix building with dlopen() not available.
  
  # Source code to the library files needed by the test fixture
  #
-@@ -610,25 +614,25 @@
+@@ -615,25 +619,25 @@
  
  libtclsqlite3.la:	tclsqlite.lo libsqlite3.la
  	$(LTLINK) -no-undefined -o $@ tclsqlite.lo \
@@ -83,7 +83,7 @@ Fix building with dlopen() not available.
  
  srcck1$(BEXE):	$(TOP)/tool/srcck1.c
  	$(BCC) -o srcck1$(BEXE) $(TOP)/tool/srcck1.c
-@@ -704,7 +708,7 @@
+@@ -712,7 +716,7 @@
  # Rule to build the amalgamation
  #
  sqlite3.lo:	sqlite3.c
@@ -92,7 +92,7 @@ Fix building with dlopen() not available.
  
  # Rules to build the LEMON compiler generator
  #
-@@ -995,14 +999,9 @@
+@@ -1009,14 +1013,9 @@
  # Source files that go into making shell.c
  SHELL_SRC = \
  	$(TOP)/src/shell.c.in \
@@ -107,24 +107,26 @@ Fix building with dlopen() not available.
          $(TOP)/src/test_windirent.c
  
  shell.c:	$(SHELL_SRC) $(TOP)/tool/mkshellc.tcl
-@@ -1161,13 +1160,13 @@
+@@ -1175,15 +1174,15 @@
  
  # Fuzz testing
- fuzztest:	fuzzcheck$(TEXE) $(FUZZDATA)
+ fuzztest:	fuzzcheck$(TEXE) $(FUZZDATA) sessionfuzz$(TEXE) $(TOP)/test/sessionfuzz-data1.db
 -	./fuzzcheck$(TEXE) $(FUZZDATA)
 +	./fuzzcheck$(TEXE) --timeout 3600 $(FUZZDATA)
+ 	./sessionfuzz$(TEXE) run $(TOP)/test/sessionfuzz-data1.db
  
- fastfuzztest:	fuzzcheck$(TEXE) $(FUZZDATA)
+ fastfuzztest:	fuzzcheck$(TEXE) $(FUZZDATA) sessionfuzz$(TEXE) $(TOP)/test/sessionfuzz-data1.db
 -	./fuzzcheck$(TEXE) --limit-mem 100M $(FUZZDATA)
 +	./fuzzcheck$(TEXE) --limit-mem 100M --timeout 3600 $(FUZZDATA)
+ 	./sessionfuzz$(TEXE) run $(TOP)/test/sessionfuzz-data1.db
  
- valgrindfuzz:	fuzzcheck$(TEXT) $(FUZZDATA)
+ valgrindfuzz:	fuzzcheck$(TEXT) $(FUZZDATA) sessionfuzz$(TEXE) $(TOP)/test/sessionfuzz-data1.db
 -	valgrind ./fuzzcheck$(TEXE) --cell-size-check --limit-mem 10M --timeout 600 $(FUZZDATA)
 +	valgrind ./fuzzcheck$(TEXE) --cell-size-check --limit-mem 10M --timeout 3600 $(FUZZDATA)
+ 	valgrind ./sessionfuzz$(TEXE) run $(TOP)/test/sessionfuzz-data1.db
  
  # The veryquick.test TCL tests.
- #
-@@ -1197,24 +1196,23 @@
+@@ -1214,24 +1213,23 @@
  smoketest:	$(TESTPROGS) fuzzcheck$(TEXE)
  	./testfixture$(TEXE) $(TOP)/test/main.test $(TESTOPTS)
  
@@ -157,7 +159,7 @@ Fix building with dlopen() not available.
    $(TOP)/src/tclsqlite.c \
    $(TOP)/ext/repair/sqlite3_checker.tcl \
    $(TOP)/ext/repair/checkindex.c \
-@@ -1225,30 +1223,30 @@
+@@ -1242,30 +1240,30 @@
  sqlite3_checker.c:	$(CHECKER_DEPS)
  	$(TCLSH_CMD) $(TOP)/tool/mkccode.tcl $(TOP)/ext/repair/sqlite3_checker.c.in >$@
  
@@ -202,7 +204,7 @@ Fix building with dlopen() not available.
  
  rollback-test$(TEXE):	$(TOP)/tool/rollback-test.c sqlite3.lo
  	$(LTLINK) -o $@ $(TOP)/tool/rollback-test.c sqlite3.lo $(TLIBS)
-@@ -1267,11 +1265,11 @@
+@@ -1284,11 +1282,11 @@
  kvtest$(TEXE):	$(TOP)/test/kvtest.c sqlite3.c
  	$(LTLINK) $(KV_OPT) -o $@ $(TOP)/test/kvtest.c sqlite3.c $(TLIBS)
  
@@ -258,7 +260,7 @@ Fix building with dlopen() not available.
  #include "sqlite3ext.h"
  SQLITE_EXTENSION_INIT1
  #include <stdio.h>
-@@ -1665,3 +1667,5 @@
+@@ -2175,3 +2177,5 @@
    (void)pzErrMsg;  /* Unused parameter */
    return zipfileRegister(db);
  }
@@ -304,7 +306,7 @@ Fix building with dlopen() not available.
  
  #if defined(_WIN32) || defined(WIN32)
  # include <io.h>
-@@ -963,13 +968,6 @@
+@@ -939,13 +944,6 @@
  INCLUDE ../ext/misc/shathree.c
  INCLUDE ../ext/misc/fileio.c
  INCLUDE ../ext/misc/completion.c
@@ -318,7 +320,7 @@ Fix building with dlopen() not available.
  
  #if defined(SQLITE_ENABLE_SESSION)
  /*
-@@ -3467,7 +3465,9 @@
+@@ -3632,7 +3630,9 @@
      sqlite3_shathree_init(p->db, 0, 0);
      sqlite3_completion_init(p->db, 0, 0);
  #ifdef SQLITE_HAVE_ZLIB
@@ -328,15 +330,15 @@ Fix building with dlopen() not available.
      sqlite3_sqlar_init(p->db, 0, 0);
  #endif
      sqlite3_create_function(p->db, "shell_add_schema", 3, SQLITE_UTF8, 0,
-@@ -5316,6 +5316,7 @@
+@@ -5523,6 +5523,7 @@
+         goto end_ar_command;
        }
        sqlite3_fileio_init(cmd.db, 0, 0);
- #ifdef SQLITE_HAVE_ZLIB
 +      extern int sqlite3_sqlar_init(sqlite3 *, char **, const sqlite3_api_routines *);
        sqlite3_sqlar_init(cmd.db, 0, 0);
- #endif
        sqlite3_create_function(cmd.db, "shell_putsnl", 1, SQLITE_UTF8, cmd.p,
-@@ -8222,6 +8223,7 @@
+                               shellPutsFunc, 0, 0);
+@@ -8539,6 +8540,7 @@
  #endif
    }
    data.out = stdout;
@@ -354,7 +356,7 @@ Fix building with dlopen() not available.
     sqlite3ext.h
     sqlite3rbu.h
     sqliteicu.h
-@@ -399,6 +400,10 @@
+@@ -401,6 +402,10 @@
     json1.c
     fts5.c
     stmt.c
