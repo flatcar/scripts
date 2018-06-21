@@ -1,5 +1,5 @@
 DEFINED_PHASES=compile configure install unpack
-DEPEND=!static? ( sys-libs/zlib !xz? ( !lzo? ( sys-libs/zlib ) ) lz4? ( app-arch/lz4 ) lzma? ( app-arch/xz-utils ) lzo? ( dev-libs/lzo ) xattr? ( sys-apps/attr ) xz? ( app-arch/xz-utils ) ) static? ( sys-libs/zlib[static-libs(+)] !xz? ( !lzo? ( sys-libs/zlib[static-libs(+)] ) ) lz4? ( app-arch/lz4[static-libs(+)] ) lzma? ( app-arch/xz-utils[static-libs(+)] ) lzo? ( dev-libs/lzo[static-libs(+)] ) xattr? ( sys-apps/attr[static-libs(+)] ) xz? ( app-arch/xz-utils[static-libs(+)] ) ) >=dev-vcs/git-1.8.2.1
+DEPEND=!static? ( sys-libs/zlib !xz? ( !lzo? ( sys-libs/zlib ) ) lz4? ( app-arch/lz4 ) lzma? ( app-arch/xz-utils ) lzo? ( dev-libs/lzo ) xattr? ( sys-apps/attr ) xz? ( app-arch/xz-utils ) ) static? ( sys-libs/zlib[static-libs(+)] !xz? ( !lzo? ( sys-libs/zlib[static-libs(+)] ) ) lz4? ( app-arch/lz4[static-libs(+)] ) lzma? ( app-arch/xz-utils[static-libs(+)] ) lzo? ( dev-libs/lzo[static-libs(+)] ) xattr? ( sys-apps/attr[static-libs(+)] ) xz? ( app-arch/xz-utils[static-libs(+)] ) ) >=dev-vcs/git-1.8.2.1[curl]
 DESCRIPTION=Tool for creating compressed filesystem type squashfs
 EAPI=6
 HOMEPAGE=http://squashfs.sourceforge.net
@@ -7,5 +7,5 @@ IUSE=debug lz4 lzma lzo static xattr +xz
 LICENSE=GPL-2
 RDEPEND=!static? ( sys-libs/zlib !xz? ( !lzo? ( sys-libs/zlib ) ) lz4? ( app-arch/lz4 ) lzma? ( app-arch/xz-utils ) lzo? ( dev-libs/lzo ) xattr? ( sys-apps/attr ) xz? ( app-arch/xz-utils ) )
 SLOT=0
-_eclasses_=epatch	8233751dc5105a6ae8fcd86ce2bb0247	estack	43ddf5aaffa7a8d0482df54d25a66a1f	eutils	227b041a120d309fdefbebb3b8c1dfa9	flag-o-matic	2274fcc1e7ef6affaff5bcd636275417	git-r3	52a888802d25387c2c74cb845d1219bc	ltprune	2770eed66a9b8ef944714cd0e968182e	multilib	97f470f374f2e94ccab04a2fb21d811e	toolchain-funcs	185a06792159ca143528e7010368e8af
+_eclasses_=desktop	1b286a7e7143d8c4ec89cd0d2743a097	epatch	9a5f039771f143195164a15a4faa41a1	estack	43ddf5aaffa7a8d0482df54d25a66a1f	eutils	5b8ce72259e08104b337fe28c6de5dbc	flag-o-matic	5128c4729303400bd8d4b0b966530955	git-r3	8f6de46b0aa318aea0e8cac62ece098b	ltprune	607e058da37aa6dabfa408b7d61da72e	multilib	97f470f374f2e94ccab04a2fb21d811e	preserve-libs	ef207dc62baddfddfd39a164d9797648	toolchain-funcs	1e35303c63cd707f6c3422b4493d5607	vcs-clean	2a0f74a496fa2b1552c4f3398258b7bf
 _md5_=faf27a8e1976e6a17b618cca55a61a2d
