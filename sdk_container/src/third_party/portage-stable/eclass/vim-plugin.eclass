@@ -1,4 +1,4 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: vim-plugin.eclass
@@ -11,7 +11,7 @@
 # which is read automatically by vim.  The only exception is
 # documentation, for which we make a special case via vim-doc.eclass.
 
-inherit vim-doc
+inherit estack vim-doc
 EXPORT_FUNCTIONS src_install pkg_postinst pkg_postrm
 
 VIM_PLUGIN_VIM_VERSION="${VIM_PLUGIN_VIM_VERSION:-7.3}"
@@ -35,23 +35,23 @@ vim-plugin_src_install() {
 	has "${EAPI:-0}" 0 1 2 && ! use prefix && ED="${D}"
 	local f
 
-	if use !prefix && [[ ${EUID} -eq 0 ]] ; then
-		ebegin "Fixing file permissions"
-		# Make sure perms are good
-		chmod -R a+rX "${S}" || die "chmod failed"
-		find "${S}" -user  'portage' -exec chown root '{}' \; || die "chown failed"
-		if use userland_BSD || [[ ${CHOST} == *-darwin* ]] ; then
-			find "${S}" -group 'portage' -exec chgrp wheel '{}' \; || die "chgrp failed"
-		else
-			find "${S}" -group 'portage' -exec chgrp root '{}' \; || die "chgrp failed"
-		fi
-		eend $?
-	fi
+	# When globbing, if nothing exists, the shell literally returns the glob
+	# pattern. So turn on nullglob and extglob options to avoid this.
+	eshopts_push -s extglob
+	eshopts_push -s nullglob
 
-	# Remove unwanted files that may exist
-	ebegin "Clean up unwanted files"
-	rm -f .[^.] .??* Makefile* || die "unwanted files cleanup failed"
+	ebegin "Cleaning up unwanted files and directories"
+	# We're looking for dotfiles, dotdirectories and Makefiles here.
+	local obj
+	eval "local matches=(@(.[^.]|.??*|Makefile*))"
+	for obj in "${matches[@]}"; do
+		rm -rv "${obj}" || die "cannot remove ${obj}"
+	done
 	eend $?
+
+	# Turn those options back off.
+	eshopts_pop
+	eshopts_pop
 
 	# Install non-vim-help-docs
 	cd "${S}" || die "couldn't cd in ${S}"
@@ -72,8 +72,8 @@ vim-plugin_src_install() {
 	mv "${S}" "${ED}"/usr/share/vim/vimfiles || die \
 		"couldn't move ${S} to ${ED}/usr/share/vim/vimfiles"
 
-	# Fix remaining bad permissions
-	chmod -R -x+X "${ED}"/usr/share/vim/vimfiles/ || die "chmod failed"
+	# Set permissions
+	fperms -R a+rX /usr/share/vim/vimfiles
 }
 
 # @FUNCTION: vim-plugin_pkg_postinst
@@ -93,7 +93,7 @@ vim-plugin_pkg_postinst() {
 # @DESCRIPTION:
 # Overrides the pkg_postrm phase for this eclass.
 # This function calls the update_vim_helptags and update_vim_afterscripts
-# functions and enventually removes a bunch of empty directories.
+# functions and eventually removes a bunch of empty directories.
 vim-plugin_pkg_postrm() {
 	has "${EAPI:-0}" 0 1 2 && ! use prefix && EPREFIX=
 	update_vim_helptags		# from vim-doc
