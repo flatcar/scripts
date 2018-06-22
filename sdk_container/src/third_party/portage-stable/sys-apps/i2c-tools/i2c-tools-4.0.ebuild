@@ -9,12 +9,12 @@ DISTUTILS_OPTIONAL="1"
 inherit distutils-r1 flag-o-matic toolchain-funcs
 
 DESCRIPTION="I2C tools for bus probing, chip dumping, EEPROM decoding, and more"
-HOMEPAGE="http://www.lm-sensors.org/wiki/I2CTools"
-SRC_URI="http://dl.lm-sensors.org/i2c-tools/releases/${P}.tar.bz2"
+HOMEPAGE="https://www.kernel.org/pub/software/utils/i2c-tools"
+SRC_URI="${HOMEPAGE}/${P}.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 arm ~arm64 ~mips ~ppc ~ppc64 ~sparc x86"
+KEYWORDS="~amd64 ~arm ~arm64 ~mips ~ppc ~ppc64 ~sparc ~x86"
 IUSE="python"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
@@ -24,7 +24,6 @@ DEPEND="${RDEPEND}"
 
 src_prepare() {
 	default
-	epatch "${FILESDIR}"/${PN}-3.1.1-python-3.patch #492632
 	use python && distutils-r1_src_prepare
 }
 
@@ -33,8 +32,9 @@ src_configure() {
 }
 
 src_compile() {
-	emake CC=$(tc-getCC) CFLAGS="${CFLAGS}"
-	emake -C eepromer CC=$(tc-getCC) CFLAGS="${CFLAGS} -I../include"
+	emake all-lib AR=$(tc-getAR) CC=$(tc-getCC) # parallel make
+	emake CC=$(tc-getCC)
+	emake -C eepromer CC=$(tc-getCC) CFLAGS="${CFLAGS}"
 	if use python ; then
 		cd py-smbus || die
 		append-cppflags -I../include
@@ -43,8 +43,8 @@ src_compile() {
 }
 
 src_install() {
-	emake install prefix="${D}"/usr
-	dosbin eepromer/eepro{g,m{,er}}
+	emake install-lib install libdir="${D}"/usr/$(get_libdir) prefix="${D}"/usr
+	dosbin eepromer/eeprom{,er}
 	rm -rf "${D}"/usr/include || die # part of linux-headers
 	dodoc CHANGES README
 	local d
