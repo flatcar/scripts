@@ -1,8 +1,8 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-PYTHON_COMPAT=( python2_7 python3_{4,5,6} pypy pypy3 )
+PYTHON_COMPAT=( python2_7 python3_{4,5,6} pypy{,3} )
 PYTHON_REQ_USE="xml(+)"
 
 inherit distutils-r1
@@ -12,27 +12,27 @@ if [[ ${PV} == "9999" ]]; then
 	inherit git-r3
 else
 	SRC_URI="mirror://pypi/${PN:0:1}/${PN}/${P}.zip"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~m68k ~ppc ~ppc64 ~s390 ~sh ~x86 ~ppc-aix ~x64-cygwin ~sparc-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd"
 fi
 
 DESCRIPTION="Collection of extensions to Distutils"
-HOMEPAGE="https://github.com/pypa/setuptools https://pypi.python.org/pypi/setuptools"
+HOMEPAGE="https://github.com/pypa/setuptools https://pypi.org/project/setuptools/"
 
 LICENSE="MIT"
 SLOT="0"
 IUSE="test"
 
 RDEPEND="
-	>=dev-python/packaging-16.8[${PYTHON_USEDEP}]
-	>=dev-python/six-1.10.0[${PYTHON_USEDEP}]
-	>=dev-python/appdirs-1.4.0-r1[${PYTHON_USEDEP}]
 "
 DEPEND="${RDEPEND}
 	app-arch/unzip
 	test? (
 		dev-python/pip[${PYTHON_USEDEP}]
-		>=dev-python/pytest-2.8[${PYTHON_USEDEP}]
+		>=dev-python/pytest-3.1.0[${PYTHON_USEDEP}]
+		dev-python/pytest-fixture-config[${PYTHON_USEDEP}]
+		dev-python/pytest-virtualenv[${PYTHON_USEDEP}]
 		>=dev-python/backports-unittest-mock-1.2[${PYTHON_USEDEP}]
+		dev-python/wheel[${PYTHON_USEDEP}]
 	)
 "
 PDEPEND="
