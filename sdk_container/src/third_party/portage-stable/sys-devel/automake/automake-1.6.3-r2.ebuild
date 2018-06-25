@@ -1,6 +1,5 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 EAPI="4"
 
@@ -13,7 +12,7 @@ SRC_URI="mirror://gnu/${PN}/${P}.tar.bz2"
 LICENSE="GPL-2"
 # Use Gentoo versioning for slotting.
 SLOT="${PV:0:3}"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~sparc-fbsd ~x86-fbsd"
+KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~x86-fbsd"
 IUSE=""
 
 RDEPEND="dev-lang/perl
@@ -33,7 +32,7 @@ src_prepare() {
 # slot the info pages.  do this w/out munging the source so we don't have
 # to depend on texinfo to regen things.  #464146 (among others)
 slot_info_pages() {
-	pushd "${D}"/usr/share/info >/dev/null
+	pushd "${ED}"/usr/share/info >/dev/null
 	rm -f dir
 
 	# Rewrite all the references to other pages.
@@ -62,7 +61,7 @@ slot_info_pages() {
 src_install() {
 	default
 	slot_info_pages
-	rm -f "${D}"/usr/bin/{aclocal,automake}
+	rm -f "${ED}"/usr/bin/{aclocal,automake}
 
 	# remove all config.guess and config.sub files replacing them
 	# w/a symlink to a specific gnuconfig version

@@ -1,10 +1,11 @@
-DEFINED_PHASES=configure install prepare test unpack
-DEPEND=dev-lang/perl >=sys-devel/automake-wrapper-10 >=sys-devel/autoconf-2.69 >=sys-apps/texinfo-4.7 sys-devel/gnuconfig sys-apps/help2man dev-vcs/git
+DEFINED_PHASES=install prepare setup unpack
+DEPEND=dev-lang/perl >=sys-devel/automake-wrapper-11 >=sys-devel/autoconf-2.69:* sys-devel/gnuconfig sys-apps/help2man test? ( || ( >=dev-lang/python-2.7.5-r2:2.7 ) ) >=dev-vcs/git-1.8.2.1[curl]
 DESCRIPTION=Used to generate Makefile.in from Makefile.am
-EAPI=4
+EAPI=6
 HOMEPAGE=https://www.gnu.org/software/automake/
+IUSE=test
 LICENSE=GPL-2
-RDEPEND=dev-lang/perl >=sys-devel/automake-wrapper-10 >=sys-devel/autoconf-2.69 >=sys-apps/texinfo-4.7 sys-devel/gnuconfig
+RDEPEND=dev-lang/perl >=sys-devel/automake-wrapper-11 >=sys-devel/autoconf-2.69:* sys-devel/gnuconfig
 SLOT=9999
-_eclasses_=epatch	8233751dc5105a6ae8fcd86ce2bb0247	estack	43ddf5aaffa7a8d0482df54d25a66a1f	eutils	227b041a120d309fdefbebb3b8c1dfa9	git-2	195a672bfaf52d868442171c9469bbb6	ltprune	2770eed66a9b8ef944714cd0e968182e	multilib	97f470f374f2e94ccab04a2fb21d811e	toolchain-funcs	185a06792159ca143528e7010368e8af
-_md5_=5676f60cca7261dd32f1c2a2da27c468
+_eclasses_=estack	43ddf5aaffa7a8d0482df54d25a66a1f	git-r3	8f6de46b0aa318aea0e8cac62ece098b	multilib	97f470f374f2e94ccab04a2fb21d811e	python-any-r1	6faea633ae2f79f6d55dcfd431b79fbf	python-utils-r1	ffa9c3284c6b07b8c9f7933911f63812	toolchain-funcs	1e35303c63cd707f6c3422b4493d5607	versionator	26ca8a8bd95d6a74122c08ba98a4ee72
+_md5_=99b45b871084f3c2866c83256600ec5a

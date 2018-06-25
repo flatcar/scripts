@@ -1,4 +1,4 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 # Maintainer: Toolchain Ninjas <toolchain@gentoo.org>
@@ -23,14 +23,13 @@ fi
 
 FEATURES=${FEATURES/multilib-strict/}
 
-EXPORTED_FUNCTIONS="pkg_setup src_unpack src_compile src_test src_install pkg_postinst pkg_postrm"
 case ${EAPI:-0} in
-	0|1)    die "Need to upgrade to at least EAPI=2";;
-	2|3)    EXPORTED_FUNCTIONS+=" src_prepare src_configure" ;;
-	4*|5*)  EXPORTED_FUNCTIONS+=" pkg_pretend src_prepare src_configure" ;;
-	*)      die "I don't speak EAPI ${EAPI}."
+	0|1|2|3|4*) die "Need to upgrade to at least EAPI=5" ;;
+	5*)   ;;
+	*)       die "I don't speak EAPI ${EAPI}." ;;
 esac
-EXPORT_FUNCTIONS ${EXPORTED_FUNCTIONS}
+EXPORT_FUNCTIONS pkg_pretend pkg_setup src_unpack src_prepare src_configure \
+	src_compile src_test src_install pkg_postinst pkg_postrm
 
 #---->> globals <<----
 
@@ -138,7 +137,8 @@ if [[ ${PN} != "kgcc64" && ${PN} != gcc-* ]] ; then
 	[[ -n ${HTB_VER} ]] && IUSE+=" boundschecking"
 	[[ -n ${D_VER}   ]] && IUSE+=" d"
 	[[ -n ${SPECS_VER} ]] && IUSE+=" nossp"
-	tc_version_is_at_least 3 && IUSE+=" doc gcj awt hardened multilib objc"
+	tc_version_is_at_least 3 && IUSE+=" doc hardened multilib objc"
+	tc_version_is_between 3 7 && IUSE+=" awt gcj"
 	tc_version_is_at_least 3.3 && IUSE+=" pgo"
 	tc_version_is_at_least 4.0 && IUSE+=" objc-gc"
 	tc_version_is_between 4.0 4.9 && IUSE+=" mudflap"
@@ -150,9 +150,12 @@ if [[ ${PN} != "kgcc64" && ${PN} != gcc-* ]] ; then
 	# versions which we dropped.  Since graphite was also experimental in
 	# the older versions, we don't want to bother supporting it.  #448024
 	tc_version_is_at_least 4.8 && IUSE+=" graphite" IUSE_DEF+=( sanitize )
-	tc_version_is_at_least 4.9 && IUSE+=" cilk +vtv"
+	tc_version_is_between 4.9 8 && IUSE+=" cilk"
+	tc_version_is_at_least 4.9 && IUSE+=" +vtv"
 	tc_version_is_at_least 5.0 && IUSE+=" jit mpx"
 	tc_version_is_at_least 6.0 && IUSE+=" +pie +ssp +pch"
+	# systemtap is a gentoo-specific switch: bug #654748
+	tc_version_is_at_least 8.0 && IUSE+=" systemtap"
 fi
 
 IUSE+=" ${IUSE_DEF[*]/#/+}"
@@ -167,7 +170,7 @@ RDEPEND="sys-libs/zlib
 tc_version_is_at_least 3 && RDEPEND+=" virtual/libiconv"
 
 if tc_version_is_at_least 4 ; then
-	GMP_MPFR_DEPS=">=dev-libs/gmp-4.3.2:0 >=dev-libs/mpfr-2.4.2:0"
+	GMP_MPFR_DEPS=">=dev-libs/gmp-4.3.2:0= >=dev-libs/mpfr-2.4.2:0="
 	if tc_version_is_at_least 4.3 ; then
 		RDEPEND+=" ${GMP_MPFR_DEPS}"
 	elif in_iuse fortran ; then
@@ -175,7 +178,7 @@ if tc_version_is_at_least 4 ; then
 	fi
 fi
 
-tc_version_is_at_least 4.5 && RDEPEND+=" >=dev-libs/mpc-0.8.1:0"
+tc_version_is_at_least 4.5 && RDEPEND+=" >=dev-libs/mpc-0.8.1:0="
 
 if in_iuse objc-gc ; then
 	if tc_version_is_at_least 7 ; then
@@ -185,12 +188,12 @@ fi
 
 if in_iuse graphite ; then
 	if tc_version_is_at_least 5.0 ; then
-		RDEPEND+=" graphite? ( >=dev-libs/isl-0.14 )"
+		RDEPEND+=" graphite? ( >=dev-libs/isl-0.14:0= )"
 	elif tc_version_is_at_least 4.8 ; then
 		RDEPEND+="
 			graphite? (
-				>=dev-libs/cloog-0.18.0
-				>=dev-libs/isl-0.11.1
+				>=dev-libs/cloog-0.18.0:0=
+				>=dev-libs/isl-0.11.1:0=
 			)"
 	fi
 fi
@@ -207,17 +210,21 @@ DEPEND="${RDEPEND}
 if in_iuse gcj ; then
 	GCJ_DEPS=">=media-libs/libart_lgpl-2.1"
 	GCJ_GTK_DEPS="
+		x11-base/xorg-proto
 		x11-libs/libXt
 		x11-libs/libX11
 		x11-libs/libXtst
-		x11-proto/xproto
-		x11-proto/xextproto
 		=x11-libs/gtk+-2*
 		virtual/pkgconfig
 	"
 	tc_version_is_at_least 3.4 && GCJ_GTK_DEPS+=" x11-libs/pango"
 	tc_version_is_at_least 4.2 && GCJ_DEPS+=" app-arch/zip app-arch/unzip"
 	DEPEND+=" gcj? ( awt? ( ${GCJ_GTK_DEPS} ) ${GCJ_DEPS} )"
+fi
+
+if in_iuse systemtap ; then
+	# gcc needs sys/sdt.h headers on target
+	DEPEND+=" systemtap? ( dev-util/systemtap )"
 fi
 
 PDEPEND=">=sys-devel/gcc-config-1.7"
@@ -317,7 +324,11 @@ get_gcc_src_uri() {
 	elif [[ -n ${PRERELEASE} ]] ; then
 		GCC_SRC_URI="ftp://gcc.gnu.org/pub/gcc/prerelease-${PRERELEASE}/gcc-${PRERELEASE}.tar.bz2"
 	elif [[ -n ${SNAPSHOT} ]] ; then
-		GCC_SRC_URI="ftp://gcc.gnu.org/pub/gcc/snapshots/${SNAPSHOT}/gcc-${SNAPSHOT}.tar.bz2"
+		if tc_version_is_between 5.5 6 || tc_version_is_between 6.4 7 || tc_version_is_at_least 7.2 ; then
+			GCC_SRC_URI="ftp://gcc.gnu.org/pub/gcc/snapshots/${SNAPSHOT}/gcc-${SNAPSHOT}.tar.xz"
+		else
+			GCC_SRC_URI="ftp://gcc.gnu.org/pub/gcc/snapshots/${SNAPSHOT}/gcc-${SNAPSHOT}.tar.bz2"
+		fi
 	else
 		if tc_version_is_between 5.5 6 || tc_version_is_between 6.4 7 || tc_version_is_at_least 7.2 ; then
 			GCC_SRC_URI="mirror://gnu/gcc/gcc-${GCC_PV}/gcc-${GCC_RELEASE_VER}.tar.xz"
@@ -378,9 +389,6 @@ toolchain_pkg_pretend() {
 			"in your make.conf if you want to use this version."
 	fi
 
-	[[ -z ${UCLIBC_VER} ]] && [[ ${CTARGET} == *-uclibc* ]] && \
-		die "Sorry, this version does not support uClibc"
-
 	if ! use_if_iuse cxx ; then
 		use_if_iuse go && ewarn 'Go requires a C++ compiler, disabled due to USE="-cxx"'
 		use_if_iuse objc++ && ewarn 'Obj-C++ requires a C++ compiler, disabled due to USE="-cxx"'
@@ -393,10 +401,6 @@ toolchain_pkg_pretend() {
 #---->> pkg_setup <<----
 
 toolchain_pkg_setup() {
-	case ${EAPI} in
-	2|3) toolchain_pkg_pretend ;;
-	esac
-
 	# we dont want to use the installed compiler's specs to build gcc
 	unset GCC_SPECS
 	unset LANGUAGES #265283
@@ -425,7 +429,11 @@ gcc_quick_unpack() {
 	elif [[ -n ${PRERELEASE} ]] ; then
 		unpack gcc-${PRERELEASE}.tar.bz2
 	elif [[ -n ${SNAPSHOT} ]] ; then
-		unpack gcc-${SNAPSHOT}.tar.bz2
+		if tc_version_is_between 5.5 6 || tc_version_is_between 6.4 7 || tc_version_is_at_least 7.2 ; then
+			unpack gcc-${SNAPSHOT}.tar.xz
+		else
+			unpack gcc-${SNAPSHOT}.tar.bz2
+		fi
 	elif [[ ${PV} != *9999* ]] ; then
 		if tc_version_is_between 5.5 6 || tc_version_is_between 6.4 7 || tc_version_is_at_least 7.2 ; then
 			unpack gcc-${GCC_RELEASE_VER}.tar.xz
@@ -499,7 +507,7 @@ toolchain_src_prepare() {
 	do_gcc_PIE_patches
 	epatch_user
 
-	if ( tc_version_is_at_least 4.8.2 || use hardened ) && ! use vanilla ; then
+	if ( tc_version_is_at_least 4.8.2 || use_if_iuse hardened ) && ! use vanilla ; then
 		make_gcc_hard
 	fi
 
@@ -541,7 +549,7 @@ toolchain_src_prepare() {
 	fi
 
 	# >= gcc-4.3 doesn't bundle ecj.jar, so copy it
-	if tc_version_is_at_least 4.3 && use gcj ; then
+	if tc_version_is_at_least 4.3 && use_if_iuse gcj ; then
 		if tc_version_is_at_least 4.5 ; then
 			einfo "Copying ecj-4.5.jar"
 			cp -pPR "${DISTDIR}/ecj-4.5.jar" "${S}/ecj.jar" || die
@@ -641,22 +649,30 @@ do_gcc_PIE_patches() {
 make_gcc_hard() {
 
 	local gcc_hard_flags=""
+
+	# If we use gcc-6 or newer with pie enable to compile older gcc we need to pass -no-pie
+	# to stage1; bug 618908
+	if ! tc_version_is_at_least 6.0 && [[ $(gcc-major-version) -ge 6 ]] ; then
+		einfo "Disabling PIE in stage1 (only) ..."
+		sed -i -e "/^STAGE1_LDFLAGS/ s/$/ -no-pie/" "${S}"/Makefile.in || die
+	fi
+
 	# Gcc >= 6.X we can use configurations options to turn pie/ssp on as default
 	if tc_version_is_at_least 6.0 ; then
-		if use pie ; then
+		if use_if_iuse pie ; then
 			einfo "Updating gcc to use automatic PIE building ..."
 		fi
-		if use ssp ; then
+		if use_if_iuse ssp ; then
 			einfo "Updating gcc to use automatic SSP building ..."
 		fi
-		if use hardened ; then
+		if use_if_iuse hardened ; then
 			# Will add some optimatizion as default.
 			gcc_hard_flags+=" -DEXTRA_OPTIONS"
 			# rebrand to make bug reports easier
 			BRANDING_GCC_PKGVERSION=${BRANDING_GCC_PKGVERSION/Gentoo/Gentoo Hardened}
 		fi
 	else
-		if use hardened ; then
+		if use_if_iuse hardened ; then
 			# rebrand to make bug reports easier
 			BRANDING_GCC_PKGVERSION=${BRANDING_GCC_PKGVERSION/Gentoo/Gentoo Hardened}
 			if hardened_gcc_works ; then
@@ -904,7 +920,7 @@ toolchain_src_configure() {
 
 	# Use the default ("release") checking because upstream usually neglects
 	# to test "disabled" so it has a history of breaking. #317217
-	if tc_version_is_at_least 3.4 ; then
+	if tc_version_is_at_least 3.4 && in_iuse debug ; then
 		# The "release" keyword is new to 4.0. #551636
 		local off=$(tc_version_is_at_least 4.0 && echo release || echo no)
 		confgcc+=( --enable-checking="${GCC_CHECKS_LIST:-$(usex debug yes ${off})}" )
@@ -917,7 +933,7 @@ toolchain_src_configure() {
 	)
 
 	# If we want hardened support with the newer piepatchset for >=gcc 4.4
-	if tc_version_is_at_least 4.4 && want_minispecs ; then
+	if tc_version_is_at_least 4.4 && want_minispecs && in_iuse hardened ; then
 		confgcc+=( $(use_enable hardened esp) )
 	fi
 
@@ -929,7 +945,7 @@ toolchain_src_configure() {
 	fi
 
 	# Support to disable pch when building libstdcxx
-	if tc_version_is_at_least 6.0 && ! use pch ; then
+	if tc_version_is_at_least 6.0 && ! use_if_iuse pch ; then
 		confgcc+=( --disable-libstdcxx-pch )
 	fi
 
@@ -964,7 +980,14 @@ toolchain_src_configure() {
 		case ${CTARGET} in
 		*-linux)		 needed_libc=no-fucking-clue;;
 		*-dietlibc)		 needed_libc=dietlibc;;
-		*-elf|*-eabi)	 needed_libc=newlib;;
+		*-elf|*-eabi)
+			needed_libc=newlib
+			# Bare-metal targets don't have access to clock_gettime()
+			# arm-none-eabi example: bug #589672
+			# But we explicitly do --enable-libstdcxx-time above.
+			# Undoing it here.
+			confgcc+=( --disable-libstdcxx-time )
+			;;
 		*-freebsd*)		 needed_libc=freebsd-lib;;
 		*-gnu*)			 needed_libc=glibc;;
 		*-klibc)		 needed_libc=klibc;;
@@ -993,7 +1016,7 @@ toolchain_src_configure() {
 					--disable-threads
 					--without-headers
 				)
-			elif built_with_use --hidden --missing false ${CATEGORY}/${needed_libc} crosscompile_opts_headers-only ; then
+			elif has_version "${CATEGORY}/${needed_libc}[headers-only(-)]" ; then
 				confgcc+=(
 					"${confgcc_no_libc[@]}"
 					--with-sysroot="${PREFIX}"/${CTARGET}
@@ -1053,12 +1076,12 @@ toolchain_src_configure() {
 	gcc-multilib-configure
 
 	# ppc altivec support
-	confgcc+=( $(use_enable altivec) )
+	in_iuse altivec && confgcc+=( $(use_enable altivec) )
 
 	# gcc has fixed-point arithmetic support in 4.3 for mips targets that can
 	# significantly increase compile time by several hours.  This will allow
 	# users to control this feature in the event they need the support.
-	tc_version_is_at_least 4.3 && confgcc+=( $(use_enable fixed-point) )
+	tc_version_is_at_least 4.3 && in_iuse fixed-point && confgcc+=( $(use_enable fixed-point) )
 
 	case $(tc-is-softfloat) in
 	yes)    confgcc+=( --with-float=soft ) ;;
@@ -1191,7 +1214,17 @@ toolchain_src_configure() {
 			if hardened_gcc_is_stable ssp; then
 				export gcc_cv_libc_provides_ssp=yes
 			fi
-			confgcc+=( --disable-libssp )
+			if use_if_iuse ssp; then
+				# On some targets USE="ssp -libssp" is an invalid
+				# configuration as target libc does not provide
+				# stack_chk_* functions. Do not disable libssp there.
+				case ${CTARGET} in
+					mingw*|*-mingw*) ewarn "Not disabling libssp" ;;
+					*) confgcc+=( --disable-libssp ) ;;
+				esac
+			else
+				confgcc+=( --disable-libssp )
+			fi
 		fi
 	fi
 
@@ -1201,6 +1234,10 @@ toolchain_src_configure() {
 
 	if in_iuse mpx ; then
 		confgcc+=( $(use_enable mpx libmpx) )
+	fi
+
+	if in_iuse systemtap ; then
+		confgcc+=( $(use_enable systemtap) )
 	fi
 
 	if in_iuse vtv ; then
@@ -1224,23 +1261,26 @@ toolchain_src_configure() {
 
 	# graphite was added in 4.4 but we only support it in 4.8+ due to external
 	# library issues.  #448024
-	if tc_version_is_at_least 5.0 ; then
+	if tc_version_is_at_least 5.0 && in_iuse graphite ; then
 		confgcc+=( $(use_with graphite isl) )
 		use graphite && confgcc+=( --disable-isl-version-check )
-	elif tc_version_is_at_least 4.8 ; then
+	elif tc_version_is_at_least 4.8 && in_iuse graphite ; then
 		confgcc+=( $(use_with graphite cloog) )
 		use graphite && confgcc+=( --disable-isl-version-check )
 	elif tc_version_is_at_least 4.4 ; then
 		confgcc+=( --without-{cloog,ppl} )
 	fi
 
-	if tc_version_is_at_least 4.8 ; then
+	if tc_version_is_at_least 4.8 && in_iuse sanitize ; then
 		confgcc+=( $(use_enable sanitize libsanitizer) )
 	fi
 
-	if tc_version_is_at_least 6.0 ; then
+	if tc_version_is_at_least 6.0 && in_iuse pie ; then
+		confgcc+=( $(use_enable pie default-pie) )
+	fi
+
+	if tc_version_is_at_least 6.0 && in_iuse ssp ; then
 		confgcc+=(
-			$(use_enable pie default-pie)
 			# This defaults to -fstack-protector-strong.
 			$(use_enable ssp default-ssp)
 		)
@@ -1479,7 +1519,7 @@ gcc_do_filter_flags() {
 
 		# "hppa2.0-unknown-linux-gnu" -> hppa2_0_unknown_linux_gnu
 		local VAR="CFLAGS_"${CTARGET//[-.]/_}
-		CXXFLAGS=${!VAR}
+		CXXFLAGS=${!VAR-${CFLAGS}}
 	fi
 
 	export GCJFLAGS=${GCJFLAGS:-${CFLAGS}}
@@ -1570,7 +1610,7 @@ gcc_do_make() {
 		# resulting binaries natively ^^;
 		GCC_MAKE_TARGET=${GCC_MAKE_TARGET-all}
 	else
-		if tc_version_is_at_least 3.3 && use pgo; then
+		if tc_version_is_at_least 3.3 && use_if_iuse pgo; then
 			GCC_MAKE_TARGET=${GCC_MAKE_TARGET-profiledbootstrap}
 		else
 			GCC_MAKE_TARGET=${GCC_MAKE_TARGET-bootstrap-lean}
@@ -1614,7 +1654,7 @@ gcc_do_make() {
 		${GCC_MAKE_TARGET} \
 		|| die "emake failed with ${GCC_MAKE_TARGET}"
 
-	if ! is_crosscompile && use cxx && use_if_iuse doc ; then
+	if ! is_crosscompile && use_if_iuse cxx && use_if_iuse doc ; then
 		if type -p doxygen > /dev/null ; then
 			if tc_version_is_at_least 4.3 ; then
 				cd "${CTARGET}"/libstdc++-v3/doc
@@ -1781,7 +1821,7 @@ toolchain_src_install() {
 
 	# Rather install the script, else portage with changing $FILESDIR
 	# between binary and source package borks things ....
-	if ! is_crosscompile ; then
+	if ! is_crosscompile && [[ ${PN} != "kgcc64" ]] ; then
 		insinto "${DATAPATH#${EPREFIX}}"
 		newins "$(prefixify_ro "${FILESDIR}"/awk/fixlafiles.awk-no_gcc_la)" fixlafiles.awk || die
 		exeinto "${DATAPATH#${EPREFIX}}"
@@ -1797,6 +1837,7 @@ toolchain_src_install() {
 	# libsupc++.la: This has no dependencies.
 	# libcc1.la: There is no static library, only dynamic.
 	# libcc1plugin.la: Same as above, and it's loaded via dlopen.
+	# libcp1plugin.la: Same as above, and it's loaded via dlopen.
 	# libgomp.la: gcc itself handles linkage (libgomp.spec).
 	# libgomp-plugin-*.la: Same as above, and it's an internal plugin only
 	# loaded via dlopen.
@@ -1816,6 +1857,7 @@ toolchain_src_install() {
 			-name libsupc++.la -o \
 			-name libcc1.la -o \
 			-name libcc1plugin.la -o \
+			-name libcp1plugin.la -o \
 			-name 'libgomp.la' -o \
 			-name 'libgomp-plugin-*.la' -o \
 			-name libgfortran.la -o \
@@ -2075,7 +2117,7 @@ toolchain_pkg_postinst() {
 		eselect compiler-shadow update all
 	fi
 
-	if ! is_crosscompile ; then
+	if ! is_crosscompile && [[ ${PN} != "kgcc64" ]] ; then
 		echo
 		ewarn "If you have issues with packages unable to locate libstdc++.la,"
 		ewarn "then try running 'fix_libtool_files.sh' on the old gcc versions."
@@ -2240,13 +2282,13 @@ gcc-lang-supported() {
 
 is_ada() {
 	gcc-lang-supported ada || return 1
-	use ada
+	use_if_iuse ada
 }
 
 is_cxx() {
 	gcc-lang-supported 'c++' || return 1
 	! is_crosscompile && tc_version_is_at_least 4.8 && return 0
-	use cxx
+	use_if_iuse cxx
 }
 
 is_d() {
@@ -2256,27 +2298,27 @@ is_d() {
 
 is_f77() {
 	gcc-lang-supported f77 || return 1
-	use fortran
+	use_if_iuse fortran
 }
 
 is_f95() {
 	gcc-lang-supported f95 || return 1
-	use fortran
+	use_if_iuse fortran
 }
 
 is_fortran() {
 	gcc-lang-supported fortran || return 1
-	use fortran
+	use_if_iuse fortran
 }
 
 is_gcj() {
 	gcc-lang-supported java || return 1
-	use cxx && use_if_iuse gcj
+	use_if_iuse cxx && use_if_iuse gcj
 }
 
 is_go() {
 	gcc-lang-supported go || return 1
-	use cxx && use_if_iuse go
+	use_if_iuse cxx && use_if_iuse go
 }
 
 is_jit() {
@@ -2286,7 +2328,7 @@ is_jit() {
 
 is_multilib() {
 	tc_version_is_at_least 3 || return 1
-	use multilib
+	use_if_iuse multilib
 }
 
 is_objc() {
@@ -2296,7 +2338,7 @@ is_objc() {
 
 is_objcxx() {
 	gcc-lang-supported 'obj-c++' || return 1
-	use cxx && use_if_iuse objc++
+	use_if_iuse cxx && use_if_iuse objc++
 }
 
 # Grab a variable from the build system (taken from linux-info.eclass)
@@ -2364,12 +2406,12 @@ want_minispecs() {
 	if tc_version_is_at_least 6.0 ; then
 		return 0
 	fi
-	if tc_version_is_at_least 4.3.2 && use hardened ; then
+	if tc_version_is_at_least 4.3.2 && use_if_iuse hardened ; then
 		if ! want_pie ; then
 			ewarn "PIE_VER or SPECS_VER is not defined in the GCC ebuild."
 		elif use vanilla ; then
 			ewarn "You will not get hardened features if you have the vanilla USE-flag."
-		elif use nopie && use nossp ; then
+		elif use_if_iuse nopie && use_if_iuse nossp ; then
 			ewarn "You will not get hardened features if you have the nopie and nossp USE-flag."
 		elif ! hardened_gcc_works ; then
 			ewarn "Your $(tc-arch) arch is not supported."
@@ -2383,11 +2425,11 @@ want_minispecs() {
 }
 
 want_pie() {
-	! use hardened && [[ -n ${PIE_VER} ]] && use nopie && return 1
+	! use_if_iuse hardened && [[ -n ${PIE_VER} ]] && use_if_iuse nopie && return 1
 	[[ -n ${PIE_VER} ]] && [[ -n ${SPECS_VER} ]] && return 0
 	tc_version_is_at_least 4.3.2 && return 1
 	[[ -z ${PIE_VER} ]] && return 1
-	use !nopie && return 0
+	use_if_iuse nopie || return 0
 	return 1
 }
 

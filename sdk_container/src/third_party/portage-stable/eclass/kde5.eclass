@@ -1,12 +1,25 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: kde5.eclass
 # @MAINTAINER:
 # kde@gentoo.org
-# @BLURB: Support eclass for KDE 5-related packages.
+# @BLURB: Support eclass for packages that follow KDE packaging conventions.
 # @DESCRIPTION:
-# The kde5.eclass provides support for building KDE 5-related packages.
+# This eclass is intended to streamline the creation of ebuilds for packages
+# that follow KDE upstream packaging conventions. It's primarily intended for
+# the three upstream release groups (Frameworks, Plasma, Applications) but
+# is also for any package that follows similar conventions.
+#
+# This eclass unconditionally inherits kde5-functions.eclass and all its public
+# functions and variables may be considered as part of this eclass's API.
+#
+# This eclass unconditionally inherits cmake-utils.eclass and all its public
+# variables and helper functions (not phase functions) may be considered as part
+# of this eclass's API.
+#
+# This eclass's phase functions are not intended to be mixed and matched, so if
+# any phase functions are overridden the version here should also be called.
 
 if [[ -z ${_KDE5_ECLASS} ]]; then
 _KDE5_ECLASS=1
@@ -18,7 +31,11 @@ _KDE5_ECLASS=1
 # for tests you should proceed with setting VIRTUALX_REQUIRED=test.
 : ${VIRTUALX_REQUIRED:=manual}
 
-inherit cmake-utils eutils flag-o-matic gnome2-utils kde5-functions versionator virtualx xdg
+inherit cmake-utils flag-o-matic gnome2-utils kde5-functions virtualx xdg
+
+case ${EAPI} in
+	6) inherit eapi7-ver eutils ;;
+esac
 
 if [[ ${KDE_BUILD_TYPE} = live ]]; then
 	case ${KDE_SCM} in
@@ -35,19 +52,22 @@ EXPORT_FUNCTIONS pkg_setup pkg_nofetch src_unpack src_prepare src_configure src_
 # @ECLASS-VARIABLE: KDE_AUTODEPS
 # @DESCRIPTION:
 # If set to "false", do nothing.
-# For any other value, add a dependency on dev-qt/qtcore:5 and kde-frameworks/extra-cmake-modules:5.
+# For any other value, add dependencies on dev-qt/qtcore:5, kde-frameworks/kf-env
+# and kde-frameworks/extra-cmake-modules:5. Additionally, required blockers may
+# be set depending on the value of CATEGORY.
 : ${KDE_AUTODEPS:=true}
 
 # @ECLASS-VARIABLE: KDE_BLOCK_SLOT4
 # @DESCRIPTION:
-# This variable is used when KDE_AUTODEPS is set.
-# If set to "true", add RDEPEND block on kde-apps/${PN}:4
+# This variable only has any effect when when CATEGORY = "kde-apps" and
+# KDE_AUTODEPS is also set. If set to "true", add RDEPEND block on kde-apps/${PN}:4
 : ${KDE_BLOCK_SLOT4:=true}
 
 # @ECLASS-VARIABLE: KDE_DEBUG
 # @DESCRIPTION:
-# If set to "false", unconditionally build with -DNDEBUG.
-# Otherwise, add debug to IUSE to control building with that flag.
+# If set to "false", add -DNDEBUG (via cmake-utils_src_configure) and -DQT_NO_DEBUG
+# to CPPFLAGS.
+# Otherwise, add debug to IUSE.
 : ${KDE_DEBUG:=true}
 
 # @ECLASS-VARIABLE: KDE_DESIGNERPLUGIN
@@ -76,19 +96,23 @@ EXPORT_FUNCTIONS pkg_setup pkg_nofetch src_unpack src_prepare src_configure src_
 
 # @ECLASS-VARIABLE: KDE_DOC_DIR
 # @DESCRIPTION:
-# Defaults to "doc". Otherwise, use alternative KDE handbook path.
+# Specifies the location of the KDE handbook if not the default.
 : ${KDE_DOC_DIR:=doc}
+
+# @ECLASS-VARIABLE: KDE_PO_DIRS
+# @DESCRIPTION:
+# Specifies the possible locations of KDE l10n files if not the default.
+: ${KDE_PO_DIRS:="po poqm"}
 
 # @ECLASS-VARIABLE: KDE_QTHELP
 # @DESCRIPTION:
 # If set to "false", do nothing.
 # Otherwise, add "doc" to IUSE, add the appropriate dependency, generate
 # and install Qt compressed help files with -DBUILD_QCH=ON when USE=doc.
-if [[ ${CATEGORY} = kde-frameworks && ( $(get_version_component_range 2) -ge 36 || ${KDE_BUILD_TYPE} = live ) ]]; then
+if [[ ${CATEGORY} = kde-frameworks ]]; then
 	: ${KDE_QTHELP:=true}
-else
-	: ${KDE_QTHELP:=false}
 fi
+: ${KDE_QTHELP:=false}
 
 # @ECLASS-VARIABLE: KDE_TESTPATTERN
 # @DESCRIPTION:
@@ -111,9 +135,8 @@ fi
 # fix and creates ${T}/${P}-tests-optional.patch to refine and submit upstream.
 if [[ ${CATEGORY} = kde-frameworks ]]; then
 	: ${KDE_TEST:=true}
-else
-	: ${KDE_TEST:=false}
 fi
+: ${KDE_TEST:=false}
 
 # @ECLASS-VARIABLE: KDE_SELINUX_MODULE
 # @DESCRIPTION:
@@ -161,7 +184,7 @@ case ${KDE_SUBSLOT} in
 			kde-frameworks | \
 			kde-plasma | \
 			kde-apps)
-				SLOT+="/$(get_version_component_range 1-2)"
+				SLOT+="/$(ver_cut 1-2)"
 				;;
 			*)
 				SLOT+="/${PV}"
@@ -180,21 +203,19 @@ case ${KDE_AUTODEPS} in
 		RDEPEND+=" >=kde-frameworks/kf-env-4"
 		COMMONDEPEND+=" $(add_qt_dep qtcore)"
 
-		case ${CATEGORY} in
-			kde-frameworks | \
-			kde-plasma)
-				RDEPEND+=" !<kde-apps/kde4-l10n-15.12.3-r1"
-				;;
-			kde-apps)
-				[[ ${KDE_BLOCK_SLOT4} = true ]] && RDEPEND+=" !kde-apps/${PN}:4"
-				[[ $(get_version_component_range 1) -ge 17 ]] && \
-					RDEPEND+="
-						!kde-apps/kde-l10n
-						!<kde-apps/kde4-l10n-16.12.0:4
-						!kde-apps/kdepim-l10n:5
-					"
-				;;
-		esac
+		# all packages need breeze/oxygen icons for basic iconset, bug #564838
+		if [[ ${PN} != breeze-icons && ${PN} != oxygen-icons ]]; then
+			RDEPEND+=" || ( $(add_frameworks_dep breeze-icons) kde-frameworks/oxygen-icons:* )"
+		fi
+
+		if [[ ${CATEGORY} = kde-apps ]]; then
+			[[ ${KDE_BLOCK_SLOT4} = true ]] && RDEPEND+=" !kde-apps/${PN}:4"
+			RDEPEND+="
+				!kde-apps/kde-l10n
+				!<kde-apps/kde4-l10n-16.12.0:4
+				!kde-apps/kdepim-l10n:5
+			"
+		fi
 		;;
 esac
 
@@ -209,11 +230,7 @@ case ${KDE_DESIGNERPLUGIN} in
 	false)  ;;
 	*)
 		IUSE+=" designer"
-		DEPEND+=" designer? (
-			$(add_frameworks_dep kdesignerplugin)
-			$(add_qt_dep designer)
-		)"
-		;;
+		DEPEND+=" designer? ( $(add_frameworks_dep kdesignerplugin) )"
 esac
 
 case ${KDE_EXAMPLES} in
@@ -314,8 +331,6 @@ _calculate_src_uri() {
 	case ${CATEGORY} in
 		kde-apps)
 			case ${PV} in
-				16.12.3)
-					SRC_URI="mirror://kde/Attic/applications/16.12.3/src/${_kmname}-${PV}.tar.xz" ;;
 				??.?.[6-9]? | ??.??.[6-9]? )
 					SRC_URI="mirror://kde/unstable/applications/${PV}/src/${_kmname}-${PV}.tar.xz"
 					RESTRICT+=" mirror"
@@ -327,10 +342,10 @@ _calculate_src_uri() {
 		kde-frameworks)
 			SRC_URI="mirror://kde/stable/frameworks/${PV%.*}/${_kmname}-${PV}.tar.xz" ;;
 		kde-plasma)
-			local plasmapv=$(get_version_component_range 1-3)
+			local plasmapv=$(ver_cut 1-3)
 
 			case ${PV} in
-				5.?.[6-9]? )
+				5.?.[6-9]? | 5.??.[6-9]? )
 					# Plasma 5 beta releases
 					SRC_URI="mirror://kde/unstable/plasma/${plasmapv}/${_kmname}-${PV}.tar.xz"
 					RESTRICT+=" mirror"
@@ -396,11 +411,11 @@ _calculate_live_repo() {
 			fi
 
 			if [[ ${PV} == ??.??.49.9999 && ${CATEGORY} = kde-apps ]]; then
-				EGIT_BRANCH="Applications/$(get_version_component_range 1-2)"
+				EGIT_BRANCH="Applications/$(ver_cut 1-2)"
 			fi
 
 			if [[ ${PV} != 9999 && ${CATEGORY} = kde-plasma ]]; then
-				EGIT_BRANCH="Plasma/$(get_version_component_range 1-2)"
+				EGIT_BRANCH="Plasma/$(ver_cut 1-2)"
 			fi
 
 			EGIT_REPO_URI="${EGIT_MIRROR}/${_kmname}"
@@ -417,7 +432,8 @@ debug-print "${LINENO} ${ECLASS} ${FUNCNAME}: SRC_URI is ${SRC_URI}"
 
 # @FUNCTION: kde5_pkg_pretend
 # @DESCRIPTION:
-# Do some basic settings
+# Checks if the active compiler meets the minimum version requirements.
+# phase function is only exported if KDE_GCC_MINIMAL is defined.
 kde5_pkg_pretend() {
 	debug-print-function ${FUNCNAME} "$@"
 	_check_gcc_version
@@ -425,7 +441,7 @@ kde5_pkg_pretend() {
 
 # @FUNCTION: kde5_pkg_setup
 # @DESCRIPTION:
-# Do some basic settings
+# Checks if the active compiler meets the minimum version requirements.
 kde5_pkg_setup() {
 	debug-print-function ${FUNCNAME} "$@"
 	_check_gcc_version
@@ -433,7 +449,9 @@ kde5_pkg_setup() {
 
 # @FUNCTION: kde5_pkg_nofetch
 # @DESCRIPTION:
-# Display package publication status
+# Intended for use in the KDE overlay. If this package matches something in
+# KDE_UNRELEASED, display a giant warning that the package has not yet been
+# released upstream and should not be used.
 kde5_pkg_nofetch() {
 	if ! _kde_is_unreleased ; then
 		return
@@ -463,7 +481,7 @@ kde5_pkg_nofetch() {
 
 # @FUNCTION: kde5_src_unpack
 # @DESCRIPTION:
-# Function for unpacking KDE 5.
+# Unpack the sources, automatically handling both release and live ebuilds.
 kde5_src_unpack() {
 	debug-print-function ${FUNCNAME} "$@"
 
@@ -480,7 +498,8 @@ kde5_src_unpack() {
 
 # @FUNCTION: kde5_src_prepare
 # @DESCRIPTION:
-# Function for preparing the KDE 5 sources.
+# Wrapper for cmake-utils_src_prepare with lots of extra logic for magic
+# handling of linguas, tests, handbook etc.
 kde5_src_prepare() {
 	debug-print-function ${FUNCNAME} "$@"
 
@@ -503,18 +522,18 @@ kde5_src_prepare() {
 
 	# drop translations when nls is not wanted
 	if in_iuse nls && ! use nls ; then
-		if [[ -d po ]] ; then
-			rm -r po || die
-		fi
-		if [[ -d poqm ]] ; then
-			rm -r poqm || die
-		fi
+		local po
+		for po in ${KDE_PO_DIRS}; do
+			if [[ -d ${po} ]] ; then
+				rm -r ${po} || die
+			fi
+		done
 	fi
 
 	# enable only the requested translations when required
 	if [[ -v LINGUAS ]] ; then
 		local po
-		for po in po poqm; do
+		for po in ${KDE_PO_DIRS}; do
 		if [[ -d ${po} ]] ; then
 			pushd ${po} > /dev/null || die
 			local lang
@@ -590,7 +609,8 @@ kde5_src_prepare() {
 
 # @FUNCTION: kde5_src_configure
 # @DESCRIPTION:
-# Function for configuring the build of KDE 5.
+# Wrapper for cmake-utils_src_configure with extra logic for magic handling of
+# handbook, tests etc.
 kde5_src_configure() {
 	debug-print-function ${FUNCNAME} "$@"
 
@@ -601,7 +621,7 @@ kde5_src_configure() {
 
 	local cmakeargs
 
-	if ! use_if_iuse test ; then
+	if in_iuse test && ! use test ; then
 		cmakeargs+=( -DBUILD_TESTING=OFF )
 
 		if [[ ${KDE_TEST} = optional ]] ; then
@@ -614,7 +634,7 @@ kde5_src_configure() {
 	fi
 
 	if ! use_if_iuse designer && [[ ${KDE_DESIGNERPLUGIN} != false ]] ; then
-		cmakeargs+=( -DCMAKE_DISABLE_FIND_PACKAGE_Qt5Designer=ON )
+		cmakeargs+=( -DCMAKE_DISABLE_FIND_PACKAGE_KF5DesignerPlugin=ON )
 	fi
 
 	if [[ ${KDE_QTHELP} != false ]]; then
@@ -632,7 +652,8 @@ kde5_src_configure() {
 
 # @FUNCTION: kde5_src_compile
 # @DESCRIPTION:
-# Function for compiling KDE 5.
+# Wrapper for cmake-utils_src_compile. Currently doesn't do anything extra, but
+# is included as part of the API just in case it's needed in the future.
 kde5_src_compile() {
 	debug-print-function ${FUNCNAME} "$@"
 
@@ -641,7 +662,8 @@ kde5_src_compile() {
 
 # @FUNCTION: kde5_src_test
 # @DESCRIPTION:
-# Function for testing KDE 5.
+# Wrapper for cmake-utils_src_test with extra logic for magic handling of dbus
+# and virtualx.
 kde5_src_test() {
 	debug-print-function ${FUNCNAME} "$@"
 
@@ -672,7 +694,9 @@ kde5_src_test() {
 
 # @FUNCTION: kde5_src_install
 # @DESCRIPTION:
-# Function for installing KDE 5.
+# Wrapper for cmake-utils_src_install with extra logic to avoid compressing
+# certain types of files. For example, khelpcenter is not able to read
+# compressed handbooks.
 kde5_src_install() {
 	debug-print-function ${FUNCNAME} "$@"
 
@@ -695,7 +719,7 @@ kde5_src_install() {
 
 # @FUNCTION: kde5_pkg_preinst
 # @DESCRIPTION:
-# Function storing icon caches
+# Sets up environment variables required in kde5_pkg_postinst.
 kde5_pkg_preinst() {
 	debug-print-function ${FUNCNAME} "$@"
 
@@ -705,7 +729,7 @@ kde5_pkg_preinst() {
 
 # @FUNCTION: kde5_pkg_postinst
 # @DESCRIPTION:
-# Function to rebuild the KDE System Configuration Cache after an application has been installed.
+# Updates the various XDG caches (icon, desktop, mime) if necessary.
 kde5_pkg_postinst() {
 	debug-print-function ${FUNCNAME} "$@"
 
@@ -726,7 +750,7 @@ kde5_pkg_postinst() {
 
 # @FUNCTION: kde5_pkg_postrm
 # @DESCRIPTION:
-# Function to rebuild the KDE System Configuration Cache after an application has been removed.
+# Updates the various XDG caches (icon, desktop, mime) if necessary.
 kde5_pkg_postrm() {
 	debug-print-function ${FUNCNAME} "$@"
 
