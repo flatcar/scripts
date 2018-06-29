@@ -1,15 +1,15 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-PYTHON_COMPAT=( python3_{4,5,6} )
+PYTHON_COMPAT=( python3_{5,6} )
 
 if [[ ${PV} = *9999* ]]; then
 	EGIT_REPO_URI="https://github.com/mesonbuild/meson"
 	inherit git-r3
 else
 	SRC_URI="mirror://pypi/${PN:0:1}/${PN}/${P}.tar.gz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~ia64 ~mips ~ppc ~ppc64 ~x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x64-solaris"
 fi
 
 inherit distutils-r1
@@ -33,5 +33,7 @@ python_install_all() {
 	distutils-r1_python_install_all
 
 	insinto /usr/share/vim/vimfiles
-	doins -r syntax-highlighting/vim/{ftdetect,indent,syntax}
+	doins -r data/syntax-highlighting/vim/{ftdetect,indent,syntax}
+	insinto /usr/share/zsh/site-functions
+	doins data/shell-completions/zsh/_meson
 }
