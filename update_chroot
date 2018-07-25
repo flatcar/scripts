@@ -227,9 +227,8 @@ if [[ "${FLAGS_skip_toolchain_update}" -eq "${FLAGS_FALSE}" && \
 fi
 
 # Build cros_workon packages when they are changed.
-CHROMITE_BIN="${GCLIENT_ROOT}/chromite/bin"
 if [ "${FLAGS_workon}" -eq "${FLAGS_TRUE}" ]; then
-  for pkg in $("${CHROMITE_BIN}/cros_list_modified_packages" --host); do
+  for pkg in $(cros_workon list --host); do
     EMERGE_FLAGS+=( "--reinstall-atoms=${pkg}" "--usepkg-exclude=${pkg}" )
   done
 fi
@@ -241,9 +240,6 @@ sudo -E ${EMERGE_CMD} "${EMERGE_FLAGS[@]}" \
     coreos-devel/sdk-depends world
 
 info "Removing obsolete packages"
-# XXX: Remove these next two lines after stable > 1632.
-cats=( '<=sys-devel' "${BOARD_CHOSTS[@]/#/<=cross-}" )
-sudo -E emerge --quiet --unmerge "${cats[@]/%//binutils-2.29.0}" "${cats[@]/%//gcc-7.2.0}" 2>/dev/null || :
 sudo -E ${EMERGE_CMD} --quiet --depclean @unavailable
 
 if portageq list_preserved_libs / >/dev/null; then
