@@ -2,8 +2,9 @@
 
 set -eux
 
-APPID=e96281a6-d1af-4bde-9a0a-97b76e56dc57
-BOARD=amd64-usr
+declare -A APPID
+APPID[amd64-usr]=e96281a6-d1af-4bde-9a0a-97b76e56dc57
+APPID[arm64-usr]=103867da-e3a2-4c92-b0b3-7fbd7f7d8b71
 
 declare -A RELEASE_CHANNEL
 RELEASE_CHANNEL[alpha]=Alpha
