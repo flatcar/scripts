@@ -319,7 +319,7 @@ else
 fi
 
 # Compatibility alias
-FLATCAR_VERSION_STRING="${FLATCAR_VERSION}"
+COREOS_VERSION_STRING="${COREOS_VERSION}"
 
 # Calculate what today's build version should be, used by release
 # scripts to provide a reasonable default value. The value is the number
@@ -389,7 +389,6 @@ fi
 BUILD_DIR=
 
 # Standard filenames
-FLATCAR_DEVELOPER_IMAGE_NAME="flatcar_developer_image.bin"
 FLATCAR_DEVELOPER_CONTAINER_NAME="flatcar_developer_container.bin"
 FLATCAR_PRODUCTION_IMAGE_NAME="flatcar_production_image.bin"
 

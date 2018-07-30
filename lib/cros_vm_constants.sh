@@ -9,7 +9,6 @@ DEFAULT_MEM="1024"
 DEFAULT_VMDK="ide.vmdk"
 DEFAULT_VMX="flatcar.vmx"
 DEFAULT_VBOX_DISK="os.vdi"
-DEFAULT_QEMU_IMAGE="flatcar_developer_qemu_image.img"
 
 # Minimum sizes for full size vm images -- needed for update.
 MIN_VDISK_SIZE_FULL=9216
