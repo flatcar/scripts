@@ -1,6 +1,5 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/makedev/makedev-3.23.1.ebuild,v 1.16 2011/06/25 16:35:50 armin76 Exp $
 
 EAPI="2"
 
@@ -11,12 +10,12 @@ MY_VER=${PV%.*}
 MY_REL=${PV#${MY_VER}.}
 MY_P="${MY_PN}-${MY_VER}"
 DESCRIPTION="program used for creating device files in /dev"
-HOMEPAGE="http://people.redhat.com/nalin/MAKEDEV/"
-SRC_URI="http://people.redhat.com/nalin/MAKEDEV/${MY_P}-${MY_REL}.tar.gz"
+HOMEPAGE="https://people.redhat.com/nalin/MAKEDEV/"
+SRC_URI="https://people.redhat.com/nalin/MAKEDEV/${MY_P}-${MY_REL}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86"
+KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86"
 IUSE="build selinux"
 
 RDEPEND="!<sys-apps/baselayout-2.0.0_rc"
