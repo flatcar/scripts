@@ -3,48 +3,55 @@
 
 EAPI=6
 
-PYTHON_COMPAT=( python2_7 )
+PYTHON_COMPAT=( python2_7 python3_{5,6} pypy )
 
-inherit multiprocessing python-any-r1 versionator toolchain-funcs
+inherit multiprocessing multilib-build python-any-r1 toolchain-funcs versionator
 
 if [[ ${PV} = *beta* ]]; then
 	betaver=${PV//*beta}
 	BETA_SNAPSHOT="${betaver:0:4}-${betaver:4:2}-${betaver:6:2}"
 	MY_P="rustc-beta"
 	SLOT="beta/${PV}"
-	SRC="${BETA_SNAPSHOT}/rustc-beta-src.tar.gz"
-	KEYWORDS="amd64 x86"
+	SRC="${BETA_SNAPSHOT}/rustc-beta-src.tar.xz"
+	KEYWORDS=""
 else
 	ABI_VER="$(get_version_component_range 1-2)"
 	SLOT="stable/${ABI_VER}"
 	MY_P="rustc-${PV}"
-	SRC="${MY_P}-src.tar.gz"
-	KEYWORDS="amd64 ~arm64 x86"
+	SRC="${MY_P}-src.tar.xz"
+	KEYWORDS="~amd64 ~arm64 ~x86"
 fi
 
 CHOST_amd64=x86_64-unknown-linux-gnu
 CHOST_x86=i686-unknown-linux-gnu
 CHOST_arm64=aarch64-unknown-linux-gnu
 
-RUST_STAGE0_VERSION="1.$(($(get_version_component_range 2) - 1)).0"
+RUST_STAGE0_VERSION="1.$(($(get_version_component_range 2) - 1)).2"
 RUST_STAGE0_amd64="rust-${RUST_STAGE0_VERSION}-${CHOST_amd64}"
 RUST_STAGE0_x86="rust-${RUST_STAGE0_VERSION}-${CHOST_x86}"
 RUST_STAGE0_arm64="rust-${RUST_STAGE0_VERSION}-${CHOST_arm64}"
 
-CARGO_DEPEND_VERSION="0.$(($(get_version_component_range 2) + 1)).0"
+# there is no cargo 0.28 tag, so use 0.27
+#CARGO_DEPEND_VERSION="0.$(($(version_get_comp 2) + 1)).0"
+CARGO_DEPEND_VERSION="0.$(($(get_version_component_range 2))).0"
 
 DESCRIPTION="Systems programming language from Mozilla"
 HOMEPAGE="https://www.rust-lang.org/"
 
-SRC_URI="https://static.rust-lang.org/dist/${SRC} -> rustc-${PV}-src.tar.gz
-	amd64? ( https://static.rust-lang.org/dist/${RUST_STAGE0_amd64}.tar.gz )
-	x86? ( https://static.rust-lang.org/dist/${RUST_STAGE0_x86}.tar.gz )
-	arm64? ( https://static.rust-lang.org/dist/${RUST_STAGE0_arm64}.tar.gz )
+SRC_URI="https://static.rust-lang.org/dist/${SRC} -> rustc-${PV}-src.tar.xz
+	amd64? ( https://static.rust-lang.org/dist/${RUST_STAGE0_amd64}.tar.xz )
+	x86? ( https://static.rust-lang.org/dist/${RUST_STAGE0_x86}.tar.xz )
+	arm64? ( https://static.rust-lang.org/dist/${RUST_STAGE0_arm64}.tar.xz )
 "
+
+ALL_LLVM_TARGETS=( AArch64 AMDGPU ARM BPF Hexagon Lanai Mips MSP430
+	NVPTX PowerPC Sparc SystemZ X86 XCore )
+ALL_LLVM_TARGETS=( "${ALL_LLVM_TARGETS[@]/#/llvm_targets_}" )
+LLVM_TARGET_USEDEPS=${ALL_LLVM_TARGETS[@]/%/?}
 
 LICENSE="|| ( MIT Apache-2.0 ) BSD-1 BSD-2 BSD-4 UoI-NCSA"
 
-IUSE="debug doc extended +jemalloc"
+IUSE="debug doc extended +jemalloc wasm ${ALL_LLVM_TARGETS[*]}"
 
 RDEPEND=">=app-eselect/eselect-rust-0.3_pre20150425
 		jemalloc? ( dev-libs/jemalloc )"
@@ -57,6 +64,8 @@ DEPEND="${RDEPEND}
 	dev-util/cmake
 "
 PDEPEND="!extended? ( >=dev-util/cargo-${CARGO_DEPEND_VERSION} )"
+
+REQUIRED_USE="|| ( ${ALL_LLVM_TARGETS[*]} )"
 
 S="${WORKDIR}/${MY_P}-src"
 
@@ -76,20 +85,33 @@ src_prepare() {
 }
 
 src_configure() {
+	local rust_target="" rust_targets="" rust_target_name arch_cflags
+
+	# Collect rust target names to compile standard libs for all ABIs.
+	for v in $(multilib_get_enabled_abi_pairs); do
+		rust_target_name="CHOST_${v##*.}"
+		rust_targets="${rust_targets},\"${!rust_target_name}\""
+	done
+	if use wasm; then
+		rust_targets="${rust_targets},\"wasm32-unknown-unknown\""
+	fi
+	rust_targets="${rust_targets#,}"
+
 	local rust_stage0_root="${WORKDIR}"/rust-stage0
 
-	local rust_target_name="CHOST_${ARCH}"
-	local rust_target="${!rust_target_name}"
+	rust_target_name="CHOST_${ARCH}"
+	rust_target="${!rust_target_name}"
 
 	cat <<- EOF > "${S}"/config.toml
 		[llvm]
 		optimize = $(toml_usex !debug)
 		release-debuginfo = $(toml_usex debug)
 		assertions = $(toml_usex debug)
+		targets = "${LLVM_TARGETS// /;}"
 		[build]
 		build = "${rust_target}"
 		host = ["${rust_target}"]
-		target = ["${rust_target}"]
+		target = [${rust_targets}]
 		cargo = "${rust_stage0_root}/bin/cargo"
 		rustc = "${rust_stage0_root}/bin/rustc"
 		docs = $(toml_usex doc)
@@ -111,19 +133,42 @@ src_configure() {
 		use-jemalloc = $(toml_usex jemalloc)
 		default-linker = "$(tc-getCC)"
 		rpath = false
-		[target.${rust_target}]
-		cc = "$(tc-getBUILD_CC)"
-		cxx = "$(tc-getBUILD_CXX)"
-		linker = "$(tc-getCC)"
-		ar = "$(tc-getAR)"
+		lld = $(toml_usex wasm)
 	EOF
+
+	for v in $(multilib_get_enabled_abi_pairs); do
+		rust_target=$(get_abi_CHOST ${v##*.})
+		arch_cflags="$(get_abi_CFLAGS ${v##*.})"
+
+		cat <<- EOF >> "${S}"/config.env
+			CFLAGS_${rust_target}=${arch_cflags}
+		EOF
+
+		cat <<- EOF >> "${S}"/config.toml
+			[target.${rust_target}]
+			cc = "$(tc-getBUILD_CC)"
+			cxx = "$(tc-getBUILD_CXX)"
+			linker = "$(tc-getCC)"
+			ar = "$(tc-getAR)"
+		EOF
+	done
+
+	if use wasm; then
+		cat <<- EOF >> "${S}"/config.toml
+			[target.wasm32-unknown-unknown]
+			linker = "lld"
+		EOF
+	fi
 }
 
 src_compile() {
-	./x.py build --verbose --config="${S}"/config.toml -j$(makeopts_jobs) || die
+	env $(cat "${S}"/config.env)\
+		./x.py build --verbose --config="${S}"/config.toml -j$(makeopts_jobs) || die
 }
 
 src_install() {
+	local rust_target abi_libdir
+
 	env DESTDIR="${D}" ./x.py install || die
 
 	mv "${D}/usr/bin/rustc" "${D}/usr/bin/rustc-${PV}" || die
@@ -131,8 +176,24 @@ src_install() {
 	mv "${D}/usr/bin/rust-gdb" "${D}/usr/bin/rust-gdb-${PV}" || die
 	mv "${D}/usr/bin/rust-lldb" "${D}/usr/bin/rust-lldb-${PV}" || die
 
+	# Copy shared library versions of standard libraries for all targets
+	# into the system's abi-dependent lib directories because the rust
+	# installer only does so for the native ABI.
+	for v in $(multilib_get_enabled_abi_pairs); do
+		if [ ${v##*.} = ${DEFAULT_ABI} ]; then
+			continue
+		fi
+		abi_libdir=$(get_abi_LIBDIR ${v##*.})
+		rust_target=$(get_abi_CHOST ${v##*.})
+		mkdir -p "${D}/usr/${abi_libdir}"
+		cp "${D}/usr/$(get_libdir)/rustlib/${rust_target}/lib"/*.so \
+		   "${D}/usr/${abi_libdir}" || die
+	done
+
 	dodoc COPYRIGHT
 
+	# FIXME:
+	# Really not sure if that env is needed, specailly LDPATH
 	cat <<-EOF > "${T}"/50${P}
 		LDPATH="/usr/$(get_libdir)/${P}"
 		MANPATH="/usr/share/${P}/man"
