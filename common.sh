@@ -328,7 +328,7 @@ readonly COREOS_EPOCH=1372636800
 TODAYS_VERSION=$(( (`date +%s` - ${COREOS_EPOCH}) / 86400 ))
 
 # Download URL prefix for SDK and board binary packages
-: ${FLATCAR_DEV_BUILDS:=https://storage.googleapis.com/jenkins-flatcar}
+: ${FLATCAR_DEV_BUILDS:=https://storage.googleapis.com/flatcar-jenkins}
 
 # Load developer's custom settings.  Default location is in scripts dir,
 # since that's available both inside and outside the chroot.  By convention,
