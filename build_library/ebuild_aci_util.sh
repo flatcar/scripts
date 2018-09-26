@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# Expects BOARD, BUILD_DIR, BUILD_LIBRARY_DIR, and COREOS_VERSION in env.
+# Expects BOARD, BUILD_DIR, BUILD_LIBRARY_DIR, and FLATCAR_VERSION in env.
 
 # Copied from create_prod_image()
 create_ebuild_aci_image() {
@@ -60,7 +60,7 @@ ebuild_aci_create() {
     local extra_version="${1?No extra version number given}"; shift
     local pkg_files=( "${@}" )
 
-    local staging_image="coreos_pkg_staging_aci_stage.bin"
+    local staging_image="flatcar_pkg_staging_aci_stage.bin"
 
     local ebuild_atom="=${pkg}-${version}"
 
@@ -79,7 +79,7 @@ ebuild_aci_create() {
     ebuild_aci_write_manifest \
         "${aciroot}/manifest" \
         "${aci_name}" \
-        "${version}_coreos.${extra_version}"
+        "${version}_flatcar.${extra_version}"
 
     local pkg_files_in_rootfs=( "${pkg_files[@]/#/rootfs}" )
 
