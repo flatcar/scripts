@@ -4,9 +4,11 @@ set -ex
 DATA_DIR="$(readlink -f "$1")"
 KEYS_DIR="$(readlink -f "$(dirname "$0")")"
 
+echo "===     Verifying update payload...     ==="
 gpg2 --verify "${DATA_DIR}/flatcar_production_update.bin.bz2.sig"
 gpg2 --verify "${DATA_DIR}/flatcar_production_image.vmlinuz.sig"
 gpg2 --verify "${DATA_DIR}/flatcar_production_update.zip.sig"
+echo "===   Decompressing update payload...   ==="
 bunzip2 --keep "${DATA_DIR}/flatcar_production_update.bin.bz2"
 unzip "${DATA_DIR}/flatcar_production_update.zip" -d "${DATA_DIR}"
 
