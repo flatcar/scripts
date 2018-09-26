@@ -319,7 +319,7 @@ else
 fi
 
 # Compatibility alias
-COREOS_VERSION_STRING="${COREOS_VERSION}"
+FLATCAR_VERSION_STRING="${FLATCAR_VERSION}"
 
 # Calculate what today's build version should be, used by release
 # scripts to provide a reasonable default value. The value is the number
