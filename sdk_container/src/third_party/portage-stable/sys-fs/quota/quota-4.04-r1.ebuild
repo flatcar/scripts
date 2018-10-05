@@ -1,9 +1,9 @@
 # Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=6
 
-inherit autotools eutils
+inherit autotools
 
 DESCRIPTION="Linux quota tools"
 HOMEPAGE="https://sourceforge.net/projects/linuxquota/"
@@ -11,54 +11,52 @@ SRC_URI="mirror://sourceforge/linuxquota/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm ~hppa ia64 ~mips ppc ppc64 sparc x86"
+KEYWORDS="alpha amd64 arm ~arm64 ~hppa ia64 ~mips ppc ppc64 sparc x86"
 IUSE="ldap netlink nls rpc tcpd"
 
-RDEPEND="ldap? ( >=net-nds/openldap-2.3.35 )
+RDEPEND="
+	ldap? ( >=net-nds/openldap-2.3.35 )
 	netlink? (
 		sys-apps/dbus
 		dev-libs/libnl:3
 	)
-	rpc? ( net-nds/rpcbind )
-	tcpd? ( sys-apps/tcp-wrappers )"
-DEPEND="${RDEPEND}
-	nls? ( sys-devel/gettext )"
+	rpc? (
+		net-nds/rpcbind
+		elibc_glibc? ( sys-libs/glibc[-rpc(-)] )
+		net-libs/libtirpc
+		net-libs/rpcsvc-proto
+	)
+	tcpd? ( sys-apps/tcp-wrappers )
+"
+DEPEND="
+	${RDEPEND}
+	nls? ( sys-devel/gettext )
+"
 
 PATCHES=(
-	# Patches from upstream
-	"${FILESDIR}/${P}-fix_build_without_ldap.patch"
-	"${FILESDIR}/${P}-distribute_ldap-scripts.patch"
-	"${FILESDIR}/${P}-explicitely_print_disabled_options.patch"
-	"${FILESDIR}/${P}-respect_docdir.patch"
-	"${FILESDIR}/${P}-dont_override_cflags.patch"
-	"${FILESDIR}/${P}-default_fpic_fpie.patch"
-	"${FILESDIR}/${P}-repqouta_F_option_arg.patch"
-	"${FILESDIR}/${P}-noldap_linking.patch"
-
-	# Patches not (yet) upstreamed
-	"${FILESDIR}/${P}-no_rpc.patch"
+	"${FILESDIR}/${P}-glibc226.patch"
 )
 
 src_prepare() {
-	epatch "${PATCHES[@]}"
-
+	default
 	eautoreconf
 }
 
 src_configure() {
-	econf \
-		--docdir="${EPREFIX}/usr/share/doc/${PF}" \
-		$(use_enable nls) \
-		$(use_enable ldap ldapmail) \
-		$(use_enable netlink) \
-		$(use_enable rpc) \
+	local myeconfargs=(
+		--docdir="${EPREFIX%/}/usr/share/doc/${PF}"
+		$(use_enable nls)
+		$(use_enable ldap ldapmail)
+		$(use_enable netlink)
+		$(use_enable rpc)
 		$(use_enable rpc rpcsetquota)
+	)
+	econf "${myeconfargs[@]}"
 }
 
 src_install() {
 	emake DESTDIR="${D}" install
 	dodoc doc/* README.* Changelog
-	rm -r "${ED}"/usr/include || die #70938
 
 	insinto /etc
 	insopts -m0644
