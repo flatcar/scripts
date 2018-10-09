@@ -1,5 +1,5 @@
 DEFINED_PHASES=compile configure install prepare setup test
-DEPEND=>=dev-lang/perl-5.6 sys-apps/help2man virtual/yacc >=app-portage/elt-patches-20170422
+DEPEND=>=dev-lang/perl-5.6 sys-apps/help2man virtual/yacc >=app-portage/elt-patches-20170815
 DESCRIPTION=ASN.1 library
 EAPI=6
 HOMEPAGE=https://www.gnu.org/software/libtasn1/
@@ -9,5 +9,5 @@ LICENSE=GPL-3 LGPL-2.1
 RDEPEND=valgrind? ( dev-util/valgrind ) abi_x86_32? ( !<=app-emulation/emul-linux-x86-baselibs-20131008-r16 !app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)] )
 SLOT=0/6
 SRC_URI=mirror://gnu/libtasn1/libtasn1-4.12.tar.gz
-_eclasses_=libtool	0081a71a261724730ec4c248494f044d	ltprune	607e058da37aa6dabfa408b7d61da72e	multibuild	35719a9cd25ec71ee49c966f6868454c	multilib	97f470f374f2e94ccab04a2fb21d811e	multilib-build	45f0e78dba7de5c77988265229b4402a	multilib-minimal	bfa1226d0f1fa0093d10b84acd029633	toolchain-funcs	1e35303c63cd707f6c3422b4493d5607
+_eclasses_=libtool	f143db5a74ccd9ca28c1234deffede96	ltprune	08f9e1d9ee0af8f5d9a7854efbcd8c0e	multibuild	40fe59465edacd730c644ec2bc197809	multilib	b2f01ad412baf81650c23fcf0975fa33	multilib-build	b42436dc1260f475af229754c165cb6b	multilib-minimal	8bddda43703ba94d8341f4e247f97566	toolchain-funcs	f164325a2cdb5b3ea39311d483988861
 _md5_=618868abfb6eb28efdb114d8df3d85b8
