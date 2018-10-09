@@ -19,8 +19,7 @@ IUSE="+cxx doc multitarget +nls static-libs test"
 #                      for the patchsets
 #                      Default: dilfridge :)
 
-PATCH_VER=2
-PATCH_BINUTILS_VER=9999
+PATCH_VER=3
 
 case ${PV} in
 	9999)
@@ -42,6 +41,7 @@ case ${PV} in
 	*)
 		SRC_URI="mirror://gnu/binutils/binutils-${PV}.tar.xz"
 		SLOT=$(get_version_component_range 1-2)
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd"
 		;;
 esac
 
