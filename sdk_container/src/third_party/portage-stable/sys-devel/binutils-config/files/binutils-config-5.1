@@ -172,15 +172,7 @@ switch_profile() {
 	INCPATH=${LIBPATH}/include
 	if [[ -d ${ROOT}/${INCPATH} ]] ; then
 		cd "${ROOT}/${INCPATH}" || exit 1
-		if [[ ${HOST} == ${TARGET} ]] ; then
-			# The binutils-lib package handles these files now.
-			for x in libiberty "${HEADERS[@]}" ; do
-				x="${EROOT}/usr/include/${x}"
-				if [[ -L ${x} ]] ; then
-					rm "${x}"
-				fi
-			done
-		else
+		if [[ ${HOST} != ${TARGET} ]] ; then
 			# Clean out old path -- cannot use '-exec {} +' syntax here
 			find . -type f -exec rm -f "${EROOT}/usr/${TARGET}/usr/include/{}" \;
 			rmdir "${EROOT}/usr/${TARGET}/usr/include" >& /dev/null
