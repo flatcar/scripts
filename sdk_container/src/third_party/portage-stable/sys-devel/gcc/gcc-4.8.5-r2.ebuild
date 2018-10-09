@@ -1,13 +1,13 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="5"
 
-PATCH_VER="1.9"
+PATCH_VER="1.4"
 UCLIBC_VER="1.0"
 
 # Hardened gcc 4 stuff
-PIE_VER="0.6.5"
+PIE_VER="0.6.2"
 SPECS_VER="0.2.0"
 SPECS_GCC_VER="4.4.3"
 # arch/libc configurations known to be stable with {PIE,SSP}-by-default
@@ -19,9 +19,9 @@ SSP_STABLE="amd64 x86 mips ppc ppc64 arm"
 SSP_UCLIBC_STABLE="x86 amd64 mips ppc ppc64 arm"
 #end Hardened stuff
 
-inherit toolchain
+inherit eutils toolchain
 
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~x86-fbsd"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd"
 
 RDEPEND=""
 DEPEND="${RDEPEND}
@@ -38,7 +38,10 @@ src_prepare() {
 		ewarn "Please rebuild gcc after upgrading to >=glibc-2.12 #362315"
 		EPATCH_EXCLUDE+=" 10_all_default-fortify-source.patch"
 	fi
-	is_crosscompile && EPATCH_EXCLUDE+=" 05_all_gcc-spec-env.patch"
 
 	toolchain_src_prepare
+
+	use vanilla && return 0
+	#Use -r1 for newer piepatchet that use DRIVER_SELF_SPECS for the hardened specs.
+	[[ ${CHOST} == ${CTARGET} ]] && epatch "${FILESDIR}"/gcc-spec-env-r1.patch
 }
