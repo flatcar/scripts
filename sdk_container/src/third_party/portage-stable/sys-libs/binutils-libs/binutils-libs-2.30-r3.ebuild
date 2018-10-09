@@ -1,24 +1,26 @@
 # Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="5"
+EAPI=6
 
-PATCHVER="1.0"
+PATCH_VER=3
 
 inherit eutils toolchain-funcs multilib-minimal
 
 MY_PN="binutils"
 MY_P="${MY_PN}-${PV}"
+PATCH_BINUTILS_VER=${PATCH_BINUTILS_VER:-${PV}}
+PATCH_DEV=${PATCH_DEV:-dilfridge}
 
 DESCRIPTION="Core binutils libraries (libbfd, libopcodes, libiberty) for external packages"
 HOMEPAGE="https://sourceware.org/binutils/"
-SRC_URI="mirror://gnu/binutils/${MY_P}.tar.bz2
-	mirror://gentoo/${MY_P}-patches-${PATCHVER}.tar.xz"
+SRC_URI="mirror://gnu/binutils/${MY_P}.tar.xz
+	mirror://gentoo/${MY_PN}-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz"
 
 LICENSE="|| ( GPL-3 LGPL-3 )"
 # The shared lib SONAMEs use the ${PV} in them.
 SLOT="0/${PV}"
-KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="64-bit-bfd multitarget nls static-libs"
 
 COMMON_DEPEND="sys-libs/zlib[${MULTILIB_USEDEP}]"
@@ -37,7 +39,11 @@ MULTILIB_WRAPPED_HEADERS=(
 )
 
 src_prepare() {
-	EPATCH_SUFFIX="patch" epatch "${WORKDIR}"/patch
+	if [[ ! -z ${PATCH_VER} ]] ; then
+		einfo "Applying binutils-${PATCH_BINUTILS_VER} patchset ${PATCH_VER}"
+		eapply "${WORKDIR}/patch"/*.patch
+	fi
+	default
 }
 
 pkgversion() {
@@ -73,6 +79,11 @@ multilib_src_configure() {
 		# https://gcc.gnu.org/PR56750
 		--without-stage1-ldflags
 	)
+
+	# mips can't do hash-style=gnu ...
+	if [[ $(tc-arch) != mips ]] ; then
+		myconf+=( --enable-default-hash-style=gnu )
+	fi
 
 	use multitarget && myconf+=( --enable-targets=all --enable-64-bit-bfd )
 
