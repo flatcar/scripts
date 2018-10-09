@@ -4,6 +4,12 @@
 # This file requires eapi 5 or later. New entries go on top.
 # Please use the same syntax as in package.use.mask
 
+# Andreas Sturmlechner <asturm@gentoo.org> (11 Sep 2018)
+# Sometimes crashes Plasma with Appstream versions pre-0.12.
+# Newer versions of dev-libs/appstream are not stable yet. See also:
+# https://mail.kde.org/pipermail/kde-distro-packagers/2018-September/000347.html
+kde-plasma/plasma-desktop appstream
+
 # Michał Górny <mgorny@gentoo.org> (07 Jun 2018)
 # sys-libs/netbsd-csu not stable yet.
 sys-devel/clang-runtime crt
@@ -21,12 +27,8 @@ media-video/vlc aom srt
 dev-python/s3fs test
 
 # Andreas Sturmlechner <asturm@gentoo.org> (22 Apr 2018)
-# Not ready for stable, crashes LO on some systems.
->=app-office/libreoffice-6.0 kde
-
-# Michał Górny <mgorny@gentoo.org> (21 Apr 2018)
-# Apparently requires newer dev-python/django stable.
-=dev-python/django-tastypie-0.13.3 doc
+# Huge patchset in 6.0, early crash reports with fix in ~arch KF5/Plasma-5
+=app-office/libreoffice-6.0* kde
 
 # Andreas Sturmlechner <asturm@gentoo.org> (03 Mar 2018)
 # Depends on unstable dependencies; qt3d bug #652046
@@ -129,10 +131,6 @@ app-office/kmymoney weboob
 # Has no stable reverse deps requiring this useflag
 # Stable-masking it so Boost 1.62 stabilization can go ahead
 sci-libs/vtk mpi
-
-# Doug Goldstein <cardoe@gentoo.org> (04 Jan 2017)
-# libcxx is not stable so we can't let users use it
-dev-lang/rust libcxx
 
 # Alon Bar-Lev <alonbl@gentoo.org> (01 Jan 2017)
 # Will always require unstable packages.

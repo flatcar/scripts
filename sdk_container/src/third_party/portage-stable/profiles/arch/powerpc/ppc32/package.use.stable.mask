@@ -17,6 +17,10 @@
 
 #--- END OF EXAMPLES ---
 
+# Andreas Sturmlechner <asturm@gentoo.org> (15 Aug 2018)
+# media-libs/libsidplay:2 appears to be broken, bug #660288
+media-video/vlc sid
+
 # Andreas Sturmlechner <asturm@gentoo.org> (12 Jun 2018)
 # Requires not yet stable dev-qt/qtpositioning:5
 sci-astronomy/stellarium gps
@@ -40,7 +44,6 @@ sci-libs/plplot ocaml
 
 # Pacho Ramos <pacho@gentoo.org> (02 Jul 2014)
 # Mask due Gnome3 not going to be stabilized on this arch
-dev-java/swt webkit
 >=gnome-base/gnome-desktop-2.32.1-r2 license-docs
 gnome-base/gvfs google
 mail-client/balsa webkit

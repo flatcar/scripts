@@ -41,17 +41,15 @@ case ${CATEGORY} in
 			: ${FRAMEWORKS_MINIMAL:=5.43.0}
 			: ${QT_MINIMAL:=5.9.1}
 		fi
-		if [[ ${KDE_BUILD_TYPE} = live && ${PV} != 5.12* ]]; then
+		[[ ${PV} = 5.12* ]] && : ${QT_MINIMAL:=5.9.4}
+		if [[ ${KDE_BUILD_TYPE} = live && ${PV} != 5.??.49* ]]; then
 			: ${FRAMEWORKS_MINIMAL:=9999}
-			: ${QT_MINIMAL:=5.10.1}
 		fi
+		: ${QT_MINIMAL:=5.11.1}
 		;;
 	kde-apps)
-		if [[ ${PV} = 17.12.3* ]]; then
-			: ${FRAMEWORKS_MINIMAL:=5.43.0}
-			: ${QT_MINIMAL:=5.9.1}
-		fi
-		[[ ${PV} = 18.04.2* ]] && : ${FRAMEWORKS_MINIMAL:=5.44.0}
+		[[ ${PV} = 18.04.3 ]] && : ${FRAMEWORKS_MINIMAL:=5.46.0}
+		: ${FRAMEWORKS_MINIMAL:=5.49.0}
 		;;
 esac
 
@@ -91,17 +89,6 @@ if [[ ${KMNAME-${PN}} = kdevelop ]]; then
 fi
 
 debug-print "${ECLASS}: ${KDEBASE} ebuild recognized"
-
-# @ECLASS-VARIABLE: KDE_SCM
-# @DESCRIPTION:
-# SCM to use if KDE_BUILD_TYPE is determined to be "live".
-# Currently, only git is supported.
-: ${KDE_SCM:=git}
-
-case ${KDE_SCM} in
-	git) ;;
-	*) die "KDE_SCM: ${KDE_SCM} is not supported" ;;
-esac
 
 # @FUNCTION: _check_gcc_version
 # @INTERNAL

@@ -1,6 +1,28 @@
 # Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
+# Michał Górny <mgorny@gentoo.org> (20 Sep 2018)
+# dev-libs/libpfm not keyworded here (and unclear if it supports ARM).
+# Bug #666651.
+sys-devel/llvm exegesis
+
+# Andreas Sturmlechner <asturm@gentoo.org> (01 Sep 2018)
+# media-libs/libaom not yet keyworded
+# projectm not yet keyworded, bug #314969
+media-video/vlc aom chromaprint opencv projectm
+
+# Christian Ruppert <idl0r@gentoo.org> (25 Aug 2018)
+# pre-built, no ARM support
+net-wireless/gr-osmosdr sdrplay
+
+# Tomáš Mózes <hydrapolic@gmail.com> (10 Aug 2018)
+# Needs dev-libs/libmaxminddb which isn't keyworded
+app-admin/syslog-ng geoip2
+
+# Thomas Deutschmann <whissi@gentoo.org> (04 Jul 2018)
+# dev-libs/xxhash not keyworded for arm
+app-admin/rsyslog xxhash
+
 # Tomáš Mózes <hydrapolic@gmail.com> (19 Jun 2018)
 # Needs dev-libs/libmaxminddb which isn't keyworded
 www-servers/nginx nginx_modules_http_geoip2 nginx_modules_stream_geoip2
@@ -16,11 +38,6 @@ net-wireless/gr-osmosdr soapy
 # Markus Meier <maekke@gentoo.org> (30 May 2018)
 # unkeyworded deps for bug #621434
 net-analyzer/zmap mongo
-
-# Andreas Sturmlechner <asturm@gentoo.org> (18 May 2018)
-# media-libs/libaom not yet keyworded
-# projectm not yet keyworded, bug #314969
-media-video/vlc aom chromaprint opencv projectm
 
 # Michał Górny <mgorny@gentoo.org> (15 Apr 2018)
 # Unkeyworded dep masks moved from default/linux.
@@ -204,10 +221,6 @@ dev-cpp/eigen test
 # scrollview requires SWT, which is currently unsupported on ARM.
 app-text/tesseract scrollview
 
-# Michael Weber <xmw@gentoo.org> (09 Jan 2016)
-# no arm support in media-libs/glfw
-app-text/mupdf opengl
-
 # Brian Evans <grknight@gentoo.org> (23 Nov 2015)
 # unmask galera for dev-db/mariadb
 >=dev-db/mariadb-10.1.0 -galera
@@ -240,10 +253,6 @@ app-portage/g-sorcery bson
 # Markos Chandras <hwoarang@gentoo.org> (18 Apr 2015)
 # samba-4 not keyworded on arm
 sys-auth/sssd samba
-
-# Markus Meier <maekke@gentoo.org> (03 Apr 2015)
-# Deps not yet stable or keyworded
-media-libs/libsdl2 fusionsound
 
 # Alexis Ballier <aballier@gentoo.org> (02 Apr 2015)
 # Needs ilmbase (openexr), which does not build and is masked on arm.
@@ -348,10 +357,6 @@ net-im/prosody jit
 # rjb doesn't work on arm, so no java hacks for metasploit
 net-analyzer/metasploit java
 
-# Julian Ospald <hasufell@gentoo.org> (04 Jan 2014)
-# no keyword for media-libs/swfdec and media-libs/libtimidity
->=dev-libs/DirectFB-1.7.1 timidity swfdec
-
 # Markus Meier <maekke@gentoo.org> (26 Dec 2013)
 # Unkeyworded deps, bug #488724
 app-office/gnumeric libgda
@@ -397,10 +402,6 @@ dev-libs/weston rdp screen-sharing
 # Firmware loader not keyworded yet
 sci-libs/linux-gpib firmware
 
-# Markus Meier <maekke@gentoo.org> (10 May 2013)
-# unkeyworded deps for dev-python/ipython
-dev-python/ipython mongodb
-
 # Christoph Junghans <junghans@gentoo.org> (29 Apr 2013)
 # MKL not available on this arch
 media-gfx/povray mkl
@@ -426,12 +427,10 @@ media-gfx/pstoedit emf
 # masking all stable packages with java use flag
 net-vpn/openconnect java
 dev-util/oprofile java
-=dev-db/qdbm-1.8.78-r1 java
 dev-libs/beecrypt java
 dev-libs/cyrus-sasl java
 dev-tex/tex4ht java
 dev-vcs/subversion java
-=media-libs/libcaca-0.99_beta18-r2 java
 media-libs/libjpeg-turbo java
 net-dns/libidn java
 net-misc/tigervnc java
@@ -508,11 +507,11 @@ sys-auth/polkit kde
 app-text/asciidoc test
 
 # Michael Weber <xmw@gentoo.org> (10 Feb 2011)
-# kde-frameworks/kdelibs is not stable for arm
+# kde-frameworks/kconfig is not stable for arm
 net-libs/libproxy kde
 
 # Raúl Porcel <armin76@gentoo.org> (28 Mar 2010)
-# Needs kde-frameworks/kwallet and kde-frameworks/kdelibs stable
+# Needs kde-frameworks/kwallet, kde-frameworks/ki18n and kde-frameworks/kconfig stable
 dev-vcs/subversion kwallet
 
 # Jim Ramsay <lack@gentoo.org> (5 Nov 2008)

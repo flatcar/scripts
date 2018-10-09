@@ -1,13 +1,21 @@
 # Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
+# Ulrich Müller <ulm@gentoo.org> (09 Aug 2018)
+# Needs net-libs/webkit-gtk which is not stable, bug #663248
+app-editors/emacs xwidgets
+
+# Mikle Kolyada <zlogene@gentoo.org> (16 Jul 2018)
+# No stable qtnetwork
+net-irc/znc test
+
+# Akinori Hattori <hattya@gentoo.org> (23 Jun 2018)
+# No stable Java
+dev-db/qdbm java
+
 # Pacho Ramos <pacho@gentoo.org> (28 May 2018)
 # Don't rely on stable inkscape
 app-text/dblatex inkscape
-
-# Andreas Sturmlechner <asturm@gentoo.org> (07 May 2018)
-# Requires unstable dev-python/PyQt4
-media-sound/pulseaudio qt4
 
 # Andreas Sturmlechner <asturm@gentoo.org> (07 May 2018)
 # Requires not stabilised dev-python/restkit
@@ -33,29 +41,18 @@ net-mail/dovecot textcat
 dev-db/mariadb galera
 
 # Alexis Ballier <aballier@gentoo.org> (30 May 2017)
-# No stable libtar yet
-<media-video/vlc-2.3 libtar
-
-# Alexis Ballier <aballier@gentoo.org> (30 May 2017)
 # No stable fluidsynth yet
 media-libs/sdl-mixer fluidsynth
 media-sound/mpd fluidsynth
-<media-video/vlc-2.3 fluidsynth
 
 # Alexis Ballier <aballier@gentoo.org> (29 May 2017)
 # frei0r-plugins is not stable yet, mask it on stable versions
-<media-video/libav-12 frei0r
+<media-video/libav-13 frei0r
 <=media-video/ffmpeg-3.3.6 frei0r sofalizer
 
-# Alexis Ballier <aballier@gentoo.org> (26 May 2017)
-# No musepack-tools stable yet
-media-video/vlc musepack
-media-plugins/gst-plugins-meta:0.10 musepack
-media-sound/mpd musepack
-
 # Alexis Ballier <aballier@gentoo.org> (18 Apr 2017)
-# No gst-plugins-vp8:0.10 stable
-media-plugins/gst-plugins-meta:0.10 vpx
+# No gst-plugins-vp8:0.10, gst-plugins-musepack:0.10 stable
+media-plugins/gst-plugins-meta:0.10 musepack vpx
 
 # Michael Weber <xmw@gentoo.org> (1 Apr 2017)
 # no stable jdk

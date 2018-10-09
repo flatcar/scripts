@@ -1,6 +1,24 @@
 # Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
+# Matthew Thode <prometheanfire@gentoo.org> (12 Sep 2018)
+# dev-db/mariadb-connector-c not yet keyworded
+net-analyzer/icinga2 mariadb
+
+# Andreas Sturmlechner <asturm@gentoo.org> (01 Sep 2018)
+# media-libs/libaom not yet keyworded
+media-video/vlc aom
+
+# Luca Barbato <lu_zero@gentoo.org> (12 Aug 2018)
+# grub pc is not supported on powerpc
+sys-boot/grub:2 grub_platforms_pc grub_platforms_efi-32 grub_platforms_efi-64 grub_platforms_xen
+
+# Pacho Ramos <pacho@gentoo.org> (27 May 2018)
+# kde-frameworks/kdelibs4support not keyworded on ppc
+# Michał Górny <mgorny@gentoo.org> (09 Jul 2018)
+# Moved to parent powerpc profile as it applies to ppc64 as well
+x11-wm/sawfish kde
+
 # Luke Dashjr <luke-jr+gentoobugs@utopios.org> (08 Jun 2018)
 # Requires unported sys-libs/netbsd-csu
 sys-devel/clang-runtime crt
@@ -13,16 +31,13 @@ sys-devel/llvm gold
 # Unkeyworded dependencies.
 app-admin/syslog-ng mongodb
 
-# Andreas Sturmlechner <asturm@gentoo.org> (18 May 2018)
-# media-libs/libaom not yet keyworded
-media-video/vlc aom
-
 # Anthony G. Basile <blueness@gentoo.org> (14 Apr 2018)
 # net-vpn/tor, tests are broken on ppc/ppc64, bug #653098
 net-vpn/tor test
 
 # Sergei Trofimovich <slyfox@gentoo.org> (27 Mar 2018)
 # dev-qt/qtwebengine is not ported to powerpc
+net-irc/quassel urlpreview
 www-client/otter webengine
 
 # Matthias Maier <tamiko@gentoo.org> (18 Mar 2018)
@@ -77,10 +92,6 @@ net-misc/bfgminer adl lm_sensors
 # media-libs/libcdr, app-text/libwpd and app-text/libwpg
 media-gfx/inkscape cdr visio wpg
 
-# Michael Weber <xmw@gentoo.org> (14 Mar 2017)
-# mask unkeyworded dependency media-libs/glfw
-app-text/mupdf opengl
-
 # Jason Zaman <perfinion@gentoo.org> (09 May 2017)
 # x11-libs/libXpresent is not keyworded on ppc
 xfce-base/xfwm4 xpresent
@@ -116,7 +127,6 @@ dev-python/PyQt5 bluetooth location webengine
 # Requires unkeyworded dependencies
 dev-vcs/subversion kwallet
 games-arcade/jumpnbump kde
-kde-frameworks/kdelibs handbook policykit
 net-irc/quassel kde
 net-libs/libproxy kde
 sys-auth/polkit kde
@@ -130,10 +140,6 @@ net-irc/quassel snorenotify
 # Justin Lecher <jlec@gentoo.org> (22 Feb 2016)
 # Missing test deps keyword #575366
 dev-cpp/eigen test
-
-# Mike Frysinger <vapier@gentoo.org> (21 Feb 2016)
-# Needs arch love for elementary. #575322
-media-libs/elementary javascript
 
 # Pacho Ramos <pacho@gentoo.org> (15 Nov 2015)
 # Missing keywords
@@ -170,7 +176,6 @@ sys-auth/sssd samba
 # Mike Frysinger <vapier@gentoo.org> (16 Mar 2015)
 # Needs sci-physics/bullet & media-libs/libsdl2 tested #499974
 dev-libs/efl physics sdl
-media-libs/elementary sdl
 
 # Andreas K. Huettel <dilfridge@gentoo.org> (15 Feb 2015)
 # There's no keyworded office implementation anymore.
@@ -211,7 +216,7 @@ dev-ruby/haml test
 
 # Anthony G. Basile <blueness@gentoo.org> (14 Aug 2014)
 # Mask these flags since mongodb is broken on ppc/ppc64
-dev-python/ipython doc matplotlib mongodb nbconvert notebook test
+dev-python/ipython doc matplotlib nbconvert notebook test
 
 # Anthony G. Basile <blueness@gentoo.org> (12 Aug 2014)
 # Ultimately pulls in nodejs which is broken.
@@ -282,11 +287,6 @@ net-im/choqok telepathy
 >=dev-db/mysql-5.5 tcmalloc
 >=dev-db/mariadb-5.5 tcmalloc
 >=dev-db/percona-server-5.5 tcmalloc
-
-# Anthony G. Basile <blueness@gentoo.org> (29 Sep 2012)
-# dev-cpp/tbb does not build on ppc ppc64 so mask any
-# dependencies on it
-media-libs/openimageio tbb
 
 # Samuli Suominen <ssuominen@gentoo.org> (27 Sep 2012)
 # I don't want to open this can of worms yet. Feel free
@@ -364,8 +364,3 @@ media-tv/mythtv vdpau
 # Brent Baude <ranger@gentoo.org>
 # masking zephyr USE on pidgin
 net-im/pidgin zephyr
-
-# Joseph Jezak <josejx@gentoo.org> (28 Jun 2007)
-# Masked Parallel LCD devices for bug #180683
-# app-misc/lcd4linux
-app-misc/lcd4linux lcd_devices_hd44780

@@ -1,6 +1,10 @@
 # Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
+# Sergei Trofimovich <slyfox@gentoo.org> (25 Jul 2018)
+# USE=server does not compile and needs upstream fix: bug #662040
+>=sys-devel/gdb-8.1 server
+
 # Joonas Niilola <juippis@gmail.com> (17 Jun 2018)
 # Optional dependency not available for this arch
 dev-libs/efl vlc
@@ -140,17 +144,9 @@ media-sound/rhythmbox upnp-av
 # Missing test deps keyword #575366
 dev-cpp/eigen test
 
-# Mike Frysinger <vapier@gentoo.org> (21 Feb 2016)
-# Needs arch love for elementary. #575322
-media-libs/elementary javascript
-
 # Pacho Ramos <pacho@gentoo.org> (31 Jan 2016)
 # Missing keywords, bug #560382
 media-video/ffmpeg snappy
-
-# Michael Weber <xmw@gentoo.org> (09 Jan 2016)
-# no ia64 support in media-libs/glfw
-app-text/mupdf opengl
 
 # Justin Lecher <jlec@gentoo.org> (18 Nov 2015)
 # requires dev-python/restkit which requires
@@ -203,7 +199,6 @@ dev-libs/libpeas lua
 # Mike Frysinger <vapier@gentoo.org> (16 Mar 2015)
 # Needs sci-physics/bullet & media-libs/libsdl2 tested #499974
 dev-libs/efl physics sdl
-media-libs/elementary sdl
 
 # Alexis Ballier <aballier@gentoo.org> (11 Feb 2015)
 # Missing ffmpeg deps, bug #510340
@@ -250,10 +245,6 @@ dev-util/dbus-test-runner test
 # Pacho Ramos <pacho@gentoo.org> (19 Jan 2014)  
 # Missing keywords, bug #478254
 gnome-base/gnome classic extras
-
-# Julian Ospald <hasufell@gentoo.org> (04 Jan 2014)
-# no keyword for media-libs/tremor
->=dev-libs/DirectFB-1.7.1 tremor
 
 # Pacho Ramos <pacho@gentoo.org> (02 Dec 2013)
 # Missing keywords, bug #493156
@@ -341,17 +332,13 @@ mail-client/thunderbird custom-optimization
 www-client/firefox custom-optimization
 www-client/seamonkey custom-optimization
 
-# Ben de Groot <yngwin@gentoo.org> (16 Jan 2010)
-# qtmultimedia is not keyworded, bug 293671
-dev-python/PyQt4 multimedia
-
 # Raúl Porcel <armin76@gentoo.org>
 # Keep deps minimal
 x11-wm/fvwm lock
 
 # Raúl Porcel <armin76@gentoo.org> (07 Jul 2008)
 # Make clisp deps minimal
-dev-lisp/clisp hyperspec pari svm
+dev-lisp/clisp hyperspec svm
 
 # missing keywords
 media-plugins/gst-plugins-meta dts dv lame libvisual modplug mms taglib vcd wavpack

@@ -1,6 +1,19 @@
 # Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
+# Virgil Dupras <vdupras@gentoo.org> (08 Oct 2018)
+# app-text/mupdf sparc keyword was dropped in bug #631970
+net-print/cups-filters pdf
+
+# Sergei Trofimovich <slyfox@gentoo.org> (28 Sep 2018)
+# mpir fails to build at least on sparc: bug #640424
+dev-python/gmpy mpir
+
+# Sergei Trofimovich <slyfox@gentoo.org> (30 Aug 2018)
+# dev-games/openscenegraph is a heavy unkeyworded dependency.
+# Skip keywording it for now.
+app-office/scribus osg
+
 # Sergei Trofimovich <slyfox@gentoo.org> (17 Jun 2018)
 # Mask broken HIPE support on sparc32 (bug #656618)
 dev-lang/erlang hipe
@@ -89,10 +102,6 @@ x11-terms/gnome-terminal gnome-shell
 # unkeyworded rev deps
 dev-games/openscenegraph gdal las
 
-# Justin Lecher <jlec@gentoo.org> (15 Jan 2017)
-# masked rev deps
-media-libs/libsdl2 fusionsound
-
 # Pacho Ramos <pacho@gentoo.org> (02 Jan 2017)
 # Don't keyword redis
 dev-libs/hiredis test
@@ -121,10 +130,6 @@ gnome-extra/nm-applet teamd
 # Missing test deps keyword #575366
 dev-cpp/eigen test
 
-# Mike Frysinger <vapier@gentoo.org> (21 Feb 2016)
-# Needs arch love for elementary. #575322
-media-libs/elementary javascript
-
 # Pacho Ramos <pacho@gentoo.org> (20 Feb 2016)
 # Missing keywords, bug #551580
 app-office/planner eds
@@ -136,10 +141,6 @@ media-video/ffmpeg snappy
 # James Le Cuirot <chewi@gentoo.org> (30 Jan 2016)
 # scrollview requires Java, which is unsupported on SPARC.
 app-text/tesseract scrollview
-
-# Michael Weber <xmw@gentoo.org> (09 Jan 2016)
-# no sparc support in media-libs/glfw
-app-text/mupdf opengl
 
 # Mike Frysinger <vapier@gentoo.org> (22 Dec 2015)
 # Needs keywording. #569254
@@ -195,7 +196,6 @@ dev-libs/libpeas lua
 # Mike Frysinger <vapier@gentoo.org> (16 Mar 2015)
 # Needs sci-physics/bullet & media-libs/libsdl2 tested #499974
 dev-libs/efl physics sdl
-media-libs/elementary sdl
 
 # Alexis Ballier <aballier@gentoo.org> (11 Feb 2015)
 # Missing ffmpeg deps, bug #510340
@@ -358,10 +358,6 @@ net-analyzer/wireshark doc-pdf
 # Justin Lecher <jlec@gentoo.org> (13 Aug 2010)
 # MKL not available on this arch
 media-gfx/povray mkl
-
-# Ben de Groot <yngwin@gentoo.org> (16 Jan 2010)
-# qtmultimedia is not keyworded, bug 293671
-dev-python/PyQt4 multimedia
 
 # Ben de Groot <yngwin@gentoo.org> (11 Nov 2009)
 # Requires qthelp, which requires qtwebkit, bug 292838
