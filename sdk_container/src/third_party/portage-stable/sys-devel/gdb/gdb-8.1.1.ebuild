@@ -4,7 +4,7 @@
 EAPI=6
 PYTHON_COMPAT=( python{2_7,3_4,3_5,3_6} )
 
-inherit flag-o-matic eutils python-single-r1
+inherit epatch eutils flag-o-matic python-single-r1
 
 export CTARGET=${CTARGET:-${CHOST}}
 if [[ ${CTARGET} == ${CHOST} ]] ; then
@@ -20,7 +20,7 @@ case ${PV} in
 9999*)
 	# live git tree
 	EGIT_REPO_URI="git://sourceware.org/git/binutils-gdb.git"
-	inherit git-2
+	inherit git-r3
 	SRC_URI=""
 	;;
 *.*.50.2???????)
@@ -53,15 +53,14 @@ PATCH_DEV="slyfox"
 DESCRIPTION="GNU debugger"
 HOMEPAGE="https://sourceware.org/gdb/"
 SRC_URI="${SRC_URI}
-	${PATCH_DEV:+https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${PN}-8.0.1-patches-${PATCH_VER}.tar.xz}
-	${PATCH_VER:+mirror://gentoo/${PN}-8.0.1-patches-${PATCH_VER}.tar.xz}
+	${PATCH_DEV:+https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${PN}-8.1-patches-${PATCH_VER}.tar.xz}
+	${PATCH_VER:+mirror://gentoo/${PN}-8.1-patches-${PATCH_VER}.tar.xz}
 "
 
 LICENSE="GPL-2 LGPL-2"
 SLOT="0"
 if [[ ${PV} != 9999* ]] ; then
-	# alpha #562128
-	KEYWORDS="-alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sparc ~x86 ~ppc-aix ~x64-cygwin ~amd64-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~x64-cygwin ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 fi
 IUSE="+client lzma multitarget nls +python +server test vanilla xml"
 REQUIRED_USE="
@@ -69,8 +68,10 @@ REQUIRED_USE="
 	|| ( client server )
 "
 
-RDEPEND="server? ( !dev-util/gdbserver )
+RDEPEND="
+	server? ( !dev-util/gdbserver )
 	client? (
+		dev-libs/mpfr:0=
 		>=sys-libs/ncurses-5.2-r2:0=
 		sys-libs/readline:0=
 		lzma? ( app-arch/xz-utils )
