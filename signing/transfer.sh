@@ -9,6 +9,7 @@ declare -A RELEASE_CHANNEL
 RELEASE_CHANNEL[alpha]=Alpha
 RELEASE_CHANNEL[beta]=Beta
 RELEASE_CHANNEL[stable]=Stable
+RELEASE_CHANNEL[edge]=Edge
 
 download() {
     local channel="$1"
@@ -233,6 +234,9 @@ while [[ $# > 0 ]]; do
         ;;
     -s)
         $CMD "stable" "${v}"
+        ;;
+    -e)
+        $CMD "edge" "${v}"
         ;;
     *)
         usage
