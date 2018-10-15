@@ -202,7 +202,7 @@ unpack_makeself() {
 				skip=`grep -a ^offset= "${src}" | awk '{print $3}'`
 				(( skip++ ))
 				;;
-			2.1.4|2.1.5|2.1.6|2.2.0)
+			2.1.4|2.1.5|2.1.6|2.2.0|2.4.0)
 				skip=$(grep -a offset=.*head.*wc "${src}" | awk '{print $3}' | head -n 1)
 				skip=$(head -n ${skip} "${src}" | wc -c)
 				exe="dd"
@@ -433,7 +433,12 @@ unpacker_src_unpack() {
 unpacker_src_uri_depends() {
 	local uri deps d
 
-	[[ $# -eq 0 ]] && set -- ${SRC_URI}
+	if [[ $# -eq 0 ]] ; then
+		# Disable path expansion for USE conditionals. #654960
+		set -f
+		set -- ${SRC_URI}
+		set +f
+	fi
 
 	for uri in "$@" ; do
 		case ${uri} in

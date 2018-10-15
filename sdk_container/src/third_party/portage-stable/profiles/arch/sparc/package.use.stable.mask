@@ -17,6 +17,10 @@
 
 #--- END OF EXAMPLES ---
 
+# Andreas Sturmlechner <asturm@gentoo.org> (14 Sep 2018)
+# media-libs/libraw is not stable
+media-gfx/imagemagick raw
+
 # Andreas Sturmlechner <asturm@gentoo.org> (7 May 2018)
 # sci-visualization/gnuplot is not stable.
 app-admin/sysstat isag
@@ -27,7 +31,6 @@ sci-mathematics/octave gnuplot
 # Mart Raudsepp <leio@gentoo.org> (02 Sep 2017)
 # Drop stable gstreamer on sparc, can move to use.stable.mask
 # after gstreamer:0.10 is gone; #601354
-media-plugins/evas_generic_loaders gstreamer
 dev-libs/efl gstreamer
 media-sound/mp3splt-gtk gstreamer
 net-im/pidgin gstreamer
@@ -40,7 +43,7 @@ app-text/texlive context l10n_ja
 sys-block/thin-provisioning-tools test
 
 # Davide Pesavento <pesa@gentoo.org> (18 Oct 2015)
-# Requires dev-python/PyQt4, which is not stable on sparc
+# Requires dev-python/PyQt5, which is not stable on sparc
 media-sound/pulseaudio equalizer
 
 # Pacho Ramos <pacho@gentoo.org> (02 Aug 2015)
@@ -55,8 +58,3 @@ dev-util/geany-plugins gtkspell
 gnome-base/gvfs google
 >=x11-libs/gtk+-3.12.2 cloudprint
 x11-libs/gksu gnome
-x11-wm/icewm gnome
-
-# sufficiently recent wayland is not stable yet, bug #559062
-~dev-libs/efl-1.17.0 wayland
-~media-libs/elementary-1.17.0 wayland

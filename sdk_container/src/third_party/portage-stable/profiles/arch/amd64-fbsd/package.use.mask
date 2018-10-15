@@ -1,6 +1,10 @@
 # Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
+# Mikle Kolyada <zlogene@gentoo.org> (05 Oct 2018)
+# Not keyworded
+app-admin/sudo sssd
+
 # Ulrich Müller <ulm@gentoo.org> (01 May 2018)
 # Missing keyword on virtual/gsasl dependency, bug #635216.
 net-mail/mailutils sasl
@@ -48,7 +52,6 @@ dev-python/pycurl test
 
 # Michał Górny <mgorny@gentoo.org> (21 Feb 2018)
 # More unkeyworded dependencies.
-media-libs/xine-lib fusionsound
 media-video/ffmpeg frei0r sofalizer
 
 # Michał Górny <mgorny@gentoo.org> (19 Feb 2018)
@@ -57,7 +60,7 @@ app-doc/doxygen clang
 dev-perl/GD fcgi
 media-libs/libcanberra gnome
 media-libs/mesa vaapi
-media-sound/pulseaudio equalizer qt4 qt5 realtime
+media-sound/pulseaudio equalizer qt5 realtime
 media-video/ffmpeg celt ebur128 kvazaar libilbc openh264
 media-video/ffmpeg rubberband sdl ssh x265 zeromq zimg
 net-libs/gnutls idn
@@ -75,7 +78,6 @@ media-libs/gstreamer unwind
 
 # Michał Górny <mgorny@gentoo.org> (17 Feb 2018)
 # Unkeyworded deps.
-media-libs/elementary javascript
 media-libs/phonon vlc
 virtual/notification-daemon kde
 

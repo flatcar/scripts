@@ -1,11 +1,12 @@
 DEFINED_PHASES=compile configure install postinst postrm prepare test unpack
-DEPEND=>=sys-devel/binutils-config-3 sys-libs/zlib test? ( dev-util/dejagnu ) nls? ( sys-devel/gettext ) sys-devel/flex virtual/yacc >=app-portage/elt-patches-20170422 sys-devel/gnuconfig >=dev-vcs/git-1.8.2.1[curl]
+DEPEND=>=sys-devel/binutils-config-3 sys-libs/zlib doc? ( sys-apps/texinfo ) test? ( dev-util/dejagnu ) nls? ( sys-devel/gettext ) sys-devel/flex virtual/yacc >=app-portage/elt-patches-20170815 sys-devel/gnuconfig >=dev-vcs/git-1.8.2.1[curl]
 DESCRIPTION=Tools necessary to build programs
 EAPI=6
 HOMEPAGE=https://sourceware.org/binutils/
-IUSE=cxx multitarget nls static-libs test
-LICENSE=|| ( GPL-3 LGPL-3 )
+IUSE=+cxx doc multitarget +nls static-libs test
+LICENSE=GPL-3+
 RDEPEND=>=sys-devel/binutils-config-3 sys-libs/zlib
-SLOT=git
-_eclasses_=desktop	1b286a7e7143d8c4ec89cd0d2743a097	epatch	9a5f039771f143195164a15a4faa41a1	estack	43ddf5aaffa7a8d0482df54d25a66a1f	eutils	5b8ce72259e08104b337fe28c6de5dbc	flag-o-matic	5128c4729303400bd8d4b0b966530955	git-r3	8f6de46b0aa318aea0e8cac62ece098b	gnuconfig	b8ec1c34be4ff9dac7ad4034d277936b	libtool	0081a71a261724730ec4c248494f044d	ltprune	607e058da37aa6dabfa408b7d61da72e	multilib	97f470f374f2e94ccab04a2fb21d811e	preserve-libs	ef207dc62baddfddfd39a164d9797648	toolchain-funcs	1e35303c63cd707f6c3422b4493d5607	vcs-clean	2a0f74a496fa2b1552c4f3398258b7bf	versionator	26ca8a8bd95d6a74122c08ba98a4ee72
-_md5_=338638d42c4824a59393690ac2858969
+SLOT=9999
+SRC_URI=https://dev.gentoo.org/~slyfox/distfiles/binutils-9999-patches-2.tar.xz
+_eclasses_=desktop	b1d22ac8bdd4679ab79c71aca235009d	epatch	a1bf4756dba418a7238f3be0cb010c54	estack	43ddf5aaffa7a8d0482df54d25a66a1f	eutils	6e6c2737b59a4b982de6fb3ecefd87f8	flag-o-matic	55aaa148741116aa54ad0d80e361818e	git-r3	0d4635eeb5a96cd5315597a47eba25c9	gnuconfig	b8ec1c34be4ff9dac7ad4034d277936b	libtool	f143db5a74ccd9ca28c1234deffede96	ltprune	08f9e1d9ee0af8f5d9a7854efbcd8c0e	multilib	b2f01ad412baf81650c23fcf0975fa33	preserve-libs	ef207dc62baddfddfd39a164d9797648	toolchain-funcs	f164325a2cdb5b3ea39311d483988861	vcs-clean	2a0f74a496fa2b1552c4f3398258b7bf	versionator	2352c3fc97241f6a02042773c8287748
+_md5_=96616037c59d2d73b5966cc81736618a
