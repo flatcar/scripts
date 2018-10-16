@@ -1,11 +1,11 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
 PYTHON_COMPAT=( python2_7 python3_{5,6} pypy )
 
-inherit multiprocessing multilib-build python-any-r1 toolchain-funcs versionator
+inherit eapi7-ver multiprocessing multilib-build python-any-r1 toolchain-funcs
 
 if [[ ${PV} = *beta* ]]; then
 	betaver=${PV//*beta}
@@ -13,27 +13,24 @@ if [[ ${PV} = *beta* ]]; then
 	MY_P="rustc-beta"
 	SLOT="beta/${PV}"
 	SRC="${BETA_SNAPSHOT}/rustc-beta-src.tar.xz"
-	KEYWORDS=""
 else
-	ABI_VER="$(get_version_component_range 1-2)"
+	ABI_VER="$(ver_cut 1-2)"
 	SLOT="stable/${ABI_VER}"
 	MY_P="rustc-${PV}"
 	SRC="${MY_P}-src.tar.xz"
-	KEYWORDS="~amd64 ~arm64 ~x86"
+	KEYWORDS="amd64 ~arm64 x86"
 fi
 
 CHOST_amd64=x86_64-unknown-linux-gnu
 CHOST_x86=i686-unknown-linux-gnu
 CHOST_arm64=aarch64-unknown-linux-gnu
 
-RUST_STAGE0_VERSION="1.$(($(get_version_component_range 2) - 1)).2"
+RUST_STAGE0_VERSION="1.$(($(ver_cut 2) - 1)).0"
 RUST_STAGE0_amd64="rust-${RUST_STAGE0_VERSION}-${CHOST_amd64}"
 RUST_STAGE0_x86="rust-${RUST_STAGE0_VERSION}-${CHOST_x86}"
 RUST_STAGE0_arm64="rust-${RUST_STAGE0_VERSION}-${CHOST_arm64}"
 
-# there is no cargo 0.28 tag, so use 0.27
-#CARGO_DEPEND_VERSION="0.$(($(version_get_comp 2) + 1)).0"
-CARGO_DEPEND_VERSION="0.$(($(get_version_component_range 2))).0"
+CARGO_DEPEND_VERSION="0.$(($(ver_cut 2) + 1)).0"
 
 DESCRIPTION="Systems programming language from Mozilla"
 HOMEPAGE="https://www.rust-lang.org/"
@@ -51,10 +48,18 @@ LLVM_TARGET_USEDEPS=${ALL_LLVM_TARGETS[@]/%/?}
 
 LICENSE="|| ( MIT Apache-2.0 ) BSD-1 BSD-2 BSD-4 UoI-NCSA"
 
-IUSE="cargo debug doc +jemalloc rls rustfmt wasm ${ALL_LLVM_TARGETS[*]}"
+IUSE="cargo clippy cpu_flags_x86_sse2 debug doc +jemalloc libressl rls rustfmt wasm ${ALL_LLVM_TARGETS[*]}"
 
 RDEPEND=">=app-eselect/eselect-rust-0.3_pre20150425
-		jemalloc? ( dev-libs/jemalloc )"
+		jemalloc? ( dev-libs/jemalloc )
+		cargo? (
+			sys-libs/zlib
+			!libressl? ( dev-libs/openssl:0= )
+			libressl? ( dev-libs/libressl:0= )
+			net-libs/libssh2
+			net-libs/http-parser:=
+			net-misc/curl[ssl]
+		)"
 DEPEND="${RDEPEND}
 	${PYTHON_DEPS}
 	|| (
@@ -67,7 +72,8 @@ DEPEND="${RDEPEND}
 "
 PDEPEND="!cargo? ( >=dev-util/cargo-${CARGO_DEPEND_VERSION} )"
 
-REQUIRED_USE="|| ( ${ALL_LLVM_TARGETS[*]} )"
+REQUIRED_USE="|| ( ${ALL_LLVM_TARGETS[*]} )
+				x86? ( cpu_flags_x86_sse2 )"
 
 S="${WORKDIR}/${MY_P}-src"
 
@@ -104,9 +110,13 @@ src_configure() {
 		extended="true"
 		tools="\"cargo\","
 	fi
+	if use clippy; then
+		extended="true"
+		tools="\"clippy\",$tools"
+	fi
 	if use rls; then
 		extended="true"
-		tools="\"rls\",$tools"
+		tools="\"rls\",\"analysis\",\"src\",$tools"
 	fi
 	if use rustfmt; then
 		extended="true"
@@ -148,6 +158,7 @@ src_configure() {
 		debug-assertions = $(toml_usex debug)
 		use-jemalloc = $(toml_usex jemalloc)
 		default-linker = "$(tc-getCC)"
+		channel = "stable"
 		rpath = false
 		lld = $(toml_usex wasm)
 	EOF
@@ -172,21 +183,21 @@ src_configure() {
 	if use wasm; then
 		cat <<- EOF >> "${S}"/config.toml
 			[target.wasm32-unknown-unknown]
-			linker = "lld"
+			linker = "rust-lld"
 		EOF
 	fi
 }
 
 src_compile() {
 	env $(cat "${S}"/config.env)\
-		./x.py build --config="${S}"/config.toml -j$(makeopts_jobs) \
+		"${EPYTHON}" ./x.py build --config="${S}"/config.toml -j$(makeopts_jobs) \
 		--exclude src/tools/miri || die # https://github.com/rust-lang/rust/issues/52305
 }
 
 src_install() {
 	local rust_target abi_libdir
 
-	env DESTDIR="${D}" ./x.py install || die
+	env DESTDIR="${D}" "${EPYTHON}" ./x.py install || die
 
 	mv "${D}/usr/bin/rustc" "${D}/usr/bin/rustc-${PV}" || die
 	mv "${D}/usr/bin/rustdoc" "${D}/usr/bin/rustdoc-${PV}" || die
@@ -194,6 +205,10 @@ src_install() {
 	mv "${D}/usr/bin/rust-lldb" "${D}/usr/bin/rust-lldb-${PV}" || die
 	if use cargo; then
 		mv "${D}/usr/bin/cargo" "${D}/usr/bin/cargo-${PV}" || die
+	fi
+	if use clippy; then
+		mv "${D}/usr/bin/clippy-driver" "${D}/usr/bin/clippy-driver-${PV}" || die
+		mv "${D}/usr/bin/cargo-clippy" "${D}/usr/bin/cargo-clippy-${PV}" || die
 	fi
 	if use rls; then
 		mv "${D}/usr/bin/rls" "${D}/usr/bin/rls-${PV}" || die
@@ -233,14 +248,18 @@ src_install() {
 		/usr/bin/rust-lldb
 	EOF
 	if use cargo; then
-	    echo /usr/bin/cargo >> "${T}/provider-${P}"
+		echo /usr/bin/cargo >> "${T}/provider-${P}"
+	fi
+	if use clippy; then
+		echo /usr/bin/clippy-driver >> "${T}/provider-${P}"
+		echo /usr/bin/cargo-clippy >> "${T}/provider-${P}"
 	fi
 	if use rls; then
-	    echo /usr/bin/rls >> "${T}/provider-${P}"
+		echo /usr/bin/rls >> "${T}/provider-${P}"
 	fi
 	if use rustfmt; then
-	    echo /usr/bin/rustfmt >> "${T}/provider-${P}"
-	    echo /usr/bin/cargo-fmt >> "${T}/provider-${P}"
+		echo /usr/bin/rustfmt >> "${T}/provider-${P}"
+		echo /usr/bin/cargo-fmt >> "${T}/provider-${P}"
 	fi
 	dodir /etc/env.d/rust
 	insinto /etc/env.d/rust
