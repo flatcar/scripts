@@ -1,7 +1,15 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # This file requires >=portage-2.1.1
+
+# Thomas Deutschmann <whissi@gentoo.org> (12 Oct 2018)
+# www-client/firefox is available on x86
+app-misc/tracker -firefox-bookmarks
+
+# Michael Palimaka <kensington@gentoo.org> (12 Oct 2018)
+# Unmask arch-specific USE flag available on x86
+net-analyzer/testssl -bundled-openssl
 
 # Thomas Deutschmann <whissi@gentoo.org> (30 Sep 2018)
 # Unmask libheif support where media-libs/libheif is keyworded
@@ -14,10 +22,6 @@ dev-python/pymongo test
 # Bernard Cafarelli <voyageur@gentoo.org> (27 Sep 2018)
 # media-libs/qtav not keyworded
 media-video/orion qtav
-
-# Virgil Dupras <vdupras@gentoo.org> (06 Sep 2018)
-# sci-libs/oce not yet keyworded
-sci-electronics/kicad oce
 
 # Andreas Sturmlechner <asturm@gentoo.org> (01 Sep 2018)
 # media-libs/libaom not yet keyworded
@@ -52,7 +56,7 @@ app-emulation/fuse -backend-svga
 
 # Thomas Deutschmann <whissi@gentoo.org> (10 Feb 2018)
 # Requires dev-db/mongodb which has dropped x86 support
->=dev-libs/mongo-c-driver-1.8.2 test
+dev-libs/mongo-c-driver test
 
 # Thomas Deutschmann <whissi@gentoo.org> (05 Jan 2018)
 # Requires dev-python/neovim-remote, which is not keyworded on x86.
@@ -178,10 +182,6 @@ sys-cluster/ceph zfs
 # Lars Wendler <polynomial-c@gentoo.org (23 Apr 2014)
 # Works on 32bit x86
 media-sound/lmms -vst
-
-# Matt Turner <mattst88@gentoo.org> (07 Mar 2014)
-# media-libs/libomxil-bellagio keyworded on amd64/x86
-media-libs/mesa -openmax
 
 # Samuli Suominen <ssuominen@gentoo.org> (16 Feb 2014)
 # Still considered experimental by upstream:

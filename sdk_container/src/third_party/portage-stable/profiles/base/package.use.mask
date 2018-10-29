@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # This file requires >=portage-2.1.1
@@ -7,13 +7,34 @@
 # This file is only for generic masks. For arch-specific masks (i.e.
 # mask everywhere, unmask on arch/*) use arch/base.
 
+# Alfredo Tupone <tupone@gentoo.org> (24 Oct 2018)
+# jit brokes build of gnat-gpl
+dev-lang/gnat-gpl jit
+
+# Pacho Ramos <pacho@gento.org> (21 Oct 2018)
+# splashutils is being removed
+sys-power/suspend fbsplash
+
+# Lars Wendler <polynomial-c@gentoo.org> (18 Oct 2018)
+# gnutls is broken in older releases
+<net-libs/gsoap-2.8.64 gnutls
+
+# Matt Turner <mattst88@gentoo.org> (16 Oct 2018)
+# media-libs/libomxil-bellagio is masked for removal.
+media-libs/mesa openmax
+
+# Thomas Deutschmann <whissi@gentoo.org> (12 Oct 2018)
+# Requires www-client/firefox which isn't available on all architectures
+# yet, unmask per arch
+app-misc/tracker firefox-bookmarks
+
 # Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (06 Oct 2018)
 # address user visible breakage due to circular dependency #665008
 =media-fonts/encodings-1.0.4-r3 X
 
 # Dirkjan Ochtman <djc@gentoo.org> (29 Sep 2018)
 # Clippy is broken for now, can't find libraries (bug 667286)
-dev-lang/rust clippy
+<dev-lang/rust-1.29.2 clippy
 dev-lang/rust-bin clippy
 
 # Virgil Dupras <vdupras@gentoo.org> (26 Sep 2018)
@@ -121,12 +142,16 @@ sys-libs/glibc compile-locales
 media-video/ffmpeg appkit
 
 # James Le Cuirot <chewi@gentoo.org> (17 Dec 2017)
-# Java 9 is not yet fully supported on Gentoo. Having a masked
+# Java 9+ is not yet fully supported on Gentoo. Having a masked
 # gentoo-vm flag allows us to provide it without it breaking Gentoo
 # packages. Those who wish to experiment with it as a fully recognised
 # Gentoo JVM can unmask the flag.
 dev-java/oracle-jdk-bin:9 gentoo-vm
 dev-java/oracle-jre-bin:9 gentoo-vm
+dev-java/oracle-jdk-bin:11 gentoo-vm
+dev-java/oracle-jre-bin:11 gentoo-vm
+dev-java/openjdk-bin:11 gentoo-vm
+dev-java/openjdk:11 gentoo-vm
 
 # Andreas K. Hüttel <dilfridge@gentoo.org> (04 Nov 2017)
 # Requires audacious, which is masked. Bug 632513
@@ -159,10 +184,6 @@ sys-devel/clang z3
 # Brian Evans <grknight@gentoo.org> (21 Jul 2017)
 # Mask USE flag which has limited keywords for app-crypt/argon2
 dev-lang/php argon2
-
-# Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (16 Jul 2017)
-# Causes build to fail with ffmpeg-3, #602786
-www-plugins/gnash vaapi
 
 # Mike Gilbert <floppym@gentoo.org> (09 Jul 2017)
 # Matthias Dahl <matthias.dahl@binary-island.eu> (05 Jul 2017)
@@ -275,10 +296,6 @@ app-editors/emacs-vcs cairo
 # Gilles Dartiguelongue <eva@gentoo.org> (21 Aug 2016)
 # Needs a Gstreamer plugin from gst-plugins-bad that is not packaged to date
 media-plugins/grilo-plugins chromaprint
-
-# Lars Wendler <polynomial-c@gentoo.org> (19 Aug 2016)
-# gnutls is broken for years
->=net-libs/gsoap-2.8.0 gnutls
 
 # Michał Górny <mgorny@gentoo.org> (05 Jul 2016)
 # Mask system-clang support as it requires llvm-3.4 that is subject
@@ -449,10 +466,6 @@ dev-python/pypy3 sandbox
 # Randomly breaks consumers at runtime. Do not report
 # gentoo bugs.
 media-libs/libsdl2 custom-cflags
-
-# Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (22 Aug 2013)
-# Causes build to fail, issue is being discussed with upstream
->=www-plugins/gnash-0.8.10_p20130822 openvg
 
 # Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (13 Jul 2013)
 # GL/GLES support in cairo is mutually exclusive, bug #428770.

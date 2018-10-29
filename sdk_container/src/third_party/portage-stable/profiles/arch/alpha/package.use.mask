@@ -1,5 +1,11 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+
+# Thomas Deutschmann <whissi@gentoo.org> (15 Oct 2018)
+# Requires app-text/mecab which isn't yet keyworded
+# on alpha, bug 668674
+dev-db/mysql cjk
+dev-db/percona-server cjk
 
 # Mikle Kolyada <zlogene@gentoo.org> (05 Oct 2018)
 # Not keyworded (see bug #540540c#8)
@@ -12,10 +18,6 @@ media-sound/mpd wildmidi
 # Joonas Niilola <juippis@gmail.com> (09 Sep 2018)
 # Optional dependency blocking updates.
 media-plugins/imlib2_loaders eet
-
-# Virgil Dupras <vdupras@gentoo.org> (23 Aug 2018)
-# Depends on vulnerable version of paramiko. Bug #664346
-dev-vcs/bzr sftp
 
 # Joonas Niilola <juippis@gmail.com> (17 Jun 2018)
 # Optional dependency not available for this arch

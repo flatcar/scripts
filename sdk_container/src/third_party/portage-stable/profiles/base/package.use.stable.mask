@@ -4,6 +4,10 @@
 # This file requires eapi 5 or later. New entries go on top.
 # Please use the same syntax as in package.use.mask
 
+# Andreas Sturmlechner <asturm@gentoo.org> (16 Oct 2018)
+# app-misc/ddcutil is not yet stable.
+kde-plasma/powerdevil brightness-control
+
 # Andreas Sturmlechner <asturm@gentoo.org> (11 Sep 2018)
 # Sometimes crashes Plasma with Appstream versions pre-0.12.
 # Newer versions of dev-libs/appstream are not stable yet. See also:
@@ -31,8 +35,8 @@ dev-python/s3fs test
 =app-office/libreoffice-6.0* kde
 
 # Andreas Sturmlechner <asturm@gentoo.org> (03 Mar 2018)
-# Depends on unstable dependencies; qt3d bug #652046
-sci-geosciences/qgis 3d grass
+# sci-geosciences/grass is not stable
+sci-geosciences/qgis grass
 
 # Thomas Beierlein <tomjbe@gentoo.org> (21 Mar 2018)
 # ~app-backup/bacula-9.0.6 does not compile with USE=libressl (bug #641492)
