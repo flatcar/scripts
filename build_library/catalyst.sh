@@ -197,7 +197,7 @@ catalyst_init() {
 
     # automatically download the current SDK if it is the seed tarball.
     if [[ "$FLAGS_seed_tarball" == "${FLATCAR_SDK_TARBALL_PATH}" ]]; then
-        sdk_download_tarball
+        sdk_download_tarball_graceful
     fi
 
     # confirm seed exists

@@ -13,6 +13,34 @@ FLATCAR_SDK_TARBALL_CACHE="${REPO_CACHE_DIR}/sdks"
 FLATCAR_SDK_TARBALL_PATH="${FLATCAR_SDK_TARBALL_CACHE}/${FLATCAR_SDK_TARBALL}"
 FLATCAR_SDK_URL="${FLATCAR_DEV_BUILDS}/sdk/${FLATCAR_SDK_ARCH}/${FLATCAR_SDK_VERSION}/${FLATCAR_SDK_TARBALL}"
 
+# Return true when $1 is less than or equal to $2
+ver_lte() {
+    [ "$1" = "$(echo -e "$1\\n$2" | sort --version-sort | head -n1)" ]
+}
+
+# First, try to download the given version of an SDK tarball.
+# If it does not exist, fall back to the next recent version available.
+sdk_download_tarball_graceful() {
+    # an array of Flatcar versions, without prefix "v", by descending order.
+    FLATCAR_VERS=$(curl -s https://api.github.com/repos/flatcar-linux/manifest/releases | jq -r '.[].tag_name' | sed -e 's/^v//' | sort -r)
+
+    while read -r ver; do
+        # skip newer versions than ${FLATCAR_SDK_VERSION}
+        if ! ver_lte "$ver" "${FLATCAR_SDK_VERSION}"; then
+            continue
+        fi
+
+        FLATCAR_SDK_TARBALL="flatcar-sdk-${FLATCAR_SDK_ARCH}-${ver}.tar.bz2"
+        FLATCAR_SDK_URL="${FLATCAR_DEV_BUILDS}/sdk/${FLATCAR_SDK_ARCH}/${ver}/${FLATCAR_SDK_TARBALL}"
+        if sdk_download_tarball; then
+            break
+        fi
+
+        echo "Cannot get $SDK_URL. Trying the next recent version."
+        sleep 1
+    done <<< "$FLATCAR_VERS"
+}
+
 # Download the current SDK tarball (if required) and verify digests/sig
 sdk_download_tarball() {
     if sdk_verify_digests; then
@@ -26,7 +54,7 @@ sdk_download_tarball() {
         wget --tries=3 --timeout=30 --continue \
             -O  "${FLATCAR_SDK_TARBALL_PATH}${suffix}" \
             "${FLATCAR_SDK_URL}${suffix}" \
-            || die_notrace "SDK download failed!"
+            || return 1
     done
 
     sdk_verify_digests || die_notrace "SDK digest verification failed!"
