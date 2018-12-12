@@ -5,7 +5,7 @@ EAPI=6
 
 PYTHON_COMPAT=( python2_7 python3_{5,6} pypy )
 
-inherit eapi7-ver multiprocessing multilib-build python-any-r1 rust-toolchain toolchain-funcs
+inherit check-reqs eapi7-ver estack flag-o-matic llvm multiprocessing multilib-build python-any-r1 rust-toolchain toolchain-funcs
 
 if [[ ${PV} = *beta* ]]; then
 	betaver=${PV//*beta}
@@ -21,7 +21,7 @@ else
 	KEYWORDS="~amd64 ~arm64 ~x86"
 fi
 
-RUST_STAGE0_VERSION="1.$(($(ver_cut 2) - 1)).2"
+RUST_STAGE0_VERSION="1.$(($(ver_cut 2) - 1)).1"
 
 DESCRIPTION="Systems programming language from Mozilla"
 HOMEPAGE="https://www.rust-lang.org/"
@@ -36,35 +36,60 @@ LLVM_TARGET_USEDEPS=${ALL_LLVM_TARGETS[@]/%/?}
 
 LICENSE="|| ( MIT Apache-2.0 ) BSD-1 BSD-2 BSD-4 UoI-NCSA"
 
-IUSE="clippy cpu_flags_x86_sse2 debug doc +jemalloc libressl rls rustfmt wasm ${ALL_LLVM_TARGETS[*]}"
+IUSE="clippy cpu_flags_x86_sse2 debug doc +jemalloc libressl rls rustfmt system-llvm wasm ${ALL_LLVM_TARGETS[*]}"
 
-RDEPEND=">=app-eselect/eselect-rust-0.3_pre20150425
+COMMON_DEPEND=">=app-eselect/eselect-rust-0.3_pre20150425
 		jemalloc? ( dev-libs/jemalloc )
 		sys-libs/zlib
 		!libressl? ( dev-libs/openssl:0= )
 		libressl? ( dev-libs/libressl:0= )
 		net-libs/libssh2
 		net-libs/http-parser:=
-		net-misc/curl[ssl]"
-DEPEND="${RDEPEND}
+		net-misc/curl[ssl]
+		system-llvm? ( >=sys-devel/llvm-6:= )"
+DEPEND="${COMMON_DEPEND}
 	${PYTHON_DEPS}
 	|| (
 		>=sys-devel/gcc-4.7
 		>=sys-devel/clang-3.5
 	)
+	dev-util/cmake"
+RDEPEND="${COMMON_DEPEND}
 	!dev-util/cargo
-	rustfmt? ( !dev-util/rustfmt )
-	dev-util/cmake
-"
+	rustfmt? ( !dev-util/rustfmt )"
 REQUIRED_USE="|| ( ${ALL_LLVM_TARGETS[*]} )
 				x86? ( cpu_flags_x86_sse2 )"
 
 S="${WORKDIR}/${MY_P}-src"
 
-PATCHES=( "${FILESDIR}"/${PV}-clippy-sysroot.patch )
+PATCHES=( "${FILESDIR}"/1.30.1-clippy-sysroot.patch )
 
 toml_usex() {
 	usex "$1" true false
+}
+
+pre_build_checks() {
+	CHECKREQS_DISK_BUILD="7G"
+	CHECKREQS_MEMORY="4G"
+	eshopts_push -s extglob
+	if is-flagq '-g?(gdb)?([1-9])'; then
+		CHECKREQS_DISK_BUILD="10G"
+		CHECKREQS_MEMORY="16G"
+	fi
+	eshopts_pop
+	check-reqs_pkg_setup
+}
+
+pkg_pretend() {
+	pre_build_checks
+}
+
+pkg_setup() {
+	pre_build_checks
+	python-any-r1_pkg_setup
+	if use system-llvm; then
+		llvm_pkg_setup
+	fi
 }
 
 src_prepare() {
@@ -78,7 +103,7 @@ src_prepare() {
 }
 
 src_configure() {
-	local rust_target="" rust_targets="" rust_target_name arch_cflags
+	local rust_target="" rust_targets="" arch_cflags
 
 	# Collect rust target names to compile standard libs for all ABIs.
 	for v in $(multilib_get_enabled_abi_pairs); do
@@ -110,6 +135,7 @@ src_configure() {
 		release-debuginfo = $(toml_usex debug)
 		assertions = $(toml_usex debug)
 		targets = "${LLVM_TARGETS// /;}"
+		link-shared = $(toml_usex system-llvm)
 		[build]
 		build = "${rust_target}"
 		host = ["${rust_target}"]
@@ -140,7 +166,7 @@ src_configure() {
 	EOF
 
 	for v in $(multilib_get_enabled_abi_pairs); do
-		rust_target=$(get_abi_CHOST ${v##*.})
+		rust_target=$(rust_abi $(get_abi_CHOST ${v##*.}))
 		arch_cflags="$(get_abi_CFLAGS ${v##*.})"
 
 		cat <<- EOF >> "${S}"/config.env
@@ -154,6 +180,11 @@ src_configure() {
 			linker = "$(tc-getCC)"
 			ar = "$(tc-getAR)"
 		EOF
+		if use system-llvm; then
+			cat <<- EOF >> "${S}"/config.toml
+			    llvm-config = "$(get_llvm_prefix)/bin/llvm-config"
+			EOF
+		fi
 	done
 
 	if use wasm; then
@@ -200,10 +231,9 @@ src_install() {
 			continue
 		fi
 		abi_libdir=$(get_abi_LIBDIR ${v##*.})
-		rust_target=$(get_abi_CHOST ${v##*.})
-		rust_abi=$(rust_abi $rust_target)
+		rust_target=$(rust_abi $(get_abi_CHOST ${v##*.}))
 		mkdir -p "${D}/usr/${abi_libdir}"
-		cp "${D}/usr/$(get_libdir)/${P}/rustlib/${rust_abi}/lib"/*.so \
+		cp "${D}/usr/$(get_libdir)/${P}/rustlib/${rust_target}/lib"/*.so \
 		   "${D}/usr/${abi_libdir}" || die
 	done
 
@@ -244,6 +274,10 @@ pkg_postinst() {
 
 	elog "Rust installs a helper script for calling GDB and LLDB,"
 	elog "for your convenience it is installed under /usr/bin/rust-{gdb,lldb}-${PV}."
+
+	ewarn "cargo is now installed from dev-lang/rust{,-bin} instead of dev-util/cargo."
+	ewarn "This might have resulted in a dangling symlink for /usr/bin/cargo on some"
+	ewarn "systems. This can be resolved by calling 'sudo eselect rust set ${P}'."
 
 	if has_version app-editors/emacs || has_version app-editors/emacs-vcs; then
 		elog "install app-emacs/rust-mode to get emacs support for rust."
