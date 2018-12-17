@@ -7,7 +7,7 @@
 # Default values for creating VM's.
 DEFAULT_MEM="1024"
 DEFAULT_VMDK="ide.vmdk"
-DEFAULT_VMX="coreos.vmx"
+DEFAULT_VMX="flatcar.vmx"
 DEFAULT_VBOX_DISK="os.vdi"
 
 # Minimum sizes for full size vm images -- needed for update.
