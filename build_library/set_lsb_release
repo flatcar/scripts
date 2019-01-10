@@ -31,12 +31,7 @@ OS_ID="flatcar"
 OS_ID_LIKE="coreos"
 OS_PRETTY_NAME="$OS_NAME $FLATCAR_VERSION (${OS_CODENAME})"
 
-# temporarily point arm at a different appid until update support
-# is completed in update_engine and the CoreUpdate service.
 FLATCAR_APPID="{e96281a6-d1af-4bde-9a0a-97b76e56dc57}"
-if [[ "${FLAGS_board}" == arm64-* ]]; then
-  FLATCAR_APPID="{103867da-e3a2-4c92-b0b3-7fbd7f7d8b71}"
-fi
 
 # DISTRIB_* are the standard lsb-release names
 sudo mkdir -p "${ROOT_FS_DIR}/usr/share/flatcar" "${ROOT_FS_DIR}/etc/flatcar"
