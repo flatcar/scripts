@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -21,7 +21,7 @@ else
 	KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 fi
 
-RUST_STAGE0_VERSION="1.$(($(ver_cut 2) - 1)).2"
+RUST_STAGE0_VERSION="1.$(($(ver_cut 2) - 1)).1"
 
 DESCRIPTION="Systems programming language from Mozilla"
 HOMEPAGE="https://www.rust-lang.org/"
@@ -36,10 +36,9 @@ LLVM_TARGET_USEDEPS=${ALL_LLVM_TARGETS[@]/%/?}
 
 LICENSE="|| ( MIT Apache-2.0 ) BSD-1 BSD-2 BSD-4 UoI-NCSA"
 
-IUSE="clippy cpu_flags_x86_sse2 debug doc +jemalloc libressl rls rustfmt system-llvm wasm ${ALL_LLVM_TARGETS[*]}"
+IUSE="clippy cpu_flags_x86_sse2 debug doc libressl rls rustfmt system-llvm wasm ${ALL_LLVM_TARGETS[*]}"
 
 COMMON_DEPEND=">=app-eselect/eselect-rust-0.3_pre20150425
-		jemalloc? ( dev-libs/jemalloc )
 		sys-libs/zlib
 		!libressl? ( dev-libs/openssl:0= )
 		libressl? ( dev-libs/libressl:0= )
@@ -62,7 +61,7 @@ REQUIRED_USE="|| ( ${ALL_LLVM_TARGETS[*]} )
 
 S="${WORKDIR}/${MY_P}-src"
 
-PATCHES=( "${FILESDIR}"/${PV}-clippy-sysroot.patch )
+PATCHES=( "${FILESDIR}"/1.30.1-clippy-sysroot.patch )
 
 toml_usex() {
 	usex "$1" true false
@@ -158,7 +157,6 @@ src_configure() {
 		optimize = $(toml_usex !debug)
 		debuginfo = $(toml_usex debug)
 		debug-assertions = $(toml_usex debug)
-		use-jemalloc = $(toml_usex jemalloc)
 		default-linker = "$(tc-getCC)"
 		channel = "stable"
 		rpath = false
