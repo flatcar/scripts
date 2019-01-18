@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # Mikle Kolyada <zlogene@gentoo.org> (03 Jun 2018)
@@ -11,8 +11,6 @@ app-text/ghostscript-gpl cups
 # VCS for oberlays yet.
 app-portage/layman bazaar darcs mercurial
 dev-python/setuptools_scm mercurial test
-# no practical use of zsh completion here (at least now)
-dev-util/ninja zsh-completion
 # no nmap gui
 net-analyzer/nmap zenmap
 # no lua support for vim
@@ -75,10 +73,6 @@ dev-libs/libpcre jit
 # Sebastian Pipping <sping@gentoo.org> (22 Feb 2011)
 # No media-sound/lilypond here, yet (bug #356069)
 app-text/asciidoc test
-
-# Mike Frysinger <vapier@gentoo.org> (10 Feb 2011)
-# Waiting for keywording #354309
-net-firewall/iptables netlink
 
 # Raúl Porcel <armin76@gentoo.org> (27 Mar 2008)
 # Needs gtk USE-flag

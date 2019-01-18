@@ -1,6 +1,23 @@
 # Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Bernard Cafarelli <voyageur@gentoo.org> (14 Jan 2019)
+# Requires dev-php/pecl-imagick which is not keyworded on arm
+www-apps/nextcloud imagemagick
+
+# Corentin Pazdera <nado@troglodyte.be> (28 Dec 2018)
+# Requires virtual/pypy which isn't keyworded for ARM.
+www-servers/uwsgi pypy
+
+# Davide Pesavento <pesa@gentoo.org> (27 Dec 2018)
+# The corresponding Qt5 modules are not keyworded on arm, and we don't want to
+# keyword them solely because of PyQt5 while there are no other in-tree users.
+dev-python/PyQt5 networkauth
+
+# Anthony G. Basile <blueness@gentoo.org> (24 Dec 2018)
+# asm broken on arm, bug #673580
+=dev-libs/libressl-2.9.0 asm
+
 # Aaron W. Swenson <titanofold@gentoo.org> (19 Oct 2018)
 # Requires sys-devel/clang which isn’t keyworded for ARM.
 dev-db/postgresql llvm
@@ -18,11 +35,6 @@ dev-ruby/capybara test
 # dev-libs/libpfm not keyworded here (and unclear if it supports ARM).
 # Bug #666651.
 sys-devel/llvm exegesis
-
-# Andreas Sturmlechner <asturm@gentoo.org> (01 Sep 2018)
-# media-libs/libaom not yet keyworded
-# projectm not yet keyworded, bug #314969
-media-video/vlc aom chromaprint opencv projectm
 
 # Christian Ruppert <idl0r@gentoo.org> (25 Aug 2018)
 # pre-built, no ARM support
@@ -89,11 +101,7 @@ app-doc/doxygen clang
 >=app-admin/rsyslog-8.31 mongodb
 
 # Andreas Sturmlechner <asturm@gentoo.org> (11 Oct 2017)
-# Required dependency dev-qt/qtspeech is not keyworded.
-kde-apps/konqueror speech
-kde-apps/kpimtextedit speech
-kde-apps/ktp-text-ui speech
-kde-apps/okular speech
+# Required dependency dev-qt/qtspeech is not keyworded, bug #675340
 kde-frameworks/knotifications speech
 kde-frameworks/ktextwidgets speech
 
@@ -105,10 +113,6 @@ media-video/mpv -raspberry-pi
 # media-sound/mac's executable segfaults when compressing all but the
 # smallest wav files.
 media-sound/xmms2 mac
-
-# Gilles Dartiguelongue <eva@gentoo.org> (19 Aug 2017)
-# sys-fs/udftools is not keyworded, bug #628310
-sys-block/gparted udf
 
 # Michał Górny <mgorny@gentoo.org> (10 Aug 2017)
 # Requires USE=ipmi which is masked in this profile.
@@ -130,10 +134,6 @@ net-misc/bfgminer adl lm_sensors
 # dev-tcltk/tcllib is not keyworded, and tests are restricted anyway, so
 # no point in pursuing it right now.
 app-shells/bash-completion test
-
-# Johannes Huber <johu@gentoo.org> (14 May 2017)
-# Depends on dev-qt/qtwebengine, not keyworded yet.
-kde-apps/kio-extras htmlthumbs
 
 # James Le Cuirot <chewi@gentoo.org> (25 Apr 2017)
 # Oracle doesn't include VisualVM on this platform.
@@ -160,11 +160,6 @@ sys-cluster/openmpi java openmpi_fabrics_psm openmpi_fabrics_knem openmpi_fabric
 dev-libs/libsecp256k1 -asm
 <dev-libs/libsecp256k1-0.0.0_pre20161213 asm
 
-# Davide Pesavento <pesa@gentoo.org> (19 Dec 2016)
-# Various unkeyworded deps: >=sys-devel/clang-3.9 (#591822),
-# dev-qt/qtquickcontrols2 (#603054), dev-qt/qtwebengine (#581478)
-dev-qt/qt-creator clangcodemodel clangstaticanalyzer test webengine
-
 # James Le Cuirot <chewi@gentoo.org> (14 Dec 2016)
 # DOSBox + OpenGLide is untested on this arch.
 games-emulation/dosbox glide
@@ -186,11 +181,7 @@ dev-db/mariadb -jdbc
 # to enable imagemagick flag and disable graphicsmagick use flag
 # to enable conversion facilities
 sci-mathematics/octave graphicsmagick
-
-# Davide Pesavento <pesa@gentoo.org> (28 Jul 2016)
-# The corresponding Qt5 modules are not keyworded on arm, and we don't want to
-# keyword them solely because of PyQt5 while there are no other in-tree users.
-dev-python/PyQt5 webengine
+media-gfx/zbar graphicsmagick
 
 # Göktürk Yüksek <gokturk@gentoo.org> (14 June 2016) on behalf of
 # Nicholas Vinson <nvinso234@gmail.com> (proxy-maint)
@@ -270,10 +261,6 @@ sys-auth/sssd samba
 # Alexis Ballier <aballier@gentoo.org> (02 Apr 2015)
 # Needs ilmbase (openexr), which does not build and is masked on arm.
 media-libs/freeimage tiff
-
-# Markus Meier <maekke@gentoo.org> (03 Mar 2015)
-# Unkeyworded deps, bug #540540
-sys-auth/sssd augeas
 
 # Jason A. Donenfeld <zx2c4@gentoo.org> (09 Feb 2015)
 # Google does not distribute the widevine plugin for ARM. It must be extracted from a Chromebook,

@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: kde5.eclass
@@ -119,13 +119,6 @@ if [[ ${CATEGORY} = kde-frameworks ]]; then
 fi
 : ${KDE_QTHELP:=false}
 
-# @ECLASS-VARIABLE: KDE_TESTPATTERN
-# @DESCRIPTION:
-# DANGER: Only touch it if you know what you are doing.
-# By default, matches autotest(s), unittest(s) and test(s) pattern inside
-# cmake add_subdirectory calls.
-: ${KDE_TESTPATTERN:="\(auto|unit\)\?tests\?"}
-
 # @ECLASS-VARIABLE: KDE_TEST
 # @DESCRIPTION:
 # If set to "false", do nothing.
@@ -135,7 +128,7 @@ fi
 # If set to "forceoptional", remove a Qt5Test dependency and comment test
 # subdirs from the root CMakeLists.txt in addition to the above.
 # If set to "forceoptional-recursive", remove Qt5Test dependencies and make
-# test subdirs according to KDE_TESTPATTERN from *any* CMakeLists.txt in ${S}
+# autotest(s), unittest(s) and test(s) subdirs from *any* CMakeLists.txt in ${S}
 # and below conditional on BUILD_TESTING. This is always meant as a short-term
 # fix and creates ${T}/${P}-tests-optional.patch to refine and submit upstream.
 if [[ ${CATEGORY} = kde-frameworks ]]; then
@@ -213,13 +206,9 @@ case ${KDE_AUTODEPS} in
 			RDEPEND+=" || ( $(add_frameworks_dep breeze-icons) kde-frameworks/oxygen-icons:* )"
 		fi
 
-		if [[ ${CATEGORY} = kde-apps ]]; then
+		if [[ ${CATEGORY} = kde-apps && ${PV} = 18.08.3 ]]; then
 			[[ ${KDE_BLOCK_SLOT4} = true ]] && RDEPEND+=" !kde-apps/${PN}:4"
-			RDEPEND+="
-				!kde-apps/kde-l10n
-				!<kde-apps/kde4-l10n-16.12.0:4
-				!kde-apps/kdepim-l10n:5
-			"
+			RDEPEND+=" !kde-apps/kde-l10n"
 		fi
 		;;
 esac
@@ -578,12 +567,12 @@ kde5_src_prepare() {
 			local f pf="${T}/${P}"-tests-optional.patch
 			touch ${pf} || die "Failed to touch patch file"
 			for f in $(find . -type f -name "CMakeLists.txt" -exec \
-				grep -l "^\s*add_subdirectory\s*\(\s*.*${KDE_TESTPATTERN}\s*)\s*\)" {} \;); do
+				grep -l "^\s*add_subdirectory\s*\(\s*.*\(auto|unit\)\?tests\?\s*)\s*\)" {} \;); do
 				cp ${f} ${f}.old || die "Failed to prepare patch origfile"
 				pushd ${f%/*} > /dev/null || die
 					punt_bogus_dep Qt5 Test
 					sed -i CMakeLists.txt -e \
-						"/^#/! s/add_subdirectory\s*\(\s*.*${KDE_TESTPATTERN}\s*)\s*\)/if(BUILD_TESTING)\n&\nendif()/" \
+						"/^#/! s/add_subdirectory\s*\(\s*.*\(auto|unit\)\?tests\?\s*)\s*\)/if(BUILD_TESTING)\n&\nendif()/" \
 						|| die
 				popd > /dev/null || die
 				diff -Naur ${f}.old ${f} 1>>${pf}
