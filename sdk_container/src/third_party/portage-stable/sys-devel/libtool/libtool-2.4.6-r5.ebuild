@@ -5,7 +5,7 @@ EAPI=6
 
 LIBTOOLIZE="true" #225559
 WANT_LIBTOOL="none"
-inherit autotools epunt-cxx multilib unpacker prefix
+inherit autotools epatch epunt-cxx multilib unpacker prefix
 
 if [[ ${PV} == "9999" ]] ; then
 	EGIT_REPO_URI="git://git.savannah.gnu.org/${PN}.git
@@ -35,6 +35,14 @@ DEPEND="${RDEPEND}
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.4.3-use-linux-version-in-fbsd.patch #109105
+	"${FILESDIR}"/${P}-link-specs.patch
+	"${FILESDIR}"/${P}-link-fsanitize.patch #573744
+	"${FILESDIR}"/${P}-link-fuse-ld.patch
+	"${FILESDIR}"/${P}-libtoolize-slow.patch
+	"${FILESDIR}"/${P}-libtoolize-delay-help.patch
+	"${FILESDIR}"/${P}-sed-quote-speedup.patch #542252
+	"${FILESDIR}"/${P}-ppc64le.patch #581314
+
 	"${FILESDIR}"/${PN}-2.4.6-mint.patch
 	"${FILESDIR}"/${PN}-2.2.6a-darwin-module-bundle.patch
 	"${FILESDIR}"/${PN}-2.4.6-darwin-use-linux-version.patch
@@ -50,7 +58,7 @@ src_unpack() {
 
 src_prepare() {
 	if [[ "${PV}" = 9999 ]] ; then
-		eapply "${FILESDIR}"/${PN}-2.4.6-pthread.patch #650876
+		eapply "${FILESDIR}"/${P}-pthread.patch #650876
 		./bootstrap || die
 	else
 		PATCHES+=(
@@ -58,9 +66,12 @@ src_prepare() {
 		)
 	fi
 
-	use vanilla && return 0
-
-	default
+	if use vanilla ; then
+		eapply_user
+		return 0
+	else
+		default
+	fi
 
 	if use prefix ; then
 		# seems that libtool has to know about EPREFIX a little bit
@@ -73,6 +84,7 @@ src_prepare() {
 		eapply "${FILESDIR}"/${PN}-2.2.10-eprefix.patch
 		eprefixify m4/libtool.m4
 	fi
+
 	pushd libltdl >/dev/null
 	AT_NOELIBTOOLIZE=yes eautoreconf
 	popd >/dev/null
