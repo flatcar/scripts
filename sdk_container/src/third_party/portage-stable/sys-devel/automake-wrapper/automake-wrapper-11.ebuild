@@ -1,7 +1,7 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=4
+EAPI="6"
 
 DESCRIPTION="wrapper for automake to manage multiple automake versions"
 HOMEPAGE="https://www.gentoo.org/"
@@ -19,6 +19,8 @@ src_unpack() {
 }
 
 src_prepare() {
+	default
+
 	# usr/bin/aclocal: bad substitution -> /bin/sh != POSIX shell
 	if use prefix ; then
 		sed -i -e '1c\#!'"${EPREFIX}"'/bin/sh' \
