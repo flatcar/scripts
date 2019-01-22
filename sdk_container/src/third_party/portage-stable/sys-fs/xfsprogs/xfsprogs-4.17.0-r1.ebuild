@@ -1,37 +1,32 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
-EAPI=5
+EAPI=6
 
-inherit eutils toolchain-funcs multilib
+inherit toolchain-funcs multilib systemd
 
 DESCRIPTION="xfs filesystem utilities"
-HOMEPAGE="http://oss.sgi.com/projects/xfs/"
-SRC_URI="ftp://ftp.kernel.org/pub/linux/utils/fs/xfs/${PN}/${P}.tar.xz"
+HOMEPAGE="https://xfs.wiki.kernel.org/"
+SRC_URI="https://www.kernel.org/pub/linux/utils/fs/xfs/${PN}/${P}.tar.xz"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86"
-IUSE="libedit nls readline static static-libs"
-REQUIRED_USE="static? ( static-libs )"
+KEYWORDS="alpha amd64 arm arm64 hppa ia64 ~mips ppc ppc64 s390 sh sparc x86"
+IUSE="icu libedit nls readline static-libs"
 
 LIB_DEPEND=">=sys-apps/util-linux-2.17.2[static-libs(+)]
+	icu? ( dev-libs/icu:=[static-libs(+)] )
 	readline? ( sys-libs/readline:0=[static-libs(+)] )
 	!readline? ( libedit? ( dev-libs/libedit[static-libs(+)] ) )"
-RDEPEND="!static? ( ${LIB_DEPEND//\[static-libs(+)]} )
+RDEPEND="${LIB_DEPEND//\[static-libs(+)]}
 	!<sys-fs/xfsdump-3"
 DEPEND="${RDEPEND}
-	static? (
-		${LIB_DEPEND}
-		readline? ( sys-libs/ncurses:0=[static-libs] )
-	)
 	nls? ( sys-devel/gettext )"
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-4.7.0-sharedlibs.patch
-	"${FILESDIR}"/${PN}-4.7.0-libxcmd-link.patch
-	"${FILESDIR}"/${PN}-4.3.0-cross-compile.patch
+	"${FILESDIR}"/${PN}-4.9.0-underlinking.patch
+	"${FILESDIR}"/${PN}-4.15.0-sharedlibs.patch
+	"${FILESDIR}"/${PN}-4.15.0-docdir.patch
 )
 
 pkg_setup() {
@@ -42,24 +37,14 @@ pkg_setup() {
 }
 
 src_prepare() {
-	epatch "${PATCHES[@]}"
+	default
 
-	# LLDFLAGS is used for programs, so apply -all-static when USE=static is enabled.
 	# Clear out -static from all flags since we want to link against dynamic xfs libs.
 	sed -i \
 		-e "/^PKG_DOC_DIR/s:@pkg_name@:${PF}:" \
-		-e "1iLLDFLAGS += $(usex static '-all-static' '')" \
 		include/builddefs.in || die
 	find -name Makefile -exec \
 		sed -i -r -e '/^LLDFLAGS [+]?= -static(-libtool-libs)?$/d' {} +
-
-	# TODO: Write a patch for configure.ac to use pkg-config for the uuid-part.
-	if use static && use readline ; then
-		sed -i \
-			-e 's|-lreadline|& -lncurses|' \
-			-e 's|-lblkid|& -luuid|' \
-			configure || die
-	fi
 }
 
 src_configure() {
@@ -67,18 +52,19 @@ src_configure() {
 	export OPTIMIZER=${CFLAGS}
 	unset PLATFORM # if set in user env, this breaks configure
 
-	local myconf
-	if use static || use static-libs ; then
-		myconf+=" --enable-static"
-	else
-		myconf+=" --disable-static"
-	fi
+	local myconf=(
+		--disable-lto #655638
+		--enable-blkid
+		--with-crond-dir="${EPREFIX}/etc/cron.d"
+		--with-systemd-unit-dir="$(systemd_get_systemunitdir)"
+		$(use_enable icu libicu)
+		$(use_enable nls gettext)
+		$(use_enable readline)
+		$(usex readline --disable-editline $(use_enable libedit editline))
+		$(use_enable static-libs static)
+	)
 
-	econf \
-		$(use_enable nls gettext) \
-		$(use_enable readline) \
-		$(usex readline --disable-editline $(use_enable libedit editline)) \
-		${myconf}
+	econf "${myconf[@]}"
 
 	MAKEOPTS+=" V=1"
 }
@@ -89,7 +75,7 @@ src_install() {
 	emake -j1 DIST_ROOT="${ED}" install-dev
 
 	# handle is for xfsdump, the rest for xfsprogs
-	gen_usr_ldscript -a handle xcmd xfs xlog
+	gen_usr_ldscript -a handle xcmd xfs xlog frog
 	# removing unnecessary .la files if not needed
 	use static-libs || find "${ED}" -name '*.la' -delete
 }
