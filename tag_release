@@ -28,7 +28,7 @@ DEFAULT_MINOR=0
 DEFAULT_BRANCH=${FLAGS_FALSE}
 DEFAULT_BRANCH_PROJECTS=
 
-CURRENT_VERSION=( ${COREOS_VERSION_ID//./ } )
+CURRENT_VERSION=( ${FLATCAR_VERSION_ID//./ } )
 
 # Detect if we are on a branch or still tracking master.
 DEFAULT_MANIFEST=$(readlink "${REPO_MANIFESTS_DIR}/default.xml") \
@@ -48,8 +48,8 @@ fi
 DEFINE_integer major ${DEFAULT_MAJOR} "Branch major version (aka 'build')"
 DEFINE_integer minor ${DEFAULT_MINOR} "Branch revision or minor version"
 DEFINE_integer patch 0 "Branch patch id, normally 0"
-DEFINE_string sdk_version "${COREOS_VERSION_ID}" \
-    "SDK version to use, or 'keep'. (current: ${COREOS_SDK_VERSION})"
+DEFINE_string sdk_version "${FLATCAR_VERSION_ID}" \
+    "SDK version to use, or 'keep'. (current: ${FLATCAR_SDK_VERSION})"
 DEFINE_boolean branch ${DEFAULT_BRANCH} "Release branch, diverge from master"
 DEFINE_string branch_projects "${DEFAULT_BRANCH_PROJECTS}" \
     "Branch the named projects (with a 'coreos/' prefix) in the manifest."
@@ -82,7 +82,7 @@ TAG_NAME="v${BRANCH_VERSION}"
 
 if [[ "${FLAGS_sdk_version}" == keep || "${FLAGS_sdk_version}" == current ]]
 then
-    FLAGS_sdk_version="${COREOS_SDK_VERSION}"
+    FLAGS_sdk_version="${FLATCAR_SDK_VERSION}"
 fi
 
 if [[ "${FLAGS_sdk_version}" == "${BRANCH_VERSION}" ]]; then
@@ -92,9 +92,9 @@ if [[ "${FLAGS_sdk_version}" == "${BRANCH_VERSION}" ]]; then
 fi
 
 # Verify that the specified SDK version exists
-COREOS_SDK_VERSION="${FLAGS_sdk_version}"
+FLATCAR_SDK_VERSION="${FLAGS_sdk_version}"
 . "${SCRIPT_ROOT}/sdk_lib/sdk_util.sh"
-if ! curl --head --fail --silent "${COREOS_SDK_URL}" > /dev/null ; then
+if ! curl --head --fail --silent "${FLATCAR_SDK_URL}" > /dev/null ; then
     die_notrace "SDK version does not exist." \
         "Try --sdk_version keep to use the existing SDK."
 fi
@@ -140,10 +140,10 @@ if [[ ${FLAGS_branch} -eq ${FLAGS_TRUE} ]]; then
 fi
 
 tee version.txt <<EOF
-COREOS_VERSION=${BRANCH_VERSION}
-COREOS_VERSION_ID=${BRANCH_VERSION}
-COREOS_BUILD_ID=""
-COREOS_SDK_VERSION=${FLAGS_sdk_version}
+FLATCAR_VERSION=${BRANCH_VERSION}
+FLATCAR_VERSION_ID=${BRANCH_VERSION}
+FLATCAR_BUILD_ID=""
+FLATCAR_SDK_VERSION=${FLAGS_sdk_version}
 EOF
 git add version.txt
 
@@ -154,7 +154,7 @@ export GPG_TTY
 info "Creating ${BRANCH_NAME} and tag ${TAG_NAME}"
 git commit -m "${BRANCH_NAME}: release ${TAG_NAME}"
 git branch -f "${BRANCH_NAME}"
-git tag "${sign_args[@]}" -m "CoreOS ${TAG_NAME}" "${TAG_NAME}"
+git tag "${sign_args[@]}" -m "Flatcar ${TAG_NAME}" "${TAG_NAME}"
 
 # Unpin and branch the important projects, if requested and they are pinned.
 if [[ -n "${FLAGS_branch_projects}" ]]; then
