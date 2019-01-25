@@ -1,6 +1,10 @@
 # Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
+# Mart Raudsepp <leio@gentoo.org> (18 Jan 2019)
+# Respective x11-drivers/ not tested and stable yet
+x11-base/xorg-drivers input_devices_elographics input_devices_joystick input_devices_void video_cards_dummy video_cards_fbdev video_cards_nouveau
+
 # Mart Raudsepp <leio@gentoo.org> (11 Sep 2018)
 # net-wireless/bluez not stable yet
 dev-lang/python bluetooth
@@ -53,7 +57,7 @@ net-dns/avahi bookmarks gtk3 utils
 net-misc/openssh X
 sys-apps/dbus test
 sys-apps/man-pages l10n_fr
-sys-apps/systemd cryptsetup http policykit qrcode xkb
+sys-apps/systemd cryptsetup policykit qrcode xkb
 sys-auth/pambase consolekit pam_krb5 pam_ssh passwdqc
 sys-block/thin-provisioning-tools test
 sys-devel/distcc gssapi
@@ -65,6 +69,7 @@ net-dns/avahi howl-compat python
 
 # Mart Raudsepp <leio@gentoo.org> (02 Mar 2018)
 # Requires xorg-server[xvfb] for tests
+net-libs/glib-networking test
 dev-util/cmake test
 dev-libs/glib test
 app-crypt/heimdal test

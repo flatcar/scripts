@@ -1,6 +1,11 @@
 # Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Tobias Klausmann <klausman@gentoo.rog> (23/Nov/2018)
+# Requires sys-cluster/ceph, which is unlikely to be used on Alpha
+# and a rather large dependency.
+sys-fs/multipath-tools rbd
+
 # Thomas Deutschmann <whissi@gentoo.org> (15 Oct 2018)
 # Requires app-text/mecab which isn't yet keyworded
 # on alpha, bug 668674
@@ -55,11 +60,6 @@ app-metrics/collectd collectd_plugins_write_kafka
 app-metrics/collectd collectd_plugins_write_mongodb
 app-metrics/collectd collectd_plugins_xencpu
 app-metrics/collectd collectd_plugins_java
-
-# Ulrich Müller <ulm@gentoo.org> (23 Oct 2017)
-# Needs net-mail/mailutils which is not keyworded, bug #635216.
-app-editors/emacs mailutils
-app-editors/emacs-vcs mailutils
 
 # Michael Palimaka <kensington@gentoo.org> (30 Sep 2017)
 # Required dependencies are not keyworded.

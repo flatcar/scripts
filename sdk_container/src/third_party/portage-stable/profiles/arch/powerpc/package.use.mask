@@ -1,13 +1,13 @@
 # Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
+# Alon Bar-Lev <alonbl@gentoo.org> (21 Dec 2018)
+# Requires USE=dane that is masked in this profile.
+net-libs/gnutls test-full
+
 # Matthew Thode <prometheanfire@gentoo.org> (12 Sep 2018)
 # dev-db/mariadb-connector-c not yet keyworded
 net-analyzer/icinga2 mariadb
-
-# Andreas Sturmlechner <asturm@gentoo.org> (01 Sep 2018)
-# media-libs/libaom not yet keyworded
-media-video/vlc aom
 
 # Luca Barbato <lu_zero@gentoo.org> (12 Aug 2018)
 # grub pc is not supported on powerpc
@@ -121,7 +121,7 @@ dev-db/percona-server -numa
 # Davide Pesavento <pesa@gentoo.org> (28 Jul 2016)
 # The corresponding Qt5 modules are not keyworded on ppc, and we don't want to
 # keyword them solely because of PyQt5 while there are no other in-tree users.
-dev-python/PyQt5 bluetooth location webengine
+dev-python/PyQt5 bluetooth location networkauth webengine
 
 # Michael Palimaka <kensington@gentoo.org> (07 Jul 2016)
 # Requires unkeyworded dependencies

@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # Unmask the flag which corresponds to ARCH.
@@ -55,8 +55,10 @@ alsa
 apm
 directfb
 lirc
+llvm
 java
 hardened
+vaapi
 qt5
 
 # Needs java
@@ -84,11 +86,6 @@ sdl
 lm_sensors
 wxwidgets
 
-# Samuli Suominen <ssuominen@gentoo.org> (18 Jan 2013)
-# libdlm and cman are not keyworded
-cman
-clvm
-
 # Many X drivers make no sense on this platform.
 input_devices_elographics
 input_devices_evdev
@@ -97,7 +94,6 @@ input_devices_keyboard
 input_devices_mouse
 input_devices_vmmouse
 input_devices_synaptics
-input_devices_tslib
 input_devices_wacom
 video_cards_amdgpu
 video_cards_fbdev

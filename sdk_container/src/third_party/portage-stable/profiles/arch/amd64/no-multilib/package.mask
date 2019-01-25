@@ -1,9 +1,5 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-
-# Michał Górny <mgorny@gentoo.org> (07 Jan 2018)
-# Requires 32-bit libraries.
-<net-misc/teamviewer-13
 
 # David Seifert <soap@gentoo.org> (03 Jan 2018)
 # Requires 32-bit multilib compatibility
@@ -39,6 +35,7 @@ dev-embedded/openocd
 dev-util/android-ndk
 dev-util/android-sdk-update-manager
 dev-util/biew
+games-action/badland
 games-action/beathazardultra
 games-action/brutal-legend
 games-action/cs2d

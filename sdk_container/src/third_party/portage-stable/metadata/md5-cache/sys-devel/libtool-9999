@@ -1,11 +1,11 @@
 DEFINED_PHASES=configure install prepare test unpack
-DEPEND=sys-devel/gnuconfig >=sys-devel/autoconf-2.69 >=sys-devel/automake-1.13 app-arch/xz-utils sys-apps/help2man >=app-portage/elt-patches-20170815 !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.16.1:1.16 >=sys-devel/automake-1.15.1:1.15 ) >=sys-devel/autoconf-2.69 dev-vcs/git
+DEPEND=sys-devel/gnuconfig >=sys-devel/autoconf-2.69 >=sys-devel/automake-1.13 dev-libs/libltdl:0 !<sys-apps/sandbox-2.10-r4 app-arch/xz-utils sys-apps/help2man >=app-portage/elt-patches-20170815 !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.16.1:1.16 >=sys-devel/automake-1.15.1:1.15 ) >=sys-devel/autoconf-2.69 >=app-portage/elt-patches-20170317 >=dev-vcs/git-1.8.2.1[curl]
 DESCRIPTION=A shared library tool for developers
-EAPI=4
+EAPI=6
 HOMEPAGE=https://www.gnu.org/software/libtool/
 IUSE=vanilla
 LICENSE=GPL-2
-RDEPEND=sys-devel/gnuconfig >=sys-devel/autoconf-2.69 >=sys-devel/automake-1.13
+RDEPEND=sys-devel/gnuconfig >=sys-devel/autoconf-2.69 >=sys-devel/automake-1.13 dev-libs/libltdl:0 !<sys-apps/sandbox-2.10-r4
 SLOT=2
-_eclasses_=autotools	1bf086cdd7356f5c9a4acd9727bd2065	desktop	b1d22ac8bdd4679ab79c71aca235009d	epatch	a1bf4756dba418a7238f3be0cb010c54	estack	43ddf5aaffa7a8d0482df54d25a66a1f	eutils	6e6c2737b59a4b982de6fb3ecefd87f8	git-2	249c1a0962573f4ce2c28f0d5b6b35d4	libtool	f143db5a74ccd9ca28c1234deffede96	ltprune	08f9e1d9ee0af8f5d9a7854efbcd8c0e	multilib	b2f01ad412baf81650c23fcf0975fa33	preserve-libs	ef207dc62baddfddfd39a164d9797648	toolchain-funcs	f164325a2cdb5b3ea39311d483988861	unpacker	ee2f5086cd7e7b747b061f58db14d89e	vcs-clean	2a0f74a496fa2b1552c4f3398258b7bf
-_md5_=c4eda0bef38bce0fc784da814ae6b301
+_eclasses_=autotools	1bf086cdd7356f5c9a4acd9727bd2065	desktop	b1d22ac8bdd4679ab79c71aca235009d	epatch	a1bf4756dba418a7238f3be0cb010c54	epunt-cxx	e99babeaa7d98c1caaa6a61a79902210	estack	43ddf5aaffa7a8d0482df54d25a66a1f	eutils	6e6c2737b59a4b982de6fb3ecefd87f8	git-r3	0d4635eeb5a96cd5315597a47eba25c9	libtool	f143db5a74ccd9ca28c1234deffede96	ltprune	08f9e1d9ee0af8f5d9a7854efbcd8c0e	multilib	b2f01ad412baf81650c23fcf0975fa33	prefix	e51c7882b7b721e54e684f7eb143cbfe	preserve-libs	ef207dc62baddfddfd39a164d9797648	toolchain-funcs	f164325a2cdb5b3ea39311d483988861	unpacker	ee2f5086cd7e7b747b061f58db14d89e	vcs-clean	2a0f74a496fa2b1552c4f3398258b7bf
+_md5_=ab42b440535e7d58d643388d89d91d81

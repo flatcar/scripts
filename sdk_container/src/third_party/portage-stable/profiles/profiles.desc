@@ -48,23 +48,23 @@ amd64           default/linux/amd64/17.0/no-multilib/hardened/selinux   stable
 amd64           default/linux/amd64/17.0/systemd                        stable
 amd64           default/linux/amd64/17.0/x32                            dev
 
-# Experimental SYMLINK_LIB=no profiles
+# SYMLINK_LIB=no profiles
 # Run app-portage/unsymlink-lib *before* switching the profile.
 # @MAINTAINER: mgorny@gentoo.org
-amd64           default/linux/amd64/17.1                           exp
-amd64           default/linux/amd64/17.1/selinux                   exp
-amd64           default/linux/amd64/17.1/hardened                  exp
-amd64           default/linux/amd64/17.1/hardened/selinux          exp
-amd64           default/linux/amd64/17.1/desktop                   exp
-amd64           default/linux/amd64/17.1/desktop/gnome             exp
-amd64           default/linux/amd64/17.1/desktop/gnome/systemd     exp
-amd64           default/linux/amd64/17.1/desktop/plasma            exp
-amd64           default/linux/amd64/17.1/desktop/plasma/systemd    exp
-amd64           default/linux/amd64/17.1/developer                 exp
-amd64           default/linux/amd64/17.1/no-multilib                    exp
-amd64           default/linux/amd64/17.1/no-multilib/hardened           exp
-amd64           default/linux/amd64/17.1/no-multilib/hardened/selinux   exp
-amd64           default/linux/amd64/17.1/systemd                   exp
+amd64           default/linux/amd64/17.1                           dev
+amd64           default/linux/amd64/17.1/selinux                   dev
+amd64           default/linux/amd64/17.1/hardened                  dev
+amd64           default/linux/amd64/17.1/hardened/selinux          dev
+amd64           default/linux/amd64/17.1/desktop                   dev
+amd64           default/linux/amd64/17.1/desktop/gnome             dev
+amd64           default/linux/amd64/17.1/desktop/gnome/systemd     dev
+amd64           default/linux/amd64/17.1/desktop/plasma            dev
+amd64           default/linux/amd64/17.1/desktop/plasma/systemd    dev
+amd64           default/linux/amd64/17.1/developer                 dev
+amd64           default/linux/amd64/17.1/no-multilib                    dev
+amd64           default/linux/amd64/17.1/no-multilib/hardened           dev
+amd64           default/linux/amd64/17.1/no-multilib/hardened/selinux   dev
+amd64           default/linux/amd64/17.1/systemd                   dev
 
 # ARM Profiles
 # @MAINTAINER: arm@gentoo.org
@@ -72,51 +72,65 @@ arm             default/linux/arm/13.0                          stable
 arm             default/linux/arm/13.0/desktop                  dev
 arm             default/linux/arm/13.0/desktop/gnome            dev
 arm             default/linux/arm/13.0/desktop/gnome/systemd    dev
+arm             default/linux/arm/13.0/desktop/plasma           dev
+arm             default/linux/arm/13.0/desktop/plasma/systemd   dev
 arm             default/linux/arm/13.0/developer                dev
 arm             default/linux/arm/13.0/armv4                    dev
 arm             default/linux/arm/13.0/armv4/desktop            dev
 arm             default/linux/arm/13.0/armv4/desktop/gnome      dev
+arm             default/linux/arm/13.0/armv4/desktop/plasma     dev
 arm             default/linux/arm/13.0/armv4/developer          dev
 arm             default/linux/arm/13.0/armv4t                   dev
 arm             default/linux/arm/13.0/armv4t/desktop           dev
 arm             default/linux/arm/13.0/armv4t/desktop/gnome     dev
+arm             default/linux/arm/13.0/armv4t/desktop/plasma    dev
 arm             default/linux/arm/13.0/armv4t/developer         dev
 arm             default/linux/arm/13.0/armv5te                  dev
 arm             default/linux/arm/13.0/armv5te/desktop          dev
 arm             default/linux/arm/13.0/armv5te/desktop/gnome    dev
+arm             default/linux/arm/13.0/armv5te/desktop/plasma   dev
 arm             default/linux/arm/13.0/armv5te/developer        dev
 arm             default/linux/arm/13.0/armv6j                   dev
 arm             default/linux/arm/13.0/armv6j/desktop           dev
 arm             default/linux/arm/13.0/armv6j/desktop/gnome     dev
+arm             default/linux/arm/13.0/armv6j/desktop/plasma    dev
 arm             default/linux/arm/13.0/armv6j/developer         dev
 arm             default/linux/arm/13.0/armv7a                   dev
 arm             default/linux/arm/13.0/armv7a/desktop           dev
 arm             default/linux/arm/13.0/armv7a/desktop/gnome     dev
+arm             default/linux/arm/13.0/armv7a/desktop/plasma    dev
 arm             default/linux/arm/13.0/armv7a/developer         dev
 arm             default/linux/arm/17.0                          stable
 arm             default/linux/arm/17.0/desktop                  dev
 arm             default/linux/arm/17.0/desktop/gnome            dev
 arm             default/linux/arm/17.0/desktop/gnome/systemd    dev
+arm             default/linux/arm/17.0/desktop/plasma           dev
+arm             default/linux/arm/17.0/desktop/plasma/systemd   dev
 arm             default/linux/arm/17.0/developer                dev
 arm             default/linux/arm/17.0/armv4                    dev
 arm             default/linux/arm/17.0/armv4/desktop            dev
 arm             default/linux/arm/17.0/armv4/desktop/gnome      dev
+arm             default/linux/arm/17.0/armv4/desktop/plasma     dev
 arm             default/linux/arm/17.0/armv4/developer          dev
 arm             default/linux/arm/17.0/armv4t                   dev
 arm             default/linux/arm/17.0/armv4t/desktop           dev
 arm             default/linux/arm/17.0/armv4t/desktop/gnome     dev
+arm             default/linux/arm/17.0/armv4t/desktop/plasma    dev
 arm             default/linux/arm/17.0/armv4t/developer         dev
 arm             default/linux/arm/17.0/armv5te                  dev
 arm             default/linux/arm/17.0/armv5te/desktop          dev
 arm             default/linux/arm/17.0/armv5te/desktop/gnome    dev
+arm             default/linux/arm/17.0/armv5te/desktop/plasma   dev
 arm             default/linux/arm/17.0/armv5te/developer        dev
 arm             default/linux/arm/17.0/armv6j                   dev
 arm             default/linux/arm/17.0/armv6j/desktop           dev
 arm             default/linux/arm/17.0/armv6j/desktop/gnome     dev
+arm             default/linux/arm/17.0/armv6j/desktop/plasma    dev
 arm             default/linux/arm/17.0/armv6j/developer         dev
 arm             default/linux/arm/17.0/armv7a                   dev
 arm             default/linux/arm/17.0/armv7a/desktop           dev
 arm             default/linux/arm/17.0/armv7a/desktop/gnome     dev
+arm             default/linux/arm/17.0/armv7a/desktop/plasma    dev
 arm             default/linux/arm/17.0/armv7a/developer         dev
 
 # ARM64 Profiles
@@ -131,6 +145,12 @@ arm64           default/linux/arm64/17.0/desktop                exp
 arm64           default/linux/arm64/17.0/desktop/systemd        dev
 arm64           default/linux/arm64/17.0/developer              exp
 arm64           default/linux/arm64/17.0/systemd                dev
+
+# ARM64 Profiles (big-endian)
+# @MAINTAINER: steev@gentoo.org, slyfox@gentoo.org
+# big-endian profile intentionally does not contain all flavours
+# until it's lightly tested.
+arm64           default/linux/arm64/17.0/big-endian             exp
 
 # HPPA Profiles
 # @MAINTAINER: hppa@gentoo.org
@@ -288,20 +308,12 @@ x86		default/linux/x86/17.0/systemd			stable
 
 # Gentoo/FreeBSD Profiles
 # @MAINTAINER: bsd@gentoo.org
-amd64-fbsd	default/bsd/fbsd/amd64/9.1			exp
 amd64-fbsd	default/bsd/fbsd/amd64/11.1			stable
-amd64-fbsd	default/bsd/fbsd/amd64/9.1/clang		exp
 amd64-fbsd	default/bsd/fbsd/amd64/11.1/clang		exp
-x86-fbsd	default/bsd/fbsd/x86/9.1			exp
 x86-fbsd	default/bsd/fbsd/x86/11.1			exp
 
 # Hardened Profiles
 # @MAINTAINER: hardened@gentoo.org
-amd64		hardened/linux/amd64					stable
-amd64		hardened/linux/amd64/selinux				stable
-amd64		hardened/linux/amd64/no-multilib			stable
-amd64		hardened/linux/amd64/no-multilib/selinux		stable
-amd64		hardened/linux/amd64/x32				dev
 arm		hardened/linux/arm/armv6j				dev
 arm		hardened/linux/arm/armv7a				dev
 ia64		hardened/linux/ia64					dev
@@ -316,15 +328,9 @@ mips		hardened/linux/mips/n64					exp
 ppc		hardened/linux/powerpc/ppc32				dev
 ppc		hardened/linux/powerpc/ppc64/32bit-userland		dev
 ppc64		hardened/linux/powerpc/ppc64/64bit-userland		dev
-x86		hardened/linux/x86					stable
-x86		hardened/linux/x86/selinux				stable
 
 # musl profiles
 # @MAINTAINER: musl@gentoo.org
-amd64		default/linux/musl/amd64				exp
-amd64		hardened/linux/musl/amd64				exp
-amd64		default/linux/musl/amd64/x32				exp
-amd64		hardened/linux/musl/amd64/x32				exp
 amd64		default/linux/amd64/17.0/musl				exp
 amd64		default/linux/amd64/17.0/musl/hardened			exp
 amd64		default/linux/amd64/17.0/musl/hardened/selinux		exp
@@ -342,15 +348,14 @@ mips		default/linux/musl/mips/mipsel				exp
 mips		hardened/linux/musl/mips/mipsel				exp
 ppc		default/linux/musl/ppc					exp
 ppc		hardened/linux/musl/ppc					exp
+ppc		default/linux/powerpc/ppc32/17.0/musl			exp
+ppc		default/linux/powerpc/ppc32/17.0/musl/hardened		exp
 x86		default/linux/musl/x86					exp
-x86		hardened/linux/musl/x86					exp
 x86		default/linux/x86/17.0/musl				exp
 x86		default/linux/x86/17.0/musl/selinux			exp
 
 # Non-embedded uclibc profiles
 # @MAINTAINER: uclibc@gentoo.org
-amd64		default/linux/uclibc/amd64				exp
-amd64		hardened/linux/uclibc/amd64				exp
 amd64		default/linux/amd64/17.0/uclibc				exp
 amd64		default/linux/amd64/17.0/uclibc/hardened		exp
 arm		default/linux/uclibc/arm/armv7a				exp
@@ -365,8 +370,8 @@ mips		default/linux/uclibc/mips/mipsel			exp
 mips		hardened/linux/uclibc/mips/mipsel			exp
 ppc		default/linux/uclibc/ppc				exp
 ppc		hardened/linux/uclibc/ppc				exp
-x86		default/linux/uclibc/x86				exp
-x86		hardened/linux/uclibc/x86				exp
+ppc		default/linux/powerpc/ppc32/17.0/uclibc			exp
+ppc		default/linux/powerpc/ppc32/17.0/uclibc/hardened	exp
 x86		default/linux/x86/17.0/uclibc				exp
 x86		default/linux/x86/17.0/uclibc/hardened			exp
 
@@ -418,6 +423,8 @@ x86-macos		prefix/darwin/macos/10.12/x86			exp
 x64-macos		prefix/darwin/macos/10.12/x64			exp
 x86-macos		prefix/darwin/macos/10.13/x86			exp
 x64-macos		prefix/darwin/macos/10.13/x64			exp
+x86-macos		prefix/darwin/macos/10.14/x86			exp
+x64-macos		prefix/darwin/macos/10.14/x64			exp
 
 # Solaris Profiles
 sparc-solaris		prefix/sunos/solaris/5.9/sparc			exp

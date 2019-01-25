@@ -17,9 +17,9 @@
 
 #--- END OF EXAMPLES ---
 
-# Andreas Sturmlechner <asturm@gentoo.org> (18 Sep 2018)
-# >=media-video/libav-12 not stable yet, bug #617508
-media-video/vlc libav
+# Andreas Sturmlechner <asturm@gentoo.org> (02 Dec 2018)
+# gnome-base/nautilus is not stable
+media-sound/easytag nautilus
 
 # Michał Górny <mgorny@gentoo.org> (26 Aug 2018)
 # Non-stable dependency.  Used to be masked completely.

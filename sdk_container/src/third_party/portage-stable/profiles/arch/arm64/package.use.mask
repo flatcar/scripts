@@ -1,6 +1,11 @@
 # Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Davide Pesavento <pesa@gentoo.org> (27 Dec 2018)
+# The corresponding Qt5 modules are not keyworded on arm64, and we don't want to
+# keyword them solely because of PyQt5 while there are no other in-tree users.
+dev-python/PyQt5 networkauth
+
 # Thomas Deutschmann <whissi@gentoo.org> (12 Oct 2018)
 # Requires www-client/firefox which isn't yet keyworded on ARM64
 dev-ruby/capybara test
@@ -33,9 +38,8 @@ sci-electronics/kicad occ oce ngspice
 # media-libs/aribb24 not yet keyworded, bug #665048
 # net-libs/srt not yet keyworded
 # net-libs/libmicrodns not yet keyworded, bug #653800
-# projectm not yet keyworded, bug #314969
 # net-misc/freerdp not yet keyworded
-media-video/vlc aom aribsub chromaprint chromecast opencv projectm rdp srt
+media-video/vlc aom aribsub chromecast rdp srt
 
 # Matthew Thode <prometheanfire@gentoo.org> (30 Aug 2018)
 # Needs pillow and it's deps to build docs
@@ -53,7 +57,6 @@ dev-python/networkx pandas test
 # Unkeyworded dependencies.
 dev-python/matplotlib doc
 net-libs/gnome-online-accounts gnome
-x11-libs/gksu gnome
 
 # Thomas Deutschmann <whissi@gentoo.org> (04 Jul 2018)
 # dev-libs/xxhash not keyworded for arm64
@@ -204,10 +207,6 @@ dev-libs/dbus-c++ ecore
 # USE=eds requires USE=gnome that is masked here.
 # USE=postgres requires dev-db/postgresql[kerberos] (USE masked).
 app-office/libreoffice eds postgres
-
-# Michał Górny <mgorny@gentoo.org> (23 Jan 2018)
-# Requires mail-client/thunderbird* that is not keyworded here.
-app-misc/tracker thunderbird
 
 # Michał Górny <mgorny@gentoo.org> (23 Jan 2018)
 # Requires app-accessibility/brltty that is not keyworded here.
@@ -376,10 +375,6 @@ dev-libs/libcdio cddb
 # Steev Klimaszewski <steev@gentoo.org> (04 March 2016)
 # Chromium uses an internal tcmalloc that doesn't support this arch yet.
 www-client/chromium tcmalloc
-
-# Mike Frysinger <vapier@gentoo.org> (17 Dec 2015)
-# The tlsdate seccomp logic is open-coded and doesn't support this arch yet.
-net-misc/tlsdate seccomp
 
 # Mike Frysinger <vapier@gentoo.org> (20 Jul 2015)
 # Mart Raudsepp <leio@gentoo.org> (04 Feb 2017)
