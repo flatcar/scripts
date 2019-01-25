@@ -1,15 +1,16 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
 inherit eutils alternatives flag-o-matic toolchain-funcs multilib multiprocessing
 
-PATCH_VER=3
-CROSS_VER=1.1.4
+PATCH_VER=1
+CROSS_VER=1.1.9
+PATCH_BASE="perl-5.24.4-patches-${PATCH_VER}"
 
-PERL_OLDVERSEN="5.24.0"
-MODULE_AUTHOR=SHAY
+PERL_OLDVERSEN="5.24.3 5.24.2 5.24.1 5.24.0"
+DIST_AUTHOR=SHAY
 
 SHORT_PV="${PV%.*}"
 MY_P="perl-${PV/_rc/-RC}"
@@ -19,22 +20,22 @@ DESCRIPTION="Larry Wall's Practical Extraction and Report Language"
 
 SRC_URI="
 	mirror://cpan/src/5.0/${MY_P}.tar.xz
-	mirror://cpan/authors/id/${MODULE_AUTHOR:0:1}/${MODULE_AUTHOR:0:2}/${MODULE_AUTHOR}/${MY_P}.tar.xz
-	https://github.com/gentoo-perl/perl-patchset/releases/download/${MY_P}-patches-${PATCH_VER}/${MY_P}-patches-${PATCH_VER}.tar.xz
-	mirror://gentoo/${MY_P}-patches-${PATCH_VER}.tar.xz
-	https://dev.gentoo.org/~kentnl/distfiles/${MY_P}-patches-${PATCH_VER}.tar.xz
+	mirror://cpan/authors/id/${DIST_AUTHOR:0:1}/${DIST_AUTHOR:0:2}/${DIST_AUTHOR}/${MY_P}.tar.xz
+	https://github.com/gentoo-perl/perl-patchset/releases/download/${PATCH_BASE}/${PATCH_BASE}.tar.xz
+	mirror://gentoo/${PATCH_BASE}.tar.xz
+	https://dev.gentoo.org/~kentnl/distfiles/${PATCH_BASE}.tar.xz
 	https://github.com/arsv/perl-cross/releases/download/${CROSS_VER}/perl-cross-${CROSS_VER}.tar.gz
 "
-HOMEPAGE="http://www.perl.org/"
+HOMEPAGE="https://www.perl.org/"
 
 LICENSE="|| ( Artistic GPL-1+ )"
 SLOT="0/${SHORT_PV}"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~ppc-aix ~x64-cygwin ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~x64-cygwin ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="berkdb debug doc gdbm ithreads"
 
 RDEPEND="
 	berkdb? ( sys-libs/db:= )
-	gdbm? ( >=sys-libs/gdbm-1.8.3 )
+	gdbm? ( >=sys-libs/gdbm-1.8.3:= )
 	app-arch/bzip2
 	sys-libs/zlib
 "
@@ -43,11 +44,12 @@ DEPEND="${RDEPEND}
 "
 PDEPEND="
 	>=app-admin/perl-cleaner-2.5
+	>=virtual/perl-File-Path-2.130.0
 	>=virtual/perl-File-Temp-0.230.400-r2
 	>=virtual/perl-Data-Dumper-2.154.0
 	virtual/perl-Test-Harness
 "
-# bug 390719, bug 523624
+# bug 390719, bug 523624, bug 620304
 # virtual/perl-Test-Harness is here for the bundled ExtUtils::MakeMaker
 
 S="${WORKDIR}/${MY_P}"
@@ -61,7 +63,7 @@ dual_scripts() {
 	src_remove_dual      perl-core/ExtUtils-ParseXS   3.310.0       xsubpp
 	src_remove_dual      perl-core/IO-Compress        2.69.1_rc          zipdetails
 	src_remove_dual      perl-core/JSON-PP            2.273.0.100_rc     json_pp
-	src_remove_dual      perl-core/Module-CoreList    5.201.701.142.400_rc  corelist
+	src_remove_dual      perl-core/Module-CoreList    5.201.804.142.400_rc  corelist
 	src_remove_dual      perl-core/Pod-Parser         1.630.0       pod2usage podchecker podselect
 	src_remove_dual      perl-core/Pod-Perldoc        3.250.300_rc  perldoc
 	src_remove_dual      perl-core/Test-Harness       3.360.100_rc  prove
@@ -96,9 +98,9 @@ check_rebuild() {
 
 	# Reinstall w/ USE Change
 	elif (   use ithreads && ! has_version dev-lang/perl[ithreads] ) || \
-	     ( ! use ithreads &&   has_version dev-lang/perl[ithreads] ) || \
-	     (   use debug    && ! has_version dev-lang/perl[debug]    ) || \
-	     ( ! use debug    &&   has_version dev-lang/perl[debug]    ) ; then
+		 ( ! use ithreads &&   has_version dev-lang/perl[ithreads] ) || \
+		 (   use debug    && ! has_version dev-lang/perl[debug]    ) || \
+		 ( ! use debug    &&   has_version dev-lang/perl[debug]    ) ; then
 		echo ""
 		ewarn "TOGGLED USE-FLAGS WARNING:"
 		ewarn "You changed one of the use-flags ithreads or debug."
@@ -317,6 +319,12 @@ src_configure() {
 
 	# Perl has problems compiling with -Os in your flags with glibc
 	use elibc_uclibc || replace-flags "-Os" "-O2"
+
+	# xlocale.h is going away in glibc-2.26, so it's counterproductive
+	# if we use it and include it in CORE/perl.h ... Perl builds just
+	# fine with glibc and locale.h only.
+	# However, the darwin prefix people have no locale.h ...
+	use elibc_glibc && myconf -Ui_xlocale
 
 	# This flag makes compiling crash in interesting ways
 	filter-flags "-malign-double"
