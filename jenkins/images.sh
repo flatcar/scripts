@@ -11,7 +11,7 @@ enter() {
         verify_key=--verify-key=/etc/portage/gangue.asc
         sudo ln -f "${GS_DEVEL_CREDS}" chroot/etc/portage/gangue.json
         bin/cork enter --bind-gpg-agent=false -- env \
-            COREOS_DEV_BUILDS="${DOWNLOAD_ROOT}" \
+            FLATCAR_DEV_BUILDS="${DOWNLOAD_ROOT}" \
             {FETCH,RESUME}COMMAND_GS="/usr/bin/gangue get \
 --json-key=/etc/portage/gangue.json $verify_key \
 "'"${URI}" "${DISTDIR}/${FILE}"' \
@@ -23,14 +23,14 @@ script() {
 }
 
 source .repo/manifests/version.txt
-export COREOS_BUILD_ID
+export FLATCAR_BUILD_ID
 
 # Set up GPG for signing uploads.
 gpg --import "${GPG_SECRET_KEY_FILE}"
 
 script setup_board \
     --board="${BOARD}" \
-    --getbinpkgver="${COREOS_VERSION}" \
+    --getbinpkgver="${FLATCAR_VERSION}" \
     --regen_configs_only
 
 if [ "x${COREOS_OFFICIAL}" == x1 ]
@@ -43,7 +43,7 @@ fi
 # Retrieve this version's torcx manifest
 mkdir -p torcx/pkgs
 enter gsutil cp -r \
-    "${DOWNLOAD_ROOT}/torcx/manifests/${BOARD}/${COREOS_VERSION}/torcx_manifest.json"{,.sig} \
+    "${DOWNLOAD_ROOT}/torcx/manifests/${BOARD}/${FLATCAR_VERSION}/torcx_manifest.json"{,.sig} \
     /mnt/host/source/torcx/
 gpg --verify torcx/torcx_manifest.json.sig
 
@@ -67,7 +67,7 @@ script build_image \
     --board="${BOARD}" \
     --group="${GROUP}" \
     --getbinpkg \
-    --getbinpkgver="${COREOS_VERSION}" \
+    --getbinpkgver="${FLATCAR_VERSION}" \
     --sign="${SIGNING_USER}" \
     --sign_digests="${SIGNING_USER}" \
     --torcx_manifest=/mnt/host/source/torcx/torcx_manifest.json \
