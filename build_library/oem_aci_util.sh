@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# Expects BOARD, BUILD_DIR, BUILD_LIBRARY_DIR, and COREOS_VERSION in env.
+# Expects BOARD, BUILD_DIR, BUILD_LIBRARY_DIR, and FLATCAR_VERSION in env.
 
 # There must be a manifest template included with the ebuild at
 # files/manifest.in, which will have some variable values substituted before
@@ -80,7 +80,7 @@ oem_aci_write_manifest() {
     sudo cp "${manifest_template}" "${manifest}"
     sudo sed "${manifest}" -i \
         -e "s,@ACI_NAME@,${name}," \
-        -e "s,@ACI_VERSION@,${COREOS_VERSION}," \
+        -e "s,@ACI_VERSION@,${FLATCAR_VERSION}," \
         -e "s,@ACI_ARCH@,${appc_arch},"
 }
 
@@ -112,7 +112,7 @@ oem_aci_create() {
         "coreos.com/oem-${oem}"
 
     # Write a tar ACI file containing the manifest and mounted rootfs contents.
-    sudo tar -C "${aciroot}" -czf "${BUILD_DIR}/coreos-oem-${oem}.aci" \
+    sudo tar -C "${aciroot}" -czf "${BUILD_DIR}/flatcar-oem-${oem}.aci" \
         manifest rootfs
 
     # Unmount the staging image, and delete it to save space.
