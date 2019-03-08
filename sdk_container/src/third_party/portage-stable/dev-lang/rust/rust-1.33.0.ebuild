@@ -3,9 +3,9 @@
 
 EAPI=6
 
-PYTHON_COMPAT=( python2_7 python3_{5,6} pypy )
+PYTHON_COMPAT=( python2_7 python3_{5,6,7} pypy )
 
-LLVM_MAX_SLOT=7
+LLVM_MAX_SLOT=8
 
 inherit check-reqs eapi7-ver estack flag-o-matic llvm multiprocessing multilib-build python-any-r1 rust-toolchain toolchain-funcs
 
@@ -23,7 +23,7 @@ else
 	KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 fi
 
-RUST_STAGE0_VERSION="1.$(($(ver_cut 2) - 1)).1"
+RUST_STAGE0_VERSION="1.$(($(ver_cut 2) - 1)).0"
 
 DESCRIPTION="Systems programming language from Mozilla"
 HOMEPAGE="https://www.rust-lang.org/"
@@ -47,7 +47,7 @@ COMMON_DEPEND=">=app-eselect/eselect-rust-0.3_pre20150425
 		net-libs/libssh2
 		net-libs/http-parser:=
 		net-misc/curl[ssl]
-		system-llvm? ( sys-devel/llvm:7= )"
+		system-llvm? ( >=sys-devel/llvm-7:= )"
 DEPEND="${COMMON_DEPEND}
 	${PYTHON_DEPS}
 	|| (
@@ -64,12 +64,8 @@ REQUIRED_USE="|| ( ${ALL_LLVM_TARGETS[*]} )
 S="${WORKDIR}/${MY_P}-src"
 
 PATCHES=(
-	"${FILESDIR}"/1.30.1-clippy-sysroot.patch
 	"${FILESDIR}"/1.32.0-fix-configure-of-bundled-llvm.patch
-	"${FILESDIR}"/1.32.0-system-llvm-7-SIGSEGV.patch
-	# Support LibreSSL 2.8.x: https://github.com/sfackler/rust-openssl/commit/9fd7584a84168655cb27e03b7e19a9847b88e77f
-	# Support LibreSSL 2.9.0: https://github.com/sfackler/rust-openssl/commit/af4488357c9b3e003b883e89c16aaa675ad0c6ac
-	"${FILESDIR}"/1.32.0-libressl.patch
+	"${FILESDIR}"/1.33.0-clippy-sysroot.patch
 )
 
 toml_usex() {
@@ -205,14 +201,14 @@ src_configure() {
 
 src_compile() {
 	env $(cat "${S}"/config.env)\
-		"${EPYTHON}" ./x.py build --config="${S}"/config.toml -j$(makeopts_jobs) \
+		"${EPYTHON}" ./x.py build -v --config="${S}"/config.toml -j$(makeopts_jobs) \
 		--exclude src/tools/miri || die # https://github.com/rust-lang/rust/issues/52305
 }
 
 src_install() {
 	local rust_target abi_libdir
 
-	env DESTDIR="${D}" "${EPYTHON}" ./x.py install || die
+	env DESTDIR="${D}" "${EPYTHON}" ./x.py install -v || die
 
 	mv "${D}/usr/bin/rustc" "${D}/usr/bin/rustc-${PV}" || die
 	mv "${D}/usr/bin/rustdoc" "${D}/usr/bin/rustdoc-${PV}" || die
