@@ -11,8 +11,8 @@ UPLOAD_DEFAULT=${FLAGS_FALSE}
 # Default upload root can be overridden from the environment.
 _user="${USER}"
 [[ ${USER} == "root" ]] && _user="${SUDO_USER}"
-: ${COREOS_UPLOAD_ROOT:=gs://users.developer.core-os.net/${_user}}
-: ${COREOS_TORCX_UPLOAD_ROOT:=${COREOS_UPLOAD_ROOT}/torcx}
+: ${FLATCAR_UPLOAD_ROOT:=gs://users.developer.core-os.net/${_user}}
+: ${FLATCAR_TORCX_UPLOAD_ROOT:=${FLATCAR_UPLOAD_ROOT}/torcx}
 unset _user
 
 IMAGE_ZIPPER="lbzip2 --compress --keep"
@@ -22,7 +22,7 @@ DEFINE_boolean parallel ${FLAGS_TRUE} \
   "Enable parallelism in gsutil."
 DEFINE_boolean upload ${UPLOAD_DEFAULT} \
   "Upload all packages/images via gsutil."
-DEFINE_string upload_root "${COREOS_UPLOAD_ROOT}" \
+DEFINE_string upload_root "${FLATCAR_UPLOAD_ROOT}" \
   "Upload prefix, board/version/etc will be appended. Must be a gs:// URL."
 DEFINE_string upload_path "" \
   "Full upload path, overrides --upload_root. Must be a full gs:// URL."
@@ -30,7 +30,7 @@ DEFINE_string download_root "" \
   "HTTP download prefix, board/version/etc will be appended."
 DEFINE_string download_path "" \
   "HTTP download path, overrides --download_root."
-DEFINE_string torcx_upload_root "${COREOS_TORCX_UPLOAD_ROOT}" \
+DEFINE_string torcx_upload_root "${FLATCAR_TORCX_UPLOAD_ROOT}" \
   "Tectonic torcx package and manifest Upload prefix. Must be a gs:// URL."
 DEFINE_string tectonic_torcx_download_root "" \
   "HTTP download prefix for tectonic torcx packages and manifests."
@@ -155,7 +155,7 @@ upload_packages() {
     [[ -n "${BOARD}" ]] || die "board_options.sh must be sourced first"
 
     local board_packages="${1:-"${BOARD_ROOT}/packages"}"
-    local def_upload_path="${UPLOAD_ROOT}/boards/${BOARD}/${COREOS_VERSION}"
+    local def_upload_path="${UPLOAD_ROOT}/boards/${BOARD}/${FLATCAR_VERSION}"
     sign_and_upload_files packages ${def_upload_path} "pkgs/" \
         "${board_packages}"/*
 }
@@ -214,7 +214,7 @@ upload_image() {
     fi
 
     local log_msg=$(basename "$digests" .DIGESTS)
-    local def_upload_path="${UPLOAD_ROOT}/boards/${BOARD}/${COREOS_VERSION}"
+    local def_upload_path="${UPLOAD_ROOT}/boards/${BOARD}/${FLATCAR_VERSION}"
     sign_and_upload_files "${log_msg}" "${def_upload_path}" "" "${uploads[@]}"
 }
 
@@ -229,18 +229,23 @@ download_image_url() {
     local download_root="${FLAGS_download_root:-${UPLOAD_ROOT}}"
 
     local download_path
+    local download_channel
     if [[ -n "${FLAGS_download_path}" ]]; then
         download_path="${FLAGS_download_path%%/}"
-    elif [[ "${download_root}" = *release.core-os.net* ]]; then
+    elif [[ "${download_root}" = *flatcar-jenkins* ]]; then
+        if [[ "${download_path}" == gs://* ]]; then
+            download_channel="${download_root##*/}"
+            download_root="gs://${download_channel}.release.flatcar-linux.net"
+        fi
         # Official release download paths don't include the boards directory
-        download_path="${download_root%%/}/${BOARD}/${COREOS_VERSION}"
+        download_path="${download_root%%/}/${BOARD}/${FLATCAR_VERSION}"
     else
-        download_path="${download_root%%/}/boards/${BOARD}/${COREOS_VERSION}"
+        download_path="${download_root%%/}/boards/${BOARD}/${FLATCAR_VERSION}"
     fi
 
     # Just in case download_root was set from UPLOAD_ROOT
     if [[ "${download_path}" == gs://* ]]; then
-        download_path="http://${download_path#gs://}"
+        download_path="https://${download_path#gs://}"
     fi
 
     echo "${download_path}/$1"
