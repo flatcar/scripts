@@ -1,9 +1,9 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
-PYTHON_COMPAT=( python3_{4,5,6} )
+PYTHON_COMPAT=( python3_{4,5,6,7} )
 
 inherit flag-o-matic python-any-r1 toolchain-funcs
 
@@ -13,14 +13,14 @@ SRC_URI="mirror://gnu/wget/${P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~x64-cygwin ~amd64-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~x64-cygwin ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="debug gnutls idn ipv6 libressl nls ntlm pcre +ssl static test uuid zlib"
 REQUIRED_USE=" ntlm? ( !gnutls ssl ) gnutls? ( ssl )"
 
 # Force a newer libidn2 to avoid libunistring deps. #612498
 LIB_DEPEND="
-	idn? ( >=net-dns/libidn2-0.14[static-libs(+)] )
-	pcre? ( dev-libs/libpcre[static-libs(+)] )
+	idn? ( >=net-dns/libidn2-0.14:=[static-libs(+)] )
+	pcre? ( dev-libs/libpcre2[static-libs(+)] )
 	ssl? (
 		gnutls? ( net-libs/gnutls:0=[static-libs(+)] )
 		!gnutls? (
@@ -85,6 +85,7 @@ src_configure() {
 	# and since we force the latest, we can force off libunistring. #612498
 	local myeconfargs=(
 		--disable-assert
+		--disable-pcre
 		--disable-rpath
 		--without-included-libunistring
 		--without-libunistring-prefix
@@ -93,7 +94,7 @@ src_configure() {
 		$(use_enable ipv6)
 		$(use_enable nls)
 		$(use_enable ntlm)
-		$(use_enable pcre)
+		$(use_enable pcre pcre2)
 		$(use_enable ssl digest)
 		$(use_enable ssl opie)
 		$(use_with idn libidn)
