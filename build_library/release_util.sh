@@ -229,9 +229,12 @@ download_image_url() {
     local download_root="${FLAGS_download_root:-${UPLOAD_ROOT}}"
 
     local download_path
+    local download_channel
     if [[ -n "${FLAGS_download_path}" ]]; then
         download_path="${FLAGS_download_path%%/}"
-    elif [[ "${download_root}" = *release.core-os.net* ]]; then
+    elif [[ "${download_root}" == *flatcar-jenkins* ]]; then
+        download_channel="${download_root##*/}"
+        download_root="gs://${download_channel}.release.flatcar-linux.net"
         # Official release download paths don't include the boards directory
         download_path="${download_root%%/}/${BOARD}/${FLATCAR_VERSION}"
     else
@@ -240,7 +243,7 @@ download_image_url() {
 
     # Just in case download_root was set from UPLOAD_ROOT
     if [[ "${download_path}" == gs://* ]]; then
-        download_path="http://${download_path#gs://}"
+        download_path="https://${download_path#gs://}"
     fi
 
     echo "${download_path}/$1"
