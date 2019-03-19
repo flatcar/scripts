@@ -21,6 +21,8 @@ DEPEND="minizip? ( ${AUTOTOOLS_DEPEND} )"
 RDEPEND="!<dev-libs/libxml2-2.7.7" #309623
 
 src_prepare() {
+	epatch "${FILESDIR}"/${PN}-1.2.11-fix-deflateParams-usage.patch
+
 	if use minizip ; then
 		cd contrib/minizip || die
 		eautoreconf

@@ -1,7 +1,7 @@
 # Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI="5"
 AUTOTOOLS_AUTO_DEPEND="no"
 
 inherit autotools toolchain-funcs multilib multilib-minimal
@@ -21,6 +21,9 @@ DEPEND="minizip? ( ${AUTOTOOLS_DEPEND} )"
 RDEPEND="!<dev-libs/libxml2-2.7.7" #309623
 
 src_prepare() {
+	epatch "${FILESDIR}"/${PN}-1.2.11-fix-deflateParams-usage.patch
+	epatch "${FILESDIR}"/${PN}-1.2.11-minizip-drop-crypt-header.patch #658536
+
 	if use minizip ; then
 		cd contrib/minizip || die
 		eautoreconf
