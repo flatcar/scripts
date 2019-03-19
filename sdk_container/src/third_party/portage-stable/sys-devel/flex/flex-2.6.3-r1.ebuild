@@ -3,15 +3,15 @@
 
 EAPI="5"
 
-inherit eutils flag-o-matic multilib-minimal
+inherit eutils flag-o-matic libtool multilib-minimal
 
 DESCRIPTION="The Fast Lexical Analyzer"
 HOMEPAGE="https://flex.sourceforge.net/ https://github.com/westes/flex"
-SRC_URI="https://github.com/westes/flex/releases/download/v${PV}/${P}.tar.xz"
+SRC_URI="https://github.com/westes/${PN}/releases/download/v${PV}/${P}.tar.gz"
 
 LICENSE="FLEX"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~x64-cygwin ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="nls static test"
 
 # We want bison explicitly and not yacc in general #381273
@@ -21,7 +21,13 @@ DEPEND="${RDEPEND}
 	nls? ( sys-devel/gettext )
 	test? ( sys-devel/bison )"
 
+PATCHES=(
+	"${FILESDIR}/${P}-reentrant.patch"
+)
+
 src_prepare() {
+	epatch "${PATCHES[@]}"
+
 	# Disable running in the tests/ subdir as it has a bunch of built sources
 	# that cannot be made conditional (automake limitation). #568842
 	if ! use test ; then
@@ -29,6 +35,7 @@ src_prepare() {
 			-e '/^SUBDIRS =/,/^$/{/tests/d}' \
 			Makefile.in || die
 	fi
+	elibtoolize # Prefix always needs this
 }
 
 src_configure() {
