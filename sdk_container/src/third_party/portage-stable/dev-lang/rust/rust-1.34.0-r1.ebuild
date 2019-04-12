@@ -30,7 +30,7 @@ SRC_URI="https://static.rust-lang.org/dist/${SRC} -> rustc-${PV}-src.tar.xz
 		$(rust_all_arch_uris rust-${RUST_STAGE0_VERSION})"
 
 ALL_LLVM_TARGETS=( AArch64 AMDGPU ARM BPF Hexagon Lanai Mips MSP430
-	NVPTX PowerPC Sparc SystemZ X86 XCore )
+	NVPTX PowerPC Sparc SystemZ WebAssembly X86 XCore )
 ALL_LLVM_TARGETS=( "${ALL_LLVM_TARGETS[@]/#/llvm_targets_}" )
 LLVM_TARGET_USEDEPS=${ALL_LLVM_TARGETS[@]/%/?}
 
@@ -44,15 +44,15 @@ IUSE="clippy cpu_flags_x86_sse2 debug doc libressl rls rustfmt system-llvm wasm 
 
 # How to use it:
 # 1. List all the working slots (with min versions) in ||, newest first.
-# 2. Update the := to specify *max* version, e.g. < 8.
-# 3. Specify LLVM_MAX_SLOT, e.g. 7.
+# 2. Update the := to specify *max* version, e.g. < 9.
+# 3. Specify LLVM_MAX_SLOT, e.g. 8.
 LLVM_DEPEND="
 	|| (
-		sys-devel/llvm:7
+		sys-devel/llvm:8[llvm_targets_WebAssembly?]
 	)
-	<sys-devel/llvm-8:=
+	<sys-devel/llvm-9:=
 "
-LLVM_MAX_SLOT=7
+LLVM_MAX_SLOT=8
 
 COMMON_DEPEND="
 	sys-libs/zlib
@@ -78,14 +78,13 @@ RDEPEND="${COMMON_DEPEND}
 	!dev-util/cargo
 	rustfmt? ( !dev-util/rustfmt )"
 REQUIRED_USE="|| ( ${ALL_LLVM_TARGETS[*]} )
-				x86? ( cpu_flags_x86_sse2 )"
+	wasm? ( llvm_targets_WebAssembly )
+	x86? ( cpu_flags_x86_sse2 )
+"
+
+PATCHES=( "${FILESDIR}"/0001-llvm-cmake-Add-additional-headers-only-if-they-exist.patch )
 
 S="${WORKDIR}/${MY_P}-src"
-
-PATCHES=(
-	"${FILESDIR}"/1.32.0-fix-configure-of-bundled-llvm.patch
-	"${FILESDIR}"/1.33.0-clippy-sysroot.patch
-)
 
 toml_usex() {
 	usex "$1" true false
@@ -162,7 +161,7 @@ src_configure() {
 		release-debuginfo = $(toml_usex debug)
 		assertions = $(toml_usex debug)
 		targets = "${LLVM_TARGETS// /;}"
-		experimental-targets = "$(usex wasm WebAssembly '')"
+		experimental-targets = ""
 		link-shared = $(toml_usex system-llvm)
 		[build]
 		build = "${rust_target}"
