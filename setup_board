@@ -120,9 +120,9 @@ EOF
 generate_binhost_list() {
   local t
   [[ "${FLAGS_toolchainpkgonly}" -eq "${FLAGS_TRUE}" ]] && t="-t"
-  FLAGS_getbinpkgver="${FLAGS_getbinpkgver/current/${COREOS_VERSION_ID}}"
-  FLAGS_getbinpkgver="${FLAGS_getbinpkgver/latest/${COREOS_VERSION_ID}}"
-  FLAGS_getbinpkgver="${FLAGS_getbinpkgver/sdk/${COREOS_SDK_VERSION}}"
+  FLAGS_getbinpkgver="${FLAGS_getbinpkgver/current/${FLATCAR_VERSION_ID}}"
+  FLAGS_getbinpkgver="${FLAGS_getbinpkgver/latest/${FLATCAR_VERSION_ID}}"
+  FLAGS_getbinpkgver="${FLAGS_getbinpkgver/sdk/${FLATCAR_SDK_VERSION}}"
 
   get_board_binhost $t "${BOARD}" ${FLAGS_getbinpkgver}
 }
