@@ -82,7 +82,11 @@ REQUIRED_USE="|| ( ${ALL_LLVM_TARGETS[*]} )
 	x86? ( cpu_flags_x86_sse2 )
 "
 
-PATCHES=( "${FILESDIR}"/0001-llvm-cmake-Add-additional-headers-only-if-they-exist.patch )
+PATCHES=(
+	"${FILESDIR}"/0001-llvm-cmake-Add-additional-headers-only-if-they-exist.patch
+	"${FILESDIR}"/1.34.0-doc-build-fix.patch
+	"${FILESDIR}"/1.34.0-libressl.patch # bug 684224
+)
 
 S="${WORKDIR}/${MY_P}-src"
 
@@ -232,21 +236,22 @@ src_install() {
 
 	env DESTDIR="${D}" "${EPYTHON}" ./x.py install -v || die
 
-	mv "${D}/usr/bin/rustc" "${D}/usr/bin/rustc-${PV}" || die
-	mv "${D}/usr/bin/rustdoc" "${D}/usr/bin/rustdoc-${PV}" || die
-	mv "${D}/usr/bin/rust-gdb" "${D}/usr/bin/rust-gdb-${PV}" || die
-	mv "${D}/usr/bin/rust-lldb" "${D}/usr/bin/rust-lldb-${PV}" || die
-	mv "${D}/usr/bin/cargo" "${D}/usr/bin/cargo-${PV}" || die
+	mv "${ED}/usr/bin/rustc" "${ED}/usr/bin/rustc-${PV}" || die
+	mv "${ED}/usr/bin/rustdoc" "${ED}/usr/bin/rustdoc-${PV}" || die
+	mv "${ED}/usr/bin/rust-gdb" "${ED}/usr/bin/rust-gdb-${PV}" || die
+	mv "${ED}/usr/bin/rust-gdbgui" "${ED}/usr/bin/rust-gdbgui-${PV}" || die
+	mv "${ED}/usr/bin/rust-lldb" "${ED}/usr/bin/rust-lldb-${PV}" || die
+	mv "${ED}/usr/bin/cargo" "${ED}/usr/bin/cargo-${PV}" || die
 	if use clippy; then
-		mv "${D}/usr/bin/clippy-driver" "${D}/usr/bin/clippy-driver-${PV}" || die
-		mv "${D}/usr/bin/cargo-clippy" "${D}/usr/bin/cargo-clippy-${PV}" || die
+		mv "${ED}/usr/bin/clippy-driver" "${ED}/usr/bin/clippy-driver-${PV}" || die
+		mv "${ED}/usr/bin/cargo-clippy" "${ED}/usr/bin/cargo-clippy-${PV}" || die
 	fi
 	if use rls; then
-		mv "${D}/usr/bin/rls" "${D}/usr/bin/rls-${PV}" || die
+		mv "${ED}/usr/bin/rls" "${ED}/usr/bin/rls-${PV}" || die
 	fi
 	if use rustfmt; then
-		mv "${D}/usr/bin/rustfmt" "${D}/usr/bin/rustfmt-${PV}" || die
-		mv "${D}/usr/bin/cargo-fmt" "${D}/usr/bin/cargo-fmt-${PV}" || die
+		mv "${ED}/usr/bin/rustfmt" "${ED}/usr/bin/rustfmt-${PV}" || die
+		mv "${ED}/usr/bin/cargo-fmt" "${ED}/usr/bin/cargo-fmt-${PV}" || die
 	fi
 
 	# Copy shared library versions of standard libraries for all targets
@@ -258,9 +263,9 @@ src_install() {
 		fi
 		abi_libdir=$(get_abi_LIBDIR ${v##*.})
 		rust_target=$(rust_abi $(get_abi_CHOST ${v##*.}))
-		mkdir -p "${D}/usr/${abi_libdir}"
-		cp "${D}/usr/$(get_libdir)/${P}/rustlib/${rust_target}/lib"/*.so \
-		   "${D}/usr/${abi_libdir}" || die
+		mkdir -p "${ED}/usr/${abi_libdir}"
+		cp "${ED}/usr/$(get_libdir)/${P}/rustlib/${rust_target}/lib"/*.so \
+		   "${ED}/usr/${abi_libdir}" || die
 	done
 
 	dodoc COPYRIGHT
@@ -268,14 +273,16 @@ src_install() {
 	# FIXME:
 	# Really not sure if that env is needed, specailly LDPATH
 	cat <<-EOF > "${T}"/50${P}
-		LDPATH="/usr/$(get_libdir)/${P}"
-		MANPATH="/usr/share/${P}/man"
+		LDPATH="${EPREFIX}/usr/$(get_libdir)/${P}"
+		MANPATH="${EPREFIX}/usr/share/${P}/man"
 	EOF
 	doenvd "${T}"/50${P}
 
+	# note: eselect-rust adds EROOT to all paths below
 	cat <<-EOF > "${T}/provider-${P}"
 		/usr/bin/rustdoc
 		/usr/bin/rust-gdb
+		/usr/bin/rust-gdbgui
 		/usr/bin/rust-lldb
 	EOF
 	echo /usr/bin/cargo >> "${T}/provider-${P}"
