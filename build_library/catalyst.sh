@@ -12,7 +12,7 @@
 : ${TYPE:="coreos-sdk"}
 : ${ARCH:=$(get_sdk_arch)}
 : ${DEFAULT_CATALYST_ROOT:="${DEFAULT_BUILD_ROOT}/catalyst"}
-: ${DEFAULT_SEED:=${COREOS_SDK_TARBALL_PATH}}
+: ${DEFAULT_SEED:=${FLATCAR_SDK_TARBALL_PATH}}
 : ${DEFAULT_PROFILE:=$(get_sdk_profile)}
 # Set to something like "stage4" to restrict what to build
 # FORCE_STAGES=
@@ -34,7 +34,7 @@ DEFINE_string coreos_overlay "${SRC_ROOT}/third_party/coreos-overlay" \
     "Path to the coreos-overlay git checkout."
 DEFINE_string seed_tarball "${DEFAULT_SEED}" \
     "Path to an existing stage tarball to start from."
-DEFINE_string version "${COREOS_VERSION}" \
+DEFINE_string version "${FLATCAR_VERSION}" \
     "Version to use for portage snapshot and stage tarballs."
 DEFINE_string profile "${DEFAULT_PROFILE}" \
     "Portage profile, may be prefixed with repo:"
@@ -196,7 +196,7 @@ catalyst_init() {
     DISTDIR="$CATALYST_ROOT/distfiles"
 
     # automatically download the current SDK if it is the seed tarball.
-    if [[ "$FLAGS_seed_tarball" == "${COREOS_SDK_TARBALL_PATH}" ]]; then
+    if [[ "$FLAGS_seed_tarball" == "${FLATCAR_SDK_TARBALL_PATH}" ]]; then
         sdk_download_tarball
     fi
 
