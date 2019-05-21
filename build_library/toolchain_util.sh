@@ -39,7 +39,6 @@ declare -r \
 # Usage: get_portage_arch chost
 get_portage_arch() {
     case "$1" in
-        aarch64*)   echo arm64;;
         alpha*)     echo alpha;;
         arm*)       echo arm;;
         hppa*)      echo hppa;;
@@ -139,14 +138,14 @@ get_board_binhost() {
     shift
 
     if [[ $# -eq 0 ]]; then
-        set -- "${COREOS_SDK_VERSION}" "${COREOS_VERSION_ID}"
+        set -- "${FLATCAR_SDK_VERSION}" "${FLATCAR_VERSION_ID}"
     fi
 
     for ver in "$@"; do
         if [[ $toolchain_only -eq 0 ]]; then
-            echo "${COREOS_DEV_BUILDS}/boards/${board}/${ver}/pkgs/"
+            echo "${FLATCAR_DEV_BUILDS}/boards/${board}/${ver}/pkgs/"
         fi
-        echo "${COREOS_DEV_BUILDS}/boards/${board}/${ver}/toolchain/"
+        echo "${FLATCAR_DEV_BUILDS}/boards/${board}/${ver}/toolchain/"
     done
 }
 
@@ -168,12 +167,12 @@ get_sdk_libdir() {
 get_sdk_binhost() {
     local arch=$(get_sdk_arch) ver
     if [[ $# -eq 0 ]]; then
-        set -- "${COREOS_SDK_VERSION}" "${COREOS_VERSION_ID}"
+        set -- "${FLATCAR_SDK_VERSION}" "${FLATCAR_VERSION_ID}"
     fi
 
     for ver in "$@"; do
-        echo "${COREOS_DEV_BUILDS}/sdk/${arch}/${ver}/pkgs/"
-        echo "${COREOS_DEV_BUILDS}/sdk/${arch}/${ver}/toolchain/"
+        echo "${FLATCAR_DEV_BUILDS}/sdk/${arch}/${ver}/pkgs/"
+        echo "${FLATCAR_DEV_BUILDS}/sdk/${arch}/${ver}/toolchain/"
     done
 }
 
