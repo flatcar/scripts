@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # When you add an entry to the top of this file, add your name, the date, and
@@ -17,9 +17,13 @@
 
 #--- END OF EXAMPLES ---
 
-# Andreas Sturmlechner <asturm@gentoo.org> (12 Jan 2019)
-# media-libs/dav1d is available on ~amd64
-media-video/vlc -dav1d
+# Denis Lisov <dennis.lissov@gmail.com> (09 May 2019)
+# Overlay can only be built on amd64 and x86
+x11-apps/igt-gpu-tools -overlay
+
+# Georgy Yakovlev <gyakovlev@gentoo.org> (05 March 2019)
+# freeipmi is supported on amd64
+app-admin/conserver -freeipmi
 
 # Thomas Deutschmann <whissi@gentoo.org> (15 Nov 2018)
 # - rdrand plugin is supported on amd64
@@ -28,11 +32,6 @@ net-vpn/strongswan -strongswan_plugins_rdrand
 # James Le Cuirot <chewi@gentoo.org> (02 Nov 2018)
 # Vulkan is only available on amd64 at present.
 media-libs/libsdl2 -vulkan
-
-# Thomas Deutschmann <whissi@gentoo.org> (12 Oct 2018)
-# www-client/firefox and mail-client/thunderbird are
-# available on amd64
-app-misc/tracker -firefox-bookmarks -thunderbird
 
 # Michael Palimaka <kensington@gentoo.org> (12 Oct 2018)
 # Unmask arch-specific USE flags available on amd64
@@ -199,11 +198,6 @@ dev-libs/boost	-context
 # only.
 games-emulation/mupen64plus-core new-dynarec
 
-# Jeff Horelick <jdhore@gentoo.org> (1 Sep 2013)
-# Dependency (media-libs/libsidplayfp) only keyworded
-# on x86 and amd64. (masked in base)
->=media-plugins/audacious-plugins-3.4 -sid
-
 # Tim Harder <radhermit@gentoo.org> (13 Aug 2013)
 # dev-lang/luajit keyworded for amd64 (masked in base)
 # dev-scheme/racket keyworded for amd64 (masked in base)
@@ -250,12 +244,6 @@ media-sound/pulseaudio -webrtc-aec
 # Bernard Cafarelli <voyageur@gentoo.org> (27 Feb 2012)
 # Masked in base profile, supported on this arch
 gnustep-base/gnustep-make -libobjc2
-
-# Alexandre Rostovtsev <tetromino@gentoo.org> (09 Jan 2012)
-# jsc JIT compilation is supported only on amd64/arm/x86 and their prefixes, so
-# it's masked in base profile and unmasked here (bug #396313).
-net-libs/webkit-gtk -jit
-www-client/midori -jit
 
 # Davide Pesavento <pesa@gentoo.org> (30 Nov 2011)
 # The QML (V4) and JSC JITs are supported only on amd64/arm/x86,

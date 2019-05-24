@@ -1,8 +1,35 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # This file requires eapi 5 or later. New entries go on top.
 # Please use the same syntax as in package.use.mask
+
+# Bernd Waibel <waebbl@gmail.com> (22 May 2019)
+# Marked experimental, needs build and runtime testing. Due to non-
+# available licenses for arnold and maya I can not test these addons.
+# Build and functional tests and reports on issues are appreciated!
+media-gfx/alembic arnold maya
+
+# Georgy Yakovlev <gyakovlev@gentoo.org> (10 May 2019)
+# needs llvm slots which are not stable #678908
+# also prone to weird compilation failures
+# masking this for now, will readjust as situation changes
+>=dev-lang/rust-1.34 system-llvm
+
+# Virgil Dupras <vdupras@gentoo.org> (10 May 2019)
+# Needs openssl 1.1 which isn't going stable for a while and blocks
+# bug #684972. See bug #685584
+>=app-text/mupdf-1.14.0-r3 ssl
+
+# Mart Raudsepp <leio@gentoo.org> (14 Apr 2019)
+# Needs media-plugins/gst-plugins-chromaprint, which is not stable
+# anywhere yet.
+media-plugins/grilo-plugins chromaprint
+
+# Andreas Sturmlechner <asturm@gentoo.org> (16 Feb 2019)
+# Unstable dependencies.
+media-gfx/digikam vkontakte
+media-plugins/kipi-plugins mediawiki vkontakte
 
 # Brian Evans <grknight@gentoo.org> (06 Dec 2018)
 # Mask USE flag since argon2 dependency is not stable on most arches
@@ -25,8 +52,8 @@ sys-devel/clang-runtime crt
 net-analyzer/wireshark doc
 
 # Andreas Sturmlechner <asturm@gentoo.org> (29 May 2018)
-# Depends on unstable media-libs/libaom, net-libs/srt
-media-video/vlc aom srt
+# Depends on unstable media-libs/libaom
+media-video/vlc aom
 
 # Andreas Sturmlechner <asturm@gentoo.org> (21 May 2018)
 # Depends on lots of unstable dependencies
@@ -35,10 +62,6 @@ dev-python/s3fs test
 # Andreas Sturmlechner <asturm@gentoo.org> (03 Mar 2018)
 # sci-geosciences/grass is not stable
 sci-geosciences/qgis grass
-
-# Thomas Beierlein <tomjbe@gentoo.org> (21 Mar 2018)
-# ~app-backup/bacula-9.0.6 does not compile with USE=libressl (bug #641492)
-~app-backup/bacula-9.0.6 libressl
 
 # Matthias Maier <tamiko@gentoo.org> (18 Mar 2018)
 # dev-libs/capstone hasn't been stabilized yet
@@ -90,10 +113,6 @@ sci-libs/gdal mdb
 # Unstable dependencies.
 dev-util/rpmdevtools emacs
 
-# Patrick McLean <chutzpah@gentoo.org> (11 Jul 2017)
-# Requires >=net-dns/libidn2-2.0 stabilization
-net-dns/dnsmasq libidn2
-
 # Andreas Sturmlechner <asturm@gentoo.org> (23 Mar 2017)
 # Requires dev-lang/julia stabilisation, bug #613576
 kde-apps/cantor julia
@@ -108,17 +127,9 @@ app-portage/layman g-sorcery
 # Bug: #581058
 net-misc/asterisk osplookup
 
-# Johannes Huber <johu@gentoo.org> (28 Jan 2017)
-# Unstable dependencies.
-media-plugins/kipi-plugins mediawiki vkontakte
-
 # Michael Palimaka <kensington@gentoo.org (26 Jan 2017)
 # Requires testing version of media-libs/opencv
 media-libs/mlt opencv
-
-# Matthias Maier <tamiko@gentoo.org> (22 Jan 2017)
-# sys-fs/zfs isn't going to be marked stable anytime soon
-app-emulation/libvirt zfs
 
 # Michael Palimaka <kensington@gentoo.org (18 Jan 2017)
 # www-client/weboob is horribly outdated and not stable
@@ -147,10 +158,6 @@ app-admin/packagekit-base entropy
 # on a vulnerable libgcrypt version is in tree
 dev-db/mariadb sst-xtrabackup
 dev-db/mariadb-galera sst-xtrabackup
-
-# William Hubbs <williamh@gentoo.org (13 Apr 2016)
-# Needs gcc-5 which is currently unstable
-dev-lang/go gccgo
 
 # Sergey Popov <pinkbyte@gentoo.org> (15 Feb 2016)
 # Mask monitoring capabilities of Ganeti on stable branches

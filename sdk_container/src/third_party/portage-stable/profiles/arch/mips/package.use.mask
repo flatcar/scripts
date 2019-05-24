@@ -1,10 +1,6 @@
 # Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-# Michał Górny <mgorny@gentoo.org> (15 Feb 2018)
-# Requires USE=networkmanager that is masked in this profile.
-app-misc/geoclue skyhook
-
 # Michał Górny <mgorny@gentoo.org> (23 Jan 2018)
 # USE=collab requires unkeyworded net-libs/loudmouth & dev-cpp/asio.
 # USE=grammar requires dev-libs/link-grammar.
@@ -27,7 +23,7 @@ sys-kernel/mips-sources -ip27 -ip28 -ip30
 
 # Michał Górny <mgorny@gentoo.org> (08 Aug 2017)
 # Required VIDEO_CARDS=i965/radeonsi, both masked in this profile.
-media-libs/mesa vulkan
+media-libs/mesa vulkan vulkan-overlay
 
 # Michał Górny <mgorny@gentoo.org> (08 Aug 2017)
 # Requires USE=opencl that is masked in this profile.

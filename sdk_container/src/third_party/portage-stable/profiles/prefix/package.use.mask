@@ -1,5 +1,9 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+
+# Michael Haubenwallner <haubi@gentoo.org> (02 May 2019)
+# gold is linux only, and is required by cxx
+sys-devel/binutils cxx gold default-gold
 
 # Fabian Groffen <grobian@gentoo.org> (27 Dec 2018)
 # USE-dep fixing, bugs #665088, #667266, #671730, 
@@ -20,7 +24,6 @@ dev-vcs/git mediawiki mediawiki-experimental
 # very bad with, that really causes way more issues than it is worth to
 # have some boundary bugs solved and more robust subshell die support
 sys-apps/portage ipc
-sys-apps/portage-mgorny ipc
 
 # Michael Haubenwallner <haubi@gentoo.org> (17 Sep 2010)
 # sys-apps/keyutils is a linux only package
