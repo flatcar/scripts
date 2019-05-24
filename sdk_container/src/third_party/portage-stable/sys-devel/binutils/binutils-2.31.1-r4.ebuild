@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -8,7 +8,10 @@ inherit eutils libtool flag-o-matic gnuconfig multilib versionator
 DESCRIPTION="Tools necessary to build programs"
 HOMEPAGE="https://sourceware.org/binutils/"
 LICENSE="GPL-3+"
-IUSE="+cxx doc multitarget +nls static-libs test"
+# USE="+cxx" is a transitional flag until llvm migrates to new flags:
+#    bug #677888
+IUSE="+cxx default-gold doc +gold multitarget +nls +plugins static-libs test"
+REQUIRED_USE="cxx? ( gold plugins ) default-gold? ( gold )"
 
 # Variables that can be set here:
 # PATCH_VER          - the patchset version
@@ -19,7 +22,8 @@ IUSE="+cxx doc multitarget +nls static-libs test"
 #                      for the patchsets
 #                      Default: dilfridge :)
 
-PATCH_VER=3
+PATCH_VER=5
+PATCH_DEV=dilfridge
 
 case ${PV} in
 	9999)
@@ -41,7 +45,7 @@ case ${PV} in
 	*)
 		SRC_URI="mirror://gnu/binutils/binutils-${PV}.tar.xz"
 		SLOT=$(get_version_component_range 1-2)
-		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd"
+		KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~x86-fbsd"
 		;;
 esac
 
@@ -53,6 +57,9 @@ PATCH_DEV=${PATCH_DEV:-slyfox}
 
 [[ -z ${PATCH_VER} ]] || SRC_URI="${SRC_URI}
 	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/binutils-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz"
+
+# Disable gold testsuite since it always fails.
+PATCHES=( "${FILESDIR}/${PN}-2.29.1-nogoldtest.patch" )
 
 #
 # The cross-compile logic
@@ -174,10 +181,15 @@ src_configure() {
 	cd "${MY_BUILDDIR}"
 	local myconf=()
 
-	# enable gold (installed as ld.gold) and ld's plugin architecture
-	if use cxx ; then
-		myconf+=( --enable-gold )
+	if use plugins ; then
 		myconf+=( --enable-plugins )
+	fi
+	# enable gold (installed as ld.gold) and ld's plugin architecture
+	if use gold ; then
+		myconf+=( --enable-gold )
+		if use default-gold; then
+			myconf+=( --enable-gold=default )
+		fi
 	fi
 
 	if use nls ; then
@@ -275,6 +287,10 @@ src_compile() {
 
 src_test() {
 	cd "${MY_BUILDDIR}"
+
+	# bug 637066
+	filter-flags -Wall -Wreturn-type
+
 	emake -k check
 }
 
