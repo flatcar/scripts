@@ -1,11 +1,12 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
 PATCH_VER=2
+PATCH_DEV=dilfridge
 
-inherit eutils toolchain-funcs multilib-minimal
+inherit eutils libtool toolchain-funcs multilib-minimal
 
 MY_PN="binutils"
 MY_P="${MY_PN}-${PV}"
@@ -15,13 +16,12 @@ PATCH_DEV=${PATCH_DEV:-slyfox}
 DESCRIPTION="Core binutils libraries (libbfd, libopcodes, libiberty) for external packages"
 HOMEPAGE="https://sourceware.org/binutils/"
 SRC_URI="mirror://gnu/binutils/${MY_P}.tar.xz
-	mirror://gentoo/${MY_PN}-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz"
+	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${MY_PN}-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz"
 
 LICENSE="|| ( GPL-3 LGPL-3 )"
-# The shared lib SONAMEs use the ${PV} in them.
 SLOT="0/${PV}"
 IUSE="64-bit-bfd multitarget nls static-libs"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd"
 
 COMMON_DEPEND="sys-libs/zlib[${MULTILIB_USEDEP}]"
 DEPEND="${COMMON_DEPEND}
@@ -40,9 +40,16 @@ MULTILIB_WRAPPED_HEADERS=(
 
 src_prepare() {
 	if [[ ! -z ${PATCH_VER} ]] ; then
+		# Use upstream patch to enable development mode
+		rm -v "${WORKDIR}/patch"/0000-Gentoo-Git-is-development.patch || die
+
 		einfo "Applying binutils-${PATCH_BINUTILS_VER} patchset ${PATCH_VER}"
 		eapply "${WORKDIR}/patch"/*.patch
 	fi
+
+	# Fix cross-compile relinking issue, bug #626402
+	elibtoolize
+
 	default
 }
 
@@ -78,6 +85,11 @@ multilib_src_configure() {
 		# Strip out broken static link flags.
 		# https://gcc.gnu.org/PR56750
 		--without-stage1-ldflags
+		# We pull in all USE-flags that change ABI in an incompatible
+		# way. #666100
+		# USE=multitarget change size of global arrays
+		# USE=64-bit-bfd changes data structures of exported API 
+		--with-extra-soversion-suffix=gentoo-${CATEGORY}-${PN}-$(usex multitarget mt st)-$(usex 64-bit-bfd 64 def)
 	)
 
 	# mips can't do hash-style=gnu ...
