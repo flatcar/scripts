@@ -1,36 +1,41 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # XXX: atm, libbz2.a is always PIC :(, so it is always built quickly
 #      (since we're building shared libs) ...
 
-EAPI=4
+EAPI=6
 
-inherit eutils toolchain-funcs multilib multilib-minimal
+inherit toolchain-funcs multilib-minimal
 
 DESCRIPTION="A high-quality data compressor used extensively by Gentoo Linux"
-HOMEPAGE="http://www.bzip.org/"
-SRC_URI="http://www.bzip.org/${PV}/${P}.tar.gz"
+HOMEPAGE="https://sourceware.org/bzip2/"
+SRC_URI="mirror://gentoo/${P}.tar.gz"
 
 LICENSE="BZIP2"
-SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
+SLOT="0/1" # subslot = SONAME
+KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 ~riscv s390 sh sparc x86 ~amd64-fbsd ~x86-fbsd"
 IUSE="static static-libs"
 
-RDEPEND="abi_x86_32? (
-		!<=app-emulation/emul-linux-x86-baselibs-20130224
-		!app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)]
-	)"
+PATCHES=(
+	"${FILESDIR}"/${PN}-1.0.4-makefile-CFLAGS.patch
+	"${FILESDIR}"/${PN}-1.0.6-saneso.patch
+	"${FILESDIR}"/${PN}-1.0.4-man-links.patch #172986
+	"${FILESDIR}"/${PN}-1.0.6-progress.patch
+	"${FILESDIR}"/${PN}-1.0.3-no-test.patch
+	"${FILESDIR}"/${PN}-1.0.4-POSIX-shell.patch #193365
+	"${FILESDIR}"/${PN}-1.0.6-mingw.patch #393573
+	"${FILESDIR}"/${PN}-1.0.6-out-of-tree-build.patch
+	"${FILESDIR}"/${PN}-1.0.6-CVE-2016-3189.patch #620466
+	"${FILESDIR}"/${PN}-1.0.6-ubsan-error.patch
+	"${FILESDIR}"/${PN}-1.0.6-nselectors-upper-bound-check.patch
+)
+
+DOCS=( CHANGES README{,.COMPILATION.PROBLEMS,.XML.STUFF} manual.pdf )
+HTML_DOCS=( manual.html )
 
 src_prepare() {
-	epatch "${FILESDIR}"/${PN}-1.0.4-makefile-CFLAGS.patch
-	epatch "${FILESDIR}"/${PN}-1.0.6-saneso.patch
-	epatch "${FILESDIR}"/${PN}-1.0.4-man-links.patch #172986
-	epatch "${FILESDIR}"/${PN}-1.0.6-progress.patch
-	epatch "${FILESDIR}"/${PN}-1.0.3-no-test.patch
-	epatch "${FILESDIR}"/${PN}-1.0.4-POSIX-shell.patch #193365
-	epatch "${FILESDIR}"/${PN}-1.0.6-mingw.patch #393573
-	epatch "${FILESDIR}"/${PN}-1.0.6-out-of-tree-build.patch
+	default
 
 	# - Use right man path
 	# - Generate symlinks instead of hardlinks
@@ -54,7 +59,7 @@ bemake() {
 multilib_src_compile() {
 	bemake -f "${S}"/Makefile-libbz2_so all
 	# Make sure we link against the shared lib #504648
-	ln -sf libbz2.so.${PV} libbz2.so
+	ln -s libbz2.so.${PV} libbz2.so || die
 	bemake -f "${S}"/Makefile all LDFLAGS="${LDFLAGS} $(usex static -static '')"
 }
 
@@ -105,8 +110,7 @@ multilib_src_install_all() {
 		dosym bzgrep.1 /usr/share/man/man1/${x}.1
 	done
 
-	dodoc README* CHANGES manual.pdf
-	dohtml manual.html
+	einstalldocs
 
 	# move "important" bzip2 binaries to /bin and use the shared libbz2.so
 	dosym bzip2 /bin/bzcat
