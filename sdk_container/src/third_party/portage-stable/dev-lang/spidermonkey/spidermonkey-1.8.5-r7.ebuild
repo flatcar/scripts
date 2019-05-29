@@ -1,62 +1,70 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="5"
+EAPI=6
 WANT_AUTOCONF="2.1"
 PYTHON_COMPAT=( python2_7 )
 PYTHON_REQ_USE="threads"
-inherit eutils toolchain-funcs multilib python-any-r1 versionator pax-utils
+inherit autotools toolchain-funcs multilib python-any-r1 versionator pax-utils
 
-MY_PN="mozjs"
-MY_P="${MY_PN}${PV}"
+MY_PN="js"
+TARBALL_PV="$(replace_all_version_separators '' $(get_version_component_range 1-3))"
+MY_P="${MY_PN}-${PV}"
+TARBALL_P="${MY_PN}${TARBALL_PV}-1.0.0"
 DESCRIPTION="Stand-alone JavaScript C library"
 HOMEPAGE="https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey"
-SRC_URI="http://archive.mozilla.org/pub/js/${MY_PN}${PV}.tar.gz
-	https://dev.gentoo.org/~axs/distfiles/${PN}-slot17-patches-01.tar.xz"
+SRC_URI="https://archive.mozilla.org/pub/js/${TARBALL_P}.tar.gz
+	https://dev.gentoo.org/~axs/distfiles/${PN}-slot0-patches-02.tar.xz
+	"
 
 LICENSE="NPL-1.1"
-SLOT="17"
-# "MIPS, MacroAssembler is not supported" wrt #491294 for -mips
-KEYWORDS="alpha amd64 arm -hppa ia64 -mips ppc ppc64 ~s390 ~sh ~sparc x86 ~x86-fbsd"
-IUSE="debug jit minimal static-libs test"
-
-REQUIRED_USE="debug? ( jit )"
-RESTRICT="ia64? ( test )"
+SLOT="0/mozjs185"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~x64-macos"
+IUSE="debug minimal static-libs test"
 
 S="${WORKDIR}/${MY_P}"
 BUILDDIR="${S}/js/src"
 
-RDEPEND=">=dev-libs/nspr-4.9.4
-	virtual/libffi
+RDEPEND=">=dev-libs/nspr-4.7.0
 	sys-libs/readline:0=
-	>=sys-libs/zlib-1.1.4"
+	x64-macos? ( dev-libs/jemalloc )"
 DEPEND="${RDEPEND}
 	${PYTHON_DEPS}
 	app-arch/zip
 	virtual/pkgconfig"
 
+PATCHES=(
+	"${WORKDIR}"/sm0/${P}-fix-install-symlinks.patch
+	"${WORKDIR}"/sm0/${P}-fix-ppc64.patch
+	"${WORKDIR}"/sm0/${P}-arm_respect_cflags-3.patch
+	"${WORKDIR}"/sm0/${PN}-1.8.7-freebsd-pthreads.patch
+	"${WORKDIR}"/sm0/${P}-perf_event-check.patch
+	"${WORKDIR}"/sm0/${P}-symbol-versions.patch
+	"${WORKDIR}"/sm0/${P}-ia64-fix.patch
+	"${WORKDIR}"/sm0/${P}-ia64-static-strings.patch
+	"${WORKDIR}"/sm0/${P}-isfinite.patch
+	"${FILESDIR}"/${PN}-perl-defined-array-check.patch
+	"${WORKDIR}"/sm0/${PN}-1.8.7-x32.patch
+	"${WORKDIR}"/sm0/${P}-gcc6.patch
+	"${WORKDIR}"/sm0/${P}-drop-asm-volatile-toplevel.patch
+)
+
+DOCS=( ${S}/README )
+HTML_DOCS=( ${BUILDDIR}/README.html )
+
 pkg_setup(){
 	if [[ ${MERGE_TYPE} != "binary" ]]; then
-		python-any-r1_pkg_setup
 		export LC_ALL="C"
 	fi
 }
 
 src_prepare() {
-	epatch "${WORKDIR}"/sm17/${PN}-${SLOT}-js-config-shebang.patch
-	epatch "${WORKDIR}"/sm17/${PN}-${SLOT}-ia64-mmap.patch
-	epatch "${WORKDIR}"/sm17/${PN}-17.0.0-fix-file-permissions.patch
-	# https://bugs.gentoo.org/show_bug.cgi?id=552786
-	epatch "${FILESDIR}"/${PN}-perl-defined-array-check.patch
+	pwd
 
-	# Remove obsolete jsuword bug #506160
-	sed -i -e '/jsuword/d' "${BUILDDIR}"/jsval.h ||die "sed failed"
-	epatch_user
+	default
 
-	if [[ ${CHOST} == *-freebsd* ]]; then
-		# Don't try to be smart, this does not work in cross-compile anyway
-		ln -sfn "${BUILDDIR}/config/Linux_All.mk" "${S}/config/$(uname -s)$(uname -r).mk" || die
-	fi
+	cd "${BUILDDIR}" || die
+	eautoconf
 }
 
 src_configure() {
@@ -65,17 +73,17 @@ src_configure() {
 	CC="$(tc-getCC)" CXX="$(tc-getCXX)" \
 	AR="$(tc-getAR)" RANLIB="$(tc-getRANLIB)" \
 	LD="$(tc-getLD)" \
+	ac_cv_lib_dnet_dnet_ntoa=no \
+	ac_cv_lib_dnet_stub_dnet_ntoa=no \
 	econf \
 		${myopts} \
 		--enable-jemalloc \
 		--enable-readline \
 		--enable-threadsafe \
 		--with-system-nspr \
-		--enable-system-ffi \
-		--enable-jemalloc \
+		--disable-optimize \
+		--disable-profile-guided-optimization \
 		$(use_enable debug) \
-		$(use_enable jit tracejit) \
-		$(use_enable jit methodjit) \
 		$(use_enable static-libs static) \
 		$(use_enable test tests)
 }
@@ -94,12 +102,14 @@ src_compile() {
 	cd "${BUILDDIR}" || die
 	if tc-is-cross-compiler; then
 		tc-export_build_env BUILD_{AR,CC,CXX,RANLIB}
-		cross_make host_jsoplengen host_jskwgen
+		cross_make jscpucfg host_jsoplengen host_jskwgen
 		cross_make -C config nsinstall
+		mv {,native-}jscpucfg || die
 		mv {,native-}host_jskwgen || die
 		mv {,native-}host_jsoplengen || die
 		mv config/{,native-}nsinstall || die
 		sed -i \
+			-e 's@./jscpucfg@./native-jscpucfg@' \
 			-e 's@./host_jskwgen@./native-host_jskwgen@' \
 			-e 's@./host_jsoplengen@./native-host_jsoplengen@' \
 			Makefile || die
@@ -114,20 +124,20 @@ src_compile() {
 
 src_test() {
 	cd "${BUILDDIR}/jsapi-tests" || die
+	# for bug 415791
+	pax-mark mr jsapi-tests
 	emake check
 }
 
 src_install() {
 	cd "${BUILDDIR}" || die
 	emake DESTDIR="${D}" install
-
-	if ! use minimal; then
-		if use jit; then
-			pax-mark m "${ED}/usr/bin/js${SLOT}"
-		fi
-	else
-		rm -f "${ED}/usr/bin/js${SLOT}"
+	# bug 437520 , exclude js shell for small systems
+	if ! use minimal ; then
+		dobin shell/js
+		pax-mark m "${ED}/usr/bin/js"
 	fi
+	einstalldocs
 
 	if ! use static-libs; then
 		# We can't actually disable building of static libraries

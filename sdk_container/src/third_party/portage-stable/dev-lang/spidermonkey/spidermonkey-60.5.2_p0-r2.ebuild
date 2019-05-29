@@ -1,91 +1,87 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="5"
+EAPI=6
 WANT_AUTOCONF="2.1"
-PYTHON_COMPAT=( python2_7 )
-PYTHON_REQ_USE="threads"
-inherit autotools eutils toolchain-funcs multilib python-any-r1 versionator pax-utils
+inherit autotools check-reqs toolchain-funcs pax-utils mozcoreconf-v5
 
 MY_PN="mozjs"
-MY_P="${MY_PN}-${PV/_/.}"
-DESCRIPTION="Stand-alone JavaScript C library"
+MY_P="${MY_PN}-${PV/_rc/.rc}"
+MY_P="${MY_P/_pre/pre}"
+MY_P="${MY_P%_p[0-9]*}"
+DESCRIPTION="Stand-alone JavaScript C++ library"
 HOMEPAGE="https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey"
-SRC_URI="https://archive.mozilla.org/pub/js/${MY_P}.tar.bz2
-	https://dev.gentoo.org/~axs/distfiles/${PN}-slot24-patches-01.tar.xz"
+#SRC_URI="https://archive.mozilla.org/pub/spidermonkey/prereleases/60/pre3/${MY_P}.tar.bz2
+SRC_URI="https://dev.gentoo.org/~axs/distfiles/${MY_P}.tar.bz2
+	https://dev.gentoo.org/~anarchy/mozilla/patchsets/${PN}-60.0-patches-04.tar.xz"
 
 LICENSE="NPL-1.1"
-SLOT="24"
-KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 ~s390 ~sh ~sparc x86 ~x86-fbsd"
-IUSE="debug icu jit minimal static-libs +system-icu test"
+SLOT="60"
+KEYWORDS="alpha amd64 arm arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh sparc x86 ~x86-fbsd"
+IUSE="debug +jit minimal +system-icu test"
 
 RESTRICT="ia64? ( test )"
 
 S="${WORKDIR}/${MY_P%.rc*}"
-BUILDDIR="${S}/js/src"
 
-RDEPEND=">=dev-libs/nspr-4.9.4
+BUILDDIR="${S}/jsobj"
+
+RDEPEND=">=dev-libs/nspr-4.13.1
 	virtual/libffi
 	sys-libs/readline:0=
-	>=sys-libs/zlib-1.1.4
-	system-icu? ( >=dev-libs/icu-1.51:= )"
-DEPEND="${RDEPEND}
-	${PYTHON_DEPS}
-	app-arch/zip
-	virtual/pkgconfig"
+	>=sys-libs/zlib-1.2.3:=
+	system-icu? ( >=dev-libs/icu-59.1:= )"
+DEPEND="${RDEPEND}"
 
+pkg_pretend() {
+	CHECKREQS_DISK_BUILD="2G"
+
+	check-reqs_pkg_setup
+}
 pkg_setup(){
-	if [[ ${MERGE_TYPE} != "binary" ]]; then
-		python-any-r1_pkg_setup
-		export LC_ALL="C"
-	fi
+	[[ ${MERGE_TYPE} == "binary" ]] || \
+		moz_pkgsetup
+	export SHELL="${EPREFIX}/bin/bash"
 }
 
 src_prepare() {
-	epatch "${WORKDIR}"/sm24/${PN}-${SLOT}-system-icu.patch
-	epatch "${WORKDIR}"/sm24/${PN}-24.2.0-fix-file-permissions.patch
-	epatch "${WORKDIR}"/sm24/${PN}-${SLOT}-upward-growing-stack.patch
-	# https://bugs.gentoo.org/show_bug.cgi?id=552786
-	epatch "${FILESDIR}"/${PN}-perl-defined-array-check.patch
-	epatch_user
+	eapply "${WORKDIR}/${PN}"
+
+	eapply_user
 
 	if [[ ${CHOST} == *-freebsd* ]]; then
 		# Don't try to be smart, this does not work in cross-compile anyway
 		ln -sfn "${BUILDDIR}/config/Linux_All.mk" "${S}/config/$(uname -s)$(uname -r).mk" || die
 	fi
 
-	cd "${BUILDDIR}" || die
+	cd "${S}/js/src" || die
+	eautoconf old-configure.in
 	eautoconf
+
+	# there is a default config.cache that messes everything up
+	rm -f "${S}/js/src"/config.cache || die
+
+	mkdir -p "${BUILDDIR}" || die
 }
 
 src_configure() {
-	export SHELL=/bin/sh
 	cd "${BUILDDIR}" || die
 
-	local myopts=""
-	if use icu; then # make sure system-icu flag only affects icu-enabled build
-		myopts+="$(use_with system-icu)"
-	else
-		myopts+="--without-system-icu"
-	fi
-
-	CC="$(tc-getCC)" CXX="$(tc-getCXX)" \
-	AR="$(tc-getAR)" RANLIB="$(tc-getRANLIB)" \
-	LD="$(tc-getLD)" \
+	ECONF_SOURCE="${S}/js/src" \
 	econf \
-		${myopts} \
-		--enable-jemalloc \
+		--disable-jemalloc \
 		--enable-readline \
-		--enable-threadsafe \
 		--with-system-nspr \
-		--enable-system-ffi \
+		--with-system-zlib \
 		--disable-optimize \
-		$(use_enable icu intl-api) \
+		--with-intl-api \
+		$(use_with system-icu) \
 		$(use_enable debug) \
-		$(use_enable jit yarr-jit) \
 		$(use_enable jit ion) \
-		$(use_enable static-libs static) \
-		$(use_enable test tests)
+		$(use_enable test tests) \
+		XARGS="/usr/bin/xargs" \
+		CONFIG_SHELL="${EPREFIX}/bin/bash" \
+		CC="${CC}" CXX="${CXX}" LD="${LD}" AR="${AR}" RANLIB="${RANLIB}"
 }
 
 cross_make() {
@@ -123,6 +119,8 @@ src_compile() {
 			host_jskwgen.o \
 			host_jsoplengen.o || die
 	fi
+
+	MOZ_MAKE_FLAGS="${MAKEOPTS}" \
 	emake \
 		MOZ_OPTIMIZE_FLAGS="" MOZ_DEBUG_FLAGS="" \
 		HOST_OPTIMIZE_FLAGS="" MODULE_OPTIMIZE_FLAGS="" \
@@ -130,8 +128,8 @@ src_compile() {
 }
 
 src_test() {
-	cd "${BUILDDIR}/jsapi-tests" || die
-	emake check
+	cd "${BUILDDIR}/js/src/jsapi-tests" || die
+	./jsapi-tests || die
 }
 
 src_install() {
@@ -140,15 +138,13 @@ src_install() {
 
 	if ! use minimal; then
 		if use jit; then
-			pax-mark m "${ED}/usr/bin/js${SLOT}"
+			pax-mark m "${ED}"usr/bin/js${SLOT}
 		fi
 	else
-		rm -f "${ED}/usr/bin/js${SLOT}"
+		rm -f "${ED}"usr/bin/js${SLOT}
 	fi
 
-	if ! use static-libs; then
-		# We can't actually disable building of static libraries
-		# They're used by the tests and in a few other places
-		find "${D}" -iname '*.a' -delete || die
-	fi
+	# We can't actually disable building of static libraries
+	# They're used by the tests and in a few other places
+	find "${D}" -iname '*.a' -o -iname '*.ajs' -delete || die
 }

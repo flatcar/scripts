@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -16,7 +16,7 @@ SRC_URI="http://ftp.mozilla.org/pub/spidermonkey/prereleases/52/pre1/mozjs-52.9.
 
 LICENSE="NPL-1.1"
 SLOT="52"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-fbsd"
+KEYWORDS="alpha amd64 arm arm64 ~hppa ia64 ~mips ppc ppc64 s390 ~sh ~sparc x86 ~x86-fbsd"
 IUSE="debug minimal +system-icu test"
 
 RESTRICT="ia64? ( test )"
@@ -34,6 +34,8 @@ DEPEND="${RDEPEND}"
 pkg_setup(){
 	[[ ${MERGE_TYPE} == "binary" ]] || \
 		moz_pkgsetup
+
+	export SHELL="${EPREFIX}/bin/bash"
 }
 
 src_prepare() {
@@ -46,7 +48,7 @@ src_prepare() {
 
 	eapply "${WORKDIR}/${PN}"
 	eapply "${FILESDIR}"/moz38-dont-hardcode-libc-soname.patch
-	#eapply "${FILESDIR}"/${PN}-52-baseconfig.patch
+	eapply "${FILESDIR}"/${PN}-52.0-fix-alpha-bitness.patch
 
 	eapply_user
 
@@ -75,6 +77,7 @@ src_configure() {
 		--with-system-nspr \
 		--disable-optimize \
 		--with-intl-api \
+		--disable-gold \
 		$(use_with system-icu) \
 		$(use_enable debug) \
 		$(use_enable test tests) \
@@ -91,6 +94,7 @@ cross_make() {
 		CC="${BUILD_CC}" \
 		CXX="${BUILD_CXX}" \
 		RANLIB="${BUILD_RANLIB}" \
+		SHELL="${SHELL:-${EPREFIX}/bin/bash}" \
 		"$@"
 }
 src_compile() {
@@ -120,6 +124,7 @@ src_compile() {
 	fi
 
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" \
+	SHELL="${SHELL:-${EPREFIX}/bin/bash}" \
 	emake \
 		MOZ_OPTIMIZE_FLAGS="" MOZ_DEBUG_FLAGS="" \
 		HOST_OPTIMIZE_FLAGS="" MODULE_OPTIMIZE_FLAGS="" \
@@ -133,6 +138,7 @@ src_test() {
 
 src_install() {
 	cd "${BUILDDIR}" || die
+	SHELL="${SHELL:-${EPREFIX}/bin/bash}" \
 	emake DESTDIR="${D}" install
 
 	if ! use minimal; then
