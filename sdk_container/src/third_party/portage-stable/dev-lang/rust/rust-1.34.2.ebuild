@@ -18,7 +18,7 @@ else
 	SLOT="stable/${ABI_VER}"
 	MY_P="rustc-${PV}"
 	SRC="${MY_P}-src.tar.xz"
-	KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
+	KEYWORDS="amd64 ~arm64 ~ppc64 x86"
 fi
 
 RUST_STAGE0_VERSION="1.$(($(ver_cut 2) - 1)).0"
@@ -96,11 +96,9 @@ toml_usex() {
 
 pre_build_checks() {
 	CHECKREQS_DISK_BUILD="7G"
-	CHECKREQS_MEMORY="4G"
 	eshopts_push -s extglob
 	if is-flagq '-g?(gdb)?([1-9])'; then
 		CHECKREQS_DISK_BUILD="10G"
-		CHECKREQS_MEMORY="16G"
 	fi
 	eshopts_pop
 	check-reqs_pkg_setup
@@ -267,6 +265,18 @@ src_install() {
 		cp "${ED}/usr/$(get_libdir)/${P}/rustlib/${rust_target}/lib"/*.so \
 		   "${ED}/usr/${abi_libdir}" || die
 	done
+
+	# temp fix for https://bugs.gentoo.org/672816
+	if use x86; then
+		local rust_target wrongdir rightdir
+		rust_target=$(rust_abi $(get_abi_CHOST ${v##*.}))
+		wrongdir="${ED}/usr/$(get_libdir)/${P}/${P}/rustlib/${rust_target}/codegen-backends"
+		rightdir="${ED}/usr/$(get_libdir)/${P}/rustlib/${rust_target}/codegen-backends"
+		if [[ -e ${wrongdir}/librustc_codegen_llvm-llvm.so ]]; then
+			mv "${wrongdir}" "${rightdir}" || die
+			rm -r "${ED}/usr/$(get_libdir)/${P}/${P}" || die
+		fi
+	fi # end temp fix
 
 	dodoc COPYRIGHT
 
