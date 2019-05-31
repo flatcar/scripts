@@ -7,20 +7,95 @@
 # This file is only for generic masks. For arch-specific masks (i.e.
 # mask everywhere, unmask on arch/*) use arch/base.
 
+# James Le Cuirot <chewi@gentoo.org> (21 May 2019)
+# Doesn't support ffmpeg-4. Portage takes a long time to report the
+# conflict and the feature is half broken anyway. See
+# https://github.com/visualboyadvance-m/visualboyadvance-m/issues/179.
+games-emulation/vbam ffmpeg
+
+# Ulrich Müller <ulm@gentoo.org> (18 May 2019)
+# Firmware images without a known license. Most likely, upstream
+# redistribution may conflict with the licenses or lack thereof
+# on the images. Check the WHENCE file in the package for specific
+# terms. Masked to prevent accidental installation of these files,
+# bug #318841#c20.
+sys-kernel/linux-firmware unknown-license
+
+# Andreas K. Hüttel <dilfridge@gentoo.org> (11 May 2019)
+# app-accessibility/festival:
+# Outdated, EAPI=2, unmaintained, segfaults immediately.
+# See bug 634928 and bug 612980. Removal in 30 days.
+media-radio/xastir festival
+
+# Virgil Dupras <vdupras@gentoo.org> (29 Apr 2019)
+# Docs are temporarily broken. See bug #680014
+dev-python/pandas doc
+
+# Ulrich Müller <ulm@gentoo.org> (25 Apr 2019)
+# Pulls in media-fonts/kochi-substitute as dependency, which allows
+# only non-commercial distribution and can therefore not be included
+# with Gentoo install media. Mask the l10n_ja flag until a better
+# solution is found, e.g., transition to a free font package.
+app-text/ghostscript-gpl l10n_ja
+
+# Georgy Yakovlev <gyakovlev@gentoo.org> (17 Apr 2019)
+# Mask jre useflags for use as system java-vm until it's proven to work
+dev-java/openjdk-jre-bin:8 gentoo-vm
+dev-java/openjdk-jre-bin:11 gentoo-vm
+
+# Michał Górny <mgorny@gentoo.org> (13 Apr 2019)
+# net-libs/ftplib is slated for removal.
+app-cdr/xbiso ftp
+
+# Michał Górny <mgorny@gentoo.org> (10 Apr 2019)
+# media-sound/aacplusenc is slated for removal.
+media-video/h264enc aac
+
+# Michał Górny <mgorny@gentoo.org> (21 Mar 2019)
+# x11-wm/afterstep is slated for removal.
+x11-terms/aterm background
+
+# Michał Górny <mgorny@gentoo.org> (21 Mar 2019)
+# net-mail/uw-imap masked for removal.
+dev-perl/NetxAP test
+
+# Michał Górny <mgorny@gentoo.org> (16 Mar 2019)
+# Requires last rited dev-python/scimath.
+dev-python/construct python_targets_python2_7
+
+# Brian Evans <grknight@gentoo.org> (15 Mar 2019)
+# Prepare to remove the mysqlcompat USE from mariadb-connector-c
+# Has multiple issues including symlinks and threading.
+# Packages should use and access libmariadb.so instead
+dev-db/mariadb-connector-c mysqlcompat
+~media-tv/kodi-17.6 mariadb
+
+# Georgy Yakovlev <gyakovlev@gentoo.org> (05 Mar 2019)
+# Not keyworded on non-x86 arches
+app-admin/conserver freeipmi
+
+# Matt Turner <mattst88@gentoo.org> (03 Mar 2019)
+# Mask for testing. Bug 606924
+media-libs/mesa libglvnd
+
+# Georgy Yakovlev <gyakovlev@gentoo.org> (17 Jan 2019)
+# Mask openjdk:8 for use as system java-vm until it's proven to work
+dev-java/openjdk:8 gentoo-vm
+dev-java/openjdk-bin:8 gentoo-vm
+
+# Sven Wegener <swegener@gentoo.org> (18 Jan 2019)
+# Waiting for >=dev-libs/libressl-2.7 to be unmasked.
+>=net-libs/libvncserver-0.9.12 libressl
+
 # William Hubbs <williamh@gentoo.org> (13 Jan 2019)
 # For memtest86+ mask the floppy use flag since it requires grub:0 which
 # is being removed
 # (bug #674364)
 sys-apps/memtest86+ floppy
 
-# Andreas Sturmlechner <asturm@gentoo.org> (12 Jan 2019)
-# Not keyworded on most arches
-media-video/vlc dav1d
-
 # Brian Evans <grknight@gentoo.org> (11 Jan 2019)
 # Depend on the EOL PHP 7.0
 dev-libs/Ice php
-www-servers/nginx-unit php7-0
 
 # Michał Górny <mgorny@gentoo.org> (01 Dec 2018)
 # Moved from use.mask to specific packages.
@@ -59,12 +134,6 @@ sci-libs/ceres-solver sparse
 # jit brokes build of gnat-gpl
 dev-lang/gnat-gpl jit
 
-# Thomas Deutschmann <whissi@gentoo.org> (12 Oct 2018)
-# Requires www-client/firefox and mail-client/thunderbird
-# which are not available on all architectures
-# yet, unmask per arch
-app-misc/tracker firefox-bookmarks thunderbird
-
 # Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (06 Oct 2018)
 # address user visible breakage due to circular dependency #665008
 =media-fonts/encodings-1.0.4-r3 X
@@ -72,7 +141,7 @@ app-misc/tracker firefox-bookmarks thunderbird
 # Dirkjan Ochtman <djc@gentoo.org> (29 Sep 2018)
 # Clippy is broken for now, can't find libraries (bug 667286)
 <dev-lang/rust-1.29.2 clippy
-dev-lang/rust-bin clippy
+<dev-lang/rust-bin-1.34.1 clippy
 
 # Virgil Dupras <vdupras@gentoo.org> (26 Sep 2018)
 # Server feature in paramiko is patched out for security reasons. It can
@@ -138,7 +207,6 @@ app-admin/testdisk ewf
 # Brian Evans <grknight@gentoo.org> (5 Mar 2018)
 # Mask embedded USE on virtual/mysql and friends to transition it to be obsolete
 virtual/mysql embedded
-dev-db/mysql-cluster embedded
 dev-perl/DBD-mysql embedded
 
 # Brian Evans <grknight@gentoo.org> (28 Feb 2018)
@@ -166,9 +234,7 @@ media-video/ffmpeg appkit
 # gentoo-vm flag allows us to provide it without it breaking Gentoo
 # packages. Those who wish to experiment with it as a fully recognised
 # Gentoo JVM can unmask the flag.
-dev-java/oracle-jdk-bin:9 gentoo-vm
 dev-java/oracle-jdk-bin:11 gentoo-vm
-dev-java/oracle-jre-bin:9 gentoo-vm
 dev-java/openjdk-bin:11 gentoo-vm
 dev-java/openjdk:11 gentoo-vm
 
@@ -224,10 +290,6 @@ media-video/mpv libav
 # Andreas K. Hüttel <dilfridge@gentoo.org> (29 May 2017)
 # Does not build
 sci-libs/linux-gpib php
-
-# Michał Górny <mgorny@gentoo.org> (20 May 2017)
-# CUDA support in nvtt does not support GCC 4.5+.
-media-gfx/nvidia-texture-tools cuda
 
 # Michał Górny <mgorny@gentoo.org> (15 May 2017)
 # Mask ruby20-only compatible packages
@@ -297,16 +359,6 @@ mate-base/mate bluetooth
 # and causes problems with updating the X window, bug #592238
 app-editors/emacs cairo
 app-editors/emacs-vcs cairo
-
-# Michał Górny <mgorny@gentoo.org> (28 Aug 2016)
-# lldb fails to build in the current RC, and needs a lot of minor fixes.
-# It's no longer available in -9999 line, and it won't be in 3.9.0
-# either unless somebody steps up to fix it.
->=sys-devel/llvm-3.9.0_rc lldb
-
-# Gilles Dartiguelongue <eva@gentoo.org> (21 Aug 2016)
-# Needs a Gstreamer plugin from gst-plugins-bad that is not packaged to date
-media-plugins/grilo-plugins chromaprint
 
 # Michał Górny <mgorny@gentoo.org> (05 Jul 2016)
 # Mask system-clang support as it requires llvm-3.4 that is subject
