@@ -94,7 +94,7 @@ case "${version}" in
             "/usr/bin/docker-containerd-shim"
             "/usr/bin/docker-proxy"
             "/usr/bin/docker-runc"
-            "/usr/lib/coreos/dockerd"
+            "/usr/lib/flatcar/dockerd"
         )
         ebuild_aci_create "users.developer.core-os.net/skim/docker" \
             "coreos_docker-${BOARD}-${version}_coreos.${aci_version}" \

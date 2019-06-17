@@ -36,8 +36,8 @@ switch_to_strict_mode
 . "${BUILD_LIBRARY_DIR}/toolchain_util.sh" || exit 1
 . "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
 
-# Our GRUB lives under coreos/grub so new pygrub versions cannot find grub.cfg
-GRUB_DIR="coreos/grub/${FLAGS_target}"
+# Our GRUB lives under flatcar/grub so new pygrub versions cannot find grub.cfg
+GRUB_DIR="flatcar/grub/${FLAGS_target}"
 
 # GRUB install location inside the SDK
 GRUB_SRC="/usr/lib/grub/${FLAGS_target}"
@@ -138,7 +138,7 @@ EOF
 # this because we need conflicting default behaviors between verity and
 # non-verity images.
 GRUB_TEMP_DIR=$(mktemp -d)
-if [[ ! -f "${ESP_DIR}/coreos/grub/grub.cfg.tar" ]]; then
+if [[ ! -f "${ESP_DIR}/flatcar/grub/grub.cfg.tar" ]]; then
     info "Generating grub.cfg memdisk"
 
     if [[ ${FLAGS_verity} -eq ${FLAGS_TRUE} ]]; then
@@ -152,7 +152,7 @@ if [[ ! -f "${ESP_DIR}/coreos/grub/grub.cfg.tar" ]]; then
         sed 's/@@MOUNTUSR@@/mount.usr/' > "${GRUB_TEMP_DIR}/grub.cfg"
     fi
 
-    sudo tar cf "${ESP_DIR}/coreos/grub/grub.cfg.tar" \
+    sudo tar cf "${ESP_DIR}/flatcar/grub/grub.cfg.tar" \
 	 -C "${GRUB_TEMP_DIR}" "grub.cfg"
 fi
 
@@ -162,7 +162,7 @@ sudo grub-mkimage \
     --format "${FLAGS_target}" \
     --directory "${GRUB_SRC}" \
     --config "${ESP_DIR}/${GRUB_DIR}/load.cfg" \
-    --memdisk "${ESP_DIR}/coreos/grub/grub.cfg.tar" \
+    --memdisk "${ESP_DIR}/flatcar/grub/grub.cfg.tar" \
     --output "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
     "${CORE_MODULES[@]}"
 

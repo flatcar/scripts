@@ -352,7 +352,7 @@ set_vm_paths() {
     VM_TMP_DIR="${dst_dir}/${dst_name}.vmtmpdir"
     VM_TMP_IMG="${VM_TMP_DIR}/disk_image.bin"
     VM_TMP_ROOT="${VM_TMP_DIR}/rootfs"
-    VM_NAME="$(_src_to_dst_name "${src_name}" "")-${COREOS_VERSION}"
+    VM_NAME="$(_src_to_dst_name "${src_name}" "")-${FLATCAR_VERSION}"
     VM_README="${dst_dir}/$(_src_to_dst_name "${src_name}" ".README")"
 
     # Make VM_NAME safe for use as a hostname
@@ -438,8 +438,8 @@ setup_disk_image() {
     sudo mount -o remount,ro "${VM_TMP_ROOT}"
 
     VM_GROUP=$(grep --no-messages --no-filename ^GROUP= \
-        "${VM_TMP_ROOT}/usr/share/coreos/update.conf" \
-        "${VM_TMP_ROOT}/etc/coreos/update.conf" | \
+        "${VM_TMP_ROOT}/usr/share/flatcar/update.conf" \
+        "${VM_TMP_ROOT}/etc/flatcar/update.conf" | \
         tail -n 1 | sed -e 's/^GROUP=//')
     if [[ -z "${VM_GROUP}" ]]; then
         die "Unable to determine update group for this image."
@@ -483,7 +483,7 @@ install_oem_package() {
 install_oem_aci() {
     local oem_aci=$(_get_vm_opt OEM_ACI)
     local aci_dir="${FLAGS_to}/oem-${oem_aci}-aci"
-    local aci_path="${aci_dir}/coreos-oem-${oem_aci}.aci"
+    local aci_path="${aci_dir}/flatcar-oem-${oem_aci}.aci"
     local binpkgflags=(--nogetbinpkg)
 
     [ -n "${oem_aci}" ] || return 0
@@ -503,7 +503,7 @@ install_oem_aci() {
     info "Installing ${oem_aci} OEM ACI"
     sudo install -Dpm 0644 \
         "${aci_path}" \
-        "${VM_TMP_ROOT}/usr/share/oem/coreos-oem-${oem_aci}.aci" ||
+        "${VM_TMP_ROOT}/usr/share/oem/flatcar-oem-${oem_aci}.aci" ||
     die "Could not install ${oem_aci} OEM ACI"
 }
 
@@ -593,8 +593,8 @@ _write_cpio_common() {
     echo "/.noupdate f 444 root root echo -n" >"${VM_TMP_DIR}/extra"
 
     # Set correct group for PXE/ISO, which has no writeable /etc
-    echo /usr/share/coreos/update.conf f 644 root root \
-        "sed -e 's/GROUP=.*$/GROUP=${VM_GROUP}/' ${base_dir}/share/coreos/update.conf" \
+    echo /usr/share/flatcar/update.conf f 644 root root \
+        "sed -e 's/GROUP=.*$/GROUP=${VM_GROUP}/' ${base_dir}/share/flatcar/update.conf" \
         >> "${VM_TMP_DIR}/extra"
 
     # Build the squashfs, embed squashfs into a gzipped cpio
@@ -614,14 +614,14 @@ _write_cpio_disk() {
     local grub_name="$(_dst_name "_grub.efi")"
     _write_cpio_common $@
     # Pull the kernel and loader out of the filesystem
-    cp "${base_dir}"/boot/coreos/vmlinuz-a "${dst_dir}/${vmlinuz_name}"
+    cp "${base_dir}"/boot/flatcar/vmlinuz-a "${dst_dir}/${vmlinuz_name}"
 
     local grub_arch
     case $BOARD in
         amd64-usr) grub_arch="x86_64-efi" ;;
     esac
 
-    cp "${base_dir}/boot/coreos/grub/${grub_arch}/core.efi" "${dst_dir}/${grub_name}"
+    cp "${base_dir}/boot/flatcar/grub/${grub_arch}/core.efi" "${dst_dir}/${grub_name}"
     VM_GENERATED_FILES+=( "${dst_dir}/${vmlinuz_name}" "${dst_dir}/${grub_name}" )
 }
 
@@ -633,22 +633,22 @@ _write_iso_disk() {
 
     mkdir "${iso_target}"
     pushd "${iso_target}" >/dev/null
-    mkdir isolinux syslinux coreos
-    _write_cpio_common "$1" "${iso_target}/coreos/cpio.gz"
-    cp "${base_dir}"/boot/vmlinuz "${iso_target}/coreos/vmlinuz"
+    mkdir isolinux syslinux flatcar
+    _write_cpio_common "$1" "${iso_target}/flatcar/cpio.gz"
+    cp "${base_dir}"/boot/vmlinuz "${iso_target}/flatcar/vmlinuz"
     cp -R /usr/share/syslinux/* isolinux/
     cat<<EOF > isolinux/isolinux.cfg
 INCLUDE /syslinux/syslinux.cfg
 EOF
     cat<<EOF > syslinux/syslinux.cfg
-default coreos
+default flatcar
 prompt 1
 timeout 15
 
-label coreos
+label flatcar
   menu default
-  kernel /coreos/vmlinuz
-  append initrd=/coreos/cpio.gz coreos.autologin
+  kernel /flatcar/vmlinuz
+  append initrd=/flatcar/cpio.gz flatcar.autologin
 EOF
     mkisofs -v -l -r -J -o $2 -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table .
     isohybrid $2
@@ -1091,10 +1091,10 @@ EOF
 
     cat >"${json}" <<EOF
 {
-  "name": "coreos-${VM_GROUP}",
-  "description": "CoreOS ${VM_GROUP}",
+  "name": "flatcar-${VM_GROUP}",
+  "description": "Flatcar ${VM_GROUP}",
   "versions": [{
-    "version": "${COREOS_VERSION_ID}",
+    "version": "${FLATCAR_VERSION_ID}",
     "providers": [{
       "name": "${provider}",
       "url": "$(download_image_url "$(_dst_name ".box")")",
@@ -1186,7 +1186,7 @@ vm_upload() {
         cp "${digests}.asc" "${legacy_digests}.asc"
     fi
 
-    local def_upload_path="${UPLOAD_ROOT}/boards/${BOARD}/${COREOS_VERSION}"
+    local def_upload_path="${UPLOAD_ROOT}/boards/${BOARD}/${FLATCAR_VERSION}"
     upload_files "$(_dst_name)" "${def_upload_path}" "" "${legacy_uploads[@]}"
 }
 
