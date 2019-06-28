@@ -435,6 +435,7 @@ def PartitionLoop(options, partition):
   """Allocate (and automatically free) loop devices for a partition."""
 
   attempts = 0
+  loop_dev = ''
 
   while attempts < 10:
     try:
@@ -443,14 +444,14 @@ def PartitionLoop(options, partition):
           '--sizelimit', str(partition['bytes']),
           '--find', '--show', options.disk_image])
       loop_dev = loop_dev.strip()
-
-      yield loop_dev
-
     except:
       attempts += 1
       time.sleep(1)
-    finally:
-      Sudo(['losetup', '--detach', loop_dev])
+
+  try:
+    yield loop_dev
+  finally:
+    Sudo(['losetup', '--detach', loop_dev])
 
 def FormatPartition(options, part):
   print "Formatting partition %s (%s) as %s" % (
