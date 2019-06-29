@@ -446,7 +446,8 @@ def PartitionLoop(options, partition):
       loop_dev = loop_dev.strip()
       break
     except:
-      Sudo(['losetup', '--detach', loop_dev])
+      if loop_dev:
+        Sudo(['losetup', '--detach', loop_dev])
       attempts += 1
       time.sleep(1)
 
