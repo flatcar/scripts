@@ -444,11 +444,11 @@ def PartitionLoop(options, partition):
           '--sizelimit', str(partition['bytes']),
           '--find', '--show', options.disk_image])
       loop_dev = loop_dev.strip()
+      break
     except:
+      Sudo(['losetup', '--detach', loop_dev])
       attempts += 1
       time.sleep(1)
-    finally:
-      Sudo(['losetup', '--detach', loop_dev])
 
   yield loop_dev
 
