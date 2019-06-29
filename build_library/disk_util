@@ -447,11 +447,10 @@ def PartitionLoop(options, partition):
     except:
       attempts += 1
       time.sleep(1)
+    finally:
+      Sudo(['losetup', '--detach', loop_dev])
 
-  try:
-    yield loop_dev
-  finally:
-    Sudo(['losetup', '--detach', loop_dev])
+  yield loop_dev
 
 def FormatPartition(options, part):
   print "Formatting partition %s (%s) as %s" % (
