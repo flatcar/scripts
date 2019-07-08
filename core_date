@@ -35,7 +35,7 @@ case "$1" in
             v="$1"
             shift
         else
-            v="${COREOS_VERSION}"
+            v="${FLATCAR_VERSION}"
         fi
 
         # strip of a v prefix or .0.0 suffix
