@@ -238,7 +238,7 @@ function torcx_package() {
 # swapping default package versions for different OS releases by reordering.
 DEFAULT_IMAGES=(
         =app-torcx/docker-1.12
-        =app-torcx/docker-18.06
+        =app-torcx/docker-18.09
 )
 
 # This list contains extra images which will be uploaded and included in the
@@ -277,7 +277,7 @@ done
 # order to get signed.
 sign_and_upload_files \
     'torcx manifest' \
-    "${UPLOAD_ROOT}/torcx/manifests/${BOARD}/${COREOS_VERSION}" \
+    "${UPLOAD_ROOT}/torcx/manifests/${BOARD}/${FLATCAR_VERSION}" \
     "" \
     "${manifest_path}"
 

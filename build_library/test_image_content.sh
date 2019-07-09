@@ -4,6 +4,10 @@
 
 GLSA_WHITELIST=(
 	201412-09 # incompatible CA certificate version numbers
+	201710-23
+	201803-03
+	201804-12
+	201812-09
 )
 
 glsa_image() {
