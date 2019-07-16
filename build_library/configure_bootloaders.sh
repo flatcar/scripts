@@ -45,11 +45,11 @@ configure_pvgrub() {
   sudo_clobber "${GRUB_DIR}/menu.lst.A" <<EOF
 timeout         0
 
-title           CoreOS A Root
+title           Flatcar A Root
 root            (hd0,0)
 kernel          /syslinux/vmlinuz.A ${grub_args} ${slot_a_args}
 
-title           CoreOS B Root
+title           Flatcar B Root
 root            (hd0,0)
 kernel          /syslinux/vmlinuz.B ${grub_args} ${slot_b_args}
 EOF
