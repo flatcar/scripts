@@ -243,7 +243,6 @@ DEFAULT_IMAGES=(
 # This list contains extra images which will be uploaded and included in the
 # generated manifest, but won't be included in the vendor store.
 EXTRA_IMAGES=(
-	=app-torcx/docker-18.09
 )
 
 mkdir -p "${BUILD_DIR}"
