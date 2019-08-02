@@ -5,13 +5,13 @@
 # found in the LICENSE file.
 
 # common.sh must be properly sourced before this file.
-[[ -n "${COREOS_SDK_VERSION}" ]] || exit 1
+[[ -n "${FLATCAR_SDK_VERSION}" ]] || exit 1
 
-COREOS_SDK_ARCH="amd64" # We are unlikely to support anything else.
-COREOS_SDK_TARBALL="coreos-sdk-${COREOS_SDK_ARCH}-${COREOS_SDK_VERSION}.tar.bz2"
-COREOS_SDK_TARBALL_CACHE="${REPO_CACHE_DIR}/sdks"
-COREOS_SDK_TARBALL_PATH="${COREOS_SDK_TARBALL_CACHE}/${COREOS_SDK_TARBALL}"
-COREOS_SDK_URL="${COREOS_DEV_BUILDS}/sdk/${COREOS_SDK_ARCH}/${COREOS_SDK_VERSION}/${COREOS_SDK_TARBALL}"
+FLATCAR_SDK_ARCH="amd64" # We are unlikely to support anything else.
+FLATCAR_SDK_TARBALL="flatcar-sdk-${FLATCAR_SDK_ARCH}-${FLATCAR_SDK_VERSION}.tar.bz2"
+FLATCAR_SDK_TARBALL_CACHE="${REPO_CACHE_DIR}/sdks"
+FLATCAR_SDK_TARBALL_PATH="${FLATCAR_SDK_TARBALL_CACHE}/${FLATCAR_SDK_TARBALL}"
+FLATCAR_SDK_URL="${FLATCAR_DEV_BUILDS}/sdk/${FLATCAR_SDK_ARCH}/${FLATCAR_SDK_VERSION}/${FLATCAR_SDK_TARBALL}"
 
 # Download the current SDK tarball (if required) and verify digests/sig
 sdk_download_tarball() {
@@ -19,13 +19,13 @@ sdk_download_tarball() {
         return 0
     fi
 
-    info "Downloading ${COREOS_SDK_TARBALL}"
-    info "URL: ${COREOS_SDK_URL}"
+    info "Downloading ${FLATCAR_SDK_TARBALL}"
+    info "URL: ${FLATCAR_SDK_URL}"
     local suffix
     for suffix in "" ".DIGESTS"; do # TODO(marineam): download .asc
         wget --tries=3 --timeout=30 --continue \
-            -O  "${COREOS_SDK_TARBALL_PATH}${suffix}" \
-            "${COREOS_SDK_URL}${suffix}" \
+            -O  "${FLATCAR_SDK_TARBALL_PATH}${suffix}" \
+            "${FLATCAR_SDK_URL}${suffix}" \
             || die_notrace "SDK download failed!"
     done
 
@@ -34,21 +34,21 @@ sdk_download_tarball() {
 }
 
 sdk_verify_digests() {
-    if [[ ! -f "${COREOS_SDK_TARBALL_PATH}" || \
-          ! -f "${COREOS_SDK_TARBALL_PATH}.DIGESTS" ]]; then
+    if [[ ! -f "${FLATCAR_SDK_TARBALL_PATH}" || \
+          ! -f "${FLATCAR_SDK_TARBALL_PATH}.DIGESTS" ]]; then
         return 1
     fi
 
     # TODO(marineam): Add gpg signature verification too.
 
-    verify_digests "${COREOS_SDK_TARBALL_PATH}" || return 1
+    verify_digests "${FLATCAR_SDK_TARBALL_PATH}" || return 1
 }
 
 sdk_clean_cache() {
-    pushd "${COREOS_SDK_TARBALL_CACHE}" >/dev/null
+    pushd "${FLATCAR_SDK_TARBALL_CACHE}" >/dev/null
     local filename
     for filename in *; do
-        if [[ "${filename}" == "${COREOS_SDK_TARBALL}"* ]]; then
+        if [[ "${filename}" == "${FLATCAR_SDK_TARBALL}"* ]]; then
             continue
         fi
         info "Cleaning up ${filename}"
