@@ -190,7 +190,7 @@ function torcx_package() {
         fi
 
         tmpfile="${BUILD_DIR}/${name}:${version}.torcx.tgz"
-        tar --force-local -C "${tmppkgroot}" -czf "${tmpfile}" .
+        tar --force-local --selinux --xattrs -C "${tmppkgroot}" -czf "${tmpfile}" .
         sha512sum=$(sha512sum "${tmpfile}" | awk '{print $1}')
 
         # TODO(euank): this opaque digest, if it were reproducible, could save
