@@ -190,7 +190,7 @@ function torcx_package() {
         fi
 
         tmpfile="${BUILD_DIR}/${name}:${version}.torcx.tgz"
-        tar --force-local -C "${tmppkgroot}" -czf "${tmpfile}" .
+        tar --force-local --selinux --xattrs -C "${tmppkgroot}" -czf "${tmpfile}" .
         sha512sum=$(sha512sum "${tmpfile}" | awk '{print $1}')
 
         # TODO(euank): this opaque digest, if it were reproducible, could save
@@ -237,14 +237,12 @@ function torcx_package() {
 # for each package will point at the last version specified.  This can handle
 # swapping default package versions for different OS releases by reordering.
 DEFAULT_IMAGES=(
-        =app-torcx/docker-1.12
-        =app-torcx/docker-18.06
+        =app-torcx/docker-18.09
 )
 
 # This list contains extra images which will be uploaded and included in the
 # generated manifest, but won't be included in the vendor store.
 EXTRA_IMAGES=(
-	=app-torcx/docker-17.03
 )
 
 mkdir -p "${BUILD_DIR}"
@@ -277,7 +275,7 @@ done
 # order to get signed.
 sign_and_upload_files \
     'torcx manifest' \
-    "${UPLOAD_ROOT}/torcx/manifests/${BOARD}/${COREOS_VERSION}" \
+    "${UPLOAD_ROOT}/torcx/manifests/${BOARD}/${FLATCAR_VERSION}" \
     "" \
     "${manifest_path}"
 
