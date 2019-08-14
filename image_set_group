@@ -20,7 +20,7 @@ DEFINE_string board "${DEFAULT_BOARD}" \
 DEFINE_string disk_layout "base" \
   "The disk layout type to use for this image."
 DEFINE_string from "" \
-  "Directory containing ${COREOS_PRODUCTION_IMAGE_NAME}"
+  "Directory containing ${FLATCAR_PRODUCTION_IMAGE_NAME}"
 DEFINE_string output_root "${DEFAULT_BUILD_ROOT}/images" \
   "Directory in which to place image result directories (named by version)"
 DEFINE_boolean replace ${FLAGS_FALSE} \
@@ -56,9 +56,9 @@ fi
 
 start_modify_image
 
-info "Replacing /etc/coreos/update.conf"
-sudo mkdir -p "${ROOT_FS_DIR}/etc/coreos"
-sudo_clobber "${ROOT_FS_DIR}/etc/coreos/update.conf" <<EOF
+info "Replacing /etc/flatcar/update.conf"
+sudo mkdir -p "${ROOT_FS_DIR}/etc/flatcar"
+sudo_clobber "${ROOT_FS_DIR}/etc/flatcar/update.conf" <<EOF
 GROUP=${FLAGS_group}
 EOF
 
