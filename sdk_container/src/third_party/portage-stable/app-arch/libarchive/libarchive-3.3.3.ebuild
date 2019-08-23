@@ -1,17 +1,17 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
-inherit eutils libtool multilib-minimal toolchain-funcs
+EAPI=7
+inherit libtool multilib-minimal toolchain-funcs
 
-DESCRIPTION="BSD tar command"
-HOMEPAGE="http://www.libarchive.org/"
-SRC_URI="http://www.libarchive.org/downloads/${P}.tar.gz"
+DESCRIPTION="Multi-format archive and compression library"
+HOMEPAGE="https://www.libarchive.org/"
+SRC_URI="https://www.libarchive.org/downloads/${P}.tar.gz"
 
 LICENSE="BSD BSD-2 BSD-4 public-domain"
 SLOT="0/13"
-KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~x64-cygwin ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="acl +bzip2 +e2fsprogs expat +iconv kernel_linux libressl lz4 +lzma lzo nettle static-libs +threads xattr +zlib"
+KEYWORDS="alpha amd64 arm arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~riscv s390 sh sparc x86 ~x64-cygwin ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+IUSE="acl +bzip2 +e2fsprogs expat +iconv kernel_linux libressl lz4 +lzma lzo nettle static-libs +threads xattr +zlib zstd"
 
 RDEPEND="
 	acl? ( virtual/acl[${MULTILIB_USEDEP}] )
@@ -28,7 +28,8 @@ RDEPEND="
 	lzma? ( app-arch/xz-utils[threads=,${MULTILIB_USEDEP}] )
 	lzo? ( >=dev-libs/lzo-2[${MULTILIB_USEDEP}] )
 	nettle? ( dev-libs/nettle:0=[${MULTILIB_USEDEP}] )
-	zlib? ( sys-libs/zlib[${MULTILIB_USEDEP}] )"
+	zlib? ( sys-libs/zlib[${MULTILIB_USEDEP}] )
+	zstd? ( app-arch/zstd[${MULTILIB_USEDEP}] )"
 DEPEND="${RDEPEND}
 	kernel_linux? (
 		virtual/os-headers
@@ -36,8 +37,12 @@ DEPEND="${RDEPEND}
 	)"
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-3.3.1-libressl.patch
+	"${FILESDIR}"/${PN}-3.3.3-libressl.patch
 )
+
+# Various test problems, starting with the fact that sandbox
+# explodes on long paths. https://bugs.gentoo.org/598806
+RESTRICT="test"
 
 src_prepare() {
 	default
@@ -61,16 +66,24 @@ multilib_src_configure() {
 		$(use_with lzo lzo2)
 		$(use_with nettle)
 		$(use_with zlib)
+		$(use_with zstd)
+
+		# Windows-specific
+		--without-cng
 	)
-	if multilib_is_native_abi ; then myconf+=(
-		--enable-bsdcat=$(tc-is-static-only && echo static || echo shared)
-		--enable-bsdcpio=$(tc-is-static-only && echo static || echo shared)
-		--enable-bsdtar=$(tc-is-static-only && echo static || echo shared)
-	); else myconf+=(
-		--disable-bsdcat
-		--disable-bsdcpio
-		--disable-bsdtar
-	); fi
+	if multilib_is_native_abi ; then
+		myconf+=(
+			--enable-bsdcat=$(tc-is-static-only && echo static || echo shared)
+			--enable-bsdcpio=$(tc-is-static-only && echo static || echo shared)
+			--enable-bsdtar=$(tc-is-static-only && echo static || echo shared)
+		)
+	else
+		myconf+=(
+			--disable-bsdcat
+			--disable-bsdcpio
+			--disable-bsdtar
+		)
+	fi
 
 	ECONF_SOURCE="${S}" econf "${myconf[@]}"
 }
@@ -102,14 +115,16 @@ multilib_src_install() {
 			done
 		fi
 	else
-		emake DESTDIR="${D}" \
-			install-includeHEADERS \
-			install-libLTLIBRARIES \
+		local install_targets=(
+			install-includeHEADERS
+			install-libLTLIBRARIES
 			install-pkgconfigDATA
+		)
+		emake DESTDIR="${D}" "${install_targets[@]}"
 	fi
 
 	# Libs.private: should be used from libarchive.pc instead
-	prune_libtool_files
+	find "${ED}" -name "*.la" -delete || die
 }
 
 multilib_src_install_all() {
