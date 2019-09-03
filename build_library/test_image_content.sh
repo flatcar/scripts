@@ -4,7 +4,7 @@
 
 GLSA_WHITELIST=(
 	201412-09 # incompatible CA certificate version numbers
-	201908-14 # backported both CVE fixes
+	201908-14 # polkit
 )
 
 glsa_image() {
