@@ -318,6 +318,10 @@ if [[ ${FLAGS_regen_configs} -eq ${FLAGS_FALSE} ]]; then
     info "Installing toolchain build dependencies"
     install_cross_libs "${BOARD_CHOST}" ${EMERGE_FLAGS} --buildpkg=n
 
+    info "Building toolchain dependencies"
+    "${EMERGE_WRAPPER}" --buildpkg --buildpkgonly --onlydeps -e \
+        --root="/usr/${BOARD_CHOST}" --sysroot="/usr/${BOARD_CHOST}" \
+        ${EMERGE_TOOLCHAIN_FLAGS} "${TOOLCHAIN_PKGS[@]}"
     info "Building toolchain"
     "${EMERGE_WRAPPER}" --buildpkg --buildpkgonly \
         --root="/usr/${BOARD_CHOST}" --sysroot="/usr/${BOARD_CHOST}" \
