@@ -5,6 +5,7 @@
 GLSA_WHITELIST=(
 	201412-09 # incompatible CA certificate version numbers
 	201908-14 # backported both CVE fixes
+	201909-01 # perl
 	201909-08 # dbus
 )
 
