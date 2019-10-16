@@ -27,6 +27,8 @@ DEFINE_boolean getbinpkg "${FLAGS_TRUE}" \
   "Download binary packages from remote repository."
 DEFINE_string getbinpkgver "" \
   "Use binary packages from a specific version."
+DEFINE_string binhost "" \
+  "Use binary packages from a specific location (e.g. https://storage.googleapis.com/flatcar-jenkins/sdk/amd64/2000.0.0/pkgs)"
 DEFINE_boolean toolchainpkgonly "${FLAGS_FALSE}" \
   "Use binary packages only for the board toolchain."
 DEFINE_integer jobs "${NUM_JOBS}" \
@@ -159,7 +161,7 @@ BOARD_ETC="${BOARD_ROOT}/etc"
 BOARD_ARCH=$(get_board_arch "$BOARD")
 BOARD_CHOST=$(get_board_chost ${BOARD})
 PORTAGE_PROFILE=$(get_board_profile "$BOARD")
-BOARD_BINHOST=$(generate_binhost_list)
+BOARD_BINHOST="$FLAGS_binhost $(generate_binhost_list)"
 
 if [[ ${FLAGS_regen_configs_only} -eq ${FLAGS_TRUE} ]]; then
   FLAGS_regen_configs=${FLAGS_TRUE}
@@ -197,6 +199,9 @@ if [ "${FLAGS_usepkg}" -eq "${FLAGS_TRUE}" ]; then
     UPDATE_ARGS+=" --getbinpkg "
   else
     UPDATE_ARGS+=" --nogetbinpkg "
+  fi
+  if [[ -n "${FLAGS_binhost}" ]]; then
+    UPDATE_ARGS+=" --binhost=${FLAGS_binhost} "
   fi
 else
   UPDATE_ARGS+=" --nousepkg"
