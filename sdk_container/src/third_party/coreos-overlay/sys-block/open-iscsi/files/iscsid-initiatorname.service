@@ -7,4 +7,4 @@ DefaultDependencies=no
 
 [Service]
 Type=oneshot
-ExecStart=/bin/sh -c 'echo InitiatorName=iqn.2016-04.com.coreos.iscsi:$(</etc/machine-id) >/etc/iscsi/initiatorname.iscsi'
+ExecStart=/bin/sh -c 'echo InitiatorName=iqn.2016-04.com.flatcar.iscsi:$(</etc/machine-id) >/etc/iscsi/initiatorname.iscsi'

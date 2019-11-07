@@ -34,5 +34,5 @@ src_install() {
 	doins "${FILESDIR}/grub.cfg"
 
 	into "/usr/share/oem"
-	dobin "${FILESDIR}/coreos-setup-environment"
+	dobin "${FILESDIR}/flatcar-setup-environment"
 }

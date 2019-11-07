@@ -20,6 +20,6 @@ RDEPEND=">=app-emulation/rkt-1.9.1[rkt_stage1_fly]"
 S=${WORKDIR}
 
 src_install() {
-	exeinto /usr/lib/coreos
+	exeinto /usr/lib/flatcar
 	doexe "${FILESDIR}"/kubelet-wrapper
 }

@@ -24,7 +24,7 @@ src_install() {
 		tag+="-${ARCH}"
 	fi
 
-	exeinto /usr/lib/coreos
+	exeinto /usr/lib/flatcar
 	doexe "${FILESDIR}"/etcd-wrapper
 
 	sed "s|@ETCD_IMAGE_TAG@|${tag}|g" \

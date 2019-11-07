@@ -16,8 +16,8 @@ BASE_CLOUD_CONFIG = <<EOF
 write_files:
   - path: /etc/environment
     content: |
-      COREOS_PUBLIC_IPV4=%s
-      COREOS_PRIVATE_IPV4=%s
+      FLATCAR_PUBLIC_IPV4=%s
+      FLATCAR_PRIVATE_IPV4=%s
 coreos:
     units:
 EOF

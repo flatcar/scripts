@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=4
-CROS_WORKON_PROJECT="coreos/toolbox"
+CROS_WORKON_PROJECT="flatcar-linux/toolbox"
 CROS_WORKON_LOCALNAME="toolbox"
 CROS_WORKON_REPO="git://github.com"
 

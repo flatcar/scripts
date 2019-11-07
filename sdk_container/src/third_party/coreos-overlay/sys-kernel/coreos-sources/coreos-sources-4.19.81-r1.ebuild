@@ -11,6 +11,7 @@ ETYPE="sources"
 K_BASE_VER="4.19"
 
 inherit kernel-2
+EXTRAVERSION="-flatcar"
 detect_version
 
 DESCRIPTION="Full sources for the CoreOS Linux kernel"

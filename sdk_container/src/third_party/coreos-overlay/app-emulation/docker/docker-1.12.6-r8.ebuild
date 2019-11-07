@@ -4,7 +4,7 @@
 
 EAPI=5
 
-CROS_WORKON_PROJECT="coreos/docker"
+CROS_WORKON_PROJECT="flatcar-linux/docker"
 CROS_WORKON_LOCALNAME="docker"
 CROS_WORKON_REPO="git://github.com"
 COREOS_GO_VERSION="go1.7"
@@ -269,8 +269,8 @@ src_install() {
 	newinitd contrib/init/openrc/docker.initd docker
 	newconfd contrib/init/openrc/docker.confd docker
 
-	exeinto /usr/lib/coreos
-	# Create /usr/lib/coreos/dockerd script for backwards compatibility
+	exeinto /usr/lib/flatcar
+	# Create /usr/lib/flatcar/dockerd script for backwards compatibility
 	doexe "${FILESDIR}/dockerd"
 
 	systemd_dounit "${FILESDIR}/docker.service"

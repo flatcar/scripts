@@ -3,7 +3,7 @@
 
 EAPI=7
 
-CROS_WORKON_PROJECT="coreos/update-ssh-keys"
+CROS_WORKON_PROJECT="flatcar-linux/update-ssh-keys"
 CROS_WORKON_LOCALNAME="update-ssh-keys"
 CROS_WORKON_REPO="git://github.com"
 

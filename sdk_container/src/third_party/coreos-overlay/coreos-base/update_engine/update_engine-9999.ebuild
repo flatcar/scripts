@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
-CROS_WORKON_PROJECT="coreos/update_engine"
+CROS_WORKON_PROJECT="flatcar-linux/update_engine"
 CROS_WORKON_REPO="git://github.com"
 AUTOTOOLS_AUTORECONF=1
 
@@ -73,9 +73,9 @@ src_install() {
 	autotools-utils_src_install
 
 	if use symlink-usr; then
-		dosym sbin/coreos-postinst /usr/postinst
+		dosym sbin/flatcar-postinst /usr/postinst
 	else
-		dosym usr/sbin/coreos-postinst /postinst
+		dosym usr/sbin/flatcar-postinst /postinst
 	fi
 
 	systemd_dounit systemd/update-engine.service

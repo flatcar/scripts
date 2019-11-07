@@ -17,12 +17,12 @@ Environment="ETCD_IMAGE_TAG=@ETCD_IMAGE_TAG@"
 Environment="ETCD_NAME=%m"
 Environment="ETCD_USER=etcd"
 Environment="ETCD_DATA_DIR=/var/lib/etcd"
-Environment="RKT_RUN_ARGS=--uuid-file-save=/var/lib/coreos/etcd-member-wrapper.uuid"
+Environment="RKT_RUN_ARGS=--uuid-file-save=/var/lib/flatcar/etcd-member-wrapper.uuid"
 
-ExecStartPre=/usr/bin/mkdir --parents /var/lib/coreos
-ExecStartPre=-/usr/bin/rkt rm --uuid-file=/var/lib/coreos/etcd-member-wrapper.uuid
-ExecStart=/usr/lib/coreos/etcd-wrapper $ETCD_OPTS
-ExecStop=-/usr/bin/rkt stop --uuid-file=/var/lib/coreos/etcd-member-wrapper.uuid
+ExecStartPre=/usr/bin/mkdir --parents /var/lib/flatcar
+ExecStartPre=-/usr/bin/rkt rm --uuid-file=/var/lib/flatcar/etcd-member-wrapper.uuid
+ExecStart=/usr/lib/flatcar/etcd-wrapper $ETCD_OPTS
+ExecStop=-/usr/bin/rkt stop --uuid-file=/var/lib/flatcar/etcd-member-wrapper.uuid
 
 [Install]
 WantedBy=multi-user.target

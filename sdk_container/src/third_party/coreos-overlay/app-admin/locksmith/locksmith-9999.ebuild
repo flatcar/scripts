@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-CROS_WORKON_PROJECT="coreos/locksmith"
+CROS_WORKON_PROJECT="flatcar-linux/locksmith"
 CROS_WORKON_LOCALNAME="locksmith"
 CROS_WORKON_REPO="git://github.com"
 COREOS_GO_PACKAGE="github.com/coreos/locksmith"

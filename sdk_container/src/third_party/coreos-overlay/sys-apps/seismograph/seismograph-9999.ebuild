@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
-CROS_WORKON_PROJECT="coreos/seismograph"
+CROS_WORKON_PROJECT="flatcar-linux/seismograph"
 CROS_WORKON_REPO="git://github.com"
 AUTOTOOLS_AUTORECONF=1
 

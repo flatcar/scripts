@@ -19,8 +19,8 @@ coreos:
         content: |
           [Unit]
           Description=Cloudinit from exoscale (cloudstack-style) metadata
-          Requires=coreos-setup-environment.service
-          After=coreos-setup-environment.service
+          Requires=flatcar-setup-environment.service
+          After=flatcar-setup-environment.service
 
           [Service]
           Type=oneshot

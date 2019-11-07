@@ -20,8 +20,8 @@ coreos:
         content: |
           [Unit]
           Description=Sets SSH key from metadata
-          Requires=coreos-setup-environment.service
-          After=coreos-setup-environment.service
+          Requires=flatcar-setup-environment.service
+          After=flatcar-setup-environment.service
 
           [Service]
           Type=oneshot
@@ -34,8 +34,8 @@ coreos:
         content: |
           [Unit]
           Description=Cloudinit from CloudStack-style metadata
-          Requires=coreos-setup-environment.service
-          After=coreos-setup-environment.service
+          Requires=flatcar-setup-environment.service
+          After=flatcar-setup-environment.service
 
           [Service]
           Type=oneshot
@@ -46,8 +46,8 @@ coreos:
         content: |
           [Unit]
           Description=CloudStack Guest Password Reset
-          Requires=coreos-setup-environment.service
-          After=coreos-setup-environment.service
+          Requires=flatcar-setup-environment.service
+          After=flatcar-setup-environment.service
 
           [Service]
           Type=oneshot
@@ -58,4 +58,4 @@ coreos:
       name: Interoute 
       version-id: @@OEM_VERSION_ID@@
       home-url: http://interoute.com/
-      bug-report-url: https://issues.coreos.com
+      bug-report-url: https://issues.flatcar-linux.org

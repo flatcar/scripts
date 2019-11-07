@@ -10,12 +10,12 @@ Before=docker.service
 Type=oneshot
 
 Environment="FLANNEL_IMAGE_TAG=@FLANNEL_IMAGE_TAG@"
-Environment="RKT_RUN_ARGS=--uuid-file-save=/var/lib/coreos/flannel-wrapper2.uuid"
+Environment="RKT_RUN_ARGS=--uuid-file-save=/var/lib/flatcar/flannel-wrapper2.uuid"
 Environment="FLANNEL_IMAGE_ARGS=--exec=/opt/bin/mk-docker-opts.sh"
 
-ExecStartPre=-/usr/bin/rkt rm --uuid-file=/var/lib/coreos/flannel-wrapper2.uuid
-ExecStart=/usr/lib/coreos/flannel-wrapper -d /run/flannel/flannel_docker_opts.env -i
-ExecStop=-/usr/bin/rkt stop --uuid-file=/var/lib/coreos/flannel-wrapper2.uuid
+ExecStartPre=-/usr/bin/rkt rm --uuid-file=/var/lib/flatcar/flannel-wrapper2.uuid
+ExecStart=/usr/lib/flatcar/flannel-wrapper -d /run/flannel/flannel_docker_opts.env -i
+ExecStop=-/usr/bin/rkt stop --uuid-file=/var/lib/flatcar/flannel-wrapper2.uuid
 
 [Install]
 WantedBy=multi-user.target

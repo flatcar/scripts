@@ -18,4 +18,4 @@ coreos:
     name: CloudSigma
     version-id: @@OEM_VERSION_ID@@
     home-url: https://www.cloudsigma.com/
-    bug-report-url: https://issues.coreos.com
+    bug-report-url: https://issues.flatcar-linux.org

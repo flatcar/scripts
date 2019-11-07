@@ -3,14 +3,14 @@
 
 EAPI=6
 
-CROS_WORKON_PROJECT="coreos/grub"
+CROS_WORKON_PROJECT="flatcar-linux/grub"
 CROS_WORKON_REPO="git://github.com"
 GRUB_AUTOGEN=1  # We start from Git, so always autogen.
 
 if [[ ${PV} == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64 ~x86"
 else
-	CROS_WORKON_COMMIT="c6b9a0af3d7483d5b5c5f79caf7ced64298bd4ac"
+	CROS_WORKON_COMMIT="7ee80206a61de3e5ba1ea03b0054b95d891a3511"  # flatcar-master
 	KEYWORDS="amd64 arm64 x86"
 fi
 inherit cros-workon

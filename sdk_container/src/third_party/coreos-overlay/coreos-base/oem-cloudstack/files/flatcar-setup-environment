@@ -14,8 +14,8 @@ if [[ $? -ne 0 ]]; then
     exit 1
 fi
 
-sed -i -e '/^COREOS_PUBLIC_IPV4=/d' \
-    -e '/^COREOS_PRIVATE_IPV4=/d' \
+sed -i -e '/^FLATCAR_PUBLIC_IPV4=/d' \
+    -e '/^FLATCAR_PRIVATE_IPV4=/d' \
     "${ENV}"
 
 . /usr/share/oem/bin/cloudstack-dhcp
@@ -26,7 +26,7 @@ METADATA_URL="http://${DHCP_SERVER}/latest/meta-data/"
 block-until-url "${METADATA_URL}"
 
 PUBLIC_IP=$(curl --fail -s "${METADATA_URL}public-ipv4")
-echo COREOS_PUBLIC_IPV4=${PUBLIC_IP} >> $ENV
+echo FLATCAR_PUBLIC_IPV4=${PUBLIC_IP} >> $ENV
 
 PRIVATE_IP=$(curl --fail -s "${METADATA_URL}local-ipv4")
-echo COREOS_PRIVATE_IPV4=${PRIVATE_IP} >> $ENV
+echo FLATCAR_PRIVATE_IPV4=${PRIVATE_IP} >> $ENV

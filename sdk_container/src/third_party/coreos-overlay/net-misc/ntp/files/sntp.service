@@ -7,7 +7,7 @@ Conflicts=systemd-timesyncd.service
 
 [Service]
 Type=oneshot
-Environment="SERVER=0.coreos.pool.ntp.org 1.coreos.pool.ntp.org 2.coreos.pool.ntp.org 3.coreos.pool.ntp.org"
+Environment="SERVER=0.flatcar.pool.ntp.org 1.flatcar.pool.ntp.org 2.flatcar.pool.ntp.org 3.flatcar.pool.ntp.org"
 ExecStart=/usr/bin/sntp -s $SERVER
 RemainAfterExit=yes
 

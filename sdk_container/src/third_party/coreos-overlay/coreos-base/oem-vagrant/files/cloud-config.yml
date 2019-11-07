@@ -7,14 +7,14 @@ coreos:
         content: |
           [Service]
           Type=oneshot
-          ExecStart=/bin/mkdir -p /var/lib/coreos-vagrant
+          ExecStart=/bin/mkdir -p /var/lib/flatcar-vagrant
       - name: coreos-cloudinit-vagrant-user.path
         command: start
         runtime: yes
         content: |
           [Path]
-          PathExists=/var/lib/coreos-vagrant/vagrantfile-user-data
-          Unit=user-cloudinit@var-lib-coreos\x2dvagrant-vagrantfile\x2duser\x2ddata.service
+          PathExists=/var/lib/flatcar-vagrant/vagrantfile-user-data
+          Unit=user-cloudinit@var-lib-flatcar\x2dvagrant-vagrantfile\x2duser\x2ddata.service
     oem:
       id: vagrant
       name: Vagrant

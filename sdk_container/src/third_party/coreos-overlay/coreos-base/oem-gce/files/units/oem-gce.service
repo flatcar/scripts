@@ -19,7 +19,7 @@ ExecStart=/usr/bin/rkt run \
     --volume=etc,kind=host,source=/etc,readOnly=false \
     --volume=home,kind=host,source=/home,readOnly=false \
     --volume=runsystemd,kind=host,source=/run/systemd,readOnly=false \
-    /usr/share/oem/coreos-oem-gce.aci
+    /usr/share/oem/flatcar-oem-gce.aci
 
 ExecStopPost=/usr/bin/rkt gc --mark-only
 

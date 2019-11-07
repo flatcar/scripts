@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-CROS_WORKON_PROJECT="coreos/sdnotify-proxy"
+CROS_WORKON_PROJECT="flatcar-linux/sdnotify-proxy"
 CROS_WORKON_LOCALNAME="sdnotify-proxy"
 CROS_WORKON_REPO="git://github.com"
 COREOS_GO_PACKAGE="github.com/coreos/sdnotify-proxy"
@@ -11,7 +11,7 @@ inherit coreos-go cros-workon
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	CROS_WORKON_COMMIT="f516129af110fd4a51bd5ea2654f4dc8dd02e5c4"
+	CROS_WORKON_COMMIT="0f8ef1aa86c59fc6d54eadaffb248feaccd1018b" # flatcar-master
 	KEYWORDS="amd64 arm64"
 fi
 

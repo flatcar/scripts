@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-CROS_WORKON_PROJECT="coreos/torcx"
+CROS_WORKON_PROJECT="flatcar-linux/torcx"
 CROS_WORKON_LOCALNAME="torcx"
 CROS_WORKON_REPO="git://github.com"
 COREOS_GO_PACKAGE="github.com/coreos/torcx"
@@ -34,7 +34,7 @@ src_compile() {
 src_install() {
 	local generatordir=/usr/lib/systemd/system-generators
 	local vendordir=/usr/share/torcx
-	local libcoreosdir=/usr/lib/coreos
+	local libcoreosdir=/usr/lib/flatcar
 
 	# Install generator and userland.
 	exeinto "${generatordir}"
@@ -53,6 +53,6 @@ src_install() {
 	for link in {docker-,}{containerd{,-shim},runc} ctr docker-{init,proxy} dockerd tini
 	do ln -fns docker "${ED}/usr/bin/${link}"
 	done
-	exeinto /usr/lib/coreos
+	exeinto /usr/lib/flatcar
 	newexe "${FILESDIR}/dockerd-wrapper.sh" dockerd
 }

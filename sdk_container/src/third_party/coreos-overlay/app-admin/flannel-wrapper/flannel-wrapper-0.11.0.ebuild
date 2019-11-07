@@ -28,7 +28,7 @@ src_install() {
 		tag+="-${ARCH}"
 	fi
 
-	exeinto /usr/lib/coreos
+	exeinto /usr/lib/flatcar
 	doexe "${FILESDIR}"/flannel-wrapper
 
 	sed "s|@FLANNEL_IMAGE_TAG@|${tag}|g" \

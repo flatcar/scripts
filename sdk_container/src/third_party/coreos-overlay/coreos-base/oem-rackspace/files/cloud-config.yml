@@ -34,4 +34,4 @@ coreos:
     name: Rackspace Cloud Servers
     version-id: @@OEM_VERSION_ID@@
     home-url: https://www.rackspace.com/cloud/servers/
-    bug-report-url: https://issues.coreos.com
+    bug-report-url: https://issues.flatcar-linux.org

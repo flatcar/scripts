@@ -1,0 +1,5 @@
+# Enable SELinux for amd64 targets
+app-arch/tar                selinux
+sys-apps/coreutils          selinux
+coreos-base/coreos          selinux
+
