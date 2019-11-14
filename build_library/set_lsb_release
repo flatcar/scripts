@@ -25,7 +25,7 @@ ROOT_FS_DIR="$FLAGS_root"
 [ -n "$ROOT_FS_DIR" ] || die "--root is required."
 [ -d "$ROOT_FS_DIR" ] || die "Root FS does not exist? ($ROOT_FS_DIR)"
 
-OS_NAME="Flatcar Linux by Kinvolk"
+OS_NAME="Flatcar Container Linux by Kinvolk"
 OS_CODENAME="Rhyolite"
 OS_ID="flatcar"
 OS_ID_LIKE="coreos"
