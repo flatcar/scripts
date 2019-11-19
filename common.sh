@@ -384,6 +384,7 @@ if [[ -f ${GCLIENT_ROOT}/src/scripts/.default_board ]]; then
         "'${DEFAULT_BOARD}'"
   fi
 fi
+DEFAULT_BOARD="${DEFAULT_BOARD-amd64-usr}"
 
 # Directory to store built images.  Should be set by sourcing script when used.
 BUILD_DIR=
