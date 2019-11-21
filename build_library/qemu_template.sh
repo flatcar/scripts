@@ -34,7 +34,8 @@ The -a option may be used to specify a particular ssh public key to give
 login access to. If -a is not provided ~/.ssh/id_{dsa,rsa}.pub is used.
 If no public key is provided or found the VM will still boot but you may
 be unable to login unless you built the image yourself after setting a
-password for the core user with the 'set_shared_user_password.sh' script.
+password for the core user with the 'set_shared_user_password.sh' script
+or provide the option \"-append 'flatcar.autologin'\".
 
 Any arguments after -a and -p will be passed through to qemu, -- may be
 used as an explicit separator. See the qemu(1) man page for more details.
