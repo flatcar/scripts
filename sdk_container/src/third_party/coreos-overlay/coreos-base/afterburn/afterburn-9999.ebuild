@@ -42,7 +42,7 @@ bytes-0.4.11
 cc-1.0.26
 cfg-if-0.1.6
 chrono-0.4.6
-clap-2.32.0
+clap-2.33.0
 cloudabi-0.0.3
 colored-1.6.1
 core-foundation-0.5.1
@@ -158,9 +158,9 @@ security-framework-0.2.1
 security-framework-sys-0.2.1
 semver-0.9.0
 semver-parser-0.7.0
-serde-1.0.89
+serde-1.0.90
 serde-xml-rs-0.2.1
-serde_derive-1.0.89
+serde_derive-1.0.90
 serde_json-1.0.39
 serde_urlencoded-0.5.4
 sha2-0.8.0
@@ -173,7 +173,7 @@ slog-term-2.4.0
 smallvec-0.6.7
 stable_deref_trait-1.1.1
 string-0.1.2
-strsim-0.7.0
+strsim-0.8.0
 syn-0.15.23
 syntex-0.42.2
 syntex_errors-0.42.0
@@ -185,7 +185,7 @@ tempfile-3.0.7
 term-0.4.6
 term-0.5.1
 termion-1.5.1
-textwrap-0.10.0
+textwrap-0.11.0
 thread_local-0.3.6
 time-0.1.41
 tokio-0.1.13
