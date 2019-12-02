@@ -324,6 +324,15 @@ install_cross_toolchain() {
     else
         $sudo emerge "${emerge_flags[@]}" \
             "cross-${cross_chost}/gdb" "${cross_pkgs[@]}"
+        if [ "${cross_chost}" = aarch64-cros-linux-gnu ]; then
+          # Here we need to take only the binary packages from the toolchain builds
+          # because the standard Rust packages don't include the arm64 cross target.
+          # Building from source is ok because the cross-compiler got installed.
+          FILTERED="$(echo $PORTAGE_BINHOST | tr ' ' '\n' | grep toolchain | xargs echo)"
+          # If no aarch64 folder exists, try to remove any existing Rust packages.
+          [ ! -d /usr/lib/rust-*/rustlib/aarch64-unknown-linux-gnu ] && ($sudo emerge -C dev-lang/rust || true)
+          $sudo PORTAGE_BINHOST="$FILTERED" emerge "${emerge_flags[@]}" dev-lang/rust
+        fi
     fi
 
     # Setup environment and wrappers for our shiny new toolchain
