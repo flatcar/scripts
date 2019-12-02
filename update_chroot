@@ -27,6 +27,8 @@ DEFINE_boolean skip_toolchain_update "${FLAGS_FALSE}" \
   "Don't update the toolchains."
 DEFINE_string toolchain_boards "" \
   "Extra toolchains to setup for the specified boards."
+DEFINE_string binhost "" \
+  "Use binary packages from a specific location (e.g. https://storage.googleapis.com/flatcar-jenkins/sdk/amd64/2000.0.0/pkgs)"
 
 FLAGS_HELP="usage: $(basename $0) [flags]
 Performs an update of the chroot. This script is called as part of
@@ -57,6 +59,7 @@ PORTAGE_STABLE_OVERLAY="${REPO_ROOT}/src/third_party/portage-stable"
 CROSSDEV_OVERLAY="/usr/local/portage/crossdev"
 COREOS_OVERLAY="${REPO_ROOT}/src/third_party/coreos-overlay"
 COREOS_CONFIG="${COREOS_OVERLAY}/coreos/config"
+PORTAGE_BINHOST="$FLAGS_binhost $(get_sdk_binhost)"
 
 # PORTAGE_USERNAME may already be in the env but set just to be safe.
 : ${PORTAGE_USERNAME:=${USER}}
@@ -83,7 +86,7 @@ PORTDIR_OVERLAY="${CROSSDEV_OVERLAY} ${COREOS_OVERLAY}"
 DISTDIR="${REPO_CACHE_DIR}/distfiles"
 PKGDIR="/var/lib/portage/pkgs"
 PORT_LOGDIR="/var/log/portage"
-PORTAGE_BINHOST="$(get_sdk_binhost)"
+PORTAGE_BINHOST="$PORTAGE_BINHOST"
 PORTAGE_USERNAME="${PORTAGE_USERNAME}"
 MAKEOPTS="--jobs=${NUM_JOBS} --load-average=$((NUM_JOBS * 2))"
 CCACHE_UMASK="002"

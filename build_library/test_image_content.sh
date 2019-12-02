@@ -7,6 +7,7 @@ GLSA_WHITELIST=(
 	201908-14 # backported both CVE fixes
 	201909-01 # perl
 	201909-08 # dbus
+	201904-13 # git
 )
 
 glsa_image() {
