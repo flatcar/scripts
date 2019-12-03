@@ -14,7 +14,7 @@ start_modify_image() {
         FLAGS_from="$(readlink -f "${FLAGS_from}")"
     fi
 
-    local src_image="${FLAGS_from}/${COREOS_PRODUCTION_IMAGE_NAME}"
+    local src_image="${FLAGS_from}/${FLATCAR_PRODUCTION_IMAGE_NAME}"
     if [[ ! -f "${src_image}" ]]; then
         die_notrace "Source image does not exist: ${src_image}"
     fi
@@ -24,7 +24,7 @@ start_modify_image() {
         die_notrace "Source version info does not exist: ${FLAGS_from}/version.txt"
     fi
     source "${FLAGS_from}/version.txt"
-    COREOS_VERSION_STRING="${COREOS_VERSION}"
+    FLATCAR_VERSION_STRING="${FLATCAR_VERSION}"
 
     # Load after version.txt to set the correct output paths
     . "${BUILD_LIBRARY_DIR}/toolchain_util.sh"
@@ -44,7 +44,7 @@ start_modify_image() {
     fi
 
     # Create the output directory and temporary mount points.
-    DST_IMAGE="${BUILD_DIR}/${COREOS_PRODUCTION_IMAGE_NAME}"
+    DST_IMAGE="${BUILD_DIR}/${FLATCAR_PRODUCTION_IMAGE_NAME}"
     ROOT_FS_DIR="${BUILD_DIR}/rootfs"
     mkdir -p "${ROOT_FS_DIR}"
 
@@ -52,10 +52,10 @@ start_modify_image() {
     cp "${src_image}" "${DST_IMAGE}"
 
     # Copy all extra useful things, these do not need to be modified.
-    local update_prefix="${COREOS_PRODUCTION_IMAGE_NAME%_image.bin}_update"
-    local production_prefix="${COREOS_PRODUCTION_IMAGE_NAME%.bin}"
-    local container_prefix="${COREOS_DEVELOPER_CONTAINER_NAME%.bin}"
-    local pcr_data="${COREOS_PRODUCTION_IMAGE_NAME%.bin}_pcr_policy.zip"
+    local update_prefix="${FLATCAR_PRODUCTION_IMAGE_NAME%_image.bin}_update"
+    local production_prefix="${FLATCAR_PRODUCTION_IMAGE_NAME%.bin}"
+    local container_prefix="${FLATCAR_DEVELOPER_CONTAINER_NAME%.bin}"
+    local pcr_data="${FLATCAR_PRODUCTION_IMAGE_NAME%.bin}_pcr_policy.zip"
     EXTRA_FILES=(
         "version.txt"
         "${update_prefix}.bin"
@@ -64,7 +64,7 @@ start_modify_image() {
         "${production_prefix}_contents.txt"
         "${production_prefix}_packages.txt"
         "${production_prefix}_kernel_config.txt"
-        "${COREOS_DEVELOPER_CONTAINER_NAME}"
+        "${FLATCAR_DEVELOPER_CONTAINER_NAME}"
         "${container_prefix}_contents.txt"
         "${container_prefix}_packages.txt"
         )

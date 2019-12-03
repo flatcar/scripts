@@ -21,6 +21,7 @@ SAFE_ARGS=0
 USAGE="Usage: $0 [-a authorized_keys] [--] [qemu options...]
 Options:
     -i FILE     File containing an Ignition config
+                (needs \"-append 'flatcar.first_boot=1'\" for already-booted or PXE images)
     -u FILE     Cloudinit user-data as either a cloud config or script.
     -c FILE     Config drive as an iso or fat filesystem image.
     -a FILE     SSH public keys for login access. [~/.ssh/id_{dsa,rsa}.pub]
@@ -33,7 +34,8 @@ The -a option may be used to specify a particular ssh public key to give
 login access to. If -a is not provided ~/.ssh/id_{dsa,rsa}.pub is used.
 If no public key is provided or found the VM will still boot but you may
 be unable to login unless you built the image yourself after setting a
-password for the core user with the 'set_shared_user_password.sh' script.
+password for the core user with the 'set_shared_user_password.sh' script
+or provide the option \"-append 'flatcar.autologin'\".
 
 Any arguments after -a and -p will be passed through to qemu, -- may be
 used as an explicit separator. See the qemu(1) man page for more details.
@@ -153,6 +155,10 @@ else
             set -- -machine accel=kvm -cpu host -smp "${VM_NCPUS}" "$@" ;;
         amd64-usr+*)
             set -- -machine pc-q35-2.8 -cpu kvm64 -smp 1 -nographic "$@" ;;
+        arm64-usr+aarch64)
+            set -- -machine virt,accel=kvm,gic-version=3 -cpu host -smp "${VM_NCPUS}" -nographic "$@" ;;
+        arm64-usr+*)
+            set -- -machine virt -cpu cortex-a57 -smp 1 -nographic "$@" ;;
         *)
             die "Unsupported arch" ;;
     esac
@@ -173,6 +179,10 @@ if [ -n "${VM_IMAGE}" ]; then
     case "${VM_BOARD}" in
         amd64-usr)
             set -- -drive if=virtio,file="${SCRIPT_DIR}/${VM_IMAGE}" "$@" ;;
+        arm64-usr)
+            set -- -drive if=none,id=blk,file="${SCRIPT_DIR}/${VM_IMAGE}" \
+            -device virtio-blk-device,drive=blk "$@"
+            ;;
         *) die "Unsupported arch" ;;
     esac
 fi
@@ -201,7 +211,7 @@ if [ -n "${VM_PFLASH_RO}" ] && [ -n "${VM_PFLASH_RW}" ]; then
 fi
 
 if [ -n "${IGNITION_CONFIG_FILE}" ]; then
-    set -- -fw_cfg name=opt/com.coreos/config,file="${IGNITION_CONFIG_FILE}" "$@"
+    set -- -fw_cfg name=opt/org.flatcar-linux/config,file="${IGNITION_CONFIG_FILE}" "$@"
 fi
 
 case "${VM_BOARD}" in
@@ -212,6 +222,15 @@ case "${VM_BOARD}" in
             -m ${VM_MEMORY} \
             -netdev user,id=eth0,hostfwd=tcp::"${SSH_PORT}"-:22,hostname="${VM_NAME}" \
             -device virtio-net-pci,netdev=eth0 \
+            -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 \
+            "$@"
+        ;;
+    arm64-usr)
+        qemu-system-aarch64 \
+            -name "$VM_NAME" \
+            -m ${VM_MEMORY} \
+            -netdev user,id=eth0,hostfwd=tcp::"${SSH_PORT}"-:22,hostname="${VM_NAME}" \
+            -device virtio-net-device,netdev=eth0 \
             -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 \
             "$@"
         ;;
