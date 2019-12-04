@@ -38,7 +38,7 @@ src_compile() {
 		go_build "${COREOS_GO_PACKAGE}/cmd/${cmd}"
 	done
 
-	for a in amd64; do
+	for a in amd64 arm64; do
 		mkdir -p "${GOBIN}/${a}"
 		CGO_ENABLED=0 GOBIN="${GOBIN}/${a}" GOARCH=${a} go_build "${COREOS_GO_PACKAGE}/cmd/kolet"
 	done
@@ -53,7 +53,7 @@ src_install() {
 		dobin "${GOBIN}"/"${cmd}"
 	done
 
-	for a in amd64; do
+	for a in amd64 arm64; do
 		exeinto /usr/lib/kola/${a}
 		doexe "${GOBIN}/${a}/kolet"
 	done

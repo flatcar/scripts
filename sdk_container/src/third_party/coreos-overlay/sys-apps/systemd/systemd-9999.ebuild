@@ -78,7 +78,7 @@ RDEPEND="${COMMON_DEPEND}
 		sys-apps/coreutils[kill(-)]
 	) )
 	!sys-auth/nss-myhostname
-	!<sys-kernel/dracut-044
+	!<sys-kernel/dracut-048
 	!sys-fs/eudev
 	!sys-fs/udev"
 

@@ -29,7 +29,7 @@ RDEPEND="
 	)
 	arm64? (
 		sys-boot/grub
-		sys-firmware/edk2
+		sys-firmware/edk2-ovmf
 	)
 	coreos-base/coreos
 	coreos-base/coreos-dev

@@ -48,7 +48,7 @@ QA_MULTILIB_PATHS="usr/lib/modules/.*/build/scripts/.*"
 # not /usr/src/linux-*-flatcar, which does not exist at all.
 KERNEL_DIR="${SYSROOT}/usr/src/${COREOS_KERNEL_SOURCE_NAME}"
 
-# Search for an appropriate config in ${FILESDIR}. The config should reflect
+# Search for an apropriate config in ${FILESDIR}. The config should reflect
 # the kernel version but partial matching is allowed if the config is
 # applicalbe to multiple ebuilds, such as different -r revisions or stable
 # kernel releases. For an amd64 ebuild with version 3.12.4-r2 the order is:
@@ -59,9 +59,8 @@ KERNEL_DIR="${SYSROOT}/usr/src/${COREOS_KERNEL_SOURCE_NAME}"
 #  - amd64_defconfig
 # and similarly for _rcN releases.
 # The first matching config is used, die otherwise.
-find_archconfig() {
-	local config="${ARCH}"_defconfig
-	local base_path="${FILESDIR}/${config}"
+find_config() {
+	local base_path="${FILESDIR}/${1}"
 	local try_suffix try_path
 	for try_suffix in "-${PVR}" "-${PV}" "-${PV%[._]*}" ""; do
 		try_path="${base_path}${try_suffix}"
@@ -71,7 +70,23 @@ find_archconfig() {
 		fi
 	done
 
-	die "No ${config} found for ${PVR} in ${FILESDIR}"
+	die "No ${1} found for ${PVR} in ${FILESDIR}"
+}
+
+find_archconfig () {
+	path=$(find_config "${ARCH}"_defconfig)
+	if [ -z ${path} ]; then
+		die "No arch config found for ${PVR} in ${FILESDIR}"
+	fi
+	echo "${path}"
+}
+
+find_commonconfig () {
+	path=$(find_config commonconfig)
+	if [ -z ${path} ]; then
+		die "No common config found for ${PVR} in ${FILESDIR}"
+	fi
+	echo "${path}"
 }
 
 config_update() {
