@@ -13,8 +13,7 @@ MY_P="${PN}-${MY_PV}"
 SRC_PATH="stable"
 [[ ${PV} = *_rc* ]] && SRC_PATH="rc"
 
-SRC_URI="mirror://samba/${SRC_PATH}/${MY_P}.tar.gz
-	https://dev.gentoo.org/~polynomial-c/samba-4.5.11-disable-python-patches.tar.xz"
+SRC_URI="mirror://samba/${SRC_PATH}/${MY_P}.tar.gz"
 [[ ${PV} = *_rc* ]] || \
 KEYWORDS="alpha amd64 arm arm64 ~hppa ia64 ppc ppc64 sparc x86"
 
@@ -108,7 +107,6 @@ S="${WORKDIR}/${MY_P}"
 PATCHES=(
 	"${FILESDIR}/${PN}-4.4.0-pam.patch"
 	"${FILESDIR}/${PN}-4.5.1-compile_et_fix.patch"
-	"${FILESDIR}/${PN}-glibc-2.26-no_rpc.patch" #637320
 )
 
 #CONFDIR="${FILESDIR}/$(get_version_component_range 1-2)"
@@ -130,15 +128,32 @@ pkg_setup() {
 src_prepare() {
 	default
 
-	# install the patches from tarball(s)
-	eapply "${WORKDIR}/patches"
-
 	sed -e 's:<gpgme\.h>:<gpgme/gpgme.h>:' \
 		-i source4/dsdb/samdb/ldb_modules/password_hash.c \
 		|| die
 
 	# Friggin' WAF shit
 	multilib_copy_sources
+
+	case "${ARCH}" in
+		"amd64")
+			# No need to cross compile for this case.
+			;;
+		"arm" | "arm64")
+			local waf="${T}/waf"
+			cat<<EOF>"${waf}"
+			#!/bin/sh
+			# WAF_BINARY must be set from the ebuild.
+			exec "${WAF_BINARY}" "\$@" --cross-compile --cross-answers="${FILESDIR}/${ARCH}_waf_config_answers"
+EOF
+
+			chmod a+rx "${waf}"
+			WAF_BINARY="${waf}"
+			;;
+		*)
+			die "${P} does not support cross-compiling for ${ARCH}"
+			;;
+	esac
 }
 
 multilib_src_configure() {

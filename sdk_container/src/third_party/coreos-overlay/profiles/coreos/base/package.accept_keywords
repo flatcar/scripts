@@ -67,3 +67,6 @@ dev-util/checkbashisms
 =sys-auth/google-oslogin-20180611 **
 
 =sys-process/tini-0.18.0 ~arm64
+
+=sys-libs/libsepol-2.4 **
+=sys-libs/libselinux-2.4 **

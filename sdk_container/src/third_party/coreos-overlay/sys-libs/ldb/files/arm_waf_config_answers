@@ -1,0 +1,56 @@
+# WAF (the build system used by Samba projects) only supports cross-compilation
+# using an "answers" file.
+#
+# This file contains the config options that WAF can not determine without
+# execution of a sample program on the target platform. The majority of other
+# configure options can be determined through compilation tests alone.
+#
+# In the case that these values need to be checked for a new platform, the
+# string before the colon can be searched for in the files wscript* in the
+# Samba code. This will be the 'msg' argument to a call to CHECK_CODE. The
+# first argument to CHECK_CODE will be a small C code snippet.
+#
+# In some cases the result can be determined by observation. For example
+# where it is known that the behavior only occurs on certain legacy platforms
+# or versions. In other cases the code snippet can be temporarily added to any
+# other convenient executable for an ad hoc test.
+Checking uname sysname type: "Linux"
+Checking uname machine type: "arm"
+Checking uname release type: "Linux"
+Checking uname version type: "Linux"
+Checking simple C program: OK
+Checking for large file support without additional flags: FAIL
+Checking for -D_FILE_OFFSET_BITS=64: OK
+Checking for HAVE_SECURE_MKSTEMP: OK
+rpath library support: OK
+-Wl,--version-script support: OK
+Checking for working strptime: OK
+Checking for C99 vsnprintf: OK
+Checking for HAVE_SHARED_MMAP: OK
+Checking for HAVE_MREMAP: OK
+Checking getconf LFS_CFLAGS: FAIL
+Checking correct behavior of strtoll: OK
+Checking for HAVE_INCOHERENT_MMAP: FAIL
+Checking for HAVE_IFACE_GETIFADDRS: FAIL
+Checking for HAVE_IFACE_IFCONF: FAIL
+Checking for HAVE_IFACE_IFREQ: FAIL
+Checking value of NSIG: "65"
+Checking value of _NSIG: "65"
+Checking value of SIGRTMAX: "64"
+Checking value of SIGRTMIN: "34"
+Checking errno of iconv for illegal multibyte sequence: FAIL
+Checking for kernel change notify support: OK
+Checking for Linux kernel oplocks: OK
+Checking for kernel share modes: OK
+Checking whether POSIX capabilities are available: OK
+Checking if can we convert from CP850 to UCS-2LE: OK
+Checking if can we convert from UTF-8 to UCS-2LE: OK
+vfs_fileid checking for statfs() and struct statfs.f_fsid: OK
+Checking whether we can use Linux thread-specific credentials with 32-bit system calls: OK
+Checking whether fcntl locking is available: OK
+Checking whether fcntl lock supports open file description locks: OK
+Checking for the maximum value of the 'time_t' type: OK
+Checking whether the realpath function allows a NULL argument: OK
+Checking for ftruncate extend: OK
+getcwd takes a NULL argument: OK
+Checking whether the WRFILE -keytab is supported: OK

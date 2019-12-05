@@ -1,17 +1,3 @@
-# Enable SELinux for amd64 targets
-coreos-base/coreos	    selinux
-sys-apps/dbus               selinux
-sys-apps/systemd            selinux
-
-# Enable SELinux for coreutils
-sys-apps/coreutils	    selinux
-
-# Enable SELinux for runc
-app-emulation/runc          selinux
-
-# Enable SELinux for tar
-app-arch/tar                selinux
-
 # Only ship microcode currently distributed by Intel
 # See https://bugs.gentoo.org/654638#c11 by iucode-tool maintainer
 sys-firmware/intel-microcode vanilla
