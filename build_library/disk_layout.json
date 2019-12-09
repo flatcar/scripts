@@ -26,7 +26,7 @@
       "3":{
         "label":"USR-A",
         "uuid":"7130c94a-213a-4e5a-8e26-6cce9662f132",
-        "type":"flatcar-rootfs",
+        "type":"coreos-rootfs",
         "blocks":"2097152",
         "fs_blocks":"260094",
         "fs_type":"ext2",
@@ -36,7 +36,7 @@
       "4":{
         "label":"USR-B",
         "uuid":"e03dd35c-7c2d-4a47-b3fe-27f15780a57c",
-        "type":"flatcar-rootfs",
+        "type":"coreos-rootfs",
         "blocks":"2097152",
         "fs_blocks":"262144"
       },
@@ -56,18 +56,18 @@
       },
       "7":{
         "label":"OEM-CONFIG",
-        "type":"flatcar-reserved",
+        "type":"coreos-reserved",
         "blocks":"131072"
       },
       "8":{
         "type":"blank",
-        "label":"flatcar-reserved",
+        "label":"coreos-reserved",
         "blocks":"0"
       },
       "9":{
         "label":"ROOT",
         "fs_label":"ROOT",
-        "type":"flatcar-resize",
+        "type":"coreos-resize",
         "blocks":"4427776",
         "fs_type":"ext4",
         "mount":"/"
