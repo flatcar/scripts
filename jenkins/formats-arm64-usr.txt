@@ -1,3 +1,4 @@
+ami_vmdk
 openstack
 openstack_mini
 packet
