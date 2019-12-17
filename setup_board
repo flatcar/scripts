@@ -27,6 +27,8 @@ DEFINE_boolean getbinpkg "${FLAGS_TRUE}" \
   "Download binary packages from remote repository."
 DEFINE_string getbinpkgver "" \
   "Use binary packages from a specific version."
+DEFINE_string binhost "" \
+  "Use binary packages from a specific location (e.g. https://storage.googleapis.com/flatcar-jenkins/sdk/amd64/2000.0.0/pkgs)"
 DEFINE_boolean toolchainpkgonly "${FLAGS_FALSE}" \
   "Use binary packages only for the board toolchain."
 DEFINE_integer jobs "${NUM_JOBS}" \
@@ -59,7 +61,7 @@ DEFINE_string variant "" \
   "Board variant."
 
 
-# builds wrappers like equery-amd64-usr.
+# builds wrappers like equery-arm-generic.
 # args:
 #   $1:  command to wrap
 #   rest:  extra arguments to pass to the command
@@ -120,9 +122,9 @@ EOF
 generate_binhost_list() {
   local t
   [[ "${FLAGS_toolchainpkgonly}" -eq "${FLAGS_TRUE}" ]] && t="-t"
-  FLAGS_getbinpkgver="${FLAGS_getbinpkgver/current/${COREOS_VERSION_ID}}"
-  FLAGS_getbinpkgver="${FLAGS_getbinpkgver/latest/${COREOS_VERSION_ID}}"
-  FLAGS_getbinpkgver="${FLAGS_getbinpkgver/sdk/${COREOS_SDK_VERSION}}"
+  FLAGS_getbinpkgver="${FLAGS_getbinpkgver/current/${FLATCAR_VERSION_ID}}"
+  FLAGS_getbinpkgver="${FLAGS_getbinpkgver/latest/${FLATCAR_VERSION_ID}}"
+  FLAGS_getbinpkgver="${FLAGS_getbinpkgver/sdk/${FLATCAR_SDK_VERSION}}"
 
   get_board_binhost $t "${BOARD}" ${FLAGS_getbinpkgver}
 }
@@ -159,7 +161,7 @@ BOARD_ETC="${BOARD_ROOT}/etc"
 BOARD_ARCH=$(get_board_arch "$BOARD")
 BOARD_CHOST=$(get_board_chost ${BOARD})
 PORTAGE_PROFILE=$(get_board_profile "$BOARD")
-BOARD_BINHOST=$(generate_binhost_list)
+BOARD_BINHOST="$FLAGS_binhost $(generate_binhost_list)"
 
 if [[ ${FLAGS_regen_configs_only} -eq ${FLAGS_TRUE} ]]; then
   FLAGS_regen_configs=${FLAGS_TRUE}
@@ -197,6 +199,9 @@ if [ "${FLAGS_usepkg}" -eq "${FLAGS_TRUE}" ]; then
     UPDATE_ARGS+=" --getbinpkg "
   else
     UPDATE_ARGS+=" --nogetbinpkg "
+  fi
+  if [[ -n "${FLAGS_binhost}" ]]; then
+    UPDATE_ARGS+=" --binhost=${FLAGS_binhost} "
   fi
 else
   UPDATE_ARGS+=" --nousepkg"
@@ -318,6 +323,10 @@ if [[ ${FLAGS_regen_configs} -eq ${FLAGS_FALSE} ]]; then
     info "Installing toolchain build dependencies"
     install_cross_libs "${BOARD_CHOST}" ${EMERGE_FLAGS} --buildpkg=n
 
+    info "Building toolchain dependencies"
+    "${EMERGE_WRAPPER}" --buildpkg --buildpkgonly --onlydeps -e \
+        --root="/usr/${BOARD_CHOST}" --sysroot="/usr/${BOARD_CHOST}" \
+        ${EMERGE_TOOLCHAIN_FLAGS} "${TOOLCHAIN_PKGS[@]}"
     info "Building toolchain"
     "${EMERGE_WRAPPER}" --buildpkg --buildpkgonly \
         --root="/usr/${BOARD_CHOST}" --sysroot="/usr/${BOARD_CHOST}" \
