@@ -17,7 +17,7 @@ fi
 inherit coreos-cargo cros-workon
 
 DESCRIPTION="Utility for managing OpenSSH authorized public keys"
-HOMEPAGE="https://github.com/coreos/update-ssh-keys"
+HOMEPAGE="https://github.com/flatcar-linux/update-ssh-keys"
 LICENSE="Apache-2.0"
 SLOT="0"
 

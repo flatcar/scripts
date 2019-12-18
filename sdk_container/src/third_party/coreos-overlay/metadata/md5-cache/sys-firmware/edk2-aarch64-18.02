@@ -1,0 +1,9 @@
+DEFINED_PHASES=install unpack
+DESCRIPTION=Linaro edk2 ARM64 EFI firmware
+EAPI=7
+HOMEPAGE=https://github.com/tianocore/edk2
+KEYWORDS=~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86
+LICENSE=BSD-2-Clause-Patent
+SLOT=0
+SRC_URI=http://releases.linaro.org/reference-platform/enterprise/firmware/18.02/release/qemu-aarch64/QEMU_EFI.fd
+_md5_=222d5440e429ebf579c8bd7473c9e9bc

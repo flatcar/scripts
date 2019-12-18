@@ -1,0 +1,12 @@
+DEFINED_PHASES=info install preinst test unpack
+DEPEND=>=dev-vcs/git-1.8.2.1[curl]
+DESCRIPTION=Development utilities for CoreOS
+EAPI=4
+HOMEPAGE=https://github.com/coreos/dev-util
+IUSE=cros_host test cros_workon_tree_ profiling
+KEYWORDS=amd64 arm x86
+LICENSE=GPL-2
+RDEPEND=cros_host? ( app-emulation/qemu ) app-portage/gentoolkit cros_host? ( app-shells/bash ) !cros_host? ( !chromeos-base/gmerge ) dev-lang/python dev-util/shflags cros_host? ( dev-util/crosutils ) app-crypt/efitools !coreos-base/coreos-installer
+SLOT=0
+_eclasses_=cros-workon	4ad6e6491a1010ad7c875302b3be18ba	desktop	b1d22ac8bdd4679ab79c71aca235009d	epatch	a1bf4756dba418a7238f3be0cb010c54	estack	43ddf5aaffa7a8d0482df54d25a66a1f	eutils	6e6c2737b59a4b982de6fb3ecefd87f8	git-r3	0d4635eeb5a96cd5315597a47eba25c9	ltprune	2729691420b6deeda2a90b1f1183fb55	multilib	1d91b03d42ab6308b5f4f6b598ed110e	preserve-libs	ef207dc62baddfddfd39a164d9797648	python-utils-r1	08e17157a6807add7db1f8d01e7e391f	toolchain-funcs	8c7f9d80beedd16f2e5a7f612c609529	vcs-clean	2a0f74a496fa2b1552c4f3398258b7bf
+_md5_=2c3cefadd310b11d9cfb975d703c7454
