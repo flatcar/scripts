@@ -100,7 +100,23 @@ IGNORE_MISSING = {
                                  SonameAtom("x86_64", "libterm.so")],
 
     "sys-kernel/coreos-modules": [SonameAtom("x86_64", "libc.so.6"),
-                                  SonameAtom("x86_64", "libcrypto.so.1.0.0")],
+                                  SonameAtom("x86_64", "libcrypto.so.1.0.0"),
+                                  SonameAtom("x86_64", "libyaml-0.so.2")],
+
+    "app-emulation/cri-o":       [SonameAtom("x86_64", "libc.so.6"),
+                                  SonameAtom("x86_64", "libdevmapper.so.1.02"),
+                                  SonameAtom("x86_64", "libdl.so.2"),
+                                  SonameAtom("x86_64", "libglib-2.0.so.0"),
+                                  SonameAtom("x86_64", "libpthread.so.0"),
+                                  SonameAtom("x86_64", "librt.so.1"),
+                                  SonameAtom("x86_64", "libseccomp.so.2"),
+                                  SonameAtom("x86_64", "libsystemd.so.0")],
+
+    "app-emulation/cri-tools":   [SonameAtom("x86_64", "libc.so.6"),
+                                  SonameAtom("x86_64", "libpthread.so.0")],
+
+    "net-misc/cni-plugins":      [SonameAtom("x86_64", "libc.so.6"),
+                                  SonameAtom("x86_64", "libpthread.so.0")],
 }
 
 USR_LINKS = ("/bin/", "/sbin/", "/lib/", "/lib32/", "/lib64/")
