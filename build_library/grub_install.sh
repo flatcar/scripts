@@ -36,8 +36,8 @@ switch_to_strict_mode
 . "${BUILD_LIBRARY_DIR}/toolchain_util.sh" || exit 1
 . "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
 
-# Our GRUB lives under coreos/grub so new pygrub versions cannot find grub.cfg
-GRUB_DIR="coreos/grub/${FLAGS_target}"
+# Our GRUB lives under flatcar/grub so new pygrub versions cannot find grub.cfg
+GRUB_DIR="flatcar/grub/${FLAGS_target}"
 
 # GRUB install location inside the SDK
 GRUB_SRC="/usr/lib/grub/${FLAGS_target}"
@@ -47,6 +47,10 @@ CORE_MODULES=( normal search test fat part_gpt search_fs_uuid gzio search_part_l
 
 # Name of the core image, depends on target
 CORE_NAME=
+
+# Whether the SDK's grub or the board root's grub is used. Once amd64 is
+# fixed up the board root's grub will always be used.
+BOARD_GRUB=0
 
 case "${FLAGS_target}" in
     i386-pc)
@@ -60,11 +64,21 @@ case "${FLAGS_target}" in
     x86_64-xen)
         CORE_NAME="core.elf"
         ;;
+    arm64-efi)
+        CORE_MODULES+=( serial linux efi_gop getenv smbios efinet verify http tftp )
+        CORE_NAME="core.efi"
+        BOARD_GRUB=1
+        ;;
     *)
         die_notrace "Unknown GRUB target ${FLAGS_target}"
         ;;
 esac
 
+if [[ $BOARD_GRUB -eq 1 ]]; then
+    info "Updating GRUB in ${BOARD_ROOT}"
+    emerge-${BOARD} --nodeps --select -qugKN sys-boot/grub
+    GRUB_SRC="${BOARD_ROOT}/usr/lib/grub/${FLAGS_target}"
+fi
 [[ -d "${GRUB_SRC}" ]] || die "GRUB not installed at ${GRUB_SRC}"
 
 # In order for grub-setup-bios to properly detect the layout of the disk
@@ -138,7 +152,7 @@ EOF
 # this because we need conflicting default behaviors between verity and
 # non-verity images.
 GRUB_TEMP_DIR=$(mktemp -d)
-if [[ ! -f "${ESP_DIR}/coreos/grub/grub.cfg.tar" ]]; then
+if [[ ! -f "${ESP_DIR}/flatcar/grub/grub.cfg.tar" ]]; then
     info "Generating grub.cfg memdisk"
 
     if [[ ${FLAGS_verity} -eq ${FLAGS_TRUE} ]]; then
@@ -152,7 +166,7 @@ if [[ ! -f "${ESP_DIR}/coreos/grub/grub.cfg.tar" ]]; then
         sed 's/@@MOUNTUSR@@/mount.usr/' > "${GRUB_TEMP_DIR}/grub.cfg"
     fi
 
-    sudo tar cf "${ESP_DIR}/coreos/grub/grub.cfg.tar" \
+    sudo tar cf "${ESP_DIR}/flatcar/grub/grub.cfg.tar" \
 	 -C "${GRUB_TEMP_DIR}" "grub.cfg"
 fi
 
@@ -162,7 +176,7 @@ sudo grub-mkimage \
     --format "${FLAGS_target}" \
     --directory "${GRUB_SRC}" \
     --config "${ESP_DIR}/${GRUB_DIR}/load.cfg" \
-    --memdisk "${ESP_DIR}/coreos/grub/grub.cfg.tar" \
+    --memdisk "${ESP_DIR}/flatcar/grub/grub.cfg.tar" \
     --output "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
     "${CORE_MODULES[@]}"
 
@@ -215,6 +229,18 @@ case "${FLAGS_target}" in
             "${ESP_DIR}/xen/pvboot-x86_64.elf"
         sudo cp "${BUILD_LIBRARY_DIR}/menu.lst" \
             "${ESP_DIR}/boot/grub/menu.lst"
+        ;;
+    arm64-efi)
+        info "Installing default arm64 UEFI bootloader."
+        sudo mkdir -p "${ESP_DIR}/EFI/boot"
+        #FIXME(andrejro): shim not ported to aarch64
+        sudo cp "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
+            "${ESP_DIR}/EFI/boot/bootaa64.efi"
+        if [[ -n "${FLAGS_copy_efi_grub}" ]]; then
+            # copying from vfat so ignore permissions
+            cp --no-preserve=mode "${ESP_DIR}/EFI/boot/bootaa64.efi" \
+                "${FLAGS_copy_efi_grub}"
+        fi
         ;;
 esac
 

@@ -46,6 +46,9 @@ fi
 # Turn on bash debug support if available for backtraces.
 shopt -s extdebug 2>/dev/null
 
+# Source qemu library path
+. /etc/profile.d/qemu-aarch64.sh 2> /dev/null || true
+
 # Output a backtrace all the way back to the raw invocation, suppressing
 # only the _dump_trace frame itself.
 _dump_trace() {
@@ -233,7 +236,7 @@ get_gclient_root() {
 # Populate the ENVIRONMENT_WHITELIST array.
 load_environment_whitelist() {
   ENVIRONMENT_WHITELIST=(
-    COREOS_BUILD_ID
+    FLATCAR_BUILD_ID
     COREOS_OFFICIAL
     GIT_AUTHOR_EMAIL
     GIT_AUTHOR_NAME
@@ -287,39 +290,39 @@ BUILD_LIBRARY_DIR="${SCRIPTS_DIR}/build_library"
 REPO_CACHE_DIR="${REPO_ROOT}/.cache"
 REPO_MANIFESTS_DIR="${REPO_ROOT}/.repo/manifests"
 
-# Source COREOS_VERSION_ID from manifest.
+# Source FLATCAR_VERSION_ID from manifest.
 if [[ -f "${REPO_MANIFESTS_DIR}/version.txt" ]]; then
   # The build id may be provided externally by the build system.
-  if [[ -n ${COREOS_BUILD_ID} ]]; then
+  if [[ -n ${FLATCAR_BUILD_ID} ]]; then
     load_environment_var "${REPO_MANIFESTS_DIR}/version.txt" \
-    COREOS_VERSION_ID COREOS_SDK_VERSION
+    FLATCAR_VERSION_ID FLATCAR_SDK_VERSION
   else
     load_environment_var "${REPO_MANIFESTS_DIR}/version.txt" \
-    COREOS_VERSION_ID COREOS_BUILD_ID COREOS_SDK_VERSION
-    # Don't promote COREOS_BUILD_ID into an environment variable when it
+    FLATCAR_VERSION_ID FLATCAR_BUILD_ID FLATCAR_SDK_VERSION
+    # Don't promote FLATCAR_BUILD_ID into an environment variable when it
     # didn't start as one, since we don't want it leaking into the SDK
     # chroot environment via ENVIRONMENT_WHITELIST.
-    declare +x COREOS_BUILD_ID
+    declare +x FLATCAR_BUILD_ID
   fi
-  : ${COREOS_BUILD_ID:=$(date +%Y-%m-%d-%H%M)}
+  : ${FLATCAR_BUILD_ID:=$(date +%Y-%m-%d-%H%M)}
 elif [[ -f "${SCRIPT_LOCATION}/version.txt" ]]; then
   # This only happens in update.zip where we must use the current build id.
   load_environment_var "${SCRIPT_LOCATION}/version.txt" \
-      COREOS_VERSION_ID COREOS_BUILD_ID COREOS_SDK_VERSION
+      FLATCAR_VERSION_ID FLATCAR_BUILD_ID FLATCAR_SDK_VERSION
 else
   die "Unable to locate version.txt"
 fi
 
 # Official builds must set COREOS_OFFICIAL=1 to use an official version.
 # Unofficial builds always appended the build identifier.
-if [[ ${COREOS_OFFICIAL:-0} -ne 1 && -n "${COREOS_BUILD_ID}" ]]; then
-  COREOS_VERSION="${COREOS_VERSION_ID}+${COREOS_BUILD_ID}"
+if [[ ${COREOS_OFFICIAL:-0} -ne 1 && -n "${FLATCAR_BUILD_ID}" ]]; then
+  FLATCAR_VERSION="${FLATCAR_VERSION_ID}+${FLATCAR_BUILD_ID}"
 else
-  COREOS_VERSION="${COREOS_VERSION_ID}"
+  FLATCAR_VERSION="${FLATCAR_VERSION_ID}"
 fi
 
 # Compatibility alias
-COREOS_VERSION_STRING="${COREOS_VERSION}"
+FLATCAR_VERSION_STRING="${FLATCAR_VERSION}"
 
 # Calculate what today's build version should be, used by release
 # scripts to provide a reasonable default value. The value is the number
@@ -328,7 +331,7 @@ readonly COREOS_EPOCH=1372636800
 TODAYS_VERSION=$(( (`date +%s` - ${COREOS_EPOCH}) / 86400 ))
 
 # Download URL prefix for SDK and board binary packages
-: ${COREOS_DEV_BUILDS:=http://builds.developer.core-os.net}
+: ${FLATCAR_DEV_BUILDS:=https://storage.googleapis.com/flatcar-jenkins}
 
 # Load developer's custom settings.  Default location is in scripts dir,
 # since that's available both inside and outside the chroot.  By convention,
@@ -383,16 +386,15 @@ if [[ -f ${GCLIENT_ROOT}/src/scripts/.default_board ]]; then
     die ".default_board: invalid name detected; please fix:" \
         "'${DEFAULT_BOARD}'"
   fi
-elif [ -z "${DEFAULT_BOARD-}" ]; then
-  DEFAULT_BOARD=amd64-usr
 fi
+DEFAULT_BOARD="${DEFAULT_BOARD-amd64-usr}"
 
 # Directory to store built images.  Should be set by sourcing script when used.
 BUILD_DIR=
 
 # Standard filenames
-COREOS_DEVELOPER_CONTAINER_NAME="coreos_developer_container.bin"
-COREOS_PRODUCTION_IMAGE_NAME="coreos_production_image.bin"
+FLATCAR_DEVELOPER_CONTAINER_NAME="flatcar_developer_container.bin"
+FLATCAR_PRODUCTION_IMAGE_NAME="flatcar_production_image.bin"
 
 # -----------------------------------------------------------------------------
 # Functions
@@ -928,10 +930,21 @@ BOAT
 }
 
 # The binfmt_misc support in the kernel is required.
+# The aarch64 binaries should be executed through
+# "/usr/bin/qemu-aarch64-static"
 setup_qemu_static() {
   local root_fs_dir="$1"
   case "${BOARD}" in
     amd64-usr) return 0;;
+    arm64-usr)
+      if [[ -f "${root_fs_dir}/sbin/ldconfig" ]]; then
+        sudo cp /usr/bin/qemu-aarch64 "${root_fs_dir}"/usr/bin/qemu-aarch64-static
+        echo export QEMU_LD_PREFIX=\"/build/arm64-usr/\" | sudo tee /etc/profile.d/qemu-aarch64.sh
+        . /etc/profile.d/qemu-aarch64.sh
+      else
+        die "Missing basic layout in target rootfs"
+      fi
+    ;;
     *) die "Unsupported arch" ;;
   esac
 }
@@ -940,6 +953,13 @@ clean_qemu_static() {
   local root_fs_dir="$1"
   case "${BOARD}" in
     amd64-usr) return 0;;
+    arm64-usr)
+      if [[ -f "${root_fs_dir}/usr/bin/qemu-aarch64-static" ]]; then
+        sudo rm "${root_fs_dir}"/usr/bin/qemu-aarch64-static
+      else
+        die "File not found"
+      fi
+    ;;
     *) die "Unsupported arch" ;;
   esac
 }
