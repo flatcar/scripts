@@ -8,6 +8,7 @@ GLSA_WHITELIST=(
 	201909-01 # perl
 	201909-08 # dbus
 	201904-13 # git
+	201911-01 # package too old to even have the affected USE flag
 )
 
 glsa_image() {
