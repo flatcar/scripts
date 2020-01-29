@@ -149,3 +149,20 @@ EOF
   fi
   upload_image -d "${BUILD_DIR}/${image_name}.bz2.DIGESTS" "${to_upload[@]}"
 }
+
+create_prod_tar() {
+  local image_name="$1"
+  local image="${BUILD_DIR}/${image_name}"
+  local container="${BUILD_DIR}/flatcar-container.tar.gz"
+  local lodev="$(sudo losetup --find --show -r -P "${image}")"
+  local lodevbase="$(basename "${lodev}")"
+  sudo mkdir -p "/mnt/${lodevbase}p9"
+  sudo mount "${lodev}p9" "/mnt/${lodevbase}p9"
+  sudo mount "${lodev}p3" "/mnt/${lodevbase}p9/usr"
+  sudo tar --xattrs -czpf "${container}" -C "/mnt/${lodevbase}p9" .
+  sudo umount "/mnt/${lodevbase}p9/usr"
+  sudo umount "/mnt/${lodevbase}p9"
+  sudo rmdir "/mnt/${lodevbase}p9"
+  sudo losetup --detach "${lodev}"
+  upload_image "${container}"
+}
