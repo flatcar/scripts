@@ -73,4 +73,4 @@ script build_image \
     --torcx_manifest=/mnt/host/source/torcx/torcx_manifest.json \
     --torcx_root=/mnt/host/source/torcx/ \
     --upload_root="${UPLOAD_ROOT}" \
-    --upload prod container
+    --upload prodtar container
