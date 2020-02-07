@@ -15,6 +15,7 @@ TOOLCHAIN_PKGS=(
 # compiler to build a full native toolchain. Packages are not uploaded.
 declare -A CROSS_PROFILES
 CROSS_PROFILES["x86_64-cros-linux-gnu"]="coreos:coreos/amd64/generic"
+CROSS_PROFILES["aarch64-cros-linux-gnu"]="coreos:coreos/arm64/generic"
 
 # Map board names to CHOSTs and portage profiles. This is the
 # definitive list, there is assorted code new and old that either
@@ -22,6 +23,9 @@ CROSS_PROFILES["x86_64-cros-linux-gnu"]="coreos:coreos/amd64/generic"
 declare -A BOARD_CHOSTS BOARD_PROFILES
 BOARD_CHOSTS["amd64-usr"]="x86_64-cros-linux-gnu"
 BOARD_PROFILES["amd64-usr"]="coreos:coreos/amd64/generic"
+
+BOARD_CHOSTS["arm64-usr"]="aarch64-cros-linux-gnu"
+BOARD_PROFILES["arm64-usr"]="coreos:coreos/arm64/generic"
 
 BOARD_NAMES=( "${!BOARD_CHOSTS[@]}" )
 
@@ -139,14 +143,14 @@ get_board_binhost() {
     shift
 
     if [[ $# -eq 0 ]]; then
-        set -- "${COREOS_SDK_VERSION}" "${COREOS_VERSION_ID}"
+        set -- "${FLATCAR_SDK_VERSION}" "${FLATCAR_VERSION_ID}"
     fi
 
     for ver in "$@"; do
         if [[ $toolchain_only -eq 0 ]]; then
-            echo "${COREOS_DEV_BUILDS}/boards/${board}/${ver}/pkgs/"
+            echo "${FLATCAR_DEV_BUILDS}/boards/${board}/${ver}/pkgs/"
         fi
-        echo "${COREOS_DEV_BUILDS}/boards/${board}/${ver}/toolchain/"
+        echo "${FLATCAR_DEV_BUILDS}/boards/${board}/${ver}/toolchain/"
     done
 }
 
@@ -168,12 +172,12 @@ get_sdk_libdir() {
 get_sdk_binhost() {
     local arch=$(get_sdk_arch) ver
     if [[ $# -eq 0 ]]; then
-        set -- "${COREOS_SDK_VERSION}" "${COREOS_VERSION_ID}"
+        set -- "${FLATCAR_SDK_VERSION}" "${FLATCAR_VERSION_ID}"
     fi
 
     for ver in "$@"; do
-        echo "${COREOS_DEV_BUILDS}/sdk/${arch}/${ver}/pkgs/"
-        echo "${COREOS_DEV_BUILDS}/sdk/${arch}/${ver}/toolchain/"
+        echo "${FLATCAR_DEV_BUILDS}/sdk/${arch}/${ver}/pkgs/"
+        echo "${FLATCAR_DEV_BUILDS}/sdk/${arch}/${ver}/toolchain/"
     done
 }
 
@@ -320,6 +324,15 @@ install_cross_toolchain() {
     else
         $sudo emerge "${emerge_flags[@]}" \
             "cross-${cross_chost}/gdb" "${cross_pkgs[@]}"
+        if [ "${cross_chost}" = aarch64-cros-linux-gnu ]; then
+          # Here we need to take only the binary packages from the toolchain builds
+          # because the standard Rust packages don't include the arm64 cross target.
+          # Building from source is ok because the cross-compiler got installed.
+          FILTERED="$(echo $PORTAGE_BINHOST | tr ' ' '\n' | grep toolchain | xargs echo)"
+          # If no aarch64 folder exists, try to remove any existing Rust packages.
+          [ ! -d /usr/lib/rust-*/rustlib/aarch64-unknown-linux-gnu ] && ($sudo emerge -C dev-lang/rust || true)
+          $sudo PORTAGE_BINHOST="$FILTERED" emerge "${emerge_flags[@]}" dev-lang/rust
+        fi
     fi
 
     # Setup environment and wrappers for our shiny new toolchain
