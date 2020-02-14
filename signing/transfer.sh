@@ -2,9 +2,7 @@
 
 set -eux
 
-declare -A APPID
-APPID[amd64-usr]=e96281a6-d1af-4bde-9a0a-97b76e56dc57
-APPID[arm64-usr]=103867da-e3a2-4c92-b0b3-7fbd7f7d8b71
+APPID=e96281a6-d1af-4bde-9a0a-97b76e56dc57
 
 declare -A RELEASE_CHANNEL
 RELEASE_CHANNEL[alpha]=Alpha
@@ -92,7 +90,7 @@ upload() {
     "$(dirname $0)/../core_roller_upload" \
         --user="${ROLLER_USERNAME}" \
         --api_key="${ROLLER_API_KEY}" \
-        --app_id="${APPID[${board}]}" \
+        --app_id="${APPID}" \
         --board="${board}" \
         --version="${version}" \
         --payload="${payload}"
@@ -111,7 +109,7 @@ upload() {
             --user="${ROLLER_USERNAME}" \
             --key="${ROLLER_API_KEY}" \
             channel update \
-            --app-id="${APPID[${board}]}" \
+            --app-id="${APPID}" \
             --channel="${canary_channel}" \
             --version="${version}"
     fi
@@ -130,7 +128,7 @@ ready() {
         --user="${ROLLER_USERNAME}" \
         --key="${ROLLER_API_KEY}" \
         group percent \
-        --app-id="${APPID[${board}]}" \
+        --app-id="${APPID}" \
         --group-id="${channel}" \
         --update-percent=0
 
@@ -141,7 +139,7 @@ ready() {
         --user="${ROLLER_USERNAME}" \
         --key="${ROLLER_API_KEY}" \
         channel update \
-        --app-id="${APPID[${board}]}" \
+        --app-id="${APPID}" \
         --channel="${RELEASE_CHANNEL[${channel}]}" \
         --publish=true \
         --version="${version}"
@@ -162,7 +160,7 @@ roll() {
             --user="${ROLLER_USERNAME}" \
             --key="${ROLLER_API_KEY}" \
             group percent \
-            --app-id="${APPID[${board}]}" \
+            --app-id="${APPID}" \
             --group-id="${channel}" \
             --update-percent=100
     else
@@ -174,7 +172,7 @@ roll() {
             --user="${ROLLER_USERNAME}" \
             --key="${ROLLER_API_KEY}" \
             rollout create linear \
-            --app-id="${APPID[${board}]}" \
+            --app-id="${APPID}" \
             --group-id="${channel}" \
             --duration="${seconds}" \
             --frame-size="60"
