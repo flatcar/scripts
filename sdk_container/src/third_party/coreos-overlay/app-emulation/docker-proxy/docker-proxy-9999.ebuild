@@ -5,7 +5,7 @@ EAPI=6
 EGO_PN="github.com/docker/libnetwork"
 
 COREOS_GO_PACKAGE="${EGO_PN}"
-COREOS_GO_VERSION="go1.10"
+COREOS_GO_VERSION="go1.13"
 
 if [[ ${PV} == *9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
