@@ -5,7 +5,7 @@ EAPI=6
 
 GITHUB_URI="github.com/containerd/containerd"
 COREOS_GO_PACKAGE="${GITHUB_URI}"
-COREOS_GO_VERSION="go1.10"
+COREOS_GO_VERSION="go1.13"
 
 if [[ ${PV} == *9999 ]]; then
 	EGIT_REPO_URI="https://${GITHUB_URI}.git"
