@@ -6,7 +6,7 @@ HOMEPAGE=https://dockerproject.org
 IUSE=apparmor aufs +btrfs +container-init +device-mapper hardened +overlay pkcs11 seccomp +journald +selinux kernel_linux cros_workon_tree_ profiling +go_version_go1_7
 KEYWORDS=amd64 arm64
 LICENSE=Apache-2.0
-RDEPEND=>=dev-db/sqlite-3.7.9:3 device-mapper? ( >=sys-fs/lvm2-2.02.89[thin] ) journald? ( >=sys-apps/systemd-225 ) seccomp? ( >=sys-libs/libseccomp-2.2.1[static-libs] ) apparmor? ( sys-libs/libapparmor ) !app-emulation/docker-bin >=net-firewall/iptables-1.4 sys-process/procps >=dev-vcs/git-1.7 >=app-arch/xz-utils-4.9 ~app-emulation/containerd-0.2.6[seccomp?] ~app-emulation/docker-runc-1.0.0_rc2_p136[apparmor?,seccomp?] ~app-emulation/docker-proxy-0.8.0_p20161019 container-init? ( >=sys-process/tini-0.13.0 )
+RDEPEND=>=dev-db/sqlite-3.7.9:3 device-mapper? ( >=sys-fs/lvm2-2.02.89[thin] ) journald? ( >=sys-apps/systemd-225 ) seccomp? ( >=sys-libs/libseccomp-2.2.1[static-libs] ) apparmor? ( sys-libs/libapparmor ) !app-emulation/docker-bin >=net-firewall/iptables-1.4 sys-process/procps >=dev-vcs/git-1.7 >=app-arch/xz-utils-4.9 ~app-emulation/containerd-0.2.6[seccomp?] ~app-emulation/docker-runc-1.0.0_rc10[apparmor?,seccomp?] ~app-emulation/docker-proxy-0.8.0_p20161019 container-init? ( >=sys-process/tini-0.13.0 )
 REQUIRED_USE=go_version_go1_7
 RESTRICT=installsources strip
 SLOT=0
