@@ -1,0 +1,47 @@
+name: Get the latest Kernel release for Edge
+on:
+  schedule:
+    - cron:  '0 7 * * *'
+
+jobs:
+  get-kernel-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Fetch latest Kernel release
+        id: fetch-latest-release
+        env:
+          KV_EDGE: 5.5
+        run: |
+          git clone https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux
+          versionEdge=$(git -C linux tag | sed -n "/^v${KV_EDGE}.[0-9]*$/s/^v//p" | sort -ruV | head -1)
+          rm -rf linux
+          echo ::set-output name=VERSION_EDGE::$(echo ${versionEdge})
+          echo ::set-output name=BASE_BRANCH_EDGE::flatcar-master-edge
+      - name: Set up Flatcar SDK
+        id: setup-flatcar-sdk
+        env:
+          CORK_VERSION: 0.13.2
+        run: .github/workflows/setup-flatcar-sdk.sh
+      - name: Apply patch for Edge
+        id: apply-patch-edge
+        env:
+          BASE_BRANCH: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_EDGE }}
+          KERNEL_VERSION: 5.5
+          PATH: ${{ steps.setup-flatcar-sdk.outputs.path }}
+          VERSION_NEW: ${{ steps.fetch-latest-release.outputs.VERSION_EDGE }}
+        run: .github/workflows/kernel-apply-patch.sh
+      - name: Create pull request for Edge
+        uses: peter-evans/create-pull-request@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_EDGE }}
+          branch: linux-${{ steps.fetch-latest-release.outputs.VERSION_EDGE }}-edge
+          author: Flatcar Buildbot <buildbot@flatcar-linux.org>
+          committer: Flatcar Buildbot <buildbot@flatcar-linux.org>
+          title: Upgrade Linux Kernel in Edge from ${{ steps.apply-patch-edge.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_EDGE }}
+          commit-message: Upgrade Linux Kernel in Edge from ${{ steps.apply-patch-edge.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_EDGE }}
+          body: Upgrade Linux Kernel in Edge from ${{ steps.apply-patch-edge.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_EDGE }}
+          labels: edge
