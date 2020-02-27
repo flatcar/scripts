@@ -401,7 +401,7 @@ def FormatExt(part, device):
   if 'fs_label' in part:
     tune_cmd += ['-L', part['fs_label']]
 
-  if part['type'] == 'coreos-usr':
+  if part['type'] == 'flatcar-usr':
     tune_cmd += ['-U', 'clear',
                  '-T', '20091119110000',
                  '-c', '0', '-i', '0', # Disable auto fsck

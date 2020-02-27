@@ -85,7 +85,7 @@ create_prod_image() {
 
   # Assert that if this is supposed to be an official build that the
   # official update keys have been used.
-  if [[ ${COREOS_OFFICIAL:-0} -eq 1 ]]; then
+  if [[ ${COREOS_OFFICIAL:-0} -eq 1 && "${BOARD}" != arm64-usr ]]; then
       grep -q official \
           "${root_fs_dir}"/var/db/pkg/coreos-base/coreos-au-key-*/USE \
           || die_notrace "coreos-au-key is missing the 'official' use flag"
@@ -141,8 +141,28 @@ EOF
     "${BUILD_DIR}/${image_kernel}"
     "${BUILD_DIR}/${image_pcr_policy}"
     "${BUILD_DIR}/${image_grub}"
-    "${BUILD_DIR}/${image_shim}"
     "${BUILD_DIR}/${image_kconfig}"
   )
+  # FIXME(bgilbert): no shim on arm64
+  if [[ -f "${BUILD_DIR}/${image_shim}" ]]; then
+    to_upload+=("${BUILD_DIR}/${image_shim}")
+  fi
   upload_image -d "${BUILD_DIR}/${image_name}.bz2.DIGESTS" "${to_upload[@]}"
+}
+
+create_prod_tar() {
+  local image_name="$1"
+  local image="${BUILD_DIR}/${image_name}"
+  local container="${BUILD_DIR}/flatcar-container.tar.gz"
+  local lodev="$(sudo losetup --find --show -r -P "${image}")"
+  local lodevbase="$(basename "${lodev}")"
+  sudo mkdir -p "/mnt/${lodevbase}p9"
+  sudo mount "${lodev}p9" "/mnt/${lodevbase}p9"
+  sudo mount "${lodev}p3" "/mnt/${lodevbase}p9/usr"
+  sudo tar --xattrs -czpf "${container}" -C "/mnt/${lodevbase}p9" .
+  sudo umount "/mnt/${lodevbase}p9/usr"
+  sudo umount "/mnt/${lodevbase}p9"
+  sudo rmdir "/mnt/${lodevbase}p9"
+  sudo losetup --detach "${lodev}"
+  upload_image "${container}"
 }
