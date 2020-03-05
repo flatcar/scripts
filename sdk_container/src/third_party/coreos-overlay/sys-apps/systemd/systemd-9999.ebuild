@@ -292,8 +292,8 @@ multilib_src_configure() {
 		# Disable the "First Boot Wizard", it isn't very applicable to CoreOS
 		-Dfirstboot=false
 
-		# Preserve the v238 network interface naming scheme for compatibility.
-		-Ddefault-net-naming-scheme=v238
+		# Set latest network interface naming scheme for https://github.com/flatcar-linux/Flatcar/issues/36
+		-Ddefault-net-naming-scheme=latest
 
 		# unported options, still needed?
 		-Defi-cc="$(tc-getCC)"
