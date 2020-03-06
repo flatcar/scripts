@@ -22,7 +22,7 @@ done
 # We can only create the actual commit in the actual source directory, not under the SDK.
 # So create a format-patch, and apply to the actual source.
 git add sys-kernel/coreos-*
-git commit -a -m "sys-kernel/coreos-sources: Upgrade Linux ${versionOld} to ${VERSION_NEW}"
+git commit -a -m "sys-kernel: Upgrade Linux ${versionOld} to ${VERSION_NEW}"
 git format-patch -1 --stdout HEAD > "${branch}".patch
 popd || exit
 
