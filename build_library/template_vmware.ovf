@@ -17,7 +17,7 @@
     <Info>A virtual machine</Info>
     <Name>@@NAME@@</Name>
     <ProductSection ovf:required="false">
-      <Info>CoreOS Virtual Appliance</Info>
+      <Info>Flatcar Container Linux Virtual Appliance</Info>
       <Property ovf:userConfigurable="true" ovf:type="string"
                 ovf:key="guestinfo.hostname" ovf:value="">
         <Label>Hostname</Label>
@@ -25,18 +25,33 @@
       </Property>
       <Property ovf:userConfigurable="true" ovf:type="string"
                 ovf:key="guestinfo.coreos.config.data" ovf:value="">
-        <Label>CoreOS config data</Label>
+        <Label>CoreOS config data (deprecated)</Label>
         <Description>Inline cloud-config data</Description>
       </Property>
       <Property ovf:userConfigurable="true" ovf:type="string"
+                ovf:key="guestinfo.ignition.config.data" ovf:value="">
+        <Label>Ignition config data</Label>
+        <Description>Inline Ignition data</Description>
+      </Property>
+      <Property ovf:userConfigurable="true" ovf:type="string"
                 ovf:key="guestinfo.coreos.config.url" ovf:value="">
-        <Label>CoreOS config url</Label>
+        <Label>CoreOS config url (deprecated)</Label>
         <Description>URL to cloud-config data</Description>
       </Property>
       <Property ovf:userConfigurable="true" ovf:type="string"
+                ovf:key="guestinfo.ignition.config.url" ovf:value="">
+        <Label>Ignition config url</Label>
+        <Description>URL to Ignition data</Description>
+      </Property>
+      <Property ovf:userConfigurable="true" ovf:type="string"
                 ovf:key="guestinfo.coreos.config.data.encoding" ovf:value="">
-        <Label>CoreOS config data encoding</Label>
+        <Label>CoreOS config data encoding (deprecated)</Label>
         <Description>Encoding for cloud-config data</Description>
+      </Property>
+      <Property ovf:userConfigurable="true" ovf:type="string"
+                ovf:key="guestinfo.ignition.config.data.encoding" ovf:value="">
+        <Label>Ignition config data encoding</Label>
+        <Description>Encoding for Ignition data (e.g., base64)</Description>
       </Property>
       <Property ovf:userConfigurable="true" ovf:type="string"
                 ovf:key="guestinfo.interface.0.name" ovf:value="">
