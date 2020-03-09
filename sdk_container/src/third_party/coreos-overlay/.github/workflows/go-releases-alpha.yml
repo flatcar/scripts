@@ -1,0 +1,47 @@
+name: Get the latest Go release for Alpha
+on:
+  schedule:
+    - cron:  '15 7 * * *'
+
+jobs:
+  get-go-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Fetch latest Go release
+        id: fetch-latest-release
+        env:
+          GO_VERSION: 1.13
+        run: |
+          git clone https://github.com/golang/go
+          versionAlpha=$(git -C go tag | sed -n "/^go${GO_VERSION}.[0-9]*$/s/^go//p" | sort -ruV | head -1)
+          rm -rf go
+          echo ::set-output name=VERSION_ALPHA::$(echo ${versionAlpha})
+          echo ::set-output name=BASE_BRANCH_ALPHA::flatcar-master-alpha
+      - name: Set up Flatcar SDK
+        id: setup-flatcar-sdk
+        env:
+          CORK_VERSION: 0.13.2
+        run: .github/workflows/setup-flatcar-sdk.sh
+      - name: Apply patch for Alpha
+        id: apply-patch-alpha
+        env:
+          BASE_BRANCH: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_ALPHA }}
+          GO_VERSION: 1.13
+          PATH: ${{ steps.setup-flatcar-sdk.outputs.path }}
+          VERSION_NEW: ${{ steps.fetch-latest-release.outputs.VERSION_ALPHA }}
+        run: .github/workflows/go-apply-patch.sh
+      - name: Create pull request for Alpha
+        uses: peter-evans/create-pull-request@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_ALPHA }}
+          branch: go-${{ steps.fetch-latest-release.outputs.VERSION_ALPHA }}-alpha
+          author: Flatcar Buildbot <buildbot@flatcar-linux.org>
+          committer: Flatcar Buildbot <buildbot@flatcar-linux.org>
+          title: Upgrade Go in Alpha from ${{ steps.apply-patch-alpha.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_ALPHA }}
+          commit-message: Upgrade Go in Alpha from ${{ steps.apply-patch-alpha.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_ALPHA }}
+          body: Upgrade Go in Alpha from ${{ steps.apply-patch-alpha.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_ALPHA }}
+          labels: alpha
