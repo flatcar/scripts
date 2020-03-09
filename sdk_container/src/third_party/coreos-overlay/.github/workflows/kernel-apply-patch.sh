@@ -8,7 +8,7 @@ pushd ~/flatcar-sdk/src/third_party/coreos-overlay || exit
 git checkout -B "${branch}" "github/${BASE_BRANCH}"
 
 versionOld=$(sed -n "s/^DIST patch-\(${KERNEL_VERSION}.[0-9]*\).*/\1/p" sys-kernel/coreos-sources/Manifest)
-[[ "${VERSION_NEW}" = "$versionOld" ]] && echo "already the latest Kernel, nothing to do" && exit 1
+[[ "${VERSION_NEW}" = "$versionOld" ]] && echo "already the latest Kernel, nothing to do" && exit
 
 for pkg in sources modules kernel; do \
   pushd "sys-kernel/coreos-${pkg}" >/dev/null || exit; \
