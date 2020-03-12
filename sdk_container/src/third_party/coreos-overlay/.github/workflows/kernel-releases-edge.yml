@@ -15,8 +15,8 @@ jobs:
         env:
           KV_EDGE: 5.5
         run: |
-          git clone https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux
-          versionEdge=$(git -C linux tag | sed -n "/^v${KV_EDGE}.[0-9]*$/s/^v//p" | sort -ruV | head -1)
+          git clone --depth=1 --no-checkout https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux
+          versionEdge=$(git -C linux ls-remote --tags origin | cut -f2 | sed -n "/refs\/tags\/v${KV_EDGE}.[0-9]*$/s/^refs\/tags\/v//p" | sort -ruV | head -1)
           rm -rf linux
           echo ::set-output name=VERSION_EDGE::$(echo ${versionEdge})
           echo ::set-output name=BASE_BRANCH_EDGE::flatcar-master-edge

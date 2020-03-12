@@ -15,8 +15,8 @@ jobs:
         env:
           KV_ALPHA: 4.19
         run: |
-          git clone https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux
-          versionAlpha=$(git -C linux tag | sed -n "/^v${KV_ALPHA}.[0-9]*$/s/^v//p" | sort -ruV | head -1)
+          git clone --depth=1 --no-checkout https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux
+          versionAlpha=$(git -C linux ls-remote --tags origin | cut -f2 | sed -n "/refs\/tags\/v${KV_ALPHA}.[0-9]*$/s/^refs\/tags\/v//p" | sort -ruV | head -1)
           rm -rf linux
           echo ::set-output name=VERSION_ALPHA::$(echo ${versionAlpha})
           echo ::set-output name=BASE_BRANCH_ALPHA::flatcar-master-alpha
