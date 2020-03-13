@@ -1,0 +1,37 @@
+on:
+  repository_dispatch:
+    types: [cargo-pull-request-alpha]
+
+jobs:
+  flatcar-rust-prs:
+    runs-on: ubuntu-latest
+    env:
+      GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
+    steps:
+      - uses: actions/checkout@v2
+      - name: Fetch latest Cargo release
+        id: fetch-latest-release
+        run: |
+          git clone --depth=1 --no-checkout https://github.com/rust-lang/rust
+          versionAlpha=$(git -C rust ls-remote --tags origin | cut -f2 | sed -n "/refs\/tags\/1.[0-9]*.[0-9]*$/s/^refs\/tags\///p" | sort -ruV | head -n1)
+          rm -rf rust
+          echo ::set-output name=VERSION_ALPHA::$(echo ${versionAlpha})
+          echo ::set-output name=BASE_BRANCH_ALPHA::flatcar-master-alpha
+      - name: Apply patch for Alpha
+        id: apply-patch-alpha
+        env:
+          BASE_BRANCH: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_ALPHA }}
+          VERSION_NEW: ${{ steps.fetch-latest-release.outputs.VERSION_ALPHA }}
+        run: .github/workflows/rust-apply-patch.sh
+      - name: Create pull request for Alpha
+        uses: peter-evans/create-pull-request@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_ALPHA }}
+          branch: rust-${{ steps.fetch-latest-release.outputs.VERSION_ALPHA }}-alpha
+          author: Flatcar Buildbot <buildbot@flatcar-linux.org>
+          committer: Flatcar Buildbot <buildbot@flatcar-linux.org>
+          title: Upgrade Cargo in Alpha from ${{ steps.apply-patch-alpha.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_ALPHA }}
+          commit-message: Upgrade Cargo in Alpha from ${{ steps.apply-patch-alpha.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_ALPHA }}
+          body: Upgrade Cargo in Alpha from ${{ steps.apply-patch-alpha.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_ALPHA }}
+          labels: alpha
