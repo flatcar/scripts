@@ -1,0 +1,47 @@
+name: Get the latest Docker release for Alpha
+on:
+  schedule:
+    - cron:  '35 7 * * *'
+
+jobs:
+  get-docker-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Fetch latest Docker release
+        id: fetch-latest-release
+        run: |
+          git clone https://github.com/docker/docker-ce docker
+          versionAlpha=$(git -C docker ls-remote --tags origin | cut -f2 | sed -n "/refs\/tags\/v[0-9]*.[0-9]*.[0-9]*$/s/^refs\/tags\/v//p" | egrep -v -e '(beta|rc)' | sort -ruV | head -n1)
+          commitAlpha=$(git -C docker rev-parse --short=7 v${versionAlpha})
+          rm -rf docker
+          echo ::set-output name=VERSION_ALPHA::$(echo ${versionAlpha})
+          echo ::set-output name=COMMIT_ALPHA::$(echo ${commitAlpha})
+          echo ::set-output name=BASE_BRANCH_ALPHA::flatcar-master-alpha
+      - name: Set up Flatcar SDK
+        id: setup-flatcar-sdk
+        env:
+          CORK_VERSION: 0.13.2
+        run: .github/workflows/setup-flatcar-sdk.sh
+      - name: Apply patch for Alpha
+        id: apply-patch-alpha
+        env:
+          BASE_BRANCH: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_ALPHA }}
+          VERSION_NEW: ${{ steps.fetch-latest-release.outputs.VERSION_ALPHA }}
+          COMMIT_HASH: ${{ steps.fetch-latest-release.outputs.COMMIT_ALPHA }}
+          PATH: ${{ steps.setup-flatcar-sdk.outputs.path }}
+        run: .github/workflows/docker-apply-patch.sh
+      - name: Create pull request for Alpha
+        uses: peter-evans/create-pull-request@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_ALPHA }}
+          branch: docker-${{ steps.fetch-latest-release.outputs.VERSION_ALPHA }}-alpha
+          author: Flatcar Buildbot <buildbot@flatcar-linux.org>
+          committer: Flatcar Buildbot <buildbot@flatcar-linux.org>
+          title: Upgrade Docker in Alpha from ${{ steps.apply-patch-alpha.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_ALPHA }}
+          commit-message: Upgrade Docker in Alpha from ${{ steps.apply-patch-alpha.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_ALPHA }}
+          body: Upgrade Docker in Alpha from ${{ steps.apply-patch-alpha.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_ALPHA }}
+          labels: alpha
