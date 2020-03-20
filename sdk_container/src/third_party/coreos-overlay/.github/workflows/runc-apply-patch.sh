@@ -7,7 +7,10 @@ branch="runc-${VERSION_NEW}"
 pushd ~/flatcar-sdk/src/third_party/coreos-overlay || exit
 git checkout -B "${branch}" "github/${BASE_BRANCH}"
 
-VERSION_OLD=$(sed -n "s/^DIST docker-runc-\([0-9]*.[0-9]*.*\)\.tar.*/\1/p" app-emulation/docker-runc/Manifest | sort -ruV | head -n1 | tr '-' '_')
+# Get the original runc version, including official releases and rc versions.
+# We need some sed tweaks like adding underscore, sort, and trim the underscore again,
+# so that sort -V can give the newest version including non-rc versions.
+VERSION_OLD=$(sed -n "s/^DIST docker-runc-\([0-9]*.[0-9]*.*\)\.tar.*/\1/p" app-emulation/docker-runc/Manifest | sed '/-/!{s/$/_/}' | sort -ruV | sed 's/_$//' | head -n1 | tr '-' '_')
 [[ "${VERSION_NEW}" = "${VERSION_OLD}" ]] && echo "already the latest Runc, nothing to do" && exit
 
 runcEbuildOld=$(ls -1 app-emulation/docker-runc/docker-runc-${VERSION_OLD}*.ebuild | sort -ruV | head -n1)
