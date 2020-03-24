@@ -1,7 +1,7 @@
 # Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 GENTOO_DEPEND_ON_PERL=no
 
@@ -46,7 +46,7 @@ if [[ ${PV} != *9999 ]]; then
 			${SRC_URI_KORG}/${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 			)"
 	[[ "${PV}" == *_rc* ]] || \
-	KEYWORDS="~alpha amd64 arm arm64 hppa ia64 ~mips ppc ppc64 ~riscv s390 sh sparc x86 ~ppc-aix ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~riscv ~s390 ~sh ~sparc ~x86 ~ppc-aix ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 fi
 
 LICENSE="GPL-2"
@@ -54,7 +54,7 @@ SLOT="0"
 IUSE="+blksha1 +curl cgi doc emacs gnome-keyring +gpg highlight +iconv libressl mediawiki mediawiki-experimental +nls +pcre +pcre-jit perforce +perl +ppcsha1 tk +threads +webdav xinetd cvs subversion test"
 
 # Common to both DEPEND and RDEPEND
-CDEPEND="
+DEPEND="
 	gnome-keyring? ( app-crypt/libsecret )
 	!libressl? ( dev-libs/openssl:0= )
 	libressl? ( dev-libs/libressl:= )
@@ -73,7 +73,7 @@ CDEPEND="
 	iconv? ( virtual/libiconv )
 "
 
-RDEPEND="${CDEPEND}
+RDEPEND="${DEPEND}
 	gpg? ( app-crypt/gnupg )
 	perl? (
 		dev-perl/Error
@@ -106,7 +106,7 @@ RDEPEND="${CDEPEND}
 #   .txt/asciidoc --(asciidoc)---------> .xml/docbook
 #   .xml/docbook  --(docbook2texi.pl)--> .texi
 #   .texi         --(makeinfo)---------> .info
-DEPEND="${CDEPEND}
+BDEPEND="
 	doc? (
 		app-text/asciidoc
 		app-text/docbook2X
@@ -114,11 +114,12 @@ DEPEND="${CDEPEND}
 		sys-apps/texinfo
 	)
 	nls? ( sys-devel/gettext )
-	test? (	app-crypt/gnupg	)"
+	test? (	app-crypt/gnupg	)
+"
 
 # Live ebuild builds man pages and HTML docs, additionally
 if [[ ${PV} == *9999 ]]; then
-	DEPEND="${DEPEND}
+	BDEPEND="${BDEPEND}
 		app-text/asciidoc"
 fi
 
@@ -146,8 +147,6 @@ PATCHES=(
 
 	# Make submodule output quiet
 	"${FILESDIR}"/git-2.21.0-quiet-submodules-testcase.patch
-
-	"${FILESDIR}"/git-2.23.0-avoid_empty_remote_line.patch #698384
 )
 
 pkg_setup() {
@@ -164,7 +163,9 @@ pkg_setup() {
 # This is needed because for some obscure reasons future calls to make don't
 # pick up these exports if we export them in src_unpack()
 exportmakeopts() {
-	local myopts=(
+	local extlibs myopts
+
+	myopts=(
 		ASCIIDOC_NO_ROFF=YesPlease
 		$(usex cvs '' NO_CVS=YesPlease)
 		$(usex elibc_musl NO_REGEX=YesPlease '')
@@ -241,12 +242,14 @@ exportmakeopts() {
 			NEEDS_LIBICONV=YesPlease
 			HAVE_CLOCK_MONOTONIC=1
 		)
-		grep -q getdelim "${ROOT%/}"/usr/include/stdio.h && \
+		if grep -q getdelim "${EROOT}"/usr/include/stdio.h ; then
 			myopts+=( HAVE_GETDELIM=1 )
+		fi
 	fi
 
-	has_version '>=app-text/asciidoc-8.0' \
-		&& myopts+=( ASCIIDOC8=YesPlease )
+	if has_version '>=app-text/asciidoc-8.0' ; then
+		myopts+=( ASCIIDOC8=YesPlease )
+	fi
 
 	# Bug 290465:
 	# builtin-fetch-pack.c:816: error: 'struct stat' has no member named 'st_mtim'
@@ -447,7 +450,7 @@ src_install() {
 		#elisp-install ${PN}/compat contrib/emacs/vc-git.{el,elc}
 		# don't add automatically to the load-path, so the sitefile
 		# can do a conditional loading
-		touch "${ED%/}${SITELISP}/${PN}/compat/.nosearch"
+		touch "${ED}${SITELISP}/${PN}/compat/.nosearch"
 		elisp-site-file-install "${FILESDIR}"/${SITEFILE}
 	fi
 
@@ -536,7 +539,7 @@ src_install() {
 	for i in "${contrib_objects[@]}" ; do
 		cp -rf \
 			"${S}"/contrib/${i} \
-			"${ED%/}"/usr/share/${PN}/contrib \
+			"${ED}"/usr/share/${PN}/contrib \
 			|| die "Failed contrib ${i}"
 	done
 
@@ -552,19 +555,19 @@ src_install() {
 		newdoc  "${S}"/gitweb/INSTALL INSTALL.gitweb
 		newdoc  "${S}"/gitweb/README README.gitweb
 
-		for d in "${ED%/}"/usr/lib{,64}/perl5/ ; do
+		for d in "${ED}"/usr/lib{,64}/perl5/ ; do
 			if test -d "${d}" ; then find "${d}" \
 				-name .packlist \
 				-delete || die
 			fi
 		done
 	else
-		rm -rf "${ED%/}"/usr/share/gitweb
+		rm -rf "${ED}"/usr/share/gitweb
 	fi
 
 	if ! use subversion ; then
-		rm -f "${ED%/}"/usr/libexec/git-core/git-svn \
-			"${ED%/}"/usr/share/man/man1/git-svn.1*
+		rm -f "${ED}"/usr/libexec/git-core/git-svn \
+			"${ED}"/usr/share/man/man1/git-svn.1*
 	fi
 
 	if use xinetd ; then
@@ -585,8 +588,8 @@ src_install() {
 	# we could remove sources in src_prepare, but install does not
 	# handle missing locale dir well
 	rm_loc() {
-		if [[ -e "${ED%/}/usr/share/locale/${1}" ]]; then
-			rm -r "${ED%/}/usr/share/locale/${1}" || die
+		if [[ -e "${ED}/usr/share/locale/${1}" ]]; then
+			rm -r "${ED}/usr/share/locale/${1}" || die
 		fi
 	}
 	l10n_for_each_disabled_locale_do rm_loc
@@ -696,7 +699,7 @@ src_test() {
 	nonfatal git_emake aggregate-results
 
 	# And bail if there was a problem
-	[ ${rc} -eq 0 ] || die "tests failed. Please file a bug."
+	[[ ${rc} -eq 0 ]] || die "tests failed. Please file a bug."
 }
 
 showpkgdeps() {
