@@ -1,10 +1,10 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
-PYTHON_COMPAT=( python{2_7,3_4,3_5,3_6} )
+EAPI=7
+PYTHON_COMPAT=( python{3_6,3_7} )
 
-inherit epatch eutils flag-o-matic python-single-r1
+inherit eutils flag-o-matic python-single-r1
 
 export CTARGET=${CTARGET:-${CHOST}}
 if [[ ${CTARGET} == ${CHOST} ]] ; then
@@ -14,32 +14,16 @@ if [[ ${CTARGET} == ${CHOST} ]] ; then
 fi
 is_cross() { [[ ${CHOST} != ${CTARGET} ]] ; }
 
-RPM=
-MY_PV=${PV}
 case ${PV} in
 9999*)
 	# live git tree
-	EGIT_REPO_URI="git://sourceware.org/git/binutils-gdb.git"
+	EGIT_REPO_URI="https://sourceware.org/git/binutils-gdb.git"
 	inherit git-r3
 	SRC_URI=""
 	;;
 *.*.50.2???????)
 	# weekly snapshots
 	SRC_URI="ftp://sourceware.org/pub/gdb/snapshots/current/gdb-weekly-${PV}.tar.xz"
-	;;
-*.*.*.*.*.*)
-	# fedora versions; note we swap the rpm & fedora core versions.
-	# gdb-6.8.50.20090302-8.fc11.src.rpm -> gdb-6.8.50.20090302.11.8.ebuild
-	# gdb-7.9-11.fc23.src.rpm -> gdb-7.9.23.11.ebuild
-	inherit versionator rpm
-	gvcr() { get_version_component_range "$@"; }
-	parse_fedora_ver() {
-		set -- $(get_version_components)
-		MY_PV=$(gvcr 1-$(( $# - 2 )))
-		RPM="${PN}-${MY_PV}-$(gvcr $#).fc$(gvcr $(( $# - 1 ))).src.rpm"
-	}
-	parse_fedora_ver
-	SRC_URI="mirror://fedora-dev/development/rawhide/source/SRPMS/g/${RPM}"
 	;;
 *)
 	# Normal upstream release
@@ -60,26 +44,42 @@ SRC_URI="${SRC_URI}
 LICENSE="GPL-2 LGPL-2"
 SLOT="0"
 if [[ ${PV} != 9999* ]] ; then
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sh ~sparc ~x86 ~ppc-aix ~x64-cygwin ~amd64-linux ~x86-linux ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 fi
-IUSE="+client lzma multitarget nls +python +server test vanilla xml"
+IUSE="+client lzma multitarget nls +python +server source-highlight test vanilla xml xxhash"
 REQUIRED_USE="
 	python? ( ${PYTHON_REQUIRED_USE} )
 	|| ( client server )
 "
 
+# ia64 kernel crashes when gdb testsuite is running
+# hppa kernel crashes when gdb testsuite is running
+RESTRICT="
+	hppa? ( test )
+	ia64? ( test )
+
+	!test? ( test )
+"
+
 RDEPEND="
-	server? ( !dev-util/gdbserver )
 	client? (
 		dev-libs/mpfr:0=
 		>=sys-libs/ncurses-5.2-r2:0=
-		sys-libs/readline:0=
+		>=sys-libs/readline-7:0=
 		lzma? ( app-arch/xz-utils )
 		python? ( ${PYTHON_DEPS} )
 		xml? ( dev-libs/expat )
 		sys-libs/zlib
-	)"
-DEPEND="${RDEPEND}
+	)
+	source-highlight? (
+		dev-util/source-highlight
+	)
+	xxhash? (
+		dev-libs/xxhash
+	)
+"
+DEPEND="${RDEPEND}"
+BDEPEND="
 	app-arch/xz-utils
 	sys-apps/texinfo
 	client? (
@@ -88,16 +88,15 @@ DEPEND="${RDEPEND}
 		nls? ( sys-devel/gettext )
 	)"
 
-S=${WORKDIR}/${PN}-${MY_PV}
+PATCHES=(
+	"${FILESDIR}"/${PN}-8.3.1-verbose-build.patch
+)
 
 pkg_setup() {
 	use python && python-single-r1_pkg_setup
 }
 
 src_prepare() {
-	[[ -n ${RPM} ]] && rpm_spec_epatch "${WORKDIR}"/gdb.spec
-	! use vanilla && [[ -n ${PATCH_VER} ]] && EPATCH_SUFFIX="patch" epatch "${WORKDIR}"/patch
-
 	default
 
 	strip-linguas -u bfd/po opcodes/po
@@ -117,6 +116,11 @@ src_configure() {
 	strip-unsupported-flags
 
 	local myconf=(
+		# portage's econf() does not detect presence of --d-d-t
+		# because it greps only top-level ./configure. But not
+		# gnulib's or gdb's configure.
+		--disable-dependency-tracking
+
 		--with-pkgversion="$(gdb_branding)"
 		--with-bugurl='https://bugs.gentoo.org/'
 		--disable-werror
@@ -165,8 +169,10 @@ src_configure() {
 			$(use_with xml expat)
 			$(use_with lzma)
 			$(use_enable nls)
+			$(use_enable source-highlight)
 			$(use multitarget && echo --enable-targets=all)
 			$(use_with python python "${EPYTHON}")
+			$(use_with xxhash)
 		)
 	fi
 	if use sparc-solaris || use x86-solaris ; then
@@ -176,10 +182,6 @@ src_configure() {
 	fi
 
 	econf "${myconf[@]}"
-}
-
-src_test() {
-	nonfatal emake check || ewarn "tests failed"
 }
 
 src_install() {
@@ -239,6 +241,10 @@ src_install() {
 	# gcore is part of ubin on freebsd
 	if [[ ${CHOST} == *-freebsd* ]]; then
 		rm "${ED}"/usr/bin/gcore || die
+	fi
+
+	if use python; then
+		python_optimize "${ED}"/usr/share/gdb/python/gdb
 	fi
 }
 
