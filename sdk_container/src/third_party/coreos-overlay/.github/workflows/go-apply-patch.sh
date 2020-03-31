@@ -14,7 +14,12 @@ pushd "dev-lang/go" >/dev/null || exit
 git mv $(ls -1 go-${versionOld}*.ebuild | sort -ruV | head -n1) "go-${VERSION_NEW}.ebuild"
 popd >/dev/null || exit
 
-( cd ../../..; exec cork enter -- ebuild "/mnt/host/source/src/third_party/coreos-overlay/dev-lang/go/go-${VERSION_NEW}.ebuild" manifest --force )
+function enter() ( cd ../../..; exec cork enter -- $@ )
+
+enter ebuild "/mnt/host/source/src/third_party/coreos-overlay/dev-lang/go/go-${VERSION_NEW}.ebuild" manifest --force
+
+# Generate metadata after the main commit was done.
+enter /mnt/host/source/src/scripts/update_metadata --commit coreos
 
 # We can only create the actual commit in the actual source directory, not under the SDK.
 # So create a format-patch, and apply to the actual source.
