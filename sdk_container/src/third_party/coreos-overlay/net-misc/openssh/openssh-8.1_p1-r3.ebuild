@@ -1,47 +1,52 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-inherit user flag-o-matic multilib autotools pam systemd
+inherit user-info flag-o-matic multilib autotools pam systemd toolchain-funcs
 
 # Make it more portable between straight releases
 # and _p? releases.
 PARCH=${P/_}
-#HPN_PV="${PV^^}"
-HPN_PV="7.8_P1"
+HPN_PV="${PV^^}"
 
-HPN_VER="14.16"
+HPN_VER="14.20"
 HPN_PATCHES=(
 	${PN}-${HPN_PV/./_}-hpn-DynWinNoneSwitch-${HPN_VER}.diff
 	${PN}-${HPN_PV/./_}-hpn-AES-CTR-${HPN_VER}.diff
+	${PN}-${HPN_PV/./_}-hpn-PeakTput-${HPN_VER}.diff
 )
 
 SCTP_VER="1.2" SCTP_PATCH="${PARCH}-sctp-${SCTP_VER}.patch.xz"
-X509_VER="11.6" X509_PATCH="${PARCH}+x509-${X509_VER}.diff.gz"
+X509_VER="12.3" X509_PATCH="${PARCH}+x509-${X509_VER}.diff.gz"
 
 PATCH_SET="openssh-7.9p1-patches-1.0"
 
 DESCRIPTION="Port of OpenBSD's free SSH release"
 HOMEPAGE="https://www.openssh.com/"
 SRC_URI="mirror://openbsd/OpenSSH/portable/${PARCH}.tar.gz
-	https://dev.gentoo.org/~whissi/dist/${PN}/${PATCH_SET}.tar.xz
-	${SCTP_PATCH:+sctp? ( https://dev.gentoo.org/~whissi/dist/openssh/${SCTP_PATCH} )}
-	${HPN_VER:+hpn? ( $(printf "mirror://sourceforge/hpnssh/HPN-SSH%%20${HPN_VER/./v}%%20${HPN_PV/_}/%s\n" "${HPN_PATCHES[@]}") )}
+	https://dev.gentoo.org/~chutzpah/dist/openssh/${P}-glibc-2.31-patches.tar.xz
+	${SCTP_PATCH:+sctp? ( https://dev.gentoo.org/~chutzpah/dist/openssh/${SCTP_PATCH} )}
+	${HPN_VER:+hpn? ( $(printf "mirror://sourceforge/hpnssh/HPN-SSH%%20${HPN_VER/./v}%%20${HPN_PV/_P/p}/%s\n" "${HPN_PATCHES[@]}") )}
 	${X509_PATCH:+X509? ( https://roumenpetrov.info/openssh/x509-${X509_VER}/${X509_PATCH} )}
-	"
+"
+S="${WORKDIR}/${PARCH}"
 
 LICENSE="BSD GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~ppc-aix ~x64-cygwin ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~riscv s390 sh sparc x86 ~ppc-aix ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 # Probably want to drop ssl defaulting to on in a future version.
-IUSE="abi_mips_n32 audit bindist debug hpn kerberos kernel_linux ldns libedit libressl livecd pam +pie sctp selinux +ssl static test X X509"
+IUSE="abi_mips_n32 audit bindist debug hpn kerberos kernel_linux ldns libedit libressl livecd pam +pie sctp selinux +ssl static test X X509 xmss"
+
 RESTRICT="!test? ( test )"
-REQUIRED_USE="ldns? ( ssl )
+
+REQUIRED_USE="
+	ldns? ( ssl )
 	pie? ( !static )
 	static? ( !kerberos !pam )
 	X509? ( !sctp ssl )
-	test? ( ssl )"
+	test? ( ssl )
+"
 
 LIB_DEPEND="
 	audit? ( sys-process/audit[static-libs(+)] )
@@ -66,22 +71,29 @@ LIB_DEPEND="
 		)
 		libressl? ( dev-libs/libressl:0=[static-libs(+)] )
 	)
-	>=sys-libs/zlib-1.2.3:=[static-libs(+)]"
+	virtual/libcrypt:=[static-libs(+)]
+	>=sys-libs/zlib-1.2.3:=[static-libs(+)]
+"
 RDEPEND="
+	acct-group/sshd
+	acct-user/sshd
 	!static? ( ${LIB_DEPEND//\[static-libs(+)]} )
-	pam? ( virtual/pam )
-	kerberos? ( virtual/krb5 )"
+	pam? ( sys-libs/pam )
+	kerberos? ( virtual/krb5 )
+"
 DEPEND="${RDEPEND}
 	static? ( ${LIB_DEPEND} )
-	virtual/pkgconfig
 	virtual/os-headers
-	sys-devel/autoconf"
+"
 RDEPEND="${RDEPEND}
 	pam? ( >=sys-auth/pambase-20081028 )
-	userland_GNU? ( virtual/shadow )
-	X? ( x11-apps/xauth )"
-
-S="${WORKDIR}/${PARCH}"
+	userland_GNU? ( !prefix? ( sys-apps/shadow ) )
+	X? ( x11-apps/xauth )
+"
+BDEPEND="
+	virtual/pkgconfig
+	sys-devel/autoconf
+"
 
 pkg_pretend() {
 	# this sucks, but i'd rather have people unable to `emerge -u openssh`
@@ -102,53 +114,39 @@ pkg_pretend() {
 	fi
 
 	# Make sure people who are using tcp wrappers are notified of its removal. #531156
-	if grep -qs '^ *sshd *:' "${EROOT%/}"/etc/hosts.{allow,deny} ; then
+	if grep -qs '^ *sshd *:' "${EROOT}"/etc/hosts.{allow,deny} ; then
 		ewarn "Sorry, but openssh no longer supports tcp-wrappers, and it seems like"
-		ewarn "you're trying to use it.  Update your ${EROOT}etc/hosts.{allow,deny} please."
+		ewarn "you're trying to use it.  Update your ${EROOT}/etc/hosts.{allow,deny} please."
 	fi
 }
 
 src_prepare() {
 	sed -i \
-		-e "/_PATH_XAUTH/s:/usr/X11R6/bin/xauth:${EPREFIX%/}/usr/bin/xauth:" \
+		-e "/_PATH_XAUTH/s:/usr/X11R6/bin/xauth:${EPREFIX}/usr/bin/xauth:" \
 		pathnames.h || die
 
 	# don't break .ssh/authorized_keys2 for fun
 	sed -i '/^AuthorizedKeysFile/s:^:#:' sshd_config || die
 
-	eapply "${FILESDIR}"/${PN}-7.9_p1-openssl-1.0.2-compat.patch
 	eapply "${FILESDIR}"/${PN}-7.9_p1-include-stdlib.patch
-	eapply "${FILESDIR}"/${PN}-7.8_p1-GSSAPI-dns.patch #165444 integrated into gsskex
+	eapply "${FILESDIR}"/${PN}-8.1_p1-GSSAPI-dns.patch #165444 integrated into gsskex
 	eapply "${FILESDIR}"/${PN}-6.7_p1-openssl-ignore-status.patch
 	eapply "${FILESDIR}"/${PN}-7.5_p1-disable-conch-interop-tests.patch
-
-	if use X509 ; then
-		# patch doesn't apply due to X509 modifications
-		rm \
-			"${WORKDIR}"/patches/0001-fix-key-type-check.patch \
-			"${WORKDIR}"/patches/0002-request-rsa-sha2-cert-signatures.patch \
-			|| die
-	else
-		eapply "${FILESDIR}"/${PN}-7.9_p1-CVE-2018-20685.patch # X509 patch set includes this patch
-	fi
+	eapply "${FILESDIR}"/${PN}-8.0_p1-fix-putty-tests.patch
+	eapply "${FILESDIR}"/${PN}-8.0_p1-deny-shmget-shmat-shmdt-in-preauth-privsep-child.patch
+	eapply "${FILESDIR}"/${PN}-8.1_p1-tests-2020.patch
 
 	[[ -d ${WORKDIR}/patches ]] && eapply "${WORKDIR}"/patches
 
 	local PATCHSET_VERSION_MACROS=()
 
 	if use X509 ; then
-		pushd "${WORKDIR}" || die
-		eapply "${FILESDIR}/${P}-X509-glue-${X509_VER}.patch"
-		eapply "${FILESDIR}/${P}-X509-dont-make-piddir-${X509_VER}.patch"
-		popd || die
-
-		if use hpn ; then
-			einfo "Will disable MT AES cipher due to incompatbility caused by X509 patch set"
-			HPN_DISABLE_MTAES=1
-		fi
+		pushd "${WORKDIR}" &>/dev/null || die
+		eapply "${FILESDIR}/${P}-X509-glue-"${X509_VER}".patch"
+		popd &>/dev/null || die
 
 		eapply "${WORKDIR}"/${X509_PATCH%.*}
-		eapply "${FILESDIR}"/${P}-X509-${X509_VER}-tests.patch
+		eapply "${FILESDIR}"/${P}-X509-$(ver_cut 1-2 ${X509_VER})-tests.patch
 
 		# We need to patch package version or any X.509 sshd will reject our ssh client
 		# with "userauth_pubkey: could not parse key: string is too large [preauth]"
@@ -182,16 +180,22 @@ src_prepare() {
 
 	if use hpn ; then
 		local hpn_patchdir="${T}/${P}-hpn${HPN_VER}"
-		mkdir "${hpn_patchdir}"
-		cp $(printf -- "${DISTDIR}/%s\n" "${HPN_PATCHES[@]}") "${hpn_patchdir}"
-		pushd "${hpn_patchdir}"
-		eapply "${FILESDIR}"/${P}-hpn-glue.patch
-		use X509 && eapply "${FILESDIR}"/${P}-hpn-X509-glue.patch
-		use sctp && eapply "${FILESDIR}"/${P}-hpn-sctp-glue.patch
-		popd
+		mkdir "${hpn_patchdir}" || die
+		cp $(printf -- "${DISTDIR}/%s\n" "${HPN_PATCHES[@]}") "${hpn_patchdir}" || die
+		pushd "${hpn_patchdir}" &>/dev/null || die
+		eapply "${FILESDIR}"/${PN}-8.1_p1-hpn-${HPN_VER}-glue.patch
+		if use X509; then
+		#	einfo "Will disable MT AES cipher due to incompatbility caused by X509 patch set"
+		#	# X509 and AES-CTR-MT don't get along, let's just drop it
+		#	rm openssh-${HPN_PV//./_}-hpn-AES-CTR-${HPN_VER}.diff || die
+			eapply "${FILESDIR}"/${PN}-8.0_p1-hpn-${HPN_VER}-X509-glue.patch
+		fi
+		use sctp && eapply "${FILESDIR}"/${PN}-8.1_p1-hpn-${HPN_VER}-sctp-glue.patch
+		popd &>/dev/null || die
 
 		eapply "${hpn_patchdir}"
-		eapply "${FILESDIR}/openssh-7.9_p1-hpn-openssl-1.1.patch"
+
+		use X509 || eapply "${FILESDIR}/openssh-8.0_p1-hpn-version.patch"
 
 		einfo "Patching Makefile.in for HPN patch set ..."
 		sed -i \
@@ -274,22 +278,23 @@ src_configure() {
 
 	use debug && append-cppflags -DSANDBOX_SECCOMP_FILTER_DEBUG
 	use static && append-ldflags -static
+	use xmss && append-cflags -DWITH_XMSS
 
 	local myconf=(
 		--with-ldflags="${LDFLAGS}"
 		--disable-strip
 		--with-pid-dir="${EPREFIX}"$(usex kernel_linux '' '/var')/run
-		--sysconfdir="${EPREFIX%/}"/etc/ssh
-		--libexecdir="${EPREFIX%/}"/usr/$(get_libdir)/misc
-		--datadir="${EPREFIX%/}"/usr/share/openssh
-		--with-privsep-path="${EPREFIX%/}"/var/empty
+		--sysconfdir="${EPREFIX}"/etc/ssh
+		--libexecdir="${EPREFIX}"/usr/$(get_libdir)/misc
+		--datadir="${EPREFIX}"/usr/share/openssh
+		--with-privsep-path="${EPREFIX}"/var/empty
 		--with-privsep-user=sshd
 		$(use_with audit audit linux)
-		$(use_with kerberos kerberos5 "${EPREFIX%/}"/usr)
+		$(use_with kerberos kerberos5 "${EPREFIX}"/usr)
 		# We apply the sctp patch conditionally, so can't pass --without-sctp
 		# unconditionally else we get unknown flag warnings.
 		$(use sctp && use_with sctp)
-		$(use_with ldns ldns "${EPREFIX%/}"/usr)
+		$(use_with ldns ldns "${EPREFIX}"/usr)
 		$(use_with libedit)
 		$(use_with pam)
 		$(use_with pie)
@@ -300,8 +305,8 @@ src_configure() {
 		$(use_with !elibc_Cygwin hardening) #659210
 	)
 
-	# stackprotect is broken on musl x86
-	use elibc_musl && use x86 && myconf+=( --without-stackprotect )
+	# stackprotect is broken on musl x86 and ppc
+	use elibc_musl && ( use x86 || use ppc ) && myconf+=( --without-stackprotect )
 
 	# The seccomp sandbox is broken on x32, so use the older method for now. #553748
 	use amd64 && [[ ${ABI} == "x32" ]] && myconf+=( --with-sandbox=rlimit )
@@ -327,7 +332,7 @@ src_test() {
 	mkdir -p "${sshhome}"/.ssh
 	for t in "${tests[@]}" ; do
 		# Some tests read from stdin ...
-		HOMEDIR="${sshhome}" HOME="${sshhome}" \
+		HOMEDIR="${sshhome}" HOME="${sshhome}" SUDO="" \
 		emake -k -j1 ${t} </dev/null \
 			&& passed+=( "${t}" ) \
 			|| failed+=( "${t}" )
@@ -351,7 +356,7 @@ tweak_ssh_configs() {
 	)
 
 	# First the server config.
-	cat <<-EOF >> "${ED%/}"/etc/ssh/sshd_config
+	cat <<-EOF >> "${ED}"/etc/ssh/sshd_config
 
 	# Allow client to pass locale environment variables. #367017
 	AcceptEnv ${locale_vars[*]}
@@ -361,7 +366,7 @@ tweak_ssh_configs() {
 	EOF
 
 	# Then the client config.
-	cat <<-EOF >> "${ED%/}"/etc/ssh/ssh_config
+	cat <<-EOF >> "${ED}"/etc/ssh/ssh_config
 
 	# Send locale environment variables. #367017
 	SendEnv ${locale_vars[*]}
@@ -376,13 +381,13 @@ tweak_ssh_configs() {
 			-e "/^#PasswordAuthentication /s:.*:PasswordAuthentication no:" \
 			-e "/^#PrintMotd /s:.*:PrintMotd no:" \
 			-e "/^#PrintLastLog /s:.*:PrintLastLog no:" \
-			"${ED%/}"/etc/ssh/sshd_config || die
+			"${ED}"/etc/ssh/sshd_config || die
 	fi
 
 	if use livecd ; then
 		sed -i \
 			-e '/^#PermitRootLogin/c# Allow root login with password on livecds.\nPermitRootLogin Yes' \
-			"${ED%/}"/etc/ssh/sshd_config || die
+			"${ED}"/etc/ssh/sshd_config || die
 	fi
 }
 
@@ -407,11 +412,6 @@ src_install() {
 
 	systemd_dounit "${FILESDIR}"/sshd.{service,socket}
 	systemd_newunit "${FILESDIR}"/sshd_at.service 'sshd@.service'
-}
-
-pkg_preinst() {
-	enewgroup sshd 22
-	enewuser sshd 22 -1 /var/empty sshd
 }
 
 pkg_postinst() {
