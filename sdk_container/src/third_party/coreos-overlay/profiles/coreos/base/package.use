@@ -15,7 +15,7 @@ dev-vcs/git		webdav curl bash-completion
 net-misc/curl		kerberos threads
 net-misc/iputils	arping tracepath traceroute
 sys-devel/gettext	-git
-app-emulation/qemu	aio caps curl jpeg ncurses png python threads uuid vhost-net virtfs vnc qemu_softmmu_targets_x86_64 qemu_softmmu_targets_aarch64
+app-emulation/qemu	aio caps curl jpeg ncurses png python threads uuid vhost-net virtfs vnc -xkb qemu_softmmu_targets_x86_64 qemu_softmmu_targets_aarch64
 
 # python3 problems
 app-portage/gentoolkit -python_targets_python3_6
