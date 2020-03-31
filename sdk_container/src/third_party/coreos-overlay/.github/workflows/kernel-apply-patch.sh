@@ -17,7 +17,12 @@ for pkg in sources modules kernel; do \
   popd >/dev/null || exit; \
 done
 
-( cd ../../..; exec cork enter -- ebuild "/mnt/host/source/src/third_party/coreos-overlay/sys-kernel/coreos-sources/coreos-sources-${VERSION_NEW}.ebuild" manifest --force )
+function enter() ( cd ../../..; exec cork enter -- $@ )
+
+enter ebuild "/mnt/host/source/src/third_party/coreos-overlay/sys-kernel/coreos-sources/coreos-sources-${VERSION_NEW}.ebuild" manifest --force
+
+# Generate metadata after the main commit was done.
+enter /mnt/host/source/src/scripts/update_metadata --commit coreos
 
 # We can only create the actual commit in the actual source directory, not under the SDK.
 # So create a format-patch, and apply to the actual source.
