@@ -1,7 +1,7 @@
 # Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="6"
+EAPI="7"
 
 PYTHON_COMPAT=( python3_6 )
 
@@ -20,8 +20,8 @@ else
 
 	# Binary versions taken from fedora:
 	# http://download.fedoraproject.org/pub/fedora/linux/development/rawhide/Everything/x86_64/os/Packages/s/
-	#   seabios-bin-1.10.2-1.fc27.noarch.rpm
-	#   seavgabios-bin-1.10.2-1.fc27.noarch.rpm
+	#   seabios-bin-1.12.1-2.fc31.noarch.rpm
+	#   seavgabios-bin-1.12.1-2.fc31.noarch.rpm
 	SRC_URI="
 		!binary? ( https://code.coreboot.org/p/seabios/downloads/get/${P}.tar.gz )
 		binary? ( https://dev.gentoo.org/~tamiko/distfiles/${P}-bin.tar.xz )"
@@ -72,6 +72,13 @@ src_unpack() {
 	mkdir -p "${S}"
 }
 
+src_prepare() {
+	default
+
+	# Ensure precompiled iasl files are never used
+	find "${WORKDIR}" -name '*.hex' -delete || die
+}
+
 src_configure() {
 	use binary && return
 
@@ -89,6 +96,7 @@ _emake() {
 		CC="$(tc-getCC)" \
 		LD="$(tc-getLD)" \
 		AR="$(tc-getAR)" \
+		AS="$(tc-getAS)" \
 		OBJCOPY="$(tc-getOBJCOPY)" \
 		RANLIB="$(tc-getRANLIB)" \
 		OBJDUMP="$(tc-getOBJDUMP)" \
@@ -100,12 +108,11 @@ _emake() {
 src_compile() {
 	use binary && return
 
-	for t in 128k 256k ; do
-		cp "${FILESDIR}/seabios/config.seabios-${t}" .config || die
-		_emake oldnoconfig
-		_emake out/bios.bin
-		mv out/bios.bin ../bios-${t}.bin || die
-	done
+	cp "${FILESDIR}/seabios/config.seabios-256k" .config || die
+	_emake oldnoconfig
+	_emake iasl
+	_emake out/bios.bin
+	mv out/bios.bin ../bios-256k.bin || die
 
 	if use seavgabios ; then
 		local config t targets=(
@@ -127,10 +134,8 @@ src_compile() {
 }
 
 src_install() {
-
 	insinto /usr/share/seabios
 	use binary && doins ../bios.bin
-	use !binary && newins ../bios-128k.bin bios.bin
 	doins ../bios-256k.bin
 
 	if use seavgabios ; then
