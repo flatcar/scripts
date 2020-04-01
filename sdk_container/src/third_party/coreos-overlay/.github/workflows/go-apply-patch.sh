@@ -18,14 +18,16 @@ function enter() ( cd ../../..; exec cork enter -- $@ )
 
 enter ebuild "/mnt/host/source/src/third_party/coreos-overlay/dev-lang/go/go-${VERSION_NEW}.ebuild" manifest --force
 
-# Generate metadata after the main commit was done.
-enter /mnt/host/source/src/scripts/update_metadata --commit coreos
-
 # We can only create the actual commit in the actual source directory, not under the SDK.
 # So create a format-patch, and apply to the actual source.
 git add dev-lang/go/go-${VERSION_NEW}* metadata
 git commit -a -m "dev-lang/go: Upgrade Go ${versionOld} to ${VERSION_NEW}"
-git format-patch -1 --stdout HEAD > "${branch}".patch
+
+# Generate metadata after the main commit was done.
+enter /mnt/host/source/src/scripts/update_metadata --commit coreos
+
+# Create 2 patches, one for the main ebuilds, the other for metadata changes.
+git format-patch -2 HEAD
 popd || exit
 
 git config user.name 'Flatcar Buildbot'
@@ -33,6 +35,6 @@ git config user.email 'buildbot@flatcar-linux.org'
 git reset --hard HEAD
 git fetch origin
 git checkout -B "${BASE_BRANCH}" "origin/${BASE_BRANCH}"
-git am ~/flatcar-sdk/src/third_party/coreos-overlay/"${branch}".patch
+git am ~/flatcar-sdk/src/third_party/coreos-overlay/0*.patch
 
 echo ::set-output name=VERSION_OLD::"${versionOld}"
