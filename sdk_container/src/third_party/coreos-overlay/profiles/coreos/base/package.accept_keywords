@@ -70,3 +70,5 @@ dev-util/checkbashisms
 
 =sys-libs/libsepol-2.4 **
 =sys-libs/libselinux-2.4 **
+
+=net-misc/openssh-8.1_p1-r3 ~arm64
