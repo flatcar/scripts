@@ -4,7 +4,10 @@ set -euo pipefail
 
 branch="linux-${VERSION_NEW}"
 
-pushd ~/flatcar-sdk/src/third_party/coreos-overlay || exit
+git -C ~/flatcar-sdk/src/scripts checkout -B "${BASE_BRANCH}" "github/${BASE_BRANCH}"
+git -C ~/flatcar-sdk/src/third_party/portage-stable checkout -B "${BASE_BRANCH}" "github/${BASE_BRANCH}"
+
+pushd ~/flatcar-sdk/src/third_party/coreos-overlay >/dev/null || exit
 git checkout -B "${branch}" "github/${BASE_BRANCH}"
 
 versionOld=$(sed -n "s/^DIST patch-\(${KERNEL_VERSION}.[0-9]*\).*/\1/p" sys-kernel/coreos-sources/Manifest)

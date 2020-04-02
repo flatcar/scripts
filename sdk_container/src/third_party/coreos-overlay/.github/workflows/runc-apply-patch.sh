@@ -4,7 +4,10 @@ set -euo pipefail
 
 branch="runc-${VERSION_NEW}"
 
-pushd ~/flatcar-sdk/src/third_party/coreos-overlay || exit
+git -C ~/flatcar-sdk/src/scripts checkout -B "${BASE_BRANCH}" "github/${BASE_BRANCH}"
+git -C ~/flatcar-sdk/src/third_party/portage-stable checkout -B "${BASE_BRANCH}" "github/${BASE_BRANCH}"
+
+pushd ~/flatcar-sdk/src/third_party/coreos-overlay >/dev/null || exit
 git checkout -B "${branch}" "github/${BASE_BRANCH}"
 
 # Get the original runc version, including official releases and rc versions.
