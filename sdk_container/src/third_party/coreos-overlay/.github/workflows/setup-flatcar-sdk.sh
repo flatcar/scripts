@@ -17,6 +17,14 @@ mkdir -p ~/flatcar-sdk
 pushd ~/flatcar-sdk || exit
 cork create || true
 
+sudo tee "./chroot/etc/portage/make.conf" <<EOF
+PORTDIR="/mnt/host/source/src/third_party/portage-stable"
+PORTDIR_OVERLAY="/mnt/host/source/src/third_party/coreos-overlay"
+DISTDIR="/mnt/host/source/.cache/distfiles"
+PKGDIR="/var/lib/portage/pkgs"
+PORT_LOGDIR="/var/log/portage"
+EOF
+
 sudo tee "./chroot/etc/portage/repos.conf/coreos.conf" <<EOF
 [DEFAULT]
 main-repo = portage-stable
