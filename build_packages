@@ -203,7 +203,7 @@ break_dep_loop() {
   # Temporarily compile/install package with flag disabled. If a binary
   # package is available use it regardless of its version or use flags.
   local disabled_flags="${flags[@]/#/-}"
-  info "Merging ${pkg} wtih USE=${disabled_flags}"
+  info "Merging ${pkg} with USE=${disabled_flags}"
   sudo mkdir -p "${flag_file%/*}"
   sudo_clobber "${flag_file}" <<<"${pkg} ${disabled_flags}"
   # Disable any other problematic flags
