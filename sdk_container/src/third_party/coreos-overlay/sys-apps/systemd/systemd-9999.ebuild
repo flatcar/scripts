@@ -422,8 +422,8 @@ multilib_src_install_all() {
 	# Do not ship distro-specific files (nsswitch.conf pam.d)
 	rm -rf "${ED}"/usr/share/factory
 	sed -i "${ED}"/usr/lib/tmpfiles.d/etc.conf \
-		-e '/^C \/etc\/nsswitch\.conf/d' \
-		-e '/^C \/etc\/pam\.d/d'
+		-e '/^C!* \/etc\/nsswitch\.conf/d' \
+		-e '/^C!* \/etc\/pam\.d/d'
 }
 
 migrate_locale() {
