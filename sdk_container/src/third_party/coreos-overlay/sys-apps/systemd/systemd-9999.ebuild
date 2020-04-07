@@ -423,7 +423,8 @@ multilib_src_install_all() {
 	rm -rf "${ED}"/usr/share/factory
 	sed -i "${ED}"/usr/lib/tmpfiles.d/etc.conf \
 		-e '/^C!* \/etc\/nsswitch\.conf/d' \
-		-e '/^C!* \/etc\/pam\.d/d'
+		-e '/^C!* \/etc\/pam\.d/d' \
+		-e '/^C!* \/etc\/issue/d'
 }
 
 migrate_locale() {
