@@ -2,16 +2,14 @@
 
 set -euo pipefail
 
-branch="linux-${VERSION_NEW}"
+. .github/workflows/common.sh
 
-git -C ~/flatcar-sdk/src/scripts checkout -B "${BASE_BRANCH}" "github/${BASE_BRANCH}"
-git -C ~/flatcar-sdk/src/third_party/portage-stable checkout -B "${BASE_BRANCH}" "github/${BASE_BRANCH}"
+checkout_branches "linux-${VERSION_NEW}"
 
-pushd ~/flatcar-sdk/src/third_party/coreos-overlay >/dev/null || exit
-git checkout -B "${branch}" "github/${BASE_BRANCH}"
+pushd "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" >/dev/null || exit
 
-versionOld=$(sed -n "s/^DIST patch-\(${KERNEL_VERSION}.[0-9]*\).*/\1/p" sys-kernel/coreos-sources/Manifest)
-[[ "${VERSION_NEW}" = "$versionOld" ]] && echo "already the latest Kernel, nothing to do" && exit
+VERSION_OLD=$(sed -n "s/^DIST patch-\(${KERNEL_VERSION}.[0-9]*\).*/\1/p" sys-kernel/coreos-sources/Manifest)
+[[ "${VERSION_NEW}" = "${VERSION_OLD}" ]] && echo "already the latest Kernel, nothing to do" && exit
 
 for pkg in sources modules kernel; do \
   pushd "sys-kernel/coreos-${pkg}" >/dev/null || exit; \
@@ -20,27 +18,10 @@ for pkg in sources modules kernel; do \
   popd >/dev/null || exit; \
 done
 
-function enter() ( cd ../../..; exec cork enter -- $@ )
+popd >/dev/null || exit
 
-enter ebuild "/mnt/host/source/src/third_party/coreos-overlay/sys-kernel/coreos-sources/coreos-sources-${VERSION_NEW}.ebuild" manifest --force
+generate_patches sys-kernel coreos-{sources,kernel,modules} Linux
 
-# We can only create the actual commit in the actual source directory, not under the SDK.
-# So create a format-patch, and apply to the actual source.
-git add sys-kernel/coreos-* metadata
-git commit -a -m "sys-kernel: Upgrade Linux ${versionOld} to ${VERSION_NEW}"
+apply_patches
 
-# Generate metadata after the main commit was done.
-enter /mnt/host/source/src/scripts/update_metadata --commit coreos
-
-# Create 2 patches, one for the main ebuilds, the other for metadata changes.
-git format-patch -2 HEAD
-popd || exit
-
-git config user.name 'Flatcar Buildbot'
-git config user.email 'buildbot@flatcar-linux.org'
-git reset --hard HEAD
-git fetch origin
-git checkout -B "${BASE_BRANCH}" "origin/${BASE_BRANCH}"
-git am ~/flatcar-sdk/src/third_party/coreos-overlay/0*.patch
-
-echo ::set-output name=VERSION_OLD::"${versionOld}"
+echo ::set-output name=VERSION_OLD::"${VERSION_OLD}"
