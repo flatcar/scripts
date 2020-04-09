@@ -41,4 +41,5 @@ src_install() {
 
 	insinto /usr/lib/systemd/network
 	doins "${FILESDIR}"/50-flannel.network
+	doins "${FILESDIR}"/50-flannel.link
 }

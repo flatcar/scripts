@@ -3,4 +3,3 @@ Name=flannel*
 
 [Link]
 Unmanaged=yes
-MACAddressPolicy=none
