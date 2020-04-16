@@ -1,12 +1,11 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
-WANT_AUTOCONF="2.5"
+EAPI=7
 
-inherit autotools eutils multilib toolchain-funcs versionator multilib-minimal
+inherit autotools toolchain-funcs multilib-minimal
 
-MIN_PV="$(get_version_component_range 2)"
+MIN_PV="$(ver_cut 2)"
 
 DESCRIPTION="Netscape Portable Runtime"
 HOMEPAGE="http://www.mozilla.org/projects/nspr/"
@@ -14,21 +13,15 @@ SRC_URI="https://archive.mozilla.org/pub/nspr/releases/v${PV}/src/${P}.tar.gz"
 
 LICENSE="|| ( MPL-2.0 GPL-2 LGPL-2.1 )"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
-IUSE="debug"
-
-RDEPEND="
-	abi_x86_32? (
-		!<=app-emulation/emul-linux-x86-baselibs-20140508-r12
-		!app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)]
-	)"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv s390 sparc x86 ~ppc-aix ~amd64-linux ~x86-linux ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
+IUSE="debug elibc_musl"
 
 MULTILIB_CHOST_TOOLS=(
 	/usr/bin/nspr-config
 )
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-4.7.0-prtime.patch
+	"${FILESDIR}"/${PN}-4.23-prtime.patch
 	"${FILESDIR}"/${PN}-4.7.1-solaris.patch
 	"${FILESDIR}"/${PN}-4.10.6-solaris.patch
 	"${FILESDIR}"/${PN}-4.8.4-darwin-install_name.patch
@@ -42,11 +35,16 @@ src_prepare() {
 
 	default
 
+	use elibc_musl && eapply "${FILESDIR}"/${PN}-4.21-ipv6-musl-support.patch
+
 	# rename configure.in to configure.ac for new autotools compatibility
 	if [[ -e "${S}"/nspr/configure.in ]] ; then
 		einfo "Renaming configure.in to configure.ac"
 		mv "${S}"/nspr/configure.{in,ac} || die
+	else
+		elog "configure.in rename logic can be removed from ebuild."
 	fi
+
 	# We must run eautoconf to regenerate configure
 	eautoconf
 
@@ -67,7 +65,11 @@ multilib_src_configure() {
 		&& export CROSS_COMPILE=1 \
 		|| unset CROSS_COMPILE
 
-	local myconf=()
+	local myconf=(
+		--libdir="${EPREFIX}/usr/$(get_libdir)"
+		$(use_enable debug)
+		$(use_enable !debug optimize)
+	)
 
 	# The configure has some fancy --enable-{{n,x}32,64bit} switches
 	# that trigger some code conditional to platform & arch. This really
@@ -96,11 +98,7 @@ multilib_src_configure() {
 	# Ancient autoconf needs help finding the right tools.
 	LC_ALL="C" ECONF_SOURCE="${S}/nspr" \
 	ac_cv_path_AR="${AR}" \
-	econf \
-		--libdir="${EPREFIX}/usr/$(get_libdir)" \
-		$(use_enable debug) \
-		$(use_enable !debug optimize) \
-		"${myconf[@]}"
+	econf "${myconf[@]}"
 }
 
 multilib_src_install() {
@@ -109,7 +107,7 @@ multilib_src_install() {
 	emake DESTDIR="${D}" install
 
 	einfo "removing static libraries as upstream has requested!"
-	rm -f "${ED}"/usr/$(get_libdir)/*.a || die "failed to remove static libraries."
+	rm "${ED}"/usr/$(get_libdir)/*.a || die "failed to remove static libraries."
 
 	# install nspr-config
 	dobin config/nspr-config
