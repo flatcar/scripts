@@ -25,7 +25,7 @@ fi
 
 LICENSE="public-domain"
 SLOT="3"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 m68k ~mips ppc ppc64 ~riscv s390 sparc x86 ~ppc-aix ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv s390 sparc x86 ~ppc-aix ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="debug doc icu +readline secure-delete static-libs tcl test tools"
 if [[ "${PV}" == "9999" ]]; then
 	PROPERTIES="live"
@@ -125,7 +125,6 @@ src_unpack() {
 src_prepare() {
 	if full_archive; then
 		eapply "${FILESDIR}/${PN}-3.29.0-full_archive-build.patch"
-		eapply "${FILESDIR}/${PN}-3.29.0-full_archive-tests.patch"
 
 		eapply_user
 
@@ -250,12 +249,6 @@ multilib_src_configure() {
 	# Support LIMIT and ORDER BY clauses on DELETE and UPDATE statements.
 	# https://sqlite.org/compile.html#enable_update_delete_limit
 	append-cppflags -DSQLITE_ENABLE_UPDATE_DELETE_LIMIT
-
-	# Support PRAGMA function_list, PRAGMA module_list and PRAGMA pragma_list statements.
-	# https://sqlite.org/pragma.html#pragma_function_list
-	# https://sqlite.org/pragma.html#pragma_module_list
-	# https://sqlite.org/pragma.html#pragma_pragma_list
-	append-cppflags -DSQLITE_INTROSPECTION_PRAGMAS
 
 	# Support soundex() function.
 	# https://sqlite.org/lang_corefunc.html#soundex
