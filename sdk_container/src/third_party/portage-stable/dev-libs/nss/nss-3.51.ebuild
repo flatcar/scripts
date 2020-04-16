@@ -1,37 +1,31 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 inherit eutils flag-o-matic multilib toolchain-funcs multilib-minimal
 
-NSPR_VER="4.13.1"
+NSPR_VER="4.25"
 RTM_NAME="NSS_${PV//./_}_RTM"
-# Rev of https://git.fedorahosted.org/cgit/nss-pem.git
-PEM_GIT_REV="429b0222759d8ad8e6dcd29e62875ae3efd69116"
-PEM_P="${PN}-pem-20160329"
 
 DESCRIPTION="Mozilla's Network Security Services library that implements PKI support"
 HOMEPAGE="http://www.mozilla.org/projects/security/pki/nss/"
 SRC_URI="https://archive.mozilla.org/pub/security/nss/releases/${RTM_NAME}/src/${P}.tar.gz
-	cacert? ( https://dev.gentoo.org/~axs/distfiles/${PN}-cacert-class1-class3.patch )
-	nss-pem? ( https://dev.gentoo.org/~polynomial-c/${PEM_P}.tar.xz )"
+	cacert? ( https://dev.gentoo.org/~axs/distfiles/${PN}-cacert-class1-class3.patch )"
 
 LICENSE="|| ( MPL-2.0 GPL-2 LGPL-2.1 )"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
-IUSE="cacert +nss-pem utils"
-CDEPEND=">=dev-db/sqlite-3.8.2[${MULTILIB_USEDEP}]
-	>=sys-libs/zlib-1.2.8-r1[${MULTILIB_USEDEP}]"
-DEPEND=">=virtual/pkgconfig-0-r1[${MULTILIB_USEDEP}]
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 s390 sparc x86 ~amd64-linux ~x86-linux ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
+IUSE="cacert utils"
+BDEPEND="
+	>=virtual/pkgconfig-0-r1[${MULTILIB_USEDEP}]
+"
+RDEPEND="
 	>=dev-libs/nspr-${NSPR_VER}[${MULTILIB_USEDEP}]
-	${CDEPEND}"
-RDEPEND=">=dev-libs/nspr-${NSPR_VER}[${MULTILIB_USEDEP}]
-	${CDEPEND}
-	abi_x86_32? (
-		!<=app-emulation/emul-linux-x86-baselibs-20140508-r12
-		!app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)]
-	)"
+	>=dev-db/sqlite-3.8.2[${MULTILIB_USEDEP}]
+	>=sys-libs/zlib-1.2.8-r1[${MULTILIB_USEDEP}]
+"
+DEPEND="${RDEPEND}"
 
 RESTRICT="test"
 
@@ -43,24 +37,12 @@ MULTILIB_CHOST_TOOLS=(
 
 PATCHES=(
 	# Custom changes for gentoo
-	"${FILESDIR}/${PN}-3.28-gentoo-fixups.patch"
+	"${FILESDIR}/${PN}-3.47-gentoo-fixups.patch"
 	"${FILESDIR}/${PN}-3.21-gentoo-fixup-warnings.patch"
 	"${FILESDIR}/${PN}-3.23-hppa-byte_order.patch"
 )
 
-src_unpack() {
-	unpack ${A}
-	if use nss-pem ; then
-		mv "${PN}"/lib/ckfw/pem/ "${S}"/lib/ckfw/ || die
-	fi
-}
-
 src_prepare() {
-	if use nss-pem ; then
-		PATCHES+=(
-			"${FILESDIR}/${PN}-3.21-enable-pem.patch"
-		)
-	fi
 	if use cacert ; then #521462
 		PATCHES+=(
 			"${DISTDIR}/${PN}-cacert-class1-class3.patch"
@@ -157,6 +139,7 @@ multilib_src_compile() {
 
 	local makeargs=(
 		CC="$(tc-getCC)"
+		CCC="$(tc-getCXX)"
 		AR="$(tc-getAR) rc \$@"
 		RANLIB="$(tc-getRANLIB)"
 		OPTIMIZER=
@@ -176,12 +159,15 @@ multilib_src_compile() {
 		)
 	fi
 
+	export NSS_ALLOW_SSLKEYLOGFILE=1
 	export NSS_ENABLE_WERROR=0 #567158
 	export BUILD_OPT=1
 	export NSS_USE_SYSTEM_SQLITE=1
 	export NSDISTMODE=copy
 	export NSS_ENABLE_ECC=1
 	export FREEBL_NO_DEPEND=1
+	export FREEBL_LOWHASH=1
+	export NSS_SEED_ONLY_DEV_URANDOM=1
 	export ASFLAGS=""
 
 	local d
@@ -256,8 +242,10 @@ multilib_src_install() {
 
 	dodir /usr/$(get_libdir)
 	cp -L */lib/*$(get_libname) "${ED}"/usr/$(get_libdir) || die "copying shared libs failed"
-	cp -L */lib/libcrmf.a "${ED}"/usr/$(get_libdir) || die "copying libs failed"
-	cp -L */lib/libfreebl.a "${ED}"/usr/$(get_libdir) || die "copying libs failed"
+	local i
+	for i in crmf freebl nssb nssckfw ; do
+		cp -L */lib/lib${i}.a "${ED}"/usr/$(get_libdir) || die "copying libs failed"
+	done
 
 	# Install nss-config and pkgconfig file
 	dodir /usr/bin
@@ -274,15 +262,15 @@ multilib_src_install() {
 
 	# all the include files
 	insinto /usr/include/nss
-	doins public/nss/*.h
+	doins public/nss/*.{h,api}
 	insinto /usr/include/nss/private
-	doins private/nss/{blapi,alghmac}.h
+	doins private/nss/{blapi,alghmac,cmac}.h
 
 	popd >/dev/null || die
 
 	local f nssutils
 	# Always enabled because we need it for chk generation.
-	nssutils="shlibsign"
+	nssutils=( shlibsign )
 
 	if multilib_is_native_abi ; then
 		if use utils; then
@@ -292,16 +280,49 @@ multilib_src_install() {
 			# checkcert utils has been removed in nss-3.22:
 			# https://bugzilla.mozilla.org/show_bug.cgi?id=1187545
 			# https://hg.mozilla.org/projects/nss/rev/df1729d37870
-			nssutils="addbuiltin atob baddbdir btoa certcgi certutil
-			cmsutil conflict crlutil derdump digest makepqg mangle modutil multinit
-			nonspr10 ocspclnt oidcalc p7content p7env p7sign p7verify pk11mode
-			pk12util pp rsaperf selfserv shlibsign signtool signver ssltap strsclnt
-			symkeyutil tstclnt vfychain vfyserv"
+			# certcgi has been removed in nss-3.36:
+			# https://bugzilla.mozilla.org/show_bug.cgi?id=1426602
+			nssutils+=(
+				addbuiltin
+				atob
+				baddbdir
+				btoa
+				certutil
+				cmsutil
+				conflict
+				crlutil
+				derdump
+				digest
+				makepqg
+				mangle
+				modutil
+				multinit
+				nonspr10
+				ocspclnt
+				oidcalc
+				p7content
+				p7env
+				p7sign
+				p7verify
+				pk11mode
+				pk12util
+				pp
+				rsaperf
+				selfserv
+				signtool
+				signver
+				ssltap
+				strsclnt
+				symkeyutil
+				tstclnt
+				vfychain
+				vfyserv
+			)
 			# install man-pages for utils (bug #516810)
 			doman doc/nroff/*.1
 		fi
 		pushd dist/*/bin >/dev/null || die
-		for f in ${nssutils}; do
+		for f in ${nssutils[@]}; do
 			dobin ${f}
 		done
 		popd >/dev/null || die
