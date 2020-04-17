@@ -1,5 +1,9 @@
 # arm64 use
 
+# Enable SELinux for runc
+app-emulation/docker-runc   selinux
+app-emulation/runc          selinux
+
 # FIXME: why isn't this set by default???
 sys-libs/ncurses unicode
 

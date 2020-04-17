@@ -7,6 +7,7 @@ sys-apps/systemd            selinux
 sys-apps/coreutils	    selinux
 
 # Enable SELinux for runc
+app-emulation/docker-runc   selinux
 app-emulation/runc          selinux
 
 # Enable SELinux for tar
