@@ -1,7 +1,7 @@
 name: Get the latest Runc release for Alpha
 on:
   schedule:
-    - cron:  '50 7 * * *'
+    - cron:  '50 7 * * 4'
 
 jobs:
   get-runc-release:

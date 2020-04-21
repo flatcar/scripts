@@ -1,7 +1,7 @@
 name: Get the latest Runc release for Edge
 on:
   schedule:
-    - cron:  '55 7 * * *'
+    - cron:  '55 7 * * 4'
 
 jobs:
   get-runc-release:

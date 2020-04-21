@@ -1,7 +1,7 @@
 name: Get the latest Rust release for Alpha
 on:
   schedule:
-    - cron:  '20 7 * * *'
+    - cron:  '20 7 * * 2'
 
 jobs:
   get-rust-release:

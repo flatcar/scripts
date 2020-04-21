@@ -1,7 +1,7 @@
 name: Get the latest Go release for Edge
 on:
   schedule:
-    - cron:  '20 7 * * *'
+    - cron:  '20 7 * * 1'
 
 jobs:
   get-go-release:

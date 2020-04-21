@@ -1,7 +1,7 @@
 name: Get the latest Docker release for Alpha
 on:
   schedule:
-    - cron:  '35 7 * * *'
+    - cron:  '35 7 * * 3'
 
 jobs:
   get-docker-release:

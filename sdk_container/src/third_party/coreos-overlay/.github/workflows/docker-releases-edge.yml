@@ -1,7 +1,7 @@
 name: Get the latest Docker release for Edge
 on:
   schedule:
-    - cron:  '40 7 * * *'
+    - cron:  '40 7 * * 3'
 
 jobs:
   get-docker-release:
