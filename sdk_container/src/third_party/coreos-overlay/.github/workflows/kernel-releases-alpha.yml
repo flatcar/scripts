@@ -13,7 +13,7 @@ jobs:
       - name: Fetch latest Kernel release
         id: fetch-latest-release
         env:
-          KV_ALPHA: 4.19
+          KV_ALPHA: 5.4
         run: |
           git clone --depth=1 --no-checkout https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux
           versionAlpha=$(git -C linux ls-remote --tags origin | cut -f2 | sed -n "/refs\/tags\/v${KV_ALPHA}.[0-9]*$/s/^refs\/tags\/v//p" | sort -ruV | head -1)
@@ -29,7 +29,7 @@ jobs:
         id: apply-patch-alpha
         env:
           BASE_BRANCH: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_ALPHA }}
-          KERNEL_VERSION: 4.19
+          KERNEL_VERSION: 5.4
           PATH: ${{ steps.setup-flatcar-sdk.outputs.path }}
           VERSION_NEW: ${{ steps.fetch-latest-release.outputs.VERSION_ALPHA }}
         run: .github/workflows/kernel-apply-patch.sh
