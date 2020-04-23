@@ -118,6 +118,7 @@ RDEPEND="${RDEPEND}
 	net-analyzer/nmap
 	net-analyzer/tcpdump
 	net-dns/bind-tools
+	net-firewall/conntrack-tools
 	net-firewall/ebtables
 	net-firewall/ipset
 	net-firewall/iptables
