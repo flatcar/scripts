@@ -23,8 +23,6 @@ jobs:
           echo ::set-output name=BASE_BRANCH_EDGE::flatcar-master-edge
       - name: Set up Flatcar SDK
         id: setup-flatcar-sdk
-        env:
-          CORK_VERSION: 0.13.2
         run: .github/workflows/setup-flatcar-sdk.sh
       - name: Apply patch for Edge
         id: apply-patch-edge

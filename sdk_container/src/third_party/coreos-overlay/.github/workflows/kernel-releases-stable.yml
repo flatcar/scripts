@@ -22,8 +22,6 @@ jobs:
           echo ::set-output name=BASE_BRANCH_STABLE::flatcar-master
       - name: Set up Flatcar SDK
         id: setup-flatcar-sdk
-        env:
-          CORK_VERSION: 0.13.2
         run: .github/workflows/setup-flatcar-sdk.sh
       - name: Apply patch for Stable
         id: apply-patch-stable
