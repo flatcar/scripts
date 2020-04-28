@@ -74,3 +74,5 @@ dev-util/checkbashisms
 =net-misc/openssh-8.1_p1-r3 ~arm64
 
 =sys-firmware/sgabios-0.1_pre8-r1 ~amd64 ~arm64
+
+=coreos-devel/fero-client-0.1.1 **
