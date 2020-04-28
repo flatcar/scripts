@@ -62,7 +62,7 @@ dev-util/checkbashisms
 
 =net-firewall/iptables-1.6.2-r2 ~arm64
 
-=sys-firmware/edk2-ovmf-2017_p20180211 ~arm64
+=sys-firmware/edk2-ovmf-201905 ~arm64
 
 =sys-auth/google-oslogin-20180611 **
 
