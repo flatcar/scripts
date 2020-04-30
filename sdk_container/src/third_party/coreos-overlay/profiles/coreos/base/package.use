@@ -100,3 +100,6 @@ sys-apps/man-db -nls
 
 # Disable zstd to avoid adding it to prod images until something needs it
 sys-fs/btrfs-progs -zstd
+
+# enable regular expression processing in jq
+app-misc/jq oniguruma
