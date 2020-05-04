@@ -25,8 +25,8 @@ PKGDIR="/var/lib/portage/pkgs"
 PORT_LOGDIR="/var/log/portage"
 PORTDIR="/var/lib/portage/portage-stable"
 PORTDIR_OVERLAY="/var/lib/portage/coreos-overlay"
-PORTAGE_BINHOST="http://builds.developer.core-os.net/boards/${BOARD}/${FLATCAR_VERSION_ID}/pkgs/
-http://builds.developer.core-os.net/boards/${BOARD}/${FLATCAR_VERSION_ID}/toolchain/"
+PORTAGE_BINHOST="https://storage.googleapis.com/flatcar-jenkins/boards/${BOARD}/${FLATCAR_VERSION_ID}/pkgs/
+https://storage.googleapis.com/flatcar-jenkins/boards/${BOARD}/${FLATCAR_VERSION_ID}/toolchain/"
 EOF
 
 sudo_clobber "$1/etc/portage/repos.conf/coreos.conf" <<EOF
