@@ -44,6 +44,7 @@ script setup_board \
 script build_packages \
     --board="${BOARD}" \
     --getbinpkgver=${RELEASE_BASE:-"${FLATCAR_VERSION}" --toolchainpkgonly} \
+    --usepkg_exclude="${BINARY_PACKAGES_TO_EXCLUDE}" \
     --skip_chroot_upgrade \
     --skip_torcx_store \
     --sign="${SIGNING_USER}" \
