@@ -52,26 +52,6 @@ pkg_setup() {
 src_prepare() {
 	default
 	multilib_copy_sources
-
-	case "${ARCH}" in
-		"amd64")
-			# No need to cross compile for this case.
-			;;
-		"arm" | "arm64")
-			local waf="${T}/waf"
-			cat<<EOF>"${waf}"
-			#!/bin/sh
-			# WAF_BINARY must be set from the ebuild.
-			exec "${WAF_BINARY}" "\$@" --cross-compile --cross-answers="${FILESDIR}/${ARCH}_waf_config_answers"
-EOF
-
-			chmod a+rx "${waf}"
-			WAF_BINARY="${waf}"
-			;;
-		*)
-			die "${P} does not support cross-compiling for ${ARCH}"
-			;;
-	esac
 }
 
 multilib_src_configure() {
