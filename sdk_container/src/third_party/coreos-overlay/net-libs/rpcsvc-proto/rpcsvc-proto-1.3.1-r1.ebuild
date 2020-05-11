@@ -19,7 +19,6 @@ RDEPEND="!<sys-libs/glibc-2.26"
 src_prepare(){
 	default
 	eapply "${FILESDIR}"/${P}-old-preprocessor.patch #650852
-	eapply "${FILESDIR}"/${P}-rpcgen-from-host.patch
 	eautoreconf
 }
 
