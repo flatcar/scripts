@@ -16,7 +16,7 @@ index 83867c0..c1610a7 100644
  
  %.h: %.x
 -	$(top_builddir)/rpcgen/rpcgen -h -o $@ $<
-+	$(top_builddir)/rpcgen/rpcgen -h -o $@ $< || /usr/bin/rpcgen -h -o $@ $<
++	rpcgen -h -o $@ $<
  
 -- 
 2.21.0
