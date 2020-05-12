@@ -78,3 +78,5 @@ dev-util/checkbashisms
 =coreos-devel/fero-client-0.1.1 **
 
 >=dev-util/strace-5.3 ~amd64 ~arm64
+
+=dev-lang/rust-1.43.1 ~amd64 ~arm64
