@@ -326,8 +326,10 @@ install_cross_toolchain() {
     if emerge "${emerge_flags[@]}" \
         --pretend "${cross_pkgs[@]}" | grep -q '^\[ebuild'
     then
+        echo "Doing a full bootstrap via crossdev"
         $sudo crossdev "${cross_flags[@]}" --stage4
     else
+        echo "Installing existing binaries"
         $sudo emerge "${emerge_flags[@]}" \
             "cross-${cross_chost}/gdb" "${cross_pkgs[@]}"
         if [ "${cross_chost}" = aarch64-cros-linux-gnu ]; then
@@ -391,6 +393,25 @@ install_cross_libs() {
     # OK, clear as mud? Install those dependencies now!
     PORTAGE_CONFIGROOT="$ROOT" $sudo emerge --root="$ROOT" --sysroot="$ROOT" "$@" -u $cross_deps
 }
+
+install_cross_rust() {
+    local cross_chost="$1"; shift
+    local emerge_flags=( "$@" --binpkg-respect-use=y --update )
+
+    # may be called from either catalyst (root) or upgrade_chroot (user)
+    local sudo="env"
+    if [[ $(id -u) -ne 0 ]]; then
+        sudo="sudo -E"
+    fi
+
+    if [ "${cross_chost}" = "aarch64-cros-linux-gnu" ]; then
+        echo "Building Rust for arm64"
+        # If no aarch64 folder exists, try to remove any existing Rust packages.
+        [ ! -d /usr/lib/rust-*/rustlib/aarch64-unknown-linux-gnu ] && ($sudo emerge -C dev-lang/rust || true)
+        $sudo emerge "${emerge_flags[@]}" dev-lang/rust
+    fi
+}
+
 
 # Get the latest GCC profile for a given CHOST
 # The extra flag can be blank, hardenednopie, and so on. See gcc-config -l

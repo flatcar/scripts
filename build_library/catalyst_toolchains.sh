@@ -44,6 +44,7 @@ build_target_toolchain() {
 
 configure_crossdev_overlay / /tmp/crossdev
 
+# TODO: this is building the SDK packages and shouldn't actually be needed
 for cross_chost in $(get_chost_list); do
     echo "Building cross toolchain for ${cross_chost}"
     PKGDIR="$(portageq envvar PKGDIR)/crossdev" \
