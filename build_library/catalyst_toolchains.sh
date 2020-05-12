@@ -35,15 +35,11 @@ build_target_toolchain() {
     # --root is required because run_merge overrides ROOT=
     PORTAGE_CONFIGROOT="$ROOT" \
         run_merge -u --root="$ROOT" --sysroot="$ROOT" "${TOOLCHAIN_PKGS[@]}"
-
-    export clst_myemergeopts="$( echo "$clst_myemergeopts" | sed -e 's/--newuse//' )"
-
-    PORTAGE_CONFIGROOT="$ROOT" \
-        run_merge --root="$ROOT" --sysroot="$ROOT" virtual/rust
 }
 
 configure_crossdev_overlay / /tmp/crossdev
 
+# TODO: this is building the SDK packages and shouldn't actually be needed
 for cross_chost in $(get_chost_list); do
     echo "Building cross toolchain for ${cross_chost}"
     PKGDIR="$(portageq envvar PKGDIR)/crossdev" \
