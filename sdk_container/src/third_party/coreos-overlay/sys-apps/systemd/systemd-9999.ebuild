@@ -10,7 +10,7 @@ if [[ ${PV} == 9999 ]]; then
 	# Use ~arch instead of empty keywords for compatibility with cros-workon
 	KEYWORDS="~amd64 ~arm64 ~arm ~x86"
 else
-	CROS_WORKON_COMMIT="be3cc547ebe95215d437dc11453e648d3ffb7a4d" # v241-flatcar
+	CROS_WORKON_COMMIT="171ebfdbcb79b1f42659d111b5a642e72ea02021" # v243-flatcar
 	KEYWORDS="~alpha amd64 ~arm arm64 ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 fi
 
@@ -381,38 +381,9 @@ multilib_src_install_all() {
 	# Don't set any extra environment variables by default
 	rm "${ED}/usr/lib/environment.d/99-environment.conf" || die
 
-	# Move a few services enabled in /etc to /usr, delete files individually
-	# so builds fail if systemd adds any new unexpected stuff to /etc
-	local f
-	for f in \
-		getty.target.wants/getty@tty1.service \
-		multi-user.target.wants/machines.target \
-		$(usex cryptsetup multi-user.target.wants/remote-cryptsetup.target '') \
-		multi-user.target.wants/remote-fs.target \
-		multi-user.target.wants/systemd-networkd.service \
-		multi-user.target.wants/systemd-resolved.service \
-		network-online.target.wants/systemd-networkd-wait-online.service \
-		sockets.target.wants/systemd-networkd.socket \
-		sysinit.target.wants/systemd-timesyncd.service
-	do
-		local s="${f#*/}" t="${f%/*}"
-		local u="${s/@*.service/@.service}"
-
-		# systemd_enable_service doesn't understand template units
-		einfo "Enabling ${s} via ${t}"
-		dodir "${unitdir}/${t}"
-		dosym "../${u}" "${unitdir}/${t}/${s}"
-
-		rm "${ED}/etc/systemd/system/${f}" || die
-	done
-	rmdir "${ED}"/etc/systemd/system/*.wants || die
-	for f in \
-		systemd-networkd.service:dbus-org.freedesktop.network1.service \
-		systemd-resolved.service:dbus-org.freedesktop.resolve1.service
-	do
-		rm "${ED}/etc/systemd/system/${f#*:}" || die
-		dosym "${f%%:*}" "${unitdir}/${f#*:}"
-	done
+	systemd_enable_service multi-user.target systemd-networkd.service
+	systemd_enable_service multi-user.target systemd-resolved.service
+	systemd_enable_service sysinit.target systemd-timesyncd.service
 
 	# Do not enable random services if /etc was detected as empty!!!
 	rm "${ED}$(usex split-usr '' /usr)/lib/systemd/system-preset/90-systemd.preset" || die
@@ -471,6 +442,20 @@ migrate_locale() {
 	fi
 }
 
+save_enabled_units() {
+	ENABLED_UNITS=()
+	type systemctl &>/dev/null || return
+	for x; do
+		if systemctl --quiet --root="${ROOT:-/}" is-enabled "${x}"; then
+			ENABLED_UNITS+=( "${x}" )
+		fi
+	done
+}
+
+pkg_preinst() {
+	save_enabled_units {machines,remote-{cryptsetup,fs}}.target getty@tty1.service
+}
+
 pkg_postinst() {
 	newusergroup() {
 		enewgroup "$1"
@@ -500,6 +485,30 @@ pkg_postinst() {
 	# Bug 465468, make sure locales are respect, and ensure consistency
 	# between OpenRC & systemd
 	migrate_locale
+
+	systemd_reenable systemd-networkd.service systemd-resolved.service systemd-timesyncd.service
+
+	if [[ ${ENABLED_UNITS[@]} ]]; then
+		systemctl --root="${ROOT:-/}" enable "${ENABLED_UNITS[@]}"
+	fi
+
+	if [[ -z ${REPLACING_VERSIONS} ]]; then
+		if type systemctl &>/dev/null; then
+			systemctl --root="${ROOT:-/}" enable getty@.service remote-fs.target || FAIL=1
+		fi
+		elog "To enable a useful set of services, run the following:"
+		elog "  systemctl preset-all --preset-mode=enable-only"
+	fi
+
+	if [[ -L ${EROOT}/var/lib/systemd/timesync ]]; then
+		rm "${EROOT}/var/lib/systemd/timesync"
+	fi
+
+	if [[ -z ${ROOT} && -d /run/systemd/system ]]; then
+		ebegin "Reexecuting system manager"
+		systemctl daemon-reexec
+		eend $?
+	fi
 
 	if [[ ${FAIL} ]]; then
 		eerror "One of the postinst commands failed. Please check the postinst output"
