@@ -40,14 +40,16 @@ TYPE="flatcar-sdk"
 # include upload options
 . "${BUILD_LIBRARY_DIR}/release_util.sh" || exit 1
 
+ROOT_OVERLAY=${TEMPDIR}/stage4_overlay
+
 ## Define the stage4 config template
 catalyst_stage4() {
 cat <<EOF
 target: stage4
 pkgcache_path: $BINPKGS
 stage4/packages: coreos-devel/sdk-depends
-stage4/fsscript: ${BUILD_LIBRARY_DIR}/catalyst_default_stage4.sh
-stage4/root_overlay: ${TEMPDIR}/stage4_overlay
+stage4/fsscript: ${BUILD_LIBRARY_DIR}/catalyst_sdk.sh
+stage4/root_overlay: ${ROOT_OVERLAY}
 stage4/empty: /etc/portage/repos.conf /root /usr/portage /var/cache/edb
 stage4/rm: /etc/machine-id /etc/resolv.conf
 EOF
@@ -64,16 +66,23 @@ check_gsutil_opts
 
 if [[ "$STAGES" =~ stage4 ]]; then
     info "Setting release to ${FLATCAR_VERSION}"
-    rm -rf "${TEMPDIR}/stage4_overlay"
+    rm -rf "${ROOT_OVERLAY}"
     # need to setup the lib->lib64 symlink correctly
     libdir=$(get_sdk_libdir)
-    mkdir -p "${TEMPDIR}/stage4_overlay/usr/${libdir}"
+    mkdir -p "${ROOT_OVERLAY}/usr/${libdir}"
     if [[ "${libdir}" != lib ]]; then
-        ln -s "${libdir}" "${TEMPDIR}/stage4_overlay/usr/lib"
+        ln -s "${libdir}" "${ROOT_OVERLAY}/usr/lib"
     fi
     "${BUILD_LIBRARY_DIR}/set_lsb_release" \
-        --root "${TEMPDIR}/stage4_overlay"
+        --root "${ROOT_OVERLAY}"
 fi
+
+# toolchain_util.sh is required by catalyst_sdk.sh
+# To copy it, we need to create /tmp with the right permissions as it will be
+# used in the exported chroot.
+mkdir -p "${ROOT_OVERLAY}/tmp"
+chmod 1777 "${ROOT_OVERLAY}/tmp"
+cp "${BUILD_LIBRARY_DIR}/toolchain_util.sh" "${ROOT_OVERLAY}/tmp"
 
 catalyst_build
 
@@ -97,6 +106,10 @@ if [[ "$STAGES" =~ stage4 ]]; then
         "$BUILDS/${release_name}.CONTENTS" "$BUILDS/${release_name}.DIGESTS"
     sign_and_upload_files "packages" "${def_upload_path}" "pkgs/" \
         "${BINPKGS}"/*
+
+    # Upload the SDK toolchain packages
+    sign_and_upload_files "cross toolchain packages" "${def_upload_path}" \
+        "toolchain/" "${BINPKGS}/crossdev"/*
 fi
 
 command_completed

@@ -236,8 +236,9 @@ get_gclient_root() {
 # Populate the ENVIRONMENT_WHITELIST array.
 load_environment_whitelist() {
   ENVIRONMENT_WHITELIST=(
-    FLATCAR_BUILD_ID
     COREOS_OFFICIAL
+    FLATCAR_BUILD_ID
+    FORCE_STAGES
     GIT_AUTHOR_EMAIL
     GIT_AUTHOR_NAME
     GIT_COMMITTER_EMAIL
