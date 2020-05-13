@@ -27,7 +27,6 @@ jobs:
         id: apply-patch-stable
         env:
           BASE_BRANCH: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_STABLE }}
-          KERNEL_VERSION: 4.19
           PATH: ${{ steps.setup-flatcar-sdk.outputs.path }}
           VERSION_NEW: ${{ steps.fetch-latest-release.outputs.VERSION_STABLE }}
         run: .github/workflows/kernel-apply-patch.sh

@@ -27,7 +27,6 @@ jobs:
         id: apply-patch-edge
         env:
           BASE_BRANCH: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_EDGE }}
-          GO_VERSION: 1.13
           PATH: ${{ steps.setup-flatcar-sdk.outputs.path }}
           VERSION_NEW: ${{ steps.fetch-latest-release.outputs.VERSION_EDGE }}
         run: .github/workflows/go-apply-patch.sh
