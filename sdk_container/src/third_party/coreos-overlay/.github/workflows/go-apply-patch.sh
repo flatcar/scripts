@@ -7,7 +7,7 @@ VERSION_SHORT=${VERSION_NEW%.*}
 
 . .github/workflows/common.sh
 
-checkout_branches "go-${VERSION_NEW}"
+checkout_branches "go-${VERSION_NEW}-${CHANNEL}"
 
 pushd "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" >/dev/null || exit
 

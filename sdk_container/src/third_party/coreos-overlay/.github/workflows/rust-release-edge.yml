@@ -24,6 +24,7 @@ jobs:
       - name: Apply patch for Edge
         id: apply-patch-edge
         env:
+          CHANNEL: edge
           BASE_BRANCH: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_EDGE }}
           PATH: ${{ steps.setup-flatcar-sdk.outputs.path }}
           VERSION_NEW: ${{ steps.fetch-latest-release.outputs.VERSION_EDGE }}

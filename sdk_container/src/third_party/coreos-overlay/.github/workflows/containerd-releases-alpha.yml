@@ -26,6 +26,7 @@ jobs:
       - name: Apply patch for Alpha
         id: apply-patch-alpha
         env:
+          CHANNEL: alpha
           BASE_BRANCH: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_ALPHA }}
           VERSION_NEW: ${{ steps.fetch-latest-release.outputs.VERSION_ALPHA }}
           COMMIT_HASH: ${{ steps.fetch-latest-release.outputs.COMMIT_ALPHA }}

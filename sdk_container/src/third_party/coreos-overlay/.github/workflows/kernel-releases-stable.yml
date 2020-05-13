@@ -26,6 +26,7 @@ jobs:
       - name: Apply patch for Stable
         id: apply-patch-stable
         env:
+          CHANNEL: stable
           BASE_BRANCH: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_STABLE }}
           PATH: ${{ steps.setup-flatcar-sdk.outputs.path }}
           VERSION_NEW: ${{ steps.fetch-latest-release.outputs.VERSION_STABLE }}

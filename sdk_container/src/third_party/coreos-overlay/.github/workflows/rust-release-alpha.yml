@@ -24,6 +24,7 @@ jobs:
       - name: Apply patch for Alpha
         id: apply-patch-alpha
         env:
+          CHANNEL: alpha
           BASE_BRANCH: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_ALPHA }}
           PATH: ${{ steps.setup-flatcar-sdk.outputs.path }}
           VERSION_NEW: ${{ steps.fetch-latest-release.outputs.VERSION_ALPHA }}

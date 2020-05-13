@@ -26,6 +26,7 @@ jobs:
       - name: Apply patch for Edge
         id: apply-patch-edge
         env:
+          CHANNEL: edge
           BASE_BRANCH: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_EDGE }}
           VERSION_NEW: ${{ steps.fetch-latest-release.outputs.VERSION_EDGE }}
           COMMIT_HASH: ${{ steps.fetch-latest-release.outputs.COMMIT_EDGE }}

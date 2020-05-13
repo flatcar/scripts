@@ -26,6 +26,7 @@ jobs:
       - name: Apply patch for Beta
         id: apply-patch-beta
         env:
+          CHANNEL: beta
           BASE_BRANCH: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_BETA }}
           PATH: ${{ steps.setup-flatcar-sdk.outputs.path }}
           VERSION_NEW: ${{ steps.fetch-latest-release.outputs.VERSION_BETA }}
