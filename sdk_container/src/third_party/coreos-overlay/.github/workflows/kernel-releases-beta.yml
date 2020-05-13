@@ -33,6 +33,7 @@ jobs:
         run: .github/workflows/kernel-apply-patch.sh
       - name: Create pull request for Beta
         uses: peter-evans/create-pull-request@v2
+        if: steps.apply-patch-beta.outputs.UPDATE_NEEDED == 1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           base: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_BETA }}

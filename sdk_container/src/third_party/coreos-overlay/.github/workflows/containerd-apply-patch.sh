@@ -2,14 +2,16 @@
 
 set -euo pipefail
 
+UPDATE_NEEDED=1
+
 . .github/workflows/common.sh
 
-checkout_branches "containerd-${VERSION_NEW}-${CHANNEL}"
+checkout_branches "containerd-${VERSION_NEW}-${CHANNEL}" || UPDATE_NEEDED=0 && exit 0
 
 pushd "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" >/dev/null || exit
 
 VERSION_OLD=$(sed -n "s/^DIST containerd-\([0-9]*.[0-9]*.[0-9]*\).*/\1/p" app-emulation/containerd/Manifest | sort -ruV | head -n1)
-[[ "${VERSION_NEW}" = "${VERSION_OLD}" ]] && echo "already the latest Docker, nothing to do" && exit
+[[ "${VERSION_NEW}" = "${VERSION_OLD}" ]] && echo "already the latest Docker, nothing to do" && UPDATE_NEEDED=0 && exit 0
 
 DOCKER_VERSION=$(sed -n "s/^DIST docker-\([0-9]*.[0-9]*.[0-9]*\).*/\1/p" app-emulation/docker/Manifest | sort -ruV | head -n1)
 
@@ -34,3 +36,4 @@ generate_patches app-emulation containerd Containerd
 apply_patches
 
 echo ::set-output name=VERSION_OLD::"${VERSION_OLD}"
+echo ::set-output name=UPDATE_NEEDED::"${UPDATE_NEEDED}"

@@ -34,6 +34,7 @@ jobs:
         run: .github/workflows/docker-apply-patch.sh
       - name: Create pull request for Alpha
         uses: peter-evans/create-pull-request@v2
+        if: steps.apply-patch-alpha.outputs.UPDATE_NEEDED == 1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           base: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_ALPHA }}

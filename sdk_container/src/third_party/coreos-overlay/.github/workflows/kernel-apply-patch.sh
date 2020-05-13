@@ -4,10 +4,11 @@ set -euo pipefail
 
 # trim the 3rd part in the input semver, e.g. from 5.4.1 to 5.4
 VERSION_SHORT=${VERSION_NEW%.*}
+UPDATE_NEEDED=1
 
 . .github/workflows/common.sh
 
-checkout_branches "linux-${VERSION_NEW}-${CHANNEL}"
+checkout_branches "linux-${VERSION_NEW}-${CHANNEL}" || UPDATE_NEEDED=0 && exit 0
 
 pushd "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" >/dev/null || exit
 
@@ -15,7 +16,7 @@ VERSION_OLD=$(sed -n "s/^DIST patch-\(${VERSION_SHORT}.[0-9]*\).*/\1/p" sys-kern
 if [[ -z "${VERSION_OLD}" ]]; then
   VERSION_OLD=$(sed -n "s/^DIST linux-\(${VERSION_SHORT}*\).*/\1/p" sys-kernel/coreos-sources/Manifest)
 fi
-[[ "${VERSION_NEW}" = "${VERSION_OLD}" ]] && echo "already the latest Kernel, nothing to do" && exit
+[[ "${VERSION_NEW}" = "${VERSION_OLD}" ]] && echo "already the latest Kernel, nothing to do" && UPDATE_NEEDED=0 && exit 0
 
 for pkg in sources modules kernel; do \
   pushd "sys-kernel/coreos-${pkg}" >/dev/null || exit; \
@@ -31,3 +32,4 @@ generate_patches sys-kernel coreos-{sources,kernel,modules} Linux
 apply_patches
 
 echo ::set-output name=VERSION_OLD::"${VERSION_OLD}"
+echo ::set-output name=UPDATE_NEEDED::"${UPDATE_NEEDED}"
