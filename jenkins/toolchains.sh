@@ -6,7 +6,6 @@ enter() {
 
 source .repo/manifests/version.txt
 export FLATCAR_BUILD_ID
-export FLATCAR_DEV_BUILDS_SDK="${DOWNLOAD_ROOT_SDK}"
 
 # Set up GPG for signing uploads.
 gpg --import "${GPG_SECRET_KEY_FILE}"
@@ -14,7 +13,7 @@ gpg --import "${GPG_SECRET_KEY_FILE}"
 # Wipe all of catalyst.
 sudo rm -rf src/build
 
-enter sudo /mnt/host/source/src/scripts/build_toolchains \
+enter sudo FLATCAR_DEV_BUILDS_SDK="${DOWNLOAD_ROOT_SDK}" /mnt/host/source/src/scripts/build_toolchains \
     --sign="${SIGNING_USER}" \
     --sign_digests="${SIGNING_USER}" \
     --upload_root="${UPLOAD_ROOT}" \
