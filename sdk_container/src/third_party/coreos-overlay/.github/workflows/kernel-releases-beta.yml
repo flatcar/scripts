@@ -13,7 +13,7 @@ jobs:
       - name: Fetch latest Kernel release
         id: fetch-latest-release
         env:
-          KV_BETA: 4.19
+          KV_BETA: 5.4
         run: |
           git clone --depth=1 --no-checkout https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux
           versionBeta=$(git -C linux ls-remote --tags origin | cut -f2 | sed -n "/refs\/tags\/v${KV_BETA}.[0-9]*$/s/^refs\/tags\/v//p" | sort -ruV | head -1)
