@@ -27,6 +27,8 @@ DEFINE_boolean skip_toolchain_update "${FLAGS_FALSE}" \
   "Don't update the toolchains."
 DEFINE_string toolchain_boards "" \
   "Extra toolchains to setup for the specified boards."
+DEFINE_string dev_builds_sdk "" \
+ "Set FLATCAR_DEV_BUILDS_SDK which defaults to FLATCAR_DEV_BUILDS/sdk"
 DEFINE_string binhost "" \
   "Use binary packages from a specific location (e.g. https://storage.googleapis.com/flatcar-jenkins/sdk/amd64/2000.0.0/pkgs)"
 
@@ -51,6 +53,10 @@ if [[ "${FLAGS_usepkgonly}" -eq "${FLAGS_TRUE}" ]]; then
     fi
   done
   FLAGS_workon="${FLAGS_FALSE}"
+fi
+
+if [[ -n "${FLAGS_dev_builds_sdk}" ]]; then
+  FLATCAR_DEV_BUILDS_SDK="${FLAGS_dev_builds_sdk}"
 fi
 
 . "${BUILD_LIBRARY_DIR}/toolchain_util.sh"

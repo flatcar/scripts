@@ -6,6 +6,7 @@ enter() {
 
 source .repo/manifests/version.txt
 export FLATCAR_BUILD_ID
+export FLATCAR_DEV_BUILDS_SDK="${DOWNLOAD_ROOT_SDK}"
 
 # Set up GPG for signing uploads.
 gpg --import "${GPG_SECRET_KEY_FILE}"
