@@ -45,7 +45,7 @@ sign_and_upload_files "cross toolchain packages" "${def_upload_path}" \
 for board in $(get_board_list); do
     if [ "$board" = arm64-usr ]; then
         sign_and_upload_files "Rust aarch64 crossdev toolchain packages" "${def_upload_path}" \
-            "toolchain-arm64/" "${BINPKGS}/target/${board}"/Packages "${BINPKGS}/target/${board}"/dev-lang/rust*
+            "toolchain-arm64/" "${BINPKGS}/target/${board}"/Packages "${BINPKGS}/target/${board}"/dev-lang
     fi
 done
 
