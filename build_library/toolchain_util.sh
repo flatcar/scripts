@@ -175,14 +175,15 @@ get_sdk_binhost() {
         set -- "${FLATCAR_SDK_VERSION}"
     fi
 
+    FLATCAR_DEV_BUILDS_SDK="${FLATCAR_DEV_BUILDS_SDK-$FLATCAR_DEV_BUILDS/sdk}"
     for ver in "$@"; do
         # Usually only crossdev needs to be fetched from /toolchain/ in the setup_board step.
         # The entry for /pkgs/ is there if something needs to be reinstalled in the SDK
         # but normally it is not needed because everything is already part of the tarball.
         # To install the crossdev Rust package, /toolchain-arm64/ is derived from /toolchain/
         # when necessary in install_cross_toolchain().
-        echo "${FLATCAR_DEV_BUILDS}/sdk/${arch}/${ver}/toolchain/"
-        echo "${FLATCAR_DEV_BUILDS}/sdk/${arch}/${ver}/pkgs/"
+        echo "${FLATCAR_DEV_BUILDS_SDK}/${arch}/${ver}/toolchain/"
+        echo "${FLATCAR_DEV_BUILDS_SDK}/${arch}/${ver}/pkgs/"
     done
 }
 

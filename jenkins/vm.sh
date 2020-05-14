@@ -12,6 +12,7 @@ enter() {
         sudo ln -f "${GS_DEVEL_CREDS}" chroot/etc/portage/gangue.json
         bin/cork enter --bind-gpg-agent=false -- env \
             FLATCAR_DEV_BUILDS="${GS_DEVEL_ROOT}" \
+            FLATCAR_DEV_BUILDS_SDK="${DOWNLOAD_ROOT_SDK}" \
             {FETCH,RESUME}COMMAND_GS="/usr/bin/gangue get \
 --json-key=/etc/portage/gangue.json $verify_key \
 "'"${URI}" "${DISTDIR}/${FILE}"' \
