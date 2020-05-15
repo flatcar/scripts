@@ -29,7 +29,7 @@ Options:
     -s          Safe settings: single simple cpu and no KVM.
     -h          this ;-)
 
-This script is a wrapper around qemu for starting CoreOS virtual machines.
+This script is a wrapper around qemu for starting Flatcar virtual machines.
 The -a option may be used to specify a particular ssh public key to give
 login access to. If -a is not provided ~/.ssh/id_{dsa,rsa}.pub is used.
 If no public key is provided or found the VM will still boot but you may
@@ -111,7 +111,7 @@ write_ssh_keys() {
 
 
 if [ -z "${CONFIG_IMAGE}" ]; then
-    CONFIG_DRIVE=$(mktemp -t -d coreos-configdrive.XXXXXXXXXX)
+    CONFIG_DRIVE=$(mktemp -t -d flatcar-configdrive.XXXXXXXXXX)
     if [ $? -ne 0 ] || [ ! -d "$CONFIG_DRIVE" ]; then
         echo "$0: mktemp -d failed!" >&2
         exit 1
@@ -164,7 +164,7 @@ else
     esac
 fi
 
-# ${CONFIG_DRIVE} or ${CONFIG_IMAGE} will be mounted in CoreOS as /media/configdrive
+# ${CONFIG_DRIVE} or ${CONFIG_IMAGE} will be mounted in Flatcar as /media/configdrive
 if [ -n "${CONFIG_DRIVE}" ]; then
     set -- \
         -fsdev local,id=conf,security_model=none,readonly,path="${CONFIG_DRIVE}" \
