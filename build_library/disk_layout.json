@@ -50,7 +50,7 @@
         "label":"OEM",
         "fs_label":"OEM",
         "type":"data",
-        "blocks":"262144",
+        "blocks":"409600",
         "fs_type":"ext4",
         "mount":"/usr/share/oem"
       },
