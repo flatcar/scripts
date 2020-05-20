@@ -15,14 +15,14 @@ function enter() ( cd ../../..; exec cork enter -- $@ )
 function checkout_branches() {
   TARGET_BRANCH=$1
 
-  [[ -z "${TARGET_BRANCH}" ]] && echo "No target branch specified. exit." && exit 0
+  [[ -z "${TARGET_BRANCH}" ]] && echo "No target branch specified. exit." && return 1
 
   git -C "${SDK_OUTER_SRCDIR}/scripts" checkout -B "${BASE_BRANCH}" "github/${BASE_BRANCH}"
   git -C "${SDK_OUTER_SRCDIR}/third_party/portage-stable" checkout -B "${BASE_BRANCH}" "github/${BASE_BRANCH}"
 
   if git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" show-ref "remotes/github/${TARGET_BRANCH}"; then
     echo "Target branch already exists. exit.";
-    exit 0
+    return 1
   fi
 
   git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" checkout -B "${TARGET_BRANCH}" "github/${BASE_BRANCH}"

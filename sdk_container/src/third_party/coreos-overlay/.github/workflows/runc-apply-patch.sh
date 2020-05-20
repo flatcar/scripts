@@ -6,7 +6,10 @@ UPDATE_NEEDED=1
 
 . .github/workflows/common.sh
 
-checkout_branches "runc-${VERSION_NEW}-${CHANNEL}" || UPDATE_NEEDED=0 && exit 0
+if ! checkout_branches "runc-${VERSION_NEW}-${CHANNEL}"; then
+  UPDATE_NEEDED=0
+  exit 0
+fi
 
 pushd "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" >/dev/null || exit
 
@@ -14,7 +17,11 @@ pushd "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" >/dev/null || exit
 # We need some sed tweaks like adding underscore, sort, and trim the underscore again,
 # so that sort -V can give the newest version including non-rc versions.
 VERSION_OLD=$(sed -n "s/^DIST docker-runc-\([0-9]*.[0-9]*.*\)\.tar.*/\1/p" app-emulation/docker-runc/Manifest | sed '/-/!{s/$/_/}' | sort -ruV | sed 's/_$//' | head -n1 | tr '-' '_')
-[[ "${VERSION_NEW}" = "${VERSION_OLD}" ]] && echo "already the latest Runc, nothing to do" && UPDATE_NEEDED=0 && exit 0
+if [[ "${VERSION_NEW}" = "${VERSION_OLD}" ]]; then
+  echo "already the latest Runc, nothing to do"
+  UPDATE_NEEDED=0
+  exit 0
+fi
 
 runcEbuildOld=$(ls -1 app-emulation/docker-runc/docker-runc-${VERSION_OLD}*.ebuild | sort -ruV | head -n1)
 runcEbuildNew="app-emulation/docker-runc/docker-runc-${VERSION_NEW}.ebuild"

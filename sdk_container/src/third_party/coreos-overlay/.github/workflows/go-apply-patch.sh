@@ -8,12 +8,19 @@ UPDATE_NEEDED=1
 
 . .github/workflows/common.sh
 
-checkout_branches "go-${VERSION_NEW}-${CHANNEL}" || UPDATE_NEEDED=0 && exit 0
+if ! checkout_branches "go-${VERSION_NEW}-${CHANNEL}"; then
+  UPDATE_NEEDED=0
+  exit 0
+fi
 
 pushd "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" >/dev/null || exit
 
 VERSION_OLD=$(sed -n "s/^DIST go\(${VERSION_SHORT}.[0-9]*\).*/\1/p" dev-lang/go/Manifest | sort -ruV | head -n1)
-[[ "${VERSION_NEW}" = "${VERSION_OLD}" ]] && echo "already the latest Go, nothing to do" && UPDATE_NEEDED=0 && exit 0
+if [[ "${VERSION_NEW}" = "${VERSION_OLD}" ]]; then
+  echo "already the latest Go, nothing to do"
+  UPDATE_NEEDED=0
+  exit 0
+fi
 
 git mv $(ls -1 dev-lang/go/go-${VERSION_OLD}*.ebuild | sort -ruV | head -n1) "dev-lang/go/go-${VERSION_NEW}.ebuild"
 

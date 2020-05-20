@@ -6,12 +6,19 @@ UPDATE_NEEDED=1
 
 . .github/workflows/common.sh
 
-checkout_branches "containerd-${VERSION_NEW}-${CHANNEL}" || UPDATE_NEEDED=0 && exit 0
+if ! checkout_branches "containerd-${VERSION_NEW}-${CHANNEL}"; then
+  UPDATE_NEEDED=0
+  exit 0
+fi
 
 pushd "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" >/dev/null || exit
 
 VERSION_OLD=$(sed -n "s/^DIST containerd-\([0-9]*.[0-9]*.[0-9]*\).*/\1/p" app-emulation/containerd/Manifest | sort -ruV | head -n1)
-[[ "${VERSION_NEW}" = "${VERSION_OLD}" ]] && echo "already the latest Docker, nothing to do" && UPDATE_NEEDED=0 && exit 0
+if [[ "${VERSION_NEW}" = "${VERSION_OLD}" ]]; then
+  echo "already the latest Containerd, nothing to do"
+  UPDATE_NEEDED=0
+  exit 0
+fi
 
 DOCKER_VERSION=$(sed -n "s/^DIST docker-\([0-9]*.[0-9]*.[0-9]*\).*/\1/p" app-emulation/docker/Manifest | sort -ruV | head -n1)
 

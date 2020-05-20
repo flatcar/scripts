@@ -8,7 +8,10 @@ UPDATE_NEEDED=1
 
 . .github/workflows/common.sh
 
-checkout_branches "linux-${VERSION_NEW}-${CHANNEL}" || UPDATE_NEEDED=0 && exit 0
+if ! checkout_branches "linux-${VERSION_NEW}-${CHANNEL}"; then
+  UPDATE_NEEDED=0
+  exit 0
+fi
 
 pushd "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" >/dev/null || exit
 
@@ -16,7 +19,11 @@ VERSION_OLD=$(sed -n "s/^DIST patch-\(${VERSION_SHORT}.[0-9]*\).*/\1/p" sys-kern
 if [[ -z "${VERSION_OLD}" ]]; then
   VERSION_OLD=$(sed -n "s/^DIST linux-\(${VERSION_SHORT}*\).*/\1/p" sys-kernel/coreos-sources/Manifest)
 fi
-[[ "${VERSION_NEW}" = "${VERSION_OLD}" ]] && echo "already the latest Kernel, nothing to do" && UPDATE_NEEDED=0 && exit 0
+if [[ "${VERSION_NEW}" = "${VERSION_OLD}" ]]; then
+  echo "already the latest Kernel, nothing to do"
+  UPDATE_NEEDED=0
+  exit 0
+fi
 
 for pkg in sources modules kernel; do \
   pushd "sys-kernel/coreos-${pkg}" >/dev/null || exit; \
