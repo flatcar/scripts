@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<longdescription lang="en">
+		Amazon EC2 Simple Systems Manager (SSM) Agent is software developed
+		for the Simple Systems Manager Service.
+	</longdescription>
+	<maintainer type="person">
+		<email>samm@os2.kiev.ua</email>
+		<name>Oleksii Samorukov</name>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">aws/amazon-ssm-agent</remote-id>
+	</upstream>
+</pkgmetadata>
