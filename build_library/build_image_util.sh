@@ -620,9 +620,34 @@ EOF
     sudo fstrim "${root_fs_dir}/usr" || true
   fi
 
-  # Build the selinux policy
+  # Build the selinux policy, and relabel files.
+  #
+  # We need to relabel all files in the final rootfs, before finalizing the
+  # image. Without doing that, nearly every file will have `unlabeled_t` as
+  # its context. Then with recent versions of selinux-base, some critical
+  # actions would not work correctly in SELinux enforcing mode, e.g.,
+  # loading Kernel modules. To run `restorecon`, `/sys/fs/selinux` has to
+  # be mounted. Without that, it will silently skip relabelling.
   if pkg_use_enabled coreos-base/coreos selinux; then
-      sudo chroot "${root_fs_dir}" bash -c "cd /usr/share/selinux/mcs && semodule -s mcs -i *.pp"
+    local did_mount_sys=0, did_mount_sys_fs_selinux=0
+    if ! mountpoint -q "${root_fs_dir}/sys"; then
+      did_mount_sys=1
+      sudo mount -t sysfs none "${root_fs_dir}/sys"
+    fi
+    if ! mountpoint -q "${root_fs_dir}/sys/fs/selinux"; then
+      did_mount_sys_fs_selinux=1
+      sudo mount -t selinuxfs none "${root_fs_dir}/sys/fs/selinux"
+    fi
+
+    sudo chroot "${root_fs_dir}" bash -c "cd /usr/share/selinux/mcs && semodule -s mcs -i *.pp"
+    sudo chroot "${root_fs_dir}" bash -c "find / -maxdepth 1 | egrep -v 'boot|proc|sys' | xargs restorecon -R || true"
+
+    if [[ ${did_mount_sys_fs_selinux} -eq 1 ]]; then
+      sudo umount "${root_fs_dir}/sys/fs/selinux"
+    fi
+    if [[ ${did_mount_sys} -eq 1 ]]; then
+      sudo umount "${root_fs_dir}/sys"
+    fi
   fi
 
   # Make the filesystem un-mountable as read-write and setup verity.
