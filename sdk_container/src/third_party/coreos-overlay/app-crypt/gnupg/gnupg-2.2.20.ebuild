@@ -51,6 +51,10 @@ DOCS=(
 
 PATCHES=(
 	"${FILESDIR}/${PN}-2.1.20-gpgscm-Use-shorter-socket-path-lengts-to-improve-tes.patch"
+	# Flatcar: the patches below are added only for Flatcar, to address the
+	# upstream gnupg issue https://dev.gnupg.org/T4393.
+	"${FILESDIR}/${PN}-allow-import-of-previously-known-keys-even-without-UI.patch"
+	"${FILESDIR}/${PN}-accept-subkeys-with-a-good-revocation-but-no-self-sig.patch"
 )
 
 src_prepare() {
