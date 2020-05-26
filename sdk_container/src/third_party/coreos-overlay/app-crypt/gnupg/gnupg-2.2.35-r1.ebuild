@@ -1,6 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Flatcar: use EAPI=7, until EAPI 8 could be fully supported
 EAPI=7
 
 VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/gnupg.asc
@@ -55,6 +56,10 @@ DOCS=(
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.1.20-gpgscm-Use-shorter-socket-path-lengts-to-improve-tes.patch
 	"${FILESDIR}"/${P}-status-messages-garbled.patch
+	# Flatcar: the patches below are added only for Flatcar, to address the
+	# upstream gnupg issue https://dev.gnupg.org/T4393.
+	"${FILESDIR}/${PN}-allow-import-of-previously-known-keys-even-without-UI.patch"
+	"${FILESDIR}/${PN}-accept-subkeys-with-a-good-revocation-but-no-self-sig.patch"
 )
 
 src_prepare() {
