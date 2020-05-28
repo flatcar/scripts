@@ -76,3 +76,5 @@ dev-util/checkbashisms
 =sys-firmware/sgabios-0.1_pre8-r1 ~amd64 ~arm64
 
 =coreos-devel/fero-client-0.1.1 **
+
+>=dev-util/strace-5.3 ~amd64 ~arm64
