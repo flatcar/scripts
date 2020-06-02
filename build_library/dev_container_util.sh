@@ -79,6 +79,7 @@ create_dev_container() {
   run_localedef "${root_fs_dir}"
   write_packages "${root_fs_dir}" "${BUILD_DIR}/${image_packages}"
   write_licenses "${root_fs_dir}" "${BUILD_DIR}/${image_licenses}"
+  insert_licenses "${BUILD_DIR}/${image_licenses}" "${root_fs_dir}"
 
   # Setup portage for emerge and gmerge
   configure_dev_portage "${root_fs_dir}"
