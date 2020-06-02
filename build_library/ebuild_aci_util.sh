@@ -27,6 +27,7 @@ create_ebuild_aci_image() {
     run_ldconfig "${root_fs_dir}"
     write_packages "${root_fs_dir}" "${BUILD_DIR}/${image_packages}"
     write_licenses "${root_fs_dir}" "${BUILD_DIR}/${image_licenses}"
+    insert_licenses "${BUILD_DIR}/${image_licenses}" "${root_fs_dir}"
 
     cleanup_mounts "${root_fs_dir}"
     trap - EXIT
