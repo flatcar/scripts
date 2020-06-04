@@ -28,6 +28,12 @@ runcEbuildNew="app-emulation/docker-runc/docker-runc-${VERSION_NEW}.ebuild"
 git mv ${runcEbuildOld} ${runcEbuildNew}
 sed -i "s/${VERSION_OLD}/${VERSION_NEW}/g" ${runcEbuildNew}
 
+# docker-runc ebuild file has also lines of runc versions with '-' instead of '_', e.g. '1.0.0-rc10'
+VERSION_OLD_HYPHEN=${VERSION_OLD//_/-}
+VERSION_NEW_HYPHEN=${VERSION_NEW//_/-}
+
+sed -i "s/${VERSION_OLD_HYPHEN}/${VERSION_NEW_HYPHEN}/g" ${runcEbuildNew}
+
 # update also runc versions used by docker and containerd
 sed -i "s/docker-runc-${VERSION_OLD}/docker-runc-${VERSION_NEW}/g" app-emulation/docker/docker-9999.ebuild
 sed -i "s/docker-runc-${VERSION_OLD}/docker-runc-${VERSION_NEW}/g" app-emulation/containerd/containerd-9999.ebuild
