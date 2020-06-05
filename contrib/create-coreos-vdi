@@ -44,7 +44,7 @@ if [ -z "${DEST}" ]; then
 fi
 
 if [[ ! -d "${DEST}" ]]; then
-    echo "$0: Target path (${DEST}) do not exists." >&2
+    echo "$0: Target path (${DEST}) does not exist." >&2
     exit 1
 fi
 
