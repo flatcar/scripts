@@ -40,7 +40,7 @@ COMMON_DEP="
 		>=sys-libs/libselinux-2.1.9
 		>=sys-libs/libsemanage-2.1
 	)
-	>=net-dns/bind-tools-9.9[gssapi]
+	>=net-dns/bind-tools-9.9
 	>=dev-libs/cyrus-sasl-2.1.25-r3[kerberos]
 	>=sys-apps/dbus-1.6
 	acl? ( net-fs/cifs-utils[acl] )
