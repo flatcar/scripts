@@ -68,7 +68,6 @@ sys-kernel/coreos-sources symlink
 # set build options for ssdp
 net-nds/openldap minimal sasl
 sys-libs/glibc nscd
-net-dns/bind-tools gssapi
 
 # disable database build because otherwise it tries to generate a database in /etc
 dev-libs/cyrus-sasl kerberos -berkdb -gdbm
