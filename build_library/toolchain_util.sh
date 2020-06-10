@@ -337,9 +337,9 @@ install_cross_toolchain() {
           # because the standard Rust packages don't include the arm64 cross target.
           FILTERED="$(echo $PORTAGE_BINHOST | tr ' ' '\n' | grep toolchain | sed 's#toolchain/#toolchain-arm64/#g' | xargs echo)"
           # If no aarch64 folder exists, try to remove any existing Rust packages.
-          [ ! -d /usr/lib/rust-*/rustlib/aarch64-unknown-linux-gnu ] && ($sudo emerge -C dev-lang/rust || true)
+          [ ! -d /usr/lib/rust-*/rustlib/aarch64-unknown-linux-gnu ] && ($sudo emerge -C virtual/rust dev-lang/rust || true)
           # Building from source is also ok because the cross-compiler got installed.
-          $sudo PORTAGE_BINHOST="$FILTERED" emerge "${emerge_flags[@]}" dev-lang/rust
+          $sudo PORTAGE_BINHOST="$FILTERED" emerge "${emerge_flags[@]}" virtual/rust
         fi
     fi
 
