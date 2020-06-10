@@ -39,7 +39,7 @@ build_target_toolchain() {
     export clst_myemergeopts="$( echo "$clst_myemergeopts" | sed -e 's/--newuse//' )"
 
     PORTAGE_CONFIGROOT="$ROOT" \
-        run_merge --root="$ROOT" --sysroot="$ROOT" dev-lang/rust
+        run_merge --root="$ROOT" --sysroot="$ROOT" virtual/rust
 }
 
 configure_crossdev_overlay / /tmp/crossdev
