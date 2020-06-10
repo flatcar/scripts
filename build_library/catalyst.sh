@@ -121,6 +121,15 @@ target: stage1
 # stage1 packages aren't published, save in tmp
 pkgcache_path: ${TEMPDIR}/stage1-${ARCH}-packages
 update_seed: yes
+# Install virtual/rust to avoid version conflicts that happen in case of
+# rust versions in the SDK being different from those in the new ebuilds.
+# /usr/share/catalyst/targets/stage1/stage1-chroot.sh installs gcc and
+# its dependencies, including dev-lang/rust, while virtual/rust does not
+# get updated. That results in version conflicts between virtual/rust and
+# dev-lang/rust. To avoid such an issue, we should update virtual/rust
+# before building stage1. Since virtual/rust automatically pulls in
+# dev-lang/rust, we do not need to explicitly specify dev-lang/rust here.
+update_seed_command: --update --deep --newuse --complete-graph --rebuild-if-new-ver gcc virtual/rust
 EOF
 catalyst_stage_default
 }
