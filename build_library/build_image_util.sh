@@ -399,8 +399,10 @@ write_licenses() {
         local description="$(get_metadata "$1" "${pkg}" DESCRIPTION)"
         local src_uri="$(get_metadata "$1" "${pkg}" SRC_URI)"
         # Filter out directories, cut type marker, cut timestamp, quote "\", and convert line breaks to "\n"
+        # Filter any unicode characters "rev" doesn't handle (currently some ca-certificates files) and
+        # replace them with a "?" so that the files can still be opened thanks to shell file name expansion
         local files="$(get_metadata "$1" "${pkg}" CONTENTS | grep -v '^dir ' | \
-            cut -d ' ' -f 2- | rev | cut -d ' ' -f 2- | rev | \
+            cut -d ' ' -f 2- | tr -c '[[:print:][:cntrl:]]' '?' | rev | cut -d ' ' -f 2- | rev | \
             sed 's#\\#\\\\#g' | tr '\n' '*' | sed 's/*/\\n/g')"
 
         echo -n "  {\"project\": \"${pkg}\", \"licenses\": ["
