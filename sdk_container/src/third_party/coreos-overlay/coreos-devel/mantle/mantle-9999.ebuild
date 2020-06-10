@@ -19,7 +19,7 @@ inherit coreos-go cros-workon
 
 DESCRIPTION="Mantle: Gluing CoreOS together"
 HOMEPAGE="https://github.com/coreos/mantle"
-LICENSE="Apache-2"
+LICENSE="Apache-2.0"
 SLOT="0"
 # objcopy/split have trouble with our cross-compiled kolet
 STRIP_MASK="/*/kola/*/kolet"
