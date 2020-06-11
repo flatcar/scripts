@@ -1,4 +1,4 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
@@ -16,7 +16,6 @@ INTEL_SNAPSHOT="${PV/_p*}"
 DESCRIPTION="Intel IA32/IA64 microcode update data"
 HOMEPAGE="https://github.com/intel/Intel-Linux-Processor-Microcode-Data-Files http://inertiawar.com/microcode/"
 SRC_URI="https://github.com/intel/Intel-Linux-Processor-Microcode-Data-Files/archive/microcode-${INTEL_SNAPSHOT}.tar.gz
-	https://github.com/intel/Intel-Linux-Processor-Microcode-Data-Files/archive/microcode-20190918.tar.gz
 	https://dev.gentoo.org/~whissi/dist/intel-microcode/intel-microcode-collection-${COLLECTION_SNAPSHOT}.tar.xz"
 
 LICENSE="intel-ucode"
@@ -35,7 +34,8 @@ RESTRICT="binchecks strip"
 S=${WORKDIR}
 
 # Blacklist bad microcode here.
-MICROCODE_BLACKLIST_DEFAULT=""
+# 0x000406f1 aka 06-4f-01 aka CPUID 406F1 require newer microcode loader
+MICROCODE_BLACKLIST_DEFAULT="-s !0x000406f1"
 
 # In case we want to set some defaults ...
 MICROCODE_SIGNATURES_DEFAULT=""
@@ -53,16 +53,12 @@ pkg_pretend() {
 src_prepare() {
 	default
 
-	if cd Intel-Linux-Processor-Microcode-Data*${INTEL_SNAPSHOT} &>/dev/null; then
+	if cd Intel-Linux-Processor-Microcode-Data* &>/dev/null; then
 		# new tarball format from GitHub
 		mv * ../ || die "Failed to move Intel-Linux-Processor-Microcode-Data*"
 		cd .. || die
-		rm -r Intel-Linux-Processor-Microcode-Data*${INTEL_SNAPSHOT} || die
+		rm -r Intel-Linux-Processor-Microcode-Data* || die
 	fi
-	# Roll back 06-55-04
-	# https://github.com/intel/Intel-Linux-Processor-Microcode-Data-Files/issues/21
-	mv Intel-Linux-Processor-Microcode-Data*/intel-ucode/06-55-04 intel-ucode/ || die
-	rm -r Intel-Linux-Processor-Microcode-Data* || die
 
 	# Prevent "invalid file format" errors from iucode_tool
 	rm -f "${S}"/intel-ucod*/list || die
