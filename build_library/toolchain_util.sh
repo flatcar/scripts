@@ -143,7 +143,7 @@ get_board_binhost() {
     shift
 
     if [[ $# -eq 0 ]]; then
-        set -- "${FLATCAR_SDK_VERSION}" "${FLATCAR_VERSION_ID}"
+        set -- "${FLATCAR_VERSION_ID}"
     fi
 
     for ver in "$@"; do
@@ -172,12 +172,18 @@ get_sdk_libdir() {
 get_sdk_binhost() {
     local arch=$(get_sdk_arch) ver
     if [[ $# -eq 0 ]]; then
-        set -- "${FLATCAR_SDK_VERSION}" "${FLATCAR_VERSION_ID}"
+        set -- "${FLATCAR_SDK_VERSION}"
     fi
 
+    FLATCAR_DEV_BUILDS_SDK="${FLATCAR_DEV_BUILDS_SDK-$FLATCAR_DEV_BUILDS/sdk}"
     for ver in "$@"; do
-        echo "${FLATCAR_DEV_BUILDS}/sdk/${arch}/${ver}/pkgs/"
-        echo "${FLATCAR_DEV_BUILDS}/sdk/${arch}/${ver}/toolchain/"
+        # Usually only crossdev needs to be fetched from /toolchain/ in the setup_board step.
+        # The entry for /pkgs/ is there if something needs to be reinstalled in the SDK
+        # but normally it is not needed because everything is already part of the tarball.
+        # To install the crossdev Rust package, /toolchain-arm64/ is derived from /toolchain/
+        # when necessary in install_cross_toolchain().
+        echo "${FLATCAR_DEV_BUILDS_SDK}/${arch}/${ver}/toolchain/"
+        echo "${FLATCAR_DEV_BUILDS_SDK}/${arch}/${ver}/pkgs/"
     done
 }
 
@@ -325,12 +331,12 @@ install_cross_toolchain() {
         $sudo emerge "${emerge_flags[@]}" \
             "cross-${cross_chost}/gdb" "${cross_pkgs[@]}"
         if [ "${cross_chost}" = aarch64-cros-linux-gnu ]; then
-          # Here we need to take only the binary packages from the toolchain builds
+          # Here we need to take only the binary packages from the toolchain-arm64 builds
           # because the standard Rust packages don't include the arm64 cross target.
-          # Building from source is ok because the cross-compiler got installed.
-          FILTERED="$(echo $PORTAGE_BINHOST | tr ' ' '\n' | grep toolchain | xargs echo)"
+          FILTERED="$(echo $PORTAGE_BINHOST | tr ' ' '\n' | grep toolchain | sed 's#toolchain/#toolchain-arm64/#g' | xargs echo)"
           # If no aarch64 folder exists, try to remove any existing Rust packages.
           [ ! -d /usr/lib/rust-*/rustlib/aarch64-unknown-linux-gnu ] && ($sudo emerge -C dev-lang/rust || true)
+          # Building from source is also ok because the cross-compiler got installed.
           $sudo PORTAGE_BINHOST="$FILTERED" emerge "${emerge_flags[@]}" dev-lang/rust
         fi
     fi

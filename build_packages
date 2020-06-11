@@ -18,6 +18,8 @@ DEFINE_boolean usepkg "${FLAGS_TRUE}" \
   "Use binary packages when possible."
 DEFINE_boolean usepkgonly "${FLAGS_FALSE}" \
   "Only use/download binary packages. Implies --noworkon"
+DEFINE_string usepkg_exclude "" \
+  "Exclude these binary packages."
 DEFINE_boolean getbinpkg "${FLAGS_TRUE}" \
   "Download binary packages from remote repository."
 DEFINE_string getbinpkgver "" \
@@ -153,6 +155,9 @@ if [[ "${FLAGS_usepkg}" -eq "${FLAGS_TRUE}" ]]; then
   fi
   if [[ "${FLAGS_getbinpkg}" -eq "${FLAGS_TRUE}" ]]; then
       EMERGE_FLAGS+=( --getbinpkg )
+  fi
+  if [[ -n "${FLAGS_usepkg_exclude}"  ]]; then
+    EMERGE_FLAGS+=("--usepkg-exclude=${FLAGS_usepkg_exclude}")
   fi
 fi
 

@@ -16,6 +16,7 @@ enter() {
             CCACHE_DIR=/mnt/host/source/ccache \
             CCACHE_MAXSIZE=5G \
             FLATCAR_DEV_BUILDS="${DOWNLOAD_ROOT}" \
+            FLATCAR_DEV_BUILDS_SDK="${DOWNLOAD_ROOT_SDK}" \
             {FETCH,RESUME}COMMAND_GS="/usr/bin/gangue get \
 --json-key=/etc/portage/gangue.json $verify_key \
 "'"${URI}" "${DISTDIR}/${FILE}"' \
@@ -44,6 +45,7 @@ script setup_board \
 script build_packages \
     --board="${BOARD}" \
     --getbinpkgver=${RELEASE_BASE:-"${FLATCAR_VERSION}" --toolchainpkgonly} \
+    --usepkg_exclude="${BINARY_PACKAGES_TO_EXCLUDE}" \
     --skip_chroot_upgrade \
     --skip_torcx_store \
     --sign="${SIGNING_USER}" \
