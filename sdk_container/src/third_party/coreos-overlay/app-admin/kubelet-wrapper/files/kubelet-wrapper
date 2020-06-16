@@ -47,9 +47,9 @@ KUBELET_IMAGE="${KUBELET_IMAGE:-${KUBELET_IMAGE_URL}:${KUBELET_IMAGE_TAG}}"
 
 RKT_RUN_ARGS="${RKT_RUN_ARGS} ${RKT_OPTS}"
 
-if [[ "${KUBELET_IMAGE%%/*}" == "quay.io" ]]; then
+if [[ "${KUBELET_IMAGE%%/*}" == "quay.io" ]] && ! (echo "${RKT_RUN_ARGS}" | grep -q trust-keys-from-https); then
 	RKT_RUN_ARGS="${RKT_RUN_ARGS} --trust-keys-from-https"
-elif [[ "${KUBELET_IMAGE%%/*}" == "docker:" ]]; then
+elif [[ "${KUBELET_IMAGE%%/*}" == "docker:" ]] && ! (echo "${RKT_RUN_ARGS}" | grep -q insecure-options); then
 	RKT_RUN_ARGS="${RKT_RUN_ARGS} --insecure-options=image"
 fi
 
