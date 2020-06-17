@@ -385,6 +385,10 @@ multilib_src_install_all() {
 	systemd_enable_service multi-user.target systemd-resolved.service
 	systemd_enable_service sysinit.target systemd-timesyncd.service
 
+	# enable getty manually
+	mkdir --parents "${ED}/usr/lib/systemd/system/getty.target.wants"
+	dosym ../getty@.service "/usr/lib/systemd/system/getty.target.wants/getty@tty1.service"
+
 	# Do not enable random services if /etc was detected as empty!!!
 	rm "${ED}$(usex split-usr '' /usr)/lib/systemd/system-preset/90-systemd.preset" || die
 	insinto $(usex split-usr '' /usr)/lib/systemd/system-preset
