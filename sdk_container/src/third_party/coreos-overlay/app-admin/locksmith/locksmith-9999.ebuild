@@ -5,13 +5,13 @@ EAPI=7
 CROS_WORKON_PROJECT="flatcar-linux/locksmith"
 CROS_WORKON_LOCALNAME="locksmith"
 CROS_WORKON_REPO="git://github.com"
-COREOS_GO_PACKAGE="github.com/coreos/locksmith"
+COREOS_GO_PACKAGE="github.com/flatcar-linux/locksmith"
 inherit cros-workon systemd coreos-go
 
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	CROS_WORKON_COMMIT="a73319a3160b8c3b7ddc64e0eb1730ec1b614291" # v0.6.2
+	CROS_WORKON_COMMIT="085ff774311dba979a53d049f6a776e156224437" # flatcar-master
 	KEYWORDS="amd64 arm64"
 fi
 
@@ -24,7 +24,7 @@ SLOT="0"
 IUSE=""
 
 src_compile() {
-	go_build "${COREOS_GO_PACKAGE}/locksmithctl"
+	COREOS_GO_MOD=vendor go_build "${COREOS_GO_PACKAGE}/locksmithctl"
 }
 
 src_install() {
