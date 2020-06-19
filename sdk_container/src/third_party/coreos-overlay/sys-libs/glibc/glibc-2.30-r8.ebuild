@@ -123,7 +123,6 @@ else
 	"
 	DEPEND+=" virtual/os-headers "
 	RDEPEND+="
-		>=net-dns/libidn2-2.3.0
 		vanilla? ( !sys-libs/timezone-data )
 	"
 	PDEPEND+=" !vanilla? ( sys-libs/timezone-data )"
@@ -713,14 +712,6 @@ sanity_prechecks() {
 # the phases
 #
 
-# pkg_pretend
-
-pkg_pretend() {
-	# All the checks...
-	einfo "Checking general environment sanity."
-	sanity_prechecks
-}
-
 pkg_setup() {
 	# see bug 682570
 	[[ -z ${BOOTSTRAP_RAP} ]] && python-any-r1_pkg_setup
@@ -745,6 +736,10 @@ src_unpack() {
 	cd "${WORKDIR}" || die
 	unpack glibc-${RELEASE_VER}-patches-${PATCH_VER}.tar.xz
 }
+
+PATCHES=(
+	"${FILESDIR}"/2.25/glibc-2.25-gshadow-handle-erange.patch
+)
 
 src_prepare() {
 	if ! use vanilla ; then
@@ -1350,6 +1345,23 @@ glibc_do_src_install() {
 		run_locale_gen --inplace-glibc "${ED}/"
 		sed -e 's:COMPILED_LOCALES="":COMPILED_LOCALES="1":' -i "${ED}"/usr/sbin/locale-gen || die
 	fi
+
+	## Flatcar: Add some local changes:
+	# - Config files are installed by baselayout, not glibc.
+	# - Install nscd/systemd stuff in /usr.
+
+	# Use tmpfiles to put nscd.conf in /etc and create directories.
+	insinto /usr/share/baselayout
+	if ! in_iuse nscd || use nscd ; then
+		doins "${S}"/nscd/nscd.conf || die
+		systemd_newtmpfilesd "${FILESDIR}"/nscd-conf.tmpfiles nscd-conf.conf || die
+	fi
+
+	# Clean out any default configs.
+	rm -rf "${ED}"/etc
+
+	# Restore this one for the SDK.
+	test ! -e "${T}"/00glibc || doenvd "${T}"/00glibc
 }
 
 glibc_headers_install() {
