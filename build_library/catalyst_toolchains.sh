@@ -35,11 +35,6 @@ build_target_toolchain() {
     # --root is required because run_merge overrides ROOT=
     PORTAGE_CONFIGROOT="$ROOT" \
         run_merge -u --root="$ROOT" --sysroot="$ROOT" "${TOOLCHAIN_PKGS[@]}"
-
-    export clst_myemergeopts="$( echo "$clst_myemergeopts" | sed -e 's/--newuse//' )"
-
-    PORTAGE_CONFIGROOT="$ROOT" \
-        run_merge --root="$ROOT" --sysroot="$ROOT" dev-lang/rust
 }
 
 configure_crossdev_overlay / /tmp/crossdev
