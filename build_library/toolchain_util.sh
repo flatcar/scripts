@@ -314,7 +314,7 @@ install_cross_toolchain() {
     fi
 
     # Only call crossdev to regenerate configs if something has changed
-    if ! cmp --quiet - "${cross_cfg}" <<<"${cross_cfg_data}"
+    if [[ ! -d "${cross_overlay}/cross-${cross_chost}" ]] || ! cmp --quiet - "${cross_cfg}" <<<"${cross_cfg_data}"
     then
         $sudo crossdev "${cross_flags[@]}" --init-target
         $sudo tee "${cross_cfg}" <<<"${cross_cfg_data}" >/dev/null
