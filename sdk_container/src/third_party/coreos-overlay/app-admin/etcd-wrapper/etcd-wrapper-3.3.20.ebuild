@@ -6,7 +6,7 @@ EAPI=6
 inherit systemd
 
 DESCRIPTION="etcd (System Application Container)"
-HOMEPAGE="https://github.com/coreos/etcd"
+HOMEPAGE="https://github.com/etcd-io/etcd"
 KEYWORDS="amd64 arm64"
 
 LICENSE="Apache-2.0"
