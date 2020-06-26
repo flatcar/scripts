@@ -11,7 +11,7 @@ COREOS_GO_VERSION="go1.13"
 # Update the patch number when this commit is changed (i.e. the _p in the ebuild).
 # The patch version is arbitrarily the number of commits since the tag version
 # specified in the ebuild name. For example:
-# $ git log --oneline v1.0.0-rc10..${COMMIT_ID} | wc -l
+# $ git log --oneline v1.0.0-rc90..${COMMIT_ID} | wc -l
 COMMIT_ID="dc9208a3303feef5b3839f4323d9beb36df0a9dd"
 
 inherit eutils flag-o-matic coreos-go vcs-snapshot
@@ -61,7 +61,7 @@ src_compile() {
 	)
 
 	GOPATH="${WORKDIR}/${P}" emake BUILDTAGS="${options[*]}" \
-		VERSION=1.0.0-rc10+dev.docker-19.03 \
+		VERSION=1.0.0-rc90+dev.docker-19.03 \
 		COMMIT="${COMMIT_ID}"
 }
 
