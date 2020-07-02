@@ -27,6 +27,7 @@ runcEbuildOld=$(ls -1 app-emulation/docker-runc/docker-runc-${VERSION_OLD}*.ebui
 runcEbuildNew="app-emulation/docker-runc/docker-runc-${VERSION_NEW}.ebuild"
 git mv ${runcEbuildOld} ${runcEbuildNew}
 sed -i "s/${VERSION_OLD}/${VERSION_NEW}/g" ${runcEbuildNew}
+sed -i "s/COMMIT_ID=\"\(.*\)\"/COMMIT_ID=\"${COMMIT_HASH}\"/g" ${runcEbuildNew}
 
 # docker-runc ebuild file has also lines of runc versions with '-' instead of '_', e.g. '1.0.0-rc10'
 VERSION_OLD_HYPHEN=${VERSION_OLD//_/-}
