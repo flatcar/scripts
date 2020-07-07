@@ -613,6 +613,15 @@ EOF
 
   write_contents "${root_fs_dir}" "${BUILD_DIR}/${image_contents}"
 
+  # read the contents of all regular files so that the IMA xattr are written
+  # for each file
+  if [ -d /sys/module/ima ] ; then
+    echo "IMA present. Measuring files of image."
+    sudo find "${root_fs_dir}" -type f -exec dd if="{}" of=/dev/null count=0 status=none \; ||:
+  else
+    echo "WARN: IMA not present. Not measuring files of image."
+  fi
+
   # Zero all fs free space to make it more compressible so auto-update
   # payloads become smaller, not fatal since it won't work on linux < 3.2
   sudo fstrim "${root_fs_dir}" || true
