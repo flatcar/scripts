@@ -134,7 +134,7 @@
         <Description>Main route destination for network interface 1 (only for coreos-cloudinit)</Description>
       </Property>
     </ProductSection>
-    <OperatingSystemSection ovf:id="100" vmw:osType="other26xLinux64Guest">
+    <OperatingSystemSection ovf:id="100" vmw:osType="other3xLinux64Guest">
       <Info>The kind of installed guest operating system</Info>
     </OperatingSystemSection>
     <VirtualHardwareSection ovf:transport="com.vmware.guestInfo">
@@ -143,7 +143,7 @@
         <vssd:ElementName>Virtual Hardware Family</vssd:ElementName>
         <vssd:InstanceID>0</vssd:InstanceID>
         <vssd:VirtualSystemIdentifier>@@NAME@@</vssd:VirtualSystemIdentifier>
-        <vssd:VirtualSystemType>vmx-11</vssd:VirtualSystemType>
+        <vssd:VirtualSystemType>vmx-13</vssd:VirtualSystemType>
       </System>
       <Item>
         <rasd:AllocationUnits>hertz * 10^6</rasd:AllocationUnits>
