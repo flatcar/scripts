@@ -10,5 +10,5 @@ RDEPEND=!savedconfig? ( !sys-firmware/alsa-firmware[alsa_cards_ca0132] !sys-firm
 RESTRICT=binchecks strip
 SLOT=0
 SRC_URI=https://git.kernel.org/cgit/linux/kernel/git/firmware/linux-firmware.git/snapshot/linux-firmware-03dcc2219a339ca826f8966a9005d74dd88c8b26.tar.gz -> linux-firmware-20191022.tar.gz
-_eclasses_=eapi7-ver	756b3f27d8e46131d5cf3c51bd876446	linux-info	953c3b1c472dcadbf62098a9301327f2	multilib	1d91b03d42ab6308b5f4f6b598ed110e	portability	2b88d3ecc35035a3b8ab628b49cafb0e	savedconfig	e6948c872ff47e15a10e5ad1be15c18e	toolchain-funcs	8c7f9d80beedd16f2e5a7f612c609529
+_eclasses_=eapi7-ver	756b3f27d8e46131d5cf3c51bd876446	linux-info	c90a203b1c14cfa77bd3e37a0e96c955	multilib	1d91b03d42ab6308b5f4f6b598ed110e	portability	2b88d3ecc35035a3b8ab628b49cafb0e	savedconfig	e6948c872ff47e15a10e5ad1be15c18e	toolchain-funcs	8c7f9d80beedd16f2e5a7f612c609529
 _md5_=f070047ea5582d1e919d2a06aee75141
