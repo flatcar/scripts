@@ -7,6 +7,31 @@
       {
         "name": "coreos-metadata-sshkeys@.service",
         "enabled": true
+      },
+      {
+        "name": "amazon-ssm-agent.service",
+        "enabled": true,
+        "contents": "[Unit]\nDescription=amazon-ssm-agent\nAfter=network-online.target\n\n[Service]\nType=simple\nWorkingDirectory=/usr/share/oem\nExecStart=/usr/share/oem/amazon-ssm-agent\nKillMode=process\nRestart=on-failure\nRestartForceExitStatus=SIGPIPE\nRestartSec=15min\n\n[Install]\nWantedBy=multi-user.target\n"
+      }
+    ]
+  },
+  "storage": {
+    "files": [
+      {
+        "filesystem": "root",
+        "path": "/etc/amazon/ssm/amazon-ssm-agent.json",
+        "contents": {
+          "source": "oem:///ssm/amazon-ssm-agent.json.template"
+        },
+        "mode": 292
+      },
+      {
+        "filesystem": "root",
+        "path": "/etc/amazon/ssm/seelog.xml",
+        "contents": {
+          "source": "oem:///ssm/seelog.xml.template"
+        },
+        "mode": 292
       }
     ]
   }
