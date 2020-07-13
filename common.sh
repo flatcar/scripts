@@ -264,7 +264,7 @@ load_environment_var() {
   shift
   for name in "$@"; do
     value=$(grep "^${name}=" "${file}" | sed 's|"||g')
-    export "${value}"
+    [[ -n "${value}" ]] && export "${value}"
   done
 }
 
@@ -299,7 +299,8 @@ if [[ -f "${REPO_MANIFESTS_DIR}/version.txt" ]]; then
     FLATCAR_VERSION_ID FLATCAR_SDK_VERSION
   else
     load_environment_var "${REPO_MANIFESTS_DIR}/version.txt" \
-    FLATCAR_VERSION_ID FLATCAR_BUILD_ID FLATCAR_SDK_VERSION
+    FLATCAR_VERSION_ID FLATCAR_BUILD_ID FLATCAR_SDK_VERSION \
+    FLATCAR_DEV_BUILDS FLATCAR_DEV_BUILDS_SDK
     # Don't promote FLATCAR_BUILD_ID into an environment variable when it
     # didn't start as one, since we don't want it leaking into the SDK
     # chroot environment via ENVIRONMENT_WHITELIST.
@@ -309,7 +310,8 @@ if [[ -f "${REPO_MANIFESTS_DIR}/version.txt" ]]; then
 elif [[ -f "${SCRIPT_LOCATION}/version.txt" ]]; then
   # This only happens in update.zip where we must use the current build id.
   load_environment_var "${SCRIPT_LOCATION}/version.txt" \
-      FLATCAR_VERSION_ID FLATCAR_BUILD_ID FLATCAR_SDK_VERSION
+      FLATCAR_VERSION_ID FLATCAR_BUILD_ID FLATCAR_SDK_VERSION \
+      FLATCAR_DEV_BUILDS FLATCAR_DEV_BUILDS_SDK
 else
   die "Unable to locate version.txt"
 fi
