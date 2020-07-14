@@ -1,0 +1,2 @@
+# Overwrite outdated portage-stable mask
+=dev-libs/openssl-1.1.1g
