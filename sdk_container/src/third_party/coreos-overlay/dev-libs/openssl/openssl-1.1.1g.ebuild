@@ -1,9 +1,12 @@
+# Difference to upstream from ./update_ebuilds:
+# - Ported changes from 7b591fb2e0ec7a0f9fe43218f9196d825b5f9653
+#
 # Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
 
-inherit flag-o-matic toolchain-funcs multilib multilib-minimal
+inherit flag-o-matic toolchain-funcs multilib multilib-minimal systemd
 
 MY_P=${P/_/-}
 
@@ -284,9 +287,6 @@ multilib_src_install_all() {
 	# twice; once with shared lib support enabled and once without.
 	use static-libs || rm -f "${ED}"/usr/lib*/lib*.a
 
-	# create the certs directory
-	keepdir ${SSL_CNF_DIR}/certs
-
 	# Namespace openssl programs to prevent conflicts with other man pages
 	cd "${ED}"/usr/share/man || die
 	local m d s
@@ -313,12 +313,15 @@ multilib_src_install_all() {
 	dodir /etc/sandbox.d #254521
 	echo 'SANDBOX_PREDICT="/dev/crypto"' > "${ED}"/etc/sandbox.d/10openssl
 
-	diropts -m0700
-	keepdir ${SSL_CNF_DIR}/private
-}
+	# Don't keep the sample CA files and their ilk in /etc.
+	rm -r "${ED}"${SSL_CNF_DIR}
 
-pkg_postinst() {
-	ebegin "Running 'c_rehash ${EROOT}${SSL_CNF_DIR}/certs/' to rebuild hashes #333069"
-	c_rehash "${EROOT}${SSL_CNF_DIR}/certs" >/dev/null
-	eend $?
+	# Save the default openssl.cnf in /usr and link it into place.
+	dodir /usr/share/ssl
+	insinto /usr/share/ssl
+	doins "${S}"/apps/openssl.cnf
+	systemd_dotmpfilesd "${FILESDIR}"/openssl.conf
+
+	# Package the tmpfiles.d setup for SDK bootstrapping.
+	systemd-tmpfiles --create --root="${ED}" "${FILESDIR}"/openssl.conf
 }
