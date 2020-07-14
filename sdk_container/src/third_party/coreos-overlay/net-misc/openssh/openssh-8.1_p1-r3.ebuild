@@ -1,3 +1,6 @@
+# Difference to upstream from ./update_ebuilds:
+# - Ported changes from 775af6c96219eba4bc6294712a36bddc0e6db00f
+#
 # Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
@@ -395,8 +398,6 @@ src_install() {
 	emake install-nokeys DESTDIR="${D}"
 	fperms 600 /etc/ssh/sshd_config
 	dobin contrib/ssh-copy-id
-	newinitd "${FILESDIR}"/sshd-r1.initd sshd
-	newconfd "${FILESDIR}"/sshd-r1.confd sshd
 
 	newpamd "${FILESDIR}"/sshd.pam_include.2 sshd
 
