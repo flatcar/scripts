@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7} )
+PYTHON_COMPAT=( python3_{6,7,8} )
 
 inherit bash-completion-r1 check-reqs estack flag-o-matic llvm multiprocessing multilib-build python-any-r1 rust-toolchain toolchain-funcs
 
@@ -60,7 +60,7 @@ LLVM_MAX_SLOT=10
 
 BOOTSTRAP_DEPEND="|| ( >=dev-lang/rust-1.$(($(ver_cut 2) - 1)) >=dev-lang/rust-bin-1.$(($(ver_cut 2) - 1)) )"
 
-# libgit2 should be at least same as bungled into libgit-sys #707746
+# libgit2 should be at least same as bundled into libgit-sys #707746
 COMMON_DEPEND="
 	>=dev-libs/libgit2-0.99:=
 	net-libs/libssh2:=
@@ -181,9 +181,11 @@ src_configure() {
 	done
 	if use wasm; then
 		rust_targets="${rust_targets},\"wasm32-unknown-unknown\""
-	fi
-	if [ -f /usr/bin/aarch64-cros-linux-gnu-gcc ]; then
-		rust_targets="${rust_targets},\"aarch64-unknown-linux-gnu\""
+		if use system-llvm; then
+			# un-hardcode rust-lld linker for this target
+			# https://bugs.gentoo.org/715348
+			sed -i '/linker:/ s/rust-lld/wasm-ld/' src/librustc_target/spec/wasm32_base.rs || die
+		fi
 	fi
 	rust_targets="${rust_targets#,}"
 
@@ -291,19 +293,6 @@ src_configure() {
 			EOF
 		fi
 	done
-	if [ -f /usr/bin/aarch64-cros-linux-gnu-gcc ]; then
-		printf '#!/bin/sh\naarch64-cros-linux-gnu-gcc --sysroot=/usr/aarch64-cros-linux-gnu "$@"' > ${S}/cc.sh
-		printf '#!/bin/sh\naarch64-cros-linux-gnu-g++ --sysroot=/usr/aarch64-cros-linux-gnu "$@"' > ${S}/cxx.sh
-		chmod +x ${S}/cc.sh ${S}/cxx.sh
-		cat <<- EOF >> "${S}"/config.toml
-			[target.aarch64-unknown-linux-gnu]
-			cc = "${S}/cc.sh"
-			cxx = "${S}/cxx.sh"
-			linker = "${S}/cc.sh"
-			ar = "aarch64-cros-linux-gnu-ar"
-		EOF
-	fi
-
 	if use wasm; then
 		cat <<- EOF >> "${S}"/config.toml
 			[target.wasm32-unknown-unknown]
@@ -328,7 +317,7 @@ src_configure() {
 	# )
 	# no extra hand holding is done, no target transformations, all
 	# values are passed as-is with just basic checks, so it's up to user to supply correct values
-	# valid rust targets can be obtained with 
+	# valid rust targets can be obtained with
 	# 	rustc --print target-list
 	# matching cross toolchain has to be installed
 	# matching LLVM_TARGET has to be enabled for both rust and llvm (if using system one)
