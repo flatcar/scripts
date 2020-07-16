@@ -4,6 +4,7 @@ set -euo pipefail
 
 DEFAULT_BASE_URL="https://storage.googleapis.com/flatcar-jenkins"
 DEV_BOARD_URL="${DEFAULT_BASE_URL}/developer"
+DEFAULT_SDK_URL="${DEFAULT_BASE_URL}/sdk"
 DEV_SDK_URL="${DEFAULT_BASE_URL}/developer/sdk"
 FILE=~/trunk/.repo/manifests/version.txt
 FLATCAR_DEV_BUILDS_SDK=""
@@ -23,10 +24,12 @@ Usage: $0 FLAGS...
                                                    referenced by
                                                    ${DEV_BOARD_URL}/boards/BOARD/CHANNEL-nightly.txt
   --dev-board:                                     Set FLATCAR_DEV_BUILDS=${DEV_BOARD_URL}
+                                                   which also selects --dev-sdk unless you specify
+                                                   --no-dev-sdk
   --no-dev-board:                                  Remove existing FLATCAR_DEV_BUILDS
   --sdk-version VERSION:                           Set FLATCAR_SDK_VERSION=VERSION
   --dev-sdk:                                       Set FLATCAR_DEV_BUILDS_SDK=${DEV_SDK_URL}
-  --no-dev-sdk:                                    Remove existing FLATCAR_DEV_BUILDS_SDK
+  --no-dev-sdk:                                    Use a release SDK even if --dev-board is specified
   --file FILE:                                     Modify another file than ${FILE}, useful if run
                                                    outside of the SDK chroot. If /dev/stdout or
                                                    /dev/stderr is used, only new values are printed.
@@ -61,7 +64,7 @@ while [[ $# -gt 0 ]]; do
       FLATCAR_DEV_BUILDS_SDK="${DEV_SDK_URL}"
       ;;
     --no-dev-sdk)
-      FLATCAR_DEV_BUILDS_SDK=no
+      FLATCAR_DEV_BUILDS_SDK="${DEFAULT_SDK_URL}"
       ;;
     --file)
       FILE="$1"
@@ -87,5 +90,5 @@ fi
   [[ -n "${FLATCAR_VERSION_ID}" ]] && echo "FLATCAR_VERSION_ID=${FLATCAR_VERSION_ID}"
   [[ -n "${FLATCAR_DEV_BUILDS}" ]] && [[ "${FLATCAR_DEV_BUILDS}" != no ]] && echo "FLATCAR_DEV_BUILDS=${FLATCAR_DEV_BUILDS}"
   [[ -n "${FLATCAR_SDK_VERSION}" ]] && echo "FLATCAR_SDK_VERSION=${FLATCAR_SDK_VERSION}"
-  [[ -n "${FLATCAR_DEV_BUILDS_SDK}" ]] && [[ "${FLATCAR_DEV_BUILDS_SDK}" != no ]] && echo "FLATCAR_DEV_BUILDS_SDK=${FLATCAR_DEV_BUILDS_SDK}"
+  [[ -n "${FLATCAR_DEV_BUILDS_SDK}" ]] && echo "FLATCAR_DEV_BUILDS_SDK=${FLATCAR_DEV_BUILDS_SDK}"
 } >> "${FILE}"
