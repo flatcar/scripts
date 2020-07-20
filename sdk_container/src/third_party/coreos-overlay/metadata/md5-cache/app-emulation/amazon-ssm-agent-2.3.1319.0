@@ -1,0 +1,14 @@
+BDEPEND=dev-lang/go:1.12= >=dev-lang/go-1.10
+DEFINED_PHASES=compile install prepare unpack
+DESCRIPTION=AWS Systems Manager Agent
+EAPI=7
+HOMEPAGE=https://github.com/aws/amazon-ssm-agent
+IUSE=+go_version_go1_12
+KEYWORDS=amd64 arm64
+LICENSE=Apache-2.0
+REQUIRED_USE=go_version_go1_12
+RESTRICT=strip
+SLOT=0
+SRC_URI=https://github.com/aws/amazon-ssm-agent/archive/2.3.1319.0.tar.gz -> amazon-ssm-agent-2.3.1319.0.tar.gz
+_eclasses_=coreos-go-depend	90f5716bc80a5aea57dbb393aa0cabdf	coreos-go-utils	67004337b6f831adc5f1ff107ee2f157	eutils	6e6c2737b59a4b982de6fb3ecefd87f8	flag-o-matic	a09389deba2c0a7108b581e02c7cecbf	golang-base	c57d2c3f9e1a02d0feb8b87c7b689892	golang-vcs-snapshot	12177e83bede6f7fb87eae383864b40b	multilib	1d91b03d42ab6308b5f4f6b598ed110e	toolchain-funcs	8c7f9d80beedd16f2e5a7f612c609529
+_md5_=515cd691cd2d0613a51be1fa8b801308
