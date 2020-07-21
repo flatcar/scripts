@@ -1,6 +1,6 @@
 From 74250a7cdf106d4ca7d9506e6d5dc7c448dc3434 Mon Sep 17 00:00:00 2001
-From: David Michael <david.michael@coreos.com>
-Date: Thu, 15 Dec 2016 15:22:57 -0800
+From: Dongsu Park <dongsu@kinvolk.io>
+Date: Fri Jun 19 15:48:47 2020 +0200
 Subject: [PATCH] gshadow: Sync fgetsgent_r.c with grp/fgetgrent_r.c
 
 	[BZ #20338]
@@ -9,6 +9,8 @@ Subject: [PATCH] gshadow: Sync fgetsgent_r.c with grp/fgetgrent_r.c
 	(funlockfile): Likewise.
 	(__fgetsgent_r): Sync with __fgetgrent_r.
 	* nss/nss_files/files-sgrp.c: Fix "fgetsgent_r.c" typo.
+
+	Originally written by David Michael.
 ---
  gshadow/fgetsgent_r.c      | 35 ++++++++++++++++++++++++-----------
  nss/nss_files/files-sgrp.c |  2 +-
@@ -70,16 +72,12 @@ index b70f6fa..02cd33a 100644
  	  *result = NULL;
  	  __set_errno (ERANGE);
  	  return errno;
-@@ -61,13 +66,21 @@ __fgetsgent_r (FILE *stream, struct sgrp *resbuf, char *buffer, size_t buflen,
-       /* Skip leading blanks.  */
-       while (isspace (*p))
- 	++p;
--    } while (*p == '\0' || *p == '#' ||	/* Ignore empty and comment lines.  */
-+    } while (*p == '\0' || *p == '#'	/* Ignore empty and comment lines.  */
+@@ -61,10 +66,18 @@ __fgetsgent_r (FILE *stream, struct sgrp *resbuf, char *buffer, size_t buflen,
+     } while (*p == '\0' || *p == '#' /* Ignore empty and comment lines.  */
  	     /* Parse the line.  If it is invalid, loop to
  		get the next line of the file to parse.  */
--	     ! parse_line (buffer, (void *) resbuf, (void *) buffer, buflen,
--			   &errno));
+-	     || ! parse_line (buffer, (void *) resbuf, (void *) buffer, buflen,
+-			      &errno));
 +	     || ! (parse_result = parse_line (p, resbuf,
 +					      (void *) buffer, buflen,
 +					      &errno)));
