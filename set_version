@@ -18,11 +18,14 @@ FLATCAR_VERSION_ID=""
 if [[ $# = 0 ]] || [[ "$1" = "-h" ]] || [[ "$1" = "--help" ]]; then
   echo "Updates ${FILE} with new values to specify which binary packages to use
 Usage: $0 FLAGS...
-  --board-version (VERSION|BOARD/CHANNEL-nightly): Set FLATCAR_VERSION=VERSION and
+  --board-version (VERSION|BOARD/BRANCH-nightly):  Set FLATCAR_VERSION=VERSION and
                                                    FLATCAR_VERSION_ID=VERSION where VERSION can
                                                    be resolved by looking up the latest build
                                                    referenced by
-                                                   ${DEV_BOARD_URL}/boards/BOARD/CHANNEL-nightly.txt
+                                                   ${DEV_BOARD_URL}/boards/BOARD/BRANCH-nightly.txt
+                                                   where BRANCH can be flatcar-MAJOR for the maintenance
+                                                   branch of a release with the version MAJOR.MINOR.PATCH,
+                                                   or the Alpha/Edge development branch
   --dev-board:                                     Set FLATCAR_DEV_BUILDS=${DEV_BOARD_URL}
                                                    which also selects --dev-sdk unless you specify
                                                    --no-dev-sdk
