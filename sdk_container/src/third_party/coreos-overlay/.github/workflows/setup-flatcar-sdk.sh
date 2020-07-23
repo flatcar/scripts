@@ -52,7 +52,7 @@ enter sudo eselect profile set --force "coreos:coreos/amd64/sdk"
 # make edb directory group-writable to run egencache
 enter sudo chmod g+w /var/cache/edb
 
-git -C src/third_party/coreos-overlay reset --hard github/flatcar-master
+git -C src/third_party/coreos-overlay reset --hard github/main
 git -C src/third_party/coreos-overlay config user.name 'Flatcar Buildbot'
 git -C src/third_party/coreos-overlay config user.email 'buildbot@flatcar-linux.org'
 popd || exit

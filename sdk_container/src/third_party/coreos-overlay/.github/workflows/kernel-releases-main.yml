@@ -1,0 +1,46 @@
+name: Get the latest Kernel release for main
+on:
+  schedule:
+    - cron:  '0 7 * * *'
+
+jobs:
+  get-kernel-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Fetch latest Kernel release
+        id: fetch-latest-release
+        env:
+          KV_MAIN: 5.4
+        run: |
+          git clone --depth=1 --no-checkout https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux
+          versionMain=$(git -C linux ls-remote --tags origin | cut -f2 | sed -n "/refs\/tags\/v${KV_MAIN}.[0-9]*$/s/^refs\/tags\/v//p" | sort -ruV | head -1)
+          rm -rf linux
+          echo ::set-output name=VERSION_MAIN::$(echo ${versionMain})
+          echo ::set-output name=BASE_BRANCH_MAIN::main
+      - name: Set up Flatcar SDK
+        id: setup-flatcar-sdk
+        run: .github/workflows/setup-flatcar-sdk.sh
+      - name: Apply patch for main
+        id: apply-patch-main
+        env:
+          TARGET: main
+          BASE_BRANCH: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_MAIN }}
+          PATH: ${{ steps.setup-flatcar-sdk.outputs.path }}
+          VERSION_NEW: ${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}
+        run: .github/workflows/kernel-apply-patch.sh
+      - name: Create pull request for main
+        uses: peter-evans/create-pull-request@v2
+        if: steps.apply-patch-main.outputs.UPDATE_NEEDED == 1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_MAIN }}
+          branch: linux-${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}-main
+          author: Flatcar Buildbot <buildbot@flatcar-linux.org>
+          committer: Flatcar Buildbot <buildbot@flatcar-linux.org>
+          title: Upgrade Linux Kernel in main from ${{ steps.apply-patch-main.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}
+          commit-message: Upgrade Linux Kernel in main from ${{ steps.apply-patch-main.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}
+          body: Upgrade Linux Kernel in main from ${{ steps.apply-patch-main.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}
+          labels: main

@@ -8,7 +8,7 @@ UPDATE_NEEDED=1
 
 . .github/workflows/common.sh
 
-if ! checkout_branches "linux-${VERSION_NEW}-${CHANNEL}"; then
+if ! checkout_branches "linux-${VERSION_NEW}-${TARGET}"; then
   UPDATE_NEEDED=0
   exit 0
 fi
