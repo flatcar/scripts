@@ -16,7 +16,7 @@ jobs:
           versionAlpha=$(git -C rust ls-remote --tags origin | cut -f2 | sed -n "/refs\/tags\/1.[0-9]*.[0-9]*$/s/^refs\/tags\///p" | sort -ruV | head -n1)
           rm -rf rust
           echo ::set-output name=VERSION_ALPHA::$(echo ${versionAlpha})
-          echo ::set-output name=BASE_BRANCH_ALPHA::flatcar-master-alpha
+          echo ::set-output name=BASE_BRANCH_ALPHA::main
       - name: Apply patch for Alpha
         id: apply-patch-alpha
         env:
