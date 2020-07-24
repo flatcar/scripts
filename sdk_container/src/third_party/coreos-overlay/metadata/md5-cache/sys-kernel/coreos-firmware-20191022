@@ -11,4 +11,4 @@ RESTRICT=binchecks strip
 SLOT=0
 SRC_URI=https://mirrors.edge.kernel.org/pub/linux/kernel/firmware/linux-firmware-20191022.tar.gz -> linux-firmware-20191022.tar.gz
 _eclasses_=eapi7-ver	756b3f27d8e46131d5cf3c51bd876446	linux-info	c90a203b1c14cfa77bd3e37a0e96c955	multilib	1d91b03d42ab6308b5f4f6b598ed110e	portability	2b88d3ecc35035a3b8ab628b49cafb0e	savedconfig	e6948c872ff47e15a10e5ad1be15c18e	toolchain-funcs	8c7f9d80beedd16f2e5a7f612c609529
-_md5_=5e64d02b2c156edef4c723d0cd6fef90
+_md5_=6b61b288b9d98d1cd318e13c2df53f35
