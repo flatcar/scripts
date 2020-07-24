@@ -26,7 +26,7 @@ jobs:
       - name: Apply patch for main
         id: apply-patch-main
         env:
-          TARGET: main
+          TARGET: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_MAIN }}
           BASE_BRANCH: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_MAIN }}
           PATH: ${{ steps.setup-flatcar-sdk.outputs.path }}
           VERSION_NEW: ${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}
