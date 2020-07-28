@@ -42,11 +42,8 @@ function generate_patches() {
   git add ${CATEGORY_NAME}/${PKGNAME_SIMPLE}
   git commit -a -m "${CATEGORY_NAME}: Upgrade ${PKGNAME_DESC} ${VERSION_OLD} to ${VERSION_NEW}"
 
-  # Generate metadata after the main commit was done.
-  enter "${SDK_INNER_SRCDIR}/scripts/update_metadata" --commit coreos
-
-  # Create 2 patches, one for the main ebuilds, the other for metadata changes.
-  git format-patch -2 HEAD
+  # Create a patch for the main ebuilds.
+  git format-patch -1 HEAD
   popd || exit
 }
 
