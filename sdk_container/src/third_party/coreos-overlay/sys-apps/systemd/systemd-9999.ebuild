@@ -379,7 +379,9 @@ multilib_src_install_all() {
 		rmdir "${ED}${rootprefix}"/sbin || die
 	fi
 
-	rm -r "${ED}${rootprefix}"/lib/udev/hwdb.d || die
+	if use hwdb; then
+		rm -r "${ED}${rootprefix}"/lib/udev/hwdb.d || die
+	fi
 
 	# Flatcar: Upstream uses keepdir commands to keep some empty
 	# directories.
