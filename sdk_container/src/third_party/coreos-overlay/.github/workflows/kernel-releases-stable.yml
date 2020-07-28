@@ -1,0 +1,48 @@
+name: Get the latest Kernel release for the Stable maintenance branch
+on:
+  schedule:
+    - cron:  '0 7 * * *'
+
+jobs:
+  get-kernel-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Fetch latest Kernel release
+        id: fetch-latest-release
+        env:
+          CHANNEL: stable
+        run: |
+          KV_MAIN=$(curl -s -S -f -L "https://${CHANNEL}.release.flatcar-linux.net/amd64-usr/current/flatcar_production_image_packages.txt" | grep -o 'coreos-kernel.*' | cut -d '-' -f 3- | cut -d . -f 1-2)
+          git clone --depth=1 --no-checkout https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux
+          versionMaintenance=$(git -C linux ls-remote --tags origin | cut -f2 | sed -n "/refs\/tags\/v${KV_MAIN}.[0-9]*$/s/^refs\/tags\/v//p" | sort -ruV | head -1)
+          rm -rf linux
+          maintenanceBranch=$(curl -s -S -f -L "https://${CHANNEL}.release.flatcar-linux.net/amd64-usr/current/version.txt" | grep -m 1 FLATCAR_BUILD= | cut -d = -f 2-)
+          echo ::set-output name=VERSION_MAINTENANCE::$(echo ${versionMaintenance})
+          echo ::set-output name=BASE_BRANCH_MAINTENANCE::$(echo flatcar-${maintenanceBranch})
+      - name: Set up Flatcar SDK
+        id: setup-flatcar-sdk
+        run: .github/workflows/setup-flatcar-sdk.sh
+      - name: Apply patch for maintenance branch
+        id: apply-patch-maintenance
+        env:
+          TARGET: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_MAINTENANCE }}
+          BASE_BRANCH: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_MAINTENANCE }}
+          PATH: ${{ steps.setup-flatcar-sdk.outputs.path }}
+          VERSION_NEW: ${{ steps.fetch-latest-release.outputs.VERSION_MAINTENANCE }}
+        run: .github/workflows/kernel-apply-patch.sh
+      - name: Create pull request for maintenance branch
+        uses: peter-evans/create-pull-request@v2
+        if: steps.apply-patch-maintenance.outputs.UPDATE_NEEDED == 1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_MAINTENANCE }}
+          branch: linux-${{ steps.fetch-latest-release.outputs.VERSION_MAINTENANCE }}-${{ steps.fetch-latest-release.outputs.BASE_BRANCH_MAINTENANCE }}
+          author: Flatcar Buildbot <buildbot@flatcar-linux.org>
+          committer: Flatcar Buildbot <buildbot@flatcar-linux.org>
+          title: Upgrade Linux Kernel for ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_MAINTENANCE }} from ${{ steps.apply-patch-maintenance.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_MAINTENANCE }}
+          commit-message: Upgrade Linux Kernel in maintenance branch from ${{ steps.apply-patch-maintenance.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_MAINTENANCE }}
+          body: Upgrade Linux Kernel in ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_MAINTENANCE }} from ${{ steps.apply-patch-main.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_MAINTENANCE }}
+          labels: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_MAINTENANCE }}
