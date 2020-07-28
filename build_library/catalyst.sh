@@ -129,7 +129,7 @@ update_seed: yes
 # dev-lang/rust. To avoid such an issue, we should update virtual/rust
 # before building stage1. Since virtual/rust automatically pulls in
 # dev-lang/rust, we do not need to explicitly specify dev-lang/rust here.
-update_seed_command: --update --deep --newuse --complete-graph --rebuild-if-new-ver gcc virtual/rust
+update_seed_command: --update --deep --newuse --complete-graph --rebuild-if-new-ver --rebuild-exclude cross-*-cros-linux-gnu/* sys-devel/gcc virtual/rust
 EOF
 catalyst_stage_default
 }
