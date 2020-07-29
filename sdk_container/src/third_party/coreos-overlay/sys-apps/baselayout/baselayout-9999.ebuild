@@ -25,6 +25,7 @@ IUSE="cros_host symlink-usr"
 
 # This version of baselayout replaces coreos-base
 DEPEND="sys-apps/systemd
+	net-dns/libidn2:=
 	!coreos-base/coreos-base
 	!<sys-libs/glibc-2.17-r1
 	!<=sys-libs/nss-usrfiles-2.18.1_pre"
