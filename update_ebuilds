@@ -20,8 +20,6 @@ DEFINE_string rsync "rsync://rsync.gentoo.org/gentoo-portage" \
     "Rsync location for gentoo-portage to use with --portage=rsync"
 DEFINE_boolean commit ${FLAGS_FALSE} \
     "Commit all changes after updating portage-stable."
-DEFINE_boolean regencache ${FLAGS_TRUE} \
-    "Regenerate cache for updated ebuilds."
 
 
 # Parse flags
@@ -36,11 +34,6 @@ fi
 
 if [[ -z "$*" ]]; then
     die "No packages provided"
-fi
-
-# eclass updates impact coreos-overlay too, use update_metadata.
-if [[ "$*" == *eclass* ]]; then
-    FLAGS_regencache=${FLAGS_FALSE}
 fi
 
 cd "$FLAGS_portage_stable"
@@ -75,11 +68,6 @@ for pkg in "$@"; do
 
     git add -A "$pkg"
 
-    # Sync up the ebuild metadata cache
-    if [[ $FLAGS_regencache -eq $FLAGS_TRUE && "$pkg" == */* && "$pkg" != metadata/glsa ]]; then
-        egencache --repo=portage-stable --update "$pkg"
-        git add -A "metadata/md5-cache/${pkg}-*"
-    fi
 done
 
 if [[ $FLAGS_commit -eq $FLAGS_TRUE ]]; then
@@ -98,6 +86,3 @@ else
     git status
 fi
 
-if [[ "$*" == *eclass* ]]; then
-    info "Please run update_metadata to update cache in all overlays."
-fi
