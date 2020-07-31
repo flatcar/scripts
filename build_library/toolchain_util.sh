@@ -332,14 +332,13 @@ install_cross_toolchain() {
         echo "Installing existing binaries"
         $sudo emerge "${emerge_flags[@]}" \
             "cross-${cross_chost}/gdb" "${cross_pkgs[@]}"
-        if [ "${cross_chost}" = aarch64-cros-linux-gnu ]; then
-          # Here we need to take only the binary packages from the toolchain-arm64 builds
-          # because the standard Rust packages don't include the arm64 cross target.
-          FILTERED="$(echo $PORTAGE_BINHOST | tr ' ' '\n' | grep toolchain | sed 's#toolchain/#toolchain-arm64/#g' | xargs echo)"
-          # If no aarch64 folder exists, try to remove any existing Rust packages.
-          [ ! -d /usr/lib/rust-*/rustlib/aarch64-unknown-linux-gnu ] && ($sudo emerge -C virtual/rust dev-lang/rust || true)
-          # Building from source is also ok because the cross-compiler got installed.
-          $sudo PORTAGE_BINHOST="$FILTERED" emerge "${emerge_flags[@]}" virtual/rust
+        if [ "${cross_chost}" = aarch64-cros-linux-gnu ] && \
+           [ ! -d /usr/lib64/rust-*/rustlib/aarch64-unknown-linux-gnu ] && [ ! -d /usr/lib64/rustlib/aarch64-unknown-linux-gnu ]; then
+          # If no aarch64 folder exists, warn about the situation but don't compile Rust here or download it as binary package
+          echo "WARNING: No aarch64 cross-compilation Rust libraries found!"
+          echo "In case building fails, make sure the old Rust version is deleted with: sudo emerge -C virtual/rust dev-lang/rust"
+          echo "Then install it again with: sudo emerge "${emerge_flags[@]}" virtual/rust"
+          echo "This will download the binary package or build from source."
         fi
     fi
 
