@@ -13,10 +13,6 @@ KEYWORDS="amd64 arm64 x86"
 IUSE="ec2 openstack brightbox"
 REQUIRED_USE="^^ ( ec2 openstack brightbox )"
 
-RDEPEND="
-	app-emulation/amazon-ssm-agent
-"
-
 # no source directory
 S="${WORKDIR}"
 
