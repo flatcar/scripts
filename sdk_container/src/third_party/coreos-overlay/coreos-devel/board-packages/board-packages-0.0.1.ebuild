@@ -31,6 +31,7 @@ RDEPEND="
 		sys-boot/grub
 		sys-firmware/edk2-ovmf
 	)
+	app-emulation/amazon-ssm-agent
 	coreos-base/coreos
 	coreos-base/coreos-dev
 	"
