@@ -10,7 +10,7 @@ CROS_WORKON_REPO="git://github.com"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	CROS_WORKON_COMMIT="bf79d0fbb7a4bc3ceacc7b1b35b09ec747d4d82f"  # flatcar-master
+	CROS_WORKON_COMMIT="45a62e85b7c40e322bd814ce324e5c330e654ce0"  # flatcar-master
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
@@ -31,6 +31,7 @@ src_install() {
 	# re-use existing filesystem permissions during initrd creation.
 	chmod +x "${D}"/usr/lib/dracut/modules.d/10*-generator/*-generator \
 		"${D}"/usr/lib/dracut/modules.d/10diskless-generator/diskless-btrfs \
+		"${D}"/usr/lib/dracut/modules.d/30disk-uuid/disk-uuid.sh \
 		"${D}"/usr/lib/dracut/modules.d/30ignition/ignition-generator \
 		"${D}"/usr/lib/dracut/modules.d/30ignition/ignition-setup.sh \
 		"${D}"/usr/lib/dracut/modules.d/30ignition/retry-umount.sh \
