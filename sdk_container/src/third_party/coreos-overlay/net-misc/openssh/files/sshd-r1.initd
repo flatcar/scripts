@@ -1,5 +1,5 @@
 #!/sbin/openrc-run
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 extra_commands="checkconfig"
@@ -61,16 +61,14 @@ checkconfig() {
 }
 
 start_pre() {
-	# If this isn't a restart, make sure that the user's config isn't
-	# busted before we try to start the daemon (this will produce
-	# better error messages than if we just try to start it blindly).
+	# Make sure that the user's config isn't busted before we try
+	# to start the daemon (this will produce better error messages
+	# than if we just try to start it blindly).
 	#
-	# If, on the other hand, this *is* a restart, then the stop_pre
-	# action will have ensured that the config is usable and we don't
-	# need to do that again.
-	if [ "${RC_CMD}" != "restart" ] ; then
-		checkconfig || return $?
-	fi
+	# We always need to call checkconfig because this function will
+	# also generate any missing host key and you can start a
+	# non-running service with "restart" argument.
+	checkconfig || return $?
 }
 
 stop_pre() {
