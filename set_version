@@ -30,7 +30,12 @@ Usage: $0 FLAGS...
                                                    which also selects --dev-sdk unless you specify
                                                    --no-dev-sdk
   --no-dev-board:                                  Remove existing FLATCAR_DEV_BUILDS
-  --sdk-version VERSION:                           Set FLATCAR_SDK_VERSION=VERSION
+  --sdk-version (VERSION|sdk-BRANCH-nightly):      Set FLATCAR_SDK_VERSION=VERSION where VERSION can
+                                                   be resolved by looking up the latest SDK build
+                                                   referenced by
+                                                   ${DEV_BOARD_URL}/sdk/amd64/sdk-BRANCH-nightly.txt
+                                                   where BRANCH is currently only main, and requires
+                                                   the --dev-sdk option if --no-dev-board is used
   --dev-sdk:                                       Set FLATCAR_DEV_BUILDS_SDK=${DEV_SDK_URL}
   --no-dev-sdk:                                    Use a release SDK even if --dev-board is specified
   --file FILE:                                     Modify another file than ${FILE}, useful if run
@@ -61,6 +66,9 @@ while [[ $# -gt 0 ]]; do
       ;;
     --sdk-version)
       FLATCAR_SDK_VERSION="$1"
+      if [[ "${FLATCAR_SDK_VERSION}" == sdk-*-nightly ]]; then
+        FLATCAR_SDK_VERSION=$(curl -s -S -f -L "${DEV_BOARD_URL}/sdk/amd64/${FLATCAR_SDK_VERSION}.txt")
+      fi
       shift
       ;;
     --dev-sdk)
