@@ -6,8 +6,10 @@ CORK_VERSION=$(curl -s https://api.github.com/repos/flatcar-linux/mantle/release
 curl -L -o cork https://github.com/flatcar-linux/mantle/releases/download/v"${CORK_VERSION}"/cork-"${CORK_VERSION}"-amd64
 curl -L -o cork.sig https://github.com/flatcar-linux/mantle/releases/download/v"${CORK_VERSION}"/cork-"${CORK_VERSION}"-amd64.sig
 gpg --keyserver keys.gnupg.net --receive-keys 84C8E771C0DF83DFBFCAAAF03ADA89DEC2507883
+curl -LO https://www.flatcar-linux.org/security/image-signing-key/Flatcar_Image_Signing_Key.asc
+gpg --import Flatcar_Image_Signing_Key.asc
 gpg --verify cork.sig cork
-rm -f cork.sig
+rm -f cork.sig Flatcar_Image_Signing_Key.asc
 chmod +x cork
 mkdir -p ~/.local/bin
 mv cork ~/.local/bin
