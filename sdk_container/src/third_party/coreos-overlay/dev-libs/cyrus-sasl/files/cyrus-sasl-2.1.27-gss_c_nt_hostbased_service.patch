@@ -1,7 +1,7 @@
 Gentoo bug #389349
---- cmulocal/sasl2.m4	2009-04-28 17:09:13.000000000 +0200
-+++ cmulocal/sasl2.m4	2011-11-02 17:55:24.000000000 +0100
-@@ -217,7 +217,11 @@
+--- cyrus-sasl-2.1.27/m4/sasl2.m4
++++ cyrus-sasl-2.1.27/m4/sasl2.m4
+@@ -220,7 +220,11 @@
                   [AC_WARN([Cybersafe define not found])])
  
    elif test "$ac_cv_header_gssapi_h" = "yes"; then
@@ -12,5 +12,5 @@ Gentoo bug #389349
 +                    hostbased_service_gss_nt_yes
 +                  #endif],
                      [AC_DEFINE(HAVE_GSS_C_NT_HOSTBASED_SERVICE,,
-                                [Define if your GSSAPI implimentation defines GSS_C_NT_HOSTBASED_SERVICE])])
+                                [Define if your GSSAPI implementation defines GSS_C_NT_HOSTBASED_SERVICE])])
    elif test "$ac_cv_header_gssapi_gssapi_h"; then
