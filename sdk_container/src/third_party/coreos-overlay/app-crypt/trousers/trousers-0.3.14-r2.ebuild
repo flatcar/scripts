@@ -1,3 +1,8 @@
+# Flatcar modifications:
+# - added "Flatcar:" customizations
+# - added condition to files/tcsd.service
+# - created files/tmpfiles.d/trousers.conf
+# - created files/system.data
 # Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
@@ -59,10 +64,25 @@ src_install() {
 
 	keepdir /var/lib/tpm
 	use doc && dodoc doc/*
-	newinitd "${FILESDIR}"/tcsd.initd tcsd
-	newconfd "${FILESDIR}"/tcsd.confd tcsd
+	# Flatcar:
+	# (removed newinitd and newconfd)
+	fowners tss:tss /etc/tcsd.conf
+
 	systemd_dounit "${FILESDIR}"/tcsd.service
+
+	# Flatcar:
+	systemd_enable_service multi-user.target tcsd.service
+
 	udev_dorules "${FILESDIR}"/61-trousers.rules
 	fowners tss:tss /var/lib/tpm
 	readme.gentoo_create_doc
+
+	# Flatcar:
+	insinto /usr/share/trousers/
+	doins "${FILESDIR}"/system.data
+	# stash a copy of the config so we can restore it from tmpfiles
+	doins "${D}"/etc/tcsd.conf
+	fowners tss:tss /usr/share/trousers/system.data
+	fowners tss:tss /usr/share/trousers/tcsd.conf
+	systemd_dotmpfilesd "${FILESDIR}"/tmpfiles.d/trousers.conf
 }

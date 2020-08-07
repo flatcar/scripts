@@ -1,5 +1,6 @@
 [Unit]
 Description=TCG Core Services Daemon
+ConditionPathExists=/dev/tpm0
 
 [Service]
 User=tss
