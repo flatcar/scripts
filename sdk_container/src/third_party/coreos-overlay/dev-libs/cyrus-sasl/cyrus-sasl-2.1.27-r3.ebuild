@@ -57,6 +57,8 @@ PATCHES=(
 	"${FILESDIR}/${PN}-2.1.27-doc_build_fix.patch"
 	"${FILESDIR}/${PN}-2.1.27-memmem.patch"
 	"${FILESDIR}/${PN}-2.1.27-CVE-2019-19906.patch"
+	# Flatcar:
+	"${FILESDIR}/${PN}-2.1.27-fix-cross-compiling.patch"
 )
 
 pkg_setup() {
