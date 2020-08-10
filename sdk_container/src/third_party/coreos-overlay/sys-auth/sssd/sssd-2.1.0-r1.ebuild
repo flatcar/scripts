@@ -1,24 +1,22 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
-EAPI=5
+EAPI=7
 
-PYTHON_COMPAT=( python{2_7,3_4,3_5,3_6} )
-
-inherit eutils multilib pam linux-info autotools multilib-minimal python-r1 systemd toolchain-funcs
+inherit autotools flag-o-matic linux-info multilib-minimal pam systemd toolchain-funcs
 
 DESCRIPTION="System Security Services Daemon provides access to identity and authentication"
-HOMEPAGE="http://fedorahosted.org/sssd/"
-SRC_URI="http://fedorahosted.org/released/${PN}/${P}.tar.gz"
+HOMEPAGE="https://pagure.io/SSSD/sssd"
+SRC_URI="http://releases.pagure.org/SSSD/${PN}/${P}.tar.gz"
+KEYWORDS="~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sparc ~x86"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="amd64 arm64 ~hppa ~ppc ~ppc64 ~x86"
-IUSE="acl augeas autofs +locator netlink nfsv4 nls +manpages python samba selinux sudo ssh test"
+IUSE="acl autofs +locator +netlink nfsv4 nls +manpages samba selinux sudo ssh test"
+RESTRICT="!test? ( test )"
 
 COMMON_DEP="
-	>=virtual/pam-0-r1[${MULTILIB_USEDEP}]
+	>=sys-libs/pam-0-r1[${MULTILIB_USEDEP}]
 	>=dev-libs/popt-1.16
 	dev-libs/glib:2
 	>=dev-libs/ding-libs-0.2
@@ -27,29 +25,31 @@ COMMON_DEP="
 	>=sys-libs/tevent-0.9.16
 	>=sys-libs/ldb-1.1.17-r1:=
 	>=net-nds/openldap-2.4.30[sasl]
+	net-libs/http-parser
 	>=dev-libs/libpcre-8.30
 	>=app-crypt/mit-krb5-1.10.3
+	dev-libs/jansson
+	net-misc/curl
 	locator? (
 		>=app-crypt/mit-krb5-1.12.2[${MULTILIB_USEDEP}]
 		>=net-dns/c-ares-1.10.0-r1[${MULTILIB_USEDEP}]
 	)
-	>=sys-apps/keyutils-1.5
+	>=sys-apps/keyutils-1.5:=
 	>=net-dns/c-ares-1.7.4
 	>=dev-libs/nss-3.12.9
 	selinux? (
 		>=sys-libs/libselinux-2.1.9
 		>=sys-libs/libsemanage-2.1
 	)
-	>=net-dns/bind-tools-9.9
+	>=net-dns/bind-tools-9.9[gssapi]
 	>=dev-libs/cyrus-sasl-2.1.25-r3[kerberos]
 	>=sys-apps/dbus-1.6
 	acl? ( net-fs/cifs-utils[acl] )
-	augeas? ( app-admin/augeas )
-	nfsv4? ( net-libs/libnfsidmap )
+	nfsv4? ( || ( >=net-fs/nfs-utils-2.3.1-r2 net-libs/libnfsidmap ) )
 	nls? ( >=sys-devel/gettext-0.18 )
 	virtual/libintl
 	netlink? ( dev-libs/libnl:3 )
-	samba? ( >=net-fs/samba-4.0 )
+	samba? ( >=net-fs/samba-4.10.2[winbind] )
 	"
 
 RDEPEND="${COMMON_DEP}
@@ -73,21 +73,21 @@ MULTILIB_WRAPPED_HEADERS=(
 	# --with-ifp
 	/usr/include/sss_sifp.h
 	/usr/include/sss_sifp_dbus.h
+	# from 1.15.3
+	/usr/include/sss_certmap.h
 )
 
-pkg_setup(){
+pkg_setup() {
 	linux-info_pkg_setup
 }
 
 src_prepare() {
-	epatch "${FILESDIR}"/sssd-1.14.2-fix-krb5-config.patch
+	sed -i 's:#!/sbin/runscript:#!/sbin/openrc-run:' \
+		"${S}"/src/sysv/gentoo/sssd.in || die "sed sssd.in"
 
+	default
 	eautoreconf
-
 	multilib_copy_sources
-
-	# Maybe run it before eautoreconf?
-	epatch_user
 }
 
 src_configure() {
@@ -97,21 +97,28 @@ src_configure() {
 }
 
 multilib_src_configure() {
+	# set initscript to sysv because the systemd option needs systemd to
+	# be installed. We provide our own systemd file anyway.
+	local myconf=()
+	#Work around linker dependency problem.
+	append-ldflags "-Wl,--allow-shlib-undefined"
+
 	myconf+=(
 		--localstatedir="${EPREFIX}"/var
 		--enable-nsslibdir="${EPREFIX}"/$(get_libdir)
 		--with-plugin-path="${EPREFIX}"/usr/$(get_libdir)/sssd
 		--enable-pammoddir="${EPREFIX}"/$(getpam_mod_dir)
 		--with-ldb-lib-dir="${EPREFIX}"/usr/$(get_libdir)/samba/ldb
-		--without-nscd
+		--with-os=gentoo
+		--with-nscd
 		--with-unicode-lib="glib2"
 		--disable-rpath
-		--disable-silent-rules
-		--enable-sss-default-nss-plugin
 		--sbindir=/usr/sbin
+		--without-kcm
+		$(use_with samba libwbclient)
+		--with-secrets
 		$(multilib_native_use_with samba)
 		$(multilib_native_use_enable acl cifs-idmap-plugin)
-		$(multilib_native_use_enable augeas config-lib)
 		$(multilib_native_use_with selinux)
 		$(multilib_native_use_with selinux semanage)
 		$(use_enable locator krb5-locator-plugin)
@@ -122,11 +129,13 @@ multilib_src_configure() {
 		$(multilib_native_use_with sudo)
 		$(multilib_native_use_with autofs)
 		$(multilib_native_use_with ssh)
-		--with-crypto="libcrypto"
+		--with-crypto="nss"
 		--with-initscript="sysv"
 		--without-python2-bindings
 		--without-python3-bindings
-		)
+
+		KRB5_CONFIG=/usr/bin/${CHOST}-krb5-config
+	)
 
 	if ! multilib_is_native_abi; then
 		# work-around all the libraries that are used for CLI and server
@@ -142,10 +151,14 @@ multilib_src_configure() {
 
 			# non-pkgconfig checks
 			ac_cv_lib_ldap_ldap_search=yes
+			--without-secrets
+			--without-libwbclient
+			--without-kcm
+			--with-crypto=""
 		)
 
 		use locator || myconf+=(
-			KRB5_CONFIG=/bin/true
+				KRB5_CONFIG=/bin/true
 		)
 	fi
 
@@ -163,13 +176,13 @@ multilib_src_compile() {
 
 multilib_src_install() {
 	if multilib_is_native_abi; then
-		emake -j1 DESTDIR="${D}" sysconfdir="/usr/share" "${_at_args[@]}" install
+		emake -j1 DESTDIR="${D}" "${_at_args[@]}" install
 	else
 		# easier than playing with automake...
 		dopammod .libs/pam_sss.so
 
 		into /
-		dolib .libs/libnss_sss.so*
+		dolib.so .libs/libnss_sss.so*
 
 		if use locator; then
 			exeinto /usr/$(get_libdir)/krb5/plugins/libkrb5
@@ -180,22 +193,38 @@ multilib_src_install() {
 
 multilib_src_install_all() {
 	einstalldocs
-	prune_libtool_files --all
+	find "${ED}" -type f -name '*.la' -delete || die
 
-	insinto /usr/share/sssd
+	insinto /etc/sssd
+	insopts -m600
 	doins "${S}"/src/examples/sssd-example.conf
 
+	insinto /etc/logrotate.d
+	insopts -m644
+	newins "${S}"/src/examples/logrotate sssd
+
+	newconfd "${FILESDIR}"/sssd.conf sssd
+	newinitd "${FILESDIR}"/sssd sssd
+
+	keepdir /var/lib/sss/db
+	keepdir /var/lib/sss/deskprofile
+	keepdir /var/lib/sss/gpo_cache
+	keepdir /var/lib/sss/keytabs
+	keepdir /var/lib/sss/mc
+	keepdir /var/lib/sss/pipes/private
+	keepdir /var/lib/sss/pubconf/krb5.include.d
+	keepdir /var/lib/sss/secrets
+	keepdir /var/log/sssd
+
 	systemd_dounit "${FILESDIR}/${PN}.service"
-	systemd_dotmpfilesd "${FILESDIR}/tmpfiles.d/sssd.conf"
-	rm -rf "${D}/etc/rc.d"
 }
 
 multilib_src_test() {
 	default
 }
 
-pkg_postinst(){
+pkg_postinst() {
 	elog "You must set up sssd.conf (default installed into /etc/sssd)"
 	elog "and (optionally) configuration in /etc/pam.d in order to use SSSD"
-	elog "features. Please see howto in	http://fedorahosted.org/sssd/wiki/HOWTO_Configure_1_0_2"
+	elog "features. Please see howto in	https://docs.pagure.org/SSSD.sssd/design_pages/smartcard_authentication_require.html"
 }
