@@ -1,3 +1,8 @@
+# Flatcar modifications:
+# - changed files/sssd.service
+# - added files/tmpfiles.d/sssd.conf
+# - other ebuild modifications marked below
+#
 # Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
@@ -8,13 +13,15 @@ inherit autotools flag-o-matic linux-info multilib-minimal pam systemd toolchain
 DESCRIPTION="System Security Services Daemon provides access to identity and authentication"
 HOMEPAGE="https://pagure.io/SSSD/sssd"
 SRC_URI="http://releases.pagure.org/SSSD/${PN}/${P}.tar.gz"
-KEYWORDS="amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sparc x86"
+# Flatcar: stabilize arm64
+KEYWORDS="amd64 ~arm arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sparc x86"
 
 LICENSE="GPL-3"
 SLOT="0"
 IUSE="acl autofs +locator +netlink nfsv4 nls +manpages samba selinux sudo ssh test"
 RESTRICT="!test? ( test )"
 
+# Flatcar: don't force gssapi for >=net-dns/bind-tools-9.9
 COMMON_DEP="
 	>=sys-libs/pam-0-r1[${MULTILIB_USEDEP}]
 	>=dev-libs/popt-1.16
@@ -41,7 +48,7 @@ COMMON_DEP="
 		>=sys-libs/libselinux-2.1.9
 		>=sys-libs/libsemanage-2.1
 	)
-	>=net-dns/bind-tools-9.9[gssapi]
+	>=net-dns/bind-tools-9.9
 	>=dev-libs/cyrus-sasl-2.1.25-r3[kerberos]
 	>=sys-apps/dbus-1.6
 	acl? ( net-fs/cifs-utils[acl] )
@@ -100,9 +107,8 @@ src_configure() {
 }
 
 multilib_src_configure() {
-	# set initscript to sysv because the systemd option needs systemd to
-	# be installed. We provide our own systemd file anyway.
-	local myconf=()
+	# Flatcar: delete, use systemd and not sysv
+
 	#Work around linker dependency problem.
 	append-ldflags "-Wl,--allow-shlib-undefined"
 
@@ -116,6 +122,12 @@ multilib_src_configure() {
 		--with-nscd
 		--with-unicode-lib="glib2"
 		--disable-rpath
+		# Flatcar: make nss lookups succeed when not running
+		--enable-sss-default-nss-plugin
+		# Flatcar: prevent cross-compilation error
+		# when autotools does not want to compile and run the test
+		$(use_with samba smb-idmap-interface-version=6)
+		#
 		--sbindir=/usr/sbin
 		--without-kcm
 		$(use_with samba libwbclient)
@@ -136,8 +148,7 @@ multilib_src_configure() {
 		--with-initscript="sysv"
 		--without-python2-bindings
 		--without-python3-bindings
-
-		KRB5_CONFIG=/usr/bin/${CHOST}-krb5-config
+		# Flatcar: delete, fix krb5-config detection
 	)
 
 	if ! multilib_is_native_abi; then
@@ -179,7 +190,8 @@ multilib_src_compile() {
 
 multilib_src_install() {
 	if multilib_is_native_abi; then
-		emake -j1 DESTDIR="${D}" "${_at_args[@]}" install
+		# Flatcar: add sysconfdir
+		emake -j1 DESTDIR="${D}" sysconfdir="/usr/share" "${_at_args[@]}" install
 	else
 		# easier than playing with automake...
 		dopammod .libs/pam_sss.so
@@ -198,28 +210,16 @@ multilib_src_install_all() {
 	einstalldocs
 	find "${ED}" -type f -name '*.la' -delete || die
 
-	insinto /etc/sssd
-	insopts -m600
+	# Flatcar: store on /usr
+	insinto /usr/share/sssd
 	doins "${S}"/src/examples/sssd-example.conf
 
-	insinto /etc/logrotate.d
-	insopts -m644
-	newins "${S}"/src/examples/logrotate sssd
-
-	newconfd "${FILESDIR}"/sssd.conf sssd
-	newinitd "${FILESDIR}"/sssd sssd
-
-	keepdir /var/lib/sss/db
-	keepdir /var/lib/sss/deskprofile
-	keepdir /var/lib/sss/gpo_cache
-	keepdir /var/lib/sss/keytabs
-	keepdir /var/lib/sss/mc
-	keepdir /var/lib/sss/pipes/private
-	keepdir /var/lib/sss/pubconf/krb5.include.d
-	keepdir /var/lib/sss/secrets
-	keepdir /var/log/sssd
+	# Flatcar: delete, remove /var files taken care of by tmpfiles
 
 	systemd_dounit "${FILESDIR}/${PN}.service"
+	# Flatcar: add tmpfile directive and remove /etc/rc.d
+	systemd_dotmpfilesd "${FILESDIR}/tmpfiles.d/sssd.conf"
+	rm -rf "${D}/etc/rc.d"
 }
 
 multilib_src_test() {
