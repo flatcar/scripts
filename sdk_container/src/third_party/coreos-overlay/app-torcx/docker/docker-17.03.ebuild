@@ -15,7 +15,7 @@ RDEPEND="
 	~app-emulation/containerd-0.2.6
 	~app-emulation/docker-proxy-0.8.0_p20161019
 	~app-emulation/docker-runc-1.0.0_rc2_p136
-	=sys-process/tini-0.13.2
+	=sys-process/tini-0.18.0
 "
 
 src_install() {
