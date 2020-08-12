@@ -36,6 +36,7 @@
 =net-firewall/conntrack-tools-1.4.5 ~arm64
 =net-firewall/ebtables-2.0.10.4-r1 ~arm64
 =net-firewall/ipset-6.29 ~arm64
+=net-libs/http-parser-2.6.2 ~arm64
 =net-libs/libmicrohttpd-0.9.52 **
 =net-libs/libnetfilter_conntrack-1.0.8 ~arm64
 =net-libs/libnetfilter_cthelper-1.0.0-r1 ~arm64
