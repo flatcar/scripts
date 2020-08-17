@@ -1,6 +1,10 @@
 # Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Flatcar: Based on audit-2.8.5-r1.ebuild from commit
+# b9fd64557974fa02bc719f282a1776623072a864 in gentoo repo (see
+# https://gitweb.gentoo.org/repo/gentoo.git/plain/sys-process/audit/audit-2.8.5-r1.ebuild?id=b9fd64557974fa02bc719f282a1776623072a864).
+
 EAPI="6"
 
 PYTHON_COMPAT=( python{3_6,3_7} )
@@ -22,7 +26,8 @@ SRC_URI+=" https://github.com/linux-audit/audit-userspace/commit/017e6c6ab95df55
 
 LICENSE="GPL-2+ LGPL-2.1+"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+# Flatcar: Build amd64 and arm64 by default.
+KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="gssapi ldap python static-libs"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 # Testcases are pretty useless as they are built for RedHat users/groups and kernels.
@@ -66,9 +71,6 @@ src_prepare() {
 	# don't need the OTHER definitions in fpu.h.
 	eapply "${FILESDIR}"/${PN}-2.8.4-ia64-compile-fix.patch
 
-	# there is no --without-golang conf option
-	sed -e "/^SUBDIRS =/s/ @gobind_dir@//" -i bindings/Makefile.am || die
-
 	# -fno-common
 	eapply "${DISTDIR}/${PN}-017e6c6ab95df55f34e339d2139def83e5dada1f.patch"
 
@@ -87,6 +89,7 @@ multilib_src_configure() {
 		$(use_enable gssapi gssapi-krb5) \
 		$(use_enable static-libs static) \
 		--enable-systemd \
+		--without-golang \
 		--without-python \
 		--without-python3
 
