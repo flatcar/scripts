@@ -9,7 +9,8 @@ EAPI="6"
 
 PYTHON_COMPAT=( python{3_6,3_7} )
 
-inherit autotools multilib multilib-minimal toolchain-funcs preserve-libs python-r1 linux-info systemd usr-ldscript
+# Flatcar: We don't use preserve-libs.
+inherit autotools multilib multilib-minimal toolchain-funcs python-r1 linux-info systemd usr-ldscript
 
 DESCRIPTION="Userspace utilities for storing and processing auditing records"
 HOMEPAGE="https://people.redhat.com/sgrubb/audit/"
@@ -201,36 +202,17 @@ multilib_src_install_all() {
 			mv "${ED}"/{sbin,usr/sbin}/audisp-remote || die
 	fi
 
-	# Gentoo rules
-	insinto /etc/audit/
-	newins "${FILESDIR}"/audit.rules-2.1.3 audit.rules
-	use daemon && doins "${FILESDIR}"/audit.rules.stop*
+	# Flatcar: We install our own rules.
+	insinto /usr/share/audit/rules.d
+	doins "${FILESDIR}"/rules.d/*.rules
 
 	# audit logs go here
 	use daemon && keepdir /var/log/audit/
 
 	find "${D}" -name '*.la' -delete || die
 
-	# Security
-	lockdown_perms "${ED}"
-}
-
-pkg_preinst() {
-	# Preserve from the audit-1 series
-	preserve_old_lib /$(get_libdir)/libaudit.so.0
-}
-
-pkg_postinst() {
-	lockdown_perms "${EROOT}"
-	# Preserve from the audit-1 series
-	preserve_old_lib_notify /$(get_libdir)/libaudit.so.0
-}
-
-lockdown_perms() {
-	# Upstream wants these to have restrictive perms.
-	# Should not || die as not all paths may exist.
-	local basedir="$1"
-	chmod 0750 "${basedir}"/sbin/au{ditctl,report,dispd,ditd,search,trace} 2>/dev/null
-	chmod 0750 "${basedir}"/var/log/audit/ 2>/dev/null
-	chmod 0640 "${basedir}"/etc/{audit/,}{auditd.conf,audit.rules*} 2>/dev/null
+	# Flatcar: Our systemd stuff.
+	systemd_newtmpfilesd "${FILESDIR}"/audit-rules.tmpfiles audit-rules.conf
+	systemd_dounit "${FILESDIR}"/audit-rules.service
+	systemd_enable_service multi-user.target audit-rules.service
 }
