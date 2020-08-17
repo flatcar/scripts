@@ -28,8 +28,11 @@ LICENSE="GPL-2+ LGPL-2.1+"
 SLOT="0"
 # Flatcar: Build amd64 and arm64 by default.
 KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
-IUSE="gssapi ldap python static-libs"
-REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
+# Flatcar: Daemon USE flag for building (or not) auditd and tools.
+IUSE="daemon gssapi ldap python static-libs"
+# Flatcar: Requiring ldap on audit makes sense only if daemon is set.
+REQUIRED_USE="ldap? ( daemon )
+	python? ( ${PYTHON_REQUIRED_USE} )"
 # Testcases are pretty useless as they are built for RedHat users/groups and kernels.
 RESTRICT="test"
 
@@ -75,6 +78,18 @@ src_prepare() {
 	eapply "${DISTDIR}/${PN}-017e6c6ab95df55f34e339d2139def83e5dada1f.patch"
 
 	eapply_user
+
+	if ! use daemon; then
+		sed -e '/^SUBDIRS =/s/audisp//' \
+			-i Makefile.am || die
+		sed -e '/${DESTDIR}${initdir}/d' \
+			-e '/${DESTDIR}${legacydir}/d' \
+			-i init.d/Makefile.am || die
+		sed -e '/^sbin_PROGRAMS =/s/auditd//' \
+			-e '/^sbin_PROGRAMS =/s/aureport//' \
+			-e '/^sbin_PROGRAMS =/s/ausearch//' \
+			-i src/Makefile.am || die
+	fi
 
 	# Regenerate autotooling
 	eautoreconf
@@ -172,25 +187,27 @@ multilib_src_install_all() {
 	dodoc AUTHORS ChangeLog README* THANKS
 	docinto contrib
 	dodoc contrib/{avc_snap,skeleton.c}
-	docinto contrib/plugin
-	dodoc contrib/plugin/*
+	use daemon && docinto contrib/plugin
+	use daemon && dodoc contrib/plugin/*
 	docinto rules
 	dodoc rules/*
 
-	newinitd "${FILESDIR}"/auditd-init.d-2.4.3 auditd
-	newconfd "${FILESDIR}"/auditd-conf.d-2.1.3 auditd
+	use daemon && newinitd "${FILESDIR}"/auditd-init.d-2.4.3 auditd
+	use daemon && newconfd "${FILESDIR}"/auditd-conf.d-2.1.3 auditd
 
-	[ -f "${ED}"/sbin/audisp-remote ] && \
-	dodir /usr/sbin && \
-	mv "${ED}"/{sbin,usr/sbin}/audisp-remote || die
+	if use daemon; then
+		[ -f "${ED}"/sbin/audisp-remote ] && \
+			dodir /usr/sbin && \
+			mv "${ED}"/{sbin,usr/sbin}/audisp-remote || die
+	fi
 
 	# Gentoo rules
 	insinto /etc/audit/
 	newins "${FILESDIR}"/audit.rules-2.1.3 audit.rules
-	doins "${FILESDIR}"/audit.rules.stop*
+	use daemon && doins "${FILESDIR}"/audit.rules.stop*
 
 	# audit logs go here
-	keepdir /var/log/audit/
+	use daemon && keepdir /var/log/audit/
 
 	find "${D}" -name '*.la' -delete || die
 
