@@ -48,6 +48,7 @@ S="${WORKDIR}/${MY_P}"
 src_prepare() {
 	default
 	touch ChangeLog || die
+	epatch "${FILESDIR}"/pam-1.5.0-locked-accounts.patch
 	eautoreconf
 }
 
