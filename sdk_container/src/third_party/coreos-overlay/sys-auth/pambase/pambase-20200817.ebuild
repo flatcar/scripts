@@ -12,6 +12,6 @@ SLOT="0"
 KEYWORDS="amd64 arm arm64 x86"
 IUSE=""
 
-RDEPEND=">=sys-apps/baselayout-3.1
-	>=sys-libs/pam-1.2"
+RDEPEND=">=sys-apps/baselayout-3.6
+	>=sys-libs/pam-1.4"
 DEPEND=""
