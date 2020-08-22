@@ -1,6 +1,10 @@
 # Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Flatcar: Based on pam-1.5.1.ebuild from commit
+# 6acd106320ca6adf73a4a6607e4daa2b5cea8e30 in gentoo repo (see
+# https://gitweb.gentoo.org/repo/gentoo.git/plain/sys-libs/pam/pam-1.5.1.ebuild?id=6acd106320ca6adf73a4a6607e4daa2b5cea8e30).
+
 EAPI=7
 
 MY_P="Linux-${PN^^}-${PV}"
