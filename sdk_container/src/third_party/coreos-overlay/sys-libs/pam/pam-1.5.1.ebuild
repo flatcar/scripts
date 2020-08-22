@@ -9,7 +9,7 @@ EAPI=7
 
 MY_P="Linux-${PN^^}-${PV}"
 
-inherit autotools db-use fcaps toolchain-funcs multilib-minimal
+inherit autotools db-use toolchain-funcs multilib-minimal
 
 DESCRIPTION="Linux-PAM (Pluggable Authentication Modules)"
 HOMEPAGE="https://github.com/linux-pam/linux-pam"
@@ -100,6 +100,12 @@ multilib_src_install() {
 multilib_src_install_all() {
 	find "${ED}" -type f -name '*.la' -delete || die
 
+	# Flatcar: The pam_unix module needs to check the password of
+	# the user which requires read access to /etc/shadow
+	# only. Make it suid instead of using CAP_DAC_OVERRIDE to
+	# avoid a pam -> libcap -> pam dependency loop.
+	fperms 4711 /sbin/unix_chkpwd
+
 	# tmpfiles.eclass is impossible to use because
 	# there is the pam -> tmpfiles -> systemd -> pam dependency loop
 
@@ -132,8 +138,4 @@ pkg_postinst() {
 	ewarn "  lsof / | egrep -i 'del.*libpam\\.so'"
 	ewarn ""
 	ewarn "Alternatively, simply reboot your system."
-
-	# The pam_unix module needs to check the password of the user which requires
-	# read access to /etc/shadow only.
-	fcaps cap_dac_override sbin/unix_chkpwd
 }
