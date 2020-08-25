@@ -85,6 +85,7 @@ COMMON_DEPEND=">=sys-apps/util-linux-2.30:0=[${MULTILIB_USEDEP}]
 	xkb? ( >=x11-libs/libxkbcommon-0.4.1:0= )"
 
 RDEPEND="${COMMON_DEPEND}
+	acct-group/render
 	sysv-utils? ( !sys-apps/sysvinit )
 	!sysv-utils? ( sys-apps/sysvinit )
 	resolvconf? ( !net-dns/openresolv )
