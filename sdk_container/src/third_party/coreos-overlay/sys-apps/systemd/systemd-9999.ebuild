@@ -85,7 +85,6 @@ COMMON_DEPEND=">=sys-apps/util-linux-2.30:0=[${MULTILIB_USEDEP}]
 	xkb? ( >=x11-libs/libxkbcommon-0.4.1:0= )"
 
 RDEPEND="${COMMON_DEPEND}
-	acct-group/render
 	sysv-utils? ( !sys-apps/sysvinit )
 	!sysv-utils? ( sys-apps/sysvinit )
 	resolvconf? ( !net-dns/openresolv )
@@ -534,7 +533,7 @@ pkg_postinst() {
 
        enewgroup input
        enewgroup kvm 78
-       enewgroup render
+       enewgroup render 30
        enewgroup systemd-journal
        newusergroup systemd-coredump
        newusergroup systemd-journal-remote
