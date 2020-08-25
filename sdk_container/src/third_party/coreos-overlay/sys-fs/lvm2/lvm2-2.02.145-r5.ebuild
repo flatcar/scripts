@@ -71,6 +71,7 @@ PATCHES=(
 
 	# Flatcar:
 	"${FILESDIR}"/${PN}-2.02.145-oneshot.patch # https://github.com/lvmteam/lvm2/pull/37
+	"${FILESDIR}"/${PN}-2.02.145-rules.patch # https://sourceware.org/git/?p=lvm2.git;a=commit;h=125f27ac37bc9b93cc96f64052b9681b3d479ee1
 )
 
 pkg_setup() {

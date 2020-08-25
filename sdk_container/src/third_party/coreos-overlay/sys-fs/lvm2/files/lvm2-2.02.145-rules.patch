@@ -1,0 +1,12 @@
+diff -ur LVM2.2.02.145/udev/11-dm-lvm.rules.in LVM2.2.02.145.new/udev/11-dm-lvm.rules.in
+--- LVM2.2.02.145/udev/11-dm-lvm.rules.in	2016-03-04 19:03:30.000000000 +0100
++++ LVM2.2.02.145.new/udev/11-dm-lvm.rules.in	2020-08-25 12:01:32.235684488 +0200
+@@ -37,8 +37,6 @@
+ 
+ ENV{DM_UDEV_DISABLE_SUBSYSTEM_RULES_FLAG}=="1", GOTO="lvm_end"
+ 
+-OPTIONS+="event_timeout=180"
+-
+ # Do not create symlinks for inappropriate subdevices.
+ ENV{DM_LV_NAME}=="pvmove?*|?*_vorigin", GOTO="lvm_disable"
+ ENV{DM_LV_LAYER}=="?*", GOTO="lvm_disable"
