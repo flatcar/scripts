@@ -1,6 +1,10 @@
 # Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Flatcar: Based on mdadm-4.1.ebuild from commit
+# 32ddfce1d8ce63479d23d2983fa653ce5eac3ad2 in Gentoo repo (see
+# https://gitweb.gentoo.org/repo/gentoo.git/plain/sys-fs/mdadm/mdadm-4.1.ebuild?id=32ddfce1d8ce63479d23d2983fa653ce5eac3ad2).
+
 EAPI=6
 inherit flag-o-matic multilib systemd toolchain-funcs udev
 
