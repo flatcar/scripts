@@ -30,6 +30,9 @@ RESTRICT="test"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-3.4-sysmacros.patch #580188
+# Flatcar: These patches are already upstreamed, but not released yet.
+	"${FILESDIR}"/${PN}-4.1-create-add-support-for-raid0-layouts.patch
+	"${FILESDIR}"/${PN}-4.1-assemble-add-support-for-raid0-layouts.patch
 )
 
 mdadm_emake() {
