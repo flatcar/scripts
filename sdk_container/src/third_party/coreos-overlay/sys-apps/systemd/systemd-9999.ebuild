@@ -533,7 +533,7 @@ pkg_postinst() {
 
        enewgroup input
        enewgroup kvm 78
-       enewgroup render
+       enewgroup render 30
        enewgroup systemd-journal
        newusergroup systemd-coredump
        newusergroup systemd-journal-remote
