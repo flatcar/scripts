@@ -4,7 +4,7 @@
 EAPI=5
 
 DESCRIPTION="OEM suite for VMware"
-HOMEPAGE="https://github.com/coreos/coreos-overlay/tree/master/coreos-base"
+HOMEPAGE="https://github.com/flatcar-linux/coreos-overlay/tree/main/coreos-base"
 SRC_URI=""
 
 LICENSE="Apache-2.0"
