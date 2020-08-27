@@ -31,3 +31,5 @@ app-admin/sudo -ldap
 # Bug #295615 - Disable cxx by default, in order to avoid a die
 # in pkg_setup with default USE settings (cxx requires sasl).
 net-nds/openldap -cxx
+
+sys-apps/iproute2 elf
