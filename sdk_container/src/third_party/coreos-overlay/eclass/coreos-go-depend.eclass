@@ -11,9 +11,9 @@
 #
 # Example:
 # @CODE
-# COREOS_GO_VERSION=go1.13
+# COREOS_GO_VERSION=go1.15
 # @CODE
-export COREOS_GO_VERSION="${COREOS_GO_VERSION:-go1.13}"
+export COREOS_GO_VERSION="${COREOS_GO_VERSION:-go1.15}"
 
 case "${EAPI:-0}" in
 	5|6) DEPEND="dev-lang/go:${COREOS_GO_VERSION#go}=" ;;
