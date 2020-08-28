@@ -13,7 +13,7 @@ jobs:
       - name: Fetch latest Go release
         id: fetch-latest-release
         env:
-          GO_VERSION: 1.13
+          GO_VERSION: 1.15
         run: |
           git clone --depth=1 --no-checkout https://github.com/golang/go
           versionMain=$(git -C go ls-remote --tags origin | cut -f2 | sed -n "/refs\/tags\/go${GO_VERSION}.[0-9]*$/s/^refs\/tags\/go//p" | egrep -v -e '(beta|rc)' | sort -ruV | head -1)
