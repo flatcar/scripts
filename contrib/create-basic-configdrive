@@ -15,6 +15,7 @@ Options:
     -l http://IP:PORT  Listen URL for client communication.
     -u http://IP:PORT  Listen URL for server communication.
     -n NAME            etcd node name.
+    -c FILE            cloud-config template to use, instead of the default.
     -p DEST            Create config-drive ISO image to the given path.
     -S FILE            SSH keys file.
     -t TOKEN           Token ID from https://discovery.etcd.io.
@@ -44,11 +45,12 @@ hostname: <HOSTNAME>
 "
 REGEX_SSH_FILE="^ssh-(rsa|dss|ed25519) [-A-Za-z0-9+\/]+[=]{0,2} .+"
 
-while getopts "d:e:H:i:n:p:S:t:l:u:h" OPTION
+while getopts "d:e:c:H:i:n:p:S:t:l:u:h" OPTION
 do
     case $OPTION in
         d) ETCD_DISCOVERY="$OPTARG" ;;
         e) ETCD_ADDR="$OPTARG" ;;
+        c) CLOUD_CONFIG_FILE="${OPTARG}" ;;
         H) HNAME="$OPTARG" ;;
         i) ETCD_PEER_URLS="$OPTARG" ;;
         n) ETCD_NAME="$OPTARG" ;;
@@ -143,6 +145,10 @@ fi
 
 if [ -z "$ETCD_LISTEN_CLIENT_URLS" ]; then
     ETCD_LISTEN_CLIENT_URLS=$DEFAULT_ETCD_LISTEN_CLIENT_URLS
+fi
+
+if [ -n "${CLOUD_CONFIG_FILE}" ]; then
+    CLOUD_CONFIG="$(cat ${CLOUD_CONFIG_FILE})"
 fi
 
 WORKDIR="${DEST}/tmp.${RANDOM}"
