@@ -235,6 +235,9 @@ if [[ "${FLAGS_usepkgonly}" -eq "${FLAGS_FALSE}" ]]; then
   break_dep_loop sys-apps/systemd cryptsetup
 fi
 
+export KBUILD_BUILD_USER="${BUILD_USER:-build}"
+export KBUILD_BUILD_HOST="${BUILD_HOST:-pony-truck.infra.kinvolk.io}"
+
 info "Merging board packages now"
 sudo -E "${EMERGE_CMD[@]}" "${EMERGE_FLAGS[@]}" "$@"
 
