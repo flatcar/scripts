@@ -15,7 +15,10 @@ fi
 
 pushd "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" >/dev/null || exit
 
-VERSION_OLD=$(sed -n "s/^DIST go\(${VERSION_SHORT}.[0-9]*\).*/\1/p" dev-lang/go/Manifest | sort -ruV | head -n1)
+# Parse the Manifest file for already present source files and keep the latest version in the current series
+# DIST go1.15.src.tar.gz ... => 1.15
+# DIST go1.15.3.src.tar.gz ... => 1.15.3
+VERSION_OLD=$(sed -n "s/^DIST go\(${VERSION_SHORT}\.*[0-9]*\)\.src.*/\1/p" dev-lang/go/Manifest | sort -ruV | head -n1)
 if [[ "${VERSION_NEW}" = "${VERSION_OLD}" ]]; then
   echo "already the latest Go, nothing to do"
   UPDATE_NEEDED=0
