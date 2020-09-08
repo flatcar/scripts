@@ -79,6 +79,6 @@ dev-util/checkbashisms
 
 >=dev-util/strace-5.3 ~amd64 ~arm64
 
-=dev-lang/rust-1.44.1 ~amd64 ~arm64
+=dev-lang/rust-1.46.0 ~amd64 ~arm64
 
 =sys-fs/cryptsetup-2.0.3 ~amd64
