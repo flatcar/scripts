@@ -30,6 +30,7 @@ jobs:
           VERSION_NEW: ${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}
         run: .github/workflows/rust-apply-patch.sh
       - name: Create pull request for main
+        id: create-pull-request
         uses: peter-evans/create-pull-request@v2
         if: steps.apply-patch-main.outputs.UPDATE_NEEDED == 1
         with:
@@ -38,9 +39,12 @@ jobs:
           branch: rust-${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}-main
           author: Flatcar Buildbot <buildbot@flatcar-linux.org>
           committer: Flatcar Buildbot <buildbot@flatcar-linux.org>
-          title: Upgrade Rust in main from ${{ steps.apply-patch-main.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}
-          commit-message: Upgrade Rust in main from ${{ steps.apply-patch-main.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}
-          body: Upgrade Rust in main from ${{ steps.apply-patch-main.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}
+          title: Upgrade dev-lang/rust in main from ${{ steps.apply-patch-main.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}
+          commit-message: Upgrade dev-lang/rust in main from ${{ steps.apply-patch-main.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}
+          body: |
+            Upgrade dev-lang/rust in main from ${{ steps.apply-patch-main.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}
+
+            This PR should be merged together with a corresponding PR in portage-stable for `virtual/rust` ${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}.
           labels: main
       - name: Send repository dispatch to portage-stable
         uses: peter-evans/repository-dispatch@v1.0.0
@@ -48,4 +52,5 @@ jobs:
         with:
           token: ${{ secrets.FLATCAR_PORTAGE_STABLE_ACCESS_TOKEN }}
           repository: flatcar-linux/portage-stable
-          event-type: cargo-pull-request-main
+          event-type: rust-pull-request-main
+          client-payload: '{"coreos-overlay-pull-request-number": "${{ steps.create-pull-request.outputs.pull-request-number }}"}'
