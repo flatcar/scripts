@@ -1,6 +1,6 @@
 on:
   repository_dispatch:
-    types: [cargo-pull-request-main]
+    types: [rust-pull-request-main]
 
 jobs:
   flatcar-rust-prs:
@@ -9,7 +9,7 @@ jobs:
       GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
     steps:
       - uses: actions/checkout@v2
-      - name: Fetch latest Cargo release
+      - name: Fetch latest virtual Rust release
         id: fetch-latest-release
         run: |
           git clone --depth=1 --no-checkout https://github.com/rust-lang/rust
@@ -31,7 +31,10 @@ jobs:
           branch: rust-${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}-main
           author: Flatcar Buildbot <buildbot@flatcar-linux.org>
           committer: Flatcar Buildbot <buildbot@flatcar-linux.org>
-          title: Upgrade Cargo in main from ${{ steps.apply-patch-main.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}
-          commit-message: Upgrade Cargo in main from ${{ steps.apply-patch-main.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}
-          body: Upgrade Cargo in main from ${{ steps.apply-patch-main.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}
+          title: Upgrade virtual Rust in main from ${{ steps.apply-patch-main.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}
+          commit-message: Upgrade virtual Rust in main from ${{ steps.apply-patch-main.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}
+          body: |
+            Upgrade virtual Rust in main from ${{ steps.apply-patch-main.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}
+
+            This PR should be merged together with a corresponding PR in coreos-overlay for [`dev-lang/rust` ${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}](https://github.com/flatcar-linux/coreos-overlay/pull/${{ github.event.client_payload.coreos-overlay-pull-request-number}}).
           labels: main
