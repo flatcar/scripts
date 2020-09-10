@@ -29,7 +29,7 @@ popd >/dev/null || exit
 
 popd >/dev/null || exit
 
-generate_patches dev-lang rust Rust
+generate_patches dev-lang rust dev-lang/rust
 
 apply_patches
 
