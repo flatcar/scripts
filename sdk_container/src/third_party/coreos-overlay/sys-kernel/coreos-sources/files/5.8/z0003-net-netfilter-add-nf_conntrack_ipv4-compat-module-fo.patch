@@ -1,4 +1,4 @@
-From 9b647a6c58075abfdefa803c76ea34eeaad6dd42 Mon Sep 17 00:00:00 2001
+From ab2e2914cd297cd14a82fdbe6b709290bd9fe449 Mon Sep 17 00:00:00 2001
 From: Benjamin Gilbert <bgilbert@redhat.com>
 Date: Fri, 26 Oct 2018 17:00:56 -0700
 Subject: [PATCH 3/3] net/netfilter: add nf_conntrack_ipv4 compat module for
@@ -15,10 +15,10 @@ enough to maintain compatibility; we need an actual module.
  create mode 100644 net/netfilter/nf_conntrack_ipv4.c
 
 diff --git a/net/netfilter/Kconfig b/net/netfilter/Kconfig
-index e0fb56d67d42..a468ee1de6fe 100644
+index 0ffe2b8723c4..522b1a6c9e7e 100644
 --- a/net/netfilter/Kconfig
 +++ b/net/netfilter/Kconfig
-@@ -70,6 +70,14 @@ config NF_CONNTRACK
+@@ -71,6 +71,14 @@ config NF_CONNTRACK
  
  	  To compile it as a module, choose M here.  If unsure, say N.
  
@@ -34,17 +34,17 @@ index e0fb56d67d42..a468ee1de6fe 100644
  	tristate
  
 diff --git a/net/netfilter/Makefile b/net/netfilter/Makefile
-index 16895e045b66..24d8da425ed8 100644
+index 0e0ded87e27b..fb28e546187b 100644
 --- a/net/netfilter/Makefile
 +++ b/net/netfilter/Makefile
-@@ -24,6 +24,7 @@ obj-$(CONFIG_NETFILTER_NETLINK_OSF) += nfnetlink_osf.o
+@@ -25,6 +25,7 @@ obj-$(CONFIG_NETFILTER_NETLINK_OSF) += nfnetlink_osf.o
  
  # connection tracking
  obj-$(CONFIG_NF_CONNTRACK) += nf_conntrack.o
 +obj-$(CONFIG_NF_CONNTRACK_IPV4_COMPAT) += nf_conntrack_ipv4.o
  
- obj-$(CONFIG_NF_CT_PROTO_GRE) += nf_conntrack_proto_gre.o
- 
+ # netlink interface for nf_conntrack
+ obj-$(CONFIG_NF_CT_NETLINK) += nf_conntrack_netlink.o
 diff --git a/net/netfilter/nf_conntrack_ipv4.c b/net/netfilter/nf_conntrack_ipv4.c
 new file mode 100644
 index 000000000000..8308772022c6
@@ -83,5 +83,5 @@ index 000000000000..8308772022c6
 +MODULE_DESCRIPTION("kube-proxy compatibility wrapper for nf_conntrack.ko");
 +MODULE_LICENSE("GPL");
 -- 
-2.21.0
+2.26.2
 
