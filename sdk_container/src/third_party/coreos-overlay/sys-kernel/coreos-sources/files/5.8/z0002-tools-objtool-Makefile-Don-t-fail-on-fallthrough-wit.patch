@@ -1,4 +1,4 @@
-From fa65e1abfe64b43cef645d1a20fe763c1e85e49d Mon Sep 17 00:00:00 2001
+From d2559ba1a806f8d010d09807c2c0906181824626 Mon Sep 17 00:00:00 2001
 From: David Michael <david.michael@coreos.com>
 Date: Thu, 8 Feb 2018 21:23:12 -0500
 Subject: [PATCH 2/3] tools/objtool/Makefile: Don't fail on fallthrough with
@@ -9,10 +9,10 @@ Subject: [PATCH 2/3] tools/objtool/Makefile: Don't fail on fallthrough with
  1 file changed, 3 insertions(+)
 
 diff --git a/tools/lib/subcmd/Makefile b/tools/lib/subcmd/Makefile
-index 5b2cd5e58df0..cb255e5ad545 100644
+index 1c777a72bb39..0217b7af786a 100644
 --- a/tools/lib/subcmd/Makefile
 +++ b/tools/lib/subcmd/Makefile
-@@ -39,6 +39,9 @@ ifneq ($(WERROR),0)
+@@ -40,6 +40,9 @@ ifneq ($(WERROR),0)
    CFLAGS += -Werror
  endif
  
@@ -23,5 +23,5 @@ index 5b2cd5e58df0..cb255e5ad545 100644
  
  CFLAGS += -I$(srctree)/tools/include/
 -- 
-2.21.0
+2.26.2
 
