@@ -43,6 +43,13 @@ img=src/flatcar_production_image.bin
 [[ "${img}.bz2" -nt "${img}" ]] &&
 enter lbunzip2 -k -f "/mnt/host/source/${img}.bz2"
 
+PRIVATE_UPLOAD_OPT=""
+if [[ "${FORMAT}" == 'azure_premium' ]]
+then
+  PRIVATE_UPLOAD_OPT="--private"
+  UPLOAD_ROOT=${UPLOAD_PRIVATE_ROOT}
+fi
+
 script image_to_vm.sh \
     --board="${BOARD}" \
     --format="${FORMAT}" \
@@ -54,4 +61,5 @@ script image_to_vm.sh \
     --sign_digests="${SIGNING_USER}" \
     --download_root="${DOWNLOAD_ROOT}" \
     --upload_root="${UPLOAD_ROOT}" \
-    --upload
+    --upload \
+    ${PRIVATE_UPLOAD_OPT}
