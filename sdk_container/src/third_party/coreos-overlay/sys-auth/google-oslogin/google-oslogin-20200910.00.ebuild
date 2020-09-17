@@ -4,8 +4,8 @@
 EAPI=6
 
 DESCRIPTION="Components to support Google Cloud OS Login. This contains bits that belong in USR"
-HOMEPAGE="https://github.com/GoogleCloudPlatform/compute-image-packages/tree/master/google_compute_engine_oslogin"
-SRC_URI="https://github.com/GoogleCloudPlatform/compute-image-packages/archive/${PV}.tar.gz"
+HOMEPAGE="https://github.com/GoogleCloudPlatform/guest-oslogin"
+SRC_URI="https://github.com/GoogleCloudPlatform/guest-oslogin/archive/${PV}.tar.gz"
 
 LICENSE="Apache-2.0"
 SLOT="0"
@@ -22,7 +22,7 @@ DEPEND="
 
 RDEPEND="${DEPEND}"
 
-S=${WORKDIR}/compute-image-packages-${PV}/google_compute_engine_oslogin
+S=${WORKDIR}/guest-oslogin-${PV}/
 
 src_prepare() {
 	eapply -p2 "$FILESDIR/0001-pam_module-use-var-lib-instead-of-var.patch"
@@ -30,18 +30,21 @@ src_prepare() {
 }
 
 src_compile() {
-	emake CC="$(tc-getCC)" CXX="$(tc-getCXX)" JSON_INCLUDE_PATH="${ROOT%/}/usr/include/json-c"
+	emake CC="$(tc-getCC)" CXX="$(tc-getCXX)" \
+            VERSION=${PV} \
+            JSON_INCLUDE_PATH="${ROOT%/}/usr/include/json-c"
 }
 
 src_install() {
-	dolib.so libnss_cache_google-compute-engine-oslogin-1.3.0.so
-	dolib.so libnss_google-compute-engine-oslogin-1.3.0.so
+	dolib.so src/libnss_cache_oslogin-${PV}.so
+	dolib.so src/libnss_oslogin-${PV}.so
 
 	exeinto /usr/libexec
-	doexe google_authorized_keys
+	doexe src/google_authorized_keys
+	doexe src/google_oslogin_nss_cache
 
-	dopammod pam_oslogin_admin.so
-	dopammod pam_oslogin_login.so
+	dopammod src/pam_oslogin_admin.so
+	dopammod src/pam_oslogin_login.so
 
 	# config files the base Ignition config will create links to
 	insinto /usr/share/google-oslogin
@@ -49,4 +52,5 @@ src_install() {
 	doins "${FILESDIR}/nsswitch.conf"
 	doins "${FILESDIR}/pam_sshd"
 	doins "${FILESDIR}/oslogin-sudoers"
+	doins "${FILESDIR}/group.conf"
 }
