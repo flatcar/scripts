@@ -102,3 +102,6 @@ sys-fs/btrfs-progs -zstd
 
 # enable regular expression processing in jq
 app-misc/jq oniguruma
+
+# Disable sse2 from CPU_FLAGS_X86 to avoid config error around simd
+net-misc/rsync -cpu_flags_x86_sse2
