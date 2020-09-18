@@ -1,0 +1,43 @@
+https://sqlite.org/src/info/30735432bc33cb95
+https://sqlite.org/src/info/1bd18ca35bdbf303
+https://sqlite.org/src/info/49da8bdce17ced91
+https://sqlite.org/src/info/f25a56c26e28abd4
+
+--- /sqlite3.c	2020-09-18 16:05:21.683530462 +0200
++++ /sqlite3.c	2020-09-18 16:29:29.646724736 +0200
+@@ -68224,7 +68224,7 @@
+     Pgno nFree = get4byte(&pBt->pPage1->aData[36]);
+     Pgno nFin = finalDbSize(pBt, nOrig, nFree);
+ 
+-    if( nOrig<nFin ){
++    if( nOrig<nFin || nFree>=nOrig ){
+       rc = SQLITE_CORRUPT_BKPT;
+     }else if( nFree>0 ){
+       rc = saveAllCursors(pBt, 0, 0);
+@@ -73110,7 +73110,11 @@
+   assert( pPage->intKey || pX->nKey>=0 );
+   assert( pPage->leaf || !pPage->intKey );
+   if( pPage->nFree<0 ){
+-    rc = btreeComputeFreeSpace(pPage);
++    if( pCur->eState>CURSOR_INVALID ){
++      rc = SQLITE_CORRUPT_BKPT;
++    }else{
++      rc = btreeComputeFreeSpace(pPage);
++    }
+     if( rc ) return rc;
+   }
+ 
+@@ -217944,11 +217948,11 @@
+   }
+ 
+  search_success:
+-  pIter->iLeafOffset = iOff + nNew;
+-  if( pIter->iLeafOffset>n || nNew<1 ){
++  if( (i64)iOff+nNew>n || nNew<1 ){
+     p->rc = FTS5_CORRUPT;
+     return;
+   }
++  pIter->iLeafOffset = iOff + nNew;
+   pIter->iTermLeafOffset = pIter->iLeafOffset;
+   pIter->iTermLeafPgno = pIter->iLeafPgno;
+ 

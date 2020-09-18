@@ -1,6 +1,9 @@
 # Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Flatcar: Based on sqlite-3.32.3-r1.ebuild from commit
+# 2dd8e3dd024c3a65b9117e2cd4f2f6ef7526dec7 in gentoo repo.
+
 EAPI="7"
 
 inherit autotools flag-o-matic multilib-minimal toolchain-funcs
@@ -16,8 +19,14 @@ HOMEPAGE="https://sqlite.org/"
 if [[ "${PV}" == "9999" ]]; then
 	SRC_URI=""
 else
-	SRC_URI="https://sqlite.org/2020/${PN}-src-${SRC_PV}.zip
-		doc? ( https://sqlite.org/2020/${PN}-doc-${DOC_PV}.zip )"
+	# Flatcar: fetch different source tarballs according to USE flags.
+	# full archive with suffix "-src" by defaults, and non-full archive with
+	# suffix "-autoconf" in case of flags tcl, test, tools being disabled.
+	SRC_URI="doc? ( https://sqlite.org/2020/${PN}-doc-${DOC_PV}.zip )
+		tcl? ( https://sqlite.org/2020/${PN}-src-${SRC_PV}.zip )
+		test? ( https://sqlite.org/2020/${PN}-src-${SRC_PV}.zip )
+		tools? ( https://sqlite.org/2020/${PN}-src-${SRC_PV}.zip )
+		!tcl? ( !test? ( !tools? ( https://sqlite.org/2020/${PN}-autoconf-${SRC_PV}.tar.gz ) ) )"
 fi
 
 LICENSE="public-domain"
@@ -33,8 +42,9 @@ if [[ "${PV}" == "9999" ]]; then
 	BDEPEND=">=dev-lang/tcl-8.6:0
 		dev-vcs/fossil"
 else
+	# Flatcar: disable dependency on dev-lang/tcl if tcl USE flag is disabled
 	BDEPEND="app-arch/unzip
-		>=dev-lang/tcl-8.6:0"
+		tcl? ( >=dev-lang/tcl-8.6:0 )"
 fi
 RDEPEND="sys-libs/zlib:0=[${MULTILIB_USEDEP}]
 	icu? ( dev-libs/icu:0=[${MULTILIB_USEDEP}] )
@@ -44,11 +54,23 @@ RDEPEND="sys-libs/zlib:0=[${MULTILIB_USEDEP}]
 DEPEND="${RDEPEND}
 	test? ( >=dev-lang/tcl-8.6:0[${MULTILIB_USEDEP}] )"
 
-if [[ "${PV}" == "9999" ]]; then
-	S="${WORKDIR}/${PN}"
-else
-	S="${WORKDIR}/${PN}-src-${SRC_PV}"
-fi
+full_archive() {
+	[[ "${PV}" == "9999" ]] || use tcl || use test || use tools
+}
+
+# Flatcar: set up package on different source directory suffixes, "-src" for
+# full archive and "-autoconf" for non-full archive.
+pkg_setup() {
+	if [[ "${PV}" == "9999" ]]; then
+		S="${WORKDIR}/${PN}"
+	else
+		if full_archive; then
+			S="${WORKDIR}/${PN}-src-${SRC_PV}"
+		else
+			S="${WORKDIR}/${PN}-autoconf-${SRC_PV}"
+		fi
+	fi
+}
 
 src_unpack() {
 	if [[ "${PV}" == "9999" ]]; then
@@ -99,8 +121,14 @@ src_unpack() {
 }
 
 src_prepare() {
-	eapply "${FILESDIR}/"${PN}-3.32.1-full_archive-build_{1,2}.patch
-	eapply "${FILESDIR}/"${PN}-3.32.3-backports_{1,2,3}.patch
+	# Flatcar: apply different patches, for full archive and non-full archive.
+	if full_archive; then
+		eapply "${FILESDIR}/"${PN}-3.32.1-full_archive-build_{1,2}.patch
+		eapply "${FILESDIR}/"${PN}-3.32.3-full_archive-backports_{1,2,3}.patch
+	else
+		eapply "${FILESDIR}/"${PN}-3.32.3-nonfull_archive-build.patch
+		eapply "${FILESDIR}/"${PN}-3.32.3-nonfull_archive-backports_{1,2,3}.patch
+	fi
 
 	eapply_user
 
@@ -117,10 +145,14 @@ multilib_src_configure() {
 	local -x CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}"
 	local options=()
 
+	# Flatcar: apply config options, for full archive and non-full archive.
 	options+=(
-		--enable-load-extension
+		--enable-$(full_archive && echo load-extension || echo dynamic-extensions)
 		--enable-threadsafe
 	)
+	if ! full_archive; then
+		options+=(--disable-static-shell)
+	fi
 
 	# Support detection of misuse of SQLite API.
 	# https://sqlite.org/compile.html#enable_api_armor
@@ -224,14 +256,29 @@ multilib_src_configure() {
 	append-cppflags -DSQLITE_USE_URI
 
 	# debug USE flag.
-	options+=($(use_enable debug))
+	# Flatcar: enable different debug options, for full archive and non-full
+	# archive.
+	if full_archive; then
+		options+=($(use_enable debug))
+	else
+		if use debug; then
+			append-cppflags -DSQLITE_DEBUG
+		else
+			append-cppflags -DNDEBUG
+		fi
+	fi
 
 	# icu USE flag.
 	if use icu; then
 		# Support ICU extension.
 		# https://sqlite.org/compile.html#enable_icu
 		append-cppflags -DSQLITE_ENABLE_ICU
-		sed -e "s/^TLIBS = @LIBS@/& -licui18n -licuuc/" -i Makefile.in || die "sed failed"
+		# Flatcar: set different ICU libs, for full archive and non-full.
+		if full_archive; then
+			sed -e "s/^TLIBS = @LIBS@/& -licui18n -licuuc/" -i Makefile.in || die "sed failed"
+		else
+			sed -e "s/^LIBS = @LIBS@/& -licui18n -licuuc/" -i Makefile.in || die "sed failed"
+		fi
 	fi
 
 	# readline USE flag.
@@ -239,7 +286,8 @@ multilib_src_configure() {
 		--disable-editline
 		$(use_enable readline)
 	)
-	if use readline; then
+	# Flatcar: configure with bundled readline libs only for full archive.
+	if full_archive && use readline; then
 		options+=(--with-readline-inc="-I${ESYSROOT}/usr/include/readline")
 	fi
 
@@ -254,7 +302,12 @@ multilib_src_configure() {
 	options+=($(use_enable static-libs static))
 
 	# tcl, test, tools USE flags.
-	options+=(--enable-tcl)
+	# Flatcar: enable tcl only if USE flag tcl turned on.
+	if use tcl; then
+		options+=(--enable-tcl)
+	else
+		options+=(--disable-tcl)
+	fi
 
 	if [[ "${CHOST}" == *-mint* ]]; then
 		append-cppflags -DSQLITE_OMIT_WAL
