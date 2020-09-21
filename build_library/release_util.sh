@@ -22,6 +22,8 @@ DEFINE_boolean parallel ${FLAGS_TRUE} \
   "Enable parallelism in gsutil."
 DEFINE_boolean upload ${UPLOAD_DEFAULT} \
   "Upload all packages/images via gsutil."
+DEFINE_boolean private ${FLAGS_TRUE} \
+  "Upload the image as a private object."
 DEFINE_string upload_root "${FLATCAR_UPLOAD_ROOT}" \
   "Upload prefix, board/version/etc will be appended. Must be a gs:// URL."
 DEFINE_string upload_path "" \
