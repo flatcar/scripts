@@ -44,7 +44,7 @@ img=src/flatcar_production_image.bin
 enter lbunzip2 -k -f "/mnt/host/source/${img}.bz2"
 
 PRIVATE_UPLOAD_OPT=""
-if [[ "${FORMAT}" == 'azure_premium' ]]
+if [[ "${FORMAT}" == 'azure_pro' ]]
 then
   PRIVATE_UPLOAD_OPT="--private"
   UPLOAD_ROOT=${UPLOAD_PRIVATE_ROOT}
