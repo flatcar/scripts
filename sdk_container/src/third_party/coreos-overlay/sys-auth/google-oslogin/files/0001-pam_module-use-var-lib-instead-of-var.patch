@@ -4,14 +4,14 @@ Date: Fri, 6 Jul 2018 15:54:40 -0700
 Subject: [PATCH] pam_module: use /var/lib/ instead of /var
 
 ---
- google_compute_engine_oslogin/pam_module/pam_oslogin_admin.cc | 2 +-
- google_compute_engine_oslogin/pam_module/pam_oslogin_login.cc | 2 +-
+ guest-oslogin/src/pam/pam_oslogin_admin.cc | 2 +-
+ guest-oslogin/src/pam/pam_oslogin_login.cc | 2 +-
  2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/google_compute_engine_oslogin/pam_module/pam_oslogin_admin.cc b/google_compute_engine_oslogin/pam_module/pam_oslogin_admin.cc
+diff --git a/guest-oslogin/src/pam/pam_oslogin_admin.cc b/guest-oslogin/src/pam/pam_oslogin_admin.cc
 index 04d0808..376916e 100644
---- a/google_compute_engine_oslogin/pam_module/pam_oslogin_admin.cc
-+++ b/google_compute_engine_oslogin/pam_module/pam_oslogin_admin.cc
+--- a/guest-oslogin/src/pam/pam_oslogin_admin.cc
++++ b/guest-oslogin/src/pam/pam_oslogin_admin.cc
 @@ -36,7 +36,7 @@ using oslogin_utils::ParseJsonToEmail;
  using oslogin_utils::UrlEncode;
  using oslogin_utils::kMetadataServerUrl;
@@ -21,10 +21,10 @@ index 04d0808..376916e 100644
  
  extern "C" {
  
-diff --git a/google_compute_engine_oslogin/pam_module/pam_oslogin_login.cc b/google_compute_engine_oslogin/pam_module/pam_oslogin_login.cc
+diff --git a/guest-oslogin/src/pam/pam_oslogin_login.cc b/guest-oslogin/src/pam/pam_oslogin_login.cc
 index 9e708f4..428600b 100644
---- a/google_compute_engine_oslogin/pam_module/pam_oslogin_login.cc
-+++ b/google_compute_engine_oslogin/pam_module/pam_oslogin_login.cc
+--- a/guest-oslogin/src/pam/pam_oslogin_login.cc
++++ b/guest-oslogin/src/pam/pam_oslogin_login.cc
 @@ -36,7 +36,7 @@ using oslogin_utils::ParseJsonToEmail;
  using oslogin_utils::UrlEncode;
  using oslogin_utils::kMetadataServerUrl;
