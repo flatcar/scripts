@@ -4,11 +4,11 @@
 EAPI=6
 
 if [[ ${PV} == *9999 ]]; then
-	EGIT_REPO_URI="https://anongit.freedesktop.org/git/realmd/adcli.git"
+	EGIT_REPO_URI="https://gitlab.freedesktop.org/realmd/adcli.git"
 	KEYWORDS="~amd64 ~arm64"
 	inherit git-r3
 else
-	SRC_URI="https://www.freedesktop.org/software/realmd/releases/${P}.tar.gz"
+	SRC_URI="https://gitlab.freedesktop.org/realmd/adcli/-/archive/${PV}/${P}.tar.bz2"
 	KEYWORDS="amd64 arm64"
 fi
 
