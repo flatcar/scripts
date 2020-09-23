@@ -426,14 +426,15 @@ multilib_src_install_all() {
 	# Flatcar: Don't enable services in /etc, move to /usr.
 	systemd_enable_service multi-user.target systemd-networkd.service
 	systemd_enable_service multi-user.target systemd-resolved.service
+	systemd_enable_service multi-user.target remote-fs.target
 	systemd_enable_service sysinit.target systemd-timesyncd.service
 
 	# Flatcar: Enable getty manually.
 	mkdir --parents "${ED}/usr/lib/systemd/system/getty.target.wants"
 	dosym ../getty@.service "/usr/lib/systemd/system/getty.target.wants/getty@tty1.service"
 
-	# Flatcar: Do not enable random services if /etc was detected
-	# as empty!!!
+	# Flatcar: Use an empty preset file, because systemctl
+	# preset-all puts symlinks in /etc, not in /usr.
 	rm "${ED}$(usex split-usr '' /usr)/lib/systemd/system-preset/90-systemd.preset" || die
 	insinto $(usex split-usr '' /usr)/lib/systemd/system-preset
 	doins "${FILESDIR}"/99-default.preset
