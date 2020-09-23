@@ -1,0 +1,128 @@
+https://sqlite.org/src/info/d48af4d2cfff3d5f
+https://sqlite.org/src/info/cc888878ea8d5bc7
+https://sqlite.org/src/info/be545f85a6ef09cc
+https://sqlite.org/src/info/6e0ffa2053124168
+https://sqlite.org/src/info/4d0cfb1236884349
+https://sqlite.org/src/info/ccff8cb8267d4c56
+https://sqlite.org/src/info/5124732370fd53c9
+
+--- /sqlite3.c	2020-09-18 16:05:21.683530462 +0200
++++ /sqlite3.c	2020-09-18 16:14:59.877344347 +0200
+@@ -103770,7 +103770,9 @@
+       int nCol;
+       testcase( op==TK_EXISTS );
+       testcase( op==TK_SELECT );
+-      if( op==TK_SELECT && (nCol = pExpr->x.pSelect->pEList->nExpr)!=1 ){
++      if( pParse->db->mallocFailed ){
++        return 0;
++      }else if( op==TK_SELECT && (nCol = pExpr->x.pSelect->pEList->nExpr)!=1 ){
+         sqlite3SubselectError(pParse, nCol, 1);
+       }else{
+         return sqlite3CodeSubselect(pParse, pExpr);
+@@ -168271,7 +168273,7 @@
+   sqlite3_int64 *piPrev,          /* IN/OUT: Previous value written to list */
+   sqlite3_int64 iVal              /* Write this value to the list */
+ ){
+-  assert( iVal-*piPrev > 0 || (*piPrev==0 && iVal==0) );
++  assert_fts3_nc( iVal-*piPrev > 0 || (*piPrev==0 && iVal==0) );
+   *pp += sqlite3Fts3PutVarint(*pp, iVal-*piPrev);
+   *piPrev = iVal;
+ }
+@@ -171411,10 +171413,12 @@
+   );
+   if( res ){
+     nNew = (int)(pOut - pPhrase->doclist.pList) - 1;
+-    assert( pPhrase->doclist.pList[nNew]=='\0' );
+-    assert( nNew<=pPhrase->doclist.nList && nNew>0 );
+-    memset(&pPhrase->doclist.pList[nNew], 0, pPhrase->doclist.nList - nNew);
+-    pPhrase->doclist.nList = nNew;
++    if( nNew>=0 ){
++      assert( pPhrase->doclist.pList[nNew]=='\0' );
++      assert( nNew<=pPhrase->doclist.nList && nNew>0 );
++      memset(&pPhrase->doclist.pList[nNew], 0, pPhrase->doclist.nList - nNew);
++      pPhrase->doclist.nList = nNew;
++    }
+     *paPoslist = pPhrase->doclist.pList;
+     *pnToken = pPhrase->nToken;
+   }
+@@ -171766,7 +171770,10 @@
+         }else
+ #endif
+         {
+-          bHit = (pExpr->bEof==0 && pExpr->iDocid==pCsr->iPrevId);
++          bHit = ( 
++              pExpr->bEof==0 && pExpr->iDocid==pCsr->iPrevId
++           && pExpr->pPhrase->doclist.nList>0
++          );
+         }
+         break;
+       }
+@@ -176749,7 +176756,9 @@
+ ** created by merging the oldest :2 segments from absolute level :1. See 
+ ** function sqlite3Fts3Incrmerge() for details.  */
+ /* 29 */ "SELECT 2 * total(1 + leaves_end_block - start_block) "
+-         "  FROM %Q.'%q_segdir' WHERE level = ? AND idx < ?",
++         "  FROM (SELECT * FROM %Q.'%q_segdir' "
++         "        WHERE level = ? ORDER BY idx ASC LIMIT ?"
++         "  )",
+ 
+ /* SQL_DELETE_SEGDIR_ENTRY
+ **   Delete the %_segdir entry on absolute level :1 with index :2.  */
+@@ -179261,6 +179270,19 @@
+   return SQLITE_OK;
+ }
+ 
++SQLITE_PRIVATE int fts3GrowSegReaderBuffer(Fts3MultiSegReader *pCsr, int nReq){
++  if( nReq>pCsr->nBuffer ){
++    char *aNew;
++    pCsr->nBuffer = nReq*2;
++    aNew = sqlite3_realloc(pCsr->aBuffer, pCsr->nBuffer);
++    if( !aNew ){
++      return SQLITE_NOMEM;
++    }
++    pCsr->aBuffer = aNew;
++  }
++  return SQLITE_OK;
++}
++
+ 
+ SQLITE_PRIVATE int sqlite3Fts3SegReaderStep(
+   Fts3Table *p,                   /* Virtual table handle */
+@@ -179395,15 +179417,9 @@
+           }
+ 
+           nByte = sqlite3Fts3VarintLen(iDelta) + (isRequirePos?nList+1:0);
+-          if( nDoclist+nByte>pCsr->nBuffer ){
+-            char *aNew;
+-            pCsr->nBuffer = (nDoclist+nByte)*2;
+-            aNew = sqlite3_realloc(pCsr->aBuffer, pCsr->nBuffer);
+-            if( !aNew ){
+-              return SQLITE_NOMEM;
+-            }
+-            pCsr->aBuffer = aNew;
+-          }
++
++          rc = fts3GrowSegReaderBuffer(pCsr, nByte+nDoclist);
++          if( rc ) return rc;
+ 
+           if( isFirst ){
+             char *a = &pCsr->aBuffer[nDoclist];
+@@ -179428,6 +179444,9 @@
+         fts3SegReaderSort(apSegment, nMerge, j, xCmp);
+       }
+       if( nDoclist>0 ){
++        rc = fts3GrowSegReaderBuffer(pCsr, nDoclist+FTS3_NODE_PADDING);
++        if( rc ) return rc;
++        memset(&pCsr->aBuffer[nDoclist], 0, FTS3_NODE_PADDING);
+         pCsr->aDoclist = pCsr->aBuffer;
+         pCsr->nDoclist = nDoclist;
+         rc = SQLITE_ROW;
+@@ -180696,7 +180715,7 @@
+       int i;
+       int nHeight = (int)aRoot[0];
+       NodeWriter *pNode;
+-      if( nHeight<1 || nHeight>FTS_MAX_APPENDABLE_HEIGHT ){
++      if( nHeight<1 || nHeight>=FTS_MAX_APPENDABLE_HEIGHT ){
+         sqlite3_reset(pSelect);
+         return FTS_CORRUPT_VTAB;
+       }
