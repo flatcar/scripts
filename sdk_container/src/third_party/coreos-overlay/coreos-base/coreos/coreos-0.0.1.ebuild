@@ -173,5 +173,7 @@ RDEPEND="${RDEPEND}
 
 # OEM specific bits that need to go in USR
 RDEPEND+="
-	sys-auth/google-oslogin
+	amd64? (
+		sys-auth/google-oslogin
+	)
 "
