@@ -175,7 +175,7 @@ cmp_ver() {
   return $?
 }
 
-# Split a semver into a 3 item array (major minor patch)
+# Split a semver into a 2 or 3 item array (major minor [patch])
 # Usage: split_ver 1.2.3 NAME
 split_ver() {
   local v="$1" n="$2"
@@ -183,7 +183,7 @@ split_ver() {
   v="${v%%+*}" # strip off build id suffix
   v="${v//./ }"
   local -a a="(${v})"
-  if [[ ${#a[@]} -ne 3 ]]; then
+  if [[ ${#a[@]} -ne 3 ]] && [[ ${#a[@]} -ne 2 ]]; then
     die "Invalid version string '$1'"
   fi
   declare -g -a ${n}="(${v})"
