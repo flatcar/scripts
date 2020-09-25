@@ -15,15 +15,17 @@ diff --git a/Makefile b/Makefile
 index 36eab48d1d4a..0514c0fa114d 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -240,7 +240,7 @@ else
+@@ -230,9 +230,7 @@ else
+ 	building_out_of_srctree := 1
  endif
- 
- ifneq ($(KBUILD_ABS_SRCTREE),)
+
+-ifneq ($(KBUILD_ABS_SRCTREE),)
 -srctree := $(abs_srctree)
+-endif
 +srctree := $(shell realpath --relative-to=$(KBUILD_OUTPUT) $(abs_srctree))
- endif
- 
+
  objtree		:= .
--- 
+ VPATH		:= $(srctree)
+--
 2.26.2
 
