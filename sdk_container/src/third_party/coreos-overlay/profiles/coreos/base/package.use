@@ -31,7 +31,6 @@ dev-util/glib-utils python_single_target_python3_6
 sys-apps/gptfdisk -icu
 
 # for profile migration
-dev-libs/apr-util -gdbm
 sys-libs/gdbm berkdb
 
 dev-vcs/git -pcre-jit -perl -iconv
