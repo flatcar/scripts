@@ -505,20 +505,14 @@ migrate_locale() {
 	fi
 }
 
-save_enabled_units() {
-	ENABLED_UNITS=()
-	type systemctl &>/dev/null || return
-	for x; do
-		if systemctl --quiet --root="${ROOT:-/}" is-enabled "${x}"; then
-			ENABLED_UNITS+=( "${x}" )
-		fi
-	done
-}
+# Flatcar: save_enabled_units function is dropped, because it's
+# unused. When building releases, we assume that there was no systemd
+# previously, so there are no units to remember.
 
 pkg_preinst() {
-	# Flatcar: We enable getty and remote-fs unconditionally, so
-	# no need to find out whether those are enabled or not here.
-	save_enabled_units {machines,remote-cryptsetup}.target
+	# Flatcar: When building releases, we assume that there was no
+	# systemd previously, so there are no units to remember, so
+	# there is no point in calling save_enabled_units.
 
 	if ! use split-usr; then
 		local dir
@@ -567,28 +561,16 @@ pkg_postinst() {
 	# between OpenRC & systemd
 	migrate_locale
 
-	# Flatcar: Reenabling systemd-timesyncd service too.
-	systemd_reenable systemd-networkd.service systemd-resolved.service systemd-timesyncd.service
+	# Flatcar: Dropping the reenabling, since there earlier there
+	# was no systemd (we are building the release from scratch
+	# here). The function checks if the unit is enabled before
+	# running reenable, which in our case results in no action at
+	# all (because no service is enabled).
 
-	# Flatcar: TODO: Possibly replace `systemctl enable` with
-	# `systemd_enable_service`, so it potentially could enable the
-	# services by making symlinks in /lib, instead of /etc?
-	# Currently does nothing, because ENABLED_UNITS end up being
-	# empty, but might not be true in future.
-	if [[ ${ENABLED_UNITS[@]} ]]; then
-		systemctl --root="${ROOT:-/}" enable "${ENABLED_UNITS[@]}"
-	fi
+	# Flatcar: Dropping handling of ENABLED_UNITS.
 
-	# Flatcar: We enable getty and remote-fs targets ourselves
-	# above. The code below would modify /etc, which we don't
-	# want.
-	if false && [[ -z ${REPLACING_VERSIONS} ]]; then
-		if type systemctl &>/dev/null; then
-			systemctl --root="${ROOT:-/}" enable getty@.service remote-fs.target || FAIL=1
-		fi
-		elog "To enable a useful set of services, run the following:"
-		elog "  systemctl preset-all --preset-mode=enable-only"
-	fi
+	# Flatcar: We enable getty and remote-fs targets in /usr
+	# ourselves above.
 
 	if [[ -L ${EROOT}/var/lib/systemd/timesync ]]; then
 		rm "${EROOT}/var/lib/systemd/timesync"
