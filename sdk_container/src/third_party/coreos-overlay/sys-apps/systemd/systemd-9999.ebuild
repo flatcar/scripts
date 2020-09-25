@@ -507,7 +507,9 @@ save_enabled_units() {
 }
 
 pkg_preinst() {
-	save_enabled_units {machines,remote-{cryptsetup,fs}}.target getty@tty1.service
+	# Flatcar: We enable getty and remote-fs unconditionally, so
+	# no need to find out whether those are enabled or not here.
+	save_enabled_units {machines,remote-cryptsetup}.target
 
 	if ! use split-usr; then
 		local dir
@@ -559,11 +561,19 @@ pkg_postinst() {
 	# Flatcar: Reenabling systemd-timesyncd service too.
 	systemd_reenable systemd-networkd.service systemd-resolved.service systemd-timesyncd.service
 
+	# Flatcar: TODO: Possibly replace `systemctl enable` with
+	# `systemd_enable_service`, so it potentially could enable the
+	# services by making symlinks in /lib, instead of /etc?
+	# Currently does nothing, because ENABLED_UNITS end up being
+	# empty, but might not be true in future.
 	if [[ ${ENABLED_UNITS[@]} ]]; then
 		systemctl --root="${ROOT:-/}" enable "${ENABLED_UNITS[@]}"
 	fi
 
-	if [[ -z ${REPLACING_VERSIONS} ]]; then
+	# Flatcar: We enable getty and remote-fs targets ourselves
+	# above. The code below would modify /etc, which we don't
+	# want.
+	if false && [[ -z ${REPLACING_VERSIONS} ]]; then
 		if type systemctl &>/dev/null; then
 			systemctl --root="${ROOT:-/}" enable getty@.service remote-fs.target || FAIL=1
 		fi
