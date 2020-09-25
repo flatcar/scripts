@@ -423,11 +423,20 @@ multilib_src_install_all() {
 	# Flatcar: Don't set any extra environment variables by default.
 	rm "${ED}/usr/lib/environment.d/99-environment.conf" || die
 
-	# Flatcar: Don't enable services in /etc, move to /usr.
+	# Flatcar: These lines more or less follow the systemd's
+	# preset file (90-systemd.preset). We do it that way, to avoid
+	# putting symlink in /etc. Please keep the lines in the same
+	# order as the "enable" lines appear in the preset file.
+	systemd_enable_service multi-user.target remote-fs.target
+	systemd_enable_service multi-user.target remote-cryptsetup.target
+	systemd_enable_service multi-user.target machines.target
+	# Flatcar: getty@.service is enabled manually below.
+	systemd_enable_service sysinit.target systemd-timesyncd.service
 	systemd_enable_service multi-user.target systemd-networkd.service
 	systemd_enable_service multi-user.target systemd-resolved.service
-	systemd_enable_service multi-user.target remote-fs.target
-	systemd_enable_service sysinit.target systemd-timesyncd.service
+	# Flatcar: not enabling reboot.target - it has no WantedBy
+	# entry.
+	systemd_enable_service remount-fs.target systemd-pstore.service
 
 	# Flatcar: Enable getty manually.
 	mkdir --parents "${ED}/usr/lib/systemd/system/getty.target.wants"
