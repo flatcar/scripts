@@ -166,9 +166,10 @@ src_prepare() {
 }
 
 src_install() {
-	if use !savedconfig; then
-		save_config ${PN}.conf
-	fi
+	# Flatcar: Don't save the firmware config to /etc/portage/savedconfig/
+	# if use !savedconfig; then
+	# 	save_config ${PN}.conf
+	# fi
 	rm ${PN}.conf || die
 	insinto /lib/firmware/
 	doins -r *
