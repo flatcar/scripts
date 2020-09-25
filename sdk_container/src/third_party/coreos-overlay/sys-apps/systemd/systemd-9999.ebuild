@@ -443,7 +443,8 @@ multilib_src_install_all() {
 	dosym ../getty@.service "/usr/lib/systemd/system/getty.target.wants/getty@tty1.service"
 
 	# Flatcar: Use an empty preset file, because systemctl
-	# preset-all puts symlinks in /etc, not in /usr.
+	# preset-all puts symlinks in /etc, not in /usr. We don't use
+	# /etc, because it is not autoupdated. We do the "preset" above.
 	rm "${ED}$(usex split-usr '' /usr)/lib/systemd/system-preset/90-systemd.preset" || die
 	insinto $(usex split-usr '' /usr)/lib/systemd/system-preset
 	doins "${FILESDIR}"/99-default.preset
