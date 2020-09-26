@@ -423,17 +423,34 @@ multilib_src_install_all() {
 	# Flatcar: Don't set any extra environment variables by default.
 	rm "${ED}/usr/lib/environment.d/99-environment.conf" || die
 
-	# Flatcar: Don't enable services in /etc, move to /usr.
-	systemd_enable_service multi-user.target systemd-networkd.service
-	systemd_enable_service multi-user.target systemd-resolved.service
+	# Flatcar: These lines more or less follow the systemd's
+	# preset file (90-systemd.preset). We do it that way, to avoid
+	# putting symlink in /etc. Please keep the lines in the same
+	# order as the "enable" lines appear in the preset file.
+	systemd_enable_service multi-user.target remote-fs.target
+	systemd_enable_service multi-user.target remote-cryptsetup.target
+	systemd_enable_service multi-user.target machines.target
+	# Flatcar: getty@.service is enabled manually below.
 	systemd_enable_service sysinit.target systemd-timesyncd.service
+	systemd_enable_service multi-user.target systemd-networkd.service
+	# For systemd-networkd.service, it has it in Also, which also
+	# needs to be enabled
+	systemd_enable_service sockets.target systemd-networkd.socket
+	# For systemd-networkd.service, it has it in Also, which also
+	# needs to be enabled
+	systemd_enable_service network-online.target systemd-networkd-wait-online.service
+	systemd_enable_service multi-user.target systemd-resolved.service
+	# Flatcar: not enabling reboot.target - it has no WantedBy
+	# entry.
+	systemd_enable_service remount-fs.target systemd-pstore.service
 
 	# Flatcar: Enable getty manually.
 	mkdir --parents "${ED}/usr/lib/systemd/system/getty.target.wants"
 	dosym ../getty@.service "/usr/lib/systemd/system/getty.target.wants/getty@tty1.service"
 
-	# Flatcar: Do not enable random services if /etc was detected
-	# as empty!!!
+	# Flatcar: Use an empty preset file, because systemctl
+	# preset-all puts symlinks in /etc, not in /usr. We don't use
+	# /etc, because it is not autoupdated. We do the "preset" above.
 	rm "${ED}$(usex split-usr '' /usr)/lib/systemd/system-preset/90-systemd.preset" || die
 	insinto $(usex split-usr '' /usr)/lib/systemd/system-preset
 	doins "${FILESDIR}"/99-default.preset
@@ -495,18 +512,14 @@ migrate_locale() {
 	fi
 }
 
-save_enabled_units() {
-	ENABLED_UNITS=()
-	type systemctl &>/dev/null || return
-	for x; do
-		if systemctl --quiet --root="${ROOT:-/}" is-enabled "${x}"; then
-			ENABLED_UNITS+=( "${x}" )
-		fi
-	done
-}
+# Flatcar: save_enabled_units function is dropped, because it's
+# unused. When building releases, we assume that there was no systemd
+# previously, so there are no units to remember.
 
 pkg_preinst() {
-	save_enabled_units {machines,remote-{cryptsetup,fs}}.target getty@tty1.service
+	# Flatcar: When building releases, we assume that there was no
+	# systemd previously, so there are no units to remember, so
+	# there is no point in calling save_enabled_units.
 
 	if ! use split-usr; then
 		local dir
@@ -555,20 +568,16 @@ pkg_postinst() {
 	# between OpenRC & systemd
 	migrate_locale
 
-	# Flatcar: Reenabling systemd-timesyncd service too.
-	systemd_reenable systemd-networkd.service systemd-resolved.service systemd-timesyncd.service
+	# Flatcar: Dropping the reenabling, since there earlier there
+	# was no systemd (we are building the release from scratch
+	# here). The function checks if the unit is enabled before
+	# running reenable, which in our case results in no action at
+	# all (because no service is enabled).
 
-	if [[ ${ENABLED_UNITS[@]} ]]; then
-		systemctl --root="${ROOT:-/}" enable "${ENABLED_UNITS[@]}"
-	fi
+	# Flatcar: Dropping handling of ENABLED_UNITS.
 
-	if [[ -z ${REPLACING_VERSIONS} ]]; then
-		if type systemctl &>/dev/null; then
-			systemctl --root="${ROOT:-/}" enable getty@.service remote-fs.target || FAIL=1
-		fi
-		elog "To enable a useful set of services, run the following:"
-		elog "  systemctl preset-all --preset-mode=enable-only"
-	fi
+	# Flatcar: We enable getty and remote-fs targets in /usr
+	# ourselves above.
 
 	if [[ -L ${EROOT}/var/lib/systemd/timesync ]]; then
 		rm "${EROOT}/var/lib/systemd/timesync"
