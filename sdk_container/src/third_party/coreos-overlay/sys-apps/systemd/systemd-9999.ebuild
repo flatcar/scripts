@@ -433,6 +433,12 @@ multilib_src_install_all() {
 	# Flatcar: getty@.service is enabled manually below.
 	systemd_enable_service sysinit.target systemd-timesyncd.service
 	systemd_enable_service multi-user.target systemd-networkd.service
+	# For systemd-networkd.service, it has it in Also, which also
+	# needs to be enabled
+	systemd_enable_service sockets.target systemd-networkd.socket
+	# For systemd-networkd.service, it has it in Also, which also
+	# needs to be enabled
+	systemd_enable_service network-online.target systemd-networkd-wait-online.service
 	systemd_enable_service multi-user.target systemd-resolved.service
 	# Flatcar: not enabling reboot.target - it has no WantedBy
 	# entry.
