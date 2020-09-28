@@ -8,24 +8,26 @@ provided they stay reachable relative to one another.  Useful for
 builds done within a sandbox where the eventual root is prefixed
 by some undesirable path component.
 ---
- Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Makefile | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/Makefile b/Makefile
 index 36eab48d1d4a..0514c0fa114d 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -230,9 +230,7 @@ else
+@@ -230,8 +230,10 @@ else
  	building_out_of_srctree := 1
  endif
 
 -ifneq ($(KBUILD_ABS_SRCTREE),)
 -srctree := $(abs_srctree)
--endif
-+srctree := $(shell realpath --relative-to=$(KBUILD_OUTPUT) $(abs_srctree))
++ifneq ($(KBUILD_OUTPUT),)
++        srctree := $(shell realpath --relative-to=$(KBUILD_OUTPUT) $(abs_srctree))
++else
++        srctree := $(abs_srctree)
+ endif
 
  objtree		:= .
- VPATH		:= $(srctree)
 --
 2.26.2
 
