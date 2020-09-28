@@ -179,14 +179,6 @@ src_unpack() {
 
 src_prepare() {
 	# Flatcar: We don't have separate patches, so no patching code here.
-	#
-	# Flatcar: Use the resolv.conf managed by systemd-resolved.
-	# This shouldn't be necessary anymore. Added because of a bug
-	# https://github.com/systemd/systemd/issues/3826, which is
-	# apparently resolved in
-	# https://github.com/systemd/systemd/pull/5276.
-	sed -i -e 's,/run/systemd/resolve/stub-resolv.conf,/run/systemd/resolve/resolv.conf,' tmpfiles.d/etc.conf.m4 || die
-
 	default
 }
 
