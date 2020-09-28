@@ -1,6 +1,7 @@
 ami
 ami_vmdk
 azure
+azure_pro
 gce
 iso
 pxe
