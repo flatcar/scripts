@@ -173,9 +173,6 @@ src_install() {
 		mv "${D}"/usr/lib/modprobe.d "${D}"/lib/modprobe.d || die
 	fi
 
-	# For compatibility with older SDKs which use 1000 for the core user.
-	fowners -R 500:500 /home/core || die
-
 	if use arm64; then
 		sed -i 's/ sss//' "${D}"/usr/share/baselayout/nsswitch.conf || die
 	fi
