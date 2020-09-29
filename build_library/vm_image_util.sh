@@ -36,6 +36,7 @@ VALID_IMG_TYPES=(
     digitalocean
     exoscale
     azure
+    azure_pro
     hyperv
     niftycloud
     cloudsigma
@@ -269,6 +270,11 @@ IMG_exoscale_OEM_PACKAGE=oem-exoscale
 IMG_azure_DISK_FORMAT=vhd
 IMG_azure_DISK_LAYOUT=azure
 IMG_azure_OEM_PACKAGE=oem-azure
+
+## azure pro
+IMG_azure_pro_DISK_FORMAT=vhd
+IMG_azure_pro_DISK_LAYOUT=azure
+IMG_azure_pro_OEM_PACKAGE=oem-azure
 
 ## hyper-v
 IMG_hyperv_DISK_FORMAT=vhd
