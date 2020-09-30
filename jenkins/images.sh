@@ -67,6 +67,7 @@ done < <(jq -r '.value.packages[] | . as $p | .name as $n | $p.versions[] | [.ca
 script build_image \
     --board="${BOARD}" \
     --group="${GROUP}" \
+    --generate_update \
     --getbinpkg \
     --getbinpkgver="${FLATCAR_VERSION}" \
     --sign="${SIGNING_USER}" \
