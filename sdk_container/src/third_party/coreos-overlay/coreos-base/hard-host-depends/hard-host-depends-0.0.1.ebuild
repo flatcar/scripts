@@ -46,6 +46,7 @@ RDEPEND="${RDEPEND}
 	dev-lang/go:1.10
 	dev-lang/go:1.12
 	dev-lang/go-bootstrap
+	dev-lang/tcl
 	dev-libs/dbus-glib
 	>=dev-libs/glib-2.26.1
 	dev-libs/libgcrypt
