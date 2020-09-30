@@ -187,16 +187,55 @@ shred_keys() {
 install_build_source() {
 	local kernel_arch=$(tc-arch-kernel)
 
+	# NOTE: We have to get ${archabspaths} before removing symlinks under
+	# /usr/lib/modules. However, do not exclude "dt-bindings" for now,
+	# as it looks architecture-independent.
+	local archabspaths=($(ls -1d ${D}/usr/lib/modules/${KV_FULL}/source/scripts/dtc/include-prefixes/* \
+		| grep -v dt-bindings ))
+
 	# remove the broken symlinks referencing $ROOT
 	rm "${D}/usr/lib/modules/${KV_FULL}"/{build,source} || die
 
+	# Compose list of architectures to be excluded from the kernel modules
+	# tree in the final image. It is an array to be used as a pattern for
+	# grep command below at the end of "find source/scripts" command for
+	# fetching kernel modules list, e.g.:
+	#   find source/scripts -follow -print \
+	#   | grep -E -v -w "include-prefixes/arc|include-prefixes/xtensa"
+	declare -a excarchlist
+	local excarchstr
+
+	for apath in "${archabspaths[@]}"; do
+		local arch
+		arch=$(basename "${apath}")
+		if [[ "${arch}" != "${kernel_arch}" ]]; then
+			excarchlist+=("include-prefixes/${arch}")
+
+			# Do not append delimiter '|' in case of the last element.
+			if [[ "${apath}" != "${archabspaths[-1]}" ]]; then
+				excarchlist+=("|")
+			fi
+		fi
+	done
+
+	# Remove every whitespace from the grep pattern string, to make pattern
+	# matching work well.
+	excarchstr=$(echo "${excarchlist[@]}" | sed -e 's/[[:space:]]*//g')
+
 	# Install a stripped source for out-of-tree module builds (Debian-derived)
+	#
+	# NOTE: we need to exclude unsupported architectures from source/scripts,
+	# to prevent the final image from having unnecessary directories under
+	# /usr/lib/modules/${KV_FULL}/source/scripts/dtc/include-prefixes.
+	# The grep must run with "-w" to exclude exact patterns like either arm
+	# or arm64.
 	{
 		echo source/Makefile
 		find source/arch/${kernel_arch} -follow -maxdepth 1 -name 'Makefile*' -print
 		find source/arch/${kernel_arch} -follow \( -name 'module.lds' -o -name 'Kbuild.platforms' -o -name 'Platform' \) -print
 		find $(find source/arch/${kernel_arch} -follow \( -name include -o -name scripts \) -follow -type d -print) -print
-		find source/include source/scripts -follow -print
+		find source/include -follow -print
+		find source/scripts -follow -print | grep -E -v -w "${excarchstr}"
 		find build/ -print
 	} | cpio -pd \
 		--preserve-modification-time \
