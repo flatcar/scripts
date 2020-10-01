@@ -107,3 +107,6 @@ net-misc/rsync -cpu_flags_x86_sse2
 
 # Don't read the firmware config from /etc/portage/savedconfig/
 sys-kernel/coreos-firmware -savedconfig
+
+# Make kmod support kernel modules compressed via lzma(xz)
+sys-apps/kmod lzma
