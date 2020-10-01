@@ -94,7 +94,7 @@ generate_update() {
       -new_kernel "${image_kernel}" \
       -out_file "${update}.gz"
 
-  upload_image -d "${update}.DIGESTS" "${update}".{bin,gz,zip}
+  upload_image -d "${update}.DIGESTS" "${update}".{bin,gz}
 }
 
 # ldconfig cannot generate caches for non-native arches.
