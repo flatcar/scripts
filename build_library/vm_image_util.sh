@@ -8,10 +8,24 @@
 VALID_IMG_TYPES=(
     ami
     ami_vmdk
-    pxe
+    azure
+    azure_pro
+    brightbox
+    cloudsigma
+    cloudstack
+    cloudstack_vhd
+    digitalocean
+    exoscale
+    gce
+    hyperv
+    interoute
     iso
+    niftycloud
     openstack
     openstack_mini
+    packet
+    parallels
+    pxe
     qemu
     qemu_uefi
     qemu_uefi_secure
@@ -24,35 +38,26 @@ VALID_IMG_TYPES=(
     vagrant_vmware_fusion
     virtualbox
     vmware
+    vmware_insecure
     vmware_ova
     vmware_raw
-    vmware_insecure
-    parallels
     xen
-    gce
-    brightbox
-    cloudstack
-    cloudstack_vhd
-    digitalocean
-    exoscale
-    azure
-    azure_pro
-    hyperv
-    niftycloud
-    cloudsigma
-    packet
-    interoute
 )
 
 #list of oem package names, minus the oem- prefix
 VALID_OEM_PACKAGES=(
     azure
+    cloudsigma
     cloudstack
     digitalocean
     ec2-compat
     exoscale
     gce
     hyperv
+    interoute
+    niftycloud
+    packet
+    qemu
     rackspace
     rackspace-onmetal
     vagrant
@@ -60,10 +65,6 @@ VALID_OEM_PACKAGES=(
     vagrant-virtualbox
     virtualbox
     vmware
-    niftycloud
-    cloudsigma
-    packet
-    interoute
 )
 
 # Set at runtime to one of the above types
@@ -124,14 +125,17 @@ IMG_DEFAULT_CPUS=2
 IMG_qemu_DISK_FORMAT=qcow2
 IMG_qemu_DISK_LAYOUT=vm
 IMG_qemu_CONF_FORMAT=qemu
+IMG_qemu_OEM_PACKAGE=oem-qemu
 
 IMG_qemu_uefi_DISK_FORMAT=qcow2
 IMG_qemu_uefi_DISK_LAYOUT=vm
 IMG_qemu_uefi_CONF_FORMAT=qemu_uefi
+IMG_qemu_uefi_OEM_PACKAGE=oem-qemu
 
 IMG_qemu_uefi_secure_DISK_FORMAT=qcow2
 IMG_qemu_uefi_secure_DISK_LAYOUT=vm
 IMG_qemu_uefi_secure_CONF_FORMAT=qemu_uefi_secure
+IMG_qemu_uefi_secure_OEM_PACKAGE=oem-qemu
 
 ## xen
 IMG_xen_CONF_FORMAT=xl
