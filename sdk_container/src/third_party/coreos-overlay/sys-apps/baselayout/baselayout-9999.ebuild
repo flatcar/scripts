@@ -9,7 +9,7 @@ CROS_WORKON_REPO="git://github.com"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	CROS_WORKON_COMMIT="b67c163348c69b7c02dac1bb087b1a15cf21afa7"  # flatcar-master
+	CROS_WORKON_COMMIT="df037edbeab79c38caed61f48dec7a00e764e20e" # flatcar-master
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
@@ -113,6 +113,17 @@ src_install() {
 	for sym in "${!LIB_SYMS[@]}" ; do
 		dosym "${LIB_SYMS[$sym]}" "${sym}"
 	done
+
+	if use cros_host; then
+		# We assume that SDK already has the user and group database.
+		:
+	else
+		# Initialize /etc/passwd, group, and friends now, so
+		# systemd-tmpfiles can resolve user information in ${D}
+		# rootfs.
+		bash "scripts/flatcar-tmpfiles" "${D}" "${S}/baselayout" || die
+	fi
+
 	if use symlink-usr; then
 		systemd_dotmpfilesd "${T}/baselayout-usr.conf"
 		systemd-tmpfiles --root="${D}" --create
@@ -162,9 +173,6 @@ src_install() {
 		mv "${D}"/usr/lib/modprobe.d "${D}"/lib/modprobe.d || die
 	fi
 
-	# For compatibility with older SDKs which use 1000 for the core user.
-	fowners -R 500:500 /home/core || die
-
 	if use arm64; then
 		sed -i 's/ sss//' "${D}"/usr/share/baselayout/nsswitch.conf || die
 	fi
@@ -181,7 +189,6 @@ src_install() {
 			"${D}"/usr/lib/tmpfiles.d/baselayout-etc.conf || die
 
 		# Initialize /etc/passwd, group, and friends on boot.
-		bash "scripts/flatcar-tmpfiles" "${D}" || die
 		dosbin "scripts/flatcar-tmpfiles"
 		systemd_dounit "scripts/flatcar-tmpfiles.service"
 		systemd_enable_service sysinit.target flatcar-tmpfiles.service

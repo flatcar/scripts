@@ -1,8 +1,9 @@
 # Copyright 2011-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# Flatcar: Based on systemd-245.5.ebuild from commit
-# 960277ffec44c6245e1ae16b3b36fed9d76496b1 in gentoo repo.
+# Flatcar: Based on systemd-246-r1.ebuild from commit
+# 431a568d06963207495c099b5a64f85442017507 in gentoo repo (see
+# https://gitweb.gentoo.org/repo/gentoo.git/plain/sys-apps/systemd/systemd-246-r1.ebuild?id=431a568d06963207495c099b5a64f85442017507).
 
 EAPI=7
 
@@ -16,8 +17,8 @@ if [[ ${PV} == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64 ~arm ~x86"
 else
 	# Flatcar: Use cros setup
-	CROS_WORKON_COMMIT="d5568ff804c2bda9a3869aa249bb6300aa3be7dd" # v245-flatcar
-	KEYWORDS="~alpha amd64 ~arm arm64 ~ia64 ~ppc ~ppc64 ~sparc ~x86"
+	CROS_WORKON_COMMIT="5b1ed0e98a8a8225dc3f662483287a380643ab96" # v246-flatcar
+	KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86"
 fi
 
 # Flatcar: We still have python 3.5, and have no python3.8 yet.
@@ -39,7 +40,7 @@ SLOT="0/2"
 # Flatcar: Dropped cgroup-hybrid. We use legacy hierarchy by default
 # to keep docker working. Dropped static-libs, we don't care about
 # static libraries.
-IUSE="acl apparmor audit build cryptsetup curl elfutils +gcrypt gnuefi homed http +hwdb idn importd +kmod +lz4 lzma nat pam pcre pkcs11 policykit pwquality qrcode repart +resolvconf +seccomp selinux +split-usr ssl +sysv-utils test vanilla xkb"
+IUSE="acl apparmor audit build cryptsetup curl dns-over-tls elfutils +gcrypt gnuefi homed http +hwdb idn importd +kmod +lz4 lzma nat pam pcre pkcs11 policykit pwquality qrcode repart +resolvconf +seccomp selinux +split-usr ssl +sysv-utils test vanilla xkb"
 
 REQUIRED_USE="
 	homed? ( cryptsetup )
@@ -58,6 +59,7 @@ COMMON_DEPEND=">=sys-apps/util-linux-2.30:0=[${MULTILIB_USEDEP}]
 	audit? ( >=sys-process/audit-2:0= )
 	cryptsetup? ( >=sys-fs/cryptsetup-2.0.1:0= )
 	curl? ( net-misc/curl:0= )
+	dns-over-tls? ( >=net-libs/gnutls-3.6.0:0= )
 	elfutils? ( >=dev-libs/elfutils-0.158:0= )
 	gcrypt? ( >=dev-libs/libgcrypt-1.4.5:0=[${MULTILIB_USEDEP}] )
 	homed? ( ${OPENSSL_DEP} )
@@ -135,7 +137,7 @@ pkg_pretend() {
 		local CONFIG_CHECK="~AUTOFS4_FS ~BLK_DEV_BSG ~CGROUPS
 			~CHECKPOINT_RESTORE ~DEVTMPFS ~EPOLL ~FANOTIFY ~FHANDLE
 			~INOTIFY_USER ~IPV6 ~NET ~NET_NS ~PROC_FS ~SIGNALFD ~SYSFS
-			~TIMERFD ~TMPFS_XATTR ~UNIX
+			~TIMERFD ~TMPFS_XATTR ~UNIX ~USER_NS
 			~CRYPTO_HMAC ~CRYPTO_SHA256 ~CRYPTO_USER_API_HASH
 			~!GRKERNSEC_PROC ~!IDE ~!SYSFS_DEPRECATED
 			~!SYSFS_DEPRECATED_V2"
@@ -177,10 +179,6 @@ src_unpack() {
 
 src_prepare() {
 	# Flatcar: We don't have separate patches, so no patching code here.
-	#
-	# Flatcar: Use the resolv.conf managed by systemd-resolved.
-	sed -i -e 's,/run/systemd/resolve/stub-resolv.conf,/run/systemd/resolve/resolv.conf,' tmpfiles.d/etc.conf.m4 || die
-
 	default
 }
 
@@ -433,16 +431,25 @@ multilib_src_install_all() {
 	# Flatcar: getty@.service is enabled manually below.
 	systemd_enable_service sysinit.target systemd-timesyncd.service
 	systemd_enable_service multi-user.target systemd-networkd.service
-	# For systemd-networkd.service, it has it in Also, which also
+	# Flatcar: For systemd-networkd.service, it has it in Also, which also
 	# needs to be enabled
 	systemd_enable_service sockets.target systemd-networkd.socket
-	# For systemd-networkd.service, it has it in Also, which also
+	# Flatcar: For systemd-networkd.service, it has it in Also, which also
 	# needs to be enabled
 	systemd_enable_service network-online.target systemd-networkd-wait-online.service
 	systemd_enable_service multi-user.target systemd-resolved.service
+	if use homed; then
+		systemd_enable_service multi-user.target systemd-homed.target
+		# Flatcar: systemd-homed.target has
+		# Also=systemd-userdbd.service, but the service has no
+		# WantedBy entry. It's likely going to be executed through
+		# systemd-userdbd.socket, which is enabled in upstream's
+		# presets file.
+		systemd_enable_service sockets.target systemd-userdbd.socket
+	fi
+	systemd_enable_service sysinit.target systemd-pstore.service
 	# Flatcar: not enabling reboot.target - it has no WantedBy
 	# entry.
-	systemd_enable_service remount-fs.target systemd-pstore.service
 
 	# Flatcar: Enable getty manually.
 	mkdir --parents "${ED}/usr/lib/systemd/system/getty.target.wants"
