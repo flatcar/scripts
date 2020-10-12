@@ -115,8 +115,14 @@ src_install() {
 	done
 
 	if use cros_host; then
-		# We assume that SDK already has the user and group database.
-		:
+		# Since later systemd-tmpfiles --root is used only users from
+		# /etc/passwd are considered but we don't want to add core there
+		# because it would make emerge overwrite the system's database on
+		# installation when the SDK user is already there. Instead, just
+		# create the folder manually and remove the tmpfile directive.
+		rm "${S}/tmpfiles.d/baselayout-home.conf"
+		mkdir -p "${D}"/home/core
+		chown 500:500 "${D}"/home/core
 	else
 		# Initialize /etc/passwd, group, and friends now, so
 		# systemd-tmpfiles can resolve user information in ${D}
