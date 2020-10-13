@@ -184,7 +184,10 @@ src_prepare() {
 	# This shouldn't be necessary anymore. Added because of a bug
 	# https://github.com/systemd/systemd/issues/3826, which is
 	# apparently resolved in
-	# https://github.com/systemd/systemd/pull/5276.
+	# https://github.com/systemd/systemd/pull/5276 but another reason is
+	# that when /etc/resolve.conf is bind-mounted to a new network
+	# namespace it shouldn't contain the loopback IP address of the host
+	# which is not reachable from another network namespace.
 	sed -i -e 's,/run/systemd/resolve/stub-resolv.conf,/run/systemd/resolve/resolv.conf,' tmpfiles.d/etc.conf.m4 || die
 
 	default
