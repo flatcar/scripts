@@ -135,6 +135,7 @@ RDEPEND="${RDEPEND}
 	net-vpn/wireguard-tools
 	sys-apps/coreutils
 	sys-apps/dbus
+	sys-apps/diffutils
 	sys-apps/ethtool
 	sys-apps/findutils
 	sys-apps/gawk
