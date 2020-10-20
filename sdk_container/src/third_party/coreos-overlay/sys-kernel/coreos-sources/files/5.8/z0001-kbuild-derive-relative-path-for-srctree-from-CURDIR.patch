@@ -1,4 +1,4 @@
-From b500ac62a04f6aede02e0ca8c9a4228b0ffc2828 Mon Sep 17 00:00:00 2001
+From 2a4e8c743f97578d3db28c8f0446d8f99e0da3fd Mon Sep 17 00:00:00 2001
 From: Vito Caputo <vito.caputo@coreos.com>
 Date: Wed, 25 Nov 2015 02:59:45 -0800
 Subject: [PATCH 1/2] kbuild: derive relative path for srctree from CURDIR
@@ -12,13 +12,13 @@ by some undesirable path component.
  1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/Makefile b/Makefile
-index 36eab48d1d4a..0514c0fa114d 100644
+index d600b38144f4..846089783807 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -230,8 +230,10 @@ else
+@@ -239,8 +239,10 @@ else
  	building_out_of_srctree := 1
  endif
-
+ 
 -ifneq ($(KBUILD_ABS_SRCTREE),)
 -srctree := $(abs_srctree)
 +ifneq ($(KBUILD_OUTPUT),)
@@ -26,8 +26,8 @@ index 36eab48d1d4a..0514c0fa114d 100644
 +else
 +        srctree := $(abs_srctree)
  endif
-
+ 
  objtree		:= .
---
+-- 
 2.26.2
 
