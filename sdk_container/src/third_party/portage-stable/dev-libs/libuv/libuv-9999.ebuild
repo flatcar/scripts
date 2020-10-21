@@ -1,22 +1,23 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
-
-inherit autotools eutils multilib-minimal
+EAPI=7
+inherit autotools git-r3 multilib-minimal
 
 DESCRIPTION="Cross-platform asychronous I/O"
 HOMEPAGE="https://github.com/libuv/libuv"
-SRC_URI="https://github.com/libuv/libuv/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+EGIT_REPO_URI="https://github.com/libuv/libuv"
 
 LICENSE="BSD BSD-2 ISC MIT"
 SLOT="0/1"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS=""
 IUSE="static-libs"
 RESTRICT="test"
 
-DEPEND="sys-devel/libtool
-	virtual/pkgconfig[${MULTILIB_USEDEP}]"
+BDEPEND="
+	sys-devel/libtool
+	virtual/pkgconfig
+"
 
 src_prepare() {
 	default
@@ -24,13 +25,16 @@ src_prepare() {
 	echo "m4_define([UV_EXTRA_AUTOMAKE_FLAGS], [serial-tests])" \
 		> m4/libuv-extra-automake-flags.m4 || die
 
+	# upstream fails to ship a configure script
 	eautoreconf
 }
 
 multilib_src_configure() {
-	ECONF_SOURCE="${S}" econf \
-		cc_cv_cflags__g=no \
+	local myeconfargs=(
+		cc_cv_cflags__g=no
 		$(use_enable static-libs static)
+	)
+	ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
 }
 
 multilib_src_test() {
@@ -41,5 +45,5 @@ multilib_src_test() {
 
 multilib_src_install_all() {
 	einstalldocs
-	prune_libtool_files
+	find "${D}" -name '*.la' -delete || die
 }

@@ -5,6 +5,9 @@
 		<email>kde@gentoo.org</email>
 		<name>Gentoo KDE Project</name>
 	</maintainer>
+	<maintainer type="person">
+		<email>jer@gentoo.org</email>
+	</maintainer>
 	<longdescription lang="en">
 		libuv is a platform layer for node.js. Its purpose is to abstract
 		IOCP on Windows and epoll/kqueue/event ports/etc. on Unix systems.
@@ -30,6 +33,7 @@
 	<upstream>
 		<bugs-to>https://github.com/libuv/libuv/issues</bugs-to>
 		<remote-id type="github">libuv/libuv</remote-id>
+		<remote-id type="cpe">cpe:/a:libuv:libuv</remote-id>
 	</upstream>
 	<slots>
 		<subslots>Reflect ABI compatibility of libuv.so.</subslots>
