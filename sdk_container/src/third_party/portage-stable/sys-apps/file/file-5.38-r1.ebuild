@@ -21,7 +21,7 @@ HOMEPAGE="https://www.darwinsys.com/file/"
 
 LICENSE="BSD-2"
 SLOT="0"
-IUSE="bzip2 lzma python seccomp static-libs zlib"
+IUSE="bzip2 lzma python static-libs zlib"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
 DEPEND="
@@ -33,20 +33,18 @@ DEPEND="
 	)
 	zlib? ( >=sys-libs/zlib-1.2.8-r1[${MULTILIB_USEDEP}] )"
 RDEPEND="${DEPEND}
-	python? ( !dev-python/python-magic )
-	seccomp? ( sys-libs/libseccomp[${MULTILIB_USEDEP}] )"
+	python? ( !dev-python/python-magic )"
 
 PATCHES=(
-	"${FILESDIR}/file-5.39-portage-sandbox.patch" #713710 #728978
+	"${FILESDIR}"/${P}-Revert-PR-93-iaeiaeiaeiae-Do-as-the-comment-says-and.patch
+	"${FILESDIR}"/${P}-td-is-for-ptrdiff_t-not-for-off_t.patch
+	"${FILESDIR}"/${P}-The-executable-bit-is-only-set-when-DF_1_PIE-bit-is-.patch
 )
 
 src_prepare() {
 	default
 
-	if [[ ${PV} == 9999 ]]; then
-		eautoreconf
-	fi
-
+	[[ ${PV} == "9999" ]] && eautoreconf
 	elibtoolize
 
 	# don't let python README kill main README #60043
@@ -56,10 +54,10 @@ src_prepare() {
 
 multilib_src_configure() {
 	local myeconfargs=(
+		--disable-libseccomp
 		--enable-fsect-man5
 		$(use_enable bzip2 bzlib)
 		$(use_enable lzma xzlib)
-		$(use_enable seccomp libseccomp)
 		$(use_enable static-libs static)
 		$(use_enable zlib)
 	)
