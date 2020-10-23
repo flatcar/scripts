@@ -1,20 +1,22 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-PYTHON_COMPAT=( python2_7 python3_{4,5,6} )
+
+PYTHON_COMPAT=( python3_{6,7} )
 PYTHON_REQ_USE="xml"
 
-inherit libtool flag-o-matic ltprune python-r1 autotools prefix multilib-minimal
+inherit libtool flag-o-matic python-r1 autotools prefix multilib-minimal
 
-DESCRIPTION="Version 2 of the library to manipulate XML files"
+DESCRIPTION="XML C parser and toolkit"
 HOMEPAGE="http://www.xmlsoft.org/"
 
 LICENSE="MIT"
 SLOT="2"
-KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~ppc-aix ~x64-cygwin ~amd64-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt"
-IUSE="debug examples icu ipv6 lzma python readline static-libs test"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv s390 sparc x86 ~ppc-aix ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+IUSE="debug examples icu ipv6 lzma +python readline static-libs test"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
+RESTRICT="!test? ( test )"
 
 XSTS_HOME="http://www.w3.org/XML/2004/xml-schema-test-suite"
 XSTS_NAME_1="xmlschema2002-01-16"
@@ -24,6 +26,7 @@ XSTS_TARBALL_2="xsts-2004-01-14.tar.gz"
 XMLCONF_TARBALL="xmlts20080827.tar.gz"
 
 SRC_URI="ftp://xmlsoft.org/${PN}/${PN}-${PV/_rc/-rc}.tar.gz
+	https://dev.gentoo.org/~leio/distfiles/${P}-patchset.tar.xz
 	test? (
 		${XSTS_HOME}/${XSTS_NAME_1}/${XSTS_TARBALL_1}
 		${XSTS_HOME}/${XSTS_NAME_2}/${XSTS_TARBALL_2}
@@ -52,6 +55,7 @@ src_unpack() {
 	# ${A} isn't used to avoid unpacking of test tarballs into $WORKDIR,
 	# as they are needed as tarballs in ${S}/xstc instead and not unpacked
 	unpack ${P/_rc/-rc}.tar.gz
+	unpack ${P}-patchset.tar.xz
 	cd "${S}" || die
 
 	if use test; then
@@ -68,6 +72,9 @@ src_prepare() {
 
 	DOCS=( AUTHORS ChangeLog NEWS README* TODO* )
 
+	# Selective cherry-picks from master up to 2019-02-28 (commit 8161b463f5)
+	eapply "${WORKDIR}"/patches
+
 	# Patches needed for prefix support
 	eapply "${FILESDIR}"/${PN}-2.7.1-catalog_path.patch
 
@@ -75,15 +82,23 @@ src_prepare() {
 
 	# Fix build for Windows platform
 	# https://bugzilla.gnome.org/show_bug.cgi?id=760456
-	eapply "${FILESDIR}"/${PN}-2.8.0_rc1-winnt.patch
+	# eapply "${FILESDIR}"/${PN}-2.8.0_rc1-winnt.patch
 
 	# Fix python detection, bug #567066
 	# https://bugzilla.gnome.org/show_bug.cgi?id=760458
 	eapply "${FILESDIR}"/${PN}-2.9.2-python-ABIFLAG.patch
 
-	# Avoid final linking arguments for python modules
+	# Fix python tests when building out of tree #565576
+	eapply "${FILESDIR}"/${PN}-2.9.8-out-of-tree-test.patch
+
+	# Workaround python3 itstool potential problems, bug 701020
+	eapply "${FILESDIR}"/${PV}-python3-unicode-errors.patch
+
 	if [[ ${CHOST} == *-darwin* ]] ; then
+		# Avoid final linking arguments for python modules
 		sed -i -e '/PYTHON_LIBS/s/ldflags/libs/' configure.ac || die
+		# gcc-apple doesn't grok -Wno-array-bounds
+		sed -i -e 's/-Wno-array-bounds//' configure.ac || die
 	fi
 
 	# Please do not remove, as else we get references to PORTAGE_TMPDIR
@@ -123,7 +138,10 @@ multilib_src_configure() {
 
 	libxml2_py_configure() {
 		mkdir -p "${BUILD_DIR}" || die # ensure python build dirs exist
-		run_in_build_dir libxml2_configure "--with-python=${ROOT%/}${PYTHON}" # odd build system, also see bug #582130
+		run_in_build_dir libxml2_configure \
+			"--with-python=${EPYTHON}" \
+			"--with-python-install-dir=$(python_get_sitedir)"
+			# odd build system, also see bug #582130
 	}
 
 	libxml2_configure --without-python # build python bindings separately
@@ -142,6 +160,7 @@ multilib_src_compile() {
 }
 
 multilib_src_test() {
+	ln -s "${S}"/xmlconf || die
 	emake check
 	multilib_is_native_abi && use python && python_foreach_impl libxml2_py_emake test
 }
@@ -178,7 +197,7 @@ multilib_src_install_all() {
 		rm -rf "${ED}"/usr/share/doc/${PF}/python/examples
 	fi
 
-	prune_libtool_files --modules
+	find "${D}" -name '*.la' -delete || die
 }
 
 pkg_postinst() {
