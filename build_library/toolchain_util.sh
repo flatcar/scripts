@@ -344,7 +344,6 @@ install_cross_toolchain() {
 
     # Setup environment and wrappers for our shiny new toolchain
     gcc_set_latest_profile "${cross_chost}"
-    $sudo CC_QUIET=1 ccache-config --install-links "${cross_chost}"
     $sudo CC_QUIET=1 sysroot-config --install-links "${cross_chost}"
 }
 

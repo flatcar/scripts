@@ -71,7 +71,7 @@ PORTAGE_BINHOST="$FLAGS_binhost $(get_sdk_binhost)"
 : ${PORTAGE_USERNAME:=${USER}}
 
 # Clean up old distfiles cache. It used to be split for 'host' and
-# 'target' but that just duplicates files. Also a ccache was in there.
+# 'target' but that just duplicates files.
 if [[ -d "${REPO_CACHE_DIR}/distfiles/host" ]]; then
   info "Cleaning up old distfiles cache..."
   sudo mv "${REPO_CACHE_DIR}"/{distfiles/host,distfiles.host}
@@ -95,7 +95,6 @@ PORT_LOGDIR="/var/log/portage"
 PORTAGE_BINHOST="$PORTAGE_BINHOST"
 PORTAGE_USERNAME="${PORTAGE_USERNAME}"
 MAKEOPTS="--jobs=${NUM_JOBS} --load-average=$((NUM_JOBS * 2))"
-CCACHE_UMASK="002"
 
 # Generally there isn't any need to add packages to @world by default.
 # You can use --select to override this.
@@ -214,7 +213,6 @@ EMERGE_CMD="emerge"
 # can cause serious issues later.
 info "Updating basic system packages"
 sudo -E ${EMERGE_CMD} --quiet "${EMERGE_FLAGS[@]}" \
-    dev-util/ccache \
     sys-apps/portage \
     sys-devel/crossdev \
     sys-devel/sysroot-wrappers \
