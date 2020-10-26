@@ -1,9 +1,5 @@
 #!/bin/bash -ex
 
-# Use a ccache dir that persists across SDK recreations.
-# XXX: alternatively use a ccache dir that is usable by all jobs on a given node.
-mkdir -p ccache
-
 enter() {
         local verify_key=
         trap 'sudo rm -f chroot/etc/portage/gangue.*' RETURN
@@ -13,8 +9,6 @@ enter() {
         sudo ln -f "${GOOGLE_APPLICATION_CREDENTIALS}" \
             chroot/etc/portage/gangue.json
         bin/cork enter --bind-gpg-agent=false -- env \
-            CCACHE_DIR=/mnt/host/source/ccache \
-            CCACHE_MAXSIZE=5G \
             FLATCAR_DEV_BUILDS="${DOWNLOAD_ROOT}" \
             FLATCAR_DEV_BUILDS_SDK="${DOWNLOAD_ROOT_SDK}" \
             {FETCH,RESUME}COMMAND_GS="/usr/bin/gangue get \
@@ -32,9 +26,6 @@ export FLATCAR_BUILD_ID
 
 # Set up GPG for signing uploads.
 gpg --import "${GPG_SECRET_KEY_FILE}"
-
-# Figure out if ccache is doing us any good in this scheme.
-enter ccache --zero-stats
 
 script setup_board \
     --board="${BOARD}" \
@@ -61,5 +52,3 @@ script build_torcx_store \
     --torcx_upload_root="${TORCX_PKG_DOWNLOAD_ROOT}" \
     --tectonic_torcx_download_root="${TECTONIC_TORCX_DOWNLOAD_ROOT}" \
     --upload
-
-enter ccache --show-stats
