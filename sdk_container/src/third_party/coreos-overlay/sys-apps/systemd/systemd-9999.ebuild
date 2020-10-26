@@ -1,9 +1,9 @@
 # Copyright 2011-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# Flatcar: Based on systemd-246-r1.ebuild from commit
-# 431a568d06963207495c099b5a64f85442017507 in gentoo repo (see
-# https://gitweb.gentoo.org/repo/gentoo.git/plain/sys-apps/systemd/systemd-246-r1.ebuild?id=431a568d06963207495c099b5a64f85442017507).
+# Flatcar: Based on systemd-246-r2.ebuild from commit
+# 4bf7b81548f70cbf7ce5ae377e85fd21ae259ce7 in gentoo repo (see
+# https://gitweb.gentoo.org/repo/gentoo.git/plain/sys-apps/systemd/systemd-246-r2.ebuild?id=4bf7b81548f70cbf7ce5ae377e85fd21ae259ce7).
 
 EAPI=7
 
@@ -40,7 +40,7 @@ SLOT="0/2"
 # Flatcar: Dropped cgroup-hybrid. We use legacy hierarchy by default
 # to keep docker working. Dropped static-libs, we don't care about
 # static libraries.
-IUSE="acl apparmor audit build cryptsetup curl dns-over-tls elfutils +gcrypt gnuefi homed http +hwdb idn importd +kmod +lz4 lzma nat pam pcre pkcs11 policykit pwquality qrcode repart +resolvconf +seccomp selinux +split-usr ssl +sysv-utils test vanilla xkb"
+IUSE="acl apparmor audit build cryptsetup curl dns-over-tls elfutils +gcrypt gnuefi homed http +hwdb idn importd +kmod +lz4 lzma nat pam pcre pkcs11 policykit pwquality qrcode repart +resolvconf +seccomp selinux +split-usr ssl +sysv-utils test vanilla xkb +zstd"
 
 REQUIRED_USE="
 	homed? ( cryptsetup )
@@ -84,7 +84,9 @@ COMMON_DEPEND=">=sys-apps/util-linux-2.30:0=[${MULTILIB_USEDEP}]
 	repart? ( ${OPENSSL_DEP} )
 	seccomp? ( >=sys-libs/libseccomp-2.3.3:0= )
 	selinux? ( sys-libs/libselinux:0= )
-	xkb? ( >=x11-libs/libxkbcommon-0.4.1:0= )"
+	xkb? ( >=x11-libs/libxkbcommon-0.4.1:0= )
+	zstd? ( >=app-arch/zstd-1.4.0:0=[${MULTILIB_USEDEP}] )
+"
 
 RDEPEND="${COMMON_DEPEND}
 	sysv-utils? ( !sys-apps/sysvinit )
@@ -267,6 +269,7 @@ multilib_src_configure() {
 		-Dkmod=$(meson_multilib_native_use kmod)
 		-Dlz4=$(meson_use lz4)
 		-Dxz=$(meson_use lzma)
+		-Dzstd=$(meson_use zstd)
 		-Dlibiptc=$(meson_multilib_native_use nat)
 		-Dpam=$(meson_use pam)
 		-Dp11kit=$(meson_multilib_native_use pkcs11)
