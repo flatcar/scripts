@@ -7,28 +7,24 @@
 
 EAPI=7
 
-# Flatcar: Use cros setup
-CROS_WORKON_PROJECT="flatcar-linux/systemd"
-CROS_WORKON_REPO="git://github.com"
-
 if [[ ${PV} == 9999 ]]; then
-	# Flatcar: Use cros setup
-	# Use ~arch instead of empty keywords for compatibility with cros-workon
-	KEYWORDS="~amd64 ~arm64 ~arm ~x86"
+	EGIT_REPO_URI="https://github.com/systemd/systemd.git"
+	inherit git-r3
 else
-	# Flatcar: Use cros setup
-	CROS_WORKON_COMMIT="5b1ed0e98a8a8225dc3f662483287a380643ab96" # v246-flatcar
-	KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86"
+	if [[ ${PV} == *.* ]]; then
+		MY_PN=systemd-stable
+	else
+		MY_PN=systemd
+	fi
+	MY_PV=${PV/_/-}
+	MY_P=${MY_PN}-${MY_PV}
+	S=${WORKDIR}/${MY_P}
+	SRC_URI="https://github.com/systemd/${MY_PN}/archive/v${MY_PV}/${MY_P}.tar.gz"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~mips ppc ppc64 sparc x86"
 fi
 
 # Flatcar: We still have python 3.5, and have no python3.8 yet.
 PYTHON_COMPAT=( python3_{5,6,7} )
-
-# Flatcar: cros-workon must be imported first, in cases where
-# cros-workon and another eclass exports the same function (say
-# src_compile) we want the later eclass's version to win. Only need
-# src_unpack from workon.
-inherit cros-workon
 
 inherit bash-completion-r1 linux-info meson multilib-minimal ninja-utils pam python-any-r1 systemd toolchain-funcs udev user
 
@@ -175,12 +171,26 @@ pkg_setup() {
 
 src_unpack() {
 	default
-	# Flatcar: Use cros setup.
-	cros-workon_src_unpack
+	[[ ${PV} != 9999 ]] || git-r3_src_unpack
 }
 
 src_prepare() {
-	# Flatcar: We don't have separate patches, so no patching code here.
+	# Do NOT add patches here
+	local PATCHES=()
+
+	[[ -d "${WORKDIR}"/patches ]] && PATCHES+=( "${WORKDIR}"/patches )
+
+	# Add local patches here
+	PATCHES+=(
+		# Flatcar: Adding our own patches here.
+		"${FILESDIR}/0001-sysctl.d-50-default.conf-remove-.all-source-route-se.patch"
+		"${FILESDIR}/0002-sysctl.d-50-default-better-comments-re-activate-prom.patch"
+		"${FILESDIR}/0003-sysctl.d-50-default.conf-re-activate-default-accept_.patch"
+	)
+
+	# Flatcar: We carry our own patches, we don't use the ones
+	# from Gentoo. Thus we dropped the `if ! use vanilla` code
+	# here.
 	#
 	# Flatcar: Use the resolv.conf managed by systemd-resolved.
 	# This shouldn't be necessary anymore. Added because of a bug
