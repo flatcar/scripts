@@ -186,6 +186,11 @@ src_prepare() {
 		"${FILESDIR}/0001-sysctl.d-50-default.conf-remove-.all-source-route-se.patch"
 		"${FILESDIR}/0002-sysctl.d-50-default-better-comments-re-activate-prom.patch"
 		"${FILESDIR}/0003-sysctl.d-50-default.conf-re-activate-default-accept_.patch"
+		"${FILESDIR}/0004-wait-online-set-any-by-default.patch"
+		"${FILESDIR}/0005-networkd-default-to-kernel-IPForwarding-setting.patch"
+		"${FILESDIR}/0006-needs-update-don-t-require-strictly-newer-usr.patch"
+		"${FILESDIR}/0007-core-use-max-for-DefaultTasksMax.patch"
+		"${FILESDIR}/0008-systemd-Disable-SELinux-permissions-checks.patch"
 	)
 
 	# Flatcar: We carry our own patches, we don't use the ones
