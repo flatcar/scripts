@@ -1,10 +1,14 @@
 # Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Flatcar: Based on portage-3.0.8.ebuild from commit
+# be7749525a3958edbcecee314d0e1c294222f87f in Gentoo repo (see
+# https://gitweb.gentoo.org/repo/gentoo.git/plain/sys-apps/portage/portage-3.0.8.ebuild?id=be7749525a3958edbcecee314d0e1c294222f87f).
+
 EAPI=7
 
 DISTUTILS_USE_SETUPTOOLS=no
-PYTHON_COMPAT=( pypy3 python3_{6..9} )
+PYTHON_COMPAT=( pypy3 python3_{6..7} )
 PYTHON_REQ_USE='bzip2(+),threads(+)'
 
 inherit distutils-r1 linux-info tmpfiles prefix
@@ -15,7 +19,7 @@ HOMEPAGE="https://wiki.gentoo.org/wiki/Project:Portage"
 LICENSE="GPL-2"
 KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 sparc x86"
 SLOT="0"
-IUSE="apidoc build doc gentoo-dev +ipc +native-extensions +rsync-verify selinux test xattr"
+IUSE="apidoc build doc gentoo-dev +ipc +native-extensions rsync-verify selinux test xattr"
 RESTRICT="!test? ( test )"
 
 BDEPEND="test? ( dev-vcs/git )"
@@ -84,6 +88,12 @@ TARBALL_PV=${PV}
 SRC_URI="mirror://gentoo/${PN}-${TARBALL_PV}.tar.bz2
 	$(prefix_src_archives ${PN}-${TARBALL_PV}.tar.bz2)"
 
+PATCHES=(
+	"${FILESDIR}/0001-portage-repository-config.py-add-disabled-attribute-.patch"
+	"${FILESDIR}/0002-environment-Filter-EROOT-for-all-EAPIs.patch"
+	"${FILESDIR}/0003-depgraph-ensure-slot-rebuilds-happen-in-the-correct-.patch"
+)
+
 pkg_pretend() {
 	local CONFIG_CHECK="~IPC_NS ~PID_NS ~NET_NS ~UTS_NS"
 
@@ -92,6 +102,8 @@ pkg_pretend() {
 
 python_prepare_all() {
 	distutils-r1_python_prepare_all
+
+	echo "# no defaults, configuration is in /etc" > cnf/repos.conf
 
 	sed -e "s:^VERSION = \"HEAD\"$:VERSION = \"${PV}\":" -i lib/portage/__init__.py || die
 
