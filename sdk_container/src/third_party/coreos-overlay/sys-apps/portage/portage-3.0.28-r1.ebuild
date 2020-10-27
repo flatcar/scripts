@@ -1,6 +1,10 @@
 # Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Flatcar: Based on portage-3.0.28-r1.ebuild from commit
+# dd2855193d31d04b6dc25d7fddf381c6d61c0080 in Gentoo repo (see
+# https://gitweb.gentoo.org/repo/gentoo.git/plain/sys-apps/portage/portage-3.0.28-r1.ebuild?id=dd2855193d31d04b6dc25d7fddf381c6d61c0080).
+
 EAPI=7
 
 PYTHON_COMPAT=( pypy3 python3_{8..10} )
@@ -19,7 +23,7 @@ SRC_URI="
 LICENSE="GPL-2"
 KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 SLOT="0"
-IUSE="apidoc build doc gentoo-dev +ipc +native-extensions +rsync-verify selinux test xattr"
+IUSE="apidoc build doc gentoo-dev +ipc +native-extensions rsync-verify selinux test xattr"
 RESTRICT="!test? ( test )"
 
 BDEPEND="
@@ -76,6 +80,12 @@ PDEPEND="
 # coreutils-6.4 rdep is for date format in emerge-webrsync #164532
 # NOTE: FEATURES=installsources requires debugedit and rsync
 
+PATCHES=(
+	"${FILESDIR}/0001-portage-repository-config.py-add-disabled-attribute-.patch"
+	"${FILESDIR}/0002-environment-Filter-EROOT-for-all-EAPIs.patch"
+	"${FILESDIR}/0003-depgraph-ensure-slot-rebuilds-happen-in-the-correct-.patch"
+)
+
 pkg_pretend() {
 	local CONFIG_CHECK="~IPC_NS ~PID_NS ~NET_NS ~UTS_NS"
 
@@ -88,6 +98,8 @@ python_prepare_all() {
 	)
 
 	distutils-r1_python_prepare_all
+
+	echo "# no defaults, configuration is in /etc" > cnf/repos.conf
 
 	sed -e "s:^VERSION = \"HEAD\"$:VERSION = \"${PV}\":" -i lib/portage/__init__.py || die
 
