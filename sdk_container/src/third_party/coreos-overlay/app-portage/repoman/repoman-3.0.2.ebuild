@@ -1,10 +1,14 @@
 # Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Flatcar: Based on repoman-3.0.2.ebuild from commit
+# 375d601ca5d48a81a2d03d62853fc7b7085f8210 in Gentoo repo (see
+# https://gitweb.gentoo.org/repo/gentoo.git/plain/app-portage/repoman/repoman-3.0.2.ebuild?id=375d601ca5d48a81a2d03d62853fc7b7085f8210).
+
 EAPI=7
 
 DISTUTILS_USE_SETUPTOOLS=no
-PYTHON_COMPAT=( python3_{6..9} pypy3 )
+PYTHON_COMPAT=( python3_{6..7} pypy3 )
 PYTHON_REQ_USE='bzip2(+)'
 
 inherit distutils-r1
