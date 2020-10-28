@@ -116,3 +116,6 @@ sys-apps/kmod lzma
 # net-libs/nghttp2 should be built with -cxx to avoid issues with boost 1.65.
 # configure script is not able to check if Boost:ASIO library exists.
 net-libs/nghttp2 -cxx
+
+# These (qmanifest and qtegrity) are new tools and they pull even more dependencies.
+app-portage/portage-utils -qmanifest -qtegrity
