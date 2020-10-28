@@ -1,10 +1,14 @@
 # Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Flatcar: Based on gentoolkit-0.5.0-r2.ebuild from commit
+# 8e426ccff148220423503c9a1c6c512c9b63ddfa in Gentoo repo (see
+# https://gitweb.gentoo.org/repo/gentoo.git/plain/app-portage/gentoolkit/gentoolkit-0.5.0-r2.ebuild?id=8e426ccff148220423503c9a1c6c512c9b63ddfa).
+
 EAPI=7
 
 DISTUTILS_USE_SETUPTOOLS=no
-PYTHON_COMPAT=( python3_{6,7,8,9} pypy3 )
+PYTHON_COMPAT=( python3_{6,7} pypy3 )
 PYTHON_REQ_USE="xml(+),threads(+)"
 
 inherit distutils-r1
