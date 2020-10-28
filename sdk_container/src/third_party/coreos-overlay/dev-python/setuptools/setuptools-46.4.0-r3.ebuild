@@ -1,10 +1,14 @@
 # Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Flatcar: Based on setuptools-46.4.0-r3.ebuild from commit
+# fe13784be44e5167f67315bf280690004aae885e in Gentoo repo (see
+# https://gitweb.gentoo.org/repo/gentoo.git/plain/dev-python/setuptools/setuptools-46.4.0-r3.ebuild?id=fe13784be44e5167f67315bf280690004aae885e).
+
 EAPI=7
 # Set to 'manual' to avoid triggering install QA check
 DISTUTILS_USE_SETUPTOOLS=manual
-PYTHON_COMPAT=( python2_7 python3_{6,7,8,9} pypy3 )
+PYTHON_COMPAT=( python2_7 python3_{6,7} pypy3 )
 PYTHON_REQ_USE="xml(+)"
 
 inherit distutils-r1
