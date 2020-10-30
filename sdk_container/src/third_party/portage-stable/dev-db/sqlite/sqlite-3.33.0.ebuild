@@ -16,11 +16,8 @@ HOMEPAGE="https://sqlite.org/"
 if [[ "${PV}" == "9999" ]]; then
 	SRC_URI=""
 else
-	SRC_URI="doc? ( https://sqlite.org/2020/${PN}-doc-${DOC_PV}.zip )
-		tcl? ( https://sqlite.org/2020/${PN}-src-${SRC_PV}.zip )
-		test? ( https://sqlite.org/2020/${PN}-src-${SRC_PV}.zip )
-		tools? ( https://sqlite.org/2020/${PN}-src-${SRC_PV}.zip )
-		!tcl? ( !test? ( !tools? ( https://sqlite.org/2020/${PN}-autoconf-${SRC_PV}.tar.gz ) ) )"
+	SRC_URI="https://sqlite.org/2020/${PN}-src-${SRC_PV}.zip
+		doc? ( https://sqlite.org/2020/${PN}-doc-${DOC_PV}.zip )"
 fi
 
 LICENSE="public-domain"
@@ -36,19 +33,8 @@ if [[ "${PV}" == "9999" ]]; then
 	BDEPEND=">=dev-lang/tcl-8.6:0
 		dev-vcs/fossil"
 else
-	BDEPEND="doc? ( app-arch/unzip )
-		tcl? (
-			app-arch/unzip
-			>=dev-lang/tcl-8.6:0
-		)
-		test? (
-			app-arch/unzip
-			>=dev-lang/tcl-8.6:0
-		)
-		tools? (
-			app-arch/unzip
-			>=dev-lang/tcl-8.6:0
-		)"
+	BDEPEND="app-arch/unzip
+		>=dev-lang/tcl-8.6:0"
 fi
 RDEPEND="sys-libs/zlib:0=[${MULTILIB_USEDEP}]
 	icu? ( dev-libs/icu:0=[${MULTILIB_USEDEP}] )
@@ -58,21 +44,11 @@ RDEPEND="sys-libs/zlib:0=[${MULTILIB_USEDEP}]
 DEPEND="${RDEPEND}
 	test? ( >=dev-lang/tcl-8.6:0[${MULTILIB_USEDEP}] )"
 
-full_archive() {
-	[[ "${PV}" == "9999" ]] || use tcl || use test || use tools
-}
-
-pkg_setup() {
-	if [[ "${PV}" == "9999" ]]; then
-		S="${WORKDIR}/${PN}"
-	else
-		if full_archive; then
-			S="${WORKDIR}/${PN}-src-${SRC_PV}"
-		else
-			S="${WORKDIR}/${PN}-autoconf-${SRC_PV}"
-		fi
-	fi
-}
+if [[ "${PV}" == "9999" ]]; then
+	S="${WORKDIR}/${PN}"
+else
+	S="${WORKDIR}/${PN}-src-${SRC_PV}"
+fi
 
 src_unpack() {
 	if [[ "${PV}" == "9999" ]]; then
@@ -123,30 +99,9 @@ src_unpack() {
 }
 
 src_prepare() {
-	if full_archive; then
-		eapply "${FILESDIR}/${PN}-3.31.0-full_archive-build.patch"
-		eapply "${FILESDIR}/${PN}-3.31.1-full_archive-architectures.patch"
-		eapply "${FILESDIR}/${PN}-3.31.1-full_archive-security_fixes.patch"
+	eapply "${FILESDIR}/"${PN}-3.33.0-build_{1.1,1.2,2.1,2.2}.patch
 
-		eapply_user
-
-		# Fix AC_CHECK_FUNCS.
-		# https://mailinglists.sqlite.org/cgi-bin/mailman/private/sqlite-dev/2016-March/002762.html
-		sed -e "s/AC_CHECK_FUNCS(.*)/AC_CHECK_FUNCS([fdatasync fullfsync gmtime_r isnan localtime_r localtime_s malloc_usable_size posix_fallocate pread pread64 pwrite pwrite64 strchrnul usleep utime])/" -i configure.ac || die "sed failed"
-	else
-		eapply "${FILESDIR}/${PN}-3.25.0-nonfull_archive-build.patch"
-		eapply "${FILESDIR}/${PN}-3.31.1-nonfull_archive-architectures.patch"
-		eapply "${FILESDIR}/${PN}-3.31.1-nonfull_archive-security_fixes.patch"
-
-		eapply_user
-
-		# Fix AC_CHECK_FUNCS.
-		# https://mailinglists.sqlite.org/cgi-bin/mailman/private/sqlite-dev/2016-March/002762.html
-		sed \
-			-e "s/AC_CHECK_FUNCS(\[fdatasync.*/AC_CHECK_FUNCS([fdatasync fullfsync gmtime_r isnan localtime_r localtime_s malloc_usable_size posix_fallocate pread pread64 pwrite pwrite64 strchrnul usleep utime])/" \
-			-e "/AC_CHECK_FUNCS(posix_fallocate)/d" \
-			-i configure.ac || die "sed failed"
-	fi
+	eapply_user
 
 	eautoreconf
 
@@ -158,26 +113,31 @@ multilib_src_configure() {
 	local options=()
 
 	options+=(
-		--enable-$(full_archive && echo load-extension || echo dynamic-extensions)
+		--enable-load-extension
 		--enable-threadsafe
 	)
-	if ! full_archive; then
-		options+=(--disable-static-shell)
-	fi
 
 	# Support detection of misuse of SQLite API.
 	# https://sqlite.org/compile.html#enable_api_armor
 	append-cppflags -DSQLITE_ENABLE_API_ARMOR
 
+	# Support bytecode and tables_used virtual tables.
+	# https://sqlite.org/compile.html#enable_bytecode_vtab
+	# https://sqlite.org/bytecodevtab.html
+	append-cppflags -DSQLITE_ENABLE_BYTECODE_VTAB
+
 	# Support column metadata functions.
+	# https://sqlite.org/compile.html#enable_column_metadata
 	# https://sqlite.org/c3ref/column_database_name.html
 	append-cppflags -DSQLITE_ENABLE_COLUMN_METADATA
 
 	# Support sqlite_dbpage virtual table.
 	# https://sqlite.org/compile.html#enable_dbpage_vtab
+	# https://sqlite.org/dbpage.html
 	append-cppflags -DSQLITE_ENABLE_DBPAGE_VTAB
 
 	# Support dbstat virtual table.
+	# https://sqlite.org/compile.html#enable_dbstat_vtab
 	# https://sqlite.org/dbstat.html
 	append-cppflags -DSQLITE_ENABLE_DBSTAT_VTAB
 
@@ -192,6 +152,10 @@ multilib_src_configure() {
 	append-cppflags -DSQLITE_ENABLE_EXPLAIN_COMMENTS
 
 	# Support Full-Text Search versions 3, 4 and 5.
+	# https://sqlite.org/compile.html#enable_fts3
+	# https://sqlite.org/compile.html#enable_fts3_parenthesis
+	# https://sqlite.org/compile.html#enable_fts4
+	# https://sqlite.org/compile.html#enable_fts5
 	# https://sqlite.org/fts3.html
 	# https://sqlite.org/fts5.html
 	append-cppflags -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_PARENTHESIS -DSQLITE_ENABLE_FTS4
@@ -201,10 +165,12 @@ multilib_src_configure() {
 	append-cppflags -DSQLITE_ENABLE_HIDDEN_COLUMNS
 
 	# Support JSON1 extension.
+	# https://sqlite.org/compile.html#enable_json1
 	# https://sqlite.org/json1.html
 	append-cppflags -DSQLITE_ENABLE_JSON1
 
 	# Support memsys5 memory allocator.
+	# https://sqlite.org/compile.html#enable_memsys5
 	# https://sqlite.org/malloc.html#memsys5
 	append-cppflags -DSQLITE_ENABLE_MEMSYS5
 
@@ -213,76 +179,78 @@ multilib_src_configure() {
 	append-cppflags -DSQLITE_ENABLE_NORMALIZE
 
 	# Support sqlite_offset() function.
+	# https://sqlite.org/compile.html#enable_offset_sql_func
 	# https://sqlite.org/lang_corefunc.html#sqlite_offset
 	append-cppflags -DSQLITE_ENABLE_OFFSET_SQL_FUNC
 
 	# Support pre-update hook functions.
+	# https://sqlite.org/compile.html#enable_preupdate_hook
 	# https://sqlite.org/c3ref/preupdate_count.html
 	append-cppflags -DSQLITE_ENABLE_PREUPDATE_HOOK
 
 	# Support Resumable Bulk Update extension.
+	# https://sqlite.org/compile.html#enable_rbu
 	# https://sqlite.org/rbu.html
 	append-cppflags -DSQLITE_ENABLE_RBU
 
 	# Support R*Trees.
+	# https://sqlite.org/compile.html#enable_rtree
+	# https://sqlite.org/compile.html#enable_geopoly
 	# https://sqlite.org/rtree.html
 	# https://sqlite.org/geopoly.html
 	append-cppflags -DSQLITE_ENABLE_RTREE -DSQLITE_ENABLE_GEOPOLY
 
+	# Support Session extension.
+	# https://sqlite.org/compile.html#enable_session
+	# https://sqlite.org/sessionintro.html
+	append-cppflags -DSQLITE_ENABLE_SESSION
+
 	# Support scan status functions.
+	# https://sqlite.org/compile.html#enable_stmt_scanstatus
 	# https://sqlite.org/c3ref/stmt_scanstatus.html
 	# https://sqlite.org/c3ref/stmt_scanstatus_reset.html
 	append-cppflags -DSQLITE_ENABLE_STMT_SCANSTATUS
 
 	# Support sqlite_stmt virtual table.
+	# https://sqlite.org/compile.html#enable_stmtvtab
 	# https://sqlite.org/stmt.html
 	append-cppflags -DSQLITE_ENABLE_STMTVTAB
-
-	# Support Session extension.
-	# https://sqlite.org/sessionintro.html
-	options+=(--enable-session)
 
 	# Support unknown() function.
 	# https://sqlite.org/compile.html#enable_unknown_sql_function
 	append-cppflags -DSQLITE_ENABLE_UNKNOWN_SQL_FUNCTION
 
 	# Support unlock notification.
+	# https://sqlite.org/compile.html#enable_unlock_notify
+	# https://sqlite.org/c3ref/unlock_notify.html
 	# https://sqlite.org/unlock_notify.html
 	append-cppflags -DSQLITE_ENABLE_UNLOCK_NOTIFY
 
 	# Support LIMIT and ORDER BY clauses on DELETE and UPDATE statements.
 	# https://sqlite.org/compile.html#enable_update_delete_limit
+	# https://sqlite.org/lang_delete.html#optional_limit_and_order_by_clauses
+	# https://sqlite.org/lang_update.html#optional_limit_and_order_by_clauses
 	append-cppflags -DSQLITE_ENABLE_UPDATE_DELETE_LIMIT
 
 	# Support soundex() function.
+	# https://sqlite.org/compile.html#soundex
 	# https://sqlite.org/lang_corefunc.html#soundex
 	append-cppflags -DSQLITE_SOUNDEX
 
 	# Support URI filenames.
+	# https://sqlite.org/compile.html#use_uri
 	# https://sqlite.org/uri.html
 	append-cppflags -DSQLITE_USE_URI
 
 	# debug USE flag.
-	if full_archive; then
-		options+=($(use_enable debug))
-	else
-		if use debug; then
-			append-cppflags -DSQLITE_DEBUG
-		else
-			append-cppflags -DNDEBUG
-		fi
-	fi
+	options+=($(use_enable debug))
 
 	# icu USE flag.
 	if use icu; then
 		# Support ICU extension.
 		# https://sqlite.org/compile.html#enable_icu
 		append-cppflags -DSQLITE_ENABLE_ICU
-		if full_archive; then
-			sed -e "s/^TLIBS = @LIBS@/& -licui18n -licuuc/" -i Makefile.in || die "sed failed"
-		else
-			sed -e "s/^LIBS = @LIBS@/& -licui18n -licuuc/" -i Makefile.in || die "sed failed"
-		fi
+		sed -e "s/^TLIBS = @LIBS@/& -licui18n -licuuc/" -i Makefile.in || die "sed failed"
 	fi
 
 	# readline USE flag.
@@ -290,13 +258,14 @@ multilib_src_configure() {
 		--disable-editline
 		$(use_enable readline)
 	)
-	if full_archive && use readline; then
-		options+=(--with-readline-inc="-I${EPREFIX}/usr/include/readline")
+	if use readline; then
+		options+=(--with-readline-inc="-I${ESYSROOT}/usr/include/readline")
 	fi
 
 	# secure-delete USE flag.
 	if use secure-delete; then
 		# Enable secure_delete pragma by default.
+		# https://sqlite.org/compile.html#secure_delete
 		# https://sqlite.org/pragma.html#pragma_secure_delete
 		append-cppflags -DSQLITE_SECURE_DELETE
 	fi
@@ -305,11 +274,11 @@ multilib_src_configure() {
 	options+=($(use_enable static-libs static))
 
 	# tcl, test, tools USE flags.
-	if full_archive; then
-		options+=(--enable-tcl)
-	fi
+	options+=(--enable-tcl)
 
 	if [[ "${CHOST}" == *-mint* ]]; then
+		# sys/mman.h not available in MiNTLib.
+		# https://sqlite.org/compile.html#omit_wal
 		append-cppflags -DSQLITE_OMIT_WAL
 	fi
 
@@ -383,10 +352,16 @@ multilib_src_install_all() {
 	doman sqlite3.1
 
 	if use doc; then
-		rm "${WORKDIR}/${PN}-doc-${DOC_PV}/"*.{db,txt} || die
+		if [[ "${PV}" == "9999" ]]; then
+			pushd "${WORKDIR}/${PN}-doc" > /dev/null || die
+		else
+			pushd "${WORKDIR}/${PN}-doc-${DOC_PV}" > /dev/null || die
+		fi
+		rm *.db *.txt || die
 		(
 			docinto html
-			dodoc -r "${WORKDIR}/${PN}-doc-${DOC_PV}/"*
+			dodoc -r *
 		)
+		popd > /dev/null || die
 	fi
 }
