@@ -1,6 +1,10 @@
 # Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Flatcar: Based on catalyst-3.0.14.ebuild from commit
+# 78fc35f2e766117caa26928db5a0a09b8af18c3c in Gentoo repo (see
+# https://gitweb.gentoo.org/repo/gentoo.git/plain/dev-util/catalyst/catalyst-3.0.14.ebuild?id=78fc35f2e766117caa26928db5a0a09b8af18c3c).
+
 EAPI=6
 
 if [[ ${PV} == *9999* ]]; then
@@ -12,7 +16,7 @@ else
 	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~mips ppc ppc64 ~riscv s390 sparc x86"
 fi
 
-PYTHON_COMPAT=( python3_{6,7,8} )
+PYTHON_COMPAT=( python3_{6,7} )
 DISTUTILS_USE_SETUPTOOLS=no
 
 inherit distutils-r1 ${SRC_ECLASS}
