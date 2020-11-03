@@ -1,34 +1,30 @@
 # Copyright 2011-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# Flatcar: Based on systemd-246-r1.ebuild from commit
-# 431a568d06963207495c099b5a64f85442017507 in gentoo repo (see
-# https://gitweb.gentoo.org/repo/gentoo.git/plain/sys-apps/systemd/systemd-246-r1.ebuild?id=431a568d06963207495c099b5a64f85442017507).
+# Flatcar: Based on systemd-246-r2.ebuild from commit
+# 4bf7b81548f70cbf7ce5ae377e85fd21ae259ce7 in gentoo repo (see
+# https://gitweb.gentoo.org/repo/gentoo.git/plain/sys-apps/systemd/systemd-246-r2.ebuild?id=4bf7b81548f70cbf7ce5ae377e85fd21ae259ce7).
 
 EAPI=7
 
-# Flatcar: Use cros setup
-CROS_WORKON_PROJECT="flatcar-linux/systemd"
-CROS_WORKON_REPO="git://github.com"
-
 if [[ ${PV} == 9999 ]]; then
-	# Flatcar: Use cros setup
-	# Use ~arch instead of empty keywords for compatibility with cros-workon
-	KEYWORDS="~amd64 ~arm64 ~arm ~x86"
+	EGIT_REPO_URI="https://github.com/systemd/systemd.git"
+	inherit git-r3
 else
-	# Flatcar: Use cros setup
-	CROS_WORKON_COMMIT="5b1ed0e98a8a8225dc3f662483287a380643ab96" # v246-flatcar
-	KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86"
+	if [[ ${PV} == *.* ]]; then
+		MY_PN=systemd-stable
+	else
+		MY_PN=systemd
+	fi
+	MY_PV=${PV/_/-}
+	MY_P=${MY_PN}-${MY_PV}
+	S=${WORKDIR}/${MY_P}
+	SRC_URI="https://github.com/systemd/${MY_PN}/archive/v${MY_PV}/${MY_P}.tar.gz"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~mips ppc ppc64 sparc x86"
 fi
 
 # Flatcar: We still have python 3.5, and have no python3.8 yet.
 PYTHON_COMPAT=( python3_{5,6,7} )
-
-# Flatcar: cros-workon must be imported first, in cases where
-# cros-workon and another eclass exports the same function (say
-# src_compile) we want the later eclass's version to win. Only need
-# src_unpack from workon.
-inherit cros-workon
 
 inherit bash-completion-r1 linux-info meson multilib-minimal ninja-utils pam python-any-r1 systemd toolchain-funcs udev user
 
@@ -40,7 +36,7 @@ SLOT="0/2"
 # Flatcar: Dropped cgroup-hybrid. We use legacy hierarchy by default
 # to keep docker working. Dropped static-libs, we don't care about
 # static libraries.
-IUSE="acl apparmor audit build cryptsetup curl dns-over-tls elfutils +gcrypt gnuefi homed http +hwdb idn importd +kmod +lz4 lzma nat pam pcre pkcs11 policykit pwquality qrcode repart +resolvconf +seccomp selinux +split-usr ssl +sysv-utils test vanilla xkb"
+IUSE="acl apparmor audit build cryptsetup curl dns-over-tls elfutils +gcrypt gnuefi homed http +hwdb idn importd +kmod +lz4 lzma nat pam pcre pkcs11 policykit pwquality qrcode repart +resolvconf +seccomp selinux +split-usr ssl +sysv-utils test vanilla xkb +zstd"
 
 REQUIRED_USE="
 	homed? ( cryptsetup )
@@ -84,7 +80,9 @@ COMMON_DEPEND=">=sys-apps/util-linux-2.30:0=[${MULTILIB_USEDEP}]
 	repart? ( ${OPENSSL_DEP} )
 	seccomp? ( >=sys-libs/libseccomp-2.3.3:0= )
 	selinux? ( sys-libs/libselinux:0= )
-	xkb? ( >=x11-libs/libxkbcommon-0.4.1:0= )"
+	xkb? ( >=x11-libs/libxkbcommon-0.4.1:0= )
+	zstd? ( >=app-arch/zstd-1.4.0:0=[${MULTILIB_USEDEP}] )
+"
 
 RDEPEND="${COMMON_DEPEND}
 	sysv-utils? ( !sys-apps/sysvinit )
@@ -173,12 +171,31 @@ pkg_setup() {
 
 src_unpack() {
 	default
-	# Flatcar: Use cros setup.
-	cros-workon_src_unpack
+	[[ ${PV} != 9999 ]] || git-r3_src_unpack
 }
 
 src_prepare() {
-	# Flatcar: We don't have separate patches, so no patching code here.
+	# Do NOT add patches here
+	local PATCHES=()
+
+	[[ -d "${WORKDIR}"/patches ]] && PATCHES+=( "${WORKDIR}"/patches )
+
+	# Add local patches here
+	PATCHES+=(
+		# Flatcar: Adding our own patches here.
+		"${FILESDIR}/0001-sysctl.d-50-default.conf-remove-.all-source-route-se.patch"
+		"${FILESDIR}/0002-sysctl.d-50-default-better-comments-re-activate-prom.patch"
+		"${FILESDIR}/0003-sysctl.d-50-default.conf-re-activate-default-accept_.patch"
+		"${FILESDIR}/0004-wait-online-set-any-by-default.patch"
+		"${FILESDIR}/0005-networkd-default-to-kernel-IPForwarding-setting.patch"
+		"${FILESDIR}/0006-needs-update-don-t-require-strictly-newer-usr.patch"
+		"${FILESDIR}/0007-core-use-max-for-DefaultTasksMax.patch"
+		"${FILESDIR}/0008-systemd-Disable-SELinux-permissions-checks.patch"
+	)
+
+	# Flatcar: We carry our own patches, we don't use the ones
+	# from Gentoo. Thus we dropped the `if ! use vanilla` code
+	# here.
 	#
 	# Flatcar: Use the resolv.conf managed by systemd-resolved.
 	# This shouldn't be necessary anymore. Added because of a bug
@@ -267,6 +284,7 @@ multilib_src_configure() {
 		-Dkmod=$(meson_multilib_native_use kmod)
 		-Dlz4=$(meson_use lz4)
 		-Dxz=$(meson_use lzma)
+		-Dzstd=$(meson_use zstd)
 		-Dlibiptc=$(meson_multilib_native_use nat)
 		-Dpam=$(meson_use pam)
 		-Dp11kit=$(meson_multilib_native_use pkcs11)

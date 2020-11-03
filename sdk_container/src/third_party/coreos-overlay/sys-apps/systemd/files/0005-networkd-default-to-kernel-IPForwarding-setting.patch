@@ -1,0 +1,25 @@
+From 9acb14187bacd1d716adaed491813ea1cde12237 Mon Sep 17 00:00:00 2001
+From: Nick Owens <nick.owens@coreos.com>
+Date: Tue, 2 Jun 2015 18:22:32 -0700
+Subject: [PATCH 2/5] networkd: default to "kernel" IPForwarding setting
+
+---
+ src/network/networkd-network.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/network/networkd-network.c b/src/network/networkd-network.c
+index 97f5551ee5..d12072665a 100644
+--- a/src/network/networkd-network.c
++++ b/src/network/networkd-network.c
+@@ -461,6 +461,8 @@ int network_load_one(Manager *manager, OrderedHashmap **networks, const char *fi
+ 
+                 .ipv4_accept_local = -1,
+ 
++                .ip_forward = _ADDRESS_FAMILY_INVALID,
++
+                 .ipv6_privacy_extensions = IPV6_PRIVACY_EXTENSIONS_NO,
+                 .ipv6_accept_ra = -1,
+                 .ipv6_dad_transmits = -1,
+-- 
+2.26.2
+
