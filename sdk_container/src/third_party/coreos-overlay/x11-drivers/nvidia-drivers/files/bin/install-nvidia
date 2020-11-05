@@ -1,0 +1,18 @@
+#!/bin/bash
+
+. /usr/share/coreos/release
+NVIDIA_DRIVER_BASENAME="$1"
+
+emerge-gitclone
+emerge -gKv coreos-sources > /dev/null
+cp "/usr/lib64/modules/$(ls /usr/lib64/modules)/build/.config" /usr/src/linux/
+make -C /usr/src/linux modules_prepare
+
+cd "/nvidia/${NVIDIA_DRIVER_BASENAME}"
+./nvidia-installer -s -n \
+  --no-check-for-alternate-installs \
+  --no-kernel-module-source \
+  --no-opengl-files \
+  --no-distro-scripts \
+  --kernel-install-path="${PWD}" \
+  --log-file-name="${PWD}/nvidia-installer.log" || true

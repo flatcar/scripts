@@ -26,6 +26,7 @@ RDEPEND="
 		coreos-base/nova-agent-container
 		coreos-base/nova-agent-watcher
 		dev-lang/python-oem
+		x11-drivers/nvidia-drivers
 	)
 	arm64? (
 		sys-boot/grub
