@@ -31,3 +31,6 @@ x11-libs/pixman static-libs
 
 cross-x86_64-cros-linux-gnu/gdb python_single_target_python3_6 -python_single_target_python3_7
 cross-aarch64-cros-linux-gnu/gdb python_single_target_python3_6 -python_single_target_python3_7
+
+# Enable gssapi for SDK
+net-dns/bind-tools           gssapi
