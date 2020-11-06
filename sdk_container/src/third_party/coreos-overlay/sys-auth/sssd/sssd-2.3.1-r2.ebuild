@@ -113,6 +113,7 @@ MULTILIB_WRAPPED_HEADERS=(
 
 PATCHES=(
 	"${FILESDIR}"/${P}-test_ca-Look-for-libsofthsm2.so-in-usr-libdir-sofths.patch
+	"${FILESDIR}"/${P}-disable-nsupdate-realm.patch
 )
 
 pkg_setup() {
