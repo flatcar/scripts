@@ -1,26 +1,26 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
-EAPI=5
+EAPI=6
 
-PYTHON_COMPAT=( python2_7 )
-PYTHON_REQ_USE="threads"
+PYTHON_COMPAT=( python3_{6,7} )
+PYTHON_REQ_USE="threads(+)"
 
-inherit waf-utils multilib-minimal python-single-r1 eutils
+inherit waf-utils multilib-minimal python-single-r1
 
 DESCRIPTION="A simple database API"
-HOMEPAGE="http://tdb.samba.org/"
-SRC_URI="http://samba.org/ftp/tdb/${P}.tar.gz"
+HOMEPAGE="https://tdb.samba.org/"
+SRC_URI="https://samba.org/ftp/tdb/${P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~mips ppc ppc64 ~s390 sparc x86 ~amd64-linux ~x86-linux"
 IUSE="python"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
-RDEPEND="python? ( ${PYTHON_DEPS} )"
+RDEPEND="!elibc_FreeBSD? ( dev-libs/libbsd[${MULTILIB_USEDEP}] )
+	python? ( ${PYTHON_DEPS} )"
 DEPEND="
 	${RDEPEND}
 	${PYTHON_DEPS}
@@ -28,7 +28,10 @@ DEPEND="
 
 WAF_BINARY="${S}/buildtools/bin/waf"
 
+RESTRICT="test"
+
 src_prepare() {
+	default
 	python_fix_shebang .
 	multilib_copy_sources
 }
@@ -39,8 +42,7 @@ multilib_src_configure() {
 		extra_opts+=( --disable-python )
 	fi
 
-	waf-utils_src_configure \
-		"${extra_opts[@]}"
+	waf-utils_src_configure "${extra_opts[@]}"
 }
 
 multilib_src_compile() {
