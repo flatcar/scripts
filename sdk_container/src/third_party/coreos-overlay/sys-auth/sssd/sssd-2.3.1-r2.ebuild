@@ -1,3 +1,8 @@
+# Flatcar modifications:
+# - changed files/sssd.service
+# - added files/tmpfiles.d/sssd.conf
+# - other ebuild modifications marked below
+#
 # Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
@@ -10,7 +15,8 @@ inherit autotools flag-o-matic linux-info multilib-minimal python-single-r1 pam 
 DESCRIPTION="System Security Services Daemon provides access to identity and authentication"
 HOMEPAGE="https://github.com/SSSD/sssd"
 SRC_URI="https://github.com/SSSD/sssd/releases/download/${PN}-${PV//./_}/${P}.tar.gz"
-KEYWORDS="amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sparc x86"
+# Flatcar: stabilize arm64
+KEYWORDS="amd64 ~arm arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sparc x86"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -20,6 +26,8 @@ RESTRICT="!test? ( test )"
 REQUIRED_USE="pac? ( samba )
 	python? ( ${PYTHON_REQUIRED_USE} )"
 
+# Flatcar: do not force gssapi for >=net-dns/bind-tools-9.9
+# do not force winbind for net-fs/samba
 DEPEND="
 	>=app-crypt/mit-krb5-1.10.3
 	app-crypt/p11-kit
@@ -29,7 +37,7 @@ DEPEND="
 	>=dev-libs/libpcre-8.30:=
 	>=dev-libs/popt-1.16
 	>=dev-libs/openssl-1.0.2:0=
-	>=net-dns/bind-tools-9.9[gssapi]
+	>=net-dns/bind-tools-9.9
 	>=net-dns/c-ares-1.7.4
 	>=net-nds/openldap-2.4.30[sasl]
 	>=sys-apps/dbus-1.6
@@ -53,7 +61,7 @@ DEPEND="
 		net-fs/samba
 	)
 	python? ( ${PYTHON_DEPS} )
-	samba? ( >=net-fs/samba-4.10.2[winbind] )
+	samba? ( >=net-fs/samba-4.10.2 )
 	selinux? (
 		>=sys-libs/libselinux-2.1.9
 		>=sys-libs/libsemanage-2.1
@@ -69,8 +77,9 @@ RDEPEND="${DEPEND}
 	>=sys-libs/glibc-2.17[nscd]
 	selinux? ( >=sec-policy/selinux-sssd-2.20120725-r9 )
 	"
+# Flatcar: require only autoconf:2.69
 BDEPEND="${DEPEND}
-	>=sys-devel/autoconf-2.69-r5
+	sys-devel/autoconf:2.69
 	doc? ( app-doc/doxygen )
 	test? (
 		dev-libs/check
@@ -149,6 +158,12 @@ multilib_src_configure() {
 		--with-nscd="${EPREFIX}"/usr/sbin/nscd
 		--with-unicode-lib="glib2"
 		--disable-rpath
+		# Flatcar: make nss lookups succeed when not running
+		--enable-sss-default-nss-plugin
+		# Flatcar: prevent cross-compilation error
+		# when autotools does not want to compile and run the test
+		$(use_with samba smb-idmap-interface-version=6)
+		#
 		--sbindir=/usr/sbin
 		--with-crypto="libcrypto"
 		--enable-local-provider
@@ -222,7 +237,8 @@ multilib_src_compile() {
 
 multilib_src_install() {
 	if multilib_is_native_abi; then
-		emake -j1 DESTDIR="${D}" "${_at_args[@]}" install
+		# Flatcar: add sysconfdir
+		emake -j1 DESTDIR="${D}" sysconfdir="/usr/share" "${_at_args[@]}" install
 		if use python; then
 			python_optimize
 			python_fix_shebang "${ED}"
@@ -251,26 +267,15 @@ multilib_src_install_all() {
 	einstalldocs
 	find "${ED}" -type f -name '*.la' -delete || die
 
-	insinto /etc/sssd
-	insopts -m600
+	# Flatcar: store on /usr
+	insinto /usr/share/sssd
 	doins "${S}"/src/examples/sssd-example.conf
 
-	insinto /etc/logrotate.d
-	insopts -m644
-	newins "${S}"/src/examples/logrotate sssd
+	# Flatcar: delete, remove /var files taken care of by tmpfiles
 
-	newconfd "${FILESDIR}"/sssd.conf sssd
-
-	keepdir /var/lib/sss/db
-	keepdir /var/lib/sss/deskprofile
-	keepdir /var/lib/sss/gpo_cache
-	keepdir /var/lib/sss/keytabs
-	keepdir /var/lib/sss/mc
-	keepdir /var/lib/sss/pipes/private
-	keepdir /var/lib/sss/pubconf/krb5.include.d
-	keepdir /var/lib/sss/secrets
-	keepdir /var/log/sssd
-
+	# Flatcar: add tmpfile directive and remove /etc/rc.d
+	systemd_dotmpfilesd "${FILESDIR}/tmpfiles.d/sssd.conf"
+	rm -rf "${D}/etc/rc.d"
 	# strip empty dirs
 	if ! use doc ; then
 		rm -r "${ED}"/usr/share/doc/"${PF}"/doc || die
