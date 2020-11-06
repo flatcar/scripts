@@ -78,7 +78,7 @@ RDEPEND="${DEPEND}
 	selinux? ( >=sec-policy/selinux-sssd-2.20120725-r9 )
 	"
 # Flatcar: require only autoconf:2.69
-BDEPEND="${DEPEND}
+BDEPEND="
 	sys-devel/autoconf:2.69
 	doc? ( app-doc/doxygen )
 	test? (
