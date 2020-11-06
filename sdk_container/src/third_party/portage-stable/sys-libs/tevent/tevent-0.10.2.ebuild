@@ -1,33 +1,42 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 EAPI=6
-PYTHON_COMPAT=( python2_7 )
+PYTHON_COMPAT=( python3_{6,7} )
 PYTHON_REQ_USE="threads(+)"
 
 inherit waf-utils multilib-minimal python-single-r1
 
 DESCRIPTION="Samba tevent library"
-HOMEPAGE="http://tevent.samba.org/"
-SRC_URI="http://samba.org/ftp/tevent/${P}.tar.gz"
+HOMEPAGE="https://tevent.samba.org/"
+SRC_URI="https://www.samba.org/ftp/tevent/${P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh ~sparc x86 ~amd64-fbsd ~x86-fbsd ~arm-linux ~x86-linux"
-IUSE="python"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x86-linux"
+IUSE="elibc_glibc python"
 
-RDEPEND=">=sys-libs/talloc-2.1.5[${MULTILIB_USEDEP}]
+RDEPEND="!elibc_FreeBSD? ( dev-libs/libbsd[${MULTILIB_USEDEP}] )
+	>=sys-libs/talloc-2.3.1[${MULTILIB_USEDEP}]
 	python? ( ${PYTHON_DEPS} )"
 
 DEPEND="${RDEPEND}
-	>=virtual/pkgconfig-0-r1[${MULTILIB_USEDEP}]
+	virtual/pkgconfig
+	elibc_glibc? (
+		net-libs/libtirpc[${MULTILIB_USEDEP}]
+		|| (
+			net-libs/rpcsvc-proto
+			<sys-libs/glibc-2.26[rpc(+)]
+		)
+	)
 	${PYTHON_DEPS}
 "
 # build system does not work with python3
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 WAF_BINARY="${S}/buildtools/bin/waf"
+
+RESTRICT="test"
 
 pkg_setup() {
 	python-single-r1_pkg_setup
@@ -40,6 +49,8 @@ src_prepare() {
 
 multilib_src_configure() {
 	waf-utils_src_configure \
+		--bundled-libraries=NONE \
+		--builtin-libraries=NONE \
 		$(multilib_native_usex python '' '--disable-python')
 }
 
@@ -53,4 +64,9 @@ multilib_src_install() {
 	waf-utils_src_install
 
 	multilib_is_native_abi && use python && python_domodule tevent.py
+}
+
+multilib_src_install_all() {
+	insinto /usr/include
+	doins tevent_internal.h
 }
