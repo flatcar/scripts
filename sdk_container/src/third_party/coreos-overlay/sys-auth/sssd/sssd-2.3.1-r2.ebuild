@@ -142,7 +142,6 @@ multilib_src_configure() {
 
 	myconf+=(
 		--localstatedir="${EPREFIX}"/var
-		--runstatedir="${EPREFIX}"/run
 		--with-pid-path="${EPREFIX}"/run
 		--with-plugin-path="${EPREFIX}"/usr/$(get_libdir)/sssd
 		--enable-pammoddir="${EPREFIX}"/$(getpam_mod_dir)
@@ -223,7 +222,8 @@ multilib_src_configure() {
 
 multilib_src_compile() {
 	if multilib_is_native_abi; then
-		default
+		# Flatcar: add runstatedir to make commands to avoid configure error
+		default runstatedir="${EPREFIX}"/run
 		use doc && emake docs
 		if use man || use nls; then
 			emake update-po
@@ -237,8 +237,9 @@ multilib_src_compile() {
 
 multilib_src_install() {
 	if multilib_is_native_abi; then
-		# Flatcar: add sysconfdir
-		emake -j1 DESTDIR="${D}" sysconfdir="/usr/share" "${_at_args[@]}" install
+		# Flatcar: add runstatedir, sysconfdir
+		emake -j1 DESTDIR="${D}" runstatedir="${EPREFIX}"/run \
+			sysconfdir="/usr/share" "${_at_args[@]}" install
 		if use python; then
 			python_optimize
 			python_fix_shebang "${ED}"
