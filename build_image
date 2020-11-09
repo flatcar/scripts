@@ -9,7 +9,7 @@
 # the given target's root with binary packages turned on. This script will
 # build the Chrome OS image using only pre-built binary packages.
 
-SCRIPT_ROOT=$(dirname $(readlink -f "$0"))
+SCRIPT_ROOT=$(dirname "$(readlink -f "$0")")
 . "${SCRIPT_ROOT}/common.sh" || exit 1
 
 # Script must run inside the chroot
@@ -26,7 +26,7 @@ DEFINE_boolean getbinpkg "${FLAGS_FALSE}" \
   "Download binary packages from remote repository."
 DEFINE_string getbinpkgver "" \
   "Use binary packages from a specific version."
-DEFINE_boolean enable_rootfs_verification ${FLAGS_TRUE} \
+DEFINE_boolean enable_rootfs_verification "${FLAGS_TRUE}" \
   "Default all bootloaders to use kernel-based root fs integrity checking."
 DEFINE_string base_pkg "coreos-base/coreos" \
   "The base portage package to base the build off of (only applies to prod images)"
@@ -169,19 +169,19 @@ fix_mtab
 
 if [[ "${CONTAINER}" -eq 1 ]]; then
   IMAGE_BUILD_TYPE="container"
-  create_dev_container "${FLATCAR_DEVELOPER_CONTAINER_NAME}" "${CONTAINER_LAYOUT}" "${FLAGS_group}" ${FLAGS_base_dev_pkg}
+  create_dev_container "${FLATCAR_DEVELOPER_CONTAINER_NAME}" "${CONTAINER_LAYOUT}" "${FLAGS_group}" "${FLAGS_base_dev_pkg}"
 fi
 
 if [[ "${PROD_IMAGE}" -eq 1 ]]; then
   IMAGE_BUILD_TYPE="prod"
-  create_prod_image ${FLATCAR_PRODUCTION_IMAGE_NAME} ${DISK_LAYOUT} ${FLAGS_group} ${FLAGS_base_pkg}
+  create_prod_image "${FLATCAR_PRODUCTION_IMAGE_NAME}" "${DISK_LAYOUT}" "${FLAGS_group}" "${FLAGS_base_pkg}"
   if [[ ${FLAGS_generate_update} -eq ${FLAGS_TRUE} ]]; then
-    generate_update "${FLATCAR_PRODUCTION_IMAGE_NAME}" ${DISK_LAYOUT}
+    generate_update "${FLATCAR_PRODUCTION_IMAGE_NAME}" "${DISK_LAYOUT}"
   elif [[ ${FLAGS_extract_update} -eq ${FLAGS_TRUE} ]]; then
     extract_update "${FLATCAR_PRODUCTION_IMAGE_NAME}" "${DISK_LAYOUT}"
   fi
   if [[ "${PROD_TAR}" -eq 1 ]]; then
-    create_prod_tar ${FLATCAR_PRODUCTION_IMAGE_NAME}
+    create_prod_tar "${FLATCAR_PRODUCTION_IMAGE_NAME}"
   fi
 fi
 
@@ -220,7 +220,7 @@ print_image_to_vm() {
 To convert it to a virtual machine image, use:
   ./image_to_vm.sh --from=${OUTSIDE_OUTPUT_DIR} --board=${BOARD} ${flags}
 
-The default type is $(get_default_vm_type ${BOARD}), see ./image_to_vm.sh --help for other options.
+The default type is $(get_default_vm_type "${BOARD}"), see ./image_to_vm.sh --help for other options.
 EOF
 }
 
