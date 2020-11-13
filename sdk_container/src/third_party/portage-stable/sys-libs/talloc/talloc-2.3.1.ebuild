@@ -1,31 +1,33 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 EAPI=6
 
-PYTHON_COMPAT=( python2_7 )
-PYTHON_REQ_USE="threads"
+PYTHON_COMPAT=( python3_{6,7} )
+PYTHON_REQ_USE="threads(+)"
 
 inherit waf-utils python-single-r1 multilib multilib-minimal
 
 DESCRIPTION="Samba talloc library"
-HOMEPAGE="http://talloc.samba.org/"
-SRC_URI="http://samba.org/ftp/${PN}/${P}.tar.gz"
+HOMEPAGE="https://talloc.samba.org/"
+SRC_URI="https://www.samba.org/ftp/${PN}/${P}.tar.gz"
 
-LICENSE="GPL-3 LGPL-3+ LGPL-2 BSD"
+LICENSE="GPL-3 LGPL-3+ LGPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~x64-macos ~sparc-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~x64-macos ~sparc-solaris ~x64-solaris"
 IUSE="compat +python"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
-RDEPEND="python? ( ${PYTHON_DEPS} )
-	!!<sys-libs/talloc-2.0.5
-	abi_x86_32? (
-		!<=app-emulation/emul-linux-x86-baselibs-20140508-r1
-		!app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)]
-	)"
+RDEPEND="!elibc_FreeBSD? (
+			!elibc_SunOS? (
+				!elibc_Darwin? (
+					dev-libs/libbsd[${MULTILIB_USEDEP}]
+				)
+			)
+		)
+	python? ( ${PYTHON_DEPS} )
+	!!<sys-libs/talloc-2.0.5"
 DEPEND="${RDEPEND}
 	sys-devel/gettext
 	dev-libs/libxslt
@@ -56,15 +58,12 @@ src_prepare() {
 }
 
 multilib_src_configure() {
-	local extra_opts=()
-
-	use compat && extra_opts+=( --enable-talloc-compat1 )
-	if ! multilib_is_native_abi || ! use python; then
-		extra_opts+=( --disable-python )
-	fi
-
-	waf-utils_src_configure \
-		"${extra_opts[@]}"
+	local extra_opts=(
+		$(usex compat --enable-talloc-compat1 '')
+		$(multilib_native_usex python '' --disable-python)
+		$([[ ${CHOST} == *-solaris* ]] && echo '--disable-symbol-versions')
+	)
+	waf-utils_src_configure "${extra_opts[@]}"
 }
 
 multilib_src_compile() {
