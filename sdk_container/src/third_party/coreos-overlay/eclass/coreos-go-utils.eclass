@@ -84,6 +84,11 @@ go_export() {
 		append-ldflags -nopie
 	fi
 
+	# Remove certain flags from $LDFLAGS to fix validation errors in
+	# Go >= 1.15.5 like:
+	#   go build runtime/cgo: invalid flag in go:cgo_ldflag: -Wl,-O1
+	filter-ldflags "-Wl,-O1"
+
 	export CC=$(tc-getCC)
 	export CXX=$(tc-getCXX)
 	export CGO_ENABLED=${CGO_ENABLED:-1}
