@@ -252,6 +252,8 @@ fi
 
 eclean-$BOARD -d packages
 
+fixup_liblto_softlinks "${BOARD_ROOT}"
+
 info "Checking build root"
 test_image_content "${BOARD_ROOT}"
 

@@ -966,3 +966,23 @@ clean_qemu_static() {
     *) die "Unsupported arch" ;;
   esac
 }
+
+# Fix up liblto softlink created by gcc-config
+fixup_liblto_softlinks() {
+  local root="$1"
+
+  info "fixup_liblto_softlinks: Looking for broken softlinks in '${root}'"
+
+  local link
+  local target
+  # check both native (/usr/CHOST/) as well as cross compile (/usr/CHOST/CTARGET) paths
+  { ls -l "${root}/"usr/*/binutils-bin/lib/bfd-plugins/liblto_plugin.so 2>/dev/null;
+    ls -l "${root}/"usr/*/*/binutils-bin/lib/bfd-plugins/liblto_plugin.so 2>/dev/null; } \
+    | sed 's:.* \([^[:space:]]\+\) -> \([^[:space:]]\+\):\1 \2:' \
+    | while read link target; do
+              local newtarget=$(echo "$target" | sed "s:${root}:/:")
+              info "   Fixing up broken $link -> $target"
+              info "   sudo ln -sf $newtarget $link"
+              sudo ln -sf $newtarget $link
+      done
+}
