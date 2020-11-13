@@ -28,6 +28,10 @@ sys-apps/portage -python_targets_python3_6
 # python3 only
 dev-util/gdbus-codegen python_single_target_python3_6
 dev-util/glib-utils python_single_target_python3_6
+net-fs/samba python_single_target_python3_6
+sys-libs/talloc python_single_target_python3_6
+sys-libs/tdb python_single_target_python3_6
+sys-libs/tevent python_single_target_python3_6
 
 sys-apps/gptfdisk -icu
 
@@ -73,7 +77,7 @@ sys-libs/glibc nscd
 dev-libs/cyrus-sasl kerberos -berkdb -gdbm
 
 # don't build manpages for sssd
-sys-auth/sssd -manpages -python samba kerberos gssapi ssh sudo
+sys-auth/sssd -python samba kerberos gssapi ssh sudo
 
 # needed for realmd build
 sys-auth/polkit introspection
