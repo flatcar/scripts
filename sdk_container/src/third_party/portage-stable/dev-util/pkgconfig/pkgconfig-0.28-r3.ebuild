@@ -1,7 +1,7 @@
 # Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=5
 
 # Do not inherit autotools in non-live ebuild - causes circular dependency, bug #550856
 inherit eutils flag-o-matic libtool multilib multilib-minimal
@@ -30,8 +30,7 @@ IUSE="elibc_FreeBSD elibc_glibc hardened internal-glib"
 RDEPEND="!internal-glib? ( >=dev-libs/glib-2.34.3[${MULTILIB_USEDEP}] )
 	!dev-util/pkgconf[pkg-config]
 	!dev-util/pkg-config-lite
-	!dev-util/pkgconfig-openbsd[pkg-config]
-	virtual/libintl"
+	!dev-util/pkgconfig-openbsd[pkg-config]"
 DEPEND="${RDEPEND}"
 
 S=${WORKDIR}/${MY_P}
@@ -39,22 +38,21 @@ S=${WORKDIR}/${MY_P}
 DOCS=( AUTHORS NEWS README )
 
 src_prepare() {
+	epatch "${FILESDIR}"/${P}-strip_system_library_dirs_reliably.patch
+
 	sed -i -e "s|^prefix=/usr\$|prefix=${EPREFIX}/usr|" check/simple.pc || die #434320
 
-	eapply_user
+	# Large file support, fixed in upstream git; bug #550508
+	epatch "${FILESDIR}"/${P}-lfs.patch
+	# lfs patch touches config.h.in; need this hack to prevent autoreconf and automake
+	touch aclocal.m4 config.h.in Makefile.in
+
+	epatch_user
 
 	if [[ ${PV} == *9999* ]]; then
 		eautoreconf
 	else
 		elibtoolize # Required for FreeMiNT wrt #333429
-	fi
-
-	if [[ ${CHOST} == *-solaris* ]] ; then
-		# fix standards conflicts
-		sed -i -e 's/\(_XOPEN_SOURCE\(_EXTENDED\)\?\|__EXTENSIONS__\)/  \1_DISABLED/' \
-			glib/configure || die
-		sed -i -e '/#define\s\+_POSIX_SOURCE/d' \
-			glib/glib/giounix.c || die
 	fi
 }
 
@@ -71,16 +69,6 @@ multilib_src_configure() {
 			# add the libdir for libtool, otherwise it'll make love with system
 			# installed libiconv
 			append-ldflags "-L${EPREFIX}/usr/$(get_libdir)"
-			# the glib objects reference symbols from these frameworks,
-			# not good, esp. since Carbon should be deprecated
-			[[ ${CHOST} == *-darwin* ]] && \
-				append-ldflags -framework CoreFoundation -framework Carbon
-			if [[ ${CHOST} == *-solaris* ]] ; then
-				# required due to __EXTENSIONS__
-				append-cppflags -DENABLE_NLS
-				# similar to Darwin
-				append-ldflags -lintl
-			fi
 		fi
 	else
 		if ! has_version --host-root dev-util/pkgconfig; then
