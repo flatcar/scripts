@@ -87,7 +87,14 @@ go_export() {
 	# Remove certain flags from $LDFLAGS to fix validation errors in
 	# Go >= 1.15.5 like:
 	#   go build runtime/cgo: invalid flag in go:cgo_ldflag: -Wl,-O1
-	filter-ldflags "-Wl,-O1"
+	#
+	# Note, we need to manually strip only the optimization element of
+	# comma-separated flags, e.g. from `-Wl,-O1,-s` to `-Wl,-s`.
+	# To support multiple characters that can follow `-O`, e.g. `-Ofast`,
+	# we should use regexp like `[[:alnum:]]*`.
+	# Work-around for https://github.com/golang/go/pull/42631.
+	export LDFLAGS="$(echo "$LDFLAGS" | sed 's/,-O[[:alnum:]]*//g')"
+	filter-ldflags "-Wl"
 
 	export CC=$(tc-getCC)
 	export CXX=$(tc-getCXX)
