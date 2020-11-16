@@ -36,6 +36,7 @@ PATCHES=(
 	"${FILESDIR}/${P}-libressl.patch"
 	"${FILESDIR}/${P}-fno-common.patch"
 	"${FILESDIR}/${P}-Makefile.am-Mark-tddl.a-nodist.patch"
+	"${FILESDIR}/${P}-CVE-2020-24330_CVE-2020-24331_CVE-2020-24332.patch"
 )
 
 DOCS="AUTHORS ChangeLog NICETOHAVES README TODO"
