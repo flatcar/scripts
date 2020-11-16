@@ -278,7 +278,7 @@ IMG_azure_OEM_PACKAGE=oem-azure
 ## azure pro
 IMG_azure_pro_DISK_FORMAT=vhd
 IMG_azure_pro_DISK_LAYOUT=azure
-IMG_azure_pro_OEM_PACKAGE=oem-azure
+IMG_azure_pro_OEM_PACKAGE=oem-azure-pro
 
 ## hyper-v
 IMG_hyperv_DISK_FORMAT=vhd
