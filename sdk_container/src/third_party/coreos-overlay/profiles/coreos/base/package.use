@@ -26,6 +26,7 @@ dev-python/uritemplate -python_targets_python3_6
 sys-apps/portage -python_targets_python3_6
 
 # python3 only
+dev-util/dwarves python_single_target_python3_6
 dev-util/gdbus-codegen python_single_target_python3_6
 dev-util/glib-utils python_single_target_python3_6
 net-fs/samba python_single_target_python3_6
