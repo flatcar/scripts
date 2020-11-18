@@ -1,19 +1,17 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
-inherit eutils libtool flag-o-matic gnuconfig multilib versionator
+inherit eutils libtool flag-o-matic gnuconfig multilib toolchain-funcs versionator
 
 DESCRIPTION="Tools necessary to build programs"
 HOMEPAGE="https://sourceware.org/binutils/"
 LICENSE="GPL-3+"
-IUSE="default-gold doc +gold multitarget +nls +plugins static-libs test"
+IUSE="default-gold doc +gold multitarget +nls +plugins static-libs test vanilla"
 REQUIRED_USE="default-gold? ( gold )"
 
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
-
-# Variables that can be set here:
+# Variables that can be set here  (ignored for live ebuilds)
 # PATCH_VER          - the patchset version
 #                      Default: empty, no patching
 # PATCH_BINUTILS_VER - the binutils version in the patchset name
@@ -21,40 +19,21 @@ KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~
 # PATCH_DEV          - Use download URI https://dev.gentoo.org/~{PATCH_DEV}/distfiles/...
 #                      for the patchsets
 
-PATCH_VER=4
-PATCH_BINUTILS_VER=9999
+PATCH_VER=1
+PATCH_DEV=dilfridge
 
-case ${PV} in
-	9999)
-		EGIT_REPO_URI="https://sourceware.org/git/binutils-gdb.git"
-		inherit git-r3
-		S=${WORKDIR}/binutils
-		EGIT_CHECKOUT_DIR=${S}
-		SLOT=${PV}
-		;;
-	*.9999)
-		EGIT_REPO_URI="https://sourceware.org/git/binutils-gdb.git"
-		inherit git-r3
-		S=${WORKDIR}/binutils
-		EGIT_CHECKOUT_DIR=${S}
-		EGIT_BRANCH=$(get_version_component_range 1-2)
-		EGIT_BRANCH="binutils-${EGIT_BRANCH/./_}-branch"
-		SLOT=$(get_version_component_range 1-2)
-		;;
-	*)
-		SRC_URI="mirror://gnu/binutils/binutils-${PV}.tar.xz"
-		SLOT=$(get_version_component_range 1-2)
-		;;
-esac
-
-#
-# The Gentoo patchset
-#
-PATCH_BINUTILS_VER=${PATCH_BINUTILS_VER:-${PV}}
-PATCH_DEV=${PATCH_DEV:-slyfox}
-
-[[ -z ${PATCH_VER} ]] || SRC_URI="${SRC_URI}
-	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/binutils-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz"
+if [[ ${PV} == 9999* ]]; then
+	inherit git-r3
+	SLOT=${PV}
+else
+	PATCH_BINUTILS_VER=${PATCH_BINUTILS_VER:-${PV}}
+	PATCH_DEV=${PATCH_DEV:-slyfox}
+	SRC_URI="mirror://gnu/binutils/binutils-${PV}.tar.xz"
+	[[ -z ${PATCH_VER} ]] || SRC_URI="${SRC_URI}
+		https://dev.gentoo.org/~${PATCH_DEV}/distfiles/binutils-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz"
+    SLOT=$(get_version_component_range 1-2)
+    KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sh ~sparc ~x86"
+fi
 
 #
 # The cross-compile logic
@@ -74,7 +53,8 @@ RDEPEND="
 	>=sys-devel/binutils-config-3
 	sys-libs/zlib
 "
-DEPEND="${RDEPEND}
+DEPEND="${RDEPEND}"
+BDEPEND="
 	doc? ( sys-apps/texinfo )
 	test? ( dev-util/dejagnu )
 	nls? ( sys-devel/gettext )
@@ -82,24 +62,46 @@ DEPEND="${RDEPEND}
 	virtual/yacc
 "
 
+RESTRICT="!test? ( test )"
+
 MY_BUILDDIR=${WORKDIR}/build
 
 src_unpack() {
-	case ${PV} in
-		*9999)
-			git-r3_src_unpack
-			;;
-		*)
-			;;
-	esac
-	default
-	mkdir -p "${MY_BUILDDIR}"
+	if [[ ${PV} == 9999* ]] ; then
+		EGIT_REPO_URI="https://anongit.gentoo.org/git/proj/toolchain/binutils-patches.git"
+		EGIT_CHECKOUT_DIR=${WORKDIR}/patches-git
+		git-r3_src_unpack
+		mv patches-git/9999 patch || die
+
+		EGIT_REPO_URI="https://sourceware.org/git/binutils-gdb.git"
+		S=${WORKDIR}/binutils
+		EGIT_CHECKOUT_DIR=${S}
+		git-r3_src_unpack
+	else
+		unpack ${P}.tar.xz
+
+		cd "${WORKDIR}" || die
+		unpack binutils-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz
+	fi
+
+	cd "${WORKDIR}" || die
+	mkdir -p "${MY_BUILDDIR}" || die
 }
 
 src_prepare() {
-	if [[ ! -z ${PATCH_VER} ]] ; then
-		einfo "Applying binutils-${PATCH_BINUTILS_VER} patchset ${PATCH_VER}"
-		eapply "${WORKDIR}/patch"/*.patch
+	local patchsetname
+	if [[ ${PV} == 9999* ]] ; then
+		patchsetname="from git master"
+	else
+		patchsetname="${PATCH_BINUTILS_VER}-${PATCH_VER}"
+	fi
+
+	if [[ ! -z ${PATCH_VER} ]] || [[ ${PV} == 9999* ]] ; then
+		if ! use vanilla; then
+			einfo "Applying binutils patchset ${patchsetname}"
+			eapply "${WORKDIR}/patch"
+			einfo "Done."
+		fi
 	fi
 
 	# This check should probably go somewhere else, like pkg_pretend.
@@ -240,6 +242,8 @@ src_configure() {
 		--enable-relro
 		# Newer versions (>=2.24) make this an explicit option. #497268
 		--enable-install-libiberty
+		# Available from 2.35 on
+		--enable-textrel-check=warning
 		--disable-werror
 		--with-bugurl="$(toolchain-binutils_bugurl)"
 		--with-pkgversion="$(toolchain-binutils_pkgversion)"
@@ -286,8 +290,7 @@ src_test() {
 	# bug 637066
 	filter-flags -Wall -Wreturn-type
 
-	# enable verbose test run and result logging
-	emake -k check RUNTESTFLAGS='-a -v' VERBOSE=1
+	emake -k check
 }
 
 src_install() {
@@ -333,7 +336,7 @@ src_install() {
 		objalloc.h
 		splay-tree.h
 	)
-	doins "${libiberty_headers[@]/#/${S}/include/}" || die
+	doins "${libiberty_headers[@]/#/${S}/include/}"
 	if [[ -d ${ED}/${LIBPATH}/lib ]] ; then
 		mv "${ED}"/${LIBPATH}/lib/* "${ED}"/${LIBPATH}/
 		rm -r "${ED}"/${LIBPATH}/lib
