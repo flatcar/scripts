@@ -1,3 +1,5 @@
+# Fatcar Container Linux kernel packages
+
 The kernel is provided in three parts: coreos-sources, coreos-modules,
 and coreos-kernel.
 
@@ -35,3 +37,11 @@ scripts need to be updated in order to support existing installs.
 The coreos-firmware package is a magic version of the upstream
 linux-firmware ebuild which scans the modules installed by coreos-modules
 and only installs files modules declare as required.
+
+# Keep kernel, kernel headers, and perf aligned
+
+When updating the kernel to a new major release please make sure to also update
+[the kernel headers](https://github.com/flatcar-linux/portage-stable/tree/main/sys-kernel/linux-headers)
+and
+[perf](https://github.com/flatcar-linux/portage-stable/tree/main/dev-util/perf)
+to the same major version.
