@@ -33,6 +33,7 @@ DEPEND="
 	dev-util/boost-build
 	dev-util/catalyst
 	dev-util/checkbashisms
+	dev-util/dwarves
 	dev-util/patchelf
 	dev-vcs/repo
 	net-dns/bind-tools
