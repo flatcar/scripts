@@ -1308,7 +1308,7 @@ glibc_do_src_install() {
 		run_locale_gen "${ED}"
 	fi
 
-	## COREOS: Add some local changes:
+	## Flatcar Container Linux: Add some local changes:
 	# - Config files are installed by baselayout, not glibc.
 	# - Install nscd/systemd stuff in /usr.
 
