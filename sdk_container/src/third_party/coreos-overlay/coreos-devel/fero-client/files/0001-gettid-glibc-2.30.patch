@@ -1,0 +1,34 @@
+grpcio-sys-0.2.3 defines its own gettid() function which conflicts with gettid()
+shipped with glibc-2.30 and above. So we only define that function if
+glibc < 2.30.
+
+Fixes:
+grpcio-sys-0.2.3/grpc/src/core/lib/support/log_linux.c:42:13: error: conflicting types for 'gettid'
+     42 | static long gettid(void) { return syscall(__NR_gettid); }
+        |             ^~~~~~
+  In file included from /usr/include/unistd.h:1187,
+                   from grpcio-sys-0.2.3/grpc/src/core/lib/support/log_linux.c:40:
+  /usr/include/bits/unistd_ext.h:34:16: note: previous declaration of 'gettid' was here
+     34 | extern __pid_t gettid (void) __THROW;
+        |                ^~~~~~
+
+--- gentoo/grpcio-sys-0.2.3/grpc/src/core/lib/support/log_linux.c   2020-11-23 18:29:18.053038547 +0000
++++ gentoo/grpcio-sys-0.2.3/grpc/src/core/lib/support/log_linux.c    2020-11-23 18:32:39.502926134 +0000
+@@ -39,7 +39,17 @@
+ #include <time.h>
+ #include <unistd.h>
+ 
++/* glibc-2.30 and above ship gettid */
++#define NEED_GETTID 1
++#if defined(__GLIBC_PREREQ)
++#   if __GLIBC_PREREQ(2,30)
++#      define NEED_GETTID 0
++#   endif
++#endif
++
++#if NEED_GETTID
+ static long gettid(void) { return syscall(__NR_gettid); }
++#endif
+ 
+ void gpr_log(const char *file, int line, gpr_log_severity severity,
+              const char *format, ...) {
