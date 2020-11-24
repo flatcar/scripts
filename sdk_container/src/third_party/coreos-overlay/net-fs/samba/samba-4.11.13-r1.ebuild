@@ -124,6 +124,7 @@ S="${WORKDIR}/${MY_P}"
 PATCHES=(
 	"${FILESDIR}/${PN}-4.4.0-pam.patch"
 	"${FILESDIR}/${PN}-4.9.2-timespec.patch"
+	"${FILESDIR}/${PN}-4.11-fix-glibc-2.32-function-collisions.patch"
 	"${FILESDIR}/${PN}-4.13-winexe_option.patch"
 	"${FILESDIR}/${PN}-4.13-vfs_snapper_configure_option.patch"
 )
