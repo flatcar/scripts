@@ -38,7 +38,8 @@ S="${WORKDIR}/${MY_P}"
 src_prepare() {
 	epatch "${FILESDIR}/0005-use-ruby-include-with-rubylibver.patch"
 	epatch "${FILESDIR}/0006-build-related-fixes-bug-500674.patch"
-    epatch "${FILESDIR}/0007-fix-setexeccon-on-exec.patch"
+	epatch "${FILESDIR}/0007-fix-setexeccon-on-exec.patch"
+	epatch "${FILESDIR}/0008-do-not-define-gettid-for-glibc-2.30-and-above.patch"
 
 	epatch_user
 

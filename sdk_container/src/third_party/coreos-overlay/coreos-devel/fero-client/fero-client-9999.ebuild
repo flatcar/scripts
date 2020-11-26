@@ -23,12 +23,25 @@ SLOT="0"
 
 IUSE=""
 
-DEPEND=">=dev-libs/protobuf-3.0.0"
-RDEPEND="${DEPEND}"
+DEPEND=">=dev-libs/protobuf-3.0.0
+        dev-util/cmake"
+RDEPEND=">=dev-libs/protobuf-3.0.0"
 
 src_unpack() {
 	cros-workon_src_unpack "$@"
 	cargo_src_unpack "$@"
+}
+
+src_prepare() {
+	# fero-client uses the grpcio-sys-0.2.3 Rust crate (amond others, see CRATES)
+	# grpcio-sys-0.2.3 needs a patch to compile against >=glibc-2.30.
+	# The crates's sources are put in ECARGO_HOME so we need to change
+	# directories before applying the patch.
+	local cwd="$(pwd)"
+	cd "${ECARGO_HOME}"
+	eapply -p0 "${FILESDIR}/0001-gettid-glibc-2.30.patch"
+	eapply_user
+	cd "$cwd"
 }
 
 src_compile() {
