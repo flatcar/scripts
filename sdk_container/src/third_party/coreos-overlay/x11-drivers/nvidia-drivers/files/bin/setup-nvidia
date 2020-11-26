@@ -1,5 +1,6 @@
 #!/bin/bash
 set -euo pipefail
+
 . /usr/share/flatcar/release
 . /usr/share/flatcar/update.conf
 
@@ -25,8 +26,12 @@ function download_flatcar_developer_container() {
     if [[ "$GROUP" == "developer" ]]
     then
       FLATCAR_DEVELOPER_CONTAINER_URL="https://storage.googleapis.com/flatcar-jenkins/developer/developer/boards/${FLATCAR_RELEASE_BOARD}/${FLATCAR_RELEASE_VERSION}/${FLATCAR_DEVELOPER_CONTAINER}.bz2"
-    else
-      FLATCAR_DEVELOPER_CONTAINER_URL="https://${GROUP}.release.flatcar-linux.net/${FLATCAR_RELEASE_BOARD}/${FLATCAR_RELEASE_VERSION}/${FLATCAR_DEVELOPER_CONTAINER}.bz2"
+    else if [[ "$(curl -I -s -o /dev/null -w "%{http_code}" "https://${GROUP}.release.flatcar-linux.net/${FLATCAR_RELEASE_BOARD}/${FLATCAR_RELEASE_VERSION}/${FLATCAR_DEVELOPER_CONTAINER}.bz2")" == 200 ]]
+      then
+        FLATCAR_DEVELOPER_CONTAINER_URL="https://${GROUP}.release.flatcar-linux.net/${FLATCAR_RELEASE_BOARD}/${FLATCAR_RELEASE_VERSION}/${FLATCAR_DEVELOPER_CONTAINER}.bz2"
+      else
+        FLATCAR_DEVELOPER_CONTAINER_URL="https://storage.googleapis.com/flatcar-jenkins/${GROUP}/boards/${FLATCAR_RELEASE_BOARD}/${FLATCAR_RELEASE_VERSION}/${FLATCAR_DEVELOPER_CONTAINER}.bz2"
+      fi
     fi
 
     if [ ! -n "${FLATCAR_DEVELOPER_CONTAINER_URL}" ]
@@ -34,7 +39,7 @@ function download_flatcar_developer_container() {
       return 1
     fi
 
-    curl -L "${FLATCAR_DEVELOPER_CONTAINER_URL}" -o "${FLATCAR_ROOT_WORKDIR}/${FLATCAR_DEVELOPER_CONTAINER}.bz2"
+    curl -L --fail "${FLATCAR_DEVELOPER_CONTAINER_URL}" -o "${FLATCAR_ROOT_WORKDIR}/${FLATCAR_DEVELOPER_CONTAINER}.bz2"
     bzip2 -d "${FLATCAR_ROOT_WORKDIR}/${FLATCAR_DEVELOPER_CONTAINER}.bz2"
 
   fi
@@ -47,7 +52,7 @@ function download_nvidia_driver_archive() {
 
   if [ ! -f "${FLATCAR_ROOT_WORKDIR}/${NVIDIA_WORKDIR}/${NVIDIA_DRIVER_BASENAME}.run" ]
   then
-    curl --retry-delay 1 --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 "${NVIDIA_DOWNLOAD_BASEURL}/${NVIDIA_DRIVER_VERSION}/${NVIDIA_DRIVER_BASENAME}.run" -o "${FLATCAR_ROOT_WORKDIR}/${NVIDIA_WORKDIR}/${NVIDIA_DRIVER_BASENAME}.run.tmp"
+    curl --retry-delay 1 --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 --fail "${NVIDIA_DOWNLOAD_BASEURL}/${NVIDIA_DRIVER_VERSION}/${NVIDIA_DRIVER_BASENAME}.run" -o "${FLATCAR_ROOT_WORKDIR}/${NVIDIA_WORKDIR}/${NVIDIA_DRIVER_BASENAME}.run.tmp"
     mv "${FLATCAR_ROOT_WORKDIR}/${NVIDIA_WORKDIR}/${NVIDIA_DRIVER_BASENAME}.run.tmp" "${FLATCAR_ROOT_WORKDIR}/${NVIDIA_WORKDIR}/${NVIDIA_DRIVER_BASENAME}.run"
   fi
 }
@@ -110,7 +115,7 @@ function is_nvidia_installation_required() {
     return 1
   fi
 
-  if [[ ! -d "/opt/nvidia/${NVIDIA_FLATCAR_VERSION_PAIR}" ]]; then
+  if [[ -d "/opt/nvidia/${NVIDIA_FLATCAR_VERSION_PAIR}" ]]; then
     return 1
   fi
 }
@@ -130,7 +135,7 @@ function setup() {
   verify_installation
 }
 
-if ! is_nvidia_installation_required
+if is_nvidia_installation_required
 then
   presetup "$@"
   setup "$@"
