@@ -15,6 +15,7 @@ Options:
     -l http://IP:PORT  Listen URL for client communication.
     -u http://IP:PORT  Listen URL for server communication.
     -n NAME            etcd node name.
+    -c FILE            cloud-config template to use, instead of the default.
     -p DEST            Create config-drive ISO image to the given path.
     -S FILE            SSH keys file.
     -t TOKEN           Token ID from https://discovery.etcd.io.
@@ -42,13 +43,14 @@ ssh_authorized_keys:
   - <SSH_KEY>
 hostname: <HOSTNAME>
 "
-REGEX_SSH_FILE="^ssh-(rsa|dss|ed25519) [-A-Za-z0-9+\/]+[=]{0,2} .+"
+REGEX_SSH_FILE="^(ssh-(rsa|dss|ed25519)|ecdsa-sha2-nistp521) [-A-Za-z0-9+\/]+[=]{0,2} .+"
 
-while getopts "d:e:H:i:n:p:S:t:l:u:h" OPTION
+while getopts "d:e:c:H:i:n:p:S:t:l:u:h" OPTION
 do
     case $OPTION in
         d) ETCD_DISCOVERY="$OPTARG" ;;
         e) ETCD_ADDR="$OPTARG" ;;
+        c) CLOUD_CONFIG_FILE="${OPTARG}" ;;
         H) HNAME="$OPTARG" ;;
         i) ETCD_PEER_URLS="$OPTARG" ;;
         n) ETCD_NAME="$OPTARG" ;;
@@ -63,16 +65,16 @@ do
 done
 
 # root user forbidden
-if [ $(id -u) -eq 0 ]; then
+if [ "$(id -u)" -eq 0 ]; then
     echo "$0: This script should not be run as root." >&2
     exit 1
 fi
 
 # mkisofs/genisoimage tool check
-if which mkisofs &>/dev/null; then
-    mkisofs=$(which mkisofs)
-elif which genisoimage &>/dev/null; then
-    mkisofs=$(which genisoimage)
+if command -v mkisofs &>/dev/null; then
+    mkisofs=$(command -v mkisofs)
+elif command -v genisoimage &>/dev/null; then
+    mkisofs=$(command -v genisoimage)
 else 
     echo "$0: mkisofs or genisoimage tool is required to create image." >&2
     exit 1
@@ -93,12 +95,12 @@ if [[ ! -r "$SSH_FILE" ]]; then
     exit 1
 fi
 
-if [ $(cat "$SSH_FILE" | wc -l) -eq 0 ]; then
+if [ "$(wc -l < "$SSH_FILE")" -eq 0 ]; then
     echo "$0: The SSH file (${SSH_FILE}) is empty." >&2
     exit 1
 fi
 
-if [ $(grep -v -E "$REGEX_SSH_FILE" "$SSH_FILE" | wc -l) -gt 0 ]; then
+if [ "$(grep -c -v -E "$REGEX_SSH_FILE" "$SSH_FILE")" -gt 0 ]; then
     echo "$0: The SSH file (${SSH_FILE}) content is invalid." >&2
     exit 1
 fi
@@ -112,12 +114,12 @@ if [[ ! -d "$DEST" ]]; then
     exit 1
 fi
 
-if [ ! -z "$ETCD_DISCOVERY" ] && [ ! -z "$TOKEN" ]; then
+if [ -n "$ETCD_DISCOVERY" ] && [ -n "$TOKEN" ]; then
     echo "$0: You cannot specify both discovery token and discovery URL." >&2
     exit 1
 fi
 
-if [ ! -z "$TOKEN" ]; then
+if [ -n "$TOKEN" ]; then
     ETCD_DISCOVERY="${DEFAULT_ETCD_DISCOVERY//TOKEN/$TOKEN}"
 fi
 
@@ -145,9 +147,13 @@ if [ -z "$ETCD_LISTEN_CLIENT_URLS" ]; then
     ETCD_LISTEN_CLIENT_URLS=$DEFAULT_ETCD_LISTEN_CLIENT_URLS
 fi
 
+if [ -n "${CLOUD_CONFIG_FILE}" ]; then
+    CLOUD_CONFIG="$(cat "${CLOUD_CONFIG_FILE}")"
+fi
+
 WORKDIR="${DEST}/tmp.${RANDOM}"
 mkdir "$WORKDIR"
-trap "rm -rf '${WORKDIR}'" EXIT
+trap 'rm -rf "${WORKDIR}"' EXIT
 
 CONFIG_DIR="${WORKDIR}/openstack/latest"
 CONFIG_FILE="${CONFIG_DIR}/user_data"
@@ -155,7 +161,7 @@ CONFIGDRIVE_FILE="${DEST}/${HNAME}.iso"
 
 mkdir -p "$CONFIG_DIR"
 
-while read l; do
+while read -r l; do
     if [ -z "$SSH_KEY" ]; then
         SSH_KEY="$l"
     else
@@ -176,8 +182,8 @@ CLOUD_CONFIG="${CLOUD_CONFIG/<HOSTNAME>/${HNAME}}"
 echo "$CLOUD_CONFIG" > "$CONFIG_FILE"
 
 $mkisofs -R -V config-2 -o "$CONFIGDRIVE_FILE" "$WORKDIR"
-
-if [ "$?" -eq 0 ] ; then
+ret="$?"
+if [ "${ret}" -eq 0 ] ; then
     echo
     echo
     echo "Success! The config-drive image was created on ${CONFIGDRIVE_FILE}"

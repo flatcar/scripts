@@ -236,12 +236,9 @@ catalyst_init() {
 }
 
 write_configs() {
-    # No catalyst config option, so defined via environment
-    export CCACHE_DIR="$TEMPDIR/ccache"
-
     info "Creating output directories..."
-    mkdir -m 775 -p "$TEMPDIR/portage/repos.conf" "$DISTDIR" "$CCACHE_DIR"
-    chown portage:portage "$DISTDIR" "$CCACHE_DIR"
+    mkdir -m 775 -p "$TEMPDIR/portage/repos.conf" "$DISTDIR"
+    chown portage:portage "$DISTDIR"
     info "Writing out catalyst configs..."
     info "    catalyst.conf"
     catalyst_conf > "$TEMPDIR/catalyst.conf"

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-SCRIPT_DIR="`dirname "$0"`"
+SCRIPT_DIR="$(dirname "$0")"
 VM_BOARD=
 VM_NAME=
 VM_UUID=
@@ -11,7 +11,7 @@ VM_MEMORY=
 VM_CDROM=
 VM_PFLASH_RO=
 VM_PFLASH_RW=
-VM_NCPUS="`grep -c ^processor /proc/cpuinfo`"
+VM_NCPUS="$(nproc)"
 SSH_PORT=2222
 SSH_KEYS=""
 CLOUD_CONFIG_FILE=""
@@ -112,10 +112,12 @@ write_ssh_keys() {
 
 if [ -z "${CONFIG_IMAGE}" ]; then
     CONFIG_DRIVE=$(mktemp -t -d flatcar-configdrive.XXXXXXXXXX)
-    if [ $? -ne 0 ] || [ ! -d "$CONFIG_DRIVE" ]; then
+    ret=$?
+    if [ "$ret" -ne 0 ] || [ ! -d "$CONFIG_DRIVE" ]; then
         echo "$0: mktemp -d failed!" >&2
         exit 1
     fi
+    # shellcheck disable=SC2064
     trap "rm -rf '$CONFIG_DRIVE'" EXIT
     mkdir -p "${CONFIG_DRIVE}/openstack/latest"
 
@@ -126,7 +128,8 @@ if [ -z "${CONFIG_IMAGE}" ]; then
             exit 1
         fi
         SSH_KEYS_TEXT=$(cat "$SSH_KEYS")
-        if [ $? -ne 0 ] || [ -z "$SSH_KEYS_TEXT" ]; then
+        ret=$?
+        if [ "$ret" -ne 0 ] || [ -z "$SSH_KEYS_TEXT" ]; then
             echo "$0: Failed to read SSH keys from $SSH_KEYS" >&2
             exit 1
         fi
@@ -134,7 +137,8 @@ if [ -z "${CONFIG_IMAGE}" ]; then
             "${CONFIG_DRIVE}/openstack/latest/user_data"
     elif [ -n "${CLOUD_CONFIG_FILE}" ]; then
         cp "${CLOUD_CONFIG_FILE}" "${CONFIG_DRIVE}/openstack/latest/user_data"
-        if [ $? -ne 0 ]; then
+        ret=$?
+        if [ "$ret" -ne 0 ]; then
             echo "$0: Failed to copy cloudinit file from $CLOUD_CONFIG_FILE" >&2
             exit 1
         fi
