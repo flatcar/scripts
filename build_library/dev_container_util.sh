@@ -2,6 +2,14 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+get_binhost_url() {
+	if [ "${DEFAULT_GROUP}" == "developer" ]; then
+		echo "https://storage.googleapis.com/flatcar-jenkins/${DEFAULT_GROUP}/boards/${BOARD}/${FLATCAR_VERSION}/$1"
+	else
+		echo "https://storage.googleapis.com/flatcar-jenkins/boards/${BOARD}/${FLATCAR_VERSION_ID}/$1"
+	fi
+}
+
 configure_dev_portage() {
     # Need profiles at the bare minimum
     local repo
@@ -25,8 +33,8 @@ PKGDIR="/var/lib/portage/pkgs"
 PORT_LOGDIR="/var/log/portage"
 PORTDIR="/var/lib/portage/portage-stable"
 PORTDIR_OVERLAY="/var/lib/portage/coreos-overlay"
-PORTAGE_BINHOST="https://storage.googleapis.com/flatcar-jenkins/boards/${BOARD}/${FLATCAR_VERSION_ID}/pkgs/
-https://storage.googleapis.com/flatcar-jenkins/boards/${BOARD}/${FLATCAR_VERSION_ID}/toolchain/"
+PORTAGE_BINHOST="$(get_binhost_url 'pkgs')
+$(get_binhost_url 'toolchain')"
 EOF
 
 sudo_clobber "$1/etc/portage/repos.conf/coreos.conf" <<EOF
