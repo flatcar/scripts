@@ -21,7 +21,7 @@ else
 	KEYWORDS="~amd64 ~arm ~arm64 ~ppc64 ~x86"
 fi
 
-RUST_STAGE0_VERSION="1.$(($(ver_cut 2) - 1)).1"
+RUST_STAGE0_VERSION="1.$(($(ver_cut 2) - 1)).0"
 
 DESCRIPTION="Systems programming language from Mozilla"
 HOMEPAGE="https://www.rust-lang.org/"
@@ -116,8 +116,10 @@ QA_SONAME="
 RESTRICT="test"
 
 PATCHES=(
-	"${FILESDIR}"/0012-Ignore-broken-and-non-applicable-tests.patch
-	"${FILESDIR}"/1.44.0-libressl.patch
+	"${FILESDIR}"/1.47.0-libressl.patch
+	"${FILESDIR}"/1.46.0-don-t-create-prefix-at-time-of-check.patch
+	"${FILESDIR}"/1.47.0-ignore-broken-and-non-applicable-tests.patch
+	"${FILESDIR}"/gentoo-musl-target-specs.patch
 )
 
 S="${WORKDIR}/${MY_P}-src"

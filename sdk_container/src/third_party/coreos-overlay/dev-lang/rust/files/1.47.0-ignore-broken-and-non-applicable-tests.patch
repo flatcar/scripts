@@ -15,7 +15,6 @@ sysroot-crates-are-unstable: can't run rustc without RPATH
  src/test/run-make-fulldeps/long-linker-command-lines/Makefile   | 2 ++
  src/test/run-make-fulldeps/sysroot-crates-are-unstable/Makefile | 2 ++
  src/test/ui/env-funky-keys.rs                                   | 1 +
- src/test/ui/simd/simd-intrinsic-generic-bitmask.rs              | 2 ++
  6 files changed, 10 insertions(+)
 
 diff --git a/src/test/codegen/sparc-struct-abi.rs b/src/test/codegen/sparc-struct-abi.rs
@@ -71,19 +70,6 @@ index c5c824ac58d..f3fe047a79c 100644
  // ignore-android
  // ignore-windows
  // ignore-cloudabi no execve
-diff --git a/src/test/ui/simd/simd-intrinsic-generic-bitmask.rs b/src/test/ui/simd/simd-intrinsic-generic-bitmask.rs
-index b28f742a92e..3ee4ccce731 100644
---- a/src/test/ui/simd/simd-intrinsic-generic-bitmask.rs
-+++ b/src/test/ui/simd/simd-intrinsic-generic-bitmask.rs
-@@ -2,6 +2,8 @@
- #![allow(non_camel_case_types)]
- 
- // ignore-emscripten
-+// ignore-powerpc
-+// ignore-powerpc64
- 
- // Test that the simd_bitmask intrinsic produces correct results.
- 
 -- 
 2.24.1
 
