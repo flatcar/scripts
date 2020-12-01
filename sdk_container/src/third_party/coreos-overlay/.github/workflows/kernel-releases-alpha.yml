@@ -34,7 +34,7 @@ jobs:
           VERSION_NEW: ${{ steps.fetch-latest-release.outputs.VERSION_MAINTENANCE }}
         run: .github/workflows/kernel-apply-patch.sh
       - name: Create pull request for maintenance branch
-        uses: peter-evans/create-pull-request@v2
+        uses: peter-evans/create-pull-request@v3
         if: steps.apply-patch-maintenance.outputs.UPDATE_NEEDED == 1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
