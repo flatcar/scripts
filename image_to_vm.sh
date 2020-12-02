@@ -120,6 +120,9 @@ install_oem_package
 install_oem_aci
 run_fs_hook
 
+# export the OEM partition for existing deployments to upgrade to
+export_vm_oem_partition
+
 # Changes done, glue it together
 write_vm_disk
 write_vm_conf "${FLAGS_mem}"
