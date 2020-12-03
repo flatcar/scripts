@@ -128,7 +128,8 @@ IGNORE_SYMLINK = (
     # Other
     b"/etc/lsb-release",  # set later in the build process
     b"/usr/share/coreos", # set later in the build process
-    b"/etc/coreos"        # set later in the build process
+    b"/etc/coreos",       # set later in the build process
+    b"/usr/src/linux-*/tools/testing/selftests/powerpc/copyloops/memcpy_mcsafe_64.S" # broken symlink in Kernel source tree
 )
 
 
