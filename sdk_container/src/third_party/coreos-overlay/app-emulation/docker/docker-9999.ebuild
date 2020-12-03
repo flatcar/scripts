@@ -19,7 +19,7 @@ else
 	else
 		MY_PV="$PV"
 	fi
-	DOCKER_GITCOMMIT="41c97c3"
+	DOCKER_GITCOMMIT="f8db474"
 	SRC_URI="https://${COREOS_GO_PACKAGE}/archive/v${MY_PV}.tar.gz -> ${P}.tar.gz"
 	KEYWORDS="amd64 arm64"
 	[ "$DOCKER_GITCOMMIT" ] || die "DOCKER_GITCOMMIT must be added manually for each bump!"
