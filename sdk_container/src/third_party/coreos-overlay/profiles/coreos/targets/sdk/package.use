@@ -12,7 +12,7 @@ app-crypt/gnupg smartcard usb
 
 # for qemu
 app-arch/bzip2 static-libs
-app-emulation/qemu static-user
+app-emulation/qemu static-user -jpeg
 dev-libs/glib static-libs
 dev-libs/libaio static-libs
 dev-libs/libpcre static-libs
