@@ -11,12 +11,15 @@ SRC_URI="https://www.daemonology.net/bsdiff/${P}.tar.gz"
 
 SLOT="0"
 LICENSE="BSD-2"
-KEYWORDS="~alpha amd64 ~arm hppa arm64 ~ia64 ~mips ppc sparc x86 ~amd64-linux ~x86-linux ~ppc-macos"
+# Flatcar: enable arm64
+KEYWORDS="~alpha amd64 ~arm arm64 hppa arm64 ~ia64 ~mips ppc sparc x86 ~amd64-linux ~x86-linux ~ppc-macos"
 
 RDEPEND="app-arch/bzip2"
 
 PATCHES=(
 	"${FILESDIR}/${P}-CVE-2014-9862.patch"
+	# Flatcar: Apply patch to change suffix sort to sais-lite
+	"${FILESDIR}/${PV}_bsdiff-convert-to-sais-lite-suffix-sort.patch"
 )
 
 src_compile() {
@@ -25,7 +28,9 @@ src_compile() {
 		"$@"
 	}
 	append-lfs-flags
-	doecho $(tc-getCC) ${CPPFLAGS} ${CFLAGS} ${LDFLAGS} -o bsdiff bsdiff.c -lbz2 || die "failed compiling bsdiff"
+	# Flatcar: build including sais.c, which comes from 3rd-party patch
+	# 4.3_bsdiff-convert-to-sais-lite-suffix-sort.patch.
+	doecho $(tc-getCC) ${CPPFLAGS} ${CFLAGS} ${LDFLAGS} -o bsdiff bsdiff.c sais.c -lbz2 || die "failed compiling bsdiff"
 	doecho $(tc-getCC) ${CPPFLAGS} ${CFLAGS} ${LDFLAGS} -o bspatch bspatch.c -lbz2 || die "failed compiling bspatch"
 }
 
