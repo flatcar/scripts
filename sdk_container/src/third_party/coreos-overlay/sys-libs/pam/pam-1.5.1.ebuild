@@ -43,12 +43,15 @@ RDEPEND="${DEPEND}"
 
 PDEPEND=">=sys-auth/pambase-20200616"
 
+PATCHES=(
+	"${FILESDIR}"/pam-1.5.0-locked-accounts.patch
+)
+
 S="${WORKDIR}/${MY_P}"
 
 src_prepare() {
 	default
 	touch ChangeLog || die
-	epatch "${FILESDIR}"/pam-1.5.0-locked-accounts.patch
 	eautoreconf
 }
 
