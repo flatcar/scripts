@@ -8,6 +8,7 @@
 VALID_IMG_TYPES=(
     ami
     ami_vmdk
+    ami_vmdk_pro
     azure
     azure_pro
     brightbox
@@ -212,6 +213,10 @@ IMG_ami_OEM_USE=ec2
 IMG_ami_vmdk_DISK_FORMAT=vmdk_stream
 IMG_ami_vmdk_OEM_PACKAGE=oem-ec2-compat
 IMG_ami_vmdk_OEM_USE=ec2
+# AWS Pro
+IMG_ami_vmdk_pro_DISK_FORMAT=vmdk_stream
+IMG_ami_vmdk_pro_OEM_PACKAGE=oem-ec2-compat
+IMG_ami_vmdk_pro_OEM_USE=ec2
 
 ## openstack, supports ec2's metadata format so use oem-ec2-compat
 IMG_openstack_DISK_FORMAT=qcow2
