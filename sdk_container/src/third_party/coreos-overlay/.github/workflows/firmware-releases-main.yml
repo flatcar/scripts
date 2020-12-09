@@ -1,0 +1,44 @@
+name: Get the latest Linux Firmware release for main
+on:
+  schedule:
+    - cron:  '0 7 * * 4'
+
+jobs:
+  get-firmware-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Fetch latest Linux Firmware release
+        id: fetch-latest-release
+        run: |
+          git clone --depth=1 --no-checkout https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
+          versionMain=$(git -C linux-firmware ls-remote --tags origin | cut -f2 | sed -n "/refs\/tags\/[0-9]*$/s/^refs\/tags\///p" | sort -ruV | head -n1)
+          rm -rf linux-firmware
+          echo ::set-output name=VERSION_MAIN::$(echo ${versionMain})
+          echo ::set-output name=BASE_BRANCH_MAIN::main
+      - name: Set up Flatcar SDK
+        id: setup-flatcar-sdk
+        run: .github/workflows/setup-flatcar-sdk.sh
+      - name: Apply patch for main
+        id: apply-patch-main
+        env:
+          TARGET: main
+          BASE_BRANCH: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_MAIN }}
+          PATH: ${{ steps.setup-flatcar-sdk.outputs.path }}
+          VERSION_NEW: ${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}
+        run: .github/workflows/firmware-apply-patch.sh
+      - name: Create pull request for main
+        uses: peter-evans/create-pull-request@v3
+        if: steps.apply-patch-main.outputs.UPDATE_NEEDED == 1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_MAIN }}
+          branch: firmware-${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}-main
+          author: Flatcar Buildbot <buildbot@flatcar-linux.org>
+          committer: Flatcar Buildbot <buildbot@flatcar-linux.org>
+          title: Upgrade Linux Firmware in main from ${{ steps.apply-patch-main.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}
+          commit-message: Upgrade Linux Firmware in main from ${{ steps.apply-patch-main.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}
+          body: Upgrade Linux Firmware in main from ${{ steps.apply-patch-main.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}
+          labels: main
