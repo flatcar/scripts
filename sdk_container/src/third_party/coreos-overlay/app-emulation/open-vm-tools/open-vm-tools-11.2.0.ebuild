@@ -23,7 +23,7 @@ DEPEND="dev-libs/glib:2
 # Runtime dependencies provided by CoreOS, not the OEM:
 #	dev-libs/glib:2
 #	sys-apps/ethtool
-#	pam? ( virtual/pam )
+#	pam? ( sys-libs/pam )
 RDEPEND="dnet? ( dev-libs/libdnet )
 	deploypkg? ( dev-libs/libmspack )"
 

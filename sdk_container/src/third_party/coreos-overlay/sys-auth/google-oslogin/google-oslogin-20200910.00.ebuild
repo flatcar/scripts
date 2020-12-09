@@ -17,7 +17,7 @@ inherit pam toolchain-funcs
 DEPEND="
 	net-misc/curl[ssl]
 	dev-libs/json-c
-	virtual/pam
+	sys-libs/pam
 "
 
 RDEPEND="${DEPEND}"

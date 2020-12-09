@@ -20,7 +20,7 @@ CDEPEND="
 	>=dev-libs/expat-2:=
 	pam? (
 		sys-auth/pambase
-		virtual/pam
+		sys-libs/pam
 		)
 	systemd? ( sys-apps/systemd:0= )
 "
