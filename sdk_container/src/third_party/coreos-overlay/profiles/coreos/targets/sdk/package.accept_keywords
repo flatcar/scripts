@@ -11,3 +11,6 @@ virtual/rust ~amd64
 # Accept go utilities
 dev-go/glide ~amd64
 dev-go/godep ~amd64
+
+# Accept perl libs
+dev-perl/Parse-Yapp ~amd64

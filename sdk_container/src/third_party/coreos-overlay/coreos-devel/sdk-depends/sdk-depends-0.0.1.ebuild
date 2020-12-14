@@ -47,6 +47,7 @@ DEPEND="
 	sys-firmware/edk2-ovmf
 	sys-fs/btrfs-progs
 	sys-fs/cryptsetup
+	dev-perl/Parse-Yapp
 	"
 
 # Must match the build-time dependencies listed in selinux-policy-2.eclass
