@@ -3,10 +3,12 @@
 # found in the LICENSE file.
 
 get_binhost_url() {
-	if [ "${DEFAULT_GROUP}" == "developer" ]; then
-		echo "https://storage.googleapis.com/flatcar-jenkins/${DEFAULT_GROUP}/boards/${BOARD}/${FLATCAR_VERSION}/$1"
+	local image_group=$1
+	local image_path=$2
+	if [ "${image_group}" == "developer" ]; then
+		echo "https://storage.googleapis.com/flatcar-jenkins/${image_group}/boards/${BOARD}/${FLATCAR_VERSION}/${image_path}"
 	else
-		echo "https://storage.googleapis.com/flatcar-jenkins/boards/${BOARD}/${FLATCAR_VERSION_ID}/$1"
+		echo "https://storage.googleapis.com/flatcar-jenkins/boards/${BOARD}/${FLATCAR_VERSION_ID}/${image_path}"
 	fi
 }
 
@@ -33,8 +35,8 @@ PKGDIR="/var/lib/portage/pkgs"
 PORT_LOGDIR="/var/log/portage"
 PORTDIR="/var/lib/portage/portage-stable"
 PORTDIR_OVERLAY="/var/lib/portage/coreos-overlay"
-PORTAGE_BINHOST="$(get_binhost_url 'pkgs')
-$(get_binhost_url 'toolchain')"
+PORTAGE_BINHOST="$(get_binhost_url $2 'pkgs')
+$(get_binhost_url $2 'toolchain')"
 EOF
 
 sudo_clobber "$1/etc/portage/repos.conf/coreos.conf" <<EOF
@@ -90,7 +92,7 @@ create_dev_container() {
   insert_licenses "${BUILD_DIR}/${image_licenses}" "${root_fs_dir}"
 
   # Setup portage for emerge and gmerge
-  configure_dev_portage "${root_fs_dir}"
+  configure_dev_portage "${root_fs_dir}" "${update_group}"
 
   # Mark the image as a developer image (input to chromeos_startup).
   # TODO(arkaitzr): Remove this file when applications no longer rely on it
