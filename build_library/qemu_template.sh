@@ -162,7 +162,12 @@ else
         arm64-usr+aarch64)
             set -- -machine virt,accel=kvm,gic-version=3 -cpu host -smp "${VM_NCPUS}" -nographic "$@" ;;
         arm64-usr+*)
-            set -- -machine virt -cpu cortex-a57 -smp 1 -nographic "$@" ;;
+            if test "${VM_NCPUS}" -gt 4 ; then
+                VM_NCPUS=4
+            elif test "${VM_NCPUS}" -gt 2 ; then
+                VM_NCPUS=2
+            fi
+            set -- -machine virt -cpu cortex-a57 -smp "${VM_NCPUS}" -nographic "$@" ;;
         *)
             die "Unsupported arch" ;;
     esac
