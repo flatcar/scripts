@@ -1,5 +1,6 @@
 ami
 ami_vmdk
+ami_vmdk_pro
 azure
 azure_pro
 gce
