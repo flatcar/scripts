@@ -1,35 +1,31 @@
-From 9fb44efd4a6270443ca2a06a098c83cf9820cc8b Mon Sep 17 00:00:00 2001
+From 671ef2d1c228aed031b4232b8bea96f17b825263 Mon Sep 17 00:00:00 2001
 From: Georgy Yakovlev <gyakovlev@gentoo.org>
-Date: Thu, 8 Oct 2020 22:38:54 -0700
+Date: Mon, 23 Nov 2020 14:52:04 -0800
 Subject: [PATCH] add gentoo musl target specs
 
-Directly based on patch by Samuel Holland <samuel@sholland.org>
-Found at: https://github.com/smaeul/portage-overlay/blob/master/dev-lang/rust/files/
-
-Signed-off-by: Georgy Yakovlev <gyakovlev@gentoo.org>
 ---
- src/librustc_target/spec/aarch64_gentoo_linux_musl.rs | 11 +++++++++++
- .../spec/armv7_gentoo_linux_musleabihf.rs             | 11 +++++++++++
- src/librustc_target/spec/i686_gentoo_linux_musl.rs    | 11 +++++++++++
- src/librustc_target/spec/mod.rs                       |  8 ++++++++
- .../spec/powerpc64_gentoo_linux_musl.rs               | 11 +++++++++++
- .../spec/powerpc64le_gentoo_linux_musl.rs             | 11 +++++++++++
- src/librustc_target/spec/powerpc_gentoo_linux_musl.rs | 11 +++++++++++
- src/librustc_target/spec/x86_64_gentoo_linux_musl.rs  | 11 +++++++++++
+ .../src/spec/aarch64_gentoo_linux_musl.rs             | 11 +++++++++++
+ .../src/spec/armv7_gentoo_linux_musleabihf.rs         | 11 +++++++++++
+ .../rustc_target/src/spec/i686_gentoo_linux_musl.rs   | 11 +++++++++++
+ compiler/rustc_target/src/spec/mod.rs                 |  8 ++++++++
+ .../src/spec/powerpc64_gentoo_linux_musl.rs           | 11 +++++++++++
+ .../src/spec/powerpc64le_gentoo_linux_musl.rs         | 11 +++++++++++
+ .../src/spec/powerpc_gentoo_linux_musl.rs             | 11 +++++++++++
+ .../rustc_target/src/spec/x86_64_gentoo_linux_musl.rs | 11 +++++++++++
  8 files changed, 85 insertions(+)
- create mode 100644 src/librustc_target/spec/aarch64_gentoo_linux_musl.rs
- create mode 100644 src/librustc_target/spec/armv7_gentoo_linux_musleabihf.rs
- create mode 100644 src/librustc_target/spec/i686_gentoo_linux_musl.rs
- create mode 100644 src/librustc_target/spec/powerpc64_gentoo_linux_musl.rs
- create mode 100644 src/librustc_target/spec/powerpc64le_gentoo_linux_musl.rs
- create mode 100644 src/librustc_target/spec/powerpc_gentoo_linux_musl.rs
- create mode 100644 src/librustc_target/spec/x86_64_gentoo_linux_musl.rs
+ create mode 100644 compiler/rustc_target/src/spec/aarch64_gentoo_linux_musl.rs
+ create mode 100644 compiler/rustc_target/src/spec/armv7_gentoo_linux_musleabihf.rs
+ create mode 100644 compiler/rustc_target/src/spec/i686_gentoo_linux_musl.rs
+ create mode 100644 compiler/rustc_target/src/spec/powerpc64_gentoo_linux_musl.rs
+ create mode 100644 compiler/rustc_target/src/spec/powerpc64le_gentoo_linux_musl.rs
+ create mode 100644 compiler/rustc_target/src/spec/powerpc_gentoo_linux_musl.rs
+ create mode 100644 compiler/rustc_target/src/spec/x86_64_gentoo_linux_musl.rs
 
-diff --git a/src/librustc_target/spec/aarch64_gentoo_linux_musl.rs b/src/librustc_target/spec/aarch64_gentoo_linux_musl.rs
+diff --git a/compiler/rustc_target/src/spec/aarch64_gentoo_linux_musl.rs b/compiler/rustc_target/src/spec/aarch64_gentoo_linux_musl.rs
 new file mode 100644
 index 0000000..420fe7c
 --- /dev/null
-+++ b/src/librustc_target/spec/aarch64_gentoo_linux_musl.rs
++++ b/compiler/rustc_target/src/spec/aarch64_gentoo_linux_musl.rs
 @@ -0,0 +1,11 @@
 +use crate::spec::TargetResult;
 +
@@ -42,11 +38,11 @@ index 0000000..420fe7c
 +
 +    Ok(base)
 +}
-diff --git a/src/librustc_target/spec/armv7_gentoo_linux_musleabihf.rs b/src/librustc_target/spec/armv7_gentoo_linux_musleabihf.rs
+diff --git a/compiler/rustc_target/src/spec/armv7_gentoo_linux_musleabihf.rs b/compiler/rustc_target/src/spec/armv7_gentoo_linux_musleabihf.rs
 new file mode 100644
 index 0000000..067e2d6
 --- /dev/null
-+++ b/src/librustc_target/spec/armv7_gentoo_linux_musleabihf.rs
++++ b/compiler/rustc_target/src/spec/armv7_gentoo_linux_musleabihf.rs
 @@ -0,0 +1,11 @@
 +use crate::spec::TargetResult;
 +
@@ -59,11 +55,11 @@ index 0000000..067e2d6
 +
 +    Ok(base)
 +}
-diff --git a/src/librustc_target/spec/i686_gentoo_linux_musl.rs b/src/librustc_target/spec/i686_gentoo_linux_musl.rs
+diff --git a/compiler/rustc_target/src/spec/i686_gentoo_linux_musl.rs b/compiler/rustc_target/src/spec/i686_gentoo_linux_musl.rs
 new file mode 100644
 index 0000000..1cd39cd
 --- /dev/null
-+++ b/src/librustc_target/spec/i686_gentoo_linux_musl.rs
++++ b/compiler/rustc_target/src/spec/i686_gentoo_linux_musl.rs
 @@ -0,0 +1,11 @@
 +use crate::spec::TargetResult;
 +
@@ -76,10 +72,10 @@ index 0000000..1cd39cd
 +
 +    Ok(base)
 +}
-diff --git a/src/librustc_target/spec/mod.rs b/src/librustc_target/spec/mod.rs
-index fa29ff3..a685600 100644
---- a/src/librustc_target/spec/mod.rs
-+++ b/src/librustc_target/spec/mod.rs
+diff --git a/compiler/rustc_target/src/spec/mod.rs b/compiler/rustc_target/src/spec/mod.rs
+index f1e8330..d8c0ba0 100644
+--- a/compiler/rustc_target/src/spec/mod.rs
++++ b/compiler/rustc_target/src/spec/mod.rs
 @@ -490,6 +490,14 @@ macro_rules! supported_targets {
  }
  
@@ -95,11 +91,11 @@ index fa29ff3..a685600 100644
      ("x86_64-unknown-linux-gnu", x86_64_unknown_linux_gnu),
      ("x86_64-unknown-linux-gnux32", x86_64_unknown_linux_gnux32),
      ("i686-unknown-linux-gnu", i686_unknown_linux_gnu),
-diff --git a/src/librustc_target/spec/powerpc64_gentoo_linux_musl.rs b/src/librustc_target/spec/powerpc64_gentoo_linux_musl.rs
+diff --git a/compiler/rustc_target/src/spec/powerpc64_gentoo_linux_musl.rs b/compiler/rustc_target/src/spec/powerpc64_gentoo_linux_musl.rs
 new file mode 100644
 index 0000000..e840bb2
 --- /dev/null
-+++ b/src/librustc_target/spec/powerpc64_gentoo_linux_musl.rs
++++ b/compiler/rustc_target/src/spec/powerpc64_gentoo_linux_musl.rs
 @@ -0,0 +1,11 @@
 +use crate::spec::TargetResult;
 +
@@ -112,11 +108,11 @@ index 0000000..e840bb2
 +
 +    Ok(base)
 +}
-diff --git a/src/librustc_target/spec/powerpc64le_gentoo_linux_musl.rs b/src/librustc_target/spec/powerpc64le_gentoo_linux_musl.rs
+diff --git a/compiler/rustc_target/src/spec/powerpc64le_gentoo_linux_musl.rs b/compiler/rustc_target/src/spec/powerpc64le_gentoo_linux_musl.rs
 new file mode 100644
 index 0000000..1037d82
 --- /dev/null
-+++ b/src/librustc_target/spec/powerpc64le_gentoo_linux_musl.rs
++++ b/compiler/rustc_target/src/spec/powerpc64le_gentoo_linux_musl.rs
 @@ -0,0 +1,11 @@
 +use crate::spec::TargetResult;
 +
@@ -129,11 +125,11 @@ index 0000000..1037d82
 +
 +    Ok(base)
 +}
-diff --git a/src/librustc_target/spec/powerpc_gentoo_linux_musl.rs b/src/librustc_target/spec/powerpc_gentoo_linux_musl.rs
+diff --git a/compiler/rustc_target/src/spec/powerpc_gentoo_linux_musl.rs b/compiler/rustc_target/src/spec/powerpc_gentoo_linux_musl.rs
 new file mode 100644
 index 0000000..a623ffe
 --- /dev/null
-+++ b/src/librustc_target/spec/powerpc_gentoo_linux_musl.rs
++++ b/compiler/rustc_target/src/spec/powerpc_gentoo_linux_musl.rs
 @@ -0,0 +1,11 @@
 +use crate::spec::TargetResult;
 +
@@ -146,11 +142,11 @@ index 0000000..a623ffe
 +
 +    Ok(base)
 +}
-diff --git a/src/librustc_target/spec/x86_64_gentoo_linux_musl.rs b/src/librustc_target/spec/x86_64_gentoo_linux_musl.rs
+diff --git a/compiler/rustc_target/src/spec/x86_64_gentoo_linux_musl.rs b/compiler/rustc_target/src/spec/x86_64_gentoo_linux_musl.rs
 new file mode 100644
 index 0000000..f330473
 --- /dev/null
-+++ b/src/librustc_target/spec/x86_64_gentoo_linux_musl.rs
++++ b/compiler/rustc_target/src/spec/x86_64_gentoo_linux_musl.rs
 @@ -0,0 +1,11 @@
 +use crate::spec::TargetResult;
 +
@@ -164,5 +160,5 @@ index 0000000..f330473
 +    Ok(base)
 +}
 -- 
-2.28.0
+2.29.2
 
