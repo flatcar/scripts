@@ -8,7 +8,7 @@ ETYPE="sources"
 # Final releases should be versioned L.M.N, even for N == 0
 
 # Only needed for RCs
-K_BASE_VER="5.9"
+K_BASE_VER="5.10"
 
 inherit kernel-2
 EXTRAVERSION="-flatcar"
