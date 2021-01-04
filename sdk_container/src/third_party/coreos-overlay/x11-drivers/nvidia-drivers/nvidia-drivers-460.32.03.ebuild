@@ -18,9 +18,9 @@ S="${WORKDIR}"
 RDEPEND=""
 
 src_install() {
-	insinto "/usr/share/oem"
-	doins -r "${FILESDIR}/units"
-	exeinto "/usr/share/oem/bin"
-	doexe "${FILESDIR}/bin/install-nvidia"
-	doexe "${FILESDIR}/bin/setup-nvidia"
+  insinto "/usr/share/oem"
+  doins -r "${FILESDIR}/units"
+  exeinto "/usr/share/oem/bin"
+  doexe "${FILESDIR}/bin/install-nvidia"
+  doexe "${FILESDIR}/bin/setup-nvidia"
 }

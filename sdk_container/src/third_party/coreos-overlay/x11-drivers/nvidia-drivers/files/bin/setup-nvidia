@@ -3,9 +3,8 @@ set -euo pipefail
 
 . /usr/share/flatcar/release
 . /usr/share/flatcar/update.conf
+. /usr/share/flatcar/nvidia-metadata
 
-NVIDIA_DRIVER_VERSION=450.80.02
-NVIDIA_PRODUCT_TYPE=tesla
 NVIDIA_DOWNLOAD_BASEURL="https://us.download.nvidia.com/${NVIDIA_PRODUCT_TYPE}/"
 NVIDIA_DRIVER_BASENAME="NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}"
 NVIDIA_WORKDIR='nvidia-workdir'
