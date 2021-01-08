@@ -194,6 +194,14 @@ src_prepare() {
 	# from Gentoo. Thus we dropped the `if ! use vanilla` code
 	# here.
 
+	# Flatcar: The Kubelet takes /etc/resolv.conf for, e.g., CoreDNS which has dnsPolicy "default", but unless
+	# the kubelet --resolv-conf flag is set to point to /run/systemd/resolve/resolv.conf this won't work with
+	# /etc/resolv.conf pointing to /run/systemd/resolve/stub-resolv.conf which configures 127.0.0.53.
+	# See https://kubernetes.io/docs/tasks/administer-cluster/dns-debugging-resolution/#known-issues
+	# This means that users who need split DNS to work should point /etc/resolv.conf back to /run/systemd/resolve/stub-resolv.conf
+	# (and if using K8s configure the kubelet resolvConf variable/--resolv-conf flag to /run/systemd/resolve/resolv.conf).
+	sed -i -e 's,/run/systemd/resolve/stub-resolv.conf,/run/systemd/resolve/resolv.conf,' tmpfiles.d/etc.conf.m4 || die
+
 	default
 }
 
