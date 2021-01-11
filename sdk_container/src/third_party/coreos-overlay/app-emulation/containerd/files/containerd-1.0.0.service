@@ -6,9 +6,14 @@ After=network.target
 [Service]
 Delegate=yes
 Environment=CONTAINERD_CONFIG=/usr/share/containerd/config.toml
+ExecStartPre=mkdir -p /run/docker/libcontainerd
+ExecStartPre=ln -fs /run/containerd/containerd.sock /run/docker/libcontainerd/docker-containerd.sock
+ExecStartPre=-/sbin/modprobe overlay
 ExecStart=/usr/bin/containerd --config ${TORCX_UNPACKDIR}${TORCX_IMAGEDIR}${CONTAINERD_CONFIG}
 KillMode=process
+Type=notify
 Restart=always
+RestartSec=5
 
 # (lack of) limits from the upstream docker service unit
 LimitNOFILE=1048576
