@@ -1,7 +1,7 @@
 # persistent data location
 root = "/var/lib/containerd"
 # runtime state information
-state = "/run/docker/libcontainerd/containerd"
+state = "/run/containerd"
 # set containerd as a subreaper on linux when it is not running as PID 1
 subreaper = true
 # set containerd's OOM score
@@ -10,7 +10,7 @@ disabled_plugins = []
 
 # grpc configuration
 [grpc]
-address = "/run/docker/libcontainerd/docker-containerd.sock"
+address = "/run/containerd/containerd.sock"
 # socket uid
 uid = 0
 # socket gid
