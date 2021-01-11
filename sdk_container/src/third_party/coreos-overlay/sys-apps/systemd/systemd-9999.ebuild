@@ -401,15 +401,15 @@ multilib_src_install_all() {
 		rmdir "${ED}${rootprefix}"/sbin || die
 	fi
 
-	if use hwdb; then
-		rm -r "${ED}${rootprefix}"/lib/udev/hwdb.d || die
-	fi
-
 	# Flatcar: Upstream uses keepdir commands to keep some empty
 	# directories.
 	#
 	# Flatcar: TODO: Consider using that instead of
 	# systemd_dotmpfilesd "${FILESDIR}"/systemd-flatcar.conf below.
+
+	if use hwdb; then
+		rm -r "${ED}${rootprefix}"/lib/udev/hwdb.d || die
+	fi
 
 	if use split-usr; then
 		# Avoid breaking boot/reboot
@@ -570,20 +570,22 @@ pkg_preinst() {
 }
 
 pkg_postinst() {
-       newusergroup() {
-               enewgroup "$1"
-               enewuser "$1" -1 -1 -1 "$1"
-       }
+	newusergroup() {
+		enewgroup "$1"
+		enewuser "$1" -1 -1 -1 "$1"
+	}
 
-       enewgroup input
-       enewgroup kvm 78
-       enewgroup render 30
-       enewgroup systemd-journal
-       newusergroup systemd-coredump
-       newusergroup systemd-journal-remote
-       newusergroup systemd-network
-       newusergroup systemd-resolve
-       newusergroup systemd-timesync
+	enewgroup input
+	enewgroup kvm 78
+	enewgroup render 30
+	enewgroup systemd-journal
+	newusergroup systemd-coredump
+	newusergroup systemd-journal-remote
+	newusergroup systemd-network
+	newusergroup systemd-resolve
+	newusergroup systemd-timesync
+	newusergroup systemd-oom
+
 
 	systemd_update_catalog
 
