@@ -14,7 +14,7 @@ jobs:
         id: fetch-latest-release
         run: |
           git clone https://github.com/docker/docker-ce docker
-          versionMain=$(git -C docker ls-remote --tags origin | cut -f2 | sed -n "/refs\/tags\/v[0-9]*.[0-9]*.[0-9]*$/s/^refs\/tags\/v//p" | egrep -v -e '(beta|rc)' | sort -ruV | head -n1)
+          versionMain=$(git -C docker ls-remote --tags origin | cut -f2 | sed -n "/refs\/tags\/v[0-9]*\.[0-9]*\.[0-9]*$/s/^refs\/tags\/v//p" | egrep -v -e '(beta|rc)' | sort -ruV | head -n1)
           commitMain=$(git -C docker rev-parse --short=7 v${versionMain})
           rm -rf docker
           echo ::set-output name=VERSION_MAIN::$(echo ${versionMain})

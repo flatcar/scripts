@@ -17,7 +17,7 @@ jobs:
           # Get the newest runc version, including official releases and rc versions.
           # We need some sed tweaks like adding underscore, sort, and trim the underscore again,
           # so that sort -V can give the newest version including non-rc versions.
-          versionMain=$(git -C runc ls-remote --tags origin | cut -f2 | sed '/-/!{s/$/_/}' | sed -n "/refs\/tags\/v[0-9]*.[0-9]*.[0-9]*/s/^refs\/tags\/v//p" |grep -v '\{\}$' | sort -ruV | sed 's/_$//' | head -n1)
+          versionMain=$(git -C runc ls-remote --tags origin | cut -f2 | sed '/-/!{s/$/_/}' | sed -n "/refs\/tags\/v[0-9]*\.[0-9]*\.[0-9]*/s/^refs\/tags\/v//p" |grep -v '\{\}$' | sort -ruV | sed 's/_$//' | head -n1)
           commitMain="$(git -C runc rev-parse v${versionMain})"
           versionMain="${versionMain//-/_}"
           rm -rf runc

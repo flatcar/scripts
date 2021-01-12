@@ -16,7 +16,7 @@ jobs:
           KV_MAIN: "5.10"
         run: |
           git clone --depth=1 --no-checkout https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux
-          versionMain=$(git -C linux ls-remote --tags origin | cut -f2 | sed -n "/refs\/tags\/v${KV_MAIN}.[0-9]*$/s/^refs\/tags\/v//p" | sort -ruV | head -1)
+          versionMain=$(git -C linux ls-remote --tags origin | cut -f2 | sed -n "/refs\/tags\/v${KV_MAIN}\.[0-9]*$/s/^refs\/tags\/v//p" | sort -ruV | head -1)
           rm -rf linux
           echo ::set-output name=VERSION_MAIN::$(echo ${versionMain})
           echo ::set-output name=BASE_BRANCH_MAIN::main

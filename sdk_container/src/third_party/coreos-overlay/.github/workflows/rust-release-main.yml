@@ -14,7 +14,7 @@ jobs:
         id: fetch-latest-release
         run: |
           git clone --depth=1 --no-checkout https://github.com/rust-lang/rust
-          versionMain=$(git -C rust ls-remote --tags origin | cut -f2 | sed -n "/refs\/tags\/1.[0-9]*.[0-9]*$/s/^refs\/tags\///p" | sort -ruV | head -n1)
+          versionMain=$(git -C rust ls-remote --tags origin | cut -f2 | sed -n "/refs\/tags\/1\.[0-9]*\.[0-9]*$/s/^refs\/tags\///p" | sort -ruV | head -n1)
           rm -rf rust
           echo ::set-output name=VERSION_MAIN::$(echo ${versionMain})
           echo ::set-output name=BASE_BRANCH_MAIN::main
