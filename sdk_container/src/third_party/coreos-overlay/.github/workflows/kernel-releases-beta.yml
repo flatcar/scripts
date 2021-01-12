@@ -17,7 +17,7 @@ jobs:
         run: |
           KV_MAIN=$(curl -s -S -f -L "https://${CHANNEL}.release.flatcar-linux.net/amd64-usr/current/flatcar_production_image_packages.txt" | grep -o 'coreos-kernel.*' | cut -d '-' -f 3- | cut -d . -f 1-2)
           git clone --depth=1 --no-checkout https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux
-          versionMaintenance=$(git -C linux ls-remote --tags origin | cut -f2 | sed -n "/refs\/tags\/v${KV_MAIN}.[0-9]*$/s/^refs\/tags\/v//p" | sort -ruV | head -1)
+          versionMaintenance=$(git -C linux ls-remote --tags origin | cut -f2 | sed -n "/refs\/tags\/v${KV_MAIN}\.[0-9]*$/s/^refs\/tags\/v//p" | sort -ruV | head -1)
           rm -rf linux
           maintenanceBranch=$(curl -s -S -f -L "https://${CHANNEL}.release.flatcar-linux.net/amd64-usr/current/version.txt" | grep -m 1 FLATCAR_BUILD= | cut -d = -f 2-)
           echo ::set-output name=VERSION_MAINTENANCE::$(echo ${versionMaintenance})

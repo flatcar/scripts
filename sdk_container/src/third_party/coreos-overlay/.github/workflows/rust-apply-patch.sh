@@ -13,7 +13,7 @@ fi
 
 pushd "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" >/dev/null || exit
 
-VERSION_OLD=$(sed -n "s/^DIST rustc-\(1.[0-9]*.[0-9]*\).*/\1/p" dev-lang/rust/Manifest | sort -ruV | head -n1)
+VERSION_OLD=$(sed -n "s/^DIST rustc-\(1\.[0-9]*\.[0-9]*\).*/\1/p" dev-lang/rust/Manifest | sort -ruV | head -n1)
 if [[ "${VERSION_NEW}" = "${VERSION_OLD}" ]]; then
   echo "already the latest Rust, nothing to do"
   UPDATE_NEEDED=0
