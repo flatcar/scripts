@@ -18,8 +18,10 @@ RDEPEND="app-arch/bzip2"
 
 PATCHES=(
 	"${FILESDIR}/${P}-CVE-2014-9862.patch"
-	# Flatcar: Apply patch to change suffix sort to sais-lite
+	# Flatcar: Apply patch to change suffix sort to sais-lite, and
+	# to fix heap overflow vulnerability CVE-2020-14315.
 	"${FILESDIR}/${PV}_bsdiff-convert-to-sais-lite-suffix-sort.patch"
+	"${FILESDIR}/${P}-CVE-2020-14315.patch"
 )
 
 src_compile() {
