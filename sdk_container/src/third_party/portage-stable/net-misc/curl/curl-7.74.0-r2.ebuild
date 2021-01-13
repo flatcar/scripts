@@ -1,4 +1,4 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
@@ -9,36 +9,35 @@ DESCRIPTION="A Client that groks URLs"
 HOMEPAGE="https://curl.haxx.se/"
 SRC_URI="https://curl.haxx.se/download/${P}.tar.xz"
 
-LICENSE="MIT"
+LICENSE="curl"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sh ~sparc ~x86 ~ppc-aix ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="adns alt-svc brotli esni http2 idn ipv6 kerberos ldap metalink +progress-meter rtmp samba ssh ssl static-libs test threads"
+#KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+IUSE="adns alt-svc brotli +ftp gnutls gopher hsts +http2 idn +imap ipv6 kerberos ldap libressl mbedtls metalink nss +openssl +pop3 +progress-meter rtmp samba +smtp ssh ssl static-libs test telnet +tftp threads winssl zstd"
 IUSE+=" curl_ssl_gnutls curl_ssl_libressl curl_ssl_mbedtls curl_ssl_nss +curl_ssl_openssl curl_ssl_winssl"
 IUSE+=" nghttp3 quiche"
 IUSE+=" elibc_Winnt"
 
 #lead to lots of false negatives, bug #285669
-RESTRICT="test"
+RESTRICT="!test? ( test )"
 
 RDEPEND="ldap? ( net-nds/openldap[${MULTILIB_USEDEP}] )
 	brotli? ( app-arch/brotli:=[${MULTILIB_USEDEP}] )
 	ssl? (
-		curl_ssl_gnutls? (
+		gnutls? (
 			net-libs/gnutls:0=[static-libs?,${MULTILIB_USEDEP}]
 			dev-libs/nettle:0=[${MULTILIB_USEDEP}]
 			app-misc/ca-certificates
 		)
-		curl_ssl_libressl? (
-			dev-libs/libressl:0=[static-libs?,${MULTILIB_USEDEP}]
-		)
-		curl_ssl_mbedtls? (
+		mbedtls? (
 			net-libs/mbedtls:0=[${MULTILIB_USEDEP}]
 			app-misc/ca-certificates
 		)
-		curl_ssl_openssl? (
-			dev-libs/openssl:0=[static-libs?,${MULTILIB_USEDEP}]
+		openssl? (
+			!libressl? ( dev-libs/openssl:0=[static-libs?,${MULTILIB_USEDEP}] )
+			libressl? ( dev-libs/libressl:0=[static-libs?,${MULTILIB_USEDEP}] )
 		)
-		curl_ssl_nss? (
+		nss? (
 			dev-libs/nss:0[${MULTILIB_USEDEP}]
 			app-misc/ca-certificates
 		)
@@ -48,14 +47,15 @@ RDEPEND="ldap? ( net-nds/openldap[${MULTILIB_USEDEP}] )
 		net-libs/nghttp3[${MULTILIB_USEDEP}]
 		net-libs/ngtcp2[ssl,${MULTILIB_USEDEP}]
 	)
-	quiche? ( net-libs/quiche[${MULTILIB_USEDEP}] )
+	quiche? ( >=net-libs/quiche-0.3.0[${MULTILIB_USEDEP}] )
 	idn? ( net-dns/libidn2:0=[static-libs?,${MULTILIB_USEDEP}] )
 	adns? ( net-dns/c-ares:0[${MULTILIB_USEDEP}] )
 	kerberos? ( >=virtual/krb5-0-r1[${MULTILIB_USEDEP}] )
 	metalink? ( >=media-libs/libmetalink-0.1.1[${MULTILIB_USEDEP}] )
 	rtmp? ( media-video/rtmpdump[${MULTILIB_USEDEP}] )
 	ssh? ( net-libs/libssh2[${MULTILIB_USEDEP}] )
-	sys-libs/zlib[${MULTILIB_USEDEP}]"
+	sys-libs/zlib[${MULTILIB_USEDEP}]
+	zstd? ( app-arch/zstd:=[${MULTILIB_USEDEP}] )"
 
 # Do we need to enforce the same ssl backend for curl and rtmpdump? Bug #423303
 #	rtmp? (
@@ -68,16 +68,16 @@ RDEPEND="ldap? ( net-nds/openldap[${MULTILIB_USEDEP}] )
 # fbopenssl  $(use_with spnego)
 
 DEPEND="${RDEPEND}"
-BDEPEND=">=virtual/pkgconfig-0-r1[${MULTILIB_USEDEP}]
+BDEPEND="virtual/pkgconfig
 	test? (
 		sys-apps/diffutils
 		dev-lang/perl
 	)"
 
 # c-ares must be disabled for threads
-# only one ssl provider can be enabled
+# only one default ssl provider can be enabled
 REQUIRED_USE="
-	curl_ssl_winssl? ( elibc_Winnt )
+	winssl? ( elibc_Winnt )
 	threads? ( !adns )
 	ssl? (
 		^^ (
@@ -90,8 +90,8 @@ REQUIRED_USE="
 		)
 	)"
 
-DOCS=( CHANGES README docs/FEATURES docs/INTERNALS.md \
-	docs/FAQ docs/BUGS docs/CONTRIBUTE.md )
+DOCS=( CHANGES README docs/FEATURES.md docs/INTERNALS.md \
+	docs/FAQ docs/BUGS.md docs/CONTRIBUTE.md )
 
 MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/curl/curlbuild.h
@@ -119,30 +119,54 @@ multilib_src_configure() {
 	# So start with all ssl providers off until proven otherwise
 	# TODO: in the future, we may want to add wolfssl (https://www.wolfssl.com/)
 	local myconf=()
+
 	myconf+=( --without-gnutls --without-mbedtls --without-nss --without-polarssl --without-ssl --without-winssl )
 	myconf+=( --without-ca-fallback --with-ca-bundle="${EPREFIX}"/etc/ssl/certs/ca-certificates.crt  )
+	#myconf+=( --without-default-ssl-backend )
 	if use ssl ; then
-		if use curl_ssl_gnutls; then
+		if use gnutls || use curl_ssl_gnutls; then
 			einfo "SSL provided by gnutls"
 			myconf+=( --with-gnutls --with-nettle )
-		elif use curl_ssl_libressl; then
-			einfo "SSL provided by LibreSSL"
-			myconf+=( --with-ssl --with-ca-path="${EPREFIX}"/etc/ssl/certs )
-		elif use curl_ssl_mbedtls; then
+		fi
+		if use mbedtls || use curl_ssl_mbedtls; then
 			einfo "SSL provided by mbedtls"
 			myconf+=( --with-mbedtls )
-		elif use curl_ssl_nss; then
+		fi
+		if use nss || use curl_ssl_nss; then
 			einfo "SSL provided by nss"
 			myconf+=( --with-nss )
-		elif use curl_ssl_openssl; then
+		fi
+		if use openssl || use curl_ssl_openssl || use curl_ssl_libressl; then
 			einfo "SSL provided by openssl"
 			myconf+=( --with-ssl --with-ca-path="${EPREFIX}"/etc/ssl/certs )
-		elif use curl_ssl_winssl; then
+		fi
+		if use winssl || use curl_ssl_winssl; then
 			einfo "SSL provided by Windows"
 			myconf+=( --with-winssl )
+		fi
+
+		if use curl_ssl_gnutls; then
+			einfo "Default SSL provided by gnutls"
+			myconf+=( --with-default-ssl-backend=gnutls )
+		elif use curl_ssl_libressl; then
+			einfo "Default SSL provided by LibreSSL"
+			myconf+=( --with-default-ssl-backend=openssl )  # NOTE THE HACK HERE
+		elif use curl_ssl_mbedtls; then
+			einfo "Default SSL provided by mbedtls"
+			myconf+=( --with-default-ssl-backend=mbedtls )
+		elif use curl_ssl_nss; then
+			einfo "Default SSL provided by nss"
+			myconf+=( --with-default-ssl-backend=nss )
+		elif use curl_ssl_openssl; then
+			einfo "Default SSL provided by openssl"
+			myconf+=( --with-default-ssl-backend=openssl )
+		elif use curl_ssl_winssl; then
+			einfo "Default SSL provided by Windows"
+			myconf+=( --with-default-ssl-backend=winssl )
 		else
 			eerror "We can't be here because of REQUIRED_USE."
 		fi
+
 	else
 		einfo "SSL disabled"
 	fi
@@ -162,23 +186,24 @@ multilib_src_configure() {
 		$(use_enable alt-svc) \
 		--enable-crypto-auth \
 		--enable-dict \
-		$(use_enable esni) \
+		--disable-ech \
 		--enable-file \
-		--enable-ftp \
-		--enable-gopher \
+		$(use_enable ftp) \
+		$(use_enable gopher) \
+		$(use_enable hsts) \
 		--enable-http \
-		--enable-imap \
+		$(use_enable imap) \
 		$(use_enable ldap) \
 		$(use_enable ldap ldaps) \
 		--disable-ntlm-wb \
-		--enable-pop3 \
+		$(use_enable pop3) \
 		--enable-rt  \
 		--enable-rtsp \
 		$(use_enable samba smb) \
 		$(use_with ssh libssh2) \
-		--enable-smtp \
-		--enable-telnet \
-		--enable-tftp \
+		$(use_enable smtp) \
+		$(use_enable telnet) \
+		$(use_enable tftp) \
 		--enable-tls-srp \
 		$(use_enable adns ares) \
 		--enable-cookies \
@@ -189,7 +214,6 @@ multilib_src_configure() {
 		--enable-http-auth \
 		$(use_enable ipv6) \
 		--enable-largefile \
-		--without-libpsl \
 		--enable-manual \
 		--enable-mime \
 		--enable-netrc \
@@ -201,6 +225,7 @@ multilib_src_configure() {
 		$(use_enable threads pthreads) \
 		--disable-versioned-symbols \
 		--without-amissl \
+		--without-bearssl \
 		--without-cyassl \
 		--without-darwinssl \
 		--without-fish-functions-dir \
@@ -208,6 +233,7 @@ multilib_src_configure() {
 		$(use_with kerberos gssapi "${EPREFIX}"/usr) \
 		$(use_with metalink libmetalink) \
 		$(use_with http2 nghttp2) \
+		--without-libpsl \
 		$(use_with nghttp3) \
 		$(use_with nghttp3 ngtcp2) \
 		$(use_with quiche) \
@@ -219,6 +245,7 @@ multilib_src_configure() {
 		--without-winidn \
 		--without-wolfssl \
 		--with-zlib \
+		$(use_with zstd) \
 		"${myconf[@]}"
 
 	if ! multilib_is_native_abi; then
@@ -239,7 +266,7 @@ multilib_src_configure() {
 	fi
 	if use quiche; then
 		libs+=( "-lquiche" )
-		priv+=( "libquiche" )
+		priv+=( "quiche" )
 	fi
 	if use nghttp3; then
 		libs+=( "-lnghttp3" "-lngtcp2" )
