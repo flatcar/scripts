@@ -10,8 +10,8 @@ SRC_URI=""
 LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="amd64 arm64 x86"
-IUSE="ec2 openstack brightbox"
-REQUIRED_USE="^^ ( ec2 openstack brightbox )"
+IUSE="ec2 openstack brightbox aws_pro"
+REQUIRED_USE="^^ ( ec2 openstack brightbox aws_pro )"
 
 # TODO: The AWS SSM Agent is currently too big for the OEM partition
 # but if it fits, uncomment the following and revert
@@ -19,12 +19,15 @@ REQUIRED_USE="^^ ( ec2 openstack brightbox )"
 #RDEPEND="
 #       ec2? ( app-emulation/amazon-ssm-agent )
 #"
+RDEPEND="
+       aws_pro? ( coreos-base/flatcar-eks )
+"
 
 # no source directory
 S="${WORKDIR}"
 
 src_prepare() {
-	if use ec2 ; then
+	if use ec2 || use aws_pro ; then
 		ID="ami"
 		NAME="Amazon EC2"
 		HOME_URL="http://aws.amazon.com/ec2/"
@@ -50,7 +53,7 @@ src_prepare() {
 src_install() {
 	insinto "/usr/share/oem"
 	doins "${T}/oem-release"
-	if use ec2 ; then
+	if use ec2 || use aws_pro ; then
 		newins "${FILESDIR}/grub-ec2.cfg" grub.cfg
 	elif use openstack ; then
 		newins "${FILESDIR}/grub-openstack.cfg" grub.cfg
@@ -63,5 +66,7 @@ src_install() {
 	doins "${FILESDIR}/base/default.ign"
 	if use ec2 ; then
 		newins "${FILESDIR}/base/base-ec2.ign" base.ign
+	elif use aws_pro ; then
+		newins "${FILESDIR}/base/base-aws-pro.ign" base.ign
 	fi
 }
