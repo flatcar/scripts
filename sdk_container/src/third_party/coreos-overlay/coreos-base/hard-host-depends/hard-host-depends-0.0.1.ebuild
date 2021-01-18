@@ -44,6 +44,7 @@ RDEPEND="${RDEPEND}
 	dev-lang/go:1.7
 	dev-lang/go:1.8
 	dev-lang/go:1.12
+	dev-lang/go:1.13
 	dev-lang/go:1.15
 	dev-lang/go-bootstrap
 	dev-lang/tcl
