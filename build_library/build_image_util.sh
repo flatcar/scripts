@@ -452,8 +452,23 @@ EOF
     sudo lbzip2 -9 "${root_fs_dir}"/usr/share/licenses/licenses.json
     # Copy all needed licenses to a "common" subdirectory and compress them
     local license_list # define before assignment because it would mask any error
-    license_list="$(jq -r '.[] | "/var/gentoo/repos/gentoo/licenses/\(.licenses | .[])"' "${json_input}" | sort | uniq)"
-    sudo cp ${license_list} "${root_fs_dir}"/usr/share/licenses/common/
+    license_list="$(jq -r '.[] | "\(.licenses | .[])"' "${json_input}" | sort | uniq)"
+    local license_dirs=(
+        "/mnt/host/source/src/third_party/coreos-overlay/licenses/"
+        "/mnt/host/source/src/third_party/portage-stable/"
+        "/var/gentoo/repos/gentoo/licenses/"
+        "none"
+    )
+    for license_file in ${license_list}; do
+        for license_dir in ${license_dirs[*]}; do
+            if [ "${license_dir}" = "none" ]; then
+                warn "The license file \"${license_file}\" was not found"
+            elif [ -f "${license_dir}${license_file}" ]; then
+                sudo cp "${license_dir}${license_file}" "${root_fs_dir}"/usr/share/licenses/common/
+                break
+            fi
+        done
+    done
     # Compress the licenses just with gzip because there is no big difference as they are single files
     sudo gzip -9 "${root_fs_dir}"/usr/share/licenses/common/*
 }
