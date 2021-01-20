@@ -4,7 +4,7 @@
 
 EAPI=5
 
-inherit git-2
+inherit git-r3
 
 DESCRIPTION="Tool to convert vmdk to an ova file"
 HOMEPAGE="https://github.com/vmware/open-vmdk"
@@ -13,13 +13,13 @@ SLOT="0"
 
 EGIT_REPO_URI="https://github.com/vmware/open-vmdk"
 EGIT_BRANCH="master"
-EGIT_COMMIT="82eb7268e78cc32907573b713569e1331c571ce5"
+EGIT_COMMIT="fed311f0529333efb42a289dc864d1ea9f59ebfa"
 
 KEYWORDS="amd64 ~x86"
 IUSE=""
 
 DEPEND=""
-RDEPEND="app-misc/jq ${DEPEND}"
+RDEPEND="${DEPEND}"
 
 src_install() {
 	emake DESTDIR="${D}" install
