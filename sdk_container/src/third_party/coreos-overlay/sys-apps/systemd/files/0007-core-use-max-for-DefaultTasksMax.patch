@@ -8,33 +8,32 @@ to 512, later 15% of the system's maximum number of PIDs.  This
 limit is low and a change in behavior that people running services
 in containers will hit frequently, so revert to previous behavior.
 ---
- man/systemd-system.conf.xml | 3 +--
+ man/systemd-system.conf.xml | 2 +-
  src/basic/cgroup-util.h     | 4 ++++
  src/core/system.conf.in     | 2 +-
- 3 files changed, 6 insertions(+), 3 deletions(-)
+ 3 files changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/man/systemd-system.conf.xml b/man/systemd-system.conf.xml
-index c64e57c277..e03e67b2f5 100644
+index 0dea50f2fe..3847118881 100644
 --- a/man/systemd-system.conf.xml
 +++ b/man/systemd-system.conf.xml
-@@ -361,8 +361,7 @@
+@@ -361,7 +361,7 @@
          <listitem><para>Configure the default value for the per-unit <varname>TasksMax=</varname> setting. See
          <citerefentry><refentrytitle>systemd.resource-control</refentrytitle><manvolnum>5</manvolnum></citerefentry>
          for details. This setting applies to all unit types that support resource control settings, with the exception
--        of slice units. Defaults to 15%, which equals 4915 with the kernel's defaults on the host, but might be smaller
--        in OS containers.</para></listitem>
+-        of slice units. Defaults to 15% of the sysctl setting <varname>kernel.pid_max=</varname> or root cgroup <varname>pids.max</varname>.
 +        of slice units. Defaults to 100%.</para></listitem>
-       </varlistentry>
- 
-       <varlistentry>
+         Kernel has a default value for <varname>kernel.pid_max=</varname> and an algorithm of counting in case of more than 32 cores.
+         For example with the default <varname>kernel.pid_max=</varname>, <varname>DefaultTasksMax=</varname> defaults to 4915,
+         but might be greater in other systems or smaller in OS containers.</para></listitem>
 diff --git a/src/basic/cgroup-util.h b/src/basic/cgroup-util.h
-index 2b88571bc1..598bfc1a45 100644
+index bdc0d0d086..345a99aa5c 100644
 --- a/src/basic/cgroup-util.h
 +++ b/src/basic/cgroup-util.h
 @@ -129,6 +129,10 @@ static inline bool CGROUP_BLKIO_WEIGHT_IS_OK(uint64_t x) {
              (x >= CGROUP_BLKIO_WEIGHT_MIN && x <= CGROUP_BLKIO_WEIGHT_MAX);
  }
- 
+
 +/* Default resource limits */
 +#define DEFAULT_TASKS_MAX_PERCENTAGE            100U /* 100% of PIDs */
 +#define DEFAULT_USER_TASKS_MAX_PERCENTAGE       33U /* 33% of PIDs, 10813 on default settings */
@@ -55,6 +54,6 @@ index 40bb548887..c6cddf4f79 100644
  #DefaultLimitCPU=
  #DefaultLimitFSIZE=
  #DefaultLimitDATA=
--- 
+--
 2.26.2
 
