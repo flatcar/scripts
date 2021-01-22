@@ -7,13 +7,13 @@ inherit systemd toolchain-funcs
 
 if [[ ${PV} == "9999" ]]; then
 	inherit git-r3
-	EGIT_REPO_URI="https://roy.marples.name/cgit/dhcpcd.git"
+	EGIT_REPO_URI="https://roy.marples.name/git/dhcpcd.git"
 else
 	MY_P="${P/_alpha/-alpha}"
 	MY_P="${MY_P/_beta/-beta}"
 	MY_P="${MY_P/_rc/-rc}"
 	SRC_URI="https://roy.marples.name/downloads/${PN}/${MY_P}.tar.xz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv s390 sparc x86 ~amd64-linux ~x86-linux"
 	S="${WORKDIR}/${MY_P}"
 fi
 
@@ -21,17 +21,11 @@ DESCRIPTION="A fully featured, yet light weight RFC2131 compliant DHCP client"
 HOMEPAGE="https://roy.marples.name/projects/dhcpcd"
 LICENSE="BSD-2"
 SLOT="0"
-IUSE="debug elibc_glibc +embedded ipv6 kernel_linux privsep +udev"
+IUSE="elibc_glibc +embedded ipv6 kernel_linux +udev"
 
 COMMON_DEPEND="udev? ( virtual/udev )"
 DEPEND="${COMMON_DEPEND}"
-RDEPEND="
-	${COMMON_DEPEND}
-	privsep? (
-		acct-group/dhcpcd
-		acct-user/dhcpcd
-	)
-"
+RDEPEND="${COMMON_DEPEND}"
 
 src_configure() {
 	local myeconfargs=(
@@ -40,13 +34,10 @@ src_configure() {
 		--localstatedir="${EPREFIX}/var"
 		--prefix="${EPREFIX}"
 		--with-hook=ntp.conf
-		$(use_enable debug)
 		$(use_enable embedded)
 		$(use_enable ipv6)
-		$(use_enable privsep)
 		$(usex elibc_glibc '--with-hook=yp.conf' '')
-		--rundir=$(usex kernel_linux "${EPREFIX}/run/dhcpcd" "${EPREFIX}/var/run/dhcpcd")
-		$(usex privsep '--privsepuser=dhcpcd' '')
+		$(usex kernel_linux '--rundir=${EPREFIX}/run' '')
 		$(usex udev '' '--without-dev --without-udev')
 		CC="$(tc-getCC)"
 	)
@@ -56,8 +47,8 @@ src_configure() {
 src_install() {
 	default
 	keepdir /var/lib/dhcpcd
-	newinitd "${FILESDIR}"/dhcpcd.initd-r1 dhcpcd
-	systemd_newunit "${FILESDIR}"/dhcpcd.service-r1 dhcpcd.service
+	newinitd "${FILESDIR}"/${PN}.initd ${PN}
+	systemd_dounit "${FILESDIR}"/${PN}.service
 }
 
 pkg_postinst() {
