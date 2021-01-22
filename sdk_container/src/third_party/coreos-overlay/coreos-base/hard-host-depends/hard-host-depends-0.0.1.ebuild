@@ -66,8 +66,6 @@ RDEPEND="${RDEPEND}
 	net-misc/google-cloud-sdk
 	sys-apps/usbutils
 	sys-apps/systemd
-	!sys-apps/nih-dbus-tool
-	sys-libs/libnih
 	sys-libs/nss-usrfiles
 	sys-power/iasl
 	virtual/udev
