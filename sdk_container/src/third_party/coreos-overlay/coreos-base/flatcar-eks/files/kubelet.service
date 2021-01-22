@@ -1,0 +1,29 @@
+[Unit]
+Description=EKS Kubelet
+Documentation=https://github.com/kubernetes/kubernetes
+Wants=docker.service coreos-metadata.service
+Requires=docker.service coreos-metadata.service
+After=docker.service iptables-restore.service
+
+[Service]
+EnvironmentFile=/run/metadata/flatcar
+ExecStartPre=/usr/share/oem/eks/download-kubelet.sh
+ExecStartPre=/sbin/iptables -P FORWARD ACCEPT -w 5
+ExecStart=/opt/eks/kubelet \
+    --cloud-provider aws \
+    --config /usr/share/oem/eks/kubelet-config.json \
+    --kubeconfig /usr/share/oem/eks/kubelet-kubeconfig \
+    --container-runtime docker \
+    --network-plugin cni \
+    --cni-bin-dir=/opt/cni/bin \
+    --cni-conf-dir=/etc/cni/net.d \
+    --hostname-override ${COREOS_EC2_HOSTNAME} \
+    $KUBELET_ARGS \
+    $KUBELET_EXTRA_ARGS
+
+Restart=always
+RestartSec=5
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target

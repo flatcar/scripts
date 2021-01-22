@@ -1,0 +1,25 @@
+{
+  "ignition": {
+    "version": "2.1.0"
+  },
+  "storage": {
+    "files": [
+      {
+        "filesystem": "root",
+        "path": "/etc/eks/bootstrap.sh",
+        "contents": {
+          "source": "oem:///eks/bootstrap.sh"
+        },
+        "mode": 493
+      }
+    ]
+  },
+  "systemd": {
+    "units": [
+      {
+        "name": "coreos-metadata-sshkeys@.service",
+        "enabled": true
+      }
+    ]
+  }
+}

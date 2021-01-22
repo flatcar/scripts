@@ -23,6 +23,7 @@ RDEPEND="
 		app-emulation/open-vm-tools
 		app-emulation/wa-linux-agent
 		coreos-base/coreos-oem-gce
+		coreos-base/flatcar-eks
 		coreos-base/nova-agent-container
 		coreos-base/nova-agent-watcher
 		dev-lang/python-oem
