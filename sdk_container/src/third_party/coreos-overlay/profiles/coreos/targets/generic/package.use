@@ -6,7 +6,6 @@ app-editors/vim		minimal
 dev-lang/python		-berkdb gdbm
 dev-libs/dbus-glib	tools
 dev-libs/elfutils	-utils
-dev-libs/nss		-utils
 dev-libs/openssl	pkcs11
 dev-util/perf		-doc -demangle -tui -ncurses -perl -python
 dev-util/perf-next	-doc -demangle -tui -ncurses -perl -python
@@ -34,9 +33,6 @@ dev-util/pkgconfig internal-glib
 
 # minimize risk removing unneeded patches and networking support
 app-shells/bash -net vanilla
-
-# disable nss utilities
-dev-libs/nss -utils
 
 # needed by docker
 sys-libs/libseccomp static-libs

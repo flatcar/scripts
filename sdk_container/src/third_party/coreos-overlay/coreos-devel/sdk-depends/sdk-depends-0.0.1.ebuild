@@ -28,7 +28,6 @@ DEPEND="
 	coreos-devel/kola-data
 	coreos-devel/mantle
 	dev-libs/gobject-introspection
-	dev-libs/nss
 	dev-python/setuptools
 	dev-util/boost-build
 	dev-util/catalyst

@@ -19,7 +19,6 @@
 =dev-libs/libpcre2-10.30 ~arm64
 =dev-libs/libpcre-8.41 ~arm64
 =dev-libs/libusb-1.0.21 ~arm64
-=dev-libs/nss-3.29.5 ~arm64
 =dev-libs/userspace-rcu-0.9.1 **
 =dev-perl/libintl-perl-1.240.0-r2 ~arm64
 =dev-perl/Text-Unidecode-1.270.0 ~arm64
