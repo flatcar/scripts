@@ -15,3 +15,4 @@ AUTOSTARTTARGETS="yes"
 # if set to "strict", iscsid will stop, if connecting the
 # autostart targets failed
 # AUTOSTART="strict"
+
