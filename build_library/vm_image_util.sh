@@ -18,6 +18,7 @@ VALID_IMG_TYPES=(
     digitalocean
     exoscale
     gce
+    gce_pro
     hyperv
     interoute
     iso
@@ -252,6 +253,12 @@ IMG_gce_DISK_LAYOUT=vm
 IMG_gce_CONF_FORMAT=gce
 IMG_gce_OEM_PACKAGE=oem-gce
 IMG_gce_OEM_ACI=gce
+
+## gce pro, image tarball
+IMG_gce_pro_DISK_LAYOUT=vm
+IMG_gce_pro_CONF_FORMAT=gce
+IMG_gce_pro_OEM_PACKAGE=oem-gce
+IMG_gce_pro_OEM_ACI=gce
 
 ## rackspace
 IMG_rackspace_OEM_PACKAGE=oem-rackspace

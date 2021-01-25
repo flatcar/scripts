@@ -4,6 +4,7 @@ ami_vmdk_pro
 azure
 azure_pro
 gce
+gce_pro
 iso
 pxe
 qemu
