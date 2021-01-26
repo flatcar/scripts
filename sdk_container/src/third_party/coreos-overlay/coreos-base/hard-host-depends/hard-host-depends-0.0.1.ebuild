@@ -53,6 +53,7 @@ RDEPEND="${RDEPEND}
 	dev-libs/libgcrypt
 	dev-libs/libxslt
 	dev-libs/libyaml
+	dev-libs/nspr
 	dev-libs/protobuf
 	dev-python/ctypesgen
 	dev-python/mako
