@@ -211,6 +211,11 @@ src_install() {
 	rm -rf "${ED}"/run || die
 
 	find "${ED}" -type f -name "*.la" -delete || die #697812
+
+	# Flatcar specific:
+	# - remove sudo.conf (shipped by baselayout)
+	rm "${ED}/etc/sudo.conf"
+	# Flatcar end
 }
 
 pkg_postinst() {
