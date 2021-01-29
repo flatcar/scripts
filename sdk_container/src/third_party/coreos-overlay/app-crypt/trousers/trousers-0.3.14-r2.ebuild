@@ -67,7 +67,7 @@ src_install() {
 	use doc && dodoc doc/*
 	# Flatcar:
 	# (removed newinitd and newconfd)
-	fowners tss:tss /etc/tcsd.conf
+	fowners root:tss /etc/tcsd.conf
 
 	systemd_dounit "${FILESDIR}"/tcsd.service
 
@@ -84,6 +84,6 @@ src_install() {
 	# stash a copy of the config so we can restore it from tmpfiles
 	doins "${D}"/etc/tcsd.conf
 	fowners tss:tss /usr/share/trousers/system.data
-	fowners tss:tss /usr/share/trousers/tcsd.conf
+	fowners root:tss /usr/share/trousers/tcsd.conf
 	systemd_dotmpfilesd "${FILESDIR}"/tmpfiles.d/trousers.conf
 }
