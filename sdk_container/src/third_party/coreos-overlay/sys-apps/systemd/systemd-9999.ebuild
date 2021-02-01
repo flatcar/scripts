@@ -439,7 +439,7 @@ multilib_src_install_all() {
 	systemd_dotmpfilesd "${FILESDIR}"/systemd-resolv.conf
 
 	# Flatcar: Don't default to graphical.target.
-	local unitdir=$(PKG_CONFIG_LIBDIR="${PWD}/src/core" systemd_get_systemunitdir)
+	local unitdir=$(builddir_systemd_get_systemunitdir)
 	dosym multi-user.target "${unitdir}"/default.target
 
 	# Flatcar: Don't set any extra environment variables by default.
@@ -449,35 +449,35 @@ multilib_src_install_all() {
 	# preset file (90-systemd.preset). We do it that way, to avoid
 	# putting symlink in /etc. Please keep the lines in the same
 	# order as the "enable" lines appear in the preset file.
-	systemd_enable_service multi-user.target remote-fs.target
-	systemd_enable_service multi-user.target remote-cryptsetup.target
-	systemd_enable_service multi-user.target machines.target
+	builddir_systemd_enable_service multi-user.target remote-fs.target
+	builddir_systemd_enable_service multi-user.target remote-cryptsetup.target
+	builddir_systemd_enable_service multi-user.target machines.target
 	# Flatcar: getty@.service is enabled manually below.
-	systemd_enable_service sysinit.target systemd-timesyncd.service
-	systemd_enable_service multi-user.target systemd-networkd.service
+	builddir_systemd_enable_service sysinit.target systemd-timesyncd.service
+	builddir_systemd_enable_service multi-user.target systemd-networkd.service
 	# Flatcar: For systemd-networkd.service, it has it in Also, which also
 	# needs to be enabled
-	systemd_enable_service sockets.target systemd-networkd.socket
+	builddir_systemd_enable_service sockets.target systemd-networkd.socket
 	# Flatcar: For systemd-networkd.service, it has it in Also, which also
 	# needs to be enabled
-	systemd_enable_service network-online.target systemd-networkd-wait-online.service
-	systemd_enable_service multi-user.target systemd-resolved.service
+	builddir_systemd_enable_service network-online.target systemd-networkd-wait-online.service
+	builddir_systemd_enable_service multi-user.target systemd-resolved.service
 	if use homed; then
-		systemd_enable_service multi-user.target systemd-homed.target
+		builddir_systemd_enable_service multi-user.target systemd-homed.target
 		# Flatcar: systemd-homed.target has
 		# Also=systemd-userdbd.service, but the service has no
 		# WantedBy entry. It's likely going to be executed through
 		# systemd-userdbd.socket, which is enabled in upstream's
 		# presets file.
-		systemd_enable_service sockets.target systemd-userdbd.socket
+		builddir_systemd_enable_service sockets.target systemd-userdbd.socket
 	fi
-	systemd_enable_service sysinit.target systemd-pstore.service
+	builddir_systemd_enable_service sysinit.target systemd-pstore.service
 	# Flatcar: not enabling reboot.target - it has no WantedBy
 	# entry.
 
 	# Flatcar: Enable getty manually.
-	mkdir --parents "${ED}/usr/lib/systemd/system/getty.target.wants"
-	dosym ../getty@.service "/usr/lib/systemd/system/getty.target.wants/getty@tty1.service"
+	dodir "${unitdir}/getty.target.wants"
+	dosym ../getty@.service "${unitdir}/getty.target.wants/getty@tty1.service"
 
 	# Flatcar: Use an empty preset file, because systemctl
 	# preset-all puts symlinks in /etc, not in /usr. We don't use
@@ -497,6 +497,20 @@ multilib_src_install_all() {
 
 	# Flatcar: gen_usr_ldscript is likely for static libs, so we
 	# dropped it.
+}
+
+builddir_systemd_enable_service() {
+    (
+        export SYSROOT="${ED}"
+        systemd_enable_service "$@"
+    )
+}
+
+builddir_systemd_get_systemunitdir() {
+    (
+        export SYSROOT="${ED}"
+        systemd_get_systemunitdir
+    )
 }
 
 migrate_locale() {
