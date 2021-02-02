@@ -104,6 +104,7 @@ RDEPEND="${RDEPEND}
 	app-editors/vim
 	app-emulation/rkt
 	app-emulation/actool
+	app-emulation/cri-tools
 	app-misc/ca-certificates
 	app-misc/jq
 	app-shells/bash
