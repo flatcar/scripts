@@ -1,6 +1,6 @@
---- orig/bootstrap.sh	2021-01-21 15:07:34.749539965 +0100
-+++ flatcar/bootstrap.sh	2021-01-22 12:21:58.080452841 +0100
-@@ -202,6 +202,9 @@
+--- orig/bootstrap.sh	2021-02-02 14:04:27.121358890 +0100
++++ flatcar/bootstrap.sh	2021-02-02 14:07:15.175175277 +0100
+@@ -268,6 +268,9 @@
      exit  1
  fi
  
@@ -8,9 +8,9 @@
 +mkdir -p /etc/eks
 +echo "CLUSTER_NAME=\"${CLUSTER_NAME}\"" > /etc/eks/cluster.conf
  
- TOKEN=$(curl -X PUT -H "X-aws-ec2-metadata-token-ttl-seconds: 600" "http://169.254.169.254/latest/api/token")
- AWS_DEFAULT_REGION=$(curl -s --retry 5 -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/dynamic/instance-identity/document | jq .region -r)
-@@ -218,7 +221,8 @@
+ TOKEN=$(get_token)
+ AWS_DEFAULT_REGION=$(get_meta_data 'latest/dynamic/instance-identity/document' | jq .region -r)
+@@ -284,7 +287,8 @@
  PAUSE_CONTAINER="$PAUSE_CONTAINER_IMAGE:$PAUSE_CONTAINER_VERSION"
  
  ### kubelet kubeconfig
@@ -20,7 +20,7 @@
  CA_CERTIFICATE_DIRECTORY=/etc/kubernetes/pki
  CA_CERTIFICATE_FILE_PATH=$CA_CERTIFICATE_DIRECTORY/ca.crt
  mkdir -p $CA_CERTIFICATE_DIRECTORY
-@@ -258,9 +262,9 @@
+@@ -324,9 +328,9 @@
  
  echo $B64_CLUSTER_CA | base64 -d > $CA_CERTIFICATE_FILE_PATH
  
@@ -33,7 +33,7 @@
  ### kubelet.service configuration
  
  if [[ -z "${DNS_CLUSTER_IP}" ]]; then
-@@ -279,7 +283,7 @@
+@@ -345,7 +349,7 @@
    DNS_CLUSTER_IP="${DNS_CLUSTER_IP}"
  fi
  
@@ -41,8 +41,8 @@
 +KUBELET_CONFIG=/usr/share/oem/eks/kubelet-config.json
  echo "$(jq ".clusterDNS=[\"$DNS_CLUSTER_IP\"]" $KUBELET_CONFIG)" > $KUBELET_CONFIG
  
- INTERNAL_IP=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/local-ipv4)
-@@ -291,7 +295,7 @@
+ INTERNAL_IP=$(get_meta_data 'latest/meta-data/local-ipv4')
+@@ -357,7 +361,7 @@
  # with this formula when scheduling pods: Allocatable = Capacity - Reserved - Eviction Threshold.
  
  #calculate the max number of pods per instance type
@@ -51,7 +51,7 @@
  set +o pipefail
  MAX_PODS=$(cat $MAX_PODS_FILE | awk "/^${INSTANCE_TYPE:-unset}/"' { print $2 }')
  set -o pipefail
-@@ -316,6 +320,8 @@
+@@ -382,6 +386,8 @@
      fi
  fi
  
@@ -60,12 +60,13 @@
  mkdir -p /etc/systemd/system/kubelet.service.d
  
  cat <<EOF > /etc/systemd/system/kubelet.service.d/10-kubelet-args.conf
-@@ -330,10 +336,15 @@
+@@ -396,10 +402,16 @@
  EOF
  fi
  
 +
  # Replace with custom docker config contents.
++mkdir -p /etc/docker
  if [[ -n "$DOCKER_CONFIG_JSON" ]]; then
      echo "$DOCKER_CONFIG_JSON" > /etc/docker/daemon.json
      systemctl restart docker
@@ -76,7 +77,7 @@
  fi
  
  if [[ "$ENABLE_DOCKER_BRIDGE" = "true" ]]; then
-@@ -343,7 +354,19 @@
+@@ -409,7 +421,19 @@
      systemctl restart docker
  fi
  
