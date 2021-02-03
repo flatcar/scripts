@@ -266,11 +266,18 @@ break_dep_loop() {
 }
 
 if [[ "${FLAGS_usepkgonly}" -eq "${FLAGS_FALSE}" ]]; then
+  # Breaking the following loops here:
+  #
   # util-linux[udev] -> virtual->udev -> systemd -> util-linux
-  break_dep_loop sys-apps/util-linux udev,systemd sys-apps/systemd cryptsetup
-
-  # systemd[cryptsetup] -> cryptsetup -> lvm2 -> virtual/udev -> systemd
-  break_dep_loop sys-apps/systemd cryptsetup
+  # util-linux[systemd] -> systemd -> util-linux
+  # cryptsetup[udev] -> virtual/udev -> systemd[cryptsetup] -> cryptsetup
+  # lvm2[udev] -> virtual/udev -> systemd[cryptsetup] -> cryptsetup -> lvm2
+  # lvm2[systemd] -> systemd[cryptsetup] -> cryptsetup -> lvm2
+  # systemd[cryptsetup] -> cryptsetup[udev] -> virtual/udev -> systemd
+  break_dep_loop sys-apps/util-linux udev,systemd \
+                 sys-fs/cryptsetup udev \
+                 sys-fs/lvm2 udev,systemd \
+                 sys-apps/systemd cryptsetup
 fi
 
 export KBUILD_BUILD_USER="${BUILD_USER:-build}"
