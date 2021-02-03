@@ -44,7 +44,6 @@ src_install() {
 
 	insinto "${vendordir}/profiles"
 	doins "${FILESDIR}/docker-1.12-no.json"
-	doins "${FILESDIR}/docker-1.12-yes.json"
 	doins "${FILESDIR}/vendor.json"
 	dodir "${vendordir}/store"
 
