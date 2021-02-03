@@ -171,6 +171,7 @@ RDEPEND="${RDEPEND}
 	sys-libs/timezone-data
 	sys-process/lsof
 	sys-process/procps
+	x11-drivers/nvidia-metadata
 "
 
 # OEM specific bits that need to go in USR
