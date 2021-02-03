@@ -29,7 +29,11 @@ S="${WORKDIR}"
 src_prepare() {
 	if use ec2 || use aws_pro ; then
 		ID="ami"
-		NAME="Amazon EC2"
+		if use ec2; then
+			NAME="Amazon EC2"
+		else
+			NAME="Amazon EC2 (Pro)"
+		fi
 		HOME_URL="http://aws.amazon.com/ec2/"
 	elif use openstack ; then
 		ID="openstack"
