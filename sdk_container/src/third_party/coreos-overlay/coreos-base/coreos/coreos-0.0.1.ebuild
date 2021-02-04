@@ -83,6 +83,7 @@ RDEPEND="${RDEPEND}
 		net-fs/cifs-utils
 		sys-auth/realmd
 		sys-auth/sssd
+		x11-drivers/nvidia-metadata
 	)"
 
 RDEPEND="${RDEPEND}
@@ -171,7 +172,6 @@ RDEPEND="${RDEPEND}
 	sys-libs/timezone-data
 	sys-process/lsof
 	sys-process/procps
-	x11-drivers/nvidia-metadata
 "
 
 # OEM specific bits that need to go in USR
