@@ -32,6 +32,5 @@ src_compile() {
 }
 
 src_install() {
-	python_doscript gmerge
 	python_doscript emerge-gitclone
 }
