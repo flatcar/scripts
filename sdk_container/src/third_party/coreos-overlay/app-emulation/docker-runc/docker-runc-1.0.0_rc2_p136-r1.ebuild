@@ -30,7 +30,6 @@ IUSE="apparmor hardened +seccomp selinux"
 RDEPEND="
 	apparmor? ( sys-libs/libapparmor )
 	seccomp? ( sys-libs/libseccomp )
-	!app-emulation/runc
 "
 
 S=${WORKDIR}/${P}/src/${COREOS_GO_PACKAGE}
