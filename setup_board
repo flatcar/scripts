@@ -235,6 +235,7 @@ fi
 
 info "Configuring portage in ${BOARD_ROOT}"
 sudo mkdir -p "${BOARD_ETC}/portage/"{profile,repos.conf}
+sudo cp /etc/portage/repos.conf/* "${BOARD_ETC}"/portage/repos.conf/
 sudo ROOT="${BOARD_ROOT}" eselect profile set --force "${PORTAGE_PROFILE}"
 
 # Cleanup/migrate from older make.conf files
@@ -273,8 +274,6 @@ EMERGE_DEFAULT_OPTS="--oneshot"
 # Allow the user to override or define additional settings.
 source "${BOARD_ETC}/portage/make.conf.user"
 EOF
-
-sudo cp /etc/portage/repos.conf/* "${BOARD_ETC}"/portage/repos.conf/
 
 # required when using --regen_configs_only
 sudo mkdir -p --mode=01777 "${BOARD_ROOT}"{/tmp,/var/tmp}
