@@ -91,10 +91,10 @@ main-repo = portage-stable
 disabled = true
 
 [coreos]
-location = /usr/portage
+location = /var/gentoo/repos/local
 
 [portage-stable]
-location = /usr/local/portage
+location = /var/gentoo/repos/gentoo
 EOF
 }
 
