@@ -18,9 +18,9 @@ index 3b42f301..bace067d 100644
  	"github.com/opencontainers/runc/libcontainer/configs"
  	"github.com/opencontainers/runc/libcontainer/intelrdt"
 -	selinux "github.com/opencontainers/selinux/go-selinux"
+ 	"golang.org/x/sys/unix"
  )
  
- type Validator interface {
 @@ -99,9 +98,6 @@ func (v *ConfigValidator) security(config *configs.Config) error {
  		!config.Namespaces.Contains(configs.NEWNS) {
  		return fmt.Errorf("unable to restrict sys entries without a private MNT namespace")
