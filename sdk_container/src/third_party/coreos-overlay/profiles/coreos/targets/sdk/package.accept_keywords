@@ -12,5 +12,5 @@ virtual/rust ~amd64
 dev-go/glide ~amd64
 dev-go/godep ~amd64
 
-# Accept perl libs
-dev-perl/Parse-Yapp ~amd64
+# Accept perl libs required to build >=samba-4.12
+dev-perl/Parse-Yapp ~amd64 ~arm64
