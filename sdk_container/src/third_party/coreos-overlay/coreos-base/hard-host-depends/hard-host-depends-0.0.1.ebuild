@@ -40,7 +40,6 @@ RDEPEND="${RDEPEND}
 	dev-lang/nasm
 	dev-lang/swig
 	dev-lang/yasm
-	dev-lang/go:1.6
 	dev-lang/go:1.7
 	dev-lang/go:1.8
 	dev-lang/go:1.12
