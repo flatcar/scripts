@@ -15,7 +15,7 @@ SRC_PATH="stable"
 
 SRC_URI="mirror://samba/${SRC_PATH}/${MY_P}.tar.gz"
 [[ ${PV} = *_rc* ]] || \
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ppc ppc64 sparc x86"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~ppc ~ppc64 sparc x86"
 
 DESCRIPTION="Samba Suite Version 4"
 HOMEPAGE="https://www.samba.org/"
@@ -41,12 +41,14 @@ MULTILIB_WRAPPED_HEADERS=(
 
 CDEPEND="
 	>=app-arch/libarchive-3.1.2[${MULTILIB_USEDEP}]
+	dev-libs/icu:=[${MULTILIB_USEDEP}]
 	dev-libs/libbsd[${MULTILIB_USEDEP}]
 	!minimal? ( dev-libs/libtasn1[${MULTILIB_USEDEP}] )
 	dev-libs/popt[${MULTILIB_USEDEP}]
-	>=net-libs/gnutls-3.2.0[${MULTILIB_USEDEP}]
+	>=net-libs/gnutls-3.4.7[${MULTILIB_USEDEP}]
 	sys-libs/e2fsprogs-libs[${MULTILIB_USEDEP}]
-	sys-libs/libcap
+	sys-libs/libcap[${MULTILIB_USEDEP}]
+	sys-libs/liburing:=[${MULTILIB_USEDEP}]
 	sys-libs/ncurses:0=
 	sys-libs/readline:0=
 	sys-libs/zlib[${MULTILIB_USEDEP}]
@@ -80,7 +82,7 @@ DEPEND="${CDEPEND}
 	app-text/docbook-xsl-stylesheets
 	dev-lang/perl:=
 	dev-libs/libxslt
-	>=dev-util/cmocka-1.1.1[${MULTILIB_USEDEP}]
+	>=dev-util/cmocka-1.1.3[${MULTILIB_USEDEP}]
 	net-libs/libtirpc[${MULTILIB_USEDEP}]
 	virtual/pkgconfig
 	|| (
@@ -99,7 +101,6 @@ RDEPEND="${CDEPEND}
 	python? ( ${PYTHON_DEPS} )
 	client? ( net-fs/cifs-utils[ads?] )
 	selinux? ( sec-policy/selinux-samba )
-	!dev-perl/Parse-Yapp
 "
 
 REQUIRED_USE="
@@ -124,7 +125,6 @@ S="${WORKDIR}/${MY_P}"
 PATCHES=(
 	"${FILESDIR}/${PN}-4.4.0-pam.patch"
 	"${FILESDIR}/${PN}-4.9.2-timespec.patch"
-	"${FILESDIR}/${PN}-4.11-fix-glibc-2.32-function-collisions.patch"
 	"${FILESDIR}/${PN}-4.13-winexe_option.patch"
 	"${FILESDIR}/${PN}-4.13-vfs_snapper_configure_option.patch"
 )
@@ -191,7 +191,7 @@ multilib_src_configure() {
 		--nopyc
 		--nopyo
 		--without-winexe
-		--disable-python  # Flatcar: Don't build libraries requiring Python.
+		--disable-python
 		$(multilib_native_use_with acl acl-support)
 		$(multilib_native_usex addc '' '--without-ad-dc')
 		$(multilib_native_use_with addns dnsupdate)
@@ -269,9 +269,7 @@ multilib_src_install() {
 		newinitd "${CONFDIR}/samba4.initd-r1" samba
 		newconfd "${CONFDIR}/samba4.confd" samba
 
-		if ! use minimal ; then
-			systemd_dotmpfilesd "${FILESDIR}"/samba.conf
-		fi
+		[[ ! use_minimal ]] && systemd_dotmpfilesd "${FILESDIR}"/samba.conf
 		use addc || rm "${D}/$(systemd_get_systemunitdir)/samba.service" || die
 
 		# Preserve functionality for old gentoo-specific unit names
@@ -290,7 +288,9 @@ multilib_src_install() {
 	keepdir /var/cache/samba
 	keepdir /var/lib/ctdb
 	keepdir /var/lib/samba/{bind-dns,private}
+	keepdir /var/lock/samba
 	keepdir /var/log/samba
+
 
 	rm -f "${ED%/}"/etc/samba/*
 	rm -f "${ED%/}"/usr/lib*/samba/ldb/*
@@ -304,12 +304,6 @@ multilib_src_install() {
 		rm -rf ${ED%/}/usr/lib*/python*
 		rm -rf ${ED%/}/var
 	fi
-}
-
-multilib_src_install_all() {
-	# Attempt to fix bug #673168
-	find "${ED}" -type d -name "Yapp" -print0 \
-		| xargs -0 --no-run-if-empty rm -r || die
 }
 
 multilib_src_test() {
