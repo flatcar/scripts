@@ -1,9 +1,9 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit autotools db-use flag-o-matic multilib-minimal ssl-cert toolchain-funcs user systemd
+inherit autotools db-use flag-o-matic multilib-minimal preserve-libs ssl-cert toolchain-funcs systemd
 
 BIS_PN=rfc2307bis.schema
 BIS_PV=20140524
@@ -22,7 +22,7 @@ SRC_URI="
 
 LICENSE="OPENLDAP GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~mips ppc ppc64 ~riscv s390 sparc x86 ~ppc-aix ~amd64-linux ~x86-linux ~x86-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~x86-solaris"
 
 IUSE_DAEMON="crypt samba tcpd experimental minimal"
 IUSE_BACKEND="+berkdb"
@@ -60,7 +60,7 @@ COMMON_DEPEND="
 	)
 	sasl? ( dev-libs/cyrus-sasl:= )
 	!minimal? (
-		sys-devel/libtool
+		dev-libs/libltdl
 		sys-libs/e2fsprogs-libs
 		>=dev-db/lmdb-0.9.18:=
 		tcpd? ( sys-apps/tcp-wrappers )
@@ -93,7 +93,17 @@ DEPEND="${COMMON_DEPEND}
 RDEPEND="${COMMON_DEPEND}
 	selinux? ( sec-policy/selinux-ldap )
 "
+
+# The user/group are only used for running daemons which are
+# disabled in minimal builds, so elide the accounts too.
 # for tracking versions
+
+BDEPEND="!minimal? (
+		acct-group/ldap
+		acct-user/ldap
+)
+"
+
 OPENLDAP_VERSIONTAG=".version-tag"
 OPENLDAP_DEFAULTDIR_VERSIONTAG="/var/lib/openldap-data"
 
@@ -347,13 +357,6 @@ pkg_setup() {
 	else
 		openldap_find_versiontags
 	fi
-
-	# The user/group are only used for running daemons which are
-	# disabled in minimal builds, so elide the accounts too.
-	if ! use minimal ; then
-		enewgroup ldap 439
-		enewuser ldap 439 -1 /usr/$(get_libdir)/openldap ldap
-	fi
 }
 
 src_prepare() {
@@ -376,6 +379,8 @@ src_prepare() {
 		-e 's|/bin/sh|/bin/bash|g' \
 		-i tests/scripts/* || die "sed failed"
 
+	# Required for autoconf-2.70 #765043
+	sed 's@^AM_INIT_AUTOMAKE.*@AC_PROG_MAKE_SET@' -i configure.in || die
 	AT_NOEAUTOMAKE=yes eautoreconf
 }
 
@@ -514,7 +519,7 @@ multilib_src_configure() {
 	done
 
 	tc-export AR CC CXX
-	CONFIG_SHELL="/bin/bash" \
+	CONFIG_SHELL="/bin/sh" \
 	ECONF_SOURCE="${S}" \
 	STRIP=/bin/true \
 	econf \
@@ -548,7 +553,7 @@ src_configure_cxx() {
 
 multilib_src_compile() {
 	tc-export AR CC CXX
-	emake CC="${CC}" AR="${AR}" SHELL="${EPREFIX}"/bin/bash
+	emake CC="${CC}" AR="${AR}" SHELL="${EPREFIX}"/bin/sh
 	local lt="${BUILD_DIR}/libtool"
 	export echo="echo"
 
@@ -730,7 +735,7 @@ multilib_src_test() {
 
 multilib_src_install() {
 	local lt="${BUILD_DIR}/libtool"
-	emake DESTDIR="${D}" SHELL="${EPREFIX}"/bin/bash install
+	emake DESTDIR="${D}" SHELL="${EPREFIX}"/bin/sh install
 
 	if ! use minimal && multilib_is_native_abi; then
 		# openldap modules go here
