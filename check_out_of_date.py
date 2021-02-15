@@ -1,5 +1,5 @@
 #!/usr/bin/python2
-# needs to be python2 for portage
+# TODO: This script needs porting to python3, since portage is also in python3 now.
 
 # Prints out a list of all packages in portage-stable and how they stand relative to gentoo upstream
 
