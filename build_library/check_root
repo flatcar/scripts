@@ -1,10 +1,8 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # Copyright (c) 2015 The CoreOS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
-
-from __future__ import unicode_literals
 
 import fnmatch
 import os
@@ -106,12 +104,12 @@ IGNORE_MISSING = {
 USR_LINKS = ("/bin/", "/sbin/", "/lib/", "/lib32/", "/lib64/")
 
 IGNORE_SHEBANG = (
-    b"*/python[0-9].[0-9]/cgi.py",
-    b"*/usr/lib64/modules/*/source/scripts/*",
-    b"*/usr/share/nova-agent/*/etc/gentoo/nova-agent",
-    b"*/tmp/*",
-    b"*/Documentation/*",
-    b"*/doc/*",
+    "*/python[0-9].[0-9]/cgi.py",
+    "*/usr/lib64/modules/*/source/scripts/*",
+    "*/usr/share/nova-agent/*/etc/gentoo/nova-agent",
+    "*/tmp/*",
+    "*/Documentation/*",
+    "*/doc/*",
 )
 
 IGNORE_SYMLINK = (
@@ -145,7 +143,7 @@ def provided_sonames():
 
 
 def ignore_sonames(cpv):
-    for key in dep.match_to_list(cpv, IGNORE_MISSING.iterkeys()):
+    for key in dep.match_to_list(cpv, IGNORE_MISSING.keys()):
         for atom in IGNORE_MISSING[key]:
             yield atom
 
@@ -231,10 +229,11 @@ def check_shebang():
                 continue
             if not is_exe(path):
                 continue
-            with open(path, "r") as fd:
+            with open(path, "rb") as fd:
                 line = fd.readline(80)
                 if not line.startswith(b"#!"):
                     continue
+                line = line.decode('utf-8')
                 args = line[2:].rstrip().split(None, 2)
                 cmd = args.pop(0)
                 if cmd in ('/usr/bin/env', '/bin/env') and args:
