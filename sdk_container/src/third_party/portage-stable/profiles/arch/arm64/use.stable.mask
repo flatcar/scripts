@@ -1,46 +1,44 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 #
 # This file requires eapi 5 or later. New entries go on top.
 # Please use the same syntax as in use.mask
 
-# Aaron Bauman <bman@gentoo.org> (20 May 2019)
-# Does not build on arm64
-ocamlopt
+# Michał Górny <mgorny@gentoo.org> (2021-01-07)
+# Prebuilt kernel rebuilds are supported on stable yet.
+dist-kernel
 
-# Andreas Sturmlechner <asturm@gentoo.org> (20 Apr 2019)
-# sys-auth/consolekit will not be stabilised anymore.
-consolekit
+# Sam James <sam@gentoo.org> (2020-12-23)
+# dev-lang/luajit is not yet stable
+lua_single_target_luajit
+lua_targets_luajit
+luajit
 
-# Mart Raudsepp <leio@gentoo.org> (07 Feb 2019)
+# Sam James <sam@gentoo.org> (2020-10-08)
+# Not enough packages stable w/ PyPy3 support
+python_targets_pypy3
+python_single_target_pypy3
+
+# Sam James <sam@gentoo.org> (2020-10-07)
+# app-misc/lirc not stable yet
+# dev-db/tokyocabinet not stable yet
+# dev-libs/libtar not stable yet
+# net-libs/ldns not stable yet
+# sci-geosciences/gpsd not stable yet
+lirc
+tokyocabinet
+libtar
+ldns
+gps
+
+# Mart Raudsepp <leio@gentoo.org> (2019-02-07)
 # media-sound/musepack-tools not stable yet
 musepack
 
-# Mart Raudsepp <leio@gentoo.org> (07 Feb 2019)
-# media-libs/portaudio not stable yet
-portaudio
-
-# Mart Raudsepp <leio@gentoo.org> (27 Nov 2018)
+# Mart Raudsepp <leio@gentoo.org> (2018-11-27)
 # x11-libs/fltk not stable yet
 fltk
 
-# Mike Gilbert <floppym@gentoo.org> (08 Jun 2017)
-# dev-lang/python:3.7 is not stable.
-python_targets_python3_7
-python_single_target_python3_7
-
-# Michał Górny <mgorny@gentoo.org> (19 Feb 2018)
-# dev-lang/tk is not stable here.
-tk
-
-# Mart Raudsepp <leio@gentoo.org> (04 Feb 2017)
-# dev-vcs/subversion not marked stable yet
-subversion
-
-# Mart Raudsepp <leio@gentoo.org> (28 Jan 2017)
+# Mart Raudsepp <leio@gentoo.org> (2017-01-28)
 # sys-auth/skey not marked stable yet
 skey
-
-# Ben de Groot <yngwin@gentoo.org> (24 Aug 2015)
-# Not yet stable, bug #543326
-qt5
