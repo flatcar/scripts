@@ -1,2 +1,6 @@
 # Never enable experimental code
 kdbus
+
+# We default to python 3.6 for now
+python_targets_python3_7
+python_single_target_python3_7

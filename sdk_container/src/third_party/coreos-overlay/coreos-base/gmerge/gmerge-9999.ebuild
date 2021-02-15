@@ -1,7 +1,7 @@
 # Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 CROS_WORKON_PROJECT="flatcar-linux/dev-util"
 CROS_WORKON_REPO="git://github.com"
 CROS_WORKON_LOCALNAME="dev"
@@ -10,11 +10,11 @@ CROS_WORKON_LOCALDIR="src/platform"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	CROS_WORKON_COMMIT="636b1ee0d2bbc5b69ca45484e9cbd4f8b0aea581" # flatcar-master
+	CROS_WORKON_COMMIT="c0634204f62262288735efe069c6365ed31a5c54" # flatcar-master
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
-PYTHON_COMPAT=( python2_7 )
+PYTHON_COMPAT=( python3_6 )
 
 inherit cros-workon python-single-r1
 

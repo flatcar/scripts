@@ -1,18 +1,18 @@
-From a4329f54504afedc0840d42faf5f15a158fdaada Mon Sep 17 00:00:00 2001
+From 91f1cc6fa46e149094a7021f43b10bd13d39b7d9 Mon Sep 17 00:00:00 2001
 From: Michael Marineau <mike@marineau.org>
-Date: Mon, 27 Apr 2015 18:33:11 -0700
-Subject: [PATCH 3/4] depgraph: ensure slot rebuilds happen in the correct root
+Date: Tue, 27 Oct 2020 19:50:07 +0100
+Subject: [PATCH 3/3] depgraph: ensure slot rebuilds happen in the correct root
 
-https://bugs.gentoo.org/show_bug.cgi?id=520112
+https://bugs.gentoo.org/520112
 ---
- pym/_emerge/depgraph.py | 8 ++++----
+ lib/_emerge/depgraph.py | 8 ++++----
  1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/pym/_emerge/depgraph.py b/pym/_emerge/depgraph.py
-index 37292a6..e3ce8d2 100644
---- a/pym/_emerge/depgraph.py
-+++ b/pym/_emerge/depgraph.py
-@@ -3950,13 +3950,13 @@ class depgraph(object):
+diff --git a/lib/_emerge/depgraph.py b/lib/_emerge/depgraph.py
+index 0bb0352..3d1cdbc 100644
+--- a/lib/_emerge/depgraph.py
++++ b/lib/_emerge/depgraph.py
+@@ -4384,13 +4384,13 @@ class depgraph:
  		a favorite list."""
  		debug = "--debug" in self._frozen_config.myopts
  		onlydeps = "--onlydeps" in self._frozen_config.myopts
@@ -27,9 +27,9 @@ index 37292a6..e3ce8d2 100644
 +			pkgsettings = self._frozen_config.pkgsettings[myroot]
 +			pprovideddict = pkgsettings.pprovideddict
 +			virtuals = pkgsettings.getvirtuals()
- 			for atom in arg.pset.getAtoms():
+ 			for atom in sorted(arg.pset.getAtoms()):
  				self._spinner_update()
  				dep = Dependency(atom=atom, onlydeps=onlydeps,
 -- 
-2.0.5
+2.26.2
 
