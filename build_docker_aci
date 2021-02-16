@@ -54,6 +54,8 @@ DEFINE_string version "" \
   "Sets the docker version to build."
 DEFINE_integer aci_version "" \
   "Sets the aci version tag identifier."
+DEFINE_integer jobs "${NUM_JOBS}" \
+  "How many packages to build in parallel at maximum."
 
 # Parse command line.
 FLAGS "$@" || exit 1
