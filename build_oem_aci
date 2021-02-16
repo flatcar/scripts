@@ -46,6 +46,8 @@ DEFINE_string output_root "${DEFAULT_BUILD_ROOT}/images" \
   "Directory in which to place image result directories (named by version)"
 DEFINE_string version "" \
   "Overrides version number in name to this version."
+DEFINE_integer jobs "${NUM_JOBS}" \
+  "How many packages to build in parallel at maximum."
 
 # Parse command line.
 FLAGS "$@" || exit 1
