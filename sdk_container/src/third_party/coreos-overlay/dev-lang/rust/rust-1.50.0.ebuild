@@ -101,6 +101,7 @@ REQUIRED_USE="|| ( ${ALL_LLVM_TARGETS[*]} )
 
 QA_FLAGS_IGNORED="
 	usr/bin/.*-${PV}
+	usr/libexec/.*-${PV}
 	usr/lib.*/lib.*.so
 	usr/lib/rustlib/.*/codegen-backends/librustc_codegen_llvm-llvm.so
 	usr/lib/rustlib/.*/lib/lib.*.so
@@ -117,7 +118,6 @@ RESTRICT="test"
 
 PATCHES=(
 	"${FILESDIR}"/1.47.0-libressl.patch
-	"${FILESDIR}"/1.46.0-don-t-create-prefix-at-time-of-check.patch
 	"${FILESDIR}"/1.47.0-ignore-broken-and-non-applicable-tests.patch
 	"${FILESDIR}"/1.47.0-llvm-tensorflow-fix.patch
 	"${FILESDIR}"/1.49.0-gentoo-musl-target-specs.patch
@@ -439,7 +439,7 @@ src_install() {
 	# bug #689562, #689160
 	rm "${D}/etc/bash_completion.d/cargo" || die
 	rmdir "${D}"/etc{/bash_completion.d,} || die
-	dobashcomp build/tmp/dist/cargo-image/etc/bash_completion.d/cargo
+	newbashcomp src/tools/cargo/src/etc/cargo.bashcomp.sh cargo
 
 	mv "${ED}/usr/bin/rustc" "${ED}/usr/bin/rustc-${PV}" || die
 	mv "${ED}/usr/bin/rustdoc" "${ED}/usr/bin/rustdoc-${PV}" || die
