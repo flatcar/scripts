@@ -31,8 +31,6 @@ DEFINE_string binhost "" \
   "Use binary packages from a specific location (e.g. https://storage.googleapis.com/flatcar-jenkins/sdk/amd64/2000.0.0/pkgs)"
 DEFINE_boolean toolchainpkgonly "${FLAGS_FALSE}" \
   "Use binary packages only for the board toolchain."
-DEFINE_integer jobs "${NUM_JOBS}" \
-  "How many packages to build in parallel at maximum."
 DEFINE_boolean skip_toolchain_update "${FLAGS_FALSE}" \
   "Don't update toolchain automatically."
 DEFINE_boolean skip_chroot_upgrade "${FLAGS_FALSE}" \
@@ -206,9 +204,6 @@ if [ "${FLAGS_usepkg}" -eq "${FLAGS_TRUE}" ]; then
 else
   UPDATE_ARGS+=" --nousepkg"
 fi
-if [[ "${FLAGS_jobs}" -ne -1 ]]; then
-  UPDATE_ARGS+=" --jobs=${FLAGS_jobs}"
-fi
 if [ "${FLAGS_skip_toolchain_update}" -eq "${FLAGS_TRUE}" ]; then
   UPDATE_ARGS+=" --skip_toolchain_update"
 fi
@@ -295,9 +290,7 @@ ${EMAINT_WRAPPER} --fix world
 
 if [[ ${FLAGS_regen_configs} -eq ${FLAGS_FALSE} ]]; then
   EMERGE_FLAGS="--select --quiet --root-deps=rdeps"
-  if [[ "${FLAGS_jobs}" -ne -1 ]]; then
-    EMERGE_FLAGS+=" --jobs=${FLAGS_jobs}"
-  fi
+  EMERGE_FLAGS+=" --jobs=${NUM_JOBS}"
   EMERGE_TOOLCHAIN_FLAGS="${EMERGE_FLAGS}"
 
   if [[ "${FLAGS_usepkg}" -eq "${FLAGS_TRUE}"  && \

@@ -522,7 +522,6 @@ install_oem_aci() {
     "${SCRIPT_ROOT}/build_oem_aci" \
         --board="${BOARD}" \
         --build_dir="${aci_dir}" \
-        --jobs="${FLAGS_jobs}" \
         "${binpkgflags[@]}" \
         "${oem_aci}"
 

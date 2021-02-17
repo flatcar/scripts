@@ -15,8 +15,6 @@ assert_not_root_user
 # Developer-visible flags.
 DEFINE_string board "${DEFAULT_BOARD}" \
   "The board to build packages for."
-DEFINE_integer jobs "${NUM_JOBS}" \
-  "How many packages to build in parallel."
 
 # include upload options
 . "${BUILD_LIBRARY_DIR}/release_util.sh" || exit 1
@@ -76,7 +74,7 @@ if [[ "${#rebuild_atoms[@]}" -eq 0 ]]; then
     info "No ebuild changes detected"
 else
     info "Rebuilding ${#rebuild_atoms[@]} packages..."
-    emerge-$BOARD --jobs=${FLAGS_jobs} "${rebuild_atoms[@]}"
+    emerge-$BOARD "--jobs=${NUM_JOBS}" "${rebuild_atoms[@]}"
 
     info "Checking build root"
     test_image_content "${BOARD_ROOT}"
