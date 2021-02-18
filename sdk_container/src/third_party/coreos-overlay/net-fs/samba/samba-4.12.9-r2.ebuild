@@ -42,7 +42,7 @@ MULTILIB_WRAPPED_HEADERS=(
 
 CDEPEND="
 	>=app-arch/libarchive-3.1.2[${MULTILIB_USEDEP}]
-	dev-libs/icu:=[${MULTILIB_USEDEP}]
+	spotlight? ( dev-libs/icu:=[${MULTILIB_USEDEP}] )
 	dev-libs/libbsd[${MULTILIB_USEDEP}]
 	!minimal? ( dev-libs/libtasn1[${MULTILIB_USEDEP}] )
 	dev-libs/popt[${MULTILIB_USEDEP}]
