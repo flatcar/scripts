@@ -25,16 +25,16 @@ if [[ "${VERSION_NEW}" = "${VERSION_OLD}" ]]; then
   exit 0
 fi
 
-for pkg in sources modules kernel; do \
-  pushd "sys-kernel/coreos-${pkg}" >/dev/null || exit; \
-  git mv "coreos-${pkg}"-*.ebuild "coreos-${pkg}-${VERSION_NEW}.ebuild"; \
-  sed -i -e '/^COREOS_SOURCE_REVISION=/s/=.*/=""/' "coreos-${pkg}-${VERSION_NEW}.ebuild"; \
-  popd >/dev/null || exit; \
+for pkg in sources modules kernel; do
+  pushd "sys-kernel/coreos-${pkg}" >/dev/null || exit
+  git mv "coreos-${pkg}"-*.ebuild "coreos-${pkg}-${VERSION_NEW}.ebuild"
+  sed -i -e '/^COREOS_SOURCE_REVISION=/s/=.*/=""/' "coreos-${pkg}-${VERSION_NEW}.ebuild"
+  popd >/dev/null || exit
 done
 
 popd >/dev/null || exit
 
-generate_patches sys-kernel coreos-{sources,kernel,modules} Linux
+generate_patches sys-kernel coreos-sources Kernel
 
 apply_patches
 
