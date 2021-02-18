@@ -129,6 +129,5 @@ RDEPEND="${RDEPEND}
 
 # Uninstall these packages.
 RDEPEND="${RDEPEND}
-	!net-misc/dhcpcd
 	!coreos-base/google-breakpad
 	"

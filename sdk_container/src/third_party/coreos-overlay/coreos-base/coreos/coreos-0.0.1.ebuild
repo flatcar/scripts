@@ -127,7 +127,6 @@ RDEPEND="${RDEPEND}
 	net-firewall/nftables
 	net-fs/nfs-utils
 	net-misc/bridge-utils
-	net-misc/dhcpcd
 	net-misc/iputils
 	net-misc/ntp
 	net-misc/rsync
