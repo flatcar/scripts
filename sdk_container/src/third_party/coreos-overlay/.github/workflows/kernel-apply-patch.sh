@@ -34,7 +34,7 @@ done
 
 popd >/dev/null || exit
 
-generate_patches sys-kernel coreos-sources Linux
+generate_patches sys-kernel coreos-sources Kernel
 
 apply_patches
 
