@@ -1,0 +1,108 @@
+From 44a1b09c566c05889b71fcdecedf319e162fea8e Mon Sep 17 00:00:00 2001
+From: Matt Turner <mattst88@gentoo.org>
+Date: Fri, 27 Mar 2020 23:52:41 -0700
+Subject: [PATCH 2/4] catalyst: Remove "Maintained by" sections
+
+They're not useful and out of date to boot.
+
+Signed-off-by: Matt Turner <mattst88@gentoo.org>
+---
+ bin/catalyst            | 7 -------
+ catalyst/base/resume.py | 5 -----
+ catalyst/fileops.py     | 5 -----
+ catalyst/main.py        | 7 -------
+ catalyst/version.py     | 7 -------
+ doc/catalyst.1.txt      | 2 +-
+ 6 files changed, 1 insertion(+), 32 deletions(-)
+
+diff --git a/bin/catalyst b/bin/catalyst
+index d0d3d639..d3448fd8 100755
+--- a/bin/catalyst
++++ b/bin/catalyst
+@@ -1,12 +1,5 @@
+ #!/usr/bin/python -OO
+ 
+-# Maintained in full by:
+-# Catalyst Team <catalyst@gentoo.org>
+-# Release Engineering Team <releng@gentoo.org>
+-# Andrew Gaffney <agaffney@gentoo.org>
+-# Chris Gianelloni <wolf31o2@wolf31o2.org>
+-
+-
+ from __future__ import print_function
+ 
+ import sys
+diff --git a/catalyst/base/resume.py b/catalyst/base/resume.py
+index b2100735..4234f8b9 100644
+--- a/catalyst/base/resume.py
++++ b/catalyst/base/resume.py
+@@ -1,10 +1,5 @@
+ #!/usr/bin/python
+ 
+-# Maintained in full by:
+-# Catalyst Team <catalyst@gentoo.org>
+-# Release Engineering Team <releng@gentoo.org>
+-# Copyright 2013 Brian Dolbec <dolsen@gentoo.org>
+-
+ '''resume.py
+ 
+ Performs autoresume tracking file operations such as
+diff --git a/catalyst/fileops.py b/catalyst/fileops.py
+index 878e6303..f7df4a01 100644
+--- a/catalyst/fileops.py
++++ b/catalyst/fileops.py
+@@ -1,8 +1,3 @@
+-
+-# Maintained in full by:
+-# Catalyst Team <catalyst@gentoo.org>
+-# Release Engineering Team <releng@gentoo.org>
+-
+ '''fileops.py
+ 
+ Performs file operations such as pack/unpack,
+diff --git a/catalyst/main.py b/catalyst/main.py
+index e15d67d9..23093e97 100644
+--- a/catalyst/main.py
++++ b/catalyst/main.py
+@@ -1,10 +1,3 @@
+-
+-# Maintained in full by:
+-# Catalyst Team <catalyst@gentoo.org>
+-# Release Engineering Team <releng@gentoo.org>
+-# Andrew Gaffney <agaffney@gentoo.org>
+-# Chris Gianelloni <wolf31o2@wolf31o2.org>
+-
+ import argparse
+ import datetime
+ import os
+diff --git a/catalyst/version.py b/catalyst/version.py
+index f0268686..fcf46fb0 100644
+--- a/catalyst/version.py
++++ b/catalyst/version.py
+@@ -1,10 +1,3 @@
+-# Maintained in full by:
+-# Catalyst Team <catalyst@gentoo.org>
+-# Release Engineering Team <releng@gentoo.org>
+-# Copyright: 2011 Brian Harring <ferringb@gmail.com>
+-# License: BSD/GPL2
+-# Copied & edited by: Brian Dolbec <dolsen@gentoo.org>
+-
+ '''Version information and/or git version information
+ '''
+ 
+diff --git a/doc/catalyst.1.txt b/doc/catalyst.1.txt
+index 5a7a4d64..dc6c7acb 100644
+--- a/doc/catalyst.1.txt
++++ b/doc/catalyst.1.txt
+@@ -120,7 +120,7 @@ NOTES
+ stager projects, both of which were used to create pre-1.4 Gentoo releases.
+ 
+ *catalyst* was originally conceived and coded by both Daniel Robbins and
+-John Davis. It is currently maintained by Chris Gianelloni and Eric Edgar and
++John Davis. It is currently maintained by the Catalyst Project Team and
+ has been mostly re-written.
+ 
+ 
+-- 
+2.29.2
+

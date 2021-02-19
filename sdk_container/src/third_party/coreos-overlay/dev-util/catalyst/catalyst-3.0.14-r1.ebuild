@@ -53,6 +53,13 @@ PDEPEND="system-bootloader? ( >=sys-apps/memtest86+-5.01-r4
 				sys-boot/syslinux
 				sys-boot/shim )"
 
+PATCHES=(
+	"${FILESDIR}/0001-catalyst-Remove-left-over-Id.patch"
+	"${FILESDIR}/0002-catalyst-Remove-Maintained-by-sections.patch"
+	"${FILESDIR}/0003-catalyst-Remove-unnecessary-future-imports.patch"
+	"${FILESDIR}/0004-catalyst-Use-python3-shebangs.patch"
+)
+
 python_prepare_all() {
 	python_setup
 	echo VERSION="${PV}" "${PYTHON}" setup.py set_version

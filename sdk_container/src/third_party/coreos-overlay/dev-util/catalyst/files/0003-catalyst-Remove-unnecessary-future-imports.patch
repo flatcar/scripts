@@ -1,0 +1,97 @@
+From 45cf8f43116b13c4648fcb532aba93aff18670ae Mon Sep 17 00:00:00 2001
+From: Matt Turner <mattst88@gentoo.org>
+Date: Sat, 28 Mar 2020 00:02:37 -0700
+Subject: [PATCH 3/4] catalyst: Remove unnecessary future imports
+
+Catalyst has been python 3-only for a while.
+
+Signed-off-by: Matt Turner <mattst88@gentoo.org>
+---
+ bin/catalyst             | 2 --
+ bin/catalyst.git         | 2 --
+ bin/pylint               | 2 --
+ catalyst/log.py          | 2 --
+ doc/make_target_table.py | 2 --
+ setup.py                 | 2 --
+ 6 files changed, 12 deletions(-)
+
+diff --git a/bin/catalyst b/bin/catalyst
+index d3448fd8..228a913e 100755
+--- a/bin/catalyst
++++ b/bin/catalyst
+@@ -1,7 +1,5 @@
+ #!/usr/bin/python -OO
+ 
+-from __future__ import print_function
+-
+ import sys
+ 
+ # This block ensures that ^C interrupts are handled quietly.
+diff --git a/bin/catalyst.git b/bin/catalyst.git
+index eb6234b9..733ade15 100755
+--- a/bin/catalyst.git
++++ b/bin/catalyst.git
+@@ -5,8 +5,6 @@
+ 
+ """Run catalyst from git using local modules/scripts."""
+ 
+-from __future__ import print_function
+-
+ import os
+ import sys
+ import tempfile
+diff --git a/bin/pylint b/bin/pylint
+index b0018278..6c718134 100755
+--- a/bin/pylint
++++ b/bin/pylint
+@@ -4,8 +4,6 @@
+ 
+ """Run pylint with the right settings."""
+ 
+-from __future__ import print_function
+-
+ import os
+ import sys
+ 
+diff --git a/catalyst/log.py b/catalyst/log.py
+index d640dece..7956c28f 100644
+--- a/catalyst/log.py
++++ b/catalyst/log.py
+@@ -8,8 +8,6 @@ another level "notice" between warning & info, and all output goes through
+ the "catalyst" logger.
+ """
+ 
+-from __future__ import print_function
+-
+ import logging
+ import logging.handlers
+ import os
+diff --git a/doc/make_target_table.py b/doc/make_target_table.py
+index c4b49ad9..d1f97c9b 100755
+--- a/doc/make_target_table.py
++++ b/doc/make_target_table.py
+@@ -8,8 +8,6 @@
+ # source the testpath file then run "doc/make_target_table.py"
+ 
+ 
+-from __future__ import print_function
+-
+ import glob
+ import locale
+ import os
+diff --git a/setup.py b/setup.py
+index c6b52dcf..c6553b5d 100755
+--- a/setup.py
++++ b/setup.py
+@@ -1,8 +1,6 @@
+ #!/usr/bin/env python
+ """Catalyst is a release building tool used by Gentoo Linux"""
+ 
+-from __future__ import print_function
+-
+ import codecs as _codecs
+ from distutils.core import setup as _setup, Command as _Command
+ from email.utils import parseaddr as _parseaddr
+-- 
+2.29.2
+
