@@ -5,7 +5,7 @@ EAPI="4"
 
 DESCRIPTION="Utility for examining and tuning ethernet-based network interfaces"
 HOMEPAGE="https://www.kernel.org/pub/software/network/ethtool/"
-SRC_URI="mirror://kernel/software/network/ethtool/${P}.tar.bz2"
+SRC_URI="https://www.kernel.org/pub/software/network/ethtool/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
