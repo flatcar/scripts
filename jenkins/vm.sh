@@ -43,16 +43,21 @@ img=src/flatcar_production_image.bin
 [[ "${img}.bz2" -nt "${img}" ]] &&
 enter lbunzip2 -k -f "/mnt/host/source/${img}.bz2"
 
-# If the format variable ends with _pro it's a Flatcar Pro image and it should
-# be uploaded to the private bucket.
-PRIVATE_UPLOAD_OPT=""
-if [[ -z "${FORMAT##*_pro}" ]]
+if [[ "${FORMATS}" = "" ]]
 then
-  PRIVATE_UPLOAD_OPT="--private"
-  UPLOAD_ROOT=${UPLOAD_PRIVATE_ROOT}
+  FORMATS="${FORMAT}"
 fi
+for FORMAT in ${FORMATS}; do
+  # If the format variable ends with _pro it's a Flatcar Pro image and it should
+  # be uploaded to the private bucket.
+  PRIVATE_UPLOAD_OPT=""
+  if [[ -z "${FORMAT##*_pro}" ]]
+  then
+    PRIVATE_UPLOAD_OPT="--private"
+    UPLOAD_ROOT=${UPLOAD_PRIVATE_ROOT}
+  fi
 
-script image_to_vm.sh \
+  script image_to_vm.sh \
     --board="${BOARD}" \
     --format="${FORMAT}" \
     --getbinpkg \
@@ -65,3 +70,4 @@ script image_to_vm.sh \
     --upload_root="${UPLOAD_ROOT}" \
     --upload \
     ${PRIVATE_UPLOAD_OPT}
+done
