@@ -1,0 +1,67 @@
+From 83ce8eb9a11987c93a8c361d745b3a7444d4ad23 Mon Sep 17 00:00:00 2001
+From: Matt Turner <mattst88@gentoo.org>
+Date: Sat, 28 Mar 2020 00:00:58 -0700
+Subject: [PATCH 4/4] catalyst: Use python3 shebangs
+
+Signed-off-by: Matt Turner <mattst88@gentoo.org>
+---
+ bin/catalyst            | 2 +-
+ bin/catalyst.git        | 2 +-
+ bin/pylint              | 2 +-
+ catalyst/base/resume.py | 2 +-
+ targets/stage1/build.py | 2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/bin/catalyst b/bin/catalyst
+index 228a913e..97cbb0f9 100755
+--- a/bin/catalyst
++++ b/bin/catalyst
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python -OO
++#!/usr/bin/python3 -OO
+ 
+ import sys
+ 
+diff --git a/bin/catalyst.git b/bin/catalyst.git
+index 733ade15..9b3deaa1 100755
+--- a/bin/catalyst.git
++++ b/bin/catalyst.git
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python
++#!/usr/bin/python3
+ # -*- coding: utf-8 -*-
+ # Copyright 1999-2015 Gentoo Foundation
+ # Distributed under the terms of the GNU General Public License v2
+diff --git a/bin/pylint b/bin/pylint
+index 6c718134..98108f5f 100755
+--- a/bin/pylint
++++ b/bin/pylint
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python
++#!/usr/bin/python3
+ # Copyright 1999-2015 Gentoo Foundation
+ # Distributed under the terms of the GNU General Public License v2
+ 
+diff --git a/catalyst/base/resume.py b/catalyst/base/resume.py
+index 4234f8b9..6a4ebdfa 100644
+--- a/catalyst/base/resume.py
++++ b/catalyst/base/resume.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python
++#!/usr/bin/python3
+ 
+ '''resume.py
+ 
+diff --git a/targets/stage1/build.py b/targets/stage1/build.py
+index fa4fd136..4373126b 100755
+--- a/targets/stage1/build.py
++++ b/targets/stage1/build.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python
++#!/usr/bin/python3
+ 
+ import os
+ import sys
+-- 
+2.29.2
+
