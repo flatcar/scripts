@@ -185,8 +185,9 @@ multilib_src_configure() {
 		bundled_libs="heimbase,heimntlm,hdb,kdc,krb5,wind,gssapi,hcrypto,hx509,roken,asn1,com_err,NONE"
 	fi
 
-	# Flatcar: Don't depend on tons of new packages with broken cross-compilation support.
-	bundled_libs=ALL
+	# Flatcar: we need only the mandatory bundled library, ldb by default.
+	# Without that, configure will fail because of a missing bundled library.
+	bundled_libs="ldb"
 
 	local myconf=(
 		--enable-fhs
