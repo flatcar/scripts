@@ -119,3 +119,6 @@ net-libs/nghttp2 -cxx
 
 # These (qmanifest and qtegrity) are new tools and they pull even more dependencies.
 app-portage/portage-utils -qmanifest -qtegrity
+
+# Disable unnecessary regedit in samba to minimize the package size.
+net-fs/samba -regedit
