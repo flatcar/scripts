@@ -1,39 +1,43 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI="7"
 
 inherit linux-info systemd toolchain-funcs udev vcs-snapshot toolchain-funcs
 
 DESCRIPTION="Device mapper target autoconfig"
 HOMEPAGE="http://christophe.varoqui.free.fr/"
-SRC_URI="http://git.opensvc.com/?p=multipath-tools/.git;a=snapshot;h=${PV};sf=tgz -> ${P}.tar.gz"
+SRC_URI="https://git.opensvc.com/?p=multipath-tools/.git;a=snapshot;h=${PV};sf=tgz -> ${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 ~arm ~arm64 ~ppc ppc64 x86"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~ia64 ~ppc ~ppc64 ~x86"
 IUSE="systemd rbd"
 
-RDEPEND=">=sys-fs/lvm2-2.02.45
-	>=virtual/udev-171
+BDEPEND="virtual/pkgconfig"
+
+RDEPEND="
+	dev-libs/json-c:=
 	dev-libs/libaio
-	dev-libs/userspace-rcu
+	dev-libs/userspace-rcu:=
+	>=sys-fs/lvm2-2.02.45
+	>=virtual/libudev-232-r3
 	sys-libs/readline:0=
 	rbd? ( sys-cluster/ceph )
-	systemd? ( sys-apps/systemd )"
-DEPEND="${RDEPEND}
-	virtual/pkgconfig"
+	systemd? ( sys-apps/systemd )
+"
+
+DEPEND="${RDEPEND}"
 
 CONFIG_CHECK="~DM_MULTIPATH"
 
-PATCHES=(
-	# modprobe fails when modules are compiled statically into the kernel
-	# https://www.redhat.com/archives/dm-devel/2017-January/msg00043.html
-	"${FILESDIR}"/${PN}-0.6.2-ignore-modprobe-failures.patch
+RESTRICT="test"
 
-	# https://bugs.gentoo.org/show_bug.cgi?id=604228
-	# https://www.redhat.com/archives/dm-devel/2017-January/msg00022.html
-	"${FILESDIR}"/${P}-sysmacros.patch
+PATCHES=(
+	"${FILESDIR}"/${PN}-0.8.4-respect-flags.patch
+	"${FILESDIR}"/${PN}-0.8.3-no-gziped-docs.patch
+	"${FILESDIR}"/${PN}-0.8.3-json-c-0.14.patch
+	"${FILESDIR}"/${PN}-0.8.4-parallel_make_fix.patch
 )
 
 get_systemd_pv() {
@@ -41,30 +45,18 @@ get_systemd_pv() {
 		$(tc-getPKG_CONFIG) --modversion systemd
 }
 
-pkg_pretend() {
-	linux-info_pkg_setup
-}
-
-pkg_setup() {
-	linux-info_pkg_setup
-}
-
 src_prepare() {
 	default
 
-	# Fix for bug #624884
-	if grep -qF DM_TABLE_STATE kpartx/kpartx.rules ; then
-		sed '/DM_TABLE_STATE/d' -i kpartx/kpartx.rules || die
-	else
-		elog "DM_TABLE_STATE sed hack is no longer necessary."
-	fi
-
 	# The upstream lacks any way to configure the build at present
 	# and ceph is a huge dependency, so we're using sed to make it
-	# optional until the upstream has a proer configure system
+	# optional until the upstream has a proper configure system
 	if ! use rbd ; then
-		sed -i -e "s/libcheckrbd.so/# libcheckrbd.so/" libmultipath/checkers/Makefile
-		sed -i -e "s/-lrados//" libmultipath/checkers/Makefile
+		sed \
+			-e "s/libcheckrbd.so/# libcheckrbd.so/" \
+			-e "s/-lrados//" \
+			-i libmultipath/checkers/Makefile \
+			|| die
 	fi
 }
 
@@ -77,15 +69,17 @@ src_compile() {
 }
 
 src_install() {
-	dodir /sbin /usr/share/man/man{5,8}
+	dodir /sbin /usr/share/man/man{3,5,8}
 	emake \
 		DESTDIR="${D}" \
+		RUN=run \
 		SYSTEMD=$(get_systemd_pv) \
 		unitdir="$(systemd_get_systemunitdir)" \
 		libudevdir='${prefix}'/"$(get_udevdir)" \
+		pkgconfdir='${prefix}'/usr/'${LIB}'/pkgconfig \
 		install
 
-	newinitd "${FILESDIR}"/rc-multipathd multipathd
+	newinitd "${FILESDIR}"/multipathd-r1.rc multipathd
 	newinitd "${FILESDIR}"/multipath.rc multipath
 
 	einstalldocs

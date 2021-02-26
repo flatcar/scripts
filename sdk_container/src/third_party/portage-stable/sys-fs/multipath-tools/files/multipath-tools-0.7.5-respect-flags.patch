@@ -1,12 +1,14 @@
---- a/Makefile.inc
-+++ b/Makefile.inc
-@@ -90,11 +90,12 @@ OPTFLAGS	= -O2 -g -pipe -Wall -Wextra -Wformat=2 -Werror=implicit-int \
+--- multipath-tools-0.7.5/Makefile.inc
++++ multipath-tools-0.7.5/Makefile.inc
+@@ -91,12 +91,13 @@
  		  -Wp,-D_FORTIFY_SOURCE=2 $(STACKPROT) \
  		  --param=ssp-buffer-size=4
  
--CFLAGS		= $(OPTFLAGS) -DLIB_STRING=\"${LIB}\" -DRUN_DIR=\"${RUN}\"
+-CFLAGS		:= $(OPTFLAGS) -DBIN_DIR=\"$(bindir)\" -DLIB_STRING=\"${LIB}\" -DRUN_DIR=\"${RUN}\" \
+-		   -MMD -MP $(CFLAGS)
 +CFLAGS		?= $(OPTFLAGS)
-+CFLAGS		+= -DLIB_STRING=\"${LIB}\" -DRUN_DIR=\"${RUN}\"
++CFLAGS		+= -DBIN_DIR=\"$(bindir)\" -DLIB_STRING=\"${LIB}\" -DRUN_DIR=\"${RUN}\" \
++		   -MMD -MP
  BIN_CFLAGS	= -fPIE -DPIE
  LIB_CFLAGS	= -fPIC
  SHARED_FLAGS	= -shared
