@@ -88,3 +88,5 @@ dev-util/checkbashisms
 
 >=dev-util/dwarves-1.18 ~amd64
 >=dev-libs/elfutils-0.178 ~amd64
+
+=sys-fs/multipath-tools-0.8.5 ~amd64 ~arm64
