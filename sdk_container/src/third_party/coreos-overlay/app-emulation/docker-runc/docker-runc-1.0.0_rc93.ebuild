@@ -42,7 +42,8 @@ src_unpack() {
 
 PATCHES=(
 	"${FILESDIR}/0001-Delay-unshare-of-clone-newipc-for-selinux.patch"
-	"${FILESDIR}/0001-temporarily-disable-selinux.GetEnabled-error-checks.patch"
+	"${FILESDIR}/0002-temporarily-disable-selinux.GetEnabled-error-checks.patch"
+	"${FILESDIR}/0003-libcontainer-disable-prctl-with-NoNewPrivileges.patch"
 )
 
 src_compile() {
