@@ -1,0 +1,20 @@
+diff --git a/targets/support/chroot-functions.sh b/targets/support/chroot-functions.sh
+index f3727d0..e1c82c1 100755
+--- a/targets/support/chroot-functions.sh
++++ b/targets/support/chroot-functions.sh
+@@ -285,13 +285,13 @@ run_merge() {
+ }
+ 
+ show_debug() {
+-	if [ "${clst_DEBUG}" = "1" ]
++	if [ -n "${clst_DEBUG}" ]
+ 	then
+ 		unset PACKAGES
+ 		echo "DEBUG:"
+ 		echo "Profile/target info:"
+ 		echo "Profile inheritance:"
+-		python -c 'import portage; print(portage.settings.profiles)'
++		python3 -c 'import portage; print(portage.settings.profiles)'
+ 		echo
+ 		# TODO: make this work on non-portage
+ 		emerge --info

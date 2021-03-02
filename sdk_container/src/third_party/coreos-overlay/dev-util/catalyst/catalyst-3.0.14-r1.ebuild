@@ -58,6 +58,7 @@ PATCHES=(
 	"${FILESDIR}/0002-catalyst-Remove-Maintained-by-sections.patch"
 	"${FILESDIR}/0003-catalyst-Remove-unnecessary-future-imports.patch"
 	"${FILESDIR}/0004-catalyst-Use-python3-shebangs.patch"
+	"${FILESDIR}/0005-chroot-funcs-use-python3-for-debug-output.patch"
 )
 
 python_prepare_all() {
