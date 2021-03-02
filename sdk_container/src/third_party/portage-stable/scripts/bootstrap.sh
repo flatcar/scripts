@@ -277,6 +277,10 @@ for atom in portage.settings.packages:
 [[ -z ${myTEXINFO}    ]] && myTEXINFO="sys-apps/texinfo"
 [[ -z ${myZLIB}       ]] && myZLIB="sys-libs/zlib"
 [[ -z ${myNCURSES}    ]] && myNCURSES="sys-libs/ncurses"
+# Flatcar: install curl with BOOTSTRAP_USE=ssl to fetch from https URLs
+[[ -z ${myCURL}       ]] && myCURL="net-misc/curl"
+# Flatcar: upgrade to openssl-3 before system rebuild in stage3
+[[ -z ${myOPENSSL}    ]] && myOPENSSL="dev-libs/openssl"
 
 # Do we really want gettext/nls?
 [[ ${USE_NLS} != 1 ]] && myGETTEXT=
@@ -298,6 +302,10 @@ einfo "Using libc       : ${myLIBC}"
 einfo "Using texinfo    : ${myTEXINFO}"
 einfo "Using zlib       : ${myZLIB}"
 einfo "Using ncurses    : ${myNCURSES}"
+# Flatcar: install curl with BOOTSTRAP_USE=ssl to fetch from https URLs
+einfo "Using curl       : ${myCURL}"
+# Flatcar: upgrade to openssl-3 before system rebuild in stage3
+einfo "Using openssl    : ${myOPENSSL}"
 echo -------------------------------------------------------------------------------
 show_status 1 Configuring environment
 echo -------------------------------------------------------------------------------
@@ -332,9 +340,12 @@ if [ ${BOOTSTRAP_STAGE} -le 2 ] ; then
 		STRAP_EMERGE_OPTS="${STRAP_EMERGE_OPTS} --resume"
 		cp /var/run/bootstrap-mtimedb /var/cache/edb
 	else
+		# Flatcar: install curl with BOOTSTRAP_USE=ssl to fetch from https URLs
 		STRAP_EMERGE_POSARGS="\
 			${myOS_HEADERS} ${myTEXINFO} ${myGETTEXT} ${myBINUTILS} \
-			${myGCC} ${myLIBC} ${myBASELAYOUT} ${myZLIB}"
+			${myGCC} ${myLIBC} ${myCURL} ${myBASELAYOUT} ${myZLIB}"
+		# Flatcar: upgrade to openssl-3 before system rebuild in stage3
+		STRAP_EMERGE_POSARGS="${STRAP_EMERGE_POSARGS} ${myOPENSSL}"
 	fi
 	${V_ECHO} emerge ${STRAP_EMERGE_OPTS} ${STRAP_EMERGE_POSARGS} || cleanup 1
 	echo -------------------------------------------------------------------------------
