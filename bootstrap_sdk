@@ -83,6 +83,54 @@ mkdir -p "${ROOT_OVERLAY}/tmp"
 chmod 1777 "${ROOT_OVERLAY}/tmp"
 cp "${BUILD_LIBRARY_DIR}/toolchain_util.sh" "${ROOT_OVERLAY}/tmp"
 
+
+# Stage 1 uses a different ebuild repo snapshot as well as a different portage_overlay 
+# the ones from the SDK where ./bootstrap_sdk is being executed -
+# to buils a known-good stage 1 (see stages description at top
+# of file). This prevents package upgrades from updated ebuild files in the portage/coreos
+# to apply in stage 1.
+# Stage 1 lacks proper isolation and will link all packages built against its own
+# seed libraries instead of against libraries installed to /tmp/stage1root.
+build_stage1() {
+    local stage1_repos="$TEMPDIR/stage1-ebuild-repos"
+
+    write_configs
+
+    # use known-good gentoo base repo from SDK, coreos-overlay from manifest
+    info "Creating stage 1 ebuild repos and stage 1 snapshot in '$stage1_repos'"
+    rm -rf "$stage1_repos"
+    mkdir "$stage1_repos"
+    cp -R /var/gentoo/repos/gentoo "$stage1_repos"
+
+    local overlay_revision=$(
+        grep 'name="kinvolk/coreos-overlay"' /mnt/host/source/.repo/manifests/default.xml \
+        | sed 's/.*revision="refs\/\(heads\/\)\{0,1\}\([^"]\+\)".*/\2/' )
+
+    info "Using coreos-overlay revision '$overlay_revision'"
+
+    mkdir "$stage1_repos/coreos-overlay"
+    ( cd "$stage1_repos/coreos-overlay" \
+         && git clone https://github.com/kinvolk/coreos-overlay.git . \
+         && git checkout "$overlay_revision" )
+
+    catalyst_conf > "$TEMPDIR/catalyst-stage1.conf"
+    sed -i "s:^portdir.*:portdir=\"$stage1_repos/gentoo\":" \
+         "$TEMPDIR/catalyst-stage1.conf"
+
+    catalyst $DEBUG -c "$TEMPDIR/catalyst-stage1.conf" -s "$FLAGS_version-stage1"
+
+    sed -i -e "s/^snapshot:.*/snapshot: $FLAGS_version-stage1/" \
+           -e "s,^portage_overlay:.*,portage_overlay: $stage1_repos/coreos-overlay," \
+        "$TEMPDIR/stage1.spec"
+
+    build_stage stage1 "$SEED" "$TEMPDIR/catalyst-stage1.conf"
+}
+
+if [[ "$STAGES" =~ stage1 ]]; then
+    build_stage1
+    STAGES="${STAGES/stage1/}"
+fi
+
 catalyst_build
 
 if [[ "$STAGES" =~ stage4 ]]; then
