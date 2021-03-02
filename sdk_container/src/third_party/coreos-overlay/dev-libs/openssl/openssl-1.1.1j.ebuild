@@ -1,7 +1,4 @@
-# Difference to upstream from ./update_ebuilds:
-# - Ported changes from 7b591fb2e0ec7a0f9fe43218f9196d825b5f9653
-#
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
@@ -17,7 +14,7 @@ MY_P=${P/_/-}
 # - ec_curve.c (SOURCE12) -- MODIFIED
 # - ectest.c (SOURCE13)
 # - openssl-1.1.1-ec-curves.patch (PATCH37) -- MODIFIED
-BINDIST_PATCH_SET="openssl-1.1.1e-bindist-1.0.tar.xz"
+BINDIST_PATCH_SET="openssl-1.1.1i-bindist-1.0.tar.xz"
 
 DESCRIPTION="full-strength general purpose cryptography library (including SSL and TLS)"
 HOMEPAGE="https://www.openssl.org/"
@@ -212,6 +209,7 @@ multilib_src_configure() {
 		enable-camellia \
 		enable-ec \
 		$(use_ssl !bindist ec2m) \
+		$(use_ssl !bindist sm2) \
 		enable-srp \
 		$(use elibc_musl && echo "no-async") \
 		${ec_nistp_64_gcc_128} \
