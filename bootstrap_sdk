@@ -26,7 +26,7 @@
 # 3. stage2: Run portage-stable/scripts/bootstrap.sh
 #    This rebuilds the toolchain using Gentoo bootstrapping, ensuring it's not linked
 #    to or otherwise influenced by whatever was in the "seed" tarball.
-#    The toolchain rebuild may contain updates package ebuilds from
+#    The toolchain rebuild may contain updated package ebuilds from
 #    third_party/(portage-stable|coreos-overlay).
 #    This and all following stages use portage-stable and coreos-overlay
 #    from third_party/... (see 1.)
