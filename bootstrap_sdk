@@ -85,8 +85,8 @@ cp "${BUILD_LIBRARY_DIR}/toolchain_util.sh" "${ROOT_OVERLAY}/tmp"
 
 
 # Stage 1 uses a different ebuild repo snapshot as well as a different portage_overlay 
-# the ones from the SDK where ./bootstrap_sdk is being executed -
-# to buils a known-good stage 1 (see stages description at top
+# than the ones from the SDK where ./bootstrap_sdk is being executed -
+# to build a known-good stage 1 (see stages description at top
 # of file). This prevents package upgrades from updated ebuild files in the portage/coreos
 # to apply in stage 1.
 # Stage 1 lacks proper isolation and will link all packages built against its own
