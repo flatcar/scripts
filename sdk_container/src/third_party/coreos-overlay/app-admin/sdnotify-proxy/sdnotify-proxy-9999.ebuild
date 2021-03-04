@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-CROS_WORKON_PROJECT="flatcar-linux/sdnotify-proxy"
+CROS_WORKON_PROJECT="kinvolk/sdnotify-proxy"
 CROS_WORKON_LOCALNAME="sdnotify-proxy"
 CROS_WORKON_REPO="git://github.com"
 COREOS_GO_PACKAGE="github.com/coreos/sdnotify-proxy"
