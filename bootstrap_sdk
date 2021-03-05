@@ -17,7 +17,7 @@
 #    minimal root file system into a clean directory using ROOT=...
 #    and USE=-* The restricted USE flags are key be small and avoid
 #    circular dependencies. Tarball is built from the current SDK's
-#    portage-stable and coreos-overlay instead of the ones from 1
+#    portage-stable and coreos-overlay instead of the ones from stage1
 #    since stage1 must not contain updated ebuilds (see build_stage1 below).
 #    This stage uses:
 #    - portage-stable from the SDK's /var/lib/gentoo/repos/gentoo
