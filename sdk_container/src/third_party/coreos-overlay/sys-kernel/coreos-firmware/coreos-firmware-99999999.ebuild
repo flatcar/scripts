@@ -99,7 +99,7 @@ src_prepare() {
 	einfo "Scanning for files required by ${KV_FULL}"
 	echo -n > "${T}/firmware-scan"
 	local kofile fwfile failed
-	for kofile in $(find "${kernel_mods}" -name '*.ko'); do
+	for kofile in $(find "${kernel_mods}" -name '*.ko' -o -name '*.ko.xz'); do
 		for fwfile in $(modinfo --field firmware "${kofile}"); do
 			if [[ ! -e "${fwfile}" ]]; then
 				eerror "Missing firmware: ${fwfile} (${kofile##*/})"
