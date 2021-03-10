@@ -1,38 +1,41 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/libverto/libverto-0.2.6.ebuild,v 1.3 2014/06/24 21:54:27 mgorny Exp $
 
-EAPI=5
+EAPI=7
 
-inherit multilib-minimal
+inherit autotools multilib-minimal
 
 DESCRIPTION="Main event loop abstraction library"
-HOMEPAGE="https://fedorahosted.org/libverto/"
-SRC_URI="https://fedorahosted.org/releases/l/i/libverto/${P}.tar.gz"
+HOMEPAGE="https://github.com/latchset/libverto/"
+SRC_URI="https://github.com/latchset/libverto/releases/download/${PV}/${P}.tar.gz"
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 IUSE="glib +libev libevent tevent +threads static-libs"
+REQUIRED_USE="|| ( glib libev libevent tevent ) "
 
-# file collisions
-DEPEND="!=app-crypt/mit-krb5-1.10.1-r0
-	!=app-crypt/mit-krb5-1.10.1-r1
-	!=app-crypt/mit-krb5-1.10.1-r2
-	glib? ( >=dev-libs/glib-2.34.3[${MULTILIB_USEDEP}] )
+DEPEND="glib? ( >=dev-libs/glib-2.34.3[${MULTILIB_USEDEP}] )
 	libev? ( >=dev-libs/libev-4.15[${MULTILIB_USEDEP}] )
 	libevent? ( >=dev-libs/libevent-2.0.21[${MULTILIB_USEDEP}] )
 	tevent? ( >=sys-libs/tevent-0.9.19[${MULTILIB_USEDEP}] )"
 
 RDEPEND="${DEPEND}"
 
-REQUIRED_USE="|| ( glib libev libevent tevent ) "
+DOCS=( AUTHORS ChangeLog NEWS INSTALL README )
+
+PATCHES=(
+	# Runtime breakage caused by bashisms, bug #762823
+	"${FILESDIR}/${PN}-0.3.1-non-bash.patch"
+)
 
 src_prepare() {
+	default
 	# known problem uptream with tevent write test.  tevent does not fire a
 	# callback on error, but we explicitly test for this behaviour.  Do not run
 	# tevent tests for now.
 	sed -i -e 's/def HAVE_TEVENT/ 0/' tests/test.h || die
+	eautoreconf
 }
 
 multilib_src_configure() {
@@ -47,6 +50,6 @@ multilib_src_configure() {
 }
 
 multilib_src_install_all() {
-	dodoc AUTHORS ChangeLog NEWS INSTALL README
-	use static-libs || prune_libtool_files --all
+	default
+	use static-libs || find "${ED}" -name '*.la' -delete
 }
