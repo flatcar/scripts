@@ -1,3 +1,7 @@
 # Enable optimizations for common x86_64 CPUs
 CFLAGS="-O2 -pipe -mtune=generic"
 CXXFLAGS="${CFLAGS}"
+
+# add cros_host to bootstrapping USE flags so SDK / toolchains bootstrapping
+# will use vim's vimrc instead of baselayouts',
+BOOTSTRAP_USE="$BOOTSTRAP_USE cros_host"
