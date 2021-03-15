@@ -168,8 +168,8 @@ cleanup() {
 }
 
 pycmd() {
-	[[ ${DEBUG} = "1" ]] && echo /usr/bin/python -c "$@" > /dev/stderr
-	/usr/bin/python -c "$@"
+	[[ ${DEBUG} = "1" ]] && echo /usr/bin/python3 -c "$@" > /dev/stderr
+	/usr/bin/python3 -c "$@"
 }
 
 # TSTP messes ^Z of bootstrap up, so we don't trap it anymore.
@@ -319,7 +319,7 @@ if [ ${BOOTSTRAP_STAGE} -le 1 ] ; then
 	echo -------------------------------------------------------------------------------
 	set_bootstrap_stage 2
 fi
-export USE="-* bootstrap ${ALLOWED_USE} ${BOOTSTRAP_USE}"
+export USE="-* bootstrap ${ALLOWED_USE} ${BOOTSTRAP_USE} openmp static-libs"
 
 # We can't unmerge headers which may or may not exist yet. If your
 # trying to use nptl, it may be needed to flush out any old headers
