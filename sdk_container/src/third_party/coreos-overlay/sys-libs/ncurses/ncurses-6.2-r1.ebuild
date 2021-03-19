@@ -111,6 +111,8 @@ multilib_src_configure() {
 }
 
 do_configure() {
+	# Flatcar: Also allow writes to /dev/ptmx, which sometimes
+	# causes the sandbox to fail Jenkins builds.
 	addwrite /dev/ptmx
 
 	local target=$1
@@ -278,6 +280,8 @@ multilib_src_install() {
 }
 
 multilib_src_install_all() {
+	# Flatcar: Add a symlink-usr USE flag for keeping a minimal
+	# set of terminfo files in /usr/share/terminfo.
 	if ! use symlink-usr ; then
 		# We need the basic terminfo files in /etc for embedded/recovery. #37026
 		einfo "Installing basic terminfo files in /etc..."
