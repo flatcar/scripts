@@ -90,3 +90,5 @@ dev-util/checkbashisms
 >=dev-libs/elfutils-0.178 ~amd64
 
 =sys-fs/multipath-tools-0.8.5 ~amd64 ~arm64
+
+=app-arch/zstd-1.4.9 ~amd64 ~arm64
