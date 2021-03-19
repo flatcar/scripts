@@ -84,18 +84,6 @@ go_export() {
 		append-ldflags -nopie
 	fi
 
-	# Remove certain flags from $LDFLAGS to fix validation errors in
-	# Go >= 1.15.5 like:
-	#   go build runtime/cgo: invalid flag in go:cgo_ldflag: -Wl,-O1
-	#
-	# Note, we need to manually strip only the optimization element of
-	# comma-separated flags, e.g. from `-Wl,-O1,-s` to `-Wl,-s`.
-	# To support multiple characters that can follow `-O`, e.g. `-Ofast`,
-	# we should use regexp like `[[:alnum:]]*`.
-	# Work-around for https://github.com/golang/go/pull/42631.
-	export LDFLAGS="$(echo "$LDFLAGS" | sed 's/,-O[[:alnum:]]*//g')"
-	filter-ldflags "-Wl"
-
 	export CC=$(tc-getCC)
 	export CXX=$(tc-getCXX)
 	export CGO_ENABLED=${CGO_ENABLED:-1}
@@ -106,6 +94,13 @@ go_export() {
 
 	# Ensure the `go` wrapper calls the version we expect
 	export EGO="${COREOS_GO_VERSION}"
+
+	# With Go 1.16, GO111MODULE=on is set by default.
+	# Few of our repos still don't support Go modules so we would need to set
+	# GO111MODULE=off for those packages.
+	if [[ "${COREOS_GO_GO111MODULE}" == "off" ]]; then
+		export GO111MODULE="${COREOS_GO_GO111MODULE}"
+	fi
 }
 
 # @FUNCTION: go_tuple
