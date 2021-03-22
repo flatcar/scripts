@@ -1,87 +1,25 @@
-#!/usr/bin/bash -e
-# Wrapper for launching etcd via rkt.
-#
-# Make sure to set ETCD_IMAGE_TAG to an image tag published here:
-# https://quay.io/repository/coreos/etcd?tab=tags Alternatively,
-# override ETCD_IMAGE to a custom image.
-
-function require_ev_all() {
-	for rev in $@ ; do
-		if [[ -z "${!rev}" ]]; then
-			echo ${rev} is not set
-			exit 1
-		fi
-	done
-}
-
-function require_ev_one() {
-	for rev in $@ ; do
-		if [[ ! -z "${!rev}" ]]; then
-			return
-		fi
-	done
-	echo One of $@ must be set
-	exit 1
-}
-
-require_ev_one ETCD_IMAGE ETCD_IMAGE_TAG
-require_ev_all ETCD_USER ETCD_DATA_DIR
-
-ETCD_IMAGE_URL="${ETCD_IMAGE_URL:-docker://quay.io/coreos/etcd}"
-ETCD_IMAGE="${ETCD_IMAGE:-${ETCD_IMAGE_URL}:${ETCD_IMAGE_TAG}}"
-
-if [[ "${ETCD_IMAGE%%/*}" == "quay.io" ]] && ! (echo "${RKT_RUN_ARGS}" | grep -q trust-keys-from-https); then
-	RKT_RUN_ARGS="${RKT_RUN_ARGS} --trust-keys-from-https"
-elif [[ "${ETCD_IMAGE%%/*}" == "docker:" ]] && ! (echo "${RKT_RUN_ARGS}" | grep -q insecure-options); then
-	RKT_RUN_ARGS="${RKT_RUN_ARGS} --insecure-options=image"
-fi
-
-if [[ ! -e "${ETCD_DATA_DIR}" ]]; then
-	mkdir --parents "${ETCD_DATA_DIR}"
-	chown "${ETCD_USER}" "${ETCD_DATA_DIR}"
-fi
+#!/bin/bash
+# The "etcd-wrapper" script can't be deleted because ct overwrites
+# the ExecStart directive with etcd-wrapper. Do the new action of
+# ExecStart here.
+set -e
 
 # Do not pass ETCD_DATA_DIR through to the container. The default path,
 # /var/lib/etcd is always used inside the container.
 etcd_data_dir="${ETCD_DATA_DIR}"
 ETCD_DATA_DIR="/var/lib/etcd"
-
-ETCD_SSL_DIR="${ETCD_SSL_DIR:-/etc/ssl/certs}"
-
-SYSTEMD_SYSTEM_DIR_SRC="${SYSTEMD_SYSTEM_DIR_SRC:-/run/systemd/system}"
-if [[ -d "${SYSTEMD_SYSTEM_DIR_SRC}" ]]; then
-	RKT_RUN_ARGS="${RKT_RUN_ARGS} \
-		--mount volume=coreos-systemd-dir,target=/run/systemd/system \
-		--volume coreos-systemd-dir,kind=host,source=${SYSTEMD_SYSTEM_DIR_SRC},readOnly=true \
-	"
-fi
-
-if [[ -S "${NOTIFY_SOCKET}" ]]; then
-	RKT_RUN_ARGS="${RKT_RUN_ARGS} \
-		--mount volume=coreos-notify,target=/run/systemd/notify \
-		--volume coreos-notify,kind=host,source=${NOTIFY_SOCKET} \
-		--set-env=NOTIFY_SOCKET=/run/systemd/notify \
-	"
-fi
-
-RKT="${RKT:-/usr/bin/rkt}"
-RKT_STAGE1_ARG="${RKT_STAGE1_ARG:---stage1-from-dir=stage1-fly.aci}"
-set -x
-exec ${RKT} ${RKT_GLOBAL_ARGS} \
-	run ${RKT_RUN_ARGS} \
-	--volume coreos-data-dir,kind=host,source="${etcd_data_dir}",readOnly=false \
-	--volume coreos-etc-ssl-certs,kind=host,source="${ETCD_SSL_DIR}",readOnly=true \
-	--volume coreos-usr-share-certs,kind=host,source=/usr/share/ca-certificates,readOnly=true \
-	--volume coreos-etc-hosts,kind=host,source=/etc/hosts,readOnly=true \
-	--volume coreos-etc-resolv,kind=host,source=/etc/resolv.conf,readOnly=true \
-	--mount volume=coreos-data-dir,target=/var/lib/etcd \
-	--mount volume=coreos-etc-ssl-certs,target=/etc/ssl/certs \
-	--mount volume=coreos-usr-share-certs,target=/usr/share/ca-certificates \
-	--mount volume=coreos-etc-hosts,target=/etc/hosts  \
-	--mount volume=coreos-etc-resolv,target=/etc/resolv.conf  \
-	--inherit-env \
-	${RKT_STAGE1_ARG} \
-	${ETCD_IMAGE} \
-		${ETCD_IMAGE_ARGS} \
-		--user=$(id -u "${ETCD_USER}") \
-		-- "$@"
+mkdir -p ${etcd_data_dir}
+chown -R etcd:etcd ${etcd_data_dir}
+chmod 700 ${etcd_data_dir}
+# A better way to run the Flannel/etcd container image is Podman because
+# Flannel depends on etcd but wants to be run before Docker so that it
+# can set up the Docker networking. Etcd and Flannel are part of the
+# Container Linux Config specification and thus can't be dropped easily.
+# For now we have to resort to running these services with Docker and try
+# to restart Docker for the Flannel options to take effect.
+/usr/bin/docker stop etcd-member || true
+/usr/bin/docker rm -f etcd-member || true
+# set umask so that sdnotify-proxy creates /run/etcd-notify with the same relaxed permissions as NOTIFY_SOCKET (/run/systemd/notify) normally has, to allow ETCD_USER to write to it
+umask 000
+# mapping only /run/etcd-notify does not work and we use the full /run, also we must set NOTIFY_SOCKET in the container but use the original for /usr/libexec/sdnotify-proxy
+/usr/libexec/sdnotify-proxy /run/etcd-notify /usr/bin/docker run --name etcd-member --network=host --ipc=host -u $(id -u ${ETCD_USER}):$(id -g ${ETCD_USER}) -v /run:/run -v /usr/share/ca-certificates:/usr/share/ca-certificates:ro -v ${etcd_data_dir}:/var/lib/etcd:rw -v ${ETCD_SSL_DIR}:/etc/ssl/certs:ro --env-file <(env; echo PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin; echo NOTIFY_SOCKET=/run/etcd-notify) --entrypoint /usr/local/bin/etcd ${ETCD_IMAGE:-${ETCD_IMAGE_URL}:${ETCD_IMAGE_TAG}} "$@"

@@ -4,18 +4,21 @@ Documentation=https://github.com/coreos/flannel
 PartOf=flanneld.service
 Requires=flanneld.service
 After=flanneld.service
-Before=docker.service
 
 [Service]
 Type=oneshot
+RemainAfterExit=true
+Restart=on-failure
+RestartSec=5s
 
+Environment="FLANNEL_IMAGE_URL=quay.io/coreos/flannel"
 Environment="FLANNEL_IMAGE_TAG=@FLANNEL_IMAGE_TAG@"
-Environment="RKT_RUN_ARGS=--uuid-file-save=/var/lib/flatcar/flannel-wrapper2.uuid"
-Environment="FLANNEL_IMAGE_ARGS=--exec=/opt/bin/mk-docker-opts.sh"
+Environment="FLANNEL_CMD=/opt/bin/mk-docker-opts.sh"
+Environment="FLANNEL_CONTAINER=flannel-docker-opts"
 
-ExecStartPre=-/usr/bin/rkt rm --uuid-file=/var/lib/flatcar/flannel-wrapper2.uuid
 ExecStart=/usr/lib/flatcar/flannel-wrapper -d /run/flannel/flannel_docker_opts.env -i
-ExecStop=-/usr/bin/rkt stop --uuid-file=/var/lib/flatcar/flannel-wrapper2.uuid
+ExecStop=/usr/bin/docker stop flannel-docker-opts
+ExecStopPost=/usr/bin/docker rm flannel-docker-opts
 
 [Install]
 WantedBy=multi-user.target

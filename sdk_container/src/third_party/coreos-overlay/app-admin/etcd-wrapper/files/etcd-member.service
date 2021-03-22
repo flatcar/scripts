@@ -8,21 +8,22 @@ Conflicts=etcd2.service
 
 [Service]
 Type=notify
-Restart=on-failure
+NotifyAccess=all
+Restart=always
 RestartSec=10s
 TimeoutStartSec=0
 LimitNOFILE=40000
 
+Environment="ETCD_IMAGE_URL=quay.io/coreos/etcd"
 Environment="ETCD_IMAGE_TAG=@ETCD_IMAGE_TAG@"
 Environment="ETCD_NAME=%m"
 Environment="ETCD_USER=etcd"
 Environment="ETCD_DATA_DIR=/var/lib/etcd"
-Environment="RKT_RUN_ARGS=--uuid-file-save=/var/lib/flatcar/etcd-member-wrapper.uuid"
+Environment="ETCD_SSL_DIR=/etc/ssl/certs"
 
-ExecStartPre=/usr/bin/mkdir --parents /var/lib/flatcar
-ExecStartPre=-/usr/bin/rkt rm --uuid-file=/var/lib/flatcar/etcd-member-wrapper.uuid
 ExecStart=/usr/lib/flatcar/etcd-wrapper $ETCD_OPTS
-ExecStop=-/usr/bin/rkt stop --uuid-file=/var/lib/flatcar/etcd-member-wrapper.uuid
+ExecStop=/usr/bin/docker stop etcd-member
+ExecStopPost=/usr/bin/docker rm etcd-member
 
 [Install]
 WantedBy=multi-user.target

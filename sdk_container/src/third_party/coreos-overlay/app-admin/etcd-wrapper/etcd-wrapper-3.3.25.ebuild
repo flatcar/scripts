@@ -14,7 +14,8 @@ IUSE=""
 SLOT=0
 
 DEPEND=""
-RDEPEND=">=app-emulation/rkt-1.9.1[rkt_stage1_fly]"
+
+RDEPEND=">=app-admin/sdnotify-proxy-0.1.0"
 
 S=${WORKDIR}
 

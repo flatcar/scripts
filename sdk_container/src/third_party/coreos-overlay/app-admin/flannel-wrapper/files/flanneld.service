@@ -6,22 +6,24 @@ Requires=flannel-docker-opts.service
 
 [Service]
 Type=notify
+NotifyAccess=all
 Restart=always
 RestartSec=10s
 TimeoutStartSec=300
 LimitNOFILE=40000
 LimitNPROC=1048576
 
+Environment="FLANNEL_IMAGE_URL=quay.io/coreos/flannel"
 Environment="FLANNEL_IMAGE_TAG=@FLANNEL_IMAGE_TAG@"
 Environment="FLANNEL_OPTS=--ip-masq=true"
-Environment="RKT_RUN_ARGS=--uuid-file-save=/var/lib/flatcar/flannel-wrapper.uuid"
+Environment="FLANNEL_CMD=/opt/bin/flanneld"
+Environment="FLANNEL_CONTAINER=flannel"
 EnvironmentFile=-/run/flannel/options.env
 
 ExecStartPre=/sbin/modprobe ip_tables
-ExecStartPre=/usr/bin/mkdir --parents /var/lib/flatcar /run/flannel
-ExecStartPre=-/usr/bin/rkt rm --uuid-file=/var/lib/flatcar/flannel-wrapper.uuid
 ExecStart=/usr/lib/flatcar/flannel-wrapper $FLANNEL_OPTS
-ExecStop=-/usr/bin/rkt stop --uuid-file=/var/lib/flatcar/flannel-wrapper.uuid
+ExecStop=/usr/bin/docker stop flannel
+ExecStopPost=/usr/bin/docker rm flannel
 
 [Install]
 WantedBy=multi-user.target
