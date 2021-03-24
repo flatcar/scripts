@@ -18,7 +18,7 @@ BINDIST_PATCH_SET="openssl-1.1.1i-bindist-1.0.tar.xz"
 
 DESCRIPTION="full-strength general purpose cryptography library (including SSL and TLS)"
 HOMEPAGE="https://www.openssl.org/"
-SRC_URI="mirror://openssl/source/${MY_P}.tar.gz
+SRC_URI="mirror://openssl/source/openssl-1.1.1j.tar.gz
 	bindist? (
 		mirror://gentoo/${BINDIST_PATCH_SET}
 		https://dev.gentoo.org/~whissi/dist/openssl/${BINDIST_PATCH_SET}
@@ -47,9 +47,12 @@ PDEPEND="app-misc/ca-certificates"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.1.0j-parallel_install_fix.patch #671602
+	"${FILESDIR}"/${PN}-1.1.1k-release-changes.patch
+	"${FILESDIR}"/${PN}-1.1.1k-ca-certificate-check-bypass-fix.patch
+	"${FILESDIR}"/${PN}-1.1.1k-teach-tlsproxy-encrypt-etm-records.patch
 )
 
-S="${WORKDIR}/${MY_P}"
+S="${WORKDIR}/openssl-1.1.1j"
 
 # force upgrade to prevent broken login, bug 696950
 RDEPEND+=" !<net-misc/openssh-8.0_p1-r3"
