@@ -1,22 +1,27 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-inherit flag-o-matic toolchain-funcs multilib-minimal
+inherit flag-o-matic toolchain-funcs multilib-minimal preserve-libs usr-ldscript
 
-MY_PV=${PV:0:3}
-PV_SNAP=${PV:4}
-MY_P=${PN}-${MY_PV}
+MY_PV="${PV:0:3}"
+MY_P="${PN}-${MY_PV}"
 DESCRIPTION="console display library"
-HOMEPAGE="https://www.gnu.org/software/ncurses/ http://dickey.his.com/ncurses/"
+HOMEPAGE="https://www.gnu.org/software/ncurses/ https://invisible-island.net/ncurses/"
 SRC_URI="mirror://gnu/ncurses/${MY_P}.tar.gz"
+
+if [[ "${PV}" == *_p* ]] ; then
+	SRC_URI+=" ftp://ftp.invisible-island.net/${PN}/${PV/_p*}/${P/_p/-}-patch.sh.bz2
+		https://invisible-mirror.net/archives/${PN}/${PV/_p*}/${P/_p/-}-patch.sh.bz2"
+fi
 
 LICENSE="MIT"
 # The subslot reflects the SONAME.
 SLOT="0/6"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~x86-fbsd"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="ada +cxx debug doc gpm minimal profile static-libs symlink-usr test threads tinfo trace unicode"
+RESTRICT="!test? ( test )"
 
 DEPEND="gpm? ( sys-libs/gpm[${MULTILIB_USEDEP}] )"
 #	berkdb? ( sys-libs/db )"
@@ -25,10 +30,9 @@ RDEPEND="${DEPEND}
 	!<=sys-libs/ncurses-5.9-r4:5
 	!<sys-libs/slang-2.3.2_pre23
 	!<x11-terms/rxvt-unicode-9.06-r3
-	!<x11-terms/st-0.6-r1
-	!app-emulation/emul-linux-x86-baselibs"
+	!<x11-terms/st-0.6-r1"
 
-S=${WORKDIR}/${MY_P}
+S="${WORKDIR}/${MY_P}"
 
 MINIMAL_TERMINFO=(
 	ansi console dumb linux rxvt rxvt-256color rxvt-unicode rxvt-unicode-256color
@@ -37,18 +41,19 @@ MINIMAL_TERMINFO=(
 )
 
 PATCHES=(
-	"${FILESDIR}/${PN}-6.0-gfbsd.patch"
 	"${FILESDIR}/${PN}-5.7-nongnu.patch"
 	"${FILESDIR}/${PN}-6.0-rxvt-unicode-9.15.patch" #192083 #383871
 	"${FILESDIR}/${PN}-6.0-pkg-config.patch"
 	"${FILESDIR}/${PN}-5.9-gcc-5.patch" #545114
 	"${FILESDIR}/${PN}-6.0-ticlib.patch" #557360
 	"${FILESDIR}/${PN}-6.0-cppflags-cross.patch" #601426
-	"${FILESDIR}/${PN}-6.1-st07_terminfo_typo.patch" #651494
+	"${FILESDIR}/${PN}-6.2-no_user_ldflags_in_libs.patch"
 )
 
 src_prepare() {
-	[[ -n ${PV_SNAP} ]] && eapply "${WORKDIR}"/${MY_P}-${PV_SNAP}-patch.sh
+	if [[ "${PV}" == *_p* ]] ; then
+		eapply "${WORKDIR}"/${P/_p/-}-patch.sh
+	fi
 	default
 }
 
@@ -73,14 +78,14 @@ src_configure() {
 	# This comes up when cross-compiling, doing multilib builds, upgrading,
 	# or installing for the first time.  Build a local copy of tic whenever
 	# the host version isn't available. #249363 #557598
-	if ! ROOT=/ has_version "~sys-libs/${P}:0" ; then
+	if ! has_version -b "~sys-libs/${P}:0" ; then
 		local lbuildflags="-static"
 
 		# some toolchains don't quite support static linking
 		local dbuildflags="-Wl,-rpath,${WORKDIR}/lib"
 		case ${CHOST} in
 			*-darwin*)  dbuildflags=     ;;
-			*-aix*)     dbuildflags=     ;;
+			*-solaris*) dbuildflags="-Wl,-R,${WORKDIR}/lib" ;;
 		esac
 		echo "int main() {}" | \
 			$(tc-getCC) -o x -x c - ${lbuildflags} -pipe >& /dev/null \
@@ -106,12 +111,14 @@ multilib_src_configure() {
 }
 
 do_configure() {
+	# Flatcar: Also allow writes to /dev/ptmx, which sometimes
+	# causes the sandbox to fail Jenkins builds.
 	addwrite /dev/ptmx
 
 	local target=$1
 	shift
 
-	mkdir "${BUILD_DIR}/${target}"
+	mkdir "${BUILD_DIR}/${target}" || die
 	cd "${BUILD_DIR}/${target}" || die
 
 	local conf=(
@@ -197,9 +204,18 @@ do_configure() {
 
 src_compile() {
 	# See comments in src_configure.
-	if ! ROOT=/ has_version "~sys-libs/${P}:0" ; then
-		BUILD_DIR="${WORKDIR}" \
-		do_compile cross -C progs tic
+	if ! has_version -b "~sys-libs/${P}:0" ; then
+		# We could possibly merge these two branches but opting to be
+		# conservative when merging some of the Prefix changes.
+
+		if [[ ${CHOST} == *-cygwin* ]] && ! multilib_is_native_abi ; then
+			# We make 'tic$(x)' here, for Cygwin having x=".exe".
+			BUILD_DIR="${WORKDIR}" \
+				 do_compile cross -C progs all PROGS='tic$(x)'
+		else
+			BUILD_DIR="${WORKDIR}" \
+				 do_compile cross -C progs tic
+		fi
 	fi
 
 	multilib-minimal_src_compile
@@ -228,7 +244,7 @@ do_compile() {
 	# compiled libraries which depends on sources which ...
 	# Manually delete the pc-files file so the install step will
 	# create the .pc files we want.
-	rm -f misc/pc-files
+	rm -f misc/pc-files || die
 	emake "$@"
 }
 
@@ -255,29 +271,34 @@ multilib_src_install() {
 	fi
 
 	# Build fails to create this ...
-	dosym ../share/terminfo /usr/$(get_libdir)/terminfo
+	# -FIXME-
+	# Ugly hackaround for riscv having two parts libdir (#689240)
+	# Replace this hack with an official solution once we have one...
+	# -FIXME-
+	dosym $(sed 's@[^/]\+@..@g' <<< $(get_libdir))/share/terminfo \
+		/usr/$(get_libdir)/terminfo
 }
 
 multilib_src_install_all() {
+	# Flatcar: Add a symlink-usr USE flag for keeping a minimal
+	# set of terminfo files in /usr/share/terminfo.
 	if ! use symlink-usr ; then
-		# We need the basic terminfo files in /etc, bug #37026
+		# We need the basic terminfo files in /etc for embedded/recovery. #37026
 		einfo "Installing basic terminfo files in /etc..."
 		local x
-		for x in "${MINIMAL_TERMINFO[@]}"
-		do
+		for x in "${MINIMAL_TERMINFO[@]}"; do
 			local termfile=$(find "${ED}"/usr/share/terminfo/ -name "${x}" 2>/dev/null)
-			local basedir=$(basename $(dirname "${termfile}"))
+			local basedir=$(basename "$(dirname "${termfile}")")
 
 			if [[ -n ${termfile} ]] ; then
-				dodir /etc/terminfo/${basedir}
-				mv ${termfile} "${ED}"/etc/terminfo/${basedir}/
-				dosym ../../../../etc/terminfo/${basedir}/${x} \
-					/usr/share/terminfo/${basedir}/${x}
+				dodir "/etc/terminfo/${basedir}"
+				mv "${termfile}" "${ED}/etc/terminfo/${basedir}/" || die
+				dosym "../../../../etc/terminfo/${basedir}/${x}" \
+					"/usr/share/terminfo/${basedir}/${x}"
 			fi
 		done
 
-		echo "CONFIG_PROTECT_MASK=\"/etc/terminfo\"" > "${T}"/50ncurses
-		doenvd "${T}"/50ncurses
+		echo "CONFIG_PROTECT_MASK=\"/etc/terminfo\"" | newenvd - 50ncurses
 
 		use minimal && rm -r "${ED}"/usr/share/terminfo*
 		# Because ncurses5-config --terminfo returns the directory we keep it
@@ -290,11 +311,11 @@ multilib_src_install_all() {
 		find "${D}"/usr/share/terminfo -type d -empty -delete || die
 	fi
 
-	cd "${S}"
+	cd "${S}" || die
 	dodoc ANNOUNCE MANIFEST NEWS README* TO-DO doc/*.doc
 	if use doc ; then
 		docinto html
-		dohtml -r doc/html/
+		dodoc -r doc/html/
 	fi
 }
 
