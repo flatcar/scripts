@@ -1,5 +1,5 @@
 # Overwrite outdated portage-stable mask
-=dev-libs/openssl-1.1.1j
+=dev-libs/openssl-1.1.1k
 
 # Overwrite portage-stable mask - this package was removed in
 # gentoo. We still need it, since sys-libs/libsemanage still requires
