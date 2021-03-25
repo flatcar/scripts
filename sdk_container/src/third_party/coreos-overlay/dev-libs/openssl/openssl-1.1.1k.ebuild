@@ -3,7 +3,7 @@
 
 EAPI="7"
 
-inherit flag-o-matic toolchain-funcs multilib multilib-minimal systemd
+inherit flag-o-matic toolchain-funcs multilib multilib-minimal
 
 MY_P=${P/_/-}
 
@@ -18,7 +18,7 @@ BINDIST_PATCH_SET="openssl-1.1.1i-bindist-1.0.tar.xz"
 
 DESCRIPTION="full-strength general purpose cryptography library (including SSL and TLS)"
 HOMEPAGE="https://www.openssl.org/"
-SRC_URI="mirror://openssl/source/openssl-1.1.1j.tar.gz
+SRC_URI="mirror://openssl/source/${MY_P}.tar.gz
 	bindist? (
 		mirror://gentoo/${BINDIST_PATCH_SET}
 		https://dev.gentoo.org/~whissi/dist/openssl/${BINDIST_PATCH_SET}
@@ -27,9 +27,9 @@ SRC_URI="mirror://openssl/source/openssl-1.1.1j.tar.gz
 LICENSE="openssl"
 SLOT="0/1.1" # .so version of libssl/libcrypto
 [[ "${PV}" = *_pre* ]] || \
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv s390 sparc x86 ~x86-linux"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x86-linux"
 IUSE="+asm bindist elibc_musl rfc3779 sctp cpu_flags_x86_sse2 sslv3 static-libs test tls-heartbeat vanilla zlib"
-RESTRICT="
+RESTRICT="!bindist? ( bindist )
 	!test? ( test )"
 
 RDEPEND=">=app-misc/c_rehash-1.7-r1
@@ -47,12 +47,10 @@ PDEPEND="app-misc/ca-certificates"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.1.0j-parallel_install_fix.patch #671602
-	"${FILESDIR}"/${PN}-1.1.1k-release-changes.patch
-	"${FILESDIR}"/${PN}-1.1.1k-ca-certificate-check-bypass-fix.patch
-	"${FILESDIR}"/${PN}-1.1.1k-teach-tlsproxy-encrypt-etm-records.patch
+	"${FILESDIR}"/${PN}-1.1.1i-riscv32.patch
 )
 
-S="${WORKDIR}/openssl-1.1.1j"
+S="${WORKDIR}/${MY_P}"
 
 # force upgrade to prevent broken login, bug 696950
 RDEPEND+=" !<net-misc/openssh-8.0_p1-r3"
@@ -288,6 +286,9 @@ multilib_src_install_all() {
 	# twice; once with shared lib support enabled and once without.
 	use static-libs || rm -f "${ED}"/usr/lib*/lib*.a
 
+	# create the certs directory
+	keepdir ${SSL_CNF_DIR}/certs
+
 	# Namespace openssl programs to prevent conflicts with other man pages
 	cd "${ED}"/usr/share/man || die
 	local m d s
@@ -314,15 +315,12 @@ multilib_src_install_all() {
 	dodir /etc/sandbox.d #254521
 	echo 'SANDBOX_PREDICT="/dev/crypto"' > "${ED}"/etc/sandbox.d/10openssl
 
-	# Don't keep the sample CA files and their ilk in /etc.
-	rm -r "${ED}"${SSL_CNF_DIR}
+	diropts -m0700
+	keepdir ${SSL_CNF_DIR}/private
+}
 
-	# Save the default openssl.cnf in /usr and link it into place.
-	dodir /usr/share/ssl
-	insinto /usr/share/ssl
-	doins "${S}"/apps/openssl.cnf
-	systemd_dotmpfilesd "${FILESDIR}"/openssl.conf
-
-	# Package the tmpfiles.d setup for SDK bootstrapping.
-	systemd-tmpfiles --create --root="${ED}" "${FILESDIR}"/openssl.conf
+pkg_postinst() {
+	ebegin "Running 'c_rehash ${EROOT}${SSL_CNF_DIR}/certs/' to rebuild hashes #333069"
+	c_rehash "${EROOT}${SSL_CNF_DIR}/certs" >/dev/null
+	eend $?
 }
