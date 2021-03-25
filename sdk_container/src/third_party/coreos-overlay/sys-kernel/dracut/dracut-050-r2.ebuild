@@ -74,6 +74,8 @@ PATCHES=(
 	"${FILESDIR}"/050-systemd-remove-obsolete-syslog-parameter.patch
 	"${FILESDIR}"/050-lvm-fix-removal-of-pvscan-from-udev-rules.patch
 	"${FILESDIR}"/050-gentoo-ldconfig-paths.patch
+	# Flatcar: override iscsi network dependency
+	"${FILESDIR}"/050-change-network-dep-iscsi.patch
 )
 
 src_configure() {
