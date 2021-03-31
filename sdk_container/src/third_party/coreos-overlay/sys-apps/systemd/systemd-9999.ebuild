@@ -256,9 +256,8 @@ multilib_src_configure() {
 		# more.
 		-Defi=$(meson_multilib)
 		-Dima=true
-		# Flatcar: Use legacy hierarchy to avoid breaking
-		# Docker.
-		-Ddefault-hierarchy=legacy
+		# Flatcar: Use unified hierarchy now that docker-20.10 is available
+		-Ddefault-hierarchy=unified
 		# Optional components/dependencies
 		-Dacl=$(meson_multilib_native_use acl)
 		-Dapparmor=$(meson_multilib_native_use apparmor)
