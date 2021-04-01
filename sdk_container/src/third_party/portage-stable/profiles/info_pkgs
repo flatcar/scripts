@@ -15,7 +15,6 @@ sys-devel/make
 dev-lang/python
 dev-lang/perl
 sys-apps/sandbox
-dev-util/ccache
 sys-devel/gcc
 sys-devel/gcc-config
 dev-java/java-config
