@@ -5,7 +5,6 @@ EAPI=7
 
 inherit coreos-go
 
-COREOS_GO_VERSION="go1.15"
 COREOS_GO_PACKAGE="github.com/kubernetes-sigs/cri-tools"
 COREOS_GO_MOD="vendor"
 
