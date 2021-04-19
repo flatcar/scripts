@@ -92,3 +92,5 @@ dev-util/checkbashisms
 =sys-fs/multipath-tools-0.8.5 ~amd64 ~arm64
 
 =app-arch/zstd-1.4.9 ~amd64 ~arm64
+
+=net-libs/gnutls-3.7.1 ~amd64 ~arm64
