@@ -18,7 +18,7 @@ BINDIST_PATCH_SET="openssl-1.1.1i-bindist-1.0.tar.xz"
 
 DESCRIPTION="full-strength general purpose cryptography library (including SSL and TLS)"
 HOMEPAGE="https://www.openssl.org/"
-SRC_URI="mirror://openssl/source/openssl-1.1.1j.tar.gz
+SRC_URI="mirror://openssl/source/${MY_P}.tar.gz
 	bindist? (
 		mirror://gentoo/${BINDIST_PATCH_SET}
 		https://dev.gentoo.org/~whissi/dist/openssl/${BINDIST_PATCH_SET}
@@ -27,7 +27,7 @@ SRC_URI="mirror://openssl/source/openssl-1.1.1j.tar.gz
 LICENSE="openssl"
 SLOT="0/1.1" # .so version of libssl/libcrypto
 [[ "${PV}" = *_pre* ]] || \
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv s390 sparc x86 ~x86-linux"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x86-linux"
 IUSE="+asm bindist elibc_musl rfc3779 sctp cpu_flags_x86_sse2 sslv3 static-libs test tls-heartbeat vanilla zlib"
 RESTRICT="
 	!test? ( test )"
@@ -47,12 +47,9 @@ PDEPEND="app-misc/ca-certificates"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.1.0j-parallel_install_fix.patch #671602
-	"${FILESDIR}"/${PN}-1.1.1k-release-changes.patch
-	"${FILESDIR}"/${PN}-1.1.1k-ca-certificate-check-bypass-fix.patch
-	"${FILESDIR}"/${PN}-1.1.1k-teach-tlsproxy-encrypt-etm-records.patch
 )
 
-S="${WORKDIR}/openssl-1.1.1j"
+S="${WORKDIR}/${MY_P}"
 
 # force upgrade to prevent broken login, bug 696950
 RDEPEND+=" !<net-misc/openssh-8.0_p1-r3"
