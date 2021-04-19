@@ -6,6 +6,7 @@ CROS_WORKON_PROJECT="appc/spec"
 CROS_WORKON_REPO="git://github.com"
 CROS_WORKON_LOCALNAME="appc-spec"
 COREOS_GO_PACKAGE="github.com/appc/spec"
+COREOS_GO_GO111MODULE="off"
 inherit coreos-go cros-workon
 
 if [[ "${PV}" == 9999 ]]; then

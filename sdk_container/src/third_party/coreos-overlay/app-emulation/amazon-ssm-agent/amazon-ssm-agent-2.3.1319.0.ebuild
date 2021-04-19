@@ -32,6 +32,7 @@ src_compile() {
 	# but without network activity during build phase
 	local GO_LDFLAGS="-s -w -extldflags=-Wl,-z,now,-z,relro,-z,defs"
 	export GOPATH="${WORKDIR}/${PN}-${PV}"
+	export GO111MODULE="off"
 	# set agent release version
 	BRAZIL_PACKAGE_VERSION=${PV} go run ./agent/version/versiongenerator/version-gen.go
 	# build all the tools

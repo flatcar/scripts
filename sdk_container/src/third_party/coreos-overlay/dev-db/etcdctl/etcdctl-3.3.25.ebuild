@@ -5,6 +5,7 @@ EAPI=7
 
 EGO_PN="github.com/coreos/etcd"
 COREOS_GO_PACKAGE="${EGO_PN}"
+COREOS_GO_GO111MODULE="off"
 DESCRIPTION="The etcd command line client, v3, compatible with v2"
 HOMEPAGE="https://github.com/etcd-io/etcd"
 SRC_URI="${HOMEPAGE}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
