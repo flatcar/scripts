@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -6,7 +6,7 @@ EAPI=7
 GENTOO_DEPEND_ON_PERL=no
 
 # bug #329479: git-remote-testgit is not multiple-version aware
-PYTHON_COMPAT=( python3_{6,7} )
+PYTHON_COMPAT=( python3_7 )
 
 inherit toolchain-funcs elisp-common l10n perl-module bash-completion-r1 python-single-r1 systemd
 
@@ -20,12 +20,12 @@ if [[ ${PV} == *9999 ]]; then
 	# 9999-r0: maint
 	# 9999-r1: master
 	# 9999-r2: next
-	# 9999-r3: pu
+	# 9999-r3: seen
 	case "${PVR}" in
 		9999) EGIT_BRANCH=maint ;;
 		9999-r1) EGIT_BRANCH=master ;;
 		9999-r2) EGIT_BRANCH=next;;
-		9999-r3) EGIT_BRANCH=pu ;;
+		9999-r3) EGIT_BRANCH=seen ;;
 	esac
 fi
 
@@ -46,12 +46,12 @@ if [[ ${PV} != *9999 ]]; then
 			${SRC_URI_KORG}/${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 			)"
 	[[ "${PV}" == *_rc* ]] || \
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~ppc-aix ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 fi
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="+blksha1 +curl cgi doc emacs gnome-keyring +gpg highlight +iconv libressl mediawiki mediawiki-experimental +nls +pcre +pcre-jit perforce +perl +ppcsha1 tk +threads +webdav xinetd cvs subversion test"
+IUSE="+blksha1 +curl cgi doc emacs gnome-keyring +gpg highlight +iconv libressl mediawiki mediawiki-experimental +nls +pcre +pcre-jit perforce +perl +ppcsha1 subversion tk +threads +webdav xinetd cvs test"
 
 # Common to both DEPEND and RDEPEND
 DEPEND="
@@ -79,6 +79,7 @@ RDEPEND="${DEPEND}
 		dev-perl/Error
 		dev-perl/MailTools
 		dev-perl/Authen-SASL
+		>=virtual/perl-libnet-3.110.0-r4[ssl]
 		cgi? (
 			dev-perl/CGI
 			highlight? ( app-text/highlight )
@@ -131,10 +132,10 @@ REQUIRED_USE="
 	cvs? ( perl )
 	mediawiki? ( perl )
 	mediawiki-experimental? ( mediawiki )
-	subversion? ( perl )
-	webdav? ( curl )
 	pcre-jit? ( pcre )
 	perforce? ( ${PYTHON_REQUIRED_USE} )
+	subversion? ( perl )
+	webdav? ( curl )
 "
 
 RESTRICT="!test? ( test )"
@@ -143,18 +144,17 @@ PATCHES=(
 	# bug #350330 - automagic CVS when we don't want it is bad.
 	"${FILESDIR}"/git-2.22.0_rc0-optional-cvs.patch
 
-	"${FILESDIR}"/git-2.2.0-svn-fe-linking.patch
-
 	# Make submodule output quiet
 	"${FILESDIR}"/git-2.21.0-quiet-submodules-testcase.patch
 )
 
 pkg_setup() {
-	if use subversion && has_version "dev-vcs/subversion[dso]"; then
+	if use subversion && has_version "dev-vcs/subversion[dso]" ; then
 		ewarn "Per Gentoo bugs #223747, #238586, when subversion is built"
 		ewarn "with USE=dso, there may be weird crashes in git-svn. You"
 		ewarn "have been warned."
 	fi
+
 	if use perforce ; then
 		python-single-r1_pkg_setup
 	fi
@@ -202,9 +202,6 @@ exportmakeopts() {
 		NO_EXTERNAL_GREP=
 	)
 
-	# For svn-fe
-	extlibs=( -lz -lssl ${S}/xdiff/lib.a $(usex threads -lpthread '') )
-
 	# can't define this to null, since the entire makefile depends on it
 	sed -i -e '/\/usr\/local/s/BASIC_/#BASIC_/' Makefile || die
 
@@ -220,29 +217,12 @@ exportmakeopts() {
 			extlibs+=( -lpcre )
 		fi
 	fi
-# Disabled until ~m68k-mint can be keyworded again
-#	if [[ ${CHOST} == *-mint* ]] ; then
-#		myopts+=(
-#			NO_MMAP=YesPlease
-#			NO_IPV6=YesPlease
-#			NO_STRLCPY=YesPlease
-#			NO_MEMMEM=YesPlease
-#			NO_MKDTEMP=YesPlease
-#			NO_MKSTEMPS=YesPlease
-#		)
-#	fi
-	if [[ ${CHOST} == ia64-*-hpux* ]]; then
-		myopts+=( NO_NSEC=YesPlease )
-	fi
-	if [[ ${CHOST} == *-*-aix* ]]; then
-		myopts+=( NO_FNMATCH_CASEFOLD=YesPlease )
-	fi
 	if [[ ${CHOST} == *-solaris* ]]; then
 		myopts+=(
 			NEEDS_LIBICONV=YesPlease
 			HAVE_CLOCK_MONOTONIC=1
 		)
-		if grep -q getdelim "${EROOT}"/usr/include/stdio.h ; then
+		if grep -Fq getdelim "${EROOT}"/usr/include/stdio.h ; then
 			myopts+=( HAVE_GETDELIM=1 )
 		fi
 	fi
@@ -263,7 +243,7 @@ exportmakeopts() {
 }
 
 src_unpack() {
-	if [[ ${PV} != *9999 ]]; then
+	if [[ ${PV} != *9999 ]] ; then
 		unpack ${MY_P}.tar.${SRC_URI_SUFFIX}
 		cd "${S}" || die
 		unpack ${PN}-manpages-${DOC_VER}.tar.${SRC_URI_SUFFIX}
@@ -299,7 +279,7 @@ src_prepare() {
 		-e 's:^\(AR[[:space:]]* =\).*$:\1$(OPTAR):' \
 		-e "s:\(PYTHON_PATH[[:space:]]\+=[[:space:]]\+\)\(.*\)$:\1${EPREFIX}\2:" \
 		-e "s:\(PERL_PATH[[:space:]]\+=[[:space:]]\+\)\(.*\)$:\1${EPREFIX}\2:" \
-		Makefile contrib/svn-fe/Makefile || die
+		Makefile || die
 
 	# Fix docbook2texi command
 	sed -r -i 's/DOCBOOK2X_TEXI[[:space:]]*=[[:space:]]*docbook2x-texi/DOCBOOK2X_TEXI = docbook2texi.pl/' \
@@ -340,9 +320,7 @@ src_compile() {
 	fi
 
 	if use perl && use cgi ; then
-		git_emake \
-			gitweb \
-			|| die "emake gitweb (cgi) failed"
+		git_emake gitweb || die "emake gitweb (cgi) failed"
 	fi
 
 	if [[ ${CHOST} == *-darwin* ]]; then
@@ -354,38 +332,16 @@ src_compile() {
 
 	pushd Documentation &>/dev/null || die
 	if [[ ${PV} == *9999 ]] ; then
-		git_emake man \
-			|| die "emake man failed"
+		git_emake man || die "emake man failed"
 		if use doc ; then
-			git_emake info html \
-				|| die "emake info html failed"
+			git_emake info html || die "emake info html failed"
 		fi
 	else
 		if use doc ; then
-			git_emake info \
-				|| die "emake info html failed"
+			git_emake info || die "emake info html failed"
 		fi
 	fi
 	popd &>/dev/null || die
-
-	if use subversion ; then
-		pushd contrib/svn-fe &>/dev/null || die
-		# by defining EXTLIBS we override the detection for libintl and
-		# libiconv, bug #516168
-		local nlsiconv=()
-		use nls && use !elibc_glibc && nlsiconv+=( -lintl )
-		use iconv && use !elibc_glibc && nlsiconv+=( -liconv )
-		git_emake EXTLIBS="${EXTLIBS} ${nlsiconv[@]}" \
-			|| die "emake svn-fe failed"
-		if use doc ; then
-			# svn-fe.1 requires the full USE=doc dependency stack
-			git_emake svn-fe.1 \
-				|| die "emake svn-fe.1 failed"
-			git_emake svn-fe.html \
-				|| die "svn-fe.html failed"
-		fi
-		popd &>/dev/null || die
-	fi
 
 	if use gnome-keyring ; then
 		pushd contrib/credential/libsecret &>/dev/null || die
@@ -394,18 +350,18 @@ src_compile() {
 	fi
 
 	pushd contrib/subtree &>/dev/null || die
-	git_emake git-subtree
+	git_emake git-subtree || die
 	# git-subtree.1 requires the full USE=doc dependency stack
 	use doc && git_emake git-subtree.html git-subtree.1
 	popd &>/dev/null || die
 
 	pushd contrib/diff-highlight &>/dev/null || die
-	git_emake
+	git_emake || die
 	popd &>/dev/null || die
 
 	if use mediawiki ; then
 		pushd contrib/mw-to-git &>/dev/null || die
-		git_emake
+		git_emake || die
 		popd &>/dev/null || die
 
 	fi
@@ -497,19 +453,6 @@ src_install() {
 		popd &>/dev/null || die
 	fi
 
-	if use subversion ; then
-		pushd contrib/svn-fe &>/dev/null || die
-		dobin svn-fe
-		dodoc svn-fe.txt
-		if use doc ; then
-			# Do not move svn-fe.1 outside USE=doc!
-			doman svn-fe.1
-			docinto html
-			dodoc svn-fe.html
-		fi
-		popd &>/dev/null || die
-	fi
-
 	dodir /usr/share/${PN}/contrib
 	# The following are excluded:
 	# completion - installed above
@@ -556,9 +499,8 @@ src_install() {
 		newdoc  "${S}"/gitweb/README README.gitweb
 
 		for d in "${ED}"/usr/lib{,64}/perl5/ ; do
-			if test -d "${d}" ; then find "${d}" \
-				-name .packlist \
-				-delete || die
+			if [[ -d "${d}" ]] ; then
+				find "${d}" -name .packlist -delete || die
 			fi
 		done
 	else
@@ -575,10 +517,11 @@ src_install() {
 		newins "${FILESDIR}"/git-daemon.xinetd git-daemon
 	fi
 
-	if use !prefix ; then
+	if ! use prefix ; then
 		newinitd "${FILESDIR}"/git-daemon-r1.initd git-daemon
 		newconfd "${FILESDIR}"/git-daemon.confd git-daemon
-		systemd_newunit "${FILESDIR}/git-daemon_at-r1.service" "git-daemon@.service"
+		systemd_newunit "${FILESDIR}/git-daemon_at-r1.service" \
+			"git-daemon@.service"
 		systemd_dounit "${FILESDIR}/git-daemon.socket"
 	fi
 
@@ -588,7 +531,7 @@ src_install() {
 	# we could remove sources in src_prepare, but install does not
 	# handle missing locale dir well
 	rm_loc() {
-		if [[ -e "${ED}/usr/share/locale/${1}" ]]; then
+		if [[ -e "${ED}/usr/share/locale/${1}" ]] ; then
 			rm -r "${ED}/usr/share/locale/${1}" || die
 		fi
 	}
@@ -638,8 +581,8 @@ src_test() {
 
 	local cvs=0
 	use cvs && let cvs=${cvs}+1
-	if [[ ${EUID} -eq 0 ]]; then
-		if [[ ${cvs} -eq 1 ]]; then
+	if [[ ${EUID} -eq 0 ]] ; then
+		if [[ ${cvs} -eq 1 ]] ; then
 			ewarn "Skipping CVS tests because CVS does not work as root!"
 			ewarn "You should retest with FEATURES=userpriv!"
 			disabled+=( ${tests_cvs[@]} )
@@ -653,7 +596,7 @@ src_test() {
 		[[ ${cvs} -gt 1 ]] && \
 			has_version "dev-vcs/cvs[server]" && \
 			let cvs=${cvs}+1
-		if [[ ${cvs} -lt 3 ]]; then
+		if [[ ${cvs} -lt 3 ]] ; then
 			einfo "Disabling CVS tests (needs dev-vcs/cvs[USE=server])"
 			disabled+=( ${tests_cvs[@]} )
 		fi
@@ -675,12 +618,13 @@ src_test() {
 	done
 	einfo "Disabled tests:"
 	for i in ${disabled[@]} ; do
-		[[ -f "${i}" ]] && mv -f "${i}" "${i}.DISABLED" && einfo "Disabled ${i}"
+		if [[ -f "${i}" ]] ; then
+			mv -f "${i}" "${i}.DISABLED" && einfo "Disabled ${i}"
+		fi
 	done
 
 	# Avoid the test system removing the results because we want them ourselves
-	sed -e '/^[[:space:]]*$(MAKE) clean/s,^,#,g' \
-		-i Makefile || die
+	sed -e '/^[[:space:]]*$(MAKE) clean/s,^,#,g' -i Makefile || die
 
 	# Clean old results first, must always run
 	nonfatal git_emake clean
