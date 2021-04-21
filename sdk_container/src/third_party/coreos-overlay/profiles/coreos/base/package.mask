@@ -11,10 +11,6 @@
 # certificate store provided in NSS rather than the Gentoo/Debian package.
 >=app-misc/ca-certificates-20000000
 
-# mask an accidental rkt major version bump to ensure it's not chosen over more
-# recent releases
-=app-emulation/rkt-13.0
-
 # Since version 2, it tries to write liblto symlinks with absolute paths that
 # don't work when building for the board root directories.
 >=sys-devel/gcc-config-2

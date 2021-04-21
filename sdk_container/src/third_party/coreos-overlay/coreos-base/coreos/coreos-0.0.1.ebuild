@@ -89,7 +89,6 @@ RDEPEND="${RDEPEND}
 RDEPEND="${RDEPEND}
 	app-admin/etcd-wrapper
 	app-admin/flannel-wrapper
-	app-admin/kubelet-wrapper
 	app-admin/locksmith
 	app-admin/mayday
 	app-admin/sdnotify-proxy
@@ -103,7 +102,6 @@ RDEPEND="${RDEPEND}
 	app-crypt/gnupg
 	app-crypt/tpmpolicy
 	app-editors/vim
-	app-emulation/rkt
 	app-emulation/actool
 	app-emulation/cri-tools
 	app-misc/ca-certificates
