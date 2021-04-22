@@ -11,33 +11,36 @@
 # For reference the procedure it performs is this:
 # 
 # 1. snapshot: Grab a snapshot of the portage-stable repo from
-#    third_party/... . coreoy-overlay is used as-is from the same source.
+#     the current SDK's /var/lib/gentoo/repos/gentoo.
+#     Alternatively, check out a git ref specified via --portage-ref.
 #
 # 2. stage1: Using a "seed" tarball as a build environment, build a
-#    minimal root file system into a clean directory using ROOT=...
-#    and USE=-* The restricted USE flags are key be small and avoid
-#    circular dependencies. Tarball is built from the current SDK's
-#    portage-stable and coreos-overlay instead of the ones from stage1
-#    since stage1 must not contain updated ebuilds (see build_stage1 below).
-#    This stage uses:
-#    - portage-stable from the SDK's /var/lib/gentoo/repos/gentoo
-#    - a fresh check-out of coreos-overlay at the revision used to build the SDK
+#     minimal root file system into a clean directory using ROOT=...
+#     and USE=-* The restricted USE flags are key be small and avoid
+#     circular dependencies.
+#     This stage uses:
+#     - portage-stable from the SDK's /var/lib/gentoo/repos/gentoo
+#        or a git ref via --stage1_portage_ref command line option
+#     - coreos-overlay  from the SDK's /var/lib/gentoo/repos/coreos-overlay
+#        or a git ref via --stage1_overlay_ref command line option
+#     Command line option refs need caution though, since
+#     stage1 must not contain updated ebuilds (see build_stage1 below).
 #
 # 3. stage2: Run portage-stable/scripts/bootstrap.sh
-#    This rebuilds the toolchain using Gentoo bootstrapping, ensuring it's not linked
-#    to or otherwise influenced by whatever was in the "seed" tarball.
-#    The toolchain rebuild may contain updated package ebuilds from
-#    third_party/(portage-stable|coreos-overlay).
-#    This and all following stages use portage-stable and coreos-overlay
-#    from third_party/... (see 1.)
+#     This rebuilds the toolchain using Gentoo bootstrapping, ensuring it's not linked
+#     to or otherwise influenced by whatever was in the "seed" tarball.
+#     The toolchain rebuild may contain updated package ebuilds from
+#     third_party/(portage-stable|coreos-overlay).
+#     This and all following stages use portage-stable and coreos-overlay
+#     from third_party/... (see 1.)
 #
 # 4. stage3: Run emerge -e system to rebuild everything using the fresh updated
-#    toolchain from 3., using the normal USE flags provided by the profile. This
-#    will also pull in assorted base system packages that weren't included
-#    in the minimal environment stage1 created.
+#     toolchain from 3., using the normal USE flags provided by the profile. This
+#     will also pull in assorted base system packages that weren't included
+#     in the minimal environment stage1 created.
 #
 # 5. stage4: Install any extra packages or other desired tweaks. For the
-#    sdk we just install all the packages normally make_chroot.sh does.
+#     sdk we just install all the packages normally make_chroot.sh does.
 #
 # Usage: bootstrap_sdk [stage1 stage2 etc]
 # By default all four stages will be built using the latest stage4 as a seed.
@@ -51,6 +54,13 @@ TYPE="flatcar-sdk"
 
 # include upload options
 . "${BUILD_LIBRARY_DIR}/release_util.sh" || exit 1
+
+
+DEFINE_string stage1_portage_ref "" \
+  "Custom portage repo git ref to use in stage 1 (USE WITH CAUTION)"
+DEFINE_string stage1_overlay_ref "" \
+  "Custom overlay repo git ref to use in stage 1 (USE WITH CAUTION)"
+
 
 ## Define the stage4 config template
 catalyst_stage4() {
@@ -99,41 +109,65 @@ cp "${BUILD_LIBRARY_DIR}/toolchain_util.sh" "${ROOT_OVERLAY}/tmp"
 # Stage 1 uses "known-good" ebuild repos (both coreos-overlay and portage-stable)
 #  to build a minimal toolchain (USE="-*") for stage 2.
 #
-# No package updates must happen in stage 1, so we use
-# - the portage-stable repo included with the current SDK (from the SDK chroot's
-#    /var/lib/gentoo/repos/gentoo), and
-# - the coreos-overlay repo version listed in the current SDK's manifest.
-#    Unfortunately coreos-overlay is not included in the SDK chroot at all; this
-#    will be addressed in the future.
-#
-# "Current SDK" refers to the SDK we entered with 'cork enter', i.e. the SDK
-#   we run ./bootstrap_sdk in.
+# No package updates must happen in stage 1, so we use the portage-stable and
+#  coreos-overlay repos included with the current SDK (from the SDK chroot's
+#  /var/lib/gentoo/repos/). "Current SDK" refers to the SDK we entered with
+#  'cork enter', i.e. the SDK we run ./bootstrap_sdk in.
 #
 # Using ebuilds from the above mentioned sources will ensure that stage 1 builds
 #  a minimal stage 2 from known-good ebuild versions - the same ebuild versions
 #  that were used to build the very SDK we run ./bootstrap_sdk in.
 #
-# NOTE that stage 1 lacks proper isolation and will link all packages built for stage 2
-#  against its own seed libraries ("/" in the catalyst chroot) instead of against libraries
+# This is needed because stage 1 lacks proper isolation and will link all packages built for
+#  stage 2 against its own seed libraries ("/" in the catalyst chroot) instead of against libraries
 #  installed into the FS root of the stage 2 seed ("/tmp/stage1root" in the catalyst chroot).
 #  This is why we must prevent any updated package ebuilds to "leak" into stage 1, hence we use
 #  "known good" ebuild repo versions outlined above.
+#
+# In special circumstances it may be required to circumvent this and use git
+#  refs of either (or both) portage and overlay. The command line options
+#  --stage1-portage-ref and --stage1-overlay-ref may be used to specify
+#  a git ref known to work for stage1. In that case the stage1 seed (i.e. the seed SDK)
+#  will be updated prior to starting to build stage 2.
+
+stage_repo() {
+    local repo="$1"
+    local gitref="$2"
+    local dest="$3"
+    local gitname="$repo"
+
+    if [ "$gitname" = "gentoo" ] ; then
+        gitname="portage-stable"
+    fi
+
+    if [ -z "$gitref" ]; then
+        cp -R "/var/gentoo/repos/${repo}" "$dest"
+        info "Using local SDK's ebuild repo '$repo' ('$gitname') in stage 1."
+    else
+        info "Using git ref '$gitref' for ebuild repo '$repo' ('$gitname') in stage 1."
+        mkdir "$dest/$repo"
+        (   cd "$dest/$repo" \
+            && git clone "https://github.com/kinvolk/$gitname.git" . \
+            && git fetch --all \
+            && git checkout "$gitref" )
+    fi
+}
 
 build_stage1() {
-
     # First, write out the default 4-stage catalyst configuration files
     write_configs
 
     # Prepare local copies of both the "known-good" portage-stable and the
     #  "known-good" coreos-overlay ebuild repos
-    info "Creating stage 1 ebuild repos and stage 1 snapshot in '$stage1_repos'"
     local stage1_repos="$TEMPDIR/stage1-ebuild-repos"
+    info "Creating stage 1 ebuild repos and stage 1 snapshot in '$stage1_repos'"
     rm -rf "$stage1_repos"
     mkdir "$stage1_repos"
 
-    # PORTAGE-STABLE
-    # copy local SDK's "known-good" portage-stable repo into stage 1 tempdir
-    cp -R /var/gentoo/repos/gentoo "$stage1_repos"
+    # prepare ebuild repos for stage 1, either from the local SDK (default)
+    #  or from git refs specified via command line flags
+    stage_repo "gentoo" "${FLAGS_stage1_portage_ref}" "$stage1_repos"
+    stage_repo "coreos-overlay" "${FLAGS_stage1_overlay_ref}" "$stage1_repos"
 
     # Create a snapshot of "known-good" portage-stable repo copy for use in stage 1
     #  This requires us to create a custom catalyst config to point it to the
@@ -144,28 +178,18 @@ build_stage1() {
     # take the "portage directory" (portage-stable copy) snapshot
     catalyst $DEBUG -c "$TEMPDIR/catalyst-stage1.conf" -s "$FLAGS_version-stage1"
 
-    # COREOS-OVERLAY
-    # get revision of coreos-overlay used by the SDK we're currently in so we can
-    #  check out exactly that version. Unfortunately, coreos-overlay is not available
-    #  in /var/lib/gentoo/repos - we might want to change that in the future, after which
-    #  this step will be a lot simpler.
-    local overlay_revision=$(
-        grep 'name="kinvolk/coreos-overlay"' /mnt/host/source/.repo/manifests/default.xml \
-        | sed 's/.*revision="refs\/\(heads\/\)\{0,1\}\([^"]\+\)".*/\2/' )
-
-    info "Using coreos-overlay revision '$overlay_revision'"
-
-    # Check out local SDK's "known-good" coreos-overlay version for use in stage 1
-    mkdir "$stage1_repos/coreos-overlay"
-    ( cd "$stage1_repos/coreos-overlay" \
-         && git clone https://github.com/kinvolk/coreos-overlay.git . \
-         && git checkout "$overlay_revision" )
-
-    # Wire up stage 1 spec to use the "known-good" portage-stable and coreos-overlay
-    #  repository versions from above.
+    # Update the stage 1 spec to use the "known-good" portage-stable snapshot
+    #  and coreos-overlay copy repository versions from above.
     sed -i -e "s/^snapshot:.*/snapshot: $FLAGS_version-stage1/" \
            -e "s,^portage_overlay:.*,portage_overlay: $stage1_repos/coreos-overlay," \
         "$TEMPDIR/stage1.spec"
+
+    # If we are to use a git ref for either ebuild repo we want to update the stage1 seed SDK
+    if [ -n "${FLAGS_stage1_portage_ref}" -o -n "${FLAGS_stage1_overlay_ref}" ] ; then
+        sed -i 's/^update_seed: no/update_seed: yes/' "$TEMPDIR/stage1.spec"
+        echo "update_seed_command: --update --deep --newuse --complete-graph --rebuild-if-new-ver --rebuild-exclude cross-*-cros-linux-gnu/* sys-devel/gcc " \
+            >>"$TEMPDIR/stage1.spec"
+    fi
 
     # Finally, build stage 1
     build_stage stage1 "$SEED" "$TEMPDIR/catalyst-stage1.conf"
