@@ -20,4 +20,6 @@ enter sudo \
         --sign="${SIGNING_USER}" \
         --sign_digests="${SIGNING_USER}" \
         --upload_root="${UPLOAD_ROOT}" \
+        --stage1_overlay_ref="${STAGE1_OVERLAY_REF}" \
+        --stage1_portage_ref="${STAGE1_PORTAGE_REF}" \
         --upload
