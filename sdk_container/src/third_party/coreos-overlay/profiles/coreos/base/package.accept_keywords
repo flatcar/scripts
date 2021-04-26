@@ -94,3 +94,5 @@ dev-util/checkbashisms
 =app-arch/zstd-1.4.9 ~amd64 ~arm64
 
 =net-libs/gnutls-3.7.1 ~amd64 ~arm64
+
+=net-nds/openldap-2.4.58 ~amd64 ~arm64
