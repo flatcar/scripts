@@ -21,8 +21,6 @@ DEFINE_boolean usepkgonly "${FLAGS_FALSE}" \
   "Only use/download binary packages. Implies --noworkon"
 DEFINE_boolean workon "${FLAGS_TRUE}" \
   "Automatically rebuild updated cros-workon packages."
-DEFINE_integer jobs "${NUM_JOBS}" \
-  "How many packages to build in parallel at maximum."
 DEFINE_boolean skip_toolchain_update "${FLAGS_FALSE}" \
   "Don't update the toolchains."
 DEFINE_string toolchain_boards "" \
@@ -201,10 +199,8 @@ if [ "${FLAGS_usepkg}" -eq "${FLAGS_TRUE}" ]; then
   REBUILD_FLAGS+=( $(get_binonly_args $(get_chost_list)) )
 fi
 
-if [[ "${FLAGS_jobs}" -ne -1 ]]; then
-  EMERGE_FLAGS+=( "--jobs=${FLAGS_jobs}" )
-  REBUILD_FLAGS+=( "--jobs=${FLAGS_jobs}" )
-fi
+EMERGE_FLAGS+=( "--jobs=${NUM_JOBS}" )
+REBUILD_FLAGS+=( "--jobs=${NUM_JOBS}" )
 
 # Perform an update of coreos-devel/sdk-depends and world in the chroot.
 EMERGE_CMD="emerge"
