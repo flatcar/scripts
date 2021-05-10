@@ -12,7 +12,8 @@ SRC_URI="https://dbus.freedesktop.org/releases/dbus/${P}.tar.gz"
 
 LICENSE="|| ( AFL-2.1 GPL-2 )"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x86-solaris"
+# Flatcar: stabilize amd64 and arm64
+KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x86-solaris"
 IUSE="debug doc elogind selinux static-libs systemd test user-session X"
 
 #RESTRICT="test"
@@ -42,9 +43,9 @@ DEPEND="${CDEPEND}
 		${PYTHON_DEPS}
 		)
 "
-RDEPEND="${CDEPEND}
-	selinux? ( sec-policy/selinux-dbus )
-"
+# Flatcar: drop dependency on sec-policy/selinux-dbus, to avoid pulling in
+# unnecessary ebuilds into rootfs.
+RDEPEND="${CDEPEND}"
 
 DOC_CONTENTS="
 	Some applications require a session bus in addition to the system
@@ -231,11 +232,7 @@ multilib_src_install_all() {
 pkg_postinst() {
 	readme.gentoo_print_elog
 
-	# Ensure unique id is generated and put it in /etc wrt #370451 but symlink
-	# for DBUS_MACHINE_UUID_FILE (see tools/dbus-launch.c) and reverse
-	# dependencies with hardcoded paths (although the known ones got fixed already)
-	dbus-uuidgen --ensure="${EROOT%/}"/etc/machine-id
-	ln -sf "${EPREFIX%/}"/etc/machine-id "${EROOT%/}"/var/lib/dbus/machine-id
+	# Flatcar: remove machine-id generation.
 
 	if [[ ${CHOST} == *-darwin* ]]; then
 		local plist="org.freedesktop.dbus-session.plist"
