@@ -1,0 +1,40 @@
+From 14faf1c20948688a48edb9b41367ab07ac11ca91 Mon Sep 17 00:00:00 2001
+From: Aleksa Sarai <cyphar@cyphar.com>
+Date: Wed, 28 Apr 2021 15:44:36 +1000
+Subject: [PATCH 0/5] rootfs: add mount destination validation
+
+This is a backport of the fix for CVE-2021-30465 to the v1.0.0-rc93
+release. However, because the patch does not apply cleanly it was
+necessary to backport the following commits (from [1]):
+
+ * deb8a8dd7767 ("libct/newInitConfig: nit")
+ * 1e476578b6cd ("libct/rootfs: introduce and use mountConfig")
+ * 3826db196d59 ("libct/rootfs/mountCgroupV2: minor refactor")
+ * ff692f289b60 ("Fix cgroup2 mount for rootless case")
+
+And the patch itself was modified to remove hardenings for code which
+didn't exist in v1.0.0-rc93 (in particular, the mount changes in [2]).
+
+[1]: https://github.com/opencontainers/runc/pull/2818
+[2]: https://github.com/opencontainers/runc/pull/2798
+
+Aleksa Sarai (1):
+  rootfs: add mount destination validation
+
+Kir Kolyshkin (4):
+  libct/newInitConfig: nit
+  libct/rootfs: introduce and use mountConfig
+  libct/rootfs/mountCgroupV2: minor refactor
+  Fix cgroup2 mount for rootless case
+
+ libcontainer/container_linux.go  |  11 +-
+ libcontainer/init_linux.go       |   1 +
+ libcontainer/rootfs_linux.go     | 291 +++++++++++++++++--------------
+ libcontainer/specconv/example.go |  18 +-
+ libcontainer/utils/utils.go      |  54 ++++++
+ libcontainer/utils/utils_test.go |  35 ++++
+ 6 files changed, 263 insertions(+), 147 deletions(-)
+
+-- 
+2.31.1
+

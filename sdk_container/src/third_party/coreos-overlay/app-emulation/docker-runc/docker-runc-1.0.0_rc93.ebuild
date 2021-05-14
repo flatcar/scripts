@@ -44,6 +44,12 @@ PATCHES=(
 	"${FILESDIR}/0001-Delay-unshare-of-clone-newipc-for-selinux.patch"
 	"${FILESDIR}/0002-temporarily-disable-selinux.GetEnabled-error-checks.patch"
 	"${FILESDIR}/0003-libcontainer-disable-prctl-with-NoNewPrivileges.patch"
+	# empty, kept for context: "${FILESDIR}/rc93-0000-cover-letter.patch"
+	"${FILESDIR}/rc93-0001-libct-newInitConfig-nit.patch"
+	"${FILESDIR}/rc93-0002-libct-rootfs-introduce-and-use-mountConfig.patch"
+	"${FILESDIR}/rc93-0003-libct-rootfs-mountCgroupV2-minor-refactor.patch"
+	"${FILESDIR}/rc93-0004-Fix-cgroup2-mount-for-rootless-case.patch"
+	"${FILESDIR}/rc93-0005-rootfs-add-mount-destination-validation.patch"
 )
 
 src_compile() {
