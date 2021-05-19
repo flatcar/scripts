@@ -111,12 +111,18 @@ QA_EXECSTACK="usr/bin/grub*-emu* usr/lib/grub/*"
 QA_WX_LOAD="usr/lib/grub/*"
 QA_MULTILIB_PATHS="usr/lib/grub/.*"
 
+PATCHES=(
+	"${FILESDIR}/${PN}-2.02-binutils-2.36-x86-used-note.patch"
+)
+
 src_unpack() {
 	cros-workon_src_unpack
 	default
 }
 
 src_prepare() {
+	default
+
 	sed -i -e /autoreconf/d autogen.sh || die
 
 	if use multislot; then
@@ -131,8 +137,6 @@ src_prepare() {
 		-e '/CFILESSRC.*=/s,american-english,words,' \
 		tests/util/grub-fs-tester.in \
 		|| die
-
-	eapply_user
 
 	if [[ -n ${GRUB_AUTOGEN} ]]; then
 		python_setup
