@@ -75,9 +75,9 @@ src_unpack() {
 		# way of installing the firmware files, so we need to
 		# create the symlinks to avoid failures at the
 		# firmware scanning stage.
-		ln -sfn t4fw-1.24.17.0.bin linux-firmware-${PV}/cxgb4/t4fw.bin
-		ln -sfn t5fw-1.24.17.0.bin linux-firmware-${PV}/cxgb4/t5fw.bin
-		ln -sfn t6fw-1.24.17.0.bin linux-firmware-${PV}/cxgb4/t6fw.bin
+		ln -sfn t4fw-1.25.4.0.bin linux-firmware-${PV}/cxgb4/t4fw.bin
+		ln -sfn t5fw-1.25.4.0.bin linux-firmware-${PV}/cxgb4/t5fw.bin
+		ln -sfn t6fw-1.25.4.0.bin linux-firmware-${PV}/cxgb4/t6fw.bin
 
 		# The xhci-pci.ko kernel module started requiring a
 		# renesas_usb_fw.mem firmware file, but this file is
