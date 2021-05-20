@@ -54,6 +54,8 @@ src_prepare() {
 src_compile() {
 	local options=( $(usex btrfs "" "no_btrfs") )
 	export GOPATH="${WORKDIR}/${P}" # ${PWD}/vendor
+	export GO111MODULE=on
+	export GOFLAGS="-v -x -mod=vendor"
 	LDFLAGS=$(usex hardened '-extldflags -fno-PIC' '') emake BUILDTAGS="${options[*]}"
 }
 
