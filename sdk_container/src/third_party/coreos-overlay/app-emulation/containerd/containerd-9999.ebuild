@@ -13,7 +13,7 @@ if [[ ${PV} == *9999 ]]; then
 else
 	MY_PV="${PV/_rc/-rc.}"
 	EGIT_COMMIT="v${MY_PV}"
-	CONTAINERD_COMMIT="afe869032ad2d672098b7c4feec3caba6ea83930"
+	CONTAINERD_COMMIT="ba879f88b5794a1407e5edf9b0df9cf63d4b2bd0"
 	SRC_URI="https://${GITHUB_URI}/archive/${EGIT_COMMIT}.tar.gz -> ${P}.tar.gz"
 	KEYWORDS="amd64 arm64"
 	inherit vcs-snapshot
@@ -54,6 +54,8 @@ src_prepare() {
 src_compile() {
 	local options=( $(usex btrfs "" "no_btrfs") )
 	export GOPATH="${WORKDIR}/${P}" # ${PWD}/vendor
+	export GO111MODULE=on
+	export GOFLAGS="-v -x -mod=vendor"
 	LDFLAGS=$(usex hardened '-extldflags -fno-PIC' '') emake BUILDTAGS="${options[*]}"
 }
 
