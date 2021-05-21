@@ -1,12 +1,12 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-PATCH_VER=7
+PATCH_VER=1
 PATCH_DEV=dilfridge
 
-inherit eutils libtool toolchain-funcs multilib-minimal
+inherit libtool toolchain-funcs multilib-minimal
 
 MY_PN="binutils"
 MY_P="${MY_PN}-${PV}"
@@ -19,20 +19,18 @@ SRC_URI="mirror://gnu/binutils/${MY_P}.tar.xz
 	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${MY_PN}-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz"
 
 LICENSE="|| ( GPL-3 LGPL-3 )"
-# The shared lib SONAMEs use the ${PV} in them.
-# -r1 is a one-off subslot bump where SONAME changed for bug #666100
-SLOT="0/${PV}-r1"
-IUSE="64-bit-bfd multitarget nls static-libs"
-KEYWORDS="alpha amd64 arm arm64 ~hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~x86-fbsd"
+SLOT="0/${PV}"
+IUSE="64-bit-bfd cet multitarget nls static-libs"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 sparc x86 ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 
-COMMON_DEPEND="sys-libs/zlib[${MULTILIB_USEDEP}]"
-DEPEND="${COMMON_DEPEND}
-	>=sys-apps/texinfo-4.7
-	nls? ( sys-devel/gettext )"
+BDEPEND="nls? ( sys-devel/gettext )"
+DEPEND="sys-libs/zlib[${MULTILIB_USEDEP}]"
 # Need a newer binutils-config that'll reset include/lib symlinks for us.
-RDEPEND="${COMMON_DEPEND}
+RDEPEND="${DEPEND}
 	>=sys-devel/binutils-config-5
-	nls? ( !<sys-devel/gdb-7.10-r1[nls] )"
+"
+
+PATCHES=("${FILESDIR}"/${PN}-2.35.1-cet.patch)
 
 S="${WORKDIR}/${MY_P}"
 
@@ -87,8 +85,17 @@ multilib_src_configure() {
 		# We pull in all USE-flags that change ABI in an incompatible
 		# way. #666100
 		# USE=multitarget change size of global arrays
-		# USE=64-bit-bfd changes data structures of exported API 
+		# USE=64-bit-bfd changes data structures of exported API
 		--with-extra-soversion-suffix=gentoo-${CATEGORY}-${PN}-$(usex multitarget mt st)-$(usex 64-bit-bfd 64 def)
+
+		# avoid automagic dependency on (currently prefix) systems
+		# systems with debuginfod library, bug #754753
+		--without-debuginfod
+
+		# Allow user to opt into CET for host libraries.
+		# Ideally we would like automagic-or-disabled here.
+		# But the check does not quite work on i686: bug #760926.
+		$(use_enable cet)
 	)
 
 	# mips can't do hash-style=gnu ...
@@ -102,8 +109,20 @@ multilib_src_configure() {
 		&& myconf+=( --without-included-gettext ) \
 		|| myconf+=( --disable-nls )
 
+	if [[ ${CHOST} == *-darwin* ]] && use nls ; then
+		# fix underlinking in opcodes
+		sed -i -e 's/@SHARED_LDFLAGS@/@SHARED_LDFLAGS@ -lintl/' \
+			"${S}"/opcodes/Makefile.in || die
+	fi
+
 	ECONF_SOURCE=${S} \
 	econf "${myconf[@]}"
+
+	# Prevent makeinfo from running as we don't build docs here.
+	# bug #622652
+	sed -i \
+		-e '/^MAKEINFO/s:=.*:= true:' \
+		Makefile || die
 }
 
 multilib_src_install() {

@@ -1,34 +1,34 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="5"
+EAPI=7
 
-PATCHVER="1.0"
+PATCH_VER=3
+PATCH_DEV=dilfridge
 
-inherit eutils toolchain-funcs multilib-minimal
+inherit libtool toolchain-funcs multilib-minimal
 
 MY_PN="binutils"
 MY_P="${MY_PN}-${PV}"
+PATCH_BINUTILS_VER=${PATCH_BINUTILS_VER:-${PV}}
+PATCH_DEV=${PATCH_DEV:-slyfox}
 
 DESCRIPTION="Core binutils libraries (libbfd, libopcodes, libiberty) for external packages"
 HOMEPAGE="https://sourceware.org/binutils/"
-SRC_URI="mirror://gnu/binutils/${MY_P}.tar.bz2
-	mirror://gentoo/${MY_P}-patches-${PATCHVER}.tar.xz"
+SRC_URI="mirror://gnu/binutils/${MY_P}.tar.xz
+	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${MY_PN}-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz"
 
 LICENSE="|| ( GPL-3 LGPL-3 )"
-# The shared lib SONAMEs use the ${PV} in them.
 SLOT="0/${PV}"
-KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="64-bit-bfd multitarget nls static-libs"
+IUSE="64-bit-bfd cet multitarget nls static-libs"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 
-COMMON_DEPEND="sys-libs/zlib[${MULTILIB_USEDEP}]"
-DEPEND="${COMMON_DEPEND}
-	>=sys-apps/texinfo-4.7
-	nls? ( sys-devel/gettext )"
+BDEPEND="nls? ( sys-devel/gettext )"
+DEPEND="sys-libs/zlib[${MULTILIB_USEDEP}]"
 # Need a newer binutils-config that'll reset include/lib symlinks for us.
-RDEPEND="${COMMON_DEPEND}
+RDEPEND="${DEPEND}
 	>=sys-devel/binutils-config-5
-	nls? ( !<sys-devel/gdb-7.10-r1[nls] )"
+"
 
 S="${WORKDIR}/${MY_P}"
 
@@ -37,7 +37,15 @@ MULTILIB_WRAPPED_HEADERS=(
 )
 
 src_prepare() {
-	EPATCH_SUFFIX="patch" epatch "${WORKDIR}"/patch
+	if [[ ! -z ${PATCH_VER} ]] ; then
+		einfo "Applying binutils-${PATCH_BINUTILS_VER} patchset ${PATCH_VER}"
+		eapply "${WORKDIR}/patch"/*.patch
+	fi
+
+	# Fix cross-compile relinking issue, bug #626402
+	elibtoolize
+
+	default
 }
 
 pkgversion() {
@@ -72,7 +80,26 @@ multilib_src_configure() {
 		# Strip out broken static link flags.
 		# https://gcc.gnu.org/PR56750
 		--without-stage1-ldflags
+		# We pull in all USE-flags that change ABI in an incompatible
+		# way. #666100
+		# USE=multitarget change size of global arrays
+		# USE=64-bit-bfd changes data structures of exported API
+		--with-extra-soversion-suffix=gentoo-${CATEGORY}-${PN}-$(usex multitarget mt st)-$(usex 64-bit-bfd 64 def)
+
+		# avoid automagic dependency on (currently prefix) systems
+		# systems with debuginfod library, bug #754753
+		--without-debuginfod
+
+		# Allow user to opt into CET for host libraries.
+		# Ideally we would like automagic-or-disabled here.
+		# But the check does not quite work on i686: bug #760926.
+		$(use_enable cet)
 	)
+
+	# mips can't do hash-style=gnu ...
+	if [[ $(tc-arch) != mips ]] ; then
+		myconf+=( --enable-default-hash-style=gnu )
+	fi
 
 	use multitarget && myconf+=( --enable-targets=all --enable-64-bit-bfd )
 
@@ -80,8 +107,20 @@ multilib_src_configure() {
 		&& myconf+=( --without-included-gettext ) \
 		|| myconf+=( --disable-nls )
 
+	if [[ ${CHOST} == *-darwin* ]] && use nls ; then
+		# fix underlinking in opcodes
+		sed -i -e 's/@SHARED_LDFLAGS@/@SHARED_LDFLAGS@ -lintl/' \
+			"${S}"/opcodes/Makefile.in || die
+	fi
+
 	ECONF_SOURCE=${S} \
 	econf "${myconf[@]}"
+
+	# Prevent makeinfo from running as we don't build docs here.
+	# bug #622652
+	sed -i \
+		-e '/^MAKEINFO/s:=.*:= true:' \
+		Makefile || die
 }
 
 multilib_src_install() {
