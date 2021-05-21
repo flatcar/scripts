@@ -11,8 +11,8 @@ COREOS_GO_VERSION="go1.13"
 # Update the patch number when this commit is changed (i.e. the _p in the ebuild).
 # The patch version is arbitrarily the number of commits since the tag version
 # specified in the ebuild name. For example:
-# $ git log --oneline v1.0.0-rc93..${COMMIT_ID} | wc -l
-COMMIT_ID="c0eb97855bea6ac7ded4bd6050a108d12f662418"
+# $ git log --oneline v1.0.0-rc95..${COMMIT_ID} | wc -l
+COMMIT_ID="7cc3ad87e3130ba1fed6c3fd7a756e88e2aac066"
 
 inherit eutils flag-o-matic coreos-go vcs-snapshot
 
@@ -44,12 +44,6 @@ PATCHES=(
 	"${FILESDIR}/0001-Delay-unshare-of-clone-newipc-for-selinux.patch"
 	"${FILESDIR}/0002-temporarily-disable-selinux.GetEnabled-error-checks.patch"
 	"${FILESDIR}/0003-libcontainer-disable-prctl-with-NoNewPrivileges.patch"
-	# empty, kept for context: "${FILESDIR}/rc93-0000-cover-letter.patch"
-	"${FILESDIR}/rc93-0001-libct-newInitConfig-nit.patch"
-	"${FILESDIR}/rc93-0002-libct-rootfs-introduce-and-use-mountConfig.patch"
-	"${FILESDIR}/rc93-0003-libct-rootfs-mountCgroupV2-minor-refactor.patch"
-	"${FILESDIR}/rc93-0004-Fix-cgroup2-mount-for-rootless-case.patch"
-	"${FILESDIR}/rc93-0005-rootfs-add-mount-destination-validation.patch"
 )
 
 src_compile() {
@@ -67,7 +61,7 @@ src_compile() {
 	)
 
 	GOPATH="${WORKDIR}/${P}" emake BUILDTAGS="${options[*]}" \
-		VERSION=1.0.0-rc93+dev.docker-19.03 \
+		VERSION=1.0.0-rc95+dev.docker-19.03 \
 		COMMIT="${COMMIT_ID}"
 }
 
