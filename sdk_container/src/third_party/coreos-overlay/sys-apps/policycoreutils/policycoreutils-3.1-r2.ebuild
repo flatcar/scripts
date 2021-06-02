@@ -15,7 +15,8 @@ SEMNG_VER="${PV}"
 SELNX_VER="${PV}"
 SEPOL_VER="${PV}"
 
-IUSE="audit pam split-usr"
+# flatcar changes: nls, extra
+IUSE="audit extra nls pam python split-usr"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 DESCRIPTION="SELinux core utilities"
@@ -40,14 +41,15 @@ fi
 LICENSE="GPL-2"
 SLOT="0"
 
-DEPEND=">=sys-libs/libselinux-${SELNX_VER}:=[python,${PYTHON_USEDEP}]
-	>=sys-libs/libsemanage-${SEMNG_VER}:=[python(+),${PYTHON_USEDEP}]
+# flatcar changes: remove setools. Since 4.x setools is written in python
+# so it's not shipped anymore with Flatcar OS
+DEPEND=">=sys-libs/libselinux-${SELNX_VER}:=[python?,${PYTHON_USEDEP}]
+	>=sys-libs/libsemanage-${SEMNG_VER}:=[python?,${PYTHON_USEDEP}]
 	>=sys-libs/libsepol-${SEPOL_VER}:=
 	sys-libs/libcap-ng:=
-	>=app-admin/setools-4.2.0[${PYTHON_USEDEP}]
-	audit? ( >=sys-process/audit-1.5.1[python,${PYTHON_USEDEP}] )
+	audit? ( >=sys-process/audit-1.5.1[python?,${PYTHON_USEDEP}] )
 	pam? ( sys-libs/pam:= )
-	${PYTHON_DEPS}"
+	python? ( ${PYTHON_DEPS} )"
 
 # Avoid dependency loop in the cross-compile case, bug #755173
 # (Still exists in native)
@@ -58,7 +60,7 @@ RDEPEND="${DEPEND}
 	app-misc/pax-utils"
 
 PDEPEND="sys-apps/semodule-utils
-	sys-apps/selinux-python"
+	python? ( sys-apps/selinux-python )"
 
 src_unpack() {
 	# Override default one because we need the SRC_URI ones even in case of 9999 ebuilds
@@ -86,13 +88,27 @@ src_prepare() {
 
 	sed -i 's/-Werror//g' "${S1}"/*/Makefile || die "Failed to remove Werror"
 
-	python_copy_sources
-	# Our extra code is outside the regular directory, so set it to the extra
-	# directory. We really should optimize this as it is ugly, but the extra
-	# code is needed for Gentoo at the same time that policycoreutils is present
-	# (so we cannot use an additional package for now).
-	S="${S2}"
-	python_copy_sources
+	# flatcar changes
+	if use python; then
+		python_copy_sources
+		# Our extra code is outside the regular directory, so set it to the extra
+		# directory. We really should optimize this as it is ugly, but the extra
+		# code is needed for Gentoo at the same time that policycoreutils is present
+		# (so we cannot use an additional package for now).
+		if use extra ; then
+			S="${S2}"
+			python_copy_sources
+		fi
+	fi
+
+	# flatcar changes
+	# Skip building unneeded parts.
+	if ! use python ; then
+		for dir in audit2allow gui scripts semanage sepolicy sepolgen-ifgen; do
+			sed -e "s/ $dir / /" -i Makefile || die
+		done
+	fi
+	use nls || sed -e "s/ po / /" -i Makefile || die
 }
 
 src_compile() {
@@ -105,10 +121,23 @@ src_compile() {
 			CC="$(tc-getCC)" \
 			LIBDIR="\$(PREFIX)/$(get_libdir)"
 	}
-	S="${S1}" # Regular policycoreutils
-	python_foreach_impl building
-	S="${S2}" # Extra set
-	python_foreach_impl building
+
+	# flatcar changes
+	if use python; then
+		S="${S1}" # Regular policycoreutils
+		python_foreach_impl building
+		if use extra ; then
+			S="${S2}" # Extra set
+			python_foreach_impl building
+		fi
+	else
+		BUILD_DIR="${S1}"
+		building
+		if use extra ; then
+			BUILD_DIR="${S2}"
+			building
+		fi
+	fi
 }
 
 src_install() {
@@ -123,39 +152,67 @@ src_install() {
 			CC="$(tc-getCC)" \
 			LIBDIR="\$(PREFIX)/$(get_libdir)" \
 			install
-		python_optimize
+		# flatcar changes
+		if use python; then
+			python_optimize
+		fi
 	}
 
 	installation-extras() {
 		einfo "Installing policycoreutils-extra"
 		emake -C "${BUILD_DIR}" \
 			DESTDIR="${D}" \
+			SHLIBDIR="${D}$(get_libdir)/rc" \
 			install
-		python_optimize
+		# flatcar changes
+		if use python; then
+			python_optimize
+		fi
 	}
 
-	S="${S1}" # policycoreutils
-	python_foreach_impl installation-policycoreutils
-	S="${S2}" # extras
-	python_foreach_impl installation-extras
-	S="${S1}" # back for later
+	# flatcar changes
+	if use python; then
+		S="${S1}" # policycoreutils
+		python_foreach_impl installation-policycoreutils
+		if use extra ; then
+			S="${S2}"
+			installation-extras
+			S="${S1}" # back for later
+		fi
+	else
+		BUILD_DIR="${S1}"
+		installation-policycoreutils
+		if use extra ; then
+			BUILD_DIR="${S2}"
+			installation-extras
+		fi
+	fi
 
 	# remove redhat-style init script
 	rm -fR "${D}/etc/rc.d" || die
 
 	# compatibility symlinks
-	use split-usr && dosym ../../sbin/setfiles /usr/sbin/setfiles
+	# flatcar changes:
+	# use split-usr && dosym ../../sbin/setfiles /usr/sbin/setfiles
 
 	bashcomp_alias setsebool getsebool
 
 	# location for policy definitions
-	dodir /var/lib/selinux
-	keepdir /var/lib/selinux
+	# flatcar changes:
+	dodir /usr/lib/selinux/policy
+	dosym ../../usr/lib/selinux/policy /var/lib/selinux
+	keepdir /usr/lib/selinux/policy
 
 	# Set version-specific scripts
-	for pyscript in rlpkg; do
-	  python_replicate_script "${ED}/usr/sbin/${pyscript}"
-	done
+	# flatcar changes
+	if use python; then
+		# Set version-specific scripts
+		for pyscript in audit2allow sepolgen-ifgen sepolicy chcat; do
+			python_replicate_script "${ED}/usr/bin/${pyscript}"
+		done
+		python_replicate_script "${ED}/usr/sbin/semanage"
+		use extra && python_replicate_script "${ED}/usr/sbin/rlpkg"
+	fi
 }
 
 pkg_postinst() {
