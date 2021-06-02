@@ -146,8 +146,12 @@ pkg_postinst() {
 		touch /etc/selinux/${POLTYPE}/contexts/files/file_contexts.local || die
 		# Fix bug 516608
 		for EXPRFILE in file_contexts file_contexts.homedirs file_contexts.local ; do
-			if [[ -f "/etc/selinux/${POLTYPE}/contexts/files/${EXPRFILE}" ]]; then
-				sefcontext_compile /etc/selinux/${POLTYPE}/contexts/files/${EXPRFILE} \
+			# flatcar changes:
+			# since libselinux is installed under `/build/amd64-usr`, we need to
+			# specify abspath to the binary `sefcontext_compile`, as well as abspath
+			# to the policy files.
+			if [[ -f "${ROOT}/etc/selinux/${POLTYPE}/contexts/files/${EXPRFILE}" ]]; then
+				${ROOT}/usr/sbin/sefcontext_compile ${ROOT}/etc/selinux/${POLTYPE}/contexts/files/${EXPRFILE} \
 				|| die "Failed to recompile contexts"
 			fi
 		done
