@@ -35,14 +35,22 @@ BDEPEND="sys-devel/flex
 RDEPEND=">=sys-libs/libsepol-${SEPOL_VER}"
 
 src_compile() {
+	# flatcar changes
 	emake \
 		CC="$(tc-getCC)" \
 		YACC="bison -y" \
-		LIBDIR="\$(PREFIX)/$(get_libdir)"
+		PREFIX="/usr" \
+		LIBDIR="${ROOT:-/}\$(PREFIX)/$(get_libdir)" \
+		INCLUDEDIR="${ROOT}\$(PREFIX)/include"
 }
 
 src_install() {
-	default
+	# flatcar changes
+	# we remove the `default` behavior to override
+	# the LIBSEPOLA variable in order to fix cross compile
+	emake DESTDIR="${D}" \
+		LIBSEPOLA="${ROOT:-/}/usr/$(get_libdir)/libsepol.a" \
+		install
 
 	if use debug; then
 		dobin "${S}/test/dismod"
