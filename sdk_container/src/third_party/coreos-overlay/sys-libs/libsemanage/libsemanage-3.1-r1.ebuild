@@ -4,7 +4,8 @@
 EAPI=7
 PYTHON_COMPAT=( python3_6 )
 
-inherit python-r1 toolchain-funcs multilib-minimal
+# flatcar changes
+inherit python-r1 toolchain-funcs multilib-minimal systemd
 
 MY_P="${P//_/-}"
 MY_RELEASEDATE="20200710"
@@ -27,17 +28,21 @@ fi
 
 LICENSE="GPL-2"
 SLOT="0"
-REQUIRED_USE="${PYTHON_REQUIRED_USE}"
+IUSE="python"
+REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
 RDEPEND=">=sys-libs/libsepol-${SEPOL_VER}[${MULTILIB_USEDEP}]
 	>=sys-libs/libselinux-${SELNX_VER}[${MULTILIB_USEDEP}]
 	>=sys-process/audit-2.2.2[${MULTILIB_USEDEP}]
-	${PYTHON_DEPS}"
+	python? ( ${PYTHON_DEPS} )"
 DEPEND="${RDEPEND}"
-BDEPEND=">=dev-lang/swig-2.0.4-r1
+BDEPEND="
+	python? (
+		>=dev-lang/swig-2.0.4-r1
+		virtual/pkgconfig
+	)
 	sys-devel/bison
-	sys-devel/flex
-	virtual/pkgconfig"
+	sys-devel/flex"
 
 # tests are not meant to be run outside of the
 # full SELinux userland repo
@@ -80,7 +85,8 @@ multilib_src_compile() {
 		LIBDIR="${EPREFIX}/usr/$(get_libdir)" \
 		all
 
-	if multilib_is_native_abi; then
+	# flatcar changes
+	if multilib_is_native_abi && use python; then
 		building_py() {
 			emake \
 				AR="$(tc-getAR)" \
@@ -94,19 +100,29 @@ multilib_src_compile() {
 }
 
 multilib_src_install() {
+	# flatcar changes
 	emake \
+		DEFAULT_SEMANAGE_CONF_LOCATION="/usr/lib/selinux/semanage.conf" \
 		LIBDIR="${EPREFIX}/usr/$(get_libdir)" \
+		SHLIBDIR="/usr/$(get_libdir)" \
 		DESTDIR="${ED}" install
 
-	if multilib_is_native_abi; then
+	# flatcar changes
+	if multilib_is_native_abi && use python; then
 		installation_py() {
+			# flatcar changes
 			emake DESTDIR="${ED}" \
 				LIBDIR="${EPREFIX}/usr/$(get_libdir)" \
+				SHLIBDIR="${EPREFIX}/usr/$(get_libdir)" \
+				LIBSEPOLA="${EPREFIX%/}/usr/$(get_libdir)/libsepol.a" \
 				install-pywrap
 			python_optimize # bug 531638
 		}
 		python_foreach_impl installation_py
 	fi
+
+	# flatcar changes
+	systemd_dotmpfilesd "${FILESDIR}/tmpfiles.d/libsemanage.conf"
 }
 
 multiib_src_install_all() {
