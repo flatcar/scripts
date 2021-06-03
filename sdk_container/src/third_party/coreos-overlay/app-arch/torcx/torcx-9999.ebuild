@@ -5,20 +5,20 @@ EAPI=7
 CROS_WORKON_PROJECT="flatcar-linux/torcx"
 CROS_WORKON_LOCALNAME="torcx"
 CROS_WORKON_REPO="git://github.com"
-COREOS_GO_PACKAGE="github.com/coreos/torcx"
+COREOS_GO_PACKAGE="github.com/flatcar-linux/torcx"
 COREOS_GO_GO111MODULE="off"
 
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	CROS_WORKON_COMMIT="6cae861af82f28357b4c06923c7a6374b223c6f9" # flatcar-master
+	CROS_WORKON_COMMIT="13042171585a28260486237ddf67e63ed88dce3f" # flatcar-master
 	KEYWORDS="amd64 arm64"
 fi
 
 inherit coreos-go cros-workon systemd
 
 DESCRIPTION="torcx is a boot-time addon manager for immutable systems"
-HOMEPAGE="https://github.com/coreos/torcx"
+HOMEPAGE="https://github.com/flatcar-linux/torcx"
 LICENSE="Apache-2.0"
 SLOT="0"
 
