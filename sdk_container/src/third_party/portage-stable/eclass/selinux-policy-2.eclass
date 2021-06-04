@@ -179,11 +179,12 @@ selinux-policy-2_src_prepare() {
 
 	# Apply the additional patches refered to by the module ebuild.
 	# But first some magic to differentiate between bash arrays and strings
-	if [[ "$(declare -p POLICY_PATCH 2>/dev/null 2>&1)" == "declare -a"* ]]; then
-		[[ -n ${POLICY_PATCH[*]} ]] && eapply -d "${S}/refpolicy/policy/modules" "${POLICY_PATCH[@]}"
-	else
-		[[ -n ${POLICY_PATCH} ]] && eapply -d "${S}/refpolicy/policy/modules" ${POLICY_PATCH}
-	fi
+	cd "${S}/refpolicy/policy/modules"
+	for POLPATCH in ${POLICY_PATCH[@]};
+	do
+		einfo "Installing ${POLPATCH}"
+		eapply -p0 "${POLPATCH}"
+	done
 
 	# Collect only those files needed for this particular module
 	for i in ${MODS}; do
