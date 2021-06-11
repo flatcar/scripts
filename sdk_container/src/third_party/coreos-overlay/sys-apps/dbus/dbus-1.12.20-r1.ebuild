@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{7,8,9} )
+PYTHON_COMPAT=( python3_7 )
 inherit autotools flag-o-matic linux-info python-any-r1 readme.gentoo-r1 systemd virtualx multilib-minimal
 
 DESCRIPTION="A message bus system, a simple way for applications to talk to each other"
@@ -43,9 +43,11 @@ DEPEND="${COMMON_DEPEND}
 		>=dev-libs/glib-2.40:2
 	)
 "
+
+# Flatcar: drop dependency on sec-policy/selinux-dbus, to avoid pulling in 
+# unnecessary ebuilds into rootfs
 RDEPEND="${COMMON_DEPEND}
 	acct-user/messagebus
-	selinux? ( sec-policy/selinux-dbus )
 "
 
 DOC_CONTENTS="
@@ -246,11 +248,7 @@ multilib_src_install_all() {
 pkg_postinst() {
 	readme.gentoo_print_elog
 
-	# Ensure unique id is generated and put it in /etc wrt #370451 but symlink
-	# for DBUS_MACHINE_UUID_FILE (see tools/dbus-launch.c) and reverse
-	# dependencies with hardcoded paths (although the known ones got fixed already)
-	dbus-uuidgen --ensure="${EROOT}"/etc/machine-id
-	ln -sf "${EPREFIX}"/etc/machine-id "${EROOT}"/var/lib/dbus/machine-id
+	# Flatcar: remove machine-id generation.
 
 	if [[ ${CHOST} == *-darwin* ]]; then
 		local plist="org.freedesktop.dbus-session.plist"
