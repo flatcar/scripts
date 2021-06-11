@@ -30,7 +30,12 @@ SLOT="0"
 
 DEPEND=">=sys-libs/libsepol-${SEPOL_VER}:="
 
-RDEPEND="${DEPEND}"
+# flatcar changes: add a weak blocker on policycoreutils-2.4
+# to prevent file collisions
+# policycoreutils-2.4 and semodule-utils provide the same files
+RDEPEND="${DEPEND}
+	!=sys-apps/policycoreutils-2.4-r2
+"
 
 src_prepare() {
 	default
