@@ -37,13 +37,13 @@ BDEPEND="
 		app-alternatives/yacc
 	)
 "
+# Flatcar: Drop net-firewall/arptables as we don't ship arptables.
 RDEPEND="
 	${COMMON_DEPEND}
 	nftables? ( net-misc/ethertypes )
 	!<net-firewall/ebtables-2.0.11-r1
-	!<net-firewall/arptables-0.0.5-r1
 "
-IDEPEND=">=app-eselect/eselect-iptables-20220320"
+# Flatcar: Do not ship eselect-iptables.
 
 PATCHES=(
 	"${FILESDIR}/iptables-1.8.4-no-symlinks.patch"
@@ -127,10 +127,14 @@ src_install() {
 		rm "${ED}"/etc/ethertypes || die
 
 		# Bugs #660886 and #669894
-		rm "${ED}"/sbin/{arptables,ebtables}{,-{save,restore}} || die
+		# Flatcar: We don't provide arptables* binaries.
+		# Flatcar: Keeping the ebtables binaries
+		rm "${ED}"/sbin/arptables{{,-{save,restore}},-nft{,-{save,restore}}} || die
 	fi
 
-	systemd_dounit "${FILESDIR}"/systemd/ip{,6}tables-{re,}store.service
+	# Flatcar: Gentoo upstream dropped the iptables & ip6tables services
+	# but we continue to ship them
+	systemd_dounit "${FILESDIR}"/systemd/ip{,6}tables{,-{re,}store}.service
 
 	# Move important libs to /lib, bug #332175
 	gen_usr_ldscript -a ip{4,6}tc xtables
@@ -139,18 +143,20 @@ src_install() {
 }
 
 pkg_postinst() {
-	local default_iptables="xtables-legacy-multi"
+	# Flatcar: Use xtables-nft-multi to use the nft backend instead of legacy backend
+	local default_iptables="xtables-nft-multi"
 	if ! eselect iptables show &>/dev/null; then
 		elog "Current iptables implementation is unset, setting to ${default_iptables}"
 		eselect iptables set "${default_iptables}"
 	fi
-
+	# Flatcar: Drop the arptables, but retain the `for` structure in favor of lesser diff
+	# to upstream
 	if use nftables; then
 		local tables
-		for tables in {arp,eb}tables; do
+		for tables in ebtables; do
 			if ! eselect ${tables} show &>/dev/null; then
 				elog "Current ${tables} implementation is unset, setting to ${default_iptables}"
-				eselect ${tables} set xtables-nft-multi
+				eselect ${tables} set "${default_iptables}"
 			fi
 		done
 	fi
@@ -167,17 +173,6 @@ pkg_prerm() {
 	if ! has_version 'net-firewall/ebtables'; then
 		elog "Unsetting ebtables symlinks before removal"
 		eselect ebtables unset
-	elif [[ -z ${REPLACED_BY_VERSION} ]]; then
-		elog "Resetting ebtables symlinks to ebtables-legacy"
-		eselect ebtables set ebtables-legacy
-	fi
-
-	if ! has_version 'net-firewall/arptables'; then
-		elog "Unsetting arptables symlinks before removal"
-		eselect arptables unset
-	elif [[ -z ${REPLACED_BY_VERSION} ]]; then
-		elog "Resetting arptables symlinks to arptables-legacy"
-		eselect arptables set arptables-legacy
 	fi
 
 	# The eselect module failing should not be fatal
