@@ -20,7 +20,10 @@ REQUIRED_USE="^^ ( ec2 openstack brightbox aws_pro )"
 #       ec2? ( app-emulation/amazon-ssm-agent )
 #"
 RDEPEND="
-       aws_pro? ( coreos-base/flatcar-eks )
+       aws_pro? (
+        coreos-base/flatcar-eks
+        x11-drivers/nvidia-drivers
+       )
 "
 
 # no source directory
