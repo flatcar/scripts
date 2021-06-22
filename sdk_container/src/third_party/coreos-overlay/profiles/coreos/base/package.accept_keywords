@@ -97,6 +97,4 @@ dev-util/checkbashisms
 
 =net-nds/openldap-2.4.58 ~amd64 ~arm64
 
-=net-misc/curl-7.76.1 ~amd64 ~arm64
-
 =dev-libs/libxml2-2.9.12-r2 ~amd64 ~arm64
