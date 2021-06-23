@@ -11,7 +11,7 @@ SRC_URI="https://curl.haxx.se/download/${P}.tar.xz"
 
 LICENSE="curl"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="adns alt-svc brotli +ftp gnutls gopher hsts +http2 idn +imap ipv6 kerberos ldap mbedtls metalink nss +openssl +pop3 +progress-meter rtmp samba +smtp ssh ssl sslv3 static-libs test telnet +tftp threads winssl zstd"
 IUSE+=" curl_ssl_gnutls curl_ssl_mbedtls curl_ssl_nss +curl_ssl_openssl curl_ssl_winssl"
 IUSE+=" nghttp3 quiche"
@@ -48,7 +48,7 @@ RDEPEND="ldap? ( net-nds/openldap[${MULTILIB_USEDEP}] )
 			app-misc/ca-certificates
 		)
 		openssl? (
-			dev-libs/openssl:0=[sslv3=,static-libs?,${MULTILIB_USEDEP}]
+			dev-libs/openssl:0=[sslv3(-)=,static-libs?,${MULTILIB_USEDEP}]
 		)
 		nss? (
 			dev-libs/nss:0[${MULTILIB_USEDEP}]
@@ -100,7 +100,6 @@ MULTILIB_CHOST_TOOLS=(
 PATCHES=(
 	"${FILESDIR}"/${PN}-7.30.0-prefix.patch
 	"${FILESDIR}"/${PN}-respect-cflags-3.patch
-	"${FILESDIR}"/${PN}-fix-gnutls-nettle.patch
 )
 
 src_prepare() {
@@ -221,19 +220,22 @@ multilib_src_configure() {
 		--disable-versioned-symbols
 		--without-amissl
 		--without-bearssl
+		$(use_with brotli)
 		--without-cyassl
 		--without-darwinssl
 		--without-fish-functions-dir
+		$(use_with http2 nghttp2)
+		--without-hyper
 		$(use_with idn libidn2)
 		$(use_with kerberos gssapi "${EPREFIX}"/usr)
 		$(use_with metalink libmetalink)
-		$(use_with http2 nghttp2)
+		--without-libgsasl
 		--without-libpsl
 		$(use_with nghttp3)
 		$(use_with nghttp3 ngtcp2)
 		$(use_with quiche)
 		$(use_with rtmp librtmp)
-		$(use_with brotli)
+		--without-rustls
 		--without-schannel
 		--without-secure-transport
 		--without-spnego
@@ -280,6 +282,10 @@ multilib_src_configure() {
 		-e "/^Libs.private/s:(${libs#|})( |$)::g" \
 		libcurl.pc || die
 	echo "Requires.private: ${priv[*]}" >> libcurl.pc
+}
+
+multilib_src_test() {
+	multilib_is_native_abi && default_src_test
 }
 
 multilib_src_install_all() {
