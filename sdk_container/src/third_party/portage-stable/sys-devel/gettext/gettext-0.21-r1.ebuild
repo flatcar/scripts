@@ -1,22 +1,26 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # Note: Keep version bumps in sync with dev-libs/libintl.
 
-EAPI="5"
+EAPI=7
 
-inherit epatch epunt-cxx ltprune mono-env libtool java-pkg-opt-2 multilib-minimal
+inherit mono-env libtool java-pkg-opt-2 multilib-minimal
 
 DESCRIPTION="GNU locale utilities"
 HOMEPAGE="https://www.gnu.org/software/gettext/"
-SRC_URI="mirror://gnu/${PN}/${P}.tar.gz"
-
+if [[ "${PV}" == *_rc* ]] ; then
+	SRC_URI="https://alpha.gnu.org/gnu/${PN}/${P/_/-}.tar.bz2"
+	S="${WORKDIR}/${P/_/-}"
+else
+	SRC_URI="mirror://gnu/${PN}/${P}.tar.gz"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt"
+fi
 # Only libasprintf is under the LGPL (and libintl is in a sep package),
 # so put that license behind USE=cxx.
 LICENSE="GPL-3+ cxx? ( LGPL-2.1+ )"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
-IUSE="acl -cvs +cxx doc emacs git java ncurses nls openmp static-libs"
+IUSE="acl cvs +cxx doc emacs git java ncurses nls openmp static-libs"
 
 # only runtime goes multilib
 # Note: The version of libxml2 corresponds to the version bundled via gnulib.
@@ -31,17 +35,35 @@ DEPEND=">=virtual/libiconv-0-r1[${MULTILIB_USEDEP}]
 	dev-libs/expat
 	acl? ( virtual/acl )
 	ncurses? ( sys-libs/ncurses:0= )
-	java? ( >=virtual/jdk-1.4:= )"
+	java? ( >=virtual/jdk-1.8:= )"
 RDEPEND="${DEPEND}
 	!git? ( cvs? ( dev-vcs/cvs ) )
 	git? ( dev-vcs/git )
-	java? ( >=virtual/jre-1.4 )"
+	java? ( >=virtual/jre-1.8 )"
+BDEPEND="
+	git? ( dev-vcs/git )
+"
 PDEPEND="emacs? ( app-emacs/po-mode )"
 
 MULTILIB_WRAPPED_HEADERS=(
 	# only installed for native ABI
 	/usr/include/gettext-po.h
+
+	/usr/include/autosprintf.h
+	/usr/include/textstyle.h
+	/usr/include/textstyle/stdbool.h
+	/usr/include/textstyle/version.h
+	/usr/include/textstyle/woe32dll.h
 )
+
+PATCHES=(
+	"${FILESDIR}"/${PN}-0.19.7-disable-libintl.patch #564168
+	"${FILESDIR}"/${PN}-0.20-parallel_install.patch #685530
+	"${FILESDIR}"/${PN}-0.21_rc1-avoid_eautomake.patch
+	"${FILESDIR}"/${PN}-0.21-CVE-2020-12825.patch
+)
+
+QA_SONAME_NO_SYMLINK=".*/preloadable_libintl.so"
 
 pkg_setup() {
 	mono-env_pkg_setup
@@ -51,10 +73,8 @@ pkg_setup() {
 src_prepare() {
 	java-pkg-opt-2_src_prepare
 
-	epatch "${FILESDIR}"/${PN}-0.19.7-disable-libintl.patch #564168
-	epatch "${FILESDIR}"/${PN}-0.19.8.1-format-security.patch
+	default
 
-	epunt_cxx
 	elibtoolize
 }
 
@@ -62,7 +82,7 @@ multilib_src_configure() {
 	local myconf=(
 		# switches common to runtime and top-level
 		--cache-file="${BUILD_DIR}"/config.cache
-		--docdir="\$(datarootdir)/doc/${PF}"
+		#--docdir="\$(datarootdir)/doc/${PF}"
 
 		# Emacs support is now in a separate package
 		--without-emacs
@@ -91,7 +111,7 @@ multilib_src_configure() {
 		$(use_enable static-libs static)
 	)
 
-	local ECONF_SOURCE=${S}
+	local ECONF_SOURCE="${S}"
 	if ! multilib_is_native_abi ; then
 		# for non-native ABIs, we build runtime only
 		ECONF_SOURCE+=/gettext-runtime
@@ -101,7 +121,7 @@ multilib_src_configure() {
 }
 
 multilib_src_install() {
-	default
+	emake DESTDIR="${D}" install
 
 	if multilib_is_native_abi ; then
 		dosym msgfmt /usr/bin/gmsgfmt #43435
@@ -110,29 +130,26 @@ multilib_src_install() {
 }
 
 multilib_src_install_all() {
-	use nls || rm -r "${ED}"/usr/share/locale
-	use static-libs || prune_libtool_files --all
-
-	rm -f "${ED}"/usr/share/locale/locale.alias "${ED}"/usr/lib/charset.alias
+	find "${ED}" -type f -name "*.la" -delete || die
 
 	if use java ; then
 		java-pkg_dojar "${ED}"/usr/share/${PN}/*.jar
-		rm -f "${ED}"/usr/share/${PN}/*.jar
-		rm -f "${ED}"/usr/share/${PN}/*.class
+		rm "${ED}"/usr/share/${PN}/*.jar || die
+		rm "${ED}"/usr/share/${PN}/*.class || die
 		if use doc ; then
-			java-pkg_dojavadoc "${ED}"/usr/share/doc/${PF}/javadoc2
-			rm -rf "${ED}"/usr/share/doc/${PF}/javadoc2
+			java-pkg_dojavadoc "${ED}"/usr/share/doc/${PF}/html/javadoc2
 		fi
 	fi
 
+	dodoc AUTHORS ChangeLog NEWS README THANKS
+
 	if use doc ; then
-		dohtml "${ED}"/usr/share/doc/${PF}/*.html
+		docinto html
+		dodoc "${ED}"/usr/share/doc/${PF}/*.html
 	else
 		rm -rf "${ED}"/usr/share/doc/${PF}/{csharpdoc,examples,javadoc2,javadoc1}
 	fi
-	rm -f "${ED}"/usr/share/doc/${PF}/*.html
-
-	dodoc AUTHORS ChangeLog NEWS README THANKS
+	rm "${ED}"/usr/share/doc/${PF}/*.html || die
 }
 
 pkg_preinst() {
