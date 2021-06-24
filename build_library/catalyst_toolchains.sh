@@ -3,6 +3,7 @@
 set -e
 source /tmp/chroot-functions.sh
 source /tmp/toolchain_util.sh
+source /tmp/break_dep_loop.sh
 
 # A note on packages:
 # The default PKGDIR is /usr/portage/packages
@@ -10,7 +11,7 @@ source /tmp/toolchain_util.sh
 # crossdev build packages use ${PKGDIR}/crossdev (uploaded to SDK location)
 # build deps in crossdev's sysroot use ${PKGDIR}/cross/${CHOST} (no upload)
 # native toolchains use ${PKGDIR}/target/${BOARD} (uploaded to board location)
-
+set -x
 configure_target_root() {
     local board="$1"
     local cross_chost=$(get_board_chost "$1")

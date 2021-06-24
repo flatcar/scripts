@@ -330,6 +330,7 @@ install_cross_toolchain() {
         $sudo crossdev "${cross_flags[@]}" --stage4
     else
         echo "Installing existing binaries"
+
         $sudo emerge "${emerge_flags[@]}" \
             "cross-${cross_chost}/gdb" "${cross_pkgs[@]}"
         if [ "${cross_chost}" = aarch64-cros-linux-gnu ] && \
@@ -367,6 +368,27 @@ install_cross_libs() {
         ROOT="$ROOT" \
         SYSROOT="$ROOT" \
         _configure_sysroot "${CROSS_PROFILES[${cross_chost}]}"
+
+    # Create a custom use flags file to work around toolchain
+    #  build issues.
+    local use_flags_file="${ROOT}/etc/portage/package.use/toolchain"
+    $sudo rm -f "${use_flags_file}"
+    sudo mkdir -p "${use_flags_file%/*}"
+
+    # prevent curl from pulling in mit-krb5, which breaks cross compile
+    # add split-usr to systemd since the toolchain chroot is split
+    $sudo tee "${use_flags_file}" <<<"net-misc/curl -kerberos"
+    $sudo tee -a "${use_flags_file}" <<<"sys-apps/systemd split-usr"
+
+    # Work around circular dependencies
+    # util-linux[udev] -> virtual->udev -> systemd -> util-linux
+    # util-linux[systemd] -> systemd -> util-linux
+    # systemd[cryptsetup] -> cryptsetup[udev] -> virtual/udev -> systemd
+    local -a EMERGE_FLAGS=( "-uDNv" "--backtrack=30" "--select" )
+    EMERGE_FLAGS+=( "--root=${ROOT}" "--sysroot=${ROOT}" )
+        ROOT="${ROOT}"  PORTAGE_CONFIGROOT="${ROOT}" \
+        break_dep_loop sys-apps/util-linux udev,systemd \
+                       sys-apps/systemd cryptsetup
 
     # In order to get a dependency list we must calculate it before
     # updating package.provided. Otherwise portage will no-op.

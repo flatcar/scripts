@@ -501,20 +501,6 @@ remove_quotes() {
   echo "$1" | sed -e "s/^'//; s/'$//"
 }
 
-# Writes stdin to the given file name as root using sudo in overwrite mode.
-#
-# $1 - The output file name.
-sudo_clobber() {
-  sudo tee "$1" >/dev/null
-}
-
-# Writes stdin to the given file name as root using sudo in append mode.
-#
-# $1 - The output file name.
-sudo_append() {
-  sudo tee -a "$1" >/dev/null
-}
-
 # Execute multiple commands in a single sudo. Generally will speed things
 # up by avoiding multiple calls to `sudo`. If any commands fail, we will
 # call die with the failing command. We can handle a max of ~100 commands,

@@ -33,8 +33,10 @@ check_gsutil_opts
 ROOT_OVERLAY="${TEMPDIR}/stage4-${ARCH}-$FLAGS_version-overlay"
 
 # toolchain_util.sh is required by catalyst_toolchains.sh
+# break_dep_loop.sh is required by toolchain_util.sh
 mkdir -p "${ROOT_OVERLAY}/tmp"
 cp "${BUILD_LIBRARY_DIR}/toolchain_util.sh" "${ROOT_OVERLAY}/tmp"
+cp "${BUILD_LIBRARY_DIR}/break_dep_loop.sh" "${ROOT_OVERLAY}/tmp"
 
 catalyst_build
 
