@@ -69,7 +69,7 @@ COMMON_DEPEND=">=sys-apps/util-linux-2.30:0=[${MULTILIB_USEDEP}]
 		sys-libs/zlib:0=
 	)
 	kmod? ( >=sys-apps/kmod-15:0= )
-	lz4? ( >=app-arch/lz4-0_p131:0=[${MULTILIB_USEDEP}] )
+	lz4? ( >=app-arch/lz4-1.9.3-r1:0=[${MULTILIB_USEDEP}] )
 	lzma? ( >=app-arch/xz-utils-5.0.5-r1:0=[${MULTILIB_USEDEP}] )
 	nat? ( net-firewall/iptables:0= )
 	pam? ( sys-libs/pam:=[${MULTILIB_USEDEP}] )
