@@ -1,7 +1,7 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 
 inherit flag-o-matic toolchain-funcs
 
@@ -11,24 +11,33 @@ SRC_URI="mirror://sourceforge/${PN}/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm ~arm64 ia64 ~mips ppc ppc64 sparc x86 ~amd64-linux ~arm-linux ~x86-linux"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86 ~amd64-linux ~x86-linux"
 IUSE="kernel_linux ncurses static"
 
-LIB_DEPEND="
-	dev-libs/popt[static-libs(+)]
-	ncurses? ( >=sys-libs/ncurses-5.7-r7:0=[static-libs(+)] )
-	kernel_linux? ( sys-apps/util-linux[static-libs(+)] )" # libuuid
-RDEPEND="!static? ( ${LIB_DEPEND//\[static-libs(+)]} )"
-DEPEND="${RDEPEND}
-	static? ( ${LIB_DEPEND} )
-	virtual/pkgconfig"
+# libuuid from util-linux is required.
+RDEPEND="!static? (
+		dev-libs/popt
+		ncurses? ( >=sys-libs/ncurses-5.7-r7:0=[unicode] )
+		kernel_linux? ( sys-apps/util-linux )
+	)"
+DEPEND="
+	${RDEPEND}
+	static? (
+		dev-libs/popt[static-libs(+)]
+		ncurses? ( >=sys-libs/ncurses-5.7-r7:0=[unicode,static-libs(+)] )
+		kernel_linux? ( sys-apps/util-linux[static-libs(+)] )
+	)
+	virtual/pkgconfig
+"
 
 src_prepare() {
+	default
+
 	tc-export CXX PKG_CONFIG
 
-	if ! use ncurses; then
+	if ! use ncurses ; then
 		sed -i \
-			-e '/^all:/s:cgdisk::' \
+			-e '/^all:/s: cgdisk::' \
 			Makefile || die
 	fi
 
