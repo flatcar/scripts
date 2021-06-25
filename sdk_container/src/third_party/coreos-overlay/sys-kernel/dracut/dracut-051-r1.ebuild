@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -64,11 +64,8 @@ DOCS=( AUTHORS HACKING NEWS README.md README.generic README.kernel README.module
 QA_MULTILIB_PATHS="usr/lib/dracut/.*"
 
 PATCHES=(
-	"${FILESDIR}"/050-Makefile-merge-main-version-and-git-version-earlier.patch
-	"${FILESDIR}"/050-dracut.sh-don-t-call-fsfreeze-on-subvol-of-root-file.patch
-	"${FILESDIR}"/050-Makefile-fix-VERSION-again.patch
-	"${FILESDIR}"/050-busybox-module-fix.patch
-	"${FILESDIR}"/050-gentoo-ldconfig-paths.patch
+	"${FILESDIR}"/051-dracut.sh-move-ldconfig.patch
+	"${FILESDIR}"/gentoo-ldconfig-paths.patch
 )
 
 src_configure() {
@@ -128,9 +125,6 @@ pkg_postinst() {
 		ewarn ""
 	fi
 
-	elog "To get additional features, a number of optional runtime"
-	elog "dependencies may be installed:"
-	elog ""
 	optfeature "Networking support" net-misc/networkmanager
 	optfeature "Legacy networking support" net-misc/curl "net-misc/dhcp[client]" \
 		sys-apps/iproute2 "net-misc/iputils[arping]"
