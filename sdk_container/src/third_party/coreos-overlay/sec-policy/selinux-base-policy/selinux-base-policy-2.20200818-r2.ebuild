@@ -32,6 +32,15 @@ LICENSE="GPL-2"
 SLOT="0"
 S="${WORKDIR}/"
 
+# flatcar changes: apply a couple of
+# patches on the current policies
+PATCHES=(
+	"${FILESDIR}/sshd.patch"
+	"${FILESDIR}/init.patch"
+	"${FILESDIR}/locallogin.patch"
+	"${FILESDIR}/logging.patch"
+)
+
 # Code entirely copied from selinux-eclass (cannot inherit due to dependency on
 # itself), when reworked reinclude it. Only postinstall (where -b base.pp is
 # added) needs to remain then.
@@ -52,6 +61,7 @@ src_prepare() {
 		eapply -p0 "${WORKDIR}/0001-full-patch-against-stable-release.patch"
 	fi
 
+	eapply -p0 "${PATCHES[@]}"
 	eapply_user
 
 	# Collect only those files needed for this particular module

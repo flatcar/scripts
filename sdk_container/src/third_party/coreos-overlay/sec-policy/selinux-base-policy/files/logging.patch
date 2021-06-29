@@ -1,0 +1,18 @@
+diff --git a/policy/modules/system/logging.te b/policy/modules/system/logging.te
+index 7d713540d..d6cbc654d 100644
+--- refpolicy/policy/modules/system/logging.te
++++ refpolicy/policy/modules/system/logging.te
+@@ -516,11 +516,13 @@ userdom_dontaudit_use_unpriv_user_fds(syslogd_t)
+ userdom_dontaudit_search_user_home_dirs(syslogd_t)
+ 
+ ifdef(`init_systemd',`
++	require { type kernel_t; }
+ 	# for systemd-journal
+ 	allow syslogd_t self:netlink_audit_socket connected_socket_perms;
+ 	allow syslogd_t self:capability2 audit_read;
+ 	allow syslogd_t self:capability { chown setgid setuid sys_ptrace };
+ 	allow syslogd_t self:netlink_audit_socket { getattr getopt read setopt write nlmsg_write };
++	allow syslogd_t kernel_t:netlink_audit_socket getattr; 
+ 
+ 	# remove /run/log/journal when switching to permanent storage
+ 	allow syslogd_t var_log_t:dir rmdir;
