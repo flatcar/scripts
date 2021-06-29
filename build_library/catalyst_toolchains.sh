@@ -39,15 +39,6 @@ build_target_toolchain() {
 
 configure_crossdev_overlay / /tmp/crossdev
 
-# TODO: this is building the SDK packages and shouldn't actually be needed
-for cross_chost in $(get_chost_list); do
-    echo "Building cross toolchain for ${cross_chost}"
-    PKGDIR="$(portageq envvar PKGDIR)/crossdev" \
-        install_cross_toolchain "${cross_chost}" ${clst_myemergeopts}
-    PKGDIR="$(portageq envvar PKGDIR)/cross/${cross_chost}" \
-        install_cross_libs "${cross_chost}" ${clst_myemergeopts}
-done
-
 for board in $(get_board_list); do
     echo "Building native toolchain for ${board}"
     target_pkgdir="$(portageq envvar PKGDIR)/target/${board}"
