@@ -532,7 +532,7 @@ start_image() {
   assert_image_size "${disk_img}" raw
 
   "${BUILD_LIBRARY_DIR}/disk_util" --disk_layout="${disk_layout}" \
-      mount "${disk_img}" "${root_fs_dir}"
+      mount --writable_verity "${disk_img}" "${root_fs_dir}"
   trap "cleanup_mounts '${root_fs_dir}' && delete_prompt" EXIT
 
   # First thing first, install baselayout to create a working filesystem.

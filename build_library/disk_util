@@ -39,7 +39,8 @@ def LoadPartitionConfig(options):
   valid_layout_keys = set((
       '_comment', 'type', 'num', 'label', 'blocks', 'block_size', 'fs_blocks',
       'fs_block_size', 'fs_type', 'features', 'uuid', 'part_alignment', 'mount',
-      'binds', 'fs_subvolume', 'fs_bytes_per_inode', 'fs_inode_size', 'fs_label'))
+      'binds', 'fs_subvolume', 'fs_bytes_per_inode', 'fs_inode_size', 'fs_label',
+      'fs_compression'))
   integer_layout_keys = set((
       'blocks', 'block_size', 'fs_blocks', 'fs_block_size', 'part_alignment',
       'fs_bytes_per_inode', 'fs_inode_size'))
@@ -349,7 +350,7 @@ def BtrfsSubvolId(path):
 
   out = subprocess.check_output(
           ['sudo', 'btrfs', 'subvolume', 'show', path])
-  m = re.search(r'^\s*Object ID:\s*(\d+)$', out, re.MULTILINE)
+  m = re.search(r'^\s*Subvolume ID:\s*(\d+)$', out, re.MULTILINE)
   if not m:
     raise Exception('Failed to parse btrfs output: %r', out)
 
@@ -368,12 +369,22 @@ def FormatBtrfs(part, device):
     cmd += ['--label', part['fs_label']]
   Sudo(cmd + [device])
 
+  if part.get('fs_compression', None):
+    btrfs_mount = tempfile.mkdtemp()
+    Sudo(['mount', '-t', 'btrfs', device, btrfs_mount])
+    try:
+      Sudo(['btrfs', 'property', 'set', btrfs_mount, 'compression', part['fs_compression']])
+    finally:
+      Sudo(['umount', btrfs_mount])
+      os.rmdir(btrfs_mount)
   if part.get('fs_subvolume', None):
     btrfs_mount = tempfile.mkdtemp()
     subvol_path = '%s/%s' % (btrfs_mount, part['fs_subvolume'])
     Sudo(['mount', '-t', 'btrfs', device, btrfs_mount])
     try:
       Sudo(['btrfs', 'subvolume', 'create', subvol_path])
+      if part.get('fs_compression', None):
+        Sudo(['btrfs', 'property', 'set', subvol_path, 'compression', part['fs_compression']])
       subvol_id = BtrfsSubvolId(subvol_path)
       Sudo(['btrfs', 'subvolume', 'set-default', subvol_id, btrfs_mount])
     finally:
@@ -543,9 +554,9 @@ def Update(options):
       continue
     elif part['bytes'] == part['image_bytes']:
       continue
-    elif part['fs_type'] in ('ext2', 'ext4') and IsE2fsReadWrite(options, part):
+    elif part['fs_type'] in ('ext2', 'ext4') and 'verity' not in part.get('features', []):
       resize_func = ResizeExt
-    elif part.get('fs_type', None) == 'btrfs':
+    elif part.get('fs_type', None) == 'btrfs' and 'verity' not in part.get('features', []):
       resize_func = ResizeBtrfs
     else:
       continue
@@ -588,11 +599,10 @@ def Mount(options):
     mount_opts = ['loop',
                   'offset=%d' % mount['image_first_byte'],
                   'sizelimit=%d' % mount['image_bytes']]
-    if options.read_only:
+    if options.read_only or ('verity' in mount.get('features', []) and not options.writable_verity):
       mount_opts.append('ro')
-    elif (mount.get('fs_type', None) in ('ext2', 'ext4') and
-          not IsE2fsReadWrite(options, mount)):
-      mount_opts.append('ro')
+      if mount.get('fs_type', None) == 'btrfs':
+        mount_opts.append('norecovery')
 
     if mount.get('fs_subvolume', None):
       mount_opts.append('subvol=%s' % mount['fs_subvolume'])
@@ -633,6 +643,27 @@ def Umount(options):
     options: Flags passed to the script
   """
   Sudo(['umount', '--recursive', '--detach-loop', options.mount_dir])
+
+
+def ReadWriteSubvol(options, partition, disable_rw):
+  """btrfs: enable/disable read-only flag for default subvolume
+  """
+
+  if disable_rw:
+    print "Disabling read-write on default subvolume of partition %s (%s)" % (
+            partition['num'], partition['label'])
+  else:
+    print "Enabling read-write on default subvolume of partition %s (%s)" % (
+            partition['num'], partition['label'])
+
+  with PartitionLoop(options, partition) as loop_dev:
+    btrfs_mount = tempfile.mkdtemp()
+    Sudo(['mount', '-t', 'btrfs', loop_dev, btrfs_mount])
+    try:
+      Sudo(['btrfs', 'property', 'set', '-ts', btrfs_mount, 'ro', 'true' if disable_rw else 'false'])
+    finally:
+      Sudo(['umount', btrfs_mount])
+      os.rmdir(btrfs_mount)
 
 
 def Tune2fsReadWrite(options, partition, disable_rw):
@@ -716,9 +747,12 @@ def Tune(options):
     raise InvalidLayout("Disk layout is incompatible with existing image")
 
   if options.disable2fs_rw is not None:
-    if part.get('fs_type', None) not in ('ext2', 'ext4'):
-      raise Exception("Partition %s is not a ext2 or ext4" % options.partition)
-    Tune2fsReadWrite(options, part, options.disable2fs_rw)
+    if part.get('fs_type', None) in ('ext2', 'ext4'):
+      Tune2fsReadWrite(options, part, options.disable2fs_rw)
+    elif part.get('fs_type', None) == 'btrfs':
+      ReadWriteSubvol(options, part, options.disable2fs_rw)
+    else:
+      raise Exception("Partition %s is not a ext2 or ext4 or btrfs" % options.partition)
   else:
     raise Exception("No options specified!")
 
@@ -742,6 +776,8 @@ def Verity(options):
 
     if part.get('fs_type', None) in ('ext2', 'ext4'):
       Tune2fsReadWrite(options, part, disable_rw=True)
+    elif part.get('fs_type', None) == 'btrfs':
+      ReadWriteSubvol(options, part, disable_rw=True)
 
     with PartitionLoop(options, part) as loop_dev:
       verityout = SudoOutput(['veritysetup', 'format', '--hash=sha256',
@@ -1005,8 +1041,10 @@ def main(argv):
   a.set_defaults(func=Update, create=False)
 
   a = actions.add_parser('mount', help='mount filesystems in image')
+  a.add_argument('--writable_verity', '-w', action='store_true',
+          help='mount verity-protected filesystems writable')
   a.add_argument('--read_only', '-r', action='store_true',
-          help='mount filesystems read-only')
+          help='mount filesystems read-only (takes precedence over --writable_verity)')
   a.add_argument('disk_image', help='path to disk image file')
   a.add_argument('mount_dir', help='path to root filesystem mount point')
   a.set_defaults(func=Mount)
