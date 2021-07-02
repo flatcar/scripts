@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{7,8,9} )
+PYTHON_COMPAT=( python3_{6,7} )
 inherit autotools flag-o-matic multilib-minimal python-any-r1 systemd toolchain-funcs
 
 MY_P="${P/mit-}"
@@ -58,6 +58,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-config_LDFLAGS-r1.patch"
 	"${FILESDIR}/${PN}_dont_create_rundir.patch"
 	"${FILESDIR}/${PN}-1.18.2-krb5-config.patch"
+	"${FILESDIR}/${PN}-warn-crossbuild.patch"
 )
 
 MULTILIB_CHOST_TOOLS=(
