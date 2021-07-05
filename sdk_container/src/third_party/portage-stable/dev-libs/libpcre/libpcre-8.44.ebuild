@@ -1,9 +1,9 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-inherit multilib libtool flag-o-matic toolchain-funcs multilib-minimal
+inherit libtool multilib-minimal preserve-libs usr-ldscript
 
 DESCRIPTION="Perl-compatible regular expression library"
 HOMEPAGE="http://www.pcre.org/"
@@ -18,7 +18,7 @@ fi
 
 LICENSE="BSD"
 SLOT="3"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~x64-cygwin ~amd64-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt"
 IUSE="bzip2 +cxx +jit libedit pcre16 pcre32 +readline +recursion-limit static-libs unicode zlib"
 REQUIRED_USE="readline? ( !libedit )
 	libedit? ( !readline )"
@@ -29,8 +29,8 @@ RDEPEND="
 	libedit? ( dev-libs/libedit )
 	readline? ( sys-libs/readline:0= )
 "
-DEPEND="
-	${RDEPEND}
+DEPEND="${RDEPEND}"
+BDEPEND="
 	virtual/pkgconfig
 "
 
@@ -84,7 +84,7 @@ multilib_src_install() {
 }
 
 multilib_src_install_all() {
-	find "${ED}" -name "*.la" -delete || die
+	find "${ED}" -type f -name "*.la" -delete || die
 }
 
 pkg_preinst() {
