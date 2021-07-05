@@ -1,4 +1,42 @@
-#!/bin/bash -ex
+#!/bin/bash
+set -ex
+
+# The build may not be started without a tag value.
+[ -n "${MANIFEST_TAG}" ]
+
+# Set up GPG for verifying tags.
+export GNUPGHOME="${PWD}/.gnupg"
+rm -rf "${GNUPGHOME}"
+trap 'rm -rf "${GNUPGHOME}"' EXIT
+mkdir --mode=0700 "${GNUPGHOME}"
+gpg --import verify.asc
+# Sometimes this directory is not created automatically making further private
+# key imports fail, let's create it here as a workaround
+mkdir -p --mode=0700 "${GNUPGHOME}/private-keys-v1.d/"
+
+DOWNLOAD_ROOT_SDK="https://storage.googleapis.com${SDK_URL_PATH}"
+
+SCRIPTS_PATCH_ARG=""
+OVERLAY_PATCH_ARG=""
+PORTAGE_PATCH_ARG=""
+if [ "$(cat scripts.patch | wc -l)" != 0 ]; then
+  SCRIPTS_PATCH_ARG="--scripts-patch scripts.patch"
+fi
+if [ "$(cat overlay.patch | wc -l)" != 0 ]; then
+  OVERLAY_PATCH_ARG="--overlay-patch overlay.patch"
+fi
+if [ "$(cat portage.patch | wc -l)" != 0 ]; then
+  PORTAGE_PATCH_ARG="--portage-patch portage.patch"
+fi
+
+bin/cork update \
+    --create --downgrade-replace --verify --verify-signature --verbose \
+    --sdk-url-path "${SDK_URL_PATH}" \
+    --force-sync \
+    ${SCRIPTS_PATCH_ARG} ${OVERLAY_PATCH_ARG} ${PORTAGE_PATCH_ARG} \
+    --manifest-branch "refs/tags/${MANIFEST_TAG}" \
+    --manifest-name "${MANIFEST_NAME}" \
+    --manifest-url "${MANIFEST_URL}" -- --dev_builds_sdk="${DOWNLOAD_ROOT_SDK}"
 
 # Clear out old images.
 sudo rm -rf chroot/build src/build torcx
@@ -48,6 +86,10 @@ enter gsutil cp -r \
     /mnt/host/source/torcx/
 gpg --verify torcx/torcx_manifest.json.sig
 
+BASH_SYNTAX_ERROR_WORKAROUND=$(mktemp)
+exec {keep_open}<>"${BASH_SYNTAX_ERROR_WORKAROUND}"
+rm "${BASH_SYNTAX_ERROR_WORKAROUND}"
+jq -r '.value.packages[] | . as $p | .name as $n | $p.versions[] | [.casDigest, .hash] | join(" ") | [$n, .] | join(" ")' "torcx/torcx_manifest.json" > "/proc/$$/fd/${keep_open}"
 # Download all cas references from the manifest and verify their checksums
 # TODO: technically we can skip ones that don't have a 'path' since they're not
 # included in the image.
@@ -62,7 +104,8 @@ do
                 echo "Torcx package had wrong hash: ${downloaded_hash} instead of ${hash}"
                 exit 1
         fi
-done < <(jq -r '.value.packages[] | . as $p | .name as $n | $p.versions[] | [.casDigest, .hash] | join(" ") | [$n, .] | join(" ")' "torcx/torcx_manifest.json")
+done < "/proc/$$/fd/${keep_open}"
+# This was "done < <(jq ...)" but it suddenly gave a syntax error with bash 4 when run with systemd-run-wrap.sh
 
 script build_image \
     --board="${BOARD}" \

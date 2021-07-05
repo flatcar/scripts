@@ -1,4 +1,49 @@
-#!/bin/bash -ex
+#!/bin/bash
+set -ex
+
+# The build may not be started without a tag value.
+[ -n "${MANIFEST_TAG}" ]
+
+# For developer builds that are based on a non-developer release,
+# we need the DOWNLOAD_ROOT variable to be the base path, keeping the
+# UPLOAD_ROOT variable as the developer path.
+if [[ "${RELEASE_BASE_IS_DEV}" = "false" && "${GROUP}" = "developer" && "${RELEASE_BASE}" != "" ]]; then
+    DOWNLOAD_ROOT=$(echo ${DOWNLOAD_ROOT} | sed 's,/developer,,');
+fi
+DOWNLOAD_ROOT_SDK="https://storage.googleapis.com${SDK_URL_PATH}"
+
+# Set up GPG for verifying tags.
+export GNUPGHOME="${PWD}/.gnupg"
+rm -rf "${GNUPGHOME}"
+trap 'rm -rf "${GNUPGHOME}"' EXIT
+mkdir --mode=0700 "${GNUPGHOME}"
+gpg --import verify.asc
+# Sometimes this directory is not created automatically making further private
+# key imports fail, let's create it here as a workaround
+mkdir -p --mode=0700 "${GNUPGHOME}/private-keys-v1.d/"
+
+SCRIPTS_PATCH_ARG=""
+OVERLAY_PATCH_ARG=""
+PORTAGE_PATCH_ARG=""
+if [ "$(cat scripts.patch | wc -l)" != 0 ]; then
+  SCRIPTS_PATCH_ARG="--scripts-patch scripts.patch"
+fi
+if [ "$(cat overlay.patch | wc -l)" != 0 ]; then
+  OVERLAY_PATCH_ARG="--overlay-patch overlay.patch"
+fi
+if [ "$(cat portage.patch | wc -l)" != 0 ]; then
+  PORTAGE_PATCH_ARG="--portage-patch portage.patch"
+fi
+
+bin/cork update \
+    --create --downgrade-replace --verify --verify-signature --verbose \
+    --sdk-url-path "${SDK_URL_PATH}" \
+    --force-sync \
+    ${SCRIPTS_PATCH_ARG} ${OVERLAY_PATCH_ARG} ${PORTAGE_PATCH_ARG} \
+    --manifest-branch "refs/tags/${MANIFEST_TAG}" \
+    --manifest-name "${MANIFEST_NAME}" \
+    --manifest-url "${MANIFEST_URL}" \
+    -- --toolchain_boards="${BOARD}" --dev_builds_sdk="${DOWNLOAD_ROOT_SDK}"
 
 enter() {
         local verify_key=
@@ -52,3 +97,16 @@ script build_torcx_store \
     --torcx_upload_root="${TORCX_PKG_DOWNLOAD_ROOT}" \
     --tectonic_torcx_download_root="${TECTONIC_TORCX_DOWNLOAD_ROOT}" \
     --upload
+
+if [[ "${GROUP}" = "developer" ]]
+then
+    GROUP="${CHANNEL_BASE}"
+fi
+
+# Update entry for latest nightly build reference (there are no symlinks in GCS and it is also good to keep it deterministic)
+if [[ "${FLATCAR_BUILD_ID}" == *-*-nightly-* ]]
+then
+  # Extract the nightly name like "flatcar-MAJOR-nightly" from "dev-flatcar-MAJOR-nightly-NUMBER"
+  NAME=$(echo "${FLATCAR_BUILD_ID}" | grep -o "dev-.*-nightly" | cut -d - -f 2-)
+  echo "${FLATCAR_VERSION}" | bin/cork enter --bind-gpg-agent=false -- gsutil cp - "${UPLOAD_ROOT}/boards/${BOARD}/${NAME}.txt"
+fi
