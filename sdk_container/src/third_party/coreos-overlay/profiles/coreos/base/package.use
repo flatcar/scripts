@@ -11,7 +11,7 @@ dev-libs/libxml2	-python
 dev-util/perf		tui -doc
 dev-vcs/git		webdav curl bash-completion
 # We don't want any driver/hw rendering on the host
-net-misc/curl		kerberos threads
+net-misc/curl		kerberos threads telnet
 net-misc/iputils	arping tracepath traceroute
 sys-devel/gettext	-git
 app-emulation/qemu	aio caps curl ncurses png python threads uuid vhost-net virtfs vnc -xkb -slirp -jpeg qemu_softmmu_targets_x86_64 qemu_softmmu_targets_aarch64 python_targets_python3_7
