@@ -38,7 +38,7 @@ shopt -s histappend
 
 # Change the window title of X terminals 
 case ${TERM} in
-	[aEkx]term*|rxvt*|gnome*|konsole*|interix)
+	[aEkx]term*|rxvt*|gnome*|konsole*|interix|tmux*)
 		PS1='\[\033]0;\u@\h:\w\007\]'
 		;;
 	screen*)
@@ -80,13 +80,13 @@ else
 	# Some systems (e.g. BSD & embedded) don't typically come with
 	# dircolors so we need to hardcode some terminals in here.
 	case ${TERM} in
-	[aEkx]term*|rxvt*|gnome*|konsole*|screen|cons25|*color) use_color=true;;
+	[aEkx]term*|rxvt*|gnome*|konsole*|screen|tmux|cons25|*color) use_color=true;;
 	esac
 fi
 
 if ${use_color} ; then
 	if [[ ${EUID} == 0 ]] ; then
-		PS1+='\[\033[01;31m\]\h\[\033[01;34m\] \W \$\[\033[00m\] '
+		PS1+='\[\033[01;31m\]\h\[\033[01;34m\] \w \$\[\033[00m\] '
 	else
 		PS1+='\[\033[01;32m\]\u@\h\[\033[01;34m\] \w \$\[\033[00m\] '
 	fi
@@ -94,15 +94,11 @@ if ${use_color} ; then
 	#BSD#@export CLICOLOR=1
 	#GNU#@alias ls='ls --color=auto'
 	alias grep='grep --colour=auto'
-	alias egrep='egrep --colour=auto'
-	alias fgrep='fgrep --colour=auto'
+	alias egrep='grep -E --colour=auto'
+	alias fgrep='grep -F --colour=auto'
 else
-	if [[ ${EUID} == 0 ]] ; then
-		# show root@ when we don't have colors
-		PS1+='\u@\h \W \$ '
-	else
-		PS1+='\u@\h \w \$ '
-	fi
+	# show root@ when we don't have colors
+	PS1+='\u@\h \w \$ '
 fi
 
 for sh in /etc/bash/bashrc.d/* ; do
