@@ -15,7 +15,7 @@ for VARNAME in $(sh -c 'compgen -v'); do
   ARGS+=("--setenv" "${VARNAME}=${VAL}")
 done
 
-UNITNAME="run-$(date '+%s')"
+UNITNAME="run-$(date '+%s')-${RANDOM}"
 
 # The --pipe option does not stop the unit when the systemd-run process is killed, we have to do this through a trap
 # (and --pty as alternative doesn't behave well because it leads to processes expecting stdin when there is none)
