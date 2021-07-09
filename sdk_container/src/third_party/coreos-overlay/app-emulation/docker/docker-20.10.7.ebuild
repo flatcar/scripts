@@ -3,8 +3,13 @@
 
 EAPI=7
 EGO_PN=github.com/docker/docker
-GIT_COMMIT=8728dd246c
+GIT_COMMIT=b0f5bc36fe
+# Flatcar: force building with go1.13 like upstream does
+COREOS_GO_VERSION="go1.13"
+
 inherit bash-completion-r1 linux-info systemd udev golang-vcs-snapshot
+# Flatcar: use coreos-go-depend to force building with go1.13
+inherit coreos-go-depend
 
 DESCRIPTION="The core functions you need to create Docker images and run Docker containers"
 HOMEPAGE="https://www.docker.com/"
@@ -14,7 +19,8 @@ SRC_URI="https://github.com/moby/moby/archive/v${MY_PV}.tar.gz -> ${P}.tar.gz"
 LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="amd64 ~arm arm64 ppc64 ~x86"
-IUSE="apparmor aufs btrfs +cli +container-init device-mapper hardened overlay seccomp"
+# Flatcar: default enable required USE flags
+IUSE="apparmor aufs +btrfs +cli +container-init +device-mapper +hardened +overlay +seccomp +journald"
 
 DEPEND="
 	acct-group/docker
@@ -25,11 +31,20 @@ DEPEND="
 	seccomp? ( >=sys-libs/libseccomp-2.2.1 )
 "
 
+# Flatcar:
+# For CoreOS builds coreos-kernel must be installed because this ebuild
+# checks the kernel config. The kernel config is left by the kernel compile
+# or an explicit copy when installing binary packages. See coreos-kernel.eclass
+DEPEND+="sys-kernel/coreos-kernel"
+
 # https://github.com/moby/moby/blob/master/project/PACKAGERS.md#runtime-dependencies
 # https://github.com/moby/moby/blob/master/project/PACKAGERS.md#optional-dependencies
 # https://github.com/moby/moby/tree/master//hack/dockerfile/install
 # make sure docker-proxy is pinned to exact version from ^,
 # for appropriate branchch/version of course
+# Flatcar:
+# containerd ebuild doesn't support apparmor, device-mapper and seccomp use flags
+# tini ebuild doesn't support static use flag
 RDEPEND="
 	${DEPEND}
 	>=net-firewall/iptables-1.4
@@ -37,16 +52,16 @@ RDEPEND="
 	>=dev-vcs/git-1.7
 	>=app-arch/xz-utils-4.9
 	dev-libs/libltdl
-	>=app-emulation/containerd-1.4.6[apparmor?,btrfs?,device-mapper?,seccomp?]
+	>=app-emulation/containerd-1.4.6[btrfs?]
 	~app-emulation/docker-proxy-0.8.0_p20210525
 	cli? ( app-emulation/docker-cli )
-	container-init? ( >=sys-process/tini-0.19.0[static] )
+	container-init? ( >=sys-process/tini-0.19.0 )
 "
 
 # https://github.com/docker/docker/blob/master/project/PACKAGERS.md#build-dependencies
+# Flatcar: drop go-md2man
 BDEPEND="
 	>=dev-lang/go-1.13.12
-	dev-go/go-md2man
 	virtual/pkgconfig
 "
 # tests require running dockerd as root and downloading containers
@@ -165,14 +180,17 @@ pkg_setup() {
 }
 
 src_compile() {
+	# Flatcar: for cross-compilation
+	go_export
 	export DOCKER_GITCOMMIT="${GIT_COMMIT}"
 	export GOPATH="${WORKDIR}/${P}"
 	export VERSION=${PV}
 
 	# setup CFLAGS and LDFLAGS for separate build target
 	# see https://github.com/tianon/docker-overlay/pull/10
-	export CGO_CFLAGS="-I${ESYSROOT}/usr/include"
-	export CGO_LDFLAGS="-L${ESYSROOT}/usr/$(get_libdir)"
+	# Flatcar: allow injecting CFLAGS/LDFLAGS, which is needed for torcx rpath
+	export CGO_CFLAGS="${CGO_CFLAGS} -I${ESYSROOT}/usr/include"
+	export CGO_LDFLAGS="${CGO_LDFLAGS} -L${ESYSROOT}/usr/$(get_libdir)"
 
 	# let's set up some optional features :)
 	export DOCKER_BUILDTAGS=''
@@ -182,16 +200,23 @@ src_compile() {
 		fi
 	done
 
-	for tag in apparmor seccomp; do
+	for tag in apparmor seccomp journald; do
 		if use $tag; then
 			DOCKER_BUILDTAGS+=" $tag"
 		fi
 	done
 
+	# Flatcar:
+	# need to set go1.13 in DOCKER_BUILDTAGS, to avoid build
+	# failures caused by github.com/pkg/errors >= 0.9.1.
+	DOCKER_BUILDTAGS+=" go1.13"
+
+	# Flatcar:
+	# inject LDFLAGS for torcx
 	if use hardened; then
-		sed -i "s/EXTLDFLAGS_STATIC='/&-fno-PIC /" hack/make.sh || die
+		sed -i "s#EXTLDFLAGS_STATIC='#&-fno-PIC $LDFLAGS #" hack/make.sh || die
 		grep -q -- '-fno-PIC' hack/make.sh || die 'hardened sed failed'
-		sed  "s/LDFLAGS_STATIC_DOCKER='/&-extldflags -fno-PIC /" \
+		sed  "s#LDFLAGS_STATIC_DOCKER='#&-extldflags \"-fno-PIC $LDFLAGS\" #" \
 			-i hack/make/dynbinary-daemon || die
 		grep -q -- '-fno-PIC' hack/make/dynbinary-daemon || die 'hardened sed failed'
 	fi
@@ -210,16 +235,26 @@ src_install() {
 	newinitd contrib/init/openrc/docker.initd docker
 	newconfd contrib/init/openrc/docker.confd docker
 
-	systemd_dounit contrib/init/systemd/docker.{service,socket}
+	# Flatcar:
+	# install our systemd units/network config and our wrapper into
+	# /usr/lib/flatcar/docker for backwards compatibility
+	exeinto /usr/lib/flatcar
+	doexe "${FILESDIR}/dockerd"
+
+	systemd_dounit "${FILESDIR}/docker.service"
+	systemd_dounit "${FILESDIR}/docker.socket"
+
+	insinto /usr/lib/systemd/network
+	doins "${FILESDIR}/50-docker.network"
+	doins "${FILESDIR}/90-docker-veth.network"
 
 	udev_dorules contrib/udev/*.rules
 
 	dodoc AUTHORS CONTRIBUTING.md CHANGELOG.md NOTICE README.md
 	dodoc -r docs/*
 
-	# note: intentionally not using "doins" so that we preserve +x bits
-	dodir /usr/share/${PN}/contrib
-	cp -R contrib/* "${ED}/usr/share/${PN}/contrib"
+	# Flatcar:
+	# don't install contrib bits
 }
 
 pkg_postinst() {
