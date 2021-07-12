@@ -62,6 +62,17 @@ extract_update() {
   "${BUILD_LIBRARY_DIR}/disk_util" --disk_layout="${disk_layout}" \
     extract "${BUILD_DIR}/${image_name}" "USR-A" "${update_path}"
   upload_image "${update_path}"
+
+  # For production as well as dev builds we generate a dev-key-signed update
+  # payload for running tests (the signature won't be accepted by production systems).
+  local update_test="${BUILD_DIR}/flatcar_test_update.gz"
+  delta_generator \
+      -private_key "/usr/share/update_engine/update-payload-key.key.pem" \
+      -new_image "${update_path}" \
+      -new_kernel "${BUILD_DIR}/${image_name%.bin}.vmlinuz" \
+      -out_file "${update_test}"
+
+  upload_image "${update_test}"
 }
 
 zip_update_tools() {
