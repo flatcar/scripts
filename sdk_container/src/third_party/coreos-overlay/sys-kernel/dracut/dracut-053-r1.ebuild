@@ -65,6 +65,8 @@ QA_MULTILIB_PATHS="usr/lib/dracut/.*"
 PATCHES=(
 	"${FILESDIR}"/053-network-manager.patch
 	"${FILESDIR}"/gentoo-ldconfig-paths.patch
+	# Flatcar: override iscsi network dependency
+	"${FILESDIR}"/050-change-network-dep-iscsi.patch
 )
 
 src_configure() {
