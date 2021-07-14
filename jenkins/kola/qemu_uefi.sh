@@ -50,6 +50,13 @@ if [[ "${KOLA_TESTS}" == "" ]]; then
   KOLA_TESTS="*"
 fi
 
+rm -f flatcar_test_update.gz
+bin/gangue get \
+    --json-key="${GOOGLE_APPLICATION_CREDENTIALS}" \
+    --verify=true $verify_key \
+    "${DOWNLOAD_ROOT}/boards/${BOARD}/${FLATCAR_VERSION}/flatcar_test_update.gz"
+mv flatcar_test_update.gz tmp/
+
 # Do not expand the kola test patterns globs
 set -o noglob
 enter sudo timeout --signal=SIGQUIT 14h kola run \
@@ -61,6 +68,7 @@ enter sudo timeout --signal=SIGQUIT 14h kola run \
     --qemu-image=/mnt/host/source/tmp/flatcar_production_image.bin \
     --tapfile="/mnt/host/source/${JOB_NAME##*/}.tap" \
     --torcx-manifest=/mnt/host/source/torcx_manifest.json \
+    --update-payload=/mnt/host/source/tmp/flatcar_test_update.gz \
     ${KOLA_TESTS}
 set +o noglob
 
