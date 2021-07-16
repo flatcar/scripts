@@ -46,7 +46,8 @@ pkg_setup() {
 	[[ -n "${KV_OUT_DIR}" ]] || die "Failed to detect modules build tree"
 
 	if [[ "${ROOT:-/}" != / ]]; then
-		${ROOT}/usr/sbin/update-bootengine -m -c ${ROOT} -k "${KV_FULL}" || die
+		# TMPDIR needs to be corrected for chroot
+		TMPDIR=${TMPDIR#${ROOT}} ${ROOT}/usr/sbin/update-bootengine -m -c ${ROOT} -k "${KV_FULL}" || die
 	else
 		update-bootengine -k "${KV_FULL}" || die
 	fi
