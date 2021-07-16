@@ -12,7 +12,7 @@ if [[ ${PV} == 9999* ]]; then
 else
 	SRC_URI="https://github.com/SELinuxProject/refpolicy/releases/download/RELEASE_${PV/./_}/refpolicy-${PV}.tar.bz2
 			https://dev.gentoo.org/~perfinion/patches/${PN}/patchbundle-${PN}-${PVR}.tar.bz2"
-	KEYWORDS="~amd64 -arm ~arm64 ~mips ~x86"
+	KEYWORDS="amd64 -arm ~arm64 ~mips x86"
 fi
 
 HOMEPAGE="https://wiki.gentoo.org/wiki/Project:SELinux"
@@ -27,10 +27,19 @@ BDEPEND="
 	sys-apps/checkpolicy
 	sys-devel/m4"
 
-MODS="application authlogin bootloader clock consoletype cron dmesg fstools getty hostname init iptables libraries locallogin logging lvm miscfiles modutils mount mta netutils nscd portage raid rsync selinuxutil setrans ssh staff storage su sysadm sysnetwork systemd tmpfiles udev userdomain usermanage unprivuser xdg"
+MODS="application authlogin bootloader clock consoletype cron dmesg fstools getty hostname hotplug init iptables libraries locallogin logging lvm miscfiles modutils mount mta netutils nscd portage raid rsync selinuxutil setrans ssh staff storage su sysadm sysnetwork systemd tmpfiles udev userdomain usermanage unprivuser xdg"
 LICENSE="GPL-2"
 SLOT="0"
 S="${WORKDIR}/"
+
+# flatcar changes: apply a couple of
+# patches on the current policies
+PATCHES=(
+	"${FILESDIR}/sshd.patch"
+	"${FILESDIR}/init.patch"
+	"${FILESDIR}/locallogin.patch"
+	"${FILESDIR}/logging.patch"
+)
 
 # Code entirely copied from selinux-eclass (cannot inherit due to dependency on
 # itself), when reworked reinclude it. Only postinstall (where -b base.pp is
@@ -52,6 +61,7 @@ src_prepare() {
 		eapply -p0 "${WORKDIR}/0001-full-patch-against-stable-release.patch"
 	fi
 
+	eapply -p0 "${PATCHES[@]}"
 	eapply_user
 
 	# Collect only those files needed for this particular module

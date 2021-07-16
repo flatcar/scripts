@@ -4,12 +4,12 @@
 EAPI="7"
 
 IUSE=""
-MODS="virt"
+MODS="unconfined"
 
 inherit selinux-policy-2
 
-DESCRIPTION="SELinux policy for virt"
+DESCRIPTION="SELinux policy for unconfined"
 
 if [[ ${PV} != 9999* ]] ; then
-	KEYWORDS="~amd64 -arm ~arm64 ~mips ~x86"
+	KEYWORDS="amd64 -arm ~arm64 ~mips x86"
 fi
