@@ -25,7 +25,7 @@ DEPEND="
 	coreos-base/hard-host-depends
 	coreos-base/coreos-sb-keys
 	coreos-devel/fero-client
-	coreos-devel/kola-data
+	amd64? ( coreos-devel/kola-data )
 	coreos-devel/mantle
 	dev-libs/gobject-introspection
 	dev-python/setuptools
@@ -40,7 +40,7 @@ DEPEND="
 	net-misc/curl
 	sys-apps/debianutils
 	sys-apps/iproute2
-	sys-apps/iucode_tool
+	amd64? ( sys-apps/iucode_tool )
 	sys-apps/seismograph
 	sys-boot/grub
 	sys-boot/shim
@@ -52,8 +52,10 @@ DEPEND="
 
 # Must match the build-time dependencies listed in selinux-policy-2.eclass
 DEPEND="${DEPEND}
-	>=sys-apps/checkpolicy-2.0.21
-	>=sys-apps/policycoreutils-2.0.82
+	!arm64? (
+		>=sys-apps/checkpolicy-2.0.21
+		>=sys-apps/policycoreutils-2.0.82
+	)
 	sys-devel/m4"
 
 # Required by dev-lang/spidermonkey-1.8.5
