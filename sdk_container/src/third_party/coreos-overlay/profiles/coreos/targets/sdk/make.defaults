@@ -18,3 +18,7 @@ QEMU_USER_TARGETS="aarch64"
 
 # Disable ccache in the SDK so it stops randomly breaking catalyst.
 FEATURES="-ccache"
+
+# add cros_host to bootstrapping USE flags so SDK / toolchains bootstrapping
+# will use vim's vimrc instead of baselayouts',
+BOOTSTRAP_USE="$BOOTSTRAP_USE cros_host"
