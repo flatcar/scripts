@@ -37,7 +37,9 @@ RDEPEND="!coreos-base/coreos-installer
 	net-misc/curl
 	>=sys-apps/seismograph-2.2.0
 	sys-fs/e2fsprogs"
+BDEPEND="dev-util/glib-utils"
 DEPEND="dev-cpp/gtest
+	${BDEPEND}
 	${RDEPEND}"
 
 src_configure() {
