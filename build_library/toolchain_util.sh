@@ -167,6 +167,10 @@ get_sdk_libdir() {
     portageq envvar "LIBDIR_$(get_sdk_arch)"
 }
 
+get_sdk_symlink_lib() {
+    portageq envvar "SYMLINK_LIB"
+}
+
 # Usage: get_sdk_binhost [version...]
 # If no versions are specified the current and SDK versions are used.
 get_sdk_binhost() {
@@ -333,7 +337,7 @@ install_cross_toolchain() {
         $sudo emerge "${emerge_flags[@]}" \
             "cross-${cross_chost}/gdb" "${cross_pkgs[@]}"
         if [ "${cross_chost}" = aarch64-cros-linux-gnu ] && \
-           [ ! -d /usr/lib64/rust-*/rustlib/aarch64-unknown-linux-gnu ] && [ ! -d /usr/lib64/rustlib/aarch64-unknown-linux-gnu ]; then
+           [ ! -d /usr/lib/rust-*/rustlib/aarch64-unknown-linux-gnu ] && [ ! -d /usr/lib/rustlib/aarch64-unknown-linux-gnu ]; then
           # If no aarch64 folder exists, warn about the situation but don't compile Rust here or download it as binary package
           echo "WARNING: No aarch64 cross-compilation Rust libraries found!"
           echo "In case building fails, make sure the old Rust version is deleted with: sudo emerge -C virtual/rust dev-lang/rust"

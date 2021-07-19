@@ -92,7 +92,11 @@ if [[ "$STAGES" =~ stage4 ]]; then
     libdir=$(get_sdk_libdir)
     mkdir -p "${ROOT_OVERLAY}/usr/${libdir}"
     if [[ "${libdir}" != lib ]]; then
-        ln -s "${libdir}" "${ROOT_OVERLAY}/usr/lib"
+        if [[ "$(get_sdk_symlink_lib)" == "yes" ]]; then
+            ln -s "${libdir}" "${ROOT_OVERLAY}/usr/lib"
+        else
+            mkdir -p "${ROOT_OVERLAY}/usr/lib"
+        fi
     fi
     "${BUILD_LIBRARY_DIR}/set_lsb_release" \
         --root "${ROOT_OVERLAY}"
