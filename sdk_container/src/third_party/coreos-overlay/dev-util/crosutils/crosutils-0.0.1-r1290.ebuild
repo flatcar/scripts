@@ -14,7 +14,7 @@ HOMEPAGE="http://www.chromium.org/chromium-os"
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="amd64"
+KEYWORDS="amd64 arm64"
 IUSE=""
 
 src_configure() {
