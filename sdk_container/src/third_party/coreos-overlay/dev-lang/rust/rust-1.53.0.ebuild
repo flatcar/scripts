@@ -190,7 +190,7 @@ src_configure() {
 		fi
 	fi
 	# Auto-enable cross-building only if the cross-compiler is available
-	if [ -f /usr/bin/aarch64-cros-linux-gnu-gcc ]; then
+	if [ "${CBUILD}" != "aarch64-unknown-linux-gnu" ] && [ -f /usr/bin/aarch64-cros-linux-gnu-gcc ]; then
 		rust_targets="${rust_targets},\"aarch64-unknown-linux-gnu\""
 	fi
 	rust_targets="${rust_targets#,}"
@@ -300,7 +300,7 @@ src_configure() {
 		fi
 	done
 	# Could soon be replaced by the "experimental cross support" below
-	if [ -f /usr/bin/aarch64-cros-linux-gnu-gcc ]; then
+	if [ "${CBUILD}" != "aarch64-unknown-linux-gnu" ] && [ -f /usr/bin/aarch64-cros-linux-gnu-gcc ]; then
 		cat <<- 'EOF' > "${S}/cc.sh"
 			#!/bin/bash
 			args=("$@")
