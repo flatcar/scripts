@@ -12,7 +12,7 @@ SRC_URI="https://curl.haxx.se/download/${P}.tar.xz"
 LICENSE="curl"
 SLOT="0"
 KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="adns alt-svc brotli +ftp gnutls gopher hsts +http2 idn +imap ipv6 kerberos ldap mbedtls metalink nss +openssl +pop3 +progress-meter rtmp samba +smtp ssh ssl sslv3 static-libs test telnet +tftp threads winssl zstd"
+IUSE="adns alt-svc brotli +ftp gnutls gopher hsts +http2 idn +imap ipv6 kerberos ldap mbedtls nss +openssl +pop3 +progress-meter rtmp samba +smtp ssh ssl sslv3 static-libs test telnet +tftp threads winssl zstd"
 IUSE+=" curl_ssl_gnutls curl_ssl_mbedtls curl_ssl_nss +curl_ssl_openssl curl_ssl_winssl"
 IUSE+=" nghttp3 quiche"
 IUSE+=" elibc_Winnt"
@@ -64,7 +64,6 @@ RDEPEND="ldap? ( net-nds/openldap[${MULTILIB_USEDEP}] )
 	idn? ( net-dns/libidn2:0=[static-libs?,${MULTILIB_USEDEP}] )
 	adns? ( net-dns/c-ares:0[${MULTILIB_USEDEP}] )
 	kerberos? ( >=virtual/krb5-0-r1[${MULTILIB_USEDEP}] )
-	metalink? ( >=media-libs/libmetalink-0.1.1[${MULTILIB_USEDEP}] )
 	rtmp? ( media-video/rtmpdump[${MULTILIB_USEDEP}] )
 	ssh? ( net-libs/libssh2[${MULTILIB_USEDEP}] )
 	sys-libs/zlib[${MULTILIB_USEDEP}]
@@ -222,13 +221,11 @@ multilib_src_configure() {
 		--without-bearssl
 		$(use_with brotli)
 		--without-cyassl
-		--without-darwinssl
 		--without-fish-functions-dir
 		$(use_with http2 nghttp2)
 		--without-hyper
 		$(use_with idn libidn2)
 		$(use_with kerberos gssapi "${EPREFIX}"/usr)
-		$(use_with metalink libmetalink)
 		--without-libgsasl
 		--without-libpsl
 		$(use_with nghttp3)
