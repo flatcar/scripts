@@ -16,7 +16,7 @@ pushd "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" >/dev/null || exit
 # Get the original runc version, including official releases and rc versions.
 # We need some sed tweaks like adding underscore, sort, and trim the underscore again,
 # so that sort -V can give the newest version including non-rc versions.
-VERSION_OLD=$(sed -n "s/^DIST docker-runc-\([0-9]*\.[0-9]*.*\)\.tar.*/\1/p" app-emulation/docker-runc/Manifest | sed '/-/!{s/$/_/}' | sort -ruV | sed 's/_$//' | head -n1 | tr '-' '_')
+VERSION_OLD=$(sed -n "s/^DIST docker-runc-\([0-9]*\.[0-9]*.*\)\.tar.*/\1/p" app-emulation/docker-runc/Manifest | tr '_' '-' | sed '/-/!{s/$/_/}' | sort -ruV | sed 's/_$//' | head -n1 | tr '-' '_')
 if [[ "${VERSION_NEW}" = "${VERSION_OLD}" ]]; then
   echo "already the latest Runc, nothing to do"
   UPDATE_NEEDED=0
