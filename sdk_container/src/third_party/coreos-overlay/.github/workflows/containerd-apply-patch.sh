@@ -24,7 +24,7 @@ DOCKER_VERSION=$(sed -n "s/^DIST docker-\([0-9]*\.[0-9]*\.[0-9]*\).*/\1/p" app-e
 
 # we need to update not only the main ebuild file, but also its CONTAINERD_COMMIT,
 # which needs to point to COMMIT_HASH that matches with $VERSION_NEW from upstream containerd.
-containerdEbuildOldSymlink=$(ls -1 app-emulation/containerd/containerd-${VERSION_OLD}*.ebuild | sort -ruV | head -n1)
+containerdEbuildOldSymlink=$(ls -1 app-emulation/containerd/containerd-${VERSION_OLD}.ebuild)
 containerdEbuildNewSymlink="app-emulation/containerd/containerd-${VERSION_NEW}.ebuild"
 containerdEbuildMain="app-emulation/containerd/containerd-9999.ebuild"
 git mv ${containerdEbuildOldSymlink} ${containerdEbuildNewSymlink}
