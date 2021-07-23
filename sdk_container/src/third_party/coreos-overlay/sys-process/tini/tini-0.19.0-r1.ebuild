@@ -1,66 +1,42 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+
+# Flatcar: Based on tini-0.18.0.ebuild from commit
+# d6c89a5caedbe5cae98142ebb99974b41177aedd in gentoo repo (see
+# https://gitweb.gentoo.org/repo/gentoo.git/plain/sys-process/tini/tini-0.18.0.ebuild?id=d6c89a5caedbe5cae98142ebb99974b41177aedd).
 
 EAPI=7
 
-inherit cmake flag-o-matic
+# Flatcar: We provide our autotools-based build system to avoid build
+# dependency on cmake. So the settings are hardcoded in the build
+# system - we want static binary and a non-minimal build.
+inherit autotools
 
-# guard against forgetfulness, https://bugs.gentoo.org/795936
-GIT_COMMIT_0190="de40ad007797e0dcd8b7126f27bb87401d224240"
-GIT_COMMIT="GIT_COMMIT_${PV//./}"
-GIT_COMMIT="${!GIT_COMMIT}"
-
+GIT_COMMIT=de40ad007797e0dcd8b7126f27bb87401d224240
 DESCRIPTION="A tiny but valid init for containers"
 HOMEPAGE="https://github.com/krallin/tini"
 SRC_URI="https://github.com/krallin/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="amd64 ~arm arm64 ppc64 ~x86"
-IUSE="+args +static"
+# Flatcar: We don't mark arm64 as "testing".
+KEYWORDS="amd64 arm64"
+# Flatcar: No IUSE on args or on static - it's hardcoded in the build
+# system replacement.
 
 src_prepare() {
+	# Flatcar: We don't use cmake, so all the code handling cmake
+	# stuff is dropped. Autotools provide the standard configure
+	# && make && make install build protocol, which Gentoo handles
+	# out of the box.
+	for file in configure.ac Makefile.am src/Makefile.am; do
+		cp "${FILESDIR}/automake/${file}" "${S}/${file}"
+	done
+	eapply_user
 
-	[[ -z ${GIT_COMMIT} ]] && die "forgetful maintainer! please define GIT_COMMIT_${PV//./} on bump"
-
-	cmake_src_prepare
-
-	local sed_args=(
-		# Do not strip binary
-		-e 's/-Wl,-s")$/")/'
-
-		# Remove -Werror and -pedantic-errors in order to allow macro
-		# redefinition, so that CFLAGS="-U_FORTIFY_SOURCE" does not
-		# trigger an error due to add_definitions(-D_FORTIFY_SOURCE=2)
-		# in CMakeLists.txt (bug 626438).
-		-e "s/ -Werror / /"
-		-e "s/ -pedantic-errors / /"
-	)
-
-	sed -i "${sed_args[@]}" \
-		-e "s/git.*status --porcelain.*/true/" \
-		-e "s/git.*log -n 1.*/true/" \
-		-e "s/git.\${tini_VERSION_GIT}/git.${GIT_COMMIT}/" \
-		CMakeLists.txt || die
-}
-
-src_configure() {
-	local mycmakeargs=()
-	use args || mycmakeargs+=(-DMINIMAL=ON)
-
-	cmake_src_configure
-}
-
-src_compile() {
-	append-cflags -DPR_SET_CHILD_SUBREAPER=36 -DPR_GET_CHILD_SUBREAPER=37
-	cmake_src_compile
-}
-
-src_install() {
-	cmake_src_install
-	if use static; then
-		mv "${ED}"/usr/bin/{${PN}-static,${PN}} || die
-	else
-		rm "${ED}"/usr/bin/${PN}-static || die
-	fi
+	export tini_VERSION_MAJOR=$(ver_cut 1)
+	export tini_VERSION_MINOR=$(ver_cut 2)
+	export tini_VERSION_PATCH=$(ver_cut 3)
+	export tini_VERSION_GIT=${GIT_COMMIT}
+	eautoreconf
 }
