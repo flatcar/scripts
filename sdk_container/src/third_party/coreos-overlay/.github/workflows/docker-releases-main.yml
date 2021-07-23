@@ -13,12 +13,15 @@ jobs:
       - name: Fetch latest Docker release
         id: fetch-latest-release
         run: |
-          git clone https://github.com/docker/docker-ce docker
+          git clone https://github.com/docker/docker docker
+          git clone https://github.com/docker/cli docker-cli
           versionMain=$(git -C docker ls-remote --tags origin | cut -f2 | sed -n "/refs\/tags\/v[0-9]*\.[0-9]*\.[0-9]*$/s/^refs\/tags\/v//p" | egrep -v -e '(beta|rc)' | sort -ruV | head -n1)
-          commitMain=$(git -C docker rev-parse --short=7 v${versionMain})
-          rm -rf docker
+          commitMain=$(git -C docker rev-parse --short=10 v${versionMain})
+          commitCli=$(git -C docker-cli rev-parse --short=10 v${versionMain})
+          rm -rf docker docker-cli
           echo ::set-output name=VERSION_MAIN::$(echo ${versionMain})
           echo ::set-output name=COMMIT_MAIN::$(echo ${commitMain})
+          echo ::set-output name=COMMIT_CLI::$(echo ${commitCli})
           echo ::set-output name=BASE_BRANCH_MAIN::main
       - name: Set up Flatcar SDK
         id: setup-flatcar-sdk
@@ -30,6 +33,7 @@ jobs:
           BASE_BRANCH: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_MAIN }}
           VERSION_NEW: ${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}
           COMMIT_HASH: ${{ steps.fetch-latest-release.outputs.COMMIT_MAIN }}
+          COMMIT_CLI_HASH: ${{ steps.fetch-latest-release.outputs.COMMIT_CLI }}
           PATH: ${{ steps.setup-flatcar-sdk.outputs.path }}
         run: .github/workflows/docker-apply-patch.sh
       - name: Create pull request for main

@@ -36,7 +36,6 @@ VERSION_NEW_HYPHEN=${VERSION_NEW//_/-}
 sed -i "s/${VERSION_OLD_HYPHEN}/${VERSION_NEW_HYPHEN}/g" ${runcEbuildNew}
 
 # update also runc versions used by docker and containerd
-sed -i "s/docker-runc-${VERSION_OLD}/docker-runc-${VERSION_NEW}/g" app-emulation/docker/docker-9999.ebuild
 sed -i "s/docker-runc-${VERSION_OLD}/docker-runc-${VERSION_NEW}/g" app-emulation/containerd/containerd-9999.ebuild
 
 dockerVersion=$(sed -n "s/^DIST docker-\([0-9]*.[0-9]*.[0-9]*\).*/\1/p" app-emulation/docker/Manifest | sort -ruV | head -n1)
