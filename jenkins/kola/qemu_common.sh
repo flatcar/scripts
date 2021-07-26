@@ -68,6 +68,25 @@ bin/gangue get \
     "${DOWNLOAD_ROOT}/boards/${BOARD}/${FLATCAR_VERSION}/flatcar_test_update.gz"
 mv flatcar_test_update.gz tmp/
 
+if [ "${KOLA_TESTS}" = "*" ] || [ "$(echo "${KOLA_TESTS}" | grep 'cl.update.payload')" != "" ]; then
+  # First test to update from the previous release, this is done before running the real kola suite so that the qemu-latest symlink still points to the full run
+  rm -f flatcar_production_image.bin.bz2
+  curl -fsSLO --retry-delay 1 --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 "https://${GROUP}.release.flatcar-linux.net/${BOARD}/current/flatcar_production_image.bin.bz2"
+  mv flatcar_production_image.bin.bz2 tmp/flatcar_production_image_previous.bin.bz2
+  enter lbunzip2 -k -f /mnt/host/source/tmp/flatcar_production_image_previous.bin.bz2
+  enter sudo timeout --signal=SIGQUIT "${TIMEOUT}" kola run \
+    --board="${BOARD}" \
+    --channel="${GROUP}" \
+    --parallel="${PARALLEL}" \
+    --platform=qemu \
+    --qemu-bios="${BIOS}" \
+    --qemu-image=/mnt/host/source/tmp/flatcar_production_image_previous.bin \
+    --tapfile="/mnt/host/source/${JOB_NAME##*/}_update_from_previous_release.tap" \
+    --torcx-manifest=/mnt/host/source/torcx_manifest.json \
+    --update-payload=/mnt/host/source/tmp/flatcar_test_update.gz \
+    cl.update.payload
+fi
+
 # Do not expand the kola test patterns globs
 set -o noglob
 enter sudo timeout --signal=SIGQUIT "${TIMEOUT}" kola run \
@@ -79,7 +98,6 @@ enter sudo timeout --signal=SIGQUIT "${TIMEOUT}" kola run \
     --qemu-image=/mnt/host/source/tmp/flatcar_production_image.bin \
     --tapfile="/mnt/host/source/${JOB_NAME##*/}.tap" \
     --torcx-manifest=/mnt/host/source/torcx_manifest.json \
-    --update-payload=/mnt/host/source/tmp/flatcar_test_update.gz \
     ${KOLA_TESTS}
 set +o noglob
 
