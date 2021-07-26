@@ -11,6 +11,7 @@ KEYWORDS="amd64 arm64"
 RDEPEND="=sys-kernel/coreos-modules-${PVR}"
 DEPEND="${RDEPEND}
 	app-arch/gzip
+	app-arch/zstd
 	app-shells/bash
 	coreos-base/coreos-init:=
 	sys-apps/coreutils
@@ -65,6 +66,7 @@ src_prepare() {
 	# Symlink to bootengine.cpio so we can stick with relative paths in .config
 	ln -sv "${ROOT}"/usr/share/bootengine/bootengine.cpio build/ || die
 	config_update 'CONFIG_INITRAMFS_SOURCE="bootengine.cpio"'
+	config_update 'CONFIG_INITRAMFS_COMPRESSION_ZSTD=y'
 
 	# include all intel and amd microcode files, avoiding the signatures
 	local fw_dir="${ROOT}lib/firmware"
