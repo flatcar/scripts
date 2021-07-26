@@ -198,6 +198,7 @@ build_stage1() {
 if [[ "$STAGES" =~ stage1 ]]; then
     build_stage1
     STAGES="${STAGES/stage1/}"
+    SEED="${TYPE}/stage1-${ARCH}-latest"
 fi
 
 catalyst_build
