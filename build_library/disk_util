@@ -364,7 +364,7 @@ def FormatBtrfs(part, device):
     part: dict defining the partition
     device: name of the block device to format
   """
-  cmd = ['mkfs.btrfs', '--byte-count', part['fs_bytes']]
+  cmd = ['mkfs.btrfs', '--mixed', '-m', 'single', '-d', 'single', '--byte-count', part['fs_bytes']]
   if 'fs_label' in part:
     cmd += ['--label', part['fs_label']]
   Sudo(cmd + [device])
