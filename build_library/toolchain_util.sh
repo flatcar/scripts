@@ -293,6 +293,7 @@ install_cross_toolchain() {
     local cross_flags=( --gdb '[stable]' --ex-gdb --stable --target "${cross_chost}" )
     local cross_cfg="/usr/${cross_chost}/etc/portage/${cross_chost}-crossdev"
     local cross_cfg_data=$(_crossdev_info "${cross_flags[@]}")
+    local cbuild="$(portageq envvar CBUILD)"
     local emerge_flags=( "$@" --binpkg-respect-use=y --update --newuse )
 
     # Forcing binary packages for toolchain packages breaks crossdev since it
@@ -336,7 +337,7 @@ install_cross_toolchain() {
         echo "Installing existing binaries"
         $sudo emerge "${emerge_flags[@]}" \
             "cross-${cross_chost}/gdb" "${cross_pkgs[@]}"
-        if [ "${cross_chost}" = aarch64-cros-linux-gnu ] && \
+        if [ "${cbuild}" = "x86_64-pc-linux-gnu" ] && [ "${cross_chost}" = aarch64-cros-linux-gnu ] && \
            [ ! -d /usr/lib/rust-*/rustlib/aarch64-unknown-linux-gnu ] && [ ! -d /usr/lib/rustlib/aarch64-unknown-linux-gnu ]; then
           # If no aarch64 folder exists, warn about the situation but don't compile Rust here or download it as binary package
           echo "WARNING: No aarch64 cross-compilation Rust libraries found!"
