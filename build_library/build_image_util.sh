@@ -597,10 +597,13 @@ finish_image() {
     *) disable_read_write=${FLAGS_FALSE} ;;
   esac
 
-  # Copy kernel to support dm-verity boots
+  # Copy kernel to the /boot partition to support dm-verity boots by embedding
+  # the hash of the /usr partition into the kernel.
+  # Remove the kernel from the /usr partition to save space.
   sudo mkdir -p "${root_fs_dir}/boot/flatcar"
   sudo cp "${root_fs_dir}/usr/boot/vmlinuz" \
        "${root_fs_dir}/boot/flatcar/vmlinuz-a"
+  sudo rm "${root_fs_dir}/usr/boot/vmlinuz"*
 
   # Record directories installed to the state partition.
   # Explicitly ignore entries covered by existing configs.
