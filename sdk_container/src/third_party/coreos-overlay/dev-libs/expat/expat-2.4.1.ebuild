@@ -4,7 +4,9 @@
 EAPI=7
 AUTOTOOLS_AUTO_DEPEND=no
 AT_NOEAUTOHEADER=yes  # because expat_config.h.in would need post-processing
-inherit autotools multilib-minimal usr-ldscript
+
+# Flatcar: Don't inherit usr-ldscript
+inherit autotools multilib-minimal
 
 DESCRIPTION="Stream-oriented XML parser library"
 HOMEPAGE="https://libexpat.github.io/"
@@ -72,12 +74,6 @@ multilib_src_install() {
 		cp expat.pc expatw.pc
 		sed -i -e '/^Libs/s:-lexpat:&w:' expatw.pc || die
 		popd >/dev/null
-	fi
-
-	if multilib_is_native_abi ; then
-		# libgeom in /lib and ifconfig in /sbin require libexpat on FreeBSD since
-		# we stripped the libbsdxml copy starting from freebsd-lib-8.2-r1
-		use elibc_FreeBSD && gen_usr_ldscript -a expat
 	fi
 }
 
