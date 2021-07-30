@@ -51,8 +51,7 @@
         "fs_label":"OEM",
         "type":"data",
         "blocks":"262144",
-        "fs_type":"btrfs",
-        "fs_compression":"zlib",
+        "fs_type":"ext4",
         "mount":"/usr/share/oem"
       },
       "7":{
