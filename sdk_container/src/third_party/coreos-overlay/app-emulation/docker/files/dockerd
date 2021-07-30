@@ -34,8 +34,8 @@ parse_docker_args "$@"
 USE_SELINUX=""
 # Do not override selinux if it is already explicitly configured.
 if [[ -z "${ARG_SELINUX}" ]]; then
-        # If unspecified, default on
-        USE_SELINUX="--selinux-enabled"
+        # If unspecified, default off
+        USE_SELINUX="--selinux-enabled=false"
 fi
 
 exec dockerd "$@" ${USE_SELINUX}
