@@ -21,7 +21,7 @@ if [[ "${VERSION_NEW}" = "${VERSION_OLD}" ]]; then
   exit 0
 fi
 
-git mv $(ls -1 sys-kernel/coreos-firmware/coreos-firmware-${VERSION_OLD}*.ebuild | sort -ruV | head -n1) "sys-kernel/coreos-firmware/coreos-firmware-${VERSION_NEW}.ebuild"
+git mv $(ls -1 sys-kernel/coreos-firmware/coreos-firmware-${VERSION_OLD}.ebuild) "sys-kernel/coreos-firmware/coreos-firmware-${VERSION_NEW}.ebuild"
 
 popd >/dev/null || exit
 

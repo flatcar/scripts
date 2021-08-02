@@ -22,7 +22,7 @@ fi
 
 # we need to update not only the main ebuild file, but also its DOCKER_GITCOMMIT,
 # which needs to point to COMMIT_HASH that matches with $VERSION_NEW from upstream docker-ce.
-dockerEbuildOldSymlink=$(ls -1 app-emulation/docker/docker-${VERSION_OLD}*.ebuild | sort -ruV | head -n1)
+dockerEbuildOldSymlink=$(ls -1 app-emulation/docker/docker-${VERSION_OLD}.ebuild)
 dockerEbuildNewSymlink="app-emulation/docker/docker-${VERSION_NEW}.ebuild"
 dockerEbuildMain="app-emulation/docker/docker-9999.ebuild"
 git mv ${dockerEbuildOldSymlink} ${dockerEbuildNewSymlink}

@@ -25,7 +25,7 @@ if [[ "${VERSION_NEW}" = "${VERSION_OLD}" ]]; then
   exit 0
 fi
 
-git mv $(ls -1 dev-lang/go/go-${VERSION_OLD}*.ebuild | sort -ruV | head -n1) "dev-lang/go/go-${VERSION_NEW}.ebuild"
+git mv $(ls -1 dev-lang/go/go-${VERSION_OLD}.ebuild) "dev-lang/go/go-${VERSION_NEW}.ebuild"
 
 popd >/dev/null || exit
 

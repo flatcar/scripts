@@ -24,7 +24,7 @@ fi
 find profiles -name 'package.*' | xargs sed -i "s/=dev-lang\/rust-${VERSION_OLD}/=dev-lang\/rust-${VERSION_NEW}/"
 
 pushd "dev-lang/rust" >/dev/null || exit
-git mv $(ls -1 rust-${VERSION_OLD}*.ebuild | sort -ruV | head -n1) "rust-${VERSION_NEW}.ebuild"
+git mv $(ls -1 rust-${VERSION_OLD}.ebuild) "rust-${VERSION_NEW}.ebuild"
 popd >/dev/null || exit
 
 popd >/dev/null || exit
