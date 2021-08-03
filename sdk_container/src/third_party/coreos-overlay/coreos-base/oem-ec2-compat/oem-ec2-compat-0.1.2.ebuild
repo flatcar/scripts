@@ -13,21 +13,12 @@ KEYWORDS="amd64 arm64 x86"
 IUSE="ec2 openstack brightbox aws_pro"
 REQUIRED_USE="^^ ( ec2 openstack brightbox aws_pro )"
 
-# TODO: The AWS SSM Agent is currently too big for the OEM partition
-# but if it fits, uncomment the following and revert
-# b6abb59c544be13e923a3e7240b5c9395c281fca
-#RDEPEND="
-#       ec2? ( app-emulation/amazon-ssm-agent )
-#"
 RDEPEND="
+       ec2? ( app-emulation/amazon-ssm-agent )
        aws_pro? (
         coreos-base/flatcar-eks
         x11-drivers/nvidia-drivers
        )
-"
-
-RDEPEND="
-	app-emulation/amazon-ssm-agent
 "
 
 # no source directory
