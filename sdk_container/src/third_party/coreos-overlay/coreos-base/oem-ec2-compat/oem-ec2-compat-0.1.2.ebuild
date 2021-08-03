@@ -26,6 +26,10 @@ RDEPEND="
        )
 "
 
+RDEPEND="
+	app-emulation/amazon-ssm-agent
+"
+
 # no source directory
 S="${WORKDIR}"
 
