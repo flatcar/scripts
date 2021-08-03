@@ -28,23 +28,25 @@ src_prepare() {
 }
 
 src_compile() {
+	go_export
+
 	# this is replication of commands from the vendor makefile
 	# but without network activity during build phase
 	local GO_LDFLAGS="-s -w -extldflags=-Wl,-z,now,-z,relro,-z,defs"
 	export GOPATH="${WORKDIR}/${PN}-${PV}"
 	export GO111MODULE="off"
 	# set agent release version
-	BRAZIL_PACKAGE_VERSION=${PV} go run ./agent/version/versiongenerator/version-gen.go
+	BRAZIL_PACKAGE_VERSION=${PV} ${EGO} run ./agent/version/versiongenerator/version-gen.go
 	# build all the tools
-	go build -v -ldflags "${GO_LDFLAGS}" -buildmode=pie \
+	${EGO} build -v -ldflags "${GO_LDFLAGS}" -buildmode=pie \
 		-o bin/amazon-ssm-agent ./agent || die
-	go build -v -ldflags "${GO_LDFLAGS}" -buildmode=pie \
+	${EGO} build -v -ldflags "${GO_LDFLAGS}" -buildmode=pie \
 		-o bin/ssm-cli ./agent/cli-main || die
-	go build -v -ldflags "${GO_LDFLAGS}" -buildmode=pie \
+	${EGO} build -v -ldflags "${GO_LDFLAGS}" -buildmode=pie \
 		-o bin/ssm-document-worker ./agent/framework/processor/executer/outofproc/worker || die
-	go build -v -ldflags "${GO_LDFLAGS}" -buildmode=pie \
+	${EGO} build -v -ldflags "${GO_LDFLAGS}" -buildmode=pie \
 		-o bin/ssm-session-logger ./agent/session/logging || die
-	go build -v -ldflags "${GO_LDFLAGS}" -buildmode=pie \
+	${EGO} build -v -ldflags "${GO_LDFLAGS}" -buildmode=pie \
 		-o bin/ssm-session-worker ./agent/framework/processor/executer/outofproc/sessionworker || die
 }
 
