@@ -167,6 +167,10 @@ get_sdk_libdir() {
     portageq envvar "LIBDIR_$(get_sdk_arch)"
 }
 
+get_sdk_symlink_lib() {
+    portageq envvar "SYMLINK_LIB"
+}
+
 # Usage: get_sdk_binhost [version...]
 # If no versions are specified the current and SDK versions are used.
 get_sdk_binhost() {
@@ -289,6 +293,7 @@ install_cross_toolchain() {
     local cross_flags=( --gdb '[stable]' --ex-gdb --stable --target "${cross_chost}" )
     local cross_cfg="/usr/${cross_chost}/etc/portage/${cross_chost}-crossdev"
     local cross_cfg_data=$(_crossdev_info "${cross_flags[@]}")
+    local cbuild="$(portageq envvar CBUILD)"
     local emerge_flags=( "$@" --binpkg-respect-use=y --update --newuse )
 
     # Forcing binary packages for toolchain packages breaks crossdev since it
@@ -332,8 +337,8 @@ install_cross_toolchain() {
         echo "Installing existing binaries"
         $sudo emerge "${emerge_flags[@]}" \
             "cross-${cross_chost}/gdb" "${cross_pkgs[@]}"
-        if [ "${cross_chost}" = aarch64-cros-linux-gnu ] && \
-           [ ! -d /usr/lib64/rust-*/rustlib/aarch64-unknown-linux-gnu ] && [ ! -d /usr/lib64/rustlib/aarch64-unknown-linux-gnu ]; then
+        if [ "${cbuild}" = "x86_64-pc-linux-gnu" ] && [ "${cross_chost}" = aarch64-cros-linux-gnu ] && \
+           [ ! -d /usr/lib/rust-*/rustlib/aarch64-unknown-linux-gnu ] && [ ! -d /usr/lib/rustlib/aarch64-unknown-linux-gnu ]; then
           # If no aarch64 folder exists, warn about the situation but don't compile Rust here or download it as binary package
           echo "WARNING: No aarch64 cross-compilation Rust libraries found!"
           echo "In case building fails, make sure the old Rust version is deleted with: sudo emerge -C virtual/rust dev-lang/rust"
@@ -395,6 +400,7 @@ install_cross_libs() {
 install_cross_rust() {
     local cross_chost="$1"; shift
     local emerge_flags=( "$@" --binpkg-respect-use=y --update )
+    local cbuild="$(portageq envvar CBUILD)"
 
     # may be called from either catalyst (root) or upgrade_chroot (user)
     local sudo="env"
@@ -402,10 +408,10 @@ install_cross_rust() {
         sudo="sudo -E"
     fi
 
-    if [ "${cross_chost}" = "aarch64-cros-linux-gnu" ]; then
+    if [ "${cbuild}" = "x86_64-pc-linux-gnu" ] && [ "${cross_chost}" = "aarch64-cros-linux-gnu" ]; then
         echo "Building Rust for arm64"
         # If no aarch64 folder exists, try to remove any existing Rust packages.
-        [ ! -d /usr/lib/rust-*/rustlib/aarch64-unknown-linux-gnu ] && ($sudo emerge -C dev-lang/rust || true)
+        [ ! -d /usr/lib/rustlib/aarch64-unknown-linux-gnu ] && ($sudo emerge -C dev-lang/rust || true)
         $sudo emerge "${emerge_flags[@]}" dev-lang/rust
     fi
 }
