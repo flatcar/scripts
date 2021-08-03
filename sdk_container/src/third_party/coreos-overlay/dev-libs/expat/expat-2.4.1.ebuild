@@ -1,9 +1,12 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 AUTOTOOLS_AUTO_DEPEND=no
-inherit autotools eutils libtool multilib toolchain-funcs multilib-minimal
+AT_NOEAUTOHEADER=yes  # because expat_config.h.in would need post-processing
+
+# Flatcar: Don't inherit usr-ldscript
+inherit autotools multilib-minimal
 
 DESCRIPTION="Stream-oriented XML parser library"
 HOMEPAGE="https://libexpat.github.io/"
@@ -11,7 +14,7 @@ SRC_URI="https://github.com/libexpat/libexpat/releases/download/R_${PV//\./_}/ex
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~riscv s390 ~sh sparc x86 ~ppc-aix ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt"
 IUSE="elibc_FreeBSD examples static-libs unicode"
 BDEPEND="unicode? ( ${AUTOTOOLS_DEPEND} )"
 
@@ -81,11 +84,12 @@ multilib_src_install_all() {
 
 	# Note: Use of HTML_DOCS would add unwanted "doc" subfolder
 	docinto html
-	dodoc doc/*.{css,html,png}
+	dodoc doc/*.{css,html}
 
 	if use examples; then
-		insinto /usr/share/doc/${PF}/examples
-		doins examples/*.c
+		docinto examples
+		dodoc examples/*.c
+		docompress -x usr/share/doc/${PF}/examples
 	fi
 
 	find "${D}" -name '*.la' -type f -delete || die
