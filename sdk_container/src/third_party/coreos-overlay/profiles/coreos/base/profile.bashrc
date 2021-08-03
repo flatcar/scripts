@@ -95,7 +95,7 @@ cros_pre_pkg_setup_sysroot_build_bin_dir() {
 }
 
 # Insert our sysroot wrappers into the path
-SYSROOT_WRAPPERS_BIN="/usr/lib/sysroot-wrappers/bin"
+SYSROOT_WRAPPERS_BIN="/usr/lib64/sysroot-wrappers/bin"
 if [[ "$PATH" != *"$SYSROOT_WRAPPERS_BIN"* ]]; then
     export PATH="$SYSROOT_WRAPPERS_BIN:$PATH"
 fi

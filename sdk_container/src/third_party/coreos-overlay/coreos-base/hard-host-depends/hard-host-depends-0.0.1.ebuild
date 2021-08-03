@@ -8,7 +8,7 @@ HOMEPAGE="http://src.chromium.org"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 x86"
+KEYWORDS="amd64 arm64 x86"
 IUSE=""
 
 # Needed to run setup crossdev, run build scripts, and make a bootable image.
@@ -20,7 +20,7 @@ RDEPEND="${RDEPEND}
 	dev-embedded/u-boot-tools
 	dev-util/ccache
 	dev-util/crosutils
-	sys-boot/syslinux
+	!arm64? ( sys-boot/syslinux )
 	sys-devel/crossdev
 	sys-devel/sysroot-wrappers
 	sys-fs/dosfstools
@@ -64,7 +64,7 @@ RDEPEND="${RDEPEND}
 	>=dev-util/intltool-0.30
 	dev-util/scons
 	>=dev-vcs/git-1.7.2
-	net-misc/google-cloud-sdk
+	amd64? ( net-misc/google-cloud-sdk )
 	sys-apps/usbutils
 	sys-apps/systemd
 	sys-libs/nss-usrfiles
