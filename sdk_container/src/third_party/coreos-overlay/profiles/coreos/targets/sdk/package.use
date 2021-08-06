@@ -2,7 +2,6 @@ coreos-base/update_engine delta_generator
 
 dev-vcs/git pcre
 
-dev-util/catalyst ccache
 dev-lang/python sqlite
 
 dev-lang/rust rustfmt

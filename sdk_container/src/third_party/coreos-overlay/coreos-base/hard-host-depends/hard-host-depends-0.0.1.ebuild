@@ -18,7 +18,6 @@ RDEPEND="${RDEPEND}
 	app-admin/sudo
 	sys-apps/less
 	dev-embedded/u-boot-tools
-	dev-util/ccache
 	dev-util/crosutils
 	!arm64? ( sys-boot/syslinux )
 	sys-devel/crossdev
