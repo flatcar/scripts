@@ -233,9 +233,11 @@ if [[ "$STAGES" =~ stage4 ]]; then
     sign_and_upload_files "packages" "${def_upload_path}" "pkgs/" \
         "${BINPKGS}"/*
 
-    # Upload the SDK toolchain packages
-    sign_and_upload_files "cross toolchain packages" "${def_upload_path}" \
-        "toolchain/" "${BINPKGS}/crossdev"/*
+    if [ -d "${BINPKGS}/crossdev" ]; then
+        # Upload the SDK toolchain packages
+        sign_and_upload_files "cross toolchain packages" "${def_upload_path}" \
+            "toolchain/" "${BINPKGS}/crossdev"/*
+    fi
 fi
 
 command_completed
