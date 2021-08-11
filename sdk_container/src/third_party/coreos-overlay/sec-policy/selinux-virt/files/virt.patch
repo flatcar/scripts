@@ -36,4 +36,4 @@ index 256ea58..f72fbba 100644
 +allow svirt_lxc_net_t var_lib_t:file { entrypoint execute execute_no_trans };
 +allow svirt_lxc_net_t kernel_t:fifo_file { getattr ioctl read write open append };
 +allow svirt_lxc_net_t initrc_t:fifo_file { getattr ioctl read write open append };
-+
++filetrans_pattern(kernel_t, etc_t, svirt_lxc_file_t, dir, "cni");
