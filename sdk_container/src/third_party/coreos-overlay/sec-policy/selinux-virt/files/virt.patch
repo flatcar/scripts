@@ -1,7 +1,7 @@
-index 4943ad79d..c89bb5c0c 100644
+index 4943ad79d..8b0ed779e 100644
 --- services/virt.te
 +++ services/virt.te
-@@ -1377,3 +1377,38 @@ sysnet_dns_name_resolve(virtlogd_t)
+@@ -1377,3 +1377,41 @@ sysnet_dns_name_resolve(virtlogd_t)
  
  virt_manage_log(virtlogd_t)
  virt_read_config(virtlogd_t)
@@ -40,3 +40,6 @@ index 4943ad79d..c89bb5c0c 100644
 +
 +# this is required by flanneld
 +allow svirt_lxc_net_t kernel_t:system { module_request };
++
++# required by flanneld to write into /run/flannel/subnet.env
++filetrans_pattern(kernel_t, var_run_t, svirt_lxc_file_t, dir, "flannel");
