@@ -60,8 +60,6 @@ dev-util/checkbashisms
 # https://bugs.gentoo.org/686744
 =dev-lang/spidermonkey-1.8.5-r7
 
-=net-firewall/iptables-1.6.2-r2 ~arm64
-
 =sys-firmware/edk2-ovmf-201905 ~arm64
 
 =sys-auth/google-oslogin-20180611 **
@@ -102,3 +100,5 @@ dev-util/checkbashisms
 =dev-libs/libxml2-2.9.12-r2 ~amd64 ~arm64
 
 =dev-libs/libgcrypt-1.9.3 ~amd64 ~arm64
+
+=net-libs/libnftnl-1.2.0 ~amd64 ~arm64

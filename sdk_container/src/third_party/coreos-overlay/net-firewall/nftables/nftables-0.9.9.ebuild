@@ -94,6 +94,7 @@ src_configure() {
 		# We handle python separately
 		--disable-python
 		--sbindir="${EPREFIX}"/sbin
+		--sysconfdir="${EPREFIX}"/usr/share 
 		$(use_enable debug)
 		$(use_enable doc man-doc)
 		$(use_with !gmp mini_gmp)
@@ -114,66 +115,3 @@ src_compile() {
 	fi
 }
 
-src_install() {
-	default
-
-	if ! use doc && [[ ! ${PV} =~ ^[9]{4,}$ ]]; then
-		pushd doc >/dev/null || die
-		doman *.?
-		popd >/dev/null || die
-	fi
-
-	local mksuffix="$(usex modern-kernel '-mk' '')"
-
-	exeinto /usr/libexec/${PN}
-	newexe "${FILESDIR}"/libexec/${PN}${mksuffix}.sh ${PN}.sh
-	newconfd "${FILESDIR}"/${PN}${mksuffix}.confd ${PN}
-	newinitd "${FILESDIR}"/${PN}${mksuffix}.init-r1 ${PN}
-	keepdir /var/lib/nftables
-
-	systemd_dounit "${FILESDIR}"/systemd/${PN}-restore.service
-
-	if use python ; then
-		python_foreach_impl python_make install
-		python_foreach_impl python_optimize
-	fi
-
-	find "${ED}" -type f -name "*.la" -delete || die
-}
-
-pkg_postinst() {
-	local save_file
-	save_file="${EROOT}/var/lib/nftables/rules-save"
-
-	# In order for the nftables-restore systemd service to start
-	# the save_file must exist.
-	if [[ ! -f "${save_file}" ]]; then
-		( umask 177; touch "${save_file}" )
-	elif [[ $(( "$( stat --printf '%05a' "${save_file}" )" & 07177 )) -ne 0 ]]; then
-		ewarn "Your system has dangerous permissions for ${save_file}"
-		ewarn "It is probably affected by bug #691326."
-		ewarn "You may need to fix the permissions of the file. To do so,"
-		ewarn "you can run the command in the line below as root."
-		ewarn "    'chmod 600 \"${save_file}\"'"
-	fi
-
-	if has_version 'sys-apps/systemd'; then
-		elog "If you wish to enable the firewall rules on boot (on systemd) you"
-		elog "will need to enable the nftables-restore service."
-		elog "    'systemctl enable ${PN}-restore.service'"
-		elog
-		elog "If you are creating firewall rules before the next system restart"
-		elog "the nftables-restore service must be manually started in order to"
-		elog "save those rules on shutdown."
-	fi
-	if has_version 'sys-apps/openrc'; then
-		elog "If you wish to enable the firewall rules on boot (on openrc) you"
-		elog "will need to enable the nftables service."
-		elog "    'rc-update add ${PN} default'"
-		elog
-		elog "If you are creating or updating the firewall rules and wish to save"
-		elog "them to be loaded on the next restart, use the \"save\" functionality"
-		elog "in the init script."
-		elog "    'rc-service ${PN} save'"
-	fi
-}
