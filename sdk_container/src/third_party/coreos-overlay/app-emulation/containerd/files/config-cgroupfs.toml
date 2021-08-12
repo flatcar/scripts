@@ -27,4 +27,4 @@ no_shim = false
 
 # config version 1; version 2 uses full plugin paths
 [plugins.cri.containerd.runtimes.runc.options]
-SystemdCgroup = true
+SystemdCgroup = false

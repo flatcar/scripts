@@ -28,6 +28,14 @@ function checkout_branches() {
   git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" checkout -B "${TARGET_BRANCH}" "github/${BASE_BRANCH}"
 }
 
+function regenerate_manifest() {
+  CATEGORY_NAME=$1
+  PKGNAME_SIMPLE=$2
+  pushd "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" >/dev/null || exit
+  enter ebuild "${SDK_INNER_SRCDIR}/third_party/coreos-overlay/${CATEGORY_NAME}/${PKGNAME_SIMPLE}/${PKGNAME_SIMPLE}-${VERSION_NEW}.ebuild" manifest --force
+  popd || exit
+}
+
 function generate_patches() {
   CATEGORY_NAME=$1
   PKGNAME_SIMPLE=$2

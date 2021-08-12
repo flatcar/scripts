@@ -11,7 +11,7 @@ if [[ ${PV} == *9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 	inherit golang-vcs
 else
-	EGIT_COMMIT="3ac297bc7fd0afec9051bbb47024c9bc1d75bf5b"
+	EGIT_COMMIT="64b7a4574d1426139437d20e81c0b6d391130ec8"
 	SRC_URI="https://${EGO_PN}/archive/${EGIT_COMMIT}.tar.gz -> ${P}.tar.gz"
 	KEYWORDS="amd64 arm64"
 	inherit golang-vcs-snapshot
@@ -37,6 +37,6 @@ src_compile() {
 }
 
 src_install() {
-	dodoc ROADMAP.md README.md CHANGELOG.md
+	dodoc README.md CHANGELOG.md
 	newbin "${GOBIN}"/proxy docker-proxy
 }

@@ -22,17 +22,23 @@ fi
 
 # we need to update not only the main ebuild file, but also its DOCKER_GITCOMMIT,
 # which needs to point to COMMIT_HASH that matches with $VERSION_NEW from upstream docker-ce.
-dockerEbuildOldSymlink=$(ls -1 app-emulation/docker/docker-${VERSION_OLD}.ebuild)
-dockerEbuildNewSymlink="app-emulation/docker/docker-${VERSION_NEW}.ebuild"
-dockerEbuildMain="app-emulation/docker/docker-9999.ebuild"
-git mv ${dockerEbuildOldSymlink} ${dockerEbuildNewSymlink}
-sed -i "s/DOCKER_GITCOMMIT=\"\(.*\)\"/DOCKER_GITCOMMIT=\"${COMMIT_HASH}\"/g" ${dockerEbuildMain}
-sed -i "s/v${VERSION_OLD}/v${VERSION_NEW}/g" ${dockerEbuildMain}
+dockerEbuildOld=$(ls -1 app-emulation/docker/docker-${VERSION_OLD}.ebuild)
+dockerEbuildNew="app-emulation/docker/docker-${VERSION_NEW}.ebuild"
+git mv ${dockerEbuildOld} ${dockerEbuildNew}
+sed -i "s/GIT_COMMIT=\(.*\)/GIT_COMMIT=${COMMIT_HASH}/g" ${dockerEbuildNew}
+sed -i "s/v${VERSION_OLD}/v${VERSION_NEW}/g" ${dockerEbuildNew}
+
+cliEbuildOld=$(ls -1 app-emulation/docker-cli/docker-cli-${VERSION_OLD}.ebuild)
+cliEbuildNew="app-emulation/docker-cli/docker-cli-${VERSION_NEW}.ebuild"
+git mv ${cliEbuildOld} ${cliEbuildNew}
+sed -i "s/GIT_COMMIT=\(.*\)/GIT_COMMIT=${COMMIT_CLI_HASH}/g" ${cliEbuildNew}
+sed -i "s/v${VERSION_OLD}/v${VERSION_NEW}/g" ${cliEbuildNew}
 
 # torcx ebuild file has a docker version with only major and minor versions, like 19.03.
 versionTorcx=${VERSION_OLD%.*}
 torcxEbuildFile=$(ls -1 app-torcx/docker/docker-${versionTorcx}*.ebuild | sort -ruV | head -n1)
 sed -i "s/docker-${VERSION_OLD}/docker-${VERSION_NEW}/g" ${torcxEbuildFile}
+sed -i "s/docker-cli-${VERSION_OLD}/docker-cli-${VERSION_NEW}/g" ${torcxEbuildFile}
 
 # update also docker versions used by the current docker-runc ebuild file.
 versionRunc=$(sed -n "s/^DIST docker-runc-\([0-9]*.[0-9]*.*\)\.tar.*/\1/p" app-emulation/docker-runc/Manifest | sort -ruV | head -n1)
@@ -41,6 +47,7 @@ sed -i "s/github.com\/docker\/docker-ce\/blob\/v${VERSION_OLD}/github.com\/docke
 
 popd >/dev/null || exit
 
+regenerate_manifest app-emulation docker-cli
 generate_patches app-emulation docker Docker
 
 apply_patches

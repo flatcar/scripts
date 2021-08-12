@@ -64,4 +64,5 @@ src_install() {
 	systemd_newunit "${FILESDIR}/${PN}-1.0.0.service" "${PN}.service"
 	insinto /usr/share/containerd
 	doins "${FILESDIR}/config.toml"
+	doins "${FILESDIR}/config-cgroupfs.toml"
 }

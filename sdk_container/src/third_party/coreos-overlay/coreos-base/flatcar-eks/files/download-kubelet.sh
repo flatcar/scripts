@@ -20,7 +20,17 @@ if [[ -z "${CLUSTER_VERSION}" ]]; then
 fi
 
 # Select the right path depending on the Kubernetes version.
+# https://github.com/awslabs/amazon-eks-ami/blob/master/Makefile
 case $CLUSTER_VERSION in
+  1.21)
+    S3_PATH="1.21.2/2021-07-05"
+    ;;
+  1.20)
+    S3_PATH="1.20.4/2021-04-12"
+    ;;
+  1.19)
+    S3_PATH="1.19.6/2021-01-05"
+    ;;
   1.18)
     S3_PATH="1.18.9/2020-11-02"
     ;;

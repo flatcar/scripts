@@ -1,4 +1,4 @@
-# Copyright (c) 2017 CoreOS, Inc.. All rights reserved.
+# Copyright (c) 2017-2018 CoreOS, Inc.. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=2
@@ -11,11 +11,13 @@ KEYWORDS="amd64 arm64"
 
 # Explicitly list all packages that will be built into the image.
 RDEPEND="
-	~app-emulation/docker-17.03.2
-	~app-emulation/containerd-0.2.6
-	~app-emulation/docker-proxy-0.8.0_p20161019
-	~app-emulation/docker-runc-1.0.0_rc2_p136
-	=sys-process/tini-0.18.0
+	~app-emulation/docker-20.10.7
+	~app-emulation/docker-cli-20.10.7
+	~app-emulation/containerd-1.5.4
+	~app-emulation/docker-proxy-0.8.0_p20210525
+	~app-emulation/docker-runc-1.0.1
+	=dev-libs/libltdl-2.4.6
+	~sys-process/tini-0.19.0
 "
 
 src_install() {

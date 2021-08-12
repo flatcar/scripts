@@ -12,7 +12,7 @@ EAPI=7
 # system - we want static binary and a non-minimal build.
 inherit autotools
 
-GIT_COMMIT=fec3683b971d9c3ef73f284f176672c44b448662
+GIT_COMMIT=de40ad007797e0dcd8b7126f27bb87401d224240
 DESCRIPTION="A tiny but valid init for containers"
 HOMEPAGE="https://github.com/krallin/tini"
 SRC_URI="https://github.com/krallin/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
