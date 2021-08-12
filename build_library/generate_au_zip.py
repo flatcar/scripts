@@ -32,6 +32,9 @@ DYNAMIC_EXECUTABLES = ['/usr/bin/delta_generator',
                        '/usr/bin/bsdiff',
                        '/usr/bin/bspatch']
 
+LD_LINUX_AMD64 = 'ld-linux-x86-64.so.2'
+LD_LINUX_ARM64 = 'ld-linux-aarch64.so.1'
+
 # These files will be ignored when present in the dependancy list.
 DENY_LIST = [
     # This library does not exist on disk, but is inserted into the
@@ -40,9 +43,14 @@ DENY_LIST = [
     ]
 
 # These files MUST be present in the dependancy list.
-ALLOW_LIST = [
-    # Update WrapExecutableFiles if this file changes names
-    'ld-linux-x86-64.so.2',
+# Update WrapExecutableFiles if this file changes names.
+# Each architecture requires different allow list libs.
+ALLOW_LIST_AMD64 = [
+    LD_LINUX_AMD64,
+    ]
+
+ALLOW_LIST_ARM64 = [
+    LD_LINUX_ARM64,
     ]
 
 LIB_DIR = 'lib.so'
@@ -93,7 +101,7 @@ def _SplitAndStrip(data):
   return return_list
 
 
-def DepsToCopy(ldd_files):
+def DepsToCopy(ldd_files, allow_list):
   """Returns a list of deps for a given dynamic executables list.
     Args:
       ldd_files: List of dynamic files that needs to have the deps evaluated
@@ -130,11 +138,11 @@ def DepsToCopy(ldd_files):
       sys.exit(1)
 
   result = _ExcludeDenylist(list(libs), DENY_LIST)
-  _EnforceAllowList(list(libs), ALLOW_LIST)
+  _EnforceAllowList(list(libs), allow_list=allow_list)
   return result
 
 
-def CopyRequiredFiles(dest_files_root):
+def CopyRequiredFiles(dest_files_root, allow_list):
   """Generates a list of files that are required for au-generator zip file
     Args:
       dest_files_root: location of the directory where we should copy the files
@@ -161,7 +169,7 @@ def CopyRequiredFiles(dest_files_root):
       logging.exception("Copying '%s' to %s failed", file_name, dest_files_root)
       sys.exit(1)
 
-  libraries = DepsToCopy(ldd_files=DYNAMIC_EXECUTABLES)
+  libraries = DepsToCopy(ldd_files=DYNAMIC_EXECUTABLES, allow_list=allow_list)
   lib_dir = os.path.join(dest_files_root, LIB_DIR)
   os.mkdir(lib_dir)
   for file_name in libraries:
@@ -188,7 +196,7 @@ def CopyRequiredFiles(dest_files_root):
     sys.exit(1)
 
 
-def WrapExecutableFiles(dest_files_root):
+def WrapExecutableFiles(dest_files_root, ld_linux):
   """Our dynamically linked executalbes have to be invoked use the library
      versions they were linked with inside the chroot (from libc on), as well
      as the dynamic linker they were built with inside the chroot.
@@ -209,10 +217,10 @@ def WrapExecutableFiles(dest_files_root):
       script.write('# Auto-generated wrapper script\n')
       script.write('thisdir="$(dirname "$0")"\n')
       script.write('LD_LIBRARY_PATH=\n')
-      script.write('exec "$thisdir/%s/ld-linux-x86-64.so.2"'
+      script.write('exec "$thisdir/%s/%s"'
                    ' --library-path "$thisdir/%s"'
                    ' "$thisdir/%s.bin" "$@"\n' %
-                   (LIB_DIR, LIB_DIR, base_exec))
+                   (LIB_DIR, ld_linux, LIB_DIR, base_exec))
 
 
 def CleanUp(temp_dir):
@@ -335,6 +343,8 @@ def main():
                     default='au-generator.zip', help='Name of the zip file')
   parser.add_option('-k', '--keep-temp', dest='keep_temp', default=False,
                     action='store_true', help='Keep the temp files...',)
+  parser.add_option('-a', '--arch', dest='arch',
+                     default='amd64', help='Arch amd64/arm64. Default: amd64',)
 
   (options, args) = parser.parse_args()
   if options.debug:
@@ -345,8 +355,16 @@ def main():
   temp_dir = CreateTempDir()
   dest_files_root = os.path.join(temp_dir, 'au-generator')
   os.makedirs(dest_files_root)
-  CopyRequiredFiles(dest_files_root=dest_files_root)
-  WrapExecutableFiles(dest_files_root=dest_files_root)
+
+  if options.arch == 'arm64':
+    ld_linux = LD_LINUX_ARM64
+    allow_list = ALLOW_LIST_ARM64
+  else:
+    ld_linux = LD_LINUX_AMD64
+    allow_list = ALLOW_LIST_AMD64
+
+  CopyRequiredFiles(dest_files_root=dest_files_root, allow_list=allow_list)
+  WrapExecutableFiles(dest_files_root=dest_files_root, ld_linux=ld_linux)
   zip_file_name = os.path.join(temp_dir, options.zip_name)
   GenerateZipFile(zip_file_name, dest_files_root)
   CopyZipToFinalDestination(options.output_dir, zip_file_name)
