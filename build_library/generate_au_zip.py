@@ -33,14 +33,14 @@ DYNAMIC_EXECUTABLES = ['/usr/bin/delta_generator',
                        '/usr/bin/bspatch']
 
 # These files will be ignored when present in the dependancy list.
-BLACK_LIST = [
+DENY_LIST = [
     # This library does not exist on disk, but is inserted into the
     # executable's memory space when the executable is loaded by the kernel.
     'linux-vdso.so',
     ]
 
 # These files MUST be present in the dependancy list.
-WHITE_LIST = [
+ALLOW_LIST = [
     # Update WrapExecutableFiles if this file changes names
     'ld-linux-x86-64.so.2',
     ]
@@ -97,7 +97,7 @@ def DepsToCopy(ldd_files):
   """Returns a list of deps for a given dynamic executables list.
     Args:
       ldd_files: List of dynamic files that needs to have the deps evaluated
-      black_list: List of files that we should ignore
+      deny_list: List of files that we should ignore
    Returns:
      List of files that are dependencies
   """
@@ -129,8 +129,8 @@ def DepsToCopy(ldd_files):
       logging.error("ldd for %s failed: %s", file_name, ex)
       sys.exit(1)
 
-  result = _ExcludeBlacklist(list(libs), BLACK_LIST)
-  _EnforceWhiteList(list(libs), WHITE_LIST)
+  result = _ExcludeDenylist(list(libs), DENY_LIST)
+  _EnforceAllowList(list(libs), ALLOW_LIST)
   return result
 
 
@@ -249,26 +249,26 @@ def GenerateZipFile(base_name, root_dir):
   return True
 
 
-def _ExcludeBlacklist(library_list, black_list=[]):
-  """Deletes the set of files from black_list from the library_list
+def _ExcludeDenylist(library_list, deny_list=[]):
+  """Deletes the set of files from deny_list from the library_list
     Args:
-      library_list: List of the library names to filter through black_list
-      black_list: List of the black listed names to filter
+      library_list: List of the library names to filter through deny_list
+      deny_list: List of the deny listed names to filter
     Returns:
       Filtered library_list
   """
 
-  if not black_list:
+  if not deny_list:
     return library_list
 
   return_list = []
-  pattern = re.compile(r'|'.join(black_list))
+  pattern = re.compile(r'|'.join(deny_list))
 
   logging.debug('PATTERN: %s=', pattern)
 
   for library in library_list:
     if pattern.search(library):
-      logging.debug('BLACK-LISTED = %s=', library)
+      logging.debug('DENY-LISTED = %s=', library)
       continue
     return_list.append(library)
 
@@ -277,17 +277,17 @@ def _ExcludeBlacklist(library_list, black_list=[]):
   return return_list
 
 
-def _EnforceWhiteList(library_list, white_list=[]):
-  """Deletes the set of files from black_list from the library_list
+def _EnforceAllowList(library_list, allow_list=[]):
+  """Deletes the set of files from deny_list from the library_list
     Args:
-      library_list: List of the library names to filter through black_list
-      black_list: List of the black listed names to filter
+      library_list: List of the library names to filter through deny_list
+      deny_list: List of the deny listed names to filter
     Returns:
       Filtered library_list
   """
 
-  for white_item in white_list:
-    pattern = re.compile(white_item)
+  for allow_item in allow_list:
+    pattern = re.compile(allow_item)
 
     logging.debug('PATTERN: %s=', pattern)
 
@@ -298,7 +298,7 @@ def _EnforceWhiteList(library_list, white_list=[]):
         break
 
     if not found:
-      logging.error('Required WHITE_LIST items %s not found!!!' % white_item)
+      logging.error('Required ALLOW_LIST items %s not found!!!' % allow_item)
       exit(1)
 
 
