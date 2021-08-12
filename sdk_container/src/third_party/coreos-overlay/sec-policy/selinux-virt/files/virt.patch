@@ -1,7 +1,7 @@
-index 256ea58..f72fbba 100644
+index 4943ad79d..8b0ed779e 100644
 --- services/virt.te
 +++ services/virt.te
-@@ -1378,3 +1378,35 @@ sysnet_dns_name_resolve(virtlogd_t)
+@@ -1377,3 +1377,41 @@ sysnet_dns_name_resolve(virtlogd_t)
  
  virt_manage_log(virtlogd_t)
  virt_read_config(virtlogd_t)
@@ -36,4 +36,10 @@ index 256ea58..f72fbba 100644
 +allow svirt_lxc_net_t var_lib_t:file { entrypoint execute execute_no_trans };
 +allow svirt_lxc_net_t kernel_t:fifo_file { getattr ioctl read write open append };
 +allow svirt_lxc_net_t initrc_t:fifo_file { getattr ioctl read write open append };
++filetrans_pattern(kernel_t, etc_t, svirt_lxc_file_t, dir, "cni");
 +
++# this is required by flanneld
++allow svirt_lxc_net_t kernel_t:system { module_request };
++
++# required by flanneld to write into /run/flannel/subnet.env
++filetrans_pattern(kernel_t, var_run_t, svirt_lxc_file_t, dir, "flannel");
