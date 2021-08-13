@@ -693,7 +693,7 @@ EOF
 
   if [[ -n "${pcr_policy}" ]]; then
     mkdir -p "${BUILD_DIR}/pcrs"
-    ${BUILD_LIBRARY_DIR}/generate_kernel_hash.sh \
+    ${BUILD_LIBRARY_DIR}/generate_kernel_hash.py \
         "${root_fs_dir}/boot/flatcar/vmlinuz-a" ${FLATCAR_VERSION} \
         >"${BUILD_DIR}/pcrs/kernel.config"
   fi
