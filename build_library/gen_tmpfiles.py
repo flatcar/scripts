@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 '''Scan an existing directory tree and record installed directories.
 
 During build a number of directories under /var are created in the state
@@ -82,7 +82,7 @@ def main():
         fd.write('\n'.join(config)+'\n')
         fd.close()
     else:
-        print '\n'.join(config)
+        print('\n'.join(config))
 
 if __name__ == '__main__':
     main()

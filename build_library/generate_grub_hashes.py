@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import hashlib
 import json
@@ -7,7 +7,7 @@ import string
 import subprocess
 import sys
 
-filename = sys.argv[1] 
+filename = sys.argv[1]
 grubdir = sys.argv[2]
 outputdir = sys.argv[3]
 version = sys.argv[4]

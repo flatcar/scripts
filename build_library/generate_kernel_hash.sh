@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import hashlib
 import json
@@ -10,4 +10,4 @@ version=sys.argv[2]
 
 with open(path, "rb") as f:
     kernel = f.read()
-    print json.dumps({"9": {"binaryvalues": [{"prefix": "grub_linux", "values": [{"value": hashlib.sha1(kernel).hexdigest(), "description": "flatcar-%s" % version}]}]}})
+    print(json.dumps({"9": {"binaryvalues": [{"prefix": "grub_linux", "values": [{"value": hashlib.sha1(kernel).hexdigest(), "description": "flatcar-%s" % version}]}]}}))
