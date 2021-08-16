@@ -32,17 +32,25 @@ DYNAMIC_EXECUTABLES = ['/usr/bin/delta_generator',
                        '/usr/bin/bsdiff',
                        '/usr/bin/bspatch']
 
+LD_LINUX_AMD64 = 'ld-linux-x86-64.so.2'
+LD_LINUX_ARM64 = 'ld-linux-aarch64.so.1'
+
 # These files will be ignored when present in the dependancy list.
-BLACK_LIST = [
+DENY_LIST = [
     # This library does not exist on disk, but is inserted into the
     # executable's memory space when the executable is loaded by the kernel.
     'linux-vdso.so',
     ]
 
 # These files MUST be present in the dependancy list.
-WHITE_LIST = [
-    # Update WrapExecutableFiles if this file changes names
-    'ld-linux-x86-64.so.2',
+# Update WrapExecutableFiles if this file changes names.
+# Each architecture requires different allow list libs.
+ALLOW_LIST_AMD64 = [
+    LD_LINUX_AMD64,
+    ]
+
+ALLOW_LIST_ARM64 = [
+    LD_LINUX_ARM64,
     ]
 
 LIB_DIR = 'lib.so'
@@ -93,11 +101,11 @@ def _SplitAndStrip(data):
   return return_list
 
 
-def DepsToCopy(ldd_files):
+def DepsToCopy(ldd_files, allow_list):
   """Returns a list of deps for a given dynamic executables list.
     Args:
       ldd_files: List of dynamic files that needs to have the deps evaluated
-      black_list: List of files that we should ignore
+      allow_list: List of files that we should allow
    Returns:
      List of files that are dependencies
   """
@@ -129,15 +137,16 @@ def DepsToCopy(ldd_files):
       logging.error("ldd for %s failed: %s", file_name, ex)
       sys.exit(1)
 
-  result = _ExcludeBlacklist(list(libs), BLACK_LIST)
-  _EnforceWhiteList(list(libs), WHITE_LIST)
+  result = _ExcludeDenylist(list(libs), DENY_LIST)
+  _EnforceAllowList(list(libs), allow_list=allow_list)
   return result
 
 
-def CopyRequiredFiles(dest_files_root):
+def CopyRequiredFiles(dest_files_root, allow_list):
   """Generates a list of files that are required for au-generator zip file
     Args:
       dest_files_root: location of the directory where we should copy the files
+      allow_list: List of files that we should allow
   """
   if not dest_files_root:
     logging.error('Invalid option passed for dest_files_root')
@@ -161,7 +170,7 @@ def CopyRequiredFiles(dest_files_root):
       logging.exception("Copying '%s' to %s failed", file_name, dest_files_root)
       sys.exit(1)
 
-  libraries = DepsToCopy(ldd_files=DYNAMIC_EXECUTABLES)
+  libraries = DepsToCopy(ldd_files=DYNAMIC_EXECUTABLES, allow_list=allow_list)
   lib_dir = os.path.join(dest_files_root, LIB_DIR)
   os.mkdir(lib_dir)
   for file_name in libraries:
@@ -188,7 +197,7 @@ def CopyRequiredFiles(dest_files_root):
     sys.exit(1)
 
 
-def WrapExecutableFiles(dest_files_root):
+def WrapExecutableFiles(dest_files_root, ld_linux):
   """Our dynamically linked executalbes have to be invoked use the library
      versions they were linked with inside the chroot (from libc on), as well
      as the dynamic linker they were built with inside the chroot.
@@ -209,10 +218,10 @@ def WrapExecutableFiles(dest_files_root):
       script.write('# Auto-generated wrapper script\n')
       script.write('thisdir="$(dirname "$0")"\n')
       script.write('LD_LIBRARY_PATH=\n')
-      script.write('exec "$thisdir/%s/ld-linux-x86-64.so.2"'
+      script.write('exec "$thisdir/%s/%s"'
                    ' --library-path "$thisdir/%s"'
                    ' "$thisdir/%s.bin" "$@"\n' %
-                   (LIB_DIR, LIB_DIR, base_exec))
+                   (LIB_DIR, ld_linux, LIB_DIR, base_exec))
 
 
 def CleanUp(temp_dir):
@@ -249,26 +258,26 @@ def GenerateZipFile(base_name, root_dir):
   return True
 
 
-def _ExcludeBlacklist(library_list, black_list=[]):
-  """Deletes the set of files from black_list from the library_list
+def _ExcludeDenylist(library_list, deny_list=[]):
+  """Deletes the set of files from deny_list from the library_list
     Args:
-      library_list: List of the library names to filter through black_list
-      black_list: List of the black listed names to filter
+      library_list: List of the library names to filter through deny_list
+      deny_list: List of the deny listed names to filter
     Returns:
       Filtered library_list
   """
 
-  if not black_list:
+  if not deny_list:
     return library_list
 
   return_list = []
-  pattern = re.compile(r'|'.join(black_list))
+  pattern = re.compile(r'|'.join(deny_list))
 
   logging.debug('PATTERN: %s=', pattern)
 
   for library in library_list:
     if pattern.search(library):
-      logging.debug('BLACK-LISTED = %s=', library)
+      logging.debug('DENY-LISTED = %s=', library)
       continue
     return_list.append(library)
 
@@ -277,17 +286,15 @@ def _ExcludeBlacklist(library_list, black_list=[]):
   return return_list
 
 
-def _EnforceWhiteList(library_list, white_list=[]):
-  """Deletes the set of files from black_list from the library_list
+def _EnforceAllowList(library_list, allow_list=[]):
+  """Ensures that library_list contains all the items from allow_list
     Args:
-      library_list: List of the library names to filter through black_list
-      black_list: List of the black listed names to filter
-    Returns:
-      Filtered library_list
+      library_list: List of the library names to check
+      allow_list: List of the items that ought to be in the library_list
   """
 
-  for white_item in white_list:
-    pattern = re.compile(white_item)
+  for allow_item in allow_list:
+    pattern = re.compile(allow_item)
 
     logging.debug('PATTERN: %s=', pattern)
 
@@ -298,7 +305,7 @@ def _EnforceWhiteList(library_list, white_list=[]):
         break
 
     if not found:
-      logging.error('Required WHITE_LIST items %s not found!!!' % white_item)
+      logging.error('Required ALLOW_LIST items %s not found!!!' % allow_item)
       exit(1)
 
 
@@ -335,6 +342,8 @@ def main():
                     default='au-generator.zip', help='Name of the zip file')
   parser.add_option('-k', '--keep-temp', dest='keep_temp', default=False,
                     action='store_true', help='Keep the temp files...',)
+  parser.add_option('-a', '--arch', dest='arch',
+                     default='amd64', help='Arch amd64/arm64. Default: amd64',)
 
   (options, args) = parser.parse_args()
   if options.debug:
@@ -345,8 +354,16 @@ def main():
   temp_dir = CreateTempDir()
   dest_files_root = os.path.join(temp_dir, 'au-generator')
   os.makedirs(dest_files_root)
-  CopyRequiredFiles(dest_files_root=dest_files_root)
-  WrapExecutableFiles(dest_files_root=dest_files_root)
+
+  if options.arch == 'arm64':
+    ld_linux = LD_LINUX_ARM64
+    allow_list = ALLOW_LIST_ARM64
+  else:
+    ld_linux = LD_LINUX_AMD64
+    allow_list = ALLOW_LIST_AMD64
+
+  CopyRequiredFiles(dest_files_root=dest_files_root, allow_list=allow_list)
+  WrapExecutableFiles(dest_files_root=dest_files_root, ld_linux=ld_linux)
   zip_file_name = os.path.join(temp_dir, options.zip_name)
   GenerateZipFile(zip_file_name, dest_files_root)
   CopyZipToFinalDestination(options.output_dir, zip_file_name)
