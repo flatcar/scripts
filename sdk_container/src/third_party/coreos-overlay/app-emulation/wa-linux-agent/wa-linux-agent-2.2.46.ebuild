@@ -5,7 +5,7 @@ EAPI=6
 
 DESCRIPTION="Windows Azure Linux Agent"
 HOMEPAGE="https://github.com/Azure/WALinuxAgent"
-KEYWORDS="amd64"
+KEYWORDS="amd64 arm64"
 SRC_URI="${HOMEPAGE}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="Apache-2.0"

@@ -21,12 +21,10 @@ DEPEND=""
 RDEPEND="
 	amd64? (
 		app-emulation/open-vm-tools
-		app-emulation/wa-linux-agent
 		coreos-base/coreos-oem-gce
 		coreos-base/flatcar-eks
 		coreos-base/nova-agent-container
 		coreos-base/nova-agent-watcher
-		dev-lang/python-oem
 		x11-drivers/nvidia-drivers
 	)
 	arm64? (
@@ -34,6 +32,8 @@ RDEPEND="
 		sys-firmware/edk2-ovmf
 	)
 	app-emulation/amazon-ssm-agent
+	app-emulation/wa-linux-agent
 	coreos-base/coreos
 	coreos-base/coreos-dev
+	dev-lang/python-oem
 	"
