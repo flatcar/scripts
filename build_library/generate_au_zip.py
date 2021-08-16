@@ -105,7 +105,7 @@ def DepsToCopy(ldd_files, allow_list):
   """Returns a list of deps for a given dynamic executables list.
     Args:
       ldd_files: List of dynamic files that needs to have the deps evaluated
-      deny_list: List of files that we should ignore
+      allow_list: List of files that we should allow
    Returns:
      List of files that are dependencies
   """
@@ -146,6 +146,7 @@ def CopyRequiredFiles(dest_files_root, allow_list):
   """Generates a list of files that are required for au-generator zip file
     Args:
       dest_files_root: location of the directory where we should copy the files
+      allow_list: List of files that we should allow
   """
   if not dest_files_root:
     logging.error('Invalid option passed for dest_files_root')
@@ -286,12 +287,10 @@ def _ExcludeDenylist(library_list, deny_list=[]):
 
 
 def _EnforceAllowList(library_list, allow_list=[]):
-  """Deletes the set of files from deny_list from the library_list
+  """Ensures that library_list contains all the items from allow_list
     Args:
-      library_list: List of the library names to filter through deny_list
-      deny_list: List of the deny listed names to filter
-    Returns:
-      Filtered library_list
+      library_list: List of the library names to check
+      allow_list: List of the items that ought to be in the library_list
   """
 
   for allow_item in allow_list:
