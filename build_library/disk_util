@@ -198,7 +198,7 @@ def GetPartitionTableFromImage(options, config, partitions):
   """
   block_size = config['metadata']['block_size']
   cgpt_show = subprocess.check_output(
-          ['cgpt', 'show', '-q', options.disk_image])
+          ['cgpt', 'show', '-q', options.disk_image]).decode('utf8')
   for line in cgpt_show.split('\n'):
     if not line.strip():
       continue
@@ -235,7 +235,7 @@ def GetPartitionTableFromImage(options, config, partitions):
     with PartitionLoop(options, part) as loop_dev:
       try:
         part['image_fs_type'] = subprocess.check_output(
-          ['sudo', 'blkid', '-o', 'value', '-s', 'TYPE', loop_dev]).strip()
+          ['sudo', 'blkid', '-o', 'value', '-s', 'TYPE', loop_dev]).strip().decode('utf8')
       except subprocess.CalledProcessError:
         part['image_fs_type'] = None
 
@@ -452,6 +452,7 @@ def PartitionLoop(options, partition):
         '--sizelimit', str(partition['bytes']),
         '--find', '--show', options.disk_image])
       loop_dev = loop_dev.strip()
+      loop_dev = loop_dev.decode('utf8')
       err = None
       break
     except subprocess.CalledProcessError as error:
@@ -785,7 +786,7 @@ def Verity(options):
                   '--hash-block-size', part['fs_block_size'],
                   '--data-blocks', part['fs_blocks'],
                   '--hash-offset', part['fs_bytes'],
-                  loop_dev, loop_dev])
+                  loop_dev, loop_dev]).decode('utf8')
       print(verityout.strip())
       m = re.search("Root hash:\s+([a-f0-9]{64})$", verityout, re.IGNORECASE|re.MULTILINE)
       if not m:

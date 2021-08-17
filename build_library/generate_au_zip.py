@@ -128,6 +128,8 @@ def DepsToCopy(ldd_files, allow_list):
 
     if not stdout_data: continue
 
+    stdout_data = stdout_data.decode('utf8')
+    stderr_data = stderr_data.decode('utf8')
     logging.debug('ldd for %s = stdout = %s stderr =%s', file_name,
                   stdout_data, stderr_data)
 
