@@ -18,7 +18,6 @@ app-emulation/qemu	aio caps curl ncurses png python threads uuid vhost-net virtf
 
 # python3 problems
 app-portage/gentoolkit python_single_target_python3_6
-app-portage/repoman python_single_target_python3_6
 sys-apps/portage python_single_target_python3_6
 
 # python3 only
