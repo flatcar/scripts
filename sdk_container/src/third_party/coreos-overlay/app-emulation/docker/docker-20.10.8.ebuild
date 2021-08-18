@@ -4,11 +4,12 @@
 EAPI=7
 EGO_PN=github.com/docker/docker
 GIT_COMMIT=4662437124
-# Flatcar: force building with go1.13 like upstream does
-COREOS_GO_VERSION="go1.13"
+# Flatcar: force building with go1.16 like upstream does
+COREOS_GO_VERSION="go1.16"
+COREOS_GO_GO111MODULE="off"
 
 inherit bash-completion-r1 linux-info systemd udev golang-vcs-snapshot
-# Flatcar: use coreos-go-depend to force building with go1.13
+# Flatcar: use coreos-go-depend to force building with go1.16
 inherit coreos-go-depend
 
 DESCRIPTION="The core functions you need to create Docker images and run Docker containers"
@@ -205,11 +206,6 @@ src_compile() {
 			DOCKER_BUILDTAGS+=" $tag"
 		fi
 	done
-
-	# Flatcar:
-	# need to set go1.13 in DOCKER_BUILDTAGS, to avoid build
-	# failures caused by github.com/pkg/errors >= 0.9.1.
-	DOCKER_BUILDTAGS+=" go1.13"
 
 	# Flatcar:
 	# inject LDFLAGS for torcx
