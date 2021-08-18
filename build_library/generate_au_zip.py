@@ -82,7 +82,7 @@ def _SplitAndStrip(data):
     Args:
       data: list of libraries from ldd output
     Returns:
-      list of libararies that we should copy
+      list of libraries that we should copy
 
   """
   return_list = []
@@ -176,7 +176,7 @@ def CopyRequiredFiles(dest_files_root, allow_list):
   lib_dir = os.path.join(dest_files_root, LIB_DIR)
   os.mkdir(lib_dir)
   for file_name in libraries:
-    logging.debug('Copying file  %s to %s', file_name, lib_dir)
+    logging.debug('Copying file %s to %s', file_name, lib_dir)
     try:
       shutil.copy2(file_name, lib_dir)
     except EnvironmentError:
