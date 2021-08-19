@@ -1,0 +1,100 @@
+set -euo pipefail
+
+SOURCE="$(mktemp)"
+
+while true; do
+  touch "${SOURCE}" # update timestamp in case it takes a while to get the lock
+  HOST="bmc-a"
+  IPADDR="172.24.213.6"
+  PXE="/opt/pxe/boot-mac-00-1b-21-e0-69-5b.ipxe"
+  mv -n "${SOURCE}" "/opt/pxe/last-boot-${HOST}"
+  # with -n there is a 0 exit code for both cases
+  if [ ! -e "${SOURCE}" ]; then
+    break
+  fi
+  HOST="bmc-b"
+  IPADDR="172.24.213.5"
+  PXE="/opt/pxe/boot-mac-00-1b-21-e0-6d-c0.ipxe"
+  mv -n "${SOURCE}" "/opt/pxe/last-boot-${HOST}"
+  if [ ! -e "${SOURCE}" ]; then
+    break
+  fi
+  sleep 1
+done
+
+BOOT_IGNITION="/opt/pxe/boot-${HOST}.ignition"
+BOOT_IGNITION_URL="http://172.24.213.1/boot-${HOST}.ignition"
+FINAL_IGNITION="/opt/pxe/final-${HOST}.ignition"
+FINAL_IGNITION_URL="http://172.24.213.1/final-${HOST}.ignition"
+PROVISION_SCRIPT="/opt/pxe/provision-${HOST}.sh"
+PROVISION_SCRIPT_URL="http://172.24.213.1/provision-${HOST}.sh"
+NOTIFY_PORT=$(shuf -i 3000-30000 -n 1)
+
+echo "${USERDATA}" > "${FINAL_IGNITION}"
+
+tee "${PXE}" >/dev/null <<-EOF
+	#!ipxe
+	kernel ${BASE_URL}/flatcar_production_pxe.vmlinuz initrd=flatcar_production_pxe_image.cpio.gz flatcar.first_boot=1 flatcar.autologin ignition.config.url=${BOOT_IGNITION_URL}
+	initrd ${BASE_URL}/flatcar_production_pxe_image.cpio.gz
+	boot
+EOF
+
+tee "${PROVISION_SCRIPT}" >/dev/null <<-EOF
+	#!/bin/bash
+	set -euo pipefail
+	curl -fsSL -o /final.ign ${FINAL_IGNITION_URL}
+	curl -fsSL -o /image.bin.bz2 ${BASE_URL}/flatcar_production_image.bin.bz2
+	flatcar-install -i /final.ign -s -f /image.bin.bz2
+	echo done | ncat 172.24.213.1 ${NOTIFY_PORT}
+	systemctl reboot
+EOF
+
+tee "${BOOT_IGNITION}" >/dev/null <<EOF
+{
+  "ignition": {
+    "version": "2.2.0"
+  },
+  "systemd": {
+    "units": [
+      {
+        "contents": "[Unit]\nDescription=Provision Flatcar\nRequires=network-online.target\nAfter=network-online.target\n[Service]\nType=oneshot\nRemainAfterExit=true\nRestart=on-failure\nExecStart=/provision\n[Install]\nWantedBy=multi-user.target\n",
+        "enabled": true,
+        "name": "provision.service"
+      },
+      {
+        "name": "sshd.socket",
+        "mask": true
+      },
+      {
+        "name": "sshd.service",
+        "mask":	true
+      }
+    ]
+  },
+  "storage": {
+    "files": [
+      {
+        "filesystem": "root",
+        "path": "/provision",
+        "mode": 493,
+        "contents": {
+          "source": "${PROVISION_SCRIPT_URL}",
+          "verification": {}
+        }
+      }
+    ]
+  }
+}
+EOF
+
+ipmitool -C3 -I lanplus -H "${HOST}" -U ADMIN -P ADMIN power off > /dev/stderr
+# persistent booting from disk
+ipmitool -C3 -I lanplus -H "${HOST}" -U ADMIN -P ADMIN raw 0x00 0x08 0x05 0xe0 0x08 0x00 0x00 0x00 > /dev/stderr
+# single boot from PXE
+ipmitool -C3 -I lanplus -H "${HOST}" -U ADMIN -P ADMIN chassis bootdev pxe options=efiboot > /dev/stderr
+ipmitool -C3 -I lanplus -H "${HOST}" -U ADMIN -P ADMIN power on > /dev/stderr
+# wait for writing to disk to succeed so that we don't boot an old instance
+ncat -l "${NOTIFY_PORT}" > /dev/stderr
+# Workaround: set booting from disk again because the boot parameter gets cleared on each boot (Boot parameter data: 0000000000) and we land in an efi shell
+ipmitool -C3 -I lanplus -H "${HOST}" -U ADMIN -P ADMIN raw 0x00 0x08 0x05 0xe0 0x08 0x00 0x00 0x00 > /dev/stderr
+echo "${IPADDR}"
