@@ -231,7 +231,7 @@ fi
 
 # Build cros_workon packages when they are changed.
 if [ "${FLAGS_workon}" -eq "${FLAGS_TRUE}" ]; then
-  for pkg in $(cros_workon list --host); do
+  for pkg in $("${SRC_ROOT}/scripts/cros_workon" list --host); do
     EMERGE_FLAGS+=( "--reinstall-atoms=${pkg}" "--usepkg-exclude=${pkg}" )
   done
 fi
