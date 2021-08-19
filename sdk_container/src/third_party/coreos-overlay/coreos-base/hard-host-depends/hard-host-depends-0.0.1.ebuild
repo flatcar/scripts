@@ -109,7 +109,6 @@ RDEPEND="${RDEPEND}
 	"
 
 # Host dependencies for running pylint within the chroot
-# TODO: move to sdk-extras
 RDEPEND="${RDEPEND}
 	dev-python/pylint
 	"
