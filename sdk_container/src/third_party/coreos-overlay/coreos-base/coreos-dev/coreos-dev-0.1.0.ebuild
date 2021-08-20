@@ -19,7 +19,7 @@ RDEPEND="
 	app-portage/gentoolkit
 	coreos-base/coreos
 	coreos-base/coreos-experimental
-	coreos-base/gmerge
+	coreos-base/emerge-gitclone
 	coreos-devel/mantle
 	dev-lang/python
 	dev-util/strace
