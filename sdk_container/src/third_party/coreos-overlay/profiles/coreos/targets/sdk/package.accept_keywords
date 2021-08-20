@@ -1,16 +1,7 @@
-# aws cli; handy for developer usage when working with kola
-dev-python/awscli ~amd64
-dev-python/s3transfer ~amd64
-dev-python/botocore ~amd64
-
 # Accept unstable host Rust compilers
 dev-lang/rust ~amd64
 virtual/cargo ~amd64
 virtual/rust ~amd64
-
-# Accept go utilities
-dev-go/glide ~amd64
-dev-go/godep ~amd64
 
 # Accept perl libs required to build >=samba-4.12
 dev-perl/Parse-Yapp ~amd64 ~arm64
