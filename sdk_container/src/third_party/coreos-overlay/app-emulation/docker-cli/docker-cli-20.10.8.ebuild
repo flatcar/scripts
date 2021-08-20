@@ -34,7 +34,6 @@ src_prepare() {
 src_compile() {
 	# Flatcar: override go version
 	go_export
-	export GO_BUILDTAGS="go1.13"
 
 	export DISABLE_WARN_OUTSIDE_CONTAINER=1
 	export GOPATH="${WORKDIR}/${P}"
