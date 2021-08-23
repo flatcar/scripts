@@ -1,3 +1,5 @@
+version = 2
+
 # persistent data location
 root = "/var/lib/containerd"
 # runtime state information
@@ -16,7 +18,7 @@ uid = 0
 # socket gid
 gid = 0
 
-[plugins.linux]
+[plugins."containerd.runtime.v1.linux"]
 # shim binary name/path
 shim = "containerd-shim"
 # runtime binary name/path
@@ -25,6 +27,8 @@ runtime = "runc"
 # live restore is not supported
 no_shim = false
 
-# config version 1; version 2 uses full plugin paths
-[plugins.cri.containerd.runtimes.runc.options]
+[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+# setting runc.options unsets parent settings
+runtime_type = "io.containerd.runc.v2"
+[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
 SystemdCgroup = true
