@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
@@ -82,7 +82,7 @@ def _SplitAndStrip(data):
     Args:
       data: list of libraries from ldd output
     Returns:
-      list of libararies that we should copy
+      list of libraries that we should copy
 
   """
   return_list = []
@@ -120,7 +120,7 @@ def DepsToCopy(ldd_files, allow_list):
       proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE)
       (stdout_data, stderr_data) = proc.communicate(input=None)
-    except subprocess.CalledProcessError, e:
+    except subprocess.CalledProcessError as e:
       logging.error('Command %s failed', cmd)
       logging.error('error code %s', e.returncode)
       logging.error('ouput %s', e.output)
@@ -128,6 +128,8 @@ def DepsToCopy(ldd_files, allow_list):
 
     if not stdout_data: continue
 
+    stdout_data = stdout_data.decode('utf8')
+    stderr_data = stderr_data.decode('utf8')
     logging.debug('ldd for %s = stdout = %s stderr =%s', file_name,
                   stdout_data, stderr_data)
 
@@ -153,7 +155,7 @@ def CopyRequiredFiles(dest_files_root, allow_list):
     sys.exit(1)
 
   all_files = DYNAMIC_EXECUTABLES + STATIC_FILES
-  all_files = map(os.path.expanduser, all_files)
+  all_files = list(map(os.path.expanduser, all_files))
 
   for file_name in all_files:
     if not os.path.isfile(file_name):
@@ -161,7 +163,6 @@ def CopyRequiredFiles(dest_files_root, allow_list):
       sys.exit(1)
 
   logging.debug('Given files that need to be copied = %s' % '' .join(all_files))
-  all_files
   for file_name in all_files:
     logging.debug('Copying file  %s to %s', file_name, dest_files_root)
     try:
@@ -174,14 +175,14 @@ def CopyRequiredFiles(dest_files_root, allow_list):
   lib_dir = os.path.join(dest_files_root, LIB_DIR)
   os.mkdir(lib_dir)
   for file_name in libraries:
-    logging.debug('Copying file  %s to %s', file_name, lib_dir)
+    logging.debug('Copying file %s to %s', file_name, lib_dir)
     try:
       shutil.copy2(file_name, lib_dir)
     except EnvironmentError:
       logging.exception("Copying '%s' to %s failed", file_name, lib_dir)
       sys.exit(1)
 
-  for source_dir, target_dir in RECURSE_DIRS.iteritems():
+  for source_dir, target_dir in RECURSE_DIRS.items():
     logging.debug('Processing directory %s', source_dir)
     full_path = os.path.expanduser(source_dir)
     if not os.path.isdir(full_path):
@@ -212,7 +213,7 @@ def WrapExecutableFiles(dest_files_root, ld_linux):
     local_exec_wrapped = local_exec + ".bin"
     shutil.move(local_exec, local_exec_wrapped)
 
-    fd = os.open(local_exec, os.O_WRONLY | os.O_CREAT, 0733)
+    fd = os.open(local_exec, os.O_WRONLY | os.O_CREAT, 0o733)
     with os.fdopen(fd, 'w') as script:
       script.write('#!/bin/sh\n')
       script.write('# Auto-generated wrapper script\n')
@@ -249,7 +250,7 @@ def GenerateZipFile(base_name, root_dir):
   try:
     subprocess.Popen(['zip', '-r', '-9', base_name, '.'],
                      stdout=subprocess.PIPE).communicate()[0]
-  except OSError, e:
+  except OSError as e:
    logging.error('Execution failed:%s', e.strerror)
    return False
   finally:

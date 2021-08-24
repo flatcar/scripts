@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import hashlib
 import json
@@ -7,11 +7,11 @@ import string
 import subprocess
 import sys
 
-filename = sys.argv[1] 
+filename = sys.argv[1]
 grubdir = sys.argv[2]
 outputdir = sys.argv[3]
 version = sys.argv[4]
-bootoffset = string.atoi(subprocess.check_output(['cgpt', 'show', '-i', '2', '-b', filename])) * 512
+bootoffset = int(subprocess.check_output(['cgpt', 'show', '-i', '2', '-b', filename])) * 512
 with open(filename, "rb") as f:
     boot = f.read(440)
     f.seek(bootoffset)
