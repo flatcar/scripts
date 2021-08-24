@@ -202,6 +202,12 @@ fi
 EMERGE_FLAGS+=( "--jobs=${NUM_JOBS}" )
 REBUILD_FLAGS+=( "--jobs=${NUM_JOBS}" )
 
+if [ "$(readlink -f /lib)" != "/lib" ]; then
+  warn "Skipping update due to profile migration"
+  command_completed
+  exit 0
+fi
+
 # Perform an update of coreos-devel/sdk-depends and world in the chroot.
 EMERGE_CMD="emerge"
 
