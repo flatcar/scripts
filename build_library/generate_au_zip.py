@@ -163,7 +163,6 @@ def CopyRequiredFiles(dest_files_root, allow_list):
       sys.exit(1)
 
   logging.debug('Given files that need to be copied = %s' % '' .join(all_files))
-  all_files
   for file_name in all_files:
     logging.debug('Copying file  %s to %s', file_name, dest_files_root)
     try:
