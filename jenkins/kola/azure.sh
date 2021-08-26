@@ -43,5 +43,6 @@ timeout --signal=SIGQUIT 20h bin/kola run \
     --tapfile="${JOB_NAME##*/}.tap" \
     --torcx-manifest=torcx_manifest.json \
     ${AZURE_MACHINE_SIZE_OPT} \
+    ${AZURE_HYPER_V_GENERATION:+--azure-hyper-v-generation=${AZURE_HYPER_V_GENERATION}} \
     ${KOLA_TESTS}
 set +o noglob
