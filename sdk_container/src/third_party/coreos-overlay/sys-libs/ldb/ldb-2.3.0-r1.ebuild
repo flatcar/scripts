@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{7..9} )
+PYTHON_COMPAT=( python3_6 )
 PYTHON_REQ_USE="threads(+)"
 inherit python-single-r1 waf-utils multilib-minimal
 
@@ -30,12 +30,6 @@ RDEPEND="
 	>=sys-libs/tevent-0.10.2[${MULTILIB_USEDEP}]
 	ldap? ( net-nds/openldap )
 	lmdb? ( >=dev-db/lmdb-0.9.16[${MULTILIB_USEDEP}] )
-	python? (
-		${PYTHON_DEPS}
-		sys-libs/talloc[python,${PYTHON_SINGLE_USEDEP}]
-		sys-libs/tdb[python,${PYTHON_SINGLE_USEDEP}]
-		sys-libs/tevent[python,${PYTHON_SINGLE_USEDEP}]
-	)
 "
 DEPEND="${RDEPEND}"
 BDEPEND="${PYTHON_DEPS}
