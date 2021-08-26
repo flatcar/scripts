@@ -15,7 +15,7 @@ RDEPEND="
 	~app-emulation/docker-cli-20.10.8
 	~app-emulation/containerd-1.5.5
 	~app-emulation/docker-proxy-0.8.0_p20210525
-	~app-emulation/docker-runc-1.0.1
+	~app-emulation/docker-runc-1.0.2
 	=dev-libs/libltdl-2.4.6
 	~sys-process/tini-0.19.0
 "
