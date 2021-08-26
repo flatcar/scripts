@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # vim:set et sw=4:
 #
 # certdata2pem.py - splits certdata.txt into multiple files
@@ -37,8 +37,8 @@ objects = []
 
 # Dirty file parser.
 in_data, in_multiline, in_obj = False, False, False
-field, type, value, obj = None, None, None, dict()
-for line in open(certdata, 'r'):
+field, field_type, value, obj = None, None, None, dict()
+for line in open(certdata, mode='r', encoding='utf8'):
     # Ignore the file header.
     if not in_data:
         if line.startswith('BEGINDATA'):
@@ -57,12 +57,8 @@ for line in open(certdata, 'r'):
         continue
     if in_multiline:
         if not line.startswith('END'):
-            if type == 'MULTILINE_OCTAL':
-                line = line.strip()
-                for i in re.finditer(r'\\([0-3][0-7][0-7])', line):
-                    value += chr(int(i.group(1), 8))
-            else:
-                value += line
+            line = line.strip()
+            value += line
             continue
         obj[field] = value
         in_multiline = False
@@ -71,19 +67,19 @@ for line in open(certdata, 'r'):
         in_obj = True
     line_parts = line.strip().split(' ', 2)
     if len(line_parts) > 2:
-        field, type = line_parts[0:2]
+        field, field_type = line_parts[0:2]
         value = ' '.join(line_parts[2:])
     elif len(line_parts) == 2:
-        field, type = line_parts
+        field, field_type = line_parts
         value = None
     else:
-        raise NotImplementedError, 'line_parts < 2 not supported.'
-    if type == 'MULTILINE_OCTAL':
+        raise NotImplementedError('line_parts < 2 not supported.')
+    if field_type == 'MULTILINE_OCTAL':
         in_multiline = True
         value = ""
         continue
     obj[field] = value
-if len(obj.items()) > 0:
+if len(list(obj.items())) > 0:
     objects.append(obj)
 
 # Build up trust database.
@@ -98,9 +94,9 @@ for obj in objects:
                                                'CKT_NSS_TRUSTED_DELEGATOR'):
         trust[obj['CKA_LABEL']] = True
     else:
-        print "Ignoring certificate %s.  SAUTH=%s, EPROT=%s" % \
+        print("Ignoring certificate %s.  SAUTH=%s, EPROT=%s" % \
               (obj['CKA_LABEL'], obj['CKA_TRUST_SERVER_AUTH'],
-               obj['CKA_TRUST_EMAIL_PROTECTION'])
+               obj['CKA_TRUST_EMAIL_PROTECTION']))
 
 if not os.path.isdir(output_dir):
     os.makedirs(output_dir)
@@ -115,9 +111,25 @@ for obj in objects:
                                       .replace('(', '=')\
                                       .replace(')', '=')\
                                       .replace(',', '_') + '.pem'
-        fname = fname.decode('string_escape')
+        # fname can be either in utf8 form ("NetLock Arany (Class
+        # Gold) Főtanúsítvány") or in an encoded form ("AC Ra\xC3\xADz
+        # Certic\xC3\xA1mara S.A.")
+        #
+        # If fname.encode('latin1') fails, then we assume the first form.
+        try:
+            # Don't ask, this seems to be the way to convert a string
+            # like "T\xc3\x9c\x42\xC4\xB0TAK" into "TÜBİTAK".
+            #
+            # https://docs.python.org/3/library/codecs.html#text-encodings
+            fname = fname.encode('latin1').decode('unicode_escape').encode('latin1').decode('utf8')
+        except (UnicodeEncodeError, UnicodeDecodeError):
+            pass
         f = open(fname, 'w')
         f.write("-----BEGIN CERTIFICATE-----\n")
-        f.write("\n".join(textwrap.wrap(base64.b64encode(obj['CKA_VALUE']), 64)))
+        # obj['CKA_VALUE'] is a string of octals like '\060\311…',
+        # with a number not greater than octal 377 (which is 255,
+        # which fits in a byte).
+        match_to_int = lambda match: int(match.group(1), 8)
+        raw = bytes(map(match_to_int, re.finditer(r'\\([0-3][0-7][0-7])', obj['CKA_VALUE'])))
+        f.write("\n".join(textwrap.wrap(base64.b64encode(raw).decode('utf8'), 64)))
         f.write("\n-----END CERTIFICATE-----\n")
-
