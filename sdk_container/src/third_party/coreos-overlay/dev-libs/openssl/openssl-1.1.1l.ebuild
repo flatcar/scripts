@@ -3,7 +3,7 @@
 
 EAPI="7"
 
-inherit flag-o-matic toolchain-funcs multilib multilib-minimal systemd
+inherit flag-o-matic toolchain-funcs multilib-minimal systemd
 
 MY_P=${P/_/-}
 
@@ -27,13 +27,13 @@ SRC_URI="mirror://openssl/source/${MY_P}.tar.gz
 LICENSE="openssl"
 SLOT="0/1.1" # .so version of libssl/libcrypto
 [[ "${PV}" = *_pre* ]] || \
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x86-linux"
-IUSE="+asm bindist elibc_musl rfc3779 sctp cpu_flags_x86_sse2 sslv3 static-libs test tls-heartbeat vanilla zlib"
+KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x86-linux"
+IUSE="+asm bindist elibc_musl rfc3779 sctp cpu_flags_x86_sse2 sslv3 static-libs test tls-compression tls-heartbeat vanilla"
 RESTRICT="
 	!test? ( test )"
 
 RDEPEND=">=app-misc/c_rehash-1.7-r1
-	zlib? ( >=sys-libs/zlib-1.2.8-r1[static-libs(+)?,${MULTILIB_USEDEP}] )"
+	tls-compression? ( >=sys-libs/zlib-1.2.8-r1[static-libs(+)?,${MULTILIB_USEDEP}] )"
 DEPEND="${RDEPEND}"
 BDEPEND="
 	>=dev-lang/perl-5
@@ -47,6 +47,7 @@ PDEPEND="app-misc/ca-certificates"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.1.0j-parallel_install_fix.patch #671602
+	"${FILESDIR}"/${PN}-1.1.1i-riscv32.patch
 )
 
 S="${WORKDIR}/${MY_P}"
@@ -62,7 +63,7 @@ pkg_setup() {
 	[[ ${MERGE_TYPE} == binary ]] && return
 
 	# must check in pkg_setup; sysctl don't work with userpriv!
-	if has test ${FEATURES} && use sctp; then
+	if use test && use sctp; then
 		# test_ssl_new will fail with "Ensure SCTP AUTH chunks are enabled in kernel"
 		# if sctp.auth_enable is not enabled.
 		local sctp_auth_status=$(sysctl -n net.sctp.auth_enable 2>/dev/null)
@@ -116,7 +117,7 @@ src_prepare() {
 
 	eapply_user #332661
 
-	if has test ${FEATURES} && use sctp && has network-sandbox ${FEATURES}; then
+	if use test && use sctp && has network-sandbox ${FEATURES}; then
 		ebegin "Disabling test '80-test_ssl_new.t' which is known to fail with FEATURES=network-sandbox"
 		rm test/recipes/80-test_ssl_new.t || die
 		eend $?
@@ -221,8 +222,8 @@ multilib_src_configure() {
 		$(use_ssl asm) \
 		$(use_ssl rfc3779) \
 		$(use_ssl sctp) \
+		$(use_ssl tls-compression zlib) \
 		$(use_ssl tls-heartbeat heartbeats) \
-		$(use_ssl zlib) \
 		--prefix="${EPREFIX}"/usr \
 		--openssldir="${EPREFIX}"${SSL_CNF_DIR} \
 		--libdir=$(get_libdir) \
@@ -269,6 +270,15 @@ multilib_src_install() {
 	fi
 
 	emake DESTDIR="${D}" install
+
+	# This is crappy in that the static archives are still built even
+	# when USE=static-libs.  But this is due to a failing in the openssl
+	# build system: the static archives are built as PIC all the time.
+	# Only way around this would be to manually configure+compile openssl
+	# twice; once with shared lib support enabled and once without.
+	if ! use static-libs; then
+		rm "${ED}"/usr/$(get_libdir)/lib{crypto,ssl}.a || die
+	fi
 }
 
 multilib_src_install_all() {
@@ -277,13 +287,6 @@ multilib_src_install_all() {
 	rm "${ED}"/usr/bin/c_rehash || die
 
 	dodoc CHANGES* FAQ NEWS README doc/*.txt doc/${PN}-c-indent.el
-
-	# This is crappy in that the static archives are still built even
-	# when USE=static-libs.  But this is due to a failing in the openssl
-	# build system: the static archives are built as PIC all the time.
-	# Only way around this would be to manually configure+compile openssl
-	# twice; once with shared lib support enabled and once without.
-	use static-libs || rm -f "${ED}"/usr/lib*/lib*.a
 
 	# Namespace openssl programs to prevent conflicts with other man pages
 	cd "${ED}"/usr/share/man || die
