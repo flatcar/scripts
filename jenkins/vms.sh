@@ -85,6 +85,15 @@ if [[ "${FORMATS}" = "" ]]
 then
   FORMATS="${FORMAT}"
 fi
+
+if [[ "${FORMATS}" == *"azure_gen2"* ]] ; then
+  # azure_gen2 shares an image with azure
+  if [[ " ${FORMATS} " != *" azure "* ]]; then
+    FORMATS+=" azure"
+  fi
+  FORMATS=${FORMATS/azure_gen2/}
+fi
+
 for FORMAT in ${FORMATS}; do
   # If the format variable ends with _pro it's a Flatcar Pro image and it should
   # be uploaded to the private bucket.
