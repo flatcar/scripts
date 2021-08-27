@@ -711,9 +711,9 @@ def Tune2fsReadWrite(options, partition, disable_rw):
   # offset of ro_compat, highest order byte (le 32 bit field)
   flag_offset = 0x464 + 3
   flag_value = 0xff if disable_rw else 0x00
-  with open(options.disk_image, 'r+') as image:
+  with open(options.disk_image, 'br+') as image:
     image.seek(partition['first_byte'] + flag_offset)
-    image.write(chr(flag_value))
+    image.write(bytes([flag_value]))
 
 
 def IsE2fsReadWrite(options, partition):
