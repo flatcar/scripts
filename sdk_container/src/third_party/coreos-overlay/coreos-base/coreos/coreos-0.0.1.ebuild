@@ -95,6 +95,7 @@ RDEPEND="${RDEPEND}
 	app-admin/sudo
 	app-admin/toolbox
 	app-arch/gzip
+	app-arch/lbzip2
 	app-arch/tar
 	app-arch/torcx
 	app-arch/unzip
