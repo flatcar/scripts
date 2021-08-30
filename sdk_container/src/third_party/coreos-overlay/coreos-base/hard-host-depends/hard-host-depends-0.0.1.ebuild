@@ -18,7 +18,6 @@ RDEPEND="${RDEPEND}
 	app-admin/sudo
 	sys-apps/less
 	dev-embedded/u-boot-tools
-	dev-util/crosutils
 	!arm64? ( sys-boot/syslinux )
 	sys-devel/crossdev
 	sys-devel/sysroot-wrappers
@@ -33,7 +32,6 @@ RDEPEND="${RDEPEND}
 	app-arch/sharutils
 	app-arch/unzip
 	app-emulation/qemu
-	coreos-base/cros-devutils[cros_host]
 	=dev-lang/python-2*
 	dev-python/setuptools
 	dev-lang/nasm

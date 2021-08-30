@@ -22,5 +22,3 @@ fi
 # outside the chroot.
 
 export PS1="(cros-chroot) ${PS1}"
-[[ -f /usr/share/crosutils/bash_completion ]] &&
-  . /usr/share/crosutils/bash_completion

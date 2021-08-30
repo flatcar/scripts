@@ -17,6 +17,8 @@ DEPEND="
 	app-admin/sudo
 	app-admin/updateservicectl
 	app-arch/pbzip2
+	app-crypt/efitools
+	app-crypt/sbsigntools
 	app-emulation/acbuild
 	app-emulation/actool
 	app-emulation/open-vmdk
