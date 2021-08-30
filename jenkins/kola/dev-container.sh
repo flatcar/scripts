@@ -33,6 +33,8 @@ sudo systemd-nspawn $PIPEARG \
     --tmpfs=/usr/src \
     --tmpfs=/var/tmp \
     /bin/bash -eux << 'EOF'
+# check that perl works
+perl -V
 emerge-gitclone
 . /usr/share/coreos/release
 if [[ $FLATCAR_RELEASE_VERSION =~ master ]]
