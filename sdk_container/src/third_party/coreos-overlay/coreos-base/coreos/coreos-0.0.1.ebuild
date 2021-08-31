@@ -95,7 +95,11 @@ RDEPEND="${RDEPEND}
 	app-admin/sudo
 	app-admin/toolbox
 	app-arch/gzip
+	app-arch/bzip2
 	app-arch/lbzip2
+	app-arch/lz4
+	app-arch/xz-utils
+	app-arch/zstd
 	app-arch/tar
 	app-arch/torcx
 	app-arch/unzip
@@ -107,6 +111,7 @@ RDEPEND="${RDEPEND}
 	app-emulation/cri-tools
 	app-misc/ca-certificates
 	app-misc/jq
+	app-misc/pax-utils
 	app-shells/bash
 	coreos-base/afterburn
 	coreos-base/coreos-cloudinit
@@ -114,7 +119,9 @@ RDEPEND="${RDEPEND}
 	coreos-base/update-ssh-keys
 	coreos-base/update_engine
 	dev-db/etcdctl
+	dev-libs/openssl
 	dev-util/strace
+	dev-util/bsdiff
 	dev-vcs/git
 	net-analyzer/nmap
 	net-analyzer/tcpdump
@@ -126,6 +133,7 @@ RDEPEND="${RDEPEND}
 	net-firewall/nftables
 	net-fs/nfs-utils
 	net-misc/bridge-utils
+	net-misc/curl
 	net-misc/iputils
 	net-misc/ntp
 	net-misc/rsync
@@ -133,20 +141,25 @@ RDEPEND="${RDEPEND}
 	net-misc/wget
 	net-misc/whois
 	net-vpn/wireguard-tools
+	sys-apps/acl
+	sys-apps/attr
 	sys-apps/coreutils
 	sys-apps/dbus
 	sys-apps/diffutils
 	sys-apps/ethtool
 	sys-apps/findutils
 	sys-apps/gawk
+	sys-apps/gptfdisk
 	sys-apps/grep
 	sys-apps/iproute2
 	sys-apps/kexec-tools
+	sys-apps/keyutils
 	sys-apps/less
 	sys-apps/lshw
 	sys-apps/net-tools
 	sys-apps/nvme-cli
 	sys-apps/pciutils
+	sys-apps/policycoreutils
 	sys-apps/rng-tools
 	sys-apps/sed
 	sys-apps/seismograph
@@ -155,10 +168,14 @@ RDEPEND="${RDEPEND}
 	sys-apps/util-linux
 	sys-apps/which
 	sys-block/open-iscsi
+	sys-block/parted
 	sys-cluster/ipvsadm
 	sys-fs/btrfs-progs
+	sys-fs/cryptsetup
 	sys-fs/dosfstools
 	sys-fs/e2fsprogs
+	sys-fs/lsscsi
+	sys-fs/lvm2
 	sys-fs/mdadm
 	sys-fs/multipath-tools
 	sys-fs/quota
