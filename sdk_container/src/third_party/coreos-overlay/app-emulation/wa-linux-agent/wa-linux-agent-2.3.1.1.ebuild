@@ -1,7 +1,7 @@
 # Copyright (c) 2014 CoreOS, Inc.. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 DESCRIPTION="Windows Azure Linux Agent"
 HOMEPAGE="https://github.com/Azure/WALinuxAgent"
@@ -16,6 +16,10 @@ RDEPEND="
 dev-lang/python-oem
 dev-python/distro-oem
 "
+
+PATCHES=(
+	"${FILESDIR}/0001-Support-flatcar.patch"
+)
 
 S="${WORKDIR}/WALinuxAgent-${PV}"
 
