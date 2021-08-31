@@ -3,11 +3,11 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7} )
+PYTHON_COMPAT=( python3_{7,8,9,10} )
 TMPFILES_OPTIONAL=1
 
 inherit python-any-r1 prefix preserve-libs toolchain-funcs flag-o-matic gnuconfig \
-	multilib systemd multiprocessing
+	multilib systemd multiprocessing tmpfiles
 
 DESCRIPTION="GNU libc C library"
 HOMEPAGE="https://www.gnu.org/software/libc/"
@@ -17,13 +17,13 @@ SLOT="2.2"
 EMULTILIB_PKG="true"
 
 # Gentoo patchset (ignored for live ebuilds)
-PATCH_VER=5
+PATCH_VER=6
 PATCH_DEV=dilfridge
 
 if [[ ${PV} == 9999* ]]; then
 	inherit git-r3
 else
-	KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 	SRC_URI="mirror://gnu/glibc/${P}.tar.xz"
 	SRC_URI+=" https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${P}-patches-${PATCH_VER}.tar.xz"
 fi
@@ -34,7 +34,7 @@ GCC_BOOTSTRAP_VER=20201208
 
 LOCALE_GEN_VER=2.10
 
-GLIBC_SYSTEMD_VER=20210727
+GLIBC_SYSTEMD_VER=20210814
 
 SRC_URI+=" https://gitweb.gentoo.org/proj/locale-gen.git/snapshot/locale-gen-${LOCALE_GEN_VER}.tar.gz"
 SRC_URI+=" multilib-bootstrap? ( https://dev.gentoo.org/~dilfridge/distfiles/gcc-multilib-bootstrap-${GCC_BOOTSTRAP_VER}.tar.xz )"
@@ -677,7 +677,7 @@ sanity_prechecks() {
 	fi
 
 	# When we actually have to compile something...
-	if ! just_headers ; then
+	if ! just_headers && [[ ${MERGE_TYPE} != "binary" ]] ; then
 		ebegin "Checking gcc for __thread support"
 		if ! eend $(want__thread ; echo $?) ; then
 			echo
@@ -719,12 +719,10 @@ sanity_prechecks() {
 
 # pkg_pretend
 
-# Flatcar: Skip sanity checks at pretend time because we don't ship a compiler
-#  in the OS image. This test fails when installing the glibc binpkg and no
-#  compiler is present.
 pkg_pretend() {
-	einfo "Flatcar: Skipping sanity_prechecks for binpkg installation. src_unpack will take care of compile-time prechecks."
-	# sanity_prechecks
+	# All the checks...
+	einfo "Checking general environment sanity."
+	sanity_prechecks
 }
 
 pkg_setup() {
@@ -1223,13 +1221,12 @@ glibc_do_src_install() {
 	# '#define VERSION "2.26.90"' -> '2.26.90'
 	local upstream_pv=$(sed -n -r 's/#define VERSION "(.*)"/\1/p' "${S}"/version.h)
 
-	# Flatcar: override this and strip everything to keep image size at bay
 	# Avoid stripping binaries not targeted by ${CHOST}. Or else
 	# ${CHOST}-strip would break binaries build for ${CTARGET}.
-	# is_crosscompile && dostrip -x /
+	is_crosscompile && dostrip -x /
 	# gdb thread introspection relies on local libpthreas symbols. stripping breaks it
 	# See Note [Disable automatic stripping]
-	# dostrip -x $(alt_libdir)/libpthread-${upstream_pv}.so
+	dostrip -x $(alt_libdir)/libpthread-${upstream_pv}.so
 
 	if [[ -e ${ED}/$(alt_usrlibdir)/libm-${upstream_pv}.a ]] ; then
 		# Move versioned .a file out of libdir to evade portage QA checks
@@ -1392,7 +1389,7 @@ glibc_do_src_install() {
 		sed -i "${nscd_args[@]}" "${ED}"/etc/init.d/nscd
 
 		use systemd && systemd_dounit nscd/nscd.service
-		systemd_newtmpfilesd nscd/nscd.tmpfiles nscd.conf
+		newtmpfiles nscd/nscd.tmpfiles nscd.conf
 	fi
 
 	echo 'LDPATH="include ld.so.conf.d/*.conf"' > "${T}"/00glibc
@@ -1412,23 +1409,6 @@ glibc_do_src_install() {
 		run_locale_gen --inplace-glibc "${ED}/"
 		sed -e 's:COMPILED_LOCALES="":COMPILED_LOCALES="1":' -i "${ED}"/usr/sbin/locale-gen || die
 	fi
-
-	## Flatcar Container Linux: Add some local changes:
-	# - Config files are installed by baselayout, not glibc.
-	# - Install nscd/systemd stuff in /usr.
-
-	# Use tmpfiles to put nscd.conf in /etc and create directories.
-	insinto /usr/share/baselayout
-	if ! in_iuse nscd || use nscd ; then
-		doins "${S}"/nscd/nscd.conf || die
-		systemd_newtmpfilesd "${FILESDIR}"/nscd-conf.tmpfiles nscd-conf.conf || die
-	fi
-
-	# Clean out any default configs.
-	rm -rf "${ED}"/etc
-
-	# Restore this one for the SDK.
-	test ! -e "${T}"/00glibc || doenvd "${T}"/00glibc
 }
 
 glibc_headers_install() {
