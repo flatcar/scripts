@@ -1,0 +1,71 @@
+From 4d914f0bf587c755b63cc4859911e39b5455b5b1 Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Tue, 31 Aug 2021 14:46:26 +0200
+Subject: [PATCH] Support flatcar
+
+---
+ azurelinuxagent/common/osutil/factory.py  | 3 ++-
+ azurelinuxagent/pa/deprovision/factory.py | 2 +-
+ tests/common/osutil/test_factory.py       | 6 ++++++
+ tests/tools.py                            | 1 +
+ 4 files changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/azurelinuxagent/common/osutil/factory.py b/azurelinuxagent/common/osutil/factory.py
+index b212c382..4bf0a36d 100644
+--- a/azurelinuxagent/common/osutil/factory.py
++++ b/azurelinuxagent/common/osutil/factory.py
+@@ -81,7 +81,8 @@ def _get_osutil(distro_name, distro_code_name, distro_version, distro_full_name)
+     if distro_name == "kali":
+         return DebianOSBaseUtil()
+ 
+-    if distro_name == "coreos" or distro_code_name == "coreos":
++    if distro_name == "flatcar" or distro_code_name == "flatcar" \
++       or distro_name == "coreos" or distro_code_name == "coreos":
+         return CoreOSUtil()
+ 
+     if distro_name in ("suse", "sle_hpc", "sles", "opensuse"):
+diff --git a/azurelinuxagent/pa/deprovision/factory.py b/azurelinuxagent/pa/deprovision/factory.py
+index 6197fc6a..e7ce1c83 100644
+--- a/azurelinuxagent/pa/deprovision/factory.py
++++ b/azurelinuxagent/pa/deprovision/factory.py
+@@ -35,7 +35,7 @@ def get_deprovision_handler(distro_name=DISTRO_NAME,
+             return Ubuntu1804DeprovisionHandler()
+         else:
+             return UbuntuDeprovisionHandler()
+-    if distro_name == "coreos":
++    if distro_name == "flatcar" or distro_name == "coreos":
+         return CoreOSDeprovisionHandler()
+     if "Clear Linux" in distro_full_name:
+         return ClearLinuxDeprovisionHandler()  # pylint: disable=E1120
+diff --git a/tests/common/osutil/test_factory.py b/tests/common/osutil/test_factory.py
+index f7d46b21..6d6dd46c 100644
+--- a/tests/common/osutil/test_factory.py
++++ b/tests/common/osutil/test_factory.py
+@@ -142,6 +142,12 @@ class TestOsUtilFactory(AgentTestCase):
+                           distro_full_name="")
+         self.assertTrue(isinstance(ret, CoreOSUtil))
+         self.assertEqual(ret.get_service_name(), "waagent")
++        ret = _get_osutil(distro_name="flatcar",
++                          distro_code_name="",
++                          distro_version="",
++                          distro_full_name="")
++        self.assertTrue(isinstance(ret, CoreOSUtil))
++        self.assertEqual(ret.get_service_name(), "waagent")
+ 
+     def test_get_osutil_it_should_return_suse(self):
+         ret = _get_osutil(distro_name="suse",
+diff --git a/tests/tools.py b/tests/tools.py
+index 64f1862d..cd16c089 100644
+--- a/tests/tools.py
++++ b/tests/tools.py
+@@ -452,6 +452,7 @@ supported_distro = [
+     ["ubuntu", "15.10", "Snappy Ubuntu Core"],
+ 
+     ["coreos", "", ""],
++    ["flatcar", "", ""],
+ 
+     ["suse", "12", "SUSE Linux Enterprise Server"],
+     ["suse", "13.2", "openSUSE"],
+-- 
+2.31.1
+
