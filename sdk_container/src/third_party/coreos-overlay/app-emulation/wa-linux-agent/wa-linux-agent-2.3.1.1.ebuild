@@ -13,8 +13,8 @@ SLOT="0"
 IUSE=""
 
 # Depending on specific version of python-oem allows us to notice when
-# we update the major version of python and then to update the
-# site-packages path below.
+# we update the major version of python and then to make sure that we
+# install the package in correctly versioned site-packages directory.
 DEP_PYVER="3.6"
 
 RDEPEND="
@@ -32,7 +32,6 @@ src_install() {
 	into "/usr/share/oem"
 	dobin "${S}/bin/waagent"
 
-	# When updating python-oem, remember to update the path below.
 	insinto "/usr/share/oem/python/$(get_libdir)/python${DEP_PYVER}/site-packages"
 	doins -r "${S}/azurelinuxagent/"
 
