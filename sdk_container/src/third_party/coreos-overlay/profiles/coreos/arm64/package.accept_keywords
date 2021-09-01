@@ -74,10 +74,11 @@ sys-apps/dtc ~arm64
 =sys-apps/i2c-tools-3.1.1-r1 ~arm64
 =sys-apps/lshw-02.17b-r2 **
 =sys-apps/man-db-2.7.6.1-r2 ~arm64
-sys-apps/policycoreutils *
+=sys-apps/policycoreutils-3.1-r2 ~arm64
 =sys-apps/pv-1.3.4 *
 =sys-apps/rng-tools-5-r2 **
 =sys-apps/sandbox-2.12 ~arm64
+=sys-apps/semodule-utils-3.1 ~arm64
 =sys-apps/smartmontools-6.4 **
 =sys-block/parted-3.2-r1 ~arm64
 =sys-block/thin-provisioning-tools-0.7.0 ~arm64
@@ -96,6 +97,9 @@ sys-apps/policycoreutils *
 =sys-libs/binutils-libs-2.29.1-r1 ~arm64
 =sys-libs/efivar-31 ~arm64
 =sys-libs/libcap-ng-0.7.8 ~arm64
+=sys-libs/libselinux-3.1-r1 ~arm64
+=sys-libs/libsemanage-3.1-r1 ~arm64
+=sys-libs/libsepol-3.1 ~arm64
 =sys-power/iasl-20161222 ~arm64
 =virtual/krb5-0-r1 ~arm64
 =virtual/libusb-1-r2 ~arm64
