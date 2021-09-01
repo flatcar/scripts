@@ -14,8 +14,8 @@ LICENSE="Apache-2.0"
 KEYWORDS="amd64 arm64"
 
 # Depending on specific version of python-oem allows us to notice when
-# we update the major version of python and then to update the
-# site-packages path below.
+# we update the major version of python and then to make sure that we
+# install the package in correctly versioned site-packages directory.
 DEP_PYVER="3.6"
 
 SLOT="0"
@@ -29,7 +29,6 @@ src_compile() {
 }
 
 src_install() {
-	# When updating python-oem, remember to update the path below.
 	insinto "/usr/share/oem/python/$(get_libdir)/python${DEP_PYVER}/site-packages"
 	doins "${S}/distro.py"
 }
