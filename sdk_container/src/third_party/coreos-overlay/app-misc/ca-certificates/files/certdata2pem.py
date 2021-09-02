@@ -124,7 +124,8 @@ for obj in objects:
             fname = fname.encode('latin1').decode('unicode_escape').encode('latin1').decode('utf8')
         except (UnicodeEncodeError, UnicodeDecodeError):
             pass
-        f = open(fname, 'w')
+
+        f = open(fname.encode(encoding=sys.getfilesystemencoding(), errors="ignore"), 'w')
         f.write("-----BEGIN CERTIFICATE-----\n")
         # obj['CKA_VALUE'] is a string of octals like '\060\311…',
         # with a number not greater than octal 377 (which is 255,
