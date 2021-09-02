@@ -1,0 +1,9 @@
+[Unit]
+Description=Weekly check for MD array's redundancy information.
+
+[Install]
+WantedBy=timers.target
+
+[Timer]
+OnCalendar=weekly
+Persistent=true
