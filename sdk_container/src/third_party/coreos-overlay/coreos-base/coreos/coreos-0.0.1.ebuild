@@ -65,13 +65,11 @@ IUSE="selinux"
 
 RDEPEND=">=sys-apps/baselayout-3.0.0"
 
-# Optionally enable SELinux and pull in policy for containers
+# Optionally enable SELinux for dbus and systemd (but always install packages and pull in the SELinux policy for containers)
 RDEPEND="${RDEPEND}
 	sys-apps/dbus[selinux?]
 	sys-apps/systemd[selinux?]
-	selinux? (
-		sec-policy/selinux-virt
-	)"
+	"
 
 # Only applicable or available on amd64
 RDEPEND="${RDEPEND}
@@ -141,9 +139,14 @@ RDEPEND="${RDEPEND}
 	net-misc/wget
 	net-misc/whois
 	net-vpn/wireguard-tools
+	sec-policy/selinux-virt
+	sec-policy/selinux-base
+	sec-policy/selinux-base-policy
+	sec-policy/selinux-unconfined
 	sys-apps/acl
 	sys-apps/attr
 	sys-apps/coreutils
+	sys-apps/checkpolicy
 	sys-apps/dbus
 	sys-apps/diffutils
 	sys-apps/ethtool
@@ -163,6 +166,7 @@ RDEPEND="${RDEPEND}
 	sys-apps/rng-tools
 	sys-apps/sed
 	sys-apps/seismograph
+	sys-apps/semodule-utils
 	sys-apps/shadow
 	sys-apps/usbutils
 	sys-apps/util-linux
