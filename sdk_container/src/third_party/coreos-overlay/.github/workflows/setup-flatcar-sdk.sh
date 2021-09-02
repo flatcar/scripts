@@ -5,7 +5,7 @@ set -euo pipefail
 CORK_VERSION=$(curl -sL https://api.github.com/repos/kinvolk/mantle/releases/latest | jq -r .tag_name | sed -e 's/^v//')
 curl -L -o cork https://github.com/kinvolk/mantle/releases/download/v"${CORK_VERSION}"/cork-"${CORK_VERSION}"-amd64
 curl -L -o cork.sig https://github.com/kinvolk/mantle/releases/download/v"${CORK_VERSION}"/cork-"${CORK_VERSION}"-amd64.sig
-curl -LO https://www.flatcar-linux.org/security/image-signing-key/Flatcar_Image_Signing_Key.asc
+curl -LO https://kinvolk.io/flatcar-container-linux/security/image-signing-key/Flatcar_Image_Signing_Key.asc
 gpg --import Flatcar_Image_Signing_Key.asc
 gpg --verify cork.sig cork
 rm -f cork.sig Flatcar_Image_Signing_Key.asc
