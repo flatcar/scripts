@@ -84,7 +84,7 @@ if [ "${KOLA_TESTS}" = "*" ] || [ "$(echo "${KOLA_TESTS}" | grep 'cl.update.payl
     --tapfile="/mnt/host/source/${JOB_NAME##*/}_update_from_previous_release.tap" \
     --torcx-manifest=/mnt/host/source/torcx_manifest.json \
     --update-payload=/mnt/host/source/tmp/flatcar_test_update.gz \
-    cl.update.payload
+    cl.update.payload || true
 fi
 
 # Do not expand the kola test patterns globs
