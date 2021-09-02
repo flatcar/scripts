@@ -1,30 +1,18 @@
-# Prefix and install folder
-prefix              := /usr
-PREFIX              := $(prefix)
-exec_prefix         := ${prefix}
-libdir              := ${exec_prefix}/lib
-LIBDIR              := $(libdir)
-
-# A debug build of tools?
-debug               := n
-
 # Tools path
 BISON               :=
 FLEX                :=
-PYTHON              :=
+PYTHON              := # overridden in ebuild
 PYTHON_PATH         :=
-PERL                :=
-CURL_CONFIG         :=
-XML2_CONFIG         :=
+PY_NOOPT_CFLAGS     :=
+PERL                := # overridden in ebuild
 BASH                :=
 XGETTTEXT           :=
 AS86                :=
 LD86                :=
 BCC                 :=
 IASL                :=
+AWK                 := # overridden in ebuild
 FETCHER             :=
-SEABIOS_PATH        :=
-OVMF_PATH           :=
 
 # Extra folder for libs/includes
 PREPEND_INCLUDES    :=
@@ -38,30 +26,47 @@ PTHREAD_LIBS        :=
 
 PTYFUNCS_LIBS       :=
 
+LIBNL3_LIBS         :=
+LIBNL3_CFLAGS       :=
+XEN_TOOLS_RPATH     := n
+
 # Download GIT repositories via HTTP or GIT's own protocol?
 # GIT's protocol is faster and more robust, when it works at all (firewalls
 # may block it). We make it the default, but if your GIT repository downloads
-# fail or hang, please specify GIT_HTTP=y in your environment.
-GIT_HTTP            := n
+# fail or hang, please pass --enable-githttp to configure.
+GIT_HTTP            ?= n
 
 # Optional components
 XENSTAT_XENTOP      := n
-LIBXENAPI_BINDINGS  := n
 OCAML_TOOLS         := n
-FLASK_POLICY        := n
+FLASK_POLICY        := y # TODO
 CONFIG_OVMF         := n
 CONFIG_ROMBIOS      := n
 CONFIG_SEABIOS      := n
+CONFIG_IPXE         := n
 CONFIG_QEMU_TRAD    := n
 CONFIG_QEMU_XEN     := n
-CONFIG_XEND         := n
-CONFIG_BLKTAP1      := n
+CONFIG_QEMUU_EXTRA_ARGS :=
+CONFIG_LIBNL        := n
+CONFIG_GOLANG       := n
+
+CONFIG_SYSTEMD      := n
+SYSTEMD_CFLAGS      :=
+SYSTEMD_LIBS        :=
+XEN_SYSTEMD_DIR     :=
+XEN_SYSTEMD_MODULES_LOAD :=
+CONFIG_9PFS         :=
+
+LINUX_BACKEND_MODULES :=
 
 #System options
 ZLIB                :=
 CONFIG_LIBICONV     := n
-CONFIG_GCRYPT       := n
 EXTFS_LIBS          :=
 CURSES_LIBS         :=
+TINFO_LIBS          :=
+ARGP_LDFLAGS        :=
 
 FILE_OFFSET_BITS    :=
+
+CONFIG_PV_SHIM      := n
