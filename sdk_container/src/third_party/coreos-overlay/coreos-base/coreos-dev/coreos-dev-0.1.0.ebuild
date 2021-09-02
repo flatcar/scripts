@@ -18,7 +18,6 @@ KEYWORDS="amd64 arm arm64 x86"
 RDEPEND="
 	app-portage/gentoolkit
 	coreos-base/coreos
-	coreos-base/coreos-experimental
 	coreos-base/emerge-gitclone
 	coreos-devel/mantle
 	dev-lang/python
