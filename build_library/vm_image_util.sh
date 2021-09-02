@@ -34,6 +34,7 @@ VALID_IMG_TYPES=(
     rackspace
     rackspace_onmetal
     rackspace_vhd
+    rpi4
     vagrant
     vagrant_parallels
     vagrant_virtualbox
@@ -62,6 +63,7 @@ VALID_OEM_PACKAGES=(
     qemu
     rackspace
     rackspace-onmetal
+    rpi4
     vagrant
     vagrant-key
     vagrant-virtualbox
@@ -122,6 +124,9 @@ IMG_DEFAULT_MEM=1024
 
 # Number of CPUs to use in any config files
 IMG_DEFAULT_CPUS=2
+
+# Copy files installed by OEM package from /boot to ESP partition
+IMG_DEFAULT_COPY_BOOT=false
 
 ## qemu
 IMG_qemu_DISK_FORMAT=qcow2
@@ -269,6 +274,10 @@ IMG_rackspace_vhd_OEM_PACKAGE=oem-rackspace
 IMG_rackspace_onmetal_DISK_FORMAT=qcow2
 IMG_rackspace_onmetal_DISK_LAYOUT=onmetal
 IMG_rackspace_onmetal_OEM_PACKAGE=oem-rackspace-onmetal
+
+IMG_rpi4_DISK_FORMAT=raw
+IMG_rpi4_OEM_PACKAGE=oem-rpi4
+IMG_rpi4_COPY_BOOT=true
 
 ## cloudstack
 IMG_cloudstack_OEM_PACKAGE=oem-cloudstack
@@ -476,6 +485,7 @@ install_oem_package() {
     local oem_pkg=$(_get_vm_opt OEM_PACKAGE)
     local oem_use=$(_get_vm_opt OEM_USE)
     local oem_tmp="${VM_TMP_DIR}/oem"
+    local oem_copy_boot="$(_get_vm_opt COPY_BOOT)"
 
     if [[ -z "${oem_pkg}" ]]; then
         return 0
@@ -501,6 +511,7 @@ install_oem_package() {
         --root-deps=rdeps --usepkgonly ${getbinpkg} \
         --quiet --jobs=2 "${oem_pkg}"
     sudo rsync -a "${oem_tmp}/usr/share/oem/" "${VM_TMP_ROOT}/usr/share/oem/"
+    ( $oem_copy_boot ) && sudo rsync -a "${oem_tmp}/boot/" "${VM_TMP_ROOT}/boot/"
     sudo rm -rf "${oem_tmp}"
 }
 
