@@ -1,6 +1,3 @@
-# Difference to upstream from ./update_ebuilds:
-# - Ported changes from 529e323aad6b43a9a0c06520c1e4f6ae69b9bafa
-#
 # Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
@@ -24,7 +21,7 @@ HPN_PATCHES=(
 )
 
 SCTP_VER="1.2" SCTP_PATCH="${PARCH}-sctp-${SCTP_VER}.patch.xz"
-X509_VER="13.1" X509_PATCH="${PARCH}+x509-${X509_VER}.diff.gz"
+X509_VER="13.2" X509_PATCH="${PARCH}+x509-${X509_VER}.diff.gz"
 
 DESCRIPTION="Port of OpenBSD's free SSH release"
 HOMEPAGE="https://www.openssh.com/"
@@ -44,6 +41,7 @@ IUSE="abi_mips_n32 audit bindist debug hpn kerberos kernel_linux ldns libedit li
 RESTRICT="!test? ( test )"
 
 REQUIRED_USE="
+	hpn? ( ssl )
 	ldns? ( ssl )
 	pie? ( !static )
 	static? ( !kerberos !pam )
@@ -69,10 +67,10 @@ LIB_DEPEND="
 	ssl? (
 			|| (
 				(
-					>=dev-libs/openssl-1.0.1:0[bindist=]
-					<dev-libs/openssl-1.1.0:0[bindist=]
+					>=dev-libs/openssl-1.0.1:0[bindist(-)=]
+					<dev-libs/openssl-1.1.0:0[bindist(-)=]
 				)
-				>=dev-libs/openssl-1.1.0g:0[bindist=]
+				>=dev-libs/openssl-1.1.0g:0[bindist(-)=]
 			)
 			dev-libs/openssl:0=[static-libs(+)]
 	)
@@ -135,14 +133,11 @@ src_prepare() {
 	sed -i '/^AuthorizedKeysFile/s:^:#:' sshd_config || die
 
 	eapply "${FILESDIR}"/${PN}-7.9_p1-include-stdlib.patch
-	eapply "${FILESDIR}"/${PN}-8.5_p1-GSSAPI-dns.patch #165444 integrated into gsskex
+	eapply "${FILESDIR}"/${PN}-8.7_p1-GSSAPI-dns.patch #165444 integrated into gsskex
 	eapply "${FILESDIR}"/${PN}-6.7_p1-openssl-ignore-status.patch
 	eapply "${FILESDIR}"/${PN}-7.5_p1-disable-conch-interop-tests.patch
 	eapply "${FILESDIR}"/${PN}-8.0_p1-fix-putty-tests.patch
 	eapply "${FILESDIR}"/${PN}-8.0_p1-deny-shmget-shmat-shmdt-in-preauth-privsep-child.patch
-
-	# workaround for https://bugs.gentoo.org/734984
-	use X509 || eapply "${FILESDIR}"/${PN}-8.3_p1-sha2-include.patch
 
 	[[ -d ${WORKDIR}/patches ]] && eapply "${WORKDIR}"/patches
 
@@ -191,7 +186,7 @@ src_prepare() {
 		cp $(printf -- "${DISTDIR}/%s\n" "${HPN_PATCHES[@]}") "${hpn_patchdir}" || die
 		pushd "${hpn_patchdir}" &>/dev/null || die
 		eapply "${FILESDIR}"/${P}-hpn-${HPN_VER}-glue.patch
-		use X509 && eapply "${FILESDIR}"/${PN}-8.6_p1-hpn-${HPN_VER}-X509-glue.patch
+		use X509 && eapply "${FILESDIR}"/${PN}-8.7_p1-hpn-${HPN_VER}-X509-glue.patch
 		use sctp && eapply "${FILESDIR}"/${PN}-8.5_p1-hpn-${HPN_VER}-sctp-glue.patch
 		popd &>/dev/null || die
 
@@ -422,6 +417,8 @@ src_install() {
 	emake install-nokeys DESTDIR="${D}"
 	fperms 600 /etc/ssh/sshd_config
 	dobin contrib/ssh-copy-id
+	newinitd "${FILESDIR}"/sshd-r1.initd sshd
+	newconfd "${FILESDIR}"/sshd-r1.confd sshd
 
 	if use pam; then
 		newpamd "${FILESDIR}"/sshd.pam_include.2 sshd

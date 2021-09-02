@@ -1,8 +1,8 @@
 diff --git a/auth.c b/auth.c
-index 086b8ebb..a267353c 100644
+index 00b168b4..8ee93581 100644
 --- a/auth.c
 +++ b/auth.c
-@@ -724,120 +724,6 @@ fakepw(void)
+@@ -729,118 +729,6 @@ fakepw(void)
  	return (&fake);
  }
  
@@ -11,9 +11,7 @@ index 086b8ebb..a267353c 100644
 - * be freed. NB. this will usually trigger a DNS query the first time it is
 - * called.
 - * This function does additional checks on the hostname to mitigate some
-- * attacks on legacy rhosts-style authentication.
-- * XXX is RhostsRSAAuthentication vulnerable to these?
-- * XXX Can we remove these checks? (or if not, remove RhostsRSAAuthentication?)
+- * attacks on based on conflation of hostnames and IP addresses.
 - */
 -
 -static char *
@@ -120,11 +118,11 @@ index 086b8ebb..a267353c 100644
 -	}
 -}
 -
- /*
-  * Runs command in a subprocess with a minimal environment.
-  * Returns pid on success, 0 on failure.
+ /* These functions link key/cert options to the auth framework */
+ 
+ /* Log sshauthopt options locally and (optionally) for remote transmission */
 diff --git a/canohost.c b/canohost.c
-index abea9c6e..4f4524d2 100644
+index a810da0e..18e9d8d4 100644
 --- a/canohost.c
 +++ b/canohost.c
 @@ -202,3 +202,117 @@ get_local_port(int sock)
@@ -155,9 +153,9 @@ index abea9c6e..4f4524d2 100644
 +	fromlen = sizeof(from);
 +	memset(&from, 0, sizeof(from));
 +	if (getpeername(ssh_packet_get_connection_in(ssh),
-+	    (struct sockaddr *)&from, &fromlen) < 0) {
++	    (struct sockaddr *)&from, &fromlen) == -1) {
 +		debug("getpeername failed: %.100s", strerror(errno));
-+		return strdup(ntop);
++		return xstrdup(ntop);
 +	}
 +
 +	ipv64_normalise_mapped(&from, &fromlen);
@@ -169,7 +167,7 @@ index abea9c6e..4f4524d2 100644
 +	if (getnameinfo((struct sockaddr *)&from, fromlen, name, sizeof(name),
 +	    NULL, 0, NI_NAMEREQD) != 0) {
 +		/* Host name not found.  Use ip address. */
-+		return strdup(ntop);
++		return xstrdup(ntop);
 +	}
 +
 +	/*
@@ -184,7 +182,7 @@ index abea9c6e..4f4524d2 100644
 +		logit("Nasty PTR record \"%s\" is set up for %s, ignoring",
 +		    name, ntop);
 +		freeaddrinfo(ai);
-+		return strdup(ntop);
++		return xstrdup(ntop);
 +	}
 +
 +	/* Names are stored in lowercase. */
@@ -205,7 +203,7 @@ index abea9c6e..4f4524d2 100644
 +	if (getaddrinfo(name, NULL, &hints, &aitop) != 0) {
 +		logit("reverse mapping checking getaddrinfo for %.700s "
 +		    "[%s] failed.", name, ntop);
-+		return strdup(ntop);
++		return xstrdup(ntop);
 +	}
 +	/* Look for the address from the list of addresses. */
 +	for (ai = aitop; ai; ai = ai->ai_next) {
@@ -220,9 +218,9 @@ index abea9c6e..4f4524d2 100644
 +		/* Address not found for the host name. */
 +		logit("Address %.100s maps to %.600s, but this does not "
 +		    "map back to the address.", ntop, name);
-+		return strdup(ntop);
++		return xstrdup(ntop);
 +	}
-+	return strdup(name);
++	return xstrdup(name);
 +}
 +
 +/*
@@ -246,10 +244,10 @@ index abea9c6e..4f4524d2 100644
 +	}
 +}
 diff --git a/readconf.c b/readconf.c
-index f3cac6b3..adfd7a4e 100644
+index 03369a08..b45898ce 100644
 --- a/readconf.c
 +++ b/readconf.c
-@@ -160,6 +160,7 @@ typedef enum {
+@@ -161,6 +161,7 @@ typedef enum {
  	oClearAllForwardings, oNoHostAuthenticationForLocalhost,
  	oEnableSSHKeysign, oRekeyLimit, oVerifyHostKeyDNS, oConnectTimeout,
  	oAddressFamily, oGssAuthentication, oGssDelegateCreds,
@@ -257,7 +255,7 @@ index f3cac6b3..adfd7a4e 100644
  	oServerAliveInterval, oServerAliveCountMax, oIdentitiesOnly,
  	oSendEnv, oSetEnv, oControlPath, oControlMaster, oControlPersist,
  	oHashKnownHosts,
-@@ -205,9 +206,11 @@ static struct {
+@@ -207,9 +208,11 @@ static struct {
  #if defined(GSSAPI)
  	{ "gssapiauthentication", oGssAuthentication },
  	{ "gssapidelegatecredentials", oGssDelegateCreds },
@@ -269,7 +267,7 @@ index f3cac6b3..adfd7a4e 100644
  #endif
  #ifdef ENABLE_PKCS11
  	{ "pkcs11provider", oPKCS11Provider },
-@@ -1033,6 +1036,10 @@ parse_time:
+@@ -1117,6 +1120,10 @@ parse_time:
  		intptr = &options->gss_deleg_creds;
  		goto parse_flag;
  
@@ -280,15 +278,15 @@ index f3cac6b3..adfd7a4e 100644
  	case oBatchMode:
  		intptr = &options->batch_mode;
  		goto parse_flag;
-@@ -1912,6 +1919,7 @@ initialize_options(Options * options)
- 	options->challenge_response_authentication = -1;
+@@ -2307,6 +2314,7 @@ initialize_options(Options * options)
+ 	options->pubkey_authentication = -1;
  	options->gss_authentication = -1;
  	options->gss_deleg_creds = -1;
 +	options->gss_trust_dns = -1;
  	options->password_authentication = -1;
  	options->kbd_interactive_authentication = -1;
  	options->kbd_interactive_devices = NULL;
-@@ -2061,6 +2069,8 @@ fill_default_options(Options * options)
+@@ -2465,6 +2473,8 @@ fill_default_options(Options * options)
  		options->gss_authentication = 0;
  	if (options->gss_deleg_creds == -1)
  		options->gss_deleg_creds = 0;
@@ -298,11 +296,11 @@ index f3cac6b3..adfd7a4e 100644
  		options->password_authentication = 1;
  	if (options->kbd_interactive_authentication == -1)
 diff --git a/readconf.h b/readconf.h
-index feedb3d2..c7139c1b 100644
+index f7d53b06..c3a91898 100644
 --- a/readconf.h
 +++ b/readconf.h
-@@ -42,6 +42,7 @@ typedef struct {
- 					/* Try S/Key or TIS, authentication. */
+@@ -40,6 +40,7 @@ typedef struct {
+ 	int     hostbased_authentication;	/* ssh2's rhosts_rsa */
  	int     gss_authentication;	/* Try GSS authentication */
  	int     gss_deleg_creds;	/* Delegate GSS credentials */
 +	int	gss_trust_dns;		/* Trust DNS for GSS canonicalization */
@@ -310,10 +308,10 @@ index feedb3d2..c7139c1b 100644
  						 * authentication. */
  	int     kbd_interactive_authentication; /* Try keyboard-interactive auth. */
 diff --git a/ssh_config.5 b/ssh_config.5
-index 06a32d31..6871ff36 100644
+index cd0eea86..27101943 100644
 --- a/ssh_config.5
 +++ b/ssh_config.5
-@@ -770,6 +770,16 @@ The default is
+@@ -832,6 +832,16 @@ The default is
  Forward (delegate) credentials to the server.
  The default is
  .Cm no .
@@ -331,10 +329,10 @@ index 06a32d31..6871ff36 100644
  Indicates that
  .Xr ssh 1
 diff --git a/sshconnect2.c b/sshconnect2.c
-index af00fb30..652463c5 100644
+index fea50fab..aeff639b 100644
 --- a/sshconnect2.c
 +++ b/sshconnect2.c
-@@ -716,6 +716,13 @@ userauth_gssapi(struct ssh *ssh)
+@@ -776,6 +776,13 @@ userauth_gssapi(struct ssh *ssh)
  	OM_uint32 min;
  	int r, ok = 0;
  	gss_OID mech = NULL;
@@ -348,7 +346,7 @@ index af00fb30..652463c5 100644
  
  	/* Try one GSSAPI method at a time, rather than sending them all at
  	 * once. */
-@@ -730,7 +737,7 @@ userauth_gssapi(struct ssh *ssh)
+@@ -790,7 +797,7 @@ userauth_gssapi(struct ssh *ssh)
  		    elements[authctxt->mech_tried];
  		/* My DER encoding requires length<128 */
  		if (mech->length < 128 && ssh_gssapi_check_mechanism(&gssctxt,
