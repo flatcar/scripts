@@ -121,3 +121,6 @@ app-portage/portage-utils -qmanifest -qtegrity
 
 # Disable unnecessary regedit in samba to minimize the package size.
 net-fs/samba -regedit
+
+# Drop extra dependencies
+sys-libs/ldb -lmdb -python
