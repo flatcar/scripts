@@ -2,7 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-PYTHON_COMPAT=( python3_{8..10} )
+# Flatcar: We still have python 3.6.
+PYTHON_COMPAT=( python3_{5,6,7} )
 
 if [[ ${PV} == 9999 ]]; then
 	EGIT_REPO_URI="https://github.com/systemd/systemd.git"
@@ -17,17 +18,19 @@ else
 	MY_P=${MY_PN}-${MY_PV}
 	S=${WORKDIR}/${MY_P}
 	SRC_URI="https://github.com/systemd/${MY_PN}/archive/v${MY_PV}/${MY_P}.tar.gz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~mips ppc ppc64 ~riscv sparc x86"
 fi
 
-inherit bash-completion-r1 linux-info meson-multilib pam python-any-r1 systemd toolchain-funcs udev usr-ldscript
+# Flatcar: We don't use gen_usr_ldscript so dropping usr-ldscript
+inherit bash-completion-r1 linux-info meson-multilib pam python-any-r1 systemd toolchain-funcs udev user
 
 DESCRIPTION="System and service manager for Linux"
 HOMEPAGE="https://www.freedesktop.org/wiki/Software/systemd"
 
 LICENSE="GPL-2 LGPL-2.1 MIT public-domain"
 SLOT="0/2"
-IUSE="acl apparmor audit build cgroup-hybrid cryptsetup curl dns-over-tls elfutils +gcrypt gnuefi homed http +hwdb idn importd +kmod +lz4 lzma nat pam pcre pkcs11 policykit pwquality qrcode repart +resolvconf +seccomp selinux split-usr static-libs +sysv-utils test tpm vanilla xkb +zstd"
+# Flatcar: Dropped static-libs, we don't care about static libraries.
+IUSE="acl apparmor audit build cgroup-hybrid cryptsetup curl dns-over-tls elfutils +gcrypt gnuefi homed http +hwdb idn importd +kmod +lz4 lzma nat pam pcre pkcs11 policykit pwquality qrcode repart +resolvconf +seccomp selinux split-usr +sysv-utils test tpm vanilla xkb +zstd"
 
 REQUIRED_USE="
 	homed? ( cryptsetup pam )
@@ -84,35 +87,22 @@ DEPEND="${COMMON_DEPEND}
 	gnuefi? ( >=sys-boot/gnu-efi-3.0.2 )
 "
 
-# baselayout-2.2 has /run
+# Flatcar: We drop a few of the acct-group and acct-user as the gid provided by
+# the upstream does not match with the ones we carry in baselayout.
 RDEPEND="${COMMON_DEPEND}
 	>=acct-group/adm-0-r1
 	>=acct-group/wheel-0-r1
 	>=acct-group/kmem-0-r1
 	>=acct-group/tty-0-r1
 	>=acct-group/utmp-0-r1
-	>=acct-group/audio-0-r1
-	>=acct-group/cdrom-0-r1
-	>=acct-group/dialout-0-r1
-	>=acct-group/disk-0-r1
-	>=acct-group/input-0-r1
 	>=acct-group/kvm-0-r1
-	>=acct-group/lp-0-r1
-	>=acct-group/render-0-r1
 	acct-group/sgx
-	>=acct-group/tape-0-r1
 	acct-group/users
-	>=acct-group/video-0-r1
-	>=acct-group/systemd-journal-0-r1
 	>=acct-user/root-0-r1
 	acct-user/nobody
-	>=acct-user/systemd-journal-remote-0-r1
 	>=acct-user/systemd-coredump-0-r1
-	>=acct-user/systemd-network-0-r1
 	acct-user/systemd-oom
-	>=acct-user/systemd-resolve-0-r1
 	>=acct-user/systemd-timesync-0-r1
-	>=sys-apps/baselayout-2.2
 	selinux? ( sec-policy/selinux-base-policy[systemd] )
 	sysv-utils? (
 		!sys-apps/openrc[sysv-utils(-)]
@@ -131,9 +121,10 @@ RDEPEND="${COMMON_DEPEND}
 "
 
 # sys-apps/dbus: the daemon only (+ build-time lib dep for tests)
+#
+# Flatcar: We don't have sys-fs/udev-init-scripts-34, so it's dropped.
 PDEPEND=">=sys-apps/dbus-1.9.8[systemd]
 	hwdb? ( sys-apps/hwids[systemd(+),udev] )
-	>=sys-fs/udev-init-scripts-34
 	policykit? ( sys-auth/polkit )
 	!vanilla? ( sys-apps/gentoo-systemd-integration )"
 
@@ -222,15 +213,27 @@ src_prepare() {
 
 	# Add local patches here
 	PATCHES+=(
+		# Flatcar: Adding our own patches here.
+		"${FILESDIR}/249-libudev-static.patch"
+		"${FILESDIR}/0004-wait-online-set-any-by-default.patch"
+		"${FILESDIR}/0005-networkd-default-to-kernel-IPForwarding-setting.patch"
+		"${FILESDIR}/0006-needs-update-don-t-require-strictly-newer-usr.patch"
+		"${FILESDIR}/0007-core-use-max-for-DefaultTasksMax.patch"
+		"${FILESDIR}/0008-systemd-Disable-SELinux-permissions-checks.patch"
+		"${FILESDIR}/0009-core-handle-lookup-paths-being-symlinks.patch"
 	)
 
-	if ! use vanilla; then
-		PATCHES+=(
-			"${FILESDIR}/gentoo-generator-path-r2.patch"
-			"${FILESDIR}/gentoo-systemctl-disable-sysv-sync-r1.patch"
-			"${FILESDIR}/gentoo-journald-audit.patch"
-		)
-	fi
+	# Flatcar: We carry our own patches, we don't use the ones
+	# from Gentoo. Thus we dropped the `if ! use vanilla` code
+	# here.
+
+	# Flatcar: The Kubelet takes /etc/resolv.conf for, e.g., CoreDNS which has dnsPolicy "default", but unless
+	# the kubelet --resolv-conf flag is set to point to /run/systemd/resolve/resolv.conf this won't work with
+	# /etc/resolv.conf pointing to /run/systemd/resolve/stub-resolv.conf which configures 127.0.0.53.
+	# See https://kubernetes.io/docs/tasks/administer-cluster/dns-debugging-resolution/#known-issues
+	# This means that users who need split DNS to work should point /etc/resolv.conf back to /run/systemd/resolve/stub-resolv.conf
+	# (and if using K8s configure the kubelet resolvConf variable/--resolv-conf flag to /run/systemd/resolve/resolv.conf).
+	sed -i -e 's,/run/systemd/resolve/stub-resolv.conf,/run/systemd/resolve/resolv.conf,' tmpfiles.d/etc.conf.in || die
 
 	default
 }
@@ -247,7 +250,8 @@ src_configure() {
 multilib_src_configure() {
 	local myconf=(
 		--localstatedir="${EPREFIX}/var"
-		-Dsupport-url="https://gentoo.org/support/"
+		# Flatcar: Point to our user mailing list.
+		-Dsupport-url="https://groups.google.com/forum/#!forum/flatcar-linux-user"
 		-Dpamlibdir="$(getpam_mod_dir)"
 		# avoid bash-completion dep
 		-Dbashcompletiondir="$(get_bashcompdir)"
@@ -258,7 +262,6 @@ multilib_src_configure() {
 		-Drootlibdir="${EPREFIX}/usr/$(get_libdir)"
 		# Avoid infinite exec recursion, bug 642724
 		-Dtelinit-path="${EPREFIX}/lib/sysvinit/telinit"
-		# no deps
 		-Dima=true
 		-Ddefault-hierarchy=$(usex cgroup-hybrid hybrid unified)
 		# Optional components/dependencies
@@ -298,9 +301,11 @@ multilib_src_configure() {
 		$(meson_native_use_bool tpm tpm2)
 		$(meson_native_use_bool test dbus)
 		$(meson_native_use_bool xkb xkbcommon)
-		-Dntp-servers="0.gentoo.pool.ntp.org 1.gentoo.pool.ntp.org 2.gentoo.pool.ntp.org 3.gentoo.pool.ntp.org"
+		# Flatcar: Use our ntp servers.
+		-Dntp-servers="0.flatcar.pool.ntp.org 1.flatcar.pool.ntp.org 2.flatcar.pool.ntp.org 3.flatcar.pool.ntp.org"
 		# Breaks screen, tmux, etc.
 		-Ddefault-kill-user-processes=false
+		# Flatcar: TODO: Investigate if we want this.
 		-Dcreate-log-dirs=false
 
 		# multilib options
@@ -324,8 +329,42 @@ multilib_src_configure() {
 		$(meson_native_true tmpfiles)
 		$(meson_native_true vconsole)
 
-		# static-libs
-		$(meson_use static-libs static-libudev)
+		# Flatcar: Specify this, or meson breaks due to no
+		# /etc/login.defs.
+		-Dsystem-gid-max=999
+		-Dsystem-uid-max=999
+
+		# Flatcar: DBus paths.
+		-Ddbussessionservicedir="${EPREFIX}/usr/share/dbus-1/services"
+		-Ddbussystemservicedir="${EPREFIX}/usr/share/dbus-1/system-services"
+
+		# Flatcar: PAM config directory.
+		-Dpamconfdir=/usr/share/pam.d
+
+		# Flatcar: The CoreOS epoch, Mon Jul 1 00:00:00 UTC
+		# 2013. Used by timesyncd as a sanity check for the
+		# minimum acceptable time. Explicitly set to avoid
+		# using the current build time.
+		-Dtime-epoch=1372636800
+
+		# Flatcar: No default name servers.
+		-Ddns-servers=
+
+		# Flatcar: Disable the "First Boot Wizard", it isn't
+		# very applicable to us.
+		-Dfirstboot=false
+
+		# Flatcar: Set latest network interface naming scheme
+		# for
+		# https://github.com/flatcar-linux/Flatcar/issues/36
+		-Ddefault-net-naming-scheme=latest
+
+		# Flatcar: Unported options, still needed?
+		-Defi-cc="$(tc-getCC)"
+		-Dquotaon-path=/usr/sbin/quotaon
+		-Dquotacheck-path=/usr/sbin/quotacheck
+
+		# Flatcar: No static libs.
 	)
 
 	meson_src_configure "${myconf[@]}"
@@ -343,7 +382,8 @@ multilib_src_install_all() {
 	mv "${ED}"/usr/share/doc/{systemd,${PF}} || die
 
 	einstalldocs
-	dodoc "${FILESDIR}"/nsswitch.conf
+	# Flatcar: Do not install sample nsswitch.conf, we don't
+	# provide it.
 
 	if ! use resolvconf; then
 		rm -f "${ED}${rootprefix}"/sbin/resolvconf || die
@@ -362,31 +402,11 @@ multilib_src_install_all() {
 		rmdir "${ED}${rootprefix}"/sbin || die
 	fi
 
-	# https://bugs.gentoo.org/761763
-	rm -r "${ED}"/usr/lib/sysusers.d || die
-
-	# Preserve empty dirs in /etc & /var, bug #437008
-	keepdir /etc/{binfmt.d,modules-load.d,tmpfiles.d}
-	keepdir /etc/kernel/install.d
-	keepdir /etc/systemd/{network,system,user}
-	keepdir /etc/udev/rules.d
-
-	if use hwdb; then
-		keepdir /etc/udev/hwdb.d
-	fi
-
-	keepdir "${rootprefix}"/lib/systemd/{system-sleep,system-shutdown}
-	keepdir /usr/lib/{binfmt.d,modules-load.d}
-	keepdir /usr/lib/systemd/user-generators
-	keepdir /var/lib/systemd
-	keepdir /var/log/journal
-
-	# Symlink /etc/sysctl.conf for easy migration.
-	dosym ../sysctl.conf /etc/sysctl.d/99-sysctl.conf
-
-	if use pam; then
-		newpamd "${FILESDIR}"/systemd-user.pam systemd-user
-	fi
+	# Flatcar: Upstream uses keepdir commands to keep some empty
+	# directories.
+	#
+	# Flatcar: TODO: Consider using that instead of
+	# systemd_dotmpfilesd "${FILESDIR}"/systemd-flatcar.conf below.
 
 	if use hwdb; then
 		rm -r "${ED}${rootprefix}"/lib/udev/hwdb.d || die
@@ -398,7 +418,100 @@ multilib_src_install_all() {
 		dosym ../../../lib/systemd/systemd-shutdown /usr/lib/systemd/systemd-shutdown
 	fi
 
-	gen_usr_ldscript -a systemd udev
+	# Flatcar: Ensure journal directory has correct ownership/mode
+	# in inital image.  This is fixed by systemd-tmpfiles *but*
+	# journald starts before that and will create the journal if
+	# the filesystem is already read-write.  Conveniently the
+	# systemd Makefile sets this up completely wrong.
+	#
+	# Flatcar: TODO: Is this still a problem?
+	dodir /var/log/journal
+	fowners root:systemd-journal /var/log/journal
+	fperms 2755 /var/log/journal
+
+	# Flatcar: Don't prune systemd dirs.
+	#
+	# Flatcar: TODO: Upstream probably fixed it in different way -
+	# it's using some keepdir commands.
+	systemd_dotmpfilesd "${FILESDIR}"/systemd-flatcar.conf
+	# Flatcar: Add tmpfiles rule for resolv.conf. This path has
+	# changed after v213 so it must be handled here instead of
+	# baselayout now.
+	systemd_dotmpfilesd "${FILESDIR}"/systemd-resolv.conf
+
+	# Flatcar: Don't default to graphical.target.
+	local unitdir=$(builddir_systemd_get_systemunitdir)
+	dosym multi-user.target "${unitdir}"/default.target
+
+	# Flatcar: Don't set any extra environment variables by default.
+	rm "${ED}/usr/lib/environment.d/99-environment.conf" || die
+
+	# Flatcar: These lines more or less follow the systemd's
+	# preset file (90-systemd.preset). We do it that way, to avoid
+	# putting symlink in /etc. Please keep the lines in the same
+	# order as the "enable" lines appear in the preset file.
+	builddir_systemd_enable_service multi-user.target remote-fs.target
+	builddir_systemd_enable_service multi-user.target remote-cryptsetup.target
+	builddir_systemd_enable_service multi-user.target machines.target
+	# Flatcar: getty@.service is enabled manually below.
+	builddir_systemd_enable_service sysinit.target systemd-timesyncd.service
+	builddir_systemd_enable_service multi-user.target systemd-networkd.service
+	# Flatcar: For systemd-networkd.service, it has it in Also, which also
+	# needs to be enabled
+	builddir_systemd_enable_service sockets.target systemd-networkd.socket
+	# Flatcar: For systemd-networkd.service, it has it in Also, which also
+	# needs to be enabled
+	builddir_systemd_enable_service network-online.target systemd-networkd-wait-online.service
+	builddir_systemd_enable_service multi-user.target systemd-resolved.service
+	if use homed; then
+		builddir_systemd_enable_service multi-user.target systemd-homed.target
+		# Flatcar: systemd-homed.target has
+		# Also=systemd-userdbd.service, but the service has no
+		# WantedBy entry. It's likely going to be executed through
+		# systemd-userdbd.socket, which is enabled in upstream's
+		# presets file.
+		builddir_systemd_enable_service sockets.target systemd-userdbd.socket
+	fi
+	builddir_systemd_enable_service sysinit.target systemd-pstore.service
+	# Flatcar: not enabling reboot.target - it has no WantedBy
+	# entry.
+
+	# Flatcar: Enable getty manually.
+	dodir "${unitdir}/getty.target.wants"
+	dosym ../getty@.service "${unitdir}/getty.target.wants/getty@tty1.service"
+
+	# Flatcar: Use an empty preset file, because systemctl
+	# preset-all puts symlinks in /etc, not in /usr. We don't use
+	# /etc, because it is not autoupdated. We do the "preset" above.
+	rm "${ED}$(usex split-usr '' /usr)/lib/systemd/system-preset/90-systemd.preset" || die
+	insinto $(usex split-usr '' /usr)/lib/systemd/system-preset
+	doins "${FILESDIR}"/99-default.preset
+
+	# Flatcar: Do not ship distro-specific files (nsswitch.conf
+	# pam.d). This conflicts with our own configuration provided
+	# by baselayout.
+	rm -rf "${ED}"/usr/share/factory
+	sed -i "${ED}"/usr/lib/tmpfiles.d/etc.conf \
+		-e '/^C!* \/etc\/nsswitch\.conf/d' \
+		-e '/^C!* \/etc\/pam\.d/d' \
+		-e '/^C!* \/etc\/issue/d'
+
+	# Flatcar: gen_usr_ldscript is likely for static libs, so we
+	# dropped it.
+}
+
+builddir_systemd_enable_service() {
+    (
+        export SYSROOT="${ED}"
+        systemd_enable_service "$@"
+    )
+}
+
+builddir_systemd_get_systemunitdir() {
+    (
+        export SYSROOT="${ED}"
+        systemd_get_systemunitdir
+    )
 }
 
 migrate_locale() {
@@ -478,13 +591,8 @@ pkg_postinst() {
 	# between OpenRC & systemd
 	migrate_locale
 
-	if [[ -z ${REPLACING_VERSIONS} ]]; then
-		if type systemctl &>/dev/null; then
-			systemctl --root="${ROOT:-/}" enable getty@.service remote-fs.target || FAIL=1
-		fi
-		elog "To enable a useful set of services, run the following:"
-		elog "  systemctl preset-all --preset-mode=enable-only"
-	fi
+	# Flatcar: We enable getty and remote-fs targets in /usr
+	# ourselves above.
 
 	if [[ -L ${EROOT}/var/lib/systemd/timesync ]]; then
 		rm "${EROOT}/var/lib/systemd/timesync"
