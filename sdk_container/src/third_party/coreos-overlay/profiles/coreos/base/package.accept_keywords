@@ -76,7 +76,7 @@ dev-util/checkbashisms
 =sec-policy/selinux-unconfined-2.20200818-r2 **
 =sec-policy/selinux-virt-2.20200818-r2 **
 
-=net-misc/openssh-8.6_p1-r1 ~amd64 ~arm64
+=net-misc/openssh-8.7_p1-r1 ~amd64 ~arm64
 
 =sys-firmware/sgabios-0.1_pre8-r1 ~amd64 ~arm64
 

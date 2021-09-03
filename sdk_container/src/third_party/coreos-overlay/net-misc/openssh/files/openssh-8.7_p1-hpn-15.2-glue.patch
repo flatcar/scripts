@@ -1,6 +1,22 @@
-diff --exclude '*.un~' -ubr a/openssh-8_5_P1-hpn-DynWinNoneSwitch-15.2.diff b/openssh-8_5_P1-hpn-DynWinNoneSwitch-15.2.diff
---- a/openssh-8_5_P1-hpn-DynWinNoneSwitch-15.2.diff	2021-04-19 13:36:51.659996653 -0700
-+++ b/openssh-8_5_P1-hpn-DynWinNoneSwitch-15.2.diff	2021-04-19 13:42:23.302377465 -0700
+diff -ur '--exclude=.*.un~' a/openssh-8_5_P1-hpn-AES-CTR-15.2.diff b/openssh-8_5_P1-hpn-AES-CTR-15.2.diff
+--- a/openssh-8_5_P1-hpn-AES-CTR-15.2.diff	2021-08-20 11:49:32.351767063 -0700
++++ b/openssh-8_5_P1-hpn-AES-CTR-15.2.diff	2021-08-20 11:58:08.746214945 -0700
+@@ -1026,9 +1026,9 @@
+ +	}
+ +#endif
+ +
+- 	debug("Authentication succeeded (%s).", authctxt.method->name);
+- }
+- 
++ 	if (ssh_packet_connection_is_on_socket(ssh)) {
++ 		verbose("Authenticated to %s ([%s]:%d) using \"%s\".", host,
++ 		    ssh_remote_ipaddr(ssh), ssh_remote_port(ssh),
+ diff --git a/sshd.c b/sshd.c
+ index 6277e6d6..bf3d6e4a 100644
+ --- a/sshd.c
+diff -ur '--exclude=.*.un~' a/openssh-8_5_P1-hpn-DynWinNoneSwitch-15.2.diff b/openssh-8_5_P1-hpn-DynWinNoneSwitch-15.2.diff
+--- a/openssh-8_5_P1-hpn-DynWinNoneSwitch-15.2.diff	2021-08-20 11:49:32.351767063 -0700
++++ b/openssh-8_5_P1-hpn-DynWinNoneSwitch-15.2.diff	2021-08-20 12:04:45.008038085 -0700
 @@ -536,18 +536,10 @@
   	if (state->rekey_limit)
   		*max_blocks = MINIMUM(*max_blocks,
@@ -67,6 +83,32 @@ diff --exclude '*.un~' -ubr a/openssh-8_5_P1-hpn-DynWinNoneSwitch-15.2.diff b/op
  @@ -297,6 +300,9 @@ static struct {
   	{ "kexalgorithms", oKexAlgorithms },
   	{ "ipqos", oIPQoS },
+@@ -637,9 +614,9 @@
+ +	{ "noneenabled", oNoneEnabled },
+ +	{ "nonemacenabled", oNoneMacEnabled },
+ +	{ "noneswitch", oNoneSwitch },
+- 	{ "proxyusefdpass", oProxyUseFdpass },
+- 	{ "canonicaldomains", oCanonicalDomains },
+- 	{ "canonicalizefallbacklocal", oCanonicalizeFallbackLocal },
++ 	{ "sessiontype", oSessionType },
++ 	{ "stdinnull", oStdinNull },
++ 	{ "forkafterauthentication", oForkAfterAuthentication },
+ @@ -317,6 +323,11 @@ static struct {
+  	{ "securitykeyprovider", oSecurityKeyProvider },
+  	{ "knownhostscommand", oKnownHostsCommand },
+@@ -717,9 +694,9 @@
+ +	options->hpn_buffer_size = -1;
+ +	options->tcp_rcv_buf_poll = -1;
+ +	options->tcp_rcv_buf = -1;
+- 	options->proxy_use_fdpass = -1;
+- 	options->ignored_unknown = NULL;
+- 	options->num_canonical_domains = 0;
++ 	options->session_type = -1;
++ 	options->stdin_null = -1;
++ 	options->fork_after_authentication = -1;
+ @@ -2426,6 +2484,41 @@ fill_default_options(Options * options)
+  		options->server_alive_interval = 0;
+  	if (options->server_alive_count_max == -1)
 @@ -778,9 +755,9 @@
   	int	ip_qos_bulk;		/* IP ToS/DSCP/class for bulk traffic */
   	SyslogFacility log_facility;	/* Facility for system logging. */
@@ -130,3 +172,27 @@ diff --exclude '*.un~' -ubr a/openssh-8_5_P1-hpn-DynWinNoneSwitch-15.2.diff b/op
  diff --git a/sshd.c b/sshd.c
  index 6277e6d6..d66fa41a 100644
  --- a/sshd.c
+@@ -1359,8 +1336,8 @@
+  		if (bind(listen_sock, ai->ai_addr, ai->ai_addrlen) == -1) {
+  			error("Bind to port %s on %s failed: %.200s.",
+ @@ -1727,6 +1734,19 @@ main(int ac, char **av)
+- 	/* Fill in default values for those options not explicitly set. */
+- 	fill_default_server_options(&options);
++ 		fatal("AuthorizedPrincipalsCommand set without "
++ 		    "AuthorizedPrincipalsCommandUser");
+  
+ +	if (options.none_enabled == 1) {
+ +		char *old_ciphers = options.ciphers;
+@@ -1375,9 +1352,9 @@
+ +		}
+ +	}
+ +
+- 	/* challenge-response is implemented via keyboard interactive */
+- 	if (options.challenge_response_authentication)
+- 		options.kbd_interactive_authentication = 1;
++ 	/*
++ 	 * Check whether there is any path through configured auth methods.
++ 	 * Unfortunately it is not possible to verify this generally before
+ @@ -2166,6 +2186,9 @@ main(int ac, char **av)
+  	    rdomain == NULL ? "" : "\"");
+  	free(laddr);
