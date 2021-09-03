@@ -4,7 +4,7 @@
 
 EAPI=5
 
-PYTHON_COMPAT=( python2_7 )
+PYTHON_COMPAT=( python3_6 )
 
 inherit multilib python-any-r1 systemd toolchain-funcs
 
@@ -12,15 +12,18 @@ MY_PV=${PV/_/-}
 S="${WORKDIR}/xen-${MY_PV}"
 
 DESCRIPTION="Xen's xenstore client utility"
-HOMEPAGE="http://xen.org/"
-SRC_URI="http://bits.xensource.com/oss-xen/release/${MY_PV}/xen-${MY_PV}.tar.gz"
+HOMEPAGE="https://www.xenproject.org"
+SRC_URI="https://downloads.xenproject.org/release/xen/${MY_PV}/xen-${MY_PV}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="amd64 ~arm arm64 ~x86"
 IUSE=""
 
-DEPEND="${PYTHON_DEPS}"
+DEPEND="
+	${PYTHON_DEPS}
+	dev-lang/perl
+"
 RDEPEND=""
 
 pkg_setup() {
@@ -44,7 +47,6 @@ pkg_setup() {
 }
 
 src_prepare() {
-	sed -e '/^CFLAGS += -Werror$/d' tools/xenstore/Makefile || die
 	cp "${FILESDIR}"/config.h tools/ || die
 	cp "${FILESDIR}"/Tools.mk config/ || die
 }
@@ -55,21 +57,26 @@ src_configure() {
 
 src_compile() {
 	local opts=(
-		V=1
+		prefix="/usr"
+		libdir="/usr/$(get_libdir)"
+
+		AR="$(tc-getAR)"
+		AWK='awk'
 		CC="$(tc-getCC)"
 		LD="$(tc-getLD)"
-		AR="$(tc-getAR)"
+		PERL='perl'
 		PYTHON="${PYTHON}"
 		RANLIB="$(tc-getRANLIB)"
-		libdir="/usr/$(get_libdir)"
-		)
+	)
 	unset LDFLAGS
 	unset CFLAGS
 	emake "${opts[@]}" -C tools/include all
+	emake "${opts[@]}" -C tools/libs/toolcore all
 	emake "${opts[@]}" -C tools/xenstore clients
 }
 
 src_install() {
+	dolib.so tools/libs/toolcore/libxentoolcore.so*
 	dolib.so tools/xenstore/libxenstore.so*
 	dobin tools/xenstore/xenstore
 
