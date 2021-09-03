@@ -8,6 +8,14 @@ GLSA_WHITELIST=(
 	201909-01 # Perl, SDK only
 	202003-26 # SDK only
 	202005-09 # SDK only
+	202006-03 # perl, SDK only
+	202008-01 # python, SDK only
+	202101-18 # python, SDK only
+	202104-04 # python, SDK only
+	202105-22 # samba, not affected, samba has no ldap flag, no smbd.
+	202105-34 # bash, non-trivial
+	202107-31 # polkit, in-progress
+	202107-48 # systemd, backported fixes to v247.
 )
 
 glsa_image() {
