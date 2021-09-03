@@ -10,11 +10,13 @@ CROS_WORKON_REPO="git://github.com"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	CROS_WORKON_COMMIT="36c9ebb5efff1f63f7d3e9380c738ece1af5c798" # flatcar-master
+	CROS_WORKON_COMMIT="82c6f3c45411e1d9254fb664f14ece39cdbf2f54" # flatcar-master
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
-inherit cros-workon systemd
+PYTHON_COMPAT=( python3_6 )
+
+inherit cros-workon systemd python-any-r1
 
 DESCRIPTION="Init scripts for CoreOS"
 HOMEPAGE="http://www.coreos.com/"
@@ -32,7 +34,7 @@ DEPEND="
 	net-misc/openssh
 	net-nds/rpcbind
 	!coreos-base/oem-service
-	test? ( dev-lang/python:2.7 )
+	test? ( ${PYTHON_DEPS} )
 	"
 RDEPEND="${DEPEND}
 	app-admin/logrotate
