@@ -5,21 +5,17 @@
 GLSA_WHITELIST=(
 	201412-09 # incompatible CA certificate version numbers
 	201908-14 # backported both CVE fixes
-	201904-13 # git
 	201909-01 # Perl, SDK only
-	201909-08 # backported fix
-	201911-01 # package too old to even have the affected USE flag
-	202003-20 # backported fix
-	202003-12 # only applies to old, already-fixed CVEs
-	202003-24 # SDK only
 	202003-26 # SDK only
-	202003-30 # fixed by updating within older minor release
-	202003-31 # SDK only
-	202003-52 # difficult to update :-(
-	202004-10 # fixed by updating within older minor release
-	202004-13 # fixed by updating within older minor release
-	202005-02 # SDK only
 	202005-09 # SDK only
+	202006-03 # perl, SDK only
+	202008-01 # python, SDK only
+	202101-18 # python, SDK only
+	202104-04 # python, SDK only
+	202105-22 # samba, not affected, samba has no ldap flag, no smbd.
+	202105-34 # bash, non-trivial
+	202107-31 # polkit, in-progress
+	202107-48 # systemd, backported fixes to v247.
 )
 
 glsa_image() {
