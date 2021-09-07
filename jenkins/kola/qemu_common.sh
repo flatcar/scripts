@@ -12,11 +12,35 @@ else
   echo "Unknown platform: \"${PLATFORM}\""
 fi
 
-sudo rm -rf *.tap src/scripts/_kola_temp tmp _kola_temp*
-
-enter() {
-  bin/cork enter --bind-gpg-agent=false -- "$@"
+native_arm64() {
+  [[ "${NATIVE_ARM64}" == true ]]
 }
+
+sudo rm -rf *.tap src/scripts/_kola_temp tmp _kola_temp* _tmp
+
+if native_arm64 ; then
+  # for kola reflinking
+  sudo rm -rf /var/tmp
+  mkdir -p _tmp
+  chmod 1777 _tmp
+  ln -s "$PWD/_tmp" /var/tmp
+  # use arm64 mantle bins
+  rm -rf bin
+  mv bin.arm64 bin
+  # simulate SDK folder structure
+  mkdir -p src
+  ln -s .. src/scripts
+  sudo rm -f chroot
+  ln -s / chroot
+
+  enter() {
+    "$@"
+  }
+else
+  enter() {
+    bin/cork enter --bind-gpg-agent=false -- "$@"
+  }
+fi
 
 # Set up GPG for verifying tags.
 export GNUPGHOME="${PWD}/.gnupg"
@@ -30,13 +54,24 @@ mkdir -p --mode=0700 "${GNUPGHOME}/private-keys-v1.d/"
 
 DOWNLOAD_ROOT_SDK="https://storage.googleapis.com${SDK_URL_PATH}"
 
-bin/cork update \
-    --create --downgrade-replace --verify --verify-signature --verbose \
-    --sdk-url-path "${SDK_URL_PATH}" \
-    --force-sync \
-    --manifest-branch "refs/tags/${MANIFEST_TAG}" \
-    --manifest-name "${MANIFEST_NAME}" \
-    --manifest-url "${MANIFEST_URL}" -- --dev_builds_sdk="${DOWNLOAD_ROOT_SDK}"
+if native_arm64 ; then
+  mkdir -p .repo/
+  if [ ! -e .repo/manifests ]; then
+    mkdir -p ~/.ssh
+    ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+    git clone "${MANIFEST_URL}" .repo/manifests
+  fi
+  git -C .repo/manifests tag -v "${MANIFEST_TAG}"
+  git -C .repo/manifests checkout "${MANIFEST_TAG}"
+else
+  bin/cork update \
+      --create --downgrade-replace --verify --verify-signature --verbose \
+      --sdk-url-path "${SDK_URL_PATH}" \
+      --force-sync \
+      --manifest-branch "refs/tags/${MANIFEST_TAG}" \
+      --manifest-name "${MANIFEST_NAME}" \
+      --manifest-url "${MANIFEST_URL}" -- --dev_builds_sdk="${DOWNLOAD_ROOT_SDK}"
+fi
 source .repo/manifests/version.txt
 
 [ -s verify.asc ] && verify_key=--verify-key=verify.asc || verify_key=
@@ -51,7 +86,7 @@ bin/cork download-image \
 enter lbunzip2 -k -f /mnt/host/source/tmp/flatcar_production_image.bin.bz2
 
 # create folder to handle case where arm64 is missing
-sudo mkdir -p chroot/usr/lib/kola/arm64
+sudo mkdir -p chroot/usr/lib/kola/{arm64,amd64}
 # copy all of the latest mantle binaries into the chroot
 sudo cp -t chroot/usr/lib/kola/arm64 bin/arm64/*
 sudo cp -t chroot/usr/lib/kola/amd64 bin/amd64/*
