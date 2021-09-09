@@ -104,3 +104,9 @@ dev-util/checkbashisms
 =dev-libs/libgcrypt-1.9.3 ~amd64 ~arm64
 
 =net-libs/libnftnl-1.2.0 ~amd64 ~arm64
+
+# We need 2.3.2, but it still marked as unstable on arm64. Can't
+# update the package to a newer revision from gentoo (where it is
+# already stabilised for both amd64 and arm64) until we move off from
+# python3.6.
+=sys-libs/talloc-2.3.2 ~amd64 ~arm64
