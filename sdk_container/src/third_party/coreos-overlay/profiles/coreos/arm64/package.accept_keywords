@@ -27,7 +27,6 @@ app-misc/editor-wrapper *
 =dev-perl/Text-Unidecode-1.270.0 ~arm64
 
 # needed by arm64-native SDK
-=dev-python/configparser-3.5.0 *
 =dev-python/ctypesgen-0_p72-r1 *
 
 =dev-python/flake8-2.5.4 ~arm64
