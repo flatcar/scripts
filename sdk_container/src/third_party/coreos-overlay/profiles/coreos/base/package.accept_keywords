@@ -15,9 +15,6 @@
 # dev-libs/openssl-3.0.0 is still in testing phase at this point
 =dev-libs/openssl-3.0.0 ~amd64 ~arm64
 
-# Needed by coreos-oem-gce
-dev-python/boto ~amd64 ~arm64
-
 # no version marked stable upstream
 dev-util/checkbashisms
 
