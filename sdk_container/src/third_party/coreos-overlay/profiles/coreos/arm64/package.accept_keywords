@@ -46,7 +46,6 @@ dev-python/pep8 ~arm64
 
 # needed by arm64-native SDK
 =dev-python/pyflakes-0.8.1 *
-=dev-python/pylint-1.6.5-r1 *
 =dev-python/wrapt-1.10.5 *
 dev-util/checkbashisms *
 
