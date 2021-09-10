@@ -29,9 +29,6 @@ app-misc/editor-wrapper *
 # needed by arm64-native SDK
 =dev-python/ctypesgen-0_p72-r1 *
 
-# needed by arm64-native SDK
-=dev-python/lazy-object-proxy-1.2.1 *
-
 =dev-python/mako-1.0.3 ~arm64
 
 # needed by arm64-native SDK
