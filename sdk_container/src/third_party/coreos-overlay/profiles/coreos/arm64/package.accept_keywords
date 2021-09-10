@@ -32,7 +32,6 @@ app-misc/editor-wrapper *
 =dev-python/flake8-2.5.4 ~arm64
 
 # needed by arm64-native SDK
-=dev-python/isort-4.2.5 *
 =dev-python/lazy-object-proxy-1.2.1 *
 
 =dev-python/mako-1.0.3 ~arm64
