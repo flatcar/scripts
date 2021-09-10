@@ -30,7 +30,6 @@ app-misc/editor-wrapper *
 =dev-python/ctypesgen-0_p72-r1 *
 
 # needed by arm64-native SDK
-=dev-python/wrapt-1.10.5 *
 dev-util/checkbashisms *
 
 =dev-util/ninja-1.8.2 ~arm64
