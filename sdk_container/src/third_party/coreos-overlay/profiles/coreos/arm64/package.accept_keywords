@@ -29,8 +29,6 @@ app-misc/editor-wrapper *
 # needed by arm64-native SDK
 =dev-python/ctypesgen-0_p72-r1 *
 
-=dev-python/mako-1.0.3 ~arm64
-
 # needed by arm64-native SDK
 =dev-python/mccabe-0.2.1 *
 
