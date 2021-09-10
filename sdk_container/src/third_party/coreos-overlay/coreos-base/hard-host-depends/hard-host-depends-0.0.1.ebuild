@@ -32,7 +32,7 @@ RDEPEND="${RDEPEND}
 	app-arch/sharutils
 	app-arch/unzip
 	app-emulation/qemu
-	=dev-lang/python-2*
+	=dev-lang/python-3*
 	dev-python/setuptools
 	dev-lang/nasm
 	dev-lang/swig
