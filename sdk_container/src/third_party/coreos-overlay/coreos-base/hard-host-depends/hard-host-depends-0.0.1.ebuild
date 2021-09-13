@@ -48,7 +48,6 @@ RDEPEND="${RDEPEND}
 	dev-libs/libyaml
 	dev-libs/nspr
 	dev-libs/protobuf
-	dev-python/ctypesgen
 	dev-python/mako
 	sys-devel/bc
 	dev-util/gdbus-codegen
