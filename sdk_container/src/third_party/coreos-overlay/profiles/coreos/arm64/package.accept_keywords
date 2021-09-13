@@ -91,7 +91,6 @@ sys-apps/debianutils *
 =sys-fs/lsscsi-0.28 ~arm64
 =sys-fs/quota-4.04-r1 ~arm64
 =sys-libs/efivar-31 ~arm64
-=sys-libs/libcap-ng-0.7.8 ~arm64
 =sys-libs/libselinux-3.1-r1 ~arm64
 =sys-libs/libsemanage-3.1-r1 ~arm64
 =sys-libs/libsepol-3.1 ~arm64
