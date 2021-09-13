@@ -59,8 +59,6 @@ sys-apps/dtc ~arm64
 # needed by arm64-native SDK
 sys-apps/debianutils *
 
-=sys-apps/i2c-tools-3.1.1-r1 ~arm64
-
 # needed to force enable lshw for arm64
 =sys-apps/lshw-02.17b-r2 **
 
