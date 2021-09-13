@@ -27,9 +27,6 @@ app-misc/editor-wrapper *
 =dev-perl/Text-Unidecode-1.270.0 ~arm64
 
 # needed by arm64-native SDK
-=dev-python/ctypesgen-0_p72-r1 *
-
-# needed by arm64-native SDK
 dev-util/checkbashisms *
 
 =dev-util/ninja-1.8.2 ~arm64
