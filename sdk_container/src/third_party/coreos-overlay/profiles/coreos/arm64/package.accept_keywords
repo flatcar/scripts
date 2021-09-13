@@ -29,8 +29,6 @@ app-misc/editor-wrapper *
 # needed by arm64-native SDK
 dev-util/checkbashisms *
 
-=dev-util/ninja-1.8.2 ~arm64
-
 # needed by arm64-native SDK
 dev-util/patchelf *
 
