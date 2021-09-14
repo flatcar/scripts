@@ -40,6 +40,8 @@ function generate_patches() {
   CATEGORY_NAME=$1
   PKGNAME_SIMPLE=$2
   PKGNAME_DESC=$3
+  shift 3
+  local dir
 
   pushd "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" >/dev/null || exit
 
@@ -48,6 +50,9 @@ function generate_patches() {
   # We can only create the actual commit in the actual source directory, not under the SDK.
   # So create a format-patch, and apply to the actual source.
   git add ${CATEGORY_NAME}/${PKGNAME_SIMPLE}
+  for dir in "$@"; do
+      git add "${dir}"
+  done
   git commit -a -m "${CATEGORY_NAME}: Upgrade ${PKGNAME_DESC} ${VERSION_OLD} to ${VERSION_NEW}"
 
   # Create a patch for the main ebuilds.
