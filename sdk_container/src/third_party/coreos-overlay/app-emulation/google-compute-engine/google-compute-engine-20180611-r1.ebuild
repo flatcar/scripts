@@ -31,9 +31,9 @@ RDEPEND="
 S="${WORKDIR}/compute-image-packages-${PV}"
 
 src_compile() {
-	(cd "${S}" && exec python setup.py build)
+	(cd "${S}" && exec python3 setup.py build)
 }
 
 src_install() {
-	(cd "${S}" && exec python setup.py install -O1 --skip-build --root "${D}")
+	(cd "${S}" && exec python3 setup.py install -O1 --skip-build --root "${D}")
 }
