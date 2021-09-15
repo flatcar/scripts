@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{7..9} )
+PYTHON_COMPAT=( python3_6 )
 
 inherit bash-completion-r1 check-reqs estack flag-o-matic llvm multiprocessing \
 	multilib-build python-any-r1 rust-toolchain toolchain-funcs verify-sig
@@ -263,6 +263,10 @@ src_configure() {
 			sed -i '/linker:/ s/rust-lld/wasm-ld/' compiler/rustc_target/src/spec/wasm_base.rs || die
 		fi
 	fi
+	# Auto-enable cross-building only if the cross-compiler is available
+	if [ "${CBUILD}" != "aarch64-unknown-linux-gnu" ] && [ -f /usr/bin/aarch64-cros-linux-gnu-gcc ]; then
+		rust_targets="${rust_targets},\"aarch64-unknown-linux-gnu\""
+	fi
 	rust_targets="${rust_targets#,}"
 
 	local tools="\"cargo\","
@@ -395,6 +399,29 @@ src_configure() {
 			_EOF_
 		fi
 	done
+	# Could soon be replaced by the "experimental cross support" below
+	if [ "${CBUILD}" != "aarch64-unknown-linux-gnu" ] && [ -f /usr/bin/aarch64-cros-linux-gnu-gcc ]; then
+		cat <<- 'EOF' > "${S}/cc.sh"
+			#!/bin/bash
+			args=("$@")
+			filtered=()
+			for i in "${args[@]}"; do
+			  if [ "$i" != "-mindirect-branch-register" ] && [ "$i" != "-mindirect-branch=thunk" ]; then
+			    filtered+=("$i")
+			  fi
+			done
+			aarch64-cros-linux-gnu-gcc --sysroot=/usr/aarch64-cros-linux-gnu "${filtered[@]}"
+		EOF
+		sed 's/gcc/g++/g' "${S}/cc.sh" > "${S}/cxx.sh"
+		chmod +x "${S}/cc.sh" "${S}/cxx.sh"
+		cat <<- EOF >> "${S}"/config.toml
+			[target.aarch64-unknown-linux-gnu]
+			cc = "${S}/cc.sh"
+			cxx = "${S}/cxx.sh"
+			linker = "${S}/cc.sh"
+			ar = "aarch64-cros-linux-gnu-ar"
+		EOF
+	fi
 	if use wasm; then
 		cat <<- _EOF_ >> "${S}"/config.toml
 			[target.wasm32-unknown-unknown]
