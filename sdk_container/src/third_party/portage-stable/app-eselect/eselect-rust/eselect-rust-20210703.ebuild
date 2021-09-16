@@ -1,18 +1,19 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
 
+inherit autotools
 if [[ ${PV} == "99999999" ]] ; then
-	inherit autotools git-r3
-	EGIT_REPO_URI="git://anongit.gentoo.org/proj/${PN}.git"
+	inherit git-r3
+	EGIT_REPO_URI="https://anongit.gentoo.org/git/proj/${PN}.git"
 else
-	SRC_URI="mirror://gentoo/${P}.tar.bz2"
-	KEYWORDS="amd64 ~arm64 ~ppc64 x86"
+	SRC_URI="https://gitweb.gentoo.org/proj/${PN}.git/snapshot/${P}.tar.bz2"
+	KEYWORDS="amd64 arm arm64 ~ppc ppc64 ~riscv x86"
 fi
 
 DESCRIPTION="Eselect module for management of multiple Rust versions"
-HOMEPAGE="https://wiki.gentoo.org/wiki/Project:Rust"
+HOMEPAGE="https://gitweb.gentoo.org/proj/eselect-rust.git"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -22,7 +23,7 @@ RDEPEND=">=app-admin/eselect-1.2.3"
 
 src_prepare() {
 	default
-	[[ ${PV} == "99999999" ]] && eautoreconf
+	eautoreconf
 }
 
 pkg_postinst() {
