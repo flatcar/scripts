@@ -4,9 +4,8 @@
 EAPI=7
 
 AT_M4DIR="config"
-PYTHON_COMPAT=( python3_{7,8,9} )
-DISTUTILS_OPTIONAL=1
-inherit autotools distutils-r1
+
+inherit autotools
 
 DESCRIPTION="simplified, portable interface to several low-level networking routines"
 HOMEPAGE="https://github.com/ofalk/libdnet"
@@ -16,16 +15,13 @@ S="${WORKDIR}/${PN}-${P}"
 LICENSE="LGPL-2"
 SLOT="0"
 KEYWORDS="~alpha amd64 arm ~arm64 ~hppa ~ia64 ~mips ppc ppc64 ~riscv sparc x86"
-IUSE="python test"
-REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
+IUSE="test"
+REQUIRED_USE=""
 RESTRICT="!test? ( test )"
 
-DEPEND="python? ( ${PYTHON_DEPS} )"
+DEPEND=""
 RDEPEND="${DEPEND}"
 BDEPEND="
-	python? (
-		dev-python/cython[${PYTHON_USEDEP}]
-	)
 "
 
 DOCS=( README.md THANKS )
@@ -50,35 +46,19 @@ src_prepare() {
 		Makefile.am || die
 
 	eautoreconf
-
-	if use python; then
-		cd python || die
-		distutils-r1_src_prepare
-	fi
 }
 
 src_configure() {
+	# Install into OEM, don't bother with a sbin directory.
 	econf \
+		--prefix=/usr/share/oem \
+		--sbindir=/usr/share/oem/bin \
 		--disable-static \
-		$(use_with python)
-}
-
-src_compile() {
-	default
-	if use python; then
-		cd python || die
-		distutils-r1_src_compile
-	fi
+		--without-python
 }
 
 src_install() {
 	default
-
-	if use python; then
-		cd python || die
-		unset DOCS
-		distutils-r1_src_install
-	fi
 
 	find "${ED}" -name '*.la' -delete || die
 }
