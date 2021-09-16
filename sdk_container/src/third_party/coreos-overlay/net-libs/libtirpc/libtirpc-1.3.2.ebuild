@@ -1,48 +1,39 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="5"
+EAPI=7
 
-inherit autotools multilib-minimal toolchain-funcs eutils
+inherit multilib-minimal usr-ldscript
 
 DESCRIPTION="Transport Independent RPC library (SunRPC replacement)"
-HOMEPAGE="http://libtirpc.sourceforge.net/"
+HOMEPAGE="https://sourceforge.net/projects/libtirpc/"
 SRC_URI="mirror://sourceforge/${PN}/${P}.tar.bz2
 	mirror://gentoo/${PN}-glibc-nfs.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0/3" # subslot matches SONAME major
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-linux ~arm-linux ~x86-linux"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux"
 IUSE="ipv6 kerberos static-libs"
 
 RDEPEND="kerberos? ( >=virtual/krb5-0-r1[${MULTILIB_USEDEP}] )"
 DEPEND="${RDEPEND}
+	elibc_musl? ( sys-libs/queue-standalone )"
+BDEPEND="
 	app-arch/xz-utils
-	>=virtual/pkgconfig-0-r1[${MULTILIB_USEDEP}]"
-
-PATCHES=(
-	"${FILESDIR}/${PN}-1.0.2-bcopy-to-memmove.patch"
-	"${FILESDIR}/${PN}-1.0.2-bzero-to-memset.patch"
-	"${FILESDIR}/${PN}-1.0.2-glibc-2.26.patch"
-	"${FILESDIR}/${PN}-1.0.2-exports.patch"
-)
+	virtual/pkgconfig"
 
 src_prepare() {
 	cp -r "${WORKDIR}"/tirpc "${S}"/ || die
-	epatch "${PATCHES[@]}"
-	epatch_user
-	eautoreconf
-
-	# COREOS: Set netconfig path to /usr so NFS works in PXE/ISO-booted systems.
-	sed -i -e "s,/etc,/usr/share/tirpc," "${S}/tirpc/netconfig.h" || die
+	default
 }
 
 multilib_src_configure() {
-	ECONF_SOURCE=${S} \
-	econf \
-		$(use_enable ipv6) \
-		$(use_enable kerberos gssapi) \
+	local myeconfargs=(
+		$(use_enable ipv6)
+		$(use_enable kerberos gssapi)
 		$(use_enable static-libs static)
+	)
+	ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
 }
 
 multilib_src_install() {
@@ -55,7 +46,7 @@ multilib_src_install() {
 multilib_src_install_all() {
 	einstalldocs
 
-	insinto /usr/share/tirpc
+	insinto /etc
 	doins doc/netconfig
 
 	insinto /usr/include/tirpc
@@ -63,5 +54,7 @@ multilib_src_install_all() {
 
 	# makes sure that the linking order for nfs-utils is proper, as
 	# libtool would inject a libgssglue dependency in the list.
-	use static-libs || prune_libtool_files
+	if ! use static-libs ; then
+		find "${ED}" -name "*.la" -delete || die
+	fi
 }
