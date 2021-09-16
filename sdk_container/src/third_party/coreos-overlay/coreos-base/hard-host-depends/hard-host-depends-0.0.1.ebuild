@@ -1,7 +1,7 @@
 # Copyright (c) 2009 The Chromium OS Authors. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=2
+EAPI=7
 
 DESCRIPTION="List of packages that are needed on the buildhost (meta package)"
 HOMEPAGE="http://src.chromium.org"
