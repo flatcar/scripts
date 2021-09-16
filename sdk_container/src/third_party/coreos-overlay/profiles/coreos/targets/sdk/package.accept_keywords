@@ -1,7 +1,3 @@
-# Accept unstable host Rust compilers
-dev-lang/rust ~amd64
-virtual/cargo ~amd64
-virtual/rust ~amd64
 
 # Accept perl libs required to build >=samba-4.12
 dev-perl/Parse-Yapp ~amd64 ~arm64

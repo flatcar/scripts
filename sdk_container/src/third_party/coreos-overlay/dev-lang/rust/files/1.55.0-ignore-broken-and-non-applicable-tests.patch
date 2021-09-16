@@ -21,10 +21,11 @@ diff --git a/src/test/codegen/sparc-struct-abi.rs b/src/test/codegen/sparc-struc
 index 78e5b14a212..6f93e93286b 100644
 --- a/src/test/codegen/sparc-struct-abi.rs
 +++ b/src/test/codegen/sparc-struct-abi.rs
-@@ -4,6 +4,7 @@
+@@ -2,6 +2,7 @@
  
  // only-sparc64
  // compile-flags: -O --target=sparc64-unknown-linux-gnu --crate-type=rlib
+ // needs-llvm-components: sparc
 +// ignore-test
  #![feature(no_core, lang_items)]
  #![no_core]

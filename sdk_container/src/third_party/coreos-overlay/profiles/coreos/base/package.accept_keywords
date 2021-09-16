@@ -82,7 +82,9 @@ dev-util/checkbashisms
 
 =coreos-devel/fero-client-0.1.1 **
 
-=dev-lang/rust-1.46.0 ~amd64 ~arm64
+# Accept unstable host Rust compilers
+=virtual/rust-1.55.0 ~amd64 ~arm64
+=dev-lang/rust-1.55.0 ~amd64 ~arm64
 
 =sys-fs/cryptsetup-2.0.3 ~amd64
 

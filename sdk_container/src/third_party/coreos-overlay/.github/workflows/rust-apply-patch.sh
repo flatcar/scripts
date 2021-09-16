@@ -21,7 +21,7 @@ if [[ "${VERSION_NEW}" = "${VERSION_OLD}" ]]; then
 fi
 
 # replace rust version in profiles/, e.g. package.accept_keywords.
-find profiles -name 'package.*' | xargs sed -i "s/=dev-lang\/rust-${VERSION_OLD}/=dev-lang\/rust-${VERSION_NEW}/"
+find profiles -name 'package.*' | xargs sed -i "s/=dev-lang\/rust-\S\+/=dev-lang\/rust-${VERSION_NEW}/"
 
 pushd "dev-lang/rust" >/dev/null || exit
 git mv $(ls -1 rust-${VERSION_OLD}.ebuild) "rust-${VERSION_NEW}.ebuild"
@@ -29,7 +29,7 @@ popd >/dev/null || exit
 
 popd >/dev/null || exit
 
-generate_patches dev-lang rust dev-lang/rust
+generate_patches dev-lang rust dev-lang/rust profiles
 
 apply_patches
 
