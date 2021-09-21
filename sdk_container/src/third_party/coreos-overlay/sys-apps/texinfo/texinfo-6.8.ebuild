@@ -7,7 +7,7 @@
 
 EAPI=7
 
-inherit flag-o-matic toolchain-funcs
+inherit autotools flag-o-matic toolchain-funcs
 
 DESCRIPTION="The GNU info program and utilities"
 HOMEPAGE="https://www.gnu.org/software/texinfo/"
@@ -34,6 +34,7 @@ BDEPEND="nls? ( >=sys-devel/gettext-0.19.6 )"
 
 PATCHES=(
 	"${FILESDIR}/${P}-undo-gnulib-nonnul.patch"
+	"${FILESDIR}/flatcar-modifications.patch"
 )
 
 src_prepare() {
@@ -43,6 +44,8 @@ src_prepare() {
 		sed -i -e '1c\#!/usr/bin/env sh' util/texi2dvi util/texi2pdf || die
 		touch doc/{texi2dvi,texi2pdf,pdftexi2dvi}.1
 	fi
+
+	eautoreconf
 }
 
 src_configure() {
