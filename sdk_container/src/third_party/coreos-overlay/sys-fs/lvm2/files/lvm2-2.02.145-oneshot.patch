@@ -1,0 +1,12 @@
+diff -ur LVM2.2.02.145/scripts/lvm2_activation_generator_systemd_red_hat.c LVM2.2.02.145-patch/scripts/lvm2_activation_generator_systemd_red_hat.c
+--- LVM2.2.02.145/scripts/lvm2_activation_generator_systemd_red_hat.c	2016-03-04 19:03:29.000000000 +0100
++++ LVM2.2.02.145-patch/scripts/lvm2_activation_generator_systemd_red_hat.c	2020-07-28 18:15:35.766505354 +0200
+@@ -153,7 +153,7 @@
+ 	fputs("ExecStart=" LVM_PATH " vgchange -aay --ignoreskippedcluster", f);
+ 	if (sysinit_needed)
+ 		fputs (" --sysinit", f);
+-	fputs("\nType=oneshot\n", f);
++	fputs("\nType=oneshot\nRemainAfterExit=yes\n", f);
+ 
+ 	if (fclose(f) < 0) {
+ 		kmsg(LOG_ERR, "LVM: Failed to write unit file %s: %m.\n", unit_name);
