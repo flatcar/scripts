@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit toolchain-funcs linux-info multilib-minimal usr-ldscript
+inherit toolchain-funcs linux-info multilib-minimal usr-ldscript systemd
 
 DESCRIPTION="Linux Key Management Utilities"
 HOMEPAGE="https://git.kernel.org/pub/scm/linux/kernel/git/dhowells/keyutils.git"
@@ -25,6 +25,8 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-1.5.10-disable-tests.patch #519062 #522050
 	"${FILESDIR}"/${PN}-1.5.9-header-extern-c.patch
 )
+
+MAKEOPTS+=" ETCDIR=/usr/share/keyutils"
 
 pkg_setup() {
 	# To prevent a failure in test phase and false positive bug reports
@@ -110,11 +112,15 @@ multilib_src_test() {
 }
 
 multilib_src_install() {
+	systemd_dotmpfilesd "${FILESDIR}/tmpfiles.d/keyutils.conf"
 	# Possibly undo the setting for USE=static (see src_compile).
 	export NO_ARLIB=$(usex static-libs 0 1)
 
 	default
 	use static || gen_usr_ldscript -a keyutils
+	dosym ../usr/share/keyutils/request-key.conf /etc/request-key.conf
+	dodir /etc/request-key.d
+	dodir /etc/keyutils
 }
 
 multilib_src_install_all() {
