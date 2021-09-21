@@ -5,7 +5,7 @@
 # $Header:$
 #
 
-EAPI=5
+EAPI=7
 
 DESCRIPTION="oem suite for rackspace images"
 HOMEPAGE=""
@@ -24,6 +24,7 @@ RDEPEND="
 S="${WORKDIR}"
 
 src_prepare() {
+	default
 	sed -e "s\\@@OEM_VERSION_ID@@\\${PVR}\\g" \
 	    "${FILESDIR}/cloud-config.yml" > "${T}/cloud-config.yml" || die
 }

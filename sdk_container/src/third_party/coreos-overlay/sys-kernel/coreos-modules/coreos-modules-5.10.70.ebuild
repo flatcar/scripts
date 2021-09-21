@@ -1,7 +1,7 @@
 # Copyright 2014-2016 CoreOS, Inc.
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 COREOS_SOURCE_REVISION=""
 inherit coreos-kernel savedconfig
 
@@ -10,6 +10,7 @@ KEYWORDS="amd64 arm64"
 RDEPEND="!<sys-kernel/coreos-kernel-4.6.3-r1"
 
 src_prepare() {
+	default
 	restore_config build/.config
 	if [[ ! -f build/.config ]]; then
 		local archconfig="$(find_archconfig)"

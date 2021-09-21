@@ -1,10 +1,9 @@
 # Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 CROS_WORKON_PROJECT="flatcar-linux/update_engine"
 CROS_WORKON_REPO="git://github.com"
-AUTOTOOLS_AUTORECONF=1
 
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
@@ -13,7 +12,7 @@ else
 	KEYWORDS="amd64 arm64"
 fi
 
-inherit autotools-utils flag-o-matic toolchain-funcs cros-workon systemd
+inherit autotools flag-o-matic toolchain-funcs cros-workon systemd
 
 DESCRIPTION="CoreOS OS Update Engine"
 HOMEPAGE="https://github.com/coreos/update_engine"
@@ -42,6 +41,11 @@ DEPEND="dev-cpp/gtest
 	${BDEPEND}
 	${RDEPEND}"
 
+src_prepare() {
+	default
+	eautoreconf
+}
+
 src_configure() {
 	# Disable PIE when building for the SDK, this works around a bug that
 	# breaks using delta_generator from the update.zip bundle.
@@ -55,24 +59,24 @@ src_configure() {
 	# Work around new gdbus-codegen output.
 	append-flags -Wno-unused-function
 
-	local myeconfargs=(
+	local myconf=(
 		$(use_enable cros-debug debug)
 		$(use_enable delta_generator)
 	)
 
-	autotools-utils_src_configure
+	econf "${myconf[@]}"
 }
 
 src_test() {
 	if use cros_host; then
-		autotools-utils_src_test
+		default
 	else
 		ewarn "Skipping tests on cross-compiled target platform..."
 	fi
 }
 
 src_install() {
-	autotools-utils_src_install
+	default
 
 	if use symlink-usr; then
 		dosym sbin/flatcar-postinst /usr/postinst

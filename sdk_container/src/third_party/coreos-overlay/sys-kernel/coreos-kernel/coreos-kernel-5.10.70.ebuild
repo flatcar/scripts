@@ -1,7 +1,7 @@
 # Copyright 2014-2016 CoreOS, Inc.
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 COREOS_SOURCE_REVISION=""
 inherit coreos-kernel
 
@@ -55,21 +55,22 @@ pkg_setup() {
 }
 
 src_prepare() {
+	default
 	# KV_OUT_DIR points to the minimal build tree installed by coreos-modules
 	# Pull in the config and public module signing key
-	KV_OUT_DIR="${ROOT%/}/lib/modules/${COREOS_SOURCE_NAME#linux-}/build"
+	KV_OUT_DIR="${SYSROOT%/}/lib/modules/${COREOS_SOURCE_NAME#linux-}/build"
 	cp -v "${KV_OUT_DIR}/.config" build/ || die
 	local sig_key="$(getconfig MODULE_SIG_KEY)"
 	mkdir -p "build/${sig_key%/*}" || die
 	cp -v "${KV_OUT_DIR}/${sig_key}" "build/${sig_key}" || die
 
 	# Symlink to bootengine.cpio so we can stick with relative paths in .config
-	ln -sv "${ROOT}"/usr/share/bootengine/bootengine.cpio build/ || die
+	ln -sv "${SYSROOT%/}"/usr/share/bootengine/bootengine.cpio build/ || die
 	config_update 'CONFIG_INITRAMFS_SOURCE="bootengine.cpio"'
 	config_update 'CONFIG_INITRAMFS_COMPRESSION_ZSTD=y'
 
 	# include all intel and amd microcode files, avoiding the signatures
-	local fw_dir="${ROOT}lib/firmware"
+	local fw_dir="${SYSROOT%/}/lib/firmware"
 	use amd64 && config_update "CONFIG_EXTRA_FIRMWARE=\"$(find ${fw_dir} -type f \
 		\( -path ${fw_dir}'/intel-ucode/*' -o -path ${fw_dir}'/amd-ucode/*' \) -printf '%P ')\""
 	use amd64 && config_update "CONFIG_EXTRA_FIRMWARE_DIR=\"${fw_dir}\""

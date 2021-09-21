@@ -1,7 +1,7 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="5"
+EAPI=7
 CROS_WORKON_PROJECT="flatcar-linux/baselayout"
 CROS_WORKON_LOCALNAME="baselayout"
 CROS_WORKON_REPO="git://github.com"
@@ -13,7 +13,7 @@ else
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
-inherit cros-workon eutils multilib systemd
+inherit cros-workon multilib systemd
 
 DESCRIPTION="Filesystem baselayout for CoreOS"
 HOMEPAGE="http://www.coreos.com/"

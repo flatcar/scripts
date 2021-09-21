@@ -1,7 +1,7 @@
 # Copyright (c) 2013 CoreOS, Inc.. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 
 DESCRIPTION="OEM suite for EC2 compatible images"
 HOMEPAGE=""
@@ -25,6 +25,7 @@ RDEPEND="
 S="${WORKDIR}"
 
 src_prepare() {
+	default
 	if use ec2 || use aws_pro ; then
 		ID="ami"
 		if use ec2; then

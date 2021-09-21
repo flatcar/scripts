@@ -1,7 +1,7 @@
 # Copyright (c) 2014 NIFTY Corp.. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 
 DESCRIPTION="OEM suite for NIFTY Cloud images"
 HOMEPAGE=""
@@ -21,6 +21,7 @@ DEPEND="
 RDEPEND="${DEPEND}"
 
 src_prepare() {
+	default
 	sed -e "s\\@@OEM_VERSION_ID@@\\${PVR}\\g" \
 	    "${FILESDIR}/cloud-config.yml" > "${T}/cloud-config.yml" || die
 }

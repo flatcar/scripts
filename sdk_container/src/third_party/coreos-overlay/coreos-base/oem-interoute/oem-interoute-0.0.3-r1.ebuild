@@ -5,7 +5,7 @@
 # $Header:$
 #
 
-EAPI=5
+EAPI=7
 
 DESCRIPTION="OEM suite for Interoute images"
 HOMEPAGE=""
@@ -25,6 +25,7 @@ RDEPEND="${DEPEND}"
 S="${WORKDIR}"
 
 src_prepare() {
+	default
 	sed -e "s\\@@OEM_VERSION_ID@@\\${PVR}\\g" \
 	    "${FILESDIR}/cloud-config.yml" > "${T}/cloud-config.yml" || die
 }

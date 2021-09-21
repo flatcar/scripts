@@ -1,7 +1,7 @@
 # Copyright (c) 2013 CoreOS Authors. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 CROS_WORKON_PROJECT="flatcar-linux/bootengine"
 CROS_WORKON_LOCALNAME="bootengine"
 CROS_WORKON_OUTOFTREE_BUILD=1
@@ -14,7 +14,7 @@ else
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
-inherit cros-workon cros-debug
+inherit cros-workon
 
 DESCRIPTION="CoreOS Bootengine"
 SRC_URI=""

@@ -1,7 +1,7 @@
 # Copyright 2013 The CoreOS Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 
 DESCRIPTION="OEM suite for login access via Vagrant's ssh key."
 HOMEPAGE=""

@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/app-emulation/xen-tools/xen-tools-4.4.0.ebuild,v 1.3 2014/04/04 01:06:31 idella4 Exp $
 
-EAPI=5
+EAPI=7
 
 PYTHON_COMPAT=( python3_6 )
 
@@ -47,6 +47,7 @@ pkg_setup() {
 }
 
 src_prepare() {
+	default
 	cp "${FILESDIR}"/config.h tools/ || die
 	cp "${FILESDIR}"/Tools.mk config/ || die
 }
