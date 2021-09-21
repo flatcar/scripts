@@ -1,16 +1,13 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
 
-EAPI=5
+EAPI=7
 
-AUTOTOOLS_AUTORECONF=1
-
-inherit autotools-utils systemd
+inherit autotools systemd
 
 DESCRIPTION="DBus service for configuring kerberos and other online identities"
 HOMEPAGE="http://cgit.freedesktop.org/realmd/realmd/"
-SRC_URI="http://www.freedesktop.org/software/realmd/releases/${P}.tar.gz"
+SRC_URI="https://gitlab.freedesktop.org/realmd/realmd/-/archive/${PV}/${P}.tar.gz"
 
 LICENSE="LGPL-2+"
 SLOT="0"
@@ -28,23 +25,28 @@ RDEPEND="${DEPEND}"
 # The daemon is installed to a private dir under /usr/lib, similar to systemd.
 QA_MULTILIB_PATHS="usr/lib/realmd/realmd"
 
+PATCHES=(
+	"${FILESDIR}/${PN}-0.17.0-use-target-arch-pkg-config-to-fix-cross-compilation.patch"
+	"${FILESDIR}/${PN}-0.17.0-put-d-bus-policy-files-in-usr-share.patch"
+)
+
 src_prepare() {
-	sed -e '/gentoo-release/s/dnl/ /g' -i configure.ac
+	default
 
-	epatch "${FILESDIR}"/realmd-0.16.3-fix-krb5-config.patch
-
-	autotools-utils_src_prepare
+	eautoreconf
 }
 
 src_configure() {
-	PKG_CONFIG=/usr/bin/${CHOST}-pkg-config autotools-utils_src_configure \
-		$(use_with systemd systemd-journal) \
-		--with-systemd-unit-dir=$(systemd_get_unitdir) \
-		--with-distro=defaults \
+	local myconf=(
+		$(use_with systemd systemd-journal)
+		--with-systemd-unit-dir=$(systemd_get_systemunitdir)
+		--with-distro=defaults
 		--disable-doc
+	)
+	econf "${myconf[@]}"
 }
 
 src_install() {
 	systemd_dotmpfilesd "${FILESDIR}/tmpfiles.d/${PN}.conf"
-	autotools-utils_src_install DBUS_POLICY_DIR=/usr/share/dbus-1/system.d
+	default
 }
