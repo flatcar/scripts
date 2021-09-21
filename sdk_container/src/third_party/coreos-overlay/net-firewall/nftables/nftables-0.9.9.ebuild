@@ -115,3 +115,7 @@ src_compile() {
 	fi
 }
 
+src_install() {
+	default
+	find "${ED}" -type f -name "*.la" -delete || die
+}
