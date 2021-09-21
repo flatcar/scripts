@@ -41,9 +41,11 @@ BDEPEND="${BUILD_DEPEND}
 	)
 "
 # Flatcar: Drop BUILD_DEPEND, as we would not like to ship
-# eselect in the final image
+# eselect in the final image. Also, drop net-firewall/arptables as we don't 
+# ship arptables
 RDEPEND="${COMMON_DEPEND}
 	nftables? ( net-misc/ethertypes )
+	!<net-firewall/ebtables-2.0.11-r1
 "
 
 PATCHES=(
