@@ -146,7 +146,7 @@ pkg_postinst() {
 	fi
 	# Flatcar: Drop the arptables, but retain the `for` structure in favor of lesser diff
 	# to upstream
-   	if use nftables; then
+	if use nftables; then
 		local tables
 		for tables in ebtables; do
 			if ! eselect ${tables} show &>/dev/null; then
