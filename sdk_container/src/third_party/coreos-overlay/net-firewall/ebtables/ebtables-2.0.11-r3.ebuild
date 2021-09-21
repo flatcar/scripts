@@ -87,9 +87,10 @@ src_install() {
 }
 
 pkg_postinst() {
+	# Flatcar: Use the xtables-nft-multi to use the nft_backend instead of the legacy
 	if ! eselect ebtables show &>/dev/null; then
-		elog "Current ebtables implementation is unset, setting to ebtables-legacy"
-		eselect ebtables set ebtables-legacy
+		elog "Current ebtables implementation is unset, setting to xtables-nft-multi"
+		eselect ebtables set xtables-nft-multi
 	fi
 
 	eselect ebtables show
