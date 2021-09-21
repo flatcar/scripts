@@ -1,13 +1,13 @@
-# /etc/conf.d/ip6tables
+# /etc/conf.d/ebtables
 
-# Location in which iptables initscript will save set rules on 
+# Location in which ebtables initscript will save set rules on 
 # service shutdown
-IP6TABLES_SAVE="/var/lib/ip6tables/rules-save"
+EBTABLES_SAVE="/var/lib/ebtables/rules-save"
 
-# Options to pass to iptables-save and iptables-restore 
-SAVE_RESTORE_OPTIONS="-c"
+# Options to pass to ebtables-save and ebtables-restore 
+SAVE_RESTORE_OPTIONS=""
 
-# Save state on stopping iptables
+# Save state on stopping ebtables
 SAVE_ON_STOP="yes"
 
 # If you need to log iptables messages as soon as iptables starts,

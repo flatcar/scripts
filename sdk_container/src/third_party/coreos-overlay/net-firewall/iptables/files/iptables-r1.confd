@@ -1,6 +1,14 @@
 # /etc/conf.d/iptables
 
-# Location in which iptables initscript will save set rules on 
+# Set wait option for xtables lock in seconds
+# DEFAULT: 60
+#IPTABLES_LOCK_WAIT_TIME="60"
+
+# Set wait interval option for xtables lock in microseconds
+# DEFAULT: 1000
+#IPTABLES_LOCK_WAIT_INTERVAL="1000"
+
+# Location in which iptables initscript will save set rules on
 # service shutdown
 IPTABLES_SAVE="/var/lib/iptables/rules-save"
 
