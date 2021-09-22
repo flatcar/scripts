@@ -34,6 +34,9 @@ USE="${USE} -openmp"
 # The git-r3 eclass now depends on curl support, which is used in catalyst.
 BOOTSTRAP_USE="${BOOTSTRAP_USE} curl"
 
+# Add `minimal` useflag to prevent texinfo to pull dev-lang/perl with not required set of dependencies.
+BOOTSTRAP_USE="${BOOTSTRAP_USE} minimal"
+
 # Set SELinux policy
 POLICY_TYPES="targeted mcs mls"
 
