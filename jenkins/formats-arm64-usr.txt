@@ -1,4 +1,6 @@
 ami_vmdk
+azure
+azure_pro
 openstack
 openstack_mini
 packet
