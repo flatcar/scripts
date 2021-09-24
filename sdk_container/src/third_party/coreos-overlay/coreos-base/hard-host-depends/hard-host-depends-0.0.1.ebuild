@@ -38,8 +38,7 @@ RDEPEND="${RDEPEND}
 	dev-lang/swig
 	dev-lang/yasm
 	dev-lang/go:1.12
-	dev-lang/go:1.15
-	dev-lang/go:1.16
+	dev-lang/go:1.17
 	dev-lang/go-bootstrap
 	dev-lang/tcl
 	dev-libs/dbus-glib

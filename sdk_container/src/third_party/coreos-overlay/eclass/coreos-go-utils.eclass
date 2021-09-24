@@ -95,7 +95,7 @@ go_export() {
 	# Ensure the `go` wrapper calls the version we expect
 	export EGO="${COREOS_GO_VERSION}"
 
-	# With Go 1.16, GO111MODULE=on is set by default.
+	# With Go >= 1.16, GO111MODULE=on is set by default.
 	# Few of our repos still don't support Go modules so we would need to set
 	# GO111MODULE=off for those packages.
 	if [[ "${COREOS_GO_GO111MODULE}" == "off" ]]; then

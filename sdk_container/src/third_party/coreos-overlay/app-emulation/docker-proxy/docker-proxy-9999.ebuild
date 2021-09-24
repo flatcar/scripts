@@ -5,7 +5,7 @@ EAPI=6
 EGO_PN="github.com/docker/libnetwork"
 
 COREOS_GO_PACKAGE="${EGO_PN}"
-COREOS_GO_VERSION="go1.16"
+COREOS_GO_VERSION="go1.17"
 COREOS_GO_GO111MODULE="off"
 
 if [[ ${PV} == *9999 ]]; then
