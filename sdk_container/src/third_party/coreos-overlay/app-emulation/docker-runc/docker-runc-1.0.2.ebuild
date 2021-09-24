@@ -42,9 +42,9 @@ PATCHES=(
 
 src_compile() {
 	# Taken from app-emulation/docker-1.7.0-r1
-	export CGO_CFLAGS="-I${ROOT}/usr/include"
+	export CGO_CFLAGS="-I${SYSROOT}/usr/include"
 	export CGO_LDFLAGS="$(usex hardened '-fno-PIC ' '')
-		-L${ROOT}/usr/$(get_libdir)"
+		-L${SYSROOT}/usr/$(get_libdir)"
 
 	# build up optional flags
 	local options=(
