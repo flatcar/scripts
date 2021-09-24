@@ -1,22 +1,27 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-inherit eutils alternatives flag-o-matic toolchain-funcs multilib multiprocessing
+inherit alternatives flag-o-matic toolchain-funcs multilib multiprocessing
 
 PATCH_VER=1
-CROSS_VER=1.1.7
-PATCH_BASE="perl-5.26.1-patches-${PATCH_VER}"
+CROSS_VER=1.3.4
+PATCH_BASE="perl-5.32.0-patches-${PATCH_VER}"
+PATCH_DEV=kentnl
 
-DIST_AUTHOR=SHAY
+DIST_AUTHOR=XSAWYERX
 
 # Greatest first, don't include yourself
 # Devel point-releases are not ABI-intercompatible, but stable point releases are
 # BIN_OLDVERSEN is contains only C-ABI-intercompatible versions
-PERL_BIN_OLDVERSEN="5.26.0"
+PERL_BIN_OLDVERSEN=""
+
+# Yes we can.
+PERL_SINGLE_SLOT=y
+
 if [[ "${PV##*.}" == "9999" ]]; then
-	DIST_VERSION=5.26.1-RC1
+	DIST_VERSION=5.30.0
 else
 	DIST_VERSION="${PV/_rc/-RC}"
 fi
@@ -39,8 +44,7 @@ SRC_URI="
 	mirror://cpan/src/5.0/${MY_P}.tar.xz
 	mirror://cpan/authors/id/${DIST_AUTHOR:0:1}/${DIST_AUTHOR:0:2}/${DIST_AUTHOR}/${MY_P}.tar.xz
 	https://github.com/gentoo-perl/perl-patchset/releases/download/${PATCH_BASE}/${PATCH_BASE}.tar.xz
-	mirror://gentoo/${PATCH_BASE}.tar.xz
-	https://dev.gentoo.org/~kentnl/distfiles/${PATCH_BASE}.tar.xz
+	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${PATCH_BASE}.tar.xz
 	https://github.com/arsv/perl-cross/releases/download/${CROSS_VER}/perl-cross-${CROSS_VER}.tar.gz
 "
 HOMEPAGE="https://www.perl.org/"
@@ -48,26 +52,31 @@ HOMEPAGE="https://www.perl.org/"
 LICENSE="|| ( Artistic GPL-1+ )"
 SLOT="0/${SUBSLOT}"
 
-if [[ "${PV##*.}" != "9999" ]]; then
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~x64-cygwin ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+if [[ "${PV##*.}" != "9999" ]] && [[ "${PV/rc//}" == "${PV}" ]] ; then
+# SOMEWHAT EXPERIMENTAL CODE, DO NOT USE WITHOUT AN ADULT PRESENT, CHECK CHANGELOG
+# FOR DETAILS
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 fi
 
-IUSE="berkdb debug doc gdbm ithreads"
+IUSE="berkdb debug doc gdbm ithreads minimal"
 
 RDEPEND="
 	berkdb? ( sys-libs/db:= )
 	gdbm? ( >=sys-libs/gdbm-1.8.3:= )
 	app-arch/bzip2
 	sys-libs/zlib
+	virtual/libcrypt:=
 "
-DEPEND="${RDEPEND}
-	!prefix? ( elibc_FreeBSD? ( sys-freebsd/freebsd-mk-defs ) )
-"
+DEPEND="${RDEPEND}"
+BDEPEND="${RDEPEND}"
+
 PDEPEND="
-	>=app-admin/perl-cleaner-2.5
-	>=virtual/perl-File-Temp-0.230.400-r2
-	>=virtual/perl-Data-Dumper-2.154.0
-	virtual/perl-Test-Harness
+	!minimal? (
+		>=app-admin/perl-cleaner-2.5
+		>=virtual/perl-File-Temp-0.230.400-r2
+		>=virtual/perl-Data-Dumper-2.154.0
+		virtual/perl-Test-Harness
+	)
 "
 # bug 390719, bug 523624
 # virtual/perl-Test-Harness is here for the bundled ExtUtils::MakeMaker
@@ -75,20 +84,21 @@ PDEPEND="
 S="${WORKDIR}/${MY_P}"
 
 dual_scripts() {
-	src_remove_dual      perl-core/Archive-Tar        2.240.0       ptar ptardiff ptargrep
-	src_remove_dual      perl-core/CPAN               2.180.0       cpan
-	src_remove_dual      perl-core/Digest-SHA         5.960.0       shasum
-	src_remove_dual      perl-core/Encode             2.880.0       enc2xs piconv
-	src_remove_dual      perl-core/ExtUtils-MakeMaker 7.240.0       instmodsh
-	src_remove_dual      perl-core/ExtUtils-ParseXS   3.340.0       xsubpp
-	src_remove_dual      perl-core/IO-Compress        2.74.0        zipdetails
-	src_remove_dual      perl-core/JSON-PP            2.274.0.200_rc   json_pp
-	src_remove_dual      perl-core/Module-CoreList    5.201.709.222.600_rc corelist
-	src_remove_dual      perl-core/Pod-Parser         1.630.0       pod2usage podchecker podselect
-	src_remove_dual      perl-core/Pod-Perldoc        3.280.0       perldoc
-	src_remove_dual      perl-core/Test-Harness       3.380.0       prove
-	src_remove_dual      perl-core/podlators          4.90.0        pod2man pod2text
-	src_remove_dual_man  perl-core/podlators          4.90.0        /usr/share/man/man1/perlpodstyle.1
+	src_remove_dual      perl-core/Archive-Tar        2.360.0       ptar ptardiff ptargrep
+	src_remove_dual      perl-core/CPAN               2.270.0       cpan
+	src_remove_dual      perl-core/Digest-SHA         6.20.0        shasum
+	src_remove_dual      perl-core/Encode             3.60.0        enc2xs piconv
+	src_remove_dual      perl-core/ExtUtils-MakeMaker 7.440.0       instmodsh
+	src_remove_dual      perl-core/ExtUtils-ParseXS   3.400.0       xsubpp
+	src_remove_dual      perl-core/IO-Compress        2.93.0        zipdetails
+	src_remove_dual      perl-core/JSON-PP            4.40.0        json_pp
+	src_remove_dual      perl-core/Module-CoreList    5.202.101.23  corelist
+	src_remove_dual      perl-core/Pod-Checker        1.730.0       podchecker
+	src_remove_dual      perl-core/Pod-Perldoc        3.280.100     perldoc
+	src_remove_dual      perl-core/Pod-Usage          1.690.0       pod2usage
+	src_remove_dual      perl-core/Test-Harness       3.420.0       prove
+	src_remove_dual      perl-core/podlators          4.140.0       pod2man pod2text
+	src_remove_dual_man  perl-core/podlators          4.140.0       /usr/share/man/man1/perlpodstyle.1
 }
 
 check_rebuild() {
@@ -136,8 +146,7 @@ pkg_setup() {
 		*-netbsd*)    osname="netbsd" ;;
 		*-openbsd*)   osname="openbsd" ;;
 		*-darwin*)    osname="darwin" ;;
-		*-interix*)   osname="interix" ;;
-		*-aix*)       osname="aix" ;;
+		*-solaris*)   osname="solaris" ;;
 		*-cygwin*)    osname="cygwin" ;;
 		*)            osname="linux" ;;
 	esac
@@ -156,12 +165,25 @@ pkg_setup() {
 	VENDOR_BASE="/usr/$(get_libdir)/perl5/vendor_perl"
 
 	LIBPERL="libperl$(get_libname ${MY_PV} )"
-	PRIV_LIB="${PRIV_BASE}/${MY_PV}"
-	ARCH_LIB="${PRIV_BASE}/${MY_PV}/${myarch}${mythreading}"
-	SITE_LIB="${SITE_BASE}/${MY_PV}"
-	SITE_ARCH="${SITE_BASE}/${MY_PV}/${myarch}${mythreading}"
-	VENDOR_LIB="${VENDOR_BASE}/${MY_PV}"
-	VENDOR_ARCH="${VENDOR_BASE}/${MY_PV}/${myarch}${mythreading}"
+
+	# This ENV var tells perl to build with a directory like "5.30"
+	# regardless of its patch version. This is for experts only
+	# at this point.
+	if [[ -z "${PERL_SINGLE_SLOT}" ]]; then
+		PRIV_LIB="${PRIV_BASE}/${MY_PV}"
+		ARCH_LIB="${PRIV_BASE}/${MY_PV}/${myarch}${mythreading}"
+		SITE_LIB="${SITE_BASE}/${MY_PV}"
+		SITE_ARCH="${SITE_BASE}/${MY_PV}/${myarch}${mythreading}"
+		VENDOR_LIB="${VENDOR_BASE}/${MY_PV}"
+		VENDOR_ARCH="${VENDOR_BASE}/${MY_PV}/${myarch}${mythreading}"
+	else
+		PRIV_LIB="${PRIV_BASE}/${SUBSLOT}"
+		ARCH_LIB="${PRIV_BASE}/${SUBSLOT}/${myarch}${mythreading}"
+		SITE_LIB="${SITE_BASE}/${SUBSLOT}"
+		SITE_ARCH="${SITE_BASE}/${SUBSLOT}/${myarch}${mythreading}"
+		VENDOR_LIB="${VENDOR_BASE}/${SUBSLOT}"
+		VENDOR_ARCH="${VENDOR_BASE}/${SUBSLOT}/${myarch}${mythreading}"
+	fi
 
 	dual_scripts
 }
@@ -233,66 +255,8 @@ src_remove_dual() {
 	done
 }
 
-src_prepare_update_patchlevel_h() {
-	# Copied and modified from debian:
-	# Copyright 2011 Niko Tyni
-	# This program is free software; you can redistribute it and/or modify
-	# it under the same terms as Perl itself.
-	local patchdir="${WORKDIR}/patches"
-	local prefix
-	local patchoutput="patchlevel-gentoo.h"
-
-	[[ -f ${patchdir}/series ]] || return 0
-
-while read patch
-do
-	patchname=$(echo $patch | sed 's/\.diff$//')
-	< $patchdir/$patch sed -e '/^Subject:/ { N; s/\n / / }' | sed -n -e '
-
-	# massage the patch headers
-	s|^Bug: .*https\?://rt\.perl\.org/.*id=\(.*\).*|[perl #\1]|; tprepend;
-	s|^Bug: .*https\?://rt\.cpan\.org/.*id=\(.*\).*|[rt.cpan.org #\1]|; tprepend;
-	s|^Bug-Gentoo: ||; tprepend;
-	s/^\(Subject\|Description\): //; tappend;
-	s|^Origin: .*http://perl5\.git\.perl\.org/perl\.git/commit\(diff\)\?/\(.......\).*|[\2]|; tprepend;
-
-	# post-process at the end of input
-	$ { x;
-		# include the version number in the patchlevel.h description (if available)
-		s/List packaged patches/&'" for ${PF}(#${PATCH_VER})"'/;
-
-		# escape any backslashes and double quotes
-		s|\\|\\\\|g; s|"|\\"|g;
-
-		# add a prefix
-		s|^|\t,"'"$prefix$patchname"' - |;
-		# newlines away
-		s/\n/ /g; s/  */ /g;
-		# add a suffix
-		s/ *$/"/; p
-	};
-	# stop all processing
-	d;
-	# label: append to the hold space
-	:append H; d;
-	# label: prepend to the hold space
-	:prepend x; H; d;
-	'
-done < "${WORKDIR}"/patches/series > "${S}/${patchoutput}"
-echo "${patchoutput}" >> "${S}/MANIFEST"
-}
-
 src_prepare_perlcross() {
 	cp -a ../perl-cross-${CROSS_VER}/* . || die
-
-	sed -i \
-		-e 's/MakeMaker\.pm .*/MakeMaker.pm bf9174c70a0e50ff2fee4552c7df89b37d292da1/' \
-		-e 's/MM_Unix\.pm .*/MM_Unix.pm b0ec308fe2d7dcfcef5732880db0fae1f4ea80fa/' \
-		cnf/diffs/perl5-${PV}/customized.patch || die
-
-	sed -i \
-		-e 's|^lib/unicore/CombiningClass.pl pod/perluniprops.pod:|lib/unicore/CombiningClass.pl pod/perluniprops.pod: $(CONFIGPM)|' \
-		Makefile || die
 
 	# bug 604072
 	MAKEOPTS+=" -j1"
@@ -303,24 +267,166 @@ src_prepare_dynamic() {
 	ln -s ${LIBPERL} libperl$(get_libname ) || die
 }
 
-src_prepare() {
-	local patch
-	EPATCH_OPTS+=" -p1"
-	einfo "Applying patches from ${PATCH_BASE} ..."
-	while read patch ; do
-		EPATCH_SINGLE_MSG="  ${patch} ..."
-		epatch "${WORKDIR}"/patches/${patch}
-	done < "${WORKDIR}"/patches/series
+# Copy a patch into the patch series
+# add_patch SRC_PATH DEST_NAME ['description'] ['bug'] ['bug']
+# - description is optional, but recommended
+# - all arguments after descriptions are bug URLs
+add_patch() {
+	local patchdir="${WORKDIR}/patches"
+	local infodir="${WORKDIR}/patch-info"
+	local src_name dest_name desc
+	src_name="$1"
+	dest_name="$2"
+	desc="$3"
+	shift; shift; shift;
+	einfo "Adding ${dest_name} to patch bundle"
+	cp "${src_name}" "${patchdir}/${dest_name}" || die "Couldn't copy ${src_name} to ${dest_name}"
+	if [[ -n "${desc}" ]]; then
+		printf "%s" "${desc}" > "${infodir}/${dest_name}.desc" || die "Couldn't write ${dest_name}.desc"
+	fi
+	if [[ $# -gt 0 ]]; then
+		# Note: when $@ is more than one element, this emits a
+		# line for each element
+		printf "%s\n" "$@" > "${infodir}/${dest_name}.bugs" || die "Couldn't write ${dest_name}.bugs"
+	fi
+}
+# Remove a patch using a glob expr
+# eg:
+#	 rm_patch *-darin-Use-CC*
+#
+rm_patch() {
+	local patchdir="${WORKDIR}/patches"
+	local expr="$1"
+	local patch="$( cd "${patchdir}"; echo $expr )"
+	einfo "Removing $patch ($expr) from patch bundle"
+	if [[ -e "${patchdir}/${patch}" ]]; then
+		rm -f "${patchdir}/${patch}" || die "Can't remove ${patch} ( $expr )"
+	else
+		ewarn "No ${expr} found in ${patchdir} to remove"
+	fi
+}
+# Yes, this is a reasonable amount of code for something seemingly simple
+# but this is far easier to debug when things go wrong, and things went wrong
+# multiple times while I was getting the exact number of slashes right, which
+# requires circumnavigating both bash and sed escape mechanisms.
+c_escape_string() {
+	local slash dquote
+	slash='\'
+	dquote='"'
+	re_slash="${slash}${slash}"
+	re_dquote="${slash}${dquote}"
 
-	src_prepare_update_patchlevel_h
+	# Convert \ to \\,
+	#         " to \"
+	echo "$1" |\
+		sed "s|${re_slash}|${re_slash}${re_slash}|g" |\
+		sed "s|${re_dquote}|${re_slash}${re_dquote}|g"
+}
+c_escape_file() {
+	c_escape_string "$(cat "$1")"
+}
+
+apply_patchdir() {
+	local patchdir="${WORKDIR}/patches"
+	local infodir="${WORKDIR}/patch-info"
+	local patchoutput="patchlevel-gentoo.h"
+
+	# Inject Patch-Level info into description for patchlevel.h patch
+	# to show in -V
+	local patch_expr="*List-packaged-patches*"
+	local patch="$( cd "${patchdir}"; echo $patch_expr )";
+	einfo "Injecting patch-level info into ${patch}.desc ( $patch_expr )"
+
+	if [[ -e "${patchdir}/${patch}" ]]; then
+		printf "List packaged patches for %s(%s) in patchlevel.h" "${PF}" "${PATCH_BASE}"\
+			>"${infodir}/${patch}.desc" || die "Can't rewrite ${patch}.desc"
+	else
+		eerror "No $patch_expr found in ${patchdir}"
+	fi
+
+	# Compute patch list to apply
+	# different name other than PATCHES to stop default
+	# reapplying it
+	# Single depth is currently only supported, as artifacts can reside
+	# from the old layout being multiple-directories, as well as it grossly
+	# simplifying the patchlevel_gentoo.h generation.
+	local PERL_PATCHES=($(
+		find "${patchdir}" -maxdepth 1 -mindepth 1 -type f -printf "%f\n" |\
+			grep -E '[.](diff|patch)$' |\
+			sort -n
+	))
+
+	for patch in "${PERL_PATCHES[@]}"; do
+		eapply "${WORKDIR}"/patches/${patch}
+	done
+
+	einfo "Generating $patchoutput"
+
+	# This code creates a header file, each iteration
+	# creates one-or-more-lines for each entry found in PERL_PATCHES
+	# and STDOUT is redirected to the .h file
+	for patch in "${PERL_PATCHES[@]}"; do
+		local desc_f="${infodir}/${patch}.desc"
+		local bugs_f="${infodir}/${patch}.bugs"
+
+		printf ',"%s"\n' "${patch}"
+		if [[ ! -e "${desc_f}" ]]; then
+			ewarn "No description provided for ${patch} (expected: ${desc_f} )"
+		else
+			local desc="$(c_escape_file "${desc_f}")"
+			printf ',"- %s"\n' "${desc}"
+		fi
+		if [[ -e "${bugs_f}" ]]; then
+			while read -d $'\n' -r line; do
+				local esc_line="$(c_escape_string "${line}")"
+				printf ',"- Bug: %s"\n' "${esc_line}"
+			done <"${bugs_f}"
+		fi
+	done > "${S}/${patchoutput}"
+	printf "%s\n" "${patchoutput}" >> "${S}/MANIFEST"
+
+}
+src_prepare() {
+	local patchdir="${WORKDIR}/patches"
+
+	# Prepare Patch dir with additional patches / remove unwanted patches
+	# Inject bug/desc entries for perl -V
+	if use hppa ; then
+		# bug 634162
+		add_patch "${FILESDIR}/${PN}-5.26.2-hppa.patch" "100-5.26.2-hppa.patch"\
+			"Fix broken miniperl on hppa"\
+			"https://bugs.debian.org/869122" "https://bugs.gentoo.org/634162"
+	fi
+	if [[ ${CHOST} == *-solaris* ]] ; then
+		# do NOT mess with nsl, on Solaris this is always necessary,
+		# when -lsocket is used e.g. to get h_errno
+		rm_patch "*-nsl-and-cl*"
+	fi
+
+	apply_patchdir
 
 	tc-is-cross-compiler && src_prepare_perlcross
 
 	tc-is-static-only || src_prepare_dynamic
 
 	if use gdbm; then
-		sed -i "s:INC => .*:INC => \"-I${EROOT}usr/include/gdbm\":g" \
+		sed -i "s:INC => .*:INC => \"-I${EROOT}/usr/include/gdbm\":g" \
 			ext/NDBM_File/Makefile.PL || die
+	fi
+
+	# Use errno.h from prefix rather than from host system, bug #645804
+	if use prefix && [[ -e "${EPREFIX}"/usr/include/errno.h ]] ; then
+		sed -i "/my..sysroot/s:'':'${EPREFIX}':" ext/Errno/Errno_pm.PL || die
+	fi
+
+	if [[ ${CHOST} == *-solaris* ]] ; then
+		# set a soname, fix linking against just built libperl
+		sed -i -e 's/netbsd\*/netbsd*|solaris*/' Makefile.SH || die
+	fi
+
+	if [[ ${CHOST} == *-darwin* ]] ; then
+		# fix install_name (soname) not to reference $D
+		sed -i -e '/install_name `pwd/s/`pwd`/\\$(shrpdir)/' Makefile.SH || die
 	fi
 
 	default
@@ -331,14 +437,95 @@ myconf() {
 	myconf=( "${myconf[@]}" "$@" )
 }
 
+# Outputs a list of versions which have been seen in any of the
+# primary perl @INC prefix paths, such as:
+#  /usr/lib64/perl5/<NUMBER>
+#  /usr/local/lib64/perl5/<NUMBER>
+#  /usr/lib64/perl5/vendor_perl/<NUMBER>
+#
+# All values of NUMBER must be like "5.x.y", unless PERL_SUPPORT_SINGLE_SLOT
+# is enabled, where it will also allow numbers like "5.x"
+#
+# PERL_SUPPORT_SINGLE_SLOT should only be used to transition *away* from PERL_SINGLE_SLOT
+# if you used that.
+find_candidate_inc_versions() {
+	local regex='.*/5[.][0-9]+[.][0-9]+$';
+	if [[ ! -z "${PERL_SUPPORT_SINGLE_SLOT}" || ! -z "${PERL_SINGLE_SLOT}" ]]; then
+		regex='.*/5[.][0-9]+\([.][0-9]+\|\)$'
+	fi
+	local dirs=(
+		"${EROOT}${PRIV_BASE}"
+		"${EROOT}${SITE_BASE}"
+		"${EROOT}${VENDOR_BASE}"
+	)
+	for dir in "${dirs[@]}"; do
+		if [[ ! -e "${dir}" ]]; then
+			continue
+		fi
+		# Without access to readdir() on these dirs, find will not be able
+		# to reveal any @INC directories inside them, and will subsequently prune
+		# them from the built perl's @INC support, breaking our compatiblity options
+		# entirely.
+		if [[ ! -r "${dir}" || ! -x "${dir}" ]]; then
+			eerror "Bad permissions on ${dir}, this will probably break things"
+			eerror "Ensure ${dir} is +rx for at least uid=$EUID"
+			eerror "Recommended permission is +rx for all"
+			eerror "> chmod o+rx ${dir}"
+		fi
+	done
+	einfo "Scanning for old @INC dirs matching '$regex' in: ${dirs[*]}"
+	find "${dirs[@]}" -maxdepth 1 -mindepth 1 -type d -regex "${regex}" -printf "%f "  2>/dev/null
+}
+# Sort versions passed versiony-ly, remove self-version if present
+# dedup. Takes each version as an argument
+sanitize_inc_versions() {
+	local vexclude="${DIST_VERSION%-RC}"
+	if [[ ! -z "${PERL_SINGLE_SLOT}" ]]; then
+		vexclude="${SUBSLOT}"
+	fi
+	einfo "Normalizing/Sorting candidate list: $*"
+	einfo " to remove '${vexclude}'"
+	# Note, general numeric sort has to be used
+	# for the last component, or unique will convert
+	#  5.30.0 + 5.30 into just 5.30
+	printf "%s\n" "$@" |\
+		grep -vxF "${vexclude}" |\
+		sort -u -nr -t'.' -k1,1rn -k2,2rn -k3,3rg
+}
+
+versions_to_inclist() {
+	local oldv="${PERL_BIN_OLDVERSEN}"
+	if [[ ! -z "${PERL_SINGLE_SLOT}" ]]; then
+		oldv="${DIST_VERSION%-RC} ${PERL_BIN_OLDVERSEN}"
+	fi
+	for v;	do
+			has "${v}" ${oldv} && echo -n "${v}/${myarch}${mythreading}/ ";
+			echo -n "${v}/ ";
+	done
+}
+versions_to_gentoolibdirs() {
+	local oldv="${PERL_BIN_OLDVERSEN}"
+	local root
+	local v
+	if [[ ! -z "${PERL_SINGLE_SLOT}" ]]; then
+		oldv="${DIST_VERSION%-RC} ${PERL_BIN_OLDVERSEN}"
+	fi
+	for v;	do
+		for root in "${PRIV_BASE}" "${VENDOR_BASE}" "${SITE_BASE}"; do
+			local fullpath="${EROOT}${root}/${v}"
+			if [[ -e "${fullpath}" ]]; then
+				has "${v}" ${oldv} && printf "%s:" "${fullpath}/${myarch}${mythreading}";
+				printf "%s:" "${fullpath}"
+			fi
+		done
+	done
+}
+
 src_configure() {
 	declare -a myconf
 
 	export LC_ALL="C"
 	[[ ${COLUMNS:-1} -ge 1 ]] || unset COLUMNS # bug #394091
-
-	# some arches and -O do not mix :)
-	use ppc && replace-flags -O? -O1
 
 	# Perl has problems compiling with -Os in your flags with glibc
 	use elibc_uclibc || replace-flags "-Os" "-O2"
@@ -352,11 +539,8 @@ src_configure() {
 	# This flag makes compiling crash in interesting ways
 	filter-flags "-malign-double"
 
-	# Fixes bug #97645
-	use ppc && filter-flags "-mpowerpc-gpopt"
-
-	# Fixes bug #143895 on gcc-4.1.1
-	filter-flags "-fsched2-use-superblocks"
+	# Generic LTO broken since 5.28, triggers EUMM failures
+	filter-flags "-flto"
 
 	use sparc && myconf -Ud_longdbl
 
@@ -401,39 +585,34 @@ src_configure() {
 		myconf -DDEBUGGING=none
 	fi
 
+	# modifying 'optimize' prevents cross configure script from appending required flags
+	if tc-is-cross-compiler; then
+		append-cflags "-fwrapv -fno-strict-aliasing"
+	fi
+
 	# Autodiscover all old version directories, some of them will even be newer
 	# if you downgrade
 	if [[ -z ${PERL_OLDVERSEN} ]]; then
-		PERL_OLDVERSEN="$(
-			find "${EROOT%/}${PRIV_BASE}" "${EROOT%/}${SITE_BASE}" "${EROOT%/}${VENDOR_BASE}" \
-				   -maxdepth 1 -mindepth 1 -type d -regex '.*/5[.][0-9]+[.][0-9]+$' \
-				   -printf "%f "  2>/dev/null )"
+		PERL_OLDVERSEN="$( find_candidate_inc_versions )"
 	fi
+
 	# Fixup versions, removing self match, fixing order and dupes
-	PERL_OLDVERSEN="$(
-		echo "${PERL_OLDVERSEN}"           |\
-			tr " " "\n" 				   |\
-			grep -vF "${DIST_VERSION%-RC}" |\
-			sort -u -nr -t'.' -k1,1 -k2,2 -k3,3
-	)"
+	PERL_OLDVERSEN="$( sanitize_inc_versions ${PERL_OLDVERSEN} )"
 
 	# Experts who want a "Pure" install can set PERL_OLDVERSEN to an empty string
 	if [[ -n "${PERL_OLDVERSEN// }" ]]; then
-		local inclist="$(
-				for v in ${PERL_OLDVERSEN};	do
-					has "${v}" ${PERL_BIN_OLDVERSEN} && echo -n "${v}/${myarch}${mythreading} ";
-					echo -n "${v} ";
-				done )"
+		local inclist="$( versions_to_inclist ${PERL_OLDVERSEN} )"
 		einfo "This version of perl may partially support modules previously"
 		einfo "installed in any of the following paths:"
 		for incpath in ${inclist}; do
-			[[ -e "${EROOT%/}${VENDOR_BASE}/${incpath}" ]] && einfo " ${EROOT%/}${VENDOR_BASE}/${incpath}"
-			[[ -e "${EROOT%/}${PRIV_BASE}/${incpath}"   ]] && einfo " ${EROO%/T}${PRIV_BASE}/${incpath}"
-			[[ -e "${EROOT%/}${SITE_BASE}/${incpath}"   ]] && einfo " ${EROOT%/}${SITE_BASE}/${incpath}"
+			[[ -e "${EROOT}${VENDOR_BASE}/${incpath}" ]] && einfo " ${EROOT}${VENDOR_BASE}/${incpath}"
+			[[ -e "${EROOT}${PRIV_BASE}/${incpath}"   ]] && einfo " ${EROOT}${PRIV_BASE}/${incpath}"
+			[[ -e "${EROOT}${SITE_BASE}/${incpath}"   ]] && einfo " ${EROOT}${SITE_BASE}/${incpath}"
 		done
 		einfo "This is a temporary measure and you should aim to cleanup these paths"
 		einfo "via world updates and perl-cleaner"
-		myconf -Dinc_version_list="${inclist}"
+		# myconf -Dinc_version_list="${inclist}"
+		myconf -Dgentoolibdirs="$( versions_to_gentoolibdirs ${PERL_OLDVERSEN} )"
 	fi
 
 	[[ ${ELIBC} == "FreeBSD" ]] && myconf "-Dlibc=/usr/$(get_libdir)/libc.a"
@@ -443,6 +622,15 @@ src_configure() {
 	[[ ${CHOST} == *-darwin* ]] && \
 		myconf "-Dld=env MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} $(tc-getCC)"
 
+	# Older macOS with non-Apple GCC chokes on inline in system headers
+	# using c89 mode as injected by cflags.SH
+	[[ ${CHOST} == *-darwin* && ${CHOST##*darwin} -le 9 ]] && tc-is-gcc && \
+		append-cflags -Dinline=__inline__
+
+	# flock on 32-bit sparc Solaris is broken, fall back to fcntl
+	[[ ${CHOST} == sparc-*-solaris* ]] && \
+		myconf -Ud_flock
+
 	# Prefix: the host system needs not to follow Gentoo multilib stuff, and in
 	# Prefix itself we don't do multilib either, so make sure perl can find
 	# something compatible.
@@ -450,7 +638,7 @@ src_configure() {
 		# Set a hook to check for each detected library whether it actually works.
 		export libscheck="
 			( echo 'main(){}' > '${T}'/conftest.c &&
-			  $(tc-getCC) -o '${T}'/conftest '${T}'/conftest.c -l\$thislib >/dev/null 2>/dev/null
+				$(tc-getCC) -o '${T}'/conftest '${T}'/conftest.c -l\$thislib >/dev/null 2>/dev/null
 			) || xxx=/dev/null"
 
 		# Use all host paths that might contain useful stuff, the hook above will filter out bad choices.
@@ -477,10 +665,16 @@ src_configure() {
 	# allow fiddling via EXTRA_ECONF, bug 558070
 	eval "local -a EXTRA_ECONF=(${EXTRA_ECONF})"
 
+	# setting -Dld= to tc-getLD breaks perl and all perl things
+	# https://github.com/Perl/perl5/issues/17791#issuecomment-630145202
 	myconf \
 		-Duseshrplib \
 		-Darchname="${myarch}" \
 		-Dcc="$(tc-getCC)" \
+		-Dar="$(tc-getAR)" \
+		-Dnm="$(tc-getNM)" \
+		-Dcpp="$(tc-getCPP)" \
+		-Dranlib="$(tc-getRANLIB)" \
 		-Doptimize="${CFLAGS}" \
 		-Dldflags="${LDFLAGS}" \
 		-Dprefix="${EPREFIX}"'/usr' \
@@ -537,6 +731,8 @@ src_configure() {
 
 src_test() {
 	export NO_GENTOO_NETWORK_TESTS=1;
+	export GENTOO_ASSUME_SANDBOXED="${GENTOO_ASSUME_SANDBOXED:-1}"
+	export GENTOO_NO_PORTING_TESTS="${GENTOO_NO_PORTING_TESTS:-1}"
 	if [[ ${EUID} == 0 ]] ; then
 		ewarn "Test fails with a sandbox error (#328793) if run as root. Skipping tests..."
 		return 0
@@ -559,9 +755,10 @@ src_install() {
 		rm -f "${ED}"${coredir}/${LIBPERL}
 		ln -sf ${LIBPERL} "${ED}"/usr/$(get_libdir)/libperl$(get_libname ${SHORT_PV}) || die
 		ln -sf ${LIBPERL} "${ED}"/usr/$(get_libdir)/libperl$(get_libname) || die
-		ln -sf ../../../../../$(get_libdir)/${LIBPERL} "${ED}"${coredir}/${LIBPERL} || die
-		ln -sf ../../../../../$(get_libdir)/${LIBPERL} "${ED}"${coredir}/libperl$(get_libname ${SHORT_PV}) || die
-		ln -sf ../../../../../$(get_libdir)/${LIBPERL} "${ED}"${coredir}/libperl$(get_libname) || die
+
+		ln -sf ../../../../${LIBPERL} "${ED}"${coredir}/${LIBPERL} || die
+		ln -sf ../../../../${LIBPERL} "${ED}"${coredir}/libperl$(get_libname ${SHORT_PV}) || die
+		ln -sf ../../../../${LIBPERL} "${ED}"${coredir}/libperl$(get_libname) || die
 	fi
 
 	rm -rf "${ED}"/usr/share/man/man3 || die "Unable to remove module man pages"
@@ -620,6 +817,6 @@ pkg_postinst() {
 	fi
 }
 
-pkg_postrm(){
+pkg_postrm() {
 	dual_scripts
 }
