@@ -44,7 +44,7 @@ _PYTHON_ALL_IMPLS=(
 	jython2_7
 	pypy pypy3
 	python2_7
-	python3_5 python3_6 python3_7
+	python3_5 python3_6 python3_7 python3_8 python3_9 python3_10
 )
 readonly _PYTHON_ALL_IMPLS
 
@@ -80,7 +80,7 @@ _python_impl_supported() {
 	# keep in sync with _PYTHON_ALL_IMPLS!
 	# (not using that list because inline patterns shall be faster)
 	case "${impl}" in
-		python2_7|python3_[567]|jython2_7)
+		python2_7|python3_[56789]|jython2_7|python3_10)
 			return 0
 			;;
 		pypy1_[89]|pypy2_0|python2_[56]|python3_[1234])
@@ -176,7 +176,8 @@ _python_set_impls() {
 # b) '-2' to indicate all Python 2 variants (= !python_is_python3)
 # c) '-3' to indicate all Python 3 variants (= python_is_python3)
 _python_impl_matches() {
-	[[ ${#} -ge 2 ]] || die "${FUNCNAME}: takes at least 2 parameters"
+	[[ ${#} -ge 1 ]] || die "${FUNCNAME}: takes at least 1 parameter"
+	[[ ${#} -eq 1 ]] && return 0
 
 	local impl=${1} pattern
 	shift
