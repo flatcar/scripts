@@ -108,7 +108,7 @@ function torcx_package() {
         local version=${pkg:${#name}+1}
         local manifest_path="${2}"
         local type="${3}"
-        local deppkg digest file rpath sha512sum source_pkg rdepends tmproot tmppkgroot update_default
+        local deppkg digest file rpath sha512sum source_pkg rdepends tmproot tmppkgroot update_default tmpfile
         local pkg_cas_file pkg_cas_root
         local pkg_locations=()
         local name=${name##*/}
