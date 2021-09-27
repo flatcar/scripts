@@ -114,13 +114,16 @@ function torcx_package() {
         local name=${name##*/}
         local version=${version%%-r*}
 
+        # Run in a subshell to clean tmproot and tmppkgroot up without
+        # clobbering this shell's EXIT trap.
+        (
         # Set up the base package layout to dump everything into /bin and /lib.
         # tmproot is what the packages are installed into.
         # A subset of the files from tmproot are then moved into tmppkgroot,
         # which is then archived and uploaded.
         tmproot=$(sudo mktemp --tmpdir="${BUILD_DIR}" -d)
         tmppkgroot=$(sudo mktemp --tmpdir="${BUILD_DIR}" -d)
-        trap "sudo rm -rf '${tmproot}' '${tmppkgroot}'" EXIT RETURN
+        trap "sudo rm -rf '${tmproot}' '${tmppkgroot}'" EXIT
         sudo chmod 0755 "${tmproot}" "${tmppkgroot}"
         sudo mkdir -p "${tmproot}"/{.torcx,bin,lib,usr}
         sudo ln -fns ../bin "${tmproot}/usr/bin"
@@ -228,8 +231,7 @@ function torcx_package() {
             "${source_pkg}" \
             "${update_default}" \
             "${pkg_locations[@]}"
-
-        trap - EXIT
+        )
 }
 
 # This list defines every torcx image that goes into the vendor store for the

@@ -124,13 +124,16 @@ sign_and_upload_files() {
     local suffix="$3"
     shift 3
 
+    # run a subshell to possibly clean the temporary directory with
+    # signatures without clobbering the global EXIT trap
+    (
     # Create simple GPG detached signature for all uploads.
     local sigs=()
     if [[ -n "${FLAGS_sign}" ]]; then
         local file
         local sigfile
         local sigdir=$(mktemp --directory)
-        trap "rm -rf ${sigdir}" RETURN
+        trap "rm -rf ${sigdir}" EXIT
         for file in "$@"; do
             if [[ "${file}" =~ \.(asc|gpg|sig)$ ]]; then
                 continue
@@ -150,6 +153,7 @@ sign_and_upload_files() {
     fi
 
     upload_files "${msg}" "${path}" "${suffix}" "$@" "${sigs[@]}"
+    )
 }
 
 upload_packages() {
