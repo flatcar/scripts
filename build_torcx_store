@@ -178,10 +178,11 @@ function torcx_package() {
         find -H "${tmproot}"/{bin,lib} -type f |
         while read file
         do
+                (
                 rpath=$(sudo patchelf --print-rpath "${file}" 2>/dev/null) &&
                 test "${rpath#/ORIGIN/}" != "${rpath}" &&
                 sudo patchelf --set-rpath "${rpath/#?/\$}" "${file}"
-                :  # Set $? to 0 or the pipeline fails and -e quits.
+                ) || :  # Set $? to 0 or the pipeline fails and -e quits.
         done
 
         # Move anything we plan to package to its root.
