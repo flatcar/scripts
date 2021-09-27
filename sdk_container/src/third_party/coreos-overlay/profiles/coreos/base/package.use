@@ -150,3 +150,8 @@ sys-auth/polkit -introspection
 
 # enables ELF support to e.g. allow tc to handle BPF filters.
 sys-apps/iproute2 elf
+
+# `bindist` pulls patches from https://dev.gentoo.org/~whissi/dist/openssl/
+# and there is no patches for opensslv3 at the moment.
+# https://marc.info/?l=gentoo-dev&m=163216172229772&w=2
+net-misc/openssh -bindist
