@@ -1,7 +1,8 @@
 # Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=8
+# Flatcar: use EAPI=7, until EAPI 8 could be fully supported
+EAPI=7
 
 inherit flag-o-matic systemd toolchain-funcs
 
