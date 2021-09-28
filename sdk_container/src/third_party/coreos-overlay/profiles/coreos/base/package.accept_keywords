@@ -52,7 +52,6 @@ dev-util/checkbashisms
 =cross-x86_64-cros-linux-gnu/gcc-9.3.0-r1 ~amd64
 
 # Force upgrades to work around catalyst problems while upgrading ncurses.
-=app-crypt/gnupg-2.2.20 ~amd64 ~arm64
 =sys-apps/gptfdisk-1.0.3 ~amd64 ~arm64
 =sys-apps/util-linux-2.32 ~amd64 ~arm64
 

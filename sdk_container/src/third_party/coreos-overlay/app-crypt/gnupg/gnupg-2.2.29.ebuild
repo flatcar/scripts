@@ -1,6 +1,7 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Flatcar: use EAPI=7, until EAPI 8 could be fully supported
 EAPI=7
 
 inherit flag-o-matic systemd toolchain-funcs
@@ -13,14 +14,13 @@ SRC_URI="mirror://gnupg/gnupg/${MY_P}.tar.bz2"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv s390 sparc x86 ~ppc-aix ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="bzip2 doc ldap nls readline selinux +smartcard ssl tofu tools usb user-socket wks-server"
 
 # Existence of executables is checked during configuration.
-DEPEND="!app-crypt/dirmngr
-	>=dev-libs/libassuan-2.5.0
-	>=dev-libs/libgcrypt-1.7.3
-	>=dev-libs/libgpg-error-1.28
+DEPEND=">=dev-libs/libassuan-2.5.0
+	>=dev-libs/libgcrypt-1.8.0
+	>=dev-libs/libgpg-error-1.29
 	>=dev-libs/libksba-1.3.4
 	>=dev-libs/npth-1.2
 	>=net-misc/curl-7.10
@@ -71,17 +71,34 @@ src_prepare() {
 }
 
 src_configure() {
-	local myconf=()
+	local myconf=(
+		$(use_enable bzip2)
+		$(use_enable nls)
+		$(use_enable smartcard scdaemon)
+		$(use_enable ssl gnutls)
+		$(use_enable tofu)
+		$(use smartcard && use_enable usb ccid-driver || echo '--disable-ccid-driver')
+		$(use_enable wks-server wks-tools)
+		$(use_with ldap)
+		$(use_with readline)
+		--with-mailprog=/usr/libexec/sendmail
+		--disable-ntbtls
+		--enable-all-tests
+		--enable-gpg
+		--enable-gpgsm
+		--enable-large-secmem
+		CC_FOR_BUILD="$(tc-getBUILD_CC)"
+		GPG_ERROR_CONFIG="${ESYSROOT}/usr/bin/${CHOST}-gpg-error-config"
+		KSBA_CONFIG="${ESYSROOT}/usr/bin/ksba-config"
+		LIBASSUAN_CONFIG="${ESYSROOT}/usr/bin/libassuan-config"
+		LIBGCRYPT_CONFIG="${ESYSROOT}/usr/bin/${CHOST}-libgcrypt-config"
+		NPTH_CONFIG="${ESYSROOT}/usr/bin/npth-config"
+		$("${S}/configure" --help | grep -o -- '--without-.*-prefix')
+	)
 
 	if use prefix && use usb; then
 		# bug #649598
 		append-cppflags -I"${EPREFIX}/usr/include/libusb-1.0"
-	fi
-
-	if use elibc_SunOS || use elibc_AIX; then
-		myconf+=( --disable-symcryptrun )
-	else
-		myconf+=( --enable-symcryptrun )
 	fi
 
 	#bug 663142
@@ -102,30 +119,7 @@ src_configure() {
 	# the build where the install guide previously make the user chose the
 	# logger & mta early in the install.
 
-	econf \
-		"${myconf[@]}" \
-		$(use_enable bzip2) \
-		$(use_enable nls) \
-		$(use_enable smartcard scdaemon) \
-		$(use_enable ssl gnutls) \
-		$(use_enable tofu) \
-		$(use smartcard && use_enable usb ccid-driver || echo '--disable-ccid-driver') \
-		$(use_enable wks-server wks-tools) \
-		$(use_with ldap) \
-		$(use_with readline) \
-		--with-mailprog=/usr/libexec/sendmail \
-		--disable-ntbtls \
-		--enable-all-tests \
-		--enable-gpg \
-		--enable-gpgsm \
-		--enable-large-secmem \
-		CC_FOR_BUILD="$(tc-getBUILD_CC)" \
-		GPG_ERROR_CONFIG="${EROOT}/usr/bin/${CHOST}-gpg-error-config" \
-		KSBA_CONFIG="${EROOT}/usr/bin/ksba-config" \
-		LIBASSUAN_CONFIG="${EROOT}/usr/bin/libassuan-config" \
-		LIBGCRYPT_CONFIG="${EROOT}/usr/bin/${CHOST}-libgcrypt-config" \
-		NPTH_CONFIG="${EROOT}/usr/bin/npth-config" \
-		$("${S}/configure" --help | grep -- '--without-.*-prefix' | sed -e 's/^ *\([^ ]*\) .*/\1/g')
+	econf "${myconf[@]}"
 }
 
 src_compile() {
@@ -160,10 +154,4 @@ src_install() {
 	use doc && dodoc doc/gnupg.html/* doc/*.png
 
 	systemd_douserunit doc/examples/systemd-user/*.{service,socket}
-}
-
-pkg_postinst() {
-	elog "See https://wiki.gentoo.org/wiki/GnuPG for documentation on gnupg"
-	elog
-	elog "If you wish to use 'gpg-wks-client --send', you must install an MTA!"
 }
