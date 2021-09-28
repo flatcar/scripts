@@ -11,6 +11,26 @@ readonly BUILDBOT_USEREMAIL="buildbot@flatcar-linux.org"
 
 function enter() ( cd ../../..; exec cork enter -- $@ )
 
+# Return a valid ebuild file name for ebuilds of the given category name,
+# package name, and the old version. If the single ebuild file already exists,
+# then simply return that. If the file does not exist, then we should fall back
+# to a similar file including $VERSION_OLD.
+# For example, if VERSION_OLD == 1.0 and 1.0.ebuild does not exist, but only
+# 1.0-r1.ebuild is there, then we figure out its most similar valid name by
+# running "ls -1 ...*.ebuild | sort -ruV | head -n1".
+function get_ebuild_filename() {
+  local CATEGORY_NAME=$1
+  local PKGNAME_SIMPLE=$2
+  local VERSION_OLD=$3
+  local EBUILD_BASENAME="${CATEGORY_NAME}/${PKGNAME_SIMPLE}/${PKGNAME_SIMPLE}-${VERSION_OLD}"
+
+  if [ -f "${EBUILD_BASENAME}.ebuild" ]; then
+    echo "${EBUILD_BASENAME}.ebuild"
+  else
+    echo "$(ls -1 ${EBUILD_BASENAME}*.ebuild | sort -ruV | head -n1)"
+  fi
+}
+
 # caller needs to set pass a parameter as a branch name to be created.
 function checkout_branches() {
   TARGET_BRANCH=$1

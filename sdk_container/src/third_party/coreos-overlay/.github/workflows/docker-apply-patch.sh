@@ -22,7 +22,7 @@ fi
 
 # we need to update not only the main ebuild file, but also its DOCKER_GITCOMMIT,
 # which needs to point to COMMIT_HASH that matches with $VERSION_NEW from upstream docker-ce.
-dockerEbuildOld=$(ls -1 app-emulation/docker/docker-${VERSION_OLD}.ebuild)
+dockerEbuildOld=$(get_ebuild_filename "app-emulation" "docker" "${VERSION_OLD}")
 dockerEbuildNew="app-emulation/docker/docker-${VERSION_NEW}.ebuild"
 git mv ${dockerEbuildOld} ${dockerEbuildNew}
 sed -i "s/GIT_COMMIT=\(.*\)/GIT_COMMIT=${COMMIT_HASH}/g" ${dockerEbuildNew}

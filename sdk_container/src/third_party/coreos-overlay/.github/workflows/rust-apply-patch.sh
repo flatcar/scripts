@@ -23,9 +23,8 @@ fi
 # replace rust version in profiles/, e.g. package.accept_keywords.
 find profiles -name 'package.*' | xargs sed -i "s/=dev-lang\/rust-\S\+/=dev-lang\/rust-${VERSION_NEW}/"
 
-pushd "dev-lang/rust" >/dev/null || exit
-git mv $(ls -1 rust-${VERSION_OLD}.ebuild) "rust-${VERSION_NEW}.ebuild"
-popd >/dev/null || exit
+EBUILD_FILENAME=$(get_ebuild_filename "dev-lang" "rust" "${VERSION_OLD}")
+git mv "${EBUILD_FILENAME}" "dev-lang/rust/rust-${VERSION_NEW}.ebuild"
 
 popd >/dev/null || exit
 
