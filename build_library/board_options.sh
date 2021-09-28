@@ -29,7 +29,7 @@ pkg_use_enabled() {
 # Prints: some-pkg/name-1.2.3
 # Note: returns 0 even if the package was not found.
 pkg_version() {
-  portageq-"${BOARD}" best_visible "${BOARD_ROOT}" "$1" "$2"
+  portageq-"${BOARD}" best_visible "${BOARD_ROOT}" "$1" "$2" || :
 }
 
 # Usage: pkg_provides [installed|binary] some-pkg/name-1.2.3
