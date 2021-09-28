@@ -23,7 +23,7 @@ if [[ "${VERSION_NEW}" = "${VERSION_OLD}" ]]; then
   exit 0
 fi
 
-runcEbuildOld=$(ls -1 app-emulation/docker-runc/docker-runc-${VERSION_OLD}.ebuild)
+runcEbuildOld=$(get_ebuild_filename "app-emulation" "docker-runc" "${VERSION_OLD}")
 runcEbuildNew="app-emulation/docker-runc/docker-runc-${VERSION_NEW}.ebuild"
 git mv ${runcEbuildOld} ${runcEbuildNew}
 sed -i "s/${VERSION_OLD}/${VERSION_NEW}/g" ${runcEbuildNew}
