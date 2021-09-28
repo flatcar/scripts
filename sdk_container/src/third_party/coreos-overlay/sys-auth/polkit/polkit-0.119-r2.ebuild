@@ -119,6 +119,16 @@ src_compile() {
 src_install() {
 	default
 
+	dodir /usr/share/polkit-1/rules.d
+	dodir /usr/lib/pam.d
+
+	mv "${D}"/{etc,usr/share}/polkit-1/rules.d/50-default.rules || die
+	mv "${D}"/{etc,usr/lib}/pam.d/polkit-1 || die
+	rmdir "${D}"/etc/polkit-1/rules.d "${D}"/etc/polkit-1 || die
+	rmdir "${D}"/etc/pam.d || die
+
+	systemd_dotmpfilesd "${FILESDIR}/polkit.conf"
+
 	if use examples; then
 		docinto examples
 		dodoc src/examples/{*.c,*.policy*}
@@ -128,9 +138,4 @@ src_install() {
 	keepdir /usr/share/polkit-1/rules.d
 
 	find "${ED}" -name '*.la' -delete || die
-}
-
-pkg_postinst() {
-	chmod 0700 "${EROOT}"/{etc,usr/share}/polkit-1/rules.d
-	chown polkitd "${EROOT}"/{etc,usr/share}/polkit-1/rules.d
 }
