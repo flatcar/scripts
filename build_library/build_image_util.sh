@@ -368,10 +368,12 @@ write_licenses() {
 
     local pkg pkg_sep
     for pkg in $(image_packages "$1" | sort); do
-        # Ignore virtual packages since they aren't licensed
-        if [[ "${pkg%%/*}" == "virtual" ]]; then
-            continue
-        fi
+        # Ignore certain categories of packages since they aren't licensed
+        case "${pkg%%/*}" in
+            'virtual'|'acct-group'|'acct-user')
+                continue
+                ;;
+        esac
 
         local lic_str="$(get_metadata "$1" "${pkg}" LICENSE)"
         if [[ -z "$lic_str" ]]; then
