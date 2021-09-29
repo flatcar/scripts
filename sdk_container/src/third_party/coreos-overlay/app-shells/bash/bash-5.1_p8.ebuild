@@ -130,10 +130,10 @@ src_configure() {
 	# For descriptions of these, see config-top.h
 	# bashrc/#26952 bash_logout/#90488 ssh/#24762 mktemp/#574426
 	append-cppflags \
-		-DDEFAULT_PATH_VALUE=\'\"${EPREFIX}/usr/local/sbin:${EPREFIX}/usr/local/bin:${EPREFIX}/usr/sbin:${EPREFIX}/usr/bin:${EPREFIX}/sbin:${EPREFIX}/bin\"\' \
-		-DSTANDARD_UTILS_PATH=\'\"${EPREFIX}/bin:${EPREFIX}/usr/bin:${EPREFIX}/sbin:${EPREFIX}/usr/sbin\"\' \
-		-DSYS_BASHRC=\'\"${EPREFIX}/etc/bash/bashrc\"\' \
-		-DSYS_BASH_LOGOUT=\'\"${EPREFIX}/etc/bash/bash_logout\"\' \
+		-DDEFAULT_PATH_VALUE=\'\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\"\' \
+		-DSTANDARD_UTILS_PATH=\'\"/bin:/usr/bin:/sbin:/usr/sbin\"\' \
+		-DSYS_BASHRC=\'\"/etc/bash/bashrc\"\' \
+		-DSYS_BASH_LOGOUT=\'\"/etc/bash/bash_logout\"\' \
 		-DNON_INTERACTIVE_LOGIN_SHELLS \
 		-DSSH_SOURCE_BASHRC \
 		$(use bashlogger && echo -DSYSLOG_HISTORY)
@@ -194,15 +194,16 @@ src_install() {
 	mv "${ED}"/usr/bin/bash "${ED}"/bin/ || die
 	dosym bash /bin/rbash
 
-	insinto /etc/bash
-	doins "${FILESDIR}"/bash_logout
-	doins "$(prefixify_ro "${FILESDIR}"/bashrc)"
+	insinto /usr/share/bash
+	for f in bash{_logout,rc} ; do
+		doins "${FILESDIR}"/${f}
+		dosym ../../usr/share/bash/${f} /etc/bash/${f}
+	done
 
-	keepdir /etc/bash/bashrc.d
-
-	insinto /etc/skel
+	insinto /usr/share/skel
 	for f in bash{_logout,_profile,rc} ; do
 		newins "${FILESDIR}"/dot-${f} .${f}
+		dosym ../../usr/share/skel/.${f} /etc/skel/.${f}
 	done
 
 	local sed_args=(
@@ -220,8 +221,8 @@ src_install() {
 
 	sed -i \
 		"${sed_args[@]}" \
-		"${ED}"/etc/skel/.bashrc \
-		"${ED}"/etc/bash/bashrc || die
+		"${ED}"/usr/share/skel/.bashrc \
+		"${ED}"/usr/share/bash/bashrc || die
 
 	if use plugins ; then
 		exeinto /usr/$(get_libdir)/bash
