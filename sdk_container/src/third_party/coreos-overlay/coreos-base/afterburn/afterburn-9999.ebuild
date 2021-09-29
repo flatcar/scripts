@@ -10,7 +10,7 @@ CROS_WORKON_REPO="git://github.com"
 if [[ ${PV} == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	CROS_WORKON_COMMIT="be818b9769ac615ad0a44f380ef4773f37edece8" # flatcar-master
+	CROS_WORKON_COMMIT="bb3cdd0b895e9803c843d1e1831f9c0613e35e02" # flatcar-master
 	KEYWORDS="amd64 arm64"
 fi
 
@@ -29,6 +29,7 @@ aho-corasick-0.6.9
 ansi_term-0.11.0
 arrayvec-0.4.9
 atty-0.2.11
+autocfg-1.0.1
 base64-0.10.1
 base64-0.9.3
 bitflags-0.5.0
@@ -41,6 +42,7 @@ byteorder-1.3.1
 bytes-0.4.11
 cc-1.0.26
 cfg-if-0.1.6
+cfg-if-1.0.0
 chrono-0.4.6
 clap-2.33.0
 cloudabi-0.0.3
@@ -106,11 +108,12 @@ nodrop-0.1.13
 num-integer-0.1.39
 num-traits-0.2.6
 num_cpus-1.9.0
+once_cell-1.8.0
 opaque-debug-0.2.1
 openssh-keys-0.4.1
-openssl-0.10.20
+openssl-0.10.36
 openssl-probe-0.1.2
-openssl-sys-0.9.43
+openssl-sys-0.9.67
 owning_ref-0.4.0
 parking_lot-0.6.4
 parking_lot_core-0.3.1
@@ -216,7 +219,7 @@ url-1.7.2
 users-0.8.1
 utf8-ranges-1.0.2
 uuid-0.7.1
-vcpkg-0.2.6
+vcpkg-0.2.15
 vec_map-0.8.1
 version_check-0.1.5
 void-1.0.2
