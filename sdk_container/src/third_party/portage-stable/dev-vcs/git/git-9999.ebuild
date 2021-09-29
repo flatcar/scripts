@@ -6,14 +6,14 @@ EAPI=7
 GENTOO_DEPEND_ON_PERL=no
 
 # bug #329479: git-remote-testgit is not multiple-version aware
-PYTHON_COMPAT=( python3_7 )
+PYTHON_COMPAT=( python3_{8..10} )
 
-inherit toolchain-funcs elisp-common l10n perl-module bash-completion-r1 python-single-r1 systemd
+inherit toolchain-funcs elisp-common perl-module bash-completion-r1 plocale python-single-r1 systemd
 
 PLOCALES="bg ca de es fr is it ko pt_PT ru sv vi zh_CN"
 if [[ ${PV} == *9999 ]]; then
 	inherit git-r3
-	EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
+	EGIT_REPO_URI="https://git.kernel.org/pub/scm/git/git.git"
 	# Please ensure that all _four_ 9999 ebuilds get updated; they track the 4 upstream branches.
 	# See https://git-scm.com/docs/gitworkflows#_graduation
 	# In order of stability:
@@ -51,25 +51,23 @@ fi
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="+blksha1 +curl cgi doc emacs gnome-keyring +gpg highlight +iconv libressl mediawiki mediawiki-experimental +nls +pcre +pcre-jit perforce +perl +ppcsha1 subversion tk +threads +webdav xinetd cvs test"
+IUSE="+blksha1 +curl cgi doc emacs gnome-keyring +gpg highlight +iconv mediawiki mediawiki-experimental +nls +pcre perforce +perl +ppcsha1 subversion tk +threads +webdav xinetd cvs test"
 
 # Common to both DEPEND and RDEPEND
 DEPEND="
-	gnome-keyring? ( app-crypt/libsecret )
-	!libressl? ( dev-libs/openssl:0= )
-	libressl? ( dev-libs/libressl:= )
-	sys-libs/zlib
-	pcre? (
-		pcre-jit? ( dev-libs/libpcre2[jit(+)] )
-		!pcre-jit? ( dev-libs/libpcre )
+	gnome-keyring? (
+		app-crypt/libsecret
+		dev-libs/glib:2
 	)
+	dev-libs/openssl:0=
+	sys-libs/zlib
+	pcre? ( dev-libs/libpcre2:= )
 	perl? ( dev-lang/perl:=[-build(-)] )
 	tk? ( dev-lang/tk:0= )
 	curl? (
 		net-misc/curl
 		webdav? ( dev-libs/expat )
 	)
-	emacs? ( >=app-editors/emacs-23.1:* )
 	iconv? ( virtual/libiconv )
 "
 
@@ -114,6 +112,8 @@ BDEPEND="
 		app-text/xmlto
 		sys-apps/texinfo
 	)
+	emacs? ( >=app-editors/emacs-23.1:* )
+	gnome-keyring? ( virtual/pkgconfig )
 	nls? ( sys-devel/gettext )
 	test? (	app-crypt/gnupg	)
 "
@@ -132,7 +132,6 @@ REQUIRED_USE="
 	cvs? ( perl )
 	mediawiki? ( perl )
 	mediawiki-experimental? ( mediawiki )
-	pcre-jit? ( pcre )
 	perforce? ( ${PYTHON_REQUIRED_USE} )
 	subversion? ( perl )
 	webdav? ( curl )
@@ -206,16 +205,8 @@ exportmakeopts() {
 	sed -i -e '/\/usr\/local/s/BASIC_/#BASIC_/' Makefile || die
 
 	if use pcre; then
-		if use pcre-jit; then
-			myopts+=( USE_LIBPCRE2=YesPlease )
-			extlibs+=( -lpcre2-8 )
-		else
-			myopts+=(
-				USE_LIBPCRE1=YesPlease
-				NO_LIBPCRE1_JIT=YesPlease
-			)
-			extlibs+=( -lpcre )
-		fi
+		myopts+=( USE_LIBPCRE2=YesPlease )
+		extlibs+=( -lpcre2-8 )
 	fi
 	if [[ ${CHOST} == *-solaris* ]]; then
 		myopts+=(
@@ -271,6 +262,11 @@ src_prepare() {
 	fi
 
 	default
+
+	if use prefix ; then
+		# bug #757309
+		eapply "${FILESDIR}"/git-2.31.0-darwin-prefix-gettext.patch
+	fi
 
 	sed -i \
 		-e 's:^\(CFLAGS[[:space:]]*=\).*$:\1 $(OPTCFLAGS) -Wall:' \
@@ -345,7 +341,7 @@ src_compile() {
 
 	if use gnome-keyring ; then
 		pushd contrib/credential/libsecret &>/dev/null || die
-		git_emake || die "emake git-credential-libsecret failed"
+		git_emake CC="$(tc-getCC)" CFLAGS="${CFLAGS}" PKG_CONFIG="$(tc-getPKG_CONFIG)"
 		popd &>/dev/null || die
 	fi
 
@@ -535,7 +531,7 @@ src_install() {
 			rm -r "${ED}/usr/share/locale/${1}" || die
 		fi
 	}
-	l10n_for_each_disabled_locale_do rm_loc
+	plocale_for_each_disabled_locale rm_loc
 }
 
 src_test() {
