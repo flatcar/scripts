@@ -31,6 +31,36 @@ if [[ "${KOLA_TESTS}" == "" ]]; then
   KOLA_TESTS="*"
 fi
 
+# cl.basic includes cl.internet which is run on multiple instance types
+cl_basic_included="$(bin/kola list --platform=packet --filter "${KOLA_TESTS}" | grep cl.basic)"
+if [[ "${BOARD}" == "amd64-usr" ]] && [[ "${cl_basic_included}" != ""  ]]; then
+  for INSTANCE in c3.small.x86 c3.medium.x86 m3.large.x86 s3.xlarge.x86 n2.xlarge.x86; do
+    (
+    OUTPUT=$(timeout --signal=SIGQUIT "${timeout}" bin/kola run \
+    --basename="${NAME}" \
+    --board="${BOARD}" \
+    --channel="${GROUP}" \
+    --gce-json-key="${UPLOAD_CREDS}" \
+    --packet-api-key="${PACKET_API_KEY}" \
+    --packet-facility="${PACKET_REGION}" \
+    --packet-image-url="${IMAGE_URL}" \
+    --packet-installer-image-kernel-url="${KERNEL_URL}" \
+    --packet-installer-image-cpio-url="${CPIO_URL}" \
+    --packet-project="${PACKET_PROJECT}" \
+    --packet-storage-url="${UPLOAD_ROOT}/mantle/packet" \
+    --packet-plan="${INSTANCE}" \
+    --parallel="${PARALLEL_TESTS}" \
+    --platform=packet \
+    --tapfile="${JOB_NAME##*/}_validate_${INSTANCE}.tap" \
+    --torcx-manifest=torcx_manifest.json \
+    cl.internet 2>&1 || true)
+    echo "=== START $INSTANCE ==="
+    echo "${OUTPUT}" | sed "s/^/${INSTANCE}: /g"
+    echo "=== END $INSTANCE ==="
+    ) &
+  done
+fi
+
 # Do not expand the kola test patterns globs
 set -o noglob
 timeout --signal=SIGQUIT "${timeout}" bin/kola run \
@@ -52,3 +82,6 @@ timeout --signal=SIGQUIT "${timeout}" bin/kola run \
     --torcx-manifest=torcx_manifest.json \
     ${KOLA_TESTS}
 set +o noglob
+
+# wait for the cl.internet test results
+wait
