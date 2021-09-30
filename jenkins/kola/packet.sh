@@ -31,9 +31,9 @@ if [[ "${KOLA_TESTS}" == "" ]]; then
   KOLA_TESTS="*"
 fi
 
-# cl.basic includes cl.internet which is run on multiple instance types
-cl_basic_included="$(bin/kola list --platform=packet --filter "${KOLA_TESTS}" | grep cl.basic)"
-if [[ "${BOARD}" == "amd64-usr" ]] && [[ "${cl_basic_included}" != ""  ]]; then
+# Run the cl.internet test on multiple machine types only if it should run in general
+cl_internet_included="$(set -o noglob; bin/kola list --platform=packet --filter ${KOLA_TESTS} | { grep cl.internet || true ; } )"
+if [[ "${BOARD}" == "amd64-usr" ]] && [[ "${cl_internet_included}" != ""  ]]; then
   for INSTANCE in c3.small.x86 c3.medium.x86 m3.large.x86 s3.xlarge.x86 n2.xlarge.x86; do
     (
     OUTPUT=$(timeout --signal=SIGQUIT "${timeout}" bin/kola run \
