@@ -87,4 +87,5 @@ function apply_patches() {
   git fetch origin
   git checkout -B "${BASE_BRANCH}" "origin/${BASE_BRANCH}"
   git am "${SDK_OUTER_SRCDIR}"/third_party/coreos-overlay/0*.patch
+  rm -f "${SDK_OUTER_SRCDIR}"/third_party/coreos-overlay/0*.patch
 }
