@@ -100,7 +100,7 @@ dev-util/checkbashisms
 
 =dev-libs/libxml2-2.9.12-r2 ~amd64 ~arm64
 
-=dev-libs/libgcrypt-1.9.3 ~amd64 ~arm64
+=dev-libs/libgcrypt-1.9.4 ~amd64 ~arm64
 
 =net-libs/libnftnl-1.2.0 ~amd64 ~arm64
 
