@@ -5,11 +5,6 @@ rm -rf *.tap _kola_temp*
 
 NAME="jenkins-${JOB_NAME##*/}-${BUILD_NUMBER}"
 
-if [[ "${BOARD}" == "arm64-usr" ]]; then
-  echo "Unsupported board"
-  exit 1
-fi
-
 if [[ "${KOLA_TESTS}" == "" ]]; then
   KOLA_TESTS="*"
 fi
