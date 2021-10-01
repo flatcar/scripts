@@ -979,8 +979,8 @@ fixup_liblto_softlinks() {
   local link
   local target
   # check both native (/usr/CHOST/) as well as cross compile (/usr/CHOST/CTARGET) paths
-  { ls -l "${root}/"usr/*/binutils-bin/lib/bfd-plugins/liblto_plugin.so 2>/dev/null;
-    ls -l "${root}/"usr/*/*/binutils-bin/lib/bfd-plugins/liblto_plugin.so 2>/dev/null; } \
+  { ls -l "${root}/"usr/*/binutils-bin/lib/bfd-plugins/liblto_plugin.so 2>/dev/null || :;
+    ls -l "${root}/"usr/*/*/binutils-bin/lib/bfd-plugins/liblto_plugin.so 2>/dev/null || :; } \
     | sed 's:.* \([^[:space:]]\+\) -> \([^[:space:]]\+\):\1 \2:' \
     | while read link target; do
               local newtarget=$(echo "$target" | sed "s:${root}:/:")

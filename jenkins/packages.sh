@@ -47,7 +47,10 @@ bin/cork update \
 
 enter() {
         local verify_key=
-        trap 'sudo rm -f chroot/etc/portage/gangue.*' RETURN
+        # Run in a subshell to clean some gangue files on exit without
+        # possibly clobbering the global EXIT trap.
+        (
+        trap 'sudo rm -f chroot/etc/portage/gangue.*' EXIT
         [ -s verify.asc ] &&
         sudo ln -f verify.asc chroot/etc/portage/gangue.asc &&
         verify_key=--verify-key=/etc/portage/gangue.asc
@@ -60,6 +63,7 @@ enter() {
 --json-key=/etc/portage/gangue.json $verify_key \
 "'"${URI}" "${DISTDIR}/${FILE}"' \
             "$@"
+        )
 }
 
 script() {
