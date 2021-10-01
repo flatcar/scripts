@@ -68,6 +68,12 @@ src_configure() {
 		$(use_enable delta_generator)
 	)
 
+	if tc-is-cross-compiler; then
+		# Override glib-genmarshal path
+		local build_pkg_config="$(tc-getBUILD_PROG PKG_CONFIG pkg-config)"
+		myconf+=(GLIB_GENMARSHAL="$("${build_pkg_config}" --variable=glib_genmarshal glib-2.0)")
+	fi
+
 	econf "${myconf[@]}"
 }
 
