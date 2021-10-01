@@ -58,6 +58,9 @@ multilib_src_configure() {
 		ECONF_SOURCE="${S}" econf_build
 		myconf+=( --with-dbus-binding-tool="$PWD/dbus/dbus-binding-tool" )
 		cd - || die
+		# Flatcar: override glib-genmarshal path
+		local build_pkg_config="$(tc-getBUILD_PROG PKG_CONFIG pkg-config)"
+		myconf+=(GLIB_GENMARSHAL="$("${build_pkg_config}" --variable=glib_genmarshal glib-2.0)")
 	fi
 
 	ECONF_SOURCE="${S}" econf "${myconf[@]}"
