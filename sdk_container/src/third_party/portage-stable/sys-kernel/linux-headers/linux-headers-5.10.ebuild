@@ -8,11 +8,11 @@ H_SUPPORTEDARCH="alpha amd64 arc arm arm64 avr32 cris frv hexagon hppa ia64 m68k
 inherit kernel-2 toolchain-funcs
 detect_version
 
+PATCH_PV=${PV} # to ease testing new versions against not existing patches
 PATCH_VER="1"
-SRC_URI="mirror://gentoo/gentoo-headers-base-${PV}.tar.xz
-	https://dev.gentoo.org/~slyfox/distfiles/gentoo-headers-base-${PV}.tar.xz
-	${PATCH_VER:+mirror://gentoo/gentoo-headers-${PV}-${PATCH_VER}.tar.xz}
-	${PATCH_VER:+https://dev.gentoo.org/~slyfox/distfiles/gentoo-headers-${PV}-${PATCH_VER}.tar.xz}
+SRC_URI="${KERNEL_URI}
+	${PATCH_VER:+mirror://gentoo/gentoo-headers-${PATCH_PV}-${PATCH_VER}.tar.xz}
+	${PATCH_VER:+https://dev.gentoo.org/~slyfox/distfiles/gentoo-headers-${PATCH_PV}-${PATCH_VER}.tar.xz}
 "
 
 KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux"
@@ -21,26 +21,20 @@ DEPEND="app-arch/xz-utils
 	dev-lang/perl"
 RDEPEND=""
 
-S=${WORKDIR}/gentoo-headers-base-${PV}
+S=${WORKDIR}/linux-${PV}
 
 src_unpack() {
 	unpack ${A}
 }
 
 src_prepare() {
-	default
+	[[ -n ${PATCH_VER} ]] && eapply "${WORKDIR}"/${PATCH_PV}/*.patch
 
-	[[ -n ${PATCH_VER} ]] && eapply "${WORKDIR}"/${PV}/*.patch
+	default
 }
 
 src_test() {
-	einfo "Possible unescaped attribute/type usage"
-	egrep -r \
-		-e '(^|[[:space:](])(asm|volatile|inline)[[:space:](]' \
-		-e '\<([us](8|16|32|64))\>' \
-		.
-
-	emake ARCH=$(tc-arch-kernel) headers_check
+	emake headers_check ${xmakeopts}
 }
 
 src_install() {
