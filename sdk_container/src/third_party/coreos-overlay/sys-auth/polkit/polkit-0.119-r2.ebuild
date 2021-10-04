@@ -32,7 +32,7 @@ BDEPEND="
 	introspection? ( dev-libs/gobject-introspection )
 "
 DEPEND="
-	dev-lang/spidermonkey:78[-debug]
+	dev-lang/duktape
 	dev-libs/glib:2
 	dev-libs/expat
 	elogind? ( sys-auth/elogind )
@@ -59,6 +59,9 @@ DOCS=( docs/TODO HACKING NEWS README )
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-0.115-elogind.patch # bug 660880
+
+	# from https://gitlab.freedesktop.org/polkit/polkit/-/merge_requests/35
+	"${FILESDIR}"/35_WIP_Add_duktape_as_javascript_engine.patch
 )
 
 QA_MULTILIB_PATHS="
@@ -92,6 +95,7 @@ src_configure() {
 		--enable-man-pages
 		--disable-gtk-doc
 		--disable-examples
+		--with-duktape
 		$(use_enable elogind libelogind)
 		$(use_enable introspection)
 		$(use_enable nls)
