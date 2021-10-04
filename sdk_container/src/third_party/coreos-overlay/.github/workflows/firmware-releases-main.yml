@@ -2,6 +2,7 @@ name: Get the latest Linux Firmware release for main
 on:
   schedule:
     - cron:  '0 7 * * 4'
+  workflow_dispatch:
 
 jobs:
   get-firmware-release:

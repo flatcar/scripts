@@ -2,6 +2,7 @@ name: Get the latest open-vm-tools release for main
 on:
   schedule:
     - cron:  '0 7 * * 3'
+  workflow_dispatch:
 
 jobs:
   get-vmware-release:
