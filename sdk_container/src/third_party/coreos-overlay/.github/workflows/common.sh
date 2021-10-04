@@ -31,6 +31,14 @@ function get_ebuild_filename() {
   fi
 }
 
+function prepare_git_repo() {
+  git config user.name "${BUILDBOT_USERNAME}"
+  git config user.email "${BUILDBOT_USEREMAIL}"
+  git reset --hard HEAD
+  git fetch origin
+  git checkout -B "${BASE_BRANCH}" "origin/${BASE_BRANCH}"
+}
+
 # caller needs to set pass a parameter as a branch name to be created.
 function checkout_branches() {
   TARGET_BRANCH=$1
@@ -81,10 +89,6 @@ function generate_patches() {
 }
 
 function apply_patches() {
-  git config user.name "${BUILDBOT_USERNAME}"
-  git config user.email "${BUILDBOT_USEREMAIL}"
-  git reset --hard HEAD
-  git fetch origin
-  git checkout -B "${BASE_BRANCH}" "origin/${BASE_BRANCH}"
   git am "${SDK_OUTER_SRCDIR}"/third_party/coreos-overlay/0*.patch
+  rm -f "${SDK_OUTER_SRCDIR}"/third_party/coreos-overlay/0*.patch
 }

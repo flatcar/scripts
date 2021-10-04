@@ -2,6 +2,7 @@ name: Get the latest Containerd release for main
 on:
   schedule:
     - cron:  '00 8 * * 5'
+  workflow_dispatch:
 
 jobs:
   get-containerd-release:

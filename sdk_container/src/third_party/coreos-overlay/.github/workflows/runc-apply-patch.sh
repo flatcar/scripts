@@ -6,6 +6,8 @@ UPDATE_NEEDED=1
 
 . .github/workflows/common.sh
 
+prepare_git_repo
+
 if ! checkout_branches "runc-${VERSION_NEW}-${TARGET}"; then
   UPDATE_NEEDED=0
   exit 0

@@ -2,6 +2,7 @@ name: Get the latest Docker release for main
 on:
   schedule:
     - cron:  '35 7 * * 3'
+  workflow_dispatch:
 
 jobs:
   get-docker-release:

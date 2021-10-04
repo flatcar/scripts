@@ -2,6 +2,7 @@ name: Get the latest Rust release for main
 on:
   schedule:
     - cron:  '20 7 * * 2'
+  workflow_dispatch:
 
 jobs:
   get-rust-release:
