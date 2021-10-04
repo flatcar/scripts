@@ -32,7 +32,7 @@ src_prepare() {
 src_compile() {
 	emake CC="$(tc-getCC)" CXX="$(tc-getCXX)" \
             VERSION=${PV} \
-            JSON_INCLUDE_PATH="${ROOT%/}/usr/include/json-c"
+            JSON_INCLUDE_PATH="${SYSROOT%/}/usr/include/json-c"
 }
 
 src_install() {

@@ -40,8 +40,8 @@ src_compile() {
 	# setup CFLAGS and LDFLAGS for separate build target
 	# see https://github.com/tianon/docker-overlay/pull/10
 	# FLatcar: inject our own CFLAGS/LDFLAGS for torcx
-	export CGO_CFLAGS="${CGO_CFLAGS} -I${ROOT}/usr/include"
-	export CGO_LDFLAGS="${CGO_LDFLAGS} -L${ROOT}/usr/$(get_libdir)"
+	export CGO_CFLAGS="${CGO_CFLAGS} -I${SYSROOT}/usr/include"
+	export CGO_LDFLAGS="${CGO_LDFLAGS} -L${SYSROOT}/usr/$(get_libdir)"
 		emake \
 		LDFLAGS="$(usex hardened '-extldflags -fno-PIC' '')" \
 		VERSION="$(cat VERSION)" \

@@ -1,7 +1,7 @@
 # Copyright (c) 2013 CoreOS, Inc.. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 
 DESCRIPTION="OEM suite for Azure"
 HOMEPAGE=""
@@ -24,6 +24,7 @@ RDEPEND="
 "
 
 src_prepare() {
+	default
 	sed -e "s\\@@OEM_VERSION_ID@@\\${PVR}\\g" \
 		"${FILESDIR}/oem-release" > "${T}/oem-release" || die
 }

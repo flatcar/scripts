@@ -25,7 +25,7 @@ COREOS_SOURCE_VERSION="${PV}${COREOS_SOURCE_REVISION}"
 COREOS_KERNEL_SOURCE_NAME="linux-${PV/_rc/-rc}-coreos${COREOS_SOURCE_REVISION}"
 COREOS_SOURCE_NAME="linux-${PV/_rc/-rc}-flatcar"
 
-[[ ${EAPI} != "5" ]] && die "Only EAPI=5 is supported"
+[[ ${EAPI} != "7" ]] && die "Only EAPI=7 is supported"
 
 inherit linux-info toolchain-funcs
 

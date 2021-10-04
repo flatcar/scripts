@@ -1,9 +1,9 @@
 # Copyright (c) 2013 CoreOS Inc. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 
-inherit autotools git-2
+inherit autotools git-r3
 
 DESCRIPTION="Build tool wrappers for using custom SYSROOTs"
 HOMEPAGE="https://github.com/coreos/sysroot-wrappers"
@@ -16,5 +16,6 @@ KEYWORDS="-*"
 IUSE=""
 
 src_prepare() {
+	default
 	eautoreconf
 }

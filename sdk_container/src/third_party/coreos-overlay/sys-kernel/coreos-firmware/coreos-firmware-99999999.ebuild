@@ -4,8 +4,8 @@
 EAPI=7
 
 # Tell linux-info where to find the kernel source/build
-KERNEL_DIR="${SYSROOT}/usr/src/linux"
-KBUILD_OUTPUT="${SYSROOT}/var/cache/portage/sys-kernel/coreos-kernel"
+KERNEL_DIR="${SYSROOT%/}/usr/src/linux"
+KBUILD_OUTPUT="${SYSROOT%/}/var/cache/portage/sys-kernel/coreos-kernel"
 inherit linux-info savedconfig
 
 # In case this is a real snapshot, fill in commit below.
@@ -102,7 +102,7 @@ src_unpack() {
 }
 
 src_prepare() {
-	local kernel_mods="${ROOT}/lib/modules/${KV_FULL}"
+	local kernel_mods="${SYSROOT%/}/lib/modules/${KV_FULL}"
 
 	# Fail if any firmware is missing.
 	einfo "Scanning for files required by ${KV_FULL}"

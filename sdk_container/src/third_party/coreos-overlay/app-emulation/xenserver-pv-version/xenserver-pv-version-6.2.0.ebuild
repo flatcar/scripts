@@ -2,9 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=5
+EAPI=7
 
-inherit systemd versionator
+inherit systemd
 
 DESCRIPTION="Fake data for XenServer's PV driver version detection."
 HOMEPAGE="http://xenserver.org/"
@@ -21,7 +21,8 @@ RDEPEND="app-emulation/xenstore"
 S="${WORKDIR}"
 
 src_prepare() {
-	local split=($(get_version_components))
+	default
+	local split=($(ver_cut 1-3))
 	sed -e "s/@@MAJOR@@/${split[0]}/" \
 		-e "s/@@MINOR@@/${split[1]}/" \
 		-e "s/@@MICRO@@/${split[2]}/" \
