@@ -6,9 +6,9 @@ get_binhost_url() {
 	local image_group=$1
 	local image_path=$2
 	if [ "${image_group}" == "developer" ]; then
-		echo "https://storage.googleapis.com/flatcar-jenkins/${image_group}/boards/${BOARD}/${FLATCAR_VERSION}/${image_path}"
+		echo "${FLATCAR_DEV_BUILDS}/${image_group}/boards/${BOARD}/${FLATCAR_VERSION}/${image_path}"
 	else
-		echo "https://storage.googleapis.com/flatcar-jenkins/boards/${BOARD}/${FLATCAR_VERSION_ID}/${image_path}"
+		echo "${FLATCAR_DEV_BUILDS}/boards/${BOARD}/${FLATCAR_VERSION_ID}/${image_path}"
 	fi
 }
 

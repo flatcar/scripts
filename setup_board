@@ -28,7 +28,7 @@ DEFINE_boolean getbinpkg "${FLAGS_TRUE}" \
 DEFINE_string getbinpkgver "" \
   "Use binary packages from a specific version."
 DEFINE_string binhost "" \
-  "Use binary packages from a specific location (e.g. https://storage.googleapis.com/flatcar-jenkins/sdk/amd64/2000.0.0/pkgs)"
+  "Use binary packages from a specific location instead of $FLATCAR_DEV_BUILDS/... "
 DEFINE_boolean toolchainpkgonly "${FLAGS_FALSE}" \
   "Use binary packages only for the board toolchain."
 DEFINE_integer jobs "${NUM_JOBS}" \

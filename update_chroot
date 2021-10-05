@@ -6,6 +6,7 @@
 
 
 . "$(dirname "$0")/common.sh" || exit 1
+. "${BUILD_LIBRARY_DIR}/toolchain_util.sh"
 
 # Script must run inside the chroot
 assert_inside_chroot "$@"
@@ -30,7 +31,7 @@ DEFINE_string toolchain_boards "" \
 DEFINE_string dev_builds_sdk "" \
   "Set FLATCAR_DEV_BUILDS_SDK which defaults to FLATCAR_DEV_BUILDS/sdk"
 DEFINE_string binhost "" \
-  "Use binary packages from a specific location (e.g. https://storage.googleapis.com/flatcar-jenkins/sdk/amd64/2000.0.0/pkgs)"
+  "Use binary packages from a specific location (like $(get_sdk_binhost | tr '\n' ' '}))"
 
 FLAGS_HELP="usage: $(basename $0) [flags]
 Performs an update of the chroot. This script is called as part of
@@ -58,8 +59,6 @@ fi
 if [[ -n "${FLAGS_dev_builds_sdk}" ]]; then
   FLATCAR_DEV_BUILDS_SDK="${FLAGS_dev_builds_sdk}"
 fi
-
-. "${BUILD_LIBRARY_DIR}/toolchain_util.sh"
 
 PORTAGE_STABLE_OVERLAY="${REPO_ROOT}/src/third_party/portage-stable"
 CROSSDEV_OVERLAY="/usr/local/portage/crossdev"
