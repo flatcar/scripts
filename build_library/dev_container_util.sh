@@ -3,12 +3,13 @@
 # found in the LICENSE file.
 
 get_binhost_url() {
-	local image_group=$1
-	local image_path=$2
+	local binhost_base=$1
+	local image_group=$2
+	local image_path=$3
 	if [ "${image_group}" == "developer" ]; then
-		echo "${FLATCAR_DEV_BUILDS}/${image_group}/boards/${BOARD}/${FLATCAR_VERSION}/${image_path}"
+		echo "${binhost_base}/${image_group}/boards/${BOARD}/${FLATCAR_VERSION}/${image_path}"
 	else
-		echo "${FLATCAR_DEV_BUILDS}/boards/${BOARD}/${FLATCAR_VERSION_ID}/${image_path}"
+		echo "${binhost_base}/boards/${BOARD}/${FLATCAR_VERSION_ID}/${image_path}"
 	fi
 }
 
@@ -35,8 +36,8 @@ PKGDIR="/var/lib/portage/pkgs"
 PORT_LOGDIR="/var/log/portage"
 PORTDIR="/var/lib/portage/portage-stable"
 PORTDIR_OVERLAY="/var/lib/portage/coreos-overlay"
-PORTAGE_BINHOST="$(get_binhost_url $2 'pkgs')
-$(get_binhost_url $2 'toolchain')"
+PORTAGE_BINHOST="$(get_binhost_url "$2" "$3" 'pkgs')
+$(get_binhost_url "$2" "$3" 'toolchain')"
 EOF
 
 sudo_clobber "$1/etc/portage/repos.conf/coreos.conf" <<EOF
@@ -67,8 +68,9 @@ EOF
 create_dev_container() {
   local image_name=$1
   local disk_layout=$2
-  local update_group=$3
-  local base_pkg="$4"
+  local binhost=$3
+  local update_group=$4
+  local base_pkg="$5"
 
   if [ -z "${base_pkg}" ]; then
     echo "did not get base package!"
@@ -92,7 +94,7 @@ create_dev_container() {
   insert_licenses "${BUILD_DIR}/${image_licenses}" "${root_fs_dir}"
 
   # Setup portage for emerge and gmerge
-  configure_dev_portage "${root_fs_dir}" "${update_group}"
+  configure_dev_portage "${root_fs_dir}" "${binhost}" "${update_group}"
 
   # Mark the image as a developer image (input to chromeos_startup).
   # TODO(arkaitzr): Remove this file when applications no longer rely on it
