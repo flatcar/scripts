@@ -32,10 +32,12 @@ fi
 bin/cork update \
     --create --downgrade-replace --verify --verify-signature --verbose \
     --sdk-url-path "${SDK_URL_PATH}" \
+    --json-key "${GS_DEVEL_CREDS}" \
     --force-sync \
     ${SCRIPTS_PATCH_ARG} ${OVERLAY_PATCH_ARG} ${PORTAGE_PATCH_ARG} \
     --manifest-branch "refs/tags/${MANIFEST_TAG}" \
     --manifest-name "${MANIFEST_NAME}" \
+    --sdk-url storage.googleapis.com \
     --manifest-url "${MANIFEST_URL}" -- --dev_builds_sdk="${DOWNLOAD_ROOT_SDK}"
 
 # Clear out old images.
