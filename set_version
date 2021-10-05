@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-DEFAULT_BASE_URL="https://storage.googleapis.com/flatcar-jenkins"
+DEFAULT_BASE_URL="https://mirror.release.flatcar-linux.net"
 DEV_BOARD_URL="${DEFAULT_BASE_URL}/developer"
 DEFAULT_SDK_URL="${DEFAULT_BASE_URL}/sdk"
 DEV_SDK_URL="${DEFAULT_BASE_URL}/developer/sdk"
@@ -41,14 +41,34 @@ Usage: $0 FLAGS...
   --file FILE:                                     Modify another file than ${FILE}, useful if run
                                                    outside of the SDK chroot. If /dev/stdout or
                                                    /dev/stderr is used, only new values are printed.
+  --binhost                                        Use a custom binhost (defaults to '${DEFAULT_BASE_URL}').
+                                                   This will update BOARD and SDK URLs accordingly.
 "
   exit 1
 fi
+
+# --binhost needs to be evaluated first since it impacts other variables set below
+custom_binhost="false"
+for arg in ${@} ; do
+    if $custom_binhost; then
+        echo "Using custom binhost '${arg}'"
+        DEFAULT_BASE_URL="${arg}"
+        DEV_BOARD_URL="${DEFAULT_BASE_URL}/developer"
+        DEFAULT_SDK_URL="${DEFAULT_BASE_URL}/sdk"
+        DEV_SDK_URL="${DEFAULT_BASE_URL}/developer/sdk"
+        break
+    fi
+    if [ "$arg" = "--binhost" ] ; then
+        custom_binhost="true"
+    fi
+done
 
 while [[ $# -gt 0 ]]; do
   ARG="$1"
   shift
   case "${ARG}" in
+    --binhost) # handled separately above, pass
+        shift;;
     --board-version)
       VAL="$1"
       shift
