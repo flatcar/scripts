@@ -33,6 +33,7 @@ bin/cork update \
     --create --downgrade-replace --verify --verify-signature --verbose \
     --sdk-url-path "${SDK_URL_PATH}" \
     --force-sync \
+    --json-key "${GS_DEVEL_CREDS}" \
     ${SCRIPTS_PATCH_ARG} ${OVERLAY_PATCH_ARG} ${PORTAGE_PATCH_ARG} \
     --manifest-branch "refs/tags/${MANIFEST_TAG}" \
     --manifest-name "${MANIFEST_NAME}" \
@@ -78,6 +79,7 @@ bin/cork download-image \
     --root="${UPLOAD_ROOT}/boards/${BOARD}/${FLATCAR_VERSION}" \
     --json-key="${GOOGLE_APPLICATION_CREDENTIALS}" \
     --cache-dir=./src \
+    --sdk-url=storage.googleapis.com \
     --platform=qemu \
     --verify=true $verify_key
 
