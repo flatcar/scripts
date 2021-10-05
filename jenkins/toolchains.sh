@@ -35,6 +35,8 @@ fi
 bin/cork update \
     --create --downgrade-replace --verify --verify-signature --verbose \
     --sdk-url-path "${SDK_URL_PATH}" \
+    --json-key "${GOOGLE_APPLICATION_CREDENTIALS}" \
+    --sdk-url storage.googleapis.com \
     --force-sync \
     ${SCRIPTS_PATCH_ARG} ${OVERLAY_PATCH_ARG} ${PORTAGE_PATCH_ARG} \
     --manifest-branch "refs/tags/${MANIFEST_TAG}" \

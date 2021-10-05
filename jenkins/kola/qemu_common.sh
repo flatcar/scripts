@@ -68,6 +68,7 @@ else
       --create --downgrade-replace --verify --verify-signature --verbose \
       --sdk-url-path "${SDK_URL_PATH}" \
       --force-sync \
+      --json-key "${GOOGLE_APPLICATION_CREDENTIALS}" \
       --manifest-branch "refs/tags/${MANIFEST_TAG}" \
       --manifest-name "${MANIFEST_NAME}" \
       --manifest-url "${MANIFEST_URL}" -- --dev_builds_sdk="${DOWNLOAD_ROOT_SDK}"
@@ -100,6 +101,7 @@ rm -f flatcar_test_update.gz
 bin/gangue get \
     --json-key="${GOOGLE_APPLICATION_CREDENTIALS}" \
     --verify=true $verify_key \
+    --sdk-url=storage.googleapis.com \
     "${DOWNLOAD_ROOT}/boards/${BOARD}/${FLATCAR_VERSION}/flatcar_test_update.gz"
 mv flatcar_test_update.gz tmp/
 
