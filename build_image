@@ -18,6 +18,7 @@ assert_inside_chroot
 assert_not_root_user
 
 DEFAULT_GROUP=developer
+DEFAULT_DEVCONTAINER_BINHOST="https://mirror.release.flatcar-linux.net"
 
 # Developer-visible flags.
 DEFINE_string board "${DEFAULT_BOARD}" \
@@ -48,6 +49,8 @@ DEFINE_boolean extract_update "${FLAGS_TRUE}" \
   "Extract the /usr partition for generating updates."
 DEFINE_string developer_data "" \
   "Insert a custom cloudinit file into the image."
+DEFINE_string devcontainer_binhost "${DEFAULT_DEVCONTAINER_BINHOST}" \
+  "Override portage binhost configuration used in development container."
 
 # include upload options
 . "${BUILD_LIBRARY_DIR}/release_util.sh" || exit 1
@@ -167,7 +170,7 @@ fix_mtab
 
 if [[ "${CONTAINER}" -eq 1 ]]; then
   IMAGE_BUILD_TYPE="container"
-  create_dev_container "${FLATCAR_DEVELOPER_CONTAINER_NAME}" "${CONTAINER_LAYOUT}" "${FLAGS_group}" ${FLAGS_base_dev_pkg}
+  create_dev_container "${FLATCAR_DEVELOPER_CONTAINER_NAME}" "${CONTAINER_LAYOUT}" "${FLAGS_devcontainer_binhost}" "${FLAGS_group}" ${FLAGS_base_dev_pkg}
 fi
 
 if [[ "${PROD_IMAGE}" -eq 1 ]]; then
