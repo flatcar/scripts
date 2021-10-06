@@ -49,7 +49,7 @@ fi
 
 # --binhost needs to be evaluated first since it impacts other variables set below
 custom_binhost="false"
-for arg in ${@} ; do
+for arg in "${@}" ; do
     if $custom_binhost; then
         echo "Using custom binhost '${arg}'"
         DEFAULT_BASE_URL="${arg}"
