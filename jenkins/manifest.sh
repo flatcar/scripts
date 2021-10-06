@@ -55,7 +55,8 @@ source manifest/version.txt
 
 if [[ "${SDK_VERSION}" == sdk-*-nightly ]]
 then
-	SDK_VERSION=$(curl -s -S -f -L "https://storage.googleapis.com/flatcar-jenkins/developer/sdk/amd64/${SDK_VERSION}.txt" | tee /dev/stderr)
+	# Get the SDK version from GCS - we use gsutil to get access to the bucket since it's private.
+	SDK_VERSION=$(docker run --rm -v "${GOOGLE_APPLICATION_CREDENTIALS}:/opt/release.json:ro" google/cloud-sdk:alpine bash -c "gcloud auth activate-service-account --key-file /opt/release.json && gsutil cat gs://flatcar-jenkins/developer/sdk/amd64/${SDK_VERSION}.txt" | tee /dev/stderr)
 	if [[ -z "${SDK_VERSION}" ]]
 	then
 		echo "No SDK found, retrigger the manifest job with default SDK_VERSION and SDK_URL_PATH values."
