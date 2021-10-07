@@ -144,3 +144,6 @@ net-firewall/iptables nftables
 
 # Install `perl` with a minimal set of dependencies
 dev-lang/perl minimal
+
+# Disable cgroup-hybrid as we use the unified mode
+sys-apps/systemd -cgroup-hybrid
