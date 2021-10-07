@@ -14,7 +14,12 @@ gpg --import verify.asc
 # key imports fail, let's create it here as a workaround
 mkdir -p --mode=0700 "${GNUPGHOME}/private-keys-v1.d/"
 
-DOWNLOAD_ROOT_SDK="https://storage.googleapis.com${SDK_URL_PATH}"
+SCRIPT_LOCATION="$(dirname "$(readlink -f "$0")")"
+if [ -f "${SCRIPT_LOCATION}/override-vars.env" ] ; then
+    source "${SCRIPT_LOCATION}/override-vars.env"
+else
+    DOWNLOAD_ROOT_SDK="https://storage.googleapis.com${SDK_URL_PATH}"
+fi
 
 SCRIPTS_PATCH_ARG=""
 OVERLAY_PATCH_ARG=""
@@ -29,8 +34,11 @@ if [ "$(cat portage.patch | wc -l)" != 0 ]; then
   PORTAGE_PATCH_ARG="--portage-patch portage.patch"
 fi
 
+sdk_host="${DOWNLOAD_ROOT_SDK#*://}" 
+sdk_host="${sdk_host%/*}"
 bin/cork update \
     --create --downgrade-replace --verify --verify-signature --verbose \
+    --sdk-url "${sdk_host}" \
     --sdk-url-path "${SDK_URL_PATH}" \
     --force-sync \
     ${SCRIPTS_PATCH_ARG} ${OVERLAY_PATCH_ARG} ${PORTAGE_PATCH_ARG} \
@@ -51,13 +59,20 @@ enter() {
         sudo ln -f verify.asc chroot/etc/portage/gangue.asc &&
         verify_key=--verify-key=/etc/portage/gangue.asc
         sudo ln -f "${GS_DEVEL_CREDS}" chroot/etc/portage/gangue.json
-        bin/cork enter --bind-gpg-agent=false -- env \
-            FLATCAR_DEV_BUILDS="${DOWNLOAD_ROOT}" \
-            FLATCAR_DEV_BUILDS_SDK="${DOWNLOAD_ROOT_SDK}" \
-            {FETCH,RESUME}COMMAND_GS="/usr/bin/gangue get \
---json-key=/etc/portage/gangue.json $verify_key \
-"'"${URI}" "${DISTDIR}/${FILE}"' \
-            "$@"
+        if [[ "${DOWNLOAD_ROOT}" = 'gs://'* ]]; then
+            bin/cork enter --bind-gpg-agent=false -- env \
+                FLATCAR_DEV_BUILDS="${DOWNLOAD_ROOT}" \
+                FLATCAR_DEV_BUILDS_SDK="${DOWNLOAD_ROOT_SDK}" \
+                {FETCH,RESUME}COMMAND_GS="/usr/bin/gangue get \
+    --json-key=/etc/portage/gangue.json $verify_key \
+    "'"${URI}" "${DISTDIR}/${FILE}"' \
+                "$@"
+        else
+            bin/cork enter --bind-gpg-agent=false -- env \
+                FLATCAR_DEV_BUILDS="${DOWNLOAD_ROOT}" \
+                FLATCAR_DEV_BUILDS_SDK="${DOWNLOAD_ROOT_SDK}" \
+                "$@"
+        fi
         )
 }
 

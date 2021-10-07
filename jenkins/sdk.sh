@@ -27,7 +27,10 @@ then
 	fi
 fi
 
-DOWNLOAD_ROOT_SDK=https://storage.googleapis.com/flatcar-jenkins/sdk
+SCRIPT_LOCATION="$(dirname "$(readlink -f "$0")")"
+if [ -f "${SCRIPT_LOCATION}/override-vars.env" ] ; then
+    source "${SCRIPT_LOCATION}/override-vars.env"
+fi
 
 # We do not use a nightly SDK as seed for bootstrapping because the next major Alpha SDK release would also have to use the last published Alpha release SDK as seed.
 # Also, we don't want compiler bugs to propagate from one nightly SDK to the next even though the commit in question was reverted.
@@ -36,9 +39,11 @@ DOWNLOAD_ROOT_SDK=https://storage.googleapis.com/flatcar-jenkins/sdk
 # In rare cases this will mean that a huge compiler update has to be split because first a released SDK with a newer compiler is needed to compile an even newer compiler
 # (or linker, libc etc). For experiments one can download the nightly/developer SDK and start the bootstrap from it locally but exposing this functionality in Jenkins would
 # cause more confusion than helping to understand what the requirements are to get SDK changes to a releasable state.
+DOWNLOAD_ROOT_SDK="$RELEASEHOST_BASE_URL/sdk"
 
 bin/cork update \
     --create --downgrade-replace --verify --verify-signature --verbose \
+    --sdk-url "${DOWNLOAD_ROOT_SDK}" \
     --sdk-version "${SEED_SDK_VERSION}" \
     --force-sync \
     --manifest-branch "refs/tags/${MANIFEST_TAG}" \
@@ -78,5 +83,10 @@ if [[ "${FLATCAR_BUILD_ID}" == *-*-nightly-* ]]
 then
   # Extract the nightly name like "flatcar-MAJOR-nightly" from "dev-flatcar-MAJOR-nightly-NUMBER"
   NAME=$(echo "${FLATCAR_BUILD_ID}" | grep -o "dev-.*-nightly" | cut -d - -f 2-)
-  echo "${FLATCAR_VERSION}" | enter gsutil cp - "${UPLOAD_ROOT}/sdk/amd64/sdk-${NAME}.txt"
+
+  if [[ "${UPLOAD_ROOT}" = 'rsync://'* ]]; then
+     ssh_versionfile "${UPLOAD_ROOT}" "${FLATCAR_VERSION}" "/sdk/amd64/sdk-${NAME}.txt"
+  else
+     echo "${FLATCAR_VERSION}" | enter gsutil cp - "${UPLOAD_ROOT}/sdk/amd64/sdk-${NAME}.txt"
+  fi
 fi
