@@ -114,6 +114,7 @@ upload_files() {
         local sshcmd="ssh -o BatchMode=yes "
               sshcmd="$sshcmd -o StrictHostKeyChecking=no"
               sshcmd="$sshcmd -o UserKnownHostsFile=/dev/null"
+              sshcmd="$sshcmd -o NumberOfPasswordPrompts=0"
 
         # ensure the target path exists
         local sshuserhost="${rsync_upload_path%:*}"
