@@ -109,16 +109,15 @@ upload_files() {
 
     info "Uploading ${msg} to ${local_upload_path}"
 
-    if echo "${local_upload_path}" | grep -qE '^rsync://'; then
-        local rsync_upload_path="$(echo "${local_upload_path}" \
-                                    | sed 's,^rsync://,,')"
+    if [[ "${local_upload_path}" = 'rsync://'* ]]; then
+        local rsync_upload_path="${local_upload_path#rsync://}"
         local sshcmd="ssh -o BatchMode=yes "
               sshcmd="$sshcmd -o StrictHostKeyChecking=no"
               sshcmd="$sshcmd -o UserKnownHostsFile=/dev/null"
 
         # ensure the target path exists
-        local sshuserhost="$(echo "${rsync_upload_path}" | sed 's/:.*//')"
-        local destpath="$(echo "${rsync_upload_path}" | sed 's/.*://')"
+        local sshuserhost="${rsync_upload_path%:*}"
+        local destpath="${rsync_upload_path#*:}"
         ${sshcmd} "${sshuserhost}" \
             "mkdir -p ${destpath}/${extra_upload_suffix}"
 
