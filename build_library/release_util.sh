@@ -51,24 +51,27 @@ check_gsutil_opts() {
     fi
 
     if [[ -n "${FLAGS_upload_root}" ]]; then
-        if [[ "${FLAGS_upload_root}" != gs://* ]]; then
-            die_notrace "--upload_root must be a gs:// URL"
+        if [[ "${FLAGS_upload_root}" != gs://* ]] \
+           && [[ "${FLAGS_upload_root}" != rsync://* ]] ; then
+            die_notrace "--upload_root must be a gs:// or rsync:// URL"
         fi
         # Make sure the path doesn't end with a slash
         UPLOAD_ROOT="${FLAGS_upload_root%%/}"
     fi
 
     if [[ -n "${FLAGS_torcx_upload_root}" ]]; then
-        if [[ "${FLAGS_torcx_upload_root}" != gs://* ]]; then
-            die_notrace "--torcx_upload_root must be a gs:// URL"
+        if [[ "${FLAGS_torcx_upload_root}" != gs://* ]] \
+           && [[ "${FLAGS_torcx_upload_root}" != rsync://* ]] ; then
+            die_notrace "--torcx_upload_root must be a gs:// or rsync:// URL"
         fi
         # Make sure the path doesn't end with a slash
         TORCX_UPLOAD_ROOT="${FLAGS_torcx_upload_root%%/}"
     fi
 
     if [[ -n "${FLAGS_upload_path}" ]]; then
-        if [[ "${FLAGS_upload_path}" != gs://* ]]; then
-            die_notrace "--upload_path must be a gs:// URL"
+        if [[ "${FLAGS_upload_path}" != gs://* ]] \
+           && [[ "${FLAGS_upload_path}" != rsync://* ]] ; then
+            die_notrace "--upload_path must be a gs:// or rsync:// URL"
         fi
         # Make sure the path doesn't end with a slash
         UPLOAD_PATH="${FLAGS_upload_path%%/}"
@@ -105,8 +108,27 @@ upload_files() {
     fi
 
     info "Uploading ${msg} to ${local_upload_path}"
-    gsutil ${GSUTIL_OPTS} cp -R "$@" \
-        "${local_upload_path}/${extra_upload_suffix}"
+
+    if [[ "${local_upload_path}" = 'rsync://'* ]]; then
+        local rsync_upload_path="${local_upload_path#rsync://}"
+        local sshcmd="ssh -o BatchMode=yes "
+              sshcmd="$sshcmd -o StrictHostKeyChecking=no"
+              sshcmd="$sshcmd -o UserKnownHostsFile=/dev/null"
+              sshcmd="$sshcmd -o NumberOfPasswordPrompts=0"
+
+        # ensure the target path exists
+        local sshuserhost="${rsync_upload_path%:*}"
+        local destpath="${rsync_upload_path#*:}"
+        ${sshcmd} "${sshuserhost}" \
+            "mkdir -p ${destpath}/${extra_upload_suffix}"
+
+        # now sync
+        rsync -Pav -e "${sshcmd}" "$@" \
+            "${rsync_upload_path}/${extra_upload_suffix}"
+    else
+        gsutil ${GSUTIL_OPTS} cp -R "$@" \
+            "${local_upload_path}/${extra_upload_suffix}"
+    fi
 }
 
 
