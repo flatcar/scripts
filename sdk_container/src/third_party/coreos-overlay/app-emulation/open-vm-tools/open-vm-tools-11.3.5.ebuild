@@ -30,7 +30,7 @@ RDEPEND="dnet? ( dev-libs/libdnet )
 S="${WORKDIR}/${MY_P}"
 
 PATCHES=(
-	"${FILESDIR}/${P}-0001-configure-Add-options-for-fuse-hgfs-and-udev.patch"
+	"${FILESDIR}/${PN}-0001-configure-Add-options-for-fuse-hgfs-and-udev.patch"
 )
 
 src_prepare() {
@@ -73,7 +73,6 @@ src_configure() {
 		--prefix=/usr/share/oem
 		$(use_enable deploypkg)
 		--disable-docs
-		--disable-hgfs-mounter
 		--disable-multimon
 		--disable-tests
 		--without-fuse
