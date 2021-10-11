@@ -17,7 +17,7 @@ gpg --import verify.asc
 # key imports fail, let's create it here as a workaround
 mkdir -p --mode=0700 "${GNUPGHOME}/private-keys-v1.d/"
 
-DOWNLOAD_ROOT_SDK="https://storage.googleapis.com${SDK_URL_PATH}"
+DOWNLOAD_ROOT_SDK="${DOWNLOAD_ROOT}/sdk"
 
 SCRIPTS_PATCH_ARG=""
 OVERLAY_PATCH_ARG=""
