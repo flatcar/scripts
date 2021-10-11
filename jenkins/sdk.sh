@@ -27,7 +27,7 @@ then
 	fi
 fi
 
-DOWNLOAD_ROOT_SDK=https://storage.googleapis.com/flatcar-jenkins/sdk
+DOWNLOAD_ROOT_SDK="${DOWNLOAD_ROOT}/sdk"
 
 # We do not use a nightly SDK as seed for bootstrapping because the next major Alpha SDK release would also have to use the last published Alpha release SDK as seed.
 # Also, we don't want compiler bugs to propagate from one nightly SDK to the next even though the commit in question was reverted.
