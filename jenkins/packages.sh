@@ -35,17 +35,15 @@ if [ "$(cat portage.patch | wc -l)" != 0 ]; then
   PORTAGE_PATCH_ARG="--portage-patch portage.patch"
 fi
 
-bin/cork update \
-    --create --downgrade-replace --verify --verify-signature --verbose \
+bin/cork create \
+    --verify --verify-signature --replace \
     --sdk-url-path "${SDK_URL_PATH}" \
-    --force-sync \
     --json-key "${GOOGLE_APPLICATION_CREDENTIALS}" \
     ${SCRIPTS_PATCH_ARG} ${OVERLAY_PATCH_ARG} ${PORTAGE_PATCH_ARG} \
     --manifest-branch "refs/tags/${MANIFEST_TAG}" \
     --manifest-name "${MANIFEST_NAME}" \
     --manifest-url "${MANIFEST_URL}" \
-    --sdk-url=storage.googleapis.com \
-    -- --toolchain_boards="${BOARD}" --dev_builds_sdk="${DOWNLOAD_ROOT_SDK}"
+    --sdk-url=storage.googleapis.com
 
 enter() {
         local verify_key=
@@ -77,6 +75,9 @@ export FLATCAR_BUILD_ID
 
 # Set up GPG for signing uploads.
 gpg --import "${GPG_SECRET_KEY_FILE}"
+
+script update_chroot \
+    --toolchain_boards="${BOARD}" --dev_builds_sdk="${DOWNLOAD_ROOT_SDK}"
 
 script setup_board \
     --board="${BOARD}" \
