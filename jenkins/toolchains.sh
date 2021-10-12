@@ -62,6 +62,9 @@ script() {
 source .repo/manifests/version.txt
 export FLATCAR_BUILD_ID
 
+# Fetch DIGEST to prevent re-downloading the same SDK tarball
+enter gangue get --json-key /etc/portage/gangue.json "${DOWNLOAD_ROOT_SDK}/amd64/${FLATCAR_SDK_VERSION}/flatcar-sdk-amd64-${FLATCAR_SDK_VERSION}.tar.bz2.DIGESTS" /mnt/host/source/.cache/sdks/
+
 script update_chroot \
     --toolchain_boards="${BOARD}" --dev_builds_sdk="${DOWNLOAD_ROOT_SDK}"
 
