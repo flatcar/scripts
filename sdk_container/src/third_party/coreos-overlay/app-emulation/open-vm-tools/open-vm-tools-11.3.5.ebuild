@@ -7,7 +7,7 @@ inherit autotools flag-o-matic multilib toolchain-funcs
 
 DESCRIPTION="Opensourced tools for VMware guests"
 HOMEPAGE="https://github.com/vmware/open-vm-tools"
-MY_P="${P}-18090558"
+MY_P="${P}-18557794"
 SRC_URI="https://github.com/vmware/open-vm-tools/releases/download/stable-${PV}/${MY_P}.tar.gz"
 
 LICENSE="LGPL-2.1"
@@ -30,7 +30,7 @@ RDEPEND="dnet? ( dev-libs/libdnet )
 S="${WORKDIR}/${MY_P}"
 
 PATCHES=(
-	"${FILESDIR}/${P}-0001-configure-Add-options-for-fuse-hgfs-and-udev.patch"
+	"${FILESDIR}/${PN}-0001-configure-Add-options-for-fuse-hgfs-and-udev.patch"
 )
 
 src_prepare() {
@@ -73,7 +73,6 @@ src_configure() {
 		--prefix=/usr/share/oem
 		$(use_enable deploypkg)
 		--disable-docs
-		--disable-hgfs-mounter
 		--disable-multimon
 		--disable-tests
 		--without-fuse
