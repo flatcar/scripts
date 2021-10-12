@@ -50,7 +50,7 @@ S="${WORKDIR}/${PARCH}"
 
 LICENSE="BSD GPL-2"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 # Probably want to drop ssl defaulting to on in a future version.
 IUSE="abi_mips_n32 audit debug hpn kerberos ldns libedit livecd pam +pie sctp security-key selinux +ssl static test X X509 xmss"
 
@@ -419,8 +419,6 @@ src_install() {
 	emake install-nokeys DESTDIR="${D}"
 	fperms 600 /etc/ssh/sshd_config
 	dobin contrib/ssh-copy-id
-	newinitd "${FILESDIR}"/sshd-r1.initd sshd
-	newconfd "${FILESDIR}"/sshd-r1.confd sshd
 
 	if use pam; then
 		newpamd "${FILESDIR}"/sshd.pam_include.2 sshd
