@@ -82,7 +82,6 @@ bin/cork download-image \
     --root="${UPLOAD_ROOT}/boards/${BOARD}/${FLATCAR_VERSION}" \
     --json-key="${GOOGLE_APPLICATION_CREDENTIALS}" \
     --cache-dir=./src \
-    --sdk-url=storage.googleapis.com \
     --platform=qemu \
     --verify=true $verify_key
 
