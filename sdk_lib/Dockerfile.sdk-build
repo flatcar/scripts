@@ -1,0 +1,17 @@
+ARG VERSION
+FROM flatcar-sdk-import:${VERSION}
+
+ARG BINHOST
+ARG OFFICIAL=0
+
+# mark build as official where appropriate
+RUN echo "export COREOS_OFFICIAL=$OFFICIAL" > /mnt/host/source/.env
+
+RUN /home/sdk/sdk_entry.sh ./setup_board --board="arm64-usr" --binhost="${BINHOST}/arm64-usr"
+RUN /home/sdk/sdk_entry.sh ./setup_board --board="arm64-usr" --regen_configs
+
+RUN /home/sdk/sdk_entry.sh ./setup_board --board="amd64-usr" --binhost="${BINHOST}/amd64-usr"
+RUN /home/sdk/sdk_entry.sh ./setup_board --board="amd64-usr" --regen_configs
+
+RUN rm /mnt/host/source/.env
+RUN rm -rf /home/sdk/toolchain-pkgs
