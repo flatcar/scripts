@@ -44,6 +44,7 @@ bin/cork update \
     --json-key "${GOOGLE_APPLICATION_CREDENTIALS}" \
     --manifest-branch "refs/tags/${MANIFEST_TAG}" \
     --sdk-url storage.googleapis.com \
+    --sdk-url-path "/flatcar-jenkins/sdk" \
     --manifest-name "${MANIFEST_NAME}" \
     --manifest-url "${MANIFEST_URL}"  -- --dev_builds_sdk="${DOWNLOAD_ROOT_SDK}"
 
