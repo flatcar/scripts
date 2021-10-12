@@ -1,0 +1,29 @@
+ARG VERSION
+
+FROM flatcar-sdk-build:${VERSION} as meta
+ARG RMARCH
+ARG RMCROSS
+
+RUN if [ -n "$RMCROSS" ]; then \
+        sudo crossdev --clean --force "$RMCROSS"; \
+    fi
+
+RUN if [ -n "$RMARCH" ]; then \
+        sudo rm -rf /build/$RMARCH; \
+        sudo rm -f /usr/local/bin/*-$RMARCH; \
+    fi
+
+# Note: .repo/manifests/version.txt will survive this. That's intended.
+RUN sudo rm -rf /mnt/host/source/*
+
+FROM scratch
+
+COPY --from=meta / /
+COPY --from=meta --chown=sdk:sdk /home/sdk /home/sdk
+RUN chown -R sdk:sdk /mnt/host/source
+
+# This is not used when starting the container via ./run_sdk_container
+#  but it's useful for standalone container use.
+RUN mkdir -p /mnt/host/source/src/scripts
+COPY --chown=sdk:sdk sdk_lib/sdk_init_selfcontained.sh /mnt/host/source/src/
+ENTRYPOINT /home/sdk/sdk_entry.sh
