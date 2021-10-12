@@ -29,7 +29,7 @@ sudo systemd-nspawn $PIPEARG \
     --bind-ro=/lib/modules \
     --bind-ro="$PWD/flatcar_production_image_kernel_config.txt:/boot/config" \
     --bind-ro="${GOOGLE_APPLICATION_CREDENTIALS}:/opt/credentials.json" \
-    --bind-ro="${verify_key}:/opt/verify.asc" \
+    --bind-ro="$PWD/verify.asc:/opt/verify.asc" \
     --image=flatcar_developer_container.bin \
     --machine=flatcar-developer-container-$(uuidgen) \
     --tmpfs=/usr/src \
