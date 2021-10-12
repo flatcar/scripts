@@ -14,7 +14,7 @@ gpg --import verify.asc
 # key imports fail, let's create it here as a workaround
 mkdir -p --mode=0700 "${GNUPGHOME}/private-keys-v1.d/"
 
-DOWNLOAD_ROOT_SDK="https://storage.googleapis.com${SDK_URL_PATH}"
+DOWNLOAD_ROOT_SDK="${DOWNLOAD_ROOT}/sdk"
 
 SCRIPTS_PATCH_ARG=""
 OVERLAY_PATCH_ARG=""
@@ -29,15 +29,15 @@ if [ "$(cat portage.patch | wc -l)" != 0 ]; then
   PORTAGE_PATCH_ARG="--portage-patch portage.patch"
 fi
 
-bin/cork update \
-    --create --downgrade-replace --verify --verify-signature --verbose \
+bin/cork create \
+    --replace --verify --verify-signature --verbose \
     --sdk-url-path "${SDK_URL_PATH}" \
-    --force-sync \
     --json-key "${GS_DEVEL_CREDS}" \
     ${SCRIPTS_PATCH_ARG} ${OVERLAY_PATCH_ARG} ${PORTAGE_PATCH_ARG} \
     --manifest-branch "refs/tags/${MANIFEST_TAG}" \
     --manifest-name "${MANIFEST_NAME}" \
-    --manifest-url "${MANIFEST_URL}" -- --dev_builds_sdk="${DOWNLOAD_ROOT_SDK}"
+    --manifest-url "${MANIFEST_URL}" \
+    --sdk-url=storage.googleapis.com
 
 # Clear out old images.
 sudo rm -rf chroot/build tmp
@@ -69,6 +69,9 @@ script() {
 source .repo/manifests/version.txt
 export FLATCAR_BUILD_ID
 
+script update_chroot \
+    --toolchain_boards="${BOARD}" --dev_builds_sdk="${DOWNLOAD_ROOT_SDK}"
+
 # Set up GPG for signing uploads.
 gpg --import "${GPG_SECRET_KEY_FILE}"
 
@@ -79,7 +82,6 @@ bin/cork download-image \
     --root="${UPLOAD_ROOT}/boards/${BOARD}/${FLATCAR_VERSION}" \
     --json-key="${GOOGLE_APPLICATION_CREDENTIALS}" \
     --cache-dir=./src \
-    --sdk-url=storage.googleapis.com \
     --platform=qemu \
     --verify=true $verify_key
 

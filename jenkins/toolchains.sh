@@ -17,7 +17,8 @@ gpg --import verify.asc
 # key imports fail, let's create it here as a workaround
 mkdir -p --mode=0700 "${GNUPGHOME}/private-keys-v1.d/"
 
-DOWNLOAD_ROOT_SDK="https://storage.googleapis.com${SDK_URL_PATH}"
+DOWNLOAD_ROOT=${DOWNLOAD_ROOT:-"${UPLOAD_ROOT}"}
+DOWNLOAD_ROOT_SDK="${DOWNLOAD_ROOT}/sdk"
 
 SCRIPTS_PATCH_ARG=""
 OVERLAY_PATCH_ARG=""
@@ -32,23 +33,40 @@ if [ "$(cat portage.patch | wc -l)" != 0 ]; then
   PORTAGE_PATCH_ARG="--portage-patch portage.patch"
 fi
 
-bin/cork update \
-    --create --downgrade-replace --verify --verify-signature --verbose \
+bin/cork create \
+    --verify --verify-signature --replace \
     --sdk-url-path "${SDK_URL_PATH}" \
     --json-key "${GOOGLE_APPLICATION_CREDENTIALS}" \
     --sdk-url storage.googleapis.com \
-    --force-sync \
     ${SCRIPTS_PATCH_ARG} ${OVERLAY_PATCH_ARG} ${PORTAGE_PATCH_ARG} \
     --manifest-branch "refs/tags/${MANIFEST_TAG}" \
     --manifest-name "${MANIFEST_NAME}" \
-    --manifest-url "${MANIFEST_URL}" -- --dev_builds_sdk="${DOWNLOAD_ROOT_SDK}"
+    --manifest-url "${MANIFEST_URL}"
 
 enter() {
-        bin/cork enter --bind-gpg-agent=false -- "$@"
+  sudo ln -f "${GOOGLE_APPLICATION_CREDENTIALS}" \
+      chroot/etc/portage/gangue.json
+  bin/cork enter --bind-gpg-agent=false -- env \
+      FLATCAR_DEV_BUILDS="${DOWNLOAD_ROOT}" \
+      FLATCAR_DEV_BUILDS_SDK="${DOWNLOAD_ROOT_SDK}" \
+      {FETCH,RESUME}COMMAND_GS="/usr/bin/gangue get \
+--json-key=/etc/portage/gangue.json $verify_key \
+"'"${URI}" "${DISTDIR}/${FILE}"' \
+      "$@"
+}
+
+script() {
+  enter "/mnt/host/source/src/scripts/$@"
 }
 
 source .repo/manifests/version.txt
 export FLATCAR_BUILD_ID
+
+# Fetch DIGEST to prevent re-downloading the same SDK tarball
+enter gangue get --json-key /etc/portage/gangue.json "${DOWNLOAD_ROOT_SDK}/amd64/${FLATCAR_SDK_VERSION}/flatcar-sdk-amd64-${FLATCAR_SDK_VERSION}.tar.bz2.DIGESTS" /mnt/host/source/.cache/sdks/
+
+script update_chroot \
+    --toolchain_boards="${BOARD}" --dev_builds_sdk="${DOWNLOAD_ROOT_SDK}"
 
 # Set up GPG for signing uploads.
 gpg --import "${GPG_SECRET_KEY_FILE}"
