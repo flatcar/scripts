@@ -42,6 +42,10 @@ else
   }
 fi
 
+script() {
+  enter "/mnt/host/source/src/scripts/$@"
+}
+
 # Set up GPG for verifying tags.
 export GNUPGHOME="${PWD}/.gnupg"
 rm -rf "${GNUPGHOME}"
@@ -52,7 +56,7 @@ gpg --import verify.asc
 # key imports fail, let's create it here as a workaround
 mkdir -p --mode=0700 "${GNUPGHOME}/private-keys-v1.d/"
 
-DOWNLOAD_ROOT_SDK="https://storage.googleapis.com${SDK_URL_PATH}"
+DOWNLOAD_ROOT_SDK="${DOWNLOAD_ROOT}/sdk"
 
 if native_arm64 ; then
   mkdir -p .repo/
@@ -64,18 +68,22 @@ if native_arm64 ; then
   git -C .repo/manifests tag -v "${MANIFEST_TAG}"
   git -C .repo/manifests checkout "${MANIFEST_TAG}"
 else
-  bin/cork update \
-      --create --downgrade-replace --verify --verify-signature --verbose \
+  bin/cork create \
+      --verify --verify-signature --replace \
       --sdk-url-path "${SDK_URL_PATH}" \
-      --force-sync \
       --json-key "${GOOGLE_APPLICATION_CREDENTIALS}" \
       --manifest-branch "refs/tags/${MANIFEST_TAG}" \
       --manifest-name "${MANIFEST_NAME}" \
-      --manifest-url "${MANIFEST_URL}" -- --dev_builds_sdk="${DOWNLOAD_ROOT_SDK}"
+      --sdk-url storage.googleapis.com \
+      --manifest-url "${MANIFEST_URL}"
 fi
+
 source .repo/manifests/version.txt
 
 [ -s verify.asc ] && verify_key=--verify-key=verify.asc || verify_key=
+
+script update_chroot \
+    --toolchain_boards="${BOARD}" --dev_builds_sdk="${DOWNLOAD_ROOT_SDK}"
 
 mkdir -p tmp
 bin/cork download-image \
@@ -101,7 +109,6 @@ rm -f flatcar_test_update.gz
 bin/gangue get \
     --json-key="${GOOGLE_APPLICATION_CREDENTIALS}" \
     --verify=true $verify_key \
-    --sdk-url=storage.googleapis.com \
     "${DOWNLOAD_ROOT}/boards/${BOARD}/${FLATCAR_VERSION}/flatcar_test_update.gz"
 mv flatcar_test_update.gz tmp/
 
