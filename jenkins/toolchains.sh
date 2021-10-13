@@ -46,6 +46,8 @@ bin/cork create \
 enter() {
   sudo ln -f "${GOOGLE_APPLICATION_CREDENTIALS}" \
       chroot/etc/portage/gangue.json
+  # we add the public key to verify the signature with gangue
+  sudo ln -f ./verify.asc chroot/opt/verify.asc
   bin/cork enter --bind-gpg-agent=false -- env \
       FLATCAR_DEV_BUILDS="${DOWNLOAD_ROOT}" \
       FLATCAR_DEV_BUILDS_SDK="${DOWNLOAD_ROOT_SDK}" \
@@ -63,7 +65,7 @@ source .repo/manifests/version.txt
 export FLATCAR_BUILD_ID
 
 # Fetch DIGEST to prevent re-downloading the same SDK tarball
-enter gangue get --json-key /etc/portage/gangue.json "${DOWNLOAD_ROOT_SDK}/amd64/${FLATCAR_SDK_VERSION}/flatcar-sdk-amd64-${FLATCAR_SDK_VERSION}.tar.bz2.DIGESTS" /mnt/host/source/.cache/sdks/
+enter gangue get --verify-key /opt/verify.asc --json-key /etc/portage/gangue.json "${DOWNLOAD_ROOT_SDK}/amd64/${FLATCAR_SDK_VERSION}/flatcar-sdk-amd64-${FLATCAR_SDK_VERSION}.tar.bz2.DIGESTS" /mnt/host/source/.cache/sdks/
 
 script update_chroot \
     --toolchain_boards="${BOARD}" --dev_builds_sdk="${DOWNLOAD_ROOT_SDK}"
