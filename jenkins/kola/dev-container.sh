@@ -26,6 +26,7 @@ else
 fi
 
 sudo systemd-nspawn $PIPEARG \
+    --setenv=PORTAGE_BINHOST="${PORTAGE_BINHOST}" \
     --bind-ro=/lib/modules \
     --bind-ro="$PWD/flatcar_production_image_kernel_config.txt:/boot/config" \
     --bind-ro="${GOOGLE_APPLICATION_CREDENTIALS}:/opt/credentials.json" \
