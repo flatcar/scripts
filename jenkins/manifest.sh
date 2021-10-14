@@ -95,20 +95,34 @@ set_manifest_ref() {
         local reference="$2"
         # Select lines with "/$reponame" (kept as first group) and "revision" (kept as second group) and replace the value
         # of "revision" (third group, not kept) with the new reference.
-        sed -i -E "s#(/$reponame.*)(revision=\")([^\"]*)#\1\2refs/heads/$reference#g" "manifest/${FLATCAR_BUILD_ID}.xml"
+        sed -i -E "s#(/$reponame.*)(revision=\")([^\"]*)#\1\2$reference#g" "manifest/${FLATCAR_BUILD_ID}.xml"
 }
 
 if [[ -n "${SCRIPTS_REF}" ]]
 then
-        set_manifest_ref scripts "${SCRIPTS_REF}"
+        set_manifest_ref scripts "refs/heads/${SCRIPTS_REF}"
 fi
 if [[ -n "${OVERLAY_REF}" ]]
 then
-        set_manifest_ref coreos-overlay "${OVERLAY_REF}"
+        prefix="refs/heads/"
+        suffix=""
+        # treat numbers as PR refs
+        if [ "${OVERLAY_REF}" -eq "${OVERLAY_REF}" ] 2>/dev/null; then
+                prefix="refs/pull/"
+                suffix="/head"
+        fi
+        set_manifest_ref coreos-overlay "$prefix${OVERLAY_REF}$suffix"
 fi
 if [[ -n "${PORTAGE_REF}" ]]
 then
-        set_manifest_ref portage-stable "${PORTAGE_REF}"
+        prefix="refs/heads/"
+        suffix=""
+        # treat numbers as PR refs
+        if [ "${PORTAGE_REF}" -eq "${PORTAGE_REF}" ] 2>/dev/null; then
+                prefix="refs/pull/"
+                suffix="/head"
+        fi
+        set_manifest_ref portage-stable "$prefix${PORTAGE_REF}$suffix"
 fi
 
 ln -fns "${FLATCAR_BUILD_ID}.xml" manifest/default.xml
