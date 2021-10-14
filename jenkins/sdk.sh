@@ -54,7 +54,11 @@ if [[ ${FULL_BUILD} == "false" ]]; then
 fi
 
 enter() {
-        bin/cork enter --bind-gpg-agent=false -- "$@"
+  # we add the public key to verify the signature with gangue
+  sudo ln -f ./verify.asc chroot/opt/verify.asc
+  # GCP service account to get access to private bucket during the gangue downloading
+  sudo ln -f "${GOOGLE_APPLICATION_CREDENTIALS}" chroot/etc/portage/gangue.json
+  bin/cork enter --bind-gpg-agent=false -- "$@"
 }
 
 source .repo/manifests/version.txt
@@ -65,6 +69,9 @@ gpg --import "${GPG_SECRET_KEY_FILE}"
 
 # Wipe all of catalyst.
 sudo rm -rf src/build
+
+# Fetch DIGEST to prevent re-downloading the same SDK tarball
+enter gangue get --verify-key /opt/verify.asc --json-key /etc/portage/gangue.json "${DOWNLOAD_ROOT_SDK}/amd64/${FLATCAR_SDK_VERSION}/flatcar-sdk-amd64-${FLATCAR_SDK_VERSION}.tar.bz2.DIGESTS" /mnt/host/source/.cache/sdks/
 
 enter sudo \
     FLATCAR_DEV_BUILDS_SDK="${DOWNLOAD_ROOT_SDK}" \
