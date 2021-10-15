@@ -10,7 +10,8 @@ set -ex
 if [[ "${RELEASE_BASE_IS_DEV}" = "false" && "${GROUP}" = "developer" && "${RELEASE_BASE}" != "" ]]; then
     DOWNLOAD_ROOT=$(echo ${DOWNLOAD_ROOT} | sed 's,/developer,,');
 fi
-DOWNLOAD_ROOT_SDK="${DOWNLOAD_ROOT}/sdk"
+# since /flatcar-jenkins/developer/sdk starts with a / we only use one
+DOWNLOAD_ROOT_SDK="gs:/${SDK_URL_PATH}"
 
 # Set up GPG for verifying tags.
 export GNUPGHOME="${PWD}/.gnupg"
