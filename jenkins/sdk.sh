@@ -28,7 +28,8 @@ then
 fi
 
 DOWNLOAD_ROOT=${DOWNLOAD_ROOT:-"gs://flatcar-jenkins"}
-DOWNLOAD_ROOT_SDK="${DOWNLOAD_ROOT}/sdk"
+# The seed SDK is always a release SDK
+DOWNLOAD_ROOT_SDK="gs://flatcar-jenkins/sdk"
 
 # We do not use a nightly SDK as seed for bootstrapping because the next major Alpha SDK release would also have to use the last published Alpha release SDK as seed.
 # Also, we don't want compiler bugs to propagate from one nightly SDK to the next even though the commit in question was reverted.
