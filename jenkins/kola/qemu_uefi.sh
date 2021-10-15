@@ -17,7 +17,8 @@ gpg --import verify.asc
 # key imports fail, let's create it here as a workaround
 mkdir -p --mode=0700 "${GNUPGHOME}/private-keys-v1.d/"
 
-DOWNLOAD_ROOT_SDK="https://storage.googleapis.com${SDK_URL_PATH}"
+# since /flatcar-jenkins/developer/sdk starts with a / we only use one
+DOWNLOAD_ROOT_SDK="gs:/${SDK_URL_PATH}"
 
 bin/cork update \
     --create --downgrade-replace --verify --verify-signature --verbose \

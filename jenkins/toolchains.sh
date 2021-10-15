@@ -18,7 +18,8 @@ gpg --import verify.asc
 mkdir -p --mode=0700 "${GNUPGHOME}/private-keys-v1.d/"
 
 DOWNLOAD_ROOT=${DOWNLOAD_ROOT:-"${UPLOAD_ROOT}"}
-DOWNLOAD_ROOT_SDK="${DOWNLOAD_ROOT}/sdk"
+# since /flatcar-jenkins/developer/sdk starts with a / we only use one
+DOWNLOAD_ROOT_SDK="gs:/${SDK_URL_PATH}"
 
 SCRIPTS_PATCH_ARG=""
 OVERLAY_PATCH_ARG=""
