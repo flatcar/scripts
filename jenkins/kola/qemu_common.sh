@@ -83,8 +83,10 @@ source .repo/manifests/version.txt
 
 [ -s verify.asc ] && verify_key=--verify-key=verify.asc || verify_key=
 
-script update_chroot \
-    --toolchain_boards="${BOARD}" --dev_builds_sdk="${DOWNLOAD_ROOT_SDK}"
+if ! native_arm64; then
+  script update_chroot \
+      --toolchain_boards="${BOARD}" --dev_builds_sdk="${DOWNLOAD_ROOT_SDK}"
+fi
 
 mkdir -p tmp
 bin/cork download-image \
