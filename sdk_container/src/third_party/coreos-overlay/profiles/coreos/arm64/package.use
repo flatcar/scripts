@@ -5,5 +5,3 @@ net-dns/bind-tools -gssapi
 
 # FIXME: why isn't this set by default???
 sys-libs/ncurses unicode
-
-sys-auth/polkit -introspection
