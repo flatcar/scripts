@@ -99,37 +99,29 @@ set_manifest_ref() {
         sed -i -E "s#(/$reponame.*)(revision=\")([^\"]*)#\1\2$reference#g" "manifest/${FLATCAR_BUILD_ID}.xml"
 }
 
+setup_manifest_ref() {
+    local reponame="${1}"
+    local ref="${2}"
+    local full_ref="refs/heads/${ref}"
+
+    if [[ -z "${ref//[0-9]}" ]]; then
+        full_ref="refs/pull/${ref}/head"
+    fi
+    set_manifest_ref "${reponame}" "${full_ref}"
+    "${BASE}/post-github-status.sh" --repo "flatcar-linux/${reponame}" --ref "${full_ref}" --status pending
+}
+
 if [[ -n "${SCRIPTS_REF}" ]]
 then
-        ref="refs/heads/${SCRIPTS_REF}"
-        set_manifest_ref scripts "${ref}"
-        ${BASE}/post-github-status.sh --repo flatcar-linux/scripts --ref "${ref}" --status pending
+        setup_manifest_ref scripts "${SCRIPTS_REF}"
 fi
 if [[ -n "${OVERLAY_REF}" ]]
 then
-        prefix="refs/heads/"
-        suffix=""
-        # treat numbers as PR refs
-        if [ "${OVERLAY_REF}" -eq "${OVERLAY_REF}" ] 2>/dev/null; then
-                prefix="refs/pull/"
-                suffix="/head"
-        fi
-        ref="${prefix}${OVERLAY_REF}${suffix}"
-        set_manifest_ref coreos-overlay "${ref}"
-        ${BASE}/post-github-status.sh --repo flatcar-linux/coreos-overlay --ref "${ref}" --status pending
+        setup_manifest_ref coreos-overlay "${OVERLAY_REF}"
 fi
 if [[ -n "${PORTAGE_REF}" ]]
 then
-        prefix="refs/heads/"
-        suffix=""
-        # treat numbers as PR refs
-        if [ "${PORTAGE_REF}" -eq "${PORTAGE_REF}" ] 2>/dev/null; then
-                prefix="refs/pull/"
-                suffix="/head"
-        fi
-        ref="${prefix}${PORTAGE_REF}${suffix}"
-        set_manifest_ref portage-stable "${ref}"
-        ${BASE}/post-github-status.sh --repo flatcar-linux/portage-stable --ref "${ref}" --status pending
+        setup_manifest_ref portage-stable "${PORTAGE_REF}"
 fi
 
 ln -fns "${FLATCAR_BUILD_ID}.xml" manifest/default.xml
