@@ -1,9 +1,9 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="2"
+EAPI=6
 
-inherit eutils toolchain-funcs
+inherit toolchain-funcs
 
 MY_PN="MAKEDEV"
 MY_VER=${PV%.*}
@@ -15,7 +15,7 @@ SRC_URI="https://people.redhat.com/nalin/MAKEDEV/${MY_P}-${MY_REL}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 IUSE="build selinux"
 
 RDEPEND="!<sys-apps/baselayout-2.0.0_rc"
@@ -23,18 +23,18 @@ DEPEND=""
 
 S=${WORKDIR}/${MY_P}
 
-src_prepare() {
-	epatch "${FILESDIR}"/${P}-headers.patch #339674
-}
+PATCHES=(
+	"${FILESDIR}"/${P}-headers.patch #339674
+)
 
 src_compile() {
 	use selinux && export SELINUX=1
-	emake CC="$(tc-getCC)" OPTFLAGS="${CFLAGS}" || die
+	emake CC="$(tc-getCC)" OPTFLAGS="${CFLAGS}"
 }
 
 src_install() {
 	# set devdir to makedevdir so we dont have to worry about /dev
-	emake install DESTDIR="${D}" makedevdir=/sbin devdir=/sbin || die
+	emake install DESTDIR="${D}" makedevdir=/sbin devdir=/sbin
 	dodoc *.txt
 	keepdir /dev
 }
