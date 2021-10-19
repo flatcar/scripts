@@ -14,7 +14,7 @@ SLOT="0"
 KEYWORDS="amd64 x86 arm64"
 IUSE="systemd"
 
-DEPEND="sys-auth/polkit[introspection]
+DEPEND="sys-auth/polkit
 	sys-devel/gettext
 	dev-libs/glib:2
 	net-nds/openldap
