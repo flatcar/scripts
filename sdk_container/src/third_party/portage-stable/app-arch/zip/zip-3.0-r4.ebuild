@@ -1,9 +1,8 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
-EAPI="4"
-inherit toolchain-funcs eutils flag-o-matic
+EAPI=7
+inherit toolchain-funcs flag-o-matic
 
 MY_P="${PN}${PV//.}"
 DESCRIPTION="Info ZIP (encryption support)"
@@ -12,24 +11,28 @@ SRC_URI="mirror://sourceforge/infozip/${MY_P}.zip"
 
 LICENSE="Info-ZIP"
 SLOT="0"
-KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~x86-fbsd ~arm-linux"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux"
 IUSE="bzip2 crypt natspec unicode"
 
+DEPEND="${RDEPEND}"
 RDEPEND="bzip2? ( app-arch/bzip2 )
 	natspec? ( dev-libs/libnatspec )"
-DEPEND="${RDEPEND}
-	app-arch/unzip"
+BDEPEND="app-arch/unzip"
 
-S=${WORKDIR}/${MY_P}
+S="${WORKDIR}/${MY_P}"
+
+PATCHES=(
+	"${FILESDIR}/${P}"-no-crypt.patch #238398
+	"${FILESDIR}/${P}"-pic.patch
+	"${FILESDIR}/${P}"-exec-stack.patch #122849
+	"${FILESDIR}/${P}"-build.patch #200995
+	"${FILESDIR}/${P}"-zipnote-freeze.patch #322047
+	"${FILESDIR}/${P}"-format-security.patch #512414
+)
 
 src_prepare() {
-	epatch "${FILESDIR}"/${P}-no-crypt.patch #238398
-	epatch "${FILESDIR}"/${P}-pic.patch
-	epatch "${FILESDIR}"/${P}-exec-stack.patch #122849
-	epatch "${FILESDIR}"/${P}-build.patch #200995
-	epatch "${FILESDIR}"/${P}-zipnote-freeze.patch #322047
-	epatch "${FILESDIR}"/${P}-format-security.patch #512414
-	use natspec && epatch "${FILESDIR}"/${PN}-3.0-natspec.patch #275244
+	default
+	use natspec && eapply "${FILESDIR}/${PN}"-3.0-natspec.patch #275244
 }
 
 src_configure() {
