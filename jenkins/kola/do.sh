@@ -12,7 +12,7 @@ if [[ "${DOWNLOAD_ROOT}" == gs://flatcar-jenkins-private/* ]]; then
   BUCKET_PATH="${DOWNLOAD_ROOT}/boards/${BOARD}/${FLATCAR_VERSION}/flatcar_production_digitalocean_image.bin.bz2"
   IMAGE_URL="$(docker run --rm --net=host -v "${GOOGLE_APPLICATION_CREDENTIALS}:${GOOGLE_APPLICATION_CREDENTIALS}" google/cloud-sdk sh -c "python3 -m pip install pyopenssl > /dev/null; gsutil signurl -d 7d -r us ${GOOGLE_APPLICATION_CREDENTIALS} ${BUCKET_PATH} | grep -o 'https.*'")"
 else
-  BASE_URL="https://storage.googleapis.com/$(echo $DOWNLOAD_ROOT | sed 's|gs://||g')/boards/${BOARD}/${FLATCAR_VERSION}"
+  BASE_URL="https://bucket.release.flatcar-linux.net/$(echo $DOWNLOAD_ROOT | sed 's|gs://||g')/boards/${BOARD}/${FLATCAR_VERSION}"
   IMAGE_URL="${BASE_URL}/flatcar_production_digitalocean_image.bin.bz2"
 fi
 
