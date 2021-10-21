@@ -8,7 +8,7 @@ NAME="jenkins-${JOB_NAME##*/}-${BUILD_NUMBER}"
 if [[ "${AWS_INSTANCE_TYPE}" != "" ]]; then
   instance_type="${AWS_INSTANCE_TYPE}"
 elif [[ "${BOARD}" == "arm64-usr" ]]; then
-  instance_type="a1.medium"
+  instance_type="a1.large"
 elif [[ "${BOARD}" == "amd64-usr" ]]; then
   instance_type="t3.small"
 fi
