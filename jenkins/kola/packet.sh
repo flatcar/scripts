@@ -21,7 +21,7 @@ if [[ "${DOWNLOAD_ROOT}" == gs://flatcar-jenkins-private/* ]]; then
   KERNEL_URL="$(docker run --rm --net=host -v "${GOOGLE_APPLICATION_CREDENTIALS}:${GOOGLE_APPLICATION_CREDENTIALS}" google/cloud-sdk sh -c "python3 -m pip install pyopenssl > /dev/null; gsutil signurl -d 7d -r us ${GOOGLE_APPLICATION_CREDENTIALS} ${BUCKET_PATH}/flatcar_production_pxe.vmlinuz | grep -o 'https.*'")"
   CPIO_URL="$(docker run --rm --net=host -v "${GOOGLE_APPLICATION_CREDENTIALS}:${GOOGLE_APPLICATION_CREDENTIALS}" google/cloud-sdk sh -c "python3 -m pip install pyopenssl > /dev/null; gsutil signurl -d 7d -r us ${GOOGLE_APPLICATION_CREDENTIALS} ${BUCKET_PATH}/flatcar_production_pxe_image.cpio.gz | grep -o 'https.*'")"
 else
-  BASE_PATH="storage.googleapis.com/$(echo $DOWNLOAD_ROOT | sed 's|gs://||g')/boards/${BOARD}/${FLATCAR_VERSION}"
+  BASE_PATH="bucket.release.flatcar-linux.net/$(echo $DOWNLOAD_ROOT | sed 's|gs://||g')/boards/${BOARD}/${FLATCAR_VERSION}"
   IMAGE_URL="https://${BASE_PATH}/flatcar_production_packet_image.bin.bz2"
   KERNEL_URL="http://${BASE_PATH}/flatcar_production_pxe.vmlinuz"
   CPIO_URL="http://${BASE_PATH}/flatcar_production_pxe_image.cpio.gz"
