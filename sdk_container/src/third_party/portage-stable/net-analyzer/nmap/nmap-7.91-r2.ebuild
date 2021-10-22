@@ -17,15 +17,14 @@ if [[ ${PV} == *9999* ]] ; then
 	# Just in case for now as future seems undecided.
 	LICENSE="NPSL"
 else
-	VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/nmap.asc
+	VERIFY_SIG_OPENPGP_KEY_PATH=${BROOT}/usr/share/openpgp-keys/nmap.asc
 	inherit verify-sig
 
 	SRC_URI="https://nmap.org/dist/${P}.tar.bz2"
 	SRC_URI+=" verify-sig? ( https://nmap.org/dist/sigs/${P}.tar.bz2.asc )"
 
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos"
-
 	LICENSE="|| ( NPSL GPL-2 )"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~mips ppc ppc64 ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos"
 fi
 
 SLOT="0"
@@ -60,7 +59,8 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-7.31-libnl.patch
 	"${FILESDIR}"/${PN}-7.80-ac-config-subdirs.patch
 	"${FILESDIR}"/${PN}-7.91-no-FORTIFY_SOURCE.patch
-	"${FILESDIR}"/${PN}-9999-netutil-else.patch
+	"${FILESDIR}"/${P}-ncat-proxy.patch
+	"${FILESDIR}"/${P}-ncat-unix-sockets.patch
 )
 
 pkg_setup() {
@@ -102,7 +102,7 @@ src_configure() {
 		$(usex nse --with-zlib) \
 		--cache-file="${S}"/config.cache \
 		--with-libdnet=included \
-		--with-pcre="${ESYSROOT}"/usr \
+		--with-pcre=/usr \
 		--without-ndiff \
 		--without-zenmap
 }
