@@ -112,3 +112,6 @@ dev-util/checkbashisms
 # keywords for vim 8.2.3428.
 =app-editors/vim-8.2.3428 ~amd64 ~arm64
 =app-editors/vim-core-8.2.3428 ~amd64 ~arm64
+
+# dev-libs/openssl-3.0.0 is still in testing phase at this point
+=dev-libs/openssl-3.0.0 ~amd64 ~arm64

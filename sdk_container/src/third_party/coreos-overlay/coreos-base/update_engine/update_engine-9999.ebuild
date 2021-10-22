@@ -41,6 +41,10 @@ DEPEND="dev-cpp/gtest
 	${BDEPEND}
 	${RDEPEND}"
 
+PATCHES=(
+	"${FILESDIR}/disable-werror.patch"
+)
+
 src_prepare() {
 	default
 	eautoreconf

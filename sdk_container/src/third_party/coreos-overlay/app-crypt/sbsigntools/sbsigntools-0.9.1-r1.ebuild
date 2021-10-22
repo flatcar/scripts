@@ -28,6 +28,7 @@ DEPEND="${RDEPEND}
 
 PATCHES=(
 	"${FILESDIR}"/${P}-openssl-1.1.0-compat.patch
+	"${FILESDIR}"/openssl-3-compat.patch
 )
 
 src_prepare() {
