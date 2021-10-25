@@ -1,5 +1,6 @@
 #!/bin/bash
 set -ex
+BASE=$(dirname $(readlink -f "$0"))
 git -C manifest config user.name "${GIT_AUTHOR_NAME}"
 git -C manifest config user.email "${GIT_AUTHOR_EMAIL}"
 
@@ -100,7 +101,9 @@ set_manifest_ref() {
 
 if [[ -n "${SCRIPTS_REF}" ]]
 then
-        set_manifest_ref scripts "refs/heads/${SCRIPTS_REF}"
+        ref="refs/heads/${SCRIPTS_REF}"
+        set_manifest_ref scripts "${ref}"
+        ${BASE}/post-github-status.sh --repo flatcar-linux/scripts --ref "${ref}" --status pending
 fi
 if [[ -n "${OVERLAY_REF}" ]]
 then
@@ -111,7 +114,9 @@ then
                 prefix="refs/pull/"
                 suffix="/head"
         fi
-        set_manifest_ref coreos-overlay "$prefix${OVERLAY_REF}$suffix"
+        ref="${prefix}${OVERLAY_REF}${suffix}"
+        set_manifest_ref coreos-overlay "${ref}"
+        ${BASE}/post-github-status.sh --repo flatcar-linux/coreos-overlay --ref "${ref}" --status pending
 fi
 if [[ -n "${PORTAGE_REF}" ]]
 then
@@ -122,7 +127,9 @@ then
                 prefix="refs/pull/"
                 suffix="/head"
         fi
-        set_manifest_ref portage-stable "$prefix${PORTAGE_REF}$suffix"
+        ref="${prefix}${PORTAGE_REF}${suffix}"
+        set_manifest_ref portage-stable "${ref}"
+        ${BASE}/post-github-status.sh --repo flatcar-linux/portage-stable --ref "${ref}" --status pending
 fi
 
 ln -fns "${FLATCAR_BUILD_ID}.xml" manifest/default.xml
