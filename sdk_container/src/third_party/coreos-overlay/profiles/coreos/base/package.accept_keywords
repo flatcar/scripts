@@ -79,7 +79,7 @@ dev-util/checkbashisms
 =virtual/rust-1.55.0 ~amd64 ~arm64
 =dev-lang/rust-1.55.0 ~amd64 ~arm64
 
-=sys-fs/cryptsetup-2.0.3 ~amd64
+=sys-fs/cryptsetup-2.4.1-r1 ~amd64 ~arm64
 
 =sys-libs/libseccomp-2.5.0 ~amd64 ~arm64
 
