@@ -22,8 +22,10 @@ if [[ "${VERSION_NEW}" = "${VERSION_OLD}" ]]; then
   exit 0
 fi
 
-# replace rust version in profiles/, e.g. package.accept_keywords.
-find profiles -name 'package.*' | xargs sed -i "s/=dev-lang\/rust-\S\+/=dev-lang\/rust-${VERSION_NEW}/"
+# Replace (dev-lang/virtual)/rust versions in profiles/, e.g. package.accept_keywords.
+# Try to match all kinds of version specifiers, e.g. >=, <=, =, ~.
+find profiles -name 'package.*' | xargs sed -i "s/\([><]*=\|~\)*dev-lang\/rust-\S\+/\1dev-lang\/rust-${VERSION_NEW}/"
+find profiles -name 'package.*' | xargs sed -i "s/\([><]*=\|~\)*virtual\/rust-\S\+/\1virtual\/rust-${VERSION_NEW}/"
 
 EBUILD_FILENAME=$(get_ebuild_filename "dev-lang" "rust" "${VERSION_OLD}")
 git mv "${EBUILD_FILENAME}" "dev-lang/rust/rust-${VERSION_NEW}.ebuild"
