@@ -69,7 +69,7 @@ export FLATCAR_BUILD_ID
 enter gangue get --verify-key /opt/verify.asc --json-key /etc/portage/gangue.json "${DOWNLOAD_ROOT_SDK}/amd64/${FLATCAR_SDK_VERSION}/flatcar-sdk-amd64-${FLATCAR_SDK_VERSION}.tar.bz2.DIGESTS" /mnt/host/source/.cache/sdks/
 
 script update_chroot \
-    --toolchain_boards="${BOARD}" --dev_builds_sdk="${DOWNLOAD_ROOT_SDK}"
+    --toolchain_boards="${BOARD}" --dev_builds_sdk="${DOWNLOAD_ROOT_SDK}" --setuponly
 
 # Set up GPG for signing uploads.
 gpg --import "${GPG_SECRET_KEY_FILE}"

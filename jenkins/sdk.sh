@@ -48,7 +48,7 @@ bin/cork update \
     --sdk-url storage.googleapis.com \
     --sdk-url-path "/flatcar-jenkins/sdk" \
     --manifest-name "${MANIFEST_NAME}" \
-    --manifest-url "${MANIFEST_URL}"  -- --dev_builds_sdk="${DOWNLOAD_ROOT_SDK}"
+    --manifest-url "${MANIFEST_URL}"  -- --dev_builds_sdk="${DOWNLOAD_ROOT_SDK}" --setuponly
 
 if [[ ${FULL_BUILD} == "false" ]]; then
     export FORCE_STAGES="stage4"
