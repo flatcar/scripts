@@ -49,7 +49,7 @@ IUSE="clippy cpu_flags_x86_sse2 debug doc miri nightly parallel-compiler rls rus
 
 # How to use it:
 # List all the working slots in LLVM_VALID_SLOTS, newest first.
-LLVM_VALID_SLOTS=( 12 )
+LLVM_VALID_SLOTS=( 13 )
 LLVM_MAX_SLOT="${LLVM_VALID_SLOTS[0]}"
 
 # splitting usedeps needed to avoid CI/pkgcheck's UncheckableDep limitation
@@ -140,6 +140,12 @@ QA_SONAME="
 	usr/lib/${PN}/${PV}/lib/rustlib/.*/lib/lib.*.so
 "
 
+# An rmeta file is custom binary format that contains the metadata for the crate.
+# rmeta files do not support linking, since they do not contain compiled object files.
+# so we can safely silence the warning for this QA check.
+QA_WX_LOAD="usr/lib/${PN}/${PV}/lib/rustlib/.*/lib/.*:lib.rmeta"
+QA_EXECSTACK="${QA_WX_LOAD}"
+
 # causes double bootstrap
 RESTRICT="test"
 
@@ -148,7 +154,6 @@ VERIFY_SIG_OPENPGP_KEY_PATH=${BROOT}/usr/share/openpgp-keys/rust.asc
 PATCHES=(
 	"${FILESDIR}"/1.55.0-ignore-broken-and-non-applicable-tests.patch
 	"${FILESDIR}"/1.49.0-gentoo-musl-target-specs.patch
-	"${FILESDIR}"/1.54.0-parallel-miri.patch # https://github.com/rust-lang/miri/pull/1863
 )
 
 S="${WORKDIR}/${MY_P}-src"
