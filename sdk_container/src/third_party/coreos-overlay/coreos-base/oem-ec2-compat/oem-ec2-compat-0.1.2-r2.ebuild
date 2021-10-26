@@ -10,15 +10,13 @@ SRC_URI=""
 LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="amd64 arm64 x86"
-IUSE="ec2 openstack brightbox aws_pro"
-REQUIRED_USE="^^ ( ec2 openstack brightbox aws_pro )"
+IUSE="ec2 openstack brightbox"
+REQUIRED_USE="^^ ( ec2 openstack brightbox )"
 
 RDEPEND="
-       ec2? ( app-emulation/amazon-ssm-agent )
-       aws_pro? (
-        coreos-base/flatcar-eks
-        x11-drivers/nvidia-drivers
-       )
+	ec2? ( app-emulation/amazon-ssm-agent )
+	coreos-base/flatcar-eks
+	x11-drivers/nvidia-drivers
 "
 
 # no source directory
@@ -26,13 +24,9 @@ S="${WORKDIR}"
 
 src_prepare() {
 	default
-	if use ec2 || use aws_pro ; then
+	if use ec2 ; then
 		ID="ami"
-		if use ec2; then
-			NAME="Amazon EC2"
-		else
-			NAME="Amazon EC2 (Pro)"
-		fi
+		NAME="Amazon EC2"
 		HOME_URL="http://aws.amazon.com/ec2/"
 	elif use openstack ; then
 		ID="openstack"
@@ -56,7 +50,7 @@ src_prepare() {
 src_install() {
 	insinto "/usr/share/oem"
 	doins "${T}/oem-release"
-	if use ec2 || use aws_pro ; then
+	if use ec2 ; then
 		newins "${FILESDIR}/grub-ec2.cfg" grub.cfg
 	elif use openstack ; then
 		newins "${FILESDIR}/grub-openstack.cfg" grub.cfg
@@ -69,7 +63,5 @@ src_install() {
 	doins "${FILESDIR}/base/default.ign"
 	if use ec2 ; then
 		newins "${FILESDIR}/base/base-ec2.ign" base.ign
-	elif use aws_pro ; then
-		newins "${FILESDIR}/base/base-aws-pro.ign" base.ign
 	fi
 }
