@@ -190,9 +190,13 @@ build_stage1() {
 
     # If we are to use a git ref for either ebuild repo we want to update the stage1 seed SDK
     if [ -n "${FLAGS_stage1_portage_ref}" -o -n "${FLAGS_stage1_overlay_ref}" ] ; then
-        sed -i 's/^update_seed: no/update_seed: yes/' "$TEMPDIR/stage1.spec"
+        sed -i '/update_seed_command/d' "$TEMPDIR/stage1.spec"
+        sed -i 's/^update_seed:.*/update_seed: yes/' "$TEMPDIR/stage1.spec"
         echo "update_seed_command: --update --deep --newuse --complete-graph --rebuild-if-new-ver --rebuild-exclude cross-*-cros-linux-gnu/* sys-devel/gcc " \
             >>"$TEMPDIR/stage1.spec"
+    else
+        sed -i '/update_seed_command/d' "$TEMPDIR/stage1.spec"
+        sed -i 's/^update_seed:.*/update_seed: no/' "$TEMPDIR/stage1.spec"
     fi
 
     # Finally, build stage 1
@@ -200,9 +204,14 @@ build_stage1() {
 }
 
 if [[ "$STAGES" =~ stage1 ]]; then
-    build_stage1
-    STAGES="${STAGES/stage1/}"
-    SEED="${TYPE}/stage1-${ARCH}-latest"
+    STAGE0_TYPE="flatcar-sdk-stage0"
+    (
+        STAGES="stage1"
+        TYPE="${STAGE0_TYPE}"
+        catalyst_init stage1
+        build_stage1
+    )
+    SEED="${STAGE0_TYPE}/stage1-${ARCH}-latest"
 fi
 
 catalyst_build
