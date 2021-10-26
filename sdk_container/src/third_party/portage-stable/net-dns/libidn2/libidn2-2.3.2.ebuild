@@ -1,29 +1,33 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
-inherit multilib-minimal
+EAPI=7
+
+VERIFY_SIG_OPENPGP_KEY_PATH=${BROOT}/usr/share/openpgp-keys/libidn.asc
+inherit multilib-minimal toolchain-funcs verify-sig
 
 DESCRIPTION="An implementation of the IDNA2008 specifications (RFCs 5890, 5891, 5892, 5893)"
 HOMEPAGE="https://www.gnu.org/software/libidn/#libidn2 https://gitlab.com/libidn/libidn2"
 SRC_URI="
 	mirror://gnu/libidn/${P}.tar.gz
+	verify-sig? ( mirror://gnu/libidn/${P}.tar.gz.sig )
 "
+S="${WORKDIR}"/${P/a/}
 
 LICENSE="GPL-2+ LGPL-3+"
 SLOT="0/2"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv s390 sparc x86 ~ppc-aix ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="static-libs"
 
 RDEPEND="
-	dev-libs/libunistring[${MULTILIB_USEDEP}]
+	dev-libs/libunistring:=[${MULTILIB_USEDEP}]
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
 	dev-lang/perl
 	sys-apps/help2man
+	verify-sig? ( app-crypt/openpgp-keys-libidn )
 "
-S=${WORKDIR}/${P/a/}
 
 src_prepare() {
 	default
@@ -40,6 +44,7 @@ src_prepare() {
 
 multilib_src_configure() {
 	econf \
+		CC_FOR_BUILD="$(tc-getBUILD_CC)" \
 		$(use_enable static-libs static) \
 		--disable-doc \
 		--disable-gcc-warnings \
@@ -49,5 +54,5 @@ multilib_src_configure() {
 multilib_src_install() {
 	default
 
-	find "${D}" -name '*.la' -delete || die
+	find "${ED}" -name '*.la' -delete || die
 }
