@@ -278,6 +278,8 @@ for atom in portage.settings.packages:
 [[ -z ${myNCURSES}    ]] && myNCURSES="sys-libs/ncurses"
 # Flatcar: install curl with BOOTSTRAP_USE=ssl to fetch from https URLs
 [[ -z ${myCURL}       ]] && myCURL="net-misc/curl"
+# Flatcar: upgrade to openssl-3 before system rebuild in stage3
+[[ -z ${myOPENSSL}    ]] && myOPENSSL="dev-libs/openssl"
 
 # Do we really want gettext/nls?
 [[ ${USE_NLS} != 1 ]] && myGETTEXT=
@@ -300,6 +302,7 @@ einfo "Using texinfo    : ${myTEXINFO}"
 einfo "Using zlib       : ${myZLIB}"
 einfo "Using ncurses    : ${myNCURSES}"
 einfo "Using curl       : ${myCURL}"
+einfo "Using openssl    : ${myOPENSSL}"
 echo -------------------------------------------------------------------------------
 show_status 1 Configuring environment
 echo -------------------------------------------------------------------------------
@@ -339,6 +342,8 @@ if [ ${BOOTSTRAP_STAGE} -le 2 ] ; then
 		STRAP_EMERGE_POSARGS="\
 			${myOS_HEADERS} ${myTEXINFO} ${myGETTEXT} ${myBINUTILS} \
 			${myGCC} ${myLIBC} ${myCURL} ${myBASELAYOUT} ${myZLIB}"
+		# Flatcar
+		STRAP_EMERGE_POSARGS="${STRAP_EMERGE_POSARGS} ${myOPENSSL}"
 	fi
 	${V_ECHO} emerge ${STRAP_EMERGE_OPTS} ${STRAP_EMERGE_POSARGS} || cleanup 1
 	echo -------------------------------------------------------------------------------
