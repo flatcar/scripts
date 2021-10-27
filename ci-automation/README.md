@@ -3,7 +3,7 @@
 Scripts in this directory aim to ease automation of Flatcar builds in continuous integration systems.
 
 Each script represents a distinct build step; each step ingests the container image of the previous step and produces a new container image for the next step.
-Notable exceptions are "SDK Bootstrap" (`sdk.sh`) which only creates an SDK tarball, and "VMs build` which does not output a container but only VM (vendor) images.
+Notable exceptions are "SDK Bootstrap" (`sdk.sh`) which only creates an SDK tarball, and "VMs build" which does not output a container but only VM (vendor) images.
 
 Please refer to the individual scripts for prerequisites, input parameters, and outputs.
 

@@ -161,7 +161,7 @@ else
     # since toolchains build uses catalyst which requires privileged access.
     tarball_copied=""
     if [ "$(basename "${tarball}")" != "${tarball}" ] ; then
-        cp "${tarball}" ./
+        cp --reflink=auto "${tarball}" ./
         tarball="$(basename "${tarball}")"
         tarball_copied="${tarball}"
     fi

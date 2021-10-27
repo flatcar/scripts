@@ -25,7 +25,7 @@ Integrated mode will closely integrate with the Scripts directory and bind-mount
 
 ## Standalone mode
 
-In standalone mode, the SDK is just another Docker container. Interaction with the container happens via use of `docker` directly. Use for experimenting and for throw-away work only, otherwise please use ingetrated mode (see below).
+In standalone mode, the SDK is just another Docker container. Interaction with the container happens via use of `docker` directly. Use for experimenting and for throw-away work only, otherwise please use integrated mode (see below).
 
 * Check the list of available versions and pick a version to use. The SDK Major versions correspond to Flatcar Major release versions.
   List of images: `https://github.com/orgs/flatcar-linux/packages/container/package/flatcar-sdk-all`
@@ -50,7 +50,7 @@ To start a container in privileged mode with `/dev` available use:
 ## Integrated mode
 
 This is the preferred mode of working with the SDK.
-Interaction with the container happnes via wrapper scripts from the Scripts repository.
+Interaction with the container happens via wrapper scripts from the Scripts repository.
 Both the host's scripts repo as well as its submodules (portage-stable and coreos-overlay) are made available in the container, allowing for work on these repos directly.
 The wrapper scripts will re-use existing containers instead of creating new ones to preserve your work in the container, enabling consistency.
 
@@ -91,4 +91,4 @@ When using `-v`, the corresponding release version of the Scripts repository is 
 
 # Bootstrapping a new SDK tarball using the SDK container
 
-THe script `./bootstrap_sdk_container` bootstraps a new SDK tarball using an existing SDK container and seed tarball. Specifying the seed version is required for this script.
+The script `./bootstrap_sdk_container` bootstraps a new SDK tarball using an existing SDK container and seed tarball. Specifying the seed version is required for this script.

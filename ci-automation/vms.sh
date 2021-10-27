@@ -70,7 +70,7 @@ function vm_build() {
     # copy resulting images + push to buildcache
     ./run_sdk_container -n "${vms_container}" \
         -v "${vernum}" \
-        cp -R "${CONTAINER_IMAGE_ROOT}/${arch}-usr/" "./${images_out}/"
+        cp --reflink=auto -R "${CONTAINER_IMAGE_ROOT}/${arch}-usr/" "./${images_out}/"
 
     cd "images/latest"
     copy_to_buildcache "images/${arch}/${vernum}/" *
