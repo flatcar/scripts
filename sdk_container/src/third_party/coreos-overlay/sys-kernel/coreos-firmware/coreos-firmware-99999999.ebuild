@@ -59,7 +59,7 @@ RESTRICT="binchecks strip"
 # source name is linux-firmware, not coreos-firmware
 S="${WORKDIR}/linux-firmware-${PV}"
 
-CXGB_VERSION="1.26.0.0"
+CXGB_VERSION="1.26.2.0"
 
 src_unpack() {
 	if [[ ${PV} == 99999999* ]]; then
