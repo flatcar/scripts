@@ -70,6 +70,7 @@ src_install() {
 	use cron && install_cron_file
 
 	systemd_dounit examples/logrotate.{service,timer}
+	systemd_enable_service multi-user.target logrotate.timer
 	newtmpfiles "${FILESDIR}"/${PN}.tmpfiles ${PN}.conf
 
 	keepdir /etc/logrotate.d
