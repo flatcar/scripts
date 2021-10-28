@@ -1,0 +1,5 @@
+[Unit]
+Description=Rotate and Compress System Logs
+
+[Service]
+ExecStart=/usr/bin/logrotate /usr/share/logrotate/logrotate.conf

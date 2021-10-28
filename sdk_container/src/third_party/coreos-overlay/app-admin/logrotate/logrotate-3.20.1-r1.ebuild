@@ -64,12 +64,25 @@ src_install() {
 	doman logrotate.8
 	dodoc ChangeLog.md
 
-	insinto /etc
+	# Flatcar: Put our config under /usr. We will point logrotate
+	# to use this configuration in the systemd unit we install
+	# below. User can always customize logrotate configuration by
+	# using drop-ins to point to a different path or by adding
+	# logrotate config files to /etc/logrotate.d.
+	insinto /usr/share/logrotate
 	doins "${FILESDIR}"/logrotate.conf
 
 	use cron && install_cron_file
 
-	systemd_dounit examples/logrotate.{service,timer}
+	# Flatcar: Install our own systemd service file and enable it
+	# by default.
+	#
+	# TODO: We probably should just patch the example logrotate
+	# service unit, as it has a bunch of hardening and performance
+	# tuning stuff done.
+	systemd_dounit examples/logrotate.timer
+	systemd_dounit "${FILESDIR}"/logrotate.service
+	systemd_enable_service multi-user.target logrotate.timer
 	newtmpfiles "${FILESDIR}"/${PN}.tmpfiles ${PN}.conf
 
 	keepdir /etc/logrotate.d
