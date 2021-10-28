@@ -19,9 +19,9 @@ We provide a containerised SDK via https://github.com/orgs/flatcar-linux/package
 * AMD64 SDK initialised for building AMD64 OS images. About 5.5GB in size.
 * ARM64 SDK initialised for building ARM64 OS images on AMD64 hosts. Also about 5.5GB in size. (While work on a ARM64 native SDK is ongoing, it's unfortunately not ready yet).
 
-The container can be run in one of two ways - "standalone", or integrated with the Scripts repo.
-Standalone mode will use no host volumes and will allow you to play with the SDK in a sandboxed throw-away environment. In standalone mode, you interface with Docker directly to use the SDK container.
-Integrated mode will closely integrate with the Scripts directory and bind-mount it as well as the portage-stable and coreos-overlay gitmodules into the container. Integrated mode uses wrapper scripts to interact with the SDK container.
+The container can be run in one of two ways - "standalone", or integrated with the [Scripts](https://github.com/flatcar-linux/scripts) repo:
+* Standalone mode will use no host volumes and will allow you to play with the SDK in a sandboxed throw-away environment. In standalone mode, you interface with Docker directly to use the SDK container.
+* Integrated mode will closely integrate with the Scripts directory and bind-mount it as well as the portage-stable and coreos-overlay gitmodules into the container. Integrated mode uses wrapper scripts to interact with the SDK container.
 
 ## Standalone mode
 
