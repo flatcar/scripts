@@ -30,7 +30,7 @@ function garbage_collect() {
 
     keep="$((keep + 1))" # for tail -n+...
     local purge_versions="$(git tag -l --sort=-committerdate \
-            | grep -E '(alpha|beta|stable|lts|sdk)-[0-9]+\.[0-9]+\.[0-9]+\-.*' \
+            | grep -E '(main|alpha|beta|stable|lts|sdk)-[0-9]+\.[0-9]+\.[0-9]+\-.*' \
             | grep -vE '(-pro)$' \
             | tail -n+"${keep}")"
 

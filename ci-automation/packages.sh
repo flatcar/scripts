@@ -89,7 +89,7 @@ function packages_build() {
     echo "docker image rm -f '${sdk_image}'" >> ./ci-cleanup.sh
 
     # Set name of the packages container for later rename / export
-    local vernum="${version#*-}" # remove alpha-,beta-,stable-,lts- version tag
+    local vernum="${version#*-}" # remove main-,alpha-,beta-,stable-,lts- version tag
     local docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
     local packages_container="flatcar-packages-${arch}-${docker_vernum}"
 
