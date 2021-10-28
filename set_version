@@ -41,7 +41,8 @@ Usage: $0 FLAGS...
   --file FILE:                                     Modify another file than ${FILE}, useful if run
                                                    outside of the SDK chroot. If /dev/stdout or
                                                    /dev/stderr is used, only new values are printed.
-  --binhost                                        Use a custom binhost (defaults to '${DEFAULT_BASE_URL}').
+  --binhost                                        Use a custom binhost (defaults to '${DEFAULT_BASE_URL}'),
+                                                   e.g., 'https://bucket.release.flatcar-linux.net/flatcar-jenkins'.
                                                    This will update BOARD and SDK URLs accordingly.
 "
   exit 1
