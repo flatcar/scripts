@@ -81,11 +81,7 @@ src_configure() {
 
 	# Prepare initial configuration
 	cd "${S}/refpolicy" || die
-	# Parallel make fails with:
-	#   python3 -t -t -E -W error support/sedoctool.py -b policy/booleans.conf -m policy/modules.conf -x doc/policy.xml
-	#   support/sedoctool.py exiting for: Error while parsing xml
-	#   make: *** [Makefile:415: conf.intermediate] Error 1
-	emake -j1 conf
+	emake conf
 
 	# Setup the policies based on the types delivered by the end user.
 	# These types can be "targeted", "strict", "mcs" and "mls".
