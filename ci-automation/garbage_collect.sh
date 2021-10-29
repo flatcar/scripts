@@ -10,6 +10,8 @@
 #
 #  OPTIONAL INPUT
 #  - Number of (recent) versions to keep. Defaults to 50.
+#  - PURGE_VERSIONS (Env variable). Space-separated list of versions to purge
+#            instead of all but the 50 most recent ones.
 #  - DRY_RUN (Env variable). Set to "y" to just list what would be done but not
 #            actually purge anything.
 
@@ -27,25 +29,38 @@ set -eu
 function garbage_collect() {
     local keep="${1:-50}" 
     local dry_run="${DRY_RUN:-}"
+    local purge_versions="${PURGE_VERSIONS:-}"
 
-    keep="$((keep + 1))" # for tail -n+...
-    local purge_versions="$(git tag -l --sort=-committerdate \
-            | grep -E '(main|alpha|beta|stable|lts|sdk)-[0-9]+\.[0-9]+\.[0-9]+\-.*' \
-            | grep -vE '(-pro)$' \
-            | tail -n+"${keep}")"
+    local versions_detected="$(git tag -l --sort=-committerdate \
+                | grep -E '(main|alpha|beta|stable|lts|sdk)-[0-9]+\.[0-9]+\.[0-9]+\-.*' \
+                | grep -vE '(-pro)$')"
+
+    echo "######## Full list of version(s) found ########"
+    echo "${versions_detected}" | awk '{printf "%5d %s\n", NR, $0}'
+
+    if [ -z "${purge_versions}" ] ; then
+        keep="$((keep + 1))" # for tail -n+...
+        purge_versions="$(echo "${versions_detected}" \
+                            | tail -n+"${keep}")"
+    else
+        # make sure we only accept dev versions
+        purge_versions="$(echo "${purge_versions}" | sed 's/ /\n/g' \
+                            | grep -E '(main|alpha|beta|stable|lts|sdk)-[0-9]+\.[0-9]+\.[0-9]+\-.*' \
+                            | grep -vE '(-pro)$')"
+    fi
 
     source ci-automation/ci_automation_common.sh
 
     local sshcmd="$(gen_sshcmd)"
 
     echo 
-    echo "######## The following versions (starting with ${keep}-oldest) will be purged ########"
+    echo "######## The following version(s) will be purged ########"
     if [ "$dry_run" = "y" ] ; then
         echo
         echo "(NOTE this is just a dry run since DRY_RUN=y)"
         echo
     fi
-    echo "${purge_versions}" | sed 's/ /\n/g'
+    echo "${purge_versions}" | awk -v keep="${keep}" '{printf "%5d %s\n", NR + keep - 1, $0}'
     echo 
     echo 
 
@@ -59,6 +74,7 @@ function garbage_collect() {
         git checkout "${version}" -- sdk_container/.repo/manifests/version.txt
         source sdk_container/.repo/manifests/version.txt
 
+        local os_vernum="${FLATCAR_VERSION}"
         local os_docker_vernum="$(vernum_to_docker_image_version "${FLATCAR_VERSION}")"
         local sdk_vernum="${FLATCAR_SDK_VERSION}"
         local sdk_docker_vernum="$(vernum_to_docker_image_version "${FLATCAR_SDK_VERSION}")"
@@ -73,8 +89,8 @@ function garbage_collect() {
         else
             echo "## ${version} is an OS image version. ##"
             rmpat="${BUILDCACHE_PATH_PREFIX}/containers/${os_docker_vernum}/flatcar-packages-*"
-            rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/containers/${os_docker_vernum}/flatcar-image-*"
-            rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/images/*/${os_docker_vernum}/"
+            rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/containers/${os_docker_vernum}/flatcar-images-*"
+            rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/images/*/${os_vernum}/"
         fi
 
         echo "## The following files will be removed ##"
