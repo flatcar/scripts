@@ -31,7 +31,7 @@ RDEPEND=">=sys-apps/policycoreutils-2.8
 	>=sys-apps/checkpolicy-2.8
 "
 DEPEND="${RDEPEND}"
-# flatcar: BDEPEND on python3[xm] - normally pulled in through policycoreutils
+# flatcar: BDEPEND on python3[xml] - normally pulled in through policycoreutils
 # but we made that dep conditional on USE=python
 BDEPEND="sys-devel/m4
     >=dev-lang/python-3[xml]
