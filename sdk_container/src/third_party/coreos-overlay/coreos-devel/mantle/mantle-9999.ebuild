@@ -4,7 +4,7 @@
 EAPI=7
 CROS_WORKON_PROJECT="flatcar-linux/mantle"
 CROS_WORKON_LOCALNAME="mantle"
-CROS_WORKON_REPO="git://github.com"
+CROS_WORKON_REPO="https://github.com"
 COREOS_GO_PACKAGE="github.com/coreos/mantle"
 COREOS_GO_MOD="vendor"
 
