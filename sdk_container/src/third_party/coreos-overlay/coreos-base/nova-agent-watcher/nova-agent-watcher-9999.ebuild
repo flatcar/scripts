@@ -4,7 +4,7 @@
 EAPI=7
 CROS_WORKON_PROJECT="coreos/nova-agent-watcher"
 CROS_WORKON_LOCALNAME="nova-agent-watcher"
-CROS_WORKON_REPO="git://github.com"
+CROS_WORKON_REPO="https://github.com"
 COREOS_GO_PACKAGE="github.com/coreos/nova-agent-watcher"
 COREOS_GO_GO111MODULE="off"
 inherit cros-workon systemd coreos-go

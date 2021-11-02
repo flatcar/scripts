@@ -5,7 +5,7 @@ EAPI=7
 
 CROS_WORKON_PROJECT="coreos/fero"
 CROS_WORKON_LOCALNAME="fero"
-CROS_WORKON_REPO="git://github.com"
+CROS_WORKON_REPO="https://github.com"
 
 if [[ ${PV} == 9999 ]]; then
 	KEYWORDS="~amd64"
