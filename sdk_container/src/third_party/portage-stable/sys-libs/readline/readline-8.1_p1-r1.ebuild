@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit flag-o-matic multilib-minimal preserve-libs toolchain-funcs usr-ldscript
+inherit flag-o-matic multilib multilib-minimal preserve-libs toolchain-funcs usr-ldscript
 
 # Official patches
 # See ftp://ftp.cwru.edu/pub/bash/readline-7.0-patches/
@@ -45,11 +45,9 @@ SLOT="0/8"  # subslot matches SONAME major
 KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="static-libs +unicode utils"
 
-RDEPEND=">=sys-libs/ncurses-5.9-r3:0=[static-libs?,unicode?,${MULTILIB_USEDEP}]"
+RDEPEND=">=sys-libs/ncurses-5.9-r3:=[static-libs?,unicode(+)?,${MULTILIB_USEDEP}]"
 DEPEND="${RDEPEND}"
-BDEPEND="
-	virtual/pkgconfig
-"
+BDEPEND="virtual/pkgconfig"
 
 S="${WORKDIR}/${MY_P}"
 
@@ -72,9 +70,24 @@ src_prepare() {
 	[[ ${PLEVEL} -gt 0 ]] && eapply -p0 $(patches -s)
 	default
 
-	# Force ncurses linking. #71420
-	# Use pkg-config to get the right values. #457558
-	local ncurses_libs=$($(tc-getPKG_CONFIG) ncurses$(usex unicode w '') --libs)
+	if use prefix && [[ ! -x "${BROOT}"/usr/bin/pkg-config ]] ; then
+		# If we're bootstrapping, make a guess. We don't have pkg-config
+		# around yet. bug #818103.
+		# Incorrectly populating this leads to underlinked libreadline.
+		local ncurses_libs
+		local ncurses_libs_suffix=$(usex unicode w '')
+
+		ncurses_libs="-lncurses${ncurses_libs_suffix}"
+
+		if has_version "sys-libs/ncurses[tinfo(+)]" ; then
+			ncurses_libs+=" -ltinfo${ncurses_libs_suffix}"
+		fi
+	else
+		# Force ncurses linking. #71420
+		# Use pkg-config to get the right values. #457558
+		local ncurses_libs=$($(tc-getPKG_CONFIG) ncurses$(usex unicode w '') --libs)
+	fi
+
 	sed -i \
 		-e "/^SHLIB_LIBS=/s:=.*:='${ncurses_libs}':" \
 		support/shobj-conf || die
