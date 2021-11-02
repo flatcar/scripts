@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit flag-o-matic toolchain-funcs multilib-minimal preserve-libs usr-ldscript
+inherit toolchain-funcs multilib multilib-minimal preserve-libs usr-ldscript
 
 MY_PV="${PV:0:3}"
 MY_P="${PN}-${MY_PV}"
@@ -14,13 +14,14 @@ SRC_URI="mirror://gnu/ncurses/${MY_P}.tar.gz"
 if [[ "${PV}" == *_p* ]] ; then
 	SRC_URI+=" ftp://ftp.invisible-island.net/${PN}/${PV/_p*}/${P/_p/-}-patch.sh.bz2
 		https://invisible-mirror.net/archives/${PN}/${PV/_p*}/${P/_p/-}-patch.sh.bz2"
+	#SRC_URI+=" https://dev.gentoo.org/~polynomial-c/dist/${P}.patch.xz"
 fi
 
 LICENSE="MIT"
 # The subslot reflects the SONAME.
 SLOT="0/6"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="ada +cxx debug doc gpm minimal profile static-libs symlink-usr test threads tinfo trace unicode"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+IUSE="ada +cxx debug doc gpm minimal profile static-libs symlink-usr test tinfo trace"
 RESTRICT="!test? ( test )"
 
 DEPEND="gpm? ( sys-libs/gpm[${MULTILIB_USEDEP}] )"
@@ -44,15 +45,14 @@ PATCHES=(
 	"${FILESDIR}/${PN}-5.7-nongnu.patch"
 	"${FILESDIR}/${PN}-6.0-rxvt-unicode-9.15.patch" #192083 #383871
 	"${FILESDIR}/${PN}-6.0-pkg-config.patch"
-	"${FILESDIR}/${PN}-5.9-gcc-5.patch" #545114
 	"${FILESDIR}/${PN}-6.0-ticlib.patch" #557360
-	"${FILESDIR}/${PN}-6.0-cppflags-cross.patch" #601426
-	"${FILESDIR}/${PN}-6.2-no_user_ldflags_in_libs.patch"
+	"${FILESDIR}/${PN}-6.2_p20210123-cppflags-cross.patch" #601426
 )
 
 src_prepare() {
 	if [[ "${PV}" == *_p* ]] ; then
 		eapply "${WORKDIR}"/${P/_p/-}-patch.sh
+		#eapply "${WORKDIR}/${P}.patch"
 	fi
 	default
 }
@@ -69,9 +69,9 @@ src_configure() {
 	# checking configure flags.
 	NCURSES_TARGETS=(
 		ncurses
-		$(usex unicode 'ncursesw' '')
-		$(usex threads 'ncursest' '')
-		$(use unicode && usex threads 'ncursestw' '')
+		ncursesw
+		ncursest
+		ncursestw
 	)
 
 	# When installing ncurses, we have to use a compatible version of tic.
@@ -93,6 +93,7 @@ src_configure() {
 
 		# We can't re-use the multilib BUILD_DIR because we run outside of it.
 		BUILD_DIR="${WORKDIR}" \
+		CC=${BUILD_CC} \
 		CHOST=${CBUILD} \
 		CFLAGS=${BUILD_CFLAGS} \
 		CXXFLAGS=${BUILD_CXXFLAGS} \
@@ -168,6 +169,7 @@ do_configure() {
 		$(use_with trace)
 		$(use_with tinfo termlib)
 		--disable-stripping
+		--disable-pkg-ldflags
 	)
 
 	if [[ ${target} == ncurses*w ]] ; then
@@ -197,7 +199,7 @@ do_configure() {
 
 	# Force bash until upstream rebuilds the configure script with a newer
 	# version of autotools. #545532
-	CONFIG_SHELL=${EPREFIX}/bin/bash \
+	#CONFIG_SHELL=${EPREFIX}/bin/bash \
 	ECONF_SOURCE="${S}" \
 	econf "${conf[@]}" "$@"
 }
@@ -258,8 +260,7 @@ multilib_src_install() {
 	if multilib_is_native_abi ; then
 		gen_usr_ldscript -a \
 			"${NCURSES_TARGETS[@]}" \
-			$(use tinfo && usex unicode 'tinfow' '') \
-			$(usev tinfo)
+			$(usex tinfo 'tinfow tinfo' '')
 	fi
 	if ! tc-is-static-only ; then
 		# Provide a link for -lcurses.
@@ -321,10 +322,10 @@ multilib_src_install_all() {
 
 pkg_preinst() {
 	preserve_old_lib /$(get_libdir)/libncurses.so.5
-	use unicode && preserve_old_lib /$(get_libdir)/libncursesw.so.5
+	preserve_old_lib /$(get_libdir)/libncursesw.so.5
 }
 
 pkg_postinst() {
 	preserve_old_lib_notify /$(get_libdir)/libncurses.so.5
-	use unicode && preserve_old_lib_notify /$(get_libdir)/libncursesw.so.5
+	preserve_old_lib_notify /$(get_libdir)/libncursesw.so.5
 }

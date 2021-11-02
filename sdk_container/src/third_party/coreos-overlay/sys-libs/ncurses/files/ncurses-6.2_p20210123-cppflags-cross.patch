@@ -14,22 +14,22 @@ one; it should mirror what the first patch tries to achieve and works for me.
 
 --- a/configure
 +++ b/configure
-@@ -2938,10 +2938,6 @@
- 		echo "$as_me:2938: checking if $CXX works" >&5
+@@ -3459,10 +3459,6 @@
+ 		echo "$as_me:3459: checking if $CXX works" >&5
  echo $ECHO_N "checking if $CXX works... $ECHO_C" >&6
  
 -		save_CPPFLAGS="$CPPFLAGS"
 -		eval cf_includedir=${includedir}
 -		CPPFLAGS="$CPPFLAGS -I${cf_includedir}"
 -
- cat >conftest.$ac_ext <<_ACEOF
- #line 2946 "configure"
+ cat >"conftest.$ac_ext" <<_ACEOF
+ #line 3467 "configure"
  #include "confdefs.h"
-@@ -2978,7 +2974,6 @@
+@@ -3499,7 +3495,6 @@
  cf_cxx_works=no
  fi
- rm -f conftest.$ac_objext conftest.$ac_ext
+ rm -f "conftest.$ac_objext" "conftest.$ac_ext"
 -		CPPFLAGS="$save_CPPFLAGS"
  
- 		echo "$as_me:2983: result: $cf_cxx_works" >&5
+ 		echo "$as_me:3504: result: $cf_cxx_works" >&5
  echo "${ECHO_T}$cf_cxx_works" >&6
