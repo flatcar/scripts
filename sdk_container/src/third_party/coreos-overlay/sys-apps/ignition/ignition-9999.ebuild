@@ -4,7 +4,7 @@
 EAPI=7
 CROS_WORKON_PROJECT="flatcar-linux/ignition"
 CROS_WORKON_LOCALNAME="ignition"
-CROS_WORKON_REPO="git://github.com"
+CROS_WORKON_REPO="https://github.com"
 COREOS_GO_PACKAGE="github.com/coreos/ignition"
 COREOS_GO_GO111MODULE="off"
 inherit coreos-go cros-workon systemd udev

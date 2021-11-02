@@ -4,7 +4,7 @@
 EAPI=7
 CROS_WORKON_PROJECT="kinvolk/updateservicectl"
 CROS_WORKON_LOCALNAME="updateservicectl"
-CROS_WORKON_REPO="git://github.com"
+CROS_WORKON_REPO="https://github.com"
 COREOS_GO_PACKAGE="github.com/kinvolk/updateservicectl"
 COREOS_GO_GO111MODULE="on"
 inherit cros-workon coreos-go

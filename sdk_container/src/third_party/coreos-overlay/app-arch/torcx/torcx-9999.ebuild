@@ -4,7 +4,7 @@
 EAPI=7
 CROS_WORKON_PROJECT="flatcar-linux/torcx"
 CROS_WORKON_LOCALNAME="torcx"
-CROS_WORKON_REPO="git://github.com"
+CROS_WORKON_REPO="https://github.com"
 COREOS_GO_PACKAGE="github.com/flatcar-linux/torcx"
 COREOS_GO_GO111MODULE="off"
 
