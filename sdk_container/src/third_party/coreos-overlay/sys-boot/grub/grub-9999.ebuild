@@ -4,7 +4,7 @@
 EAPI=6
 
 CROS_WORKON_PROJECT="flatcar-linux/grub"
-CROS_WORKON_REPO="git://github.com"
+CROS_WORKON_REPO="https://github.com"
 GRUB_AUTOGEN=1  # We start from Git, so always autogen.
 
 if [[ ${PV} == 9999 ]]; then

@@ -3,7 +3,7 @@
 
 EAPI=7
 CROS_WORKON_PROJECT="flatcar-linux/shim"
-CROS_WORKON_REPO="git://github.com"
+CROS_WORKON_REPO="https://github.com"
 
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"

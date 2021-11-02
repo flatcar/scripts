@@ -4,7 +4,7 @@
 EAPI=7
 CROS_WORKON_PROJECT="flatcar-linux/mayday"
 CROS_WORKON_LOCALNAME="mayday"
-CROS_WORKON_REPO="git://github.com"
+CROS_WORKON_REPO="https://github.com"
 COREOS_GO_PACKAGE="github.com/coreos/mayday"
 inherit coreos-go cros-workon
 
