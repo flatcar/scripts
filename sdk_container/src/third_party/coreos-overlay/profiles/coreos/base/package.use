@@ -152,3 +152,5 @@ sys-auth/polkit -introspection
 # and there is no patches for opensslv3 at the moment.
 # https://marc.info/?l=gentoo-dev&m=163216172229772&w=2
 net-misc/openssh -bindist
+
+dev-libs/openssl fips
