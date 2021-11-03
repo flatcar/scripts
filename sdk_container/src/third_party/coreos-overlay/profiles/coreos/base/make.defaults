@@ -37,6 +37,9 @@ BOOTSTRAP_USE="${BOOTSTRAP_USE} curl"
 # Add `minimal` useflag to prevent texinfo to pull dev-lang/perl with not required set of dependencies.
 BOOTSTRAP_USE="${BOOTSTRAP_USE} minimal"
 
+# Add `ssl` USE flag to make libcurl capable of fetching from https URLs.
+BOOTSTRAP_USE="${BOOTSTRAP_USE} curl_ssl_openssl ssl"
+
 # Set SELinux policy
 POLICY_TYPES="targeted mcs mls"
 
