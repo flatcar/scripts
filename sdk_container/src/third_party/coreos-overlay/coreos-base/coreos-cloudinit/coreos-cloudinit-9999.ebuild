@@ -4,7 +4,7 @@
 EAPI=7
 CROS_WORKON_PROJECT="flatcar-linux/coreos-cloudinit"
 CROS_WORKON_LOCALNAME="coreos-cloudinit"
-CROS_WORKON_REPO="git://github.com"
+CROS_WORKON_REPO="https://github.com"
 COREOS_GO_PACKAGE="github.com/coreos/coreos-cloudinit"
 COREOS_GO_GO111MODULE="off"
 inherit cros-workon systemd toolchain-funcs udev coreos-go
