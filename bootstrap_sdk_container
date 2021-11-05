@@ -17,7 +17,9 @@ if is_official "$vernum" ; then
 else
     official="false"
 fi
-cleanup=""
+
+declare -a cleanup
+
 # --
 
 usage() {
@@ -42,7 +44,7 @@ usage() {
 while [ 0 -lt $# ] ; do
     case "$1" in
     -h) usage; exit 0;;
-    -x) cleanup="-x $2"; shift; shift;;
+    -x) cleanup=("-x" "$2"); shift; shift;;
     *)  if [ -z "$seed_version" ] ; then
             seed_version="$1"
         elif [ -z "$target_version" ] ; then
@@ -69,7 +71,7 @@ if $official; then
 fi
 
 # bootstrap_sdk needs FLATCAR_SDK_VERSION set to the seed version
-./run_sdk_container $cleanup -V "$seed_version" -v "$target_version" \
+./run_sdk_container "${cleanup[@]}" -V "$seed_version" -v "$target_version" \
           sudo -E ./bootstrap_sdk
 
 # Update versionfile to the actual SDK version

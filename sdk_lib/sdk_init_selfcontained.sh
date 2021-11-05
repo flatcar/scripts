@@ -19,12 +19,9 @@ function clone_version() {
     local version="$3"
 
     git clone https://github.com/flatcar-linux/$repo "$dest"
-    (
-        cd "$dest"
-        git fetch --all
-        local tag=$(git tag -l | grep "${version}")
-        git checkout "$tag"
-    )
+    git -C "${dest}" fetch --all
+    local tag=$(git -C "${dest}" tag -l | grep "${version}")
+    git -C "${dest}" checkout "$tag"
 }
 # --
 

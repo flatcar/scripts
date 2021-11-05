@@ -20,4 +20,3 @@ sdk_container/.sdkenv
 __build__/
 sdk_container/.cache
 sdk_container/.config
-sdk_container/.lock

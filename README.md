@@ -92,11 +92,11 @@ The wrapper scripts will re-use existing containers instead of creating new ones
 
 To clone the scripts repo and pick a version:
 * Clone the scripts repo: `git clone https://github.com/flatcar-linux/scripts.git`
-  * Make sure to initialise and fetch git submodules - Flatcar's ebuilds are in 2 separate repositories, connected to `scripts` via submodules.
-  * `git submodule init; git submodule update`
 * Optionally, check out a release tag to base your work on
   * list releases (e.g. all Alpha releases): `git tag -l alpha-*`
   * check out the release version, e.g. `3033.0.0`: `git checkout 3033.0.0`
+* Make sure to initialise and fetch git submodules - Flatcar's ebuilds are in 2 separate repositories, connected to `scripts` via submodules.
+  * `git submodule init; git submodule update`
 
 To use the SDK container:
 * Fetch image and start the SDK container: `./run_sdk_container -t`

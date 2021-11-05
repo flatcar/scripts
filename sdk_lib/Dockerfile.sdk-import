@@ -1,6 +1,7 @@
 ARG VERSION
 FROM flatcar-sdk-tarball:${VERSION}
 
+# Make build scripts believe we're in the SDK chroot (which technically, we are)
 RUN touch /etc/debian_chroot
 RUN chmod 644 /etc/passwd
 RUN chmod 644 /etc/group

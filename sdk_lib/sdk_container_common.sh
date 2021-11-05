@@ -40,7 +40,7 @@ function get_sdk_version_from_versionfile() {
 function is_official() {
     local vernum="$1"
 
-    official="$(echo "$vernum" | sed -n 's/^[0-9]\+\.[0-9]\+\.[0-9]\+$/true/p')"
+    local official="$(echo "$vernum" | sed -n 's/^[0-9]\+\.[0-9]\+\.[0-9]\+$/true/p')"
 
     test -n "$official"
 }
@@ -67,7 +67,8 @@ function vernum_from_version() {
 # --
 
 # Strip prefix from version string if present ("alpha-3233.0.0[-...]" => "3233.0.0[-...]")
-#
+#  and add a "+[build suffix]" if this is a non-official build. The "+" matches the version
+#  string generation in the build scripts.
 function strip_version_prefix() {
     local version="$1"
 
