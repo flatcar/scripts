@@ -61,9 +61,6 @@ dev-util/patchelf *
 =sys-apps/sandbox-2.12 ~arm64
 =sys-apps/semodule-utils-3.1 ~arm64
 
-# needed to force enable smartmontools for arm64
-=sys-apps/smartmontools-6.4 **
-
 =sys-block/parted-3.2-r1 ~arm64
 =sys-block/thin-provisioning-tools-0.7.0 ~arm64
 =sys-boot/efibootmgr-15 ~arm64
