@@ -1,53 +1,53 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
-EAPI="5"
-inherit autotools linux-info linux-mod
+EAPI="7"
+MODULES_OPTIONAL_USE=modules
+inherit autotools linux-info linux-mod systemd
 
 DESCRIPTION="IPset tool for iptables, successor to ippool"
-HOMEPAGE="http://ipset.netfilter.org/"
-SRC_URI="http://ipset.netfilter.org/${P}.tar.bz2"
+HOMEPAGE="https://ipset.netfilter.org/"
+SRC_URI="https://ipset.netfilter.org/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~ppc ~x86"
-IUSE="modules"
+KEYWORDS="amd64 ~arm arm64 ppc ~ppc64 ~riscv x86"
+
+BDEPEND="virtual/pkgconfig"
 
 RDEPEND=">=net-firewall/iptables-1.4.7
-	net-libs/libmnl"
+	net-libs/libmnl:="
 DEPEND="${RDEPEND}"
 
 DOCS=( ChangeLog INSTALL README UPGRADE )
 
-# configurable from outside, e.g. /etc/make.conf
+PATCHES=( "${FILESDIR}"/${PN}-7.4-fix-pkgconfig-dir.patch )
+
+# configurable from outside, e.g. /etc/portage/make.conf
 IP_NF_SET_MAX=${IP_NF_SET_MAX:-256}
 
 BUILD_TARGETS="modules"
 MODULE_NAMES_ARG="kernel/net/netfilter/ipset/:${S}/kernel/net/netfilter/ipset"
 MODULE_NAMES="xt_set(kernel/net/netfilter/ipset/:${S}/kernel/net/netfilter/)"
-for i in ip_set{,_bitmap_{ip{,mac},port},_hash_{ip{,port{,ip,net}},net,net{port,iface}},_list_set}; do
+MODULE_NAMES+=" em_ipset(kernel/net/sched/:${S}/kernel/net/sched/)"
+for i in ip_set{,_bitmap_{ip{,mac},port},_hash_{ip{,mac,mark,port{,ip,net}},mac,net{,port{,net},iface,net}},_list_set}; do
 	MODULE_NAMES+=" ${i}(${MODULE_NAMES_ARG})"
 done
-
-check_header_patch() {
-	if ! $(grep -q NFNL_SUBSYS_IPSET "${KV_DIR}/include/linux/netfilter/nfnetlink.h"); then
-		eerror "Sorry, but you have to patch kernel sources with the following patch:"
-		eerror " # cd ${KV_DIR}"
-		eerror " # patch -i ${S}/netlink.patch -p1"
-		eerror "You should recompile and run new kernel to avoid runtime errors."
-		die "Unpatched kernel"
-	fi
-}
 
 pkg_setup() {
 	get_version
 	CONFIG_CHECK="NETFILTER"
 	ERROR_NETFILTER="ipset requires NETFILTER support in your kernel."
+	CONFIG_CHECK+=" NETFILTER_NETLINK"
+	ERROR_NETFILTER_NETLINK="ipset requires NETFILTER_NETLINK support in your kernel."
+	# It does still build without NET_NS, but it may be needed in future.
+	#CONFIG_CHECK="${CONFIG_CHECK} NET_NS"
+	#ERROR_NET_NS="ipset requires NET_NS (network namespace) support in your kernel."
+	CONFIG_CHECK+=" !PAX_CONSTIFY_PLUGIN"
+	ERROR_PAX_CONSTIFY_PLUGIN="ipset contains constified variables (#614896)"
 
 	build_modules=0
 	if use modules; then
-		kernel_is -lt 2 6 35 && die "${PN} requires kernel greater then 2.6.35."
 		if linux_config_src_exists && linux_chkconfig_builtin "MODULES" ; then
 			if linux_chkconfig_present "IP_NF_SET" || \
 				linux_chkconfig_present "IP_SET"; then #274577
@@ -70,7 +70,8 @@ pkg_setup() {
 }
 
 src_prepare() {
-	[[ ${build_modules} -eq 1 ]] && check_header_patch
+	default
+
 	eautoreconf
 }
 
@@ -98,10 +99,12 @@ src_compile() {
 src_install() {
 	einfo "Installing userspace"
 	default
-	prune_libtool_files
 
-	newinitd "${FILESDIR}"/ipset.initd-r2 ${PN}
+	find "${ED}" -name '*.la' -delete || die
+
+	newinitd "${FILESDIR}"/ipset.initd-r4 ${PN}
 	newconfd "${FILESDIR}"/ipset.confd ${PN}
+	systemd_newunit "${FILESDIR}"/ipset.systemd ${PN}.service
 	keepdir /var/lib/ipset
 
 	if [[ ${build_modules} -eq 1 ]]; then
