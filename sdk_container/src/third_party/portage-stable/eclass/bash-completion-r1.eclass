@@ -28,10 +28,12 @@ _BASH_COMPLETION_R1_ECLASS=1
 
 inherit toolchain-funcs
 
-case ${EAPI} in
-	5|6|7|8) ;;
-	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
-esac
+# Flatcar: we still have some packages that use old EAPI, revert this
+# change when we update those packages.
+#case ${EAPI} in
+#	5|6|7|8) ;;
+#	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
+#esac
 
 # @FUNCTION: _bash-completion-r1_get_bashdir
 # @INTERNAL
