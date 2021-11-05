@@ -60,8 +60,4 @@ DEPEND="${DEPEND}
 	)
 	sys-devel/m4"
 
-# Required by dev-lang/spidermonkey-1.8.5
-DEPEND="${DEPEND}
-	sys-devel/autoconf:2.1"
-
 RDEPEND="${DEPEND}"

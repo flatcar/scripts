@@ -1,3 +1,1 @@
-
-# Accept perl libs required to build >=samba-4.12
-dev-perl/Parse-Yapp ~amd64 ~arm64
+=app-crypt/efitools-1.8.1 ~amd64 ~arm64
