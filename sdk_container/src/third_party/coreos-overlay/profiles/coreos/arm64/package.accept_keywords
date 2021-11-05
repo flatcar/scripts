@@ -64,7 +64,6 @@ dev-util/patchelf *
 =sys-block/parted-3.2-r1 ~arm64
 =sys-block/thin-provisioning-tools-0.7.0 ~arm64
 =sys-boot/efibootmgr-15 ~arm64
-=sys-boot/gnu-efi-3.0.3 ~arm64
 
 # needed to force enable ipvsadm for arm64
 =sys-cluster/ipvsadm-1.27-r1 **
