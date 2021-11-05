@@ -8,8 +8,7 @@
 app-eselect/eselect-pinentry-0.7
 
 # pulled in by app-editors/vim
-app-admin/eselect-vi-1.1.5
-app-eselect/eselect-vi-1.1.7-r1
+app-eselect/eselect-vi-1.2
 
 # pulled in by net-firewall/iptables
 app-eselect/eselect-iptables-20200508
