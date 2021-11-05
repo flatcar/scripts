@@ -32,7 +32,6 @@ dev-util/patchelf *
 
 =net-dns/c-ares-1.17.2 ~arm64
 =net-firewall/conntrack-tools-1.4.5 ~arm64
-=net-firewall/ipset-6.29 ~arm64
 =net-libs/http-parser-2.6.2 ~arm64
 =net-libs/libnetfilter_conntrack-1.0.8 ~arm64
 =net-libs/libnetfilter_cthelper-1.0.0-r1 ~arm64
