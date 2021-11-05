@@ -3,7 +3,6 @@
 
 # needed by arm64-native SDK
 =app-emulation/open-vmdk-1.0 *
-app-misc/editor-wrapper *
 
 =app-misc/jq-1.6-r3 ~arm64
 ~app-arch/pbzip2-1.1.12 ~arm64
