@@ -52,9 +52,6 @@ dev-util/patchelf *
 sys-apps/dtc ~arm64
 =sys-apps/checkpolicy-3.1 ~arm64
 
-# needed by arm64-native SDK
-sys-apps/debianutils *
-
 # needed to force enable lshw for arm64
 =sys-apps/lshw-02.17b-r2 **
 
