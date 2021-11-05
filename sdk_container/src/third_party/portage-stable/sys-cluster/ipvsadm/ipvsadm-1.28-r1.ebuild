@@ -1,21 +1,21 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=4
+EAPI=6
 
-inherit eutils linux-info toolchain-funcs
+inherit epatch linux-info toolchain-funcs
 
 DESCRIPTION="utility to administer the IP virtual server services"
 HOMEPAGE="http://linuxvirtualserver.org/"
-SRC_URI="http://www.linuxvirtualserver.org/software/kernel-2.6/${P}.tar.gz"
+SRC_URI="https://kernel.org/pub/linux/utils/kernel/ipvsadm/ipvsadm-${PV}.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 ia64 ppc ppc64 s390 sparc x86"
+KEYWORDS="~amd64 ~ia64 ~ppc ~ppc64 ~s390 ~sparc ~x86"
 IUSE="static-libs"
 
-RDEPEND=">=sys-libs/ncurses-5.2
-	dev-libs/libnl:1.1
+RDEPEND=">=sys-libs/ncurses-5.2:*
+	dev-libs/libnl:=
 	>=dev-libs/popt-1.16"
 DEPEND="${RDEPEND}
 	virtual/pkgconfig"
@@ -28,18 +28,25 @@ pkg_pretend() {
 }
 
 src_prepare() {
-	epatch "${FILESDIR}"/${P}-buildsystem.patch
-	epatch "${FILESDIR}/${P}-stack_smashing.patch" # bug 371903
+	default
+	epatch "${FILESDIR}"/${PN}-1.27-buildsystem.patch
+	epatch "${FILESDIR}"/${PN}-1.27-fix-daemon-state.patch
 	use static-libs && export STATIC=1
 }
 
 src_compile() {
+	local libnl_include
+	if has_version ">=dev-libs/libnl-3.0"; then
+		libnl_include=$($(tc-getPKG_CONFIG) --cflags libnl-3.0)
+	else
+		libnl_include=""
+	fi
 	emake -e \
-		INCLUDE="-I.. -I." \
+		INCLUDE="-I.. -I. ${libnl_include}" \
 		CC="$(tc-getCC)" \
 		HAVE_NL=1 \
-		STATIC_LIB=${STATIC} \
-		POPT_LIB="$(pkg-config --libs popt)"
+		STATIC=${STATIC} \
+		POPT_LIB="$($(tc-getPKG_CONFIG) --libs popt)"
 }
 
 src_install() {
