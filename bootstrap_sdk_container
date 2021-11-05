@@ -36,7 +36,7 @@ usage() {
     echo "      -x <cleanup-script> - For each resource generated during build (container etc.)"
     echo "                             add a cleanup line to <script> which, when run, will free"
     echo "                             the resource. Useful for CI."
-    echo "      -h                  Print this help."
+    echo "      -h                  - Print this help."
     echo
 }
 # --

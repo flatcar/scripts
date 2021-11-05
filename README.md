@@ -3,8 +3,8 @@
 Welcome to the scripts repo, your starting place for most things here in the Flatcar Container Linux SDK. To get started you can find our documentation on [the Flatcar docs website][flatcar-docs].
 
 The SDK can be used to
-* patch or update applications or libraries included in the Flatcar OS image
-* add or remove applications and / or libraries
+* Patch or update applications or libraries included in the Flatcar OS image
+* Add or remove applications and / or libraries
 * Modify the kernel configuration and add or remove kernel modules included with Flatcar
 * Build OS images for a variety of targets (qemu, bare metal, AWS, Azure, VMWare, etc.)
 * And lastly, the SDK can be used to upgrade SDK packages and to build new SDKs
@@ -14,7 +14,7 @@ The SDK can be used to
 # Using the scripts repository: submodules and tags
 
 The repository is meant to be the entry point for Flatcar builds and development.
-For building pakages, there are 2 addigional repositories, [coreos-overlay](https://github.com/flatcar-linux/) and [portage-stable](https://github.com/flatcar-linux/portage-stable), which contain all packages' `ebuild` (build configuration) files.
+For building packages, there are 2 additional repositories, [coreos-overlay](https://github.com/flatcar-linux/) and [portage-stable](https://github.com/flatcar-linux/portage-stable), which contain all packages' `ebuild` (build configuration) files.
 These repositories are included in `scripts` via git submodules and are used by the SDK container wrapper scripts detailed on further below.
 The submodules reside in:
 ```
@@ -28,10 +28,7 @@ scripts
 
 When working with the scripts repo always make sure to initialise and to update these submodules; otherwise builds will break because build configuration is missing:
 ```bash
-$ git clone https://github.com/flatcar-linux/scripts.git
-$ cd scripts
-$ git submodule init
-$ git submodule update
+$ git clone --recurse-submodules https://github.com/flatcar-linux/scripts.git
 ```
 
 The `scripts` repository makes ample use of tags to mark releases.
@@ -55,9 +52,9 @@ We provide a containerised SDK via https://github.com/orgs/flatcar-linux/package
 * ARM64 SDK initialised for building ARM64 OS images on AMD64 hosts. Also about 6GB in size.
 While work on a native ARM64 native SDK is ongoing, it's unfortunately not ready yet. If you want to help, patches are welcome!
 
-The container can be run in one of two ways - "standalone", or integrated with the [Scripts](https://github.com/flatcar-linux/scripts) repo:
+The container can be run in one of two ways - "standalone", or integrated with the [scripts](https://github.com/flatcar-linux/scripts) repo:
 * Standalone mode will use no host volumes and will allow you to play with the SDK in a sandboxed throw-away environment. In standalone mode, you interface with Docker directly to use the SDK container.
-* Integrated mode will closely integrate with the Scripts directory and bind-mount it as well as the portage-stable and coreos-overlay gitmodules into the container. Integrated mode uses wrapper scripts to interact with the SDK container. This is the recommended way for developing patches for Flatcar.
+* Integrated mode will closely integrate with the scripts repo directory and bind-mount it as well as the portage-stable and coreos-overlay gitmodules into the container. Integrated mode uses wrapper scripts to interact with the SDK container. This is the recommended way for developing patches for Flatcar.
 
 ## Standalone mode
 
@@ -124,7 +121,7 @@ Check out `./run_sdk_container -h` for more information on command line options.
 Building an SDK container is done using `./build_sdk_container_image <tarball>`.
 The tarball input is the result of an SDK bootstrap (see below). Version information for both OS as well as for the SDK will be extracted from the tarball name.
 The version file will be updated accordingly before the SDK container is built.
-During the build, toolchain packages will be built and installed into the SDK container image. Both supported boards (`amd64-usr` and `arm64-usr`) will be initialisedin the container image.
+During the build, toolchain packages will be built and installed into the SDK container image. Both supported boards (`amd64-usr` and `arm64-usr`) will be initialised in the container image.
 
 # Bootstrapping a new SDK tarball using the SDK container
 
@@ -132,4 +129,4 @@ The script `./bootstrap_sdk_container` bootstraps a new SDK tarball using an exi
 
 # Automation stubs for continuous integration
 
-Script stubs for various build stages can be found in the [ci-automation](ci-automation) folder. THese are helpful for glueing Flatcar Container Linux builds to a continuous integration system.
+Script stubs for various build stages can be found in the [ci-automation](ci-automation) folder. These are helpful for gluing Flatcar Container Linux builds to a continuous integration system.

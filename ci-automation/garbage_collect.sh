@@ -16,7 +16,7 @@
 #            actually purge anything.
 
 # Flatcar CI automation garbage collector.
-#  This script removes development (non-official) build artefacts:
+#  This script removes development (non-official) build artifacts:
 #   - SDK tarballs, build step containers, and vendor images on buildcache
 #   - tags from the scripts repository
 #

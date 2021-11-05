@@ -176,7 +176,7 @@ function setup_gsutil() {
     local botofile="$creds_dir/boto-flatcar-sdk"
 
     # TODO t-lo: move generation of boto file to sdk_entry so
-    #               it's onyl created inside the container.
+    #               it's only created inside the container.
 
     # read creds file and create boto file for gsutil
     local tmp="$(mktemp)"

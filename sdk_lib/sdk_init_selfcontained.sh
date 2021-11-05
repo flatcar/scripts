@@ -10,6 +10,7 @@ echo "Press [RETURN] to continue, CTRL+C to abort"
 echo
 
 read junk
+unset junk
 
 # --
 

@@ -6,7 +6,7 @@
 
 # >>> This file is supposed to be SOURCED from the repository ROOT. <<<
 #
-# packages_build() should be called w/ the positional INPUT parameters below.
+# vm_build() should be called w/ the positional INPUT parameters below.
 
 # Vendor images build automation stub.
 #   This script will build one or more vendor images ("vm") using a pre-built image container.
@@ -59,7 +59,7 @@ function vm_build() {
 
     echo "docker container rm -f '${vms_container}'" >> ci-cleanup.sh
 
-    for format in "${@}"; do
+    for format; do
         echo " ###################  VENDOR '${format}' ################### "
         ./run_sdk_container -n "${vms_container}" -C "${image_image}" \
             -v "${vernum}" \

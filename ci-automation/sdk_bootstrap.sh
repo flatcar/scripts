@@ -8,7 +8,7 @@
 #
 # sdk_bootstrap() should be called w/ the positional INPUT parameters below.
 
-# Boostrap SDK build automation stub.
+# Bootstrap SDK build automation stub.
 #  This script will use a seed SDK container + tarball to bootstrap a 
 #   new SDK tarball.
 #

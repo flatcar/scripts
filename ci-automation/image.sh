@@ -6,7 +6,7 @@
 
 # >>> This file is supposed to be SOURCED from the repository ROOT. <<<
 #
-# packages_build() should be called w/ the positional INPUT parameters below.
+# image_build() should be called w/ the positional INPUT parameters below.
 
 # Binary OS image build automation stub.
 #   This script will build the OS image from a pre-built packages container.
@@ -25,7 +25,7 @@
 #
 # OUTPUT:
 #
-#   1. Exported container image with OS image, dev container, and related artefacts at
+#   1. Exported container image with OS image, dev container, and related artifacts at
 #        /home/sdk/image/[ARCH], torcx packages at /home/sdk/torcx
 #        named "flatcar-images-[ARCH]-[FLATCAR_VERSION].tar.gz"
 #        pushed to buildcache.

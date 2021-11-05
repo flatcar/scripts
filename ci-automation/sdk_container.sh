@@ -50,7 +50,7 @@ function sdk_container_build() {
     # This will update the SDK_VERSION in versionfile
     ./build_sdk_container_image -x ./ci-cleanup.sh ./__build__/"${sdk_tarball}"
 
-    # push artefacts to build cache
+    # push artifacts to build cache
     local docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
     docker_image_to_buildcache "${CONTAINER_REGISTRY}/flatcar-sdk-all" "${docker_vernum}"
     docker_image_to_buildcache "${CONTAINER_REGISTRY}/flatcar-sdk-amd64" "${docker_vernum}"
