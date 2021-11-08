@@ -1,10 +1,16 @@
 # Copyright 2011-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+
+# Flatcar: this file is modified to still support old EAPIs and to
+# still provide the deprecated systemd_dotmpfilesd and
+# systemd_newtmpfilesd functions.
+
+
 # @ECLASS: systemd.eclass
 # @MAINTAINER:
 # systemd@gentoo.org
-# @SUPPORTED_EAPIS: 5 6 7 8
+# @SUPPORTED_EAPIS: 0 1 2 3 4 5 6 7
 # @BLURB: helper functions to install systemd units
 # @DESCRIPTION:
 # This eclass provides a set of functions to install unit files for
@@ -24,14 +30,14 @@
 # }
 # @CODE
 
-case ${EAPI} in
-	5|6|7|8) ;;
-	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
-esac
-
 inherit toolchain-funcs
 
-if [[ ${EAPI} == [56] ]]; then
+case ${EAPI:-0} in
+	0|1|2|3|4|5|6|7) ;;
+	*) die "${ECLASS}.eclass API in EAPI ${EAPI} not yet established."
+esac
+
+if [[ ${EAPI:-0} == [0123456] ]]; then
 	DEPEND="virtual/pkgconfig"
 else
 	BDEPEND="virtual/pkgconfig"
@@ -61,7 +67,7 @@ _systemd_get_dir() {
 	echo "${d}"
 }
 
-# @FUNCTION: _systemd_get_systemunitdir
+# @FUNCTION: _systemd_get_unitdir
 # @INTERNAL
 # @DESCRIPTION:
 # Get unprefixed unitdir.
@@ -75,6 +81,7 @@ _systemd_get_systemunitdir() {
 # ${D}).  This function always succeeds, even if systemd is not
 # installed.
 systemd_get_systemunitdir() {
+	has "${EAPI:-0}" 0 1 2 && ! use prefix && EPREFIX=
 	debug-print-function ${FUNCNAME} "${@}"
 
 	echo "${EPREFIX}$(_systemd_get_systemunitdir)"
@@ -84,7 +91,7 @@ systemd_get_systemunitdir() {
 # @DESCRIPTION:
 # Deprecated alias for systemd_get_systemunitdir.
 systemd_get_unitdir() {
-	[[ ${EAPI} == 5 ]] || die "${FUNCNAME} is banned in EAPI 6, use systemd_get_systemunitdir instead"
+	[[ ${EAPI} == [012345] ]] || die "${FUNCNAME} is banned in EAPI 6, use systemd_get_systemunitdir instead"
 
 	systemd_get_systemunitdir
 }
@@ -103,6 +110,7 @@ _systemd_get_userunitdir() {
 # ${D}). This function always succeeds, even if systemd is not
 # installed.
 systemd_get_userunitdir() {
+	has "${EAPI:-0}" 0 1 2 && ! use prefix && EPREFIX=
 	debug-print-function ${FUNCNAME} "${@}"
 
 	echo "${EPREFIX}$(_systemd_get_userunitdir)"
@@ -122,6 +130,7 @@ _systemd_get_utildir() {
 # ${D}). This function always succeeds, even if systemd is not
 # installed.
 systemd_get_utildir() {
+	has "${EAPI:-0}" 0 1 2 && ! use prefix && EPREFIX=
 	debug-print-function ${FUNCNAME} "${@}"
 
 	echo "${EPREFIX}$(_systemd_get_utildir)"
@@ -140,6 +149,7 @@ _systemd_get_systemgeneratordir() {
 # Output the path for the systemd system generator directory (not including
 # ${D}). This function always succeeds, even if systemd is not installed.
 systemd_get_systemgeneratordir() {
+	has "${EAPI:-0}" 0 1 2 && ! use prefix && EPREFIX=
 	debug-print-function ${FUNCNAME} "${@}"
 
 	echo "${EPREFIX}$(_systemd_get_systemgeneratordir)"
@@ -166,7 +176,8 @@ systemd_get_systempresetdir() {
 # @FUNCTION: systemd_dounit
 # @USAGE: <unit>...
 # @DESCRIPTION:
-# Install systemd unit(s). Uses doins, thus it is fatal.
+# Install systemd unit(s). Uses doins, thus it is fatal in EAPI 4
+# and non-fatal in earlier EAPIs.
 systemd_dounit() {
 	debug-print-function ${FUNCNAME} "${@}"
 
@@ -180,7 +191,8 @@ systemd_dounit() {
 # @FUNCTION: systemd_newunit
 # @USAGE: <old-name> <new-name>
 # @DESCRIPTION:
-# Install systemd unit with a new name. Uses newins, thus it is fatal.
+# Install systemd unit with a new name. Uses newins, thus it is fatal
+# in EAPI 4 and non-fatal in earlier EAPIs.
 systemd_newunit() {
 	debug-print-function ${FUNCNAME} "${@}"
 
@@ -194,7 +206,8 @@ systemd_newunit() {
 # @FUNCTION: systemd_douserunit
 # @USAGE: <unit>...
 # @DESCRIPTION:
-# Install systemd user unit(s). Uses doins, thus it is fatal.
+# Install systemd user unit(s). Uses doins, thus it is fatal in EAPI 4
+# and non-fatal in earlier EAPIs.
 systemd_douserunit() {
 	debug-print-function ${FUNCNAME} "${@}"
 
@@ -209,7 +222,7 @@ systemd_douserunit() {
 # @USAGE: <old-name> <new-name>
 # @DESCRIPTION:
 # Install systemd user unit with a new name. Uses newins, thus it
-# is fatal.
+# is fatal in EAPI 4 and non-fatal in earlier EAPIs.
 systemd_newuserunit() {
 	debug-print-function ${FUNCNAME} "${@}"
 
@@ -250,11 +263,54 @@ systemd_install_serviced() {
 	)
 }
 
+# @FUNCTION: systemd_dotmpfilesd
+# @USAGE: <tmpfilesd>...
+# @DESCRIPTION:
+# Deprecated in favor of tmpfiles.eclass.
+#
+# Install systemd tmpfiles.d files. Uses doins, thus it is fatal
+# in EAPI 4 and non-fatal in earlier EAPIs.
+systemd_dotmpfilesd() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	for f; do
+		[[ ${f} == *.conf ]] \
+			|| die 'tmpfiles.d files need to have .conf suffix.'
+	done
+
+	(
+		insopts -m 0644
+		insinto /usr/lib/tmpfiles.d/
+		doins "${@}"
+	)
+}
+
+# @FUNCTION: systemd_newtmpfilesd
+# @USAGE: <old-name> <new-name>.conf
+# @DESCRIPTION:
+# Deprecated in favor of tmpfiles.eclass.
+#
+# Install systemd tmpfiles.d file under a new name. Uses newins, thus it
+# is fatal in EAPI 4 and non-fatal in earlier EAPIs.
+systemd_newtmpfilesd() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	[[ ${2} == *.conf ]] \
+		|| die 'tmpfiles.d files need to have .conf suffix.'
+
+	(
+		insopts -m 0644
+		insinto /usr/lib/tmpfiles.d/
+		newins "${@}"
+	)
+}
+
 # @FUNCTION: systemd_enable_service
 # @USAGE: <target> <service>
 # @DESCRIPTION:
 # Enable service in desired target, e.g. install a symlink for it.
-# Uses dosym, thus it is fatal.
+# Uses dosym, thus it is fatal in EAPI 4 and non-fatal in earlier
+# EAPIs.
 systemd_enable_service() {
 	debug-print-function ${FUNCNAME} "${@}"
 
@@ -277,7 +333,8 @@ systemd_enable_service() {
 # and name, while the remaining arguments list service units that will
 # be added to that file.
 #
-# Uses doins, thus it is fatal.
+# Uses doins, thus it is fatal in EAPI 4 and non-fatal in earlier
+# EAPIs.
 #
 # Doc: https://www.freedesktop.org/wiki/Software/systemd/timedated/
 systemd_enable_ntpunit() {
@@ -332,7 +389,7 @@ systemd_enable_ntpunit() {
 # argument to this function (`$(systemd_with_unitdir systemdunitdir)'). Please
 # remember to report a bug upstream as well.
 systemd_with_unitdir() {
-	[[ ${EAPI} == 5 ]] || die "${FUNCNAME} is banned in EAPI ${EAPI}, use --with-${1:-systemdsystemunitdir}=\"\$(systemd_get_systemunitdir)\" instead"
+	[[ ${EAPI:-0} != [012345] ]] && die "${FUNCNAME} is banned in EAPI ${EAPI}, use --with-${1:-systemdsystemunitdir}=\"\$(systemd_get_systemunitdir)\" instead"
 
 	debug-print-function ${FUNCNAME} "${@}"
 	local optname=${1:-systemdsystemunitdir}
@@ -349,7 +406,7 @@ systemd_with_unitdir() {
 # systemd helpers. This function always succeeds. Its output may be quoted
 # in order to preserve whitespace in paths.
 systemd_with_utildir() {
-	[[ ${EAPI} == 5 ]] || die "${FUNCNAME} is banned in EAPI ${EAPI}, use --with-systemdutildir=\"\$(systemd_get_utildir)\" instead"
+	[[ ${EAPI:-0} != [012345] ]] && die "${FUNCNAME} is banned in EAPI ${EAPI}, use --with-systemdutildir=\"\$(systemd_get_utildir)\" instead"
 
 	debug-print-function ${FUNCNAME} "${@}"
 
