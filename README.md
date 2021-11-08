@@ -83,7 +83,7 @@ To start a container in privileged mode with `/dev` available use:
 ## Integrated mode
 
 This is the preferred mode of working with the SDK.
-Interaction with the container happens via wrapper scripts from the Scripts repository.
+Interaction with the container happens via wrapper scripts from the scripts repository.
 Both the host's scripts repo as well as its submodules (portage-stable and coreos-overlay) are made available in the container, allowing for work on these repos directly.
 The wrapper scripts will re-use existing containers instead of creating new ones to preserve your work in the container, enabling consistency.
 
