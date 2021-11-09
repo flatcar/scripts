@@ -13,3 +13,8 @@ systemd[1]: lvm2-activation-early.service: Failed with result 'start-limit-hit'.
 Set RemainAfterExit=yes as done for the other oneshot services to
 prevent the unit from running multiple times in a row and hitting the
 restart limit.
+
+
+
+We also patch the configure script to use the correct path for systemd
+util directory.

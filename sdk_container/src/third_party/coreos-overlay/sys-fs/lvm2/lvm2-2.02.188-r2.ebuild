@@ -123,6 +123,13 @@ src_prepare() {
 		sed -i -e 's/^\(MAN7+=.*\) $(LVMTHINMAN) \(.*\)$/\1 \2/' man/Makefile.in || die
 	fi
 
+	# Flatcar: The configure script tries to detect the systemd
+	# util dir without providing a way for us to override it, so
+	# modify the script.
+	sed -i \
+	    -e "s#^\(systemdutildir=\).*#\1$(systemd_get_utildir)#" \
+	    configure{.ac,} || die
+
 	eautoreconf
 }
 
