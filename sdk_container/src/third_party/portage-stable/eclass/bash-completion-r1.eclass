@@ -43,6 +43,11 @@ esac
 _bash-completion-r1_get_bashdir() {
 	debug-print-function ${FUNCNAME} "${@}"
 
+	# Flatcar: Take a fix for pkg-config paths from systemd.eclass.
+	#
+	# https://github.com/pkgconf/pkgconf/issues/205
+	local -x PKG_CONFIG_FDO_SYSROOT_RULES=1
+
 	if $(tc-getPKG_CONFIG) --exists bash-completion &>/dev/null; then
 		local path
 		path=$($(tc-getPKG_CONFIG) --variable="${1}" bash-completion) || die
