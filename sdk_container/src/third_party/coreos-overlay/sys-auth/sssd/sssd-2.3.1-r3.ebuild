@@ -195,6 +195,11 @@ multilib_src_configure() {
 		myconf+=(
 			--with-initscript="systemd"
 			--with-systemdunitdir=$(systemd_get_systemunitdir)
+			# Flatcar: Set the systemd system
+			# configuration directory explicitly through
+			# _systemd_get_dir, as it will do the right
+			# thing in cross-compilation environment.
+			--with-systemdconfdir=$(_systemd_get_dir systemdsystemconfdir /etc/systemd/system)
 		)
 	else
 		myconf+=(--with-initscript="sysv")
