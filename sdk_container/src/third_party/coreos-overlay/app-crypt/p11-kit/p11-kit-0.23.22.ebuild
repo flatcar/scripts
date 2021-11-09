@@ -3,7 +3,9 @@
 
 EAPI=7
 
-inherit multilib-minimal
+# Flatcar: inherit systemd eclass for the systemd user unit directory
+# getter, and bash-completion-r1 for bash completion directory getter.
+inherit multilib-minimal systemd bash-completion-r1
 
 DESCRIPTION="Provides a standard configuration setup for installing PKCS#11"
 HOMEPAGE="https://p11-glue.github.io/p11-glue/p11-kit.html"
@@ -42,6 +44,11 @@ src_prepare() {
 }
 
 multilib_src_configure() {
+	# Flatcar: Override the detection of the systemd user unit
+	# directory and bash completion directory with these
+	# environment variables.
+	local -x systemduserunitdir=$(systemd_get_userunitdir)
+	local -x bashcompdir=$(get_bashcompdir)
 	ECONF_SOURCE="${S}" econf \
 		$(use_enable trust trust-module) \
 		$(use_with trust trust-paths ${EPREFIX}/etc/ssl/certs/ca-certificates.crt) \
