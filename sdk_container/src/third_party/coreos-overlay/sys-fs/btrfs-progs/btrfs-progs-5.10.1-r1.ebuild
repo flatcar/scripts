@@ -3,9 +3,11 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{8..9} )
+# Flatcar: We still have python 3.6 only.
+PYTHON_COMPAT=( python3_{6..9} )
 
-inherit bash-completion-r1 python-single-r1
+# Flatcar: Inherit udev eclass, so we can get the udev directory.
+inherit bash-completion-r1 python-single-r1 udev
 
 libbtrfs_soname=0
 
@@ -93,6 +95,8 @@ src_prepare() {
 		ln -s "${EPREFIX}"/usr/share/gnuconfig/config.guess config/config.guess || die
 		ln -s "${EPREFIX}"/usr/share/gnuconfig/config.sub config/config.sub || die
 	fi
+	# Flatcar: Replace udevdir variable with proper udev directory.
+	sed -i -e 's#^\(udevdir\s\+=\).*#\1 $(get_udevdir)#' Makefile.inc.in
 }
 
 src_configure() {
