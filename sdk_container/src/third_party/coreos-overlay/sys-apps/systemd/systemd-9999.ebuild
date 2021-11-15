@@ -247,6 +247,10 @@ src_configure() {
 	multilib-minimal_src_configure
 }
 
+get_rootprefix() {
+	usex split-usr "${EPREFIX:-/}" "${EPREFIX}/usr"
+}
+
 multilib_src_configure() {
 	local myconf=(
 		--localstatedir="${EPREFIX}/var"
@@ -258,7 +262,7 @@ multilib_src_configure() {
 		# make sure we get /bin:/sbin in PATH
 		$(meson_use split-usr)
 		-Dsplit-bin=true
-		-Drootprefix="$(usex split-usr "${EPREFIX:-/}" "${EPREFIX}/usr")"
+		-Drootprefix="$(get_rootprefix)"
 		-Drootlibdir="${EPREFIX}/usr/$(get_libdir)"
 		# Avoid infinite exec recursion, bug 642724
 		-Dtelinit-path="${EPREFIX}/lib/sysvinit/telinit"
@@ -500,18 +504,18 @@ multilib_src_install_all() {
 	# dropped it.
 }
 
-builddir_systemd_enable_service() {
-    (
-        export SYSROOT="${ED}"
-        systemd_enable_service "$@"
-    )
+builddir_systemd_get_systemunitdir() {
+	echo "$(get_rootprefix)/lib/systemd/system"
 }
 
-builddir_systemd_get_systemunitdir() {
-    (
-        export SYSROOT="${ED}"
-        systemd_get_systemunitdir
-    )
+builddir_systemd_enable_service() {
+	local target=${1}
+	local service=${2}
+	local ud=$(builddir_systemd_get_systemunitdir)
+	local destname=${service##*/}
+
+	dodir "${ud}"/"${target}".wants && \
+	dosym ../"${service}" "${ud}"/"${target}".wants/"${destname}"
 }
 
 migrate_locale() {
