@@ -1,5 +1,11 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 2011-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+
+
+# Flatcar: this file is modified to still support old EAPIs and to
+# still provide the deprecated systemd_dotmpfilesd and
+# systemd_newtmpfilesd functions.
+
 
 # @ECLASS: systemd.eclass
 # @MAINTAINER:
@@ -47,6 +53,9 @@ fi
 _systemd_get_dir() {
 	[[ ${#} -eq 2 ]] || die "Usage: ${FUNCNAME} <variable-name> <fallback-directory>"
 	local variable=${1} fallback=${2} d
+
+	# https://github.com/pkgconf/pkgconf/issues/205
+	local -x PKG_CONFIG_FDO_SYSROOT_RULES=1
 
 	if $(tc-getPKG_CONFIG) --exists systemd; then
 		d=$($(tc-getPKG_CONFIG) --variable="${variable}" systemd) || die
@@ -138,13 +147,30 @@ _systemd_get_systemgeneratordir() {
 # @FUNCTION: systemd_get_systemgeneratordir
 # @DESCRIPTION:
 # Output the path for the systemd system generator directory (not including
-# ${D}). This function always succeeds, even if systemd is not
-# installed.
+# ${D}). This function always succeeds, even if systemd is not installed.
 systemd_get_systemgeneratordir() {
 	has "${EAPI:-0}" 0 1 2 && ! use prefix && EPREFIX=
 	debug-print-function ${FUNCNAME} "${@}"
 
 	echo "${EPREFIX}$(_systemd_get_systemgeneratordir)"
+}
+
+# @FUNCTION: _systemd_get_systempresetdir
+# @INTERNAL
+# @DESCRIPTION:
+# Get unprefixed systempresetdir.
+_systemd_get_systempresetdir() {
+	_systemd_get_dir systemdsystempresetdir /lib/systemd/system-preset
+}
+
+# @FUNCTION: systemd_get_systempresetdir
+# @DESCRIPTION:
+# Output the path for the systemd system preset directory (not including
+# ${D}). This function always succeeds, even if systemd is not installed.
+systemd_get_systempresetdir() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	echo "${EPREFIX}$(_systemd_get_systempresetdir)"
 }
 
 # @FUNCTION: systemd_dounit
@@ -434,29 +460,6 @@ systemd_is_booted() {
 
 	debug-print "${FUNCNAME}: [[ -d /run/systemd/system ]] -> ${ret}"
 	return ${ret}
-}
-
-# @FUNCTION: systemd_tmpfiles_create
-# @USAGE: <tmpfilesd> ...
-# @DESCRIPTION:
-# Deprecated in favor of tmpfiles.eclass.
-#
-# Invokes systemd-tmpfiles --create with given arguments.
-# Does nothing if ROOT != / or systemd-tmpfiles is not in PATH.
-# This function should be called from pkg_postinst.
-#
-# Generally, this function should be called with the names of any tmpfiles
-# fragments which have been installed, either by the build system or by a
-# previous call to systemd_dotmpfilesd. This ensures that any tmpfiles are
-# created without the need to reboot the system.
-systemd_tmpfiles_create() {
-	debug-print-function ${FUNCNAME} "${@}"
-
-	[[ ${EBUILD_PHASE} == postinst ]] || die "${FUNCNAME}: Only valid in pkg_postinst"
-	[[ ${#} -gt 0 ]] || die "${FUNCNAME}: Must specify at least one filename"
-	[[ ${ROOT:-/} == / ]] || return 0
-	type systemd-tmpfiles &> /dev/null || return 0
-	systemd-tmpfiles --create "${@}"
 }
 
 # @FUNCTION: systemd_reenable

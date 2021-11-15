@@ -1,15 +1,15 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: bash-completion-r1.eclass
 # @MAINTAINER:
 # mgorny@gentoo.org
-# @SUPPORTED_EAPIS: 0 1 2 3 4 5 6 7
+# @SUPPORTED_EAPIS: 5 6 7 8
 # @BLURB: A few quick functions to install bash-completion files
 # @EXAMPLE:
 #
 # @CODE
-# EAPI=5
+# EAPI=8
 #
 # src_configure() {
 # 	econf \
@@ -23,12 +23,17 @@
 # }
 # @CODE
 
+if [[ ! ${_BASH_COMPLETION_R1_ECLASS} ]]; then
+_BASH_COMPLETION_R1_ECLASS=1
+
 inherit toolchain-funcs
 
-case ${EAPI:-0} in
-	0|1|2|3|4|5|6|7) ;;
-	*) die "EAPI ${EAPI} unsupported (yet)."
-esac
+# Flatcar: we still have some packages that use old EAPI, revert this
+# change when we update those packages.
+#case ${EAPI} in
+#	5|6|7|8) ;;
+#	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
+#esac
 
 # @FUNCTION: _bash-completion-r1_get_bashdir
 # @INTERNAL
@@ -39,6 +44,11 @@ esac
 # _bash-completion-r1_get_bashdir completionsdir /usr/share/bash-completion
 _bash-completion-r1_get_bashdir() {
 	debug-print-function ${FUNCNAME} "${@}"
+
+	# Flatcar: Take a fix for pkg-config paths from systemd.eclass.
+	#
+	# https://github.com/pkgconf/pkgconf/issues/205
+	local -x PKG_CONFIG_FDO_SYSROOT_RULES=1
 
 	if $(tc-getPKG_CONFIG) --exists bash-completion &>/dev/null; then
 		local path
@@ -91,9 +101,9 @@ get_bashhelpersdir() {
 }
 
 # @FUNCTION: dobashcomp
-# @USAGE: file [...]
+# @USAGE: <file> [...]
 # @DESCRIPTION:
-# Install bash-completion files passed as args. Has EAPI-dependant failure
+# Install bash-completion files passed as args. Has EAPI-dependent failure
 # behavior (like doins).
 dobashcomp() {
 	debug-print-function ${FUNCNAME} "${@}"
@@ -106,9 +116,9 @@ dobashcomp() {
 }
 
 # @FUNCTION: newbashcomp
-# @USAGE: file newname
+# @USAGE: <file> <newname>
 # @DESCRIPTION:
-# Install bash-completion file under a new name. Has EAPI-dependant failure
+# Install bash-completion file under a new name. Has EAPI-dependent failure
 # behavior (like newins).
 newbashcomp() {
 	debug-print-function ${FUNCNAME} "${@}"
@@ -136,3 +146,5 @@ bashcomp_alias() {
 			|| return
 	done
 }
+
+fi

@@ -1,9 +1,14 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+
+
+# Flatcar: this file is modified to still support old EAPIs and to
+# still provide the deprecated systemd_dotmpfilesd functions.
+
 
 # @ECLASS: udev.eclass
 # @MAINTAINER:
-# udev-bugs@gentoo.org
+# systemd@gentoo.org
 # @SUPPORTED_EAPIS: 0 1 2 3 4 5 6 7
 # @BLURB: Default eclass for determining udev directories.
 # @DESCRIPTION:
@@ -50,6 +55,8 @@ fi
 # @DESCRIPTION:
 # Get unprefixed udevdir.
 _udev_get_udevdir() {
+	# https://github.com/pkgconf/pkgconf/issues/205
+	local -x PKG_CONFIG_FDO_SYSROOT_RULES=1
 	if $($(tc-getPKG_CONFIG) --exists udev); then
 		local udevdir="$($(tc-getPKG_CONFIG) --variable=udevdir udev)"
 		echo "${udevdir#${EPREFIX%/}}"
@@ -80,7 +87,7 @@ get_udevdir() {
 }
 
 # @FUNCTION: udev_dorules
-# @USAGE: rules [...]
+# @USAGE: <rule> [...]
 # @DESCRIPTION:
 # Install udev rule(s). Uses doins, thus it is fatal in EAPI 4
 # and non-fatal in earlier EAPIs.
@@ -95,7 +102,7 @@ udev_dorules() {
 }
 
 # @FUNCTION: udev_newrules
-# @USAGE: oldname newname
+# @USAGE: <oldname> <newname>
 # @DESCRIPTION:
 # Install udev rule with a new name. Uses newins, thus it is fatal
 # in EAPI 4 and non-fatal in earlier EAPIs.
@@ -113,7 +120,7 @@ udev_newrules() {
 # @DESCRIPTION:
 # Run udevadm control --reload to refresh rules and databases
 udev_reload() {
-	if [[ ${ROOT} != "" ]] && [[ ${ROOT} != "/" ]]; then
+	if [[ -n ${ROOT%/} ]]; then
 		return 0
 	fi
 
