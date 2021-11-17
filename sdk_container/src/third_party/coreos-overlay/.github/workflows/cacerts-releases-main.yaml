@@ -15,7 +15,7 @@ jobs:
         id: fetch-latest-release
         run: |
           git clone --depth=1 --no-checkout https://github.com/nss-dev/nss
-          versionMain=$(git -C nss ls-remote --tags origin | cut -f2 | sed -n "s/refs\/tags\/NSS_\([0-9]_[0-9_]*\).*_RTM$/\1/p" | sort -s -t_ -k1,1 -k2,2n -k3,3n | tail -n1)
+          versionMain=$(git -C nss ls-remote --tags origin | cut -f2 | sed -n "s/refs\/tags\/NSS_\([0-9]_[0-9_]*\).*_RTM$/\1/p" | sort -s -t_ -k1,1 -k2,2n -k3,3n | tr '_' '.' | tail -n1)
           rm -rf nss
           echo ::set-output name=BASE_BRANCH_MAIN::main
           echo ::set-output name=VERSION_MAIN::$(echo ${versionMain})
