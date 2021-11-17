@@ -1,9 +1,10 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 
-PYTHON_COMPAT=( python{2_7,3_4,3_5,3_6} pypy )
+DISTUTILS_USE_SETUPTOOLS=no
+PYTHON_COMPAT=( python3_{8..10} )
 
 inherit distutils-r1
 
@@ -14,10 +15,9 @@ SRC_URI="mirror://sourceforge/crcmod/${P}.tar.gz"
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="amd64 arm x86"
-IUSE=""
 
 DOCS=( changelog test/examples.py )
 
 python_test() {
-	"${PYTHON}" test/test_crcmod.py || die "Tests fail with ${EPYTHON}"
+	"${EPYTHON}" test/test_crcmod.py -v || die "Tests fail with ${EPYTHON}"
 }
