@@ -1,24 +1,25 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=8
 
-PYTHON_COMPAT=( python{2_7,3_4,3_5,3_6} )
+PYTHON_COMPAT=( python{3_8,3_9} )
 DISTUTILS_OPTIONAL="1"
+DISTUTILS_USE_SETUPTOOLS=bdepend
 
 inherit distutils-r1 flag-o-matic toolchain-funcs
 
 DESCRIPTION="I2C tools for bus probing, chip dumping, EEPROM decoding, and more"
 HOMEPAGE="https://www.kernel.org/pub/software/utils/i2c-tools"
-SRC_URI="${HOMEPAGE}/${P}.tar.xz"
+SRC_URI="https://www.kernel.org/pub/software/utils/${PN}/${P}.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~arm64 ~mips ~ppc ~ppc64 ~sparc ~x86"
+KEYWORDS="~amd64 ~arm ~arm64 ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
 IUSE="python"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
-RDEPEND="!<sys-apps/lm_sensors-3
+RDEPEND="
 	python? ( ${PYTHON_DEPS} )"
 DEPEND="${RDEPEND}"
 
@@ -29,12 +30,15 @@ src_prepare() {
 
 src_configure() {
 	use python && distutils-r1_src_configure
+
+	export BUILD_DYNAMIC_LIB=1
+	export USE_STATIC_LIB=0
+	export BUILD_STATIC_LIB=0
 }
 
 src_compile() {
-	emake all-lib AR=$(tc-getAR) CC=$(tc-getCC) # parallel make
-	emake CC=$(tc-getCC)
-	emake -C eepromer CC=$(tc-getCC) CFLAGS="${CFLAGS}"
+	emake AR="$(tc-getAR)" CC="$(tc-getCC)" EXTRA="eeprog"
+
 	if use python ; then
 		cd py-smbus || die
 		append-cppflags -I../include
@@ -43,15 +47,8 @@ src_compile() {
 }
 
 src_install() {
-	emake install-lib install libdir="${D}"/usr/$(get_libdir) prefix="${D}"/usr
-	dosbin eepromer/eeprom{,er}
-	rm -rf "${D}"/usr/include || die # part of linux-headers
+	emake EXTRA="eeprog" DESTDIR="${D}" libdir="/usr/$(get_libdir)" PREFIX="/usr" install
 	dodoc CHANGES README
-	local d
-	for d in eeprom eepromer ; do
-		docinto ${d}
-		dodoc ${d}/README*
-	done
 
 	if use python ; then
 		cd py-smbus || die
