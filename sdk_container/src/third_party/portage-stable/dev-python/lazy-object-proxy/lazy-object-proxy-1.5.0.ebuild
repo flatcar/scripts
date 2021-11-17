@@ -1,30 +1,28 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 
-PYTHON_COMPAT=( python2_7 python3_{4,5,6} pypy )
+PYTHON_COMPAT=( python3_{7..10} pypy3 )
 
 inherit distutils-r1
 
 DESCRIPTION="A fast and thorough lazy object proxy"
 HOMEPAGE="
 	https://github.com/ionelmc/python-lazy-object-proxy
-	http://pypi.python.org/pypi/lazy-object-proxy
+	https://pypi.org/project/lazy-object-proxy/
 	https://python-lazy-object-proxy.readthedocs.org/"
 SRC_URI="mirror://pypi/${P:0:1}/${PN}/${P}.tar.gz"
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="alpha amd64 arm ia64 ppc ppc64 sparc x86 ~amd64-linux ~x86-linux"
-IUSE="test"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~x64-macos"
 
-RDEPEND=""
-DEPEND="${RDEPEND}
-	dev-python/setuptools[${PYTHON_USEDEP}]
-	test? (
-		dev-python/pytest[${PYTHON_USEDEP}]
-	)"
+BDEPEND="
+	dev-python/setuptools_scm[${PYTHON_USEDEP}]
+"
+
+distutils_enable_tests pytest
 
 python_prepare_all() {
 	# No need to benchmark
@@ -36,5 +34,5 @@ python_prepare_all() {
 }
 
 python_test() {
-	py.test -v -v --ignore=src || die "Fails for ${EPYTHON}"
+	pytest -v -v --ignore=src || die "Fails for ${EPYTHON}"
 }
