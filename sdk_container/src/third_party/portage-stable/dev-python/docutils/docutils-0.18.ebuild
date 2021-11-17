@@ -1,23 +1,24 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=8
 
-PYTHON_COMPAT=( python2_7 python3_{4,5,6} pypy pypy3 )
+PYTHON_COMPAT=( python3_{8..10} pypy3 )
 
 inherit distutils-r1
 
 DESCRIPTION="Python Documentation Utilities"
-HOMEPAGE="http://docutils.sourceforge.net/ https://pypi.python.org/pypi/docutils"
-SRC_URI="mirror://sourceforge/${PN}/${P}.tar.gz"
+HOMEPAGE="https://docutils.sourceforge.io/ https://pypi.org/project/docutils/"
+#SRC_URI="mirror://sourceforge/${PN}/${P}.tar.gz"
+SRC_URI="mirror://pypi/${PN:0:1}/${PN}/${P}.tar.gz"
 
 LICENSE="BSD-2 GPL-3 public-domain"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE=""
 
-DEPEND="dev-python/pygments[${PYTHON_USEDEP}]"
-RDEPEND="${DEPEND}"
+RDEPEND="dev-python/pygments[${PYTHON_USEDEP}]"
+BDEPEND="${RDEPEND}"
 
 python_compile_all() {
 	# Generate html docs from reStructured text sources.
@@ -26,18 +27,17 @@ python_compile_all() {
 	cp docutils/writers/html4css1/html4css1.css . || die
 
 	cd tools || die
-	"${PYTHON}" buildhtml.py --input-encoding=utf-8 \
+	"${EPYTHON}" buildhtml.py --input-encoding=utf-8 \
 		--stylesheet-path=../html4css1.css, --traceback ../docs || die
 }
 
+src_test() {
+	cd test || die
+	distutils-r1_src_test
+}
+
 python_test() {
-	if python_is_python3; then
-		pushd test3 > /dev/null || die
-	else
-		pushd test > /dev/null || die
-	fi
-	"${PYTHON}" alltests.py || die "Testing failed with ${EPYTHON}"
-	popd > /dev/null || die
+	"${EPYTHON}" alltests.py -v || die "Testing failed with ${EPYTHON}"
 }
 
 python_install() {
