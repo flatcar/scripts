@@ -5,11 +5,11 @@ EAPI=7
 
 # Note: Please bump in sync with dev-libs/libxslt
 
-PATCHSET_VERSION="2.9.12-r2-patchset"
+PATCHSET_VERSION="2.9.12-r5-patchset"
 
-PYTHON_COMPAT=( python3_7 )
+PYTHON_COMPAT=( python3_{8..10} )
 PYTHON_REQ_USE="xml"
-VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/danielveillard.asc
+VERIFY_SIG_OPENPGP_KEY_PATH=${BROOT}/usr/share/openpgp-keys/danielveillard.asc
 inherit autotools flag-o-matic prefix python-r1 multilib-minimal verify-sig
 
 XSTS_HOME="http://www.w3.org/XML/2004/xml-schema-test-suite"
@@ -34,7 +34,9 @@ S="${WORKDIR}/${PN}-${PV%_rc*}"
 
 LICENSE="MIT"
 SLOT="2"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+# Dropped keywords for now because it's a minor LDFLAGS fix, and it will ease upgrades
+# bug #802210
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="debug examples icu ipv6 lzma +python readline static-libs test"
 RESTRICT="!test? ( test )"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
@@ -77,9 +79,16 @@ PATCHES=(
 	# Avoid failure on missing fuzz.h when running tests
 	"${WORKDIR}"/${PN}-2.9.11-disable-fuzz-tests.patch
 
+	# Respect LDFLAGS fully (bug #798942)
+	"${WORKDIR}"/${PN}-2.9.12-respect-LDFLAGS-as-needed.patch
+	# ... and don't bother copying Python's libraries (bug #798942 still)
+	"${WORKDIR}"/${PN}-2.9.12-dont-copy-python-ldflags.patch
+
 	## Upstream
-	# Fix lxml compatibility
+	# Fix lxml compatibility (bug #790737)
 	"${WORKDIR}"/${PN}-2.9.12-fix-lxml-compatibility.patch
+	# Fix serialising empty HTML documents (bug #794733)
+	"${WORKDIR}"/${PN}-2.9.12-Fix-whitespace-when-serializing-empty-HTML-documents.patch
 )
 
 src_unpack() {
