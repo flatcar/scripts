@@ -1,33 +1,31 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
-EAPI=5
-PYTHON_COMPAT=( python2_7 python3_{3,4} )
+EAPI=7
+
+PYTHON_COMPAT=( python3_{7,8,9} )
 DISTUTILS_OPTIONAL=1
-inherit autotools distutils-r1 eutils git-r3 libtool multilib multilib-minimal
+inherit autotools distutils-r1 git-r3 multilib-minimal
 
-DESCRIPTION="A collection of libraries providing APIs to netlink protocol based Linux kernel interfaces"
-HOMEPAGE="http://www.infradead.org/~tgr/libnl/ https://github.com/thom311/libnl"
-EGIT_REPO_URI="
-	https://github.com/thom311/libnl.git
-"
+DESCRIPTION="Libraries providing APIs to netlink protocol based Linux kernel interfaces"
+HOMEPAGE="https://www.infradead.org/~tgr/libnl/ https://github.com/thom311/libnl"
+EGIT_REPO_URI="https://github.com/thom311/libnl"
+
 LICENSE="LGPL-2.1 utils? ( GPL-2 )"
 SLOT="3"
 KEYWORDS=""
-IUSE="static-libs python utils"
+IUSE="+debug static-libs python test +threads utils"
+RESTRICT="!test? ( test )"
 
-RDEPEND="python? ( ${PYTHON_DEPS} )
-	abi_x86_32? (
-		!<=app-emulation/emul-linux-x86-baselibs-20140508-r5
-		!app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)]
-	)"
-DEPEND="${RDEPEND}
-	python? ( dev-lang/swig )
-	sys-devel/flex
+RDEPEND="python? ( ${PYTHON_DEPS} )"
+DEPEND="${RDEPEND}"
+BDEPEND="
+	${RDEPEND}
 	sys-devel/bison
+	sys-devel/flex
+	python? ( dev-lang/swig )
+	test? ( dev-libs/check )
 "
-
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
 DOCS=( ChangeLog )
@@ -48,16 +46,19 @@ MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/libnl3/netlink/cli/utils.h
 )
 
+PATCHES=(
+	"${FILESDIR}"/${PN}-99999999-2to3.patch
+)
+
 src_prepare() {
-	epatch "${FILESDIR}"/${PN}-1.1-vlan-header.patch
-	epatch "${FILESDIR}"/${PN}-3.2.20-rtnl_tc_get_ops.patch
-	epatch "${FILESDIR}"/${PN}-3.2.20-cache-api.patch
+	default
 
 	eautoreconf
 
 	if use python; then
-		cd "${S}"/python || die
+		pushd "${S}"/python > /dev/null || die
 		distutils-r1_src_prepare
+		popd > /dev/null || die
 	fi
 
 	# out-of-source build broken
@@ -67,32 +68,42 @@ src_prepare() {
 
 multilib_src_configure() {
 	econf \
-		--disable-silent-rules \
+		$(multilib_native_use_enable utils cli) \
+		$(use_enable debug) \
 		$(use_enable static-libs static) \
-		$(multilib_native_use_enable utils cli)
+		$(use_enable threads) \
+		--disable-doc
 }
 
 multilib_src_compile() {
 	default
 
 	if multilib_is_native_abi && use python; then
-		cd python || die
+		pushd python > /dev/null || die
 		distutils-r1_src_compile
+		popd > /dev/null || die
 	fi
 }
 
 multilib_src_install() {
-	emake DESTDIR="${D}" install
+	default
 
 	if multilib_is_native_abi && use python; then
 		# Unset DOCS= since distutils-r1.eclass interferes
 		local DOCS=()
-		cd python || die
+
+		pushd python > /dev/null || die
+
 		distutils-r1_src_install
+
+		# For no obvious reason this is not done automatically
+		python_foreach_impl python_optimize
+
+		popd > /dev/null || die
 	fi
 }
 
 multilib_src_install_all() {
 	einstalldocs
-	prune_libtool_files --modules
+	find "${ED}" -name '*.la' -delete || die
 }
