@@ -25,8 +25,6 @@ dev-util/checkbashisms
 
 =dev-libs/libgcrypt-1.9.4 ~amd64 ~arm64
 
-=dev-libs/libxml2-2.9.12-r2 ~amd64 ~arm64
-
 =dev-util/dwarves-1.19 ~amd64
 
 =net-libs/gnutls-3.7.1 ~amd64 ~arm64
