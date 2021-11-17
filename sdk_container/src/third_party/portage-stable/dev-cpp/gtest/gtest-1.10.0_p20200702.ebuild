@@ -1,7 +1,7 @@
 # Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=8
+EAPI=7
 
 # Python is required for tests and some build tasks.
 PYTHON_COMPAT=( python3_{8..10} )
@@ -9,20 +9,20 @@ PYTHON_COMPAT=( python3_{8..10} )
 CMAKE_ECLASS=cmake
 inherit cmake-multilib python-any-r1
 
+GOOGLETEST_COMMIT=aee0f9d9b5b87796ee8a0ab26b7587ec30e8858e
+
 if [[ ${PV} == "9999" ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/google/googletest"
 else
 	if [[ -z ${GOOGLETEST_COMMIT} ]]; then
-		SRC_URI="https://github.com/google/googletest/archive/refs/tags/release-${PV}.tar.gz
-			-> ${P}.tar.gz"
-		S="${WORKDIR}"/googletest-release-${PV}
+		URI_PV=v${MY_PV:-${PV}}
 	else
-		SRC_URI="https://github.com/google/googletest/archive/${GOOGLETEST_COMMIT}.tar.gz
-			-> ${P}.tar.gz"
-		S="${WORKDIR}"/googletest-${GOOGLETEST_COMMIT}
+		URI_PV=${MY_PV:=${GOOGLETEST_COMMIT}}
 	fi
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	SRC_URI="https://github.com/google/googletest/archive/${URI_PV}.tar.gz -> ${P}.tar.gz"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	S="${WORKDIR}"/googletest-${MY_PV}
 fi
 
 DESCRIPTION="Google C++ Testing Framework"
@@ -66,10 +66,12 @@ multilib_src_configure() {
 multilib_src_install_all() {
 	einstalldocs
 
-	newdoc googletest/README.md README.googletest.md
-	newdoc googlemock/README.md README.googlemock.md
-
-	use doc && dodoc -r docs/.
+	if use doc; then
+		docinto googletest
+		dodoc -r googletest/docs/.
+		docinto googlemock
+		dodoc -r googlemock/docs/.
+	fi
 
 	if use examples; then
 		docinto examples
