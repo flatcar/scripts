@@ -39,6 +39,10 @@ PATCHES=(
 	"${FILESDIR}/init.patch"
 	"${FILESDIR}/locallogin.patch"
 	"${FILESDIR}/logging.patch"
+	# this patch is required to prevent `torcx-generator`
+	# to fail if SELinux is enforced in early boot.
+	# It can be removed once we drop torcx support.
+	"${FILESDIR}/unlabeled.patch"
 )
 
 # Code entirely copied from selinux-eclass (cannot inherit due to dependency on
