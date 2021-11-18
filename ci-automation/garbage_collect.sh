@@ -60,7 +60,7 @@ function garbage_collect() {
         echo "(NOTE this is just a dry run since DRY_RUN=y)"
         echo
     fi
-    echo "${purge_versions}" | awk -v keep="${keep}" '{printf "%5d %s\n", NR + keep - 1, $0}'
+    echo "${purge_versions}" | awk -v keep="${keep}" '{if ($0 == "") next; printf "%5d %s\n", NR + keep - 1, $0}'
     echo 
     echo 
 
