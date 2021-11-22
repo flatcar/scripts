@@ -31,6 +31,12 @@ if [[ "${KOLA_TESTS}" == "" ]]; then
   KOLA_TESTS="*"
 fi
 
+# Equinix Metal ARM server are not yet hourly available in the default `sv15` region
+# so we override the `PACKET_REGION` to `Dallas` since it's available in this region.
+# We do not override `PACKET_REGION` for both board on top level because we need to keep proximity
+# for PXE booting.
+[[ "${BOARD}" == "arm64-usr" ]] && PACKET_REGION="da11"
+
 # Run the cl.internet test on multiple machine types only if it should run in general
 cl_internet_included="$(set -o noglob; bin/kola list --platform=packet --filter ${KOLA_TESTS} | { grep cl.internet || true ; } )"
 if [[ "${BOARD}" == "amd64-usr" ]] && [[ "${cl_internet_included}" != ""  ]]; then
