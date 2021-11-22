@@ -64,12 +64,13 @@ src_install() {
 	doman logrotate.8
 	dodoc ChangeLog.md
 
-	insinto /etc
+	insinto /usr/share/logrotate
 	doins "${FILESDIR}"/logrotate.conf
 
 	use cron && install_cron_file
 
-	systemd_dounit examples/logrotate.{service,timer}
+	systemd_dounit examples/logrotate.timer
+	systemd_dounit "${FILESDIR}"/logrotate.service
 	systemd_enable_service multi-user.target logrotate.timer
 	newtmpfiles "${FILESDIR}"/${PN}.tmpfiles ${PN}.conf
 
