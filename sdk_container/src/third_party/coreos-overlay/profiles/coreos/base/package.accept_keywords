@@ -34,8 +34,6 @@ dev-util/checkbashisms
 
 =net-libs/gnutls-3.7.1 ~amd64 ~arm64
 
-=net-libs/libmicrohttpd-0.9.55 ~amd64 ~arm64
-
 =net-misc/openssh-8.7_p1-r1 ~amd64 ~arm64
 
 =net-misc/rsync-3.2.3-r5 ~amd64 ~arm64
