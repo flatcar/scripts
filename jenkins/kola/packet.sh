@@ -35,7 +35,17 @@ fi
 # so we override the `PACKET_REGION` to `Dallas` since it's available in this region.
 # We do not override `PACKET_REGION` for both board on top level because we need to keep proximity
 # for PXE booting.
-[[ "${BOARD}" == "arm64-usr" ]] && PACKET_REGION="da11"
+# We override `PARALLEL_TESTS`, because kola run with PARALLEL_TESTS >= 4 causes the
+# tests to provision >= 12 ARM servers at the same time. As the da11 region does not
+# have that many free ARM servers, the whole tests will fail. With PARALLEL_TESTS=2
+# the total number of servers stays < 10.
+# In addition, we override `timeout` to 10 hours, because it takes more than 8 hours
+# to run all tests only with 2 tests in parallel.
+if [[ "${BOARD}" == "arm64-usr" ]]; then
+  PACKET_REGION="da11"
+  PARALLEL_TESTS="2"
+  timeout=10h
+fi
 
 # Run the cl.internet test on multiple machine types only if it should run in general
 cl_internet_included="$(set -o noglob; bin/kola list --platform=packet --filter ${KOLA_TESTS} | { grep cl.internet || true ; } )"
