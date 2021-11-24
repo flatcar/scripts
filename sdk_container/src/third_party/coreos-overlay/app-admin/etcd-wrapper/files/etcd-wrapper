@@ -4,6 +4,17 @@
 # ExecStart here.
 set -e
 
+# Since etcd/v3 we can't use both `--name` and `ETCD_NAME` at the same time.
+# We parse the etcd command line options to find a `--name/-name` flag if we found one,
+# we unset the `ETCD_NAME` to not conflict with it.
+for f in "${@}"; do
+    if [[ $f =~ ^-?-name=? ]]; then
+        unset ETCD_NAME
+        break
+    fi
+done
+
+
 # Do not pass ETCD_DATA_DIR through to the container. The default path,
 # /var/lib/etcd is always used inside the container.
 etcd_data_dir="${ETCD_DATA_DIR}"
