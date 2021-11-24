@@ -57,6 +57,7 @@ ANSI_COLOR="38;5;75"
 HOME_URL="https://flatcar-linux.org/"
 BUG_REPORT_URL="https://issues.flatcar-linux.org"
 FLATCAR_BOARD="$FLAGS_board"
+CPE_NAME="cpe:2.3:o:${OS_ID}-linux:${OS_ID}_linux:${FLATCAR_VERSION}:*:*:*:*:*:*:*"
 EOF
 sudo ln -sf "../usr/lib/os-release" "${ROOT_FS_DIR}/etc/os-release"
 sudo ln -sf "../../lib/os-release" "${ROOT_FS_DIR}/usr/share/flatcar/os-release"
