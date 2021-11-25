@@ -100,6 +100,8 @@ src_prepare() {
 		ln -s "${BROOT}"/usr/share/gnuconfig/config.guess config/config.guess || die
 		ln -s "${BROOT}"/usr/share/gnuconfig/config.sub config/config.sub || die
 	fi
+	# Flatcar: Replace udevdir variable with proper udev directory.
+	sed -i -e 's#^\(udevdir\s\+=\).*#\1 $(get_udevdir)#' Makefile.inc.in
 }
 
 src_configure() {
