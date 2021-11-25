@@ -3,7 +3,8 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{7..10} )
+# Flatcar: Support python 3.6.
+PYTHON_COMPAT=( python3_{6..10} )
 inherit bash-completion-r1 estack llvm toolchain-funcs prefix python-r1 linux-info
 
 DESCRIPTION="Userland tools for Linux Performance Counters"
