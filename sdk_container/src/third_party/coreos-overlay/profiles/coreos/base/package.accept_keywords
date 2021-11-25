@@ -71,3 +71,6 @@ dev-util/checkbashisms
 # already stabilised for both amd64 and arm64) until we move off from
 # python3.6.
 =sys-libs/talloc-2.3.2 ~amd64 ~arm64
+
+# Keep headers in sync with kernel version.
+=sys-kernel/linux-headers-5.15 ~amd64 ~arm64
