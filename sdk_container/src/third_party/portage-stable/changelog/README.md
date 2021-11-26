@@ -8,8 +8,8 @@ into the repository.  The changes are essentially divided into 4 categories:
 ## How to add the file
 
 Based on the category the PR falls into create a new file in the respective
-directory with the filename format `DD-MM-YYYY-<few-words-about-the-change>.md`
-(can be generated via: `$(date '+%d-%m-%Y')-<few-words-about-the-change>.md`)
+directory with the filename format `YYYY-MM-DD-<few-words-about-the-change>.md`
+(can be generated via: `$(date '+%Y-%m-%d')-<few-words-about-the-change>.md`)
 
 The contents of the file should describe the changes in an elaborative manner
 (use the past tense for the change/bugfix description to avoid confusion with
