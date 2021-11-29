@@ -4,3 +4,6 @@ sys-firmware/intel-microcode vanilla
 
 # Enable gssapi only for amd64, to avoid build errors in arm64.
 net-dns/bind-tools           gssapi
+
+# Disable crypt to avoid installing libsodlium in amd64.
+app-editors/vim		-crypt
