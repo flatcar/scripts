@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{7..10} )
+PYTHON_COMPAT=( python3_{8..10} )
 
 inherit flag-o-matic python-any-r1 toolchain-funcs
 
@@ -14,12 +14,11 @@ SRC_URI="mirror://gnu/${PN}/${P}.tar.xz
 	!vanilla? (
 		mirror://gentoo/${PATCH}.tar.xz
 		https://dev.gentoo.org/~polynomial-c/dist/${PATCH}.tar.xz
-	)
-"
+	)"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x86-linux"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x86-linux"
 IUSE="acl caps gmp hostname kill multicall nls selinux +split-usr static test vanilla xattr"
 RESTRICT="!test? ( test )"
 
@@ -59,6 +58,46 @@ RDEPEND+="
 	!<app-forensics/tct-1.18-r1
 	!<net-fs/netatalk-2.0.3-r4"
 
+pkg_pretend() {
+	if has_version "<sys-fs/zfs-9999" ; then
+		einfo "Checking for running ZFS module version"
+
+		local kmodv minver
+		kmodv="$(grep kmod <(zfs -V 2>/dev/null))"
+		# Convert zfs-kmod-2.1.1-r3-gentoo -> 2.1.1-r3
+		kmodv="${kmodv//zfs-kmod-}"
+		kmodv="${kmodv%%-gentoo}"
+
+		minver="$(ver_cut 2 ${kmodv})"
+		local diemsg=$(cat <<-EOF
+			Attempted installation of ${P} on unsupported version of zfs-kmod!
+			Please reboot to a newer version of zfs-kmod first:
+			zfs-kmod >=2.0.7 or zfs-kmod >=2.1.1-r3
+			Using ${P} with running version of zfs-kmod of can
+			lead to data loss while using cp command on some configurations.
+			See https://github.com/openzfs/zfs/issues/11900 for details.
+		EOF
+		)
+
+		case "${minver}" in
+			# 2.0.x
+			0)
+				ver_test "${kmodv}" -lt 2.0.7 && die "${diemsg}"
+				;;
+			# 2.1.x
+			1)
+				ver_test "${kmodv}" -lt 2.1.1-r3 && die "${diemsg}"
+				;;
+			# 0.8.x/9999
+			*)
+				# We can't really cover this case realistically
+				# 9999 is too hard to check and 0.8.x isn't being supported anymore.
+				;;
+		esac
+	fi
+
+}
+
 pkg_setup() {
 	if use test ; then
 		python-any-r1_pkg_setup
@@ -67,7 +106,8 @@ pkg_setup() {
 
 src_prepare() {
 	local PATCHES=(
-		"${FILESDIR}"/coreutils-8.32-ls-restore-8.31-behavior.patch
+		# Upstream patches
+		"${FILESDIR}"/${P}-fix-chmod-symlink-exit.patch
 	)
 
 	if ! use vanilla ; then
@@ -109,8 +149,12 @@ src_configure() {
 		$(use_enable acl)
 		$(use_enable multicall single-binary)
 		$(use_enable xattr)
-		$(use_with gmp)
+		$(use_with gmp libgmp)
 	)
+
+	if use gmp ; then
+		myconf+=( --with-libgmp-prefix="${ESYSROOT}"/usr )
+	fi
 
 	if tc-is-cross-compiler && [[ ${CHOST} == *linux* ]] ; then
 		# bug #311569
