@@ -1,10 +1,9 @@
 # Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-PYTHON_COMPAT=( python3_{7..9} )
-
+PYTHON_COMPAT=( python3_{8..10} )
 inherit meson python-any-r1
 
 DESCRIPTION="C++ JSON reader and writer"
@@ -14,8 +13,8 @@ SRC_URI="
 		-> ${P}.tar.gz"
 
 LICENSE="|| ( public-domain MIT )"
-SLOT="0/24"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+SLOT="0/25"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="doc test"
 RESTRICT="!test? ( test )"
 
@@ -42,4 +41,9 @@ src_compile() {
 		"${EPYTHON}" doxybuild.py --doxygen="${EPREFIX}"/usr/bin/doxygen || die
 		HTML_DOCS=( dist/doxygen/jsoncpp*/. )
 	fi
+}
+
+src_test() {
+	# increase test timeout due to failures on slower hardware
+	meson_src_test -t 2
 }
