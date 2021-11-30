@@ -1,9 +1,9 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-PYTHON_COMPAT=( python3_{6,7} )
+PYTHON_COMPAT=( python3_{8..10} )
 inherit cmake python-any-r1
 
 DESCRIPTION="A linkable library for Git"
@@ -12,20 +12,21 @@ SRC_URI="https://github.com/${PN}/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 S=${WORKDIR}/${P/_/-}
 
 LICENSE="GPL-2-with-linking-exception"
-SLOT="0/1.0"
-KEYWORDS="amd64 arm arm64 ppc ppc64 x86 ~ppc-macos"
-IUSE="examples gssapi libressl +ssh test +threads trace"
+SLOT="0/$(ver_cut 1-2)"
+KEYWORDS="amd64 arm arm64 ppc ppc64 ~riscv x86 ~ppc-macos"
+IUSE="examples gssapi +ssh test +threads trace"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
-	!libressl? ( dev-libs/openssl:0= )
-	libressl? ( dev-libs/libressl:0= )
-	sys-libs/zlib
+	dev-libs/libpcre:=
 	net-libs/http-parser:=
+	sys-libs/zlib
+	dev-libs/openssl:0=
 	gssapi? ( virtual/krb5 )
 	ssh? ( net-libs/libssh2 )
 "
-DEPEND="${RDEPEND}
+DEPEND="${RDEPEND}"
+BDEPEND="
 	${PYTHON_DEPS}
 	virtual/pkgconfig
 "
@@ -33,7 +34,7 @@ DEPEND="${RDEPEND}
 src_prepare() {
 	cmake_src_prepare
 	# relying on forked http-parser to support some obscure URI form
-	sed -i -e '/empty_port/s:test:_&:' tests/network/urlparse.c || die
+	sed -i -e '/empty_port/s:test:_&:' tests/network/url/parse.c || die
 }
 
 src_configure() {
