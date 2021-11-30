@@ -8,7 +8,7 @@
 EAPI=7
 
 DISTUTILS_USE_SETUPTOOLS=no
-PYTHON_COMPAT=( pypy3 python3_{6..7} )
+PYTHON_COMPAT=( pypy3 python3_{6..10} )
 PYTHON_REQ_USE='bzip2(+),threads(+)'
 
 inherit distutils-r1 linux-info tmpfiles prefix
