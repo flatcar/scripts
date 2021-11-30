@@ -14,7 +14,8 @@ libbtrfs_soname=0
 if [[ ${PV} != 9999 ]]; then
 	MY_PV="v${PV/_/-}"
 	[[ "${PV}" = *_rc* ]] || \
-	KEYWORDS="~alpha amd64 arm arm64 ~ia64 ~mips ppc ppc64 ~riscv ~sparc x86"
+	# Flatcar: Stabilize our arches.
+	KEYWORDS="~alpha amd64 ~arm arm64 ~ia64 ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
 	SRC_URI="https://www.kernel.org/pub/linux/kernel/people/kdave/${PN}/${PN}-${MY_PV}.tar.xz"
 	S="${WORKDIR}/${PN}-${MY_PV}"
 else
@@ -47,6 +48,7 @@ RDEPEND="
 	zstd? ( app-arch/zstd:0= )
 "
 DEPEND="${RDEPEND}
+	>=sys-kernel/linux-headers-5.10
 	convert? ( sys-apps/acl )
 	python? (
 		$(python_gen_cond_dep '
