@@ -17,6 +17,7 @@ the imperative voice for actions the user should do as a result). Security
 fixes of upstream packages and package updates can be kept short in most cases
 and follow a standard format.
 
-As `Updates` refer to the package updates, the description of the file should
-be of the following format: `Package Name [Version](link to changelog)`
-Example: `Linux ([5.10.77](https://lwn.net/Articles/874852/))`
+As `Updates` refer to the package updates, contents of the file should be of
+the following format: `- Package Name ([Version](link to changelog))`. Example:
+`- Linux ([5.10.77](https://lwn.net/Articles/874852/))`. Note the leading dash
+that will create a bullet list in the rendered markdown.
