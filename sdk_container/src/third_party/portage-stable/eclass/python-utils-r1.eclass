@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: python-utils-r1.eclass
@@ -7,7 +7,7 @@
 # @AUTHOR:
 # Author: Michał Górny <mgorny@gentoo.org>
 # Based on work of: Krzysztof Pawlik <nelchael@gentoo.org>
-# @SUPPORTED_EAPIS: 0 1 2 3 4 5 6 7
+# @SUPPORTED_EAPIS: 6 7 8
 # @BLURB: Utility functions for packages with Python parts.
 # @DESCRIPTION:
 # A utility eclass providing functions to query Python implementations,
@@ -16,15 +16,16 @@
 # This eclass does not set any metadata variables nor export any phase
 # functions. It can be inherited safely.
 #
-# For more information, please see the wiki:
-# https://wiki.gentoo.org/wiki/Project:Python/python-utils-r1
+# For more information, please see the Python Guide:
+# https://dev.gentoo.org/~mgorny/python-guide/
 
+# NOTE: When dropping support for EAPIs here, we need to update
+# metadata/install-qa-check.d/60python-pyc
+# See bug #704286, bug #781878
 case "${EAPI:-0}" in
-	0|1|2|3|4|5|6|7)
-		;;
-	*)
-		die "Unsupported EAPI=${EAPI} (unknown) for ${ECLASS}"
-		;;
+	[0-5]) die "Unsupported EAPI=${EAPI:-0} (too old) for ${ECLASS}" ;;
+	[6-8]) ;;
+	*)     die "Unsupported EAPI=${EAPI} (unknown) for ${ECLASS}" ;;
 esac
 
 if [[ ${_PYTHON_ECLASS_INHERITED} ]]; then
@@ -33,20 +34,30 @@ fi
 
 if [[ ! ${_PYTHON_UTILS_R1} ]]; then
 
-[[ ${EAPI:-0} == [012345] ]] && inherit eutils multilib
-inherit toolchain-funcs
+[[ ${EAPI} == [67] ]] && inherit eapi8-dosym
+inherit multiprocessing toolchain-funcs
 
 # @ECLASS-VARIABLE: _PYTHON_ALL_IMPLS
 # @INTERNAL
 # @DESCRIPTION:
 # All supported Python implementations, most preferred last.
 _PYTHON_ALL_IMPLS=(
-	jython2_7
-	pypy pypy3
-	python2_7
-	python3_5 python3_6 python3_7 python3_8 python3_9 python3_10
+	pypy3
+	python3_{8..10}
 )
 readonly _PYTHON_ALL_IMPLS
+
+# @ECLASS-VARIABLE: _PYTHON_HISTORICAL_IMPLS
+# @INTERNAL
+# @DESCRIPTION:
+# All historical Python implementations that are no longer supported.
+_PYTHON_HISTORICAL_IMPLS=(
+	jython2_7
+	pypy pypy1_{8,9} pypy2_0
+	python2_{5..7}
+	python3_{1..7}
+)
+readonly _PYTHON_HISTORICAL_IMPLS
 
 # @ECLASS-VARIABLE: PYTHON_COMPAT_NO_STRICT
 # @INTERNAL
@@ -60,41 +71,26 @@ readonly _PYTHON_ALL_IMPLS
 # which can involve revisions of this eclass that support a different
 # set of Python implementations.
 
-# @FUNCTION: _python_impl_supported
-# @USAGE: <impl>
+# @FUNCTION: _python_verify_patterns
+# @USAGE: <pattern>...
 # @INTERNAL
 # @DESCRIPTION:
-# Check whether the implementation <impl> (PYTHON_COMPAT-form)
-# is still supported.
-#
-# Returns 0 if the implementation is valid and supported. If it is
-# unsupported, returns 1 -- and the caller should ignore the entry.
-# If it is invalid, dies with an appopriate error messages.
-_python_impl_supported() {
+# Verify whether the patterns passed to the eclass function are correct
+# (i.e. can match any valid implementation).  Dies on wrong pattern.
+_python_verify_patterns() {
 	debug-print-function ${FUNCNAME} "${@}"
 
-	[[ ${#} -eq 1 ]] || die "${FUNCNAME}: takes exactly 1 argument (impl)."
+	local impl pattern
+	for pattern; do
+		[[ ${pattern} == -[23] ]] && continue
 
-	local impl=${1}
+		for impl in "${_PYTHON_ALL_IMPLS[@]}" "${_PYTHON_HISTORICAL_IMPLS[@]}"
+		do
+			[[ ${impl} == ${pattern/./_} ]] && continue 2
+		done
 
-	# keep in sync with _PYTHON_ALL_IMPLS!
-	# (not using that list because inline patterns shall be faster)
-	case "${impl}" in
-		python2_7|python3_[56789]|jython2_7|python3_10)
-			return 0
-			;;
-		pypy1_[89]|pypy2_0|python2_[56]|python3_[1234])
-			return 1
-			;;
-		pypy|pypy3)
-			if [[ ${EAPI:-0} == [01234] ]]; then
-				die "PyPy is supported in EAPI 5 and newer only."
-			fi
-			;;
-		*)
-			[[ ${PYTHON_COMPAT_NO_STRICT} ]] && return 1
-			die "Invalid implementation in PYTHON_COMPAT: ${impl}"
-	esac
+		die "Invalid implementation pattern: ${pattern}"
+	done
 }
 
 # @FUNCTION: _python_set_impls
@@ -123,10 +119,26 @@ _python_set_impls() {
 	if [[ $(declare -p PYTHON_COMPAT) != "declare -a"* ]]; then
 		die 'PYTHON_COMPAT must be an array.'
 	fi
-	for i in "${PYTHON_COMPAT[@]}"; do
-		# trigger validity checks
-		_python_impl_supported "${i}"
-	done
+	if [[ ! ${PYTHON_COMPAT_NO_STRICT} ]]; then
+		for i in "${PYTHON_COMPAT[@]}"; do
+			# check for incorrect implementations
+			# we're using pattern matching as an optimization
+			# please keep them in sync with _PYTHON_ALL_IMPLS
+			# and _PYTHON_HISTORICAL_IMPLS
+			case ${i} in
+				jython2_7|pypy|pypy1_[89]|pypy2_0|pypy3|python2_[5-7]|python3_[1-9]|python3_10)
+					;;
+				*)
+					if has "${i}" "${_PYTHON_ALL_IMPLS[@]}" \
+						"${_PYTHON_HISTORICAL_IMPLS[@]}"
+					then
+						die "Mis-synced patterns in _python_set_impls: missing ${i}"
+					else
+						die "Invalid implementation in PYTHON_COMPAT: ${i}"
+					fi
+			esac
+		done
+	fi
 
 	local supp=() unsupp=()
 
@@ -139,7 +151,13 @@ _python_set_impls() {
 	done
 
 	if [[ ! ${supp[@]} ]]; then
-		die "No supported implementation in PYTHON_COMPAT."
+		# special-case python2_7 for python-any-r1
+		if [[ ${_PYTHON_ALLOW_PY27} ]] && has python2_7 "${PYTHON_COMPAT[@]}"
+		then
+			supp+=( python2_7 )
+		else
+			die "No supported implementation in PYTHON_COMPAT."
+		fi
 	fi
 
 	if [[ ${_PYTHON_SUPPORTED_IMPLS[@]} ]]; then
@@ -164,17 +182,15 @@ _python_set_impls() {
 }
 
 # @FUNCTION: _python_impl_matches
-# @USAGE: <impl> <pattern>...
+# @USAGE: <impl> [<pattern>...]
 # @INTERNAL
 # @DESCRIPTION:
 # Check whether the specified <impl> matches at least one
 # of the patterns following it. Return 0 if it does, 1 otherwise.
+# Matches if no patterns are provided.
 #
-# <impl> can be in PYTHON_COMPAT or EPYTHON form. The patterns can be
-# either:
-# a) fnmatch-style patterns, e.g. 'python2*', 'pypy'...
-# b) '-2' to indicate all Python 2 variants (= !python_is_python3)
-# c) '-3' to indicate all Python 3 variants (= python_is_python3)
+# <impl> can be in PYTHON_COMPAT or EPYTHON form. The patterns
+# are fnmatch-style.
 _python_impl_matches() {
 	[[ ${#} -ge 1 ]] || die "${FUNCNAME}: takes at least 1 parameter"
 	[[ ${#} -eq 1 ]] && return 0
@@ -183,16 +199,30 @@ _python_impl_matches() {
 	shift
 
 	for pattern; do
-		if [[ ${pattern} == -2 ]]; then
-			! python_is_python3 "${impl}"
-			return
-		elif [[ ${pattern} == -3 ]]; then
-			python_is_python3 "${impl}"
-			return
-		# unify value style to allow lax matching
-		elif [[ ${impl/./_} == ${pattern/./_} ]]; then
-			return 0
-		fi
+		case ${pattern} in
+			-2|python2*|pypy)
+				if [[ ${EAPI} != [67] ]]; then
+					eerror
+					eerror "Python 2 is no longer supported in Gentoo, please remove Python 2"
+					eerror "${FUNCNAME[1]} calls."
+					die "Passing ${pattern} to ${FUNCNAME[1]} is banned in EAPI ${EAPI}"
+				fi
+				;;
+			-3)
+				# NB: "python3*" is fine, as "not pypy3"
+				if [[ ${EAPI} != [67] ]]; then
+					eerror
+					eerror "Python 2 is no longer supported in Gentoo, please remove Python 2"
+					eerror "${FUNCNAME[1]} calls."
+					die "Passing ${pattern} to ${FUNCNAME[1]} is banned in EAPI ${EAPI}"
+				fi
+				return 0
+				;;
+			*)
+				# unify value style to allow lax matching
+				[[ ${impl/./_} == ${pattern/./_} ]] && return 0
+				;;
+		esac
 	done
 
 	return 1
@@ -206,7 +236,7 @@ _python_impl_matches() {
 # This variable is set automatically in the following contexts:
 #
 # python-r1: Set in functions called by python_foreach_impl() or after
-# calling python_export_best().
+# calling python_setup().
 #
 # python-single-r1: Set after calling python-single-r1_pkg_setup().
 #
@@ -225,7 +255,7 @@ _python_impl_matches() {
 # This variable is set automatically in the following contexts:
 #
 # python-r1: Set in functions called by python_foreach_impl() or after
-# calling python_export_best().
+# calling python_setup().
 #
 # python-single-r1: Set after calling python-single-r1_pkg_setup().
 #
@@ -236,116 +266,26 @@ _python_impl_matches() {
 # python2.7
 # @CODE
 
-# @ECLASS-VARIABLE: PYTHON_SITEDIR
-# @DEFAULT_UNSET
-# @DESCRIPTION:
-# The path to Python site-packages directory.
-#
-# Set and exported on request using python_export().
-# Requires a proper build-time dependency on the Python implementation.
-#
-# Example value:
-# @CODE
-# /usr/lib64/python2.7/site-packages
-# @CODE
-
-# @ECLASS-VARIABLE: PYTHON_INCLUDEDIR
-# @DEFAULT_UNSET
-# @DESCRIPTION:
-# The path to Python include directory.
-#
-# Set and exported on request using python_export().
-# Requires a proper build-time dependency on the Python implementation.
-#
-# Example value:
-# @CODE
-# /usr/include/python2.7
-# @CODE
-
-# @ECLASS-VARIABLE: PYTHON_LIBPATH
-# @DEFAULT_UNSET
-# @DESCRIPTION:
-# The path to Python library.
-#
-# Set and exported on request using python_export().
-# Valid only for CPython. Requires a proper build-time dependency
-# on the Python implementation.
-#
-# Example value:
-# @CODE
-# /usr/lib64/libpython2.7.so
-# @CODE
-
-# @ECLASS-VARIABLE: PYTHON_CFLAGS
-# @DEFAULT_UNSET
-# @DESCRIPTION:
-# Proper C compiler flags for building against Python. Obtained from
-# pkg-config or python-config.
-#
-# Set and exported on request using python_export().
-# Valid only for CPython. Requires a proper build-time dependency
-# on the Python implementation and on pkg-config.
-#
-# Example value:
-# @CODE
-# -I/usr/include/python2.7
-# @CODE
-
-# @ECLASS-VARIABLE: PYTHON_LIBS
-# @DEFAULT_UNSET
-# @DESCRIPTION:
-# Proper C compiler flags for linking against Python. Obtained from
-# pkg-config or python-config.
-#
-# Set and exported on request using python_export().
-# Valid only for CPython. Requires a proper build-time dependency
-# on the Python implementation and on pkg-config.
-#
-# Example value:
-# @CODE
-# -lpython2.7
-# @CODE
-
-# @ECLASS-VARIABLE: PYTHON_CONFIG
-# @DEFAULT_UNSET
-# @DESCRIPTION:
-# Path to the python-config executable.
-#
-# Set and exported on request using python_export().
-# Valid only for CPython. Requires a proper build-time dependency
-# on the Python implementation and on pkg-config.
-#
-# Example value:
-# @CODE
-# /usr/bin/python2.7-config
-# @CODE
-
-# @ECLASS-VARIABLE: PYTHON_PKG_DEP
-# @DEFAULT_UNSET
-# @DESCRIPTION:
-# The complete dependency on a particular Python package as a string.
-#
-# Set and exported on request using python_export().
-#
-# Example value:
-# @CODE
-# dev-lang/python:2.7[xml]
-# @CODE
-
-# @ECLASS-VARIABLE: PYTHON_SCRIPTDIR
-# @DEFAULT_UNSET
-# @DESCRIPTION:
-# The location where Python scripts must be installed for current impl.
-#
-# Set and exported on request using python_export().
-#
-# Example value:
-# @CODE
-# /usr/lib/python-exec/python2.7
-# @CODE
-
 # @FUNCTION: python_export
 # @USAGE: [<impl>] <variables>...
+# @INTERNAL
+# @DESCRIPTION:
+# Backwards compatibility function.  The relevant API is now considered
+# private, please use python_get* instead.
+python_export() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	eqawarn "python_export() is part of private eclass API."
+	eqawarn "Please call python_get*() instead."
+
+	[[ ${EAPI} == [67] ]] || die "${FUNCNAME} banned in EAPI ${EAPI}"
+
+	_python_export "${@}"
+}
+
+# @FUNCTION: _python_export
+# @USAGE: [<impl>] <variables>...
+# @INTERNAL
 # @DESCRIPTION:
 # Set and export the Python implementation-relevant variables passed
 # as parameters.
@@ -358,7 +298,7 @@ _python_impl_matches() {
 # The variables which can be exported are: PYTHON, EPYTHON,
 # PYTHON_SITEDIR. They are described more completely in the eclass
 # variable documentation.
-python_export() {
+_python_export() {
 	debug-print-function ${FUNCNAME} "${@}"
 
 	local impl var
@@ -375,7 +315,7 @@ python_export() {
 		*)
 			impl=${EPYTHON}
 			if [[ -z ${impl} ]]; then
-				die "python_export called without a python implementation and EPYTHON is unset"
+				die "_python_export called without a python implementation and EPYTHON is unset"
 			fi
 			;;
 	esac
@@ -393,16 +333,13 @@ python_export() {
 				;;
 			PYTHON_SITEDIR)
 				[[ -n ${PYTHON} ]] || die "PYTHON needs to be set for ${var} to be exported, or requested before it"
-				# sysconfig can't be used because:
-				# 1) pypy doesn't give site-packages but stdlib
-				# 2) jython gives paths with wrong case
-				PYTHON_SITEDIR=$("${PYTHON}" -c 'import distutils.sysconfig; print(distutils.sysconfig.get_python_lib())') || die
+				PYTHON_SITEDIR=$("${PYTHON}" -c 'import sysconfig; print(sysconfig.get_path("purelib"))') || die
 				export PYTHON_SITEDIR
 				debug-print "${FUNCNAME}: PYTHON_SITEDIR = ${PYTHON_SITEDIR}"
 				;;
 			PYTHON_INCLUDEDIR)
 				[[ -n ${PYTHON} ]] || die "PYTHON needs to be set for ${var} to be exported, or requested before it"
-				PYTHON_INCLUDEDIR=$("${PYTHON}" -c 'import distutils.sysconfig; print(distutils.sysconfig.get_python_inc())') || die
+				PYTHON_INCLUDEDIR=$("${PYTHON}" -c 'import sysconfig; print(sysconfig.get_path("platinclude"))') || die
 				export PYTHON_INCLUDEDIR
 				debug-print "${FUNCNAME}: PYTHON_INCLUDEDIR = ${PYTHON_INCLUDEDIR}"
 
@@ -441,9 +378,13 @@ python_export() {
 				local val
 
 				case "${impl}" in
-					python*)
-						# python-2.7, python-3.2, etc.
+					python2*|python3.6|python3.7*)
+						# python* up to 3.7
 						val=$($(tc-getPKG_CONFIG) --libs ${impl/n/n-}) || die
+						;;
+					python*)
+						# python3.8+
+						val=$($(tc-getPKG_CONFIG) --libs ${impl/n/n-}-embed) || die
 						;;
 					*)
 						die "${impl}: obtaining ${var} not supported"
@@ -475,16 +416,12 @@ python_export() {
 				case ${impl} in
 					python2.7)
 						PYTHON_PKG_DEP='>=dev-lang/python-2.7.5-r2:2.7';;
-					python3.3)
-						PYTHON_PKG_DEP='>=dev-lang/python-3.3.2-r2:3.3';;
 					python*)
 						PYTHON_PKG_DEP="dev-lang/python:${impl#python}";;
 					pypy)
-						PYTHON_PKG_DEP='>=virtual/pypy-5:0=';;
+						PYTHON_PKG_DEP='>=dev-python/pypy-7.3.0:0=';;
 					pypy3)
-						PYTHON_PKG_DEP='>=virtual/pypy3-5:0=';;
-					jython2.7)
-						PYTHON_PKG_DEP='dev-java/jython:2.7';;
+						PYTHON_PKG_DEP='>=dev-python/pypy3-7.3.7:0=';;
 					*)
 						die "Invalid implementation: ${impl}"
 				esac
@@ -503,7 +440,7 @@ python_export() {
 				debug-print "${FUNCNAME}: PYTHON_SCRIPTDIR = ${PYTHON_SCRIPTDIR}"
 				;;
 			*)
-				die "python_export: unknown variable ${var}"
+				die "_python_export: unknown variable ${var}"
 		esac
 	done
 }
@@ -514,13 +451,10 @@ python_export() {
 # Obtain and print the 'site-packages' path for the given
 # implementation. If no implementation is provided, ${EPYTHON} will
 # be used.
-#
-# If you just need to have PYTHON_SITEDIR set (and exported), then it is
-# better to use python_export() directly instead.
 python_get_sitedir() {
 	debug-print-function ${FUNCNAME} "${@}"
 
-	python_export "${@}" PYTHON_SITEDIR
+	_python_export "${@}" PYTHON_SITEDIR
 	echo "${PYTHON_SITEDIR}"
 }
 
@@ -529,13 +463,10 @@ python_get_sitedir() {
 # @DESCRIPTION:
 # Obtain and print the include path for the given implementation. If no
 # implementation is provided, ${EPYTHON} will be used.
-#
-# If you just need to have PYTHON_INCLUDEDIR set (and exported), then it
-# is better to use python_export() directly instead.
 python_get_includedir() {
 	debug-print-function ${FUNCNAME} "${@}"
 
-	python_export "${@}" PYTHON_INCLUDEDIR
+	_python_export "${@}" PYTHON_INCLUDEDIR
 	echo "${PYTHON_INCLUDEDIR}"
 }
 
@@ -550,7 +481,7 @@ python_get_includedir() {
 python_get_library_path() {
 	debug-print-function ${FUNCNAME} "${@}"
 
-	python_export "${@}" PYTHON_LIBPATH
+	_python_export "${@}" PYTHON_LIBPATH
 	echo "${PYTHON_LIBPATH}"
 }
 
@@ -567,7 +498,7 @@ python_get_library_path() {
 python_get_CFLAGS() {
 	debug-print-function ${FUNCNAME} "${@}"
 
-	python_export "${@}" PYTHON_CFLAGS
+	_python_export "${@}" PYTHON_CFLAGS
 	echo "${PYTHON_CFLAGS}"
 }
 
@@ -584,7 +515,7 @@ python_get_CFLAGS() {
 python_get_LIBS() {
 	debug-print-function ${FUNCNAME} "${@}"
 
-	python_export "${@}" PYTHON_LIBS
+	_python_export "${@}" PYTHON_LIBS
 	echo "${PYTHON_LIBS}"
 }
 
@@ -601,7 +532,7 @@ python_get_LIBS() {
 python_get_PYTHON_CONFIG() {
 	debug-print-function ${FUNCNAME} "${@}"
 
-	python_export "${@}" PYTHON_CONFIG
+	_python_export "${@}" PYTHON_CONFIG
 	echo "${PYTHON_CONFIG}"
 }
 
@@ -614,48 +545,8 @@ python_get_PYTHON_CONFIG() {
 python_get_scriptdir() {
 	debug-print-function ${FUNCNAME} "${@}"
 
-	python_export "${@}" PYTHON_SCRIPTDIR
+	_python_export "${@}" PYTHON_SCRIPTDIR
 	echo "${PYTHON_SCRIPTDIR}"
-}
-
-# @FUNCTION: _python_ln_rel
-# @USAGE: <from> <to>
-# @INTERNAL
-# @DESCRIPTION:
-# Create a relative symlink.
-_python_ln_rel() {
-	debug-print-function ${FUNCNAME} "${@}"
-
-	local target=${1}
-	local symname=${2}
-
-	local tgpath=${target%/*}/
-	local sympath=${symname%/*}/
-	local rel_target=
-
-	while [[ ${sympath} ]]; do
-		local tgseg= symseg=
-
-		while [[ ! ${tgseg} && ${tgpath} ]]; do
-			tgseg=${tgpath%%/*}
-			tgpath=${tgpath#${tgseg}/}
-		done
-
-		while [[ ! ${symseg} && ${sympath} ]]; do
-			symseg=${sympath%%/*}
-			sympath=${sympath#${symseg}/}
-		done
-
-		if [[ ${tgseg} != ${symseg} ]]; then
-			rel_target=../${rel_target}${tgseg:+${tgseg}/}
-		fi
-	done
-	rel_target+=${tgpath}${target##*/}
-
-	debug-print "${FUNCNAME}: ${symname} -> ${target}"
-	debug-print "${FUNCNAME}: rel_target = ${rel_target}"
-
-	ln -fs "${rel_target}" "${symname}"
 }
 
 # @FUNCTION: python_optimize
@@ -679,7 +570,8 @@ python_optimize() {
 	[[ ${EPYTHON} ]] || die 'No Python implementation set (EPYTHON is null).'
 
 	local PYTHON=${PYTHON}
-	[[ ${PYTHON} ]] || python_export PYTHON
+	[[ ${PYTHON} ]] || _python_export PYTHON
+	[[ -x ${PYTHON} ]] || die "PYTHON (${PYTHON}) is not executable"
 
 	# default to sys.path
 	if [[ ${#} -eq 0 ]]; then
@@ -693,10 +585,13 @@ python_optimize() {
 			if [[ ${f} == /* && -d ${D%/}${f} ]]; then
 				set -- "${D%/}${f}" "${@}"
 			fi
-		done < <("${PYTHON}" -c 'import sys; print("\0".join(sys.path))' || die)
+		done < <("${PYTHON}" -c 'import sys; print("".join(x + "\0" for x in sys.path))' || die)
 
 		debug-print "${FUNCNAME}: using sys.path: ${*/%/;}"
 	fi
+
+	local jobs=$(makeopts_jobs "${MAKEOPTS}" INF)
+	[[ ${jobs} == INF ]] && jobs=$(get_nproc)
 
 	local d
 	for d; do
@@ -709,11 +604,14 @@ python_optimize() {
 				"${PYTHON}" -m compileall -q -f -d "${instpath}" "${d}"
 				"${PYTHON}" -OO -m compileall -q -f -d "${instpath}" "${d}"
 				;;
-			python*|pypy3)
+			python3.[5678]|pypy3)
 				# both levels of optimization are separate since 3.5
-				"${PYTHON}" -m compileall -q -f -d "${instpath}" "${d}"
-				"${PYTHON}" -O -m compileall -q -f -d "${instpath}" "${d}"
-				"${PYTHON}" -OO -m compileall -q -f -d "${instpath}" "${d}"
+				"${PYTHON}" -m compileall -j "${jobs}" -q -f -d "${instpath}" "${d}"
+				"${PYTHON}" -O -m compileall -j "${jobs}" -q -f -d "${instpath}" "${d}"
+				"${PYTHON}" -OO -m compileall -j "${jobs}" -q -f -d "${instpath}" "${d}"
+				;;
+			python*)
+				"${PYTHON}" -m compileall -j "${jobs}" -o 0 -o 1 -o 2 --hardlink-dupes -q -f -d "${instpath}" "${d}"
 				;;
 			*)
 				"${PYTHON}" -m compileall -q -f -d "${instpath}" "${d}"
@@ -742,7 +640,7 @@ python_optimize() {
 python_scriptinto() {
 	debug-print-function ${FUNCNAME} "${@}"
 
-	python_scriptroot=${1}
+	_PYTHON_SCRIPTROOT=${1}
 }
 
 # @FUNCTION: python_doexe
@@ -776,18 +674,14 @@ python_newexe() {
 
 	[[ ${EPYTHON} ]] || die 'No Python implementation set (EPYTHON is null).'
 	[[ ${#} -eq 2 ]] || die "Usage: ${FUNCNAME} <path> <new-name>"
-	if [[ ${EAPI:-0} == [0123] ]]; then
-		die "python_do* and python_new* helpers are banned in EAPIs older than 4."
-	fi
 
-	local wrapd=${python_scriptroot:-/usr/bin}
+	local wrapd=${_PYTHON_SCRIPTROOT:-/usr/bin}
 
 	local f=${1}
 	local newfn=${2}
 
-	local PYTHON_SCRIPTDIR d
-	python_export PYTHON_SCRIPTDIR
-	d=${PYTHON_SCRIPTDIR#${EPREFIX}}
+	local scriptdir=$(python_get_scriptdir)
+	local d=${scriptdir#${EPREFIX}}
 
 	(
 		dodir "${wrapd}"
@@ -797,8 +691,9 @@ python_newexe() {
 	)
 
 	# install the wrapper
-	_python_ln_rel "${ED%/}"/usr/lib/python-exec/python-exec2 \
-		"${ED%/}/${wrapd}/${newfn}" || die
+	local dosym=dosym
+	[[ ${EAPI} == [67] ]] && dosym=dosym8
+	"${dosym}" -r /usr/lib/python-exec/python-exec2 "${wrapd}/${newfn}"
 
 	# don't use this at home, just call python_doscript() instead
 	if [[ ${_PYTHON_REWRITE_SHEBANG} ]]; then
@@ -884,7 +779,7 @@ python_newscript() {
 python_moduleinto() {
 	debug-print-function ${FUNCNAME} "${@}"
 
-	python_moduleroot=${1}
+	_PYTHON_MODULEROOT=${1}
 }
 
 # @FUNCTION: python_domodule
@@ -906,20 +801,15 @@ python_domodule() {
 	debug-print-function ${FUNCNAME} "${@}"
 
 	[[ ${EPYTHON} ]] || die 'No Python implementation set (EPYTHON is null).'
-	if [[ ${EAPI:-0} == [0123] ]]; then
-		die "python_do* and python_new* helpers are banned in EAPIs older than 4."
-	fi
 
 	local d
-	if [[ ${python_moduleroot} == /* ]]; then
+	if [[ ${_PYTHON_MODULEROOT} == /* ]]; then
 		# absolute path
-		d=${python_moduleroot}
+		d=${_PYTHON_MODULEROOT}
 	else
 		# relative to site-packages
-		local PYTHON_SITEDIR=${PYTHON_SITEDIR}
-		[[ ${PYTHON_SITEDIR} ]] || python_export PYTHON_SITEDIR
-
-		d=${PYTHON_SITEDIR#${EPREFIX}}/${python_moduleroot//.//}
+		local sitedir=$(python_get_sitedir)
+		d=${sitedir#${EPREFIX}}/${_PYTHON_MODULEROOT//.//}
 	fi
 
 	(
@@ -948,14 +838,9 @@ python_doheader() {
 	debug-print-function ${FUNCNAME} "${@}"
 
 	[[ ${EPYTHON} ]] || die 'No Python implementation set (EPYTHON is null).'
-	if [[ ${EAPI:-0} == [0123] ]]; then
-		die "python_do* and python_new* helpers are banned in EAPIs older than 4."
-	fi
 
-	local d PYTHON_INCLUDEDIR=${PYTHON_INCLUDEDIR}
-	[[ ${PYTHON_INCLUDEDIR} ]] || python_export PYTHON_INCLUDEDIR
-
-	d=${PYTHON_INCLUDEDIR#${EPREFIX}}
+	local includedir=$(python_get_includedir)
+	local d=${includedir#${EPREFIX}}
 
 	(
 		insopts -m 0644
@@ -966,6 +851,23 @@ python_doheader() {
 
 # @FUNCTION: python_wrapper_setup
 # @USAGE: [<path> [<impl>]]
+# @DESCRIPTION:
+# Backwards compatibility function.  The relevant API is now considered
+# private, please use python_setup instead.
+python_wrapper_setup() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	eqawarn "python_wrapper_setup() is part of private eclass API."
+	eqawarn "Please call python_setup() instead."
+
+	[[ ${EAPI} == [67] ]] || die "${FUNCNAME} banned in EAPI ${EAPI}"
+
+	_python_wrapper_setup "${@}"
+}
+
+# @FUNCTION: _python_wrapper_setup
+# @USAGE: [<path> [<impl>]]
+# @INTERNAL
 # @DESCRIPTION:
 # Create proper 'python' executable and pkg-config wrappers
 # (if available) in the directory named by <path>. Set up PATH
@@ -978,7 +880,7 @@ python_doheader() {
 # be assumed to contain proper wrappers already and only environment
 # setup will be done. If wrapper update is requested, the directory
 # shall be removed first.
-python_wrapper_setup() {
+_python_wrapper_setup() {
 	debug-print-function ${FUNCNAME} "${@}"
 
 	local workdir=${1:-${T}/${EPYTHON}}
@@ -988,20 +890,18 @@ python_wrapper_setup() {
 	[[ ${impl} ]] || die "${FUNCNAME}: no impl nor EPYTHON specified."
 
 	if [[ ! -x ${workdir}/bin/python ]]; then
-		_python_check_dead_variables
-
 		mkdir -p "${workdir}"/{bin,pkgconfig} || die
 
 		# Clean up, in case we were supposed to do a cheap update.
 		rm -f "${workdir}"/bin/python{,2,3}{,-config} || die
 		rm -f "${workdir}"/bin/2to3 || die
-		rm -f "${workdir}"/pkgconfig/python{,2,3}.pc || die
+		rm -f "${workdir}"/pkgconfig/python{2,3}{,-embed}.pc || die
 
 		local EPYTHON PYTHON
-		python_export "${impl}" EPYTHON PYTHON
+		_python_export "${impl}" EPYTHON PYTHON
 
 		local pyver pyother
-		if python_is_python3; then
+		if [[ ${EPYTHON} != python2* ]]; then
 			pyver=3
 			pyother=2
 		else
@@ -1038,8 +938,13 @@ python_wrapper_setup() {
 
 			# Python 2.7+.
 			ln -s "${EPREFIX}"/usr/$(get_libdir)/pkgconfig/${EPYTHON/n/n-}.pc \
-				"${workdir}"/pkgconfig/python.pc || die
-			ln -s python.pc "${workdir}"/pkgconfig/python${pyver}.pc || die
+				"${workdir}"/pkgconfig/python${pyver}.pc || die
+
+			# Python 3.8+.
+			if [[ ${EPYTHON} != python[23].[67] ]]; then
+				ln -s "${EPREFIX}"/usr/$(get_libdir)/pkgconfig/${EPYTHON/n/n-}-embed.pc \
+					"${workdir}"/pkgconfig/python${pyver}-embed.pc || die
+			fi
 		else
 			nonsupp+=( 2to3 python-config "python${pyver}-config" )
 		fi
@@ -1075,6 +980,9 @@ python_wrapper_setup() {
 #
 # Returns 0 (true) if it is, 1 (false) otherwise.
 python_is_python3() {
+	eqawarn "${FUNCNAME} is deprecated, as Python 2 is not supported anymore"
+	[[ ${EAPI} == [67] ]] || die "${FUNCNAME} banned in EAPI ${EAPI}"
+
 	local impl=${1:-${EPYTHON}}
 	[[ ${impl} ]] || die "python_is_python3: no impl nor EPYTHON"
 
@@ -1091,37 +999,12 @@ python_is_python3() {
 python_is_installed() {
 	local impl=${1:-${EPYTHON}}
 	[[ ${impl} ]] || die "${FUNCNAME}: no impl nor EPYTHON"
-	local hasv_args=()
+	local hasv_args=( -b )
+	[[ ${EAPI} == 6 ]] && hasv_args=( --host-root )
 
-	case ${EAPI:-0} in
-		0|1|2|3|4)
-			local -x ROOT=/
-			;;
-		5|6)
-			hasv_args+=( --host-root )
-			;;
-		*)
-			hasv_args+=( -b )
-			;;
-	esac
-
-	case "${impl}" in
-		pypy|pypy3)
-			local append=
-			if [[ ${PYTHON_REQ_USE} ]]; then
-				append=[${PYTHON_REQ_USE}]
-			fi
-
-			# be happy with just the interpeter, no need for the virtual
-			has_version "${hasv_args[@]}" "dev-python/${impl}${append}" \
-				|| has_version "${hasv_args[@]}" "dev-python/${impl}-bin${append}"
-			;;
-		*)
-			local PYTHON_PKG_DEP
-			python_export "${impl}" PYTHON_PKG_DEP
-			has_version "${hasv_args[@]}" "${PYTHON_PKG_DEP}"
-			;;
-	esac
+	local PYTHON_PKG_DEP
+	_python_export "${impl}" PYTHON_PKG_DEP
+	has_version "${hasv_args[@]}" "${PYTHON_PKG_DEP}"
 }
 
 # @FUNCTION: python_fix_shebang
@@ -1198,32 +1081,31 @@ python_fix_shebang() {
 							if [[ ${i} == *python2 ]]; then
 								from=python2
 								if [[ ! ${force} ]]; then
-									python_is_python3 "${EPYTHON}" && error=1
+									error=1
 								fi
 							elif [[ ${i} == *python3 ]]; then
 								from=python3
-								if [[ ! ${force} ]]; then
-									python_is_python3 "${EPYTHON}" || error=1
-								fi
 							else
 								from=python
 							fi
 							break
 							;;
-						*python[23].[0123456789]|*pypy|*pypy3|*jython[23].[0123456789])
+						*python[23].[0-9]|*python3.[1-9][0-9]|*pypy|*pypy3|*jython[23].[0-9])
 							# Explicit mismatch.
 							if [[ ! ${force} ]]; then
 								error=1
 							else
 								case "${i}" in
-									*python[23].[0123456789])
-										from="python[23].[0123456789]";;
+									*python[23].[0-9])
+										from="python[23].[0-9]";;
+									*python3.[1-9][0-9])
+										from="python3.[1-9][0-9]";;
 									*pypy)
 										from="pypy";;
 									*pypy3)
 										from="pypy3";;
-									*jython[23].[0123456789])
-										from="jython[23].[0123456789]";;
+									*jython[23].[0-9])
+										from="jython[23].[0-9]";;
 									*)
 										die "${FUNCNAME}: internal error in 2nd pattern match";;
 								esac
@@ -1264,17 +1146,14 @@ python_fix_shebang() {
 		done < <(find -H "${path}" -type f -print0 || die)
 
 		if [[ ! ${any_fixed} ]]; then
-			local cmd=eerror
-			[[ ${EAPI:-0} == [012345] ]] && cmd=eqawarn
-
-			"${cmd}" "QA warning: ${FUNCNAME}, ${path#${D%/}} did not match any fixable files."
+			eerror "QA error: ${FUNCNAME}, ${path#${D%/}} did not match any fixable files."
 			if [[ ${any_correct} ]]; then
-				"${cmd}" "All files have ${EPYTHON} shebang already."
+				eerror "All files have ${EPYTHON} shebang already."
 			else
-				"${cmd}" "There are no Python files in specified directory."
+				eerror "There are no Python files in specified directory."
 			fi
 
-			[[ ${cmd} == eerror ]] && die "${FUNCNAME} did not match any fixable files (QA warning fatal in EAPI ${EAPI})"
+			die "${FUNCNAME} did not match any fixable files"
 		fi
 	done
 }
@@ -1282,6 +1161,7 @@ python_fix_shebang() {
 # @FUNCTION: _python_check_locale_sanity
 # @USAGE: <locale>
 # @RETURN: 0 if sane, 1 otherwise
+# @INTERNAL
 # @DESCRIPTION:
 # Check whether the specified locale sanely maps between lowercase
 # and uppercase ASCII characters.
@@ -1345,172 +1225,120 @@ python_export_utf8_locale() {
 	return 0
 }
 
-# -- python.eclass functions --
+# @FUNCTION: build_sphinx
+# @USAGE: <directory>
+# @DESCRIPTION:
+# Build HTML documentation using dev-python/sphinx in the specified
+# <directory>.  Takes care of disabling Intersphinx and appending
+# to HTML_DOCS.
+#
+# If <directory> is relative to the current directory, care needs
+# to be taken to run einstalldocs from the same directory
+# (usually ${S}).
+build_sphinx() {
+	debug-print-function ${FUNCNAME} "${@}"
+	[[ ${#} -eq 1 ]] || die "${FUNCNAME} takes 1 arg: <directory>"
 
-_python_check_dead_variables() {
-	local v
+	local dir=${1}
 
-	for v in PYTHON_DEPEND PYTHON_USE_WITH{,_OR,_OPT} {RESTRICT,SUPPORT}_PYTHON_ABIS
-	do
-		if [[ ${!v} ]]; then
-			die "${v} is invalid for python-r1 suite, please take a look @ https://wiki.gentoo.org/wiki/Project:Python/Python.eclass_conversion#Ebuild_head"
-		fi
-	done
+	sed -i -e 's:^intersphinx_mapping:disabled_&:' \
+		"${dir}"/conf.py || die
+	# not all packages include the Makefile in pypi tarball
+	sphinx-build -b html -d "${dir}"/_build/doctrees "${dir}" \
+		"${dir}"/_build/html || die
 
-	for v in PYTHON_{CPPFLAGS,CFLAGS,CXXFLAGS,LDFLAGS}
-	do
-		if [[ ${!v} ]]; then
-			die "${v} is invalid for python-r1 suite, please take a look @ https://wiki.gentoo.org/wiki/Project:Python/Python.eclass_conversion#PYTHON_CFLAGS"
-		fi
-	done
+	HTML_DOCS+=( "${dir}/_build/html/." )
+}
 
-	for v in PYTHON_TESTS_RESTRICTED_ABIS PYTHON_EXPORT_PHASE_FUNCTIONS \
-		PYTHON_VERSIONED_{SCRIPTS,EXECUTABLES} PYTHON_NONVERSIONED_EXECUTABLES
-	do
-		if [[ ${!v} ]]; then
-			die "${v} is invalid for python-r1 suite"
-		fi
-	done
-
-	for v in DISTUTILS_USE_SEPARATE_SOURCE_DIRECTORIES DISTUTILS_SETUP_FILES \
-		DISTUTILS_GLOBAL_OPTIONS DISTUTILS_SRC_TEST PYTHON_MODNAME
-	do
-		if [[ ${!v} ]]; then
-			die "${v} is invalid for distutils-r1, please take a look @ https://wiki.gentoo.org/wiki/Project:Python/Python.eclass_conversion#${v}"
-		fi
-	done
-
-	if [[ ${DISTUTILS_DISABLE_TEST_DEPENDENCY} ]]; then
-		die "${v} is invalid for distutils-r1, please take a look @ https://wiki.gentoo.org/wiki/Project:Python/Python.eclass_conversion#DISTUTILS_SRC_TEST"
+# @FUNCTION: _python_check_EPYTHON
+# @INTERNAL
+# @DESCRIPTION:
+# Check if EPYTHON is set, die if not.
+_python_check_EPYTHON() {
+	if [[ -z ${EPYTHON} ]]; then
+		die "EPYTHON unset, invalid call context"
 	fi
+}
 
-	# python.eclass::progress
-	for v in PYTHON_BDEPEND PYTHON_MULTIPLE_ABIS PYTHON_ABI_TYPE \
-		PYTHON_RESTRICTED_ABIS PYTHON_TESTS_FAILURES_TOLERANT_ABIS \
-		PYTHON_CFFI_MODULES_GENERATION_COMMANDS
-	do
-		if [[ ${!v} ]]; then
-			die "${v} is invalid for python-r1 suite"
-		fi
+# @VARIABLE: EPYTEST_DESELECT
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# Specifies an array of tests to be deselected via pytest's --deselect
+# parameter, when calling epytest.  The list can include file paths,
+# specific test functions or parametrized test invocations.
+#
+# Note that the listed files will still be subject to collection,
+# i.e. modules imported in global scope will need to be available.
+# If this is undesirable, EPYTEST_IGNORE can be used instead.
+
+# @VARIABLE: EPYTEST_IGNORE
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# Specifies an array of paths to be ignored via pytest's --ignore
+# parameter, when calling epytest.  The listed files will be entirely
+# skipped from test collection.
+
+# @FUNCTION: epytest
+# @USAGE: [<args>...]
+# @DESCRIPTION:
+# Run pytest, passing the standard set of pytest options, then
+# --deselect and --ignore options based on EPYTEST_DESELECT
+# and EPYTEST_IGNORE, then user-specified options.
+#
+# This command dies on failure and respects nonfatal.
+epytest() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	_python_check_EPYTHON
+
+	local args=(
+		# verbose progress reporting and tracebacks
+		-vv
+		# list all non-passed tests in the summary for convenience
+		# (includes failures, skips, xfails...)
+		-ra
+		# print local variables in tracebacks, useful for debugging
+		-l
+		# override filterwarnings=error, we do not really want -Werror
+		# for end users, as it tends to fail on new warnings from deps
+		-Wdefault
+	)
+	local x
+	for x in "${EPYTEST_DESELECT[@]}"; do
+		args+=( --deselect "${x}" )
 	done
+	for x in "${EPYTEST_IGNORE[@]}"; do
+		args+=( --ignore "${x}" )
+	done
+	set -- "${EPYTHON}" -m pytest "${args[@]}" "${@}"
+
+	echo "${@}" >&2
+	"${@}" || die -n "pytest failed with ${EPYTHON}"
+	local ret=${?}
+
+	# remove common temporary directories left over by pytest plugins
+	rm -rf .hypothesis .pytest_cache || die
+
+	return ${ret}
 }
 
-python_pkg_setup() {
-	die "${FUNCNAME}() is invalid for python-r1 suite, please take a look @ https://wiki.gentoo.org/wiki/Project:Python/Python.eclass_conversion#pkg_setup"
-}
+# @FUNCTION: eunittest
+# @USAGE: [<args>...]
+# @DESCRIPTION:
+# Run unit tests using dev-python/unittest-or-fail, passing the standard
+# set of options, followed by user-specified options.
+#
+# This command dies on failure and respects nonfatal.
+eunittest() {
+	debug-print-function ${FUNCNAME} "${@}"
 
-python_convert_shebangs() {
-	die "${FUNCNAME}() is invalid for python-r1 suite, please take a look @ https://wiki.gentoo.org/wiki/Project:Python/Python.eclass_conversion#python_convert_shebangs"
-}
+	_python_check_EPYTHON
 
-python_clean_py-compile_files() {
-	die "${FUNCNAME}() is invalid for python-r1 suite"
-}
+	set -- "${EPYTHON}" -m unittest_or_fail discover -v "${@}"
 
-python_clean_installation_image() {
-	die "${FUNCNAME}() is invalid for python-r1 suite"
-}
-
-python_execute_function() {
-	die "${FUNCNAME}() is invalid for python-r1 suite, please take a look @ https://wiki.gentoo.org/wiki/Project:Python/Python.eclass_conversion#python_execute_function"
-}
-
-python_generate_wrapper_scripts() {
-	die "${FUNCNAME}() is invalid for python-r1 suite"
-}
-
-python_merge_intermediate_installation_images() {
-	die "${FUNCNAME}() is invalid for python-r1 suite"
-}
-
-python_set_active_version() {
-	die "${FUNCNAME}() is invalid for python-r1 suite, please take a look @ https://wiki.gentoo.org/wiki/Project:Python/Python.eclass_conversion#pkg_setup"
-}
-
-python_need_rebuild() {
-	die "${FUNCNAME}() is invalid for python-r1 suite"
-}
-
-PYTHON() {
-	die "${FUNCNAME}() is invalid for python-r1 suite, please take a look @ https://wiki.gentoo.org/wiki/Project:Python/Python.eclass_conversion#.24.28PYTHON.29.2C_.24.7BEPYTHON.7D"
-}
-
-python_get_implementation() {
-	die "${FUNCNAME}() is invalid for python-r1 suite"
-}
-
-python_get_implementational_package() {
-	die "${FUNCNAME}() is invalid for python-r1 suite"
-}
-
-python_get_libdir() {
-	die "${FUNCNAME}() is invalid for python-r1 suite"
-}
-
-python_get_library() {
-	die "${FUNCNAME}() is invalid for python-r1 suite"
-}
-
-python_get_version() {
-	die "${FUNCNAME}() is invalid for python-r1 suite"
-}
-
-python_get_implementation_and_version() {
-	die "${FUNCNAME}() is invalid for python-r1 suite"
-}
-
-python_execute_nosetests() {
-	die "${FUNCNAME}() is invalid for python-r1 suite"
-}
-
-python_execute_py.test() {
-	die "${FUNCNAME}() is invalid for python-r1 suite"
-}
-
-python_execute_trial() {
-	die "${FUNCNAME}() is invalid for python-r1 suite"
-}
-
-python_enable_pyc() {
-	die "${FUNCNAME}() is invalid for python-r1 suite"
-}
-
-python_disable_pyc() {
-	die "${FUNCNAME}() is invalid for python-r1 suite"
-}
-
-python_mod_optimize() {
-	die "${FUNCNAME}() is invalid for python-r1 suite, please take a look @ https://wiki.gentoo.org/wiki/Project:Python/Python.eclass_conversion#Python_byte-code_compilation"
-}
-
-python_mod_cleanup() {
-	die "${FUNCNAME}() is invalid for python-r1 suite, please take a look @ https://wiki.gentoo.org/wiki/Project:Python/Python.eclass_conversion#Python_byte-code_compilation"
-}
-
-# python.eclass::progress
-
-python_abi_depend() {
-	die "${FUNCNAME}() is invalid for python-r1 suite"
-}
-
-python_install_executables() {
-	die "${FUNCNAME}() is invalid for python-r1 suite"
-}
-
-python_get_extension_module_suffix() {
-	die "${FUNCNAME}() is invalid for python-r1 suite"
-}
-
-python_byte-compile_modules() {
-	die "${FUNCNAME}() is invalid for python-r1 suite"
-}
-
-python_clean_byte-compiled_modules() {
-	die "${FUNCNAME}() is invalid for python-r1 suite"
-}
-
-python_generate_cffi_modules() {
-	die "${FUNCNAME}() is invalid for python-r1 suite"
+	echo "${@}" >&2
+	"${@}" || die -n "Tests failed with ${EPYTHON}"
+	return ${?}
 }
 
 _PYTHON_UTILS_R1=1
