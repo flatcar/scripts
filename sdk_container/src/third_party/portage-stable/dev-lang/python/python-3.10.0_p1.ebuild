@@ -1,23 +1,30 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="6"
+EAPI="7"
 WANT_LIBTOOL="none"
 
-inherit autotools flag-o-matic pax-utils python-utils-r1 toolchain-funcs
+inherit autotools check-reqs flag-o-matic multiprocessing pax-utils \
+	python-utils-r1 toolchain-funcs verify-sig
 
-MY_P="Python-${PV}"
-PATCHSET_VERSION="3.6.4"
+MY_PV=${PV/_rc/rc}
+MY_P="Python-${MY_PV%_p*}"
+PYVER=$(ver_cut 1-2)
+PATCHSET="python-gentoo-patches-${MY_PV}"
 
 DESCRIPTION="An interpreted, interactive, object-oriented programming language"
 HOMEPAGE="https://www.python.org/"
-SRC_URI="https://www.python.org/ftp/python/${PV}/${MY_P}.tar.xz
-	https://dev.gentoo.org/~floppym/python/python-gentoo-patches-${PATCHSET_VERSION}.tar.xz"
+SRC_URI="https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz
+	https://dev.gentoo.org/~floppym/python/${PATCHSET}.tar.xz
+	verify-sig? (
+		https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz.asc
+	)"
+S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
-SLOT="3.6/3.6m"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd"
-IUSE="build examples gdbm hardened ipv6 libressl +ncurses +readline sqlite +ssl test +threads tk wininst +xml"
+SLOT="${PYVER}"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+IUSE="bluetooth build examples gdbm hardened lto +ncurses pgo +readline +sqlite +ssl test tk wininst +xml"
 RESTRICT="!test? ( test )"
 
 # Do not add a dependency on dev-lang/python to this ebuild.
@@ -25,77 +32,94 @@ RESTRICT="!test? ( test )"
 # run the bootstrap code on your dev box and include the results in the
 # patchset. See bug 447752.
 
-RDEPEND="app-arch/bzip2:0=
-	app-arch/xz-utils:0=
-	>=sys-libs/zlib-1.1.3:0=
-	virtual/libffi:=
+RDEPEND="app-arch/bzip2:=
+	app-arch/xz-utils:=
+	dev-libs/libffi:=
+	sys-apps/util-linux:=
+	>=sys-libs/zlib-1.1.3:=
+	virtual/libcrypt:=
 	virtual/libintl
-	gdbm? ( sys-libs/gdbm:0=[berkdb] )
-	ncurses? (
-		>=sys-libs/ncurses-5.2:0=
-		readline? ( >=sys-libs/readline-4.1:0= )
-	)
+	gdbm? ( sys-libs/gdbm:=[berkdb] )
+	ncurses? ( >=sys-libs/ncurses-5.2:= )
+	readline? ( >=sys-libs/readline-4.1:= )
 	sqlite? ( >=dev-db/sqlite-3.3.8:3= )
-	ssl? (
-		!libressl? ( dev-libs/openssl:0= )
-		libressl? ( dev-libs/libressl:= )
-	)
+	ssl? ( >=dev-libs/openssl-1.1.1:= )
 	tk? (
-		>=dev-lang/tcl-8.0:0=
-		>=dev-lang/tk-8.0:0=
-		dev-tcltk/blt:0=
+		>=dev-lang/tcl-8.0:=
+		>=dev-lang/tk-8.0:=
+		dev-tcltk/blt:=
 		dev-tcltk/tix
 	)
-	xml? ( >=dev-libs/expat-2.1:0= )
-	!!<sys-apps/sandbox-2.6-r1"
+	xml? ( >=dev-libs/expat-2.1:= )
+	!!<sys-apps/sandbox-2.21"
+# bluetooth requires headers from bluez
 DEPEND="${RDEPEND}
-	test? ( app-arch/xz-utils[extra-filters(+)] )
+	bluetooth? ( net-wireless/bluez )
+	test? ( app-arch/xz-utils[extra-filters(+)] )"
+# autoconf-archive needed to eautoreconf
+BDEPEND="
+	sys-devel/autoconf-archive
+	virtual/awk
 	virtual/pkgconfig
+	verify-sig? ( app-crypt/openpgp-keys-python )
 	!sys-devel/gcc[libffi(-)]"
 RDEPEND+=" !build? ( app-misc/mime-types )"
-PDEPEND=">=app-eselect/eselect-python-20140125-r1"
 
-S="${WORKDIR}/${MY_P}"
-PYVER=${SLOT%/*}
+VERIFY_SIG_OPENPGP_KEY_PATH=${BROOT}/usr/share/openpgp-keys/python.org.asc
+
+# large file tests involve a 2.5G file being copied (duplicated)
+CHECKREQS_DISK_BUILD=5500M
+
+pkg_pretend() {
+	use test && check-reqs_pkg_pretend
+}
+
+pkg_setup() {
+	use test && check-reqs_pkg_setup
+}
+
+src_unpack() {
+	if use verify-sig; then
+		verify-sig_verify_detached "${DISTDIR}"/${MY_P}.tar.xz{,.asc}
+	fi
+	default
+}
 
 src_prepare() {
 	# Ensure that internal copies of expat, libffi and zlib are not used.
-	rm -fr Modules/expat
-	rm -fr Modules/_ctypes/libffi*
-	rm -fr Modules/zlib
+	rm -fr Modules/expat || die
+	rm -fr Modules/_ctypes/libffi* || die
+	rm -fr Modules/zlib || die
 
 	local PATCHES=(
-		"${WORKDIR}/patches"
-		"${FILESDIR}/${PN}-3.5-distutils-OO-build.patch"
-		"${FILESDIR}/3.6-disable-nis.patch"
+		"${WORKDIR}/${PATCHSET}"
 	)
 
 	default
 
 	sed -i -e "s:@@GENTOO_LIBDIR@@:$(get_libdir):g" \
-		Lib/distutils/command/install.py \
-		Lib/distutils/sysconfig.py \
-		Lib/site.py \
-		Lib/sysconfig.py \
-		Lib/test/test_site.py \
-		Makefile.pre.in \
-		Modules/Setup.dist \
-		Modules/getpath.c \
-		configure.ac \
 		setup.py || die "sed failed to replace @@GENTOO_LIBDIR@@"
+
+	# force correct number of jobs
+	# https://bugs.gentoo.org/737660
+	local jobs=$(makeopts_jobs "${MAKEOPTS}" "$(get_nproc)")
+	sed -i -e "s:-j0:-j${jobs}:" Makefile.pre.in || die
+	sed -i -e "/self\.parallel/s:True:${jobs}:" setup.py || die
 
 	eautoreconf
 }
 
 src_configure() {
 	local disable
-	use gdbm     || disable+=" gdbm"
-	use ncurses  || disable+=" _curses _curses_panel"
-	use readline || disable+=" readline"
-	use sqlite   || disable+=" _sqlite3"
-	use ssl      || export PYTHON_DISABLE_SSL="1"
-	use tk       || disable+=" _tkinter"
-	use xml      || disable+=" _elementtree pyexpat" # _elementtree uses pyexpat.
+	# disable automagic bluetooth headers detection
+	use bluetooth || export ac_cv_header_bluetooth_bluetooth_h=no
+	use gdbm      || disable+=" gdbm"
+	use ncurses   || disable+=" _curses _curses_panel"
+	use readline  || disable+=" readline"
+	use sqlite    || disable+=" _sqlite3"
+	use ssl       || export PYTHON_DISABLE_SSL="1"
+	use tk        || disable+=" _tkinter"
+	use xml       || disable+=" _elementtree pyexpat" # _elementtree uses pyexpat.
 	export PYTHON_DISABLE_MODULES="${disable}"
 
 	if ! use xml; then
@@ -120,24 +144,41 @@ src_configure() {
 		use hardened && replace-flags -O3 -O2
 	fi
 
+	# https://bugs.gentoo.org/700012
+	if is-flagq -flto || is-flagq '-flto=*'; then
+		append-cflags $(test-flags-CC -ffat-lto-objects)
+	fi
+
 	# Export CXX so it ends up in /usr/lib/python3.X/config/Makefile.
 	tc-export CXX
 
-	# Set LDFLAGS so we link modules with -lpython3.2 correctly.
-	# Needed on FreeBSD unless Python 3.2 is already installed.
-	# Please query BSD team before removing this!
-	append-ldflags "-L."
+	# Fix implicit declarations on cross and prefix builds. Bug #674070.
+	use ncurses && append-cppflags -I"${ESYSROOT}"/usr/include/ncursesw
 
 	local dbmliborder
 	if use gdbm; then
 		dbmliborder+="${dbmliborder:+:}gdbm"
 	fi
 
+	if use pgo; then
+		local jobs=$(makeopts_jobs "${MAKEOPTS}" "$(get_nproc)")
+		export PROFILE_TASK="-m test -j${jobs} --pgo-extended -x test_gdb"
+
+		if has_version "app-arch/rpm" ; then
+			# Avoid sandbox failure (attempts to write to /var/lib/rpm)
+			PROFILE_TASK+=" -x test_distutils"
+		fi
+	fi
+
 	local myeconfargs=(
-		--with-fpectl
+		# glibc-2.30 removes it; since we can't cleanly force-rebuild
+		# Python on glibc upgrade, remove it proactively to give
+		# a chance for users rebuilding python before glibc
+		ac_cv_header_stropts_h=no
+
 		--enable-shared
-		$(use_enable ipv6)
-		$(use_with threads)
+		--without-static-libpython
+		--enable-ipv6
 		--infodir='${prefix}/share/info'
 		--mandir='${prefix}/share/man'
 		--with-computed-gotos
@@ -147,11 +188,14 @@ src_configure() {
 		--without-ensurepip
 		--with-system-expat
 		--with-system-ffi
+
+		$(use_with lto)
+		$(use_enable pgo optimizations)
 	)
 
 	OPT="" econf "${myeconfargs[@]}"
 
-	if use threads && grep -q "#define POSIX_SEMAPHORES_NOT_ENABLED 1" pyconfig.h; then
+	if grep -q "#define POSIX_SEMAPHORES_NOT_ENABLED 1" pyconfig.h; then
 		eerror "configure has detected that the sem_open function is broken."
 		eerror "Please ensure that /dev/shm is mounted as a tmpfs with mode 1777."
 		die "Broken sem_open function (bug 496328)"
@@ -162,11 +206,22 @@ src_compile() {
 	# Ensure sed works as expected
 	# https://bugs.gentoo.org/594768
 	local -x LC_ALL=C
+	# Prevent using distutils bundled by setuptools.
+	# https://bugs.gentoo.org/823728
+	export SETUPTOOLS_USE_DISTUTILS=stdlib
+
+	if use pgo ; then
+		# bug 660358
+		local -x COLUMNS=80
+		local -x PYTHONDONTWRITEBYTECODE=
+
+		addpredict /usr/lib/python3.10/site-packages
+	fi
 
 	emake CPPFLAGS= CFLAGS= LDFLAGS=
 
 	# Work around bug 329499. See also bug 413751 and 457194.
-	if has_version dev-libs/libffi[pax_kernel]; then
+	if has_version dev-libs/libffi[pax-kernel]; then
 		pax-mark E python
 	else
 		pax-mark m python
@@ -187,9 +242,15 @@ src_test() {
 		mv "${S}"/Lib/test/test_${test}.py "${T}"
 	done
 
+	# bug 660358
+	local -x COLUMNS=80
 	local -x PYTHONDONTWRITEBYTECODE=
+	addpredict /usr/lib/python3.10/site-packages
 
-	emake test EXTRATESTOPTS="-u-network" CPPFLAGS= CFLAGS= LDFLAGS= < /dev/tty
+	local jobs=$(makeopts_jobs "${MAKEOPTS}" "$(get_nproc)")
+
+	emake test EXTRATESTOPTS="-u-network -j${jobs}" \
+		CPPFLAGS= CFLAGS= LDFLAGS= < /dev/tty
 	local result=$?
 
 	for test in ${skipped_tests}; do
@@ -202,7 +263,7 @@ src_test() {
 	done
 
 	elog "If you would like to run them, you may:"
-	elog "cd '${EPREFIX}/usr/$(get_libdir)/python${PYVER}/test'"
+	elog "cd '${EPREFIX}/usr/lib/python${PYVER}/test'"
 	elog "and run the tests separately."
 
 	if [[ ${result} -ne 0 ]]; then
@@ -211,7 +272,7 @@ src_test() {
 }
 
 src_install() {
-	local libdir=${ED}/usr/$(get_libdir)/python${PYVER}
+	local libdir=${ED}/usr/lib/python${PYVER}
 
 	emake DESTDIR="${D}" altinstall
 
@@ -221,13 +282,13 @@ src_install() {
 		-i "${libdir}/config-${PYVER}"*/Makefile || die "sed failed"
 
 	# Fix collisions between different slots of Python.
-	rm -f "${ED}usr/$(get_libdir)/libpython3.so"
+	rm "${ED}/usr/$(get_libdir)/libpython3.so" || die
 
 	# Cheap hack to get version with ABIFLAGS
-	local abiver=$(cd "${ED}usr/include"; echo python*)
+	local abiver=$(cd "${ED}/usr/include"; echo python*)
 	if [[ ${abiver} != python${PYVER} ]]; then
 		# Replace python3.X with a symlink to python3.Xm
-		rm "${ED}usr/bin/python${PYVER}" || die
+		rm "${ED}/usr/bin/python${PYVER}" || die
 		dosym "${abiver}" "/usr/bin/python${PYVER}"
 		# Create python3.X-config symlink
 		dosym "${abiver}-config" "/usr/bin/python${PYVER}-config"
@@ -237,24 +298,21 @@ src_install() {
 
 	# python seems to get rebuilt in src_install (bug 569908)
 	# Work around it for now.
-	if has_version dev-libs/libffi[pax_kernel]; then
-		pax-mark E "${ED}usr/bin/${abiver}"
+	if has_version dev-libs/libffi[pax-kernel]; then
+		pax-mark E "${ED}/usr/bin/${abiver}"
 	else
-		pax-mark m "${ED}usr/bin/${abiver}"
+		pax-mark m "${ED}/usr/bin/${abiver}"
 	fi
 
 	use sqlite || rm -r "${libdir}/"{sqlite3,test/test_sqlite*} || die
-	use tk || rm -r "${ED}usr/bin/idle${PYVER}" "${libdir}/"{idlelib,tkinter,test/test_tk*} || die
+	use tk || rm -r "${ED}/usr/bin/idle${PYVER}" "${libdir}/"{idlelib,tkinter,test/test_tk*} || die
 
-	use threads || rm -r "${libdir}/multiprocessing" || die
-	use wininst || rm "${libdir}/distutils/command/"wininst-*.exe || die
-
-	dodoc "${S}"/Misc/{ACKS,HISTORY,NEWS}
+	dodoc Misc/{ACKS,HISTORY,NEWS}
 
 	if use examples; then
-		insinto /usr/share/doc/${PF}/examples
-		find "${S}"/Tools -name __pycache__ -print0 | xargs -0 rm -fr
-		doins -r "${S}"/Tools
+		docinto examples
+		find Tools -name __pycache__ -exec rm -fr {} + || die
+		dodoc -r Tools
 	fi
 	insinto /usr/share/gdb/auto-load/usr/$(get_libdir) #443510
 	local libname=$(printf 'e:\n\t@echo $(INSTSONAME)\ninclude Makefile\n' | \
@@ -266,81 +324,47 @@ src_install() {
 	sed \
 		-e "s:@PYDOC_PORT_VARIABLE@:PYDOC${PYVER/./_}_PORT:" \
 		-e "s:@PYDOC@:pydoc${PYVER}:" \
-		-i "${ED}etc/conf.d/pydoc-${PYVER}" "${ED}etc/init.d/pydoc-${PYVER}" || die "sed failed"
+		-i "${ED}/etc/conf.d/pydoc-${PYVER}" \
+		"${ED}/etc/init.d/pydoc-${PYVER}" || die "sed failed"
 
-	# for python-exec
-	local vars=( EPYTHON PYTHON_SITEDIR PYTHON_SCRIPTDIR )
-
+	local -x EPYTHON=python${PYVER}
 	# if not using a cross-compiler, use the fresh binary
 	if ! tc-is-cross-compiler; then
 		local -x PYTHON=./python
 		local -x LD_LIBRARY_PATH=${LD_LIBRARY_PATH+${LD_LIBRARY_PATH}:}${PWD}
 	else
-		vars=( PYTHON "${vars[@]}" )
+		local -x PYTHON=${EPREFIX}/usr/bin/${EPYTHON}
 	fi
 
-	python_export "python${PYVER}" "${vars[@]}"
 	echo "EPYTHON='${EPYTHON}'" > epython.py || die
 	python_domodule epython.py
 
 	# python-exec wrapping support
 	local pymajor=${PYVER%.*}
-	mkdir -p "${D}${PYTHON_SCRIPTDIR}" || die
+	local scriptdir=${D}$(python_get_scriptdir)
+	mkdir -p "${scriptdir}" || die
 	# python and pythonX
 	ln -s "../../../bin/${abiver}" \
-		"${D}${PYTHON_SCRIPTDIR}/python${pymajor}" || die
-	ln -s "python${pymajor}" \
-		"${D}${PYTHON_SCRIPTDIR}/python" || die
+		"${scriptdir}/python${pymajor}" || die
+	ln -s "python${pymajor}" "${scriptdir}/python" || die
 	# python-config and pythonX-config
 	# note: we need to create a wrapper rather than symlinking it due
 	# to some random dirname(argv[0]) magic performed by python-config
-	cat > "${D}${PYTHON_SCRIPTDIR}/python${pymajor}-config" <<-EOF || die
+	cat > "${scriptdir}/python${pymajor}-config" <<-EOF || die
 		#!/bin/sh
 		exec "${abiver}-config" "\${@}"
 	EOF
-	chmod +x "${D}${PYTHON_SCRIPTDIR}/python${pymajor}-config" || die
+	chmod +x "${scriptdir}/python${pymajor}-config" || die
 	ln -s "python${pymajor}-config" \
-		"${D}${PYTHON_SCRIPTDIR}/python-config" || die
-	# 2to3, pydoc, pyvenv
+		"${scriptdir}/python-config" || die
+	# 2to3, pydoc
 	ln -s "../../../bin/2to3-${PYVER}" \
-		"${D}${PYTHON_SCRIPTDIR}/2to3" || die
+		"${scriptdir}/2to3" || die
 	ln -s "../../../bin/pydoc${PYVER}" \
-		"${D}${PYTHON_SCRIPTDIR}/pydoc" || die
-	ln -s "../../../bin/pyvenv-${PYVER}" \
-		"${D}${PYTHON_SCRIPTDIR}/pyvenv" || die
+		"${scriptdir}/pydoc" || die
 	# idle
 	if use tk; then
 		ln -s "../../../bin/idle${PYVER}" \
-			"${D}${PYTHON_SCRIPTDIR}/idle" || die
+			"${scriptdir}/idle" || die
 	fi
-}
-
-pkg_preinst() {
-	if has_version "<${CATEGORY}/${PN}-${PYVER}" && ! has_version ">=${CATEGORY}/${PN}-${PYVER}_alpha"; then
-		python_updater_warning="1"
-	fi
-}
-
-eselect_python_update() {
-	if [[ -z "$(eselect python show)" || ! -f "${EROOT}usr/bin/$(eselect python show)" ]]; then
-		eselect python update
-	fi
-
-	if [[ -z "$(eselect python show --python${PV%%.*})" || ! -f "${EROOT}usr/bin/$(eselect python show --python${PV%%.*})" ]]; then
-		eselect python update --python${PV%%.*}
-	fi
-}
-
-pkg_postinst() {
-	eselect_python_update
-
-	if [[ "${python_updater_warning}" == "1" ]]; then
-		ewarn "You have just upgraded from an older version of Python."
-		ewarn
-		ewarn "Please adjust PYTHON_TARGETS (if so desired), and run emerge with the --newuse or --changed-use option to rebuild packages installing python modules."
-	fi
-}
-
-pkg_postrm() {
-	eselect_python_update
 }
