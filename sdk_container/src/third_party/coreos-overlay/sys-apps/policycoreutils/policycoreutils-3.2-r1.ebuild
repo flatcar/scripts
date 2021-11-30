@@ -2,21 +2,14 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
-PYTHON_COMPAT=( python3_6 )
+PYTHON_COMPAT=( python3_{6..10} )
 PYTHON_REQ_USE="xml"
 
 inherit multilib python-r1 toolchain-funcs bash-completion-r1
 
-MY_P="${P//_/-}"
-
-MY_RELEASEDATE="20200710"
 EXTRAS_VER="1.37"
-SEMNG_VER="${PV}"
-SELNX_VER="${PV}"
-SEPOL_VER="${PV}"
 
-# flatcar changes: nls, extra
-IUSE="audit extra nls pam python split-usr"
+IUSE="audit pam split-usr"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 DESCRIPTION="SELinux core utilities"
@@ -26,14 +19,14 @@ if [[ ${PV} == 9999 ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/SELinuxProject/selinux.git"
 	SRC_URI="https://dev.gentoo.org/~perfinion/distfiles/policycoreutils-extra-${EXTRAS_VER}.tar.bz2"
-	S1="${WORKDIR}/${MY_P}/${PN}"
+	S1="${WORKDIR}/${PN}"
 	S2="${WORKDIR}/policycoreutils-extra"
 	S="${S1}"
 else
-	SRC_URI="https://github.com/SELinuxProject/selinux/releases/download/${MY_RELEASEDATE}/${MY_P}.tar.gz
+	SRC_URI="https://github.com/SELinuxProject/selinux/releases/download/${PV}/${P}.tar.gz
 		https://dev.gentoo.org/~perfinion/distfiles/policycoreutils-extra-${EXTRAS_VER}.tar.bz2"
-	KEYWORDS="amd64 ~arm64 ~mips x86"
-	S1="${WORKDIR}/${MY_P}"
+	KEYWORDS="~amd64 ~arm64 ~mips ~x86"
+	S1="${WORKDIR}/${P}"
 	S2="${WORKDIR}/policycoreutils-extra"
 	S="${S1}"
 fi
@@ -41,15 +34,14 @@ fi
 LICENSE="GPL-2"
 SLOT="0"
 
-# flatcar changes: remove setools. Since 4.x setools is written in python
-# so it's not shipped anymore with Flatcar OS
-DEPEND=">=sys-libs/libselinux-${SELNX_VER}:=[python?,${PYTHON_USEDEP}]
-	>=sys-libs/libsemanage-${SEMNG_VER}:=[python?,${PYTHON_USEDEP}]
-	>=sys-libs/libsepol-${SEPOL_VER}:=
+DEPEND=">=sys-libs/libselinux-${PV}:=[python,${PYTHON_USEDEP}]
+	>=sys-libs/libsemanage-${PV}:=[python(+),${PYTHON_USEDEP}]
+	>=sys-libs/libsepol-${PV}:=
 	sys-libs/libcap-ng:=
-	audit? ( >=sys-process/audit-1.5.1[python?,${PYTHON_USEDEP}] )
+	>=app-admin/setools-4.2.0[${PYTHON_USEDEP}]
+	audit? ( >=sys-process/audit-1.5.1[python,${PYTHON_USEDEP}] )
 	pam? ( sys-libs/pam:= )
-	python? ( ${PYTHON_DEPS} )"
+	${PYTHON_DEPS}"
 
 # Avoid dependency loop in the cross-compile case, bug #755173
 # (Still exists in native)
@@ -60,7 +52,7 @@ RDEPEND="${DEPEND}
 	app-misc/pax-utils"
 
 PDEPEND="sys-apps/semodule-utils
-	python? ( sys-apps/selinux-python )"
+	sys-apps/selinux-python"
 
 src_unpack() {
 	# Override default one because we need the SRC_URI ones even in case of 9999 ebuilds
@@ -88,27 +80,13 @@ src_prepare() {
 
 	sed -i 's/-Werror//g' "${S1}"/*/Makefile || die "Failed to remove Werror"
 
-	# flatcar changes
-	if use python; then
-		python_copy_sources
-		# Our extra code is outside the regular directory, so set it to the extra
-		# directory. We really should optimize this as it is ugly, but the extra
-		# code is needed for Gentoo at the same time that policycoreutils is present
-		# (so we cannot use an additional package for now).
-		if use extra ; then
-			S="${S2}"
-			python_copy_sources
-		fi
-	fi
-
-	# flatcar changes
-	# Skip building unneeded parts.
-	if ! use python ; then
-		for dir in audit2allow gui scripts semanage sepolicy sepolgen-ifgen; do
-			sed -e "s/ $dir / /" -i Makefile || die
-		done
-	fi
-	use nls || sed -e "s/ po / /" -i Makefile || die
+	python_copy_sources
+	# Our extra code is outside the regular directory, so set it to the extra
+	# directory. We really should optimize this as it is ugly, but the extra
+	# code is needed for Gentoo at the same time that policycoreutils is present
+	# (so we cannot use an additional package for now).
+	S="${S2}"
+	python_copy_sources
 }
 
 src_compile() {
@@ -121,23 +99,10 @@ src_compile() {
 			CC="$(tc-getCC)" \
 			LIBDIR="\$(PREFIX)/$(get_libdir)"
 	}
-
-	# flatcar changes
-	if use python; then
-		S="${S1}" # Regular policycoreutils
-		python_foreach_impl building
-		if use extra ; then
-			S="${S2}" # Extra set
-			python_foreach_impl building
-		fi
-	else
-		BUILD_DIR="${S1}"
-		building
-		if use extra ; then
-			BUILD_DIR="${S2}"
-			building
-		fi
-	fi
+	S="${S1}" # Regular policycoreutils
+	python_foreach_impl building
+	S="${S2}" # Extra set
+	python_foreach_impl building
 }
 
 src_install() {
@@ -152,67 +117,39 @@ src_install() {
 			CC="$(tc-getCC)" \
 			LIBDIR="\$(PREFIX)/$(get_libdir)" \
 			install
-		# flatcar changes
-		if use python; then
-			python_optimize
-		fi
+		python_optimize
 	}
 
 	installation-extras() {
 		einfo "Installing policycoreutils-extra"
 		emake -C "${BUILD_DIR}" \
 			DESTDIR="${D}" \
-			SHLIBDIR="${D}$(get_libdir)/rc" \
 			install
-		# flatcar changes
-		if use python; then
-			python_optimize
-		fi
+		python_optimize
 	}
 
-	# flatcar changes
-	if use python; then
-		S="${S1}" # policycoreutils
-		python_foreach_impl installation-policycoreutils
-		if use extra ; then
-			S="${S2}"
-			installation-extras
-			S="${S1}" # back for later
-		fi
-	else
-		BUILD_DIR="${S1}"
-		installation-policycoreutils
-		if use extra ; then
-			BUILD_DIR="${S2}"
-			installation-extras
-		fi
-	fi
+	S="${S1}" # policycoreutils
+	python_foreach_impl installation-policycoreutils
+	S="${S2}" # extras
+	python_foreach_impl installation-extras
+	S="${S1}" # back for later
 
 	# remove redhat-style init script
 	rm -fR "${D}/etc/rc.d" || die
 
 	# compatibility symlinks
-	# flatcar changes:
-	# use split-usr && dosym ../../sbin/setfiles /usr/sbin/setfiles
+	use split-usr && dosym ../../sbin/setfiles /usr/sbin/setfiles
 
 	bashcomp_alias setsebool getsebool
 
 	# location for policy definitions
-	# flatcar changes:
-	dodir /usr/lib/selinux/policy
-	dosym ../../usr/lib/selinux/policy /var/lib/selinux
-	keepdir /usr/lib/selinux/policy
+	dodir /var/lib/selinux
+	keepdir /var/lib/selinux
 
 	# Set version-specific scripts
-	# flatcar changes
-	if use python; then
-		# Set version-specific scripts
-		for pyscript in audit2allow sepolgen-ifgen sepolicy chcat; do
-			python_replicate_script "${ED}/usr/bin/${pyscript}"
-		done
-		python_replicate_script "${ED}/usr/sbin/semanage"
-		use extra && python_replicate_script "${ED}/usr/sbin/rlpkg"
-	fi
+	for pyscript in rlpkg; do
+	  python_replicate_script "${ED}/usr/sbin/${pyscript}"
+	done
 }
 
 pkg_postinst() {

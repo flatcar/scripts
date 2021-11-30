@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
-PYTHON_COMPAT=( python3_6 )
+PYTHON_COMPAT=( python3_{6..10} )
 PYTHON_REQ_USE="xml"
 
 inherit multilib python-r1 toolchain-funcs bash-completion-r1

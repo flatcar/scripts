@@ -63,7 +63,7 @@ sys-apps/debianutils *
 =sys-apps/lshw-02.17b-r2 **
 
 =sys-apps/man-db-2.7.6.1-r2 ~arm64
-=sys-apps/policycoreutils-3.1-r2 ~arm64
+=sys-apps/policycoreutils-3.1-r3 ~arm64
 =sys-apps/kexec-tools-2.0.17-r1 ~arm64
 
 # needed by arm64-native SDK
