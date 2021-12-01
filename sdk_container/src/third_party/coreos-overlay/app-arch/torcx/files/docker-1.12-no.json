@@ -4,7 +4,7 @@
         "images": [
             {
                 "name": "docker",
-                "reference": "19.03"
+                "reference": "com.coreos.cl"
             }
         ]
     }
