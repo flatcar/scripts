@@ -1,7 +1,7 @@
 # Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 PYTHON_COMPAT=( python3_{6..10} )
 
@@ -15,12 +15,15 @@ LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="amd64"
 IUSE=""
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 S="${WORKDIR}/${PN}"
 
-DEPEND="${PYTHON_DEPS}"
-RDEPEND="${DEPEND}
-	dev-python/crcmod[${PYTHON_USEDEP}]"
+RDEPEND="${PYTHON_DEPS}
+	$(python_gen_cond_dep '
+		dev-python/crcmod[${PYTHON_USEDEP}]
+	')"
+BDEPEND="${RDEPEND}"
 
 src_prepare() {
 	# Drop unused python2 code
