@@ -4,11 +4,6 @@
 
 =app-arch/zstd-1.4.9 ~amd64 ~arm64
 
-# To address security issues like CVE-2021-3770, we need to acccept
-# keywords for vim 8.2.3428.
-=app-editors/vim-8.2.3428 ~amd64 ~arm64
-=app-editors/vim-core-8.2.3428 ~amd64 ~arm64
-
 =coreos-devel/fero-client-0.1.1 **
 
 # Accept unstable host Rust compilers
