@@ -1,30 +1,30 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="6"
+EAPI="7"
 
-PYTHON_COMPAT=( python3_6 )
+PYTHON_COMPAT=( python3_{7..9} )
 
-inherit eutils toolchain-funcs python-any-r1
+inherit toolchain-funcs python-any-r1
 
 # SeaBIOS maintainers sometimes don't release stable tarballs or stable
 # binaries to generate the stable tarball the following is necessary:
 # git clone git://git.seabios.org/seabios.git && cd seabios
 # git archive --output seabios-${PV}.tar.gz --prefix seabios-${PV}/ rel-${PV}
 
+# To generate binary tarball you can run the following from fork tree:
+# cd .../seabios-1.14.0-r2/image/usr/share
+# $ tar cJf seabios-1.14.0-r2-bin.tar.xz *.bin
+
 if [[ ${PV} == *9999* || -n "${EGIT_COMMIT}" ]] ; then
 	EGIT_REPO_URI="git://git.seabios.org/seabios.git"
 	inherit git-r3
 else
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sparc ~x86"
+	KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~m68k ~mips ppc ppc64 ~s390 ~sparc x86"
 
-	# Binary versions taken from fedora:
-	# http://download.fedoraproject.org/pub/fedora/linux/development/rawhide/Everything/x86_64/os/Packages/s/
-	#   seabios-bin-1.10.2-1.fc27.noarch.rpm
-	#   seavgabios-bin-1.10.2-1.fc27.noarch.rpm
 	SRC_URI="
-		!binary? ( https://code.coreboot.org/p/seabios/downloads/get/${P}.tar.gz )
-		binary? ( https://dev.gentoo.org/~tamiko/distfiles/${P}-bin.tar.xz )"
+		!binary? ( https://www.seabios.org/downloads/${P}.tar.gz )
+		binary? ( https://dev.gentoo.org/~sam/distfiles/${P}-r2-bin.tar.xz )"
 fi
 
 DESCRIPTION="Open Source implementation of a 16-bit x86 BIOS"
@@ -99,6 +99,10 @@ src_unpack() {
 src_prepare() {
 	default
 
+	if ! use binary; then
+		eapply "${FILESDIR}"/${PN}-1.14.0-binutils-2.36.patch
+	fi
+
 	# Ensure precompiled iasl files are never used
 	find "${WORKDIR}" -name '*.hex' -delete || die
 }
@@ -117,6 +121,7 @@ src_configure() {
 _emake() {
 	LANG=C \
 	emake V=1 \
+		CPP="$(tc-getPROG CPP cpp)" \
 		CC="$(tc-getCC)" \
 		LD="$(tc-getLD)" \
 		AR="$(tc-getAR)" \
@@ -124,6 +129,7 @@ _emake() {
 		OBJCOPY="$(tc-getOBJCOPY)" \
 		RANLIB="$(tc-getRANLIB)" \
 		OBJDUMP="$(tc-getOBJDUMP)" \
+		STRIP="$(tc-getSTRIP)" \
 		HOST_CC="$(tc-getBUILD_CC)" \
 		VERSION="Gentoo/${EGIT_COMMIT:-${PVR}}" \
 		"$@"
@@ -133,6 +139,12 @@ src_compile() {
 	use binary && return
 
 	local TARGET_CHOST=$(choose_target_chost)
+
+	cp "${FILESDIR}/seabios/config.seabios-128k" .config || die
+	_emake oldnoconfig
+	CHOST="${TARGET_CHOST}" _emake iasl
+	CHOST="${TARGET_CHOST}" _emake out/bios.bin
+	mv out/bios.bin ../bios.bin || die
 
 	cp "${FILESDIR}/seabios/config.seabios-256k" .config || die
 	_emake oldnoconfig
@@ -150,7 +162,7 @@ src_compile() {
 			vmware
 		)
 		for t in "${targets[@]}" ; do
-			emake clean distclean
+			_emake clean distclean
 			cp "${FILESDIR}/seavgabios/config.vga-${t}" .config || die
 			_emake oldnoconfig
 			CHOST="${TARGET_CHOST}" _emake out/vgabios.bin
@@ -161,7 +173,7 @@ src_compile() {
 
 src_install() {
 	insinto /usr/share/seabios
-	use binary && doins ../bios.bin
+	doins ../bios.bin
 	doins ../bios-256k.bin
 
 	if use seavgabios ; then
