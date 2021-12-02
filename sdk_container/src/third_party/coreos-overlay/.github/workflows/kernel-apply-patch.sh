@@ -36,6 +36,10 @@ done
 
 popd >/dev/null || exit
 
+URL="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tag/?h=v${VERSION_NEW}"
+
+generate_update_changelog 'Linux' "${VERSION_NEW}" "${URL}" 'linux'
+
 generate_patches sys-kernel coreos-sources Kernel
 
 apply_patches

@@ -28,6 +28,10 @@ git mv "${EBUILD_FILENAME}" "sys-kernel/coreos-firmware/coreos-firmware-${VERSIO
 
 popd >/dev/null || exit
 
+URL="https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/tag/?h=${VERSION_NEW}"
+
+generate_update_changelog 'Linux Firmware' "${VERSION_NEW}" "${URL}" 'linux-firmware'
+
 generate_patches sys-kernel coreos-firmware "Linux Firmware"
 
 apply_patches

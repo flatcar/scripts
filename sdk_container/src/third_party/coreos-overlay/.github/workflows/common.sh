@@ -32,11 +32,18 @@ function get_ebuild_filename() {
 }
 
 function prepare_git_repo() {
+  local our_remote_url
+
   git config user.name "${BUILDBOT_USERNAME}"
   git config user.email "${BUILDBOT_USEREMAIL}"
   git reset --hard HEAD
   git fetch origin
   git checkout -B "${BASE_BRANCH}" "origin/${BASE_BRANCH}"
+  our_remote_url=$(git remote get-url origin)
+
+  # setup overlay repo inside SDK too (be fork friendly)
+  git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" remote add our_remote "${our_remote_url}"
+  git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" fetch our_remote
 }
 
 # caller needs to set pass a parameter as a branch name to be created.
@@ -48,7 +55,7 @@ function checkout_branches() {
   git -C "${SDK_OUTER_SRCDIR}/scripts" checkout -B "${BASE_BRANCH}" "github/${BASE_BRANCH}"
   git -C "${SDK_OUTER_SRCDIR}/third_party/portage-stable" checkout -B "${BASE_BRANCH}" "github/${BASE_BRANCH}"
 
-  if git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" show-ref "remotes/github/${TARGET_BRANCH}"; then
+  if git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" show-ref "remotes/our_remote/${TARGET_BRANCH}"; then
     echo "Target branch already exists. exit.";
     return 1
   fi
@@ -62,6 +69,19 @@ function regenerate_manifest() {
   pushd "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" >/dev/null || exit
   enter ebuild "${SDK_INNER_SRCDIR}/third_party/coreos-overlay/${CATEGORY_NAME}/${PKGNAME_SIMPLE}/${PKGNAME_SIMPLE}-${VERSION_NEW}.ebuild" manifest --force
   popd || exit
+}
+
+function generate_update_changelog() {
+  local NAME="${1}"
+  local VERSION="${2}"
+  local URL="${3}"
+  local UPDATE_NAME="${4}"
+
+  pushd "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" >/dev/null || exit
+  if [[ -d changelog/updates ]]; then
+      echo "- ${NAME} ([${VERSION}](${URL}))" > "changelog/updates/$(date '+%Y-%m-%d')-${UPDATE_NAME}-update.md"
+  fi
+  popd >/dev/null || exit
 }
 
 function generate_patches() {
@@ -78,6 +98,9 @@ function generate_patches() {
   # We can only create the actual commit in the actual source directory, not under the SDK.
   # So create a format-patch, and apply to the actual source.
   git add ${CATEGORY_NAME}/${PKGNAME_SIMPLE}
+  if [[ -d changelog ]]; then
+      git add changelog
+  fi
   for dir in "$@"; do
       git add "${dir}"
   done

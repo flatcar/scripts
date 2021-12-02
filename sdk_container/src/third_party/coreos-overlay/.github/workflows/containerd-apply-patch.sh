@@ -40,6 +40,10 @@ sed -i "s/containerd-${VERSION_OLD}/containerd-${VERSION_NEW}/g" ${torcxEbuildFi
 
 popd >/dev/null || exit
 
+URL="https://github.com/containerd/containerd/releases/tag/v${VERSION_NEW}"
+
+generate_update_changelog 'containerd' "${VERSION_NEW}" "${URL}" 'containerd'
+
 generate_patches app-emulation containerd Containerd
 
 apply_patches

@@ -32,6 +32,10 @@ git mv "${EBUILD_FILENAME}" "dev-lang/go/go-${VERSION_NEW}.ebuild"
 
 popd >/dev/null || exit
 
+URL="https://go.googlesource.com/go/+/refs/tags/go${VERSION_NEW}"
+
+generate_update_changelog 'Go' "${VERSION_NEW}" "${URL}" 'golang'
+
 generate_patches dev-lang go Go
 
 apply_patches
