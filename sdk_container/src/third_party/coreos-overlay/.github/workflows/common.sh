@@ -32,11 +32,18 @@ function get_ebuild_filename() {
 }
 
 function prepare_git_repo() {
+  local our_remote_url
+
   git config user.name "${BUILDBOT_USERNAME}"
   git config user.email "${BUILDBOT_USEREMAIL}"
   git reset --hard HEAD
   git fetch origin
   git checkout -B "${BASE_BRANCH}" "origin/${BASE_BRANCH}"
+  our_remote_url=$(git remote get-url origin)
+
+  # setup overlay repo inside SDK too (be fork friendly)
+  git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" remote add our_remote "${our_remote_url}"
+  git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" fetch our_remote
 }
 
 # caller needs to set pass a parameter as a branch name to be created.
@@ -48,7 +55,7 @@ function checkout_branches() {
   git -C "${SDK_OUTER_SRCDIR}/scripts" checkout -B "${BASE_BRANCH}" "github/${BASE_BRANCH}"
   git -C "${SDK_OUTER_SRCDIR}/third_party/portage-stable" checkout -B "${BASE_BRANCH}" "github/${BASE_BRANCH}"
 
-  if git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" show-ref "remotes/github/${TARGET_BRANCH}"; then
+  if git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" show-ref "remotes/our_remote/${TARGET_BRANCH}"; then
     echo "Target branch already exists. exit.";
     return 1
   fi
