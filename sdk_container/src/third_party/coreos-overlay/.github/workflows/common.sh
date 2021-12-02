@@ -64,6 +64,19 @@ function regenerate_manifest() {
   popd || exit
 }
 
+function generate_update_changelog() {
+  local NAME="${1}"
+  local VERSION="${2}"
+  local URL="${3}"
+  local UPDATE_NAME="${4}"
+
+  pushd "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" >/dev/null || exit
+  if [[ -d changelog/updates ]]; then
+      echo "- ${NAME} ([${VERSION}](${URL}))" > "changelog/updates/$(date '+%Y-%m-%d')-${UPDATE_NAME}-update.md"
+  fi
+  popd >/dev/null || exit
+}
+
 function generate_patches() {
   CATEGORY_NAME=$1
   PKGNAME_SIMPLE=$2
@@ -78,6 +91,9 @@ function generate_patches() {
   # We can only create the actual commit in the actual source directory, not under the SDK.
   # So create a format-patch, and apply to the actual source.
   git add ${CATEGORY_NAME}/${PKGNAME_SIMPLE}
+  if [[ -d changelog ]]; then
+      git add changelog
+  fi
   for dir in "$@"; do
       git add "${dir}"
   done
