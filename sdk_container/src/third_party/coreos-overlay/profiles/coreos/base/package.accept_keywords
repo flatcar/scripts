@@ -52,8 +52,6 @@ dev-util/checkbashisms
 =sys-devel/gcc-config-1.9.1 ~amd64 ~arm64
 =sys-libs/binutils-libs-2.37_p1 ~amd64 ~arm64
 
-=sys-firmware/sgabios-0.1_pre8-r1 ~amd64 ~arm64
-
 =sys-fs/cryptsetup-2.4.1-r1 ~amd64 ~arm64
 
 # Pick up fixes for bugs introduced in 4.0
