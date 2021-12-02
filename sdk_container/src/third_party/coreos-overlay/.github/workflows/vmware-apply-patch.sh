@@ -31,23 +31,13 @@ git mv "${EBUILD_FILENAME_OVT}" "app-emulation/open-vm-tools/open-vm-tools-${VER
 # We need to also replace the old build number with the new build number in the ebuild.
 sed -i -e "s/^\(MY_P=.*-\)[0-9]*\"$/\1${BUILD_NUMBER}\"/" app-emulation/open-vm-tools/open-vm-tools-${VERSION_NEW}.ebuild
 
-popd >/dev/null || exit
-
-generate_patches app-emulation open-vm-tools open-vm-tools
-
-apply_patches
-
-
-# Update coreos-base/oem-vmware
-
-pushd "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" >/dev/null || exit
-
+# Also update coreos-base/oem-vmware
 EBUILD_FILENAME_OEM=$(get_ebuild_filename "coreos-base" "oem-vmware" "${VERSION_OLD}")
 git mv "${EBUILD_FILENAME_OEM}" "coreos-base/oem-vmware/oem-vmware-${VERSION_NEW}.ebuild"
 
 popd >/dev/null || exit
 
-generate_patches coreos-base oem-vmware oem-vmware
+generate_patches app-emulation open-vm-tools open-vm-tools coreos-base/oem-vmware
 
 apply_patches
 
