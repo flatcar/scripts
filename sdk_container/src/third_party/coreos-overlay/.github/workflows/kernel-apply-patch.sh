@@ -36,7 +36,17 @@ done
 
 popd >/dev/null || exit
 
-URL="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tag/?h=v${VERSION_NEW}"
+if ! curl -sA 'Chrome' -L 'http://www.google.com/search?hl=en&q=site%3Alwn.net+linux+'"${VERSION_NEW}" -o search.html; then
+  echo 'curl failed'
+  touch search.html
+fi
+# can't use grep -m 1 -o … to replace head -n 1, because all the links
+# seem to happen in one line, so grep prints all the links in the line
+URL=$({ grep -o 'https://lwn.net/Articles/[0-9]\+' search.html || true ; } | head -n 1)
+if [[ ! "${URL}" ]]; then
+    URL="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tag/?h=v${VERSION_NEW}"
+fi
+rm search.html
 
 generate_update_changelog 'Linux' "${VERSION_NEW}" "${URL}" 'linux'
 
