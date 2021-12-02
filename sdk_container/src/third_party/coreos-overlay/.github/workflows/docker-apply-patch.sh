@@ -50,7 +50,7 @@ sed -i "s/github.com\/docker\/docker-ce\/blob\/v${VERSION_OLD}/github.com\/docke
 popd >/dev/null || exit
 
 regenerate_manifest app-emulation docker-cli
-generate_patches app-emulation docker Docker
+generate_patches app-emulation docker Docker app-emulation/docker-cli app-torcx/docker app-emulation/docker-runc
 
 apply_patches
 
