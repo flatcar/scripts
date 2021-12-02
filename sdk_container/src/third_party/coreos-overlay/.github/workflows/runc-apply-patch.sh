@@ -49,6 +49,10 @@ sed -i "s/docker-runc-${VERSION_OLD}/docker-runc-${VERSION_NEW}/g" ${torcxEbuild
 
 popd >/dev/null || exit
 
+URL="https://github.com/opencontainers/runc/releases/tag/v${VERSION_NEW}"
+
+generate_update_changelog 'runc' "${VERSION_NEW}" "${URL}" 'runc'
+
 generate_patches app-emulation docker-runc Runc
 
 apply_patches

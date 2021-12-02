@@ -49,6 +49,12 @@ sed -i "s/github.com\/docker\/docker-ce\/blob\/v${VERSION_OLD}/github.com\/docke
 
 popd >/dev/null || exit
 
+# drop all dots
+URLVERSION="${VERSION_NEW//./}"
+URL="https://docs.docker.com/engine/release-notes/#${URLVERSION}"
+
+generate_update_changelog 'Docker' "${VERSION_NEW}" "${URL}" 'docker'
+
 regenerate_manifest app-emulation docker-cli
 generate_patches app-emulation docker Docker app-emulation/docker-cli app-torcx/docker app-emulation/docker-runc
 

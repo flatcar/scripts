@@ -28,6 +28,11 @@ git mv "${EBUILD_FILENAME}" "app-misc/ca-certificates/ca-certificates-${VERSION_
 
 popd >/dev/null || exit
 
+URLVERSION=$(echo "${VERSION_NEW}" | tr '.' '_')
+URL="https://firefox-source-docs.mozilla.org/security/nss/releases/nss_${URLVERSION}.html"
+
+generate_update_changelog 'ca-certificates' "${VERSION_NEW}" "${URL}" 'ca-certificates'
+
 generate_patches app-misc ca-certificates ca-certificates
 
 apply_patches

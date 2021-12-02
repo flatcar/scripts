@@ -37,6 +37,10 @@ git mv "${EBUILD_FILENAME_OEM}" "coreos-base/oem-vmware/oem-vmware-${VERSION_NEW
 
 popd >/dev/null || exit
 
+URL="https://github.com/vmware/open-vm-tools/releases/tag/stable-${VERSION_NEW}"
+
+generate_update_changelog 'open-vm-tools' "${VERSION_NEW}" "${URL}" 'open-vm-tools'
+
 generate_patches app-emulation open-vm-tools open-vm-tools coreos-base/oem-vmware
 
 apply_patches

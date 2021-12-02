@@ -32,6 +32,10 @@ git mv "${EBUILD_FILENAME}" "dev-lang/rust/rust-${VERSION_NEW}.ebuild"
 
 popd >/dev/null || exit
 
+URL="https://github.com/rust-lang/rust/releases/tag/${VERSION_NEW}"
+
+generate_update_changelog 'Rust' "${VERSION_NEW}" "${URL}" 'rust'
+
 generate_patches dev-lang rust dev-lang/rust profiles
 
 apply_patches
