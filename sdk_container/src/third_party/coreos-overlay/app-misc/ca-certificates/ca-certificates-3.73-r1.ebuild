@@ -3,7 +3,8 @@
 
 EAPI=7
 PYTHON_COMPAT=( python3_{6..10} )
-inherit python-any-r1 systemd
+TMPFILES_OPTIONAL=1
+inherit python-any-r1 systemd tmpfiles
 
 RTM_NAME="NSS_${PV//./_}_RTM"
 MY_PN="nss"
@@ -88,7 +89,7 @@ src_install() {
 	systemd_dounit "${FILESDIR}/update-ca-certificates.service"
 	systemd_enable_service sysinit.target clean-ca-certificates.service
 	systemd_enable_service sysinit.target update-ca-certificates.service
-	systemd_dotmpfilesd ${PN}.conf
+	dotmpfiles ${PN}.conf
 
 	# Setup initial links in /etc
 	dodir /etc/ssl/certs
