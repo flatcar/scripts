@@ -21,7 +21,8 @@ else
 fi
 
 # Flatcar: We don't use gen_usr_ldscript so dropping usr-ldscript
-inherit bash-completion-r1 linux-info meson-multilib pam python-any-r1 systemd toolchain-funcs udev user
+TMPFILES_OPTIONAL=1
+inherit bash-completion-r1 linux-info meson-multilib pam python-any-r1 systemd toolchain-funcs udev user tmpfiles
 
 DESCRIPTION="System and service manager for Linux"
 HOMEPAGE="https://www.freedesktop.org/wiki/Software/systemd"
@@ -409,7 +410,7 @@ multilib_src_install_all() {
 	# directories.
 	#
 	# Flatcar: TODO: Consider using that instead of
-	# systemd_dotmpfilesd "${FILESDIR}"/systemd-flatcar.conf below.
+	# dotmpfiles "${FILESDIR}"/systemd-flatcar.conf below.
 
 	if use hwdb; then
 		rm -r "${ED}${rootprefix}"/lib/udev/hwdb.d || die
@@ -436,11 +437,11 @@ multilib_src_install_all() {
 	#
 	# Flatcar: TODO: Upstream probably fixed it in different way -
 	# it's using some keepdir commands.
-	systemd_dotmpfilesd "${FILESDIR}"/systemd-flatcar.conf
+	dotmpfiles "${FILESDIR}"/systemd-flatcar.conf
 	# Flatcar: Add tmpfiles rule for resolv.conf. This path has
 	# changed after v213 so it must be handled here instead of
 	# baselayout now.
-	systemd_dotmpfilesd "${FILESDIR}"/systemd-resolv.conf
+	dotmpfiles "${FILESDIR}"/systemd-resolv.conf
 
 	# Flatcar: Don't default to graphical.target.
 	local unitdir=$(builddir_systemd_get_systemunitdir)
