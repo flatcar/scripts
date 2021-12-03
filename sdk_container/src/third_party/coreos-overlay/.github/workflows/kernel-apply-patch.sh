@@ -36,7 +36,7 @@ done
 
 popd >/dev/null || exit
 
-if ! curl -sA 'Chrome' -L 'http://www.google.com/search?hl=en&q=site%3Alwn.net+linux+'"${VERSION_NEW}" -o search.html; then
+if ! curl -sfA 'Chrome' -L 'http://www.google.com/search?hl=en&q=site%3Alwn.net+linux+'"${VERSION_NEW}" -o search.html; then
   echo 'curl failed'
   touch search.html
 fi
