@@ -13,7 +13,8 @@ else
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
-inherit cros-workon multilib systemd
+TMPFILES_OPTIONAL=1
+inherit cros-workon multilib systemd tmpfiles
 
 DESCRIPTION="Filesystem baselayout for CoreOS"
 HOMEPAGE="http://www.coreos.com/"
@@ -131,7 +132,7 @@ src_install() {
 	fi
 
 	if use symlink-usr; then
-		systemd_dotmpfilesd "${T}/baselayout-usr.conf"
+		dotmpfiles "${T}/baselayout-usr.conf"
 		systemd-tmpfiles --root="${D}" --create
 	fi
 
