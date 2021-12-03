@@ -22,6 +22,7 @@ DEPEND="
 	app-emulation/acbuild
 	app-emulation/actool
 	app-emulation/open-vmdk
+	app-eselect/eselect-python
 	app-misc/jq
 	app-shells/bash-completion
 	coreos-base/hard-host-depends
