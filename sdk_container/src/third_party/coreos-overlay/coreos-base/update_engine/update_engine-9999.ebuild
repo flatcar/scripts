@@ -12,7 +12,8 @@ else
 	KEYWORDS="amd64 arm64"
 fi
 
-inherit autotools flag-o-matic toolchain-funcs cros-workon systemd
+TMPFILES_OPTIONAL=1
+inherit autotools flag-o-matic toolchain-funcs cros-workon systemd tmpfiles
 
 DESCRIPTION="CoreOS OS Update Engine"
 HOMEPAGE="https://github.com/coreos/update_engine"
@@ -105,5 +106,5 @@ src_install() {
 	doins com.coreos.update1.conf
 
 	# Install rule to remove old UpdateEngine.conf from /etc
-	systemd_dotmpfilesd "${FILESDIR}"/update-engine.conf
+	dotmpfiles "${FILESDIR}"/update-engine.conf
 }
