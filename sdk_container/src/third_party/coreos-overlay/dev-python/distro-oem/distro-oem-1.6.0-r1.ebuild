@@ -16,7 +16,7 @@ KEYWORDS="amd64 arm64"
 # Depending on specific version of python-oem allows us to notice when
 # we update the major version of python and then to make sure that we
 # install the package in correctly versioned site-packages directory.
-DEP_PYVER="3.6"
+DEP_PYVER="3.9"
 
 SLOT="0"
 RDEPEND="dev-lang/python-oem:${DEP_PYVER}"
