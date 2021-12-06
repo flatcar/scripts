@@ -9,7 +9,7 @@ SRC_URI=""
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="amd64"
+KEYWORDS="amd64 arm64"
 IUSE=""
 
 # no source directory
@@ -20,7 +20,7 @@ S="${WORKDIR}"
 # would result in the conflict of `base.ign`
 RDEPEND="
   ~app-emulation/wa-linux-agent-${PV}
-  x11-drivers/nvidia-drivers
+	amd64? ( x11-drivers/nvidia-drivers )
 "
 
 src_prepare() {
