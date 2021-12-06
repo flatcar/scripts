@@ -115,10 +115,6 @@ sys-apps/debianutils *
 =sys-cluster/ipvsadm-1.27-r1 **
 
 =sys-firmware/edk2-aarch64-18.02 **
-=sys-firmware/edk2-ovmf-201905 ~arm64
-=sys-firmware/ipxe-1.0.0_p20190728 ~arm64
-=sys-firmware/seabios-1.12.0 ~arm64
-~sys-firmware/sgabios-0.1_pre8 ~arm64
 =sys-fs/btrfs-progs-4.19.1 ~arm64
 =sys-fs/lsscsi-0.28 ~arm64
 =sys-fs/quota-4.04-r1 ~arm64
