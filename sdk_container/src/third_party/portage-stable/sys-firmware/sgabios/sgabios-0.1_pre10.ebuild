@@ -1,42 +1,31 @@
 # Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 inherit toolchain-funcs
 
 DESCRIPTION="serial graphics adapter bios option rom for x86"
 HOMEPAGE="https://code.google.com/p/sgabios/"
-SRC_URI="mirror://gentoo/${P}.tar.xz
-	!binary? ( https://dev.gentoo.org/~cardoe/distfiles/${P}.tar.xz )
-	binary? ( https://dev.gentoo.org/~cardoe/distfiles/${P}-bins.tar.xz )"
+# downloaded from
+# https://git.qemu.org/?p=sgabios.git;a=tree;h=a85446adb0e07ccd5211619a6f215bcfc3c5ab29;hb=23d474943dcd55d0550a3d20b3d30e9040a4f15b
+SRC_URI="mirror://gentoo/${P}.tar.gz
+	!binary? ( https://dev.gentoo.org/~tamiko/distfiles/${P}.tar.gz )
+	binary? ( https://dev.gentoo.org/~tamiko/distfiles/${P}-bin.tar.xz )"
+S="${WORKDIR}/sgabios-a85446a"
 
 LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ppc64 ~s390 ~sparc x86"
 IUSE="+binary"
-
 REQUIRED_USE="!amd64? ( !x86? ( binary ) )"
-
-PATCHES=(
-	"${FILESDIR}"/${P}-makefile.patch
-	"${FILESDIR}"/${P}-build-cc.patch #552280
-)
-
-src_prepare() {
-	if  use binary; then
-		eapply_user
-		return
-	fi
-	default
-}
 
 src_compile() {
 	use binary && return
 
 	tc-ld-disable-gold
 	tc-export_build_env BUILD_CC
-	emake \
+	emake -j1 \
 		BUILD_CC="${BUILD_CC}" \
 		BUILD_CFLAGS="${BUILD_CFLAGS}" \
 		BUILD_LDFLAGS="${BUILD_LDFLAGS}" \
@@ -49,10 +38,5 @@ src_compile() {
 
 src_install() {
 	insinto /usr/share/sgabios
-
-	if use binary ; then
-		doins bins/sgabios.bin
-	else
-		doins sgabios.bin
-	fi
+	doins sgabios.bin
 }
