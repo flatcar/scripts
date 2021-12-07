@@ -9,8 +9,8 @@
 =coreos-devel/fero-client-0.1.1 **
 
 # Accept unstable host Rust compilers
-=dev-lang/rust-1.56.1 ~amd64 ~arm64
-=virtual/rust-1.56.1 ~amd64 ~arm64
+=dev-lang/rust-1.57.0 ~amd64 ~arm64
+=virtual/rust-1.57.0 ~amd64 ~arm64
 
 # dev-libs/openssl-3.0.0 is still in testing phase at this point
 =dev-libs/openssl-3.0.0 ~amd64 ~arm64
