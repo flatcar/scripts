@@ -51,6 +51,12 @@ src_prepare() {
 	# fix tests
 	mkdir -p "${HOME}"/.ssh || die
 	: > "${HOME}"/.ssh/known_hosts || die
+	# Flatcar: Do not import boto only for the version number in
+	# setup.py - it ends up trying to import six, which we have
+	# unbundled and the six module effectively becomes a BDEPEND
+	# instead of RDEPEND. Drop the import and define the
+	# __variable__ instead.
+	sed -i -e 's/^from boto import __version__$/__version__ = '"'${PV}'"'/' setup.py
 
 	distutils-r1_src_prepare
 }
