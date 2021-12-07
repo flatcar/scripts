@@ -1,0 +1,1 @@
+- mantle ([0.17.0](https://github.com/flatcar-linux/mantle/releases/tag/v0.17.0))

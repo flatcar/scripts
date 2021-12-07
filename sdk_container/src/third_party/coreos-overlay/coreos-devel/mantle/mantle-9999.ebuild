@@ -5,20 +5,20 @@ EAPI=7
 CROS_WORKON_PROJECT="flatcar-linux/mantle"
 CROS_WORKON_LOCALNAME="mantle"
 CROS_WORKON_REPO="https://github.com"
-COREOS_GO_PACKAGE="github.com/coreos/mantle"
+COREOS_GO_PACKAGE="github.com/flatcar-linux/mantle"
 COREOS_GO_MOD="vendor"
 
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	CROS_WORKON_COMMIT="8957a93e17c7c6491ff5e95e226832032ceea576" # v0.16.0
+	CROS_WORKON_COMMIT="b64b6db71c2651b80ec2eb30eb07285a0bc344fd" # v0.17.0
 	KEYWORDS="amd64 arm64"
 fi
 
 inherit coreos-go cros-workon
 
-DESCRIPTION="Mantle: Gluing CoreOS together"
-HOMEPAGE="https://github.com/coreos/mantle"
+DESCRIPTION="Mantle: Gluing Flatcar together"
+HOMEPAGE="https://github.com/flatcar-linux/mantle"
 LICENSE="Apache-2.0"
 SLOT="0"
 # objcopy/split have trouble with our cross-compiled kolet
