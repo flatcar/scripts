@@ -1,0 +1,143 @@
+#!/bin/bash
+#
+# Copyright (c) 2021 The Flatcar Maintainers.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# >>> This file is supposed to be SOURCED from the repository ROOT. <<<
+#
+# garbage_collect() should be called after sourcing.
+#
+#  OPTIONAL INPUT
+#  - Number of (recent) versions to keep. Defaults to 50.
+#  - PURGE_VERSIONS (Env variable). Space-separated list of versions to purge
+#            instead of all but the 50 most recent ones.
+#  - DRY_RUN (Env variable). Set to "y" to just list what would be done but not
+#            actually purge anything.
+
+# Flatcar CI automation garbage collector.
+#  This script removes development (non-official) build artifacts:
+#   - SDK tarballs, build step containers, and vendor images on buildcache
+#   - tags from the scripts repository
+#
+#  Garbage collection is based on development (non-official) version tags
+#   in the scripts repo. The newest 50 builds will be retained,
+#   all older builds will be purged (50 is the default, see OPTIONAL INPUT above).
+
+set -eu
+
+function garbage_collect() {
+    local keep="${1:-50}" 
+    local dry_run="${DRY_RUN:-}"
+    local purge_versions="${PURGE_VERSIONS:-}"
+
+    local versions_detected="$(git tag -l --sort=-committerdate \
+                | grep -E '(main|alpha|beta|stable|lts|sdk)-[0-9]+\.[0-9]+\.[0-9]+\-.*' \
+                | grep -vE '(-pro)$')"
+
+    echo "######## Full list of version(s) found ########"
+    echo "${versions_detected}" | awk '{printf "%5d %s\n", NR, $0}'
+
+    if [ -z "${purge_versions}" ] ; then
+        keep="$((keep + 1))" # for tail -n+...
+        purge_versions="$(echo "${versions_detected}" \
+                            | tail -n+"${keep}")"
+    else
+        # make sure we only accept dev versions
+        purge_versions="$(echo "${purge_versions}" | sed 's/ /\n/g' \
+                            | grep -E '(main|alpha|beta|stable|lts|sdk)-[0-9]+\.[0-9]+\.[0-9]+\-.*' \
+                            | grep -vE '(-pro)$')"
+    fi
+
+    source ci-automation/ci_automation_common.sh
+
+    local sshcmd="$(gen_sshcmd)"
+
+    echo 
+    echo "######## The following version(s) will be purged ########"
+    if [ "$dry_run" = "y" ] ; then
+        echo
+        echo "(NOTE this is just a dry run since DRY_RUN=y)"
+        echo
+    fi
+    echo "${purge_versions}" | awk -v keep="${keep}" '{if ($0 == "") next; printf "%5d %s\n", NR + keep - 1, $0}'
+    echo 
+    echo 
+
+    local version
+    for version in ${purge_versions}; do
+        echo "--------------------------------------------"
+        echo 
+        echo "#### Processing version '${version}' ####"
+        echo
+
+        git checkout "${version}" -- sdk_container/.repo/manifests/version.txt
+        source sdk_container/.repo/manifests/version.txt
+
+        local os_vernum="${FLATCAR_VERSION}"
+        local os_docker_vernum="$(vernum_to_docker_image_version "${FLATCAR_VERSION}")"
+        local sdk_vernum="${FLATCAR_SDK_VERSION}"
+        local sdk_docker_vernum="$(vernum_to_docker_image_version "${FLATCAR_SDK_VERSION}")"
+
+        # Remove container image tarballs and SDK tarball (if applicable)
+        #
+        local rmpat=""
+        if [[ "${version}" = 'sdk-'* ]] ; then
+            echo "## ${version} is an SDK version. ##"
+            rmpat="${BUILDCACHE_PATH_PREFIX}/sdk/*/${sdk_vernum}/"
+            rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/containers/${sdk_docker_vernum}/flatcar-sdk-*"
+        else
+            echo "## ${version} is an OS image version. ##"
+            rmpat="${BUILDCACHE_PATH_PREFIX}/containers/${os_docker_vernum}/flatcar-packages-*"
+            rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/containers/${os_docker_vernum}/flatcar-images-*"
+            rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/images/*/${os_vernum}/"
+        fi
+
+        echo "## The following files will be removed ##"
+        $sshcmd "${BUILDCACHE_USER}@${BUILDCACHE_SERVER}" \
+            "ls -la ${rmpat} || true"
+
+        if [ "$dry_run" != "y" ] ; then
+            set -x
+            $sshcmd "${BUILDCACHE_USER}@${BUILDCACHE_SERVER}" \
+                "rm -rf ${rmpat}"
+            set +x
+        else
+            echo "## (DRY_RUN=y so not doing anything) ##"
+        fi
+
+        # Remove container image directory if empty
+        #
+        if [[ "${version}" = 'sdk-'* ]] ; then
+            rmpat="${BUILDCACHE_PATH_PREFIX}/containers/${sdk_docker_vernum}/"
+        else
+            rmpat="${BUILDCACHE_PATH_PREFIX}/containers/${os_docker_vernum}/"
+        fi
+
+        echo "## Checking if container directory is empty and can be removed (it's OK if this fails) ##"
+        echo "## The following directory will be removed if below output is empty: '${rmpat}' ##"
+        $sshcmd "${BUILDCACHE_USER}@${BUILDCACHE_SERVER}" \
+            "ls -la ${rmpat} || true"
+
+        if [ "$dry_run" != "y" ] ; then
+            set -x
+            $sshcmd "${BUILDCACHE_USER}@${BUILDCACHE_SERVER}" \
+                "rmdir ${rmpat} || true"
+            set +x
+        else
+            echo "## (DRY_RUN=y so not doing anything) ##"
+        fi
+
+        # Remove git tag (local and remote)
+        #
+        echo "## The following TAG will be deleted: '${version}' ##"
+        if [ "$dry_run" != "y" ] ; then
+            set -x
+            git tag -d "${version}"
+            git push --delete origin "${version}"
+            set +x
+        else
+            echo "## (DRY_RUN=y so not doing anything) ##"
+        fi
+    done
+}
