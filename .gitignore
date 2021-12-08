@@ -8,3 +8,15 @@
 *.pyc
 *~
 /cbuildbot_package.list
+
+# Flatcar SDK tarballs
+*.tar.bz2
+
+# SDK container env passing helpers
+sdk_container/.env
+sdk_container/.sdkenv
+
+# build cache / artefacts directories
+__build__/
+sdk_container/.cache
+sdk_container/.config
