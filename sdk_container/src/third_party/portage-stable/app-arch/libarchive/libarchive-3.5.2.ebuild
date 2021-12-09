@@ -134,8 +134,3 @@ multilib_src_install() {
 	# Libs.private: should be used from libarchive.pc instead
 	find "${ED}" -type f -name "*.la" -delete || die
 }
-
-multilib_src_install_all() {
-	cd "${S}" || die
-	einstalldocs
-}
