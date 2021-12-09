@@ -1,7 +1,7 @@
 #!/bin/bash
 set -ex
 case "${CHANNEL}" in
-    stable|beta)
+    stable)
         boards=( amd64-usr )
         ;;
     *)
