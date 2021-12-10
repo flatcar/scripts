@@ -1,0 +1,1 @@
+- jenkins: make release.sh publish arm64 AMIs for stable [PR#189](https://github.com/flatcar-linux/scripts/pull/189)
