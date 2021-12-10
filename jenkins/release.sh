@@ -1,9 +1,6 @@
 #!/bin/bash
 set -ex
 case "${CHANNEL}" in
-    stable)
-        boards=( amd64-usr )
-        ;;
     *)
       	boards=( amd64-usr arm64-usr )
         ;;
