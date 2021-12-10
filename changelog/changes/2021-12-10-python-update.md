@@ -1,0 +1,2 @@
+- Rework the way we set up the default python intepreter in SDK - it is now without specifying a version. This should work fine as long as we keep having one version of python in SDK.
+- Add a way to remove packages that are hard-blockers for update. A hard-blocker means that the package needs to be removed (for example with `emerge -C`) before an update can happen.
