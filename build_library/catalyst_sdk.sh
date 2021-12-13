@@ -7,8 +7,8 @@ source /tmp/toolchain_util.sh
 echo "Double checking everything is fresh and happy."
 run_merge -uDN --with-bdeps=y world
 
-echo "Setting the default Python interpreter to Python 2."
-eselect python set python2.7
+echo "Setting the default Python interpreter"
+eselect python update
 
 echo "Building cross toolchain for the SDK."
 configure_crossdev_overlay / /tmp/crossdev
