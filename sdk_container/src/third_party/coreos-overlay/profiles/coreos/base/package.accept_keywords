@@ -9,14 +9,11 @@
 =coreos-devel/fero-client-0.1.1 **
 
 # Accept unstable host Rust compilers
-=dev-lang/rust-1.57.0 ~amd64 ~arm64
+=dev-lang/rust-1.57.0-r1 ~amd64 ~arm64
 =virtual/rust-1.57.0 ~amd64 ~arm64
 
 # dev-libs/openssl-3.0.0 is still in testing phase at this point
 =dev-libs/openssl-3.0.0 ~amd64 ~arm64
-
-# Needed by coreos-oem-gce
-dev-python/boto ~amd64 ~arm64
 
 # no version marked stable upstream
 dev-util/checkbashisms
@@ -25,9 +22,8 @@ dev-util/checkbashisms
 
 =dev-libs/libgcrypt-1.9.4 ~amd64 ~arm64
 
-=dev-libs/libxml2-2.9.12-r2 ~amd64 ~arm64
-
-=dev-util/dwarves-1.19 ~amd64
+# needed for arm64 sdk
+=dev-util/pahole-1.20 ~arm64
 
 =net-libs/gnutls-3.7.1 ~amd64 ~arm64
 

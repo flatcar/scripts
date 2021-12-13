@@ -32,7 +32,7 @@ RDEPEND="${RDEPEND}
 	app-arch/sharutils
 	app-arch/unzip
 	app-emulation/qemu
-	=dev-lang/python-2*
+	=dev-lang/python-3*
 	dev-python/setuptools
 	dev-lang/nasm
 	dev-lang/swig
@@ -48,7 +48,6 @@ RDEPEND="${RDEPEND}
 	dev-libs/libyaml
 	dev-libs/nspr
 	dev-libs/protobuf
-	dev-python/ctypesgen
 	dev-python/mako
 	sys-devel/bc
 	dev-util/gdbus-codegen

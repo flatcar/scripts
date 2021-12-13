@@ -4,9 +4,6 @@ app-crypt/gnupg smartcard ssl
 # We don't need integration with cvs, perl, or subversion in git, so we can
 dev-vcs/git cvs perl subversion
 
-# not needed, requires cython
-dev-lang/yasm python
-
 # not needed, requires dev-lang/python-exec
 sys-apps/util-linux python
 

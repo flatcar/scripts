@@ -22,6 +22,7 @@ DEPEND="
 	app-emulation/acbuild
 	app-emulation/actool
 	app-emulation/open-vmdk
+	app-eselect/eselect-python
 	app-misc/jq
 	app-shells/bash-completion
 	coreos-base/hard-host-depends
@@ -34,7 +35,7 @@ DEPEND="
 	dev-util/boost-build
 	dev-util/catalyst
 	dev-util/checkbashisms
-	dev-util/dwarves
+	dev-util/pahole
 	dev-util/patchelf
 	dev-vcs/repo
 	net-dns/bind-tools
