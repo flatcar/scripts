@@ -1,9 +1,9 @@
 # Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=6
 
-PYTHON_COMPAT=( python3_{6..10} )
+PYTHON_COMPAT=( python3_{6,7,8} )
 PYTHON_REQ_USE='threads(+),xml(+)'
 inherit python-single-r1 waf-utils multilib-minimal linux-info systemd pam
 
@@ -23,11 +23,9 @@ LICENSE="GPL-3"
 
 SLOT="0"
 
-IUSE="acl addc addns ads ceph client cluster cups debug dmapi fam glusterfs
-gpg iprint json ldap ntvfs pam profiling-data python quota +regedit selinux
-snapper spotlight syslog system-heimdal +system-mitkrb5 systemd test winbind
-zeroconf"
-IUSE+=" +minimal"  # Flatcar: Only install libraries, not executables.
+IUSE="acl addc addns ads ceph client cluster cups debug dmapi fam gpg iprint
+json ldap pam profiling-data python quota selinux snapper syslog
+system-heimdal +system-mitkrb5 systemd test winbind zeroconf"
 
 MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/samba-4.0/policy.h
@@ -42,24 +40,35 @@ MULTILIB_WRAPPED_HEADERS=(
 
 CDEPEND="
 	>=app-arch/libarchive-3.1.2[${MULTILIB_USEDEP}]
-	spotlight? ( dev-libs/icu:=[${MULTILIB_USEDEP}] )
+	dev-lang/perl:=
+	dev-libs/icu:=[${MULTILIB_USEDEP}]
 	dev-libs/libbsd[${MULTILIB_USEDEP}]
-	!minimal? ( dev-libs/libtasn1[${MULTILIB_USEDEP}] )
+	dev-libs/libtasn1[${MULTILIB_USEDEP}]
 	dev-libs/popt[${MULTILIB_USEDEP}]
+	dev-perl/Parse-Yapp
 	>=net-libs/gnutls-3.4.7[${MULTILIB_USEDEP}]
+	net-libs/libnsl:=[${MULTILIB_USEDEP}]
 	sys-libs/e2fsprogs-libs[${MULTILIB_USEDEP}]
+	>=sys-libs/ldb-2.1.4[ldap(+)?,python?,${PYTHON_SINGLE_USEDEP},${MULTILIB_USEDEP}]
+	<sys-libs/ldb-2.2.0[ldap(+)?,python?,${PYTHON_SINGLE_USEDEP},${MULTILIB_USEDEP}]
 	sys-libs/libcap[${MULTILIB_USEDEP}]
 	sys-libs/liburing:=[${MULTILIB_USEDEP}]
 	sys-libs/ncurses:0=
 	sys-libs/readline:0=
+	>=sys-libs/talloc-2.3.1[python?,${PYTHON_SINGLE_USEDEP},${MULTILIB_USEDEP}]
+	>=sys-libs/tdb-1.4.3[python?,${PYTHON_SINGLE_USEDEP},${MULTILIB_USEDEP}]
+	>=sys-libs/tevent-0.10.2[python?,${PYTHON_SINGLE_USEDEP},${MULTILIB_USEDEP}]
 	sys-libs/zlib[${MULTILIB_USEDEP}]
 	virtual/libiconv
 	pam? ( sys-libs/pam )
 	acl? ( virtual/acl )
-	addns? (
-		net-dns/bind-tools[gssapi]
-		dev-python/dnspython
-	)
+	$(python_gen_cond_dep "
+		dev-python/subunit[\${PYTHON_MULTI_USEDEP},${MULTILIB_USEDEP}]
+		addns? (
+			net-dns/bind-tools[gssapi]
+			dev-python/dnspython:=[\${PYTHON_MULTI_USEDEP}]
+		)
+	")
 	ceph? ( sys-cluster/ceph )
 	cluster? (
 		net-libs/rpcsvc-proto
@@ -80,17 +89,14 @@ CDEPEND="
 "
 DEPEND="${CDEPEND}
 	${PYTHON_DEPS}
-	dev-lang/perl:=
+	app-text/docbook-xsl-stylesheets
+	dev-libs/libxslt
 	>=dev-util/cmocka-1.1.3[${MULTILIB_USEDEP}]
 	net-libs/libtirpc[${MULTILIB_USEDEP}]
 	virtual/pkgconfig
 	|| (
 		net-libs/rpcsvc-proto
 		<sys-libs/glibc-2.26[rpc(+)]
-	)
-	spotlight? (
-		app-misc/tracker
-		dev-libs/glib
 	)
 	test? (
 		!system-mitkrb5? (
@@ -106,19 +112,12 @@ RDEPEND="${CDEPEND}
 	selinux? ( sec-policy/selinux-samba )
 "
 
-BDEPEND="
-	app-text/docbook-xsl-stylesheets
-	dev-libs/libxslt
-"
-
 REQUIRED_USE="
 	addc? ( python json winbind )
 	addns? ( python )
 	ads? ( acl ldap winbind )
 	cluster? ( ads )
 	gpg? ( addc )
-	ntvfs? ( addc )
-	spotlight? ( json )
 	test? ( python )
 	?? ( system-heimdal system-mitkrb5 )
 	${PYTHON_REQUIRED_USE}
@@ -169,6 +168,9 @@ src_prepare() {
 		sed -i -e '/"iso8601":/d' "${S}"/third_party/wscript || die
 	fi
 
+	## ugly hackaround for bug #592502
+	#cp /usr/include/tevent_internal.h "${S}"/lib/tevent/ || die
+
 	sed -e 's:<gpgme\.h>:<gpgme/gpgme.h>:' \
 		-i source4/dsdb/samdb/ldb_modules/password_hash.c \
 		|| die
@@ -185,10 +187,6 @@ multilib_src_configure() {
 		bundled_libs="heimbase,heimntlm,hdb,kdc,krb5,wind,gssapi,hcrypto,hx509,roken,asn1,com_err,NONE"
 	fi
 
-	# Flatcar: we need only the mandatory bundled library, ldb by default.
-	# Without that, configure will fail because of a missing bundled library.
-	bundled_libs="ldb"
-
 	local myconf=(
 		--enable-fhs
 		--sysconfdir="${EPREFIX}/etc"
@@ -202,7 +200,6 @@ multilib_src_configure() {
 		--nopyc
 		--nopyo
 		--without-winexe
-		--disable-python
 		$(multilib_native_use_with acl acl-support)
 		$(multilib_native_usex addc '' '--without-ad-dc')
 		$(multilib_native_use_with addns dnsupdate)
@@ -212,17 +209,13 @@ multilib_src_configure() {
 		$(multilib_native_use_enable cups)
 		$(multilib_native_use_with dmapi)
 		$(multilib_native_use_with fam)
-		$(multilib_native_use_enable glusterfs)
 		$(multilib_native_use_with gpg gpgme)
 		$(multilib_native_use_with json)
 		$(multilib_native_use_enable iprint)
-		$(multilib_native_use_with ntvfs ntvfs-fileserver)
 		$(multilib_native_use_with pam)
 		$(multilib_native_usex pam "--with-pammodulesdir=${EPREFIX}/$(get_libdir)/security" '')
 		$(multilib_native_use_with quota quotas)
-		$(multilib_native_use_with regedit regedit)
 		$(multilib_native_use_enable snapper)
-		$(multilib_native_use_enable spotlight)
 		$(multilib_native_use_with syslog)
 		$(multilib_native_use_with systemd)
 		--systemd-install-services
@@ -284,7 +277,7 @@ multilib_src_install() {
 		newinitd "${CONFDIR}/samba4.initd-r1" samba
 		newconfd "${CONFDIR}/samba4.confd" samba
 
-		[[ ! use_minimal ]] && systemd_dotmpfilesd "${FILESDIR}"/samba.conf
+		systemd_dotmpfilesd "${FILESDIR}"/samba.conf
 		use addc || rm "${D}/$(systemd_get_systemunitdir)/samba.service" || die
 
 		# Preserve functionality for old gentoo-specific unit names
@@ -305,20 +298,6 @@ multilib_src_install() {
 	keepdir /var/lib/samba/{bind-dns,private}
 	keepdir /var/lock/samba
 	keepdir /var/log/samba
-
-
-	rm -f "${ED%/}"/etc/samba/*
-	rm -f "${ED%/}"/usr/lib*/samba/ldb/*
-	if use minimal ; then
-		mv "${ED%/}"/usr/bin/net "${T}"/
-		rm -f "${ED%/}"/usr/bin/* "${ED%/}"/usr/sbin/*
-		mv "${T}"/net "${ED%/}"/usr/bin/net
-		rm -rf ${ED%/}/lib*/security
-		rm -rf ${ED%/}/usr/lib/systemd
-		rm -rf ${ED%/}/usr/lib*/perl*
-		rm -rf ${ED%/}/usr/lib*/python*
-		rm -rf ${ED%/}/var
-	fi
 }
 
 multilib_src_test() {
