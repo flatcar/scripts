@@ -3,8 +3,7 @@
 
 EAPI=7
 
-# Flatcar: Support python 3.6.
-PYTHON_COMPAT=( python3_{6..10} )
+PYTHON_COMPAT=( python3_{8..10} )
 
 inherit autotools multilib-minimal toolchain-funcs python-r1 linux-info systemd usr-ldscript
 
@@ -14,8 +13,7 @@ SRC_URI="https://people.redhat.com/sgrubb/audit/${P}.tar.gz"
 
 LICENSE="GPL-2+ LGPL-2.1+"
 SLOT="0"
-# Flatcar: Build amd64 and arm64 by default.
-KEYWORDS="amd64 ~arm arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+KEYWORDS="~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="gssapi ldap python static-libs test"
 
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
@@ -40,20 +38,6 @@ src_prepare() {
 
 	# Disable installing sample rules so they can be installed as docs.
 	echo -e '%:\n\t:' | tee rules/Makefile.{am,in} >/dev/null
-
-	# Flatcar: Do not build daemon stuff.
-	sed -e '/^SUBDIRS =/s/audisp//' \
-		-i Makefile.am || die
-	# Flatcar: Some legacy stuff is being installed when systemd
-	# is enabled. Drop all the lines that try doing it.
-	sed -e '/${DESTDIR}${initdir}/d' \
-		-e '/${DESTDIR}${legacydir}/d' \
-		-i init.d/Makefile.am || die
-	# Flatcar: Do not build daemon stuff.
-	sed -e '/^sbin_PROGRAMS =/s/auditd//' \
-		-e '/^sbin_PROGRAMS =/s/aureport//' \
-		-e '/^sbin_PROGRAMS =/s/ausearch//' \
-		-i src/Makefile.am || die
 
 	default
 	eautoreconf
@@ -132,46 +116,30 @@ multilib_src_install_all() {
 	dodoc AUTHORS ChangeLog README* THANKS
 	docinto contrib
 	dodoc contrib/avc_snap
-	# Flatcar: Do not install any plugin stuff, these are parts of
-	# auditd that we don't build and install anyway.
-	# docinto contrib/plugin
-	# dodoc contrib/plugin/*
+	docinto contrib/plugin
+	dodoc contrib/plugin/*
 	docinto rules
 	dodoc rules/*rules
 
-	# Flatcar: Do not install stuff auditd stuff.
-	# newinitd "${FILESDIR}"/auditd-init.d-2.4.3 auditd
-	# newconfd "${FILESDIR}"/auditd-conf.d-2.1.3 auditd
+	newinitd "${FILESDIR}"/auditd-init.d-2.4.3 auditd
+	newconfd "${FILESDIR}"/auditd-conf.d-2.1.3 auditd
 
-	# Flatcar: We are not installing audisp too.
-	# [ -f "${ED}"/sbin/audisp-remote ] && \
-	# dodir /usr/sbin && \
-	# mv "${ED}"/{sbin,usr/sbin}/audisp-remote || die
+	[ -f "${ED}"/sbin/audisp-remote ] && \
+	dodir /usr/sbin && \
+	mv "${ED}"/{sbin,usr/sbin}/audisp-remote || die
 
-	# Flatcar: Do not install gentoo rules.
 	# Gentoo rules
-	# insinto /etc/audit
-	# newins "${FILESDIR}"/audit.rules-2.1.3 audit.rules
-	# Flatcar: We are installing our own rules.
-	insinto /usr/share/audit/rules.d
-	doins "${FILESDIR}"/rules.d/*.rules
-	# Flatcar: Do not install deamon stuff.
-	# doins "${FILESDIR}"/audit.rules.stop*
+	insinto /etc/audit
+	newins "${FILESDIR}"/audit.rules-2.1.3 audit.rules
+	doins "${FILESDIR}"/audit.rules.stop*
 
 	# audit logs go here
-	# Flatcar: This is where auditd puts its logs. We don't have
-	# the daemon, so get rid of the unnecessary directory.
-	# keepdir /var/log/audit
+	keepdir /var/log/audit
 
 	find "${ED}" -type f -name '*.la' -delete || die
 
 	# Security
 	lockdown_perms "${ED}"
-
-	# Flatcar: Our systemd stuff.
-	systemd_newtmpfilesd "${FILESDIR}"/audit-rules.tmpfiles audit-rules.conf
-	systemd_dounit "${FILESDIR}"/audit-rules.service
-	systemd_enable_service multi-user.target audit-rules.service
 }
 
 pkg_postinst() {
@@ -181,11 +149,8 @@ pkg_postinst() {
 lockdown_perms() {
 	# Upstream wants these to have restrictive perms.
 	# Should not || die as not all paths may exist.
-	# Flatcar: No lockdown of permissions - it's probably only
-	# related to auditd.
-	# local basedir="${1}"
-	# chmod 0750 "${basedir}"/sbin/au{ditctl,ditd,report,search,trace} 2>/dev/null
-	# chmod 0750 "${basedir}"/var/log/audit 2>/dev/null
-	# chmod 0640 "${basedir}"/etc/audit/{auditd.conf,audit*.rules*} 2>/dev/null
-	:
+	local basedir="${1}"
+	chmod 0750 "${basedir}"/sbin/au{ditctl,ditd,report,search,trace} 2>/dev/null
+	chmod 0750 "${basedir}"/var/log/audit 2>/dev/null
+	chmod 0640 "${basedir}"/etc/audit/{auditd.conf,audit*.rules*} 2>/dev/null
 }
