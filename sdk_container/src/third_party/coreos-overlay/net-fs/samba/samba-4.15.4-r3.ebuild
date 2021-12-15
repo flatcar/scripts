@@ -5,6 +5,7 @@ EAPI=7
 
 PYTHON_COMPAT=( python3_{8..10} )
 PYTHON_REQ_USE="threads(+),xml(+)"
+TMPFILES_OPTIONAL=1
 inherit python-single-r1 waf-utils multilib-minimal linux-info systemd pam tmpfiles
 
 DESCRIPTION="Samba Suite Version 4"
@@ -26,6 +27,7 @@ IUSE="acl addc ads ceph client cluster cpu_flags_x86_aes cups debug fam
 glusterfs gpg iprint json ldap pam profiling-data python quota +regedit selinux
 snapper spotlight syslog system-heimdal +system-mitkrb5 systemd test winbind
 zeroconf"
+IUSE+=" +minimal"  # Flatcar: Only install libraries, not executables.
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}
 	addc? ( python json winbind )
@@ -57,12 +59,10 @@ MULTILIB_WRAPPED_HEADERS=(
 
 COMMON_DEPEND="
 	>=app-arch/libarchive-3.1.2[${MULTILIB_USEDEP}]
-	dev-lang/perl:=
-	dev-libs/icu:=[${MULTILIB_USEDEP}]
+	spotlight? ( dev-libs/icu:=[${MULTILIB_USEDEP}] )
 	dev-libs/libbsd[${MULTILIB_USEDEP}]
-	dev-libs/libtasn1[${MULTILIB_USEDEP}]
+	!minimal? ( dev-libs/libtasn1[${MULTILIB_USEDEP}] )
 	dev-libs/popt[${MULTILIB_USEDEP}]
-	dev-perl/Parse-Yapp
 	>=net-libs/gnutls-3.4.7[${MULTILIB_USEDEP}]
 	>=sys-fs/e2fsprogs-1.46.4-r51[${MULTILIB_USEDEP}]
 	>=sys-libs/ldb-2.4.1[ldap(+)?,${MULTILIB_USEDEP}]
@@ -133,6 +133,8 @@ RDEPEND="${COMMON_DEPEND}
 	selinux? ( sec-policy/selinux-samba )
 "
 BDEPEND="${PYTHON_DEPS}
+	dev-lang/perl:=
+	dev-perl/Parse-Yapp
 	app-text/docbook-xsl-stylesheets
 	dev-libs/libxslt
 	virtual/pkgconfig
@@ -174,9 +176,6 @@ src_prepare() {
 		sed -i -e '/"iso8601":/d' "${S}"/third_party/wscript || die
 	fi
 
-	## ugly hackaround for bug #592502
-	#cp /usr/include/tevent_internal.h "${S}"/lib/tevent/ || die
-
 	sed -e 's:<gpgme\.h>:<gpgme/gpgme.h>:' \
 		-i source4/dsdb/samdb/ldb_modules/password_hash.c \
 		|| die
@@ -192,6 +191,10 @@ multilib_src_configure() {
 	if ! use system-heimdal && ! use system-mitkrb5 ; then
 		bundled_libs="heimbase,heimntlm,hdb,kdc,krb5,wind,gssapi,hcrypto,hx509,roken,asn1,com_err,NONE"
 	fi
+
+	# Flatcar: we need only the mandatory bundled library, ldb by default.
+	# Without that, configure will fail because of a missing bundled library.
+	bundled_libs="ldb"
 
 	local myconf=(
 		--enable-fhs
@@ -290,7 +293,7 @@ multilib_src_install() {
 		newinitd "${CONFDIR}/samba4.initd-r1" samba
 		newconfd "${CONFDIR}/samba4.confd" samba
 
-		dotmpfiles "${FILESDIR}"/samba.conf
+		use minimal || dotmpfiles "${FILESDIR}"/samba.conf
 		if ! use addc ; then
 			rm "${D}/$(systemd_get_systemunitdir)/samba.service" \
 				|| die
@@ -314,6 +317,20 @@ multilib_src_install() {
 	keepdir /var/lib/samba/{bind-dns,private}
 	keepdir /var/lock/samba
 	keepdir /var/log/samba
+
+
+	rm -f "${ED%/}"/etc/samba/*
+	rm -f "${ED%/}"/usr/lib*/samba/ldb/*
+	if use minimal ; then
+		mv "${ED%/}"/usr/bin/net "${T}"/
+		rm -f "${ED%/}"/usr/bin/* "${ED%/}"/usr/sbin/*
+		mv "${T}"/net "${ED%/}"/usr/bin/net
+		rm -rf ${ED%/}/lib*/security
+		rm -rf ${ED%/}/usr/lib/systemd
+		rm -rf ${ED%/}/usr/lib*/perl*
+		rm -rf ${ED%/}/usr/lib*/python*
+		rm -rf ${ED%/}/var
+	fi
 }
 
 multilib_src_test() {
@@ -323,7 +340,7 @@ multilib_src_test() {
 }
 
 pkg_postinst() {
-	tmpfiles_process samba.conf
+	use minimal || tmpfiles_process samba.conf
 
 	if [[ -z ${REPLACING_VERSIONS} ]] ; then
 		elog "Be aware that this release contains the best of all of Samba's"
