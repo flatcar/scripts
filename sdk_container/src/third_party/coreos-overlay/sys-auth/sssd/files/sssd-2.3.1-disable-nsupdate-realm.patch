@@ -1,0 +1,10 @@
+--- a/src/external/nsupdate.m4	2020-11-05 16:27:14.661566136 +0100
++++ b/src/external/nsupdate.m4	2020-11-05 16:27:30.060674381 +0100
+@@ -9,7 +9,6 @@
+     AC_MSG_RESULT([yes])
+   else
+     AC_MSG_RESULT([no])
+-    AC_MSG_ERROR([nsupdate does not support 'realm'])
+   fi
+ 
+ else
