@@ -2,12 +2,15 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-PYTHON_COMPAT=( python3_{6..10} )
+PYTHON_COMPAT=( python3_6 )
 
 inherit python-r1 toolchain-funcs multilib-minimal
 
-MY_PV="${PV//_/-}"
-MY_P="${PN}-${MY_PV}"
+MY_P="${P//_/-}"
+MY_RELEASEDATE="20200710"
+
+SEPOL_VER="${PV}"
+SELNX_VER="${PV}"
 
 DESCRIPTION="SELinux kernel and policy management library"
 HOMEPAGE="https://github.com/SELinuxProject/selinux/wiki"
@@ -15,19 +18,19 @@ HOMEPAGE="https://github.com/SELinuxProject/selinux/wiki"
 if [[ ${PV} == 9999 ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/SELinuxProject/selinux.git"
-	S="${WORKDIR}/${P}/${PN}"
+	S="${WORKDIR}/${MY_P}/${PN}"
 else
-	SRC_URI="https://github.com/SELinuxProject/selinux/releases/download/${MY_PV}/${MY_P}.tar.gz"
-	KEYWORDS="~amd64 ~arm ~arm64 ~mips ~x86"
+	SRC_URI="https://github.com/SELinuxProject/selinux/releases/download/${MY_RELEASEDATE}/${MY_P}.tar.gz"
+	KEYWORDS="amd64 ~arm ~arm64 ~mips x86"
 	S="${WORKDIR}/${MY_P}"
 fi
 
 LICENSE="GPL-2"
-SLOT="0/2"
+SLOT="0"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
-RDEPEND=">=sys-libs/libsepol-${PV}:=[${MULTILIB_USEDEP}]
-	>=sys-libs/libselinux-${PV}:=[${MULTILIB_USEDEP}]
+RDEPEND=">=sys-libs/libsepol-${SEPOL_VER}[${MULTILIB_USEDEP}]
+	>=sys-libs/libselinux-${SELNX_VER}[${MULTILIB_USEDEP}]
 	>=sys-process/audit-2.2.2[${MULTILIB_USEDEP}]
 	${PYTHON_DEPS}"
 DEPEND="${RDEPEND}"
@@ -71,8 +74,6 @@ src_prepare() {
 }
 
 multilib_src_compile() {
-	local -x CFLAGS="${CFLAGS} -fno-semantic-interposition"
-
 	emake \
 		AR="$(tc-getAR)" \
 		CC="$(tc-getCC)" \
