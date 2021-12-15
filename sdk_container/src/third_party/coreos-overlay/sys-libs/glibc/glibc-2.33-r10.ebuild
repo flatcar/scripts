@@ -23,7 +23,7 @@ PATCH_DEV=dilfridge
 if [[ ${PV} == 9999* ]]; then
 	inherit git-r3
 else
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 	SRC_URI="mirror://gnu/glibc/${P}.tar.xz"
 	SRC_URI+=" https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${P}-patches-${PATCH_VER}.tar.xz"
 fi
@@ -832,10 +832,12 @@ upgrade_warning() {
 
 # pkg_pretend
 
+# Flatcar: Skip sanity checks at pretend time because we don't ship a compiler
+#  in the OS image. This test fails when installing the glibc binpkg and no
+#  compiler is present.
 pkg_pretend() {
-	# All the checks...
-	einfo "Checking general environment sanity."
-	sanity_prechecks
+	einfo "Flatcar: Skipping sanity_prechecks for binpkg installation. src_unpack will take care of compile-time prechecks."
+	# sanity_prechecks
 	upgrade_warning
 }
 
@@ -1287,12 +1289,13 @@ glibc_do_src_install() {
 	# '#define VERSION "2.26.90"' -> '2.26.90'
 	local upstream_pv=$(sed -n -r 's/#define VERSION "(.*)"/\1/p' "${S}"/version.h)
 
+	# Flatcar: override this and strip everything to keep image size at bay
 	# Avoid stripping binaries not targeted by ${CHOST}. Or else
 	# ${CHOST}-strip would break binaries build for ${CTARGET}.
-	is_crosscompile && dostrip -x /
+	# is_crosscompile && dostrip -x /
 	# gdb thread introspection relies on local libpthreas symbols. stripping breaks it
 	# See Note [Disable automatic stripping]
-	dostrip -x $(alt_libdir)/libpthread-${upstream_pv}.so
+	# dostrip -x $(alt_libdir)/libpthread-${upstream_pv}.so
 
 	if [[ -e ${ED}/$(alt_usrlibdir)/libm-${upstream_pv}.a ]] ; then
 		# Move versioned .a file out of libdir to evade portage QA checks
