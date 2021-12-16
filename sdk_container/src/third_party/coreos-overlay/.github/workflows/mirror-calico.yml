@@ -1,0 +1,26 @@
+name: Sync GHCR Calico images with Docker Hub
+on:
+  schedule:
+    # run every 12h
+    - cron:  '0 */12 * * *'
+  workflow_dispatch:
+
+jobs:
+  get-docker-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Login to GitHub Container Registry (ghcr)
+        run: echo ${{ secrets.GHCR_PASSWORD }} | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin
+      - name: Fetch latest Calico release
+        id: fetch-latest-release
+        run: |
+          set -ex
+
+          git clone https://github.com/projectcalico/calico calico
+          # get latest version
+          version=$(git -C "$_" tag | sort -V | tail -1)
+
+          pushd .github/workflows/
+          ./mirror-calico.sh $version
+          popd
