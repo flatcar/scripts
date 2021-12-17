@@ -3,7 +3,8 @@
 
 EAPI=7
 
-inherit autotools toolchain-funcs flag-o-matic systemd
+TMPFILES_OPTIONAL=1
+inherit autotools toolchain-funcs flag-o-matic systemd tmpfiles
 
 MY_P=${P/_p/p}
 DESCRIPTION="Network Time Protocol suite/programs"
@@ -99,7 +100,7 @@ src_install() {
 	insinto /usr/share/ntp
 	doins "${FILESDIR}"/ntp.conf
 	use ipv6 || sed -i '/^restrict .*::1/d' "${ED%/}"/usr/share/ntp/ntp.conf #524726
-	systemd_newtmpfilesd "${FILESDIR}"/ntp.tmpfiles ntp.conf
+	newtmpfiles "${FILESDIR}"/ntp.tmpfiles ntp.conf
 
 	keepdir /var/lib/ntp
 	use prefix || fowners ntp:ntp /var/lib/ntp

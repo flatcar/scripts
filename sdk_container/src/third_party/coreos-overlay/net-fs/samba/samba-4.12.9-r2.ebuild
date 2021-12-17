@@ -5,7 +5,8 @@ EAPI=7
 
 PYTHON_COMPAT=( python3_{6..10} )
 PYTHON_REQ_USE='threads(+),xml(+)'
-inherit python-single-r1 waf-utils multilib-minimal linux-info systemd pam
+TMPFILES_OPTIONAL=1
+inherit python-single-r1 waf-utils multilib-minimal linux-info systemd pam tmpfiles
 
 MY_PV="${PV/_rc/rc}"
 MY_P="${PN}-${MY_PV}"
@@ -284,7 +285,7 @@ multilib_src_install() {
 		newinitd "${CONFDIR}/samba4.initd-r1" samba
 		newconfd "${CONFDIR}/samba4.confd" samba
 
-		[[ ! use_minimal ]] && systemd_dotmpfilesd "${FILESDIR}"/samba.conf
+		[[ ! use_minimal ]] && dotmpfiles "${FILESDIR}"/samba.conf
 		use addc || rm "${D}/$(systemd_get_systemunitdir)/samba.service" || die
 
 		# Preserve functionality for old gentoo-specific unit names

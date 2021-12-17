@@ -3,7 +3,8 @@
 
 EAPI="7"
 
-inherit flag-o-matic linux-info toolchain-funcs multilib-minimal systemd
+TMPFILES_OPTIONAL=1
+inherit flag-o-matic linux-info toolchain-funcs multilib-minimal systemd tmpfiles
 
 MY_P=${P/_/-}
 
@@ -286,7 +287,7 @@ multilib_src_install_all() {
 	dodir /usr/share/ssl
 	insinto /usr/share/ssl
 	doins "${S}"/apps/openssl.cnf
-	systemd_dotmpfilesd "${FILESDIR}"/openssl.conf
+	dotmpfiles "${FILESDIR}"/openssl.conf
 
 	# flatcar changes: package `tmpfiles.d` setup for SDK bootstrapping.
 	systemd-tmpfiles --create --root="${ED}" "${FILESDIR}"/openssl.conf

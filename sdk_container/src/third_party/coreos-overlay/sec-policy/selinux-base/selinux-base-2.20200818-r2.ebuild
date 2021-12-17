@@ -4,7 +4,8 @@
 EAPI="7"
 
 # flatcar changes
-inherit systemd
+TMPFILES_OPTIONAL=1
+inherit systemd tmpfiles
 
 if [[ ${PV} == 9999* ]]; then
 	EGIT_REPO_URI="${SELINUX_GIT_REPO:-https://anongit.gentoo.org/git/proj/hardened-refpolicy.git}"
@@ -164,7 +165,7 @@ src_install() {
 	done
 
 	# flatcar changes
-	systemd_dotmpfilesd "${FILESDIR}/tmpfiles.d/selinux-base.conf"
+	dotmpfiles "${FILESDIR}/tmpfiles.d/selinux-base.conf"
 	systemd-tmpfiles --root="${D}" --create selinux-base.conf
 
 	docinto /

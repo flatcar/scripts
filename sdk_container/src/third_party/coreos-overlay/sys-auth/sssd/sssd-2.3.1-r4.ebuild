@@ -10,7 +10,8 @@ EAPI=7
 
 PYTHON_COMPAT=( python3_{6..10} )
 
-inherit autotools flag-o-matic linux-info multilib-minimal python-single-r1 pam systemd toolchain-funcs
+TMPFILES_OPTIONAL=1
+inherit autotools flag-o-matic linux-info multilib-minimal python-single-r1 pam systemd toolchain-funcs tmpfiles
 
 DESCRIPTION="System Security Services Daemon provides access to identity and authentication"
 HOMEPAGE="https://github.com/SSSD/sssd"
@@ -283,7 +284,7 @@ multilib_src_install_all() {
 	# Flatcar: delete, remove /var files taken care of by tmpfiles
 
 	# Flatcar: add tmpfile directive and remove /etc/rc.d
-	systemd_dotmpfilesd "${FILESDIR}/tmpfiles.d/sssd.conf"
+	dotmpfiles "${FILESDIR}/tmpfiles.d/sssd.conf"
 	rm -rf "${D}/etc/rc.d"
 	# strip empty dirs
 	if ! use doc ; then

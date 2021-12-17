@@ -6,7 +6,8 @@ EAPI=7
 # Flatcar: Support python 3.6.
 PYTHON_COMPAT=( python3_{6..10} )
 
-inherit autotools multilib-minimal toolchain-funcs python-r1 linux-info systemd usr-ldscript
+TMPFILES_OPTIONAL=1
+inherit autotools multilib-minimal toolchain-funcs python-r1 linux-info systemd usr-ldscript tmpfiles
 
 DESCRIPTION="Userspace utilities for storing and processing auditing records"
 HOMEPAGE="https://people.redhat.com/sgrubb/audit/"
@@ -169,7 +170,7 @@ multilib_src_install_all() {
 	lockdown_perms "${ED}"
 
 	# Flatcar: Our systemd stuff.
-	systemd_newtmpfilesd "${FILESDIR}"/audit-rules.tmpfiles audit-rules.conf
+	newtmpfiles "${FILESDIR}"/audit-rules.tmpfiles audit-rules.conf
 	systemd_dounit "${FILESDIR}"/audit-rules.service
 	systemd_enable_service multi-user.target audit-rules.service
 }

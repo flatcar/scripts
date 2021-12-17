@@ -3,7 +3,8 @@
 
 EAPI=6
 
-inherit systemd
+TMPFILES_OPTIONAL=1
+inherit systemd tmpfiles
 
 DESCRIPTION="etcd (System Application Container)"
 HOMEPAGE="https://github.com/etcd-io/etcd"
@@ -31,5 +32,5 @@ src_install() {
 	sed "s|@ETCD_IMAGE_TAG@|${tag}|g" \
 		"${FILESDIR}"/etcd-member.service > ${T}/etcd-member.service
 	systemd_dounit ${T}/etcd-member.service
-	systemd_dotmpfilesd "${FILESDIR}"/etcd-wrapper.conf
+	dotmpfiles "${FILESDIR}"/etcd-wrapper.conf
 }

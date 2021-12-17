@@ -3,7 +3,8 @@
 
 EAPI=7
 
-inherit autotools pam pax-utils systemd xdg-utils
+TMPFILES_OPTIONAL=1
+inherit autotools pam pax-utils systemd xdg-utils tmpfiles
 
 DESCRIPTION="Policy framework for controlling privileges for system-wide services"
 HOMEPAGE="https://www.freedesktop.org/wiki/Software/polkit https://gitlab.freedesktop.org/polkit/polkit"
@@ -127,7 +128,7 @@ src_install() {
 	rmdir "${D}"/etc/polkit-1/rules.d "${D}"/etc/polkit-1 || die
 	rmdir "${D}"/etc/pam.d || die
 
-	systemd_dotmpfilesd "${FILESDIR}/polkit.conf"
+	dotmpfiles "${FILESDIR}/polkit.conf"
 
 	if use examples; then
 		docinto examples

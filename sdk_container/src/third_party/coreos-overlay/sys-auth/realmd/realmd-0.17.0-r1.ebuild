@@ -3,7 +3,8 @@
 
 EAPI=7
 
-inherit autotools systemd
+TMPFILES_OPTIONAL=1
+inherit autotools systemd tmpfiles
 
 DESCRIPTION="DBus service for configuring kerberos and other online identities"
 HOMEPAGE="http://cgit.freedesktop.org/realmd/realmd/"
@@ -47,6 +48,6 @@ src_configure() {
 }
 
 src_install() {
-	systemd_dotmpfilesd "${FILESDIR}/tmpfiles.d/${PN}.conf"
+	dotmpfiles "${FILESDIR}/tmpfiles.d/${PN}.conf"
 	default
 }

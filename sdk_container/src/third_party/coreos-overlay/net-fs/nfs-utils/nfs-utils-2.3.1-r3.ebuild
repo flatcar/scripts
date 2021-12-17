@@ -3,7 +3,8 @@
 
 EAPI=6
 
-inherit autotools flag-o-matic multilib systemd
+TMPFILES_OPTIONAL=1
+inherit autotools flag-o-matic multilib systemd tmpfiles
 
 DESCRIPTION="NFS client and server daemons"
 HOMEPAGE="http://linux-nfs.org/"
@@ -127,7 +128,7 @@ src_install() {
 		doins id_resolver.conf
 	fi
 
-	systemd_dotmpfilesd "${FILESDIR}"/nfs-utils.conf
+	dotmpfiles "${FILESDIR}"/nfs-utils.conf
 
 	# Provide an empty xtab for compatibility with the old tmpfiles config.
 	touch "${ED%/}"/usr/$(get_libdir)/nfs/xtab

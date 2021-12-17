@@ -3,7 +3,8 @@
 
 EAPI=7
 
-inherit autotools libtool pam systemd
+TMPFILES_OPTIONAL=1
+inherit autotools libtool pam systemd tmpfiles
 
 DESCRIPTION="Utilities to deal with user accounts"
 HOMEPAGE="https://github.com/shadow-maint/shadow"
@@ -118,8 +119,8 @@ src_install() {
 
 	# CoreOS: break shadow.conf into two files so that we only have to apply
 	# etc-shadow.conf in the initrd.
-	systemd_dotmpfilesd "${FILESDIR}"/tmpfiles.d/etc-shadow.conf
-	systemd_dotmpfilesd "${FILESDIR}"/tmpfiles.d/var-shadow.conf
+	dotmpfiles "${FILESDIR}"/tmpfiles.d/etc-shadow.conf
+	dotmpfiles "${FILESDIR}"/tmpfiles.d/var-shadow.conf
 	# Package the symlinks for the SDK and containers.
 	systemd-tmpfiles --create --root="${ED}" "${FILESDIR}"/tmpfiles.d/*
 

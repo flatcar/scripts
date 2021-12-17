@@ -8,7 +8,8 @@
 
 EAPI=7
 
-inherit autotools linux-info readme.gentoo-r1 systemd udev
+TMPFILES_OPTIONAL=1
+inherit autotools linux-info readme.gentoo-r1 systemd tmpfiles udev
 
 DESCRIPTION="An open-source TCG Software Stack (TSS) v1.1 implementation"
 HOMEPAGE="http://trousers.sf.net"
@@ -65,8 +66,9 @@ src_install() {
 
 	keepdir /var/lib/tpm
 	use doc && dodoc doc/*
-	# Flatcar:
-	# (removed newinitd and newconfd)
+	# Flatcar: Comment out the openrc stuff.
+	# newinitd "${FILESDIR}"/tcsd.initd tcsd
+	# newconfd "${FILESDIR}"/tcsd.confd tcsd
 	fowners root:tss /etc/tcsd.conf
 
 	systemd_dounit "${FILESDIR}"/tcsd.service
@@ -85,5 +87,5 @@ src_install() {
 	doins "${D}"/etc/tcsd.conf
 	fowners tss:tss /usr/share/trousers/system.data
 	fowners root:tss /usr/share/trousers/tcsd.conf
-	systemd_dotmpfilesd "${FILESDIR}"/tmpfiles.d/trousers.conf
+	dotmpfiles "${FILESDIR}"/tmpfiles.d/trousers.conf
 }

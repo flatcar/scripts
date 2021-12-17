@@ -3,7 +3,8 @@
 
 EAPI=7
 
-inherit autotools linux-info flag-o-matic toolchain-funcs udev systemd
+TMPFILES_OPTIONAL=1
+inherit autotools linux-info flag-o-matic toolchain-funcs udev systemd tmpfiles
 
 DESCRIPTION="A performant, transport independent, multi-platform implementation of RFC3720"
 HOMEPAGE="http://www.open-iscsi.com/"
@@ -103,7 +104,7 @@ src_install() {
 		systemd_dounit etc/systemd/${unit}
 	done
 	systemd_dounit "${FILESDIR}"/iscsi-init.service
-	systemd_dotmpfilesd "${FILESDIR}"/open-iscsi.conf
+	dotmpfiles "${FILESDIR}"/open-iscsi.conf
 
 	fperms 600 /etc/iscsi/iscsid.conf
 	rm "${D}"/etc/iscsi/initiatorname.iscsi

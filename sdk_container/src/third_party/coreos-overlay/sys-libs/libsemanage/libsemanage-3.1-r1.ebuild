@@ -5,7 +5,8 @@ EAPI=7
 PYTHON_COMPAT=( python3_{6..10} )
 
 # flatcar changes
-inherit python-r1 toolchain-funcs multilib-minimal systemd
+TMPFILES_OPTIONAL=1
+inherit python-r1 toolchain-funcs multilib-minimal tmpfiles
 
 MY_P="${P//_/-}"
 MY_RELEASEDATE="20200710"
@@ -122,7 +123,7 @@ multilib_src_install() {
 	fi
 
 	# flatcar changes
-	systemd_dotmpfilesd "${FILESDIR}/tmpfiles.d/libsemanage.conf"
+	dotmpfiles "${FILESDIR}/tmpfiles.d/libsemanage.conf"
 }
 
 multiib_src_install_all() {
