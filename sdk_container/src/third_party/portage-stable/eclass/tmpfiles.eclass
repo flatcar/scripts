@@ -1,4 +1,4 @@
-# Copyright 2016-2019 Gentoo Authors
+# Copyright 2016-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: tmpfiles.eclass
@@ -60,10 +60,19 @@ case "${EAPI}" in
 *) die "API is undefined for EAPI ${EAPI}" ;;
 esac
 
-RDEPEND="virtual/tmpfiles"
+# @ECLASS-VARIABLE: TMPFILES_OPTIONAL
+# @PRE_INHERIT
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# When not empty, disables the dependency on virtual/tmpfiles.
+# Ebuilds that call tmpfiles_process conditionally should declare a
+# conditional dependency themselves.
+if [[ -z ${TMPFILES_OPTIONAL} ]]; then
+	RDEPEND="virtual/tmpfiles"
+fi
 
 # @FUNCTION: dotmpfiles
-# @USAGE: dotmpfiles <tmpfiles.d_file> ...
+# @USAGE: <tmpfiles.d_file> ...
 # @DESCRIPTION:
 # Install one or more tmpfiles.d files into /usr/lib/tmpfiles.d.
 dotmpfiles() {
@@ -84,7 +93,7 @@ dotmpfiles() {
 }
 
 # @FUNCTION: newtmpfiles
-# @USAGE: newtmpfiles <old-name> <new-name>.conf
+# @USAGE: <old-name> <new-name>.conf
 # @DESCRIPTION:
 # Install a tmpfiles.d file in /usr/lib/tmpfiles.d under a new name.
 newtmpfiles() {
@@ -102,7 +111,7 @@ newtmpfiles() {
 }
 
 # @FUNCTION: tmpfiles_process
-# @USAGE: tmpfiles_process <filename> <filename> ...
+# @USAGE: <filename> <filename> ...
 # @DESCRIPTION:
 # Call a tmpfiles.d implementation to create new volatile and temporary
 # files and directories.

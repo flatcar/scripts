@@ -2,9 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 
-# Flatcar: this file is modified to still support old EAPIs and to
-# still provide the deprecated systemd_dotmpfilesd and
-# systemd_newtmpfilesd functions.
+# Flatcar: this file is modified to still support old EAPIs.
 
 
 # @ECLASS: systemd.eclass
@@ -260,48 +258,6 @@ systemd_install_serviced() {
 		insopts -m 0644
 		insinto /etc/systemd/system/"${service}".d
 		newins "${src}" 00gentoo.conf
-	)
-}
-
-# @FUNCTION: systemd_dotmpfilesd
-# @USAGE: <tmpfilesd>...
-# @DESCRIPTION:
-# Deprecated in favor of tmpfiles.eclass.
-#
-# Install systemd tmpfiles.d files. Uses doins, thus it is fatal
-# in EAPI 4 and non-fatal in earlier EAPIs.
-systemd_dotmpfilesd() {
-	debug-print-function ${FUNCNAME} "${@}"
-
-	for f; do
-		[[ ${f} == *.conf ]] \
-			|| die 'tmpfiles.d files need to have .conf suffix.'
-	done
-
-	(
-		insopts -m 0644
-		insinto /usr/lib/tmpfiles.d/
-		doins "${@}"
-	)
-}
-
-# @FUNCTION: systemd_newtmpfilesd
-# @USAGE: <old-name> <new-name>.conf
-# @DESCRIPTION:
-# Deprecated in favor of tmpfiles.eclass.
-#
-# Install systemd tmpfiles.d file under a new name. Uses newins, thus it
-# is fatal in EAPI 4 and non-fatal in earlier EAPIs.
-systemd_newtmpfilesd() {
-	debug-print-function ${FUNCNAME} "${@}"
-
-	[[ ${2} == *.conf ]] \
-		|| die 'tmpfiles.d files need to have .conf suffix.'
-
-	(
-		insopts -m 0644
-		insinto /usr/lib/tmpfiles.d/
-		newins "${@}"
 	)
 }
 

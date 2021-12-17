@@ -2,8 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 
-# Flatcar: this file is modified to still support old EAPIs and to
-# still provide the deprecated systemd_dotmpfilesd functions.
+# Flatcar: this file is modified to still support old EAPIs.
 
 
 # @ECLASS: udev.eclass
