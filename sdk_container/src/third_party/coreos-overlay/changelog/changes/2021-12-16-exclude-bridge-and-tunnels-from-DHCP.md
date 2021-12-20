@@ -1,0 +1,1 @@
+- Excluded special network interface devices like bridge, tunnel, vxlan, and veth devices from the default DHCP configuration to prevent networkd interference ([PR#56](https://github.com/flatcar-linux/init/pull/56))
