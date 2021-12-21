@@ -10,7 +10,7 @@
 # 
 
 case "${EAPI:-0}" in
-	6) ;;
+	6|7|8) ;;
 	*) die "Unsupported EAPI=${EAPI} for ${ECLASS}"
 esac
 
