@@ -116,7 +116,7 @@ RDEPEND="${RDEPEND}
 
 # Host dependencies for building ISOs
 RDEPEND="${RDEPEND}
-	virtual/cdrtools
+	app-cdr/cdrtools
 	"
 
 # Uninstall these packages.
