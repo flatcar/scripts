@@ -36,19 +36,42 @@ done
 
 popd >/dev/null || exit
 
-if ! curl -sfA 'Chrome' -L 'http://www.google.com/search?hl=en&q=site%3Alwn.net+linux+'"${VERSION_NEW}" -o search.html; then
-  echo 'curl failed'
-  touch search.html
-fi
-# can't use grep -m 1 -o … to replace head -n 1, because all the links
-# seem to happen in one line, so grep prints all the links in the line
-URL=$({ grep -o 'https://lwn.net/Articles/[0-9]\+' search.html || true ; } | head -n 1)
-if [[ ! "${URL}" ]]; then
-    URL="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tag/?h=v${VERSION_NEW}"
-fi
-rm search.html
+function get_lwn_link() {
+  local LINUX_VERSION="${1}"
+  local url
 
-generate_update_changelog 'Linux' "${VERSION_NEW}" "${URL}" 'linux'
+  if ! curl -sfA 'Chrome' -L 'http://www.google.com/search?hl=en&q=site%3Alwn.net+linux+'"${LINUX_VERSION}" -o search.html >&2; then
+    echo 'curl failed' >&2
+    touch search.html
+  fi
+  # can't use grep -m 1 -o … to replace head -n 1, because all the links
+  # seem to happen in one line, so grep prints all the links in the line
+  url=$({ grep -o 'https://lwn.net/Articles/[0-9]\+' search.html || true ; } | head -n 1)
+  if [[ ! "${url}" ]]; then
+    echo 'no valid links found in the search result' >&2
+    url="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tag/?h=v${LINUX_VERSION}"
+  fi
+  rm search.html
+  echo "${url}"
+}
+
+PATCH_VERSION_OLD=${VERSION_OLD##*.}
+PATCH_VERSION_NEW=${VERSION_NEW##*.}
+
+PATCH_NUM=$((PATCH_VERSION_NEW - 1))
+
+OLD_VERSIONS_AND_URLS=()
+
+while [[ ${PATCH_NUM} -gt ${PATCH_VERSION_OLD} ]]; do
+  TMP_VERSION="${VERSION_SHORT}.${PATCH_NUM}"
+  TMP_URL=$(get_lwn_link "${TMP_VERSION}")
+  OLD_VERSIONS_AND_URLS+=( "${TMP_VERSION}" "${TMP_URL}" )
+  : $((PATCH_NUM--))
+done
+
+URL=$(get_lwn_link "${VERSION_NEW}")
+
+generate_update_changelog 'Linux' "${VERSION_NEW}" "${URL}" 'linux' "${OLD_VERSIONS_AND_URLS[@]}"
 
 generate_patches sys-kernel coreos-sources Kernel
 

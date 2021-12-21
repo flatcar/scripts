@@ -71,15 +71,36 @@ function regenerate_manifest() {
   popd || exit
 }
 
+function join_by() {
+  local delimiter="${1-}"
+  local first="${2-}"
+  if shift 2; then
+    printf '%s' "${first}" "${@/#/${delimiter}}";
+  fi
+}
+
 function generate_update_changelog() {
   local NAME="${1}"
   local VERSION="${2}"
   local URL="${3}"
   local UPDATE_NAME="${4}"
+  shift 4
+  local file="changelog/updates/$(date '+%Y-%m-%d')-${UPDATE_NAME}-update.md"
+  local -a old_links
 
   pushd "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" >/dev/null || exit
   if [[ -d changelog/updates ]]; then
-      echo "- ${NAME} ([${VERSION}](${URL}))" > "changelog/updates/$(date '+%Y-%m-%d')-${UPDATE_NAME}-update.md"
+    printf '%s %s ([%s](%s)' '-' "${NAME}" "${VERSION}" "${URL}" > "${file}"
+    if [[ $# -gt 0 ]]; then
+      echo -n ' (includes ' >> "${file}"
+      while [[ $# -gt 1 ]]; do
+        old_links+=( "[${1}](${2})" )
+        shift 2
+      done
+      printf '%s' "$(join_by ', ' "${old_links[@]}")" >> "${file}"
+      echo -n ')' >> "${file}"
+    fi
+    echo ')' >> "${file}"
   fi
   popd >/dev/null || exit
 }
