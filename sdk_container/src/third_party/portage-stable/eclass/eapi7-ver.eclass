@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: eapi7-ver.eclass
@@ -17,8 +17,7 @@
 #
 # https://bugs.gentoo.org/482170
 #
-# @ROFF .SS
-# Version strings
+# @SUBSECTION Version strings
 #
 # The functions support arbitrary version strings consisting of version
 # components interspersed with (possibly empty) version separators.
@@ -50,8 +49,7 @@
 #                  0 1  1
 # @CODE
 #
-# @ROFF .SS
-# Ranges
+# @SUBSECTION Ranges
 #
 # A range can be specified as 'm' for m-th version component, 'm-'
 # for all components starting with m-th or 'm-n' for components starting
@@ -60,7 +58,7 @@
 
 case ${EAPI:-0} in
 	0|1|2|3|4|5|6) ;;
-	7) die "${ECLASS}: EAPI=${EAPI} includes all functions from this eclass" ;;
+	7|8) die "${ECLASS}: EAPI=${EAPI} includes all functions from this eclass" ;;
 	*) die "${ECLASS}: EAPI=${EAPI} unknown" ;;
 esac
 
