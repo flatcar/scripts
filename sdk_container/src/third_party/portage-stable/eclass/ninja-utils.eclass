@@ -1,6 +1,8 @@
 # Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Flatcar: Support EAPI 4.
+
 # @ECLASS: ninja-utils.eclass
 # @MAINTAINER:
 # Michał Górny <mgorny@gentoo.org>
@@ -8,7 +10,7 @@
 # @AUTHOR:
 # Michał Górny <mgorny@gentoo.org>
 # Mike Gilbert <floppym@gentoo.org>
-# @SUPPORTED_EAPIS: 5 6 7 8
+# @SUPPORTED_EAPIS: 4 5 6 7 8
 # @BLURB: common bits to run dev-util/ninja builder
 # @DESCRIPTION:
 # This eclass provides a single function -- eninja -- that can be used
@@ -19,7 +21,7 @@
 # Meson).
 
 case ${EAPI} in
-	5|6|7|8) ;;
+	4|5|6|7|8) ;;
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
 
@@ -43,7 +45,7 @@ inherit multiprocessing
 # with EAPI 6, it also supports being called via 'nonfatal'.
 eninja() {
 	local nonfatal_args=()
-	[[ ${EAPI} != 5 ]] && nonfatal_args+=( -n )
+	[[ ${EAPI} != [45] ]] && nonfatal_args+=( -n )
 
 	if [[ -z ${NINJAOPTS+set} ]]; then
 		NINJAOPTS="-j$(makeopts_jobs) -l$(makeopts_loadavg "${MAKEOPTS}" 0)"
