@@ -1,16 +1,18 @@
 # Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Flatcar: Support EAPI 0 and 4.
+
 # @ECLASS: vcs-clean.eclass
 # @MAINTAINER:
 # base-system@gentoo.org
 # @AUTHOR:
 # Benedikt Böhm <hollow@gentoo.org>
-# @SUPPORTED_EAPIS: 5 6 7
+# @SUPPORTED_EAPIS: 0 4 5 6 7
 # @BLURB: helper functions to remove VCS directories
 
 case ${EAPI:-0} in
-	[567]) ;;
+	[04567]) ;;
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
 
