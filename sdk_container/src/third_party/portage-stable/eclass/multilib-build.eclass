@@ -1,12 +1,14 @@
 # Copyright 2013-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Flatcar: Support EAPI 4.
+
 # @ECLASS: multilib-build.eclass
 # @MAINTAINER:
 # Michał Górny <mgorny@gentoo.org>
 # @AUTHOR:
 # Author: Michał Górny <mgorny@gentoo.org>
-# @SUPPORTED_EAPIS: 5 6 7 8
+# @SUPPORTED_EAPIS: 4 5 6 7 8
 # @PROVIDES: multibuild
 # @BLURB: flags and utility functions for building multilib packages
 # @DESCRIPTION:
@@ -19,14 +21,14 @@
 # to properly request multilib enabled.
 
 case ${EAPI} in
-	5|6|7|8) ;;
+	4|5|6|7|8) ;;
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
 
 if [[ -z ${_MULTILIB_BUILD} ]]; then
 _MULTILIB_BUILD=1
 
-[[ ${EAPI} == 5 ]] && inherit eutils
+[[ ${EAPI} == [45] ]] && inherit eutils
 inherit multibuild multilib
 
 # @ECLASS-VARIABLE: _MULTILIB_FLAGS
@@ -251,7 +253,7 @@ multilib_parallel_foreach_abi() {
 multilib_for_best_abi() {
 	debug-print-function ${FUNCNAME} "${@}"
 
-	[[ ${EAPI} == 5 ]] || die "${FUNCNAME} is banned in EAPI ${EAPI}, use multilib_is_native_abi() instead"
+	[[ ${EAPI} == [45] ]] || die "${FUNCNAME} is banned in EAPI ${EAPI}, use multilib_is_native_abi() instead"
 
 	eqawarn "QA warning: multilib_for_best_abi() function is deprecated and should"
 	eqawarn "not be used. The multilib_is_native_abi() check may be used instead."
@@ -589,7 +591,7 @@ multilib_is_native_abi() {
 multilib_build_binaries() {
 	debug-print-function ${FUNCNAME} "${@}"
 
-	[[ ${EAPI} == 5 ]] || die "${FUNCNAME} is banned in EAPI ${EAPI}, use multilib_is_native_abi() instead"
+	[[ ${EAPI} == [45] ]] || die "${FUNCNAME} is banned in EAPI ${EAPI}, use multilib_is_native_abi() instead"
 
 	eqawarn "QA warning: multilib_build_binaries is deprecated. Please use the equivalent"
 	eqawarn "multilib_is_native_abi function instead."
@@ -664,6 +666,7 @@ multilib_native_with() {
 # of <false1> (or 'no' if unspecified) and <false2>. Arguments
 # are the same as for usex in the EAPI.
 #
+# Note: in EAPI 4 you need to inherit eutils to use this function.
 multilib_native_usex() {
 	if multilib_is_native_abi; then
 		usex "${@}"
