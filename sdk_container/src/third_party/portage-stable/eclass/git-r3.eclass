@@ -1,17 +1,19 @@
 # Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Flatcar: Support EAPI 4.
+
 # @ECLASS: git-r3.eclass
 # @MAINTAINER:
 # Michał Górny <mgorny@gentoo.org>
-# @SUPPORTED_EAPIS: 5 6 7 8
+# @SUPPORTED_EAPIS: 4 5 6 7 8
 # @BLURB: Eclass for fetching and unpacking git repositories.
 # @DESCRIPTION:
 # Third generation eclass for easing maintenance of live ebuilds using
 # git as remote repository.
 
 case ${EAPI:-0} in
-	5|6|7|8) ;;
+	4|5|6|7|8) ;;
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
 
@@ -21,7 +23,7 @@ if [[ ! ${_GIT_R3} ]]; then
 
 PROPERTIES+=" live"
 
-if [[ ${EAPI} != [56] ]]; then
+if [[ ${EAPI} != [456] ]]; then
 	BDEPEND=">=dev-vcs/git-1.8.2.1[curl]"
 else
 	DEPEND=">=dev-vcs/git-1.8.2.1[curl]"
@@ -560,7 +562,7 @@ git-r3_fetch() {
 	local commit_date=${4:-${EGIT_COMMIT_DATE}}
 
 	# support new override API for EAPI 6+
-	if [[ ${EAPI} != 5 ]]; then
+	if [[ ${EAPI} != [45] ]]; then
 		# get the name and do some more processing:
 		# 1) kill .git suffix,
 		# 2) underscore (remaining) non-variable characters,
