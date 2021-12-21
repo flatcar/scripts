@@ -1,18 +1,20 @@
 # Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Flatcar: Support EAPI 0 and 4.
+
 # @ECLASS: flag-o-matic.eclass
 # @MAINTAINER:
 # toolchain@gentoo.org
-# @SUPPORTED_EAPIS: 5 6 7 8
+# @SUPPORTED_EAPIS: 0 4 5 6 7 8
 # @BLURB: common functions to manipulate and query toolchain flags
 # @DESCRIPTION:
 # This eclass contains a suite of functions to help developers sanely
 # and safely manage toolchain flags in their builds.
 
 case ${EAPI:-0} in
-	0|1|2|3|4) die "flag-o-matic.eclass: EAPI ${EAPI} is too old." ;;
-	5|6|7|8) ;;
+	1|2|3) die "flag-o-matic.eclass: EAPI ${EAPI} is too old." ;;
+	0|4|5|6|7|8) ;;
 	*) die "EAPI ${EAPI} is not supported by flag-o-matic.eclass." ;;
 esac
 
@@ -21,7 +23,7 @@ _FLAG_O_MATIC_ECLASS=1
 
 inherit toolchain-funcs
 
-[[ ${EAPI} == [567] ]] && inherit eutils
+[[ ${EAPI:-0} == [04567] ]] && inherit eutils
 
 # @FUNCTION: all-flag-vars
 # @DESCRIPTION:
@@ -36,8 +38,8 @@ all-flag-vars() {
 # {C,CPP,CXX,CCAS,F,FC,LD}FLAGS that we allow in strip-flags
 # Note: shell globs and character lists are allowed
 setup-allowed-flags() {
-	[[ ${EAPI} == [567] ]] ||
-		die "Internal function ${FUNCNAME} is not available in EAPI ${EAPI}."
+	[[ ${EAPI:-0} == [04567] ]] ||
+		die "Internal function ${FUNCNAME} is not available in EAPI ${EAPI:-0}."
 	_setup-allowed-flags "$@"
 }
 
@@ -484,8 +486,8 @@ strip-flags() {
 # Returns shell true if <flag> is supported by given <compiler>,
 # else returns shell false.
 test-flag-PROG() {
-	[[ ${EAPI} == [567] ]] ||
-		die "Internal function ${FUNCNAME} is not available in EAPI ${EAPI}."
+	[[ ${EAPI:-0} == [04567] ]] ||
+		die "Internal function ${FUNCNAME} is not available in EAPI ${EAPI:-0}."
 	_test-flag-PROG "$@"
 }
 
@@ -623,8 +625,8 @@ test-flag-CCLD() { _test-flag-PROG CC c+ld "$@"; }
 # Returns shell true if <flags> are supported by given <compiler>,
 # else returns shell false.
 test-flags-PROG() {
-	[[ ${EAPI} == [567] ]] ||
-		die "Internal function ${FUNCNAME} is not available in EAPI ${EAPI}."
+	[[ ${EAPI:-0} == [04567] ]] ||
+		die "Internal function ${FUNCNAME} is not available in EAPI ${EAPI:-0}."
 	_test-flags-PROG "$@"
 }
 
