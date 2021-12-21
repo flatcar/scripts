@@ -1,12 +1,14 @@
 # Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Flatcar: Support EAPI 6.
+
 # @ECLASS: cmake-multilib.eclass
 # @MAINTAINER:
 # Michał Górny <mgorny@gentoo.org>
 # @AUTHOR:
 # Author: Michał Górny <mgorny@gentoo.org>
-# @SUPPORTED_EAPIS: 7 8
+# @SUPPORTED_EAPIS: 6 7 8
 # @PROVIDES: cmake cmake-utils multilib-minimal
 # @BLURB: cmake wrapper for multilib builds
 # @DESCRIPTION:
@@ -20,7 +22,7 @@
 # in multilib-minimal, yet they ought to call appropriate cmake
 # phase rather than 'default'.
 
-[[ ${EAPI} == 7 ]] && : ${CMAKE_ECLASS:=cmake-utils}
+[[ ${EAPI} == [67] ]] && : ${CMAKE_ECLASS:=cmake-utils}
 # @ECLASS-VARIABLE: CMAKE_ECLASS
 # @PRE_INHERIT
 # @DESCRIPTION:
@@ -36,7 +38,7 @@
 _CMAKE_ECLASS_IMPL=cmake
 
 case ${EAPI} in
-	7|8)
+	6|7|8)
 		case ${CMAKE_ECLASS} in
 			cmake-utils|cmake) ;;
 			*)
