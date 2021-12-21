@@ -147,3 +147,6 @@ sys-apps/systemd -cgroup-hybrid
 
 # Remove support for GObject introspection
 sys-auth/polkit -introspection
+
+# enables ELF support to e.g. allow tc to handle BPF filters.
+sys-apps/iproute2 elf
