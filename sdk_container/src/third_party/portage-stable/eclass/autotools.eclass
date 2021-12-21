@@ -1,10 +1,12 @@
 # Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Flatcar: Support EAPI 0 and 4.
+
 # @ECLASS: autotools.eclass
 # @MAINTAINER:
 # base-system@gentoo.org
-# @SUPPORTED_EAPIS: 5 6 7 8
+# @SUPPORTED_EAPIS: 0 4 5 6 7 8
 # @BLURB: Regenerates auto* build scripts
 # @DESCRIPTION:
 # This eclass is for safely handling autotooled software packages that need to
@@ -26,8 +28,8 @@ fi
 if [[ -z ${_AUTOTOOLS_ECLASS} ]] ; then
 _AUTOTOOLS_ECLASS=1
 
-case ${EAPI} in
-	5|6)
+case ${EAPI:-0} in
+	0|4|5|6)
 		# Needed for eqawarn
 		inherit eutils
 		;;
@@ -129,8 +131,8 @@ RDEPEND=""
 # their own DEPEND string.
 : ${AUTOTOOLS_AUTO_DEPEND:=yes}
 if [[ ${AUTOTOOLS_AUTO_DEPEND} != "no" ]] ; then
-	case ${EAPI} in
-		5|6) DEPEND=${AUTOTOOLS_DEPEND} ;;
+	case ${EAPI:-0} in
+		0|4|5|6) DEPEND=${AUTOTOOLS_DEPEND} ;;
 		*) BDEPEND=${AUTOTOOLS_DEPEND} ;;
 	esac
 fi
@@ -466,8 +468,8 @@ eautopoint() {
 config_rpath_update() {
 	local dst src
 
-	case ${EAPI} in
-		5|6)
+	case ${EAPI:-0} in
+		0|4|5|6)
 			src="${EPREFIX}/usr/share/gettext/config.rpath"
 			;;
 		*)
@@ -497,8 +499,8 @@ autotools_env_setup() {
 		for pv in ${_LATEST_AUTOMAKE[@]/#*:} ; do
 			# Break on first hit to respect _LATEST_AUTOMAKE order.
 			local hv_args=""
-			case ${EAPI} in
-				5|6)
+			case ${EAPI:-0} in
+				0|4|5|6)
 					hv_args="--host-root"
 					;;
 				7)
