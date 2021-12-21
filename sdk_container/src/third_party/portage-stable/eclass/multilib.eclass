@@ -9,13 +9,11 @@
 # @DESCRIPTION:
 # This eclass is for all functions pertaining to handling multilib configurations.
 
-# Flatcar: we still have some packages that use old EAPI, revert this
-# change when we update those packages.
-#case ${EAPI:-0} in
-#	# EAPI=0 is still used by crossdev, bug #797367
-#	0|5|6|7|8) ;;
-#	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
-#esac
+case ${EAPI:-0} in
+	# EAPI=0 is still used by crossdev, bug #797367
+	0|5|6|7|8) ;;
+	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
+esac
 
 if [[ -z ${_MULTILIB_ECLASS} ]]; then
 _MULTILIB_ECLASS=1
@@ -56,8 +54,7 @@ has_multilib_profile() {
 #   fall back on old behavior.  Any profile that has these set should also
 #   depend on a newer version of portage (not yet released) which uses these
 #   over CONF_LIBDIR in econf, dolib, etc...
-# Flatcar: Support older EAPIs for now.
-if [[ ${EAPI} == [0345] ]] ; then
+if [[ ${EAPI} == [05] ]] ; then
 	get_libdir() {
 		local CONF_LIBDIR
 		if [ -n  "${CONF_LIBDIR_OVERRIDE}" ] ; then
