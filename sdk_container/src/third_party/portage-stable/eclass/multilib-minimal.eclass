@@ -1,6 +1,8 @@
 # Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Flatcar: Support EAPI 4.
+
 # @ECLASS: multilib-minimal.eclass
 # @MAINTAINER:
 # Michał Górny <mgorny@gentoo.org>
@@ -25,12 +27,12 @@
 
 
 case ${EAPI} in
-	5|6|7|8) ;;
+	4|5|6|7|8) ;;
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
 
 
-[[ ${EAPI} == 5 ]] && inherit eutils
+[[ ${EAPI} == [45] ]] && inherit eutils
 inherit multilib-build
 
 EXPORT_FUNCTIONS src_configure src_compile src_test src_install
