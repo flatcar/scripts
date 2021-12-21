@@ -1,17 +1,19 @@
 # Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Flatcar: Support EAPI 4.
+
 # @ECLASS: multilib.eclass
 # @MAINTAINER:
 # toolchain@gentoo.org
-# @SUPPORTED_EAPIS: 5 6 7 8
+# @SUPPORTED_EAPIS: 4 5 6 7 8
 # @BLURB: This eclass is for all functions pertaining to handling multilib configurations.
 # @DESCRIPTION:
 # This eclass is for all functions pertaining to handling multilib configurations.
 
 case ${EAPI:-0} in
 	# EAPI=0 is still used by crossdev, bug #797367
-	0|5|6|7|8) ;;
+	0|4|5|6|7|8) ;;
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
 
@@ -54,7 +56,7 @@ has_multilib_profile() {
 #   fall back on old behavior.  Any profile that has these set should also
 #   depend on a newer version of portage (not yet released) which uses these
 #   over CONF_LIBDIR in econf, dolib, etc...
-if [[ ${EAPI} == [05] ]] ; then
+if [[ ${EAPI} == [045] ]] ; then
 	get_libdir() {
 		local CONF_LIBDIR
 		if [ -n  "${CONF_LIBDIR_OVERRIDE}" ] ; then
