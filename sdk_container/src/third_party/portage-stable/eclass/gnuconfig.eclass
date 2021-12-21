@@ -1,12 +1,14 @@
 # Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Flatcar: Support EAPI 0 and 4.
+
 # @ECLASS: gnuconfig.eclass
 # @MAINTAINER:
 # Sam James <sam@gentoo.org>
 # @AUTHOR:
 # Will Woods <wwoods@gentoo.org>
-# @SUPPORTED_EAPIS: 5 6 7 8
+# @SUPPORTED_EAPIS: 0 4 5 6 7 8
 # @BLURB: Refresh bundled gnuconfig files (config.guess, config.sub)
 # @DESCRIPTION:
 # This eclass is used to automatically update files that typically come with
@@ -17,7 +19,7 @@
 #
 
 case ${EAPI:-0} in
-	5|6|7|8) ;;
+	0|4|5|6|7|8) ;;
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
 
@@ -26,7 +28,7 @@ if [[ -z ${_GNUCONFIG_ECLASS} ]] ; then
 
 BDEPEND="sys-devel/gnuconfig"
 
-[[ ${EAPI} == [56] ]] && DEPEND="${BDEPEND}"
+[[ ${EAPI:-0} == [0456] ]] && DEPEND="${BDEPEND}"
 
 # @FUNCTION: gnuconfig_update
 # @USAGE: [file1 file2 ...]
@@ -105,8 +107,8 @@ gnuconfig_findnewest() {
 	local locations=()
 	local prefix
 
-	case ${EAPI} in
-		5|6)
+	case ${EAPI:-0} in
+		0|4|5|6)
 			prefix="${EPREFIX}"
 			;;
 		*)
