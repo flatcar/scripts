@@ -1,0 +1,1 @@
+- dev container: Fix github URL for coreos-overlay and portage-stable to use repos from flatcar-linux org directly instead of relying on redirects from the kinvolk org. This fixes checkouts with emerge-gitclone inside dev-container. [PR#194](https://github.com/flatcar-linux/scripts/pull/194)
