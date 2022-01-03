@@ -9,9 +9,11 @@ into the repository.  The changes are essentially divided into 4 categories:
 
 Based on the category the PR falls into create a new file in the respective
 directory with the filename format `YYYY-MM-DD-<few-words-about-the-change>.md`
-(can be generated via: `$(date '+%Y-%m-%d')-<few-words-about-the-change>.md`)
+(can be generated via: `$(date '+%Y-%m-%d')-<few-words-about-the-change>.md`).
+The file should contain a markdown bullet point entry `- TEXT...`.
 
-The contents of the file should describe the changes in an elaborative manner
+The contents of the file should describe the changes in a concise manner,
+and only contain information relevant for the end users.
 (use the past tense for the change/bugfix description to avoid confusion with
 the imperative voice for actions the user should do as a result). Security
 fixes of upstream packages and package updates can be kept short in most cases
