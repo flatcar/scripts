@@ -85,7 +85,7 @@ function generate_update_changelog() {
   local URL="${3}"
   local UPDATE_NAME="${4}"
   shift 4
-  local file="changelog/updates/$(date '+%Y-%m-%d')-${UPDATE_NAME}-update.md"
+  local file="changelog/updates/$(date '+%Y-%m-%d')-${UPDATE_NAME}-${VERSION}-update.md"
   local -a old_links
 
   pushd "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" >/dev/null || exit
