@@ -5,6 +5,7 @@
 EAPI=7
 
 PYTHON_COMPAT=( python3_{8..10} pypy3 )
+DISTUTILS_USE_SETUPTOOLS=rdepend
 inherit distutils-r1
 
 MY_P=certifi-system-store-${PV}
@@ -19,16 +20,20 @@ S=${WORKDIR}/${MY_P}
 
 LICENSE="MPL-2.0"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 
 RDEPEND="app-misc/ca-certificates"
 
-distutils_enable_tests --install pytest
+PATCHES=(
+	"${FILESDIR}"/${PN}-3021.3.16-setuptools.patch
+)
 
 EPYTEST_IGNORE=(
 	# requires Internet
 	tests/test_requests.py
 )
+
+distutils_enable_tests --install pytest
 
 src_prepare() {
 	sed -i -e "s^/etc^${EPREFIX}/etc^" src/certifi/core.py || die
