@@ -1,10 +1,10 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: toolchain-autoconf.eclass
 # @MAINTAINER:
 # <base-system@gentoo.org>
-# @SUPPORTED_EAPIS: 6
+# @SUPPORTED_EAPIS: 6 7
 # @BLURB: Common code for sys-devel/autoconf ebuilds
 # @DESCRIPTION:
 # This eclass contains the common phase functions migrated from
@@ -14,7 +14,7 @@ case ${EAPI:-0} in
 	[0-5])
 		die "${ECLASS} is banned in EAPI ${EAPI:-0}"
 		;;
-	6)
+	[6-7])
 		;;
 	*)
 		die "Unknown EAPI ${EAPI:-0}"
