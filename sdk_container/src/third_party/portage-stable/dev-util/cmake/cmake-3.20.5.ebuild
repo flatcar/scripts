@@ -3,9 +3,10 @@
 
 EAPI=7
 
-CMAKE_MAKEFILE_GENERATOR="emake"
+CMAKE_MAKEFILE_GENERATOR="emake" # TODO RunCMake.LinkWhatYouUse fails consistently w/ ninja
 CMAKE_REMOVE_MODULES_LIST=( none )
-inherit bash-completion-r1 cmake elisp-common flag-o-matic toolchain-funcs virtualx xdg-utils
+inherit bash-completion-r1 cmake elisp-common flag-o-matic multiprocessing \
+	toolchain-funcs virtualx xdg-utils
 
 MY_P="${P/_/-}"
 
@@ -16,13 +17,15 @@ SRC_URI="https://cmake.org/files/v$(ver_cut 1-2)/${MY_P}.tar.gz"
 LICENSE="CMake"
 SLOT="0"
 [[ "${PV}" = *_rc* ]] || \
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
-IUSE="doc emacs system-jsoncpp ncurses qt5"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+IUSE="doc emacs ncurses qt5 test"
+RESTRICT="!test? ( test )"
 
 RDEPEND="
+	>=app-arch/libarchive-3.3.3:=
 	app-crypt/rhash
-	>=app-arch/libarchive-3.0.0:=
 	>=dev-libs/expat-2.0.1
+	>=dev-libs/jsoncpp-1.9.2-r2:0=
 	>=dev-libs/libuv-1.10.0:=
 	>=net-misc/curl-7.21.5[ssl]
 	sys-libs/zlib
@@ -34,7 +37,6 @@ RDEPEND="
 		dev-qt/qtgui:5
 		dev-qt/qtwidgets:5
 	)
-	system-jsoncpp? ( >=dev-libs/jsoncpp-0.6.0_rc2:0= )
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
@@ -42,6 +44,7 @@ BDEPEND="
 		dev-python/requests
 		dev-python/sphinx
 	)
+	test? ( app-arch/libarchive[zstd] )
 "
 
 S="${WORKDIR}/${MY_P}"
@@ -50,37 +53,27 @@ SITEFILE="50${PN}-gentoo.el"
 
 PATCHES=(
 	# prefix
-	"${FILESDIR}"/${PN}-3.4.0_rc1-darwin-bundle.patch
-	"${FILESDIR}"/${PN}-3.13.4-prefix-dirs.patch
-	"${FILESDIR}"/${PN}-3.1.0-darwin-isysroot.patch
+	"${FILESDIR}"/${PN}-3.16.0_rc4-darwin-bundle.patch
+	"${FILESDIR}"/${PN}-3.14.0_rc3-prefix-dirs.patch
+	"${FILESDIR}"/${PN}-3.19.1-darwin-gcc.patch
 
 	# handle gentoo packaging in find modules
-	"${FILESDIR}"/${PN}-3.11.0_rc2-FindBLAS.patch
-	"${FILESDIR}"/${PN}-3.0.2-FindLAPACK.patch
+	"${FILESDIR}"/${PN}-3.17.0_rc1-FindBLAS.patch
+	# Next patch needs to be reworked
+	#"${FILESDIR}"/${PN}-3.17.0_rc1-FindLAPACK.patch
 	"${FILESDIR}"/${PN}-3.5.2-FindQt4.patch
 
 	# respect python eclasses
 	"${FILESDIR}"/${PN}-2.8.10.2-FindPythonLibs.patch
 	"${FILESDIR}"/${PN}-3.9.0_rc2-FindPythonInterp.patch
 
-	# boost (#660980)
-	"${FILESDIR}"/${PN}-3.11.4-fix-boost-detection.patch
+	"${FILESDIR}"/${PN}-3.18.0-filter_distcc_warning.patch # bug 691544
 
 	# upstream fixes (can usually be removed with a version bump)
 )
 
 cmake_src_bootstrap() {
-	# Cleanup args to extract only JOBS.
-	# Because bootstrap does not know anything else.
-	grep -Eo '(\-j|\-\-jobs)(=?|[[:space:]]*)[[:digit:]]+' <<< "${MAKEOPTS}" > /dev/null
-	if [[ $? -eq 0 ]] ; then
-		par_arg=$(grep -Eo '(\-j|\-\-jobs)(=?|[[:space:]]*)[[:digit:]]+' <<< "${MAKEOPTS}" | tail -n1 | grep -o '[[:digit:]]+')
-		par_arg="--parallel=${par_arg}"
-	else
-		par_arg="--parallel=1"
-	fi
-
-	# disable running of cmake in boostrap command
+	# disable running of cmake in bootstrap command
 	sed -i \
 		-e '/"${cmake_bootstrap_dir}\/cmake"/s/^/#DONOTRUN /' \
 		bootstrap || die "sed failed"
@@ -91,12 +84,10 @@ cmake_src_bootstrap() {
 			Source/kwsys/CMakeLists.txt || die
 	fi
 
-	tc-export CC CXX LD
-
 	# bootstrap script isn't exactly /bin/sh compatible
-	${CONFIG_SHELL:-sh} ./bootstrap \
+	tc-env_build ${CONFIG_SHELL:-sh} ./bootstrap \
 		--prefix="${T}/cmakestrap/" \
-		${par_arg} \
+		--parallel=$(makeopts_jobs "${MAKEOPTS}" "$(get_nproc)") \
 		|| die "Bootstrap failed"
 }
 
@@ -113,22 +104,23 @@ cmake_src_test() {
 	[[ -n ${TEST_VERBOSE} ]] && ctestargs="--extra-verbose --output-on-failure"
 
 	# Excluded tests:
-	#    BootstrapTest: we actualy bootstrap it every time so why test it.
+	#    BootstrapTest: we actually bootstrap it every time so why test it.
 	#    BundleUtilities: bundle creation broken
 	#    CMakeOnly.AllFindModules: pthread issues
-	#    CTest.updatecvs: which fails to commit as root
+	#    CTest.updatecvs: fails to commit as root
 	#    Fortran: requires fortran
 	#    RunCMake.CompilerLauncher: also requires fortran
 	#    RunCMake.CPack_RPM: breaks if app-arch/rpm is installed because
 	#        debugedit binary is not in the expected location
 	#    RunCMake.CPack_DEB: breaks if app-arch/dpkg is installed because
 	#        it can't find a deb package that owns libc
-	#    TestUpload, which requires network access
+	#    RunCMake.{IncompatibleQt,ObsoleteQtMacros}: Require Qt4
+	#    TestUpload: requires network access
 	"${BUILD_DIR}"/bin/ctest \
 		-j "$(makeopts_jobs)" \
 		--test-load "$(makeopts_loadavg)" \
 		${ctestargs} \
-		-E "(BootstrapTest|BundleUtilities|CMakeOnly.AllFindModules|CTest.UpdateCVS|Fortran|RunCMake.CompilerLauncher|RunCMake.CPack_(DEB|RPM)|TestUpload)" \
+		-E "(BootstrapTest|BundleUtilities|ConfigSources|CMakeOnly.AllFindModules|CPackComponentsDEB-components-depend2|CompileOptions|CTest.UpdateCVS|DependencyGraph|Fortran|RunCMake.CompilerLauncher|RunCMake.IncompatibleQt|RunCMake.ObsoleteQtMacros|RunCMake.PrecompileHeaders|RunCMake.CPack_(DEB|RPM)|TestUpload)" \
 		|| die "Tests failed"
 
 	popd > /dev/null
@@ -137,10 +129,28 @@ cmake_src_test() {
 src_prepare() {
 	cmake_src_prepare
 
-	# disable Xcode hooks, bug #652134
 	if [[ ${CHOST} == *-darwin* ]] ; then
-		sed -i -e 's/__APPLE__/__DISABLED_APPLE__/' \
-			Source/cmGlobalXCodeGenerator.cxx || die
+		# disable Xcode hooks, bug #652134
+		sed -i -e 's/cm\(\|Global\|Local\)XCode[^.]\+\.\(cxx\|h\)//' \
+			Source/CMakeLists.txt || die
+		sed -i -e '/define CMAKE_USE_XCODE/s/XCODE/NO_XCODE/' \
+			-e '/cmGlobalXCodeGenerator.h/d' \
+			Source/cmake.cxx || die
+		# disable isysroot usage with GCC, we've properly instructed
+		# where things are via GCC configuration and ldwrapper
+		sed -i -e '/cmake_gnu_set_sysroot_flag/d' \
+			Modules/Platform/Apple-GNU-*.cmake || die
+		# disable isysroot usage with clang as well
+		sed -i -e '/_SYSROOT_FLAG/d' \
+			Modules/Platform/Apple-Clang.cmake || die
+		# don't set a POSIX standard, system headers don't like that, #757426
+		sed -i -e 's/^#if !defined(_WIN32) && !defined(__sun)/& \&\& !defined(__APPLE__)/' \
+			Source/cmLoadCommandCommand.cxx \
+			Source/cmStandardLexer.h \
+			Source/cmSystemTools.cxx \
+			Source/cmTimestamp.cxx
+		sed -i -e 's/^#if !defined(_POSIX_C_SOURCE) && !defined(_WIN32) && !defined(__sun)/& \&\& !defined(__APPLE__)/' \
+			Source/cmStandardLexer.h
 	fi
 
 	# Add gcc libs to the default link paths
@@ -149,7 +159,7 @@ src_prepare() {
 		-e "$(usex prefix-guest "s|@GENTOO_HOST@||" "/@GENTOO_HOST@/d")" \
 		-e "s|@GENTOO_PORTAGE_EPREFIX@|${EPREFIX}/|g" \
 		Modules/Platform/{UnixPaths,Darwin}.cmake || die "sed failed"
-	if ! has_version \>=${CATEGORY}/${PN}-3.4.0_rc1 ; then
+	if ! has_version -b \>=${CATEGORY}/${PN}-3.4.0_rc1 || ! cmake --version &>/dev/null ; then
 		CMAKE_BINARY="${S}/Bootstrap.cmk/cmake"
 		cmake_src_bootstrap
 	fi
@@ -161,21 +171,15 @@ src_configure() {
 
 	local mycmakeargs=(
 		-DCMAKE_USE_SYSTEM_LIBRARIES=ON
-		-DCMAKE_USE_SYSTEM_LIBRARY_JSONCPP=$(usex system-jsoncpp)
 		-DCMAKE_DOC_DIR=/share/doc/${PF}
 		-DCMAKE_MAN_DIR=/share/man
 		-DCMAKE_DATA_DIR=/share/${PN}
 		-DSPHINX_MAN=$(usex doc)
 		-DSPHINX_HTML=$(usex doc)
 		-DBUILD_CursesDialog="$(usex ncurses)"
+		-DBUILD_TESTING=$(usex test)
 	)
-
-	if use qt5 ; then
-		mycmakeargs+=(
-			-DBUILD_QtDialog=ON
-			$(cmake_use_find_package qt5 Qt5Widgets)
-		)
-	fi
+	use qt5 && mycmakeargs+=( -DBUILD_QtDialog=ON )
 
 	cmake_src_configure
 }
@@ -207,8 +211,6 @@ src_install() {
 	doins "${FILESDIR}/${PN}.vim"
 
 	dobashcomp Auxiliary/bash-completion/{${PN},ctest,cpack}
-
-	rm -r "${ED}"/usr/share/cmake/{completions,editors} || die
 }
 
 pkg_postinst() {

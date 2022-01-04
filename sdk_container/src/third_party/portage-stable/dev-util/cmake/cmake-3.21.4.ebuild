@@ -17,7 +17,7 @@ SRC_URI="https://cmake.org/files/v$(ver_cut 1-2)/${MY_P}.tar.gz"
 LICENSE="CMake"
 SLOT="0"
 [[ "${PV}" = *_rc* ]] || \
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="doc emacs ncurses qt5 test"
 RESTRICT="!test? ( test )"
 
@@ -120,7 +120,7 @@ cmake_src_test() {
 		-j "$(makeopts_jobs)" \
 		--test-load "$(makeopts_loadavg)" \
 		${ctestargs} \
-		-E "(BootstrapTest|BundleUtilities|CMakeOnly.AllFindModules|CompileOptions|CTest.UpdateCVS|DependencyGraph|Fortran|RunCMake.CompilerLauncher|RunCMake.IncompatibleQt|RunCMake.ObsoleteQtMacros|RunCMake.PrecompileHeaders|RunCMake.CPack_(DEB|RPM)|TestUpload)" \
+		-E "(BootstrapTest|BundleUtilities|ConfigSources|CMakeOnly.AllFindModules|CPackComponentsDEB-components-depend2|CompileOptions|CTest.UpdateCVS|DependencyGraph|Fortran|RunCMake.CompilerLauncher|RunCMake.IncompatibleQt|RunCMake.ObsoleteQtMacros|RunCMake.PrecompileHeaders|RunCMake.CPack_(DEB|RPM)|TestUpload)" \
 		|| die "Tests failed"
 
 	popd > /dev/null
