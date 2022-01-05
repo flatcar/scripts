@@ -77,7 +77,11 @@ if [ -z "$name" ] ; then
     name="flatcar-sdk-${arch}-${docker_sdk_vernum}_os-${docker_os_vernum}"
 fi
 
-stat="$(docker ps --all --no-trunc --filter name="^/$name\$" --format '{{.Status}}'\
+filter="^/"
+if "${is_podman}"; then
+  filter=""
+fi
+stat="$($docker ps --all --no-trunc --filter name="${filter}$name\$" --format '{{.Status}}'\
         | cut -f1 -d' ')"
 
 # pass SDK related environment variables and gcloud auth
@@ -92,7 +96,7 @@ hostname="${name:0:63}"
 hostname="${hostname//./_}"
 
 if [ -n "$cleanup" ] ; then
-    echo "docker container rm -f '${name}'" >> "$cleanup"
+    echo "$docker container rm -f '${name}'" >> "$cleanup"
 fi
 
 if [ -z "$stat" ] ; then
@@ -100,7 +104,7 @@ if [ -z "$stat" ] ; then
 
     gpg_volumes=$(gnupg_ssh_gcloud_mount_opts)
 
-    docker create $tty -i \
+    $docker create $tty -i \
        -v /dev:/dev \
        -v "$(pwd)/sdk_container:/mnt/host/source/" \
        -v "$(pwd)/sdk_container/git-override/.git-coreos-overlay:/mnt/host/source/src/third_party/coreos-overlay/.git" \
@@ -119,9 +123,8 @@ fi
 
 if [ "$stat" != "Up" ] ; then
     yell "Starting stopped container '$name'"
-    trap "docker stop -t 0 $name" EXIT
-    docker start "$name"
-
+    trap "$docker stop -t 0 $name" EXIT
+    $docker start "$name"
 fi
 
-docker exec $tty -i "$name" /home/sdk/sdk_entry.sh "$@"
+$docker exec $tty -i "$name" /home/sdk/sdk_entry.sh "$@"
