@@ -111,16 +111,16 @@ create_versionfile "$version" "${os_version}"
 
 docker_vernum="$(vernum_to_docker_image_version "${version}")"
 import_tarball="flatcar-sdk-tarball:${docker_vernum}"
-image_present="$(docker image ls "$import_tarball" --format '{{.Repository}}:{{.Tag}}')"
+image_present="$($docker image ls "$import_tarball" --format '{{.Repository}}:{{.Tag}}')"
 
 if [ "${image_present}" = "${import_tarball}" ] ; then
     yell "Using existing SDK tarball image '${import_tarball}'"
 else
     yell "Importing SDK tarball"
     if [ -n "$cleanup" ] ; then
-        echo "docker image rm -f '${import_tarball}'" >> "$cleanup"
+        echo "$docker image rm -f '${import_tarball}'" >> "$cleanup"
     fi
-    docker import "${tarball}" "${import_tarball}"
+    $docker import "${tarball}" "${import_tarball}"
 fi
 
 # --
@@ -128,16 +128,16 @@ fi
 # build plain SDK container w/o board support
 #
 import_image="flatcar-sdk-import:${docker_vernum}"
-image_present="$(docker image ls "${import_image}" --format '{{.Repository}}:{{.Tag}}')"
+image_present="$($docker image ls "${import_image}" --format '{{.Repository}}:{{.Tag}}')"
 
 if [ "$image_present" = "${import_image}" ] ; then
     yell "Using existing SDK import image '${import_image}'"
 else
     yell "Building plain SDK import image"
     if [ -n "$cleanup" ] ; then
-        echo "docker image rm -f '${import_image}'" >> "$cleanup"
+        echo "$docker image rm -f '${import_image}'" >> "$cleanup"
     fi
-    docker build -t "$import_image" \
+    $docker build -t "$import_image" \
                  --build-arg VERSION="${docker_vernum}" \
                  -f sdk_lib/Dockerfile.sdk-import \
                  .
@@ -151,7 +151,7 @@ fi
 #  to build a full SDK container w/ amd64 and arm64 board support.
 #
 sdk_build_image="flatcar-sdk-build:${docker_vernum}"
-image_present="$(docker image ls "${sdk_build_image}" --format '{{.Repository}}:{{.Tag}}')"
+image_present="$($docker image ls "${sdk_build_image}" --format '{{.Repository}}:{{.Tag}}')"
 if [ "$image_present" = "${sdk_build_image}"  ] ; then
     yell "Using existing SDK build image '${sdk_build_image}'"
 else
@@ -168,7 +168,7 @@ else
 
     toolchains_container="flatcar-sdk-toolchains-build-${docker_vernum}"
     if [ -n "$cleanup" ] ; then
-        echo "docker container rm -f '${toolchains_container}'" >> "$cleanup"
+        echo "$docker container rm -f '${toolchains_container}'" >> "$cleanup"
     fi
     ./run_sdk_container -C "${import_image}" -n "${toolchains_container}" \
             sudo ./build_toolchains --seed_tarball="./${tarball}"
@@ -178,9 +178,15 @@ else
         rm "${tarball_copied}"
     fi
 
-    docker container rm "${toolchains_container}"
+    $docker container rm "${toolchains_container}"
 
-    host_ip="$(ip addr show docker0 | grep -Po 'inet \K[\d.]+')"
+    docker_interface="docker0"
+    if "${is_podman}"; then
+      # Make a dummy run without "--net host" here for the interface to be created
+      $docker run --rm alpine
+      docker_interface="cni-podman0"
+    fi
+    host_ip="$(ip addr show "${docker_interface}" | grep -Po 'inet \K[\d.]+')"
     binhost_port="$((1000 + (RANDOM % 55000) ))"
     binhost="${host_ip}:${binhost_port}"
     binhost_container="${toolchains_container}-binhost-${binhost_port}"
@@ -188,28 +194,28 @@ else
 
     # Spin up temporary toolchains package binhost
     if [ -n "$cleanup" ] ; then
-        echo "docker container rm -f '${binhost_container}'" >> "$cleanup"
+        echo "$docker container rm -f '${binhost_container}'" >> "$cleanup"
     fi
-    docker run --rm -d -p "${binhost}":80 \
+    $docker run --rm -d -p "${binhost}":80 \
         --name ${binhost_container} \
         -v "$(pwd)/__build__/images/catalyst/packages/coreos-toolchains/target":/usr/share/caddy \
-        caddy caddy file-server \
+        docker.io/library/caddy caddy file-server \
         --root /usr/share/caddy --browse
 
     # --- Full SDK container build ---
 
     yell "Initialising the SDK container and building board packages"
     if [ -n "$cleanup" ] ; then
-        echo "docker image rm -f '${sdk_build_image}'" >> "$cleanup"
+        echo "$docker image rm -f '${sdk_build_image}'" >> "$cleanup"
     fi
-    docker build -t "${sdk_build_image}" \
+    $docker build -t "${sdk_build_image}" \
                  --build-arg VERSION="${docker_vernum}" \
                  --build-arg BINHOST="http://${binhost}" \
                  --build-arg OFFICIAL="${official}" \
                  -f sdk_lib/Dockerfile.sdk-build \
                  .
 
-    docker stop "${binhost_container}"
+    $docker stop "${binhost_container}"
 fi
 
 # --
@@ -225,7 +231,7 @@ for a in all arm64 amd64; do
         arm64) rmarch="amd64-usr"; rmcross="x86_64-cros-linux-gnu";;
         amd64) rmarch="arm64-usr"; rmcross="aarch64-cros-linux-gnu";;
     esac
-    docker build -t "$sdk_container_common_registry/flatcar-sdk-${a}:${docker_vernum}" \
+    $docker build -t "$sdk_container_common_registry/flatcar-sdk-${a}:${docker_vernum}" \
                  --build-arg VERSION="${docker_vernum}" \
                  --build-arg RMARCH="${rmarch}" \
                  --build-arg RMCROSS="${rmcross}" \
@@ -239,7 +245,7 @@ done
 #
 if ! $keep; then
     yell "Cleaning up intermediate containers"
-    docker rmi flatcar-sdk-build:"${docker_vernum}"
-    docker rmi flatcar-sdk-import:"${docker_vernum}"
-    docker rmi flatcar-sdk-tarball:"${docker_vernum}"
+    $docker rmi flatcar-sdk-build:"${docker_vernum}"
+    $docker rmi flatcar-sdk-import:"${docker_vernum}"
+    $docker rmi flatcar-sdk-tarball:"${docker_vernum}"
 fi
