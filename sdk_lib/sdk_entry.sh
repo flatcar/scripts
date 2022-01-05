@@ -9,6 +9,31 @@ fi
 
 chown -R sdk:sdk /home/sdk
 
+# Check if the OS image version we're working on is newer than
+#  the SDK container version and if it is, update the boards
+#  chroot portage conf to point to the correct binhost.
+(
+    source /etc/lsb-release # SDK version in DISTRIB_RELEASE
+    source /mnt/host/source/.repo/manifests/version.txt # OS image version in FLATCAR_VERSION_ID
+
+    if [ "${FLATCAR_VERSION_ID}" != "${DISTRIB_RELEASE}" ] ; then
+        for target in amd64-usr arm64-usr; do
+            if [ -f "/build/$target/etc/target-version.txt" ] ; then
+                source "/build/$target/etc/target-version.txt"
+                if [ "${TARGET_FLATCAR_VERSION_ID}" = "${FLATCAR_VERSION_ID}" ] ; then
+                    continue # already updated
+                fi
+            fi
+
+            echo
+            echo "Updating board support in '/build/${target}' to use package cache for version '${FLATCAR_VERSION_ID}'"
+            echo "---"
+            sudo su sdk -l -c "/home/sdk/trunk/src/scripts/setup_board --board='$target' --regen_configs_only"
+            echo "TARGET_FLATCAR_VERSION_ID='${FLATCAR_VERSION_ID}'" > "/build/$target/etc/target-version.txt"
+        done
+    fi
+)
+
 # This is ugly.
 #   We need to sudo su - sdk -c so the SDK user gets a fresh login.
 #    'sdk' is member of multiple groups, and plain docker USER only
