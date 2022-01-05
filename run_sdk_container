@@ -77,7 +77,7 @@ if [ -z "$name" ] ; then
     name="flatcar-sdk-${arch}-${docker_sdk_vernum}_os-${docker_os_vernum}"
 fi
 
-stat="$(docker ps --all --no-trunc --filter name="$name" --format '{{.Status}}'\
+stat="$(docker ps --all --no-trunc --filter name="^/$name\$" --format '{{.Status}}'\
         | cut -f1 -d' ')"
 
 # pass SDK related environment variables and gcloud auth
