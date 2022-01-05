@@ -22,7 +22,7 @@ chown -R sdk:sdk /home/sdk
 #    our quotes for su -c "<cmd>" already.
 if [ $# -gt 0 ] ; then
     cmd="/home/sdk/.cmd"
-    echo -n "exec bash -i -c '" >"$cmd"
+    echo -n "exec bash -l -i -c '" >"$cmd"
     for arg in "$@"; do
         echo -n "\"$arg\" " >>"$cmd"
     done
@@ -33,5 +33,5 @@ if [ $# -gt 0 ] ; then
     rm -f "$cmd"
     exit $rc
 else
-    exec sudo su sdk
+    exec sudo su -l sdk
 fi
