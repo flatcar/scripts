@@ -47,7 +47,6 @@ src_unpack() {
 src_prepare() {
 	default
 	eapply "${S}"/*.patch
-	use elibc_uclibc && sed -i 's:linux-gnu:linux-uclibc:' testsuite/config-guess.data #180637
 }
 
 src_compile() { :;}
