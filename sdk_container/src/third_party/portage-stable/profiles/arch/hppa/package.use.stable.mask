@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # When you add an entry to the top of this file, add your name, the date, and
@@ -17,6 +17,95 @@
 
 #--- END OF EXAMPLES ---
 
+# Sam James <sam@gentoo.org> (2021-12-15)
+# Unstable dependencies (dev-libs/libnl, sys-cluster/rdma-core)
+net-libs/libpcap netlink rdma
+
+# Sam James <sam@gentoo.org> (2021-11-17)
+# x11-libs/libXvMC is not marked stable on HPPA
+# media-libs/mesa is not marked stable on HPPA
+media-libs/libepoxy egl
+media-libs/mesa xvmc
+
+# Rolf Eike Beer <eike@sf-mail.de> (2021-11-10)
+# The following packages have no stable keywords on hppa:
+# net-mail/courier-imap mail-mta/courier
+dev-libs/cyrus-sasl authdaemond
+
+# Sam James <sam@gentoo.org> (2021-11-03)
+# sys-apps/hwloc is not marked stable on HPPA
+sys-process/htop hwloc
+
+# Sam James <sam@gentoo.org> (2021-11-03)
+# dev-util/source-highlight is not marked stable on HPPA
+sys-devel/gdb source-highlight
+
+# Matt Turner <mattst88@gentoo.org> (2021-09-22)
+# Non-stable deps.
+app-editors/emacs gui mailutils
+
+# Matt Turner <mattst88@gentoo.org> (2021-09-22)
+# Non-stable deps.
+net-irc/irssi otr
+
+# Matt Turner <mattst88@gentoo.org> (2021-09-22)
+# Non-stable deps.
+app-editors/vim cscope sound
+
+# Michał Górny <mgorny@gentoo.org> (2021-09-19)
+# Non-stable deps.
+dev-python/matplotlib cairo gtk3
+
+# Michał Górny <mgorny@gentoo.org> (2021-09-18)
+# Prepare for stabilizing a minimal xorg-server, for Xvfb.
+media-libs/libglvnd -X
+x11-apps/xinit twm
+x11-base/xorg-server dmx kdrive xephyr
+
+# Matt Turner <mattst88@gentoo.org> (2021-09-10)
+# dev-libs/tomsfastmath does not have stable keywords on hppa
+dev-libs/libtomcrypt tomsfastmath
+
+# Marek Szuba <marecki@gentoo.org> (2021-09-10)
+# no stable dev-ruby/{thor,tty-editor} on this arch yet
+# and there are many dependencies to go through before there are
+app-text/htmltidy test
+
+# Matt Turner <mattst88@gentoo.org> (2021-09-06)
+# net-dialup/linux-atm does not have stable keywords on hppa
+# dev-libs/libbpf does not have stable keywords on hppa
+# net-firewall/iptables does not have stable keywords on hppa
+sys-apps/iproute2 atm bpf iptables
+
+# Thomas Deutschmann <whissi@gentoo.org> (2021-06-20)
+# dev-libs/libzip does not have stable keywords on hppa
+>=media-gfx/imagemagick-7 zip
+
+# Matt Turner <mattst88@gentoo.org> (2021-06-02)
+# dev-util/gi-docgen does not have stable keywords on hppa
+x11-libs/gdk-pixbuf gtk-doc
+x11-libs/pango gtk-doc
+
+# Sam James <sam@gentoo.org> (2021-06-01)
+# sys-apps/systemd is not stable on hppa
+sys-auth/pambase homed
+
+# Sam James <sam@gentoo.org> (2021-02-18)
+# Requires dev-lang/vala to be stable
+gnome-base/librsvg vala
+
+# Rolf Eike Beer <eike@sf-mail.de> (2021-01-26)
+# The following packages have no stable keywords on hppa:
+#       openntpd: net-misc/openntpd
+#   parse-clocks: net-misc/pps-tools
+#           snmp: net-analyzer/net-snmp
+net-misc/ntp openntpd parse-clocks snmp
+
+# Sam James <sam@gentoo.org> (2021-01-21)
+# media-gfx/transfig ends up pulling in Xorg
+# bug #766051
+dev-util/ragel doc
+
 # Matt Turner <mattst88@gentoo.org> (2020-12-31)
 # The following packages have no stable keywords on hppa:
 #           amqp: net-libs/rabbitmq
@@ -24,11 +113,10 @@
 #         geoip2: dev-libs/libmaxminddb
 #          kafka: dev-libs/librdkafka
 #        mongodb: dev-libs/mongo-c-driver
-#          redis: dev-db/redis
 #           smtp: net-libs/libesmtp
 #           snmp: net-analyzer/net-snmp
 #   spoof-source: net-libs/libnet
-app-admin/syslog-ng amqp dbi geoip2 kafka mongodb redis smtp snmp spoof-source
+app-admin/syslog-ng amqp dbi geoip2 kafka mongodb smtp snmp spoof-source
 
 # Matt Turner <mattst88@gentoo.org> (2020-12-30)
 # dev-libs/libfido2 is not stable on hppa
@@ -90,10 +178,6 @@ dev-python/setuptools_scm test
 # Rolf Eike Beer <eike@sf-mail.de> (2020-04-24)
 # dependencies not stable yet
 dev-python/pytest-cov test
-
-# Rolf Eike Beer <eike@sf-mail.de> (2020-04-11)
-# No stable app-arch/rpm on hppa, bug #471456
-dev-util/patchutils test
 
 # Rolf Eike Beer <eike@sf-mail.de> (2020-04-11)
 # no stable app-editors/{,g}vim

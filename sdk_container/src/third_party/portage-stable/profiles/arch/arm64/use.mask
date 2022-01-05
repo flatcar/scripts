@@ -96,16 +96,12 @@ zvbi
 sid
 mms
 ieee1394
-pm-utils
 darcs
 bs2b
-ladspa
 ggi
-nut
 dvd
 fits
 lpsol
-quvi
 zvbi
 gts
 anthy
@@ -141,8 +137,3 @@ video_cards_r200
 video_cards_r300
 video_cards_r600
 video_cards_radeonsi
-
-# USE=audit masked prior to testing on alpha, arm, hppa, ppc64, s390, sh.
-# Bug #184563, (2007-09-18)
-# Robin H. Johnson <robbat2@gentoo.org>
-audit
