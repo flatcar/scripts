@@ -61,7 +61,16 @@ function update_and_push_version() {
 
     git commit --allow-empty -m "New version: ${version}"
 
-    git tag -f "${version}"
+    local -a TAG_ARGS
+    if [ "${SIGN-0}" = 1 ]; then
+      TAG_ARGS=("-s" "-m" "${version}")
+    fi
+
+    git tag -f "${TAG_ARGS[@]}" "${version}"
+
+    if [ "${PUSH-0}" = 1 ]; then
+      git push
+    fi
 
     if git push origin "${version}" ; then
         return
