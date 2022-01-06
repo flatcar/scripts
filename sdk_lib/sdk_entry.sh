@@ -18,6 +18,9 @@ chown -R sdk:sdk /home/sdk
 
     if [ "${FLATCAR_VERSION_ID}" != "${DISTRIB_RELEASE}" ] ; then
         for target in amd64-usr arm64-usr; do
+            if [ ! -d "/build/$target" ] ; then
+                continue
+            fi
             if [ -f "/build/$target/etc/target-version.txt" ] ; then
                 source "/build/$target/etc/target-version.txt"
                 if [ "${TARGET_FLATCAR_VERSION_ID}" = "${FLATCAR_VERSION_ID}" ] ; then
