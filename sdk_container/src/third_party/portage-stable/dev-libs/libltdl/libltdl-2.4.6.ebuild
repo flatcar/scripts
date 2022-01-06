@@ -1,30 +1,25 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/libltdl/libltdl-2.4.6.ebuild,v 1.11 2015/04/13 08:39:18 ago Exp $
 
-EAPI="4"
+EAPI=7
 
 inherit multilib-minimal
 
 MY_P="libtool-${PV}"
 
 DESCRIPTION="A shared library tool for developers"
-HOMEPAGE="http://www.gnu.org/software/libtool/"
+HOMEPAGE="https://www.gnu.org/software/libtool/"
 SRC_URI="mirror://gnu/libtool/${MY_P}.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="static-libs"
 # libltdl doesn't have a testsuite.
 RESTRICT="test"
 
-RDEPEND="!<sys-devel/libtool-2.4.3-r2:2
-	abi_x86_32? (
-		!<=app-emulation/emul-linux-x86-baselibs-20140406-r2
-		!app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)]
-	)"
-DEPEND="app-arch/xz-utils"
+RDEPEND="!<sys-devel/libtool-2.4.3-r2:2"
+BDEPEND="app-arch/xz-utils"
 
 S="${WORKDIR}/${MY_P}/libltdl"
 

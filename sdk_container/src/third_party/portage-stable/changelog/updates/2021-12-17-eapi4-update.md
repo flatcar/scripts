@@ -1,0 +1,8 @@
+- ipset ([7.11](https://ipset.netfilter.org/changelog.html))
+- acl ([2.3.1](https://git.savannah.nongnu.org/cgit/acl.git/log/?h=v2.3.1))
+- attr ([2.5.1](https://git.savannah.nongnu.org/cgit/attr.git/log/?h=v2.5.1))
+- diffutils ([3.8](https://lists.gnu.org/archive/html/info-gnu/2021-08/msg00000.html))
+- ethtool ([5.10](https://git.kernel.org/pub/scm/network/ethtool/ethtool.git/tree/NEWS?h=v5.10))
+- lshw ([02.19.2b_p20210121](https://www.ezix.org/project/wiki/HardwareLiSter#Changes))
+- ipvsadm ([1.27](http://archive.linuxvirtualserver.org/html/lvs-devel/2013-09/msg00011.html))
+- lsof ([4.94.0](https://github.com/lsof-org/lsof/releases/tag/4.94.0))
