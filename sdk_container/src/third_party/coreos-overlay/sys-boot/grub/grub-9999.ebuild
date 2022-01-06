@@ -113,6 +113,7 @@ QA_MULTILIB_PATHS="usr/lib/grub/.*"
 
 PATCHES=(
 	"${FILESDIR}/${PN}-2.02-binutils-2.36-x86-used-note.patch"
+	"${FILESDIR}/${PN}-2.02-configure-specify-gettext-version.patch"
 )
 
 src_unpack() {
