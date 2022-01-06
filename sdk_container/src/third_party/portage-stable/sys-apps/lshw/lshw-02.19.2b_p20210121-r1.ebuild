@@ -22,7 +22,7 @@ IUSE="gtk sqlite static"
 REQUIRED_USE="static? ( !gtk !sqlite )"
 
 DEPEND="${RDEPEND}"
-RDEPEND="sys-apps/hwids
+RDEPEND="sys-apps/hwdata
 	gtk? ( x11-libs/gtk+:3 )
 	sqlite? ( dev-db/sqlite:3 )"
 BDEPEND="gtk? ( virtual/pkgconfig )
@@ -53,10 +53,10 @@ src_prepare() {
 		-e '/^LDFLAGS=/d' \
 		src/core/Makefile || die
 	sed -i \
-		-e '/^#define PCIID_PATH/s:DATADIR"\/pci.ids.*:"/usr/share/misc/pci.ids":' \
+		-e '/^#define PCIID_PATH/s:DATADIR"\/pci.ids.*:"/usr/share/hwdata/pci.ids":' \
 		src/core/pci.cc || die
 	sed -i \
-		-e '/^#define USBID_PATH/s:DATADIR"\/usb.ids.*:"/usr/share/misc/usb.ids":' \
+		-e '/^#define USBID_PATH/s:DATADIR"\/usb.ids.*:"/usr/share/hwdata/usb.ids":' \
 		src/core/usb.cc || die
 }
 
