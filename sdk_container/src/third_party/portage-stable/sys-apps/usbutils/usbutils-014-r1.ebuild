@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-PYTHON_COMPAT=( python3_{7,8,9} )
+PYTHON_COMPAT=( python3_{8,9,10} )
 
 inherit autotools python-single-r1
 
@@ -13,7 +13,7 @@ SRC_URI="https://www.kernel.org/pub/linux/utils/usb/${PN}/${P}.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~s390 sparc x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux"
 IUSE="python"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
@@ -21,10 +21,14 @@ DEPEND="virtual/libusb:1=
 	virtual/libudev:="
 BDEPEND="
 	app-arch/xz-utils
-	virtual/pkgconfig"
-RDEPEND="${DEPEND}
-	sys-apps/hwids
+	virtual/pkgconfig
 	python? ( ${PYTHON_DEPS} )"
+RDEPEND="${DEPEND}
+	python? (
+		${PYTHON_DEPS}
+		sys-apps/hwdata
+	)
+"
 
 pkg_setup() {
 	use python && python-single-r1_pkg_setup
@@ -39,7 +43,7 @@ src_prepare() {
 src_configure() {
 	local myeconfargs=(
 		--datarootdir="${EPREFIX}/usr/share"
-		--datadir="${EPREFIX}/usr/share/misc"
+		--datadir="${EPREFIX}/usr/share/hwdata"
 	)
 	econf "${myeconfargs[@]}"
 }
@@ -49,5 +53,7 @@ src_install() {
 	newdoc usbhid-dump/NEWS NEWS.usbhid-dump
 	dobin usbreset # noinst_PROGRAMS, but installed by other distros
 
-	use python || rm -f "${ED}"/usr/bin/lsusb.py
+	if ! use python ; then
+		rm -f "${ED}"/usr/bin/lsusb.py || die
+	fi
 }
