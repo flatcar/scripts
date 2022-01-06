@@ -119,7 +119,7 @@ fi
 
 if [ "$stat" != "Up" ] ; then
     yell "Starting stopped container '$name'"
-    trap "docker stop $name" EXIT
+    trap "docker stop -t 0 $name" EXIT
     docker start "$name"
 
 fi
