@@ -142,7 +142,9 @@ src_prepare() {
 	if [[ -n ${GRUB_AUTOGEN} ]]; then
 		python_setup
 		bash autogen.sh || die
-		autopoint() { :; }
+		# Flatcar: Force the use of newer gettext infra to
+		# avoid build issues with infra version mismatches.
+		eautopoint --force
 		eautoreconf
 	fi
 }
