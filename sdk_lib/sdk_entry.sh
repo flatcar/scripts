@@ -29,7 +29,7 @@ chown -R sdk:sdk /home/sdk
             echo "Updating board support in '/build/${target}' to use package cache for version '${FLATCAR_VERSION_ID}'"
             echo "---"
             sudo su sdk -l -c "/home/sdk/trunk/src/scripts/setup_board --board='$target' --regen_configs_only"
-            echo "TARGET_FLATCAR_VERSION_ID='${FLATCAR_VERSION_ID}'" > "/build/$target/etc/target-version.txt"
+            echo "TARGET_FLATCAR_VERSION_ID='${FLATCAR_VERSION_ID}'" | sudo tee "/build/$target/etc/target-version.txt" >/dev/null
         done
     fi
 )
