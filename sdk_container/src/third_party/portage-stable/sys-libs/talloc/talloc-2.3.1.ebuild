@@ -20,13 +20,11 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="test"
 
 RDEPEND="
-	!elibc_FreeBSD? (
 		!elibc_SunOS? (
 			!elibc_Darwin? (
 				dev-libs/libbsd[${MULTILIB_USEDEP}]
 			)
 		)
-	)
 	python? ( ${PYTHON_DEPS} )
 	!!<sys-libs/talloc-2.0.5
 "

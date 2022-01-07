@@ -407,9 +407,6 @@ build_contrib_module() {
 }
 
 src_configure() {
-	# Bug 408001
-	use elibc_FreeBSD && append-cppflags -DMDB_DSYNC=O_SYNC -DMDB_FDATASYNC=fsync
-
 	# connectionless ldap per bug #342439
 	append-cppflags -DLDAP_CONNECTIONLESS
 

@@ -61,7 +61,7 @@ multilib_src_compile() {
 		$(use ssl && echo -ldl)
 	)
 
-	use elibc_Darwin || use elibc_DragonFly || use elibc_FreeBSD ||
+	use elibc_Darwin || use elibc_DragonFly ||
 		use elibc_NetBSD || use elibc_OpenBSD || use elibc_SunOS &&
 			ADDLDFLAGS+=( $(use nls && echo -lintl) )
 

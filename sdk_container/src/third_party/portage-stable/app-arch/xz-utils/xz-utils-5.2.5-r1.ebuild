@@ -27,7 +27,7 @@ HOMEPAGE="https://tukaani.org/xz/"
 # See top-level COPYING file as it outlines the various pieces and their licenses.
 LICENSE="public-domain LGPL-2.1+ GPL-2+"
 SLOT="0"
-IUSE="elibc_FreeBSD +extra-filters nls static-libs"
+IUSE="+extra-filters nls static-libs"
 
 RDEPEND="!<app-arch/lzma-4.63
 	!<app-arch/p7zip-4.57
@@ -73,7 +73,6 @@ multilib_src_configure() {
 		export gl_cv_posix_shell=${EPREFIX}/bin/sh
 	fi
 
-	use elibc_FreeBSD && export ac_cv_header_sha256_h=no #545714
 	ECONF_SOURCE="${S}" econf "${myconf[@]}"
 }
 
