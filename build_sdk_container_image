@@ -178,7 +178,7 @@ else
         rm "${tarball_copied}"
     fi
 
-    $docker container rm "${toolchains_container}"
+    $docker container rm -f "${toolchains_container}"
 
     docker_interface="docker0"
     if "${is_podman}"; then
