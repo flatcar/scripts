@@ -6,8 +6,11 @@ rm -rf *.tap _kola_temp*
 NAME="jenkins-${JOB_NAME##*/}-${BUILD_NUMBER}"
 
 if [[ "${BOARD}" == "arm64-usr" ]]; then
-  echo "Unsupported board"
-  exit 1
+  if [[ "${AZURE_HYPER_V_GENERATION}" != "V2" ]]; then
+    echo "Unsupported combination"
+    exit 1
+  fi
+  AZURE_USE_GALLERY="--azure-use-gallery"
 fi
 
 if [[ "${KOLA_TESTS}" == "" ]]; then
@@ -42,6 +45,7 @@ timeout --signal=SIGQUIT 20h bin/kola run \
     --azure-auth="${AZURE_AUTH_CREDENTIALS}" \
     --tapfile="${JOB_NAME##*/}.tap" \
     --torcx-manifest=torcx_manifest.json \
+    ${AZURE_USE_GALLERY} \
     ${AZURE_MACHINE_SIZE_OPT} \
     ${AZURE_HYPER_V_GENERATION:+--azure-hyper-v-generation=${AZURE_HYPER_V_GENERATION}} \
     ${KOLA_TESTS}
