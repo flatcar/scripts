@@ -163,7 +163,7 @@ for dir in . \
     sdk_container/src/third_party/portage-stable ; do
 
     git -C "$dir" checkout "$branch"
-    if [-n "$update_strategy" ] ; then
+    if [ -n "$update_strategy" ] ; then
         echo "updating branch in '$dir' /'$update_strategy')"
         git -C "$dir" pull "$update_strategy"
     fi
