@@ -142,13 +142,13 @@ get_board_binhost() {
     board="$1"
     shift
 
-    local no_toolchain=0
+    local pkgs_include_toolchain=0
     if [[ $# -eq 0 ]]; then
         if [[ "${FLATCAR_BUILD_ID}" =~ ^nightly-.*$ ]] ; then
             # containerised nightly build; this uses [VERSION]-[BUILD_ID] for binpkg url
             #  and toolchain packages are at the same location as OS image ones
             set -- "${FLATCAR_VERSION_ID}-${FLATCAR_BUILD_ID}"
-            no_toolchain=1
+            pkgs_include_toolchain=1
         else
             set -- "${FLATCAR_VERSION_ID}"
         fi
@@ -158,7 +158,7 @@ get_board_binhost() {
         if [[ $toolchain_only -eq 0 ]]; then
             echo "${FLATCAR_DEV_BUILDS}/boards/${board}/${ver}/pkgs/"
         fi
-        if [[ $no_toolchain -eq 0 ]]; then
+        if [[ $pkgs_include_toolchain -eq 0 ]]; then
             echo "${FLATCAR_DEV_BUILDS}/boards/${board}/${ver}/toolchain/"
         fi
     done
