@@ -1,16 +1,17 @@
 # Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Flatcar: Support EAPI 4 and 5.
+
 # @ECLASS: virtualx.eclass
 # @MAINTAINER:
 # x11@gentoo.org
 # @AUTHOR:
 # Original author: Martin Schlemmer <azarah@gentoo.org>
-# @SUPPORTED_EAPIS: 6 7 8
+# @SUPPORTED_EAPIS: 4 5 6 7 8
 # @BLURB: This eclass can be used for packages that need a working X environment to build.
-
 case ${EAPI} in
-	6|7|8) ;;
+	4|5|6|7|8) ;;
 	*) die "${ECLASS}: EAPI ${EAPI:-0} is not supported." ;;
 esac
 
@@ -35,12 +36,12 @@ _VIRTUALX_ECLASS=1
 # (in EAPI-6: DEPEND) unless VIRTUALX_REQUIRED is set to "manual".
 # DEPRECATED: Pre-EAPI-8 you can specify the variable BEFORE inherit
 # to add more dependencies.
-[[ ${EAPI} != [67] ]] && VIRTUALX_DEPEND=""
+[[ ${EAPI} != [4567] ]] && VIRTUALX_DEPEND=""
 VIRTUALX_DEPEND+="
 	x11-base/xorg-server[xvfb]
 	x11-apps/xhost
 "
-[[ ${EAPI} != [67] ]] && readonly VIRTUALX_DEPEND
+[[ ${EAPI} != [4567] ]] && readonly VIRTUALX_DEPEND
 
 [[ ${VIRTUALX_COMMAND} ]] && die "VIRTUALX_COMMAND has been removed and is a no-op"
 
@@ -58,7 +59,7 @@ case ${VIRTUALX_REQUIRED} in
 		;;
 esac
 
-[[ ${EAPI} == 6 ]] && DEPEND="${BDEPEND}"
+[[ ${EAPI} == [456] ]] && DEPEND="${BDEPEND}"
 
 
 # @FUNCTION: virtx
