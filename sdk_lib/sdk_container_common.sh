@@ -11,10 +11,27 @@ sdk_container_common_versionfile="sdk_container/.repo/manifests/version.txt"
 sdk_container_common_registry="ghcr.io/flatcar-linux"
 sdk_container_common_env_file="sdk_container/.sdkenv"
 
+# Check for podman and docker; use docker if present, podman alternatively.
+# Podman needs 'sudo' since we need privileged containers for the SDK.
+
 is_podman=false
 if command -v podman >/dev/null; then
-  is_podman=true
+    # podman is present
+    if command -v docker >/dev/null ; then
+        # docker is present, too
+        if docker help | grep -q -i podman; then
+            # "docker" is actually podman.
+            # NOTE that 'docker --version' does not reliably work for podman detection
+            #  since 'podman' uses argv[0] in its version string.
+            #  A symlink docker->podman will result in 'podman' using the 'docker' argv[0].
+            is_podman=true
+        fi
+    else
+        # docker is not present
+        is_podman=true
+    fi
 fi
+
 docker="docker"
 if "${is_podman}"; then
   docker="sudo podman"
