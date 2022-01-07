@@ -89,6 +89,7 @@ function garbage_collect() {
         else
             echo "## ${version} is an OS image version. ##"
             rmpat="${BUILDCACHE_PATH_PREFIX}/containers/${os_docker_vernum}/flatcar-packages-*"
+            rmpat="${BUILDCACHE_PATH_PREFIX}/binpkgs/boards/*/${os_docker_vernum}/*"
             rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/containers/${os_docker_vernum}/flatcar-images-*"
             rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/images/*/${os_vernum}/"
         fi
