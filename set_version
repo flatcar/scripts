@@ -2,7 +2,9 @@
 
 set -euo pipefail
 
-DEFAULT_BASE_URL="https://mirror.release.flatcar-linux.net"
+. "$(dirname ${BASH_SOURCE[0]})/settings.env" || exit 1
+
+DEFAULT_BASE_URL="${SETTING_BINPKG_SERVER_PROD}"
 DEV_BOARD_URL="${DEFAULT_BASE_URL}/developer"
 DEFAULT_SDK_URL="${DEFAULT_BASE_URL}/sdk"
 DEV_SDK_URL="${DEFAULT_BASE_URL}/developer/sdk"
@@ -41,7 +43,8 @@ Usage: $0 FLAGS...
   --file FILE:                                     Modify another file than ${FILE}, useful if run
                                                    outside of the SDK chroot. If /dev/stdout or
                                                    /dev/stderr is used, only new values are printed.
-  --binhost                                        Use a custom binhost (defaults to '${DEFAULT_BASE_URL}').
+  --binhost                                        Use a custom binhost (defaults to '${DEFAULT_BASE_URL}'),
+                                                   e.g., '${SETTING_BINPKG_SERVER_DEV}'.
                                                    This will update BOARD and SDK URLs accordingly.
 "
   exit 1
