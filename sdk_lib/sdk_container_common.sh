@@ -11,6 +11,15 @@ sdk_container_common_versionfile="sdk_container/.repo/manifests/version.txt"
 sdk_container_common_registry="ghcr.io/flatcar-linux"
 sdk_container_common_env_file="sdk_container/.sdkenv"
 
+is_podman=false
+if command -v podman >/dev/null; then
+  is_podman=true
+fi
+docker="docker"
+if "${is_podman}"; then
+  docker="sudo podman"
+fi
+
 # Common "echo" function
 
 function yell() {
