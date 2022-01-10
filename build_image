@@ -18,7 +18,7 @@ assert_inside_chroot
 assert_not_root_user
 
 DEFAULT_GROUP=developer
-DEFAULT_DEVCONTAINER_BINHOST="https://mirror.release.flatcar-linux.net"
+DEFAULT_DEVCONTAINER_BINHOST="${SETTING_BINPKG_SERVER_PROD}"
 
 # Developer-visible flags.
 DEFINE_string board "${DEFAULT_BOARD}" \
