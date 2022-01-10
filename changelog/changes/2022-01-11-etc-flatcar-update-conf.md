@@ -1,0 +1,1 @@
+- Removed the pre-shipped `/etc/flatcar/update.conf` file, leaving it totally to the user to define the contents as it was unnecessarily overwriting the `/use/share/flatcar/update.conf` ([PR#212](https://github.com/flatcar-linux/scripts/pull/212))
