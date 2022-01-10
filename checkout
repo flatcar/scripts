@@ -104,6 +104,13 @@ function check_all() {
     local scripts="$(git $gitcmd \
                         | sed -e 's/^[[:space:]]*//' -e 's:remotes/[^/]\+/::' \
                         | grep -m1 -E "^$name\$")"
+
+    # tag has submodules pinned, no need to check
+    if [[ "${gitcmd}" =~ ^tag\ .* ]] ; then
+        echo "${scripts}"
+        return
+    fi
+
     local overlay="$(git -C sdk_container/src/third_party/coreos-overlay $gitcmd \
                         | sed -e 's/^[[:space:]]*//' -e 's:remotes/[^/]\+/::' \
                         | grep -m1 -E "^$name\$")"
