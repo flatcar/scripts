@@ -1,0 +1,19 @@
+diff -u -r refpolicy/policy/modules/admin/netutils.te refpolicy/policy/modules/admin/netutils.te
+--- refpolicy/policy/modules/admin/netutils.te	2022-01-12 14:28:26.850809330 -0000
++++ refpolicy/policy/modules/admin/netutils.te	2022-01-12 14:29:50.323880882 -0000
+@@ -117,6 +117,7 @@
+ corenet_raw_sendrecv_generic_node(ping_t)
+ corenet_tcp_sendrecv_generic_node(ping_t)
+ corenet_raw_bind_generic_node(ping_t)
++corenet_icmp_bind_generic_node(ping_t)
+ 
+ dev_read_urand(ping_t)
+ 
+@@ -189,6 +190,7 @@
+ corenet_tcp_connect_all_ports(traceroute_t)
+ corenet_sendrecv_all_client_packets(traceroute_t)
+ corenet_sendrecv_traceroute_server_packets(traceroute_t)
++corenet_icmp_bind_generic_node(traceroute_t)
+ 
+ dev_read_rand(traceroute_t)
+ dev_read_urand(traceroute_t)
