@@ -1,12 +1,15 @@
-# Copyright 2013-2019 Gentoo Authors
+# Copyright 2013-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+
+# Flatcar: Support EAPI 4.
 
 # @ECLASS: multilib-build.eclass
 # @MAINTAINER:
-# gx86-multilib team <multilib@gentoo.org>
+# Michał Górny <mgorny@gentoo.org>
 # @AUTHOR:
 # Author: Michał Górny <mgorny@gentoo.org>
-# @SUPPORTED_EAPIS: 4 5 6 7
+# @SUPPORTED_EAPIS: 4 5 6 7 8
+# @PROVIDES: multibuild
 # @BLURB: flags and utility functions for building multilib packages
 # @DESCRIPTION:
 # The multilib-build.eclass exports USE flags and utility functions
@@ -17,13 +20,13 @@
 # dependencies shall use the USE dependency string in ${MULTILIB_USEDEP}
 # to properly request multilib enabled.
 
-if [[ ! ${_MULTILIB_BUILD} ]]; then
-
-# EAPI=4 is required for meaningful MULTILIB_USEDEP.
-case ${EAPI:-0} in
-	4|5|6|7) ;;
-	*) die "EAPI=${EAPI} is not supported" ;;
+case ${EAPI} in
+	4|5|6|7|8) ;;
+	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
+
+if [[ -z ${_MULTILIB_BUILD} ]]; then
+_MULTILIB_BUILD=1
 
 [[ ${EAPI} == [45] ]] && inherit eutils
 inherit multibuild multilib
@@ -47,8 +50,6 @@ _MULTILIB_FLAGS=(
 	abi_mips_o32:o32
 #	abi_ppc_32:ppc,ppc_aix,ppc_macos
 #	abi_ppc_64:ppc64
-	abi_riscv_lp64d:lp64d
-	abi_riscv_lp64:lp64
 	abi_s390_32:s390
 	abi_s390_64:s390x
 )
@@ -79,6 +80,7 @@ readonly _MULTILIB_FLAGS
 # @CODE
 
 # @ECLASS-VARIABLE: MULTILIB_USEDEP
+# @OUTPUT_VARIABLE
 # @DESCRIPTION:
 # The USE-dependency to be used on dependencies (libraries) needing
 # to support multilib as well.
@@ -90,7 +92,7 @@ readonly _MULTILIB_FLAGS
 # @CODE
 
 # @ECLASS-VARIABLE: MULTILIB_ABI_FLAG
-# @DEFAULT_UNSET
+# @OUTPUT_VARIABLE
 # @DESCRIPTION:
 # The complete ABI name. Resembles the USE flag name.
 #
@@ -320,6 +322,7 @@ multilib_copy_sources() {
 }
 
 # @ECLASS-VARIABLE: MULTILIB_WRAPPED_HEADERS
+# @DEFAULT_UNSET
 # @DESCRIPTION:
 # A list of headers to wrap for multilib support. The listed headers
 # will be moved to a non-standard location and replaced with a file
@@ -342,6 +345,7 @@ multilib_copy_sources() {
 # @CODE
 
 # @ECLASS-VARIABLE: MULTILIB_CHOST_TOOLS
+# @DEFAULT_UNSET
 # @DESCRIPTION:
 # A list of tool executables to preserve for each multilib ABI.
 # The listed executables will be renamed to ${CHOST}-${basename},
@@ -369,8 +373,8 @@ multilib_copy_sources() {
 # MULTILIB_CHOST_TOOLS=(
 #	/usr/bin/foo-config
 # )
-
 # @CODE
+
 # @FUNCTION: multilib_prepare_wrappers
 # @USAGE: [<install-root>]
 # @DESCRIPTION:
@@ -487,14 +491,6 @@ multilib_prepare_wrappers() {
 #		error "abi_mips_n64 not supported by the package."
 #	elif(_MIPS_SIM == _ABIO32) /* o32 */
 #		error "abi_mips_o32 not supported by the package."
-#	endif
-#elif defined(__riscv)
-#	if defined(__riscv_float_abi_double)
-#		error "abi_riscv_lp64d not supported by the package."
-#	elif defined(__riscv_float_abi_single)
-#		error "abi_riscv_lp64f not supported by the package."
-#	else
-#		error "abi_riscv_lp64 not supported by the package."
 #	endif
 #elif defined(__sparc__)
 #	if defined(__arch64__)
@@ -679,5 +675,4 @@ multilib_native_usex() {
 	fi
 }
 
-_MULTILIB_BUILD=1
 fi

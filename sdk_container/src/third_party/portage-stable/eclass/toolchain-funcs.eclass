@@ -1,10 +1,12 @@
 # Copyright 2002-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Flatcar: Support EAPI 4.
+
 # @ECLASS: toolchain-funcs.eclass
 # @MAINTAINER:
 # Toolchain Ninjas <toolchain@gentoo.org>
-# @SUPPORTED_EAPIS: 5 6 7 8
+# @SUPPORTED_EAPIS: 4 5 6 7 8
 # @BLURB: functions to query common info about the toolchain
 # @DESCRIPTION:
 # The toolchain-funcs aims to provide a complete suite of functions
@@ -13,13 +15,11 @@
 # in such a way that you can rely on the function always returning
 # something sane.
 
-# Flatcar: we still have some packages that use old EAPI, revert this
-# change when we update those packages.
-#case ${EAPI:-0} in
-#	# EAPI=0 is still used by crossdev, bug #797367
-#	0|5|6|7|8) ;;
-#	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
-#esac
+case ${EAPI:-0} in
+	# EAPI=0 is still used by crossdev, bug #797367
+	0|4|5|6|7|8) ;;
+	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
+esac
 
 if [[ -z ${_TOOLCHAIN_FUNCS_ECLASS} ]]; then
 _TOOLCHAIN_FUNCS_ECLASS=1
@@ -677,6 +677,7 @@ ninj() { [[ ${type} == "kern" ]] && echo $1 || echo $2 ; }
 			fi
 			;;
 		ia64*)		echo ia64;;
+		loongarch*)	ninj loongarch loong;;
 		m68*)		echo m68k;;
 		metag*)		echo metag;;
 		microblaze*)	echo microblaze;;
@@ -754,6 +755,7 @@ tc-endian() {
 		hppa*)		echo big;;
 		i?86*)		echo little;;
 		ia64*)		echo little;;
+		loongarch*)	echo little;;
 		m68*)		echo big;;
 		mips*l*)	echo little;;
 		mips*)		echo big;;
