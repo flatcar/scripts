@@ -73,7 +73,3 @@ sudo_clobber "${ROOT_FS_DIR}/usr/share/flatcar/update.conf" <<EOF
 SERVER=https://public.update.flatcar-linux.net/v1/update/
 GROUP=$FLAGS_group
 EOF
-
-sudo_clobber "${ROOT_FS_DIR}/etc/flatcar/update.conf" <<EOF
-GROUP=$FLAGS_group
-EOF
