@@ -27,7 +27,7 @@
 #
 # OUTPUT:
 #
-#   1. Binary packages published to buildcache at "binpkgs/boards/[ARCH]-usr/[VERSION]/pkgs".
+#   1. Binary packages published to buildcache at "boards/[ARCH]-usr/[VERSION]/pkgs".
 #   2. "./ci-cleanup.sh" with commands to clean up temporary build resources,
 #        to be run after this step finishes / when this step is aborted.
 
@@ -41,7 +41,7 @@ function image_build__copy_to_bincache() {
     source ci-automation/ci_automation_common.sh
 
     cd /build/$arch-usr/var/lib/portage/pkgs/
-    copy_to_buildcache "binpkgs/boards/$arch-usr/$version/pkgs" *
+    copy_to_buildcache "boards/$arch-usr/$version/pkgs" *
 }
 # --
 
