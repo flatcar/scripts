@@ -8,7 +8,7 @@
 # and packages that depend on it. It does not set any metadata.
 
 case "${EAPI:-0}" in
-	5|6|7) ;;
+	5|6|7|8) ;;
 	*) die "Unsupported EAPI=${EAPI} for ${ECLASS}"
 esac
 
