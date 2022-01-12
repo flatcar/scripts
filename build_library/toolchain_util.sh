@@ -147,7 +147,7 @@ get_board_binhost() {
         if [[ "${FLATCAR_BUILD_ID}" =~ ^nightly-.*$ ]] ; then
             # containerised nightly build; this uses [VERSION]-[BUILD_ID] for binpkg url
             #  and toolchain packages are at the same location as OS image ones
-            set -- "${FLATCAR_VERSION_ID}-${FLATCAR_BUILD_ID}"
+            set -- "${FLATCAR_VERSION_ID}+${FLATCAR_BUILD_ID}"
             pkgs_include_toolchain=1
         else
             set -- "${FLATCAR_VERSION_ID}"
@@ -189,7 +189,12 @@ get_sdk_binhost() {
         set -- "${FLATCAR_SDK_VERSION}"
     fi
 
-    FLATCAR_DEV_BUILDS_SDK="${FLATCAR_DEV_BUILDS_SDK-$FLATCAR_DEV_BUILDS/sdk}"
+    if [ "${FLATCAR_DEV_BUILDS}" != "${SETTING_BINPKG_SERVER_DEV_CONTAINERISED}" ] ; then
+        FLATCAR_DEV_BUILDS_SDK="${FLATCAR_DEV_BUILDS_SDK-${FLATCAR_DEV_BUILDS}/sdk}"
+    else
+        # ALWAYS use a released SDK version, never a nightly, for SDK binpkgs
+        FLATCAR_DEV_BUILDS_SDK="${FLATCAR_DEV_BUILDS_SDK-${SETTING_BINPKG_SERVER_PROD}/sdk}"
+    fi
     for ver in "$@"; do
         # Usually only crossdev needs to be fetched from /toolchain/ in the setup_board step.
         # The entry for /pkgs/ is there if something needs to be reinstalled in the SDK
