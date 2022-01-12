@@ -1,0 +1,1 @@
+- Fixed the dracut emergency Ignition log printing that had a scripting error causing the cat command to fail ([PR#33](https://github.com/flatcar-linux/bootengine/pull/33))
