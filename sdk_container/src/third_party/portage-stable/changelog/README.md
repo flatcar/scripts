@@ -29,3 +29,11 @@ As `Updates` refer to the package updates, contents of the file should be of
 the following format: `- Package Name ([Version](link to changelog))`. Example:
 `- Linux ([5.10.77](https://lwn.net/Articles/874852/))`. Note the leading dash
 that will create a bullet list in the rendered markdown.
+
+The security section follows this format:
+
+```
+- Package Name ([CVE-NUMBER](NIST-LINK), [CVE-NUMBER](NIST-LINK), ...)
+```
+
+E.g., `Linux ([CVE-2021-4002](https://nvd.nist.gov/vuln/detail/CVE-2021-4002), [CVE-2020-27820](https://nvd.nist.gov/vuln/detail/CVE-2020-27820))`.
