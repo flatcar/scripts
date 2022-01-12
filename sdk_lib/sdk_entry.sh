@@ -15,24 +15,31 @@ chown -R sdk:sdk /home/sdk
 (
     source /etc/lsb-release # SDK version in DISTRIB_RELEASE
     source /mnt/host/source/.repo/manifests/version.txt # OS image version in FLATCAR_VERSION_ID
+    version="${FLATCAR_VERSION_ID}"
 
-    if [ "${FLATCAR_VERSION_ID}" != "${DISTRIB_RELEASE}" ] ; then
+    # If this is a nightly build tag we can use pre-built binaries directly from the
+    #  build cache.
+    if [[ "${FLATCAR_BUILD_ID}" =~ ^nightly-.*$ ]] ; then
+        version="${FLATCAR_VERSION_ID}+${FLATCAR_BUILD_ID}"
+    fi
+
+    if [ "${version}" != "${DISTRIB_RELEASE}" ] ; then
         for target in amd64-usr arm64-usr; do
             if [ ! -d "/build/$target" ] ; then
                 continue
             fi
             if [ -f "/build/$target/etc/target-version.txt" ] ; then
                 source "/build/$target/etc/target-version.txt"
-                if [ "${TARGET_FLATCAR_VERSION_ID}" = "${FLATCAR_VERSION_ID}" ] ; then
+                if [ "${TARGET_FLATCAR_VERSION}" = "${version}" ] ; then
                     continue # already updated
                 fi
             fi
 
             echo
-            echo "Updating board support in '/build/${target}' to use package cache for version '${FLATCAR_VERSION_ID}'"
+            echo "Updating board support in '/build/${target}' to use package cache for version '${version}'"
             echo "---"
             sudo su sdk -l -c "/home/sdk/trunk/src/scripts/setup_board --board='$target' --regen_configs_only"
-            echo "TARGET_FLATCAR_VERSION_ID='${FLATCAR_VERSION_ID}'" | sudo tee "/build/$target/etc/target-version.txt" >/dev/null
+            echo "TARGET_FLATCAR_VERSION='${version}'" | sudo tee "/build/$target/etc/target-version.txt" >/dev/null
         done
     fi
 )
