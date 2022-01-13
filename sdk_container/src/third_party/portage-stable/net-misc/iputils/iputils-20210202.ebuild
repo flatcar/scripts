@@ -20,7 +20,7 @@ if [[ ${PV} == "99999999" ]] ; then
 else
 	SRC_URI="https://github.com/iputils/iputils/archive/${PV}.tar.gz -> ${P}.tar.gz
 		https://dev.gentoo.org/~whissi/dist/iputils/${PN}-manpages-${PV}.tar.xz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux"
 fi
 
 DESCRIPTION="Network monitoring tools including ping and ping6"
@@ -28,12 +28,10 @@ HOMEPAGE="https://wiki.linuxfoundation.org/networking/iputils"
 
 LICENSE="BSD GPL-2+ rdisc"
 SLOT="0"
-IUSE="+arping caps clockdiff doc gcrypt idn ipv6 nettle nls rarpd rdisc ssl static test tftpd tracepath traceroute6"
-RESTRICT="!test? ( test )"
+IUSE="+arping caps clockdiff doc gcrypt idn ipv6 nettle nls rarpd rdisc ssl static tftpd tracepath traceroute6"
 
 BDEPEND="
 	virtual/pkgconfig
-	test? ( sys-apps/iproute2 )
 	nls? ( sys-devel/gettext )
 "
 
@@ -90,7 +88,6 @@ src_configure() {
 		-DNO_SETCAP_OR_SUID="true"
 		-Dsystemdunitdir="$(systemd_get_systemunitdir)"
 		-DUSE_GETTEXT="$(usex nls true false)"
-		$(meson_use !test SKIP_TESTS)
 	)
 
 	if [[ "${PV}" == 99999999 ]] ; then
@@ -111,15 +108,6 @@ src_configure() {
 src_compile() {
 	tc-export CC
 	meson_src_compile
-}
-
-src_test() {
-	if [[ ${EUID} != 0 ]]; then
-		einfo "Tests require root privileges; Skipping ..."
-		return
-	fi
-
-	meson_src_test
 }
 
 src_install() {
