@@ -69,8 +69,9 @@ function torcx_dependencies() (
 
 # Build and install a package configured as part of a torcx image.
 function torcx_build() (
-        pkg=${2:?}
         tmproot=${1:?}
+        shift
+        pkgs=( "${@}" )
 
         export LDFLAGS=-Wl,-rpath,/ORIGIN/../lib
         export PKGDIR="${tmproot}/var/lib/portage/pkgs"
@@ -81,16 +82,18 @@ function torcx_build() (
 
         # Build binary packages using dev files in the board root.
         emerge-${BOARD} \
+            --jobs="${NUM_JOBS}" \
             --buildpkg \
             --buildpkgonly \
             --nodeps \
             --oneshot \
             --quiet \
             --root-deps=rdeps \
-            "${pkg}"
+            "${pkgs[@]}"
 
         # Install the binary packages in the temporary torcx image root.
         emerge-${BOARD} \
+            --jobs="${NUM_JOBS}" \
             --nodeps \
             --oneshot \
             --quiet \
@@ -98,7 +101,7 @@ function torcx_build() (
             --root-deps=rdeps \
             --sysroot="${tmproot}" \
             --usepkgonly \
-            "${pkg}"
+            "${pkgs[@]}"
 )
 
 # Create a torcx image from the given meta-package.
@@ -134,10 +137,7 @@ function torcx_package() {
         sudo ln -fns bin "${tmproot}/sbin"
 
         # Install the meta-package and its direct dependencies.
-        for deppkg in "=${pkg}" $(torcx_dependencies "${pkg}")
-        do
-                torcx_build "${tmproot}" "${deppkg}"
-        done
+        torcx_build "${tmproot}" "=${pkg}" $(torcx_dependencies "${pkg}")
 
         # by convention, the first dependency in a torcx package is the primary
         # source package
