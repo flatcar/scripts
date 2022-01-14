@@ -58,15 +58,6 @@ check_gsutil_opts
 
 TORCX_CAS_ROOT="${FLAGS_output_root}/pkgs/${BOARD}"
 
-# Print the first level of runtime dependencies for a torcx meta-package.
-function torcx_dependencies() (
-        pkg=${1:?}
-        ebuild=$(equery-${BOARD} w "${pkg}")
-        function inherit() { : ; }
-        . "${ebuild}"
-        echo ${RDEPEND}
-)
-
 # Build and install a package configured as part of a torcx image.
 function torcx_build() (
         tmproot=${1:?}
