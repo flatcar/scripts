@@ -230,6 +230,7 @@ function torcx_package() {
             "sha512-${sha512sum}" \
             "${digest}" \
             "${source_pkg}" \
+            "${pkg}" \
             "${update_default}" \
             "${pkg_locations[@]}"
         )

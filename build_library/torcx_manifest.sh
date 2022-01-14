@@ -30,6 +30,7 @@ function torcx_manifest::add_pkg() {
   pkg_hash="${1}"; shift
   cas_digest="${1}"; shift
   source_package="${1}"; shift
+  meta_package="${1}"; shift
   update_default="${1}"; shift
 
   local manifest=$(cat "${path}")
@@ -39,6 +40,7 @@ function torcx_manifest::add_pkg() {
   "hash": "${pkg_hash}",
   "casDigest": "${cas_digest}",
   "sourcePackage": "${source_package}",
+  "metaPackage": "${meta_package}",
   "locations": []
 }
 EOF
