@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
 	<maintainer type="person">
 		<email>mattst88@gentoo.org</email>
@@ -10,6 +10,9 @@
 		input-bound splitter even when decompressing .bz2 files created by standard
 		bzip2
 	</longdescription>
+	<use>
+		<flag name="symlink">Install symlinks which override <pkg>app-arch/bzip2</pkg> implementation</flag>
+	</use>
 	<upstream>
 		<remote-id type="github">kjn/lbzip2</remote-id>
 	</upstream>
