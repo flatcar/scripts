@@ -30,7 +30,7 @@ HOMEPAGE="https://www.freedesktop.org/wiki/Software/systemd"
 LICENSE="GPL-2 LGPL-2.1 MIT public-domain"
 SLOT="0/2"
 # Flatcar: Dropped static-libs, we don't care about static libraries.
-IUSE="acl apparmor audit build cgroup-hybrid cryptsetup curl dns-over-tls elfutils +gcrypt gnuefi homed http +hwdb idn importd +kmod +lz4 lzma nat pam pcre pkcs11 policykit pwquality qrcode repart +resolvconf +seccomp selinux split-usr +sysv-utils test tpm vanilla xkb +zstd"
+IUSE="acl apparmor audit build cgroup-hybrid cryptsetup curl dns-over-tls elfutils +gcrypt gnuefi homed http idn importd +kmod +lz4 lzma nat pam pcre pkcs11 policykit pwquality qrcode repart +resolvconf +seccomp selinux split-usr +sysv-utils test tpm vanilla xkb +zstd"
 
 REQUIRED_USE="
 	homed? ( cryptsetup pam )
@@ -115,6 +115,7 @@ RDEPEND="${COMMON_DEPEND}
 		sys-process/procps[kill(+)]
 		sys-apps/coreutils[kill(-)]
 	) )
+	!sys-apps/hwids[udev]
 	!sys-auth/nss-myhostname
 	!sys-fs/eudev
 	!sys-fs/udev
@@ -124,7 +125,6 @@ RDEPEND="${COMMON_DEPEND}
 #
 # Flatcar: We don't have sys-fs/udev-init-scripts-34, so it's dropped.
 PDEPEND=">=sys-apps/dbus-1.9.8[systemd]
-	hwdb? ( sys-apps/hwids[systemd(+),udev] )
 	policykit? ( sys-auth/polkit )
 	!vanilla? ( sys-apps/gentoo-systemd-integration )"
 
@@ -282,7 +282,6 @@ multilib_src_configure() {
 		-Defi-ld="$(tc-getLD)"
 		-Defi-libdir="${ESYSROOT}/usr/$(get_libdir)"
 		$(meson_native_use_bool homed)
-		$(meson_native_use_bool hwdb)
 		$(meson_native_use_bool http microhttpd)
 		$(meson_native_use_bool idn)
 		$(meson_native_use_bool importd)
@@ -411,10 +410,6 @@ multilib_src_install_all() {
 	#
 	# Flatcar: TODO: Consider using that instead of
 	# dotmpfiles "${FILESDIR}"/systemd-flatcar.conf below.
-
-	if use hwdb; then
-		rm -r "${ED}${rootprefix}"/lib/udev/hwdb.d || die
-	fi
 
 	if use split-usr; then
 		# Avoid breaking boot/reboot
@@ -585,9 +580,7 @@ pkg_postinst() {
 
 	# Keep this here in case the database format changes so it gets updated
 	# when required.
-	if use hwdb; then
-		systemd-hwdb --root="${ROOT}" update
-	fi
+	systemd-hwdb --root="${ROOT}" update
 
 	udev_reload || FAIL=1
 
