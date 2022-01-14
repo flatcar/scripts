@@ -1,0 +1,2 @@
+- pciutils ([3.7.0](https://github.com/pciutils/pciutils/commit/864aecdea9c7db626856d8d452f6c784316a878c))
+- usbutils ([014](https://github.com/gregkh/usbutils/commit/57fb18e59cce31a50a1ca62d1e192512c905ba00))

@@ -19,7 +19,7 @@ REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 RESTRICT="test"
 
 RDEPEND="
-	!elibc_FreeBSD? ( dev-libs/libbsd[${MULTILIB_USEDEP}] )
+	dev-libs/libbsd[${MULTILIB_USEDEP}]
 	python? ( ${PYTHON_DEPS} )"
 DEPEND="${RDEPEND}
 	virtual/libcrypt"

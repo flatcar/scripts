@@ -55,7 +55,6 @@
 # Andrey Grozin <grozin@gentoo.org> (2014-06-25)
 # keyworded on amd64
 -clisp
--clozurecl
 -ecls
 -gcl
 -sbcl
@@ -113,6 +112,7 @@
 -input_devices_vmmouse
 -input_devices_wacom
 -video_cards_ast
+-video_cards_crocus
 -video_cards_i915
 -video_cards_i965
 -video_cards_intel

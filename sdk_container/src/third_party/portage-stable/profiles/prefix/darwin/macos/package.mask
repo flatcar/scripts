@@ -1,13 +1,10 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# Fabian Groffen <grobian@gentoo.org> (2021-01-10)
-# fails to compile on regex and nonull definitions in
-# gnulib/malloc/dynarray-skeleton.c
-=net-misc/wget-1.21.1
-=sys-apps/findutils-4.8.0
-
-# Fabian Groffen <grobian@gentoo.org> (2020-11-23)
-# no symbols from libopenbsd-compat
-=net-misc/openssh-8.3_p1-r5
-=net-misc/openssh-8.4_p1-r2
+# Sam James <sam@gentoo.org> (2021-12-23)
+# Fails to build due to gnulib errors:
+# ```timespec.h:52:21: error: expected identifier or ‘(’ before ‘struct’
+# 52 | _GL_TIMESPEC_INLINE struct timespec```
+# bug #829847
+=app-editors/nano-5.9
+=app-editors/nano-6.0

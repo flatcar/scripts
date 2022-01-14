@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # Keep them sorted
@@ -35,7 +35,6 @@ build - !!internal use only!! DO NOT SET THIS FLAG YOURSELF!, used for creating 
 bzip2 - Use the bzlib compression library
 cairo - Enable support for the cairo graphics library
 calendar - Add support for calendars (not using mcal!)
-canna - Add support for the Canna kana to kanji conversion engine
 caps - Use Linux capabilities library to control privilege
 cdb - Add support for the CDB database engine from the author of qmail
 cdda - Add Compact Disk Digital Audio (Standard Audio CD) support
@@ -165,11 +164,11 @@ libcaca - Add support for colored ASCII-art graphics
 libedit - Use the libedit library (replacement for readline)
 libffi - Enable support for Foreign Function Interface library
 libnotify - Enable desktop notification support
-libressl - Use dev-libs/libressl instead of dev-libs/openssl when applicable (see also the ssl useflag)
 libsamplerate - Build with support for converting sample rates using libsamplerate
 libwww - Add libwww support (General purpose WEB API)
 lirc - Add support for lirc (Linux's Infra-Red Remote Control)
 livecd - !!internal use only!! DO NOT SET THIS FLAG YOURSELF!, used during livecd building
+llvm-libunwind - Use sys-libs/llvm-libunwind instead of sys-libs/libunwind
 lm-sensors - Add linux lm-sensors (hardware sensors) support
 lua - Enable Lua scripting support
 luajit - Use dev-lang/luajit instead of dev-lang/lua (ineffective with USE=-lua)
@@ -180,6 +179,7 @@ m17n-lib - Enable m17n-lib support
 mad - Add support for mad (high-quality mp3 decoder library and cli frontend)
 magic - Add support for file type detection via magic bytes (usually via libmagic from sys-apps/file)
 maildir - Add support for maildir (~/.maildir) style mail spools
+man - Build and install man pages
 matroska - Add support for the matroska container format (extensions .mkv, .mka and .mks)
 mbox - Add support for mbox (/var/spool/mail) style mail spools
 memcached - Add support for memcached
@@ -279,7 +279,6 @@ semantic-desktop - Cross-KDE support for semantic search and information retriev
 session - Add persistent session support
 skey - Enable S/Key (Single use password) authentication support
 slang - Add support for the slang text display library (it's like ncurses, but different)
-slp - Add Service Locator Protocol support
 smartcard - Enable smartcard support
 smp - Enable support for multiprocessors or multicore systems
 snappy - Enable support for Snappy compression (as implemented in app-arch/snappy)
@@ -320,7 +319,6 @@ tiff - Add support for the TIFF image format
 timidity - Build with Timidity++ (MIDI sequencer) support
 tk - Add support for Tk GUI toolkit
 truetype - Add support for FreeType and/or FreeType2 fonts
-uclibc - Enable uclibc specific patches and build or link uclibc
 udev - Enable virtual/udev integration (device discovery, power and storage device support, etc)
 udisks - Enable storage management support (automounting, volume monitoring, etc)
 unicode - Add support for Unicode

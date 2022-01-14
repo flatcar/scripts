@@ -20,7 +20,7 @@
 # Keep versionator inheritance in case consumers are using it implicitly.
 [[ ${EAPI} == [0123456] ]] && inherit eapi7-ver eutils multilib versionator
 
-IUSE="elibc_FreeBSD"
+IUSE=""
 
 # Make sure we use java-config-2
 export WANT_JAVA_CONFIG="2"
@@ -1688,7 +1688,6 @@ java-pkg_get-jni-cflags() {
 	local flags="-I${JAVA_HOME}/include"
 
 	local platform="linux"
-	use elibc_FreeBSD && platform="freebsd"
 
 	# TODO do a check that the directories are valid
 	flags="${flags} -I${JAVA_HOME}/include/${platform}"
