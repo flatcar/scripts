@@ -30,6 +30,7 @@ function torcx_manifest::add_pkg() {
   pkg_hash="${1}"; shift
   cas_digest="${1}"; shift
   source_package="${1}"; shift
+  meta_package="${1}"; shift
   update_default="${1}"; shift
 
   local manifest=$(cat "${path}")
@@ -39,6 +40,7 @@ function torcx_manifest::add_pkg() {
   "hash": "${pkg_hash}",
   "casDigest": "${cas_digest}",
   "sourcePackage": "${source_package}",
+  "metaPackage": "${meta_package}",
   "locations": []
 }
 EOF
@@ -131,5 +133,18 @@ function torcx_manifest::default_version() {
 # sources_on_disk returns the list of source packages of all torcx images installed on disk
 function torcx_manifest::sources_on_disk() {
   local file="${1}"
-  jq -r ".value.packages[].versions[] | select(.locations[].path).sourcePackage" < "${file}"
+  local torcx_pkg=""
+  jq -r ".value.packages[].versions[] | select(.locations[].path).metaPackage" < "${file}" |
+  while read torcx_pkg; do
+    torcx_dependencies "${torcx_pkg}" | tr ' ' '\n'
+  done
 }
+
+# Print the first level of runtime dependencies for a torcx meta-package.
+function torcx_dependencies() (
+  pkg=${1:?}
+  ebuild=$(equery-${BOARD} w "${pkg}")
+  function inherit() { : ; }
+  . "${ebuild}"
+  echo ${RDEPEND}
+)
