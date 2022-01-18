@@ -12,9 +12,6 @@
 =dev-lang/rust-1.57.0-r1 ~amd64 ~arm64
 =virtual/rust-1.57.0 ~amd64 ~arm64
 
-# dev-libs/openssl-3.0.0 is still in testing phase at this point
-=dev-libs/openssl-3.0.0 ~amd64 ~arm64
-
 # no version marked stable upstream
 dev-util/checkbashisms
 
