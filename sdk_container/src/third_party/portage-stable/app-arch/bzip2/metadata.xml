@@ -2,10 +2,10 @@
 <!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
 <maintainer type="project">
-	<email>base-system@gentoo.org</email>
-	<name>Gentoo Base System</name>
+  <email>base-system@gentoo.org</email>
+  <name>Gentoo Base System</name>
 </maintainer>
 <upstream>
-	<remote-id type="cpe">cpe:/a:gnu:cpio</remote-id>
+  <remote-id type="cpe">cpe:/a:bzip:bzip2</remote-id>
 </upstream>
 </pkgmetadata>
