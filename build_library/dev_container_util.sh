@@ -34,8 +34,6 @@ CHOST=$(get_board_chost $BOARD)
 DISTDIR="/var/lib/portage/distfiles"
 PKGDIR="/var/lib/portage/pkgs"
 PORT_LOGDIR="/var/log/portage"
-PORTDIR="/var/lib/portage/portage-stable"
-PORTDIR_OVERLAY="/var/lib/portage/coreos-overlay"
 PORTAGE_BINHOST="$(get_binhost_url "$2" "$3" 'pkgs')
 $(get_binhost_url "$2" "$3" 'toolchain')"
 EOF
@@ -57,8 +55,6 @@ EOF
 
     # Now set the correct profile
     sudo PORTAGE_CONFIGROOT="$1" ROOT="$1" \
-        PORTDIR="$1/var/lib/portage/portage-stable" \
-        PORTDIR_OVERLAY="$1/var/lib/portage/coreos-overlay" \
         eselect profile set --force $(get_board_profile $BOARD)/dev
 }
 

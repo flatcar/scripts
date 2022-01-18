@@ -291,9 +291,6 @@ _configure_sysroot() {
     echo "Writing make.conf for the sysroot ${SYSROOT}, root ${ROOT}"
     "${sudo[@]}" tee "${ROOT}/etc/portage/make.conf" <<EOF
 $(portageq envvar -v CHOST CBUILD ROOT DISTDIR PKGDIR)
-# TODO: These are deprecated, drop them eventually.
-PORTDIR="$(portageq get_repo_path "${ROOT}" portage-stable)"
-PORTDIR_OVERLAY="${coreos_path} $(portageq get_repo_path "${ROOT}" x-crossdev)"
 HOSTCC=\${CBUILD}-gcc
 PKG_CONFIG_PATH="\${SYSROOT}/usr/lib/pkgconfig/"
 # Enable provenance reporting by default. Produced files are in /usr/share/SLSA
