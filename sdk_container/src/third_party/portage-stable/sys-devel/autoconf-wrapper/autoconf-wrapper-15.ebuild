@@ -3,15 +3,23 @@
 
 EAPI=7
 
-DESCRIPTION="Provides /etc/mime.types file"
+DESCRIPTION="wrapper for autoconf to manage multiple autoconf versions"
 HOMEPAGE="https://wiki.gentoo.org/wiki/No_homepage"
-SRC_URI="mirror://gentoo/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
+[[ "${PV}" == *_pre* ]] || \
 KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 
+S="${WORKDIR}"
+
 src_install() {
-	insinto /etc
-	doins mime.types
+	exeinto /usr/$(get_libdir)/misc
+	newexe "${FILESDIR}"/ac-wrapper-${PV}.sh ac-wrapper.sh
+
+	dodir /usr/bin
+	local x=
+	for x in auto{conf,header,m4te,reconf,scan,update} ifnames ; do
+		dosym ../$(get_libdir)/misc/ac-wrapper.sh /usr/bin/${x}
+	done
 }

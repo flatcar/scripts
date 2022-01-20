@@ -1,27 +1,27 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-misc/zisofs-tools/zisofs-tools-1.0.8.ebuild,v 1.13 2014/03/19 13:47:44 ago Exp $
 
+EAPI=7
 inherit flag-o-matic
 
 DESCRIPTION="User utilities for zisofs"
-HOMEPAGE="http://www.kernel.org/pub/linux/utils/fs/zisofs/"
-SRC_URI="https://www.kernel.org/pub/linux/utils/fs/zisofs/${P}.tar.bz2"
+HOMEPAGE="https://www.kernel.org/pub/linux/utils/fs/zisofs/"
+SRC_URI="mirror://gentoo/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos"
 IUSE="static"
 
-DEPEND=">=sys-libs/zlib-1.1.4"
+RDEPEND=">=sys-libs/zlib-1.1.4:0="
+DEPEND="${RDEPEND}"
 
-src_compile() {
+src_configure() {
 	use static && append-ldflags -static
-	econf || die
-	emake || die
+	default
 }
 
 src_install() {
-	emake INSTALLROOT="${D}" install || die
-	dodoc CHANGES INSTALL README
+	emake INSTALLROOT="${D}" install
+	einstalldocs
 }
