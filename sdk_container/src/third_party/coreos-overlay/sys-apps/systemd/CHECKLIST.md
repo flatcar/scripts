@@ -1,0 +1,2 @@
+- Check that the `systemd-sysext.service`'s `ConditionDirectoryNotEmpty` entries are correctly reflected in `flatcar/init:systemd/system/ensure-sysext.service`
+- Check if our preset setup in `multilib_src_install_all` is in sync with `systemd/systemd:presets/90-systemd.preset`.
