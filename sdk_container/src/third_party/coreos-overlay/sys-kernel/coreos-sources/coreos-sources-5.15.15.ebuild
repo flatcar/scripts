@@ -8,7 +8,7 @@ ETYPE="sources"
 # Final releases should be versioned L.M.N, even for N == 0
 
 # Only needed for RCs
-K_BASE_VER="5.10"
+K_BASE_VER="5.15"
 
 inherit kernel-2
 EXTRAVERSION="-flatcar"
@@ -34,4 +34,6 @@ IUSE=""
 UNIPATCH_LIST="
 	${PATCH_DIR}/z0001-kbuild-derive-relative-path-for-srctree-from-CURDIR.patch \
 	${PATCH_DIR}/z0002-tools-objtool-Makefile-Don-t-fail-on-fallthrough-wit.patch \
+	${PATCH_DIR}/z0003-PCI-hv-Make-the-code-arch-neutral-by-adding-arch-spe.patch \
+	${PATCH_DIR}/z0004-PCI-hv-Add-arm64-Hyper-V-vPCI-support.patch \
 "
