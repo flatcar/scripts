@@ -1,0 +1,1 @@
+- network: Accept ICMPv6 Router Advertisements to fix IPv6 address assignment in the default DHCP setting ([PR#51](https://github.com/flatcar-linux/init/pull/51))
