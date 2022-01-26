@@ -9,8 +9,8 @@
 =coreos-devel/fero-client-0.1.1 **
 
 # Accept unstable host Rust compilers
-=dev-lang/rust-1.57.0-r1 ~amd64 ~arm64
-=virtual/rust-1.57.0 ~amd64 ~arm64
+=dev-lang/rust-1.58.1 ~amd64 ~arm64
+=virtual/rust-1.58.1 ~amd64 ~arm64
 
 # no version marked stable upstream
 dev-util/checkbashisms
