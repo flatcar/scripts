@@ -42,7 +42,7 @@ fi
 # In addition, we override `timeout` to 10 hours, because it takes more than 8 hours
 # to run all tests only with 2 tests in parallel.
 if [[ "${BOARD}" == "arm64-usr" ]]; then
-  PACKET_REGION="da11"
+  PACKET_REGION="DA"
   PARALLEL_TESTS="2"
   timeout=10h
 fi
@@ -58,13 +58,13 @@ if [[ "${BOARD}" == "amd64-usr" ]] && [[ "${cl_internet_included}" != ""  ]]; th
     --channel="${GROUP}" \
     --gce-json-key="${UPLOAD_CREDS}" \
     --packet-api-key="${PACKET_API_KEY}" \
-    --packet-facility="${PACKET_REGION}" \
     --packet-image-url="${IMAGE_URL}" \
     --packet-installer-image-kernel-url="${KERNEL_URL}" \
     --packet-installer-image-cpio-url="${CPIO_URL}" \
     --packet-project="${PACKET_PROJECT}" \
     --packet-storage-url="${UPLOAD_ROOT}/mantle/packet" \
     --packet-plan="${INSTANCE}" \
+    --equinixmetal-metro="${PACKET_REGION}" \
     --parallel="${PARALLEL_TESTS}" \
     --platform=packet \
     --tapfile="${JOB_NAME##*/}_validate_${INSTANCE}.tap" \
@@ -85,13 +85,13 @@ timeout --signal=SIGQUIT "${timeout}" bin/kola run \
     --channel="${GROUP}" \
     --gce-json-key="${UPLOAD_CREDS}" \
     --packet-api-key="${PACKET_API_KEY}" \
-    --packet-facility="${PACKET_REGION}" \
     --packet-image-url="${IMAGE_URL}" \
     --packet-installer-image-kernel-url="${KERNEL_URL}" \
     --packet-installer-image-cpio-url="${CPIO_URL}" \
     --packet-project="${PACKET_PROJECT}" \
     --packet-storage-url="${UPLOAD_ROOT}/mantle/packet" \
     --packet-plan="${PACKET_MACHINE_TYPE}" \
+    --equinixmetal-metro="${PACKET_REGION}" \
     --parallel="${PARALLEL_TESTS}" \
     --platform=packet \
     --tapfile="${JOB_NAME##*/}.tap" \
