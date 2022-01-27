@@ -4,7 +4,8 @@
 EAPI=8
 
 PYTHON_COMPAT=( python3_{8..11} )
-inherit meson pam pax-utils python-any-r1 systemd xdg-utils
+TMPFILES_OPTIONAL=1
+inherit meson pam pax-utils python-any-r1 systemd tmpfiles xdg-utils
 
 DESCRIPTION="Policy framework for controlling privileges for system-wide services"
 HOMEPAGE="https://www.freedesktop.org/wiki/Software/polkit https://gitlab.freedesktop.org/polkit/polkit"
@@ -137,6 +138,16 @@ src_compile() {
 src_install() {
 	meson_src_install
 
+	dodir /usr/share/polkit-1/rules.d
+	dodir /usr/lib/pam.d
+
+	mv "${D}"/{etc,usr/share}/polkit-1/rules.d/50-default.rules || die
+	mv "${D}"/{etc,usr/lib}/pam.d/polkit-1 || die
+	rmdir "${D}"/etc/polkit-1/rules.d "${D}"/etc/polkit-1 || die
+	rmdir "${D}"/etc/pam.d || die
+
+	dotmpfiles "${FILESDIR}/polkit.conf"
+
 	if use examples ; then
 		docinto examples
 		dodoc src/examples/{*.c,*.policy*}
@@ -144,9 +155,4 @@ src_install() {
 
 	diropts -m 0700 -o polkitd
 	keepdir /usr/share/polkit-1/rules.d
-}
-
-pkg_postinst() {
-	chmod 0700 "${EROOT}"/{etc,usr/share}/polkit-1/rules.d
-	chown polkitd "${EROOT}"/{etc,usr/share}/polkit-1/rules.d
 }
