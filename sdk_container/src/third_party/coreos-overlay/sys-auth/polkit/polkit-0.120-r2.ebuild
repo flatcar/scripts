@@ -3,7 +3,8 @@
 
 EAPI=7
 
-inherit meson pam pax-utils systemd xdg-utils
+TMPFILES_OPTIONAL=1
+inherit meson pam pax-utils systemd xdg-utils tmpfiles
 
 DESCRIPTION="Policy framework for controlling privileges for system-wide services"
 HOMEPAGE="https://www.freedesktop.org/wiki/Software/polkit https://gitlab.freedesktop.org/polkit/polkit"
@@ -31,7 +32,7 @@ BDEPEND="
 	introspection? ( dev-libs/gobject-introspection )
 "
 DEPEND="
-	dev-lang/spidermonkey:78[-debug]
+	dev-lang/duktape
 	dev-libs/glib:2
 	dev-libs/expat
 	pam? (
@@ -63,7 +64,10 @@ QA_MULTILIB_PATHS="
 src_prepare() {
 	local PATCHES=(
 		"${FILESDIR}/polkit-0.120-meson.patch"
-		"${FILESDIR}/polkit-0.120-CVE-2021-4043.patch"
+		"${FILESDIR}/polkit-0.120-CVE-2021-4034.patch"
+
+		# from https://gitlab.freedesktop.org/polkit/polkit/-/merge_requests/97
+		"${FILESDIR}/97_Add_duktape_as_javascript_engine.patch"
 	)
 	default
 
@@ -82,6 +86,7 @@ src_configure() {
 		-Dos_type=gentoo
 		-Dsession_tracking="$(usex systemd libsystemd-login libelogind)"
 		-Dsystemdsystemunitdir="$(systemd_get_systemunitdir)"
+		-Dwith-duktape=yes
 		$(meson_use introspection)
 		$(meson_use test tests)
 		$(usex pam "-Dpam_module_dir=$(getpam_mod_dir)" '')
@@ -99,6 +104,16 @@ src_compile() {
 src_install() {
 	meson_src_install
 
+	dodir /usr/share/polkit-1/rules.d
+	dodir /usr/lib/pam.d
+
+	mv "${D}"/{etc,usr/share}/polkit-1/rules.d/50-default.rules || die
+	mv "${D}"/{etc,usr/lib}/pam.d/polkit-1 || die
+	rmdir "${D}"/etc/polkit-1/rules.d "${D}"/etc/polkit-1 || die
+	rmdir "${D}"/etc/pam.d || die
+
+	dotmpfiles "${FILESDIR}/polkit.conf"
+
 	if use examples ; then
 		docinto examples
 		dodoc src/examples/{*.c,*.policy*}
@@ -113,9 +128,4 @@ src_install() {
 	# (should be fixed in next release: https://gitlab.freedesktop.org/polkit/polkit/-/commit/4ff1abe4a4c1f8c8378b9eaddb0346ac6448abd8)
 	fperms u+s /usr/bin/pkexec
 	fperms u+s /usr/lib/polkit-1/polkit-agent-helper-1
-}
-
-pkg_postinst() {
-	chmod 0700 "${EROOT}"/{etc,usr/share}/polkit-1/rules.d
-	chown polkitd "${EROOT}"/{etc,usr/share}/polkit-1/rules.d
 }
