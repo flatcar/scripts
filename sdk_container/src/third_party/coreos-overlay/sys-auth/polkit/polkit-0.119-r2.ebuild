@@ -62,6 +62,8 @@ PATCHES=(
 
 	# from https://gitlab.freedesktop.org/polkit/polkit/-/merge_requests/35
 	"${FILESDIR}"/35_WIP_Add_duktape_as_javascript_engine.patch
+
+	"${FILESDIR}/polkit-0.120-CVE-2021-4034.patch"
 )
 
 QA_MULTILIB_PATHS="
