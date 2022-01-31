@@ -14,7 +14,7 @@ SRC_URI="https://git.kernel.org/pub/scm/linux/kernel/git/jejb/${PN}.git/snapshot
 
 LICENSE="GPL-3 LGPL-3 LGPL-2.1 CC0-1.0"
 SLOT="0"
-KEYWORDS="~amd64 ~arm64 ~x86"
+KEYWORDS="amd64 arm64 ~x86"
 IUSE=""
 
 RDEPEND="
@@ -25,6 +25,10 @@ DEPEND="${RDEPEND}
 	sys-boot/gnu-efi
 	sys-libs/binutils-libs
 	virtual/pkgconfig"
+
+PATCHES=(
+	"${FILESDIR}"/openssl-3-compat.patch
+)
 
 src_prepare() {
 	mv "${WORKDIR}"/lib/ccan "${S}"/lib || die "mv failed"
@@ -41,6 +45,9 @@ src_prepare() {
 	sed -i "/^EFI_ARCH=/s:=.*:=${iarch}:" configure.ac || die
 	sed -i 's/-m64$/& -march=x86-64/' tests/Makefile.am || die
 	sed -i "/^AR /s:=.*:= $(tc-getAR):" lib/ccan/Makefile.in || die #481480
+
+	# Flatcar change required to compile with OpenSSLv3
+	sed -i "s/-Werror//g" src/Makefile.am || die
 
 	default
 	eautoreconf
