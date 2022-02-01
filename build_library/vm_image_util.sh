@@ -283,12 +283,12 @@ IMG_exoscale_DISK_FORMAT=qcow2
 IMG_exoscale_OEM_PACKAGE=oem-exoscale
 
 ## azure
-IMG_azure_DISK_FORMAT=vhd
+IMG_azure_DISK_FORMAT=vhd_fixed
 IMG_azure_DISK_LAYOUT=azure
 IMG_azure_OEM_PACKAGE=oem-azure
 
 ## azure pro
-IMG_azure_pro_DISK_FORMAT=vhd
+IMG_azure_pro_DISK_FORMAT=vhd_fixed
 IMG_azure_pro_DISK_LAYOUT=azure
 IMG_azure_pro_OEM_PACKAGE=oem-azure-pro
 
@@ -429,6 +429,7 @@ _disk_ext() {
         vmdk_scsi) echo vmdk;;
         vmdk_stream) echo vmdk;;
         hdd) echo hdd;;
+        vhd*) echo vhd;;
         *) echo "${disk_format}";;
     esac
 }
@@ -576,6 +577,11 @@ _write_qcow2_disk() {
 
 _write_vhd_disk() {
     qemu-img convert -f raw "$1" -O vpc -o force_size "$2"
+    assert_image_size "$2" vpc
+}
+
+_write_vhd_fixed_disk() {
+    qemu-img convert -f raw "$1" -O vpc -o subformat=fixed,force_size "$2"
     assert_image_size "$2" vpc
 }
 
