@@ -1,11 +1,11 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="6"
+EAPI="7"
 
 MY_PN="${PN::-1}"
 
-inherit eutils autotools
+inherit autotools toolchain-funcs
 
 DESCRIPTION="Utilities for signing and verifying files for UEFI Secure Boot"
 HOMEPAGE="https://git.kernel.org/cgit/linux/kernel/git/jejb/sbsigntools.git/"
@@ -27,7 +27,6 @@ DEPEND="${RDEPEND}
 	virtual/pkgconfig"
 
 PATCHES=(
-	"${FILESDIR}"/${P}-openssl-1.1.0-compat.patch
 	"${FILESDIR}"/openssl-3-compat.patch
 )
 
@@ -46,6 +45,9 @@ src_prepare() {
 	sed -i "/^EFI_ARCH=/s:=.*:=${iarch}:" configure.ac || die
 	sed -i 's/-m64$/& -march=x86-64/' tests/Makefile.am || die
 	sed -i "/^AR /s:=.*:= $(tc-getAR):" lib/ccan/Makefile.in || die #481480
+
+	# Flatcar change required to compile with OpenSSLv3
+	sed -i "s/-Werror//g" src/Makefile.am || die
 
 	default
 	eautoreconf
