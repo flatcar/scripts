@@ -3,6 +3,7 @@
 
 EAPI=7
 
+TMPFILES_OPTIONAL=1
 inherit edos2unix flag-o-matic multilib multilib-minimal autotools pam java-pkg-opt-2 db-use systemd toolchain-funcs tmpfiles
 
 SASLAUTHD_CONF_VER="2.1.26"
@@ -49,6 +50,12 @@ MULTILIB_WRAPPED_HEADERS=(
 
 PATCHES=(
 	"${WORKDIR}"/${MY_PATCH_VER}/
+
+	# flatcar changes: cross compile patch from upstream
+	# generate between commit: b672dbec3cf11857421af526546b1c459adc02cd..6fa9efaa08555d12bf82dea39ef8f1ce533f3ef6
+	# these commits are going to be released in 2.1.28
+	"${FILESDIR}"/enable_cross_builds_with_SPNEGO_detection.patch
+
 )
 
 pkg_setup() {
@@ -155,6 +162,10 @@ multilib_src_configure() {
 		einfo "Building without SASLdb support"
 		myeconfargs+=( --with-dblib=none )
 	fi
+
+	# flatcar change - set gssapi_supports_spnego to 'yes'
+	# otherwise it fails to configure for cross compilation
+	myeconfargs+=(ac_cv_gssapi_supports_spnego=yes)
 
 	ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
 }
