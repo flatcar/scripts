@@ -1,22 +1,23 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 TMPFILES_OPTIONAL=1
-inherit eutils flag-o-matic multilib multilib-minimal autotools pam java-pkg-opt-2 db-use systemd tmpfiles
+inherit edos2unix flag-o-matic multilib multilib-minimal autotools pam java-pkg-opt-2 db-use systemd toolchain-funcs tmpfiles
 
 SASLAUTHD_CONF_VER="2.1.26"
-
+MY_PATCH_VER="${PN}-2.1.27-r6-patches"
 DESCRIPTION="The Cyrus SASL (Simple Authentication and Security Layer)"
 HOMEPAGE="https://www.cyrusimap.org/sasl/"
 #SRC_URI="ftp://ftp.cyrusimap.org/cyrus-sasl/${P}.tar.gz"
 SRC_URI="https://github.com/cyrusimap/${PN}/releases/download/${P}/${P}.tar.gz"
+SRC_URI+=" https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${MY_PATCH_VER}.tar.bz2"
 
 LICENSE="BSD-with-attribution"
 SLOT="2"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~mips ppc ppc64 s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="authdaemond berkdb gdbm kerberos ldapdb libressl openldap mysql pam postgres sample selinux sqlite srp ssl static-libs urandom"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+IUSE="authdaemond berkdb gdbm kerberos ldapdb openldap mysql pam postgres sample selinux sqlite srp ssl static-libs urandom"
 
 CDEPEND="
 	net-mail/mailbase
@@ -31,8 +32,7 @@ CDEPEND="
 	postgres? ( dev-db/postgresql:* )
 	sqlite? ( >=dev-db/sqlite-3.8.2:3[${MULTILIB_USEDEP}] )
 	ssl? (
-		!libressl? ( >=dev-libs/openssl-1.0.1h-r2:0=[${MULTILIB_USEDEP}] )
-		libressl? ( dev-libs/libressl:=[${MULTILIB_USEDEP}] )
+		>=dev-libs/openssl-1.0.1h-r2:0=[${MULTILIB_USEDEP}]
 	)
 	java? ( >=virtual/jdk-1.6:= )"
 
@@ -49,17 +49,13 @@ MULTILIB_WRAPPED_HEADERS=(
 )
 
 PATCHES=(
-	"${FILESDIR}/${PN}-2.1.27-avoid_pic_overwrite.patch"
-	"${FILESDIR}/${PN}-2.1.27-autotools_fixes.patch"
-	"${FILESDIR}/${PN}-2.1.27-as_needed.patch"
-	"${FILESDIR}/${PN}-2.1.25-auxprop.patch"
-	"${FILESDIR}/${PN}-2.1.27-gss_c_nt_hostbased_service.patch"
-	"${FILESDIR}/${PN}-2.1.26-missing-size_t.patch"
-	"${FILESDIR}/${PN}-2.1.27-doc_build_fix.patch"
-	"${FILESDIR}/${PN}-2.1.27-memmem.patch"
-	"${FILESDIR}/${PN}-2.1.27-CVE-2019-19906.patch"
-	# Flatcar:
-	"${FILESDIR}/${PN}-2.1.27-fix-cross-compiling.patch"
+	"${WORKDIR}"/${MY_PATCH_VER}/
+
+	# flatcar changes: cross compile patch from upstream
+	# generate between commit: b672dbec3cf11857421af526546b1c459adc02cd..6fa9efaa08555d12bf82dea39ef8f1ce533f3ef6
+	# these commits are going to be released in 2.1.28
+	"${FILESDIR}"/enable_cross_builds_with_SPNEGO_detection.patch
+
 )
 
 pkg_setup() {
@@ -84,23 +80,28 @@ src_prepare() {
 		configure.ac || die
 
 	eautoreconf
+
+	export CC_FOR_BUILD="$(tc-getBUILD_CC)"
 }
 
 src_configure() {
 	append-flags -fno-strict-aliasing
+
 	if [[ ${CHOST} == *-solaris* ]] ; then
 		# getpassphrase is defined in /usr/include/stdlib.h
 		append-cppflags -DHAVE_GETPASSPHRASE
 	else
 		# this horrendously breaks things on Solaris
 		append-cppflags -D_XOPEN_SOURCE -D_XOPEN_SOURCE_EXTENDED -D_BSD_SOURCE -DLDAP_DEPRECATED
+		# replaces BSD_SOURCE (bug #579218)
+		append-cppflags -D_DEFAULT_SOURCE
 	fi
 
 	multilib-minimal_src_configure
 }
 
 multilib_src_configure() {
-	# Java support.
+	# Java support
 	multilib_is_native_abi && use java && export JAVAC="${JAVAC} ${JAVACFLAGS}"
 
 	local myeconfargs=(
@@ -162,6 +163,10 @@ multilib_src_configure() {
 		myeconfargs+=( --with-dblib=none )
 	fi
 
+	# flatcar change - set gssapi_supports_spnego to 'yes'
+	# otherwise it fails to configure for cross compilation
+	myeconfargs+=(ac_cv_gssapi_supports_spnego=yes)
+
 	ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
 }
 
@@ -194,7 +199,6 @@ multilib_src_install() {
 			rm -rf "${ED}/usr/$(get_libdir)/java" || die
 			docinto "java"
 			dodoc "${S}/java/README" "${FILESDIR}/java.README.gentoo" "${S}"/java/doc/*
-			dodir "/usr/share/doc/${PF}/java/Test"
 			insinto "/usr/share/doc/${PF}/java/Test"
 			doins "${S}"/java/Test/*.java
 		fi
@@ -219,7 +223,9 @@ multilib_src_install_all() {
 	docinto html
 	dodoc doc/html/*.html
 
-	newpamd "${FILESDIR}/saslauthd.pam-include" saslauthd
+	if use pam; then
+		newpamd "${FILESDIR}/saslauthd.pam-include" saslauthd
+	fi
 
 	newinitd "${FILESDIR}/pwcheck.rc6" pwcheck
 	systemd_dounit "${FILESDIR}/pwcheck.service"
@@ -238,6 +244,8 @@ multilib_src_install_all() {
 }
 
 pkg_postinst() {
+	tmpfiles_process ${PN}.conf
+
 	# Generate an empty sasldb2 with correct permissions.
 	if ( use berkdb || use gdbm ) && [[ ! -f "${EROOT}/etc/sasl2/sasldb2" ]] ; then
 		einfo "Generating an empty sasldb2 with correct permissions ..."
