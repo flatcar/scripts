@@ -40,9 +40,8 @@ dev-util/checkbashisms
 # All versions are ~amd64 and not enabled on arm64
 =sys-apps/nvme-cli-1.1 **
 
-# Upgrade to GCC 9.3.0 to support latest glibc builds
+# Upgrade to GCC 10.3.0 to support latest glibc builds
 =sys-devel/binutils-2.37_p1 ~amd64 ~arm64
-=sys-devel/gcc-config-1.9.1 ~amd64 ~arm64
 =sys-libs/binutils-libs-2.37_p1 ~amd64 ~arm64
 
 =sys-fs/cryptsetup-2.4.1-r1 ~amd64 ~arm64
