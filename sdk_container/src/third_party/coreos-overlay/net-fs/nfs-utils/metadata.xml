@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
   <maintainer type="project">
     <email>base-system@gentoo.org</email>
     <name>Gentoo Base System</name>
   </maintainer>
-  <longdescription>NFS client and server daemons</longdescription>
   <use>
     <flag name="junction">Enable NFS junction support in nfsref</flag>
     <flag name="ldap">Add ldap support</flag>
