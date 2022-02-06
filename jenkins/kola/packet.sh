@@ -44,7 +44,7 @@ fi
 if [[ "${BOARD}" == "arm64-usr" ]]; then
   PACKET_REGION="DA"
   PARALLEL_TESTS="2"
-  timeout=10h
+  timeout=15h
 fi
 
 # Run the cl.internet test on multiple machine types only if it should run in general
