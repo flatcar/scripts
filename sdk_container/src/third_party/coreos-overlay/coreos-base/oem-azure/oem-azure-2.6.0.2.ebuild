@@ -29,4 +29,5 @@ src_install() {
 	doins "${T}/oem-release"
 	doins -r "${FILESDIR}/base"
 	doins -r "${FILESDIR}/units"
+	dosym "/usr/bin/true" "/usr/share/oem/bin/eject"
 }
