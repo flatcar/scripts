@@ -9,10 +9,6 @@ timeout=8h
 set -o pipefail
 
 # Construct the URLs of the image to be used during tests.
-# KERNEL/CPIO_URL will be used by iPXE and so it will use http instead of https to
-# make the boot process faster (except for signed URLs).
-# IMAGE_URL is downloaded through Flatcar and can do SSL just fine, so that one
-# can use https:// without a significant delay
 if [[ "${DOWNLOAD_ROOT}" == gs://flatcar-jenkins-private/* ]]; then
   echo "Fetching google/cloud-sdk"
   docker pull google/cloud-sdk > /dev/null
@@ -23,8 +19,8 @@ if [[ "${DOWNLOAD_ROOT}" == gs://flatcar-jenkins-private/* ]]; then
 else
   BASE_PATH="bucket.release.flatcar-linux.net/$(echo $DOWNLOAD_ROOT | sed 's|gs://||g')/boards/${BOARD}/${FLATCAR_VERSION}"
   IMAGE_URL="https://${BASE_PATH}/flatcar_production_packet_image.bin.bz2"
-  KERNEL_URL="http://${BASE_PATH}/flatcar_production_pxe.vmlinuz"
-  CPIO_URL="http://${BASE_PATH}/flatcar_production_pxe_image.cpio.gz"
+  KERNEL_URL="https://${BASE_PATH}/flatcar_production_pxe.vmlinuz"
+  CPIO_URL="https://${BASE_PATH}/flatcar_production_pxe_image.cpio.gz"
 fi
 
 if [[ "${KOLA_TESTS}" == "" ]]; then
