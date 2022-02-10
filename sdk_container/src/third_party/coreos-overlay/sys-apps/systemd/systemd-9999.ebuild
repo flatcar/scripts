@@ -215,6 +215,7 @@ src_prepare() {
 	PATCHES+=(
 		# Flatcar: Adding our own patches here.
 		"${FILESDIR}/249-libudev-static.patch"
+		"${FILESDIR}/0001-networkd-disable-managing-of-foreign-routes-rules-by-default.patch"
 		"${FILESDIR}/0004-wait-online-set-any-by-default.patch"
 		"${FILESDIR}/0005-networkd-default-to-kernel-IPForwarding-setting.patch"
 		"${FILESDIR}/0006-needs-update-don-t-require-strictly-newer-usr.patch"
