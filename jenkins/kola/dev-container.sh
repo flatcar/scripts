@@ -40,11 +40,6 @@ export PORTAGE_BINHOST="${PORTAGE_BINHOST}"
 export {FETCH,RESUME}COMMAND_GS="/usr/bin/gangue get --json-key=/opt/credentials.json --verify=true /opt/verify.asc \"\${URI}\" \"\${DISTDIR}/\${FILE}\""
 emerge-gitclone
 . /usr/share/coreos/release
-if [[ $FLATCAR_RELEASE_VERSION =~ master ]]
-then
-        git -C /var/lib/portage/portage-stable checkout master
-        git -C /var/lib/portage/coreos-overlay checkout master
-fi
 emerge -gv coreos-sources
 ln -fns /boot/config /usr/src/linux/.config
 exec make -C /usr/src/linux -j"$(nproc)" modules_prepare V=1
