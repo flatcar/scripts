@@ -1,0 +1,1 @@
+- AWS: specify correct console (ttyS0) on kernel command line for ARM64 instances ([PR#1628](https://github.com/flatcar-linux/coreos-overlay/pull/1628))
