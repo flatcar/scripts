@@ -118,7 +118,7 @@ cleanup() {
 }
 
 if [ -z "${CONFIG_IMAGE}" ]; then
-    CONFIG_DRIVE=$(mktemp -t -d flatcar-configdrive.XXXXXXXXXX)
+    CONFIG_DRIVE=$(mktemp -d -t flatcar-configdrive.XXXXXXXXXX)
     ret=$?
     if [ "$ret" -ne 0 ] || [ ! -d "$CONFIG_DRIVE" ]; then
         echo "$0: mktemp -d failed!" >&2
