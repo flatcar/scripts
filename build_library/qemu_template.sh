@@ -160,14 +160,23 @@ if [ "${SAFE_ARGS}" -eq 1 ]; then
     # Disable KVM, for testing things like UEFI which don't like it
     set -- -machine accel=tcg "$@"
 else
+    accel=""
+    case "$(uname)" in
+        Linux)
+            accel=kvm ;;
+        Darwin)
+            accel=hvf ;;
+        *)
+            die "Unsupported OS" ;;
+    esac
     case "${VM_BOARD}+$(uname -m)" in
         amd64-usr+x86_64)
             # Emulate the host CPU closely in both features and cores.
-            set -- -machine accel=kvm -cpu host -smp "${VM_NCPUS}" "$@" ;;
+            set -- -machine q35,accel=$accel -cpu host -smp "${VM_NCPUS}" "$@" ;;
         amd64-usr+*)
             set -- -machine pc-q35-2.8 -cpu kvm64 -smp 1 -nographic "$@" ;;
-        arm64-usr+aarch64)
-            set -- -machine virt,accel=kvm,gic-version=3 -cpu host -smp "${VM_NCPUS}" -nographic "$@" ;;
+        arm64-usr+aarch64|arm64-usr+arm64)
+            set -- -machine virt,accel=$accel,gic-version=3 -cpu host -smp "${VM_NCPUS}" -nographic "$@" ;;
         arm64-usr+*)
             if test "${VM_NCPUS}" -gt 4 ; then
                 VM_NCPUS=4
