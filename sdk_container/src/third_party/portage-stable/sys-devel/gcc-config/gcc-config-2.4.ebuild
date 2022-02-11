@@ -7,8 +7,8 @@ if [[ ${PV} == 9999 ]]; then
 	EGIT_REPO_URI="https://anongit.gentoo.org/git/proj/gcc-config.git"
 	inherit git-r3
 else
-	SRC_URI="https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${P}.tar.xz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	SRC_URI="https://dev.gentoo.org/~sam/distfiles/${P}.tar.xz"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 fi
 
 DESCRIPTION="Utility to manage compilers"
@@ -48,13 +48,5 @@ pkg_postinst() {
 	# USE flag change can add or delete files in /usr/bin worth recaching
 	if [[ ! ${ROOT} && -f ${EPREFIX}/usr/share/eselect/modules/compiler-shadow.eselect ]] ; then
 		eselect compiler-shadow update all
-	fi
-
-	if ! has_version "sys-devel/gcc[gcj(-)]" && [[ -x "${EROOT}"/usr/bin/gcj ]] ; then
-		# Warn about obsolete /usr/bin/gcj for bug #804178
-		ewarn "Obsolete GCJ wrapper found: ${EROOT}/usr/bin/gcj!"
-		ewarn "Please delete this file unless you know it is needed (e.g. custom gcj install)."
-		ewarn "If you have no idea what this means, please delete the file:"
-		ewarn " rm ${EROOT}/usr/bin/gcj"
 	fi
 }

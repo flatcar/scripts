@@ -1,5 +1,5 @@
 #!/sbin/openrc-run
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # Set up some defaults.
@@ -14,16 +14,16 @@ depend() {
 auto_prefix_bootpath() {
 	# Only auto-add prefix to relative paths.
 	case $1 in
-	*/*) echo "$1";;
-	*)   echo "${BOOTPART}/$1" ;;
+		*/*) echo "$1";;
+		*)   echo "${BOOTPART}/$1" ;;
 	esac
 }
 
 get_genkernel_arch() {
 	case $1 in
-	  x86_64) echo "amd64" ;;
-	  i[3456]86) echo "x86" ;;
-	  *) echo "$1" ;;
+		x86_64) echo "amd64" ;;
+		i[3456]86) echo "x86" ;;
+		*) echo "$1" ;;
 	esac
 }
 
@@ -34,12 +34,15 @@ image_path() {
 		return
 	fi
 
-	local x kver="$(uname -r)" karch="$(uname -m)" 
+	local x kver="$(uname -r)" karch="$(uname -m)"
 	local gkarch="$(get_genkernel_arch $karch)"
 	for x in \
 		"bzImage" \
+		"vmlinux" \
 		"vmlinuz" \
+		"kernel" \
 		"bzImage-${kver}" \
+		"vmlinux-${kver}" \
 		"vmlinuz-${kver}" \
 		"kernel-genkernel-${karch}-${kver}" \
 		"kernel-genkernel-${gkarch}-${kver}" \
@@ -65,6 +68,7 @@ initrd_path() {
 	local gkarch="$(get_genkernel_arch $karch)"
 	for x in \
 		"initrd" \
+		"initramfs" \
 		"initrd.img-${kver}" \
 		"initrd-${kver}.img" \
 		"initrd-${kver}" \
@@ -115,12 +119,22 @@ load_image() {
 		fi
 	fi
 
+	local is_rootpart_autodetected=no
 	if [ -z "${ROOTPART}" ]; then
 		ROOTPART="$(readlink -f "$(sed -n '/^\/[^ ]* \/ / s,^\([^ ]*\).*,\1,p' /proc/mounts)")"
+		is_rootpart_autodetected=yes
 	fi
 
+	local is_reusing_cmdline=no
 	if [ -z "${KPARAM}" ]; then
 		kparamopt="--reuse-cmdline"
+		is_reusing_cmdline=yes
+	fi
+
+	if ! yesno "${is_rootpart_autodetected}" || ! yesno "${is_reusing_cmdline}"; then
+		# Only append root when explicit set in config or
+		# if we aren't re-using kernel cmdline
+		KPARAM="${KPARAM:+"${KPARAM} "}root=${ROOTPART}"
 	fi
 
 	if [ -n "${initrd}" ]; then
@@ -133,7 +147,7 @@ load_image() {
 	ebegin "Using kernel image ${img}${msg} for kexec"
 
 	kexec ${KEXEC_OPT_ARGS} ${kparamopt} \
-		-l "${img}" --append="root=${ROOTPART} ${KPARAM}" ${initrdopt}
+		-l "${img}" ${KPARAM:+--append="${KPARAM}"} ${initrdopt}
 	local ret=$?
 
 	${mounted} && umount "${BOOTPART}"
