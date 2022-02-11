@@ -22,10 +22,6 @@ dev-lang/python-oem:${DEP_PYVER}
 dev-python/distro-oem
 "
 
-PATCHES=(
-	"${FILESDIR}/0001-Support-flatcar.patch"
-)
-
 S="${WORKDIR}/WALinuxAgent-${PV}"
 
 src_install() {
