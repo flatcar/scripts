@@ -90,6 +90,9 @@ while [ $# -ge 1 ]; do
     esac
 done
 
+is_darwin() {
+    test "$(uname)" = Darwin
+}
 
 find_ssh_keys() {
     if [ -S "$SSH_AUTH_SOCK" ]; then
@@ -109,6 +112,10 @@ write_ssh_keys() {
     sed -e 's/^/ - /'
 }
 
+cleanup() {
+  [ -n "${CONFIG_DRIVE}" ] && rm -rf "${CONFIG_DRIVE}"
+  [ -f configdrive.iso ] && rm -f configdrive.iso
+}
 
 if [ -z "${CONFIG_IMAGE}" ]; then
     CONFIG_DRIVE=$(mktemp -t -d flatcar-configdrive.XXXXXXXXXX)
@@ -118,7 +125,7 @@ if [ -z "${CONFIG_IMAGE}" ]; then
         exit 1
     fi
     # shellcheck disable=SC2064
-    trap "rm -rf '$CONFIG_DRIVE'" EXIT
+    trap cleanup EXIT
     mkdir -p "${CONFIG_DRIVE}/openstack/latest"
 
 
@@ -175,9 +182,15 @@ fi
 
 # ${CONFIG_DRIVE} or ${CONFIG_IMAGE} will be mounted in Flatcar as /media/configdrive
 if [ -n "${CONFIG_DRIVE}" ]; then
-    set -- \
+    if ! is_darwin; then
+      set -- \
         -fsdev local,id=conf,security_model=none,readonly=on,path="${CONFIG_DRIVE}" \
         -device virtio-9p-pci,fsdev=conf,mount_tag=config-2 "$@"
+    else
+      hdiutil makehybrid -iso -joliet -default-volume-name config-2 -o configdrive.iso "${CONFIG_DRIVE}"
+      set -- \
+        -drive if=virtio,file=configdrive.iso,readonly=true "$@"
+    fi
 fi
 
 if [ -n "${CONFIG_IMAGE}" ]; then
