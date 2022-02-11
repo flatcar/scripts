@@ -21,6 +21,10 @@ IUSE=""
 DEPEND=""
 RDEPEND="${DEPEND}"
 
+PATCHES=(
+	"${FILESDIR}/vmdk-fix-build-issues-with-gcc-10-or-newer.patch"
+)
+
 src_install() {
 	emake DESTDIR="${D}" install
 }
