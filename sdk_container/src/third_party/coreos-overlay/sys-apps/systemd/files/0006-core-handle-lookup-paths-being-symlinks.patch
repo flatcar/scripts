@@ -1,7 +1,7 @@
-From 67d9962aa637401a1332069b6c8ad99a54e2b451 Mon Sep 17 00:00:00 2001
+From 8f007876ee3ac88087a8b24c252e9187e754c880 Mon Sep 17 00:00:00 2001
 From: Sayan Chowdhury <sayan@kinvolk.io>
 Date: Wed, 8 Sep 2021 12:10:35 +0530
-Subject: [PATCH] core: handle lookup paths being symlinks
+Subject: [PATCH 6/8] core: handle lookup paths being symlinks
 
 With a recent change paths leaving the statically known lookup paths
 would be treated differently then those that remained within those. That
@@ -19,10 +19,10 @@ Signed-off-by: Sayan Chowdhury <sayan@kinvolk.io>
  1 file changed, 31 insertions(+), 2 deletions(-)
 
 diff --git a/src/basic/unit-file.c b/src/basic/unit-file.c
-index 884a0674a9..3ae2a115d0 100644
+index faea92f66d..b024df21a9 100644
 --- a/src/basic/unit-file.c
 +++ b/src/basic/unit-file.c
-@@ -254,6 +254,7 @@ int unit_file_build_name_map(
+@@ -280,6 +280,7 @@ int unit_file_build_name_map(
  
          _cleanup_hashmap_free_ Hashmap *ids = NULL, *names = NULL;
          _cleanup_set_free_free_ Set *paths = NULL;
@@ -30,7 +30,7 @@ index 884a0674a9..3ae2a115d0 100644
          uint64_t timestamp_hash;
          char **dir;
          int r;
-@@ -273,6 +274,34 @@ int unit_file_build_name_map(
+@@ -299,6 +300,34 @@ int unit_file_build_name_map(
                          return log_oom();
          }
  
@@ -63,9 +63,9 @@ index 884a0674a9..3ae2a115d0 100644
 +        }
 +
          STRV_FOREACH(dir, (char**) lp->search_path) {
-                 struct dirent *de;
                  _cleanup_closedir_ DIR *d = NULL;
-@@ -351,11 +380,11 @@ int unit_file_build_name_map(
+ 
+@@ -424,11 +453,11 @@ int unit_file_build_name_map(
                                          continue;
                                  }
  
@@ -80,5 +80,5 @@ index 884a0674a9..3ae2a115d0 100644
                                          log_debug("%s: linked unit file: %s → %s",
                                                    __func__, filename, simplified);
 -- 
-2.30.2
+2.35.1
 

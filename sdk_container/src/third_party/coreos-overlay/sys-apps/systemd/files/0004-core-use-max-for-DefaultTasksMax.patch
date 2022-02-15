@@ -1,7 +1,7 @@
-From 3acaafc6fcd34b272e5249c49e498ff7facb564e Mon Sep 17 00:00:00 2001
+From 75c683b81fcdb47eaa9aa6c4355ed96296d6d547 Mon Sep 17 00:00:00 2001
 From: Sayan Chowdhury <sayan@kinvolk.io>
 Date: Thu, 22 Apr 2021 20:08:33 +0530
-Subject: [PATCH] core: use max for DefaultTasksMax
+Subject: [PATCH 4/8] core: use max for DefaultTasksMax
 
 Since systemd v228, systemd has a DefaultTasksMax which defaulted
 to 512, later 15% of the system's maximum number of PIDs.  This
@@ -21,10 +21,10 @@ Signed-off-by: Sayan Chowdhury <sayan@kinvolk.io>
  3 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/man/systemd-system.conf.xml b/man/systemd-system.conf.xml
-index d39928ec23..4d89a68b16 100644
+index 3805a010e2..48d9061d16 100644
 --- a/man/systemd-system.conf.xml
 +++ b/man/systemd-system.conf.xml
-@@ -376,7 +376,7 @@
+@@ -404,7 +404,7 @@
          <listitem><para>Configure the default value for the per-unit <varname>TasksMax=</varname> setting. See
          <citerefentry><refentrytitle>systemd.resource-control</refentrytitle><manvolnum>5</manvolnum></citerefentry>
          for details. This setting applies to all unit types that support resource control settings, with the exception
@@ -34,10 +34,10 @@ index d39928ec23..4d89a68b16 100644
          Kernel has a default value for <varname>kernel.pid_max=</varname> and an algorithm of counting in case of more than 32 cores.
          For example with the default <varname>kernel.pid_max=</varname>, <varname>DefaultTasksMax=</varname> defaults to 4915,
 diff --git a/src/core/main.c b/src/core/main.c
-index 0ddd629851..5e25a1b4b7 100644
+index 57aedb9b93..a8859478a9 100644
 --- a/src/core/main.c
 +++ b/src/core/main.c
-@@ -91,7 +91,7 @@
+@@ -98,7 +98,7 @@
  #include <sanitizer/lsan_interface.h>
  #endif
  
@@ -47,12 +47,12 @@ index 0ddd629851..5e25a1b4b7 100644
  static enum {
          ACTION_RUN,
 diff --git a/src/core/system.conf.in b/src/core/system.conf.in
-index fa6fb690c7..1e6df17d94 100644
+index 96fb64d2c1..7a71efbb0a 100644
 --- a/src/core/system.conf.in
 +++ b/src/core/system.conf.in
-@@ -55,7 +55,7 @@
+@@ -54,7 +54,7 @@
  #DefaultBlockIOAccounting=no
- #DefaultMemoryAccounting=@MEMORY_ACCOUNTING_DEFAULT@
+ #DefaultMemoryAccounting={{ 'yes' if MEMORY_ACCOUNTING_DEFAULT else 'no' }}
  #DefaultTasksAccounting=yes
 -#DefaultTasksMax=15%
 +#DefaultTasksMax=100%
@@ -60,6 +60,5 @@ index fa6fb690c7..1e6df17d94 100644
  #DefaultLimitFSIZE=
  #DefaultLimitDATA=
 -- 
-2.30.2
-
+2.35.1
 
