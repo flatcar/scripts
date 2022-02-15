@@ -123,3 +123,44 @@ script build_image \
     --torcx_root=/mnt/host/source/torcx/ \
     --upload_root="${UPLOAD_ROOT}" \
     --upload prodtar container
+
+set +x
+# Don't fail the whole job
+set +e
+echo "==================================================================="
+echo
+# Get last release tag (and filter out the alpha-3046.0.0 tag which was done without updating the submodule and thus refers a commit on main)
+PREV_TAG=$(git -C src/scripts describe --tags --abbrev=0 | sed 's/alpha-3046.0.0//g')
+if [ "${PREV_TAG}" = "" ]; then
+  # For main we compare to last alpha release
+  export CHANNEL_A="alpha"
+  export VERSION_A=$(curl -s -S -f -L "https://${CHANNEL_A}.release.flatcar-linux.net/${BOARD}/current/version.txt" | grep -m 1 "FLATCAR_VERSION=" | cut -d "=" -f 2)
+else
+  export CHANNEL_A=$(echo "${PREV_TAG}" | cut -d "-" -f 1)
+  export VERSION_A=$(echo "${PREV_TAG}" | cut -d "-" -f 2)
+fi
+if [ "${CHANNEL_A}" = "lts" ]; then
+  echo "Comparing to LTS is not supported yet (needs creds)"
+  exit 0
+fi
+if [ "${GROUP}" = "developer" ]; then
+  export CHANNEL_B="developer"
+  export MODE_B="/developer/"
+else
+  export CHANNEL_B="${GROUP}"
+fi
+echo "Image differences compared to ${CHANNEL_A} ${VERSION_A}:"
+rm -f package-diff
+curl -fsSLO --retry-delay 1 --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 "https://raw.githubusercontent.com/flatcar-linux/flatcar-build-scripts/master/package-diff"
+chmod +x package-diff
+echo "Package updates, compared to ${CHANNEL_A} ${VERSION_A}:"
+FILE=flatcar_production_image_packages.txt ./package-diff "${VERSION_A}" "${FLATCAR_VERSION}"
+echo
+echo "Image file changes, compared to ${CHANNEL_A} ${VERSION_A}:"
+FILE=flatcar_production_image_contents.txt FILESONLY=1 CUTKERNEL=1 ./package-diff "${VERSION_A}" "${FLATCAR_VERSION}"
+echo
+echo "Image file size change (includes /boot, /usr and the default rootfs partitions), compared to ${CHANNEL_A} ${VERSION_A}:"
+FILE=flatcar_production_image_contents.txt CALCSIZE=1 ./package-diff "${VERSION_A}" "${FLATCAR_VERSION}"
+echo
+BASE_PATH="https://bucket.release.flatcar-linux.net/$(echo $UPLOAD_ROOT | sed 's|gs://||g')/boards/${BOARD}/${FLATCAR_VERSION}"
+echo "Image URL: ${BASE_PATH}/flatcar_production_image.bin.bz2"
