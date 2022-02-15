@@ -42,17 +42,13 @@ src_prepare() {
 	# Disable installing sample rules so they can be installed as docs.
 	echo -e '%:\n\t:' | tee rules/Makefile.{am,in} >/dev/null
 
-	# Flatcar: Do not build daemon stuff.
-	sed -e '/^SUBDIRS =/s/audisp//' \
-		-i Makefile.am || die
 	# Flatcar: Some legacy stuff is being installed when systemd
 	# is enabled. Drop all the lines that try doing it.
 	sed -e '/${DESTDIR}${initdir}/d' \
 		-e '/${DESTDIR}${legacydir}/d' \
 		-i init.d/Makefile.am || die
 	# Flatcar: Do not build daemon stuff.
-	sed -e '/^sbin_PROGRAMS =/s/auditd//' \
-		-e '/^sbin_PROGRAMS =/s/aureport//' \
+	sed -e '/^sbin_PROGRAMS =/s/aureport//' \
 		-e '/^sbin_PROGRAMS =/s/ausearch//' \
 		-i src/Makefile.am || die
 
@@ -144,6 +140,11 @@ multilib_src_install_all() {
 	# newinitd "${FILESDIR}"/auditd-init.d-2.4.3 auditd
 	# newconfd "${FILESDIR}"/auditd-conf.d-2.1.3 auditd
 
+	# Flatcar: install sample configuration
+	insinto /usr/share/auditd
+	doins "${S}"/init.d/auditd.conf
+
+
 	# Flatcar: We are not installing audisp too.
 	# [ -f "${ED}"/sbin/audisp-remote ] && \
 	# dodir /usr/sbin && \
@@ -151,7 +152,6 @@ multilib_src_install_all() {
 
 	# Flatcar: Do not install gentoo rules.
 	# Gentoo rules
-	# insinto /etc/audit
 	# newins "${FILESDIR}"/audit.rules-2.1.3 audit.rules
 	# Flatcar: We are installing our own rules.
 	insinto /usr/share/audit/rules.d
@@ -160,14 +160,15 @@ multilib_src_install_all() {
 	# doins "${FILESDIR}"/audit.rules.stop*
 
 	# audit logs go here
-	# Flatcar: This is where auditd puts its logs. We don't have
-	# the daemon, so get rid of the unnecessary directory.
-	# keepdir /var/log/audit
+	keepdir /var/log/audit
 
 	find "${ED}" -type f -name '*.la' -delete || die
 
 	# Security
 	lockdown_perms "${ED}"
+
+	# Flatcar: We add the systemd unit but don't enable it.
+	systemd_dounit init.d/auditd.service
 
 	# Flatcar: Our systemd stuff.
 	newtmpfiles "${FILESDIR}"/audit-rules.tmpfiles audit-rules.conf
@@ -182,11 +183,13 @@ pkg_postinst() {
 lockdown_perms() {
 	# Upstream wants these to have restrictive perms.
 	# Should not || die as not all paths may exist.
-	# Flatcar: No lockdown of permissions - it's probably only
-	# related to auditd.
-	# local basedir="${1}"
+	# Flatcar: We don't include ausearch and aureport
+	# so they're removed from the hardening list
+	local basedir="${1}"
 	# chmod 0750 "${basedir}"/sbin/au{ditctl,ditd,report,search,trace} 2>/dev/null
-	# chmod 0750 "${basedir}"/var/log/audit 2>/dev/null
+	chmod 0750 "${basedir}"/sbin/au{ditctl,ditd,trace} 2>/dev/null
+	chmod 0750 "${basedir}"/var/log/audit 2>/dev/null
 	# chmod 0640 "${basedir}"/etc/audit/{auditd.conf,audit*.rules*} 2>/dev/null
+	rm -f  "${basedir}"/etc/audit/auditd.conf 2>/dev/null
 	:
 }
