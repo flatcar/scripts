@@ -607,6 +607,24 @@ finish_image() {
        "${root_fs_dir}/boot/flatcar/vmlinuz-a"
   sudo rm "${root_fs_dir}/usr/boot/vmlinuz"*
 
+  # Forbid dynamic user ID allocation because we want stable IDs
+  local found=""
+  # We want to forbid "-", "X:-" (.*:-), "-:X" (-:.*), "/X" (/.*)
+  found=$({ grep '^[ug]' "${root_fs_dir}"/usr/lib/sysusers.d/*.conf || true ; } | awk '{print $3}' | { grep -x -- "-\|.*:-\|-:.*\|/.*" || true ; })
+  if [ "${found}" != "" ]; then
+    die "Found dynamic ID allocation instead of hardcoded ID in /usr/lib/sysusers.d/*.conf (third column must not use '-', 'X:-', '-:X', or '/path')"
+  fi
+  # Run systemd-sysusers once to create users in /etc/passwd so that
+  # we can move them to /usr (relying on nss-altfiles to provide them
+  # at runtime, but we could use systemd's userdb, too).
+  sudo systemd-sysusers --root="${root_fs_dir}"
+  for databasefile in passwd group shadow gshadow; do
+    newentries=$(comm -23 <(sudo cut -d ":" -f 1 "${root_fs_dir}/etc/${databasefile}" | sort) <(sudo cut -d ":" -f 1 "${root_fs_dir}/usr/share/baselayout/${databasefile}" | sort))
+    for newentry in ${newentries}; do
+      sudo grep "^${newentry}:" "${root_fs_dir}/etc/${databasefile}" | sudo tee -a "${root_fs_dir}/usr/share/baselayout/${databasefile}"
+    done
+    sudo rm -f "${root_fs_dir}/etc/${databasefile}" "${root_fs_dir}/etc/${databasefile}-"
+  done
   # Record directories installed to the state partition.
   # Explicitly ignore entries covered by existing configs.
   local tmp_ignore=$(awk '/^[dDfFL]/ {print "--ignore=" $2}' \
