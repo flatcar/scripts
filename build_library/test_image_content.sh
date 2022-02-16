@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-GLSA_WHITELIST=(
+GLSA_ALLOWLIST=(
 	201412-09 # incompatible CA certificate version numbers
 	201908-14 # backported both CVE fixes
 	201909-01 # Perl, SDK only
@@ -19,7 +19,7 @@ GLSA_WHITELIST=(
 )
 
 glsa_image() {
-  if glsa-check-$BOARD -t all | grep -Fvx "${GLSA_WHITELIST[@]/#/-e}"; then
+  if glsa-check-$BOARD -t all | grep -Fvx "${GLSA_ALLOWLIST[@]/#/-e}"; then
     echo "The above GLSAs apply to $ROOT"
     return 1
   fi
@@ -42,15 +42,15 @@ test_image_content() {
     #returncode=1
   fi
 
-  local blacklist_dirs=(
+  local denylist_dirs=(
     "$root/usr/share/locale"
   )
-  for dir in "${blacklist_dirs[@]}"; do
+  for dir in "${denylist_dirs[@]}"; do
     if [ -d "$dir" ]; then
-      warn "test_image_content: Blacklisted directory found: $dir"
+      warn "test_image_content: Denied directory found: $dir"
       # Only a warning for now, size isn't important enough to kill time
       # playing whack-a-mole on things like this this yet.
-      #error "test_image_content: Blacklisted directory found: $dir"
+      #error "test_image_content: Denied directory found: $dir"
       #returncode=1
     fi
   done
