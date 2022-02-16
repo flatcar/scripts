@@ -28,10 +28,9 @@ net-analyzer/nmap ncat -system-lua
 # removes mta dependencies
 app-admin/sudo -sendmail
 
-# use lzma which is the default on non-gentoo systems, use gnuefi for
-# bootctl, enable selinux, disable hybrid cgroup as we use the unified
-# mode now
-sys-apps/systemd build curl idn lzma gnuefi selinux -cgroup-hybrid
+# use lzma which is the default on non-gentoo systems, enable selinux,
+# disable hybrid cgroup as we use the unified mode now
+sys-apps/systemd build curl idn lzma selinux -cgroup-hybrid
 net-libs/libmicrohttpd -ssl
 
 # disable kernel config detection and module building
