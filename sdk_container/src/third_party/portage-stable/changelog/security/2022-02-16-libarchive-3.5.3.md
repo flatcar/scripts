@@ -1,0 +1,1 @@
+- libarchive ([CVE-2021-31566](https://nvd.nist.gov/vuln/detail/CVE-2021-31566), [CVE-2021-36976](https://nvd.nist.gov/vuln/detail/CVE-2021-36976))
