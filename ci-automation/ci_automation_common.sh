@@ -10,8 +10,12 @@ source ci-automation/ci-config.env
 : ${PIGZ:=pigz}
 
 # set up author and email so git does not complain when tagging
-git -C . config user.name "${CI_GIT_AUTHOR}"  
-git -C . config user.email "${CI_GIT_EMAIL}"
+if ! git config --get user.name ; then
+    git -C . config user.name "${CI_GIT_AUTHOR}"
+fi
+if ! git config --get user.email ; then
+    git -C . config user.email "${CI_GIT_EMAIL}"
+fi
 
 function init_submodules() {
     git submodule init
