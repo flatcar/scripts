@@ -25,9 +25,6 @@
 # needed by arm64-native SDK
 dev-util/checkbashisms *
 
-# needed by arm64-native SDK
-dev-util/patchelf *
-
 =net-dns/c-ares-1.17.2 ~arm64
 =net-firewall/conntrack-tools-1.4.5 ~arm64
 =net-libs/libnetfilter_conntrack-1.0.8 ~arm64
