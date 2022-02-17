@@ -51,12 +51,14 @@ set -euo pipefail
 
 function test_run() {
     local arch="$1" ; shift
-    local image="$2"; shift
+    local image="$1"; shift
 
     # default to all tests
     if [ $# -le 0 ] ; then
-        set -- *
+        set -- '*'
     fi
+
+    local retries="${MAX_RETRIES:-999}"
 
     source ci-automation/tapfile_helper_lib.sh
     source ci-automation/ci_automation_common.sh
@@ -65,7 +67,7 @@ function test_run() {
     source sdk_container/.repo/manifests/version.txt
     local vernum="${FLATCAR_VERSION}"
     local docker_vernum
-   docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
+    docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
 
     local packages="flatcar-packages-${arch}"
     local packages_image="${packages}:${docker_vernum}"
@@ -74,6 +76,7 @@ function test_run() {
 
     local tests_dir="__TESTS__/${image}"
     mkdir -p "${tests_dir}"
+    echo "sudo rm -rf '${tests_dir}'" >> ci-cleanup.sh
 
     local container_name="flatcar-tests-${arch}-${docker_vernum}-${image}"
 
@@ -84,8 +87,9 @@ function test_run() {
         local failfile="failed-run-${retry}."
 
         set -o noglob
-        ./run_sdk_container -n "${container_name}" -C "${packages_image}" -v "${vernum}" \
-            ci-automation/vendor/testing/"${image}".sh \
+        ./run_sdk_container -x ./ci-cleanup.sh \
+            -n "${container_name}" -C "${packages_image}" -v "${vernum}" \
+            ci-automation/vendor-testing/"${image}".sh \
                 "${tests_dir}" \
                 "${arch}" \
                 "${vernum}" \
@@ -93,7 +97,8 @@ function test_run() {
                 $@
         set +o noglob
 
-        ./run_sdk_container -n "${container_name}" -C "${packages_image}" -v "${vernum}" \
+        ./run_sdk_container -x ./ci-cleanup.sh \
+            -n "${container_name}" -C "${packages_image}" -v "${vernum}" \
             ci-automation/test_update_reruns.sh \
                 "${tests_dir}/${tapfile}" "${image}" "${retry}" \
                 "${tests_dir}/failed-run-${retry}.txt"
