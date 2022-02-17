@@ -54,6 +54,7 @@ RDEPEND="${RDEPEND}
 	dev-util/gperf
 	>=dev-util/gtk-doc-am-1.13
 	>=dev-util/intltool-0.30
+	dev-util/patchutils
 	dev-util/scons
 	>=dev-vcs/git-1.7.2
 	amd64? ( net-misc/google-cloud-sdk )
@@ -101,8 +102,9 @@ RDEPEND="${RDEPEND}
 	coreos-base/update_engine
 	"
 
-# Host dependencies for running pylint within the chroot
+# Host dependencies for python
 RDEPEND="${RDEPEND}
+	dev-python/docutils
 	dev-python/pylint
 	"
 
