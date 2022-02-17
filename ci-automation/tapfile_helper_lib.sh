@@ -117,7 +117,8 @@ function tap_ingest_tapfile() {
             fi
         else
             test_name="$(echo "${line}" | sed 's/^[^-]* - //')"
-            local result_string="$(echo "${line}" | sed 's/ - .*//')"
+            local result_string
+            result_string="$(echo "${line}" | sed 's/ - .*//')"
             result=0
             if [ "${result_string}" = "ok" ] ; then
                 result=1
@@ -186,8 +187,10 @@ function tap_generate_report() {
 
     local dbname="${TAPFILE_HELPER_DBNAME}"
 
-    local count="$(__sqlite3_wrapper "${dbname}" 'SELECT count(name) FROM test_case;')"
-    local vendors="$(__sqlite3_wrapper "${dbname}" 'SELECT name FROM vendor;' | tr '\n' ' ')"
+    local count
+    count="$(__sqlite3_wrapper "${dbname}" 'SELECT count(name) FROM test_case;')"
+    local vendors
+    vendors="$(__sqlite3_wrapper "${dbname}" 'SELECT name FROM vendor;' | tr '\n' ' ')"
 
     echo "1..$((count+1))"
     echo "ok - Version: ${version}, Architecture: ${arch}" 
@@ -243,8 +246,10 @@ function tap_generate_report() {
                             END { if (t) print t r ")"; }'
         }
 
-        local succeded="$(list_runs 1)"
-        local failed="$(list_runs 0)"
+        local succeded
+        succeded="$(list_runs 1)"
+        local failed
+        failed="$(list_runs 0)"
 
         echo "${verdict} - ${test_name}"
         echo "   ---"
