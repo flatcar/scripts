@@ -8,7 +8,7 @@
 # test.sh uses this to determine which tests need to re-run.
 # This script is run within the SDK container.
 
-set -eu
+set -euo pipefail
 
 tapfile="$1"
 image="$2"
