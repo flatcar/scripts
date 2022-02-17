@@ -47,7 +47,7 @@
 #   2. "./ci-cleanup.sh" with commands to clean up temporary build resources,
 #        to be run after this step finishes / when this step is aborted.
 
-set -eu
+set -euo pipefail
 
 function test_run() {
     local arch="$1" ; shift
@@ -64,7 +64,8 @@ function test_run() {
 
     source sdk_container/.repo/manifests/version.txt
     local vernum="${FLATCAR_VERSION}"
-    local docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
+    local docker_vernum
+   docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
 
     local packages="flatcar-packages-${arch}"
     local packages_image="${packages}:${docker_vernum}"
@@ -97,7 +98,8 @@ function test_run() {
                 "${tests_dir}/${tapfile}" "${image}" "${retry}" \
                 "${tests_dir}/failed-run-${retry}.txt"
 
-        local failed_tests="$(cat "${tests_dir}/failed-run-${retry}.txt")"
+        local failed_tests
+        failed_tests="$(cat "${tests_dir}/failed-run-${retry}.txt")"
         if [ -z "$failed_tests" ] ; then
             echo "########### All tests succeeded. ###########"
             success=true
