@@ -17,9 +17,6 @@
 =dev-libs/liblinear-210-r1 ~arm64
 =dev-libs/libusb-1.0.21 ~arm64
 
-# needed to force enable userspace-rcu for arm64
-=dev-libs/userspace-rcu-0.9.1 **
-
 =dev-perl/Text-Unidecode-1.270.0 ~arm64
 
 # needed to force enable bpftool for arm64
