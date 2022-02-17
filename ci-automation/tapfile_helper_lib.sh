@@ -205,7 +205,8 @@ function tap_generate_report() {
 
         # "ok" if the test succeeded at least once for all vendors that run the test,
         #   "not ok" otherwise.
-        local verdict="$(__sqlite3_wrapper "${dbname}" "
+        local verdict
+        verdict="$(__sqlite3_wrapper "${dbname}" "
         SELECT failed.name FROM vendor AS failed
         WHERE EXISTS (
                 SELECT * FROM test_run AS t, vendor AS v, test_case AS c
