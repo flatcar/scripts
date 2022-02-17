@@ -238,9 +238,9 @@ get_gclient_root() {
   fi
 }
 
-# Populate the ENVIRONMENT_WHITELIST array.
-load_environment_whitelist() {
-  ENVIRONMENT_WHITELIST=(
+# Populate the ENVIRONMENT_ALLOWLIST array.
+load_environment_allowlist() {
+  ENVIRONMENT_ALLOWLIST=(
     COREOS_OFFICIAL
     FLATCAR_BUILD_ID
     FORCE_STAGES
@@ -308,7 +308,7 @@ if [[ -f "${REPO_MANIFESTS_DIR}/version.txt" ]]; then
     FLATCAR_DEV_BUILDS FLATCAR_DEV_BUILDS_SDK
     # Don't promote FLATCAR_BUILD_ID into an environment variable when it
     # didn't start as one, since we don't want it leaking into the SDK
-    # chroot environment via ENVIRONMENT_WHITELIST.
+    # chroot environment via ENVIRONMENT_ALLOWLIST.
     declare +x FLATCAR_BUILD_ID
   fi
   : ${FLATCAR_BUILD_ID:=$(date +%Y-%m-%d-%H%M)}
