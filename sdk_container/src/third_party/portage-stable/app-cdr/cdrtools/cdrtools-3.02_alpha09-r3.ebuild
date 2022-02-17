@@ -1,29 +1,34 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
-EAPI=5
+EAPI=7
 
-inherit fcaps multilib eutils toolchain-funcs flag-o-matic gnuconfig
+inherit fcaps toolchain-funcs flag-o-matic gnuconfig
 
 MY_P="${P/_alpha/a}"
 
 DESCRIPTION="A set of tools for CD/DVD reading and recording, including cdrecord"
-HOMEPAGE="http://sourceforge.net/projects/cdrtools/"
+HOMEPAGE="https://sourceforge.net/projects/cdrtools/"
 SRC_URI="mirror://sourceforge/${PN}/$([[ -z ${PV/*_alpha*} ]] && echo 'alpha')/${MY_P}.tar.bz2"
 
 LICENSE="GPL-2 LGPL-2.1 CDDL-Schily"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos ~sparc-solaris ~x86-solaris"
-IUSE="acl caps nls unicode"
+KEYWORDS="~alpha amd64 ~arm arm64 hppa ~ia64 ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~sparc-solaris ~x86-solaris"
+IUSE="acl caps nls unicode selinux"
 
-RDEPEND="acl? ( virtual/acl )
+BDEPEND="
+	nls? ( >=sys-devel/gettext-0.18.1.1 )
+	x11-misc/makedepend
+"
+RDEPEND="
+	acl? ( virtual/acl )
 	caps? ( sys-libs/libcap )
 	nls? ( virtual/libintl )
-	!app-cdr/cdrkit"
-DEPEND="${RDEPEND}
-	x11-misc/makedepend
-	nls? ( >=sys-devel/gettext-0.18.1.1 )"
+	selinux? ( sec-policy/selinux-cdrecord )
+"
+DEPEND="
+	${RDEPEND}
+"
 
 S=${WORKDIR}/${P/_alpha[0-9][0-9]}
 
@@ -36,15 +41,16 @@ FILECAPS=(
 cdrtools_os() {
 	local os="linux"
 	[[ ${CHOST} == *-darwin* ]] && os="mac-os10"
-	[[ ${CHOST} == *-freebsd* ]] && os="freebsd"
 	echo "${os}"
 }
 
 src_prepare() {
+	default
+
 	gnuconfig_update
 
 	# Remove profiled make files.
-	find -name '*_p.mk' -delete
+	find -name '*_p.mk' -delete || die "delete *_p.mk"
 
 	# Adjusting hardcoded paths.
 	sed -i -e "s|opt/schily|usr|" \
@@ -65,10 +71,19 @@ src_prepare() {
 		$(find ./ -type f -exec grep -l '^include.\+rules\.lib' '{}' '+') \
 		|| die "sed rules"
 
+	# Enable verbose build.
+	sed -i -e '/@echo.*==>.*;/s:@echo[^;]*;:&set -x;:' \
+		RULES/*.rul RULES/rules.prg RULES/rules.inc \
+		|| die "sed verbose rules"
+
 	# Respect CC/CXX variables.
-	cd "${S}"/RULES
+	cd "${S}"/RULES || die
 	local tcCC=$(tc-getCC)
 	local tcCXX=$(tc-getCXX)
+	# fix RISC-V build err, bug 811375
+	ln -s i586-linux-cc.rul riscv-linux-cc.rul || die
+	ln -s i586-linux-cc.rul riscv64-linux-cc.rul || die
+
 	sed -i -e "/cc-config.sh/s|\$(C_ARCH:%64=%) \$(CCOM_DEF)|${tcCC} ${tcCC}|" \
 		rules1.top || die "sed rules1.top"
 	sed -i -e "/^CC_COM_DEF=/s|gcc|${tcCC}|" \
@@ -79,12 +94,8 @@ src_prepare() {
 	sed -i -e "s|^#\(CONFFLAGS +=\).*|\1\t-cc=${tcCC}|" \
 		rules.cnf || die "sed rules.cnf"
 
-	# Add support for arm64
-	ln -sf i586-linux-cc.rul aarch64-linux-cc.rul
-	ln -sf i586-linux-gcc.rul aarch64-linux-gcc.rul
-
 	# Schily make setup.
-	cd "${S}"/DEFAULTS
+	cd "${S}"/DEFAULTS || die
 	local os=$(cdrtools_os)
 
 	sed -i \
@@ -129,6 +140,12 @@ ac_cv_sizeof() {
 }
 
 src_configure() {
+	use acl || export ac_cv_header_sys_acl_h="no"
+	use caps || export ac_cv_lib_cap_cap_get_proc="no"
+	export ac_cv_header_pulse_pulseaudio_h="no"
+	export ac_cv_header_alsa_asoundlib_h="no"
+	export ac_cv_lib_asound_snd_pcm_open="no"
+
 	# skip obsolete configure script
 	if tc-is-cross-compiler ; then
 		# Cache known values for targets. #486680
@@ -218,14 +235,6 @@ src_compile() {
 		fi
 	fi
 
-	if ! use caps; then
-		CFLAGS="${CFLAGS} -DNO_LINUX_CAPS"
-	fi
-
-	if ! use acl; then
-		CFLAGS="${CFLAGS} -DNO_ACL"
-	fi
-
 	# If not built with -j1, "sometimes" cdda2wav will not be built.
 	emake -j1 CPPOPTX="${CPPFLAGS}" COPTX="${CFLAGS}" C++OPTX="${CXXFLAGS}" \
 		LDOPTX="${LDFLAGS}" GMAKE_NOWARN="true"
@@ -242,16 +251,16 @@ src_install() {
 
 	dodoc ABOUT Changelog* CONTRIBUTING PORTING README.linux-shm READMEs/README.linux
 
-	cd "${S}"/cdda2wav
+	cd "${S}"/cdda2wav || die
 	docinto cdda2wav
 	dodoc Changelog FAQ Frontends HOWTOUSE NEEDED README THANKS TODO
 
-	cd "${S}"/mkisofs
+	cd "${S}"/mkisofs || die
 	docinto mkisofs
 	dodoc ChangeLog* TODO
 
 	# Remove man pages related to the build system
-	rm -rvf "${ED}"/usr/share/man/man5
+	rm -rvf "${ED}"/usr/share/man/man5 || die
 }
 
 pkg_postinst() {

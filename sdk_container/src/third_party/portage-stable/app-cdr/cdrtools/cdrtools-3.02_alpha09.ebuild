@@ -1,26 +1,24 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
-EAPI=5
+EAPI=6
 
-inherit fcaps multilib eutils toolchain-funcs flag-o-matic gnuconfig
+inherit fcaps toolchain-funcs flag-o-matic gnuconfig
 
 MY_P="${P/_alpha/a}"
 
 DESCRIPTION="A set of tools for CD/DVD reading and recording, including cdrecord"
-HOMEPAGE="http://sourceforge.net/projects/cdrtools/"
+HOMEPAGE="https://sourceforge.net/projects/cdrtools/"
 SRC_URI="mirror://sourceforge/${PN}/$([[ -z ${PV/*_alpha*} ]] && echo 'alpha')/${MY_P}.tar.bz2"
 
 LICENSE="GPL-2 LGPL-2.1 CDDL-Schily"
 SLOT="0"
-KEYWORDS="alpha amd64 arm ~arm64 hppa ~ia64 ~mips ~ppc ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos ~sparc-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~mips ppc ppc64 -riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~sparc-solaris ~x86-solaris"
 IUSE="acl caps nls unicode"
 
 RDEPEND="acl? ( virtual/acl )
 	caps? ( sys-libs/libcap )
-	nls? ( virtual/libintl )
-	!app-cdr/cdrkit"
+	nls? ( virtual/libintl )"
 DEPEND="${RDEPEND}
 	x11-misc/makedepend
 	nls? ( >=sys-devel/gettext-0.18.1.1 )"
@@ -36,20 +34,16 @@ FILECAPS=(
 cdrtools_os() {
 	local os="linux"
 	[[ ${CHOST} == *-darwin* ]] && os="mac-os10"
-	[[ ${CHOST} == *-freebsd* ]] && os="freebsd"
 	echo "${os}"
 }
 
 src_prepare() {
+	default
+
 	gnuconfig_update
 
-	# This fixes a clash with clone() on uclibc.  Upstream isn't
-	# going to include this so let's try to carry it forward.
-	# Contact me if it needs updating.  Bug #486782.
-	# Anthony G. Basile <blueness@gentoo.org>.
-
 	# Remove profiled make files.
-	find -name '*_p.mk' -delete
+	find -name '*_p.mk' -delete || die "delete *_p.mk"
 
 	# Adjusting hardcoded paths.
 	sed -i -e "s|opt/schily|usr|" \
@@ -76,7 +70,7 @@ src_prepare() {
 		|| die "sed verbose rules"
 
 	# Respect CC/CXX variables.
-	cd "${S}"/RULES
+	cd "${S}"/RULES || die
 	local tcCC=$(tc-getCC)
 	local tcCXX=$(tc-getCXX)
 	sed -i -e "/cc-config.sh/s|\$(C_ARCH:%64=%) \$(CCOM_DEF)|${tcCC} ${tcCC}|" \
@@ -90,7 +84,7 @@ src_prepare() {
 		rules.cnf || die "sed rules.cnf"
 
 	# Schily make setup.
-	cd "${S}"/DEFAULTS
+	cd "${S}"/DEFAULTS || die
 	local os=$(cdrtools_os)
 
 	sed -i \
@@ -137,6 +131,7 @@ ac_cv_sizeof() {
 src_configure() {
 	use acl || export ac_cv_header_sys_acl_h="no"
 	use caps || export ac_cv_lib_cap_cap_get_proc="no"
+	export ac_cv_header_pulse_pulseaudio_h="no"
 
 	# skip obsolete configure script
 	if tc-is-cross-compiler ; then
@@ -243,16 +238,16 @@ src_install() {
 
 	dodoc ABOUT Changelog* CONTRIBUTING PORTING README.linux-shm READMEs/README.linux
 
-	cd "${S}"/cdda2wav
+	cd "${S}"/cdda2wav || die
 	docinto cdda2wav
 	dodoc Changelog FAQ Frontends HOWTOUSE NEEDED README THANKS TODO
 
-	cd "${S}"/mkisofs
+	cd "${S}"/mkisofs || die
 	docinto mkisofs
 	dodoc ChangeLog* TODO
 
 	# Remove man pages related to the build system
-	rm -rvf "${ED}"/usr/share/man/man5
+	rm -rvf "${ED}"/usr/share/man/man5 || die
 }
 
 pkg_postinst() {
