@@ -272,6 +272,9 @@ EMERGE_DEFAULT_OPTS="--oneshot"
 # Allow the user to override or define additional settings.
 source "${BOARD_ETC}/portage/make.conf.user"
 EOF
+if [[ "${COREOS_OFFICIAL:-0}" -ne 1 ]]; then
+    echo "FEATURES=-ebuild-locks" | sudo_append "${BOARD_ETC}/portage/make.conf"
+fi
 
 # required when using --regen_configs_only
 sudo mkdir -p --mode=01777 "${BOARD_ROOT}"{/tmp,/var/tmp}
