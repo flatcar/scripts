@@ -1,29 +1,21 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
-EAPI=5
+EAPI=7
 
 inherit multilib toolchain-funcs
 
 DESCRIPTION="A Library for Large Linear Classification"
-HOMEPAGE="http://www.csie.ntu.edu.tw/~cjlin/liblinear/ https://github.com/cjlin1/liblinear"
+HOMEPAGE="https://www.csie.ntu.edu.tw/~cjlin/liblinear/ https://github.com/cjlin1/liblinear"
 SRC_URI="https://github.com/cjlin1/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="BSD"
-SLOT="0/3"
-KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86"
-IUSE="blas"
-
-RDEPEND="
-	blas? ( virtual/blas )
-"
-DEPEND="
-	${RDEPEND}
-	blas? ( virtual/pkgconfig )
-"
+SLOT="0/4"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-macos"
 
 src_prepare() {
+	default
+
 	sed -i \
 		-e '/^AR/s|=|?=|g' \
 		-e '/^RANLIB/s|=|?=|g' \
@@ -35,9 +27,12 @@ src_prepare() {
 		-e '/^CFLAGS/d;/^CXXFLAGS/d' \
 		-e 's|$${SHARED_LIB_FLAG}|& $(LDFLAGS)|g' \
 		Makefile || die
-	if use blas; then
-		sed -i -e 's:blas/blas.a::g' Makefile || die
-	fi
+
+	# fix install_name on Darwin
+	sed -i \
+		-e '/install_name/s:liblinear.so.$(SHVER):'"${EPREFIX}"'/usr/lib/liblinear.$(SHVER).dylib:' \
+		-e '/LDFLAGS/s:liblinear.so.$(SHVER):liblinear'"$(get_libname '$(SHVER)')"':' \
+		Makefile || die
 }
 
 src_compile() {
@@ -48,13 +43,12 @@ src_compile() {
 		CXXFLAGS="${CXXFLAGS} -fPIC" \
 		AR="$(tc-getAR) rcv" \
 		RANLIB="$(tc-getRANLIB)" \
-		LIBS="$(usex blas "$( $(tc-getPKG_CONFIG) --libs blas )" blas/blas.a)" \
 		lib all
 }
 
 src_install() {
-	dolib ${PN}.so.3
-	dosym ${PN}.so.3 /usr/$(get_libdir)/${PN}.so
+	dolib.so ${PN}$(get_libname 4)
+	dosym ${PN}$(get_libname 4) /usr/$(get_libdir)/${PN}$(get_libname)
 
 	newbin predict ${PN}-predict
 	newbin train ${PN}-train
