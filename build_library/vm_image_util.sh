@@ -217,7 +217,7 @@ IMG_ami_vmdk_OEM_USE=ec2
 # AWS Pro
 IMG_ami_vmdk_pro_DISK_FORMAT=vmdk_stream
 IMG_ami_vmdk_pro_OEM_PACKAGE=oem-ec2-compat
-IMG_ami_vmdk_pro_OEM_USE=aws_pro
+IMG_ami_vmdk_pro_OEM_USE=ec2
 
 ## openstack, supports ec2's metadata format so use oem-ec2-compat
 IMG_openstack_DISK_FORMAT=qcow2
@@ -290,7 +290,7 @@ IMG_azure_OEM_PACKAGE=oem-azure
 ## azure pro
 IMG_azure_pro_DISK_FORMAT=vhd
 IMG_azure_pro_DISK_LAYOUT=azure
-IMG_azure_pro_OEM_PACKAGE=oem-azure-pro
+IMG_azure_pro_OEM_PACKAGE=oem-azure
 
 ## hyper-v
 IMG_hyperv_DISK_FORMAT=vhd
