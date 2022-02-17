@@ -24,8 +24,9 @@ function __sqlite3_wrapper() {
 
     while true; do
         sqlite3 "${dbfile}" "$@"
-        if [ $? -ne 5 ] ; then
-            return $?
+        local ret="$?"
+        if [ "$ret" -ne 5 ] ; then
+            return $ret
         fi
         local sleep="$((1 + $RANDOM % 5))"
         echo "Retrying in ${sleep} seconds." >&2
