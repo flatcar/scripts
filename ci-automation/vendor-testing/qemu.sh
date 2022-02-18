@@ -32,7 +32,7 @@ sudo kola run \
     --qemu-bios=/usr/share/qemu/bios-256k.bin \
     --qemu-image="${QEMU_IMAGE_NAME}" \
     --tapfile="${tapfile}" \
-    --torcx-manifest="${CONTAINER_TORCX_ROOT}/${arch}-usr/latest/torcx_manifest.json" \
+    --torcx-manifest=torcx_manifest.json \
     $@
 
 set +o noglob
