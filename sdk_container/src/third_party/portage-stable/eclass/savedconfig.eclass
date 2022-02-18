@@ -1,9 +1,10 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: savedconfig.eclass
 # @MAINTAINER:
 # base-system@gentoo.org
+# @SUPPORTED_EAPIS: 5 6 7
 # @BLURB: common API for saving/restoring complex configuration files
 # @DESCRIPTION:
 # It is not uncommon to come across a package which has a very fine
@@ -13,25 +14,30 @@
 # so users can modify these config files and the ebuild will take it
 # into account as needed.
 #
-# @ROFF .nr step 1 1
 # Typically you can create your own configuration files quickly by
 # doing:
-# @ROFF .IP \n[step] 3
-# Build the package with FEATURES=noclean USE=savedconfig.
-# @ROFF .IP \n+[step]
-# Go into the build dir and edit the relevant configuration system
+#
+# 1. Build the package with FEATURES=noclean USE=savedconfig.
+#
+# 2. Go into the build dir and edit the relevant configuration system
 # (e.g. `make menuconfig` or `nano config-header.h`).  You can look
 # at the files in /etc/portage/savedconfig/ to see what files get
 # loaded/restored.
-# @ROFF .IP \n+[step]
-# Copy the modified configuration files out of the workdir and to
+#
+# 3. Copy the modified configuration files out of the workdir and to
 # the paths in /etc/portage/savedconfig/.
-# @ROFF .IP \n+[step]
-# Emerge the package with just USE=savedconfig to get the custom build.
+#
+# 4. Emerge the package with just USE=savedconfig to get the custom
+# build.
 
 inherit portability
 
 IUSE="savedconfig"
+
+case ${EAPI} in
+	[5-7]) ;;
+	*) die "EAPI=${EAPI:-0} is not supported" ;;
+esac
 
 # @FUNCTION: save_config
 # @USAGE: <config files to save>
@@ -46,23 +52,21 @@ save_config() {
 	fi
 	[[ $# -eq 0 ]] && die "Usage: save_config <files>"
 
-	# Be lazy in our EAPI compat
-	: ${ED:=${D}}
+	local configfile="/etc/portage/savedconfig/${CATEGORY}/${PF}"
 
-	local dest="/etc/portage/savedconfig/${CATEGORY}"
 	if [[ $# -eq 1 && -f $1 ]] ; then
-		# Just one file, so have the ${PF} be that config file
-		dodir "${dest}"
-		cp "$@" "${ED}/${dest}/${PF}" || die "failed to save $*"
+		# Just one file, so have the ${configfile} be that config file
+		dodir "${configfile%/*}"
+		cp "$@" "${ED%/}/${configfile}" || die "failed to save $*"
 	else
-		# A dir, or multiple files, so have the ${PF} be a dir
+		# A dir, or multiple files, so have the ${configfile} be a dir
 		# with all the saved stuff below it
-		dodir "${dest}/${PF}"
-		treecopy "$@" "${ED}/${dest}/${PF}" || die "failed to save $*"
+		dodir "${configfile}"
+		treecopy "$@" "${ED%/}/${configfile}" || die "failed to save $*"
 	fi
 
 	elog "Your configuration for ${CATEGORY}/${PF} has been saved in "
-	elog "/etc/portage/savedconfig/${CATEGORY}/${PF} for your editing pleasure."
+	elog "\"${configfile}\" for your editing pleasure."
 	elog "You can edit these files by hand and remerge this package with"
 	elog "USE=savedconfig to customise the configuration."
 	elog "You can rename this file/directory to one of the following for"
@@ -74,7 +78,7 @@ save_config() {
 # @FUNCTION: restore_config
 # @USAGE: <config files to restore>
 # @DESCRIPTION:
-# Restores the configuation saved ebuild previously potentially with user edits.
+# Restores the package's configuration file probably with user edits.
 # You can restore a single file or a whole bunch, just make sure you call
 # restore_config with all of the files to restore at the same time.
 #
@@ -98,41 +102,41 @@ restore_config() {
 
 	use savedconfig || return
 
-	local found check configfile
-	local base=${PORTAGE_CONFIGROOT}/etc/portage/savedconfig
+	local found check checked configfile
+	local base=${PORTAGE_CONFIGROOT%/}/etc/portage/savedconfig
 	for check in {${CATEGORY}/${PF},${CATEGORY}/${P},${CATEGORY}/${PN}}; do
-		configfile=${base}/${CTARGET}/${check}
-		[[ -r ${configfile} ]] || configfile=${base}/${CHOST}/${check}
+		configfile=${base}/${CTARGET:+"${CTARGET}/"}${check}
+		[[ -r ${configfile} ]] || configfile=${base}/${CHOST:+"${CHOST}/"}${check}
 		[[ -r ${configfile} ]] || configfile=${base}/${check}
-		einfo "Checking existence of ${configfile} ..."
-		if [[ -r "${configfile}" ]]; then
-			einfo "found ${configfile}"
-			found=${configfile};
-			break;
+		[[ "${checked}" == *"${configfile} "* ]] && continue
+		einfo "Checking existence of \"${configfile}\" ..."
+		if [[ -r "${configfile}" ]] ; then
+			einfo "Found \"${configfile}\""
+			found=${configfile}
+			break
 		fi
+
+		checked+="${configfile} "
 	done
+
 	if [[ -f ${found} ]]; then
-		elog "Building using saved configfile ${found}"
+		elog "Building using saved configfile \"${found}\""
 		if [ $# -gt 0 ]; then
 			cp -pPR	"${found}" "$1" || die "Failed to restore ${found} to $1"
 		else
 			die "need to know the restoration filename"
 		fi
 	elif [[ -d ${found} ]]; then
-		elog "Building using saved config directory ${found}"
+		elog "Building using saved config directory \"${found}\""
 		local dest=${PWD}
 		pushd "${found}" > /dev/null
 		treecopy . "${dest}" || die "Failed to restore ${found} to $1"
 		popd > /dev/null
 	else
-		# maybe the user is screwing around with perms they shouldnt #289168
-		if [[ ! -r ${base} ]] ; then
-			eerror "Unable to read ${base} -- please check its permissions."
-			die "Reading config files failed"
-		fi
 		ewarn "No saved config to restore - please remove USE=savedconfig or"
-		ewarn "provide a configuration file in ${PORTAGE_CONFIGROOT}/etc/portage/savedconfig/${CATEGORY}/${PN}"
-		ewarn "Your config file(s) will not be used this time"
+		ewarn "provide a configuration file in ${PORTAGE_CONFIGROOT%/}/etc/portage/savedconfig/${CATEGORY}/${PN}"
+		ewarn "and ensure the build process has permission to access it."
+		ewarn "Your config file(s) will not be used this time."
 	fi
 }
 
@@ -143,10 +147,7 @@ savedconfig_pkg_postinst() {
 	# are worse :/.
 
 	if use savedconfig ; then
-		# Be lazy in our EAPI compat
-		: ${EROOT:=${ROOT}}
-
-		find "${EROOT}/etc/portage/savedconfig/${CATEGORY}/${PF}" \
+		find "${EROOT%/}/etc/portage/savedconfig/${CATEGORY}/${PF}" \
 			-exec touch {} + 2>/dev/null
 	fi
 }
