@@ -44,6 +44,7 @@ dmcrypt_retries=5
 #                                    for blkid (see -t option).  This is safer than using
 #                                    the full path to the device.
 # key='</path/to/keyfile>[:<mode>]'  == Fullpath from / or from inside removable media.
+# header='</path/to/header>'         == Full path to detached LUKS header file.
 # remdev='<dev>'                     == Device that will be assigned to removable media.
 # gpg_options='<opts>'               == Default are --quiet --decrypt
 # options='<opts>'                   == cryptsetup, for LUKS you can only use --readonly
@@ -52,6 +53,8 @@ dmcrypt_retries=5
 #                                    be looked up automatically.
 # pre_mount='cmds'                   == commands to execute before mounting partition.
 # post_mount='cmds'                  == commands to execute after mounting partition.
+# wait=5                             == wait given amount of seconds for source or
+#                                       detached header file appear.
 #-----------
 # Supported Modes
 # gpg					== decrypt and pipe key into cryptsetup.
@@ -78,6 +81,12 @@ dmcrypt_retries=5
 #target=crypt-home
 #source='/dev/hda5'
 #key='/full/path/to/homekey'
+
+## /home with regular keyfile and detached header
+#target=crypt-home
+#source='/dev/hda5'
+#key='/full/path/to/homekey'
+#header='/full/path/to/header/file'
 
 ## /home with gpg protected key
 #target=crypt-home

@@ -1,9 +1,9 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit autotools linux-info tmpfiles
+inherit linux-info tmpfiles
 
 DESCRIPTION="Tool to setup encrypted devices with dm-crypt"
 HOMEPAGE="https://gitlab.com/cryptsetup/cryptsetup/blob/master/README.md"
@@ -16,20 +16,24 @@ KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~mips ppc ppc64 ~riscv ~s390 sparc x
 CRYPTO_BACKENDS="gcrypt kernel nettle +openssl"
 # we don't support nss since it doesn't allow cryptsetup to be built statically
 # and it's missing ripemd160 support so it can't provide full backward compatibility
-IUSE="${CRYPTO_BACKENDS} +argon2 nls pwquality reencrypt static static-libs +udev urandom"
+IUSE="${CRYPTO_BACKENDS} +argon2 nls pwquality reencrypt ssh static static-libs test +udev urandom"
+RESTRICT="!test? ( test )"
 REQUIRED_USE="^^ ( ${CRYPTO_BACKENDS//+/} )
-	static? ( !gcrypt !udev )" #496612
+	static? ( !gcrypt !ssh !udev )" # 496612, 832711
 
 LIB_DEPEND="
 	dev-libs/json-c:=[static-libs(+)]
-	dev-libs/libgpg-error[static-libs(+)]
 	dev-libs/popt[static-libs(+)]
 	>=sys-apps/util-linux-2.31-r1[static-libs(+)]
 	argon2? ( app-crypt/argon2:=[static-libs(+)] )
-	gcrypt? ( dev-libs/libgcrypt:0=[static-libs(+)] )
+	gcrypt? (
+		dev-libs/libgcrypt:0=[static-libs(+)]
+		dev-libs/libgpg-error[static-libs(+)]
+	)
 	nettle? ( >=dev-libs/nettle-2.4[static-libs(+)] )
 	openssl? ( dev-libs/openssl:0=[static-libs(+)] )
 	pwquality? ( dev-libs/libpwquality[static-libs(+)] )
+	ssh? ( net-libs/libssh[static-libs(+)] )
 	sys-fs/lvm2[static-libs(+)]"
 # We have to always depend on ${LIB_DEPEND} rather than put behind
 # !static? () because we provide a shared library which links against
@@ -37,15 +41,15 @@ LIB_DEPEND="
 RDEPEND="static-libs? ( ${LIB_DEPEND} )
 	${LIB_DEPEND//\[static-libs\([+-]\)\]}
 	udev? ( virtual/libudev:= )"
+# vim-core needed for xxd in tests
 DEPEND="${RDEPEND}
-	static? ( ${LIB_DEPEND} )"
+	static? ( ${LIB_DEPEND} )
+	test? ( app-editors/vim-core )"
 BDEPEND="
 	virtual/pkgconfig
 "
 
 S="${WORKDIR}/${P/_/-}"
-
-PATCHES=( "${FILESDIR}"/${PN}-2.0.4-fix-static-pwquality-build.patch )
 
 pkg_setup() {
 	local CONFIG_CHECK="~DM_CRYPT ~CRYPTO ~CRYPTO_CBC ~CRYPTO_SHA256"
@@ -59,7 +63,6 @@ pkg_setup() {
 src_prepare() {
 	sed -i '/^LOOPDEV=/s:$: || exit 0:' tests/{compat,mode}-test || die
 	default
-	eautoreconf
 }
 
 src_configure() {
@@ -81,10 +84,12 @@ src_configure() {
 		$(use_enable nls)
 		$(use_enable pwquality)
 		$(use_enable reencrypt cryptsetup-reencrypt)
+		$(use_enable !static external-tokens)
 		$(use_enable static static-cryptsetup)
 		$(use_enable static-libs static)
 		$(use_enable udev)
 		$(use_enable !urandom dev-random)
+		$(use_enable ssh ssh-token)
 		$(usex argon2 '' '--with-luks2-pbkdf=pbkdf2')
 	)
 	econf "${myeconfargs[@]}"
@@ -110,6 +115,10 @@ src_install() {
 	if use static ; then
 		mv "${ED}"/sbin/cryptsetup{.static,} || die
 		mv "${ED}"/sbin/veritysetup{.static,} || die
+		mv "${ED}"/sbin/integritysetup{.static,} || die
+		if use ssh ; then
+			mv "${ED}"/sbin/cryptsetup-ssh{.static,} || die
+		fi
 		if use reencrypt ; then
 			mv "${ED}"/sbin/cryptsetup-reencrypt{.static,} || die
 		fi
@@ -118,8 +127,8 @@ src_install() {
 
 	dodoc docs/v*ReleaseNotes
 
-	newconfd "${FILESDIR}"/1.6.7-dmcrypt.confd dmcrypt
-	newinitd "${FILESDIR}"/1.6.7-dmcrypt.rc dmcrypt
+	newconfd "${FILESDIR}"/2.4.0-dmcrypt.confd dmcrypt
+	newinitd "${FILESDIR}"/2.4.0-dmcrypt.rc dmcrypt
 }
 
 pkg_postinst() {
