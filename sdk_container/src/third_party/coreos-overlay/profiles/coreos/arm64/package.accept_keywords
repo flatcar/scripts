@@ -22,6 +22,9 @@
 
 =dev-perl/Text-Unidecode-1.270.0 ~arm64
 
+# needed to force enable bpftool for arm64
+=dev-util/bpftool-5.15.8 **
+
 # needed by arm64-native SDK
 dev-util/checkbashisms *
 
