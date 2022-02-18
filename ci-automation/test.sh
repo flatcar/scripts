@@ -35,7 +35,7 @@
 #   3. List of tests / test patterns. Defaults to "*" (all tests).
 #      All positional arguments after the first 2 (see above) are tests / patterns of tests to run.
 #
-#   MAX_RETRIES. Environment variable. Number of re-runs to overcome transient failures. Defaults to 999.
+#   MAX_RETRIES. Environment variable. Number of re-runs to overcome transient failures. Defaults to 20.
 #
 # OUTPUT:
 #
@@ -58,7 +58,7 @@ function test_run() {
         set -- '*'
     fi
 
-    local retries="${MAX_RETRIES:-999}"
+    local retries="${MAX_RETRIES:-20}"
 
     source ci-automation/tapfile_helper_lib.sh
     source ci-automation/ci_automation_common.sh
@@ -84,9 +84,11 @@ function test_run() {
     local success=false
     for retry in $(seq "${retries}"); do
         local tapfile="results-run-${retry}.tap"
-        local failfile="failed-run-${retry}."
+        local failfile="failed-run-${retry}.txt"
 
-        set -o noglob
+        # Ignore retcode since tests are flaky. We'll re-run failed tests and
+        #  determine success based on test results (tapfile).
+        set +e -o noglob
         ./run_sdk_container -x ./ci-cleanup.sh \
             -n "${container_name}" -C "${packages_image}" -v "${vernum}" \
             ci-automation/vendor-testing/"${image}".sh \
@@ -95,16 +97,16 @@ function test_run() {
                 "${vernum}" \
                 "${tapfile}" \
                 $@
-        set +o noglob
+        set -e +o noglob
 
         ./run_sdk_container -x ./ci-cleanup.sh \
             -n "${container_name}" -C "${packages_image}" -v "${vernum}" \
             ci-automation/test_update_reruns.sh \
                 "${tests_dir}/${tapfile}" "${image}" "${retry}" \
-                "${tests_dir}/failed-run-${retry}.txt"
+                "${tests_dir}/${failfile}"
 
         local failed_tests
-        failed_tests="$(cat "${tests_dir}/failed-run-${retry}.txt")"
+        failed_tests="$(cat "${tests_dir}/${failfile}")"
         if [ -z "$failed_tests" ] ; then
             echo "########### All tests succeeded. ###########"
             success=true
