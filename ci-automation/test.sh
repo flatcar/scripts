@@ -10,8 +10,7 @@
 
 # Test scenarios runner stub.
 #   This script will run test scenarios for a single image type.
-#   Tests will be started inside a container based on the packages container image
-#    (which contains the torcx manifest).
+#   Tests will be started inside the SDK container.
 #   This script is generic and will use a vendor-specific test runner from
 #    "ci-automation/vendor-testing/<image>.sh.
 #
@@ -19,10 +18,13 @@
 #
 #   1. SDK version and OS image version are recorded in sdk_container/.repo/manifests/version.txt
 #   2. Scripts repo version tag of OS image version to be built is available and checked out.
-#   3. Flatcar packages container is available via build cache server
-#       from "/containers/[VERSION]/flatcar-packages-[ARCH]-[FLATCAR_VERSION].tar.gz"
-#       or present locally. Container must contain binary packages and torcx artefacts.
-#   4. Vendor image(s) to run tests for are available on buildcache ( images/[ARCH]/[FLATCAR_VERSION]/ )
+#   2. SDK container is either
+#       - available via ghcr.io/flatcar-linux/flatcar-sdk-[ARCH]:[VERSION] (official SDK release)
+#       OR
+#       - available via build cache server "/containers/[VERSION]/flatcar-sdk-[ARCH]-[VERSION].tar.gz"
+#         (dev SDK)
+#   4. Vendor image and torcx manifest to run tests for are available on buildcache
+#         ( images/[ARCH]/[FLATCAR_VERSION]/ )
 #
 # INPUT:
 #
@@ -69,16 +71,23 @@ function test_run() {
     local docker_vernum
     docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
 
-    local packages="flatcar-packages-${arch}"
-    local packages_image="${packages}:${docker_vernum}"
+    # Get SDK from either the registry or import from build cache
+    local sdk_version="${FLATCAR_SDK_VERSION}"
+    local sdk_name="flatcar-sdk-${arch}"
+    local docker_sdk_vernum="$(vernum_to_docker_image_version "${sdk_version}")"
 
-    docker_image_from_buildcache "${packages}" "${docker_vernum}"
+    docker_image_from_registry_or_buildcache "${sdk_name}" "${docker_sdk_vernum}"
+    local sdk_image="$(docker_image_fullname "${sdk_name}" "${docker_sdk_vernum}")"
+    echo "docker image rm -f '${sdk_image}'" >> ./ci-cleanup.sh
 
     local tests_dir="__TESTS__/${image}"
     mkdir -p "${tests_dir}"
     echo "sudo rm -rf '${tests_dir}'" >> ci-cleanup.sh
 
     local container_name="flatcar-tests-${arch}-${docker_vernum}-${image}"
+
+    # Make the torcx manifest available to test implementation
+    copy_from_buildcache "images/${arch}/${vernum}/torcx_manifest.json" "${tests_dir}"
 
     local retry=""
     local success=false
@@ -90,7 +99,7 @@ function test_run() {
         #  determine success based on test results (tapfile).
         set +e -o noglob
         ./run_sdk_container -x ./ci-cleanup.sh \
-            -n "${container_name}" -C "${packages_image}" -v "${vernum}" \
+            -n "${container_name}" -C "${sdk_image}" -v "${vernum}" \
             ci-automation/vendor-testing/"${image}".sh \
                 "${tests_dir}" \
                 "${arch}" \
@@ -100,7 +109,7 @@ function test_run() {
         set -e +o noglob
 
         ./run_sdk_container -x ./ci-cleanup.sh \
-            -n "${container_name}" -C "${packages_image}" -v "${vernum}" \
+            -n "${container_name}" -C "${sdk_image}" -v "${vernum}" \
             ci-automation/test_update_reruns.sh \
                 "${tests_dir}/${tapfile}" "${image}" "${retry}" \
                 "${tests_dir}/${failfile}"
