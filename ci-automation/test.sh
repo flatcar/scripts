@@ -84,7 +84,8 @@ function __prepare_torcx() {
                         ${workdir}/torcx_manifest.json)")"
 
     # Add docker package URL on build cache to manifest
-    jq ".value.packages[0].versions[0].locations += [{\"url\" : \"https://${BUILDCACHE_SERVER}/images/${arch}/${vernum}/${docker_pkg}\"}]" \
+    local docker_url="http://${BUILDCACHE_SERVER}/images/${arch}/${vernum}/torcx/${docker_pkg}"
+    jq ".value.packages[0].versions[0].locations += [{\"url\" : \"${docker_url}\"}]" \
         "${workdir}/torcx_manifest.json" \
         > "${workdir}/torcx_manifest_new.json"
 
