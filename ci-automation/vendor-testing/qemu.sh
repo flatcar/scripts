@@ -20,8 +20,12 @@ source ci-automation/ci_automation_common.sh
 mkdir -p "${work_dir}"
 cd "${work_dir}"
 
-echo "++++ QEMU test: downloading ${QEMU_IMAGE_NAME} for ${vernum} (${arch}) ++++"
-copy_from_buildcache "images/${arch}/${vernum}/${QEMU_IMAGE_NAME}" .
+if [ -f "${QEMU_IMAGE_NAME}" ] ; then
+    echo "++++ QEMU test: Using existing ${work_dir}/${QEMU_IMAGE_NAME} for testing ${vernum} (${arch}) ++++"
+else
+    echo "++++ QEMU test: downloading ${QEMU_IMAGE_NAME} for ${vernum} (${arch}) ++++"
+    copy_from_buildcache "images/${arch}/${vernum}/${QEMU_IMAGE_NAME}" .
+fi
 
 set -o noglob
 
@@ -32,7 +36,7 @@ sudo kola run \
     --qemu-bios=/usr/share/qemu/bios-256k.bin \
     --qemu-image="${QEMU_IMAGE_NAME}" \
     --tapfile="${tapfile}" \
-    --torcx-manifest=torcx_manifest.json \
+    --torcx-manifest=../torcx_manifest.json \
     $@
 
 set +o noglob
