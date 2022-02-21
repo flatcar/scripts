@@ -19,11 +19,16 @@ TAPFILE_HELPER_DBNAME="results.sqlite3"
 
 # wrapper around sqlite3 w/ retries if DB is locked
 function __sqlite3_wrapper() {
-    local dbfile="$1"
-    shift
+    local dbfile="${TAPFILE_HELPER_DBNAME}"
+
+    local params=""
+    while [[ "$1" == -* ]] ; do
+        params="$params $1"
+        shift
+    done
 
     while true; do
-        sqlite3 "${dbfile}" "$@"
+        sqlite3 "${dbfile}" $params "PRAGMA foreign_keys = ON;$@"
         local ret="$?"
         if [ "$ret" -ne 5 ] ; then
             return $ret
@@ -37,9 +42,8 @@ function __sqlite3_wrapper() {
 
 # Initialise the DB if it wasn't yet.
 function __db_init() {
-    local dbname="${TAPFILE_HELPER_DBNAME}"
 
-    __sqlite3_wrapper "${dbname}" '
+    __sqlite3_wrapper '
     CREATE TABLE IF NOT EXISTS "test_case" (
         "id"    INTEGER,
         "name"  TEXT UNIQUE,
@@ -76,8 +80,6 @@ function tap_ingest_tapfile() {
     local tapfile="${1}"
     local vendor="${2}"
     local run="${3}"
-
-    local dbname="${TAPFILE_HELPER_DBNAME}"
 
     local result=""
     local test_name=""
@@ -138,15 +140,13 @@ function tap_ingest_tapfile() {
 
     local SQL="${SQL}COMMIT;"
 
-    __sqlite3_wrapper "${dbname}" "${SQL}"
+    __sqlite3_wrapper "${SQL}"
 }
 # --
 
 # Print a list of all vendors we've seen so far.
 function tap_list_vendors() {
-    local dbname="${TAPFILE_HELPER_DBNAME}"
-
-    __sqlite3_wrapper "${dbname}" 'SELECT DISTINCT name from vendor;'
+    __sqlite3_wrapper 'SELECT DISTINCT name from vendor;'
 }
 # --
 
@@ -156,9 +156,7 @@ function tap_list_vendors() {
 function tap_failed_tests_for_vendor() {
     local vendor="$1"
 
-    local dbname="${TAPFILE_HELPER_DBNAME}"
-
-    __sqlite3_wrapper "${dbname}" "
+    __sqlite3_wrapper "
 		SELECT failed.name FROM test_case AS failed
 		WHERE EXISTS (
 				SELECT * FROM test_run AS t, vendor AS v, test_case AS c
@@ -186,12 +184,10 @@ function tap_generate_report() {
     local version="$2"
     local full_error_report="${3:-false}"
 
-    local dbname="${TAPFILE_HELPER_DBNAME}"
-
     local count
-    count="$(__sqlite3_wrapper "${dbname}" 'SELECT count(name) FROM test_case;')"
+    count="$(__sqlite3_wrapper 'SELECT count(name) FROM test_case;')"
     local vendors
-    vendors="$(__sqlite3_wrapper "${dbname}" 'SELECT name FROM vendor;' | tr '\n' ' ')"
+    vendors="$(__sqlite3_wrapper 'SELECT name FROM vendor;' | tr '\n' ' ')"
 
     echo "1..$((count+1))"
     echo "ok - Version: ${version}, Architecture: ${arch}" 
@@ -201,13 +197,13 @@ function tap_generate_report() {
 
     # Print result line for every test, including platforms it succeeded on
     #  and transient failed runs.
-    __sqlite3_wrapper "${dbname}" 'SELECT DISTINCT name from test_case;' | \
+    __sqlite3_wrapper 'SELECT DISTINCT name from test_case;' | \
     while read -r test_name; do
 
         # "ok" if the test succeeded at least once for all vendors that run the test,
         #   "not ok" otherwise.
         local verdict
-        verdict="$(__sqlite3_wrapper "${dbname}" "
+        verdict="$(__sqlite3_wrapper "
         SELECT failed.name FROM vendor AS failed
         WHERE EXISTS (
                 SELECT * FROM test_run AS t, vendor AS v, test_case AS c
@@ -231,7 +227,7 @@ function tap_generate_report() {
         # Generate a list of vendors and respective runs, in a single line.
         function list_runs() {
             local res="$1"
-            __sqlite3_wrapper -csv "${dbname}" "
+            __sqlite3_wrapper -csv "
                 SELECT v.name, t.run FROM test_run AS t, vendor AS v, test_case AS c
                 WHERE t.vendor_id=v.id AND t.case_id=c.id
                     AND c.name='${test_name}'
@@ -262,7 +258,7 @@ function tap_generate_report() {
             echo "   Failed: ${failed}"
             if [ "${verdict}" = "not ok" -o "${full_error_report}" = "true" ] ; then
                 # generate diagnostic output, per failed run.
-                __sqlite3_wrapper -csv "${dbname}" "
+                __sqlite3_wrapper -csv "
                 SELECT v.name, t.run
                     FROM test_run AS t, vendor AS v, test_case AS c
                     WHERE t.vendor_id=v.id AND t.case_id=c.id
@@ -272,7 +268,7 @@ function tap_generate_report() {
                 sed 's/,/ /' | \
                 while read -r vendor run; do
                     echo "   Error messages for ${vendor}, run ${run}:"
-                    __sqlite3_wrapper -csv "${dbname}" "
+                    __sqlite3_wrapper -csv "
                     SELECT t.output FROM test_run AS t, test_case AS c
                         WHERE t.case_id=c.id
                         AND c.name='${test_name}'

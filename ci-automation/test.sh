@@ -122,7 +122,7 @@ function test_run() {
             break
         fi
 
-        echo "########### Some tests failed and will be re-run. ###########"
+        echo "########### Some tests failed and will be re-run (${retry} / ${retries}). ###########"
         echo "Failed tests: $failed_tests"
         echo "-----------"
         set -- $failed_tests
