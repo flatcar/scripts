@@ -1,0 +1,1 @@
+- Prevented hitting races when creating filesystems in Ignition, these races caused boot failures like `fsck[1343]: Failed to stat /dev/disk/by-label/ROOT: No such file or directory` when creating a btrfs root filesystem ([PR#35](https://github.com/flatcar-linux/ignition/pull/35))
