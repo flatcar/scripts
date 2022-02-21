@@ -61,6 +61,11 @@ function get_sdk_version_from_versionfile() {
 }
 # --
 
+function get_version_from_versionfile() {
+    ( source "$sdk_container_common_versionfile"; echo "$FLATCAR_VERSION"; )
+}
+# --
+
 # return true if a given version number is an official build
 #
 function is_official() {
