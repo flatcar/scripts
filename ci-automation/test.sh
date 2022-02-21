@@ -23,7 +23,7 @@
 #       OR
 #       - available via build cache server "/containers/[VERSION]/flatcar-sdk-[ARCH]-[VERSION].tar.gz"
 #         (dev SDK)
-#   4. Vendor image and torcx manifest to run tests for are available on buildcache
+#   4. Vendor image and torcx docker tarball + manifest to run tests for are available on buildcache
 #         ( images/[ARCH]/[FLATCAR_VERSION]/ )
 #
 # INPUT:
@@ -48,8 +48,50 @@
 #          to abort at any point - the previous runs' results won't be lost.
 #   2. "./ci-cleanup.sh" with commands to clean up temporary build resources,
 #        to be run after this step finishes / when this step is aborted.
+#
+#
+# LOW-LEVEL / VENDOR SPECIFIC scripts API
+#
+# Vendor scripts are provided with their own sub-directory and are expected to CD into there before
+#  creating any artifacts (see vendor script argument 1 below).
+# The torcx manifest is supplied in
+#   ../
+# relative to the vendor sub-directory. The manifest is updated to include a URL pointing to the docker
+#  torcx tarball on the build cache (for the docker.torcx-manifest-pkgs test).
+#
+# Vendor specific scripts are called with the following positional arguments:
+# 1 - working directory for the tests.
+#     The vendor script is expected to keep all artifacts it produces in that directory.
+# 2 - Architecture to test.
+# 3 - version number to test.
+# 4 - output TAP file.
+# All following arguments specify test cases / test case patterns to run.
 
 set -euo pipefail
+
+# Download torcx package and manifest, add build cache URL to manifest
+#  so the docker.torcx-manifest-pkgs test can use it.
+function __prepare_torcx() {
+    local arch="$1"
+    local vernum="$2"
+    local workdir="$3"
+
+    copy_from_buildcache "images/${arch}/${vernum}/torcx/torcx_manifest.json" "${workdir}"
+
+    local docker_pkg
+    docker_pkg="$(basename \
+                        "$(jq -r ".value.packages[0].versions[0].locations[0].path" \
+                        ${workdir}/torcx_manifest.json)")"
+
+    # Add docker package URL on build cache to manifest
+    jq ".value.packages[0].versions[0].locations += [{\"url\" : \"https://${BUILDCACHE_SERVER}/images/${arch}/${vernum}/${docker_pkg}\"}]" \
+        "${workdir}/torcx_manifest.json" \
+        > "${workdir}/torcx_manifest_new.json"
+
+    mv "${workdir}/torcx_manifest.json" "${workdir}/torcx_manifest.json.original"
+    mv "${workdir}/torcx_manifest_new.json" "${workdir}/torcx_manifest.json"
+}
+# --
 
 function test_run() {
     local arch="$1" ; shift
@@ -80,14 +122,15 @@ function test_run() {
     local sdk_image="$(docker_image_fullname "${sdk_name}" "${docker_sdk_vernum}")"
     echo "docker image rm -f '${sdk_image}'" >> ./ci-cleanup.sh
 
-    local tests_dir="__TESTS__/${image}"
+    local work_dir="__TESTS__"
+    local tests_dir="${work_dir}/${image}"
     mkdir -p "${tests_dir}"
     echo "sudo rm -rf '${tests_dir}'" >> ci-cleanup.sh
 
     local container_name="flatcar-tests-${arch}-${docker_vernum}-${image}"
 
-    # Make the torcx manifest available to test implementation
-    copy_from_buildcache "images/${arch}/${vernum}/torcx_manifest.json" "${tests_dir}"
+    # Make the torcx artifacts available to test implementation
+    __prepare_torcx "${arch}" "${vernum}" "${work_dir}"
 
     local retry=""
     local success=false

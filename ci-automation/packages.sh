@@ -103,10 +103,14 @@ function packages_build() {
         ./build_packages --board="${arch}-usr" \
             --torcx_output_root="${CONTAINER_TORCX_ROOT}"
 
-    # copy torcx manifest for publishing
+    # copy torcx manifest and docker tarball for publishing
+    local torcx_tmp="__build__/torcx_tmp"
+    rm -rf "${torcx_tmp}"
+    mkdir "${torcx_tmp}"
     ./run_sdk_container -n "${packages_container}" -v "${version}" \
         -C "${sdk_image}" \
-        cp "${CONTAINER_TORCX_ROOT}/amd64-usr/latest/torcx_manifest.json" __build__/
+        cp -r "${CONTAINER_TORCX_ROOT}/" \
+        "${torcx_tmp}"
 
     # run_sdk_container updates the version file, use that version from here on
     source sdk_container/.repo/manifests/version.txt
@@ -118,7 +122,8 @@ function packages_build() {
     docker_commit_to_buildcache "${packages_container}" "${packages_image}" "${docker_vernum}"
 
     # Publish torcx manifest to "images" cache so tests can pull it later.
-    copy_to_buildcache "images/${arch}/${vernum}/" __build__/torcx_manifest.json
+    copy_to_buildcache "images/${arch}/${vernum}/torcx" \
+        __build__/torcx_tmp/pkgs/${arch}-usr/docker/*/*.torcx.tgz
 
     update_and_push_version "${version}"
 }
