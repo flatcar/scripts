@@ -48,7 +48,8 @@
 # OUTPUT:
 #
 #   1. Exported container image "flatcar-packages-[ARCH]-[VERSION].tar.gz" with binary packages
-#       pushed to buildcache.
+#       pushed to buildcache, and torcx_manifest.json pushed to "images/${arch}/${vernum}/"
+#       (for use with tests).
 #   2. Updated scripts repository
 #        - version tag w/ submodules
 #        - sdk_container/.repo/manifests/version.txt denotes new FLATCAR OS version
@@ -102,6 +103,15 @@ function packages_build() {
         ./build_packages --board="${arch}-usr" \
             --torcx_output_root="${CONTAINER_TORCX_ROOT}"
 
+    # copy torcx manifest and docker tarball for publishing
+    local torcx_tmp="__build__/torcx_tmp"
+    rm -rf "${torcx_tmp}"
+    mkdir "${torcx_tmp}"
+    ./run_sdk_container -n "${packages_container}" -v "${version}" \
+        -C "${sdk_image}" \
+        cp -r "${CONTAINER_TORCX_ROOT}/" \
+        "${torcx_tmp}"
+
     # run_sdk_container updates the version file, use that version from here on
     source sdk_container/.repo/manifests/version.txt
     local vernum="${FLATCAR_VERSION}"
@@ -110,6 +120,12 @@ function packages_build() {
 
     # generate image + push to build cache
     docker_commit_to_buildcache "${packages_container}" "${packages_image}" "${docker_vernum}"
+
+    # Publish torcx manifest and docker tarball to "images" cache so tests can pull it later.
+    copy_to_buildcache "images/${arch}/${vernum}/torcx" \
+        "${torcx_tmp}/torcx/amd64-usr/latest/torcx_manifest.json"
+    copy_to_buildcache "images/${arch}/${vernum}/torcx" \
+        "${torcx_tmp}/torcx/pkgs/${arch}-usr/docker/"*/*.torcx.tgz
 
     update_and_push_version "${version}"
 }
