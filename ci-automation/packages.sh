@@ -123,7 +123,7 @@ function packages_build() {
 
     # Publish torcx manifest and docker tarball to "images" cache so tests can pull it later.
     copy_to_buildcache "images/${arch}/${vernum}/torcx" \
-        "${torcx_tmp}/torcx/amd64-usr/latest/torcx_manifest.json"
+        "${torcx_tmp}/torcx/${arch}-usr/latest/torcx_manifest.json"
     copy_to_buildcache "images/${arch}/${vernum}/torcx" \
         "${torcx_tmp}/torcx/pkgs/${arch}-usr/docker/"*/*.torcx.tgz
 
