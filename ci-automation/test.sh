@@ -179,7 +179,7 @@ function test_run() {
     # publish TAP files to build cache
     copy_to_buildcache "testing/${vernum}/${arch}/${image}" \
         "${tests_dir}/"*.tap
-    copy_to_buildcache "testing/${vernum}/${arch}/${image}/debug" \
-        "${tests_dir}/_kola_temp/"*
+    copy_to_buildcache "testing/${vernum}/${arch}/${image}" \
+        "${tests_dir}/_kola_temp"
 }
 # --
