@@ -7,6 +7,7 @@ UPLOAD_ROOT=
 UPLOAD_PATH=
 TORCX_UPLOAD_ROOT=
 UPLOAD_DEFAULT=${FLAGS_FALSE}
+DEFAULT_IMAGE_COMPRESSION_FORMAT="bz2"
 
 # Default upload root can be overridden from the environment.
 _user="${USER}"
@@ -14,9 +15,6 @@ _user="${USER}"
 : ${FLATCAR_UPLOAD_ROOT:=gs://users.developer.core-os.net/${_user}}
 : ${FLATCAR_TORCX_UPLOAD_ROOT:=${FLATCAR_UPLOAD_ROOT}/torcx}
 unset _user
-
-IMAGE_ZIPPER="lbzip2 --compress --keep"
-IMAGE_ZIPEXT=".bz2"
 
 DEFINE_boolean parallel ${FLAGS_TRUE} \
   "Enable parallelism in gsutil."
@@ -42,6 +40,38 @@ DEFINE_string sign "" \
   "Sign all files to be uploaded with the given GPG key."
 DEFINE_string sign_digests "" \
   "Sign image DIGESTS files with the given GPG key."
+DEFINE_string image_compression_format "${DEFAULT_IMAGE_COMPRESSION_FORMAT}" \
+  "Compress the resulting images using this format. Options are: none, bz2, gz, zip"
+
+
+compress_file() {
+    local filepath="$1"
+
+    [ ! -f "${filepath}" ] && die "Image file ${filepath} does not exist"
+
+    case "${FLAGS_image_compression_format}" in
+    "none"|"")
+        echo -n "${filepath}"
+        return 0
+        ;;
+    "bz2")
+        IMAGE_ZIPPER="lbzip2 --compress --keep"
+        ;;
+    "gz")
+        IMAGE_ZIPPER="pigz --keep"
+        ;;
+    "zip")
+        IMAGE_ZIPPER="pigz --keep --zip"
+        ;;
+    *)
+        die "Unsupported compression format ${FLAGS_image_compression_format}"
+        ;;
+    esac
+
+    ${IMAGE_ZIPPER} -f "${filepath}" 2>&1 >/dev/null || die "failed to compress ${filepath}"
+
+    echo -n "${filepath}.${FLAGS_image_compression_format}"
+}
 
 check_gsutil_opts() {
     [[ ${FLAGS_upload} -eq ${FLAGS_TRUE} ]] || return 0
@@ -217,8 +247,8 @@ upload_image() {
         # Compress disk images
         if [[ "${filename}" =~ \.(img|bin|vdi|vhd|vmdk)$ ]]; then
             info "Compressing ${filename##*/}"
-            $IMAGE_ZIPPER -f "${filename}"
-            uploads+=( "${filename}${IMAGE_ZIPEXT}" )
+            COMPRESSED_FILENAME=$(compress_file "${filename}")
+            uploads+=( "$COMPRESSED_FILENAME" )
         else
             uploads+=( "${filename}" )
         fi
