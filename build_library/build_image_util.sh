@@ -155,6 +155,7 @@ emerge_to_image() {
   fi
 
   sudo -E ROOT="${root_fs_dir}" \
+      FEATURES="-ebuild-locks" \
       PORTAGE_CONFIGROOT="${BUILD_DIR}"/configroot \
       emerge --root-deps=rdeps --usepkgonly --jobs="${NUM_JOBS}" -v "$@"
 
