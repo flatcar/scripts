@@ -121,9 +121,11 @@ function packages_build() {
     # generate image + push to build cache
     docker_commit_to_buildcache "${packages_container}" "${packages_image}" "${docker_vernum}"
 
-    # Publish torcx manifest to "images" cache so tests can pull it later.
+    # Publish torcx manifest and docker tarball to "images" cache so tests can pull it later.
     copy_to_buildcache "images/${arch}/${vernum}/torcx" \
-        __build__/torcx_tmp/pkgs/${arch}-usr/docker/*/*.torcx.tgz
+        "${torcx_tmp}/torcx/amd64-usr/latest/torcx_manifest.json"
+    copy_to_buildcache "images/${arch}/${vernum}/torcx" \
+        "${torcx_tmp}/torcx/pkgs/${arch}-usr/docker/"*/*.torcx.tgz
 
     update_and_push_version "${version}"
 }
