@@ -9,10 +9,6 @@
 source ci-automation/ci-config.env
 : ${PIGZ:=pigz}
 
-# set up author and email so git does not complain when tagging
-git -C . config user.name "${CI_GIT_AUTHOR}"  
-git -C . config user.email "${CI_GIT_EMAIL}"
-
 function init_submodules() {
     git submodule init
     git submodule update
@@ -27,7 +23,6 @@ function update_submodule() {
     git fetch --all --tags
     git checkout "${commit_ish}"
     cd -
-
 }
 # --
 
@@ -53,6 +48,14 @@ function update_submodules() {
 
 function update_and_push_version() {
     local version="$1"
+
+    # set up author and email so git does not complain when tagging
+    if ! git config --get user.name >/dev/null 2>&1 ; then
+        git -C . config user.name "${CI_GIT_AUTHOR}"
+    fi
+    if ! git config --get user.email >/dev/null 2>&1 ; then
+        git -C . config user.email "${CI_GIT_EMAIL}"
+    fi
 
     # Add and commit local changes
     git add "sdk_container/src/third_party/coreos-overlay"
@@ -98,7 +101,7 @@ function copy_from_buildcache() {
     local where_to="$2"
 
     mkdir -p "$where_to"
-    curl --verbose --fail --silent --show-error --location --retry-delay 1 --retry 60 \
+    curl --fail --silent --show-error --location --retry-delay 1 --retry 60 \
         --retry-connrefused --retry-max-time 60 --connect-timeout 20 \
         --remote-name --output-dir "${where_to}" "https://${BUILDCACHE_SERVER}/${what}" 
 }
@@ -190,7 +193,7 @@ function docker_image_from_buildcache() {
 
     local url="https://${BUILDCACHE_SERVER}/containers/${version}/${tgz}"
 
-    curl --verbose --fail --silent --show-error --location --retry-delay 1 --retry 60 \
+    curl --fail --silent --show-error --location --retry-delay 1 --retry 60 \
         --retry-connrefused --retry-max-time 60 --connect-timeout 20 \
         --remote-name "${url}"
 
