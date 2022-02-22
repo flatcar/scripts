@@ -176,7 +176,7 @@ function test_run() {
         echo "########### All re-runs exhausted ($retries). Giving up. ###########"
     fi
 
-    # publish TAP files to buold cache
+    # publish TAP files to build cache
     copy_to_buildcache "testing/${vernum}/${arch}/${image}" \
         "${tests_dir}/"*.tap
     copy_to_buildcache "testing/${vernum}/${arch}/${image}/debug" \
