@@ -1,2 +1,2 @@
-- Image compression format is now configurable. Supported formats are: bz2, gz, zip, none. Selecting the image format can now be done by passing the ```--image_compression_format``` option to ```image_to_vm.sh```
-- The Jenkins ```vms.sh``` script sets the image compression format to ```gz``` for OpenStack images, which allows Glance to directly consume the images by simply passing in the URL of the image.
+- OpenStack: In addition to the `bz2` image, a `gz` compressed image is published. This allows Glance to directly consume the images by simply passing in the URL of the image.
+- SDK: The image compression format is now configurable. Supported formats are: `bz2`, `gz`, `zip`, `none`, `zstd`. Selecting the image format can now be done by passing the `--image_compression_formats` option. This flag gets a comma separated list of formats.
