@@ -74,3 +74,6 @@ dev-util/checkbashisms
 
 # Duktape is not yet stable
 =dev-lang/duktape-2.7.0-r1 ~amd64 ~arm64
+
+# LibXML2 is not yet stable, required for CVE
+=dev-libs/libxml2-2.9.13-r1 ~amd64 ~arm64
