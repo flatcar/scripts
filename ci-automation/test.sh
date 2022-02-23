@@ -46,7 +46,9 @@
 #        - a "detailed" report which also contains error messages of transient failures which succeeded after re-runs.
 #        These reports will be updated after each (re-)run of each vendor, making the test job safe
 #          to abort at any point - the previous runs' results won't be lost.
-#   2. "./ci-cleanup.sh" with commands to clean up temporary build resources,
+#   2. All intermediate kola tap reports, kola debug output, and merged tap reports (from 1.) published
+#        to buildcache at testing/[VERSION]/[ARCH]/[IMAGE]
+#   3. "./ci-cleanup.sh" with commands to clean up temporary build resources,
 #        to be run after this step finishes / when this step is aborted.
 #
 #
@@ -126,13 +128,14 @@ function test_run() {
     local work_dir="__TESTS__"
     local tests_dir="${work_dir}/${image}"
     mkdir -p "${tests_dir}"
-    echo "sudo rm -rf '${tests_dir}'" >> ci-cleanup.sh
 
     local container_name="flatcar-tests-${arch}-${docker_vernum}-${image}"
 
     # Make the torcx artifacts available to test implementation
     __prepare_torcx "${arch}" "${vernum}" "${work_dir}"
 
+    local tap_merged_summary="results-${image}.tap"
+    local tap_merged_detailed="results-${image}-detailed.tap"
     local retry=""
     local success=false
     for retry in $(seq "${retries}"); do
@@ -155,8 +158,11 @@ function test_run() {
         ./run_sdk_container -x ./ci-cleanup.sh \
             -n "${container_name}" -C "${sdk_image}" -v "${vernum}" \
             ci-automation/test_update_reruns.sh \
-                "${tests_dir}/${tapfile}" "${image}" "${retry}" \
-                "${tests_dir}/${failfile}"
+                "${arch}" "${vernum}" "${image}" "${retry}" \
+                "${tests_dir}/${tapfile}" \
+                "${tests_dir}/${failfile}" \
+                "${tap_merged_summary}" \
+                "${tap_merged_detailed}"
 
         local failed_tests
         failed_tests="$(cat "${tests_dir}/${failfile}")"
@@ -172,14 +178,19 @@ function test_run() {
         set -- $failed_tests
     done
 
+
     if ! $success; then
         echo "########### All re-runs exhausted ($retries). Giving up. ###########"
     fi
 
-    # publish TAP files to build cache
+    # publish kola output, TAP files to build cache
+    copy_to_buildcache "testing/${vernum}/${arch}/${image}" \
+        "${tests_dir}/_kola_temp"
     copy_to_buildcache "testing/${vernum}/${arch}/${image}" \
         "${tests_dir}/"*.tap
     copy_to_buildcache "testing/${vernum}/${arch}/${image}" \
-        "${tests_dir}/_kola_temp"
+        "${tap_merged_summary}"
+    copy_to_buildcache "testing/${vernum}/${arch}/${image}" \
+        "${tap_merged_detailed}"
 }
 # --

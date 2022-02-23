@@ -10,11 +10,17 @@
 
 set -euo pipefail
 
-tapfile="$1"
-image="$2"
-retry="$3"
-outfile="$4"
+arch="$1"
+vernum="$2"
+image="$3"
+retry="$4"
+tapfile="$5"
+failfile="$6"
+merged_summary="$7"
+merged_detailed="$8"
 
 source ci-automation/tapfile_helper_lib.sh
 tap_ingest_tapfile "${tapfile}" "${image}" "${retry}"
-tap_failed_tests_for_vendor "${image}" | tee "${outfile}"
+tap_failed_tests_for_vendor "${image}" > "${failfile}"
+tap_generate_report "${arch}" "${version}"  > "${merged_summary}"
+tap_generate_report "${arch}" "${version}"  "true" > "${merged_detailed}"
