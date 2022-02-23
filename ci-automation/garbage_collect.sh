@@ -92,6 +92,7 @@ function garbage_collect() {
             rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/boards/*/${os_vernum}/"
             rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/containers/${os_docker_vernum}/flatcar-images-*"
             rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/images/*/${os_vernum}/"
+            rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/testing/${os_vernum}/"
         fi
 
         echo "## The following files will be removed ##"
