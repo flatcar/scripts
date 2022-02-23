@@ -176,9 +176,10 @@ function test_run() {
         echo "########### All re-runs exhausted ($retries). Giving up. ###########"
     fi
 
-    # TODO: publish to bincache?
-    # "${tests_dir}/"*.tap
-    # "${tests_dir}/_kola_temp.tar.xz"
-
+    # publish TAP files to build cache
+    copy_to_buildcache "testing/${vernum}/${arch}/${image}" \
+        "${tests_dir}/"*.tap
+    copy_to_buildcache "testing/${vernum}/${arch}/${image}" \
+        "${tests_dir}/_kola_temp"
 }
 # --
