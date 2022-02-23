@@ -84,7 +84,13 @@ function sdk_bootstrap() {
     copy_to_buildcache "sdk/${ARCH}/${vernum}" "${dest_tarball}"*
     cd -
 
-    # Create new tag in scripts repo w/ updated versionfile + submodules
-    update_and_push_version "sdk-${git_vernum}"
+    # Create new tag in scripts repo w/ updated versionfile + submodules.
+    # When on the 'main' branch then also push to the branch so the versionfile
+    #  and git submodules stay up to date.
+    local push_branch="false"
+    if [ "$(git rev-parse --abbrev-ref HEAD)" = "main" ] ; then
+        push_branch="true"
+    fi
+    update_and_push_version "sdk-${git_vernum}" "${push_branch}"
 }
 # --

@@ -49,6 +49,7 @@ function update_submodules() {
 
 function update_and_push_version() {
     local version="$1"
+    local push_to_branch="${2:-false}"
 
     # set up author and email so git does not complain when tagging
     if ! git config --get user.name >/dev/null 2>&1 ; then
@@ -72,8 +73,9 @@ function update_and_push_version() {
 
     git tag -f "${TAG_ARGS[@]}" "${version}"
 
-    if [ "${PUSH-0}" = 1 ]; then
-      git push
+    if [ "${push_to_branch}" = "true" ]; then
+      local branch="$(git rev-parse --abbrev-ref HEAD)"
+      git push origin "${branch}"
     fi
 
     if git push origin "${version}" ; then
