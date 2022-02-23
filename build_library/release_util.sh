@@ -40,16 +40,18 @@ DEFINE_string sign "" \
   "Sign all files to be uploaded with the given GPG key."
 DEFINE_string sign_digests "" \
   "Sign image DIGESTS files with the given GPG key."
-DEFINE_string image_compression_format "${DEFAULT_IMAGE_COMPRESSION_FORMAT}" \
-  "Compress the resulting images using this format. Options are: none, bz2, gz, zip"
+DEFINE_string image_compression_formats "${DEFAULT_IMAGE_COMPRESSION_FORMAT}" \
+  "Compress the resulting images using thise formats. This option acceps a list of comma separated values. Options are: none, bz2, gz, zip, zstd"
 
 
 compress_file() {
     local filepath="$1"
+    local compression_format="$2"
 
     [ ! -f "${filepath}" ] && die "Image file ${filepath} does not exist"
+    [ -z "${compression_format}" ] && die "compression format parameter is mandatory"
 
-    case "${FLAGS_image_compression_format}" in
+    case "${compression_format}" in
     "none"|"")
         echo -n "${filepath}"
         return 0
@@ -63,14 +65,77 @@ compress_file() {
     "zip")
         IMAGE_ZIPPER="pigz --keep --zip"
         ;;
+    "zstd")
+       IMAGE_ZIPPER="zstd --format=zstd -k -q -f --no-progress -o ${filepath}.${compression_format}"
+       ;;
     *)
-        die "Unsupported compression format ${FLAGS_image_compression_format}"
+        die "Unsupported compression format ${compression_format}"
         ;;
     esac
 
     ${IMAGE_ZIPPER} -f "${filepath}" 2>&1 >/dev/null || die "failed to compress ${filepath}"
 
-    echo -n "${filepath}.${FLAGS_image_compression_format}"
+    echo -n "${filepath}.${compression_format}"
+}
+
+compress_disk_images() {
+    # An array of files that are to be evaluated and possibly compressed if images are
+    # among them.
+    local -n local_files_to_evaluate="$1"
+
+    # An array that will hold the path on disk to the resulting disk image archives.
+    # Multiple compression formats may be requested, so this array may hold
+    # multiple archives for the same image.
+    local -n local_resulting_archives="$2"
+
+    # Files that did not match the filter for disk images.
+    local -n local_extra_files="$3"
+
+    info "Compressing images"
+    # We want to compress images, but we also want to remove the uncompressed files
+    # from the list of uploadable files.
+    for filename in "${local_files_to_evaluate[@]}"; do
+        if [[ "${filename}" =~ \.(img|bin|vdi|vhd|vmdk)$ ]]; then
+            # Parse the formats as an array. This will yield an extra empty
+            # array element at the end.
+            readarray -td, FORMATS<<<"${FLAGS_image_compression_formats},"
+            # unset the last element
+            unset 'FORMATS[-1]'
+
+            # An associative array we set an element on whenever we process a format.
+            # This way we don't process the same format twice. A unique for array elements.
+            declare -A processed_format
+            for format in "${FORMATS[@]}";do
+                if [ -z "${processed_format[${format}]}" ]; then
+                    info "Compressing ${filename##*/} to ${format}"
+                    COMPRESSED_FILENAME=$(compress_file "${filename}" "${format}")
+                    local_resulting_archives+=( "$COMPRESSED_FILENAME" )
+                    processed_format["${format}"]=1
+                fi
+            done
+        else
+            local_extra_files+=( "${filename}" )            
+        fi
+    done
+}
+
+upload_legacy_digests() {
+    [[ ${FLAGS_upload} -eq ${FLAGS_TRUE} ]] || return 0
+
+    local local_digest_file="$1"
+    local -n local_compressed_files="$2"
+
+    [[ "${#local_compressed_files[@]}" -gt 0 ]] || return 0
+
+    # Upload legacy digests
+    declare -a digests_to_upload
+    for file in "${local_compressed_files[@]}";do
+        legacy_digest_file="${file}.DIGESTS"
+        cp "${local_digest_file}" "${legacy_digest_file}"
+        digests_to_upload+=( "${legacy_digest_file}" )
+    done
+    local def_upload_path="${UPLOAD_ROOT}/boards/${BOARD}/${FLATCAR_VERSION}"
+    upload_files "digests" "${def_upload_path}" "" "${digests_to_upload[@]}"
 }
 
 check_gsutil_opts() {
@@ -243,15 +308,30 @@ upload_image() {
         if [[ ! -f "${filename}" ]]; then
             die "File '${filename}' does not exist!"
         fi
-
+        uploads+=( "${filename}" )
         # Compress disk images
-        if [[ "${filename}" =~ \.(img|bin|vdi|vhd|vmdk)$ ]]; then
-            info "Compressing ${filename##*/}"
-            COMPRESSED_FILENAME=$(compress_file "${filename}")
-            uploads+=( "$COMPRESSED_FILENAME" )
-        else
-            uploads+=( "${filename}" )
-        fi
+        #if [[ "${filename}" =~ \.(img|bin|vdi|vhd|vmdk)$ ]]; then
+        #    # Parse the formats as an array. This will yield an extra empty
+        #    # array element at the end.
+        #    readarray -td, FORMATS <<<"${FLAGS_image_compression_formats},"
+        #    # unset the last element
+        #    unset 'FORMATS[-1]'
+        #
+        #    # An associative array we set an element on whenever we process a format.
+        #    # This way we don't process the same format twice. A unique for array elements.
+        #    declare -A processed_format
+        #    for format in ${FORMATS[@]}
+        #    do
+        #        if [ ! -z ${processed_format[${format}]} ]; then
+        #            info "Compressing ${filename##*/} to ${format}"
+        #            COMPRESSED_FILENAME=$(compress_file "${filename}" "${format}")
+        #            uploads+=( "$COMPRESSED_FILENAME" )
+        #            processed_format[${format}]=1
+        #        fi
+        #    done
+        #else
+        #    uploads+=( "${filename}" )
+        #fi
     done
 
     if [[ -z "${digests}" ]]; then

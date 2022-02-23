@@ -83,7 +83,21 @@ finish_modify_image() {
     cleanup_mounts "${ROOT_FS_DIR}"
     trap - EXIT
 
-    upload_image "${DST_IMAGE}"
+
+    declare -a files_to_evaluate
+    declare -a compressed_images
+    declare -a extra_files
+
+    files_to_evaluate+=( "${DST_IMAGE}" )
+    compress_disk_images files_to_evaluate compressed_images extra_files
+
+    upload_image -d "${DST_IMAGE}.DIGESTS" \
+        "${compressed_images[@]}" \
+        "${extra_files[@]}"
+
+    # Upload legacy digests
+    upload_legacy_digests "${DST_IMAGE}.DIGESTS" compressed_images
+
     for filename in "${EXTRA_FILES[@]}"; do
         if [[ -e "${BUILD_DIR}/${filename}" ]]; then
             upload_image "${BUILD_DIR}/${filename}"
