@@ -86,10 +86,13 @@ function sdk_bootstrap() {
 
     # Create new tag in scripts repo w/ updated versionfile + submodules.
     # Also push the changes to the branch ONLY IF we're doing a nightly
-    #   build of the 'main' branch AND we're definitely ON the main branch.
+    #   build of the 'main' branch AND we're definitely ON the main branch
+    #   (`scripts` and submodules).
     local push_branch="false"
     if   [[ "${version}" =~ ^main-[0-9.]+-nightly-[-0-9]+$ ]] \
-       && [ "$(git rev-parse --abbrev-ref HEAD)" = "main"  ] ; then
+       && [ "$(git rev-parse --abbrev-ref HEAD)" = "main"  ] \
+       && [ "$(git -C sdk_container/src/third_party/coreos-overlay/ rev-parse --abbrev-ref HEAD)" = "main"  ] \
+       && [ "$(git -C sdk_container/src/third_party/portage-stable/ rev-parse --abbrev-ref HEAD)" = "main"  ] ; then
         push_branch="true"
     fi
     update_and_push_version "sdk-${git_vernum}" "${push_branch}"
