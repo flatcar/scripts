@@ -1,7 +1,7 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="7"
+EAPI=7
 
 inherit autotools multilib-minimal
 
@@ -10,7 +10,7 @@ if [[ ${PV} == "9999" ]] ; then
 	inherit git-r3
 	MY_P="${PN}-9999"
 else
-	KEYWORDS="alpha amd64 arm hppa ia64 ppc ppc64 s390 sparc x86 ~x64-solaris"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ppc ppc64 ~riscv ~s390 sparc x86 ~x64-macos ~x64-solaris"
 	MY_PV="${PV/_alpha/alpha}"
 	MY_P="${PN}-${MY_PV}"
 	SRC_URI="https://www.cabextract.org.uk/libmspack/libmspack-${MY_PV}.tar.gz"
@@ -25,8 +25,6 @@ IUSE="debug doc static-libs"
 
 DEPEND=""
 RDEPEND=""
-
-PATCHES=( "${FILESDIR}"/${P}-fix-bigendian.patch )
 
 S="${WORKDIR}/${MY_P}"
 
@@ -66,7 +64,7 @@ multilib_src_install_all() {
 	use doc && HTML_DOCS=(doc/*)
 	default_src_install
 	if use doc; then
-		rm "${ED%/}"/usr/share/doc/"${PF}"/html/{Makefile*,Doxyfile*} || die
+		rm "${ED}"/usr/share/doc/"${PF}"/html/{Makefile*,Doxyfile*} || die
 	fi
 
 	find "${ED}" -name '*.la' -delete || die

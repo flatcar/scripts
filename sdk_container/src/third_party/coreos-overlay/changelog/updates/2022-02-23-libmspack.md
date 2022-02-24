@@ -1,0 +1,1 @@
+- libmspack ([0.10.1_alpha](https://github.com/kyz/libmspack/blob/v0.10.1alpha/libmspack/ChangeLog))
