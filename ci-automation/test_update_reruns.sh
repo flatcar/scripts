@@ -22,5 +22,5 @@ merged_detailed="$8"
 source ci-automation/tapfile_helper_lib.sh
 tap_ingest_tapfile "${tapfile}" "${image}" "${retry}"
 tap_failed_tests_for_vendor "${image}" > "${failfile}"
-tap_generate_report "${arch}" "${version}"  > "${merged_summary}"
-tap_generate_report "${arch}" "${version}"  "true" > "${merged_detailed}"
+tap_generate_report "${arch}" "${vernum}"  > "${merged_summary}"
+tap_generate_report "${arch}" "${vernum}"  "true" > "${merged_detailed}"
