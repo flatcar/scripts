@@ -31,7 +31,6 @@
 =net-libs/libnetfilter_queue-1.0.3 ~arm64
 =net-misc/curl-7.79.1 ~arm64
 
-=net-misc/socat-1.7.3.2 ~arm64
 =perl-core/File-Path-2.130.0 ~arm64
 =sec-policy/selinux-base-2.20200818-r2 ~arm64
 =sec-policy/selinux-base-policy-2.20200818-r2 ~arm64
