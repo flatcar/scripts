@@ -61,4 +61,3 @@ dev-util/checkbashisms *
 =sys-power/iasl-20200326 ~arm64
 =sys-process/tini-0.18.0 ~arm64
 =virtual/krb5-0-r1 ~arm64
-=virtual/libusb-1-r2 ~arm64
