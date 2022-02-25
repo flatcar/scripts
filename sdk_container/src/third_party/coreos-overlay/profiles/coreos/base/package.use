@@ -139,3 +139,9 @@ dev-libs/openssl fips
 
 # enables ELF support to e.g. allow tc to handle BPF filters.
 sys-apps/iproute2 elf
+
+# Enable su for shadow, because shadow >= 4.11 does not have it by default.
+# Ideally util-linux should have the su binary, but that is currently not
+# possible, because of a bunch of additional dependencies in SDK like
+# pam_sssd in baselayout.
+sys-apps/shadow su
