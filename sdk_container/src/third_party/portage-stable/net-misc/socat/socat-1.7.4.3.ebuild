@@ -1,63 +1,53 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-inherit autotools flag-o-matic toolchain-funcs
+inherit flag-o-matic toolchain-funcs
 
 MY_P=${P/_beta/-b}
 DESCRIPTION="Multipurpose relay (SOcket CAT)"
 HOMEPAGE="http://www.dest-unreach.org/socat/ https://repo.or.cz/socat.git"
-SRC_URI="http://www.dest-unreach.org/socat/download/${MY_P}.tar.bz2"
+SRC_URI="http://www.dest-unreach.org/socat/download/${MY_P}.tar.gz"
 S="${WORKDIR}/${MY_P}"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="ipv6 readline ssl tcpd"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos"
+IUSE="bindist ipv6 readline ssl tcpd"
 
-DEPEND="
-	ssl? ( dev-libs/openssl:0= )
+DEPEND="ssl? ( dev-libs/openssl:0= )
 	readline? ( sys-libs/readline:= )
-	tcpd? ( sys-apps/tcp-wrappers )
-"
+	tcpd? ( sys-apps/tcp-wrappers )"
 RDEPEND="${DEPEND}"
 
 # Tests are a large bash script
 # Hard to disable individual tests needing network or privileges
-RESTRICT="
-	test
-	ssl? ( readline? ( bindist ) )
-"
+# in 1.7.4.2: FAILED:  59 329
+RESTRICT="test ssl? ( readline? ( bindist ) )"
 
 DOCS=( BUGREPORTS CHANGES DEVELOPMENT EXAMPLES FAQ FILES PORTING README SECURITY )
-
-PATCHES=(
-	"${FILESDIR}"/${PN}-1.7.3.0-filan-build.patch
-	"${FILESDIR}"/${PN}-1.7.3.1-stddef_h.patch
-	"${FILESDIR}"/${PN}-1.7.3.4-fno-common.patch
-)
 
 pkg_setup() {
 	# bug #587740
 	if use readline && use ssl ; then
-		elog "You are enabling both readline and openssl USE flags, the licenses"
+		elog "You are enabling both readline and ssl (openssl) USE flags, the licenses"
 		elog "for these packages conflict. You may not be able to legally"
 		elog "redistribute the resulting binary."
 	fi
 }
 
-src_prepare() {
-	default
-
-	touch doc/${PN}.1 || die
-
-	eautoreconf
-}
-
 src_configure() {
 	# bug #293324
-	filter-flags -Wall '-Wno-error*'
+	filter-flags '-Wno-error*'
+
 	tc-export AR
+
+	# getprotobynumber_r doesn't exist on musl, so avoid probing for it
+	# and possibly getting it wrong. TODO: fix configure?
+	# (Grabbed from Alpine Linux: https://git.alpinelinux.org/aports/commit/main/socat/APKBUILD?id=5edc9195355ced3db991c1a7cda5648d52019b11)
+	# bug #831016
+	use elibc_musl && export sc_cv_getprotobynumber_r=2
 
 	econf \
 		$(use_enable ssl openssl) \
