@@ -50,7 +50,6 @@
 =sys-firmware/edk2-aarch64-18.02 **
 =sys-fs/btrfs-progs-4.19.1 ~arm64
 =sys-fs/quota-4.04-r1 ~arm64
-=sys-libs/efivar-31 ~arm64
 =sys-libs/libselinux-3.1-r2 ~arm64
 =sys-libs/libsemanage-3.1-r1 ~arm64
 =sys-libs/libsepol-3.1 ~arm64
