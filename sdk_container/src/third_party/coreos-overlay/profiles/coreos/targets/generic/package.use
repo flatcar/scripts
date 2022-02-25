@@ -10,7 +10,6 @@ dev-libs/openssl	pkcs11
 dev-util/perf		-doc -demangle -tui -ncurses -perl -python
 net-analyzer/tcpdump	-chroot
 net-misc/dhcp	        -server
-net-misc/iperf		threads
 net-misc/ntp            caps
 sys-apps/smartmontools	-daemon -update-drivedb -systemd
 sys-block/parted        device-mapper
