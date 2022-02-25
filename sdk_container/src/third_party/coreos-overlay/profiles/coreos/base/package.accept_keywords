@@ -31,9 +31,6 @@
 
 =net-nds/openldap-2.4.58 ~amd64 ~arm64
 
-# CVE-2017-8779
-=net-nds/rpcbind-0.2.4-r1 ~amd64 ~arm64
-
 # Upgrade to GCC 10.3.0 to support latest glibc builds
 =sys-devel/binutils-2.37_p1 ~amd64 ~arm64
 =sys-libs/binutils-libs-2.37_p1 ~amd64 ~arm64
