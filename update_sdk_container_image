@@ -8,7 +8,6 @@
 
 
 set -eu
-set -x
 
 cd $(dirname "$0")
 source sdk_lib/sdk_container_common.sh
@@ -97,5 +96,5 @@ done
 
 if ! $keep; then
     yell "Cleaning up intermediate container image"
-    $docker rmi flatcar-sdk-build:"${docker_vernum}"
+    $docker rmi "${sdk_build_image}"
 fi
