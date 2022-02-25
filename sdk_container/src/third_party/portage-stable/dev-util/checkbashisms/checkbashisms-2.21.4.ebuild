@@ -1,33 +1,28 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 MY_PN="devscripts"
 MY_P="${MY_PN}-${PV}"
 
 DESCRIPTION="Perl script to check for commonly used bash features not defined by POSIX"
-HOMEPAGE="https://packages.debian.org/devscripts https://anonscm.debian.org/cgit/collab-maint/devscripts.git"
+HOMEPAGE="https://packages.debian.org/devscripts https://salsa.debian.org/debian/devscripts"
 SRC_URI="mirror://debian/pool/main/d/${MY_PN}/${MY_P/-/_}.tar.xz"
+S="${WORKDIR}/${MY_P}/scripts"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
-IUSE=""
+KEYWORDS="amd64 ~arm ~arm64 ~ppc64 ~riscv x86"
 
 # Requires python packages to check tools we don't need anyway
 RESTRICT="test"
 
 RDEPEND="dev-lang/perl
-	virtual/perl-Getopt-Long
-	!<dev-util/rpmdevtools-8.3-r1"
-
-S="${WORKDIR}/${MY_P}/scripts"
+	virtual/perl-Getopt-Long"
 
 src_prepare() {
 	default
-
-	eapply -p2 "${FILESDIR}"/${PN}-2.15.9-command-vV.patch
 
 	sed "s@###VERSION###@${PV}@" -i checkbashisms.pl || die
 }
