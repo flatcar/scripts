@@ -21,7 +21,7 @@
 =dev-util/bpftool-5.15.8 **
 
 # needed by arm64-native SDK
-dev-util/checkbashisms *
+=dev-util/checkbashisms-2.21.4 ~arm64
 
 =net-dns/c-ares-1.17.2 ~arm64
 =net-firewall/conntrack-tools-1.4.5 ~arm64

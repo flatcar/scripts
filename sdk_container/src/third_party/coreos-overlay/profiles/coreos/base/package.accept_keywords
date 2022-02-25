@@ -12,9 +12,6 @@
 =dev-lang/rust-1.58.1 ~amd64 ~arm64
 =virtual/rust-1.58.1 ~amd64 ~arm64
 
-# no version marked stable upstream
-dev-util/checkbashisms
-
 =dev-libs/elfutils-0.178 ~amd64
 
 =dev-libs/libgcrypt-1.9.4 ~amd64 ~arm64
