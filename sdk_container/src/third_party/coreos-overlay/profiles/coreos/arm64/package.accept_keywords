@@ -15,8 +15,6 @@
 =dev-libs/libassuan-2.5.1 ~arm64
 =dev-libs/libusb-1.0.21 ~arm64
 
-=dev-perl/Text-Unidecode-1.270.0 ~arm64
-
 # needed to force enable bpftool for arm64
 =dev-util/bpftool-5.15.8 **
 
