@@ -43,9 +43,6 @@ dev-util/checkbashisms
 
 =sys-fs/cryptsetup-2.4.1-r1 ~amd64 ~arm64
 
-# Pick up fixes for bugs introduced in 4.0
-=sys-fs/dosfstools-4.1 ~amd64 ~arm64
-
 =sys-fs/multipath-tools-0.8.5 ~amd64 ~arm64
 
 =sys-libs/libseccomp-2.5.0 ~amd64 ~arm64
