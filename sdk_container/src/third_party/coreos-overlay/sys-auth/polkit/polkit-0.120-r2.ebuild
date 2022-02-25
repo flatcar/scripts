@@ -32,7 +32,7 @@ BDEPEND="
 	introspection? ( dev-libs/gobject-introspection )
 "
 DEPEND="
-	dev-lang/duktape
+	dev-lang/duktape:=
 	dev-libs/glib:2
 	dev-libs/expat
 	pam? (
