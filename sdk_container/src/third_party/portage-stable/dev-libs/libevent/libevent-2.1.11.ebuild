@@ -1,40 +1,37 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
-inherit autotools eutils multilib-minimal
+EAPI=7
+inherit multilib-minimal
 
 DESCRIPTION="Library to execute a function when a specific event occurs on a file descriptor"
-HOMEPAGE="http://libevent.org/ https://github.com/libevent/libevent/"
-SRC_URI="https://github.com/${PN}/${PN}/releases/download/release-${PV}-stable/${P}-stable.tar.gz -> ${P}.tar.gz"
-
+HOMEPAGE="
+	https://libevent.org/
+	https://github.com/libevent/libevent/
+"
+SRC_URI="
+	https://github.com/${PN}/${PN}/releases/download/release-${PV/_/-}-stable/${P/_/-}-stable.tar.gz -> ${P}.tar.gz
+"
 LICENSE="BSD"
-# libevent-2.1.so.6
-SLOT="0/2.1-6"
-KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh ~sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
-IUSE="debug libressl +ssl static-libs test +threads"
+
+SLOT="0/2.1-7"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
+IUSE="debug +ssl static-libs test +threads"
+RESTRICT="!test? ( test )"
 
 DEPEND="
 	ssl? (
-		!libressl? ( >=dev-libs/openssl-1.0.1h-r2:0[${MULTILIB_USEDEP}] )
-		libressl? ( dev-libs/libressl[${MULTILIB_USEDEP}] )
+		>=dev-libs/openssl-1.0.1h-r2:0=[${MULTILIB_USEDEP}]
 	)
 "
 RDEPEND="
 	${DEPEND}
 	!<=dev-libs/9libs-1.0
 "
-
 MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/event2/event-config.h
 )
-
-S=${WORKDIR}/${P}-stable
-
-src_prepare() {
-	default
-	eautoreconf
-}
+S=${WORKDIR}/${P/_/-}-stable
 
 multilib_src_configure() {
 	# fix out-of-source builds
@@ -62,5 +59,5 @@ DOCS=( ChangeLog{,-1.4,-2.0} )
 
 multilib_src_install_all() {
 	einstalldocs
-	prune_libtool_files
+	find "${ED}" -name '*.la' -delete || die
 }

@@ -5,6 +5,7 @@ EAPI=7
 inherit autotools git-r3 multilib-minimal
 
 DESCRIPTION="Library to execute a function when a specific event occurs on a file descriptor"
+EGIT_BRANCH="patches-$(ver_cut 1-2)"
 EGIT_REPO_URI="https://github.com/libevent/libevent"
 HOMEPAGE="
 	https://libevent.org/
@@ -12,16 +13,16 @@ HOMEPAGE="
 "
 
 LICENSE="BSD"
-SLOT="0"
+# libevent-2.1.so.6
+SLOT="0/2.1-7"
 KEYWORDS=""
 IUSE="
-	+clock-gettime debug malloc-replacement mbedtls +ssl static-libs
-	test +threads verbose-debug
+	+clock-gettime debug malloc-replacement +ssl static-libs test
+	+threads verbose-debug
 "
 RESTRICT="test"
 
 DEPEND="
-	mbedtls? ( net-libs/mbedtls )
 	ssl? (
 		>=dev-libs/openssl-1.0.1h-r2:0=[${MULTILIB_USEDEP}]
 	)
@@ -52,7 +53,6 @@ multilib_src_configure() {
 		$(use_enable clock-gettime) \
 		$(use_enable debug debug-mode) \
 		$(use_enable malloc-replacement malloc-replacement) \
-		$(use_enable mbedtls) \
 		$(use_enable ssl openssl) \
 		$(use_enable static-libs static) \
 		$(use_enable test libevent-regress) \
