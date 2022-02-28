@@ -145,3 +145,7 @@ sys-apps/iproute2 elf
 # possible, because of a bunch of additional dependencies in SDK like
 # pam_sssd in baselayout.
 sys-apps/shadow su
+
+# Enable kerberos support for NFS
+net-fs/nfs-utils kerberos nfsv41 nfsv4 junction ldap libmount nfsdcld uuid
+net-libs/libtirpc kerberos
