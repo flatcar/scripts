@@ -47,11 +47,11 @@ function update_cros_workon() {
         new_softlink="${name}-${version}-r${new_release}.ebuild"
         ln -s "${ebuild}" "${new_softlink}"
 
-        local repo="$(eval "$(grep -E '(CROS_WORKON_REPO|CROS_WORKON_PROJECT)' "${ebuild}")"
+        local repo="$(eval "$(grep -E '^\s*(CROS_WORKON_REPO|CROS_WORKON_PROJECT)=' "${ebuild}")"
                       echo $CROS_WORKON_REPO/$CROS_WORKON_PROJECT)"
         commit_id="$(git ls-remote "${repo}" "${branch}" | awk "/[[:space:]]${branch}/ {print \$1}")"
 
-        sed -i "s/CROS_WORKON_COMMIT.*/CROS_WORKON_COMMIT=\"${commit_id}\" # tip of branch ${branch} $(date)/" \
+        sed -i "s/CROS_WORKON_COMMIT=.*/CROS_WORKON_COMMIT=\"${commit_id}\" # tip of branch ${branch} $(date)/" \
                 "${ebuild}"
 
         rm "${softlink}"
@@ -61,7 +61,9 @@ function update_cros_workon() {
 
         if [ "${commit}" = "true" ] then
             git add .
-            git commit -m "${new_softlink}: Update ${name} to latest ${branch}"
+            local category="$(dirname "${PWD}")"
+            category="${category##*/}" # strip everything from the beginning to the last slash
+            git commit -m "${category}/${name}: Update to latest ${branch}"
         fi
     )
 

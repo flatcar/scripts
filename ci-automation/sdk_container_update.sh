@@ -64,7 +64,7 @@ function sdk_container_update_generate_new_version() {
 
     local current_major_minor="$(echo "${current_vernum}" | sed 's/^\([0-9]\+\.[0-9]\+\).*/\1/')"
     local current_patchlevel="$(echo "${current_vernum}" | sed 's/^[0-9]\+\.[0-9]\+\.\([0-9]\+\).*/\1/')"
-    local current_suffix="$(echo "${current_vernum}" | sed 's/^\([0-9]\+\.[0-9]\+\.[0-9]\+\)//')"
+    local current_suffix="$(echo "${current_vernum}" | sed 's/^[0-9]\+\.[0-9]\+\.[0-9]\+//')"
 
     current_patchlevel="$((current_patchlevel + 1))"
     echo "${current_major_minor}.${current_patchlevel}${current_suffix}"
