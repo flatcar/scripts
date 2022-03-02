@@ -12,11 +12,11 @@ function fetch_image_usage() {
     local version="$1"
     echo "Usage: fetch_image [-a <arch>]  [-v <version>] <stage>."
     echo "Fetch and docker load a container image of a CI build stage."
-    echo "  <stage>     - CI build stsage to fetch:"
+    echo "  <stage>     - CI build stage to fetch:"
     echo "                sdk - fetch & install the plain SDK docker image. Note that this only works for the"
     echo "                    'main' branch since maintenance branches don't build an SDK."
     echo "                packages - fetch the packages (SDK + binary packages) container image."
-    echo "                image - fetch the imagess (SDK + packages + image) container image."
+    echo "                image - fetch the images (SDK + packages + image) container image."
     echo " -v <version> - Custom version to fetch instead of branch version '${version}'"
     echo " -a <arch>    - OS image target architecture - 'arm64' or 'amd64'. Defaults to 'amd64'."
 }
