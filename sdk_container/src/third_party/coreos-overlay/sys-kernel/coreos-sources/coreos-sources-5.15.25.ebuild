@@ -36,4 +36,5 @@ UNIPATCH_LIST="
 	${PATCH_DIR}/z0002-tools-objtool-Makefile-Don-t-fail-on-fallthrough-wit.patch \
 	${PATCH_DIR}/z0003-PCI-hv-Make-the-code-arch-neutral-by-adding-arch-spe.patch \
 	${PATCH_DIR}/z0004-PCI-hv-Add-arm64-Hyper-V-vPCI-support.patch \
+	${PATCH_DIR}/z0005-Revert-xfrm-state-and-policy-should-fail-if-XFRMA_IF.patch \
 "
