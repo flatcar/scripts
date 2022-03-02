@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
 	<maintainer type="person">
 		<email>mgorny@gentoo.org</email>
@@ -9,6 +9,12 @@
 		<email>shell-tools@gentoo.org</email>
 		<name>Gentoo Shell Tools Project</name>
 	</maintainer>
+	<use>
+		<flag name="eselect">
+			Support blacklisting of completions via 'eselect bash-completion'.
+			This enables custom Gentoo patching of upstream completion loader.
+		</flag>
+	</use>
 	<longdescription>
 		Since v2.04, bash has allowed you to intelligently program and extend its
 		standard completion behavior to achieve complex command lines with just a
@@ -23,7 +29,6 @@
 	</longdescription>
 	<stabilize-allarches/>
 	<upstream>
-		<remote-id type="bitbucket">mgorny/bashcomp2</remote-id>
 		<remote-id type="github">scop/bash-completion</remote-id>
 	</upstream>
 </pkgmetadata>
