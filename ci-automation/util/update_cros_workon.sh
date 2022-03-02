@@ -22,8 +22,9 @@
 #
 #   2. Branch to update the ebuild to. The latest commit of the branch will be used.
 #       Defaults to HEAD (i.e. the repo's default branch).
-#   3. "true" if a git commit (both in the submodule as well as in scripts) should be created.
-#       Defaults to "false".
+#   3. "false" by default.
+#      "commit" - create a git commit both in the submodule as well as in scripts after updating.
+#      "push" - implies "commit". Create commits and push the submodule branch (but not "scripts").
 #
 
 function update_cros_workon() {
@@ -59,15 +60,19 @@ function update_cros_workon() {
         echo "Updated '${ebuild}' to commit '${commit_id}'"
         echo " ('${softlink}' ==> '${new_softlink}'"
 
-        if [ "${commit}" = "true" ] then
+        if [[ "${commit}" =~ (commit|push) ]] ; then
             git add .
             local category="$(dirname "${PWD}")"
             category="${category##*/}" # strip everything from the beginning to the last slash
             git commit -m "${category}/${name}: Update to latest ${branch}"
+
+            if [ "${commit}" = "push" ] ; then
+                git push
+            fi
         fi
     )
 
-    if [ "${commit}" = "true" ] then
+    if [[ "${commit}" =~ (commit|push) ]] ; then
         local submodule_path="$(echo "${ebuild_dir}" \
                                 | sed -n 's/\(coreos-overlay\|portage-stable\).*/\1/p')"
         local submodule="$(basename "${submodule_path}")"
