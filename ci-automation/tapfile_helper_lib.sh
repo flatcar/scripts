@@ -84,7 +84,6 @@ function tap_ingest_tapfile() {
 
     local result=""
     local test_name=""
-    local error_message_file="$(mktemp)"
     local in_error_message=false
 
     if ! [ -f "${TAPFILE_HELPER_DBNAME}" ] ; then
@@ -97,67 +96,71 @@ function tap_ingest_tapfile() {
     local SQL="BEGIN TRANSACTION;"
     local has_error_message="false"
 
-    # Example TAP input:
-    # ok - coreos.auth.verify
-    # ok - coreos.locksmith.tls
-    # not ok - cl.filesystem
-    #   ---
-    #   Error: "--- FAIL: cl.filesystem/deadlinks (1.86s)\n            files.go:90: Dead symbolic links found: [/var/lib/flatcar-oem-gce/usr/lib64/python3.9/site-packages/certifi-3021.3.16-py3.9.egg-info]"
-    #   ...
-    # ok - cl.cloudinit.script
-    # ok - kubeadm.v1.22.0.flannel.base
-    while read -r line; do
-        if [[ "${line}" == "1.."* ]] ; then continue; fi
-        if [ "${line}" = "---" ] ; then  # note: read removes leading whitespaces
-            in_error_message=true
-            continue
-        fi
 
-        if $in_error_message ; then
-            if [ "${line}" = "..." ] ; then
-                in_error_message=false
-                has_error_message="true"
-            else
-                echo -e "$line" \
-                    | sed -e 's/^Error: "--- FAIL: /"/' -e 's/^[[:space:]]*//' \
-                    | sed -e "s/[>\"']/_/g" -e 's/[[:space:]]/ /g' \
-                    >> "${error_message_file}"
+    # run the parse loop in a subshell and clean up temporary error message file on exit
+    (
+        local error_message_file="$(mktemp)"
+        trap "rm -f '${error_message_file}'" EXIT
+        # Example TAP input:
+        # ok - coreos.auth.verify
+        # ok - coreos.locksmith.tls
+        # not ok - cl.filesystem
+        #   ---
+        #   Error: "--- FAIL: cl.filesystem/deadlinks (1.86s)\n            files.go:90: Dead symbolic links found: [/var/lib/flatcar-oem-gce/usr/lib64/python3.9/site-packages/certifi-3021.3.16-py3.9.egg-info]"
+        #   ...
+        # ok - cl.cloudinit.script
+        # ok - kubeadm.v1.22.0.flannel.base
+        while read -r line; do
+            if [[ "${line}" == "1.."* ]] ; then continue; fi
+            if [ "${line}" = "---" ] ; then  # note: read removes leading whitespaces
+                in_error_message=true
                 continue
             fi
-        else
-            test_name="$(echo "${line}" | sed 's/^[^-]* - //')"
-            local result_string
-            result_string="$(echo "${line}" | sed 's/ - .*//')"
-            result=0
-            if [ "${result_string}" = "ok" ] ; then
-                result=1
+
+            if $in_error_message ; then
+                if [ "${line}" = "..." ] ; then
+                    in_error_message=false
+                    has_error_message="true"
+                else
+                    echo -e "$line" \
+                        | sed -e 's/^Error: "--- FAIL: /"/' -e 's/^[[:space:]]*//' \
+                              -e "s/[>\"']/_/g" -e 's/[[:space:]]/ /g' \
+                              -e 's/.\{200\}/&\n/g' \
+                        >> "${error_message_file}"
+                    continue
+                fi
+            else
+                test_name="$(echo "${line}" | sed 's/^[^-]* - //')"
+                local result_string
+                result_string="$(echo "${line}" | sed 's/ - .*//')"
+                result=0
+                if [ "${result_string}" = "ok" ] ; then
+                    result=1
+                fi
             fi
-        fi
 
-        local test_output="/dev/null"
-        if [ "${has_error_message}" = "true" ] ; then
-            test_output="${error_message_file}"
-        fi
-        SQL="${SQL}INSERT OR IGNORE INTO test_case(name) VALUES ('${test_name}');"
-        SQL="${SQL}INSERT OR IGNORE INTO vendor(name) VALUES ('${vendor}');"
+            local test_output="/dev/null"
+            if [ "${has_error_message}" = "true" ] ; then
+                test_output="${error_message_file}"
+            fi
+            SQL="${SQL}INSERT OR IGNORE INTO test_case(name) VALUES ('${test_name}');"
+            SQL="${SQL}INSERT OR IGNORE INTO vendor(name) VALUES ('${vendor}');"
 
-        SQL="${SQL}INSERT OR REPLACE INTO test_run(run,result,output,case_id,vendor_id)
-                             VALUES ('${run}','${result}', readfile('${test_output}'),
-                                     (SELECT id FROM test_case WHERE name='${test_name}'),
-                                     (SELECT id FROM vendor WHERE name='${vendor}'));"
+            SQL="${SQL}INSERT OR REPLACE INTO test_run(run,result,output,case_id,vendor_id)
+                                 VALUES ('${run}','${result}', readfile('${test_output}'),
+                                         (SELECT id FROM test_case WHERE name='${test_name}'),
+                                         (SELECT id FROM vendor WHERE name='${vendor}'));"
 
-        if [ "${has_error_message}" = "true" ] ; then
-            SQL="${SQL}COMMIT;"
-            __sqlite3_wrapper "${SQL}"
-            truncate --size 0 "${error_message_file}"
-            has_error_message="false"
-            SQL="BEGIN TRANSACTION;"
-        fi
+            if [ "${has_error_message}" = "true" ] ; then
+                SQL="${SQL}COMMIT;"
+                __sqlite3_wrapper "${SQL}"
+                truncate --size 0 "${error_message_file}"
+                has_error_message="false"
+                SQL="BEGIN TRANSACTION;"
+            fi
 
-
-    done < "$tapfile"
-
-    rm -f "${error_message_file}"
+        done < "$tapfile"
+    )
 
     SQL="${SQL}COMMIT;"
     __sqlite3_wrapper "${SQL}"
