@@ -77,13 +77,14 @@ function __db_init() {
 # 3: <run>     - re-run iteration
 
 function tap_ingest_tapfile() {
+
     local tapfile="${1}"
     local vendor="${2}"
     local run="${3}"
 
     local result=""
     local test_name=""
-    local error_message=""
+    local error_message_file="$(mktemp)"
     local in_error_message=false
 
     if ! [ -f "${TAPFILE_HELPER_DBNAME}" ] ; then
@@ -91,7 +92,10 @@ function tap_ingest_tapfile() {
     fi
 
     # Wrap all SQL commands in a transaction to speed up INSERTs
+    # We will commit intermediately if there's an error message to insert so the
+    # error message file can be reused.
     local SQL="BEGIN TRANSACTION;"
+    local has_error_message="false"
 
     # Example TAP input:
     # ok - coreos.auth.verify
@@ -112,10 +116,12 @@ function tap_ingest_tapfile() {
         if $in_error_message ; then
             if [ "${line}" = "..." ] ; then
                 in_error_message=false
+                has_error_message="true"
             else
-                error_message="$(echo -e "$line" \
-                                    | sed -e 's/^Error: "--- FAIL: /"/' -e 's/^[[:space:]]*//' \
-                                    | sed -e "s/[>\"']/_/g" -e 's/[[:space:]]/ /g')"
+                echo -e "$line" \
+                    | sed -e 's/^Error: "--- FAIL: /"/' -e 's/^[[:space:]]*//' \
+                    | sed -e "s/[>\"']/_/g" -e 's/[[:space:]]/ /g' \
+                    >> "${error_message_file}"
                 continue
             fi
         else
@@ -128,18 +134,32 @@ function tap_ingest_tapfile() {
             fi
         fi
 
+        local test_output="/dev/null"
+        if [ "${has_error_message}" = "true" ] ; then
+            test_output="${error_message_file}"
+        fi
         SQL="${SQL}INSERT OR IGNORE INTO test_case(name) VALUES ('${test_name}');"
         SQL="${SQL}INSERT OR IGNORE INTO vendor(name) VALUES ('${vendor}');"
 
         SQL="${SQL}INSERT OR REPLACE INTO test_run(run,result,output,case_id,vendor_id)
-                             VALUES ('${run}','${result}', '${error_message}',
+                             VALUES ('${run}','${result}', readfile('${test_output}'),
                                      (SELECT id FROM test_case WHERE name='${test_name}'),
                                      (SELECT id FROM vendor WHERE name='${vendor}'));"
-        error_message=""
+
+        if [ "${has_error_message}" = "true" ] ; then
+            SQL="${SQL}COMMIT;"
+            __sqlite3_wrapper "${SQL}"
+            truncate --size 0 "${error_message_file}"
+            has_error_message="false"
+            SQL="BEGIN TRANSACTION;"
+        fi
+
+
     done < "$tapfile"
 
-    local SQL="${SQL}COMMIT;"
+    rm -f "${error_message_file}"
 
+    SQL="${SQL}COMMIT;"
     __sqlite3_wrapper "${SQL}"
 }
 # --
