@@ -1,40 +1,36 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="6"
+EAPI=7
 
 inherit flag-o-matic
 
 DESCRIPTION="Standard tool to compile source trees"
 HOMEPAGE="https://www.gnu.org/software/make/make.html"
-SRC_URI="mirror://gnu//make/${P}.tar.bz2"
-
+if [[ "$(ver_cut 3)" -ge 90 ]] ; then
+	SRC_URI="https://alpha.gnu.org/gnu//make/${P}.tar.gz"
+else
+	SRC_URI="mirror://gnu//make/${P}.tar.gz"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+fi
 LICENSE="GPL-3+"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~x64-cygwin ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="guile nls static"
 
-CDEPEND="guile? ( >=dev-scheme/guile-1.8:= )"
-DEPEND="${CDEPEND}
-	nls? ( sys-devel/gettext )"
-RDEPEND="${CDEPEND}
+DEPEND="guile? ( >=dev-scheme/guile-1.8:= )"
+BDEPEND="nls? ( sys-devel/gettext )"
+RDEPEND="${DEPEND}
 	nls? ( virtual/libintl )"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-3.82-darwin-library_search-dylib.patch
 	"${FILESDIR}"/${PN}-4.2-default-cxx.patch
-	"${FILESDIR}"/${PN}-4.2.1-perl526.patch
-	"${FILESDIR}"/${PN}-4.2.1-glob-internals.patch
-	"${FILESDIR}"/${PN}-4.2.1-pselect-non-blocking.patch
 )
 
 src_prepare() {
+	# sources were moved into src directory
+	cd src || die
 	default
-	# These patches require special handling as they modify configure.ac
-	# which in turn triggers maintainer-mode when being applied the
-	# usual way.
-	eapply -Z "${FILESDIR}"/${PN}-4.2.1-glob-v2.patch \
-		"${FILESDIR}"/${P}-guile-2.2.patch
 }
 
 src_configure() {
