@@ -25,7 +25,8 @@
 #   3. "false" by default.
 #      "commit" - create a git commit both in the submodule as well as in scripts after updating.
 #      "push" - implies "commit". Create commits and push the submodule branch (but not "scripts").
-#
+#               NOTE that in order for "push" to work the git submodule must be at the tip of a branch.
+#               If in detached head mode, the branch will be identified and checked out before pushing.
 
 function update_cros_workon() {
     set -euo pipefail
@@ -37,6 +38,30 @@ function update_cros_workon() {
     # Use a subshell and operate directly in $ebuild_dir
     (
         cd "${ebuild_dir}"
+
+        # If we're in detached head mode and are supposed to push later then
+        #  check out the branch the current commit is the tip of.
+        # We do this early so we error out before touching anything.
+        if [ "${commit}" = "push" ] ; then
+
+            local ebuild_branch="$(git -C branch --show-current)"
+            if [ "${commit}" = "push" -a -z "${ebuild_branch}" ] ; then
+                # We're in headless mode, see if we can find a branch tip on origin
+                local sha="$(git rev-parse HEAD)"
+                ebuild_branch="$(git ls-remote --heads origin \
+                                | grep "${sha}" \
+                                | sed 's:.*refs/heads/::')"
+            fi
+
+            if [ -z "${ebuild_branch}" ] ; then
+                echo "ERROR updating '${ebuild_dir}': 'push' was requested but current commit '${sha}' is on the tip of any branch!"
+                return 1
+            fi
+
+            # check out the branch the current commit is the tip of.
+            git checkout "${ebuild_branch}"
+        fi
+
         softlink="$(basename $(find . -type l))"
 
         name="$(echo "${softlink}" | sed 's/^\(.*\)-[0-9.]\+[-.]*.*\.ebuild/\1/')"
