@@ -87,6 +87,25 @@ function build_id_from_version() {
 }
 # --
 
+# Get channel from a version string ("alpha-3244.0.1-nightly2" => "alpha")
+#
+function channel_from_version() {
+    local version="$1"
+    local channel=""
+
+    channel=$(echo "${version}" | cut -d - -f 1)
+    if [ "${channel}" != "alpha" ] && [ "${channel}" != "beta" ] && [ "${channel}" != "stable" ] && [ "${channel}" != "lts" ]; then
+        channel="developer"
+    fi
+    echo "${channel}"
+}
+# --
+
+function get_git_channel() {
+	channel_from_version "$(get_git_version)"
+}
+# --
+
 # extract the version number (w/o build ID) from a version string ("alpha-3244.0.1-nightly2" => "3244.0.1")
 #
 function vernum_from_version() {
