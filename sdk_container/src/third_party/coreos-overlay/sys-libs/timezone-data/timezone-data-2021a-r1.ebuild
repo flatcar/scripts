@@ -1,4 +1,4 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
@@ -14,14 +14,17 @@ SRC_URI="https://www.iana.org/time-zones/repository/releases/tzdata${data_ver}.t
 
 LICENSE="BSD public-domain"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 ~riscv s390 sh sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~x64-solaris"
-IUSE="nls leaps-timezone"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+IUSE="nls leaps-timezone zic-slim"
 
 DEPEND="nls? ( virtual/libintl )"
 RDEPEND="${DEPEND}
 	!sys-libs/glibc[vanilla(+)]"
 
-S=${WORKDIR}
+src_unpack() {
+	mkdir -p "${S}" && cd "${S}" || die
+	default
+}
 
 src_prepare() {
 	default
@@ -43,6 +46,11 @@ src_configure() {
 	fi
 
 	append-cppflags -DHAVE_GETTEXT=$(usex nls 1 0) -DTZ_DOMAIN='\"libc\"'
+
+	# Upstream default is 'slim', but it breaks quite a few programs
+	# that parse /etc/localtime directly: bug# 747538.
+	append-cppflags -DZIC_BLOAT_DEFAULT='\"'$(usex zic-slim slim fat)'\"'
+
 	LDLIBS=""
 	if use nls ; then
 		# See if an external libintl is available. #154181 #578424
@@ -57,7 +65,6 @@ src_configure() {
 _emake() {
 	emake \
 		REDO=$(usex leaps-timezone posix_right posix_only) \
-		TZDATA_TEXT= \
 		TOPDIR="${EPREFIX}" \
 		ZICDIR='$(TOPDIR)/usr/bin' \
 		"$@"
