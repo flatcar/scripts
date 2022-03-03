@@ -1,7 +1,7 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 inherit libtool multilib-minimal
 
@@ -12,12 +12,13 @@ SRC_URI="mirror://sourceforge/${PN}/${P}.tar.xz
 
 LICENSE="libpng2"
 SLOT="0/16"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~riscv s390 ~sh sparc x86 ~ppc-aix ~x64-cygwin ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt"
-IUSE="apng cpu_flags_x86_sse neon static-libs"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt"
+IUSE="apng cpu_flags_arm_neon cpu_flags_x86_sse static-libs"
 
 RDEPEND=">=sys-libs/zlib-1.2.8-r1:=[${MULTILIB_USEDEP}]"
-DEPEND="${RDEPEND}
-	app-arch/xz-utils"
+DEPEND="${RDEPEND}"
+
+DOCS=( ANNOUNCE CHANGES libpng-manual.txt README TODO )
 
 src_prepare() {
 	default
@@ -31,15 +32,15 @@ src_prepare() {
 
 multilib_src_configure() {
 	local myeconfargs=(
+		$(use_enable cpu_flags_arm_neon arm-neon check)
 		$(use_enable cpu_flags_x86_sse intel-sse)
 		$(use_enable static-libs static)
-		--enable-arm-neon=$(usex neon)
 	)
 	ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
 }
 
 multilib_src_install_all() {
-	DOCS=( ANNOUNCE CHANGES libpng-manual.txt README TODO )
-	einstalldocs
-	find "${ED}" -name '*.la' -delete || die
+	default
+
+	find "${ED}" \( -type f -o -type l \) -name '*.la' -delete || die
 }
