@@ -5,7 +5,6 @@
 =app-emulation/open-vmdk-1.0 *
 =app-crypt/rhash-1.4.2 ~arm64
 
-=app-misc/jq-1.6-r3 ~arm64
 =dev-embedded/u-boot-tools-2021.04_rc2 ~arm64
 
 # needed by arm64-native SDK
