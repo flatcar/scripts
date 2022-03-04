@@ -124,7 +124,7 @@ function tap_ingest_tapfile() {
                 else
                     echo -e "$line" \
                         | sed -e 's/^Error: "--- FAIL: /"/' -e 's/^[[:space:]]*//' \
-                              -e "s/[>\"']/_/g" -e 's/[[:space:]]/ /g' \
+                              -e "s/[>\\\"']/_/g" -e 's/[[:space:]]/ /g' \
                               -e 's/.\{200\}/&\n/g' \
                         >> "${error_message_file}"
                     continue
@@ -296,8 +296,8 @@ function tap_generate_report() {
                         WHERE t.case_id=c.id
                         AND c.name='${test_name}'
                         AND t.run='${run}';" | \
-                    sed 's/"/ /' | \
-                    awk '{print "      LINE " NR":" $0}'
+                    sed 's/"/ /g' | \
+                    awk '{print "      L" NR ": \"" $0 "\""}'
                 done
             fi
         fi
