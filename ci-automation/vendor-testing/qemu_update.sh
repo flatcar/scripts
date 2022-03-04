@@ -23,6 +23,7 @@ if [ "$@" != "" ] && [ "$@" != "*" ] && [ "$@" != "cl.update.payload" ]; then
 fi
 
 source ci-automation/ci_automation_common.sh
+source sdk_lib/sdk_container_common.sh
 
 mkdir -p "${work_dir}"
 cd "${work_dir}"
@@ -35,13 +36,10 @@ else
     copy_from_buildcache "images/${arch}/${vernum}/flatcar_test_update.gz" tmp/
 fi
 
-# Get last release tag (and filter out the alpha-3046.0.0 tag which was done without updating the submodule and thus refers a commit on main)
-PREV_TAG=$(git describe --tags --abbrev=0 | sed 's/alpha-3046.0.0//g')
-if [ "${PREV_TAG}" = "" ]; then
-    # For main we compare to last alpha release
+ON_CHANNEL="$(get_git_channel)"
+if [ "${ON_CHANNEL}" = "developer" ]; then
+    # For main/dev builds we compare to last alpha release
     ON_CHANNEL="alpha"
-else
-    ON_CHANNEL=$(echo "${PREV_TAG}" | cut -d "-" -f 1)
 fi
 if [ "${ON_CHANNEL}" = "lts" ]; then
     echo "Updating from previous LTS is not supported yet (needs creds), fallback to Stable"
