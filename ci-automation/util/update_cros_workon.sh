@@ -44,7 +44,7 @@ function update_cros_workon() {
         # We do this early so we error out before touching anything.
         if [ "${commit}" = "push" ] ; then
 
-            local ebuild_branch="$(git -C branch --show-current)"
+            local ebuild_branch="$(git branch --show-current)"
             if [ "${commit}" = "push" -a -z "${ebuild_branch}" ] ; then
                 # We're in headless mode, see if we can find a branch tip on origin
                 local sha="$(git rev-parse HEAD)"
