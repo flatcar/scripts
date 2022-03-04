@@ -133,20 +133,19 @@ set +x
 set +e
 echo "==================================================================="
 echo
-# Get last release tag (and filter out the alpha-3046.0.0 tag which was done without updating the submodule and thus refers a commit on main)
-PREV_TAG=$(git -C src/scripts describe --tags --abbrev=0 | sed 's/alpha-3046.0.0//g')
-if [ "${PREV_TAG}" = "" ]; then
-  # For main we compare to last alpha release
-  export CHANNEL_A="alpha"
-  export VERSION_A=$(curl -s -S -f -L "https://${CHANNEL_A}.release.flatcar-linux.net/${BOARD}/current/version.txt" | grep -m 1 "FLATCAR_VERSION=" | cut -d "=" -f 2)
+if [ "${GROUP}" != "developer" ]; then
+  export CHANNEL_A="${GROUP}"
 else
-  export CHANNEL_A=$(echo "${PREV_TAG}" | cut -d "-" -f 1)
-  export VERSION_A=$(echo "${PREV_TAG}" | cut -d "-" -f 2)
+  export CHANNEL_A="${CHANNEL_BASE}"
 fi
+
 if [ "${CHANNEL_A}" = "lts" ]; then
   echo "Comparing to LTS is not supported yet (needs creds)"
   exit 0
 fi
+
+export VERSION_A=$(curl -s -S -f -L "https://${CHANNEL_A}.release.flatcar-linux.net/${BOARD}/current/version.txt" | grep -m 1 "FLATCAR_VERSION=" | cut -d "=" -f 2)
+
 if [ "${GROUP}" = "developer" ]; then
   export CHANNEL_B="developer"
   export MODE_B="/developer/"

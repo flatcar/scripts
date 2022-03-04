@@ -37,6 +37,9 @@ set -eu
 function image_build() {
     local arch="$1"
 
+    source sdk_lib/sdk_container_common.sh
+    local channel=""
+    channel="$(get_git_channel)"
     source ci-automation/ci_automation_common.sh
     init_submodules
 
@@ -58,7 +61,7 @@ function image_build() {
             mkdir -p "${CONTAINER_IMAGE_ROOT}"
     ./run_sdk_container -n "${image_container}" -C "${packages_image}" \
             -v "${vernum}" \
-            ./build_image --board="${arch}-usr" \
+            ./build_image --board="${arch}-usr" --group="${channel}" \
                           --output_root="${CONTAINER_IMAGE_ROOT}" \
                           --torcx_root="${CONTAINER_TORCX_ROOT}" prodtar container
 
