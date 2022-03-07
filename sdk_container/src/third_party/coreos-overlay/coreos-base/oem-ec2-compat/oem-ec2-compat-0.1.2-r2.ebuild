@@ -60,7 +60,6 @@ src_install() {
 
 	insinto "/usr/share/oem/base"
 	doins "${FILESDIR}/base/README"
-	doins "${FILESDIR}/base/default.ign"
 	if use ec2 ; then
 		newins "${FILESDIR}/base/base-ec2.ign" base.ign
 	fi
