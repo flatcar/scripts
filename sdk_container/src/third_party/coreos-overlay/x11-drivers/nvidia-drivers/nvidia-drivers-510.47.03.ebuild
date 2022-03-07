@@ -15,7 +15,9 @@ IUSE=""
 # no source directory
 S="${WORKDIR}"
 
-RDEPEND=""
+RDEPEND="
+	=x11-drivers/nvidia-metadata-${PV}
+"
 
 src_install() {
   insinto "/usr/share/oem"
