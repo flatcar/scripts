@@ -164,7 +164,6 @@ RDEPEND="${RDEPEND}
 	sys-apps/nvme-cli
 	sys-apps/pciutils
 	sys-apps/policycoreutils
-	sys-apps/rng-tools
 	sys-apps/sed
 	sys-apps/seismograph
 	sys-apps/semodule-utils
