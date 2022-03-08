@@ -309,29 +309,6 @@ upload_image() {
             die "File '${filename}' does not exist!"
         fi
         uploads+=( "${filename}" )
-        # Compress disk images
-        #if [[ "${filename}" =~ \.(img|bin|vdi|vhd|vmdk)$ ]]; then
-        #    # Parse the formats as an array. This will yield an extra empty
-        #    # array element at the end.
-        #    readarray -td, FORMATS <<<"${FLAGS_image_compression_formats},"
-        #    # unset the last element
-        #    unset 'FORMATS[-1]'
-        #
-        #    # An associative array we set an element on whenever we process a format.
-        #    # This way we don't process the same format twice. A unique for array elements.
-        #    declare -A processed_format
-        #    for format in ${FORMATS[@]}
-        #    do
-        #        if [ ! -z ${processed_format[${format}]} ]; then
-        #            info "Compressing ${filename##*/} to ${format}"
-        #            COMPRESSED_FILENAME=$(compress_file "${filename}" "${format}")
-        #            uploads+=( "$COMPRESSED_FILENAME" )
-        #            processed_format[${format}]=1
-        #        fi
-        #    done
-        #else
-        #    uploads+=( "${filename}" )
-        #fi
     done
 
     if [[ -z "${digests}" ]]; then
