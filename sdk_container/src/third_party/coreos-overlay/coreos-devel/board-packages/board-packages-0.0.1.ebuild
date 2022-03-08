@@ -22,10 +22,8 @@ RDEPEND="
 	amd64? (
 		app-emulation/open-vm-tools
 		coreos-base/coreos-oem-gce
-		coreos-base/flatcar-eks
 		coreos-base/nova-agent-container
 		coreos-base/nova-agent-watcher
-		x11-drivers/nvidia-drivers
 	)
 	arm64? (
 		sys-boot/grub
@@ -35,5 +33,7 @@ RDEPEND="
 	app-emulation/wa-linux-agent
 	coreos-base/coreos
 	coreos-base/coreos-dev
+	coreos-base/flatcar-eks
 	dev-lang/python-oem
+	x11-drivers/nvidia-drivers
 	"

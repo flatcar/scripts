@@ -9,13 +9,15 @@ SRC_URI=""
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="amd64"
+KEYWORDS="amd64 arm64"
 IUSE=""
 
 # no source directory
 S="${WORKDIR}"
 
-RDEPEND=""
+RDEPEND="
+	=x11-drivers/nvidia-metadata-${PV}
+"
 
 src_install() {
   insinto "/usr/share/oem"
