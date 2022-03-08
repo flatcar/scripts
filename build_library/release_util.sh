@@ -41,7 +41,7 @@ DEFINE_string sign "" \
 DEFINE_string sign_digests "" \
   "Sign image DIGESTS files with the given GPG key."
 DEFINE_string image_compression_formats "${DEFAULT_IMAGE_COMPRESSION_FORMAT}" \
-  "Compress the resulting images using thise formats. This option acceps a list of comma separated values. Options are: none, bz2, gz, zip, zstd"
+  "Compress the resulting images using thise formats. This option acceps a list of comma separated values. Options are: none, bz2, gz, zip, zst"
 
 
 compress_file() {
@@ -65,8 +65,8 @@ compress_file() {
     "zip")
         IMAGE_ZIPPER="pigz --keep --zip"
         ;;
-    "zstd")
-       IMAGE_ZIPPER="zstd --format=zstd -k -q -f --no-progress -o ${filepath}.${compression_format}"
+    "zst")
+       IMAGE_ZIPPER="zstd --format=zstd -k -q --no-progress"
        ;;
     *)
         die "Unsupported compression format ${compression_format}"
