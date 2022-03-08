@@ -27,6 +27,10 @@ runtime = "runc"
 # live restore is not supported
 no_shim = false
 
+[plugins."io.containerd.grpc.v1.cri"]
+# enable SELinux labeling
+enable_selinux = true
+
 [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
 # setting runc.options unsets parent settings
 runtime_type = "io.containerd.runc.v2"
