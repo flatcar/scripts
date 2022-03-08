@@ -116,7 +116,7 @@ for FORMAT in ${FORMATS}; do
   COMPRESSION_FORMAT="bz2"
 
   if [[ "${FORMAT}" =~ ^(openstack|openstack_mini)$ ]];then
-    COMPRESSION_FORMAT="gz"
+    COMPRESSION_FORMAT="gz,bz2"
   fi
 
   script image_to_vm.sh \
@@ -130,7 +130,7 @@ for FORMAT in ${FORMATS}; do
     --sign_digests="${SIGNING_USER}" \
     --download_root="${DOWNLOAD_ROOT}" \
     --upload_root="${UPLOAD_ROOT}" \
-    --image_compression_format="${COMPRESSION_FORMAT}" \
+    --image_compression_formats="${COMPRESSION_FORMAT}" \
     --upload \
     ${PRIVATE_UPLOAD_OPT}
 done
