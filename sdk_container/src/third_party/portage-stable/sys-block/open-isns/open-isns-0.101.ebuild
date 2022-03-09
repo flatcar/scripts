@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -11,27 +11,24 @@ SRC_URI="https://github.com/open-iscsi/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.g
 
 LICENSE="LGPL-2.1"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86"
-IUSE="debug libressl ssl static"
+KEYWORDS="~alpha amd64 arm arm64 ~ia64 ~mips ppc ppc64 sparc x86"
+IUSE="debug ssl static"
 
 DEPEND="
 	ssl? (
-		!libressl? ( dev-libs/openssl:0= )
-		libressl? ( dev-libs/libressl:0= )
+		dev-libs/openssl:0=
 	)
 "
 RDEPEND="${DEPEND}"
 
 PATCHES=(
-	"${FILESDIR}/${PN}-0.98-libressl-compatibility.patch"
-
-	# Upstream patches (can usually be removed with next version bump)
-	"${FILESDIR}"/${P}-no_Werror.patch
+	"${FILESDIR}/${PN}-0.100-respect-AR.patch"
 )
 
 src_prepare() {
 	default
 	eautoreconf
+	touch aclocal/ar-lib || die #775389
 }
 
 src_configure() {
