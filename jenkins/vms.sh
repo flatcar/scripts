@@ -113,6 +113,12 @@ for FORMAT in ${FORMATS}; do
     UPLOAD_ROOT=${UPLOAD_PRIVATE_ROOT}
   fi
 
+  COMPRESSION_FORMAT="bz2"
+
+  if [[ "${FORMAT}" =~ ^(openstack|openstack_mini|digitalocean)$ ]];then
+    COMPRESSION_FORMAT="gz,bz2"
+  fi
+
   script image_to_vm.sh \
     --board="${BOARD}" \
     --format="${FORMAT}" \
@@ -124,6 +130,7 @@ for FORMAT in ${FORMATS}; do
     --sign_digests="${SIGNING_USER}" \
     --download_root="${DOWNLOAD_ROOT}" \
     --upload_root="${UPLOAD_ROOT}" \
+    --image_compression_formats="${COMPRESSION_FORMAT}" \
     --upload \
     ${PRIVATE_UPLOAD_OPT}
 done

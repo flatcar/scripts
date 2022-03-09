@@ -1,0 +1,3 @@
+- OpenStack: In addition to the `bz2` image, a `gz` compressed image is published. This allows Glance to directly consume the images by simply passing in the URL of the image.
+- DigitalOcean: In addition to the `bz2` image, a `gz` compressed image is published. This helps against hitting the compression timeout that sometimes lets the image import fail.
+- SDK: The image compression format is now configurable. Supported formats are: `bz2`, `gz`, `zip`, `none`, `zst`. Selecting the image format can now be done by passing the `--image_compression_formats` option. This flag gets a comma separated list of formats.
