@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -12,30 +12,34 @@ MY_P="${MY_PN}-${MY_PV}"
 
 DESCRIPTION="bind tools: dig, nslookup, host, nsupdate, dnssec-keygen"
 HOMEPAGE="https://www.isc.org/software/bind"
-SRC_URI="https://downloads.isc.org/isc/bind9/${PV}/${MY_P}.tar.gz"
+SRC_URI="https://downloads.isc.org/isc/bind9/${PV}/${MY_P}.tar.xz"
 
 LICENSE="Apache-2.0 BSD BSD-2 GPL-2 HPND ISC MPL-2.0"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="+caps doc gssapi idn ipv6 libedit libressl readline xml"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+IUSE="+caps doc gssapi idn ipv6 libedit readline xml"
 # no PKCS11 currently as it requires OpenSSL to be patched, also see bug 409687
 
 COMMON_DEPEND="
+	dev-libs/libuv:=
 	caps? ( sys-libs/libcap )
-	!libressl? ( dev-libs/openssl:= )
-	libressl? ( dev-libs/libressl:= )
+	dev-libs/openssl:=
 	xml? ( dev-libs/libxml2 )
 	idn? ( net-dns/libidn2:= )
 	gssapi? ( virtual/krb5 )
 	libedit? ( dev-libs/libedit )
 	!libedit? (
 		readline? ( sys-libs/readline:= )
-	)"
+	)
+"
 DEPEND="${COMMON_DEPEND}"
-
 RDEPEND="${COMMON_DEPEND}"
 
-BDEPEND="virtual/pkgconfig"
+# sphinx required for man-page and html creation
+BDEPEND="
+	doc? ( dev-python/sphinx )
+	virtual/pkgconfig
+"
 
 S="${WORKDIR}/${MY_P}"
 
@@ -64,6 +68,8 @@ src_configure() {
 		--without-libjson
 		--without-zlib
 		--without-lmdb
+		--without-maxminddb
+		--disable-geoip
 		--with-openssl="${EPREFIX}"/usr
 		$(use_with idn libidn2)
 		$(use_with xml libxml2)
@@ -104,35 +110,39 @@ src_compile() {
 	emake AR="${AR}" -C bin/dig/
 	emake AR="${AR}" -C bin/nsupdate/
 	emake AR="${AR}" -C bin/dnssec/
+	emake -C doc/man/ man $(usev doc)
 }
 
 src_install() {
+	local man_dir="${S}/doc/man"
+	local html_dir="${man_dir}/_build/html"
+
 	dodoc README CHANGES
 
 	cd "${S}"/bin/delv || die
 	dobin delv
-	doman delv.1
+	doman ${man_dir}/delv.1
 
 	cd "${S}"/bin/dig || die
 	dobin dig host nslookup
-	doman {dig,host,nslookup}.1
+	doman ${man_dir}/{dig,host,nslookup}.1
 
 	cd "${S}"/bin/nsupdate || die
 	dobin nsupdate
-	doman nsupdate.1
+	doman ${man_dir}/nsupdate.1
 	if use doc; then
 		docinto html
-		dodoc nsupdate.html
+		dodoc ${html_dir}/nsupdate.html
 	fi
 
 	cd "${S}"/bin/dnssec || die
 	for tool in dsfromkey importkey keyfromlabel keygen \
 		revoke settime signzone verify; do
 		dobin dnssec-"${tool}"
-		doman dnssec-"${tool}".8
+		doman ${man_dir}/dnssec-"${tool}".8
 		if use doc; then
 			docinto html
-			dodoc dnssec-"${tool}".html
+			dodoc ${html_dir}/dnssec-"${tool}".html
 		fi
 	done
 }
