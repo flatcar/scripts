@@ -11,28 +11,6 @@ diff --git a/open-vm-tools/configure.ac b/open-vm-tools/configure.ac
 index ab315b84..33839087 100644
 --- a/open-vm-tools/configure.ac
 +++ b/open-vm-tools/configure.ac
-@@ -519,6 +519,13 @@ fi
- #
- # Check for fuse.
- #
-+AC_ARG_WITH([fuse],
-+   [AS_HELP_STRING([--without-fuse],
-+   [compiles without fuse support.])],
-+   [],
-+   [with_fuse=yes])
-+
-+if test "$with_fuse" = "yes"; then
- AC_VMW_CHECK_LIB([fuse],
-                  [FUSE],
-                  [fuse],
-@@ -529,6 +536,7 @@ AC_VMW_CHECK_LIB([fuse],
-                  [have_fuse=yes],
-                  [have_fuse=no;
-                   AC_MSG_WARN([Fuse is missing, vmblock-fuse/vmhgfs-fuse will be disabled.])])
-+fi
- 
- #
- # Check for PAM.
 @@ -1425,7 +1433,13 @@ if test "$os" = "solaris"; then
     fi
  fi
