@@ -1,9 +1,11 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-inherit autotools eutils flag-o-matic multilib multilib-minimal toolchain-funcs versionator
+# Please bump with dev-lang/tk!
+
+inherit autotools flag-o-matic multilib-minimal multilib toolchain-funcs
 
 MY_P="${PN}${PV}"
 
@@ -13,7 +15,7 @@ SRC_URI="mirror://sourceforge/tcl/${PN}-core${PV}-src.tar.gz"
 
 LICENSE="tcltk"
 SLOT="0/8.6"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="debug +threads"
 
 RDEPEND=">=sys-libs/zlib-1.2.8-r1[${MULTILIB_USEDEP}]"
@@ -23,9 +25,9 @@ SPARENT="${WORKDIR}/${MY_P}"
 S="${SPARENT}"/unix
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-8.5.13-multilib.patch
+	"${FILESDIR}"/${PN}-8.6.10-multilib.patch
 	"${FILESDIR}"/${PN}-8.6.8-conf.patch # Bug 125971
-	"${FILESDIR}"/${PN}-8.6.8-libieee.patch
+	"${FILESDIR}"/${PN}-8.6.9-include-spec.patch # Bug 731120
 )
 
 src_prepare() {
@@ -37,6 +39,12 @@ src_prepare() {
 	pushd "${SPARENT}" &>/dev/null || die
 	default
 	popd &>/dev/null || die
+
+	# httpold tests require netowk
+	rm ../tests/httpold.test \
+		../tests/env.test \
+		../tests/http.test \
+		|| die
 
 	# workaround stack check issues, bug #280934
 	use hppa && append-cflags "-DTCL_NO_STACK_CHECK=1"
@@ -74,7 +82,7 @@ multilib_src_configure() {
 
 multilib_src_install() {
 	#short version number
-	local v1=$(get_version_component_range 1-2)
+	local v1=$(ver_cut 1-2)
 	local mylibdir=$(get_libdir)
 
 	S= default
@@ -88,9 +96,9 @@ multilib_src_install() {
 		-e "/^TCL_BUILD_STUB_LIB_SPEC=/s:-L$(pwd) *::g" \
 		-e "/^TCL_STUB_LIB_SPEC=/s:-L${EPREFIX}/usr/${mylibdir} *::g" \
 		-e "/^TCL_BUILD_STUB_LIB_PATH=/s:$(pwd):${EPREFIX}/usr/${mylibdir}:g" \
-		-e "/^TCL_LIB_FILE=/s:'libtcl${v1}..TCL_DBGX..so':\"libtcl${v1}\$\{TCL_DBGX\}.so\":g" \
+		-e "/^TCL_LIBW_FILE=/s:'libtcl${v1}..TCL_DBGX..so':\"libtcl${v1}\$\{TCL_DBGX\}.so\":g" \
 		-i "${ED}"/usr/${mylibdir}/tclConfig.sh || die
-	if use prefix && [[ ${CHOST} != *-darwin* && ${CHOST} != *-mint* ]] ; then
+	if use prefix && [[ ${CHOST} != *-darwin* ]] ; then
 		sed \
 			-e "/^TCL_CC_SEARCH_FLAGS=/s|'$|:${EPREFIX}/usr/${mylibdir}'|g" \
 			-e "/^TCL_LD_SEARCH_FLAGS=/s|'$|:${EPREFIX}/usr/${mylibdir}'|" \
@@ -110,21 +118,6 @@ multilib_src_install() {
 
 	if multilib_is_native_abi; then
 		dosym tclsh${v1} /usr/bin/tclsh
-		dodoc "${SPARENT}"/{ChangeLog*,README,changes}
+		dodoc "${SPARENT}"/{ChangeLog*,README.md,changes}
 	fi
-}
-
-pkg_postinst() {
-	for version in ${REPLACING_VERSIONS}; do
-		if ! version_is_at_least 8.6 ${version}; then
-			echo
-			ewarn "You're upgrading from <${P}, you must recompile the other"
-			ewarn "packages on your system that link with tcl after the upgrade"
-			ewarn "completes. To perform this action, please run revdep-rebuild"
-			ewarn "in package app-portage/gentoolkit."
-			ewarn "If you have dev-lang/tk and dev-tcltk/tclx installed you should"
-			ewarn "upgrade them before this recompilation, too,"
-			echo
-		fi
-	done
 }
