@@ -13,7 +13,8 @@ SRC_URI="https://github.com/vmware/open-vm-tools/releases/download/stable-${PV}/
 LICENSE="LGPL-2.1"
 SLOT="0"
 KEYWORDS="amd64 ~x86"
-IUSE="+dnet +pic +deploypkg" # TODO: pam
+# Flatcar: add USE flag salt-minion
+IUSE="+deploypkg +dnet +pic salt-minion" # TODO: pam
 
 DEPEND="dev-libs/glib:2
 	net-libs/libtirpc
@@ -72,6 +73,8 @@ src_configure() {
 	local myeconfargs=(
 		--prefix=/usr/share/oem
 		$(use_enable deploypkg)
+		$(use_enable salt-minion)
+		--disable-containerinfo
 		--disable-docs
 		--disable-multimon
 		--disable-tests
