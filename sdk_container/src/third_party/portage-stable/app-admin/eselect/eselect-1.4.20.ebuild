@@ -1,7 +1,7 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 inherit bash-completion-r1
 
@@ -9,22 +9,20 @@ DESCRIPTION="Gentoo's multi-purpose configuration and management tool"
 HOMEPAGE="https://wiki.gentoo.org/wiki/Project:Eselect"
 SRC_URI="https://dev.gentoo.org/~ulm/eselect/${P}.tar.xz"
 
-LICENSE="GPL-2+ || ( GPL-2+ CC-BY-SA-3.0 )"
+LICENSE="GPL-2+ || ( GPL-2+ CC-BY-SA-4.0 )"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv s390 sparc x86 ~ppc-aix ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="doc emacs vim-syntax"
 
-RDEPEND="sys-apps/sed
+DEPEND="sys-apps/sed
 	|| (
 		sys-apps/coreutils
 		app-misc/realpath
 	)"
-DEPEND="${RDEPEND}
-	doc? ( dev-python/docutils )"
-RDEPEND="${RDEPEND}
+RDEPEND="${DEPEND}
 	sys-apps/file
 	sys-libs/ncurses:0"
-
+BDEPEND="doc? ( dev-python/docutils )"
 PDEPEND="emacs? ( app-emacs/eselect-mode )
 	vim-syntax? ( app-vim/eselect-syntax )"
 
