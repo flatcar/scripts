@@ -1,8 +1,9 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-inherit linux-info
+
+inherit linux-info systemd
 
 DESCRIPTION="Connection tracking userspace tools"
 HOMEPAGE="http://conntrack-tools.netfilter.org"
@@ -10,7 +11,7 @@ SRC_URI="http://www.netfilter.org/projects/conntrack-tools/files/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm64 ~hppa ~x86"
+KEYWORDS="~alpha amd64 ~arm64 ~hppa ppc ppc64 ~riscv x86"
 IUSE="doc +cthelper +cttimeout systemd"
 
 RDEPEND="
@@ -29,15 +30,15 @@ RDEPEND="
 		>=sys-apps/systemd-227
 	)
 "
-DEPEND="
-	${RDEPEND}
+DEPEND="${RDEPEND}"
+BDEPEND="
+	sys-devel/bison
+	sys-devel/flex
+	virtual/pkgconfig
 	doc? (
 		app-text/docbook-xml-dtd:4.1.2
 		app-text/xmlto
 	)
-	virtual/pkgconfig
-	sys-devel/bison
-	sys-devel/flex
 "
 
 pkg_setup() {
@@ -92,6 +93,8 @@ src_install() {
 
 	insinto /etc/conntrackd
 	doins doc/stats/conntrackd.conf
+
+	systemd_dounit "${FILESDIR}/conntrackd.service"
 
 	dodoc -r doc/sync doc/stats AUTHORS TODO
 	use doc && dodoc doc/manual/${PN}.html
