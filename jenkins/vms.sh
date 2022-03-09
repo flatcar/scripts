@@ -115,7 +115,7 @@ for FORMAT in ${FORMATS}; do
 
   COMPRESSION_FORMAT="bz2"
 
-  if [[ "${FORMAT}" =~ ^(openstack|openstack_mini)$ ]];then
+  if [[ "${FORMAT}" =~ ^(openstack|openstack_mini|digitalocean)$ ]];then
     COMPRESSION_FORMAT="gz,bz2"
   fi
 
