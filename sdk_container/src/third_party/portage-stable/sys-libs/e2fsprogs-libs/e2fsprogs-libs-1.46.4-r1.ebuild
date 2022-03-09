@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -10,17 +10,14 @@ MY_P="${MY_PN}-${PV}"
 
 DESCRIPTION="e2fsprogs libraries (common error and subsystem)"
 HOMEPAGE="http://e2fsprogs.sourceforge.net/"
-SRC_URI="mirror://sourceforge/e2fsprogs/${MY_P}.tar.xz
-	https://www.kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v${PV}/${MY_P}.tar.xz"
+SRC_URI="https://www.kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v${PV}/${MY_P}.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 m68k ~mips ppc ppc64 ~riscv s390 sparc x86 ~amd64-linux ~x86-linux ~m68k-mint ~x86-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~x86-solaris"
 IUSE="static-libs"
 
-RDEPEND="!sys-libs/com_err
-	!sys-libs/ss
-	!<sys-fs/e2fsprogs-1.41.8"
+RDEPEND="!>=sys-fs/e2fsprogs-1.46.4-r51"
 BDEPEND="virtual/pkgconfig"
 
 S="${WORKDIR}/${MY_P}"
