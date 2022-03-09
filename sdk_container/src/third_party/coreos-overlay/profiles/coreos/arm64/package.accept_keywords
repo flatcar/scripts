@@ -44,9 +44,6 @@ dev-util/checkbashisms *
 =sys-apps/policycoreutils-3.1-r3 ~arm64
 =sys-apps/kexec-tools-2.0.22 ~arm64
 
-# needed to force enable rng-tools for arm64
-=sys-apps/rng-tools-5-r2 **
-
 =sys-apps/sandbox-2.12 ~arm64
 =sys-apps/semodule-utils-3.1 ~arm64
 
