@@ -55,10 +55,22 @@ function image_build() {
     local image="flatcar-images-${arch}"
     local image_container="${image}-${docker_vernum}"
 
+    local official_arg=""
+    if is_official "${vernum}"; then
+            export COREOS_OFFICIAL=1
+            official_arg="--official"
+    else
+            export COREOS_OFFICIAL=0
+            official_arg="--noofficial"
+    fi
+
     # build image and store it in the container
     ./run_sdk_container -x ./ci-cleanup.sh -n "${image_container}" -C "${packages_image}" \
             -v "${vernum}" \
             mkdir -p "${CONTAINER_IMAGE_ROOT}"
+    ./run_sdk_container -n "${image_container}" -C "${packages_image}" \
+            -v "${vernum}" \
+            ./set_official --board="${arch}-usr" "${official_arg}"
     ./run_sdk_container -n "${image_container}" -C "${packages_image}" \
             -v "${vernum}" \
             ./build_image --board="${arch}-usr" --group="${channel}" \
