@@ -1,20 +1,19 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
 
-inherit linux-info systemd toolchain-funcs udev vcs-snapshot toolchain-funcs
+inherit linux-info systemd toolchain-funcs udev
 
 DESCRIPTION="Device mapper target autoconfig"
 HOMEPAGE="http://christophe.varoqui.free.fr/"
-SRC_URI="https://git.opensvc.com/?p=multipath-tools/.git;a=snapshot;h=${PV};sf=tgz -> ${P}.tar.gz"
+SRC_URI="https://github.com/opensvc/${PN}/archive/refs/tags/${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~alpha amd64 ~arm arm64 ~ia64 ppc ppc64 x86"
-IUSE="systemd rbd"
-
-BDEPEND="virtual/pkgconfig"
+IUSE="systemd rbd test"
+RESTRICT="!test? ( test )"
 
 RDEPEND="
 	dev-libs/json-c:=
@@ -26,24 +25,16 @@ RDEPEND="
 	rbd? ( sys-cluster/ceph )
 	systemd? ( sys-apps/systemd )
 "
-
-DEPEND="${RDEPEND}"
+DEPEND="${RDEPEND}
+	test? ( dev-util/cmocka )"
+BDEPEND="virtual/pkgconfig"
 
 CONFIG_CHECK="~DM_MULTIPATH"
 
-RESTRICT="test"
-
 PATCHES=(
-	"${FILESDIR}"/${PN}-0.7.5-respect-flags.patch
-	"${FILESDIR}"/${PN}-0.8.3-no-gziped-docs.patch
-	"${FILESDIR}"/${PN}-0.8.3-json-c-0.14.patch
-	"${FILESDIR}"/${PN}-0.8.3-fix-gcc-10-compatibility.patch
+	"${FILESDIR}"/${PN}-0.8.5-respect-flags.patch
+	"${FILESDIR}"/${PN}-0.8.6-no-compress-man-pages.patch
 )
-
-get_systemd_pv() {
-	use systemd && \
-		$(tc-getPKG_CONFIG) --modversion systemd
-}
 
 src_prepare() {
 	default
@@ -65,15 +56,17 @@ src_compile() {
 	# so force the test to go the way we want #411337.
 	emake \
 		CC="$(tc-getCC)" \
-		LIBDM_API_FLUSH=1 SYSTEMD="$(get_systemd_pv)"
+		LIB="${EPREFIX}/$(get_libdir)" \
+		LIBDM_API_FLUSH=1 \
+		PKGCONFIG="$(tc-getPKG_CONFIG)"
 }
 
 src_install() {
-	dodir /sbin /usr/share/man/man{5,8}
+	dodir /sbin /usr/share/man/man{3,5,8}
 	emake \
 		DESTDIR="${D}" \
+		LIB="${EPREFIX}/$(get_libdir)" \
 		RUN=run \
-		SYSTEMD=$(get_systemd_pv) \
 		unitdir="$(systemd_get_systemunitdir)" \
 		libudevdir='${prefix}'/"$(get_udevdir)" \
 		pkgconfdir='${prefix}'/usr/'${LIB}'/pkgconfig \
@@ -83,10 +76,12 @@ src_install() {
 	newinitd "${FILESDIR}"/multipath.rc multipath
 
 	einstalldocs
+
+	find "${ED}" -type f -name "*.la" -delete || die
 }
 
 pkg_postinst() {
-	if [[ -z ${REPLACING_VERSIONS} ]]; then
+	if [[ -z ${REPLACING_VERSIONS} ]] ; then
 		elog "If you need multipath on your system, you must"
 		elog "add 'multipath' into your boot runlevel!"
 	fi

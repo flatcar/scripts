@@ -1,5 +1,19 @@
-Do not gzip docs
+From 80cca1a75f24ee239ace5577d49ccfec511480ca Mon Sep 17 00:00:00 2001
+From: Sam James <sam@gentoo.org>
+Date: Mon, 12 Jul 2021 06:04:04 +0100
+Subject: [PATCH] Don't compress man pages
 
+---
+ kpartx/Makefile          |  5 ++---
+ libdmmp/Makefile         | 13 ++++---------
+ libmpathpersist/Makefile | 14 +++++---------
+ mpathpersist/Makefile    |  5 ++---
+ multipath/Makefile       | 10 ++++------
+ multipathd/Makefile      |  5 ++---
+ 6 files changed, 19 insertions(+), 33 deletions(-)
+
+diff --git a/kpartx/Makefile b/kpartx/Makefile
+index 2906a98..cd351a4 100644
 --- a/kpartx/Makefile
 +++ b/kpartx/Makefile
 @@ -21,7 +21,6 @@ all: $(EXEC)
@@ -24,55 +38,83 @@ Do not gzip docs
  	$(RM) $(DESTDIR)$(libudevdir)/kpartx_id
  	$(RM) $(DESTDIR)$(libudevdir)/rules.d/11-dm-parts.rules
  	$(RM) $(DESTDIR)$(libudevdir)/rules.d/66-kpartx.rules
+diff --git a/libdmmp/Makefile b/libdmmp/Makefile
+index 764a0bc..a859786 100644
 --- a/libdmmp/Makefile
 +++ b/libdmmp/Makefile
-@@ -40,7 +40,7 @@ install:
+@@ -21,13 +21,13 @@ CFLAGS += $(LIB_CFLAGS) -fvisibility=hidden -I$(libdmmpdir) -I$(mpathcmddir) \
+ LIBDEPS += $(shell $(PKGCONFIG) --libs json-c) -L$(mpathcmddir) -lmpathcmd -lpthread
+ 
+ all: $(LIBS) doc
+-.PHONY:	doc doc.gz clean install uninstall check speed_test dep_clean
++.PHONY:	doc clean install uninstall check speed_test dep_clean
+ 
+ $(LIBS): $(OBJS)
+ 	$(CC) $(LDFLAGS) $(SHARED_FLAGS) -Wl,-soname=$@ -o $@ $(OBJS) $(LIBDEPS)
+ 	$(LN) $@ $(DEVLIB)
+ 
+-install:	doc.gz
++install:	doc
+ 	mkdir -p $(DESTDIR)$(usrlibdir)
+ 	$(INSTALL_PROGRAM) -m 755 $(LIBS) $(DESTDIR)$(usrlibdir)/$(LIBS)
+ 	$(INSTALL_PROGRAM) -m 644 -D \
+@@ -41,7 +41,7 @@ install:	doc.gz
  		$(DESTDIR)$(pkgconfdir)/$(PKGFILE)
  	perl -i -pe 's|__INCLUDEDIR__|$(includedir)|g' \
  		$(DESTDIR)$(pkgconfdir)/$(PKGFILE)
--	@for file in docs/man/*.3.gz; do \
-+	@for file in docs/man/*.3; do \
- 		$(INSTALL_PROGRAM) -m 644 -D \
- 			$$file \
- 			$(DESTDIR)$(man3dir)/ || exit $?; \
-@@ -69,11 +69,11 @@ check: all
+-	$(INSTALL_PROGRAM) -m 644 -t $(DESTDIR)$(man3dir) docs/man/*.3.gz
++	$(INSTALL_PROGRAM) -m 644 -t $(DESTDIR)$(man3dir) docs/man/*.3
+ 
+ uninstall:
+ 	$(RM) $(DESTDIR)$(usrlibdir)/$(LIBS)
+@@ -55,7 +55,7 @@ uninstall:
+ 
+ clean: dep_clean
+ 	$(RM) core *.a *.o *.gz *.so *.so.*
+-	$(RM) docs/man/*.gz
++	$(RM) docs/man/*
+ 	$(MAKE) -C test clean
+ 
+ include $(wildcard $(OBJS:.o=.d))
+@@ -66,13 +66,8 @@ check: all
  speed_test: all
  	$(MAKE) -C test speed_test
  
--doc: docs/man/$(EXTRA_MAN_FILES).gz
-+doc: docs/man/$(EXTRA_MAN_FILES)
+-doc.gz:	doc $(patsubst %,%.gz,$(wildcard docs/man/*.3))
+-
+ doc: docs/man/dmmp_strerror.3
  
- TEMPFILE := $(shell mktemp)
- 
--docs/man/$(EXTRA_MAN_FILES).gz: $(HEADERS)
-+docs/man/$(EXTRA_MAN_FILES): $(HEADERS)
- 	@for file in $(EXTRA_MAN_FILES); do \
- 		$(INSTALL_PROGRAM) -v -m 644 -D docs/$$file docs/man/$$file; \
- 	done
-@@ -82,10 +82,7 @@ docs/man/$(EXTRA_MAN_FILES).gz: $(HEADERS)
- 	perl docs/kernel-doc -man "$(TEMPFILE)" | \
- 	    perl docs/split-man.pl docs/man
- 	-rm -f "$(TEMPFILE)"
--	@for file in docs/man/*.3; do \
--		gzip -f $$file; \
--	done
--	find docs/man -type f -name \*[0-9].gz
-+	find docs/man -type f -name \*.[0-9]
- 
- dep_clean:
- 	$(RM) $(OBJS:.o=.d)
+-docs/man/%.3.gz:	docs/man/%.3
+-	gzip -c $< >$@
+-
+ docs/man/dmmp_strerror.3:	$(HEADERS)
+ 	TEMPFILE=$(shell mktemp); \
+ 	cat $^ | perl docs/doc-preclean.pl >$$TEMPFILE; \
+diff --git a/libmpathpersist/Makefile b/libmpathpersist/Makefile
+index 57103e5..37c765a 100644
 --- a/libmpathpersist/Makefile
 +++ b/libmpathpersist/Makefile
-@@ -16,8 +16,6 @@ all: $(LIBS)
- $(LIBS): $(OBJS)
- 	$(CC) $(LDFLAGS) $(SHARED_FLAGS) $(LIBDEPS) -Wl,-soname=$@ -o $@ $(OBJS)
- 	$(LN) $(LIBS) $(DEVLIB)
+@@ -12,7 +12,7 @@ LIBDEPS += -lmultipath -lmpathcmd -ldevmapper -lpthread -ldl
+ 
+ OBJS = mpath_persist.o mpath_updatepr.o mpath_pr_ioctl.o
+ 
+-all: $(DEVLIB) man
++all: $(DEVLIB)
+ 
+ $(LIBS): $(OBJS) $(VERSION_SCRIPT)
+ 	$(CC) $(LDFLAGS) $(SHARED_FLAGS) -Wl,-soname=$@ \
+@@ -21,10 +21,6 @@ $(LIBS): $(OBJS) $(VERSION_SCRIPT)
+ $(DEVLIB): $(LIBS)
+ 	$(LN) $(LIBS) $@
+ 
+-man:
 -	$(GZIP) mpath_persistent_reserve_in.3 > mpath_persistent_reserve_in.3.gz
 -	$(GZIP) mpath_persistent_reserve_out.3 > mpath_persistent_reserve_out.3.gz
- 
- install: $(LIBS)
+-
+ install: all
  	$(INSTALL_PROGRAM) -d $(DESTDIR)$(syslibdir)
-@@ -26,14 +24,14 @@ install: $(LIBS)
+ 	$(INSTALL_PROGRAM) -m 755 $(LIBS) $(DESTDIR)$(syslibdir)/$(LIBS)
+@@ -32,14 +28,14 @@ install: all
  	$(INSTALL_PROGRAM) -m 755 -d $(DESTDIR)$(man3dir)
  	$(INSTALL_PROGRAM) -m 755 -d $(DESTDIR)$(includedir)
  	$(LN) $(LIBS) $(DESTDIR)$(syslibdir)/$(DEVLIB)
@@ -91,6 +133,8 @@ Do not gzip docs
  	$(RM) $(DESTDIR)$(includedir)/mpath_persist.h
  	$(RM) $(DESTDIR)$(syslibdir)/$(DEVLIB)
  
+diff --git a/mpathpersist/Makefile b/mpathpersist/Makefile
+index 5126801..0aba3cb 100644
 --- a/mpathpersist/Makefile
 +++ b/mpathpersist/Makefile
 @@ -14,13 +14,12 @@ all: $(EXEC)
@@ -117,6 +161,8 @@ Do not gzip docs
  
  dep_clean:
  	$(RM) $(OBJS:.o=.d)
+diff --git a/multipath/Makefile b/multipath/Makefile
+index 0828a8f..55b6f7b 100644
 --- a/multipath/Makefile
 +++ b/multipath/Makefile
 @@ -16,8 +16,6 @@ all: $(EXEC)
@@ -149,17 +195,19 @@ Do not gzip docs
  
  clean: dep_clean
  	$(RM) core *.o $(EXEC) *.gz
+diff --git a/multipathd/Makefile b/multipathd/Makefile
+index d053c1e..cf3339f 100644
 --- a/multipathd/Makefile
 +++ b/multipathd/Makefile
-@@ -34,7 +34,6 @@ all : $(EXEC)
+@@ -38,7 +38,6 @@ all : $(EXEC)
  
  $(EXEC): $(OBJS) $(multipathdir)/libmultipath.so $(mpathcmddir)/libmpathcmd.so
  	$(CC) $(CFLAGS) $(OBJS) $(LDFLAGS) -o $(EXEC) $(LIBDEPS)
 -	$(GZIP) $(EXEC).8 > $(EXEC).8.gz
  
- install:
- 	$(INSTALL_PROGRAM) -d $(DESTDIR)$(bindir)
-@@ -45,11 +44,11 @@ ifdef SYSTEMD
+ cli_handlers.o:	cli_handlers.c
+ 	$(CC) $(CFLAGS) -Wno-unused-parameter -c -o $@ $<
+@@ -52,11 +51,11 @@ ifdef SYSTEMD
  	$(INSTALL_PROGRAM) -m 644 $(EXEC).socket $(DESTDIR)$(unitdir)
  endif
  	$(INSTALL_PROGRAM) -d $(DESTDIR)$(man8dir)
@@ -173,3 +221,6 @@ Do not gzip docs
  	$(RM) $(DESTDIR)$(unitdir)/$(EXEC).service
  	$(RM) $(DESTDIR)$(unitdir)/$(EXEC).socket
  
+-- 
+2.32.0
+
