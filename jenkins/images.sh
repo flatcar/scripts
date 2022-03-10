@@ -162,6 +162,9 @@ echo
 echo "Image file changes, compared to ${CHANNEL_A} ${VERSION_A}:"
 FILE=flatcar_production_image_contents.txt FILESONLY=1 CUTKERNEL=1 ./package-diff "${VERSION_A}" "${FLATCAR_VERSION}"
 echo
+echo "Image kernel config changes, compared to ${CHANNEL_A} ${VERSION_A}:"
+FILE=flatcar_production_image_kernel_config.txt ./package-diff "${VERSION_A}" "${FLATCAR_VERSION}"
+echo
 echo "Image file size change (includes /boot, /usr and the default rootfs partitions), compared to ${CHANNEL_A} ${VERSION_A}:"
 FILE=flatcar_production_image_contents.txt CALCSIZE=1 ./package-diff "${VERSION_A}" "${FLATCAR_VERSION}"
 echo
