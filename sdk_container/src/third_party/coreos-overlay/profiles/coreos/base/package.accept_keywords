@@ -12,9 +12,6 @@
 =dev-lang/rust-1.58.1 ~amd64 ~arm64
 =virtual/rust-1.58.1 ~amd64 ~arm64
 
-# no version marked stable upstream
-dev-util/checkbashisms
-
 =dev-libs/elfutils-0.178 ~amd64
 
 =dev-libs/libgcrypt-1.9.4 ~amd64 ~arm64
@@ -34,17 +31,11 @@ dev-util/checkbashisms
 
 =net-nds/openldap-2.4.58 ~amd64 ~arm64
 
-# CVE-2017-8779
-=net-nds/rpcbind-0.2.4-r1 ~amd64 ~arm64
-
 # Upgrade to GCC 10.3.0 to support latest glibc builds
 =sys-devel/binutils-2.37_p1 ~amd64 ~arm64
 =sys-libs/binutils-libs-2.37_p1 ~amd64 ~arm64
 
 =sys-fs/cryptsetup-2.4.1-r1 ~amd64 ~arm64
-
-# Pick up fixes for bugs introduced in 4.0
-=sys-fs/dosfstools-4.1 ~amd64 ~arm64
 
 =sys-fs/multipath-tools-0.8.5 ~amd64 ~arm64
 
