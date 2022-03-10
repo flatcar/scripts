@@ -49,6 +49,7 @@ cl_internet_included="$(set -o noglob; bin/kola list --platform=aws --filter ${K
 if [[ "${BOARD}" == "amd64-usr" ]] && [[ "${cl_internet_included}" != ""  ]]; then
   for INSTANCE in m4.2xlarge; do
     (
+    set +x
     OUTPUT=$(timeout --signal=SIGQUIT 6h bin/kola run \
     --parallel=8 \
     --basename="${NAME}" \
