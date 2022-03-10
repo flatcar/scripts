@@ -44,6 +44,32 @@ if [[ "${AWS_AMI_ID}" == "" ]]; then
   echo "Created new AMI ${AWS_AMI_ID} (will be removed after testing)"
 fi
 
+# Run the cl.internet test on multiple machine types only if it should run in general
+cl_internet_included="$(set -o noglob; bin/kola list --platform=aws --filter ${KOLA_TESTS} | { grep cl.internet || true ; } )"
+if [[ "${BOARD}" == "amd64-usr" ]] && [[ "${cl_internet_included}" != ""  ]]; then
+  for INSTANCE in m4.2xlarge; do
+    (
+    OUTPUT=$(timeout --signal=SIGQUIT 6h bin/kola run \
+    --parallel=8 \
+    --basename="${NAME}" \
+    --board="${BOARD}" \
+    --aws-ami="${AWS_AMI_ID}" \
+    --aws-region="${AWS_REGION}" \
+    --aws-type="${INSTANCE}" \
+    --aws-iam-profile="${AWS_IAM_PROFILE}" \
+    --platform=aws \
+    --channel="${GROUP}" \
+    --offering="${OFFER}" \
+    --tapfile="${JOB_NAME##*/}_validate_${INSTANCE}.tap" \
+    --torcx-manifest=torcx_manifest.json \
+    cl.internet 2>&1 || true)
+    echo "=== START $INSTANCE ==="
+    echo "${OUTPUT}" | sed "s/^/${INSTANCE}: /g"
+    echo "=== END $INSTANCE ==="
+    ) &
+  done
+fi
+
 # Do not expand the kola test patterns globs
 set -o noglob
 timeout --signal=SIGQUIT 6h bin/kola run \
@@ -61,3 +87,6 @@ timeout --signal=SIGQUIT 6h bin/kola run \
     --torcx-manifest=torcx_manifest.json \
     ${KOLA_TESTS}
 set +o noglob
+
+# wait for the cl.internet test results
+wait
