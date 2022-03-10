@@ -137,7 +137,7 @@ function test_run() {
     __prepare_torcx "${arch}" "${vernum}" "${work_dir}"
 
     # Pass PARALLEL_TESTS to the container
-    if [ -n "${PARALLEL_TESTS}" ] ; then
+    if [ -n "${PARALLEL_TESTS-}" ] ; then
         echo "PARALLEL_TESTS=\"${PARALLEL_TESTS}\"" > sdk_container/.env
         echo "rm -f 'sdk_container/.env'" >> ./ci-cleanup.sh
     fi
