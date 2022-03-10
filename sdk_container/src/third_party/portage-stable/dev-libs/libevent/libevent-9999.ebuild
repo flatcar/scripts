@@ -1,23 +1,29 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
-inherit autotools eutils git-r3 multilib-minimal
+EAPI=7
+inherit autotools git-r3 multilib-minimal
 
 DESCRIPTION="Library to execute a function when a specific event occurs on a file descriptor"
-HOMEPAGE="http://libevent.org/"
 EGIT_REPO_URI="https://github.com/libevent/libevent"
+HOMEPAGE="
+	https://libevent.org/
+	https://github.com/libevent/libevent
+"
 
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS=""
-IUSE="debug libressl +ssl static-libs test +threads"
+IUSE="
+	+clock-gettime debug malloc-replacement mbedtls +ssl static-libs
+	test +threads verbose-debug
+"
 RESTRICT="test"
 
 DEPEND="
+	mbedtls? ( net-libs/mbedtls )
 	ssl? (
-		!libressl? ( >=dev-libs/openssl-1.0.1h-r2:0[${MULTILIB_USEDEP}] )
-		libressl? ( dev-libs/libressl[${MULTILIB_USEDEP}] )
+		>=dev-libs/openssl-1.0.1h-r2:0=[${MULTILIB_USEDEP}]
 	)
 "
 RDEPEND="
@@ -43,16 +49,19 @@ multilib_src_configure() {
 
 	ECONF_SOURCE="${S}" \
 	econf \
-		--disable-samples \
+		$(use_enable clock-gettime) \
 		$(use_enable debug debug-mode) \
-		$(use_enable debug malloc-replacement) \
+		$(use_enable malloc-replacement malloc-replacement) \
+		$(use_enable mbedtls) \
 		$(use_enable ssl openssl) \
 		$(use_enable static-libs static) \
 		$(use_enable test libevent-regress) \
-		$(use_enable threads thread-support)
+		$(use_enable threads thread-support) \
+		$(use_enable verbose-debug) \
+		--disable-samples
 }
 
 multilib_src_install_all() {
 	einstalldocs
-	prune_libtool_files
+	find "${ED}" -name '*.la' -delete || die
 }
