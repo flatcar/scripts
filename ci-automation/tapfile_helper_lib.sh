@@ -160,10 +160,9 @@ function tap_ingest_tapfile() {
             fi
 
         done < "$tapfile"
+        SQL="${SQL}COMMIT;"
+        __sqlite3_wrapper "${SQL}"
     )
-
-    SQL="${SQL}COMMIT;"
-    __sqlite3_wrapper "${SQL}"
 }
 # --
 
