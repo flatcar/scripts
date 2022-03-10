@@ -52,6 +52,7 @@ cl_internet_included="$(set -o noglob; bin/kola list --platform=packet --filter 
 if [[ "${BOARD}" == "amd64-usr" ]] && [[ "${cl_internet_included}" != ""  ]]; then
   for INSTANCE in c3.medium.x86 m3.large.x86 s3.xlarge.x86 n2.xlarge.x86; do
     (
+    set +x
     OUTPUT=$(timeout --signal=SIGQUIT "${timeout}" bin/kola run \
     --basename="${NAME}" \
     --board="${BOARD}" \
