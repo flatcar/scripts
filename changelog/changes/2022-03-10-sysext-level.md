@@ -1,0 +1,1 @@
+- Defined a systemd-sysext level that sysext images can match for instead of the OS version when they don't have a strong coupling, meaning the only metadata required is `SYSEXT_LEVEL=1.0` and `ID=flatcar` ([#643](https://github.com/flatcar-linux/Flatcar/issues/643))
