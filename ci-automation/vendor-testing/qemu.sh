@@ -51,6 +51,7 @@ if [ "${testscript}" = "qemu_uefi.sh" ] ; then
     fi
 fi
 
+set -x
 set -o noglob
 
 sudo kola run \
@@ -64,3 +65,4 @@ sudo kola run \
     $@
 
 set +o noglob
+set +x
