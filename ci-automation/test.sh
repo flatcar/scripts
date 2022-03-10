@@ -38,6 +38,8 @@
 #      All positional arguments after the first 2 (see above) are tests / patterns of tests to run.
 #
 #   MAX_RETRIES. Environment variable. Number of re-runs to overcome transient failures. Defaults to 20.
+#   PARALLEL_TESTS. Environment variable. Number of test cases to run in parallel.
+#                   Default is image / vendor specific and defined in ci-automation/ci-config.env.
 #
 # OUTPUT:
 #
@@ -133,6 +135,12 @@ function test_run() {
 
     # Make the torcx artifacts available to test implementation
     __prepare_torcx "${arch}" "${vernum}" "${work_dir}"
+
+    # Pass PARALLEL_TESTS to the container
+    if [ -n "${PARALLEL_TESTS-}" ] ; then
+        echo "PARALLEL_TESTS=\"${PARALLEL_TESTS}\"" > sdk_container/.env
+        echo "rm -f 'sdk_container/.env'" >> ./ci-cleanup.sh
+    fi
 
     local tap_merged_summary="results-${image}.tap"
     local tap_merged_detailed="results-${image}-detailed.tap"
