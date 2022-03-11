@@ -7,13 +7,14 @@ inherit autotools flag-o-matic multilib toolchain-funcs
 
 DESCRIPTION="Opensourced tools for VMware guests"
 HOMEPAGE="https://github.com/vmware/open-vm-tools"
-MY_P="${P}-18557794"
+MY_P="${P}-19345655"
 SRC_URI="https://github.com/vmware/open-vm-tools/releases/download/stable-${PV}/${MY_P}.tar.gz"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
 KEYWORDS="amd64 ~x86"
-IUSE="+dnet +pic +deploypkg" # TODO: pam
+# Flatcar: add USE flag salt-minion
+IUSE="+deploypkg +dnet +pic salt-minion" # TODO: pam
 
 DEPEND="dev-libs/glib:2
 	net-libs/libtirpc
@@ -72,6 +73,8 @@ src_configure() {
 	local myeconfargs=(
 		--prefix=/usr/share/oem
 		$(use_enable deploypkg)
+		$(use_enable salt-minion)
+		--disable-containerinfo
 		--disable-docs
 		--disable-multimon
 		--disable-tests
