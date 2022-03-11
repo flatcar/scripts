@@ -1,7 +1,7 @@
 # Copyright (c) 2017 CoreOS, Inc.. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=8
 
 CROS_WORKON_PROJECT="flatcar-linux/afterburn"
 CROS_WORKON_LOCALNAME="afterburn"
@@ -13,14 +13,6 @@ else
 	CROS_WORKON_COMMIT="bb3cdd0b895e9803c843d1e1831f9c0613e35e02" # flatcar-master
 	KEYWORDS="amd64 arm64"
 fi
-
-inherit coreos-cargo cros-workon systemd
-
-DESCRIPTION="A tool for collecting instance metadata from various providers"
-HOMEPAGE="https://github.com/flatcar-linux/afterburn"
-LICENSE="Apache-2.0"
-SLOT="0"
-RDEPEND="!coreos-base/coreos-metadata"
 
 # sed -n 's/^"checksum \([^ ]*\) \([^ ]*\) .*/\1-\2/p' Cargo.lock
 CRATES="
@@ -234,7 +226,16 @@ ws2_32-sys-0.2.1
 xml-rs-0.3.6
 "
 
+inherit coreos-cargo cros-workon systemd
+
+DESCRIPTION="A tool for collecting instance metadata from various providers"
+HOMEPAGE="https://github.com/flatcar-linux/afterburn"
 SRC_URI="$(cargo_crate_uris ${CRATES})"
+
+LICENSE="Apache-2.0"
+SLOT="0"
+
+RDEPEND="!coreos-base/coreos-metadata"
 
 src_unpack() {
 	cros-workon_src_unpack "$@"
