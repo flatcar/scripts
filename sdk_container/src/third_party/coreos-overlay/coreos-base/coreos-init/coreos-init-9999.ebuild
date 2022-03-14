@@ -52,4 +52,11 @@ src_install() {
 
 	# Enable some services that aren't enabled elsewhere.
 	systemd_enable_service rpcbind.target rpcbind.service
+
+	# Create compatibility symlinks in case /usr/lib64/ instead of /usr/lib/ was used
+	local compat
+	# os-release symlink is set up in scripts
+	for compat in modules systemd flatcar coreos kernel modprobe.d pam pam.d sysctl.d udev ; do
+		dosym "../lib/${compat}" "/usr/lib64/${compat}"
+	done
 }
