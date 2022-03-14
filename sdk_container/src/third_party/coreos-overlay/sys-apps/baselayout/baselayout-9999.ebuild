@@ -102,7 +102,7 @@ src_compile() {
 		local tmpfiles="${T}/baselayout-usr.conf"
 		echo -n > ${tmpfiles} || die
 		for sym in "${!USR_SYMS[@]}" ; do
-			echo "L	${sym}	-	-	-	-	${USR_SYMS[$sym]}" >> ${tmpfiles}
+			echo "L+	${sym}	-	-	-	-	${USR_SYMS[$sym]}" >> ${tmpfiles}
 		done
 	fi
 }
