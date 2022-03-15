@@ -1,7 +1,7 @@
 # Copyright (c) 2017 CoreOS, Inc.. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=8
 
 CROS_WORKON_PROJECT="flatcar-linux/update-ssh-keys"
 CROS_WORKON_LOCALNAME="update-ssh-keys"
@@ -13,17 +13,6 @@ else
 	CROS_WORKON_COMMIT="9c41390e2523548cd1a58d98f0ad011bd9faacb7" # v0.3.0
 	KEYWORDS="amd64 arm64"
 fi
-
-inherit coreos-cargo cros-workon
-
-DESCRIPTION="Utility for managing OpenSSH authorized public keys"
-HOMEPAGE="https://github.com/flatcar-linux/update-ssh-keys"
-LICENSE="Apache-2.0"
-SLOT="0"
-
-# make sure we have a new enough coreos-init that we won't conflict with the
-# old bash script
-RDEPEND="!<coreos-base/coreos-init-0.0.1-r152"
 
 # sed -n 's/^"checksum \([^ ]*\) \([^ ]*\) .*/\1-\2/p' Cargo.lock
 CRATES="
@@ -60,7 +49,18 @@ winapi-i686-pc-windows-gnu-0.4.0
 winapi-x86_64-pc-windows-gnu-0.4.0
 "
 
+inherit coreos-cargo cros-workon
+
+DESCRIPTION="Utility for managing OpenSSH authorized public keys"
+HOMEPAGE="https://github.com/flatcar-linux/update-ssh-keys"
 SRC_URI="$(cargo_crate_uris ${CRATES})"
+
+LICENSE="Apache-2.0"
+SLOT="0"
+
+# make sure we have a new enough coreos-init that we won't conflict with the
+# old bash script
+RDEPEND="!<coreos-base/coreos-init-0.0.1-r152"
 
 src_unpack() {
 	cros-workon_src_unpack "$@"
