@@ -54,7 +54,6 @@ RDEPEND="${RDEPEND}
 	dev-util/gdbus-codegen
 	dev-util/gperf
 	>=dev-util/gtk-doc-am-1.13
-	>=dev-util/intltool-0.30
 	dev-util/patchutils
 	dev-util/scons
 	>=dev-vcs/git-1.7.2
