@@ -59,9 +59,9 @@ bios="${QEMU_BIOS}"
 if [ "${arch}" = "arm64" ]; then
     bios="${QEMU_UEFI_BIOS}"
     if [ -f "${bios}" ] ; then
-        echo "++++ ${testscript}: Using existing ${work_dir}/${bios} ++++"
+        echo "++++ qemu_update.sh: Using existing ${work_dir}/${bios} ++++"
     else
-        echo "++++ ${testscript}: downloading ${bios} for ${vernum} (${arch}) ++++"
+        echo "++++ qemu_update.sh: downloading ${bios} for ${vernum} (${arch}) ++++"
         copy_from_buildcache "images/${arch}/${vernum}/${bios}" .
     fi
 fi
