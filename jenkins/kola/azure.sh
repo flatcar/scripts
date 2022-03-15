@@ -43,5 +43,7 @@ timeout --signal=SIGQUIT 20h bin/kola run \
     --tapfile="${JOB_NAME##*/}.tap" \
     --torcx-manifest=torcx_manifest.json \
     ${AZURE_MACHINE_SIZE_OPT} \
+    ${AZURE_VNET_SUBNET_NAME:+--azure-vnet-subnet-name=${AZURE_VNET_SUBNET_NAME}} \
+    ${AZURE_USE_PRIVATE_IPS:+--azure-use-private-ips=${AZURE_USE_PRIVATE_IPS}} \
     ${KOLA_TESTS}
 set +o noglob
