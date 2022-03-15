@@ -1,4 +1,4 @@
-# Copyright 2004-2018 Gentoo Authors
+# Copyright 2004-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: java-utils-2.eclass
@@ -6,6 +6,7 @@
 # java@gentoo.org
 # @AUTHOR:
 # Thomas Matthijs <axxo@gentoo.org>, Karl Trygve Kalleberg <karltk@gentoo.org>
+# @SUPPORTED_EAPIS: 5 6 7 8
 # @BLURB: Base eclass for Java packages
 # @DESCRIPTION:
 # This eclass provides functionality which is used by java-pkg-2.eclass,
@@ -16,17 +17,22 @@
 # that have optional Java support. In addition you can inherit java-ant-2 for
 # Ant-based packages.
 
+case ${EAPI:-0} in
+	[5678]) ;;
+	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
+esac
+
+if [[ -z ${_JAVA_UTILS_2_ECLASS} ]] ; then
+_JAVA_UTILS_2_ECLASS=1
+
 # EAPI 7 has version functions built-in. Use eapi7-ver for all earlier eclasses.
 # Keep versionator inheritance in case consumers are using it implicitly.
-[[ ${EAPI} == [0123456] ]] && inherit eapi7-ver eutils multilib versionator
-
-IUSE=""
+[[ ${EAPI} == [56] ]] && inherit eapi7-ver eutils multilib versionator
 
 # Make sure we use java-config-2
 export WANT_JAVA_CONFIG="2"
 
-# Prefix variables are only available for EAPI>=3
-has "${EAPI:-0}" 0 1 2 && ED="${D}" EPREFIX= EROOT="${ROOT}"
+has test ${JAVA_PKG_IUSE} && RESTRICT+=" !test? ( test )"
 
 # @VARIABLE: JAVA_PKG_E_DEPEND
 # @INTERNAL
@@ -110,11 +116,27 @@ JAVA_PKG_ALLOW_VM_CHANGE=${JAVA_PKG_ALLOW_VM_CHANGE:="yes"}
 # Normally this is determined from the jre/jdk version specified in RDEPEND.
 # See java-pkg_get-target function below.
 #
-# Should generallyonly be used for testing and debugging.
+# Should generally only be used for testing and debugging.
 #
 # emerge bar to be compatible with 1.3
 # @CODE
 #	JAVA_PKG_WANT_TARGET=1.3 emerge bar
+# @CODE
+
+# @ECLASS-VARIABLE: JAVA_TEST_EXTRA_ARGS
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# Array of extra arguments that should be passed to java command when running tests.
+# It is useful when you need to pass a value to a Java program that uses
+# System.getProperty(). If it uses System.getenv(), use `export var=value` instead.
+#
+# It is used only when running tests.
+#
+# @CODE
+#	JAVA_TEST_EXTRA_ARGS=(
+#		-Dsome.var=x
+#		"-Dother.var=\"y z\""
+#	)
 # @CODE
 
 # @ECLASS-VARIABLE: JAVA_PKG_DEBUG
@@ -264,7 +286,7 @@ java-pkg_addres() {
 }
 
 # @FUNCTION: java-pkg_rm_files
-# @USAGE: java-pkg_rm_files File1.java File2.java ...
+# @USAGE: <File1.java> [File2.java] ...
 # @DESCRIPTION:
 # Remove unneeded files in ${S}.
 #
@@ -349,7 +371,7 @@ java-pkg_dojar() {
 					insinto "${JAVA_PKG_JARDEST}"
 					doins "${jar}"
 				) || die "failed to install ${jar}"
-				java-pkg_append_ JAVA_PKG_CLASSPATH "${EPREFIX}/${JAVA_PKG_JARDEST}/${jar_basename}"
+				java-pkg_append_ JAVA_PKG_CLASSPATH "${EPREFIX}${JAVA_PKG_JARDEST}/${jar_basename}"
 				debug-print "installed ${jar} to ${ED}${JAVA_PKG_JARDEST}"
 			# make a symlink to the original jar if it's symlink
 			else
@@ -973,10 +995,6 @@ java-pkg_jar-from() {
 
 	[[ -z ${target_pkg} ]] && die "Must specify a package"
 
-	if [[ "${EAPI}" == "1" ]]; then
-		target_pkg="${target_pkg//:/-}"
-	fi
-
 	# default destjar to the target jar
 	[[ -z "${destjar}" ]] && destjar="${target_jar}"
 
@@ -1112,10 +1130,6 @@ java-pkg_getjars() {
 
 	local pkgs="${1}"
 
-	if [[ "${EAPI}" == "1" ]]; then
-		pkgs="${pkgs//:/-}"
-	fi
-
 	jars="$(java-config ${deep} --classpath=${pkgs})"
 	[[ $? != 0 ]] && die "java-config --classpath=${pkgs} failed"
 	debug-print "${pkgs}:${jars}"
@@ -1180,10 +1194,6 @@ java-pkg_getjar() {
 	[[ ${#} -ne 2 ]] && die "${FUNCNAME} takes only two arguments besides --*"
 
 	local pkg="${1}" target_jar="${2}" jar
-
-	if [[ "${EAPI}" == "1" ]]; then
-		pkg="${pkg//:/-}"
-	fi
 
 	[[ -z ${pkg} ]] && die "Must specify package to get a jar from"
 	[[ -z ${target_jar} ]] && die "Must specify jar to get"
@@ -1270,10 +1280,6 @@ java-pkg_register-dependency() {
 
 	[[ -z "${pkgs}" ]] && die "${FUNCNAME} called with no package(s) specified"
 
-	if [[ "${EAPI}" == "1" ]]; then
-		pkgs="${pkgs//:/-}"
-	fi
-
 	if [[ -z "${jar}" ]]; then
 		for pkg in ${pkgs//,/ }; do
 			java-pkg_ensure-dep runtime "${pkg}"
@@ -1326,10 +1332,6 @@ java-pkg_register-optional-dependency() {
 	local jar="${2}"
 
 	[[ -z "${pkgs}" ]] && die "${FUNCNAME} called with no package(s) specified"
-
-	if [[ "${EAPI}" == "1" ]]; then
-		pkgs="${pkgs//:/-}"
-	fi
 
 	if [[ -z "${jar}" ]]; then
 		for pkg in ${pkgs//,/ }; do
@@ -1482,7 +1484,6 @@ java-pkg_ensure-vm-version-sufficient() {
 
 # @FUNCTION: java-pkg_is-vm-version-sufficient
 # @INTERNAL
-# @DESCRIPTION:
 # @RETURN: zero - VM is sufficient; non-zero - VM is not sufficient
 java-pkg_is-vm-version-sufficient() {
 	debug-print-function ${FUNCNAME} $*
@@ -1562,8 +1563,7 @@ java-pkg_ensure-vm-version-ge() {
 # Parameters:
 # $@ - VM version to compare current VM to
 # @CODE
-# @RETURN: zero - current VM version is greater than checked version;
-# 	non-zero - current VM version is not greater than checked version
+# @RETURN: zero - current VM version is greater than checked version; non-zero - current VM version is not greater than checked version
 java-pkg_is-vm-version-ge() {
 	debug-print-function ${FUNCNAME} $*
 
@@ -1687,10 +1687,8 @@ java-pkg_javac-args() {
 java-pkg_get-jni-cflags() {
 	local flags="-I${JAVA_HOME}/include"
 
-	local platform="linux"
-
 	# TODO do a check that the directories are valid
-	flags="${flags} -I${JAVA_HOME}/include/${platform}"
+	flags="${flags} -I${JAVA_HOME}/include/linux"
 
 	echo ${flags}
 }
@@ -1809,8 +1807,8 @@ ejunit_() {
 	if [[ "${junit}" == "junit-4" ]] ; then
 		runner=org.junit.runner.JUnitCore
 	fi
-	debug-print "Calling: java -cp \"${cp}\" -Djava.io.tmpdir=\"${T}\" -Djava.awt.headless=true ${runner} ${@}"
-	java -cp "${cp}" -Djava.io.tmpdir="${T}/" -Djava.awt.headless=true ${runner} "${@}" || die "Running junit failed"
+	debug-print "Calling: java -cp \"${cp}\" -Djava.io.tmpdir=\"${T}\" -Djava.awt.headless=true ${JAVA_TEST_EXTRA_ARGS[@]} ${runner} ${@}"
+	java -cp "${cp}" -Djava.io.tmpdir="${T}/" -Djava.awt.headless=true ${JAVA_TEST_EXTRA_ARGS[@]} ${runner} "${@}" || die "Running junit failed"
 }
 
 # @FUNCTION: ejunit
@@ -1858,13 +1856,51 @@ ejunit4() {
 	ejunit_ "junit-4" "${@}"
 }
 
+# @FUNCTION: etestng
+# @USAGE: etestng_ [-cp $classpath] <test classes>
+# @INTERNAL
+# @DESCRIPTION:
+# Testng wrapper function. Makes it easier to run the tests.
+# Launches the tests using org.testng.TestNG.
+#
+# @CODE
+# $1 - -cp or -classpath
+# $2 - the classpath passed to it
+# $@ - test classes for testng to run.
+# @CODE
+etestng() {
+	debug-print-function ${FUNCNAME} $*
+
+	local runner=org.testng.TestNG
+	local cp=$(java-pkg_getjars --with-dependencies testng)
+	local tests
+
+	if [[ ${1} = -cp || ${1} = -classpath ]]; then
+		cp="${cp}:${2}"
+		shift 2
+	else
+		cp="${cp}:."
+	fi
+
+	for test in ${@}; do
+		tests+="${test},"
+	done
+
+	debug-print "java -cp \"${cp}\" -Djava.io.tmpdir=\"${T}\""\
+		"-Djava.awt.headless=true ${JAVA_TEST_EXTRA_ARGS[@]} ${runner}"\
+		"-usedefaultlisteners false -testclass ${tests}"
+	java -cp "${cp}" -Djava.io.tmpdir=\"${T}\" -Djava.awt.headless=true ${JAVA_TEST_EXTRA_ARGS[@]}\
+		${runner} -usedefaultlisteners false -testclass ${tests}\
+		|| die "Running TestNG failed."
+}
+
 # @FUNCTION: java-utils-2_src_prepare
 # @DESCRIPTION:
 # src_prepare Searches for bundled jars
 # Don't call directly, but via java-pkg-2_src_prepare!
 java-utils-2_src_prepare() {
 	case ${EAPI:-0} in
-		[0-5])
+		5)
 			java-pkg_func-exists java_prepare && java_prepare ;;
 		*)
 			java-pkg_func-exists java_prepare &&
@@ -2151,9 +2187,6 @@ java-pkg_init() {
 
 	# Don't set up build environment if installing from binary. #206024 #258423
 	[[ "${MERGE_TYPE}" == "binary" ]] && return
-	# Also try Portage's nonstandard EMERGE_FROM for old EAPIs, if it doesn't
-	# work nothing is lost.
-	has ${EAPI:-0} 0 1 2 3 && [[ "${EMERGE_FROM}" == "binary" ]] && return
 
 	unset JAVAC
 	unset JAVA_HOME
@@ -2161,8 +2194,7 @@ java-pkg_init() {
 	java-config --help >/dev/null || {
 		eerror ""
 		eerror "Can't run java-config --help"
-		eerror "Have you upgraded python recently but haven't"
-		eerror "run python-updater yet?"
+		eerror "Have you upgraded Python recently but not completed a world upgrade yet?"
 		die "Can't run java-config --help"
 	}
 
@@ -2551,14 +2583,14 @@ java-pkg_needs-vm() {
 
 # @FUNCTION: java-pkg_get-current-vm
 # @INTERNAL
-# @RETURN - The current VM being used
+# @RETURN: The current VM being used
 java-pkg_get-current-vm() {
 	java-config -f
 }
 
 # @FUNCTION: java-pkg_get-vm-vendor
 # @INTERNAL
-# @RETURN - The vendor of the current VM
+# @RETURN: The vendor of the current VM
 java-pkg_get-vm-vendor() {
 	debug-print-function ${FUNCNAME} $*
 
@@ -2569,7 +2601,7 @@ java-pkg_get-vm-vendor() {
 
 # @FUNCTION: java-pkg_get-vm-version
 # @INTERNAL
-# @RETURN - The version of the current VM
+# @RETURN: The version of the current VM
 java-pkg_get-vm-version() {
 	debug-print-function ${FUNCNAME} $*
 
@@ -2578,12 +2610,12 @@ java-pkg_get-vm-version() {
 
 # @FUNCTION: java-pkg_build-vm-from-handle
 # @INTERNAL
+# @RETURN: VM handle of an available JDK
 # @DESCRIPTION:
 # Selects a build vm from a list of vm handles. First checks for the system-vm
 # beeing usable, then steps through the listed handles till a suitable vm is
 # found.
 #
-# @RETURN - VM handle of an available JDK
 java-pkg_build-vm-from-handle() {
 	debug-print-function ${FUNCNAME} "$*"
 
@@ -2728,10 +2760,13 @@ java-pkg_jar-list() {
 java-pkg_verify-classes() {
 	#$(find ${D} -type f -name '*.jar' -o -name '*.class')
 
-	local version_verify="/usr/bin/class-version-verify.py"
+	local version_verify_1="${EPREFIX}/usr/$(get_libdir)/javatoolkit/bin/class-version-verify.py"
+	local version_verify_2="${EPREFIX}/usr/libexec/javatoolkit/class-version-verify.py"
 
-	if [[ ! -x "${version_verify}" ]]; then
-		version_verify="/usr/$(get_libdir)/javatoolkit/bin/class-version-verify.py"
+	if [[ -x "${version_verify_1}" ]]; then
+		local version_verify=${version_verify_1}
+	else
+		local version_verify=${version_verify_2}
 	fi
 
 	if [[ ! -x "${version_verify}" ]]; then
@@ -2913,3 +2948,5 @@ java-pkg_gen-cp() {
 		fi
 	done
 }
+
+fi
