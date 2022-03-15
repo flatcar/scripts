@@ -133,6 +133,8 @@ set +x
 set +e
 echo "==================================================================="
 echo
+export BOARD_A="${BOARD}"
+export BOARD_B="${BOARD}"
 if [ "${GROUP}" != "developer" ]; then
   export CHANNEL_A="${GROUP}"
 else
