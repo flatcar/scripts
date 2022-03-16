@@ -8,6 +8,7 @@
 
 source ci-automation/ci-config.env
 : ${PIGZ:=pigz}
+: ${docker:=docker}
 
 function init_submodules() {
     git submodule init
@@ -134,7 +135,7 @@ function image_exists_locally() {
     local version="$2"
     local image="${name}:${version}"
 
-    local image_exists="$(docker images "${image}" \
+    local image_exists="$($docker images "${image}" \
                             --no-trunc --format '{{.Repository}}:{{.Tag}}')"
 
     [ "${image}" = "${image_exists}" ]
@@ -155,7 +156,7 @@ function docker_image_fullname() {
     local image="$1"
     local version="$2"
 
-    docker images --no-trunc --format '{{.Repository}}:{{.Tag}}' \
+    $docker images --no-trunc --format '{{.Repository}}:{{.Tag}}' \
         | grep -E "^(${CONTAINER_REGISTRY}/)*${image}:${version}$"
 }
 # --
@@ -167,7 +168,7 @@ function docker_image_to_buildcache() {
     # strip potential container registry prefix
     local tarball="$(basename "$image")-${version}.tar.gz"
 
-    docker save "${image}":"${version}" | $PIGZ -c > "${tarball}"
+    $docker save "${image}":"${version}" | $PIGZ -c > "${tarball}"
     copy_to_buildcache "containers/${version}" "${tarball}"
 }
 # --
@@ -177,7 +178,7 @@ function docker_commit_to_buildcache() {
     local image_name="$2"
     local image_version="$3"
 
-    docker commit "${container}" "${image_name}:${image_version}"
+    $docker commit "${container}" "${image_name}:${image_version}"
     docker_image_to_buildcache "${image_name}" "${image_version}"
 }
 # --
@@ -197,7 +198,7 @@ function docker_image_from_buildcache() {
         --retry-connrefused --retry-max-time 60 --connect-timeout 20 \
         --remote-name "${url}"
 
-    cat "${tgz}" | $PIGZ -d -c | docker load
+    cat "${tgz}" | $PIGZ -d -c | $docker load
 
     rm "${tgz}"
 }
@@ -211,10 +212,11 @@ function docker_image_from_registry_or_buildcache() {
         return
     fi
 
-    if docker pull "${CONTAINER_REGISTRY}/${image}:${version}" ; then
+    if $docker pull "${CONTAINER_REGISTRY}/${image}:${version}" ; then
         return
     fi
 
+    echo "Falling back to tar ball download..." >&2
     docker_image_from_buildcache "${image}" "${version}"
 }
 # --
