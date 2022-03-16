@@ -4,7 +4,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-set -eu
+set -euo pipefail
 
 cd $(dirname "$0")
 source sdk_lib/sdk_container_common.sh
@@ -16,11 +16,12 @@ os_version="$(get_git_version)"
 sdk_version="$(get_sdk_version_from_versionfile)"
 custom_image=""
 tty=""
+remove=""
 cleanup=""
 
 usage() {
     echo "  Usage:"
-    echo "  $0 [-t] [-v <version>] [-V sdk version] [-a arch] [-n <name> ] [-x <script>] [-C custom-container] [-F] [container-command]"
+    echo "  $0 [-t] [-v <version>] [-V sdk version] [-a arch] [-n <name> ] [-x <script>] [-C custom-container] [-F] [--rm] [container-command]"
     echo "       Start an SDK container of a given SDK release version."
     echo "       This will create the container if it does not exist, otherwise start the existing container."
     echo "       If the container is already running then it will exec into the container."
@@ -37,6 +38,7 @@ usage() {
     echo "      -a <amd64|arm64|all> - Target architecture (board support) of the SDK."
     echo "                     'all' (the default) contains support for both amd64 and arm64."
     echo "      -n <name>    - Custom name to use for the container."
+    echo "      --rm           Remove container afterwards"
     echo "      -x <script>  - For each resource generated during build (container etc.)"
     echo "                     add a cleanup line to <script> which, when run, will free"
     echo "                     the resource. Useful for CI."
@@ -51,11 +53,13 @@ usage() {
 while [ 0 -lt $# ] ; do
     case "$1" in
     -h) usage; exit 0;;
+    --help) usage; exit 0;;
     -t) tty="-t";                  shift;;
     -v) os_version="$2";    shift; shift;;
     -V) sdk_version="$2";   shift; shift;;
     -a) arch="$2";          shift; shift;;
     -n) name="$2";          shift; shift;;
+    --rm) remove=true;             shift;;
     -x) cleanup="$2";       shift; shift;;
     -C) custom_image="$2";  shift; shift;;
     *) break;;
@@ -104,6 +108,9 @@ if [ -z "$stat" ] ; then
 
     gpg_volumes=$(gnupg_ssh_gcloud_mount_opts)
 
+    source ci-automation/ci_automation_common.sh
+    docker_image_from_registry_or_buildcache "flatcar-sdk-${arch}" "${docker_sdk_vernum}"
+
     $docker create $tty -i \
        -v /dev:/dev \
        -v "$(pwd)/sdk_container:/mnt/host/source/" \
@@ -123,7 +130,12 @@ fi
 
 if [ "$stat" != "Up" ] ; then
     yell "Starting stopped container '$name'"
-    trap "$docker stop -t 0 $name" EXIT
+    if [ "${remove}" = "true" ]; then
+      remove_command="$docker rm -f $name"
+    else
+      remove_command=":"
+    fi
+    trap "$docker stop -t 0 $name ; ${remove_command}" EXIT
     $docker start "$name"
 fi
 
