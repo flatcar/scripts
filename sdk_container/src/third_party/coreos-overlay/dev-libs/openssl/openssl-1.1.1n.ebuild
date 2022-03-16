@@ -3,7 +3,7 @@
 
 EAPI="7"
 
-inherit flag-o-matic toolchain-funcs multilib-minimal
+inherit flag-o-matic toolchain-funcs multilib-minimal systemd
 
 MY_P=${P/_/-}
 
@@ -14,7 +14,7 @@ SRC_URI="mirror://openssl/source/${MY_P}.tar.gz"
 LICENSE="openssl"
 SLOT="0/1.1" # .so version of libssl/libcrypto
 [[ "${PV}" = *_pre* ]] || \
-KEYWORDS="~alpha amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt"
+KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt"
 IUSE="+asm rfc3779 sctp cpu_flags_x86_sse2 sslv3 static-libs test tls-compression tls-heartbeat vanilla"
 RESTRICT="!test? ( test )"
 
@@ -254,9 +254,6 @@ multilib_src_install_all() {
 
 	dodoc CHANGES* FAQ NEWS README doc/*.txt doc/${PN}-c-indent.el
 
-	# create the certs directory
-	keepdir ${SSL_CNF_DIR}/certs
-
 	# Namespace openssl programs to prevent conflicts with other man pages
 	cd "${ED}"/usr/share/man || die
 	local m d s
@@ -283,12 +280,15 @@ multilib_src_install_all() {
 	dodir /etc/sandbox.d #254521
 	echo 'SANDBOX_PREDICT="/dev/crypto"' > "${ED}"/etc/sandbox.d/10openssl
 
-	diropts -m0700
-	keepdir ${SSL_CNF_DIR}/private
-}
+	# Don't keep the sample CA files and their ilk in /etc.
+	rm -r "${ED}"${SSL_CNF_DIR}
 
-pkg_postinst() {
-	ebegin "Running 'c_rehash ${EROOT}${SSL_CNF_DIR}/certs/' to rebuild hashes #333069"
-	c_rehash "${EROOT}${SSL_CNF_DIR}/certs" >/dev/null
-	eend $?
+	# Save the default openssl.cnf in /usr and link it into place.
+	dodir /usr/share/ssl
+	insinto /usr/share/ssl
+	doins "${S}"/apps/openssl.cnf
+	systemd_dotmpfilesd "${FILESDIR}"/openssl.conf
+
+	# Package the tmpfiles.d setup for SDK bootstrapping.
+	systemd-tmpfiles --create --root="${ED}" "${FILESDIR}"/openssl.conf
 }
