@@ -127,7 +127,7 @@ function tap_ingest_tapfile() {
                         | LC_ALL=C sed -e 's/^Error: "--- FAIL: /"/' -e 's/^[[:space:]]*//' \
                               -e "s/[>\\\"']/_/g" -e 's/[[:space:]]/ /g' \
                               -e 's/.\{200\}/&\n/g' \
-                              -e 's/[^\x00-\x7F]/?/g' \
+                              -e 's/[^\x1F-\x7F]/?/g' \
                         >> "${error_message_file}"
                     continue
                 fi
