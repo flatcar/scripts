@@ -3,7 +3,7 @@
 
 EAPI=7
 EGO_PN=github.com/docker/docker
-GIT_COMMIT=bd6d47cb47
+GIT_COMMIT=d430ff4739
 # Flatcar: force building with go1.17 like upstream does
 COREOS_GO_VERSION="go1.17"
 COREOS_GO_GO111MODULE="off"
