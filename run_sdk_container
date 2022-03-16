@@ -51,6 +51,7 @@ usage() {
 while [ 0 -lt $# ] ; do
     case "$1" in
     -h) usage; exit 0;;
+    --help) usage; exit 0;;
     -t) tty="-t";                  shift;;
     -v) os_version="$2";    shift; shift;;
     -V) sdk_version="$2";   shift; shift;;
