@@ -136,6 +136,13 @@ function test_run() {
     # Make the torcx artifacts available to test implementation
     __prepare_torcx "${arch}" "${vernum}" "${work_dir}"
 
+    # Ensure we run tests with an up-to-date kola.
+    # This covers the case of a mantle/kola commit ID in the ebuild being
+    #  newer than the mantle/kola included in the SDK.
+    ./run_sdk_container -x ./ci-cleanup.sh \
+        -n "${container_name}" -C "${sdk_image}" -v "${vernum}" \
+        sudo emerge mantle
+
     # Pass PARALLEL_TESTS to the container
     if [ -n "${PARALLEL_TESTS-}" ] ; then
         echo "PARALLEL_TESTS=\"${PARALLEL_TESTS}\"" > sdk_container/.env
