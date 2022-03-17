@@ -62,6 +62,10 @@ CPE_NAME="cpe:2.3:o:${OS_ID}-linux:${OS_ID}_linux:${FLATCAR_VERSION}:*:*:*:*:*:*
 EOF
 sudo ln -sf "../usr/lib/os-release" "${ROOT_FS_DIR}/etc/os-release"
 sudo ln -sf "../../lib/os-release" "${ROOT_FS_DIR}/usr/share/flatcar/os-release"
+# Compat for split of lib64 into lib and lib64
+if [ ! -e "${ROOT_FS_DIR}/usr/lib64/os-release" ]; then
+  sudo ln -sf "../lib/os-release" "${ROOT_FS_DIR}/usr/lib64/os-release"
+fi
 
 # Create the defaults for the coreos configuration files in the usr directory
 sudo_clobber "${ROOT_FS_DIR}/usr/share/flatcar/release" <<EOF
