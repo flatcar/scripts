@@ -50,5 +50,5 @@ session optional pam_permit.so
 EOF
 
 # Don't bundle these paths, since they are useless to us.
-mv usr/lib64/systemd/lib*.so* usr/lib64/
-rm -fr boot etc/* usr/lib64/systemd var/db/pkg
+mv usr/lib/systemd/lib*.so* usr/lib64/
+rm -fr boot etc/* usr/lib/systemd var/db/pkg
