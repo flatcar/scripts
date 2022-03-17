@@ -3,7 +3,7 @@
 
 EAPI=7
 EGO_PN=github.com/docker/docker
-GIT_COMMIT=bd6d47cb47
+GIT_COMMIT=d430ff4739
 # Flatcar: force building with go1.17 like upstream does
 COREOS_GO_VERSION="go1.17"
 COREOS_GO_GO111MODULE="off"
@@ -70,9 +70,7 @@ RESTRICT="installsources strip test"
 
 S="${WORKDIR}/${P}/src/${EGO_PN}"
 
-# https://bugs.gentoo.org/748984 https://github.com/etcd-io/etcd/pull/12552
 PATCHES=(
-	"${FILESDIR}/etcd-F_OFD_GETLK-fix.patch"
 	"${FILESDIR}/ppc64-buildmode.patch"
 )
 
