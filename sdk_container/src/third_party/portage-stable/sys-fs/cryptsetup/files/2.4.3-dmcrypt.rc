@@ -3,6 +3,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 depend() {
+	use modules
 	before checkfs fsck
 
 	if grep -qs ^swap= "${conf_file}" ; then
@@ -21,7 +22,7 @@ fi
 # Setup mappings for an individual target/swap
 # Note: This relies on variables localized in the main body below.
 dm_crypt_execute() {
-	local dev ret mode foo
+	local dev ret mode foo source_dev
 
 	if [ -z "${target}" -a -z "${swap}" ] ; then
 		return
@@ -31,6 +32,7 @@ dm_crypt_execute() {
 	: ${dmcrypt_key_timeout:=1}
 	: ${dmcrypt_max_timeout:=300}
 	: ${dmcrypt_retries:=5}
+	: ${wait:=5}
 
 	# Handle automatic look up of the source path.
 	if [ -z "${source}" -a -n "${loop_file}" ] ; then
@@ -38,7 +40,16 @@ dm_crypt_execute() {
 	fi
 	case ${source} in
 	*=*)
-		source=$(blkid -l -t "${source}" -o device)
+		i=0
+		while [ ${i} -lt ${wait} ]; do
+			if source_dev="$(blkid -l -t "${source}" -o device)"; then
+				source="${source_dev}"
+				break
+			fi
+			: $((i += 1))
+			einfo "waiting for source \"${source}\" for ${target}..."
+			sleep 1
+		done
 		;;
 	esac
 	if [ -z "${source}" ] || [ ! -e "${source}" ] ; then
@@ -46,11 +57,28 @@ dm_crypt_execute() {
 		return
 	fi
 
+	if [ -n "${header}" ] ; then
+		header_opt="--header=${header}"
+
+		i=0
+		while [ ! -e "${header}" ] && [ ${i} -lt ${wait} ] ; do
+			: $((i += 1))
+			einfo "Waiting for header ${header} to appear for ${target} ${i}/${dmcrypt_max_timeout} ..."
+			sleep 1
+		done
+		if [ ${i} -gt ${wait} ] || [ ${i} -eq ${wait} ] ; then
+			ewarn "Waited ${i} times for header file ${header}. Aborting ${target}."
+			return
+		fi
+	else
+		header_opt=""
+	fi
+
 	if [ -n "${target}" ] ; then
 		# let user set options, otherwise leave empty
 		: ${options:=' '}
 	elif [ -n "${swap}" ] ; then
-		if cryptsetup isLuks ${source} 2>/dev/null ; then
+		if cryptsetup ${header_opt} isLuks ${source} 2>/dev/null ; then
 			ewarn "The swap you have defined is a LUKS partition. Aborting crypt-swap setup."
 			return
 		fi
@@ -71,7 +99,7 @@ dm_crypt_execute() {
 	# open   <device> <name>      # <device> is $source
 	# create <name>   <device>    # <name>   is $target
 	local arg1="create" arg2="${target}" arg3="${source}"
-	if cryptsetup isLuks ${source} 2>/dev/null ; then
+	if cryptsetup ${header_opt} isLuks ${source} 2>/dev/null ; then
 		arg1="open"
 		arg2="${source}"
 		arg3="${target}"
@@ -81,7 +109,7 @@ dm_crypt_execute() {
 	#	${target} is active:
 	# Newer versions report:
 	#	${target} is active[ and is in use.]
-	if cryptsetup status ${target} | egrep -q ' is active' ; then
+	if cryptsetup ${header_opt} status ${target} | egrep -q ' is active' ; then
 		einfo "dm-crypt mapping ${target} is already configured"
 		return
 	fi
@@ -171,7 +199,7 @@ dm_crypt_execute() {
 	else
 		mode=none
 	fi
-	ebegin "  ${target} using: ${options} ${arg1} ${arg2} ${arg3}"
+	ebegin "  ${target} using: ${header_opt} ${options} ${arg1} ${arg2} ${arg3}"
 	if [ "${mode}" = "gpg" ] ; then
 		: ${gpg_options:='-q -d'}
 		# gpg available ?
@@ -181,7 +209,7 @@ dm_crypt_execute() {
 				# paranoid, don't store key in a variable, pipe it so it stays very little in ram unprotected.
 				# save stdin stdout stderr "values"
 				timeout ${dmcrypt_max_timeout} gpg ${gpg_options} ${key} 2>/dev/null | \
-					cryptsetup --key-file - ${options} ${arg1} ${arg2} ${arg3}
+					cryptsetup ${header_opt} --key-file - ${options} ${arg1} ${arg2} ${arg3}
 				ret=$?
 				# The timeout command exits 124 when it times out.
 				[ ${ret} -eq 0 -o ${ret} -eq 124 ] && break
@@ -196,11 +224,11 @@ dm_crypt_execute() {
 		fi
 	else
 		if [ "${mode}" = "reg" ] ; then
-			cryptsetup ${options} -d ${key} ${arg1} ${arg2} ${arg3}
+			cryptsetup ${header_opt} ${options} -d ${key} ${arg1} ${arg2} ${arg3}
 			ret=$?
 			eend ${ret} "failure running cryptsetup"
 		else
-			cryptsetup ${options} ${arg1} ${arg2} ${arg3}
+			cryptsetup ${header_opt} ${options} ${arg1} ${arg2} ${arg3}
 			ret=$?
 			eend ${ret} "failure running cryptsetup"
 		fi
@@ -236,7 +264,7 @@ get_bootparam_val() {
 }
 
 start() {
-	local header=true cryptfs_status=0
+	local print_header=true cryptfs_status=0
 	local gpg_options key loop_file target targetline options pre_mount post_mount source swap remdev
 
 	local x
@@ -256,8 +284,8 @@ start() {
 		rc_*) continue ;;
 		esac
 
-		${header} && ebegin "Setting up dm-crypt mappings"
-		header=false
+		${print_header} && ebegin "Setting up dm-crypt mappings"
+		print_header=false
 
 		# check for the start of a new target/swap
 		case ${targetline} in
@@ -266,10 +294,10 @@ start() {
 			dm_crypt_execute
 
 			# Prepare for the next target/swap by resetting variables
-			unset gpg_options key loop_file target options pre_mount post_mount source swap remdev
+			unset gpg_options key loop_file target options pre_mount post_mount source swap remdev wait header header_opt
 			;;
 
-		gpg_options=*|remdev=*|key=*|loop_file=*|options=*|pre_mount=*|post_mount=*|source=*)
+		gpg_options=*|remdev=*|key=*|loop_file=*|options=*|pre_mount=*|post_mount=*|wait=*|source=*|header=*)
 			if [ -z "${target}${swap}" ] ; then
 				ewarn "Ignoring setting outside target/swap section: ${targetline}"
 				continue
@@ -297,14 +325,14 @@ start() {
 }
 
 stop() {
-	local line header
+	local line print_header
 
 	# Break down all mappings
-	header=true
+	print_header=true
 	egrep "^(target|swap)=" ${conf_file} | \
 	while read line ; do
-		${header} && einfo "Removing dm-crypt mappings"
-		header=false
+		${print_header} && einfo "Removing dm-crypt mappings"
+		print_header=false
 
 		target= swap=
 		eval ${line}
@@ -316,16 +344,16 @@ stop() {
 		fi
 
 		ebegin "  ${target}"
-		cryptsetup remove ${target}
+		cryptsetup ${header_opt} remove ${target}
 		eend $?
 	done
 
 	# Break down loop devices
-	header=true
+	print_header=true
 	grep '^source=./dev/loop' ${conf_file} | \
 	while read line ; do
-		${header} && einfo "Detaching dm-crypt loop devices"
-		header=false
+		${print_header} && einfo "Detaching dm-crypt loop devices"
+		print_header=false
 
 		source=
 		eval ${line}

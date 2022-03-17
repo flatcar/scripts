@@ -1,9 +1,9 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit autotools linux-info tmpfiles
+inherit linux-info tmpfiles
 
 DESCRIPTION="Tool to setup encrypted devices with dm-crypt"
 HOMEPAGE="https://gitlab.com/cryptsetup/cryptsetup/blob/master/README.md"
@@ -16,9 +16,10 @@ KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~riscv ~s390 ~
 CRYPTO_BACKENDS="gcrypt kernel nettle +openssl"
 # we don't support nss since it doesn't allow cryptsetup to be built statically
 # and it's missing ripemd160 support so it can't provide full backward compatibility
-IUSE="${CRYPTO_BACKENDS} +argon2 nls pwquality reencrypt ssh static static-libs +udev urandom"
+IUSE="${CRYPTO_BACKENDS} +argon2 nls pwquality reencrypt ssh static static-libs test +udev urandom"
+RESTRICT="!test? ( test )"
 REQUIRED_USE="^^ ( ${CRYPTO_BACKENDS//+/} )
-	static? ( !gcrypt !udev )" #496612
+	static? ( !gcrypt !ssh !udev )" # 496612, 832711
 
 LIB_DEPEND="
 	dev-libs/json-c:=[static-libs(+)]
@@ -40,20 +41,15 @@ LIB_DEPEND="
 RDEPEND="static-libs? ( ${LIB_DEPEND} )
 	${LIB_DEPEND//\[static-libs\([+-]\)\]}
 	udev? ( virtual/libudev:= )"
+# vim-core needed for xxd in tests
 DEPEND="${RDEPEND}
-	static? ( ${LIB_DEPEND} )"
+	static? ( ${LIB_DEPEND} )
+	test? ( app-editors/vim-core )"
 BDEPEND="
 	virtual/pkgconfig
 "
 
 S="${WORKDIR}/${P/_/-}"
-
-PATCHES=(
-	"${FILESDIR}"/cryptsetup-2.4.1-external-tokens.patch
-
-	# Remove autotools/eautoreconf when this patch is dropped.
-	"${FILESDIR}"/cryptsetup-2.4.1-fix-static-pwquality-build.patch
-)
 
 pkg_setup() {
 	local CONFIG_CHECK="~DM_CRYPT ~CRYPTO ~CRYPTO_CBC ~CRYPTO_SHA256"
@@ -67,7 +63,6 @@ pkg_setup() {
 src_prepare() {
 	sed -i '/^LOOPDEV=/s:$: || exit 0:' tests/{compat,mode}-test || die
 	default
-	eautoreconf
 }
 
 src_configure() {
@@ -132,8 +127,8 @@ src_install() {
 
 	dodoc docs/v*ReleaseNotes
 
-	newconfd "${FILESDIR}"/2.4.0-dmcrypt.confd dmcrypt
-	newinitd "${FILESDIR}"/2.4.0-dmcrypt.rc dmcrypt
+	newconfd "${FILESDIR}"/2.4.3-dmcrypt.confd dmcrypt
+	newinitd "${FILESDIR}"/2.4.3-dmcrypt.rc dmcrypt
 }
 
 pkg_postinst() {
