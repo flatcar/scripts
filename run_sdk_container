@@ -108,8 +108,12 @@ if [ -z "$stat" ] ; then
 
     gpg_volumes=$(gnupg_ssh_gcloud_mount_opts)
 
-    source ci-automation/ci_automation_common.sh
-    docker_image_from_registry_or_buildcache "flatcar-sdk-${arch}" "${docker_sdk_vernum}"
+    if [ -z "$custom_image" ]; then
+	(
+            source ci-automation/ci_automation_common.sh
+            docker_image_from_registry_or_buildcache "flatcar-sdk-${arch}" "${docker_sdk_vernum}"
+	)
+    fi
 
     $docker create $tty -i \
        -v /dev:/dev \
