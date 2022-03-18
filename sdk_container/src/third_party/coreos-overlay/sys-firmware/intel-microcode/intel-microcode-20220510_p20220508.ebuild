@@ -20,7 +20,7 @@ SRC_URI="https://github.com/intel/Intel-Linux-Processor-Microcode-Data-Files/arc
 	https://dev.gentoo.org/~mpagano/dist/intel-microcode/intel-microcode-collection-${COLLECTION_SNAPSHOT}.tar.xz"
 
 LICENSE="intel-ucode"
-SLOT="0"
+SLOT="0/${PVR}"
 KEYWORDS="-* amd64 x86"
 IUSE="hostonly initramfs +split-ucode vanilla"
 REQUIRED_USE="|| ( initramfs split-ucode )"
