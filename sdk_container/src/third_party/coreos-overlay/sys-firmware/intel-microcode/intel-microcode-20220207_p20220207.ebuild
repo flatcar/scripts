@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
@@ -20,7 +20,7 @@ SRC_URI="https://github.com/intel/Intel-Linux-Processor-Microcode-Data-Files/arc
 	https://dev.gentoo.org/~whissi/dist/intel-microcode/intel-microcode-collection-${COLLECTION_SNAPSHOT}.tar.xz"
 
 LICENSE="intel-ucode"
-SLOT="0/${PVR}"
+SLOT="0"
 KEYWORDS="-* amd64 x86"
 IUSE="hostonly initramfs +split-ucode vanilla"
 REQUIRED_USE="|| ( initramfs split-ucode )"
