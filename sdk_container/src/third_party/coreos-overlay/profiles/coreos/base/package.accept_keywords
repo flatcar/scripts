@@ -9,8 +9,8 @@
 =coreos-devel/fero-client-0.1.1 **
 
 # Accept unstable host Rust compilers
-=dev-lang/rust-1.58.1 ~amd64 ~arm64
-=virtual/rust-1.58.1 ~amd64 ~arm64
+=dev-lang/rust-1.59.0 ~amd64 ~arm64
+=virtual/rust-1.59.0 ~amd64 ~arm64
 
 =dev-libs/elfutils-0.178 ~amd64
 
