@@ -1,26 +1,27 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-
-# Flatcar: Based on pam-1.5.1.ebuild from commit
-# 6acd106320ca6adf73a4a6607e4daa2b5cea8e30 in gentoo repo (see
-# https://gitweb.gentoo.org/repo/gentoo.git/plain/sys-libs/pam/pam-1.5.1.ebuild?id=6acd106320ca6adf73a4a6607e4daa2b5cea8e30).
 
 EAPI=7
 
-MY_P="Linux-${PN^^}-${PV}"
+# Avoid QA warnings
+# Can reconsider w/ EAPI 8 and IDEPEND, bug #810979
+TMPFILES_OPTIONAL=1
 
-inherit autotools db-use toolchain-funcs multilib-minimal
+inherit autotools db-use toolchain-funcs usr-ldscript multilib-minimal
+
+GIT_COMMIT="fe1307512fb8892b5ceb3d884c793af8dbd4c16a"
+DOC_SNAPSHOT="20210610"
 
 DESCRIPTION="Linux-PAM (Pluggable Authentication Modules)"
 HOMEPAGE="https://github.com/linux-pam/linux-pam"
 
-SRC_URI="https://github.com/linux-pam/linux-pam/releases/download/v${PV}/${MY_P}.tar.xz
-	https://github.com/linux-pam/linux-pam/releases/download/v${PV}/${MY_P}-docs.tar.xz"
+SRC_URI="https://github.com/linux-pam/linux-pam/archive/${GIT_COMMIT}.tar.gz -> ${P}.tar.gz
+	https://dev.gentoo.org/~zlogene/distfiles/${CATEGORY}/${PN}/${PN}-doc-${PV%_p*}_p${DOC_SNAPSHOT}.tar.xz"
 
 LICENSE="|| ( BSD GPL-2 )"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv s390 sparc x86 ~amd64-linux ~x86-linux"
-IUSE="audit berkdb debug nis +pie selinux"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+IUSE="audit berkdb debug nis selinux"
 
 BDEPEND="
 	dev-libs/libxslt
@@ -36,18 +37,19 @@ DEPEND="
 	audit? ( >=sys-process/audit-2.2.2[${MULTILIB_USEDEP}] )
 	berkdb? ( >=sys-libs/db-4.8.30-r1:=[${MULTILIB_USEDEP}] )
 	selinux? ( >=sys-libs/libselinux-2.2.2-r4[${MULTILIB_USEDEP}] )
-	nis? ( net-libs/libnsl[${MULTILIB_USEDEP}]
-	>=net-libs/libtirpc-0.2.4-r2[${MULTILIB_USEDEP}] )"
+	nis? ( net-libs/libnsl:=[${MULTILIB_USEDEP}]
+	>=net-libs/libtirpc-0.2.4-r2:=[${MULTILIB_USEDEP}] )"
 
 RDEPEND="${DEPEND}"
 
 PDEPEND=">=sys-auth/pambase-20200616"
 
-PATCHES=(
-	"${FILESDIR}"/pam-1.5.0-locked-accounts.patch
-)
+S="${WORKDIR}/linux-${PN}-${GIT_COMMIT}"
 
-S="${WORKDIR}/${MY_P}"
+PATCHES=(
+	"${FILESDIR}"/${PN}-1.5.0-locked-accounts.patch
+	"${FILESDIR}"/${PN}-1.5.1-musl.patch
+)
 
 src_prepare() {
 	default
@@ -59,20 +61,14 @@ multilib_src_configure() {
 	# Do not let user's BROWSER setting mess us up. #549684
 	unset BROWSER
 
-	# Disable automatic detection of libxcrypt; we _don't_ want the
-	# user to link libxcrypt in by default, since we won't track the
-	# dependency and allow to break PAM this way.
-
-	export ac_cv_header_xcrypt_h=no
-
 	local myconf=(
 		CC_FOR_BUILD="$(tc-getBUILD_CC)"
 		--with-db-uniquename=-$(db_findver sys-libs/db)
-		--with-xml-catalog="${EPREFIX}"/etc/xml/catalog
-		--enable-securedir="${EPREFIX}"/$(get_libdir)/security
-		--includedir="${EPREFIX}"/usr/include/security
-		--libdir="${EPREFIX}"/usr/$(get_libdir)
-		--exec-prefix="${EPREFIX}"
+		--with-xml-catalog=/etc/xml/catalog
+		--enable-securedir=/$(get_libdir)/security
+		--includedir=/usr/include/security
+		--libdir=/usr/$(get_libdir)
+		--enable-pie
 		--enable-unix
 		--disable-prelude
 		--disable-doc
@@ -83,7 +79,6 @@ multilib_src_configure() {
 		$(use_enable berkdb db)
 		$(use_enable debug)
 		$(use_enable nis)
-		$(use_enable pie)
 		$(use_enable selinux)
 		--enable-isadir='.' #464016
 		--enable-sconfigdir="/usr/lib/pam/"
@@ -92,12 +87,12 @@ multilib_src_configure() {
 }
 
 multilib_src_compile() {
-	emake sepermitlockdir="${EPREFIX}/run/sepermit"
+	emake sepermitlockdir="/run/sepermit"
 }
 
 multilib_src_install() {
 	emake DESTDIR="${D}" install \
-		sepermitlockdir="${EPREFIX}/run/sepermit"
+		sepermitlockdir="/run/sepermit"
 }
 
 multilib_src_install_all() {
@@ -125,7 +120,7 @@ multilib_src_install_all() {
 
 	local page
 
-	for page in doc/man/*.{3,5,8} modules/*/*.{5,8} ; do
+	for page in "${WORKDIR}"/man/*.{3,5,8} ; do
 		doman ${page}
 	done
 }
