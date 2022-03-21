@@ -34,6 +34,5 @@ IUSE=""
 UNIPATCH_LIST="
 	${PATCH_DIR}/z0001-kbuild-derive-relative-path-for-srctree-from-CURDIR.patch \
 	${PATCH_DIR}/z0002-tools-objtool-Makefile-Don-t-fail-on-fallthrough-wit.patch \
-	${PATCH_DIR}/z0005-Revert-xfrm-state-and-policy-should-fail-if-XFRMA_IF.patch \
-	${PATCH_DIR}/z0006-PCI-MSI-Mask-MSI-X-vectors-only-on-success.patch \
+	${PATCH_DIR}/z0005-PCI-MSI-Mask-MSI-X-vectors-only-on-success.patch \
 "
