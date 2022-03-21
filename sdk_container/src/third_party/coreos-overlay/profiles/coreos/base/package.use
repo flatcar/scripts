@@ -58,7 +58,7 @@ sys-libs/glibc nscd
 dev-libs/cyrus-sasl kerberos -berkdb -gdbm
 
 # don't build manpages for sssd
-sys-auth/sssd -python samba kerberos gssapi ssh sudo
+sys-auth/sssd -python samba kerberos gssapi ssh sudo selinux
 
 # enable logging command-line options in update_engine
 dev-cpp/glog gflags
