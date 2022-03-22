@@ -1,12 +1,10 @@
 # Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# Flatcar: Support EAPI 0 and 4.
-
 # @ECLASS: eutils.eclass
 # @MAINTAINER:
 # base-system@gentoo.org
-# @SUPPORTED_EAPIS: 0 4 5 6 7
+# @SUPPORTED_EAPIS: 5 6 7
 # @BLURB: many extra (but common) functions that are used in ebuilds
 # @DESCRIPTION:
 # The eutils eclass contains a suite of functions that complement
@@ -25,8 +23,8 @@ if [[ -z ${_EUTILS_ECLASS} ]]; then
 _EUTILS_ECLASS=1
 
 # implicitly inherited (now split) eclasses
-case ${EAPI:-0} in
-	0|4|5|6)
+case ${EAPI} in
+	5|6)
 		inherit desktop edos2unix epatch estack ltprune multilib \
 			preserve-libs strip-linguas toolchain-funcs vcs-clean wrapper
 		;;
@@ -92,54 +90,7 @@ use_if_iuse() {
 	use $1
 }
 
-if [[ ${EAPI:-0} == 0 ]] ; then
-
-# @FUNCTION: epause
-# @USAGE: [seconds]
-# @DESCRIPTION:
-# Sleep for the specified number of seconds (default of 5 seconds).  Useful when
-# printing a message the user should probably be reading and often used in
-# conjunction with the ebeep function.  If the EPAUSE_IGNORE env var is set,
-# don't wait at all. Defined in EAPIs 0 1 and 2.
-epause() {
-	[[ -z ${EPAUSE_IGNORE} ]] && sleep ${1:-5}
-}
-
-# @FUNCTION: ebeep
-# @USAGE: [number of beeps]
-# @DESCRIPTION:
-# Issue the specified number of beeps (default of 5 beeps).  Useful when
-# printing a message the user should probably be reading and often used in
-# conjunction with the epause function.  If the EBEEP_IGNORE env var is set,
-# don't beep at all. Defined in EAPIs 0 1 and 2.
-ebeep() {
-	local n
-	if [[ -z ${EBEEP_IGNORE} ]] ; then
-		for ((n=1 ; n <= ${1:-5} ; n++)) ; do
-			echo -ne "\a"
-			sleep 0.1 &>/dev/null ; sleep 0,1 &>/dev/null
-			echo -ne "\a"
-			sleep 1
-		done
-	fi
-}
-
-fi # EAPI 0
-
-if [[ ${EAPI:-0} == [04] ]] ; then
-
-# @FUNCTION: usex
-# @USAGE: <USE flag> [true output] [false output] [true suffix] [false suffix]
-# @DESCRIPTION:
-# Proxy to declare usex for package managers or EAPIs that do not provide it
-# and use the package manager implementation when available (i.e. EAPI >= 5).
-# If USE flag is set, echo [true output][true suffix] (defaults to "yes"),
-# otherwise echo [false output][false suffix] (defaults to "no").
-usex() { use "$1" && echo "${2-yes}$4" || echo "${3-no}$5" ; } #382963
-
-fi # EAPI [04]
-
-if [[ ${EAPI:-0} == [045] ]] ; then
+if [[ ${EAPI} == 5 ]] ; then
 
 # @FUNCTION: einstalldocs
 # @DESCRIPTION:
@@ -221,9 +172,9 @@ in_iuse() {
 	has "${flag}" "${liuse[@]#[+-]}"
 }
 
-fi # EAPI [045]
+fi # EAPI 5
 
-if [[ ${EAPI:-0} == [0456] ]] ; then
+if [[ ${EAPI} == [56] ]] ; then
 
 # @FUNCTION: eqawarn
 # @USAGE: [message]
@@ -238,6 +189,6 @@ if ! declare -F eqawarn >/dev/null ; then
 	}
 fi
 
-fi # EAPI [0456]
+fi # EAPI [56]
 
 fi
