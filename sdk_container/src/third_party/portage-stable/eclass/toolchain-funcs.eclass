@@ -1,12 +1,10 @@
 # Copyright 2002-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# Flatcar: Support EAPI 4.
-
 # @ECLASS: toolchain-funcs.eclass
 # @MAINTAINER:
 # Toolchain Ninjas <toolchain@gentoo.org>
-# @SUPPORTED_EAPIS: 4 5 6 7 8
+# @SUPPORTED_EAPIS: 5 6 7 8
 # @BLURB: functions to query common info about the toolchain
 # @DESCRIPTION:
 # The toolchain-funcs aims to provide a complete suite of functions
@@ -17,7 +15,7 @@
 
 case ${EAPI:-0} in
 	# EAPI=0 is still used by crossdev, bug #797367
-	0|4|5|6|7|8) ;;
+	0|5|6|7|8) ;;
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
 
