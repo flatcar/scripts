@@ -1,9 +1,10 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit flag-o-matic multilib multilib-minimal preserve-libs toolchain-funcs usr-ldscript
+VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/chetramey.asc
+inherit flag-o-matic multilib multilib-minimal preserve-libs toolchain-funcs usr-ldscript verify-sig
 
 # Official patches
 # See ftp://ftp.cwru.edu/pub/bash/readline-8.1-patches/
@@ -11,6 +12,12 @@ PLEVEL="${PV##*_p}"
 MY_PV="${PV/_p*}"
 MY_PV="${MY_PV/_/-}"
 MY_P="${PN}-${MY_PV}"
+is_release() {
+	case ${PV} in
+		9999|*_alpha*|*_beta*|*_rc*) return 1 ;;
+		*) return 0 ;;
+	esac
+}
 [[ ${PV} != *_p* ]] && PLEVEL=0
 patches() {
 	[[ ${PLEVEL} -eq 0 ]] && return 1
@@ -21,8 +28,9 @@ patches() {
 		echo "${@/#/${DISTDIR}/}"
 	else
 		local u
-		for u in ftp://ftp.cwru.edu/pub/bash mirror://gnu/${PN} ; do
+		for u in mirror://gnu/${PN} ftp://ftp.cwru.edu/pub/bash ; do
 			printf "${u}/${PN}-${MY_PV}-patches/%s " "$@"
+			printf "${u}/${PN}-${MY_PV}-patches/%s.sig " "$@"
 		done
 	fi
 }
@@ -30,24 +38,33 @@ patches() {
 DESCRIPTION="Another cute console display library"
 HOMEPAGE="https://tiswww.case.edu/php/chet/readline/rltop.html"
 
-case ${PV} in
-	*_alpha*|*_beta*|*_rc*)
-		SRC_URI+=" ftp://ftp.cwru.edu/pub/bash/${MY_P}.tar.gz"
-	;;
-	*)
-		SRC_URI="mirror://gnu/${PN}/${MY_P}.tar.gz $(patches)"
-	;;
-esac
+if [[ ${PV} == 9999 ]] ; then
+	EGIT_REPO_URI="https://git.savannah.gnu.org/git/readline.git"
+	EGIT_BRANCH=devel
+	inherit git-r3
+elif is_release ; then
+	SRC_URI="mirror://gnu/${PN}/${MY_P}.tar.gz $(patches)"
+	SRC_URI+=" verify-sig? ( mirror://gnu/${PN}/${MY_P}.tar.gz.sig )"
+else
+	SRC_URI="mirror://gnu/${PN}/${MY_P}.tar.gz ftp://ftp.cwru.edu/pub/bash/${MY_P}.tar.gz"
+	SRC_URI+=" verify-sig? ( mirror://gnu/${PN}/${MY_P}.tar.gz.sig ftp://ftp.cwru.edu/pub/bash/${MY_P}.tar.gz.sig )"
+fi
+
+if ! is_release ; then
+	inherit autotools
+fi
 
 LICENSE="GPL-3"
 SLOT="0/8"  # subslot matches SONAME major
-[[ "${PV}" == *_rc* ]] || \
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+if is_release ; then
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+fi
 IUSE="static-libs +unicode utils"
 
 RDEPEND=">=sys-libs/ncurses-5.9-r3:=[static-libs?,unicode(+)?,${MULTILIB_USEDEP}]"
 DEPEND="${RDEPEND}"
-BDEPEND="virtual/pkgconfig"
+BDEPEND="virtual/pkgconfig
+	verify-sig? ( sec-keys/openpgp-keys-chetramey )"
 
 S="${WORKDIR}/${MY_P}"
 
@@ -56,19 +73,27 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-6.2-rlfe-tgoto.patch #385091
 	"${FILESDIR}"/${PN}-7.0-headers.patch
 	"${FILESDIR}"/${PN}-8.0-headers.patch
-	"${FILESDIR}"/${PN}-8.0-darwin-shlib-versioning.patch
-	"${FILESDIR}"/${PN}-8.1-windows-signals.patch
+
+	# TODO: rebase
+	#"${FILESDIR}"/${PN}-8.0-darwin-shlib-versioning.patch
 )
 
-# Needed because we don't want the patches being unpacked
-# (which emits annoying and useless error messages)
 src_unpack() {
-	unpack ${MY_P}.tar.gz
+	if [[ ${PV} == 9999 ]] ; then
+		git-r3_src_unpack
+	else
+		# Needed because we don't want the patches being unpacked
+		# (which emits annoying and useless error messages)
+		verify-sig_src_unpack
+		unpack ${MY_P}.tar.gz
+	fi
 }
 
 src_prepare() {
 	[[ ${PLEVEL} -gt 0 ]] && eapply -p0 $(patches -s)
 	default
+
+	is_release || eautoreconf
 
 	if use prefix && [[ ! -x "${BROOT}"/usr/bin/pkg-config ]] ; then
 		# If we're bootstrapping, make a guess. We don't have pkg-config
