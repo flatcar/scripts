@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
@@ -13,16 +13,19 @@ fi
 
 DESCRIPTION="SQL database engine"
 HOMEPAGE="https://sqlite.org/"
+
+# On version updates, make sure to read the forum (https://sqlite.org/forum/forum)
+# for hints regarding test failures, backports, etc.
 if [[ "${PV}" == "9999" ]]; then
 	SRC_URI=""
 else
-	SRC_URI="https://sqlite.org/2021/${PN}-src-${SRC_PV}.zip
-		doc? ( https://sqlite.org/2021/${PN}-doc-${DOC_PV}.zip )"
+	SRC_URI="https://sqlite.org/2022/${PN}-src-${SRC_PV}.zip
+		doc? ( https://sqlite.org/2022/${PN}-doc-${DOC_PV}.zip )"
 fi
 
 LICENSE="public-domain"
 SLOT="3"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="debug doc icu +readline secure-delete static-libs tcl test tools"
 if [[ "${PV}" == "9999" ]]; then
 	PROPERTIES="live"
@@ -136,8 +139,6 @@ src_unpack() {
 }
 
 src_prepare() {
-	eapply "${FILESDIR}/"${PN}-3.35.0-build_{1.1,1.2,2.1,2.2}.patch
-
 	eapply_user
 
 	eautoreconf
@@ -200,11 +201,6 @@ multilib_src_configure() {
 
 	# Support hidden columns.
 	append-cppflags -DSQLITE_ENABLE_HIDDEN_COLUMNS
-
-	# Support JSON1 extension.
-	# https://sqlite.org/compile.html#enable_json1
-	# https://sqlite.org/json1.html
-	append-cppflags -DSQLITE_ENABLE_JSON1
 
 	# Support memsys5 memory allocator.
 	# https://sqlite.org/compile.html#enable_memsys5
@@ -320,12 +316,6 @@ multilib_src_configure() {
 		options+=(--disable-tcl)
 	fi
 
-	if [[ "${CHOST}" == *-mint* ]]; then
-		# sys/mman.h not available in MiNTLib.
-		# https://sqlite.org/compile.html#omit_wal
-		append-cppflags -DSQLITE_OMIT_WAL
-	fi
-
 	if [[ "${ABI}" == "x86" ]]; then
 		if $(tc-getCC) ${CPPFLAGS} ${CFLAGS} -E -P -dM - < /dev/null 2> /dev/null | grep -q "^#define __SSE__ 1$"; then
 			append-cflags -mfpmath=sse
@@ -367,6 +357,11 @@ multilib_src_test() {
 	fi
 
 	local -x SQLITE_HISTORY="${T}/sqlite_history_${ABI}"
+
+	# e_uri.test tries to open files in /.
+	# https://bugs.gentoo.org/839798
+	local SANDBOX_PREDICT=${SANDBOX_PREDICT}
+	addpredict "/test.db:/ÿ.db"
 
 	emake HAVE_TCL="$(usex tcl 1 "")" $(use debug && echo fulltest || echo test)
 }

@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
@@ -13,16 +13,19 @@ fi
 
 DESCRIPTION="SQL database engine"
 HOMEPAGE="https://sqlite.org/"
+
+# On version updates, make sure to read the forum (https://sqlite.org/forum/forum)
+# for hints regarding test failures, backports, etc.
 if [[ "${PV}" == "9999" ]]; then
 	SRC_URI=""
 else
-	SRC_URI="https://sqlite.org/2020/${PN}-src-${SRC_PV}.zip
-		doc? ( https://sqlite.org/2020/${PN}-doc-${DOC_PV}.zip )"
+	SRC_URI="https://sqlite.org/2022/${PN}-src-${SRC_PV}.zip
+		doc? ( https://sqlite.org/2022/${PN}-doc-${DOC_PV}.zip )"
 fi
 
 LICENSE="public-domain"
 SLOT="3"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="debug doc icu +readline secure-delete static-libs tcl test tools"
 if [[ "${PV}" == "9999" ]]; then
 	PROPERTIES="live"
@@ -50,48 +53,85 @@ else
 	S="${WORKDIR}/${PN}-src-${SRC_PV}"
 fi
 
-src_unpack() {
-	if [[ "${PV}" == "9999" ]]; then
-		local distdir="${PORTAGE_ACTUAL_DISTDIR:-${DISTDIR}}"
-		addwrite "${distdir}"
-		mkdir -p "${distdir}/fossil-src/${PN}" || die
+_fossil_fetch() {
+	local distdir="${PORTAGE_ACTUAL_DISTDIR:-${DISTDIR}}"
+	local repo_id="${1}"
+	local repo_uri="${2}"
 
-		mkdir "${WORKDIR}/${PN}" || die
-		pushd "${WORKDIR}/${PN}" > /dev/null || die
-		if [[ ! -f "${distdir}/fossil-src/${PN}/sqlite.fossil" ]]; then
-			einfo fossil clone --verbose https://sqlite.org/src sqlite.fossil
-			fossil clone --verbose https://sqlite.org/src sqlite.fossil || die
+	local -x FOSSIL_HOME="${HOME}"
+
+	mkdir -p "${T}/fossil/${repo_id}" || die
+	pushd "${T}/fossil/${repo_id}" > /dev/null || die
+
+	if [[ -n "${EVCS_OFFLINE}" ]]; then
+		if [[ ! -f "${distdir}/fossil-src/${repo_id}/${repo_id}.fossil" ]]; then
+			die "Network activity disabled using EVCS_OFFLINE and clone of repository missing: \"${distdir}/fossil-src/${repo_id}/${repo_id}.fossil\""
+		fi
+	else
+		if [[ ! -f "${distdir}/fossil-src/${repo_id}/${repo_id}.fossil" ]]; then
+			einfo fossil clone --verbose "${repo_uri}" "${repo_id}.fossil"
+			fossil clone --verbose "${repo_uri}" "${repo_id}.fossil" || die
 			echo
 		else
-			cp -p "${distdir}/fossil-src/${PN}/sqlite.fossil" . || die
-			einfo fossil pull --repository sqlite.fossil --verbose https://sqlite.org/src
-			fossil pull --repository sqlite.fossil --verbose https://sqlite.org/src || die
+			cp -p "${distdir}/fossil-src/${repo_id}/${repo_id}.fossil" . || die
+			einfo fossil pull --repository "${repo_id}.fossil" --verbose "${repo_uri}"
+			fossil pull --repository "${repo_id}.fossil" --verbose "${repo_uri}" || die
 			echo
 		fi
-		cp -p sqlite.fossil "${distdir}/fossil-src/${PN}" || die
-		einfo fossil open --quiet sqlite.fossil
-		fossil open --quiet sqlite.fossil || die
-		echo
-		popd > /dev/null || die
 
+		(
+			addwrite "${distdir}"
+			mkdir -p "${distdir}/fossil-src/${repo_id}" || die
+			cp -p "${repo_id}.fossil" "${distdir}/fossil-src/${repo_id}/${repo_id}.fossil" || die
+		)
+	fi
+
+	popd > /dev/null || die
+}
+
+_fossil_checkout() {
+	local distdir="${PORTAGE_ACTUAL_DISTDIR:-${DISTDIR}}"
+	local repo_id="${1}"
+	local branch_or_commit="${2}"
+	local target_directory="${3}"
+
+	local -x FOSSIL_HOME="${HOME}"
+
+	if [[ ! -f "${distdir}/fossil-src/${repo_id}/${repo_id}.fossil" ]]; then
+		die "Clone of repository missing: \"${distdir}/fossil-src/${repo_id}/${repo_id}.fossil\""
+	fi
+
+	if [[ ! -f "${T}/fossil/${repo_id}/${repo_id}.fossil" ]]; then
+		mkdir -p "${T}/fossil/${repo_id}" || die
+		cp -p "${distdir}/fossil-src/${repo_id}/${repo_id}.fossil" "${T}/fossil/${repo_id}" || die
+	fi
+
+	mkdir "${target_directory}" || die
+	pushd "${target_directory}" > /dev/null || die
+
+	einfo fossil open --quiet "${T}/fossil/${repo_id}/${repo_id}.fossil" "${branch_or_commit}"
+	fossil open --quiet "${T}/fossil/${repo_id}/${repo_id}.fossil" "${branch_or_commit}" || die
+	echo
+
+	popd > /dev/null || die
+}
+
+fossil_fetch() {
+	local repo_id="${1}"
+	local repo_uri="${2}"
+	local target_directory="${3}"
+
+	local branch_or_commit="${EFOSSIL_COMMIT:-${EFOSSIL_BRANCH:-trunk}}"
+
+	_fossil_fetch "${repo_id}" "${repo_uri}"
+	_fossil_checkout "${repo_id}" "${branch_or_commit}" "${target_directory}"
+}
+
+src_unpack() {
+	if [[ "${PV}" == "9999" ]]; then
+		fossil_fetch sqlite https://sqlite.org/src "${WORKDIR}/${PN}"
 		if use doc; then
-			mkdir "${WORKDIR}/${PN}-doc" || die
-			pushd "${WORKDIR}/${PN}-doc" > /dev/null || die
-			if [[ ! -f "${distdir}/fossil-src/${PN}/sqlite-doc.fossil" ]]; then
-				einfo fossil clone --verbose https://sqlite.org/docsrc sqlite-doc.fossil
-				fossil clone --verbose https://sqlite.org/docsrc sqlite-doc.fossil || die
-				echo
-			else
-				cp -p "${distdir}/fossil-src/${PN}/sqlite-doc.fossil" . || die
-				einfo fossil pull --repository sqlite-doc.fossil --verbose https://sqlite.org/docsrc
-				fossil pull --repository sqlite-doc.fossil --verbose https://sqlite.org/docsrc || die
-				echo
-			fi
-			cp -p sqlite-doc.fossil "${distdir}/fossil-src/${PN}" || die
-			einfo fossil open --quiet sqlite-doc.fossil
-			fossil open --quiet sqlite-doc.fossil || die
-			echo
-			popd > /dev/null || die
+			fossil_fetch sqlite-doc https://sqlite.org/docsrc "${WORKDIR}/${PN}-doc"
 		fi
 	else
 		default
@@ -99,8 +139,6 @@ src_unpack() {
 }
 
 src_prepare() {
-	eapply "${FILESDIR}/"${PN}-3.33.0-build_{1.1,1.2,2.1,2.2}.patch
-
 	eapply_user
 
 	eautoreconf
@@ -163,11 +201,6 @@ multilib_src_configure() {
 
 	# Support hidden columns.
 	append-cppflags -DSQLITE_ENABLE_HIDDEN_COLUMNS
-
-	# Support JSON1 extension.
-	# https://sqlite.org/compile.html#enable_json1
-	# https://sqlite.org/json1.html
-	append-cppflags -DSQLITE_ENABLE_JSON1
 
 	# Support memsys5 memory allocator.
 	# https://sqlite.org/compile.html#enable_memsys5
@@ -283,12 +316,6 @@ multilib_src_configure() {
 		options+=(--disable-tcl)
 	fi
 
-	if [[ "${CHOST}" == *-mint* ]]; then
-		# sys/mman.h not available in MiNTLib.
-		# https://sqlite.org/compile.html#omit_wal
-		append-cppflags -DSQLITE_OMIT_WAL
-	fi
-
 	if [[ "${ABI}" == "x86" ]]; then
 		if $(tc-getCC) ${CPPFLAGS} ${CFLAGS} -E -P -dM - < /dev/null 2> /dev/null | grep -q "^#define __SSE__ 1$"; then
 			append-cflags -mfpmath=sse
@@ -306,6 +333,21 @@ multilib_src_compile() {
 	if use tools && multilib_is_native_abi; then
 		emake changeset dbdump dbhash dbtotxt index_usage rbu scrub showdb showjournal showshm showstat4 showwal sqldiff sqlite3_analyzer sqlite3_checker sqlite3_expert sqltclsh
 	fi
+
+	if [[ "${PV}" == "9999" ]] && use doc && multilib_is_native_abi; then
+		emake tclsqlite3.c
+
+		local build_directory="$(pwd)"
+		build_directory="${build_directory##*/}"
+
+		mkdir "${WORKDIR}/${PN}-doc-build" || die
+		pushd "${WORKDIR}/${PN}-doc-build" > /dev/null || die
+
+		emake -f "../${PN}-doc/Makefile" -j1 SRC="../${PN}" BLD="../${build_directory}" DOC="../${PN}-doc" CC="$(tc-getBUILD_CC)" TCLINC="" TCLFLAGS="$($(tc-getBUILD_PKG_CONFIG) --libs tcl) -ldl -lm" base doc
+		rmdir doc/matrix{/*,} || die
+
+		popd > /dev/null || die
+	fi
 }
 
 multilib_src_test() {
@@ -315,6 +357,11 @@ multilib_src_test() {
 	fi
 
 	local -x SQLITE_HISTORY="${T}/sqlite_history_${ABI}"
+
+	# e_uri.test tries to open files in /.
+	# https://bugs.gentoo.org/839798
+	local SANDBOX_PREDICT=${SANDBOX_PREDICT}
+	addpredict "/test.db:/ÿ.db"
 
 	emake HAVE_TCL="$(usex tcl 1 "")" $(use debug && echo fulltest || echo test)
 }
@@ -354,21 +401,29 @@ multilib_src_install() {
 }
 
 multilib_src_install_all() {
-	find "${D}" -name "*.la" -type f -delete || die
+	find "${ED}" -name "*.la" -delete || die
 
 	doman sqlite3.1
 
 	if use doc; then
 		if [[ "${PV}" == "9999" ]]; then
-			pushd "${WORKDIR}/${PN}-doc" > /dev/null || die
+			pushd "${WORKDIR}/${PN}-doc-build/doc" > /dev/null || die
 		else
 			pushd "${WORKDIR}/${PN}-doc-${DOC_PV}" > /dev/null || die
 		fi
-		rm *.db *.txt || die
+
+		find "(" -name "*.db" -o -name "*.txt" ")" -delete || die
+		if [[ "${PV}" != "9999" ]]; then
+			rm search search.d/admin || die
+			rmdir search.d || die
+			find -name "*~" -delete || die
+		fi
+
 		(
 			docinto html
 			dodoc -r *
 		)
+
 		popd > /dev/null || die
 	fi
 }
