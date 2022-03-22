@@ -1,19 +1,17 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-
-# Flatcar: Support EAPI 4.
 
 # @ECLASS: multilib.eclass
 # @MAINTAINER:
 # toolchain@gentoo.org
-# @SUPPORTED_EAPIS: 4 5 6 7 8
+# @SUPPORTED_EAPIS: 5 6 7 8
 # @BLURB: This eclass is for all functions pertaining to handling multilib configurations.
 # @DESCRIPTION:
 # This eclass is for all functions pertaining to handling multilib configurations.
 
 case ${EAPI:-0} in
 	# EAPI=0 is still used by crossdev, bug #797367
-	0|4|5|6|7|8) ;;
+	0|5|6|7|8) ;;
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
 
@@ -56,7 +54,7 @@ has_multilib_profile() {
 #   fall back on old behavior.  Any profile that has these set should also
 #   depend on a newer version of portage (not yet released) which uses these
 #   over CONF_LIBDIR in econf, dolib, etc...
-if [[ ${EAPI} == [045] ]] ; then
+if [[ ${EAPI} == [05] ]] ; then
 	get_libdir() {
 		local CONF_LIBDIR
 		if [ -n  "${CONF_LIBDIR_OVERRIDE}" ] ; then
@@ -301,8 +299,13 @@ get_modname() {
 	echo ".${modname}"
 }
 
+# @FUNCTION: multilib_env
+# @USAGE:
+# @DESCRIPTION:
 # This is for the toolchain to setup profile variables when pulling in
 # a crosscompiler (and thus they aren't set in the profile).
+#
+# This must only be used by toolchain packages.
 multilib_env() {
 	local CTARGET=${1:-${CTARGET}}
 	local cpu=${CTARGET%%*-}
@@ -370,6 +373,15 @@ multilib_env() {
 				;;
 			esac
 		;;
+		loongarch64*)
+			export CFLAGS_lp64d=${CFLAGS_lp64d--mabi=lp64d}
+			export CHOST_lp64d=${CTARGET}
+			export CTARGET_lp64d=${CTARGET}
+			export LIBDIR_lp64d=${LIBDIR_lp64d-lib64}
+
+			: ${MULTILIB_ABIS=lp64d}
+			: ${DEFAULT_ABI=lp64d}
+		;;
 		mips64*|mipsisa64*)
 			export CFLAGS_o32=${CFLAGS_o32--mabi=32}
 			export CHOST_o32=${CTARGET/mips64/mips}
@@ -405,7 +417,18 @@ multilib_env() {
 			: ${DEFAULT_ABI=ppc64}
 		;;
 		riscv64*)
-			export CFLAGS_lp64d=${CFLAGS_lp64d--mabi=lp64d -march=rv64imafdc}
+			: ${MULTILIB_ABIS=lp64d lp64 ilp32d ilp32}
+			: ${DEFAULT_ABI=lp64d}
+
+			# the default abi is set to the 1-level libdir default
+
+			local __libdir_riscvdefaultabi_variable="LIBDIR_${DEFAULT_ABI}"
+			local __libdir_riscvdefaultabi=${!__libdir_riscvdefaultabi_variable}
+			export ${__libdir_riscvdefaultabi_variable}=${__libdir_riscvdefaultabi:-lib64}
+
+			# all other abi are set to the 2-level libdir default
+
+			export CFLAGS_lp64d=${CFLAGS_lp64d--mabi=lp64d -march=rv64gc}
 			export CHOST_lp64d=${CTARGET}
 			export CTARGET_lp64d=${CTARGET}
 			export LIBDIR_lp64d=${LIBDIR_lp64d-lib64/lp64d}
@@ -424,12 +447,20 @@ multilib_env() {
 			export CHOST_ilp32=${CTARGET/riscv64/riscv32}
 			export CTARGET_ilp32=${CTARGET/riscv64/riscv32}
 			export LIBDIR_ilp32=${LIBDIR_ilp32-lib32/ilp32}
-
-			: ${MULTILIB_ABIS=lp64d lp64 ilp32d ilp32}
-			: ${DEFAULT_ABI=lp64d}
 		;;
 		riscv32*)
-			export CFLAGS_ilp32d=${CFLAGS_ilp32d--mabi=ilp32d}
+			: ${MULTILIB_ABIS=ilp32d ilp32}
+			: ${DEFAULT_ABI=ilp32d}
+
+			# the default abi is set to the 1-level libdir default
+
+			local __libdir_riscvdefaultabi_variable="LIBDIR_${DEFAULT_ABI}"
+			local __libdir_riscvdefaultabi=${!__libdir_riscvdefaultabi_variable}
+			export ${__libdir_riscvdefaultabi_variable}=${__libdir_riscvdefaultabi:-lib}
+
+			# all other abi are set to the 2-level libdir default
+
+			export CFLAGS_ilp32d=${CFLAGS_ilp32d--mabi=ilp32d -march=rv32imafdc}
 			export CHOST_ilp32d=${CTARGET}
 			export CTARGET_ilp32d=${CTARGET}
 			export LIBDIR_ilp32d=${LIBDIR_ilp32d-lib32/ilp32d}
@@ -438,9 +469,6 @@ multilib_env() {
 			export CHOST_ilp32=${CTARGET}
 			export CTARGET_ilp32=${CTARGET}
 			export LIBDIR_ilp32=${LIBDIR_ilp32-lib32/ilp32}
-
-			: ${MULTILIB_ABIS=ilp32d ilp32}
-			: ${DEFAULT_ABI=ilp32d}
 		;;
 		s390x*)
 			export CFLAGS_s390=${CFLAGS_s390--m31} # the 31 is not a typo
