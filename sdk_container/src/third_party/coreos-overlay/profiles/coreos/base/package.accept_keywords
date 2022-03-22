@@ -27,7 +27,6 @@
 =net-misc/wget-1.21.2 ~amd64 ~arm64
 
 # Upgrade to GCC 10.3.0 to support latest glibc builds
-=sys-devel/binutils-2.37_p1 ~amd64 ~arm64
 =sys-libs/binutils-libs-2.37_p1 ~amd64 ~arm64
 # This needs to be kept in-sync otherwise dev container contains
 # different binutils than was used by crossdev to build kernel
