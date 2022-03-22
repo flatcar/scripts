@@ -1,7 +1,5 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-
-# Flatcar: Support EAPI 0 and 4.
 
 # @ECLASS: multiprocessing.eclass
 # @MAINTAINER:
@@ -9,7 +7,7 @@
 # @AUTHOR:
 # Brian Harring <ferringb@gentoo.org>
 # Mike Frysinger <vapier@gentoo.org>
-# @SUPPORTED_EAPIS: 0 4 5 6 7 8
+# @SUPPORTED_EAPIS: 5 6 7 8
 # @BLURB: multiprocessing helper functions
 # @DESCRIPTION:
 # The multiprocessing eclass contains a suite of utility functions
@@ -27,7 +25,7 @@
 # @CODE
 
 case ${EAPI:-0} in
-	[045678]) ;;
+	[5678]) ;;
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
 
@@ -67,22 +65,21 @@ get_nproc() {
 }
 
 # @FUNCTION: makeopts_jobs
-# @USAGE: [${MAKEOPTS}] [${inf:-999}]
+# @USAGE: [${MAKEOPTS}] [${inf:-$(( $(get_nproc) + 1 ))}]
 # @DESCRIPTION:
 # Searches the arguments (defaults to ${MAKEOPTS}) and extracts the jobs number
 # specified therein.  Useful for running non-make tools in parallel too.
 # i.e. if the user has MAKEOPTS=-j9, this will echo "9" -- we can't return the
 # number as bash normalizes it to [0, 255].  If the flags haven't specified a
-# -j flag, then "1" is shown as that is the default `make` uses.  Since there's
-# no way to represent infinity, we return ${inf} (defaults to 999) if the user
-# has -j without a number.
+# -j flag, then "1" is shown as that is the default `make` uses.  If the flags
+# specify -j without a number, ${inf} is returned (defaults to nproc).
 makeopts_jobs() {
 	[[ $# -eq 0 ]] && set -- "${MAKEOPTS}"
 	# This assumes the first .* will be more greedy than the second .*
 	# since POSIX doesn't specify a non-greedy match (i.e. ".*?").
 	local jobs=$(echo " $* " | sed -r -n \
 		-e 's:.*[[:space:]](-[a-z]*j|--jobs[=[:space:]])[[:space:]]*([0-9]+).*:\2:p' \
-		-e "s:.*[[:space:]](-[a-z]*j|--jobs)[[:space:]].*:${2:-999}:p")
+		-e "s:.*[[:space:]](-[a-z]*j|--jobs)[[:space:]].*:${2:-$(( $(get_nproc) + 1 ))}:p")
 	echo ${jobs:-1}
 }
 
