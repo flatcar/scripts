@@ -235,7 +235,12 @@ SRC_URI="$(cargo_crate_uris ${CRATES})"
 LICENSE="Apache-2.0"
 SLOT="0"
 
-RDEPEND="!coreos-base/coreos-metadata"
+DEPEND="dev-libs/openssl:0="
+
+RDEPEND="
+	${DEPEND}
+	!coreos-base/coreos-metadata
+"
 
 src_unpack() {
 	cros-workon_src_unpack "$@"
