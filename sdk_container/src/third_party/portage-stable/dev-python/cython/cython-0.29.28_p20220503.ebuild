@@ -1,37 +1,50 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-DISTUTILS_USE_SETUPTOOLS=rdepend
-PYTHON_COMPAT=( python3_{7,8,9} pypy3 )
+DISTUTILS_USE_PEP517=setuptools
+PYTHON_COMPAT=( python3_{8..11} pypy3 )
 PYTHON_REQ_USE="threads(+)"
 
 inherit distutils-r1 toolchain-funcs elisp-common
 
+EGIT_COMMIT="74073417c4f7e616af0a139a55f790f1ec7fe728"
+MY_P=${PN}-${EGIT_COMMIT}
+
 DESCRIPTION="A Python to C compiler"
-HOMEPAGE="https://cython.org https://pypi.org/project/Cython/
-	https://github.com/cython/cython"
-SRC_URI="https://github.com/cython/cython/archive/${PV}.tar.gz -> ${P}.gh.tar.gz"
+HOMEPAGE="
+	https://cython.org/
+	https://github.com/cython/cython/
+	https://pypi.org/project/Cython/
+"
+SRC_URI="
+	https://github.com/cython/cython/archive/${EGIT_COMMIT}.tar.gz
+		-> ${MY_P}.gh.tar.gz
+"
+S=${WORKDIR}/${MY_P}
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x64-solaris ~x86-solaris"
 IUSE="emacs test"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
 	emacs? ( >=app-editors/emacs-23.1:* )
 "
-BDEPEND="${RDEPEND}
+BDEPEND="
+	${RDEPEND}
 	test? (
-		$(python_gen_cond_dep 'dev-python/numpy[${PYTHON_USEDEP}]' \
-			python3_{6,7,8})
-	)"
+		$(python_gen_cond_dep '
+			dev-python/numpy[${PYTHON_USEDEP}]
+		' python3_{8..10})
+	)
+"
 
 PATCHES=(
-	"${FILESDIR}/cython-0.29.14-sphinx-update.patch"
-	"${FILESDIR}/cython-0.29.21-spawn-multiprocessing.patch"
+	"${FILESDIR}/${PN}-0.29.22-spawn-multiprocessing.patch"
+	"${FILESDIR}/${PN}-0.29.23-test_exceptions-py310.patch"
 )
 
 SITEFILE=50cython-gentoo.el
@@ -39,11 +52,6 @@ SITEFILE=50cython-gentoo.el
 distutils_enable_sphinx docs
 
 python_compile() {
-	if ! python_is_python3; then
-		local CFLAGS="${CFLAGS} -fno-strict-aliasing"
-		local CXXFLAGS="${CXXFLAGS} -fno-strict-aliasing"
-	fi
-
 	# Python gets confused when it is in sys.path before build.
 	local -x PYTHONPATH=
 
@@ -55,11 +63,16 @@ python_compile_all() {
 }
 
 python_test() {
+	if [[ ${EPYTHON} == python3.11 ]]; then
+		einfo "Skipping tests on ${EPYTHON} (xfail)"
+		return
+	fi
+
 	tc-export CC
 	# https://github.com/cython/cython/issues/1911
 	local -x CFLAGS="${CFLAGS} -fno-strict-overflow"
-	"${PYTHON}" runtests.py -vv --work-dir "${BUILD_DIR}"/tests \
-		|| die "Tests fail with ${EPYTHON}"
+	"${PYTHON}" runtests.py -vv --work-dir "${BUILD_DIR}"/tests ||
+		die "Tests fail with ${EPYTHON}"
 }
 
 python_install_all() {
