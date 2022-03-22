@@ -1,10 +1,9 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-PYTHON_COMPAT=( python3_{7..10} pypy3 )
-
+PYTHON_COMPAT=( python3_{8..10} pypy3 )
 inherit distutils-r1
 
 DESCRIPTION="A fast and thorough lazy object proxy"
@@ -16,7 +15,7 @@ SRC_URI="mirror://pypi/${P:0:1}/${PN}/${P}.tar.gz"
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~x64-macos"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~x64-macos"
 
 BDEPEND="
 	dev-python/setuptools_scm[${PYTHON_USEDEP}]
@@ -31,8 +30,4 @@ python_prepare_all() {
 		-e '/pytest.mark.benchmark/d' \
 		-i tests/test_lazy_object_proxy.py || die
 	distutils-r1_python_prepare_all
-}
-
-python_test() {
-	pytest -v -v --ignore=src || die "Fails for ${EPYTHON}"
 }
