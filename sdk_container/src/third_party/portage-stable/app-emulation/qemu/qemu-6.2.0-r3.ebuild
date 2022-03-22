@@ -1,12 +1,12 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="7"
+EAPI=8
 
-PYTHON_COMPAT=( python3_{7,8,9,10} )
+PYTHON_COMPAT=( python3_{8,9,10} )
 PYTHON_REQ_USE="ncurses,readline"
 
-FIRMWARE_ABI_VERSION="6.1.0"
+FIRMWARE_ABI_VERSION="6.2.0"
 
 inherit linux-info toolchain-funcs python-r1 udev fcaps readme.gentoo-r1 \
 		pax-utils xdg-utils
@@ -23,7 +23,7 @@ if [[ ${PV} = *9999* ]]; then
 	SRC_URI=""
 else
 	SRC_URI="https://download.qemu.org/${P}.tar.xz"
-	KEYWORDS="~amd64 ~arm64 ~ppc ~ppc64 ~x86"
+	KEYWORDS="~amd64 ~arm ~arm64 ~ppc ~ppc64 ~riscv ~x86"
 fi
 
 DESCRIPTION="QEMU + Kernel-based Virtual Machine userland tools"
@@ -33,10 +33,10 @@ LICENSE="GPL-2 LGPL-2 BSD-2"
 SLOT="0"
 
 IUSE="accessibility +aio alsa bpf bzip2 capstone +caps +curl debug +doc
-	+fdt fuse glusterfs gnutls gtk infiniband iscsi io-uring
-	jack jemalloc +jpeg kernel_linux
-	kernel_FreeBSD lzo multipath
-	ncurses nfs nls numa opengl +oss +pin-upstream-blobs
+	+fdt fuse glusterfs +gnutls gtk infiniband iscsi io-uring
+	jack jemalloc +jpeg
+	lzo multipath
+	ncurses nfs nls numa opengl +oss pam +pin-upstream-blobs
 	plugins +png pulseaudio python rbd sasl +seccomp sdl sdl-image selinux
 	+slirp
 	smartcard snappy spice ssh static static-user systemtap test udev usb
@@ -105,12 +105,14 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}
 	qemu_softmmu_targets_ppc? ( fdt )
 	qemu_softmmu_targets_riscv32? ( fdt )
 	qemu_softmmu_targets_riscv64? ( fdt )
+	qemu_softmmu_targets_x86_64? ( fdt )
 	sdl-image? ( sdl )
-	static? ( static-user !alsa !gtk !jack !opengl !pulseaudio !plugins !rbd !snappy !udev )
+	static? ( static-user !alsa !gtk !jack !opengl !pam !pulseaudio !plugins !rbd !snappy !udev )
 	static-user? ( !plugins )
 	vhost-user-fs? ( caps seccomp )
 	virgl? ( opengl )
 	virtfs? ( caps xattr )
+	vnc? ( gnutls )
 	vte? ( gtk )
 	multipath? ( udev )
 	plugins? ( !static !static-user )
@@ -158,11 +160,7 @@ SOFTMMU_TOOLS_DEPEND="
 		x11-libs/gtk+:3
 		vte? ( x11-libs/vte:2.91 )
 	)
-	infiniband? (
-		sys-fabric/libibumad:=[static-libs(+)]
-		sys-fabric/libibverbs:=[static-libs(+)]
-		sys-fabric/librdmacm:=[static-libs(+)]
-	)
+	infiniband? ( sys-cluster/rdma-core[static-libs(+)] )
 	iscsi? ( net-libs/libiscsi )
 	io-uring? ( sys-libs/liburing:=[static-libs(+)] )
 	jack? ( virtual/jack )
@@ -182,6 +180,7 @@ SOFTMMU_TOOLS_DEPEND="
 		media-libs/mesa[static-libs(+)]
 		media-libs/mesa[egl(+),gbm(+)]
 	)
+	pam? ( sys-libs/pam )
 	png? ( media-libs/libpng:0=[static-libs(+)] )
 	pulseaudio? ( media-sound/pulseaudio )
 	rbd? ( sys-cluster/ceph )
@@ -270,14 +269,18 @@ DEPEND="${CDEPEND}
 	static-user? ( ${ALL_DEPEND} )"
 RDEPEND="${CDEPEND}
 	acct-group/kvm
-	selinux? ( sec-policy/selinux-qemu )"
+	selinux? (
+		sec-policy/selinux-qemu
+		sys-libs/libselinux
+	)"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.11.1-capstone_include_path.patch
 	"${FILESDIR}"/${PN}-5.2.0-disable-keymap.patch
 	"${FILESDIR}"/${PN}-6.0.0-make.patch
 	"${FILESDIR}"/${PN}-6.1.0-strings.patch
-	"${FILESDIR}"/${P}-automagic-libbpf.patch
+	"${FILESDIR}"/${PN}-6.2.0-user-SLIC-crash.patch
+	"${FILESDIR}"/${PN}-6.2.0-also-build-virtfs-proxy-helper.patch
 )
 
 QA_PREBUILT="
@@ -447,6 +450,7 @@ qemu_src_configure() {
 		--disable-containers # bug #732972
 		--disable-guest-agent
 		--disable-strip
+		--with-git-submodules=ignore
 
 		# bug #746752: TCG interpreter has a few limitations:
 		# - it does not support FPU
@@ -467,11 +471,15 @@ qemu_src_configure() {
 		--cc="$(tc-getCC)"
 		--cxx="$(tc-getCXX)"
 		--host-cc="$(tc-getBUILD_CC)"
+		$(use_enable alsa)
 		$(use_enable debug debug-info)
 		$(use_enable debug debug-tcg)
-		$(use_enable doc docs)
+		$(use_enable jack)
 		$(use_enable nls gettext)
+		$(use_enable oss)
 		$(use_enable plugins)
+		$(use_enable pulseaudio pa)
+		$(use_enable selinux)
 		$(use_enable xattr attr)
 	)
 
@@ -500,6 +508,13 @@ qemu_src_configure() {
 			echo "--disable-${2:-$1}"
 		fi
 	}
+	# Special case for the malloc flag, because the --disable flag does
+	# not exist and trying like above will break configuring.
+	conf_malloc() {
+		if [[ ! ${buildtype} == "user" ]] ; then
+			usex "${1}" "--enable-malloc=${1}" ""
+		fi
+	}
 	conf_opts+=(
 		$(conf_notuser accessibility brlapi)
 		$(conf_notuser aio linux-aio)
@@ -508,6 +523,7 @@ qemu_src_configure() {
 		$(conf_notuser capstone)
 		$(conf_notuser caps cap-ng)
 		$(conf_notuser curl)
+		$(conf_tools doc docs)
 		$(conf_notuser fdt)
 		$(conf_notuser fuse)
 		$(conf_notuser glusterfs)
@@ -517,7 +533,7 @@ qemu_src_configure() {
 		$(conf_notuser infiniband rdma)
 		$(conf_notuser iscsi libiscsi)
 		$(conf_notuser io-uring linux-io-uring)
-		$(conf_notuser jemalloc jemalloc)
+		$(conf_malloc jemalloc)
 		$(conf_notuser jpeg vnc-jpeg)
 		$(conf_notuser kernel_linux kvm)
 		$(conf_notuser lzo)
@@ -526,6 +542,7 @@ qemu_src_configure() {
 		$(conf_notuser nfs libnfs)
 		$(conf_notuser numa)
 		$(conf_notuser opengl)
+		$(conf_notuser pam auth-pam)
 		$(conf_notuser png vnc-png)
 		$(conf_notuser rbd)
 		$(conf_notuser sasl vnc-sasl)
@@ -574,7 +591,7 @@ qemu_src_configure() {
 			$(usev oss)
 		)
 		conf_opts+=(
-			--audio-drv-list=$(printf "%s," "${audio_opts[@]}")
+			--audio-drv-list=$(IFS=,; echo "${audio_opts[*]}")
 		)
 	fi
 
@@ -632,11 +649,6 @@ qemu_src_configure() {
 	echo "../configure ${conf_opts[*]}"
 	cd "${builddir}"
 	../configure "${conf_opts[@]}" || die "configure failed"
-
-	# FreeBSD's kernel does not support QEMU assigning/grabbing
-	# host USB devices yet
-	use kernel_FreeBSD && \
-		sed -i -E -e "s|^(HOST_USB=)bsd|\1stub|" "${S}"/config-host.mak
 }
 
 src_configure() {
