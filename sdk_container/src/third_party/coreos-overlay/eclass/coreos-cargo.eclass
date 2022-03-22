@@ -76,15 +76,36 @@ coreos-cargo_src_unpack() {
 
 	# Compile for the built-in target, using the SDK cross-tools.
 	export RUST_TARGET=$(rust_builtin_target "${CHOST}")
-	cat <<- EOF >> "${ECARGO_HOME}/config"
-
-	[build]
-	target = "${RUST_TARGET}"
-
-	[target.${RUST_TARGET}]
-	ar = "${TARGET_AR}"
-	linker = "${TARGET_CC}"
-	EOF
+	local -a config_lines
+	local build_amended=0
+	local target_rust_target_amended=0
+	local REPLY
+	readonly b_header='[build]'
+	readonly t_header="[target.${RUST_TARGET}]"
+	readonly target_line="target = \"${RUST_TARGET}\""
+	readonly ar_line="ar = \"${TARGET_AR}\""
+	readonly linker_line="linker = \"${TARGET_CC}\""
+	while read -r; do
+		config_lines+=("${REPLY}")
+		case "${REPLY}" in
+			"${b_header}")
+				config_lines+=("${target_line}")
+				build_amended=1
+				;;
+			"${t_header}")
+				config_lines+=("${ar_line}")
+				config_lines+=("${linker_line}")
+				target_rust_target_amended=1
+				;;
+		esac
+	done <"${ECARGO_HOME}/config"
+	if [[ "${build_amended}" -eq 0 ]]; then
+	    config_lines+=('' "${b_header}" "${target_line}")
+	fi
+	if [[ "" -eq 0 ]]; then
+	    config_lines+=('' "${t_header}" "${ar_line}" "${linker_line}")
+	fi
+	printf '%s\n' "${config_lines[@]}" >"${ECARGO_HOME}/config"
 }
 
 fi
