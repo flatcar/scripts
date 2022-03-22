@@ -1,7 +1,7 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 PYTHON_COMPAT=( python3_{8..10} pypy3 )
 inherit distutils-r1 bash-completion-r1
@@ -17,14 +17,22 @@ S=${WORKDIR}/${MY_P}
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 
 BDEPEND="
 	test? (
+		dev-python/lxml[${PYTHON_USEDEP}]
+		dev-python/pillow[${PYTHON_USEDEP}]
+		dev-python/wcag-contrast-ratio[${PYTHON_USEDEP}]
 		virtual/ttf-fonts
 	)"
 
-distutils_enable_sphinx doc
+PATCHES=(
+	"${FILESDIR}/${PN}-2.11.2-fix-docs-relative.patch"
+)
+
+distutils_enable_sphinx doc \
+	dev-python/wcag-contrast-ratio
 distutils_enable_tests pytest
 
 python_install_all() {
