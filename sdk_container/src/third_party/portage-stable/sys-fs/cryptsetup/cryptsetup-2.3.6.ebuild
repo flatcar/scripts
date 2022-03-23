@@ -16,9 +16,9 @@ KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~mips ppc ppc64 ~riscv ~s390 sparc x
 CRYPTO_BACKENDS="gcrypt kernel nettle +openssl"
 # we don't support nss since it doesn't allow cryptsetup to be built statically
 # and it's missing ripemd160 support so it can't provide full backward compatibility
-IUSE="${CRYPTO_BACKENDS} +argon2 nls pwquality reencrypt static static-libs +udev urandom"
+IUSE="${CRYPTO_BACKENDS} +argon2 +fips nls pwquality reencrypt static static-libs +udev urandom"
 REQUIRED_USE="^^ ( ${CRYPTO_BACKENDS//+/} )
-	static? ( !gcrypt )" #496612
+	static? ( !gcrypt !fips )" #496612
 
 LIB_DEPEND="
 	dev-libs/json-c:=[static-libs(+)]
@@ -86,6 +86,7 @@ src_configure() {
 		$(use_enable udev)
 		$(use_enable !urandom dev-random)
 		$(usex argon2 '' '--with-luks2-pbkdf=pbkdf2')
+		$(use_enable fips)
 	)
 	econf "${myeconfargs[@]}"
 }
