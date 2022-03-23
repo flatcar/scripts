@@ -102,7 +102,7 @@ coreos-cargo_src_unpack() {
 	if [[ "${build_amended}" -eq 0 ]]; then
 	    config_lines+=('' "${b_header}" "${target_line}")
 	fi
-	if [[ "" -eq 0 ]]; then
+	if [[ "${target_rust_target_amended}" -eq 0 ]]; then
 	    config_lines+=('' "${t_header}" "${ar_line}" "${linker_line}")
 	fi
 	printf '%s\n' "${config_lines[@]}" >"${ECARGO_HOME}/config"
