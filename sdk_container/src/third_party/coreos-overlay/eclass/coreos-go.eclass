@@ -56,7 +56,7 @@ go_build() {
 
 	${EGO} build -v \
 		-p "$(makeopts_jobs)" \
-		-ldflags "${GO_LDFLAGS} -extldflags '${LDFLAGS}'" \
+		-ldflags "${GO_LDFLAGS} -s -w -extldflags '${LDFLAGS}'" \
 		${COREOS_GO_MOD:+-mod "${COREOS_GO_MOD}"} \
 		-o "${GOBIN}/${binary_name}" \
 		"${package_name}"
