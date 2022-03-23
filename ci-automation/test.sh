@@ -145,7 +145,7 @@ function test_run() {
 
     # Pass PARALLEL_TESTS to the container
     if [ -n "${PARALLEL_TESTS-}" ] ; then
-        echo "PARALLEL_TESTS=\"${PARALLEL_TESTS}\"" > sdk_container/.env
+        echo "export PARALLEL_TESTS=\"${PARALLEL_TESTS}\"" > sdk_container/.env
         echo "rm -f 'sdk_container/.env'" >> ./ci-cleanup.sh
     fi
 
