@@ -32,15 +32,16 @@ RDEPEND="${RDEPEND}
 	app-arch/sharutils
 	app-arch/unzip
 	app-emulation/qemu
-	=dev-lang/python-3*
-	dev-python/setuptools
-	dev-lang/nasm
-	dev-lang/swig
-	dev-lang/yasm
+	app-text/asciidoc
+	app-text/xmlto
+	dev-lang/go-bootstrap
 	dev-lang/go:1.12
 	dev-lang/go:1.17
-	dev-lang/go-bootstrap
+	dev-lang/nasm
+	=dev-lang/python-3*
+	dev-lang/swig
 	dev-lang/tcl
+	dev-lang/yasm
 	dev-libs/dbus-glib
 	>=dev-libs/glib-2.26.1
 	dev-libs/libgcrypt
@@ -49,7 +50,7 @@ RDEPEND="${RDEPEND}
 	dev-libs/nspr
 	dev-libs/protobuf
 	dev-python/mako
-	sys-devel/bc
+	dev-python/setuptools
 	dev-util/gdbus-codegen
 	dev-util/gperf
 	>=dev-util/gtk-doc-am-1.13
@@ -57,16 +58,15 @@ RDEPEND="${RDEPEND}
 	dev-util/patchutils
 	dev-util/scons
 	>=dev-vcs/git-1.7.2
+	net-libs/libtirpc
 	amd64? ( net-misc/google-cloud-sdk )
-	sys-apps/usbutils
+	sys-apps/gptfdisk
 	sys-apps/systemd
+	sys-apps/usbutils
+	sys-devel/bc
 	sys-libs/nss-usrfiles
 	sys-power/iasl
 	virtual/udev
-	app-text/asciidoc
-	app-text/xmlto
-	sys-apps/gptfdisk
-	net-libs/libtirpc
 	"
 
 # Host dependencies that create usernames/groups we need to pull over to target.
