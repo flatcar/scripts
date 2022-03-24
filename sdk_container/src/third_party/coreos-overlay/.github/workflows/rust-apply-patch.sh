@@ -29,6 +29,8 @@ find profiles -name 'package.*' | xargs sed -i "s/\([><]*=\|~\)*virtual\/rust-\S
 
 EBUILD_FILENAME=$(get_ebuild_filename "dev-lang" "rust" "${VERSION_OLD}")
 git mv "${EBUILD_FILENAME}" "dev-lang/rust/rust-${VERSION_NEW}.ebuild"
+EBUILD_FILENAME=$(get_ebuild_filename "virtual" "rust" "${VERSION_OLD}")
+git mv "${EBUILD_FILENAME}" "virtual/rust/rust-${VERSION_NEW}.ebuild"
 
 popd >/dev/null || exit
 
