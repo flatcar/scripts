@@ -141,7 +141,11 @@ sys-apps/iproute2 elf
 # Ideally util-linux should have the su binary, but that is currently not
 # possible, because of a bunch of additional dependencies in SDK like
 # pam_sssd in baselayout.
+#
+# Disable su for util-linux to avoid conflict with sys-apps/shadow, which
+# has its own su binary.
 sys-apps/shadow su
+sys-apps/util-linux -su
 
 # Enable kerberos support for NFS
 net-fs/nfs-utils kerberos nfsv41 nfsv4 junction ldap libmount nfsdcld uuid
