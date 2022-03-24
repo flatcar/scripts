@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+sudo apt-get install -y lbzip2
+
 CORK_VERSION=$(curl -sL https://api.github.com/repos/kinvolk/mantle/releases/latest | jq -r .tag_name | sed -e 's/^v//')
 curl -L -o cork https://github.com/kinvolk/mantle/releases/download/v"${CORK_VERSION}"/cork-"${CORK_VERSION}"-amd64
 curl -L -o cork.sig https://github.com/kinvolk/mantle/releases/download/v"${CORK_VERSION}"/cork-"${CORK_VERSION}"-amd64.sig
