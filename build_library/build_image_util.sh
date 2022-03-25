@@ -658,6 +658,7 @@ finish_image() {
       ${tmp_ignore} "${root_fs_dir}/var"
   sudo "${BUILD_LIBRARY_DIR}/gen_tmpfiles.py" --root="${root_fs_dir}" \
       --output="${root_fs_dir}/usr/lib/tmpfiles.d/base_image_etc.conf" \
+      --files="/usr/share/flatcar" \
       ${tmp_ignore} "${root_fs_dir}/etc"
 
   # Only configure bootloaders if there is a boot partition
@@ -692,6 +693,17 @@ EOF
   fi
 
   write_contents "${root_fs_dir}" "${BUILD_DIR}/${image_contents}"
+  # Backup the /etc contents to /usr/share/flatcar/etc to serve as source
+  # for creating missing files
+  sudo cp -a "${root_fs_dir}/etc" "${root_fs_dir}/usr/share/flatcar/etc"
+  # Remove the rootfs state as it should be recreated through the
+  # tmpfiles and may not be present on updating machines. This
+  # makes sure our tests cover the case of missing files in the
+  # rootfs and don't rely on the new image. Not done for the developer
+  # container.
+  if [[ -n "${image_kernel}" ]]; then
+    sudo rm --one-file-system -rf "${root_fs_dir}/etc" "${root_fs_dir}/var"
+  fi
 
   # Zero all fs free space to make it more compressible so auto-update
   # payloads become smaller, not fatal since it won't work on linux < 3.2

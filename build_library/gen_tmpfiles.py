@@ -19,6 +19,7 @@ def main():
     parser = optparse.OptionParser(description=__doc__)
     parser.add_option('--root', help='Remove root prefix from output')
     parser.add_option('--output', help='Write output to the given file')
+    parser.add_option('--files', default='', help='Also works on files and symlinks and uses the given path as source for copying files')
     parser.add_option('--ignore', action='append', default=[],
                       help='Ignore one or more paths (use multiple times)')
     opts, args = parser.parse_args()
@@ -32,8 +33,11 @@ def main():
             assert path.startswith(opts.root)
 
         for dirpath, dirnames, filenames in os.walk(path):
-            if any(f.startswith('.keep') for f in filenames):
-                keep.add(dirpath)
+            keep.add(dirpath)
+            if opts.files:
+                for f in filenames:
+                    if not f.startswith('.keep'):
+                        keep.add(os.path.join(dirpath, f))
 
     # Add all parent directories too
     for path in frozenset(keep):
@@ -61,8 +65,22 @@ def main():
         if stripped in opts.ignore:
           continue
 
-        info = os.stat(path)
-        assert stat.S_ISDIR(info.st_mode)
+        target = '-'
+        info = os.stat(path, follow_symlinks=False)
+        if not opts.files:
+            assert stat.S_ISDIR(info.st_mode)
+        if stat.S_ISDIR(info.st_mode):
+            entry = 'd'
+        elif stat.S_ISLNK(info.st_mode):
+            entry = 'L'
+            target = os.readlink(path)
+        elif stat.S_ISREG(info.st_mode):
+            entry = 'C'
+            assert opts.files
+            target = os.path.join(opts.files, stripped.lstrip('/'))
+            assert target.startswith(opts.files)
+        else:
+            continue
         mode = stat.S_IMODE(info.st_mode)
 
         try:
@@ -74,8 +92,8 @@ def main():
         except KeyError:
             group = str(info.st_gid)
 
-        config.append('d %-22s %04o %-10s %-10s - -'
-                % (stripped, mode, owner, group))
+        config.append('%s %-22s %04o %-10s %-10s - %s'
+                % (entry, stripped, mode, owner, group, target))
 
     if opts.output:
         fd = open(opts.output, 'w')
