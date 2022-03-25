@@ -18,6 +18,9 @@
 #     minimal root file system into a clean directory using ROOT=...
 #     and USE=-* The restricted USE flags are key be small and avoid
 #     circular dependencies.
+#     NOTE that stage1 LACKS PROPER STAGE ISOLATION. Binaries produced in stage1
+#      will be linked against the SEED SDK libraries, NOT against libraries
+#      built in stage 1. See "stage_repo()" documentation further below for more.
 #     This stage uses:
 #     - portage-stable from the SDK's /var/lib/gentoo/repos/gentoo
 #        or a git ref via --stage1_portage_ref command line option
