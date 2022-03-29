@@ -154,3 +154,8 @@ net-libs/libtirpc kerberos
 # Disable enabled-by-default support for 16-bit characters, we didn't
 # need it before, so we don't need it now.
 dev-libs/libpcre2 -pcre16
+
+# Disable extra stuff for tcpdump, there was no explanation why it was
+# enabled by upstream. Samba was enabled to make some tests pass. But
+# smi and ssl, no clue.
+net-analyzer/tcpdump -ssl -smi -samba
