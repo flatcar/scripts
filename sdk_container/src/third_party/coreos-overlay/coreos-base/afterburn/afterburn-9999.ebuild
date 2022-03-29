@@ -220,6 +220,12 @@ RDEPEND="
 	!coreos-base/coreos-metadata
 "
 
+PATCHES=(
+	"${FILESDIR}"/0001-Revert-remove-cl-legacy-feature.patch
+	"${FILESDIR}"/0002-util-cmdline-Handle-the-cmdline-flags-as-list-of-sup.patch
+	"${FILESDIR}"/0003-encode-information-for-systemd-networkd-wait-online.patch
+)
+
 src_unpack() {
 	cros-workon_src_unpack "$@"
 	coreos-cargo_src_unpack "$@"
