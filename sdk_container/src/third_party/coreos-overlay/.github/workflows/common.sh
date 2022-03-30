@@ -61,7 +61,7 @@ function checkout_branches() {
     return 1
   fi
 
-  git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" checkout -B "${TARGET_BRANCH}" "github/${BASE_BRANCH}"
+  git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" checkout -B "${TARGET_BRANCH}" "our_remote/${BASE_BRANCH}"
 }
 
 function regenerate_manifest() {
