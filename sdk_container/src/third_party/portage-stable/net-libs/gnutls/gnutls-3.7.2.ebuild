@@ -22,7 +22,7 @@ RESTRICT="!test? ( test )"
 # use system libopts
 RDEPEND=">=dev-libs/libtasn1-4.9:=[${MULTILIB_USEDEP}]
 	dev-libs/libunistring:=[${MULTILIB_USEDEP}]
-	>=dev-libs/nettle-3.4.1:=[gmp,${MULTILIB_USEDEP}]
+	>=dev-libs/nettle-3.6:=[gmp,${MULTILIB_USEDEP}]
 	>=dev-libs/gmp-5.1.3-r1:=[${MULTILIB_USEDEP}]
 	tools? ( sys-devel/autogen:= )
 	dane? ( >=net-dns/unbound-1.4.20:=[${MULTILIB_USEDEP}] )
@@ -42,7 +42,7 @@ BDEPEND=">=virtual/pkgconfig-0-r1
 	test-full? (
 		app-crypt/dieharder
 		>=app-misc/datefudge-1.22
-		dev-libs/softhsm:2[-bindist]
+		dev-libs/softhsm:2[-bindist(-)]
 		net-dialup/ppp
 		net-misc/socat
 	)"
@@ -53,8 +53,6 @@ DOCS=(
 )
 
 HTML_DOCS=()
-
-PATCHES=( "${FILESDIR}"/${PN}-3.6.15-skip-dtls-seccomp-tests.patch )
 
 pkg_setup() {
 	# bug#520818
