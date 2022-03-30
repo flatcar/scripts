@@ -19,8 +19,6 @@
 # needed for arm64 sdk
 =dev-util/pahole-1.20 ~arm64
 
-=net-libs/gnutls-3.7.1 ~amd64 ~arm64
-
 =net-misc/openssh-8.8_p1-r3 ~amd64 ~arm64
 
 =net-misc/rsync-3.2.3-r5 ~amd64 ~arm64
