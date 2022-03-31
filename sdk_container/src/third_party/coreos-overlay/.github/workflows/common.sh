@@ -44,6 +44,7 @@ function prepare_git_repo() {
   # setup overlay repo inside SDK too (be fork friendly)
   git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" remote add our_remote "${our_remote_url}"
   git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" fetch our_remote
+  git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" checkout -B "${BASE_BRANCH}" "our_remote/${BASE_BRANCH}"
 }
 
 # caller needs to set pass a parameter as a branch name to be created.
@@ -60,7 +61,7 @@ function checkout_branches() {
     return 1
   fi
 
-  git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" checkout -B "${TARGET_BRANCH}" "github/${BASE_BRANCH}"
+  git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" checkout -B "${TARGET_BRANCH}" "our_remote/${BASE_BRANCH}"
 }
 
 function regenerate_manifest() {
