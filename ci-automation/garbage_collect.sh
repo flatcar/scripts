@@ -32,7 +32,7 @@ function garbage_collect() {
     local purge_versions="${PURGE_VERSIONS:-}"
 
     local versions_detected="$(git tag -l --sort=-committerdate \
-                | grep -E '(main|alpha|beta|stable|lts|sdk)-[0-9]+\.[0-9]+\.[0-9]+\-.*' \
+                | grep -E '(main|alpha|beta|stable|lts)-[0-9]+\.[0-9]+\.[0-9]+\-.*' \
                 | grep -vE '(-pro)$')"
 
     echo "######## Full list of version(s) found ########"
@@ -45,7 +45,7 @@ function garbage_collect() {
     else
         # make sure we only accept dev versions
         purge_versions="$(echo "${purge_versions}" | sed 's/ /\n/g' \
-                            | grep -E '(main|alpha|beta|stable|lts|sdk)-[0-9]+\.[0-9]+\.[0-9]+\-.*' \
+                            | grep -E '(main|alpha|beta|stable|lts)-[0-9]+\.[0-9]+\.[0-9]+\-.*' \
                             | grep -vE '(-pro)$')"
     fi
 
@@ -74,26 +74,20 @@ function garbage_collect() {
         git checkout "${version}" -- sdk_container/.repo/manifests/version.txt
         source sdk_container/.repo/manifests/version.txt
 
+        # Assuming that the SDK build version also has the same OS version
         local os_vernum="${FLATCAR_VERSION}"
         local os_docker_vernum="$(vernum_to_docker_image_version "${FLATCAR_VERSION}")"
-        local sdk_vernum="${FLATCAR_SDK_VERSION}"
-        local sdk_docker_vernum="$(vernum_to_docker_image_version "${FLATCAR_SDK_VERSION}")"
 
         # Remove container image tarballs and SDK tarball (if applicable)
         #
         local rmpat=""
-        if [[ "${version}" = 'sdk-'* ]] ; then
-            echo "## ${version} is an SDK version. ##"
-            rmpat="${BUILDCACHE_PATH_PREFIX}/sdk/*/${sdk_vernum}/"
-            rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/containers/${sdk_docker_vernum}/flatcar-sdk-*"
-        else
-            echo "## ${version} is an OS image version. ##"
-            rmpat="${BUILDCACHE_PATH_PREFIX}/containers/${os_docker_vernum}/flatcar-packages-*"
-            rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/boards/*/${os_vernum}/"
-            rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/containers/${os_docker_vernum}/flatcar-images-*"
-            rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/images/*/${os_vernum}/"
-            rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/testing/${os_vernum}/"
-        fi
+        rmpat="${BUILDCACHE_PATH_PREFIX}/sdk/*/${os_vernum}/"
+        rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/containers/${os_docker_vernum}/flatcar-sdk-*"
+        rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/containers/${os_docker_vernum}/flatcar-packages-*"
+        rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/boards/*/${os_vernum}/"
+        rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/containers/${os_docker_vernum}/flatcar-images-*"
+        rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/images/*/${os_vernum}/"
+        rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/testing/${os_vernum}/"
 
         echo "## The following files will be removed ##"
         $sshcmd "${BUILDCACHE_USER}@${BUILDCACHE_SERVER}" \
@@ -110,11 +104,7 @@ function garbage_collect() {
 
         # Remove container image directory if empty
         #
-        if [[ "${version}" = 'sdk-'* ]] ; then
-            rmpat="${BUILDCACHE_PATH_PREFIX}/containers/${sdk_docker_vernum}/"
-        else
-            rmpat="${BUILDCACHE_PATH_PREFIX}/containers/${os_docker_vernum}/"
-        fi
+        rmpat="${BUILDCACHE_PATH_PREFIX}/containers/${os_docker_vernum}/"
 
         echo "## Checking if container directory is empty and can be removed (it's OK if this fails) ##"
         echo "## The following directory will be removed if below output is empty: '${rmpat}' ##"
