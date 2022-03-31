@@ -1,6 +1,9 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Flatcar: Based on mdadm-4.2-r1.ebuild from commit
+# 81a13f851b7502d547ff8c0434bf64a443877fb1 in Gentoo repo (see
+# https://gitweb.gentoo.org/repo/gentoo.git/plain/sys-fs/mdadm/mdadm-4.2-r1.ebuild?id=81a13f851b7502d547ff8c0434bf64a443877fb1).
 EAPI=7
 
 inherit flag-o-matic systemd toolchain-funcs udev
@@ -13,8 +16,8 @@ SRC_URI="https://www.kernel.org/pub/linux/utils/raid/mdadm/${P/_/-}.tar.xz
 
 LICENSE="GPL-2"
 SLOT="0"
-[[ "${PV}" = *_rc* ]] || \
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
+# Flatcar: Build for amd64 and arm64
+KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
 IUSE="static systemd +udev"
 
 # Only sys-fs/eudev provides static-libs right now, so if you have systemd,
