@@ -1,56 +1,74 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# Flatcar: Based on mdadm-4.1.ebuild from commit
-# 32ddfce1d8ce63479d23d2983fa653ce5eac3ad2 in Gentoo repo (see
-# https://gitweb.gentoo.org/repo/gentoo.git/plain/sys-fs/mdadm/mdadm-4.1.ebuild?id=32ddfce1d8ce63479d23d2983fa653ce5eac3ad2).
+# Flatcar: Based on mdadm-4.2-r1.ebuild from commit
+# 81a13f851b7502d547ff8c0434bf64a443877fb1 in Gentoo repo (see
+# https://gitweb.gentoo.org/repo/gentoo.git/plain/sys-fs/mdadm/mdadm-4.2-r1.ebuild?id=81a13f851b7502d547ff8c0434bf64a443877fb1).
+EAPI=7
 
-EAPI=6
-inherit flag-o-matic multilib systemd toolchain-funcs udev
+inherit flag-o-matic systemd toolchain-funcs udev
 
 DESCRIPTION="Tool for running RAID systems - replacement for the raidtools"
 HOMEPAGE="https://git.kernel.org/pub/scm/utils/mdadm/mdadm.git/"
-DEB_PF="4.1-3"
+DEB_PF="4.2~rc2-7"
 SRC_URI="https://www.kernel.org/pub/linux/utils/raid/mdadm/${P/_/-}.tar.xz
 		mirror://debian/pool/main/m/mdadm/${PN}_${DEB_PF}.debian.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
-# Flatcar: Build for arm64 too.
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~mips ppc ppc64 sparc x86"
-IUSE="static"
+# Flatcar: Build for amd64 and arm64
+KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
+IUSE="static systemd +udev"
 
-DEPEND="virtual/pkgconfig
-	app-arch/xz-utils"
-RDEPEND=">=sys-apps/util-linux-2.16"
+# Only sys-fs/eudev provides static-libs right now, so if you have systemd,
+# you need to choose between static or udev, as your udev won't have static libs.
+# bug #830485
+REQUIRED_USE="systemd? ( ?? ( static udev ) )"
+
+BDEPEND="app-arch/xz-utils
+	virtual/pkgconfig"
+DEPEND="udev? (
+		static? ( !systemd? ( sys-fs/eudev[static-libs] ) )
+		!static? ( virtual/libudev:= )
+	)"
+RDEPEND=">=sys-apps/util-linux-2.16
+	udev? ( !static? ( virtual/libudev:= ) )"
 
 # The tests edit values in /proc and run tests on software raid devices.
 # Thus, they shouldn't be run on systems with active software RAID devices.
 RESTRICT="test"
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-3.4-sysmacros.patch #580188
-# Flatcar: These patches are already upstreamed, but not released yet.
-	"${FILESDIR}"/${PN}-4.1-create-add-support-for-raid0-layouts.patch
-	"${FILESDIR}"/${PN}-4.1-assemble-add-support-for-raid0-layouts.patch
+	"${FILESDIR}/${PN}"-3.4-sysmacros.patch #580188
+	"${FILESDIR}/${PN}"-4.2-in_initrd-collision.patch #830461
 )
 
 mdadm_emake() {
 	# We should probably make corosync & libdlm into USE flags. #573782
-	emake \
-		PKG_CONFIG="$(tc-getPKG_CONFIG)" \
-		CC="$(tc-getCC)" \
-		CWFLAGS="-Wall" \
-		CXFLAGS="${CFLAGS}" \
-		UDEVDIR="$(get_udevdir)" \
-		SYSTEMD_DIR="$(systemd_get_systemunitdir)" \
-		COROSYNC="-DNO_COROSYNC" \
-		DLM="-DNO_DLM" \
+	local args=(
+		PKG_CONFIG="$(tc-getPKG_CONFIG)"
+		CC="$(tc-getCC)"
+		CWFLAGS="-Wall"
+		CXFLAGS="${CFLAGS}"
+		UDEVDIR="$(get_udevdir)"
+		SYSTEMD_DIR="$(systemd_get_systemunitdir)"
+		COROSYNC="-DNO_COROSYNC"
+		DLM="-DNO_DLM"
+
+		# https://bugs.gentoo.org/732276
+		STRIP=
+
 		"$@"
+	)
+	emake "${args[@]}"
 }
 
 src_compile() {
 	use static && append-ldflags -static
+
+	# CPPFLAGS won't work for this
+	use udev || append-cflags -DNO_LIBUDEV
+
 	mdadm_emake all
 }
 
