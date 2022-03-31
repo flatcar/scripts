@@ -66,6 +66,25 @@ function update_and_push_version() {
 
     git commit --allow-empty -m "New version: ${version}"
 
+    git fetch --all --tags --force
+    local ret=0
+    git diff --exit-code "${version}" || ret=$?
+    # This will return != 0 if
+    #  - the remote tag does not exist (rc: 127)
+    #  - the tag does not exist locally (rc: 128)
+    #  - the remote tag has changes compared to the local tree (rc: 1)
+    if [ "$ret" = "0" ]; then
+      echo "Reusing existing tag" >&2
+      git checkout -f --recurse-submodules "${version}"
+      return
+    elif [ "$ret" = "1" ]; then
+      echo "Remote tag exists already and is not equal" >&2
+      return 1
+    elif [ "$ret" != "127" ] && [ "$ret" != "128" ]; then
+      echo "Error: Unexpected git diff return code ($ret)" >&2
+      return 1
+    fi
+
     local -a TAG_ARGS
     if [ "${SIGN-0}" = 1 ]; then
       TAG_ARGS=("-s" "-m" "${version}")
@@ -78,24 +97,7 @@ function update_and_push_version() {
       git push origin "${branch}"
     fi
 
-    if git push origin "${version}" ; then
-        return
-    fi
-    # Push (above) may fail because a tag already exists.
-    #  We check for tag presence, and for the difference
-    #  between local and remote, and bail
-    #  only if the remote / local contents differ.
-
-    # Remove local tag, (re-)fetch remote tags
-    git tag -d "${version}"
-
-    # refresh tree, let origin overwrite local tags
-    git fetch --all --tags --force
-
-    # This will return != 0 if
-    #  - the remote tag does not exist (rc: 127)
-    #  - the remote tag has changes compared to the local tree (rc: 1)
-    git diff --exit-code "${version}"
+    git push origin "${version}"
 }
 # --
 
