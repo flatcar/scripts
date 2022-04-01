@@ -143,12 +143,6 @@ function test_run() {
         -n "${container_name}" -C "${sdk_image}" -v "${vernum}" \
         sudo emerge mantle
 
-    # Pass PARALLEL_TESTS to the container
-    if [ -n "${PARALLEL_TESTS-}" ] ; then
-        echo "export PARALLEL_TESTS=\"${PARALLEL_TESTS}\"" > sdk_container/.env
-        echo "rm -f 'sdk_container/.env'" >> ./ci-cleanup.sh
-    fi
-
     local tap_merged_summary="results-${image}.tap"
     local tap_merged_detailed="results-${image}-detailed.tap"
     local retry=""
