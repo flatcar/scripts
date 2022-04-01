@@ -57,6 +57,7 @@
 # Required for some CVEs
 =app-editors/vim-8.2.4328 ~amd64 ~arm64
 =app-editors/vim-core-8.2.4328 ~amd64 ~arm64
+=sys-libs/zlib-1.2.12-r2 ~amd64 ~arm64
 
 # Duktape is not yet stable
 =dev-lang/duktape-2.7.0-r1 ~amd64 ~arm64
