@@ -9,19 +9,13 @@ SRC_URI=""
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="amd64"
+KEYWORDS="amd64 arm64"
 IUSE=""
 
 # no source directory
 S="${WORKDIR}"
 
-# This source is a superset of oem-azure and implments the pro bits. The source
-# of oem-azure-pro is duplicated from oem-azure because making using of RDEPEND
-# would result in the conflict of `base.ign`
-RDEPEND="
-  ~app-emulation/wa-linux-agent-${PV}
-  x11-drivers/nvidia-drivers
-"
+RDEPEND="~app-emulation/wa-linux-agent-${PV}"
 
 src_prepare() {
 	default
@@ -35,4 +29,5 @@ src_install() {
 	doins "${T}/oem-release"
 	doins -r "${FILESDIR}/base"
 	doins -r "${FILESDIR}/units"
+	dosym "/usr/bin/true" "/usr/share/oem/bin/eject"
 }
