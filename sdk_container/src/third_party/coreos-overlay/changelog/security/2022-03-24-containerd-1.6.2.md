@@ -1,0 +1,1 @@
+- containerd ([CVE-2022-24769](https://nvd.nist.gov/vuln/detail/CVE-2022-24769))
