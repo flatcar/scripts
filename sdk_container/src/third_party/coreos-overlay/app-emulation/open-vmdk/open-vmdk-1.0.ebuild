@@ -13,7 +13,7 @@ SLOT="0"
 
 EGIT_REPO_URI="https://github.com/vmware/open-vmdk"
 EGIT_BRANCH="master"
-EGIT_COMMIT="fed311f0529333efb42a289dc864d1ea9f59ebfa"
+EGIT_COMMIT="8349c98ec8a617f5658b70d7de7d7d2830e18eaf"
 
 KEYWORDS="amd64 ~x86"
 IUSE=""
@@ -22,7 +22,6 @@ DEPEND=""
 RDEPEND="${DEPEND}"
 
 PATCHES=(
-	"${FILESDIR}/vmdk-fix-build-issues-with-gcc-10-or-newer.patch"
 )
 
 src_install() {
