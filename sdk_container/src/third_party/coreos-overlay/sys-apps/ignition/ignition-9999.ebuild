@@ -46,7 +46,7 @@ PATCHES=(
 
 src_compile() {
 	export GO15VENDOREXPERIMENT="1"
-	GO_LDFLAGS="-X github.com/flatcar-linux/ignition/v2/internal/version.Raw=${PV} -X github.com/flatcar-linux/ignition/v2/internal/distro.selinuxRelabel=false -X github.com/flatcar-linux/ignition/v2/internal/distro.writeAuthorizedKeysFragment=false" || die
+	GO_LDFLAGS="-X github.com/flatcar-linux/ignition/v2/internal/version.Raw=${PV} -X github.com/flatcar-linux/ignition/v2/internal/distro.selinuxRelabel=false" || die
 	go_build "${COREOS_GO_PACKAGE}/internal"
 }
 

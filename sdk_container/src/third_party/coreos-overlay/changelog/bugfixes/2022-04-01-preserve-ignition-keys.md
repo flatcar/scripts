@@ -1,0 +1,1 @@
+- Made Ignition write the SSH keys into a file under `authorized_keys.d/ignition` again and added a call to `update-ssh-keys` after Ignition ran to create the merged `authorized_keys` file, which fixes the problem that keys added by Ignition get lost when `update-ssh-keys` runs ([PR#66](https://github.com/flatcar-linux/init/pull/66))
