@@ -80,6 +80,34 @@ function packages_build() {
         update_submodule "portage-stable" "${portage_git}"
     fi
 
+    # Create new tag in scripts repo w/ updated versionfile + submodules.
+    # Also push the changes to the branch ONLY IF we're doing a nightly
+    #   build of the 'main'/'flatcar-MAJOR' branch AND we're definitely ON the respective branch
+    #   (`scripts` and submodules).
+    local push_branch="false"
+    if   [[ "${version}" =~ ^(stable|alpha|beta|lts)-[0-9.]+-nightly-[-0-9]+$ ]] \
+       && [[ "$(git rev-parse --abbrev-ref HEAD)" =~ ^flatcar-[0-9]+$ ]] \
+       && [[ "$(git -C sdk_container/src/third_party/coreos-overlay/ rev-parse --abbrev-ref HEAD)" =~ ^flatcar-[0-9]+$ ]] \
+       && [[ "$(git -C sdk_container/src/third_party/portage-stable/ rev-parse --abbrev-ref HEAD)" =~ ^flatcar-[0-9]+$ ]] ; then
+        push_branch="true"
+        local existing_tag=""
+        existing_tag=$(git tag --points-at HEAD) # exit code is always 0, output may be empty
+        # If the found tag is a release or nightly tag, we stop this build if there are no changes
+        if [[ "${existing_tag}" =~ ^(stable|alpha|beta|lts)-[0-9.]+(|-nightly-[-0-9]+)$ ]]; then
+          local ret=0
+          git diff --exit-code "${existing_tag}" || ret=$?
+          if [ "$ret" = "0" ]; then
+            echo "Stopping build because there are no changes since tag ${existing_tag}" >&2
+            return 0
+          elif [ "$ret" = "1" ]; then
+            echo "Found changes since last tag ${existing_tag}" >&2
+          else
+            echo "Error: Unexpected git diff return code (${ret})" >&2
+            return 1
+          fi
+        fi
+    fi
+
     # Get SDK from either the registry or import from build cache
     # This is a NOP if the image is present locally.
     local sdk_name="flatcar-sdk-${arch}"
@@ -127,6 +155,6 @@ function packages_build() {
     copy_to_buildcache "images/${arch}/${vernum}/torcx" \
         "${torcx_tmp}/torcx/pkgs/${arch}-usr/docker/"*/*.torcx.tgz
 
-    update_and_push_version "${version}"
+    update_and_push_version "${version}" "${push_branch}"
 }
 # --
