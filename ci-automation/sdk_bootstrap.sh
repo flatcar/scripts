@@ -22,7 +22,7 @@
 #   2. Version of the TARGET SDK to build (string).
 #       The version pattern 'MMMM.m.p' (e.g. '3051.0.0') denotes a "official" build, i.e. a release build to be published.
 #       Use any version diverging from the pattern (e.g. '3051.0.0-nightly-4302') for development / CI builds.
-#       A tag "sdk-[VERSION]" will be created in the scripts repo and pushed upstream.
+#       A free-standing tagged commit will be created in the scripts repo and pushed upstream.
 #
 # OPTIONAL INPUT:
 #
@@ -69,6 +69,34 @@ function sdk_bootstrap() {
         update_submodule "portage-stable" "${portage_git}"
     fi
 
+    # Create new tag in scripts repo w/ updated versionfile + submodules.
+    # Also push the changes to the branch ONLY IF we're doing a nightly
+    #   build of the 'main' branch AND we're definitely ON the main branch
+    #   (`scripts` and submodules).
+    local push_branch="false"
+    if   [[ "${version}" =~ ^main-[0-9.]+-nightly-[-0-9]+$ ]] \
+       && [ "$(git rev-parse --abbrev-ref HEAD)" = "main"  ] \
+       && [ "$(git -C sdk_container/src/third_party/coreos-overlay/ rev-parse --abbrev-ref HEAD)" = "main"  ] \
+       && [ "$(git -C sdk_container/src/third_party/portage-stable/ rev-parse --abbrev-ref HEAD)" = "main"  ] ; then
+        push_branch="true"
+        local existing_tag=""
+        existing_tag=$(git tag --points-at HEAD) # exit code is always 0, output may be empty
+        # If the found tag is a nightly tag, we stop this build if there are no changes
+        if [[ "${existing_tag}" =~ ^main-[0-9.]+-nightly-[-0-9]+$ ]]; then
+          local ret=0
+          git diff --exit-code "${existing_tag}" || ret=$?
+          if [ "$ret" = "0" ]; then
+            echo "Stopping build because there are no changes since tag ${existing_tag}" >&2
+            return 0
+          elif [ "$ret" = "1" ]; then
+            echo "Found changes since last tag ${existing_tag}" >&2
+          else
+            echo "Error: Unexpected git diff return code (${ret})" >&2
+            return 1
+          fi
+        fi
+    fi
+
     local vernum="${version#*-}" # remove alpha-,beta-,stable-,lts- version tag
     local git_vernum="${vernum}"
 
@@ -84,17 +112,6 @@ function sdk_bootstrap() {
     copy_to_buildcache "sdk/${ARCH}/${vernum}" "${dest_tarball}"*
     cd -
 
-    # Create new tag in scripts repo w/ updated versionfile + submodules.
-    # Also push the changes to the branch ONLY IF we're doing a nightly
-    #   build of the 'main' branch AND we're definitely ON the main branch
-    #   (`scripts` and submodules).
-    local push_branch="false"
-    if   [[ "${version}" =~ ^main-[0-9.]+-nightly-[-0-9]+$ ]] \
-       && [ "$(git rev-parse --abbrev-ref HEAD)" = "main"  ] \
-       && [ "$(git -C sdk_container/src/third_party/coreos-overlay/ rev-parse --abbrev-ref HEAD)" = "main"  ] \
-       && [ "$(git -C sdk_container/src/third_party/portage-stable/ rev-parse --abbrev-ref HEAD)" = "main"  ] ; then
-        push_branch="true"
-    fi
-    update_and_push_version "sdk-${git_vernum}" "${push_branch}"
+    update_and_push_version "${version}" "${push_branch}"
 }
 # --
