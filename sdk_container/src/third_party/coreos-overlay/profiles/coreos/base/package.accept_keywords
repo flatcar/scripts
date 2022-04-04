@@ -12,8 +12,6 @@
 =dev-lang/rust-1.59.0 ~amd64 ~arm64
 =virtual/rust-1.59.0 ~amd64 ~arm64
 
-=dev-libs/elfutils-0.178 ~amd64
-
 =dev-libs/libgcrypt-1.9.4 ~amd64 ~arm64
 
 # needed for arm64 sdk
@@ -34,8 +32,6 @@
 =sys-libs/binutils-libs-2.37_p1 ~amd64 ~arm64
 
 =sys-fs/cryptsetup-2.4.1-r1 ~amd64 ~arm64
-
-=sys-fs/multipath-tools-0.8.5 ~amd64 ~arm64
 
 =sys-libs/libseccomp-2.5.0 ~amd64 ~arm64
 
