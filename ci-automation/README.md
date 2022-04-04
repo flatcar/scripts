@@ -46,23 +46,23 @@ image_build amd64
    The resulting image will come in "amd64", "arm64", and "all" flavours, with support for respective OS target architectures. This step builds the Flatcar SDK container images published at ghcr.io/flatcar-linux.
 
 ```
-         .---------.                 .------------.          .--------.
-         | scripts |                 |     CI     |          |  Build |
-         |  repo   |                 | automation |          |  cache |
-         `---------´                 `------------´          `--------´
-              |                             |                     |
-              |                   "alpha-3449.0.0-dev23"          |
-              |                             |                     |
-              |                      _______v_______              |
-              +------- clone -----> ( SDK bootstrap )             |
-              |                      `-------------´              |
-              |<- tag: sdk-3499.0.0-dev23 -´|`--- sdk tarball --->|
-              |                             |                     |
-              |                      _______v_______              |
-              +--      clone     -> ( SDK container )             |
-              | sdk-3499.0.0-dev23   `-------------´              |
-              |                             |`- sdk container --->|
-              v                             v        image
+         .---------.                    .------------.          .--------.
+         | scripts |                    |     CI     |          |  Build |
+         |  repo   |                    | automation |          |  cache |
+         `---------´                    `------------´          `--------´
+              |                                |                     |
+              |                      "alpha-3449.0.0-dev23"          |
+              |                                |                     |
+              |                         _______v_______              |
+              +-------- clone -------> ( SDK bootstrap )             |
+              |                         `-------------´              |
+              |<- tag: alpha-3499.0.0-dev23 --´|`--- sdk tarball --->|
+              |                                |                     |
+              |                         _______v_______              |
+              +-------- clone -------> ( SDK container )             |
+              | alpha-3499.0.0-dev23    `-------------´              |
+              |                                |`- sdk container --->|
+              v                                v        image
                       continue to OS
                        image build
                             |
