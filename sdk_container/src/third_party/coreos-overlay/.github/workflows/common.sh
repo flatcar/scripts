@@ -129,7 +129,7 @@ function generate_patches() {
   git commit -a -m "${CATEGORY_NAME}: Upgrade ${PKGNAME_DESC} ${VERSION_OLD} to ${VERSION_NEW}"
 
   # Create a patch for the main ebuilds.
-  git format-patch -1 HEAD
+  git format-patch --start-number "${START_NUMBER:-1}" -1 HEAD
   popd || exit
 }
 
