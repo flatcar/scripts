@@ -13,9 +13,9 @@ if [[ "${OFFER}" != "basic" ]]; then
   OEM_SUFFIX="_${OFFER}"
 fi
 
-# Create a name that includes the OEM_SUFFIX,
+# Create a name that includes the OFFER,
 # but replace _ with -, as gcloud doesn't like it otherwise.
-OEMNAME="jenkins-${JOB_NAME##*/}${OEM_SUFFIX}-${BUILD_NUMBER}"
+OEMNAME="${OFFER}-${BUILD_NUMBER}"
 NAME=${OEMNAME//_/-}
 
 bin/ore gcloud create-image \
