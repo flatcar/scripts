@@ -50,8 +50,11 @@ RDEPEND="${RDEPEND}
 	dev-libs/libyaml
 	dev-libs/nspr
 	dev-libs/protobuf
+	dev-python/flit_core
+	dev-python/gpep517
 	dev-python/mako
 	dev-python/setuptools
+	dev-python/wheel
 	dev-util/gdbus-codegen
 	dev-util/gperf
 	>=dev-util/gtk-doc-am-1.13
