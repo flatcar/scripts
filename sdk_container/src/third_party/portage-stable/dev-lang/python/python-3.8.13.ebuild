@@ -1,10 +1,10 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
 WANT_LIBTOOL="none"
 
-inherit autotools check-reqs flag-o-matic multiprocessing pax-utils \
+inherit autotools flag-o-matic multiprocessing pax-utils \
 	python-utils-r1 toolchain-funcs verify-sig
 
 MY_PV=${PV/_rc/rc}
@@ -15,15 +15,16 @@ PATCHSET="python-gentoo-patches-${MY_PV}"
 DESCRIPTION="An interpreted, interactive, object-oriented programming language"
 HOMEPAGE="https://www.python.org/"
 SRC_URI="https://www.python.org/ftp/python/${PV%_*}/${MY_P}.tar.xz
-	https://dev.gentoo.org/~floppym/python/${PATCHSET}.tar.xz
+	https://dev.gentoo.org/~mgorny/dist/python/${PATCHSET}.tar.xz
 	verify-sig? (
 		https://www.python.org/ftp/python/${PV%_*}/${MY_P}.tar.xz.asc
-	)"
+	)
+"
 S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 IUSE="bluetooth build examples gdbm hardened +ncurses +readline +sqlite +ssl test tk wininst +xml"
 RESTRICT="!test? ( test )"
 
@@ -32,8 +33,10 @@ RESTRICT="!test? ( test )"
 # run the bootstrap code on your dev box and include the results in the
 # patchset. See bug 447752.
 
-RDEPEND="app-arch/bzip2:=
+RDEPEND="
+	app-arch/bzip2:=
 	app-arch/xz-utils:=
+	dev-lang/python-exec[python_targets_python3_8(-)]
 	dev-libs/libffi:=
 	sys-apps/util-linux:=
 	>=sys-libs/zlib-1.1.3:=
@@ -50,31 +53,28 @@ RDEPEND="app-arch/bzip2:=
 		dev-tcltk/blt:=
 		dev-tcltk/tix
 	)
-	xml? ( >=dev-libs/expat-2.1:= )"
+	xml? ( >=dev-libs/expat-2.1:= )
+"
 # bluetooth requires headers from bluez
-DEPEND="${RDEPEND}
+DEPEND="
+	${RDEPEND}
 	bluetooth? ( net-wireless/bluez )
-	test? ( app-arch/xz-utils[extra-filters(+)] )"
+	test? ( app-arch/xz-utils[extra-filters(+)] )
+"
 BDEPEND="
+	sys-devel/autoconf-archive
 	virtual/awk
 	virtual/pkgconfig
-	sys-devel/autoconf-archive
-	verify-sig? ( app-crypt/openpgp-keys-python )
-	!sys-devel/gcc[libffi(-)]"
-RDEPEND+=" !build? ( app-misc/mime-types )"
+	verify-sig? ( sec-keys/openpgp-keys-python )
+	!sys-devel/gcc[libffi(-)]
+"
+RDEPEND+="
+	build? ( app-misc/mime-types )
+"
 
 VERIFY_SIG_OPENPGP_KEY_PATH=${BROOT}/usr/share/openpgp-keys/python.org.asc
 
-# large file tests involve a 2.5G file being copied (duplicated)
-CHECKREQS_DISK_BUILD=5500M
-
-pkg_pretend() {
-	use test && check-reqs_pkg_pretend
-}
-
-pkg_setup() {
-	use test && check-reqs_pkg_setup
-}
+QA_PKGCONFIG_VERSION=${PYVER}
 
 src_unpack() {
 	if use verify-sig; then
@@ -177,7 +177,15 @@ src_configure() {
 		--with-system-ffi
 	)
 
-	OPT="" econf "${myeconfargs[@]}"
+	# disable implicit optimization/debugging flags
+	local -x OPT=
+	# pass system CFLAGS & LDFLAGS as _NODIST, otherwise they'll get
+	# propagated to sysconfig for built extensions
+	local -x CFLAGS_NODIST=${CFLAGS}
+	local -x LDFLAGS_NODIST=${LDFLAGS}
+	local -x CFLAGS= LDFLAGS=
+
+	econf "${myeconfargs[@]}"
 
 	if grep -q "#define POSIX_SEMAPHORES_NOT_ENABLED 1" pyconfig.h; then
 		eerror "configure has detected that the sem_open function is broken."
@@ -194,6 +202,8 @@ src_compile() {
 	# https://bugs.gentoo.org/823728
 	export SETUPTOOLS_USE_DISTUTILS=stdlib
 
+	# also need to clear the flags explicitly here or they end up
+	# in _sysconfigdata*
 	emake CPPFLAGS= CFLAGS= LDFLAGS=
 
 	# Work around bug 329499. See also bug 413751 and 457194.
@@ -213,6 +223,12 @@ src_test() {
 
 	# Skip failing tests.
 	local skipped_tests="gdb"
+
+	if use sparc ; then
+		# bug #788022
+		skipped_tests+=" multiprocessing_fork"
+		skipped_tests+=" multiprocessing_forkserver"
+	fi
 
 	for test in ${skipped_tests}; do
 		mv "${S}"/Lib/test/test_${test}.py "${T}"
@@ -254,11 +270,6 @@ src_install() {
 	# Remove static library
 	rm "${ED}"/usr/$(get_libdir)/libpython*.a || die
 
-	sed \
-		-e "s/\(CONFIGURE_LDFLAGS=\).*/\1/" \
-		-e "s/\(PY_LDFLAGS=\).*/\1/" \
-		-i "${libdir}/config-${PYVER}"*/Makefile || die "sed failed"
-
 	# Fix collisions between different slots of Python.
 	rm "${ED}/usr/$(get_libdir)/libpython3.so" || die
 
@@ -284,6 +295,8 @@ src_install() {
 
 	use sqlite || rm -r "${libdir}/"{sqlite3,test/test_sqlite*} || die
 	use tk || rm -r "${ED}/usr/bin/idle${PYVER}" "${libdir}/"{idlelib,tkinter,test/test_tk*} || die
+
+	use wininst || rm "${libdir}/distutils/command/"wininst-*.exe || die
 
 	dodoc Misc/{ACKS,HISTORY,NEWS}
 

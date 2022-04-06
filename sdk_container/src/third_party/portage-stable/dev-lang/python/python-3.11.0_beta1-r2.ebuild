@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
@@ -7,25 +7,29 @@ WANT_LIBTOOL="none"
 inherit autotools check-reqs flag-o-matic multiprocessing pax-utils \
 	python-utils-r1 toolchain-funcs verify-sig
 
-MY_PV=${PV/_alpha/a}
+MY_PV=${PV/_beta/b}
 MY_P="Python-${MY_PV%_p*}"
 PYVER=$(ver_cut 1-2)
 PATCHSET="python-gentoo-patches-${MY_PV}"
 
 DESCRIPTION="An interpreted, interactive, object-oriented programming language"
-HOMEPAGE="https://www.python.org/"
-SRC_URI="https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz
+HOMEPAGE="
+	https://www.python.org/
+	https://github.com/python/cpython/
+"
+SRC_URI="
+	https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz
 	https://dev.gentoo.org/~mgorny/dist/python/${PATCHSET}.tar.xz
-	https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${PATCHSET}.tar.xz
 	verify-sig? (
 		https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz.asc
-	)"
+	)
+"
 S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
-IUSE="bluetooth build examples gdbm hardened lto +ncurses pgo +readline +sqlite +ssl test tk wininst +xml"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+IUSE="bluetooth build examples gdbm hardened libedit lto +ncurses pgo +readline +sqlite +ssl test tk wininst"
 RESTRICT="!test? ( test )"
 
 # Do not add a dependency on dev-lang/python to this ebuild.
@@ -33,8 +37,11 @@ RESTRICT="!test? ( test )"
 # run the bootstrap code on your dev box and include the results in the
 # patchset. See bug 447752.
 
-RDEPEND="app-arch/bzip2:=
+RDEPEND="
+	app-arch/bzip2:=
 	app-arch/xz-utils:=
+	app-crypt/libb2
+	>=dev-libs/expat-2.1:=
 	dev-libs/libffi:=
 	sys-apps/util-linux:=
 	>=sys-libs/zlib-1.1.3:=
@@ -42,7 +49,10 @@ RDEPEND="app-arch/bzip2:=
 	virtual/libintl
 	gdbm? ( sys-libs/gdbm:=[berkdb] )
 	ncurses? ( >=sys-libs/ncurses-5.2:= )
-	readline? ( >=sys-libs/readline-4.1:= )
+	readline? (
+		!libedit? ( >=sys-libs/readline-4.1:= )
+		libedit? ( dev-libs/libedit:= )
+	)
 	sqlite? ( >=dev-db/sqlite-3.3.8:3= )
 	ssl? ( >=dev-libs/openssl-1.1.1:= )
 	tk? (
@@ -51,25 +61,37 @@ RDEPEND="app-arch/bzip2:=
 		dev-tcltk/blt:=
 		dev-tcltk/tix
 	)
-	xml? ( >=dev-libs/expat-2.1:= )
-	!!<sys-apps/sandbox-2.21"
+	!!<sys-apps/sandbox-2.21
+"
 # bluetooth requires headers from bluez
-DEPEND="${RDEPEND}
+DEPEND="
+	${RDEPEND}
 	bluetooth? ( net-wireless/bluez )
-	test? ( app-arch/xz-utils[extra-filters(+)] )"
+	test? ( app-arch/xz-utils[extra-filters(+)] )
+"
 # autoconf-archive needed to eautoreconf
 BDEPEND="
 	sys-devel/autoconf-archive
 	virtual/awk
 	virtual/pkgconfig
-	verify-sig? ( app-crypt/openpgp-keys-python )
-	!sys-devel/gcc[libffi(-)]"
-RDEPEND+=" !build? ( app-misc/mime-types )"
+	verify-sig? ( sec-keys/openpgp-keys-python )
+	!sys-devel/gcc[libffi(-)]
+"
+RDEPEND+="
+	!build? ( app-misc/mime-types )
+"
+if [[ ${PV} != *_alpha* ]]; then
+	RDEPEND+="
+		dev-lang/python-exec[python_targets_python${PYVER/./_}(-)]
+	"
+fi
 
 VERIFY_SIG_OPENPGP_KEY_PATH=${BROOT}/usr/share/openpgp-keys/python.org.asc
 
 # large file tests involve a 2.5G file being copied (duplicated)
 CHECKREQS_DISK_BUILD=5500M
+
+QA_PKGCONFIG_VERSION=${PYVER}
 
 pkg_pretend() {
 	use test && check-reqs_pkg_pretend
@@ -98,9 +120,6 @@ src_prepare() {
 
 	default
 
-	sed -i -e "s:@@GENTOO_LIBDIR@@:$(get_libdir):g" \
-		setup.py || die "sed failed to replace @@GENTOO_LIBDIR@@"
-
 	# force correct number of jobs
 	# https://bugs.gentoo.org/737660
 	local jobs=$(makeopts_jobs "${MAKEOPTS}" "$(get_nproc)")
@@ -114,24 +133,6 @@ src_configure() {
 	local disable
 	# disable automagic bluetooth headers detection
 	use bluetooth || export ac_cv_header_bluetooth_bluetooth_h=no
-	use gdbm      || disable+=" gdbm"
-	use ncurses   || disable+=" _curses _curses_panel"
-	use readline  || disable+=" readline"
-	use sqlite    || disable+=" _sqlite3"
-	use ssl       || export PYTHON_DISABLE_SSL="1"
-	use tk        || disable+=" _tkinter"
-	use xml       || disable+=" _elementtree pyexpat" # _elementtree uses pyexpat.
-	export PYTHON_DISABLE_MODULES="${disable}"
-
-	if ! use xml; then
-		ewarn "You have configured Python without XML support."
-		ewarn "This is NOT a recommended configuration as you"
-		ewarn "may face problems parsing any XML documents."
-	fi
-
-	if [[ -n "${PYTHON_DISABLE_MODULES}" ]]; then
-		einfo "Disabled modules: ${PYTHON_DISABLE_MODULES}"
-	fi
 
 	if [[ "$(gcc-major-version)" -ge 4 ]]; then
 		append-flags -fwrapv
@@ -163,7 +164,12 @@ src_configure() {
 
 	if use pgo; then
 		local jobs=$(makeopts_jobs "${MAKEOPTS}" "$(get_nproc)")
-		export PROFILE_TASK="-m test -j${jobs} --pgo-extended -x test_gdb"
+		export PROFILE_TASK="-m test -j${jobs} --pgo-extended -x test_gdb -u-network"
+
+		# All of these seem to occasionally hang for PGO inconsistently
+		# They'll even hang here but be fine in src_test sometimes.
+		# bug #828535 (and related: bug #788022)
+		PROFILE_TASK+=" -x test_socket -x test_asyncio -x test_httpservers -x test_logging -x test_multiprocessing_fork -x test_xmlrpc"
 
 		if has_version "app-arch/rpm" ; then
 			# Avoid sandbox failure (attempts to write to /var/lib/rpm)
@@ -189,18 +195,45 @@ src_configure() {
 		--without-ensurepip
 		--with-system-expat
 		--with-system-ffi
+		--with-platlibdir=lib
+		--with-pkg-config=yes
 
 		$(use_with lto)
 		$(use_enable pgo optimizations)
+		$(use_with readline readline "$(usex libedit editline readline)")
 	)
 
-	OPT="" econf "${myeconfargs[@]}"
+	# disable implicit optimization/debugging flags
+	local -x OPT=
+	# pass system CFLAGS & LDFLAGS as _NODIST, otherwise they'll get
+	# propagated to sysconfig for built extensions
+	local -x CFLAGS_NODIST=${CFLAGS}
+	local -x LDFLAGS_NODIST=${LDFLAGS}
+	local -x CFLAGS= LDFLAGS=
+
+	econf "${myeconfargs[@]}"
 
 	if grep -q "#define POSIX_SEMAPHORES_NOT_ENABLED 1" pyconfig.h; then
 		eerror "configure has detected that the sem_open function is broken."
 		eerror "Please ensure that /dev/shm is mounted as a tmpfs with mode 1777."
 		die "Broken sem_open function (bug 496328)"
 	fi
+
+	# force-disable modules we don't want built
+	local disable_modules=(
+		NIS
+	)
+	use gdbm || disable_modules+=( _GDBM _DBM )
+	use sqlite || disable_modules+=( _SQLITE3 )
+	use ssl || disable_modules+=( _HASHLIB _SSL )
+	use ncurses || disable_modules+=( _CURSES _CURSES_PANEL )
+	use readline || disable_modules+=( READLINE )
+	use tk || disable_modules+=( _TKINTER )
+
+	local mod
+	for mod in "${disable_modules[@]}"; do
+		echo "MODULE_${mod}=disabled"
+	done >> Makefile || die
 }
 
 src_compile() {
@@ -210,6 +243,12 @@ src_compile() {
 	# Prevent using distutils bundled by setuptools.
 	# https://bugs.gentoo.org/823728
 	export SETUPTOOLS_USE_DISTUTILS=stdlib
+	export PYTHONSTRICTEXTENSIONBUILD=1
+
+	# Save PYTHONDONTWRITEBYTECODE so that 'has_version' doesn't
+	# end up writing bytecode & violating sandbox.
+	# bug #831897
+	local -x _PYTHONDONTWRITEBYTECODE=${PYTHONDONTWRITEBYTECODE}
 
 	if use pgo ; then
 		# bug 660358
@@ -219,7 +258,12 @@ src_compile() {
 		addpredict /usr/lib/python3.11/site-packages
 	fi
 
+	# also need to clear the flags explicitly here or they end up
+	# in _sysconfigdata*
 	emake CPPFLAGS= CFLAGS= LDFLAGS=
+
+	# Restore saved value from above.
+	local -x PYTHONDONTWRITEBYTECODE=${_PYTHONDONTWRITEBYTECODE}
 
 	# Work around bug 329499. See also bug 413751 and 457194.
 	if has_version dev-libs/libffi[pax-kernel]; then
@@ -239,6 +283,12 @@ src_test() {
 	# Skip failing tests.
 	local skipped_tests="gdb"
 
+	if use sparc ; then
+		# bug #788022
+		skipped_tests+=" multiprocessing_fork"
+		skipped_tests+=" multiprocessing_forkserver"
+	fi
+
 	for test in ${skipped_tests}; do
 		mv "${S}"/Lib/test/test_${test}.py "${T}"
 	done
@@ -249,7 +299,8 @@ src_test() {
 	# bug 660358
 	local -x COLUMNS=80
 	local -x PYTHONDONTWRITEBYTECODE=
-	addpredict /usr/lib/python3.11/site-packages
+	# workaround https://bugs.gentoo.org/775416
+	addwrite /usr/lib/python3.11/site-packages
 
 	local jobs=$(makeopts_jobs "${MAKEOPTS}" "$(get_nproc)")
 
@@ -280,12 +331,8 @@ src_test() {
 src_install() {
 	local libdir=${ED}/usr/lib/python${PYVER}
 
-	emake DESTDIR="${D}" altinstall
-
-	sed \
-		-e "s/\(CONFIGURE_LDFLAGS=\).*/\1/" \
-		-e "s/\(PY_LDFLAGS=\).*/\1/" \
-		-i "${libdir}/config-${PYVER}"*/Makefile || die "sed failed"
+	# -j1 hack for now for bug #843458
+	emake -j1 DESTDIR="${D}" altinstall
 
 	# Fix collisions between different slots of Python.
 	rm "${ED}/usr/$(get_libdir)/libpython3.so" || die
@@ -310,7 +357,7 @@ src_install() {
 		pax-mark m "${ED}/usr/bin/${abiver}"
 	fi
 
-	use sqlite || rm -r "${libdir}/"{sqlite3,test/test_sqlite*} || die
+	use sqlite || rm -r "${libdir}/"sqlite3 || die
 	use tk || rm -r "${ED}/usr/bin/idle${PYVER}" "${libdir}/"{idlelib,tkinter,test/test_tk*} || die
 
 	dodoc Misc/{ACKS,HISTORY,NEWS}

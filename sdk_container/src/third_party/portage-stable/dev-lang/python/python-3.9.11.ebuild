@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
@@ -7,24 +7,24 @@ WANT_LIBTOOL="none"
 inherit autotools check-reqs flag-o-matic multiprocessing pax-utils \
 	python-utils-r1 toolchain-funcs verify-sig
 
-MY_PV=${PV/_alpha/a}
+MY_PV=${PV/_rc/rc}
 MY_P="Python-${MY_PV%_p*}"
 PYVER=$(ver_cut 1-2)
 PATCHSET="python-gentoo-patches-${MY_PV}"
 
 DESCRIPTION="An interpreted, interactive, object-oriented programming language"
 HOMEPAGE="https://www.python.org/"
-SRC_URI="https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz
+SRC_URI="https://www.python.org/ftp/python/${PV%_*}/${MY_P}.tar.xz
 	https://dev.gentoo.org/~mgorny/dist/python/${PATCHSET}.tar.xz
 	verify-sig? (
-		https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz.asc
+		https://www.python.org/ftp/python/${PV%_*}/${MY_P}.tar.xz.asc
 	)"
 S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
-IUSE="bluetooth build examples gdbm hardened +ncurses +readline +sqlite +ssl test tk wininst +xml"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+IUSE="bluetooth build examples gdbm hardened lto +ncurses pgo +readline +sqlite +ssl test tk wininst +xml"
 RESTRICT="!test? ( test )"
 
 # Do not add a dependency on dev-lang/python to this ebuild.
@@ -34,6 +34,7 @@ RESTRICT="!test? ( test )"
 
 RDEPEND="app-arch/bzip2:=
 	app-arch/xz-utils:=
+	dev-lang/python-exec[python_targets_python3_9(-)]
 	dev-libs/libffi:=
 	sys-apps/util-linux:=
 	>=sys-libs/zlib-1.1.3:=
@@ -50,18 +51,16 @@ RDEPEND="app-arch/bzip2:=
 		dev-tcltk/blt:=
 		dev-tcltk/tix
 	)
-	xml? ( >=dev-libs/expat-2.1:= )
-	!!<sys-apps/sandbox-2.21"
+	xml? ( >=dev-libs/expat-2.1:= )"
 # bluetooth requires headers from bluez
 DEPEND="${RDEPEND}
 	bluetooth? ( net-wireless/bluez )
 	test? ( app-arch/xz-utils[extra-filters(+)] )"
-# autoconf-archive needed to eautoreconf
 BDEPEND="
-	sys-devel/autoconf-archive
 	virtual/awk
 	virtual/pkgconfig
-	verify-sig? ( app-crypt/openpgp-keys-python )
+	sys-devel/autoconf-archive
+	verify-sig? ( sec-keys/openpgp-keys-python )
 	!sys-devel/gcc[libffi(-)]"
 RDEPEND+=" !build? ( app-misc/mime-types )"
 
@@ -160,6 +159,21 @@ src_configure() {
 		dbmliborder+="${dbmliborder:+:}gdbm"
 	fi
 
+	if use pgo; then
+		local jobs=$(makeopts_jobs "${MAKEOPTS}" "$(get_nproc)")
+		export PROFILE_TASK="-m test -j${jobs} --pgo-extended -x test_gdb -u-network"
+
+		# All of these seem to occasionally hang for PGO inconsistently
+		# They'll even hang here but be fine in src_test sometimes.
+		# bug #828535 (and related: bug #788022)
+		PROFILE_TASK+=" -x test_socket -x test_asyncio -x test_httpservers -x test_logging -x test_multiprocessing_fork -x test_xmlrpc"
+
+		if has_version "app-arch/rpm" ; then
+			# Avoid sandbox failure (attempts to write to /var/lib/rpm)
+			PROFILE_TASK+=" -x test_distutils"
+		fi
+	fi
+
 	local myeconfargs=(
 		# glibc-2.30 removes it; since we can't cleanly force-rebuild
 		# Python on glibc upgrade, remove it proactively to give
@@ -167,7 +181,6 @@ src_configure() {
 		ac_cv_header_stropts_h=no
 
 		--enable-shared
-		--without-static-libpython
 		--enable-ipv6
 		--infodir='${prefix}/share/info'
 		--mandir='${prefix}/share/man'
@@ -178,9 +191,20 @@ src_configure() {
 		--without-ensurepip
 		--with-system-expat
 		--with-system-ffi
+
+		$(use_with lto)
+		$(use_enable pgo optimizations)
 	)
 
-	OPT="" econf "${myeconfargs[@]}"
+	# disable implicit optimization/debugging flags
+	local -x OPT=
+	# pass system CFLAGS & LDFLAGS as _NODIST, otherwise they'll get
+	# propagated to sysconfig for built extensions
+	local -x CFLAGS_NODIST=${CFLAGS}
+	local -x LDFLAGS_NODIST=${LDFLAGS}
+	local -x CFLAGS= LDFLAGS=
+
+	econf "${myeconfargs[@]}"
 
 	if grep -q "#define POSIX_SEMAPHORES_NOT_ENABLED 1" pyconfig.h; then
 		eerror "configure has detected that the sem_open function is broken."
@@ -197,7 +221,25 @@ src_compile() {
 	# https://bugs.gentoo.org/823728
 	export SETUPTOOLS_USE_DISTUTILS=stdlib
 
+	# Save PYTHONDONTWRITEBYTECODE so that 'has_version' doesn't
+	# end up writing bytecode & violating sandbox.
+	# bug #831897
+	local -x _PYTHONDONTWRITEBYTECODE=${PYTHONDONTWRITEBYTECODE}
+
+	if use pgo ; then
+		# bug 660358
+		local -x COLUMNS=80
+		local -x PYTHONDONTWRITEBYTECODE=
+
+		addpredict /usr/lib/python3.9/site-packages
+	fi
+
+	# also need to clear the flags explicitly here or they end up
+	# in _sysconfigdata*
 	emake CPPFLAGS= CFLAGS= LDFLAGS=
+
+	# Restore saved value from above.
+	local -x PYTHONDONTWRITEBYTECODE=${_PYTHONDONTWRITEBYTECODE}
 
 	# Work around bug 329499. See also bug 413751 and 457194.
 	if has_version dev-libs/libffi[pax-kernel]; then
@@ -217,6 +259,12 @@ src_test() {
 	# Skip failing tests.
 	local skipped_tests="gdb"
 
+	if use sparc ; then
+		# bug #788022
+		skipped_tests+=" multiprocessing_fork"
+		skipped_tests+=" multiprocessing_forkserver"
+	fi
+
 	for test in ${skipped_tests}; do
 		mv "${S}"/Lib/test/test_${test}.py "${T}"
 	done
@@ -224,7 +272,6 @@ src_test() {
 	# bug 660358
 	local -x COLUMNS=80
 	local -x PYTHONDONTWRITEBYTECODE=
-	addpredict /usr/lib/python3.11/site-packages
 
 	local jobs=$(makeopts_jobs "${MAKEOPTS}" "$(get_nproc)")
 
@@ -255,10 +302,8 @@ src_install() {
 
 	emake DESTDIR="${D}" altinstall
 
-	sed \
-		-e "s/\(CONFIGURE_LDFLAGS=\).*/\1/" \
-		-e "s/\(PY_LDFLAGS=\).*/\1/" \
-		-i "${libdir}/config-${PYVER}"*/Makefile || die "sed failed"
+	# Remove static library
+	rm "${ED}"/usr/$(get_libdir)/libpython*.a || die
 
 	# Fix collisions between different slots of Python.
 	rm "${ED}/usr/$(get_libdir)/libpython3.so" || die
