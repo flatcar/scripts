@@ -1,14 +1,47 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# Vadim Misbakh-Soloviov <mva@gentoo.org> (2021-12-09)
-# ts-cli requires rust to be built, and rust is unavailable here ATM.
-dev-libs/tree-sitter ts-cli
+# Nickolas Raymond Kaczynski <nrk@disroot.org> (2022-04-24)
+# Dependencies are missing keywords
+media-libs/imlib2 svg heif jpegxl
+media-gfx/graphicsmagick jpegxl
+
+# Matt Turner <mattst88@gentoo.org> (2022-04-18)
+# app-text/nuspell is not keyworded
+app-text/enchant nuspell
+
+# Matt Turner <mattst88@gentoo.org> (2022-04-16)
+# net-misc/freerdp is not keyworded
+dev-libs/weston rdp
+
+# Matt Turner <mattst88@gentoo.org> (2022-04-16)
+# sys-auth/seatd is not keyworded
+dev-libs/weston seatd
+
+# Lars Wendler <polynomial-c@gentoo.org> (2022-04-01)
+# gnome-base/librsvg missing keywords
+media-libs/freetype svg
+
+# Adel Kara Slimane <adel.ks@zegrapher.com> (2022-03-14)
+# Untested useflag on other arches, needs keywording
+media-video/ffmpeg vmaf
+
+# Sam James <sam@gentoo.org> (2022-03-06)
+# Unkeyworded dependencies
+net-mail/cyrus-imapd http
+
+# Adel Kara Slimane <adel.ks@zegrapher.com> (2022-01-11)
+# Mask AMF keyword on non-amd64 arches
+# It is unusable, for now, in other arches
+media-video/ffmpeg amf
+
+# Sam James <sam@gentoo.org> (2022-01-29)
+# app-text/ronn-ng not keyworded here, bug #801103
+app-accessibility/espeak-ng man
 
 # Michał Górny <mgorny@gentoo.org> (2021-11-26)
 # These package flags require dev-python/cryptography which -- due
 # to the dependency on Rust -- is no longer portable to ia64.
-dev-python/passlib totp
 dev-python/twisted conch crypt
 dev-python/urllib3 test
 net-fs/samba addc addns ads
@@ -35,6 +68,7 @@ media-libs/libsdl2 pipewire
 # Sam James <sam@gentoo.org> (2021-10-17)
 # media-libs/libheif not keyworded here
 sci-libs/gdal heif
+media-gfx/graphicsmagick heif
 
 # Sam James <sam@gentoo.org> (2021-09-14)
 # JACK2 isn't keyworded here
@@ -73,6 +107,7 @@ media-libs/rubberband jni
 # media-libs/libheif isn't keyworded here
 # media-libs/libavif isn't keyworded here
 media-libs/gd avif heif
+media-gfx/graphicsmagick heif
 
 # Akinori Hattori <hattya@gentoo.org> (2021-03-03)
 # dev-lang/ruby is not keyworded
@@ -125,17 +160,9 @@ media-gfx/inkscape cdr visio
 # Requires media-libs/mesa[llvm], which is masked.
 dev-python/pyopengl test
 
-# Lars Wendler <polynomial-c@gentoo.org> (2020-04-20)
-# Not keyworded on ia64
-net-misc/whois xcrypt
-
 # Mikle Kolyada <zlogene@gentoo.org> (2020-04-20)
 # dev-lang/ruby is not keyworded (a dep)
 app-text/texlive context l10n_ja
-
-# Michał Górny <mgorny@gentoo.org> (2020-04-13)
-# Requires unsupported dev-python/gevent.
-dev-python/socketpool eventlet gevent
 
 # Sergei Trofimovich <slyfox@gentoo.org> (2020-04-12)
 # ruby-2.7 dropped ia64 support, mask dependencies requiring ruby.
@@ -263,6 +290,7 @@ media-video/ffmpeg libv4l
 # Michał Górny <mgorny@gentoo.org> (2017-08-07)
 # Requires USE=bluetooth that is masked in this profile.
 media-sound/pulseaudio native-headset
+media-sound/pulseaudio-daemon native-headset
 
 # Sergei Trofimovich <slyfox@gentoo.org> (2017-07-20)
 # pulls in unkeyworded java
@@ -271,11 +299,6 @@ sci-libs/gdal mdb
 # Sergei Trofimovich <slyfox@gentoo.org> (2017-07-20)
 # pulls in unkeyworded lapack
 sci-libs/gdal armadillo
-
-# Michał Górny <mgorny@gentoo.org> (2017-06-28)
-# app-misc/dtach is not keyworded, and tests are restricted anyway, so
-# no point in pursuing it right now.
-app-shells/bash-completion test
 
 # Sergei Trofimovich <slyfox@gentoo.org> (2017-06-17)
 # Pulls in dev-db/redis which is not keyworded on ia64.
@@ -364,10 +387,12 @@ net-misc/networkmanager wext
 # Pacho Ramos <pacho@gentoo.org> (2015-09-06)
 # Missing keywords
 media-sound/pulseaudio ofono-headset
+media-sound/pulseaudio-daemon ofono-headset
 
 # Mike Gilbert <floppym@gentoo.org> (2015-09-05)
 # sys-boot/gnu-efi is not supported on all archs.
 sys-apps/systemd -gnuefi
+sys-apps/systemd-utils -boot
 
 # Pacho Ramos <pacho@gentoo.org> (2015-06-13)
 # Missing keywords, bug #513108
@@ -462,7 +487,7 @@ x11-misc/xscreensaver new-login
 
 # Alexey Shvetsov <alexxy@gentoo.org> (2011-12-17)
 # Mask use numa for openmpi
-sys-cluster/openmpi openmpi_fabrics_psm openmpi_fabrics_knem openmpi_fabrics_ofed openmpi_fabrics_dapl openmpi_rm_slurm openmpi_fabrics_sctp openmpi_ofed_features_rdmacm openmpi_ofed_features_control-hdr-padding openmpi_ofed_features_connectx-xrc openmpi_ofed_features_udcm openmpi_ofed_features_dynamic-sl openmpi_ofed_features_failover
+sys-cluster/openmpi openmpi_fabrics_knem openmpi_fabrics_ofed openmpi_rm_slurm openmpi_ofed_features_rdmacm openmpi_ofed_features_control-hdr-padding openmpi_ofed_features_udcm openmpi_ofed_features_dynamic-sl
 
 # Raúl Porcel <armin76@gentoo.org> (2011-11-05)
 # jit not supported on ia64
