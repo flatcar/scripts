@@ -4,8 +4,10 @@
 EAPI="7"
 
 # flatcar changes
+PYTHON_COMPAT=( python3_{8,9,10} )
+PYTHON_REQ_USE="xml"
 TMPFILES_OPTIONAL=1
-inherit systemd tmpfiles
+inherit systemd tmpfiles python-any-r1
 
 if [[ ${PV} == 9999* ]]; then
 	EGIT_REPO_URI="${SELINUX_GIT_REPO:-https://anongit.gentoo.org/git/proj/hardened-refpolicy.git}"
@@ -32,10 +34,10 @@ RDEPEND=">=sys-apps/policycoreutils-2.8
 	>=sys-apps/checkpolicy-2.8
 "
 DEPEND="${RDEPEND}"
-# flatcar: BDEPEND on python3[xml] - normally pulled in through policycoreutils
+# flatcar: BDEPEND on python - normally pulled in through policycoreutils
 # but we made that dep conditional on USE=python
 BDEPEND="sys-devel/m4
-    >=dev-lang/python-3[xml]
+    ${PYTHON_DEPS}
 "
 
 
