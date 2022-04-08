@@ -17,3 +17,7 @@
 # libxcrypt -> glibc -> python), and also we need to update gcc to
 # version 10 or later.
 >=virtual/libcrypt-2
+
+# Python 3.10 is stable in portage-stable, so avoid picking it
+# up. Drop this when we switch to it.
+>=dev-lang/python-3.10
