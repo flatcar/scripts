@@ -1,0 +1,1 @@
+- afterburn ([5.2.0](https://github.com/coreos/afterburn/releases/tag/v5.2.0))
