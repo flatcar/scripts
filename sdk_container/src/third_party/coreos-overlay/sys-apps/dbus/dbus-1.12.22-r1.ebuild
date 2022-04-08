@@ -45,9 +45,14 @@ DEPEND="${COMMON_DEPEND}
 		>=dev-libs/glib-2.40:2
 	)
 "
+# Flatcar: Drop the following dependency to avoid pulling in
+# unnecessary ebuilds into rootfs:
+#
+# selinux? ( sec-policy/selinux-dbus )
+#
+# We may want to revisit that, actually.
 RDEPEND="${COMMON_DEPEND}
 	acct-user/messagebus
-	selinux? ( sec-policy/selinux-dbus )
 	systemd? ( virtual/tmpfiles )
 "
 
@@ -133,7 +138,9 @@ multilib_src_configure() {
 		--disable-kqueue
 		$(use_enable elogind)
 		$(use_enable systemd)
-		$(use_enable systemd user-session)
+		# Flatcar: disable user sessions
+		# $(use_enable systemd user-session)
+		--disable-user-session
 		--disable-embedded-tests
 		--disable-modular-tests
 		$(use_enable debug stats)
@@ -255,16 +262,17 @@ multilib_src_install_all() {
 pkg_postinst() {
 	readme.gentoo_print_elog
 
-	if use systemd; then
-		tmpfiles_process dbus.conf
-	fi
-
-	# Ensure unique id is generated and put it in /etc wrt #370451 but symlink
-	# for DBUS_MACHINE_UUID_FILE (see tools/dbus-launch.c) and reverse
-	# dependencies with hardcoded paths (although the known ones got fixed already)
-	# TODO: should be safe to remove at least the ln because of the above tmpfiles_process?
-	dbus-uuidgen --ensure="${EROOT}"/etc/machine-id
-	ln -sf "${EPREFIX}"/etc/machine-id "${EROOT}"/var/lib/dbus/machine-id
+	# Flatcar: Drop machine-id generation.
+	# if use systemd; then
+	# 	tmpfiles_process dbus.conf
+	# fi
+	#
+	# # Ensure unique id is generated and put it in /etc wrt #370451 but symlink
+	# # for DBUS_MACHINE_UUID_FILE (see tools/dbus-launch.c) and reverse
+	# # dependencies with hardcoded paths (although the known ones got fixed already)
+	# # TODO: should be safe to remove at least the ln because of the above tmpfiles_process?
+	# dbus-uuidgen --ensure="${EROOT}"/etc/machine-id
+	# ln -sf "${EPREFIX}"/etc/machine-id "${EROOT}"/var/lib/dbus/machine-id
 
 	if [[ ${CHOST} == *-darwin* ]]; then
 		local plist="org.freedesktop.dbus-session.plist"
