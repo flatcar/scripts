@@ -20,8 +20,10 @@ DEPEND="dev-python/setuptools"
 RDEPEND="
 	app-admin/sudo
 	dev-python/boto
+	dev-python/distro
 	dev-python/setuptools
 	sys-apps/ethtool
+	sys-apps/coreutils
 	sys-apps/gawk
 	sys-apps/grep
 	sys-apps/iproute2
