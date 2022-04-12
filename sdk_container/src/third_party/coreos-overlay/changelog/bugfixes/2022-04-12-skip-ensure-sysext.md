@@ -1,0 +1,1 @@
+- Skipped starting `ensure-sysext.service` if `systemd-sysext.service` won't be started, to prevent reporting a dependency failure ([Flatcar#710](https://github.com/flatcar-linux/Flatcar/issues/710))
