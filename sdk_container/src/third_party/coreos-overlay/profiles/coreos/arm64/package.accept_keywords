@@ -1,6 +1,8 @@
 # arm64 keywords
 # Keep these in alphabetical order.
 
+=app-arch/libarchive-3.6.1 ~arm64
+
 # needed by arm64-native SDK
 =app-emulation/open-vmdk-1.0 *
 =app-crypt/rhash-1.4.2 ~arm64
