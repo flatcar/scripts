@@ -60,6 +60,9 @@ function vm_build() {
     echo "docker container rm -f '${vms_container}'" >> ci-cleanup.sh
 
     for format; do
+        # keep compatibility with SDK scripts where "equinix_metal"
+        # remains unknown.
+        [ "${format}" = "equinix_metal" ] && format="packet"
         echo " ###################  VENDOR '${format}' ################### "
         ./run_sdk_container -n "${vms_container}" -C "${image_image}" \
             -v "${vernum}" \
