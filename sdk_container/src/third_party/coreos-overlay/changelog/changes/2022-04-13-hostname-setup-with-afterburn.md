@@ -1,0 +1,2 @@
+- Azure: Set up `/etc/hostname` from instance metadata with Afterburn
+- AWS EC2: Removed the setup of `/etc/hostname` from the instance metadata because it used a long FQDN but we can just use use the hostname set via DHCP ([Flatcar#707](https://github.com/flatcar-linux/Flatcar/issues/707))
