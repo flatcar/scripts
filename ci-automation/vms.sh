@@ -59,6 +59,16 @@ function vm_build() {
 
     echo "docker container rm -f '${vms_container}'" >> ci-cleanup.sh
 
+    # automatically add PXE to formats if we build for Equinix Metal (packet).
+    local has_packet=0
+    local has_pxe=0
+    for format; do
+        [[ "${format}" = 'packet' ]] || [[ "${format}" = 'equinix_metal' ]] && has_packet=1
+        [[ "${format}" = 'pxe' ]] && has_pxe=1
+    done
+
+    [[ ${has_packet} -eq 1 ]] && [[ ${has_pxe} -eq 0 ]] && set -- 'pxe' "${@}"
+
     for format; do
         # keep compatibility with SDK scripts where "equinix_metal"
         # remains unknown.
