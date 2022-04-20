@@ -1,0 +1,1 @@
+- SDK: Dropped the mantle binaries (kola, ore, etc.) from the SDK, they are now provided by the `ghcr.io/flatcar-linux/mantle` image ([PR#1827](https://github.com/flatcar-linux/coreos-overlay/pull/1827), [PR#275](https://github.com/flatcar-linux/scripts/pull/275))

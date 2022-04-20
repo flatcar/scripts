@@ -27,8 +27,6 @@ DEPEND="
 	coreos-base/hard-host-depends
 	coreos-base/coreos-sb-keys
 	coreos-devel/fero-client
-	amd64? ( coreos-devel/kola-data )
-	coreos-devel/mantle
 	dev-libs/gobject-introspection
 	dev-python/setuptools
 	dev-util/boost-build
