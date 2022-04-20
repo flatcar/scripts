@@ -1,0 +1,54 @@
+name: Get the latest mantle release for branch
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron:  '0 7 * * 1'
+
+jobs:
+  get-mantle-release:
+    strategy:
+      matrix:
+        branch: [main,alpha,beta,stable]
+      fail-fast: false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Figure out branch
+        id: figure-out-branch
+        run: |
+          if [ ${{ matrix.branch }} = "main" ]; then
+            echo ::set-output name=BRANCH::main
+          else
+            major=$(curl -sSL https://${{ matrix.branch }}.release.flatcar-linux.net/amd64-usr/current/version.txt | awk -F= '/FLATCAR_BUILD=/{ print $2 }')
+            echo ::set-output name=BRANCH::flatcar-${major}
+          fi
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ steps.figure-out-branch.outputs.BRANCH }}
+      - name: Fetch latest mantle hash
+        id: fetch-latest-mantle
+        run: |
+          commit=$(git ls-remote  https://github.com/flatcar-linux/mantle refs/heads/flatcar-master | cut -f1)
+          echo ::set-output name=COMMIT::${commit}
+      - name: Try to apply patch
+        run: |
+          set -x
+          commit=${{ steps.fetch-latest-mantle.outputs.COMMIT }}
+          if ! grep -q "ghcr.io/flatcar-linux/mantle:git-${commit}" sdk_container/.repo/manifests/mantle-container; then
+            echo "ghcr.io/flatcar-linux/mantle:git-${commit}" > sdk_container/.repo/manifests/mantle-container
+            git add sdk_container/.repo/manifests/mantle-container
+          fi
+      - name: Create pull request for branch
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: ${{ steps.figure-out-branch.outputs.BRANCH }}
+          branch: mantle-update-${{ steps.figure-out-branch.outputs.BRANCH }}
+          author: Flatcar Buildbot <buildbot@flatcar-linux.org>
+          committer: Flatcar Buildbot <buildbot@flatcar-linux.org>
+          title: Upgrade mantle container image to latest HEAD in ${{ steps.figure-out-branch.outputs.BRANCH }}
+          commit-message: Update mantle container image to latest HEAD
+          delete-branch: true
