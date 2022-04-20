@@ -129,7 +129,7 @@ function copy_to_buildcache() {
     $sshcmd "${BUILDCACHE_USER}@${BUILDCACHE_SERVER}" \
         "mkdir -p ${remote_path}"
 
-    rsync -Pav -e "${sshcmd}" "$@" \
+    rsync --partial -a -e "${sshcmd}" "$@" \
         "${BUILDCACHE_USER}@${BUILDCACHE_SERVER}:${remote_path}"
 }
 # --
