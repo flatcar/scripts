@@ -1,0 +1,1 @@
+- GCE: Enabled GVE kernel driver, which adds support for Google Virtual NIC on GCP ([PR#1802](https://github.com/flatcar-linux/coreos-overlay/pull/1802))
