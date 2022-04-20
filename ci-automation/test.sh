@@ -10,7 +10,7 @@
 
 # Test scenarios runner stub.
 #   This script will run test scenarios for a single image type.
-#   Tests will be started inside the SDK container.
+#   Tests will be started inside the mantle container.
 #   This script is generic and will use a vendor-specific test runner from
 #    "ci-automation/vendor-testing/<image>.sh.
 #
@@ -18,11 +18,7 @@
 #
 #   1. SDK version and OS image version are recorded in sdk_container/.repo/manifests/version.txt
 #   2. Scripts repo version tag of OS image version to be built is available and checked out.
-#   2. SDK container is either
-#       - available via ghcr.io/flatcar-linux/flatcar-sdk-[ARCH]:[VERSION] (official SDK release)
-#       OR
-#       - available via build cache server "/containers/[VERSION]/flatcar-sdk-[ARCH]-[VERSION].tar.gz"
-#         (dev SDK)
+#   3. Mantle container docker image reference is stored in sdk_container/.repo/manifests/mantle-container.
 #   4. Vendor image and torcx docker tarball + manifest to run tests for are available on buildcache
 #         ( images/[ARCH]/[FLATCAR_VERSION]/ )
 #
