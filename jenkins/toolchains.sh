@@ -52,7 +52,7 @@ enter() {
   bin/cork enter --bind-gpg-agent=false -- env \
       FLATCAR_DEV_BUILDS="${DOWNLOAD_ROOT}" \
       FLATCAR_DEV_BUILDS_SDK="${DOWNLOAD_ROOT_SDK}" \
-      {FETCH,RESUME}COMMAND_GS="/usr/bin/gangue get \
+      {FETCH,RESUME}COMMAND_GS="/mnt/host/source/bin/gangue get \
 --json-key=/etc/portage/gangue.json $verify_key \
 "'"${URI}" "${DISTDIR}/${FILE}"' \
       "$@"
@@ -66,7 +66,7 @@ source .repo/manifests/version.txt
 export FLATCAR_BUILD_ID
 
 # Fetch DIGEST to prevent re-downloading the same SDK tarball
-enter gangue get --verify-key /opt/verify.asc --json-key /etc/portage/gangue.json "${DOWNLOAD_ROOT_SDK}/amd64/${FLATCAR_SDK_VERSION}/flatcar-sdk-amd64-${FLATCAR_SDK_VERSION}.tar.bz2.DIGESTS" /mnt/host/source/.cache/sdks/
+enter /mnt/host/source/bin/gangue get --verify-key /opt/verify.asc --json-key /etc/portage/gangue.json "${DOWNLOAD_ROOT_SDK}/amd64/${FLATCAR_SDK_VERSION}/flatcar-sdk-amd64-${FLATCAR_SDK_VERSION}.tar.bz2.DIGESTS" /mnt/host/source/.cache/sdks/
 
 script update_chroot \
     --toolchain_boards="${BOARD}" --dev_builds_sdk="${DOWNLOAD_ROOT_SDK}"
