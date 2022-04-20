@@ -72,7 +72,7 @@ gpg --import "${GPG_SECRET_KEY_FILE}"
 sudo rm -rf src/build
 
 # Fetch DIGEST to prevent re-downloading the same SDK tarball
-enter gangue get --verify-key /opt/verify.asc --json-key /etc/portage/gangue.json "${DOWNLOAD_ROOT_SDK}/amd64/${FLATCAR_SDK_VERSION}/flatcar-sdk-amd64-${FLATCAR_SDK_VERSION}.tar.bz2.DIGESTS" /mnt/host/source/.cache/sdks/
+enter /mnt/host/source/bin/gangue get --verify-key /opt/verify.asc --json-key /etc/portage/gangue.json "${DOWNLOAD_ROOT_SDK}/amd64/${FLATCAR_SDK_VERSION}/flatcar-sdk-amd64-${FLATCAR_SDK_VERSION}.tar.bz2.DIGESTS" /mnt/host/source/.cache/sdks/
 
 enter sudo \
     FLATCAR_DEV_BUILDS_SDK="${DOWNLOAD_ROOT_SDK}" \
