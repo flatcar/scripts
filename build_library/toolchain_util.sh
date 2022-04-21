@@ -363,6 +363,7 @@ install_cross_toolchain() {
     fi
 
     # Setup environment and wrappers for our shiny new toolchain
+    binutils_set_latest_profile "${cross_chost}"
     gcc_set_latest_profile "${cross_chost}"
     $sudo CC_QUIET=1 sysroot-config --install-links "${cross_chost}"
 }
@@ -431,6 +432,23 @@ install_cross_rust() {
     fi
 }
 
+# Update to the latest binutils profile for a given CHOST if required
+# Usage: binutils_set_latest_profile chost
+binutils_set_latest_profile() {
+    local latest="$@-latest"
+    if [[ -z "${latest}" ]]; then
+        echo "Failed to detect latest binutils profile for $1" >&2
+        return 1
+    fi
+
+    # may be called from either catalyst (root) or upgrade_chroot (user)
+    local sudo="env"
+    if [[ $(id -u) -ne 0 ]]; then
+        sudo="sudo -E"
+    fi
+
+    $sudo binutils-config "${latest}"
+}
 
 # Get the latest GCC profile for a given CHOST
 # The extra flag can be blank, hardenednopie, and so on. See gcc-config -l
