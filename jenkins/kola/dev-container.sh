@@ -31,13 +31,14 @@ sudo systemd-nspawn $PIPEARG \
     --bind-ro="$PWD/flatcar_production_image_kernel_config.txt:/boot/config" \
     --bind-ro="${GOOGLE_APPLICATION_CREDENTIALS}:/opt/credentials.json" \
     --bind-ro="$PWD/verify.asc:/opt/verify.asc" \
+    --bind-ro="$PWD/bin/gangue:/opt/bin/gangue" \
     --image=flatcar_developer_container.bin \
     --machine=flatcar-developer-container-$(uuidgen) \
     --tmpfs=/usr/src \
     --tmpfs=/var/tmp \
     /bin/bash -eux << 'EOF'
 export PORTAGE_BINHOST="${PORTAGE_BINHOST}"
-export {FETCH,RESUME}COMMAND_GS="/usr/bin/gangue get --json-key=/opt/credentials.json --verify=true /opt/verify.asc \"\${URI}\" \"\${DISTDIR}/\${FILE}\""
+export {FETCH,RESUME}COMMAND_GS="/opt/bin/gangue get --json-key=/opt/credentials.json --verify=true /opt/verify.asc \"\${URI}\" \"\${DISTDIR}/\${FILE}\""
 emerge-gitclone
 . /usr/share/coreos/release
 if [[ $FLATCAR_RELEASE_VERSION =~ master ]]
