@@ -38,5 +38,4 @@ UNIPATCH_LIST="
 	${PATCH_DIR}/z0004-PCI-hv-Add-arm64-Hyper-V-vPCI-support.patch \
 	${PATCH_DIR}/z0005-Revert-PCI-MSI-Mask-MSI-X-vectors-only-on-success.patch \
 	${PATCH_DIR}/z0006-Drivers-hv-vmbus-Propagate-VMbus-coherence-to-each-V.patch \
-	${PATCH_DIR}/z0007-PCI-hv-Propagate-coherence-from-VMbus-device-to-PCI-.patch \
 "
