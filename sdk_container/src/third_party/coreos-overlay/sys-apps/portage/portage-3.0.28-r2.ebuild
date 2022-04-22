@@ -94,6 +94,8 @@ pkg_pretend() {
 python_prepare_all() {
 	local PATCHES=(
 		"${DISTDIR}"/${P}-setuptools-install-depr.patch
+		# Flatcar: downstream patches
+		"${PATCHES[@]}"
 	)
 
 	distutils-r1_python_prepare_all
