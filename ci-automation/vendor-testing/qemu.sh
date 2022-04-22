@@ -6,63 +6,49 @@
 set -euo pipefail
 
 # Test execution script for the qemu vendor image.
-# This script is supposed to run in the SDK container.
+# This script is supposed to run in the mantle container.
 
-work_dir="$1"; shift
-arch="$1"; shift
-vernum="$1"; shift
-tapfile="$1"; shift
-
-# $@ now contains tests / test patterns to run
-
-source ci-automation/ci_automation_common.sh
-
-mkdir -p "${work_dir}"
-cd "${work_dir}"
-
-testscript="$(basename "$0")"
+source ci-automation/vendor_test.sh
 
 # ARM64 qemu tests only supported on UEFI
-if [ "${arch}" = "arm64" ] && [ "${testscript}" != "qemu_uefi.sh" ] ; then
-    echo "1..1" > "${tapfile}"
-    echo "not ok - all qemu tests" >> "${tapfile}"
-    echo "  ---" >> "${tapfile}"
-    echo "  ERROR: ARM64 tests only supported on qemu_uefi." | tee -a "${tapfile}"
-    echo "  ..." >> "${tapfile}"
+if [ "${CIA_ARCH}" = "arm64" ] && [ "${CIA_TESTSCRIPT}" != "qemu_uefi.sh" ] ; then
+    echo "1..1" > "${CIA_TAPFILE}"
+    echo "not ok - all qemu tests" >> "${CIA_TAPFILE}"
+    echo "  ---" >> "${CIA_TAPFILE}"
+    echo "  ERROR: ARM64 tests only supported on qemu_uefi." | tee -a "${CIA_TAPFILE}"
+    echo "  ..." >> "${CIA_TAPFILE}"
     exit 1
 fi
 
 # Fetch image and BIOS if not present
 if [ -f "${QEMU_IMAGE_NAME}" ] ; then
-    echo "++++ ${testscript}: Using existing ${work_dir}/${QEMU_IMAGE_NAME} for testing ${vernum} (${arch}) ++++"
+    echo "++++ ${CIA_TESTSCRIPT}: Using existing ./${QEMU_IMAGE_NAME} for testing ${CIA_VERNUM} (${CIA_ARCH}) ++++"
 else
-    echo "++++ ${testscript}: downloading ${QEMU_IMAGE_NAME} for ${vernum} (${arch}) ++++"
-    copy_from_buildcache "images/${arch}/${vernum}/${QEMU_IMAGE_NAME}" .
+    echo "++++ ${CIA_TESTSCRIPT}: downloading ${QEMU_IMAGE_NAME} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
+    copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${QEMU_IMAGE_NAME}" .
 fi
 
 bios="${QEMU_BIOS}"
-if [ "${testscript}" = "qemu_uefi.sh" ] ; then
+if [ "${CIA_TESTSCRIPT}" = "qemu_uefi.sh" ] ; then
     bios="${QEMU_UEFI_BIOS}"
     if [ -f "${bios}" ] ; then
-        echo "++++ ${testscript}: Using existing ${work_dir}/${bios} ++++"
+        echo "++++ ${CIA_TESTSCRIPT}: Using existing ./${bios} ++++"
     else
-        echo "++++ ${testscript}: downloading ${bios} for ${vernum} (${arch}) ++++"
-        copy_from_buildcache "images/${arch}/${vernum}/${bios}" .
+        echo "++++ ${CIA_TESTSCRIPT}: downloading ${bios} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
+        copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${bios}" .
     fi
 fi
 
 set -x
-set -o noglob
 
-sudo kola run \
-    --board="${arch}-usr" \
+kola run \
+    --board="${CIA_ARCH}-usr" \
     --parallel="${QEMU_PARALLEL}" \
     --platform=qemu \
-    --qemu-bios=${bios} \
+    --qemu-bios="${bios}" \
     --qemu-image="${QEMU_IMAGE_NAME}" \
-    --tapfile="${tapfile}" \
-    --torcx-manifest=../torcx_manifest.json \
-    $@
+    --tapfile="${CIA_TAPFILE}" \
+    --torcx-manifest="${CIA_TORCX_MANIFEST}" \
+    "${@}"
 
-set +o noglob
 set +x
