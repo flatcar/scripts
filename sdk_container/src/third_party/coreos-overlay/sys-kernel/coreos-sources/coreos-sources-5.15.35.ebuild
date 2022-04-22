@@ -24,6 +24,9 @@ else
 	PATCH_DIR="${FILESDIR}/${KV_MAJOR}.${KV_MINOR}"
 fi
 
+# make modules_prepare depends on pahole
+RDEPEND="dev-util/pahole"
+
 KEYWORDS="amd64 arm64"
 IUSE=""
 
