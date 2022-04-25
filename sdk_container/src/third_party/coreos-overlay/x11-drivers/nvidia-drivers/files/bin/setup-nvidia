@@ -40,7 +40,7 @@ function download_flatcar_developer_container() {
     fi
 
     curl -L --fail "${FLATCAR_DEVELOPER_CONTAINER_URL}" -o "${FLATCAR_ROOT_WORKDIR}/${FLATCAR_DEVELOPER_CONTAINER}.bz2"
-    bzip2 -d "${FLATCAR_ROOT_WORKDIR}/${FLATCAR_DEVELOPER_CONTAINER}.bz2"
+    lbzip2 -d "${FLATCAR_ROOT_WORKDIR}/${FLATCAR_DEVELOPER_CONTAINER}.bz2"
 
   fi
 
