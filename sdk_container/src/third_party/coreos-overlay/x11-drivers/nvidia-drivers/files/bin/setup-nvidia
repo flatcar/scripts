@@ -10,7 +10,7 @@ NVIDIA_DOWNLOAD_BASEURL="https://us.download.nvidia.com/${NVIDIA_PRODUCT_TYPE}/"
 NVIDIA_DRIVER_BASENAME="NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}"
 NVIDIA_WORKDIR='nvidia-workdir'
 
-FLATCAR_DEVELOPER_CONTAINER="flatcar_developer_container.bin"
+FLATCAR_DEVELOPER_CONTAINER="flatcar_developer_container-${FLATCAR_RELEASE_VERSION}.bin"
 FLATCAR_DEVELOPER_CONTAINER_URL=""
 FLATCAR_ROOT_WORKDIR="/opt/nvidia/workdir"
 FLATCAR_KERNEL_VERSION=$(uname -r)
@@ -22,15 +22,16 @@ function download_flatcar_developer_container() {
 
   if [[ ! -f "${FLATCAR_ROOT_WORKDIR}/${FLATCAR_DEVELOPER_CONTAINER}" ]]
   then
-
+    rm -f "${FLATCAR_ROOT_WORKDIR}/"flatcar_developer_container*.bin
+    FLATCAR_REMOTE_FILENAME=${FLATCAR_DEVELOPER_CONTAINER%%-*}.bin.bz2
     if [[ "$GROUP" == "developer" ]]
     then
-      FLATCAR_DEVELOPER_CONTAINER_URL="https://bucket.release.flatcar-linux.net/flatcar-jenkins/developer/developer/boards/${FLATCAR_RELEASE_BOARD}/${FLATCAR_RELEASE_VERSION}/${FLATCAR_DEVELOPER_CONTAINER}.bz2"
-    else if [[ "$(curl -I -s -o /dev/null -w "%{http_code}" "https://${GROUP}.release.flatcar-linux.net/${FLATCAR_RELEASE_BOARD}/${FLATCAR_RELEASE_VERSION}/${FLATCAR_DEVELOPER_CONTAINER}.bz2")" == 200 ]]
+      FLATCAR_DEVELOPER_CONTAINER_URL="https://bucket.release.flatcar-linux.net/flatcar-jenkins/developer/developer/boards/${FLATCAR_RELEASE_BOARD}/${FLATCAR_RELEASE_VERSION}/${FLATCAR_REMOTE_FILENAME}"
+    else if [[ "$(curl -I -s -o /dev/null -w "%{http_code}" "https://${GROUP}.release.flatcar-linux.net/${FLATCAR_RELEASE_BOARD}/${FLATCAR_RELEASE_VERSION}/${FLATCAR_REMOTE_FILENAME}")" == 200 ]]
       then
-        FLATCAR_DEVELOPER_CONTAINER_URL="https://${GROUP}.release.flatcar-linux.net/${FLATCAR_RELEASE_BOARD}/${FLATCAR_RELEASE_VERSION}/${FLATCAR_DEVELOPER_CONTAINER}.bz2"
+        FLATCAR_DEVELOPER_CONTAINER_URL="https://${GROUP}.release.flatcar-linux.net/${FLATCAR_RELEASE_BOARD}/${FLATCAR_RELEASE_VERSION}/${FLATCAR_REMOTE_FILENAME}"
       else
-        FLATCAR_DEVELOPER_CONTAINER_URL="https://bucket.release.flatcar-linux.net/flatcar-jenkins/${GROUP}/boards/${FLATCAR_RELEASE_BOARD}/${FLATCAR_RELEASE_VERSION}/${FLATCAR_DEVELOPER_CONTAINER}.bz2"
+        FLATCAR_DEVELOPER_CONTAINER_URL="https://bucket.release.flatcar-linux.net/flatcar-jenkins/${GROUP}/boards/${FLATCAR_RELEASE_BOARD}/${FLATCAR_RELEASE_VERSION}/${FLATCAR_REMOTE_FILENAME}"
       fi
     fi
 
