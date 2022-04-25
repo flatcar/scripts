@@ -74,14 +74,21 @@ function run_nspawn_container() {
 }
 
 function copy_nvidia_build_artifacts() {
-  mkdir -p "/opt/nvidia/${NVIDIA_FLATCAR_VERSION_PAIR}/lib64"
-  cp "$FLATCAR_ROOT_WORKDIR/$NVIDIA_WORKDIR/${NVIDIA_DRIVER_BASENAME}"/*.so.* "/opt/nvidia/${NVIDIA_FLATCAR_VERSION_PAIR}/lib64/"
+  mkdir -p "/opt/nvidia/${NVIDIA_FLATCAR_VERSION_PAIR}/usr/lib64"
+  cp "$FLATCAR_ROOT_WORKDIR/$NVIDIA_WORKDIR/${NVIDIA_DRIVER_BASENAME}"/*.so.* "/opt/nvidia/${NVIDIA_FLATCAR_VERSION_PAIR}/usr/lib64/"
 
   mkdir -p /opt/bin
   cp "$FLATCAR_ROOT_WORKDIR/$NVIDIA_WORKDIR/${NVIDIA_DRIVER_BASENAME}"/{nvidia-debugdump,nvidia-cuda-mps-control,nvidia-xconfig,nvidia-modprobe,nvidia-smi,nvidia-cuda-mps-server,nvidia-persistenced,nvidia-settings} /opt/bin/
 
-  mkdir -p "/opt/nvidia/${NVIDIA_FLATCAR_VERSION_PAIR}/lib64/modules/$(uname -r)/video/"
-  cp "$FLATCAR_ROOT_WORKDIR/$NVIDIA_WORKDIR/${NVIDIA_DRIVER_BASENAME}"/kernel/*.ko "/opt/nvidia/${NVIDIA_FLATCAR_VERSION_PAIR}/lib64/modules/$(uname -r)/video/"
+  mkdir -p "/opt/nvidia/${NVIDIA_FLATCAR_VERSION_PAIR}/usr/lib/modules/$(uname -r)/video/"
+  cp "$FLATCAR_ROOT_WORKDIR/$NVIDIA_WORKDIR/${NVIDIA_DRIVER_BASENAME}"/install-mod/*.ko "/opt/nvidia/${NVIDIA_FLATCAR_VERSION_PAIR}/usr/lib/modules/$(uname -r)/video/"
+  cp "$FLATCAR_ROOT_WORKDIR/$NVIDIA_WORKDIR/${NVIDIA_DRIVER_BASENAME}"/install-mod/modules.* "/opt/nvidia/${NVIDIA_FLATCAR_VERSION_PAIR}/usr/lib/modules/$(uname -r)/"
+
+  mkdir -p "/opt/nvidia/${NVIDIA_FLATCAR_VERSION_PAIR}/usr/lib/extension-release.d/"
+  cat <<EOF >"/opt/nvidia/${NVIDIA_FLATCAR_VERSION_PAIR}/usr/lib/extension-release.d/extension-release.nvidia-driver"
+ID=flatcar
+SYSEXT_LEVEL=1.0
+EOF
 
   pushd /opt/nvidia
   ln -sfn "${NVIDIA_FLATCAR_VERSION_PAIR}" current
@@ -89,10 +96,18 @@ function copy_nvidia_build_artifacts() {
 }
 
 function install_and_load() {
+  # This creates symlinks to sonames
+  mkdir -p /etc/ld.so.conf.d/
+  echo "/opt/nvidia/${NVIDIA_CURRENT_INSTALLATION}/usr/lib64" > /etc/ld.so.conf.d/nvidia.conf
+  ldconfig
+
   modprobe -a i2c_core ipmi_msghandler ipmi_devintf
-  insmod "/opt/nvidia/${NVIDIA_CURRENT_INSTALLATION}/lib64/modules/$(uname -r)/video/nvidia.ko"
-  insmod "/opt/nvidia/${NVIDIA_CURRENT_INSTALLATION}/lib64/modules/$(uname -r)/video/nvidia-modeset.ko"
-  insmod "/opt/nvidia/${NVIDIA_CURRENT_INSTALLATION}/lib64/modules/$(uname -r)/video/nvidia-uvm.ko"
+
+  pushd "/opt/nvidia/${NVIDIA_CURRENT_INSTALLATION}/usr/lib/modules/$(uname -r)/video/"
+  insmod nvidia.ko
+  insmod nvidia-modeset.ko
+  insmod nvidia-uvm.ko
+  popd
 
   if [ ! -c /dev/nvidiactl ]
   then
@@ -104,9 +119,6 @@ function install_and_load() {
     mknod -m 666 /dev/nvidia0 c 195 0
   fi
 
-  mkdir -p /etc/ld.so.conf.d/
-  echo "/opt/nvidia/${NVIDIA_CURRENT_INSTALLATION}/lib64" > /etc/ld.so.conf.d/nvidia.conf
-  ldconfig
 }
 
 function verify_installation() {

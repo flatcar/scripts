@@ -13,5 +13,12 @@ cd "/nvidia/${NVIDIA_DRIVER_BASENAME}"
   --no-distro-scripts \
   --no-systemd \
   --skip-depmod \
-  --kernel-install-path="${PWD}" \
+  --kernel-install-path="${PWD}/install-mod" \
   --log-file-name="${PWD}/nvidia-installer.log" || true
+
+mkdir -p /lib/modules/${KERNEL_NAME}/video
+mkdir -p "${PWD}"/install-mod
+cp "${PWD}"/kernel/*.ko "${PWD}"/install-mod
+cp "${PWD}"/install-mod/*.ko /lib/modules/${KERNEL_NAME}/video/
+depmod -a
+cp /lib/modules/${KERNEL_NAME}/modules.* "${PWD}/install-mod/"
