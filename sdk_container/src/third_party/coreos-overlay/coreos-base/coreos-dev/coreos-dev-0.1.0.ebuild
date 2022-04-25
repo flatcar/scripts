@@ -22,6 +22,7 @@ RDEPEND="
 	coreos-devel/mantle
 	dev-lang/python
 	dev-util/strace
+	dev-util/pahole
 	dev-vcs/repo
 	net-analyzer/netperf
 	net-dialup/minicom
