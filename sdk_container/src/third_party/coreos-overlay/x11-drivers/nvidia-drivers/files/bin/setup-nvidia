@@ -63,7 +63,7 @@ function extract_nvidia_installer() {
 
   pushd "${FLATCAR_ROOT_WORKDIR}/${NVIDIA_WORKDIR}"
   chmod +x "${NVIDIA_DRIVER_BASENAME}.run"
-  "./${NVIDIA_DRIVER_BASENAME}.run" -x -s
+  "./${NVIDIA_DRIVER_BASENAME}.run" -x -s || true
   popd
 }
 
@@ -89,14 +89,17 @@ function copy_nvidia_build_artifacts() {
 }
 
 function install_and_load() {
+  modprobe -a i2c_core ipmi_msghandler ipmi_devintf
   insmod "/opt/nvidia/${NVIDIA_CURRENT_INSTALLATION}/lib64/modules/$(uname -r)/video/nvidia.ko"
+  insmod "/opt/nvidia/${NVIDIA_CURRENT_INSTALLATION}/lib64/modules/$(uname -r)/video/nvidia-modeset.ko"
+  insmod "/opt/nvidia/${NVIDIA_CURRENT_INSTALLATION}/lib64/modules/$(uname -r)/video/nvidia-uvm.ko"
 
-  if [ ! -f /dev/nvidiactl ]
+  if [ ! -c /dev/nvidiactl ]
   then
     mknod -m 666 /dev/nvidiactl c 195 255
   fi
 
-  if [ ! -f /dev/nvidia0 ]
+  if [ ! -c /dev/nvidia0 ]
   then
     mknod -m 666 /dev/nvidia0 c 195 0
   fi
@@ -108,11 +111,18 @@ function install_and_load() {
 
 function verify_installation() {
   nvidia-smi
-  nvidia-modprobe -u -m -c 0
+  nvidia-modprobe -u -m -c 0 || echo "nvidia-modprobe failed!"
+}
+
+function is_nvidia_probe_required() {
+  if [[ -z "$(lspci | grep -i "${NVIDIA_PRODUCT_TYPE}")" ]]; then
+    return 1
+  fi
+  return 0
 }
 
 function is_nvidia_installation_required() {
-  if [[ -z "$(lspci | grep -i "${NVIDIA_PRODUCT_TYPE}")" ]]; then
+  if ! is_nvidia_probe_required; then
     return 1
   fi
 
@@ -141,4 +151,9 @@ then
   presetup "$@"
   setup "$@"
   exit 0
+fi
+if is_nvidia_probe_required
+then
+  install_and_load
+  verify_installation
 fi
