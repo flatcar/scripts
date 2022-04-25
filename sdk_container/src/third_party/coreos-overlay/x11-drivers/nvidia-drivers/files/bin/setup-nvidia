@@ -109,6 +109,7 @@ function install_and_load() {
   insmod nvidia-uvm.ko
   popd
 
+  # based on https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#runfile-verifications
   if [ ! -c /dev/nvidiactl ]
   then
     mknod -m 666 /dev/nvidiactl c 195 255
@@ -116,9 +117,20 @@ function install_and_load() {
 
   if [ ! -c /dev/nvidia0 ]
   then
-    mknod -m 666 /dev/nvidia0 c 195 0
+    NVDEVS=`lspci | grep -i NVIDIA`
+    N3D=`echo "$NVDEVS" | grep -c "3D controller" || true`
+    NVGA=`echo "$NVDEVS" | grep -c "VGA compatible controller" || true`
+    N=$(( $N3D + $NVGA - 1))
+    for i in `seq 0 $N`; do
+      mknod -m 666 /dev/nvidia$i c 195 $i
+    done
   fi
 
+  if [ ! -c /dev/nvidia-uvm ]
+  then
+    D=`grep nvidia-uvm /proc/devices | awk '{print $1}'`
+    mknod -m 666 /dev/nvidia-uvm c $D 0
+  fi
 }
 
 function verify_installation() {
