@@ -1,0 +1,81 @@
+From 5c730b1c2928f8246237b3d378d6bd6815a12e2c Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mathieu@kinvolk.io>
+Date: Tue, 27 Jul 2021 11:46:49 +0200
+Subject: [PATCH 05/16] config/v3_4: convert ignition 2.x to 3.1
+
+if the version of ignition is 2.x we convert it to 3.1 using
+ign-converter.
+
+it shoud support any 2.x version (or at the least the last 2 releases)
+
+Signed-off-by: Mathieu Tortuyaux <mathieu@kinvolk.io>
+---
+ config/v3_4_experimental/config.go | 38 ++++++++++++++++++++++++++++++
+ 1 file changed, 38 insertions(+)
+
+diff --git a/config/v3_4_experimental/config.go b/config/v3_4_experimental/config.go
+index 512fc9f0..b0375236 100644
+--- a/config/v3_4_experimental/config.go
++++ b/config/v3_4_experimental/config.go
+@@ -15,6 +15,10 @@
+ package v3_4_experimental
+ 
+ import (
++	"encoding/json"
++	"fmt"
++
++	"github.com/flatcar-linux/ignition/config/v2_4"
+ 	"github.com/flatcar-linux/ignition/v2/config/merge"
+ 	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
+ 	"github.com/flatcar-linux/ignition/v2/config/util"
+@@ -25,6 +29,8 @@ import (
+ 
+ 	"github.com/coreos/go-semver/semver"
+ 	"github.com/coreos/vcontext/report"
++
++	"github.com/flatcar-linux/ign-converter/translate/v24tov31"
+ )
+ 
+ func Merge(parent, child types.Config) types.Config {
+@@ -67,6 +73,38 @@ func ParseCompatibleVersion(raw []byte) (types.Config, report.Report, error) {
+ 		return types.Config{}, rpt, err
+ 	}
+ 
++	// if the version is 2.x or 1.x, we
++	// convert it to 3.1
++	if version.Major != 3 {
++		// Parse should fallback on every 2.x supported version
++		cfg, _, err := v2_4.Parse(raw)
++		if err != nil || rpt.IsFatal() {
++			return types.Config{}, report.Report{}, fmt.Errorf("unable to parse 2.x ignition: %w", err)
++		}
++
++		/*
++			map[string]string{} is required by the ign-converter
++			Ignition Spec 3 will mount filesystems at the mountpoint specified by path when running.
++			Filesystems no longer have the name field and files, links, and directories no longer specify the filesystem by name.
++			This means to translate filesystems (with the exception of root),
++			you must also provide a mapping of filesystem name to absolute path, e.g.
++			```
++			map[string]string{"var": "/var"}
++			```
++		*/
++		newCfg, err := v24tov31.Translate(cfg, map[string]string{})
++		if err != nil {
++			return types.Config{}, report.Report{}, fmt.Errorf("unable to translate 2.x ignition to 3.1: %w", err)
++
++		}
++
++		// update raw in place to continue with the 3.x logic
++		raw, err = json.Marshal(newCfg)
++		if err != nil {
++			return types.Config{}, report.Report{}, fmt.Errorf("unable to render JSON: %w", err)
++		}
++	}
++
+ 	if version == types.MaxVersion {
+ 		return Parse(raw)
+ 	}
+-- 
+2.34.1
+
