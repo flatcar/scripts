@@ -41,10 +41,6 @@ if [ "${ON_CHANNEL}" = "developer" ]; then
     # For main/dev builds we compare to last alpha release
     ON_CHANNEL="alpha"
 fi
-if [ "${ON_CHANNEL}" = "lts" ]; then
-    echo "Updating from previous LTS is not supported yet (needs creds), fallback to Stable"
-    ON_CHANNEL="stable"
-fi
 if [ -f tmp/flatcar_production_image_previous.bin ] ; then
     echo "++++ QEMU test: Using existing ${work_dir}/tmp/flatcar_production_image_previous.bin for testing update to ${vernum} (${arch}) from previous ${ON_CHANNEL} ++++"
 else
