@@ -118,35 +118,23 @@ function test_run() {
     local docker_vernum
     docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
 
-    # Get SDK from either the registry or import from build cache
-    local sdk_version="${FLATCAR_SDK_VERSION}"
-    local sdk_name="flatcar-sdk-${arch}"
-    local docker_sdk_vernum="$(vernum_to_docker_image_version "${sdk_version}")"
-
-    docker_image_from_registry_or_buildcache "${sdk_name}" "${docker_sdk_vernum}"
-    local sdk_image="$(docker_image_fullname "${sdk_name}" "${docker_sdk_vernum}")"
-    echo "docker image rm -f '${sdk_image}'" >> ./ci-cleanup.sh
-
     local work_dir="__TESTS__"
     local tests_dir="${work_dir}/${image}"
     mkdir -p "${tests_dir}"
 
     local container_name="flatcar-tests-${arch}-${docker_vernum}-${image}"
+    local mantle_ref
+    mantle_ref=$(cat sdk_container/.repo/manifests/mantle-container)
 
     # Make the torcx artifacts available to test implementation
     __prepare_torcx "${arch}" "${vernum}" "${work_dir}"
-
-    # Ensure we run tests with an up-to-date kola.
-    # This covers the case of a mantle/kola commit ID in the ebuild being
-    #  newer than the mantle/kola included in the SDK.
-    ./run_sdk_container -x ./ci-cleanup.sh \
-        -n "${container_name}" -C "${sdk_image}" -v "${vernum}" \
-        sudo emerge mantle
 
     local tap_merged_summary="results-${image}.tap"
     local tap_merged_detailed="results-${image}-detailed.tap"
     local retry=""
     local success=false
+    # A job on each worker prunes old mantle images (docker image prune)
+    echo "docker rm -f '${container_name}'" >> ./ci-cleanup.sh
     for retry in $(seq "${retries}"); do
         local tapfile="results-run-${retry}.tap"
         local failfile="failed-run-${retry}.txt"
@@ -154,18 +142,19 @@ function test_run() {
         # Ignore retcode since tests are flaky. We'll re-run failed tests and
         #  determine success based on test results (tapfile).
         set +e -o noglob
-        ./run_sdk_container -x ./ci-cleanup.sh \
-            -n "${container_name}" -C "${sdk_image}" -v "${vernum}" \
-            ci-automation/vendor-testing/"${image}".sh \
-                "${tests_dir}" \
-                "${arch}" \
-                "${vernum}" \
-                "${tapfile}" \
-                $@
+        touch sdk_container/.env
+        docker run --pull always --rm --name="${container_name}" --privileged --net host -v /dev:/dev \
+          -w /work -v "$PWD":/work "${mantle_ref}" \
+         bash -c "set -o noglob && source sdk_container/.env && ci-automation/vendor-testing/\"${image}\".sh \
+                \"${tests_dir}\" \
+                \"${arch}\" \
+                \"${vernum}\" \
+                \"${tapfile}\" \
+                $@"
         set -e +o noglob
 
-        ./run_sdk_container -x ./ci-cleanup.sh \
-            -n "${container_name}" -C "${sdk_image}" -v "${vernum}" \
+        docker run --pull always --rm --name="${container_name}" --privileged --net host -v /dev:/dev \
+          -w /work -v "$PWD":/work "${mantle_ref}" \
             ci-automation/test_update_reruns.sh \
                 "${arch}" "${vernum}" "${image}" "${retry}" \
                 "${tests_dir}/${tapfile}" \
