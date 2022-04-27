@@ -69,10 +69,20 @@ function vm_build() {
 
     [[ ${has_packet} -eq 1 ]] && [[ ${has_pxe} -eq 0 ]] && set -- 'pxe' "${@}"
 
-    for format; do
-        # keep compatibility with SDK scripts where "equinix_metal"
-        # remains unknown.
-        [ "${format}" = "equinix_metal" ] && format="packet"
+    # Convert platform names (also used to find the test scripts) to image formats they entail
+    formats="$*"
+    if echo "$formats" | tr ' ' '\n' | grep -q '^vmware'; then
+      formats=$(echo "$formats" | tr ' ' '\n' | sed '/vmware.*/d')
+      formats+=" vmware vmware_insecure vmware_ova vmware_raw"
+    fi
+    if echo "$formats" | tr ' ' '\n' | grep -q -P '^(ami|aws)'; then
+      formats=$(echo "$formats" | tr ' ' '\n' | sed '/ami.*/d' | sed '/aws/d')
+      formats+=" ami ami_vmdk"
+    fi
+    # Keep compatibility with SDK scripts where "equinix_metal" remains unknown.
+    formats=$(echo "$formats" | tr ' ' '\n' | sed 's/equinix_metal/packet/g')
+
+    for format in ${formats}; do
         echo " ###################  VENDOR '${format}' ################### "
         ./run_sdk_container -n "${vms_container}" -C "${image_image}" \
             -v "${vernum}" \
