@@ -1,0 +1,40 @@
+From 47ac5e73e9e62727850807c1184439a61303cbf4 Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mathieu@kinvolk.io>
+Date: Tue, 27 Jul 2021 11:46:15 +0200
+Subject: [PATCH 02/16] mod: add ign-converter dependency
+
+Signed-off-by: Mathieu Tortuyaux <mathieu@kinvolk.io>
+---
+ go.mod | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/go.mod b/go.mod
+index 5eba3e60..e62b24af 100644
+--- a/go.mod
++++ b/go.mod
+@@ -9,20 +9,18 @@ require (
+ 	github.com/coreos/go-semver v0.3.0
+ 	github.com/coreos/go-systemd/v22 v22.0.0
+ 	github.com/coreos/vcontext v0.0.0-20211021162308-f1dbbca7bef4
++	github.com/flatcar-linux/ign-converter v0.1.0
++	github.com/flatcar-linux/ignition v0.36.2-0.20220221101037-de4e6cc9bbba
+ 	github.com/google/renameio v0.1.0
+ 	github.com/google/uuid v1.1.1
+ 	github.com/pin/tftp v2.1.0+incompatible
+-	github.com/smartystreets/goconvey v0.0.0-20190222223459-a17d461953aa // indirect
+ 	github.com/spf13/pflag v1.0.6-0.20210604193023-d5e0c0615ace
+ 	github.com/stretchr/testify v1.7.0
+ 	github.com/vincent-petithory/dataurl v1.0.0
+ 	github.com/vmware/vmw-guestinfo v0.0.0-20170707015358-25eff159a728
+ 	github.com/vmware/vmw-ovflib v0.0.0-20170608004843-1f217b9dc714
+-	go.opencensus.io v0.22.5 // indirect
+ 	golang.org/x/net v0.0.0-20200602114024-627f9648deb9
+ 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
+ 	golang.org/x/sys v0.0.0-20200610111108-226ff32320da
+-	golang.org/x/tools v0.0.0-20200610160956-3e83d1e96d0e // indirect
+ 	google.golang.org/api v0.26.0
+-	google.golang.org/genproto v0.0.0-20200610104632-a5b850bcf112 // indirect
+ )
+-- 
+2.34.1
+
