@@ -50,7 +50,7 @@ bin/cork download-image \
 enter lbunzip2 -k -f /mnt/host/source/tmp/flatcar_production_image.bin.bz2
 
 # create folder to handle case where arm64 is missing
-sudo mkdir -p chroot/usr/lib/kola/arm64
+sudo mkdir -p chroot/usr/lib/kola/{arm64,amd64}
 # copy all of the latest mantle binaries into the chroot
 sudo cp -t chroot/usr/lib/kola/arm64 bin/arm64/*
 sudo cp -t chroot/usr/lib/kola/amd64 bin/amd64/*
