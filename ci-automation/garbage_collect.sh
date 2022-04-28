@@ -132,4 +132,15 @@ function garbage_collect() {
             echo "## (DRY_RUN=y so not doing anything) ##"
         fi
     done
+
+    local mantle_ref
+    mantle_ref=$(cat sdk_container/.repo/manifests/mantle-container)
+    docker run --pull always --rm --net host \
+      --env AZURE_AUTH_CREDENTIALS --env AZURE_PROFILE \
+      --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY \
+      --env DIGITALOCEAN_TOKEN_JSON \
+      --env EQUINIXMETAL_KEY --env EQUINIXMETAL_PROJECT \
+      --env GCP_JSON_KEY \
+      --env VMWARE_ESX_CREDS \
+      -w /work -v "$PWD":/work "${mantle_ref}" /work/ci-automation/garbage_collect_cloud.sh
 }
