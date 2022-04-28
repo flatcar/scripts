@@ -15,7 +15,10 @@ IUSE=""
 # no source directory
 S="${WORKDIR}"
 
-RDEPEND="~app-emulation/wa-linux-agent-${PV}"
+RDEPEND="
+  ~app-emulation/wa-linux-agent-${PV}
+  x11-drivers/nvidia-drivers
+"
 
 src_prepare() {
 	default

@@ -1,5 +1,0 @@
-ID=azure
-VERSION_ID=@@OEM_VERSION_ID@@
-NAME="Microsoft Azure (Pro)"
-HOME_URL="https://azure.microsoft.com/"
-BUG_REPORT_URL="https://issues.flatcar-linux.org"
