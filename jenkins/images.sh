@@ -141,11 +141,6 @@ else
   export CHANNEL_A="${CHANNEL_BASE}"
 fi
 
-if [ "${CHANNEL_A}" = "lts" ]; then
-  echo "Comparing to LTS is not supported yet (needs creds)"
-  exit 0
-fi
-
 export VERSION_A=$(curl -s -S -f -L "https://${CHANNEL_A}.release.flatcar-linux.net/${BOARD}/current/version.txt" | grep -m 1 "FLATCAR_VERSION=" | cut -d "=" -f 2)
 
 if [ "${GROUP}" = "developer" ]; then
