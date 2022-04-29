@@ -35,7 +35,7 @@ SLOT="0/${PVR}"
 SRC_URI=""
 IUSE=""
 
-BDEPEND="dev-util/pahole"
+BDEPEND="|| ( dev-util/pahole dev-util/dwarves )"
 DEPEND="=sys-kernel/coreos-sources-${COREOS_SOURCE_VERSION}"
 
 # Do not analyze or strip installed files

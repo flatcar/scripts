@@ -25,7 +25,7 @@ else
 fi
 
 # make modules_prepare depends on pahole
-RDEPEND="dev-util/pahole"
+RDEPEND="|| ( dev-util/pahole dev-util/dwarves )"
 
 KEYWORDS="amd64 arm64"
 IUSE=""

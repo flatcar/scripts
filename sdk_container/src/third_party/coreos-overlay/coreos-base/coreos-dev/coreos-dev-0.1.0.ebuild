@@ -21,7 +21,7 @@ RDEPEND="
 	coreos-base/emerge-gitclone
 	dev-lang/python
 	dev-util/strace
-	dev-util/pahole
+	|| ( dev-util/pahole dev-util/dwarves )
 	dev-vcs/repo
 	net-analyzer/netperf
 	net-dialup/minicom
