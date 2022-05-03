@@ -8,9 +8,7 @@
 VALID_IMG_TYPES=(
     ami
     ami_vmdk
-    ami_vmdk_pro
     azure
-    azure_pro
     brightbox
     cloudsigma
     cloudstack
@@ -18,7 +16,6 @@ VALID_IMG_TYPES=(
     digitalocean
     exoscale
     gce
-    gce_pro
     hyperv
     interoute
     iso
@@ -214,10 +211,6 @@ IMG_ami_OEM_USE=ec2
 IMG_ami_vmdk_DISK_FORMAT=vmdk_stream
 IMG_ami_vmdk_OEM_PACKAGE=oem-ec2-compat
 IMG_ami_vmdk_OEM_USE=ec2
-# AWS Pro
-IMG_ami_vmdk_pro_DISK_FORMAT=vmdk_stream
-IMG_ami_vmdk_pro_OEM_PACKAGE=oem-ec2-compat
-IMG_ami_vmdk_pro_OEM_USE=ec2
 
 ## openstack, supports ec2's metadata format so use oem-ec2-compat
 IMG_openstack_DISK_FORMAT=qcow2
@@ -254,12 +247,6 @@ IMG_gce_CONF_FORMAT=gce
 IMG_gce_OEM_PACKAGE=oem-gce
 IMG_gce_OEM_ACI=gce
 
-## gce pro, image tarball
-IMG_gce_pro_DISK_LAYOUT=vm
-IMG_gce_pro_CONF_FORMAT=gce
-IMG_gce_pro_OEM_PACKAGE=oem-gce
-IMG_gce_pro_OEM_ACI=gce
-
 ## rackspace
 IMG_rackspace_OEM_PACKAGE=oem-rackspace
 IMG_rackspace_vhd_DISK_FORMAT=vhd
@@ -286,11 +273,6 @@ IMG_exoscale_OEM_PACKAGE=oem-exoscale
 IMG_azure_DISK_FORMAT=vhd
 IMG_azure_DISK_LAYOUT=azure
 IMG_azure_OEM_PACKAGE=oem-azure
-
-## azure pro
-IMG_azure_pro_DISK_FORMAT=vhd
-IMG_azure_pro_DISK_LAYOUT=azure
-IMG_azure_pro_OEM_PACKAGE=oem-azure
 
 ## hyper-v
 IMG_hyperv_DISK_FORMAT=vhd
