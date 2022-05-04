@@ -4,7 +4,8 @@ set -ex
 # JOB_NAME will not fit within the character limit
 NAME="jenkins-${BUILD_NUMBER}"
 
-timeout=8h
+# same as the GC timeout
+timeout=6h
 
 set -o pipefail
 
@@ -33,14 +34,11 @@ fi
 # for PXE booting.
 # We override `PARALLEL_TESTS`, because kola run with PARALLEL_TESTS >= 4 causes the
 # tests to provision >= 12 ARM servers at the same time. As the da11 region does not
-# have that many free ARM servers, the whole tests will fail. With PARALLEL_TESTS=2
-# the total number of servers stays < 10.
-# In addition, we override `timeout` to 10 hours, because it takes more than 8 hours
-# to run all tests only with 2 tests in parallel.
+# have that many free ARM servers, the whole tests will fail. With PARALLEL_TESTS=3
+# the total number of servers stays <= 9.
 if [[ "${BOARD}" == "arm64-usr" ]]; then
   PACKET_REGION="DA"
-  PARALLEL_TESTS="2"
-  timeout=15h
+  PARALLEL_TESTS="3"
 fi
 
 # Run the cl.internet test on multiple machine types only if it should run in general
