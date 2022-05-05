@@ -23,13 +23,13 @@ if [[ "${CIA_ARCH}" == "arm64" ]]; then
 fi
 
 image_name="ci-${CIA_VERNUM//+/-}"
-image_url="$(url_from_template "${DO_IMAGE_URL}" "${CIA_ARCH}" "${CIA_CHANNEL}" 'https' "${CIA_VERNUM}")"
+image_url="$(url_from_template "${DIGITALOCEAN_IMAGE_URL_TEMPLATE}" "${CIA_ARCH}" "${CIA_CHANNEL}" 'https' "${CIA_VERNUM}")"
 
 config_file="$(secret_to_file "${DIGITALOCEAN_TOKEN_JSON}")"
 
 ore do create-image \
     --config-file="${config_file}" \
-    --region="${DO_REGION}" \
+    --region="${DIGITALOCEAN_REGION}" \
     --name="${image_name}" \
     --url="${image_url}"
 
@@ -41,12 +41,12 @@ set -x
 
 timeout --signal=SIGQUIT 4h\
     kola run \
-    --do-size="${DO_MACHINE_SIZE}" \
-    --do-region="${DO_REGION}" \
+    --do-size="${DIGITALOCEAN_MACHINE_SIZE}" \
+    --do-region="${DIGITALOCEAN_REGION}" \
     --basename="${image_name}" \
     --do-config-file="${config_file}" \
     --do-image="${image_name}" \
-    --parallel="${DO_PARALLEL}" \
+    --parallel="${DIGITALOCEAN_PARALLEL}" \
     --platform=do \
     --channel="${CIA_CHANNEL}" \
     --tapfile="${CIA_TAPFILE}" \
