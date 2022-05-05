@@ -8,35 +8,18 @@ set -euo pipefail
 # Test execution script for the GCE vendor image.
 # This script is supposed to run in the mantle container.
 
-work_dir="$1"; shift
-arch="$1"; shift
-vernum="$1"; shift
-tapfile="$1"; shift
-
-# $@ now contains tests / test patterns to run
-
-source ci-automation/ci_automation_common.sh
-source sdk_lib/sdk_container_common.sh
-
-mkdir -p "${work_dir}"
-cd "${work_dir}"
+source ci-automation/vendor_test.sh
 
 # We never run GCE on arm64, so for now fail it as an
 # unsupported option.
-if [[ "${arch}" == "arm64" ]]; then
-    echo "1..1" > "${tapfile}"
-    echo "not ok - all GCE tests" >> "${tapfile}"
-    echo "  ---" >> "${tapfile}"
-    echo "  ERROR: ARM64 tests not supported on GCE." | tee -a "${tapfile}"
-    echo "  ..." >> "${tapfile}"
+if [[ "${CIA_ARCH}" == "arm64" ]]; then
+    echo "1..1" > "${CIA_TAPFILE}"
+    echo "not ok - all GCE tests" >> "${CIA_TAPFILE}"
+    echo "  ---" >> "${CIA_TAPFILE}"
+    echo "  ERROR: ARM64 tests not supported on GCE." | tee -a "${CIA_TAPFILE}"
+    echo "  ..." >> "${CIA_TAPFILE}"
     exit 1
 fi
-
-channel="$(get_git_channel)"
-if [[ "${channel}" = 'developer' ]]; then
-    channel='alpha'
-fi
-testscript="$(basename "$0")"
 
 # Create temp file and delete it immediately
 echo "${GCP_JSON_KEY}" | base64 --decode > /tmp/gcp_auth
@@ -44,24 +27,24 @@ exec {gcp_auth}</tmp/gcp_auth
 rm /tmp/gcp_auth
 GCP_JSON_KEY_PATH="/proc/$$/fd/${gcp_auth}"
 
-copy_from_buildcache "images/${arch}/${vernum}/${GCE_IMAGE_NAME}" .
+copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${GCE_IMAGE_NAME}" .
 gcloud auth activate-service-account --key-file "${GCP_JSON_KEY_PATH}"
-gsutil rm -r "${GCE_GCS_IMAGE_UPLOAD}/${arch}-usr/${vernum}" || true
-gsutil cp "${GCE_IMAGE_NAME}" "${GCE_GCS_IMAGE_UPLOAD}/${arch}-usr/${vernum}/${GCE_IMAGE_NAME}"
+gsutil rm -r "${GCE_GCS_IMAGE_UPLOAD}/${CIA_ARCH}-usr/${CIA_VERNUM}" || true
+gsutil cp "${GCE_IMAGE_NAME}" "${GCE_GCS_IMAGE_UPLOAD}/${CIA_ARCH}-usr/${CIA_VERNUM}/${GCE_IMAGE_NAME}"
 family="ci"
-image_name="${family}-${vernum//[+.]/-}"
+image_name="${family}-${CIA_VERNUM//[+.]/-}"
 ore gcloud delete-images --json-key="${GCP_JSON_KEY_PATH}" "${image_name}" || true
 ore gcloud create-image \
-    --board="${arch}-usr" \
+    --board="${CIA_ARCH}-usr" \
     --family="${family}" \
     --json-key="${GCP_JSON_KEY_PATH}" \
     --source-root="${GCE_GCS_IMAGE_UPLOAD}" \
     --source-name="${GCE_IMAGE_NAME}" \
-    --version="${vernum}"
+    --version="${CIA_VERNUM}"
 
 trap 'ore gcloud delete-images \
     --json-key="${GCP_JSON_KEY_PATH}" \
-    "${image_name}" ; gsutil rm -r "${GCE_GCS_IMAGE_UPLOAD}/${arch}-usr/${vernum}" || true' EXIT
+    "${image_name}" ; gsutil rm -r "${GCE_GCS_IMAGE_UPLOAD}/${CIA_ARCH}-usr/${CIA_VERNUM}" || true' EXIT
 
 set -x
 
@@ -73,9 +56,9 @@ timeout --signal=SIGQUIT 6h \
     --gce-machinetype="${GCE_MACHINE_TYPE}" \
     --parallel="${GCE_PARALLEL}" \
     --platform=gce \
-    --channel="${channel}" \
-    --tapfile="${tapfile}" \
-    --torcx-manifest='../torcx_manifest.json' \
+    --channel="${CIA_CHANNEL}" \
+    --tapfile="${CIA_TAPFILE}" \
+    --torcx-manifest="${CIA_TORCX_MANIFEST}" \
     "${@}"
 
 set +x
