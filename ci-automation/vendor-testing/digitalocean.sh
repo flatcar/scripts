@@ -29,6 +29,7 @@ if [[ "${arch}" == "arm64" ]]; then
     echo "  ---" >> "${tapfile}"
     echo "  ERROR: ARM64 tests not supported on Digital Ocean." | tee -a "${tapfile}"
     echo "  ..." >> "${tapfile}"
+    break_retest_cycle
     exit 1
 fi
 
