@@ -224,3 +224,24 @@ function docker_image_from_registry_or_buildcache() {
     docker_image_from_buildcache "${image}" "${version}"
 }
 # --
+
+# Substitutes fields in the passed template and prints the
+# result. Followed by the template, the parameters used for
+# replacement are in alphabetical order: arch, channel, proto and
+# vernum.
+function url_from_template() {
+    local template="${1}"; shift
+    local arch="${1}"; shift
+    local channel="${1}"; shift
+    local proto="${1}"; shift
+    local vernum="${1}"; shift
+    local url="${template}"
+
+    url="${url//@ARCH@/${arch}}"
+    url="${url//@CHANNEL@/${channel}}"
+    url="${url//@PROTO@/${proto}}"
+    url="${url//@VERNUM@/${vernum}}"
+
+    echo "${url}"
+}
+# --
