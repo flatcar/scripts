@@ -5,68 +5,78 @@
 
 set -euo pipefail
 
-# Test execution script for the qemu vendor image.
-# This script is supposed to run in the SDK container.
+# Test execution script for the AWS vendor image.
+# This script is supposed to run in the mantle container.
 
-work_dir="$1"; shift
-arch="$1"; shift
-vernum="$1"; shift
-tapfile="$1"; shift
+source ci-automation/vendor_test.sh
 
-AWS_BOARD="${arch}-usr"
-AWS_CHANNEL="$(get_git_channel)"
-AWS_IMAGE_NAME="ci-${vernum}"
+board="${CIA_ARCH}-usr"
+escaped_vernum="${CIA_VERNUM//+/-}"
+image_name="ci-${escaped_vernum}-${CIA_ARCH}"
+aws_instance_type_var="AWS_${CIA_ARCH}_INSTANCE_TYPE"
+aws_instance_type="${!aws_instance_type_var}"
+more_aws_instance_types_var="AWS_${CIA_ARCH}_MORE_INSTANCE_TYPES"
+set -o noglob # there shouldn't be any instance types with asterisks
+              # in it, but…
+more_aws_instance_types=( ${!more_aws_instance_types_var} )
+set +o noglob
 
-if [[ "${arch}" == "arm64-usr" ]]; then
-    AWS_INSTANCE_TYPE="a1.large"
-fi
-
-# $@ now contains tests / test patterns to run
-
-source ci-automation/ci_automation_common.sh
-
-mkdir -p "${work_dir}"
-cd "${work_dir}"
-
-testscript="$(basename "$0")"
+vmdk='flatcar_production_ami_vmdk_image.vmdk'
+tarball="${vmdk}.bz2"
 
 if [[ "${AWS_AMI_ID}" == "" ]]; then
-    [ -s verify.asc ] && verify_key=--verify-key=verify.asc || verify_key=
+    if [[ -f "${vmdk}" ]]; then
+        echo "++++ ${CIA_TESTSCRIPT}: using existing ${vmdk} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
+    else
+        echo "++++ ${CIA_TESTSCRIPT}: downloading ${tarball} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
+        copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${tarball}" .
+        lbunzip2 "${tarball}"
+    fi
 
-    echo "++++ ${testscript}: downloading flatcar_production_ami_vmdk${AWS_OEM_SUFFIX}_image.vmdk.bz2 for ${vernum} (${arch}) ++++"
-    copy_from_buildcache "images/${arch}/${vernum}/flatcar_production_ami_vmdk${AWS_OEM_SUFFIX}_image.vmdk.bz2" .
-
-    bunzip2 "${work_dir}/flatcar_production_ami_vmdk${AWS_OEM_SUFFIX}_image.vmdk.bz2"
-
-    # FIXME: need to check if it is ok to run ore
-    AWS_BUCKET="flatcar-kola-ami-import-${AWS_REGION}"
-    trap 'bin/ore -d aws delete --region="${AWS_REGION}" --name="${AWS_IMAGE_NAME}" --ami-name="${AWS_IMAGE_NAME}" --file="${work_dir}/flatcar_production_ami_vmdk${AWS_OEM_SUFFIX}_image.vmdk" --bucket "s3://${AWS_BUCKET}/${AWS_BOARD}/"; rm -r ${work_dir}/' EXIT
-    bin/ore aws initialize --region="${AWS_REGION}" --bucket "${AWS_BUCKET}"
-    AWS_AMI_ID=$(bin/ore aws upload --force --region="${AWS_REGION}" --name=${AWS_IMAGE_NAME} --ami-name="${AWS_IMAGE_NAME}" --ami- description="Flatcar Test ${AWS_IMAGE_NAME}" --file="${work_dir}/flatcar_production_ami_vmdk${AWS_OEM_SUFFIX}_image.vmdk" --bucket  "s3://${AWS_BUCKET}/${AWS_BOARD}/" | jq -r .HVM)
-    echo "Created new AMI ${AWS_AMI_ID} (will be removed after testing)"
+    aws_bucket="flatcar-kola-ami-import-${AWS_REGION}"
+    aws_s3_path="s3://${aws_bucket}/${escaped_vernum}/${board}/"
+    trap 'ore -d aws delete --region="${AWS_REGION}" --board="${board}" --name="${image_name}" --ami-name="${image_name}" --file="${vmdk}" --bucket "${aws_s3_path}"' EXIT
+    ore aws initialize --region="${AWS_REGION}" --bucket "${aws_bucket}"
+    AWS_AMI_ID=$(ore aws upload --force --region="${AWS_REGION}" --board="${board}" --name="${image_name}" --ami-name="${image_name}" --ami-description="Flatcar Test ${image_name}" --file="${vmdk}" --bucket "${aws_s3_path}" | jq -r .HVM)
+    echo "++++ ${CIA_TESTSCRIPT}: created new AMI ${AWS_AMI_ID} (will be removed after testing) ++++"
 fi
 
+run_kola_tests() {
+    local instance_type="${1}"; shift
+    local instance_tapfile="${1}"; shift
 
-# AWS timeout
-timeout=6h
+    timeout --signal=SIGQUIT 6h \
+        kola run \
+         --board="${board}" \
+         --basename="${image_name}" \
+         --channel="${CIA_CHANNEL}" \
+         --offering='basic' \
+         --parallel="${AWS_PARALLEL}" \
+         --platform=aws \
+         --aws-ami="${AWS_AMI_ID}" \
+         --aws-region="${AWS_REGION}" \
+         --aws-type="${instance_type}" \
+         --aws-iam-profile="${AWS_IAM_PROFILE}" \
+         --tapfile="${instance_tapfile}" \
+         --torcx-manifest="${CIA_TORCX_MANIFEST}" \
+         "${@}"
+}
 
-set -x
-set -o noglob
+query_kola_tests() {
+    shift; # ignore the instance type
+    kola list --platform=aws --filter "${@}"
+}
 
-sudo timeout --signal=SIGQUIT ${timeout} bin/kola run \
-    --board="${AWS_BOARD}" \
-    --basename="${AWS_IMAGE_NAME}" \
-    --channel="${AWS_CHANNEL}" \
-    --offering="${AWS_OFFER}" \
-    --parallel=${PARALLEL_TESTS} \
-    --platform=aws \
-    --aws-ami="${AWS_AMI_ID}" \
-    --aws-region="${AWS_REGION}" \
-    --aws-type="${AWS_INSTANCE_TYPE}" \
-    --aws-iam-profile="${AWS_IAM_PROFILE}" \
-    --tapfile="${tapfile}" \
-    --torcx-manifest=torcx_manifest.json \
-    $@
+# these are set in ci-config.env
+export AWS_ACCESS_KEY_ID
+export AWS_SECRET_ACCESS_KEY
 
-set +o noglob
-set +x
+run_kola_tests_on_instances \
+    "${aws_instance_type}" \
+    "${CIA_TAPFILE}" \
+    "${CIA_FIRST_RUN}" \
+    "${more_aws_instance_types[@]}" \
+    '--' \
+    'cl.internet' \
+    '--' \
+    "${@}"
