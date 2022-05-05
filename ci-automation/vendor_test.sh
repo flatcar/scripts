@@ -51,6 +51,9 @@
 #   Path to the Torcx manifest. Usually passed to kola through the
 #   --torcx-manifest parameter.
 #
+# CIA_FIRST_RUN:
+#   1 if this is a first run, 0 if it is a rerun of failed tests.
+#
 #
 # After this script is sourced, the parameters in ${@} specify test
 # cases / test case patterns to run.
@@ -90,6 +93,11 @@ fi
 ciavts_tapfile="${PWD}/${ciavts_work_dir}/${ciavts_tapfile}"
 ciavts_torcx_manifest="${PWD}/${ciavts_main_work_dir}/torcx_manifest.json"
 
+ciavts_first_run=0
+if [[ -f "${ciavts_main_work_dir}/first_run" ]]; then
+    ciavts_first_run=1
+fi
+
 echo "++++ Running ${ciavts_testscript} inside ${ciavts_work_dir} ++++"
 
 cd "${ciavts_work_dir}"
@@ -102,6 +110,7 @@ CIA_TESTSCRIPT="${ciavts_testscript}"
 CIA_GIT_VERSION="${ciavts_git_version}"
 CIA_BUILD_TYPE="${ciavts_type}"
 CIA_TORCX_MANIFEST="${ciavts_torcx_manifest}"
+CIA_FIRST_RUN="${ciavts_first_run}"
 
 # Unset all variables with ciavts_ prefix now.
 unset -v "${!ciavts_@}"
