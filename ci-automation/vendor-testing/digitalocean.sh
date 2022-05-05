@@ -38,9 +38,7 @@ if [[ "${channel}" = 'developer' ]]; then
 fi
 image_name="ci-${vernum//+/-}"
 testscript="$(basename "$0")"
-image_url="${DO_IMAGE_URL//@ARCH@/${arch}}"
-image_url="${image_url//@CHANNEL@/${channel}}"
-image_url="${image_url//@VERNUM@/${vernum}}"
+image_url="$(url_from_template "${DO_IMAGE_URL}" "${arch}" "${channel}" 'https' "${vernum}")"
 
 ore do create-image \
     --config-file="${DO_CONFIG_FILE}" \
