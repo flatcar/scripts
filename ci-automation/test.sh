@@ -165,7 +165,7 @@ function test_run() {
                 \"${arch}\" \
                 \"${vernum}\" \
                 \"${tapfile}\" \
-                $@"
+                $*"
         set -e
         rm -f "${work_dir}/first_run"
 
