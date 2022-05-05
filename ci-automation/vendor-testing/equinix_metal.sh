@@ -6,38 +6,24 @@
 set -euo pipefail
 
 # Test execution script for the Equinix Metal vendor image.
-# This script is supposed to run in the SDK container.
+# This script is supposed to run in the mantle container.
 # This script requires "pxe" Jenkins job.
 
-work_dir="$1"; shift
-arch="$1"; shift
-vernum="$1"; shift
-tapfile="$1"; shift
-
-# $@ now contains tests / test patterns to run
-
-source ci-automation/ci_automation_common.sh
-# required for get_git_channel
-source sdk_lib/sdk_container_common.sh
-
-channel="$(get_git_channel)"
-
-mkdir -p "${work_dir}"
-cd "${work_dir}"
+source ci-automation/vendor_test.sh
 
 # Equinix Metal ARM server are not yet hourly available in the default `SV` metro
-equinixmetal_metro_var="EQUINIXMETAL_${arch}_METRO"
+equinixmetal_metro_var="EQUINIXMETAL_${CIA_ARCH}_METRO"
 equinixmetal_metro="${!equinixmetal_metro_var}"
 
-EQUINIXMETAL_INSTANCE_TYPE_VAR="EQUINIXMETAL_${arch}_INSTANCE_TYPE"
+EQUINIXMETAL_INSTANCE_TYPE_VAR="EQUINIXMETAL_${CIA_ARCH}_INSTANCE_TYPE"
 EQUINIXMETAL_INSTANCE_TYPE="${!EQUINIXMETAL_INSTANCE_TYPE_VAR}"
-MORE_INSTANCE_TYPES_VAR="EQUINIXMETAL_${arch}_MORE_INSTANCE_TYPES"
+MORE_INSTANCE_TYPES_VAR="EQUINIXMETAL_${CIA_ARCH}_MORE_INSTANCE_TYPES"
 MORE_INSTANCE_TYPES=( ${!MORE_INSTANCE_TYPES_VAR} )
 
 # The maximum is 6h coming from the ore GC duration parameter
 timeout=6h
 
-BASE_URL="http://${BUILDCACHE_SERVER}/images/${arch}/${vernum}"
+BASE_URL="http://${BUILDCACHE_SERVER}/images/${CIA_ARCH}/${CIA_VERNUM}"
 
 run_equinix_metal_kola_test() {
     local instance_type="${1}"
@@ -45,12 +31,12 @@ run_equinix_metal_kola_test() {
 
     timeout --signal=SIGQUIT "${timeout}" \
         kola run \
-          --board="${arch}-usr" \
-          --basename="ci-${vernum/+/-}" \
+          --board="${CIA_ARCH}-usr" \
+          --basename="ci-${CIA_VERNUM/+/-}" \
           --platform=equinixmetal \
           --tapfile="${instance_tapfile}" \
           --parallel="${EQUINIXMETAL_PARALLEL}" \
-          --torcx-manifest=../torcx_manifest.json \
+          --torcx-manifest="${CIA_TORCX_MANIFEST}" \
           --equinixmetal-image-url="${BASE_URL}/${EQUINIXMETAL_IMAGE_NAME}" \
           --equinixmetal-installer-image-kernel-url="${BASE_URL}/${PXE_KERNEL_NAME}" \
           --equinixmetal-installer-image-cpio-url="${BASE_URL}/${PXE_IMAGE_NAME}" \
@@ -109,11 +95,11 @@ fi
 ARGS="$*"
 if [[ -n "${ARGS// }" ]]; then
     set -x
-    run_equinix_metal_kola_test "${EQUINIXMETAL_INSTANCE_TYPE}" "${tapfile}" "${@}"
+    run_equinix_metal_kola_test "${EQUINIXMETAL_INSTANCE_TYPE}" "${CIA_TAPFILE}" "${@}"
     set +x
 fi
 
 if [[ "${run_more_tests}" -eq 1 ]]; then
     wait
-    cat validate_*.tap >>"${tapfile}"
+    cat validate_*.tap >>"${CIA_TAPFILE}"
 fi
