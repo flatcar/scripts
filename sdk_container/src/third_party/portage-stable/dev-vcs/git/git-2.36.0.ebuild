@@ -1,7 +1,7 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 GENTOO_DEPEND_ON_PERL=no
 
@@ -13,7 +13,7 @@ inherit toolchain-funcs elisp-common perl-module bash-completion-r1 plocale pyth
 PLOCALES="bg ca de es fr is it ko pt_PT ru sv vi zh_CN"
 if [[ ${PV} == *9999 ]]; then
 	inherit git-r3
-	EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
+	EGIT_REPO_URI="https://git.kernel.org/pub/scm/git/git.git"
 	# Please ensure that all _four_ 9999 ebuilds get updated; they track the 4 upstream branches.
 	# See https://git-scm.com/docs/gitworkflows#_graduation
 	# In order of stability:
@@ -46,12 +46,12 @@ if [[ ${PV} != *9999 ]]; then
 			${SRC_URI_KORG}/${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 			)"
 	[[ "${PV}" == *_rc* ]] || \
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 fi
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="+blksha1 +curl cgi doc emacs gnome-keyring +gpg highlight +iconv mediawiki mediawiki-experimental +nls +pcre perforce +perl +ppcsha1 subversion tk +threads +webdav xinetd cvs test"
+IUSE="+blksha1 +curl cgi doc emacs gnome-keyring +gpg highlight +iconv mediawiki mediawiki-experimental +nls +pcre perforce +perl +ppcsha1 selinux subversion tk +threads +webdav xinetd cvs test"
 
 # Common to both DEPEND and RDEPEND
 DEPEND="
@@ -99,6 +99,7 @@ RDEPEND="${DEPEND}
 		)
 	)
 	perforce? ( ${PYTHON_DEPS} )
+	selinux? ( sec-policy/selinux-git )
 "
 
 # This is how info docs are created with Git:
@@ -145,10 +146,6 @@ PATCHES=(
 
 	# Make submodule output quiet
 	"${FILESDIR}"/git-2.21.0-quiet-submodules-testcase.patch
-
-	# See bug #751907
-	# Test fails due to exported ${D} in src_test
-	"${FILESDIR}"/git-2.32.0-r1-test-t5582.patch
 )
 
 pkg_setup() {
@@ -226,13 +223,6 @@ exportmakeopts() {
 		myopts+=( ASCIIDOC8=YesPlease )
 	fi
 
-	# Bug 290465:
-	# builtin-fetch-pack.c:816: error: 'struct stat' has no member named 'st_mtim'
-	if [[ "${CHOST}" == *-uclibc* ]] ; then
-		myopts+=( NO_NSEC=YesPlease )
-		use iconv && myopts+=( NEEDS_LIBICONV=YesPlease )
-	fi
-
 	export MY_MAKEOPTS="${myopts[@]}"
 	export EXTLIBS="${extlibs[@]}"
 }
@@ -295,7 +285,6 @@ git_emake() {
 		htmldir="${EPREFIX}"/usr/share/doc/${PF}/html \
 		perllibdir="$(use perl && perl_get_raw_vendorlib)" \
 		sysconfdir="${EPREFIX}"/etc \
-		DESTDIR="${D}" \
 		GIT_TEST_OPTS="--no-color" \
 		OPTAR="$(tc-getAR)" \
 		OPTCC="$(tc-getCC)" \
@@ -323,7 +312,7 @@ src_compile() {
 		git_emake gitweb || die "emake gitweb (cgi) failed"
 	fi
 
-	if [[ ${CHOST} == *-darwin* && ! tc-is-gcc ]]; then
+	if [[ ${CHOST} == *-darwin* ]] && tc-is-clang ; then
 		pushd contrib/credential/osxkeychain &>/dev/null || die
 		git_emake CC=$(tc-getCC) CFLAGS="${CFLAGS}" \
 			|| die "emake credential-osxkeychain"
@@ -368,9 +357,9 @@ src_compile() {
 }
 
 src_install() {
-	git_emake install || die "make install failed"
+	git_emake DESTDIR="${D}" install || die "make install failed"
 
-	if [[ ${CHOST} == *-darwin* && ! tc-is-gcc ]]; then
+	if [[ ${CHOST} == *-darwin* ]] && tc-is-clang ; then
 		dobin contrib/credential/osxkeychain/git-credential-osxkeychain
 	fi
 
@@ -418,10 +407,10 @@ src_install() {
 
 	# git-subtree
 	pushd contrib/subtree &>/dev/null || die
-	git_emake install || die "Failed to emake install for git-subtree"
+	git_emake DESTDIR="${D}" install || die "Failed to emake install for git-subtree"
 	if use doc ; then
 		# Do not move git subtree install-man outside USE=doc!
-		git_emake install-man install-html || die "Failed to emake install-html install-man for git-subtree"
+		git_emake DESTDIR="${D}" install-man install-html || die "Failed to emake install-html install-man for git-subtree"
 	fi
 	newdoc README README.git-subtree
 	dodoc git-subtree.txt
@@ -429,7 +418,7 @@ src_install() {
 
 	if use mediawiki ; then
 		pushd contrib/mw-to-git &>/dev/null || die
-		git_emake install
+		git_emake DESTDIR="${D}" install
 		popd &>/dev/null || die
 	fi
 
@@ -518,7 +507,7 @@ src_install() {
 	fi
 
 	if ! use prefix ; then
-		newinitd "${FILESDIR}"/git-daemon-r1.initd git-daemon
+		newinitd "${FILESDIR}"/git-daemon-r2.initd git-daemon
 		newconfd "${FILESDIR}"/git-daemon.confd git-daemon
 		systemd_newunit "${FILESDIR}/git-daemon_at-r1.service" \
 			"git-daemon@.service"
