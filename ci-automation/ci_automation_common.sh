@@ -275,17 +275,26 @@ function url_from_template() {
 # --
 
 # Puts a secret into a file, while trying for the secret to not end up
-# on a filesystem at all. Prints a path to a file with the secret in
-# /proc.
+# on a filesystem at all. A path to the file with the secret in
+# /proc in put into the chosen variable.
+#
+# Typical use:
+#   secret_file=''
+#   secret_to_file secret_file "${some_secret}"
+#
+# Parameters:
+# 1 - name of the variable where the path is stored
+# 2 - the secret to store in the file
 function secret_to_file() {
+    local config_var_name="${1}"; shift
     local secret="${1}"; shift
     local tmpfile=$(mktemp)
+    local -n config_ref="${config_var_name}"
     local fd
 
     exec {fd}<>"${tmpfile}"
     rm -f "${tmpfile}"
     echo "${secret}" >&${fd}
-
-    echo "/proc/${$}/fd/${fd}"
+    config_ref="/proc/${$}/fd/${fd}"
 }
 # --

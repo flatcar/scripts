@@ -25,7 +25,8 @@ fi
 image_name="ci-${CIA_VERNUM//+/-}"
 image_url="$(url_from_template "${DIGITALOCEAN_IMAGE_URL_TEMPLATE}" "${CIA_ARCH}" "${CIA_CHANNEL}" 'https' "${CIA_VERNUM}")"
 
-config_file="$(secret_to_file "${DIGITALOCEAN_TOKEN_JSON}")"
+config_file=''
+secret_to_file config_file "${DIGITALOCEAN_TOKEN_JSON}"
 
 ore do create-image \
     --config-file="${config_file}" \
