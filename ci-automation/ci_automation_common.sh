@@ -10,6 +10,8 @@ source ci-automation/ci-config.env
 : ${PIGZ:=pigz}
 : ${docker:=docker}
 
+: ${TEST_WORK_DIR:='__TESTS__'}
+
 function init_submodules() {
     git submodule init
     git submodule update
@@ -222,6 +224,32 @@ function docker_image_from_registry_or_buildcache() {
 
     echo "Falling back to tar ball download..." >&2
     docker_image_from_buildcache "${image}" "${version}"
+}
+# --
+
+# Called by vendor test in case of complete failure not eligible for
+# reruns (like trying to run tests on unsupported architecture).
+function break_retest_cycle() {
+    local work_dir=$(dirname "${PWD}")
+    local dir=$(basename "${work_dir}")
+
+    if [[ "${dir}" != "${TEST_WORK_DIR}" ]]; then
+        echo "Not breaking retest cycle, expected test work dir to be a parent directory" >&2
+        return
+    fi
+    touch "${work_dir}/break_retests"
+}
+# --
+
+# Called by test runner to see if the retest cycle should be broken.
+function retest_cycle_broken() {
+    # Using the reverse boolean logic here!
+    local broken=1
+    if [[ -f "${TEST_WORK_DIR}/break_retests" ]]; then
+        broken=0
+        rm -f "${TEST_WORK_DIR}/break_retests"
+    fi
+    return ${broken}
 }
 # --
 
