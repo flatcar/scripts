@@ -25,15 +25,17 @@ fi
 image_name="ci-${CIA_VERNUM//+/-}"
 image_url="$(url_from_template "${DO_IMAGE_URL}" "${CIA_ARCH}" "${CIA_CHANNEL}" 'https' "${CIA_VERNUM}")"
 
+config_file="$(secret_to_file "${DIGITALOCEAN_TOKEN_JSON}")"
+
 ore do create-image \
-    --config-file="${DO_CONFIG_FILE}" \
+    --config-file="${config_file}" \
     --region="${DO_REGION}" \
     --name="${image_name}" \
     --url="${image_url}"
 
 trap 'ore do delete-image \
     --name="${image_name}" \
-    --config-file="${DO_CONFIG_FILE}"' EXIT
+    --config-file="${config_file}"' EXIT
 
 set -x
 
@@ -42,7 +44,7 @@ timeout --signal=SIGQUIT 4h\
     --do-size="${DO_MACHINE_SIZE}" \
     --do-region="${DO_REGION}" \
     --basename="${image_name}" \
-    --do-config-file="${DO_CONFIG_FILE}" \
+    --do-config-file="${config_file}" \
     --do-image="${image_name}" \
     --parallel="${DO_PARALLEL}" \
     --platform=do \
