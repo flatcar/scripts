@@ -48,15 +48,6 @@ then
   FORMATS="${FORMAT}"
 fi
 for FORMAT in ${FORMATS}; do
-  # If the format variable ends with _pro it's a Flatcar Pro image and it should
-  # be uploaded to the private bucket.
-  PRIVATE_UPLOAD_OPT=""
-  if [[ -z "${FORMAT##*_pro}" ]]
-  then
-    PRIVATE_UPLOAD_OPT="--private"
-    UPLOAD_ROOT=${UPLOAD_PRIVATE_ROOT}
-  fi
-
   script image_to_vm.sh \
     --board="${BOARD}" \
     --format="${FORMAT}" \
@@ -69,5 +60,4 @@ for FORMAT in ${FORMATS}; do
     --download_root="${DOWNLOAD_ROOT}" \
     --upload_root="${UPLOAD_ROOT}" \
     --upload \
-    ${PRIVATE_UPLOAD_OPT}
 done
