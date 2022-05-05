@@ -8,38 +8,22 @@ set -euo pipefail
 # Test execution script for the Digital Ocean vendor image.
 # This script is supposed to run in the mantle container.
 
-work_dir="$1"; shift
-arch="$1"; shift
-vernum="$1"; shift
-tapfile="$1"; shift
-
-# $@ now contains tests / test patterns to run
-
-source ci-automation/ci_automation_common.sh
-source sdk_lib/sdk_container_common.sh
-
-mkdir -p "${work_dir}"
-cd "${work_dir}"
+source ci-automation/vendor_test.sh
 
 # We never ran Digital Ocean on arm64, so for now fail it as an
 # unsupported option.
-if [[ "${arch}" == "arm64" ]]; then
-    echo "1..1" > "${tapfile}"
-    echo "not ok - all digital ocean tests" >> "${tapfile}"
-    echo "  ---" >> "${tapfile}"
-    echo "  ERROR: ARM64 tests not supported on Digital Ocean." | tee -a "${tapfile}"
-    echo "  ..." >> "${tapfile}"
+if [[ "${CIA_ARCH}" == "arm64" ]]; then
+    echo "1..1" > "${CIA_TAPFILE}"
+    echo "not ok - all Digital Ocean tests" >> "${CIA_TAPFILE}"
+    echo "  ---" >> "${CIA_TAPFILE}"
+    echo "  ERROR: ARM64 tests not supported on Digital Ocean." | tee -a "${CIA_TAPFILE}"
+    echo "  ..." >> "${CIA_TAPFILE}"
     break_retest_cycle
     exit 1
 fi
 
-channel="$(get_git_channel)"
-if [[ "${channel}" = 'developer' ]]; then
-    channel='alpha'
-fi
-image_name="ci-${vernum//+/-}"
-testscript="$(basename "$0")"
-image_url="$(url_from_template "${DO_IMAGE_URL}" "${arch}" "${channel}" 'https' "${vernum}")"
+image_name="ci-${CIA_VERNUM//+/-}"
+image_url="$(url_from_template "${DO_IMAGE_URL}" "${CIA_ARCH}" "${CIA_CHANNEL}" 'https' "${CIA_VERNUM}")"
 
 ore do create-image \
     --config-file="${DO_CONFIG_FILE}" \
@@ -62,9 +46,9 @@ timeout --signal=SIGQUIT 4h\
     --do-image="${image_name}" \
     --parallel="${DO_PARALLEL}" \
     --platform=do \
-    --channel="${channel}" \
-    --tapfile="${tapfile}" \
-    --torcx-manifest='../torcx_manifest.json' \
+    --channel="${CIA_CHANNEL}" \
+    --tapfile="${CIA_TAPFILE}" \
+    --torcx-manifest="${CIA_TORCX_MANIFEST}" \
     "${@}"
 
 set +x
