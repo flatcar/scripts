@@ -8,7 +8,6 @@
 
 
 set -eu
-set -x
 
 cd $(dirname "$0")
 source sdk_lib/sdk_container_common.sh
