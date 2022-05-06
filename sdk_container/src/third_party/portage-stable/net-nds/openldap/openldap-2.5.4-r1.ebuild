@@ -1,9 +1,9 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit autotools db-use flag-o-matic multilib-minimal preserve-libs ssl-cert toolchain-funcs systemd tmpfiles
+inherit autotools flag-o-matic multilib multilib-minimal preserve-libs ssl-cert toolchain-funcs systemd tmpfiles
 
 BIS_PN=rfc2307bis.schema
 BIS_PV=20140524
@@ -22,27 +22,25 @@ SRC_URI="
 
 LICENSE="OPENLDAP GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~x86-solaris"
+KEYWORDS=""
 
 IUSE_DAEMON="crypt samba tcpd experimental minimal"
-IUSE_BACKEND="+berkdb"
 IUSE_OVERLAY="overlays perl"
-IUSE_OPTIONAL="gnutls iodbc sasl ssl odbc debug ipv6 libressl +syslog selinux static-libs test"
+IUSE_OPTIONAL="gnutls iodbc sasl ssl odbc debug ipv6 +syslog selinux static-libs test"
 IUSE_CONTRIB="smbkrb5passwd kerberos kinit pbkdf2 sha2"
-IUSE_CONTRIB="${IUSE_CONTRIB} -cxx"
+IUSE_CONTRIB="${IUSE_CONTRIB} cxx"
 IUSE="${IUSE_DAEMON} ${IUSE_BACKEND} ${IUSE_OVERLAY} ${IUSE_OPTIONAL} ${IUSE_CONTRIB}"
 
 RESTRICT="!test? ( test )"
 REQUIRED_USE="cxx? ( sasl )
 	pbkdf2? ( ssl )
-	test? ( berkdb )
 	?? ( test minimal )"
 
 # always list newer first
 # Do not add any AGPL-3 BDB here!
 # See bug 525110, comment 15.
 # Advanced usage: OPENLDAP_BDB_SLOTS in the environment can be used to force a slot during build.
-BDB_SLOTS="${OPENLDAP_BDB_SLOTS:=5.3 5.1 4.8 4.7 4.6 4.5 4.4}"
+BDB_SLOTS="${OPENLDAP_BDB_SLOTS:=5.3 4.8}"
 BDB_PKGS=''
 for _slot in $BDB_SLOTS; do BDB_PKGS="${BDB_PKGS} sys-libs/db:${_slot}" ; done
 
@@ -50,8 +48,7 @@ for _slot in $BDB_SLOTS; do BDB_PKGS="${BDB_PKGS} sys-libs/db:${_slot}" ; done
 COMMON_DEPEND="
 	ssl? (
 		!gnutls? (
-			!libressl? ( >=dev-libs/openssl-1.0.1h-r2:0=[${MULTILIB_USEDEP}] )
-			libressl? ( dev-libs/libressl:0=[${MULTILIB_USEDEP}] )
+			>=dev-libs/openssl-1.0.1h-r2:0=[${MULTILIB_USEDEP}]
 		)
 		gnutls? (
 			>=net-libs/gnutls-2.12.23-r6:=[${MULTILIB_USEDEP}]
@@ -61,23 +58,18 @@ COMMON_DEPEND="
 	sasl? ( dev-libs/cyrus-sasl:= )
 	!minimal? (
 		dev-libs/libltdl
-		sys-libs/e2fsprogs-libs
+		sys-fs/e2fsprogs
 		>=dev-db/lmdb-0.9.18:=
+		crypt? ( virtual/libcrypt:= )
 		tcpd? ( sys-apps/tcp-wrappers )
 		odbc? ( !iodbc? ( dev-db/unixODBC )
 			iodbc? ( dev-db/libiodbc ) )
 		perl? ( dev-lang/perl:=[-build(-)] )
 		samba? (
-			!libressl? ( dev-libs/openssl:0= )
-			libressl? ( dev-libs/libressl:0= )
+			dev-libs/openssl:0=
 		)
-		berkdb? (
-			<sys-libs/db-6.0:=
-			|| ( ${BDB_PKGS} )
-			)
 		smbkrb5passwd? (
-			!libressl? ( dev-libs/openssl:0= )
-			libressl? ( dev-libs/libressl:0= )
+			dev-libs/openssl:0=
 			kerberos? ( app-crypt/heimdal )
 			)
 		kerberos? (
@@ -96,14 +88,13 @@ RDEPEND="${COMMON_DEPEND}
 
 # The user/group are only used for running daemons which are
 # disabled in minimal builds, so elide the accounts too.
-# for tracking versions
-
 BDEPEND="!minimal? (
 		acct-group/ldap
 		acct-user/ldap
 )
 "
 
+# for tracking versions
 OPENLDAP_VERSIONTAG=".version-tag"
 OPENLDAP_DEFAULTDIR_VERSIONTAG="/var/lib/openldap-data"
 
@@ -143,45 +134,6 @@ MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/SaslInteractionHandler.h
 	/usr/include/StringList.h
 	/usr/include/TlsOptions.h
-)
-
-PATCHES=(
-	"${FILESDIR}"/${PN}-2.4.17-gcc44.patch
-
-	"${FILESDIR}"/${PN}-2.2.14-perlthreadsfix.patch
-	"${FILESDIR}"/${PN}-2.4.15-ppolicy.patch
-
-	# bug #116045 - still present in 2.4.28
-	"${FILESDIR}"/${PN}-2.4.35-contrib-smbk5pwd.patch
-	# bug #408077 - samba4
-	"${FILESDIR}"/${PN}-2.4.35-contrib-samba4.patch
-
-	# bug #189817
-	"${FILESDIR}"/${PN}-2.4.11-libldap_r.patch
-
-	# bug #233633
-	"${FILESDIR}"/${PN}-2.4.45-fix-lmpasswd-gnutls-symbols.patch
-
-	# bug #281495
-	"${FILESDIR}"/${PN}-2.4.28-gnutls-gcrypt.patch
-
-	# bug #294350
-	"${FILESDIR}"/${PN}-2.4.6-evolution-ntlm.patch
-
-	# unbreak /bin/sh -> dash
-	"${FILESDIR}"/${PN}-2.4.28-fix-dash.patch
-
-	# bug #420959
-	"${FILESDIR}"/${PN}-2.4.31-gcc47.patch
-
-	# unbundle lmdb
-	"${FILESDIR}"/${PN}-2.4.42-mdb-unbundle.patch
-
-	# bug #622464
-	"${FILESDIR}"/${PN}-2.4.47-libressl.patch
-
-	# fix some compiler warnings
-	"${FILESDIR}"/${PN}-2.4.47-warnings.patch
 )
 
 openldap_filecount() {
@@ -270,13 +222,6 @@ openldap_find_versiontags() {
 	if [[ "${have_files}" == "1" ]] && [[ -f "${SLAPD_PATH}" ]]; then
 		OLDVER="$(/usr/bin/ldd ${SLAPD_PATH} \
 			| awk '/libdb-/{gsub("^libdb-","",$1);gsub(".so$","",$1);print $1}')"
-		if use berkdb; then
-			# find which one would be used
-			for bdb_slot in ${BDB_SLOTS} ; do
-				NEWVER="$(db_findver "=sys-libs/db-${bdb_slot}*")"
-				[[ -n "${NEWVER}" ]] && break
-			done
-		fi
 		local fail=0
 		if [[ -z "${OLDVER}" ]] && [[ -z "${NEWVER}" ]]; then
 			:
@@ -374,13 +319,6 @@ src_prepare() {
 		top.mk || die "Failed to block stripping"
 	popd &>/dev/null || die
 
-	# wrong assumption that /bin/sh is /bin/bash
-	sed \
-		-e 's|/bin/sh|/bin/bash|g' \
-		-i tests/scripts/* || die "sed failed"
-
-	# Required for autoconf-2.70 #765043
-	sed 's@^AM_INIT_AUTOMAKE.*@AC_PROG_MAKE_SET@' -i configure.in || die
 	AT_NOEAUTOMAKE=yes eautoreconf
 }
 
@@ -430,16 +368,6 @@ multilib_src_configure() {
 
 		# backends
 		myconf+=( --enable-slapd )
-		if use berkdb ; then
-			einfo "Using Berkeley DB for local backend"
-			myconf+=( --enable-bdb --enable-hdb )
-			DBINCLUDE=$(db_includedir ${BDB_SLOTS})
-			einfo "Using ${DBINCLUDE} for sys-libs/db version"
-			# We need to include the slotted db.h dir for FreeBSD
-			append-cppflags -I${DBINCLUDE}
-		else
-			myconf+=( --disable-bdb --disable-hdb )
-		fi
 		for backend in dnssrv ldap mdb meta monitor null passwd relay shell sock; do
 			myconf+=( --enable-${backend}=mod )
 		done
@@ -482,8 +410,6 @@ multilib_src_configure() {
 		myconf+=(
 			--disable-backends
 			--disable-slapd
-			--disable-bdb
-			--disable-hdb
 			--disable-mdb
 			--disable-overlays
 			--disable-syslog
@@ -511,7 +437,7 @@ multilib_src_configure() {
 
 	myconf+=( --with-tls=${ssl_lib} )
 
-	for basicflag in dynamic local proctitle shared; do
+	for basicflag in dynamic local shared; do
 		myconf+=( --enable-${basicflag} )
 	done
 
@@ -825,13 +751,13 @@ multilib_src_install() {
 		#newdoc acl/README*
 		newdoc addpartial/README addpartial-README
 		newdoc allop/README allop-README
-		newdoc allowed/README  allowed-README
+		newdoc allowed/README allowed-README
 		newdoc autogroup/README autogroup-README
 		newdoc dsaschema/README dsaschema-README
 		newdoc passwd/README passwd-README
 		cd "${S}/contrib/slapi-plugins" || die
 		insinto /usr/$(get_libdir)/openldap/openldap
-		doins  */*.so
+		doins */*.so
 		docinto contrib
 		newdoc addrdnvalues/README addrdnvalues-README
 
@@ -867,6 +793,8 @@ pkg_preinst() {
 
 pkg_postinst() {
 	if ! use minimal ; then
+		tmpfiles_process slapd.conf
+
 		# You cannot build SSL certificates during src_install that will make
 		# binary packages containing your SSL key, which is both a security risk
 		# and a misconfiguration if multiple machines use the same key and cert.

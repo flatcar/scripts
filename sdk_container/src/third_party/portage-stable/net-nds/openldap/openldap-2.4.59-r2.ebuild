@@ -1,9 +1,9 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit autotools db-use flag-o-matic multilib-minimal preserve-libs ssl-cert toolchain-funcs systemd tmpfiles
+inherit autotools db-use flag-o-matic multilib multilib-minimal preserve-libs ssl-cert toolchain-funcs systemd tmpfiles
 
 BIS_PN=rfc2307bis.schema
 BIS_PV=20140524
@@ -27,9 +27,9 @@ KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~riscv ~s390 ~
 IUSE_DAEMON="crypt samba tcpd experimental minimal"
 IUSE_BACKEND="+berkdb"
 IUSE_OVERLAY="overlays perl"
-IUSE_OPTIONAL="gnutls iodbc sasl ssl odbc debug ipv6 libressl +syslog selinux static-libs test"
+IUSE_OPTIONAL="gnutls iodbc sasl ssl odbc debug ipv6 +syslog selinux static-libs test"
 IUSE_CONTRIB="smbkrb5passwd kerberos kinit pbkdf2 sha2"
-IUSE_CONTRIB="${IUSE_CONTRIB} -cxx"
+IUSE_CONTRIB="${IUSE_CONTRIB} cxx"
 IUSE="${IUSE_DAEMON} ${IUSE_BACKEND} ${IUSE_OVERLAY} ${IUSE_OPTIONAL} ${IUSE_CONTRIB}"
 
 RESTRICT="!test? ( test )"
@@ -42,7 +42,7 @@ REQUIRED_USE="cxx? ( sasl )
 # Do not add any AGPL-3 BDB here!
 # See bug 525110, comment 15.
 # Advanced usage: OPENLDAP_BDB_SLOTS in the environment can be used to force a slot during build.
-BDB_SLOTS="${OPENLDAP_BDB_SLOTS:=5.3 5.1 4.8 4.7 4.6 4.5 4.4}"
+BDB_SLOTS="${OPENLDAP_BDB_SLOTS:=5.3 4.8}"
 BDB_PKGS=''
 for _slot in $BDB_SLOTS; do BDB_PKGS="${BDB_PKGS} sys-libs/db:${_slot}" ; done
 
@@ -50,8 +50,7 @@ for _slot in $BDB_SLOTS; do BDB_PKGS="${BDB_PKGS} sys-libs/db:${_slot}" ; done
 COMMON_DEPEND="
 	ssl? (
 		!gnutls? (
-			!libressl? ( >=dev-libs/openssl-1.0.1h-r2:0=[${MULTILIB_USEDEP}] )
-			libressl? ( dev-libs/libressl:0=[${MULTILIB_USEDEP}] )
+			>=dev-libs/openssl-1.0.1h-r2:0=[${MULTILIB_USEDEP}]
 		)
 		gnutls? (
 			>=net-libs/gnutls-2.12.23-r6:=[${MULTILIB_USEDEP}]
@@ -61,23 +60,22 @@ COMMON_DEPEND="
 	sasl? ( dev-libs/cyrus-sasl:= )
 	!minimal? (
 		dev-libs/libltdl
-		sys-libs/e2fsprogs-libs
+		sys-fs/e2fsprogs
 		>=dev-db/lmdb-0.9.18:=
+		crypt? ( virtual/libcrypt:= )
 		tcpd? ( sys-apps/tcp-wrappers )
 		odbc? ( !iodbc? ( dev-db/unixODBC )
 			iodbc? ( dev-db/libiodbc ) )
 		perl? ( dev-lang/perl:=[-build(-)] )
 		samba? (
-			!libressl? ( dev-libs/openssl:0= )
-			libressl? ( dev-libs/libressl:0= )
+			dev-libs/openssl:0=
 		)
 		berkdb? (
 			<sys-libs/db-6.0:=
 			|| ( ${BDB_PKGS} )
 			)
 		smbkrb5passwd? (
-			!libressl? ( dev-libs/openssl:0= )
-			libressl? ( dev-libs/libressl:0= )
+			dev-libs/openssl:0=
 			kerberos? ( app-crypt/heimdal )
 			)
 		kerberos? (
@@ -96,14 +94,13 @@ RDEPEND="${COMMON_DEPEND}
 
 # The user/group are only used for running daemons which are
 # disabled in minimal builds, so elide the accounts too.
-# for tracking versions
-
 BDEPEND="!minimal? (
 		acct-group/ldap
 		acct-user/ldap
 )
 "
 
+# for tracking versions
 OPENLDAP_VERSIONTAG=".version-tag"
 OPENLDAP_DEFAULTDIR_VERSIONTAG="/var/lib/openldap-data"
 
@@ -176,9 +173,6 @@ PATCHES=(
 
 	# unbundle lmdb
 	"${FILESDIR}"/${PN}-2.4.42-mdb-unbundle.patch
-
-	# bug #622464
-	"${FILESDIR}"/${PN}-2.4.47-libressl.patch
 
 	# fix some compiler warnings
 	"${FILESDIR}"/${PN}-2.4.47-warnings.patch
@@ -825,13 +819,13 @@ multilib_src_install() {
 		#newdoc acl/README*
 		newdoc addpartial/README addpartial-README
 		newdoc allop/README allop-README
-		newdoc allowed/README  allowed-README
+		newdoc allowed/README allowed-README
 		newdoc autogroup/README autogroup-README
 		newdoc dsaschema/README dsaschema-README
 		newdoc passwd/README passwd-README
 		cd "${S}/contrib/slapi-plugins" || die
 		insinto /usr/$(get_libdir)/openldap/openldap
-		doins  */*.so
+		doins */*.so
 		docinto contrib
 		newdoc addrdnvalues/README addrdnvalues-README
 
@@ -867,6 +861,8 @@ pkg_preinst() {
 
 pkg_postinst() {
 	if ! use minimal ; then
+		tmpfiles_process slapd.conf
+
 		# You cannot build SSL certificates during src_install that will make
 		# binary packages containing your SSL key, which is both a security risk
 		# and a misconfiguration if multiple machines use the same key and cert.
