@@ -19,7 +19,8 @@
 
 =net-misc/openssh-8.8_p1-r3 ~amd64 ~arm64
 
-=net-misc/rsync-3.2.3-r5 ~amd64 ~arm64
+# Required for addressing CVE-2018-25032 in its bundled zlib
+=net-misc/rsync-3.2.4-r1 ~amd64 ~arm64
 
 # To address security issues like CVE-2021-31879, we need to accept
 # keywords for wget 1.21.2.
