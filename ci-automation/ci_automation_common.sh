@@ -275,8 +275,9 @@ function url_from_template() {
 # --
 
 # Puts a secret into a file, while trying for the secret to not end up
-# on a filesystem at all. A path to the file with the secret in
-# /proc in put into the chosen variable.
+# on a filesystem at all. A path to the file with the secret in /proc
+# in put into the chosen variable. The secret is assumed to be
+# base64-encoded.
 #
 # Typical use:
 #   secret_file=''
@@ -294,7 +295,7 @@ function secret_to_file() {
 
     exec {fd}<>"${tmpfile}"
     rm -f "${tmpfile}"
-    echo "${secret}" >&${fd}
+    echo "${secret}" | base64 --decode >&${fd}
     config_ref="/proc/${$}/fd/${fd}"
 }
 # --
