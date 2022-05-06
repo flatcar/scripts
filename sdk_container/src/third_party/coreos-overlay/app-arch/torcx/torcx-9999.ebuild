@@ -11,7 +11,7 @@ COREOS_GO_GO111MODULE="off"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	CROS_WORKON_COMMIT="e170ca9d6e2894adf289962a917fcb5a245ef2dc" # flatcar-master
+	CROS_WORKON_COMMIT="756605fec9f439e92bb742f7ae18332d581ce057" # flatcar-master
 	KEYWORDS="amd64 arm64"
 fi
 
