@@ -4,7 +4,7 @@
 
 =app-arch/zstd-1.4.9 ~amd64 ~arm64
 
-=app-emulation/qemu-6.1.0-r1 ~amd64 ~arm64
+=app-emulation/qemu-7.0.0-r1 ~arm64
 
 =coreos-devel/fero-client-0.1.1 **
 
