@@ -11,7 +11,7 @@ jobs:
   get-mantle-release:
     strategy:
       matrix:
-        branch: [main,alpha,beta,stable]
+        branch: [main,alpha,beta,stable,lts]
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
