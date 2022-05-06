@@ -60,12 +60,19 @@
 #  torcx tarball on the build cache (for the docker.torcx-manifest-pkgs test).
 #
 # Vendor specific scripts are called with the following positional arguments:
-# 1 - working directory for the tests.
+# 1 - Toplevel tests directory
+#     It contains some additional files needed for running the tests (like torcx manifest or file with channel information).
+# 2 - Working directory for the tests.
 #     The vendor script is expected to keep all artifacts it produces in that directory.
-# 2 - Architecture to test.
-# 3 - version number to test.
-# 4 - output TAP file.
+# 3 - Architecture to test.
+# 4 - Version number to test.
+# 5 - Output TAP file.
 # All following arguments specify test cases / test case patterns to run.
+#
+# The vendor tests should source ci-automation/vendor_test.sh script
+# as a first step - it will do some common steps that the vendor
+# script would need to make anyway. For more information, please refer
+# to the vendor_test.sh file.
 
 set -euo pipefail
 
@@ -107,6 +114,7 @@ function test_run() {
 
     source ci-automation/tapfile_helper_lib.sh
     source ci-automation/ci_automation_common.sh
+    source sdk_lib/sdk_container_common.sh
     init_submodules
 
     source sdk_container/.repo/manifests/version.txt
@@ -117,6 +125,13 @@ function test_run() {
     local work_dir="__TESTS__"
     local tests_dir="${work_dir}/${image}"
     mkdir -p "${tests_dir}"
+
+    # Store git version and git channel as files inside ${work_dir}.
+    # This information might not be available inside the docker
+    # container if this directory is not a main git repo, but rather a
+    # git worktree.
+    get_git_version >"${work_dir}/git_version"
+    get_git_channel >"${work_dir}/git_channel"
 
     local container_name="flatcar-tests-${arch}-${docker_vernum}-${image}"
     local mantle_ref
@@ -137,17 +152,18 @@ function test_run() {
 
         # Ignore retcode since tests are flaky. We'll re-run failed tests and
         #  determine success based on test results (tapfile).
-        set +e -o noglob
+        set +e
         touch sdk_container/.env
         docker run --pull always --rm --name="${container_name}" --privileged --net host -v /dev:/dev \
           -w /work -v "$PWD":/work "${mantle_ref}" \
-         bash -c "set -o noglob && source sdk_container/.env && ci-automation/vendor-testing/\"${image}\".sh \
+         bash -c "set -o noglob && source sdk_container/.env && ci-automation/vendor-testing/${image}.sh \
+                \"${work_dir}\" \
                 \"${tests_dir}\" \
                 \"${arch}\" \
                 \"${vernum}\" \
                 \"${tapfile}\" \
                 $@"
-        set -e +o noglob
+        set -e
 
         docker run --pull always --rm --name="${container_name}" --privileged --net host -v /dev:/dev \
           -w /work -v "$PWD":/work "${mantle_ref}" \
