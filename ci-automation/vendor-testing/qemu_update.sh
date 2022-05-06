@@ -8,67 +8,51 @@ set -euo pipefail
 # Test execution script for the update payload using the previous
 # release as starting point, and doing a second update from the current
 # build to itself again.
-# This script is supposed to run in the SDK container.
+# This script is supposed to run in the mantle container.
 
-work_dir="$1"; shift
-arch="$1"; shift
-vernum="$1"; shift
-tapfile="$1"; shift
+source ci-automation/vendor_test.sh
 
-# $@ now contains tests / test patterns to run
-
-if [ "$@" != "" ] && [ "$@" != "*" ] && [ "$@" != "cl.update.payload" ]; then
-    echo "Only cl.update.payload is supported, got '$@'"
+if [ "$*" != "" ] && [ "$*" != "*" ] && [ "$*" != "cl.update.payload" ]; then
+    echo "Only cl.update.payload is supported, got '$*'"
     exit 1
 fi
 
-source ci-automation/ci_automation_common.sh
-source sdk_lib/sdk_container_common.sh
-
-mkdir -p "${work_dir}"
-cd "${work_dir}"
-
 mkdir -p tmp/
 if [ -f tmp/flatcar_test_update.gz ] ; then
-    echo "++++ QEMU test: Using existing ${work_dir}/tmp/flatcar_test_update.gz for testing ${vernum} (${arch}) ++++"
+    echo "++++ ${CIA_TESTSCRIPT}: Using existing ./tmp/flatcar_test_update.gz for testing ${CIA_VERNUM} (${CIA_ARCH}) ++++"
 else
-    echo "++++ QEMU test: downloading flatcar_test_update.gz for ${vernum} (${arch}) ++++"
-    copy_from_buildcache "images/${arch}/${vernum}/flatcar_test_update.gz" tmp/
+    echo "++++ ${CIA_TESTSCRIPT}: downloading flatcar_test_update.gz for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
+    copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/flatcar_test_update.gz" tmp/
 fi
 
-ON_CHANNEL="$(get_git_channel)"
-if [ "${ON_CHANNEL}" = "developer" ]; then
-    # For main/dev builds we compare to last alpha release
-    ON_CHANNEL="alpha"
-fi
 if [ -f tmp/flatcar_production_image_previous.bin ] ; then
-    echo "++++ QEMU test: Using existing ${work_dir}/tmp/flatcar_production_image_previous.bin for testing update to ${vernum} (${arch}) from previous ${ON_CHANNEL} ++++"
+    echo "++++ ${CIA_TESTSCRIPT}: Using existing ./tmp/flatcar_production_image_previous.bin for testing update to ${CIA_VERNUM} (${CIA_ARCH}) from previous ${CIA_CHANNEL} ++++"
 else
-    echo "++++ QEMU test: downloading flatcar_production_image_previous.bin from previous ${ON_CHANNEL} ++++"
+    echo "++++ ${CIA_TESTSCRIPT}: downloading flatcar_production_image_previous.bin from previous ${CIA_CHANNEL} ++++"
     rm -f tmp/flatcar_production_image_previous.bin.bz2
-    curl -fsSLO --retry-delay 1 --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 "https://${ON_CHANNEL}.release.flatcar-linux.net/${arch}-usr/current/flatcar_production_image.bin.bz2"
+    curl -fsSLO --retry-delay 1 --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 "https://${CIA_CHANNEL}.release.flatcar-linux.net/${CIA_ARCH}-usr/current/flatcar_production_image.bin.bz2"
     mv flatcar_production_image.bin.bz2 tmp/flatcar_production_image_previous.bin.bz2
     lbunzip2 -k -f tmp/flatcar_production_image_previous.bin.bz2
 fi
 
 bios="${QEMU_BIOS}"
-if [ "${arch}" = "arm64" ]; then
+if [ "${CIA_ARCH}" = "arm64" ]; then
     bios="${QEMU_UEFI_BIOS}"
     if [ -f "${bios}" ] ; then
-        echo "++++ qemu_update.sh: Using existing ${work_dir}/${bios} ++++"
+        echo "++++ qemu_update.sh: Using existing ./${bios} ++++"
     else
-        echo "++++ qemu_update.sh: downloading ${bios} for ${vernum} (${arch}) ++++"
-        copy_from_buildcache "images/${arch}/${vernum}/${bios}" .
+        echo "++++ qemu_update.sh: downloading ${bios} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
+        copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${bios}" .
     fi
 fi
 
-sudo kola run \
-    --board="${arch}-usr" \
+kola run \
+    --board="${CIA_ARCH}-usr" \
     --parallel="${QEMU_PARALLEL}" \
     --platform=qemu \
     --qemu-bios="${bios}" \
     --qemu-image=tmp/flatcar_production_image_previous.bin \
-    --tapfile="${tapfile}" \
-    --torcx-manifest=../torcx_manifest.json \
+    --tapfile="${CIA_TAPFILE}" \
+    --torcx-manifest="${CIA_TORCX_MANIFEST}" \
     --update-payload=tmp/flatcar_test_update.gz \
     cl.update.payload
