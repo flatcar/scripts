@@ -14,7 +14,7 @@ SRC_URI="https://web.mit.edu/kerberos/dist/krb5/${P_DIR}/${MY_P}.tar.gz"
 
 LICENSE="openafs-krb5-a BSD MIT OPENLDAP BSD-2 HPND BSD-4 ISC RSA CC-BY-SA-3.0 || ( BSD-2 GPL-2+ )"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="cpu_flags_x86_aes doc +keyutils lmdb nls openldap +pkinit selinux +threads test xinetd"
 
 # some tests requires network access
@@ -22,18 +22,15 @@ RESTRICT="test"
 
 DEPEND="
 	!!app-crypt/heimdal
-	|| (
-		>=sys-fs/e2fsprogs-1.46.4-r51[${MULTILIB_USEDEP}]
-		sys-libs/e2fsprogs-libs[${MULTILIB_USEDEP}]
-	)
+	>=sys-fs/e2fsprogs-1.46.4-r51[${MULTILIB_USEDEP}]
 	|| (
 		>=dev-libs/libverto-0.2.5[libev,${MULTILIB_USEDEP}]
 		>=dev-libs/libverto-0.2.5[libevent,${MULTILIB_USEDEP}]
 	)
 	keyutils? ( >=sys-apps/keyutils-1.5.8:=[${MULTILIB_USEDEP}] )
-	lmdb? ( dev-db/lmdb )
+	lmdb? ( dev-db/lmdb:= )
 	nls? ( sys-devel/gettext[${MULTILIB_USEDEP}] )
-	openldap? ( >=net-nds/openldap-2.4.38-r1[${MULTILIB_USEDEP}] )
+	openldap? ( >=net-nds/openldap-2.4.38-r1:=[${MULTILIB_USEDEP}] )
 	pkinit? ( >=dev-libs/openssl-1.0.1h-r2:0=[${MULTILIB_USEDEP}] )
 	xinetd? ( sys-apps/xinetd )
 	"
@@ -61,7 +58,6 @@ PATCHES=(
 	"${FILESDIR}/${PN}-config_LDFLAGS-r1.patch"
 	"${FILESDIR}/${PN}_dont_create_rundir.patch"
 	"${FILESDIR}/${PN}-1.18.2-krb5-config.patch"
-	"${FILESDIR}/${PN}-CVE-2021-37750.patch"
 )
 
 MULTILIB_CHOST_TOOLS=(
