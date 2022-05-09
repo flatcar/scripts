@@ -13,7 +13,6 @@ dev-vcs/git		webdav curl bash-completion
 net-misc/curl		kerberos threads telnet
 net-misc/iputils	arping tracepath traceroute6
 sys-devel/gettext	-git
-app-emulation/qemu	aio caps curl -doc ncurses png python threads uuid vhost-net virtfs vnc -xkb -slirp -jpeg qemu_softmmu_targets_x86_64 qemu_softmmu_targets_aarch64
 
 sys-apps/gptfdisk -icu
 
