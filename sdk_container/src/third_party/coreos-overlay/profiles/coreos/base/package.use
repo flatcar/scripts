@@ -19,7 +19,7 @@ sys-apps/gptfdisk -icu
 # for profile migration
 sys-libs/gdbm berkdb
 
-dev-vcs/git -pcre-jit -perl -iconv
+dev-vcs/git -perl -iconv
 
 net-analyzer/nmap ncat -system-lua
 

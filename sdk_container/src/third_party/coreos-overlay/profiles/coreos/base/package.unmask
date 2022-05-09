@@ -16,3 +16,7 @@
 # Overwrite portage-stable mask. OpenSSL-3* is building fine on Flatcar
 # and Flatcar's dependencies are building fine against it.
 =dev-libs/openssl-3.0*
+
+# Overwrite portage-stable mask - we want to use this version of git
+# for security fixes.
+=dev-vcs/git-2.35.3
