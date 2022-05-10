@@ -126,7 +126,7 @@ function test_run() {
     local docker_vernum
     docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
 
-    local work_dir="__TESTS__"
+    local work_dir="${TEST_WORK_DIR}"
     local tests_dir="${work_dir}/${image}"
     mkdir -p "${tests_dir}"
 
@@ -182,6 +182,16 @@ function test_run() {
         failed_tests="$(cat "${tests_dir}/${failfile}")"
         if [ -z "$failed_tests" ] ; then
             echo "########### All tests succeeded. ###########"
+            success=true
+            break
+        fi
+
+        if retest_cycle_broken; then
+            echo "########### Test cycle requested to break ###########"
+            echo "Failed tests: $failed_tests"
+            echo "-----------"
+            # not really a success, but don't print a message about
+            # exhaused reruns and giving up
             success=true
             break
         fi
