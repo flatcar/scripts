@@ -146,6 +146,9 @@ function test_run() {
     local success=false
     # A job on each worker prunes old mantle images (docker image prune)
     echo "docker rm -f '${container_name}'" >> ./ci-cleanup.sh
+
+    # Vendor tests may need to know if it is a first run or a rerun
+    touch "${work_dir}/first_run"
     for retry in $(seq "${retries}"); do
         local tapfile="results-run-${retry}.tap"
         local failfile="failed-run-${retry}.txt"
@@ -162,8 +165,9 @@ function test_run() {
                 \"${arch}\" \
                 \"${vernum}\" \
                 \"${tapfile}\" \
-                $@"
+                $*"
         set -e
+        rm -f "${work_dir}/first_run"
 
         docker run --pull always --rm --name="${container_name}" --privileged --net host -v /dev:/dev \
           -w /work -v "$PWD":/work "${mantle_ref}" \
