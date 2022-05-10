@@ -14,13 +14,13 @@ case "${EAPI:-0}" in
 	*) die "Unsupported EAPI=${EAPI} for ${ECLASS}"
 esac
 
-inherit coreos-go-utils toolchain-funcs versionator
+inherit coreos-go-utils toolchain-funcs
 
 export CBUILD=${CBUILD:-${CHOST}}
 export CTARGET=${CTARGET:-${CHOST}}
 
 # Determine the main SLOT we will be using, e.g.: PV=1.5.3 SLOT=1.5
-GOSLOT="$(get_version_component_range 1-2)"
+GOSLOT="$(ver_cut 1-2)"
 
 DESCRIPTION="A concurrent garbage collected and typesafe programming language"
 HOMEPAGE="http://www.golang.org"
