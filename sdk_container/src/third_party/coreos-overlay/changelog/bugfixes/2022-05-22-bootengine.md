@@ -1,0 +1,1 @@
+- Fixed Ignition's OEM ID to be `metal` to follow the Ignition upstream change which otherwise resulted in a broken boot when the Flatcar OEM ID `pxe` was used ([bootengine#45](https://github.com/flatcar-linux/bootengine/pull/45))
