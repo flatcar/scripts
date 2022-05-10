@@ -1,4 +1,4 @@
-# Copyright 2019 Kinvolk GmbH.
+# Copyright 2022 Flatcar Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
