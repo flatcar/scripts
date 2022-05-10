@@ -10,6 +10,8 @@ source ci-automation/ci-config.env
 : ${PIGZ:=pigz}
 : ${docker:=docker}
 
+: ${TEST_WORK_DIR:='__TESTS__'}
+
 function init_submodules() {
     git submodule init
     git submodule update
@@ -222,5 +224,78 @@ function docker_image_from_registry_or_buildcache() {
 
     echo "Falling back to tar ball download..." >&2
     docker_image_from_buildcache "${image}" "${version}"
+}
+# --
+
+# Called by vendor test in case of complete failure not eligible for
+# reruns (like trying to run tests on unsupported architecture).
+function break_retest_cycle() {
+    local work_dir=$(dirname "${PWD}")
+    local dir=$(basename "${work_dir}")
+
+    if [[ "${dir}" != "${TEST_WORK_DIR}" ]]; then
+        echo "Not breaking retest cycle, expected test work dir to be a parent directory" >&2
+        return
+    fi
+    touch "${work_dir}/break_retests"
+}
+# --
+
+# Called by test runner to see if the retest cycle should be broken.
+function retest_cycle_broken() {
+    # Using the reverse boolean logic here!
+    local broken=1
+    if [[ -f "${TEST_WORK_DIR}/break_retests" ]]; then
+        broken=0
+        rm -f "${TEST_WORK_DIR}/break_retests"
+    fi
+    return ${broken}
+}
+# --
+
+# Substitutes fields in the passed template and prints the
+# result. Followed by the template, the parameters used for
+# replacement are in alphabetical order: arch, channel, proto and
+# vernum.
+function url_from_template() {
+    local template="${1}"; shift
+    local arch="${1}"; shift
+    local channel="${1}"; shift
+    local proto="${1}"; shift
+    local vernum="${1}"; shift
+    local url="${template}"
+
+    url="${url//@ARCH@/${arch}}"
+    url="${url//@CHANNEL@/${channel}}"
+    url="${url//@PROTO@/${proto}}"
+    url="${url//@VERNUM@/${vernum}}"
+
+    echo "${url}"
+}
+# --
+
+# Puts a secret into a file, while trying for the secret to not end up
+# on a filesystem at all. A path to the file with the secret in /proc
+# in put into the chosen variable. The secret is assumed to be
+# base64-encoded.
+#
+# Typical use:
+#   secret_file=''
+#   secret_to_file secret_file "${some_secret}"
+#
+# Parameters:
+# 1 - name of the variable where the path is stored
+# 2 - the secret to store in the file
+function secret_to_file() {
+    local config_var_name="${1}"; shift
+    local secret="${1}"; shift
+    local tmpfile=$(mktemp)
+    local -n config_ref="${config_var_name}"
+    local fd
+
+    exec {fd}<>"${tmpfile}"
+    rm -f "${tmpfile}"
+    echo "${secret}" | base64 --decode >&${fd}
+    config_ref="/proc/${$}/fd/${fd}"
 }
 # --
