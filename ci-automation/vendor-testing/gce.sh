@@ -18,14 +18,12 @@ if [[ "${CIA_ARCH}" == "arm64" ]]; then
     echo "  ---" >> "${CIA_TAPFILE}"
     echo "  ERROR: ARM64 tests not supported on GCE." | tee -a "${CIA_TAPFILE}"
     echo "  ..." >> "${CIA_TAPFILE}"
+    break_retest_cycle
     exit 1
 fi
 
-# Create temp file and delete it immediately
-echo "${GCP_JSON_KEY}" | base64 --decode > /tmp/gcp_auth
-exec {gcp_auth}</tmp/gcp_auth
-rm /tmp/gcp_auth
-GCP_JSON_KEY_PATH="/proc/$$/fd/${gcp_auth}"
+GCP_JSON_KEY_PATH=''
+secret_to_file GCP_JSON_KEY_PATH "${GCP_JSON_KEY}"
 
 copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${GCE_IMAGE_NAME}" .
 gcloud auth activate-service-account --key-file "${GCP_JSON_KEY_PATH}"
@@ -46,19 +44,39 @@ trap 'ore gcloud delete-images \
     --json-key="${GCP_JSON_KEY_PATH}" \
     "${image_name}" ; gsutil rm -r "${GCE_GCS_IMAGE_UPLOAD}/${CIA_ARCH}-usr/${CIA_VERNUM}" || true' EXIT
 
-set -x
-
-timeout --signal=SIGQUIT 6h \
+run_kola_tests() {
+    local instance_type="${1}"; shift
+    local instance_tapfile="${1}"; shift
+    local extra_arg=()
+    if [ "${instance_type}" = "gvnic" ]; then
+        extra_arg+=("--gce-gvnic")
+    fi
+    timeout --signal=SIGQUIT 6h \
     kola run \
-    --basename="${image_name}" \
-    --gce-image="${image_name}" \
-    --gce-json-key="${GCP_JSON_KEY_PATH}" \
-    --gce-machinetype="${GCE_MACHINE_TYPE}" \
-    --parallel="${GCE_PARALLEL}" \
-    --platform=gce \
-    --channel="${CIA_CHANNEL}" \
-    --tapfile="${CIA_TAPFILE}" \
-    --torcx-manifest="${CIA_TORCX_MANIFEST}" \
-    "${@}"
+        --basename="${image_name}" \
+        --gce-image="${image_name}" \
+        --gce-json-key="${GCP_JSON_KEY_PATH}" \
+        --gce-machinetype="${GCE_MACHINE_TYPE}" \
+        "${extra_arg[@]}" \
+        --parallel="${GCE_PARALLEL}" \
+        --platform=gce \
+        --channel="${CIA_CHANNEL}" \
+        --tapfile="${instance_tapfile}" \
+        --torcx-manifest="${CIA_TORCX_MANIFEST}" \
+        "${@}"
+}
 
-set +x
+query_kola_tests() {
+    shift; # ignore the instance type
+    kola list --platform=gce --filter "${@}"
+}
+
+run_kola_tests_on_instances \
+    "default" \
+    "${CIA_TAPFILE}" \
+    "${CIA_FIRST_RUN}" \
+    "gvnic" \
+    '--' \
+    'cl.internet' \
+    '--' \
+    "${@}"
