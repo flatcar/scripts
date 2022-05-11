@@ -37,6 +37,7 @@ RDEPEND="${RDEPEND}
 	dev-lang/go-bootstrap
 	dev-lang/go:1.12
 	dev-lang/go:1.17
+	dev-lang/go:1.18
 	dev-lang/nasm
 	=dev-lang/python-3*
 	dev-lang/swig
