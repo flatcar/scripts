@@ -155,6 +155,9 @@ function filter_prefixed_tests() {
     local -n results="${var_name}"
     local name
     local stripped_name
+    # clear the array, so it will contain results of current filtering
+    # only
+    results=()
     for name; do
         stripped_name="${name#extra-test.\[${prefix}\].}"
         if [[ "${stripped_name}" != "${name}" ]]; then
@@ -181,6 +184,9 @@ function filter_out_prefixed_tests() {
     local var_name="${1}"; shift
     local -n results="${var_name}"
     local name
+    # clear the array, so it will contain results of current filtering
+    # only
+    results=()
     for name; do
         if [[ "${name#extra-test.}" = "${name}" ]]; then
             results+=( "${name}" )
@@ -363,7 +369,7 @@ function run_kola_tests_on_instances() {
         fi
     done
 
-    local -a main_tests
+    local main_tests=()
 
     filter_out_prefixed_tests main_tests "${@}"
     if [[ "${#main_tests[@]}" -gt 0 ]]; then
