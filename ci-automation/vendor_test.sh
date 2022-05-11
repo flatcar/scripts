@@ -369,7 +369,7 @@ function run_kola_tests_on_instances() {
         fi
     done
 
-    local -a main_tests
+    local main_tests=()
 
     filter_out_prefixed_tests main_tests "${@}"
     if [[ "${#main_tests[@]}" -gt 0 ]]; then
