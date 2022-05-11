@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{7..9} )
+PYTHON_COMPAT=( python3_{8..10} )
 PYTHON_REQ_USE="threads(+)"
 inherit waf-utils multilib-minimal python-single-r1
 
@@ -13,7 +13,7 @@ SRC_URI="https://samba.org/ftp/tevent/${P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x86-linux"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x86-linux"
 IUSE="python"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
@@ -21,13 +21,14 @@ RESTRICT="test"
 
 RDEPEND="
 	dev-libs/libbsd[${MULTILIB_USEDEP}]
-	>=sys-libs/talloc-2.3.1[${MULTILIB_USEDEP}]
+	>=sys-libs/talloc-2.3.3[${MULTILIB_USEDEP}]
 	python? (
 		${PYTHON_DEPS}
 		sys-libs/talloc[python,${PYTHON_SINGLE_USEDEP}]
 	)
 "
 DEPEND="${RDEPEND}
+	>=dev-util/cmocka-1.1.3
 	elibc_glibc? (
 		net-libs/libtirpc[${MULTILIB_USEDEP}]
 		|| (
@@ -44,6 +45,7 @@ WAF_BINARY="${S}/buildtools/bin/waf"
 
 pkg_setup() {
 	python-single-r1_pkg_setup
+	export PYTHONHASHSEED=1
 }
 
 src_prepare() {
