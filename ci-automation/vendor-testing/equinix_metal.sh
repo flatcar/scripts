@@ -7,7 +7,7 @@ set -euo pipefail
 
 # Test execution script for the Equinix Metal vendor image.
 # This script is supposed to run in the mantle container.
-# This script requires "pxe" Jenkins job.
+# This script requires the PXE images to be built.
 
 source ci-automation/vendor_test.sh
 
@@ -25,14 +25,14 @@ timeout=6h
 
 BASE_URL="http://${BUILDCACHE_SERVER}/images/${CIA_ARCH}/${CIA_VERNUM}"
 
-run_equinix_metal_kola_test() {
-    local instance_type="${1}"
-    local instance_tapfile="${2}"
+run_kola_tests() {
+    local instance_type="${1}"; shift
+    local instance_tapfile="${1}"; shift
 
     timeout --signal=SIGQUIT "${timeout}" \
         kola run \
           --board="${CIA_ARCH}-usr" \
-          --basename="ci-${CIA_VERNUM/+/-}" \
+          --basename="ci-${CIA_VERNUM/+/-}-${CIA_ARCH}" \
           --platform=equinixmetal \
           --tapfile="${instance_tapfile}" \
           --parallel="${EQUINIXMETAL_PARALLEL}" \
@@ -47,59 +47,19 @@ run_equinix_metal_kola_test() {
           --gce-json-key=<(set +x; echo "${GCP_JSON_KEY}" | base64 --decode) \
           --equinixmetal-api-key="${EQUINIXMETAL_KEY}" \
           "${@}"
-
-    # compare the tested instance with the default instance type.
-    if [[ "${instance_type}" != "${EQUINIXMETAL_INSTANCE_TYPE}" ]]; then
-        sed --in-place "s/cl\.internet/${instance_type}\.cl\.internet/" "${instance_tapfile}"
-    fi
 }
 
-cl_internet_included="$(kola list --platform=equinixmetal --filter "${@}" | { grep cl.internet || : ; } )"
+query_kola_tests() {
+    shift; # ignore the instance type
+    kola list --platform=equinixmetal --filter "${@}"
+}
 
-# in case of rerun, we need to convert <instance-type>.cl.internet
-# to regular cl.internet tests on the correct instance type.
-instance_types=()
-for t in "${@}"; do
-    if [[ "${t}" =~ ".cl.internet" ]]; then
-        instance_types+=( "${t/\.cl\.internet/}" )
-        # cl_internet needs to run.
-        cl_internet_included="yes"
-    fi
-done
-# Remove any <instance-type>.cl.internet in ${@}
-set -o noglob
-set -- $(echo "$*" | sed 's/[^[:space:]]*\.cl\.internet//g')
-set +o noglob
-
-# empty array is seen as unbound variable.
-set +u
-[[ "${#instance_types}" -gt 0 ]] && MORE_INSTANCE_TYPES=( "${instance_types[@]}" )
-set -u
-
-run_more_tests=0
-
-[[ -n "${cl_internet_included}" ]] && [[ "${#MORE_INSTANCE_TYPES[@]}" -gt 0 ]] && run_more_tests=1
-
-if [[ "${run_more_tests}" -eq 1 ]]; then
-    for instance_type in "${MORE_INSTANCE_TYPES[@]}"; do
-	(
-            OUTPUT=$(set +x; run_equinix_metal_kola_test "${instance_type}" "validate_${instance_type}.tap" 'cl.internet' 2>&1 || :)
-            echo "=== START ${instance_type} ==="
-            echo "${OUTPUT}" | sed "s/^/${instance_type}: /g"
-            echo "=== END ${instance_type} ==="
-        ) &
-    done
-fi
-
-# Skip regular run if only <instance-type>.cl.internet were to be tested
-ARGS="$*"
-if [[ -n "${ARGS// }" ]]; then
-    set -x
-    run_equinix_metal_kola_test "${EQUINIXMETAL_INSTANCE_TYPE}" "${CIA_TAPFILE}" "${@}"
-    set +x
-fi
-
-if [[ "${run_more_tests}" -eq 1 ]]; then
-    wait
-    cat validate_*.tap >>"${CIA_TAPFILE}"
-fi
+run_kola_tests_on_instances \
+    "${EQUINIXMETAL_INSTANCE_TYPE}" \
+    "${CIA_TAPFILE}" \
+    "${CIA_FIRST_RUN}" \
+    "${MORE_INSTANCE_TYPES[@]}" \
+    '--' \
+    'cl.internet' \
+    '--' \
+    "${@}"
