@@ -1,0 +1,1 @@
+- Added VMware networking configuration in the initramfs via guestinfo settings ([bootengine#44](https://github.com/flatcar-linux/bootengine/pull/44), [flatcar#717](https://github.com/flatcar-linux/Flatcar/issues/717))
