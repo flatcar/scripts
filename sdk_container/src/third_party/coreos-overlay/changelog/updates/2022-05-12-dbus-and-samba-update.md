@@ -1,0 +1,2 @@
+- dbus ([1.12.22](https://gitlab.freedesktop.org/dbus/dbus/-/blob/177ab044bc87cbc4ded75d21b900795a6fefef76/NEWS))
+- samba ([4.15.4](https://www.samba.org/samba/history/samba-4.15.4.html))
