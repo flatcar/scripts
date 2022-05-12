@@ -80,7 +80,6 @@ RDEPEND="${RDEPEND}
 		app-emulation/xenstore
 		net-fs/cifs-utils
 		sys-auth/realmd
-		sys-auth/sssd
 	)"
 
 RDEPEND="${RDEPEND}
@@ -170,6 +169,7 @@ RDEPEND="${RDEPEND}
 	sys-apps/usbutils
 	sys-apps/util-linux
 	sys-apps/which
+	sys-auth/sssd
 	sys-block/open-iscsi
 	sys-block/parted
 	sys-cluster/ipvsadm
