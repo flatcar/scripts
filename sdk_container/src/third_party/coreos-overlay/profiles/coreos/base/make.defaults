@@ -78,9 +78,11 @@ CONFIG_PROTECT="
 
 # Remove libtool .la files for non-plugin libraries.
 # Remove Gentoo init files since we use systemd.
+# Remove build-id, there is some issue with it causing collisions.
 INSTALL_MASK="
   /usr/lib*/*.la
   /etc/init.d /etc/conf.d
+  /usr/lib/debug/.build-id
 "
 
 # Keep the default languages small.
