@@ -1,10 +1,12 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6..10} )
-inherit autotools flag-o-matic linux-info python-any-r1 readme.gentoo-r1 systemd virtualx multilib-minimal
+PYTHON_COMPAT=( python3_{8..10} )
+TMPFILES_OPTIONAL=1
+
+inherit autotools flag-o-matic linux-info python-any-r1 readme.gentoo-r1 systemd tmpfiles virtualx multilib-minimal
 
 DESCRIPTION="A message bus system, a simple way for applications to talk to each other"
 HOMEPAGE="https://dbus.freedesktop.org/"
@@ -13,7 +15,7 @@ SRC_URI="https://dbus.freedesktop.org/releases/dbus/${P}.tar.gz"
 LICENSE="|| ( AFL-2.1 GPL-2 )"
 SLOT="0"
 KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="debug doc elogind kernel_linux selinux static-libs systemd test user-session X"
+IUSE="debug doc elogind selinux static-libs systemd test X"
 RESTRICT="!test? ( test )"
 
 REQUIRED_USE="?? ( elogind systemd )"
@@ -43,11 +45,15 @@ DEPEND="${COMMON_DEPEND}
 		>=dev-libs/glib-2.40:2
 	)
 "
-
-# Flatcar: drop dependency on sec-policy/selinux-dbus, to avoid pulling in 
-# unnecessary ebuilds into rootfs
+# Flatcar: Drop the following dependency to avoid pulling in
+# unnecessary ebuilds into rootfs:
+#
+# selinux? ( sec-policy/selinux-dbus )
+#
+# We may want to revisit that, actually.
 RDEPEND="${COMMON_DEPEND}
 	acct-user/messagebus
+	systemd? ( virtual/tmpfiles )
 "
 
 DOC_CONTENTS="
@@ -59,8 +65,13 @@ DOC_CONTENTS="
 TBD="${WORKDIR}/${P}-tests-build"
 
 PATCHES=(
-	"${FILESDIR}/${PN}-enable-elogind.patch"
-	"${FILESDIR}/${PN}-daemon-optional.patch" # bug #653136
+	"${FILESDIR}/dbus-enable-elogind.patch"
+	"${FILESDIR}/dbus-daemon-optional.patch" # bug #653136
+
+	"${FILESDIR}/dbus-1.12.22-check-fd.patch"
+
+	# https://bugs.gentoo.org/836560
+	"${FILESDIR}/dbus-1.14.0-oom_score_adj.patch"
 )
 
 pkg_setup() {
@@ -124,10 +135,12 @@ multilib_src_configure() {
 		$(use_enable selinux libaudit)
 		--disable-apparmor
 		$(use_enable kernel_linux inotify)
-		$(use_enable kernel_FreeBSD kqueue)
+		--disable-kqueue
 		$(use_enable elogind)
 		$(use_enable systemd)
-		$(use_enable user-session)
+		# Flatcar: disable user sessions
+		# $(use_enable systemd user-session)
+		--disable-user-session
 		--disable-embedded-tests
 		--disable-modular-tests
 		$(use_enable debug stats)
@@ -135,6 +148,7 @@ multilib_src_configure() {
 		--with-system-pid-file="${EPREFIX}${rundir}"/dbus.pid
 		--with-system-socket="${EPREFIX}${rundir}"/dbus/system_bus_socket
 		--with-systemdsystemunitdir="$(systemd_get_systemunitdir)"
+		--with-systemduserunitdir="$(systemd_get_userunitdir)"
 		--with-dbus-user=messagebus
 		$(use_with X x)
 	)
@@ -248,7 +262,17 @@ multilib_src_install_all() {
 pkg_postinst() {
 	readme.gentoo_print_elog
 
-	# Flatcar: remove machine-id generation.
+	# Flatcar: Drop machine-id generation.
+	# if use systemd; then
+	# 	tmpfiles_process dbus.conf
+	# fi
+	#
+	# # Ensure unique id is generated and put it in /etc wrt #370451 but symlink
+	# # for DBUS_MACHINE_UUID_FILE (see tools/dbus-launch.c) and reverse
+	# # dependencies with hardcoded paths (although the known ones got fixed already)
+	# # TODO: should be safe to remove at least the ln because of the above tmpfiles_process?
+	# dbus-uuidgen --ensure="${EROOT}"/etc/machine-id
+	# ln -sf "${EPREFIX}"/etc/machine-id "${EROOT}"/var/lib/dbus/machine-id
 
 	if [[ ${CHOST} == *-darwin* ]]; then
 		local plist="org.freedesktop.dbus-session.plist"

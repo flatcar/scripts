@@ -76,6 +76,14 @@ INSTALL_MASK="${INSTALL_MASK}
   /usr/bin/cvtsudoers
 "
 
+# Do not install some of the tools from e2fsprogs.
+INSTALL_MASK="${INSTALL_MASK}
+  /usr/bin/mk_cmds
+  /usr/bin/compile_et
+  /usr/share/et
+  /usr/share/ss
+"
+
 # Override UIDs and GIDs where ours differ from Gentoo defaults.
 ACCT_GROUP_DIALOUT_ID=249
 ACCT_GROUP_INPUT_ID=28
