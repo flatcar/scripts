@@ -60,6 +60,7 @@ RESTRICT="binchecks strip"
 S="${WORKDIR}/linux-firmware-${PV}"
 
 CXGB_VERSION="1.26.6.0"
+ICE_DDP_VERSION="1.3.28.0"
 
 src_unpack() {
 	if [[ ${PV} == 99999999* ]]; then
@@ -82,11 +83,11 @@ src_unpack() {
 		ln -sfn t6fw-${CXGB_VERSION}.bin linux-firmware-${PV}/cxgb4/t6fw.bin
 
 		# Upstream linux-firmware tarball does not contain
-		# a correct symlink to intel/ice/ddp/ice-1.3.26.0.pkg,
+		# a correct symlink to intel/ice/ddp/ice-1.3.28.0.pkg,
 		# but "modinfo ice.ko" shows it requires ice.pkg.
 		# So we need to create the symlink to avoid failures at the
 		# firmware scanning stage.
-		ln -sfn ice-1.3.26.0.pkg linux-firmware-${PV}/intel/ice/ddp/ice.pkg
+		ln -sfn ice-${ICE_DDP_VERSION}.pkg linux-firmware-${PV}/intel/ice/ddp/ice.pkg
 
 		# The xhci-pci.ko kernel module started requiring a
 		# renesas_usb_fw.mem firmware file, but this file is
