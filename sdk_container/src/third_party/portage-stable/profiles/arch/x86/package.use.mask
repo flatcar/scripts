@@ -1,6 +1,23 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Adel Kara Slimane <adel.ks@zegrapher.com> (2022-03-14)
+# Untested useflag on other arches, needs keywording
+media-video/ffmpeg vmaf
+
+# Sam James <sam@gentoo.org> (2022-03-10)
+# dev-util/hip and its rocm dependencies not keyworded here
+sci-physics/lammps hip
+
+# Adel Kara Slimane <adel.ks@zegrapher.com> (2021-02-17)
+# Mask AMF keyword on non-amd64 arches
+# It is unusable, for now, in other arches
+media-video/ffmpeg amf
+
+# Sam James <sam@gentoo.org> (2022-01-20)
+# Only supports cpu_flags_x86_aes in 64-bit mode
+net-fs/samba cpu_flags_x86_aes
+
 # Conrad Kostecki <conikost@gentoo.org> (2021-11-16)
 # AppArmor is not available on x86
 app-benchmarks/stress-ng apparmor
@@ -54,10 +71,6 @@ x11-wm/mutter video_cards_nvidia
 >=app-office/libreoffice-bin-7 java
 >=app-office/libreoffice-bin-debug-7 java
 
-# Mike Gilbert <floppym@gentoo.org> (2021-03-29)
-# Unmask TPM on supported archs.
-sys-apps/systemd -tpm
-
 # Daniel Novomesky <dnovomesky@gmail.com> (2021-02-24)
 # Depends on media-libs/svt-av1, which is unavailable on x86
 media-libs/libavif svt-av1
@@ -82,6 +95,12 @@ sys-libs/compiler-rt-sanitizers -ubsan -safestack -cfi -scudo
 sys-libs/compiler-rt-sanitizers -gwp-asan
 sys-libs/compiler-rt-sanitizers -profile
 
+# Thomas Deutschmann <whissi@gentoo.org> (2020-10-06)
+# - aesni plugin is supported on x86
+# - rdrand plugin is supported on x86
+# - padlock plugin is supported on x86
+net-vpn/strongswan -strongswan_plugins_aesni -strongswan_plugins_rdrand -strongswan_plugins_padlock
+
 # Sam James <sam@gentoo.org> (2020-10-05)
 # Guile only supports JIT on some arches
 # (See 9.3.8 in the Guile manual)
@@ -96,10 +115,6 @@ media-video/ffmpeg -rav1e
 # Mask io-uring & zbc pending keywording
 sys-block/fio -io-uring -zbc
 
-# Thomas Deutschmann <whissi@gentoo.org> (2020-06-20)
-# media-libs/nv-codec-headers is not available for x86
->=media-video/ffmpeg-4.3 video_cards_nvidia
-
 # Marek Szuba <marecki@gentoo.org> (2020-06-17)
 # Unmask globally-masked flashrom drivers and tools which do work on x86
 sys-apps/flashrom -atahpt -atapromise -atavia -drkaiser -gfxnvidia -internal -it8212 -nic3com -nicintel -nicintel-eeprom -nicintel-spi -nicnatsemi -nicrealtek -ogp-spi -rayer-spi -satamv -satasii -tools
@@ -111,11 +126,6 @@ dev-python/influxdb test
 # Mikle Kolyada <zlogene@gentoo.org> (2020-06-08)
 # clisp is keyworded on x86
 app-text/texlive-core -xindy
-
-# Christoph Junghans <junghans@gentoo.org> (2020-05-16)
-# restrict USE=kokkos for x86 as kokkos doesn't support 32-bit archs
-# https://github.com/kokkos/kokkos/issues/2312
-sci-physics/lammps kokkos
 
 # Joonas Niilola <juippis@gentoo.org> (2020-05-14)
 # sys-apps/apparmor not keyworded on x86.
@@ -134,17 +144,6 @@ sys-libs/glibc -static-pie
 # Encrypted Media Extensions (eme-free) can be disabled on x86
 mail-client/thunderbird -eme-free
 www-client/firefox -eme-free
-
-# Mart Raudsepp <leio@gentoo.org> (2020-03-01)
-# dev-util/sysprof-capture is keyworded on x86
-x11-wm/mutter -sysprof
-dev-libs/gjs -sysprof
-dev-libs/glib -sysprof
-gnome-extra/cjs -sysprof
-x11-libs/gtk+ -sysprof
-net-libs/libsoup -sysprof
-x11-libs/pango -sysprof
-gui-libs/gtk -sysprof
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2020-02-26)
 # Vulkan is available on x86.
@@ -206,11 +205,9 @@ app-admin/conserver -freeipmi
 # No Spice protocol for x86
 app-emulation/nemu spice
 
-# Thomas Deutschmann <whissi@gentoo.org> (2020-10-06)
-# - aesni plugin is supported on x86
-# - rdrand plugin is supported on x86
-# - padlock plugin is supported on x86
-net-vpn/strongswan -strongswan_plugins_aesni -strongswan_plugins_rdrand -strongswan_plugins_padlock
+# Tomáš Mózes <hydrapolic@gmail.com> (2019-11-02)
+# Requires dev-db/mongodb which has dropped x86 support
+dev-php/pecl-mongodb test
 
 # Alexys Jacob <ultrabug@gentoo.org> (2018-11-05)
 # Requires dev-db/mongodb which has dropped x86 support
@@ -318,6 +315,7 @@ app-emulation/libvirt xen
 # Mike Gilbert <floppym@gentoo.org> (2015-09-05)
 # sys-boot/gnu-efi is not supported on all archs.
 sys-apps/systemd -gnuefi
+sys-apps/systemd-utils -boot
 
 # Ben de Groot <yngwin@gentoo.org> (2015-03-15)
 # media-libs/libbdplus is keyworded on x86, so unmask the useflag
@@ -338,7 +336,7 @@ media-libs/libmikmod cpu_flags_x86_sse2
 
 # Sergey Popov <pinkbyte@gentoo.org> (2013-12-27)
 # Boost.Context can be built on x86
-dev-libs/boost	-context
+dev-libs/boost -context
 
 # Tim Harder <radhermit@gentoo.org> (2013-08-13)
 # dev-lang/luajit keyworded for x86 (masked in base)
@@ -362,6 +360,7 @@ app-arch/zpaq -jit
 # webrtc-audio-processing is only supported on x86/amd64. Possibly arm can be
 # added.
 media-sound/pulseaudio -webrtc-aec
+media-sound/pulseaudio-daemon -webrtc-aec
 
 # Bernard Cafarelli <voyageur@gentoo.org> (2012-02-27)
 # Masked in base profile, supported on this arch
@@ -370,7 +369,7 @@ gnustep-base/gnustep-make -libobjc2
 # Doug Goldstein <cardoe@gentoo.org> (2012-01-17)
 # The SPICE server is only supported on 64-bit platforms and not on 32-bit
 # https://lists.freedesktop.org/archives/spice-devel/2015-September/021846.html
-app-emulation/qemu	spice
+app-emulation/qemu spice
 
 # Samuli Suominen <ssuominen@gentoo.org> (2011-12-06)
 # NuppelVideo support is x86 only
@@ -405,7 +404,3 @@ media-gfx/iscan -X
 
 # Steve Dibb <beandog@gentoo.org> (2008-09-29)
 media-video/mplayer -cpudetection
-
-# Tomáš Mózes <hydrapolic@gmail.com> (2019-11-02)
-# Requires dev-db/mongodb which has dropped x86 support
-dev-php/pecl-mongodb test

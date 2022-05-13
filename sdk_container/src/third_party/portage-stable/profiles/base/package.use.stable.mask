@@ -1,8 +1,19 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # This file requires eapi 5 or later. New entries go on top.
 # Please use the same syntax as in package.use.mask
+
+# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2022-05-05)
+# fop[test] depends on mockito:4, which is not yet stable (bug #727504),
+# and itself blocked by libffi stabilization (bug #813756).
+dev-java/fop test
+
+# Sam James <sam@gentoo.org> (2022-02-11)
+# Needs glibc-2.35(?) (or <2.34) which is not yet even keyworded but
+# won't be stable for a while. Can be unmasked then.
+# bug #806079
+sys-apps/nvme-cli hugepages
 
 # Georgy Yakovlev <gyakovlev@gentoo.org> (2021-12-24)
 # test deps are not stable
@@ -88,10 +99,6 @@ app-emulation/xen-tools doc
 # dev-util/shellcheck (dev-lang/ghc) has no stable keywords.
 app-emulation/winetricks test
 
-# Adam Feldman <NP-Hardass@gentoo.org> (2020-04-12)
-# Dependency (net-wireless/blueman) has no stable keywords
-mate-base/mate bluetooth
-
 # Georgy Yakovlev <gyakovlev@gentoo.org> (2019-12-21)
 # For bleeding edge features and testing, not generally suitable
 # for stable systems
@@ -126,10 +133,6 @@ media-video/vdrsync dvdr
 # Needs media-plugins/gst-plugins-chromaprint, which is not stable
 # anywhere yet.
 media-plugins/grilo-plugins chromaprint
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2019-02-16)
-# net-libs/libmediawiki not stable anywhere.
-kde-apps/kipi-plugins mediawiki
 
 # Mikle Kolyada <zlogene@gentoo.org> (2018-11-07)
 # sssd is only stable for amd64 and x86

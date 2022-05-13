@@ -1,8 +1,40 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # Unmask the flag which corresponds to ARCH.
 -s390
+
+# Sam James <sam@gentoo.org> (2022-04-26)
+# dev-libs/mongo-c-driver not keyworded here
+mongodb
+
+# Sam James <sam@gentoo.org> (2022-04-24)
+# Avoid unkeyworded dev-util/google-perftools
+tcmalloc
+
+# Sam James <sam@gentoo.org> (2022-04-24)
+# Desktopy stacks not currently keyworded
+alsa
+gstreamer
+pulseaudio
+jack
+samba
+
+# Sam James <sam@gentoo.org> (2022-04-24)
+# gi-docgen (and friends?) not keyworded here
+gtk-doc
+
+# Sam James <sam@gentoo.org> (2022-04-20)
+# dev-vcs/subversion is not keyworded here
+subversion
+
+# Sam James <sam@gentoo.org> (2022-04-20)
+# app-crypt/tpm2-tss is not keyworded here
+tpm
+
+# Andreas K. Hüttel <dilfridge@gentoo.org> (2022-04-20)
+# Not keyworded
+emacs
 
 # Arfrever Frehtes Taifersar Arahesis <arfrever.fta@gmail.com> (2021-04-01)
 # sys-libs/llvm-libunwind not supported on S390.
@@ -10,6 +42,9 @@ llvm-libunwind
 
 # Sam James <sam@gentoo.org> (2021-02-05)
 # No luajit available for s390
+lua_single_target_luajit
+lua_targets_luajit
+luajit
 luajittex
 
 # Matt Turner <mattst88@gentoo.org> (2019-12-05)
@@ -120,5 +155,6 @@ video_cards_radeonsi
 # virtual/opencl is not keyworded
 opencl
 
-# Unmask once sys-libs/libunwind gets ported & keyworded.
+# sys-libs/libunwind is masked on s390, but enabled on s390x
 unwind
+libunwind

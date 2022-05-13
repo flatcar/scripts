@@ -1,17 +1,72 @@
 # Copyright 2019-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# Andrey Grozin <grozin@gentoo.org> (2022-01-03)
-# dev-libs/utfcpp is not keyworded yet
-media-gfx/asymptote lsp
+# Marek Szuba <marecki@gmail.com> (2022-04-30)
+# net-wireless/sdrplay contains prebuilt binaries, currently available
+# upstream only for amd64/x86 and arm
+net-wireless/gr-osmosdr sdrplay
+
+# Yixun Lan <dlan@gentoo.org> (2022-04-30)
+# net-misc/memcached has test failure (bug #811477)
+net-ftp/proftpd memcache
+
+# Jakov Smolić <jsmolic@gentoo.org> (2022-04-24)
+# sys-libs/db is being deprecated (bug #837629)
+# so avoid keywording 4.8 slot
+dev-lisp/clisp berkdb
+
+# Matt Turner <mattst88@gentoo.org> (2022-04-18)
+# app-text/nuspell is not keyworded
+app-text/enchant nuspell
+
+# Jakov Smolić <jsmolic@gentoo.org> (2022-04-07)
+# Depends on sys-cluster/ceph which pulls in valgrind, which is
+# unavailable on riscv currently
+sys-block/fio rbd
+
+# Marek Szuba <marecki@gentoo.org> (2022-03-30)
+# Indirectly depends on dev-python/pytest-testinfra, which is currently
+# blocked from being keyworded on this arch by several errors (Bug #835717)
+dev-python/subprocess-tee test-full
+
+# Jakov Smolić <jsmolic@gentoo.org> (2022-03-25)
+# sys-process/criu doesn't support riscv (bug #835975)
+# Upstream bug for criu: https://github.com/checkpoint-restore/criu/issues/1702
+app-containers/crun criu
+
+# Jakov Smolić <jsmolic@gentoo.org> (2022-03-24)
+# Depends on net-misc/memcached which has concerning test
+# failures on riscv (bug #811477)
+dev-python/pytest-services test
+
+# Adel Kara Slimane <adel.ks@zegrapher.com> (2022-03-14)
+# Untested useflag on other arches, needs keywording
+media-video/ffmpeg vmaf
+
+# Alex Fan <alex.fan.q@gmail.com> (2022-02-28)
+# dev-libs/vc is a dummy implementation on this arch
+# krita fails to build with it
+media-gfx/krita vc
+
+# Adel Kara Slimane <adel.ks@zegrapher.com> (2022-02-17)
+# Mask AMF keyword on non-amd64 arches
+# It is unusable, for now, in other arches
+media-video/ffmpeg amf
+
+# Yongxinag Liang <tanekliang@gmail.com> (2022-01-09)
+# app-emulation/xen-tools doesn't support riscv yet
+app-emulation/qemu xen
+# untested useflag: rbd glusterfs
+app-emulation/qemu rbd glusterfs
+sys-fs/multipath-tools rbd
+
+# Georgy Yakovlev <gyakovlev@gentoo.org> (2022-01-16)
+# requires sys-apps/dbus-broker, which is keyworded here.
+sys-apps/systemd -hostnamed-fallback
 
 # Yongxinag Liang <tanekliang@gmail.com> (2021-12-30)
 # untested.
 net-misc/vinagre spice
-
-# Alex Fan <alex.fan.q@gmail.com> (2021-12-28)
-# dev-lang/julia doesn't support riscv yet
-sci-mathematics/singular julia
 
 # Alexey Sokolov <alexey+gentoo@asokolov.org> (2012-12-25)
 # Requires dev-qt/qtwebengine
@@ -25,14 +80,6 @@ dev-python/anyio test
 # Alex Fan <alex.fan.q@gmail.com> (2021-11-19)
 # depends on dev-lang/ocaml
 app-accessibility/brltty ocaml ocamlopt
-
-# Alex Fan <alex.fan.q@gmail.com> (2021-11-19)
-# opengl -> dev-python/pygame is not keyworded yet
-dev-python/sympy opengl
-
-# Sam James <sam@gentoo.org> (2021-10-26)
-# sys-libs/libhugetlbfs is not keyworded on ~riscv right now
-sys-apps/nvme-cli hugepages
 
 # Marek Szuba <marecki@gentoo.org> (2021-09-23)
 # mkdocs ecosystem only partly keyworded on riscv, has rather messy
@@ -85,11 +132,6 @@ dev-python/nbconvert test
 #  sys-apps/flashrom USE=introspection fail to build, bug 811321
 sys-apps/fwupd flashrom introspection spi uefi
 
-# Marek Szuba <marecki@gentoo.org> (2021-08-25)
-# sys-fabric/infinipath-psm does not support riscv
-sys-cluster/openmpi openmpi_fabrics_psm
-sys-fabric/ofed ofed_drivers_psm
-
 # Marek Szuba <marecki@gentoo.org> (2021-08-23)
 # sys-cluster/ceph not keyworded here yet due to several dependencies
 # failing tests
@@ -104,9 +146,7 @@ dev-lang/ruby xemacs
 # Yixun Lan <dlan@gentoo.org> (2021-08-20)
 # dependencies not keyworded/tested
 gnome-extra/sushi office
-gnome-base/gnome-control-center v4l
-gnome-base/gnome-shell telepathy browser-extension
-gnome-base/gdm accessibility
+gnome-base/gnome-shell browser-extension
 
 # Alex Fan <alexfanqi@yahoo.com> (2021-08-17)
 # dependencies not keyworded/tested
@@ -117,10 +157,6 @@ kde-plasma/plasma-meta grub plymouth
 sys-auth/sssd test
 
 # Marek Szuba <marecki@gentoo.org> (2021-08-11)
-# dev-ruby/httpclient not keyworded here due to failing tests
-# (Bug #807727). That said, with httpclient-2.8.3 installed manually
-# (and without testing) all webmock-3.13.0 tests passed.
-dev-ruby/webmock test
 # Currently requires dev-lang/spidermonkey:68, which explicitly
 # does not support riscv. Hopefully temporary, see Bug #807772.
 net-libs/libproxy spidermonkey
@@ -177,12 +213,11 @@ mail-mta/courier fax
 
 # Marek Szuba <marecki@gentoo.org> (2021-07-05)
 # Dependencies not keyworded here yet:
-#  - dev-cpp/glog, sci-libs/vtk
-media-libs/opencv contribsfm glog vtk
+#  - sci-libs/vtk
+media-libs/opencv vtk
+sci-libs/opencascade vtk
 #  - dev-util/aruba
 sys-block/thin-provisioning-tools test
-#  - sys-fabric/ofed
-sys-cluster/slurm ofed
 
 # This doesn't work for (any) riscv yet.
 dev-libs/libpcre2 jit
