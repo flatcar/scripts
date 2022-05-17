@@ -1,66 +1,124 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit toolchain-funcs multilib multilib-minimal preserve-libs usr-ldscript
+VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/thomasdickey.asc
+inherit toolchain-funcs multilib multilib-minimal preserve-libs usr-ldscript verify-sig
 
 MY_PV="${PV:0:3}"
 MY_P="${PN}-${MY_PV}"
-DESCRIPTION="console display library"
+DESCRIPTION="Console display library"
 HOMEPAGE="https://www.gnu.org/software/ncurses/ https://invisible-island.net/ncurses/"
-SRC_URI="mirror://gnu/ncurses/${MY_P}.tar.gz"
+SRC_URI="mirror://gnu/ncurses/${MY_P}.tar.gz
+	https://invisible-island.net/archives/${PN}/${MY_P}.tar.gz
+	verify-sig? ( mirror://gnu/ncurses/${MY_P}.tar.gz.sig )"
 
-if [[ "${PV}" == *_p* ]] ; then
-	SRC_URI+=" ftp://ftp.invisible-island.net/${PN}/${PV/_p*}/${P/_p/-}-patch.sh.bz2
-		https://invisible-mirror.net/archives/${PN}/${PV/_p*}/${P/_p/-}-patch.sh.bz2"
-	#SRC_URI+=" https://dev.gentoo.org/~polynomial-c/dist/${P}.patch.xz"
+if [[ ${PV} == *_p* ]] ; then
+	# Sometimes, after releases, there's no megapatch available yet.
+	#
+	# From upstream README at e.g. https://invisible-island.net/archives/ncurses/6.3/:
+	#
+	#	"At times (generally to mark a relatively stable point), I create a rollup
+	#	patch, which consists of all changes from the release through the current date."
+	#
+	# This array should contain a list of all the snapshots since the last
+	# release if there's no megapatch available yet.
+	PATCH_DATES=(
+		20211026
+		20211030
+		20211106
+		20211113
+		20211115
+		20211120
+		20211127
+		20211204
+		20211211
+		20211219
+		20211225
+		20220101
+		20220115
+		20220122
+		20220129
+		20220205
+		20220212
+		20220219
+		20220226
+		20220305
+		20220312
+		20220319
+		20220326
+		20220402
+		20220409
+		20220416
+
+		# Latest patch is just _pN = $(ver_cut 4)
+		$(ver_cut 4)
+	)
+
+	if [[ -z ${PATCH_DATES[@]} ]] ; then
+		SRC_URI+=" https://invisible-island.net/archives/${PN}/${PV/_p*}/${P/_p/-}.patch.sh.gz"
+		SRC_URI+=" verify-sig? ( https://invisible-island.net/archives/${PN}/${PV/_p*}/${P/_p/-}.patch.sh.gz.asc"
+	else
+		patch_url=
+		my_patch_index=
+		for ((my_patch_index=0; my_patch_index < "${#PATCH_DATES[@]}"; my_patch_index++)); do
+			patch_url="$(printf "https://invisible-island.net/archives/${PN}/${PV/_p*}/${MY_P}-%s" ${PATCH_DATES[${my_patch_index}]}.patch.gz)"
+			SRC_URI+=" ${patch_url}"
+			SRC_URI+=" verify-sig? ( ${patch_url}.asc )"
+		done
+		unset patch_url
+		unset my_patch_index
+	fi
 fi
 
 LICENSE="MIT"
 # The subslot reflects the SONAME.
 SLOT="0/6"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="ada +cxx debug doc gpm minimal profile static-libs symlink-usr test tinfo trace"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+IUSE="ada +cxx debug doc gpm minimal profile static-libs test tinfo trace"
 RESTRICT="!test? ( test )"
 
 DEPEND="gpm? ( sys-libs/gpm[${MULTILIB_USEDEP}] )"
-#	berkdb? ( sys-libs/db )"
-# Block the older ncurses that installed all files w/SLOT=5. #557472
+# Block the older ncurses that installed all files w/SLOT=5, bug #557472
 RDEPEND="${DEPEND}
 	!<=sys-libs/ncurses-5.9-r4:5
 	!<sys-libs/slang-2.3.2_pre23
 	!<x11-terms/rxvt-unicode-9.06-r3
 	!<x11-terms/st-0.6-r1"
+BDEPEND="verify-sig? ( sec-keys/openpgp-keys-thomasdickey )"
 
 S="${WORKDIR}/${MY_P}"
 
-MINIMAL_TERMINFO=(
-	ansi console dumb linux rxvt rxvt-256color rxvt-unicode rxvt-unicode-256color
-	screen screen-16color screen-256color sun vt{52,100,102,200,220}
-	xterm xterm-color xterm-256color xterm-xfree86
-)
-
 PATCHES=(
 	"${FILESDIR}/${PN}-5.7-nongnu.patch"
-	"${FILESDIR}/${PN}-6.0-rxvt-unicode-9.15.patch" #192083 #383871
+	"${FILESDIR}/${PN}-6.0-rxvt-unicode-9.15.patch" # bug #192083, bug #383871
 	"${FILESDIR}/${PN}-6.0-pkg-config.patch"
-	"${FILESDIR}/${PN}-6.0-ticlib.patch" #557360
-	"${FILESDIR}/${PN}-6.2_p20210123-cppflags-cross.patch" #601426
+	"${FILESDIR}/${PN}-6.0-ticlib.patch" # bug #557360
+	"${FILESDIR}/${PN}-6.2_p20210123-cppflags-cross.patch" # bug #601426
 )
 
 src_prepare() {
-	if [[ "${PV}" == *_p* ]] ; then
-		eapply "${WORKDIR}"/${P/_p/-}-patch.sh
-		#eapply "${WORKDIR}/${P}.patch"
+	if [[ ${PV} == *_p* ]] ; then
+		if [[ -z ${PATCH_DATES[@]} ]] ; then
+			# If we have a rollup patch, use that instead of the individual ones.
+			eapply "${WORKDIR}"/${P/_p/-}-patch.sh
+		else
+			eapply "${WORKDIR}"/
+		fi
 	fi
+
 	default
 }
 
 src_configure() {
-	unset TERMINFO #115036
+	# bug #115036
+	unset TERMINFO
+
 	tc-export_build_env BUILD_{CC,CPP}
-	BUILD_CPPFLAGS+=" -D_GNU_SOURCE" #214642
+
+	# bug #214642
+	BUILD_CPPFLAGS+=" -D_GNU_SOURCE"
 
 	# Build the various variants of ncurses -- narrow, wide, and threaded. #510440
 	# Order matters here -- we want unicode/thread versions to come last so that the
@@ -77,7 +135,7 @@ src_configure() {
 	# When installing ncurses, we have to use a compatible version of tic.
 	# This comes up when cross-compiling, doing multilib builds, upgrading,
 	# or installing for the first time.  Build a local copy of tic whenever
-	# the host version isn't available. #249363 #557598
+	# the host version isn't available. bug #249363, bug #557598
 	if ! has_version -b "~sys-libs/${P}:0" ; then
 		local lbuildflags="-static"
 
@@ -99,7 +157,7 @@ src_configure() {
 		CXXFLAGS=${BUILD_CXXFLAGS} \
 		CPPFLAGS=${BUILD_CPPFLAGS} \
 		LDFLAGS="${BUILD_LDFLAGS} ${lbuildflags}" \
-		do_configure cross --without-shared --with-normal
+		do_configure cross --without-shared --with-normal --with-progs
 	fi
 	multilib-minimal_src_configure
 }
@@ -112,10 +170,6 @@ multilib_src_configure() {
 }
 
 do_configure() {
-	# Flatcar: Also allow writes to /dev/ptmx, which sometimes
-	# causes the sandbox to fail Jenkins builds.
-	addwrite /dev/ptmx
-
 	local target=$1
 	shift
 
@@ -128,9 +182,6 @@ do_configure() {
 		# src_install() ...
 		--with-terminfo-dirs="${EPREFIX}/etc/terminfo:${EPREFIX}/usr/share/terminfo"
 
-		# Disabled until #245417 is sorted out.
-		#$(use_with berkdb hashed-db)
-
 		# Enable installation of .pc files.
 		--enable-pc-files
 		# This path is used to control where the .pc files are installed.
@@ -138,6 +189,9 @@ do_configure() {
 
 		# Now the rest of the various standard flags.
 		--with-shared
+		# (Originally disabled until bug #245417 is sorted out, but now
+		# just keeping it off for good, given nobody needed it until now
+		# (2022) and we're trying to phase out bdb.)
 		--without-hashed-db
 		$(use_with ada)
 		$(use_with cxx)
@@ -182,6 +236,7 @@ do_configure() {
 	else
 		conf+=( --without-{pthread,reentrant} )
 	fi
+
 	# Make sure each variant goes in a unique location.
 	if [[ ${target} == "ncurses" ]] ; then
 		# "ncurses" variant goes into "${EPREFIX}"/usr/include
@@ -198,7 +253,7 @@ do_configure() {
 	fi
 
 	# Force bash until upstream rebuilds the configure script with a newer
-	# version of autotools. #545532
+	# version of autotools. bug #545532
 	#CONFIG_SHELL=${EPREFIX}/bin/bash \
 	ECONF_SOURCE="${S}" \
 	econf "${conf[@]}" "$@"
@@ -242,6 +297,7 @@ do_compile() {
 	# in parallel.  This is not really a perf hit since the source
 	# generation is quite small.
 	emake -j1 sources
+
 	# For some reason, sources depends on pc-files which depends on
 	# compiled libraries which depends on sources which ...
 	# Manually delete the pc-files file so the install step will
@@ -262,18 +318,20 @@ multilib_src_install() {
 			"${NCURSES_TARGETS[@]}" \
 			$(usex tinfo 'tinfow tinfo' '')
 	fi
+
 	if ! tc-is-static-only ; then
 		# Provide a link for -lcurses.
 		ln -sf libncurses$(get_libname) "${ED}"/usr/$(get_libdir)/libcurses$(get_libname) || die
 	fi
-	# don't delete '*.dll.a', needed for linking #631468
+
+	# Don't delete '*.dll.a', needed for linking, bug #631468
 	if ! use static-libs; then
 		find "${ED}"/usr/ -name '*.a' ! -name '*.dll.a' -delete || die
 	fi
 
 	# Build fails to create this ...
 	# -FIXME-
-	# Ugly hackaround for riscv having two parts libdir (#689240)
+	# Ugly hackaround for riscv having two parts libdir (bug #689240)
 	# Replace this hack with an official solution once we have one...
 	# -FIXME-
 	dosym $(sed 's@[^/]\+@..@g' <<< $(get_libdir))/share/terminfo \
@@ -281,36 +339,40 @@ multilib_src_install() {
 }
 
 multilib_src_install_all() {
-	# Flatcar: Add a symlink-usr USE flag for keeping a minimal
-	# set of terminfo files in /usr/share/terminfo.
-	if ! use symlink-usr ; then
-		# We need the basic terminfo files in /etc for embedded/recovery. #37026
-		einfo "Installing basic terminfo files in /etc..."
-		local x
-		for x in "${MINIMAL_TERMINFO[@]}"; do
-			local termfile=$(find "${ED}"/usr/share/terminfo/ -name "${x}" 2>/dev/null)
-			local basedir=$(basename "$(dirname "${termfile}")")
+	# We need the basic terminfo files in /etc for embedded/recovery, bug #37026
+	einfo "Installing basic terminfo files in /etc..."
+	local terms=(
+		# Dumb/simple values that show up when using the in-kernel VT.
+		ansi console dumb linux
+		vt{52,100,102,200,220}
+		# [u]rxvt users used to be pretty common.  Probably should drop this
+		# since upstream is dead and people are moving away from it.
+		rxvt{,-unicode}{,-256color}
+		# xterm users are common, as is terminals re-using/spoofing it.
+		xterm xterm-{,256}color
+		# screen is common (and reused by tmux).
+		screen{,-256color}
+		screen.xterm-256color
+	)
+	local x
+	for x in "${terms[@]}"; do
+		local termfile=$(find "${ED}"/usr/share/terminfo/ -name "${x}" 2>/dev/null)
+		local basedir=$(basename "$(dirname "${termfile}")")
 
-			if [[ -n ${termfile} ]] ; then
-				dodir "/etc/terminfo/${basedir}"
-				mv "${termfile}" "${ED}/etc/terminfo/${basedir}/" || die
-				dosym "../../../../etc/terminfo/${basedir}/${x}" \
-					"/usr/share/terminfo/${basedir}/${x}"
-			fi
-		done
+		if [[ -n ${termfile} ]] ; then
+			dodir "/etc/terminfo/${basedir}"
+			mv "${termfile}" "${ED}/etc/terminfo/${basedir}/" || die
+			dosym "../../../../etc/terminfo/${basedir}/${x}" \
+				"/usr/share/terminfo/${basedir}/${x}"
+		fi
+	done
 
-		echo "CONFIG_PROTECT_MASK=\"/etc/terminfo\"" | newenvd - 50ncurses
+	echo "CONFIG_PROTECT_MASK=\"/etc/terminfo\"" | newenvd - 50ncurses
 
-		use minimal && rm -r "${ED}"/usr/share/terminfo*
-		# Because ncurses5-config --terminfo returns the directory we keep it
-		keepdir /usr/share/terminfo #245374
-	elif use minimal; then
-		# prune all files and symlinks not listed in MINIMAL_TERMINFO
-		find "${D}"/usr/share/terminfo ! -type d \
-			${MINIMAL_TERMINFO[@]/#/! -name } \
-			-delete || die
-		find "${D}"/usr/share/terminfo -type d -empty -delete || die
-	fi
+	use minimal && rm -r "${ED}"/usr/share/terminfo*
+	# Because ncurses5-config --terminfo returns the directory we keep it
+	# bug #245374
+	keepdir /usr/share/terminfo
 
 	cd "${S}" || die
 	dodoc ANNOUNCE MANIFEST NEWS README* TO-DO doc/*.doc
