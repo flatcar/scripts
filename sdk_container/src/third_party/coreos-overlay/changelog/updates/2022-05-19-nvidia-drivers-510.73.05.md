@@ -1,0 +1,1 @@
+- nvidia-drivers ([510.73.05](https://docs.nvidia.com/datacenter/tesla/tesla-release-notes-510-73-05/index.html))
