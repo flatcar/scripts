@@ -1,13 +1,14 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
 
-inherit autotools prefix multilib-minimal
+inherit autotools prefix multilib-minimal verify-sig
 
 DESCRIPTION="A Client that groks URLs"
 HOMEPAGE="https://curl.haxx.se/"
-SRC_URI="https://curl.haxx.se/download/${P}.tar.xz"
+SRC_URI="https://curl.haxx.se/download/${P}.tar.xz
+	verify-sig? ( https://curl.haxx.se/download/${P}.tar.xz.asc )"
 
 LICENSE="curl"
 SLOT="0"
@@ -15,7 +16,7 @@ KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 s
 IUSE="adns alt-svc brotli +ftp gnutls gopher hsts +http2 idn +imap ipv6 kerberos ldap mbedtls nss +openssl +pop3 +progress-meter rtmp samba +smtp ssh ssl sslv3 static-libs test telnet +tftp threads winssl zstd"
 IUSE+=" curl_ssl_gnutls curl_ssl_mbedtls curl_ssl_nss +curl_ssl_openssl curl_ssl_winssl"
 IUSE+=" nghttp3 quiche"
-IUSE+=" elibc_Winnt"
+VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/danielstenberg.asc
 
 # c-ares must be disabled for threads
 # only one default ssl provider can be enabled
@@ -35,7 +36,7 @@ REQUIRED_USE="
 # lead to lots of false negatives, bug #285669
 RESTRICT="!test? ( test )"
 
-RDEPEND="ldap? ( net-nds/openldap[${MULTILIB_USEDEP}] )
+RDEPEND="ldap? ( net-nds/openldap:=[${MULTILIB_USEDEP}] )
 	brotli? ( app-arch/brotli:=[${MULTILIB_USEDEP}] )
 	ssl? (
 		gnutls? (
@@ -80,11 +81,13 @@ RDEPEND="ldap? ( net-nds/openldap[${MULTILIB_USEDEP}] )
 # fbopenssl  $(use_with spnego)
 
 DEPEND="${RDEPEND}"
-BDEPEND="virtual/pkgconfig
+BDEPEND="dev-lang/perl
+	virtual/pkgconfig
 	test? (
 		sys-apps/diffutils
 		dev-lang/perl
-	)"
+	)
+	verify-sig? ( sec-keys/openpgp-keys-danielstenberg )"
 
 DOCS=( CHANGES README docs/{FEATURES.md,INTERNALS.md,FAQ,BUGS.md,CONTRIBUTE.md} )
 
@@ -185,7 +188,7 @@ multilib_src_configure() {
 		$(use_enable imap)
 		$(use_enable ldap)
 		$(use_enable ldap ldaps)
-		--disable-ntlm
+		--enable-ntlm
 		--disable-ntlm-wb
 		$(use_enable pop3)
 		--enable-rt
