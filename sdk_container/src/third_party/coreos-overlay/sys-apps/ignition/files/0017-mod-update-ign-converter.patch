@@ -1,0 +1,181 @@
+From ca57bcabeca517a657b398b2200f04a4a4c9d1ef Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Thu, 19 May 2022 14:43:41 +0200
+Subject: [PATCH] mod: update ign-converter
+
+this pulls: https://github.com/flatcar-linux/ign-converter/pull/6
+
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+---
+ go.mod                                        |  2 +-
+ go.sum                                        |  4 +-
+ .../translate/v24tov31/v24tov31.go            | 59 +++++++++++++++++--
+ .../flatcar-linux/ign-converter/util/util.go  |  4 --
+ vendor/modules.txt                            |  2 +-
+ 5 files changed, 58 insertions(+), 13 deletions(-)
+
+diff --git a/go.mod b/go.mod
+index d2104235..27dde696 100644
+--- a/go.mod
++++ b/go.mod
+@@ -9,7 +9,7 @@ require (
+ 	github.com/coreos/go-semver v0.3.0
+ 	github.com/coreos/go-systemd/v22 v22.0.0
+ 	github.com/coreos/vcontext v0.0.0-20211021162308-f1dbbca7bef4
+-	github.com/flatcar-linux/ign-converter v0.1.1-0.20220311112608-f121a881f370
++	github.com/flatcar-linux/ign-converter v0.2.0
+ 	github.com/flatcar-linux/ignition v0.36.2-0.20220221101037-de4e6cc9bbba
+ 	github.com/google/renameio v0.1.0
+ 	github.com/google/uuid v1.1.1
+diff --git a/go.sum b/go.sum
+index 043cc197..27755099 100644
+--- a/go.sum
++++ b/go.sum
+@@ -68,8 +68,8 @@ github.com/envoyproxy/go-control-plane v0.9.0/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymF
+ github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
+ github.com/envoyproxy/go-control-plane v0.9.4/go.mod h1:6rpuAdCZL397s3pYoYcLgu1mIlRU8Am5FuJP05cCM98=
+ github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
+-github.com/flatcar-linux/ign-converter v0.1.1-0.20220311112608-f121a881f370 h1:Xz78ZBjeHkvxFpXSV2ppTDW2+ZudsCnT7VXVvqR1pto=
+-github.com/flatcar-linux/ign-converter v0.1.1-0.20220311112608-f121a881f370/go.mod h1:t/kcw0CQ/uKMCyZwDAzuwMO3CShxaimEJhQzLGCsb3Y=
++github.com/flatcar-linux/ign-converter v0.2.0 h1:XAIP2LHgqwtkPmJmilKSblCj0tGCO86qCrnbO6jgPM8=
++github.com/flatcar-linux/ign-converter v0.2.0/go.mod h1:t/kcw0CQ/uKMCyZwDAzuwMO3CShxaimEJhQzLGCsb3Y=
+ github.com/flatcar-linux/ignition v0.36.2-0.20220221101037-de4e6cc9bbba h1:HiTCL7737Hi944kXfLN8ReGoJtAiibGIsCk3MGlYy9M=
+ github.com/flatcar-linux/ignition v0.36.2-0.20220221101037-de4e6cc9bbba/go.mod h1:JzHCIdCu9dy0xtezyBit/aOY4QIlJ12UYU6nXNPnnRE=
+ github.com/flatcar-linux/ignition/v2 v2.2.1-0.20220302150437-ce14e51676e9/go.mod h1:n076OVuGbg6f+j3YYoxFCjRyMU2hxsx6Q4Gy0xwO7cM=
+diff --git a/vendor/github.com/flatcar-linux/ign-converter/translate/v24tov31/v24tov31.go b/vendor/github.com/flatcar-linux/ign-converter/translate/v24tov31/v24tov31.go
+index 1e406ca2..d10cd7c3 100644
+--- a/vendor/github.com/flatcar-linux/ign-converter/translate/v24tov31/v24tov31.go
++++ b/vendor/github.com/flatcar-linux/ign-converter/translate/v24tov31/v24tov31.go
+@@ -17,7 +17,9 @@ package v24tov31
+ import (
+ 	"errors"
+ 	"fmt"
++	"net/url"
+ 	"path"
++	"path/filepath"
+ 	"reflect"
+ 
+ 	old "github.com/flatcar-linux/ignition/config/v2_4/types"
+@@ -38,10 +40,6 @@ func Check2_4(cfg old.Config, fsMap map[string]string) error {
+ 		return fmt.Errorf("Invalid input config:\n%s", rpt.String())
+ 	}
+ 
+-	if len(cfg.Networkd.Units) != 0 {
+-		return util.UsesNetworkdError
+-	}
+-
+ 	// check that all filesystems have a path
+ 	if fsMap == nil {
+ 		fsMap = map[string]string{}
+@@ -139,6 +137,10 @@ func Translate(cfg old.Config, fsMap map[string]string) (types.Config, error) {
+ 	if err := Check2_4(cfg, fsMap); err != nil {
+ 		return types.Config{}, err
+ 	}
++
++	files := translateFiles(cfg.Storage.Files, fsMap)
++	files = append(files, translateNetworkd(cfg.Networkd.Units, fsMap)...)
++
+ 	res := types.Config{
+ 		// Ignition section
+ 		Ignition: types.Ignition{
+@@ -174,7 +176,7 @@ func Translate(cfg old.Config, fsMap map[string]string) (types.Config, error) {
+ 			Disks:       translateDisks(cfg.Storage.Disks),
+ 			Raid:        translateRaid(cfg.Storage.Raid),
+ 			Filesystems: translateFilesystems(cfg.Storage.Filesystems, fsMap),
+-			Files:       translateFiles(cfg.Storage.Files, fsMap),
++			Files:       files,
+ 			Directories: translateDirectories(cfg.Storage.Directories, fsMap),
+ 			Links:       translateLinks(cfg.Storage.Links, fsMap),
+ 		},
+@@ -512,6 +514,53 @@ func translateFiles(files []old.File, m map[string]string) (ret []types.File) {
+ 	return
+ }
+ 
++func translateNetworkd(units []old.Networkdunit, m map[string]string) []types.File {
++	var ret []types.File
++
++	for _, u := range units {
++		if u.Contents != "" {
++			file := types.File{
++				Node: types.Node{
++					// 2.x files are overwrite by default
++					Overwrite: util.BoolP(true),
++				},
++				FileEmbedded1: types.FileEmbedded1{
++					// Ignition default file permission
++					Mode: util.IntP(int(0644)),
++				},
++			}
++			// path /etc/systemd/network is hardcoded in Ignition2.x codebase.
++			// TODO: customize this path at compilation time.
++			file.Node.Path = filepath.Join(m["root"], "/etc/systemd/network", u.Name)
++
++			// URL encoding unit content to follow 'data' format - we could use base64 also.
++			file.FileEmbedded1.Contents.Source = util.StrPStrict("data:," + url.QueryEscape(u.Contents))
++
++			ret = append(ret, file)
++		}
++
++		for _, d := range u.Dropins {
++			file := types.File{
++				Node: types.Node{
++					// 2.x files are overwrite by default
++					Overwrite: util.BoolP(true),
++				},
++				FileEmbedded1: types.FileEmbedded1{
++					// Ignition default file permission
++					Mode: util.IntP(int(0644)),
++				},
++			}
++
++			file.Node.Path = filepath.Join(m["root"], "/etc/systemd/network", string(u.Name)+".d", d.Name)
++			file.FileEmbedded1.Contents.Source = util.StrPStrict("data:," + url.QueryEscape(d.Contents))
++
++			ret = append(ret, file)
++		}
++	}
++
++	return ret
++}
++
+ func translateLinks(links []old.Link, m map[string]string) (ret []types.Link) {
+ 	for _, l := range links {
+ 		ret = append(ret, types.Link{
+diff --git a/vendor/github.com/flatcar-linux/ign-converter/util/util.go b/vendor/github.com/flatcar-linux/ign-converter/util/util.go
+index 1968f472..347d148c 100644
+--- a/vendor/github.com/flatcar-linux/ign-converter/util/util.go
++++ b/vendor/github.com/flatcar-linux/ign-converter/util/util.go
+@@ -15,7 +15,6 @@
+ package util
+ 
+ import (
+-	"errors"
+ 	"fmt"
+ 	"strconv"
+ 	"strings"
+@@ -24,9 +23,6 @@ import (
+ 
+ // Error definitions
+ 
+-// UsesNetworkdError is the error for including networkd configs
+-var UsesNetworkdError = errors.New("config includes deprecated networkd section - use Files instead")
+-
+ // NoFilesystemError type for when a filesystem is referenced in a config but there's no mapping to where
+ // it should be mounted (i.e. `path` in v3+ configs)
+ type NoFilesystemError string
+diff --git a/vendor/modules.txt b/vendor/modules.txt
+index bf99aa2d..0b6d436d 100644
+--- a/vendor/modules.txt
++++ b/vendor/modules.txt
+@@ -81,7 +81,7 @@ github.com/coreos/vcontext/tree
+ github.com/coreos/vcontext/validate
+ # github.com/davecgh/go-spew v1.1.0
+ github.com/davecgh/go-spew/spew
+-# github.com/flatcar-linux/ign-converter v0.1.1-0.20220311112608-f121a881f370
++# github.com/flatcar-linux/ign-converter v0.2.0
+ ## explicit
+ github.com/flatcar-linux/ign-converter/translate/v24tov31
+ github.com/flatcar-linux/ign-converter/util
+-- 
+2.35.1
+
