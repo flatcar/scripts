@@ -105,7 +105,6 @@ RDEPEND="${RDEPEND}
 # Host dependencies for python
 RDEPEND="${RDEPEND}
 	dev-python/docutils
-	dev-python/pylint
 	"
 
 # Host dependencies to scp binaries from the binary component server
