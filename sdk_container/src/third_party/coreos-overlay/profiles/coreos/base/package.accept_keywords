@@ -66,3 +66,5 @@
 
 # Overwrite portage-stable mask - use latest liburing -r2 for ARM64 and AMD64
 =sys-libs/liburing-2.1-r2 ~amd64 ~arm64
+
+=app-crypt/adcli-0.9.1-r2 ~amd64 ~arm64
