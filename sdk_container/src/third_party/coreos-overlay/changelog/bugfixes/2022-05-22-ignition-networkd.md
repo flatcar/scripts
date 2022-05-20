@@ -1,0 +1,1 @@
+- Added `networkd` translation to `files` section when converting from Ignition 2.x to Ignition 3.x ([coreos-overlay#1910](https://github.com/flatcar-linux/coreos-overlay/pull/1910), [flatcar#741](https://github.com/flatcar-linux/Flatcar/issues/741))
