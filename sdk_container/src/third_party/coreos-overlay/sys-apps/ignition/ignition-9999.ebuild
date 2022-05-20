@@ -58,6 +58,7 @@ PATCHES=(
 	"${FILESDIR}/0014-internal-resource-url-support-btrfs-as-OEM-partition.patch"
 	"${FILESDIR}/0015-internal-exec-stages-disks-prevent-races-with-udev.patch"
 	"${FILESDIR}/0016-update-ign-converter-to-fix-link-translation.patch"
+	"${FILESDIR}/0017-mod-update-ign-converter.patch"
 )
 
 src_compile() {
