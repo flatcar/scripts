@@ -100,18 +100,23 @@ function sdk_bootstrap() {
     local vernum="${version#*-}" # remove alpha-,beta-,stable-,lts- version tag
     local git_vernum="${vernum}"
 
-    # This will update FLATCAR_VERSION[_ID] and BUILD_ID in versionfile
+    # Update FLATCAR_VERSION[_ID], BUILD_ID, and SDK in versionfile
+    (
+      source sdk_lib/sdk_container_common.sh
+      create_versionfile "${vernum}"
+    )
+    update_and_push_version "${version}" "${push_branch}"
+
     ./bootstrap_sdk_container -x ./ci-cleanup.sh "${seed_version}" "${vernum}"
 
     # push SDK tarball to buildcache
+    # Get Flatcar version number format (separator is '+' instead of '-',
+    # equal to $(strip_version_prefix "$version")
     source sdk_container/.repo/manifests/version.txt
-    local vernum="${FLATCAR_SDK_VERSION}"
-    local dest_tarball="flatcar-sdk-${ARCH}-${vernum}.tar.bz2"
+    local dest_tarball="flatcar-sdk-${ARCH}-${FLATCAR_SDK_VERSION}.tar.bz2"
 
     cd "__build__/images/catalyst/builds/flatcar-sdk"
-    copy_to_buildcache "sdk/${ARCH}/${vernum}" "${dest_tarball}"*
+    copy_to_buildcache "sdk/${ARCH}/${FLATCAR_SDK_VERSION}" "${dest_tarball}"*
     cd -
-
-    update_and_push_version "${version}" "${push_branch}"
 }
 # --
