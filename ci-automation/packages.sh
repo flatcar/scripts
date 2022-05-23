@@ -122,6 +122,13 @@ function packages_build() {
     local docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
     local packages_container="flatcar-packages-${arch}-${docker_vernum}"
 
+    # Create version file
+    (
+      source sdk_lib/sdk_container_common.sh
+      create_versionfile "$sdk_version" "$version"
+    )
+    update_and_push_version "${version}" "${push_branch}"
+
     # Build packages; store packages and torcx output in container
     ./run_sdk_container -x ./ci-cleanup.sh -n "${packages_container}" -v "${version}" \
         -C "${sdk_image}" \
@@ -154,7 +161,5 @@ function packages_build() {
         "${torcx_tmp}/torcx/${arch}-usr/latest/torcx_manifest.json"
     copy_to_buildcache "images/${arch}/${vernum}/torcx" \
         "${torcx_tmp}/torcx/pkgs/${arch}-usr/docker/"*/*.torcx.tgz
-
-    update_and_push_version "${version}" "${push_branch}"
 }
 # --
