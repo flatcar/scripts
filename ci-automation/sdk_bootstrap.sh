@@ -53,8 +53,8 @@ set -eu
 function sdk_bootstrap() {
     local seed_version="$1"
     local version="$2"
-    local coreos_git="$3"
-    local portage_git="$4"
+    local coreos_git="${3-}"
+    local portage_git="${4-}"
     : ${ARCH:="amd64"}
 
     source ci-automation/ci_automation_common.sh
