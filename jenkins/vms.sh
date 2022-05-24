@@ -104,15 +104,6 @@ if [[ "${FORMATS}" == *"azure_gen2"* ]] ; then
 fi
 
 for FORMAT in ${FORMATS}; do
-  # If the format variable ends with _pro it's a Flatcar Pro image and it should
-  # be uploaded to the private bucket.
-  PRIVATE_UPLOAD_OPT=""
-  if [[ -z "${FORMAT##*_pro}" ]]
-  then
-    PRIVATE_UPLOAD_OPT="--private"
-    UPLOAD_ROOT=${UPLOAD_PRIVATE_ROOT}
-  fi
-
   COMPRESSION_FORMAT="bz2"
 
   if [[ "${FORMAT}" =~ ^(openstack|openstack_mini|digitalocean)$ ]];then
@@ -131,6 +122,5 @@ for FORMAT in ${FORMATS}; do
     --download_root="${DOWNLOAD_ROOT}" \
     --upload_root="${UPLOAD_ROOT}" \
     --image_compression_formats="${COMPRESSION_FORMAT}" \
-    --upload \
-    ${PRIVATE_UPLOAD_OPT}
+    --upload
 done
