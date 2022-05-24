@@ -4,7 +4,7 @@ set -ex
 AZURE_CATEGORY_OPT=""
 if [[ "${IS_NON_SPONSORED}" == true ]]
 then
-  AZURE_CATEGORY_OPT="--azure-category=pro --private"
+  AZURE_CATEGORY_OPT="--azure-category=pro"
 fi
 
 rm -f images.json
