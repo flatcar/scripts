@@ -64,3 +64,5 @@
 
 # Required for CVE-2022-24765
 =dev-vcs/git-2.35.3 ~amd64 ~arm64
+
+=sys-power/acpid-2.0.33 ~amd64 ~arm64

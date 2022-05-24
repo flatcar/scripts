@@ -188,6 +188,7 @@ RDEPEND="${RDEPEND}
 	sys-libs/glibc
 	sys-libs/nss-usrfiles
 	sys-libs/timezone-data
+	sys-power/acpid
 	sys-process/lsof
 	sys-process/procps
 	x11-drivers/nvidia-metadata
