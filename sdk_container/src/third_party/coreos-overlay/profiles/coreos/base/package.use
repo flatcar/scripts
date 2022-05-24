@@ -16,7 +16,9 @@ sys-devel/gettext	-git
 
 sys-apps/gptfdisk -icu
 
-# for profile migration
+# for profile migration, needs to be enabled despite the fact it's
+# enabled by default in the ebuild, because berkdb is disabled
+# globally in make.defaults.
 sys-libs/gdbm berkdb
 
 dev-vcs/git -perl -iconv
@@ -54,7 +56,7 @@ net-nds/openldap minimal sasl
 sys-libs/glibc nscd
 
 # disable database build because otherwise it tries to generate a database in /etc
-dev-libs/cyrus-sasl kerberos -berkdb -gdbm
+dev-libs/cyrus-sasl kerberos -gdbm
 
 # don't build manpages for sssd
 sys-auth/sssd -python samba kerberos gssapi ssh sudo selinux
