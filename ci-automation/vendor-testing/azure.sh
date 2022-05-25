@@ -84,6 +84,6 @@ run_kola_tests_on_instances \
     "${CIA_FIRST_RUN}" \
     ${IS_AMD64:+v1} \
     '--' \
-    '' \
+    'cl.internet' \
     '--' \
     "${@}"
