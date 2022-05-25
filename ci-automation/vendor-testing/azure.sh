@@ -44,6 +44,7 @@ fi
 set -o noglob
 
 run_kola_tests() {
+    local instance_type="${1}"; shift
     local instance_tapfile="${1}"; shift
     local hyperv_gen="v2"
     if [ "${instance_type}" = "v1" ]; then
@@ -52,24 +53,24 @@ run_kola_tests() {
     fi
 
     timeout --signal=SIGQUIT 20h \
-			kola run \
-			--board="${board}" \
-			--basename="${basename}" \
-			--parallel="${AZURE_PARALLEL}" \
-			--offering=basic \
-			--platform=azure \
-			--azure-image-file="${AZURE_IMAGE_NAME}" \
-			--azure-location="${AZURE_LOCATION}" \
-			--azure-profile="${azure_profile_config_file}" \
-			--azure-auth="${azure_auth_config_file}" \
-			--torcx-manifest=${CIA_TORCX_MANIFEST} \
-			--tapfile="${instance_tapfile}" \
-			--azure-size=${instance_type} \
-			--azure-hyper-v-generation=${hyperv_gen} \
-			${AZURE_USE_GALLERY} \
-			${azure_vnet_subnet_name:+--azure-vnet-subnet-name=${azure_vnet_subnet_name}} \
-			${AZURE_USE_PRIVATE_IPS:+--azure-use-private-ips=${AZURE_USE_PRIVATE_IPS}} \
-			"${@}"
+      kola run \
+      --board="${board}" \
+      --basename="${basename}" \
+      --parallel="${AZURE_PARALLEL}" \
+      --offering=basic \
+      --platform=azure \
+      --azure-image-file="${AZURE_IMAGE_NAME}" \
+      --azure-location="${AZURE_LOCATION}" \
+      --azure-profile="${azure_profile_config_file}" \
+      --azure-auth="${azure_auth_config_file}" \
+      --torcx-manifest=${CIA_TORCX_MANIFEST} \
+      --tapfile="${instance_tapfile}" \
+      --azure-size=${instance_type} \
+      --azure-hyper-v-generation=${hyperv_gen} \
+      ${AZURE_USE_GALLERY} \
+      ${azure_vnet_subnet_name:+--azure-vnet-subnet-name=${azure_vnet_subnet_name}} \
+      ${AZURE_USE_PRIVATE_IPS:+--azure-use-private-ips=${AZURE_USE_PRIVATE_IPS}} \
+      "${@}"
 }
 
 query_kola_tests() {
