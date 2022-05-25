@@ -1,5 +1,9 @@
 Modifications made:
 
+- Drop `pgo` and `lto` USE flags, so flags passed to configure are
+  `--without-lto` and `--disable-optimizations`. Also drop `pgo` code
+  in `src_configure` and `src_compile`.
+
 - We are not running any tests, so drop the `test` use flag and
   `src_test` function. Drop also `pkg_pretend` and `pkg_setup`
   functions as they were only doing some stuff if `test` use flag was

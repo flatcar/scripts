@@ -2,8 +2,6 @@ coreos-base/update_engine delta_generator
 
 dev-vcs/git pcre
 
-dev-lang/python sqlite
-
 dev-lang/rust rustfmt
 
 # Allow smartcard support in the SDK for image signing
