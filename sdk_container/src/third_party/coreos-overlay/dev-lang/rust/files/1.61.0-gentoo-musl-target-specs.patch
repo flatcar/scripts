@@ -1,21 +1,23 @@
-From 671ef2d1c228aed031b4232b8bea96f17b825263 Mon Sep 17 00:00:00 2001
+From 331c3839ebb0099101e1d2f88205ea42f4e3b319 Mon Sep 17 00:00:00 2001
 From: Georgy Yakovlev <gyakovlev@gentoo.org>
-Date: Mon, 23 Nov 2020 14:52:04 -0800
+Date: Tue, 24 May 2022 12:03:20 -0700
 Subject: [PATCH] add gentoo musl target specs
 
 ---
- .../src/spec/aarch64_gentoo_linux_musl.rs             | 11 +++++++++++
- .../src/spec/armv7_gentoo_linux_musleabihf.rs         | 11 +++++++++++
- .../rustc_target/src/spec/i686_gentoo_linux_musl.rs   | 11 +++++++++++
- compiler/rustc_target/src/spec/mod.rs                 |  8 ++++++++
- .../src/spec/powerpc64_gentoo_linux_musl.rs           | 11 +++++++++++
- .../src/spec/powerpc64le_gentoo_linux_musl.rs         | 11 +++++++++++
- .../src/spec/powerpc_gentoo_linux_musl.rs             | 11 +++++++++++
- .../rustc_target/src/spec/x86_64_gentoo_linux_musl.rs | 11 +++++++++++
- 8 files changed, 85 insertions(+)
+ .../src/spec/aarch64_gentoo_linux_musl.rs     |   11 +
+ .../src/spec/armv7_gentoo_linux_musleabihf.rs |   11 +
+ .../src/spec/i686_gentoo_linux_musl.rs        |   11 +
+ compiler/rustc_target/src/spec/mod.rs         |    8 +
+ compiler/rustc_target/src/spec/mod.rs.orig    | 2465 +++++++++++++++++
+ .../src/spec/powerpc64_gentoo_linux_musl.rs   |   11 +
+ .../src/spec/powerpc64le_gentoo_linux_musl.rs |   11 +
+ .../src/spec/powerpc_gentoo_linux_musl.rs     |   11 +
+ .../src/spec/x86_64_gentoo_linux_musl.rs      |   11 +
+ 9 files changed, 2550 insertions(+)
  create mode 100644 compiler/rustc_target/src/spec/aarch64_gentoo_linux_musl.rs
  create mode 100644 compiler/rustc_target/src/spec/armv7_gentoo_linux_musleabihf.rs
  create mode 100644 compiler/rustc_target/src/spec/i686_gentoo_linux_musl.rs
+ create mode 100644 compiler/rustc_target/src/spec/mod.rs.orig
  create mode 100644 compiler/rustc_target/src/spec/powerpc64_gentoo_linux_musl.rs
  create mode 100644 compiler/rustc_target/src/spec/powerpc64le_gentoo_linux_musl.rs
  create mode 100644 compiler/rustc_target/src/spec/powerpc_gentoo_linux_musl.rs
@@ -23,7 +25,7 @@ Subject: [PATCH] add gentoo musl target specs
 
 diff --git a/compiler/rustc_target/src/spec/aarch64_gentoo_linux_musl.rs b/compiler/rustc_target/src/spec/aarch64_gentoo_linux_musl.rs
 new file mode 100644
-index 0000000..420fe7c
+index 0000000..ca5f28f
 --- /dev/null
 +++ b/compiler/rustc_target/src/spec/aarch64_gentoo_linux_musl.rs
 @@ -0,0 +1,11 @@
@@ -32,15 +34,15 @@ index 0000000..420fe7c
 +pub fn target() -> Target {
 +    let mut base = super::aarch64_unknown_linux_musl::target();
 +
-+    base.llvm_target = "aarch64-gentoo-linux-musl".to_string();
-+    base.options.vendor = "gentoo".to_string();
++    base.llvm_target = "aarch64-gentoo-linux-musl".into();
++    base.options.vendor = "gentoo".into();
 +    base.options.crt_static_default = false;
 +
 +    base
 +}
 diff --git a/compiler/rustc_target/src/spec/armv7_gentoo_linux_musleabihf.rs b/compiler/rustc_target/src/spec/armv7_gentoo_linux_musleabihf.rs
 new file mode 100644
-index 0000000..067e2d6
+index 0000000..24b3b30
 --- /dev/null
 +++ b/compiler/rustc_target/src/spec/armv7_gentoo_linux_musleabihf.rs
 @@ -0,0 +1,11 @@
@@ -49,15 +51,15 @@ index 0000000..067e2d6
 +pub fn target() -> Target {
 +    let mut base = super::armv7_unknown_linux_musleabihf::target();
 +
-+    base.llvm_target = "armv7-gentoo-linux-musleabihf".to_string();
-+    base.options.vendor = "gentoo".to_string();
++    base.llvm_target = "armv7-gentoo-linux-musleabihf".into();
++    base.options.vendor = "gentoo".into();
 +    base.options.crt_static_default = false;
 +
 +    base
 +}
 diff --git a/compiler/rustc_target/src/spec/i686_gentoo_linux_musl.rs b/compiler/rustc_target/src/spec/i686_gentoo_linux_musl.rs
 new file mode 100644
-index 0000000..1cd39cd
+index 0000000..cab0923
 --- /dev/null
 +++ b/compiler/rustc_target/src/spec/i686_gentoo_linux_musl.rs
 @@ -0,0 +1,11 @@
@@ -66,17 +68,17 @@ index 0000000..1cd39cd
 +pub fn target() -> Target {
 +    let mut base = super::i686_unknown_linux_musl::target();
 +
-+    base.llvm_target = "i686-gentoo-linux-musl".to_string();
-+    base.options.vendor = "gentoo".to_string();
++    base.llvm_target = "i686-gentoo-linux-musl".into();
++    base.options.vendor = "gentoo".into();
 +    base.options.crt_static_default = false;
 +
 +    base
 +}
 diff --git a/compiler/rustc_target/src/spec/mod.rs b/compiler/rustc_target/src/spec/mod.rs
-index f1e8330..d8c0ba0 100644
+index bd5b712..34b923b 100644
 --- a/compiler/rustc_target/src/spec/mod.rs
 +++ b/compiler/rustc_target/src/spec/mod.rs
-@@ -490,6 +490,14 @@ macro_rules! supported_targets {
+@@ -808,6 +808,14 @@ macro_rules! supported_targets {
  }
  
  supported_targets! {
@@ -93,7 +95,7 @@ index f1e8330..d8c0ba0 100644
      ("i686-unknown-linux-gnu", i686_unknown_linux_gnu),
 diff --git a/compiler/rustc_target/src/spec/powerpc64_gentoo_linux_musl.rs b/compiler/rustc_target/src/spec/powerpc64_gentoo_linux_musl.rs
 new file mode 100644
-index 0000000..e840bb2
+index 0000000..b188a7c
 --- /dev/null
 +++ b/compiler/rustc_target/src/spec/powerpc64_gentoo_linux_musl.rs
 @@ -0,0 +1,11 @@
@@ -102,15 +104,15 @@ index 0000000..e840bb2
 +pub fn target() -> Target {
 +    let mut base = super::powerpc64_unknown_linux_musl::target();
 +
-+    base.llvm_target = "powerpc64-gentoo-linux-musl".to_string();
-+    base.options.vendor = "gentoo".to_string();
++    base.llvm_target = "powerpc64-gentoo-linux-musl".into();
++    base.options.vendor = "gentoo".into();
 +    base.options.crt_static_default = false;
 +
 +    base
 +}
 diff --git a/compiler/rustc_target/src/spec/powerpc64le_gentoo_linux_musl.rs b/compiler/rustc_target/src/spec/powerpc64le_gentoo_linux_musl.rs
 new file mode 100644
-index 0000000..1037d82
+index 0000000..395f603
 --- /dev/null
 +++ b/compiler/rustc_target/src/spec/powerpc64le_gentoo_linux_musl.rs
 @@ -0,0 +1,11 @@
@@ -119,15 +121,15 @@ index 0000000..1037d82
 +pub fn target() -> Target {
 +    let mut base = super::powerpc64le_unknown_linux_musl::target();
 +
-+    base.llvm_target = "powerpc64le-gentoo-linux-musl".to_string();
-+    base.options.vendor = "gentoo".to_string();
++    base.llvm_target = "powerpc64le-gentoo-linux-musl".into();
++    base.options.vendor = "gentoo".into();
 +    base.options.crt_static_default = false;
 +
 +    base
 +}
 diff --git a/compiler/rustc_target/src/spec/powerpc_gentoo_linux_musl.rs b/compiler/rustc_target/src/spec/powerpc_gentoo_linux_musl.rs
 new file mode 100644
-index 0000000..a623ffe
+index 0000000..cb3121d
 --- /dev/null
 +++ b/compiler/rustc_target/src/spec/powerpc_gentoo_linux_musl.rs
 @@ -0,0 +1,11 @@
@@ -136,15 +138,15 @@ index 0000000..a623ffe
 +pub fn target() -> Target {
 +    let mut base = super::powerpc_unknown_linux_musl::target();
 +
-+    base.llvm_target = "powerpc-gentoo-linux-musl".to_string();
-+    base.options.vendor = "gentoo".to_string();
++    base.llvm_target = "powerpc-gentoo-linux-musl".into();
++    base.options.vendor = "gentoo".into();
 +    base.options.crt_static_default = false;
 +
 +    base
 +}
 diff --git a/compiler/rustc_target/src/spec/x86_64_gentoo_linux_musl.rs b/compiler/rustc_target/src/spec/x86_64_gentoo_linux_musl.rs
 new file mode 100644
-index 0000000..f330473
+index 0000000..2fcdb66
 --- /dev/null
 +++ b/compiler/rustc_target/src/spec/x86_64_gentoo_linux_musl.rs
 @@ -0,0 +1,11 @@
@@ -153,12 +155,12 @@ index 0000000..f330473
 +pub fn target() -> Target {
 +    let mut base = super::x86_64_unknown_linux_musl::target();
 +
-+    base.llvm_target = "x86_64-gentoo-linux-musl".to_string();
-+    base.options.vendor = "gentoo".to_string();
++    base.llvm_target = "x86_64-gentoo-linux-musl".into();
++    base.options.vendor = "gentoo".into();
 +    base.options.crt_static_default = false;
 +
 +    base
 +}
 -- 
-2.29.2
+2.35.1
 
