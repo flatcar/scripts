@@ -1,9 +1,9 @@
-From 16e52005b90121cbefda9cdc15a268e7eb3928a8 Mon Sep 17 00:00:00 2001
-From: Mathieu Tortuyaux <mathieu@kinvolk.io>
-Date: Tue, 27 Jul 2021 11:45:30 +0200
-Subject: [PATCH 04/16] vendor: go mod vendor
+From 1c516a5e817f586a2f57ca4b01306597c902cfe8 Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Wed, 25 May 2022 10:12:15 +0200
+Subject: [PATCH 04/15] vendor: go mod vendor
 
-Signed-off-by: Mathieu Tortuyaux <mathieu@kinvolk.io>
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 ---
  vendor/github.com/ajeddeloh/go-json/OWNERS    |   19 +
  vendor/github.com/ajeddeloh/go-json/README    |   10 +
@@ -21,7 +21,7 @@ Signed-off-by: Mathieu Tortuyaux <mathieu@kinvolk.io>
  .../coreos/go-systemd/unit/option.go          |   59 +
  .../coreos/go-systemd/unit/serialize.go       |   75 +
  .../flatcar-linux/ign-converter/LICENSE       |  202 +
- .../translate/v24tov31/v24tov31.go            |  639 ++
+ .../translate/v24tov31/v24tov31.go            |  688 ++
  .../flatcar-linux/ign-converter/util/util.go  |  166 +
  .../github.com/flatcar-linux/ignition/LICENSE |  202 +
  .../github.com/flatcar-linux/ignition/NOTICE  |    5 +
@@ -174,7 +174,7 @@ Signed-off-by: Mathieu Tortuyaux <mathieu@kinvolk.io>
  .../x/text/unicode/norm/tables13.0.0.go       | 7761 +++++++++++++++++
  .../x/text/unicode/norm/tables9.0.0.go        |    1 +
  vendor/modules.txt                            |   38 +-
- 169 files changed, 26836 insertions(+), 63 deletions(-)
+ 169 files changed, 26888 insertions(+), 60 deletions(-)
  create mode 100644 vendor/github.com/ajeddeloh/go-json/OWNERS
  create mode 100644 vendor/github.com/ajeddeloh/go-json/README
  create mode 100644 vendor/github.com/ajeddeloh/go-json/decode.go
@@ -5239,10 +5239,10 @@ index 00000000..e06d2081
 +
 diff --git a/vendor/github.com/flatcar-linux/ign-converter/translate/v24tov31/v24tov31.go b/vendor/github.com/flatcar-linux/ign-converter/translate/v24tov31/v24tov31.go
 new file mode 100644
-index 00000000..1e406ca2
+index 00000000..d10cd7c3
 --- /dev/null
 +++ b/vendor/github.com/flatcar-linux/ign-converter/translate/v24tov31/v24tov31.go
-@@ -0,0 +1,639 @@
+@@ -0,0 +1,688 @@
 +// Copyright 2020 Red Hat, Inc.
 +//
 +// Licensed under the Apache License, Version 2.0 (the "License");
@@ -5262,7 +5262,9 @@ index 00000000..1e406ca2
 +import (
 +	"errors"
 +	"fmt"
++	"net/url"
 +	"path"
++	"path/filepath"
 +	"reflect"
 +
 +	old "github.com/flatcar-linux/ignition/config/v2_4/types"
@@ -5281,10 +5283,6 @@ index 00000000..1e406ca2
 +	if rpt.IsFatal() || rpt.IsDeprecated() {
 +		// disallow any deprecated fields
 +		return fmt.Errorf("Invalid input config:\n%s", rpt.String())
-+	}
-+
-+	if len(cfg.Networkd.Units) != 0 {
-+		return util.UsesNetworkdError
 +	}
 +
 +	// check that all filesystems have a path
@@ -5384,6 +5382,10 @@ index 00000000..1e406ca2
 +	if err := Check2_4(cfg, fsMap); err != nil {
 +		return types.Config{}, err
 +	}
++
++	files := translateFiles(cfg.Storage.Files, fsMap)
++	files = append(files, translateNetworkd(cfg.Networkd.Units, fsMap)...)
++
 +	res := types.Config{
 +		// Ignition section
 +		Ignition: types.Ignition{
@@ -5419,7 +5421,7 @@ index 00000000..1e406ca2
 +			Disks:       translateDisks(cfg.Storage.Disks),
 +			Raid:        translateRaid(cfg.Storage.Raid),
 +			Filesystems: translateFilesystems(cfg.Storage.Filesystems, fsMap),
-+			Files:       translateFiles(cfg.Storage.Files, fsMap),
++			Files:       files,
 +			Directories: translateDirectories(cfg.Storage.Directories, fsMap),
 +			Links:       translateLinks(cfg.Storage.Links, fsMap),
 +		},
@@ -5757,6 +5759,53 @@ index 00000000..1e406ca2
 +	return
 +}
 +
++func translateNetworkd(units []old.Networkdunit, m map[string]string) []types.File {
++	var ret []types.File
++
++	for _, u := range units {
++		if u.Contents != "" {
++			file := types.File{
++				Node: types.Node{
++					// 2.x files are overwrite by default
++					Overwrite: util.BoolP(true),
++				},
++				FileEmbedded1: types.FileEmbedded1{
++					// Ignition default file permission
++					Mode: util.IntP(int(0644)),
++				},
++			}
++			// path /etc/systemd/network is hardcoded in Ignition2.x codebase.
++			// TODO: customize this path at compilation time.
++			file.Node.Path = filepath.Join(m["root"], "/etc/systemd/network", u.Name)
++
++			// URL encoding unit content to follow 'data' format - we could use base64 also.
++			file.FileEmbedded1.Contents.Source = util.StrPStrict("data:," + url.QueryEscape(u.Contents))
++
++			ret = append(ret, file)
++		}
++
++		for _, d := range u.Dropins {
++			file := types.File{
++				Node: types.Node{
++					// 2.x files are overwrite by default
++					Overwrite: util.BoolP(true),
++				},
++				FileEmbedded1: types.FileEmbedded1{
++					// Ignition default file permission
++					Mode: util.IntP(int(0644)),
++				},
++			}
++
++			file.Node.Path = filepath.Join(m["root"], "/etc/systemd/network", string(u.Name)+".d", d.Name)
++			file.FileEmbedded1.Contents.Source = util.StrPStrict("data:," + url.QueryEscape(d.Contents))
++
++			ret = append(ret, file)
++		}
++	}
++
++	return ret
++}
++
 +func translateLinks(links []old.Link, m map[string]string) (ret []types.Link) {
 +	for _, l := range links {
 +		ret = append(ret, types.Link{
@@ -5884,7 +5933,7 @@ index 00000000..1e406ca2
 +}
 diff --git a/vendor/github.com/flatcar-linux/ign-converter/util/util.go b/vendor/github.com/flatcar-linux/ign-converter/util/util.go
 new file mode 100644
-index 00000000..40eb0971
+index 00000000..347d148c
 --- /dev/null
 +++ b/vendor/github.com/flatcar-linux/ign-converter/util/util.go
 @@ -0,0 +1,166 @@
@@ -5905,7 +5954,6 @@ index 00000000..40eb0971
 +package util
 +
 +import (
-+	"errors"
 +	"fmt"
 +	"strconv"
 +	"strings"
@@ -5913,9 +5961,6 @@ index 00000000..40eb0971
 +)
 +
 +// Error definitions
-+
-+// UsesNetworkdError is the error for including networkd configs
-+var UsesNetworkdError = errors.New("config includes deprecated networkd section - use Files instead")
 +
 +// NoFilesystemError type for when a filesystem is referenced in a config but there's no mapping to where
 +// it should be mounted (i.e. `path` in v3+ configs)
@@ -5968,7 +6013,11 @@ index 00000000..40eb0971
 +
 +func CheckPathUsesLink(links []string, path string) string {
 +	for _, l := range links {
-+		if strings.HasPrefix(path, l) && path != l {
++		linkdir := l
++		if !strings.HasSuffix(l, "/") {
++			linkdir += "/"
++		}
++		if strings.HasPrefix(path, linkdir) && path != l {
 +			return l
 +		}
 +	}
@@ -28425,7 +28474,7 @@ index 94290692..0175eae5 100644
  
  package norm
 diff --git a/vendor/modules.txt b/vendor/modules.txt
-index 7a9a7d8b..8a5d8ec6 100644
+index 34bc6c6e..71ec1839 100644
 --- a/vendor/modules.txt
 +++ b/vendor/modules.txt
 @@ -12,6 +12,8 @@ cloud.google.com/go/internal/version
@@ -28437,7 +28486,7 @@ index 7a9a7d8b..8a5d8ec6 100644
  # github.com/aws/aws-sdk-go v1.30.28
  ## explicit
  github.com/aws/aws-sdk-go/aws
-@@ -63,6 +65,8 @@ github.com/coreos/go-json
+@@ -66,6 +68,8 @@ github.com/coreos/go-json
  # github.com/coreos/go-semver v0.3.0
  ## explicit
  github.com/coreos/go-semver/semver
@@ -28446,11 +28495,11 @@ index 7a9a7d8b..8a5d8ec6 100644
  # github.com/coreos/go-systemd/v22 v22.0.0
  ## explicit
  github.com/coreos/go-systemd/v22/dbus
-@@ -77,6 +81,31 @@ github.com/coreos/vcontext/tree
+@@ -80,6 +84,31 @@ github.com/coreos/vcontext/tree
  github.com/coreos/vcontext/validate
  # github.com/davecgh/go-spew v1.1.0
  github.com/davecgh/go-spew/spew
-+# github.com/flatcar-linux/ign-converter v0.1.0
++# github.com/flatcar-linux/ign-converter v0.2.0
 +## explicit
 +github.com/flatcar-linux/ign-converter/translate/v24tov31
 +github.com/flatcar-linux/ign-converter/util
@@ -28478,7 +28527,7 @@ index 7a9a7d8b..8a5d8ec6 100644
  # github.com/godbus/dbus/v5 v5.0.3
  github.com/godbus/dbus/v5
  # github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e
-@@ -110,8 +139,6 @@ github.com/pin/tftp
+@@ -113,8 +142,6 @@ github.com/pin/tftp
  github.com/pin/tftp/netascii
  # github.com/pmezard/go-difflib v1.0.0
  github.com/pmezard/go-difflib/difflib
@@ -28487,15 +28536,7 @@ index 7a9a7d8b..8a5d8ec6 100644
  # github.com/spf13/pflag v1.0.6-0.20210604193023-d5e0c0615ace
  ## explicit
  github.com/spf13/pflag
-@@ -132,7 +159,6 @@ github.com/vmware/vmw-guestinfo/vmcheck
- ## explicit
- github.com/vmware/vmw-ovflib
- # go.opencensus.io v0.22.5
--## explicit
- go.opencensus.io
- go.opencensus.io/internal
- go.opencensus.io/internal/tagencoding
-@@ -149,6 +175,8 @@ go.opencensus.io/trace
+@@ -149,6 +176,8 @@ go.opencensus.io/trace
  go.opencensus.io/trace/internal
  go.opencensus.io/trace/propagation
  go.opencensus.io/trace/tracestate
@@ -28504,29 +28545,25 @@ index 7a9a7d8b..8a5d8ec6 100644
  # golang.org/x/lint v0.0.0-20200302205851-738671d3881b
  golang.org/x/lint
  golang.org/x/lint/golint
-@@ -177,13 +205,12 @@ golang.org/x/oauth2/jwt
+@@ -177,7 +206,8 @@ golang.org/x/oauth2/jwt
  ## explicit
  golang.org/x/sys/internal/unsafeheader
  golang.org/x/sys/unix
 -# golang.org/x/text v0.3.3
 +# golang.org/x/text v0.3.7
++## explicit
  golang.org/x/text/secure/bidirule
  golang.org/x/text/transform
  golang.org/x/text/unicode/bidi
- golang.org/x/text/unicode/norm
- # golang.org/x/tools v0.0.0-20200610160956-3e83d1e96d0e
--## explicit
- golang.org/x/tools/cmd/goimports
- golang.org/x/tools/go/analysis
- golang.org/x/tools/go/analysis/passes/inspect
-@@ -237,7 +264,6 @@ google.golang.org/appengine/internal/remote_api
- google.golang.org/appengine/internal/urlfetch
- google.golang.org/appengine/urlfetch
- # google.golang.org/genproto v0.0.0-20200610104632-a5b850bcf112
--## explicit
- google.golang.org/genproto/googleapis/api/annotations
- google.golang.org/genproto/googleapis/iam/v1
- google.golang.org/genproto/googleapis/rpc/code
+@@ -319,6 +349,8 @@ google.golang.org/protobuf/types/known/anypb
+ google.golang.org/protobuf/types/known/durationpb
+ google.golang.org/protobuf/types/known/timestamppb
+ google.golang.org/protobuf/types/pluginpb
++# gopkg.in/yaml.v2 v2.4.0
++## explicit
+ # gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+ gopkg.in/yaml.v3
+ # honnef.co/go/tools v0.0.1-2020.1.4
 -- 
-2.34.1
+2.35.1
 
