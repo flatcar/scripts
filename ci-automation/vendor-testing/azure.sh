@@ -15,9 +15,10 @@ set -x
 source ci-automation/vendor_test.sh
 
 board="${CIA_ARCH}-usr"
-basename="ci-${CIA_VERNUM//+/-}"
+basename="ci-${CIA_VERNUM//+/-}-${CIA_ARCH}"
 azure_instance_type="${AZURE_MACHINE_SIZE}"
 azure_vnet_subnet_name="jenkins-vnet-${AZURE_LOCATION}"
+IS_AMD64=${CIA_ARCH//arm64/}
 
 azure_profile_config_file=''
 secret_to_file azure_profile_config_file "${AZURE_PROFILE}"
@@ -43,8 +44,12 @@ fi
 set -o noglob
 
 run_kola_tests() {
-    local instance_type="${1}"; shift
     local instance_tapfile="${1}"; shift
+    local hyperv_gen="v2"
+    if [ "${instance_type}" = "v1" ]; then
+        hyperv_gen="v1"
+        instance_type="${azure_instance_type}"
+    fi
 
     timeout --signal=SIGQUIT 20h \
 			kola run \
@@ -60,8 +65,8 @@ run_kola_tests() {
 			--torcx-manifest=${CIA_TORCX_MANIFEST} \
 			--tapfile="${instance_tapfile}" \
 			--azure-size=${instance_type} \
+			--azure-hyper-v-generation=${hyperv_gen} \
 			${AZURE_USE_GALLERY} \
-			${AZURE_HYPER_V_GENERATION:+--azure-hyper-v-generation=${AZURE_HYPER_V_GENERATION}} \
 			${azure_vnet_subnet_name:+--azure-vnet-subnet-name=${azure_vnet_subnet_name}} \
 			${AZURE_USE_PRIVATE_IPS:+--azure-use-private-ips=${AZURE_USE_PRIVATE_IPS}} \
 			"${@}"
@@ -76,7 +81,7 @@ run_kola_tests_on_instances \
     "${azure_instance_type}" \
     "${CIA_TAPFILE}" \
     "${CIA_FIRST_RUN}" \
-    "" \
+    ${IS_AMD64:+v1} \
     '--' \
     '' \
     '--' \
