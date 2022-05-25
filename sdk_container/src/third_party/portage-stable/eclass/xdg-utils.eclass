@@ -1,15 +1,13 @@
 # Copyright 2004-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# Flatcar: Support EAPI 0 and 4.
-
 # @ECLASS: xdg-utils.eclass
 # @MAINTAINER:
 # gnome@gentoo.org
 # freedesktop-bugs@gentoo.org
 # @AUTHOR:
 # Original author: Gilles Dartiguelongue <eva@gentoo.org>
-# @SUPPORTED_EAPIS: 0 4 5 6 7 8
+# @SUPPORTED_EAPIS: 5 6 7 8
 # @BLURB: Auxiliary functions commonly used by XDG compliant packages.
 # @DESCRIPTION:
 # This eclass provides a set of auxiliary functions needed by most XDG
@@ -19,18 +17,18 @@
 #  * XDG .desktop files cache management
 #  * XDG mime information database management
 
-case ${EAPI:-0} in
-	0|4|5|6|7|8) ;;
+case ${EAPI} in
+	5|6|7|8) ;;
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
 
-# @ECLASS-VARIABLE: DESKTOP_DATABASE_DIR
+# @ECLASS_VARIABLE: DESKTOP_DATABASE_DIR
 # @INTERNAL
 # @DESCRIPTION:
 # Directory where .desktop files database is stored
 : ${DESKTOP_DATABASE_DIR="/usr/share/applications"}
 
-# @ECLASS-VARIABLE: MIMEINFO_DATABASE_DIR
+# @ECLASS_VARIABLE: MIMEINFO_DATABASE_DIR
 # @INTERNAL
 # @DESCRIPTION:
 # Directory where .desktop files database is stored

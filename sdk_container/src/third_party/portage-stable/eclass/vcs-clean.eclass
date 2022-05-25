@@ -1,18 +1,16 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-
-# Flatcar: Support EAPI 0 and 4.
 
 # @ECLASS: vcs-clean.eclass
 # @MAINTAINER:
 # base-system@gentoo.org
 # @AUTHOR:
 # Benedikt Böhm <hollow@gentoo.org>
-# @SUPPORTED_EAPIS: 0 4 5 6 7
+# @SUPPORTED_EAPIS: 5 6 7 8
 # @BLURB: helper functions to remove VCS directories
 
-case ${EAPI:-0} in
-	[04567]) ;;
+case ${EAPI} in
+	5|6|7|8) ;;
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
 
@@ -25,9 +23,11 @@ _VCS_CLEAN_ECLASS=1
 # Remove CVS directories and .cvs* files recursively.  Useful when a
 # source tarball contains internal CVS directories.  Defaults to ${PWD}.
 ecvs_clean() {
+	debug-print-function ${FUNCNAME} "${@}"
+
 	[[ $# -eq 0 ]] && set -- .
 	find "$@" '(' -type d -name 'CVS' -prune -o -type f -name '.cvs*' ')' \
-		-exec rm -rf '{}' +
+		-exec rm -rf '{}' + || die
 }
 
 # @FUNCTION: esvn_clean
@@ -36,8 +36,10 @@ ecvs_clean() {
 # Remove .svn directories recursively.  Useful when a source tarball
 # contains internal Subversion directories.  Defaults to ${PWD}.
 esvn_clean() {
+	debug-print-function ${FUNCNAME} "${@}"
+
 	[[ $# -eq 0 ]] && set -- .
-	find "$@" -type d -name '.svn' -prune -exec rm -rf '{}' +
+	find "$@" -type d -name '.svn' -prune -exec rm -rf '{}' + || die
 }
 
 # @FUNCTION: egit_clean
@@ -46,8 +48,10 @@ esvn_clean() {
 # Remove .git* directories recursively.  Useful when a source tarball
 # contains internal Git directories.  Defaults to ${PWD}.
 egit_clean() {
+	debug-print-function ${FUNCNAME} "${@}"
+
 	[[ $# -eq 0 ]] && set -- .
-	find "$@" -type d -name '.git*' -prune -exec rm -rf '{}' +
+	find "$@" -type d -name '.git*' -prune -exec rm -rf '{}' + || die
 }
 
 fi
