@@ -5,7 +5,6 @@
 
 set -euo pipefail
 
-set -x
 
 # Test execution script for the qemu vendor image.
 # This script is supposed to run in the SDK container.
