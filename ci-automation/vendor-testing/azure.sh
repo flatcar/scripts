@@ -41,7 +41,6 @@ if [[ "${CIA_ARCH}" == "arm64" ]]; then
   AZURE_USE_GALLERY="--azure-use-gallery"
 fi
 
-set -o noglob
 
 run_kola_tests() {
     local instance_type="${1}"; shift
