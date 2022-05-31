@@ -261,6 +261,18 @@ build_stage() {
         return
     fi
 
+    local baselayout_ebuild="${TEMPDIR}/stage1-ebuild-repos/coreos-overlay/sys-apps/baselayout/baselayout-9999.ebuild"
+
+    # Since Github does not allow unauthenticated git protocol in the URI,
+    # we need to manually replace "git://" with "https://" in CROS_WORKON_REPO.
+    # Without that, the SDK stage1 would simply fail, because at that moment
+    # only the ancient version of baselayout, 3.6.8-r2 is available, which does
+    # not have even the URI fix. As a result, git clone git://github.com/...
+    # will simply fail.
+    [[ -f $baselayout_ebuild ]] && \
+      sed -i -e 's/CROS_WORKON_REPO=\"git:\/\//CROS_WORKON_REPO=\"https:\/\//g' \
+        $baselayout_ebuild
+
     info "Starting $stage"
     catalyst $DEBUG \
         -c "$TEMPDIR/catalyst.conf" \
