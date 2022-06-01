@@ -143,4 +143,7 @@ if [ "$stat" != "Up" ] ; then
     $docker start "$name"
 fi
 
+# Workaround: The SDK expects to be able to write to /etc/hosts
+$docker exec "$name" sh -c 'cp /etc/hosts /etc/hosts2; umount /etc/hosts ; mv /etc/hosts2 /etc/hosts'
+
 $docker exec $tty -i "$name" /home/sdk/sdk_entry.sh "$@"
