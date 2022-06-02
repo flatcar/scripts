@@ -29,7 +29,8 @@ fi
 
 # Do not expand the kola test patterns globs
 set -o noglob
-timeout --signal=SIGQUIT 20h bin/kola run \
+# Align timeout with ore azure gc --duration parameter
+timeout --signal=SIGQUIT 6h bin/kola run \
     --parallel="${PARALLEL}" \
     --basename="${NAME}" \
     --board="${BOARD}" \
