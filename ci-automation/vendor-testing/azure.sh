@@ -50,7 +50,8 @@ run_kola_tests() {
         instance_type="${azure_instance_type}"
     fi
 
-    timeout --signal=SIGQUIT 20h \
+    # Align timeout with ore azure gc --duration parameter
+    timeout --signal=SIGQUIT 6h \
       kola run \
       --board="${board}" \
       --basename="${basename}" \
