@@ -12,7 +12,7 @@ inherit coreos-go cros-workon systemd udev
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	CROS_WORKON_COMMIT="d5545707b879e507749efed89881f987bd0ec81e" # main
+	CROS_WORKON_COMMIT="fef845a7d5ba463b4a93a5ed03a76721164c4a84" # v2.14.0
 	KEYWORDS="amd64 arm64"
 fi
 
@@ -46,8 +46,8 @@ PATCHES=(
 	"${FILESDIR}/0002-mod-add-ign-converter-dependency.patch"
 	"${FILESDIR}/0003-sum-go-mod-tidy.patch"
 	"${FILESDIR}/0004-vendor-go-mod-vendor.patch"
-	"${FILESDIR}/0005-config-v3_4-convert-ignition-2.x-to-3.1.patch"
-	"${FILESDIR}/0006-internal-prv-cmdline-backport-flatcar-patche.patch"
+	"${FILESDIR}/0005-config-v3_4-convert-ignition-2.x-to-3.4-exp.patch"
+	"${FILESDIR}/0006-internal-prv-cmdline-backport-flatcar-patch.patch"
 	"${FILESDIR}/0007-provider-qemu-apply-fw_cfg-patch.patch"
 	"${FILESDIR}/0008-config-3_4-test-add-ignition-2.x-test-cases.patch"
 	"${FILESDIR}/0009-internal-disk-fs-ignore-fs-format-mismatches-for-the.patch"
@@ -57,8 +57,6 @@ PATCHES=(
 	"${FILESDIR}/0013-Revert-drop-OEM-URI-support.patch"
 	"${FILESDIR}/0014-internal-resource-url-support-btrfs-as-OEM-partition.patch"
 	"${FILESDIR}/0015-internal-exec-stages-disks-prevent-races-with-udev.patch"
-	"${FILESDIR}/0016-update-ign-converter-to-fix-link-translation.patch"
-	"${FILESDIR}/0017-mod-update-ign-converter.patch"
 )
 
 src_compile() {

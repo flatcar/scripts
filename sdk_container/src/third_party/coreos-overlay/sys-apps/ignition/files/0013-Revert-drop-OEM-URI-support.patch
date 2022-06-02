@@ -1,7 +1,7 @@
-From b06bfb4350ad4425d2badc849154fd01c534d23e Mon Sep 17 00:00:00 2001
+From c53d44fd2f59c9cefdc699d55007a92dbbd0f292 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
-Date: Tue, 21 Sep 2021 11:32:23 +0200
-Subject: [PATCH 13/16] Revert "*: drop OEM URI support"
+Date: Wed, 25 May 2022 10:38:16 +0200
+Subject: [PATCH 13/15] Revert "*: drop OEM URI support"
 
 This reverts commit 0c088d6de77aa1b1f47b9252a07f51cb1e249df3.
 ---
@@ -73,10 +73,10 @@ index bb90bdf9..8f3da4d9 100644
  	case "s3":
  		if v, ok := u.Query()["versionId"]; ok {
 diff --git a/config/v3_4_experimental/types/url.go b/config/v3_4_experimental/types/url.go
-index bb90bdf9..8f3da4d9 100644
+index f094cde8..72b1b37b 100644
 --- a/config/v3_4_experimental/types/url.go
 +++ b/config/v3_4_experimental/types/url.go
-@@ -30,7 +30,7 @@ func validateURL(s string) error {
+@@ -32,7 +32,7 @@ func validateURL(s string) error {
  	}
  
  	switch u.Scheme {
@@ -86,7 +86,7 @@ index bb90bdf9..8f3da4d9 100644
  	case "s3":
  		if v, ok := u.Query()["versionId"]; ok {
 diff --git a/docs/supported-platforms.md b/docs/supported-platforms.md
-index ee6a2025..cd51355a 100644
+index 9ecb590a..f7bb4b40 100644
 --- a/docs/supported-platforms.md
 +++ b/docs/supported-platforms.md
 @@ -10,6 +10,7 @@ Ignition is currently only supported for the following platforms:
@@ -98,7 +98,7 @@ index ee6a2025..cd51355a 100644
  * [CloudStack] (`cloudstack`) - Ignition will read its configuration from the instance userdata via either metadata service or config drive. Cloud SSH keys are handled separately.
  * [DigitalOcean] (`digitalocean`) - Ignition will read its configuration from the droplet userdata. Cloud SSH keys and network configuration are handled separately.
 diff --git a/internal/distro/distro.go b/internal/distro/distro.go
-index 2b045ead..22b0da0f 100644
+index 0fe37f4a..3afc587f 100644
 --- a/internal/distro/distro.go
 +++ b/internal/distro/distro.go
 @@ -23,13 +23,17 @@ import (
@@ -119,8 +119,8 @@ index 2b045ead..22b0da0f 100644
 +	oemLookasideDir = "/usr/share/oem"
  
  	// Helper programs
- 	groupaddCmd = "groupadd"
-@@ -78,11 +82,14 @@ var (
+ 	groupaddCmd  = "groupadd"
+@@ -79,11 +83,14 @@ var (
  	resultFilePath          = "/etc/.ignition-result.json"
  )
  
@@ -134,13 +134,13 @@ index 2b045ead..22b0da0f 100644
  func SystemConfigDir() string   { return fromEnv("SYSTEM_CONFIG_DIR", systemConfigDir) }
 +func OEMLookasideDir() string   { return fromEnv("OEM_LOOKASIDE_DIR", oemLookasideDir) }
  
- func GroupaddCmd() string { return groupaddCmd }
- func GroupdelCmd() string { return groupdelCmd }
+ func GroupaddCmd() string  { return groupaddCmd }
+ func GroupdelCmd() string  { return groupdelCmd }
 diff --git a/internal/resource/url.go b/internal/resource/url.go
-index e0ba4045..3e089276 100644
+index 25993094..8ed6efdb 100644
 --- a/internal/resource/url.go
 +++ b/internal/resource/url.go
-@@ -27,14 +27,20 @@ import (
+@@ -27,13 +27,17 @@ import (
  	"net/http"
  	"net/url"
  	"os"
@@ -151,32 +151,38 @@ index e0ba4045..3e089276 100644
  
  	"cloud.google.com/go/compute/metadata"
  	"cloud.google.com/go/storage"
-+
  	configErrors "github.com/flatcar-linux/ignition/v2/config/shared/errors"
 +	"github.com/flatcar-linux/ignition/v2/internal/distro"
  	"github.com/flatcar-linux/ignition/v2/internal/log"
 +	"github.com/flatcar-linux/ignition/v2/internal/systemd"
  	"github.com/flatcar-linux/ignition/v2/internal/util"
-+
  	"golang.org/x/oauth2/google"
  	"google.golang.org/api/option"
- 
-@@ -196,6 +202,8 @@ func (f *Fetcher) Fetch(u url.URL, dest *os.File, opts FetchOptions) error {
+@@ -145,6 +149,8 @@ func (f *Fetcher) FetchToBuffer(u url.URL, opts FetchOptions) ([]byte, error) {
+ 		err = f.fetchFromTFTP(u, dest, opts)
+ 	case "data":
+ 		err = f.fetchFromDataURL(u, dest, opts)
++	case "oem":
++		err = f.fetchFromOEM(u, dest, opts)
+ 	case "s3", "arn":
+ 		buf := &s3buf{
+ 			WriteAtBuffer: aws.NewWriteAtBuffer([]byte{}),
+@@ -206,6 +212,8 @@ func (f *Fetcher) Fetch(u url.URL, dest *os.File, opts FetchOptions) error {
  		return f.fetchFromTFTP(u, dest, opts)
  	case "data":
  		return f.fetchFromDataURL(u, dest, opts)
 +	case "oem":
-+		return f.FetchFromOEM(u, dest, opts)
- 	case "s3":
++		return f.fetchFromOEM(u, dest, opts)
+ 	case "s3", "arn":
  		return f.fetchFromS3(u, dest, opts)
  	case "gs":
-@@ -381,6 +389,53 @@ type s3target interface {
+@@ -396,6 +404,53 @@ type s3target interface {
  	io.ReadSeeker
  }
  
 +// FetchFromOEM gets data off the oem partition as described by u and writes it
 +// into dest, returning an error if one is encountered.
-+func (f *Fetcher) FetchFromOEM(u url.URL, dest *os.File, opts FetchOptions) error {
++func (f *Fetcher) fetchFromOEM(u url.URL, dest io.Writer, opts FetchOptions) error {
 +	path := filepath.Clean(u.Path)
 +	if !filepath.IsAbs(path) {
 +		f.Logger.Err("oem path is not absolute: %q", u.Path)
@@ -224,9 +230,9 @@ index e0ba4045..3e089276 100644
  // FetchFromS3 gets data from an S3 bucket as described by u and writes it into
  // dest, returning an error if one is encountered. It will attempt to acquire
  // IAM credentials from the EC2 metadata service, and if this fails will attempt
-@@ -522,3 +577,39 @@ func (f *Fetcher) decompressCopyHashAndVerify(dest io.Writer, src io.Reader, opt
- 	}
- 	return nil
+@@ -623,3 +678,39 @@ func (f *Fetcher) parseARN(arnURL string) (string, string, string, string, error
+ 	key := strings.Join(urlSplit[1:], "/")
+ 	return bucket, key, "", regionHint, nil
  }
 +
 +// mountOEM waits for the presence of and mounts the oem partition at
@@ -499,5 +505,5 @@ index d5bd3fe7..ea4ff6ab 100644
  	Env               []string // Environment variables for Ignition
  	Config            string
 -- 
-2.34.1
+2.35.1
 

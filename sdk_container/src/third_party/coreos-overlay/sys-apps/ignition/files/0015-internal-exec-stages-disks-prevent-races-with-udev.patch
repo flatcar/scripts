@@ -1,7 +1,7 @@
-From 858ba5f5b7de3746b25564897c78e0c3d0ad4cea Mon Sep 17 00:00:00 2001
+From 02dcfeec54df967069efb330971e1a651753a58a Mon Sep 17 00:00:00 2001
 From: Kai Lueke <kailuke@microsoft.com>
 Date: Fri, 11 Feb 2022 15:41:12 +0100
-Subject: [PATCH 15/16] internal/exec/stages/disks: prevent races with udev
+Subject: [PATCH 15/15] internal/exec/stages/disks: prevent races with udev
 
 The "udevadm settle" command used to wait for udev to process the disk
 changes and recreate the entries under /dev was still prone to races
@@ -193,5 +193,5 @@ index dff93413..7840d8fc 100644
  
  	return nil
 -- 
-2.34.1
+2.35.1
 

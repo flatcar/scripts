@@ -1,7 +1,7 @@
-From 3cc31448bbe9624372e79c7d32f9cfe86bbb6251 Mon Sep 17 00:00:00 2001
+From b49c1ecc919a21ff90b71b6a0e67b15600157ad3 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mathieu@kinvolk.io>
 Date: Fri, 13 Aug 2021 11:47:01 +0200
-Subject: [PATCH 07/16] provider/qemu: apply fw_cfg patch
+Subject: [PATCH 07/15] provider/qemu: apply fw_cfg patch
 
 we support both CoreOS and Flatcar fw_cfg path to ensure compatiblity
 
@@ -164,5 +164,5 @@ index a4ebec6a..0ae9cd66 100644
 +	return types.Config{}, report.Report{}, iErrors.ErrEmpty
  }
 -- 
-2.34.1
+2.35.1
 
