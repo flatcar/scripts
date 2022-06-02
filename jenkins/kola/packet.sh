@@ -32,13 +32,8 @@ fi
 # so we override the `PACKET_REGION` to `Dallas` since it's available in this region.
 # We do not override `PACKET_REGION` for both board on top level because we need to keep proximity
 # for PXE booting.
-# We override `PARALLEL_TESTS`, because kola run with PARALLEL_TESTS >= 4 causes the
-# tests to provision >= 12 ARM servers at the same time. As the da11 region does not
-# have that many free ARM servers, the whole tests will fail. With PARALLEL_TESTS=3
-# the total number of servers stays <= 9.
 if [[ "${BOARD}" == "arm64-usr" ]]; then
   PACKET_REGION="DA"
-  PARALLEL_TESTS="3"
 fi
 
 # Run the cl.internet test on multiple machine types only if it should run in general
