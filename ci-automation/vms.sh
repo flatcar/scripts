@@ -31,9 +31,18 @@
 #   2. "./ci-cleanup.sh" with commands to clean up temporary build resources,
 #        to be run after this step finishes / when this step is aborted.
 
-set -eu
-
 function vm_build() {
+    # Run a subshell, so the traps, environment changes and global
+    # variables are not spilled into the caller.
+    (
+        set -euo pipefail
+
+        _vm_build_impl "${@}"
+    )
+}
+# --
+
+function _vm_build_impl() {
     local arch="$1"
     shift
     # $@ now contains image formats to build
