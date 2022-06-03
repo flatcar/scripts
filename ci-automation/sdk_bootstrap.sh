@@ -134,7 +134,15 @@ function _sdk_bootstrap_impl() {
     source sdk_container/.repo/manifests/version.txt
     local dest_tarball="flatcar-sdk-${ARCH}-${FLATCAR_SDK_VERSION}.tar.bz2"
 
+    # change the owner of the files and directories in __build__ back
+    # to ourselves, otherwise we could fail to sign the artifacts as
+    # we lacked write permissions in the directory of the signed
+    # artifact
+    local uid=$(id --user)
+    local gid=$(id --group)
+    sudo chown --recursive "${uid}:${gid}" __build__
     cd "__build__/images/catalyst/builds/flatcar-sdk"
+    sign_artifacts "${SIGNER}" "${dest_tarball}"*
     copy_to_buildcache "sdk/${ARCH}/${FLATCAR_SDK_VERSION}" "${dest_tarball}"*
     cd -
 }
