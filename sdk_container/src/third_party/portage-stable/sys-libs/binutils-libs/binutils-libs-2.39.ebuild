@@ -1,9 +1,9 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PATCH_VER=5
+PATCH_VER=3
 PATCH_DEV=dilfridge
 
 inherit libtool toolchain-funcs multilib-minimal
@@ -11,17 +11,18 @@ inherit libtool toolchain-funcs multilib-minimal
 MY_PN="binutils"
 MY_P="${MY_PN}-${PV}"
 PATCH_BINUTILS_VER=${PATCH_BINUTILS_VER:-${PV}}
-PATCH_DEV=${PATCH_DEV:-slyfox}
+PATCH_DEV=${PATCH_DEV:-dilfridge}
 
 DESCRIPTION="Core binutils libraries (libbfd, libopcodes, libiberty) for external packages"
 HOMEPAGE="https://sourceware.org/binutils/"
 SRC_URI="mirror://gnu/binutils/${MY_P}.tar.xz
+	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${MY_P}.tar.xz
 	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${MY_PN}-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz"
 
 LICENSE="|| ( GPL-3 LGPL-3 )"
-SLOT="0/${PV}"
+SLOT="0/${PV%_p?}"
 IUSE="64-bit-bfd cet multitarget nls static-libs"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+#KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 
 BDEPEND="nls? ( sys-devel/gettext )"
 DEPEND="sys-libs/zlib[${MULTILIB_USEDEP}]"
@@ -30,7 +31,7 @@ RDEPEND="${DEPEND}
 	>=sys-devel/binutils-config-5
 "
 
-S="${WORKDIR}/${MY_P}"
+S="${WORKDIR}/${MY_P%_p?}"
 
 MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/bfd.h
@@ -44,6 +45,20 @@ src_prepare() {
 
 	# Fix cross-compile relinking issue, bug #626402
 	elibtoolize
+
+	if [[ ${CHOST} == *-darwin* ]] ; then
+		# somehow libtool/configure is messed up and (custom patch at
+		# upstream?) and misdetects (basically assumes) nm can be called
+		# with -B arg -- can't run eautoreconf (fails), so patch up
+		# manually, this would break any target that needs -B to nm
+		sed -i -e 's/lt_cv_path_NM="$tmp_nm -B"/lt_cv_path_NM="$tmp_nm"/' \
+			libctf/configure || die
+	fi
+
+	# See https://www.gnu.org/software/make/manual/html_node/Parallel-Output.html
+	# Avoid really confusing logs from subconfigure spam, makes logs far
+	# more legible.
+	MAKEOPTS="--output-sync=line ${MAKEOPTS}"
 
 	default
 }
@@ -74,7 +89,7 @@ multilib_src_configure() {
 		--without-zlib
 		--with-system-zlib
 		# We only care about the libs, so disable programs. #528088
-		--disable-{binutils,etc,ld,gas,gold,gprof}
+		--disable-{binutils,etc,ld,gas,gold,gprof,gprofng}
 		# Disable modules that are in a combined binutils/gdb tree. #490566
 		--disable-{gdb,libdecnumber,readline,sim}
 		# Strip out broken static link flags.
@@ -113,8 +128,7 @@ multilib_src_configure() {
 			"${S}"/opcodes/Makefile.in || die
 	fi
 
-	ECONF_SOURCE=${S} \
-	econf "${myconf[@]}"
+	ECONF_SOURCE="${S}" econf "${myconf[@]}"
 
 	# Prevent makeinfo from running as we don't build docs here.
 	# bug #622652
@@ -123,8 +137,13 @@ multilib_src_configure() {
 		Makefile || die
 }
 
+multilib_src_compile() {
+	emake V=1
+}
+
 multilib_src_install() {
-	default
+	emake V=1 DESTDIR="${D}" install
+
 	# Provide libiberty.h directly.
 	dosym libiberty/libiberty.h /usr/include/libiberty.h
 }
