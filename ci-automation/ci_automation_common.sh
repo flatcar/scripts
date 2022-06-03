@@ -175,7 +175,8 @@ function docker_image_to_buildcache() {
     local tarball="$(basename "$image")-${version}.tar.gz"
 
     $docker save "${image}":"${version}" | $PIGZ -c > "${tarball}"
-    copy_to_buildcache "containers/${version}" "${tarball}"
+    sign_artifacts "${SIGNER:-}" "${tarball}"
+    copy_to_buildcache "containers/${version}" "${tarball}"*
 }
 # --
 
@@ -297,5 +298,52 @@ function secret_to_file() {
     rm -f "${tmpfile}"
     echo "${secret}" | base64 --decode >&${fd}
     config_ref="/proc/${$}/fd/${fd}"
+}
+# --
+
+# Creates signatures for the passed files and directories. In case of
+# directory, all files inside are signed. Files ending with .asc or
+# .sig or .gpg are ignored, though. This function is a noop if signer
+# is empty.
+#
+# Typical use:
+#   sign_artifacts "${SIGNER}" artifact.tar.gz
+#   copy_to_buildcache "artifacts/directory" artifact.tar.gz*
+#
+# Parameters:
+#
+# 1 - signer whose key is expected to be already imported into the
+#       keyring
+# @ - files and directories to sign
+function sign_artifacts() {
+    local signer="${1}"; shift
+    # rest of the parameters are directories/files to sign
+    local to_sign=()
+    local file
+    local files
+
+    if [[ -z "${signer}" ]]; then
+        return
+    fi
+
+    for file; do
+        files=()
+        if [[ -d "${file}" ]]; then
+            readarray -d '' files < <(find "${file}" ! -type d -print0)
+        elif [[ -e "${file}" ]]; then
+            files+=( "${file}" )
+        fi
+        for file in "${files[@]}"; do
+            if [[ "${file}" =~ \.(asc|gpg|sig)$ ]]; then
+                continue
+            fi
+            to_sign+=( "${file}" )
+        done
+    done
+    for file in "${to_sign[@]}"; do
+        gpg --batch --local-user "${signer}" \
+            --output "${file}.sig" \
+            --detach-sign "${file}"
+    done
 }
 # --

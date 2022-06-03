@@ -78,8 +78,6 @@
 # script would need to make anyway. For more information, please refer
 # to the vendor_test.sh file.
 
-set -euo pipefail
-
 # Download torcx package and manifest, add build cache URL to manifest
 #  so the docker.torcx-manifest-pkgs test can use it.
 function __prepare_torcx() {
@@ -106,6 +104,17 @@ function __prepare_torcx() {
 # --
 
 function test_run() {
+    # Run a subshell, so the traps, environment changes and global
+    # variables are not spilled into the caller.
+    (
+        set -euo pipefail
+
+        _test_run_impl "${@}"
+    )
+}
+# --
+
+function _test_run_impl() {
     local arch="$1" ; shift
     local image="$1"; shift
 
