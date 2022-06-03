@@ -1,14 +1,14 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit eutils libtool flag-o-matic gnuconfig multilib toolchain-funcs
+inherit elisp-common libtool flag-o-matic gnuconfig strip-linguas toolchain-funcs
 
 DESCRIPTION="Tools necessary to build programs"
 HOMEPAGE="https://sourceware.org/binutils/"
 LICENSE="GPL-3+"
-IUSE="cet default-gold doc +gold multitarget +nls +plugins static-libs test vanilla"
+IUSE="cet default-gold doc emacs +gold multitarget +nls pgo +plugins static-libs test vanilla"
 REQUIRED_USE="default-gold? ( gold )"
 
 # Variables that can be set here  (ignored for live ebuilds)
@@ -19,7 +19,7 @@ REQUIRED_USE="default-gold? ( gold )"
 # PATCH_DEV          - Use download URI https://dev.gentoo.org/~{PATCH_DEV}/distfiles/...
 #                      for the patchsets
 
-PATCH_VER=1
+PATCH_VER=0
 PATCH_DEV=dilfridge
 
 if [[ ${PV} == 9999* ]]; then
@@ -33,7 +33,7 @@ else
 		https://dev.gentoo.org/~${PATCH_DEV}/distfiles/binutils-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz"
 	SLOT=$(ver_cut 1-2)
 	# live ebuild
-	#KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	#KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 fi
 
 #
@@ -53,6 +53,7 @@ is_cross() { [[ ${CHOST} != ${CTARGET} ]] ; }
 RDEPEND="
 	>=sys-devel/binutils-config-3
 	sys-libs/zlib
+	emacs? ( >=app-editors/emacs-23.1:* )
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
@@ -82,13 +83,16 @@ src_unpack() {
 		EGIT_CHECKOUT_DIR=${S}
 		git-r3_src_unpack
 	else
-		unpack ${P}.tar.xz
+		unpack ${P/-hppa64/}.tar.xz
 
 		cd "${WORKDIR}" || die
 		unpack binutils-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz
 
 		# _p patch versions are Gentoo specific tarballs ...
-		S=${WORKDIR}/${P%_p?}
+		local dir=${P%_p?}
+		dir=${dir/-hppa64/}
+
+		S=${WORKDIR}/${dir}
 	fi
 
 	cd "${WORKDIR}" || die
@@ -103,7 +107,7 @@ src_prepare() {
 		patchsetname="${PATCH_BINUTILS_VER}-${PATCH_VER}"
 	fi
 
-	if [[ ! -z ${PATCH_VER} ]] || [[ ${PV} == 9999* ]] ; then
+	if [[ -n ${PATCH_VER} ]] || [[ ${PV} == 9999* ]] ; then
 		if ! use vanilla; then
 			einfo "Applying binutils patchset ${patchsetname}"
 			eapply "${WORKDIR}/patch"
@@ -111,20 +115,13 @@ src_prepare() {
 		fi
 	fi
 
-	# This check should probably go somewhere else, like pkg_pretend.
-	if [[ ${CTARGET} == *-uclibc* ]] ; then
-		if grep -qs 'linux-gnu' "${S}"/ltconfig ; then
-			die "sorry, but this binutils doesn't yet support uClibc :("
-		fi
-	fi
-
-	# Make sure our explicit libdir paths don't get clobbered. #562460
+	# Make sure our explicit libdir paths don't get clobbered, bug #562460
 	sed -i \
 		-e 's:@bfdlibdir@:@libdir@:g' \
 		-e 's:@bfdincludedir@:@includedir@:g' \
 		{bfd,opcodes}/Makefile.in || die
 
-	# Fix locale issues if possible #122216
+	# Fix locale issues if possible, bug #122216
 	if [[ -e ${FILESDIR}/binutils-configure-LANG.patch ]] ; then
 		einfo "Fixing misc issues in configure files"
 		for f in $(find "${S}" -name configure -exec grep -l 'autoconf version 2.13' {} +) ; do
@@ -133,11 +130,6 @@ src_prepare() {
 				|| eerror "Please file a bug about this"
 			eend $?
 		done
-	fi
-
-	# Fix conflicts with newer glibc #272594
-	if [[ -e libiberty/testsuite/test-demangle.c ]] ; then
-		sed -i 's:\<getline\>:get_line:g' libiberty/testsuite/test-demangle.c
 	fi
 
 	# Apply things from PATCHES and user dirs
@@ -157,6 +149,11 @@ toolchain-binutils_pkgversion() {
 }
 
 src_configure() {
+	# See https://www.gnu.org/software/make/manual/html_node/Parallel-Output.html
+	# Avoid really confusing logs from subconfigure spam, makes logs far
+	# more legible.
+	MAKEOPTS="--output-sync=line ${MAKEOPTS}"
+
 	# Setup some paths
 	LIBPATH=/usr/$(get_libdir)/binutils/${CTARGET}/${PV}
 	INCPATH=${LIBPATH}/include
@@ -169,11 +166,13 @@ src_configure() {
 	BINPATH=${TOOLPATH}/binutils-bin/${PV}
 
 	# Make sure we filter $LINGUAS so that only ones that
-	# actually work make it through #42033
+	# actually work make it through, bug #42033
 	strip-linguas -u */po
 
 	# Keep things sane
 	strip-flags
+
+	use elibc_musl && append-ldflags -Wl,-z,stack-size=2097152
 
 	local x
 	echo
@@ -182,7 +181,7 @@ src_configure() {
 	done
 	echo
 
-	cd "${MY_BUILDDIR}"
+	cd "${MY_BUILDDIR}" || die
 	local myconf=()
 
 	if use plugins ; then
@@ -204,9 +203,10 @@ src_configure() {
 
 	myconf+=( --with-system-zlib )
 
-	# For bi-arch systems, enable a 64bit bfd.  This matches
-	# the bi-arch logic in toolchain.eclass. #446946
-	# We used to do it for everyone, but it's slow on 32bit arches. #438522
+	# For bi-arch systems, enable a 64bit bfd. This matches the bi-arch
+	# logic in toolchain.eclass. bug #446946
+	#
+	# We used to do it for everyone, but it's slow on 32bit arches. bug #438522
 	case $(tc-arch) in
 		ppc|sparc|x86) myconf+=( --enable-64-bit-bfd ) ;;
 	esac
@@ -220,10 +220,7 @@ src_configure() {
 		--enable-poison-system-directories
 	)
 
-	# glibc-2.3.6 lacks support for this ... so rather than force glibc-2.5+
-	# on everyone in alpha (for now), we'll just enable it when possible
-	has_version ">=${CATEGORY}/glibc-2.5" && myconf+=( --enable-secureplt )
-	has_version ">=sys-libs/glibc-2.5" && myconf+=( --enable-secureplt )
+	myconf+=( --enable-secureplt )
 
 	# mips can't do hash-style=gnu ...
 	if [[ $(tc-arch) != mips ]] ; then
@@ -247,24 +244,37 @@ src_configure() {
 		--enable-threads
 		# Newer versions (>=2.27) offer a configure flag now.
 		--enable-relro
-		# Newer versions (>=2.24) make this an explicit option. #497268
+		# Newer versions (>=2.24) make this an explicit option, bug #497268
 		--enable-install-libiberty
 		# Available from 2.35 on
 		--enable-textrel-check=warning
-		# Works better than vapier's patch... #808787
+
+		# Available from 2.39 on
+		--enable-warn-execstack
+		--enable-warn-rwx-segments
+		# TODO: Available from 2.39+ on but let's try the warning on for a bit
+		# first... (--enable-warn-execstack)
+		# Could put it under USE=hardened?
+		#--disable-default-execstack (or is it --enable-default-execstack=no? docs are confusing)
+
+		# Things to think about
+		#--enable-deterministic-archives
+
+		# Works better than vapier's patch, bug #808787
 		--enable-new-dtags
+
+		--disable-jansson
 		--disable-werror
 		--with-bugurl="$(toolchain-binutils_bugurl)"
 		--with-pkgversion="$(toolchain-binutils_pkgversion)"
 		$(use_enable static-libs static)
-		${EXTRA_ECONF}
-		# Disable modules that are in a combined binutils/gdb tree. #490566
+		# Disable modules that are in a combined binutils/gdb tree, bug #490566
 		--disable-{gdb,libdecnumber,readline,sim}
 		# Strip out broken static link flags.
 		# https://gcc.gnu.org/PR56750
 		--without-stage1-ldflags
 		# Change SONAME to avoid conflict across
-		# {native,cross}/binutils, binutils-libs. #666100
+		# {native,cross}/binutils, binutils-libs. bug #666100
 		--with-extra-soversion-suffix=gentoo-${CATEGORY}-${PN}-$(usex multitarget mt st)
 
 		# avoid automagic dependency on (currently prefix) systems
@@ -276,8 +286,16 @@ src_configure() {
 		# But the check does not quite work on i686: bug #760926.
 		$(use_enable cet)
 	)
-	echo ./configure "${myconf[@]}"
-	"${S}"/configure "${myconf[@]}" || die
+
+	if ! is_cross ; then
+		myconf+=( $(use_enable pgo pgo-build lto) )
+
+		if use pgo ; then
+			export BUILD_CFLAGS="${CFLAGS}"
+		fi
+	fi
+
+	ECONF_SOURCE="${S}" econf "${myconf[@]}" || die
 
 	# Prevent makeinfo from running if doc is unset.
 	if ! use doc ; then
@@ -288,14 +306,17 @@ src_configure() {
 }
 
 src_compile() {
-	cd "${MY_BUILDDIR}"
+	cd "${MY_BUILDDIR}" || die
+
 	# see Note [tooldir hack for ldscripts]
-	emake tooldir="${EPREFIX}${TOOLPATH}" all
+	emake V=1 tooldir="${EPREFIX}${TOOLPATH}" all
 
 	# only build info pages if the user wants them
 	if use doc ; then
-		emake info
+		emake V=1 info
 	fi
+
+	! is_cross && use emacs && elisp-compile "${S}"/binutils/dwarf-mode.el
 
 	# we nuke the manpages when we're left with junk
 	# (like when we bootstrap, no perl -> no manpages)
@@ -303,25 +324,26 @@ src_compile() {
 }
 
 src_test() {
-	cd "${MY_BUILDDIR}"
+	cd "${MY_BUILDDIR}" || die
 
-	# bug 637066
+	# bug #637066
 	filter-flags -Wall -Wreturn-type
 
-	emake -k check
+	emake -k V=1 check
 }
 
 src_install() {
 	local x d
 
-	cd "${MY_BUILDDIR}"
+	cd "${MY_BUILDDIR}" || die
+
 	# see Note [tooldir hack for ldscripts]
-	emake DESTDIR="${D}" tooldir="${EPREFIX}${LIBPATH}" install
-	rm -rf "${ED}"/${LIBPATH}/bin
+	emake V=1 DESTDIR="${D}" tooldir="${EPREFIX}${LIBPATH}" install
+	rm -rf "${ED}"/${LIBPATH}/bin || die
 	use static-libs || find "${ED}" -name '*.la' -delete
 
-	# Newer versions of binutils get fancy with ${LIBPATH} #171905
-	cd "${ED}"/${LIBPATH}
+	# Newer versions of binutils get fancy with ${LIBPATH}, bug #171905
+	cd "${ED}"/${LIBPATH} || die
 	for d in ../* ; do
 		[[ ${d} == ../${PV} ]] && continue
 		mv ${d}/* . || die
@@ -332,9 +354,9 @@ src_install() {
 	# When something is built to cross-compile, it installs into
 	# /usr/$CHOST/ by default ... we have to 'fix' that :)
 	if is_cross ; then
-		cd "${ED}"/${BINPATH}
+		cd "${ED}"/${BINPATH} || die
 		for x in * ; do
-			mv ${x} ${x/${CTARGET}-}
+			mv ${x} ${x/${CTARGET}-} || die
 		done
 
 		if [[ -d ${ED}/usr/${CHOST}/${CTARGET} ]] ; then
@@ -343,6 +365,7 @@ src_install() {
 			rm -r "${ED}"/usr/${CHOST}/{include,lib}
 		fi
 	fi
+
 	insinto ${INCPATH}
 	local libiberty_headers=(
 		# Not all the libiberty headers.  See libiberty/Makefile.in:install_to_libdir.
@@ -356,8 +379,8 @@ src_install() {
 	)
 	doins "${libiberty_headers[@]/#/${S}/include/}"
 	if [[ -d ${ED}/${LIBPATH}/lib ]] ; then
-		mv "${ED}"/${LIBPATH}/lib/* "${ED}"/${LIBPATH}/
-		rm -r "${ED}"/${LIBPATH}/lib
+		mv "${ED}"/${LIBPATH}/lib/* "${ED}"/${LIBPATH}/ || die
+		rm -r "${ED}"/${LIBPATH}/lib || die
 	fi
 
 	# Generate an env.d entry for this binutils
@@ -371,22 +394,34 @@ src_install() {
 
 	# Handle documentation
 	if ! is_cross ; then
-		cd "${S}"
+		cd "${S}" || die
 		dodoc README
+
 		docinto bfd
 		dodoc bfd/ChangeLog* bfd/README bfd/PORTING bfd/TODO
+
 		docinto binutils
 		dodoc binutils/ChangeLog binutils/NEWS binutils/README
+
 		docinto gas
 		dodoc gas/ChangeLog* gas/CONTRIBUTORS gas/NEWS gas/README*
+
 		docinto gprof
 		dodoc gprof/ChangeLog* gprof/TEST gprof/TODO gprof/bbconv.pl
+
 		docinto ld
 		dodoc ld/ChangeLog* ld/README ld/NEWS ld/TODO
+
 		docinto libiberty
 		dodoc libiberty/ChangeLog* libiberty/README
+
 		docinto opcodes
 		dodoc opcodes/ChangeLog*
+	fi
+
+	if ! is_cross && use emacs ; then
+		elisp-install ${PN} "${S}"/binutils/dwarf-mode.el{,c}
+		elisp-site-file-install "${FILESDIR}/50${PN}-gentoo.el"
 	fi
 
 	# Remove shared info pages
@@ -400,6 +435,8 @@ pkg_postinst() {
 	# Make sure this ${CTARGET} has a binutils version selected
 	[[ -e ${EROOT}/etc/env.d/binutils/config-${CTARGET} ]] && return 0
 	binutils-config ${CTARGET}-${PV}
+
+	! is_cross && use emacs && elisp-site-regen
 }
 
 pkg_postrm() {
@@ -423,6 +460,8 @@ pkg_postrm() {
 	elif [[ $(CHOST=${CTARGET} binutils-config -c) == ${CTARGET}-${PV} ]] ; then
 		binutils-config ${CTARGET}-${PV}
 	fi
+
+	! is_cross && use emacs && elisp-site-regen
 }
 
 # Note [slotting support]

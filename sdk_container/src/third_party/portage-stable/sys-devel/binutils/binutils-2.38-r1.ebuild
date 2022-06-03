@@ -1,14 +1,14 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit eutils libtool flag-o-matic gnuconfig multilib toolchain-funcs
+inherit libtool flag-o-matic gnuconfig strip-linguas toolchain-funcs
 
 DESCRIPTION="Tools necessary to build programs"
 HOMEPAGE="https://sourceware.org/binutils/"
 LICENSE="GPL-3+"
-IUSE="cet default-gold doc +gold multitarget +nls +plugins static-libs test vanilla"
+IUSE="cet default-gold doc +gold multitarget +nls pgo +plugins static-libs test vanilla"
 REQUIRED_USE="default-gold? ( gold )"
 
 # Variables that can be set here  (ignored for live ebuilds)
@@ -19,7 +19,7 @@ REQUIRED_USE="default-gold? ( gold )"
 # PATCH_DEV          - Use download URI https://dev.gentoo.org/~{PATCH_DEV}/distfiles/...
 #                      for the patchsets
 
-PATCH_VER=0
+PATCH_VER=3
 PATCH_DEV=dilfridge
 
 if [[ ${PV} == 9999* ]]; then
@@ -32,7 +32,6 @@ else
 	[[ -z ${PATCH_VER} ]] || SRC_URI="${SRC_URI}
 		https://dev.gentoo.org/~${PATCH_DEV}/distfiles/binutils-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz"
 	SLOT=$(ver_cut 1-2)
-	# live ebuild
 	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 fi
 
@@ -82,13 +81,16 @@ src_unpack() {
 		EGIT_CHECKOUT_DIR=${S}
 		git-r3_src_unpack
 	else
-		unpack ${P}.tar.xz
+		unpack ${P/-hppa64/}.tar.xz
 
 		cd "${WORKDIR}" || die
 		unpack binutils-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz
 
 		# _p patch versions are Gentoo specific tarballs ...
-		S=${WORKDIR}/${P%_p?}
+		local dir=${P%_p?}
+		dir=${dir/-hppa64/}
+
+		S=${WORKDIR}/${dir}
 	fi
 
 	cd "${WORKDIR}" || die
@@ -103,18 +105,11 @@ src_prepare() {
 		patchsetname="${PATCH_BINUTILS_VER}-${PATCH_VER}"
 	fi
 
-	if [[ ! -z ${PATCH_VER} ]] || [[ ${PV} == 9999* ]] ; then
+	if [[ -n ${PATCH_VER} ]] || [[ ${PV} == 9999* ]] ; then
 		if ! use vanilla; then
 			einfo "Applying binutils patchset ${patchsetname}"
 			eapply "${WORKDIR}/patch"
 			einfo "Done."
-		fi
-	fi
-
-	# This check should probably go somewhere else, like pkg_pretend.
-	if [[ ${CTARGET} == *-uclibc* ]] ; then
-		if grep -qs 'linux-gnu' "${S}"/ltconfig ; then
-			die "sorry, but this binutils doesn't yet support uClibc :("
 		fi
 	fi
 
@@ -174,6 +169,8 @@ src_configure() {
 
 	# Keep things sane
 	strip-flags
+
+	use elibc_musl && append-ldflags -Wl,-z,stack-size=2097152
 
 	local x
 	echo
@@ -276,6 +273,15 @@ src_configure() {
 		# But the check does not quite work on i686: bug #760926.
 		$(use_enable cet)
 	)
+
+	if ! is_cross ; then
+		myconf+=( $(use_enable pgo pgo-build lto) )
+
+		if use pgo ; then
+			export BUILD_CFLAGS="${CFLAGS}"
+		fi
+	fi
+
 	echo ./configure "${myconf[@]}"
 	"${S}"/configure "${myconf[@]}" || die
 

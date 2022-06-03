@@ -3,15 +3,15 @@
 
 EAPI=7
 
-inherit libtool flag-o-matic gnuconfig strip-linguas toolchain-funcs
+inherit elisp-common libtool flag-o-matic gnuconfig strip-linguas toolchain-funcs
 
 DESCRIPTION="Tools necessary to build programs"
 HOMEPAGE="https://sourceware.org/binutils/"
 LICENSE="GPL-3+"
-IUSE="default-gold doc +gold multitarget +nls +plugins static-libs test"
+IUSE="cet default-gold doc emacs +gold multitarget +nls pgo +plugins static-libs test vanilla"
 REQUIRED_USE="default-gold? ( gold )"
 
-# Variables that can be set here:
+# Variables that can be set here  (ignored for live ebuilds)
 # PATCH_VER          - the patchset version
 #                      Default: empty, no patching
 # PATCH_BINUTILS_VER - the binutils version in the patchset name
@@ -19,40 +19,21 @@ REQUIRED_USE="default-gold? ( gold )"
 # PATCH_DEV          - Use download URI https://dev.gentoo.org/~{PATCH_DEV}/distfiles/...
 #                      for the patchsets
 
-PATCH_VER=3
-PATCH_DEV=slyfox
+PATCH_VER=4
+PATCH_DEV=dilfridge
 
-case ${PV} in
-	9999)
-		EGIT_REPO_URI="https://sourceware.org/git/binutils-gdb.git"
-		inherit git-r3
-		S=${WORKDIR}/binutils
-		EGIT_CHECKOUT_DIR=${S}
-		SLOT=${PV}
-		;;
-	*)
-		SRC_URI="mirror://gnu/binutils/binutils-${PV}.tar.xz"
-		SLOT=$(ver_cut 1-2)
-		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
-		;;
-esac
-
-#
-# The Gentoo patchset
-#
-PATCH_BINUTILS_VER=${PATCH_BINUTILS_VER:-${PV}}
-PATCH_DEV=${PATCH_DEV:-slyfox}
-
-[[ -z ${PATCH_VER} ]] || SRC_URI="${SRC_URI}
-	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/binutils-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz"
-
-PATCHES=(
-	# Disable gold testsuite since it always fails.
-	"${FILESDIR}/${PN}-2.29.1-nogoldtest.patch"
-
-	"${FILESDIR}"/${PN}-2.32-gcc-10.patch
-	"${FILESDIR}"/${PN}-2.33-gcc-10.patch
-)
+if [[ ${PV} == 9999* ]]; then
+	inherit git-r3
+	SLOT=${PV}
+else
+	PATCH_BINUTILS_VER=${PATCH_BINUTILS_VER:-${PV}}
+	PATCH_DEV=${PATCH_DEV:-dilfridge}
+	SRC_URI="mirror://gnu/binutils/binutils-${PV}.tar.xz https://dev.gentoo.org/~${PATCH_DEV}/distfiles/binutils-${PV}.tar.xz"
+	[[ -z ${PATCH_VER} ]] || SRC_URI="${SRC_URI}
+		https://dev.gentoo.org/~${PATCH_DEV}/distfiles/binutils-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz"
+	SLOT=$(ver_cut 1-2)
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+fi
 
 #
 # The cross-compile logic
@@ -71,10 +52,15 @@ is_cross() { [[ ${CHOST} != ${CTARGET} ]] ; }
 RDEPEND="
 	>=sys-devel/binutils-config-3
 	sys-libs/zlib
+	emacs? ( >=app-editors/emacs-23.1:* )
 "
-DEPEND="${RDEPEND}
+DEPEND="${RDEPEND}"
+BDEPEND="
 	doc? ( sys-apps/texinfo )
-	test? ( dev-util/dejagnu )
+	test? (
+		dev-util/dejagnu
+		sys-devel/bc
+	)
 	nls? ( sys-devel/gettext )
 	sys-devel/flex
 	virtual/yacc
@@ -85,24 +71,47 @@ RESTRICT="!test? ( test )"
 MY_BUILDDIR=${WORKDIR}/build
 
 src_unpack() {
-	case ${PV} in
-		*9999)
-			git-r3_src_unpack
-			;;
-		*)
-			;;
-	esac
-	default
-	mkdir -p "${MY_BUILDDIR}"
+	if [[ ${PV} == 9999* ]] ; then
+		EGIT_REPO_URI="https://anongit.gentoo.org/git/proj/toolchain/binutils-patches.git"
+		EGIT_CHECKOUT_DIR=${WORKDIR}/patches-git
+		git-r3_src_unpack
+		mv patches-git/9999 patch || die
+
+		EGIT_REPO_URI="https://sourceware.org/git/binutils-gdb.git"
+		S=${WORKDIR}/binutils
+		EGIT_CHECKOUT_DIR=${S}
+		git-r3_src_unpack
+	else
+		unpack ${P/-hppa64/}.tar.xz
+
+		cd "${WORKDIR}" || die
+		unpack binutils-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz
+
+		# _p patch versions are Gentoo specific tarballs ...
+		local dir=${P%_p?}
+		dir=${dir/-hppa64/}
+
+		S=${WORKDIR}/${dir}
+	fi
+
+	cd "${WORKDIR}" || die
+	mkdir -p "${MY_BUILDDIR}" || die
 }
 
 src_prepare() {
-	if [[ -n ${PATCH_VER} ]] ; then
-		# Use upstream patch to enable development mode
-		rm -v "${WORKDIR}/patch"/0000-Gentoo-Git-is-development.patch || die
+	local patchsetname
+	if [[ ${PV} == 9999* ]] ; then
+		patchsetname="from git master"
+	else
+		patchsetname="${PATCH_BINUTILS_VER}-${PATCH_VER}"
+	fi
 
-		einfo "Applying binutils-${PATCH_BINUTILS_VER} patchset ${PATCH_VER}"
-		eapply "${WORKDIR}/patch"/*.patch
+	if [[ -n ${PATCH_VER} ]] || [[ ${PV} == 9999* ]] ; then
+		if ! use vanilla; then
+			einfo "Applying binutils patchset ${patchsetname}"
+			eapply "${WORKDIR}/patch"
+			einfo "Done."
+		fi
 	fi
 
 	# Make sure our explicit libdir paths don't get clobbered. #562460
@@ -144,6 +153,11 @@ toolchain-binutils_pkgversion() {
 }
 
 src_configure() {
+	# See https://www.gnu.org/software/make/manual/html_node/Parallel-Output.html
+	# Avoid really confusing logs from subconfigure spam, makes logs far
+	# more legible.
+	MAKEOPTS="--output-sync=line ${MAKEOPTS}"
+
 	# Setup some paths
 	LIBPATH=/usr/$(get_libdir)/binutils/${CTARGET}/${PV}
 	INCPATH=${LIBPATH}/include
@@ -161,6 +175,8 @@ src_configure() {
 
 	# Keep things sane
 	strip-flags
+
+	use elibc_musl && append-ldflags -Wl,-z,stack-size=2097152
 
 	local x
 	echo
@@ -218,6 +234,9 @@ src_configure() {
 	fi
 
 	myconf+=(
+		# (--disable-silent-rules should get passed automatically w/ econf which we use
+		# in >= 2.39, so can drop it then.)
+		--disable-silent-rules
 		--prefix="${EPREFIX}"/usr
 		--host=${CHOST}
 		--target=${CTARGET}
@@ -236,6 +255,10 @@ src_configure() {
 		--enable-relro
 		# Newer versions (>=2.24) make this an explicit option. #497268
 		--enable-install-libiberty
+		# Available from 2.35 on
+		--enable-textrel-check=warning
+		# Works better than vapier's patch... #808787
+		--enable-new-dtags
 		--disable-werror
 		--with-bugurl="$(toolchain-binutils_bugurl)"
 		--with-pkgversion="$(toolchain-binutils_pkgversion)"
@@ -249,7 +272,25 @@ src_configure() {
 		# Change SONAME to avoid conflict across
 		# {native,cross}/binutils, binutils-libs. #666100
 		--with-extra-soversion-suffix=gentoo-${CATEGORY}-${PN}-$(usex multitarget mt st)
+
+		# avoid automagic dependency on (currently prefix) systems
+		# systems with debuginfod library, bug #754753
+		--without-debuginfod
+
+		# Allow user to opt into CET for host libraries.
+		# Ideally we would like automagic-or-disabled here.
+		# But the check does not quite work on i686: bug #760926.
+		$(use_enable cet)
 	)
+
+	if ! is_cross ; then
+		myconf+=( $(use_enable pgo pgo-build lto) )
+
+		if use pgo ; then
+			export BUILD_CFLAGS="${CFLAGS}"
+		fi
+	fi
+
 	echo ./configure "${myconf[@]}"
 	"${S}"/configure "${myconf[@]}" || die
 
@@ -264,12 +305,14 @@ src_configure() {
 src_compile() {
 	cd "${MY_BUILDDIR}"
 	# see Note [tooldir hack for ldscripts]
-	emake tooldir="${EPREFIX}${TOOLPATH}" all
+	emake V=1 tooldir="${EPREFIX}${TOOLPATH}" all
 
 	# only build info pages if the user wants them
 	if use doc ; then
-		emake info
+		emake V=1 info
 	fi
+
+	! is_cross && use emacs && elisp-compile "${S}"/binutils/dwarf-mode.el
 
 	# we nuke the manpages when we're left with junk
 	# (like when we bootstrap, no perl -> no manpages)
@@ -282,7 +325,7 @@ src_test() {
 	# bug 637066
 	filter-flags -Wall -Wreturn-type
 
-	emake -k check
+	emake -k V=1 check
 }
 
 src_install() {
@@ -290,7 +333,7 @@ src_install() {
 
 	cd "${MY_BUILDDIR}"
 	# see Note [tooldir hack for ldscripts]
-	emake DESTDIR="${D}" tooldir="${EPREFIX}${LIBPATH}" install
+	emake V=1 DESTDIR="${D}" tooldir="${EPREFIX}${LIBPATH}" install
 	rm -rf "${ED}"/${LIBPATH}/bin
 	use static-libs || find "${ED}" -name '*.la' -delete
 
@@ -363,6 +406,11 @@ src_install() {
 		dodoc opcodes/ChangeLog*
 	fi
 
+	if ! is_cross && use emacs ; then
+		elisp-install ${PN} "${S}"/binutils/dwarf-mode.el{,c}
+		elisp-site-file-install "${FILESDIR}/50${PN}-gentoo.el"
+	fi
+
 	# Remove shared info pages
 	rm -f "${ED}"/${DATAPATH}/info/{dir,configure.info,standards.info}
 
@@ -374,6 +422,8 @@ pkg_postinst() {
 	# Make sure this ${CTARGET} has a binutils version selected
 	[[ -e ${EROOT}/etc/env.d/binutils/config-${CTARGET} ]] && return 0
 	binutils-config ${CTARGET}-${PV}
+
+	! is_cross && use emacs && elisp-site-regen
 }
 
 pkg_postrm() {
@@ -397,6 +447,8 @@ pkg_postrm() {
 	elif [[ $(CHOST=${CTARGET} binutils-config -c) == ${CTARGET}-${PV} ]] ; then
 		binutils-config ${CTARGET}-${PV}
 	fi
+
+	! is_cross && use emacs && elisp-site-regen
 }
 
 # Note [slotting support]
