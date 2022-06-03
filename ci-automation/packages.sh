@@ -175,9 +175,12 @@ function _packages_build_impl() {
     docker_commit_to_buildcache "${packages_container}" "${packages_image}" "${docker_vernum}"
 
     # Publish torcx manifest and docker tarball to "images" cache so tests can pull it later.
-    copy_to_buildcache "images/${arch}/${vernum}/torcx" \
-        "${torcx_tmp}/torcx/${arch}-usr/latest/torcx_manifest.json"
-    copy_to_buildcache "images/${arch}/${vernum}/torcx" \
+    sign_artifacts "${SIGNER}" \
+        "${torcx_tmp}/torcx/${arch}-usr/latest/torcx_manifest.json" \
         "${torcx_tmp}/torcx/pkgs/${arch}-usr/docker/"*/*.torcx.tgz
+    copy_to_buildcache "images/${arch}/${vernum}/torcx" \
+        "${torcx_tmp}/torcx/${arch}-usr/latest/torcx_manifest.json"*
+    copy_to_buildcache "images/${arch}/${vernum}/torcx" \
+        "${torcx_tmp}/torcx/pkgs/${arch}-usr/docker/"*/*.torcx.tgz*
 }
 # --
