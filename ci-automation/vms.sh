@@ -25,11 +25,22 @@
 #   2. Image formats to be built. Can be multiple, separated by spaces.
 #      Run ./image_to_vm.sh -h in the SDK to get a list of supported images.
 #
+# OPTIONAL INPUT:
+#
+#   1. SIGNER. Environment variable. Name of the owner of the artifact signing key.
+#        Defaults to nothing if not set - in such case, artifacts will not be signed.
+#        If provided, SIGNING_KEY environment variable should also be provided, otherwise this environment variable will be ignored.
+#
+#   2. SIGNING_KEY. Environment variable. The artifact signing key.
+#        Defaults to nothing if not set - in such case, artifacts will not be signed.
+#        If provided, SIGNER environment variable should also be provided, otherwise this environment variable will be ignored.
+#
 # OUTPUT:
 #
 #   1. Exported VM image(s), pushed to buildcache ( images/[ARCH]/[FLATCAR_VERSION]/ )
 #   2. "./ci-cleanup.sh" with commands to clean up temporary build resources,
 #        to be run after this step finishes / when this step is aborted.
+#   3. If signer key was passed, signatures of artifacts from point 1, pushed along to buildcache.
 
 function vm_build() {
     # Run a subshell, so the traps, environment changes and global
@@ -48,6 +59,7 @@ function _vm_build_impl() {
     # $@ now contains image formats to build
 
     source ci-automation/ci_automation_common.sh
+    source ci-automation/gpg_setup.sh
     init_submodules
 
     source sdk_container/.repo/manifests/version.txt
