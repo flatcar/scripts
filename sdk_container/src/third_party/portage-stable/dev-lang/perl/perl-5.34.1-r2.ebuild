@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -6,7 +6,7 @@ EAPI=7
 inherit alternatives flag-o-matic toolchain-funcs multilib multiprocessing
 
 PATCH_VER=1
-CROSS_VER=1.3.6
+CROSS_VER=1.3.7
 PATCH_BASE="perl-5.34.0-patches-${PATCH_VER}"
 PATCH_DEV=dilfridge
 
@@ -14,11 +14,8 @@ DIST_AUTHOR=XSAWYERX
 
 # Greatest first, don't include yourself
 # Devel point-releases are not ABI-intercompatible, but stable point releases are
-# BIN_OLDVERSEN is contains only C-ABI-intercompatible versions
+# BIN_OLDVERSEN contains only C-ABI-intercompatible versions
 PERL_BIN_OLDVERSEN=""
-
-# Yes we can.
-PERL_SINGLE_SLOT=y
 
 if [[ "${PV##*.}" == "9999" ]]; then
 	DIST_VERSION=5.30.0
@@ -26,6 +23,7 @@ else
 	DIST_VERSION="${PV/_rc/-RC}"
 fi
 SHORT_PV="${DIST_VERSION%.*}"
+
 # Even numbered major versions are ABI intercompatible
 # Odd numbered major versions are not
 if [[ $(( ${SHORT_PV#*.} % 2 )) == 1 ]]; then
@@ -33,6 +31,7 @@ if [[ $(( ${SHORT_PV#*.} % 2 )) == 1 ]]; then
 else
 	SUBSLOT="${DIST_VERSION%.*}"
 fi
+
 # Used only in tar paths
 MY_P="perl-${DIST_VERSION}"
 # Used in library paths
@@ -53,10 +52,10 @@ LICENSE="|| ( Artistic GPL-1+ )"
 SLOT="0/${SUBSLOT}"
 
 if [[ "${PV##*.}" != "9999" ]] && [[ "${PV/rc//}" == "${PV}" ]] ; then
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 fi
 
-IUSE="berkdb debug doc gdbm ithreads minimal"
+IUSE="berkdb debug doc gdbm ithreads minimal quadmath"
 
 RDEPEND="
 	berkdb? ( sys-libs/db:= )
@@ -71,6 +70,7 @@ BDEPEND="${RDEPEND}"
 PDEPEND="
 	!minimal? (
 		>=app-admin/perl-cleaner-2.5
+		>=virtual/perl-CPAN-2.290.0
 		>=virtual/perl-Encode-3.120.0
 		>=virtual/perl-File-Temp-0.230.400-r2
 		>=virtual/perl-Data-Dumper-2.154.0
@@ -86,12 +86,12 @@ dual_scripts() {
 	src_remove_dual      perl-core/Archive-Tar        2.380.0       ptar ptardiff ptargrep
 	src_remove_dual      perl-core/CPAN               2.280.0       cpan
 	src_remove_dual      perl-core/Digest-SHA         6.20.0        shasum
-	src_remove_dual      perl-core/Encode             3.80.0        enc2xs piconv
+	src_remove_dual      perl-core/Encode             3.80.100_rc   enc2xs piconv
 	src_remove_dual      perl-core/ExtUtils-MakeMaker 7.620.0       instmodsh
 	src_remove_dual      perl-core/ExtUtils-ParseXS   3.430.0       xsubpp
 	src_remove_dual      perl-core/IO-Compress        2.102.0        zipdetails
 	src_remove_dual      perl-core/JSON-PP            4.60.0        json_pp
-	src_remove_dual      perl-core/Module-CoreList    5.202.105.200 corelist
+	src_remove_dual      perl-core/Module-CoreList    5.202.203.130 corelist
 	src_remove_dual      perl-core/Pod-Checker        1.740.0       podchecker
 	src_remove_dual      perl-core/Pod-Perldoc        3.280.100     perldoc
 	src_remove_dual      perl-core/Pod-Usage          2.10.0       pod2usage
@@ -126,13 +126,16 @@ check_rebuild() {
 		return 0;
 
 	# Reinstall w/ USE Change
-	elif (   use ithreads && ! has_version dev-lang/perl[ithreads] ) || \
+	elif
+		 (   use ithreads && ! has_version dev-lang/perl[ithreads] ) || \
 		 ( ! use ithreads &&   has_version dev-lang/perl[ithreads] ) || \
+		 (   use quadmath && ! has_version dev-lang/perl[quadmath] ) || \
+		 ( ! use quadmath &&   has_version dev-lang/perl[quadmath] ) || \
 		 (   use debug    && ! has_version dev-lang/perl[debug]    ) || \
 		 ( ! use debug    &&   has_version dev-lang/perl[debug]    ) ; then
 		echo ""
 		ewarn "TOGGLED USE-FLAGS WARNING:"
-		ewarn "You changed one of the use-flags ithreads or debug."
+		ewarn "You changed one of the use-flags ithreads, quadmath, or debug."
 		ewarn "You must rebuild all perl-modules installed."
 		ewarn "Use: perl-cleaner --modules ; perl-cleaner --force --libperl"
 	fi
@@ -154,6 +157,9 @@ pkg_setup() {
 	if use debug ; then
 		myarch+="-debug"
 	fi
+	if use quadmath ; then
+		myarch+="-quadmath"
+	fi
 	if use ithreads ; then
 		mythreading="-multi"
 		myarch+="-thread"
@@ -165,24 +171,12 @@ pkg_setup() {
 
 	LIBPERL="libperl$(get_libname ${MY_PV} )"
 
-	# This ENV var tells perl to build with a directory like "5.30"
-	# regardless of its patch version. This is for experts only
-	# at this point.
-	if [[ -z "${PERL_SINGLE_SLOT}" ]]; then
-		PRIV_LIB="${PRIV_BASE}/${MY_PV}"
-		ARCH_LIB="${PRIV_BASE}/${MY_PV}/${myarch}${mythreading}"
-		SITE_LIB="${SITE_BASE}/${MY_PV}"
-		SITE_ARCH="${SITE_BASE}/${MY_PV}/${myarch}${mythreading}"
-		VENDOR_LIB="${VENDOR_BASE}/${MY_PV}"
-		VENDOR_ARCH="${VENDOR_BASE}/${MY_PV}/${myarch}${mythreading}"
-	else
-		PRIV_LIB="${PRIV_BASE}/${SUBSLOT}"
-		ARCH_LIB="${PRIV_BASE}/${SUBSLOT}/${myarch}${mythreading}"
-		SITE_LIB="${SITE_BASE}/${SUBSLOT}"
-		SITE_ARCH="${SITE_BASE}/${SUBSLOT}/${myarch}${mythreading}"
-		VENDOR_LIB="${VENDOR_BASE}/${SUBSLOT}"
-		VENDOR_ARCH="${VENDOR_BASE}/${SUBSLOT}/${myarch}${mythreading}"
-	fi
+	PRIV_LIB="${PRIV_BASE}/${SUBSLOT}"
+	ARCH_LIB="${PRIV_BASE}/${SUBSLOT}/${myarch}${mythreading}"
+	SITE_LIB="${SITE_BASE}/${SUBSLOT}"
+	SITE_ARCH="${SITE_BASE}/${SUBSLOT}/${myarch}${mythreading}"
+	VENDOR_LIB="${VENDOR_BASE}/${SUBSLOT}"
+	VENDOR_ARCH="${VENDOR_BASE}/${SUBSLOT}/${myarch}${mythreading}"
 
 	dual_scripts
 }
@@ -264,6 +258,7 @@ src_prepare_perlcross() {
 	MAKEOPTS+=" -j1"
 	export MAKEOPTS
 }
+
 src_prepare_dynamic() {
 	ln -s ${LIBPERL} libperl$(get_libname ${SHORT_PV}) || die
 	ln -s ${LIBPERL} libperl$(get_libname ) || die
@@ -292,9 +287,10 @@ add_patch() {
 		printf "%s\n" "$@" > "${infodir}/${dest_name}.bugs" || die "Couldn't write ${dest_name}.bugs"
 	fi
 }
+
 # Remove a patch using a glob expr
 # eg:
-#	 rm_patch *-darin-Use-CC*
+#	 rm_patch *-darwin-Use-CC*
 #
 rm_patch() {
 	local patchdir="${WORKDIR}/patches"
@@ -307,6 +303,7 @@ rm_patch() {
 		ewarn "No ${expr} found in ${patchdir} to remove"
 	fi
 }
+
 # Yes, this is a reasonable amount of code for something seemingly simple
 # but this is far easier to debug when things go wrong, and things went wrong
 # multiple times while I was getting the exact number of slashes right, which
@@ -388,6 +385,7 @@ apply_patchdir() {
 	printf "%s\n" "${patchoutput}" >> "${S}/MANIFEST"
 
 }
+
 src_prepare() {
 	local patchdir="${WORKDIR}/patches"
 
@@ -397,6 +395,12 @@ src_prepare() {
 	# add_patch "${FILESDIR}/${PN}-5.26.2-hppa.patch" "100-5.26.2-hppa.patch"\
 	#		"Fix broken miniperl on hppa"\
 	#		"https://bugs.debian.org/869122" "https://bugs.gentoo.org/634162"
+
+	if use prefix ; then
+		add_patch "${FILESDIR}/${PN}"-5.34.0-fallback-getcwd-pwd.patch "0102-5.34.0-fallback-get-cwd-pwd.patch"\
+			"Fix installation during Prefix bootstrap (finding 'pwd' from coreutils)"\
+			"https://bugs.gentoo.org/818172"
+	fi
 
 	if [[ ${CHOST} == *-solaris* ]] ; then
 		# do NOT mess with nsl, on Solaris this is always necessary,
@@ -428,6 +432,12 @@ src_prepare() {
 	if [[ ${CHOST} == *-darwin* ]] ; then
 		# fix install_name (soname) not to reference $D
 		sed -i -e '/install_name `pwd/s/`pwd`/\\$(shrpdir)/' Makefile.SH || die
+
+		# fix environ linkage absence (only a real issue on Darwin9)
+		if [[ ${CHOST##*-darwin} -le 9 ]] ; then
+			sed -i -e '/^PLDLFLAGS =/s/=/= -include crt_externs.h -Denviron="(*_NSGetEnviron())"/' \
+				Makefile.SH || die
+		fi
 	fi
 
 	default
@@ -444,16 +454,10 @@ myconf() {
 #  /usr/local/lib64/perl5/<NUMBER>
 #  /usr/lib64/perl5/vendor_perl/<NUMBER>
 #
-# All values of NUMBER must be like "5.x.y", unless PERL_SUPPORT_SINGLE_SLOT
-# is enabled, where it will also allow numbers like "5.x"
+# All values of NUMBER must be like "5.x.y" or like "5.x"
 #
-# PERL_SUPPORT_SINGLE_SLOT should only be used to transition *away* from PERL_SINGLE_SLOT
-# if you used that.
 find_candidate_inc_versions() {
-	local regex='.*/5[.][0-9]+[.][0-9]+$';
-	if [[ ! -z "${PERL_SUPPORT_SINGLE_SLOT}" || ! -z "${PERL_SINGLE_SLOT}" ]]; then
-		regex='.*/5[.][0-9]+\([.][0-9]+\|\)$'
-	fi
+	local regex='.*/5[.][0-9]+\([.][0-9]+\|\)$'
 	local dirs=(
 		"${EROOT}${PRIV_BASE}"
 		"${EROOT}${SITE_BASE}"
@@ -477,13 +481,11 @@ find_candidate_inc_versions() {
 	einfo "Scanning for old @INC dirs matching '$regex' in: ${dirs[*]}"
 	find "${dirs[@]}" -maxdepth 1 -mindepth 1 -type d -regex "${regex}" -printf "%f "  2>/dev/null
 }
+
 # Sort versions passed versiony-ly, remove self-version if present
 # dedup. Takes each version as an argument
 sanitize_inc_versions() {
-	local vexclude="${DIST_VERSION%-RC}"
-	if [[ ! -z "${PERL_SINGLE_SLOT}" ]]; then
-		vexclude="${SUBSLOT}"
-	fi
+	local vexclude="${SUBSLOT}"
 	einfo "Normalizing/Sorting candidate list: $*"
 	einfo " to remove '${vexclude}'"
 	# Note, general numeric sort has to be used
@@ -495,22 +497,18 @@ sanitize_inc_versions() {
 }
 
 versions_to_inclist() {
-	local oldv="${PERL_BIN_OLDVERSEN}"
-	if [[ ! -z "${PERL_SINGLE_SLOT}" ]]; then
-		oldv="${DIST_VERSION%-RC} ${PERL_BIN_OLDVERSEN}"
-	fi
+	local oldv="${DIST_VERSION%-RC} ${PERL_BIN_OLDVERSEN}"
+
 	for v;	do
 			has "${v}" ${oldv} && echo -n "${v}/${myarch}${mythreading}/ ";
 			echo -n "${v}/ ";
 	done
 }
+
 versions_to_gentoolibdirs() {
-	local oldv="${PERL_BIN_OLDVERSEN}"
+	local oldv="${DIST_VERSION%-RC} ${PERL_BIN_OLDVERSEN}"
 	local root
 	local v
-	if [[ ! -z "${PERL_SINGLE_SLOT}" ]]; then
-		oldv="${DIST_VERSION%-RC} ${PERL_BIN_OLDVERSEN}"
-	fi
 	for v;	do
 		for root in "${PRIV_BASE}" "${VENDOR_BASE}" "${SITE_BASE}"; do
 			local fullpath="${EROOT}${root}/${v}"
@@ -577,6 +575,8 @@ src_configure() {
 
 	use ithreads && myconf -Dusethreads
 
+	use quadmath && myconf -Dusequadmath
+
 	if use debug ; then
 		append-cflags "-g"
 		myconf -DDEBUGGING
@@ -624,9 +624,11 @@ src_configure() {
 		myconf "-Dld=env MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} $(tc-getCC)"
 
 	# Older macOS with non-Apple GCC chokes on inline in system headers
-	# using c89 mode as injected by cflags.SH
+	# using c89 mode as injected by cflags.SH, in addition, we override
+	# cflags, so we loose PERL_DARWIN which enables compat code that
+	# apparently on more recent macOS releases is no longer necessary
 	[[ ${CHOST} == *-darwin* && ${CHOST##*darwin} -le 9 ]] && tc-is-gcc && \
-		append-cflags -Dinline=__inline__
+		append-cflags -Dinline=__inline__ -DPERL_DARWIN
 
 	# flock on 32-bit sparc Solaris is broken, fall back to fcntl
 	[[ ${CHOST} == sparc-*-solaris* ]] && \
@@ -676,6 +678,7 @@ src_configure() {
 		-Dnm="$(tc-getNM)" \
 		-Dcpp="$(tc-getCPP)" \
 		-Dranlib="$(tc-getRANLIB)" \
+		-Accflags="${CFLAGS}" \
 		-Doptimize="${CFLAGS}" \
 		-Dldflags="${LDFLAGS}" \
 		-Dprefix="${EPREFIX}"'/usr' \
@@ -708,7 +711,6 @@ src_configure() {
 		-Dsh="${EPREFIX}"/bin/sh \
 		-Dtargetsh="${EPREFIX}"/bin/sh \
 		-Uusenm \
-		"${myconf[@]}" \
 		"${EXTRA_ECONF[@]}"
 
 	if tc-is-cross-compiler; then
@@ -795,7 +797,7 @@ pkg_preinst() {
 pkg_postinst() {
 	dual_scripts
 
-	if [[ "${ROOT}" = "/" ]] ; then
+	if [[ -z "${ROOT}" ]] ; then
 		local INC DIR file
 		INC=$(perl -e 'for $line (@INC) { next if $line eq "."; next if $line =~ m/'${SHORT_PV}'|etc|local|perl$/; print "$line\n" }')
 		einfo "Removing old .ph files"
