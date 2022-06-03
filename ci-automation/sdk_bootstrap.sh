@@ -39,6 +39,14 @@
 #   5. ARCH. Environment variable. Target architecture for the SDK to run on.
 #        Either "amd64" or "arm64"; defaults to "amd64" if not set.
 #
+#   6. SIGNER. Environment variable. Name of the owner of the artifact signing key.
+#        Defaults to nothing if not set - in such case, artifacts will not be signed.
+#        If provided, SIGNING_KEY environment variable should also be provided, otherwise this environment variable will be ignored.
+#
+#   7. SIGNING_KEY. Environment variable. The artifact signing key.
+#        Defaults to nothing if not set - in such case, artifacts will not be signed.
+#        If provided, SIGNER environment variable should also be provided, otherwise this environment variable will be ignored.
+#
 # OUTPUT:
 #
 #   1. SDK tarball (gentoo catalyst output) of the new SDK, pushed to buildcache.
@@ -47,10 +55,20 @@
 #        - sdk_container/.repo/manifests/version.txt denotes new SDK version
 #   3. "./ci-cleanup.sh" with commands to clean up temporary build resources,
 #        to be run after this step finishes / when this step is aborted.
-
-set -eu
+#   4. If signer key was passed, signatures of artifacts from point 1, pushed along to buildcache.
 
 function sdk_bootstrap() {
+    # Run a subshell, so the traps, environment changes and global
+    # variables are not spilled into the caller.
+    (
+        set -euo pipefail
+
+        _sdk_bootstrap_impl "${@}"
+    )
+}
+# --
+
+function _sdk_bootstrap_impl() {
     local seed_version="$1"
     local version="$2"
     local coreos_git="${3-}"
@@ -58,6 +76,7 @@ function sdk_bootstrap() {
     : ${ARCH:="amd64"}
 
     source ci-automation/ci_automation_common.sh
+    source ci-automation/gpg_setup.sh
     init_submodules
 
     check_version_string "${version}"
@@ -115,7 +134,15 @@ function sdk_bootstrap() {
     source sdk_container/.repo/manifests/version.txt
     local dest_tarball="flatcar-sdk-${ARCH}-${FLATCAR_SDK_VERSION}.tar.bz2"
 
+    # change the owner of the files and directories in __build__ back
+    # to ourselves, otherwise we could fail to sign the artifacts as
+    # we lacked write permissions in the directory of the signed
+    # artifact
+    local uid=$(id --user)
+    local gid=$(id --group)
+    sudo chown --recursive "${uid}:${gid}" __build__
     cd "__build__/images/catalyst/builds/flatcar-sdk"
+    sign_artifacts "${SIGNER}" "${dest_tarball}"*
     copy_to_buildcache "sdk/${ARCH}/${FLATCAR_SDK_VERSION}" "${dest_tarball}"*
     cd -
 }
