@@ -19,22 +19,41 @@
 #       SDK tarball is available on BUILDCACHE/sdk/[ARCH]/[VERSION]/flatcar-sdk-[ARCH]-[VERSION].tar.bz2
 #
 # OPTIONAL INPUT:
-
+#
 #   2. ARCH. Environment variable. Target architecture for the SDK to run on.
 #        Either "amd64" or "arm64"; defaults to "amd64" if not set.
+#
+#   3. SIGNER. Environment variable. Name of the owner of the artifact signing key.
+#        Defaults to nothing if not set - in such case, artifacts will not be signed.
+#        If provided, SIGNING_KEY environment variable should also be provided, otherwise this environment variable will be ignored.
+#
+#   4. SIGNING_KEY. Environment variable. The artifact signing key.
+#        Defaults to nothing if not set - in such case, artifacts will not be signed.
+#        If provided, SIGNER environment variable should also be provided, otherwise this environment variable will be ignored.
 #
 # OUTPUT:
 #
 #   1. SDK container image of the new SDK, published to buildcache.
 #   2. "./ci-cleanup.sh" with commands to clean up temporary build resources,
 #        to be run after this step finishes / when this step is aborted.
-
-set -eu
+#   3. If signer key was passed, signatures of artifacts from point 1, pushed along to buildcache.
 
 function sdk_container_build() {
+    # Run a subshell, so the traps, environment changes and global
+    # variables are not spilled into the caller.
+    (
+        set -euo pipefail
+
+        _sdk_container_build_impl "${@}"
+    )
+}
+# --
+
+function _sdk_container_build_impl() {
     : ${ARCH:="amd64"}
 
     source ci-automation/ci_automation_common.sh
+    source ci-automation/gpg_setup.sh
 
     init_submodules
 

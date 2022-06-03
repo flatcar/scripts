@@ -201,6 +201,7 @@ function setup_sdk_env() {
         GIT_COMMITTER_EMAIL GIT_COMMITTER_NAME \
         GIT_PROXY_COMMAND GIT_SSH RSYNC_PROXY \
         GPG_AGENT_INFO FORCE_STAGES \
+        SIGNER \
         all_proxy ftp_proxy http_proxy https_proxy no_proxy; do
 
         if [ -n "${!var:-}" ] ; then

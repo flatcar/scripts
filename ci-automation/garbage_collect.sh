@@ -24,10 +24,19 @@
 #   in the scripts repo. The newest 50 builds will be retained,
 #   all older builds will be purged (50 is the default, see OPTIONAL INPUT above).
 
-set -eu
-
 function garbage_collect() {
-    local keep="${1:-50}" 
+    # Run a subshell, so the traps, environment changes and global
+    # variables are not spilled into the caller.
+    (
+        set -euo pipefail
+
+        _garbage_collect_impl "${@}"
+    )
+}
+# --
+
+function _garbage_collect_impl() {
+    local keep="${1:-50}"
     local dry_run="${DRY_RUN:-}"
     local purge_versions="${PURGE_VERSIONS:-}"
 
@@ -53,7 +62,7 @@ function garbage_collect() {
 
     local sshcmd="$(gen_sshcmd)"
 
-    echo 
+    echo
     echo "######## The following version(s) will be purged ########"
     if [ "$dry_run" = "y" ] ; then
         echo
@@ -61,13 +70,13 @@ function garbage_collect() {
         echo
     fi
     echo "${purge_versions}" | awk -v keep="${keep}" '{if ($0 == "") next; printf "%5d %s\n", NR + keep - 1, $0}'
-    echo 
-    echo 
+    echo
+    echo
 
     local version
     for version in ${purge_versions}; do
         echo "--------------------------------------------"
-        echo 
+        echo
         echo "#### Processing version '${version}' ####"
         echo
 
@@ -144,3 +153,4 @@ function garbage_collect() {
       --env VMWARE_ESX_CREDS \
       -w /work -v "$PWD":/work "${mantle_ref}" /work/ci-automation/garbage_collect_cloud.sh
 }
+# --
