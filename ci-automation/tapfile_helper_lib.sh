@@ -6,7 +6,7 @@
 
 # Helper script for extracting information from TAP files and for merging multiple
 #  TAP files into one report.
-# The script uses a temporary SQLite DB for querzing and for result generation.
+# The script uses a temporary SQLite DB for querying and for result generation.
 #
 # Brief usage overview (scroll down for parameters etc.):
 #   tap_ingest_tapfile - add test results from tap file to the DB 
