@@ -49,7 +49,15 @@ function image_build__copy_to_bincache() {
 
     source ci-automation/ci_automation_common.sh
 
+    # change the owner of the files and directories in __build__ back
+    # to ourselves, otherwise we could fail to sign the artifacts as
+    # we lacked write permissions in the directory of the signed
+    # artifact
+    local uid=$(id --user)
+    local gid=$(id --group)
     cd /build/$arch-usr/var/lib/portage/pkgs/
+    sudo chown --recursive "${uid}:${gid}" .
+    sign_artifacts "${SIGNER}" *
     copy_to_buildcache "boards/$arch-usr/$version/pkgs" *
 }
 # --
