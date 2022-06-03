@@ -25,11 +25,22 @@
 #
 #   1. Architecture (ARCH) of the TARGET OS image ("arm64", "amd64").
 #
+# OPTIONAL INPUT:
+#
+#   1. SIGNER. Environment variable. Name of the owner of the artifact signing key.
+#        Defaults to nothing if not set - in such case, artifacts will not be signed.
+#        If provided, SIGNING_KEY environment variable should also be provided, otherwise this environment variable will be ignored.
+#
+#   2. SIGNING_KEY. Environment variable. The artifact signing key.
+#        Defaults to nothing if not set - in such case, artifacts will not be signed.
+#        If provided, SIGNER environment variable should also be provided, otherwise this environment variable will be ignored.
+#
 # OUTPUT:
 #
 #   1. Binary packages published to buildcache at "boards/[ARCH]-usr/[VERSION]/pkgs".
 #   2. "./ci-cleanup.sh" with commands to clean up temporary build resources,
 #        to be run after this step finishes / when this step is aborted.
+#   3. If signer key was passed, signatures of artifacts from point 1, pushed along to buildcache.
 
 # This function is run _inside_ the SDK container
 function image_build__copy_to_bincache() {
@@ -58,6 +69,7 @@ function _push_packages_impl() {
     local arch="$1"
 
     source ci-automation/ci_automation_common.sh
+    source ci-automation/gpg_setup.sh
     init_submodules
 
     source sdk_container/.repo/manifests/version.txt
