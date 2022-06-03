@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 inherit flag-o-matic libtool multilib-minimal toolchain-funcs
 
@@ -11,11 +11,11 @@ SRC_URI="https://github.com/westes/${PN}/releases/download/v${PV}/${P}.tar.gz"
 
 LICENSE="FLEX"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="nls static test"
 RESTRICT="!test? ( test )"
 
-# We want bison explicitly and not yacc in general #381273
+# We want bison explicitly and not yacc in general, bug #381273
 RDEPEND="sys-devel/m4"
 BDEPEND="${RDEPEND}
 	nls? ( sys-devel/gettext )
@@ -30,13 +30,15 @@ src_prepare() {
 	default
 
 	# Disable running in the tests/ subdir as it has a bunch of built sources
-	# that cannot be made conditional (automake limitation). #568842
+	# that cannot be made conditional (automake limitation). bug #568842
 	if ! use test ; then
 		sed -i \
 			-e '/^SUBDIRS =/,/^$/{/tests/d}' \
 			Makefile.in || die
 	fi
-	elibtoolize # Prefix always needs this
+
+	# Prefix always needs this
+	elibtoolize
 }
 
 src_configure() {
@@ -46,9 +48,17 @@ src_configure() {
 }
 
 multilib_src_configure() {
-	# Do not install shared libs #503522
-	ECONF_SOURCE=${S} \
-	econf \
+	if tc-is-cross-compiler ; then
+		# Similar to workaround for procps:
+		# - bug #705800
+		# - https://sourceforge.net/p/psmisc/bugs/71/
+		# - https://lists.gnu.org/archive/html/autoconf/2011-04/msg00019.html
+		export ac_cv_func_malloc_0_nonnull=yes \
+			ac_cv_func_realloc_0_nonnull=yes
+	fi
+
+	# Do not install shared libs, #503522
+	ECONF_SOURCE="${S}" econf \
 		CC_FOR_BUILD="$(tc-getBUILD_CC)" \
 		--disable-shared \
 		$(use_enable nls)
@@ -79,5 +89,6 @@ multilib_src_install_all() {
 	dodoc ONEWS
 	find "${ED}" -name '*.la' -type f -delete || die
 	rm "${ED}"/usr/share/doc/${PF}/COPYING || die
+
 	dosym flex /usr/bin/lex
 }
