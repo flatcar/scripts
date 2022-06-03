@@ -1,8 +1,9 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
+# Worth keeping an eye on 'develop' branch upstream for possible backports.
 AUTOTOOLS_AUTO_DEPEND="no"
 VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/madler.asc
 inherit autotools multilib-minimal usr-ldscript verify-sig
@@ -15,6 +16,7 @@ CYGWINPATCHES=(
 DESCRIPTION="Standard (de)compression library"
 HOMEPAGE="https://zlib.net/"
 SRC_URI="https://zlib.net/${P}.tar.gz
+	https://zlib.net/fossils/${P}.tar.gz
 	https://www.gzip.org/zlib/${P}.tar.gz
 	https://www.zlib.net/current/beta/${P}.tar.gz
 	verify-sig? ( https://zlib.net/${P}.tar.gz.asc )
@@ -22,7 +24,7 @@ SRC_URI="https://zlib.net/${P}.tar.gz
 
 LICENSE="ZLIB"
 SLOT="0/1" # subslot = SONAME
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt"
 IUSE="minizip static-libs"
 
 RDEPEND="!sys-libs/zlib-ng[compat]"
@@ -31,14 +33,24 @@ BDEPEND="minizip? ( ${AUTOTOOLS_DEPEND} )
 	verify-sig? ( sec-keys/openpgp-keys-madler )"
 
 PATCHES=(
-	# bug #658536
+	# Don't install unexpected & unused crypt.h header (which would clash with other pkgs)
+	# Pending upstream. bug #658536
 	"${FILESDIR}"/${PN}-1.2.11-minizip-drop-crypt-header.patch
 
-	# bug #831628
+	# Respect AR, RANLIB, NM during build. Pending upstream. bug #831628
 	"${FILESDIR}"/${PN}-1.2.11-configure-fix-AR-RANLIB-NM-detection.patch
 
+	# Respect LDFLAGS during configure tests. Pending upstream
+	"${FILESDIR}"/${PN}-1.2.12-use-LDFLAGS-in-configure.patch
+
 	# Fix broken CC logic
-	"${FILESDIR}"/${PN}-1.2.12-fix-CC-logic-in-configure.patch
+	"${FILESDIR}"/${P}-fix-CC-logic-in-configure.patch
+
+	# Backport for Java (and others), bug #836370
+	"${FILESDIR}"/${P}-CRC-buggy-input.patch
+
+	# bug #863851
+	"${FILESDIR}"/${P}-CVE-2022-37434.patch
 )
 
 src_prepare() {
