@@ -56,10 +56,18 @@
 #   3. "./ci-cleanup.sh" with commands to clean up temporary build resources,
 #        to be run after this step finishes / when this step is aborted.
 
-
-set -eu
-
 function packages_build() {
+    # Run a subshell, so the traps, environment changes and global
+    # variables are not spilled into the caller.
+    (
+        set -euo pipefail
+
+        _packages_build_impl "${@}"
+    )
+}
+# --
+
+function _packages_build_impl() {
     local version="$1"
     local arch="$2"
     local coreos_git="${3:-}"

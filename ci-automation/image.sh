@@ -32,9 +32,18 @@
 #   2. "./ci-cleanup.sh" with commands to clean up temporary build resources,
 #        to be run after this step finishes / when this step is aborted.
 
-set -eu
-
 function image_build() {
+    # Run a subshell, so the traps, environment changes and global
+    # variables are not spilled into the caller.
+    (
+        set -euo pipefail
+
+        _image_build_impl "${@}"
+    )
+}
+# --
+
+function _image_build_impl() {
     local arch="$1"
 
     source sdk_lib/sdk_container_common.sh
