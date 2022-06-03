@@ -29,9 +29,18 @@
 #   2. "./ci-cleanup.sh" with commands to clean up temporary build resources,
 #        to be run after this step finishes / when this step is aborted.
 
-set -eu
-
 function sdk_container_build() {
+    # Run a subshell, so the traps, environment changes and global
+    # variables are not spilled into the caller.
+    (
+        set -euo pipefail
+
+        _sdk_container_build_impl "${@}"
+    )
+}
+# --
+
+function _sdk_container_build_impl() {
     : ${ARCH:="amd64"}
 
     source ci-automation/ci_automation_common.sh
