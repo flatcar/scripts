@@ -45,6 +45,14 @@
 #       This version will be checked out / pulled from remote in the portage-stable git submodule.
 #       The submodule config will be updated to point to this version before the TARGET SDK tag is created and pushed.
 #
+#   5. SIGNER. Environment variable. Name of the owner of the artifact signing key.
+#        Defaults to nothing if not set - in such case, artifacts will not be signed.
+#        If provided, SIGNING_KEY environment variable should also be provided, otherwise this environment variable will be ignored.
+#
+#   6. SIGNING_KEY. Environment variable. The artifact signing key.
+#        Defaults to nothing if not set - in such case, artifacts will not be signed.
+#        If provided, SIGNER environment variable should also be provided, otherwise this environment variable will be ignored.
+#
 # OUTPUT:
 #
 #   1. Exported container image "flatcar-packages-[ARCH]-[VERSION].tar.gz" with binary packages
@@ -55,6 +63,7 @@
 #        - sdk_container/.repo/manifests/version.txt denotes new FLATCAR OS version
 #   3. "./ci-cleanup.sh" with commands to clean up temporary build resources,
 #        to be run after this step finishes / when this step is aborted.
+#   4. If signer key was passed, signatures of artifacts from point 1, pushed along to buildcache.
 
 function packages_build() {
     # Run a subshell, so the traps, environment changes and global
@@ -74,6 +83,7 @@ function _packages_build_impl() {
     local portage_git="${4:-}"
 
     source ci-automation/ci_automation_common.sh
+    source ci-automation/gpg_setup.sh
     init_submodules
 
     check_version_string "${version}"
