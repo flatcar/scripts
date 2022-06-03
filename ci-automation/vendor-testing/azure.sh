@@ -5,13 +5,12 @@
 
 set -euo pipefail
 
-
-# Test execution script for the qemu vendor image.
-# This script is supposed to run in the SDK container.
-
-# $@ now contains tests / test patterns to run
+# Test execution script for the azure vendor image.
+# This script is supposed to run in the mantle container.
 
 source ci-automation/vendor_test.sh
+
+# $@ now contains tests / test patterns to run
 
 board="${CIA_ARCH}-usr"
 basename="ci-${CIA_VERNUM//+/-}-${CIA_ARCH}"
@@ -24,13 +23,11 @@ secret_to_file azure_profile_config_file "${AZURE_PROFILE}"
 azure_auth_config_file=''
 secret_to_file azure_auth_config_file "${AZURE_AUTH_CREDENTIALS}"
 
-testscript="$(basename "$0")"
-
 # Fetch the Azure image if not present
 if [ -f "${AZURE_IMAGE_NAME}" ] ; then
-    echo "++++ ${testscript}: Using existing ${work_dir}/${AZURE_IMAGE_NAME} for testing ${CIA_VERNUM} (${CIA_ARCH}) ++++"
+    echo "++++ ${CIA_TESTSCRIPT}: Using existing ${work_dir}/${AZURE_IMAGE_NAME} for testing ${CIA_VERNUM} (${CIA_ARCH}) ++++"
 else
-    echo "++++ ${testscript}: downloading ${AZURE_IMAGE_NAME} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
+    echo "++++ ${CIA_TESTSCRIPT}: downloading ${AZURE_IMAGE_NAME} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
     copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${AZURE_IMAGE_NAME}.bz2" .
     cp --sparse=always <(lbzcat "${AZURE_IMAGE_NAME}.bz2") "${AZURE_IMAGE_NAME}"
     rm "${AZURE_IMAGE_NAME}.bz2"
@@ -62,10 +59,10 @@ run_kola_tests() {
       --azure-location="${AZURE_LOCATION}" \
       --azure-profile="${azure_profile_config_file}" \
       --azure-auth="${azure_auth_config_file}" \
-      --torcx-manifest=${CIA_TORCX_MANIFEST} \
+      --torcx-manifest="${CIA_TORCX_MANIFEST}" \
       --tapfile="${instance_tapfile}" \
-      --azure-size=${instance_type} \
-      --azure-hyper-v-generation=${hyperv_gen} \
+      --azure-size="${instance_type}" \
+      --azure-hyper-v-generation="${hyperv_gen}" \
       ${AZURE_USE_GALLERY} \
       ${azure_vnet_subnet_name:+--azure-vnet-subnet-name=${azure_vnet_subnet_name}} \
       ${AZURE_USE_PRIVATE_IPS:+--azure-use-private-ips=${AZURE_USE_PRIVATE_IPS}} \
