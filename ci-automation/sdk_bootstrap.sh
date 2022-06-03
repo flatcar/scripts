@@ -48,9 +48,18 @@
 #   3. "./ci-cleanup.sh" with commands to clean up temporary build resources,
 #        to be run after this step finishes / when this step is aborted.
 
-set -eu
-
 function sdk_bootstrap() {
+    # Run a subshell, so the traps, environment changes and global
+    # variables are not spilled into the caller.
+    (
+        set -euo pipefail
+
+        _sdk_bootstrap_impl "${@}"
+    )
+}
+# --
+
+function _sdk_bootstrap_impl() {
     local seed_version="$1"
     local version="$2"
     local coreos_git="${3-}"

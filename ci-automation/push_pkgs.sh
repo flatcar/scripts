@@ -31,8 +31,6 @@
 #   2. "./ci-cleanup.sh" with commands to clean up temporary build resources,
 #        to be run after this step finishes / when this step is aborted.
 
-set -eu
-
 # This function is run _inside_ the SDK container
 function image_build__copy_to_bincache() {
     local arch="$1"
@@ -46,6 +44,17 @@ function image_build__copy_to_bincache() {
 # --
 
 function push_packages() {
+    # Run a subshell, so the traps, environment changes and global
+    # variables are not spilled into the caller.
+    (
+        set -euo pipefail
+
+        _push_packages_impl "${@}"
+    )
+}
+# --
+
+function _push_packages_impl() {
     local arch="$1"
 
     source ci-automation/ci_automation_common.sh

@@ -24,9 +24,18 @@
 #   in the scripts repo. The newest 50 builds will be retained,
 #   all older builds will be purged (50 is the default, see OPTIONAL INPUT above).
 
-set -eu
-
 function garbage_collect() {
+    # Run a subshell, so the traps, environment changes and global
+    # variables are not spilled into the caller.
+    (
+        set -euo pipefail
+
+        _garbage_collect_impl "${@}"
+    )
+}
+# --
+
+function _garbage_collect_impl() {
     local keep="${1:-50}"
     local dry_run="${DRY_RUN:-}"
     local purge_versions="${PURGE_VERSIONS:-}"
@@ -133,3 +142,4 @@ function garbage_collect() {
         fi
     done
 }
+# --
