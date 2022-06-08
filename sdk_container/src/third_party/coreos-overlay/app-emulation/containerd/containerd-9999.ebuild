@@ -62,6 +62,7 @@ src_compile() {
 src_install() {
 	dobin bin/containerd{-shim,-shim-runc-v*,} bin/ctr
 	systemd_newunit "${FILESDIR}/${PN}-1.0.0.service" "${PN}.service"
+	systemd_enable_service multi-user.target "${PN}.service"
 	insinto /usr/share/containerd
 	doins "${FILESDIR}/config.toml"
 	doins "${FILESDIR}/config-cgroupfs.toml"
