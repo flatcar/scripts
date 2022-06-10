@@ -74,15 +74,12 @@ RDEPEND="${RDEPEND}
 # Only applicable or available on amd64
 RDEPEND="${RDEPEND}
 	amd64? (
-		app-admin/adcli
-		app-crypt/go-tspi
 		app-emulation/xenserver-pv-version
 		app-emulation/xenstore
-		net-fs/cifs-utils
-		sys-auth/realmd
 	)"
 
 RDEPEND="${RDEPEND}
+	app-admin/adcli
 	app-admin/etcd-wrapper
 	app-admin/flannel-wrapper
 	app-admin/locksmith
@@ -101,6 +98,7 @@ RDEPEND="${RDEPEND}
 	app-arch/unzip
 	app-arch/zip
 	app-crypt/gnupg
+	app-crypt/go-tspi
 	app-crypt/tpmpolicy
 	app-editors/vim
 	app-emulation/actool
@@ -129,6 +127,7 @@ RDEPEND="${RDEPEND}
 	net-firewall/iptables
 	net-firewall/nftables
 	net-fs/nfs-utils
+	net-fs/cifs-utils
 	net-misc/bridge-utils
 	net-misc/curl
 	net-misc/iputils
@@ -169,6 +168,7 @@ RDEPEND="${RDEPEND}
 	sys-apps/usbutils
 	sys-apps/util-linux
 	sys-apps/which
+	sys-auth/realmd
 	sys-auth/sssd
 	sys-block/open-iscsi
 	sys-block/parted
