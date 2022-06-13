@@ -152,6 +152,7 @@ RDEPEND="${RDEPEND}
 	sys-apps/gawk
 	sys-apps/gptfdisk
 	sys-apps/grep
+	sys-apps/ignition
 	sys-apps/iproute2
 	sys-apps/kexec-tools
 	sys-apps/keyutils
