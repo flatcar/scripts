@@ -1,0 +1,1 @@
+- flatcar-install: Added option to create UEFI boot entry ([init#74](https://github.com/flatcar-linux/init/pull/74))
