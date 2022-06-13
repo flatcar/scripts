@@ -1,0 +1,1 @@
+- Added efibootmgr binary to the image ([coreos-overlay#1955](https://github.com/flatcar-linux/coreos-overlay/pull/1955))
