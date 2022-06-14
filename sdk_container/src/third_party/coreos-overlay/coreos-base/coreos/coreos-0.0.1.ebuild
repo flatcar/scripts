@@ -172,6 +172,7 @@ RDEPEND="${RDEPEND}
 	sys-auth/sssd
 	sys-block/open-iscsi
 	sys-block/parted
+	sys-boot/efibootmgr
 	sys-cluster/ipvsadm
 	sys-fs/btrfs-progs
 	sys-fs/cryptsetup
