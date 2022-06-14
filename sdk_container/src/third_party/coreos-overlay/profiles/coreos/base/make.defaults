@@ -87,6 +87,11 @@ INSTALL_MASK="
   /etc/acpi
 "
 
+# Prevent 'ignition' binary from being installed from sys-apps/ignition binary package.
+PKG_INSTALL_MASK="
+  /usr/bin/ignition
+"
+
 # Keep the default languages small.
 # (not many things respect this though)
 LINGUAS="en"
