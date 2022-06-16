@@ -23,7 +23,8 @@
             "/lib/systemd/system/containerd.service",
             "/lib/systemd/system/docker.service",
             "/lib/systemd/system/docker.socket",
-            "/lib/systemd/system/sockets.target.wants"
+            "/lib/systemd/system/sockets.target.wants",
+            "/lib/systemd/system/multi-user.target.wants"
         ]
     }
 }
