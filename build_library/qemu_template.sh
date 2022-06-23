@@ -11,7 +11,7 @@ VM_MEMORY=
 VM_CDROM=
 VM_PFLASH_RO=
 VM_PFLASH_RW=
-VM_NCPUS="$(nproc)"
+VM_NCPUS="$(getconf _NPROCESSORS_ONLN)"
 SSH_PORT=2222
 SSH_KEYS=""
 CLOUD_CONFIG_FILE=""
@@ -111,7 +111,7 @@ write_ssh_keys() {
 
 
 if [ -z "${CONFIG_IMAGE}" ]; then
-    CONFIG_DRIVE=$(mktemp -t -d flatcar-configdrive.XXXXXXXXXX)
+    CONFIG_DRIVE=$(mktemp -d)
     ret=$?
     if [ "$ret" -ne 0 ] || [ ! -d "$CONFIG_DRIVE" ]; then
         echo "$0: mktemp -d failed!" >&2
@@ -156,7 +156,7 @@ else
     case "${VM_BOARD}+$(uname -m)" in
         amd64-usr+x86_64)
             # Emulate the host CPU closely in both features and cores.
-            set -- -machine accel=kvm -cpu host -smp "${VM_NCPUS}" "$@" ;;
+            set -- -machine accel=kvm:hvf:tcg -cpu host -smp "${VM_NCPUS}" "$@" ;;
         amd64-usr+*)
             set -- -machine pc-q35-2.8 -cpu kvm64 -smp 1 -nographic "$@" ;;
         arm64-usr+aarch64)
