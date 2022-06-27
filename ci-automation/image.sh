@@ -104,5 +104,41 @@ function _image_build_impl() {
 
     sign_artifacts "${SIGNER}" "images/latest/"*
     copy_to_buildcache "images/${arch}/${vernum}/" "images/latest/"*
+
+    (
+    set +x
+    # Don't fail the whole job
+    set +e
+    echo "==================================================================="
+    export BOARD_A="${arch}-usr"
+    export FROM_A="release"
+    export VERSION_A="current"
+    if [ "${channel}" = "developer" ]; then
+            export CHANNEL_A="alpha"
+    else
+            export CHANNEL_A="${channel}"
+    fi
+    export FROM_B="file://${PWD}/images/latest"
+    # Use the directory directly (and BOARD_B and CHANNEL_B are unused)
+    export VERSION_B="."
+    echo "== Image differences compared to ${CHANNEL_A} ${VERSION_A} =="
+    rm -f package-diff
+    curl -fsSLO --retry-delay 1 --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 "https://raw.githubusercontent.com/flatcar-linux/flatcar-build-scripts/master/package-diff"
+    chmod +x package-diff
+    echo "Package updates, compared to ${CHANNEL_A} ${VERSION_A}:"
+    FILE=flatcar_production_image_packages.txt ./package-diff "${VERSION_A}" "${VERSION_B}"
+    echo
+    echo "Image file changes, compared to ${CHANNEL_A} ${VERSION_A}:"
+    FILE=flatcar_production_image_contents.txt FILESONLY=1 CUTKERNEL=1 ./package-diff "${VERSION_A}" "${VERSION_B}"
+    echo
+    echo "Image kernel config changes, compared to ${CHANNEL_A} ${VERSION_A}:"
+    FILE=flatcar_production_image_kernel_config.txt ./package-diff "${VERSION_A}" "${VERSION_B}"
+    echo
+    echo "Image file size change (includes /boot, /usr and the default rootfs partitions), compared to ${CHANNEL_A} ${VERSION_A}:"
+    FILE=flatcar_production_image_contents.txt CALCSIZE=1 ./package-diff "${VERSION_A}" "${VERSION_B}"
+    echo
+    BASE_URL="http://${BUILDCACHE_SERVER}/images/${arch}/${vernum}"
+    echo "Image URL: ${BASE_URL}/flatcar_production_image.bin.bz2"
+    )
 }
 # --
