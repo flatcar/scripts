@@ -1,0 +1,40 @@
+#!/bin/bash
+
+set -euo pipefail
+
+if [ $# -lt 1 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+  echo "Usage: $0 TAG"
+  echo "Rebases the free-standing git tag <TAG> on the current branch"
+  echo "(make sure you don't have any uncommited local changes)"
+  echo "E.g., after a Jenkins build 'alpha-9999.99.99-mytest' was started based on"
+  echo "the scripts branch 'mybranch' and you have new changes on the branch,"
+  echo "check out your branch and run"
+  echo "  $0 alpha-9999.99.99-mytest"
+  echo
+  echo "This is required when testing 'scripts' changes with Jenkins and a leaf job fails,"
+  echo "so that instead of restarting the whole build from the 'packages' job, you can"
+  echo "restart the leaf job after retagging. Note: Just starting a leaf job with your"
+  echo "branch as reference is not valid because it would overwrite the nightly build"
+  echo "artifacts!"
+  echo
+  echo "TODO: Add feature to update coreos-overlay/portage-stable submodule refs"
+  exit 1
+fi
+
+TAG="$1"
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+git fetch --force --tags origin
+BUILD_PATCH=$(git format-patch --output=/dev/stdout "${TAG}~1..${TAG}")
+git checkout --recurse-submodules "${TAG}"
+git reset --hard "${BRANCH}"
+echo "${BUILD_PATCH}" | git am -3 || {
+  git checkout "${TAG}" -- sdk_container/.repo/manifests/version.txt
+  git add sdk_container/.repo/manifests/version.txt
+  git am --continue
+  # This does not handle submodule conflicts: It should use the one
+  # from the TAG (similar to version.txt) unless an explicit new
+  # reference was specified
+} || { echo "Failed to resolve conflict, continue manually" >&2 ; exit 1 ; }
+git tag -d "${TAG}"
+git tag "${TAG}"
+git push --force origin "${TAG}"
