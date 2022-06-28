@@ -39,15 +39,27 @@ fi
 
 MANIFEST_BRANCH="${GIT_BRANCH##*/}"
 MANIFEST_ID="${MANIFEST_BRANCH}"
-# Nightly builds use the "default" manifest from flatcar-master and have the same scripts/overlay/portage branches without a "user/" prefix.
-# No further exclusions are made because nothing bad happens if other branches were used.
-if [[ "${MANIFEST_NAME}" = default ]] && [[ "${MANIFEST_BRANCH}" = flatcar-master ]] && \
-   [[ "${SCRIPTS_REF}" = "${OVERLAY_REF}" ]] && [[ "${OVERLAY_REF}" = "${PORTAGE_REF}" ]] && \
-   [[ "${SCRIPTS_REF}" != */* ]] && [[ "${SCRIPTS_REF}" != "" ]]
-then
-    # Use SCRIPTS_REF but others also work since they have the same value
-    MANIFEST_ID="${SCRIPTS_REF}-nightly"
-fi
+case "${OVERRIDE_BUILD_ID:-no}" in
+    no)
+        :
+        ;;
+    scripts-ref)
+        MANIFEST_ID="${SCRIPTS_REF}"
+        ;;
+    overlay-ref)
+        MANIFEST_ID="${OVERLAY_REF}"
+        ;;
+    portage-ref)
+        MANIFEST_ID="${PORTAGE_REF}"
+        ;;
+    nightly)
+        MANIFEST_ID="${SCRIPTS_REF}-nightly"
+        ;;
+    *)
+        echo "Invalid value of OVERRIDE_BUILD_ID: ${OVERRIDE_BUILD_ID}"
+        exit 1
+        ;;
+esac
 
 MANIFEST_NAME="${MANIFEST_NAME}.xml"
 [[ -f "manifest/${MANIFEST_NAME}" ]]
