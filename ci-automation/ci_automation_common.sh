@@ -122,6 +122,18 @@ function gen_sshcmd() {
 }
 # --
 
+function copy_dir_from_buildcache() {
+    local remote_path="${BUILDCACHE_PATH_PREFIX}/$1"
+    local local_path="$2"
+
+    local sshcmd="$(gen_sshcmd)"
+    mkdir -p "${local_path}"
+    rsync --partial -a -e "${sshcmd}" "${BUILDCACHE_USER}@${BUILDCACHE_SERVER}:${remote_path}" \
+        "${local_path}"
+}
+
+# --
+
 function copy_to_buildcache() {
     local remote_path="${BUILDCACHE_PATH_PREFIX}/$1"
     shift
