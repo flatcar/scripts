@@ -9,15 +9,16 @@
 # vm_build() should be called w/ the positional INPUT parameters below.
 
 # Vendor images build automation stub.
-#   This script will build one or more vendor images ("vm") using a pre-built image container.
+#   This script will build one or more vendor images ("vm") using a pre-built packages container.
 #
 # PREREQUISITES:
 #
 #   1. SDK version and OS image version are recorded in sdk_container/.repo/manifests/version.txt
 #   2. Scripts repo version tag of OS image version to be built is available and checked out.
-#   3. Flatcar image container is available via build cache server
+#   3. Flatcar packages container is available via build cache server
 #       from "/containers/[VERSION]/flatcar-images-[ARCH]-[FLATCAR_VERSION].tar.gz"
-#       or present locally. Must contain packages and image.
+#       or present locally. Must contain packages.
+#   4. The generic Flatcar image must be present in build cache server.
 #
 # INPUT:
 #
@@ -66,19 +67,13 @@ function _vm_build_impl() {
     local vernum="${FLATCAR_VERSION}"
     local docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
 
-    local image="flatcar-images-${arch}"
-    local image_image="${image}:${docker_vernum}"
-    local vms_container="flatcar-vms-${docker_vernum}"
+    local packages="flatcar-packages-${arch}"
+    local packages_image="${packages}:${docker_vernum}"
 
-    docker_image_from_buildcache "${image}" "${docker_vernum}"
+    docker_image_from_buildcache "${packages}" "${docker_vernum}"
 
-    # clean up dangling containers from previous builds
-    docker container rm -f "${vms_container}" || true
-
-    local images_out="images/"
-    rm -rf "${images_out}"
-
-    echo "docker container rm -f '${vms_container}'" >> ci-cleanup.sh
+    local vms="flatcar-vms-${arch}"
+    local vms_container="${vms}-${docker_vernum}"
 
     # automatically add PXE to formats if we build for Equinix Metal (packet).
     local has_packet=0
@@ -103,26 +98,38 @@ function _vm_build_impl() {
     # Keep compatibility with SDK scripts where "equinix_metal" remains unknown.
     formats=$(echo "$formats" | tr ' ' '\n' | sed 's/equinix_metal/packet/g')
 
+    local images_in="images-in/"
+    rm -rf "${images_in}"
+    copy_dir_from_buildcache "images/${arch}/${vernum}/" "${images_in}"
+    ./run_sdk_container -x ./ci-cleanup.sh -n "${vms_container}" -C "${packages_image}" \
+            -v "${vernum}" \
+            mkdir -p "${CONTAINER_IMAGE_ROOT}/${arch}-usr/latest"
+    ./run_sdk_container -n "${vms_container}" -C "${packages_image}" \
+            -v "${vernum}" \
+            mv "${images_in}" "${CONTAINER_IMAGE_ROOT}/${arch}-usr/latest-input"
+
     for format in ${formats}; do
         echo " ###################  VENDOR '${format}' ################### "
         COMPRESSION_FORMAT="bz2"
         if [[ "${format}" =~ ^(openstack|openstack_mini|digitalocean)$ ]];then
             COMPRESSION_FORMAT="gz,bz2"
         fi
-        ./run_sdk_container -n "${vms_container}" -C "${image_image}" \
+        ./run_sdk_container -n "${vms_container}" -C "${packages_image}" \
             -v "${vernum}" \
             ./image_to_vm.sh --format "${format}" --board="${arch}-usr" \
-                --from "${CONTAINER_IMAGE_ROOT}/${arch}-usr/latest" \
+                --from "${CONTAINER_IMAGE_ROOT}/${arch}-usr/latest-input" \
+                --to "${CONTAINER_IMAGE_ROOT}/${arch}-usr/latest" \
                 --image_compression_formats="${COMPRESSION_FORMAT}"
     done
 
     # copy resulting images + push to buildcache
-    ./run_sdk_container -n "${vms_container}" \
+    local images_out="images/"
+    rm -rf "${images_out}"
+    ./run_sdk_container -n "${vms_container}" -C "${packages_image}" \
         -v "${vernum}" \
-        cp --reflink=auto -R "${CONTAINER_IMAGE_ROOT}/${arch}-usr/" "./${images_out}/"
+        mv "${CONTAINER_IMAGE_ROOT}/${arch}-usr/" "./${images_out}/"
 
-    cd "images/latest"
-    sign_artifacts "${SIGNER}" *
-    copy_to_buildcache "images/${arch}/${vernum}/" *
+    sign_artifacts "${SIGNER}" "images/latest/"*
+    copy_to_buildcache "images/${arch}/${vernum}/" "images/latest/"*
 }
 # --
