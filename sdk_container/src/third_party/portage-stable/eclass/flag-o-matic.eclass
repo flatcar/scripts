@@ -1,21 +1,18 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-
-# Flatcar: Support EAPI 0 and 4.
 
 # @ECLASS: flag-o-matic.eclass
 # @MAINTAINER:
 # toolchain@gentoo.org
-# @SUPPORTED_EAPIS: 0 4 5 6 7 8
+# @SUPPORTED_EAPIS: 6 7 8
 # @BLURB: common functions to manipulate and query toolchain flags
 # @DESCRIPTION:
 # This eclass contains a suite of functions to help developers sanely
 # and safely manage toolchain flags in their builds.
 
-case ${EAPI:-0} in
-	1|2|3) die "flag-o-matic.eclass: EAPI ${EAPI} is too old." ;;
-	0|4|5|6|7|8) ;;
-	*) die "EAPI ${EAPI} is not supported by flag-o-matic.eclass." ;;
+case ${EAPI} in
+	6|7|8) ;;
+	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
 
 if [[ -z ${_FLAG_O_MATIC_ECLASS} ]]; then
@@ -23,11 +20,11 @@ _FLAG_O_MATIC_ECLASS=1
 
 inherit toolchain-funcs
 
-[[ ${EAPI:-0} == [04567] ]] && inherit eutils
+[[ ${EAPI} == [67] ]] && inherit eutils
 
 # @FUNCTION: all-flag-vars
 # @DESCRIPTION:
-# Return all the flag variables that our high level funcs operate on.
+# Return all the flag variables that our high level functions operate on.
 all-flag-vars() {
 	echo {ADA,C,CPP,CXX,CCAS,F,FC,LD}FLAGS
 }
@@ -38,8 +35,8 @@ all-flag-vars() {
 # {C,CPP,CXX,CCAS,F,FC,LD}FLAGS that we allow in strip-flags
 # Note: shell globs and character lists are allowed
 setup-allowed-flags() {
-	[[ ${EAPI:-0} == [04567] ]] ||
-		die "Internal function ${FUNCNAME} is not available in EAPI ${EAPI:-0}."
+	[[ ${EAPI} == [67] ]] ||
+		die "Internal function ${FUNCNAME} is not available in EAPI ${EAPI}."
 	_setup-allowed-flags "$@"
 }
 
@@ -50,21 +47,39 @@ setup-allowed-flags() {
 # Note: shell globs and character lists are allowed
 _setup-allowed-flags() {
 	ALLOWED_FLAGS=(
-		-pipe -O '-O[12sg]' -mcpu -march -mtune
-		'-fstack-protector*'
-		'-fsanitize*' '-fno-sanitize*'
-		'-fstack-check*' -fno-stack-check
-		-fbounds-check -fbounds-checking -fno-strict-overflow
-		-fno-PIE -fno-pie -nopie -no-pie -fno-unit-at-a-time
+		-pipe -O '-O[12sg]' '-mcpu=*' '-march=*' '-mtune=*'
 
-		# debugging symbols should generally be very safe to add
+		# Hardening flags
+		'-fstack-protector*'
+		'-fstack-check*' -fno-stack-check
+		-fstack-clash-protection
+		'-fcf-protection=*'
+		-fbounds-check -fbounds-checking
+		-fno-PIE -fno-pie -nopie -no-pie
+		# Spectre mitigations, bug #646076
+		'-mindirect-branch=*'
+		-mindirect-branch-register
+		'-mfunction-return=*'
+		-mretpoline
+
+		# Misc
+		-fno-unit-at-a-time -fno-strict-overflow
+
+		# Sanitizers
+		'-fsanitize*' '-fno-sanitize*'
+
+		# Debugging symbols should generally be very safe to add
 		-g '-g[0-9]'
 		-ggdb '-ggdb[0-9]'
 		-gdwarf '-gdwarf-*'
 		-gstabs -gstabs+
 		-gz
+		-glldb
 
+		# Cosmetic/output related, see e.g. bug #830534
+		-fno-diagnostics-color '-fmessage-length=*'
 		-fno-ident -fpermissive -frecord-gcc-switches
+		-frecord-command-line
 		'-fdiagnostics*' '-fplugin*'
 		'-W*' -w
 
@@ -72,7 +87,7 @@ _setup-allowed-flags() {
 		'-[DUILR]*' '-Wl,*'
 
 		# Linker choice flag
-		'-fuse-ld'
+		'-fuse-ld=*'
 	)
 
 	# allow a bunch of flags that negate features / control ABI
@@ -82,19 +97,22 @@ _setup-allowed-flags() {
 		-fno-omit-frame-pointer '-fno-builtin*'
 	)
 	ALLOWED_FLAGS+=(
-		-mregparm -mno-app-regs -mapp-regs -mno-mmx -mno-sse
+		'-mregparm=*' -mno-app-regs -mapp-regs -mno-mmx -mno-sse
 		-mno-sse2 -mno-sse3 -mno-ssse3 -mno-sse4 -mno-sse4.1 -mno-sse4.2
 		-mno-avx -mno-aes -mno-pclmul -mno-sse4a -mno-3dnow -mno-popcnt
 		-mno-abm -mips1 -mips2 -mips3 -mips4 -mips32 -mips64 -mips16 -mplt
-		-msoft-float -mno-soft-float -mhard-float -mno-hard-float -mfpu
-		-mieee -mieee-with-inexact -mschedule -mfloat-gprs -mspe -mno-spe
+		-msoft-float -mno-soft-float -mhard-float -mno-hard-float '-mfpu=*'
+		-mieee -mieee-with-inexact '-mschedule=*' -mfloat-gprs -mspe -mno-spe
 		-mtls-direct-seg-refs -mno-tls-direct-seg-refs -mflat -mno-flat
-		-mno-faster-structs -mfaster-structs -m32 -m64 -mx32 -mabi
-		-mlittle-endian -mbig-endian -EL -EB -fPIC -mlive-g0 -mcmodel
-		-mstack-bias -mno-stack-bias -msecure-plt '-m*-toc' -mfloat-abi
+		-mno-faster-structs -mfaster-structs -m32 -m64 -mx32 '-mabi=*'
+		-mlittle-endian -mbig-endian -EL -EB -fPIC -mlive-g0 '-mcmodel=*'
+		-mstack-bias -mno-stack-bias -msecure-plt '-m*-toc' '-mfloat-abi=*'
 		-mfix-r4000 -mno-fix-r4000 -mfix-r4400 -mno-fix-r4400
 		-mfix-rm7000 -mno-fix-rm7000 -mfix-r10000 -mno-fix-r10000
-		-mr10k-cache-barrier -mthumb -marm
+		'-mr10k-cache-barrier=*' -mthumb -marm
+
+		# needed for arm64 (and in particular SCS)
+		-ffixed-x18
 
 		# gcc 4.5
 		-mno-fma4 -mno-movbe -mno-xop -mno-lwp
@@ -191,12 +209,21 @@ filter-flags() {
 # Remove flags that enable Large File Support.
 filter-lfs-flags() {
 	[[ $# -ne 0 ]] && die "filter-lfs-flags takes no arguments"
+
 	# http://www.gnu.org/s/libc/manual/html_node/Feature-Test-Macros.html
 	# _LARGEFILE_SOURCE: enable support for new LFS funcs (ftello/etc...)
 	# _LARGEFILE64_SOURCE: enable support for 64bit variants (off64_t/fseeko64/etc...)
 	# _FILE_OFFSET_BITS: default to 64bit variants (off_t is defined as off64_t)
 	# _TIME_BITS: default to 64bit time_t (requires _FILE_OFFSET_BITS=64)
 	filter-flags -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_TIME_BITS=64
+}
+
+# @FUNCTION: filter-lto
+# @DESCRIPTION:
+# Remove flags that enable LTO and those that depend on it
+filter-lto() {
+	[[ $# -ne 0 ]] && die "filter-lto takes no arguments"
+	filter-flags '-flto*' -fwhole-program-vtables '-fsanitize=cfi*'
 }
 
 # @FUNCTION: filter-ldflags
@@ -228,7 +255,7 @@ append-cppflags() {
 # @CODE
 append-cflags() {
 	[[ $# -eq 0 ]] && return 0
-	# Do not do automatic flag testing ourselves. #417047
+	# Do not do automatic flag testing ourselves, bug #417047
 	export CFLAGS+=" $*"
 	return 0
 }
@@ -243,7 +270,7 @@ append-cflags() {
 # @CODE
 append-cxxflags() {
 	[[ $# -eq 0 ]] && return 0
-	# Do not do automatic flag testing ourselves. #417047
+	# Do not do automatic flag testing ourselves, bug #417047
 	export CXXFLAGS+=" $*"
 	return 0
 }
@@ -258,7 +285,7 @@ append-cxxflags() {
 # @CODE
 append-fflags() {
 	[[ $# -eq 0 ]] && return 0
-	# Do not do automatic flag testing ourselves. #417047
+	# Do not do automatic flag testing ourselves, bug #417047
 	export FFLAGS+=" $*"
 	export FCFLAGS+=" $*"
 	return 0
@@ -269,7 +296,8 @@ append-fflags() {
 # Add flags that enable Large File Support.
 append-lfs-flags() {
 	[[ $# -ne 0 ]] && die "append-lfs-flags takes no arguments"
-	# see comments in filter-lfs-flags func for meaning of these
+
+	# See comments in filter-lfs-flags func for meaning of these
 	append-cppflags -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE
 }
 
@@ -296,9 +324,9 @@ append-ldflags() {
 append-flags() {
 	[[ $# -eq 0 ]] && return 0
 	case " $* " in
-	*' '-[DIU]*) eqawarn 'please use append-cppflags for preprocessor flags' ;;
+	*' '-[DIU]*) eqawarn 'Please use append-cppflags for preprocessor flags' ;;
 	*' '-L*|\
-	*' '-Wl,*)  eqawarn 'please use append-ldflags for linker flags' ;;
+	*' '-Wl,*)  eqawarn 'Please use append-ldflags for linker flags' ;;
 	esac
 	append-cflags "$@"
 	append-cxxflags "$@"
@@ -454,9 +482,8 @@ strip-flags() {
 		local new=()
 
 		for x in ${!var} ; do
-			local flag=${x%%=*}
 			for y in "${ALLOWED_FLAGS[@]}" ; do
-				if [[ -z ${flag%%${y}} ]] ; then
+				if [[ ${x} == ${y} ]] ; then
 					new+=( "${x}" )
 					break
 				fi
@@ -486,8 +513,8 @@ strip-flags() {
 # Returns shell true if <flag> is supported by given <compiler>,
 # else returns shell false.
 test-flag-PROG() {
-	[[ ${EAPI:-0} == [04567] ]] ||
-		die "Internal function ${FUNCNAME} is not available in EAPI ${EAPI:-0}."
+	[[ ${EAPI} == [67] ]] ||
+		die "Internal function ${FUNCNAME} is not available in EAPI ${EAPI}."
 	_test-flag-PROG "$@"
 }
 
@@ -547,6 +574,15 @@ _test-flag-PROG() {
 		c+ld)
 			in_ext='c'
 			in_src='int main(void) { return 0; }'
+
+			if is-ldflagq -fuse-ld=* ; then
+				# Respect linker chosen by user so we don't
+				# end up giving false results by checking
+				# with default linker. bug #832377
+				fuse_ld_value=$(get-flag -fuse-ld=*)
+				cmdline_extra+=(${fuse_ld_value})
+			fi
+
 			cmdline_extra+=(-xc)
 			;;
 	esac
@@ -556,7 +592,7 @@ _test-flag-PROG() {
 	printf "%s\n" "${in_src}" > "${test_in}" || die "Failed to create '${test_in}'"
 
 	# Currently we rely on warning-free output of a compiler
-	# before the flag to see if a flag prduces any warnings.
+	# before the flag to see if a flag produces any warnings.
 	# This has a few drawbacks:
 	# - if compiler already generates warnings we filter out
 	#   every single flag: bug #712488
@@ -582,7 +618,9 @@ _test-flag-PROG() {
 		# -Werror makes clang bail out on unused arguments as well;
 		# try to add -Qunused-arguments to work-around that
 		# other compilers don't support it but then, it's failure like
-		# any other
+		# any other.
+		#
+		# See also bug #712488 and bug #714742.
 		cmdline+=( -Qunused-arguments )
 		"${cmdline[@]}" &>/dev/null
 	fi
@@ -625,8 +663,8 @@ test-flag-CCLD() { _test-flag-PROG CC c+ld "$@"; }
 # Returns shell true if <flags> are supported by given <compiler>,
 # else returns shell false.
 test-flags-PROG() {
-	[[ ${EAPI:-0} == [04567] ]] ||
-		die "Internal function ${FUNCNAME} is not available in EAPI ${EAPI:-0}."
+	[[ ${EAPI} == [67] ]] ||
+		die "Internal function ${FUNCNAME} is not available in EAPI ${EAPI}."
 	_test-flags-PROG "$@"
 }
 
@@ -647,7 +685,7 @@ _test-flags-PROG() {
 
 	while (( $# )); do
 		case "$1" in
-			# '-B /foo': bug # 687198
+			# '-B /foo': bug #687198
 			--param|-B)
 				if test-flag-${comp} "$1" "$2"; then
 					flags+=( "$1" "$2" )
@@ -833,7 +871,7 @@ raw-ldflags() {
 			x=${x#-Wl,}
 			set -- "$@" ${x//,/ }
 			;;
-		*)	# Assume it's a compiler driver flag, so throw it away #441808
+		*)	# Assume it's a compiler driver flag, so throw it away, bug #441808
 			;;
 		esac
 	done
@@ -848,6 +886,152 @@ no-as-needed() {
 		*GNU*) # GNU ld
 		echo "-Wl,--no-as-needed" ;;
 	esac
+}
+
+# @FUNCTION: _test-compile-PROG
+# @USAGE: <language> <code>
+# @INTERNAL
+# @DESCRIPTION:
+# Attempts to compile (and possibly link) the given program.  The first
+# <language> parameter corresponds to the standard -x compiler argument.
+# If the program should additionally be attempted to be linked, the string
+# "+ld" should be added to the <language> parameter.
+_test-compile-PROG() {
+	local lang=$1
+	local code=$2
+	shift 2
+
+	[[ -z "${lang}" ]] && return 1
+	[[ -z "${code}" ]] && return 1
+
+	local compiler filename_in filename_out args=() libs=()
+	case "${lang}" in
+		c)
+			compiler="$(tc-getCC)"
+			filename_in="${T}/test.c"
+			filename_out="${T}/test.o"
+			args+=(${CFLAGS[@]} -xc -c)
+			;;
+		c++)
+			compiler="$(tc-getCXX)"
+			filename_in="${T}/test.cc"
+			filename_out="${T}/test.o"
+			args+=(${CXXFLAGS[@]} -xc++ -c)
+			;;
+		f77)
+			compiler="$(tc-getF77)"
+			filename_in="${T}/test.f"
+			filename_out="${T}/test.o"
+			args+=(${FFFLAGS[@]} -xf77 -c)
+			;;
+		f95)
+			compiler="$(tc-getFC)"
+			filename_in="${T}/test.f90"
+			filename_out="${T}/test.o"
+			args+=(${FCFLAGS[@]} -xf95 -c)
+			;;
+		c+ld)
+			compiler="$(tc-getCC)"
+			filename_in="${T}/test.c"
+			filename_out="${T}/test.exe"
+			args+=(${CFLAGS[@]} ${LDFLAGS[@]} -xc)
+			libs+=(${LIBS[@]})
+			;;
+		c+++ld)
+			compiler="$(tc-getCXX)"
+			filename_in="${T}/test.cc"
+			filename_out="${T}/test.exe"
+			args+=(${CXXFLAGS[@]} ${LDFLAGS[@]} -xc++)
+			libs+=(${LIBS[@]})
+			;;
+		f77+ld)
+			compiler="$(tc-getF77)"
+			filename_in="${T}/test.f"
+			filename_out="${T}/test.exe"
+			args+=(${FFLAGS[@]} ${LDFLAGS[@]} -xf77)
+			libs+=(${LIBS[@]})
+			;;
+		f95+ld)
+			compiler="$(tc-getFC)"
+			filename_in="${T}/test.f90"
+			filename_out="${T}/test.exe"
+			args+=(${FCFLAGS[@]} ${LDFLAGS[@]} -xf95)
+			libs+=(${LIBS[@]})
+			;;
+		*)
+			die "Unknown compiled language ${lang}"
+			;;
+	esac
+
+	printf "%s\n" "${code}" > "${filename_in}" || die "Failed to create '${test_in}'"
+
+	"${compiler}" ${args[@]} "${filename_in}" -o "${filename_out}" ${libs[@]} &>/dev/null
+}
+
+# @FUNCTION: append-atomic-flags
+# @USAGE: [bytes]
+# @DESCRIPTION:
+# Attempts to detect if appending -latomic is required to use
+# a specific-sized atomic intrinsic, and if so, appends it.  If the bytesize
+# is not specified, then check the four most common byte sizes (1, 2, 4, 8).
+# >=16-byte atomics are not included in this default set and must be explicitly
+# passed if required.  This may require you to add a macro definition like
+# -Duint128_t=__uint128_t to your CFLAGS.
+append-atomic-flags() {
+	# this implementation is as described in bug #820101
+	local code
+
+	# first, ensure we can compile a trivial program
+	# this is because we can't distinguish if _test-compile-PROG
+	# fails because -latomic is actually needed or if we have a
+	# broken toolchain (like due to bad FLAGS)
+	read -r -d '' code <<- EOF
+		int main()
+		{
+			return 0;
+		}
+	EOF
+
+	# if toolchain is broken, just return silently.  it's better to
+	# let other pieces of the build fail later down the line than to
+	# make people think that something to do with atomic support is the
+	# cause of their problems.
+	_test-compile-PROG "c+ld" "${code}" || return
+
+	local bytesizes
+	[[ "${#}" == "0" ]] && bytesizes=( "1" "2" "4" "8" ) || bytesizes="${@}"
+
+	for bytesize in ${bytesizes[@]}
+	do
+		# this sample program is informed by the great testing from the buildroot project:
+		# https://github.com/buildroot/buildroot/commit/6856e417da4f3aa77e2a814db2a89429af072f7d
+		read -r -d '' code <<- EOF
+			#include <stdint.h>
+			int main()
+			{
+				uint$((${bytesize} * 8))_t a = 0;
+				__atomic_add_fetch(&a, 3, __ATOMIC_RELAXED);
+				__atomic_compare_exchange_n(&a, &a, 2, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
+				return 0;
+			}
+		EOF
+
+		# do nothing if test program links fine
+		_test-compile-PROG "c+ld" "${code}" && continue
+
+		# ensure that the toolchain supports -latomic
+		test-flags-CCLD "-latomic" &>/dev/null || die "-latomic is required but not supported by $(tc-getCC)"
+
+		append-libs "-latomic"
+
+		# verify that this did indeed fix the problem
+		_test-compile-PROG "c+ld" "${code}" || \
+			die "libatomic does not include an implementation of ${bytesize}-byte atomics for this toolchain"
+
+		# if any of the required bytesizes require -latomic, no need to continue
+		# checking the others
+		return
+	done
 }
 
 fi
