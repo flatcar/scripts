@@ -25,7 +25,9 @@ if [ -f "${QEMU_IMAGE_NAME}" ] ; then
     echo "++++ ${CIA_TESTSCRIPT}: Using existing ./${QEMU_IMAGE_NAME} for testing ${CIA_VERNUM} (${CIA_ARCH}) ++++"
 else
     echo "++++ ${CIA_TESTSCRIPT}: downloading ${QEMU_IMAGE_NAME} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
-    copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${QEMU_IMAGE_NAME}" .
+    rm -f "${QEMU_IMAGE_NAME}.bz2"
+    copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${QEMU_IMAGE_NAME}.bz2" .
+    lbunzip2 "${QEMU_IMAGE_NAME}.bz2"
 fi
 
 bios="${QEMU_BIOS}"
