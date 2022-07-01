@@ -42,6 +42,8 @@ DEFINE_string sign_digests "" \
   "Sign image DIGESTS files with the given GPG key."
 DEFINE_string image_compression_formats "${DEFAULT_IMAGE_COMPRESSION_FORMAT}" \
   "Compress the resulting images using thise formats. This option acceps a list of comma separated values. Options are: none, bz2, gz, zip, zst"
+DEFINE_boolean only_store_compressed ${FLAGS_TRUE} \
+  "Delete input file when compressing, except when 'none' is part of the compression formats or the generic image is the input"
 
 
 compress_file() {
@@ -113,6 +115,14 @@ compress_disk_images() {
                     processed_format["${format}"]=1
                 fi
             done
+            # If requested, delete the input file after compression (only if 'none' is not part of the formats)
+            # Exclude the generic image and update payload because they are needed for generating other formats
+            if [ "${FLAGS_only_store_compressed}" -eq "${FLAGS_TRUE}" ] &&
+               [ "${filename##*/}" != "flatcar_production_image.bin" ] &&
+               [ "${filename##*/}" != "flatcar_production_update.bin" ] &&
+               ! echo "${FORMATS[@]}" | grep -q "none"; then
+                rm "${filename}"
+            fi
         else
             local_extra_files+=( "${filename}" )            
         fi
