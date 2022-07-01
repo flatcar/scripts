@@ -138,17 +138,27 @@ EOF
     "${BUILD_DIR}/${image_contents}"
     "${BUILD_DIR}/${image_packages}"
     "${BUILD_DIR}/${image_licenses}"
-    "${BUILD_DIR}/${image_name}"
     "${BUILD_DIR}/${image_kernel}"
     "${BUILD_DIR}/${image_pcr_policy}"
     "${BUILD_DIR}/${image_grub}"
     "${BUILD_DIR}/${image_kconfig}"
   )
+
+  local files_to_evaluate=( "${BUILD_DIR}/${image_name}" )
+  declare -a compressed_images
+  declare -a extra_files
+  compress_disk_images files_to_evaluate compressed_images extra_files
+  to_upload+=( "${compressed_images[@]}" )
+  to_upload+=( "${extra_files[@]}" )
+
   # FIXME(bgilbert): no shim on arm64
   if [[ -f "${BUILD_DIR}/${image_shim}" ]]; then
     to_upload+=("${BUILD_DIR}/${image_shim}")
   fi
-  upload_image -d "${BUILD_DIR}/${image_name}.bz2.DIGESTS" "${to_upload[@]}"
+  upload_image -d "${BUILD_DIR}/${image_name}.DIGESTS" "${to_upload[@]}"
+
+  # Upload legacy digests
+  upload_legacy_digests "${BUILD_DIR}/${image_name}.DIGESTS" compressed_images
 }
 
 create_prod_tar() {
