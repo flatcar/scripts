@@ -93,6 +93,7 @@ function _image_build_impl() {
             -v "${vernum}" \
             ./build_image --board="${arch}-usr" --group="${channel}" \
                           --output_root="${CONTAINER_IMAGE_ROOT}" \
+                          --only_store_compressed \
                           --torcx_root="${CONTAINER_TORCX_ROOT}" prodtar container
 
     # copy resulting images + push to buildcache
@@ -102,6 +103,8 @@ function _image_build_impl() {
             -v "${vernum}" \
             mv "${CONTAINER_IMAGE_ROOT}/${arch}-usr/" "./${images_out}/"
 
+    # Delete uncompressed generic image before signing and upload
+    rm "images/latest/flatcar_production_image.bin" "images/latest/flatcar_production_update.bin"
     sign_artifacts "${SIGNER}" "images/latest/"*
     copy_to_buildcache "images/${arch}/${vernum}/" "images/latest/"*
 
