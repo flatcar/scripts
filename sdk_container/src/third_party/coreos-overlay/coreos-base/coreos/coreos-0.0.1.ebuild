@@ -79,7 +79,6 @@ RDEPEND="${RDEPEND}
 	)"
 
 RDEPEND="${RDEPEND}
-	app-admin/adcli
 	app-admin/etcd-wrapper
 	app-admin/flannel-wrapper
 	app-admin/locksmith
@@ -97,6 +96,7 @@ RDEPEND="${RDEPEND}
 	app-arch/torcx
 	app-arch/unzip
 	app-arch/zip
+	app-crypt/adcli
 	app-crypt/gnupg
 	app-crypt/go-tspi
 	app-crypt/tpmpolicy
