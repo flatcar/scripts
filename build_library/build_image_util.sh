@@ -31,6 +31,7 @@ set_build_symlinks() {
 cleanup_mounts() {
   info "Cleaning up mounts"
   "${BUILD_LIBRARY_DIR}/disk_util" umount "$1" || true
+  rmdir "${1}" || true
 }
 
 delete_prompt() {
@@ -333,7 +334,7 @@ get_metadata() {
     if [ "${key}" = "SRC_URI" ]; then
         local package_name="$(echo "${pkg%%:*}" | cut -d / -f 2)"
         local ebuild_path="${prefix}/var/db/pkg/${pkg%%:*}/${package_name}.ebuild"
-        # SRC_URI is empty for the special github.com/flatcar-linux projects
+        # SRC_URI is empty for the special github.com/flatcar projects
         if [ -z "${val}" ]; then
             # The grep invocation gives errors when the ebuild file is not present.
             # This can happen if a "scripts" branch does not match the "coreos-overlay" branch
@@ -341,7 +342,7 @@ get_metadata() {
             val="$(grep "CROS_WORKON_PROJECT=" "${ebuild_path}" | cut -d '"' -f 2)"
             if [ -n "${val}" ]; then
                 val="https://github.com/${val}"
-                # All github.com/flatcar-linux projects specify their commit
+                # All github.com/flatcar projects specify their commit
                 local commit=""
                 commit="$(grep "CROS_WORKON_COMMIT=" "${ebuild_path}" | cut -d '"' -f 2)"
                 if [ -n "${commit}" ]; then
@@ -381,7 +382,7 @@ get_metadata() {
 #       "licenses": ["GPL-2", "LGPL-2.1", "MIT", "public-domain"],
 #       "description": "System and service manager for Linux",
 #       "homepage": "https://www.freedesktop.org/wiki/Software/systemd",
-#       "source": "https://github.com/flatcar-linux/systemd ",
+#       "source": "https://github.com/systemd/systemd ",
 #       "files": "somefile 63a5736879fa647ac5a8d5317e7cb8b0\nsome -> link\n"
 #     }
 #   ]
@@ -475,11 +476,11 @@ You can read it with "less licenses.json.bz2" or convert it to a text format wit
 bzcat licenses.json.bz2 | jq -r '.[] | "\(.project):\nDescription: \(.description)\nLicenses: \(.licenses)\nHomepage: \(.homepage)\nSource code: \(.source)\nFiles:\n\(.files)\n"'
 The license texts are available under /usr/share/licenses/common/ and can be read with "less NAME.gz".
 Build system files and patches used to build these projects are located at:
-https://github.com/flatcar-linux/coreos-overlay/
-https://github.com/flatcar-linux/portage-stable/
-https://github.com/flatcar-linux/scripts/
+https://github.com/flatcar/coreos-overlay/
+https://github.com/flatcar/portage-stable/
+https://github.com/flatcar/scripts/
 Information on how to build Flatcar Container Linux can be found under:
-https://docs.flatcar-linux.org/os/sdk-modifying-flatcar/
+https://www.flatcar.org/docs/latest/reference/developer-guides/sdk-modifying-flatcar/
 EOF
     sudo cp "${json_input}" "${root_fs_dir}"/usr/share/licenses/licenses.json
     # Compress the file from 2.1 MB to 0.39 MB
@@ -743,5 +744,6 @@ EOF
     pushd "${BUILD_DIR}" >/dev/null
     zip --quiet -r -9 "${BUILD_DIR}/${pcr_policy}" pcrs
     popd >/dev/null
+    rm -rf "${BUILD_DIR}/pcrs"
   fi
 }

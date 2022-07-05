@@ -15,8 +15,6 @@ FORCE_STAGES="stage4"
 # include upload options
 . "${BUILD_LIBRARY_DIR}/release_util.sh" || exit 1
 
-ROOT_OVERLAY="${TEMPDIR}/stage4-${ARCH}-$FLAGS_version-overlay"
-
 ## Define the stage4 config template
 catalyst_stage4() {
 cat <<EOF
@@ -31,6 +29,8 @@ catalyst_stage_default
 
 catalyst_init "$@"
 check_gsutil_opts
+
+ROOT_OVERLAY="${TEMPDIR}/stage4-${ARCH}-$FLAGS_version-overlay"
 
 # toolchain_util.sh is required by catalyst_toolchains.sh
 mkdir -p "${ROOT_OVERLAY}/tmp"

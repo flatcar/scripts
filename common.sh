@@ -3,6 +3,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+. "$(dirname ${BASH_SOURCE[0]})/settings.env" || exit 1
+
 # All scripts should die on error unless commands are specifically excepted
 # by prefixing with '!' or surrounded by 'set +e' / 'set -e'.
 
@@ -334,7 +336,11 @@ readonly COREOS_EPOCH=1372636800
 TODAYS_VERSION=$(( (`date +%s` - ${COREOS_EPOCH}) / 86400 ))
 
 # Download URL prefix for SDK and board binary packages
-: ${FLATCAR_DEV_BUILDS:=https://mirror.release.flatcar-linux.net}
+if [[ "${FLATCAR_BUILD_ID}" =~ ^nightly-.*$ ]] ; then
+    : ${FLATCAR_DEV_BUILDS:=${SETTING_BINPKG_SERVER_DEV_CONTAINERISED}}
+else
+    : ${FLATCAR_DEV_BUILDS:=${SETTING_BINPKG_SERVER_PROD}}
+fi
 
 # Load developer's custom settings.  Default location is in scripts dir,
 # since that's available both inside and outside the chroot.  By convention,

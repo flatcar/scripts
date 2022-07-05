@@ -40,7 +40,6 @@ TYPE="flatcar-sdk"
 # include upload options
 . "${BUILD_LIBRARY_DIR}/release_util.sh" || exit 1
 
-ROOT_OVERLAY=${TEMPDIR}/stage4_overlay
 
 ## Define the stage4 config template
 catalyst_stage4() {
@@ -63,6 +62,7 @@ export GENTOO_MIRRORS
 
 catalyst_init "$@"
 check_gsutil_opts
+ROOT_OVERLAY=${TEMPDIR}/stage4_overlay
 
 if [[ "$STAGES" =~ stage4 ]]; then
     info "Setting release to ${FLATCAR_VERSION}"
@@ -107,9 +107,11 @@ if [[ "$STAGES" =~ stage4 ]]; then
     sign_and_upload_files "packages" "${def_upload_path}" "pkgs/" \
         "${BINPKGS}"/*
 
-    # Upload the SDK toolchain packages
-    sign_and_upload_files "cross toolchain packages" "${def_upload_path}" \
-        "toolchain/" "${BINPKGS}/crossdev"/*
+    if [ -d "${BINPKGS}/crossdev" ]; then
+        # Upload the SDK toolchain packages
+        sign_and_upload_files "cross toolchain packages" "${def_upload_path}" \
+            "toolchain/" "${BINPKGS}/crossdev"/*
+    fi
 fi
 
 command_completed

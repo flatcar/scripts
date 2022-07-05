@@ -26,6 +26,8 @@ DEFINE_integer jobs "${NUM_JOBS}" \
   "How many packages to build in parallel at maximum."
 DEFINE_boolean skip_toolchain_update "${FLAGS_FALSE}" \
   "Don't update the toolchains."
+DEFINE_boolean setuponly "${FLAGS_FALSE}" \
+  "Only configure portage, without updating packages. Useful when only boostrap_sdk/build_toolchains will be called"
 DEFINE_string toolchain_boards "" \
   "Extra toolchains to setup for the specified boards."
 DEFINE_string dev_builds_sdk "" \
@@ -219,6 +221,11 @@ sudo -E ${EMERGE_CMD} --quiet "${EMERGE_FLAGS[@]}" \
     "${TOOLCHAIN_PKGS[@]}"
 
 gcc_set_latest_profile "$(portageq envvar CHOST)"
+
+if [[ "${FLAGS_setuponly}" -eq "${FLAGS_TRUE}" ]]; then
+  command_completed
+  exit 0
+fi
 
 if [[ "${FLAGS_skip_toolchain_update}" -eq "${FLAGS_FALSE}" && \
       -n "${FLAGS_toolchain_boards}" ]]; then

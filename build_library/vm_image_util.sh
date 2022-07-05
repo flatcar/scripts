@@ -530,6 +530,8 @@ install_oem_aci() {
         "${aci_path}" \
         "${VM_TMP_ROOT}/usr/share/oem/flatcar-oem-${oem_aci}.aci" ||
     die "Could not install ${oem_aci} OEM ACI"
+    # Remove aci_dir if building ACI and installing it succeeded
+    rm -rf "${aci_dir}"
 }
 
 # Any other tweaks required?
