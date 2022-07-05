@@ -1,0 +1,100 @@
+#!/bin/bash
+#
+# Copyright (c) 2021 The Flatcar Maintainers.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# This script will update an SDK container image and create a new minor version.
+
+
+set -eu
+
+cd $(dirname "$0")
+source sdk_lib/sdk_container_common.sh
+
+os_version="$(get_version_from_versionfile)"
+base_sdk_version="$(get_sdk_version_from_versionfile)"
+new_sdk_version=""
+
+keep="false"
+cleanup=""
+
+usage() {
+    echo "  $0 - Update SDK container image."
+    echo "       Create a new container image based on the current SDK ($base_sdk_version)"
+    echo "       with current changes from coreos-overlay and portage-stable."
+    echo
+    echo "       Just like build_sdk_container_image the resulting container comes in 3 flavours:"
+    echo "        1.    flatcar-sdk-all - includes both ARM64 and AMD64 support"
+    echo "        2.+3. flatcar-sdk-(amd64|arm64) - only includes support for one target."
+    echo "  Usage:"
+    echo "  $0  [-k] [-x <script>] <new-sdk-version>"
+    echo
+    echo "      <new-sdk-version> is the new SDK version to be built."
+    echo "      -k           - Keep intermediate container image."
+    echo "      -x <script>  - For each resource generated during build (container etc.)"
+    echo "                     add a cleanup line to <script> which, when run, will free"
+    echo "                     the resource. Useful for CI."
+    echo
+}
+# --
+
+
+while [ 0 -lt $# ] ; do
+    case "$1" in
+    -h) usage; exit 0;;
+    -k) keep="true";      shift;;
+    -x) cleanup="$2";     shift; shift;;
+    *)  if [ -z "$new_sdk_version" ] ;  then
+            new_sdk_version="$1"; shift
+        else
+            echo "ERROR: spurious positional parameter '$@'."
+            usage
+            exit 1
+        fi;;
+    esac
+done
+
+if [ -z "$new_sdk_version" ] ; then
+    echo
+    echo "ERROR: missing target SDK version."
+    echo
+    usage
+    exit 1
+fi
+# --
+
+docker_vernum="$(vernum_to_docker_image_version "${new_sdk_version}")"
+sdk_build_image="flatcar-sdk-build:${docker_vernum}"
+
+if [ -n "$cleanup" ] ; then
+    echo "$docker image rm -f '${sdk_build_image}'" >> "$cleanup"
+fi
+
+yell "Creating new SDK container image ${new_sdk_version} from ${base_sdk_version}"
+create_versionfile "${new_sdk_version}" "${os_version}"
+
+$docker build -t "${sdk_build_image}" \
+    --build-arg BASE="$sdk_container_common_registry/flatcar-sdk-all:${base_sdk_version}" \
+    -f sdk_lib/Dockerfile.sdk-update \
+    .
+
+for a in all arm64 amd64; do
+    yell "Creating '$a' arch SDK image"
+    rmarch=""; rmcross=""
+    case $a in
+        arm64) rmarch="amd64-usr"; rmcross="x86_64-cros-linux-gnu";;
+        amd64) rmarch="arm64-usr"; rmcross="aarch64-cros-linux-gnu";;
+    esac
+    $docker build -t "$sdk_container_common_registry/flatcar-sdk-${a}:${docker_vernum}" \
+                 --build-arg VERSION="${docker_vernum}" \
+                 --build-arg RMARCH="${rmarch}" \
+                 --build-arg RMCROSS="${rmcross}" \
+                 -f sdk_lib/Dockerfile.lean-arch \
+                 .
+done
+
+if ! $keep; then
+    yell "Cleaning up intermediate container image"
+    $docker rmi flatcar-sdk-build:"${docker_vernum}"
+fi

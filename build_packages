@@ -173,7 +173,7 @@ fi
 # Build cros_workon packages when they are changed.
 CROS_WORKON_PKGS=()
 if [ "${FLAGS_workon}" -eq "${FLAGS_TRUE}" ]; then
-  CROS_WORKON_PKGS+=( $(cros_workon list --board=${FLAGS_board}) )
+  CROS_WORKON_PKGS+=( $("${SRC_ROOT}/scripts/cros_workon" list --board=${FLAGS_board}) )
 fi
 
 if [[ ${#CROS_WORKON_PKGS[@]} -gt 0 ]]; then

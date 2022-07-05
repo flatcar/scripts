@@ -1,0 +1,58 @@
+ARG VERSION
+FROM flatcar-sdk-tarball:${VERSION}
+
+# Make build scripts believe we're in the SDK chroot (which technically, we are)
+RUN touch /etc/debian_chroot
+RUN chmod 644 /etc/passwd
+RUN chmod 644 /etc/group
+
+# User "root" is not in /etc/passwd / group in the SDK tarball
+RUN echo 'root:x:0:0:root:/root:/bin/bash' >>/etc/passwd
+RUN echo 'root:x:0:' >>/etc/group
+
+RUN if ! grep -q portage /etc/group ; then \
+        echo "portage::250:portage" >>/etc/group; \
+    fi
+RUN if ! grep -q portage /etc/passwd; then \
+        echo "portage:x:250:250:portage:/var/tmp/portage:/bin/false" >>/etc/passwd; \
+    fi
+
+# fix "Unable to unshare: EPERM ..." in containers
+#  (see https://github.com/gentoo/gentoo-docker-images/issues/81)
+RUN echo 'export FEATURES="-ipc-sandbox -network-sandbox -pid-sandbox"' \
+        >> /etc/skel/.bashrc
+
+RUN groupadd sdk
+RUN useradd -g sdk -G portage sdk
+RUN echo "sdk ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/sdk-user
+
+RUN rm -rf /mnt/host/source
+COPY --chown=sdk:sdk sdk_container/ /mnt/host/source
+COPY --chown=sdk:sdk . /mnt/host/source/src/scripts
+RUN chown sdk:sdk /mnt/host/source
+
+COPY sdk_lib/90_env_keep /etc/sudoers.d/90_env_keep
+RUN chmod 0440 /etc/sudoers.d/90_env_keep
+
+USER sdk:sdk
+RUN mkdir -p /mnt/host/source/src/scripts /mnt/host/source/src/build
+RUN ln -s /mnt/host/source /home/sdk/trunk
+
+RUN rm /home/sdk/.bashrc
+RUN cp /etc/skel/.bashrc /home/sdk
+RUN echo "cd /home/sdk/trunk/src/scripts" >> /home/sdk/.bashrc
+RUN echo 'export PATH="$PATH:/usr/local/bin:/usr/local/sbin"' >> /home/sdk/.bashrc
+
+# user and SDK environment variables pass-through into container
+RUN echo "if [ -f /mnt/host/source/.env ]; then source /mnt/host/source/.env; fi" >> /home/sdk/.bashrc
+RUN echo "if [ -f /mnt/host/source/.sdkenv ]; then source /mnt/host/source/.sdkenv; fi" >> /home/sdk/.bashrc
+
+COPY --chown=sdk:sdk sdk_lib/sdk_entry.sh /home/sdk
+RUN chmod 755 /home/sdk/sdk_entry.sh
+
+USER root:root
+# This should be a NOP; if you see packages being rebuilt
+#  it's likely that submodules and SDK tarball are out of sync
+RUN /home/sdk/sdk_entry.sh ./update_chroot --toolchain_boards="amd64-usr arm64-usr"
+
+ENTRYPOINT /home/sdk/sdk_entry.sh

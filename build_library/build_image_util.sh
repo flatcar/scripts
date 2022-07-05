@@ -58,10 +58,33 @@ extract_update() {
   local image_name="$1"
   local disk_layout="$2"
   local update_path="${BUILD_DIR}/${image_name%_image.bin}_update.bin"
+  local digest_path="${update_path}.DIGESTS"
 
   "${BUILD_LIBRARY_DIR}/disk_util" --disk_layout="${disk_layout}" \
     extract "${BUILD_DIR}/${image_name}" "USR-A" "${update_path}"
-  upload_image "${update_path}"
+
+  # Compress image
+  files_to_evaluate+=( "${update_path}" )
+  declare -a compressed_images
+  declare -a extra_files
+  compress_disk_images files_to_evaluate compressed_images extra_files
+
+  # Upload compressed image
+  upload_image -d "${digest_path}" "${compressed_images[@]}" "${extra_files[@]}"
+
+  # Upload legacy digests
+  upload_legacy_digests "${digest_path}" compressed_images
+
+  # For production as well as dev builds we generate a dev-key-signed update
+  # payload for running tests (the signature won't be accepted by production systems).
+  local update_test="${BUILD_DIR}/flatcar_test_update.gz"
+  delta_generator \
+      -private_key "/usr/share/update_engine/update-payload-key.key.pem" \
+      -new_image "${update_path}" \
+      -new_kernel "${BUILD_DIR}/${image_name%.bin}.vmlinuz" \
+      -out_file "${update_test}"
+
+  upload_image "${update_test}"
 }
 
 zip_update_tools() {
@@ -94,7 +117,18 @@ generate_update() {
       -new_kernel "${image_kernel}" \
       -out_file "${update}.gz"
 
-  upload_image -d "${update}.DIGESTS" "${update}".{bin,gz,zip}
+  # Compress image
+  declare -a files_to_evaluate
+  declare -a compressed_images
+  declare -a extra_files
+  files_to_evaluate+=( "${update}.bin" )
+  compress_disk_images files_to_evaluate compressed_images extra_files
+
+  # Upload images
+  upload_image -d "${update}.DIGESTS" "${update}".{gz,zip} "${compressed_images[@]}" "${extra_files[@]}"
+
+  # Upload legacy digests
+  upload_legacy_digests "${update}.DIGESTS" compressed_images
 }
 
 # ldconfig cannot generate caches for non-native arches.

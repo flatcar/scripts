@@ -1193,45 +1193,46 @@ vm_cleanup() {
 }
 
 vm_upload() {
+
+    declare -a legacy_uploads
+    declare -a uploadable_files
+    declare -a compressed_images
+    declare -a image_files
+    declare -a digest_uploads
+
+    compress_disk_images VM_GENERATED_FILES compressed_images uploadable_files
+
+    if [ "${#compressed_images[@]}" -gt 0 ]; then
+        uploadable_files+=( "${compressed_images[@]}" )
+        legacy_uploads+=( "${compressed_images[@]}" )
+    fi
+
     local digests="$(_dst_dir)/$(_dst_name .DIGESTS)"
-    upload_image -d "${digests}" "${VM_GENERATED_FILES[@]}"
+    upload_image -d "${digests}" "${uploadable_files[@]}"
 
     [[ -e "${digests}" ]] || return 0
 
-    # FIXME(marineam): Temporary alternate name for .DIGESTS
-    # This used to be derived from the first file listed in
-    # ${VM_GENERATED_FILES[@]}", usually $VM_DST_IMG or similar.
-    # Since not everything actually uploads $VM_DST_IMG this was not very
-    # consistent and relying on ordering was breakable.
-    # Now the common prefix, output by $(_dst_name) is used above.
-    # Some download/install scripts may still refer to the old name.
-    local uploaded legacy_uploaded
-    for uploaded in "${VM_GENERATED_FILES[@]}"; do
-        if [[ "${uploaded}" == "${VM_DST_IMG}" ]]; then
-            legacy_uploaded="$(_dst_dir)/$(basename ${VM_DST_IMG})"
-            break
+    # Since depending on the ordering of $VM_GENERATED_FILES is brittle only
+    # use it if $VM_DST_IMG isn't included in the uploaded files.
+    if [ "${#legacy_uploads[@]}" -eq 0 ];then
+        legacy_uploads+=( "${VM_GENERATED_FILES[0]}" )
+    fi
+
+    for legacy_upload in "${legacy_uploads[@]}";do
+        local legacy_digest_file="${legacy_upload}.DIGESTS"
+        [[ "${legacy_digest_file}" == "${digests}" ]] && continue
+
+        cp "${digests}" "${legacy_digest_file}"
+        digest_uploads+=( "${legacy_digest_file}" )
+
+        if [[ -e "${digests}.asc" ]]; then
+            digest_uploads+=( "${legacy_digest_file}.asc" )
+            cp "${digests}.asc" "${legacy_digest_file}.asc"
         fi
     done
 
-    # Since depending on the ordering of $VM_GENERATED_FILES is brittle only
-    # use it if $VM_DST_IMG isn't included in the uploaded files.
-    if [[ -z "${legacy_uploaded}" ]]; then
-        legacy_uploaded="${VM_GENERATED_FILES[0]}"
-    fi
-
-    # If upload_images compressed $legacy_uploaded be sure to add .bz2
-    if [[ "${legacy_uploaded}" =~ \.(img|bin|vdi|vhd|vmdk)$ ]]; then
-        legacy_uploaded+="${IMAGE_ZIPEXT}"
-    fi
-
-    local legacy_digests="${legacy_uploaded}.DIGESTS"
-    [[ "${legacy_digests}" != "${digests}" ]] || return 0
-
-    local legacy_uploads=( "${legacy_digests}" )
-    cp "${digests}" "${legacy_digests}"
-    if [[ -e "${digests}.asc" ]]; then
-        legacy_uploads+=( "${legacy_digests}.asc" )
-        cp "${digests}.asc" "${legacy_digests}.asc"
+    if [ "${#digest_uploads[@]}" -gt 0 ];then
+        legacy_uploads+=( "${digest_uploads[@]}" )
     fi
 
     local def_upload_path="${UPLOAD_ROOT}/boards/${BOARD}/${FLATCAR_VERSION}"

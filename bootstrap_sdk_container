@@ -1,0 +1,79 @@
+#!/bin/bash
+#
+# Copyright (c) 2021 The Flatcar Maintainers.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+set -eu
+
+cd $(dirname "$0")
+source sdk_lib/sdk_container_common.sh
+
+seed_version=""
+target_version=""
+
+declare -a cleanup
+
+# --
+
+usage() {
+    echo "  Usage:"
+    echo "  $0 <seed-sdk-version> <new-sdk-version> [-x <cleanup-script>]"
+    echo
+    echo "      This script will bootstrap a new SDK tarball using an SDK container."
+    echo "      '$sdk_container_common_versionfile' will be updated to the target version."
+    echo
+    echo "       <seed-sdk-vernum>  - SDK version number (e.g. '3005.0.0') to use for bootstrapping."
+    echo "                             The SDK container will be pulled and the tarball"
+    echo "                             downloaded if necessary."
+    echo "       <new-sdk-vernum>   - SDK version number (e.g. '3027.0.0') of the new SDK."
+    echo "      -x <cleanup-script> - For each resource generated during build (container etc.)"
+    echo "                             add a cleanup line to <script> which, when run, will free"
+    echo "                             the resource. Useful for CI."
+    echo "      -h                  - Print this help."
+    echo
+}
+# --
+
+while [ 0 -lt $# ] ; do
+    case "$1" in
+    -h) usage; exit 0;;
+    -x) cleanup=("-x" "$2"); shift; shift;;
+    *)  if [ -z "$seed_version" ] ; then
+            seed_version="$1"
+        elif [ -z "$target_version" ] ; then
+            target_version="$1"
+        else
+            echo "ERROR: Spurious positional parameter '$1'"
+            usage; exit 1;
+        fi
+        shift;;
+    esac
+done
+
+if [ -z "$seed_version" -o -z "$target_version" ] ; then
+    echo "ERROR: Missing seed and /or target SDK version."
+    usage
+    exit 1
+fi
+# --
+
+vernum="$(strip_version_prefix "$target_version")"
+if is_official "$vernum" ; then
+    official="true"
+else
+    official="false"
+fi
+
+yell "\n######\n###### Bootstrapping SDK version $target_version from seed ($seed_version)"
+
+if $official; then
+    export COREOS_OFFICIAL=1
+fi
+
+# bootstrap_sdk needs FLATCAR_SDK_VERSION set to the seed version
+./run_sdk_container "${cleanup[@]}" -V "$seed_version" -v "$target_version" \
+          sudo -E ./bootstrap_sdk
+
+# Update versionfile to the actual SDK version
+create_versionfile "${target_version}"

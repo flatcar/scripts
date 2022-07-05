@@ -1,0 +1,4 @@
+FROM alpine
+RUN apk add pigz
+ENTRYPOINT [ "/usr/bin/pigz" ]
+CMD [ "-h" ]
