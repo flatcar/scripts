@@ -101,6 +101,7 @@ function _vm_build_impl() {
     local images_in="images-in/"
     rm -rf "${images_in}"
     copy_dir_from_buildcache "images/${arch}/${vernum}/" "${images_in}"
+    lbunzip2 "${images_in}/flatcar_production_image.bin.bz2"
     ./run_sdk_container -x ./ci-cleanup.sh -n "${vms_container}" -C "${packages_image}" \
             -v "${vernum}" \
             mkdir -p "${CONTAINER_IMAGE_ROOT}/${arch}-usr/latest"
@@ -119,7 +120,8 @@ function _vm_build_impl() {
             ./image_to_vm.sh --format "${format}" --board="${arch}-usr" \
                 --from "${CONTAINER_IMAGE_ROOT}/${arch}-usr/latest-input" \
                 --to "${CONTAINER_IMAGE_ROOT}/${arch}-usr/latest" \
-                --image_compression_formats="${COMPRESSION_FORMAT}"
+                --image_compression_formats="${COMPRESSION_FORMAT}" \
+                --only_store_compressed
     done
 
     # copy resulting images + push to buildcache
