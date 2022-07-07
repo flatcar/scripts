@@ -307,8 +307,8 @@ _crossdev_info() {
 install_cross_toolchain() {
     local cross_chost="$1"; shift
     local cross_pkgs=( $(get_cross_pkgs $cross_chost) )
-    # gdb doesn't respect the --stable flag, set it stable explicitly
-    local cross_flags=( --gdb '[stable]' --ex-gdb --stable --target "${cross_chost}" )
+    # build gdb as an extra step, default to stable ebuilds
+    local cross_flags=( --ex-gdb --stable --target "${cross_chost}" )
     local cross_cfg="/usr/${cross_chost}/etc/portage/${cross_chost}-crossdev"
     local cross_cfg_data=$(_crossdev_info "${cross_flags[@]}")
     local cbuild="$(portageq envvar CBUILD)"
