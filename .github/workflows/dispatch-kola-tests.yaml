@@ -3,13 +3,6 @@ name: Dispatch kola tests
 on:
   workflow_dispatch:
     inputs:
-      arch:
-        type: string
-        default: '["amd64", "arm64"]'
-        description: |
-          The architectures to run tests for. This is an array of architectures
-          that can be deserialized in JSON and results in an array of strings.
-        required: true
       workflow_name_or_id:
         type: string
         required: true
@@ -21,22 +14,13 @@ on:
         required: true
         description: |
           The run ID of the workflow specified in workflow_name_or_id
-      parallel_tests:
-        type: string
-        required: true
-        default: "2"
-        description: |
-          The number of parallel tests to run.
 
 permissions: {}
 
 jobs:
   test:
-    name: "Trigger kola test"
+    name: "Trigger kola test - test"
     uses: ./.github/workflows/run-kola-tests.yaml
     with:
-      arch: ${{ github.event.inputs.arch }}
       workflow_name_or_id: ${{ github.event.inputs.workflow_name_or_id }}
       workflow_run_id: ${{ github.event.inputs.workflow_run_id }}
-      parallel_tests: ${{ github.event.inputs.parallel_tests }}
-
