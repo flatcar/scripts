@@ -42,6 +42,7 @@
 #   2. "./ci-cleanup.sh" with commands to clean up temporary build resources,
 #        to be run after this step finishes / when this step is aborted.
 #   3. If signer key was passed, signatures of artifacts from point 1, pushed along to buildcache.
+#   4. DIGESTS of the artifacts from point 1, pushed to buildcache. If signer key was passed, armored ASCII files of the generated DIGESTS files too, pushed to buildcache.
 
 function vm_build() {
     # Run a subshell, so the traps, environment changes and global
@@ -131,6 +132,7 @@ function _vm_build_impl() {
         -v "${vernum}" \
         mv "${CONTAINER_IMAGE_ROOT}/${arch}-usr/" "./${images_out}/"
 
+    create_digests "${SIGNER}" "images/latest/"*
     sign_artifacts "${SIGNER}" "images/latest/"*
     copy_to_buildcache "images/${arch}/${vernum}/" "images/latest/"*
 }
