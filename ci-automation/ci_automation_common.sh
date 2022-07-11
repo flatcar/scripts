@@ -187,7 +187,8 @@ function docker_image_to_buildcache() {
     local tarball="$(basename "$image")-${version}.tar.gz"
 
     $docker save "${image}":"${version}" | $PIGZ -c > "${tarball}"
-    sign_artifacts "${SIGNER:-}" "${tarball}"
+    create_digests "${SIGNER:-}" "${tarball}"
+    sign_artifacts "${SIGNER:-}" "${tarball}"*
     copy_to_buildcache "containers/${version}" "${tarball}"*
 }
 # --
