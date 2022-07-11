@@ -2,13 +2,6 @@ name: "Run kola tests"
 on:
   workflow_call:
     inputs:
-      arch:
-        type: string
-        default: '["amd64", "arm64"]'
-        description: |
-          The architectures to run tests for. This is an array of architectures
-          that can be deserialized in JSON and results in an array of strings.
-        required: true
       workflow_name_or_id:
         type: string
         required: true
@@ -20,12 +13,6 @@ on:
         required: true
         description: |
           The run ID of the workflow specified in workflow_name_or_id
-      parallel_tests:
-        type: string
-        required: true
-        default: "2"
-        description: |
-          The number of parallel tests to run.
 
 jobs:
   tests:
@@ -38,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch: ${{fromJSON(github.event.inputs.arch)}}
+        arch: ["amd64", "arm64"]
 
     steps:
       - name: Prepare machine
@@ -119,7 +106,7 @@ jobs:
           source ci-automation/test.sh
           cat > sdk_container/.env <<EOF
           export QEMU_IMAGE_NAME="/work/flatcar_production_image.bin"
-          export PARALLEL_TESTS=${{ github.event.inputs.parallel_tests }}
+          export PARALLEL_TESTS=2
           EOF
           export MAX_RETRIES=2
           export SKIP_COPY_TO_BINCACHE=1
