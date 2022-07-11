@@ -22,7 +22,7 @@ fi
 
 # Fetch image and BIOS if not present
 if [ -f "${QEMU_IMAGE_NAME}" ] ; then
-    echo "++++ ${CIA_TESTSCRIPT}: Using existing ./${QEMU_IMAGE_NAME} for testing ${CIA_VERNUM} (${CIA_ARCH}) ++++"
+    echo "++++ ${CIA_TESTSCRIPT}: Using existing ${QEMU_IMAGE_NAME} for testing ${CIA_VERNUM} (${CIA_ARCH}) ++++"
 else
     echo "++++ ${CIA_TESTSCRIPT}: downloading ${QEMU_IMAGE_NAME} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
     rm -f "${QEMU_IMAGE_NAME}.bz2"
