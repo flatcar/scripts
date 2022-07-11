@@ -332,30 +332,67 @@ function sign_artifacts() {
     # rest of the parameters are directories/files to sign
     local to_sign=()
     local file
-    local files
 
     if [[ -z "${signer}" ]]; then
         return
     fi
 
-    for file; do
-        files=()
-        if [[ -d "${file}" ]]; then
-            readarray -d '' files < <(find "${file}" ! -type d -print0)
-        elif [[ -e "${file}" ]]; then
-            files+=( "${file}" )
-        fi
-        for file in "${files[@]}"; do
-            if [[ "${file}" =~ \.(asc|gpg|sig)$ ]]; then
-                continue
-            fi
-            to_sign+=( "${file}" )
-        done
-    done
+    list_files to_sign 'asc,gpg,sig' "${@}"
+
     for file in "${to_sign[@]}"; do
         gpg --batch --local-user "${signer}" \
             --output "${file}.sig" \
             --detach-sign "${file}"
+    done
+}
+# --
+
+# Puts a filtered list of files from the passed files and directories
+# in the passed variable. The filtering is done by ignoring files that
+# end with the passed extensions. The extensions list should not
+# contain the leading dot.
+#
+# Typical use:
+#   local all_files=()
+#   local ignored_extensions='sh,py,pl' # ignore the shell, python and perl scripts
+#   list_files all_files "${ignored_extensions}" "${directories_and_files[@]}"
+#
+# Parameters:
+#
+# 1 - name of an array variable where the filtered files will be stored
+# 2 - comma-separated list of extensions that will be used for filtering files
+# @ - files and directories to scan for files
+function list_files() {
+    local files_variable_name="${1}"; shift
+    local ignored_extensions="${1}"; shift
+    # rest of the parameters are files or directories to list
+    local -n files="${files_variable_name}"
+    local file
+    local tmp_files
+    local pattern=''
+
+    if [[ -n "${ignored_extensions}" ]]; then
+        pattern='\.('"${ignored_extensions//,/|}"')$'
+    fi
+
+    files=()
+    for file; do
+        tmp_files=()
+        if [[ -d "${file}" ]]; then
+            readarray -d '' tmp_files < <(find "${file}" ! -type d -print0)
+        elif [[ -e "${file}" ]]; then
+            tmp_files+=( "${file}" )
+        fi
+        if [[ -z "${pattern}" ]]; then
+            files+=( "${tmp_files[@]}" )
+            continue
+        fi
+        for file in "${tmp_files[@]}"; do
+            if [[ "${file}" =~ ${pattern} ]]; then
+                continue
+            fi
+            files+=( "${file}" )
+        done
     done
 }
 # --
