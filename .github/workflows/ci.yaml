@@ -43,9 +43,9 @@ jobs:
   packages:
     name: "Build Flatcar packages"
     runs-on:
+      - self-hosted
       - debian
       - build
-      - self-hosted
       - x64
     strategy:
       fail-fast: false
@@ -62,18 +62,14 @@ jobs:
         run: |
           sudo rm /bin/sh
           sudo ln -s /bin/bash /bin/sh
-          sudo apt-get install \
-            ca-certificates \
-            curl \
-            gnupg \
-            lsb-release
+          sudo apt-get install -y ca-certificates curl gnupg lsb-release qemu-user-static git
           sudo mkdir -p /etc/apt/keyrings
           curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
           echo \
             "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
             $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
           sudo apt-get update
-          sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin qemu-user-static git
+          sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 
       - uses: actions/checkout@v3
         with:
@@ -288,53 +284,13 @@ jobs:
             scripts/images/**/flatcar_production_*.sh
             scripts/images/**/flatcar_test_update.gz
             scripts/ebuild_logs.tar.xz
+
   test:
     name: "Run kola tests"
     needs: packages
-    runs-on:
-      - debian
-      - kola
-      - self-hosted
-      - ${{ matrix.arch }}
-    strategy:
-      fail-fast: false
-      matrix:
-        arch: ["amd64", "arm64"]
-    defaults:
-      run:
-        working-directory: scripts
-
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          path: scripts
-          fetch-depth: 0
-          submodules: true
-
-      # it downloads from the previous linked job.
-      - name: Download artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: images-${{ matrix.arch }}
-
-      - name: Run tests
-        shell: bash
-        run: |
-          exec 2>&1
-          set +x
-          set -euo pipefail
-
-          source ci-automation/test.sh
-
-          # TODO: REMOVE ME (for debugging purposes)
-          ls -ali
-          find . -type f -name "*.bz2"
-
-          # extract the image.
-          bzip2 --decompress scripts/images/**/flatcar_production_image.bin.bz2
-
-          # export the QEMU_IMAGE_NAME to avoid to download it.
-          export QEMU_IMAGE_NAME=$(readlink -f scripts/images/**/flatcar_production_image.bin)
-
-          # run the test.
-          test_run ${{ matrix.arch }} qemu
+    uses: ./.github/workflows/run-kola-tests.yaml
+    with:
+      arch: '["amd64", "arm64"]'
+      workflow_name_or_id: ${{ github.event.workflow_run.workflow_id }}
+      workflow_run_id: ${{ github.event.workflow_run.id }}
+      parallel_tests: "2"
