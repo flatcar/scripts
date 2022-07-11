@@ -10,6 +10,9 @@
 # We only record provenance when a package is actually being built.
 # See profiles/coreos/base/profile.bashrc for cros_...
 cros_post_src_configure_enable_slsa_provenance_report() {
+    if [ "${GENERATE_SLSA_PROVENANCE:-}" != "true" ] ; then
+        einfo "Provenance generation not requested by build; skipping."
+    fi
     export __slsa_provenance_report="yes"
 }
 # --
