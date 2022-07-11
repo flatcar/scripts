@@ -290,7 +290,5 @@ jobs:
     needs: packages
     uses: ./.github/workflows/run-kola-tests.yaml
     with:
-      arch: '["amd64", "arm64"]'
       workflow_name_or_id: ${{ github.event.workflow_run.workflow_id }}
       workflow_run_id: ${{ github.event.workflow_run.id }}
-      parallel_tests: "2"
