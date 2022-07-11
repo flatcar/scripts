@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 #
 # Copyright (c) 2021 The Flatcar Maintainers.
 # Use of this source code is governed by a BSD-style license that can be
@@ -120,6 +120,7 @@ function _test_run_impl() {
     fi
 
     local retries="${MAX_RETRIES:-20}"
+    local skip_copy_to_bincache=${SKIP_COPY_TO_BINCACHE:-0}
 
     source ci-automation/tapfile_helper_lib.sh
     source ci-automation/ci_automation_common.sh
@@ -216,14 +217,19 @@ function _test_run_impl() {
         echo "########### All re-runs exhausted ($retries). Giving up. ###########"
     fi
 
-    # publish kola output, TAP files to build cache
-    copy_to_buildcache "testing/${vernum}/${arch}/${image}" \
-        "${tests_dir}/_kola_temp"
-    copy_to_buildcache "testing/${vernum}/${arch}/${image}" \
-        "${tests_dir}/"*.tap
-    copy_to_buildcache "testing/${vernum}/${arch}/${image}" \
-        "${tap_merged_summary}"
-    copy_to_buildcache "testing/${vernum}/${arch}/${image}" \
-        "${tap_merged_detailed}"
+    if [ ${skip_copy_to_bincache} -eq 0 ]
+        # publish kola output, TAP files to build cache
+        copy_to_buildcache "testing/${vernum}/${arch}/${image}" \
+            "${tests_dir}/_kola_temp"
+        copy_to_buildcache "testing/${vernum}/${arch}/${image}" \
+            "${tests_dir}/"*.tap
+        copy_to_buildcache "testing/${vernum}/${arch}/${image}" \
+            "${tap_merged_summary}"
+        copy_to_buildcache "testing/${vernum}/${arch}/${image}" \
+            "${tap_merged_detailed}"
+    fi
+    if ! $success; then
+        return 1
+    fi
 }
 # --
