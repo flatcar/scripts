@@ -347,6 +347,62 @@ function sign_artifacts() {
 }
 # --
 
+# Creates digests files and armored ASCII files out of them for the
+# passed files and directories. In case of directory, all files inside
+# it are processed. No new digests file is created if there is one
+# already for the processed file. Same for armored ASCII file. Files
+# ending with .asc or .sig or .gpg or .DIGESTS are not processed. The
+# armored ASCII files won't be created if the signer is empty.
+#
+# Typical use:
+#   create_digests "${SIGNER}" artifact.tar.gz
+#   sign_artifacts "${SIGNER}" artifact.tar.gz*
+#   copy_to_buildcache "artifacts/directory" artifact.tar.gz*
+#
+# Parameters:
+#
+# 1 - signer whose key is expected to be already imported into the
+#       keyring
+# @ - files and directories to create digests for
+function create_digests() {
+    local signer="${1}"; shift
+    # rest of the parameters are files or directories to create
+    # digests for
+    local to_digest=()
+    local file
+    local df
+    local fbn
+    local hash_type
+    local output
+    local af
+
+    list_files to_digest 'asc,gpg,sig,DIGESTS' "${@}"
+
+    for file in "${to_digest[@]}"; do
+        df="${file}.DIGESTS"
+        if [[ ! -e "${df}" ]]; then
+            touch "${df}"
+            fbn=$(basename "${file}")
+            # TODO: modernize - drop md5 and sha1, add b2
+            for hash_type in md5 sha1 sha512; do
+                echo "# ${hash_type} HASH" | tr "a-z" "A-Z" >>"${df}"
+                output=$("${hash_type}sum" "${file}")
+                echo "${output%% *}  ${fbn}" >>"${df}"
+            done
+        fi
+        if [[ -z "${signer}" ]]; then
+            continue
+        fi
+        af="${df}.asc"
+        if [[ ! -e "${af}" ]]; then
+            gpg --batch --local-user "${signer}" \
+                --output "${af}" \
+                --clearsign "${df}"
+        fi
+    done
+}
+# --
+
 # Puts a filtered list of files from the passed files and directories
 # in the passed variable. The filtering is done by ignoring files that
 # end with the passed extensions. The extensions list should not
