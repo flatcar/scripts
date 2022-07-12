@@ -217,7 +217,7 @@ function _test_run_impl() {
         echo "########### All re-runs exhausted ($retries). Giving up. ###########"
     fi
 
-    if [ ${skip_copy_to_bincache} -eq 0 ]
+    if [ ${skip_copy_to_bincache} -eq 0 ];then
         # publish kola output, TAP files to build cache
         copy_to_buildcache "testing/${vernum}/${arch}/${image}" \
             "${tests_dir}/_kola_temp"
