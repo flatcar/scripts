@@ -32,7 +32,7 @@ bios="${QEMU_BIOS}"
 if [ "${CIA_TESTSCRIPT}" = "qemu_uefi.sh" ] ; then
     bios="${QEMU_UEFI_BIOS}"
     if [ -f "${bios}" ] ; then
-        echo "++++ ${CIA_TESTSCRIPT}: Using existing ./${bios} ++++"
+        echo "++++ ${CIA_TESTSCRIPT}: Using existing ${bios} ++++"
     else
         echo "++++ ${CIA_TESTSCRIPT}: downloading ${bios} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
         copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${bios}" .
