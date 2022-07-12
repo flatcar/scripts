@@ -262,8 +262,9 @@ _get_dependency_list() {
 
     PORTAGE_CONFIGROOT="$ROOT" emerge "$@" --pretend \
         --emptytree --root-deps=rdeps --onlydeps --quiet | \
+        egrep "$ROOT" |
         sed -e 's/[^]]*\] \([^ :]*\).*/=\1/' |
-        egrep -v "(=$(echo "${pkgs[*]}")-[0-9])"
+        egrep -v "=($(echo "${pkgs[*]}"))-[0-9]"
 }
 
 # Configure a new ROOT
@@ -392,7 +393,7 @@ install_cross_libs() {
     # In order to get a dependency list we must calculate it before
     # updating package.provided. Otherwise portage will no-op.
     $sudo rm -f "${package_provided}/cross-${cross_chost}"
-    local cross_deps=$(ROOT="$ROOT" _get_dependency_list \
+    local cross_deps=$(ROOT="$ROOT" SYSROOT="$ROOT" _get_dependency_list \
         "$@" "${TOOLCHAIN_PKGS[@]}" | $sudo tee \
         "$ROOT/etc/portage/cross-${cross_chost}-depends")
 
