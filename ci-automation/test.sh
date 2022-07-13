@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 #
 # Copyright (c) 2021 The Flatcar Maintainers.
 # Use of this source code is governed by a BSD-style license that can be
