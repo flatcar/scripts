@@ -42,9 +42,9 @@ jobs:
   packages:
     name: "Build Flatcar packages"
     runs-on:
+      - self-hosted
       - debian
       - build
-      - self-hosted
       - x64
     strategy:
       fail-fast: false
@@ -61,18 +61,14 @@ jobs:
         run: |
           sudo rm /bin/sh
           sudo ln -s /bin/bash /bin/sh
-          sudo apt-get install \
-            ca-certificates \
-            curl \
-            gnupg \
-            lsb-release
+          sudo apt-get install -y ca-certificates curl gnupg lsb-release qemu-user-static git
           sudo mkdir -p /etc/apt/keyrings
           curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
           echo \
             "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
             $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
           sudo apt-get update
-          sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin qemu-user-static git
+          sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 
       - uses: actions/checkout@v3
         with:
@@ -287,3 +283,8 @@ jobs:
             scripts/images/**/flatcar_production_*.sh
             scripts/images/**/flatcar_test_update.gz
             scripts/ebuild_logs.tar.xz
+
+  test:
+    needs: packages
+    name: "Run kola tests"
+    uses: ./.github/workflows/run-kola-tests.yaml
