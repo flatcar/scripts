@@ -46,7 +46,8 @@ extract_prod_gcc() {
     qtbz2 -O -t "${pkg}" | \
         sudo tar -C "${root_fs_dir}" -xj \
         --transform 's#/usr/lib/.*/#/usr/lib64/#' \
-        --wildcards './usr/lib/gcc/*.so*'
+        --wildcards './usr/lib/gcc/*.so*' \
+        --wildcards './usr/share/SLSA'
 
     package_provided "${gcc}"
 }
