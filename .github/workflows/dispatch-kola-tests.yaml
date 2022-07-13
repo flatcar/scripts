@@ -1,0 +1,26 @@
+name: Dispatch kola tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      workflow_name_or_id:
+        type: string
+        required: true
+        default: ci.yaml
+        description: |
+          The workflow ID from where we'll download the artifacts to be tested.
+      workflow_run_id:
+        type: string
+        required: true
+        description: |
+          The run ID of the workflow specified in workflow_name_or_id
+
+permissions: {}
+
+jobs:
+  test:
+    name: "Trigger kola test - test"
+    uses: ./.github/workflows/run-kola-tests.yaml
+    with:
+      workflow_name_or_id: ${{ github.event.inputs.workflow_name_or_id }}
+      workflow_run_id: ${{ github.event.inputs.workflow_run_id }}
