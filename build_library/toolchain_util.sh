@@ -289,6 +289,8 @@ $(portageq envvar -v CHOST CBUILD ROOT \
     PORTDIR PORTDIR_OVERLAY DISTDIR PKGDIR)
 HOSTCC=\${CBUILD}-gcc
 PKG_CONFIG_PATH="\${SYSROOT}/usr/lib/pkgconfig/"
+# Enable provenance reporting by default. Produced files are in /usr/share/SLSA
+GENERATE_SLSA_PROVENANCE="true"
 EOF
 }
 

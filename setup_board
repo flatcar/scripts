@@ -269,6 +269,9 @@ PORTAGE_BINHOST="${BOARD_BINHOST}"
 # You can use --select to override this.
 EMERGE_DEFAULT_OPTS="--oneshot"
 
+# Enable provenance reporting by default. Produced files are in /usr/share/SLSA
+GENERATE_SLSA_PROVENANCE="true"
+
 # Allow the user to override or define additional settings.
 source "${BOARD_ETC}/portage/make.conf.user"
 EOF
