@@ -1,0 +1,286 @@
+name: "Run build"
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      bincache_server:
+        description: |
+          Bincache server.
+        default: "bincache.flatcar-linux.net"
+        required: true
+      image_formats:
+        description: |
+          Space-separated vendor formats to build.
+        required: true
+        default: qemu_uefi
+      portage_remote:
+        description: |
+          The remote we should pull portage-stable from. This defaults to whatever the submodule is set to in this repo.
+          If triggered by a change in the portage repo, please set this to the remote which is proposing a change.
+        required: false
+      portage_ref:
+        description: |
+          This is the ref we will use to pull the changes from the portage_remote.
+        required: false
+      coreos_remote:
+        description: |
+          The remote we should pull coreos-overlay from. This defaults to whatever the submodule is set to in this repo.
+          If triggered by a change in the portage repo, please set this to the remote which is proposing a change.
+        required: false
+      coreos_ref:
+        description: |
+          This is the ref we will use to pull the changes from the coreos_remote.
+        required: false
+
+permissions: {}
+
+jobs:
+  packages:
+    name: "Build Flatcar packages"
+    runs-on:
+      - debian
+      - build
+      - self-hosted
+      - x64
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: ["amd64", "arm64"]
+    defaults:
+      run:
+        working-directory: scripts
+
+    steps:
+      - name: Prepare machine
+        shell: bash
+        working-directory: ${{ github.workspace }}
+        run: |
+          sudo rm /bin/sh
+          sudo ln -s /bin/bash /bin/sh
+          sudo apt-get install \
+            ca-certificates \
+            curl \
+            gnupg \
+            lsb-release
+          sudo mkdir -p /etc/apt/keyrings
+          curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+          echo \
+            "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
+            $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+          sudo apt-get update
+          sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin qemu-user-static git
+
+      - uses: actions/checkout@v3
+        with:
+          path: scripts
+          fetch-depth: 0
+          submodules: true
+
+      - name: Set environment
+        shell: bash
+        run: |
+          BUILDCACHE_SERVER="bincache.flatcar-linux.net"
+          arch="${{ matrix.arch }}"
+          COREOS_REMOTE=""
+          COREOS_REF=""
+          PORTAGE_REMOTE=""
+          PORTAGE_REF=""
+          IMAGE_FORMATS="qemu_uefi"
+
+          [ -z "${{ github.event.inputs.bincache_server }}" ] || BUILDCACHE_SERVER="${{ github.event.inputs.bincache_server }}"
+          [ -z "${{ github.event.inputs.coreos_remote }}" ] || COREOS_REMOTE="${{ github.event.inputs.coreos_remote }}"
+          [ -z "${{ github.event.inputs.coreos_ref }}" ] || COREOS_REF="${{ github.event.inputs.coreos_ref }}"
+          [ -z "${{ github.event.inputs.portage_remote }}" ] || PORTAGE_REMOTE="${{ github.event.inputs.portage_remote }}"
+          [ -z "${{ github.event.inputs.portage_ref }}" ] || PORTAGE_REF="${{ github.event.inputs.portage_ref }}"
+          [ -z "${{ github.event.inputs.image_formats }}" ] || IMAGE_FORMATS="${{ github.event.inputs.image_formats }}"
+
+          echo "BUILDCACHE_SERVER=${BUILDCACHE_SERVER}" >> $GITHUB_ENV
+          echo "arch=${arch}" >> $GITHUB_ENV
+          echo "COREOS_REMOTE=${COREOS_REMOTE}" >> $GITHUB_ENV
+          echo "COREOS_REF=${COREOS_REF}" >> $GITHUB_ENV
+          echo "PORTAGE_REMOTE=${PORTAGE_REMOTE}" >> $GITHUB_ENV
+          echo "PORTAGE_REF=${PORTAGE_REF}" >> $GITHUB_ENV
+          echo "IMAGE_FORMATS=${IMAGE_FORMATS}" >> $GITHUB_ENV
+
+      - name: Checkout submodules
+        shell: bash
+        run: |
+          if [ "${COREOS_REMOTE}" != "" -a  "${COREOS_REF}" != "" ]
+          then
+            REMOTE="${COREOS_REMOTE}"
+            REPO_PATH="sdk_container/src/third_party/coreos-overlay"
+            [[ "$REMOTE" == "https:*" ]] || REMOTE="https://github.com/${COREOS_REMOTE}"
+            git -C "$REPO_PATH" remote add test "$REMOTE"
+            git -C "$REPO_PATH" fetch test
+            git -C "$REPO_PATH" checkout "${COREOS_REF}"
+          fi
+
+          if [ "${PORTAGE_REMOTE}" != "" -a  "${PORTAGE_REF}" != "" ]
+          then
+            REMOTE="${PORTAGE_REMOTE}"
+            REPO_PATH="sdk_container/src/third_party/portage-stable"
+            [[ "$REMOTE" == "https:*" ]] || REMOTE="https://github.com/${PORTAGE_REMOTE}"
+            git -C "$REPO_PATH" remote add test "$REMOTE"
+            git -C "$REPO_PATH" fetch test
+            git -C "$REPO_PATH" checkout "${PORTAGE_REF}"
+          fi 
+
+      - name: Build packages
+        shell: bash
+        run: |
+          exec 2>&1
+          set +x
+          set -euo pipefail
+
+          source ci-automation/ci_automation_common.sh
+          source sdk_container/.repo/manifests/version.txt
+
+          version="alpha-$FLATCAR_VERSION_ID"
+          check_version_string "$version"
+          sdk_version="${FLATCAR_SDK_VERSION}"
+
+          sdk_name="flatcar-sdk-${arch}"
+          docker_sdk_vernum="$(vernum_to_docker_image_version "${sdk_version}")"
+          docker_image_from_registry_or_buildcache "${sdk_name}" "${docker_sdk_vernum}"
+          sdk_image="$(docker_image_fullname "${sdk_name}" "${docker_sdk_vernum}")"
+
+          vernum="${version#*-}" # remove main-,alpha-,beta-,stable-,lts- version tag
+          docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
+          packages_container="flatcar-packages-${arch}-${docker_vernum}"
+
+          # Create version file
+          (
+            source sdk_lib/sdk_container_common.sh
+            create_versionfile "$sdk_version" "$version"
+          )
+          ./run_sdk_container -n "${packages_container}" -v "${version}" \
+            -C "${sdk_image}" \
+            ./build_packages --board="${arch}-usr" \
+                --torcx_output_root="${CONTAINER_TORCX_ROOT}"
+
+          # copy torcx manifest and docker tarball for publishing
+          torcx_tmp="__build__/torcx_tmp"
+          rm -rf "${torcx_tmp}"
+          mkdir "${torcx_tmp}"
+          ./run_sdk_container -n "${packages_container}" -v "${version}" \
+              -C "${sdk_image}" \
+              cp -r "${CONTAINER_TORCX_ROOT}/" \
+              "${torcx_tmp}"
+
+          source sdk_container/.repo/manifests/version.txt
+          vernum="${FLATCAR_VERSION}"
+          docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
+          packages_image="flatcar-packages-${arch}"
+
+          echo "vernum=${vernum}" >> $GITHUB_ENV
+          echo "docker_vernum=${docker_vernum}" >> $GITHUB_ENV
+          echo "packages_image=${packages_image}" >> $GITHUB_ENV
+          echo "arch=${arch}" >> $GITHUB_ENV
+          echo "sdk_image=${sdk_image}" >> $GITHUB_ENV
+          echo "packages_container=${packages_container}" >> $GITHUB_ENV
+          docker commit "${packages_container}" "${packages_image}:${docker_vernum}"
+          docker rm -f "${packages_container}"
+
+      - name: Build image
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +x
+
+          echo 'channel="developer"' >> $GITHUB_ENV
+          channel="developer"
+
+          source ci-automation/ci_automation_common.sh
+
+          packages="flatcar-packages-${arch}"
+          packages_image="${packages}:${docker_vernum}"
+          image="flatcar-images-${arch}"
+          image_container="${image}-${docker_vernum}"
+          official_arg="--noofficial"
+
+          echo "image=flatcar-images-${arch}" >> $GITHUB_ENV
+          echo "image_image=${image}:${docker_vernum}" >> $GITHUB_ENV
+
+          ./run_sdk_container -x ./ci-cleanup.sh -n "${image_container}" -C "${packages_image}" \
+                  -v "${vernum}" \
+                  mkdir -p "${CONTAINER_IMAGE_ROOT}"
+          ./run_sdk_container -n "${image_container}" -C "${packages_image}" \
+                  -v "${vernum}" \
+                  ./set_official --board="${arch}-usr" "${official_arg}"
+          ./run_sdk_container -n "${image_container}" -C "${packages_image}" \
+                  -v "${vernum}" \
+                  ./build_image --board="${arch}-usr" --group="${channel}" \
+                                --output_root="${CONTAINER_IMAGE_ROOT}" \
+                                --torcx_root="${CONTAINER_TORCX_ROOT}" prodtar container
+
+          # Copy logs
+          ./run_sdk_container -n "${image_container}" -C "${packages_image}" -v "${vernum}" \
+              tar -cJf ebuild_logs.tar.xz /build/${arch}-usr/var/log/portage \
+              /build/${arch}-usr/var/tmp/portage
+
+          docker commit "${image_container}" "${image}:${docker_vernum}"
+          docker rm -f "${image_container}"
+
+      - name: Build VM image
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +x
+
+          source ci-automation/ci_automation_common.sh
+
+          vms_container="flatcar-vms-${docker_vernum}"
+          images_out="images"
+
+          has_packet=0
+          has_pxe=0
+          formats="${IMAGE_FORMATS}"
+          for format in "${formats}";do
+            [[ "${format}" = 'packet' ]] || [[ "${format}" = 'equinix_metal' ]] && has_packet=1
+            [[ "${format}" = 'pxe' ]] && has_pxe=1
+          done
+
+          [[ ${has_packet} -eq 1 ]] && [[ ${has_pxe} -eq 0 ]] && set -- 'pxe' "${@}"
+          if echo "$formats" | tr ' ' '\n' | grep -q '^vmware'; then
+            formats=$(echo "$formats" | tr ' ' '\n' | sed '/vmware.*/d')
+            formats+=" vmware vmware_insecure vmware_ova vmware_raw"
+          fi
+          if echo "$formats" | tr ' ' '\n' | grep -q -P '^(ami|aws)'; then
+            formats=$(echo "$formats" | tr ' ' '\n' | sed '/ami.*/d' | sed '/aws/d')
+            formats+=" ami ami_vmdk"
+          fi
+          # Keep compatibility with SDK scripts where "equinix_metal" remains unknown.
+          formats=$(echo "$formats" | tr ' ' '\n' | sed 's/equinix_metal/packet/g')
+
+          for format in ${formats}; do
+              echo " ###################  VENDOR '${format}' ################### "
+              ./run_sdk_container -n "${vms_container}" -C "${image_image}" \
+                  -v "${vernum}" \
+                  ./image_to_vm.sh --format "${format}" --board="${arch}-usr" \
+                      --from "${CONTAINER_IMAGE_ROOT}/${arch}-usr/latest" \
+                      --image_compression_formats=bz2
+          done
+
+          # copy resulting images
+          ./run_sdk_container -n "${vms_container}" \
+              -v "${vernum}" \
+              mv "${CONTAINER_IMAGE_ROOT}/${arch}-usr" "./${images_out}"
+
+          # remove symlinks before upload
+          find "./${images_out}" -type l -delete
+
+          docker rm -f "${vms_container}"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: images-${{ matrix.arch }}
+          path: |
+            scripts/images/**/*.img.bz2
+            scripts/images/**/*.bin.bz2
+            scripts/images/**/flatcar_production_*_efi_*.fd
+            scripts/images/**/*.txt
+            scripts/images/**/flatcar_production_*.sh
+            scripts/images/**/flatcar_test_update.gz
+            scripts/ebuild_logs.tar.xz
