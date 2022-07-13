@@ -2,17 +2,23 @@
 
 . /usr/share/coreos/release
 NVIDIA_DRIVER_BASENAME="$1"
-
-emerge-gitclone
-emerge -gKv coreos-sources > /dev/null
-cp "/usr/lib64/modules/$(ls /usr/lib64/modules)/build/.config" /usr/src/linux/
-make -C /usr/src/linux modules_prepare
+KERNEL_NAME="$(ls /lib/modules)"
 
 cd "/nvidia/${NVIDIA_DRIVER_BASENAME}"
 ./nvidia-installer -s -n \
   --no-check-for-alternate-installs \
   --no-kernel-module-source \
+  --kernel-name="${KERNEL_NAME}" \
   --no-opengl-files \
   --no-distro-scripts \
-  --kernel-install-path="${PWD}" \
+  --no-systemd \
+  --skip-depmod \
+  --kernel-install-path="${PWD}/install-mod" \
   --log-file-name="${PWD}/nvidia-installer.log" || true
+
+mkdir -p /lib/modules/${KERNEL_NAME}/video
+mkdir -p "${PWD}"/install-mod
+cp "${PWD}"/kernel/*.ko "${PWD}"/install-mod
+cp "${PWD}"/install-mod/*.ko /lib/modules/${KERNEL_NAME}/video/
+depmod -a
+cp /lib/modules/${KERNEL_NAME}/modules.* "${PWD}/install-mod/"
