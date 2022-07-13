@@ -285,9 +285,6 @@ jobs:
             scripts/ebuild_logs.tar.xz
 
   test:
-    name: "Run kola tests"
     needs: packages
+    name: "Run kola tests"
     uses: ./.github/workflows/run-kola-tests.yaml
-    with:
-      workflow_name_or_id: ${{ github.event.workflow_run.workflow_id }}
-      workflow_run_id: ${{ github.event.workflow_run.id }}
