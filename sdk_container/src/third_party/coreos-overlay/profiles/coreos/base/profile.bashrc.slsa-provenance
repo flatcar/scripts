@@ -43,11 +43,10 @@ __slsa_provenance_subject() {
 __slsa_provenance_materials() {
     local csum="" uri="" repo="" ebuild=""
 
-    local ebuilds_basedir="/mnt/host/source/src/third_party/"
     local ebuild="${CATEGORY}/${PN}/${PF}.ebuild"
-    if [ -f "${ebuilds_basedir}/coreos-overlay/${ebuild}" ] ; then
+    if [ -f "$(portageq get_repo_path ${ROOT:-/} coreos)/${ebuild}" ] ; then
         repo="coreos-overlay"
-    elif [ -f "${ebuilds_basedir}/portage-stable/${ebuild}" ] ; then
+    elif [ -f "$(portageq get_repo_path ${ROOT:-/} portage-stable)/${ebuild}" ] ; then
         repo="portage-stable"
     else
         eerror "SLSA provenance: Unable to detect ebuild repository for package '${ebuild}'"
