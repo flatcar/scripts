@@ -22,7 +22,7 @@ fi
 
 # Fetch image and BIOS if not present
 if [ -f "${QEMU_IMAGE_NAME}" ] ; then
-    echo "++++ ${CIA_TESTSCRIPT}: Using existing ./${QEMU_IMAGE_NAME} for testing ${CIA_VERNUM} (${CIA_ARCH}) ++++"
+    echo "++++ ${CIA_TESTSCRIPT}: Using existing ${QEMU_IMAGE_NAME} for testing ${CIA_VERNUM} (${CIA_ARCH}) ++++"
 else
     echo "++++ ${CIA_TESTSCRIPT}: downloading ${QEMU_IMAGE_NAME} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
     rm -f "${QEMU_IMAGE_NAME}.bz2"
@@ -34,7 +34,7 @@ bios="${QEMU_BIOS}"
 if [ "${CIA_TESTSCRIPT}" = "qemu_uefi.sh" ] ; then
     bios="${QEMU_UEFI_BIOS}"
     if [ -f "${bios}" ] ; then
-        echo "++++ ${CIA_TESTSCRIPT}: Using existing ./${bios} ++++"
+        echo "++++ ${CIA_TESTSCRIPT}: Using existing ${bios} ++++"
     else
         echo "++++ ${CIA_TESTSCRIPT}: downloading ${bios} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
         copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${bios}" .
@@ -51,6 +51,7 @@ kola run \
     --qemu-image="${QEMU_IMAGE_NAME}" \
     --tapfile="${CIA_TAPFILE}" \
     --torcx-manifest="${CIA_TORCX_MANIFEST}" \
+    --qemu-skip-mangle \
     "${@}"
 
 set +x
