@@ -64,6 +64,7 @@
 #   3. "./ci-cleanup.sh" with commands to clean up temporary build resources,
 #        to be run after this step finishes / when this step is aborted.
 #   4. If signer key was passed, signatures of artifacts from point 1, pushed along to buildcache.
+#   5. DIGESTS of the artifacts from point 1, pushed to buildcache. If signer key was passed, armored ASCII files of the generated DIGESTS files too, pushed to buildcache.
 
 function packages_build() {
     # Run a subshell, so the traps, environment changes and global
@@ -175,9 +176,12 @@ function _packages_build_impl() {
     docker_commit_to_buildcache "${packages_container}" "${packages_image}" "${docker_vernum}"
 
     # Publish torcx manifest and docker tarball to "images" cache so tests can pull it later.
-    sign_artifacts "${SIGNER}" \
+    create_digests "${SIGNER}" \
         "${torcx_tmp}/torcx/${arch}-usr/latest/torcx_manifest.json" \
         "${torcx_tmp}/torcx/pkgs/${arch}-usr/docker/"*/*.torcx.tgz
+    sign_artifacts "${SIGNER}" \
+        "${torcx_tmp}/torcx/${arch}-usr/latest/torcx_manifest.json"* \
+        "${torcx_tmp}/torcx/pkgs/${arch}-usr/docker/"*/*.torcx.tgz*
     copy_to_buildcache "images/${arch}/${vernum}/torcx" \
         "${torcx_tmp}/torcx/${arch}-usr/latest/torcx_manifest.json"*
     copy_to_buildcache "images/${arch}/${vernum}/torcx" \
