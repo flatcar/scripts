@@ -31,6 +31,7 @@ set_build_symlinks() {
 cleanup_mounts() {
   info "Cleaning up mounts"
   "${BUILD_LIBRARY_DIR}/disk_util" umount "$1" || true
+  rmdir "${1}" || true
 }
 
 delete_prompt() {
@@ -782,5 +783,6 @@ EOF
     pushd "${BUILD_DIR}" >/dev/null
     zip --quiet -r -9 "${BUILD_DIR}/${pcr_policy}" pcrs
     popd >/dev/null
+    rm -rf "${BUILD_DIR}/pcrs"
   fi
 }
