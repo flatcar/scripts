@@ -56,6 +56,7 @@
 #   3. "./ci-cleanup.sh" with commands to clean up temporary build resources,
 #        to be run after this step finishes / when this step is aborted.
 #   4. If signer key was passed, signatures of artifacts from point 1, pushed along to buildcache.
+#   5. DIGESTS of the artifacts from point 1, pushed to buildcache. If signer key was passed, armored ASCII files of the generated DIGESTS files too, pushed to buildcache.
 
 function sdk_bootstrap() {
     # Run a subshell, so the traps, environment changes and global
@@ -141,9 +142,11 @@ function _sdk_bootstrap_impl() {
     local uid=$(id --user)
     local gid=$(id --group)
     sudo chown --recursive "${uid}:${gid}" __build__
-    cd "__build__/images/catalyst/builds/flatcar-sdk"
-    sign_artifacts "${SIGNER}" "${dest_tarball}"*
-    copy_to_buildcache "sdk/${ARCH}/${FLATCAR_SDK_VERSION}" "${dest_tarball}"*
-    cd -
+    (
+      cd "__build__/images/catalyst/builds/flatcar-sdk"
+      create_digests "${SIGNER}" "${dest_tarball}"
+      sign_artifacts "${SIGNER}" "${dest_tarball}"*
+      copy_to_buildcache "sdk/${ARCH}/${FLATCAR_SDK_VERSION}" "${dest_tarball}"*
+    )
 }
 # --

@@ -187,7 +187,8 @@ function docker_image_to_buildcache() {
     local tarball="$(basename "$image")-${version}.tar.gz"
 
     $docker save "${image}":"${version}" | $PIGZ -c > "${tarball}"
-    sign_artifacts "${SIGNER:-}" "${tarball}"
+    create_digests "${SIGNER:-}" "${tarball}"
+    sign_artifacts "${SIGNER:-}" "${tarball}"*
     copy_to_buildcache "containers/${version}" "${tarball}"*
 }
 # --
@@ -332,30 +333,123 @@ function sign_artifacts() {
     # rest of the parameters are directories/files to sign
     local to_sign=()
     local file
-    local files
 
     if [[ -z "${signer}" ]]; then
         return
     fi
 
-    for file; do
-        files=()
-        if [[ -d "${file}" ]]; then
-            readarray -d '' files < <(find "${file}" ! -type d -print0)
-        elif [[ -e "${file}" ]]; then
-            files+=( "${file}" )
-        fi
-        for file in "${files[@]}"; do
-            if [[ "${file}" =~ \.(asc|gpg|sig)$ ]]; then
-                continue
-            fi
-            to_sign+=( "${file}" )
-        done
-    done
+    list_files to_sign 'asc,gpg,sig' "${@}"
+
     for file in "${to_sign[@]}"; do
         gpg --batch --local-user "${signer}" \
             --output "${file}.sig" \
             --detach-sign "${file}"
+    done
+}
+# --
+
+# Creates digests files and armored ASCII files out of them for the
+# passed files and directories. In case of directory, all files inside
+# it are processed. No new digests file is created if there is one
+# already for the processed file. Same for armored ASCII file. Files
+# ending with .asc or .sig or .gpg or .DIGESTS are not processed. The
+# armored ASCII files won't be created if the signer is empty.
+#
+# Typical use:
+#   create_digests "${SIGNER}" artifact.tar.gz
+#   sign_artifacts "${SIGNER}" artifact.tar.gz*
+#   copy_to_buildcache "artifacts/directory" artifact.tar.gz*
+#
+# Parameters:
+#
+# 1 - signer whose key is expected to be already imported into the
+#       keyring
+# @ - files and directories to create digests for
+function create_digests() {
+    local signer="${1}"; shift
+    # rest of the parameters are files or directories to create
+    # digests for
+    local to_digest=()
+    local file
+    local df
+    local fbn
+    local hash_type
+    local output
+    local af
+
+    list_files to_digest 'asc,gpg,sig,DIGESTS' "${@}"
+
+    for file in "${to_digest[@]}"; do
+        df="${file}.DIGESTS"
+        if [[ ! -e "${df}" ]]; then
+            touch "${df}"
+            fbn=$(basename "${file}")
+            # TODO: modernize - drop md5 and sha1, add b2
+            for hash_type in md5 sha1 sha512; do
+                echo "# ${hash_type} HASH" | tr "a-z" "A-Z" >>"${df}"
+                output=$("${hash_type}sum" "${file}")
+                echo "${output%% *}  ${fbn}" >>"${df}"
+            done
+        fi
+        if [[ -z "${signer}" ]]; then
+            continue
+        fi
+        af="${df}.asc"
+        if [[ ! -e "${af}" ]]; then
+            gpg --batch --local-user "${signer}" \
+                --output "${af}" \
+                --clearsign "${df}"
+        fi
+    done
+}
+# --
+
+# Puts a filtered list of files from the passed files and directories
+# in the passed variable. The filtering is done by ignoring files that
+# end with the passed extensions. The extensions list should not
+# contain the leading dot.
+#
+# Typical use:
+#   local all_files=()
+#   local ignored_extensions='sh,py,pl' # ignore the shell, python and perl scripts
+#   list_files all_files "${ignored_extensions}" "${directories_and_files[@]}"
+#
+# Parameters:
+#
+# 1 - name of an array variable where the filtered files will be stored
+# 2 - comma-separated list of extensions that will be used for filtering files
+# @ - files and directories to scan for files
+function list_files() {
+    local files_variable_name="${1}"; shift
+    local ignored_extensions="${1}"; shift
+    # rest of the parameters are files or directories to list
+    local -n files="${files_variable_name}"
+    local file
+    local tmp_files
+    local pattern=''
+
+    if [[ -n "${ignored_extensions}" ]]; then
+        pattern='\.('"${ignored_extensions//,/|}"')$'
+    fi
+
+    files=()
+    for file; do
+        tmp_files=()
+        if [[ -d "${file}" ]]; then
+            readarray -d '' tmp_files < <(find "${file}" ! -type d -print0)
+        elif [[ -e "${file}" ]]; then
+            tmp_files+=( "${file}" )
+        fi
+        if [[ -z "${pattern}" ]]; then
+            files+=( "${tmp_files[@]}" )
+            continue
+        fi
+        for file in "${tmp_files[@]}"; do
+            if [[ "${file}" =~ ${pattern} ]]; then
+                continue
+            fi
+            files+=( "${file}" )
+        done
     done
 }
 # --
