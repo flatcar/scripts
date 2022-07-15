@@ -65,6 +65,7 @@ create_prod_image() {
   local root_fs_dir="${BUILD_DIR}/rootfs"
   local image_contents="${image_name%.bin}_contents.txt"
   local image_packages="${image_name%.bin}_packages.txt"
+  local image_sbom="${image_name%.bin}_sbom.json"
   local image_licenses="${image_name%.bin}_licenses.json"
   local image_kconfig="${image_name%.bin}_kernel_config.txt"
   local image_kernel="${image_name%.bin}.vmlinuz"
@@ -81,6 +82,7 @@ create_prod_image() {
   run_ldconfig "${root_fs_dir}"
   run_localedef "${root_fs_dir}"
   write_packages "${root_fs_dir}" "${BUILD_DIR}/${image_packages}"
+  write_sbom "${root_fs_dir}" "${BUILD_DIR}/${image_sbom}"
   write_licenses "${root_fs_dir}" "${BUILD_DIR}/${image_licenses}"
   insert_licenses "${BUILD_DIR}/${image_licenses}" "${root_fs_dir}"
 
@@ -137,6 +139,7 @@ EOF
   local to_upload=(
     "${BUILD_DIR}/${image_contents}"
     "${BUILD_DIR}/${image_packages}"
+    "${BUILD_DIR}/${image_sbom}"
     "${BUILD_DIR}/${image_licenses}"
     "${BUILD_DIR}/${image_kernel}"
     "${BUILD_DIR}/${image_pcr_policy}"
