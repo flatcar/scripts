@@ -112,7 +112,7 @@ jobs:
             [[ "$REMOTE" == "https:*" ]] || REMOTE="https://github.com/${COREOS_REMOTE}"
             git -C "$REPO_PATH" remote add test "$REMOTE"
             git -C "$REPO_PATH" fetch test
-            git -C "$REPO_PATH" checkout "${COREOS_REF}"
+            git -C "$REPO_PATH" checkout "test/${COREOS_REF}"
           fi
 
           if [ "${PORTAGE_REMOTE}" != "" -a  "${PORTAGE_REF}" != "" ]
@@ -122,7 +122,7 @@ jobs:
             [[ "$REMOTE" == "https:*" ]] || REMOTE="https://github.com/${PORTAGE_REMOTE}"
             git -C "$REPO_PATH" remote add test "$REMOTE"
             git -C "$REPO_PATH" fetch test
-            git -C "$REPO_PATH" checkout "${PORTAGE_REF}"
+            git -C "$REPO_PATH" checkout "test/${PORTAGE_REF}"
           fi 
 
       - name: Build packages
