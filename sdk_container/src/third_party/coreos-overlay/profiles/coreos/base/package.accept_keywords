@@ -61,3 +61,6 @@
 
 # Required for CVE-2022-27239, CVE-2022-29869
 =net-fs/cifs-utils-6.15 ~amd64 ~arm64
+
+# Required to fix toolchains build during fsscript in stage 4 of SDK build.
+=sys-devel/crossdev-20220709 ~amd64 ~arm64
