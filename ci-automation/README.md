@@ -71,13 +71,14 @@ image_build amd64
 
 ### OS image build
 
-3. Packages build (`packages.sh`): using the SDK container version recorded in the versionfile, build OS image packages and generate a new container image (containing both SDK and packages).
-   This step updates the versionfile, recording the Flatcar OS image version just built.
-   It will generate and push a new version tag to the scripts repo.
-4. Packages are published and the generic OS image is built.
+3. Packages tag (`packages-tag.sh`): Creates git tag if needed with the SDK container version recorded in the versionfile and the OS version from the tag.
+   Creates `skip-build` flag file if no changes since last nightly tag are seen.
+   Pushes the new version tag to the scripts repo as free-standing tag, and for nightlies also to the branch.
+4. Packages build (`packages.sh`): Build OS image packages and generate a new container image (containing both SDK and packages).
+5. Packages are published and the generic OS image is built.
    1. Binary packages are published (`push_pkgs.sh`) to the build cache, making them available to developers who base their work on the main branch.
    2. Image build (`image.sh`): Using the container from 3., build an OS image and torcx store, and generate a new container image with everything in it.
-5. VMs build (`vms.sh`). Using the packages+torcx+image container from 4., build vendor images. Results are vendor-specific OS images.
+6. VMs build (`vms.sh`). Using the packages+torcx+image container from 4., build vendor images. Results are vendor-specific OS images.
 
 ```
        .---------.                     .------------.             .--------.
@@ -87,10 +88,14 @@ image_build amd64
             |                                 |                        |
             |                       "alpha-3449.0.0-dev23"             |
             |                                 |                        |
+            |                           ______v_______                 |
+            +---------- clone ------>  ( packages-tag )                |
+            |                           `------------´                 |
+            |<-- tag: alpha-3499.0.0-dev23 --´|                        |
             |                             ____v_____                   |
-            +---------- clone -------->  ( packages )                  |
-            |                             `--------´                   |
-            |<-- tag: alpha-3499.0.0-dev23 --´|`- sdk + OS packages -->|
+            +-----       clone      ---> ( packages )                  |
+            |    alpha-3499.0.0-dev23     `--------´                   |
+            |                                 |`- sdk + OS packages -->|
             |                                 |    container image     |
             |                                 |    torcx manifest      |
             |                           ______v_______                 |
