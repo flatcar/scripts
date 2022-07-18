@@ -11,12 +11,14 @@ SRC_URI+=" https://dev.gentoo.org/~williamh/dist/${P}-deps.tar.xz"
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="~amd64"
+# Flatcar: keyword for arm64 and amd64
+KEYWORDS="amd64 arm64"
 
 src_compile() {
-	ego build -o bin/syft ./cmd/syft
+	# Flatcar: add ldflags to set version
+	ego build -o bin/syft -ldflags "-X github.com/anchore/syft/internal/version.version=${PV}" ./cmd/syft
 }
 
 src_install() {
-dobin bin/*
+	dobin bin/*
 }
