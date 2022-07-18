@@ -7,7 +7,7 @@ EAPI=7
 
 VIM_VERSION="8.2"
 LUA_COMPAT=( lua5-1 luajit )
-PYTHON_COMPAT=( python3_{7..10} )
+PYTHON_COMPAT=( python3_{8..10} )
 PYTHON_REQ_USE="threads(+)"
 USE_RUBY="ruby24 ruby25 ruby26 ruby27"
 
@@ -19,7 +19,7 @@ if [[ ${PV} == 9999* ]] ; then
 else
 	SRC_URI="https://github.com/vim/vim/archive/v${PV}.tar.gz -> ${P}.tar.gz
 		https://dev.gentoo.org/~zlogene/distfiles/app-editors/vim/vim-8.2.0360-gentoo-patches.tar.xz"
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 fi
 
 DESCRIPTION="Vim, an improved vi-style text editor"
@@ -45,7 +45,8 @@ RDEPEND="
 	lua? ( ${LUA_DEPS}
 		$(lua_gen_impl_dep 'deprecated' lua5-1)
 	)
-	!minimal? ( ~app-editors/vim-core-${PV} )
+	~app-editors/vim-core-${PV}
+	!<app-editors/vim-core-8.2.4328-r1
 	vim-pager? ( app-editors/vim-core[-minimal] )
 	perl? ( dev-lang/perl:= )
 	python? ( ${PYTHON_DEPS} )
@@ -294,7 +295,7 @@ src_test() {
 # Call eselect vi update with --if-unset
 # to respect user's choice (bug #187449)
 eselect_vi_update() {
-	einfo "Calling eselect vi update..."
+	ebegin "Calling eselect vi update"
 	eselect vi update --if-unset
 	eend $?
 }
@@ -316,12 +317,6 @@ src_install() {
 		insinto ${vimfiles}/macros
 		doins runtime/macros/manpager.sh
 		fperms a+x ${vimfiles}/macros/manpager.sh
-	fi
-
-	# Fix an issue of missing defaults.vim when USE=minimal.
-	if use minimal ; then
-		insinto ${vimfiles}
-		doins runtime/defaults.vim
 	fi
 
 	domenu runtime/vim.desktop
