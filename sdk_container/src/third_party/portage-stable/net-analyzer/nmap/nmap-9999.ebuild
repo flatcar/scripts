@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -29,8 +29,11 @@ else
 fi
 
 SLOT="0"
-IUSE="ipv6 libssh2 ncat nping +nse ssl +system-lua"
-REQUIRED_USE="system-lua? ( nse ${LUA_REQUIRED_USE} )"
+IUSE="ipv6 libssh2 ncat nping +nse ssl symlink +system-lua"
+REQUIRED_USE="
+	system-lua? ( nse ${LUA_REQUIRED_USE} )
+	symlink? ( ncat )
+"
 
 RDEPEND="
 	dev-libs/liblinear:=
@@ -47,7 +50,7 @@ RDEPEND="
 DEPEND="${RDEPEND}"
 
 if [[ ${PV} != *9999* ]] ; then
-	BDEPEND+="verify-sig? ( app-crypt/openpgp-keys-nmap )"
+	BDEPEND+="verify-sig? ( sec-keys/openpgp-keys-nmap )"
 fi
 
 PATCHES=(
@@ -117,16 +120,20 @@ src_compile() {
 	done
 
 	emake \
-		AR=$(tc-getAR) \
-		RANLIB=$(tc-getRANLIB)
+		AR="$(tc-getAR)" \
+		RANLIB="$(tc-getRANLIB)"
 }
 
 src_install() {
-	LC_ALL=C emake -j1 \
+	# See bug #831713 for return of -j1
+	LC_ALL=C emake \
+		-j1 \
 		DESTDIR="${D}" \
 		STRIP=: \
 		nmapdatadir="${EPREFIX}"/usr/share/nmap \
 		install
 
 	dodoc CHANGELOG HACKING docs/README docs/*.txt
+
+	use symlink && dosym /usr/bin/ncat /usr/bin/nc
 }
