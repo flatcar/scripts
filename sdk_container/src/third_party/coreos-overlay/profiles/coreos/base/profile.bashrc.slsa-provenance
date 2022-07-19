@@ -12,6 +12,7 @@
 cros_post_src_configure_enable_slsa_provenance_report() {
     if [ "${GENERATE_SLSA_PROVENANCE:-}" != "true" ] ; then
         einfo "Provenance generation not requested by build; skipping."
+        return 0
     fi
     export __slsa_provenance_report="yes"
 }
@@ -49,8 +50,7 @@ __slsa_provenance_materials() {
     elif [ -f "$(portageq get_repo_path ${ROOT:-/} portage-stable)/${ebuild}" ] ; then
         repo="portage-stable"
     else
-        eerror "SLSA provenance: Unable to detect ebuild repository for package '${ebuild}'"
-        exit 1
+        die "SLSA provenance: Unable to detect ebuild repository for package '${ebuild}'"
     fi
 
     einfo "    Provenance: recording ebuild material (input) '${repo}/${ebuild}'"
@@ -93,8 +93,7 @@ __slsa_provenance_materials() {
                 prev_uri="${uri}"
             done
             if [ "${found}" != "true" ] ; then
-                eerror "No SRC_URI found for source '${src}', unable to record provenance!"
-                exit 1
+                die "No SRC_URI found for source '${src}', unable to record provenance!"
             fi
         done
     elif [ -n "${EGIT_REPO_URI:-}" ] ; then
