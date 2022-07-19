@@ -84,6 +84,7 @@ create_prod_image() {
   write_packages "${root_fs_dir}" "${BUILD_DIR}/${image_packages}"
   write_licenses "${root_fs_dir}" "${BUILD_DIR}/${image_licenses}"
   insert_licenses "${BUILD_DIR}/${image_licenses}" "${root_fs_dir}"
+  insert_extra_slsa "${root_fs_dir}"
 
   # Assert that if this is supposed to be an official build that the
   # official update keys have been used.
