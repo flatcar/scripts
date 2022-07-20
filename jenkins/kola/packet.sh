@@ -29,11 +29,13 @@ if [[ "${KOLA_TESTS}" == "" ]]; then
 fi
 
 # Equinix Metal ARM server are not yet hourly available in the default `sv15` region
-# so we override the `PACKET_REGION` to `Dallas` since it's available in this region.
+# so we override the `PACKET_REGION` to `DC`. ARM servers are available in metro
+# either DA (Dallas) or DC (Washington), but DC has more servers available.
+# See also https://metal.equinix.com/developers/docs/locations/capacity/.
 # We do not override `PACKET_REGION` for both board on top level because we need to keep proximity
 # for PXE booting.
 if [[ "${BOARD}" == "arm64-usr" ]]; then
-  PACKET_REGION="DA"
+  PACKET_REGION="DC"
 fi
 
 # Run the cl.internet test on multiple machine types only if it should run in general
