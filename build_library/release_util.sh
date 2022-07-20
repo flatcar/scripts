@@ -98,11 +98,8 @@ compress_disk_images() {
     # from the list of uploadable files.
     for filename in "${local_files_to_evaluate[@]}"; do
         if [[ "${filename}" =~ \.(img|bin|vdi|vhd|vmdk)$ ]]; then
-            # Parse the formats as an array. This will yield an extra empty
-            # array element at the end.
-            readarray -td, FORMATS<<<"${FLAGS_image_compression_formats},"
-            # unset the last element
-            unset 'FORMATS[-1]'
+            local -a FORMATS
+            FORMATS=($(echo "${FLAGS_image_compression_formats}" | tr ',' ' '))
 
             # An associative array we set an element on whenever we process a format.
             # This way we don't process the same format twice. A unique for array elements.
