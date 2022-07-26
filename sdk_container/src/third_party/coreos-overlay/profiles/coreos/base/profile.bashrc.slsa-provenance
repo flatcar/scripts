@@ -30,7 +30,7 @@ __slsa_provenance_subject() {
 
     (
         cd "$D"
-        find . -type f -print | sed 's:^./::' | xargs -P "$parallel" -L 1 sha512sum
+        find . -type f -print | sed 's:^./::' | xargs -P "$parallel" -L 1 sha512sum | sort -k2
     ) | while read checksum filepath; do
         echo -en "${comma}     {\"name\":\"/$filepath\", \"digest\":{\"sha512\":\"$checksum\"}}"
         if [ -z "$comma" ] ; then
