@@ -155,3 +155,6 @@ dev-libs/libpcre2 -pcre16 unicode
 # enabled by upstream. Samba was enabled to make some tests pass. But
 # smi and ssl, no clue.
 net-analyzer/tcpdump -ssl -smi -samba
+
+# selinux: to find files with a particular SElinux label
+sys-apps/findutils selinux
