@@ -272,7 +272,7 @@ src_prepare() {
 	# /run/systemd/resolve/stub-resolv.conf (and if using K8s
 	# configure the kubelet resolvConf variable/--resolv-conf flag
 	# to /run/systemd/resolve/resolv.conf).
-	sed -i -e 's,/run/systemd/resolve/stub-resolv.conf,/run/systemd/resolve/resolv.conf,' tmpfiles.d/etc.conf.in || die
+	sed -i -e 's,/run/systemd/resolve/stub-resolv.conf,/run/systemd/resolve/resolv.conf,' tmpfiles.d/systemd-resolve.conf || die
 
 	default
 }
