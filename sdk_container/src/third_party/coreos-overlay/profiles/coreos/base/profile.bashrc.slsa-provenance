@@ -58,8 +58,8 @@ __slsa_provenance_materials() {
 
     # The ebuild. Since "configSource" in "invocation" cannot have more than one (top/level) entry
     #  we add the ebuild and git repo checksum here, as a material.
-    csum="$(cat "/mnt/host/source/src/scripts/.git/modules/sdk_container/src/third_party/${repo}/ORIG_HEAD")"
-    uri="git+https://github.com/flatcar-linux/${repo}.git/${ebuild}"
+    csum="$(cat "/mnt/host/source/src/scripts/.git/modules/sdk_container/src/third_party/${repo}/HEAD")"
+    uri="git+https://github.com/flatcar-linux/${repo}.git@${csum}#${ebuild}"
     echo -e "      { \"uri\": \"${uri}\","
     echo -n "        \"digest\": {\"sha1\":\"${csum}\"} }"
 
@@ -106,10 +106,12 @@ __slsa_provenance_materials() {
     fi
 
     # Patches / files shipped with the ebuild (if any)
-    uri="git+https://github.com/flatcar-linux/${repo}.git/${CATEGORY}/${PN}/files"
-    csum="$(cat "/mnt/host/source/src/scripts/.git/modules/sdk_container/src/third_party/${repo}/ORIG_HEAD")"
+    csum="$(cat "/mnt/host/source/src/scripts/.git/modules/sdk_container/src/third_party/${repo}/HEAD")"
+    uri="git+https://github.com/flatcar-linux/${repo}.git@${csum}#${CATEGORY}/${PN}/files"
     if [ -d "${FILESDIR}" ] ; then
         for file in $(cd "$FILESDIR" && find . -type f | sed 's:^./::') ; do
+            csum="$(sha1sum - <"${FILESDIR}/${file}")"
+            csum="${csum%% *}"
             einfo "    Provenance: recording ebuild material (input) '${file}'"
             echo -e ",\n      { \"uri\": \"${uri}/${file}\","
             echo -n "        \"digest\": {\"sha1\":\"$csum\"} }"
