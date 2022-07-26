@@ -131,12 +131,15 @@ __slsa_provenance_materials() {
 # --
 
 __slsa_provenance_report() {
-    local scripts_hash="$(cat "/mnt/host/source/src/scripts/.git/ORIG_HEAD")"
+    local scripts_hash="$(cat "/mnt/host/source/src/scripts/.git/HEAD")"
     local buildcmd="emerge"
     # extract board from e.g. '/build/amd64-usr/build'. Empty if no board is set (SDK build).
     local board="$(echo "${CROS_BUILD_BOARD_TREE:-}" | sed -n 's:^/build/\([^/]\+\)/.*:\1:p')"
     if [ -n "$board" ] ; then
         buildcmd="emerge-${board}"
+    fi
+    if [[ "${scripts_hash}" == "ref:"* ]]; then
+        scripts_hash="$(cat /mnt/host/source/src/scripts/.git/${scripts_hash#ref: })"
     fi
 
     # FIXME: Supply SDK image ID and sha256 digest along with the version tag
