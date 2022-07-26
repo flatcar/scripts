@@ -42,16 +42,24 @@ __slsa_provenance_subject() {
 # --
 
 __slsa_provenance_materials() {
-    local csum="" uri="" repo="" ebuild=""
+    local csum="" uri="" repo="" ebuild="" ebuildcsum=""
 
     local ebuild="${CATEGORY}/${PN}/${PF}.ebuild"
-    if [ -f "$(portageq get_repo_path ${ROOT:-/} coreos)/${ebuild}" ] ; then
+    local repopath="$(portageq get_repo_path ${ROOT:-/} coreos)"
+    if [ -f "${repopath}/${ebuild}" ] ; then
         repo="coreos-overlay"
-    elif [ -f "$(portageq get_repo_path ${ROOT:-/} portage-stable)/${ebuild}" ] ; then
-        repo="portage-stable"
+        ebuildcsum=$(sha1sum - < "${repopath}/${ebuild}")
     else
+        repopath="$(portageq get_repo_path ${ROOT:-/} portage-stable)"
+        if [ -f "${repopath}/${ebuild}" ] ; then
+            repo="portage-stable"
+            ebuildcsum=$(sha1sum - < "${repopath}/${ebuild}")
+        fi
+    fi
+    if [ -z "${repo}" ]; then
         die "SLSA provenance: Unable to detect ebuild repository for package '${ebuild}'"
     fi
+    ebuildcsum=${ebuildcsum%% *}
 
     einfo "    Provenance: recording ebuild material (input) '${repo}/${ebuild}'"
     echo '   "materials": ['
@@ -61,7 +69,7 @@ __slsa_provenance_materials() {
     csum="$(cat "/mnt/host/source/src/scripts/.git/modules/sdk_container/src/third_party/${repo}/HEAD")"
     uri="git+https://github.com/flatcar-linux/${repo}.git@${csum}#${ebuild}"
     echo -e "      { \"uri\": \"${uri}\","
-    echo -n "        \"digest\": {\"sha1\":\"${csum}\"} }"
+    echo -n "        \"digest\": {\"sha1\":\"${ebuildcsum}\"} }"
 
     # The main sources
     if [ -n "${A}" ] ; then
