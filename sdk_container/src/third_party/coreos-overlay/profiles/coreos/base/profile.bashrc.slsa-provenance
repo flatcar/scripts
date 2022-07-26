@@ -21,7 +21,7 @@ cros_post_src_configure_enable_slsa_provenance_report() {
 # Generate SLSA provenance 0.2 Subject information.
 # The information will cover all installation files shipped with a package.
 __slsa_provenance_subject() {
-    local parallel="$(grep -cE '^processor' /proc/cpuinfo)"
+    local parallel="$(nproc)"
     local comma=""
 
     einfo "    Provenance: recording subject (output)"
