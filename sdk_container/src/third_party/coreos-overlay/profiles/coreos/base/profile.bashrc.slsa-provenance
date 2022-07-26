@@ -14,7 +14,7 @@ cros_post_src_configure_enable_slsa_provenance_report() {
         einfo "Provenance generation not requested by build; skipping."
         return 0
     fi
-    export __slsa_provenance_report="yes"
+    export generate_slsa_provenance_report="yes"
 }
 # --
 
@@ -167,7 +167,7 @@ EOF
 # --
 
 cros_post_src_install_generate_slsa_provenance_report() {
-    if [ "${__slsa_provenance_report:-no}" != "yes" ] ; then
+    if [ "${generate_slsa_provenance_report:-no}" != "yes" ] ; then
         return
     fi
 
