@@ -1,0 +1,1 @@
+- Fixed `/etc/resolv.conf` symlink by pointing it at `resolv.conf` instead of `stub-resolv.conf`. This bug was present since the update to systemd v250 ([coreos-overlay#2057](https://github.com/flatcar-linux/coreos-overlay/pull/2057))
