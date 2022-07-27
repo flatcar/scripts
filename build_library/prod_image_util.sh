@@ -45,7 +45,7 @@ extract_prod_gcc() {
     # Instead we extract them to plain old /usr/lib
     qtbz2 -O -t "${pkg}" | \
         sudo tar -C "${root_fs_dir}" -xj \
-        --transform 's#/usr/lib/.*/#/usr/lib/#' \
+        --transform 's#/usr/lib/.*/#/usr/lib64/#' \
         --wildcards './usr/lib/gcc/*.so*'
 
     package_provided "${gcc}"
