@@ -311,6 +311,12 @@ write_packages() {
     image_packages "$1" | sort > "$2"
 }
 
+# Generate an SPDX SBOM using syft
+write_sbom() {
+    info "Writing ${2##*/}"
+    sudo syft packages "${1}" -o spdx-json="$2"
+}
+
 # Get metadata $key for package $pkg installed under $prefix
 # The metadata is either read from the portage db folder or
 # via a portageq-BOARD invocation. In cases where SRC_URI is
