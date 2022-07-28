@@ -85,6 +85,7 @@ RDEPEND="${RDEPEND}
 # Useful utilities for developers.
 RDEPEND="${RDEPEND}
 	app-arch/zip
+	app-containers/syft
 	app-doc/eclass-manpages
 	app-portage/gentoolkit
 	app-portage/portage-utils
