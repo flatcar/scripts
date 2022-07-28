@@ -57,6 +57,7 @@ PATCHES=(
 	"${FILESDIR}/0013-Revert-drop-OEM-URI-support.patch"
 	"${FILESDIR}/0014-internal-resource-url-support-btrfs-as-OEM-partition.patch"
 	"${FILESDIR}/0015-internal-exec-stages-disks-prevent-races-with-udev.patch"
+	"${FILESDIR}/0016-mod-bump-ign-converter-to-pull-networkd-fix.patch"
 )
 
 src_compile() {
