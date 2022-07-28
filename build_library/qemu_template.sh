@@ -12,6 +12,7 @@ VM_CDROM=
 VM_PFLASH_RO=
 VM_PFLASH_RW=
 VM_NCPUS="$(getconf _NPROCESSORS_ONLN)"
+SECURE_BOOT=
 SSH_PORT=2222
 SSH_KEYS=""
 CLOUD_CONFIG_FILE=""
@@ -147,6 +148,16 @@ if [ -z "${CONFIG_IMAGE}" ]; then
             "${CONFIG_DRIVE}/openstack/latest/user_data"
     fi
 fi
+if [ -n "${SECURE_BOOT}" ]; then
+    smmarg=smm=on
+    set -- -global ICH9-LPC.disable_s3=1 \
+           -global driver=cfi.pflash01,property=secure,value=on \
+           "$@"
+
+else
+    smmarg=
+fi
+
 
 # Start assembling our default command line arguments
 if [ "${SAFE_ARGS}" -eq 1 ]; then
@@ -156,9 +167,9 @@ else
     case "${VM_BOARD}+$(uname -m)" in
         amd64-usr+x86_64)
             # Emulate the host CPU closely in both features and cores.
-            set -- -machine accel=kvm:hvf:tcg -cpu host -smp "${VM_NCPUS}" "$@" ;;
+            set -- -machine q35,accel=kvm:hvf:tcg,$smmarg -cpu host -smp "${VM_NCPUS}" "$@" ;;
         amd64-usr+*)
-            set -- -machine pc-q35-2.8 -cpu kvm64 -smp 1 -nographic "$@" ;;
+            set -- -machine q35 -cpu kvm64 -smp 1 -nographic "$@" ;;
         arm64-usr+aarch64)
             set -- -machine virt,accel=kvm,gic-version=3 -cpu host -smp "${VM_NCPUS}" -nographic "$@" ;;
         arm64-usr+*)
@@ -215,8 +226,8 @@ fi
 
 if [ -n "${VM_PFLASH_RO}" ] && [ -n "${VM_PFLASH_RW}" ]; then
     set -- \
-        -drive if=pflash,file="${SCRIPT_DIR}/${VM_PFLASH_RO}",format=raw,readonly=on \
-        -drive if=pflash,file="${SCRIPT_DIR}/${VM_PFLASH_RW}",format=raw "$@"
+        -drive if=pflash,unit=0,file="${SCRIPT_DIR}/${VM_PFLASH_RO}",format=raw,readonly=on \
+        -drive if=pflash,unit=1,file="${SCRIPT_DIR}/${VM_PFLASH_RW}",format=raw "$@"
 fi
 
 if [ -n "${IGNITION_CONFIG_FILE}" ]; then
