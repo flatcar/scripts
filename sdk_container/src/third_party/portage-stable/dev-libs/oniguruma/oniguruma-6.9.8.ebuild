@@ -1,7 +1,7 @@
 # Copyright 2003-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="7"
+EAPI="8"
 
 inherit multilib-minimal
 
@@ -21,7 +21,7 @@ fi
 
 LICENSE="BSD-2"
 SLOT="0/5"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-solaris"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-solaris"
 IUSE="crnl-as-line-terminator static-libs"
 
 BDEPEND=""
@@ -29,7 +29,7 @@ DEPEND=""
 RDEPEND=""
 
 if [[ "${PV}" != "9999" ]]; then
-	S="${WORKDIR}/onig-$(ver_cut 1-3)"
+	S="${WORKDIR}/onig-${PV}"
 fi
 
 DOCS=(AUTHORS HISTORY README{,_japanese} doc/{API,CALLOUTS.API,CALLOUTS.BUILTIN,FAQ,RE}{,.ja} doc/{SYNTAX.md,UNICODE_PROPERTIES})
