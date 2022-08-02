@@ -187,7 +187,7 @@ cros_post_src_install_generate_slsa_provenance_report() {
     local report_file="${CATEGORY}_${PF}.json.bz2"
     local dest_dir="${D}/usr/share/SLSA/"
 
-    __slsa_provenance_report | lbzip2 -9cz > "${T}/${report_file}"
+    __slsa_provenance_report | jq | lbzip2 -9cz > "${T}/${report_file}"
 
     mkdir -p "${dest_dir}"
     mv "${T}/${report_file}" "${dest_dir}"
