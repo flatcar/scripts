@@ -1,7 +1,7 @@
-From 831c1ae725f7d2f8f858b0840692b48e75b49331 Mon Sep 17 00:00:00 2001
+From 41b844d9f633b26dea32242217fdaabc8d11a645 Mon Sep 17 00:00:00 2001
 From: Sunil Muthuswamy <sunilmut@microsoft.com>
 Date: Wed, 5 Jan 2022 11:32:35 -0800
-Subject: [PATCH 1/2] PCI: hv: Make the code arch neutral by adding arch
+Subject: [PATCH 3/5] PCI: hv: Make the code arch neutral by adding arch
  specific interfaces
 
 Encapsulate arch dependencies in Hyper-V vPCI through a set of
@@ -9,6 +9,13 @@ arch-dependent interfaces. Adding these arch specific interfaces will
 allow for an implementation for other architectures, such as arm64.
 
 There are no functional changes expected from this patch.
+
+krnowak: Backport to 5.15 - this patch adds the hv_msi_get_int_vector
+function for x64, so drop the same function that was brought in by
+another patch backported to 5.15 from master. Similar thing goes for
+the hv_msi_prepare function, but this time the function brought under
+the CONFIG_X86 is amended to match the fixed variant that was already
+a part of 5.15.
 
 Link: https://lore.kernel.org/r/1641411156-31705-2-git-send-email-sunilmut@linux.microsoft.com
 Signed-off-by: Sunil Muthuswamy <sunilmut@microsoft.com>
@@ -18,17 +25,16 @@ Reviewed-by: Boqun Feng <boqun.feng@gmail.com>
 Reviewed-by: Marc Zyngier <maz@kernel.org>
 Reviewed-by: Michael Kelley <mikelley@microsoft.com>
 ---
- arch/x86/include/asm/hyperv-tlfs.h  | 33 ++++++++++++
- arch/x86/include/asm/mshyperv.h     |  7 ---
- drivers/pci/controller/pci-hyperv.c | 79 ++++++++++++++++++++---------
- include/asm-generic/hyperv-tlfs.h   | 33 ------------
- 4 files changed, 87 insertions(+), 65 deletions(-)
+ arch/x86/include/asm/hyperv-tlfs.h  |  33 +++++++++
+ drivers/pci/controller/pci-hyperv.c | 101 ++++++++++++++++------------
+ include/asm-generic/hyperv-tlfs.h   |  33 ---------
+ 3 files changed, 92 insertions(+), 75 deletions(-)
 
 diff --git a/arch/x86/include/asm/hyperv-tlfs.h b/arch/x86/include/asm/hyperv-tlfs.h
-index 381e88122a5f..0a9407dc0859 100644
+index 2322d6bd5883..fdf3d28fbdd5 100644
 --- a/arch/x86/include/asm/hyperv-tlfs.h
 +++ b/arch/x86/include/asm/hyperv-tlfs.h
-@@ -602,6 +602,39 @@ enum hv_interrupt_type {
+@@ -585,6 +585,39 @@ enum hv_interrupt_type {
  	HV_X64_INTERRUPT_TYPE_MAXIMUM           = 0x000A,
  };
  
@@ -68,26 +74,8 @@ index 381e88122a5f..0a9407dc0859 100644
  #include <asm-generic/hyperv-tlfs.h>
  
  #endif
-diff --git a/arch/x86/include/asm/mshyperv.h b/arch/x86/include/asm/mshyperv.h
-index da3972fe5a7a..a1c3dceff8eb 100644
---- a/arch/x86/include/asm/mshyperv.h
-+++ b/arch/x86/include/asm/mshyperv.h
-@@ -169,13 +169,6 @@ bool hv_vcpu_is_preempted(int vcpu);
- static inline void hv_apic_init(void) {}
- #endif
- 
--static inline void hv_set_msi_entry_from_desc(union hv_msi_entry *msi_entry,
--					      struct msi_desc *msi_desc)
--{
--	msi_entry->address.as_uint32 = msi_desc->msg.address_lo;
--	msi_entry->data.as_uint32 = msi_desc->msg.data;
--}
--
- struct irq_domain *hv_create_pci_msi_domain(void);
- 
- int hv_map_ioapic_interrupt(int ioapic_id, bool level, int vcpu, int vector,
 diff --git a/drivers/pci/controller/pci-hyperv.c b/drivers/pci/controller/pci-hyperv.c
-index 6733cb14e775..ead7d6cb6bf1 100644
+index 9b54715a4b63..dbbe8417e35e 100644
 --- a/drivers/pci/controller/pci-hyperv.c
 +++ b/drivers/pci/controller/pci-hyperv.c
 @@ -43,9 +43,6 @@
@@ -100,7 +88,7 @@ index 6733cb14e775..ead7d6cb6bf1 100644
  #include <linux/irq.h>
  #include <linux/msi.h>
  #include <linux/hyperv.h>
-@@ -583,6 +580,42 @@ struct hv_pci_compl {
+@@ -583,6 +580,51 @@ struct hv_pci_compl {
  
  static void hv_pci_onchannelcallback(void *context);
  
@@ -136,14 +124,23 @@ index 6733cb14e775..ead7d6cb6bf1 100644
 +static int hv_msi_prepare(struct irq_domain *domain, struct device *dev,
 +			  int nvec, msi_alloc_info_t *info)
 +{
-+	return pci_msi_prepare(domain, dev, nvec, info);
++	int ret = pci_msi_prepare(domain, dev, nvec, info);
++
++	/*
++	 * By using the interrupt remapper in the hypervisor IOMMU, contiguous
++	 * CPU vectors is not needed for multi-MSI
++	 */
++	if (info->type == X86_IRQ_ALLOC_TYPE_PCI_MSI)
++		info->flags &= ~X86_IRQ_ALLOC_CONTIGUOUS_VECTORS;
++
++	return ret;
 +}
 +#endif /* CONFIG_X86 */
 +
  /**
   * hv_pci_generic_compl() - Invoked for a completion packet
   * @context:		Set up by the sender of the packet.
-@@ -1191,14 +1224,6 @@ static void hv_msi_free(struct irq_domain *domain, struct msi_domain_info *info,
+@@ -1195,41 +1237,11 @@ static void hv_msi_free(struct irq_domain *domain, struct msi_domain_info *info,
  	put_pcichild(hpdev);
  }
  
@@ -158,15 +155,42 @@ index 6733cb14e775..ead7d6cb6bf1 100644
  static void hv_irq_mask(struct irq_data *data)
  {
  	pci_msi_mask_irq(data);
-@@ -1217,7 +1242,6 @@ static void hv_irq_mask(struct irq_data *data)
+ }
+ 
+-static unsigned int hv_msi_get_int_vector(struct irq_data *data)
+-{
+-	struct irq_cfg *cfg = irqd_cfg(data);
+-
+-	return cfg->vector;
+-}
+-
+-static int hv_msi_prepare(struct irq_domain *domain, struct device *dev,
+-			  int nvec, msi_alloc_info_t *info)
+-{
+-	int ret = pci_msi_prepare(domain, dev, nvec, info);
+-
+-	/*
+-	 * By using the interrupt remapper in the hypervisor IOMMU, contiguous
+-	 * CPU vectors is not needed for multi-MSI
+-	 */
+-	if (info->type == X86_IRQ_ALLOC_TYPE_PCI_MSI)
+-		info->flags &= ~X86_IRQ_ALLOC_CONTIGUOUS_VECTORS;
+-
+-	return ret;
+-}
+-
+ /**
+  * hv_irq_unmask() - "Unmask" the IRQ by setting its current
+  * affinity.
+@@ -1243,7 +1255,6 @@ static int hv_msi_prepare(struct irq_domain *domain, struct device *dev,
  static void hv_irq_unmask(struct irq_data *data)
  {
  	struct msi_desc *msi_desc = irq_data_get_msi_desc(data);
 -	struct irq_cfg *cfg = irqd_cfg(data);
  	struct hv_retarget_device_interrupt *params;
+ 	struct tran_int_desc *int_desc;
  	struct hv_pcibus_device *hbus;
- 	struct cpumask *dest;
-@@ -1246,7 +1270,7 @@ static void hv_irq_unmask(struct irq_data *data)
+@@ -1275,7 +1286,7 @@ static void hv_irq_unmask(struct irq_data *data)
  			   (hbus->hdev->dev_instance.b[7] << 8) |
  			   (hbus->hdev->dev_instance.b[6] & 0xf8) |
  			   PCI_FUNC(pdev->devfn);
@@ -175,68 +199,34 @@ index 6733cb14e775..ead7d6cb6bf1 100644
  
  	/*
  	 * Honoring apic->delivery_mode set to APIC_DELIVERY_MODE_FIXED by
-@@ -1347,7 +1371,7 @@ static u32 hv_compose_msi_req_v1(
+@@ -1376,7 +1387,7 @@ static u32 hv_compose_msi_req_v1(
  	int_pkt->wslot.slot = slot;
  	int_pkt->int_desc.vector = vector;
- 	int_pkt->int_desc.vector_count = 1;
+ 	int_pkt->int_desc.vector_count = vector_count;
 -	int_pkt->int_desc.delivery_mode = APIC_DELIVERY_MODE_FIXED;
 +	int_pkt->int_desc.delivery_mode = DELIVERY_MODE;
  
  	/*
  	 * Create MSI w/ dummy vCPU set, overwritten by subsequent retarget in
-@@ -1377,7 +1401,7 @@ static u32 hv_compose_msi_req_v2(
+@@ -1406,7 +1417,7 @@ static u32 hv_compose_msi_req_v2(
  	int_pkt->wslot.slot = slot;
  	int_pkt->int_desc.vector = vector;
- 	int_pkt->int_desc.vector_count = 1;
+ 	int_pkt->int_desc.vector_count = vector_count;
 -	int_pkt->int_desc.delivery_mode = APIC_DELIVERY_MODE_FIXED;
 +	int_pkt->int_desc.delivery_mode = DELIVERY_MODE;
  	cpu = hv_compose_msi_req_get_cpu(affinity);
  	int_pkt->int_desc.processor_array[0] =
  		hv_cpu_number_to_vp_number(cpu);
-@@ -1397,7 +1421,7 @@ static u32 hv_compose_msi_req_v3(
+@@ -1426,7 +1437,7 @@ static u32 hv_compose_msi_req_v3(
  	int_pkt->int_desc.vector = vector;
  	int_pkt->int_desc.reserved = 0;
- 	int_pkt->int_desc.vector_count = 1;
+ 	int_pkt->int_desc.vector_count = vector_count;
 -	int_pkt->int_desc.delivery_mode = APIC_DELIVERY_MODE_FIXED;
 +	int_pkt->int_desc.delivery_mode = DELIVERY_MODE;
  	cpu = hv_compose_msi_req_get_cpu(affinity);
  	int_pkt->int_desc.processor_array[0] =
  		hv_cpu_number_to_vp_number(cpu);
-@@ -1419,7 +1443,6 @@ static u32 hv_compose_msi_req_v3(
-  */
- static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
- {
--	struct irq_cfg *cfg = irqd_cfg(data);
- 	struct hv_pcibus_device *hbus;
- 	struct vmbus_channel *channel;
- 	struct hv_pci_dev *hpdev;
-@@ -1470,7 +1493,7 @@ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
- 		size = hv_compose_msi_req_v1(&ctxt.int_pkts.v1,
- 					dest,
- 					hpdev->desc.win_slot.slot,
--					cfg->vector);
-+					hv_msi_get_int_vector(data));
- 		break;
- 
- 	case PCI_PROTOCOL_VERSION_1_2:
-@@ -1478,14 +1501,14 @@ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
- 		size = hv_compose_msi_req_v2(&ctxt.int_pkts.v2,
- 					dest,
- 					hpdev->desc.win_slot.slot,
--					cfg->vector);
-+					hv_msi_get_int_vector(data));
- 		break;
- 
- 	case PCI_PROTOCOL_VERSION_1_4:
- 		size = hv_compose_msi_req_v3(&ctxt.int_pkts.v3,
- 					dest,
- 					hpdev->desc.win_slot.slot,
--					cfg->vector);
-+					hv_msi_get_int_vector(data));
- 		break;
- 
- 	default:
-@@ -1594,14 +1617,14 @@ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
+@@ -1660,7 +1671,7 @@ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
  static struct irq_chip hv_msi_irq_chip = {
  	.name			= "Hyper-V PCIe MSI",
  	.irq_compose_msi_msg	= hv_compose_msi_msg,
@@ -245,15 +235,7 @@ index 6733cb14e775..ead7d6cb6bf1 100644
  	.irq_ack		= irq_chip_ack_parent,
  	.irq_mask		= hv_irq_mask,
  	.irq_unmask		= hv_irq_unmask,
- };
- 
- static struct msi_domain_ops hv_msi_ops = {
--	.msi_prepare	= pci_msi_prepare,
-+	.msi_prepare	= hv_msi_prepare,
- 	.msi_free	= hv_msi_free,
- };
- 
-@@ -1625,12 +1648,12 @@ static int hv_pcie_init_irq_domain(struct hv_pcibus_device *hbus)
+@@ -1691,12 +1702,12 @@ static int hv_pcie_init_irq_domain(struct hv_pcibus_device *hbus)
  	hbus->msi_info.flags = (MSI_FLAG_USE_DEF_DOM_OPS |
  		MSI_FLAG_USE_DEF_CHIP_OPS | MSI_FLAG_MULTI_PCI_MSI |
  		MSI_FLAG_PCI_MSIX);
@@ -269,7 +251,7 @@ index 6733cb14e775..ead7d6cb6bf1 100644
  	if (!hbus->irq_domain) {
  		dev_err(&hbus->hdev->device,
  			"Failed to build an MSI IRQ domain\n");
-@@ -3542,9 +3565,15 @@ static void __exit exit_hv_pci_drv(void)
+@@ -3626,9 +3637,15 @@ static void __exit exit_hv_pci_drv(void)
  
  static int __init init_hv_pci_drv(void)
  {
@@ -286,10 +268,10 @@ index 6733cb14e775..ead7d6cb6bf1 100644
  	set_bit(HVPCI_DOM_INVALID, hvpci_dom_map);
  
 diff --git a/include/asm-generic/hyperv-tlfs.h b/include/asm-generic/hyperv-tlfs.h
-index 8ed6733d5146..8f97c2927bee 100644
+index 56348a541c50..45cc0c3b8ed7 100644
 --- a/include/asm-generic/hyperv-tlfs.h
 +++ b/include/asm-generic/hyperv-tlfs.h
-@@ -540,39 +540,6 @@ enum hv_interrupt_source {
+@@ -539,39 +539,6 @@ enum hv_interrupt_source {
  	HV_INTERRUPT_SOURCE_IOAPIC,
  };
  
@@ -330,5 +312,5 @@ index 8ed6733d5146..8f97c2927bee 100644
  	u64 as_uint64;
  
 -- 
-2.32.0
+2.25.1
 

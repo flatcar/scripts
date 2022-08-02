@@ -1,7 +1,7 @@
-From b1b77cc3614b1f39a270d203c77d79834e9e91f3 Mon Sep 17 00:00:00 2001
+From 75baa46a53a465668cbb875ceef03e659ff29694 Mon Sep 17 00:00:00 2001
 From: Michael Kelley <mikelley@microsoft.com>
 Date: Thu, 24 Mar 2022 09:14:51 -0700
-Subject: [PATCH 1/2] Drivers: hv: vmbus: Propagate VMbus coherence to each
+Subject: [PATCH 5/5] Drivers: hv: vmbus: Propagate VMbus coherence to each
  VMbus device
 
 VMbus synthetic devices are not represented in the ACPI DSDT -- only
@@ -16,8 +16,14 @@ Fix this by propagating coherence information from the VMbus node
 in ACPI to the individual synthetic devices. There's no effect on
 x86/x64 where devices are always hardware coherent.
 
+krnowak: Backport to 5.15 - fixed conflict stemming from hv_map_memory
+and hv_unmap_memory being in diff context. These functions do not
+exist in 5.15.
+
 Signed-off-by: Michael Kelley <mikelley@microsoft.com>
 Acked-by: Robin Murphy <robin.murphy@arm.com>
+Link: https://lore.kernel.org/r/1648138492-2191-2-git-send-email-mikelley@microsoft.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 ---
  drivers/hv/hv_common.c         | 11 +++++++++++
  drivers/hv/vmbus_drv.c         | 31 +++++++++++++++++++++++++++++++
@@ -54,7 +60,7 @@ index c0d9048a4112..196cedd5f37c 100644
  {
  	return !hv_root_partition && acpi_sleep_state_supported(ACPI_STATE_S4);
 diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-index 44bd0b6ff505..fdbd5531405e 100644
+index 50d9113f5402..1f38d0a6548d 100644
 --- a/drivers/hv/vmbus_drv.c
 +++ b/drivers/hv/vmbus_drv.c
 @@ -919,6 +919,21 @@ static int vmbus_probe(struct device *child_device)
@@ -87,7 +93,7 @@ index 44bd0b6ff505..fdbd5531405e 100644
  	.dev_groups =		vmbus_dev_groups,
  	.drv_groups =		vmbus_drv_groups,
  	.bus_groups =		vmbus_bus_groups,
-@@ -2424,6 +2440,21 @@ static int vmbus_acpi_add(struct acpi_device *device)
+@@ -2430,6 +2446,21 @@ static int vmbus_acpi_add(struct acpi_device *device)
  
  	hv_acpi_dev = device;
  
@@ -122,5 +128,5 @@ index d3eae6cdbacb..807f1b524af2 100644
  static inline bool hv_is_hyperv_initialized(void) { return false; }
  static inline bool hv_is_hibernation_supported(void) { return false; }
 -- 
-2.32.0
+2.25.1
 
