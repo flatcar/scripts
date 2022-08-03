@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -10,9 +10,9 @@ HOMEPAGE="https://sourceforge.net/projects/libtirpc/"
 SRC_URI="mirror://sourceforge/${PN}/${P}.tar.bz2
 	mirror://gentoo/${PN}-glibc-nfs.tar.xz"
 
-LICENSE="GPL-2"
+LICENSE="BSD BSD-2 BSD-4 LGPL-2.1+"
 SLOT="0/3" # subslot matches SONAME major
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux"
 IUSE="ipv6 kerberos static-libs"
 
 RDEPEND="kerberos? ( >=virtual/krb5-0-r1[${MULTILIB_USEDEP}] )"
@@ -22,17 +22,14 @@ BDEPEND="
 	app-arch/xz-utils
 	virtual/pkgconfig"
 
-PATCHES=(
-	"${FILESDIR}/${PN}-1.3.2-fix-dos.patch"
-)
-
 src_prepare() {
+	local PATCHES=(
+		"${FILESDIR}"/libtirpc-1.3.2-dos.patch
+		"${FILESDIR}"/libtirpc-1.3.2-use-after-free.patch
+		"${FILESDIR}"/libtirpc-1.3.2-memory-leak.patch
+	)
 	cp -r "${WORKDIR}"/tirpc "${S}"/ || die
 	default
-
-	# Flatcar: Set netconfig path to /usr so NFS works in
-	# PXE/ISO-booted systems.
-	sed -i -e "s,/etc,/usr/share/tirpc," "${S}/tirpc/netconfig.h" || die
 }
 
 multilib_src_configure() {
@@ -54,7 +51,7 @@ multilib_src_install() {
 multilib_src_install_all() {
 	einstalldocs
 
-	insinto /usr/share/tirpc
+	insinto /etc
 	doins doc/netconfig
 
 	insinto /usr/include/tirpc
