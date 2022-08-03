@@ -14,7 +14,8 @@ source ci-automation/vendor_test.sh
 
 board="${CIA_ARCH}-usr"
 basename="ci-${CIA_VERNUM//+/-}-${CIA_ARCH}"
-azure_instance_type="${AZURE_MACHINE_SIZE}"
+azure_instance_type_var="AZURE_${CIA_ARCH}_MACHINE_SIZE"
+azure_instance_type="${!azure_instance_type_var}"
 azure_vnet_subnet_name="jenkins-vnet-${AZURE_LOCATION}"
 IS_AMD64=${CIA_ARCH//arm64/}
 
