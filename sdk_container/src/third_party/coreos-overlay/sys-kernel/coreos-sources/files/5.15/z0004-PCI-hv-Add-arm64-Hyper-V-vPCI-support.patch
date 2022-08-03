@@ -1,7 +1,7 @@
-From d9932b46915664c88709d59927fa67e797adec56 Mon Sep 17 00:00:00 2001
+From 802291ee132c756996438afb97dd9d25f9fa5d08 Mon Sep 17 00:00:00 2001
 From: Sunil Muthuswamy <sunilmut@microsoft.com>
 Date: Wed, 5 Jan 2022 11:32:36 -0800
-Subject: [PATCH 2/2] PCI: hv: Add arm64 Hyper-V vPCI support
+Subject: [PATCH 4/7] PCI: hv: Add arm64 Hyper-V vPCI support
 
 Add arm64 Hyper-V vPCI support by implementing the arch specific
 interfaces. Introduce an IRQ domain and chip specific to Hyper-v vPCI that
@@ -57,10 +57,10 @@ index 43e615aa12ff..d98fafdd0f99 100644
  	help
  	  The PCI device frontend driver allows the kernel to import arbitrary
 diff --git a/drivers/pci/controller/Kconfig b/drivers/pci/controller/Kconfig
-index 93b141110537..2536abcc045a 100644
+index 326f7d13024f..b24edba0b870 100644
 --- a/drivers/pci/controller/Kconfig
 +++ b/drivers/pci/controller/Kconfig
-@@ -281,7 +281,7 @@ config PCIE_BRCMSTB
+@@ -280,7 +280,7 @@ config PCIE_BRCMSTB
  
  config PCI_HYPERV_INTERFACE
  	tristate "Hyper-V PCI Interface"
@@ -70,7 +70,7 @@ index 93b141110537..2536abcc045a 100644
  	  The Hyper-V PCI Interface is a helper driver allows other drivers to
  	  have a common interface with the Hyper-V PCI frontend driver.
 diff --git a/drivers/pci/controller/pci-hyperv.c b/drivers/pci/controller/pci-hyperv.c
-index ead7d6cb6bf1..31743f93199e 100644
+index 601d06fe1adc..42c625bc5944 100644
 --- a/drivers/pci/controller/pci-hyperv.c
 +++ b/drivers/pci/controller/pci-hyperv.c
 @@ -47,6 +47,8 @@
@@ -82,9 +82,9 @@ index ead7d6cb6bf1..31743f93199e 100644
  #include <asm/mshyperv.h>
  
  /*
-@@ -614,7 +616,230 @@ static int hv_msi_prepare(struct irq_domain *domain, struct device *dev,
- {
- 	return pci_msi_prepare(domain, dev, nvec, info);
+@@ -616,7 +618,230 @@ static int hv_msi_prepare(struct irq_domain *domain, struct device *dev,
+ 
+ 	return ret;
  }
 -#endif /* CONFIG_X86 */
 +#elif defined(CONFIG_ARM64)
@@ -314,7 +314,7 @@ index ead7d6cb6bf1..31743f93199e 100644
  
  /**
   * hv_pci_generic_compl() - Invoked for a completion packet
-@@ -1227,6 +1452,8 @@ static void hv_msi_free(struct irq_domain *domain, struct msi_domain_info *info,
+@@ -1233,6 +1458,8 @@ static void hv_msi_free(struct irq_domain *domain, struct msi_domain_info *info,
  static void hv_irq_mask(struct irq_data *data)
  {
  	pci_msi_mask_irq(data);
@@ -323,7 +323,7 @@ index ead7d6cb6bf1..31743f93199e 100644
  }
  
  /**
-@@ -1343,6 +1570,8 @@ static void hv_irq_unmask(struct irq_data *data)
+@@ -1352,6 +1579,8 @@ static void hv_irq_unmask(struct irq_data *data)
  		dev_err(&hbus->hdev->device,
  			"%s() failed: %#llx", __func__, res);
  
@@ -332,7 +332,7 @@ index ead7d6cb6bf1..31743f93199e 100644
  	pci_msi_unmask_irq(data);
  }
  
-@@ -1618,7 +1847,11 @@ static struct irq_chip hv_msi_irq_chip = {
+@@ -1665,7 +1894,11 @@ static struct irq_chip hv_msi_irq_chip = {
  	.name			= "Hyper-V PCIe MSI",
  	.irq_compose_msi_msg	= hv_compose_msi_msg,
  	.irq_set_affinity	= irq_chip_set_affinity_parent,
@@ -345,5 +345,5 @@ index ead7d6cb6bf1..31743f93199e 100644
  	.irq_unmask		= hv_irq_unmask,
  };
 -- 
-2.32.0
+2.25.1
 

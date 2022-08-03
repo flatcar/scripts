@@ -1,7 +1,7 @@
-From bb5ea0a6a4a0b7a1a361c8c5dea29628c8e01135 Mon Sep 17 00:00:00 2001
+From f654ed34d7082cad0b0105b8f54fc9d78b982eef Mon Sep 17 00:00:00 2001
 From: David Michael <david.michael@coreos.com>
 Date: Thu, 8 Feb 2018 21:23:12 -0500
-Subject: [PATCH 2/2] tools/objtool/Makefile: Don't fail on fallthrough with
+Subject: [PATCH 2/7] tools/objtool/Makefile: Don't fail on fallthrough with
  new GCCs
 
 ---
@@ -23,5 +23,5 @@ index 1c777a72bb39..0217b7af786a 100644
  
  CFLAGS += -I$(srctree)/tools/include/
 -- 
-2.26.2
+2.25.1
 
