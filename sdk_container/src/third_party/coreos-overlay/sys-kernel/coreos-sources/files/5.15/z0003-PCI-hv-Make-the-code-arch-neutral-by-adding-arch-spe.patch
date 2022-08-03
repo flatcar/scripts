@@ -1,7 +1,7 @@
-From 41b844d9f633b26dea32242217fdaabc8d11a645 Mon Sep 17 00:00:00 2001
+From 80f4d4e5e1042ea78c527d39f44ee16f5a2d3e5a Mon Sep 17 00:00:00 2001
 From: Sunil Muthuswamy <sunilmut@microsoft.com>
 Date: Wed, 5 Jan 2022 11:32:35 -0800
-Subject: [PATCH 3/5] PCI: hv: Make the code arch neutral by adding arch
+Subject: [PATCH 3/7] PCI: hv: Make the code arch neutral by adding arch
  specific interfaces
 
 Encapsulate arch dependencies in Hyper-V vPCI through a set of
@@ -25,10 +25,10 @@ Reviewed-by: Boqun Feng <boqun.feng@gmail.com>
 Reviewed-by: Marc Zyngier <maz@kernel.org>
 Reviewed-by: Michael Kelley <mikelley@microsoft.com>
 ---
- arch/x86/include/asm/hyperv-tlfs.h  |  33 +++++++++
- drivers/pci/controller/pci-hyperv.c | 101 ++++++++++++++++------------
- include/asm-generic/hyperv-tlfs.h   |  33 ---------
- 3 files changed, 92 insertions(+), 75 deletions(-)
+ arch/x86/include/asm/hyperv-tlfs.h  | 33 ++++++++++
+ drivers/pci/controller/pci-hyperv.c | 94 ++++++++++++++++-------------
+ include/asm-generic/hyperv-tlfs.h   | 33 ----------
+ 3 files changed, 85 insertions(+), 75 deletions(-)
 
 diff --git a/arch/x86/include/asm/hyperv-tlfs.h b/arch/x86/include/asm/hyperv-tlfs.h
 index 2322d6bd5883..fdf3d28fbdd5 100644
@@ -75,7 +75,7 @@ index 2322d6bd5883..fdf3d28fbdd5 100644
  
  #endif
 diff --git a/drivers/pci/controller/pci-hyperv.c b/drivers/pci/controller/pci-hyperv.c
-index 9b54715a4b63..dbbe8417e35e 100644
+index 9b54715a4b63..601d06fe1adc 100644
 --- a/drivers/pci/controller/pci-hyperv.c
 +++ b/drivers/pci/controller/pci-hyperv.c
 @@ -43,9 +43,6 @@
@@ -88,7 +88,7 @@ index 9b54715a4b63..dbbe8417e35e 100644
  #include <linux/irq.h>
  #include <linux/msi.h>
  #include <linux/hyperv.h>
-@@ -583,6 +580,51 @@ struct hv_pci_compl {
+@@ -583,6 +580,44 @@ struct hv_pci_compl {
  
  static void hv_pci_onchannelcallback(void *context);
  
@@ -114,13 +114,6 @@ index 9b54715a4b63..dbbe8417e35e 100644
 +	return cfg->vector;
 +}
 +
-+static void hv_set_msi_entry_from_desc(union hv_msi_entry *msi_entry,
-+				       struct msi_desc *msi_desc)
-+{
-+	msi_entry->address.as_uint32 = msi_desc->msg.address_lo;
-+	msi_entry->data.as_uint32 = msi_desc->msg.data;
-+}
-+
 +static int hv_msi_prepare(struct irq_domain *domain, struct device *dev,
 +			  int nvec, msi_alloc_info_t *info)
 +{
@@ -140,7 +133,7 @@ index 9b54715a4b63..dbbe8417e35e 100644
  /**
   * hv_pci_generic_compl() - Invoked for a completion packet
   * @context:		Set up by the sender of the packet.
-@@ -1195,41 +1237,11 @@ static void hv_msi_free(struct irq_domain *domain, struct msi_domain_info *info,
+@@ -1195,41 +1230,11 @@ static void hv_msi_free(struct irq_domain *domain, struct msi_domain_info *info,
  	put_pcichild(hpdev);
  }
  
@@ -182,7 +175,7 @@ index 9b54715a4b63..dbbe8417e35e 100644
  /**
   * hv_irq_unmask() - "Unmask" the IRQ by setting its current
   * affinity.
-@@ -1243,7 +1255,6 @@ static int hv_msi_prepare(struct irq_domain *domain, struct device *dev,
+@@ -1243,7 +1248,6 @@ static int hv_msi_prepare(struct irq_domain *domain, struct device *dev,
  static void hv_irq_unmask(struct irq_data *data)
  {
  	struct msi_desc *msi_desc = irq_data_get_msi_desc(data);
@@ -190,7 +183,7 @@ index 9b54715a4b63..dbbe8417e35e 100644
  	struct hv_retarget_device_interrupt *params;
  	struct tran_int_desc *int_desc;
  	struct hv_pcibus_device *hbus;
-@@ -1275,7 +1286,7 @@ static void hv_irq_unmask(struct irq_data *data)
+@@ -1275,7 +1279,7 @@ static void hv_irq_unmask(struct irq_data *data)
  			   (hbus->hdev->dev_instance.b[7] << 8) |
  			   (hbus->hdev->dev_instance.b[6] & 0xf8) |
  			   PCI_FUNC(pdev->devfn);
@@ -199,7 +192,7 @@ index 9b54715a4b63..dbbe8417e35e 100644
  
  	/*
  	 * Honoring apic->delivery_mode set to APIC_DELIVERY_MODE_FIXED by
-@@ -1376,7 +1387,7 @@ static u32 hv_compose_msi_req_v1(
+@@ -1376,7 +1380,7 @@ static u32 hv_compose_msi_req_v1(
  	int_pkt->wslot.slot = slot;
  	int_pkt->int_desc.vector = vector;
  	int_pkt->int_desc.vector_count = vector_count;
@@ -208,7 +201,7 @@ index 9b54715a4b63..dbbe8417e35e 100644
  
  	/*
  	 * Create MSI w/ dummy vCPU set, overwritten by subsequent retarget in
-@@ -1406,7 +1417,7 @@ static u32 hv_compose_msi_req_v2(
+@@ -1406,7 +1410,7 @@ static u32 hv_compose_msi_req_v2(
  	int_pkt->wslot.slot = slot;
  	int_pkt->int_desc.vector = vector;
  	int_pkt->int_desc.vector_count = vector_count;
@@ -217,7 +210,7 @@ index 9b54715a4b63..dbbe8417e35e 100644
  	cpu = hv_compose_msi_req_get_cpu(affinity);
  	int_pkt->int_desc.processor_array[0] =
  		hv_cpu_number_to_vp_number(cpu);
-@@ -1426,7 +1437,7 @@ static u32 hv_compose_msi_req_v3(
+@@ -1426,7 +1430,7 @@ static u32 hv_compose_msi_req_v3(
  	int_pkt->int_desc.vector = vector;
  	int_pkt->int_desc.reserved = 0;
  	int_pkt->int_desc.vector_count = vector_count;
@@ -226,7 +219,7 @@ index 9b54715a4b63..dbbe8417e35e 100644
  	cpu = hv_compose_msi_req_get_cpu(affinity);
  	int_pkt->int_desc.processor_array[0] =
  		hv_cpu_number_to_vp_number(cpu);
-@@ -1660,7 +1671,7 @@ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
+@@ -1660,7 +1664,7 @@ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
  static struct irq_chip hv_msi_irq_chip = {
  	.name			= "Hyper-V PCIe MSI",
  	.irq_compose_msi_msg	= hv_compose_msi_msg,
@@ -235,7 +228,7 @@ index 9b54715a4b63..dbbe8417e35e 100644
  	.irq_ack		= irq_chip_ack_parent,
  	.irq_mask		= hv_irq_mask,
  	.irq_unmask		= hv_irq_unmask,
-@@ -1691,12 +1702,12 @@ static int hv_pcie_init_irq_domain(struct hv_pcibus_device *hbus)
+@@ -1691,12 +1695,12 @@ static int hv_pcie_init_irq_domain(struct hv_pcibus_device *hbus)
  	hbus->msi_info.flags = (MSI_FLAG_USE_DEF_DOM_OPS |
  		MSI_FLAG_USE_DEF_CHIP_OPS | MSI_FLAG_MULTI_PCI_MSI |
  		MSI_FLAG_PCI_MSIX);
@@ -251,7 +244,7 @@ index 9b54715a4b63..dbbe8417e35e 100644
  	if (!hbus->irq_domain) {
  		dev_err(&hbus->hdev->device,
  			"Failed to build an MSI IRQ domain\n");
-@@ -3626,9 +3637,15 @@ static void __exit exit_hv_pci_drv(void)
+@@ -3626,9 +3630,15 @@ static void __exit exit_hv_pci_drv(void)
  
  static int __init init_hv_pci_drv(void)
  {

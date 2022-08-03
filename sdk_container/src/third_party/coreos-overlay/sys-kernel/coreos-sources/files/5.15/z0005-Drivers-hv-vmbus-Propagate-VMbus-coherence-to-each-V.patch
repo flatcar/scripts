@@ -1,7 +1,7 @@
-From 75baa46a53a465668cbb875ceef03e659ff29694 Mon Sep 17 00:00:00 2001
+From cdbc1cd23ea659b8fc8f67fa0d88654eb90a01fe Mon Sep 17 00:00:00 2001
 From: Michael Kelley <mikelley@microsoft.com>
 Date: Thu, 24 Mar 2022 09:14:51 -0700
-Subject: [PATCH 5/5] Drivers: hv: vmbus: Propagate VMbus coherence to each
+Subject: [PATCH 5/7] Drivers: hv: vmbus: Propagate VMbus coherence to each
  VMbus device
 
 VMbus synthetic devices are not represented in the ACPI DSDT -- only
