@@ -1,0 +1,1 @@
+- Fixed excluded interface type from default systemd-networkd configuration ([flatcar-linux/init#78](https://github.com/flatcar-linux/init/pull/78))
