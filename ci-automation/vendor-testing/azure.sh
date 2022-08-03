@@ -41,9 +41,9 @@ fi
 run_kola_tests() {
     local instance_type="${1}"; shift
     local instance_tapfile="${1}"; shift
-    local hyperv_gen="v2"
-    if [ "${instance_type}" = "v1" ]; then
-        hyperv_gen="v1"
+    local hyperv_gen="V2"
+    if [ "${instance_type}" = "V1" ]; then
+        hyperv_gen="V1"
         instance_type="${azure_instance_type}"
     fi
 
@@ -78,7 +78,7 @@ run_kola_tests_on_instances \
     "${azure_instance_type}" \
     "${CIA_TAPFILE}" \
     "${CIA_FIRST_RUN}" \
-    ${IS_AMD64:+v1} \
+    ${IS_AMD64:+V1} \
     '--' \
     'cl.internet' \
     '--' \
