@@ -17,7 +17,6 @@ basename="ci-${CIA_VERNUM//+/-}-${CIA_ARCH}"
 azure_instance_type_var="AZURE_${CIA_ARCH}_MACHINE_SIZE"
 azure_instance_type="${!azure_instance_type_var}"
 azure_vnet_subnet_name="jenkins-vnet-${AZURE_LOCATION}"
-IS_AMD64=${CIA_ARCH//arm64/}
 
 azure_profile_config_file=''
 secret_to_file azure_profile_config_file "${AZURE_PROFILE}"
@@ -75,11 +74,16 @@ query_kola_tests() {
     kola list --platform=azure --filter "${@}"
 }
 
+other_instance_types=()
+if [[ "${CIA_ARCH}" = 'amd64' ]]; then
+    other_instance_types+=('V1')
+fi
+
 run_kola_tests_on_instances \
     "${azure_instance_type}" \
     "${CIA_TAPFILE}" \
     "${CIA_FIRST_RUN}" \
-    ${IS_AMD64:+V1} \
+    "${other_instance_types[@]}" \
     '--' \
     'cl.internet' \
     '--' \
