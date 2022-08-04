@@ -6,13 +6,13 @@ CROS_WORKON_PROJECT="flatcar-linux/coreos-cloudinit"
 CROS_WORKON_LOCALNAME="coreos-cloudinit"
 CROS_WORKON_REPO="https://github.com"
 COREOS_GO_PACKAGE="github.com/coreos/coreos-cloudinit"
-COREOS_GO_GO111MODULE="off"
+COREOS_GO_GO111MODULE="on"
 inherit cros-workon systemd toolchain-funcs udev coreos-go
 
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	CROS_WORKON_COMMIT="4de1033b7a0600c84ea86f8fac8b580116f4f8f1" # flatcar-master
+	CROS_WORKON_COMMIT="6e1b14aa51b0a19bf7150bfd4cd0e03ab82aca43" # flatcar-master
 	KEYWORDS="amd64 arm64"
 fi
 
@@ -32,15 +32,12 @@ RDEPEND="
 src_prepare() {
 	coreos-go_src_prepare
 
-	GOPATH+=":${S}/third_party"
-
 	if gcc-specs-pie; then
 		CGO_LDFLAGS+=" -fno-PIC"
 	fi
 }
 
 src_compile() {
-	export GO15VENDOREXPERIMENT="1"
 	GO_LDFLAGS="-X main.version=$(git describe --dirty)" || die
 	coreos-go_src_compile
 }

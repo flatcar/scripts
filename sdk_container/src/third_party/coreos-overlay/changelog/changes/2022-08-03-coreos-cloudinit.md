@@ -1,0 +1,1 @@
+- Added AWS IMDSv2 support to coreos-cloudinit ([flatcar-linux/coreos-cloudinit#13](https://github.com/flatcar-linux/coreos-cloudinit/pull/13))
