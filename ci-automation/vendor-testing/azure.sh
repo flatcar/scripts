@@ -14,9 +14,9 @@ source ci-automation/vendor_test.sh
 
 board="${CIA_ARCH}-usr"
 basename="ci-${CIA_VERNUM//+/-}-${CIA_ARCH}"
-azure_instance_type="${AZURE_MACHINE_SIZE}"
+azure_instance_type_var="AZURE_${CIA_ARCH}_MACHINE_SIZE"
+azure_instance_type="${!azure_instance_type_var}"
 azure_vnet_subnet_name="jenkins-vnet-${AZURE_LOCATION}"
-IS_AMD64=${CIA_ARCH//arm64/}
 
 azure_profile_config_file=''
 secret_to_file azure_profile_config_file "${AZURE_PROFILE}"
@@ -25,7 +25,7 @@ secret_to_file azure_auth_config_file "${AZURE_AUTH_CREDENTIALS}"
 
 # Fetch the Azure image if not present
 if [ -f "${AZURE_IMAGE_NAME}" ] ; then
-    echo "++++ ${CIA_TESTSCRIPT}: Using existing ${work_dir}/${AZURE_IMAGE_NAME} for testing ${CIA_VERNUM} (${CIA_ARCH}) ++++"
+    echo "++++ ${CIA_TESTSCRIPT}: Using existing ${AZURE_IMAGE_NAME} for testing ${CIA_VERNUM} (${CIA_ARCH}) ++++"
 else
     echo "++++ ${CIA_TESTSCRIPT}: downloading ${AZURE_IMAGE_NAME} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
     copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${AZURE_IMAGE_NAME}.bz2" .
@@ -41,9 +41,9 @@ fi
 run_kola_tests() {
     local instance_type="${1}"; shift
     local instance_tapfile="${1}"; shift
-    local hyperv_gen="v2"
-    if [ "${instance_type}" = "v1" ]; then
-        hyperv_gen="v1"
+    local hyperv_gen="V2"
+    if [ "${instance_type}" = "V1" ]; then
+        hyperv_gen="V1"
         instance_type="${azure_instance_type}"
     fi
 
@@ -74,11 +74,16 @@ query_kola_tests() {
     kola list --platform=azure --filter "${@}"
 }
 
+other_instance_types=()
+if [[ "${CIA_ARCH}" = 'amd64' ]]; then
+    other_instance_types+=('V1')
+fi
+
 run_kola_tests_on_instances \
     "${azure_instance_type}" \
     "${CIA_TAPFILE}" \
     "${CIA_FIRST_RUN}" \
-    ${IS_AMD64:+v1} \
+    "${other_instance_types[@]}" \
     '--' \
     'cl.internet' \
     '--' \
