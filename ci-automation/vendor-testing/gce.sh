@@ -71,11 +71,12 @@ query_kola_tests() {
     kola list --platform=gce --filter "${@}"
 }
 
+# Do not run tests on instances with gVNIC, it isn't supported on
+# LTS-2021.
 run_kola_tests_on_instances \
     "default" \
     "${CIA_TAPFILE}" \
     "${CIA_FIRST_RUN}" \
-    "gvnic" \
     '--' \
     'cl.internet' \
     '--' \
