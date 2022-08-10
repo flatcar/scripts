@@ -28,6 +28,15 @@ BASE_URL="http://${BUILDCACHE_SERVER}/images/${CIA_ARCH}/${CIA_VERNUM}"
 run_kola_tests() {
     local instance_type="${1}"; shift
     local instance_tapfile="${1}"; shift
+    local timeout_args=()
+
+    if [[ "${instance_type}" =~ \.xlarge\. ]]; then
+        # let's double timeouts for xlarge instances
+        timeout_args+=(
+            --equinixmetal-launch-timeout=20m
+            --equinixmetal-install-timeout=1h30m
+        )
+    fi
 
     timeout --signal=SIGQUIT "${timeout}" \
         kola run \
@@ -46,6 +55,7 @@ run_kola_tests() {
           --equinixmetal-storage-url="${EQUINIXMETAL_STORAGE_URL}" \
           --gce-json-key=<(set +x; echo "${GCP_JSON_KEY}" | base64 --decode) \
           --equinixmetal-api-key="${EQUINIXMETAL_KEY}" \
+          "${timeout_args[@]}" \
           "${@}"
 }
 
