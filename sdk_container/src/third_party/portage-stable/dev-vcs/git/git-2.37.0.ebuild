@@ -46,12 +46,12 @@ if [[ ${PV} != *9999 ]]; then
 			${SRC_URI_KORG}/${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 			)"
 	[[ "${PV}" == *_rc* ]] || \
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 fi
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="+blksha1 +curl cgi doc gnome-keyring +gpg highlight +iconv mediawiki mediawiki-experimental +nls +pcre perforce +perl +ppcsha1 subversion tk +threads +webdav xinetd cvs test"
+IUSE="+blksha1 +curl cgi doc gnome-keyring +gpg highlight +iconv mediawiki mediawiki-experimental +nls +pcre perforce +perl +ppcsha1 selinux subversion tk +threads +webdav xinetd cvs test"
 
 # Common to both DEPEND and RDEPEND
 DEPEND="
@@ -99,6 +99,7 @@ RDEPEND="${DEPEND}
 		)
 	)
 	perforce? ( ${PYTHON_DEPS} )
+	selinux? ( sec-policy/selinux-git )
 "
 
 # This is how info docs are created with Git:
@@ -140,7 +141,7 @@ RESTRICT="!test? ( test )"
 
 PATCHES=(
 	# bug #350330 - automagic CVS when we don't want it is bad.
-	"${FILESDIR}"/git-2.33.0_rc0-optional-cvs.patch
+	"${FILESDIR}"/git-2.37.0_rc1-optional-cvs.patch
 
 	# Make submodule output quiet
 	"${FILESDIR}"/git-2.21.0-quiet-submodules-testcase.patch
