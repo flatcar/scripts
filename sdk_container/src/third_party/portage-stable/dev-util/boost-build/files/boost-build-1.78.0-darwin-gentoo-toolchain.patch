@@ -14,13 +14,3 @@ arch, etc.
      if $(version-feature)
      {
          if $(.debug-configuration)
-@@ -448,7 +451,8 @@
-             support-ppc64 = ;
-         }
-     }
--    switch $(arch)
-+    # Gentoo Prefix toolchain doesn't do multi-arch, so don't try either
-+    switch $(donotaddarchpleaseXXXarch)
-     {
-         case combined :
-         {
