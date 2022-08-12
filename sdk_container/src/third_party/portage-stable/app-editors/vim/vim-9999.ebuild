@@ -1,15 +1,15 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 # Please bump with app-editors/vim-core and app-editors/gvim
 
 VIM_VERSION="8.2"
 LUA_COMPAT=( lua5-1 luajit )
-PYTHON_COMPAT=( python3_{7..10} )
+PYTHON_COMPAT=( python3_{8..10} )
 PYTHON_REQ_USE="threads(+)"
-USE_RUBY="ruby24 ruby25 ruby26 ruby27"
+USE_RUBY="ruby26 ruby27"
 
 inherit vim-doc flag-o-matic bash-completion-r1 lua-single python-single-r1 ruby-single desktop xdg-utils
 
@@ -18,8 +18,8 @@ if [[ ${PV} == 9999* ]] ; then
 	EGIT_REPO_URI="https://github.com/vim/vim.git"
 else
 	SRC_URI="https://github.com/vim/vim/archive/v${PV}.tar.gz -> ${P}.tar.gz
-		https://dev.gentoo.org/~zlogene/distfiles/app-editors/vim/vim-8.2.0360-gentoo-patches.tar.xz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+		https://dev.gentoo.org/~mattst88/distfiles/vim-8.2.5066-gentoo-patches.tar.xz"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 fi
 
 DESCRIPTION="Vim, an improved vi-style text editor"
@@ -45,7 +45,8 @@ RDEPEND="
 	lua? ( ${LUA_DEPS}
 		$(lua_gen_impl_dep 'deprecated' lua5-1)
 	)
-	!minimal? ( ~app-editors/vim-core-${PV} )
+	~app-editors/vim-core-${PV}
+	!<app-editors/vim-core-8.2.4328-r1
 	vim-pager? ( app-editors/vim-core[-minimal] )
 	perl? ( dev-lang/perl:= )
 	python? ( ${PYTHON_DEPS} )
@@ -117,7 +118,7 @@ src_prepare() {
 	# which isn't even in the source file being invalid, we'll do some trickery
 	# to make the error never occur. bug 66162 (02 October 2004 ciaranm)
 	find "${S}" -name '*.c' | while read c; do
-	    echo >> "$c" || die "echo failed"
+		echo >> "$c" || die "echo failed"
 	done
 
 	# conditionally make the manpager.sh script
@@ -272,6 +273,10 @@ src_test() {
 	# Don't let vim talk to X
 	unset DISPLAY
 
+	# Arch and opensuse seem to do this and at this point, I'm willing
+	# to try anything to avoid random test hangs!
+	export TERM=xterm
+
 	# See https://github.com/vim/vim/blob/f08b0eb8691ff09f98bc4beef986ece1c521655f/src/testdir/runtest.vim#L5
 	# for more information on test variables we can use.
 	# Note that certain variables need vim-compatible regex (not PCRE), see e.g.
@@ -286,7 +291,11 @@ src_test() {
 	# Fragile and depends on TERM(?)
 	# - Test_spelldump_bang
 	# Hangs.
-	export TEST_SKIP_PAT='\(Test_expand_star_star\|Test_exrc\|Test_job_tty_in_out\|Test_spelldump_bang\)'
+	# - Test_fuzzy_completion_env
+	# Too sensitive to leaked environment variables.
+	# - Test_term_mouse_multiple_clicks_to_select_mode
+	# Hangs.
+	export TEST_SKIP_PAT='\(Test_expand_star_star\|Test_exrc\|Test_job_tty_in_out\|Test_spelldump_bang\|Test_fuzzy_completion_env\|Test_term_mouse_multiple_clicks_to_select_mode\)'
 
 	emake -j1 -C src/testdir nongui
 }
@@ -294,7 +303,7 @@ src_test() {
 # Call eselect vi update with --if-unset
 # to respect user's choice (bug #187449)
 eselect_vi_update() {
-	einfo "Calling eselect vi update..."
+	ebegin "Calling eselect vi update"
 	eselect vi update --if-unset
 	eend $?
 }
@@ -316,12 +325,6 @@ src_install() {
 		insinto ${vimfiles}/macros
 		doins runtime/macros/manpager.sh
 		fperms a+x ${vimfiles}/macros/manpager.sh
-	fi
-
-	# Fix an issue of missing defaults.vim when USE=minimal.
-	if use minimal ; then
-		insinto ${vimfiles}
-		doins runtime/defaults.vim
 	fi
 
 	domenu runtime/vim.desktop
