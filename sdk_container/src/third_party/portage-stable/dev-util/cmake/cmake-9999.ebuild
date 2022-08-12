@@ -1,9 +1,23 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-CMAKE_MAKEFILE_GENERATOR="emake" # TODO RunCMake.LinkWhatYouUse fails consistently w/ ninja
+# Generate using https://github.com/thesamesam/sam-gentoo-scripts/blob/main/niche/generate-cmake-docs
+# Set to 1 if prebuilt, 0 if not
+# (the construct below is to allow overriding from env for script)
+: ${CMAKE_DOCS_PREBUILT:=1}
+
+CMAKE_DOCS_PREBUILT_DEV=sam
+CMAKE_DOCS_VERSION=$(ver_cut 1-3)
+# Default to generating docs (inc. man pages) if no prebuilt; overridden later
+# See bug #784815
+CMAKE_DOCS_USEFLAG="+doc"
+
+# TODO RunCMake.LinkWhatYouUse fails consistently w/ ninja
+# ... but seems fine as of 3.22.3?
+# TODO ... but bootstrap sometimes(?) fails with ninja now. bug #834759.
+CMAKE_MAKEFILE_GENERATOR="emake"
 CMAKE_REMOVE_MODULES_LIST=( none )
 inherit bash-completion-r1 cmake elisp-common flag-o-matic multiprocessing \
 	toolchain-funcs virtualx xdg-utils
@@ -12,13 +26,40 @@ MY_P="${P/_/-}"
 
 DESCRIPTION="Cross platform Make"
 HOMEPAGE="https://cmake.org/"
-SRC_URI="https://cmake.org/files/v$(ver_cut 1-2)/${MY_P}.tar.gz"
+if [[ ${PV} == 9999 ]] ; then
+	CMAKE_DOCS_PREBUILT=0
+
+	EGIT_REPO_URI="https://gitlab.kitware.com/cmake/cmake.git"
+	inherit git-r3
+else
+	SRC_URI="https://cmake.org/files/v$(ver_cut 1-2)/${MY_P}.tar.gz"
+
+	if [[ ${CMAKE_DOCS_PREBUILT} == 1 ]] ; then
+		SRC_URI+=" !doc? ( https://dev.gentoo.org/~${CMAKE_DOCS_PREBUILT_DEV}/distfiles/${CATEGORY}/${PN}/${PN}-${CMAKE_DOCS_VERSION}-docs.tar.xz )"
+	fi
+
+	if [[ ${PV} != *_rc* ]] ; then
+		VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/bradking.asc
+		inherit verify-sig
+
+		SRC_URI+=" verify-sig? (
+			https://github.com/Kitware/CMake/releases/download/v$(ver_cut 1-3)/${MY_P}-SHA-256.txt
+			https://github.com/Kitware/CMake/releases/download/v$(ver_cut 1-3)/${MY_P}-SHA-256.txt.asc
+		)"
+
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+
+		BDEPEND="verify-sig? ( sec-keys/openpgp-keys-bradking )"
+	fi
+fi
+
+[[ ${CMAKE_DOCS_PREBUILT} == 1 ]] && CMAKE_DOCS_USEFLAG="doc"
+
+S="${WORKDIR}/${MY_P}"
 
 LICENSE="CMake"
 SLOT="0"
-[[ "${PV}" = *_rc* ]] || \
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="doc emacs ncurses qt5 test"
+IUSE="${CMAKE_DOCS_USEFLAG} emacs ncurses qt5 test"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
@@ -39,7 +80,7 @@ RDEPEND="
 	)
 "
 DEPEND="${RDEPEND}"
-BDEPEND="
+BDEPEND+="
 	doc? (
 		dev-python/requests
 		dev-python/sphinx
@@ -47,23 +88,21 @@ BDEPEND="
 	test? ( app-arch/libarchive[zstd] )
 "
 
-S="${WORKDIR}/${MY_P}"
-
 SITEFILE="50${PN}-gentoo.el"
 
 PATCHES=(
-	# prefix
+	# Prefix
 	"${FILESDIR}"/${PN}-3.16.0_rc4-darwin-bundle.patch
 	"${FILESDIR}"/${PN}-3.14.0_rc3-prefix-dirs.patch
 	"${FILESDIR}"/${PN}-3.19.1-darwin-gcc.patch
 
-	# handle gentoo packaging in find modules
+	# Handle gentoo packaging in find modules
 	"${FILESDIR}"/${PN}-3.17.0_rc1-FindBLAS.patch
 	# Next patch needs to be reworked
 	#"${FILESDIR}"/${PN}-3.17.0_rc1-FindLAPACK.patch
 	"${FILESDIR}"/${PN}-3.5.2-FindQt4.patch
 
-	# respect python eclasses
+	# Respect python eclasses
 	"${FILESDIR}"/${PN}-2.8.10.2-FindPythonLibs.patch
 	"${FILESDIR}"/${PN}-3.9.0_rc2-FindPythonInterp.patch
 
@@ -91,59 +130,43 @@ cmake_src_bootstrap() {
 		|| die "Bootstrap failed"
 }
 
-cmake_src_test() {
-	# fix OutDir and SelectLibraryConfigurations tests
-	# these are altered thanks to our eclass
-	sed -i -e 's:^#_cmake_modify_IGNORE ::g' \
-		"${S}"/Tests/{OutDir,CMakeOnly/SelectLibraryConfigurations}/CMakeLists.txt \
-		|| die
+src_unpack() {
+	if [[ ${PV} == 9999 ]] ; then
+		git-r3_src_unpack
+	elif ! use verify-sig || [[ ${PV} == *_rc* ]] ; then
+		default
+	else
+		cd "${DISTDIR}" || die
 
-	pushd "${BUILD_DIR}" > /dev/null
+		# See https://mgorny.pl/articles/verify-sig-by-example.html#verifying-using-a-checksum-file-with-a-detached-signature
+		verify-sig_verify_detached ${MY_P}-SHA-256.txt{,.asc}
+		verify-sig_verify_unsigned_checksums ${MY_P}-SHA-256.txt sha256 ${MY_P}.tar.gz
 
-	local ctestargs
-	[[ -n ${TEST_VERBOSE} ]] && ctestargs="--extra-verbose --output-on-failure"
+		cd "${WORKDIR}" || die
 
-	# Excluded tests:
-	#    BootstrapTest: we actually bootstrap it every time so why test it.
-	#    BundleUtilities: bundle creation broken
-	#    CMakeOnly.AllFindModules: pthread issues
-	#    CTest.updatecvs: fails to commit as root
-	#    Fortran: requires fortran
-	#    RunCMake.CompilerLauncher: also requires fortran
-	#    RunCMake.CPack_RPM: breaks if app-arch/rpm is installed because
-	#        debugedit binary is not in the expected location
-	#    RunCMake.CPack_DEB: breaks if app-arch/dpkg is installed because
-	#        it can't find a deb package that owns libc
-	#    RunCMake.{IncompatibleQt,ObsoleteQtMacros}: Require Qt4
-	#    TestUpload: requires network access
-	"${BUILD_DIR}"/bin/ctest \
-		-j "$(makeopts_jobs)" \
-		--test-load "$(makeopts_loadavg)" \
-		${ctestargs} \
-		-E "(BootstrapTest|BundleUtilities|ConfigSources|CMakeOnly.AllFindModules|CPackComponentsDEB-components-depend2|CompileOptions|CTest.UpdateCVS|DependencyGraph|Fortran|RunCMake.CompilerLauncher|RunCMake.IncompatibleQt|RunCMake.ObsoleteQtMacros|RunCMake.PrecompileHeaders|RunCMake.CPack_(DEB|RPM)|TestUpload)" \
-		|| die "Tests failed"
-
-	popd > /dev/null
+		default
+	fi
 }
 
 src_prepare() {
 	cmake_src_prepare
 
 	if [[ ${CHOST} == *-darwin* ]] ; then
-		# disable Xcode hooks, bug #652134
+		# Disable Xcode hooks, bug #652134
 		sed -i -e 's/cm\(\|Global\|Local\)XCode[^.]\+\.\(cxx\|h\)//' \
 			Source/CMakeLists.txt || die
 		sed -i -e '/define CMAKE_USE_XCODE/s/XCODE/NO_XCODE/' \
 			-e '/cmGlobalXCodeGenerator.h/d' \
 			Source/cmake.cxx || die
-		# disable isysroot usage with GCC, we've properly instructed
+
+		# Disable isysroot usage with GCC, we've properly instructed
 		# where things are via GCC configuration and ldwrapper
 		sed -i -e '/cmake_gnu_set_sysroot_flag/d' \
 			Modules/Platform/Apple-GNU-*.cmake || die
-		# disable isysroot usage with clang as well
+		# Disable isysroot usage with clang as well
 		sed -i -e '/_SYSROOT_FLAG/d' \
 			Modules/Platform/Apple-Clang.cmake || die
-		# don't set a POSIX standard, system headers don't like that, #757426
+		# Don't set a POSIX standard, system headers don't like that, #757426
 		sed -i -e 's/^#if !defined(_WIN32) && !defined(__sun)/& \&\& !defined(__APPLE__)/' \
 			Source/cmLoadCommandCommand.cxx \
 			Source/cmStandardLexer.h \
@@ -159,7 +182,8 @@ src_prepare() {
 		-e "$(usex prefix-guest "s|@GENTOO_HOST@||" "/@GENTOO_HOST@/d")" \
 		-e "s|@GENTOO_PORTAGE_EPREFIX@|${EPREFIX}/|g" \
 		Modules/Platform/{UnixPaths,Darwin}.cmake || die "sed failed"
-	if ! has_version -b \>=${CATEGORY}/${PN}-3.4.0_rc1 || ! cmake --version &>/dev/null ; then
+
+	if ! has_version -b \>=${CATEGORY}/${PN}-3.13 || ! cmake --version &>/dev/null ; then
 		CMAKE_BINARY="${S}/Bootstrap.cmk/cmake"
 		cmake_src_bootstrap
 	fi
@@ -168,6 +192,10 @@ src_prepare() {
 src_configure() {
 	# Fix linking on Solaris
 	[[ ${CHOST} == *-solaris* ]] && append-ldflags -lsocket -lnsl
+
+	# ODR warnings, bug #858335
+	# https://gitlab.kitware.com/cmake/cmake/-/issues/20740
+	filter-lto
 
 	local mycmakeargs=(
 		-DCMAKE_USE_SYSTEM_LIBRARIES=ON
@@ -190,11 +218,42 @@ src_compile() {
 }
 
 src_test() {
+	# Fix OutDir and SelectLibraryConfigurations tests
+	# these are altered thanks to our eclass
+	sed -i -e 's:^#_cmake_modify_IGNORE ::g' \
+		"${S}"/Tests/{OutDir,CMakeOnly/SelectLibraryConfigurations}/CMakeLists.txt \
+		|| die
+
+	pushd "${BUILD_DIR}" > /dev/null || die
+
+	# Excluded tests:
+	#    BootstrapTest: we actualy bootstrap it every time so why test it.
+	#    BundleUtilities: bundle creation broken
+	#    CMakeOnly.AllFindModules: pthread issues
+	#    CTest.updatecvs: which fails to commit as root
+	#    Fortran: requires fortran
+	#    RunCMake.CompilerLauncher: also requires fortran
+	#    RunCMake.CPack_RPM: breaks if app-arch/rpm is installed because
+	#        debugedit binary is not in the expected location
+	#    RunCMake.CPack_DEB: breaks if app-arch/dpkg is installed because
+	#        it can't find a deb package that owns libc
+	#    TestUpload, which requires network access
+	#    RunCMake.CMP0125, known failure reported upstream (bug #829414)
+	local myctestargs=(
+		--output-on-failure
+		-E "(BootstrapTest|BundleUtilities|CMakeOnly.AllFindModules|CompileOptions|CTest.UpdateCVS|Fortran|RunCMake.CompilerLauncher|RunCMake.CPack_(DEB|RPM)|TestUpload|RunCMake.CMP0125)" \
+	)
+
 	virtx cmake_src_test
 }
 
 src_install() {
 	cmake_src_install
+
+	# If USE=doc, there'll be newly generated docs which we install instead.
+	if ! use doc && [[ ${CMAKE_DOCS_PREBUILT} == 1 ]] ; then
+		doman "${WORKDIR}"/${PN}-${CMAKE_DOCS_VERSION}-docs/man*/*.[0-8]
+	fi
 
 	if use emacs; then
 		elisp-install ${PN} Auxiliary/cmake-mode.el Auxiliary/cmake-mode.elc
@@ -215,6 +274,7 @@ src_install() {
 
 pkg_postinst() {
 	use emacs && elisp-site-regen
+
 	if use qt5; then
 		xdg_icon_cache_update
 		xdg_desktop_database_update
@@ -224,6 +284,7 @@ pkg_postinst() {
 
 pkg_postrm() {
 	use emacs && elisp-site-regen
+
 	if use qt5; then
 		xdg_icon_cache_update
 		xdg_desktop_database_update

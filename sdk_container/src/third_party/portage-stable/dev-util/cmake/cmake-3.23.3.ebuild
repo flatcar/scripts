@@ -1,9 +1,12 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-CMAKE_MAKEFILE_GENERATOR="emake" # TODO RunCMake.LinkWhatYouUse fails consistently w/ ninja
+# TODO RunCMake.LinkWhatYouUse fails consistently w/ ninja
+# ... but seems fine as of 3.22.3?
+# TODO ... but bootstrap sometimes(?) fails with ninja now. bug #834759.
+CMAKE_MAKEFILE_GENERATOR="emake"
 CMAKE_REMOVE_MODULES_LIST=( none )
 inherit bash-completion-r1 cmake elisp-common flag-o-matic multiprocessing \
 	toolchain-funcs virtualx xdg-utils
@@ -12,12 +15,28 @@ MY_P="${P/_/-}"
 
 DESCRIPTION="Cross platform Make"
 HOMEPAGE="https://cmake.org/"
-SRC_URI="https://cmake.org/files/v$(ver_cut 1-2)/${MY_P}.tar.gz"
+if [[ ${PV} == 9999 ]] ; then
+	inherit git-r3
+	EGIT_REPO_URI="https://gitlab.kitware.com/cmake/cmake.git"
+else
+	SRC_URI="https://cmake.org/files/v$(ver_cut 1-2)/${MY_P}.tar.gz"
+	if [[ ${PV} != *_rc* ]] ; then
+		VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/bradking.asc
+		inherit verify-sig
+
+		SRC_URI+=" verify-sig? (
+			https://github.com/Kitware/CMake/releases/download/v$(ver_cut 1-3)/${MY_P}-SHA-256.txt
+			https://github.com/Kitware/CMake/releases/download/v$(ver_cut 1-3)/${MY_P}-SHA-256.txt.asc
+		)"
+
+		KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+
+		BDEPEND="verify-sig? ( sec-keys/openpgp-keys-bradking )"
+	fi
+fi
 
 LICENSE="CMake"
 SLOT="0"
-[[ "${PV}" = *_rc* ]] || \
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="doc emacs ncurses qt5 test"
 RESTRICT="!test? ( test )"
 
@@ -39,7 +58,7 @@ RDEPEND="
 	)
 "
 DEPEND="${RDEPEND}"
-BDEPEND="
+BDEPEND+="
 	doc? (
 		dev-python/requests
 		dev-python/sphinx
@@ -91,39 +110,22 @@ cmake_src_bootstrap() {
 		|| die "Bootstrap failed"
 }
 
-cmake_src_test() {
-	# fix OutDir and SelectLibraryConfigurations tests
-	# these are altered thanks to our eclass
-	sed -i -e 's:^#_cmake_modify_IGNORE ::g' \
-		"${S}"/Tests/{OutDir,CMakeOnly/SelectLibraryConfigurations}/CMakeLists.txt \
-		|| die
+src_unpack() {
+	if [[ ${PV} == 9999 ]] ; then
+		git-r3_src_unpack
+	elif ! use verify-sig || [[ ${PV} == *_rc ]] ; then
+		default
+	else
+		cd "${DISTDIR}" || die
 
-	pushd "${BUILD_DIR}" > /dev/null
+		# See https://mgorny.pl/articles/verify-sig-by-example.html#verifying-using-a-checksum-file-with-a-detached-signature
+		verify-sig_verify_detached ${MY_P}-SHA-256.txt{,.asc}
+		verify-sig_verify_unsigned_checksums ${MY_P}-SHA-256.txt sha256 ${MY_P}.tar.gz
 
-	local ctestargs
-	[[ -n ${TEST_VERBOSE} ]] && ctestargs="--extra-verbose --output-on-failure"
+		cd "${WORKDIR}" || die
 
-	# Excluded tests:
-	#    BootstrapTest: we actually bootstrap it every time so why test it.
-	#    BundleUtilities: bundle creation broken
-	#    CMakeOnly.AllFindModules: pthread issues
-	#    CTest.updatecvs: fails to commit as root
-	#    Fortran: requires fortran
-	#    RunCMake.CompilerLauncher: also requires fortran
-	#    RunCMake.CPack_RPM: breaks if app-arch/rpm is installed because
-	#        debugedit binary is not in the expected location
-	#    RunCMake.CPack_DEB: breaks if app-arch/dpkg is installed because
-	#        it can't find a deb package that owns libc
-	#    RunCMake.{IncompatibleQt,ObsoleteQtMacros}: Require Qt4
-	#    TestUpload: requires network access
-	"${BUILD_DIR}"/bin/ctest \
-		-j "$(makeopts_jobs)" \
-		--test-load "$(makeopts_loadavg)" \
-		${ctestargs} \
-		-E "(BootstrapTest|BundleUtilities|ConfigSources|CMakeOnly.AllFindModules|CPackComponentsDEB-components-depend2|CompileOptions|CTest.UpdateCVS|DependencyGraph|Fortran|RunCMake.CompilerLauncher|RunCMake.IncompatibleQt|RunCMake.ObsoleteQtMacros|RunCMake.PrecompileHeaders|RunCMake.CPack_(DEB|RPM)|TestUpload)" \
-		|| die "Tests failed"
-
-	popd > /dev/null
+		default
+	fi
 }
 
 src_prepare() {
@@ -159,7 +161,8 @@ src_prepare() {
 		-e "$(usex prefix-guest "s|@GENTOO_HOST@||" "/@GENTOO_HOST@/d")" \
 		-e "s|@GENTOO_PORTAGE_EPREFIX@|${EPREFIX}/|g" \
 		Modules/Platform/{UnixPaths,Darwin}.cmake || die "sed failed"
-	if ! has_version -b \>=${CATEGORY}/${PN}-3.4.0_rc1 || ! cmake --version &>/dev/null ; then
+
+	if ! has_version -b \>=${CATEGORY}/${PN}-3.13 || ! cmake --version &>/dev/null ; then
 		CMAKE_BINARY="${S}/Bootstrap.cmk/cmake"
 		cmake_src_bootstrap
 	fi
@@ -190,6 +193,32 @@ src_compile() {
 }
 
 src_test() {
+	# fix OutDir and SelectLibraryConfigurations tests
+	# these are altered thanks to our eclass
+	sed -i -e 's:^#_cmake_modify_IGNORE ::g' \
+		"${S}"/Tests/{OutDir,CMakeOnly/SelectLibraryConfigurations}/CMakeLists.txt \
+		|| die
+
+	pushd "${BUILD_DIR}" > /dev/null || die
+
+	# Excluded tests:
+	#    BootstrapTest: we actualy bootstrap it every time so why test it.
+	#    BundleUtilities: bundle creation broken
+	#    CMakeOnly.AllFindModules: pthread issues
+	#    CTest.updatecvs: which fails to commit as root
+	#    Fortran: requires fortran
+	#    RunCMake.CompilerLauncher: also requires fortran
+	#    RunCMake.CPack_RPM: breaks if app-arch/rpm is installed because
+	#        debugedit binary is not in the expected location
+	#    RunCMake.CPack_DEB: breaks if app-arch/dpkg is installed because
+	#        it can't find a deb package that owns libc
+	#    TestUpload, which requires network access
+	#    RunCMake.CMP0125, known failure reported upstream (bug #829414)
+	local myctestargs=(
+		--output-on-failure
+		-E "(BootstrapTest|BundleUtilities|CMakeOnly.AllFindModules|CompileOptions|CTest.UpdateCVS|Fortran|RunCMake.CompilerLauncher|RunCMake.CPack_(DEB|RPM)|TestUpload|RunCMake.CMP0125)" \
+	)
+
 	virtx cmake_src_test
 }
 
