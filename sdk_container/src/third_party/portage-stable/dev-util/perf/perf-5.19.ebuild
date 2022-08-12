@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{7..10} )
+PYTHON_COMPAT=( python3_{8..10} )
 inherit bash-completion-r1 estack llvm toolchain-funcs python-r1 linux-info
 
 DESCRIPTION="Userland tools for Linux Performance Counters"
@@ -24,6 +24,7 @@ elif [[ ${PV} == *.*.* ]] ; then
 else
 	LINUX_VER=${PV}
 	SRC_URI=""
+	SRC_URI+=" https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${P}-binutils-2.39-patches.tar.xz"
 fi
 
 LINUX_SOURCES="linux-${LINUX_VER}.tar.xz"
@@ -31,7 +32,7 @@ SRC_URI+=" https://www.kernel.org/pub/linux/kernel/v${LINUX_V}/${LINUX_SOURCES}"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 arm arm64 ~mips ppc ppc64 ~riscv x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~amd64 ~arm ~arm64 ~mips ~ppc ~ppc64 ~riscv ~x86 ~amd64-linux ~x86-linux"
 IUSE="audit babeltrace clang crypt debug +doc gtk java libpfm lzma numa perl python slang systemtap unwind zlib zstd"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
@@ -54,8 +55,8 @@ RDEPEND="audit? ( sys-process/audit )
 	babeltrace? ( dev-util/babeltrace )
 	crypt? ( virtual/libcrypt:= )
 	clang? (
-		<sys-devel/clang-14:=
-		<sys-devel/llvm-14:=
+		sys-devel/clang:=
+		sys-devel/llvm:=
 	)
 	gtk? ( x11-libs/gtk+:2 )
 	java? ( virtual/jre:* )
@@ -83,8 +84,8 @@ S="${S_K}/tools/perf"
 CONFIG_CHECK="~PERF_EVENTS ~KALLSYMS"
 
 QA_FLAGS_IGNORED=(
-	usr/bin/perf-read-vdso32 # not linked with anything except for libc
-	usr/libexec/perf-core/dlfilters/dlfilter-test-api-v0.so # not installed
+	'usr/bin/perf-read-vdso32' # not linked with anything except for libc
+	'usr/libexec/perf-core/dlfilters/.*' # plugins
 )
 
 pkg_pretend() {
@@ -96,7 +97,7 @@ pkg_pretend() {
 }
 
 pkg_setup() {
-	use clang && LLVM_MAX_SLOT=13 llvm_pkg_setup
+	use clang && llvm_pkg_setup
 	# We enable python unconditionally as libbpf always generates
 	# API headers using python script
 	python_setup
@@ -141,11 +142,15 @@ src_prepare() {
 		popd || die
 	fi
 
-	if use clang; then
-		pushd "${S_K}" >/dev/null || die
-		eapply "${FILESDIR}"/${P}-clang.patch
-		popd || die
-	fi
+	pushd "${S_K}" >/dev/null || die
+	eapply "${FILESDIR}"/${PN}-5.18-clang.patch
+	# Used `git format-patch 00b32625982e0c796f0abb8effcac9c05ef55bd3...600b7b26c07a070d0153daa76b3806c1e52c9e00`
+	# bug #868129
+	rm "${WORKDIR}"/${P}-binutils-2.39-patches/0005-tools-bpf_jit_disasm-Fix-compilation-error-with-new-.patch || die
+	rm "${WORKDIR}"/${P}-binutils-2.39-patches/0006-tools-bpf_jit_disasm-Don-t-display-disassembler-four.patch || die
+	rm "${WORKDIR}"/${P}-binutils-2.39-patches/0007-tools-bpftool-Fix-compilation-error-with-new-binutil.patch || die
+	eapply "${WORKDIR}"/${P}-binutils-2.39-patches
+	popd || die
 
 	# Drop some upstream too-developer-oriented flags and fix the
 	# Makefile in general
