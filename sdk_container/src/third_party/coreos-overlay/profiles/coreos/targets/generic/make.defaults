@@ -38,6 +38,7 @@ INSTALL_MASK="${INSTALL_MASK}
   /etc/sudoers
   /etc/wgetrc
   /etc/xinetd.d
+  /etc/vim/vimrc
 "
 
 # Remove selinuxenabled because it triggers breakage in Ansible
