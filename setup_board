@@ -269,6 +269,9 @@ PORTAGE_BINHOST="${BOARD_BINHOST}"
 # You can use --select to override this.
 EMERGE_DEFAULT_OPTS="--oneshot"
 
+# Enable provenance reporting by default. Produced files are in /usr/share/SLSA
+GENERATE_SLSA_PROVENANCE="true"
+
 # Allow the user to override or define additional settings.
 source "${BOARD_ETC}/portage/make.conf.user"
 EOF
@@ -319,9 +322,9 @@ if [[ ${FLAGS_regen_configs} -eq ${FLAGS_FALSE} ]]; then
     install_cross_libs "${BOARD_CHOST}" ${EMERGE_FLAGS} --buildpkg=n
 
     info "Building toolchain dependencies"
-    "${EMERGE_WRAPPER}" --buildpkg --buildpkgonly --onlydeps -e \
+    "${EMERGE_WRAPPER}" --buildpkg --buildpkgonly \
         --root="/usr/${BOARD_CHOST}" --sysroot="/usr/${BOARD_CHOST}" \
-        ${EMERGE_TOOLCHAIN_FLAGS} "${TOOLCHAIN_PKGS[@]}"
+        ${EMERGE_TOOLCHAIN_FLAGS} $(< "/usr/${BOARD_CHOST}/etc/portage/cross-${BOARD_CHOST}-depends")
     info "Building toolchain"
     "${EMERGE_WRAPPER}" --buildpkg --buildpkgonly \
         --root="/usr/${BOARD_CHOST}" --sysroot="/usr/${BOARD_CHOST}" \

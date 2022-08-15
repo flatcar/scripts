@@ -265,12 +265,15 @@ query_available_package() {
             tail -n 1
 }
 
-# Generate a list of packages installed in an image.
-# Usage: image_packages /image/root
-image_packages() {
-    local profile="${BUILD_DIR}/configroot/etc/portage/profile"    
+# List packages installed directly in portages package database
+image_packages_portage() {
     ROOT="$1" PORTAGE_CONFIGROOT="${BUILD_DIR}"/configroot \
         equery --no-color list --format '$cpv::$repo' '*'
+}
+# List packages implicitly contained in rootfs, such as in torcx packages or
+# initramfs.
+image_packages_implicit() {
+    local profile="${BUILD_DIR}/configroot/etc/portage/profile"
 
     # We also want to list packages that only exist in the initramfs.
     # Approximate this by listing build dependencies of coreos-kernel that
@@ -302,6 +305,13 @@ image_packages() {
     [ -z "${FLAGS_torcx_manifest}" ] ||
     torcx_manifest::sources_on_disk "${FLAGS_torcx_manifest}" |
     while read pkg ; do query_available_package "${pkg}" ; done
+}
+
+# Generate a list of packages installed in an image.
+# Usage: image_packages /image/root
+image_packages() {
+  image_packages_portage "$1"
+  image_packages_implicit "$1"
 }
 
 # Generate a list of installed packages in the format:
@@ -517,6 +527,35 @@ EOF
     sudo gzip -9 "${root_fs_dir}"/usr/share/licenses/common/*
 }
 
+# Add /usr/share/SLSA reports for packages indirectly contained within the rootfs
+# If the package is available in BOARD_ROOT accesses it from there, otherwise
+# needs to download binpkg.
+# Reports for torcx packages are also included when adding the torcx package to
+# rootfs.
+insert_extra_slsa() {
+  info "Inserting additional SLSA file"
+  local rootfs="$1"
+  for atom in $(image_packages_implicit "$rootfs"); do
+    pkg="${atom%::*}"
+    pkg="${pkg/\//_}.json.xz"
+    if [ -f "${BOARD_ROOT}/usr/share/SLSA/${pkg}" ]; then
+      info "Found ${atom} in BOARD_ROOT"
+      sudo cp "${BOARD_ROOT}/usr/share/SLSA/${pkg}" "${rootfs}/usr/share/SLSA/"
+      continue
+    fi
+    # let's not die if SLSA information is missing
+    pkgversion=$( (get_binary_pkg "=${atom}" 2>/dev/null ) || true)
+    binpkg="$(portageq-${BOARD} pkgdir)/${pkgversion}.tbz2"
+    if [ -f "${binpkg}" ]; then
+      info "Found ${atom} at ${binpkg}"
+      qtbz2 -O -t "${binpkg}" | \
+        sudo tar -C "${rootfs}" -xj --wildcards './usr/share/SLSA'
+      continue
+    fi
+    warn "Missing SLSA information for ${atom}"
+  done
+}
+
 # Add an entry to the image's package.provided
 package_provided() {
     local p profile="${BUILD_DIR}/configroot/etc/portage/profile"    
@@ -606,7 +645,7 @@ finish_image() {
           local casDigest="$(torcx_manifest::get_digest "${FLAGS_torcx_manifest}" "${pkg}" "${version}")"
           sudo cp "${FLAGS_torcx_root}/pkgs/${BOARD}/${pkg}/${casDigest}/${pkg}:${version}.torcx.tgz" \
             "${root_fs_dir}${on_disk_path}"
-
+          sudo tar xf "${root_fs_dir}${on_disk_path}" -C "${root_fs_dir}" --wildcards "./usr/share/SLSA"
           if [[ "${version}" == "${default_version}" ]]; then
             # Create the default symlink for this package
             sudo ln -fns "${on_disk_path##*/}" \

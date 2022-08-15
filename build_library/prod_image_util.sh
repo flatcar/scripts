@@ -46,7 +46,8 @@ extract_prod_gcc() {
     qtbz2 -O -t "${pkg}" | \
         sudo tar -C "${root_fs_dir}" -xj \
         --transform 's#/usr/lib/.*/#/usr/lib64/#' \
-        --wildcards './usr/lib/gcc/*.so*'
+        --wildcards './usr/lib/gcc/*.so*' \
+        --wildcards './usr/share/SLSA'
 
     package_provided "${gcc}"
 }
@@ -85,6 +86,7 @@ create_prod_image() {
   write_sbom "${root_fs_dir}" "${BUILD_DIR}/${image_sbom}"
   write_licenses "${root_fs_dir}" "${BUILD_DIR}/${image_licenses}"
   insert_licenses "${BUILD_DIR}/${image_licenses}" "${root_fs_dir}"
+  insert_extra_slsa "${root_fs_dir}"
 
   # Assert that if this is supposed to be an official build that the
   # official update keys have been used.

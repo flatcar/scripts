@@ -26,6 +26,24 @@ stage4/root_overlay: ${ROOT_OVERLAY}
 EOF
 catalyst_stage_default
 }
+create_provenance_overlay() {
+  local root_overlay="$1"
+  while read f; do
+    d="${f%/*}"
+    mkdir -p "${root_overlay}${d}/"
+    cp "${f}" "${root_overlay}${d}/"
+  done < <(find /mnt/host/source/src/scripts -name HEAD)
+  local scripts_git=/mnt/host/source/src/scripts/.git
+  # `git rev-parse` fails due to the safe.directory setting in SDK container.
+  # Open-code the ref lookup
+  read scripts_hash <"${scripts_git}/HEAD"
+  if [[ "${scripts_hash}" == "ref:"* ]]; then
+    read scripts_hash<"${scripts_git}/${scripts_hash#ref: }"
+    echo "${scripts_hash}" >"${root_overlay}${scripts_git}/HEAD"
+  fi
+  mkdir -p "${root_overlay}/mnt/host/source/.repo/manifests"
+  cp "${REPO_MANIFESTS_DIR}/version.txt" "${root_overlay}/mnt/host/source/.repo/manifests"
+}
 
 catalyst_init "$@"
 check_gsutil_opts
@@ -35,6 +53,7 @@ ROOT_OVERLAY="${TEMPDIR}/stage4-${ARCH}-$FLAGS_version-overlay"
 # toolchain_util.sh is required by catalyst_toolchains.sh
 mkdir -p "${ROOT_OVERLAY}/tmp"
 cp "${BUILD_LIBRARY_DIR}/toolchain_util.sh" "${ROOT_OVERLAY}/tmp"
+create_provenance_overlay "${ROOT_OVERLAY}"
 
 catalyst_build
 
