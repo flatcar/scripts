@@ -30,6 +30,7 @@ RDEPEND="${DEPEND}
 PATCHES=(
 	"${FILESDIR}"/${PN}-3.82-darwin-library_search-dylib.patch
 	"${FILESDIR}"/${PN}-4.2-default-cxx.patch
+	"${FILESDIR}"/${PN}-4.3-handle-tmpfile-fail.patch
 )
 
 src_configure() {
