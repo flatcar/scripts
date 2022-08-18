@@ -21,7 +21,7 @@ cleanup=""
 
 usage() {
     echo "  Usage:"
-    echo "  $0 [-t] [-v <version>] [-V sdk version] [-a arch] [-n <name> ] [-x <script>] [-C custom-container] [-F] [--rm] [container-command]"
+    echo "  $0 [-t] [-v <version>] [-V sdk version] [-a arch] [-n <name> ] [-x <script>] [-C custom-container] [--rm] [container-command]"
     echo "       Start an SDK container of a given SDK release version."
     echo "       This will create the container if it does not exist, otherwise start the existing container."
     echo "       If the container is already running then it will exec into the container."
@@ -32,7 +32,7 @@ usage() {
     echo "      -v <version> - Sourcetree (OS image) version to use."
     echo "                     Defaults to '$os_version' (current git commit)."
     echo "                     FLATCAR_VERSION[_ID] in '$sdk_container_common_versionfile'"
-    echo "                     will be updated accordingly (also see -F)."
+    echo "                     will be updated accordingly."
     echo "      -V <SDK ver> - SDK version to use. Defaults to '${sdk_version}'"
     echo "                     (FLATCAR_SDK_VERSION from '$sdk_container_common_versionfile')."
     echo "      -a <amd64|arm64|all> - Target architecture (board support) of the SDK."
