@@ -1,0 +1,1 @@
+- Cyrus SASL ([2.1.28](https://www.cyrusimap.org/sasl/sasl/release-notes/2.1/index.html#new-in-2-1-28))
