@@ -188,7 +188,24 @@ function torcx_package() {
         fi
 
         tmpfile="${BUILD_DIR}/${name}:${version}.torcx.tgz"
-        tar --force-local --selinux --xattrs -C "${tmppkgroot}" -czf "${tmpfile}" .
+        # build the file_contexts and set labels on the Torcx image content.
+        sudo chroot "${BOARD_ROOT}" bash -c "cd /usr/share/selinux/mcs && semodule -s mcs -i *.pp"
+        # temporary move to relabel the torcx files, they can't be relabelled on overlay FS (operation not supported)
+        sudo mkdir -p /mnt/host/source/src/build/
+        sudo cp -r "${tmppkgroot}" /mnt/host/source/src/build/torcx
+        sudo setfiles -Dv -r /mnt/host/source/src/build/torcx "${BOARD_ROOT}/etc/selinux/mcs/contexts/files/file_contexts" /mnt/host/source/src/build/torcx
+
+        # this is a bit hacky: we need to copy the file_contexts and the compiled policies from the BOARD_ROOT
+        # to the SDK. Otherwise, 'tar' will lookup for SELinux labels from the SDK and it will result
+        # into a partially updated system.
+        sudo mkdir -p /etc/selinux/mcs/contexts/files/
+        sudo cp "${BOARD_ROOT}/etc/selinux/mcs/contexts/files/file_contexts" /etc/selinux/mcs/contexts/files/
+
+        # sed file_contexts to simulate the root
+        sudo sed -i "s#^#/mnt/host/source/src/build/torcx#" /etc/selinux/mcs/contexts/files/file_contexts
+        # debug:
+        cat /etc/selinux/mcs/contexts/files/file_contexts
+        tar --force-local --selinux --xattrs -C /mnt/host/source/src/build/torcx -czf "${tmpfile}" .
         sha512sum=$(sha512sum "${tmpfile}" | awk '{print $1}')
 
         # TODO(euank): this opaque digest, if it were reproducible, could save

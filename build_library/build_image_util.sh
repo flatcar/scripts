@@ -732,6 +732,11 @@ EOF
         "${BUILD_DIR}/${image_kconfig}"
   fi
 
+  # Label the root filesystem using 'file_contexts'.
+  sudo chroot "${root_fs_dir}" bash -c "cd /usr/share/selinux/mcs && semodule -s mcs -i *.pp"
+  sudo setfiles -Dv -r "${root_fs_dir}" "${root_fs_dir}"/etc/selinux/mcs/contexts/files/file_contexts "${root_fs_dir}"
+  sudo setfiles -Dv -r "${root_fs_dir}" "${root_fs_dir}"/etc/selinux/mcs/contexts/files/file_contexts "${root_fs_dir}"/usr
+
   write_contents "${root_fs_dir}" "${BUILD_DIR}/${image_contents}"
 
   # Zero all fs free space to make it more compressible so auto-update
@@ -739,11 +744,6 @@ EOF
   sudo fstrim "${root_fs_dir}" || true
   if mountpoint -q "${root_fs_dir}/usr"; then
     sudo fstrim "${root_fs_dir}/usr" || true
-  fi
-
-  # Build the selinux policy
-  if pkg_use_enabled coreos-base/coreos selinux; then
-      sudo chroot "${root_fs_dir}" bash -c "cd /usr/share/selinux/mcs && semodule -s mcs -i *.pp"
   fi
 
   # Make the filesystem un-mountable as read-write and setup verity.
