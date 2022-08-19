@@ -60,7 +60,7 @@ RESTRICT="binchecks strip"
 S="${WORKDIR}/linux-firmware-${PV}"
 
 CXGB_VERSION="1.26.6.0"
-ICE_DDP_VERSION="1.3.28.0"
+ICE_DDP_VERSION="1.3.30.0"
 
 src_unpack() {
 	if [[ ${PV} == 99999999* ]]; then
