@@ -15,21 +15,18 @@ jobs:
       - name: Fetch latest Calico release
         id: fetch-latest-release
         run: |
-          set -ex
+          set -exuo pipefail
 
-          tigera_image=$(curl -sSL  https://docs.projectcalico.org/manifests/tigera-operator.yaml \
-            | awk '/image:/ && NF == 2 { print $2 }')
-          tigera_version=${tigera_image##*:}
+          calico_version=$(curl \
+                             -H 'Accept: application/vnd.github+json' \
+                             'https://api.github.com/repos/projectcalico/calico/releases' | \
+                           jq '.[].tag_name' | \
+                           sed -e 's/"\(.*\)"/\1/g' | \
+                           sort --version-sort --reverse | \
+                           head -n1)
 
-          versions=$(curl -sSL "https://raw.githubusercontent.com/tigera/operator/${tigera_version}/config/calico_versions.yml" \
-            | awk '/version:/ { print $2 }' \
-            | sort \
-            | uniq)
-
-          echo "Found versions: $versions"
+          echo "Found version: ${calico_version}"
 
           pushd .github/workflows/
-          for version in $versions; do
-            ./mirror-calico.sh $version
-          done
+          ./mirror-calico.sh "${calico_version}"
           popd
