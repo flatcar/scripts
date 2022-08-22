@@ -1,0 +1,1 @@
+- Added EKS support for version 1.22 and 1.23. Fixed `/usr/share/oem/eks/download-kubelet.sh` to include download paths for these versions. ([coreos-overlay#2110](https://github.com/flatcar-linux/coreos-overlay/pull/2110))
