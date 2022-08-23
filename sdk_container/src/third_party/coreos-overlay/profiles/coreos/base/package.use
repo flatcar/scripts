@@ -7,7 +7,7 @@ app-arch/tar		minimal
 app-crypt/mit-krb5	-keyutils
 dev-libs/dbus-glib	tools
 dev-libs/libxml2	-python
-dev-util/perf		tui -doc
+dev-util/perf		-doc
 dev-vcs/git		webdav curl bash-completion
 # We don't want any driver/hw rendering on the host
 net-misc/curl		kerberos threads telnet
