@@ -1,14 +1,12 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-
-# Flatcar: Support EAPI 0 and 4.
 
 # @ECLASS: gnuconfig.eclass
 # @MAINTAINER:
 # Sam James <sam@gentoo.org>
 # @AUTHOR:
 # Will Woods <wwoods@gentoo.org>
-# @SUPPORTED_EAPIS: 0 4 5 6 7 8
+# @SUPPORTED_EAPIS: 5 6 7 8
 # @BLURB: Refresh bundled gnuconfig files (config.guess, config.sub)
 # @DESCRIPTION:
 # This eclass is used to automatically update files that typically come with
@@ -19,7 +17,7 @@
 #
 
 case ${EAPI:-0} in
-	0|4|5|6|7|8) ;;
+	5|6|7|8) ;;
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
 
@@ -28,7 +26,7 @@ if [[ -z ${_GNUCONFIG_ECLASS} ]] ; then
 
 BDEPEND="sys-devel/gnuconfig"
 
-[[ ${EAPI:-0} == [0456] ]] && DEPEND="${BDEPEND}"
+[[ ${EAPI} == [56] ]] && DEPEND="${BDEPEND}"
 
 # @FUNCTION: gnuconfig_update
 # @USAGE: [file1 file2 ...]
@@ -86,9 +84,9 @@ gnuconfig_do_update() {
 		if [[ -n ${targetlist} ]] ; then
 			for target in ${targetlist} ; do
 				[[ -L ${target} ]] && rm -f "${target}"
-				einfo "  Updating ${target/$startdir\//}"
+				ebegin "  Updating ${target/$startdir\//}"
 				cp -f "${configsubs_dir}/${file}" "${target}"
-				eend $?
+				eend $? || die
 			done
 		else
 			ewarn "  No ${file} found in ${startdir}, skipping ..."
@@ -107,8 +105,8 @@ gnuconfig_findnewest() {
 	local locations=()
 	local prefix
 
-	case ${EAPI:-0} in
-		0|4|5|6)
+	case ${EAPI} in
+		5|6)
 			prefix="${EPREFIX}"
 			;;
 		*)

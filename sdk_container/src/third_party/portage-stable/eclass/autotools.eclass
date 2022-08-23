@@ -1,12 +1,10 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-
-# Flatcar: Support EAPI 0 and 4.
 
 # @ECLASS: autotools.eclass
 # @MAINTAINER:
 # base-system@gentoo.org
-# @SUPPORTED_EAPIS: 0 4 5 6 7 8
+# @SUPPORTED_EAPIS: 6 7 8
 # @BLURB: Regenerates auto* build scripts
 # @DESCRIPTION:
 # This eclass is for safely handling autotooled software packages that need to
@@ -15,21 +13,21 @@
 # Note: We require GNU m4, as does autoconf.  So feel free to use any features
 # from the GNU version of m4 without worrying about other variants (i.e. BSD).
 
-if [[ ${__AUTOTOOLS_AUTO_DEPEND+set} == "set" ]] ; then
+if [[ ${_AUTOTOOLS_AUTO_DEPEND+set} == "set" ]] ; then
 	# See if we were included already, but someone changed the value
 	# of AUTOTOOLS_AUTO_DEPEND on us.  We could reload the entire
 	# eclass at that point, but that adds overhead, and it's trivial
 	# to re-order inherit in eclasses/ebuilds instead.  #409611
-	if [[ ${__AUTOTOOLS_AUTO_DEPEND} != ${AUTOTOOLS_AUTO_DEPEND} ]] ; then
-		die "AUTOTOOLS_AUTO_DEPEND changed value between inherits; please inherit ${ECLASS} first! ${__AUTOTOOLS_AUTO_DEPEND} -> ${AUTOTOOLS_AUTO_DEPEND}"
+	if [[ ${_AUTOTOOLS_AUTO_DEPEND} != ${AUTOTOOLS_AUTO_DEPEND} ]] ; then
+		die "AUTOTOOLS_AUTO_DEPEND changed value between inherits; please inherit ${ECLASS} first! ${_AUTOTOOLS_AUTO_DEPEND} -> ${AUTOTOOLS_AUTO_DEPEND}"
 	fi
 fi
 
 if [[ -z ${_AUTOTOOLS_ECLASS} ]] ; then
 _AUTOTOOLS_ECLASS=1
 
-case ${EAPI:-0} in
-	0|4|5|6)
+case ${EAPI} in
+	6)
 		# Needed for eqawarn
 		inherit eutils
 		;;
@@ -39,25 +37,25 @@ esac
 
 inherit gnuconfig libtool
 
-# @ECLASS-VARIABLE: WANT_AUTOCONF
+# @ECLASS_VARIABLE: WANT_AUTOCONF
 # @PRE_INHERIT
 # @DESCRIPTION:
 # The major version of autoconf your package needs
 : ${WANT_AUTOCONF:=latest}
 
-# @ECLASS-VARIABLE: WANT_AUTOMAKE
+# @ECLASS_VARIABLE: WANT_AUTOMAKE
 # @PRE_INHERIT
 # @DESCRIPTION:
 # The major version of automake your package needs
 : ${WANT_AUTOMAKE:=latest}
 
-# @ECLASS-VARIABLE: WANT_LIBTOOL
+# @ECLASS_VARIABLE: WANT_LIBTOOL
 # @PRE_INHERIT
 # @DESCRIPTION:
 # Do you want libtool?  Valid values here are "latest" and "none".
 : ${WANT_LIBTOOL:=latest}
 
-# @ECLASS-VARIABLE: _LATEST_AUTOMAKE
+# @ECLASS_VARIABLE: _LATEST_AUTOMAKE
 # @INTERNAL
 # @DESCRIPTION:
 # CONSTANT!
@@ -76,7 +74,7 @@ inherit gnuconfig libtool
 # Do NOT change this variable in your ebuilds!
 # If you want to force a newer minor version, you can specify the correct
 # WANT value by using a colon:  <PV>:<WANT_AUTOMAKE>
-_LATEST_AUTOMAKE=( 1.16.2-r1:1.16 )
+_LATEST_AUTOMAKE=( 1.16.5:1.16 )
 
 _automake_atom="sys-devel/automake"
 _autoconf_atom="sys-devel/autoconf"
@@ -97,7 +95,7 @@ if [[ -n ${WANT_AUTOCONF} ]] ; then
 		none)       _autoconf_atom="" ;; # some packages don't require autoconf at all
 		2.1)        _autoconf_atom="~sys-devel/autoconf-2.13" ;;
 		# if you change the "latest" version here, change also autotools_env_setup
-		latest|2.5) _autoconf_atom=">=sys-devel/autoconf-2.69" ;;
+		latest|2.5) _autoconf_atom=">=sys-devel/autoconf-2.71" ;;
 		*)          die "Invalid WANT_AUTOCONF value '${WANT_AUTOCONF}'" ;;
 	esac
 	export WANT_AUTOCONF
@@ -113,7 +111,7 @@ if [[ -n ${WANT_LIBTOOL} ]] ; then
 	export WANT_LIBTOOL
 fi
 
-# @ECLASS-VARIABLE: AUTOTOOLS_DEPEND
+# @ECLASS_VARIABLE: AUTOTOOLS_DEPEND
 # @OUTPUT_VARIABLE
 # @DESCRIPTION:
 # Contains the combination of requested automake/autoconf/libtool
@@ -123,7 +121,7 @@ AUTOTOOLS_DEPEND="${_automake_atom}
 	${_libtool_atom}"
 RDEPEND=""
 
-# @ECLASS-VARIABLE: AUTOTOOLS_AUTO_DEPEND
+# @ECLASS_VARIABLE: AUTOTOOLS_AUTO_DEPEND
 # @PRE_INHERIT
 # @DESCRIPTION:
 # Set to 'no' to disable automatically adding to DEPEND.  This lets
@@ -131,30 +129,30 @@ RDEPEND=""
 # their own DEPEND string.
 : ${AUTOTOOLS_AUTO_DEPEND:=yes}
 if [[ ${AUTOTOOLS_AUTO_DEPEND} != "no" ]] ; then
-	case ${EAPI:-0} in
-		0|4|5|6) DEPEND=${AUTOTOOLS_DEPEND} ;;
+	case ${EAPI} in
+		6) DEPEND=${AUTOTOOLS_DEPEND} ;;
 		*) BDEPEND=${AUTOTOOLS_DEPEND} ;;
 	esac
 fi
-__AUTOTOOLS_AUTO_DEPEND=${AUTOTOOLS_AUTO_DEPEND} # See top of eclass
+_AUTOTOOLS_AUTO_DEPEND=${AUTOTOOLS_AUTO_DEPEND} # See top of eclass
 
 unset _automake_atom _autoconf_atom
 
-# @ECLASS-VARIABLE: AM_OPTS
+# @ECLASS_VARIABLE: AM_OPTS
 # @DEFAULT_UNSET
 # @DESCRIPTION:
 # Additional options to pass to automake during
 # eautoreconf call.
 : ${AM_OPTS:=}
 
-# @ECLASS-VARIABLE: AT_NOEAUTOHEADER
+# @ECLASS_VARIABLE: AT_NOEAUTOHEADER
 # @DEFAULT_UNSET
 # @DESCRIPTION:
 # Don't run eautoheader command if set to 'yes'; only used to work around
 # packages that don't want their headers being modified.
 : ${AT_NOEAUTOHEADER:=}
 
-# @ECLASS-VARIABLE: AT_NOEAUTOMAKE
+# @ECLASS_VARIABLE: AT_NOEAUTOMAKE
 # @DEFAULT_UNSET
 # @DESCRIPTION:
 # Don't run eautomake command if set to 'yes'; only used to workaround
@@ -162,7 +160,7 @@ unset _automake_atom _autoconf_atom
 # not call AM_INIT_AUTOMAKE if it doesn't actually use automake.
 : ${AT_NOEAUTOMAKE:=}
 
-# @ECLASS-VARIABLE: AT_NOELIBTOOLIZE
+# @ECLASS_VARIABLE: AT_NOELIBTOOLIZE
 # @DEFAULT_UNSET
 # @DESCRIPTION:
 # Don't run elibtoolize command if set to 'yes',
@@ -170,13 +168,13 @@ unset _automake_atom _autoconf_atom
 # particular options
 : ${AT_NOELIBTOOLIZE:=}
 
-# @ECLASS-VARIABLE: AT_M4DIR
+# @ECLASS_VARIABLE: AT_M4DIR
 # @DEFAULT_UNSET
 # @DESCRIPTION:
 # Additional director(y|ies) aclocal should search
 : ${AT_M4DIR:=}
 
-# @ECLASS-VARIABLE: AT_SYS_M4DIR
+# @ECLASS_VARIABLE: AT_SYS_M4DIR
 # @DEFAULT_UNSET
 # @INTERNAL
 # @DESCRIPTION:
@@ -285,7 +283,7 @@ _at_uses_pkg() {
 		for macro ; do
 			args+=( -e "^[[:space:]]*${macro}\>" )
 		done
-		egrep -q "${args[@]}" configure.??
+		grep -E -q "${args[@]}" configure.??
 	fi
 }
 _at_uses_autoheader()  { _at_uses_pkg A{C,M}_CONFIG_HEADER{S,}; }
@@ -334,8 +332,26 @@ eaclocal_amflags() {
 # They also force installing the support files for safety.
 # Respects AT_M4DIR for additional directories to search for macros.
 eaclocal() {
+	# Feed in a list of paths:
+	# - ${BROOT}/usr/share/aclocal
+	# - ${ESYSROOT}/usr/share/aclocal
+	# See bug #677002
+	if [[ ${EAPI} != 6 ]] ; then
+		if [[ ! -f "${T}"/aclocal/dirlist ]] ; then
+			mkdir "${T}"/aclocal || die
+			cat <<- EOF > "${T}"/aclocal/dirlist || die
+				${BROOT}/usr/share/aclocal
+				${ESYSROOT}/usr/share/aclocal
+			EOF
+		fi
+
+		local system_acdir=" --system-acdir=${T}/aclocal"
+	else
+		local system_acdir=""
+	fi
+
 	[[ ! -f aclocal.m4 || -n $(grep -e 'generated.*by aclocal' aclocal.m4) ]] && \
-		autotools_run_tool --at-m4flags aclocal "$@" $(eaclocal_amflags)
+		autotools_run_tool --at-m4flags aclocal "$@" $(eaclocal_amflags) ${system_acdir}
 }
 
 # @FUNCTION: _elibtoolize
@@ -377,8 +393,8 @@ eautoconf() {
 
 
 	if [[ ${WANT_AUTOCONF} != "2.1" && -e configure.in ]] ; then
-		case ${EAPI:-0} in
-			0|1|2|3|4|5|6|7)
+		case ${EAPI} in
+			6|7)
 				eqawarn "This package has a configure.in file which has long been deprecated.  Please"
 				eqawarn "update it to use configure.ac instead as newer versions of autotools will die"
 				eqawarn "when it finds this file.  See https://bugs.gentoo.org/426262 for details."
@@ -468,8 +484,8 @@ eautopoint() {
 config_rpath_update() {
 	local dst src
 
-	case ${EAPI:-0} in
-		0|4|5|6)
+	case ${EAPI} in
+		6)
 			src="${EPREFIX}/usr/share/gettext/config.rpath"
 			;;
 		*)
@@ -499,20 +515,30 @@ autotools_env_setup() {
 		for pv in ${_LATEST_AUTOMAKE[@]/#*:} ; do
 			# Break on first hit to respect _LATEST_AUTOMAKE order.
 			local hv_args=""
-			case ${EAPI:-0} in
-				0|4|5|6)
+			case ${EAPI} in
+				6)
 					hv_args="--host-root"
 					;;
-				7)
+				*)
 					hv_args="-b"
 					;;
 			esac
-			ROOT=/ has_version ${hv_args} "=sys-devel/automake-${pv}*" && export WANT_AUTOMAKE="${pv}" && break
+			has_version ${hv_args} "=sys-devel/automake-${pv}*" && export WANT_AUTOMAKE="${pv}" && break
 		done
-		[[ ${WANT_AUTOMAKE} == "latest" ]] && \
-			die "Cannot find the latest automake! Tried ${_LATEST_AUTOMAKE[*]}"
+
+		# During bootstrap in prefix there might be no automake merged yet
+		# due to --nodeps, but still available somewhere in PATH.
+		# For example, ncurses needs local libtool on aix and hpux.
+		# So, make the check non-fatal where automake doesn't yet
+		# exist within BROOT. (We could possibly do better here
+		# and inspect PATH, but I'm not sure there's much point.)
+		if use prefix && [[ ! -x "${BROOT}"/usr/bin/automake ]] ; then
+			[[ ${WANT_AUTOMAKE} == "latest" ]] && ewarn "Ignoring missing automake during Prefix bootstrap! Tried ${_LATEST_AUTOMAKE[*]}"
+		else
+			[[ ${WANT_AUTOMAKE} == "latest" ]] && die "Cannot find the latest automake! Tried ${_LATEST_AUTOMAKE[*]}"
+		fi
 	fi
-	[[ ${WANT_AUTOCONF} == "latest" ]] && export WANT_AUTOCONF=2.5
+	[[ ${WANT_AUTOCONF} == "latest" ]] && export WANT_AUTOCONF=2.71
 }
 
 # @FUNCTION: autotools_run_tool
@@ -668,12 +694,6 @@ autotools_m4sysdir_include() {
 	# First try to use the paths the system integrator has set up.
 	local paths=( $(eval echo ${AT_SYS_M4DIR}) )
 
-	if [[ ${#paths[@]} -eq 0 && -n ${SYSROOT} ]] ; then
-		# If they didn't give us anything, then default to the SYSROOT.
-		# This helps when cross-compiling.
-		local path="${SYSROOT}/usr/share/aclocal"
-		[[ -d ${path} ]] && paths+=( "${path}" )
-	fi
 	_autotools_m4dir_include "${paths[@]}"
 }
 
