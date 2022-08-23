@@ -26,15 +26,6 @@
 # keywords for wget 1.21.2.
 =net-misc/wget-1.21.2 ~amd64 ~arm64
 
-# Upgrade to GCC 10.3.0 to support latest glibc builds
-=sys-devel/binutils-2.37_p1 ~amd64 ~arm64
-=sys-libs/binutils-libs-2.37_p1 ~amd64 ~arm64
-# This needs to be kept in-sync otherwise dev container contains
-# different binutils than was used by crossdev to build kernel
-# which breaks kmod builds
-=cross-x86_64-cros-linux-gnu/binutils-2.37_p1 ~amd64
-=cross-aarch64-cros-linux-gnu/binutils-2.37_p1 ~arm64
-
 =sys-fs/cryptsetup-2.4.1-r1 ~amd64 ~arm64
 
 =sys-libs/libseccomp-2.5.0 ~amd64 ~arm64
@@ -51,7 +42,6 @@
 # Required for some CVEs
 =app-editors/vim-8.2.5066-r1 ~amd64 ~arm64
 =app-editors/vim-core-8.2.5066-r1 ~amd64 ~arm64
-=sys-libs/zlib-1.2.12-r2 ~amd64 ~arm64
 
 # Duktape is not yet stable
 =dev-lang/duktape-2.7.0-r1 ~amd64 ~arm64
@@ -71,3 +61,6 @@
 
 # Required for CVE-2022-27239, CVE-2022-29869
 =net-fs/cifs-utils-6.15 ~amd64 ~arm64
+
+# Required to fix toolchains build during fsscript in stage 4 of SDK build.
+=sys-devel/crossdev-20220709 ~amd64 ~arm64

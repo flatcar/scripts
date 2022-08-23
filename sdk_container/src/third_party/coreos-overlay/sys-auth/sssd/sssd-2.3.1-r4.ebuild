@@ -226,6 +226,9 @@ multilib_src_configure() {
 		)
 	fi
 
+	# Flatcar: Apparently CPP is undefined, which breaks samba
+	# version detection.
+	tc-export CPP
 	econf "${myconf[@]}"
 }
 

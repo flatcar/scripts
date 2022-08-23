@@ -1,0 +1,23 @@
+diff -u -r make-4.3/src/output.c make-4.3-fix/src/output.c
+--- make-4.3/src/output.c	2020-01-03 07:11:27.000000000 -0000
++++ make-4.3-fix/src/output.c	2022-08-17 07:35:01.473471281 -0000
+@@ -286,15 +286,16 @@
+   FILE *tfile = tmpfile ();
+ 
+   if (! tfile)
+-    pfatal_with_name ("tmpfile");
++    return -1;
+ 
+   /* Create a duplicate so we can close the stream.  */
+   fd = dup (fileno (tfile));
+-  if (fd < 0)
+-    pfatal_with_name ("dup");
+ 
+   fclose (tfile);
+ 
++  if (fd < 0)
++    return -1;
++
+   set_append_mode (fd);
+ 
+   umask (mask);
