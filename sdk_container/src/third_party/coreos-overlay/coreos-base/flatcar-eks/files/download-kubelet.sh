@@ -22,6 +22,12 @@ fi
 # Select the right path depending on the Kubernetes version.
 # https://github.com/awslabs/amazon-eks-ami/blob/master/Makefile
 case $CLUSTER_VERSION in
+  1.23)
+    S3_PATH="1.23.9/2022-07-27"
+    ;;
+  1.22)
+    S3_PATH="1.22.12/2022-07-27"
+    ;;
   1.21)
     S3_PATH="1.21.2/2021-07-05"
     ;;
