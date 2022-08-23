@@ -33,9 +33,6 @@
 # Keep headers in sync with kernel version.
 =sys-kernel/linux-headers-5.15 ~amd64 ~arm64
 
-# Keep perf in sync with kernel version.
-=dev-util/perf-5.15-r1 ~amd64 ~arm64
-
 # Keep iproute in sync with kernel version.
 =sys-apps/iproute2-5.15.0 ~amd64 ~arm64
 
