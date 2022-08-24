@@ -1,6 +1,6 @@
 --- a/tools/gcc.jam
 +++ b/tools/gcc.jam
-@@ -1224,135 +1224,9 @@
+@@ -1129,140 +1129,10 @@
  # x86 and compatible
  # The 'native' option appeared in gcc 4.2 so we cannot safely use it as default.
  # Use i686 instead for 32-bit.
@@ -134,11 +134,16 @@
 -cpu-flags gcc OPTIONS : s390x : z13 : -march=z13 ;
 -cpu-flags gcc OPTIONS : s390x : z14 : -march=z14 ;
 -cpu-flags gcc OPTIONS : s390x : z15 : -march=z15 ;
+ # ARM
+-cpu-flags gcc OPTIONS : arm : cortex-a9+vfpv3 : -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard ;
+-cpu-flags gcc OPTIONS : arm : cortex-a53 : -mcpu=cortex-a53 ;
+-cpu-flags gcc OPTIONS : arm : cortex-r5 : -mcpu=cortex-r5 ;
+-cpu-flags gcc OPTIONS : arm : cortex-r5+vfpv3-d16 : -mcpu=cortex-r5 -mfpu=vfpv3-d16 -mfloat-abi=hard ;
  # AIX variant of RS/6000 & PowerPC
  toolset.flags gcc AROPTIONS <address-model>64/<target-os>aix : "-X64" ;
 --- a/tools/gcc.py
 +++ b/tools/gcc.py
-@@ -745,138 +745,14 @@
+@@ -737,138 +737,14 @@
  # x86 and compatible
  flags('gcc', 'OPTIONS', ['<architecture>x86/<address-model>32'], ['-m32'])
  flags('gcc', 'OPTIONS', ['<architecture>x86/<address-model>64'], ['-m64'])

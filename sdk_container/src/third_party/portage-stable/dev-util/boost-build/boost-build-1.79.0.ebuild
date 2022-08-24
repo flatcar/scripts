@@ -1,7 +1,7 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 inherit flag-o-matic toolchain-funcs
 
@@ -14,17 +14,16 @@ S="${WORKDIR}/boost_${MY_PV}/tools/build/src"
 
 LICENSE="Boost-1.0"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="examples"
 RESTRICT="test"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.71.0-disable_python_rpath.patch
-	"${FILESDIR}"/${PN}-1.71.0-darwin-gentoo-toolchain.patch
+	"${FILESDIR}"/${PN}-1.78.0-darwin-gentoo-toolchain.patch
 	"${FILESDIR}"/${PN}-1.73.0-add-none-feature-options.patch
 	"${FILESDIR}"/${PN}-1.76.0-respect-user-flags.patch
-	"${FILESDIR}"/${PN}-1.74.0-no-implicit-march-flags.patch
-	"${FILESDIR}"/${PN}-1.76.0-python-numpy.patch
+	"${FILESDIR}"/${PN}-1.78.0-no-implicit-march-flags.patch
 )
 
 src_unpack() {

@@ -1,9 +1,9 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{8..10} )
+PYTHON_COMPAT=( python3_{8..11} )
 
 inherit flag-o-matic multiprocessing python-r1 toolchain-funcs multilib-minimal
 
@@ -13,12 +13,11 @@ MAJOR_V="$(ver_cut 1-2)"
 DESCRIPTION="Boost Libraries for C++"
 HOMEPAGE="https://www.boost.org/"
 SRC_URI="https://boostorg.jfrog.io/artifactory/main/release/${PV}/source/boost_${MY_PV}.tar.bz2"
-SRC_URI+=" https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${P}-patches-1.tar.xz"
 S="${WORKDIR}/${PN}_${MY_PV}"
 
 LICENSE="Boost-1.0"
 SLOT="0/${PV}" # ${PV} instead ${MAJOR_V} due to bug 486122
-KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt"
 IUSE="bzip2 context debug doc icu lzma +nls mpi numpy python tools zlib zstd"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 # the tests will never fail because these are not intended as sanity
@@ -29,8 +28,6 @@ REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 RESTRICT="test"
 
 RDEPEND="
-	!app-admin/eselect-boost
-	!dev-libs/boost-numpy
 	!<dev-libs/leatherman-1.12.0-r1
 	bzip2? ( app-arch/bzip2:=[${MULTILIB_USEDEP}] )
 	icu? ( >=dev-libs/icu-3.6:=[${MULTILIB_USEDEP}] )
@@ -44,19 +41,17 @@ RDEPEND="
 	zlib? ( sys-libs/zlib:=[${MULTILIB_USEDEP}] )
 	zstd? ( app-arch/zstd:=[${MULTILIB_USEDEP}] )"
 DEPEND="${RDEPEND}"
-BDEPEND=">=dev-util/boost-build-${MAJOR_V}-r2"
+#BDEPEND=">=dev-util/boost-build-${MAJOR_V}"
+BDEPEND=">=dev-util/boost-build-1.78.0-r1"
 
 PATCHES=(
-	"${WORKDIR}"/${PN}-1.71.0-disable_icu_rpath.patch
-	"${WORKDIR}"/${PN}-1.71.0-context-x32.patch
-	"${WORKDIR}"/${PN}-1.71.0-build-auto_index-tool.patch
+	"${FILESDIR}"/${PN}-1.79.0-disable_icu_rpath.patch
+	"${FILESDIR}"/${PN}-1.79.0-context-x32.patch
+	"${FILESDIR}"/${PN}-1.79.0-build-auto_index-tool.patch
 	# Boost.MPI's __init__.py doesn't work on Py3
-	"${WORKDIR}"/${PN}-1.73-boost-mpi-python-PEP-328.patch
-	"${WORKDIR}"/${PN}-1.74-CVE-2012-2677.patch
-	"${WORKDIR}"/${PN}-1.76-sparc-define.patch
-	"${WORKDIR}"/${PN}-1.77-math-deprecated-include.patch
-	"${WORKDIR}"/${PN}-1.77-geometry.patch
-	"${FILESDIR}"/${P}-python-3.10.patch
+	"${FILESDIR}"/${PN}-1.79.0-boost-mpi-python-PEP-328.patch
+	"${FILESDIR}"/${PN}-1.79.0-CVE-2012-2677.patch
+	"${FILESDIR}"/${PN}-1.79.0-fix-mips1-transition.patch
 )
 
 python_bindings_needed() {
@@ -90,7 +85,7 @@ create_user-config.jam() {
 	fi
 
 	cat > "${user_config_jam}" <<- __EOF__ || die
-		using ${compiler} : ${compiler_version} : ${compiler_executable} : <cflags>"${CFLAGS}" <cxxflags>"${CXXFLAGS}" <linkflags>"${LDFLAGS}" ;
+		using ${compiler} : ${compiler_version} : ${compiler_executable} : <cflags>"${CFLAGS}" <cxxflags>"${CXXFLAGS}" <linkflags>"${LDFLAGS}" <archiver>"$(tc-getAR)" <ranlib>"$(tc-getRANLIB)" ;
 		${mpi_configuration}
 	__EOF__
 
