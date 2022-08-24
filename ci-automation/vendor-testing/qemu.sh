@@ -17,6 +17,7 @@ if [ "${CIA_ARCH}" = "arm64" ] && [ "${CIA_TESTSCRIPT}" != "qemu_uefi.sh" ] ; th
     echo "  ---" >> "${CIA_TAPFILE}"
     echo "  ERROR: ARM64 tests only supported on qemu_uefi." | tee -a "${CIA_TAPFILE}"
     echo "  ..." >> "${CIA_TAPFILE}"
+    break_retest_cycle
     exit 1
 fi
 
