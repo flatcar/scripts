@@ -82,10 +82,10 @@ function _packages_build_impl() {
     local packages_container="flatcar-packages-${arch}-${docker_vernum}"
 
     # Build packages; store packages and torcx output in container
-    ./run_sdk_container -x ./ci-cleanup.sh -n "${packages_container}" -v "${version}" \
+    ./run_sdk_container -x ./ci-cleanup.sh -n "${packages_container}" -v "${vernum}" \
         -C "${sdk_image}" \
         mkdir -p "${CONTAINER_TORCX_ROOT}"
-    ./run_sdk_container -n "${packages_container}" -v "${version}" \
+    ./run_sdk_container -n "${packages_container}" -v "${vernum}" \
         -C "${sdk_image}" \
         ./build_packages --board="${arch}-usr" \
             --torcx_output_root="${CONTAINER_TORCX_ROOT}"
@@ -94,7 +94,7 @@ function _packages_build_impl() {
     local torcx_tmp="__build__/torcx_tmp"
     rm -rf "${torcx_tmp}"
     mkdir "${torcx_tmp}"
-    ./run_sdk_container -n "${packages_container}" -v "${version}" \
+    ./run_sdk_container -n "${packages_container}" -v "${vernum}" \
         -C "${sdk_image}" \
         cp -r "${CONTAINER_TORCX_ROOT}/" \
         "${torcx_tmp}"
