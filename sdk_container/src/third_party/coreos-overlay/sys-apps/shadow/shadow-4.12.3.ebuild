@@ -1,29 +1,27 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 TMPFILES_OPTIONAL=1
-inherit libtool pam systemd tmpfiles
+VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/sergehallyn.asc
+inherit libtool pam verify-sig systemd tmpfiles
 
 DESCRIPTION="Utilities to deal with user accounts"
 HOMEPAGE="https://github.com/shadow-maint/shadow"
-SRC_URI="https://github.com/shadow-maint/shadow/releases/download/v${PV}/${P}.tar.xz"
+SRC_URI="https://github.com/shadow-maint/shadow/releases/download/${PV}/${P}.tar.xz"
+SRC_URI+=" verify-sig? ( https://github.com/shadow-maint/shadow/releases/download/${PV}/${P}.tar.xz.asc )"
 
 LICENSE="BSD GPL-2"
 # Subslot is for libsubid's SONAME.
 SLOT="0/4"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="acl audit bcrypt cracklib nls pam selinux skey split-usr su xattr"
 # Taken from the man/Makefile.am file.
 LANGS=( cs da de es fi fr hu id it ja ko pl pt_BR ru sv tr zh_CN zh_TW )
 
 REQUIRED_USE="?? ( cracklib pam )"
 
-BDEPEND="
-	app-arch/xz-utils
-	sys-devel/gettext
-"
 COMMON_DEPEND="
 	virtual/libcrypt:=
 	acl? ( sys-apps/acl:0= )
@@ -53,6 +51,11 @@ RDEPEND="${COMMON_DEPEND}
 	pam? ( >=sys-auth/pambase-20150213 )
 	su? ( !sys-apps/util-linux[su(-)] )
 "
+BDEPEND="
+	app-arch/xz-utils
+	sys-devel/gettext
+	verify-sig? ( sec-keys/openpgp-keys-sergehallyn )
+"
 
 PATCHES=(
 	"${FILESDIR}/${PN}-4.1.3-dots-in-usernames.patch"
@@ -61,7 +64,6 @@ PATCHES=(
 src_prepare() {
 	default
 
-	#eautoreconf
 	elibtoolize
 }
 
@@ -84,6 +86,7 @@ src_configure() {
 		$(use_with su)
 		$(use_with xattr attr)
 	)
+
 	econf "${myeconfargs[@]}"
 
 	if use nls ; then
@@ -178,7 +181,7 @@ src_install() {
 
 		newpamd "${FILESDIR}"/pam.d-include/shadow-r1 groupmems
 
-		# comment out login.defs options that pam hates
+		# Comment out login.defs options that pam hates
 		local opt sed_args=()
 		for opt in \
 			CHFN_AUTH \
@@ -209,7 +212,7 @@ src_install() {
 			-e ': exit' \
 			"${ED}"/usr/share/shadow/login.defs || die
 
-		# remove manpages that pam will install for us
+		# Remove manpages that pam will install for us
 		# and/or don't apply when using pam
 		find "${ED}"/usr/share/man -type f \
 			'(' -name 'limits.5*' -o -name 'suauth.5*' ')' \
@@ -241,4 +244,29 @@ src_install() {
 pkg_preinst() {
 	rm -f "${EROOT}"/etc/pam.d/system-auth.new \
 		"${EROOT}/etc/login.defs.new"
+}
+
+pkg_postinst() {
+	# Missing entries from /etc/passwd can cause odd system blips.
+	# See bug #829872.
+	if ! pwck -r -q -R "${EROOT:-/}" &>/dev/null ; then
+		ewarn "Running 'pwck' returned errors. Please run it manually to fix any errors."
+	fi
+
+	# Enable shadow groups.
+	if [[ ! -f "${EROOT}"/etc/gshadow ]] ; then
+		if grpck -r -R "${EROOT:-/}" 2>/dev/null ; then
+			grpconv -R "${EROOT:-/}"
+		else
+			ewarn "Running 'grpck' returned errors. Please run it by hand, and then"
+			ewarn "run 'grpconv' afterwards!"
+		fi
+	fi
+
+	[[ ! -f "${EROOT}"/etc/subgid ]] &&
+		touch "${EROOT}"/etc/subgid
+	[[ ! -f "${EROOT}"/etc/subuid ]] &&
+		touch "${EROOT}"/etc/subuid
+
+	einfo "The 'adduser' symlink to 'useradd' has been dropped."
 }
