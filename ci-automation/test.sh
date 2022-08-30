@@ -159,6 +159,7 @@ function _test_run_impl() {
     local retry=""
     local success=false
     local print_give_up=true
+    local failed_tests=()
     # A job on each worker prunes old mantle images (docker image prune)
     echo "docker rm -f '${container_name}'" >> ./ci-cleanup.sh
 
@@ -193,9 +194,8 @@ function _test_run_impl() {
                 "${tap_merged_summary}" \
                 "${tap_merged_detailed}"
 
-        local failed_tests
-        failed_tests="$(cat "${tests_dir}/${failfile}")"
-        if [ -z "$failed_tests" ] ; then
+        readarray -t failed_tests <"${tests_dir}/${failfile}"
+        if [ "${#failed_tests[@]}" -eq 0 ] ; then
             echo "########### All tests succeeded. ###########"
             success=true
             print_give_up=false
@@ -205,7 +205,7 @@ function _test_run_impl() {
         if retest_cycle_broken; then
             echo "########### Test cycle requested to break ###########"
             echo "Failed tests:"
-            echo "${failed_tests}"
+            printf '%s\n' "${failed_tests[@]}"
             echo "-----------"
             print_give_up=false
             break
@@ -213,9 +213,9 @@ function _test_run_impl() {
 
         echo "########### Some tests failed and will be re-run (${retry} / ${retries}). ###########"
         echo "Failed tests:"
-        echo "${failed_tests}"
+        printf '%s\n' "${failed_tests[@]}"
         echo "-----------"
-        set -- $failed_tests
+        set -- "${failed_tests[@]}"
     done
 
 
