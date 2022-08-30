@@ -158,6 +158,7 @@ function _test_run_impl() {
     local tap_merged_detailed="results-${image}-detailed.tap"
     local retry=""
     local success=false
+    local print_give_up=true
     # A job on each worker prunes old mantle images (docker image prune)
     echo "docker rm -f '${container_name}'" >> ./ci-cleanup.sh
 
@@ -197,6 +198,7 @@ function _test_run_impl() {
         if [ -z "$failed_tests" ] ; then
             echo "########### All tests succeeded. ###########"
             success=true
+            print_give_up=false
             break
         fi
 
@@ -204,9 +206,7 @@ function _test_run_impl() {
             echo "########### Test cycle requested to break ###########"
             echo "Failed tests: $failed_tests"
             echo "-----------"
-            # not really a success, but don't print a message about
-            # exhaused reruns and giving up
-            success=true
+            print_give_up=false
             break
         fi
 
@@ -217,7 +217,7 @@ function _test_run_impl() {
     done
 
 
-    if ! $success; then
+    if ${print_give_up}; then
         echo "########### All re-runs exhausted ($retries). Giving up. ###########"
     fi
 
