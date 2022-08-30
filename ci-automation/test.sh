@@ -204,14 +204,16 @@ function _test_run_impl() {
 
         if retest_cycle_broken; then
             echo "########### Test cycle requested to break ###########"
-            echo "Failed tests: $failed_tests"
+            echo "Failed tests:"
+            echo "${failed_tests}"
             echo "-----------"
             print_give_up=false
             break
         fi
 
         echo "########### Some tests failed and will be re-run (${retry} / ${retries}). ###########"
-        echo "Failed tests: $failed_tests"
+        echo "Failed tests:"
+        echo "${failed_tests}"
         echo "-----------"
         set -- $failed_tests
     done
