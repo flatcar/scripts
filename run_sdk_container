@@ -129,7 +129,8 @@ if [ -z "$stat" ] ; then
        -e SDK_GROUP_ID="$(id -g)" \
        --name="$name" \
        --hostname="$hostname" \
-       "${container_image_name}"
+       --entrypoint /bin/bash \
+       "${container_image_name}" -l
 fi
 
 if [ "$stat" != "Up" ] ; then
