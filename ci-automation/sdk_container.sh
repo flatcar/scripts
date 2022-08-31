@@ -30,10 +30,16 @@
 #   4. SIGNING_KEY. Environment variable. The artifact signing key.
 #        Defaults to nothing if not set - in such case, artifacts will not be signed.
 #        If provided, SIGNER environment variable should also be provided, otherwise this environment variable will be ignored.
+
+#   5. REGISTRY_USERNAME. Environment variable. The username to use for Docker registry login.
+#        Defaults to nothing if not set - in such case, SDK container will not be pushed.
+#
+#   6. REGISTRY_PASSWORD. Environment variable. The password to use for Docker registry login.
+#        Defaults to nothing if not set - in such case, SDK container will not be pushed.
 #
 # OUTPUT:
 #
-#   1. SDK container image of the new SDK, published to buildcache.
+#   1. SDK container image of the new SDK, published to buildcache and optionally on a Docker registry.
 #   2. "./ci-cleanup.sh" with commands to clean up temporary build resources,
 #        to be run after this step finishes / when this step is aborted.
 #   3. If signer key was passed, signatures of artifacts from point 1, pushed along to buildcache.
@@ -75,5 +81,19 @@ function _sdk_container_build_impl() {
     docker_image_to_buildcache "${CONTAINER_REGISTRY}/flatcar-sdk-all" "${docker_vernum}"
     docker_image_to_buildcache "${CONTAINER_REGISTRY}/flatcar-sdk-amd64" "${docker_vernum}"
     docker_image_to_buildcache "${CONTAINER_REGISTRY}/flatcar-sdk-arm64" "${docker_vernum}"
+
+    # If the version is not a release, we do not publish on GHCR.
+    [[ "${docker_vernum}" =~ ^[0-9.]+$ ]] || return
+
+    # If the registry password or the registry username is not set, we leave early.
+    [[ -z "${REGISTRY_PASSWORD}" ]] || [[ -z "${REGISTRY_USERNAME}" ]] && return
+
+    # We assert that we are correctly logged into the container registry.
+    echo "${REGISTRY_PASSWORD}" | docker login "${CONTAINER_REGISTRY}" -u "${REGISTRY_USERNAME}" --password-stdin
+
+    # Docker images are pushed in the container registry.
+    for a in all amd64 arm64; do
+      docker push "${CONTAINER_REGISTRY}/flatcar-sdk-${a}":"${docker_vernum}"
+    done
 }
 # --
