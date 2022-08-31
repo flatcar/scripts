@@ -38,6 +38,16 @@
 #        Defaults to nothing if not set - in such case, artifacts will not be signed.
 #        If provided, SIGNER environment variable should also be provided, otherwise this environment variable will be ignored.
 #
+#   3. REGISTRY_USERNAME. Environment variable. The username to use for Docker registry login.
+#        Defaults to nothing if not set - in such case, SDK container will not be pushed.
+#
+#   4. REGISTRY_PASSWORD. Environment variable. The password to use for Docker registry login.
+#        Defaults to nothing if not set - in such case, SDK container will not be pushed.
+#
+#   5. Cloud credentials as secrets via the environment variables AZURE_PROFILE, AZURE_AUTH_CREDENTIALS,
+#      AWS_CREDENTIALS, AWS_MARKETPLACE_CREDENTIALS, AWS_MARKETPLACE_ARN, AWS_CLOUDFORMATION_CREDENTIALS,
+#      GCP_JSON_KEY, GOOGLE_RELEASE_CREDENTIALS.
+#
 # OUTPUT:
 #
 #   1. The cloud images are published with mantle's plume and ore tools
@@ -124,8 +134,32 @@ function _inside_mantle() {
     for arch in amd64 arm64; do
       generate_templates "aws-${arch}/flatcar_production_ami_all.json" "${arch}-usr"
     done
-    aws s3 cp --recursive --acl public-read cloudformation-files/ s3://flatcar-prod-ami-import-eu-central-1/dist/aws/
+    aws s3 cp --recursive --acl public-read cloudformation-files/ "s3://flatcar-prod-ami-import-eu-central-1/dist/aws/"
   )
+}
+
+function publish_sdk() {
+    local docker_sdk_vernum="$1"
+    local sdk_name=""
+    local image_name=""
+
+    # If the registry password or the registry username is not set, we leave early.
+    [[ -z "${REGISTRY_PASSWORD}" ]] || [[ -z "${REGISTRY_USERNAME}" ]] && return
+
+    (
+      # Don't print the password to stderr when logging in
+      set +x
+      local container_registry=""
+      container_registry=$(echo "${sdk_container_common_registry}" | cut -d / -f 1)
+      echo "${REGISTRY_PASSWORD}" | docker login "${container_registry}" -u "${REGISTRY_USERNAME}" --password-stdin
+    )
+
+    # Docker images are pushed in the container registry.
+    for a in all amd64 arm64; do
+      sdk_name="flatcar-sdk-${a}"
+      docker_image_from_registry_or_buildcache "${sdk_name}" "${docker_sdk_vernum}"
+      docker push "${sdk_container_common_registry}/flatcar-sdk-${a}":"${docker_sdk_vernum}"
+    done
 }
 
 function _release_build_impl() {
@@ -156,7 +190,7 @@ function _release_build_impl() {
       sign_artifacts "${SIGNER}" "aws-${arch}/flatcar_production_ami_"*txt "aws-${arch}/flatcar_production_ami_"*json
       copy_to_buildcache "images/${arch}/${vernum}/" "aws-${arch}/flatcar_production_ami_"*txt* "aws-${arch}/flatcar_production_ami_"*json*
     done
-    # TODO: publish SDK container image if SDK version is the same as the image version (e.g., on new major versions)
+    publish_sdk "${docker_sdk_vernum}"
     echo "===="
     echo "Done, now you can copy the images to Origin"
     echo "===="
