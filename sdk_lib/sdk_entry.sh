@@ -1,10 +1,11 @@
 #!/bin/bash
 
 if [ -n "${SDK_USER_ID:-}" ] ; then
-    usermod -u $SDK_USER_ID sdk
+    # If the "core" user from /usr/share/baselayout/passwd has the same ID, allow to take it instead
+    usermod --non-unique -u $SDK_USER_ID sdk
 fi
 if [ -n "${SDK_GROUP_ID:-}" ] ; then
-    groupmod -g $SDK_GROUP_ID sdk
+    groupmod --non-unique -g $SDK_GROUP_ID sdk
 fi
 
 chown -R sdk:sdk /home/sdk
