@@ -13,7 +13,12 @@ set -euo pipefail
 source ci-automation/vendor_test.sh
 
 if [ "$*" != "" ] && [ "$*" != "*" ] && [ "$*" != "cl.update.payload" ]; then
-    echo "Only cl.update.payload is supported, got '$*'"
+    echo "1..1" > "${CIA_TAPFILE}"
+    echo "not ok - all qemu update tests" >> "${CIA_TAPFILE}"
+    echo "  ---" >> "${CIA_TAPFILE}"
+    echo "  ERROR: Only cl.update.payload is supported, got '$*'." | tee -a "${CIA_TAPFILE}"
+    echo "  ..." >> "${CIA_TAPFILE}"
+    break_retest_cycle
     exit 1
 fi
 
