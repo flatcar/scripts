@@ -45,7 +45,7 @@ fi
 # Run the cl.internet test on multiple machine types only if it should run in general
 cl_internet_included="$(set -o noglob; bin/kola list --platform=packet --filter ${KOLA_TESTS} | { grep cl.internet || true ; } )"
 if [[ "${BOARD}" == "amd64-usr" ]] && [[ "${cl_internet_included}" != ""  ]]; then
-  for INSTANCE in c3.medium.x86 m3.large.x86 s3.xlarge.x86 n2.xlarge.x86; do
+  for INSTANCE in m3.small.x86 c3.medium.x86 m3.large.x86 s3.xlarge.x86 n2.xlarge.x86; do
     (
     set +x
     OUTPUT=$(timeout --signal=SIGQUIT "${timeout}" bin/kola run \
