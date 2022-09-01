@@ -1,0 +1,1 @@
+- Equinix Metal: Fixed serial console settings for the `m3.small.x86` instance by expanding the GRUB check for `i386` to `x86_64` [coreos-overlay#2122](https://github.com/flatcar-linux/coreos-overlay/pull/2122)
