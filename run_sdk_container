@@ -129,7 +129,8 @@ if [ -z "$stat" ] ; then
        -e SDK_GROUP_ID="$(id -g)" \
        --name="$name" \
        --hostname="$hostname" \
-       "${container_image_name}"
+       --entrypoint /bin/bash \
+       "${container_image_name}" -l
 fi
 
 if [ "$stat" != "Up" ] ; then
@@ -146,4 +147,4 @@ fi
 # Workaround: The SDK expects to be able to write to /etc/hosts
 $docker exec "$name" sh -c 'cp /etc/hosts /etc/hosts2; umount /etc/hosts ; mv /etc/hosts2 /etc/hosts'
 
-$docker exec $tty -i "$name" /home/sdk/sdk_entry.sh "$@"
+$docker exec $tty -i "$name" /mnt/host/source/src/scripts/sdk_lib/sdk_entry.sh "$@"
