@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 inherit flag-o-matic multilib toolchain-funcs
 
@@ -16,7 +16,7 @@ SRC_URI="mirror://sourceforge/infozip/${MY_P}.tar.gz
 
 LICENSE="Info-ZIP"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="bzip2 natspec unicode"
 
 DEPEND="bzip2? ( app-arch/bzip2 )
@@ -25,15 +25,21 @@ RDEPEND="${DEPEND}"
 
 S="${WORKDIR}/${MY_P}"
 
-src_prepare() {
-	local deb="${WORKDIR}"/debian/patches
-	rm "${deb}"/02-this-is-debian-unzip.patch || die
-	eapply "${deb}"/*.patch
+PATCHES=(
+	"${WORKDIR}"/debian/patches
+	"${FILESDIR}"/${PN}-6.0-no-exec-stack.patch
+	"${FILESDIR}"/${PN}-6.0-format-security.patch
+	"${FILESDIR}"/${PN}-6.0-fix-false-overlap-detection-on-32bit-systems.patch
+)
 
-	eapply "${FILESDIR}"/${PN}-6.0-no-exec-stack.patch
-	eapply "${FILESDIR}"/${PN}-6.0-format-security.patch
-	eapply "${FILESDIR}"/${PN}-6.0-fix-false-overlap-detection-on-32bit-systems.patch
-	use natspec && eapply "${FILESDIR}/${PN}-6.0-natspec.patch" #275244
+src_prepare() {
+	# bug #275244
+	use natspec && PATCHES+=( "${FILESDIR}"/${PN}-6.0-natspec.patch )
+
+	rm "${WORKDIR}"/debian/patches/02-this-is-debian-unzip.patch || die
+
+	default
+
 	sed -i -r \
 		-e '/^CFLAGS/d' \
 		-e '/CFLAGS/s:-O[0-9]?:$(CFLAGS) $(CPPFLAGS):' \
@@ -52,8 +58,6 @@ src_prepare() {
 
 	# Delete bundled code to make sure we don't use it.
 	rm -r bzip2 || die
-
-	eapply_user
 }
 
 src_configure() {
@@ -72,12 +76,13 @@ src_configure() {
 	[[ ${CHOST} == *linux* ]] && append-cppflags -DNO_LCHMOD
 	use bzip2 && append-cppflags -DUSE_BZIP2
 	use unicode && append-cppflags -DUNICODE_SUPPORT -DUNICODE_WCHAR -DUTF8_MAYBE_NATIVE -DUSE_ICONV_MAPPING
-	append-cppflags -DLARGE_FILE_SUPPORT #281473
+
+	# bug #281473
+	append-cppflags -DLARGE_FILE_SUPPORT
 }
 
 src_compile() {
-	ASFLAGS="${ASFLAGS} $(get_abi_CFLAGS)" \
-		emake -f unix/Makefile ${TARGET}
+	ASFLAGS="${ASFLAGS} $(get_abi_CFLAGS)" emake -f unix/Makefile ${TARGET}
 }
 
 src_install() {
