@@ -1,23 +1,41 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-TMPFILES_OPTIONAL=1
-inherit meson pam pax-utils systemd xdg-utils tmpfiles
+PYTHON_COMPAT=( python3_{8..11} )
+inherit meson pam pax-utils python-any-r1 systemd xdg-utils
 
 DESCRIPTION="Policy framework for controlling privileges for system-wide services"
 HOMEPAGE="https://www.freedesktop.org/wiki/Software/polkit https://gitlab.freedesktop.org/polkit/polkit"
-SRC_URI="https://www.freedesktop.org/software/${PN}/releases/${P}.tar.gz"
+if [[ ${PV} == *_p* ]] ; then
+	# Upstream don't make releases very often. Test snapshots throughly
+	# and review commits, but don't shy away if there's useful stuff there
+	# we want.
+	MY_COMMIT=""
+	SRC_URI="https://gitlab.freedesktop.org/polkit/polkit/-/archive/${MY_COMMIT}/polkit-${MY_COMMIT}.tar.bz2 -> ${P}.tar.bz2"
+
+	S="${WORKDIR}"/${PN}-${MY_COMMIT}
+else
+	SRC_URI="https://www.freedesktop.org/software/${PN}/releases/${P}.tar.gz"
+
+	S="${WORKDIR}"/${PN}-v.${PV}
+fi
 
 LICENSE="LGPL-2"
 SLOT="0"
-KEYWORDS="amd64 arm arm64 ~mips ppc64 ~riscv ~s390 x86"
-IUSE="examples gtk +introspection kde pam selinux systemd test"
-#RESTRICT="!test? ( test )"
-# Tests currently don't work with meson. See
-#   https://gitlab.freedesktop.org/polkit/polkit/-/issues/144
-RESTRICT="test"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+IUSE="+duktape examples gtk +introspection kde pam selinux systemd test"
+RESTRICT="!test? ( test )"
+
+# This seems to be fixed with 121?
+#if [[ ${PV} == *_p* ]] ; then
+#	RESTRICT="!test? ( test )"
+#else
+#	# Tests currently don't work with meson in the dist tarballs. See
+#	#  https://gitlab.freedesktop.org/polkit/polkit/-/issues/144
+#	RESTRICT="test"
+#fi
 
 BDEPEND="
 	acct-user/polkitd
@@ -30,11 +48,18 @@ BDEPEND="
 	sys-devel/gettext
 	virtual/pkgconfig
 	introspection? ( dev-libs/gobject-introspection )
+	test? (
+		$(python_gen_any_dep '
+			dev-python/dbus-python[${PYTHON_USEDEP}]
+			dev-python/python-dbusmock[${PYTHON_USEDEP}]
+		')
+	)
 "
 DEPEND="
-	dev-lang/duktape:=
 	dev-libs/glib:2
 	dev-libs/expat
+	duktape? ( dev-lang/duktape:= )
+	!duktape? ( dev-lang/spidermonkey:91[-debug] )
 	pam? (
 		sys-auth/pambase
 		sys-libs/pam
@@ -55,23 +80,31 @@ PDEPEND="
 	kde? ( kde-plasma/polkit-kde-agent )
 "
 
-DOCS=( docs/TODO HACKING NEWS README )
+DOCS=( docs/TODO HACKING.md NEWS.md README.md )
 
 QA_MULTILIB_PATHS="
 	usr/lib/polkit-1/polkit-agent-helper-1
 	usr/lib/polkit-1/polkitd"
 
+python_check_deps() {
+	python_has_version "dev-python/dbus-python[${PYTHON_USEDEP}]" &&
+	python_has_version "dev-python/python-dbusmock[${PYTHON_USEDEP}]"
+}
+
+pkg_setup() {
+	use test && python-any-r1_pkg_setup
+}
+
 src_prepare() {
 	local PATCHES=(
-		"${FILESDIR}/polkit-0.120-meson.patch"
-		"${FILESDIR}/polkit-0.120-CVE-2021-4034.patch"
-
-		# from https://gitlab.freedesktop.org/polkit/polkit/-/merge_requests/97
-		"${FILESDIR}/97_Add_duktape_as_javascript_engine.patch"
+		# musl
+		"${FILESDIR}"/${PN}-0.120_p20220509-make-netgroup-support-optional.patch
 	)
+
 	default
 
-	sed -i -e 's|unix-group:wheel|unix-user:0|' src/polkitbackend/*-default.rules || die #401513
+	# bug #401513
+	sed -i -e 's|unix-group:wheel|unix-user:0|' src/polkitbackend/*-default.rules || die
 }
 
 src_configure() {
@@ -86,6 +119,7 @@ src_configure() {
 		-Dos_type=gentoo
 		-Dsession_tracking="$(usex systemd libsystemd-login libelogind)"
 		-Dsystemdsystemunitdir="$(systemd_get_systemunitdir)"
+		-Djs_engine=$(usex duktape duktape mozjs)
 		$(meson_use introspection)
 		$(meson_use test tests)
 		$(usex pam "-Dpam_module_dir=$(getpam_mod_dir)" '')
@@ -103,16 +137,6 @@ src_compile() {
 src_install() {
 	meson_src_install
 
-	dodir /usr/share/polkit-1/rules.d
-	dodir /usr/lib/pam.d
-
-	mv "${D}"/{etc,usr/share}/polkit-1/rules.d/50-default.rules || die
-	mv "${D}"/{etc,usr/lib}/pam.d/polkit-1 || die
-	rmdir "${D}"/etc/polkit-1/rules.d "${D}"/etc/polkit-1 || die
-	rmdir "${D}"/etc/pam.d || die
-
-	dotmpfiles "${FILESDIR}/polkit.conf"
-
 	if use examples ; then
 		docinto examples
 		dodoc src/examples/{*.c,*.policy*}
@@ -120,11 +144,9 @@ src_install() {
 
 	diropts -m 0700 -o polkitd
 	keepdir /usr/share/polkit-1/rules.d
+}
 
-	# meson does not install required files with SUID bit. See
-	#  https://bugs.gentoo.org/816393
-	# Remove the following lines once this has been fixed by upstream
-	# (should be fixed in next release: https://gitlab.freedesktop.org/polkit/polkit/-/commit/4ff1abe4a4c1f8c8378b9eaddb0346ac6448abd8)
-	fperms u+s /usr/bin/pkexec
-	fperms u+s /usr/lib/polkit-1/polkit-agent-helper-1
+pkg_postinst() {
+	chmod 0700 "${EROOT}"/{etc,usr/share}/polkit-1/rules.d
+	chown polkitd "${EROOT}"/{etc,usr/share}/polkit-1/rules.d
 }
