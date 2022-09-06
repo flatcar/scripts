@@ -74,8 +74,11 @@
 # script would need to make anyway. For more information, please refer
 # to the vendor_test.sh file.
 
-# Download torcx package and manifest, add build cache URL to manifest
-#  so the docker.torcx-manifest-pkgs test can use it.
+# Download torcx manifest and modify URLs pointing to the origin
+# server to point to the build cache. This is because the tests for
+# releases are run before artifacts are uploaded to the origin
+# server. This would make kola's docker.torcx-manifest-pkgs test to
+# fail.
 function __prepare_torcx() {
     local arch="$1"
     local vernum="$2"
@@ -83,16 +86,28 @@ function __prepare_torcx() {
 
     copy_from_buildcache "images/${arch}/${vernum}/torcx/torcx_manifest.json" "${workdir}"
 
-    local docker_pkg
-    docker_pkg="$(basename \
-                        "$(jq -r ".value.packages[0].versions[0].locations[0].path" \
-                        ${workdir}/torcx_manifest.json)")"
-
-    # Add docker package URL on build cache to manifest
-    local docker_url="http://${BUILDCACHE_SERVER}/images/${arch}/${vernum}/torcx/${docker_pkg}"
-    jq ".value.packages[0].versions[0].locations += [{\"url\" : \"${docker_url}\"}]" \
+    # Change URLs from:
+    #
+    # https://${channel}.release.flatcar-linux.net/${arch}-usr/${vernum}/torcx/…
+    #
+    # to:
+    #
+    # https://bincache.flatcar-linux.net/images/${arch}/${vernum}/torcx/…
+    #
+    # This is done in two parts - replacing host part and arch part.
+    #
+    # Replace 'https://${channel}.release.flatcar-linux.net/' with
+    # 'https://bincache.flatcar-linux.net/' matching the initial "url"
+    # JSON key too.
+    local host_match='\("url":\s*"https://\)[a-z]\+\.release\([^/]\+/\)'
+    local host_replace='\1bincache\2'
+    # Replace '${arch}-usr/` part with 'images/${arch}/'.
+    local arch_match='\([a-z0-9]\+\)-usr/'
+    local arch_replace='images/\3/'
+    sed \
+        -e "s#${host_match}${arch_match}#${host_replace}${arch_replace}#g" \
         "${workdir}/torcx_manifest.json" \
-        > "${workdir}/torcx_manifest_new.json"
+        >"${workdir}/torcx_manifest_new.json"
 
     mv "${workdir}/torcx_manifest.json" "${workdir}/torcx_manifest.json.original"
     mv "${workdir}/torcx_manifest_new.json" "${workdir}/torcx_manifest.json"
