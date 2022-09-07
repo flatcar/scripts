@@ -12,7 +12,7 @@ This tool creates a Flatcar VDI image to be used with VirtualBox.
 "
 
 # Image signing key: buildbot@flatcar-linux.org
-GPG_KEY_URL="https://flatcar-linux.org/security/image-signing-key/Flatcar_Image_Signing_Key.pem"
+GPG_KEY_URL="https://www.flatcar.org/security/image-signing-key/Flatcar_Image_Signing_Key.pem"
 GPG_LONG_ID="E25D9AED0593B34A"
 GPG_KEY="$(wget -qO- $GPG_KEY_URL)"
 
