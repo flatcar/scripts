@@ -34,8 +34,8 @@ index 66ff5490..327ad52b 100644
  	"fmt"
 +	"net/url"
  
- 	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
- 	"github.com/flatcar-linux/ignition/v2/internal/providers"
+ 	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
+ 	"github.com/flatcar/ignition/v2/internal/providers"
 @@ -50,26 +51,85 @@ func FetchConfig(f *resource.Fetcher) (types.Config, report.Report, error) {
  		return types.Config{}, report.Report{}, providers.ErrNoProvider
  	}

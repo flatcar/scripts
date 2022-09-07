@@ -38,8 +38,8 @@ index 285e7e4a..b4c2bede 100644
  	"os/exec"
 +	"path/filepath"
  
- 	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
- 	"github.com/flatcar-linux/ignition/v2/internal/distro"
+ 	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
+ 	"github.com/flatcar/ignition/v2/internal/distro"
 @@ -105,35 +106,39 @@ func (s stage) Run(config types.Config) error {
  		return fmt.Errorf("failed to create filesystems: %v", err)
  	}
@@ -172,8 +172,8 @@ index dff93413..7840d8fc 100644
  	"os/exec"
 +	"strings"
  
- 	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
- 	"github.com/flatcar-linux/ignition/v2/internal/distro"
+ 	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
+ 	"github.com/flatcar/ignition/v2/internal/distro"
 @@ -78,6 +79,17 @@ func (s stage) createRaids(config types.Config) error {
  		); err != nil {
  			return fmt.Errorf("mdadm failed: %v", err)

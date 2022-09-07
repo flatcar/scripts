@@ -1,7 +1,7 @@
 From 68f056c7c8d36234ca7fd5e6ad2eb55ed1f557e6 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Wed, 25 May 2022 10:09:37 +0200
-Subject: [PATCH 01/15] *: sed `s/coreos/flatcar-linux/`
+Subject: [PATCH 01/15] *: sed `s/coreos/flatcar/`
 
 Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 ---
@@ -314,7 +314,7 @@ index dba50388..3fe7eb93 100755
  
  NAME="ignition"
 -ORG_PATH="github.com/coreos"
-+ORG_PATH="github.com/flatcar-linux"
++ORG_PATH="github.com/flatcar"
  REPO_PATH="${ORG_PATH}/${NAME}/v2"
  GLDFLAGS=${GLDFLAGS:-}
  export GOFLAGS=-mod=vendor
@@ -323,7 +323,7 @@ index dba50388..3fe7eb93 100755
  fi
  
 -GLDFLAGS+="-X github.com/coreos/ignition/v2/internal/version.Raw=${VERSION}"
-+GLDFLAGS+="-X github.com/flatcar-linux/ignition/v2/internal/version.Raw=${VERSION}"
++GLDFLAGS+="-X github.com/flatcar/ignition/v2/internal/version.Raw=${VERSION}"
  
  eval $(go env)
  
@@ -337,8 +337,8 @@ index 3ded9022..578f7fc6 100644
  import (
 -	exp "github.com/coreos/ignition/v2/config/v3_4_experimental"
 -	types_exp "github.com/coreos/ignition/v2/config/v3_4_experimental/types"
-+	exp "github.com/flatcar-linux/ignition/v2/config/v3_4_experimental"
-+	types_exp "github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
++	exp "github.com/flatcar/ignition/v2/config/v3_4_experimental"
++	types_exp "github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
  
  	"github.com/coreos/vcontext/report"
  )
@@ -356,12 +356,12 @@ index c39f85ca..85065c97 100644
 -	v3_2 "github.com/coreos/ignition/v2/config/v3_2/types"
 -	v3_3 "github.com/coreos/ignition/v2/config/v3_3/types"
 -	v3_4 "github.com/coreos/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
-+	v3_0 "github.com/flatcar-linux/ignition/v2/config/v3_0/types"
-+	v3_1 "github.com/flatcar-linux/ignition/v2/config/v3_1/types"
-+	v3_2 "github.com/flatcar-linux/ignition/v2/config/v3_2/types"
-+	v3_3 "github.com/flatcar-linux/ignition/v2/config/v3_3/types"
-+	v3_4 "github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/config/util"
++	v3_0 "github.com/flatcar/ignition/v2/config/v3_0/types"
++	v3_1 "github.com/flatcar/ignition/v2/config/v3_1/types"
++	v3_2 "github.com/flatcar/ignition/v2/config/v3_2/types"
++	v3_3 "github.com/flatcar/ignition/v2/config/v3_3/types"
++	v3_4 "github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
  )
  
  type typeSet map[reflect.Type]struct{}
@@ -374,7 +374,7 @@ index 1ba91b3d..4a6ebeab 100644
  	"strings"
  
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  )
@@ -383,7 +383,7 @@ index 1ba91b3d..4a6ebeab 100644
  			// we're not supposed to have struct pointers, but some
  			// ended up in the Clevis and Luks structs in spec 3.2.0
 -			// https://github.com/coreos/ignition/issues/1132
-+			// https://github.com/flatcar-linux/ignition/issues/1132
++			// https://github.com/flatcar/ignition/issues/1132
  			resultField.Set(mergeStruct(parentField.Elem(), parentFieldPath, childField.Elem(), childFieldPath, resultFieldPath, transcript).Addr())
  			transcribeOne(parentFieldPath, resultFieldPath, transcript)
  			transcribeOne(childFieldPath, resultFieldPath, transcript)
@@ -392,7 +392,7 @@ index 1ba91b3d..4a6ebeab 100644
  			// we're not supposed to have struct pointers, but some
  			// ended up in the Clevis and Luks structs in spec 3.2.0
 -			// https://github.com/coreos/ignition/issues/1132
-+			// https://github.com/flatcar-linux/ignition/issues/1132
++			// https://github.com/flatcar/ignition/issues/1132
  			return transcribe(fromPath, toPath, value.Elem(), fieldMeta, transcript)
  		}
  		transcribeOne(fromPath, toPath, transcript)
@@ -407,9 +407,9 @@ index 4555a7a9..69dd9e59 100644
 -	"github.com/coreos/ignition/v2/config/util"
 -	v3_2 "github.com/coreos/ignition/v2/config/v3_2/types"
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
-+	v3_2 "github.com/flatcar-linux/ignition/v2/config/v3_2/types"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/config/util"
++	v3_2 "github.com/flatcar/ignition/v2/config/v3_2/types"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/stretchr/testify/assert"
@@ -418,7 +418,7 @@ index 4555a7a9..69dd9e59 100644
  // pointers. These should not exist but ended up in the Clevis & Luks
  // structs in spec 3.2.0.
 -// https://github.com/coreos/ignition/issues/1132
-+// https://github.com/flatcar-linux/ignition/issues/1132
++// https://github.com/flatcar/ignition/issues/1132
  func TestMergeStructPointers(t *testing.T) {
  	type test struct {
  		in1        v3_2.Config
@@ -431,7 +431,7 @@ index 57744c31..36fa3612 100644
  
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  
  	"github.com/coreos/go-systemd/v22/unit"
  )
@@ -444,7 +444,7 @@ index 05d8ce2c..ee4183a7 100644
  	"reflect"
  
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  /*
@@ -458,8 +458,8 @@ index 5d1adda9..b0ae0855 100644
  
 -	"github.com/coreos/ignition/v2/config/translate/tests/pkga"
 -	"github.com/coreos/ignition/v2/config/translate/tests/pkgb"
-+	"github.com/flatcar-linux/ignition/v2/config/translate/tests/pkga"
-+	"github.com/flatcar-linux/ignition/v2/config/translate/tests/pkgb"
++	"github.com/flatcar/ignition/v2/config/translate/tests/pkga"
++	"github.com/flatcar/ignition/v2/config/translate/tests/pkgb"
  )
  
  // Note: we need different input and output types which unfortunately means a lot of tests
@@ -472,7 +472,7 @@ index 85cd7fa7..9fb88d8e 100644
  
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  
  	"github.com/coreos/go-semver/semver"
  	"github.com/coreos/vcontext/report"
@@ -485,7 +485,7 @@ index 2af85e2b..5e2b4a2b 100644
  	"encoding/json"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -502,11 +502,11 @@ index ca32f7ad..851b26b1 100644
 -	"github.com/coreos/ignition/v2/config/util"
 -	"github.com/coreos/ignition/v2/config/v3_0/types"
 -	"github.com/coreos/ignition/v2/config/validate"
-+	"github.com/flatcar-linux/ignition/v2/config/merge"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_0/types"
-+	"github.com/flatcar-linux/ignition/v2/config/validate"
++	"github.com/flatcar/ignition/v2/config/merge"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/v3_0/types"
++	"github.com/flatcar/ignition/v2/config/validate"
  
  	"github.com/coreos/go-semver/semver"
  	"github.com/coreos/vcontext/report"
@@ -520,8 +520,8 @@ index f26d98c4..6e1ea5d7 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/v3_0/types"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_0/types"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/v3_0/types"
  	"github.com/stretchr/testify/assert"
  )
  
@@ -535,8 +535,8 @@ index bbb073ab..3137b652 100644
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -550,8 +550,8 @@ index 5fa9ca8b..fee8d209 100644
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -565,8 +565,8 @@ index ca0e3582..1e0e4cac 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func TestFileValidateOverwrite(t *testing.T) {
@@ -580,8 +580,8 @@ index 08d1e8ef..55ff45d8 100644
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -595,8 +595,8 @@ index 93b1bcea..9cb89531 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func TestFilesystemValidateFormat(t *testing.T) {
@@ -609,7 +609,7 @@ index 7a4d3cdb..c7297db5 100644
  	"github.com/coreos/go-semver/semver"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -622,7 +622,7 @@ index 6021b915..2d2488ae 100644
  
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  )
  
  func validateMode(m *int) error {
@@ -636,8 +636,8 @@ index addf4afa..87016c22 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  	"github.com/stretchr/testify/assert"
  )
  
@@ -651,8 +651,8 @@ index fb41f1f0..f030be40 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	vpath "github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -666,8 +666,8 @@ index 265db7f1..5ebd0384 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -681,8 +681,8 @@ index 84be0cd9..567d6930 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -696,8 +696,8 @@ index 728aead6..eb9d34b4 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func TestValidateLabel(t *testing.T) {
@@ -711,8 +711,8 @@ index c06fccf1..5757ac86 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func validatePath(p string) error {
@@ -725,7 +725,7 @@ index 98960487..13a0e935 100644
  	"testing"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  )
  
  func TestPathValidate(t *testing.T) {
@@ -738,7 +738,7 @@ index 9c861fcb..85be6d3f 100644
  
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -752,8 +752,8 @@ index 34861605..a28bfa70 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -767,8 +767,8 @@ index eac98e74..44b3bf04 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	vpath "github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -782,8 +782,8 @@ index 00c5861a..e5c59b6b 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -798,9 +798,9 @@ index e0e5c50a..200931dd 100644
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/shared/validations"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/validations"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/validations"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/go-systemd/v22/unit"
  	cpath "github.com/coreos/vcontext/path"
@@ -814,8 +814,8 @@ index b0b2e884..84c04f11 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -829,8 +829,8 @@ index 6a1f9397..90d903f2 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func validateURL(s string) error {
@@ -844,8 +844,8 @@ index 46674d7c..6c9d5908 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func TestURLValidate(t *testing.T) {
@@ -858,7 +858,7 @@ index 23b7d7ad..5dd053b2 100644
  	"strings"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -871,7 +871,7 @@ index 1ec23b00..0ec09889 100644
  	"testing"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -890,13 +890,13 @@ index a40ae56c..f7c06856 100644
 -	"github.com/coreos/ignition/v2/config/v3_1/translate"
 -	"github.com/coreos/ignition/v2/config/v3_1/types"
 -	"github.com/coreos/ignition/v2/config/validate"
-+	"github.com/flatcar-linux/ignition/v2/config/merge"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
-+	prev "github.com/flatcar-linux/ignition/v2/config/v3_0"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_1/translate"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_1/types"
-+	"github.com/flatcar-linux/ignition/v2/config/validate"
++	"github.com/flatcar/ignition/v2/config/merge"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
++	prev "github.com/flatcar/ignition/v2/config/v3_0"
++	"github.com/flatcar/ignition/v2/config/v3_1/translate"
++	"github.com/flatcar/ignition/v2/config/v3_1/types"
++	"github.com/flatcar/ignition/v2/config/validate"
  
  	"github.com/coreos/go-semver/semver"
  	"github.com/coreos/vcontext/report"
@@ -910,8 +910,8 @@ index 6c27691b..60782675 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/v3_1/types"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_1/types"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/v3_1/types"
  	"github.com/stretchr/testify/assert"
  )
  
@@ -927,10 +927,10 @@ index 5921c42c..d16abc20 100644
 -	"github.com/coreos/ignition/v2/config/util"
 -	old_types "github.com/coreos/ignition/v2/config/v3_0/types"
 -	"github.com/coreos/ignition/v2/config/v3_1/types"
-+	"github.com/flatcar-linux/ignition/v2/config/translate"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
-+	old_types "github.com/flatcar-linux/ignition/v2/config/v3_0/types"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_1/types"
++	"github.com/flatcar/ignition/v2/config/translate"
++	"github.com/flatcar/ignition/v2/config/util"
++	old_types "github.com/flatcar/ignition/v2/config/v3_0/types"
++	"github.com/flatcar/ignition/v2/config/v3_1/types"
  )
  
  func translateFilesystem(old old_types.Filesystem) (ret types.Filesystem) {
@@ -944,8 +944,8 @@ index 84761a30..9ad5b0ab 100644
  
 -	"github.com/coreos/ignition/v2/config/util"
 -	old "github.com/coreos/ignition/v2/config/v3_0/types"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
-+	old "github.com/flatcar-linux/ignition/v2/config/v3_0/types"
++	"github.com/flatcar/ignition/v2/config/util"
++	old "github.com/flatcar/ignition/v2/config/v3_0/types"
  )
  
  // Check that we have valid translators for the complete config struct
@@ -959,8 +959,8 @@ index bbb073ab..3137b652 100644
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -974,8 +974,8 @@ index 97aa84a7..3e077700 100644
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -989,8 +989,8 @@ index f44bf890..3e67741d 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func TestFileValidateOverwrite(t *testing.T) {
@@ -1004,8 +1004,8 @@ index 8b07e3b9..0cc4e666 100644
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1019,8 +1019,8 @@ index 94f6b0a2..294dc2ea 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func TestFilesystemValidateFormat(t *testing.T) {
@@ -1033,7 +1033,7 @@ index be1aadad..56835594 100644
  	"net/http"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
  )
@@ -1046,7 +1046,7 @@ index 40380b68..02682db1 100644
  	"testing"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  )
  
  func toPointer(val string) *string {
@@ -1059,7 +1059,7 @@ index 689b6093..c23e0ed6 100644
  	"github.com/coreos/go-semver/semver"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1072,7 +1072,7 @@ index 6021b915..2d2488ae 100644
  
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  )
  
  func validateMode(m *int) error {
@@ -1086,8 +1086,8 @@ index addf4afa..87016c22 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  	"github.com/stretchr/testify/assert"
  )
  
@@ -1101,8 +1101,8 @@ index fb41f1f0..f030be40 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	vpath "github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1116,8 +1116,8 @@ index 265db7f1..5ebd0384 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1131,8 +1131,8 @@ index 84be0cd9..567d6930 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1146,8 +1146,8 @@ index 728aead6..eb9d34b4 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func TestValidateLabel(t *testing.T) {
@@ -1161,8 +1161,8 @@ index c06fccf1..5757ac86 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func validatePath(p string) error {
@@ -1175,7 +1175,7 @@ index 98960487..13a0e935 100644
  	"testing"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  )
  
  func TestPathValidate(t *testing.T) {
@@ -1188,7 +1188,7 @@ index 4a60087f..afe121b0 100644
  	"net/url"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1202,8 +1202,8 @@ index e9429421..84ee38be 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1216,7 +1216,7 @@ index 9c861fcb..85be6d3f 100644
  
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1230,8 +1230,8 @@ index 34861605..a28bfa70 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1245,8 +1245,8 @@ index 68da6c7b..8c03b7f5 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1260,8 +1260,8 @@ index eac98e74..44b3bf04 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	vpath "github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1275,8 +1275,8 @@ index 00c5861a..e5c59b6b 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1291,9 +1291,9 @@ index e0e5c50a..200931dd 100644
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/shared/validations"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/validations"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/validations"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/go-systemd/v22/unit"
  	cpath "github.com/coreos/vcontext/path"
@@ -1307,8 +1307,8 @@ index b0b2e884..84c04f11 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1322,8 +1322,8 @@ index 6a1f9397..90d903f2 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func validateURL(s string) error {
@@ -1337,8 +1337,8 @@ index 46674d7c..6c9d5908 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func TestURLValidate(t *testing.T) {
@@ -1351,7 +1351,7 @@ index e410f98a..d1090f9a 100644
  	"strings"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1364,7 +1364,7 @@ index 6c0b3b2b..506c2685 100644
  	"testing"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1383,13 +1383,13 @@ index c6c7d94d..3f4ca522 100644
 -	"github.com/coreos/ignition/v2/config/v3_2/translate"
 -	"github.com/coreos/ignition/v2/config/v3_2/types"
 -	"github.com/coreos/ignition/v2/config/validate"
-+	"github.com/flatcar-linux/ignition/v2/config/merge"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
-+	prev "github.com/flatcar-linux/ignition/v2/config/v3_1"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_2/translate"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_2/types"
-+	"github.com/flatcar-linux/ignition/v2/config/validate"
++	"github.com/flatcar/ignition/v2/config/merge"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
++	prev "github.com/flatcar/ignition/v2/config/v3_1"
++	"github.com/flatcar/ignition/v2/config/v3_2/translate"
++	"github.com/flatcar/ignition/v2/config/v3_2/types"
++	"github.com/flatcar/ignition/v2/config/validate"
  
  	"github.com/coreos/go-semver/semver"
  	"github.com/coreos/vcontext/report"
@@ -1403,8 +1403,8 @@ index 0fb1d221..1f2dc95a 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/v3_2/types"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_2/types"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/v3_2/types"
  	"github.com/stretchr/testify/assert"
  )
  
@@ -1419,9 +1419,9 @@ index 0fd4f420..9066221f 100644
 -	"github.com/coreos/ignition/v2/config/translate"
 -	old_types "github.com/coreos/ignition/v2/config/v3_1/types"
 -	"github.com/coreos/ignition/v2/config/v3_2/types"
-+	"github.com/flatcar-linux/ignition/v2/config/translate"
-+	old_types "github.com/flatcar-linux/ignition/v2/config/v3_1/types"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_2/types"
++	"github.com/flatcar/ignition/v2/config/translate"
++	old_types "github.com/flatcar/ignition/v2/config/v3_1/types"
++	"github.com/flatcar/ignition/v2/config/v3_2/types"
  )
  
  func translateIgnition(old old_types.Ignition) (ret types.Ignition) {
@@ -1435,8 +1435,8 @@ index 72d0b359..a7ca2f85 100644
  
 -	"github.com/coreos/ignition/v2/config/util"
 -	old "github.com/coreos/ignition/v2/config/v3_1/types"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
-+	old "github.com/flatcar-linux/ignition/v2/config/v3_1/types"
++	"github.com/flatcar/ignition/v2/config/util"
++	old "github.com/flatcar/ignition/v2/config/v3_1/types"
  )
  
  // Check that we have valid translators for the complete config struct
@@ -1449,7 +1449,7 @@ index 2a1231cb..5191d1e2 100644
  
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1463,8 +1463,8 @@ index 8caf8499..24c36547 100644
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1478,8 +1478,8 @@ index 4e7566bd..83345a31 100644
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1493,8 +1493,8 @@ index 449e0700..ec53cb38 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func TestFileValidateOverwrite(t *testing.T) {
@@ -1508,8 +1508,8 @@ index 3bf064f3..fa68c2d1 100644
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1523,8 +1523,8 @@ index 1f8db903..3cab3146 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func TestFilesystemValidateFormat(t *testing.T) {
@@ -1537,7 +1537,7 @@ index be1aadad..56835594 100644
  	"net/http"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
  )
@@ -1550,7 +1550,7 @@ index 40380b68..02682db1 100644
  	"testing"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  )
  
  func toPointer(val string) *string {
@@ -1563,7 +1563,7 @@ index 190445bd..746218a6 100644
  	"github.com/coreos/go-semver/semver"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1577,8 +1577,8 @@ index 123392b2..592d49b8 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1591,7 +1591,7 @@ index ad3e51c2..4ebde9f0 100644
  
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  )
  
  func validateMode(m *int) error {
@@ -1605,8 +1605,8 @@ index 53e37a6b..0dcb80d4 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  	"github.com/stretchr/testify/assert"
  )
  
@@ -1620,8 +1620,8 @@ index 248276e7..e23730f2 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	vpath "github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1635,8 +1635,8 @@ index 20ba4eb6..89a4aa04 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1650,8 +1650,8 @@ index 1b2d97ed..8363be28 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1665,8 +1665,8 @@ index a1e1623f..fde716a9 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func TestValidateLabel(t *testing.T) {
@@ -1680,8 +1680,8 @@ index 131e300c..d6d394a7 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func validatePath(p string) error {
@@ -1694,7 +1694,7 @@ index 3d199cbd..6ed191b6 100644
  	"testing"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  )
  
  func TestPathValidate(t *testing.T) {
@@ -1707,7 +1707,7 @@ index d48d210a..088459d8 100644
  	"net/url"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1721,8 +1721,8 @@ index 269f4fb2..6884dd46 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1735,7 +1735,7 @@ index 5ae4f8c0..22155cd0 100644
  
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1749,8 +1749,8 @@ index 34861605..a28bfa70 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1764,8 +1764,8 @@ index 68da6c7b..8c03b7f5 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1779,8 +1779,8 @@ index fd1b8cec..9e3e2931 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	vpath "github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1794,8 +1794,8 @@ index 7d27bd55..5caf872d 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1809,8 +1809,8 @@ index 86ab79c9..d6df1d98 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1825,9 +1825,9 @@ index bc2d3299..933163a7 100644
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/shared/validations"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/validations"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/validations"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/go-systemd/v22/unit"
  	cpath "github.com/coreos/vcontext/path"
@@ -1841,8 +1841,8 @@ index 3dc90540..494f210a 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1856,8 +1856,8 @@ index 0d8771bf..bb90bdf9 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func validateURL(s string) error {
@@ -1871,8 +1871,8 @@ index bfef261f..c371179f 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func TestURLValidate(t *testing.T) {
@@ -1885,7 +1885,7 @@ index 5def6f04..0aaba72a 100644
  	"strings"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1898,7 +1898,7 @@ index 9a0914d0..2ec32227 100644
  	"testing"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -1917,13 +1917,13 @@ index 446ea67d..7a4dec23 100644
 -	"github.com/coreos/ignition/v2/config/v3_3/translate"
 -	"github.com/coreos/ignition/v2/config/v3_3/types"
 -	"github.com/coreos/ignition/v2/config/validate"
-+	"github.com/flatcar-linux/ignition/v2/config/merge"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
-+	prev "github.com/flatcar-linux/ignition/v2/config/v3_2"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_3/translate"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_3/types"
-+	"github.com/flatcar-linux/ignition/v2/config/validate"
++	"github.com/flatcar/ignition/v2/config/merge"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
++	prev "github.com/flatcar/ignition/v2/config/v3_2"
++	"github.com/flatcar/ignition/v2/config/v3_3/translate"
++	"github.com/flatcar/ignition/v2/config/v3_3/types"
++	"github.com/flatcar/ignition/v2/config/validate"
  
  	"github.com/coreos/go-semver/semver"
  	"github.com/coreos/vcontext/report"
@@ -1937,8 +1937,8 @@ index deb1e3b7..4792b544 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/v3_3/types"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_3/types"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/v3_3/types"
  	"github.com/stretchr/testify/assert"
  )
  
@@ -1954,10 +1954,10 @@ index 656ad0a4..970c4db8 100644
 -	"github.com/coreos/ignition/v2/config/util"
 -	old_types "github.com/coreos/ignition/v2/config/v3_2/types"
 -	"github.com/coreos/ignition/v2/config/v3_3/types"
-+	"github.com/flatcar-linux/ignition/v2/config/translate"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
-+	old_types "github.com/flatcar-linux/ignition/v2/config/v3_2/types"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_3/types"
++	"github.com/flatcar/ignition/v2/config/translate"
++	"github.com/flatcar/ignition/v2/config/util"
++	old_types "github.com/flatcar/ignition/v2/config/v3_2/types"
++	"github.com/flatcar/ignition/v2/config/v3_3/types"
  )
  
  func translateIgnition(old old_types.Ignition) (ret types.Ignition) {
@@ -1971,8 +1971,8 @@ index 81f3029b..eccd9029 100644
  
 -	"github.com/coreos/ignition/v2/config/util"
 -	old "github.com/coreos/ignition/v2/config/v3_2/types"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
-+	old "github.com/flatcar-linux/ignition/v2/config/v3_2/types"
++	"github.com/flatcar/ignition/v2/config/util"
++	old "github.com/flatcar/ignition/v2/config/v3_2/types"
  )
  
  // Check that we have valid translators for the complete config struct
@@ -1986,8 +1986,8 @@ index 68887d43..6ac55ec6 100644
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2001,8 +2001,8 @@ index f616868c..13f80b6c 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2016,8 +2016,8 @@ index 8caf8499..24c36547 100644
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2031,8 +2031,8 @@ index 4e7566bd..83345a31 100644
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2046,8 +2046,8 @@ index 449e0700..ec53cb38 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func TestFileValidateOverwrite(t *testing.T) {
@@ -2061,8 +2061,8 @@ index c722b363..d18da9e3 100644
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2076,8 +2076,8 @@ index 1f8db903..3cab3146 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func TestFilesystemValidateFormat(t *testing.T) {
@@ -2090,7 +2090,7 @@ index be1aadad..56835594 100644
  	"net/http"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
  )
@@ -2103,7 +2103,7 @@ index 40380b68..02682db1 100644
  	"testing"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  )
  
  func toPointer(val string) *string {
@@ -2116,7 +2116,7 @@ index 190445bd..746218a6 100644
  	"github.com/coreos/go-semver/semver"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2129,7 +2129,7 @@ index 1a258727..79eecda7 100644
  	"testing"
  
 -	"github.com/coreos/ignition/v2/config/validate"
-+	"github.com/flatcar-linux/ignition/v2/config/validate"
++	"github.com/flatcar/ignition/v2/config/validate"
  )
  
  func TestKernelArgumentsValidate(t *testing.T) {
@@ -2143,8 +2143,8 @@ index 90d72387..0d505e34 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2157,7 +2157,7 @@ index ad3e51c2..4ebde9f0 100644
  
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  )
  
  func validateMode(m *int) error {
@@ -2171,8 +2171,8 @@ index 53e37a6b..0dcb80d4 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  	"github.com/stretchr/testify/assert"
  )
  
@@ -2186,8 +2186,8 @@ index 248276e7..e23730f2 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	vpath "github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2201,8 +2201,8 @@ index 20ba4eb6..89a4aa04 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2216,8 +2216,8 @@ index 1b2d97ed..8363be28 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2231,8 +2231,8 @@ index a1e1623f..fde716a9 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func TestValidateLabel(t *testing.T) {
@@ -2246,8 +2246,8 @@ index 131e300c..d6d394a7 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func validatePath(p string) error {
@@ -2260,7 +2260,7 @@ index 3d199cbd..6ed191b6 100644
  	"testing"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  )
  
  func TestPathValidate(t *testing.T) {
@@ -2273,7 +2273,7 @@ index d48d210a..088459d8 100644
  	"net/url"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2287,8 +2287,8 @@ index 269f4fb2..6884dd46 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2302,8 +2302,8 @@ index 9d69aa36..6bc73349 100644
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2317,8 +2317,8 @@ index 7323b26f..542316b2 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2332,8 +2332,8 @@ index 68da6c7b..8c03b7f5 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2347,8 +2347,8 @@ index 02108613..7c01d6d1 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	vpath "github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2362,8 +2362,8 @@ index cb9256cf..61efae3c 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2377,8 +2377,8 @@ index 86ab79c9..d6df1d98 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2393,9 +2393,9 @@ index bc2d3299..933163a7 100644
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/shared/validations"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/validations"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/validations"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/go-systemd/v22/unit"
  	cpath "github.com/coreos/vcontext/path"
@@ -2409,8 +2409,8 @@ index 3dc90540..494f210a 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2424,8 +2424,8 @@ index 0d8771bf..bb90bdf9 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func validateURL(s string) error {
@@ -2439,8 +2439,8 @@ index bfef261f..c371179f 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func TestURLValidate(t *testing.T) {
@@ -2453,7 +2453,7 @@ index 5def6f04..0aaba72a 100644
  	"strings"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2466,7 +2466,7 @@ index 9a0914d0..2ec32227 100644
  	"testing"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2485,13 +2485,13 @@ index a8836488..512fc9f0 100644
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/translate"
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
 -	"github.com/coreos/ignition/v2/config/validate"
-+	"github.com/flatcar-linux/ignition/v2/config/merge"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
-+	prev "github.com/flatcar-linux/ignition/v2/config/v3_3"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/translate"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/config/validate"
++	"github.com/flatcar/ignition/v2/config/merge"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
++	prev "github.com/flatcar/ignition/v2/config/v3_3"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/translate"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/config/validate"
  
  	"github.com/coreos/go-semver/semver"
  	"github.com/coreos/vcontext/report"
@@ -2505,8 +2505,8 @@ index 97253860..7ff31ee8 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
  	"github.com/stretchr/testify/assert"
  )
  
@@ -2522,10 +2522,10 @@ index 2539c8f4..1076cdba 100644
 -	"github.com/coreos/ignition/v2/config/util"
 -	old_types "github.com/coreos/ignition/v2/config/v3_3/types"
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/config/translate"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
-+	old_types "github.com/flatcar-linux/ignition/v2/config/v3_3/types"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/config/translate"
++	"github.com/flatcar/ignition/v2/config/util"
++	old_types "github.com/flatcar/ignition/v2/config/v3_3/types"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
  )
  
  func translateIgnition(old old_types.Ignition) (ret types.Ignition) {
@@ -2539,8 +2539,8 @@ index 8ff8c05c..f446bbaf 100644
  
 -	"github.com/coreos/ignition/v2/config/util"
 -	old "github.com/coreos/ignition/v2/config/v3_3/types"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
-+	old "github.com/flatcar-linux/ignition/v2/config/v3_3/types"
++	"github.com/flatcar/ignition/v2/config/util"
++	old "github.com/flatcar/ignition/v2/config/v3_3/types"
  )
  
  // Check that we have valid translators for the complete config struct
@@ -2554,8 +2554,8 @@ index 68887d43..6ac55ec6 100644
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2569,8 +2569,8 @@ index f616868c..13f80b6c 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2584,8 +2584,8 @@ index 8caf8499..24c36547 100644
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2599,8 +2599,8 @@ index 9b71bb26..dafdf5af 100644
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2614,8 +2614,8 @@ index 449e0700..ec53cb38 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func TestFileValidateOverwrite(t *testing.T) {
@@ -2629,8 +2629,8 @@ index c722b363..d18da9e3 100644
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2644,8 +2644,8 @@ index 1f8db903..3cab3146 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func TestFilesystemValidateFormat(t *testing.T) {
@@ -2658,7 +2658,7 @@ index be1aadad..56835594 100644
  	"net/http"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
  )
@@ -2671,7 +2671,7 @@ index 40380b68..02682db1 100644
  	"testing"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  )
  
  func toPointer(val string) *string {
@@ -2684,7 +2684,7 @@ index 190445bd..746218a6 100644
  	"github.com/coreos/go-semver/semver"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2697,7 +2697,7 @@ index 1a258727..79eecda7 100644
  	"testing"
  
 -	"github.com/coreos/ignition/v2/config/validate"
-+	"github.com/flatcar-linux/ignition/v2/config/validate"
++	"github.com/flatcar/ignition/v2/config/validate"
  )
  
  func TestKernelArgumentsValidate(t *testing.T) {
@@ -2711,8 +2711,8 @@ index 90d72387..0d505e34 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2725,7 +2725,7 @@ index 9eb7573d..5e57bb65 100644
  
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  )
  
  func validateMode(m *int) error {
@@ -2739,8 +2739,8 @@ index 8966e25d..be3777d4 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func TestModeValidate(t *testing.T) {
@@ -2754,8 +2754,8 @@ index 248276e7..e23730f2 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	vpath "github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2769,8 +2769,8 @@ index 20ba4eb6..89a4aa04 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2784,8 +2784,8 @@ index 1b2d97ed..8363be28 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2799,8 +2799,8 @@ index a1e1623f..fde716a9 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func TestValidateLabel(t *testing.T) {
@@ -2814,8 +2814,8 @@ index 131e300c..d6d394a7 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func validatePath(p string) error {
@@ -2828,7 +2828,7 @@ index 3d199cbd..6ed191b6 100644
  	"testing"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  )
  
  func TestPathValidate(t *testing.T) {
@@ -2841,7 +2841,7 @@ index d48d210a..088459d8 100644
  	"net/url"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2855,8 +2855,8 @@ index 269f4fb2..6884dd46 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2870,8 +2870,8 @@ index 9d69aa36..6bc73349 100644
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2885,8 +2885,8 @@ index 7323b26f..542316b2 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2900,8 +2900,8 @@ index 68da6c7b..8c03b7f5 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2915,8 +2915,8 @@ index 02108613..7c01d6d1 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	vpath "github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2930,8 +2930,8 @@ index cb9256cf..61efae3c 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2945,8 +2945,8 @@ index 86ab79c9..d6df1d98 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2961,9 +2961,9 @@ index bc2d3299..933163a7 100644
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/shared/validations"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/validations"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/validations"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/go-systemd/v22/unit"
  	cpath "github.com/coreos/vcontext/path"
@@ -2977,8 +2977,8 @@ index 3dc90540..494f210a 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -2992,8 +2992,8 @@ index 3ca189da..f094cde8 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func validateURL(s string) error {
@@ -3007,8 +3007,8 @@ index 1901b7af..a0f2268f 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  func TestURLValidate(t *testing.T) {
@@ -3021,7 +3021,7 @@ index 5def6f04..0aaba72a 100644
  	"strings"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -3034,7 +3034,7 @@ index 9a0914d0..2ec32227 100644
  	"testing"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -3048,8 +3048,8 @@ index 613c21e4..fb02ace8 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
  
  	"github.com/coreos/vcontext/json"
  	"github.com/coreos/vcontext/path"
@@ -3062,7 +3062,7 @@ index 18eea933..2c85ef10 100644
  	"testing"
  
 -	ignerrors "github.com/coreos/ignition/v2/config/shared/errors"
-+	ignerrors "github.com/flatcar-linux/ignition/v2/config/shared/errors"
++	ignerrors "github.com/flatcar/ignition/v2/config/shared/errors"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
@@ -3072,7 +3072,7 @@ index 06d80e65..e5a47737 100644
 +++ b/go.mod
 @@ -1,4 +1,4 @@
 -module github.com/coreos/ignition/v2
-+module github.com/flatcar-linux/ignition/v2
++module github.com/flatcar/ignition/v2
  
  go 1.15
  
@@ -3099,21 +3099,21 @@ index d4ac38ff..049a65d5 100644
 -	"github.com/coreos/ignition/v2/internal/util"
 -
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/exec"
-+	"github.com/flatcar-linux/ignition/v2/internal/exec/stages"
-+	_ "github.com/flatcar-linux/ignition/v2/internal/exec/stages/disks"
-+	_ "github.com/flatcar-linux/ignition/v2/internal/exec/stages/fetch"
-+	_ "github.com/flatcar-linux/ignition/v2/internal/exec/stages/fetch_offline"
-+	_ "github.com/flatcar-linux/ignition/v2/internal/exec/stages/files"
-+	_ "github.com/flatcar-linux/ignition/v2/internal/exec/stages/kargs"
-+	_ "github.com/flatcar-linux/ignition/v2/internal/exec/stages/mount"
-+	_ "github.com/flatcar-linux/ignition/v2/internal/exec/stages/umount"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/internal/state"
-+	"github.com/flatcar-linux/ignition/v2/internal/util"
++	"github.com/flatcar/ignition/v2/internal/exec"
++	"github.com/flatcar/ignition/v2/internal/exec/stages"
++	_ "github.com/flatcar/ignition/v2/internal/exec/stages/disks"
++	_ "github.com/flatcar/ignition/v2/internal/exec/stages/fetch"
++	_ "github.com/flatcar/ignition/v2/internal/exec/stages/fetch_offline"
++	_ "github.com/flatcar/ignition/v2/internal/exec/stages/files"
++	_ "github.com/flatcar/ignition/v2/internal/exec/stages/kargs"
++	_ "github.com/flatcar/ignition/v2/internal/exec/stages/mount"
++	_ "github.com/flatcar/ignition/v2/internal/exec/stages/umount"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/internal/state"
++	"github.com/flatcar/ignition/v2/internal/util"
 +
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
  )
  
  type Flags struct {
@@ -3126,7 +3126,7 @@ index 61ca87ae..0fe37f4a 100644
  
  // Distro-specific settings that can be overridden at link time with e.g.
 -// -X github.com/coreos/ignition/v2/internal/distro.mdadmCmd=/opt/bin/mdadm
-+// -X github.com/flatcar-linux/ignition/v2/internal/distro.mdadmCmd=/opt/bin/mdadm
++// -X github.com/flatcar/ignition/v2/internal/distro.mdadmCmd=/opt/bin/mdadm
  var (
  	// Device node directories and paths
  	diskByLabelDir = "/dev/disk/by-label"
@@ -3147,15 +3147,15 @@ index 6d1b8cab..54a6aa57 100644
 -
 -	latest "github.com/coreos/ignition/v2/config/v3_4_experimental"
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/config"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/internal/state"
-+	"github.com/flatcar-linux/ignition/v2/internal/util"
++	"github.com/flatcar/ignition/v2/config"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/internal/state"
++	"github.com/flatcar/ignition/v2/internal/util"
 +
-+	latest "github.com/flatcar-linux/ignition/v2/config/v3_4_experimental"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
++	latest "github.com/flatcar/ignition/v2/config/v3_4_experimental"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
  )
  
  type ConfigFetcher struct {
@@ -3179,18 +3179,18 @@ index efe5dba2..2a9bbba3 100644
 -	"github.com/coreos/ignition/v2/internal/providers/system"
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	"github.com/coreos/ignition/v2/internal/state"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	latest "github.com/flatcar-linux/ignition/v2/config/v3_4_experimental"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/exec/stages"
-+	executil "github.com/flatcar-linux/ignition/v2/internal/exec/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/platform"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/cmdline"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/system"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/internal/state"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	latest "github.com/flatcar/ignition/v2/config/v3_4_experimental"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/exec/stages"
++	executil "github.com/flatcar/ignition/v2/internal/exec/util"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/platform"
++	"github.com/flatcar/ignition/v2/internal/providers"
++	"github.com/flatcar/ignition/v2/internal/providers/cmdline"
++	"github.com/flatcar/ignition/v2/internal/providers/system"
++	"github.com/flatcar/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/internal/state"
  
  	"github.com/coreos/vcontext/report"
  	"github.com/coreos/vcontext/validate"
@@ -3210,14 +3210,14 @@ index 745fa19c..285e7e4a 100644
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	"github.com/coreos/ignition/v2/internal/state"
 -	"github.com/coreos/ignition/v2/internal/systemd"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/distro"
-+	"github.com/flatcar-linux/ignition/v2/internal/exec/stages"
-+	"github.com/flatcar-linux/ignition/v2/internal/exec/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/internal/state"
-+	"github.com/flatcar-linux/ignition/v2/internal/systemd"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/distro"
++	"github.com/flatcar/ignition/v2/internal/exec/stages"
++	"github.com/flatcar/ignition/v2/internal/exec/util"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/internal/state"
++	"github.com/flatcar/ignition/v2/internal/systemd"
  )
  
  const (
@@ -3233,10 +3233,10 @@ index 0c5eeff1..ef9028bf 100644
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/distro"
 -	"github.com/coreos/ignition/v2/internal/exec/util"
-+	cutil "github.com/flatcar-linux/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/distro"
-+	"github.com/flatcar-linux/ignition/v2/internal/exec/util"
++	cutil "github.com/flatcar/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/distro"
++	"github.com/flatcar/ignition/v2/internal/exec/util"
  )
  
  var (
@@ -3253,11 +3253,11 @@ index 5fa15e70..dbcd767d 100644
 -	"github.com/coreos/ignition/v2/internal/distro"
 -	execUtil "github.com/coreos/ignition/v2/internal/exec/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/distro"
-+	execUtil "github.com/flatcar-linux/ignition/v2/internal/exec/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/distro"
++	execUtil "github.com/flatcar/ignition/v2/internal/exec/util"
++	"github.com/flatcar/ignition/v2/internal/resource"
  
  	"github.com/vincent-petithory/dataurl"
  )
@@ -3273,10 +3273,10 @@ index 54730b41..99189da0 100644
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/exec/util"
 -	"github.com/coreos/ignition/v2/internal/sgdisk"
-+	cutil "github.com/flatcar-linux/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/exec/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/sgdisk"
++	cutil "github.com/flatcar/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/exec/util"
++	"github.com/flatcar/ignition/v2/internal/sgdisk"
  )
  
  var (
@@ -3291,9 +3291,9 @@ index f838f349..dff93413 100644
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/distro"
 -	"github.com/coreos/ignition/v2/internal/exec/util"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/distro"
-+	"github.com/flatcar-linux/ignition/v2/internal/exec/util"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/distro"
++	"github.com/flatcar/ignition/v2/internal/exec/util"
  )
  
  func (s stage) createRaids(config types.Config) error {
@@ -3311,12 +3311,12 @@ index f163509e..7b36e267 100644
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	"github.com/coreos/ignition/v2/internal/state"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/exec/stages"
-+	"github.com/flatcar-linux/ignition/v2/internal/exec/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/internal/state"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/exec/stages"
++	"github.com/flatcar/ignition/v2/internal/exec/util"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/internal/state"
  )
  
  const (
@@ -3336,14 +3336,14 @@ index dcea43a8..5213099a 100644
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	"github.com/coreos/ignition/v2/internal/state"
 -	"github.com/coreos/ignition/v2/internal/util"
-+	cfgutil "github.com/flatcar-linux/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/exec/stages"
-+	executil "github.com/flatcar-linux/ignition/v2/internal/exec/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/internal/state"
-+	"github.com/flatcar-linux/ignition/v2/internal/util"
++	cfgutil "github.com/flatcar/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/exec/stages"
++	executil "github.com/flatcar/ignition/v2/internal/exec/util"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/internal/state"
++	"github.com/flatcar/ignition/v2/internal/util"
  )
  
  const (
@@ -3357,8 +3357,8 @@ index 11f133ff..259f0d69 100644
  
 -	"github.com/coreos/ignition/v2/config/util"
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
  
  	"github.com/stretchr/testify/assert"
  )
@@ -3377,13 +3377,13 @@ index 7d97df5f..de976b5d 100644
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	"github.com/coreos/ignition/v2/internal/state"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/distro"
-+	"github.com/flatcar-linux/ignition/v2/internal/exec/stages"
-+	"github.com/flatcar-linux/ignition/v2/internal/exec/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/internal/state"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/distro"
++	"github.com/flatcar/ignition/v2/internal/exec/stages"
++	"github.com/flatcar/ignition/v2/internal/exec/util"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/internal/state"
  )
  
  const (
@@ -3397,8 +3397,8 @@ index 9428b883..f0cf4ef0 100644
  
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/exec/util"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/exec/util"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/exec/util"
  )
  
  func TestEntrySort(t *testing.T) {
@@ -3415,11 +3415,11 @@ index c61824ba..d7af2c85 100644
 -	"github.com/coreos/ignition/v2/internal/distro"
 -	"github.com/coreos/ignition/v2/internal/exec/util"
 -	"github.com/coreos/ignition/v2/internal/log"
-+	cutil "github.com/flatcar-linux/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/distro"
-+	"github.com/flatcar-linux/ignition/v2/internal/exec/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
++	cutil "github.com/flatcar/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/distro"
++	"github.com/flatcar/ignition/v2/internal/exec/util"
++	"github.com/flatcar/ignition/v2/internal/log"
  
  	"github.com/vincent-petithory/dataurl"
  )
@@ -3428,7 +3428,7 @@ index c61824ba..d7af2c85 100644
  	// Append all the hard links to the list after sorting. This allows
  	// Ignition to create hard links to files that are deeper than the hard
 -	// link. For reference: https://github.com/coreos/ignition/issues/800
-+	// link. For reference: https://github.com/flatcar-linux/ignition/issues/800
++	// link. For reference: https://github.com/flatcar/ignition/issues/800
  	entries = append(entries, hardlinks...)
  
  	return entries, nil
@@ -3442,8 +3442,8 @@ index 2c5e2d9d..638975a8 100644
  
 -	"github.com/coreos/ignition/v2/config/util"
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
  )
  
  func (s *stage) expandGlobList(globs ...string) ([]string, error) {
@@ -3460,11 +3460,11 @@ index f7ded9e8..fdc7be59 100644
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/exec/util"
 -	"github.com/coreos/ignition/v2/internal/systemd"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	cutil "github.com/flatcar-linux/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/exec/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/systemd"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	cutil "github.com/flatcar/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/exec/util"
++	"github.com/flatcar/ignition/v2/internal/systemd"
  )
  
  // Preset holds the information about
@@ -3473,7 +3473,7 @@ index f7ded9e8..fdc7be59 100644
  	}
  	if systemdVersion < 240 {
 -		s.Logger.Warning("The version of systemd (%q) is less than 240. Enabling/disabling instantiated units may not work. See https://github.com/coreos/ignition/issues/586 for more information.", systemdVersion)
-+		s.Logger.Warning("The version of systemd (%q) is less than 240. Enabling/disabling instantiated units may not work. See https://github.com/flatcar-linux/ignition/issues/586 for more information.", systemdVersion)
++		s.Logger.Warning("The version of systemd (%q) is less than 240. Enabling/disabling instantiated units may not work. See https://github.com/flatcar/ignition/issues/586 for more information.", systemdVersion)
  	}
  	return nil
  }
@@ -3487,8 +3487,8 @@ index b7020f7e..a9ead954 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
  )
  
  func TestParseInstanceUnit(t *testing.T) {
@@ -3507,13 +3507,13 @@ index 7267709f..2b7b19e4 100644
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	"github.com/coreos/ignition/v2/internal/state"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/distro"
-+	"github.com/flatcar-linux/ignition/v2/internal/exec/stages"
-+	"github.com/flatcar-linux/ignition/v2/internal/exec/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/internal/state"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/distro"
++	"github.com/flatcar/ignition/v2/internal/exec/stages"
++	"github.com/flatcar/ignition/v2/internal/exec/util"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/internal/state"
  )
  
  const (
@@ -3533,14 +3533,14 @@ index 1c25dfed..8ec9ca99 100644
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	"github.com/coreos/ignition/v2/internal/state"
-+	cutil "github.com/flatcar-linux/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/distro"
-+	"github.com/flatcar-linux/ignition/v2/internal/exec/stages"
-+	"github.com/flatcar-linux/ignition/v2/internal/exec/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/internal/state"
++	cutil "github.com/flatcar/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/distro"
++	"github.com/flatcar/ignition/v2/internal/exec/stages"
++	"github.com/flatcar/ignition/v2/internal/exec/util"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/internal/state"
  )
  
  const (
@@ -3557,11 +3557,11 @@ index dc4d7d3e..b7be351e 100644
 -	"github.com/coreos/ignition/v2/internal/registry"
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	"github.com/coreos/ignition/v2/internal/state"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/registry"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/internal/state"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/registry"
++	"github.com/flatcar/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/internal/state"
  )
  
  // Stage is responsible for actually executing a stage of the configuration.
@@ -3580,13 +3580,13 @@ index d7b7fbba..1abcb57c 100644
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	"github.com/coreos/ignition/v2/internal/state"
-+	cutil "github.com/flatcar-linux/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/exec/stages"
-+	"github.com/flatcar-linux/ignition/v2/internal/exec/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/internal/state"
++	cutil "github.com/flatcar/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/exec/stages"
++	"github.com/flatcar/ignition/v2/internal/exec/util"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/internal/state"
  
  	"golang.org/x/sys/unix"
  )
@@ -3599,7 +3599,7 @@ index 92db9026..a9fc6b64 100644
  	"unsafe"
  
 -	"github.com/coreos/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/util"
  )
  
  const (
@@ -3616,11 +3616,11 @@ index d5a680d4..de46f9d6 100644
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	"github.com/coreos/ignition/v2/internal/util"
-+	cutil "github.com/flatcar-linux/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/internal/util"
++	cutil "github.com/flatcar/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/internal/util"
  
  	"golang.org/x/sys/unix"
  )
@@ -3636,10 +3636,10 @@ index e6050d04..713dacb9 100644
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/as_user"
 -	"github.com/coreos/ignition/v2/internal/distro"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/as_user"
-+	"github.com/flatcar-linux/ignition/v2/internal/distro"
++	"github.com/flatcar/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/as_user"
++	"github.com/flatcar/ignition/v2/internal/distro"
  	"golang.org/x/sys/unix"
  )
  
@@ -3652,7 +3652,7 @@ index a274eae6..25eb17f1 100644
  	"strings"
  
 -	"github.com/coreos/ignition/v2/internal/distro"
-+	"github.com/flatcar-linux/ignition/v2/internal/distro"
++	"github.com/flatcar/ignition/v2/internal/distro"
  )
  
  const (
@@ -3666,8 +3666,8 @@ index d42c51ad..20afc279 100644
  
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/distro"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/distro"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/distro"
  
  	"github.com/vincent-petithory/dataurl"
  )
@@ -3680,7 +3680,7 @@ index c30e1550..fd0901df 100644
  	"testing"
  
 -	"github.com/coreos/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/log"
  )
  
  // tempBase() slaps together a minimal /etc/{passwd,group} for the lookup test.
@@ -3695,9 +3695,9 @@ index 4a81f776..ebe7e00c 100644
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	"github.com/coreos/ignition/v2/internal/state"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/internal/state"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/internal/state"
  )
  
  // Util encapsulates logging and destdir indirection for the util methods.
@@ -3724,21 +3724,21 @@ index 809a92b5..b87c6293 100644
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/state"
 -	"github.com/coreos/ignition/v2/internal/version"
-+	"github.com/flatcar-linux/ignition/v2/config"
-+	"github.com/flatcar-linux/ignition/v2/internal/apply"
-+	"github.com/flatcar-linux/ignition/v2/internal/exec"
-+	"github.com/flatcar-linux/ignition/v2/internal/exec/stages"
-+	_ "github.com/flatcar-linux/ignition/v2/internal/exec/stages/disks"
-+	_ "github.com/flatcar-linux/ignition/v2/internal/exec/stages/fetch"
-+	_ "github.com/flatcar-linux/ignition/v2/internal/exec/stages/fetch_offline"
-+	_ "github.com/flatcar-linux/ignition/v2/internal/exec/stages/files"
-+	_ "github.com/flatcar-linux/ignition/v2/internal/exec/stages/kargs"
-+	_ "github.com/flatcar-linux/ignition/v2/internal/exec/stages/mount"
-+	_ "github.com/flatcar-linux/ignition/v2/internal/exec/stages/umount"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/platform"
-+	"github.com/flatcar-linux/ignition/v2/internal/state"
-+	"github.com/flatcar-linux/ignition/v2/internal/version"
++	"github.com/flatcar/ignition/v2/config"
++	"github.com/flatcar/ignition/v2/internal/apply"
++	"github.com/flatcar/ignition/v2/internal/exec"
++	"github.com/flatcar/ignition/v2/internal/exec/stages"
++	_ "github.com/flatcar/ignition/v2/internal/exec/stages/disks"
++	_ "github.com/flatcar/ignition/v2/internal/exec/stages/fetch"
++	_ "github.com/flatcar/ignition/v2/internal/exec/stages/fetch_offline"
++	_ "github.com/flatcar/ignition/v2/internal/exec/stages/files"
++	_ "github.com/flatcar/ignition/v2/internal/exec/stages/kargs"
++	_ "github.com/flatcar/ignition/v2/internal/exec/stages/mount"
++	_ "github.com/flatcar/ignition/v2/internal/exec/stages/umount"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/platform"
++	"github.com/flatcar/ignition/v2/internal/state"
++	"github.com/flatcar/ignition/v2/internal/version"
  	"github.com/spf13/pflag"
  )
  
@@ -3775,31 +3775,31 @@ index 23339439..f7c59b7f 100644
 -	"github.com/coreos/ignition/v2/internal/providers/zvm"
 -	"github.com/coreos/ignition/v2/internal/registry"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/aliyun"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/aws"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/azure"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/azurestack"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/cloudstack"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/digitalocean"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/exoscale"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/file"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/gcp"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/ibmcloud"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/kubevirt"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/noop"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/nutanix"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/openstack"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/packet"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/powervs"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/qemu"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/virtualbox"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/vmware"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/vultr"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/zvm"
-+	"github.com/flatcar-linux/ignition/v2/internal/registry"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/providers"
++	"github.com/flatcar/ignition/v2/internal/providers/aliyun"
++	"github.com/flatcar/ignition/v2/internal/providers/aws"
++	"github.com/flatcar/ignition/v2/internal/providers/azure"
++	"github.com/flatcar/ignition/v2/internal/providers/azurestack"
++	"github.com/flatcar/ignition/v2/internal/providers/cloudstack"
++	"github.com/flatcar/ignition/v2/internal/providers/digitalocean"
++	"github.com/flatcar/ignition/v2/internal/providers/exoscale"
++	"github.com/flatcar/ignition/v2/internal/providers/file"
++	"github.com/flatcar/ignition/v2/internal/providers/gcp"
++	"github.com/flatcar/ignition/v2/internal/providers/ibmcloud"
++	"github.com/flatcar/ignition/v2/internal/providers/kubevirt"
++	"github.com/flatcar/ignition/v2/internal/providers/noop"
++	"github.com/flatcar/ignition/v2/internal/providers/nutanix"
++	"github.com/flatcar/ignition/v2/internal/providers/openstack"
++	"github.com/flatcar/ignition/v2/internal/providers/packet"
++	"github.com/flatcar/ignition/v2/internal/providers/powervs"
++	"github.com/flatcar/ignition/v2/internal/providers/qemu"
++	"github.com/flatcar/ignition/v2/internal/providers/virtualbox"
++	"github.com/flatcar/ignition/v2/internal/providers/vmware"
++	"github.com/flatcar/ignition/v2/internal/providers/vultr"
++	"github.com/flatcar/ignition/v2/internal/providers/zvm"
++	"github.com/flatcar/ignition/v2/internal/registry"
++	"github.com/flatcar/ignition/v2/internal/resource"
  )
  
  var (
@@ -3814,9 +3814,9 @@ index 2da29f86..145a6cee 100644
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/providers/util"
++	"github.com/flatcar/ignition/v2/internal/resource"
  
  	"github.com/coreos/vcontext/report"
  )
@@ -3832,10 +3832,10 @@ index b2385ac8..28157e60 100644
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/providers/util"
++	"github.com/flatcar/ignition/v2/internal/resource"
  
  	"github.com/aws/aws-sdk-go/aws"
  	"github.com/aws/aws-sdk-go/aws/credentials/ec2rolecreds"
@@ -3844,7 +3844,7 @@ index b2385ac8..28157e60 100644
  	// network takes a while to come up.
  	//
 -	// https://github.com/coreos/ignition/issues/1158
-+	// https://github.com/flatcar-linux/ignition/issues/1158
++	// https://github.com/flatcar/ignition/issues/1158
  	//
  	// TODO: investigate alternative solutions (adding a Retryer to the
  	// aws.Config, fetching the region from an HTTP URL, handle the
@@ -3862,12 +3862,12 @@ index 7948e7fe..2f3374c0 100644
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	execUtil "github.com/flatcar-linux/ignition/v2/internal/exec/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	execUtil "github.com/flatcar/ignition/v2/internal/exec/util"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/providers/util"
++	"github.com/flatcar/ignition/v2/internal/resource"
  
  	"github.com/coreos/vcontext/report"
  	"golang.org/x/sys/unix"
@@ -3882,9 +3882,9 @@ index 10da8d23..4d815569 100644
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/providers/azure"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/azure"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/providers/azure"
++	"github.com/flatcar/ignition/v2/internal/resource"
  	"github.com/coreos/vcontext/report"
  )
  
@@ -3902,12 +3902,12 @@ index 4e94faef..1a0aa048 100644
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	ut "github.com/coreos/ignition/v2/internal/util"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/distro"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
-+	ut "github.com/flatcar-linux/ignition/v2/internal/util"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/distro"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/providers/util"
++	"github.com/flatcar/ignition/v2/internal/resource"
++	ut "github.com/flatcar/ignition/v2/internal/util"
  
  	"github.com/coreos/vcontext/report"
  )
@@ -3916,7 +3916,7 @@ index 4e94faef..1a0aa048 100644
  	// The fetch-offline approach doesn't work well here because of the "split
  	// personality" of this provider. See:
 -	// https://github.com/coreos/ignition/issues/1081
-+	// https://github.com/flatcar-linux/ignition/issues/1081
++	// https://github.com/flatcar/ignition/issues/1081
  	if f.Offline {
  		return types.Config{}, report.Report{}, resource.ErrNeedNet
  	}
@@ -3934,12 +3934,12 @@ index 37d246c7..0068ed66 100644
 -	"github.com/coreos/ignition/v2/internal/providers"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/distro"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/distro"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/providers"
++	"github.com/flatcar/ignition/v2/internal/providers/util"
++	"github.com/flatcar/ignition/v2/internal/resource"
  
  	"github.com/coreos/vcontext/report"
  )
@@ -3954,9 +3954,9 @@ index 928bd272..c6724db8 100644
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/providers/util"
++	"github.com/flatcar/ignition/v2/internal/resource"
  
  	"github.com/coreos/vcontext/report"
  )
@@ -3971,9 +3971,9 @@ index 265e904d..08378c14 100644
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/providers/util"
++	"github.com/flatcar/ignition/v2/internal/resource"
  
  	"github.com/coreos/vcontext/report"
  )
@@ -3988,9 +3988,9 @@ index 794df19a..6def37e7 100644
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/providers/util"
++	"github.com/flatcar/ignition/v2/internal/resource"
  
  	"github.com/coreos/vcontext/report"
  )
@@ -4005,9 +4005,9 @@ index 5fbdd648..b3ac9da2 100644
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/providers/util"
++	"github.com/flatcar/ignition/v2/internal/resource"
  
  	"github.com/coreos/vcontext/report"
  )
@@ -4025,12 +4025,12 @@ index 83bb8952..787ef659 100644
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	ut "github.com/coreos/ignition/v2/internal/util"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/distro"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
-+	ut "github.com/flatcar-linux/ignition/v2/internal/util"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/distro"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/providers/util"
++	"github.com/flatcar/ignition/v2/internal/resource"
++	ut "github.com/flatcar/ignition/v2/internal/util"
  
  	"github.com/coreos/vcontext/report"
  )
@@ -4048,12 +4048,12 @@ index ca7ef67b..a3132bfe 100644
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	ut "github.com/coreos/ignition/v2/internal/util"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/distro"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
-+	ut "github.com/flatcar-linux/ignition/v2/internal/util"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/distro"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/providers/util"
++	"github.com/flatcar/ignition/v2/internal/resource"
++	ut "github.com/flatcar/ignition/v2/internal/util"
  
  	"github.com/coreos/vcontext/report"
  )
@@ -4068,9 +4068,9 @@ index cfc20174..2b9e583d 100644
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/resource"
  
  	"github.com/coreos/vcontext/report"
  )
@@ -4088,12 +4088,12 @@ index c46beab4..7864d33a 100644
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	ut "github.com/coreos/ignition/v2/internal/util"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/distro"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
-+	ut "github.com/flatcar-linux/ignition/v2/internal/util"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/distro"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/providers/util"
++	"github.com/flatcar/ignition/v2/internal/resource"
++	ut "github.com/flatcar/ignition/v2/internal/util"
  
  	"github.com/coreos/vcontext/report"
  )
@@ -4111,12 +4111,12 @@ index 832cbf08..b8439cd4 100644
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	ut "github.com/coreos/ignition/v2/internal/util"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/distro"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
-+	ut "github.com/flatcar-linux/ignition/v2/internal/util"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/distro"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/providers/util"
++	"github.com/flatcar/ignition/v2/internal/resource"
++	ut "github.com/flatcar/ignition/v2/internal/util"
  
  	"github.com/coreos/vcontext/report"
  )
@@ -4125,7 +4125,7 @@ index 832cbf08..b8439cd4 100644
  	// The fetch-offline approach doesn't work well here because of the "split
  	// personality" of this provider. See:
 -	// https://github.com/coreos/ignition/issues/1081
-+	// https://github.com/flatcar-linux/ignition/issues/1081
++	// https://github.com/flatcar/ignition/issues/1081
  	if f.Offline {
  		return types.Config{}, report.Report{}, resource.ErrNeedNet
  	}
@@ -4140,9 +4140,9 @@ index 29b6c161..ce91a131 100644
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/providers/util"
++	"github.com/flatcar/ignition/v2/internal/resource"
  
  	"github.com/coreos/vcontext/report"
  )
@@ -4160,12 +4160,12 @@ index fe41ec95..578b6d38 100644
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	ut "github.com/coreos/ignition/v2/internal/util"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/distro"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
-+	ut "github.com/flatcar-linux/ignition/v2/internal/util"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/distro"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/providers/util"
++	"github.com/flatcar/ignition/v2/internal/resource"
++	ut "github.com/flatcar/ignition/v2/internal/util"
  
  	"github.com/coreos/vcontext/report"
  )
@@ -4180,9 +4180,9 @@ index daa80bfb..0bcbd712 100644
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/resource"
  
  	"github.com/coreos/vcontext/report"
  )
@@ -4198,10 +4198,10 @@ index ba05ff6d..ffd2eec0 100644
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/providers/util"
++	"github.com/flatcar/ignition/v2/internal/resource"
  
  	"github.com/coreos/vcontext/report"
  )
@@ -4216,9 +4216,9 @@ index 65c76875..a4ebec6a 100644
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/providers/util"
++	"github.com/flatcar/ignition/v2/internal/resource"
  
  	"github.com/coreos/vcontext/report"
  )
@@ -4237,13 +4237,13 @@ index 36cc2b9f..4ec5cf98 100644
 -	"github.com/coreos/ignition/v2/internal/providers"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	latest "github.com/flatcar-linux/ignition/v2/config/v3_4_experimental"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/distro"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
++	latest "github.com/flatcar/ignition/v2/config/v3_4_experimental"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/distro"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/providers"
++	"github.com/flatcar/ignition/v2/internal/providers/util"
++	"github.com/flatcar/ignition/v2/internal/resource"
  
  	"github.com/coreos/vcontext/report"
  )
@@ -4258,9 +4258,9 @@ index 59e4f9b8..c767f5e5 100644
 -	"github.com/coreos/ignition/v2/config"
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/config"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/config"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/log"
  
  	"github.com/coreos/vcontext/report"
  )
@@ -4276,10 +4276,10 @@ index e37304c0..dde19316 100644
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/providers/util"
++	"github.com/flatcar/ignition/v2/internal/resource"
  
  	"github.com/coreos/vcontext/report"
  )
@@ -4295,10 +4295,10 @@ index 186ec97d..66ff5490 100644
 -	"github.com/coreos/ignition/v2/internal/providers"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/providers"
++	"github.com/flatcar/ignition/v2/internal/providers/util"
++	"github.com/flatcar/ignition/v2/internal/resource"
  
  	"github.com/coreos/vcontext/report"
  	"github.com/vmware/vmw-guestinfo/rpcvmx"
@@ -4312,8 +4312,8 @@ index e9e26cca..bf0e346f 100644
  
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/resource"
  
  	"github.com/coreos/vcontext/report"
  )
@@ -4328,9 +4328,9 @@ index e691d20b..9bb01c30 100644
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/providers/util"
++	"github.com/flatcar/ignition/v2/internal/resource"
  
  	"github.com/coreos/vcontext/report"
  )
@@ -4348,12 +4348,12 @@ index d8a743c6..25affe3e 100644
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/distro"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/providers/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/distro"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/providers/util"
++	"github.com/flatcar/ignition/v2/internal/resource"
  	"github.com/coreos/vcontext/report"
  )
  
@@ -4371,12 +4371,12 @@ index 471349a1..9f1d3667 100644
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/util"
 -	"github.com/coreos/ignition/v2/internal/version"
-+	ignerrors "github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/earlyrand"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/util"
-+	"github.com/flatcar-linux/ignition/v2/internal/version"
++	ignerrors "github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/earlyrand"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/util"
++	"github.com/flatcar/ignition/v2/internal/version"
  
  	"github.com/vincent-petithory/dataurl"
  
@@ -4391,9 +4391,9 @@ index 2696b697..25993094 100644
 -	configErrors "github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/util"
-+	configErrors "github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/util"
++	configErrors "github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/util"
  	"golang.org/x/oauth2/google"
  	"google.golang.org/api/option"
  
@@ -4408,9 +4408,9 @@ index 77a39c93..e4241c4f 100644
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/util"
-+	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/internal/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/util"
  )
  
  func TestDataUrl(t *testing.T) {
@@ -4426,10 +4426,10 @@ index 3445e2a9..27dfe3ea 100644
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/distro"
 -	"github.com/coreos/ignition/v2/internal/log"
-+	"github.com/flatcar-linux/ignition/v2/config/util"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/distro"
-+	"github.com/flatcar-linux/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/distro"
++	"github.com/flatcar/ignition/v2/internal/log"
  )
  
  type Operation struct {
@@ -4442,7 +4442,7 @@ index a5dd8abf..555244d0 100644
  	"strings"
  
 -	"github.com/coreos/ignition/v2/config"
-+	"github.com/flatcar-linux/ignition/v2/config"
++	"github.com/flatcar/ignition/v2/config"
  )
  
  // Specific section marker used in the docs to indicate that the Markdown code
@@ -4455,7 +4455,7 @@ index 26e3f9cc..b2d3414f 100644
  	"strings"
  
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
  )
  
  var (
@@ -4468,7 +4468,7 @@ index fd9132c0..b92ad5ae 100644
  	"testing"
  
 -	"github.com/coreos/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
  )
  
  func TestAssertValid(t *testing.T) {
@@ -4484,14 +4484,14 @@ index b7c240fe..5b586619 100644
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/servers"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/config"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/servers"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/config"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/servers"
++	"github.com/flatcar/ignition/v2/tests/types"
  
  	// Register the tests
 -	_ "github.com/coreos/ignition/v2/tests/registry"
-+	_ "github.com/flatcar-linux/ignition/v2/tests/registry"
++	_ "github.com/flatcar/ignition/v2/tests/registry"
  
  	// UUID generation tool
  	"github.com/google/uuid"
@@ -4505,8 +4505,8 @@ index fa16c44b..25ed3d7b 100644
  
 -	ut "github.com/coreos/ignition/v2/internal/util"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	ut "github.com/flatcar-linux/ignition/v2/internal/util"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	ut "github.com/flatcar/ignition/v2/internal/util"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func run(ctx context.Context, command string, args ...string) ([]byte, error) {
@@ -4520,8 +4520,8 @@ index e4bab782..f0634563 100644
  import (
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -4535,8 +4535,8 @@ index a4cf1d66..dc681fbd 100644
  import (
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -4550,8 +4550,8 @@ index 3abfb574..613adb82 100644
  import (
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -4565,8 +4565,8 @@ index 6a80fae6..9995ae94 100644
  import (
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -4580,8 +4580,8 @@ index db132cac..fce7eb73 100644
  import (
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -4595,8 +4595,8 @@ index 7665a82b..ffb50fb5 100644
  import (
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -4610,8 +4610,8 @@ index 2166e532..4d94ba47 100644
  import (
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -4625,8 +4625,8 @@ index e62ee681..ecf64fc1 100644
  import (
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -4640,8 +4640,8 @@ index 3116e331..e5302154 100644
  
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  
  	"github.com/vincent-petithory/dataurl"
  )
@@ -4655,8 +4655,8 @@ index ae6f50f5..27e3a25d 100644
  import (
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -4670,8 +4670,8 @@ index f9d258c0..3501231e 100644
  import (
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -4685,8 +4685,8 @@ index 7492f940..4e51bb17 100644
  
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  var (
@@ -4700,8 +4700,8 @@ index 0627c635..5d388afc 100644
  import (
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -4716,9 +4716,9 @@ index 0df69e7b..63bde529 100644
 -	"github.com/coreos/ignition/v2/tests/fixtures"
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/fixtures"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/fixtures"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -4732,8 +4732,8 @@ index 5ac0967b..d72ba402 100644
  
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -4747,8 +4747,8 @@ index 5bda64c1..ac612b91 100644
  import (
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -4762,8 +4762,8 @@ index 0dd092e1..a3c69464 100644
  import (
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -4778,9 +4778,9 @@ index 8faecff7..13f5c56d 100644
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/servers"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/servers"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/servers"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -4794,8 +4794,8 @@ index 72dd1b1f..503ffaac 100644
  import (
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -4804,7 +4804,7 @@ index 72dd1b1f..503ffaac 100644
  // CreateDeepHardLinkToFile checks if Ignition can create a hard
  // link to a file that's deeper than the hard link. For more
 -// information: https://github.com/coreos/ignition/issues/800
-+// information: https://github.com/flatcar-linux/ignition/issues/800
++// information: https://github.com/flatcar/ignition/issues/800
  func CreateDeepHardLinkToFile() types.Test {
  	name := "links.hard.deep.create.file"
  	in := types.GetBaseDisk()
@@ -4819,9 +4819,9 @@ index d1a8244e..3c9ee830 100644
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/servers"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/servers"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/servers"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -4835,8 +4835,8 @@ index b8974479..d67861d9 100644
  import (
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -4850,8 +4850,8 @@ index b0f058ee..33bb7f28 100644
  
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -4865,8 +4865,8 @@ index daa72d7d..a16f933a 100644
  import (
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -4881,9 +4881,9 @@ index 6e58db70..db17df33 100644
 -	"github.com/coreos/ignition/v2/tests/fixtures"
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/fixtures"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/fixtures"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -4898,9 +4898,9 @@ index bb83da30..6dae147d 100644
 -	"github.com/coreos/ignition/v2/tests/fixtures"
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/fixtures"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/fixtures"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -4914,8 +4914,8 @@ index be667be2..26d34d2c 100644
  import (
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -4930,9 +4930,9 @@ index ff7722f7..987f85dd 100644
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/servers"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/servers"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/servers"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -4946,8 +4946,8 @@ index 5952097f..af50f634 100644
  
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -4961,8 +4961,8 @@ index 5c090e80..7ec877f1 100644
  import (
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -4976,8 +4976,8 @@ index 696108a1..337ba883 100644
  import (
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -4991,8 +4991,8 @@ index 4e32d3cd..31fa5783 100644
  import (
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -5006,8 +5006,8 @@ index 31402918..2e01e6cc 100644
  import (
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -5021,8 +5021,8 @@ index 58c6bbb0..c6b1dafb 100644
  import (
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -5036,8 +5036,8 @@ index 1488e499..5e6065c0 100644
  import (
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -5051,8 +5051,8 @@ index 10d32990..a4ae7516 100644
  import (
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -5066,8 +5066,8 @@ index b199cae6..a3ba770f 100644
  import (
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -5081,8 +5081,8 @@ index 1863c744..cdfa6c10 100644
  
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  var (
@@ -5096,8 +5096,8 @@ index 329d14bd..9228ef59 100644
  import (
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -5113,10 +5113,10 @@ index 0b52d784..c89c5730 100644
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/servers"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/fixtures"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/servers"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/fixtures"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/servers"
++	"github.com/flatcar/ignition/v2/tests/types"
  
  	"github.com/vincent-petithory/dataurl"
  )
@@ -5130,8 +5130,8 @@ index 1964a602..6ad13093 100644
  import (
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -5145,8 +5145,8 @@ index a3faf958..d3382143 100644
  import (
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -5160,8 +5160,8 @@ index 34408293..70e4c639 100644
  
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/register"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  func init() {
@@ -5179,12 +5179,12 @@ index c6ae2d64..5d5919da 100644
 -	types33 "github.com/coreos/ignition/v2/config/v3_3/types"
 -	types_exp "github.com/coreos/ignition/v2/config/v3_4_experimental/types"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	types30 "github.com/flatcar-linux/ignition/v2/config/v3_0/types"
-+	types31 "github.com/flatcar-linux/ignition/v2/config/v3_1/types"
-+	types32 "github.com/flatcar-linux/ignition/v2/config/v3_2/types"
-+	types33 "github.com/flatcar-linux/ignition/v2/config/v3_3/types"
-+	types_exp "github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	types30 "github.com/flatcar/ignition/v2/config/v3_0/types"
++	types31 "github.com/flatcar/ignition/v2/config/v3_1/types"
++	types32 "github.com/flatcar/ignition/v2/config/v3_2/types"
++	types33 "github.com/flatcar/ignition/v2/config/v3_3/types"
++	types_exp "github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
++	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  type TestType int
@@ -5214,24 +5214,24 @@ index 917106b1..d1609676 100644
 -	_ "github.com/coreos/ignition/v2/tests/positive/security"
 -	_ "github.com/coreos/ignition/v2/tests/positive/systemd"
 -	_ "github.com/coreos/ignition/v2/tests/positive/timeouts"
-+	_ "github.com/flatcar-linux/ignition/v2/tests/negative/files"
-+	_ "github.com/flatcar-linux/ignition/v2/tests/negative/filesystems"
-+	_ "github.com/flatcar-linux/ignition/v2/tests/negative/general"
-+	_ "github.com/flatcar-linux/ignition/v2/tests/negative/partitions"
-+	_ "github.com/flatcar-linux/ignition/v2/tests/negative/proxy"
-+	_ "github.com/flatcar-linux/ignition/v2/tests/negative/regression"
-+	_ "github.com/flatcar-linux/ignition/v2/tests/negative/security"
-+	_ "github.com/flatcar-linux/ignition/v2/tests/negative/timeouts"
-+	_ "github.com/flatcar-linux/ignition/v2/tests/positive/files"
-+	_ "github.com/flatcar-linux/ignition/v2/tests/positive/filesystems"
-+	_ "github.com/flatcar-linux/ignition/v2/tests/positive/general"
-+	_ "github.com/flatcar-linux/ignition/v2/tests/positive/partitions"
-+	_ "github.com/flatcar-linux/ignition/v2/tests/positive/passwd"
-+	_ "github.com/flatcar-linux/ignition/v2/tests/positive/proxy"
-+	_ "github.com/flatcar-linux/ignition/v2/tests/positive/regression"
-+	_ "github.com/flatcar-linux/ignition/v2/tests/positive/security"
-+	_ "github.com/flatcar-linux/ignition/v2/tests/positive/systemd"
-+	_ "github.com/flatcar-linux/ignition/v2/tests/positive/timeouts"
++	_ "github.com/flatcar/ignition/v2/tests/negative/files"
++	_ "github.com/flatcar/ignition/v2/tests/negative/filesystems"
++	_ "github.com/flatcar/ignition/v2/tests/negative/general"
++	_ "github.com/flatcar/ignition/v2/tests/negative/partitions"
++	_ "github.com/flatcar/ignition/v2/tests/negative/proxy"
++	_ "github.com/flatcar/ignition/v2/tests/negative/regression"
++	_ "github.com/flatcar/ignition/v2/tests/negative/security"
++	_ "github.com/flatcar/ignition/v2/tests/negative/timeouts"
++	_ "github.com/flatcar/ignition/v2/tests/positive/files"
++	_ "github.com/flatcar/ignition/v2/tests/positive/filesystems"
++	_ "github.com/flatcar/ignition/v2/tests/positive/general"
++	_ "github.com/flatcar/ignition/v2/tests/positive/partitions"
++	_ "github.com/flatcar/ignition/v2/tests/positive/passwd"
++	_ "github.com/flatcar/ignition/v2/tests/positive/proxy"
++	_ "github.com/flatcar/ignition/v2/tests/positive/regression"
++	_ "github.com/flatcar/ignition/v2/tests/positive/security"
++	_ "github.com/flatcar/ignition/v2/tests/positive/systemd"
++	_ "github.com/flatcar/ignition/v2/tests/positive/timeouts"
  )
 diff --git a/tests/servers/servers.go b/tests/servers/servers.go
 index 4082c2e4..e07d6d8f 100644
@@ -5242,7 +5242,7 @@ index 4082c2e4..e07d6d8f 100644
  	"time"
  
 -	"github.com/coreos/ignition/v2/tests/fixtures"
-+	"github.com/flatcar-linux/ignition/v2/tests/fixtures"
++	"github.com/flatcar/ignition/v2/tests/fixtures"
  	"github.com/pin/tftp"
  )
  
@@ -5256,8 +5256,8 @@ index 6256ace8..c1bc8d62 100644
  
 -	"github.com/coreos/ignition/v2/internal/exec/util"
 -	"github.com/coreos/ignition/v2/tests/types"
-+	"github.com/flatcar-linux/ignition/v2/internal/exec/util"
-+	"github.com/flatcar-linux/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/internal/exec/util"
++	"github.com/flatcar/ignition/v2/tests/types"
  
  	"golang.org/x/sys/unix"
  )
@@ -5271,8 +5271,8 @@ index 3ac03d7c..5edf143e 100644
  
 -	"github.com/coreos/ignition/v2/config"
 -	"github.com/coreos/ignition/v2/internal/version"
-+	"github.com/flatcar-linux/ignition/v2/config"
-+	"github.com/flatcar-linux/ignition/v2/internal/version"
++	"github.com/flatcar/ignition/v2/config"
++	"github.com/flatcar/ignition/v2/internal/version"
  )
  
  var (

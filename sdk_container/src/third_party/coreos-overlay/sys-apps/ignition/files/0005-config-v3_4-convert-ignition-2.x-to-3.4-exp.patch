@@ -24,16 +24,16 @@ index 512fc9f0..b0375236 100644
 +	"encoding/json"
 +	"fmt"
 +
-+	"github.com/flatcar-linux/ignition/config/v2_4"
- 	"github.com/flatcar-linux/ignition/v2/config/merge"
- 	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
- 	"github.com/flatcar-linux/ignition/v2/config/util"
++	"github.com/flatcar/ignition/config/v2_4"
+ 	"github.com/flatcar/ignition/v2/config/merge"
+ 	"github.com/flatcar/ignition/v2/config/shared/errors"
+ 	"github.com/flatcar/ignition/v2/config/util"
 @@ -25,6 +29,8 @@ import (
  
  	"github.com/coreos/go-semver/semver"
  	"github.com/coreos/vcontext/report"
 +
-+	"github.com/flatcar-linux/ign-converter/translate/v24tov31"
++	"github.com/flatcar/ign-converter/translate/v24tov31"
  )
  
  func Merge(parent, child types.Config) types.Config {
