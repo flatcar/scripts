@@ -483,7 +483,7 @@ https://github.com/flatcar-linux/coreos-overlay/
 https://github.com/flatcar-linux/portage-stable/
 https://github.com/flatcar-linux/scripts/
 Information on how to build Flatcar Container Linux can be found under:
-https://docs.flatcar-linux.org/os/sdk-modifying-flatcar/
+https://www.flatcar.org/docs/latest/reference/developer-guides/sdk-modifying-flatcar/
 EOF
     sudo cp "${json_input}" "${root_fs_dir}"/usr/share/licenses/licenses.json
     # Compress the file from 2.1 MB to 0.39 MB
