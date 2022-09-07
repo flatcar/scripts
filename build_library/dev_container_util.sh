@@ -50,12 +50,12 @@ disabled = true
 [coreos]
 location = /var/lib/portage/coreos-overlay
 sync-type = git
-sync-uri = https://github.com/flatcar-linux/coreos-overlay.git
+sync-uri = https://github.com/flatcar/coreos-overlay.git
 
 [portage-stable]
 location = /var/lib/portage/portage-stable
 sync-type = git
-sync-uri = https://github.com/flatcar-linux/portage-stable.git
+sync-uri = https://github.com/flatcar/portage-stable.git
 EOF
 
     # Now set the correct profile

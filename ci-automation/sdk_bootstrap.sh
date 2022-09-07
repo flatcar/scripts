@@ -16,7 +16,7 @@
 #
 #   1. Version of the SEED SDK to use (string).
 #       The seed SDK tarball must be available on https://mirror.release.flatcar-linux.net/sdk/ ...
-#       The seed SDK container must be available from https://github.com/orgs/flatcar-linux/packages
+#       The seed SDK container must be available from https://github.com/orgs/flatcar/packages
 #          (via ghcr.io/flatcar/flatcar-sdk-all:[VERSION]).
 #
 #   2. Version of the TARGET SDK to build (string).
