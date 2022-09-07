@@ -9,7 +9,7 @@ The SDK can be used to
 * Build OS images for a variety of targets (qemu, bare metal, AWS, Azure, VMWare, etc.)
 * And lastly, the SDK can be used to upgrade SDK packages and to build new SDKs
 
-[flatcar-docs]: https://docs.flatcar-linux.org/os/sdk-modifying-flatcar/
+[flatcar-docs]: https://www.flatcar.org/docs/latest/reference/developer-guides/sdk-modifying-flatcar/
 
 # Using the scripts repository: submodules and tags
 
