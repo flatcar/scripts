@@ -43,8 +43,9 @@ run_kola_tests() {
           --equinixmetal-metro="${equinixmetal_metro}" \
           --equinixmetal-plan="${instance_type}" \
           --equinixmetal-project="${EQUINIXMETAL_PROJECT}" \
-          --equinixmetal-storage-url="${EQUINIXMETAL_STORAGE_URL}" \
-          --gce-json-key=<(set +x; echo "${GCP_JSON_KEY}" | base64 --decode) \
+          --equinixmetal-storage-url="ssh+https://${BUILDCACHE_SERVER}"
+          --equinixmetal-remote-document-root="${BUILDCACHE_PATH_PREFIX}/mantle/equinixmetal/" \
+          --equinixmetal-remote-user="${BUILDCACHE_USER}" \
           --equinixmetal-api-key="${EQUINIXMETAL_KEY}" \
           "${@}"
 }
