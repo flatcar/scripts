@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-CROS_WORKON_PROJECT="flatcar-linux/toolbox"
+CROS_WORKON_PROJECT="flatcar/toolbox"
 CROS_WORKON_LOCALNAME="toolbox"
 CROS_WORKON_REPO="https://github.com"
 
@@ -16,7 +16,7 @@ fi
 inherit cros-workon
 
 DESCRIPTION="toolbox"
-HOMEPAGE="https://github.com/flatcar-linux/toolbox"
+HOMEPAGE="https://github.com/flatcar/toolbox"
 SRC_URI=""
 
 LICENSE="Apache-2.0"
