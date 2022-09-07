@@ -151,7 +151,7 @@ stage_repo() {
         info "Using git ref '$gitref' for ebuild repo '$repo' ('$gitname') in stage 1."
         mkdir "$dest/$repo"
         (   cd "$dest/$repo" \
-            && git clone "https://github.com/flatcar-linux/$gitname.git" . \
+            && git clone "https://github.com/flatcar/$gitname.git" . \
             && git fetch --all \
             && git checkout "$gitref" )
     fi
