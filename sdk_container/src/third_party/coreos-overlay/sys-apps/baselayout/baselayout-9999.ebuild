@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-CROS_WORKON_PROJECT="flatcar-linux/baselayout"
+CROS_WORKON_PROJECT="flatcar/baselayout"
 CROS_WORKON_LOCALNAME="baselayout"
 CROS_WORKON_REPO="https://github.com"
 

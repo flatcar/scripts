@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-CROS_WORKON_PROJECT="flatcar-linux/bootengine"
+CROS_WORKON_PROJECT="flatcar/bootengine"
 CROS_WORKON_LOCALNAME="bootengine"
 CROS_WORKON_OUTOFTREE_BUILD=1
 CROS_WORKON_REPO="https://github.com"

@@ -3,7 +3,7 @@
 
 EAPI=8
 
-CROS_WORKON_PROJECT="flatcar-linux/update-ssh-keys"
+CROS_WORKON_PROJECT="flatcar/update-ssh-keys"
 CROS_WORKON_LOCALNAME="update-ssh-keys"
 CROS_WORKON_REPO="https://github.com"
 
@@ -52,7 +52,7 @@ winapi-x86_64-pc-windows-gnu-0.4.0
 inherit coreos-cargo cros-workon
 
 DESCRIPTION="Utility for managing OpenSSH authorized public keys"
-HOMEPAGE="https://github.com/flatcar-linux/update-ssh-keys"
+HOMEPAGE="https://github.com/flatcar/update-ssh-keys"
 SRC_URI="$(cargo_crate_uris ${CRATES})"
 
 LICENSE="Apache-2.0"

@@ -2,10 +2,10 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-CROS_WORKON_PROJECT="flatcar-linux/torcx"
+CROS_WORKON_PROJECT="flatcar/torcx"
 CROS_WORKON_LOCALNAME="torcx"
 CROS_WORKON_REPO="https://github.com"
-COREOS_GO_PACKAGE="github.com/flatcar-linux/torcx"
+COREOS_GO_PACKAGE="github.com/flatcar/torcx"
 COREOS_GO_GO111MODULE="off"
 
 if [[ "${PV}" == 9999 ]]; then
@@ -18,7 +18,7 @@ fi
 inherit coreos-go cros-workon systemd
 
 DESCRIPTION="torcx is a boot-time addon manager for immutable systems"
-HOMEPAGE="https://github.com/flatcar-linux/torcx"
+HOMEPAGE="https://github.com/flatcar/torcx"
 LICENSE="Apache-2.0"
 SLOT="0"
 

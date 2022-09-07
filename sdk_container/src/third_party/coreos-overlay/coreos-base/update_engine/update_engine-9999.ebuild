@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-CROS_WORKON_PROJECT="flatcar-linux/update_engine"
+CROS_WORKON_PROJECT="flatcar/update_engine"
 CROS_WORKON_REPO="https://github.com"
 
 if [[ "${PV}" == 9999 ]]; then
