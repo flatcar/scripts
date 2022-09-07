@@ -80,6 +80,18 @@ function _packages_build_impl() {
     local vernum="${FLATCAR_VERSION}"
     local docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
     local packages_container="flatcar-packages-${arch}-${docker_vernum}"
+    local torcx_pkg_url="https://${BUILDCACHE_SERVER}/images/${arch}/${vernum}/torcx"
+
+    source sdk_lib/sdk_container_common.sh
+
+    if is_official "${vernum}"; then
+        # A channel returned by get_git_channel should not ever be
+        # "developer" here, because it's an official build done from
+        # one of the maintenance branches. So if the channel happens
+        # to be "developer", then you are doing it wrong (releasing
+        # from the main branch?).
+        torcx_pkg_url="https://$(get_git_channel).release.flatcar-linux.net/${arch}-usr/${vernum}/torcx"
+    fi
 
     # Build packages; store packages and torcx output in container
     ./run_sdk_container -x ./ci-cleanup.sh -n "${packages_container}" -v "${vernum}" \
@@ -88,7 +100,8 @@ function _packages_build_impl() {
     ./run_sdk_container -n "${packages_container}" -v "${vernum}" \
         -C "${sdk_image}" \
         ./build_packages --board="${arch}-usr" \
-            --torcx_output_root="${CONTAINER_TORCX_ROOT}"
+            --torcx_output_root="${CONTAINER_TORCX_ROOT}" \
+            --torcx_extra_pkg_url="${torcx_pkg_url}"
 
     # copy torcx manifest and docker tarball for publishing
     local torcx_tmp="__build__/torcx_tmp"
