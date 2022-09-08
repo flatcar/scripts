@@ -11,12 +11,6 @@ source sdk_lib/sdk_container_common.sh
 
 seed_version=""
 target_version=""
-vernum="$(strip_version_prefix "$target_version")"
-if is_official "$vernum" ; then
-    official="true"
-else
-    official="false"
-fi
 
 declare -a cleanup
 
@@ -63,6 +57,13 @@ if [ -z "$seed_version" -o -z "$target_version" ] ; then
     exit 1
 fi
 # --
+
+vernum="$(strip_version_prefix "$target_version")"
+if is_official "$vernum" ; then
+    official="true"
+else
+    official="false"
+fi
 
 yell "\n######\n###### Bootstrapping SDK version $target_version from seed ($seed_version)"
 
