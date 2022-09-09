@@ -29,6 +29,10 @@ run_kola_tests() {
     local instance_type="${1}"; shift
     local instance_tapfile="${1}"; shift
 
+    local sshcmd="${gen_sshcmd}"
+    $sshcmd "${BUILDCACHE_USER}@${BUILDCACHE_SERVER}" \
+        "mkdir -p ${BUILDCACHE_PATH_PREFIX}/testing/${CIA_VERNUM}/equinixmetal/"
+
     timeout --signal=SIGQUIT "${timeout}" \
         kola run \
           --board="${CIA_ARCH}-usr" \
@@ -44,7 +48,7 @@ run_kola_tests() {
           --equinixmetal-plan="${instance_type}" \
           --equinixmetal-project="${EQUINIXMETAL_PROJECT}" \
           --equinixmetal-storage-url="ssh+https://${BUILDCACHE_SERVER}"
-          --equinixmetal-remote-document-root="${BUILDCACHE_PATH_PREFIX}/mantle/equinixmetal/" \
+          --equinixmetal-remote-document-root="${BUILDCACHE_PATH_PREFIX}/testing/${CIA_VERNUM}/equinixmetal/" \
           --equinixmetal-remote-user="${BUILDCACHE_USER}" \
           --equinixmetal-api-key="${EQUINIXMETAL_KEY}" \
           "${@}"
