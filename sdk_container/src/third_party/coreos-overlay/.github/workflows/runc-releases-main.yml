@@ -36,6 +36,8 @@ jobs:
           VERSION_NEW: ${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}
           COMMIT_HASH: ${{ steps.fetch-latest-release.outputs.COMMIT_MAIN }}
           PATH: ${{ steps.setup-flatcar-sdk.outputs.path }}
+          PACKAGES_CONTAINER: ${{ steps.setup-flatcar-sdk.outputs.PACKAGES_CONTAINER }}
+          SDK_NAME: ${{ steps.setup-flatcar-sdk.outputs.SDK_NAME }}
         run: .github/workflows/runc-apply-patch.sh
       - name: Create pull request for main
         uses: peter-evans/create-pull-request@v3
