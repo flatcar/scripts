@@ -3,29 +3,49 @@
 
 EAPI=7
 
-if [[ ${PV} != 3.2.3 ]]; then
-	# Make sure we revert the autotools hackery applied in 3.2.3.
+if [[ ${PV} != 3.2.4 ]]; then
+	# Make sure we revert the autotools hackery applied in 3.2.4.
 	die "Please use rsync-9999.ebuild as a basis for version bumps"
 fi
 
 WANT_LIBTOOL=none
-VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/waynedavison.asc
 
-inherit autotools flag-o-matic prefix systemd verify-sig
+PYTHON_COMPAT=( python3_{8..10} )
+inherit autotools flag-o-matic prefix python-single-r1 systemd
 
 DESCRIPTION="File transfer program to keep remote files into sync"
 HOMEPAGE="https://rsync.samba.org/"
-SRC_DIR="src"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-SRC_URI="https://rsync.samba.org/ftp/rsync/${SRC_DIR}/${P/_/}.tar.gz
-	verify-sig? ( https://rsync.samba.org/ftp/rsync/${SRC_DIR}/${P/_/}.tar.gz.asc )"
-S="${WORKDIR}/${P/_/}"
+if [[ ${PV} == *9999 ]] ; then
+	EGIT_REPO_URI="https://github.com/WayneD/rsync.git"
+	inherit autotools git-r3
+
+	REQUIRED_USE="${PYTHON_REQUIRED_USE}"
+else
+	VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/waynedavison.asc
+	inherit verify-sig
+
+	if [[ ${PV} == *_pre* ]] ; then
+		SRC_DIR="src-previews"
+	else
+		SRC_DIR="src"
+		KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	fi
+
+	SRC_URI="https://rsync.samba.org/ftp/rsync/${SRC_DIR}/${P/_/}.tar.gz
+		verify-sig? ( https://rsync.samba.org/ftp/rsync/${SRC_DIR}/${P/_/}.tar.gz.asc )"
+	S="${WORKDIR}"/${P/_/}
+fi
 
 LICENSE="GPL-3"
 SLOT="0"
 IUSE="acl examples iconv ipv6 lz4 ssl stunnel system-zlib xattr xxhash zstd"
+REQUIRED_USE+=" examples? ( ${PYTHON_REQUIRED_USE} )"
 
 RDEPEND="acl? ( virtual/acl )
+	examples? (
+		${PYTHON_DEPS}
+		dev-lang/perl
+	)
 	lz4? ( app-arch/lz4 )
 	ssl? ( dev-libs/openssl:0= )
 	system-zlib? ( sys-libs/zlib )
@@ -35,18 +55,36 @@ RDEPEND="acl? ( virtual/acl )
 	>=dev-libs/popt-1.5
 	iconv? ( virtual/libiconv )"
 DEPEND="${RDEPEND}"
-BDEPEND="verify-sig? ( sec-keys/openpgp-keys-waynedavison )"
+BDEPEND="examples? ( ${PYTHON_DEPS} )"
+
+if [[ ${PV} == *9999 ]] ; then
+	BDEPEND+=" ${PYTHON_DEPS}
+		$(python_gen_cond_dep '
+			dev-python/commonmark[${PYTHON_USEDEP}]
+		')"
+else
+	BDEPEND+=" verify-sig? ( sec-keys/openpgp-keys-waynedavison )"
+fi
+
+PATCHES=(
+	"${FILESDIR}"/${P}-unsigned-char-checksum.patch
+	# https://github.com/WayneD/rsync/issues/324
+	"${FILESDIR}"/${P}-strlcpy.patch
+)
+
+pkg_setup() {
+	# - USE=examples needs Python itself at runtime, but nothing else
+	# - 9999 needs commonmark at build time
+	if [[ ${PV} == *9999 ]] || use examples ; then
+		python-single-r1_pkg_setup
+	fi
+}
 
 src_prepare() {
-	local PATCHES=(
-		"${FILESDIR}/${P}-glibc-lchmod.patch"
-		"${FILESDIR}/${P}-cross.patch"
-		# Fix for (CVE-2020-14387) - net-misc/rsync: improper TLS validation in rsync-ssl script
-		"${FILESDIR}/${P}-verify-certificate.patch"
-	)
 	default
+
 	eautoconf -o configure.sh
-	touch config.h.in || die
+	eautoheader && touch config.h.in
 }
 
 src_configure() {
@@ -95,14 +133,17 @@ src_install() {
 
 	# Install the useful contrib scripts
 	if use examples ; then
+		python_fix_shebang support/
+
 		exeinto /usr/share/rsync
 		doexe support/*
+
 		rm -f "${ED}"/usr/share/rsync/{Makefile*,*.c}
 	fi
 
 	eprefixify "${ED}"/etc/{,xinetd.d}/rsyncd*
 
-	systemd_newunit "packaging/systemd/rsync.service" "rsyncd.service"
+	systemd_newunit packaging/systemd/rsync.service rsyncd.service
 }
 
 pkg_postinst() {
@@ -112,12 +153,14 @@ pkg_postinst() {
 		ewarn "is a security risk which you should fix.  Please check your"
 		ewarn "/etc/rsyncd.conf file and fix the setting 'use chroot'."
 	fi
+
 	if use stunnel ; then
 		einfo "Please install \">=net-misc/stunnel-4\" in order to use stunnel feature."
 		einfo
 		einfo "You maybe have to update the certificates configured in"
 		einfo "${EROOT}/etc/stunnel/rsync.conf"
 	fi
+
 	if use system-zlib ; then
 		ewarn "Using system-zlib is incompatible with <rsync-3.1.1 when"
 		ewarn "using the --compress option."
