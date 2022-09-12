@@ -29,7 +29,7 @@ run_kola_tests() {
     local instance_type="${1}"; shift
     local instance_tapfile="${1}"; shift
 
-    local sshcmd="${gen_sshcmd}"
+		local sshcmd="$(gen_sshcmd)"
     $sshcmd "${BUILDCACHE_USER}@${BUILDCACHE_SERVER}" \
         "mkdir -p ${BUILDCACHE_PATH_PREFIX}/testing/${CIA_VERNUM}/equinixmetal/"
 
