@@ -25,7 +25,7 @@ timeout=6h
 
 BASE_URL="http://${BUILDCACHE_SERVER}/images/${CIA_ARCH}/${CIA_VERNUM}"
 
-local sshcmd="$(gen_sshcmd)"
+sshcmd="$(gen_sshcmd)"
 $sshcmd "${BUILDCACHE_USER}@${BUILDCACHE_SERVER}" \
         "mkdir -p ${BUILDCACHE_PATH_PREFIX}/testing/${CIA_VERNUM}/equinixmetal/"
 
