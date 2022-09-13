@@ -1,0 +1,1 @@
+- GNU Libtasn1 ([4.19.0](https://lists.gnu.org/archive/html/help-libtasn1/2022-08/msg00001.html))
