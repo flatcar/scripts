@@ -2,14 +2,18 @@
 
 set -euo pipefail
 
-readonly SDK_OUTER_TOPDIR="${HOME}/flatcar-sdk"
+readonly SDK_OUTER_TOPSCRIPTSDIR="${HOME}/flatcar-sdk/scripts"
+readonly SDK_OUTER_TOPDIR="${SDK_OUTER_TOPSCRIPTSDIR}/sdk_container"
 readonly SDK_OUTER_SRCDIR="${SDK_OUTER_TOPDIR}/src"
 readonly SDK_INNER_SRCDIR="/mnt/host/source/src"
 
 readonly BUILDBOT_USERNAME="Flatcar Buildbot"
 readonly BUILDBOT_USEREMAIL="buildbot@flatcar-linux.org"
 
-function enter() ( cd ../../..; exec cork enter -- $@ )
+function enter() {
+  ${SDK_OUTER_TOPSCRIPTSDIR}/run_sdk_container -n "${PACKAGES_CONTAINER}" \
+    -C "${SDK_NAME}" "$@"
+}
 
 # Return a valid ebuild file name for ebuilds of the given category name,
 # package name, and the old version. If the single ebuild file already exists,
@@ -32,36 +36,48 @@ function get_ebuild_filename() {
 }
 
 function prepare_git_repo() {
-  local our_remote_url
-
+  # the original coreos-overlay repo outside the SDK container
   git config user.name "${BUILDBOT_USERNAME}"
   git config user.email "${BUILDBOT_USEREMAIL}"
   git reset --hard HEAD
   git fetch origin
-  git checkout -B "${BASE_BRANCH}" "origin/${BASE_BRANCH}"
-  our_remote_url=$(git remote get-url origin)
 
-  # setup overlay repo inside SDK too (be fork friendly)
-  git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" remote add our_remote "${our_remote_url}"
-  git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" fetch our_remote
-  git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" checkout -B "${BASE_BRANCH}" "our_remote/${BASE_BRANCH}"
+  git checkout -B "${BASE_BRANCH}" "origin/${BASE_BRANCH}"
+
+  # inside the SDK container
+  git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" config \
+    user.name "${BUILDBOT_USERNAME}"
+  git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" config \
+    user.email "${BUILDBOT_USEREMAIL}"
 }
 
 # caller needs to set pass a parameter as a branch name to be created.
 function checkout_branches() {
   TARGET_BRANCH=$1
+  CHECKOUT_SCRIPTS=$2
 
   [[ -z "${TARGET_BRANCH}" ]] && echo "No target branch specified. exit." && return 1
 
-  git -C "${SDK_OUTER_SRCDIR}/scripts" checkout -B "${BASE_BRANCH}" "github/${BASE_BRANCH}"
-  git -C "${SDK_OUTER_SRCDIR}/third_party/portage-stable" checkout -B "${BASE_BRANCH}" "github/${BASE_BRANCH}"
-
-  if git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" show-ref "remotes/our_remote/${TARGET_BRANCH}"; then
-    echo "Target branch already exists. exit.";
-    return 1
+  # Check out the scripts repo only if CHECKOUT_SCRIPTS == true, due to
+  # a corner case of its LTS-2021 branch does not have run_sdk_container.
+  if [[ "${CHECKOUT_SCRIPTS}" = true ]]; then
+    git -C "${SDK_OUTER_TOPSCRIPTSDIR}" checkout -B "${BASE_BRANCH}" \
+      "origin/${BASE_BRANCH}"
   fi
 
-  git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" checkout -B "${TARGET_BRANCH}" "our_remote/${BASE_BRANCH}"
+  # update submodules like portage-stable under the scripts directories
+  git submodule update --init --recursive
+
+  if git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" show-ref "remotes/origin/${TARGET_BRANCH}"; then
+    echo "Target branch already exists. exit.";
+  fi
+
+  # Each submodule directory should be explicitly set from BASE_BRANCH,
+  # as the submodule refs could be only updated during the night.
+  git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" checkout \
+    -B "${TARGET_BRANCH}" "origin/${BASE_BRANCH}"
+  git -C "${SDK_OUTER_SRCDIR}/third_party/portage-stable" checkout \
+    -B "${TARGET_BRANCH}" "origin/${BASE_BRANCH}"
 }
 
 function regenerate_manifest() {
@@ -115,7 +131,8 @@ function generate_patches() {
 
   pushd "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" >/dev/null || exit
 
-  enter ebuild "${SDK_INNER_SRCDIR}/third_party/coreos-overlay/${CATEGORY_NAME}/${PKGNAME_SIMPLE}/${PKGNAME_SIMPLE}-${VERSION_NEW}.ebuild" manifest --force
+  enter ebuild "${SDK_INNER_SRCDIR}/third_party/coreos-overlay/${CATEGORY_NAME}/${PKGNAME_SIMPLE}/${PKGNAME_SIMPLE}-${VERSION_NEW}.ebuild" \
+    manifest --force
 
   # We can only create the actual commit in the actual source directory, not under the SDK.
   # So create a format-patch, and apply to the actual source.

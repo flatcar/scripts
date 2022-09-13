@@ -32,6 +32,8 @@ jobs:
           BASE_BRANCH: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_MAINTENANCE }}
           PATH: ${{ steps.setup-flatcar-sdk.outputs.path }}
           VERSION_NEW: ${{ steps.fetch-latest-release.outputs.VERSION_MAINTENANCE }}
+          PACKAGES_CONTAINER: ${{ steps.setup-flatcar-sdk.outputs.PACKAGES_CONTAINER }}
+          SDK_NAME: ${{ steps.setup-flatcar-sdk.outputs.SDK_NAME }}
         run: .github/workflows/cacerts-apply-patch.sh
       - name: Create pull request for maintenance branch
         uses: peter-evans/create-pull-request@v3

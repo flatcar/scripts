@@ -29,6 +29,8 @@ jobs:
           BASE_BRANCH: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_MAIN }}
           PATH: ${{ steps.setup-flatcar-sdk.outputs.path }}
           VERSION_NEW: ${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}
+          PACKAGES_CONTAINER: ${{ steps.setup-flatcar-sdk.outputs.PACKAGES_CONTAINER }}
+          SDK_NAME: ${{ steps.setup-flatcar-sdk.outputs.SDK_NAME }}
         run: .github/workflows/rust-apply-patch.sh
       - name: Create pull request for main
         id: create-pull-request

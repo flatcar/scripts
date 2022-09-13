@@ -3,12 +3,13 @@
 set -euo pipefail
 
 UPDATE_NEEDED=1
+CHECKOUT_SCRIPTS="${CHECKOUT_SCRIPTS:-true}"
 
 . .github/workflows/common.sh
 
 prepare_git_repo
 
-if ! checkout_branches "docker-${VERSION_NEW}-${TARGET}"; then
+if ! checkout_branches "docker-${VERSION_NEW}-${TARGET}" "${CHECKOUT_SCRIPTS}"; then
   UPDATE_NEEDED=0
   exit 0
 fi

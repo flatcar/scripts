@@ -32,6 +32,8 @@ jobs:
           BUILD_NUMBER: ${{ steps.fetch-latest-release.outputs.BUILD_NUMBER }}
           PATH: ${{ steps.setup-flatcar-sdk.outputs.path }}
           VERSION_NEW: ${{ steps.fetch-latest-release.outputs.VERSION_MAIN }}
+          PACKAGES_CONTAINER: ${{ steps.setup-flatcar-sdk.outputs.PACKAGES_CONTAINER }}
+          SDK_NAME: ${{ steps.setup-flatcar-sdk.outputs.SDK_NAME }}
         run: .github/workflows/vmware-apply-patch.sh
       - name: Create pull request for main
         uses: peter-evans/create-pull-request@v3
