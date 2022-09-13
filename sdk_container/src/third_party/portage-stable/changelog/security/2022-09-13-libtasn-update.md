@@ -1,0 +1,1 @@
+- GNU Libtasn1 ([Gentoo#866237](https://bugs.gentoo.org/866237))
