@@ -11,12 +11,12 @@ inherit cros-workon systemd coreos-go
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	CROS_WORKON_COMMIT="b54e4c68e0ac154402cb4d30511c70b02a6509f3" # flatcar-master
+	CROS_WORKON_COMMIT="c4cca93a15c7b7fd175e6687a83fc2725029a17a" # flatcar-master
 	KEYWORDS="amd64 arm64"
 fi
 
 DESCRIPTION="locksmith"
-HOMEPAGE="https://github.com/coreos/locksmith"
+HOMEPAGE="https://github.com/flatcar/locksmith"
 SRC_URI=""
 
 LICENSE="Apache-2.0"
