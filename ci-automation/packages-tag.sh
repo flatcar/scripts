@@ -16,7 +16,7 @@
 #
 #   1. SDK version is recorded in sdk_container/.repo/manifests/version.txt
 #   2. SDK container is either
-#       - available via ghcr.io/flatcar-linux/flatcar-sdk-[ARCH]:[VERSION] (official SDK release)
+#       - available via ghcr.io/flatcar/flatcar-sdk-[ARCH]:[VERSION] (official SDK release)
 #       OR
 #       - available via build cache server "/containers/[VERSION]/flatcar-sdk-[ARCH]-[VERSION].tar.gz"
 #         (dev SDK)

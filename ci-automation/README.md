@@ -43,7 +43,7 @@ image_build amd64
    This step updates the versionfile, recording the SDK container version just built.
    It will generate and push a new version tag to the scripts repo.
 2. SDK container build (`sdk_container.sh`) : use SDK tarball to build an SDK container image.
-   The resulting image will come in "amd64", "arm64", and "all" flavours, with support for respective OS target architectures. This step builds the Flatcar SDK container images published at ghcr.io/flatcar-linux.
+   The resulting image will come in "amd64", "arm64", and "all" flavours, with support for respective OS target architectures. This step builds the Flatcar SDK container images published at ghcr.io/flatcar.
 
 ```
          .---------.                    .------------.          .--------.
@@ -121,7 +121,7 @@ Optionally, patterns matching a group of tests can be supplied (or simply a list
 
 Testing is implemented in two layers:
 1. `ci-automation/test.sh` is a generic test wrapper / stub to be called from CI.
-2. `ci-automation/vendor-testing/` contains low-level vendor-specific test wrappers around [`kola`](https://github.com/flatcar-linux/mantle/tree/flatcar-master/kola/), our test scenario orchestrator.
+2. `ci-automation/vendor-testing/` contains low-level vendor-specific test wrappers around [`kola`](https://github.com/flatcar/mantle/tree/flatcar-master/kola/), our test scenario orchestrator.
 
 Testing relies on the SDK container and will use tools / test suites from the SDK.
 The low-level vendor / image specific script (layer 2. in the list above) runs inside the SDK.
