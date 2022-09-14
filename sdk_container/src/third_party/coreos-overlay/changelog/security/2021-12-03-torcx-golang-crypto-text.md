@@ -1,0 +1,1 @@
+- torcx ([CVE-2021-38561](https://nvd.nist.gov/vuln/detail/CVE-2021-38561), [CVE-2021-43565](https://nvd.nist.gov/vuln/detail/CVE-2021-43565))
