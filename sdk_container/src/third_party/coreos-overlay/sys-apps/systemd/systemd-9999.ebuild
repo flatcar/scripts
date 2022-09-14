@@ -357,7 +357,7 @@ multilib_src_configure() {
 
 		# Flatcar: Set latest network interface naming scheme
 		# for
-		# https://github.com/flatcar-linux/Flatcar/issues/36
+		# https://github.com/flatcar/Flatcar/issues/36
 		-Ddefault-net-naming-scheme=latest
 
 		# Flatcar: Unported options, still needed?

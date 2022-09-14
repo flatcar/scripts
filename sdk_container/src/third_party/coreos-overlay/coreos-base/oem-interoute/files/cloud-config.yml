@@ -58,4 +58,4 @@ coreos:
       name: Interoute 
       version-id: @@OEM_VERSION_ID@@
       home-url: http://interoute.com/
-      bug-report-url: https://issues.flatcar-linux.org
+      bug-report-url: https://issues.flatcar.org

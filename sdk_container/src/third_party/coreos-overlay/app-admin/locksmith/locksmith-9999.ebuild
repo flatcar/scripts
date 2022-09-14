@@ -2,10 +2,10 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-CROS_WORKON_PROJECT="flatcar-linux/locksmith"
+CROS_WORKON_PROJECT="flatcar/locksmith"
 CROS_WORKON_LOCALNAME="locksmith"
 CROS_WORKON_REPO="https://github.com"
-COREOS_GO_PACKAGE="github.com/flatcar-linux/locksmith"
+COREOS_GO_PACKAGE="github.com/flatcar/locksmith"
 inherit cros-workon systemd coreos-go
 
 if [[ "${PV}" == 9999 ]]; then

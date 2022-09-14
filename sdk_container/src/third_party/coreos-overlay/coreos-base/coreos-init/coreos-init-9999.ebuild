@@ -3,7 +3,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-CROS_WORKON_PROJECT="flatcar-linux/init"
+CROS_WORKON_PROJECT="flatcar/init"
 CROS_WORKON_LOCALNAME="init"
 CROS_WORKON_REPO="https://github.com"
 
