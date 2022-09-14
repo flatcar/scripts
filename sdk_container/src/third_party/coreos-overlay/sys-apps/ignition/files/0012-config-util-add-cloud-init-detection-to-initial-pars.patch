@@ -27,7 +27,7 @@ index 5e2b4a2b..061a488d 100644
 +	"strings"
 +	"unicode"
  
- 	"github.com/flatcar-linux/ignition/v2/config/shared/errors"
+ 	"github.com/flatcar/ignition/v2/config/shared/errors"
  
 @@ -24,10 +29,44 @@ import (
  	"github.com/coreos/vcontext/tree"

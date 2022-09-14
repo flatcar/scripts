@@ -18,10 +18,10 @@ index a4ebec6a..0ae9cd66 100644
  	"strings"
  	"time"
  
-+	iErrors "github.com/flatcar-linux/ignition/v2/config/shared/errors"
- 	"github.com/flatcar-linux/ignition/v2/config/v3_4_experimental/types"
- 	"github.com/flatcar-linux/ignition/v2/internal/providers/util"
- 	"github.com/flatcar-linux/ignition/v2/internal/resource"
++	iErrors "github.com/flatcar/ignition/v2/config/shared/errors"
+ 	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
+ 	"github.com/flatcar/ignition/v2/internal/providers/util"
+ 	"github.com/flatcar/ignition/v2/internal/resource"
 @@ -37,9 +38,11 @@ import (
  	"github.com/coreos/vcontext/report"
  )
