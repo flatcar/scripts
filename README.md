@@ -63,8 +63,8 @@ In standalone mode, the SDK is just another Docker container. Interaction with t
 * Check the list of available versions and pick a version to use. The SDK Major versions correspond to Flatcar Major release versions.
   List of images: `https://github.com/orgs/flatcar-linux/packages/container/package/flatcar-sdk-all`
   For the purpose of this example we'll use version `3033.0.0`.
-* Fetch the container image: `docker pull ghcr.io/flatcar-linux/flatcar-sdk-all:3033.0.0`
-* Start the image in interactive (tty) mode: `docker run -ti ghcr.io/flatcar-linux/flatcar-sdk-all:3033.0.0`
+* Fetch the container image: `docker pull ghcr.io/flatcar/flatcar-sdk-all:3033.0.0`
+* Start the image in interactive (tty) mode: `docker run -ti ghcr.io/flatcar/flatcar-sdk-all:3033.0.0`
   You are now inside the SDK container (the hostname will likely differ):
   `sdk@f236fda982a4 ~/trunk/src/scripts $`
 * Initialise the SDK in self-contained mode. This needs to be done once per container and will check out the scripts, coreos-overlay, and portage-stable repositories into the container.
@@ -78,7 +78,7 @@ In order to build OS images (via `./build_image` and `./image_to_vm`) the SDK to
 This is necessary because the SDK currently employs loop devices to create and to partition OS images.
 
 To start a container in privileged mode with `/dev` available use:
-* `docker run -ti  --privileged -v /dev:/dev ghcr.io/flatcar-linux/flatcar-sdk-all:3033.0.0`
+* `docker run -ti  --privileged -v /dev:/dev ghcr.io/flatcar/flatcar-sdk-all:3033.0.0`
 
 ## Integrated mode
 
@@ -107,7 +107,7 @@ Subsequent calls to `./run_sdk_container` will re-use the container (as long as 
 Check out `docker container ls --all` and you'll see something like
 ```
 CONTAINER ID   IMAGE                                            COMMAND                  CREATED       STATUS                         PORTS     NAMES
-19ea3b6d00ad   ghcr.io/flatcar-linux/flatcar-sdk-all:3033.0.0   "/bin/sh -c /home/sd…"   4 hours ago   Exited (0) About an hour ago             flatcar-sdk-all-3033.0.0_os-3033.0.0
+19ea3b6d00ad   ghcr.io/flatcar/flatcar-sdk-all:3033.0.0   "/bin/sh -c /home/sd…"   4 hours ago   Exited (0) About an hour ago             flatcar-sdk-all-3033.0.0_os-3033.0.0
 ```
 
 Re-use of containers happens on a per-name basis. The above example's container name `flatcar-sdk-all-3033.0.0_os-3033.0.0` is generated automatically. Using `docker container rm` the container can be discarded - a subsequent call to `./run_sdk_container` will create a new one.  Custom containers can be created by use of the `-n <name>` command line option; these will be re-used in subsequent calls to `./run_sdk_container` when using the same `<name>`.
