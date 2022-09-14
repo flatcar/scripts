@@ -41,7 +41,7 @@ and only installs files modules declare as required.
 # Keep kernel, kernel headers, and perf aligned
 
 When updating the kernel to a new major release please make sure to also update
-[the kernel headers](https://github.com/flatcar-linux/portage-stable/tree/main/sys-kernel/linux-headers)
+[the kernel headers](https://github.com/flatcar/portage-stable/tree/main/sys-kernel/linux-headers)
 and
-[perf](https://github.com/flatcar-linux/portage-stable/tree/main/dev-util/perf)
+[perf](https://github.com/flatcar/portage-stable/tree/main/dev-util/perf)
 to the same major version.

@@ -5,7 +5,7 @@ EAPI=7
 CROS_WORKON_PROJECT="coreos/ignition"
 CROS_WORKON_LOCALNAME="ignition"
 CROS_WORKON_REPO="https://github.com"
-COREOS_GO_PACKAGE="github.com/flatcar-linux/ignition/v2"
+COREOS_GO_PACKAGE="github.com/flatcar/ignition/v2"
 COREOS_GO_GO111MODULE="off"
 inherit coreos-go cros-workon systemd udev
 
@@ -62,7 +62,7 @@ PATCHES=(
 
 src_compile() {
 	export GO15VENDOREXPERIMENT="1"
-	GO_LDFLAGS="-X github.com/flatcar-linux/ignition/v2/internal/version.Raw=${PV} -X github.com/flatcar-linux/ignition/v2/internal/distro.selinuxRelabel=false" || die
+	GO_LDFLAGS="-X github.com/flatcar/ignition/v2/internal/version.Raw=${PV} -X github.com/flatcar/ignition/v2/internal/distro.selinuxRelabel=false" || die
 	go_build "${COREOS_GO_PACKAGE}/internal"
 }
 
