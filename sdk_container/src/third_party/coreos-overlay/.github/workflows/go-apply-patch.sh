@@ -60,6 +60,10 @@ for version_short in "${!VERSIONS[@]}"; do
 
   popd >/dev/null || exit
 
+  URL="https://go.dev/doc/devel/release#${VERSION_NEW}"
+
+  generate_update_changelog 'Go' "${VERSION_NEW}" "${URL}" 'go'
+
   generate_patches dev-lang go Go
   ((START_NUMBER++))
 done
