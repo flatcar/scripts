@@ -15,7 +15,7 @@ The file should contain a markdown bullet point entry (`- TEXT...`).
 Example for the bugfix section:
 
 ```
-- The Torcx profile `docker-1.12-no` got fixed to reference the current Docker version instead of 19.03 which wasn't found on the image, causing Torcx to fail to provide Docker [scripts#1456](https://github.com/flatcar-linux/scripts/pull/1456)
+- The Torcx profile `docker-1.12-no` got fixed to reference the current Docker version instead of 19.03 which wasn't found on the image, causing Torcx to fail to provide Docker [scripts#1456](https://github.com/flatcar/scripts/pull/1456)
 ```
 
 The contents of the file should describe the changes in a concise manner,

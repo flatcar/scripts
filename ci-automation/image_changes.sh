@@ -91,7 +91,7 @@ function _image_changes_impl() {
     NEW_VERSION=$(git tag --points-at HEAD)
     cd ..
     rm -rf flatcar-build-scripts
-    git clone "https://github.com/flatcar-linux/flatcar-build-scripts"
+    git clone "https://github.com/flatcar/flatcar-build-scripts"
     # Don't fail the job
     set +e
     echo "Package updates, compared to ${CHANNEL_A} ${VERSION_A}:"
