@@ -8,7 +8,7 @@
 # globals
 #
 sdk_container_common_versionfile="sdk_container/.repo/manifests/version.txt"
-sdk_container_common_registry="ghcr.io/flatcar-linux"
+sdk_container_common_registry="ghcr.io/flatcar"
 sdk_container_common_env_file="sdk_container/.sdkenv"
 
 # Check for podman and docker; use docker if present, podman alternatively.
