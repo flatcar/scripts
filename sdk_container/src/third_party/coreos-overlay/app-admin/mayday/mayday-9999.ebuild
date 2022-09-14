@@ -5,18 +5,18 @@ EAPI=7
 CROS_WORKON_PROJECT="flatcar/mayday"
 CROS_WORKON_LOCALNAME="mayday"
 CROS_WORKON_REPO="https://github.com"
-COREOS_GO_PACKAGE="github.com/coreos/mayday"
+COREOS_GO_PACKAGE="github.com/flatcar/mayday"
 inherit coreos-go cros-workon
 
 if [[ "${PV}" == 9999 ]]; then
     KEYWORDS="~amd64 ~arm64"
 else
-    CROS_WORKON_COMMIT="73e4d2f5803362667677226f4e2e538217b38d75" # flatcar-master
+    CROS_WORKON_COMMIT="9de08c8f9f4360fe52cb3a56a7fb8f4bc4e75dcc" # flatcar-master
     KEYWORDS="amd64 arm64"
 fi
 
 DESCRIPTION="mayday"
-HOMEPAGE="https://github.com/coreos/mayday"
+HOMEPAGE="https://github.com/flatcar/mayday"
 SRC_URI=""
 
 LICENSE="Apache-2.0"
