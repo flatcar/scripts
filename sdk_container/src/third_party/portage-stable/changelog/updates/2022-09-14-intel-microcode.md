@@ -1,1 +1,1 @@
-- intel-microcode ([20220809_p20220809](https://github.com/intel/Intel-Linux-Processor-Microcode-Data-Files/releases/tag/microcode-20220809))
+- intel-microcode ([20220809](https://github.com/intel/Intel-Linux-Processor-Microcode-Data-Files/releases/tag/microcode-20220809))
