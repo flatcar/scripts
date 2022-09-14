@@ -1,26 +1,28 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-VERIFY_SIG_OPENPGP_KEY_PATH=${BROOT}/usr/share/openpgp-keys/danielveillard.asc
-inherit libtool multilib-minimal verify-sig
+inherit libtool multilib-minimal
 
 # Note: Please bump this in sync with dev-libs/libxml2.
 DESCRIPTION="XSLT libraries and tools"
-HOMEPAGE="http://www.xmlsoft.org/ https://gitlab.gnome.org/GNOME/libxslt"
-SRC_URI="ftp://xmlsoft.org/${PN}/${P}.tar.gz"
-SRC_URI+=" verify-sig? ( ftp://xmlsoft.org/${PN}/${P}.tar.gz.asc )"
+HOMEPAGE="https://gitlab.gnome.org/GNOME/libxslt"
+if [[ ${PV} == 9999 ]] ; then
+	EGIT_REPO_URI="https://gitlab.gnome.org/GNOME/libxslt"
+	inherit autotools git-r3
+else
+	inherit gnome.org
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+fi
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="crypt debug examples static-libs elibc_Darwin"
+IUSE="crypt debug examples static-libs"
 
-BDEPEND=">=virtual/pkgconfig-1
-	verify-sig? ( app-crypt/openpgp-keys-danielveillard )"
+BDEPEND=">=virtual/pkgconfig-1"
 RDEPEND="
-	>=dev-libs/libxml2-2.9.10:2[${MULTILIB_USEDEP}]
+	>=dev-libs/libxml2-2.9.11:2[${MULTILIB_USEDEP}]
 	crypt? ( >=dev-libs/libgcrypt-1.5.3:0=[${MULTILIB_USEDEP}] )
 "
 DEPEND="${RDEPEND}"
@@ -33,17 +35,23 @@ MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/libxslt/xsltconfig.h
 )
 
+DOCS=( AUTHORS ChangeLog FEATURES NEWS README TODO )
+
 src_prepare() {
 	default
 
-	DOCS=( AUTHORS ChangeLog FEATURES NEWS README TODO )
-
-	# Prefix always needs elibtoolize if not eautoreconf'd.
-	elibtoolize
+	if [[ ${PV} == 9999 ]] ; then
+		eautoreconf
+	else
+		# Prefix always needs elibtoolize if not eautoreconf'd.
+		elibtoolize
+	fi
 }
 
 multilib_src_configure() {
 	# Python bindings were dropped as they were Python 2 only at the time
+	# Work in 1.1.35+ is occurring to add prelim. Python 3 support, so could
+	# restore if something needs them.
 	ECONF_SOURCE="${S}" econf \
 		--with-html-dir="${EPREFIX}"/usr/share/doc/${PF} \
 		--with-html-subdir=html \
