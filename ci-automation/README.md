@@ -43,7 +43,7 @@ image_build amd64
    This step updates the versionfile, recording the SDK container version just built.
    It will generate and push a new version tag to the scripts repo.
 2. SDK container build (`sdk_container.sh`) : use SDK tarball to build an SDK container image.
-   The resulting image will come in "amd64", "arm64", and "all" flavours, with support for respective OS target architectures. This step builds the Flatcar SDK container images published at ghcr.io/flatcar-linux.
+   The resulting image will come in "amd64", "arm64", and "all" flavours, with support for respective OS target architectures. This step builds the Flatcar SDK container images published at ghcr.io/flatcar.
 
 ```
          .---------.                    .------------.          .--------.
