@@ -14,7 +14,7 @@ The SDK can be used to
 # Using the scripts repository: submodules and tags
 
 The repository is meant to be the entry point for Flatcar builds and development.
-For building packages, there are 2 additional repositories, [coreos-overlay](https://github.com/flatcar/) and [portage-stable](https://github.com/flatcar/portage-stable), which contain all packages' `ebuild` (build configuration) files.
+For building packages, there are 2 additional repositories, [coreos-overlay](https://github.com/flatcar/coreos-overlay) and [portage-stable](https://github.com/flatcar/portage-stable), which contain all packages' `ebuild` (build configuration) files.
 These repositories are included in `scripts` via git submodules and are used by the SDK container wrapper scripts detailed on further below.
 The submodules reside in:
 ```
