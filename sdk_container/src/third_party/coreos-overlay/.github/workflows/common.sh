@@ -70,6 +70,7 @@ function checkout_branches() {
 
   if git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" show-ref "remotes/origin/${TARGET_BRANCH}"; then
     echo "Target branch already exists. exit.";
+    return 1
   fi
 
   # Each submodule directory should be explicitly set from BASE_BRANCH,
