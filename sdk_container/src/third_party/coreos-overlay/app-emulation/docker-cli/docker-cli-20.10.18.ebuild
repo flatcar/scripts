@@ -2,11 +2,11 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-GIT_COMMIT=bc8830106d
+GIT_COMMIT=e32519c693
 EGO_PN="github.com/docker/cli"
 
 COREOS_GO_PACKAGE="${EGO_PN}"
-COREOS_GO_VERSION="go1.17"
+COREOS_GO_VERSION="go1.18"
 
 inherit bash-completion-r1  golang-vcs-snapshot coreos-go-depend
 

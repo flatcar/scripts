@@ -3,13 +3,11 @@
 
 EAPI=7
 EGO_PN=github.com/docker/docker
-GIT_COMMIT=26ac601558
-# Flatcar: force building with go1.17 like upstream does
-COREOS_GO_VERSION="go1.17"
+GIT_COMMIT=7f84219a3c
+COREOS_GO_VERSION="go1.18"
 COREOS_GO_GO111MODULE="off"
 
 inherit bash-completion-r1 linux-info systemd udev golang-vcs-snapshot
-# Flatcar: use coreos-go-depend to force building with go1.17
 inherit coreos-go-depend
 
 DESCRIPTION="The core functions you need to create Docker images and run Docker containers"
