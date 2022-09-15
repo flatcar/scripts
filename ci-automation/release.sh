@@ -62,17 +62,74 @@ function _inside_mantle() {
   (
     set -euo pipefail
 
+    source sdk_lib/sdk_container_common.sh
     source ci-automation/ci_automation_common.sh
     source sdk_container/.repo/manifests/version.txt
+    source sdk_container/.env
+    CHANNEL="$(get_git_channel)"
+    VERSION="${FLATCAR_VERSION}"
+    azure_profile_config_file=""
+    secret_to_file azure_profile_config_file "${AZURE_PROFILE}"
+    azure_auth_config_file=""
+    secret_to_file azure_auth_config_file "${AZURE_AUTH_CREDENTIALS}"
+    aws_credentials_config_file=""
+    secret_to_file aws_credentials_config_file "${AWS_CREDENTIALS}"
+    aws_marketplace_credentials_file=""
+    secret_to_file aws_marketplace_credentials_file "${AWS_MARKETPLACE_CREDENTIALS}"
+    gcp_json_key_path=""
+    secret_to_file gcp_json_key_path "${GCP_JSON_KEY}"
+    google_release_credentials_file=""
+    secret_to_file google_release_credentials_file "${GOOGLE_RELEASE_CREDENTIALS}"
 
-    # TODO: set up credentials
-    # TODO: run mantle pre-release and release for all platforms
-    # (needs changes in mantle to consume from buildcache via https)
-    # TODO: run ore for AWS marketplace upload
+    for platform in aws azure; do
+      for arch in amd64 arm64; do
+        # Create a folder where plume stores flatcar_production_ami_*txt and flatcar_production_ami_*json
+        # for later push to bincache
+        rm -rf "${platform}-${arch}"
+        mkdir "${platform}-${arch}"
+        cd "${platform}-${arch}"
+        plume pre-release --force \
+          --debug \
+          --platform="${platform}" \
+          --aws-credentials="${aws_credentials_config_file}" \
+          --azure-profile="${azure_profile_config_file}" \
+          --azure-auth="${azure_auth_config_file}" \
+          --board="${arch}-usr" \
+          --channel="${CHANNEL}" \
+          --version="${FLATCAR_VERSION}" \
+          --write-image-list="images.json"
+        plume release \
+          --debug \
+          --aws-credentials="${aws_credentials_config_file}" \
+          --aws-marketplace-credentials="${aws_marketplace_credentials_file}" \
+          --publish-marketplace \
+          --access-role-arn="${AWS_MARKETPLACE_ARN}" \
+          --azure-profile="${azure_profile_config_file}" \
+          --azure-auth="${azure_auth_config_file}" \
+          --gce-json-key="${gcp_json_key_path}" \
+          --gce-release-key="${google_release_credentials_file}" \
+          --board="${arch}-usr" \
+          --channel="${CHANNEL}" \
+          --version="${VERSION}"
+          cd ..
+      done
+    done
+
+    # Future: move this to "plume release", in the past this was done in "update-cloudformation-template"
+    aws_cloudformation_credentials_file=""
+    secret_to_file aws_cloudformation_credentials_file "${AWS_CLOUDFORMATION_CREDENTIALS}"
+    export AWS_SHARED_CREDENTIALS_FILE="${aws_cloudformation_credentials_file}"
+    rm -rf cloudformation-files
+    mkdir cloudformation-files
+    for arch in amd64 arm64; do
+      generate_templates "aws-${arch}/flatcar_production_ami_all.json" "${arch}-usr"
+    done
+    aws s3 cp --recursive --acl public-read cloudformation-files/ s3://flatcar-prod-ami-import-eu-central-1/dist/aws/
   )
 }
 
 function _release_build_impl() {
+    source sdk_lib/sdk_container_common.sh
     source ci-automation/ci_automation_common.sh
     source ci-automation/gpg_setup.sh
     init_submodules
@@ -92,9 +149,14 @@ function _release_build_impl() {
     touch sdk_container/.env # This file should already contain the required credentials as env vars
     docker run --pull always --rm --name="${container_name}" --net host \
       -w /work -v "$PWD":/work "${mantle_ref}" bash -c "source ci-automation/release.sh; _inside_mantle"
-    # TODO: sign and copy resulting AMI text file to buildcache
-    # TODO: run CF template update
-    # TODO: publish SDK container image if not published yet (i.e., on new majors)
+    # Push flatcar_production_ami_*txt and flatcar_production_ami_*json to the right bincache folder
+    for arch in amd64 arm64; do
+      sudo chown -R "$USER:$USER" "aws-${arch}"
+      create_digests "${SIGNER}" "aws-${arch}/flatcar_production_ami_"*txt "aws-${arch}/flatcar_production_ami_"*json
+      sign_artifacts "${SIGNER}" "aws-${arch}/flatcar_production_ami_"*txt "aws-${arch}/flatcar_production_ami_"*json
+      copy_to_buildcache "images/${arch}/${vernum}/" "aws-${arch}/flatcar_production_ami_"*txt* "aws-${arch}/flatcar_production_ami_"*json*
+    done
+    # TODO: publish SDK container image if SDK version is the same as the image version (e.g., on new major versions)
     echo "===="
     echo "Done, now you can copy the images to Origin"
     echo "===="
@@ -104,4 +166,177 @@ function _release_build_impl() {
     # Future: trigger release email sending
     # Future: trigger push to nebraska
     # Future: trigger Origin symlink switch
+}
+
+TEMPLATE='
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Flatcar Linux on EC2: https://kinvolk.io/docs/flatcar-container-linux/latest/installing/cloud/aws-ec2/",
+  "Mappings" : {
+      "RegionMap" : {
+###AMIS###
+      }
+  },
+  "Parameters": {
+    "InstanceType" : {
+      "Description" : "EC2 HVM instance type (m3.medium, etc).",
+      "Type" : "String",
+      "Default" : "m3.medium",
+      "ConstraintDescription" : "Must be a valid EC2 HVM instance type."
+    },
+    "ClusterSize": {
+      "Default": "3",
+      "MinValue": "3",
+      "MaxValue": "12",
+      "Description": "Number of nodes in cluster (3-12).",
+      "Type": "Number"
+    },
+    "DiscoveryURL": {
+      "Description": "An unique etcd cluster discovery URL. Grab a new token from https://discovery.etcd.io/new?size=<your cluster size>",
+      "Type": "String"
+    },
+    "AdvertisedIPAddress": {
+      "Description": "Use 'private' if your etcd cluster is within one region or 'public' if it spans regions or cloud providers.",
+      "Default": "private",
+      "AllowedValues": ["private", "public"],
+      "Type": "String"
+    },
+    "AllowSSHFrom": {
+      "Description": "The net block (CIDR) that SSH is available to.",
+      "Default": "0.0.0.0/0",
+      "Type": "String"
+    },
+    "KeyPair" : {
+      "Description" : "The name of an EC2 Key Pair to allow SSH access to the instance.",
+      "Type" : "String"
+    }
+  },
+  "Resources": {
+    "FlatcarSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Flatcar Linux SecurityGroup",
+        "SecurityGroupIngress": [
+          {"IpProtocol": "tcp", "FromPort": "22", "ToPort": "22", "CidrIp": {"Ref": "AllowSSHFrom"}}
+        ]
+      }
+    },
+    "Ingress4001": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupName": {"Ref": "FlatcarSecurityGroup"}, "IpProtocol": "tcp", "FromPort": "4001", "ToPort": "4001", "SourceSecurityGroupId": {
+          "Fn::GetAtt" : [ "FlatcarSecurityGroup", "GroupId" ]
+        }
+      }
+    },
+    "Ingress2379": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupName": {"Ref": "FlatcarSecurityGroup"}, "IpProtocol": "tcp", "FromPort": "2379", "ToPort": "2379", "SourceSecurityGroupId": {
+          "Fn::GetAtt" : [ "FlatcarSecurityGroup", "GroupId" ]
+        }
+      }
+    },
+    "Ingress2380": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupName": {"Ref": "FlatcarSecurityGroup"}, "IpProtocol": "tcp", "FromPort": "2380", "ToPort": "2380", "SourceSecurityGroupId": {
+          "Fn::GetAtt" : [ "FlatcarSecurityGroup", "GroupId" ]
+        }
+      }
+    },
+    "FlatcarServerAutoScale": {
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "Properties": {
+        "AvailabilityZones": {"Fn::GetAZs": ""},
+        "LaunchConfigurationName": {"Ref": "FlatcarServerLaunchConfig"},
+        "MinSize": "3",
+        "MaxSize": "12",
+        "DesiredCapacity": {"Ref": "ClusterSize"},
+        "Tags": [
+            {"Key": "Name", "Value": { "Ref" : "AWS::StackName" }, "PropagateAtLaunch": true}
+        ]
+      }
+    },
+    "FlatcarServerLaunchConfig": {
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+      "Properties": {
+        "ImageId" : { "Fn::FindInMap" : [ "RegionMap", { "Ref" : "AWS::Region" }, "AMI" ]},
+        "InstanceType": {"Ref": "InstanceType"},
+        "KeyName": {"Ref": "KeyPair"},
+        "SecurityGroups": [{"Ref": "FlatcarSecurityGroup"}],
+        "UserData" : { "Fn::Base64":
+          { "Fn::Join": [ "", [
+            "#cloud-config\n\n",
+            "coreos:\n",
+            "  etcd2:\n",
+            "    discovery: ", { "Ref": "DiscoveryURL" }, "\n",
+            "    advertise-client-urls: http://$", { "Ref": "AdvertisedIPAddress" }, "_ipv4:2379\n",
+            "    initial-advertise-peer-urls: http://$", { "Ref": "AdvertisedIPAddress" }, "_ipv4:2380\n",
+            "    listen-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001\n",
+            "    listen-peer-urls: http://$", { "Ref": "AdvertisedIPAddress" }, "_ipv4:2380\n",
+            "  units:\n",
+            "    - name: etcd2.service\n",
+            "      command: start\n",
+            "    - name: fleet.service\n",
+            "      command: start\n"
+            ] ]
+          }
+        }
+      }
+    }
+  }
+}
+'
+function generate_templates() {
+    CHANNEL="$1"
+    BOARD="$2"
+
+    local REGIONS=("eu-central-1"
+                   "ap-northeast-1"
+                   "ap-northeast-2"
+                   # "ap-northeast-3" #  Disabled for now because we do not have access
+                   "af-south-1"
+                   "ca-central-1"
+                   "ap-south-1"
+                   "sa-east-1"
+                   "ap-southeast-1"
+                   "ap-southeast-2"
+                   "ap-southeast-3"
+                   "us-east-1"
+                   "us-east-2"
+                   "us-west-2"
+                   "us-west-1"
+                   "eu-west-1"
+                   "eu-west-2"
+                   "eu-west-3"
+                   "eu-north-1"
+                   "eu-south-1"
+                   "ap-east-1"
+                   "me-south-1")
+
+    if [ "${BOARD}" = "amd64-usr" ]; then
+      ARCHTAG=""
+    elif [ "${BOARD}" = "arm64-usr" ]; then
+      ARCHTAG="-arm64"
+    else
+      echo "No architecture tag defined for board \"${BOARD}\""
+      exit 1
+    fi
+
+    TMPFILE=$(mktemp)
+
+    >${TMPFILE}
+    for region in "${REGIONS[@]}"; do
+        echo "         \"${region}\" : {" >> ${TMPFILE}
+        echo -n '             "AMI" : ' >> ${TMPFILE}
+        cat "${CHANNEL}".json | jq ".[] | map(select(.name == \"${region}\")) | .[0] | .\"hvm\"" >> ${TMPFILE}
+        echo "         }," >> ${TMPFILE}
+    done
+
+    truncate -s-2 ${TMPFILE}
+
+    echo "${TEMPLATE}" | perl -i -0pe "s/###AMIS###/$(cat -- ${TMPFILE})/g" > "cloudformation-files/flatcar-${CHANNEL}${ARCHTAG}-hvm.template"
+
+    rm "${TMPFILE}"
 }
