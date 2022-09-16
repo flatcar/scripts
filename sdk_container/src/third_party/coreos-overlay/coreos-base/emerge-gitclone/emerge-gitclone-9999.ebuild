@@ -10,7 +10,7 @@ CROS_WORKON_LOCALDIR="src/platform"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	CROS_WORKON_COMMIT="7752d81eba5cfc380962e189468b80940d8d2a6d" # flatcar-master
+	CROS_WORKON_COMMIT="ce789b660ecd42043312329a4b2f7ddcc2a8c033" # flatcar-master
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
