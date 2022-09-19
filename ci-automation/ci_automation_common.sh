@@ -32,8 +32,8 @@ function update_submodule() {
 function check_version_string() {
     local version="$1"
 
-    if ! echo "${version}" | grep -qE '^(main-|alpha-|beta-|stable-|lts-)' ; then
-        echo "ERROR: invalid version '${version}', must start with 'main-', 'alpha-', 'beta-', 'stable-', or 'lts-'"
+    if [[ ! "${version}" =~ ^(main|alpha|beta|stable|lts)-[0-9]+\.[0-9]+\.[0-9]+(-.+)?$ ]]; then
+        echo "ERROR: invalid version '${version}', must start with 'main', 'alpha', 'beta', 'stable' or 'lts', followed by a dash and three dot-separated numbers, optionally followed by a dash and a non-empty build ID"
         exit 1
     fi
 }
