@@ -98,6 +98,14 @@ function _inside_mantle() {
         rm -rf "${platform}-${arch}"
         mkdir "${platform}-${arch}"
         cd "${platform}-${arch}"
+
+        export product="${CHANNEL}-${arch}"
+        pid=$(jq -r ".[env.product]" ../product-ids.json)
+
+        # If the channel is 'stable' and the arch 'amd64', we add the stable-pro-amd64 product ID to the product IDs.
+        # The published AMI ID is the same for both offer.
+        [[ "${CHANNEL}" == "stable" ]] && [[ "${arch}" == "amd64" ]] && pid="${pid},$(jq -r '.["stable-pro-amd64"]' ../product-ids.json)"
+
         plume pre-release --force \
           --debug \
           --platform="${platform}" \
@@ -114,6 +122,7 @@ function _inside_mantle() {
           --aws-marketplace-credentials="${aws_marketplace_credentials_file}" \
           --publish-marketplace \
           --access-role-arn="${AWS_MARKETPLACE_ARN}" \
+          --product-ids="${pid}" \
           --azure-profile="${azure_profile_config_file}" \
           --azure-auth="${azure_auth_config_file}" \
           --gce-json-key="${gcp_json_key_path}" \
