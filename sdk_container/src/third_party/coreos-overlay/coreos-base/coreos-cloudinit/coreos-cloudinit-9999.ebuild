@@ -5,19 +5,19 @@ EAPI=7
 CROS_WORKON_PROJECT="flatcar/coreos-cloudinit"
 CROS_WORKON_LOCALNAME="coreos-cloudinit"
 CROS_WORKON_REPO="https://github.com"
-COREOS_GO_PACKAGE="github.com/coreos/coreos-cloudinit"
+COREOS_GO_PACKAGE="github.com/flatcar/coreos-cloudinit"
 COREOS_GO_GO111MODULE="on"
 inherit cros-workon systemd toolchain-funcs udev coreos-go
 
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	CROS_WORKON_COMMIT="6e1b14aa51b0a19bf7150bfd4cd0e03ab82aca43" # flatcar-master
+	CROS_WORKON_COMMIT="2c383a41a1718f66be2add7f58a885df5b89d86f" # flatcar-master
 	KEYWORDS="amd64 arm64"
 fi
 
 DESCRIPTION="coreos-cloudinit"
-HOMEPAGE="https://github.com/coreos/coreos-cloudinit"
+HOMEPAGE="https://github.com/flatcar/coreos-cloudinit"
 SRC_URI=""
 
 LICENSE="Apache-2.0"
