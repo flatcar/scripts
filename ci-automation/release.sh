@@ -75,6 +75,7 @@ function _inside_mantle() {
     source sdk_lib/sdk_container_common.sh
     source ci-automation/ci_automation_common.sh
     source sdk_container/.repo/manifests/version.txt
+    # Needed because we are not the SDK container here
     source sdk_container/.env
     CHANNEL="$(get_git_channel)"
     VERSION="${FLATCAR_VERSION}"
@@ -106,12 +107,17 @@ function _inside_mantle() {
         # The published AMI ID is the same for both offer.
         [[ "${CHANNEL}" == "stable" ]] && [[ "${arch}" == "amd64" ]] && pid="${pid},$(jq -r '.["stable-pro-amd64"]' ../product-ids.json)"
 
+        # For pre-release we don't use the Google Cloud token because it's not needed
+        # and we don't want to upload the AMIs to GCS anymore
+        # (change https://github.com/flatcar/mantle/blob/bc6bc232677c45e389feb221da295cc674882f8c/cmd/plume/prerelease.go#L663-L667
+        # if you want to add GCP release code in plume pre-release instead of plume release)
         plume pre-release --force \
           --debug \
           --platform="${platform}" \
           --aws-credentials="${aws_credentials_config_file}" \
           --azure-profile="${azure_profile_config_file}" \
           --azure-auth="${azure_auth_config_file}" \
+          --gce-json-key=none \
           --board="${arch}-usr" \
           --channel="${CHANNEL}" \
           --version="${FLATCAR_VERSION}" \
