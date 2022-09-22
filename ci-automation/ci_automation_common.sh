@@ -310,7 +310,8 @@ function secret_to_file() {
     exec {fd}<>"${tmpfile}"
     rm -f "${tmpfile}"
     echo "${secret}" | base64 --decode >&${fd}
-    config_ref="/proc/${$}/fd/${fd}"
+    # Use BASHPID because we may be in a subshell but $$ is only the main shell's PID
+    config_ref="/proc/${BASHPID}/fd/${fd}"
 }
 # --
 
