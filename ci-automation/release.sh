@@ -98,14 +98,7 @@ function _inside_mantle() {
         # for later push to bincache
         rm -rf "${platform}-${arch}"
         mkdir "${platform}-${arch}"
-        cd "${platform}-${arch}"
-
-        export product="${CHANNEL}-${arch}"
-        pid=$(jq -r ".[env.product]" ../product-ids.json)
-
-        # If the channel is 'stable' and the arch 'amd64', we add the stable-pro-amd64 product ID to the product IDs.
-        # The published AMI ID is the same for both offer.
-        [[ "${CHANNEL}" == "stable" ]] && [[ "${arch}" == "amd64" ]] && pid="${pid},$(jq -r '.["stable-pro-amd64"]' ../product-ids.json)"
+        pushd "${platform}-${arch}"
 
         # For pre-release we don't use the Google Cloud token because it's not needed
         # and we don't want to upload the AMIs to GCS anymore
@@ -122,22 +115,37 @@ function _inside_mantle() {
           --channel="${CHANNEL}" \
           --version="${FLATCAR_VERSION}" \
           --write-image-list="images.json"
-        plume release \
-          --debug \
-          --aws-credentials="${aws_credentials_config_file}" \
-          --aws-marketplace-credentials="${aws_marketplace_credentials_file}" \
-          --publish-marketplace \
-          --access-role-arn="${AWS_MARKETPLACE_ARN}" \
-          --product-ids="${pid}" \
-          --azure-profile="${azure_profile_config_file}" \
-          --azure-auth="${azure_auth_config_file}" \
-          --gce-json-key="${gcp_json_key_path}" \
-          --gce-release-key="${google_release_credentials_file}" \
-          --board="${arch}-usr" \
-          --channel="${CHANNEL}" \
-          --version="${VERSION}"
-          cd ..
+        popd
       done
+    done
+    for arch in amd64 arm64; do
+      # Create a folder where plume stores any temporarily downloaded files
+      rm -rf "release-${arch}"
+      mkdir "release-${arch}"
+      pushd "release-${arch}"
+
+      export product="${CHANNEL}-${arch}"
+      pid=$(jq -r ".[env.product]" ../product-ids.json)
+
+      # If the channel is 'stable' and the arch 'amd64', we add the stable-pro-amd64 product ID to the product IDs.
+      # The published AMI ID is the same for both offer.
+      [[ "${CHANNEL}" == "stable" ]] && [[ "${arch}" == "amd64" ]] && pid="${pid},$(jq -r '.["stable-pro-amd64"]' ../product-ids.json)"
+
+      plume release \
+        --debug \
+        --aws-credentials="${aws_credentials_config_file}" \
+        --aws-marketplace-credentials="${aws_marketplace_credentials_file}" \
+        --publish-marketplace \
+        --access-role-arn="${AWS_MARKETPLACE_ARN}" \
+        --product-ids="${pid}" \
+        --azure-profile="${azure_profile_config_file}" \
+        --azure-auth="${azure_auth_config_file}" \
+        --gce-json-key="${gcp_json_key_path}" \
+        --gce-release-key="${google_release_credentials_file}" \
+        --board="${arch}-usr" \
+        --channel="${CHANNEL}" \
+        --version="${VERSION}"
+        popd
     done
 
     # Future: move this to "plume release", in the past this was done in "update-cloudformation-template"
@@ -147,7 +155,7 @@ function _inside_mantle() {
     rm -rf cloudformation-files
     mkdir cloudformation-files
     for arch in amd64 arm64; do
-      generate_templates "aws-${arch}/flatcar_production_ami_all.json" "${arch}-usr"
+      generate_templates "aws-${arch}/flatcar_production_ami_all.json" "${CHANNEL}" "${arch}-usr"
     done
     aws s3 cp --recursive --acl public-read cloudformation-files/ "s3://flatcar-prod-ami-import-eu-central-1/dist/aws/"
   )
@@ -156,7 +164,6 @@ function _inside_mantle() {
 function publish_sdk() {
     local docker_sdk_vernum="$1"
     local sdk_name=""
-    local image_name=""
 
     # If the registry password or the registry username is not set, we leave early.
     [[ -z "${REGISTRY_PASSWORD}" ]] || [[ -z "${REGISTRY_USERNAME}" ]] && return
@@ -173,7 +180,7 @@ function publish_sdk() {
     for a in all amd64 arm64; do
       sdk_name="flatcar-sdk-${a}"
       docker_image_from_registry_or_buildcache "${sdk_name}" "${docker_sdk_vernum}"
-      docker push "${sdk_container_common_registry}/flatcar-sdk-${a}":"${docker_sdk_vernum}"
+      docker push "${sdk_container_common_registry}/flatcar-sdk-${a}:${docker_sdk_vernum}"
     done
 }
 
@@ -185,9 +192,11 @@ function _release_build_impl() {
 
     source sdk_container/.repo/manifests/version.txt
     local sdk_version="${FLATCAR_SDK_VERSION}"
-    local docker_sdk_vernum="$(vernum_to_docker_image_version "${sdk_version}")"
+    local docker_sdk_vernum=""
+    docker_sdk_vernum="$(vernum_to_docker_image_version "${sdk_version}")"
     local vernum="${FLATCAR_VERSION}"
-    local docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
+    local docker_vernum=""
+    docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
 
     local container_name="flatcar-publish-${docker_vernum}"
     local mantle_ref
@@ -338,8 +347,11 @@ TEMPLATE='
 }
 '
 function generate_templates() {
-    CHANNEL="$1"
-    BOARD="$2"
+    local IFILE="$1"
+    local CHANNEL="$2"
+    local BOARD="$3"
+    local TMPFILE=""
+    local ARCHTAG=""
 
     local REGIONS=("eu-central-1"
                    "ap-northeast-1"
@@ -379,7 +391,7 @@ function generate_templates() {
     for region in "${REGIONS[@]}"; do
         echo "         \"${region}\" : {" >> ${TMPFILE}
         echo -n '             "AMI" : ' >> ${TMPFILE}
-        cat "${CHANNEL}".json | jq ".[] | map(select(.name == \"${region}\")) | .[0] | .\"hvm\"" >> ${TMPFILE}
+        cat "${IFILE}" | jq ".[] | map(select(.name == \"${region}\")) | .[0] | .\"hvm\"" >> ${TMPFILE}
         echo "         }," >> ${TMPFILE}
     done
 
