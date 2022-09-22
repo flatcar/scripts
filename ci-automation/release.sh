@@ -191,6 +191,8 @@ function _release_build_impl() {
     init_submodules
 
     source sdk_container/.repo/manifests/version.txt
+    # Needed because we are not the SDK container here
+    source sdk_container/.env
     local sdk_version="${FLATCAR_SDK_VERSION}"
     local docker_sdk_vernum=""
     docker_sdk_vernum="$(vernum_to_docker_image_version "${sdk_version}")"
