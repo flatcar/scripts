@@ -35,7 +35,7 @@ if [ -f tmp/flatcar_production_image_previous.bin ] ; then
 else
     echo "++++ ${CIA_TESTSCRIPT}: downloading flatcar_production_image_previous.bin from previous ${CIA_CHANNEL} ++++"
     rm -f tmp/flatcar_production_image_previous.bin.bz2
-    curl -fsSLO --retry-delay 1 --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 "https://${CIA_CHANNEL}.release.flatcar-linux.net/${CIA_ARCH}-usr/current/flatcar_production_image.bin.bz2"
+    curl -fsSLO --retry-delay 1 --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 "https://${CIA_CHANNEL}.release.flatcar-linux.net/${CIA_ARCH}-usr/current-2021/flatcar_production_image.bin.bz2"
     mv flatcar_production_image.bin.bz2 tmp/flatcar_production_image_previous.bin.bz2
     lbunzip2 -k -f tmp/flatcar_production_image_previous.bin.bz2
 fi
