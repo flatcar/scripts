@@ -67,6 +67,7 @@ eclass/libtool.eclass
 eclass/linux-info.eclass
 eclass/linux-mod.eclass
 eclass/llvm.eclass
+eclass/ltprune.eclass
 eclass/meson.eclass
 eclass/multilib-build.eclass
 eclass/multilib-minimal.eclass
@@ -74,6 +75,7 @@ eclass/multilib.eclass
 eclass/ninja-utils.eclass
 eclass/optfeature.eclass
 eclass/pax-utils.eclass
+eclass/perl-functions.eclass
 eclass/prefix.eclass
 eclass/tmpfiles.eclass
 eclass/toolchain-funcs.eclass
@@ -82,6 +84,7 @@ eclass/verify-sig.eclass
 eclass/vim-doc.eclass
 eclass/vim-plugin.eclass
 eclass/virtualx.eclass
+eclass/wrapper.eclass
 
 net-analyzer/nmap
 
@@ -94,6 +97,7 @@ net-misc/rsync
 
 sys-apps/gentoo-functions
 sys-apps/help2man
+sys-apps/iucode_tool
 
 sys-devel/autoconf
 sys-devel/autoconf-archive
