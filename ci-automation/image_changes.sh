@@ -60,7 +60,7 @@ function _image_changes_impl() {
     else
             NEW_CHANNEL="${channel}"
     fi
-    NEW_CHANNEL_VERSION_A=$(curl -fsSL --retry-delay 1 --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 "https://${NEW_CHANNEL}.release.flatcar-linux.net/${BOARD_A}/current/version.txt" | grep -m 1 FLATCAR_VERSION= | cut -d = -f 2)
+    NEW_CHANNEL_VERSION_A=$(curl -fsSL --retry-delay 1 --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 "https://${NEW_CHANNEL}.release.flatcar-linux.net/${BOARD_A}/current-2021/version.txt" | grep -m 1 FLATCAR_VERSION= | cut -d = -f 2)
     MAJOR_A=$(echo "${NEW_CHANNEL_VERSION_A}" | cut -d . -f 1)
     MAJOR_B=$(echo "${FLATCAR_VERSION}" | cut -d . -f 1)
     # When the major version for the new channel is different, a transition has happened and we can find the previous release in the old channel
