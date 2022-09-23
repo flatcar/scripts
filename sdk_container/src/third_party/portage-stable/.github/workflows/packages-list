@@ -23,24 +23,56 @@ dev-libs/libxml2
 dev-libs/libxslt
 dev-libs/oniguruma
 
+dev-python/fasteners
+
 dev-util/boost-build
+dev-util/bpftool
+dev-util/catalyst
+dev-util/checkbashisms
+dev-util/cmake
+dev-util/cmocka
+dev-util/desktop-file-utils
 dev-util/gdbus-codegen
 dev-util/glib-utils
+dev-util/gperf
+dev-util/gtk-doc-am
+dev-util/meson
+dev-util/meson-format-array
+dev-util/ninja
+dev-util/pahole
+dev-util/patchelf
+dev-util/patchutils
+dev-util/perf
 dev-util/pkgconf
+dev-util/re2c
+dev-util/strace
 
 dev-vcs/git
 
 eclass/alternatives.eclass
 eclass/autotools.eclass
+# Still has some Flatcar modifications, will need to upstream it first.
+#
+# eclass/bash-completion-r1.eclass
+eclass/cmake-multilib.eclass
+eclass/cmake.eclass
+eclass/elisp-common.eclass
 eclass/flag-o-matic.eclass
 eclass/git-r3.eclass
+eclass/gnome.org.eclass
 eclass/gnuconfig.eclass
 eclass/java-pkg-opt-2.eclass
 eclass/java-utils-2.eclass
 eclass/libtool.eclass
+eclass/linux-info.eclass
+eclass/linux-mod.eclass
+eclass/llvm.eclass
+eclass/meson.eclass
 eclass/multilib-build.eclass
 eclass/multilib-minimal.eclass
 eclass/multilib.eclass
+eclass/ninja-utils.eclass
+eclass/optfeature.eclass
 eclass/pax-utils.eclass
 eclass/prefix.eclass
 eclass/tmpfiles.eclass
@@ -49,6 +81,7 @@ eclass/toolchain.eclass
 eclass/verify-sig.eclass
 eclass/vim-doc.eclass
 eclass/vim-plugin.eclass
+eclass/virtualx.eclass
 
 net-analyzer/nmap
 
