@@ -1,0 +1,65 @@
+name: Keep updated packages updated
+on:
+  schedule:
+    - cron:  '0 7 * * 1'
+  workflow_dispatch:
+
+jobs:
+  keep-packages-updated:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout portage-stable
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: ./portage-stable
+      - name: Checkout gentoo
+        uses: actions/checkout@v2
+        with:
+          repository: gentoo/gentoo
+          path: gentoo
+          fetch-depth: 0
+      - name: Checkout build scripts
+        uses: actions/checkout@v2
+        with:
+          repository: flatcar/flatcar-build-scripts
+          ref: krnowak/stuff
+          path: flatcar-build-scripts
+      - name: Update listed packages
+        id: update-listed-packages
+        run: |
+          git config --global user.name "Flatcar Buildbot"
+          git config --global user.email "buildbot@flatcar-linux.org"
+          old_head=$(git -C portage-stable rev-parse HEAD)
+          cd portage-stable
+          while read -r package; do
+              if [[ ! -d "${package}" ]]; then
+                  # If this happens, it means that the package was moved to overlay
+                  # or dropped, the list ought to be updated.
+                  echo "::warning title=${package}::Nonexistent package"
+                  continue
+              fi
+              GENTOO_REPO=../gentoo ../flatcar-build-scripts/sync-with-gentoo "${package}"
+          done < <(grep '^[^#]' .github/workflows/packages-list)
+          cd ..
+          new_head=$(git -C portage-stable rev-parse HEAD)
+          updated=0
+          count=0
+          if [[ "${new_head}" != "${old_head}" ]]; then
+              updated=1
+              count=$(git -C portage-stable rev-list --count "${old_head}..${new_head}")
+          fi
+          echo ::set-output "name=UPDATED::${updated}"
+          echo ::set-output "name=COUNT::${count}"
+      - name: Create pull request for main branch
+        uses: peter-evans/create-pull-request@v4
+        if: steps.update-listed-packages.outputs.UPDATED == 1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: portage-stable
+          branch: buildbot/automatic-package-updates
+          delete-branch: true
+          base: main
+          title: Weekly package updates
+          body: Updated ${{steps.update-listed-packages.outputs.COUNT }} package(s).
+          labels: main
