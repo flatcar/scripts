@@ -71,6 +71,7 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-7.31-libnl.patch
 	"${FILESDIR}"/${PN}-7.80-ac-config-subdirs.patch
 	"${FILESDIR}"/${PN}-7.91-no-FORTIFY_SOURCE.patch
+	"${FILESDIR}"/${P}-openssl-1.1.patch
 	"${FILESDIR}"/${PN}-9999-netutil-else.patch
 )
 
