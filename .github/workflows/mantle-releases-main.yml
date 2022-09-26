@@ -11,7 +11,7 @@ jobs:
   get-mantle-release:
     strategy:
       matrix:
-        branch: [main,alpha,beta,stable,lts]
+        branch: [main,alpha,beta,stable,lts,lts-old]
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
@@ -20,6 +20,8 @@ jobs:
         run: |
           if [ ${{ matrix.branch }} = "main" ]; then
             echo ::set-output name=BRANCH::main
+          elif [[ ${{ matrix.branch }} = 'lts-old'; then
+            echo ::set-output name=BRANCH::flatcar-lts-2605
           else
             major=$(curl -sSL https://${{ matrix.branch }}.release.flatcar-linux.net/amd64-usr/current/version.txt | awk -F= '/FLATCAR_BUILD=/{ print $2 }')
             echo ::set-output name=BRANCH::flatcar-${major}
