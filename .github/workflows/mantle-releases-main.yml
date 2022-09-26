@@ -20,7 +20,7 @@ jobs:
         run: |
           if [ ${{ matrix.branch }} = "main" ]; then
             echo ::set-output name=BRANCH::main
-          elif [[ ${{ matrix.branch }} = 'lts-old'; then
+          elif [[ ${{ matrix.branch }} = 'lts-old' ]]; then
             echo ::set-output name=BRANCH::flatcar-lts-2605
           else
             major=$(curl -sSL https://${{ matrix.branch }}.release.flatcar-linux.net/amd64-usr/current/version.txt | awk -F= '/FLATCAR_BUILD=/{ print $2 }')
