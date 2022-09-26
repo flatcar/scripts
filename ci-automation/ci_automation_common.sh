@@ -161,7 +161,7 @@ function image_exists_locally() {
 # --
 
 # Derive docker-safe image version string from vernum.
-#
+# Keep in sync with sdk_lib/sdk_container_common.sh
 function vernum_to_docker_image_version() {
     local vernum="$1"
     echo "$vernum" | sed 's/[+]/-/g'
