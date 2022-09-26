@@ -3,13 +3,12 @@
 set -euo pipefail
 
 UPDATE_NEEDED=1
-CHECKOUT_SCRIPTS="${CHECKOUT_SCRIPTS:-true}"
 
 . .github/workflows/common.sh
 
 prepare_git_repo
 
-if ! checkout_branches "rust-${VERSION_NEW}-${TARGET}" "${CHECKOUT_SCRIPTS}"; then
+if ! checkout_branches "rust-${VERSION_NEW}-${TARGET}"; then
   UPDATE_NEEDED=0
   exit 0
 fi

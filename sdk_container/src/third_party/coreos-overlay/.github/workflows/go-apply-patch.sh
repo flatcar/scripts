@@ -19,15 +19,13 @@ for version_new in ${VERSIONS_NEW}; do
   VERSIONS["${version_new_trimmed}"]="${version_new}"
 done
 
-CHECKOUT_SCRIPTS="${CHECKOUT_SCRIPTS:-true}"
-
 . .github/workflows/common.sh
 
 prepare_git_repo
 
 branch_name="go-$(join_by '-and-' ${VERSIONS_NEW})-${TARGET}"
 
-if ! checkout_branches "${branch_name}" "${CHECKOUT_SCRIPTS}"; then
+if ! checkout_branches "${branch_name}"; then
   exit 0
 fi
 

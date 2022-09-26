@@ -5,13 +5,12 @@ set -euo pipefail
 # trim the 3rd part in the input semver, e.g. from 5.4.1 to 5.4
 VERSION_SHORT=${VERSION_NEW%.*}
 UPDATE_NEEDED=1
-CHECKOUT_SCRIPTS="${CHECKOUT_SCRIPTS:-true}"
 
 . .github/workflows/common.sh
 
 prepare_git_repo
 
-if ! checkout_branches "linux-${VERSION_NEW}-${TARGET}" "${CHECKOUT_SCRIPTS}"; then
+if ! checkout_branches "linux-${VERSION_NEW}-${TARGET}"; then
   UPDATE_NEEDED=0
   exit 0
 fi
