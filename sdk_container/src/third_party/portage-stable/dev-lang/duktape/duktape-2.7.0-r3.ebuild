@@ -17,6 +17,7 @@ KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ppc ppc64 ~riscv ~s390 sparc
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.7.0-respect-tc-env.patch
+	"${FILESDIR}"/${P}-underlinked-libm.patch
 )
 
 src_prepare() {
@@ -26,11 +27,11 @@ src_prepare() {
 }
 
 src_compile() {
-	emake CC="$(tc-getCC)"
+	emake CC="$(tc-getCC)" INSTALL_PREFIX="${EPREFIX}"/usr LIBDIR="/$(get_libdir)"
 }
 
 src_install() {
 	dodir /usr/$(get_libdir)
 	dodir /usr/include
-	emake INSTALL_PREFIX="${ED}"/usr LIBDIR="/$(get_libdir)" install
+	emake DESTDIR="${D}" INSTALL_PREFIX="${EPREFIX}"/usr LIBDIR="/$(get_libdir)" install
 }
