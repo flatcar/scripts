@@ -108,8 +108,8 @@ function _sdk_bootstrap_impl() {
           if [ "$ret" = "0" ]; then
             local sdk_docker_vernum=""
             sdk_docker_vernum=$(vernum_to_docker_image_version "${FLATCAR_SDK_VERSION}")
-            if curl --head --fail --silent --show-error --location "https://${BUILDCACHE_SERVER}/containers/${FLATCAR_SDK_VERSION}/flatcar-sdk-all-${sdk_docker_vernum}.tar.gz"
-              && curl --head --fail --silent --show-error --location "https://${BUILDCACHE_SERVER}/images/amd64/${FLATCAR_VERSION}/flatcar_production_image.bin.bz2"
+            if curl --head --fail --silent --show-error --location "https://${BUILDCACHE_SERVER}/containers/${FLATCAR_SDK_VERSION}/flatcar-sdk-all-${sdk_docker_vernum}.tar.gz" \
+              && curl --head --fail --silent --show-error --location "https://${BUILDCACHE_SERVER}/images/amd64/${FLATCAR_VERSION}/flatcar_production_image.bin.bz2" \
               && curl --head --fail --silent --show-error --location "https://${BUILDCACHE_SERVER}/images/arm64/${FLATCAR_VERSION}/flatcar_production_image.bin.bz2"; then
                 echo "Stopping build because there are no changes since tag ${existing_tag}, the SDK container tar ball and the Flatcar images exist" >&2
                 return 0
