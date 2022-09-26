@@ -54,16 +54,12 @@ function prepare_git_repo() {
 # caller needs to set pass a parameter as a branch name to be created.
 function checkout_branches() {
   TARGET_BRANCH=$1
-  CHECKOUT_SCRIPTS=$2
 
   [[ -z "${TARGET_BRANCH}" ]] && echo "No target branch specified. exit." && return 1
 
-  # Check out the scripts repo only if CHECKOUT_SCRIPTS == true, due to
-  # a corner case of its LTS-2021 branch does not have run_sdk_container.
-  if [[ "${CHECKOUT_SCRIPTS}" = true ]]; then
-    git -C "${SDK_OUTER_TOPSCRIPTSDIR}" checkout -B "${BASE_BRANCH}" \
-      "origin/${BASE_BRANCH}"
-  fi
+  # Check out the scripts.
+  git -C "${SDK_OUTER_TOPSCRIPTSDIR}" checkout -B "${BASE_BRANCH}" \
+    "origin/${BASE_BRANCH}"
 
   # update submodules like portage-stable under the scripts directories
   git submodule update --init --recursive
