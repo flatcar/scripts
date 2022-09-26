@@ -18,7 +18,7 @@ assert_inside_chroot
 assert_not_root_user
 
 DEFAULT_GROUP=developer
-DEFAULT_DEVCONTAINER_BINHOST="https://mirror.release.flatcar-linux.net"
+DEFAULT_DEVCONTAINER_BINHOST="${SETTING_BINPKG_SERVER_PROD}"
 
 # Developer-visible flags.
 DEFINE_string board "${DEFAULT_BOARD}" \
@@ -36,7 +36,7 @@ DEFINE_string base_dev_pkg "coreos-base/coreos-dev" \
 DEFINE_string torcx_manifest "${DEFAULT_BUILD_ROOT}/torcx/${DEFAULT_BOARD}/latest/torcx_manifest.json" \
   "The torcx manifest describing torcx packages for this image (or blank for none)"
 DEFINE_string torcx_root "${DEFAULT_BUILD_ROOT}/torcx" \
-  "Directory in which torcx packages can be found"
+  "Directory in which torcx packages can be found. Will update the default --torcx_manifest if set."
 DEFINE_string output_root "${DEFAULT_BUILD_ROOT}/images" \
   "Directory in which to place image result directories (named by version)"
 DEFINE_string disk_layout "" \
@@ -95,7 +95,7 @@ check_gsutil_opts
 
 # Patch around default values not being able to depend on other flags.
 if [ "x${FLAGS_torcx_manifest}" = "x${DEFAULT_BUILD_ROOT}/torcx/${DEFAULT_BOARD}/latest/torcx_manifest.json" ]; then
-  FLAGS_torcx_manifest="${DEFAULT_BUILD_ROOT}/torcx/${FLAGS_board}/latest/torcx_manifest.json"
+  FLAGS_torcx_manifest="${FLAGS_torcx_root}/${FLAGS_board}/latest/torcx_manifest.json"
 fi
 
 # If downloading packages is enabled ensure the board is configured properly.

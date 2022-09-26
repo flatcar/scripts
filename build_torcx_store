@@ -16,6 +16,8 @@ DEFINE_string board "${DEFAULT_BOARD}" \
   "The board to build packages for."
 DEFINE_string output_root "${DEFAULT_BUILD_ROOT}/torcx" \
   "Directory in which to place torcx stores and manifests (named by board/version)"
+DEFINE_string extra_pkg_url "" \
+  "URL to directory where the torcx packages will be available for downloading"
 
 # include upload options
 . "${BUILD_LIBRARY_DIR}/release_util.sh" || exit 1
@@ -108,7 +110,8 @@ function torcx_package() {
         local version=${pkg:${#name}+1}
         local manifest_path="${2}"
         local type="${3}"
-        local deppkg digest file rpath sha512sum source_pkg rdepends tmproot tmppkgroot update_default
+        local extra_pkg_url="${4}"
+        local deppkg digest file rpath sha512sum source_pkg rdepends tmproot tmppkgroot update_default tmpfile
         local pkg_cas_file pkg_cas_root
         local pkg_locations=()
         local name=${name##*/}
@@ -220,6 +223,9 @@ function torcx_package() {
         if [[ "${FLAGS_upload}" -eq ${FLAGS_TRUE} ]]; then
                 pkg_locations+=("$(download_tectonic_torcx_url "pkgs/${BOARD}/${name}/${digest}/${name}:${version}.torcx.tgz")")
         fi
+        if [[ -n "${extra_pkg_url}" ]]; then
+            pkg_locations+=("${extra_pkg_url}/${name}:${version}.torcx.tgz")
+        fi
         torcx_manifest::add_pkg "${manifest_path}" \
             "${name}" \
             "${version}" \
@@ -250,8 +256,12 @@ EXTRA_IMAGES=(
 mkdir -p "${BUILD_DIR}"
 manifest_path="${BUILD_DIR}/torcx_manifest.json"
 torcx_manifest::create_empty "${manifest_path}"
-for pkg in "${@:-${DEFAULT_IMAGES[@]}}" ; do torcx_package "${pkg#=}" "${manifest_path}" "default" ; done
-for pkg in "${EXTRA_IMAGES[@]}" ; do torcx_package "${pkg#=}" "${manifest_path}" "extra" ; done
+for pkg in "${@:-${DEFAULT_IMAGES[@]}}"; do
+        torcx_package "${pkg#=}" "${manifest_path}" "default" "${FLAGS_extra_pkg_url}"
+done
+for pkg in "${EXTRA_IMAGES[@]}"; do
+        torcx_package "${pkg#=}" "${manifest_path}" "extra" "${FLAGS_extra_pkg_url}"
+done
 
 set_build_symlinks latest "${FLAGS_group}-latest"
 

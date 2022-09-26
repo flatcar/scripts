@@ -27,6 +27,8 @@ DEFINE_boolean getbinpkg "${FLAGS_TRUE}" \
   "Download binary packages from remote repository."
 DEFINE_string getbinpkgver "" \
   "Use binary packages from a specific version."
+DEFINE_string pkgdir "" \
+  "Use binary packages from a custom directory instead of /build/[ARCH]/var/lib/portage/pkgs/."
 DEFINE_string binhost "" \
   "Use binary packages from a specific location instead of $FLATCAR_DEV_BUILDS/... "
 DEFINE_boolean toolchainpkgonly "${FLAGS_FALSE}" \
@@ -100,7 +102,7 @@ generate_all_wrappers() {
   wrapper="/usr/local/bin/cros_workon-${BOARD_VARIANT}"
   sudo_clobber "${wrapper}" <<EOF
 #!/bin/bash
-exec cros_workon --board ${BOARD_VARIANT} "\$@"
+exec "${SRC_ROOT}/scripts/cros_workon" --board ${BOARD_VARIANT} "\$@"
 EOF
   wrappers+=( "${wrapper}" )
 
@@ -162,6 +164,7 @@ BOARD_ARCH=$(get_board_arch "$BOARD")
 BOARD_CHOST=$(get_board_chost ${BOARD})
 PORTAGE_PROFILE=$(get_board_profile "$BOARD")
 BOARD_BINHOST="$FLAGS_binhost $(generate_binhost_list)"
+BOARD_PKGDIR="${FLAGS_pkgdir:-${BOARD_ROOT}/var/lib/portage/pkgs}"
 
 if [[ ${FLAGS_regen_configs_only} -eq ${FLAGS_TRUE} ]]; then
   FLAGS_regen_configs=${FLAGS_TRUE}
@@ -261,7 +264,7 @@ PORTAGE_USERNAME="$(portageq envvar PORTAGE_USERNAME)"
 # Board specific settings
 CHOST="${BOARD_CHOST}"
 ROOT="${BOARD_ROOT}/"
-PKGDIR="${BOARD_ROOT}/var/lib/portage/pkgs"
+PKGDIR="${BOARD_PKGDIR}"
 PORT_LOGDIR="${BOARD_ROOT}/var/log/portage"
 PORTAGE_TMPDIR="${BOARD_ROOT}/var/tmp"
 PORTAGE_BINHOST="${BOARD_BINHOST}"
@@ -354,7 +357,7 @@ info "The SYSROOT is: ${BOARD_ROOT}"
 # NOTE: Printing the working-on ebuilds does not only serve the informative
 # purpose. It also causes the ${BOARD_ROOT}/etc/portage/package.* files to be
 # regenerated.
-WORKING_ON=$(cros_workon --board=${FLAGS_board} list)
+WORKING_ON=$("${SRC_ROOT}/scripts/cros_workon" --board=${FLAGS_board} list)
 if [ -n "${WORKING_ON}" ]; then
   info
   info "Currently working on the following ebuilds for this board:"

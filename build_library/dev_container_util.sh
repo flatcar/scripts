@@ -50,12 +50,12 @@ disabled = true
 [coreos]
 location = /var/lib/portage/coreos-overlay
 sync-type = git
-sync-uri = https://github.com/flatcar-linux/coreos-overlay.git
+sync-uri = https://github.com/flatcar/coreos-overlay.git
 
 [portage-stable]
 location = /var/lib/portage/portage-stable
 sync-type = git
-sync-uri = https://github.com/flatcar-linux/portage-stable.git
+sync-uri = https://github.com/flatcar/portage-stable.git
 EOF
 
     # Now set the correct profile
@@ -108,9 +108,21 @@ create_dev_container() {
   systemd_enable "${root_fs_dir}" "multi-user.target" "remount-usr.service"
 
   finish_image "${image_name}" "${disk_layout}" "${root_fs_dir}" "${image_contents}"
-  upload_image -d "${BUILD_DIR}/${image_name}.bz2.DIGESTS" \
+
+  declare -a files_to_evaluate
+  declare -a compressed_images
+  declare -a extra_files
+
+  files_to_evaluate+=( "${BUILD_DIR}/${image_name}" )
+  compress_disk_images files_to_evaluate compressed_images extra_files
+
+  upload_image -d "${BUILD_DIR}/${image_name}.DIGESTS" \
       "${BUILD_DIR}/${image_contents}" \
       "${BUILD_DIR}/${image_packages}" \
       "${BUILD_DIR}/${image_licenses}" \
-      "${BUILD_DIR}/${image_name}"
+      "${compressed_images[@]}" \
+      "${extra_files[@]}"
+
+  # Upload legacy digests
+  upload_legacy_digests "${BUILD_DIR}/${image_name}.DIGESTS" compressed_images
 }
