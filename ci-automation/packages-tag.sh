@@ -98,7 +98,7 @@ function _packages_tag_impl() {
           local ret=0
           git diff --exit-code "${existing_tag}" || ret=$?
           if [[ ret -eq 0 ]]; then
-            if curl --head --fail --silent --show-error --location "https://${BUILDCACHE_SERVER}/images/amd64/${FLATCAR_VERSION}/flatcar_production_image.bin.bz2"
+            if curl --head --fail --silent --show-error --location "https://${BUILDCACHE_SERVER}/images/amd64/${FLATCAR_VERSION}/flatcar_production_image.bin.bz2" \
               && curl --head --fail --silent --show-error --location "https://${BUILDCACHE_SERVER}/images/arm64/${FLATCAR_VERSION}/flatcar_production_image.bin.bz2"; then
                 touch ./skip-build
                 echo "Creating ./skip-build flag file, indicating that the build must not to continue because no new tag got created as there are no changes since tag ${existing_tag} and the Flatcar images exist" >&2
