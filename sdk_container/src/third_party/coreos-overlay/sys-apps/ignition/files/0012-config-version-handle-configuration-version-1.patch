@@ -1,7 +1,7 @@
-From f36f9b24499b1c191538857a3f9faa97008db403 Mon Sep 17 00:00:00 2001
+From 0e139432041a218d7c24cfe9a8844a0bbcb9f3f8 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Wed, 2 Feb 2022 13:27:18 +0100
-Subject: [PATCH 11/15] config/version: handle configuration version 1
+Subject: [PATCH 12/16] config/version: handle configuration version 1
 
 version 2 should be able to translate configuration version 1 but the `GetConfigVersion`
 was not able to detect version 1 configuration since for this particular
@@ -13,7 +13,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  1 file changed, 10 insertions(+), 1 deletion(-)
 
 diff --git a/config/util/config.go b/config/util/config.go
-index 9fb88d8e..89d815b8 100644
+index 4cdd83b7..f701f4a1 100644
 --- a/config/util/config.go
 +++ b/config/util/config.go
 @@ -14,6 +14,8 @@

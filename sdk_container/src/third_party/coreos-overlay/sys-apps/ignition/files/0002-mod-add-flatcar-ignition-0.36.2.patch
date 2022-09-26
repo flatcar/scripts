@@ -1,0 +1,27 @@
+From 6b8f73219e65925c4c1674d05b371584b6d29d2a Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Mon, 26 Sep 2022 12:09:03 +0200
+Subject: [PATCH 02/16] mod: add flatcar/ignition@0.36.2
+
+it's required for Ignition conversion.
+
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+---
+ go.mod | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/go.mod b/go.mod
+index 7c813620..1a85cbc7 100644
+--- a/go.mod
++++ b/go.mod
+@@ -10,6 +10,7 @@ require (
+ 	github.com/coreos/go-semver v0.3.0
+ 	github.com/coreos/go-systemd/v22 v22.0.0
+ 	github.com/coreos/vcontext v0.0.0-20211021162308-f1dbbca7bef4
++	github.com/flatcar/ignition v0.36.2
+ 	github.com/google/renameio v0.1.0
+ 	github.com/google/uuid v1.1.1
+ 	github.com/pin/tftp v2.1.0+incompatible
+-- 
+2.35.1
+

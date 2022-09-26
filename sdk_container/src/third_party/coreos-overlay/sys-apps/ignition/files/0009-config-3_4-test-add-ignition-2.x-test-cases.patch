@@ -1,7 +1,7 @@
-From c0105a1aeaf1650b74324457c364ac7e377d80a6 Mon Sep 17 00:00:00 2001
+From 31c8a45bd9468de7e348f28301d979614ae25c83 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mathieu@kinvolk.io>
 Date: Thu, 2 Sep 2021 11:03:17 +0200
-Subject: [PATCH 08/15] config/3_4/test: add ignition 2.x test cases
+Subject: [PATCH 09/16] config/3_4/test: add ignition 2.x test cases
 
 Signed-off-by: Mathieu Tortuyaux <mathieu@kinvolk.io>
 ---
@@ -9,7 +9,7 @@ Signed-off-by: Mathieu Tortuyaux <mathieu@kinvolk.io>
  1 file changed, 20 insertions(+)
 
 diff --git a/config/v3_4_experimental/config_test.go b/config/v3_4_experimental/config_test.go
-index 7ff31ee8..224c277a 100644
+index e334ca85..eaa817be 100644
 --- a/config/v3_4_experimental/config_test.go
 +++ b/config/v3_4_experimental/config_test.go
 @@ -149,6 +149,26 @@ func TestParse(t *testing.T) {

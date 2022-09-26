@@ -1,11 +1,10 @@
-From 1c516a5e817f586a2f57ca4b01306597c902cfe8 Mon Sep 17 00:00:00 2001
+From 3911fdc40823b88fce76665868975f426a92e580 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
-Date: Wed, 25 May 2022 10:12:15 +0200
-Subject: [PATCH 04/15] vendor: go mod vendor
+Date: Mon, 26 Sep 2022 12:11:56 +0200
+Subject: [PATCH 04/16] vendor: go mod vendor
 
 Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 ---
- vendor/github.com/ajeddeloh/go-json/OWNERS    |   19 +
  vendor/github.com/ajeddeloh/go-json/README    |   10 +
  vendor/github.com/ajeddeloh/go-json/decode.go | 1226 +++
  vendor/github.com/ajeddeloh/go-json/encode.go | 1194 +++
@@ -20,35 +19,32 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  .../coreos/go-systemd/unit/escape.go          |  116 +
  .../coreos/go-systemd/unit/option.go          |   59 +
  .../coreos/go-systemd/unit/serialize.go       |   75 +
- .../flatcar/ign-converter/LICENSE       |  202 +
- .../translate/v24tov31/v24tov31.go            |  688 ++
- .../flatcar/ign-converter/util/util.go  |  166 +
- .../github.com/flatcar/ignition/LICENSE |  202 +
- .../github.com/flatcar/ignition/NOTICE  |    5 +
+ vendor/github.com/flatcar/ignition/LICENSE    |  202 +
+ vendor/github.com/flatcar/ignition/NOTICE     |    5 +
  .../ignition/config/shared/errors/errors.go   |  109 +
  .../config/shared/validations/unit.go         |   54 +
- .../ignition/config/util/helpers.go           |   34 +
+ .../flatcar/ignition/config/util/helpers.go   |   34 +
  .../ignition/config/util/parsingErrors.go     |   74 +
- .../ignition/config/v1/cloudinit.go           |   53 +
- .../ignition/config/v1/config.go              |   59 +
+ .../flatcar/ignition/config/v1/cloudinit.go   |   53 +
+ .../flatcar/ignition/config/v1/config.go      |   59 +
  .../ignition/config/v1/types/config.go        |   35 +
- .../ignition/config/v1/types/disk.go          |  123 +
- .../ignition/config/v1/types/file.go          |   39 +
+ .../flatcar/ignition/config/v1/types/disk.go  |  123 +
+ .../flatcar/ignition/config/v1/types/file.go  |   39 +
  .../ignition/config/v1/types/filesystem.go    |   45 +
- .../ignition/config/v1/types/group.go         |   22 +
+ .../flatcar/ignition/config/v1/types/group.go |   22 +
  .../ignition/config/v1/types/networkd.go      |   19 +
  .../ignition/config/v1/types/partition.go     |   60 +
  .../ignition/config/v1/types/passwd.go        |   20 +
- .../ignition/config/v1/types/path.go          |   31 +
- .../ignition/config/v1/types/raid.go          |   44 +
+ .../flatcar/ignition/config/v1/types/path.go  |   31 +
+ .../flatcar/ignition/config/v1/types/raid.go  |   44 +
  .../ignition/config/v1/types/storage.go       |   21 +
  .../ignition/config/v1/types/systemd.go       |   19 +
- .../ignition/config/v1/types/unit.go          |   73 +
- .../ignition/config/v1/types/user.go          |   35 +
- .../ignition/config/v2_0/append.go            |   76 +
- .../ignition/config/v2_0/cloudinit.go         |   53 +
- .../ignition/config/v2_0/config.go            |   70 +
- .../ignition/config/v2_0/translate.go         |  173 +
+ .../flatcar/ignition/config/v1/types/unit.go  |   73 +
+ .../flatcar/ignition/config/v1/types/user.go  |   35 +
+ .../flatcar/ignition/config/v2_0/append.go    |   76 +
+ .../flatcar/ignition/config/v2_0/cloudinit.go |   53 +
+ .../flatcar/ignition/config/v2_0/config.go    |   70 +
+ .../flatcar/ignition/config/v2_0/translate.go |  173 +
  .../ignition/config/v2_0/types/compression.go |   31 +
  .../ignition/config/v2_0/types/config.go      |   87 +
  .../ignition/config/v2_0/types/disk.go        |  126 +
@@ -65,13 +61,13 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  .../ignition/config/v2_0/types/storage.go     |   22 +
  .../ignition/config/v2_0/types/systemd.go     |   19 +
  .../ignition/config/v2_0/types/unit.go        |  115 +
- .../ignition/config/v2_0/types/url.go         |   69 +
+ .../flatcar/ignition/config/v2_0/types/url.go |   69 +
  .../ignition/config/v2_0/types/user.go        |   35 +
  .../config/v2_0/types/verification.go         |   19 +
- .../ignition/config/v2_1/append.go            |   76 +
- .../ignition/config/v2_1/cloudinit.go         |   53 +
- .../ignition/config/v2_1/config.go            |   68 +
- .../ignition/config/v2_1/translate.go         |  236 +
+ .../flatcar/ignition/config/v2_1/append.go    |   76 +
+ .../flatcar/ignition/config/v2_1/cloudinit.go |   53 +
+ .../flatcar/ignition/config/v2_1/config.go    |   68 +
+ .../flatcar/ignition/config/v2_1/translate.go |  236 +
  .../ignition/config/v2_1/types/config.go      |   91 +
  .../ignition/config/v2_1/types/directory.go   |   30 +
  .../ignition/config/v2_1/types/disk.go        |  128 +
@@ -86,13 +82,13 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  .../ignition/config/v2_1/types/raid.go        |   57 +
  .../ignition/config/v2_1/types/schema.go      |  221 +
  .../ignition/config/v2_1/types/unit.go        |  109 +
- .../ignition/config/v2_1/types/url.go         |   52 +
+ .../flatcar/ignition/config/v2_1/types/url.go |   52 +
  .../config/v2_1/types/verification.go         |   77 +
- .../ignition/config/v2_2/append.go            |   76 +
- .../ignition/config/v2_2/cloudinit.go         |   53 +
- .../ignition/config/v2_2/config.go            |   71 +
- .../ignition/config/v2_2/translate.go         |  354 +
- .../ignition/config/v2_2/types/ca.go          |   27 +
+ .../flatcar/ignition/config/v2_2/append.go    |   76 +
+ .../flatcar/ignition/config/v2_2/cloudinit.go |   53 +
+ .../flatcar/ignition/config/v2_2/config.go    |   71 +
+ .../flatcar/ignition/config/v2_2/translate.go |  354 +
+ .../flatcar/ignition/config/v2_2/types/ca.go  |   27 +
  .../ignition/config/v2_2/types/config.go      |   91 +
  .../ignition/config/v2_2/types/directory.go   |   37 +
  .../ignition/config/v2_2/types/disk.go        |  128 +
@@ -107,13 +103,13 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  .../ignition/config/v2_2/types/raid.go        |   57 +
  .../ignition/config/v2_2/types/schema.go      |  246 +
  .../ignition/config/v2_2/types/unit.go        |  131 +
- .../ignition/config/v2_2/types/url.go         |   53 +
+ .../flatcar/ignition/config/v2_2/types/url.go |   53 +
  .../config/v2_2/types/verification.go         |   77 +
- .../ignition/config/v2_3/append.go            |   76 +
- .../ignition/config/v2_3/cloudinit.go         |   53 +
- .../ignition/config/v2_3/config.go            |   70 +
- .../ignition/config/v2_3/translate.go         |  380 +
- .../ignition/config/v2_3/types/ca.go          |   27 +
+ .../flatcar/ignition/config/v2_3/append.go    |   76 +
+ .../flatcar/ignition/config/v2_3/cloudinit.go |   53 +
+ .../flatcar/ignition/config/v2_3/config.go    |   70 +
+ .../flatcar/ignition/config/v2_3/translate.go |  380 +
+ .../flatcar/ignition/config/v2_3/types/ca.go  |   27 +
  .../ignition/config/v2_3/types/config.go      |   91 +
  .../ignition/config/v2_3/types/directory.go   |   37 +
  .../ignition/config/v2_3/types/disk.go        |  164 +
@@ -128,13 +124,13 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  .../ignition/config/v2_3/types/raid.go        |   57 +
  .../ignition/config/v2_3/types/schema.go      |  250 +
  .../ignition/config/v2_3/types/unit.go        |  131 +
- .../ignition/config/v2_3/types/url.go         |   53 +
+ .../flatcar/ignition/config/v2_3/types/url.go |   53 +
  .../config/v2_3/types/verification.go         |   77 +
- .../ignition/config/v2_4/append.go            |   76 +
- .../ignition/config/v2_4/cloudinit.go         |   53 +
- .../ignition/config/v2_4/config.go            |   70 +
- .../ignition/config/v2_4/translate.go         |  398 +
- .../ignition/config/v2_4/types/ca.go          |   58 +
+ .../flatcar/ignition/config/v2_4/append.go    |   76 +
+ .../flatcar/ignition/config/v2_4/cloudinit.go |   53 +
+ .../flatcar/ignition/config/v2_4/config.go    |   70 +
+ .../flatcar/ignition/config/v2_4/translate.go |  398 +
+ .../flatcar/ignition/config/v2_4/types/ca.go  |   58 +
  .../ignition/config/v2_4/types/config.go      |   91 +
  .../ignition/config/v2_4/types/directory.go   |   37 +
  .../ignition/config/v2_4/types/disk.go        |  164 +
@@ -150,7 +146,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  .../ignition/config/v2_4/types/raid.go        |   57 +
  .../ignition/config/v2_4/types/schema.go      |  269 +
  .../ignition/config/v2_4/types/unit.go        |  131 +
- .../ignition/config/v2_4/types/url.go         |   53 +
+ .../flatcar/ignition/config/v2_4/types/url.go |   53 +
  .../config/v2_4/types/verification.go         |   77 +
  .../ignition/config/validate/astjson/node.go  |   73 +
  .../config/validate/astnode/astnode.go        |   45 +
@@ -173,9 +169,8 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  .../x/text/unicode/norm/tables12.0.0.go       |    3 +-
  .../x/text/unicode/norm/tables13.0.0.go       | 7761 +++++++++++++++++
  .../x/text/unicode/norm/tables9.0.0.go        |    1 +
- vendor/modules.txt                            |   38 +-
- 169 files changed, 26888 insertions(+), 60 deletions(-)
- create mode 100644 vendor/github.com/ajeddeloh/go-json/OWNERS
+ vendor/modules.txt                            |   31 +-
+ 165 files changed, 25806 insertions(+), 60 deletions(-)
  create mode 100644 vendor/github.com/ajeddeloh/go-json/README
  create mode 100644 vendor/github.com/ajeddeloh/go-json/decode.go
  create mode 100644 vendor/github.com/ajeddeloh/go-json/encode.go
@@ -190,9 +185,6 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  create mode 100644 vendor/github.com/coreos/go-systemd/unit/escape.go
  create mode 100644 vendor/github.com/coreos/go-systemd/unit/option.go
  create mode 100644 vendor/github.com/coreos/go-systemd/unit/serialize.go
- create mode 100644 vendor/github.com/flatcar/ign-converter/LICENSE
- create mode 100644 vendor/github.com/flatcar/ign-converter/translate/v24tov31/v24tov31.go
- create mode 100644 vendor/github.com/flatcar/ign-converter/util/util.go
  create mode 100644 vendor/github.com/flatcar/ignition/LICENSE
  create mode 100644 vendor/github.com/flatcar/ignition/NOTICE
  create mode 100644 vendor/github.com/flatcar/ignition/config/shared/errors/errors.go
@@ -332,31 +324,6 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  create mode 100644 vendor/golang.org/x/text/unicode/bidi/tables13.0.0.go
  create mode 100644 vendor/golang.org/x/text/unicode/norm/tables13.0.0.go
 
-diff --git a/vendor/github.com/ajeddeloh/go-json/OWNERS b/vendor/github.com/ajeddeloh/go-json/OWNERS
-new file mode 100644
-index 00000000..74818020
---- /dev/null
-+++ b/vendor/github.com/ajeddeloh/go-json/OWNERS
-@@ -0,0 +1,19 @@
-+# See the OWNERS docs: https://git.k8s.io/community/contributors/guide/owners.md
-+
-+# This matches the fedora-coreos-tools team members.
-+# XXX: figure out a way to just have it use GitHub team membership directly.
-+
-+approvers:
-+  - arithx
-+  - ashcrow
-+  - bgilbert
-+  - cgwalters
-+  - darkmuggle
-+  - dustymabe
-+  - jlebon
-+  - LorbusChris
-+  - lucab
-+  - miabbott
-+  - mike-nguyen
-+  - yuqi-zhang
-+  - zonggen
 diff --git a/vendor/github.com/ajeddeloh/go-json/README b/vendor/github.com/ajeddeloh/go-json/README
 new file mode 100644
 index 00000000..0f53d345
@@ -375,7 +342,7 @@ index 00000000..0f53d345
 +modified go1.6 library.
 diff --git a/vendor/github.com/ajeddeloh/go-json/decode.go b/vendor/github.com/ajeddeloh/go-json/decode.go
 new file mode 100644
-index 00000000..1dc2fdf0
+index 00000000..ed5398dd
 --- /dev/null
 +++ b/vendor/github.com/ajeddeloh/go-json/decode.go
 @@ -0,0 +1,1226 @@
@@ -1318,7 +1285,7 @@ index 00000000..1dc2fdf0
 +		}
 +	}
 +	node.Value = v
-+	node.End = d.off - 1
++	node.End = d.off
 +	return node
 +}
 +
@@ -1419,7 +1386,7 @@ index 00000000..1dc2fdf0
 +		}
 +	}
 +	node.Value = m
-+	node.End = d.off - 1
++	node.End = d.off
 +	return node
 +}
 +
@@ -1467,7 +1434,7 @@ index 00000000..1dc2fdf0
 +		Start: start,
 +		Value: d.literalInterface(),
 +	}
-+	node.End = d.off - 1
++	node.End = d.off
 +	return node
 +}
 +
@@ -5029,1080 +4996,6 @@ index 00000000..e07799ca
 +	buf.WriteRune('=')
 +	buf.WriteString(opt.Value)
 +}
-diff --git a/vendor/github.com/flatcar/ign-converter/LICENSE b/vendor/github.com/flatcar/ign-converter/LICENSE
-new file mode 100644
-index 00000000..e06d2081
---- /dev/null
-+++ b/vendor/github.com/flatcar/ign-converter/LICENSE
-@@ -0,0 +1,202 @@
-+Apache License
-+                           Version 2.0, January 2004
-+                        http://www.apache.org/licenses/
-+
-+   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
-+
-+   1. Definitions.
-+
-+      "License" shall mean the terms and conditions for use, reproduction,
-+      and distribution as defined by Sections 1 through 9 of this document.
-+
-+      "Licensor" shall mean the copyright owner or entity authorized by
-+      the copyright owner that is granting the License.
-+
-+      "Legal Entity" shall mean the union of the acting entity and all
-+      other entities that control, are controlled by, or are under common
-+      control with that entity. For the purposes of this definition,
-+      "control" means (i) the power, direct or indirect, to cause the
-+      direction or management of such entity, whether by contract or
-+      otherwise, or (ii) ownership of fifty percent (50%) or more of the
-+      outstanding shares, or (iii) beneficial ownership of such entity.
-+
-+      "You" (or "Your") shall mean an individual or Legal Entity
-+      exercising permissions granted by this License.
-+
-+      "Source" form shall mean the preferred form for making modifications,
-+      including but not limited to software source code, documentation
-+      source, and configuration files.
-+
-+      "Object" form shall mean any form resulting from mechanical
-+      transformation or translation of a Source form, including but
-+      not limited to compiled object code, generated documentation,
-+      and conversions to other media types.
-+
-+      "Work" shall mean the work of authorship, whether in Source or
-+      Object form, made available under the License, as indicated by a
-+      copyright notice that is included in or attached to the work
-+      (an example is provided in the Appendix below).
-+
-+      "Derivative Works" shall mean any work, whether in Source or Object
-+      form, that is based on (or derived from) the Work and for which the
-+      editorial revisions, annotations, elaborations, or other modifications
-+      represent, as a whole, an original work of authorship. For the purposes
-+      of this License, Derivative Works shall not include works that remain
-+      separable from, or merely link (or bind by name) to the interfaces of,
-+      the Work and Derivative Works thereof.
-+
-+      "Contribution" shall mean any work of authorship, including
-+      the original version of the Work and any modifications or additions
-+      to that Work or Derivative Works thereof, that is intentionally
-+      submitted to Licensor for inclusion in the Work by the copyright owner
-+      or by an individual or Legal Entity authorized to submit on behalf of
-+      the copyright owner. For the purposes of this definition, "submitted"
-+      means any form of electronic, verbal, or written communication sent
-+      to the Licensor or its representatives, including but not limited to
-+      communication on electronic mailing lists, source code control systems,
-+      and issue tracking systems that are managed by, or on behalf of, the
-+      Licensor for the purpose of discussing and improving the Work, but
-+      excluding communication that is conspicuously marked or otherwise
-+      designated in writing by the copyright owner as "Not a Contribution."
-+
-+      "Contributor" shall mean Licensor and any individual or Legal Entity
-+      on behalf of whom a Contribution has been received by Licensor and
-+      subsequently incorporated within the Work.
-+
-+   2. Grant of Copyright License. Subject to the terms and conditions of
-+      this License, each Contributor hereby grants to You a perpetual,
-+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-+      copyright license to reproduce, prepare Derivative Works of,
-+      publicly display, publicly perform, sublicense, and distribute the
-+      Work and such Derivative Works in Source or Object form.
-+
-+   3. Grant of Patent License. Subject to the terms and conditions of
-+      this License, each Contributor hereby grants to You a perpetual,
-+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-+      (except as stated in this section) patent license to make, have made,
-+      use, offer to sell, sell, import, and otherwise transfer the Work,
-+      where such license applies only to those patent claims licensable
-+      by such Contributor that are necessarily infringed by their
-+      Contribution(s) alone or by combination of their Contribution(s)
-+      with the Work to which such Contribution(s) was submitted. If You
-+      institute patent litigation against any entity (including a
-+      cross-claim or counterclaim in a lawsuit) alleging that the Work
-+      or a Contribution incorporated within the Work constitutes direct
-+      or contributory patent infringement, then any patent licenses
-+      granted to You under this License for that Work shall terminate
-+      as of the date such litigation is filed.
-+
-+   4. Redistribution. You may reproduce and distribute copies of the
-+      Work or Derivative Works thereof in any medium, with or without
-+      modifications, and in Source or Object form, provided that You
-+      meet the following conditions:
-+
-+      (a) You must give any other recipients of the Work or
-+          Derivative Works a copy of this License; and
-+
-+      (b) You must cause any modified files to carry prominent notices
-+          stating that You changed the files; and
-+
-+      (c) You must retain, in the Source form of any Derivative Works
-+          that You distribute, all copyright, patent, trademark, and
-+          attribution notices from the Source form of the Work,
-+          excluding those notices that do not pertain to any part of
-+          the Derivative Works; and
-+
-+      (d) If the Work includes a "NOTICE" text file as part of its
-+          distribution, then any Derivative Works that You distribute must
-+          include a readable copy of the attribution notices contained
-+          within such NOTICE file, excluding those notices that do not
-+          pertain to any part of the Derivative Works, in at least one
-+          of the following places: within a NOTICE text file distributed
-+          as part of the Derivative Works; within the Source form or
-+          documentation, if provided along with the Derivative Works; or,
-+          within a display generated by the Derivative Works, if and
-+          wherever such third-party notices normally appear. The contents
-+          of the NOTICE file are for informational purposes only and
-+          do not modify the License. You may add Your own attribution
-+          notices within Derivative Works that You distribute, alongside
-+          or as an addendum to the NOTICE text from the Work, provided
-+          that such additional attribution notices cannot be construed
-+          as modifying the License.
-+
-+      You may add Your own copyright statement to Your modifications and
-+      may provide additional or different license terms and conditions
-+      for use, reproduction, or distribution of Your modifications, or
-+      for any such Derivative Works as a whole, provided Your use,
-+      reproduction, and distribution of the Work otherwise complies with
-+      the conditions stated in this License.
-+
-+   5. Submission of Contributions. Unless You explicitly state otherwise,
-+      any Contribution intentionally submitted for inclusion in the Work
-+      by You to the Licensor shall be under the terms and conditions of
-+      this License, without any additional terms or conditions.
-+      Notwithstanding the above, nothing herein shall supersede or modify
-+      the terms of any separate license agreement you may have executed
-+      with Licensor regarding such Contributions.
-+
-+   6. Trademarks. This License does not grant permission to use the trade
-+      names, trademarks, service marks, or product names of the Licensor,
-+      except as required for reasonable and customary use in describing the
-+      origin of the Work and reproducing the content of the NOTICE file.
-+
-+   7. Disclaimer of Warranty. Unless required by applicable law or
-+      agreed to in writing, Licensor provides the Work (and each
-+      Contributor provides its Contributions) on an "AS IS" BASIS,
-+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-+      implied, including, without limitation, any warranties or conditions
-+      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
-+      PARTICULAR PURPOSE. You are solely responsible for determining the
-+      appropriateness of using or redistributing the Work and assume any
-+      risks associated with Your exercise of permissions under this License.
-+
-+   8. Limitation of Liability. In no event and under no legal theory,
-+      whether in tort (including negligence), contract, or otherwise,
-+      unless required by applicable law (such as deliberate and grossly
-+      negligent acts) or agreed to in writing, shall any Contributor be
-+      liable to You for damages, including any direct, indirect, special,
-+      incidental, or consequential damages of any character arising as a
-+      result of this License or out of the use or inability to use the
-+      Work (including but not limited to damages for loss of goodwill,
-+      work stoppage, computer failure or malfunction, or any and all
-+      other commercial damages or losses), even if such Contributor
-+      has been advised of the possibility of such damages.
-+
-+   9. Accepting Warranty or Additional Liability. While redistributing
-+      the Work or Derivative Works thereof, You may choose to offer,
-+      and charge a fee for, acceptance of support, warranty, indemnity,
-+      or other liability obligations and/or rights consistent with this
-+      License. However, in accepting such obligations, You may act only
-+      on Your own behalf and on Your sole responsibility, not on behalf
-+      of any other Contributor, and only if You agree to indemnify,
-+      defend, and hold each Contributor harmless for any liability
-+      incurred by, or claims asserted against, such Contributor by reason
-+      of your accepting any such warranty or additional liability.
-+
-+   END OF TERMS AND CONDITIONS
-+
-+   APPENDIX: How to apply the Apache License to your work.
-+
-+      To apply the Apache License to your work, attach the following
-+      boilerplate notice, with the fields enclosed by brackets "{}"
-+      replaced with your own identifying information. (Don't include
-+      the brackets!)  The text should be enclosed in the appropriate
-+      comment syntax for the file format. We also recommend that a
-+      file or class name and description of purpose be included on the
-+      same "printed page" as the copyright notice for easier
-+      identification within third-party archives.
-+
-+   Copyright {yyyy} {name of copyright owner}
-+
-+   Licensed under the Apache License, Version 2.0 (the "License");
-+   you may not use this file except in compliance with the License.
-+   You may obtain a copy of the License at
-+
-+       http://www.apache.org/licenses/LICENSE-2.0
-+
-+   Unless required by applicable law or agreed to in writing, software
-+   distributed under the License is distributed on an "AS IS" BASIS,
-+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-+   See the License for the specific language governing permissions and
-+   limitations under the License.
-+
-diff --git a/vendor/github.com/flatcar/ign-converter/translate/v24tov31/v24tov31.go b/vendor/github.com/flatcar/ign-converter/translate/v24tov31/v24tov31.go
-new file mode 100644
-index 00000000..d10cd7c3
---- /dev/null
-+++ b/vendor/github.com/flatcar/ign-converter/translate/v24tov31/v24tov31.go
-@@ -0,0 +1,688 @@
-+// Copyright 2020 Red Hat, Inc.
-+//
-+// Licensed under the Apache License, Version 2.0 (the "License");
-+// you may not use this file except in compliance with the License.
-+// You may obtain a copy of the License at
-+//
-+//     http://www.apache.org/licenses/LICENSE-2.0
-+//
-+// Unless required by applicable law or agreed to in writing, software
-+// distributed under the License is distributed on an "AS IS" BASIS,
-+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-+// See the License for the specific language governing permissions and
-+// limitations under the License.
-+
-+package v24tov31
-+
-+import (
-+	"errors"
-+	"fmt"
-+	"net/url"
-+	"path"
-+	"path/filepath"
-+	"reflect"
-+
-+	old "github.com/flatcar/ignition/config/v2_4/types"
-+	oldValidate "github.com/flatcar/ignition/config/validate"
-+	"github.com/flatcar/ignition/v2/config/v3_1/types"
-+	"github.com/flatcar/ignition/v2/config/validate"
-+
-+	"github.com/flatcar/ign-converter/util"
-+)
-+
-+// Check2_4 returns if the config is translatable but does not do any translation.
-+// fsMap is a map from v2 filesystem names to the paths under which they should
-+// be mounted in v3.
-+func Check2_4(cfg old.Config, fsMap map[string]string) error {
-+	rpt := oldValidate.ValidateWithoutSource(reflect.ValueOf(cfg))
-+	if rpt.IsFatal() || rpt.IsDeprecated() {
-+		// disallow any deprecated fields
-+		return fmt.Errorf("Invalid input config:\n%s", rpt.String())
-+	}
-+
-+	// check that all filesystems have a path
-+	if fsMap == nil {
-+		fsMap = map[string]string{}
-+	}
-+	fsMap["root"] = "/"
-+	for _, fs := range cfg.Storage.Filesystems {
-+		name, err := util.FSGeneration(fs.Name, fsMap)
-+		if err != nil {
-+			return fmt.Errorf("generating filesystem path and name: %w", err)
-+		}
-+
-+		fs.Name = name
-+
-+		if fs.Mount.Create != nil && !fs.Mount.Create.Force {
-+			return fmt.Errorf("Config must force filesystem creation in case `mount.create` object is defined.")
-+		}
-+	}
-+
-+	// check that there are no duplicates with files, links, or directories
-+	// from path to a pretty-printing description of the entry
-+	entryMap := map[string]string{}
-+	links := make([]string, 0, len(cfg.Storage.Links))
-+	// build up a list of all the links we write. We're not allow to use links
-+	// that we write
-+	for _, link := range cfg.Storage.Links {
-+		pathString := path.Join("/", fsMap[link.Filesystem], link.Path)
-+		links = append(links, pathString)
-+	}
-+
-+	for _, file := range cfg.Storage.Files {
-+		pathString := path.Join("/", fsMap[file.Filesystem], file.Path)
-+		name := fmt.Sprintf("File: %s", pathString)
-+		if duplicate, isDup := entryMap[pathString]; isDup {
-+			return util.DuplicateInodeError{Old: duplicate, New: name}
-+		}
-+		if l := util.CheckPathUsesLink(links, pathString); l != "" {
-+			return &util.UsesOwnLinkError{
-+				LinkPath: l,
-+				Name:     name,
-+			}
-+		}
-+		entryMap[pathString] = name
-+	}
-+	for _, dir := range cfg.Storage.Directories {
-+		pathString := path.Join("/", fsMap[dir.Filesystem], dir.Path)
-+		name := fmt.Sprintf("Directory: %s", pathString)
-+		if duplicate, isDup := entryMap[pathString]; isDup {
-+			return util.DuplicateInodeError{Old: duplicate, New: name}
-+		}
-+		if l := util.CheckPathUsesLink(links, pathString); l != "" {
-+			return &util.UsesOwnLinkError{
-+				LinkPath: l,
-+				Name:     name,
-+			}
-+		}
-+		entryMap[pathString] = name
-+	}
-+	for _, link := range cfg.Storage.Links {
-+		pathString := path.Join("/", fsMap[link.Filesystem], link.Path)
-+		name := fmt.Sprintf("Link: %s", pathString)
-+		if duplicate, isDup := entryMap[pathString]; isDup {
-+			return &util.DuplicateInodeError{Old: duplicate, New: name}
-+		}
-+		entryMap[pathString] = name
-+		if l := util.CheckPathUsesLink(links, pathString); l != "" {
-+			return &util.UsesOwnLinkError{
-+				LinkPath: l,
-+				Name:     name,
-+			}
-+		}
-+	}
-+
-+	// check that there are no duplicates with systemd units or dropins
-+	unitMap := map[string]struct{}{} // unit name -> struct{}
-+	for _, unit := range cfg.Systemd.Units {
-+		if _, isDup := unitMap[unit.Name]; isDup {
-+			return util.DuplicateUnitError{Name: unit.Name}
-+		}
-+		unitMap[unit.Name] = struct{}{}
-+
-+		dropinMap := map[string]struct{}{} // dropin name -> struct{}
-+		for _, dropin := range unit.Dropins {
-+			if _, isDup := dropinMap[dropin.Name]; isDup {
-+				return util.DuplicateDropinError{Unit: unit.Name, Name: dropin.Name}
-+			}
-+			dropinMap[dropin.Name] = struct{}{}
-+		}
-+	}
-+
-+	return nil
-+}
-+
-+// Translate translates an Ignition spec v2.4 config to v3.1
-+func Translate(cfg old.Config, fsMap map[string]string) (types.Config, error) {
-+	if err := Check2_4(cfg, fsMap); err != nil {
-+		return types.Config{}, err
-+	}
-+
-+	files := translateFiles(cfg.Storage.Files, fsMap)
-+	files = append(files, translateNetworkd(cfg.Networkd.Units, fsMap)...)
-+
-+	res := types.Config{
-+		// Ignition section
-+		Ignition: types.Ignition{
-+			Version: "3.1.0",
-+			Config: types.IgnitionConfig{
-+				Replace: translateCfgRef(cfg.Ignition.Config.Replace),
-+				Merge:   translateCfgRefs(cfg.Ignition.Config.Append),
-+			},
-+			Security: types.Security{
-+				TLS: types.TLS{
-+					CertificateAuthorities: translateCAs(cfg.Ignition.Security.TLS.CertificateAuthorities),
-+				},
-+			},
-+			Timeouts: types.Timeouts{
-+				HTTPResponseHeaders: cfg.Ignition.Timeouts.HTTPResponseHeaders,
-+				HTTPTotal:           cfg.Ignition.Timeouts.HTTPTotal,
-+			},
-+			Proxy: types.Proxy{
-+				HTTPProxy:  util.StrP(cfg.Ignition.Proxy.HTTPProxy),
-+				HTTPSProxy: util.StrP(cfg.Ignition.Proxy.HTTPSProxy),
-+				NoProxy:    translateNoProxy(cfg.Ignition.Proxy.NoProxy),
-+			},
-+		},
-+		// Passwd section
-+		Passwd: types.Passwd{
-+			Users:  translateUsers(cfg.Passwd.Users),
-+			Groups: translateGroups(cfg.Passwd.Groups),
-+		},
-+		Systemd: types.Systemd{
-+			Units: translateUnits(cfg.Systemd.Units),
-+		},
-+		Storage: types.Storage{
-+			Disks:       translateDisks(cfg.Storage.Disks),
-+			Raid:        translateRaid(cfg.Storage.Raid),
-+			Filesystems: translateFilesystems(cfg.Storage.Filesystems, fsMap),
-+			Files:       files,
-+			Directories: translateDirectories(cfg.Storage.Directories, fsMap),
-+			Links:       translateLinks(cfg.Storage.Links, fsMap),
-+		},
-+	}
-+	r := validate.ValidateWithContext(res, nil)
-+	if r.IsFatal() {
-+		return types.Config{}, errors.New(r.String())
-+	}
-+	return res, nil
-+}
-+
-+func translateNoProxy(noproxy []old.NoProxyItem) (ret []types.NoProxyItem) {
-+	for _, d := range noproxy {
-+		ret = append(ret, types.NoProxyItem(d))
-+	}
-+	return
-+}
-+
-+func translateCfgRef(ref *old.ConfigReference) (ret types.Resource) {
-+	if ref == nil {
-+		return
-+	}
-+	ret.Source = &ref.Source
-+	ret.Verification.Hash = ref.Verification.Hash
-+	ret.HTTPHeaders = translateHTTPHeaders(ref.HTTPHeaders)
-+
-+	return
-+}
-+
-+func translateHTTPHeaders(headers []old.HTTPHeader) (ret []types.HTTPHeader) {
-+	for _, o := range headers {
-+		ret = append(ret, types.HTTPHeader{
-+			Name:  o.Name,
-+			Value: util.StrP(o.Value),
-+		})
-+	}
-+	return
-+}
-+
-+func translateCfgRefs(refs []old.ConfigReference) (ret []types.Resource) {
-+	for _, ref := range refs {
-+		ret = append(ret, translateCfgRef(&ref))
-+	}
-+	return
-+}
-+
-+func translateCAs(refs []old.CaReference) (ret []types.Resource) {
-+	for _, ref := range refs {
-+		ret = append(ret, types.Resource{
-+			Source: &ref.Source,
-+			Verification: types.Verification{
-+				Hash: ref.Verification.Hash,
-+			},
-+			HTTPHeaders: translateHTTPHeaders(ref.HTTPHeaders),
-+		})
-+	}
-+	return
-+}
-+
-+func translateUsers(users []old.PasswdUser) (ret []types.PasswdUser) {
-+	for _, u := range users {
-+		uid := u.UID
-+		gecos := u.Gecos
-+		homeDir := u.HomeDir
-+		noCreateHome := u.NoCreateHome
-+		primaryGroup := u.PrimaryGroup
-+		groups := translateUserGroups(u.Groups)
-+		noUserGroup := u.NoUserGroup
-+		noLogInit := u.NoLogInit
-+		shell := u.Shell
-+		system := u.System
-+
-+		// support deprecated `create` object
-+		if u.Create != nil {
-+			create := u.Create
-+			uid = create.UID
-+			gecos = create.Gecos
-+			homeDir = create.HomeDir
-+			noCreateHome = create.NoCreateHome
-+			primaryGroup = create.PrimaryGroup
-+			noUserGroup = create.NoUserGroup
-+			noLogInit = create.NoLogInit
-+			shell = create.Shell
-+			system = create.System
-+
-+			// convert group type
-+			g := make([]types.Group, len(create.Groups))
-+			for i, group := range create.Groups {
-+				g[i] = types.Group(group)
-+			}
-+
-+			groups = g
-+		}
-+
-+		ret = append(ret, types.PasswdUser{
-+			Name:              u.Name,
-+			PasswordHash:      u.PasswordHash,
-+			SSHAuthorizedKeys: translateUserSSH(u.SSHAuthorizedKeys),
-+			UID:               uid,
-+			Gecos:             util.StrP(gecos),
-+			HomeDir:           util.StrP(homeDir),
-+			NoCreateHome:      util.BoolP(noCreateHome),
-+			PrimaryGroup:      util.StrP(primaryGroup),
-+			Groups:            groups,
-+			NoUserGroup:       util.BoolP(noUserGroup),
-+			NoLogInit:         util.BoolP(noLogInit),
-+			Shell:             util.StrP(shell),
-+			System:            util.BoolP(system),
-+		})
-+	}
-+	return
-+}
-+
-+func translateUserSSH(in []old.SSHAuthorizedKey) (ret []types.SSHAuthorizedKey) {
-+	for _, k := range in {
-+		ret = append(ret, types.SSHAuthorizedKey(k))
-+	}
-+	return
-+}
-+
-+func translateUserGroups(in []old.Group) (ret []types.Group) {
-+	for _, g := range in {
-+		ret = append(ret, types.Group(g))
-+	}
-+	return
-+}
-+
-+func translateGroups(groups []old.PasswdGroup) (ret []types.PasswdGroup) {
-+	for _, g := range groups {
-+		ret = append(ret, types.PasswdGroup{
-+			Name:         g.Name,
-+			Gid:          g.Gid,
-+			PasswordHash: util.StrP(g.PasswordHash),
-+			System:       util.BoolP(g.System),
-+		})
-+	}
-+	return
-+}
-+
-+func translateUnits(units []old.Unit) (ret []types.Unit) {
-+	for _, u := range units {
-+		var enabled *bool
-+		// The Enabled field wins over Enable, since Enable is deprecated in spec v2 and removed in v3.
-+		// It does so following the apparent intent of the upstream code [1]
-+		// which actually does the opposite for Enable=true Enabled=false
-+		// because the first matching line in a systemd preset wins.
-+		// [1] https://github.com/flatcar/ignition/blob/b4d18ad3fcb278a890327f858c1c10256ab6ee9d/internal/exec/stages/files/units.go#L32
-+		if (u.Enabled != nil && *u.Enabled) || u.Enable {
-+			enabled = util.BoolP(true)
-+		}
-+		if u.Enabled != nil && !*u.Enabled {
-+			enabled = util.BoolPStrict(false)
-+		}
-+		ret = append(ret, types.Unit{
-+			Name:     u.Name,
-+			Enabled:  enabled,
-+			Mask:     util.BoolP(u.Mask),
-+			Contents: util.StrP(u.Contents),
-+			Dropins:  translateDropins(u.Dropins),
-+		})
-+	}
-+	return
-+}
-+
-+func translateDropins(dropins []old.SystemdDropin) (ret []types.Dropin) {
-+	for _, d := range dropins {
-+		ret = append(ret, types.Dropin{
-+			Name:     d.Name,
-+			Contents: util.StrP(d.Contents),
-+		})
-+	}
-+	return
-+}
-+
-+func translateDisks(disks []old.Disk) (ret []types.Disk) {
-+	for _, d := range disks {
-+		ret = append(ret, types.Disk{
-+			Device:     d.Device,
-+			WipeTable:  util.BoolP(d.WipeTable),
-+			Partitions: translatePartitions(d.Partitions),
-+		})
-+	}
-+	return
-+}
-+
-+func translatePartitions(parts []old.Partition) (ret []types.Partition) {
-+	for _, p := range parts {
-+		ret = append(ret, types.Partition{
-+			Label:              p.Label,
-+			Number:             p.Number,
-+			SizeMiB:            p.SizeMiB,
-+			StartMiB:           p.StartMiB,
-+			TypeGUID:           util.StrP(p.TypeGUID),
-+			GUID:               util.StrP(p.GUID),
-+			WipePartitionEntry: util.BoolP(p.WipePartitionEntry),
-+			ShouldExist:        p.ShouldExist,
-+		})
-+	}
-+	return
-+}
-+
-+func translateRaid(raids []old.Raid) (ret []types.Raid) {
-+	for _, r := range raids {
-+		ret = append(ret, types.Raid{
-+			Name:    r.Name,
-+			Level:   r.Level,
-+			Devices: translateDevices(r.Devices),
-+			Spares:  util.IntP(r.Spares),
-+			Options: translateRaidOptions(r.Options),
-+		})
-+	}
-+	return
-+}
-+
-+func translateDevices(devices []old.Device) (ret []types.Device) {
-+	for _, d := range devices {
-+		ret = append(ret, types.Device(d))
-+	}
-+	return
-+}
-+
-+func translateRaidOptions(options []old.RaidOption) (ret []types.RaidOption) {
-+	for _, o := range options {
-+		ret = append(ret, types.RaidOption(o))
-+	}
-+	return
-+}
-+
-+func translateFilesystems(fss []old.Filesystem, m map[string]string) (ret []types.Filesystem) {
-+	for _, f := range fss {
-+		if f.Name == "root" {
-+			// root is implied
-+			continue
-+		}
-+		if f.Mount == nil {
-+			f.Mount = &old.Mount{}
-+		}
-+
-+		wipe := util.BoolP(f.Mount.WipeFilesystem)
-+		options := translateFilesystemOptions(f.Mount.Options)
-+
-+		// If we have a `"create": {...}` section, we try
-+		// to convert it.
-+		if f.Mount.Create != nil {
-+			// `wipe` should always be set to `true` - there is a config check
-+			// in the beginning of the translation to ensure that we don't try to
-+			// use this `create` section without forcing the exising filesystem to be
-+			// wiped.
-+			wipe = util.BoolP(f.Mount.Create.Force)
-+
-+			for _, opt := range f.Mount.Create.Options {
-+				options = append(options, types.FilesystemOption(opt))
-+			}
-+		}
-+
-+		format := f.Mount.Format
-+		if f.Name == "oem" && (wipe == nil || !*wipe) {
-+			format = "btrfs"
-+		}
-+
-+		ret = append(ret, types.Filesystem{
-+			Device:         f.Mount.Device,
-+			Format:         util.StrP(format),
-+			WipeFilesystem: wipe,
-+			Label:          f.Mount.Label,
-+			UUID:           f.Mount.UUID,
-+			Options:        options,
-+			Path:           util.StrP(m[f.Name]),
-+		})
-+	}
-+	return
-+}
-+
-+func translateFilesystemOptions(options []old.MountOption) (ret []types.FilesystemOption) {
-+	for _, o := range options {
-+		ret = append(ret, types.FilesystemOption(o))
-+	}
-+	return
-+}
-+
-+func translateNode(n old.Node, m map[string]string) types.Node {
-+	if n.User == nil {
-+		n.User = &old.NodeUser{}
-+	}
-+	if n.Group == nil {
-+		n.Group = &old.NodeGroup{}
-+	}
-+	return types.Node{
-+		Path: path.Join(m[n.Filesystem], n.Path),
-+		User: types.NodeUser{
-+			ID:   n.User.ID,
-+			Name: util.StrP(n.User.Name),
-+		},
-+		Group: types.NodeGroup{
-+			ID:   n.Group.ID,
-+			Name: util.StrP(n.Group.Name),
-+		},
-+		Overwrite: n.Overwrite,
-+	}
-+}
-+
-+func translateFiles(files []old.File, m map[string]string) (ret []types.File) {
-+	for _, f := range files {
-+		// 2.x files are overwrite by default
-+		if f.Node.Overwrite == nil {
-+			f.Node.Overwrite = util.BoolP(true)
-+		}
-+
-+		// In spec 3, overwrite must be false if append is true
-+		// i.e. spec 2 files with append true must be translated to spec 3 files with overwrite false
-+		if f.FileEmbedded1.Append {
-+			f.Node.Overwrite = util.BoolPStrict(false)
-+		}
-+
-+		file := types.File{
-+			Node: translateNode(f.Node, m),
-+			FileEmbedded1: types.FileEmbedded1{
-+				Mode: f.Mode,
-+			},
-+		}
-+		c := types.Resource{
-+			Compression: util.StrP(f.Contents.Compression),
-+			Source:      util.StrPStrict(f.Contents.Source),
-+			HTTPHeaders: translateHTTPHeaders(f.Contents.HTTPHeaders),
-+		}
-+		c.Verification.Hash = f.FileEmbedded1.Contents.Verification.Hash
-+
-+		if f.Append {
-+			file.Append = []types.Resource{c}
-+		} else {
-+			file.Contents = c
-+		}
-+		ret = append(ret, file)
-+	}
-+	return
-+}
-+
-+func translateNetworkd(units []old.Networkdunit, m map[string]string) []types.File {
-+	var ret []types.File
-+
-+	for _, u := range units {
-+		if u.Contents != "" {
-+			file := types.File{
-+				Node: types.Node{
-+					// 2.x files are overwrite by default
-+					Overwrite: util.BoolP(true),
-+				},
-+				FileEmbedded1: types.FileEmbedded1{
-+					// Ignition default file permission
-+					Mode: util.IntP(int(0644)),
-+				},
-+			}
-+			// path /etc/systemd/network is hardcoded in Ignition2.x codebase.
-+			// TODO: customize this path at compilation time.
-+			file.Node.Path = filepath.Join(m["root"], "/etc/systemd/network", u.Name)
-+
-+			// URL encoding unit content to follow 'data' format - we could use base64 also.
-+			file.FileEmbedded1.Contents.Source = util.StrPStrict("data:," + url.QueryEscape(u.Contents))
-+
-+			ret = append(ret, file)
-+		}
-+
-+		for _, d := range u.Dropins {
-+			file := types.File{
-+				Node: types.Node{
-+					// 2.x files are overwrite by default
-+					Overwrite: util.BoolP(true),
-+				},
-+				FileEmbedded1: types.FileEmbedded1{
-+					// Ignition default file permission
-+					Mode: util.IntP(int(0644)),
-+				},
-+			}
-+
-+			file.Node.Path = filepath.Join(m["root"], "/etc/systemd/network", string(u.Name)+".d", d.Name)
-+			file.FileEmbedded1.Contents.Source = util.StrPStrict("data:," + url.QueryEscape(d.Contents))
-+
-+			ret = append(ret, file)
-+		}
-+	}
-+
-+	return ret
-+}
-+
-+func translateLinks(links []old.Link, m map[string]string) (ret []types.Link) {
-+	for _, l := range links {
-+		ret = append(ret, types.Link{
-+			Node: translateNode(l.Node, m),
-+			LinkEmbedded1: types.LinkEmbedded1{
-+				Hard:   util.BoolP(l.Hard),
-+				Target: l.Target,
-+			},
-+		})
-+	}
-+	return
-+}
-+
-+func translateDirectories(dirs []old.Directory, m map[string]string) (ret []types.Directory) {
-+	for _, d := range dirs {
-+		ret = append(ret, types.Directory{
-+			Node: translateNode(d.Node, m),
-+			DirectoryEmbedded1: types.DirectoryEmbedded1{
-+				Mode: d.Mode,
-+			},
-+		})
-+	}
-+	return
-+}
-+
-+// RemoveDuplicateFilesUnitsUsers is a helper function that removes duplicated files/units/users
-+// from spec v2 config, since neither spec v3 nor the translator function allow for duplicate
-+// file entries in the config.
-+// This functionality is not included in the Translate function and has some limitations, but
-+// may be useful in cases where configuration has to be sanitized before translation.
-+// For duplicates, it takes ordering into consideration by taking the file/unit contents from
-+// the slice with the highest index value, which is assumed to be the latest revision.
-+// Unit dropins are concat'ed, i.e. if no duplicate dropin of the same name exists it is added
-+// to the list of dropins of the deduplicated unit definition.
-+// The function will fail if a non-root filesystem is declared on any file.
-+// It will also fail if file appendices are encountered.
-+func RemoveDuplicateFilesUnitsUsers(cfg old.Config) (old.Config, error) {
-+	files := cfg.Storage.Files
-+	units := cfg.Systemd.Units
-+	users := cfg.Passwd.Users
-+
-+	filePathMap := map[string]bool{}
-+	var outFiles []old.File
-+	// range from highest to lowest index
-+	for i := len(files) - 1; i >= 0; i-- {
-+		if files[i].Filesystem != "root" {
-+			return old.Config{}, errors.New("cannot dedupe set of files on non-root filesystem")
-+		}
-+		if files[i].Append {
-+			return old.Config{}, errors.New("cannot dedupe set of files that contains appendices")
-+		}
-+		path := files[i].Path
-+		if _, isDup := filePathMap[path]; isDup {
-+			// dupes are ignored
-+			continue
-+		}
-+		// append unique file
-+		outFiles = append(outFiles, files[i])
-+		filePathMap[path] = true
-+	}
-+
-+	unitNameMap := map[string]bool{}
-+	var outUnits []old.Unit
-+	// range from highest to lowest index
-+	for i := len(units) - 1; i >= 0; i-- {
-+		unitName := units[i].Name
-+		if _, isDup := unitNameMap[unitName]; isDup {
-+			// this is a duplicated unit by name
-+			if len(units[i].Dropins) > 0 {
-+				for j := range outUnits {
-+					if outUnits[j].Name == unitName {
-+						// outUnits[j] is the highest priority entry with this unit name
-+						// now loop over the new unit's dropins and append it if the name
-+						// isn't duplicated in the existing unit's dropins
-+						for _, newDropin := range units[i].Dropins {
-+							hasExistingDropin := false
-+							for _, existingDropin := range outUnits[j].Dropins {
-+								if existingDropin.Name == newDropin.Name {
-+									hasExistingDropin = true
-+									break
-+								}
-+							}
-+							if !hasExistingDropin {
-+								outUnits[j].Dropins = append(outUnits[j].Dropins, newDropin)
-+							}
-+						}
-+					}
-+				}
-+			}
-+		} else {
-+			// append unique unit
-+			outUnits = append(outUnits, units[i])
-+			unitNameMap[unitName] = true
-+		}
-+	}
-+
-+	// Concat sshkey sections into the newest passwdUser in the list
-+	// Only the SSHAuthorizedKeys of a duplicate user are considered,
-+	// all other fields are ignored.
-+	userNameMap := map[string]bool{}
-+	var outUsers []old.PasswdUser
-+	// range from highest to lowest index
-+	for i := len(users) - 1; i >= 0; i-- {
-+		userName := users[i].Name
-+		if _, isDup := userNameMap[userName]; isDup {
-+			// this is a duplicated user by name, append keys to existing user
-+			for j := range outUsers {
-+				if outUsers[j].Name == userName {
-+					outUsers[j].SSHAuthorizedKeys = append(outUsers[j].SSHAuthorizedKeys, users[i].SSHAuthorizedKeys...)
-+				}
-+			}
-+		} else {
-+			// append unique users
-+			outUsers = append(outUsers, users[i])
-+			userNameMap[userName] = true
-+		}
-+	}
-+
-+	// outFiles, outUnits, and outUsers should now have all duplication removed
-+	cfg.Storage.Files = outFiles
-+	cfg.Systemd.Units = outUnits
-+	cfg.Passwd.Users = outUsers
-+
-+	return cfg, nil
-+}
-diff --git a/vendor/github.com/flatcar/ign-converter/util/util.go b/vendor/github.com/flatcar/ign-converter/util/util.go
-new file mode 100644
-index 00000000..347d148c
---- /dev/null
-+++ b/vendor/github.com/flatcar/ign-converter/util/util.go
-@@ -0,0 +1,166 @@
-+// Copyright 2020 Red Hat, Inc.
-+//
-+// Licensed under the Apache License, Version 2.0 (the "License");
-+// you may not use this file except in compliance with the License.
-+// You may obtain a copy of the License at
-+//
-+//     http://www.apache.org/licenses/LICENSE-2.0
-+//
-+// Unless required by applicable law or agreed to in writing, software
-+// distributed under the License is distributed on an "AS IS" BASIS,
-+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-+// See the License for the specific language governing permissions and
-+// limitations under the License.
-+
-+package util
-+
-+import (
-+	"fmt"
-+	"strconv"
-+	"strings"
-+	"sync"
-+)
-+
-+// Error definitions
-+
-+// NoFilesystemError type for when a filesystem is referenced in a config but there's no mapping to where
-+// it should be mounted (i.e. `path` in v3+ configs)
-+type NoFilesystemError string
-+
-+func (e NoFilesystemError) Error() string {
-+	return fmt.Sprintf("Config defined filesystem %q but no mapping was defined."+
-+		"Please specify a path to be used as the filesystem mountpoint.", string(e))
-+}
-+
-+// DuplicateInodeError is for when files, directories, or links both specify the same path
-+type DuplicateInodeError struct {
-+	Old string // first occurance of the path
-+	New string // second occurance of the path
-+}
-+
-+func (e DuplicateInodeError) Error() string {
-+	return fmt.Sprintf("Config has conflicting inodes: %q and %q.  All files, directories and links must specify a unique `path`.", e.Old, e.New)
-+}
-+
-+// UsesOwnLinkError is for when files, directories, or links use symlinks defined in the config
-+// in their own path. This is disallowed in v3+ configs.
-+type UsesOwnLinkError struct {
-+	LinkPath string
-+	Name     string
-+}
-+
-+func (e UsesOwnLinkError) Error() string {
-+	return fmt.Sprintf("%s uses link defined in config %q. Please use a link not defined in Storage:Links", e.Name, e.LinkPath)
-+}
-+
-+// DuplicateUnitError is for when a unit name is used twice
-+type DuplicateUnitError struct {
-+	Name string
-+}
-+
-+func (e DuplicateUnitError) Error() string {
-+	return fmt.Sprintf("Config has duplicate unit name %q.  All units must specify a unique `name`.", e.Name)
-+}
-+
-+// DuplicateDropinError is for when a unit has multiple dropins with the same name
-+type DuplicateDropinError struct {
-+	Unit string
-+	Name string
-+}
-+
-+func (e DuplicateDropinError) Error() string {
-+	return fmt.Sprintf("Config has duplicate dropin name %q in unit %q.  All dropins must specify a unique `name`.", e.Name, e.Unit)
-+}
-+
-+func CheckPathUsesLink(links []string, path string) string {
-+	for _, l := range links {
-+		linkdir := l
-+		if !strings.HasSuffix(l, "/") {
-+			linkdir += "/"
-+		}
-+		if strings.HasPrefix(path, linkdir) && path != l {
-+			return l
-+		}
-+	}
-+	return ""
-+}
-+
-+func StrP(in string) *string {
-+	if in == "" {
-+		return nil
-+	}
-+	return &in
-+}
-+
-+func StrPStrict(in string) *string {
-+	return &in
-+}
-+
-+func BoolP(in bool) *bool {
-+	if !in {
-+		return nil
-+	}
-+	return &in
-+}
-+
-+func BoolPStrict(in bool) *bool {
-+	return &in
-+}
-+
-+func IntP(in int) *int {
-+	if in == 0 {
-+		return nil
-+	}
-+	return &in
-+}
-+
-+func StrV(in *string) string {
-+	if in == nil {
-+		return ""
-+	}
-+	return *in
-+}
-+
-+func BoolV(in *bool) bool {
-+	if in == nil {
-+		return false
-+	}
-+	return *in
-+}
-+
-+func IntV(in *int) int {
-+	if in == nil {
-+		return 0
-+	}
-+	return *in
-+}
-+
-+var (
-+	generatedNameCounter uint64
-+	addedSuffixCounter   uint64
-+	counterMutex         sync.Mutex
-+)
-+
-+// FSGeneration generates a name and a path that will be used to feed
-+// the `fsMap` in case consumer provided no entry for it in the map.
-+// FSMap is required to link the filesystem from v2 to v3 with the rest of the configuration.
-+func FSGeneration(name string, fsMap map[string]string) (string, error) {
-+	counterMutex.Lock()
-+	if len(name) == 0 {
-+		generatedNameCounter += 1
-+		name = "ignition" + strconv.FormatUint(generatedNameCounter, 10)
-+	}
-+
-+	if _, ok := fsMap[name]; !ok {
-+		addedSuffixCounter += 1
-+		if name == "oem" {
-+			fsMap[name] = "/usr/share/oem"
-+		} else {
-+			// generate a new path
-+			fsMap[name] = "/tmp/" + name + "-ign" + strconv.FormatUint(addedSuffixCounter, 10)
-+		}
-+	}
-+
-+	counterMutex.Unlock()
-+	return name, nil
-+}
 diff --git a/vendor/github.com/flatcar/ignition/LICENSE b/vendor/github.com/flatcar/ignition/LICENSE
 new file mode 100644
 index 00000000..e06d2081
@@ -6439,7 +5332,7 @@ index 00000000..f2b47cf9
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/shared/validations/unit.go b/vendor/github.com/flatcar/ignition/config/shared/validations/unit.go
 new file mode 100644
-index 00000000..383a2c6b
+index 00000000..a7061dce
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/shared/validations/unit.go
 @@ -0,0 +1,54 @@
@@ -6539,7 +5432,7 @@ index 00000000..7d55548f
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/util/parsingErrors.go b/vendor/github.com/flatcar/ignition/config/util/parsingErrors.go
 new file mode 100644
-index 00000000..fbd712f3
+index 00000000..170f20fe
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/util/parsingErrors.go
 @@ -0,0 +1,74 @@
@@ -6678,7 +5571,7 @@ index 00000000..7cfeb455
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v1/config.go b/vendor/github.com/flatcar/ignition/config/v1/config.go
 new file mode 100644
-index 00000000..88c46e87
+index 00000000..95803050
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v1/config.go
 @@ -0,0 +1,59 @@
@@ -6784,7 +5677,7 @@ index 00000000..3a369e4f
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v1/types/disk.go b/vendor/github.com/flatcar/ignition/config/v1/types/disk.go
 new file mode 100644
-index 00000000..81c41d6d
+index 00000000..d1b04748
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v1/types/disk.go
 @@ -0,0 +1,123 @@
@@ -6913,7 +5806,7 @@ index 00000000..81c41d6d
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v1/types/file.go b/vendor/github.com/flatcar/ignition/config/v1/types/file.go
 new file mode 100644
-index 00000000..658affb9
+index 00000000..a77bba3a
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v1/types/file.go
 @@ -0,0 +1,39 @@
@@ -6958,7 +5851,7 @@ index 00000000..658affb9
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v1/types/filesystem.go b/vendor/github.com/flatcar/ignition/config/v1/types/filesystem.go
 new file mode 100644
-index 00000000..0aa40ae7
+index 00000000..5cfbe095
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v1/types/filesystem.go
 @@ -0,0 +1,45 @@
@@ -7062,7 +5955,7 @@ index 00000000..470c7211
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v1/types/partition.go b/vendor/github.com/flatcar/ignition/config/v1/types/partition.go
 new file mode 100644
-index 00000000..86c3f810
+index 00000000..c84091ac
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v1/types/partition.go
 @@ -0,0 +1,60 @@
@@ -7154,7 +6047,7 @@ index 00000000..0ffff43b
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v1/types/path.go b/vendor/github.com/flatcar/ignition/config/v1/types/path.go
 new file mode 100644
-index 00000000..812318db
+index 00000000..5d94af95
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v1/types/path.go
 @@ -0,0 +1,31 @@
@@ -7191,7 +6084,7 @@ index 00000000..812318db
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v1/types/raid.go b/vendor/github.com/flatcar/ignition/config/v1/types/raid.go
 new file mode 100644
-index 00000000..cad9a1d2
+index 00000000..ca995cf9
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v1/types/raid.go
 @@ -0,0 +1,44 @@
@@ -7293,7 +6186,7 @@ index 00000000..97194b91
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v1/types/unit.go b/vendor/github.com/flatcar/ignition/config/v1/types/unit.go
 new file mode 100644
-index 00000000..52d45872
+index 00000000..e1e5510c
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v1/types/unit.go
 @@ -0,0 +1,73 @@
@@ -7413,7 +6306,7 @@ index 00000000..f6653e27
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_0/append.go b/vendor/github.com/flatcar/ignition/config/v2_0/append.go
 new file mode 100644
-index 00000000..e274e1ab
+index 00000000..aca0ebbf
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_0/append.go
 @@ -0,0 +1,76 @@
@@ -7554,7 +6447,7 @@ index 00000000..9e1f2ad0
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_0/config.go b/vendor/github.com/flatcar/ignition/config/v2_0/config.go
 new file mode 100644
-index 00000000..b345a553
+index 00000000..dcb8e7bd
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_0/config.go
 @@ -0,0 +1,70 @@
@@ -7630,7 +6523,7 @@ index 00000000..b345a553
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_0/translate.go b/vendor/github.com/flatcar/ignition/config/v2_0/translate.go
 new file mode 100644
-index 00000000..ee05d4b1
+index 00000000..f7b89c41
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_0/translate.go
 @@ -0,0 +1,173 @@
@@ -7809,7 +6702,7 @@ index 00000000..ee05d4b1
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_0/types/compression.go b/vendor/github.com/flatcar/ignition/config/v2_0/types/compression.go
 new file mode 100644
-index 00000000..a6b65a5a
+index 00000000..3bc7299f
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_0/types/compression.go
 @@ -0,0 +1,31 @@
@@ -7846,7 +6739,7 @@ index 00000000..a6b65a5a
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_0/types/config.go b/vendor/github.com/flatcar/ignition/config/v2_0/types/config.go
 new file mode 100644
-index 00000000..996f6740
+index 00000000..208de491
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_0/types/config.go
 @@ -0,0 +1,87 @@
@@ -7939,7 +6832,7 @@ index 00000000..996f6740
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_0/types/disk.go b/vendor/github.com/flatcar/ignition/config/v2_0/types/disk.go
 new file mode 100644
-index 00000000..21334989
+index 00000000..fa508fe0
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_0/types/disk.go
 @@ -0,0 +1,126 @@
@@ -8071,7 +6964,7 @@ index 00000000..21334989
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_0/types/file.go b/vendor/github.com/flatcar/ignition/config/v2_0/types/file.go
 new file mode 100644
-index 00000000..517ed770
+index 00000000..75022732
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_0/types/file.go
 @@ -0,0 +1,61 @@
@@ -8138,7 +7031,7 @@ index 00000000..517ed770
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_0/types/filesystem.go b/vendor/github.com/flatcar/ignition/config/v2_0/types/filesystem.go
 new file mode 100644
-index 00000000..0582dd5a
+index 00000000..8967918e
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_0/types/filesystem.go
 @@ -0,0 +1,60 @@
@@ -8232,7 +7125,7 @@ index 00000000..27e51048
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_0/types/hash.go b/vendor/github.com/flatcar/ignition/config/v2_0/types/hash.go
 new file mode 100644
-index 00000000..530a07c6
+index 00000000..ae0edce6
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_0/types/hash.go
 @@ -0,0 +1,72 @@
@@ -8310,7 +7203,7 @@ index 00000000..530a07c6
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_0/types/ignition.go b/vendor/github.com/flatcar/ignition/config/v2_0/types/ignition.go
 new file mode 100644
-index 00000000..f16e9321
+index 00000000..d337225f
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_0/types/ignition.go
 @@ -0,0 +1,64 @@
@@ -8405,7 +7298,7 @@ index 00000000..470c7211
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_0/types/partition.go b/vendor/github.com/flatcar/ignition/config/v2_0/types/partition.go
 new file mode 100644
-index 00000000..c6cb0f0c
+index 00000000..37c09577
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_0/types/partition.go
 @@ -0,0 +1,64 @@
@@ -8501,7 +7394,7 @@ index 00000000..0ffff43b
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_0/types/path.go b/vendor/github.com/flatcar/ignition/config/v2_0/types/path.go
 new file mode 100644
-index 00000000..b60f6ef1
+index 00000000..235fc03f
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_0/types/path.go
 @@ -0,0 +1,35 @@
@@ -8542,7 +7435,7 @@ index 00000000..b60f6ef1
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_0/types/raid.go b/vendor/github.com/flatcar/ignition/config/v2_0/types/raid.go
 new file mode 100644
-index 00000000..cad9a1d2
+index 00000000..ca995cf9
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_0/types/raid.go
 @@ -0,0 +1,44 @@
@@ -8645,7 +7538,7 @@ index 00000000..97194b91
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_0/types/unit.go b/vendor/github.com/flatcar/ignition/config/v2_0/types/unit.go
 new file mode 100644
-index 00000000..a47cb2ed
+index 00000000..1e6ef2b0
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_0/types/unit.go
 @@ -0,0 +1,115 @@
@@ -8766,7 +7659,7 @@ index 00000000..a47cb2ed
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_0/types/url.go b/vendor/github.com/flatcar/ignition/config/v2_0/types/url.go
 new file mode 100644
-index 00000000..58cf3f66
+index 00000000..01d82e8c
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_0/types/url.go
 @@ -0,0 +1,69 @@
@@ -8907,7 +7800,7 @@ index 00000000..b7cef403
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_1/append.go b/vendor/github.com/flatcar/ignition/config/v2_1/append.go
 new file mode 100644
-index 00000000..6bbac2eb
+index 00000000..c4257dab
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_1/append.go
 @@ -0,0 +1,76 @@
@@ -9048,7 +7941,7 @@ index 00000000..a019320f
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_1/config.go b/vendor/github.com/flatcar/ignition/config/v2_1/config.go
 new file mode 100644
-index 00000000..b0e31f6e
+index 00000000..cf12fe79
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_1/config.go
 @@ -0,0 +1,68 @@
@@ -9122,7 +8015,7 @@ index 00000000..b0e31f6e
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_1/translate.go b/vendor/github.com/flatcar/ignition/config/v2_1/translate.go
 new file mode 100644
-index 00000000..97fe2260
+index 00000000..ae8a4d35
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_1/translate.go
 @@ -0,0 +1,236 @@
@@ -9364,7 +8257,7 @@ index 00000000..97fe2260
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_1/types/config.go b/vendor/github.com/flatcar/ignition/config/v2_1/types/config.go
 new file mode 100644
-index 00000000..ebcb03ab
+index 00000000..4a931b61
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_1/types/config.go
 @@ -0,0 +1,91 @@
@@ -9461,7 +8354,7 @@ index 00000000..ebcb03ab
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_1/types/directory.go b/vendor/github.com/flatcar/ignition/config/v2_1/types/directory.go
 new file mode 100644
-index 00000000..5bc08f9d
+index 00000000..d6767c07
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_1/types/directory.go
 @@ -0,0 +1,30 @@
@@ -9497,7 +8390,7 @@ index 00000000..5bc08f9d
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_1/types/disk.go b/vendor/github.com/flatcar/ignition/config/v2_1/types/disk.go
 new file mode 100644
-index 00000000..73c1404e
+index 00000000..ecc84a3e
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_1/types/disk.go
 @@ -0,0 +1,128 @@
@@ -9631,7 +8524,7 @@ index 00000000..73c1404e
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_1/types/file.go b/vendor/github.com/flatcar/ignition/config/v2_1/types/file.go
 new file mode 100644
-index 00000000..266f8342
+index 00000000..12c01937
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_1/types/file.go
 @@ -0,0 +1,56 @@
@@ -9693,7 +8586,7 @@ index 00000000..266f8342
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_1/types/filesystem.go b/vendor/github.com/flatcar/ignition/config/v2_1/types/filesystem.go
 new file mode 100644
-index 00000000..171c7572
+index 00000000..da3e766a
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_1/types/filesystem.go
 @@ -0,0 +1,144 @@
@@ -9843,7 +8736,7 @@ index 00000000..171c7572
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_1/types/ignition.go b/vendor/github.com/flatcar/ignition/config/v2_1/types/ignition.go
 new file mode 100644
-index 00000000..513012e1
+index 00000000..e7a0d520
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_1/types/ignition.go
 @@ -0,0 +1,52 @@
@@ -9901,7 +8794,7 @@ index 00000000..513012e1
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_1/types/mode.go b/vendor/github.com/flatcar/ignition/config/v2_1/types/mode.go
 new file mode 100644
-index 00000000..d452c64d
+index 00000000..adbb2ba2
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_1/types/mode.go
 @@ -0,0 +1,26 @@
@@ -9933,7 +8826,7 @@ index 00000000..d452c64d
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_1/types/node.go b/vendor/github.com/flatcar/ignition/config/v2_1/types/node.go
 new file mode 100644
-index 00000000..e6071e99
+index 00000000..dd0489c0
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_1/types/node.go
 @@ -0,0 +1,73 @@
@@ -10012,7 +8905,7 @@ index 00000000..e6071e99
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_1/types/partition.go b/vendor/github.com/flatcar/ignition/config/v2_1/types/partition.go
 new file mode 100644
-index 00000000..23c3594d
+index 00000000..08e16dc2
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_1/types/partition.go
 @@ -0,0 +1,77 @@
@@ -10095,7 +8988,7 @@ index 00000000..23c3594d
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_1/types/passwd.go b/vendor/github.com/flatcar/ignition/config/v2_1/types/passwd.go
 new file mode 100644
-index 00000000..5ca03186
+index 00000000..095ddc5e
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_1/types/passwd.go
 @@ -0,0 +1,67 @@
@@ -10168,7 +9061,7 @@ index 00000000..5ca03186
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_1/types/path.go b/vendor/github.com/flatcar/ignition/config/v2_1/types/path.go
 new file mode 100644
-index 00000000..a478fd3b
+index 00000000..f52ec956
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_1/types/path.go
 @@ -0,0 +1,28 @@
@@ -10202,7 +9095,7 @@ index 00000000..a478fd3b
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_1/types/raid.go b/vendor/github.com/flatcar/ignition/config/v2_1/types/raid.go
 new file mode 100644
-index 00000000..d2b49fc1
+index 00000000..87a10ee7
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_1/types/raid.go
 @@ -0,0 +1,57 @@
@@ -10492,7 +9385,7 @@ index 00000000..e0caed5e
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_1/types/unit.go b/vendor/github.com/flatcar/ignition/config/v2_1/types/unit.go
 new file mode 100644
-index 00000000..f5cd1142
+index 00000000..76c77e82
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_1/types/unit.go
 @@ -0,0 +1,109 @@
@@ -10607,7 +9500,7 @@ index 00000000..f5cd1142
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_1/types/url.go b/vendor/github.com/flatcar/ignition/config/v2_1/types/url.go
 new file mode 100644
-index 00000000..f6ff3606
+index 00000000..e4156582
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_1/types/url.go
 @@ -0,0 +1,52 @@
@@ -10665,7 +9558,7 @@ index 00000000..f6ff3606
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_1/types/verification.go b/vendor/github.com/flatcar/ignition/config/v2_1/types/verification.go
 new file mode 100644
-index 00000000..6f77de23
+index 00000000..cb06d76e
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_1/types/verification.go
 @@ -0,0 +1,77 @@
@@ -10748,7 +9641,7 @@ index 00000000..6f77de23
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_2/append.go b/vendor/github.com/flatcar/ignition/config/v2_2/append.go
 new file mode 100644
-index 00000000..d9c75dcc
+index 00000000..f3598eaf
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_2/append.go
 @@ -0,0 +1,76 @@
@@ -10889,7 +9782,7 @@ index 00000000..36a54393
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_2/config.go b/vendor/github.com/flatcar/ignition/config/v2_2/config.go
 new file mode 100644
-index 00000000..def3dba4
+index 00000000..7df84501
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_2/config.go
 @@ -0,0 +1,71 @@
@@ -10966,7 +9859,7 @@ index 00000000..def3dba4
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_2/translate.go b/vendor/github.com/flatcar/ignition/config/v2_2/translate.go
 new file mode 100644
-index 00000000..94c70a19
+index 00000000..e591aecc
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_2/translate.go
 @@ -0,0 +1,354 @@
@@ -11326,7 +10219,7 @@ index 00000000..94c70a19
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_2/types/ca.go b/vendor/github.com/flatcar/ignition/config/v2_2/types/ca.go
 new file mode 100644
-index 00000000..d5045ff4
+index 00000000..313b3ad5
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_2/types/ca.go
 @@ -0,0 +1,27 @@
@@ -11359,7 +10252,7 @@ index 00000000..d5045ff4
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_2/types/config.go b/vendor/github.com/flatcar/ignition/config/v2_2/types/config.go
 new file mode 100644
-index 00000000..0f98970c
+index 00000000..d6af950d
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_2/types/config.go
 @@ -0,0 +1,91 @@
@@ -11456,7 +10349,7 @@ index 00000000..0f98970c
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_2/types/directory.go b/vendor/github.com/flatcar/ignition/config/v2_2/types/directory.go
 new file mode 100644
-index 00000000..a86fefcb
+index 00000000..50ded7dd
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_2/types/directory.go
 @@ -0,0 +1,37 @@
@@ -11499,7 +10392,7 @@ index 00000000..a86fefcb
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_2/types/disk.go b/vendor/github.com/flatcar/ignition/config/v2_2/types/disk.go
 new file mode 100644
-index 00000000..73c1404e
+index 00000000..ecc84a3e
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_2/types/disk.go
 @@ -0,0 +1,128 @@
@@ -11633,7 +10526,7 @@ index 00000000..73c1404e
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_2/types/file.go b/vendor/github.com/flatcar/ignition/config/v2_2/types/file.go
 new file mode 100644
-index 00000000..96236f37
+index 00000000..d5ab7437
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_2/types/file.go
 @@ -0,0 +1,69 @@
@@ -11708,7 +10601,7 @@ index 00000000..96236f37
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_2/types/filesystem.go b/vendor/github.com/flatcar/ignition/config/v2_2/types/filesystem.go
 new file mode 100644
-index 00000000..171c7572
+index 00000000..da3e766a
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_2/types/filesystem.go
 @@ -0,0 +1,144 @@
@@ -11858,7 +10751,7 @@ index 00000000..171c7572
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_2/types/ignition.go b/vendor/github.com/flatcar/ignition/config/v2_2/types/ignition.go
 new file mode 100644
-index 00000000..513012e1
+index 00000000..e7a0d520
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_2/types/ignition.go
 @@ -0,0 +1,52 @@
@@ -11916,7 +10809,7 @@ index 00000000..513012e1
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_2/types/mode.go b/vendor/github.com/flatcar/ignition/config/v2_2/types/mode.go
 new file mode 100644
-index 00000000..e0a04917
+index 00000000..b746217c
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_2/types/mode.go
 @@ -0,0 +1,26 @@
@@ -11948,7 +10841,7 @@ index 00000000..e0a04917
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_2/types/node.go b/vendor/github.com/flatcar/ignition/config/v2_2/types/node.go
 new file mode 100644
-index 00000000..e6071e99
+index 00000000..dd0489c0
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_2/types/node.go
 @@ -0,0 +1,73 @@
@@ -12027,7 +10920,7 @@ index 00000000..e6071e99
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_2/types/partition.go b/vendor/github.com/flatcar/ignition/config/v2_2/types/partition.go
 new file mode 100644
-index 00000000..23c3594d
+index 00000000..08e16dc2
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_2/types/partition.go
 @@ -0,0 +1,77 @@
@@ -12110,7 +11003,7 @@ index 00000000..23c3594d
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_2/types/passwd.go b/vendor/github.com/flatcar/ignition/config/v2_2/types/passwd.go
 new file mode 100644
-index 00000000..5ca03186
+index 00000000..095ddc5e
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_2/types/passwd.go
 @@ -0,0 +1,67 @@
@@ -12183,7 +11076,7 @@ index 00000000..5ca03186
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_2/types/path.go b/vendor/github.com/flatcar/ignition/config/v2_2/types/path.go
 new file mode 100644
-index 00000000..a478fd3b
+index 00000000..f52ec956
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_2/types/path.go
 @@ -0,0 +1,28 @@
@@ -12217,7 +11110,7 @@ index 00000000..a478fd3b
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_2/types/raid.go b/vendor/github.com/flatcar/ignition/config/v2_2/types/raid.go
 new file mode 100644
-index 00000000..d2b49fc1
+index 00000000..87a10ee7
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_2/types/raid.go
 @@ -0,0 +1,57 @@
@@ -12532,7 +11425,7 @@ index 00000000..4b32b337
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_2/types/unit.go b/vendor/github.com/flatcar/ignition/config/v2_2/types/unit.go
 new file mode 100644
-index 00000000..7911c92f
+index 00000000..3d57428e
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_2/types/unit.go
 @@ -0,0 +1,131 @@
@@ -12669,7 +11562,7 @@ index 00000000..7911c92f
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_2/types/url.go b/vendor/github.com/flatcar/ignition/config/v2_2/types/url.go
 new file mode 100644
-index 00000000..6d25e801
+index 00000000..aedd9a56
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_2/types/url.go
 @@ -0,0 +1,53 @@
@@ -12728,7 +11621,7 @@ index 00000000..6d25e801
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_2/types/verification.go b/vendor/github.com/flatcar/ignition/config/v2_2/types/verification.go
 new file mode 100644
-index 00000000..6f77de23
+index 00000000..cb06d76e
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_2/types/verification.go
 @@ -0,0 +1,77 @@
@@ -12811,7 +11704,7 @@ index 00000000..6f77de23
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_3/append.go b/vendor/github.com/flatcar/ignition/config/v2_3/append.go
 new file mode 100644
-index 00000000..12e2993e
+index 00000000..2d099087
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_3/append.go
 @@ -0,0 +1,76 @@
@@ -12952,7 +11845,7 @@ index 00000000..3b83fbd9
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_3/config.go b/vendor/github.com/flatcar/ignition/config/v2_3/config.go
 new file mode 100644
-index 00000000..e3a042c2
+index 00000000..4693547a
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_3/config.go
 @@ -0,0 +1,70 @@
@@ -13028,7 +11921,7 @@ index 00000000..e3a042c2
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_3/translate.go b/vendor/github.com/flatcar/ignition/config/v2_3/translate.go
 new file mode 100644
-index 00000000..e14dda0a
+index 00000000..7ab66d7d
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_3/translate.go
 @@ -0,0 +1,380 @@
@@ -13414,7 +12307,7 @@ index 00000000..e14dda0a
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_3/types/ca.go b/vendor/github.com/flatcar/ignition/config/v2_3/types/ca.go
 new file mode 100644
-index 00000000..d5045ff4
+index 00000000..313b3ad5
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_3/types/ca.go
 @@ -0,0 +1,27 @@
@@ -13447,7 +12340,7 @@ index 00000000..d5045ff4
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_3/types/config.go b/vendor/github.com/flatcar/ignition/config/v2_3/types/config.go
 new file mode 100644
-index 00000000..8067cc04
+index 00000000..0247fcc3
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_3/types/config.go
 @@ -0,0 +1,91 @@
@@ -13544,7 +12437,7 @@ index 00000000..8067cc04
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_3/types/directory.go b/vendor/github.com/flatcar/ignition/config/v2_3/types/directory.go
 new file mode 100644
-index 00000000..a86fefcb
+index 00000000..50ded7dd
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_3/types/directory.go
 @@ -0,0 +1,37 @@
@@ -13587,7 +12480,7 @@ index 00000000..a86fefcb
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_3/types/disk.go b/vendor/github.com/flatcar/ignition/config/v2_3/types/disk.go
 new file mode 100644
-index 00000000..67cab984
+index 00000000..9af1ca19
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_3/types/disk.go
 @@ -0,0 +1,164 @@
@@ -13757,7 +12650,7 @@ index 00000000..67cab984
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_3/types/file.go b/vendor/github.com/flatcar/ignition/config/v2_3/types/file.go
 new file mode 100644
-index 00000000..6e2a0c7a
+index 00000000..b59d08c3
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_3/types/file.go
 @@ -0,0 +1,71 @@
@@ -13834,7 +12727,7 @@ index 00000000..6e2a0c7a
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_3/types/filesystem.go b/vendor/github.com/flatcar/ignition/config/v2_3/types/filesystem.go
 new file mode 100644
-index 00000000..ccc71660
+index 00000000..9226e373
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_3/types/filesystem.go
 @@ -0,0 +1,146 @@
@@ -13986,7 +12879,7 @@ index 00000000..ccc71660
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_3/types/ignition.go b/vendor/github.com/flatcar/ignition/config/v2_3/types/ignition.go
 new file mode 100644
-index 00000000..513012e1
+index 00000000..e7a0d520
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_3/types/ignition.go
 @@ -0,0 +1,52 @@
@@ -14044,7 +12937,7 @@ index 00000000..513012e1
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_3/types/mode.go b/vendor/github.com/flatcar/ignition/config/v2_3/types/mode.go
 new file mode 100644
-index 00000000..e0a04917
+index 00000000..b746217c
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_3/types/mode.go
 @@ -0,0 +1,26 @@
@@ -14076,7 +12969,7 @@ index 00000000..e0a04917
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_3/types/node.go b/vendor/github.com/flatcar/ignition/config/v2_3/types/node.go
 new file mode 100644
-index 00000000..e6071e99
+index 00000000..dd0489c0
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_3/types/node.go
 @@ -0,0 +1,73 @@
@@ -14155,7 +13048,7 @@ index 00000000..e6071e99
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_3/types/partition.go b/vendor/github.com/flatcar/ignition/config/v2_3/types/partition.go
 new file mode 100644
-index 00000000..e2b0736e
+index 00000000..99a993e9
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_3/types/partition.go
 @@ -0,0 +1,112 @@
@@ -14273,7 +13166,7 @@ index 00000000..e2b0736e
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_3/types/passwd.go b/vendor/github.com/flatcar/ignition/config/v2_3/types/passwd.go
 new file mode 100644
-index 00000000..5ca03186
+index 00000000..095ddc5e
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_3/types/passwd.go
 @@ -0,0 +1,67 @@
@@ -14346,7 +13239,7 @@ index 00000000..5ca03186
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_3/types/path.go b/vendor/github.com/flatcar/ignition/config/v2_3/types/path.go
 new file mode 100644
-index 00000000..a478fd3b
+index 00000000..f52ec956
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_3/types/path.go
 @@ -0,0 +1,28 @@
@@ -14380,7 +13273,7 @@ index 00000000..a478fd3b
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_3/types/raid.go b/vendor/github.com/flatcar/ignition/config/v2_3/types/raid.go
 new file mode 100644
-index 00000000..d2b49fc1
+index 00000000..87a10ee7
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_3/types/raid.go
 @@ -0,0 +1,57 @@
@@ -14699,7 +13592,7 @@ index 00000000..5f91b71e
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_3/types/unit.go b/vendor/github.com/flatcar/ignition/config/v2_3/types/unit.go
 new file mode 100644
-index 00000000..7911c92f
+index 00000000..3d57428e
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_3/types/unit.go
 @@ -0,0 +1,131 @@
@@ -14836,7 +13729,7 @@ index 00000000..7911c92f
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_3/types/url.go b/vendor/github.com/flatcar/ignition/config/v2_3/types/url.go
 new file mode 100644
-index 00000000..6d25e801
+index 00000000..aedd9a56
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_3/types/url.go
 @@ -0,0 +1,53 @@
@@ -14895,7 +13788,7 @@ index 00000000..6d25e801
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_3/types/verification.go b/vendor/github.com/flatcar/ignition/config/v2_3/types/verification.go
 new file mode 100644
-index 00000000..6f77de23
+index 00000000..cb06d76e
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_3/types/verification.go
 @@ -0,0 +1,77 @@
@@ -14978,7 +13871,7 @@ index 00000000..6f77de23
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_4/append.go b/vendor/github.com/flatcar/ignition/config/v2_4/append.go
 new file mode 100644
-index 00000000..5246f7dd
+index 00000000..8df08d42
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_4/append.go
 @@ -0,0 +1,76 @@
@@ -15119,7 +14012,7 @@ index 00000000..0c428e62
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_4/config.go b/vendor/github.com/flatcar/ignition/config/v2_4/config.go
 new file mode 100644
-index 00000000..27d3c0c9
+index 00000000..e6120bda
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_4/config.go
 @@ -0,0 +1,70 @@
@@ -15195,7 +14088,7 @@ index 00000000..27d3c0c9
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_4/translate.go b/vendor/github.com/flatcar/ignition/config/v2_4/translate.go
 new file mode 100644
-index 00000000..770eee61
+index 00000000..357015a8
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_4/translate.go
 @@ -0,0 +1,398 @@
@@ -15599,7 +14492,7 @@ index 00000000..770eee61
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_4/types/ca.go b/vendor/github.com/flatcar/ignition/config/v2_4/types/ca.go
 new file mode 100644
-index 00000000..3955fd22
+index 00000000..5b39e7a9
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_4/types/ca.go
 @@ -0,0 +1,58 @@
@@ -15663,7 +14556,7 @@ index 00000000..3955fd22
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_4/types/config.go b/vendor/github.com/flatcar/ignition/config/v2_4/types/config.go
 new file mode 100644
-index 00000000..ceb79e9e
+index 00000000..0d2fa7fa
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_4/types/config.go
 @@ -0,0 +1,91 @@
@@ -15760,7 +14653,7 @@ index 00000000..ceb79e9e
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_4/types/directory.go b/vendor/github.com/flatcar/ignition/config/v2_4/types/directory.go
 new file mode 100644
-index 00000000..a86fefcb
+index 00000000..50ded7dd
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_4/types/directory.go
 @@ -0,0 +1,37 @@
@@ -15803,7 +14696,7 @@ index 00000000..a86fefcb
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_4/types/disk.go b/vendor/github.com/flatcar/ignition/config/v2_4/types/disk.go
 new file mode 100644
-index 00000000..67cab984
+index 00000000..9af1ca19
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_4/types/disk.go
 @@ -0,0 +1,164 @@
@@ -15973,7 +14866,7 @@ index 00000000..67cab984
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_4/types/file.go b/vendor/github.com/flatcar/ignition/config/v2_4/types/file.go
 new file mode 100644
-index 00000000..6bc717fe
+index 00000000..45b06739
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_4/types/file.go
 @@ -0,0 +1,100 @@
@@ -16079,7 +14972,7 @@ index 00000000..6bc717fe
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_4/types/filesystem.go b/vendor/github.com/flatcar/ignition/config/v2_4/types/filesystem.go
 new file mode 100644
-index 00000000..ccc71660
+index 00000000..9226e373
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_4/types/filesystem.go
 @@ -0,0 +1,146 @@
@@ -16231,7 +15124,7 @@ index 00000000..ccc71660
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_4/types/headers.go b/vendor/github.com/flatcar/ignition/config/v2_4/types/headers.go
 new file mode 100644
-index 00000000..3d34587a
+index 00000000..2b3e2373
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_4/types/headers.go
 @@ -0,0 +1,47 @@
@@ -16284,7 +15177,7 @@ index 00000000..3d34587a
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_4/types/ignition.go b/vendor/github.com/flatcar/ignition/config/v2_4/types/ignition.go
 new file mode 100644
-index 00000000..a6e2bc6e
+index 00000000..aafacdbe
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_4/types/ignition.go
 @@ -0,0 +1,82 @@
@@ -16372,7 +15265,7 @@ index 00000000..a6e2bc6e
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_4/types/mode.go b/vendor/github.com/flatcar/ignition/config/v2_4/types/mode.go
 new file mode 100644
-index 00000000..e0a04917
+index 00000000..b746217c
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_4/types/mode.go
 @@ -0,0 +1,26 @@
@@ -16404,7 +15297,7 @@ index 00000000..e0a04917
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_4/types/node.go b/vendor/github.com/flatcar/ignition/config/v2_4/types/node.go
 new file mode 100644
-index 00000000..e6071e99
+index 00000000..dd0489c0
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_4/types/node.go
 @@ -0,0 +1,73 @@
@@ -16483,7 +15376,7 @@ index 00000000..e6071e99
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_4/types/partition.go b/vendor/github.com/flatcar/ignition/config/v2_4/types/partition.go
 new file mode 100644
-index 00000000..e2b0736e
+index 00000000..99a993e9
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_4/types/partition.go
 @@ -0,0 +1,112 @@
@@ -16601,7 +15494,7 @@ index 00000000..e2b0736e
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_4/types/passwd.go b/vendor/github.com/flatcar/ignition/config/v2_4/types/passwd.go
 new file mode 100644
-index 00000000..5ca03186
+index 00000000..095ddc5e
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_4/types/passwd.go
 @@ -0,0 +1,67 @@
@@ -16674,7 +15567,7 @@ index 00000000..5ca03186
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_4/types/path.go b/vendor/github.com/flatcar/ignition/config/v2_4/types/path.go
 new file mode 100644
-index 00000000..a478fd3b
+index 00000000..f52ec956
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_4/types/path.go
 @@ -0,0 +1,28 @@
@@ -16708,7 +15601,7 @@ index 00000000..a478fd3b
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_4/types/raid.go b/vendor/github.com/flatcar/ignition/config/v2_4/types/raid.go
 new file mode 100644
-index 00000000..d2b49fc1
+index 00000000..87a10ee7
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_4/types/raid.go
 @@ -0,0 +1,57 @@
@@ -17046,7 +15939,7 @@ index 00000000..4bf7ec84
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_4/types/unit.go b/vendor/github.com/flatcar/ignition/config/v2_4/types/unit.go
 new file mode 100644
-index 00000000..7911c92f
+index 00000000..3d57428e
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_4/types/unit.go
 @@ -0,0 +1,131 @@
@@ -17183,7 +16076,7 @@ index 00000000..7911c92f
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_4/types/url.go b/vendor/github.com/flatcar/ignition/config/v2_4/types/url.go
 new file mode 100644
-index 00000000..6d25e801
+index 00000000..aedd9a56
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_4/types/url.go
 @@ -0,0 +1,53 @@
@@ -17242,7 +16135,7 @@ index 00000000..6d25e801
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/v2_4/types/verification.go b/vendor/github.com/flatcar/ignition/config/v2_4/types/verification.go
 new file mode 100644
-index 00000000..6f77de23
+index 00000000..cb06d76e
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/v2_4/types/verification.go
 @@ -0,0 +1,77 @@
@@ -17325,7 +16218,7 @@ index 00000000..6f77de23
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/validate/astjson/node.go b/vendor/github.com/flatcar/ignition/config/validate/astjson/node.go
 new file mode 100644
-index 00000000..40f24a74
+index 00000000..9875cfde
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/validate/astjson/node.go
 @@ -0,0 +1,73 @@
@@ -17619,7 +16512,7 @@ index 00000000..e0d4fed8
 +}
 diff --git a/vendor/github.com/flatcar/ignition/config/validate/validate.go b/vendor/github.com/flatcar/ignition/config/validate/validate.go
 new file mode 100644
-index 00000000..54c036e4
+index 00000000..3363f8db
 --- /dev/null
 +++ b/vendor/github.com/flatcar/ignition/config/validate/validate.go
 @@ -0,0 +1,242 @@
@@ -28474,14 +27367,14 @@ index 94290692..0175eae5 100644
  
  package norm
 diff --git a/vendor/modules.txt b/vendor/modules.txt
-index 34bc6c6e..71ec1839 100644
+index 34bc6c6e..48416104 100644
 --- a/vendor/modules.txt
 +++ b/vendor/modules.txt
 @@ -12,6 +12,8 @@ cloud.google.com/go/internal/version
  cloud.google.com/go/storage
  # github.com/BurntSushi/toml v0.3.1
  github.com/BurntSushi/toml
-+# github.com/ajeddeloh/go-json v0.0.0-20200220154158-5ae607161559
++# github.com/ajeddeloh/go-json v0.0.0-20160803184958-73d058cf8437
 +github.com/ajeddeloh/go-json
  # github.com/aws/aws-sdk-go v1.30.28
  ## explicit
@@ -28495,15 +27388,11 @@ index 34bc6c6e..71ec1839 100644
  # github.com/coreos/go-systemd/v22 v22.0.0
  ## explicit
  github.com/coreos/go-systemd/v22/dbus
-@@ -80,6 +84,31 @@ github.com/coreos/vcontext/tree
+@@ -80,6 +84,27 @@ github.com/coreos/vcontext/tree
  github.com/coreos/vcontext/validate
  # github.com/davecgh/go-spew v1.1.0
  github.com/davecgh/go-spew/spew
-+# github.com/flatcar/ign-converter v0.2.0
-+## explicit
-+github.com/flatcar/ign-converter/translate/v24tov31
-+github.com/flatcar/ign-converter/util
-+# github.com/flatcar/ignition v0.36.2-0.20220221101037-de4e6cc9bbba
++# github.com/flatcar/ignition v0.36.2
 +## explicit
 +github.com/flatcar/ignition/config/shared/errors
 +github.com/flatcar/ignition/config/shared/validations
@@ -28527,7 +27416,7 @@ index 34bc6c6e..71ec1839 100644
  # github.com/godbus/dbus/v5 v5.0.3
  github.com/godbus/dbus/v5
  # github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e
-@@ -113,8 +142,6 @@ github.com/pin/tftp
+@@ -113,8 +138,6 @@ github.com/pin/tftp
  github.com/pin/tftp/netascii
  # github.com/pmezard/go-difflib v1.0.0
  github.com/pmezard/go-difflib/difflib
@@ -28536,34 +27425,24 @@ index 34bc6c6e..71ec1839 100644
  # github.com/spf13/pflag v1.0.6-0.20210604193023-d5e0c0615ace
  ## explicit
  github.com/spf13/pflag
-@@ -149,6 +176,8 @@ go.opencensus.io/trace
+@@ -149,6 +172,8 @@ go.opencensus.io/trace
  go.opencensus.io/trace/internal
  go.opencensus.io/trace/propagation
  go.opencensus.io/trace/tracestate
-+# go4.org v0.0.0-20200104003542-c7e774b10ea0
++# go4.org v0.0.0-20160314031811-03efcb870d84
 +go4.org/errorutil
  # golang.org/x/lint v0.0.0-20200302205851-738671d3881b
  golang.org/x/lint
  golang.org/x/lint/golint
-@@ -177,7 +206,8 @@ golang.org/x/oauth2/jwt
+@@ -177,7 +202,7 @@ golang.org/x/oauth2/jwt
  ## explicit
  golang.org/x/sys/internal/unsafeheader
  golang.org/x/sys/unix
 -# golang.org/x/text v0.3.3
 +# golang.org/x/text v0.3.7
-+## explicit
  golang.org/x/text/secure/bidirule
  golang.org/x/text/transform
  golang.org/x/text/unicode/bidi
-@@ -319,6 +349,8 @@ google.golang.org/protobuf/types/known/anypb
- google.golang.org/protobuf/types/known/durationpb
- google.golang.org/protobuf/types/known/timestamppb
- google.golang.org/protobuf/types/pluginpb
-+# gopkg.in/yaml.v2 v2.4.0
-+## explicit
- # gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
- gopkg.in/yaml.v3
- # honnef.co/go/tools v0.0.1-2020.1.4
 -- 
 2.35.1
 

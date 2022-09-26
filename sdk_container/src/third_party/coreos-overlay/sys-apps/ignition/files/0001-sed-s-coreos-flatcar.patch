@@ -1,7 +1,7 @@
-From 68f056c7c8d36234ca7fd5e6ad2eb55ed1f557e6 Mon Sep 17 00:00:00 2001
+From 4b86d64fe196d9cb5ca43548234d521907a1cb4d Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Wed, 25 May 2022 10:09:37 +0200
-Subject: [PATCH 01/15] *: sed `s/coreos/flatcar/`
+Subject: [PATCH 01/16] *: sed `s/coreos/flatcar/`
 
 Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 ---
@@ -306,7 +306,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  298 files changed, 813 insertions(+), 813 deletions(-)
 
 diff --git a/build b/build
-index dba50388..3fe7eb93 100755
+index dba50388..b8f0a049 100755
 --- a/build
 +++ b/build
 @@ -5,7 +5,7 @@ set -eu
@@ -328,7 +328,7 @@ index dba50388..3fe7eb93 100755
  eval $(go env)
  
 diff --git a/config/config.go b/config/config.go
-index 3ded9022..578f7fc6 100644
+index 3ded9022..def40387 100644
 --- a/config/config.go
 +++ b/config/config.go
 @@ -15,8 +15,8 @@
@@ -343,7 +343,7 @@ index 3ded9022..578f7fc6 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/config/config_test.go b/config/config_test.go
-index c39f85ca..85065c97 100644
+index c39f85ca..8fc7d40e 100644
 --- a/config/config_test.go
 +++ b/config/config_test.go
 @@ -19,12 +19,12 @@ import (
@@ -366,7 +366,7 @@ index c39f85ca..85065c97 100644
  
  type typeSet map[reflect.Type]struct{}
 diff --git a/config/merge/merge.go b/config/merge/merge.go
-index 1ba91b3d..4a6ebeab 100644
+index 1ba91b3d..f2bcc274 100644
 --- a/config/merge/merge.go
 +++ b/config/merge/merge.go
 @@ -19,7 +19,7 @@ import (
@@ -397,7 +397,7 @@ index 1ba91b3d..4a6ebeab 100644
  		}
  		transcribeOne(fromPath, toPath, transcript)
 diff --git a/config/merge/merge_test.go b/config/merge/merge_test.go
-index 4555a7a9..69dd9e59 100644
+index 4555a7a9..165567b4 100644
 --- a/config/merge/merge_test.go
 +++ b/config/merge/merge_test.go
 @@ -17,9 +17,9 @@ package merge
@@ -423,7 +423,7 @@ index 4555a7a9..69dd9e59 100644
  	type test struct {
  		in1        v3_2.Config
 diff --git a/config/shared/validations/unit.go b/config/shared/validations/unit.go
-index 57744c31..36fa3612 100644
+index 57744c31..273ccbe0 100644
 --- a/config/shared/validations/unit.go
 +++ b/config/shared/validations/unit.go
 @@ -17,7 +17,7 @@
@@ -436,7 +436,7 @@ index 57744c31..36fa3612 100644
  	"github.com/coreos/go-systemd/v22/unit"
  )
 diff --git a/config/translate/translate.go b/config/translate/translate.go
-index 05d8ce2c..ee4183a7 100644
+index 05d8ce2c..1195e50b 100644
 --- a/config/translate/translate.go
 +++ b/config/translate/translate.go
 @@ -18,7 +18,7 @@ import (
@@ -449,7 +449,7 @@ index 05d8ce2c..ee4183a7 100644
  
  /*
 diff --git a/config/translate/translate_test.go b/config/translate/translate_test.go
-index 5d1adda9..b0ae0855 100644
+index 5d1adda9..dee790f1 100644
 --- a/config/translate/translate_test.go
 +++ b/config/translate/translate_test.go
 @@ -19,8 +19,8 @@ import (
@@ -464,7 +464,7 @@ index 5d1adda9..b0ae0855 100644
  
  // Note: we need different input and output types which unfortunately means a lot of tests
 diff --git a/config/util/config.go b/config/util/config.go
-index 85cd7fa7..9fb88d8e 100644
+index 85cd7fa7..4cdd83b7 100644
 --- a/config/util/config.go
 +++ b/config/util/config.go
 @@ -14,7 +14,7 @@
@@ -477,7 +477,7 @@ index 85cd7fa7..9fb88d8e 100644
  	"github.com/coreos/go-semver/semver"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/util/parsingErrors.go b/config/util/parsingErrors.go
-index 2af85e2b..5e2b4a2b 100644
+index 2af85e2b..865d75d2 100644
 --- a/config/util/parsingErrors.go
 +++ b/config/util/parsingErrors.go
 @@ -17,7 +17,7 @@ package util
@@ -490,7 +490,7 @@ index 2af85e2b..5e2b4a2b 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_0/config.go b/config/v3_0/config.go
-index ca32f7ad..851b26b1 100644
+index ca32f7ad..a00e33f0 100644
 --- a/config/v3_0/config.go
 +++ b/config/v3_0/config.go
 @@ -15,11 +15,11 @@
@@ -511,7 +511,7 @@ index ca32f7ad..851b26b1 100644
  	"github.com/coreos/go-semver/semver"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_0/config_test.go b/config/v3_0/config_test.go
-index f26d98c4..6e1ea5d7 100644
+index f26d98c4..a4e757c4 100644
 --- a/config/v3_0/config_test.go
 +++ b/config/v3_0/config_test.go
 @@ -17,8 +17,8 @@ package v3_0
@@ -526,7 +526,7 @@ index f26d98c4..6e1ea5d7 100644
  )
  
 diff --git a/config/v3_0/types/disk.go b/config/v3_0/types/disk.go
-index bbb073ab..3137b652 100644
+index bbb073ab..dc201c31 100644
 --- a/config/v3_0/types/disk.go
 +++ b/config/v3_0/types/disk.go
 @@ -15,8 +15,8 @@
@@ -541,7 +541,7 @@ index bbb073ab..3137b652 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_0/types/file.go b/config/v3_0/types/file.go
-index 5fa9ca8b..fee8d209 100644
+index 5fa9ca8b..43291675 100644
 --- a/config/v3_0/types/file.go
 +++ b/config/v3_0/types/file.go
 @@ -15,8 +15,8 @@
@@ -556,7 +556,7 @@ index 5fa9ca8b..fee8d209 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_0/types/file_test.go b/config/v3_0/types/file_test.go
-index ca0e3582..1e0e4cac 100644
+index ca0e3582..ad33e454 100644
 --- a/config/v3_0/types/file_test.go
 +++ b/config/v3_0/types/file_test.go
 @@ -17,8 +17,8 @@ package types
@@ -571,7 +571,7 @@ index ca0e3582..1e0e4cac 100644
  
  func TestFileValidateOverwrite(t *testing.T) {
 diff --git a/config/v3_0/types/filesystem.go b/config/v3_0/types/filesystem.go
-index 08d1e8ef..55ff45d8 100644
+index 08d1e8ef..ae9f719a 100644
 --- a/config/v3_0/types/filesystem.go
 +++ b/config/v3_0/types/filesystem.go
 @@ -15,8 +15,8 @@
@@ -586,7 +586,7 @@ index 08d1e8ef..55ff45d8 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_0/types/filesystem_test.go b/config/v3_0/types/filesystem_test.go
-index 93b1bcea..9cb89531 100644
+index 93b1bcea..19d9d62a 100644
 --- a/config/v3_0/types/filesystem_test.go
 +++ b/config/v3_0/types/filesystem_test.go
 @@ -17,8 +17,8 @@ package types
@@ -601,7 +601,7 @@ index 93b1bcea..9cb89531 100644
  
  func TestFilesystemValidateFormat(t *testing.T) {
 diff --git a/config/v3_0/types/ignition.go b/config/v3_0/types/ignition.go
-index 7a4d3cdb..c7297db5 100644
+index 7a4d3cdb..4d8482f4 100644
 --- a/config/v3_0/types/ignition.go
 +++ b/config/v3_0/types/ignition.go
 @@ -17,7 +17,7 @@ package types
@@ -614,7 +614,7 @@ index 7a4d3cdb..c7297db5 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_0/types/mode.go b/config/v3_0/types/mode.go
-index 6021b915..2d2488ae 100644
+index 6021b915..8acc4e75 100644
 --- a/config/v3_0/types/mode.go
 +++ b/config/v3_0/types/mode.go
 @@ -15,7 +15,7 @@
@@ -627,7 +627,7 @@ index 6021b915..2d2488ae 100644
  
  func validateMode(m *int) error {
 diff --git a/config/v3_0/types/mode_test.go b/config/v3_0/types/mode_test.go
-index addf4afa..87016c22 100644
+index addf4afa..e9a243ce 100644
 --- a/config/v3_0/types/mode_test.go
 +++ b/config/v3_0/types/mode_test.go
 @@ -18,8 +18,8 @@ import (
@@ -642,7 +642,7 @@ index addf4afa..87016c22 100644
  )
  
 diff --git a/config/v3_0/types/node.go b/config/v3_0/types/node.go
-index fb41f1f0..f030be40 100644
+index fb41f1f0..36e79157 100644
 --- a/config/v3_0/types/node.go
 +++ b/config/v3_0/types/node.go
 @@ -17,8 +17,8 @@ package types
@@ -657,7 +657,7 @@ index fb41f1f0..f030be40 100644
  	vpath "github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_0/types/node_test.go b/config/v3_0/types/node_test.go
-index 265db7f1..5ebd0384 100644
+index 265db7f1..11087ecf 100644
 --- a/config/v3_0/types/node_test.go
 +++ b/config/v3_0/types/node_test.go
 @@ -18,8 +18,8 @@ import (
@@ -672,7 +672,7 @@ index 265db7f1..5ebd0384 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_0/types/partition.go b/config/v3_0/types/partition.go
-index 84be0cd9..567d6930 100644
+index 84be0cd9..46e873d7 100644
 --- a/config/v3_0/types/partition.go
 +++ b/config/v3_0/types/partition.go
 @@ -19,8 +19,8 @@ import (
@@ -687,7 +687,7 @@ index 84be0cd9..567d6930 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_0/types/partition_test.go b/config/v3_0/types/partition_test.go
-index 728aead6..eb9d34b4 100644
+index 728aead6..dcd3b8de 100644
 --- a/config/v3_0/types/partition_test.go
 +++ b/config/v3_0/types/partition_test.go
 @@ -17,8 +17,8 @@ package types
@@ -702,7 +702,7 @@ index 728aead6..eb9d34b4 100644
  
  func TestValidateLabel(t *testing.T) {
 diff --git a/config/v3_0/types/path.go b/config/v3_0/types/path.go
-index c06fccf1..5757ac86 100644
+index c06fccf1..4266034a 100644
 --- a/config/v3_0/types/path.go
 +++ b/config/v3_0/types/path.go
 @@ -17,8 +17,8 @@ package types
@@ -717,7 +717,7 @@ index c06fccf1..5757ac86 100644
  
  func validatePath(p string) error {
 diff --git a/config/v3_0/types/path_test.go b/config/v3_0/types/path_test.go
-index 98960487..13a0e935 100644
+index 98960487..b7f7598b 100644
 --- a/config/v3_0/types/path_test.go
 +++ b/config/v3_0/types/path_test.go
 @@ -18,7 +18,7 @@ import (
@@ -730,7 +730,7 @@ index 98960487..13a0e935 100644
  
  func TestPathValidate(t *testing.T) {
 diff --git a/config/v3_0/types/raid.go b/config/v3_0/types/raid.go
-index 9c861fcb..85be6d3f 100644
+index 9c861fcb..3b746c1c 100644
 --- a/config/v3_0/types/raid.go
 +++ b/config/v3_0/types/raid.go
 @@ -15,7 +15,7 @@
@@ -743,7 +743,7 @@ index 9c861fcb..85be6d3f 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_0/types/raid_test.go b/config/v3_0/types/raid_test.go
-index 34861605..a28bfa70 100644
+index 34861605..639ecea5 100644
 --- a/config/v3_0/types/raid_test.go
 +++ b/config/v3_0/types/raid_test.go
 @@ -18,8 +18,8 @@ import (
@@ -758,7 +758,7 @@ index 34861605..a28bfa70 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_0/types/storage.go b/config/v3_0/types/storage.go
-index eac98e74..44b3bf04 100644
+index eac98e74..69fe9eb6 100644
 --- a/config/v3_0/types/storage.go
 +++ b/config/v3_0/types/storage.go
 @@ -18,8 +18,8 @@ import (
@@ -773,7 +773,7 @@ index eac98e74..44b3bf04 100644
  	vpath "github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_0/types/storage_test.go b/config/v3_0/types/storage_test.go
-index 00c5861a..e5c59b6b 100644
+index 00c5861a..a9ef8934 100644
 --- a/config/v3_0/types/storage_test.go
 +++ b/config/v3_0/types/storage_test.go
 @@ -18,8 +18,8 @@ import (
@@ -788,7 +788,7 @@ index 00c5861a..e5c59b6b 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_0/types/unit.go b/config/v3_0/types/unit.go
-index e0e5c50a..200931dd 100644
+index e0e5c50a..630c7331 100644
 --- a/config/v3_0/types/unit.go
 +++ b/config/v3_0/types/unit.go
 @@ -19,9 +19,9 @@ import (
@@ -805,7 +805,7 @@ index e0e5c50a..200931dd 100644
  	"github.com/coreos/go-systemd/v22/unit"
  	cpath "github.com/coreos/vcontext/path"
 diff --git a/config/v3_0/types/unit_test.go b/config/v3_0/types/unit_test.go
-index b0b2e884..84c04f11 100644
+index b0b2e884..3a22e081 100644
 --- a/config/v3_0/types/unit_test.go
 +++ b/config/v3_0/types/unit_test.go
 @@ -19,8 +19,8 @@ import (
@@ -820,7 +820,7 @@ index b0b2e884..84c04f11 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_0/types/url.go b/config/v3_0/types/url.go
-index 6a1f9397..90d903f2 100644
+index 6a1f9397..2d8c44b1 100644
 --- a/config/v3_0/types/url.go
 +++ b/config/v3_0/types/url.go
 @@ -19,8 +19,8 @@ import (
@@ -835,7 +835,7 @@ index 6a1f9397..90d903f2 100644
  
  func validateURL(s string) error {
 diff --git a/config/v3_0/types/url_test.go b/config/v3_0/types/url_test.go
-index 46674d7c..6c9d5908 100644
+index 46674d7c..12dcdee0 100644
 --- a/config/v3_0/types/url_test.go
 +++ b/config/v3_0/types/url_test.go
 @@ -17,8 +17,8 @@ package types
@@ -850,7 +850,7 @@ index 46674d7c..6c9d5908 100644
  
  func TestURLValidate(t *testing.T) {
 diff --git a/config/v3_0/types/verification.go b/config/v3_0/types/verification.go
-index 23b7d7ad..5dd053b2 100644
+index 23b7d7ad..e37f0e3f 100644
 --- a/config/v3_0/types/verification.go
 +++ b/config/v3_0/types/verification.go
 @@ -19,7 +19,7 @@ import (
@@ -863,7 +863,7 @@ index 23b7d7ad..5dd053b2 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_0/types/verification_test.go b/config/v3_0/types/verification_test.go
-index 1ec23b00..0ec09889 100644
+index 1ec23b00..243a8884 100644
 --- a/config/v3_0/types/verification_test.go
 +++ b/config/v3_0/types/verification_test.go
 @@ -18,7 +18,7 @@ import (
@@ -876,7 +876,7 @@ index 1ec23b00..0ec09889 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_1/config.go b/config/v3_1/config.go
-index a40ae56c..f7c06856 100644
+index a40ae56c..e413ee25 100644
 --- a/config/v3_1/config.go
 +++ b/config/v3_1/config.go
 @@ -15,13 +15,13 @@
@@ -901,7 +901,7 @@ index a40ae56c..f7c06856 100644
  	"github.com/coreos/go-semver/semver"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_1/config_test.go b/config/v3_1/config_test.go
-index 6c27691b..60782675 100644
+index 6c27691b..5b6a1d3f 100644
 --- a/config/v3_1/config_test.go
 +++ b/config/v3_1/config_test.go
 @@ -17,8 +17,8 @@ package v3_1
@@ -916,7 +916,7 @@ index 6c27691b..60782675 100644
  )
  
 diff --git a/config/v3_1/translate/translate.go b/config/v3_1/translate/translate.go
-index 5921c42c..d16abc20 100644
+index 5921c42c..9217cc0a 100644
 --- a/config/v3_1/translate/translate.go
 +++ b/config/v3_1/translate/translate.go
 @@ -15,10 +15,10 @@
@@ -935,7 +935,7 @@ index 5921c42c..d16abc20 100644
  
  func translateFilesystem(old old_types.Filesystem) (ret types.Filesystem) {
 diff --git a/config/v3_1/translate/translate_test.go b/config/v3_1/translate/translate_test.go
-index 84761a30..9ad5b0ab 100644
+index 84761a30..ed6f58eb 100644
 --- a/config/v3_1/translate/translate_test.go
 +++ b/config/v3_1/translate/translate_test.go
 @@ -18,8 +18,8 @@ import (
@@ -950,7 +950,7 @@ index 84761a30..9ad5b0ab 100644
  
  // Check that we have valid translators for the complete config struct
 diff --git a/config/v3_1/types/disk.go b/config/v3_1/types/disk.go
-index bbb073ab..3137b652 100644
+index bbb073ab..dc201c31 100644
 --- a/config/v3_1/types/disk.go
 +++ b/config/v3_1/types/disk.go
 @@ -15,8 +15,8 @@
@@ -965,7 +965,7 @@ index bbb073ab..3137b652 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_1/types/file.go b/config/v3_1/types/file.go
-index 97aa84a7..3e077700 100644
+index 97aa84a7..51e9bae8 100644
 --- a/config/v3_1/types/file.go
 +++ b/config/v3_1/types/file.go
 @@ -15,8 +15,8 @@
@@ -980,7 +980,7 @@ index 97aa84a7..3e077700 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_1/types/file_test.go b/config/v3_1/types/file_test.go
-index f44bf890..3e67741d 100644
+index f44bf890..bcd01746 100644
 --- a/config/v3_1/types/file_test.go
 +++ b/config/v3_1/types/file_test.go
 @@ -17,8 +17,8 @@ package types
@@ -995,7 +995,7 @@ index f44bf890..3e67741d 100644
  
  func TestFileValidateOverwrite(t *testing.T) {
 diff --git a/config/v3_1/types/filesystem.go b/config/v3_1/types/filesystem.go
-index 8b07e3b9..0cc4e666 100644
+index 8b07e3b9..149dead1 100644
 --- a/config/v3_1/types/filesystem.go
 +++ b/config/v3_1/types/filesystem.go
 @@ -15,8 +15,8 @@
@@ -1010,7 +1010,7 @@ index 8b07e3b9..0cc4e666 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_1/types/filesystem_test.go b/config/v3_1/types/filesystem_test.go
-index 94f6b0a2..294dc2ea 100644
+index 94f6b0a2..67bc42f6 100644
 --- a/config/v3_1/types/filesystem_test.go
 +++ b/config/v3_1/types/filesystem_test.go
 @@ -17,8 +17,8 @@ package types
@@ -1025,7 +1025,7 @@ index 94f6b0a2..294dc2ea 100644
  
  func TestFilesystemValidateFormat(t *testing.T) {
 diff --git a/config/v3_1/types/headers.go b/config/v3_1/types/headers.go
-index be1aadad..56835594 100644
+index be1aadad..e968a2b4 100644
 --- a/config/v3_1/types/headers.go
 +++ b/config/v3_1/types/headers.go
 @@ -17,7 +17,7 @@ package types
@@ -1038,7 +1038,7 @@ index be1aadad..56835594 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/config/v3_1/types/headers_test.go b/config/v3_1/types/headers_test.go
-index 40380b68..02682db1 100644
+index 40380b68..5e888830 100644
 --- a/config/v3_1/types/headers_test.go
 +++ b/config/v3_1/types/headers_test.go
 @@ -17,7 +17,7 @@ package types
@@ -1051,7 +1051,7 @@ index 40380b68..02682db1 100644
  
  func toPointer(val string) *string {
 diff --git a/config/v3_1/types/ignition.go b/config/v3_1/types/ignition.go
-index 689b6093..c23e0ed6 100644
+index 689b6093..5e9cb356 100644
 --- a/config/v3_1/types/ignition.go
 +++ b/config/v3_1/types/ignition.go
 @@ -17,7 +17,7 @@ package types
@@ -1064,7 +1064,7 @@ index 689b6093..c23e0ed6 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_1/types/mode.go b/config/v3_1/types/mode.go
-index 6021b915..2d2488ae 100644
+index 6021b915..8acc4e75 100644
 --- a/config/v3_1/types/mode.go
 +++ b/config/v3_1/types/mode.go
 @@ -15,7 +15,7 @@
@@ -1077,7 +1077,7 @@ index 6021b915..2d2488ae 100644
  
  func validateMode(m *int) error {
 diff --git a/config/v3_1/types/mode_test.go b/config/v3_1/types/mode_test.go
-index addf4afa..87016c22 100644
+index addf4afa..e9a243ce 100644
 --- a/config/v3_1/types/mode_test.go
 +++ b/config/v3_1/types/mode_test.go
 @@ -18,8 +18,8 @@ import (
@@ -1092,7 +1092,7 @@ index addf4afa..87016c22 100644
  )
  
 diff --git a/config/v3_1/types/node.go b/config/v3_1/types/node.go
-index fb41f1f0..f030be40 100644
+index fb41f1f0..36e79157 100644
 --- a/config/v3_1/types/node.go
 +++ b/config/v3_1/types/node.go
 @@ -17,8 +17,8 @@ package types
@@ -1107,7 +1107,7 @@ index fb41f1f0..f030be40 100644
  	vpath "github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_1/types/node_test.go b/config/v3_1/types/node_test.go
-index 265db7f1..5ebd0384 100644
+index 265db7f1..11087ecf 100644
 --- a/config/v3_1/types/node_test.go
 +++ b/config/v3_1/types/node_test.go
 @@ -18,8 +18,8 @@ import (
@@ -1122,7 +1122,7 @@ index 265db7f1..5ebd0384 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_1/types/partition.go b/config/v3_1/types/partition.go
-index 84be0cd9..567d6930 100644
+index 84be0cd9..46e873d7 100644
 --- a/config/v3_1/types/partition.go
 +++ b/config/v3_1/types/partition.go
 @@ -19,8 +19,8 @@ import (
@@ -1137,7 +1137,7 @@ index 84be0cd9..567d6930 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_1/types/partition_test.go b/config/v3_1/types/partition_test.go
-index 728aead6..eb9d34b4 100644
+index 728aead6..dcd3b8de 100644
 --- a/config/v3_1/types/partition_test.go
 +++ b/config/v3_1/types/partition_test.go
 @@ -17,8 +17,8 @@ package types
@@ -1152,7 +1152,7 @@ index 728aead6..eb9d34b4 100644
  
  func TestValidateLabel(t *testing.T) {
 diff --git a/config/v3_1/types/path.go b/config/v3_1/types/path.go
-index c06fccf1..5757ac86 100644
+index c06fccf1..4266034a 100644
 --- a/config/v3_1/types/path.go
 +++ b/config/v3_1/types/path.go
 @@ -17,8 +17,8 @@ package types
@@ -1167,7 +1167,7 @@ index c06fccf1..5757ac86 100644
  
  func validatePath(p string) error {
 diff --git a/config/v3_1/types/path_test.go b/config/v3_1/types/path_test.go
-index 98960487..13a0e935 100644
+index 98960487..b7f7598b 100644
 --- a/config/v3_1/types/path_test.go
 +++ b/config/v3_1/types/path_test.go
 @@ -18,7 +18,7 @@ import (
@@ -1180,7 +1180,7 @@ index 98960487..13a0e935 100644
  
  func TestPathValidate(t *testing.T) {
 diff --git a/config/v3_1/types/proxy.go b/config/v3_1/types/proxy.go
-index 4a60087f..afe121b0 100644
+index 4a60087f..13b7501e 100644
 --- a/config/v3_1/types/proxy.go
 +++ b/config/v3_1/types/proxy.go
 @@ -17,7 +17,7 @@ package types
@@ -1193,7 +1193,7 @@ index 4a60087f..afe121b0 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_1/types/proxy_test.go b/config/v3_1/types/proxy_test.go
-index e9429421..84ee38be 100644
+index e9429421..17a52956 100644
 --- a/config/v3_1/types/proxy_test.go
 +++ b/config/v3_1/types/proxy_test.go
 @@ -18,8 +18,8 @@ import (
@@ -1208,7 +1208,7 @@ index e9429421..84ee38be 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_1/types/raid.go b/config/v3_1/types/raid.go
-index 9c861fcb..85be6d3f 100644
+index 9c861fcb..3b746c1c 100644
 --- a/config/v3_1/types/raid.go
 +++ b/config/v3_1/types/raid.go
 @@ -15,7 +15,7 @@
@@ -1221,7 +1221,7 @@ index 9c861fcb..85be6d3f 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_1/types/raid_test.go b/config/v3_1/types/raid_test.go
-index 34861605..a28bfa70 100644
+index 34861605..639ecea5 100644
 --- a/config/v3_1/types/raid_test.go
 +++ b/config/v3_1/types/raid_test.go
 @@ -18,8 +18,8 @@ import (
@@ -1236,7 +1236,7 @@ index 34861605..a28bfa70 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_1/types/resource.go b/config/v3_1/types/resource.go
-index 68da6c7b..8c03b7f5 100644
+index 68da6c7b..6ea74d3d 100644
 --- a/config/v3_1/types/resource.go
 +++ b/config/v3_1/types/resource.go
 @@ -17,8 +17,8 @@ package types
@@ -1251,7 +1251,7 @@ index 68da6c7b..8c03b7f5 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_1/types/storage.go b/config/v3_1/types/storage.go
-index eac98e74..44b3bf04 100644
+index eac98e74..69fe9eb6 100644
 --- a/config/v3_1/types/storage.go
 +++ b/config/v3_1/types/storage.go
 @@ -18,8 +18,8 @@ import (
@@ -1266,7 +1266,7 @@ index eac98e74..44b3bf04 100644
  	vpath "github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_1/types/storage_test.go b/config/v3_1/types/storage_test.go
-index 00c5861a..e5c59b6b 100644
+index 00c5861a..a9ef8934 100644
 --- a/config/v3_1/types/storage_test.go
 +++ b/config/v3_1/types/storage_test.go
 @@ -18,8 +18,8 @@ import (
@@ -1281,7 +1281,7 @@ index 00c5861a..e5c59b6b 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_1/types/unit.go b/config/v3_1/types/unit.go
-index e0e5c50a..200931dd 100644
+index e0e5c50a..630c7331 100644
 --- a/config/v3_1/types/unit.go
 +++ b/config/v3_1/types/unit.go
 @@ -19,9 +19,9 @@ import (
@@ -1298,7 +1298,7 @@ index e0e5c50a..200931dd 100644
  	"github.com/coreos/go-systemd/v22/unit"
  	cpath "github.com/coreos/vcontext/path"
 diff --git a/config/v3_1/types/unit_test.go b/config/v3_1/types/unit_test.go
-index b0b2e884..84c04f11 100644
+index b0b2e884..3a22e081 100644
 --- a/config/v3_1/types/unit_test.go
 +++ b/config/v3_1/types/unit_test.go
 @@ -19,8 +19,8 @@ import (
@@ -1313,7 +1313,7 @@ index b0b2e884..84c04f11 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_1/types/url.go b/config/v3_1/types/url.go
-index 6a1f9397..90d903f2 100644
+index 6a1f9397..2d8c44b1 100644
 --- a/config/v3_1/types/url.go
 +++ b/config/v3_1/types/url.go
 @@ -19,8 +19,8 @@ import (
@@ -1328,7 +1328,7 @@ index 6a1f9397..90d903f2 100644
  
  func validateURL(s string) error {
 diff --git a/config/v3_1/types/url_test.go b/config/v3_1/types/url_test.go
-index 46674d7c..6c9d5908 100644
+index 46674d7c..12dcdee0 100644
 --- a/config/v3_1/types/url_test.go
 +++ b/config/v3_1/types/url_test.go
 @@ -17,8 +17,8 @@ package types
@@ -1343,7 +1343,7 @@ index 46674d7c..6c9d5908 100644
  
  func TestURLValidate(t *testing.T) {
 diff --git a/config/v3_1/types/verification.go b/config/v3_1/types/verification.go
-index e410f98a..d1090f9a 100644
+index e410f98a..2bd16354 100644
 --- a/config/v3_1/types/verification.go
 +++ b/config/v3_1/types/verification.go
 @@ -19,7 +19,7 @@ import (
@@ -1356,7 +1356,7 @@ index e410f98a..d1090f9a 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_1/types/verification_test.go b/config/v3_1/types/verification_test.go
-index 6c0b3b2b..506c2685 100644
+index 6c0b3b2b..88fa0323 100644
 --- a/config/v3_1/types/verification_test.go
 +++ b/config/v3_1/types/verification_test.go
 @@ -18,7 +18,7 @@ import (
@@ -1369,7 +1369,7 @@ index 6c0b3b2b..506c2685 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_2/config.go b/config/v3_2/config.go
-index c6c7d94d..3f4ca522 100644
+index c6c7d94d..e324f848 100644
 --- a/config/v3_2/config.go
 +++ b/config/v3_2/config.go
 @@ -15,13 +15,13 @@
@@ -1394,7 +1394,7 @@ index c6c7d94d..3f4ca522 100644
  	"github.com/coreos/go-semver/semver"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_2/config_test.go b/config/v3_2/config_test.go
-index 0fb1d221..1f2dc95a 100644
+index 0fb1d221..80d95b51 100644
 --- a/config/v3_2/config_test.go
 +++ b/config/v3_2/config_test.go
 @@ -17,8 +17,8 @@ package v3_2
@@ -1409,7 +1409,7 @@ index 0fb1d221..1f2dc95a 100644
  )
  
 diff --git a/config/v3_2/translate/translate.go b/config/v3_2/translate/translate.go
-index 0fd4f420..9066221f 100644
+index 0fd4f420..323d3bf8 100644
 --- a/config/v3_2/translate/translate.go
 +++ b/config/v3_2/translate/translate.go
 @@ -15,9 +15,9 @@
@@ -1426,7 +1426,7 @@ index 0fd4f420..9066221f 100644
  
  func translateIgnition(old old_types.Ignition) (ret types.Ignition) {
 diff --git a/config/v3_2/translate/translate_test.go b/config/v3_2/translate/translate_test.go
-index 72d0b359..a7ca2f85 100644
+index 72d0b359..fcea2c70 100644
 --- a/config/v3_2/translate/translate_test.go
 +++ b/config/v3_2/translate/translate_test.go
 @@ -18,8 +18,8 @@ import (
@@ -1441,7 +1441,7 @@ index 72d0b359..a7ca2f85 100644
  
  // Check that we have valid translators for the complete config struct
 diff --git a/config/v3_2/types/custom.go b/config/v3_2/types/custom.go
-index 2a1231cb..5191d1e2 100644
+index 2a1231cb..bcde76fb 100644
 --- a/config/v3_2/types/custom.go
 +++ b/config/v3_2/types/custom.go
 @@ -15,7 +15,7 @@
@@ -1454,7 +1454,7 @@ index 2a1231cb..5191d1e2 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_2/types/disk.go b/config/v3_2/types/disk.go
-index 8caf8499..24c36547 100644
+index 8caf8499..29fd3900 100644
 --- a/config/v3_2/types/disk.go
 +++ b/config/v3_2/types/disk.go
 @@ -15,8 +15,8 @@
@@ -1469,7 +1469,7 @@ index 8caf8499..24c36547 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_2/types/file.go b/config/v3_2/types/file.go
-index 4e7566bd..83345a31 100644
+index 4e7566bd..f86d520b 100644
 --- a/config/v3_2/types/file.go
 +++ b/config/v3_2/types/file.go
 @@ -15,8 +15,8 @@
@@ -1484,7 +1484,7 @@ index 4e7566bd..83345a31 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_2/types/file_test.go b/config/v3_2/types/file_test.go
-index 449e0700..ec53cb38 100644
+index 449e0700..5aa2e87c 100644
 --- a/config/v3_2/types/file_test.go
 +++ b/config/v3_2/types/file_test.go
 @@ -17,8 +17,8 @@ package types
@@ -1499,7 +1499,7 @@ index 449e0700..ec53cb38 100644
  
  func TestFileValidateOverwrite(t *testing.T) {
 diff --git a/config/v3_2/types/filesystem.go b/config/v3_2/types/filesystem.go
-index 3bf064f3..fa68c2d1 100644
+index 3bf064f3..9e5c5f2b 100644
 --- a/config/v3_2/types/filesystem.go
 +++ b/config/v3_2/types/filesystem.go
 @@ -15,8 +15,8 @@
@@ -1514,7 +1514,7 @@ index 3bf064f3..fa68c2d1 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_2/types/filesystem_test.go b/config/v3_2/types/filesystem_test.go
-index 1f8db903..3cab3146 100644
+index 1f8db903..6e710426 100644
 --- a/config/v3_2/types/filesystem_test.go
 +++ b/config/v3_2/types/filesystem_test.go
 @@ -17,8 +17,8 @@ package types
@@ -1529,7 +1529,7 @@ index 1f8db903..3cab3146 100644
  
  func TestFilesystemValidateFormat(t *testing.T) {
 diff --git a/config/v3_2/types/headers.go b/config/v3_2/types/headers.go
-index be1aadad..56835594 100644
+index be1aadad..e968a2b4 100644
 --- a/config/v3_2/types/headers.go
 +++ b/config/v3_2/types/headers.go
 @@ -17,7 +17,7 @@ package types
@@ -1542,7 +1542,7 @@ index be1aadad..56835594 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/config/v3_2/types/headers_test.go b/config/v3_2/types/headers_test.go
-index 40380b68..02682db1 100644
+index 40380b68..5e888830 100644
 --- a/config/v3_2/types/headers_test.go
 +++ b/config/v3_2/types/headers_test.go
 @@ -17,7 +17,7 @@ package types
@@ -1555,7 +1555,7 @@ index 40380b68..02682db1 100644
  
  func toPointer(val string) *string {
 diff --git a/config/v3_2/types/ignition.go b/config/v3_2/types/ignition.go
-index 190445bd..746218a6 100644
+index 190445bd..1fbcf8c4 100644
 --- a/config/v3_2/types/ignition.go
 +++ b/config/v3_2/types/ignition.go
 @@ -17,7 +17,7 @@ package types
@@ -1568,7 +1568,7 @@ index 190445bd..746218a6 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_2/types/luks.go b/config/v3_2/types/luks.go
-index 123392b2..592d49b8 100644
+index 123392b2..c80fc8d2 100644
 --- a/config/v3_2/types/luks.go
 +++ b/config/v3_2/types/luks.go
 @@ -17,8 +17,8 @@ package types
@@ -1583,7 +1583,7 @@ index 123392b2..592d49b8 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_2/types/mode.go b/config/v3_2/types/mode.go
-index ad3e51c2..4ebde9f0 100644
+index ad3e51c2..8f15a8cb 100644
 --- a/config/v3_2/types/mode.go
 +++ b/config/v3_2/types/mode.go
 @@ -15,7 +15,7 @@
@@ -1596,7 +1596,7 @@ index ad3e51c2..4ebde9f0 100644
  
  func validateMode(m *int) error {
 diff --git a/config/v3_2/types/mode_test.go b/config/v3_2/types/mode_test.go
-index 53e37a6b..0dcb80d4 100644
+index 53e37a6b..a8fa7a81 100644
 --- a/config/v3_2/types/mode_test.go
 +++ b/config/v3_2/types/mode_test.go
 @@ -18,8 +18,8 @@ import (
@@ -1611,7 +1611,7 @@ index 53e37a6b..0dcb80d4 100644
  )
  
 diff --git a/config/v3_2/types/node.go b/config/v3_2/types/node.go
-index 248276e7..e23730f2 100644
+index 248276e7..f4e94f9e 100644
 --- a/config/v3_2/types/node.go
 +++ b/config/v3_2/types/node.go
 @@ -17,8 +17,8 @@ package types
@@ -1626,7 +1626,7 @@ index 248276e7..e23730f2 100644
  	vpath "github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_2/types/node_test.go b/config/v3_2/types/node_test.go
-index 20ba4eb6..89a4aa04 100644
+index 20ba4eb6..9176b4b7 100644
 --- a/config/v3_2/types/node_test.go
 +++ b/config/v3_2/types/node_test.go
 @@ -18,8 +18,8 @@ import (
@@ -1641,7 +1641,7 @@ index 20ba4eb6..89a4aa04 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_2/types/partition.go b/config/v3_2/types/partition.go
-index 1b2d97ed..8363be28 100644
+index 1b2d97ed..6603af3b 100644
 --- a/config/v3_2/types/partition.go
 +++ b/config/v3_2/types/partition.go
 @@ -19,8 +19,8 @@ import (
@@ -1656,7 +1656,7 @@ index 1b2d97ed..8363be28 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_2/types/partition_test.go b/config/v3_2/types/partition_test.go
-index a1e1623f..fde716a9 100644
+index a1e1623f..9f8e7997 100644
 --- a/config/v3_2/types/partition_test.go
 +++ b/config/v3_2/types/partition_test.go
 @@ -17,8 +17,8 @@ package types
@@ -1671,7 +1671,7 @@ index a1e1623f..fde716a9 100644
  
  func TestValidateLabel(t *testing.T) {
 diff --git a/config/v3_2/types/path.go b/config/v3_2/types/path.go
-index 131e300c..d6d394a7 100644
+index 131e300c..cb48e341 100644
 --- a/config/v3_2/types/path.go
 +++ b/config/v3_2/types/path.go
 @@ -17,8 +17,8 @@ package types
@@ -1686,7 +1686,7 @@ index 131e300c..d6d394a7 100644
  
  func validatePath(p string) error {
 diff --git a/config/v3_2/types/path_test.go b/config/v3_2/types/path_test.go
-index 3d199cbd..6ed191b6 100644
+index 3d199cbd..33b2d0ba 100644
 --- a/config/v3_2/types/path_test.go
 +++ b/config/v3_2/types/path_test.go
 @@ -18,7 +18,7 @@ import (
@@ -1699,7 +1699,7 @@ index 3d199cbd..6ed191b6 100644
  
  func TestPathValidate(t *testing.T) {
 diff --git a/config/v3_2/types/proxy.go b/config/v3_2/types/proxy.go
-index d48d210a..088459d8 100644
+index d48d210a..de146a99 100644
 --- a/config/v3_2/types/proxy.go
 +++ b/config/v3_2/types/proxy.go
 @@ -17,7 +17,7 @@ package types
@@ -1712,7 +1712,7 @@ index d48d210a..088459d8 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_2/types/proxy_test.go b/config/v3_2/types/proxy_test.go
-index 269f4fb2..6884dd46 100644
+index 269f4fb2..3cc5e5cd 100644
 --- a/config/v3_2/types/proxy_test.go
 +++ b/config/v3_2/types/proxy_test.go
 @@ -18,8 +18,8 @@ import (
@@ -1727,7 +1727,7 @@ index 269f4fb2..6884dd46 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_2/types/raid.go b/config/v3_2/types/raid.go
-index 5ae4f8c0..22155cd0 100644
+index 5ae4f8c0..c3324bab 100644
 --- a/config/v3_2/types/raid.go
 +++ b/config/v3_2/types/raid.go
 @@ -15,7 +15,7 @@
@@ -1740,7 +1740,7 @@ index 5ae4f8c0..22155cd0 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_2/types/raid_test.go b/config/v3_2/types/raid_test.go
-index 34861605..a28bfa70 100644
+index 34861605..639ecea5 100644
 --- a/config/v3_2/types/raid_test.go
 +++ b/config/v3_2/types/raid_test.go
 @@ -18,8 +18,8 @@ import (
@@ -1755,7 +1755,7 @@ index 34861605..a28bfa70 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_2/types/resource.go b/config/v3_2/types/resource.go
-index 68da6c7b..8c03b7f5 100644
+index 68da6c7b..6ea74d3d 100644
 --- a/config/v3_2/types/resource.go
 +++ b/config/v3_2/types/resource.go
 @@ -17,8 +17,8 @@ package types
@@ -1770,7 +1770,7 @@ index 68da6c7b..8c03b7f5 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_2/types/storage.go b/config/v3_2/types/storage.go
-index fd1b8cec..9e3e2931 100644
+index fd1b8cec..5b640136 100644
 --- a/config/v3_2/types/storage.go
 +++ b/config/v3_2/types/storage.go
 @@ -18,8 +18,8 @@ import (
@@ -1785,7 +1785,7 @@ index fd1b8cec..9e3e2931 100644
  	vpath "github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_2/types/storage_test.go b/config/v3_2/types/storage_test.go
-index 7d27bd55..5caf872d 100644
+index 7d27bd55..a18f69a7 100644
 --- a/config/v3_2/types/storage_test.go
 +++ b/config/v3_2/types/storage_test.go
 @@ -18,8 +18,8 @@ import (
@@ -1800,7 +1800,7 @@ index 7d27bd55..5caf872d 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_2/types/tang.go b/config/v3_2/types/tang.go
-index 86ab79c9..d6df1d98 100644
+index 86ab79c9..a2fd8ee6 100644
 --- a/config/v3_2/types/tang.go
 +++ b/config/v3_2/types/tang.go
 @@ -17,8 +17,8 @@ package types
@@ -1815,7 +1815,7 @@ index 86ab79c9..d6df1d98 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_2/types/unit.go b/config/v3_2/types/unit.go
-index bc2d3299..933163a7 100644
+index bc2d3299..ecc7ab08 100644
 --- a/config/v3_2/types/unit.go
 +++ b/config/v3_2/types/unit.go
 @@ -19,9 +19,9 @@ import (
@@ -1832,7 +1832,7 @@ index bc2d3299..933163a7 100644
  	"github.com/coreos/go-systemd/v22/unit"
  	cpath "github.com/coreos/vcontext/path"
 diff --git a/config/v3_2/types/unit_test.go b/config/v3_2/types/unit_test.go
-index 3dc90540..494f210a 100644
+index 3dc90540..8c96dfba 100644
 --- a/config/v3_2/types/unit_test.go
 +++ b/config/v3_2/types/unit_test.go
 @@ -19,8 +19,8 @@ import (
@@ -1847,7 +1847,7 @@ index 3dc90540..494f210a 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_2/types/url.go b/config/v3_2/types/url.go
-index 0d8771bf..bb90bdf9 100644
+index 0d8771bf..bf1f3a5e 100644
 --- a/config/v3_2/types/url.go
 +++ b/config/v3_2/types/url.go
 @@ -19,8 +19,8 @@ import (
@@ -1862,7 +1862,7 @@ index 0d8771bf..bb90bdf9 100644
  
  func validateURL(s string) error {
 diff --git a/config/v3_2/types/url_test.go b/config/v3_2/types/url_test.go
-index bfef261f..c371179f 100644
+index bfef261f..b10533d9 100644
 --- a/config/v3_2/types/url_test.go
 +++ b/config/v3_2/types/url_test.go
 @@ -17,8 +17,8 @@ package types
@@ -1877,7 +1877,7 @@ index bfef261f..c371179f 100644
  
  func TestURLValidate(t *testing.T) {
 diff --git a/config/v3_2/types/verification.go b/config/v3_2/types/verification.go
-index 5def6f04..0aaba72a 100644
+index 5def6f04..1ef291c0 100644
 --- a/config/v3_2/types/verification.go
 +++ b/config/v3_2/types/verification.go
 @@ -19,7 +19,7 @@ import (
@@ -1890,7 +1890,7 @@ index 5def6f04..0aaba72a 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_2/types/verification_test.go b/config/v3_2/types/verification_test.go
-index 9a0914d0..2ec32227 100644
+index 9a0914d0..f121b503 100644
 --- a/config/v3_2/types/verification_test.go
 +++ b/config/v3_2/types/verification_test.go
 @@ -18,7 +18,7 @@ import (
@@ -1903,7 +1903,7 @@ index 9a0914d0..2ec32227 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_3/config.go b/config/v3_3/config.go
-index 446ea67d..7a4dec23 100644
+index 446ea67d..a0a74723 100644
 --- a/config/v3_3/config.go
 +++ b/config/v3_3/config.go
 @@ -15,13 +15,13 @@
@@ -1928,7 +1928,7 @@ index 446ea67d..7a4dec23 100644
  	"github.com/coreos/go-semver/semver"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_3/config_test.go b/config/v3_3/config_test.go
-index deb1e3b7..4792b544 100644
+index deb1e3b7..983c5a44 100644
 --- a/config/v3_3/config_test.go
 +++ b/config/v3_3/config_test.go
 @@ -17,8 +17,8 @@ package v3_3
@@ -1943,7 +1943,7 @@ index deb1e3b7..4792b544 100644
  )
  
 diff --git a/config/v3_3/translate/translate.go b/config/v3_3/translate/translate.go
-index 656ad0a4..970c4db8 100644
+index 656ad0a4..8d61318b 100644
 --- a/config/v3_3/translate/translate.go
 +++ b/config/v3_3/translate/translate.go
 @@ -15,10 +15,10 @@
@@ -1962,7 +1962,7 @@ index 656ad0a4..970c4db8 100644
  
  func translateIgnition(old old_types.Ignition) (ret types.Ignition) {
 diff --git a/config/v3_3/translate/translate_test.go b/config/v3_3/translate/translate_test.go
-index 81f3029b..eccd9029 100644
+index 81f3029b..89c7c765 100644
 --- a/config/v3_3/translate/translate_test.go
 +++ b/config/v3_3/translate/translate_test.go
 @@ -18,8 +18,8 @@ import (
@@ -1977,7 +1977,7 @@ index 81f3029b..eccd9029 100644
  
  // Check that we have valid translators for the complete config struct
 diff --git a/config/v3_3/types/clevis.go b/config/v3_3/types/clevis.go
-index 68887d43..6ac55ec6 100644
+index 68887d43..564154f6 100644
 --- a/config/v3_3/types/clevis.go
 +++ b/config/v3_3/types/clevis.go
 @@ -15,8 +15,8 @@
@@ -1992,7 +1992,7 @@ index 68887d43..6ac55ec6 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_3/types/clevis_test.go b/config/v3_3/types/clevis_test.go
-index f616868c..13f80b6c 100644
+index f616868c..c28509ee 100644
 --- a/config/v3_3/types/clevis_test.go
 +++ b/config/v3_3/types/clevis_test.go
 @@ -18,8 +18,8 @@ import (
@@ -2007,7 +2007,7 @@ index f616868c..13f80b6c 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_3/types/disk.go b/config/v3_3/types/disk.go
-index 8caf8499..24c36547 100644
+index 8caf8499..29fd3900 100644
 --- a/config/v3_3/types/disk.go
 +++ b/config/v3_3/types/disk.go
 @@ -15,8 +15,8 @@
@@ -2022,7 +2022,7 @@ index 8caf8499..24c36547 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_3/types/file.go b/config/v3_3/types/file.go
-index 4e7566bd..83345a31 100644
+index 4e7566bd..f86d520b 100644
 --- a/config/v3_3/types/file.go
 +++ b/config/v3_3/types/file.go
 @@ -15,8 +15,8 @@
@@ -2037,7 +2037,7 @@ index 4e7566bd..83345a31 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_3/types/file_test.go b/config/v3_3/types/file_test.go
-index 449e0700..ec53cb38 100644
+index 449e0700..5aa2e87c 100644
 --- a/config/v3_3/types/file_test.go
 +++ b/config/v3_3/types/file_test.go
 @@ -17,8 +17,8 @@ package types
@@ -2052,7 +2052,7 @@ index 449e0700..ec53cb38 100644
  
  func TestFileValidateOverwrite(t *testing.T) {
 diff --git a/config/v3_3/types/filesystem.go b/config/v3_3/types/filesystem.go
-index c722b363..d18da9e3 100644
+index c722b363..9f7f8bbc 100644
 --- a/config/v3_3/types/filesystem.go
 +++ b/config/v3_3/types/filesystem.go
 @@ -15,8 +15,8 @@
@@ -2067,7 +2067,7 @@ index c722b363..d18da9e3 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_3/types/filesystem_test.go b/config/v3_3/types/filesystem_test.go
-index 1f8db903..3cab3146 100644
+index 1f8db903..6e710426 100644
 --- a/config/v3_3/types/filesystem_test.go
 +++ b/config/v3_3/types/filesystem_test.go
 @@ -17,8 +17,8 @@ package types
@@ -2082,7 +2082,7 @@ index 1f8db903..3cab3146 100644
  
  func TestFilesystemValidateFormat(t *testing.T) {
 diff --git a/config/v3_3/types/headers.go b/config/v3_3/types/headers.go
-index be1aadad..56835594 100644
+index be1aadad..e968a2b4 100644
 --- a/config/v3_3/types/headers.go
 +++ b/config/v3_3/types/headers.go
 @@ -17,7 +17,7 @@ package types
@@ -2095,7 +2095,7 @@ index be1aadad..56835594 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/config/v3_3/types/headers_test.go b/config/v3_3/types/headers_test.go
-index 40380b68..02682db1 100644
+index 40380b68..5e888830 100644
 --- a/config/v3_3/types/headers_test.go
 +++ b/config/v3_3/types/headers_test.go
 @@ -17,7 +17,7 @@ package types
@@ -2108,7 +2108,7 @@ index 40380b68..02682db1 100644
  
  func toPointer(val string) *string {
 diff --git a/config/v3_3/types/ignition.go b/config/v3_3/types/ignition.go
-index 190445bd..746218a6 100644
+index 190445bd..1fbcf8c4 100644
 --- a/config/v3_3/types/ignition.go
 +++ b/config/v3_3/types/ignition.go
 @@ -17,7 +17,7 @@ package types
@@ -2121,7 +2121,7 @@ index 190445bd..746218a6 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_3/types/kargs_test.go b/config/v3_3/types/kargs_test.go
-index 1a258727..79eecda7 100644
+index 1a258727..a79c037a 100644
 --- a/config/v3_3/types/kargs_test.go
 +++ b/config/v3_3/types/kargs_test.go
 @@ -17,7 +17,7 @@ package types
@@ -2134,7 +2134,7 @@ index 1a258727..79eecda7 100644
  
  func TestKernelArgumentsValidate(t *testing.T) {
 diff --git a/config/v3_3/types/luks.go b/config/v3_3/types/luks.go
-index 90d72387..0d505e34 100644
+index 90d72387..2862ebae 100644
 --- a/config/v3_3/types/luks.go
 +++ b/config/v3_3/types/luks.go
 @@ -17,8 +17,8 @@ package types
@@ -2149,7 +2149,7 @@ index 90d72387..0d505e34 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_3/types/mode.go b/config/v3_3/types/mode.go
-index ad3e51c2..4ebde9f0 100644
+index ad3e51c2..8f15a8cb 100644
 --- a/config/v3_3/types/mode.go
 +++ b/config/v3_3/types/mode.go
 @@ -15,7 +15,7 @@
@@ -2162,7 +2162,7 @@ index ad3e51c2..4ebde9f0 100644
  
  func validateMode(m *int) error {
 diff --git a/config/v3_3/types/mode_test.go b/config/v3_3/types/mode_test.go
-index 53e37a6b..0dcb80d4 100644
+index 53e37a6b..a8fa7a81 100644
 --- a/config/v3_3/types/mode_test.go
 +++ b/config/v3_3/types/mode_test.go
 @@ -18,8 +18,8 @@ import (
@@ -2177,7 +2177,7 @@ index 53e37a6b..0dcb80d4 100644
  )
  
 diff --git a/config/v3_3/types/node.go b/config/v3_3/types/node.go
-index 248276e7..e23730f2 100644
+index 248276e7..f4e94f9e 100644
 --- a/config/v3_3/types/node.go
 +++ b/config/v3_3/types/node.go
 @@ -17,8 +17,8 @@ package types
@@ -2192,7 +2192,7 @@ index 248276e7..e23730f2 100644
  	vpath "github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_3/types/node_test.go b/config/v3_3/types/node_test.go
-index 20ba4eb6..89a4aa04 100644
+index 20ba4eb6..9176b4b7 100644
 --- a/config/v3_3/types/node_test.go
 +++ b/config/v3_3/types/node_test.go
 @@ -18,8 +18,8 @@ import (
@@ -2207,7 +2207,7 @@ index 20ba4eb6..89a4aa04 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_3/types/partition.go b/config/v3_3/types/partition.go
-index 1b2d97ed..8363be28 100644
+index 1b2d97ed..6603af3b 100644
 --- a/config/v3_3/types/partition.go
 +++ b/config/v3_3/types/partition.go
 @@ -19,8 +19,8 @@ import (
@@ -2222,7 +2222,7 @@ index 1b2d97ed..8363be28 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_3/types/partition_test.go b/config/v3_3/types/partition_test.go
-index a1e1623f..fde716a9 100644
+index a1e1623f..9f8e7997 100644
 --- a/config/v3_3/types/partition_test.go
 +++ b/config/v3_3/types/partition_test.go
 @@ -17,8 +17,8 @@ package types
@@ -2237,7 +2237,7 @@ index a1e1623f..fde716a9 100644
  
  func TestValidateLabel(t *testing.T) {
 diff --git a/config/v3_3/types/path.go b/config/v3_3/types/path.go
-index 131e300c..d6d394a7 100644
+index 131e300c..cb48e341 100644
 --- a/config/v3_3/types/path.go
 +++ b/config/v3_3/types/path.go
 @@ -17,8 +17,8 @@ package types
@@ -2252,7 +2252,7 @@ index 131e300c..d6d394a7 100644
  
  func validatePath(p string) error {
 diff --git a/config/v3_3/types/path_test.go b/config/v3_3/types/path_test.go
-index 3d199cbd..6ed191b6 100644
+index 3d199cbd..33b2d0ba 100644
 --- a/config/v3_3/types/path_test.go
 +++ b/config/v3_3/types/path_test.go
 @@ -18,7 +18,7 @@ import (
@@ -2265,7 +2265,7 @@ index 3d199cbd..6ed191b6 100644
  
  func TestPathValidate(t *testing.T) {
 diff --git a/config/v3_3/types/proxy.go b/config/v3_3/types/proxy.go
-index d48d210a..088459d8 100644
+index d48d210a..de146a99 100644
 --- a/config/v3_3/types/proxy.go
 +++ b/config/v3_3/types/proxy.go
 @@ -17,7 +17,7 @@ package types
@@ -2278,7 +2278,7 @@ index d48d210a..088459d8 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_3/types/proxy_test.go b/config/v3_3/types/proxy_test.go
-index 269f4fb2..6884dd46 100644
+index 269f4fb2..3cc5e5cd 100644
 --- a/config/v3_3/types/proxy_test.go
 +++ b/config/v3_3/types/proxy_test.go
 @@ -18,8 +18,8 @@ import (
@@ -2293,7 +2293,7 @@ index 269f4fb2..6884dd46 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_3/types/raid.go b/config/v3_3/types/raid.go
-index 9d69aa36..6bc73349 100644
+index 9d69aa36..fa1d3f4d 100644
 --- a/config/v3_3/types/raid.go
 +++ b/config/v3_3/types/raid.go
 @@ -15,8 +15,8 @@
@@ -2308,7 +2308,7 @@ index 9d69aa36..6bc73349 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_3/types/raid_test.go b/config/v3_3/types/raid_test.go
-index 7323b26f..542316b2 100644
+index 7323b26f..313b4572 100644
 --- a/config/v3_3/types/raid_test.go
 +++ b/config/v3_3/types/raid_test.go
 @@ -18,8 +18,8 @@ import (
@@ -2323,7 +2323,7 @@ index 7323b26f..542316b2 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_3/types/resource.go b/config/v3_3/types/resource.go
-index 68da6c7b..8c03b7f5 100644
+index 68da6c7b..6ea74d3d 100644
 --- a/config/v3_3/types/resource.go
 +++ b/config/v3_3/types/resource.go
 @@ -17,8 +17,8 @@ package types
@@ -2338,7 +2338,7 @@ index 68da6c7b..8c03b7f5 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_3/types/storage.go b/config/v3_3/types/storage.go
-index 02108613..7c01d6d1 100644
+index 02108613..89299b0f 100644
 --- a/config/v3_3/types/storage.go
 +++ b/config/v3_3/types/storage.go
 @@ -18,8 +18,8 @@ import (
@@ -2353,7 +2353,7 @@ index 02108613..7c01d6d1 100644
  	vpath "github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_3/types/storage_test.go b/config/v3_3/types/storage_test.go
-index cb9256cf..61efae3c 100644
+index cb9256cf..1d894b20 100644
 --- a/config/v3_3/types/storage_test.go
 +++ b/config/v3_3/types/storage_test.go
 @@ -18,8 +18,8 @@ import (
@@ -2368,7 +2368,7 @@ index cb9256cf..61efae3c 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_3/types/tang.go b/config/v3_3/types/tang.go
-index 86ab79c9..d6df1d98 100644
+index 86ab79c9..a2fd8ee6 100644
 --- a/config/v3_3/types/tang.go
 +++ b/config/v3_3/types/tang.go
 @@ -17,8 +17,8 @@ package types
@@ -2383,7 +2383,7 @@ index 86ab79c9..d6df1d98 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_3/types/unit.go b/config/v3_3/types/unit.go
-index bc2d3299..933163a7 100644
+index bc2d3299..ecc7ab08 100644
 --- a/config/v3_3/types/unit.go
 +++ b/config/v3_3/types/unit.go
 @@ -19,9 +19,9 @@ import (
@@ -2400,7 +2400,7 @@ index bc2d3299..933163a7 100644
  	"github.com/coreos/go-systemd/v22/unit"
  	cpath "github.com/coreos/vcontext/path"
 diff --git a/config/v3_3/types/unit_test.go b/config/v3_3/types/unit_test.go
-index 3dc90540..494f210a 100644
+index 3dc90540..8c96dfba 100644
 --- a/config/v3_3/types/unit_test.go
 +++ b/config/v3_3/types/unit_test.go
 @@ -19,8 +19,8 @@ import (
@@ -2415,7 +2415,7 @@ index 3dc90540..494f210a 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_3/types/url.go b/config/v3_3/types/url.go
-index 0d8771bf..bb90bdf9 100644
+index 0d8771bf..bf1f3a5e 100644
 --- a/config/v3_3/types/url.go
 +++ b/config/v3_3/types/url.go
 @@ -19,8 +19,8 @@ import (
@@ -2430,7 +2430,7 @@ index 0d8771bf..bb90bdf9 100644
  
  func validateURL(s string) error {
 diff --git a/config/v3_3/types/url_test.go b/config/v3_3/types/url_test.go
-index bfef261f..c371179f 100644
+index bfef261f..b10533d9 100644
 --- a/config/v3_3/types/url_test.go
 +++ b/config/v3_3/types/url_test.go
 @@ -17,8 +17,8 @@ package types
@@ -2445,7 +2445,7 @@ index bfef261f..c371179f 100644
  
  func TestURLValidate(t *testing.T) {
 diff --git a/config/v3_3/types/verification.go b/config/v3_3/types/verification.go
-index 5def6f04..0aaba72a 100644
+index 5def6f04..1ef291c0 100644
 --- a/config/v3_3/types/verification.go
 +++ b/config/v3_3/types/verification.go
 @@ -19,7 +19,7 @@ import (
@@ -2458,7 +2458,7 @@ index 5def6f04..0aaba72a 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_3/types/verification_test.go b/config/v3_3/types/verification_test.go
-index 9a0914d0..2ec32227 100644
+index 9a0914d0..f121b503 100644
 --- a/config/v3_3/types/verification_test.go
 +++ b/config/v3_3/types/verification_test.go
 @@ -18,7 +18,7 @@ import (
@@ -2471,7 +2471,7 @@ index 9a0914d0..2ec32227 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_4_experimental/config.go b/config/v3_4_experimental/config.go
-index a8836488..512fc9f0 100644
+index a8836488..097dbd83 100644
 --- a/config/v3_4_experimental/config.go
 +++ b/config/v3_4_experimental/config.go
 @@ -15,13 +15,13 @@
@@ -2496,7 +2496,7 @@ index a8836488..512fc9f0 100644
  	"github.com/coreos/go-semver/semver"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_4_experimental/config_test.go b/config/v3_4_experimental/config_test.go
-index 97253860..7ff31ee8 100644
+index 97253860..e334ca85 100644
 --- a/config/v3_4_experimental/config_test.go
 +++ b/config/v3_4_experimental/config_test.go
 @@ -17,8 +17,8 @@ package v3_4_experimental
@@ -2511,7 +2511,7 @@ index 97253860..7ff31ee8 100644
  )
  
 diff --git a/config/v3_4_experimental/translate/translate.go b/config/v3_4_experimental/translate/translate.go
-index 2539c8f4..1076cdba 100644
+index 2539c8f4..339513cb 100644
 --- a/config/v3_4_experimental/translate/translate.go
 +++ b/config/v3_4_experimental/translate/translate.go
 @@ -15,10 +15,10 @@
@@ -2530,7 +2530,7 @@ index 2539c8f4..1076cdba 100644
  
  func translateIgnition(old old_types.Ignition) (ret types.Ignition) {
 diff --git a/config/v3_4_experimental/translate/translate_test.go b/config/v3_4_experimental/translate/translate_test.go
-index 8ff8c05c..f446bbaf 100644
+index 8ff8c05c..8d0e5759 100644
 --- a/config/v3_4_experimental/translate/translate_test.go
 +++ b/config/v3_4_experimental/translate/translate_test.go
 @@ -18,8 +18,8 @@ import (
@@ -2545,7 +2545,7 @@ index 8ff8c05c..f446bbaf 100644
  
  // Check that we have valid translators for the complete config struct
 diff --git a/config/v3_4_experimental/types/clevis.go b/config/v3_4_experimental/types/clevis.go
-index 68887d43..6ac55ec6 100644
+index 68887d43..564154f6 100644
 --- a/config/v3_4_experimental/types/clevis.go
 +++ b/config/v3_4_experimental/types/clevis.go
 @@ -15,8 +15,8 @@
@@ -2560,7 +2560,7 @@ index 68887d43..6ac55ec6 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_4_experimental/types/clevis_test.go b/config/v3_4_experimental/types/clevis_test.go
-index f616868c..13f80b6c 100644
+index f616868c..c28509ee 100644
 --- a/config/v3_4_experimental/types/clevis_test.go
 +++ b/config/v3_4_experimental/types/clevis_test.go
 @@ -18,8 +18,8 @@ import (
@@ -2575,7 +2575,7 @@ index f616868c..13f80b6c 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_4_experimental/types/disk.go b/config/v3_4_experimental/types/disk.go
-index 8caf8499..24c36547 100644
+index 8caf8499..29fd3900 100644
 --- a/config/v3_4_experimental/types/disk.go
 +++ b/config/v3_4_experimental/types/disk.go
 @@ -15,8 +15,8 @@
@@ -2590,7 +2590,7 @@ index 8caf8499..24c36547 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_4_experimental/types/file.go b/config/v3_4_experimental/types/file.go
-index 9b71bb26..dafdf5af 100644
+index 9b71bb26..e3f7fbdf 100644
 --- a/config/v3_4_experimental/types/file.go
 +++ b/config/v3_4_experimental/types/file.go
 @@ -15,8 +15,8 @@
@@ -2605,7 +2605,7 @@ index 9b71bb26..dafdf5af 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_4_experimental/types/file_test.go b/config/v3_4_experimental/types/file_test.go
-index 449e0700..ec53cb38 100644
+index 449e0700..5aa2e87c 100644
 --- a/config/v3_4_experimental/types/file_test.go
 +++ b/config/v3_4_experimental/types/file_test.go
 @@ -17,8 +17,8 @@ package types
@@ -2620,7 +2620,7 @@ index 449e0700..ec53cb38 100644
  
  func TestFileValidateOverwrite(t *testing.T) {
 diff --git a/config/v3_4_experimental/types/filesystem.go b/config/v3_4_experimental/types/filesystem.go
-index c722b363..d18da9e3 100644
+index c722b363..9f7f8bbc 100644
 --- a/config/v3_4_experimental/types/filesystem.go
 +++ b/config/v3_4_experimental/types/filesystem.go
 @@ -15,8 +15,8 @@
@@ -2635,7 +2635,7 @@ index c722b363..d18da9e3 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_4_experimental/types/filesystem_test.go b/config/v3_4_experimental/types/filesystem_test.go
-index 1f8db903..3cab3146 100644
+index 1f8db903..6e710426 100644
 --- a/config/v3_4_experimental/types/filesystem_test.go
 +++ b/config/v3_4_experimental/types/filesystem_test.go
 @@ -17,8 +17,8 @@ package types
@@ -2650,7 +2650,7 @@ index 1f8db903..3cab3146 100644
  
  func TestFilesystemValidateFormat(t *testing.T) {
 diff --git a/config/v3_4_experimental/types/headers.go b/config/v3_4_experimental/types/headers.go
-index be1aadad..56835594 100644
+index be1aadad..e968a2b4 100644
 --- a/config/v3_4_experimental/types/headers.go
 +++ b/config/v3_4_experimental/types/headers.go
 @@ -17,7 +17,7 @@ package types
@@ -2663,7 +2663,7 @@ index be1aadad..56835594 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/config/v3_4_experimental/types/headers_test.go b/config/v3_4_experimental/types/headers_test.go
-index 40380b68..02682db1 100644
+index 40380b68..5e888830 100644
 --- a/config/v3_4_experimental/types/headers_test.go
 +++ b/config/v3_4_experimental/types/headers_test.go
 @@ -17,7 +17,7 @@ package types
@@ -2676,7 +2676,7 @@ index 40380b68..02682db1 100644
  
  func toPointer(val string) *string {
 diff --git a/config/v3_4_experimental/types/ignition.go b/config/v3_4_experimental/types/ignition.go
-index 190445bd..746218a6 100644
+index 190445bd..1fbcf8c4 100644
 --- a/config/v3_4_experimental/types/ignition.go
 +++ b/config/v3_4_experimental/types/ignition.go
 @@ -17,7 +17,7 @@ package types
@@ -2689,7 +2689,7 @@ index 190445bd..746218a6 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_4_experimental/types/kargs_test.go b/config/v3_4_experimental/types/kargs_test.go
-index 1a258727..79eecda7 100644
+index 1a258727..a79c037a 100644
 --- a/config/v3_4_experimental/types/kargs_test.go
 +++ b/config/v3_4_experimental/types/kargs_test.go
 @@ -17,7 +17,7 @@ package types
@@ -2702,7 +2702,7 @@ index 1a258727..79eecda7 100644
  
  func TestKernelArgumentsValidate(t *testing.T) {
 diff --git a/config/v3_4_experimental/types/luks.go b/config/v3_4_experimental/types/luks.go
-index 90d72387..0d505e34 100644
+index 90d72387..2862ebae 100644
 --- a/config/v3_4_experimental/types/luks.go
 +++ b/config/v3_4_experimental/types/luks.go
 @@ -17,8 +17,8 @@ package types
@@ -2717,7 +2717,7 @@ index 90d72387..0d505e34 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_4_experimental/types/mode.go b/config/v3_4_experimental/types/mode.go
-index 9eb7573d..5e57bb65 100644
+index 9eb7573d..67c7ebd3 100644
 --- a/config/v3_4_experimental/types/mode.go
 +++ b/config/v3_4_experimental/types/mode.go
 @@ -15,7 +15,7 @@
@@ -2730,7 +2730,7 @@ index 9eb7573d..5e57bb65 100644
  
  func validateMode(m *int) error {
 diff --git a/config/v3_4_experimental/types/mode_test.go b/config/v3_4_experimental/types/mode_test.go
-index 8966e25d..be3777d4 100644
+index 8966e25d..5c973dbf 100644
 --- a/config/v3_4_experimental/types/mode_test.go
 +++ b/config/v3_4_experimental/types/mode_test.go
 @@ -18,8 +18,8 @@ import (
@@ -2745,7 +2745,7 @@ index 8966e25d..be3777d4 100644
  
  func TestModeValidate(t *testing.T) {
 diff --git a/config/v3_4_experimental/types/node.go b/config/v3_4_experimental/types/node.go
-index 248276e7..e23730f2 100644
+index 248276e7..f4e94f9e 100644
 --- a/config/v3_4_experimental/types/node.go
 +++ b/config/v3_4_experimental/types/node.go
 @@ -17,8 +17,8 @@ package types
@@ -2760,7 +2760,7 @@ index 248276e7..e23730f2 100644
  	vpath "github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_4_experimental/types/node_test.go b/config/v3_4_experimental/types/node_test.go
-index 20ba4eb6..89a4aa04 100644
+index 20ba4eb6..9176b4b7 100644
 --- a/config/v3_4_experimental/types/node_test.go
 +++ b/config/v3_4_experimental/types/node_test.go
 @@ -18,8 +18,8 @@ import (
@@ -2775,7 +2775,7 @@ index 20ba4eb6..89a4aa04 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_4_experimental/types/partition.go b/config/v3_4_experimental/types/partition.go
-index 1b2d97ed..8363be28 100644
+index 1b2d97ed..6603af3b 100644
 --- a/config/v3_4_experimental/types/partition.go
 +++ b/config/v3_4_experimental/types/partition.go
 @@ -19,8 +19,8 @@ import (
@@ -2790,7 +2790,7 @@ index 1b2d97ed..8363be28 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_4_experimental/types/partition_test.go b/config/v3_4_experimental/types/partition_test.go
-index a1e1623f..fde716a9 100644
+index a1e1623f..9f8e7997 100644
 --- a/config/v3_4_experimental/types/partition_test.go
 +++ b/config/v3_4_experimental/types/partition_test.go
 @@ -17,8 +17,8 @@ package types
@@ -2805,7 +2805,7 @@ index a1e1623f..fde716a9 100644
  
  func TestValidateLabel(t *testing.T) {
 diff --git a/config/v3_4_experimental/types/path.go b/config/v3_4_experimental/types/path.go
-index 131e300c..d6d394a7 100644
+index 131e300c..cb48e341 100644
 --- a/config/v3_4_experimental/types/path.go
 +++ b/config/v3_4_experimental/types/path.go
 @@ -17,8 +17,8 @@ package types
@@ -2820,7 +2820,7 @@ index 131e300c..d6d394a7 100644
  
  func validatePath(p string) error {
 diff --git a/config/v3_4_experimental/types/path_test.go b/config/v3_4_experimental/types/path_test.go
-index 3d199cbd..6ed191b6 100644
+index 3d199cbd..33b2d0ba 100644
 --- a/config/v3_4_experimental/types/path_test.go
 +++ b/config/v3_4_experimental/types/path_test.go
 @@ -18,7 +18,7 @@ import (
@@ -2833,7 +2833,7 @@ index 3d199cbd..6ed191b6 100644
  
  func TestPathValidate(t *testing.T) {
 diff --git a/config/v3_4_experimental/types/proxy.go b/config/v3_4_experimental/types/proxy.go
-index d48d210a..088459d8 100644
+index d48d210a..de146a99 100644
 --- a/config/v3_4_experimental/types/proxy.go
 +++ b/config/v3_4_experimental/types/proxy.go
 @@ -17,7 +17,7 @@ package types
@@ -2846,7 +2846,7 @@ index d48d210a..088459d8 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_4_experimental/types/proxy_test.go b/config/v3_4_experimental/types/proxy_test.go
-index 269f4fb2..6884dd46 100644
+index 269f4fb2..3cc5e5cd 100644
 --- a/config/v3_4_experimental/types/proxy_test.go
 +++ b/config/v3_4_experimental/types/proxy_test.go
 @@ -18,8 +18,8 @@ import (
@@ -2861,7 +2861,7 @@ index 269f4fb2..6884dd46 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_4_experimental/types/raid.go b/config/v3_4_experimental/types/raid.go
-index 9d69aa36..6bc73349 100644
+index 9d69aa36..fa1d3f4d 100644
 --- a/config/v3_4_experimental/types/raid.go
 +++ b/config/v3_4_experimental/types/raid.go
 @@ -15,8 +15,8 @@
@@ -2876,7 +2876,7 @@ index 9d69aa36..6bc73349 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_4_experimental/types/raid_test.go b/config/v3_4_experimental/types/raid_test.go
-index 7323b26f..542316b2 100644
+index 7323b26f..313b4572 100644
 --- a/config/v3_4_experimental/types/raid_test.go
 +++ b/config/v3_4_experimental/types/raid_test.go
 @@ -18,8 +18,8 @@ import (
@@ -2891,7 +2891,7 @@ index 7323b26f..542316b2 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_4_experimental/types/resource.go b/config/v3_4_experimental/types/resource.go
-index 68da6c7b..8c03b7f5 100644
+index 68da6c7b..6ea74d3d 100644
 --- a/config/v3_4_experimental/types/resource.go
 +++ b/config/v3_4_experimental/types/resource.go
 @@ -17,8 +17,8 @@ package types
@@ -2906,7 +2906,7 @@ index 68da6c7b..8c03b7f5 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_4_experimental/types/storage.go b/config/v3_4_experimental/types/storage.go
-index 02108613..7c01d6d1 100644
+index 02108613..89299b0f 100644
 --- a/config/v3_4_experimental/types/storage.go
 +++ b/config/v3_4_experimental/types/storage.go
 @@ -18,8 +18,8 @@ import (
@@ -2921,7 +2921,7 @@ index 02108613..7c01d6d1 100644
  	vpath "github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_4_experimental/types/storage_test.go b/config/v3_4_experimental/types/storage_test.go
-index cb9256cf..61efae3c 100644
+index cb9256cf..1d894b20 100644
 --- a/config/v3_4_experimental/types/storage_test.go
 +++ b/config/v3_4_experimental/types/storage_test.go
 @@ -18,8 +18,8 @@ import (
@@ -2936,7 +2936,7 @@ index cb9256cf..61efae3c 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_4_experimental/types/tang.go b/config/v3_4_experimental/types/tang.go
-index 86ab79c9..d6df1d98 100644
+index 86ab79c9..a2fd8ee6 100644
 --- a/config/v3_4_experimental/types/tang.go
 +++ b/config/v3_4_experimental/types/tang.go
 @@ -17,8 +17,8 @@ package types
@@ -2951,7 +2951,7 @@ index 86ab79c9..d6df1d98 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_4_experimental/types/unit.go b/config/v3_4_experimental/types/unit.go
-index bc2d3299..933163a7 100644
+index bc2d3299..ecc7ab08 100644
 --- a/config/v3_4_experimental/types/unit.go
 +++ b/config/v3_4_experimental/types/unit.go
 @@ -19,9 +19,9 @@ import (
@@ -2968,7 +2968,7 @@ index bc2d3299..933163a7 100644
  	"github.com/coreos/go-systemd/v22/unit"
  	cpath "github.com/coreos/vcontext/path"
 diff --git a/config/v3_4_experimental/types/unit_test.go b/config/v3_4_experimental/types/unit_test.go
-index 3dc90540..494f210a 100644
+index 3dc90540..8c96dfba 100644
 --- a/config/v3_4_experimental/types/unit_test.go
 +++ b/config/v3_4_experimental/types/unit_test.go
 @@ -19,8 +19,8 @@ import (
@@ -2983,7 +2983,7 @@ index 3dc90540..494f210a 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_4_experimental/types/url.go b/config/v3_4_experimental/types/url.go
-index 3ca189da..f094cde8 100644
+index 3ca189da..9b2b4405 100644
 --- a/config/v3_4_experimental/types/url.go
 +++ b/config/v3_4_experimental/types/url.go
 @@ -21,8 +21,8 @@ import (
@@ -2998,7 +2998,7 @@ index 3ca189da..f094cde8 100644
  
  func validateURL(s string) error {
 diff --git a/config/v3_4_experimental/types/url_test.go b/config/v3_4_experimental/types/url_test.go
-index 1901b7af..a0f2268f 100644
+index 1901b7af..12a4cfbf 100644
 --- a/config/v3_4_experimental/types/url_test.go
 +++ b/config/v3_4_experimental/types/url_test.go
 @@ -17,8 +17,8 @@ package types
@@ -3013,7 +3013,7 @@ index 1901b7af..a0f2268f 100644
  
  func TestURLValidate(t *testing.T) {
 diff --git a/config/v3_4_experimental/types/verification.go b/config/v3_4_experimental/types/verification.go
-index 5def6f04..0aaba72a 100644
+index 5def6f04..1ef291c0 100644
 --- a/config/v3_4_experimental/types/verification.go
 +++ b/config/v3_4_experimental/types/verification.go
 @@ -19,7 +19,7 @@ import (
@@ -3026,7 +3026,7 @@ index 5def6f04..0aaba72a 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_4_experimental/types/verification_test.go b/config/v3_4_experimental/types/verification_test.go
-index 9a0914d0..2ec32227 100644
+index 9a0914d0..f121b503 100644
 --- a/config/v3_4_experimental/types/verification_test.go
 +++ b/config/v3_4_experimental/types/verification_test.go
 @@ -18,7 +18,7 @@ import (
@@ -3039,7 +3039,7 @@ index 9a0914d0..2ec32227 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/validate/validate.go b/config/validate/validate.go
-index 613c21e4..fb02ace8 100644
+index 613c21e4..a8f41517 100644
 --- a/config/validate/validate.go
 +++ b/config/validate/validate.go
 @@ -18,8 +18,8 @@ import (
@@ -3054,7 +3054,7 @@ index 613c21e4..fb02ace8 100644
  	"github.com/coreos/vcontext/json"
  	"github.com/coreos/vcontext/path"
 diff --git a/config/validate/validate_test.go b/config/validate/validate_test.go
-index 18eea933..2c85ef10 100644
+index 18eea933..4f77f19c 100644
 --- a/config/validate/validate_test.go
 +++ b/config/validate/validate_test.go
 @@ -20,7 +20,7 @@ import (
@@ -3067,7 +3067,7 @@ index 18eea933..2c85ef10 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/go.mod b/go.mod
-index 06d80e65..e5a47737 100644
+index 06d80e65..7c813620 100644
 --- a/go.mod
 +++ b/go.mod
 @@ -1,4 +1,4 @@
@@ -3077,7 +3077,7 @@ index 06d80e65..e5a47737 100644
  go 1.15
  
 diff --git a/internal/apply/apply.go b/internal/apply/apply.go
-index d4ac38ff..049a65d5 100644
+index d4ac38ff..d8c9f84a 100644
 --- a/internal/apply/apply.go
 +++ b/internal/apply/apply.go
 @@ -20,21 +20,21 @@ import (
@@ -3118,7 +3118,7 @@ index d4ac38ff..049a65d5 100644
  
  type Flags struct {
 diff --git a/internal/distro/distro.go b/internal/distro/distro.go
-index 61ca87ae..0fe37f4a 100644
+index 61ca87ae..703385ea 100644
 --- a/internal/distro/distro.go
 +++ b/internal/distro/distro.go
 @@ -20,7 +20,7 @@ import (
@@ -3131,7 +3131,7 @@ index 61ca87ae..0fe37f4a 100644
  	// Device node directories and paths
  	diskByLabelDir = "/dev/disk/by-label"
 diff --git a/internal/exec/config_fetcher.go b/internal/exec/config_fetcher.go
-index 6d1b8cab..54a6aa57 100644
+index 6d1b8cab..19ec0767 100644
 --- a/internal/exec/config_fetcher.go
 +++ b/internal/exec/config_fetcher.go
 @@ -20,15 +20,15 @@ import (
@@ -3160,7 +3160,7 @@ index 6d1b8cab..54a6aa57 100644
  
  type ConfigFetcher struct {
 diff --git a/internal/exec/engine.go b/internal/exec/engine.go
-index efe5dba2..2a9bbba3 100644
+index efe5dba2..602840c9 100644
 --- a/internal/exec/engine.go
 +++ b/internal/exec/engine.go
 @@ -24,18 +24,18 @@ import (
@@ -3195,7 +3195,7 @@ index efe5dba2..2a9bbba3 100644
  	"github.com/coreos/vcontext/report"
  	"github.com/coreos/vcontext/validate"
 diff --git a/internal/exec/stages/disks/disks.go b/internal/exec/stages/disks/disks.go
-index 745fa19c..285e7e4a 100644
+index 745fa19c..4bb3e459 100644
 --- a/internal/exec/stages/disks/disks.go
 +++ b/internal/exec/stages/disks/disks.go
 @@ -23,14 +23,14 @@ import (
@@ -3222,7 +3222,7 @@ index 745fa19c..285e7e4a 100644
  
  const (
 diff --git a/internal/exec/stages/disks/filesystems.go b/internal/exec/stages/disks/filesystems.go
-index 0c5eeff1..ef9028bf 100644
+index 0c5eeff1..b7f3795a 100644
 --- a/internal/exec/stages/disks/filesystems.go
 +++ b/internal/exec/stages/disks/filesystems.go
 @@ -25,10 +25,10 @@ import (
@@ -3241,7 +3241,7 @@ index 0c5eeff1..ef9028bf 100644
  
  var (
 diff --git a/internal/exec/stages/disks/luks.go b/internal/exec/stages/disks/luks.go
-index 5fa15e70..dbcd767d 100644
+index 5fa15e70..124711a6 100644
 --- a/internal/exec/stages/disks/luks.go
 +++ b/internal/exec/stages/disks/luks.go
 @@ -27,11 +27,11 @@ import (
@@ -3262,7 +3262,7 @@ index 5fa15e70..dbcd767d 100644
  	"github.com/vincent-petithory/dataurl"
  )
 diff --git a/internal/exec/stages/disks/partitions.go b/internal/exec/stages/disks/partitions.go
-index 54730b41..99189da0 100644
+index 54730b41..fee39c0a 100644
 --- a/internal/exec/stages/disks/partitions.go
 +++ b/internal/exec/stages/disks/partitions.go
 @@ -26,10 +26,10 @@ import (
@@ -3281,7 +3281,7 @@ index 54730b41..99189da0 100644
  
  var (
 diff --git a/internal/exec/stages/disks/raid.go b/internal/exec/stages/disks/raid.go
-index f838f349..dff93413 100644
+index f838f349..2781131b 100644
 --- a/internal/exec/stages/disks/raid.go
 +++ b/internal/exec/stages/disks/raid.go
 @@ -23,9 +23,9 @@ import (
@@ -3298,7 +3298,7 @@ index f838f349..dff93413 100644
  
  func (s stage) createRaids(config types.Config) error {
 diff --git a/internal/exec/stages/fetch/fetch.go b/internal/exec/stages/fetch/fetch.go
-index f163509e..7b36e267 100644
+index f163509e..df2d5875 100644
 --- a/internal/exec/stages/fetch/fetch.go
 +++ b/internal/exec/stages/fetch/fetch.go
 @@ -19,12 +19,12 @@
@@ -3321,7 +3321,7 @@ index f163509e..7b36e267 100644
  
  const (
 diff --git a/internal/exec/stages/fetch_offline/fetch-offline.go b/internal/exec/stages/fetch_offline/fetch-offline.go
-index dcea43a8..5213099a 100644
+index dcea43a8..80ba7cac 100644
 --- a/internal/exec/stages/fetch_offline/fetch-offline.go
 +++ b/internal/exec/stages/fetch_offline/fetch-offline.go
 @@ -22,14 +22,14 @@ import (
@@ -3348,7 +3348,7 @@ index dcea43a8..5213099a 100644
  
  const (
 diff --git a/internal/exec/stages/fetch_offline/fetch_offline_test.go b/internal/exec/stages/fetch_offline/fetch_offline_test.go
-index 11f133ff..259f0d69 100644
+index 11f133ff..ffbf375f 100644
 --- a/internal/exec/stages/fetch_offline/fetch_offline_test.go
 +++ b/internal/exec/stages/fetch_offline/fetch_offline_test.go
 @@ -17,8 +17,8 @@ package fetch_offline
@@ -3363,7 +3363,7 @@ index 11f133ff..259f0d69 100644
  	"github.com/stretchr/testify/assert"
  )
 diff --git a/internal/exec/stages/files/files.go b/internal/exec/stages/files/files.go
-index 7d97df5f..de976b5d 100644
+index 7d97df5f..a789c04c 100644
 --- a/internal/exec/stages/files/files.go
 +++ b/internal/exec/stages/files/files.go
 @@ -19,13 +19,13 @@ import (
@@ -3388,7 +3388,7 @@ index 7d97df5f..de976b5d 100644
  
  const (
 diff --git a/internal/exec/stages/files/files_test.go b/internal/exec/stages/files/files_test.go
-index 9428b883..f0cf4ef0 100644
+index 9428b883..5c1f7990 100644
 --- a/internal/exec/stages/files/files_test.go
 +++ b/internal/exec/stages/files/files_test.go
 @@ -19,8 +19,8 @@ import (
@@ -3403,7 +3403,7 @@ index 9428b883..f0cf4ef0 100644
  
  func TestEntrySort(t *testing.T) {
 diff --git a/internal/exec/stages/files/filesystemEntries.go b/internal/exec/stages/files/filesystemEntries.go
-index c61824ba..d7af2c85 100644
+index c61824ba..3883cba2 100644
 --- a/internal/exec/stages/files/filesystemEntries.go
 +++ b/internal/exec/stages/files/filesystemEntries.go
 @@ -25,11 +25,11 @@ import (
@@ -3433,7 +3433,7 @@ index c61824ba..d7af2c85 100644
  
  	return entries, nil
 diff --git a/internal/exec/stages/files/passwd.go b/internal/exec/stages/files/passwd.go
-index 2c5e2d9d..638975a8 100644
+index 2c5e2d9d..07d7ff2a 100644
 --- a/internal/exec/stages/files/passwd.go
 +++ b/internal/exec/stages/files/passwd.go
 @@ -18,8 +18,8 @@ import (
@@ -3448,7 +3448,7 @@ index 2c5e2d9d..638975a8 100644
  
  func (s *stage) expandGlobList(globs ...string) ([]string, error) {
 diff --git a/internal/exec/stages/files/units.go b/internal/exec/stages/files/units.go
-index f7ded9e8..fdc7be59 100644
+index f7ded9e8..5c254e12 100644
 --- a/internal/exec/stages/files/units.go
 +++ b/internal/exec/stages/files/units.go
 @@ -19,11 +19,11 @@ import (
@@ -3478,7 +3478,7 @@ index f7ded9e8..fdc7be59 100644
  	return nil
  }
 diff --git a/internal/exec/stages/files/units_test.go b/internal/exec/stages/files/units_test.go
-index b7020f7e..a9ead954 100644
+index b7020f7e..dbf93f47 100644
 --- a/internal/exec/stages/files/units_test.go
 +++ b/internal/exec/stages/files/units_test.go
 @@ -18,8 +18,8 @@ import (
@@ -3493,7 +3493,7 @@ index b7020f7e..a9ead954 100644
  
  func TestParseInstanceUnit(t *testing.T) {
 diff --git a/internal/exec/stages/kargs/kargs.go b/internal/exec/stages/kargs/kargs.go
-index 7267709f..2b7b19e4 100644
+index 7267709f..621dbe63 100644
 --- a/internal/exec/stages/kargs/kargs.go
 +++ b/internal/exec/stages/kargs/kargs.go
 @@ -19,13 +19,13 @@ import (
@@ -3518,7 +3518,7 @@ index 7267709f..2b7b19e4 100644
  
  const (
 diff --git a/internal/exec/stages/mount/mount.go b/internal/exec/stages/mount/mount.go
-index 1c25dfed..8ec9ca99 100644
+index 1c25dfed..8cf997fa 100644
 --- a/internal/exec/stages/mount/mount.go
 +++ b/internal/exec/stages/mount/mount.go
 @@ -27,14 +27,14 @@ import (
@@ -3545,7 +3545,7 @@ index 1c25dfed..8ec9ca99 100644
  
  const (
 diff --git a/internal/exec/stages/stages.go b/internal/exec/stages/stages.go
-index dc4d7d3e..b7be351e 100644
+index dc4d7d3e..665bc24c 100644
 --- a/internal/exec/stages/stages.go
 +++ b/internal/exec/stages/stages.go
 @@ -15,11 +15,11 @@
@@ -3566,7 +3566,7 @@ index dc4d7d3e..b7be351e 100644
  
  // Stage is responsible for actually executing a stage of the configuration.
 diff --git a/internal/exec/stages/umount/umount.go b/internal/exec/stages/umount/umount.go
-index d7b7fbba..1abcb57c 100644
+index d7b7fbba..0d671f92 100644
 --- a/internal/exec/stages/umount/umount.go
 +++ b/internal/exec/stages/umount/umount.go
 @@ -22,13 +22,13 @@ import (
@@ -3591,7 +3591,7 @@ index d7b7fbba..1abcb57c 100644
  	"golang.org/x/sys/unix"
  )
 diff --git a/internal/exec/util/blkid.go b/internal/exec/util/blkid.go
-index 92db9026..a9fc6b64 100644
+index 92db9026..724009f2 100644
 --- a/internal/exec/util/blkid.go
 +++ b/internal/exec/util/blkid.go
 @@ -33,7 +33,7 @@ import (
@@ -3604,7 +3604,7 @@ index 92db9026..a9fc6b64 100644
  
  const (
 diff --git a/internal/exec/util/file.go b/internal/exec/util/file.go
-index d5a680d4..de46f9d6 100644
+index d5a680d4..e02e8921 100644
 --- a/internal/exec/util/file.go
 +++ b/internal/exec/util/file.go
 @@ -27,11 +27,11 @@ import (
@@ -3625,7 +3625,7 @@ index d5a680d4..de46f9d6 100644
  	"golang.org/x/sys/unix"
  )
 diff --git a/internal/exec/util/passwd.go b/internal/exec/util/passwd.go
-index e6050d04..713dacb9 100644
+index e6050d04..242f48f3 100644
 --- a/internal/exec/util/passwd.go
 +++ b/internal/exec/util/passwd.go
 @@ -24,10 +24,10 @@ import (
@@ -3644,7 +3644,7 @@ index e6050d04..713dacb9 100644
  )
  
 diff --git a/internal/exec/util/selinux.go b/internal/exec/util/selinux.go
-index a274eae6..25eb17f1 100644
+index a274eae6..0bd57f98 100644
 --- a/internal/exec/util/selinux.go
 +++ b/internal/exec/util/selinux.go
 @@ -21,7 +21,7 @@ import (
@@ -3657,7 +3657,7 @@ index a274eae6..25eb17f1 100644
  
  const (
 diff --git a/internal/exec/util/unit.go b/internal/exec/util/unit.go
-index d42c51ad..20afc279 100644
+index d42c51ad..96548b04 100644
 --- a/internal/exec/util/unit.go
 +++ b/internal/exec/util/unit.go
 @@ -22,8 +22,8 @@ import (
@@ -3672,7 +3672,7 @@ index d42c51ad..20afc279 100644
  	"github.com/vincent-petithory/dataurl"
  )
 diff --git a/internal/exec/util/user_group_lookup_test.go b/internal/exec/util/user_group_lookup_test.go
-index c30e1550..fd0901df 100644
+index c30e1550..dcdc2273 100644
 --- a/internal/exec/util/user_group_lookup_test.go
 +++ b/internal/exec/util/user_group_lookup_test.go
 @@ -21,7 +21,7 @@ import (
@@ -3685,7 +3685,7 @@ index c30e1550..fd0901df 100644
  
  // tempBase() slaps together a minimal /etc/{passwd,group} for the lookup test.
 diff --git a/internal/exec/util/util.go b/internal/exec/util/util.go
-index 4a81f776..ebe7e00c 100644
+index 4a81f776..bd73adf4 100644
 --- a/internal/exec/util/util.go
 +++ b/internal/exec/util/util.go
 @@ -18,9 +18,9 @@ import (
@@ -3702,7 +3702,7 @@ index 4a81f776..ebe7e00c 100644
  
  // Util encapsulates logging and destdir indirection for the util methods.
 diff --git a/internal/main.go b/internal/main.go
-index 809a92b5..b87c6293 100644
+index 809a92b5..27403e6b 100644
 --- a/internal/main.go
 +++ b/internal/main.go
 @@ -22,21 +22,21 @@ import (
@@ -3743,7 +3743,7 @@ index 809a92b5..b87c6293 100644
  )
  
 diff --git a/internal/platform/platform.go b/internal/platform/platform.go
-index 23339439..f7c59b7f 100644
+index 23339439..51bf5174 100644
 --- a/internal/platform/platform.go
 +++ b/internal/platform/platform.go
 @@ -18,31 +18,31 @@ import (
@@ -3804,7 +3804,7 @@ index 23339439..f7c59b7f 100644
  
  var (
 diff --git a/internal/providers/aliyun/aliyun.go b/internal/providers/aliyun/aliyun.go
-index 2da29f86..145a6cee 100644
+index 2da29f86..ec19ddf8 100644
 --- a/internal/providers/aliyun/aliyun.go
 +++ b/internal/providers/aliyun/aliyun.go
 @@ -20,9 +20,9 @@ package aliyun
@@ -3821,7 +3821,7 @@ index 2da29f86..145a6cee 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/aws/aws.go b/internal/providers/aws/aws.go
-index b2385ac8..28157e60 100644
+index b2385ac8..14c77a8f 100644
 --- a/internal/providers/aws/aws.go
 +++ b/internal/providers/aws/aws.go
 @@ -22,10 +22,10 @@ import (
@@ -3849,7 +3849,7 @@ index b2385ac8..28157e60 100644
  	// TODO: investigate alternative solutions (adding a Retryer to the
  	// aws.Config, fetching the region from an HTTP URL, handle the
 diff --git a/internal/providers/azure/azure.go b/internal/providers/azure/azure.go
-index 7948e7fe..2f3374c0 100644
+index 7948e7fe..6d95a738 100644
 --- a/internal/providers/azure/azure.go
 +++ b/internal/providers/azure/azure.go
 @@ -26,12 +26,12 @@ import (
@@ -3872,7 +3872,7 @@ index 7948e7fe..2f3374c0 100644
  	"github.com/coreos/vcontext/report"
  	"golang.org/x/sys/unix"
 diff --git a/internal/providers/azurestack/azurestack.go b/internal/providers/azurestack/azurestack.go
-index 10da8d23..4d815569 100644
+index 10da8d23..79c1d308 100644
 --- a/internal/providers/azurestack/azurestack.go
 +++ b/internal/providers/azurestack/azurestack.go
 @@ -18,9 +18,9 @@
@@ -3889,7 +3889,7 @@ index 10da8d23..4d815569 100644
  )
  
 diff --git a/internal/providers/cloudstack/cloudstack.go b/internal/providers/cloudstack/cloudstack.go
-index 4e94faef..1a0aa048 100644
+index 4e94faef..258496d0 100644
 --- a/internal/providers/cloudstack/cloudstack.go
 +++ b/internal/providers/cloudstack/cloudstack.go
 @@ -31,12 +31,12 @@ import (
@@ -3921,7 +3921,7 @@ index 4e94faef..1a0aa048 100644
  		return types.Config{}, report.Report{}, resource.ErrNeedNet
  	}
 diff --git a/internal/providers/cmdline/cmdline.go b/internal/providers/cmdline/cmdline.go
-index 37d246c7..0068ed66 100644
+index 37d246c7..c8006f02 100644
 --- a/internal/providers/cmdline/cmdline.go
 +++ b/internal/providers/cmdline/cmdline.go
 @@ -22,12 +22,12 @@ import (
@@ -3944,7 +3944,7 @@ index 37d246c7..0068ed66 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/digitalocean/digitalocean.go b/internal/providers/digitalocean/digitalocean.go
-index 928bd272..c6724db8 100644
+index 928bd272..90ed043c 100644
 --- a/internal/providers/digitalocean/digitalocean.go
 +++ b/internal/providers/digitalocean/digitalocean.go
 @@ -20,9 +20,9 @@ package digitalocean
@@ -3961,7 +3961,7 @@ index 928bd272..c6724db8 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/exoscale/exoscale.go b/internal/providers/exoscale/exoscale.go
-index 265e904d..08378c14 100644
+index 265e904d..4045efa9 100644
 --- a/internal/providers/exoscale/exoscale.go
 +++ b/internal/providers/exoscale/exoscale.go
 @@ -20,9 +20,9 @@ package exoscale
@@ -3978,7 +3978,7 @@ index 265e904d..08378c14 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/file/file.go b/internal/providers/file/file.go
-index 794df19a..6def37e7 100644
+index 794df19a..587cf485 100644
 --- a/internal/providers/file/file.go
 +++ b/internal/providers/file/file.go
 @@ -18,9 +18,9 @@ import (
@@ -3995,7 +3995,7 @@ index 794df19a..6def37e7 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/gcp/gcp.go b/internal/providers/gcp/gcp.go
-index 5fbdd648..b3ac9da2 100644
+index 5fbdd648..f07a4900 100644
 --- a/internal/providers/gcp/gcp.go
 +++ b/internal/providers/gcp/gcp.go
 @@ -21,9 +21,9 @@ import (
@@ -4012,7 +4012,7 @@ index 5fbdd648..b3ac9da2 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/ibmcloud/ibmcloud.go b/internal/providers/ibmcloud/ibmcloud.go
-index 83bb8952..787ef659 100644
+index 83bb8952..3214e56c 100644
 --- a/internal/providers/ibmcloud/ibmcloud.go
 +++ b/internal/providers/ibmcloud/ibmcloud.go
 @@ -28,12 +28,12 @@ import (
@@ -4035,7 +4035,7 @@ index 83bb8952..787ef659 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/kubevirt/kubevirt.go b/internal/providers/kubevirt/kubevirt.go
-index ca7ef67b..a3132bfe 100644
+index ca7ef67b..86163588 100644
 --- a/internal/providers/kubevirt/kubevirt.go
 +++ b/internal/providers/kubevirt/kubevirt.go
 @@ -26,12 +26,12 @@ import (
@@ -4058,7 +4058,7 @@ index ca7ef67b..a3132bfe 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/noop/noop.go b/internal/providers/noop/noop.go
-index cfc20174..2b9e583d 100644
+index cfc20174..bf965499 100644
 --- a/internal/providers/noop/noop.go
 +++ b/internal/providers/noop/noop.go
 @@ -17,9 +17,9 @@
@@ -4075,7 +4075,7 @@ index cfc20174..2b9e583d 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/nutanix/nutanix.go b/internal/providers/nutanix/nutanix.go
-index c46beab4..7864d33a 100644
+index c46beab4..108b9c81 100644
 --- a/internal/providers/nutanix/nutanix.go
 +++ b/internal/providers/nutanix/nutanix.go
 @@ -26,12 +26,12 @@ import (
@@ -4098,7 +4098,7 @@ index c46beab4..7864d33a 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/openstack/openstack.go b/internal/providers/openstack/openstack.go
-index 832cbf08..b8439cd4 100644
+index 832cbf08..67a10e4b 100644
 --- a/internal/providers/openstack/openstack.go
 +++ b/internal/providers/openstack/openstack.go
 @@ -29,12 +29,12 @@ import (
@@ -4130,7 +4130,7 @@ index 832cbf08..b8439cd4 100644
  		return types.Config{}, report.Report{}, resource.ErrNeedNet
  	}
 diff --git a/internal/providers/packet/packet.go b/internal/providers/packet/packet.go
-index 29b6c161..ce91a131 100644
+index 29b6c161..738b2be6 100644
 --- a/internal/providers/packet/packet.go
 +++ b/internal/providers/packet/packet.go
 @@ -25,9 +25,9 @@ import (
@@ -4147,7 +4147,7 @@ index 29b6c161..ce91a131 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/powervs/powervs.go b/internal/providers/powervs/powervs.go
-index fe41ec95..578b6d38 100644
+index fe41ec95..1c66f04a 100644
 --- a/internal/providers/powervs/powervs.go
 +++ b/internal/providers/powervs/powervs.go
 @@ -25,12 +25,12 @@ import (
@@ -4170,7 +4170,7 @@ index fe41ec95..578b6d38 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/providers.go b/internal/providers/providers.go
-index daa80bfb..0bcbd712 100644
+index daa80bfb..8f1a1a01 100644
 --- a/internal/providers/providers.go
 +++ b/internal/providers/providers.go
 @@ -17,9 +17,9 @@ package providers
@@ -4187,7 +4187,7 @@ index daa80bfb..0bcbd712 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/qemu/qemu_blockdev.go b/internal/providers/qemu/qemu_blockdev.go
-index ba05ff6d..ffd2eec0 100644
+index ba05ff6d..46517baf 100644
 --- a/internal/providers/qemu/qemu_blockdev.go
 +++ b/internal/providers/qemu/qemu_blockdev.go
 @@ -28,10 +28,10 @@ import (
@@ -4206,7 +4206,7 @@ index ba05ff6d..ffd2eec0 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/qemu/qemu_fwcfg.go b/internal/providers/qemu/qemu_fwcfg.go
-index 65c76875..a4ebec6a 100644
+index 65c76875..46ab7ae0 100644
 --- a/internal/providers/qemu/qemu_fwcfg.go
 +++ b/internal/providers/qemu/qemu_fwcfg.go
 @@ -30,9 +30,9 @@ import (
@@ -4223,7 +4223,7 @@ index 65c76875..a4ebec6a 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/system/system.go b/internal/providers/system/system.go
-index 36cc2b9f..4ec5cf98 100644
+index 36cc2b9f..d637d4c8 100644
 --- a/internal/providers/system/system.go
 +++ b/internal/providers/system/system.go
 @@ -19,13 +19,13 @@ import (
@@ -4248,7 +4248,7 @@ index 36cc2b9f..4ec5cf98 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/util/config.go b/internal/providers/util/config.go
-index 59e4f9b8..c767f5e5 100644
+index 59e4f9b8..bcecb4ed 100644
 --- a/internal/providers/util/config.go
 +++ b/internal/providers/util/config.go
 @@ -18,9 +18,9 @@ import (
@@ -4265,7 +4265,7 @@ index 59e4f9b8..c767f5e5 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/virtualbox/virtualbox.go b/internal/providers/virtualbox/virtualbox.go
-index e37304c0..dde19316 100644
+index e37304c0..3724e631 100644
 --- a/internal/providers/virtualbox/virtualbox.go
 +++ b/internal/providers/virtualbox/virtualbox.go
 @@ -31,10 +31,10 @@ import (
@@ -4284,7 +4284,7 @@ index e37304c0..dde19316 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/vmware/vmware_amd64.go b/internal/providers/vmware/vmware_amd64.go
-index 186ec97d..66ff5490 100644
+index 186ec97d..0c2f0d97 100644
 --- a/internal/providers/vmware/vmware_amd64.go
 +++ b/internal/providers/vmware/vmware_amd64.go
 @@ -20,10 +20,10 @@ package vmware
@@ -4303,7 +4303,7 @@ index 186ec97d..66ff5490 100644
  	"github.com/coreos/vcontext/report"
  	"github.com/vmware/vmw-guestinfo/rpcvmx"
 diff --git a/internal/providers/vmware/vmware_unsupported.go b/internal/providers/vmware/vmware_unsupported.go
-index e9e26cca..bf0e346f 100644
+index e9e26cca..444d2500 100644
 --- a/internal/providers/vmware/vmware_unsupported.go
 +++ b/internal/providers/vmware/vmware_unsupported.go
 @@ -23,8 +23,8 @@ package vmware
@@ -4318,7 +4318,7 @@ index e9e26cca..bf0e346f 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/vultr/vultr.go b/internal/providers/vultr/vultr.go
-index e691d20b..9bb01c30 100644
+index e691d20b..32dfd570 100644
 --- a/internal/providers/vultr/vultr.go
 +++ b/internal/providers/vultr/vultr.go
 @@ -21,9 +21,9 @@ package vultr
@@ -4335,7 +4335,7 @@ index e691d20b..9bb01c30 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/zvm/zvm.go b/internal/providers/zvm/zvm.go
-index d8a743c6..25affe3e 100644
+index d8a743c6..6e4660fc 100644
 --- a/internal/providers/zvm/zvm.go
 +++ b/internal/providers/zvm/zvm.go
 @@ -24,12 +24,12 @@ import (
@@ -4358,7 +4358,7 @@ index d8a743c6..25affe3e 100644
  )
  
 diff --git a/internal/resource/http.go b/internal/resource/http.go
-index 471349a1..9f1d3667 100644
+index 471349a1..198986e5 100644
 --- a/internal/resource/http.go
 +++ b/internal/resource/http.go
 @@ -28,12 +28,12 @@ import (
@@ -4381,7 +4381,7 @@ index 471349a1..9f1d3667 100644
  	"github.com/vincent-petithory/dataurl"
  
 diff --git a/internal/resource/url.go b/internal/resource/url.go
-index 2696b697..25993094 100644
+index 2696b697..ca9c8668 100644
 --- a/internal/resource/url.go
 +++ b/internal/resource/url.go
 @@ -32,9 +32,9 @@ import (
@@ -4398,7 +4398,7 @@ index 2696b697..25993094 100644
  	"google.golang.org/api/option"
  
 diff --git a/internal/resource/url_test.go b/internal/resource/url_test.go
-index 77a39c93..e4241c4f 100644
+index 77a39c93..415822fc 100644
 --- a/internal/resource/url_test.go
 +++ b/internal/resource/url_test.go
 @@ -23,9 +23,9 @@ import (
@@ -4415,7 +4415,7 @@ index 77a39c93..e4241c4f 100644
  
  func TestDataUrl(t *testing.T) {
 diff --git a/internal/sgdisk/sgdisk.go b/internal/sgdisk/sgdisk.go
-index 3445e2a9..27dfe3ea 100644
+index 3445e2a9..9a933fb3 100644
 --- a/internal/sgdisk/sgdisk.go
 +++ b/internal/sgdisk/sgdisk.go
 @@ -19,10 +19,10 @@ import (
@@ -4434,7 +4434,7 @@ index 3445e2a9..27dfe3ea 100644
  
  type Operation struct {
 diff --git a/internal/util/tools/docs/docs.go b/internal/util/tools/docs/docs.go
-index a5dd8abf..555244d0 100644
+index a5dd8abf..a0bc1fa7 100644
 --- a/internal/util/tools/docs/docs.go
 +++ b/internal/util/tools/docs/docs.go
 @@ -25,7 +25,7 @@ import (
@@ -4447,7 +4447,7 @@ index a5dd8abf..555244d0 100644
  
  // Specific section marker used in the docs to indicate that the Markdown code
 diff --git a/internal/util/verification.go b/internal/util/verification.go
-index 26e3f9cc..b2d3414f 100644
+index 26e3f9cc..35945cad 100644
 --- a/internal/util/verification.go
 +++ b/internal/util/verification.go
 @@ -23,7 +23,7 @@ import (
@@ -4460,7 +4460,7 @@ index 26e3f9cc..b2d3414f 100644
  
  var (
 diff --git a/internal/util/verification_test.go b/internal/util/verification_test.go
-index fd9132c0..b92ad5ae 100644
+index fd9132c0..d321e746 100644
 --- a/internal/util/verification_test.go
 +++ b/internal/util/verification_test.go
 @@ -18,7 +18,7 @@ import (
@@ -4473,7 +4473,7 @@ index fd9132c0..b92ad5ae 100644
  
  func TestAssertValid(t *testing.T) {
 diff --git a/tests/blackbox_test.go b/tests/blackbox_test.go
-index b7c240fe..5b586619 100644
+index b7c240fe..a5ebb450 100644
 --- a/tests/blackbox_test.go
 +++ b/tests/blackbox_test.go
 @@ -26,13 +26,13 @@ import (
@@ -4496,7 +4496,7 @@ index b7c240fe..5b586619 100644
  	// UUID generation tool
  	"github.com/google/uuid"
 diff --git a/tests/filesystem.go b/tests/filesystem.go
-index fa16c44b..25ed3d7b 100644
+index fa16c44b..9c7a742d 100644
 --- a/tests/filesystem.go
 +++ b/tests/filesystem.go
 @@ -29,8 +29,8 @@ import (
@@ -4511,7 +4511,7 @@ index fa16c44b..25ed3d7b 100644
  
  func run(ctx context.Context, command string, args ...string) ([]byte, error) {
 diff --git a/tests/negative/files/invalid_hash.go b/tests/negative/files/invalid_hash.go
-index e4bab782..f0634563 100644
+index e4bab782..0c4dfead 100644
 --- a/tests/negative/files/invalid_hash.go
 +++ b/tests/negative/files/invalid_hash.go
 @@ -15,8 +15,8 @@
@@ -4526,7 +4526,7 @@ index e4bab782..f0634563 100644
  
  func init() {
 diff --git a/tests/negative/files/link.go b/tests/negative/files/link.go
-index a4cf1d66..dc681fbd 100644
+index a4cf1d66..8d4128b2 100644
 --- a/tests/negative/files/link.go
 +++ b/tests/negative/files/link.go
 @@ -15,8 +15,8 @@
@@ -4541,7 +4541,7 @@ index a4cf1d66..dc681fbd 100644
  
  func init() {
 diff --git a/tests/negative/files/missing_file.go b/tests/negative/files/missing_file.go
-index 3abfb574..613adb82 100644
+index 3abfb574..251f5593 100644
 --- a/tests/negative/files/missing_file.go
 +++ b/tests/negative/files/missing_file.go
 @@ -15,8 +15,8 @@
@@ -4556,7 +4556,7 @@ index 3abfb574..613adb82 100644
  
  func init() {
 diff --git a/tests/negative/files/preexisting_nodes.go b/tests/negative/files/preexisting_nodes.go
-index 6a80fae6..9995ae94 100644
+index 6a80fae6..0981e95e 100644
 --- a/tests/negative/files/preexisting_nodes.go
 +++ b/tests/negative/files/preexisting_nodes.go
 @@ -15,8 +15,8 @@
@@ -4571,7 +4571,7 @@ index 6a80fae6..9995ae94 100644
  
  func init() {
 diff --git a/tests/negative/filesystems/creation.go b/tests/negative/filesystems/creation.go
-index db132cac..fce7eb73 100644
+index db132cac..1c538658 100644
 --- a/tests/negative/filesystems/creation.go
 +++ b/tests/negative/filesystems/creation.go
 @@ -15,8 +15,8 @@
@@ -4586,7 +4586,7 @@ index db132cac..fce7eb73 100644
  
  func init() {
 diff --git a/tests/negative/filesystems/mount_filesystem.go b/tests/negative/filesystems/mount_filesystem.go
-index 7665a82b..ffb50fb5 100644
+index 7665a82b..13f4acdf 100644
 --- a/tests/negative/filesystems/mount_filesystem.go
 +++ b/tests/negative/filesystems/mount_filesystem.go
 @@ -15,8 +15,8 @@
@@ -4601,7 +4601,7 @@ index 7665a82b..ffb50fb5 100644
  
  func init() {
 diff --git a/tests/negative/filesystems/no_device.go b/tests/negative/filesystems/no_device.go
-index 2166e532..4d94ba47 100644
+index 2166e532..4387c396 100644
 --- a/tests/negative/filesystems/no_device.go
 +++ b/tests/negative/filesystems/no_device.go
 @@ -15,8 +15,8 @@
@@ -4616,7 +4616,7 @@ index 2166e532..4d94ba47 100644
  
  func init() {
 diff --git a/tests/negative/filesystems/symlinks.go b/tests/negative/filesystems/symlinks.go
-index e62ee681..ecf64fc1 100644
+index e62ee681..b3aff932 100644
 --- a/tests/negative/filesystems/symlinks.go
 +++ b/tests/negative/filesystems/symlinks.go
 @@ -15,8 +15,8 @@
@@ -4631,7 +4631,7 @@ index e62ee681..ecf64fc1 100644
  
  func init() {
 diff --git a/tests/negative/general/config.go b/tests/negative/general/config.go
-index 3116e331..e5302154 100644
+index 3116e331..ed960f97 100644
 --- a/tests/negative/general/config.go
 +++ b/tests/negative/general/config.go
 @@ -17,8 +17,8 @@ package general
@@ -4646,7 +4646,7 @@ index 3116e331..e5302154 100644
  	"github.com/vincent-petithory/dataurl"
  )
 diff --git a/tests/negative/partitions/simple.go b/tests/negative/partitions/simple.go
-index ae6f50f5..27e3a25d 100644
+index ae6f50f5..79911208 100644
 --- a/tests/negative/partitions/simple.go
 +++ b/tests/negative/partitions/simple.go
 @@ -15,8 +15,8 @@
@@ -4661,7 +4661,7 @@ index ae6f50f5..27e3a25d 100644
  
  func init() {
 diff --git a/tests/negative/partitions/zeroes.go b/tests/negative/partitions/zeroes.go
-index f9d258c0..3501231e 100644
+index f9d258c0..1c0603a1 100644
 --- a/tests/negative/partitions/zeroes.go
 +++ b/tests/negative/partitions/zeroes.go
 @@ -15,8 +15,8 @@
@@ -4676,7 +4676,7 @@ index f9d258c0..3501231e 100644
  
  func init() {
 diff --git a/tests/negative/proxy/http.go b/tests/negative/proxy/http.go
-index 7492f940..4e51bb17 100644
+index 7492f940..c219792d 100644
 --- a/tests/negative/proxy/http.go
 +++ b/tests/negative/proxy/http.go
 @@ -19,8 +19,8 @@ import (
@@ -4691,7 +4691,7 @@ index 7492f940..4e51bb17 100644
  
  var (
 diff --git a/tests/negative/regression/filesystem.go b/tests/negative/regression/filesystem.go
-index 0627c635..5d388afc 100644
+index 0627c635..37a13f8f 100644
 --- a/tests/negative/regression/filesystem.go
 +++ b/tests/negative/regression/filesystem.go
 @@ -15,8 +15,8 @@
@@ -4706,7 +4706,7 @@ index 0627c635..5d388afc 100644
  
  func init() {
 diff --git a/tests/negative/security/tls.go b/tests/negative/security/tls.go
-index 0df69e7b..63bde529 100644
+index 0df69e7b..7564f16c 100644
 --- a/tests/negative/security/tls.go
 +++ b/tests/negative/security/tls.go
 @@ -22,9 +22,9 @@ import (
@@ -4723,7 +4723,7 @@ index 0df69e7b..63bde529 100644
  
  func init() {
 diff --git a/tests/negative/timeouts/timeouts.go b/tests/negative/timeouts/timeouts.go
-index 5ac0967b..d72ba402 100644
+index 5ac0967b..b3bfd02e 100644
 --- a/tests/negative/timeouts/timeouts.go
 +++ b/tests/negative/timeouts/timeouts.go
 @@ -20,8 +20,8 @@ import (
@@ -4738,7 +4738,7 @@ index 5ac0967b..d72ba402 100644
  
  func init() {
 diff --git a/tests/positive/files/directory.go b/tests/positive/files/directory.go
-index 5bda64c1..ac612b91 100644
+index 5bda64c1..056aa259 100644
 --- a/tests/positive/files/directory.go
 +++ b/tests/positive/files/directory.go
 @@ -15,8 +15,8 @@
@@ -4753,7 +4753,7 @@ index 5bda64c1..ac612b91 100644
  
  func init() {
 diff --git a/tests/positive/files/file.go b/tests/positive/files/file.go
-index 0dd092e1..a3c69464 100644
+index 0dd092e1..a83da3c1 100644
 --- a/tests/positive/files/file.go
 +++ b/tests/positive/files/file.go
 @@ -15,8 +15,8 @@
@@ -4768,7 +4768,7 @@ index 0dd092e1..a3c69464 100644
  
  func init() {
 diff --git a/tests/positive/files/hash.go b/tests/positive/files/hash.go
-index 8faecff7..13f5c56d 100644
+index 8faecff7..829b15e7 100644
 --- a/tests/positive/files/hash.go
 +++ b/tests/positive/files/hash.go
 @@ -17,9 +17,9 @@ package files
@@ -4785,7 +4785,7 @@ index 8faecff7..13f5c56d 100644
  
  func init() {
 diff --git a/tests/positive/files/link.go b/tests/positive/files/link.go
-index 72dd1b1f..503ffaac 100644
+index 72dd1b1f..ea21f539 100644
 --- a/tests/positive/files/link.go
 +++ b/tests/positive/files/link.go
 @@ -15,8 +15,8 @@
@@ -4809,7 +4809,7 @@ index 72dd1b1f..503ffaac 100644
  	name := "links.hard.deep.create.file"
  	in := types.GetBaseDisk()
 diff --git a/tests/positive/files/remote.go b/tests/positive/files/remote.go
-index d1a8244e..3c9ee830 100644
+index d1a8244e..792bdae7 100644
 --- a/tests/positive/files/remote.go
 +++ b/tests/positive/files/remote.go
 @@ -17,9 +17,9 @@ package files
@@ -4826,7 +4826,7 @@ index d1a8244e..3c9ee830 100644
  
  func init() {
 diff --git a/tests/positive/files/units.go b/tests/positive/files/units.go
-index b8974479..d67861d9 100644
+index b8974479..62f5c033 100644
 --- a/tests/positive/files/units.go
 +++ b/tests/positive/files/units.go
 @@ -15,8 +15,8 @@
@@ -4841,7 +4841,7 @@ index b8974479..d67861d9 100644
  
  func init() {
 diff --git a/tests/positive/filesystems/creation.go b/tests/positive/filesystems/creation.go
-index b0f058ee..33bb7f28 100644
+index b0f058ee..e5d9dce1 100644
 --- a/tests/positive/filesystems/creation.go
 +++ b/tests/positive/filesystems/creation.go
 @@ -17,8 +17,8 @@ package filesystems
@@ -4856,7 +4856,7 @@ index b0f058ee..33bb7f28 100644
  
  func init() {
 diff --git a/tests/positive/filesystems/mount_filesystem.go b/tests/positive/filesystems/mount_filesystem.go
-index daa72d7d..a16f933a 100644
+index daa72d7d..2cc76c38 100644
 --- a/tests/positive/filesystems/mount_filesystem.go
 +++ b/tests/positive/filesystems/mount_filesystem.go
 @@ -15,8 +15,8 @@
@@ -4871,7 +4871,7 @@ index daa72d7d..a16f933a 100644
  
  func init() {
 diff --git a/tests/positive/filesystems/reformat_filesystem.go b/tests/positive/filesystems/reformat_filesystem.go
-index 6e58db70..db17df33 100644
+index 6e58db70..550c3ab3 100644
 --- a/tests/positive/filesystems/reformat_filesystem.go
 +++ b/tests/positive/filesystems/reformat_filesystem.go
 @@ -15,9 +15,9 @@
@@ -4888,7 +4888,7 @@ index 6e58db70..db17df33 100644
  
  func init() {
 diff --git a/tests/positive/filesystems/reuse_filesystem.go b/tests/positive/filesystems/reuse_filesystem.go
-index bb83da30..6dae147d 100644
+index bb83da30..77c33a51 100644
 --- a/tests/positive/filesystems/reuse_filesystem.go
 +++ b/tests/positive/filesystems/reuse_filesystem.go
 @@ -15,9 +15,9 @@
@@ -4905,7 +4905,7 @@ index bb83da30..6dae147d 100644
  
  func init() {
 diff --git a/tests/positive/general/baseconfigsmerging.go b/tests/positive/general/baseconfigsmerging.go
-index be667be2..26d34d2c 100644
+index be667be2..5ed84b26 100644
 --- a/tests/positive/general/baseconfigsmerging.go
 +++ b/tests/positive/general/baseconfigsmerging.go
 @@ -15,8 +15,8 @@
@@ -4920,7 +4920,7 @@ index be667be2..26d34d2c 100644
  
  func init() {
 diff --git a/tests/positive/general/general.go b/tests/positive/general/general.go
-index ff7722f7..987f85dd 100644
+index ff7722f7..79a0453e 100644
 --- a/tests/positive/general/general.go
 +++ b/tests/positive/general/general.go
 @@ -17,9 +17,9 @@ package general
@@ -4937,7 +4937,7 @@ index ff7722f7..987f85dd 100644
  
  func init() {
 diff --git a/tests/positive/general/preemption.go b/tests/positive/general/preemption.go
-index 5952097f..af50f634 100644
+index 5952097f..3c0d62dd 100644
 --- a/tests/positive/general/preemption.go
 +++ b/tests/positive/general/preemption.go
 @@ -18,8 +18,8 @@ import (
@@ -4952,7 +4952,7 @@ index 5952097f..af50f634 100644
  
  func init() {
 diff --git a/tests/positive/partitions/complex-mb.go b/tests/positive/partitions/complex-mb.go
-index 5c090e80..7ec877f1 100644
+index 5c090e80..86e0ff2f 100644
 --- a/tests/positive/partitions/complex-mb.go
 +++ b/tests/positive/partitions/complex-mb.go
 @@ -15,8 +15,8 @@
@@ -4967,7 +4967,7 @@ index 5c090e80..7ec877f1 100644
  
  func init() {
 diff --git a/tests/positive/partitions/creation-mb.go b/tests/positive/partitions/creation-mb.go
-index 696108a1..337ba883 100644
+index 696108a1..dcba68a5 100644
 --- a/tests/positive/partitions/creation-mb.go
 +++ b/tests/positive/partitions/creation-mb.go
 @@ -15,8 +15,8 @@
@@ -4982,7 +4982,7 @@ index 696108a1..337ba883 100644
  
  func init() {
 diff --git a/tests/positive/partitions/deletion.go b/tests/positive/partitions/deletion.go
-index 4e32d3cd..31fa5783 100644
+index 4e32d3cd..1dde4830 100644
 --- a/tests/positive/partitions/deletion.go
 +++ b/tests/positive/partitions/deletion.go
 @@ -15,8 +15,8 @@
@@ -4997,7 +4997,7 @@ index 4e32d3cd..31fa5783 100644
  
  func init() {
 diff --git a/tests/positive/partitions/mixed.go b/tests/positive/partitions/mixed.go
-index 31402918..2e01e6cc 100644
+index 31402918..f7505dbe 100644
 --- a/tests/positive/partitions/mixed.go
 +++ b/tests/positive/partitions/mixed.go
 @@ -15,8 +15,8 @@
@@ -5012,7 +5012,7 @@ index 31402918..2e01e6cc 100644
  
  func init() {
 diff --git a/tests/positive/partitions/no-op.go b/tests/positive/partitions/no-op.go
-index 58c6bbb0..c6b1dafb 100644
+index 58c6bbb0..40b11716 100644
 --- a/tests/positive/partitions/no-op.go
 +++ b/tests/positive/partitions/no-op.go
 @@ -15,8 +15,8 @@
@@ -5027,7 +5027,7 @@ index 58c6bbb0..c6b1dafb 100644
  
  func init() {
 diff --git a/tests/positive/partitions/verification.go b/tests/positive/partitions/verification.go
-index 1488e499..5e6065c0 100644
+index 1488e499..efad6d68 100644
 --- a/tests/positive/partitions/verification.go
 +++ b/tests/positive/partitions/verification.go
 @@ -15,8 +15,8 @@
@@ -5042,7 +5042,7 @@ index 1488e499..5e6065c0 100644
  
  func init() {
 diff --git a/tests/positive/partitions/zeros.go b/tests/positive/partitions/zeros.go
-index 10d32990..a4ae7516 100644
+index 10d32990..d53a7bd5 100644
 --- a/tests/positive/partitions/zeros.go
 +++ b/tests/positive/partitions/zeros.go
 @@ -15,8 +15,8 @@
@@ -5057,7 +5057,7 @@ index 10d32990..a4ae7516 100644
  
  func init() {
 diff --git a/tests/positive/passwd/users.go b/tests/positive/passwd/users.go
-index b199cae6..a3ba770f 100644
+index b199cae6..0dd2d13e 100644
 --- a/tests/positive/passwd/users.go
 +++ b/tests/positive/passwd/users.go
 @@ -15,8 +15,8 @@
@@ -5072,7 +5072,7 @@ index b199cae6..a3ba770f 100644
  
  func init() {
 diff --git a/tests/positive/proxy/http.go b/tests/positive/proxy/http.go
-index 1863c744..cdfa6c10 100644
+index 1863c744..8b03ec9f 100644
 --- a/tests/positive/proxy/http.go
 +++ b/tests/positive/proxy/http.go
 @@ -19,8 +19,8 @@ import (
@@ -5087,7 +5087,7 @@ index 1863c744..cdfa6c10 100644
  
  var (
 diff --git a/tests/positive/regression/filesystem.go b/tests/positive/regression/filesystem.go
-index 329d14bd..9228ef59 100644
+index 329d14bd..58fd5217 100644
 --- a/tests/positive/regression/filesystem.go
 +++ b/tests/positive/regression/filesystem.go
 @@ -15,8 +15,8 @@
@@ -5102,7 +5102,7 @@ index 329d14bd..9228ef59 100644
  
  func init() {
 diff --git a/tests/positive/security/tls.go b/tests/positive/security/tls.go
-index 0b52d784..c89c5730 100644
+index 0b52d784..d43ae179 100644
 --- a/tests/positive/security/tls.go
 +++ b/tests/positive/security/tls.go
 @@ -20,10 +20,10 @@ import (
@@ -5121,7 +5121,7 @@ index 0b52d784..c89c5730 100644
  	"github.com/vincent-petithory/dataurl"
  )
 diff --git a/tests/positive/systemd/create_unit.go b/tests/positive/systemd/create_unit.go
-index 1964a602..6ad13093 100644
+index 1964a602..71fcae85 100644
 --- a/tests/positive/systemd/create_unit.go
 +++ b/tests/positive/systemd/create_unit.go
 @@ -15,8 +15,8 @@
@@ -5136,7 +5136,7 @@ index 1964a602..6ad13093 100644
  
  func init() {
 diff --git a/tests/positive/systemd/modify_service.go b/tests/positive/systemd/modify_service.go
-index a3faf958..d3382143 100644
+index a3faf958..ae625e76 100644
 --- a/tests/positive/systemd/modify_service.go
 +++ b/tests/positive/systemd/modify_service.go
 @@ -15,8 +15,8 @@
@@ -5151,7 +5151,7 @@ index a3faf958..d3382143 100644
  
  func init() {
 diff --git a/tests/positive/timeouts/timeouts.go b/tests/positive/timeouts/timeouts.go
-index 34408293..70e4c639 100644
+index 34408293..24a0bc61 100644
 --- a/tests/positive/timeouts/timeouts.go
 +++ b/tests/positive/timeouts/timeouts.go
 @@ -21,8 +21,8 @@ import (
@@ -5166,7 +5166,7 @@ index 34408293..70e4c639 100644
  
  func init() {
 diff --git a/tests/register/register.go b/tests/register/register.go
-index c6ae2d64..5d5919da 100644
+index c6ae2d64..0be09a38 100644
 --- a/tests/register/register.go
 +++ b/tests/register/register.go
 @@ -16,12 +16,12 @@ package register
@@ -5189,7 +5189,7 @@ index c6ae2d64..5d5919da 100644
  
  type TestType int
 diff --git a/tests/registry/registry.go b/tests/registry/registry.go
-index 917106b1..d1609676 100644
+index 917106b1..d181f843 100644
 --- a/tests/registry/registry.go
 +++ b/tests/registry/registry.go
 @@ -16,22 +16,22 @@ package registry
@@ -5234,7 +5234,7 @@ index 917106b1..d1609676 100644
 +	_ "github.com/flatcar/ignition/v2/tests/positive/timeouts"
  )
 diff --git a/tests/servers/servers.go b/tests/servers/servers.go
-index 4082c2e4..e07d6d8f 100644
+index 4082c2e4..f093c5af 100644
 --- a/tests/servers/servers.go
 +++ b/tests/servers/servers.go
 @@ -27,7 +27,7 @@ import (
@@ -5247,7 +5247,7 @@ index 4082c2e4..e07d6d8f 100644
  )
  
 diff --git a/tests/validator.go b/tests/validator.go
-index 6256ace8..c1bc8d62 100644
+index 6256ace8..b98404a5 100644
 --- a/tests/validator.go
 +++ b/tests/validator.go
 @@ -26,8 +26,8 @@ import (
@@ -5262,7 +5262,7 @@ index 6256ace8..c1bc8d62 100644
  	"golang.org/x/sys/unix"
  )
 diff --git a/validate/main.go b/validate/main.go
-index 3ac03d7c..5edf143e 100644
+index 3ac03d7c..0a554dd6 100644
 --- a/validate/main.go
 +++ b/validate/main.go
 @@ -21,8 +21,8 @@ import (
