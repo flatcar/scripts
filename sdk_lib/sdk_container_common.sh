@@ -134,7 +134,7 @@ function strip_version_prefix() {
 # --
 
 # Derive docker-safe image version string from vernum.
-#
+# Keep in sync with ci-automation/ci_automation_common.sh
 function vernum_to_docker_image_version() {
     local vernum="$1"
     echo "$vernum" | sed 's/[+]/-/g'
