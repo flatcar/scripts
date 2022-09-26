@@ -33,7 +33,6 @@ jobs:
           BASE_BRANCH: ${{ steps.fetch-latest-release.outputs.BASE_BRANCH_MAINTENANCE }}
           PATH: ${{ steps.setup-flatcar-sdk.outputs.path }}
           VERSION_NEW: ${{ steps.fetch-latest-release.outputs.VERSION_MAINTENANCE }}
-          CHECKOUT_SCRIPTS: "false"
           PACKAGES_CONTAINER: ${{ steps.setup-flatcar-sdk.outputs.PACKAGES_CONTAINER }}
           SDK_NAME: ${{ steps.setup-flatcar-sdk.outputs.SDK_NAME }}
         run: .github/workflows/kernel-apply-patch.sh
