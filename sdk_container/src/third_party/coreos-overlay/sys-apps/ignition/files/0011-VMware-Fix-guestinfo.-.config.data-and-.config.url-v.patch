@@ -1,7 +1,7 @@
-From 840957aac96dee2c954fd821d14e7b41b3979dc7 Mon Sep 17 00:00:00 2001
+From 7b83d08d8d38f5596f1f7b97b6bfa749631d45e0 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Wed, 25 May 2022 10:34:32 +0200
-Subject: [PATCH 10/15] VMware: Fix guestinfo.*.config.data and *.config.url
+Subject: [PATCH 11/16] VMware: Fix guestinfo.*.config.data and *.config.url
  variables
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -25,7 +25,7 @@ Co-authored-by: Kai Lüke <kailuke@microsoft.com>
  1 file changed, 74 insertions(+), 22 deletions(-)
 
 diff --git a/internal/providers/vmware/vmware_amd64.go b/internal/providers/vmware/vmware_amd64.go
-index 66ff5490..327ad52b 100644
+index 0c2f0d97..3c3d1634 100644
 --- a/internal/providers/vmware/vmware_amd64.go
 +++ b/internal/providers/vmware/vmware_amd64.go
 @@ -19,6 +19,7 @@ package vmware

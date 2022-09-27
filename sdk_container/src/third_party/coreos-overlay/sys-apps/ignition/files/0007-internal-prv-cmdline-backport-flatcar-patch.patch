@@ -1,7 +1,7 @@
-From 731c4c00c7056f4b3333ca0dbe25e0c3b348588a Mon Sep 17 00:00:00 2001
+From c4a13286d36151f7b1b612cca5ceb5e2fdc1306b Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mathieu@kinvolk.io>
 Date: Fri, 30 Jul 2021 14:21:31 +0200
-Subject: [PATCH 06/15] internal/prv/cmdline: backport flatcar patch
+Subject: [PATCH 07/16] internal/prv/cmdline: backport flatcar patch
 
 this patch provides backward compatibility for various config
 key
@@ -12,7 +12,7 @@ Signed-off-by: Mathieu Tortuyaux <mathieu@kinvolk.io>
  1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/internal/providers/cmdline/cmdline.go b/internal/providers/cmdline/cmdline.go
-index 0068ed66..80b3af95 100644
+index c8006f02..a2d00627 100644
 --- a/internal/providers/cmdline/cmdline.go
 +++ b/internal/providers/cmdline/cmdline.go
 @@ -33,7 +33,9 @@ import (

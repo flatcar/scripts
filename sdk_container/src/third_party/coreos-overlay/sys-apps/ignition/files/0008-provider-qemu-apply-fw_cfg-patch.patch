@@ -1,7 +1,7 @@
-From b49c1ecc919a21ff90b71b6a0e67b15600157ad3 Mon Sep 17 00:00:00 2001
+From 8eb60d346a2b792b6fb53fc7066ef4ba789974f9 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mathieu@kinvolk.io>
 Date: Fri, 13 Aug 2021 11:47:01 +0200
-Subject: [PATCH 07/15] provider/qemu: apply fw_cfg patch
+Subject: [PATCH 08/16] provider/qemu: apply fw_cfg patch
 
 we support both CoreOS and Flatcar fw_cfg path to ensure compatiblity
 
@@ -11,7 +11,7 @@ Signed-off-by: Mathieu Tortuyaux <mathieu@kinvolk.io>
  1 file changed, 68 insertions(+), 55 deletions(-)
 
 diff --git a/internal/providers/qemu/qemu_fwcfg.go b/internal/providers/qemu/qemu_fwcfg.go
-index a4ebec6a..0ae9cd66 100644
+index 46ab7ae0..2de49881 100644
 --- a/internal/providers/qemu/qemu_fwcfg.go
 +++ b/internal/providers/qemu/qemu_fwcfg.go
 @@ -30,6 +30,7 @@ import (
