@@ -106,11 +106,21 @@ function _sdk_bootstrap_impl() {
           local ret=0
           git diff --exit-code "${existing_tag}" || ret=$?
           if [ "$ret" = "0" ]; then
+            local versions=(
+              $(
+                source sdk_lib/sdk_container_common.sh
+                source "${sdk_container_common_versionfile}"
+                echo "${FLATCAR_SDK_VERSION}"
+                echo "${FLATCAR_VERSION}"
+              )
+            )
+            local flatcar_sdk_version="${versions[0]}"
+            local flatcar_version="${versions[1]}"
             local sdk_docker_vernum=""
-            sdk_docker_vernum=$(vernum_to_docker_image_version "${FLATCAR_SDK_VERSION}")
-            if curl --head --fail --silent --show-error --location "https://${BUILDCACHE_SERVER}/containers/${FLATCAR_SDK_VERSION}/flatcar-sdk-all-${sdk_docker_vernum}.tar.gz" \
-              && curl --head --fail --silent --show-error --location "https://${BUILDCACHE_SERVER}/images/amd64/${FLATCAR_VERSION}/flatcar_production_image.bin.bz2" \
-              && curl --head --fail --silent --show-error --location "https://${BUILDCACHE_SERVER}/images/arm64/${FLATCAR_VERSION}/flatcar_production_image.bin.bz2"; then
+            sdk_docker_vernum=$(vernum_to_docker_image_version "${flatcar_sdk_version}")
+            if curl --head --fail --silent --show-error --location "https://${BUILDCACHE_SERVER}/containers/${sdk_docker_vernum}/flatcar-sdk-all-${sdk_docker_vernum}.tar.gz" \
+              && curl --head --fail --silent --show-error --location "https://${BUILDCACHE_SERVER}/images/amd64/${flatcar_version}/flatcar_production_image.bin.bz2" \
+              && curl --head --fail --silent --show-error --location "https://${BUILDCACHE_SERVER}/images/arm64/${flatcar_version}/flatcar_production_image.bin.bz2"; then
                 echo "Stopping build because there are no changes since tag ${existing_tag}, the SDK container tar ball and the Flatcar images exist" >&2
                 return 0
             fi
