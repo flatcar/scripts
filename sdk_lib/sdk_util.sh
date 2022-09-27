@@ -13,6 +13,7 @@ FLATCAR_SDK_TARBALL_CACHE="${REPO_CACHE_DIR}/sdks"
 FLATCAR_SDK_TARBALL_PATH="${FLATCAR_SDK_TARBALL_CACHE}/${FLATCAR_SDK_TARBALL}"
 FLATCAR_DEV_BUILDS_SDK="${FLATCAR_DEV_BUILDS_SDK-$FLATCAR_DEV_BUILDS/sdk}"
 FLATCAR_SDK_URL="${FLATCAR_DEV_BUILDS_SDK}/${FLATCAR_SDK_ARCH}/${FLATCAR_SDK_VERSION}/${FLATCAR_SDK_TARBALL}"
+FLATCAR_SDK_RELEASE_URL="https://mirror.release.flatcar-linux.net/sdk/${FLATCAR_SDK_ARCH}/${FLATCAR_SDK_VERSION}/${FLATCAR_SDK_TARBALL}"
 
 # Download the current SDK tarball (if required) and verify digests/sig
 sdk_download_tarball() {
@@ -24,9 +25,13 @@ sdk_download_tarball() {
     info "URL: ${FLATCAR_SDK_URL}"
     local suffix
     for suffix in "" ".DIGESTS"; do # TODO(marineam): download .asc
+        # First try bincache then release to allow a bincache overwrite
         wget --tries=3 --timeout=30 --continue \
             -O  "${FLATCAR_SDK_TARBALL_PATH}${suffix}" \
             "${FLATCAR_SDK_URL}${suffix}" \
+            || wget --tries=3 --timeout=30 --continue \
+            -O "${FLATCAR_SDK_TARBALL_PATH}${suffix}" \
+            "${FLATCAR_SDK_RELEASE_URL}${suffix}" \
             || die_notrace "SDK download failed!"
     done
 
