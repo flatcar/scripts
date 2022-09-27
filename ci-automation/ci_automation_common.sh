@@ -212,11 +212,16 @@ function docker_image_from_buildcache() {
         return
     fi
 
+    # First try bincache then release to allow a bincache overwrite
     local url="https://${BUILDCACHE_SERVER}/containers/${version}/${tgz}"
+    local url_release="https://mirror.release.flatcar-linux.net/containers/${version}/${tgz}"
 
     curl --fail --silent --show-error --location --retry-delay 1 --retry 60 \
         --retry-connrefused --retry-max-time 60 --connect-timeout 20 \
-        --remote-name "${url}"
+        --remote-name "${url}" \
+        || curl --fail --silent --show-error --location --retry-delay 1 --retry 60 \
+        --retry-connrefused --retry-max-time 60 --connect-timeout 20 \
+        --remote-name "${url_release}"
 
     cat "${tgz}" | $PIGZ -d -c | $docker load
 
