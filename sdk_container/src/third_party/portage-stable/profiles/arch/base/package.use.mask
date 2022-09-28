@@ -1,6 +1,17 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Conrad Kostecki <conikost@gentoo.org> (2022-07-19)
+# www-servers/nginx requires keywording
+www-servers/nginx nginx_modules_http_security
+
+# media-libs/libxmp requires keywording
+media-sound/qmmp xmp
+
+# Kai-Chun Ning <kaichun.ning@gmail.com> (2022-05-23)
+# Need intel-hybrid-codec-driver, which only works on amd64
+x11-libs/libva-intel-driver hybrid
+
 # WANG Xuerui <xen0n@gentoo.org> (2022-04-24)
 # This is only for bringing in the not-upstreamed-yet LoongArch patchset;
 # masked everywhere in order to minimize impact on other arches.
@@ -19,10 +30,6 @@ sys-boot/grub grub_platforms_loongson grub_platforms_qemu-mips
 # Sam James <sam@gentoo.org> (2021-11-15)
 # Only available on PPC*.
 sys-apps/util-linux rtas
-
-# Georgy Yakovlev <gyakovlev@gentoo.org> (2021-11-01)
-# requires sys-apps/dbus-broker, which is not widely keyworded yet.
-sys-apps/systemd hostnamed-fallback
 
 # James Le Cuirot <chewi@gentoo.org> (2021-10-22)
 # Only available on some architectures.
@@ -114,10 +121,6 @@ sys-apps/flashrom atahpt atapromise atavia drkaiser gfxnvidia internal it8212 ni
 # requires clisp whichis keyworded on fewer arches
 app-text/texlive-core xindy
 
-# Thomas Deutschmann <whissi@gentoo.org> (2020-04-30)
-# Dependency is only keyworded on amd64 and x86
-app-metrics/collectd collectd_plugins_slurm
-
 # Georgy Yakovlev <gyakovlev@gentoo.org> (2020-04-26)
 # static-pie is not implemented on all arches, #719444
 # https://sourceware.org/glibc/wiki/PortStatus
@@ -203,7 +206,7 @@ media-video/mpv vulkan
 
 # Nick Sarnie <sarnex@gentoo.org> (2018-04-29)
 # media-libs/vulkan-loader and app-emulation/vkd3d are not available everywhere
-app-emulation/wine-staging vkd3d vulkan
+app-emulation/wine-staging vulkan
 app-emulation/wine-vanilla vkd3d vulkan
 
 # Richard Yao <ryao@gentoo.org> (2018-04-16)
@@ -229,10 +232,6 @@ app-admin/rsyslog imhttp mdblookup
 # spacetime is only supported on amd64 at the moment.
 # https://caml.inria.fr/pub/docs/manual-ocaml/spacetime.html
 dev-lang/ocaml spacetime
-
-# Thomas Deutschmann <whissi@gentoo.org> (2017-01-30)
-# media-libs/raspberrypi-userland not keyworded
-media-video/motion mmal
 
 # Luke Dashjr <luke-jr+gentoobugs@utopios.org> (2017-01-04)
 # Mask assembly optimisations that are platform-specific
@@ -276,8 +275,10 @@ media-video/mpv raspberry-pi
 # Alexis Ballier <aballier@gentoo.org> (2015-11-14)
 # MMAL is only available on the Raspberry Pi:
 # Mask it globally, unmask it on arm.
+media-video/motion mmal
 media-video/ffmpeg mmal
 media-video/ffmpeg-chromium mmal
+media-video/mpv mmal
 
 # Brian Evans <grknight@gentoo.org (2015-09-14)
 # Mask new USE flags for mariadb which all arches do not yet have dependencies
@@ -337,7 +338,6 @@ app-arch/zpaq jit
 # Arun Raghavan <ford_prefect@gentoo.org> (2012-03-28)
 # webrtc-audio-processing is only supported on x86/amd64. Possibly arm can be
 # added.
-media-sound/pulseaudio webrtc-aec
 media-sound/pulseaudio-daemon webrtc-aec
 
 # Christoph Junghans <junghans@gentoo.org> (2012-02-04)
