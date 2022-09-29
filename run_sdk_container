@@ -113,6 +113,12 @@ if [ -z "$stat" ] ; then
             source ci-automation/ci_automation_common.sh
             docker_image_from_registry_or_buildcache "flatcar-sdk-${arch}" "${docker_sdk_vernum}"
 	)
+    else
+        # We could split the container_image_name in parts to call docker_image_from_registry_or_buildcache
+        # bur for now just try to ensure that we use the latest image if using a container registry,
+        # for the tar-ball-imported images we rely on the ci-automation scripts to call
+        # docker_image_from_registry_or_buildcache explicitly.
+        $docker pull "${container_image_name}" || true
     fi
 
     $docker create $tty -i \
