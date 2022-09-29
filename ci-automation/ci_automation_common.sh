@@ -185,11 +185,14 @@ function docker_image_to_buildcache() {
 
     # strip potential container registry prefix
     local tarball="$(basename "$image")-${version}.tar.gz"
+    local id_file="$(basename "$image")-${version}.id"
 
     $docker save "${image}":"${version}" | $PIGZ -c > "${tarball}"
-    create_digests "${SIGNER:-}" "${tarball}"
-    sign_artifacts "${SIGNER:-}" "${tarball}"*
-    copy_to_buildcache "containers/${version}" "${tarball}"*
+    # Cut the "sha256:" prefix that is present in Docker but not in Podman
+    $docker image inspect "${image}":"${version}" | jq -r '.[].Id' | sed 's/^sha256://' > "${id_file}"
+    create_digests "${SIGNER:-}" "${tarball}" "${id_file}"
+    sign_artifacts "${SIGNER:-}" "${tarball}"* "${id_file}"*
+    copy_to_buildcache "containers/${version}" "${tarball}"* "${id_file}"*
 }
 # --
 
@@ -207,9 +210,26 @@ function docker_image_from_buildcache() {
     local name="$1"
     local version="$2"
     local tgz="${name}-${version}.tar.gz"
+    local id_file="${name}-${version}.id"
+    local id_file_url="https://${BUILDCACHE_SERVER}/containers/${version}/${id_file}"
+    local id_file_url_release="https://mirror.release.flatcar-linux.net/containers/${version}/${id_file}"
 
     if image_exists_locally "${name}" "${version}" ; then
-        return
+        local image_id=""
+        image_id=$($docker image inspect "${name}:${version}" | jq -r '.[].Id' | sed 's/^sha256://')
+        local remote_id=""
+        remote_id=$(curl --fail --silent --show-error --location --retry-delay 1 \
+                    --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 \
+                    "${id_file_url}" \
+                    || curl --fail --silent --show-error --location --retry-delay 1 \
+                    --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 \
+                    "${id_file_url_release}" \
+                    || echo "not found")
+        if [ "${image_id}" = "${remote_id}" ]; then
+          echo "Local image is up-to-date" >&2
+          return
+        fi
+        echo "Local image outdated, downloading..." >&2
     fi
 
     # First try bincache then release to allow a bincache overwrite
@@ -232,10 +252,6 @@ function docker_image_from_buildcache() {
 function docker_image_from_registry_or_buildcache() {
     local image="$1"
     local version="$2"
-
-    if image_exists_locally "${CONTAINER_REGISTRY}/${image}" "${version}" ; then
-        return
-    fi
 
     if $docker pull "${CONTAINER_REGISTRY}/${image}:${version}" ; then
         return
