@@ -38,7 +38,7 @@ src_install() {
 	# The linux-firmware package will be used instead.
 	# Stripping must be done here, not portage, to preserve sigs.
 	kmake INSTALL_MOD_PATH="${D}/usr" \
-		  INSTALL_MOD_STRIP="--strip-unneeded" \
+		  INSTALL_MOD_STRIP="--strip-debug" \
 		  INSTALL_FW_PATH="${T}/fw" \
 		  modules_install
 
