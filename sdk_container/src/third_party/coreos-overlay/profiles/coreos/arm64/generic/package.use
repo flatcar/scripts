@@ -1,5 +1,0 @@
-# Disable crypt to avoid installing libsodlium in arm64.
-app-editors/vim		-crypt
-
-# minimal: Don't pull app-vim/gentoo-syntax in arm64
-app-editors/vim-core		minimal

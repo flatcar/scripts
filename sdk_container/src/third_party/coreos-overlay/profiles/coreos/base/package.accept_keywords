@@ -42,10 +42,6 @@
 # Keep iproute in sync with kernel version.
 =sys-apps/iproute2-5.15.0 ~amd64 ~arm64
 
-# Required for some CVEs
-=app-editors/vim-8.2.5066-r1 ~amd64 ~arm64
-=app-editors/vim-core-8.2.5066-r1 ~amd64 ~arm64
-
 # FIPS support is still being tested
 =sys-fs/cryptsetup-2.4.3-r1 ~amd64 ~arm64
 
