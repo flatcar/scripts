@@ -22,7 +22,7 @@ mkdir --mode=0700 "${GNUPGHOME}"
 # workaround.
 mkdir -p --mode=0700 "${GNUPGHOME}/private-keys-v1.d/"
 if [[ -n "${SIGNING_KEY}" ]] && [[ -n "${SIGNER}" ]]; then
-    gpg --import "${SIGNING_KEY}"
+    gpg --batch --import "${SIGNING_KEY}"
 else
     SIGNER=''
 fi
