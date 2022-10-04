@@ -216,7 +216,9 @@ function _release_build_impl() {
       sign_artifacts "${SIGNER}" "aws-${arch}/flatcar_production_ami_"*txt "aws-${arch}/flatcar_production_ami_"*json
       copy_to_buildcache "images/${arch}/${vernum}/" "aws-${arch}/flatcar_production_ami_"*txt* "aws-${arch}/flatcar_production_ami_"*json*
     done
-    publish_sdk "${docker_sdk_vernum}"
+    if [ "${vernum}" = "${sdk_version}" ]; then
+      publish_sdk "${docker_sdk_vernum}"
+    fi
     echo "===="
     echo "Done, now you can copy the images to Origin"
     echo "===="
