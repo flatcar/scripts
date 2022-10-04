@@ -61,7 +61,7 @@ pkg_setup() {
 		ewarn "and recompile your kernel ..."
 	fi
 
-	python-single-r1_pkg_setup
+	use python && python-single-r1_pkg_setup
 }
 
 src_prepare() {
@@ -117,7 +117,7 @@ src_install() {
 	fi
 
 	dobashcomp bash-completion/smbinfo
-	python_fix_shebang "${ED}"
+	use python && python_fix_shebang "${ED}"
 }
 
 pkg_postinst() {
