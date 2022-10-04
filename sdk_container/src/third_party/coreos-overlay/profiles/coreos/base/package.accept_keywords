@@ -46,7 +46,7 @@
 =sys-fs/cryptsetup-2.4.3-r1 ~amd64 ~arm64
 
 # Required for CVE-2022-29187
-=dev-vcs/git-2.37.1 ~amd64 ~arm64
+=dev-vcs/git-2.37.3 ~amd64 ~arm64
 
 =sys-power/acpid-2.0.33 ~amd64 ~arm64
 
@@ -54,9 +54,3 @@
 =sys-libs/liburing-2.1-r2 ~amd64 ~arm64
 
 =app-crypt/adcli-0.9.1-r2 ~amd64 ~arm64
-
-# Required for CVE-2022-27239, CVE-2022-29869
-=net-fs/cifs-utils-6.15 ~amd64 ~arm64
-
-# Required to fix toolchains build during fsscript in stage 4 of SDK build.
-=sys-devel/crossdev-20220709 ~amd64 ~arm64

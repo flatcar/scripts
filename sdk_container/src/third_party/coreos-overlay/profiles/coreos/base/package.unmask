@@ -11,4 +11,4 @@
 
 # Overwrite portage-stable mask - we want to use this version of git
 # for security fixes.
-=dev-vcs/git-2.37.1
+=dev-vcs/git-2.37.3
