@@ -1,0 +1,1 @@
+- The flatcar-update tool got two new flags to customize ports used on the host while updating flatcar ([PR#81](https://github.com/flatcar/init/pull/81))
