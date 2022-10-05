@@ -19,8 +19,5 @@ app-misc/editor-wrapper-4
 # elt-patches has a cyclic dependency
 app-arch/xz-utils-0
 
-# doesn't cross-compile, but required for glog, gflags, etc.
-dev-util/cmake-3.9.6
-
 # pulled in by dev-libs/glib
 dev-util/glib-utils-9999

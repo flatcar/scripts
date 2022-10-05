@@ -59,7 +59,6 @@ RDEPEND="${RDEPEND}
 	dev-util/gperf
 	>=dev-util/gtk-doc-am-1.13
 	dev-util/patchutils
-	dev-util/scons
 	>=dev-vcs/git-1.7.2
 	net-libs/libtirpc
 	amd64? ( net-misc/google-cloud-sdk )
