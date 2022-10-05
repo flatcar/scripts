@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: bash-completion-r1.eclass
@@ -28,12 +28,10 @@ _BASH_COMPLETION_R1_ECLASS=1
 
 inherit toolchain-funcs
 
-# Flatcar: we still have some packages that use old EAPI, revert this
-# change when we update those packages.
-#case ${EAPI} in
-#	5|6|7|8) ;;
-#	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
-#esac
+case ${EAPI} in
+	5|6|7|8) ;;
+	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
+esac
 
 # @FUNCTION: _bash-completion-r1_get_bashdir
 # @INTERNAL
@@ -71,7 +69,7 @@ _bash-completion-r1_get_bashcompdir() {
 	_bash-completion-r1_get_bashdir completionsdir /usr/share/bash-completion/completions
 }
 
-# @FUNCTION: _bash-completion-r1_get_helpersdir
+# @FUNCTION: _bash-completion-r1_get_bashhelpersdir
 # @INTERNAL
 # @DESCRIPTION:
 # Get unprefixed bash-completion helpers directory.

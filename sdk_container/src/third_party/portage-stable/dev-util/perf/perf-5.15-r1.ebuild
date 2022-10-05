@@ -1,11 +1,10 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-# Flatcar: Support python 3.6.
-PYTHON_COMPAT=( python3_{6..10} )
-inherit bash-completion-r1 estack llvm toolchain-funcs prefix python-r1 linux-info
+PYTHON_COMPAT=( python3_{7..10} )
+inherit bash-completion-r1 estack llvm toolchain-funcs python-r1 linux-info
 
 DESCRIPTION="Userland tools for Linux Performance Counters"
 HOMEPAGE="https://perf.wiki.kernel.org/"
@@ -32,7 +31,7 @@ SRC_URI+=" https://www.kernel.org/pub/linux/kernel/v${LINUX_V}/${LINUX_SOURCES}"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~arm64 ~mips ~ppc ~ppc64 ~riscv ~x86 ~amd64-linux ~x86-linux"
+KEYWORDS="amd64 arm arm64 ~mips ppc ppc64 ~riscv x86 ~amd64-linux ~x86-linux"
 IUSE="audit babeltrace clang crypt debug +doc gtk java libpfm lzma numa perl python slang systemtap unwind zlib zstd"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
@@ -55,8 +54,8 @@ RDEPEND="audit? ( sys-process/audit )
 	babeltrace? ( dev-util/babeltrace )
 	crypt? ( virtual/libcrypt:= )
 	clang? (
-		sys-devel/clang:=
-		sys-devel/llvm:=
+		<sys-devel/clang-14:=
+		<sys-devel/llvm-14:=
 	)
 	gtk? ( x11-libs/gtk+:2 )
 	java? ( virtual/jre:* )
@@ -97,7 +96,7 @@ pkg_pretend() {
 }
 
 pkg_setup() {
-	use clang && llvm_pkg_setup
+	use clang && LLVM_MAX_SLOT=13 llvm_pkg_setup
 	# We enable python unconditionally as libbpf always generates
 	# API headers using python script
 	python_setup
@@ -151,10 +150,10 @@ src_prepare() {
 	# Drop some upstream too-developer-oriented flags and fix the
 	# Makefile in general
 	sed -i \
-		-e "s:\$(sysconfdir_SQ)/bash_completion.d:$(get_bashcompdir):" \
+		-e "s@\$(sysconfdir_SQ)/bash_completion.d@$(get_bashcompdir)@" \
 		"${S}"/Makefile.perf || die
 	# A few places still use -Werror w/out $(WERROR) protection.
-	sed -i -e 's:-Werror::' \
+	sed -i -e 's@-Werror@@' \
 		"${S}"/Makefile.perf "${S_K}"/tools/lib/bpf/Makefile || die
 
 	# Avoid the call to make kernelversion
