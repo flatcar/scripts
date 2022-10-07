@@ -1,0 +1,1 @@
+- Added CONFIG_NF_CONNTRACK_BRIDGE (for nf_conntrack_bridge) and CONFIG_NFT_BRIDGE_META (for nft_meta_bridge) to the kernel config
