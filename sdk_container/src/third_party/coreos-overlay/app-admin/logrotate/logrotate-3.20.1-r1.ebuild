@@ -1,29 +1,36 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit systemd tmpfiles
+VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/kamildudka.asc
+inherit systemd tmpfiles verify-sig
 
 DESCRIPTION="Rotates, compresses, and mails system logs"
 HOMEPAGE="https://github.com/logrotate/logrotate"
-SRC_URI="https://github.com/${PN}/${PN}/releases/download/${PV}/${P}.tar.gz"
+SRC_URI="https://github.com/${PN}/${PN}/releases/download/${PV}/${P}.tar.xz"
+SRC_URI+=" verify-sig? ( https://github.com/${PN}/${PN}/releases/download/${PV}/${P}.tar.xz.asc )"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 IUSE="acl +cron selinux"
 
-DEPEND="
-	>=dev-libs/popt-1.5
+DEPEND=">=dev-libs/popt-1.5
 	selinux? ( sys-libs/libselinux )
 	acl? ( virtual/acl )"
 RDEPEND="${DEPEND}
 	selinux? ( sec-policy/selinux-logrotate )
 	cron? ( virtual/cron )"
+BDEPEND="verify-sig? ( sec-keys/openpgp-keys-kamildudka )"
 
 STATEFILE="${EPREFIX}/var/lib/misc/logrotate.status"
 OLDSTATEFILE="${EPREFIX}/var/lib/logrotate.status"
+
+PATCHES=(
+	"${FILESDIR}"/${PN}-3.15.0-ignore-hidden.patch
+	"${FILESDIR}"/${P}-log-changes.patch
+)
 
 move_old_state_file() {
 	elog "logrotate state file is now located at ${STATEFILE}"
@@ -39,13 +46,10 @@ install_cron_file() {
 	newexe "${S}"/examples/logrotate.cron "${PN}"
 }
 
-PATCHES=(
-	"${FILESDIR}/${PN}-3.15.0-ignore-hidden.patch"
-)
-
 src_prepare() {
-	sed -i -e 's#/usr/sbin/logrotate#/usr/bin/logrotate#' examples/logrotate.{cron,service} || die
 	default
+
+	sed -i -e 's#/usr/sbin/logrotate#/usr/bin/logrotate#' examples/logrotate.{cron,service} || die
 }
 
 src_configure() {
@@ -55,23 +59,17 @@ src_configure() {
 		--with-state-file-path="${STATEFILE}"
 }
 
-src_test() {
-	emake test
-}
-
 src_install() {
 	dobin logrotate
 	doman logrotate.8
 	dodoc ChangeLog.md
 
-	insinto /usr/share/logrotate
+	insinto /etc
 	doins "${FILESDIR}"/logrotate.conf
 
 	use cron && install_cron_file
 
-	systemd_dounit examples/logrotate.timer
-	systemd_dounit "${FILESDIR}"/logrotate.service
-	systemd_enable_service multi-user.target logrotate.timer
+	systemd_dounit examples/logrotate.{service,timer}
 	newtmpfiles "${FILESDIR}"/${PN}.tmpfiles ${PN}.conf
 
 	keepdir /etc/logrotate.d
