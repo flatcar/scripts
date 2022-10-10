@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -46,6 +46,10 @@ S="${WORKDIR}/${MY_P}"
 # bug 479092, requires networking
 RESTRICT="test"
 
+PATCHES=(
+	"${FILESDIR}"/${P}-fortify-source-3.patch
+)
+
 src_prepare() {
 	default
 
@@ -53,6 +57,10 @@ src_prepare() {
 
 	# Disable tests for now, bug 406399
 	sed -i '/^SUBDIRS/s:tests::' bin/Makefile.in lib/Makefile.in || die
+
+	# Do not disable thread local storage on Solaris, it works with our
+	# toolchain, and it breaks further configure checks
+	sed -i -e '/LDFLAGS=/s/-zrelax=transtls//' configure.ac configure || die
 
 	# bug #220361
 	rm aclocal.m4 || die
@@ -70,8 +78,8 @@ src_configure() {
 		--without-lmdb
 		--without-maxminddb
 		--disable-geoip
-		--with-openssl="${EPREFIX}"/usr
-		$(use_with idn libidn2)
+		--with-openssl="${ESYSROOT}"/usr
+		$(use_with idn libidn2 "${ESYSROOT}"/usr)
 		$(use_with xml libxml2)
 		$(use_with gssapi)
 		$(use_with readline)
