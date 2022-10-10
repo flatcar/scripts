@@ -10,8 +10,7 @@ dev-libs/libxml2	-python
 dev-libs/libxslt	-python
 dev-util/perf		-doc
 dev-vcs/git		webdav curl bash-completion
-# We don't want any driver/hw rendering on the host
-net-misc/curl		kerberos threads telnet
+net-misc/curl		kerberos telnet
 net-misc/iputils	arping tracepath traceroute6
 sys-devel/gettext	-git
 
