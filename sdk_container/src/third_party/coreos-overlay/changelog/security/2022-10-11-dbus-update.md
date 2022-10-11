@@ -1,0 +1,1 @@
+- dbus ([CVE-2022-42010](https://nvd.nist.gov/vuln/detail/CVE-2022-42010), [CVE-2022-42011](https://nvd.nist.gov/vuln/detail/CVE-2022-42011), [CVE-2022-42012](https://nvd.nist.gov/vuln/detail/CVE-2022-42012))
