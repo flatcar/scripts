@@ -24,7 +24,7 @@ fi
 
 # Fetch image if not present.
 if [ -f "${VMWARE_ESX_IMAGE_NAME}" ] ; then
-    echo "++++ ${CIA_TESTSCRIPT}: Using existing ${work_dir}/${VMWARE_ESX_IMAGE_NAME} for testing ${CIA_VERNUM} (${CIA_ARCH}) ++++"
+    echo "++++ ${CIA_TESTSCRIPT}: Using existing ${VMWARE_ESX_IMAGE_NAME} for testing ${CIA_VERNUM} (${CIA_ARCH}) ++++"
 else
     echo "++++ ${CIA_TESTSCRIPT}: downloading ${VMWARE_ESX_IMAGE_NAME} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
     copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${VMWARE_ESX_IMAGE_NAME}" .
