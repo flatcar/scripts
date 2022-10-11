@@ -1,0 +1,1 @@
+- Added `CONFIG_NF_CONNTRACK_BRIDGE` (for nf_conntrack_bridge) and `CONFIG_NFT_BRIDGE_META` (for nft_meta_bridge) to the kernel config to allow using conntrack rules for bridges in nftables and to match on bridge interface names ([coreos-overlay#2207](https://github.com/flatcar/coreos-overlay/pull/2207))
