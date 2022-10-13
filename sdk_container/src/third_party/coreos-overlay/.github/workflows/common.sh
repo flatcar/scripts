@@ -53,7 +53,7 @@ function prepare_git_repo() {
 
 # caller needs to set pass a parameter as a branch name to be created.
 function checkout_branches() {
-  TARGET_BRANCH=$1
+  local TARGET_BRANCH="${1}"
 
   [[ -z "${TARGET_BRANCH}" ]] && echo "No target branch specified. exit." && return 1
 
@@ -63,16 +63,22 @@ function checkout_branches() {
 
   # update submodules like portage-stable under the scripts directories
   git submodule update --init --recursive
+  # set up coreos-overlay submodule to use the fork remote, not the
+  # original remote set for the submodule.
+  local CO_PATH="${SDK_OUTER_SRCDIR}/third_party/coreos-overlay"
+  local FORK_URL=$(git remote get-url origin)
+  git -C "${CO_PATH}" remote add fork "${FORK_URL}"
+  git -C "${CO_PATH}" fetch fork
 
-  if git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" show-ref "remotes/origin/${TARGET_BRANCH}"; then
+  if git -C "${CO_PATH}" show-ref "remotes/fork/${TARGET_BRANCH}"; then
     echo "Target branch already exists. exit.";
     return 1
   fi
 
   # Each submodule directory should be explicitly set from BASE_BRANCH,
   # as the submodule refs could be only updated during the night.
-  git -C "${SDK_OUTER_SRCDIR}/third_party/coreos-overlay" checkout \
-    -B "${TARGET_BRANCH}" "origin/${BASE_BRANCH}"
+  git -C "${CO_PATH}" checkout \
+    -B "${TARGET_BRANCH}" "fork/${BASE_BRANCH}"
   git -C "${SDK_OUTER_SRCDIR}/third_party/portage-stable" checkout \
     -B "${TARGET_BRANCH}" "origin/${BASE_BRANCH}"
 }
