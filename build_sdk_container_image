@@ -120,7 +120,7 @@ else
     if [ -n "$cleanup" ] ; then
         echo "$docker image rm -f '${import_tarball}'" >> "$cleanup"
     fi
-    $docker import "${tarball}" "${import_tarball}"
+    lbzip2 -dck "${tarball}" | $docker import - "${import_tarball}"
 fi
 
 # --
