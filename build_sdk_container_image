@@ -245,7 +245,7 @@ done
 #
 if ! $keep; then
     yell "Cleaning up intermediate containers"
-    $docker rmi flatcar-sdk-build:"${docker_vernum}-${ARCH}"
-    $docker rmi flatcar-sdk-import:"${docker_vernum}-${ARCH}"
-    $docker rmi flatcar-sdk-tarball:"${docker_vernum}-${ARCH}"
+    $docker rmi flatcar-sdk-build:"${docker_vernum}"
+    $docker rmi flatcar-sdk-import:"${docker_vernum}"
+    $docker rmi flatcar-sdk-tarball:"${docker_vernum}"
 fi
