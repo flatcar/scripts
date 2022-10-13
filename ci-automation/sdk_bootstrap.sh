@@ -53,6 +53,9 @@
 #
 #   10. A file ../portage.patch to apply with "git am -3" for the portage-stable sub-module.
 #
+#   11. AVOID_NIGHTLY_BUILD_SHORTCUTS. Environment variable. Tells the script to build the SDK even if nothing has changed since last nightly build.
+#        See the description in ci-config.env.
+#
 # OUTPUT:
 #
 #   1. SDK tarball (gentoo catalyst output) of the new SDK, pushed to buildcache.
@@ -106,7 +109,14 @@ function _sdk_bootstrap_impl() {
        && [ "$(git -C sdk_container/src/third_party/portage-stable/ rev-parse --abbrev-ref HEAD)" = "main"  ] ; then
         push_branch="true"
         local existing_tag=""
-        existing_tag=$(git tag --points-at HEAD) # exit code is always 0, output may be empty
+        # Check for the existing tag only when we allow shortcutting
+        # the builds. That way we can skip the checks for build
+        # shortcutting.
+        if bool_is_true "${AVOID_NIGHTLY_BUILD_SHORTCUTS}"; then
+            echo "Continuing the build because AVOID_NIGHTLY_BUILD_SHORTCUTS is bool true (${AVOID_NIGHTLY_BUILD_SHORTCUTS})" >&2
+        else
+            existing_tag=$(git tag --points-at HEAD) # exit code is always 0, output may be empty
+        fi
         # If the found tag is a nightly tag, we stop this build if there are no changes
         if [[ "${existing_tag}" =~ ^main-[0-9.]+-nightly-[-0-9]+$ ]]; then
           local ret=0
