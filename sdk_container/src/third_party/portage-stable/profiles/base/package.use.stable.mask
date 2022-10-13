@@ -4,6 +4,25 @@
 # This file requires eapi 5 or later. New entries go on top.
 # Please use the same syntax as in package.use.mask
 
+# Marek Szuba <marecki@gentoo.org> (2022-09-25)
+# This depends on app-admin/ansible-molecule, which is not stable yet.
+# Moreover, all but the most recent versions of ansible-molecule
+# depend in turn on subprocess-tee.
+dev-python/subprocess-tee test-full
+
+# Arthur Zamarin <arthurzam@gentoo.org> (2022-09-16)
+# app-emacs/flycheck is not stable
+dev-util/pkgcheck emacs
+
+# Matthew Smith <matthew@gentoo.org> (2022-08-25)
+# sci-electronics/ngspice is not stable and may not be for a while due
+# to outstanding bugs.
+sci-electronics/kicad ngspice
+
+# Matt Turner <mattst88@gentoo.org> (2022-05-11)
+# app-text/pandoc is not stable
+app-text/nuspell doc
+
 # Volkmar W. Pogatzki <gentoo@pogatzki.net> (2022-05-05)
 # fop[test] depends on mockito:4, which is not yet stable (bug #727504),
 # and itself blocked by libffi stabilization (bug #813756).
@@ -83,7 +102,7 @@ sci-libs/openblas relapack
 # temporarily block tests so that bugs can be resolved
 dev-php/theseer-Autoload test
 
-# James Le Cuirot <sam@gentoo.org> (2020-11-23)
+# James Le Cuirot <chewi@gentoo.org> (2020-11-23)
 # Cinnamon is not stable on any architecture.
 x11-themes/arc-theme cinnamon
 
@@ -102,7 +121,7 @@ app-emulation/winetricks test
 # Georgy Yakovlev <gyakovlev@gentoo.org> (2019-12-21)
 # For bleeding edge features and testing, not generally suitable
 # for stable systems
-dev-lang/rust miri nightly system-bootstrap
+dev-lang/rust nightly profiler system-bootstrap
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2019-12-09)
 # Declared experimental, and dev-cpp/websocketpp not stable yet
@@ -160,11 +179,6 @@ dev-perl/DBD-SQLite system-sqlite
 # Depends on unstable dev-python/sphinx-gallery.
 # Bug #643840.
 dev-python/matplotlib doc
-
-# Michał Górny <mgorny@gentoo.org> (2018-01-20)
-# Requires proprietary fetch-restricted package that is not suitable
-# for stabilization. Bug #645092.
-net-proxy/haproxy device-atlas
 
 # Bernard Cafarelli <voyageur@gentoo.org> (2017-11-27)
 # Dependencies have no stable keyword

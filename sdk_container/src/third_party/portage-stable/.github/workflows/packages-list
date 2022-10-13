@@ -86,6 +86,8 @@ eclass/vim-plugin.eclass
 eclass/virtualx.eclass
 eclass/wrapper.eclass
 
+licenses
+
 net-analyzer/nmap
 
 net-fs/cifs-utils
@@ -94,6 +96,12 @@ net-libs/gnutls
 
 net-misc/curl
 net-misc/rsync
+
+profiles
+
+# The bootstrap script has some modifications, so we can't sync scripts directory yet.
+#
+# scripts
 
 sys-apps/gentoo-functions
 sys-apps/help2man

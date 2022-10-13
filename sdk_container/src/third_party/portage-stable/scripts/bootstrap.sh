@@ -1,6 +1,10 @@
 #!/bin/bash
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+
+# Maintainer: releng@gentoo.org
+
+file_version="2021.0"		# update manually: <year>.<counter>
 
 # people who were here:
 # (drobbins, 06 Jun 2003)
@@ -55,9 +59,6 @@ v_echo() {
 	env "$@"
 }
 
-cvsver="$Id$" # TODO: FIXME for Git era
-cvsver=${cvsver##*,v }
-cvsver=${cvsver%%Exp*}
 file_copyright=$(sed -n '/Copyright/!b;s/^# *//;p;q' $0)
 
 usage() {
@@ -94,7 +95,7 @@ for opt in "$@" ; do
 		--resume|-r)  STRAP_EMERGE_OPTS="${STRAP_EMERGE_OPTS} --usepkg --buildpkg";;
 		--verbose|-v) STRAP_EMERGE_OPTS="${STRAP_EMERGE_OPTS} -v"     ; V_ECHO=v_echo;;
 		--version|-V)
-			einfo "Gentoo Linux bootstrap ${cvsver}"
+			einfo "Gentoo Linux bootstrap ${file_version}"
 			exit 0
 			;;
 		*)
@@ -168,12 +169,12 @@ cleanup() {
 }
 
 pycmd() {
-	[[ ${DEBUG} = "1" ]] && echo /usr/bin/python3 -c "$@" > /dev/stderr
-	/usr/bin/python3 -c "$@"
+	[[ ${DEBUG} = "1" ]] && echo /usr/bin/python -c "$@" > /dev/stderr
+	/usr/bin/python -c "$@"
 }
 
 # TSTP messes ^Z of bootstrap up, so we don't trap it anymore.
-trap "cleanup" TERM KILL INT QUIT ABRT
+trap "cleanup" TERM INT QUIT ABRT
 
 # Bug #50158 (don't use `which` in a bootstrap).
 if ! type -path portageq &>/dev/null ; then
@@ -301,7 +302,9 @@ einfo "Using libc       : ${myLIBC}"
 einfo "Using texinfo    : ${myTEXINFO}"
 einfo "Using zlib       : ${myZLIB}"
 einfo "Using ncurses    : ${myNCURSES}"
+# Flatcar: install curl with BOOTSTRAP_USE=ssl to fetch from https URLs
 einfo "Using curl       : ${myCURL}"
+# Flatcar: upgrade to openssl-3 before system rebuild in stage3
 einfo "Using openssl    : ${myOPENSSL}"
 echo -------------------------------------------------------------------------------
 show_status 1 Configuring environment
@@ -325,13 +328,12 @@ if [ ${BOOTSTRAP_STAGE} -le 1 ] ; then
 	echo -------------------------------------------------------------------------------
 	set_bootstrap_stage 2
 fi
+# Flatcar: Add openmp and static-libs to fix catalyst bootstrap stage2.
 export USE="-* bootstrap ${ALLOWED_USE} ${BOOTSTRAP_USE} openmp static-libs"
 
 # We can't unmerge headers which may or may not exist yet. If your
 # trying to use nptl, it may be needed to flush out any old headers
 # before fully bootstrapping.
-#
-# Flatcar: install curl with BOOTSTRAP_USE=ssl to fetch from https URLs
 if [ ${BOOTSTRAP_STAGE} -le 2 ] ; then
 	show_status 3 Emerging packages
 	if [[ ${RESUME} -eq 1 ]] ; then
@@ -339,10 +341,11 @@ if [ ${BOOTSTRAP_STAGE} -le 2 ] ; then
 		STRAP_EMERGE_OPTS="${STRAP_EMERGE_OPTS} --resume"
 		cp /var/run/bootstrap-mtimedb /var/cache/edb
 	else
+		# Flatcar: install curl with BOOTSTRAP_USE=ssl to fetch from https URLs
 		STRAP_EMERGE_POSARGS="\
 			${myOS_HEADERS} ${myTEXINFO} ${myGETTEXT} ${myBINUTILS} \
 			${myGCC} ${myLIBC} ${myCURL} ${myBASELAYOUT} ${myZLIB}"
-		# Flatcar
+		# Flatcar: upgrade to openssl-3 before system rebuild in stage3
 		STRAP_EMERGE_POSARGS="${STRAP_EMERGE_POSARGS} ${myOPENSSL}"
 	fi
 	${V_ECHO} emerge ${STRAP_EMERGE_OPTS} ${STRAP_EMERGE_POSARGS} || cleanup 1

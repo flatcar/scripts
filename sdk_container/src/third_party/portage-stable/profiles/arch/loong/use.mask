@@ -7,8 +7,17 @@
 # Unmask systemd
 -systemd
 
+# Things we actually can support
+-input_devices_synaptics
+
 # Things without support yet
 java
+llvm
+luajittex
+lua_single_target_luajit
+lua_targets_luajit
+mono
+opencl
 valgrind
 
 # Temporarily masked during initial keywording
@@ -19,20 +28,17 @@ efl
 elogind
 emacs
 fam
-gd
-gpm
-gtk
-gtk2
-gtk3
 gtk4
 gtk-doc
+kde
 latex
 ldap
 mpi
-qt5
 sctp
 systemtap
 tk
 tpm
-X
-xkb
+xemacs
+
+# Things not supposed to ever get support
+video_cards_glint

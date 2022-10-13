@@ -1,4 +1,4 @@
-# Copyright 2021 Gentoo Authors
+# Copyright 2021-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # this is for now highly experimental -dilfridge
@@ -29,7 +29,8 @@ LDFLAGS="${LDFLAGS} ${SOME_HARDENING_LDFLAGS}"
 
 # use LLVM-provided binutils
 AR="llvm-ar"
-AS="llvm-as"
+AS="clang -c"
+CPP="clang-cpp"
 NM="llvm-nm"
 STRIP="llvm-strip"
 RANLIB="llvm-ranlib"
@@ -39,6 +40,12 @@ OBJDUMP="llvm-objdump"
 READELF="llvm-readelf"
 ADDR2LINE="llvm-addr2line"
 
+# Rust needs this to build some crates (like uutils)
+# https://github.com/rust-lang/rust/blob/master/compiler/rustc_llvm/build.rs
+LLVM_USE_LIBCXX=1
+# https://github.com/rust-lang/cc-rs#c-support
+# https://github.com/rust-lang/cc-rs/blob/main/src/lib.rs
+CXXSTDLIB="c++"
 
 # bootstrap USE for stage1
 
@@ -46,10 +53,10 @@ ADDR2LINE="llvm-addr2line"
 BOOTSTRAP_USE="${BOOTSTRAP_USE} ssl curl_ssl_openssl"
 
 # Clang needs this
-BOOTSTRAP_USE="${BOOTSTRAP_USE} python_single_target_python3_9"
+BOOTSTRAP_USE="${BOOTSTRAP_USE} python_single_target_python3_10"
 
 # sys-devel/llvm
-BOOTSTRAP_USE="${BOOTSTRAP_USE} -gold"
+BOOTSTRAP_USE="${BOOTSTRAP_USE} -binutils-plugin"
 
 # sys-devel/clang, sys-devel/clang-runtime, sys-libs/llvm-libunwind, sys-libs/libcxx, sys-libs/libcxxabi
 BOOTSTRAP_USE="${BOOTSTRAP_USE} compiler-rt clang libunwind"

@@ -1,6 +1,62 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Petr Vaněk <arkamar@atlas.cz> (2022-09-23)
+# Musl does not implement rresvport function, bugs #713810 and #713376.
+app-shells/pdsh
+net-analyzer/ipcad
+
+# Sam James <sam@gentoo.org> (2022-09-17)
+# Fails to compile on musl: bug #832868
+sys-apps/uutils
+
+# Sam James <sam@gentoo.org> (2022-09-12)
+# The libxcrypt migration is optional for musl.
+-virtual/libcrypt:0/1
+
+# Sam James <sam@gentoo.org> (2022-09-12)
+# virtual/libcrypt-2 doesn't migrate anything on musl,
+# we need virtual/libcrypt-2-r1 for the libxcrypt migration there, so
+# avoid a useless rebuild, and ensure it happens at the right time instead.
+=virtual/libcrypt-2
+
+# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2022-09-06)
+# Binary package linked against glibc
+games-action/minecraft-launcher
+
+# Vladimir Pavljuchenkov <spiderx@spiderx.dp.ua> (2022-08-21)
+# Binary package linked against glibc, bug #832607.
+net-p2p/resilio-sync
+
+# Mike Gilbert <floppym@gentoo.org> (2022-08-01)
+# Fails to build.
+app-emulation/open-vm-tools
+
+# William Hubbs <williamh@gentoo.org> (2022-07-30)
+# Binary package linked against glibc, bug #861893.
+app-admin/awscli-bin
+
+# David Seifert <soap@gentoo.org> (2022-07-29)
+# Binary package linked against glibc
+media-sound/baudline
+
+# David Seifert <soap@gentoo.org> (2022-07-29)
+# Binary package linked against glibc
+sys-block/megacli
+
+# Marek Szuba <marecki@gentoo.org> (2022-07-28)
+# Relies on unimplemented functions outb_p and inb_p,
+# support for which has never made it into musl. Bug #712972.
+sys-libs/libsmbios
+
+# Stefan Strogin <steils@gentoo.org> (2022-06-29)
+# Binary package linked against glibc
+net-im/element-desktop-bin
+
+# Florian Schmaus <flow@gentoo.org> (2022-06-05)
+# Binary package linked against glibc, bug #832932
+sys-block/hpssacli
+
 # Sam James <sam@gentoo.org> (2022-04-23)
 # Binary package linked against glibc, bug #832615
 net-print/cnijfilter2
@@ -185,14 +241,19 @@ app-text/zotero-bin
 media-video/popcorntime-bin
 net-im/rocketchat-desktop-bin
 net-im/whatsapp-desktop-bin
+net-im/wazzapp-bin
 sci-misc/jupyterlab-desktop-bin
 sci-misc/netlogo-bin
 sci-electronics/eagle
 
-# Ulrich Müller <ulm@gentoo.org> (2022-01-04)
+# Ulrich Müller <ulm@gentoo.org> (2022-01-04, 2022-07-31)
 # Emacs 23 does not support x86_64-gentoo-linux-musl systems
-# (bug #830408)
+# (bug #830408). Emacs 24 and 25 have build failures (bug #862462).
+# Emacs 26 segfaults when dumping (bug #862489).
 app-editors/emacs:23
+app-editors/emacs:24
+app-editors/emacs:25
+app-editors/emacs:26
 
 # Marek Szuba <marecki@gentoo.org> (2022-01-01)
 # Binary-only package linked against glibc.
@@ -219,13 +280,9 @@ app-text/po4a
 # Uses glibc-specific rexec(3) function, bug #715898
 net-misc/netkit-rsh
 
-# Andreas K. Hüttel <dilfridge@gentoo.org> (2021-07-14)
-# Mask the libxcrypt-based virtual
-~virtual/libcrypt-2
--virtual/libcrypt:0/1
-
 # David Seifert <soap@gentoo.org> (2021-02-08)
 # nvidia-drivers only works against glibc.
+dev-libs/optix
 x11-drivers/nvidia-drivers
 
 # Ulrich Müller (2020-03-31)
@@ -249,19 +306,14 @@ app-emulation/dosemu
 # Old undated blocks of masks
 #
 sys-libs/glibc
+-sys-libs/musl
+-sys-libs/libucontext
 
 # As of 2021-08-08, >=sys-fs/udev-249-r2 is patched in Gentoo
-# to work on musl.
+# to work on musl, so no need to mask udev.
+# systemd itself fails to build without glibc
 sys-apps/systemd
-
-# systemd sources fail to build without glibc
 sys-boot/systemd-boot
-
-# Ian Stakenvicius <axs@gentoo.org> (2017-06-14)
-# (on behalf of <mozilla@gentoo.org>)
-# Mask firefox-54 and above as it requires rust
-# now, and rust reportedly will not build yet.
->=www-client/firefox-54.0
 
 # rust-bin requires a glibc system
 dev-lang/rust-bin
