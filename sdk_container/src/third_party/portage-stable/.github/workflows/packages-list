@@ -90,6 +90,8 @@ licenses
 
 net-analyzer/nmap
 
+net-dns/bind-tools
+
 net-fs/cifs-utils
 
 net-libs/gnutls
