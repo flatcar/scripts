@@ -1,0 +1,61 @@
+name: Get the latest Kernel release for all maintained branches
+on:
+  schedule:
+    - cron:  '0 7 * * *'
+  workflow_dispatch:
+
+jobs:
+  get-kernel-release:
+    strategy:
+      matrix:
+        branch: [main,alpha,beta,stable,lts,lts-old]
+      fail-fast: false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Figure out branch
+        id: figure-out-branch
+        run: .github/workflows/figure-out-branch.sh '${{ matrix.branch }}'
+      - name: Fetch latest Linux release
+        if: steps.figure-out-branch.outputs.SKIP == 0
+        id: fetch-latest-release
+        run: |
+          CHANNEL='${{ matrix.branch }}'
+          if [[ "${CHANNEL}" = 'main' ]]; then
+            KV=$(git ls-files 'sys-kernel/coreos-kernel/*ebuild' | head -n 1 | cut -d '-' -f 5- | cut -d . -f 1-2)
+          else
+            KV=$(curl -s -S -f -L '${{ steps.figure-out-branch.outputs.LINK }}/flatcar_production_image_packages.txt' | grep -o 'coreos-kernel.*' | cut -d '-' -f 3- | cut -d . -f 1-2)
+          fi
+          git clone --depth=1 --no-checkout https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux
+          kernelVersion=$(git -C linux ls-remote --tags origin | cut -f2 | sed -n "/refs\/tags\/v${KV}\.[0-9]*$/s/^refs\/tags\/v//p" | sort -ruV | head -1)
+          rm -rf linux
+          echo "KERNEL_VERSION=${kernelVersion}" >>"${GITHUB_OUTPUT}"
+      - name: Set up Flatcar SDK
+        if: steps.figure-out-branch.outputs.SKIP == 0
+        id: setup-flatcar-sdk
+        run: .github/workflows/setup-flatcar-sdk.sh
+      - name: Apply patch
+        if: steps.figure-out-branch.outputs.SKIP == 0
+        id: apply-patch
+        env:
+          TARGET: ${{ steps.figure-out-branch.outputs.BRANCH }}
+          BASE_BRANCH: ${{ steps.figure-out-branch.outputs.BRANCH }}
+          PATH: ${{ steps.setup-flatcar-sdk.outputs.path }}
+          VERSION_NEW: ${{ steps.fetch-latest-release.outputs.KERNEL_VERSION }}
+          PACKAGES_CONTAINER: ${{ steps.setup-flatcar-sdk.outputs.PACKAGES_CONTAINER }}
+          SDK_NAME: ${{ steps.setup-flatcar-sdk.outputs.SDK_NAME }}
+        run: .github/workflows/kernel-apply-patch.sh
+      - name: Create pull request
+        if: (steps.figure-out-branch.outputs.SKIP == 0) && (steps.apply-patch.outputs.UPDATE_NEEDED == 1)
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: ${{ steps.figure-out-branch.outputs.BRANCH }}
+          branch: linux-${{ steps.fetch-latest-release.outputs.KERNEL_VERSION }}-${{ steps.figure-out-branch.outputs.BRANCH }}
+          author: Flatcar Buildbot <buildbot@flatcar-linux.org>
+          committer: Flatcar Buildbot <buildbot@flatcar-linux.org>
+          title: Upgrade Linux Kernel for ${{ steps.figure-out-branch.outputs.BRANCH }} from ${{ steps.apply-patch.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.KERNEL_VERSION }}
+          body: Subject says it all.
+          labels: ${{ steps.figure-out-branch.outputs.LABEL }}
