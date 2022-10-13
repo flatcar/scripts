@@ -231,7 +231,7 @@ for a in all arm64 amd64; do
         arm64) rmarch="amd64-usr"; rmcross="x86_64-cros-linux-gnu";;
         amd64) rmarch="arm64-usr"; rmcross="aarch64-cros-linux-gnu";;
     esac
-    $docker build -t "$sdk_container_common_registry/flatcar-sdk-${a}:${docker_vernum}" \
+    $docker build -t "$sdk_container_common_registry/flatcar-sdk-${a}:${docker_vernum}-${ARCH}" \
                  --build-arg VERSION="${docker_vernum}" \
                  --build-arg RMARCH="${rmarch}" \
                  --build-arg RMCROSS="${rmcross}" \
@@ -245,7 +245,7 @@ done
 #
 if ! $keep; then
     yell "Cleaning up intermediate containers"
-    $docker rmi flatcar-sdk-build:"${docker_vernum}"
-    $docker rmi flatcar-sdk-import:"${docker_vernum}"
-    $docker rmi flatcar-sdk-tarball:"${docker_vernum}"
+    $docker rmi flatcar-sdk-build:"${docker_vernum}-${ARCH}"
+    $docker rmi flatcar-sdk-import:"${docker_vernum}-${ARCH}"
+    $docker rmi flatcar-sdk-tarball:"${docker_vernum}-${ARCH}"
 fi

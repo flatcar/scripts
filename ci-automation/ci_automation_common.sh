@@ -180,6 +180,15 @@ function docker_image_fullname() {
 }
 # --
 
+function get_sdk_arch() {
+    local arch="$(uname -m)"
+    case "$arch" in
+        aarch64) echo "arm64";;
+        x86_64)  echo "amd64";;
+        *) echo "Unknown arch for sdk: $arch" >&2; return 1;;
+    esac
+}
+
 function docker_image_to_buildcache() {
     local image="$1"
     local version="$2"
@@ -238,7 +247,11 @@ function docker_image_from_registry_or_buildcache() {
     fi
 
     echo "Falling back to tar ball download..." >&2
-    docker_image_from_buildcache "${image}" "${version}"
+    if docker_image_from_buildcache "${image}" "${version}"; then
+        return
+    fi
+    echo "Final fallback: arch specific container image" >&2
+    docker_image_from_buildcache "${image}" "${version}-$(get_sdk_arch)"
 }
 # --
 
