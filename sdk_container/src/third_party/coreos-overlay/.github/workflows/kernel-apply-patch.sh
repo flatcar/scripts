@@ -4,14 +4,13 @@ set -euo pipefail
 
 # trim the 3rd part in the input semver, e.g. from 5.4.1 to 5.4
 VERSION_SHORT=${VERSION_NEW%.*}
-UPDATE_NEEDED=1
+BRANCH_NAME="linux-${VERSION_NEW}-${TARGET}"
 
 . .github/workflows/common.sh
 
 prepare_git_repo
 
-if ! checkout_branches "linux-${VERSION_NEW}-${TARGET}"; then
-  UPDATE_NEEDED=0
+if ! checkout_branches "${BRANCH_NAME}"; then
   exit 0
 fi
 
@@ -23,7 +22,6 @@ if [[ -z "${VERSION_OLD}" ]]; then
 fi
 if [[ "${VERSION_NEW}" = "${VERSION_OLD}" ]]; then
   echo "already the latest Kernel, nothing to do"
-  UPDATE_NEEDED=0
   exit 0
 fi
 
@@ -77,5 +75,6 @@ generate_patches sys-kernel coreos-sources Kernel
 
 apply_patches
 
-echo ::set-output name=VERSION_OLD::"${VERSION_OLD}"
-echo ::set-output name=UPDATE_NEEDED::"${UPDATE_NEEDED}"
+echo "VERSION_OLD=${VERSION_OLD}" >>"${GITHUB_OUTPUT}"
+echo "UPDATE_NEEDED=1" >>"${GITHUB_OUTPUT}"
+echo "BRANCH_NAME=${BRANCH_NAME}" >>"${GITHUB_OUTPUT}"

@@ -53,7 +53,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           base: ${{ steps.figure-out-branch.outputs.BRANCH }}
-          branch: linux-${{ steps.fetch-latest-release.outputs.KERNEL_VERSION }}-${{ steps.figure-out-branch.outputs.BRANCH }}
+          branch: ${{ steps.apply-patch.outputs.BRANCH_NAME }}
           author: Flatcar Buildbot <buildbot@flatcar-linux.org>
           committer: Flatcar Buildbot <buildbot@flatcar-linux.org>
           title: Upgrade Linux Kernel for ${{ steps.figure-out-branch.outputs.BRANCH }} from ${{ steps.apply-patch.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.KERNEL_VERSION }}
