@@ -11,6 +11,7 @@ source ci-automation/ci-config.env
 : ${docker:=docker}
 
 : ${TEST_WORK_DIR:='__TESTS__'}
+set -x
 
 function init_submodules() {
     git submodule init
