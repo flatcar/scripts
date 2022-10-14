@@ -1,0 +1,2 @@
+- SDK: libxslt ([1.1.37](https://gitlab.gnome.org/GNOME/libxslt/-/tags/v1.1.37))
+- bpftool ([5.19.2](https://lwn.net/Articles/904957/))
