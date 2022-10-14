@@ -251,7 +251,9 @@ function docker_image_from_registry_or_buildcache() {
         return
     fi
     echo "Final fallback: arch specific container image" >&2
-    docker_image_from_buildcache "${image}" "${version}-$(get_sdk_arch)"
+    if docker_image_from_buildcache "${image}" "${version}-$(get_sdk_arch)"; then
+        $docker tag "${CONTAINER_REGISTRY}/${image}:${version}-$(get_sdk_arch)" "${CONTAINER_REGISTRY}/${image}:${version}"
+    fi
 }
 # --
 
