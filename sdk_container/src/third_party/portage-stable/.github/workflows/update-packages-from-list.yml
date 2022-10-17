@@ -39,6 +39,16 @@ jobs:
                   echo "::warning title=${package}::Nonexistent package"
                   continue
               fi
+              if [[ ! -e "../gentoo/${package}" ]]; then
+                  # If this happens, it means that the package was obsoleted or moved
+                  # in Gentoo. The obsoletion needs to be handled in the case-by-case
+                  # manner, while move should be handled by doing the same move
+                  # in portage-stable. The build should not break because of the move,
+                  # because most likely it's already reflected in the profiles/updates
+                  # directory.
+                  echo "::warning title=${package}::Obsolete or moved package"
+                  continue
+              fi
               GENTOO_REPO=../gentoo ../flatcar-build-scripts/sync-with-gentoo "${package}"
           done < <(grep '^[^#]' .github/workflows/packages-list)
           cd ..
