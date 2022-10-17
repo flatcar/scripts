@@ -18,7 +18,10 @@ jobs:
         with:
           repository: gentoo/gentoo
           path: gentoo
-          fetch-depth: 0
+          # Gentoo is quite a large repo, so limit ourselves to last
+          # quarter milion of commits. It is about two years worth of changes.
+          fetch-depth: 250000
+          ref: master
       - name: Checkout build scripts
         uses: actions/checkout@v3
         with:
