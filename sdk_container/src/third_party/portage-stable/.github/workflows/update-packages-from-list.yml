@@ -62,8 +62,8 @@ jobs:
               updated=1
               count=$(git -C portage-stable rev-list --count "${old_head}..${new_head}")
           fi
-          echo ::set-output "name=UPDATED::${updated}"
-          echo ::set-output "name=COUNT::${count}"
+          echo "UPDATED=${updated}" >>"${GITHUB_OUTPUT}"
+          echo "COUNT=${count}" >>"${GITHUB_OUTPUT}"
       - name: Create pull request for main branch
         uses: peter-evans/create-pull-request@v4
         if: steps.update-listed-packages.outputs.UPDATED == 1
