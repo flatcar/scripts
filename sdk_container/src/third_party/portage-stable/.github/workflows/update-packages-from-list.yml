@@ -13,7 +13,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: ./portage-stable
-      - name: Checkout gentoo
+      - name: Checkout Gentoo
         uses: actions/checkout@v2
         with:
           repository: gentoo/gentoo
