@@ -33,7 +33,7 @@ jobs:
           old_head=$(git -C portage-stable rev-parse HEAD)
           cd portage-stable
           while read -r package; do
-              if [[ ! -d "${package}" ]]; then
+              if [[ ! -e "${package}" ]]; then
                   # If this happens, it means that the package was moved to overlay
                   # or dropped, the list ought to be updated.
                   echo "::warning title=${package}::Nonexistent package"
