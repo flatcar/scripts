@@ -39,9 +39,6 @@
 # FIPS support is still being tested
 =sys-fs/cryptsetup-2.4.3-r1 ~amd64 ~arm64
 
-# Required for CVE-2022-29187
-=dev-vcs/git-2.37.3 ~amd64 ~arm64
-
 =sys-power/acpid-2.0.33 ~amd64 ~arm64
 
 # Overwrite portage-stable mask - use latest liburing -r2 for ARM64 and AMD64
