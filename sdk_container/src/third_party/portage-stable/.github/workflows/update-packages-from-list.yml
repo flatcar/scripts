@@ -13,14 +13,17 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: ./portage-stable
-      - name: Checkout gentoo
-        uses: actions/checkout@v2
+      - name: Checkout Gentoo
+        uses: actions/checkout@v3
         with:
           repository: gentoo/gentoo
           path: gentoo
-          fetch-depth: 0
+          # Gentoo is quite a large repo, so limit ourselves to last
+          # quarter milion of commits. It is about two years worth of changes.
+          fetch-depth: 250000
+          ref: master
       - name: Checkout build scripts
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: flatcar/flatcar-build-scripts
           ref: krnowak/stuff
@@ -33,10 +36,20 @@ jobs:
           old_head=$(git -C portage-stable rev-parse HEAD)
           cd portage-stable
           while read -r package; do
-              if [[ ! -d "${package}" ]]; then
+              if [[ ! -e "${package}" ]]; then
                   # If this happens, it means that the package was moved to overlay
                   # or dropped, the list ought to be updated.
                   echo "::warning title=${package}::Nonexistent package"
+                  continue
+              fi
+              if [[ ! -e "../gentoo/${package}" ]]; then
+                  # If this happens, it means that the package was obsoleted or moved
+                  # in Gentoo. The obsoletion needs to be handled in the case-by-case
+                  # manner, while move should be handled by doing the same move
+                  # in portage-stable. The build should not break because of the move,
+                  # because most likely it's already reflected in the profiles/updates
+                  # directory.
+                  echo "::warning title=${package}::Obsolete or moved package"
                   continue
               fi
               GENTOO_REPO=../gentoo ../flatcar-build-scripts/sync-with-gentoo "${package}"
@@ -49,8 +62,8 @@ jobs:
               updated=1
               count=$(git -C portage-stable rev-list --count "${old_head}..${new_head}")
           fi
-          echo ::set-output "name=UPDATED::${updated}"
-          echo ::set-output "name=COUNT::${count}"
+          echo "UPDATED=${updated}" >>"${GITHUB_OUTPUT}"
+          echo "COUNT=${count}" >>"${GITHUB_OUTPUT}"
       - name: Create pull request for main branch
         uses: peter-evans/create-pull-request@v4
         if: steps.update-listed-packages.outputs.UPDATED == 1
