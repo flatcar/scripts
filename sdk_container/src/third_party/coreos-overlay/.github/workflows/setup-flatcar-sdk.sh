@@ -47,6 +47,6 @@ export PACKAGES_CONTAINER="flatcar-packages-${arch}-${docker_vernum}"
 
 popd || exit
 
-echo ::set-output name=path::"${PATH}"
-echo ::set-output name=PACKAGES_CONTAINER::"${PACKAGES_CONTAINER}"
-echo ::set-output name=SDK_NAME::"${SDK_NAME}"
+echo "path=${PATH}" >>"${GITHUB_OUTPUT}"
+echo "PACKAGES_CONTAINER=${PACKAGES_CONTAINER}" >>"${GITHUB_OUTPUT}"
+echo "SDK_NAME=${SDK_NAME}" >>"${GITHUB_OUTPUT}"

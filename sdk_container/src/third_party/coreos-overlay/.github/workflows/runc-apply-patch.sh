@@ -57,5 +57,5 @@ generate_patches app-emulation docker-runc Runc
 
 apply_patches
 
-echo ::set-output name=VERSION_OLD::"${VERSION_OLD}"
-echo ::set-output name=UPDATE_NEEDED::"${UPDATE_NEEDED}"
+echo "VERSION_OLD=${VERSION_OLD}" >>"${GITHUB_OUTPUT}"
+echo "UPDATE_NEEDED=${UPDATE_NEEDED}" >>"${GITHUB_OUTPUT}"

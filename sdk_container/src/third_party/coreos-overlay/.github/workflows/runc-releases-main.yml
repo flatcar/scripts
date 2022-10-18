@@ -22,9 +22,9 @@ jobs:
           commitMain="$(git -C runc rev-parse v${versionMain})"
           versionMain="${versionMain//-/_}"
           rm -rf runc
-          echo ::set-output name=VERSION_MAIN::$(echo ${versionMain})
-          echo ::set-output name=COMMIT_MAIN::$(echo ${commitMain})
-          echo ::set-output name=BASE_BRANCH_MAIN::main
+          echo "VERSION_MAIN=${versionMain}" >>"${GITHUB_OUTPUT}"
+          echo "COMMIT_MAIN=${commitMain}" >>"${GITHUB_OUTPUT}"
+          echo "BASE_BRANCH_MAIN=main" >>"${GITHUB_OUTPUT}"
       - name: Set up Flatcar SDK
         id: setup-flatcar-sdk
         run: .github/workflows/setup-flatcar-sdk.sh

@@ -20,10 +20,10 @@ jobs:
           commitMain=$(git -C docker rev-parse --short=10 v${versionMain})
           commitCli=$(git -C docker-cli rev-parse --short=10 v${versionMain})
           rm -rf docker docker-cli
-          echo ::set-output name=VERSION_MAIN::$(echo ${versionMain})
-          echo ::set-output name=COMMIT_MAIN::$(echo ${commitMain})
-          echo ::set-output name=COMMIT_CLI::$(echo ${commitCli})
-          echo ::set-output name=BASE_BRANCH_MAIN::main
+          echo "VERSION_MAIN=${versionMain}" >>"${GITHUB_OUTPUT}"
+          echo "COMMIT_MAIN=${commitMain}" >>"${GITHUB_OUTPUT}"
+          echo "COMMIT_CLI=${commitCli}" >>"${GITHUB_OUTPUT}"
+          echo "BASE_BRANCH_MAIN=main" >>"${GITHUB_OUTPUT}"
       - name: Set up Flatcar SDK
         id: setup-flatcar-sdk
         run: .github/workflows/setup-flatcar-sdk.sh

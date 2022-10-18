@@ -17,8 +17,8 @@ jobs:
           git clone --depth=1 --no-checkout https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
           versionMain=$(git -C linux-firmware ls-remote --tags origin | cut -f2 | sed -n "/refs\/tags\/[0-9]*$/s/^refs\/tags\///p" | sort -ruV | head -n1)
           rm -rf linux-firmware
-          echo ::set-output name=VERSION_MAIN::$(echo ${versionMain})
-          echo ::set-output name=BASE_BRANCH_MAIN::main
+          echo "VERSION_MAIN=${versionMain}" >>"${GITHUB_OUTPUT}"
+          echo "BASE_BRANCH_MAIN=main" >>"${GITHUB_OUTPUT}"
       - name: Set up Flatcar SDK
         id: setup-flatcar-sdk
         run: .github/workflows/setup-flatcar-sdk.sh

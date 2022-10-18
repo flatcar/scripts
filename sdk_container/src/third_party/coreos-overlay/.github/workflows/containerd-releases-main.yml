@@ -18,9 +18,9 @@ jobs:
           versionMain=$(git -C containerd ls-remote --tags origin | cut -f2 | sed -n "/refs\/tags\/v[0-9]*\.[0-9]*\.[0-9]*$/s/^refs\/tags\/v//p" | egrep -v -e '(beta|rc)' | sort -ruV | head -n1)
           commitMain=$(git -C containerd rev-parse v${versionMain})
           rm -rf containerd
-          echo ::set-output name=VERSION_MAIN::$(echo ${versionMain})
-          echo ::set-output name=COMMIT_MAIN::$(echo ${commitMain})
-          echo ::set-output name=BASE_BRANCH_MAIN::main
+          echo "VERSION_MAIN=${versionMain}" >>"${GITHUB_OUTPUT}"
+          echo "COMMIT_MAIN=${commitMain}" >>"${GITHUB_OUTPUT}"
+          echo "BASE_BRANCH_MAIN=main" >>"${GITHUB_OUTPUT}"
       - name: Set up Flatcar SDK
         id: setup-flatcar-sdk
         run: .github/workflows/setup-flatcar-sdk.sh
