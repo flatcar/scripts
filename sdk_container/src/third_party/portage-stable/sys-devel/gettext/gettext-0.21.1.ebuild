@@ -3,14 +3,10 @@
 
 # Note: Keep version bumps in sync with dev-libs/libintl.
 
-EAPI=7
-
-if [[ ${PV} != 0.21 ]] ; then
-	die "Please check if https://savannah.gnu.org/bugs/?63193 is fixed before bumping!"
-fi
+EAPI=8
 
 VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/gettext.asc
-inherit mono-env libtool java-pkg-opt-2 multilib-minimal verify-sig
+inherit java-pkg-opt-2 libtool multilib-minimal verify-sig
 
 DESCRIPTION="GNU locale utilities"
 HOMEPAGE="https://www.gnu.org/software/gettext/"
@@ -69,19 +65,30 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-0.20-parallel_install.patch #685530
 	"${FILESDIR}"/${PN}-0.21_rc1-avoid_eautomake.patch
 	"${FILESDIR}"/${PN}-0.21-CVE-2020-12825.patch
+	"${FILESDIR}"/${P}-java-autoconf.patch
 )
 
 QA_SONAME_NO_SYMLINK=".*/preloadable_libintl.so"
 
 pkg_setup() {
-	mono-env_pkg_setup
 	java-pkg-opt-2_pkg_setup
 }
 
 src_prepare() {
 	java-pkg-opt-2_src_prepare
+
 	default
+
+	# gettext-0.21.1-java-autoconf.patch changes
+	# gettext-{runtime,tools}/configure.ac and the corresponding
+	# configure scripts. Avoid regenerating other autotools output.
+	touch -c gettext-{runtime,tools}/{aclocal.m4,Makefile.in,config.h.in,configure} || die
+
+	# Makefile.am adds a dependency on gettext-{runtime,tools}/configure.ac
+	touch -c configure || die
+
 	elibtoolize
+
 	use elibc_musl && eapply "${FILESDIR}"/${PN}-0.21-musl-omit_setlocale_lock.patch
 }
 
@@ -105,6 +112,8 @@ multilib_src_configure() {
 		--without-included-gettext
 		# Never build bundled copy of libxml2.
 		--without-included-libxml
+
+		--disable-csharp
 
 		$(use_enable acl)
 		$(use_enable cxx c++)
