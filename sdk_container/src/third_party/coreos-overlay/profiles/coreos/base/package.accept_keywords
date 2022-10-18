@@ -2,6 +2,9 @@
 # Copyright (c) 2013 The CoreOS Authors. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
+# Required for addressing some CVEs
+=dev-libs/libxml2-2.10.3 ~amd64 ~arm64
+
 =app-arch/zstd-1.4.9 ~amd64 ~arm64
 
 =app-emulation/qemu-7.0.0-r1 ~arm64
