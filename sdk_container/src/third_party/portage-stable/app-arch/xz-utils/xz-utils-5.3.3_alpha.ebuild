@@ -6,6 +6,7 @@
 
 EAPI=7
 
+QA_PKGCONFIG_VERSION=${PV/_/}
 inherit libtool multilib multilib-minimal preserve-libs usr-ldscript
 
 if [[ ${PV} == 9999 ]] ; then
