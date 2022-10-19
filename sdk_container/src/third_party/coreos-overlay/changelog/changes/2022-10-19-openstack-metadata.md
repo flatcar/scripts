@@ -1,0 +1,1 @@
+- OpenStack: enabled `coreos-metadata-sshkeys@.service` to provision SSH keys from metadata. ([Flatcar#817](https://github.com/flatcar/Flatcar/issues/817), [coreos-overlay#2246](https://github.com/flatcar/coreos-overlay/pull/2246))
