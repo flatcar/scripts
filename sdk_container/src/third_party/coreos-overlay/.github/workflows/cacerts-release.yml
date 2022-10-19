@@ -1,0 +1,55 @@
+name: Get the latest ca-certificates release for all maintained branches
+on:
+  schedule:
+    - cron:  '0 7 * * 1'
+  workflow_dispatch:
+
+jobs:
+  get-cacerts-release:
+    strategy:
+      matrix:
+        branch: [main,alpha,beta,stable,lts,lts-old]
+      fail-fast: false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Figure out branch
+        id: figure-out-branch
+        run: .github/workflows/figure-out-branch.sh '${{ matrix.branch }}'
+      - name: Fetch latest ca-certificates release
+        if: steps.figure-out-branch.outputs.SKIP == 0
+        id: fetch-latest-release
+        run: |
+          git clone --depth=1 --no-checkout https://github.com/nss-dev/nss
+          nssVersion=$(git -C nss ls-remote --tags origin | cut -f2 | sed -n "s/refs\/tags\/NSS_\([0-9]_[0-9_]*\).*_RTM$/\1/p" | sort -s -t_ -k1,1 -k2,2n -k3,3n | tr '_' '.' | tail -n1)
+          rm -rf nss
+          echo "NSS_VERSION=${nssVersion}" >>"${GITHUB_OUTPUT}"
+      - name: Set up Flatcar SDK
+        if: steps.figure-out-branch.outputs.SKIP == 0
+        id: setup-flatcar-sdk
+        run: .github/workflows/setup-flatcar-sdk.sh
+      - name: Apply patch
+        if: steps.figure-out-branch.outputs.SKIP == 0
+        id: apply-patch
+        env:
+          TARGET: ${{ steps.figure-out-branch.outputs.BRANCH }}
+          BASE_BRANCH: ${{ steps.figure-out-branch.outputs.BRANCH }}
+          PATH: ${{ steps.setup-flatcar-sdk.outputs.path }}
+          VERSION_NEW: ${{ steps.fetch-latest-release.outputs.NSS_VERSION }}
+          PACKAGES_CONTAINER: ${{ steps.setup-flatcar-sdk.outputs.PACKAGES_CONTAINER }}
+          SDK_NAME: ${{ steps.setup-flatcar-sdk.outputs.SDK_NAME }}
+        run: .github/workflows/cacerts-apply-patch.sh
+      - name: Create pull request
+        if: (steps.figure-out-branch.outputs.SKIP == 0) && (steps.apply-patch.outputs.UPDATE_NEEDED == 1)
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: ${{ steps.figure-out-branch.outputs.BRANCH }}
+          branch: ${{ steps.apply-patch.outputs.BRANCH_NAME }}
+          author: Flatcar Buildbot <buildbot@flatcar-linux.org>
+          committer: Flatcar Buildbot <buildbot@flatcar-linux.org>
+          title: Upgrade ca-certificates in ${{ steps.figure-out-branch.outputs.BRANCH }} from ${{ steps.apply-patch.outputs.VERSION_OLD }} to ${{ steps.fetch-latest-release.outputs.NSS_VERSION }}
+          body: Subject says it all.
+          labels: ${{ steps.figure-out-branch.outputs.LABEL }}
