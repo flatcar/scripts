@@ -1,0 +1,5 @@
+# Copyright (c) 2022 Flatcar Authors
+# Distributed under the terms of the GNU General Public License v2
+
+# It's stable for arm64, so make it available on amd64 SDK too.
+=dev-util/cmake-3.24.2 ~amd64
