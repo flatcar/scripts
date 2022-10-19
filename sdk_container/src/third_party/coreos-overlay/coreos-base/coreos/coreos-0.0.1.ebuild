@@ -121,6 +121,7 @@ RDEPEND="${RDEPEND}
 	dev-vcs/git
 	net-analyzer/nmap
 	net-analyzer/tcpdump
+	net-analyzer/traceroute
 	net-dns/bind-tools
 	net-firewall/conntrack-tools
 	net-firewall/ebtables

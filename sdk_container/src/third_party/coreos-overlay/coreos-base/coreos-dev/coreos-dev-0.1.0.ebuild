@@ -24,6 +24,7 @@ RDEPEND="
 	dev-util/pahole
 	dev-vcs/repo
 	net-analyzer/netperf
+	net-analyzer/traceroute
 	net-dialup/minicom
 	net-misc/iperf
 	net-misc/iputils
