@@ -2,6 +2,7 @@
 
 app-arch/bzip2
 app-arch/unzip
+app-arch/xz-utils
 
 app-crypt/adcli
 
@@ -57,6 +58,7 @@ eclass/autotools.eclass
 eclass/cmake-multilib.eclass
 eclass/cmake.eclass
 eclass/elisp-common.eclass
+eclass/fcaps.eclass
 eclass/flag-o-matic.eclass
 eclass/git-r3.eclass
 eclass/gnome.org.eclass
@@ -74,12 +76,19 @@ eclass/multilib-minimal.eclass
 eclass/multilib.eclass
 eclass/ninja-utils.eclass
 eclass/optfeature.eclass
+eclass/pam.eclass
 eclass/pax-utils.eclass
 eclass/perl-functions.eclass
+eclass/plocale.eclass
 eclass/prefix.eclass
+eclass/preserve-libs.eclass
+eclass/systemd.eclass
 eclass/tmpfiles.eclass
 eclass/toolchain-funcs.eclass
 eclass/toolchain.eclass
+# This file is modified by us to be an empty file, so can't be synced for now.
+#
+# eclass/usr-ldscript.eclass
 eclass/verify-sig.eclass
 eclass/vim-doc.eclass
 eclass/vim-plugin.eclass
@@ -89,6 +98,7 @@ eclass/wrapper.eclass
 licenses
 
 net-analyzer/nmap
+net-analyzer/traceroute
 
 net-dns/bind-tools
 
@@ -96,8 +106,15 @@ net-fs/cifs-utils
 
 net-libs/gnutls
 
+net-misc/bridge-utils
 net-misc/curl
+net-misc/ethertypes
+net-misc/iperf
+net-misc/iputils
 net-misc/rsync
+net-misc/socat
+net-misc/wget
+net-misc/whois
 
 net-vpn/wireguard-tools
 
@@ -107,6 +124,7 @@ profiles
 #
 # scripts
 
+sys-apps/diffutils
 sys-apps/gentoo-functions
 sys-apps/help2man
 sys-apps/iucode_tool
@@ -133,6 +151,7 @@ sys-devel/patch
 sys-firmware/intel-microcode
 
 sys-libs/binutils-libs
+sys-libs/libcap
 sys-libs/zlib
 
 virtual/libcrypt
