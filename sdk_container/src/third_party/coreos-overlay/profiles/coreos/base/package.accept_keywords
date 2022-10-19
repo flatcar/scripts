@@ -25,10 +25,6 @@
 # Required for addressing CVE-2022-29154
 =net-misc/rsync-3.2.6 ~amd64 ~arm64
 
-# To address security issues like CVE-2021-31879, we need to accept
-# keywords for wget 1.21.2.
-=net-misc/wget-1.21.2 ~amd64 ~arm64
-
 =sys-fs/cryptsetup-2.4.1-r1 ~amd64 ~arm64
 
 =sys-libs/libseccomp-2.5.0 ~amd64 ~arm64
