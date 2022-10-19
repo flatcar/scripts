@@ -16,8 +16,5 @@ app-eselect/eselect-iptables-20200508
 # pulled in by app-admin/sudo
 app-misc/editor-wrapper-4
 
-# elt-patches has a cyclic dependency
-app-arch/xz-utils-0
-
 # pulled in by dev-libs/glib
 dev-util/glib-utils-9999
