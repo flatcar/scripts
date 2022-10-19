@@ -1,0 +1,3 @@
+- libxml2 ([2.10.3](https://gitlab.gnome.org/GNOME/libxml2/-/tags/v2.10.3))
+- nmap ([7.93](https://nmap.org/changelog.html#7.93))
+- zlib ([1.2.13](https://github.com/madler/zlib/releases/tag/v1.2.13))
