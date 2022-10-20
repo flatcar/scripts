@@ -1,0 +1,1 @@
+- curl ([CVE-2022-35252](https://nvd.nist.gov/vuln/detail/CVE-2022-35252))
