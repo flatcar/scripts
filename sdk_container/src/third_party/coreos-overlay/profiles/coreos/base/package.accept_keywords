@@ -17,6 +17,9 @@
 
 =dev-libs/libgcrypt-1.9.4 ~amd64 ~arm64
 
+# To address CVE-2022-35252.
+=net-misc/curl-7.85.0-r2 ~amd64 ~arm64
+
 =net-misc/openssh-8.8_p1-r3 ~amd64 ~arm64
 
 # Required for addressing CVE-2022-29154
