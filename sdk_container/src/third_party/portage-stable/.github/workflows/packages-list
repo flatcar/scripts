@@ -99,6 +99,8 @@ net-libs/gnutls
 net-misc/curl
 net-misc/rsync
 
+net-vpn/wireguard-tools
+
 profiles
 
 # The bootstrap script has some modifications, so we can't sync scripts directory yet.
