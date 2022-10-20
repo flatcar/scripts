@@ -4,15 +4,15 @@ diff --git a/configure b/configure
 index da2501489f..4660ee3ee5 100755
 --- a/configure
 +++ b/configure
-@@ -516,6 +516,7 @@ ld="${LD-${cross_prefix}ld}"
- ranlib="${RANLIB-${cross_prefix}ranlib}"
+@@ -400,6 +400,7 @@ ld="${LD-${cross_prefix}ld}"
  nm="${NM-${cross_prefix}nm}"
+ smbd="$SMBD"
  strip="${STRIP-${cross_prefix}strip}"
 +strings="${STRINGS-${cross_prefix}strings}"
+ widl="${WIDL-${cross_prefix}widl}"
  windres="${WINDRES-${cross_prefix}windres}"
  pkg_config_exe="${PKG_CONFIG-${cross_prefix}pkg-config}"
- query_pkg_config() {
-@@ -2380,9 +2381,9 @@ int main(int argc, char *argv[])
+@@ -1466,9 +1467,9 @@ int main(int argc, char *argv[])
  EOF
  
  if compile_prog ; then
