@@ -71,6 +71,7 @@ app-crypt/mit-krb5
 app-editors/vim
 app-editors/vim-core
 
+app-emulation/qemu
 app-emulation/qemu-guest-agent
 
 app-portage/portage-utils
@@ -84,16 +85,20 @@ dev-lang/python
 dev-libs/boost
 dev-libs/cJSON
 dev-libs/cyrus-sasl
+dev-libs/elfutils
 dev-libs/expat
 dev-libs/glib
+dev-libs/gmp
 dev-libs/gobject-introspection
 dev-libs/gobject-introspection-common
+dev-libs/libaio
 dev-libs/libksba
 dev-libs/libltdl
 dev-libs/libpcre2
 dev-libs/libtasn1
 dev-libs/libxml2
 dev-libs/libxslt
+dev-libs/nettle
 dev-libs/oniguruma
 
 dev-python/fasteners
@@ -132,7 +137,15 @@ eclass/autotools.eclass
 # eclass/bash-completion-r1.eclass
 eclass/cmake-multilib.eclass
 eclass/cmake.eclass
+eclass/desktop.eclass
+eclass/eapi7-ver.eclass
+eclass/edo.eclass
+eclass/edos2unix.eclass
 eclass/elisp-common.eclass
+eclass/epatch.eclass
+eclass/eqawarn.eclass
+eclass/estack.eclass
+eclass/eutils.eclass
 eclass/fcaps.eclass
 eclass/flag-o-matic.eclass
 eclass/git-r3.eclass
@@ -140,38 +153,50 @@ eclass/gnome.org.eclass
 eclass/gnuconfig.eclass
 eclass/java-pkg-opt-2.eclass
 eclass/java-utils-2.eclass
+eclass/kernel-2.eclass
 eclass/libtool.eclass
 eclass/linux-info.eclass
 eclass/linux-mod.eclass
 eclass/llvm.eclass
 eclass/ltprune.eclass
+eclass/meson-multilib.eclass
 eclass/meson.eclass
 eclass/multilib-build.eclass
 eclass/multilib-minimal.eclass
 eclass/multilib.eclass
+eclass/multiprocessing.eclass
 eclass/ninja-utils.eclass
 eclass/optfeature.eclass
 eclass/pam.eclass
 eclass/pax-utils.eclass
 eclass/perl-functions.eclass
+eclass/portability.eclass
 eclass/plocale.eclass
 eclass/prefix.eclass
 eclass/preserve-libs.eclass
+eclass/readme.gentoo-r1
+eclass/savedconfig.eclass
+eclass/strip-linguas.eclass
 eclass/systemd.eclass
 eclass/tmpfiles.eclass
 eclass/toolchain-funcs.eclass
 eclass/toolchain.eclass
+eclass/udev.eclass
 eclass/user-info.eclass
 # This file is modified by us to be an empty file, so can't be synced for now.
 #
 # eclass/usr-ldscript.eclass
+eclass/vcs-clean.eclass
 eclass/verify-sig.eclass
 eclass/vim-doc.eclass
 eclass/vim-plugin.eclass
 eclass/virtualx.eclass
 eclass/wrapper.eclass
+eclass/xdg-utils.eclass
 
 licenses
+
+media-libs/libpng
 
 net-analyzer/nmap
 net-analyzer/traceroute
@@ -182,6 +207,7 @@ net-fs/cifs-utils
 
 net-libs/gnutls
 net-libs/libpcap
+net-libs/libslirp
 
 net-misc/bridge-utils
 net-misc/curl
@@ -201,7 +227,9 @@ profiles
 #
 # scripts
 
+sys-apps/attr
 sys-apps/diffutils
+sys-apps/dtc
 sys-apps/file
 sys-apps/gentoo-functions
 sys-apps/help2man
@@ -227,14 +255,26 @@ sys-devel/libtool
 sys-devel/m4
 sys-devel/patch
 
+sys-firmware/edk2-ovmf-bin
 sys-firmware/intel-microcode
+sys-firmware/ipxe
+sys-firmware/seabios-bin
+sys-firmware/sgabios
+
+sys-kernel/linux-headers
 
 sys-fs/multipath-tools
 
 sys-libs/binutils-libs
 sys-libs/libcap
+sys-libs/libcap-ng
 sys-libs/libseccomp
 sys-libs/zlib
 
+sys-power/iasl
+
 virtual/libcrypt
+virtual/libelf
 virtual/pkgconfig
+
+x11-libs/pixman
