@@ -1,9 +1,9 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit flag-o-matic libtool multilib-minimal toolchain-funcs
+inherit libtool multilib-minimal toolchain-funcs
 
 MY_PV=${PV/_p*}
 MY_PV=${MY_PV/_/-}
@@ -13,14 +13,17 @@ MY_P=${PN}-${MY_PV}
 PLEVEL=${PV/*p}
 DESCRIPTION="Library for arbitrary-precision arithmetic on different type of numbers"
 HOMEPAGE="https://gmplib.org/"
-SRC_URI="ftp://ftp.gmplib.org/pub/${MY_P}/${MY_P}.tar.xz
+SRC_URI="
+	https://gmplib.org/download/gmp/${MY_P}.tar.xz
 	mirror://gnu/${PN}/${MY_P}.tar.xz
-	doc? ( https://gmplib.org/${PN}-man-${MANUAL_PV}.pdf )"
+	doc? ( https://gmplib.org/${PN}-man-${MANUAL_PV}.pdf )
+"
+SRC_URI+=" https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${P}-arm64-darwin.patch.bz2"
 
 LICENSE="|| ( LGPL-3+ GPL-2+ )"
 # The subslot reflects the C & C++ SONAMEs.
 SLOT="0/10.4"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="+asm doc +cxx pic static-libs"
 
 BDEPEND="sys-devel/m4
@@ -35,6 +38,8 @@ MULTILIB_WRAPPED_HEADERS=( /usr/include/gmp.h )
 PATCHES=(
 	"${FILESDIR}"/${PN}-6.1.0-noexecstack-detect.patch
 	"${FILESDIR}"/${PN}-6.2.1-no-zarch.patch
+	"${WORKDIR}"/${P}-arm64-darwin.patch
+	"${FILESDIR}"/${P}-CVE-2021-43618.patch
 )
 
 src_prepare() {
@@ -74,11 +79,6 @@ multilib_src_configure() {
 		[onx]32)      GMPABI=${ABI};;
 	esac
 	export GMPABI
-
-	# bug #367719
-	if [[ ${CHOST} == *-mint* ]]; then
-		filter-flags -O?
-	fi
 
 	tc-export CC
 
