@@ -63,4 +63,8 @@ src_install() {
 	if use ec2 ; then
 		newins "${FILESDIR}/base/base-ec2.ign" base.ign
 	fi
+
+	if use openstack; then
+		newins "${FILESDIR}/base/openstack.ign" base.ign
+	fi
 }
