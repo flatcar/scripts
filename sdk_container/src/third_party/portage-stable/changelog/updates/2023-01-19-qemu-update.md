@@ -1,0 +1,5 @@
+- libcap-ng ([0.8.3](https://people.redhat.com/sgrubb/libcap-ng/ChangeLog))
+- elfutils ([0.188](https://sourceware.org/pipermail/elfutils-devel/2022q4/005561.html) (includes [0.187](https://sourceware.org/pipermail/elfutils-devel/2022q2/004978.html))
+- nettle ([3.8.1](https://git.lysator.liu.se/nettle/nettle/-/blob/990abad16ceacd070747dcc76ed16a39c129321e/ChangeLog))
+- SDK: libpng ([1.6.39](http://www.libpng.org/pub/png/src/libpng-1.6.39-README.txt) (includes [1.6.38](http://www.libpng.org/pub/png/src/libpng-1.6.38-README.txt)))
+- SDK: qemu ([7.1.0](https://wiki.qemu.org/ChangeLog/7.1))

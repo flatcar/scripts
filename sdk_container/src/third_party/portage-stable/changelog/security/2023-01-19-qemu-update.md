@@ -1,0 +1,1 @@
+- SDK: qemu ([CVE-2020-14394](https://nvd.nist.gov/vuln/detail/CVE-2020-14394), [CVE-2022-0216](https://nvd.nist.gov/vuln/detail/CVE-2022-0216), [CVE-2022-35414](https://nvd.nist.gov/vuln/detail/CVE-2022-35414), [CVE-2022-3872](https://nvd.nist.gov/vuln/detail/CVE-2022-3872))
