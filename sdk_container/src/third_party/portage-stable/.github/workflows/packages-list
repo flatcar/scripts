@@ -8,6 +8,8 @@ app-crypt/adcli
 app-editors/vim
 app-editors/vim-core
 
+app-emulation/qemu-guest-agent
+
 app-portage/portage-utils
 
 dev-lang/duktape
