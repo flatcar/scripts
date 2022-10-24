@@ -1,3 +1,2 @@
-#portage-stable:hardened/linux/arm64 -- switch when available
-portage-stable:default/linux/arm64
+portage-stable:default/linux/arm64/17.0/hardened
 :coreos/base
