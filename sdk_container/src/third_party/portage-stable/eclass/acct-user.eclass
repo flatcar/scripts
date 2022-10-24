@@ -1,9 +1,10 @@
-# Copyright 2019-2021 Gentoo Authors
+# Copyright 2019-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: acct-user.eclass
 # @MAINTAINER:
 # Michał Górny <mgorny@gentoo.org>
+# Mike Gilbert <floppym@gentoo.org>
 # @AUTHOR:
 # Michael Orlitzky <mjo@gentoo.org>
 # Michał Górny <mgorny@gentoo.org>
@@ -48,7 +49,7 @@ case ${EAPI:-0} in
 	*) die "EAPI=${EAPI:-0} not supported";;
 esac
 
-inherit user
+inherit user-info
 
 [[ ${CATEGORY} == acct-user ]] ||
 	die "Ebuild error: this eclass can be used only in acct-user category!"
@@ -56,7 +57,7 @@ inherit user
 
 # << Eclass variables >>
 
-# @ECLASS-VARIABLE: ACCT_USER_NAME
+# @ECLASS_VARIABLE: ACCT_USER_NAME
 # @INTERNAL
 # @DESCRIPTION:
 # The name of the user.  This is forced to ${PN} and the policy prohibits
@@ -64,7 +65,7 @@ inherit user
 ACCT_USER_NAME=${PN}
 readonly ACCT_USER_NAME
 
-# @ECLASS-VARIABLE: ACCT_USER_ID
+# @ECLASS_VARIABLE: ACCT_USER_ID
 # @REQUIRED
 # @DESCRIPTION:
 # Preferred UID for the new user.  This variable is obligatory, and its
@@ -74,33 +75,35 @@ readonly ACCT_USER_NAME
 # Overlays should set this to -1 to dynamically allocate UID.  Using -1
 # in ::gentoo is prohibited by policy.
 
-# @ECLASS-VARIABLE: _ACCT_USER_ALREADY_EXISTS
-# @INTERNAL
-# @DESCRIPTION:
-# Status variable which indicates if user already exists.
-
-# @ECLASS-VARIABLE: ACCT_USER_ENFORCE_ID
+# @ECLASS_VARIABLE: ACCT_USER_ENFORCE_ID
 # @DESCRIPTION:
 # If set to a non-null value, the eclass will require the user to have
 # specified UID.  If the user already exists with another UID, or
 # the UID is taken by another user, the install will fail.
 : ${ACCT_USER_ENFORCE_ID:=}
 
-# @ECLASS-VARIABLE: ACCT_USER_NO_MODIFY
+# @ECLASS_VARIABLE: ACCT_USER_NO_MODIFY
 # @DEFAULT_UNSET
 # @DESCRIPTION:
 # If set to a non-null value, the eclass will not make any changes
 # to an already existing user.
 : ${ACCT_USER_NO_MODIFY:=}
 
-# @ECLASS-VARIABLE: ACCT_USER_SHELL
+# @ECLASS_VARIABLE: ACCT_USER_COMMENT
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# The comment to use for the user.  If not specified, the package
+# DESCRIPTION will be used.  This can be overridden in make.conf through
+# ACCT_USER_<UPPERCASE_USERNAME>_COMMENT variable.
+
+# @ECLASS_VARIABLE: ACCT_USER_SHELL
 # @DESCRIPTION:
 # The shell to use for the user.  If not specified, a 'nologin' variant
 # for the system is used.  This can be overriden in make.conf through
 # ACCT_USER_<UPPERCASE_USERNAME>_SHELL variable.
-: ${ACCT_USER_SHELL:=-1}
+: ${ACCT_USER_SHELL:=/sbin/nologin}
 
-# @ECLASS-VARIABLE: ACCT_USER_HOME
+# @ECLASS_VARIABLE: ACCT_USER_HOME
 # @DESCRIPTION:
 # The home directory for the user.  If not specified, /dev/null is used.
 # The directory will be created with appropriate permissions if it does
@@ -109,7 +112,7 @@ readonly ACCT_USER_NAME
 # ACCT_USER_<UPPERCASE_USERNAME>_HOME variable.
 : ${ACCT_USER_HOME:=/dev/null}
 
-# @ECLASS-VARIABLE: ACCT_USER_HOME_OWNER
+# @ECLASS_VARIABLE: ACCT_USER_HOME_OWNER
 # @DEFAULT_UNSET
 # @DESCRIPTION:
 # The ownership to use for the home directory, in chown ([user][:group])
@@ -117,14 +120,14 @@ readonly ACCT_USER_NAME
 # This can be overriden in make.conf through
 # ACCT_USER_<UPPERCASE_USERNAME>_HOME_OWNER variable.
 
-# @ECLASS-VARIABLE: ACCT_USER_HOME_PERMS
+# @ECLASS_VARIABLE: ACCT_USER_HOME_PERMS
 # @DESCRIPTION:
 # The permissions to use for the home directory, in chmod (octal
 # or verbose) form.  This can be overriden in make.conf through
 # ACCT_USER_<UPPERCASE_USERNAME>_HOME_PERMS variable.
 : ${ACCT_USER_HOME_PERMS:=0755}
 
-# @ECLASS-VARIABLE: ACCT_USER_GROUPS
+# @ECLASS_VARIABLE: ACCT_USER_GROUPS
 # @REQUIRED
 # @DESCRIPTION:
 # List of groups the user should belong to.  This must be a bash
@@ -141,7 +144,7 @@ readonly ACCT_USER_NAME
 # << Boilerplate ebuild variables >>
 : ${DESCRIPTION:="System user: ${ACCT_USER_NAME}"}
 : ${SLOT:=0}
-: ${KEYWORDS:=alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 ~riscv s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris}
+: ${KEYWORDS:=alpha amd64 arm arm64 hppa ia64 ~loong m68k ~mips ppc ppc64 ~riscv s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris}
 S=${WORKDIR}
 
 
@@ -178,7 +181,7 @@ acct-user_add_deps() {
 eislocked() {
 	[[ $# -eq 1 ]] || die "usage: ${FUNCNAME} <user>"
 
-	if [[ ${EUID} != 0 ]]; then
+	if [[ ${EUID} -ne 0 || -n ${EPREFIX} ]]; then
 		einfo "Insufficient privileges to execute ${FUNCNAME[0]}"
 		return 0
 	fi
@@ -195,101 +198,18 @@ eislocked() {
 	*)
 		# NB: 'no password' and 'locked' are indistinguishable
 		# but we also expire the account which is more clear
-		[[ $(getent shadow "$1" | cut -d: -f2) == '!'* ]] &&
-			[[ $(getent shadow "$1" | cut -d: -f8) == 1 ]]
+		local shadow
+		if [[ -n "${ROOT}" ]]; then
+			shadow=$(grep "^$1:" "${ROOT}/etc/shadow")
+		else
+			shadow=$(getent shadow "$1")
+		fi
+
+		[[ $( echo ${shadow} | cut -d: -f2) == '!'* ]] &&
+			[[ $(echo ${shadow} | cut -d: -f8) == 1 ]]
 		;;
 	esac
 }
-
-# @FUNCTION: elockuser
-# @USAGE: <user>
-# @INTERNAL
-# @DESCRIPTION:
-# Lock the specified user account, using the available platform-specific
-# functions.  This should prevent any login to the account.
-#
-# Established lock can be reverted using eunlockuser.
-#
-# This function returns 0 if locking succeeded, 2 if it is not supported
-# by the platform code or dies if it fails.
-elockuser() {
-	[[ $# -eq 1 ]] || die "usage: ${FUNCNAME} <user>"
-
-	if [[ ${EUID} != 0 ]]; then
-		einfo "Insufficient privileges to execute ${FUNCNAME[0]}"
-		return 0
-	fi
-
-	eislocked "$1"
-	[[ $? -eq 0 ]] && return 0
-
-	case ${CHOST} in
-	*-freebsd*|*-dragonfly*)
-		pw lock "$1" || die "Locking account $1 failed"
-		pw user mod "$1" -e 1 || die "Expiring account $1 failed"
-		;;
-
-	*-netbsd*)
-		usermod -e 1 -C yes "$1" || die "Locking account $1 failed"
-		;;
-
-	*-openbsd*)
-		return 2
-		;;
-
-	*)
-		usermod -e 1 -L "$1" || die "Locking account $1 failed"
-		;;
-	esac
-
-	elog "User account $1 locked"
-	return 0
-}
-
-# @FUNCTION: eunlockuser
-# @USAGE: <user>
-# @INTERNAL
-# @DESCRIPTION:
-# Unlock the specified user account, using the available platform-
-# specific functions.
-#
-# This function returns 0 if unlocking succeeded, 1 if it is not
-# supported by the platform code or dies if it fails.
-eunlockuser() {
-	[[ $# -eq 1 ]] || die "usage: ${FUNCNAME} <user>"
-
-	if [[ ${EUID} != 0 ]]; then
-		einfo "Insufficient privileges to execute ${FUNCNAME[0]}"
-		return 0
-	fi
-
-	eislocked "$1"
-	[[ $? -eq 1 ]] && return 0
-
-	case ${CHOST} in
-	*-freebsd*|*-dragonfly*)
-		pw user mod "$1" -e 0 || die "Unexpiring account $1 failed"
-		pw unlock "$1" || die "Unlocking account $1 failed"
-		;;
-
-	*-netbsd*)
-		usermod -e 0 -C no "$1" || die "Unlocking account $1 failed"
-		;;
-
-	*-openbsd*)
-		return 1
-		;;
-
-	*)
-		# silence warning if account does not have a password
-		usermod -e "" -U "$1" 2>/dev/null || die "Unlocking account $1 failed"
-		;;
-	esac
-
-	ewarn "User account $1 unlocked after reinstating."
-	return 0
-}
-
 
 # << Phase functions >>
 EXPORT_FUNCTIONS pkg_pretend src_install pkg_preinst pkg_postinst \
@@ -350,6 +270,9 @@ acct-user_pkg_pretend() {
 acct-user_src_install() {
 	debug-print-function ${FUNCNAME} "${@}"
 
+	# Replace reserved characters in comment
+	: ${ACCT_USER_COMMENT:=${DESCRIPTION//[:,=]/;}}
+
 	# serialize for override support
 	local ACCT_USER_GROUPS=${ACCT_USER_GROUPS[*]}
 
@@ -357,7 +280,7 @@ acct-user_src_install() {
 	local override_name=${ACCT_USER_NAME^^}
 	override_name=${override_name//-/_}
 	local var
-	for var in ACCT_USER_{ID,SHELL,HOME{,_OWNER,_PERMS},GROUPS}; do
+	for var in ACCT_USER_{ID,COMMENT,SHELL,HOME{,_OWNER,_PERMS},GROUPS}; do
 		local var_name=ACCT_USER_${override_name}_${var#ACCT_USER_}
 		if [[ -n ${!var_name} ]]; then
 			ewarn "${var_name}=${!var_name} override in effect, support will not be provided."
@@ -370,6 +293,10 @@ acct-user_src_install() {
 	if [[ -n ${!var_name} ]]; then
 		ewarn "${var_name}=${!var_name} override in effect, support will not be provided."
 		_ACCT_USER_GROUPS+=" ${!var_name}"
+	fi
+
+	if [[ -n ${_ACCT_USER_COMMENT//[^:,=]} ]]; then
+		die "Invalid characters in user comment: '${_ACCT_USER_COMMENT//[^:,=]}'"
 	fi
 
 	# deserialize into an array
@@ -386,7 +313,7 @@ acct-user_src_install() {
 		printf "u\t%q\t%q\t%q\t%q\t%q\n" \
 			"${ACCT_USER_NAME}" \
 			"${_ACCT_USER_ID/#-*/-}:${groups[0]}" \
-			"${DESCRIPTION//[:,=]/;}" \
+			"${_ACCT_USER_COMMENT}" \
 			"${_ACCT_USER_HOME}" \
 			"${_ACCT_USER_SHELL/#-*/-}"
 		if [[ ${#groups[@]} -gt 1 ]]; then
@@ -403,22 +330,54 @@ acct-user_src_install() {
 acct-user_pkg_preinst() {
 	debug-print-function ${FUNCNAME} "${@}"
 
-	# check if user already exists
-	_ACCT_USER_ALREADY_EXISTS=
-	if [[ -n $(egetent passwd "${ACCT_USER_NAME}") ]]; then
-		_ACCT_USER_ALREADY_EXISTS=1
-	fi
-	readonly _ACCT_USER_ALREADY_EXISTS
+	unset _ACCT_USER_ADDED
 
-	enewuser ${ACCT_USER_ENFORCE_ID:+-F} -M "${ACCT_USER_NAME}" \
-		"${_ACCT_USER_ID}" "${_ACCT_USER_SHELL}" "${_ACCT_USER_HOME}" \
-		"${_ACCT_USER_GROUPS// /,}"
+	if [[ ${EUID} -ne 0 || -n ${EPREFIX} ]]; then
+		einfo "Insufficient privileges to execute ${FUNCNAME[0]}"
+		return
+	fi
+
+	if egetent passwd "${ACCT_USER_NAME}" >/dev/null; then
+		elog "User ${ACCT_USER_NAME} already exists"
+	else
+		local groups=( ${_ACCT_USER_GROUPS} )
+		local aux_groups=${groups[*]:1}
+		local opts=(
+			--system
+			--no-create-home
+			--no-user-group
+			--comment "${_ACCT_USER_COMMENT}"
+			--home-dir "${_ACCT_USER_HOME}"
+			--shell "${_ACCT_USER_SHELL}"
+			--gid "${groups[0]}"
+			--groups "${aux_groups// /,}"
+		)
+
+		if [[ ${_ACCT_USER_ID} -ne -1 ]] &&
+			! egetent passwd "${_ACCT_USER_ID}" >/dev/null
+		then
+			opts+=( --uid "${_ACCT_USER_ID}" )
+		fi
+
+		if [[ -n ${ROOT} ]]; then
+			opts+=( --prefix "${ROOT}" )
+		fi
+
+		elog "Adding user ${ACCT_USER_NAME}"
+		useradd "${opts[@]}" "${ACCT_USER_NAME}" || die
+		_ACCT_USER_ADDED=1
+	fi
 
 	if [[ ${_ACCT_USER_HOME} != /dev/null ]]; then
 		# default ownership to user:group
 		if [[ -z ${_ACCT_USER_HOME_OWNER} ]]; then
-			local group_array=( ${_ACCT_USER_GROUPS} )
-			_ACCT_USER_HOME_OWNER=${ACCT_USER_NAME}:${group_array[0]}
+			if [[ -n ${ROOT} ]]; then
+				local euid=$(egetent passwd ${ACCT_USER_NAME} | cut -d: -f3)
+				local egid=$(egetent passwd ${ACCT_USER_NAME} | cut -d: -f4)
+				_ACCT_USER_HOME_OWNER=${euid}:${egid}
+			else
+				_ACCT_USER_HOME_OWNER=${ACCT_USER_NAME}:${groups[0]}
+			fi
 		fi
 		# Path might be missing due to INSTALL_MASK, etc.
 		# https://bugs.gentoo.org/691478
@@ -440,26 +399,48 @@ acct-user_pkg_preinst() {
 acct-user_pkg_postinst() {
 	debug-print-function ${FUNCNAME} "${@}"
 
-	if [[ ${EUID} != 0 ]]; then
-		einfo "Insufficient privileges to execute ${FUNCNAME[0]}"
-		return 0
+	if [[ -n ${_ACCT_USER_ADDED} ]]; then
+		# We just added the user; no need to update it
+		return
 	fi
 
-	if [[ -n ${ACCT_USER_NO_MODIFY} && -n ${_ACCT_USER_ALREADY_EXISTS} ]]; then
-		eunlockuser "${ACCT_USER_NAME}"
+	if [[ ${EUID} -ne 0 || -n ${EPREFIX} ]]; then
+		einfo "Insufficient privileges to execute ${FUNCNAME[0]}"
+		return
+	fi
 
+	if [[ -n ${ACCT_USER_NO_MODIFY} ]]; then
 		ewarn "User ${ACCT_USER_NAME} already exists; Not touching existing user"
 		ewarn "due to set ACCT_USER_NO_MODIFY."
-		return 0
+		return
 	fi
 
-	# NB: eset* functions check current value
-	esethome "${ACCT_USER_NAME}" "${_ACCT_USER_HOME}"
-	esetshell "${ACCT_USER_NAME}" "${_ACCT_USER_SHELL}"
-	esetgroups "${ACCT_USER_NAME}" "${_ACCT_USER_GROUPS// /,}"
-	# comment field can not contain colons
-	esetcomment "${ACCT_USER_NAME}" "${DESCRIPTION//[:,=]/;}"
-	eunlockuser "${ACCT_USER_NAME}"
+	local groups=( ${_ACCT_USER_GROUPS} )
+	local aux_groups=${groups[*]:1}
+	local opts=(
+		--comment "${_ACCT_USER_COMMENT}"
+		--home "${_ACCT_USER_HOME}"
+		--shell "${_ACCT_USER_SHELL}"
+		--gid "${groups[0]}"
+		--groups "${aux_groups// /,}"
+	)
+
+	if eislocked "${ACCT_USER_NAME}"; then
+		opts+=( --expiredate "" --unlock )
+	fi
+
+	if [[ -n ${ROOT} ]]; then
+		opts+=( --prefix "${ROOT}" )
+	fi
+
+	elog "Updating user ${ACCT_USER_NAME}"
+	if ! usermod "${opts[@]}" "${ACCT_USER_NAME}" 2>"${T}/usermod-error.log"; then
+		# usermod outputs a warning if unlocking the account would result in an
+		# empty password. Hide stderr in a text file and display it if usermod
+		# fails.
+		cat "${T}/usermod-error.log" >&2
+		die "usermod failed"
+	fi
 }
 
 # @FUNCTION: acct-user_pkg_prerm
@@ -468,23 +449,44 @@ acct-user_pkg_postinst() {
 acct-user_pkg_prerm() {
 	debug-print-function ${FUNCNAME} "${@}"
 
-	if [[ ${EUID} != 0 ]]; then
+	if [[ -n ${REPLACED_BY_VERSION} ]]; then
+		return
+	fi
+
+	if [[ ${EUID} -ne 0 || -n ${EPREFIX} ]]; then
 		einfo "Insufficient privileges to execute ${FUNCNAME[0]}"
-		return 0
+		return
 	fi
 
-	if [[ -z ${REPLACED_BY_VERSION} ]]; then
-		if [[ -z $(egetent passwd "${ACCT_USER_NAME}") ]]; then
-			ewarn "User account not found: ${ACCT_USER_NAME}"
-			ewarn "Locking process will be skipped."
-			return
-		fi
-
-		esetshell "${ACCT_USER_NAME}" -1
-		esetcomment "${ACCT_USER_NAME}" \
-			"$(egetcomment "${ACCT_USER_NAME}"); user account removed @ $(date +%Y-%m-%d)"
-		elockuser "${ACCT_USER_NAME}"
+	if [[ ${ACCT_USER_ID} -eq 0 ]]; then
+		elog "Refusing to lock out the superuser (UID 0)"
+		return
 	fi
+
+	if [[ -n ${ACCT_USER_NO_MODIFY} ]]; then
+		elog "Not locking user ${ACCT_USER_NAME} due to ACCT_USER_NO_MODIFY"
+		return
+	fi
+
+	if ! egetent passwd "${ACCT_USER_NAME}" >/dev/null; then
+		ewarn "User account not found: ${ACCT_USER_NAME}"
+		ewarn "Locking process will be skipped."
+		return
+	fi
+
+	local opts=(
+		--expiredate 1
+		--lock
+		--comment "$(egetcomment "${ACCT_USER_NAME}"); user account removed @ $(date +%Y-%m-%d)"
+		--shell /sbin/nologin
+	)
+
+	if [[ -n ${ROOT} ]]; then
+		opts+=( --prefix "${ROOT}" )
+	fi
+
+	elog "Locking user ${ACCT_USER_NAME}"
+	usermod "${opts[@]}" "${ACCT_USER_NAME}" || die
 }
 
 fi
