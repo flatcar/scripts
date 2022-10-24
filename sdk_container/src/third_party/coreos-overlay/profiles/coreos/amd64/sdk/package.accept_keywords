@@ -3,3 +3,6 @@
 
 # It's stable for arm64, so make it available on amd64 SDK too.
 =dev-util/meson-0.63.2-r1 ~amd64
+
+# It's stable for arm64, so make it available on amd64 SDK too.
+=dev-util/patchelf-0.15.0 ~amd64
