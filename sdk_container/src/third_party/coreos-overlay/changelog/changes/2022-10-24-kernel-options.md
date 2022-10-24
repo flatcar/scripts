@@ -1,0 +1,2 @@
+- Disable several arch specific arm64 kernel config options for unsupported platforms to save space on boot partition ([coreos-overlay#2239](https://github.com/flatcar/coreos-overlay/pull/2239))
+- Change CONFIG_WIREGUARD kernel option to module to save space on boot partition ([coreos-overlay#2239](https://github.com/flatcar/coreos-overlay/pull/2239))
