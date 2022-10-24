@@ -201,6 +201,7 @@ RDEPEND="${RDEPEND}
 # OEM specific bits that need to go in USR
 RDEPEND+="
 	amd64? (
+		app-emulation/qemu-guest-agent
 		sys-auth/google-oslogin
 	)
 "
