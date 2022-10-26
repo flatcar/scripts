@@ -52,6 +52,7 @@ MULTILIB_WRAPPED_HEADERS=(
 )
 
 PATCHES=(
+	"${FILESDIR}"/0001-openssl.patch
 	# General patches which are suitable to always apply
 	# If they're Gentoo specific, add to USE=-vanilla logic in src_prepare!
 )
