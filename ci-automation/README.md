@@ -112,6 +112,10 @@ image_build amd64
                                               `- vendor OS images ---->|
 ```
 
+## Local Patches
+
+For embargoed relases the build system looks for patch files `../scripts.patch`, `../overlay.patch`, `../portage.patch` (i.e., in the folder that contains the `scripts` repo) and applies them locally before building.
+
 ## Testing
 
 Testing follows the same design principles build automation adheres to - it's self-contained and context-aware, reducing required parameters to a minimum.

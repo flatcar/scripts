@@ -42,6 +42,12 @@
 #       This version will be checked out / pulled from remote in the portage-stable git submodule.
 #       The submodule config will be updated to point to this version before the TARGET SDK tag is created and pushed.
 #
+#   4. A file ../scripts.patch to apply with "git am -3" for the scripts repo.
+#
+#   5. A file ../overlay.patch to apply with "git am -3" for the coreos-overlay sub-module.
+#
+#   6. A file ../portage.patch to apply with "git am -3" for the portage-stable sub-module.
+#
 # OUTPUT:
 #
 #   1. Updated scripts repository
@@ -120,5 +126,6 @@ function _packages_tag_impl() {
       create_versionfile "$sdk_version" "$version"
     )
     update_and_push_version "${version}" "${push_branch}"
+    apply_local_patches
 }
 # --
