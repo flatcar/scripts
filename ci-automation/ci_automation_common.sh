@@ -475,3 +475,35 @@ function list_files() {
     done
 }
 # --
+
+# Looks for ../scripts.patch, ../overlay.patch, ../portage.patch and
+# applies them to the current repo or the respective sub-module checkout.
+function apply_local_patches() {
+  local patch_files=(../scripts.patch ../overlay.patch ../portage.patch)
+  local patch_file
+  local patch_id
+  local dirarg
+  echo "Looking for local patches ${patch_files[*]}"
+  for patch_file in "${patch_files[@]}"; do
+    if [ "${patch_file}" = "../scripts.patch" ]; then
+      dirarg=()
+    elif [ "${patch_file}" = "../overlay.patch" ]; then
+      dirarg=("-C" "sdk_container/src/third_party/coreos-overlay/")
+    elif [ "${patch_file}" = "../portage.patch" ]; then
+      dirarg=("-C" "sdk_container/src/third_party/portage-stable/")
+    else
+      echo "wrong case: unexpected ${patch_file}"
+      exit 1
+    fi
+    patch_id=$(test -e "${patch_file}" && { cat "${patch_file}" | git patch-id | cut -d ' ' -f 1 ; } || true)
+    if [ "${patch_id}" != "" ]; then
+      if git "${dirarg[@]}" log --no-merges -p HEAD | git patch-id | cut -d ' ' -f 1 | grep -q "${patch_id}"; then
+        echo "Skipping already applied ${patch_file}"
+      else
+        echo "Applying ${patch_file}"
+        GIT_COMMITTER_NAME="Flatcar Buildbot" GIT_COMMITTER_EMAIL="buildbot@flatcar-linux.org" git "${dirarg[@]}" am -3 "$PWD/${patch_file}"
+      fi
+    fi
+  done
+}
+# --

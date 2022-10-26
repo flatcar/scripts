@@ -36,6 +36,12 @@
 #        Defaults to nothing if not set - in such case, artifacts will not be signed.
 #        If provided, SIGNER environment variable should also be provided, otherwise this environment variable will be ignored.
 #
+#   4. A file ../scripts.patch to apply with "git am -3" for the scripts repo.
+#
+#   5. A file ../overlay.patch to apply with "git am -3" for the coreos-overlay sub-module.
+#
+#   6. A file ../portage.patch to apply with "git am -3" for the portage-stable sub-module.
+#
 # OUTPUT:
 #
 #   1. Exported container image "flatcar-packages-[ARCH]-[VERSION].tar.gz" with binary packages
@@ -93,6 +99,7 @@ function _packages_build_impl() {
         torcx_pkg_url="https://$(get_git_channel).release.flatcar-linux.net/${arch}-usr/${vernum}/torcx"
     fi
 
+    apply_local_patches
     # Build packages; store packages and torcx output in container
     ./run_sdk_container -x ./ci-cleanup.sh -n "${packages_container}" -v "${vernum}" \
         -C "${sdk_image}" \
