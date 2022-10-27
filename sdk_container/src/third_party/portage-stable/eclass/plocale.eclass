@@ -1,5 +1,6 @@
-# Copyright 1999-2021 Gentoo Foundation
+# Copyright 2012-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+
 # @ECLASS: plocale.eclass
 # @MAINTAINER:
 # Ulrich Müller <ulm@gentoo.org>
@@ -30,7 +31,7 @@
 # PLOCALES with the user's LINGUAS setting.  (As a special case, if the
 # LINGUAS variable is unset then all items in PLOCALES will be used,
 # emulating the behaviour of gettext.)
-
+#
 # In the following simple example, locale specific README files
 # (e.g. README.de, README.en) are added to the DOCS variable:
 #
@@ -58,7 +59,7 @@ esac
 if [[ -z ${_PLOCALE_ECLASS} ]]; then
 _PLOCALE_ECLASS=1
 
-# @ECLASS-VARIABLE: PLOCALES
+# @ECLASS_VARIABLE: PLOCALES
 # @DEFAULT_UNSET
 # @DESCRIPTION:
 # Variable listing the locales for which localizations are offered by
@@ -66,7 +67,7 @@ _PLOCALE_ECLASS=1
 #
 # Example: PLOCALES="cy de el_GR en_US pt_BR vi zh_CN"
 
-# @ECLASS-VARIABLE: PLOCALE_BACKUP
+# @ECLASS_VARIABLE: PLOCALE_BACKUP
 # @DEFAULT_UNSET
 # @DESCRIPTION:
 # In some cases the package fails when none of the offered PLOCALES are
@@ -166,4 +167,3 @@ plocale_get_locales() {
 }
 
 fi
-
