@@ -36,6 +36,12 @@
 #        Defaults to nothing if not set - in such case, artifacts will not be signed.
 #        If provided, SIGNER environment variable should also be provided, otherwise this environment variable will be ignored.
 #
+#   3. A file ../scripts.patch to apply with "git am -3" for the scripts repo.
+#
+#   4. A file ../overlay.patch to apply with "git am -3" for the coreos-overlay sub-module.
+#
+#   5. A file ../portage.patch to apply with "git am -3" for the portage-stable sub-module.
+#
 # OUTPUT:
 #
 #   1. Exported VM image(s), pushed to buildcache ( images/[ARCH]/[FLATCAR_VERSION]/ )
@@ -75,6 +81,8 @@ function _vm_build_impl() {
 
     local vms="flatcar-vms-${arch}"
     local vms_container="${vms}-${docker_vernum}"
+
+    apply_local_patches
 
     # automatically add PXE to formats if we build for Equinix Metal (packet).
     local has_packet=0
