@@ -33,6 +33,12 @@
 #        Defaults to nothing if not set - in such case, artifacts will not be signed.
 #        If provided, SIGNER environment variable should also be provided, otherwise this environment variable will be ignored.
 #
+#   3. A file ../scripts.patch to apply with "git am -3" for the scripts repo.
+#
+#   4. A file ../overlay.patch to apply with "git am -3" for the coreos-overlay sub-module.
+#
+#   5. A file ../portage.patch to apply with "git am -3" for the portage-stable sub-module.
+#
 # OUTPUT:
 #
 #   1. OS image, dev container, related artifacts, and torcx packages pushed to buildcache.
@@ -83,6 +89,7 @@ function _image_build_impl() {
             official_arg="--noofficial"
     fi
 
+    apply_local_patches
     # build image and related artifacts
     ./run_sdk_container -x ./ci-cleanup.sh -n "${image_container}" -C "${packages_image}" \
             -v "${vernum}" \
