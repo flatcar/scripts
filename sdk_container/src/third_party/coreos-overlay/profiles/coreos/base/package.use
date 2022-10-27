@@ -11,7 +11,7 @@ dev-libs/libxslt	-python
 dev-util/perf		-doc
 dev-vcs/git		webdav curl bash-completion
 net-misc/curl		kerberos telnet
-net-misc/iputils	arping tracepath traceroute6
+net-misc/iputils	arping tracepath
 sys-devel/gettext	-git
 
 sys-apps/gptfdisk -icu
