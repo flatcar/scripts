@@ -47,6 +47,12 @@
 #        Defaults to nothing if not set - in such case, artifacts will not be signed.
 #        If provided, SIGNER environment variable should also be provided, otherwise this environment variable will be ignored.
 #
+#   8. A file ../scripts.patch to apply with "git am -3" for the scripts repo.
+#
+#   9. A file ../overlay.patch to apply with "git am -3" for the coreos-overlay sub-module.
+#
+#   10. A file ../portage.patch to apply with "git am -3" for the portage-stable sub-module.
+#
 # OUTPUT:
 #
 #   1. SDK tarball (gentoo catalyst output) of the new SDK, pushed to buildcache.
@@ -143,6 +149,7 @@ function _sdk_bootstrap_impl() {
       create_versionfile "${vernum}"
     )
     update_and_push_version "${version}" "${push_branch}"
+    apply_local_patches
 
     ./bootstrap_sdk_container -x ./ci-cleanup.sh "${seed_version}" "${vernum}"
 
