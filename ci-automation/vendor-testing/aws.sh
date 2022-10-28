@@ -21,12 +21,12 @@ set -o noglob # there shouldn't be any instance types with asterisks
 more_aws_instance_types=( ${!more_aws_instance_types_var} )
 set +o noglob
 
-vmdk='flatcar_production_ami_vmdk_image.vmdk'
-tarball="${vmdk}.bz2"
+image_file='flatcar_production_ami_image.bin'
+tarball="${image_file}.bz2"
 
 if [[ "${AWS_AMI_ID}" == "" ]]; then
-    if [[ -f "${vmdk}" ]]; then
-        echo "++++ ${CIA_TESTSCRIPT}: using existing ${vmdk} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
+    if [[ -f "${image_file}" ]]; then
+        echo "++++ ${CIA_TESTSCRIPT}: using existing ${image_file} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
     else
         echo "++++ ${CIA_TESTSCRIPT}: downloading ${tarball} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
         copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${tarball}" .
@@ -35,9 +35,9 @@ if [[ "${AWS_AMI_ID}" == "" ]]; then
 
     aws_bucket="flatcar-kola-ami-import-${AWS_REGION}"
     aws_s3_path="s3://${aws_bucket}/${escaped_vernum}/${board}/"
-    trap 'ore -d aws delete --region="${AWS_REGION}" --board="${board}" --name="${image_name}" --ami-name="${image_name}" --file="${vmdk}" --bucket "${aws_s3_path}"' EXIT
+    trap 'ore -d aws delete --region="${AWS_REGION}" --board="${board}" --name="${image_name}" --ami-name="${image_name}" --file="${image_file}" --bucket "${aws_s3_path}"' EXIT
     ore aws initialize --region="${AWS_REGION}" --bucket "${aws_bucket}"
-    AWS_AMI_ID=$(ore aws upload --force --region="${AWS_REGION}" --board="${board}" --name="${image_name}" --ami-name="${image_name}" --ami-description="Flatcar Test ${image_name}" --file="${vmdk}" --bucket "${aws_s3_path}" | jq -r .HVM)
+    AWS_AMI_ID=$(ore aws upload --force --region="${AWS_REGION}" --board="${board}" --name="${image_name}" --ami-name="${image_name}" --ami-description="Flatcar Test ${image_name}" --file="${image_file}" --object-format=RAW --force --bucket "${aws_s3_path}" | jq -r .HVM)
     echo "++++ ${CIA_TESTSCRIPT}: created new AMI ${AWS_AMI_ID} (will be removed after testing) ++++"
 fi
 
