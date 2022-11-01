@@ -155,6 +155,8 @@ sys-devel/patch
 
 sys-firmware/intel-microcode
 
+sys-fs/multipath-tools
+
 sys-libs/binutils-libs
 sys-libs/libcap
 sys-libs/zlib
