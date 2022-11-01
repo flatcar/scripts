@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
@@ -11,7 +11,7 @@ SRC_URI="https://github.com/opensvc/${PN}/archive/refs/tags/${PV}.tar.gz -> ${P}
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 ~arm arm64 ~ia64 ppc ppc64 x86"
+KEYWORDS="~alpha amd64 ~arm arm64 ~ia64 ~loong ppc ppc64 ~riscv x86"
 IUSE="systemd rbd test"
 RESTRICT="!test? ( test )"
 
@@ -33,7 +33,6 @@ CONFIG_CHECK="~DM_MULTIPATH"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-0.8.7-respect-flags.patch
-	"${FILESDIR}"/${PN}-0.8.6-no-compress-man-pages.patch
 )
 
 src_prepare() {
