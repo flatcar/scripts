@@ -62,17 +62,19 @@ jobs:
               updated=1
               count=$(git -C portage-stable rev-list --count "${old_head}..${new_head}")
           fi
+          todaydate=$(date +%Y-%m-%d)
           echo "UPDATED=${updated}" >>"${GITHUB_OUTPUT}"
           echo "COUNT=${count}" >>"${GITHUB_OUTPUT}"
+          echo "TODAYDATE=${todaydate}" >>"${GITHUB_OUTPUT}"
       - name: Create pull request for main branch
         uses: peter-evans/create-pull-request@v4
         if: steps.update-listed-packages.outputs.UPDATED == 1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: portage-stable
-          branch: buildbot/automatic-package-updates
+          branch: buildbot/weekly-package-updates-${{steps.update-listed-packages.outputs.TODAYDATE }}
           delete-branch: true
           base: main
-          title: Weekly package updates
+          title: Weekly package updates ${{steps.update-listed-packages.outputs.TODAYDATE }}
           body: Updated ${{steps.update-listed-packages.outputs.COUNT }} package(s).
           labels: main
