@@ -102,7 +102,7 @@ coreos-go-lang_src_install() {
 	insinto "/usr/lib/go${GOSLOT}/pkg"
 	doins -r "pkg/include" "pkg/$(go_tuple)"
 
-	dodoc AUTHORS CONTRIBUTORS PATENTS README.md
+	dodoc CONTRIBUTING.md PATENTS README.md
 }
 
 coreos-go-lang_pkg_postinst() {
