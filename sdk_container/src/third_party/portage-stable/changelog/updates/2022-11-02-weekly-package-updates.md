@@ -1,0 +1,3 @@
+- XZ utils ([5.2.7](https://git.tukaani.org/?p=xz.git;a=blob;f=NEWS;h=0205423e79ce8297102096b0fc8b030ddf5b2023;hb=d24a57b7fc7e5e9267b84367cb0788d3acf7f569))
+- Expat ([2.5.0](https://github.com/libexpat/libexpat/blob/R_2_5_0/expat/Changes))
+- curl ([7.86](https://curl.se/changes.html#7_86_0))
