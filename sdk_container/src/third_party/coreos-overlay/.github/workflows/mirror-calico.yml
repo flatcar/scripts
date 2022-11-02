@@ -9,7 +9,7 @@ jobs:
   mirror-calico:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Login to GitHub Container Registry (ghcr)
         run: echo ${{ secrets.GHCR_PASSWORD }} | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin
       - name: Fetch latest Calico release

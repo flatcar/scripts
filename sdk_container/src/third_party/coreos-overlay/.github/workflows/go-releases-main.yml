@@ -8,7 +8,7 @@ jobs:
   get-go-releases:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Fetch latest Go releases
@@ -22,8 +22,8 @@ jobs:
             versionsMain+=($(git -C go ls-remote --tags origin | cut -f2 | sed -n "/refs\/tags\/go${goversion}\(\.[0-9]*\)\?$/s/^refs\/tags\/go//p" | egrep -v -e '(beta|rc)' | sort -ruV | head -1))
           done
           rm -rf go
-          echo ::set-output name=VERSIONS_MAIN::$(echo ${versionsMain[*]})
-          echo ::set-output name=BASE_BRANCH_MAIN::main
+          echo "VERSIONS_MAIN=${versionsMain[*]}" >>"${GITHUB_OUTPUT}"
+          echo "BASE_BRANCH_MAIN=main" >>"${GITHUB_OUTPUT}"
       - name: Set up Flatcar SDK
         id: setup-flatcar-sdk
         run: .github/workflows/setup-flatcar-sdk.sh
@@ -38,7 +38,7 @@ jobs:
           SDK_NAME: ${{ steps.setup-flatcar-sdk.outputs.SDK_NAME }}
         run: .github/workflows/go-apply-patch.sh
       - name: Create pull request for main
-        uses: peter-evans/create-pull-request@v3
+        uses: peter-evans/create-pull-request@v4
         if: steps.apply-patch-main.outputs.UPDATE_NEEDED == 1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

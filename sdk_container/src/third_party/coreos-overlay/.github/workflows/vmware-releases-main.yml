@@ -8,7 +8,7 @@ jobs:
   get-vmware-release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Fetch latest open-vm-tools release
@@ -18,9 +18,9 @@ jobs:
           versionMain=$(git -C open-vm-tools ls-remote --tags origin | cut -f2 | sed -n "/refs\/tags\/stable-[0-9]*\.[0-9]*\.[0-9]*$/s/^refs\/tags\/stable-//p" | sort -ruV | head -n1)
           buildNumber=$(curl -sSL https://api.github.com/repos/vmware/open-vm-tools/releases/latest | jq -r '.assets[0].name' | sed -n "s/^open-vm-tools-${versionMain}*-\([0-9]*\)\..*/\1/p")
           rm -rf open-vm-tools
-          echo ::set-output name=BASE_BRANCH_MAIN::main
-          echo ::set-output name=BUILD_NUMBER::$(echo ${buildNumber})
-          echo ::set-output name=VERSION_MAIN::$(echo ${versionMain})
+          echo "BASE_BRANCH_MAIN=main" >>"${GITHUB_OUTPUT}"
+          echo "BUILD_NUMBER=${buildNumber}" >>"${GITHUB_OUTPUT}"
+          echo "VERSION_MAIN=${versionMain}" >>"${GITHUB_OUTPUT}"
       - name: Set up Flatcar SDK
         id: setup-flatcar-sdk
         run: .github/workflows/setup-flatcar-sdk.sh
@@ -36,7 +36,7 @@ jobs:
           SDK_NAME: ${{ steps.setup-flatcar-sdk.outputs.SDK_NAME }}
         run: .github/workflows/vmware-apply-patch.sh
       - name: Create pull request for main
-        uses: peter-evans/create-pull-request@v3
+        uses: peter-evans/create-pull-request@v4
         if: steps.apply-patch-main.outputs.UPDATE_NEEDED == 1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

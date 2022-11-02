@@ -76,7 +76,7 @@ apply_patches
 vo_gh="$(join_by ' and ' "${UPDATED_VERSIONS_OLD[@]}")"
 vn_gh="$(join_by ' and ' "${UPDATED_VERSIONS_NEW[@]}")"
 
-echo ::set-output name=VERSIONS_OLD::"${vo_gh}"
-echo ::set-output name=VERSIONS_NEW::"${vn_gh}"
-echo ::set-output name=BRANCH_NAME::"${branch_name}"
-echo ::set-output name=UPDATE_NEEDED::"1"
+echo "VERSIONS_OLD=${vo_gh}" >>"${GITHUB_OUTPUT}"
+echo "VERSIONS_NEW=${vn_gh}" >>"${GITHUB_OUTPUT}"
+echo "BRANCH_NAME=${branch_name}" >>"${GITHUB_OUTPUT}"
+echo "UPDATE_NEEDED=1" >>"${GITHUB_OUTPUT}"
