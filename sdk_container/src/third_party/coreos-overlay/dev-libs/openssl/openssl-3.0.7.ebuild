@@ -1,10 +1,10 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="7"
+EAPI=7
 
-TMPFILES_OPTIONAL=1
-inherit edo flag-o-matic linux-info toolchain-funcs multilib-minimal multiprocessing verify-sig systemd tmpfiles
+VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/openssl.org.asc
+inherit edo flag-o-matic linux-info toolchain-funcs multilib-minimal multiprocessing verify-sig
 
 DESCRIPTION="Robust, full-featured Open Source Toolkit for the Transport Layer Security (TLS)"
 HOMEPAGE="https://www.openssl.org/"
@@ -18,8 +18,7 @@ if [[ ${PV} == 9999 ]] ; then
 else
 	SRC_URI="mirror://openssl/source/${MY_P}.tar.gz
 		verify-sig? ( mirror://openssl/source/${MY_P}.tar.gz.asc )"
-	VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/openssl.org.asc
-	KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x86-linux"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x86-linux"
 fi
 
 S="${WORKDIR}"/${MY_P}
@@ -41,7 +40,7 @@ BDEPEND="
 		sys-devel/bc
 		sys-process/procps
 	)
-	verify-sig? ( sec-keys/openpgp-keys-openssl )"
+	verify-sig? ( >=sec-keys/openpgp-keys-openssl-20221101 )"
 
 DEPEND="${COMMON_DEPEND}"
 RDEPEND="${COMMON_DEPEND}"
@@ -52,9 +51,6 @@ MULTILIB_WRAPPED_HEADERS=(
 )
 
 PATCHES=(
-	"${FILESDIR}"/0001-openssl.patch
-	# General patches which are suitable to always apply
-	# If they're Gentoo specific, add to USE=-vanilla logic in src_prepare!
 )
 
 pkg_setup() {
@@ -81,6 +77,16 @@ pkg_setup() {
 			die "FEATURES=test with USE=sctp requires net.sctp.auth_enable=1!"
 		fi
 	fi
+}
+
+src_unpack() {
+	# Can delete this once test fix patch is dropped
+	if use verify-sig ; then
+		# Needed for downloaded patch (which is unsigned, which is fine)
+		verify-sig_verify_detached "${DISTDIR}"/${P}.tar.gz{,.asc}
+	fi
+
+	default
 }
 
 src_prepare() {
@@ -126,12 +132,22 @@ src_prepare() {
 	# and 'make depend' uses -Werror for added fun (bug #417795 again)
 	tc-is-clang && append-flags -Qunused-arguments
 
+	# We really, really need to build OpenSSL w/ strict aliasing disabled.
+	# It's filled with violations and it *will* result in miscompiled
+	# code. This has been in the ebuild for > 10 years but even in 2022,
+	# it's still relevant:
+	# - https://github.com/llvm/llvm-project/issues/55255
+	# - https://github.com/openssl/openssl/issues/18225
+	# - https://github.com/openssl/openssl/issues/18663#issuecomment-1181478057
+	# Don't remove the no strict aliasing bits below!
+	filter-flags -fstrict-aliasing
 	append-flags -fno-strict-aliasing
+
 	append-flags $(test-flags-CC -Wa,--noexecstack)
 
 	# Prefixify Configure shebang (bug #141906)
 	sed \
-		-e "1s,/usr/bin/env,${EPREFIX}&," \
+		-e "1s,/usr/bin/env,${BROOT}&," \
 		-i Configure || die
 
 	# Remove test target when FEATURES=test isn't set
@@ -161,6 +177,18 @@ multilib_src_configure() {
 	use_ssl() { usex $1 "enable-${2:-$1}" "no-${2:-$1}" " ${*:3}" ; }
 
 	local krb5=$(has_version app-crypt/mit-krb5 && echo "MIT" || echo "Heimdal")
+
+	# See if our toolchain supports __uint128_t.  If so, it's 64bit
+	# friendly and can use the nicely optimized code paths, bug #460790.
+	#local ec_nistp_64_gcc_128
+	#
+	# Disable it for now though (bug #469976)
+	# Do NOT re-enable without substantial discussion first!
+	#
+	#echo "__uint128_t i;" > "${T}"/128.c
+	#if ${CC} ${CFLAGS} -c "${T}"/128.c -o /dev/null >&/dev/null ; then
+	#       ec_nistp_64_gcc_128="enable-ec_nistp_64_gcc_128"
+	#fi
 
 	local sslout=$(./gentoo.config)
 	einfo "Using configuration: ${sslout:-(openssl knows best)}"
@@ -198,9 +226,7 @@ multilib_src_configure() {
 		threads
 	)
 
-	CFLAGS= LDFLAGS= edo \
-		./${config} \
-		"${myeconfargs[@]}"
+	CFLAGS= LDFLAGS= edo ./${config} "${myeconfargs[@]}"
 
 	# Clean out hardcoded flags that openssl uses
 	local DEFAULT_CFLAGS=$(grep ^CFLAGS= Makefile | LC_ALL=C sed \
@@ -261,11 +287,16 @@ multilib_src_install_all() {
 
 	dodoc {AUTHORS,CHANGES,NEWS,README,README-PROVIDERS}.md doc/*.txt doc/${PN}-c-indent.el
 
+	# Create the certs directory
+	keepdir ${SSL_CNF_DIR}/certs
+
 	# Namespace openssl programs to prevent conflicts with other man pages
 	cd "${ED}"/usr/share/man || die
 	local m d s
 	for m in $(find . -type f | xargs grep -L '#include') ; do
-		d=${m%/*} ; d=${d#./} ; m=${m##*/}
+		d=${m%/*}
+		d=${d#./}
+		m=${m##*/}
 
 		[[ ${m} == openssl.1* ]] && continue
 
@@ -281,6 +312,7 @@ multilib_src_install_all() {
 		# We assume that any broken links are due to the above renaming
 		for s in $(find -L ${d} -type l) ; do
 			s=${s##*/}
+
 			rm -f ${d}/${s}
 
 			# We don't want to "|| die" here
@@ -294,15 +326,12 @@ multilib_src_install_all() {
 	dodir /etc/sandbox.d
 	echo 'SANDBOX_PREDICT="/dev/crypto"' > "${ED}"/etc/sandbox.d/10openssl
 
-	# flatcar changes: do not keep the sample CA files in `/etc`
-	rm -rf "${ED}"${SSL_CNF_DIR}
+	diropts -m0700
+	keepdir ${SSL_CNF_DIR}/private
+}
 
-	# flatcar changes: save the default `openssl.cnf` in `/usr`
-	dodir /usr/share/ssl
-	insinto /usr/share/ssl
-	doins "${S}"/apps/openssl.cnf
-	dotmpfiles "${FILESDIR}"/openssl.conf
-
-	# flatcar changes: package `tmpfiles.d` setup for SDK bootstrapping.
-	systemd-tmpfiles --create --root="${ED}" "${FILESDIR}"/openssl.conf
+pkg_postinst() {
+	ebegin "Running 'c_rehash ${EROOT}${SSL_CNF_DIR}/certs/' to rebuild hashes (bug #333069)"
+	c_rehash "${EROOT}${SSL_CNF_DIR}/certs" >/dev/null
+	eend $?
 }
