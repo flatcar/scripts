@@ -1,0 +1,1 @@
+- multipath-tools ([0.9.3](https://github.com/opensvc/multipath-tools/releases/tag/0.9.3)
