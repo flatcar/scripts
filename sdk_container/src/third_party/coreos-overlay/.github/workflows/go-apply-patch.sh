@@ -58,7 +58,7 @@ for version_short in "${!VERSIONS[@]}"; do
 
   popd >/dev/null || exit
 
-  URL="https://go.dev/doc/devel/release#${VERSION_NEW}"
+  URL="https://go.dev/doc/devel/release#go${VERSION_NEW}"
 
   generate_update_changelog 'Go' "${VERSION_NEW}" "${URL}" 'go'
 
