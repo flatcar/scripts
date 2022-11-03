@@ -491,3 +491,17 @@ function apply_local_patches() {
   done
 }
 # --
+
+# Returns 0 if passed value is either "1" or "true" or "t", otherwise
+# returns 1.
+function bool_is_true() {
+    case "${1}" in
+        1|true|t|yes|y)
+            return 0
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
+# --
