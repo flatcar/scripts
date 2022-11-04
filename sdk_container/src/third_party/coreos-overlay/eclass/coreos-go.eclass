@@ -30,7 +30,7 @@
 #
 # Example:
 # @CODE
-# COREOS_GO_VERSION=go1.18
+# COREOS_GO_VERSION=go1.19
 # @CODE
 
 case "${EAPI:-0}" in
