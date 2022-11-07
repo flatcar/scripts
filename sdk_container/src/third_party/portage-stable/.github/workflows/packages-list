@@ -1,5 +1,61 @@
 # Please keep the list sorted!
 
+acct-group/adm
+acct-group/audio
+acct-group/cdrom
+acct-group/dialout
+acct-group/disk
+acct-group/dnsmasq
+acct-group/input
+acct-group/kmem
+acct-group/kvm
+acct-group/lp
+acct-group/man
+acct-group/messagebus
+acct-group/netperf
+acct-group/nobody
+acct-group/ntp
+acct-group/pcap
+acct-group/polkitd
+acct-group/portage
+acct-group/render
+acct-group/root
+acct-group/sgx
+acct-group/sshd
+acct-group/systemd-coredump
+acct-group/systemd-journal
+acct-group/systemd-journal-remote
+acct-group/systemd-network
+acct-group/systemd-oom
+acct-group/systemd-resolve
+acct-group/systemd-timesync
+acct-group/tape
+acct-group/tss
+acct-group/tty
+acct-group/users
+acct-group/utmp
+acct-group/video
+acct-group/wheel
+
+acct-user/dnsmasq
+acct-user/man
+acct-user/messagebus
+acct-user/netperf
+acct-user/nobody
+acct-user/ntp
+acct-user/pcap
+acct-user/polkitd
+acct-user/portage
+acct-user/root
+acct-user/sshd
+acct-user/systemd-coredump
+acct-user/systemd-journal-remote
+acct-user/systemd-network
+acct-user/systemd-oom
+acct-user/systemd-resolve
+acct-user/systemd-timesync
+acct-user/tss
+
 app-alternatives/awk
 app-alternatives/yacc
 
@@ -66,6 +122,8 @@ dev-util/strace
 
 dev-vcs/git
 
+eclass/acct-group.eclass
+eclass/acct-user.eclass
 eclass/alternatives.eclass
 eclass/app-alternatives.eclass
 eclass/autotools.eclass
@@ -103,6 +161,7 @@ eclass/systemd.eclass
 eclass/tmpfiles.eclass
 eclass/toolchain-funcs.eclass
 eclass/toolchain.eclass
+eclass/user-info.eclass
 # This file is modified by us to be an empty file, so can't be synced for now.
 #
 # eclass/usr-ldscript.eclass
