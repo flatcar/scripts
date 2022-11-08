@@ -14,7 +14,7 @@ source ci-automation/vendor_test.sh
 # unsupported option.
 if [[ "${CIA_ARCH}" == "arm64" ]]; then
     echo "1..1" > "${CIA_TAPFILE}"
-    echo "not ok - all qemu tests" >> "${CIA_TAPFILE}"
+    echo "not ok - all VMware ESX tests" >> "${CIA_TAPFILE}"
     echo "  ---" >> "${CIA_TAPFILE}"
     echo "  ERROR: ARM64 tests not supported on VMware ESX." | tee -a "${CIA_TAPFILE}"
     echo "  ..." >> "${CIA_TAPFILE}"
