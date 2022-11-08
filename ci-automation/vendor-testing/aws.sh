@@ -16,10 +16,7 @@ image_name="ci-${escaped_vernum}-${CIA_ARCH}"
 aws_instance_type_var="AWS_${CIA_ARCH}_INSTANCE_TYPE"
 aws_instance_type="${!aws_instance_type_var}"
 more_aws_instance_types_var="AWS_${CIA_ARCH}_MORE_INSTANCE_TYPES"
-set -o noglob # there shouldn't be any instance types with asterisks
-              # in it, but…
-more_aws_instance_types=( ${!more_aws_instance_types_var} )
-set +o noglob
+mapfile -t more_aws_instance_types < <(tr ' ' '\n' <<<"${!more_aws_instance_types_var}")
 
 image_file='flatcar_production_ami_image.bin'
 tarball="${image_file}.bz2"

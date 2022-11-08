@@ -342,12 +342,8 @@ function run_kola_tests_on_instances() {
         # to filter the extra tests first then we decide which tests
         # should be run.
         if [[ "${is_first_run}" -eq 1 ]]; then
-            set -o noglob # noglob should not be necessary, as
-                          # query_kola_tests shouldn't return a
-                          # wildcard, but better to be safe than sorry
             queried_tests="$(query_kola_tests "${instance_type}" "${@}")"
-            instance_tests=( $(grep --only-matching --fixed-strings "${other_tests_for_fgrep}" <<<"${queried_tests}" || :) )
-            set +o noglob
+            mapfile -t instance_tests < <(grep --only-matching --fixed-strings "${other_tests_for_fgrep}" <<<"${queried_tests}" || :)
         else
             filter_prefixed_tests instance_tests "${instance_type}" "${@}"
         fi
