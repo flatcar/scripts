@@ -19,7 +19,8 @@ else
 	SLOT="stable/${ABI_VER}"
 	MY_P="rustc-${PV}"
 	SRC="${MY_P}-src.tar.xz"
-#	KEYWORDS="~amd64 ~arm ~arm64 ~mips ~ppc64 ~riscv ~sparc ~x86"
+	# Flatcar: re-enable keywords disabled from upstream
+	KEYWORDS="~amd64 ~arm ~arm64 ~mips ~ppc64 ~riscv ~sparc ~x86"
 fi
 
 RUST_STAGE0_VERSION="1.$(($(ver_cut 2) - 1)).0"
@@ -116,9 +117,10 @@ DEPEND="
 	)
 "
 
+# Flatcar: lsb-release must be removed, as it conflicts with baselayout
+# of Flatcar.
 RDEPEND="${DEPEND}
 	app-eselect/eselect-rust
-	sys-apps/lsb-release
 "
 
 REQUIRED_USE="|| ( ${ALL_LLVM_TARGETS[*]} )
@@ -322,6 +324,10 @@ src_configure() {
 			sed -i '/linker:/ s/rust-lld/wasm-ld/' compiler/rustc_target/src/spec/wasm_base.rs || die
 		fi
 	fi
+	# Flatcar: Auto-enable cross-building only if the cross-compiler is available
+	if [ "${CBUILD}" != "aarch64-unknown-linux-gnu" ] && [ -f /usr/bin/aarch64-cros-linux-gnu-gcc ]; then
+		rust_targets="${rust_targets},\"aarch64-unknown-linux-gnu\""
+	fi
 	rust_targets="${rust_targets#,}"
 
 	local tools='"cargo"'
@@ -473,6 +479,30 @@ src_configure() {
 			_EOF_
 		fi
 	done
+	# Flatcar: workaround for cross-compile. Could soon be replaced
+	# by the "experimental cross support" below
+	if [ "${CBUILD}" != "aarch64-unknown-linux-gnu" ] && [ -f /usr/bin/aarch64-cros-linux-gnu-gcc ]; then
+		cat <<- 'EOF' > "${S}/cc.sh"
+			#!/bin/bash
+			args=("$@")
+			filtered=()
+			for i in "${args[@]}"; do
+			  if [ "$i" != "-mindirect-branch-register" ] && [ "$i" != "-mindirect-branch=thunk" ]; then
+			    filtered+=("$i")
+			  fi
+			done
+			aarch64-cros-linux-gnu-gcc --sysroot=/usr/aarch64-cros-linux-gnu "${filtered[@]}"
+		EOF
+		sed 's/gcc/g++/g' "${S}/cc.sh" > "${S}/cxx.sh"
+		chmod +x "${S}/cc.sh" "${S}/cxx.sh"
+		cat <<- EOF >> "${S}"/config.toml
+			[target.aarch64-unknown-linux-gnu]
+			cc = "${S}/cc.sh"
+			cxx = "${S}/cxx.sh"
+			linker = "${S}/cc.sh"
+			ar = "aarch64-cros-linux-gnu-ar"
+		EOF
+	fi
 	if use wasm; then
 		cat <<- _EOF_ >> "${S}"/config.toml
 			[target.wasm32-unknown-unknown]
