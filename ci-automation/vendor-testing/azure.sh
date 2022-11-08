@@ -18,6 +18,21 @@ azure_instance_type_var="AZURE_${CIA_ARCH}_MACHINE_SIZE"
 azure_instance_type="${!azure_instance_type_var}"
 azure_vnet_subnet_name="jenkins-vnet-${AZURE_LOCATION}"
 
+other_instance_types=()
+if [[ "${CIA_ARCH}" = 'amd64' ]]; then
+    other_instance_types+=('V1')
+fi
+
+CIA_OUTPUT_MAIN_INSTANCE="${azure_instance_type}"
+CIA_OUTPUT_ALL_TESTS=( "${@}" )
+CIA_OUTPUT_EXTRA_INSTANCES=( "${other_instance_types[@]}" )
+CIA_OUTPUT_EXTRA_INSTANCE_TESTS=( 'cl.internet' )
+
+query_kola_tests() {
+    shift; # ignore the instance type
+    kola list --platform=azure --filter "${@}"
+}
+
 azure_profile_config_file=''
 secret_to_file azure_profile_config_file "${AZURE_PROFILE}"
 azure_auth_config_file=''
@@ -68,16 +83,6 @@ run_kola_tests() {
       ${AZURE_USE_PRIVATE_IPS:+--azure-use-private-ips=${AZURE_USE_PRIVATE_IPS}} \
       "${@}"
 }
-
-query_kola_tests() {
-    shift; # ignore the instance type
-    kola list --platform=azure --filter "${@}"
-}
-
-other_instance_types=()
-if [[ "${CIA_ARCH}" = 'amd64' ]]; then
-    other_instance_types+=('V1')
-fi
 
 run_kola_tests_on_instances \
     "${azure_instance_type}" \

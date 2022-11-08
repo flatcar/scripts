@@ -23,6 +23,22 @@ if [ "$*" != "" ] && [ "$*" != "*" ] && [[ "$*" != *"cl.update.payload" ]]; then
     exit 1
 fi
 
+CIA_OUTPUT_MAIN_INSTANCE='previous'
+CIA_OUTPUT_ALL_TESTS=( 'cl.update.payload' )
+CIA_OUTPUT_EXTRA_INSTANCES=( 'first_dual' )
+CIA_OUTPUT_EXTRA_INSTANCE_TESTS=( 'cl.update.payload' )
+
+query_kola_tests() {
+    shift; # ignore the instance type
+    local arg
+    arg="${*}"
+    if [ "${arg}" != "" ]; then
+      # Empty calls are ok, which mean no tests, but otherwise we restrict the tests to run
+      arg="cl.update.payload"
+    fi
+    kola list --platform=qemu --filter "${arg}"
+}
+
 mkdir -p tmp/
 if [ -f tmp/flatcar_test_update.gz ] ; then
     echo "++++ ${CIA_TESTSCRIPT}: Using existing ./tmp/flatcar_test_update.gz for testing ${CIA_VERNUM} (${CIA_ARCH}) ++++"
@@ -72,17 +88,6 @@ if [ "${CIA_ARCH}" = "arm64" ]; then
         copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${bios}" .
     fi
 fi
-
-query_kola_tests() {
-    shift; # ignore the instance type
-    local arg
-    arg="${*}"
-    if [ "${arg}" != "" ]; then
-      # Empty calls are ok, which mean no tests, but otherwise we restrict the tests to run
-      arg="cl.update.payload"
-    fi
-    kola list --platform=qemu --filter "${arg}"
-}
 
 run_kola_tests() {
     local instance_type="${1}"; shift;

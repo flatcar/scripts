@@ -21,6 +21,16 @@ if [ "${CIA_ARCH}" = "arm64" ] && [ "${CIA_TESTSCRIPT}" != "qemu_uefi.sh" ] ; th
     exit 1
 fi
 
+CIA_OUTPUT_MAIN_INSTANCE='default'
+CIA_OUTPUT_ALL_TESTS=( "${@}" )
+CIA_OUTPUT_EXTRA_INSTANCES=()
+CIA_OUTPUT_EXTRA_INSTANCE_TESTS=()
+
+query_kola_tests() {
+    shift; # ignore the instance type
+    kola list --platform=qemu --filter "${@}"
+}
+
 # Fetch image and BIOS if not present
 if [ -f "${QEMU_IMAGE_NAME}" ] ; then
     echo "++++ ${CIA_TESTSCRIPT}: Using existing ${QEMU_IMAGE_NAME} for testing ${CIA_VERNUM} (${CIA_ARCH}) ++++"

@@ -18,6 +18,16 @@ aws_instance_type="${!aws_instance_type_var}"
 more_aws_instance_types_var="AWS_${CIA_ARCH}_MORE_INSTANCE_TYPES"
 mapfile -t more_aws_instance_types < <(tr ' ' '\n' <<<"${!more_aws_instance_types_var}")
 
+CIA_OUTPUT_MAIN_INSTANCE="${aws_instance_type}"
+CIA_OUTPUT_ALL_TESTS=( "${@}" )
+CIA_OUTPUT_EXTRA_INSTANCES=( "${more_aws_instance_types[@]}" )
+CIA_OUTPUT_EXTRA_INSTANCE_TESTS=( 'cl.internet' )
+
+query_kola_tests() {
+    shift; # ignore the instance type
+    kola list --platform=aws --filter "${@}"
+}
+
 image_file='flatcar_production_ami_image.bin'
 tarball="${image_file}.bz2"
 
@@ -57,11 +67,6 @@ run_kola_tests() {
          --tapfile="${instance_tapfile}" \
          --torcx-manifest="${CIA_TORCX_MANIFEST}" \
          "${@}"
-}
-
-query_kola_tests() {
-    shift; # ignore the instance type
-    kola list --platform=aws --filter "${@}"
 }
 
 # these are set in ci-config.env

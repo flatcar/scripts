@@ -22,6 +22,16 @@ if [[ "${CIA_ARCH}" == "arm64" ]]; then
     exit 1
 fi
 
+CIA_OUTPUT_MAIN_INSTANCE='default'
+CIA_OUTPUT_ALL_TESTS=( "${@}" )
+CIA_OUTPUT_EXTRA_INSTANCES=()
+CIA_OUTPUT_EXTRA_INSTANCE_TESTS=()
+
+query_kola_tests() {
+    shift; # ignore the instance type
+    kola list --platform=openstack --filter "${@}"
+}
+
 # OPENSTACK_CREDS, OPENSTACK_USER, OPENSTACK_HOST, OPENSTACK_KEYFILE should be provided by sdk_container/.env
 config_file=''
 secret_to_file config_file "${OPENSTACK_CREDS}"

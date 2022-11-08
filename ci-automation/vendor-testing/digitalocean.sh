@@ -22,6 +22,16 @@ if [[ "${CIA_ARCH}" == "arm64" ]]; then
     exit 1
 fi
 
+CIA_OUTPUT_MAIN_INSTANCE="${DIGITALOCEAN_MACHINE_SIZE}"
+CIA_OUTPUT_ALL_TESTS=( "${@}" )
+CIA_OUTPUT_EXTRA_INSTANCES=()
+CIA_OUTPUT_EXTRA_INSTANCE_TESTS=()
+
+query_kola_tests() {
+    shift; # ignore the instance type
+    kola list --platform=do --filter "${@}"
+}
+
 image_name="ci-${CIA_VERNUM//+/-}"
 image_url="$(url_from_template "${DIGITALOCEAN_IMAGE_URL_TEMPLATE}" "${CIA_ARCH}" "${CIA_CHANNEL}" 'https' "${CIA_VERNUM}")"
 

@@ -20,6 +20,16 @@ EQUINIXMETAL_INSTANCE_TYPE="${!EQUINIXMETAL_INSTANCE_TYPE_VAR}"
 MORE_INSTANCE_TYPES_VAR="EQUINIXMETAL_${CIA_ARCH}_MORE_INSTANCE_TYPES"
 mapfile -t MORE_INSTANCE_TYPES < <(tr ' ' '\n' <<<"${!MORE_INSTANCE_TYPES_VAR}")
 
+CIA_OUTPUT_MAIN_INSTANCE="${EQUINIXMETAL_INSTANCE_TYPE}"
+CIA_OUTPUT_ALL_TESTS=( "${@}" )
+CIA_OUTPUT_EXTRA_INSTANCES=( "${MORE_INSTANCE_TYPES[@]}" )
+CIA_OUTPUT_EXTRA_INSTANCE_TESTS=( 'cl.internet' )
+
+query_kola_tests() {
+    shift; # ignore the instance type
+    kola list --platform=equinixmetal --filter "${@}"
+}
+
 # The maximum is 6h coming from the ore GC duration parameter
 timeout=6h
 
@@ -47,11 +57,6 @@ run_kola_tests() {
           --gce-json-key=<(set +x; echo "${GCP_JSON_KEY}" | base64 --decode) \
           --equinixmetal-api-key="${EQUINIXMETAL_KEY}" \
           "${@}"
-}
-
-query_kola_tests() {
-    shift; # ignore the instance type
-    kola list --platform=equinixmetal --filter "${@}"
 }
 
 run_kola_tests_on_instances \

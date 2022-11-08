@@ -22,6 +22,16 @@ if [[ "${CIA_ARCH}" == "arm64" ]]; then
     exit 1
 fi
 
+CIA_OUTPUT_MAIN_INSTANCE='default'
+CIA_OUTPUT_ALL_TESTS=( "${@}" )
+CIA_OUTPUT_EXTRA_INSTANCES=( 'gvnic' )
+CIA_OUTPUT_EXTRA_INSTANCE_TESTS=( 'cl.internet' )
+
+query_kola_tests() {
+    shift; # ignore the instance type
+    kola list --platform=gce --filter "${@}"
+}
+
 GCP_JSON_KEY_PATH=''
 secret_to_file GCP_JSON_KEY_PATH "${GCP_JSON_KEY}"
 
@@ -64,11 +74,6 @@ run_kola_tests() {
         --tapfile="${instance_tapfile}" \
         --torcx-manifest="${CIA_TORCX_MANIFEST}" \
         "${@}"
-}
-
-query_kola_tests() {
-    shift; # ignore the instance type
-    kola list --platform=gce --filter "${@}"
 }
 
 run_kola_tests_on_instances \
