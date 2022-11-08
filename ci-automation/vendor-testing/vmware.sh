@@ -10,7 +10,7 @@ set -euo pipefail
 
 source ci-automation/vendor_test.sh
 
-# We never ran VMware ESX on arm64, so for now fail it as an
+# We never run VMware ESX on arm64, so for now fail it as an
 # unsupported option.
 if [[ "${CIA_ARCH}" == "arm64" ]]; then
     echo "1..1" > "${CIA_TAPFILE}"
