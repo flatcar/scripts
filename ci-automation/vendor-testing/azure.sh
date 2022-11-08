@@ -12,13 +12,21 @@ source ci-automation/vendor_test.sh
 
 # $@ now contains tests / test patterns to run
 
-board="${CIA_ARCH}-usr"
 basename="ci-${CIA_VERNUM//+/-}-${CIA_ARCH}"
 azure_instance_type_var="AZURE_${CIA_ARCH}_MACHINE_SIZE"
 azure_instance_type="${!azure_instance_type_var}"
-azure_vnet_subnet_name="jenkins-vnet-${AZURE_LOCATION}"
-
+azure_extra_options=()
 other_instance_types=()
+
+if [[ -n "${AZURE_USE_PRIVATE_IPS:-}" ]]; then
+    azure_extra_options+=( --azure-use-private-ips )
+fi
+if [[ "${CIA_ARCH}" == "arm64" ]] || [[ -n "${AZURE_USE_GALLERY:-}" ]]; then
+    azure_extra_options+=( '--azure-use-gallery' )
+fi
+if [[ -n "${AZURE_VNET_SUBNET_NAME:-}" ]]; then
+    azure_extra_options+=( --azure-vnet-subnet-name="${AZURE_VNET_SUBNET_NAME}" )
+fi
 if [[ "${CIA_ARCH}" = 'amd64' ]]; then
     other_instance_types+=('V1')
 fi
@@ -50,10 +58,6 @@ else
     rm "${AZURE_IMAGE_NAME}.bz2"
 fi
 
-if [[ "${CIA_ARCH}" == "arm64" ]]; then
-  AZURE_USE_GALLERY="--azure-use-gallery"
-fi
-
 
 run_kola_tests() {
     local instance_type="${1}"; shift
@@ -74,9 +78,7 @@ run_kola_tests() {
         --azure-auth="${azure_auth_config_file}" \
         --azure-size="${instance_type}" \
         --azure-hyper-v-generation="${hyperv_gen}" \
-        ${AZURE_USE_GALLERY} \
-        ${azure_vnet_subnet_name:+--azure-vnet-subnet-name=${azure_vnet_subnet_name}} \
-        ${AZURE_USE_PRIVATE_IPS:+--azure-use-private-ips=${AZURE_USE_PRIVATE_IPS}} \
+        "${azure_extra_options[@]}" \
         "${@}"
 }
 
