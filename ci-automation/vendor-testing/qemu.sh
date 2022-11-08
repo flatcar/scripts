@@ -54,18 +54,14 @@ fi
 
 run_kola_tests() {
     shift # ignore the instance type
-    local instance_tapfile="${1}"; shift
 
-    kola run \
-         --board="${CIA_ARCH}-usr" \
-         --parallel="${QEMU_PARALLEL}" \
-         --platform=qemu \
-         --qemu-bios="${bios}" \
-         --qemu-image="${QEMU_IMAGE_NAME}" \
-         --tapfile="${instance_tapfile}" \
-         --torcx-manifest="${CIA_TORCX_MANIFEST}" \
-         --qemu-skip-mangle \
-         "${@}"
+    kola_run \
+        --parallel="${QEMU_PARALLEL}" \
+        --platform=qemu \
+        --qemu-bios="${bios}" \
+        --qemu-image="${QEMU_IMAGE_NAME}" \
+        --qemu-skip-mangle \
+        "${@}"
 }
 
 run_default_kola_tests

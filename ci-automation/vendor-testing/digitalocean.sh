@@ -26,6 +26,7 @@ CIA_OUTPUT_MAIN_INSTANCE="${DIGITALOCEAN_MACHINE_SIZE}"
 CIA_OUTPUT_ALL_TESTS=( "${@}" )
 CIA_OUTPUT_EXTRA_INSTANCES=()
 CIA_OUTPUT_EXTRA_INSTANCE_TESTS=()
+CIA_OUTPUT_TIMEOUT=4h
 
 query_kola_tests() {
     shift; # ignore the instance type
@@ -50,10 +51,8 @@ trap 'ore do delete-image \
 
 run_kola_tests() {
     local instance_type="${1}"; shift
-    local instance_tapfile="${1}"; shift
 
-    timeout --signal=SIGQUIT 4h\
-    kola run \
+    kola_run \
         --do-size="${instance_type}" \
         --do-region="${DIGITALOCEAN_REGION}" \
         --basename="${image_name}" \
@@ -61,9 +60,6 @@ run_kola_tests() {
         --do-image="${image_name}" \
         --parallel="${DIGITALOCEAN_PARALLEL}" \
         --platform=do \
-        --channel="${CIA_CHANNEL}" \
-        --tapfile="${instance_tapfile}" \
-        --torcx-manifest="${CIA_TORCX_MANIFEST}" \
         "${@}"
 }
 

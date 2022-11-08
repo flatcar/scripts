@@ -26,6 +26,7 @@ CIA_OUTPUT_MAIN_INSTANCE='default'
 CIA_OUTPUT_ALL_TESTS=( "${@}" )
 CIA_OUTPUT_EXTRA_INSTANCES=()
 CIA_OUTPUT_EXTRA_INSTANCE_TESTS=()
+CIA_OUTPUT_TIMEOUT=2h
 
 query_kola_tests() {
     shift; # ignore the instance type
@@ -63,19 +64,14 @@ trap 'ore esx --esx-config-file "${config_file}" remove-vms \
 
 run_kola_tests() {
     shift # ignore the instance type
-    local instance_tapfile="${1}"; shift
 
-    timeout --signal=SIGQUIT 2h kola run \
-            --board="${CIA_ARCH}-usr" \
-            --basename="${kola_test_basename}" \
-            --channel="${CIA_CHANNEL}" \
-            --platform=esx \
-            --tapfile="${instance_tapfile}" \
-            --parallel="${VMWARE_ESX_PARALLEL}" \
-            --torcx-manifest="${CIA_TORCX_MANIFEST}" \
-            --esx-config-file "${config_file}" \
-            --esx-ova-path "${VMWARE_ESX_IMAGE_NAME}" \
-            "${@}"
+    kola_run \
+        --basename="${kola_test_basename}" \
+        --platform=esx \
+        --parallel="${VMWARE_ESX_PARALLEL}" \
+        --esx-config-file "${config_file}" \
+        --esx-ova-path "${VMWARE_ESX_IMAGE_NAME}" \
+        "${@}"
 }
 
 run_default_kola_tests

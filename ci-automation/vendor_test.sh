@@ -398,12 +398,8 @@ function run_kola_tests_on_instances() {
             tests_on_instances_running=1
             (
                 local instance_tapfile="instance_${instance_type}_validate.tap"
-                set +e
-                set -x
                 local output
-                output=$(run_kola_tests "${instance_type}" "${instance_tapfile}" "${instance_tests[@]}" 2>&1)
-                set +x
-                set -e
+                output=$(run_kola_tests_internal "${instance_type}" "${instance_tapfile}" "${instance_tests[@]}" 2>&1)
                 local escaped_instance_type
                 escaped_instance_type="$(sed -e 's/[\/&]/\\&/g' <<<"${instance_type}")"
                 printf "=== START ${instance_type} ===\n%s\n=== END ${instance_type} ===\n" "$(sed -e "s/^/${escaped_instance_type}: /g" <<<"${output}")"
@@ -416,14 +412,7 @@ function run_kola_tests_on_instances() {
 
     filter_out_prefixed_tests main_tests "${@}"
     if [[ "${#main_tests[@]}" -gt 0 ]]; then
-        # run in a subshell, so the set -x and set +e do not pollute
-        # the outer environment
-        (
-            set +e
-            set -x
-            run_kola_tests "${main_instance_type}" "${main_tapfile}" "${main_tests[@]}"
-            true
-        )
+        run_kola_tests_internal "${main_instance_type}" "${main_tapfile}" "${main_tests[@]}"
     fi
 
     if [[ "${tests_on_instances_running}" -eq 1 ]]; then
@@ -431,6 +420,15 @@ function run_kola_tests_on_instances() {
         merge_tap_files "${main_tapfile}" 'instance_'*'_validate.tap'
         rm -f 'instance_'*'_validate.tap'
     fi
+}
+
+# An internal function that invokes the user-defined run_kola_tests
+# callback. It defines the CIA_INTERNAL_TAPFILE variable, which is
+# used by the kola_run function.
+function run_kola_tests_internal() {
+    local instance_type="${1}"; shift
+    local CIA_INTERNAL_TAPFILE="${1}"; shift
+    run_kola_tests "${instance_type}" "${@}"
 }
 
 # Runs the user-defined query_kola_tests callback and massages its
@@ -463,4 +461,44 @@ function run_default_kola_tests() {
         "${CIA_OUTPUT_EXTRA_INSTANCE_TESTS[@]}" \
         '--' \
         "${CIA_OUTPUT_ALL_TESTS[@]}"
+}
+
+# Invokes kola. Does it with a timeout if CIA_OUTPUT_TIMEOUT is not
+# empty. All the parameters passed to this function are forwarded to
+# "kola run". There's no need to specify "--board", "--channel",
+# "--torcx-manifest" and "--tapfile" parameters - this function will
+# pass those based on the various CIA_ variables. Usable only inside
+# run_kola_tests callback used by run_default_kola_tests or
+# run_kola_tests_on_instances.
+function kola_run() {
+    local common_opts
+
+    common_opts=(
+        --board="${CIA_ARCH}-usr"
+        --tapfile="${CIA_INTERNAL_TAPFILE}"
+        --torcx-manifest="${CIA_TORCX_MANIFEST}"
+        --channel="${CIA_CHANNEL}"
+    )
+    if [[ -n "${CIA_OUTPUT_TIMEOUT:-}" ]]; then
+        unsafe_code_section \
+            timeout --signal=SIGQUIT "${CIA_OUTPUT_TIMEOUT}" \
+                kola run "${common_opts[@]}" "${@}"
+    else
+        unsafe_code_section \
+            kola run "${common_opts[@]}" "${@}"
+    fi
+    # In case of timeout, the tapfile might be still missing. But
+    # since we were ignoring the error at the time, handle_flaky_setup
+    # didn't run, so do it now.
+    if [[ ! -e "${CIA_INTERNAL_TAPFILE}" ]]; then
+        handle_flaky_setup
+    fi
+}
+
+function unsafe_code_section() {
+    # Run in a subshell to avoid executing the err handler.
+    (
+        echo "${@}"
+        "${@}" || :
+    )
 }

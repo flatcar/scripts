@@ -27,6 +27,8 @@ CIA_OUTPUT_MAIN_INSTANCE="${azure_instance_type}"
 CIA_OUTPUT_ALL_TESTS=( "${@}" )
 CIA_OUTPUT_EXTRA_INSTANCES=( "${other_instance_types[@]}" )
 CIA_OUTPUT_EXTRA_INSTANCE_TESTS=( 'cl.internet' )
+# Align timeout with ore azure gc --duration parameter
+CIA_OUTPUT_TIMEOUT=6h
 
 query_kola_tests() {
     shift; # ignore the instance type
@@ -55,33 +57,27 @@ fi
 
 run_kola_tests() {
     local instance_type="${1}"; shift
-    local instance_tapfile="${1}"; shift
     local hyperv_gen="V2"
     if [ "${instance_type}" = "V1" ]; then
         hyperv_gen="V1"
         instance_type="${azure_instance_type}"
     fi
 
-    # Align timeout with ore azure gc --duration parameter
-    timeout --signal=SIGQUIT 6h \
-      kola run \
-      --board="${board}" \
-      --basename="${basename}" \
-      --parallel="${AZURE_PARALLEL}" \
-      --offering=basic \
-      --platform=azure \
-      --azure-image-file="${AZURE_IMAGE_NAME}" \
-      --azure-location="${AZURE_LOCATION}" \
-      --azure-profile="${azure_profile_config_file}" \
-      --azure-auth="${azure_auth_config_file}" \
-      --torcx-manifest="${CIA_TORCX_MANIFEST}" \
-      --tapfile="${instance_tapfile}" \
-      --azure-size="${instance_type}" \
-      --azure-hyper-v-generation="${hyperv_gen}" \
-      ${AZURE_USE_GALLERY} \
-      ${azure_vnet_subnet_name:+--azure-vnet-subnet-name=${azure_vnet_subnet_name}} \
-      ${AZURE_USE_PRIVATE_IPS:+--azure-use-private-ips=${AZURE_USE_PRIVATE_IPS}} \
-      "${@}"
+    kola_run \
+        --basename="${basename}" \
+        --parallel="${AZURE_PARALLEL}" \
+        --offering=basic \
+        --platform=azure \
+        --azure-image-file="${AZURE_IMAGE_NAME}" \
+        --azure-location="${AZURE_LOCATION}" \
+        --azure-profile="${azure_profile_config_file}" \
+        --azure-auth="${azure_auth_config_file}" \
+        --azure-size="${instance_type}" \
+        --azure-hyper-v-generation="${hyperv_gen}" \
+        ${AZURE_USE_GALLERY} \
+        ${azure_vnet_subnet_name:+--azure-vnet-subnet-name=${azure_vnet_subnet_name}} \
+        ${AZURE_USE_PRIVATE_IPS:+--azure-use-private-ips=${AZURE_USE_PRIVATE_IPS}} \
+        "${@}"
 }
 
 run_default_kola_tests

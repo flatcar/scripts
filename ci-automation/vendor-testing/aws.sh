@@ -22,6 +22,7 @@ CIA_OUTPUT_MAIN_INSTANCE="${aws_instance_type}"
 CIA_OUTPUT_ALL_TESTS=( "${@}" )
 CIA_OUTPUT_EXTRA_INSTANCES=( "${more_aws_instance_types[@]}" )
 CIA_OUTPUT_EXTRA_INSTANCE_TESTS=( 'cl.internet' )
+CIA_OUTPUT_TIMEOUT=6h
 
 query_kola_tests() {
     shift; # ignore the instance type
@@ -50,23 +51,17 @@ fi
 
 run_kola_tests() {
     local instance_type="${1}"; shift
-    local instance_tapfile="${1}"; shift
 
-    timeout --signal=SIGQUIT 6h \
-        kola run \
-         --board="${board}" \
-         --basename="${image_name}" \
-         --channel="${CIA_CHANNEL}" \
-         --offering='basic' \
-         --parallel="${AWS_PARALLEL}" \
-         --platform=aws \
-         --aws-ami="${AWS_AMI_ID}" \
-         --aws-region="${AWS_REGION}" \
-         --aws-type="${instance_type}" \
-         --aws-iam-profile="${AWS_IAM_PROFILE}" \
-         --tapfile="${instance_tapfile}" \
-         --torcx-manifest="${CIA_TORCX_MANIFEST}" \
-         "${@}"
+    kola_run \
+        --basename="${image_name}" \
+        --offering='basic' \
+        --parallel="${AWS_PARALLEL}" \
+        --platform=aws \
+        --aws-ami="${AWS_AMI_ID}" \
+        --aws-region="${AWS_REGION}" \
+        --aws-type="${instance_type}" \
+        --aws-iam-profile="${AWS_IAM_PROFILE}" \
+        "${@}"
 }
 
 # these are set in ci-config.env

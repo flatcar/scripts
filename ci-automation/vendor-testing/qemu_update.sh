@@ -91,7 +91,6 @@ fi
 
 run_kola_tests() {
     local instance_type="${1}"; shift;
-    local instance_tapfile="${1}"; shift
     local image
     if [ "${instance_type}" = "previous" ]; then
         image="tmp/flatcar_production_image_previous.bin"
@@ -102,14 +101,11 @@ run_kola_tests() {
         exit 1
     fi
 
-    kola run \
-      --board="${CIA_ARCH}-usr" \
+    kola_run \
       --parallel="${QEMU_PARALLEL}" \
       --platform=qemu \
       --qemu-bios="${bios}" \
       --qemu-image="${image}" \
-      --tapfile="${instance_tapfile}" \
-      --torcx-manifest="${CIA_TORCX_MANIFEST}" \
       --update-payload=tmp/flatcar_test_update.gz \
       --qemu-skip-mangle \
       cl.update.payload

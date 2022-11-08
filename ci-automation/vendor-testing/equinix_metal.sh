@@ -24,39 +24,33 @@ CIA_OUTPUT_MAIN_INSTANCE="${EQUINIXMETAL_INSTANCE_TYPE}"
 CIA_OUTPUT_ALL_TESTS=( "${@}" )
 CIA_OUTPUT_EXTRA_INSTANCES=( "${MORE_INSTANCE_TYPES[@]}" )
 CIA_OUTPUT_EXTRA_INSTANCE_TESTS=( 'cl.internet' )
+# The maximum is 6h coming from the ore GC duration parameter
+CIA_OUTPUT_TIMEOUT=6h
 
 query_kola_tests() {
     shift; # ignore the instance type
     kola list --platform=equinixmetal --filter "${@}"
 }
 
-# The maximum is 6h coming from the ore GC duration parameter
-timeout=6h
-
 BASE_URL="http://${BUILDCACHE_SERVER}/images/${CIA_ARCH}/${CIA_VERNUM}"
 
 run_kola_tests() {
     local instance_type="${1}"; shift
-    local instance_tapfile="${1}"; shift
 
-    timeout --signal=SIGQUIT "${timeout}" \
-        kola run \
-          --board="${CIA_ARCH}-usr" \
-          --basename="ci-${CIA_VERNUM/+/-}-${CIA_ARCH}" \
-          --platform=equinixmetal \
-          --tapfile="${instance_tapfile}" \
-          --parallel="${EQUINIXMETAL_PARALLEL}" \
-          --torcx-manifest="${CIA_TORCX_MANIFEST}" \
-          --equinixmetal-image-url="${BASE_URL}/${EQUINIXMETAL_IMAGE_NAME}" \
-          --equinixmetal-installer-image-kernel-url="${BASE_URL}/${PXE_KERNEL_NAME}" \
-          --equinixmetal-installer-image-cpio-url="${BASE_URL}/${PXE_IMAGE_NAME}" \
-          --equinixmetal-metro="${equinixmetal_metro}" \
-          --equinixmetal-plan="${instance_type}" \
-          --equinixmetal-project="${EQUINIXMETAL_PROJECT}" \
-          --equinixmetal-storage-url="${EQUINIXMETAL_STORAGE_URL}" \
-          --gce-json-key=<(set +x; echo "${GCP_JSON_KEY}" | base64 --decode) \
-          --equinixmetal-api-key="${EQUINIXMETAL_KEY}" \
-          "${@}"
+    kola_run \
+        --basename="ci-${CIA_VERNUM/+/-}-${CIA_ARCH}" \
+        --platform=equinixmetal \
+        --parallel="${EQUINIXMETAL_PARALLEL}" \
+        --equinixmetal-image-url="${BASE_URL}/${EQUINIXMETAL_IMAGE_NAME}" \
+        --equinixmetal-installer-image-kernel-url="${BASE_URL}/${PXE_KERNEL_NAME}" \
+        --equinixmetal-installer-image-cpio-url="${BASE_URL}/${PXE_IMAGE_NAME}" \
+        --equinixmetal-metro="${equinixmetal_metro}" \
+        --equinixmetal-plan="${instance_type}" \
+        --equinixmetal-project="${EQUINIXMETAL_PROJECT}" \
+        --equinixmetal-storage-url="${EQUINIXMETAL_STORAGE_URL}" \
+        --gce-json-key=<(echo "${GCP_JSON_KEY}" | base64 --decode) \
+        --equinixmetal-api-key="${EQUINIXMETAL_KEY}" \
+        "${@}"
 }
 
 run_default_kola_tests

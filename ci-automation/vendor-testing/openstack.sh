@@ -26,6 +26,7 @@ CIA_OUTPUT_MAIN_INSTANCE='default'
 CIA_OUTPUT_ALL_TESTS=( "${@}" )
 CIA_OUTPUT_EXTRA_INSTANCES=()
 CIA_OUTPUT_EXTRA_INSTANCE_TESTS=()
+CIA_OUTPUT_TIMEOUT=2h
 
 query_kola_tests() {
     shift; # ignore the instance type
@@ -54,25 +55,20 @@ kola_test_basename="${kola_test_basename//[+.]/-}"
 
 run_kola_tests() {
     shift # ignore the instance type
-    local instance_tapfile="${1}"; shift
 
-    timeout --signal=SIGQUIT 2h kola run \
-            --board="${CIA_ARCH}-usr" \
-            --parallel="${OPENSTACK_PARALLEL}" \
-            --tapfile="${instance_tapfile}" \
-            --channel="${CIA_CHANNEL}" \
-            --torcx-manifest="${CIA_TORCX_MANIFEST}" \
-            --basename="${kola_test_basename}" \
-            --platform=openstack \
-            --openstack-network=public \
-            --openstack-domain=default \
-            --openstack-flavor=flatcar-flavor \
-            --openstack-user="${OPENSTACK_USER}" \
-            --openstack-host="${OPENSTACK_HOST}" \
-            --openstack-keyfile="${openstack_keyfile}" \
-            --openstack-image="${IMAGE_ID}" \
-            --openstack-config-file="${config_file}" \
-            "${@}"
+    kola_run \
+        --parallel="${OPENSTACK_PARALLEL}" \
+        --basename="${kola_test_basename}" \
+        --platform=openstack \
+        --openstack-network=public \
+        --openstack-domain=default \
+        --openstack-flavor=flatcar-flavor \
+        --openstack-user="${OPENSTACK_USER}" \
+        --openstack-host="${OPENSTACK_HOST}" \
+        --openstack-keyfile="${openstack_keyfile}" \
+        --openstack-image="${IMAGE_ID}" \
+        --openstack-config-file="${config_file}" \
+        "${@}"
 }
 
 run_default_kola_tests

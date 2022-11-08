@@ -26,6 +26,7 @@ CIA_OUTPUT_MAIN_INSTANCE='default'
 CIA_OUTPUT_ALL_TESTS=( "${@}" )
 CIA_OUTPUT_EXTRA_INSTANCES=( 'gvnic' )
 CIA_OUTPUT_EXTRA_INSTANCE_TESTS=( 'cl.internet' )
+CIA_OUTPUT_TIMEOUT=6h
 
 query_kola_tests() {
     shift; # ignore the instance type
@@ -56,13 +57,11 @@ trap 'ore gcloud delete-images \
 
 run_kola_tests() {
     local instance_type="${1}"; shift
-    local instance_tapfile="${1}"; shift
     local extra_arg=()
     if [ "${instance_type}" = "gvnic" ]; then
         extra_arg+=("--gce-gvnic")
     fi
-    timeout --signal=SIGQUIT 6h \
-    kola run \
+    kola_run \
         --basename="${image_name}" \
         --gce-image="${image_name}" \
         --gce-json-key="${GCP_JSON_KEY_PATH}" \
@@ -70,9 +69,6 @@ run_kola_tests() {
         "${extra_arg[@]}" \
         --parallel="${GCE_PARALLEL}" \
         --platform=gce \
-        --channel="${CIA_CHANNEL}" \
-        --tapfile="${instance_tapfile}" \
-        --torcx-manifest="${CIA_TORCX_MANIFEST}" \
         "${@}"
 }
 
