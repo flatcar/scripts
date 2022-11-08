@@ -324,7 +324,6 @@ function run_kola_tests_on_instances() {
     # rest of the parameters are tests to be run or rerun
 
     local instance_type
-    local queried_tests
     local instance_tests=()
     local tests_on_instances_running=0
     local other_tests_for_fgrep
@@ -342,8 +341,7 @@ function run_kola_tests_on_instances() {
         # to filter the extra tests first then we decide which tests
         # should be run.
         if [[ "${is_first_run}" -eq 1 ]]; then
-            queried_tests="$(query_kola_tests "${instance_type}" "${@}")"
-            mapfile -t instance_tests < <(grep --only-matching --fixed-strings "${other_tests_for_fgrep}" <<<"${queried_tests}" || :)
+            mapfile -t instance_tests < <(run_query_kola_tests "${instance_type}" "${@}" | grep --only-matching --fixed-strings "${other_tests_for_fgrep}" || :)
         else
             filter_prefixed_tests instance_tests "${instance_type}" "${@}"
         fi
@@ -384,4 +382,12 @@ function run_kola_tests_on_instances() {
         merge_tap_files "${main_tapfile}" 'instance_'*'_validate.tap'
         rm -f 'instance_'*'_validate.tap'
     fi
+}
+
+# Runs the user-defined query_kola_tests callback and massages its
+# output so only a list of tests is printed.
+function run_query_kola_tests() {
+    # The "-n +3" option will skip the table header and the empty line
+    # that follows it.
+    query_kola_tests "${@}" | tail -n +3 | awk '{ print $1 }'
 }
