@@ -115,6 +115,55 @@ CIA_FIRST_RUN="${ciavts_first_run}"
 # Unset all variables with ciavts_ prefix now.
 unset -v "${!ciavts_@}"
 
+trap handle_flaky_setup ERR
+function handle_flaky_setup() {
+    if [[ -e "${CIA_TAPFILE}" ]]; then
+        # Tests had their run, tapfile was created, nothing to do
+        # here.
+        return 0
+    fi
+    # Tapfile wasn't created, which means that we didn't even reach
+    # kola invocation. Let's create a tapfile with all the tests
+    # marked as a failure. This can be done only if the
+    # query_kola_tests function and some output variables were
+    # defined, though. That means that vendor tests should define them
+    # as early as possible.
+    if ! declare -p CIA_OUTPUT_MAIN_INSTANCE CIA_OUTPUT_ALL_TESTS CIA_OUTPUT_EXTRA_INSTANCES CIA_OUTPUT_EXTRA_INSTANCE_TESTS >/dev/null 2>&1; then
+        echo "handle_flaky_setup: '${CIA_TESTSCRIPT}' did not define all the required variables to handle the setup failure"
+        return 0
+    fi
+    if [[ "$(type -t query_kola_tests || true)" != 'function' ]]; then
+        echo "handle_flaky_setup: '${CIA_TESTSCRIPT}' did not define the query_kola_tests function to handle the setup failure"
+        return 0
+    fi
+
+    local -a instance_tests
+    local -a all_tests
+    local other_tests_for_fgrep
+    local instance
+
+    instance_tests=()
+    all_tests=()
+    if [[ "${CIA_FIRST_RUN}" -eq 1 ]]; then
+        # The "-t" option strips the delimiter. "mapfile" clears the
+        # instance_tests array before assigning to it.
+        mapfile -t instance_tests < <(run_query_kola_tests "${CIA_OUTPUT_MAIN_INSTANCE}" "${CIA_OUTPUT_ALL_TESTS[@]}")
+        all_tests+=( "${instance_tests[@]}" )
+
+        other_tests_for_fgrep="$(printf '%s\n' "${CIA_OUTPUT_EXTRA_INSTANCE_TESTS[@]}")"
+        for instance in "${CIA_OUTPUT_EXTRA_INSTANCES[@]}"; do
+            mapfile -t instance_tests < <(run_query_kola_tests "${instance}" "${CIA_OUTPUT_ALL_TESTS[@]}" | grep --only-matching --fixed-strings "${other_tests_for_fgrep}" || :)
+            all_tests+=( "${instance_tests[@]/#/extra_test.[${instance}].}" )
+        done
+    else
+        all_tests=( "${CIA_OUTPUT_ALL_TESTS[@]}" )
+    fi
+
+    echo "1..${#all_tests[@]}" >"${CIA_TAPFILE}"
+    printf 'not ok - %s\n' "${all_tests[@]}" >>"${CIA_TAPFILE}"
+    return 0
+}
+
 # Prefixes all test names in the tap file with a given prefix, so the
 # test name like "cl.basic" will become "extra-test.[${prefix}].cl.basic".
 #
