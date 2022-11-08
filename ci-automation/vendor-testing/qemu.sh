@@ -52,17 +52,20 @@ if [ "${CIA_TESTSCRIPT}" = "qemu_uefi.sh" ] ; then
     fi
 fi
 
-set -x
+run_kola_tests() {
+    shift # ignore the instance type
+    local instance_tapfile="${1}"; shift
 
-kola run \
-    --board="${CIA_ARCH}-usr" \
-    --parallel="${QEMU_PARALLEL}" \
-    --platform=qemu \
-    --qemu-bios="${bios}" \
-    --qemu-image="${QEMU_IMAGE_NAME}" \
-    --tapfile="${CIA_TAPFILE}" \
-    --torcx-manifest="${CIA_TORCX_MANIFEST}" \
-    --qemu-skip-mangle \
-    "${@}"
+    kola run \
+         --board="${CIA_ARCH}-usr" \
+         --parallel="${QEMU_PARALLEL}" \
+         --platform=qemu \
+         --qemu-bios="${bios}" \
+         --qemu-image="${QEMU_IMAGE_NAME}" \
+         --tapfile="${instance_tapfile}" \
+         --torcx-manifest="${CIA_TORCX_MANIFEST}" \
+         --qemu-skip-mangle \
+         "${@}"
+}
 
-set +x
+run_default_kola_tests

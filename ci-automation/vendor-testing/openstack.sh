@@ -52,24 +52,27 @@ trap 'ore --config-file "${config_file}" openstack delete-image --id "${IMAGE_ID
 kola_test_basename="ci-${CIA_VERNUM//+/-}"
 kola_test_basename="${kola_test_basename//[+.]/-}"
 
-set -x
+run_kola_tests() {
+    shift # ignore the instance type
+    local instance_tapfile="${1}"; shift
 
-timeout --signal=SIGQUIT 2h kola run \
-  --board="${CIA_ARCH}-usr" \
-  --parallel="${OPENSTACK_PARALLEL}" \
-  --tapfile="${CIA_TAPFILE}" \
-  --channel="${CIA_CHANNEL}" \
-  --torcx-manifest="${CIA_TORCX_MANIFEST}" \
-  --basename="${kola_test_basename}" \
-  --platform=openstack \
-  --openstack-network=public \
-  --openstack-domain=default \
-  --openstack-flavor=flatcar-flavor \
-  --openstack-user="${OPENSTACK_USER}" \
-  --openstack-host="${OPENSTACK_HOST}" \
-  --openstack-keyfile="${openstack_keyfile}" \
-  --openstack-image="${IMAGE_ID}" \
-  --openstack-config-file="${config_file}" \
-  "${@}"
+    timeout --signal=SIGQUIT 2h kola run \
+            --board="${CIA_ARCH}-usr" \
+            --parallel="${OPENSTACK_PARALLEL}" \
+            --tapfile="${instance_tapfile}" \
+            --channel="${CIA_CHANNEL}" \
+            --torcx-manifest="${CIA_TORCX_MANIFEST}" \
+            --basename="${kola_test_basename}" \
+            --platform=openstack \
+            --openstack-network=public \
+            --openstack-domain=default \
+            --openstack-flavor=flatcar-flavor \
+            --openstack-user="${OPENSTACK_USER}" \
+            --openstack-host="${OPENSTACK_HOST}" \
+            --openstack-keyfile="${openstack_keyfile}" \
+            --openstack-image="${IMAGE_ID}" \
+            --openstack-config-file="${config_file}" \
+            "${@}"
+}
 
-set +x
+run_default_kola_tests

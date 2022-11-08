@@ -61,18 +61,21 @@ kola_test_basename="ci-${CIA_VERNUM//+/-}"
 trap 'ore esx --esx-config-file "${config_file}" remove-vms \
     --pattern "${kola_test_basename}*" || :' EXIT
 
-set -x
+run_kola_tests() {
+    shift # ignore the instance type
+    local instance_tapfile="${1}"; shift
 
-sudo timeout --signal=SIGQUIT 2h kola run \
-    --board="${CIA_ARCH}-usr" \
-    --basename="${kola_test_basename}" \
-    --channel="${CIA_CHANNEL}" \
-    --platform=esx \
-    --tapfile="${CIA_TAPFILE}" \
-    --parallel="${VMWARE_ESX_PARALLEL}" \
-    --torcx-manifest="${CIA_TORCX_MANIFEST}" \
-    --esx-config-file "${config_file}" \
-    --esx-ova-path "${VMWARE_ESX_IMAGE_NAME}" \
-    "${@}"
+    timeout --signal=SIGQUIT 2h kola run \
+            --board="${CIA_ARCH}-usr" \
+            --basename="${kola_test_basename}" \
+            --channel="${CIA_CHANNEL}" \
+            --platform=esx \
+            --tapfile="${instance_tapfile}" \
+            --parallel="${VMWARE_ESX_PARALLEL}" \
+            --torcx-manifest="${CIA_TORCX_MANIFEST}" \
+            --esx-config-file "${config_file}" \
+            --esx-ova-path "${VMWARE_ESX_IMAGE_NAME}" \
+            "${@}"
+}
 
-set +x
+run_default_kola_tests

@@ -115,4 +115,4 @@ run_kola_tests() {
       cl.update.payload
 }
 
-run_kola_tests_on_instances "previous" "${CIA_TAPFILE}" "${CIA_FIRST_RUN}" first_dual -- cl.update.payload -- "${@}"
+run_default_kola_tests

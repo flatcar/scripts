@@ -48,20 +48,23 @@ trap 'ore do delete-image \
     --name="${image_name}" \
     --config-file="${config_file}"' EXIT
 
-set -x
+run_kola_tests() {
+    local instance_type="${1}"; shift
+    local instance_tapfile="${1}"; shift
 
-timeout --signal=SIGQUIT 4h\
+    timeout --signal=SIGQUIT 4h\
     kola run \
-    --do-size="${DIGITALOCEAN_MACHINE_SIZE}" \
-    --do-region="${DIGITALOCEAN_REGION}" \
-    --basename="${image_name}" \
-    --do-config-file="${config_file}" \
-    --do-image="${image_name}" \
-    --parallel="${DIGITALOCEAN_PARALLEL}" \
-    --platform=do \
-    --channel="${CIA_CHANNEL}" \
-    --tapfile="${CIA_TAPFILE}" \
-    --torcx-manifest="${CIA_TORCX_MANIFEST}" \
-    "${@}"
+        --do-size="${instance_type}" \
+        --do-region="${DIGITALOCEAN_REGION}" \
+        --basename="${image_name}" \
+        --do-config-file="${config_file}" \
+        --do-image="${image_name}" \
+        --parallel="${DIGITALOCEAN_PARALLEL}" \
+        --platform=do \
+        --channel="${CIA_CHANNEL}" \
+        --tapfile="${instance_tapfile}" \
+        --torcx-manifest="${CIA_TORCX_MANIFEST}" \
+        "${@}"
+}
 
-set +x
+run_default_kola_tests
