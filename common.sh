@@ -976,22 +976,37 @@ clean_qemu_static() {
   esac
 }
 
-# Fix up liblto softlink created by gcc-config
-fixup_liblto_softlinks() {
-  local root="$1"
+# Fix up various softlinks created by gcc-config
+fixup_gcc_config_softlinks() {
+    # root without trailing slashes, for / it will be empty
+    local root="${1%%*(/)}"
 
-  info "fixup_liblto_softlinks: Looking for broken softlinks in '${root}'"
+    info "fixup_gcc_config_softlinks: Looking for broken softlinks in '${root}/'"
 
-  local link
-  local target
-  # check both native (/usr/CHOST/) as well as cross compile (/usr/CHOST/CTARGET) paths
-  { ls -l "${root}/"usr/*/binutils-bin/lib/bfd-plugins/liblto_plugin.so 2>/dev/null || :;
-    ls -l "${root}/"usr/*/*/binutils-bin/lib/bfd-plugins/liblto_plugin.so 2>/dev/null || :; } \
-    | sed 's:.* \([^[:space:]]\+\) -> \([^[:space:]]\+\):\1 \2:' \
-    | while read link target; do
-              local newtarget=$(echo "$target" | sed "s:${root}:/:")
-              info "   Fixing up broken $link -> $target"
-              info "   sudo ln -sf $newtarget $link"
-              sudo ln -sf $newtarget $link
-      done
+    (
+        shopt -s nullglob
+        local files=(
+            "${root}"/usr/*/binutils-bin/lib/bfd-plugins/liblto_plugin.so
+            "${root}"/usr/*/*/binutils-bin/lib/bfd-plugins/liblto_plugin.so
+            "${root}"/usr/bin/*-cc
+        )
+        local file
+        local target
+        local new_target
+        for file in "${files[@]}"; do
+            if [[ ! -L "${file}" ]]; then
+                # not a symlink, ignore
+                continue
+            fi
+            target=$(readlink "${file}")
+            new_target=${target/#${root}}
+            if [[ "${target}" == "${new_target}" ]]; then
+                # nothing to fix, ignore
+                continue
+            fi
+            info "   Fixing up broken symlink '${file}' -> '${target}'"
+            info "   sudo ln -sf '${new_target}' '${file}'"
+            sudo ln -sf "${new_target}" "${file}"
+        done
+    )
 }
