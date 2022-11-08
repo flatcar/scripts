@@ -440,3 +440,27 @@ function run_query_kola_tests() {
     # that follows it.
     query_kola_tests "${@}" | tail -n +3 | awk '{ print $1 }'
 }
+
+# Invokes run_kola_tests_on_instances with arguments from various CIA_
+# variables. Will only work if the vendor test specifies the necessary
+# output variables.
+function run_default_kola_tests() {
+    if ! declare -p CIA_OUTPUT_MAIN_INSTANCE CIA_OUTPUT_ALL_TESTS CIA_OUTPUT_EXTRA_INSTANCES CIA_OUTPUT_EXTRA_INSTANCE_TESTS >/dev/null 2>&1; then
+        echo "1..1" > "${CIA_TAPFILE}"
+        echo "not ok - all the tests for ${CIA_TESTSCRIPT}" >> "${CIA_TAPFILE}"
+        echo "  ---" >> "${CIA_TAPFILE}"
+        echo "  ERROR: ${CIA_TESTSCRIPT} tried to invoke run_default_kola_tests but didn't specify the necessary variables" | tee -a "${CIA_TAPFILE}"
+        echo "  ..." >> "${CIA_TAPFILE}"
+        break_retest_cycle
+        return 1
+    fi
+    run_kola_tests_on_instances \
+        "${CIA_OUTPUT_MAIN_INSTANCE}" \
+        "${CIA_TAPFILE}" \
+        "${CIA_FIRST_RUN}" \
+        "${CIA_OUTPUT_EXTRA_INSTANCES[@]}" \
+        '--' \
+        "${CIA_OUTPUT_EXTRA_INSTANCE_TESTS[@]}" \
+        '--' \
+        "${CIA_OUTPUT_ALL_TESTS[@]}"
+}
