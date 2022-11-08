@@ -76,12 +76,4 @@ run_kola_tests() {
         "${@}"
 }
 
-run_kola_tests_on_instances \
-    "default" \
-    "${CIA_TAPFILE}" \
-    "${CIA_FIRST_RUN}" \
-    "gvnic" \
-    '--' \
-    'cl.internet' \
-    '--' \
-    "${@}"
+run_default_kola_tests

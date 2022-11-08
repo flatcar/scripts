@@ -84,12 +84,4 @@ run_kola_tests() {
       "${@}"
 }
 
-run_kola_tests_on_instances \
-    "${azure_instance_type}" \
-    "${CIA_TAPFILE}" \
-    "${CIA_FIRST_RUN}" \
-    "${other_instance_types[@]}" \
-    '--' \
-    'cl.internet' \
-    '--' \
-    "${@}"
+run_default_kola_tests

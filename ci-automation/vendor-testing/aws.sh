@@ -73,12 +73,4 @@ run_kola_tests() {
 export AWS_ACCESS_KEY_ID
 export AWS_SECRET_ACCESS_KEY
 
-run_kola_tests_on_instances \
-    "${aws_instance_type}" \
-    "${CIA_TAPFILE}" \
-    "${CIA_FIRST_RUN}" \
-    "${more_aws_instance_types[@]}" \
-    '--' \
-    'cl.internet' \
-    '--' \
-    "${@}"
+run_default_kola_tests

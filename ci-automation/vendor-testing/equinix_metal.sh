@@ -59,12 +59,4 @@ run_kola_tests() {
           "${@}"
 }
 
-run_kola_tests_on_instances \
-    "${EQUINIXMETAL_INSTANCE_TYPE}" \
-    "${CIA_TAPFILE}" \
-    "${CIA_FIRST_RUN}" \
-    "${MORE_INSTANCE_TYPES[@]}" \
-    '--' \
-    'cl.internet' \
-    '--' \
-    "${@}"
+run_default_kola_tests
