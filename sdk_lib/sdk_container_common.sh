@@ -195,12 +195,17 @@ function setup_sdk_env() {
         echo "export SSH_AUTH_SOCK"  >> "$sdk_container_common_env_file"
     fi
 
-    # keep in sync with 90_env_keep
+    # keep in sync with 90_env_keep, without GNUPGHOME and
+    # SSH_AUTH_SOCK as those are set up above, and without BOTO_PATH
+    # and GOOGLE_APPLICATION_CREDENTIALS as those are set up in the
+    # setup_gsutil function.
     for var in FLATCAR_BUILD_ID COREOS_OFFICIAL \
         EMAIL GIT_AUTHOR_EMAIL GIT_AUTHOR_NAME \
         GIT_COMMITTER_EMAIL GIT_COMMITTER_NAME \
         GIT_PROXY_COMMAND GIT_SSH RSYNC_PROXY \
-        GPG_AGENT_INFO FORCE_STAGES \
+        GPG_AGENT_INFO \
+        \
+        USE FEATURES PORTAGE_USERNAME FORCE_STAGES \
         SIGNER \
         all_proxy ftp_proxy http_proxy https_proxy no_proxy; do
 
