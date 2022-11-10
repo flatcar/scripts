@@ -2,9 +2,6 @@
 # Copyright (c) 2013 The CoreOS Authors. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
-# Required for addressing some CVEs
-=dev-libs/libxml2-2.10.3 ~amd64 ~arm64
-
 =app-arch/zstd-1.4.9 ~amd64 ~arm64
 
 =app-emulation/qemu-7.0.0-r1 ~arm64
@@ -17,8 +14,8 @@
 
 =dev-libs/libgcrypt-1.9.4 ~amd64 ~arm64
 
-# To address CVE-2022-35252.
-=net-misc/curl-7.85.0-r2 ~amd64 ~arm64
+# To address CVE-2022-32221, CVE-2022-35260, CVE-2022-42915 and CVE-2022-42916.
+=net-misc/curl-7.86.0-r1 ~amd64 ~arm64
 
 # Required for some CVEs
 =app-editors/vim-9.0.0655-r1 ~amd64 ~arm64
