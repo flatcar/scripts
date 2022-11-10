@@ -975,38 +975,3 @@ clean_qemu_static() {
     *) die "Unsupported arch" ;;
   esac
 }
-
-# Fix up various softlinks created by gcc-config
-fixup_gcc_config_softlinks() {
-    # root without trailing slashes, for / it will be empty
-    local root="${1%%*(/)}"
-
-    info "fixup_gcc_config_softlinks: Looking for broken softlinks in '${root}/'"
-
-    (
-        shopt -s nullglob
-        local files=(
-            "${root}"/usr/*/binutils-bin/lib/bfd-plugins/liblto_plugin.so
-            "${root}"/usr/*/*/binutils-bin/lib/bfd-plugins/liblto_plugin.so
-            "${root}"/usr/bin/*-cc
-        )
-        local file
-        local target
-        local new_target
-        for file in "${files[@]}"; do
-            if [[ ! -L "${file}" ]]; then
-                # not a symlink, ignore
-                continue
-            fi
-            target=$(readlink "${file}")
-            new_target=${target/#${root}}
-            if [[ "${target}" == "${new_target}" ]]; then
-                # nothing to fix, ignore
-                continue
-            fi
-            info "   Fixing up broken symlink '${file}' -> '${target}'"
-            info "   sudo ln -sf '${new_target}' '${file}'"
-            sudo ln -sf "${new_target}" "${file}"
-        done
-    )
-}
