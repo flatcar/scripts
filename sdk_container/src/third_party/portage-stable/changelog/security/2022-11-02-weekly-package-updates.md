@@ -1,0 +1,2 @@
+- curl ([CVE-2022-32221](https://nvd.nist.gov/vuln/detail/CVE-2022-32221), [CVE-2022-35260](https://nvd.nist.gov/vuln/detail/CVE-2022-32221), [CVE-2022-42915](https://nvd.nist.gov/vuln/detail/CVE-2022-32221), [CVE-2022-42916](https://nvd.nist.gov/vuln/detail/CVE-2022-32221))
+- expat ([CVE-2022-43680](https://nvd.nist.gov/vuln/detail/CVE-2022-43680))

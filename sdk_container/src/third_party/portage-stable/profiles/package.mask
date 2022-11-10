@@ -33,6 +33,62 @@
 
 #--- END OF EXAMPLES ---
 
+# Matt Turner <mattst88@gentoo.org> (2022-10-30)
+# Dead package, last release 10 years ago. No reverse dependencies.
+# Removal on 2022-11-30
+media-gfx/gnome-raw-thumbnailer
+
+# Matt Turner <mattst88@gentoo.org> (2022-10-29)
+# Old slot with no reverse dependencies.
+# Removal on 2022-11-29
+dev-libs/libgweather:2
+
+# Arthur Zamarin <arthurzam@gentoo.org> (2022-10-29)
+# Last upstream commit in 2016, no tests, implements functions
+# which are implemented by pathlib Python module. No reverse
+# dependencies in gentoo tree for a long time.
+# Removal: 2022-11-28.  Bug #878733.
+dev-python/pathtools
+
+# Michał Górny <mgorny@gentoo.org> (2022-10-29)
+# Unmaintained in Gentoo.  Last release in 2018, very little upstream
+# activity since.  No revdeps left.
+# Removal on 2022-11-28.  Bug #842873.
+dev-libs/cloog
+
+# Sam James <sam@gentoo.org> (2022-10-28)
+# Please upgrade to >=media-libs/fontconfig-2.14.1-r1 for fixed
+# cache dir to avoid sandbox violation errors, bug #878471.
+=media-libs/fontconfig-2.14.1
+
+# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2022-10-28)
+# Unmaintained upstream, no reverse dependencies, fails tests
+# Removal in 30 days
+dev-python/pweave
+
+# Michał Górny <mgorny@gentoo.org> (2022-10-28)
+# Originally last rited in Aug 2020 due to lack of Python 3 support.
+# The last rites were undone, however this package never got fixed.
+# Instead, it has been covered by incorrect "downgrade" mask since then.
+# Removal on 2022-11-11.  Bug #695010.
+app-i18n/scim-sunpinyin
+
+# Jonas Stein <jstein@gentoo.org> (2022-10-26)
+# Dead upstream, open bugs.
+# Removal after 2022-12-24.  Bug #878337.
+app-misc/tpconfig
+
+# Sam James <sam@gentoo.org> (2022-10-24)
+# Non-free licence which prohibits any patching. Fails to build with Clang 16.
+# Removal on 2022-10-24.
+dev-util/sgb
+sci-misc/gt-itm
+
+# Sam James <sam@gentoo.org> (2022-10-24)
+# Fails to build with Clang 16 (code quality issues), no upstream activity
+# in 7 years. Removal on 2022-11-23. bug #874486, bug #791604.
+games-fps/qudos
+
 # David Seifert <soap@gentoo.org> (2022-10-23)
 # Dead package, upstream gone, GTK+2, fails to build with Clang 16 and
 # tests fail. Removal on 2022-11-22. Bug #741200, #875686.
@@ -121,11 +177,6 @@ net-libs/gnet
 # Bugs #670904, #873859
 # Removal on 2022-11-14
 games-mud/gnome-mud
-
-# Sam James <sam@gentoo.org> (2022-10-13)
-# Depends on vulnerable version of Rust. See bug #877005.
-# Will be unmasked once dependency is updated.
-<www-client/seamonkey-2.53.14-r1
 
 # Joshua Kinard <kumba@gentoo.org> (2022-10-13)
 # Difficult-to-resolve build issues on modern toolchains,
@@ -570,6 +621,7 @@ net-libs/webkit-gtk:4.1
 net-libs/webkit-gtk:5
 >=net-misc/gupnp-tools-0.12
 >=net-misc/rygel-0.42
+>=net-misc/spice-gtk-0.41-r1
 sci-geosciences/geocode-glib:2
 >=sci-geosciences/gnome-maps-43
 >=sys-apps/osinfo-db-tools-1.10.0-r1
@@ -624,12 +676,6 @@ media-plugins/kodi-game-libretro-dosbox
 # Guile in Gentoo is not slotted, so let's be cautious.
 # bug #705554, bug #689408.
 >=dev-scheme/guile-3.0.4
-
-# Arfrever Frehtes Taifersar Arahesis <arfrever.fta@gmail.com> (2020-09-01)
-# Mismatched version (bug #695022). Masked to force upgrade to 2.0.4_pre20200306162733.
-# (Mask should remain after ebuilds are deleted, until 2021-03-01 or
-# until new upstream release with proper versioning.)
-~app-i18n/scim-sunpinyin-3.0.0_rc1
 
 # Lars Wendler <polynomial-c@gentoo.org> (2019-11-14)
 # Breaks archives containing relative paths
