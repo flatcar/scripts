@@ -13,6 +13,8 @@ app-emulation/qemu-guest-agent
 
 app-portage/portage-utils
 
+dev-db/sqlite
+
 dev-lang/duktape
 dev-lang/perl
 
