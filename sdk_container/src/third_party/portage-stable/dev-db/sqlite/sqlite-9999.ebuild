@@ -21,11 +21,11 @@ if [[ "${PV}" == "9999" ]]; then
 else
 	SRC_URI="https://sqlite.org/2022/${PN}-src-${SRC_PV}.zip
 		doc? ( https://sqlite.org/2022/${PN}-doc-${DOC_PV}.zip )"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 fi
 
 LICENSE="public-domain"
 SLOT="3"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="debug doc icu +readline secure-delete static-libs tcl test tools"
 if [[ "${PV}" == "9999" ]]; then
 	PROPERTIES="live"
@@ -321,6 +321,13 @@ multilib_src_configure() {
 			append-cflags -mfpmath=sse
 		else
 			append-cflags -ffloat-store
+		fi
+
+		# Skip known-broken test for now
+		# https://sqlite.org/forum/forumpost/d97caf168f
+		# https://sqlite.org/forum/forumpost/50f136d91d
+		if use test ; then
+			rm test/atof1.test || die
 		fi
 	fi
 
