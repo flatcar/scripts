@@ -10,41 +10,49 @@ CROS_WORKON_REPO="https://github.com"
 if [[ ${PV} == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	CROS_WORKON_COMMIT="9c41390e2523548cd1a58d98f0ad011bd9faacb7" # v0.3.0
+	CROS_WORKON_COMMIT="fd2490edf05579f81bc587bcce2279e596bd6ddd" # flatcar-master
 	KEYWORDS="amd64 arm64"
 fi
 
+PATCHES=(
+    "${FILESDIR}"/0001-eclass-trick.patch
+)
+
 # sed -n 's/^"checksum \([^ ]*\) \([^ ]*\) .*/\1-\2/p' Cargo.lock
 CRATES="
-ansi_term-0.11.0
-atty-0.2.11
-base64-0.10.1
-bitflags-1.0.4
-block-buffer-0.7.2
-block-padding-0.1.3
-byte-tools-0.3.1
-byteorder-1.3.1
-clap-2.33.0
-digest-0.8.0
-error-chain-0.12.0
-fake-simd-0.1.2
+ansi_term-0.12.1
+atty-0.2.14
+base64-0.13.1
+bitflags-1.3.2
+block-buffer-0.10.3
+byteorder-1.4.3
+cfg-if-1.0.0
+clap-2.34.0
+cpufeatures-0.2.5
+crypto-common-0.1.6
+digest-0.10.5
+error-chain-0.12.4
 fs2-0.4.3
-generic-array-0.12.0
-libc-0.2.51
-md-5-0.8.0
-opaque-debug-0.2.2
-openssh-keys-0.4.1
-redox_syscall-0.1.53
-redox_termios-0.1.1
-sha2-0.8.0
+generic-array-0.14.6
+hermit-abi-0.1.19
+libc-0.2.137
+md-5-0.10.5
+openssh-keys-0.5.1-alpha.0
+proc-macro2-1.0.47
+quote-1.0.21
+sha2-0.10.6
 strsim-0.8.0
-termion-1.5.1
+syn-1.0.103
 textwrap-0.11.0
-typenum-1.10.0
-unicode-width-0.1.5
-users-0.8.1
-vec_map-0.8.1
-winapi-0.3.7
+thiserror-1.0.37
+thiserror-impl-1.0.37
+typenum-1.15.0
+unicode-ident-1.0.5
+unicode-width-0.1.10
+users-0.9.1
+vec_map-0.8.2
+version_check-0.9.4
+winapi-0.3.9
 winapi-i686-pc-windows-gnu-0.4.0
 winapi-x86_64-pc-windows-gnu-0.4.0
 "
@@ -53,7 +61,7 @@ inherit coreos-cargo cros-workon
 
 DESCRIPTION="Utility for managing OpenSSH authorized public keys"
 HOMEPAGE="https://github.com/flatcar/update-ssh-keys"
-SRC_URI="$(cargo_crate_uris ${CRATES})"
+SRC_URI="https://mirror.release.flatcar-linux.net/coreos/openssh-keys-0.5.1-alpha.0.crate -> openssh-keys-0.5.1-alpha.0.crate $(cargo_crate_uris ${CRATES})"
 
 LICENSE="Apache-2.0"
 SLOT="0"
