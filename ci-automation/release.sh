@@ -93,7 +93,12 @@ function _inside_mantle() {
     secret_to_file google_release_credentials_file "${GOOGLE_RELEASE_CREDENTIALS}"
 
     for platform in aws azure; do
-      for arch in amd64 arm64; do
+      arches_prerelease=(amd64 arm64)
+      # TODO: drop when LTS-3033 is not supported any more.
+      if [[ "${CHANNEL}" == "lts" ]] && [[ "${platform}" == "azure" ]] && echo "$VERSION" | grep -q "^3033"; then
+        arches_prerelease=(amd64)
+      fi
+      for arch in "${arches_prerelease[@]}"; do
         # Create a folder where plume stores flatcar_production_ami_*txt and flatcar_production_ami_*json
         # for later push to bincache
         rm -rf "${platform}-${arch}"
