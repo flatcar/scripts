@@ -21,8 +21,6 @@
 =app-editors/vim-9.0.0655-r1 ~amd64 ~arm64
 =app-editors/vim-core-9.0.0655 ~amd64 ~arm64
 
-=net-misc/openssh-8.8_p1-r3 ~amd64 ~arm64
-
 # Required for addressing CVE-2022-29154
 =net-misc/rsync-3.2.6 ~amd64 ~arm64
 
