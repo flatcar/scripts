@@ -20,13 +20,14 @@ jobs:
           path: gentoo
           # Gentoo is quite a large repo, so limit ourselves to last
           # quarter milion of commits. It is about two years worth of changes.
+          # Is is needed by the sync script to find out the hash of the last commit
+          # that made the changes to the package.
           fetch-depth: 250000
           ref: master
       - name: Checkout build scripts
         uses: actions/checkout@v3
         with:
           repository: flatcar/flatcar-build-scripts
-          ref: krnowak/stuff
           path: flatcar-build-scripts
       - name: Update listed packages
         id: update-listed-packages
