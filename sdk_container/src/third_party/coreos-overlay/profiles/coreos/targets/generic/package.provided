@@ -15,6 +15,3 @@ app-eselect/eselect-iptables-20200508
 
 # pulled in by app-admin/sudo
 app-misc/editor-wrapper-4
-
-# pulled in by dev-libs/glib
-dev-util/glib-utils-9999

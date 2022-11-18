@@ -12,7 +12,7 @@ app-arch/bzip2 static-libs
 app-emulation/qemu -doc -jpeg ncurses python static-user virtfs qemu_softmmu_targets_x86_64 qemu_softmmu_targets_aarch64
 dev-libs/glib static-libs
 dev-libs/libaio static-libs
-dev-libs/libpcre static-libs
+dev-libs/libpcre2 static-libs
 dev-libs/openssl static-libs
 media-libs/libjpeg-turbo static-libs
 media-libs/libpng static-libs
