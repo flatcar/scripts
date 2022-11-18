@@ -1,6 +1,10 @@
 # Copyright 2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Ionen Wolkens <ionen@gentoo.org> (2022-11-04)
+# media-libs/libffado is not keyworded here yet.
+media-sound/jack2 ieee1394
+
 # WANG Xuerui <xen0n@gentoo.org> (2022-10-04)
 # Sanitizers partially supported on this architecture.
 #
@@ -36,7 +40,7 @@ sys-block/fio -io-uring -zbc
 # WANG Xuerui <xen0n@gentoo.org> (2022-04-18)
 # We never had non-deprecated libcrypt support from glibc, so disable compat
 # from libxcrypt for a world without libcrypt.so.1
->=sys-libs/libxcrypt-4.4.23-r1 compat
+sys-libs/libxcrypt compat
 
 # WANG Xuerui <xen0n@gentoo.org> (2022-04-18)
 # Catalyst has support for assembling bootloader on this arch

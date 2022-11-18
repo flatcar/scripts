@@ -130,7 +130,7 @@ sys-kernel/vanilla-kernel initramfs
 # distribution and rely on external providers like libxcrypt.
 # Here we are following that path too.
 <sys-libs/glibc-2.33-r2 crypt
->=sys-libs/libxcrypt-4.4.23-r1 system compat
+sys-libs/libxcrypt system compat
 
 # Matt Turner <mattst88@gentoo.org> (2019-09-01)
 # <dev-scheme/guile-2 is package.mask'd, so force USE=guile2
@@ -141,6 +141,11 @@ media-sound/lilypond guile2
 # requires C++ to bootstrap. But in rare cases it's useful
 # to have a compiler not capable of C++, bug #692126.
 sys-devel/gcc cxx
+
+# Andreas K. Hüttel <dilfridge@gentoo.org> (2017-05-27)
+# Force default-PIE build on 17.0 profiles and later.
+# Moved here from releases/17.0 (2022-10-22)
+sys-devel/gcc pie
 
 # Andreas K. Hüttel <dilfridge@gentoo.org> (2019-04-14)
 # Make sure glibc static libs are installed for now. Not installing

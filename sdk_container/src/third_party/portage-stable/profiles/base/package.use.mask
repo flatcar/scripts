@@ -486,7 +486,6 @@ dev-python/statsmodels doc
 # distribution and rely on external providers like libxcrypt.
 # Here we are following that path too.
 >=sys-libs/glibc-2.33-r2 crypt
-<sys-libs/libxcrypt-4.4.23-r1 split-usr system
 
 # Craig Andrews <candrews@gentoo.org> (2019-09-12)
 # OpenSSL (as of version 1.1.1) doesn't have APIs for QUIC support
@@ -638,10 +637,6 @@ sci-libs/linux-gpib php
 # Michał Górny <mgorny@gentoo.org> (2017-05-15)
 # Mask ruby20-only compatible packages
 ~media-libs/libcaca-0.99_beta19 ruby
-
-# Matthias Maier <tamiko@gentoo.org> (2017-05-11)
-# Globally mask pie use flag. Selectively unmask on specific profiles.
-sys-devel/gcc pie
 
 # Mike Gilbert <floppym@gentoo.org> (2017-02-16)
 # Multiple test failures.
