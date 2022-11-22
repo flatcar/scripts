@@ -1,6 +1,7 @@
 # Please keep the list sorted!
 
 app-arch/bzip2
+app-arch/cpio
 app-arch/unzip
 app-arch/xz-utils
 
