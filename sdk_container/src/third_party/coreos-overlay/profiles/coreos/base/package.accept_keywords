@@ -29,7 +29,7 @@
 =sys-libs/libseccomp-2.5.0 ~amd64 ~arm64
 
 # Initially for CVE-2022-37434, but the backport already fixed it.
-=sys-libs/zlib-1.2.13-r1 ~amd64 ~arm64
+=sys-libs/zlib-1.2.13-r1 ~amd64
 
 # Keep headers in sync with kernel version.
 =sys-kernel/linux-headers-5.15 ~amd64 ~arm64
