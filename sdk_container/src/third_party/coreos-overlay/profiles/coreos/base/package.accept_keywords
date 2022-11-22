@@ -15,7 +15,7 @@
 =dev-libs/libgcrypt-1.9.4 ~amd64 ~arm64
 
 # To address CVE-2022-32221, CVE-2022-35260, CVE-2022-42915 and CVE-2022-42916.
-=net-misc/curl-7.86.0-r1 ~amd64
+=net-misc/curl-7.86.0-r2 ~amd64
 
 # Required for some CVEs
 =app-editors/vim-9.0.0828-r1 ~amd64 ~arm64
