@@ -24,6 +24,7 @@ dev-libs/expat
 dev-libs/glib
 dev-libs/gobject-introspection
 dev-libs/gobject-introspection-common
+dev-libs/libksba
 dev-libs/libltdl
 dev-libs/libpcre2
 dev-libs/libtasn1
