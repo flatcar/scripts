@@ -29,4 +29,5 @@ jobs:
           base: main
           title: Monthly GLSA metadata ${{steps.update-glsa-metadata.outputs.TODAYDATE }}
           body: Updated GLSA metadata
+          commit-message: "metadata: Monthly GLSA metadata updates"
           labels: main
