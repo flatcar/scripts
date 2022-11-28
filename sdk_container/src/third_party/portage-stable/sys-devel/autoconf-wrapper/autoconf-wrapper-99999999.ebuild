@@ -9,7 +9,7 @@ DESCRIPTION="Wrapper for autoconf to manage multiple autoconf versions"
 HOMEPAGE="https://gitweb.gentoo.org/proj/autotools-wrappers.git"
 
 if [[ ${PV} == *9999 ]] ; then
-	EGIT_REPO_URI=" https://anongit.gentoo.org/git/proj/autotools-wrappers.git"
+	EGIT_REPO_URI="https://anongit.gentoo.org/git/proj/autotools-wrappers.git"
 	inherit git-r3
 else
 	SRC_URI="https://gitweb.gentoo.org/proj/autotools-wrappers.git/snapshot/${MY_P}.tar.gz"
@@ -24,11 +24,12 @@ SLOT="0"
 
 src_install() {
 	exeinto /usr/$(get_libdir)/misc
-	newexe ac-wrapper.sh ac-wrapper.sh
+	doexe ac-wrapper.sh
 
 	dodir /usr/bin
+
 	local x=
 	for x in auto{conf,header,m4te,reconf,scan,update} ifnames ; do
-		dosym ../$(get_libdir)/misc/ac-wrapper.sh /usr/bin/${x}
+		dosym -r /usr/$(get_libdir)/misc/ac-wrapper.sh /usr/bin/${x}
 	done
 }
