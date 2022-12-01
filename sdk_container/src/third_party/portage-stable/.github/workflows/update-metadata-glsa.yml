@@ -30,4 +30,5 @@ jobs:
           title: Monthly GLSA metadata ${{steps.update-glsa-metadata.outputs.TODAYDATE }}
           body: Updated GLSA metadata
           commit-message: "metadata: Monthly GLSA metadata updates"
+          author: Flatcar Buildbot <buildbot@flatcar-linux.org>
           labels: main
