@@ -30,7 +30,7 @@ DEPEND="
 	coreos-devel/fero-client
 	dev-libs/gobject-introspection
 	dev-python/setuptools
-	dev-util/boost-build
+	dev-util/b2
 	dev-util/catalyst
 	dev-util/checkbashisms
 	dev-util/pahole
