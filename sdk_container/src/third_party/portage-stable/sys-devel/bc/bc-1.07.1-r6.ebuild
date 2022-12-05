@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 inherit flag-o-matic toolchain-funcs
 
@@ -11,7 +11,7 @@ SRC_URI="mirror://gnu/bc/${P}.tar.gz"
 
 LICENSE="GPL-3+"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="libedit readline static"
 
 RDEPEND="
@@ -24,6 +24,7 @@ DEPEND="${RDEPEND}"
 BDEPEND="
 	sys-devel/flex
 	app-alternatives/yacc"
+PDEPEND="app-alternatives/bc"
 
 PATCHES=( "${FILESDIR}"/${PN}-1.07.1-no-ed-its-sed.patch )
 
@@ -37,13 +38,28 @@ src_prepare() {
 src_configure() {
 	local myconf=(
 		$(use_with readline)
+		--program-suffix=-reference
 	)
+
 	if use readline ; then
 		myconf+=( --without-libedit )
 	else
 		myconf+=( $(use_with libedit) )
 	fi
+
 	use static && append-ldflags -static
+
+	# The libedit code isn't compatible currently. #830101
+	use libedit && append-flags -fcommon
+
+	# AC_SYS_LARGEFILE in configure.ac would handle this, but we don't patch
+	# autotools otherwise currently.  This change has been sent upstream, but
+	# who knows when they'll make another release.
+	append-lfs-flags
+
+	# configure dies with other lexes:
+	# "configure: error: readline works only with flex."
+	export LEX=flex
 
 	econf "${myconf[@]}"
 
@@ -54,4 +70,15 @@ src_configure() {
 
 src_compile() {
 	emake AR="$(tc-getAR)"
+}
+
+pkg_postinst() {
+	# ensure to preserve the symlinks before app-alternatives/bc
+	# is installed
+	local x
+	for x in bc dc ; do
+		if [[ ! -h ${EROOT}/usr/bin/${x} ]] ; then
+			ln -s "${x}-reference" "${EROOT}/usr/bin/${x}" || die
+		fi
+	done
 }
