@@ -33,6 +33,127 @@
 
 #--- END OF EXAMPLES ---
 
+# Robin H. Johnson <robbat2@gentoo.org> (2022-12-04)
+# sys-boot/mbr-gpt was a bizzare package extremely sensitive to compiler &
+# linker changes. I don't know of any remaining consumers other than one weird
+# system I have.
+# If you're a consumer: syslinux gptmbr was the successor to this approach,
+# you'll need to replace the contents of your BIOS Boot Partition, because it's
+# not a direct 1:1 change.
+# Only upstream release in 2008. Removal in 30 days.
+sys-boot/mbr-gpt
+
+# Hans de Graaff <graaff@gentoo.org> (2022-12-03)
+# ruby27-only package with no reverse dependencies.
+# Last release in 2019. Removal in 30 days.
+dev-ruby/logue
+
+# Hans de Graaff <graaff@gentoo.org> (2022-12-04)
+# Obsolete slot without reverse dependencies. Use a newer
+# public_suffix slot instead. Masked for removal in 30 days.
+dev-ruby/public_suffix:3
+
+# Hans de Graaff <graaff@gentoo.org> (2022-12-04)
+# Obsolete slot without reverse dependencies. Use a newer
+# rspec-rails slot instead. Masked for removal in 30 days.
+dev-ruby/rspec-rails:4
+
+# Hans de Graaff <graaff@gentoo.org> (2022-12-04)
+# Obsolete slot without reverse dependencies. Use a newer
+# selenium-webdriver slot instead. Masked for removal in 30 days.
+dev-ruby/selenium-webdriver:3
+
+# Hans de Graaff <graaff@gentoo.org> (2022-12-03)
+# ruby27-only packages with no other reverse dependencies.
+# Last releases in 2013 and 2015. Removal in 30 days.
+dev-ruby/textpow
+dev-ruby/ultraviolet
+
+# Hans de Graaff <graaff@gentoo.org> (2022-12-03)
+# Obsolete slot without reverse dependencies. Use a newer vcr
+# slot instead. Masked for removal in 30 days.
+dev-ruby/vcr:3
+
+# Sam James <sam@gentoo.org> (2022-12-03)
+# Dev channel releases are only for people who
+# are developers or want more experimental features
+# and accept a more unstable release.
+>=www-client/chromium-110
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2022-12-03)
+# No purpose anymore after <dev-libs/boost-1.80 cleanup.
+# Removal on 2022-12-16
+dev-util/boost-build
+
+# Hans de Graaff <graaff@gentoo.org> (2022-12-03)
+# Obsolete slot without reverse dependencies. Use a newer faraday
+# slot instead. Masked for removal in 30 days.
+dev-ruby/faraday:0
+
+# Hans de Graaff <graaff@gentoo.org> (2022-12-03)
+# Obsolete slot without reverse dependencies. Use a newer net-ssh
+# slot instead. Masked for removal in 30 days.
+dev-ruby/net-ssh:5
+
+# Hans de Graaff <graaff@gentoo.org> (2022-12-03)
+# ruby27-only packages. No recent releases. No reverse dependencies
+# anymore. Maksed for removal in 30 days.
+dev-ruby/rspec-retry
+
+# Oz Tiram <oz.tiram@gmail.com> (2022-12-03)
+# Mate-desktop no longer supports gtk+:2, so there is
+# no need for this package. Removal on 2023-01-03.
+x11-themes/mate-themes-meta
+
+# Hans de Graaff <graaff@gentoo.org> (2022-12-02)
+# Old cucumber slots and dependencies for already removed
+# cucumber-3. These have no value as standalone packages.
+# Removal in 14 days.
+dev-ruby/gherkin
+dev-util/cucumber-core:3.2
+dev-util/cucumber-expressions
+dev-util/cucumber-tag_expressions
+dev-util/cucumber-wire:0
+
+# Hans de Graaff <graaff@gentoo.org> (2022-12-01)
+# Old slot without dependencies on it. Blocks removal of
+# ruby27-only dev-util/cucumber-3.x. Use a newer slot instead.
+# Removal in 30 days.
+dev-util/aruba:1
+
+# Ionen Wolkens <ionen@gentoo.org> (2022-11-30)
+# Stuck on ruby27 and ruby-gtk2, upstream gone and no other distros
+# seem to package this (also barely functional using current ruby
+# and has a tendency to crash).
+# Removal: 2022-12-30.
+games-board/camato
+
+# Ulrich Müller <ulm@gentoo.org> (2022-11-30)
+# SLOTs 23 and 24 of app-editors/emacs, corresponding to GNU Emacs
+# versions 23.4 and 24.5. These versions were released in January 2012
+# and April 2015, respectively, and have a non-trivial security issue
+# with ctags. Please upgrade to >=app-editors/emacs-25 and update your
+# Emacs Lisp packages with emacs-updater.
+# Masked for removal in 30 days. Bugs #882347, #882349, #883687.
+app-editors/emacs:23
+app-editors/emacs:24
+
+# John Helmert III <ajak@gentoo.org> (2022-11-29)
+# Unmaintained and outdated in Gentoo, compatibility issues with
+# openssl-1.1. Removal in 30 days. Bug #696936.
+sys-apps/ucspi-ssl
+
+# John Helmert III <ajak@gentoo.org> (2022-11-29)
+# Authentication bypass vulnerability, unmaintained in Gentoo, source
+# package available. Use app-metrics/prometheus instead. Removal in 30
+# days. Bug #883637.
+app-metrics/prometheus-bin
+
+# Piotr Karbowski <slashbeast@gentoo.org> (2022-11-29)
+# Multiple stability issues, deadlocks on exit, broken API.
+# Bug #883559
+=net-p2p/qbittorrent-4.5.0
+
 # John Helmert III <ajak@gentoo.org> (2022-11-27)
 # Unmaintained upstream, several unresolved public vulnerabilities,
 # Removal in 30 days. Bug #882773.
@@ -42,11 +163,6 @@ www-servers/boa
 # Broke API for C++, causes massive carnage for consumers.
 # Bug #883223.
 ~dev-libs/glib-2.74.2
-
-# Michał Górny <mgorny@gentoo.org> (2022-11-27)
-# Unresolved LICENSE issue for 3 years now.
-# Removal on 2022-12-27.  Bug #694708.
-app-admin/helm
 
 # Michał Górny <mgorny@gentoo.org> (2022-11-27)
 # Broken with OpenSSL-3.  Last upstream activity in 2021, no reply
@@ -328,13 +444,6 @@ net-mail/vchkuser
 <dev-lang/erlang-25
 <net-misc/rabbitmq-server-3.11.0
 
-# Ionen Wolkens <ionen@gentoo.org> (2022-11-11)
-# Had a handful of reports of unbootable systems with this new version.
-# Given it's a still-experimental new branch, mask for now in case.
-# Feel free to unmask if you've had no issues, but otherwise please
-# report to NVIDIA. https://bugs.gentoo.org/881025
-~x11-drivers/nvidia-drivers-525.53
-
 # Matt Turner <mattst88@gentoo.org> (2022-11-11)
 # Relies on function no longer present in the Xserver since v1.20
 # (released May 2018), and no user has noticed. Use xf86-video-nouveau instead.
@@ -357,108 +466,10 @@ x11-drivers/xf86-video-nv
 =net-misc/asterisk-opus-20*
 =net-misc/asterisk-g729-20*
 
-# Arthur Zamarin <arthurzam@gentoo.org> (2022-11-04)
-# Upstream repository is gone. Uses internally python 2 code, which
-# we patch into python 3. Only ebuild uses snapshot tarball from the
-# dead repo. Doesn't use PEP517 mode. Has issues with python 3.11.
-# No reverse dependencies in tree.
-# Removal: 2022-12-04.  Bug #879613.
-dev-python/tempita
-
-# Michał Górny <mgorny@gentoo.org> (2022-11-04)
-# NIH version of dev-python/watchdog that was used by dev-python/uvicorn
-# only, and was replaced by rustified dev-python/watchfiles.
-# Removal on 2022-12-04.  Bug #879515.
-dev-python/watchgod
-
-# Matt Turner <mattst88@gentoo.org> (2022-11-01)
-# Added by a proxied maintainer in 2018 who then never touched it again before
-# disappearing. Doesn't build with Python 3.9. Depends on gnome-base/gconf.
-# Bugs #846233, #873877
-# Removal on 2022-12-01
-sci-electronics/drahnr-oregano
-
-# Matt Turner <mattst88@gentoo.org> (2022-11-01)
-# Dead slot. No reverse dependencies that are not masked for removal.
-# Removal on 2022-12-01
-x11-libs/gnome-pty-helper
-x11-libs/vte:0
-
-# Matt Turner <mattst88@gentoo.org> (2022-11-01)
-# No reverse dependencies. Depends on deprecated and unmaintained packages:
-# 	- media-libs/clutter
-# 	- media-libs/clutter-gst
-# 	- media-libs/clutter-gtk
-# 	- x11-libs/gtksourceview:2.0
-# 	- x11-libs/gtksourceview:3.0
-# 	- x11-libs/gtksourceview:4
-# 	- x11-libs/vte:0
-# Bug #877153
-# Removal on 2022-12-01
-dev-ruby/ruby-clutter
-dev-ruby/ruby-clutter-gdk
-dev-ruby/ruby-clutter-gstreamer
-dev-ruby/ruby-clutter-gtk
-dev-ruby/ruby-gdk3
-dev-ruby/ruby-gegl
-dev-ruby/ruby-gnome2
-dev-ruby/ruby-gnumeric
-dev-ruby/ruby-goffice
-dev-ruby/ruby-gsf
-dev-ruby/ruby-gstreamer
-dev-ruby/ruby-gtk3
-dev-ruby/ruby-gtksourceview
-dev-ruby/ruby-gtksourceview3
-dev-ruby/ruby-gtksourceview4
-dev-ruby/ruby-libsecret
-dev-ruby/ruby-rsvg
-dev-ruby/ruby-vte
-dev-ruby/ruby-vte3
-dev-ruby/ruby-webkit2-gtk
-dev-ruby/ruby-wnck3
-
-# Anton Fischl <github@fischl-online.de> (2022-10-23)
-# Version 3.1.* is not meant for production according to upstream
-=app-backup/burp-3.1*
-
-# David Seifert <soap@gentoo.org> (2022-10-31)
-# EAPI 6, last release over 17 years ago, requires <ghostscript-gpl-10
-# drivers, relies on -Wimplicit-function-declaration.
-# Removal on 2022-11-30. Bug #871216, #876382.
-media-gfx/peps
-
-# Matt Turner <mattst88@gentoo.org> (2022-10-30)
-# Dead package, last release 10 years ago. No reverse dependencies.
-# Removal on 2022-11-30
-media-gfx/gnome-raw-thumbnailer
-
-# Matt Turner <mattst88@gentoo.org> (2022-10-29)
-# Old slot with no reverse dependencies.
-# Removal on 2022-11-29
-dev-libs/libgweather:2
-
-# Arthur Zamarin <arthurzam@gentoo.org> (2022-10-29)
-# Last upstream commit in 2016, no tests, implements functions
-# which are implemented by pathlib Python module. No reverse
-# dependencies in gentoo tree for a long time.
-# Removal: 2022-11-28.  Bug #878733.
-dev-python/pathtools
-
-# Michał Górny <mgorny@gentoo.org> (2022-10-29)
-# Unmaintained in Gentoo.  Last release in 2018, very little upstream
-# activity since.  No revdeps left.
-# Removal on 2022-11-28.  Bug #842873.
-dev-libs/cloog
-
 # Sam James <sam@gentoo.org> (2022-10-28)
 # Please upgrade to >=media-libs/fontconfig-2.14.1-r1 for fixed
 # cache dir to avoid sandbox violation errors, bug #878471.
 =media-libs/fontconfig-2.14.1
-
-# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2022-10-28)
-# Unmaintained upstream, no reverse dependencies, fails tests
-# Removal in 30 days
-dev-python/pweave
 
 # John Helmert III <ajak@gentoo.org> (2022-10-16)
 # <OpenSSL-1.1.1 are EOL and contain known vulnerabilities. Users should
@@ -501,12 +512,6 @@ dev-python/pweave
 # Mask RC versions for initial testing
 <dev-lang/php-8.2.0:8.2
 virtual/httpd-php:8.2
-
-# Stephan Hartmann <sultan@gentoo.org> (2022-09-29)
-# Dev channel releases are only for people who
-# are developers or want more experimental features
-# and accept a more unstable release.
->=www-client/chromium-108
 
 # John Helmert III <ajak@gentoo.org> (2022-09-18)
 # Unfixed root privilege escalation, bug #631552

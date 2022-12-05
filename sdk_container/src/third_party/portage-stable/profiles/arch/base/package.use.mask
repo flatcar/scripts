@@ -1,6 +1,14 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Georgy Yakovlev <gyakovlev@gentoo.org> (2022-12-01)
+# Only supported on ppc64le.
+sys-devel/gcc ieee-long-double
+
+# Michał Górny <mgorny@gentoo.org> (2022-12-01)
+# Not widely keyworded.
+app-alternatives/awk nawk
+
 # Mike Gilbert <floppym@gentoo.org> (2022-10-16)
 # Only supported on MIPS.
 dev-lang/gnat-gpl fixed-point
@@ -38,6 +46,11 @@ sys-libs/libseccomp experimental-loong
 # James Le Cuirot <chewi@gentoo.org> (2022-02-24)
 # These GRUB platforms are only for MIPS.
 sys-boot/grub grub_platforms_loongson grub_platforms_qemu-mips
+
+# Adel Kara Slimane <adel.ks@zegrapher.com> (2022-02-17)
+# Mask AMF keyword on non-amd64 arches
+# It is unusable, for now, in other arches
+media-video/ffmpeg amf
 
 # Sam James <sam@gentoo.org> (2021-11-15)
 # Only available on PPC*.

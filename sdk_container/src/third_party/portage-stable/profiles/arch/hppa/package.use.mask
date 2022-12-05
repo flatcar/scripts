@@ -4,6 +4,14 @@
 # NOTE: When masking a USE flag due to missing keywords, please file a keyword
 # request bug for the hppa arch.
 
+# Sam James <sam@gentoo.org> (2022-12-02)
+# Unkeyworded dependencies
+app-alternatives/bc gh
+
+# Sam James <sam@gentoo.org> (2022-12-02)
+# Not keyworded here
+app-alternatives/lex reflex
+
 # Florian Schmaus <flow@gentoo.org> (2022-11-23)
 # avoid larger deptree, bug #882593
 dev-python/bracex doc
@@ -64,11 +72,6 @@ media-video/ffmpeg vmaf
 # Sam James <sam@gentoo.org> (2022-03-06)
 # Unkeyworded dependencies
 net-mail/cyrus-imapd http
-
-# Adel Kara Slimane <adel.ks@zegrapher.com> (2022-02-17)
-# Mask AMF keyword on non-amd64 arches
-# It is unusable, for now, in other arches
-media-video/ffmpeg amf
 
 # Arthur Zamarin <arthurzam@gentoo.org> (2022-02-08)
 # bash becomes corrupted and system breaks, bug #832946
@@ -301,10 +304,6 @@ kde-frameworks/extra-cmake-modules doc
 # Jeroen Roovers <jer@gentoo.org> (2016-05-19)
 # pulls in many dev-ruby/asciidoctor dependencies (bug #583390)
 net-misc/chrony html
-
-# Jeroen Roovers <jer@gentoo.org> (2015-07-03)
-# net-libs/nghttp2 fails to compile (bug #552898)
-net-libs/nghttp2 cxx
 
 # Jeroen Roovers <jer@gentoo.org> (2015-05-17)
 # Mask USE=rados for net-analyzer/rrdtool since sys-cluster/ceph is not

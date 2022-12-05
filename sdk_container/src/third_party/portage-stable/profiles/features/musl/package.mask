@@ -1,6 +1,18 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Andrey Grozin <grozin@gentoo.org> (2022-12-01)
+# These packages depend on dev-lisp/sbcl unconditionally
+app-emacs/sly
+dev-lisp/alexandria
+dev-ros/roslisp
+x11-wm/stumpwm
+x11-wm/stumpwm-contrib
+
+# Andrey Grozin <grozin@gentoo.org> (2022-12-01)
+# The upstream supports only glibc Linux systems, bug #712626
+dev-lisp/sbcl
+
 # Sam James <sam@gentoo.org> (2022-10-17)
 # Needs porting to musl
 # https://github.com/rr-debugger/rr/issues/2236
@@ -97,6 +109,7 @@ app-arch/rar
 app-backup/tsm
 app-benchmarks/geekbench
 app-crypt/rainbowcrack
+app-editors/sublime-text
 app-editors/vscode
 app-editors/vscodium
 app-emulation/crossover-bin

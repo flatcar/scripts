@@ -1,6 +1,18 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Sam James <sam@gentoo.org> (2022-12-02)
+# Unkeyworded dependencies
+app-alternatives/bc gh
+
+# Sam James <sam@gentoo.org> (2022-12-02)
+# Not keyworded here
+app-alternatives/lex reflex
+
+# Michał Górny <mgorny@gentoo.org> (2022-11-25)
+# Unkeyworded shells.
+app-alternatives/sh lksh mksh
+
 # Florian Schmaus <flow@gentoo.org> (2022-11-23)
 # avoid larger deptree, bug #882593
 dev-python/bracex doc
@@ -104,11 +116,6 @@ app-portage/nattka depgraph-order
 # Adel Kara Slimane <adel.ks@zegrapher.com> (2022-03-14)
 # Untested useflag on other arches, needs keywording
 media-video/ffmpeg vmaf
-
-# Adel Kara Slimane <adel.ks@zegrapher.com> (2021-12-11)
-# Mask AMF keyword on non-amd64 arches
-# It is unusable, for now, in other arches
-media-video/ffmpeg amf
 
 # Sam James <sam@gentoo.org> (2021-11-05)
 # Avoid keywording unnecessary depenencies for now, bug #804115

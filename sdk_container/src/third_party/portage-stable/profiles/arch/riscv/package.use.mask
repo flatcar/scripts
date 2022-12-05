@@ -1,6 +1,26 @@
 # Copyright 2019-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Sam James <sam@gentoo.org> (2022-12-02)
+# Unkeyworded dependencies
+app-alternatives/bc gh
+
+# Sam James <sam@gentoo.org> (2022-12-02)
+# Not keyworded here
+app-alternatives/yacc reference
+
+# Sam James <sam@gentoo.org> (2022-12-02)
+# Not keyworded here
+app-alternatives/lex reflex
+
+# Mike Rivnak <rivnakm1@gmail.com> (2022-11-30)
+# luajit is currently not supported on riscv
+app-editors/neovim lua_single_target_luajit
+
+# Michał Górny <mgorny@gentoo.org> (2022-11-30)
+# Mask unkeyworded providers.
+app-alternatives/bzip2 pbzip2
+
 # Yixun Lan <dlan@gentoo.org> (2022-11-24)
 # depend on dev-libs/libpcre2[jit] which not supported yet, bug #879511
 www-servers/varnish jit
@@ -75,11 +95,6 @@ sys-block/fio rbd
 # sys-process/criu doesn't support riscv (bug #835975)
 # Upstream bug for criu: https://github.com/checkpoint-restore/criu/issues/1702
 app-containers/crun criu
-
-# Adel Kara Slimane <adel.ks@zegrapher.com> (2022-02-17)
-# Mask AMF keyword on non-amd64 arches
-# It is unusable, for now, in other arches
-media-video/ffmpeg amf
 
 # Yongxinag Liang <tanekliang@gmail.com> (2022-01-09)
 # app-emulation/xen-tools doesn't support riscv yet
