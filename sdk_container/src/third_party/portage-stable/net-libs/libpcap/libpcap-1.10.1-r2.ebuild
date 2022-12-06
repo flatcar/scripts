@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -20,12 +20,13 @@ else
 	SRC_URI="https://www.tcpdump.org/release/${P}.tar.gz -> ${P}-upstream.tar.gz"
 	SRC_URI+=" verify-sig? ( https://www.tcpdump.org/release/${P}.tar.gz.sig -> ${P}-upstream.tar.gz.sig )"
 
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~x86-solaris"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~x86-solaris"
 fi
 
 LICENSE="BSD"
 SLOT="0"
-IUSE="bluetooth dbus netlink rdma remote static-libs usb yydebug"
+IUSE="bluetooth dbus netlink rdma remote static-libs test usb yydebug"
+RESTRICT="!test? ( test )"
 
 RDEPEND="
 	bluetooth? ( net-wireless/bluez:=[${MULTILIB_USEDEP}] )
@@ -38,7 +39,7 @@ RDEPEND="
 DEPEND="${RDEPEND}"
 BDEPEND="
 	sys-devel/flex
-	virtual/yacc
+	app-alternatives/yacc
 	dbus? ( virtual/pkgconfig )
 "
 
@@ -47,8 +48,15 @@ if [[ ${PV} != *9999* ]] ; then
 fi
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-1.9.1-pcap-config.patch
 	"${FILESDIR}"/${PN}-1.10.0-usbmon.patch
+
+	# Drop ${P}-pcap-config-no-hardcoded-lib.patch on next release
+	"${FILESDIR}"/${P}-pcap-config-no-hardcoded-lib.patch
+
+	# We need to keep this, it's just rebased on top of the above
+	# ${P}-pcap-config-no-hardcoded-lib.patch. Drop this comment then too,
+	# but keep this patch.
+	"${FILESDIR}"/${PN}-1.10.1-pcap-config.patch
 )
 
 src_prepare() {
@@ -76,6 +84,11 @@ multilib_src_configure() {
 
 multilib_src_compile() {
 	emake all shared
+	use test && emake testprogs
+}
+
+multilib_src_test() {
+	testprogs/findalldevstest || die
 }
 
 multilib_src_install_all() {
