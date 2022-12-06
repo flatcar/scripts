@@ -7,7 +7,7 @@ EAPI=7
 # Can reconsider w/ EAPI 8 and IDEPEND, bug #810979
 TMPFILES_OPTIONAL=1
 
-inherit autotools db-use toolchain-funcs usr-ldscript multilib-minimal
+inherit autotools db-use fcaps toolchain-funcs usr-ldscript multilib-minimal
 
 GIT_COMMIT="fe1307512fb8892b5ceb3d884c793af8dbd4c16a"
 DOC_SNAPSHOT="20210610"
@@ -47,7 +47,6 @@ PDEPEND=">=sys-auth/pambase-20200616"
 S="${WORKDIR}/linux-${PN}-${GIT_COMMIT}"
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-1.5.0-locked-accounts.patch
 	"${FILESDIR}"/${PN}-1.5.1-musl.patch
 )
 
@@ -81,7 +80,6 @@ multilib_src_configure() {
 		$(use_enable nis)
 		$(use_enable selinux)
 		--enable-isadir='.' #464016
-		--enable-sconfigdir="/usr/lib/pam/"
 		)
 	ECONF_SOURCE="${S}" econf "${myconf[@]}"
 }
@@ -93,24 +91,18 @@ multilib_src_compile() {
 multilib_src_install() {
 	emake DESTDIR="${D}" install \
 		sepermitlockdir="/run/sepermit"
+
+	gen_usr_ldscript -a pam pam_misc pamc
 }
 
 multilib_src_install_all() {
 	find "${ED}" -type f -name '*.la' -delete || die
-
-	# Flatcar: The pam_unix module needs to check the password of
-	# the user which requires read access to /etc/shadow
-	# only. Make it suid instead of using CAP_DAC_OVERRIDE to
-	# avoid a pam -> libcap -> pam dependency loop.
-	fperms 4711 /sbin/unix_chkpwd
 
 	# tmpfiles.eclass is impossible to use because
 	# there is the pam -> tmpfiles -> systemd -> pam dependency loop
 
 	dodir /usr/lib/tmpfiles.d
 
-	rm "${D}/etc/environment"
-	cp "${FILESDIR}/tmpfiles.d/pam.conf" "${D}"/usr/lib/tmpfiles.d/${CATEGORY}-${PN}-config.conf
 	cat ->>  "${D}"/usr/lib/tmpfiles.d/${CATEGORY}-${PN}.conf <<-_EOF_
 		d /run/faillock 0755 root root
 	_EOF_
@@ -136,4 +128,8 @@ pkg_postinst() {
 	ewarn "  lsof / | egrep -i 'del.*libpam\\.so'"
 	ewarn ""
 	ewarn "Alternatively, simply reboot your system."
+
+	# The pam_unix module needs to check the password of the user which requires
+	# read access to /etc/shadow only.
+	fcaps cap_dac_override sbin/unix_chkpwd
 }
