@@ -43,7 +43,7 @@ DEPEND="
 	virtual/libintl
 "
 BDEPEND="
-	virtual/awk
+	app-alternatives/awk
 	virtual/pkgconfig
 	sys-devel/autoconf-archive
 	verify-sig? ( sec-keys/openpgp-keys-python )
