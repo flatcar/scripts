@@ -3,8 +3,8 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{8..10} )
-inherit autotools flag-o-matic multilib-minimal python-any-r1 systemd toolchain-funcs
+PYTHON_COMPAT=( python3_{8..11} )
+inherit autotools python-any-r1 systemd toolchain-funcs multilib-minimal
 
 MY_P="${P/mit-}"
 P_DIR=$(ver_cut 1-2)
@@ -14,11 +14,10 @@ SRC_URI="https://web.mit.edu/kerberos/dist/krb5/${P_DIR}/${MY_P}.tar.gz"
 
 LICENSE="openafs-krb5-a BSD MIT OPENLDAP BSD-2 HPND BSD-4 ISC RSA CC-BY-SA-3.0 || ( BSD-2 GPL-2+ )"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~mips ~ppc ppc64 ~riscv ~s390 sparc x86"
 IUSE="cpu_flags_x86_aes doc +keyutils lmdb nls openldap +pkinit selinux +threads test xinetd"
 
-# some tests requires network access
-RESTRICT="test"
+RESTRICT="!test? ( test )"
 
 DEPEND="
 	!!app-crypt/heimdal
@@ -36,18 +35,14 @@ DEPEND="
 	"
 BDEPEND="
 	${PYTHON_DEPS}
-	virtual/yacc
+	app-alternatives/yacc
 	cpu_flags_x86_aes? (
 		amd64? ( dev-lang/yasm )
 		x86? ( dev-lang/yasm )
 	)
 	doc? ( virtual/latex-base )
-	test? (
-		${PYTHON_DEPS}
-		dev-lang/tcl:0
-		dev-util/dejagnu
-		dev-util/cmocka
-	)"
+	test? ( dev-util/cmocka )
+	"
 RDEPEND="${DEPEND}
 	selinux? ( sec-policy/selinux-kerberos )"
 
@@ -58,6 +53,8 @@ PATCHES=(
 	"${FILESDIR}/${PN}-config_LDFLAGS-r1.patch"
 	"${FILESDIR}/${PN}_dont_create_rundir.patch"
 	"${FILESDIR}/${PN}-1.18.2-krb5-config.patch"
+	"${FILESDIR}/${PN}-1.20-missing-time-include.patch"
+	"${FILESDIR}/${PN}-1.20.1-autoconf-2.72.patch"
 )
 
 MULTILIB_CHOST_TOOLS=(
@@ -73,21 +70,12 @@ src_prepare() {
 	eautoreconf
 }
 
-src_configure() {
-	# QA
-	append-flags -fno-strict-aliasing
-	append-flags -fno-strict-overflow
-
-	multilib-minimal_src_configure
-}
-
 multilib_src_configure() {
 	ECONF_SOURCE=${S} \
 	AR="$(tc-getAR)" \
 	WARN_CFLAGS="set" \
 	econf \
 		$(use_with openldap ldap) \
-		"$(multilib_native_use_with test tcl "${EPREFIX}/usr")" \
 		$(use_enable nls) \
 		$(use_enable pkinit) \
 		$(use_enable threads thread-support) \
