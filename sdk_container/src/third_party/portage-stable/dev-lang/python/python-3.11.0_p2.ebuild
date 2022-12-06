@@ -4,16 +4,19 @@
 EAPI="7"
 WANT_LIBTOOL="none"
 
-inherit autotools check-reqs flag-o-matic multiprocessing pax-utils \
-	python-utils-r1 toolchain-funcs verify-sig
+inherit autotools check-reqs flag-o-matic multiprocessing pax-utils
+inherit python-utils-r1 toolchain-funcs verify-sig
 
 MY_PV=${PV/_rc/rc}
 MY_P="Python-${MY_PV%_p*}"
 PYVER=$(ver_cut 1-2)
-PATCHSET="python-gentoo-patches-${MY_PV}"
+PATCHSET="python-gentoo-patches-${MY_PV}-r1"
 
 DESCRIPTION="An interpreted, interactive, object-oriented programming language"
-HOMEPAGE="https://www.python.org/"
+HOMEPAGE="
+	https://www.python.org/
+	https://github.com/python/cpython/
+"
 SRC_URI="
 	https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz
 	https://dev.gentoo.org/~mgorny/dist/python/${PATCHSET}.tar.xz
@@ -26,7 +29,10 @@ S="${WORKDIR}/${MY_P}"
 LICENSE="PSF-2"
 SLOT="${PYVER}"
 KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
-IUSE="bluetooth build examples gdbm hardened libedit lto +ncurses pgo +readline +sqlite +ssl test tk wininst +xml"
+IUSE="
+	bluetooth build +ensurepip examples gdbm hardened libedit lto
+	+ncurses pgo +readline +sqlite +ssl test tk valgrind
+"
 RESTRICT="!test? ( test )"
 
 # Do not add a dependency on dev-lang/python to this ebuild.
@@ -37,12 +43,14 @@ RESTRICT="!test? ( test )"
 RDEPEND="
 	app-arch/bzip2:=
 	app-arch/xz-utils:=
-	dev-lang/python-exec[python_targets_python3_10(-)]
+	app-crypt/libb2
+	>=dev-libs/expat-2.1:=
 	dev-libs/libffi:=
 	sys-apps/util-linux:=
 	>=sys-libs/zlib-1.1.3:=
 	virtual/libcrypt:=
 	virtual/libintl
+	ensurepip? ( dev-python/ensurepip-wheels )
 	gdbm? ( sys-libs/gdbm:=[berkdb] )
 	ncurses? ( >=sys-libs/ncurses-5.2:= )
 	readline? (
@@ -57,7 +65,6 @@ RDEPEND="
 		dev-tcltk/blt:=
 		dev-tcltk/tix
 	)
-	xml? ( >=dev-libs/expat-2.1:= )
 	!!<sys-apps/sandbox-2.21
 "
 # bluetooth requires headers from bluez
@@ -65,18 +72,23 @@ DEPEND="
 	${RDEPEND}
 	bluetooth? ( net-wireless/bluez )
 	test? ( app-arch/xz-utils[extra-filters(+)] )
+	valgrind? ( dev-util/valgrind )
 "
 # autoconf-archive needed to eautoreconf
 BDEPEND="
 	sys-devel/autoconf-archive
-	virtual/awk
+	app-alternatives/awk
 	virtual/pkgconfig
 	verify-sig? ( sec-keys/openpgp-keys-python )
-	!sys-devel/gcc[libffi(-)]
 "
 RDEPEND+="
-	build? ( app-misc/mime-types )
+	!build? ( app-misc/mime-types )
 "
+if [[ ${PV} != *_alpha* ]]; then
+	RDEPEND+="
+		dev-lang/python-exec[python_targets_python${PYVER/./_}(-)]
+	"
+fi
 
 VERIFY_SIG_OPENPGP_KEY_PATH=${BROOT}/usr/share/openpgp-keys/python.org.asc
 
@@ -101,10 +113,9 @@ src_unpack() {
 }
 
 src_prepare() {
-	# Ensure that internal copies of expat, libffi and zlib are not used.
-	rm -fr Modules/expat || die
-	rm -fr Modules/_ctypes/libffi* || die
-	rm -fr Modules/zlib || die
+	# Ensure that internal copies of expat and libffi are not used.
+	rm -r Modules/expat || die
+	rm -r Modules/_ctypes/libffi* || die
 
 	local PATCHES=(
 		"${WORKDIR}/${PATCHSET}"
@@ -112,12 +123,12 @@ src_prepare() {
 
 	default
 
-	sed -i -e "s:@@GENTOO_LIBDIR@@:$(get_libdir):g" \
-		setup.py || die "sed failed to replace @@GENTOO_LIBDIR@@"
+	# https://bugs.gentoo.org/850151
+	sed -i -e "s:@@GENTOO_LIBDIR@@:$(get_libdir):g" setup.py || die
 
-	# force correct number of jobs
+	# force the correct number of jobs
 	# https://bugs.gentoo.org/737660
-	local jobs=$(makeopts_jobs "${MAKEOPTS}" "$(get_nproc)")
+	local jobs=$(makeopts_jobs)
 	sed -i -e "s:-j0:-j${jobs}:" Makefile.pre.in || die
 	sed -i -e "/self\.parallel/s:True:${jobs}:" setup.py || die
 
@@ -127,37 +138,12 @@ src_prepare() {
 src_configure() {
 	local disable
 	# disable automagic bluetooth headers detection
-	use bluetooth || export ac_cv_header_bluetooth_bluetooth_h=no
-	use gdbm      || disable+=" gdbm"
-	use ncurses   || disable+=" _curses _curses_panel"
-	use readline  || disable+=" readline"
-	use sqlite    || disable+=" _sqlite3"
-	use ssl       || export PYTHON_DISABLE_SSL="1"
-	use tk        || disable+=" _tkinter"
-	use xml       || disable+=" _elementtree pyexpat" # _elementtree uses pyexpat.
-	export PYTHON_DISABLE_MODULES="${disable}"
-
-	if ! use xml; then
-		ewarn "You have configured Python without XML support."
-		ewarn "This is NOT a recommended configuration as you"
-		ewarn "may face problems parsing any XML documents."
+	if ! use bluetooth; then
+		local -x ac_cv_header_bluetooth_bluetooth_h=no
 	fi
 
-	if [[ -n "${PYTHON_DISABLE_MODULES}" ]]; then
-		einfo "Disabled modules: ${PYTHON_DISABLE_MODULES}"
-	fi
-
-	if [[ "$(gcc-major-version)" -ge 4 ]]; then
-		append-flags -fwrapv
-	fi
-
+	append-flags -fwrapv
 	filter-flags -malign-double
-
-	# https://bugs.gentoo.org/show_bug.cgi?id=50309
-	if is-flagq -O3; then
-		is-flagq -fstack-protector-all && replace-flags -O3 -O2
-		use hardened && replace-flags -O3 -O2
-	fi
 
 	# https://bugs.gentoo.org/700012
 	if is-flagq -flto || is-flagq '-flto=*'; then
@@ -165,29 +151,40 @@ src_configure() {
 	fi
 
 	# Export CXX so it ends up in /usr/lib/python3.X/config/Makefile.
-	tc-export CXX
+	# PKG_CONFIG needed for cross.
+	tc-export CXX PKG_CONFIG
 
-	# Fix implicit declarations on cross and prefix builds. Bug #674070.
-	use ncurses && append-cppflags -I"${ESYSROOT}"/usr/include/ncursesw
-
-	local dbmliborder
+	local dbmliborder=
 	if use gdbm; then
 		dbmliborder+="${dbmliborder:+:}gdbm"
 	fi
 
 	if use pgo; then
-		local jobs=$(makeopts_jobs "${MAKEOPTS}" "$(get_nproc)")
-		export PROFILE_TASK="-m test -j${jobs} --pgo-extended -x test_gdb -u-network"
+		local profile_task_flags=(
+			-m test
+			"-j$(makeopts_jobs)"
+			--pgo-extended
+			-x test_gdb
+			-u-network
 
-		# All of these seem to occasionally hang for PGO inconsistently
-		# They'll even hang here but be fine in src_test sometimes.
-		# bug #828535 (and related: bug #788022)
-		PROFILE_TASK+=" -x test_socket -x test_asyncio -x test_httpservers -x test_logging -x test_multiprocessing_fork -x test_xmlrpc"
+			# All of these seem to occasionally hang for PGO inconsistently
+			# They'll even hang here but be fine in src_test sometimes.
+			# bug #828535 (and related: bug #788022)
+			-x test_asyncio
+			-x test_httpservers
+			-x test_logging
+			-x test_multiprocessing_fork
+			-x test_socket
+			-x test_xmlrpc
+		)
 
 		if has_version "app-arch/rpm" ; then
 			# Avoid sandbox failure (attempts to write to /var/lib/rpm)
-			PROFILE_TASK+=" -x test_distutils"
+			profile_task_flags+=(
+				-x test_distutils
+			)
 		fi
+		local -x PROFILE_TASK="${profile_task_flags[*]}"
 	fi
 
 	local myeconfargs=(
@@ -208,19 +205,83 @@ src_configure() {
 		--without-ensurepip
 		--with-system-expat
 		--with-system-ffi
+		--with-platlibdir=lib
+		--with-pkg-config=yes
+		--with-wheel-pkg-dir="${EPREFIX}"/usr/lib/python/ensurepip
 
 		$(use_with lto)
 		$(use_enable pgo optimizations)
 		$(use_with readline readline "$(usex libedit editline readline)")
+		$(use_with valgrind)
 	)
 
 	# disable implicit optimization/debugging flags
 	local -x OPT=
+
+	if tc-is-cross-compiler ; then
+		# pass system CFLAGS & LDFLAGS as _NODIST, otherwise they'll get
+		# propagated to sysconfig for built extensions
+		local -x CFLAGS_NODIST=${CFLAGS_FOR_BUILD}
+		local -x LDFLAGS_NODIST=${LDFLAGS_FOR_BUILD}
+		local -x CFLAGS= LDFLAGS=
+
+		# We need to build our own Python on CBUILD first, and feed it in.
+		# bug #847910
+		local myeconfargs_cbuild=(
+			"${myeconfargs[@]}"
+
+			# As minimal as possible for the mini CBUILD Python
+			# we build just for cross to satisfy --with-build-python.
+			--without-lto
+			--without-readline
+			--disable-optimizations
+		)
+
+		myeconfargs+=(
+			# Point the imminent CHOST build to the Python we just
+			# built for CBUILD.
+			--with-build-python="${WORKDIR}"/${P}-${CBUILD}/python
+		)
+
+		mkdir "${WORKDIR}"/${P}-${CBUILD} || die
+		pushd "${WORKDIR}"/${P}-${CBUILD} &> /dev/null || die
+		ECONF_SOURCE="${S}" econf_build "${myeconfargs_cbuild[@]}"
+
+		# Avoid as many dependencies as possible for the cross build.
+		cat >> Makefile <<-EOF || die
+			MODULE_NIS_STATE=disabled
+			MODULE__DBM_STATE=disabled
+			MODULE__GDBM_STATE=disabled
+			MODULE__DBM_STATE=disabled
+			MODULE__SQLITE3_STATE=disabled
+			MODULE__HASHLIB_STATE=disabled
+			MODULE__SSL_STATE=disabled
+			MODULE__CURSES_STATE=disabled
+			MODULE__CURSES_PANEL_STATE=disabled
+			MODULE_READLINE_STATE=disabled
+			MODULE__TKINTER_STATE=disabled
+			MODULE_PYEXPAT_STATE=disabled
+			MODULE_ZLIB_STATE=disabled
+		EOF
+
+		# Unfortunately, we do have to build this immediately, and
+		# not in src_compile, because CHOST configure for Python
+		# will check the existence of the --with-build-python value
+		# immediately.
+		emake
+		popd &> /dev/null || die
+	fi
+
 	# pass system CFLAGS & LDFLAGS as _NODIST, otherwise they'll get
 	# propagated to sysconfig for built extensions
 	local -x CFLAGS_NODIST=${CFLAGS}
 	local -x LDFLAGS_NODIST=${LDFLAGS}
 	local -x CFLAGS= LDFLAGS=
+
+	# Fix implicit declarations on cross and prefix builds. Bug #674070.
+	if use ncurses; then
+		append-cppflags -I"${ESYSROOT}"/usr/include/ncursesw
+	fi
 
 	econf "${myeconfargs[@]}"
 
@@ -229,6 +290,23 @@ src_configure() {
 		eerror "Please ensure that /dev/shm is mounted as a tmpfs with mode 1777."
 		die "Broken sem_open function (bug 496328)"
 	fi
+
+	# force-disable modules we don't want built
+	local disable_modules=( NIS )
+	use gdbm || disable_modules+=( _GDBM _DBM )
+	use sqlite || disable_modules+=( _SQLITE3 )
+	use ssl || disable_modules+=( _HASHLIB _SSL )
+	use ncurses || disable_modules+=( _CURSES _CURSES_PANEL )
+	use readline || disable_modules+=( READLINE )
+	use tk || disable_modules+=( _TKINTER )
+
+	local mod
+	for mod in "${disable_modules[@]}"; do
+		echo "MODULE_${mod}_STATE=disabled"
+	done >> Makefile || die
+
+	# install epython.py as part of stdlib
+	echo "EPYTHON='python${PYVER}'" > Lib/epython.py || die
 }
 
 src_compile() {
@@ -238,6 +316,7 @@ src_compile() {
 	# Prevent using distutils bundled by setuptools.
 	# https://bugs.gentoo.org/823728
 	export SETUPTOOLS_USE_DISTUTILS=stdlib
+	export PYTHONSTRICTEXTENSIONBUILD=1
 
 	# Save PYTHONDONTWRITEBYTECODE so that 'has_version' doesn't
 	# end up writing bytecode & violating sandbox.
@@ -249,7 +328,7 @@ src_compile() {
 		local -x COLUMNS=80
 		local -x PYTHONDONTWRITEBYTECODE=
 
-		addpredict /usr/lib/python3.10/site-packages
+		addpredict "/usr/lib/python${PYVER}/site-packages"
 	fi
 
 	# also need to clear the flags explicitly here or they end up
@@ -274,53 +353,52 @@ src_test() {
 		return
 	fi
 
-	# Skip failing tests.
-	local skipped_tests="gdb"
+	# this just happens to skip test_support.test_freeze that is broken
+	# without bundled expat
+	# TODO: get a proper skip for it upstream
+	local -x LOGNAME=buildbot
+
+	local test_opts=(
+		-u-network
+		-j "$(makeopts_jobs)"
+
+		# fails
+		-x test_gdb
+	)
 
 	if use sparc ; then
 		# bug #788022
-		skipped_tests+=" multiprocessing_fork"
-		skipped_tests+=" multiprocessing_forkserver"
+		test_opts+=(
+			-x test_multiprocessing_fork
+			-x test_multiprocessing_forkserver
+		)
 	fi
 
-	for test in ${skipped_tests}; do
-		mv "${S}"/Lib/test/test_${test}.py "${T}"
-	done
+	# workaround docutils breaking tests
+	cat > Lib/docutils.py <<-EOF || die
+		raise ImportError("Thou shalt not import!")
+	EOF
 
 	# bug 660358
 	local -x COLUMNS=80
 	local -x PYTHONDONTWRITEBYTECODE=
 	# workaround https://bugs.gentoo.org/775416
-	addwrite /usr/lib/python3.10/site-packages
+	addwrite "/usr/lib/python${PYVER}/site-packages"
 
-	local jobs=$(makeopts_jobs "${MAKEOPTS}" "$(get_nproc)")
-
-	emake test EXTRATESTOPTS="-u-network -j${jobs}" \
+	nonfatal emake test EXTRATESTOPTS="${test_opts[*]}" \
 		CPPFLAGS= CFLAGS= LDFLAGS= < /dev/tty
-	local result=$?
+	local ret=${?}
 
-	for test in ${skipped_tests}; do
-		mv "${T}/test_${test}.py" "${S}"/Lib/test
-	done
+	rm Lib/docutils.py || die
 
-	elog "The following tests have been skipped:"
-	for test in ${skipped_tests}; do
-		elog "test_${test}.py"
-	done
-
-	elog "If you would like to run them, you may:"
-	elog "cd '${EPREFIX}/usr/lib/python${PYVER}/test'"
-	elog "and run the tests separately."
-
-	if [[ ${result} -ne 0 ]]; then
-		die "emake test failed"
-	fi
+	[[ ${ret} -eq 0 ]] || die "emake test failed"
 }
 
 src_install() {
 	local libdir=${ED}/usr/lib/python${PYVER}
 
-	emake DESTDIR="${D}" altinstall
+	# -j1 hack for now for bug #843458
+	emake -j1 DESTDIR="${D}" altinstall
 
 	# Fix collisions between different slots of Python.
 	rm "${ED}/usr/$(get_libdir)/libpython3.so" || die
@@ -345,8 +423,17 @@ src_install() {
 		pax-mark m "${ED}/usr/bin/${abiver}"
 	fi
 
-	use sqlite || rm -r "${libdir}/"{sqlite3,test/test_sqlite*} || die
-	use tk || rm -r "${ED}/usr/bin/idle${PYVER}" "${libdir}/"{idlelib,tkinter,test/test_tk*} || die
+	rm -r "${libdir}"/ensurepip/_bundled || die
+	if ! use ensurepip; then
+		rm -r "${libdir}"/ensurepip || die
+	fi
+	if ! use sqlite; then
+		rm -r "${libdir}/"sqlite3 || die
+	fi
+	if ! use tk; then
+		rm -r "${ED}/usr/bin/idle${PYVER}" || die
+		rm -r "${libdir}/"{idlelib,tkinter,test/test_tk*} || die
+	fi
 
 	dodoc Misc/{ACKS,HISTORY,NEWS}
 
@@ -356,9 +443,11 @@ src_install() {
 		dodoc -r Tools
 	fi
 	insinto /usr/share/gdb/auto-load/usr/$(get_libdir) #443510
-	local libname=$(printf 'e:\n\t@echo $(INSTSONAME)\ninclude Makefile\n' | \
-		emake --no-print-directory -s -f - 2>/dev/null)
-	newins "${S}"/Tools/gdb/libpython.py "${libname}"-gdb.py
+	local libname=$(
+		printf 'e:\n\t@echo $(INSTSONAME)\ninclude Makefile\n' |
+		emake --no-print-directory -s -f - 2>/dev/null
+	)
+	newins Tools/gdb/libpython.py "${libname}"-gdb.py
 
 	newconfd "${FILESDIR}/pydoc.conf" pydoc-${PYVER}
 	newinitd "${FILESDIR}/pydoc.init" pydoc-${PYVER}
@@ -368,25 +457,13 @@ src_install() {
 		-i "${ED}/etc/conf.d/pydoc-${PYVER}" \
 		"${ED}/etc/init.d/pydoc-${PYVER}" || die "sed failed"
 
-	local -x EPYTHON=python${PYVER}
-	# if not using a cross-compiler, use the fresh binary
-	if ! tc-is-cross-compiler; then
-		local -x PYTHON=./python
-		local -x LD_LIBRARY_PATH=${LD_LIBRARY_PATH+${LD_LIBRARY_PATH}:}${PWD}
-	else
-		local -x PYTHON=${EPREFIX}/usr/bin/${EPYTHON}
-	fi
-
-	echo "EPYTHON='${EPYTHON}'" > epython.py || die
-	python_domodule epython.py
-
 	# python-exec wrapping support
 	local pymajor=${PYVER%.*}
+	local EPYTHON=python${PYVER}
 	local scriptdir=${D}$(python_get_scriptdir)
 	mkdir -p "${scriptdir}" || die
 	# python and pythonX
-	ln -s "../../../bin/${abiver}" \
-		"${scriptdir}/python${pymajor}" || die
+	ln -s "../../../bin/${abiver}" "${scriptdir}/python${pymajor}" || die
 	ln -s "python${pymajor}" "${scriptdir}/python" || die
 	# python-config and pythonX-config
 	# note: we need to create a wrapper rather than symlinking it due
@@ -396,16 +473,28 @@ src_install() {
 		exec "${abiver}-config" "\${@}"
 	EOF
 	chmod +x "${scriptdir}/python${pymajor}-config" || die
-	ln -s "python${pymajor}-config" \
-		"${scriptdir}/python-config" || die
+	ln -s "python${pymajor}-config" "${scriptdir}/python-config" || die
 	# 2to3, pydoc
-	ln -s "../../../bin/2to3-${PYVER}" \
-		"${scriptdir}/2to3" || die
-	ln -s "../../../bin/pydoc${PYVER}" \
-		"${scriptdir}/pydoc" || die
+	ln -s "../../../bin/2to3-${PYVER}" "${scriptdir}/2to3" || die
+	ln -s "../../../bin/pydoc${PYVER}" "${scriptdir}/pydoc" || die
 	# idle
 	if use tk; then
-		ln -s "../../../bin/idle${PYVER}" \
-			"${scriptdir}/idle" || die
+		ln -s "../../../bin/idle${PYVER}" "${scriptdir}/idle" || die
 	fi
+}
+
+pkg_postinst() {
+	local v
+	for v in ${REPLACING_VERSIONS}; do
+		if ver_test "${v}" -lt 3.11.0_beta4-r2; then
+			ewarn "Python 3.11.0b4 has changed its module ABI.  The .pyc files"
+			ewarn "installed previously are no longer valid and will be regenerated"
+			ewarn "(or ignored) on the next import.  This may cause sandbox failures"
+			ewarn "when installing some packages and checksum mismatches when removing"
+			ewarn "old versions.  To actively prevent this, rebuild all packages"
+			ewarn "installing Python 3.11 modules, e.g. using:"
+			ewarn
+			ewarn "  emerge -1v /usr/lib/python3.11/site-packages"
+		fi
+	done
 }

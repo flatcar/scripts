@@ -4,33 +4,43 @@
 EAPI="7"
 WANT_LIBTOOL="none"
 
-inherit autotools flag-o-matic pax-utils \
-	python-utils-r1 toolchain-funcs verify-sig
+inherit autotools flag-o-matic pax-utils toolchain-funcs verify-sig
 
 MY_P="Python-${PV%_p*}"
 PYVER=$(ver_cut 1-2)
 PATCHSET="python-gentoo-patches-${PV}"
 
 DESCRIPTION="An interpreted, interactive, object-oriented programming language"
-HOMEPAGE="https://www.python.org/"
-SRC_URI="https://www.python.org/ftp/python/${PV%_*}/${MY_P}.tar.xz
+HOMEPAGE="
+	https://www.python.org/
+	https://github.com/python/cpython/
+	https://gitweb.gentoo.org/fork/cpython.git/
+"
+SRC_URI="
+	https://www.python.org/ftp/python/${PV%_*}/${MY_P}.tar.xz
 	https://dev.gentoo.org/~mgorny/dist/python/${PATCHSET}.tar.xz
 	verify-sig? (
 		https://www.python.org/ftp/python/${PV%_*}/${MY_P}.tar.xz.asc
-	)"
+	)
+"
 S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
-IUSE="berkdb bluetooth build examples gdbm hardened +ncurses +readline +sqlite +ssl tk wininst +xml"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+IUSE="
+	berkdb bluetooth build examples gdbm hardened +ncurses +readline
+	+sqlite +ssl tk valgrind wininst +xml
+"
+RESTRICT="test"
 
 # Do not add a dependency on dev-lang/python to this ebuild.
 # If you need to apply a patch which requires python for bootstrapping, please
 # run the bootstrap code on your dev box and include the results in the
 # patchset. See bug 447752.
 
-RDEPEND="app-arch/bzip2:=
+RDEPEND="
+	app-arch/bzip2:=
 	dev-libs/libffi:=
 	>=sys-libs/zlib-1.1.3:=
 	virtual/libcrypt:=
@@ -50,18 +60,22 @@ RDEPEND="app-arch/bzip2:=
 		dev-tcltk/blt:=
 		dev-tcltk/tix
 	)
-	xml? ( >=dev-libs/expat-2.1:= )"
+	xml? ( >=dev-libs/expat-2.1:= )
+"
 # bluetooth requires headers from bluez
-DEPEND="${RDEPEND}
-	bluetooth? ( net-wireless/bluez )"
+DEPEND="
+	${RDEPEND}
+	bluetooth? ( net-wireless/bluez )
+	valgrind? ( dev-util/valgrind )
+"
 BDEPEND="
-	virtual/awk
+	app-alternatives/awk
 	virtual/pkgconfig
 	verify-sig? ( sec-keys/openpgp-keys-python )
-	!sys-devel/gcc[libffi(-)]"
+"
 RDEPEND+="
 	!build? ( app-misc/mime-types )
-	!<=dev-lang/python-exec-2.4.6-r1"
+"
 
 VERIFY_SIG_OPENPGP_KEY_PATH=${BROOT}/usr/share/openpgp-keys/python.org.asc
 
@@ -73,12 +87,6 @@ pkg_setup() {
 		ewarn "dev-lang/python. 'bsddb' and 'dbhash' modules have been additionally"
 		ewarn "removed in Python 3. A maintained alternative of 'bsddb3' module"
 		ewarn "is provided by dev-python/bsddb3."
-	else
-		if has_version "=${CATEGORY}/${PN}-${PV%%.*}*[berkdb]"; then
-			ewarn "You are migrating from =${CATEGORY}/${PN}-${PV%%.*}*[berkdb]"
-			ewarn "to =${CATEGORY}/${PN}-${PV%%.*}*[-berkdb]."
-			ewarn "You might need to migrate your databases."
-		fi
 	fi
 }
 
@@ -91,9 +99,9 @@ src_unpack() {
 
 src_prepare() {
 	# Ensure that internal copies of expat, libffi and zlib are not used.
-	rm -fr Modules/expat || die
-	rm -fr Modules/_ctypes/libffi* || die
-	rm -fr Modules/zlib || die
+	rm -r Modules/expat || die
+	rm -r Modules/_ctypes/libffi* || die
+	rm -r Modules/zlib || die
 
 	local PATCHES=(
 		"${WORKDIR}/${PATCHSET}"
@@ -142,17 +150,9 @@ src_configure() {
 		einfo "Disabled modules: ${PYTHON_DISABLE_MODULES}"
 	fi
 
-	if [[ "$(gcc-major-version)" -ge 4 ]]; then
-		append-flags -fwrapv
-	fi
+	append-flags -fwrapv
 
 	filter-flags -malign-double
-
-	# https://bugs.gentoo.org/show_bug.cgi?id=50309
-	if is-flagq -O3; then
-		is-flagq -fstack-protector-all && replace-flags -O3 -O2
-		use hardened && replace-flags -O3 -O2
-	fi
 
 	if tc-is-cross-compiler; then
 		# Force some tests that try to poke fs paths.
@@ -166,7 +166,7 @@ src_configure() {
 	# http://bugs.python.org/issue15506
 	export ac_cv_path_PKG_CONFIG=$(tc-getPKG_CONFIG)
 
-	local dbmliborder
+	local dbmliborder=
 	if use gdbm; then
 		dbmliborder+="${dbmliborder:+:}gdbm"
 	fi
@@ -195,18 +195,25 @@ src_configure() {
 		--with-dbmliborder="${dbmliborder}"
 		--with-libc=
 		--enable-loadable-sqlite-extensions
+		--without-ensurepip
 		--with-system-expat
 		--with-system-ffi
-		--without-ensurepip
+
+		$(use_with valgrind)
 	)
 
-	OPT="" econf "${myeconfargs[@]}"
+	# disable implicit optimization/debugging flags
+	local -x OPT=
+	econf "${myeconfargs[@]}"
 
 	if grep -q "#define POSIX_SEMAPHORES_NOT_ENABLED 1" pyconfig.h; then
 		eerror "configure has detected that the sem_open function is broken."
 		eerror "Please ensure that /dev/shm is mounted as a tmpfs with mode 1777."
 		die "Broken sem_open function (bug 496328)"
 	fi
+
+	# install epython.py as part of stdlib
+	echo "EPYTHON='python${PYVER}'" > Lib/epython.py || die
 }
 
 src_compile() {
@@ -215,7 +222,7 @@ src_compile() {
 	local -x LC_ALL=C
 
 	# Avoid invoking pgen for cross-compiles.
-	touch Include/graminit.h Python/graminit.c
+	touch Include/graminit.h Python/graminit.c || die
 
 	emake
 
@@ -235,10 +242,10 @@ src_test() {
 	fi
 
 	# Skip failing tests.
-	local skipped_tests="distutils gdb"
+	local skipped_tests=( distutils gdb )
 
-	for test in ${skipped_tests}; do
-		mv "${S}"/Lib/test/test_${test}.py "${T}"
+	for test in "${skipped_tests[@]}"; do
+		mv Lib/test/test_${test}.py "${T}"/ || die
 	done
 
 	# bug 660358
@@ -251,24 +258,10 @@ src_test() {
 
 	# Rerun failed tests in verbose mode (regrtest -w).
 	emake test EXTRATESTOPTS="-w" < /dev/tty
-	local result="$?"
 
-	for test in ${skipped_tests}; do
-		mv "${T}/test_${test}.py" "${S}"/Lib/test
+	for test in "${skipped_tests[@]}"; do
+		mv "${T}/test_${test}.py" Lib/test/ || die
 	done
-
-	elog "The following tests have been skipped:"
-	for test in ${skipped_tests}; do
-		elog "test_${test}.py"
-	done
-
-	elog "If you would like to run them, you may:"
-	elog "cd '${EPREFIX}/usr/$(get_libdir)/python${PYVER}/test'"
-	elog "and run the tests separately."
-
-	if [[ ${result} -ne 0 ]]; then
-		die "emake test failed"
-	fi
 }
 
 src_install() {
@@ -278,17 +271,28 @@ src_install() {
 
 	sed -e "s/\(LDFLAGS=\).*/\1/" -i "${libdir}/config/Makefile" || die
 
+	# Remove static library
+	rm "${ED}"/usr/$(get_libdir)/libpython*.a || die
+
 	# Fix collisions between different slots of Python.
 	mv "${ED}/usr/bin/2to3" "${ED}/usr/bin/2to3-${PYVER}" || die
 	mv "${ED}/usr/bin/pydoc" "${ED}/usr/bin/pydoc${PYVER}" || die
 	mv "${ED}/usr/bin/idle" "${ED}/usr/bin/idle${PYVER}" || die
 	rm "${ED}/usr/bin/smtpd.py" || die
 
-	use berkdb || rm -r "${libdir}/"{bsddb,dbhash.py*,test/test_bsddb*} || die
-	use sqlite || rm -r "${libdir}/"{sqlite3,test/test_sqlite*} || die
-	use tk || rm -r "${ED}/usr/bin/idle${PYVER}" "${libdir}/"{idlelib,lib-tk} || die
-
-	use wininst || rm "${libdir}/distutils/command/"wininst-*.exe || die
+	if ! use berkdb; then
+		rm -r "${libdir}/"{bsddb,dbhash.py*,test/test_bsddb*} || die
+	fi
+	if ! use sqlite; then
+		rm -r "${libdir}/"{sqlite3,test/test_sqlite*} || die
+	fi
+	if ! use tk; then
+		rm -r "${ED}/usr/bin/idle${PYVER}" || die
+		rm -r "${libdir}/"{idlelib,lib-tk} || die
+	fi
+	if ! use wininst; then
+		rm "${libdir}/distutils/command/"wininst-*.exe || die
+	fi
 
 	dodoc Misc/{ACKS,HISTORY,NEWS}
 
@@ -296,10 +300,6 @@ src_install() {
 		docinto examples
 		dodoc -r Tools
 	fi
-	insinto /usr/share/gdb/auto-load/usr/$(get_libdir) #443510
-	local libname=$(printf 'e:\n\t@echo $(INSTSONAME)\ninclude Makefile\n' | \
-		emake --no-print-directory -s -f - 2>/dev/null)
-	newins "${S}"/Tools/gdb/libpython.py "${libname}"-gdb.py
 
 	newconfd "${FILESDIR}/pydoc.conf" pydoc-${PYVER}
 	newinitd "${FILESDIR}/pydoc.init" pydoc-${PYVER}
@@ -308,38 +308,6 @@ src_install() {
 		-e "s:@PYDOC@:pydoc${PYVER}:" \
 		-i "${ED}/etc/conf.d/pydoc-${PYVER}" \
 		"${ED}/etc/init.d/pydoc-${PYVER}" || die "sed failed"
-
-	local -x EPYTHON=python${PYVER}
-	# if not using a cross-compiler, use the fresh binary
-	if ! tc-is-cross-compiler; then
-		local -x PYTHON=./python
-		local -x LD_LIBRARY_PATH=${LD_LIBRARY_PATH+${LD_LIBRARY_PATH}:}${PWD}
-	else
-		local -x PYTHON=${EPREFIX}/usr/bin/${EPYTHON}
-	fi
-
-	echo "EPYTHON='${EPYTHON}'" > epython.py || die
-	python_domodule epython.py
-
-	# python-exec wrapping support
-	local scriptdir=${D}$(python_get_scriptdir)
-	mkdir -p "${scriptdir}" || die
-	# python
-	ln -s "../../../bin/python${PYVER}" \
-		"${scriptdir}/python" || die
-	# python-config
-	ln -s "../../../bin/python${PYVER}-config" \
-		"${scriptdir}/python-config" || die
-	# 2to3, pydoc, pyvenv
-	ln -s "../../../bin/2to3-${PYVER}" \
-		"${scriptdir}/2to3" || die
-	ln -s "../../../bin/pydoc${PYVER}" \
-		"${scriptdir}/pydoc" || die
-	# idle
-	if use tk; then
-		ln -s "../../../bin/idle${PYVER}" \
-			"${scriptdir}/idle" || die
-	fi
 
 	# python2* is no longer wrapped, so just symlink it
 	local pymajor=${PYVER%.*}
