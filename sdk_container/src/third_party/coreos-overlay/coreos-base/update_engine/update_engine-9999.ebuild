@@ -30,6 +30,7 @@ RDEPEND="!coreos-base/coreos-installer
 	dev-cpp/glog[gflags]
 	dev-libs/dbus-glib
 	dev-libs/glib
+	dev-libs/libsodium
 	dev-libs/libxml2
 	dev-libs/openssl
 	dev-libs/protobuf:=
