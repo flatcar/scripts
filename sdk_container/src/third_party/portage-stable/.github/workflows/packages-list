@@ -5,6 +5,7 @@ app-alternatives/yacc
 
 app-arch/bzip2
 app-arch/cpio
+app-arch/libarchive
 app-arch/unzip
 app-arch/xz-utils
 
