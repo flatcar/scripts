@@ -1,11 +1,15 @@
 # Please keep the list sorted!
 
+app-alternatives/awk
+app-alternatives/yacc
+
 app-arch/bzip2
 app-arch/cpio
 app-arch/unzip
 app-arch/xz-utils
 
 app-crypt/adcli
+app-crypt/mit-krb5
 
 app-editors/vim
 app-editors/vim-core
@@ -18,8 +22,10 @@ dev-db/sqlite
 
 dev-lang/duktape
 dev-lang/perl
+dev-lang/python
 
 dev-libs/boost
+dev-libs/cJSON
 dev-libs/cyrus-sasl
 dev-libs/expat
 dev-libs/glib
@@ -35,7 +41,7 @@ dev-libs/oniguruma
 
 dev-python/fasteners
 
-dev-util/boost-build
+dev-util/b2
 dev-util/bpftool
 dev-util/catalyst
 dev-util/checkbashisms
@@ -114,6 +120,7 @@ net-dns/bind-tools
 net-fs/cifs-utils
 
 net-libs/gnutls
+net-libs/libpcap
 
 net-misc/bridge-utils
 net-misc/curl
@@ -167,4 +174,3 @@ sys-libs/zlib
 
 virtual/libcrypt
 virtual/pkgconfig
-virtual/yacc

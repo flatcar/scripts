@@ -1,6 +1,14 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Sam James <sam@gentoo.org> (2022-12-02)
+# Not keyworded here
+app-alternatives/lex reflex
+
+# Michał Górny <mgorny@gentoo.org> (2022-12-01)
+# Keyworded here.
+app-alternatives/awk -nawk
+
 # Michał Górny <mgorny@gentoo.org> (2022-11-16)
 # spirv-llvm-translator is not keyworded x86.
 dev-libs/libclc spirv
@@ -58,11 +66,6 @@ media-video/ffmpeg vmaf
 # Sam James <sam@gentoo.org> (2022-03-10)
 # dev-util/hip and its rocm dependencies not keyworded here
 sci-physics/lammps hip
-
-# Adel Kara Slimane <adel.ks@zegrapher.com> (2021-02-17)
-# Mask AMF keyword on non-amd64 arches
-# It is unusable, for now, in other arches
-media-video/ffmpeg amf
 
 # Sam James <sam@gentoo.org> (2022-01-20)
 # Only supports cpu_flags_x86_aes in 64-bit mode
