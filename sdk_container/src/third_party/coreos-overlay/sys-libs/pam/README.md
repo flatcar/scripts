@@ -19,3 +19,8 @@ for having our fork seem to be:
    work. A suid binary is strictly less secure than capability
    override, so in long-term we would prefer to avoid having this
    hack. On the other hand - this is what we had so far.
+
+5. We replace the dependency on `virtual/yacc` with
+   `app-alternatives/yacc`. The former was renamed to the latter in
+   Gentoo, so this modification will be gone next time we update this
+   package.

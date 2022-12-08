@@ -32,16 +32,19 @@ DEPEND="${COMMON_DEPEND}
 	virtual/os-headers
 	>=sys-kernel/linux-headers-4.4:0
 "
+# Flatcar: Rename virtual/yacc to app-alternatives/yacc. The former is
+# gone in favor of the latter in Gentoo. This modification will be
+# dropped when we update this ebuild from Gentoo.
 BDEPEND="${BUILD_DEPEND}
 	app-eselect/eselect-iptables
 	virtual/pkgconfig
 	nftables? (
 		sys-devel/flex
-		virtual/yacc
+		app-alternatives/yacc
 	)
 "
 # Flatcar: Drop BUILD_DEPEND, as we would not like to ship
-# eselect in the final image. Also, drop net-firewall/arptables as we don't 
+# eselect in the final image. Also, drop net-firewall/arptables as we don't
 # ship arptables
 RDEPEND="${COMMON_DEPEND}
 	nftables? ( net-misc/ethertypes )
@@ -140,7 +143,7 @@ src_install() {
 }
 
 pkg_postinst() {
-	# Flatcar: Use xtables-nft-multi to use the nft backend instead of legacy backend 
+	# Flatcar: Use xtables-nft-multi to use the nft backend instead of legacy backend
 	local default_iptables="xtables-nft-multi"
 	if ! eselect iptables show &>/dev/null; then
 		elog "Current iptables implementation is unset, setting to ${default_iptables}"

@@ -23,3 +23,6 @@ app-editors/nano unicode
 # libxcrypt -> glibc -> python), and also we need to update gcc to
 # version 10 or later.
 sys-libs/glibc -crypt
+
+# We don't use pip.
+dev-lang/python ensurepip

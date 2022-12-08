@@ -24,11 +24,11 @@ KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 s
 IUSE="audit berkdb debug nis selinux"
 
 BDEPEND="
+	app-alternatives/yacc
 	dev-libs/libxslt
 	sys-devel/flex
 	sys-devel/gettext
 	virtual/pkgconfig
-	virtual/yacc
 "
 
 DEPEND="
