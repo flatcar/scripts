@@ -80,11 +80,13 @@ CONFIG_PROTECT="
 # Remove Gentoo init files since we use systemd.
 # Remove build-id, there is some issue with it causing collisions.
 # Remove default files from sys-power/acpid.
+# Do not install default repos.conf, we always put repository configuration in /etc.
 INSTALL_MASK="
   /usr/lib*/*.la
   /etc/init.d /etc/conf.d
   /usr/lib/debug/.build-id
   /etc/acpi
+  /usr/share/portage/config/repos.conf
 "
 
 # Prevent 'ignition' binary from being installed from sys-apps/ignition binary package.
