@@ -87,9 +87,6 @@ cat <<EOF
 [DEFAULT]
 main-repo = portage-stable
 
-[gentoo]
-disabled = true
-
 [coreos]
 location = /var/gentoo/repos/local
 

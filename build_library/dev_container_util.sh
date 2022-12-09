@@ -44,9 +44,6 @@ sudo_clobber "$1/etc/portage/repos.conf/coreos.conf" <<EOF
 [DEFAULT]
 main-repo = portage-stable
 
-[gentoo]
-disabled = true
-
 [coreos]
 location = /var/lib/portage/coreos-overlay
 sync-type = git
