@@ -143,9 +143,11 @@ profiles
 # scripts
 
 sys-apps/diffutils
+sys-apps/file
 sys-apps/gentoo-functions
 sys-apps/help2man
 sys-apps/iucode_tool
+sys-apps/portage
 
 sys-devel/autoconf
 sys-devel/autoconf-archive
@@ -172,6 +174,7 @@ sys-fs/multipath-tools
 
 sys-libs/binutils-libs
 sys-libs/libcap
+sys-libs/libseccomp
 sys-libs/zlib
 
 virtual/libcrypt
