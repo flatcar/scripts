@@ -14,7 +14,7 @@ S="${WORKDIR}/${P}/src"
 
 LICENSE="Boost-1.0"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="examples"
 RESTRICT="test"
 
@@ -24,7 +24,6 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-4.9.2-disable_python_rpath.patch
 	"${FILESDIR}"/${PN}-4.9.2-darwin-gentoo-toolchain.patch
 	"${FILESDIR}"/${PN}-4.9.2-add-none-feature-options.patch
-	"${FILESDIR}"/${PN}-4.9.2-respect-user-flags.patch
 	"${FILESDIR}"/${PN}-4.9.2-no-implicit-march-flags.patch
 	"${FILESDIR}"/${PN}-4.9.2-odr.patch
 )
@@ -36,7 +35,10 @@ src_configure() {
 
 src_compile() {
 	cd engine || die
-	edo ${CONFIG_SHELL:-${BASH}} ./build.sh cxx --cxx="$(tc-getCXX)" --cxxflags="${CXXFLAGS}" -d+2 --without-python
+
+	# upstream doesn't want separate flags for CPPFLAGS/LDFLAGS
+	# https://github.com/bfgroup/b2/pull/187#issuecomment-1335688424
+	edo ${CONFIG_SHELL:-${BASH}} ./build.sh cxx --cxx="$(tc-getCXX)" --cxxflags="${CXXFLAGS} ${CPPFLAGS} ${LDFLAGS}" -d+2 --without-python
 }
 
 src_test() {
