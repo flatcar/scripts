@@ -7,10 +7,10 @@ WANT_LIBTOOL="none"
 inherit autotools check-reqs flag-o-matic multiprocessing pax-utils
 inherit python-utils-r1 toolchain-funcs verify-sig
 
-MY_PV=${PV/_rc/rc}
+MY_PV=${PV/_alpha/a}
 MY_P="Python-${MY_PV%_p*}"
 PYVER=$(ver_cut 1-2)
-PATCHSET="python-gentoo-patches-${MY_PV}-r1"
+PATCHSET="python-gentoo-patches-${MY_PV}"
 
 DESCRIPTION="An interpreted, interactive, object-oriented programming language"
 HOMEPAGE="
@@ -28,7 +28,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="
 	bluetooth build +ensurepip examples gdbm hardened libedit lto
 	+ncurses pgo +readline +sqlite +ssl test tk valgrind
@@ -79,7 +79,7 @@ BDEPEND="
 	sys-devel/autoconf-archive
 	app-alternatives/awk
 	virtual/pkgconfig
-	verify-sig? ( sec-keys/openpgp-keys-python )
+	verify-sig? ( >=sec-keys/openpgp-keys-python-20221025 )
 "
 RDEPEND+="
 	!build? ( app-misc/mime-types )
@@ -114,7 +114,8 @@ src_unpack() {
 
 src_prepare() {
 	# Ensure that internal copies of expat and libffi are not used.
-	rm -r Modules/expat || die
+	# TODO: Makefile has annoying deps on expat headers
+	#rm -r Modules/expat || die
 	rm -r Modules/_ctypes/libffi* || die
 
 	local PATCHES=(
@@ -123,14 +124,9 @@ src_prepare() {
 
 	default
 
-	# https://bugs.gentoo.org/850151
-	sed -i -e "s:@@GENTOO_LIBDIR@@:$(get_libdir):g" setup.py || die
-
 	# force the correct number of jobs
 	# https://bugs.gentoo.org/737660
-	local jobs=$(makeopts_jobs)
-	sed -i -e "s:-j0:-j${jobs}:" Makefile.pre.in || die
-	sed -i -e "/self\.parallel/s:True:${jobs}:" setup.py || die
+	sed -i -e "s:-j0:-j$(makeopts_jobs):" Makefile.pre.in || die
 
 	eautoreconf
 }
@@ -219,6 +215,9 @@ src_configure() {
 	local -x OPT=
 
 	if tc-is-cross-compiler ; then
+		# Hack to workaround get_libdir not being able to handle CBUILD, bug #794181
+		local cbuild_libdir=$(unset PKG_CONFIG_PATH ; $(tc-getBUILD_PKG_CONFIG) --keep-system-libs --libs-only-L libffi)
+
 		# pass system CFLAGS & LDFLAGS as _NODIST, otherwise they'll get
 		# propagated to sysconfig for built extensions
 		local -x CFLAGS_NODIST=${CFLAGS_FOR_BUILD}
@@ -229,6 +228,8 @@ src_configure() {
 		# bug #847910
 		local myeconfargs_cbuild=(
 			"${myeconfargs[@]}"
+
+			--libdir="${cbuild_libdir:2}"
 
 			# As minimal as possible for the mini CBUILD Python
 			# we build just for cross to satisfy --with-build-python.
@@ -245,7 +246,10 @@ src_configure() {
 
 		mkdir "${WORKDIR}"/${P}-${CBUILD} || die
 		pushd "${WORKDIR}"/${P}-${CBUILD} &> /dev/null || die
-		ECONF_SOURCE="${S}" econf_build "${myeconfargs_cbuild[@]}"
+		# We disable _ctypes and _crypt for CBUILD because Python's setup.py can't handle locating
+		# libdir correctly for cross.
+		PYTHON_DISABLE_MODULES="${PYTHON_DISABLE_MODULES} _ctypes _crypt" \
+			ECONF_SOURCE="${S}" econf_build "${myeconfargs_cbuild[@]}"
 
 		# Avoid as many dependencies as possible for the cross build.
 		cat >> Makefile <<-EOF || die
@@ -268,7 +272,7 @@ src_configure() {
 		# not in src_compile, because CHOST configure for Python
 		# will check the existence of the --with-build-python value
 		# immediately.
-		emake
+		PYTHON_DISABLE_MODULES="${PYTHON_DISABLE_MODULES} _ctypes _crypt" emake
 		popd &> /dev/null || die
 	fi
 
@@ -313,9 +317,6 @@ src_compile() {
 	# Ensure sed works as expected
 	# https://bugs.gentoo.org/594768
 	local -x LC_ALL=C
-	# Prevent using distutils bundled by setuptools.
-	# https://bugs.gentoo.org/823728
-	export SETUPTOOLS_USE_DISTUTILS=stdlib
 	export PYTHONSTRICTEXTENSIONBUILD=1
 
 	# Save PYTHONDONTWRITEBYTECODE so that 'has_version' doesn't
