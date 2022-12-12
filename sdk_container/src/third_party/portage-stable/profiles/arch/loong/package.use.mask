@@ -1,6 +1,51 @@
 # Copyright 2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-06)
+# dev-cpp/glog fails tests, needs checknig
+media-libs/opencv glog contribsfm
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-06)
+# sci-libs/gdal not keyworded yet
+media-libs/opencv gdal
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-06)
+# app-crypt/heimdal not keyworded yet
+net-nds/openldap kerberos
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-06)
+# net-vpn/ocserv fails tests, probably kernel config related but needs
+# further investigation.
+net-vpn/openconnect test
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-06)
+# dev-python/pyside2 not keyworded yet
+dev-python/QtPy pyside2
+dev-python/qtconsole test
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-06)
+# dev-qt/qtwebengine:5 isn't available on loong.
+dev-python/QtPy webengine
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-05)
+# app-arch/p7zip fails one test
+kde-apps/kdeutils-meta 7zip
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-05)
+# <dev-cpp/tbb-2021 fails to build on loong w/ gcc-13
+sci-libs/spqr tbb
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-05)
+# in-tree version of sys-apps/flashrom (1.2) is outdated and cannot build
+# on loong
+sys-apps/fwupd flashrom
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-05)
+# sys-boot/gnu-efi upstream hasn't merged the loong port yet
+sys-apps/fwupd uefi
+sys-apps/systemd gnuefi
+sys-apps/systemd-utils boot
+
 # WANG Xuerui <xen0n@gentoo.org> (2022-12-05)
 # The loong port of sys-boot/grub:2 isn't upstreamed yet.
 dev-util/ostree grub
@@ -59,6 +104,7 @@ dev-libs/boost -context
 # WANG Xuerui <xen0n@gentoo.org> (2022-12-02)
 # dev-qt/qtlocation:5 fails to compile with gcc-13 for now.
 dev-python/PyQt5 location
+dev-python/QtPy test
 
 # WANG Xuerui <xen0n@gentoo.org> (2022-12-01)
 # sys-libs/libhugetlbfs isn't buildable here yet due to arch-specific code.
@@ -111,7 +157,10 @@ mate-base/mate help
 # Sanitizers partially supported on this architecture.
 #
 # ASan: https://reviews.llvm.org/D129418 (LLVM 15 and above)
+# TSan: https://reviews.llvm.org/D139292 (LLVM 16 since 20221208)
+# UBSan: https://reviews.llvm.org/D139292 (LLVM 16 since 20221208)
 >=sys-libs/compiler-rt-sanitizers-15 -asan
+>=sys-libs/compiler-rt-sanitizers-16.0.0_pre20221210 -tsan -ubsan
 
 # WANG Xuerui <xen0n@gentoo.org> (2022-07-08)
 # virtual/{jdk,jre} is not available on loong yet.
@@ -127,7 +176,6 @@ net-libs/libssh mbedtls
 # WANG Xuerui <xen0n@gentoo.org> (2022-04-24)
 # Unmask experimental-loong on packages; we're loong.
 dev-libs/libffi -experimental-loong
-sys-kernel/linux-headers -experimental-loong
 sys-libs/glibc -experimental-loong
 sys-libs/libseccomp -experimental-loong
 
