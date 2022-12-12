@@ -1,1 +1,0 @@
-- Check that the `systemd-sysext.service`'s `ConditionDirectoryNotEmpty` entries are correctly reflected in `flatcar/init:systemd/system/ensure-sysext.service`
