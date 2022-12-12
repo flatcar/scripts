@@ -1,0 +1,1 @@
+- GNU C Library ([2.36](https://sourceware.org/pipermail/libc-alpha/2022-August/141193.html))
