@@ -112,3 +112,8 @@ PORTAGE_WORKDIR_MODE="0755"
 
 # Don't let GRUB whine about /boot
 DONT_MOUNT_BOOT=1
+
+# Keep using bzip2 as a compressor for binary packages. Some hacks
+# inside the scripts repository that poke binary packages assume that
+# bzip2 is used, not zstd. Eventually we will want to move to zstd.
+BINPKG_COMPRESS=bzip2
