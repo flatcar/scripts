@@ -3,6 +3,7 @@
 set -euo pipefail
 
 sudo ln -sfn /bin/bash /bin/sh
+sudo apt-get update
 sudo apt-get install -y ca-certificates curl git gnupg lbzip2 lsb-release \
     qemu-user-static
 sudo mkdir -p /etc/apt/keyrings
