@@ -338,7 +338,25 @@ FLATCAR_VERSION_STRING="${FLATCAR_VERSION}"
 readonly COREOS_EPOCH=1372636800
 TODAYS_VERSION=$(( (`date +%s` - ${COREOS_EPOCH}) / 86400 ))
 
-# Download URL prefix for SDK and board binary packages
+# Download URL prefixes for SDK
+if [[ -n "${FLATCAR_BUILD_ID}" ]] ; then
+    # For dev builds, first try bincache, then release to allow a
+    # bincache overwrite.
+    FLATCAR_SDK_SERVERS=(
+        "${SETTING_BINPKG_SERVER_DEV_CONTAINERISED}"
+        "${SETTING_BINPKG_SERVER_PROD}"
+    )
+else
+    # For release builds, first try release, then bincache to allow
+    # downloading intermediate SDKs if using two-phase builds for
+    # releases.
+    FLATCAR_SDK_SERVERS=(
+        "${SETTING_BINPKG_SERVER_PROD}"
+        "${SETTING_BINPKG_SERVER_DEV_CONTAINERISED}"
+    )
+fi
+
+# Download URL prefix for board binary packages
 if [[ "${FLATCAR_BUILD_ID}" =~ ^nightly-.*$ ]] ; then
     : ${FLATCAR_DEV_BUILDS:=${SETTING_BINPKG_SERVER_DEV_CONTAINERISED}}
 else
