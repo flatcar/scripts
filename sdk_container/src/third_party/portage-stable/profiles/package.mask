@@ -33,6 +33,114 @@
 
 #--- END OF EXAMPLES ---
 
+# Hans de Graaff <graaff@gentoo.org> (2022-12-11)
+# ruby27-only package. No reverse dependencies.
+# Last release in 2012. Removal in 30 days.
+dev-ruby/log_buddy
+
+# Hans de Graaff <graaff@gentoo.org> (2022-12-11)
+# ruby27-only slot. No reverse dependencies.
+# Use a newer mime-types slot.
+# Removal in 30 days.
+dev-ruby/mime-types:2
+
+# Hans de Graaff <graaff@gentoo.org> (2022-12-11)
+# ruby27-only package. No reverse dependencies.
+# Last release in 2013. Removal in 30 days.
+dev-ruby/nagios_analyzer
+
+# Hans de Graaff <graaff@gentoo.org> (2022-12-11)
+# ruby27-only package. No reverse dependencies.
+# Last release in 2009. Removal in 30 days.
+dev-ruby/ntlm-http
+
+# Hans de Graaff <graaff@gentoo.org> (2022-12-11)
+# ruby27-only package. No reverse dependencies.
+# Removal in 30 days.
+dev-ruby/posix-spawn
+
+# Jonas Stein <jstein@gentoo.org> (2022-12-11)
+# Unfetchable and mirror-restricted.
+# Upstream discontinued
+# Removal after 2023-02-01.  Bug #884715.
+dev-cpp/sourcetrail
+
+# Andreas K. Hüttel <dilfridge@gentoo.org> (2022-12-10)
+# Fails to build with recent perl. No maintainer, no revdeps.
+# Removal in 30 days. Bug 849518
+net-p2p/opendchub
+
+# Sam James <sam@gentoo.org> (2022-12-09)
+# Breaks compilation of reverse dependencies with broken pkgconfig (pc) file
+# bug #885075, https://github.com/libarchive/libarchive/issues/1766
+=app-arch/libarchive-3.6.2
+
+# Sam James <sam@gentoo.org> (2022-12-09)
+# mpc.h breaks compilation of reverse dependencies, reported upstream to ML
+=dev-libs/mpc-1.3.0
+
+# Michał Górny <mgorny@gentoo.org> (2022-12-09)
+# Unfetchable as the upstream homepage is gone, and mirror-restricted.
+# No package activity since 2018.
+# Removal on 2023-01-08.  Bug #668090.
+games-strategy/netherearth
+
+# Michał Górny <mgorny@gentoo.org> (2022-12-08)
+# Seems to break some logic in pkg_resources.  Masked for the time being
+# to prevent breakage.
+>=dev-python/packaging-22.0
+
+# Ionen Wolkens <ionen@gentoo.org> (2022-12-07)
+# Formerly added to apply binary git patches to wine-staging without git, but
+# has not been used since 2017 and stuck on EAPI-6. Alternatives: dev-vcs/git
+# Removal: 2023-01-06.
+dev-util/patchbin
+
+# Sam James <sam@gentoo.org> (2022-12-07)
+# HOMEPAGE & remote-id are for a different project, SRC_URI is gone,
+# only results on Google are for Gentoo mirrors, EAPI 6. Removal on 2023-01-07.
+# bug #630264, bug #655964, bug #750071.
+dev-vcs/git-pimp
+
+# Sam James <sam@gentoo.org> (2022-12-07)
+# These versions have been masked for testing since 2014(!). These versions
+# had a controversial licence change and therefore had limited adoption.
+# See also the old 2021-05-30-deprecate-old-bdb-slots news item for
+# additional context.
+# Removal on 2023-01-07.
+=sys-libs/db-6.1*
+=sys-libs/db-6.2*
+=sys-libs/db-18.1*
+
+# Naohiro Aota <naota@gentoo.org> (2022-12-07)
+# Masked for removal in 30 days. Depends on gnome-base/gconf. Last release
+# in 2011. See bug #873880.
+sys-apps/gpet
+
+# David Seifert <soap@gentoo.org> (2022-12-06)
+# EAPI 6, untouched for years, no revdeps. Removal on 2023-01-05.
+media-video/nvidia-video-codec
+
+# Sam James <sam@gentoo.org> (2022-12-06)
+# Broke C++ reverse dependencies. Please upgrade to 1.1.0-r1. See bug #884369.
+=x11-libs/libICE-1.1.0
+
+# Hans de Graaff <graaff@gentoo.org> (2022-12-05)
+# ruby27-only package. No longer maintained upstream. Last release in 2017.
+# No reverse dependencies. Removal in 30 days.
+dev-ruby/hipchat
+
+# Hans de Graaff <graaff@gentoo.org> (2022-12-05)
+# This package has been subsumed into its only consumer:
+# dev-ruby/nio4r. It is no longer developed, and its last standalone
+# release was 11 years ago. Removal in 30 days.
+dev-ruby/iobuffer
+
+# Marek Szuba <marecki@gentoo.org> (2022-12-05)
+# No releases since 2003 (!), upstream effectively dead, no Unicode support,
+# EAPI 6. Removal in 30 days (#884429)
+app-editors/elvis
+
 # Robin H. Johnson <robbat2@gentoo.org> (2022-12-04)
 # sys-boot/mbr-gpt was a bizzare package extremely sensitive to compiler &
 # linker changes. I don't know of any remaining consumers other than one weird
@@ -114,6 +222,7 @@ dev-util/cucumber-core:3.2
 dev-util/cucumber-expressions
 dev-util/cucumber-tag_expressions
 dev-util/cucumber-wire:0
+dev-util/protobuf-cucumber
 
 # Hans de Graaff <graaff@gentoo.org> (2022-12-01)
 # Old slot without dependencies on it. Blocks removal of
@@ -508,11 +617,6 @@ x11-drivers/xf86-video-nv
 =sys-apps/portage-3.0.37
 =sys-apps/portage-3.0.38
 
-# Brian Evans <grknight@gentoo.org> (2022-09-30)
-# Mask RC versions for initial testing
-<dev-lang/php-8.2.0:8.2
-virtual/httpd-php:8.2
-
 # John Helmert III <ajak@gentoo.org> (2022-09-18)
 # Unfixed root privilege escalation, bug #631552
 sys-cluster/slurm
@@ -786,7 +890,7 @@ app-office/texmacs
 # If you still use one of these old toolchain packages, please upgrade (and
 # switch the compiler / the binutils) ASAP. If you need them for a specific
 # (isolated) use case, feel free to unmask them on your system.
-<sys-libs/glibc-2.33
+<sys-libs/glibc-2.36-r5
 <sys-devel/binutils-2.38
 
 # Michael Orlitzky <mjo@gentoo.org> (2017-01-07)
@@ -794,15 +898,6 @@ app-office/texmacs
 # people may still find it useful. It is masked to prevent accidental
 # use. See bugs 603346 and 604998 for more information.
 app-admin/amazon-ec2-init
-
-# Robin H. Johnson <robbat2@gentoo.org> (2014-08-04)
-# Masked for testing, presently fails upstream testsuite:
-# FAIL:07:02:35 (00:00:00) db_dump/db_load(./TESTDIR.3/recd001.db:child killed: kill signal): expected 0, got 1
-# FAIL:07:02:35 (00:00:00) Dump/load of ./TESTDIR.3/recd001.db failed.
-# FAIL:07:02:35 (00:00:00) db_verify_preop: expected 0, got 1
-=sys-libs/db-6.1*
-=sys-libs/db-6.2*
-=sys-libs/db-18.1*
 
 # Mike Gilbert <floppym@gentoo.org> (2014-03-04)
 # Dev channel releases are only for people who are developers or want more

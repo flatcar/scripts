@@ -67,6 +67,7 @@ dev-util/strace
 dev-vcs/git
 
 eclass/alternatives.eclass
+eclass/app-alternatives.eclass
 eclass/autotools.eclass
 # Still has some Flatcar modifications, will need to upstream it first.
 #

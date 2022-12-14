@@ -85,7 +85,7 @@ src_prepare() {
 	# Make sure timestamps don't trigger a rebuild of man pages. #556512
 	if [[ ${PV} != *9999 ]] ; then
 		touch doc/*.1 || die
-		export HELP2MAN=false
+		export HELP2MAN=true
 	fi
 }
 
