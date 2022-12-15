@@ -114,6 +114,7 @@ RDEPEND="${RDEPEND}
 	coreos-base/update-ssh-keys
 	coreos-base/update_engine
 	dev-db/etcdctl
+	dev-libs/libsodium
 	dev-libs/openssl
 	dev-util/bpftool
 	dev-util/bsdiff

@@ -8,7 +8,7 @@ CROS_WORKON_REPO="https://github.com"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	CROS_WORKON_COMMIT="1c290db26e5591c5fe3497d91040e186e12b4315" # flatcar-master
+	CROS_WORKON_COMMIT="12d43a8e71293567f10d940465113550188a4ce8" # flatcar-master
 	KEYWORDS="amd64 arm64"
 fi
 
@@ -30,6 +30,7 @@ RDEPEND="!coreos-base/coreos-installer
 	dev-cpp/glog[gflags]
 	dev-libs/dbus-glib
 	dev-libs/glib
+	dev-libs/libsodium
 	dev-libs/libxml2
 	dev-libs/openssl
 	dev-libs/protobuf:=
@@ -41,10 +42,6 @@ BDEPEND="dev-util/glib-utils"
 DEPEND="dev-cpp/gtest
 	${BDEPEND}
 	${RDEPEND}"
-
-PATCHES=(
-	"${FILESDIR}/disable-werror.patch"
-)
 
 src_prepare() {
 	default
