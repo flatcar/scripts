@@ -245,6 +245,9 @@ write_configs() {
     catalyst_stage3 > "$TEMPDIR/stage3.spec"
     info "    stage4.spec"
     catalyst_stage4 > "$TEMPDIR/stage4.spec"
+    info "Putting a symlink to user patches..."
+    ln -sf '/var/gentoo/repos/local/coreos/user-patches' \
+        "$TEMPDIR/portage/patches"
 }
 
 build_stage() {
