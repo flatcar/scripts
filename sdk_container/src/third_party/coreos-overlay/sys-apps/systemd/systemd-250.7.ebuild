@@ -6,6 +6,9 @@ PYTHON_COMPAT=( python3_{8..10} )
 
 # Avoid QA warnings
 TMPFILES_OPTIONAL=1
+UDEV_OPTIONAL=1
+
+QA_PKGCONFIG_VERSION=$(ver_cut 1)
 
 if [[ ${PV} == 9999 ]]; then
 	EGIT_REPO_URI="https://github.com/systemd/systemd.git"
@@ -20,23 +23,22 @@ else
 	MY_P=${MY_PN}-${MY_PV}
 	S=${WORKDIR}/${MY_P}
 	SRC_URI="https://github.com/systemd/${MY_PN}/archive/v${MY_PV}/${MY_P}.tar.gz"
-	# Flatcar: Stabilize for amd64 and arm64.
-	KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 fi
 
 # Flatcar: We don't use gen_usr_ldscript so dropping usr-ldscript.
 # Adding tmpfiles, since we use it for installing some files.
-inherit bash-completion-r1 linux-info meson-multilib pam python-any-r1 systemd toolchain-funcs udev tmpfiles
+inherit bash-completion-r1 flag-o-matic linux-info meson-multilib pam python-any-r1 systemd toolchain-funcs udev tmpfiles
 
 DESCRIPTION="System and service manager for Linux"
-HOMEPAGE="https://www.freedesktop.org/wiki/Software/systemd"
+HOMEPAGE="http://systemd.io/"
 
 LICENSE="GPL-2 LGPL-2.1 MIT public-domain"
 SLOT="0/2"
 IUSE="
 	acl apparmor audit build cgroup-hybrid cryptsetup curl +dns-over-tls elfutils
-	fido2 +gcrypt gnuefi gnutls homed hostnamed-fallback http idn importd +kmod
-	+lz4 lzma nat +openssl pam pcre pkcs11 policykit pwquality qrcode
+	fido2 +gcrypt gnuefi gnutls homed hostnamed-fallback http idn importd iptables +kmod
+	+lz4 lzma +openssl pam pcre pkcs11 policykit pwquality qrcode
 	+resolvconf +seccomp selinux split-usr +sysv-utils test tpm vanilla xkb +zstd
 "
 REQUIRED_USE="
@@ -72,7 +74,7 @@ COMMON_DEPEND="
 	kmod? ( >=sys-apps/kmod-15:0= )
 	lz4? ( >=app-arch/lz4-0_p131:0=[${MULTILIB_USEDEP}] )
 	lzma? ( >=app-arch/xz-utils-5.0.5-r1:0=[${MULTILIB_USEDEP}] )
-	nat? ( net-firewall/iptables:0= )
+	iptables? ( net-firewall/iptables:0= )
 	openssl? ( >=dev-libs/openssl-1.1.0:0= )
 	pam? ( sys-libs/pam:=[${MULTILIB_USEDEP}] )
 	pkcs11? ( app-crypt/p11-kit:0= )
@@ -93,6 +95,11 @@ DEPEND="${COMMON_DEPEND}
 "
 
 # baselayout-2.2 has /run
+#
+# Flatcar: Drop sec-policy/selinux-ntp from deps (under selinux use
+# flag). The image stage fails with "Failed to resolve
+# typeattributeset statement at
+# /var/lib/selinux/mcs/tmp/modules/400/ntp/cil:120"
 RDEPEND="${COMMON_DEPEND}
 	>=acct-group/adm-0-r1
 	>=acct-group/wheel-0-r1
@@ -125,7 +132,9 @@ RDEPEND="${COMMON_DEPEND}
 		acct-group/systemd-hostname
 		sys-apps/dbus-broker
 	)
-	selinux? ( sec-policy/selinux-base-policy[systemd] )
+	selinux? (
+		sec-policy/selinux-base-policy[systemd]
+	)
 	sysv-utils? (
 		!sys-apps/openrc[sysv-utils(-)]
 		!sys-apps/sysvinit
@@ -185,7 +194,7 @@ pkg_pretend() {
 			ewarn "See https://bugs.gentoo.org/674458."
 		fi
 
-		local CONFIG_CHECK="~AUTOFS4_FS ~BINFMT_MISC ~BLK_DEV_BSG ~CGROUPS
+		local CONFIG_CHECK=" ~BINFMT_MISC ~BLK_DEV_BSG ~CGROUPS
 			~DEVTMPFS ~EPOLL ~FANOTIFY ~FHANDLE
 			~INOTIFY_USER ~IPV6 ~NET ~NET_NS ~PROC_FS ~SIGNALFD ~SYSFS
 			~TIMERFD ~TMPFS_XATTR ~UNIX ~USER_NS
@@ -199,10 +208,16 @@ pkg_pretend() {
 		kernel_is -lt 4 7 && CONFIG_CHECK+=" ~DEVPTS_MULTIPLE_INSTANCES"
 		kernel_is -ge 4 10 && CONFIG_CHECK+=" ~CGROUP_BPF"
 
-		if kernel_is -lt 5 10 20; then
-			CONFIG_CHECK+=" ~CHECKPOINT_RESTORE"
-		else
+		if kernel_is -ge 5 10 20; then
 			CONFIG_CHECK+=" ~KCMP"
+		else
+			CONFIG_CHECK+=" ~CHECKPOINT_RESTORE"
+		fi
+
+		if kernel_is -ge 4 18; then
+			CONFIG_CHECK+=" ~AUTOFS_FS"
+		else
+			CONFIG_CHECK+=" ~AUTOFS4_FS"
 		fi
 
 		if linux_config_exists; then
@@ -281,6 +296,22 @@ src_configure() {
 	# Prevent conflicts with i686 cross toolchain, bug 559726
 	tc-export AR CC NM OBJCOPY RANLIB
 
+	# Broken with FORTIFY_SOURCE=3 without a patch. And the patch
+	# wasn't backported to 250.x, but it turns out to break Clang
+	# anyway:  bug #841770.
+	#
+	# Our toolchain sets F_S=2 by default w/ >= -O2, so we need
+	# to unset F_S first, then explicitly set 2, to negate any default
+	# and anything set by the user if they're choosing 3 (or if they've
+	# modified GCC to set 3).
+	#
+	if is-flagq '-O[23]' || is-flagq '-Ofast' ; then
+		# We can't unconditionally do this b/c we fortify needs
+		# some level of optimisation.
+		filter-flags -D_FORTIFY_SOURCE=3
+		append-cppflags -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
+	fi
+
 	python_setup
 
 	multilib-minimal_src_configure
@@ -333,7 +364,7 @@ multilib_src_configure() {
 		$(meson_use lz4)
 		$(meson_use lzma xz)
 		$(meson_use zstd)
-		$(meson_native_use_bool nat libiptc)
+		$(meson_native_use_bool iptables libiptc)
 		$(meson_native_use_bool openssl)
 		$(meson_use pam)
 		$(meson_native_use_bool pkcs11 p11kit)
@@ -400,8 +431,7 @@ multilib_src_configure() {
 		-Dfirstboot=false
 
 		# Flatcar: Set latest network interface naming scheme
-		# for
-		# https://github.com/flatcar/Flatcar/issues/36
+		# for https://github.com/flatcar/Flatcar/issues/36
 		-Ddefault-net-naming-scheme=latest
 
 		# Flatcar: Unported options, still needed?
@@ -695,6 +725,14 @@ pkg_postinst() {
 		eerror "for errors. You may need to clean up your system and/or try installing"
 		eerror "systemd again."
 		eerror
+	fi
+
+	if use hostnamed-fallback; then
+		if ! systemctl --root="${ROOT:-/}" is-enabled --quiet dbus-broker.service 2>/dev/null; then
+			ewarn "dbus-broker.service is not enabled, systemd-hostnamed will fail to run."
+			ewarn "To enable dbus-broker.service run the next command as root:"
+			ewarn "systemctl enable dbus-broker.service"
+		fi
 	fi
 }
 
