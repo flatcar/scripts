@@ -59,6 +59,7 @@ PATCHES=(
 	"${FILESDIR}/0015-internal-resource-url-support-btrfs-as-OEM-partition.patch"
 	"${FILESDIR}/0016-internal-exec-stages-disks-prevent-races-with-udev.patch"
 	"${FILESDIR}/0017-translation-support-OEM-and-oem.patch"
+	"${FILESDIR}/0018-revert-internal-oem-drop-noop-OEMs.patch"
 )
 
 src_compile() {

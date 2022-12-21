@@ -1,0 +1,79 @@
+From 1f7edd0e4d53f1bf6c07339293330b850bdeadf4 Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Wed, 21 Dec 2022 17:25:02 +0100
+Subject: [PATCH] revert: internal/oem: drop noop OEMs
+
+This reverts: https://github.com/coreos/ignition/commit/26828f92e00060aa8ebf2197545ad602af237132
+
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+---
+ internal/platform/platform.go | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
+
+diff --git a/internal/platform/platform.go b/internal/platform/platform.go
+index 51bf5174..3169536c 100644
+--- a/internal/platform/platform.go
++++ b/internal/platform/platform.go
+@@ -132,6 +132,10 @@ func init() {
+ 		name:  "brightbox",
+ 		fetch: openstack.FetchConfig,
+ 	})
++	configs.Register(Config{
++		name:  "cloudsigma",
++		fetch: noop.FetchConfig,
++	})
+ 	configs.Register(Config{
+ 		name:  "cloudstack",
+ 		fetch: cloudstack.FetchConfig,
+@@ -152,10 +156,18 @@ func init() {
+ 		name:  "gcp",
+ 		fetch: gcp.FetchConfig,
+ 	})
++	configs.Register(Config{
++		name:  "hyperv",
++		fetch: noop.FetchConfig,
++	})
+ 	configs.Register(Config{
+ 		name:  "ibmcloud",
+ 		fetch: ibmcloud.FetchConfig,
+ 	})
++	configs.Register(Config{
++		name:  "interoute",
++		fetch: noop.FetchConfig,
++	})
+ 	configs.Register(Config{
+ 		name:  "kubevirt",
+ 		fetch: kubevirt.FetchConfig,
+@@ -164,6 +176,10 @@ func init() {
+ 		name:  "metal",
+ 		fetch: noop.FetchConfig,
+ 	})
++	configs.Register(Config{
++		name:  "niftycloud",
++		fetch: noop.FetchConfig,
++	})
+ 	configs.Register(Config{
+ 		name:  "nutanix",
+ 		fetch: nutanix.FetchConfig,
+@@ -185,6 +201,18 @@ func init() {
+ 		name:  "qemu",
+ 		fetch: qemu.FetchConfig,
+ 	})
++	configs.Register(Config{
++		name:  "rackspace",
++		fetch: noop.FetchConfig,
++	})
++	configs.Register(Config{
++		name:  "rackspace-onmetal",
++		fetch: noop.FetchConfig,
++	})
++	configs.Register(Config{
++		name:  "vagrant",
++		fetch: noop.FetchConfig,
++	})
+ 	configs.Register(Config{
+ 		name:      "virtualbox",
+ 		fetch:     virtualbox.FetchConfig,
+-- 
+2.35.1
+
