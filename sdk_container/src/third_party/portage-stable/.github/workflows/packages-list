@@ -57,13 +57,28 @@ acct-user/systemd-timesync
 acct-user/tss
 
 app-alternatives/awk
+app-alternatives/bc
+app-alternatives/bzip2
+app-alternatives/cpio
+app-alternatives/gzip
+app-alternatives/lex
+app-alternatives/sh
+app-alternatives/tar
 app-alternatives/yacc
 
 app-arch/bzip2
 app-arch/cpio
+app-arch/gzip
+app-arch/lbzip2
 app-arch/libarchive
+app-arch/ncompress
+app-arch/pbzip2
+app-arch/pigz
+app-arch/tar
 app-arch/unzip
 app-arch/xz-utils
+
+app-cdr/cdrtools
 
 app-crypt/adcli
 app-crypt/mit-krb5
@@ -100,6 +115,13 @@ dev-libs/libxml2
 dev-libs/libxslt
 dev-libs/nettle
 dev-libs/oniguruma
+
+dev-perl/File-Slurp
+dev-perl/Locale-gettext
+dev-perl/Parse-Yapp
+dev-perl/Text-Unidecode
+dev-perl/Unicode-EastAsianWidth
+dev-perl/libintl-perl
 
 dev-python/fasteners
 
@@ -221,6 +243,8 @@ net-misc/whois
 
 net-vpn/wireguard-tools
 
+perl-core/File-Temp
+
 profiles
 
 # The bootstrap script has some modifications, so we can't sync scripts directory yet.
@@ -231,8 +255,10 @@ sys-apps/attr
 sys-apps/diffutils
 sys-apps/dtc
 sys-apps/file
+sys-apps/gawk
 sys-apps/gentoo-functions
 sys-apps/help2man
+sys-apps/i2c-tools
 sys-apps/iucode_tool
 sys-apps/portage
 
@@ -275,6 +301,14 @@ sys-power/iasl
 
 virtual/libcrypt
 virtual/libelf
+virtual/perl-Carp
+virtual/perl-Exporter
+virtual/perl-ExtUtils-MakeMaker
+virtual/perl-File-Spec
+virtual/perl-File-Temp
+virtual/perl-Getopt-Long
+virtual/perl-IO
+virtual/perl-version
 virtual/pkgconfig
 
 x11-libs/pixman
