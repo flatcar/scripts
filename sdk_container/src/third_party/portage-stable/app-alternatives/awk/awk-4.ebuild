@@ -13,7 +13,7 @@ ALTERNATIVES=(
 inherit app-alternatives
 
 DESCRIPTION="/bin/awk and /usr/bin/awk symlinks"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="split-usr"
 
 RDEPEND="
@@ -45,8 +45,16 @@ src_install() {
 }
 
 pkg_preinst() {
+	HAD_MAWK=0
+
+	has_version "app-alternatives/awk[mawk]" && HAD_MAWK=1
+
 	local v
 	for v in ${REPLACING_VERSIONS}; do
+		if ver_test "${v}" -lt 4; then
+			SHOW_MAWK_WARNING=1
+		fi
+
 		# if we are upgrading from a new enough version, leftover manpage
 		# symlink cleanup was done already
 		if ver_test "${v}" -ge 3; then
@@ -62,6 +70,16 @@ pkg_preinst() {
 	if [[ ${files[@]} ]]; then
 		einfo "Cleaning up leftover manpage symlinks from eselect-awk ..."
 		rm -v "${files[@]}" || die
+	fi
+}
+
+pkg_postinst() {
+	# Show the warning on new installs if using mawk, or older installs
+	# if upgrading from < app-alternatives/awk-4[mawk].
+	if [[ -z ${REPLACING_VERSIONS} || ${SHOW_MAWK_WARNING} -eq 1 || ${HAD_MAWK} -eq 0 ]] && use mawk; then
+		ewarn "mawk (incompletely) implements  awk, as it was defined by the now-obsolete"
+		ewarn "POSIX 1003.2 (draft 11.3) specification. It does not fully implement the standard"
+		ewarn "extended regular expression syntax and there are other known issues pertaining to POSIX conformance."
 	fi
 }
 
