@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 inherit toolchain-funcs
 
@@ -17,20 +17,23 @@ else
 	#SRC_URI="https://github.com/rfc1036/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 	S="${WORKDIR}"/${PN}
 
-	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux"
 fi
 
 LICENSE="GPL-2"
 SLOT="0"
 IUSE="iconv idn nls xcrypt"
 
-RDEPEND="iconv? ( virtual/libiconv )
+RDEPEND="
+	iconv? ( virtual/libiconv )
 	idn? ( net-dns/libidn2:= )
 	nls? ( virtual/libintl )
 	xcrypt? ( >=sys-libs/libxcrypt-4.1:= )
-	!xcrypt? ( virtual/libcrypt:= )"
+	!xcrypt? ( virtual/libcrypt:= )
+"
 DEPEND="${RDEPEND}"
-BDEPEND="app-arch/xz-utils
+BDEPEND="
+	app-arch/xz-utils
 	>=dev-lang/perl-5
 	virtual/pkgconfig
 	nls? ( sys-devel/gettext )"
