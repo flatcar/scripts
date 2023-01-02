@@ -2,9 +2,6 @@
 # Copyright (c) 2013 The CoreOS Authors. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
-# To address CVE-2021-38185
-=app-arch/cpio-2.13-r3 ~amd64 ~arm64
-
 =app-arch/zstd-1.4.9 ~amd64 ~arm64
 
 =coreos-devel/fero-client-0.1.1 **
