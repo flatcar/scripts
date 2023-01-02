@@ -12,9 +12,6 @@
 
 =dev-libs/libgcrypt-1.9.4 ~amd64 ~arm64
 
-# To address CVE-2022-32221, CVE-2022-35260, CVE-2022-42915 and CVE-2022-42916.
-=net-misc/curl-7.86.0-r3 ~arm64
-
 # Required for addressing CVE-2022-29154
 =net-misc/rsync-3.2.6 ~amd64 ~arm64
 
