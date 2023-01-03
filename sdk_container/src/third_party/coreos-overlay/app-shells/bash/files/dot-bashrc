@@ -16,12 +16,3 @@ fi
 
 
 # Put your fun stuff here.
-
-alias_bcc_tool() {
-    local tool="${1}"
-        alias iovisor-${tool}="docker run --rm -it -v /lib/modules:/lib/modules -v /sys/kernel/debug:/sys/kernel/debug -v /sys/fs/cgroup:/sys/fs/cgroup -v /sys/fs/bpf:/sys/fs/bpf --privileged --net host --pid host quay.io/iovisor/bcc /usr/share/bcc/tools/${tool}"
-}
-
-bcc_debug_toolset=( tcpretrans tcpconnect tcpaccept biolatency )
-
-for t in "${bcc_debug_toolset[@]}"; do alias_bcc_tool "${t}"; done
