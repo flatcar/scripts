@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-PYTHON_COMPAT=( python3_{8..10} )
+PYTHON_COMPAT=( python3_{8..11} )
 
 # Avoid QA warnings
 TMPFILES_OPTIONAL=1
@@ -23,12 +23,11 @@ else
 	MY_P=${MY_PN}-${MY_PV}
 	S=${WORKDIR}/${MY_P}
 	SRC_URI="https://github.com/systemd/${MY_PN}/archive/v${MY_PV}/${MY_P}.tar.gz"
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 fi
 
-# Flatcar: We don't use gen_usr_ldscript so dropping usr-ldscript.
-# Adding tmpfiles, since we use it for installing some files.
-inherit bash-completion-r1 flag-o-matic linux-info meson-multilib pam python-any-r1 systemd toolchain-funcs udev tmpfiles
+inherit bash-completion-r1 flag-o-matic linux-info meson-multilib pam
+inherit python-any-r1 systemd toolchain-funcs udev usr-ldscript
 
 DESCRIPTION="System and service manager for Linux"
 HOMEPAGE="http://systemd.io/"
@@ -36,8 +35,8 @@ HOMEPAGE="http://systemd.io/"
 LICENSE="GPL-2 LGPL-2.1 MIT public-domain"
 SLOT="0/2"
 IUSE="
-	acl apparmor audit build cgroup-hybrid cryptsetup curl +dns-over-tls elfutils
-	fido2 +gcrypt gnuefi gnutls homed hostnamed-fallback http idn importd iptables +kmod
+	acl apparmor audit cgroup-hybrid cryptsetup curl +dns-over-tls elfutils
+	fido2 +gcrypt gnuefi gnutls homed http idn importd iptables +kmod
 	+lz4 lzma +openssl pam pcre pkcs11 policykit pwquality qrcode
 	+resolvconf +seccomp selinux split-usr +sysv-utils test tpm vanilla xkb +zstd
 "
@@ -45,12 +44,11 @@ REQUIRED_USE="
 	dns-over-tls? ( || ( gnutls openssl ) )
 	homed? ( cryptsetup pam openssl )
 	importd? ( curl lzma || ( gcrypt openssl ) )
-	policykit? ( !hostnamed-fallback )
 	pwquality? ( homed )
 "
 RESTRICT="!test? ( test )"
 
-MINKV="3.11"
+MINKV="4.15"
 
 COMMON_DEPEND="
 	>=sys-apps/util-linux-2.30:0=[${MULTILIB_USEDEP}]
@@ -95,11 +93,6 @@ DEPEND="${COMMON_DEPEND}
 "
 
 # baselayout-2.2 has /run
-#
-# Flatcar: Drop sec-policy/selinux-ntp from deps (under selinux use
-# flag). The image stage fails with "Failed to resolve
-# typeattributeset statement at
-# /var/lib/selinux/mcs/tmp/modules/400/ntp/cil:120"
 RDEPEND="${COMMON_DEPEND}
 	>=acct-group/adm-0-r1
 	>=acct-group/wheel-0-r1
@@ -128,12 +121,9 @@ RDEPEND="${COMMON_DEPEND}
 	>=acct-user/systemd-resolve-0-r1
 	>=acct-user/systemd-timesync-0-r1
 	>=sys-apps/baselayout-2.2
-	hostnamed-fallback? (
-		acct-group/systemd-hostname
-		sys-apps/dbus-broker
-	)
 	selinux? (
 		sec-policy/selinux-base-policy[systemd]
+		sec-policy/selinux-ntp
 	)
 	sysv-utils? (
 		!sys-apps/openrc[sysv-utils(-)]
@@ -141,11 +131,6 @@ RDEPEND="${COMMON_DEPEND}
 	)
 	!sysv-utils? ( sys-apps/sysvinit )
 	resolvconf? ( !net-dns/openresolv )
-	!build? ( || (
-		sys-apps/util-linux[kill(-)]
-		sys-process/procps[kill(+)]
-		sys-apps/coreutils[kill(-)]
-	) )
 	!sys-apps/hwids[udev]
 	!sys-auth/nss-myhostname
 	!sys-fs/eudev
@@ -153,9 +138,8 @@ RDEPEND="${COMMON_DEPEND}
 "
 
 # sys-apps/dbus: the daemon only (+ build-time lib dep for tests)
-#
-# Flatcar: We don't have sys-fs/udev-init-scripts-34, so it's dropped.
 PDEPEND=">=sys-apps/dbus-1.9.8[systemd]
+	>=sys-fs/udev-init-scripts-34
 	policykit? ( sys-auth/polkit )
 	!vanilla? ( sys-apps/gentoo-systemd-integration )"
 
@@ -180,8 +164,8 @@ BDEPEND="
 "
 
 python_check_deps() {
-	has_version -b "dev-python/jinja[${PYTHON_USEDEP}]" &&
-	has_version -b "dev-python/lxml[${PYTHON_USEDEP}]"
+	python_has_version "dev-python/jinja[${PYTHON_USEDEP}]" &&
+	python_has_version "dev-python/lxml[${PYTHON_USEDEP}]"
 }
 
 QA_FLAGS_IGNORED="usr/lib/systemd/boot/efi/.*"
@@ -195,7 +179,7 @@ pkg_pretend() {
 		fi
 
 		local CONFIG_CHECK=" ~BINFMT_MISC ~BLK_DEV_BSG ~CGROUPS
-			~DEVTMPFS ~EPOLL ~FANOTIFY ~FHANDLE
+			~CGROUP_BPF ~DEVTMPFS ~EPOLL ~FANOTIFY ~FHANDLE
 			~INOTIFY_USER ~IPV6 ~NET ~NET_NS ~PROC_FS ~SIGNALFD ~SYSFS
 			~TIMERFD ~TMPFS_XATTR ~UNIX ~USER_NS
 			~CRYPTO_HMAC ~CRYPTO_SHA256 ~CRYPTO_USER_API_HASH
@@ -204,9 +188,6 @@ pkg_pretend() {
 
 		use acl && CONFIG_CHECK+=" ~TMPFS_POSIX_ACL"
 		use seccomp && CONFIG_CHECK+=" ~SECCOMP ~SECCOMP_FILTER"
-		kernel_is -lt 3 7 && CONFIG_CHECK+=" ~HOTPLUG"
-		kernel_is -lt 4 7 && CONFIG_CHECK+=" ~DEVPTS_MULTIPLE_INSTANCES"
-		kernel_is -ge 4 10 && CONFIG_CHECK+=" ~CGROUP_BPF"
 
 		if kernel_is -ge 5 10 20; then
 			CONFIG_CHECK+=" ~KCMP"
@@ -249,21 +230,8 @@ src_unpack() {
 }
 
 src_prepare() {
-	# Do NOT add patches here
-	local PATCHES=()
-
-	[[ -d "${WORKDIR}"/patches ]] && PATCHES+=( "${WORKDIR}"/patches )
-
-	# Add local patches here
-	PATCHES+=(
-		# Flatcar: Adding our own patches here.
-		"${FILESDIR}/0001-wait-online-set-any-by-default.patch"
-		"${FILESDIR}/0002-networkd-default-to-kernel-IPForwarding-setting.patch"
-		"${FILESDIR}/0003-needs-update-don-t-require-strictly-newer-usr.patch"
-		"${FILESDIR}/0004-core-use-max-for-DefaultTasksMax.patch"
-		"${FILESDIR}/0005-systemd-Disable-SELinux-permissions-checks.patch"
-		"${FILESDIR}/0006-core-handle-lookup-paths-being-symlinks.patch"
-		"${FILESDIR}/0007-Revert-getty-Pass-tty-to-use-by-agetty-via-stdin.patch"
+	local PATCHES=(
+		"${FILESDIR}/251-gpt-auto-no-cryptsetup.patch"
 	)
 
 	if ! use vanilla; then
@@ -274,20 +242,8 @@ src_prepare() {
 		)
 	fi
 
-	# Flatcar: The Kubelet takes /etc/resolv.conf for, e.g.,
-	# CoreDNS which has dnsPolicy "default", but unless the
-	# kubelet --resolv-conf flag is set to point to
-	# /run/systemd/resolve/resolv.conf this won't work with
-	# /etc/resolv.conf pointing to
-	# /run/systemd/resolve/stub-resolv.conf which configures
-	# 127.0.0.53.  See
-	# https://kubernetes.io/docs/tasks/administer-cluster/dns-debugging-resolution/#known-issues
-	# This means that users who need split DNS to work should
-	# point /etc/resolv.conf back to
-	# /run/systemd/resolve/stub-resolv.conf (and if using K8s
-	# configure the kubelet resolvConf variable/--resolv-conf flag
-	# to /run/systemd/resolve/resolv.conf).
-	sed -i -e 's,/run/systemd/resolve/stub-resolv.conf,/run/systemd/resolve/resolv.conf,' tmpfiles.d/systemd-resolve.conf || die
+	# Fails with split-usr.
+	sed -i -e '2i exit 77' test/test-rpm-macros.sh || die
 
 	default
 }
@@ -296,9 +252,7 @@ src_configure() {
 	# Prevent conflicts with i686 cross toolchain, bug 559726
 	tc-export AR CC NM OBJCOPY RANLIB
 
-	# Broken with FORTIFY_SOURCE=3 without a patch. And the patch
-	# wasn't backported to 250.x, but it turns out to break Clang
-	# anyway:  bug #841770.
+	# Broken with FORTIFY_SOURCE=3: bug #841770.
 	#
 	# Our toolchain sets F_S=2 by default w/ >= -O2, so we need
 	# to unset F_S first, then explicitly set 2, to negate any default
@@ -317,23 +271,16 @@ src_configure() {
 	multilib-minimal_src_configure
 }
 
-# Flatcar: Our function, we use it in some places below.
-get_rootprefix() {
-	usex split-usr "${EPREFIX:-/}" "${EPREFIX}/usr"
-}
-
 multilib_src_configure() {
 	local myconf=(
 		--localstatedir="${EPREFIX}/var"
-		# Flatcar: Point to our user mailing list.
-		-Dsupport-url="https://groups.google.com/forum/#!forum/flatcar-linux-user"
+		-Dsupport-url="https://gentoo.org/support/"
 		-Dpamlibdir="$(getpam_mod_dir)"
 		# avoid bash-completion dep
 		-Dbashcompletiondir="$(get_bashcompdir)"
-		# make sure we get /bin:/sbin in PATH
 		$(meson_use split-usr)
-		-Dsplit-bin=true
-		-Drootprefix="$(get_rootprefix)"
+		$(meson_use split-usr split-bin)
+		-Drootprefix="$(usex split-usr "${EPREFIX:-/}" "${EPREFIX}/usr")"
 		-Drootlibdir="${EPREFIX}/usr/$(get_libdir)"
 		# Avoid infinite exec recursion, bug 642724
 		-Dtelinit-path="${EPREFIX}/lib/sysvinit/telinit"
@@ -377,11 +324,9 @@ multilib_src_configure() {
 		$(meson_native_use_bool tpm tpm2)
 		$(meson_native_use_bool test dbus)
 		$(meson_native_use_bool xkb xkbcommon)
-		# Flatcar: Use our ntp servers.
-		-Dntp-servers="0.flatcar.pool.ntp.org 1.flatcar.pool.ntp.org 2.flatcar.pool.ntp.org 3.flatcar.pool.ntp.org"
+		-Dntp-servers="0.gentoo.pool.ntp.org 1.gentoo.pool.ntp.org 2.gentoo.pool.ntp.org 3.gentoo.pool.ntp.org"
 		# Breaks screen, tmux, etc.
 		-Ddefault-kill-user-processes=false
-		# Flatcar: TODO: Investigate if we want this.
 		-Dcreate-log-dirs=false
 
 		# multilib options
@@ -404,40 +349,6 @@ multilib_src_configure() {
 		$(meson_native_true timesyncd)
 		$(meson_native_true tmpfiles)
 		$(meson_native_true vconsole)
-
-		# Flatcar: Specify this, or meson breaks due to no
-		# /etc/login.defs.
-		-Dsystem-gid-max=999
-		-Dsystem-uid-max=999
-
-		# Flatcar: DBus paths.
-		-Ddbussessionservicedir="${EPREFIX}/usr/share/dbus-1/services"
-		-Ddbussystemservicedir="${EPREFIX}/usr/share/dbus-1/system-services"
-
-		# Flatcar: PAM config directory.
-		-Dpamconfdir=/usr/share/pam.d
-
-		# Flatcar: The CoreOS epoch, Mon Jul 1 00:00:00 UTC
-		# 2013. Used by timesyncd as a sanity check for the
-		# minimum acceptable time. Explicitly set to avoid
-		# using the current build time.
-		-Dtime-epoch=1372636800
-
-		# Flatcar: No default name servers.
-		-Ddns-servers=
-
-		# Flatcar: Disable the "First Boot Wizard", it isn't
-		# very applicable to us.
-		-Dfirstboot=false
-
-		# Flatcar: Set latest network interface naming scheme
-		# for https://github.com/flatcar/Flatcar/issues/36
-		-Ddefault-net-naming-scheme=latest
-
-		# Flatcar: Unported options, still needed?
-		-Defi-cc="$(tc-getCC)"
-		-Dquotaon-path=/usr/sbin/quotaon
-		-Dquotacheck-path=/usr/sbin/quotacheck
 	)
 
 	meson_src_configure "${myconf[@]}"
@@ -450,59 +361,54 @@ multilib_src_test() {
 
 multilib_src_install_all() {
 	local rootprefix=$(usex split-usr '' /usr)
+	local sbin=$(usex split-usr sbin bin)
 
 	# meson doesn't know about docdir
 	mv "${ED}"/usr/share/doc/{systemd,${PF}} || die
 
 	einstalldocs
-	# Flatcar: Do not install sample nsswitch.conf, we don't
-	# provide it.
-	# dodoc "${FILESDIR}"/nsswitch.conf
+	dodoc "${FILESDIR}"/nsswitch.conf
 
 	if ! use resolvconf; then
-		rm -f "${ED}${rootprefix}"/sbin/resolvconf || die
+		rm -f "${ED}${rootprefix}/${sbin}"/resolvconf || die
 	fi
 
 	rm "${ED}"/etc/init.d/README || die
 	rm "${ED}${rootprefix}"/lib/systemd/system-generators/systemd-sysv-generator || die
 
 	if ! use sysv-utils; then
-		rm "${ED}${rootprefix}"/sbin/{halt,init,poweroff,reboot,runlevel,shutdown,telinit} || die
+		rm "${ED}${rootprefix}/${sbin}"/{halt,init,poweroff,reboot,runlevel,shutdown,telinit} || die
 		rm "${ED}"/usr/share/man/man1/init.1 || die
 		rm "${ED}"/usr/share/man/man8/{halt,poweroff,reboot,runlevel,shutdown,telinit}.8 || die
 	fi
 
-	if ! use resolvconf && ! use sysv-utils; then
+	if ! use resolvconf && ! use sysv-utils && use split-usr; then
 		rmdir "${ED}${rootprefix}"/sbin || die
 	fi
 
 	# https://bugs.gentoo.org/761763
 	rm -r "${ED}"/usr/lib/sysusers.d || die
 
-	# Flatcar: Upstream uses keepdir commands to keep some empty
-	# directories. We use tmpfiles.
-	# # Preserve empty dirs in /etc & /var, bug #437008
-	# keepdir /etc/{binfmt.d,modules-load.d,tmpfiles.d}
-	# keepdir /etc/kernel/install.d
-	# keepdir /etc/systemd/{network,system,user}
-	# keepdir /etc/udev/rules.d
-	#
-	# keepdir /etc/udev/hwdb.d
-	#
-	# keepdir "${rootprefix}"/lib/systemd/{system-sleep,system-shutdown}
-	# keepdir /usr/lib/{binfmt.d,modules-load.d}
-	# keepdir /usr/lib/systemd/user-generators
-	# keepdir /var/lib/systemd
-	# keepdir /var/log/journal
+	# Preserve empty dirs in /etc & /var, bug #437008
+	keepdir /etc/{binfmt.d,modules-load.d,tmpfiles.d}
+	keepdir /etc/kernel/install.d
+	keepdir /etc/systemd/{network,system,user}
+	keepdir /etc/udev/rules.d
 
-	# Flatcar: No migrations happening here.
-	# # Symlink /etc/sysctl.conf for easy migration.
-	# dosym ../../../etc/sysctl.conf /usr/lib/sysctl.d/99-sysctl.conf
+	keepdir /etc/udev/hwdb.d
 
-	# Flatcar: Do not install a pam policy, we have our own.
-	# if use pam; then
-	# 	newpamd "${FILESDIR}"/systemd-user.pam systemd-user
-	# fi
+	keepdir "${rootprefix}"/lib/systemd/{system-sleep,system-shutdown}
+	keepdir /usr/lib/{binfmt.d,modules-load.d}
+	keepdir /usr/lib/systemd/user-generators
+	keepdir /var/lib/systemd
+	keepdir /var/log/journal
+
+	# Symlink /etc/sysctl.conf for easy migration.
+	dosym ../../../etc/sysctl.conf /usr/lib/sysctl.d/99-sysctl.conf
+
+	if use pam; then
+		newpamd "${FILESDIR}"/systemd-user.pam systemd-user
+	fi
 
 	if use split-usr; then
 		# Avoid breaking boot/reboot
@@ -510,125 +416,7 @@ multilib_src_install_all() {
 		dosym ../../../lib/systemd/systemd-shutdown /usr/lib/systemd/systemd-shutdown
 	fi
 
-	# workaround for https://github.com/systemd/systemd/issues/13501
-	if use hostnamed-fallback; then
-		# this file requires dbus-broker
-		insinto /usr/share/dbus-1/system.d/
-		doins "${FILESDIR}/org.freedesktop.hostname1_no_polkit.conf"
-
-		insinto "${rootprefix}/lib/systemd/system/systemd-hostnamed.service.d/"
-		doins "${FILESDIR}/00-hostnamed-network-user.conf"
-	fi
-
-	# Flatcar: gen_usr_ldscript is likely for static libs, so we
-	# dropped it.
-	# gen_usr_ldscript -a systemd udev
-
-	# Flatcar: Ensure journal directory has correct ownership/mode
-	# in inital image.  This is fixed by systemd-tmpfiles *but*
-	# journald starts before that and will create the journal if
-	# the filesystem is already read-write.  Conveniently the
-	# systemd Makefile sets this up completely wrong.
-	#
-	# Flatcar: TODO: Is this still a problem?
-	dodir /var/log/journal
-	fowners root:systemd-journal /var/log/journal
-	fperms 2755 /var/log/journal
-
-	# Flatcar: Don't prune systemd dirs.
-	dotmpfiles "${FILESDIR}"/systemd-flatcar.conf
-	# Flatcar: Add tmpfiles rule for resolv.conf. This path has
-	# changed after v213 so it must be handled here instead of
-	# baselayout now.
-	dotmpfiles "${FILESDIR}"/systemd-resolv.conf
-
-	# Flatcar: Don't default to graphical.target.
-	local unitdir=$(builddir_systemd_get_systemunitdir)
-	dosym multi-user.target "${unitdir}"/default.target
-
-	# Flatcar: Don't set any extra environment variables by default.
-	rm "${ED}/usr/lib/environment.d/99-environment.conf" || die
-
-	# Flatcar: These lines more or less follow the systemd's
-	# preset file (90-systemd.preset). We do it that way, to avoid
-	# putting symlinks in /etc. Please keep the lines in the same
-	# order as the "enable" lines appear in the preset file. For a
-	# single enable line in preset, there may be more lines if the
-	# unit file had Also: clause which has units we enable here
-	# too.
-
-	# Flatcar: enable remote-fs.target
-	builddir_systemd_enable_service multi-user.target remote-fs.target
-	# Flatcar: enable remote-cryptsetup.target
-	if use cryptsetup; then
-		builddir_systemd_enable_service multi-user.target remote-cryptsetup.target
-	fi
-	# Flatcar: enable machines.target
-	builddir_systemd_enable_service multi-user.target machines.target
-	# Flatcar: enable getty@.service
-	dodir "${unitdir}/getty.target.wants"
-	dosym ../getty@.service "${unitdir}/getty.target.wants/getty@tty1.service"
-	# Flatcar: enable systemd-timesyncd.service
-	builddir_systemd_enable_service sysinit.target systemd-timesyncd.service
-	# Flatcar: enable systemd-networkd.service (Also: systemd-networkd.socket, systemd-networkd-wait-online.service)
-	builddir_systemd_enable_service multi-user.target systemd-networkd.service
-	builddir_systemd_enable_service sockets.target systemd-networkd.socket
-	builddir_systemd_enable_service network-online.target systemd-networkd-wait-online.service
-	# Flatcar: enable systemd-network-generator.service
-	builddir_systemd_enable_service sysinit.target systemd-network-generator.service
-	# Flatcar: enable systemd-resolved.service
-	builddir_systemd_enable_service multi-user.target systemd-resolved.service
-	# Flatcar: enable systemd-homed.service (Also: systemd-userdbd.service [not enabled - has no WantedBy entry])
-	if use homed; then
-		builddir_systemd_enable_service multi-user.target systemd-homed.target
-	fi
-	# Flatcar: enable systemd-userdbd.socket
-	builddir_systemd_enable_service sockets.target systemd-userdbd.socket
-	# Flatcar: enable systemd-pstore.service
-	builddir_systemd_enable_service sysinit.target systemd-pstore.service
-	# Flatcar: enable systemd-boot-update.service
-	if use gnuefi; then
-		builddir_systemd_enable_service sysinit.target systemd-boot-update.service
-	fi
-	# Flatcar: enable reboot.target (not enabled - has no WantedBy
-	# entry)
-
-	# Flatcar: enable systemd-sysext.service by default
-	builddir_systemd_enable_service sysinit.target systemd-sysext.service
-
-	# Flatcar: Use an empty preset file, because systemctl
-	# preset-all puts symlinks in /etc, not in /usr. We don't use
-	# /etc, because it is not autoupdated. We do the "preset" above.
-	rm "${ED}$(usex split-usr '' /usr)/lib/systemd/system-preset/90-systemd.preset" || die
-	insinto $(usex split-usr '' /usr)/lib/systemd/system-preset
-	doins "${FILESDIR}"/99-default.preset
-
-	# Flatcar: Do not ship distro-specific files (nsswitch.conf
-	# pam.d). This conflicts with our own configuration provided
-	# by baselayout.
-	rm -rf "${ED}"/usr/share/factory
-	sed -i "${ED}"/usr/lib/tmpfiles.d/etc.conf \
-		-e '/^C!* \/etc\/nsswitch\.conf/d' \
-		-e '/^C!* \/etc\/pam\.d/d' \
-		-e '/^C!* \/etc\/issue/d'
-}
-
-# Flatcar: Our own version of systemd_get_systemunitdir, that returns
-# a path inside /usr, not /etc.
-builddir_systemd_get_systemunitdir() {
-	echo "$(get_rootprefix)/lib/systemd/system"
-}
-
-# Flatcar: Our own version of systemd_enable_service, that does
-# operations inside /usr, not /etc.
-builddir_systemd_enable_service() {
-	local target=${1}
-	local service=${2}
-	local ud=$(builddir_systemd_get_systemunitdir)
-	local destname=${service##*/}
-
-	dodir "${ud}"/"${target}".wants && \
-	dosym ../"${service}" "${ud}"/"${target}".wants/"${destname}"
+	gen_usr_ldscript -a systemd udev
 }
 
 migrate_locale() {
@@ -678,16 +466,15 @@ migrate_locale() {
 pkg_preinst() {
 	if ! use split-usr; then
 		local dir
-		for dir in bin sbin lib; do
-			if [[ ! ${EROOT}/${dir} -ef ${EROOT}/usr/${dir} ]]; then
-				eerror "\"${EROOT}/${dir}\" and \"${EROOT}/usr/${dir}\" are not merged."
-				eerror "One of them should be a symbolic link to the other one."
+		for dir in bin sbin lib usr/sbin; do
+			if [[ ! -L ${EROOT}/${dir} ]]; then
+				eerror "'${EROOT}/${dir}' is not a symbolic link."
 				FAIL=1
 			fi
 		done
 		if [[ ${FAIL} ]]; then
 			eerror "Migration to system layout with merged directories must be performed before"
-			eerror "rebuilding ${CATEGORY}/${PN} with USE=\"-split-usr\" to avoid run-time breakage."
+			eerror "installing ${CATEGORY}/${PN} with USE=\"-split-usr\" to avoid run-time breakage."
 			die "System layout with split directories still used"
 		fi
 	fi
@@ -706,15 +493,13 @@ pkg_postinst() {
 	# between OpenRC & systemd
 	migrate_locale
 
-	# Flatcar: We enable getty and remote-fs targets in /usr
-	# ourselves above.
-	# if [[ -z ${REPLACING_VERSIONS} ]]; then
-	# 	if type systemctl &>/dev/null; then
-	# 		systemctl --root="${ROOT:-/}" enable getty@.service remote-fs.target || FAIL=1
-	# 	fi
-	# 	elog "To enable a useful set of services, run the following:"
-	# 	elog "  systemctl preset-all --preset-mode=enable-only"
-	# fi
+	if [[ -z ${REPLACING_VERSIONS} ]]; then
+		if type systemctl &>/dev/null; then
+			systemctl --root="${ROOT:-/}" enable getty@.service remote-fs.target || FAIL=1
+		fi
+		elog "To enable a useful set of services, run the following:"
+		elog "  systemctl preset-all --preset-mode=enable-only"
+	fi
 
 	if [[ -L ${EROOT}/var/lib/systemd/timesync ]]; then
 		rm "${EROOT}/var/lib/systemd/timesync"
@@ -725,14 +510,6 @@ pkg_postinst() {
 		eerror "for errors. You may need to clean up your system and/or try installing"
 		eerror "systemd again."
 		eerror
-	fi
-
-	if use hostnamed-fallback; then
-		if ! systemctl --root="${ROOT:-/}" is-enabled --quiet dbus-broker.service 2>/dev/null; then
-			ewarn "dbus-broker.service is not enabled, systemd-hostnamed will fail to run."
-			ewarn "To enable dbus-broker.service run the next command as root:"
-			ewarn "systemctl enable dbus-broker.service"
-		fi
 	fi
 }
 
