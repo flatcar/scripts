@@ -1,21 +1,50 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
+
+GAWK_IS_BETA=no
 
 DESCRIPTION="GNU awk pattern-matching language"
 HOMEPAGE="https://www.gnu.org/software/gawk/gawk.html"
-SRC_URI="mirror://gnu/gawk/${P}.tar.xz"
 
-LICENSE="GPL-2"
+if [[ ${GAWK_IS_BETA} == yes || ${PV} == *_beta* ]] ; then
+	if [[ ${PV} == *_beta* ]] ; then
+		# Beta versioning is sometimes for the release prior, e.g.
+		# 5.2.1_beta is labelled upstream as 5.2.0b.
+		MY_PV=${PV/_beta/b}
+		MY_PV=$(ver_cut 1-2 ${MY_PV}).$(($(ver_cut 3 ${MY_PV}) - 1))$(ver_cut 4- ${MY_PV})
+		MY_P=${PN}-${MY_PV}
+
+		S="${WORKDIR}"/${MY_P}
+	else
+		MY_P=${P}
+	fi
+
+	SRC_URI="https://www.skeeve.com/gawk/${MY_P}.tar.gz"
+else
+	VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/gawk.asc
+	inherit verify-sig
+
+	SRC_URI="mirror://gnu/gawk/${P}.tar.xz"
+	SRC_URI+=" verify-sig? ( mirror://gnu/gawk/${P}.tar.xz.sig )"
+
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+fi
+
+LICENSE="GPL-3+"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="mpfr nls readline"
+# While tempting to enable mpfr by default as e.g. Fedora do, as of 5.2.x,
+# MPFR support is "on parole" and may be removed:
+# https://www.gnu.org/software/gawk/manual/html_node/MPFR-On-Parole.html.
+IUSE="mpfr pma nls readline"
 
 RDEPEND="
-	dev-libs/gmp:0=
-	mpfr? ( dev-libs/mpfr:0= )
-	readline? ( sys-libs/readline:0= )
+	mpfr? (
+		dev-libs/gmp:=
+		dev-libs/mpfr:=
+	)
+	readline? ( sys-libs/readline:= )
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
@@ -23,6 +52,10 @@ BDEPEND="
 	>=sys-devel/bison-3.5.4
 	nls? ( sys-devel/gettext )
 "
+
+if [[ ${GAWK_IS_BETA} != yes ]] ; then
+	BDEPEND+=" verify-sig? ( sec-keys/openpgp-keys-gawk )"
+fi
 
 src_prepare() {
 	default
@@ -49,10 +82,17 @@ src_configure() {
 	# Avoid automagic dependency on libsigsegv
 	export ac_cv_libsigsegv=no
 
+	# README says gawk may not work properly if built with non-Bison.
+	# We already BDEPEND on Bison, so just unset YACC rather than
+	# guessing if we need to do yacc.bison or bison -y.
+	unset YACC
+
 	local myeconfargs=(
+		--cache-file="${S}"/config.cache
 		--libexec='$(libdir)/misc'
 		$(use_with mpfr)
 		$(use_enable nls)
+		$(use_enable pma)
 		$(use_with readline)
 	)
 
@@ -84,6 +124,9 @@ pkg_postinst() {
 		done
 
 		if ! [[ -e ${EROOT}/bin/awk ]] ; then
+			# /bin might not exist yet (stage1)
+			[[ -d "${EROOT}/bin" ]] || mkdir "${EROOT}/bin" || die
+
 			ln -s "../usr/bin/gawk" "${EROOT}/bin/awk" || die
 		fi
 	fi
