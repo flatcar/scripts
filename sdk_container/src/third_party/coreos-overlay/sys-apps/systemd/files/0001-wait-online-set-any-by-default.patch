@@ -1,7 +1,7 @@
-From d13deba6bad21e796829b83b00dce03085b0ab14 Mon Sep 17 00:00:00 2001
+From 48b7456e73800ccabef09416ec9e1480781613e7 Mon Sep 17 00:00:00 2001
 From: David Michael <dm0@redhat.com>
 Date: Tue, 16 Apr 2019 02:44:51 +0000
-Subject: [PATCH 1/8] wait-online: set --any by default
+Subject: [PATCH 1/6] wait-online: set --any by default
 
 The systemd-networkd-wait-online command would normally continue
 waiting after a network interface is usable if other interfaces are
@@ -28,5 +28,5 @@ index a679b858fa..3b6dad8d1d 100644
  STATIC_DESTRUCTOR_REGISTER(arg_interfaces, hashmap_free_free_freep);
  STATIC_DESTRUCTOR_REGISTER(arg_ignore, strv_freep);
 -- 
-2.35.1
+2.25.1
 

@@ -1,7 +1,7 @@
-From 5ba2f094ba91f8f52a4b3c0aca83e2fe344594d8 Mon Sep 17 00:00:00 2001
+From bce25cf9f7914804515fdcf8852e7aec37d9d99a Mon Sep 17 00:00:00 2001
 From: Alex Crawford <alex.crawford@coreos.com>
 Date: Wed, 2 Mar 2016 10:46:33 -0800
-Subject: [PATCH 3/8] needs-update: don't require strictly newer usr
+Subject: [PATCH 3/6] needs-update: don't require strictly newer usr
 
 Updates should be triggered whenever usr changes, not only when it is newer.
 ---
@@ -23,10 +23,10 @@ index 3393010ff6..5478baca25 100644
      This requires that updates to <filename>/usr/</filename> are always
      followed by an update of the modification time of
 diff --git a/src/shared/condition.c b/src/shared/condition.c
-index 68fbbf643a..306089cd26 100644
+index 0f06944fb0..c7c9a411a3 100644
 --- a/src/shared/condition.c
 +++ b/src/shared/condition.c
-@@ -769,7 +769,7 @@ static int condition_test_needs_update(Condition *c, char **env) {
+@@ -758,7 +758,7 @@ static int condition_test_needs_update(Condition *c, char **env) {
           * First, compare seconds as they are always accurate...
           */
          if (usr.st_mtim.tv_sec != other.st_mtim.tv_sec)
@@ -35,7 +35,7 @@ index 68fbbf643a..306089cd26 100644
  
          /*
           * ...then compare nanoseconds.
-@@ -780,7 +780,7 @@ static int condition_test_needs_update(Condition *c, char **env) {
+@@ -769,7 +769,7 @@ static int condition_test_needs_update(Condition *c, char **env) {
           * (otherwise the filesystem supports nsec timestamps, see stat(2)).
           */
          if (usr.st_mtim.tv_nsec == 0 || other.st_mtim.tv_nsec > 0)
@@ -44,7 +44,7 @@ index 68fbbf643a..306089cd26 100644
  
          _cleanup_free_ char *timestamp_str = NULL;
          r = parse_env_file(NULL, p, "TIMESTAMP_NSEC", &timestamp_str);
-@@ -799,7 +799,7 @@ static int condition_test_needs_update(Condition *c, char **env) {
+@@ -789,7 +789,7 @@ static int condition_test_needs_update(Condition *c, char **env) {
                  return true;
          }
  
@@ -54,5 +54,5 @@ index 68fbbf643a..306089cd26 100644
  
  static int condition_test_first_boot(Condition *c, char **env) {
 -- 
-2.35.1
+2.25.1
 

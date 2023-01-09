@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-PYTHON_COMPAT=( python3_{8..10} )
+PYTHON_COMPAT=( python3_{8..11} )
 
 # Avoid QA warnings
 TMPFILES_OPTIONAL=1
@@ -23,12 +23,14 @@ else
 	MY_P=${MY_PN}-${MY_PV}
 	S=${WORKDIR}/${MY_P}
 	SRC_URI="https://github.com/systemd/${MY_PN}/archive/v${MY_PV}/${MY_P}.tar.gz"
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+	# Flatcar: Mark as stable.
+	KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 fi
 
+inherit bash-completion-r1 flag-o-matic linux-info meson-multilib pam
 # Flatcar: We don't use gen_usr_ldscript so dropping usr-ldscript.
 # Adding tmpfiles, since we use it for installing some files.
-inherit bash-completion-r1 flag-o-matic linux-info meson-multilib pam python-any-r1 systemd toolchain-funcs udev tmpfiles
+inherit python-any-r1 systemd tmpfiles toolchain-funcs udev
 
 DESCRIPTION="System and service manager for Linux"
 HOMEPAGE="http://systemd.io/"
@@ -36,8 +38,8 @@ HOMEPAGE="http://systemd.io/"
 LICENSE="GPL-2 LGPL-2.1 MIT public-domain"
 SLOT="0/2"
 IUSE="
-	acl apparmor audit build cgroup-hybrid cryptsetup curl +dns-over-tls elfutils
-	fido2 +gcrypt gnuefi gnutls homed hostnamed-fallback http idn importd iptables +kmod
+	acl apparmor audit cgroup-hybrid cryptsetup curl +dns-over-tls elfutils
+	fido2 +gcrypt gnuefi gnutls homed http idn importd iptables +kmod
 	+lz4 lzma +openssl pam pcre pkcs11 policykit pwquality qrcode
 	+resolvconf +seccomp selinux split-usr +sysv-utils test tpm vanilla xkb +zstd
 "
@@ -45,12 +47,11 @@ REQUIRED_USE="
 	dns-over-tls? ( || ( gnutls openssl ) )
 	homed? ( cryptsetup pam openssl )
 	importd? ( curl lzma || ( gcrypt openssl ) )
-	policykit? ( !hostnamed-fallback )
 	pwquality? ( homed )
 "
 RESTRICT="!test? ( test )"
 
-MINKV="3.11"
+MINKV="4.15"
 
 COMMON_DEPEND="
 	>=sys-apps/util-linux-2.30:0=[${MULTILIB_USEDEP}]
@@ -128,10 +129,6 @@ RDEPEND="${COMMON_DEPEND}
 	>=acct-user/systemd-resolve-0-r1
 	>=acct-user/systemd-timesync-0-r1
 	>=sys-apps/baselayout-2.2
-	hostnamed-fallback? (
-		acct-group/systemd-hostname
-		sys-apps/dbus-broker
-	)
 	selinux? (
 		sec-policy/selinux-base-policy[systemd]
 	)
@@ -141,11 +138,6 @@ RDEPEND="${COMMON_DEPEND}
 	)
 	!sysv-utils? ( sys-apps/sysvinit )
 	resolvconf? ( !net-dns/openresolv )
-	!build? ( || (
-		sys-apps/util-linux[kill(-)]
-		sys-process/procps[kill(+)]
-		sys-apps/coreutils[kill(-)]
-	) )
 	!sys-apps/hwids[udev]
 	!sys-auth/nss-myhostname
 	!sys-fs/eudev
@@ -180,8 +172,8 @@ BDEPEND="
 "
 
 python_check_deps() {
-	has_version -b "dev-python/jinja[${PYTHON_USEDEP}]" &&
-	has_version -b "dev-python/lxml[${PYTHON_USEDEP}]"
+	python_has_version "dev-python/jinja[${PYTHON_USEDEP}]" &&
+	python_has_version "dev-python/lxml[${PYTHON_USEDEP}]"
 }
 
 QA_FLAGS_IGNORED="usr/lib/systemd/boot/efi/.*"
@@ -195,7 +187,7 @@ pkg_pretend() {
 		fi
 
 		local CONFIG_CHECK=" ~BINFMT_MISC ~BLK_DEV_BSG ~CGROUPS
-			~DEVTMPFS ~EPOLL ~FANOTIFY ~FHANDLE
+			~CGROUP_BPF ~DEVTMPFS ~EPOLL ~FANOTIFY ~FHANDLE
 			~INOTIFY_USER ~IPV6 ~NET ~NET_NS ~PROC_FS ~SIGNALFD ~SYSFS
 			~TIMERFD ~TMPFS_XATTR ~UNIX ~USER_NS
 			~CRYPTO_HMAC ~CRYPTO_SHA256 ~CRYPTO_USER_API_HASH
@@ -204,9 +196,6 @@ pkg_pretend() {
 
 		use acl && CONFIG_CHECK+=" ~TMPFS_POSIX_ACL"
 		use seccomp && CONFIG_CHECK+=" ~SECCOMP ~SECCOMP_FILTER"
-		kernel_is -lt 3 7 && CONFIG_CHECK+=" ~HOTPLUG"
-		kernel_is -lt 4 7 && CONFIG_CHECK+=" ~DEVPTS_MULTIPLE_INSTANCES"
-		kernel_is -ge 4 10 && CONFIG_CHECK+=" ~CGROUP_BPF"
 
 		if kernel_is -ge 5 10 20; then
 			CONFIG_CHECK+=" ~KCMP"
@@ -249,21 +238,15 @@ src_unpack() {
 }
 
 src_prepare() {
-	# Do NOT add patches here
-	local PATCHES=()
-
-	[[ -d "${WORKDIR}"/patches ]] && PATCHES+=( "${WORKDIR}"/patches )
-
-	# Add local patches here
-	PATCHES+=(
+	local PATCHES=(
+		"${FILESDIR}/251-gpt-auto-no-cryptsetup.patch"
 		# Flatcar: Adding our own patches here.
 		"${FILESDIR}/0001-wait-online-set-any-by-default.patch"
 		"${FILESDIR}/0002-networkd-default-to-kernel-IPForwarding-setting.patch"
 		"${FILESDIR}/0003-needs-update-don-t-require-strictly-newer-usr.patch"
 		"${FILESDIR}/0004-core-use-max-for-DefaultTasksMax.patch"
 		"${FILESDIR}/0005-systemd-Disable-SELinux-permissions-checks.patch"
-		"${FILESDIR}/0006-core-handle-lookup-paths-being-symlinks.patch"
-		"${FILESDIR}/0007-Revert-getty-Pass-tty-to-use-by-agetty-via-stdin.patch"
+		"${FILESDIR}/0006-Revert-getty-Pass-tty-to-use-by-agetty-via-stdin.patch"
 	)
 
 	if ! use vanilla; then
@@ -273,6 +256,9 @@ src_prepare() {
 			"${FILESDIR}/gentoo-journald-audit.patch"
 		)
 	fi
+
+	# Fails with split-usr.
+	sed -i -e '2i exit 77' test/test-rpm-macros.sh || die
 
 	# Flatcar: The Kubelet takes /etc/resolv.conf for, e.g.,
 	# CoreDNS which has dnsPolicy "default", but unless the
@@ -296,9 +282,7 @@ src_configure() {
 	# Prevent conflicts with i686 cross toolchain, bug 559726
 	tc-export AR CC NM OBJCOPY RANLIB
 
-	# Broken with FORTIFY_SOURCE=3 without a patch. And the patch
-	# wasn't backported to 250.x, but it turns out to break Clang
-	# anyway:  bug #841770.
+	# Broken with FORTIFY_SOURCE=3: bug #841770.
 	#
 	# Our toolchain sets F_S=2 by default w/ >= -O2, so we need
 	# to unset F_S first, then explicitly set 2, to negate any default
@@ -330,9 +314,13 @@ multilib_src_configure() {
 		-Dpamlibdir="$(getpam_mod_dir)"
 		# avoid bash-completion dep
 		-Dbashcompletiondir="$(get_bashcompdir)"
-		# make sure we get /bin:/sbin in PATH
 		$(meson_use split-usr)
+		# Flatcar: Always set split-bin to true, we always
+		# have separate bin and sbin directories
 		-Dsplit-bin=true
+		# Flatcar: Use get_rootprefix. No functional change
+		# from upstream, just refactoring the common code used
+		# in some places.
 		-Drootprefix="$(get_rootprefix)"
 		-Drootlibdir="${EPREFIX}/usr/$(get_libdir)"
 		# Avoid infinite exec recursion, bug 642724
@@ -435,7 +423,6 @@ multilib_src_configure() {
 		-Ddefault-net-naming-scheme=latest
 
 		# Flatcar: Unported options, still needed?
-		-Defi-cc="$(tc-getCC)"
 		-Dquotaon-path=/usr/sbin/quotaon
 		-Dquotacheck-path=/usr/sbin/quotacheck
 	)
@@ -450,6 +437,9 @@ multilib_src_test() {
 
 multilib_src_install_all() {
 	local rootprefix=$(usex split-usr '' /usr)
+	# Flatcar: We always have bin separate from sbin
+	# local sbin=$(usex split-usr sbin bin)
+	local sbin='sbin'
 
 	# meson doesn't know about docdir
 	mv "${ED}"/usr/share/doc/{systemd,${PF}} || die
@@ -460,18 +450,20 @@ multilib_src_install_all() {
 	# dodoc "${FILESDIR}"/nsswitch.conf
 
 	if ! use resolvconf; then
-		rm -f "${ED}${rootprefix}"/sbin/resolvconf || die
+		rm -f "${ED}${rootprefix}/${sbin}"/resolvconf || die
 	fi
 
 	rm "${ED}"/etc/init.d/README || die
 	rm "${ED}${rootprefix}"/lib/systemd/system-generators/systemd-sysv-generator || die
 
 	if ! use sysv-utils; then
-		rm "${ED}${rootprefix}"/sbin/{halt,init,poweroff,reboot,runlevel,shutdown,telinit} || die
+		rm "${ED}${rootprefix}/${sbin}"/{halt,init,poweroff,reboot,runlevel,shutdown,telinit} || die
 		rm "${ED}"/usr/share/man/man1/init.1 || die
 		rm "${ED}"/usr/share/man/man8/{halt,poweroff,reboot,runlevel,shutdown,telinit}.8 || die
 	fi
 
+	# Flatcar: We always have bin separate from sbin, so drop the
+	# "&& use split-usr" part.
 	if ! use resolvconf && ! use sysv-utils; then
 		rmdir "${ED}${rootprefix}"/sbin || die
 	fi
@@ -508,16 +500,6 @@ multilib_src_install_all() {
 		# Avoid breaking boot/reboot
 		dosym ../../../lib/systemd/systemd /usr/lib/systemd/systemd
 		dosym ../../../lib/systemd/systemd-shutdown /usr/lib/systemd/systemd-shutdown
-	fi
-
-	# workaround for https://github.com/systemd/systemd/issues/13501
-	if use hostnamed-fallback; then
-		# this file requires dbus-broker
-		insinto /usr/share/dbus-1/system.d/
-		doins "${FILESDIR}/org.freedesktop.hostname1_no_polkit.conf"
-
-		insinto "${rootprefix}/lib/systemd/system/systemd-hostnamed.service.d/"
-		doins "${FILESDIR}/00-hostnamed-network-user.conf"
 	fi
 
 	# Flatcar: gen_usr_ldscript is likely for static libs, so we
@@ -678,16 +660,16 @@ migrate_locale() {
 pkg_preinst() {
 	if ! use split-usr; then
 		local dir
+		# Flatcar: We still use separate bin and sbin, so drop usr/sbin from the list.
 		for dir in bin sbin lib; do
-			if [[ ! ${EROOT}/${dir} -ef ${EROOT}/usr/${dir} ]]; then
-				eerror "\"${EROOT}/${dir}\" and \"${EROOT}/usr/${dir}\" are not merged."
-				eerror "One of them should be a symbolic link to the other one."
+			if [[ ! -L ${EROOT}/${dir} ]]; then
+				eerror "'${EROOT}/${dir}' is not a symbolic link."
 				FAIL=1
 			fi
 		done
 		if [[ ${FAIL} ]]; then
 			eerror "Migration to system layout with merged directories must be performed before"
-			eerror "rebuilding ${CATEGORY}/${PN} with USE=\"-split-usr\" to avoid run-time breakage."
+			eerror "installing ${CATEGORY}/${PN} with USE=\"-split-usr\" to avoid run-time breakage."
 			die "System layout with split directories still used"
 		fi
 	fi
@@ -725,14 +707,6 @@ pkg_postinst() {
 		eerror "for errors. You may need to clean up your system and/or try installing"
 		eerror "systemd again."
 		eerror
-	fi
-
-	if use hostnamed-fallback; then
-		if ! systemctl --root="${ROOT:-/}" is-enabled --quiet dbus-broker.service 2>/dev/null; then
-			ewarn "dbus-broker.service is not enabled, systemd-hostnamed will fail to run."
-			ewarn "To enable dbus-broker.service run the next command as root:"
-			ewarn "systemctl enable dbus-broker.service"
-		fi
 	fi
 }
 
