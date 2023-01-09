@@ -1,0 +1,3 @@
+- vim ([CVE-2022-3491](https://nvd.nist.gov/vuln/detail/CVE-2022-3491), [CVE-2022-3520](https://nvd.nist.gov/vuln/detail/CVE-2022-3520), [CVE-2022-3591](https://nvd.nist.gov/vuln/detail/CVE-2022-3591), [CVE-2022-4141](https://nvd.nist.gov/vuln/detail/CVE-2022-4141), [CVE-2022-4292](https://nvd.nist.gov/vuln/detail/CVE-2022-4292), [CVE-2022-4293](https://nvd.nist.gov/vuln/detail/CVE-2022-4293))
+- binutils ([CVE-2022-38126](https://nvd.nist.gov/vuln/detail/CVE-2022-38126), [CVE-2022-38127](https://nvd.nist.gov/vuln/detail/CVE-2022-38127))
+- glib ([fixes to normal form handling in GVariant](https://discourse.gnome.org/t/multiple-fixes-for-gvariant-normalisation-issues-in-glib/12835))
