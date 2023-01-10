@@ -192,8 +192,7 @@ src_install() {
 	rm -fR "${D}/etc/rc.d" || die
 
 	# compatibility symlinks
-	# flatcar changes:
-	# use split-usr && dosym ../../sbin/setfiles /usr/sbin/setfiles
+	use split-usr && dosym ../../sbin/setfiles /usr/sbin/setfiles
 
 	bashcomp_alias setsebool getsebool
 
