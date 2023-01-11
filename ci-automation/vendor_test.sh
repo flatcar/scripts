@@ -92,6 +92,7 @@ fi
 # directories.
 ciavts_tapfile="${PWD}/${ciavts_work_dir}/${ciavts_tapfile}"
 ciavts_torcx_manifest="${PWD}/${ciavts_main_work_dir}/torcx_manifest.json"
+ciavts_vendor_scripts_dir="${PWD}/$(dirname "${0}")"
 
 ciavts_first_run=0
 if [[ -f "${ciavts_main_work_dir}/first_run" ]]; then
@@ -111,6 +112,7 @@ CIA_GIT_VERSION="${ciavts_git_version}"
 CIA_BUILD_TYPE="${ciavts_type}"
 CIA_TORCX_MANIFEST="${ciavts_torcx_manifest}"
 CIA_FIRST_RUN="${ciavts_first_run}"
+CIA_VENDOR_SCRIPTS_DIR="${ciavts_vendor_scripts_dir}"
 
 # Unset all variables with ciavts_ prefix now.
 unset -v "${!ciavts_@}"
