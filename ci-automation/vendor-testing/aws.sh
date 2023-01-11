@@ -60,8 +60,7 @@ run_kola_tests() {
         --aws-ami="${AWS_AMI_ID}" \
         --aws-region="${AWS_REGION}" \
         --aws-type="${instance_type}" \
-        --aws-iam-profile="${AWS_IAM_PROFILE}" \
-        "${@}"
+        --aws-iam-profile="${AWS_IAM_PROFILE}"
 }
 
 # these are set in ci-config.env

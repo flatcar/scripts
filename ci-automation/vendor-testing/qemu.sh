@@ -60,8 +60,7 @@ run_kola_tests() {
         --platform=qemu \
         --qemu-bios="${bios}" \
         --qemu-image="${QEMU_IMAGE_NAME}" \
-        --qemu-skip-mangle \
-        "${@}"
+        --qemu-skip-mangle
 }
 
 run_default_kola_tests

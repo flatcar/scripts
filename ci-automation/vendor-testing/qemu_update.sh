@@ -107,8 +107,7 @@ run_kola_tests() {
       --qemu-bios="${bios}" \
       --qemu-image="${image}" \
       --update-payload=tmp/flatcar_test_update.gz \
-      --qemu-skip-mangle \
-      cl.update.payload
+      --qemu-skip-mangle
 }
 
 run_default_kola_tests

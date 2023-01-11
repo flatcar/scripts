@@ -70,8 +70,7 @@ run_kola_tests() {
         --platform=esx \
         --parallel="${VMWARE_ESX_PARALLEL}" \
         --esx-config-file "${config_file}" \
-        --esx-ova-path "${VMWARE_ESX_IMAGE_NAME}" \
-        "${@}"
+        --esx-ova-path "${VMWARE_ESX_IMAGE_NAME}"
 }
 
 run_default_kola_tests

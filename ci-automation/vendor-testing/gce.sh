@@ -68,8 +68,7 @@ run_kola_tests() {
         --gce-machinetype="${GCE_MACHINE_TYPE}" \
         "${extra_arg[@]}" \
         --parallel="${GCE_PARALLEL}" \
-        --platform=gce \
-        "${@}"
+        --platform=gce
 }
 
 run_default_kola_tests

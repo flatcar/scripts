@@ -49,8 +49,7 @@ run_kola_tests() {
         --equinixmetal-project="${EQUINIXMETAL_PROJECT}" \
         --equinixmetal-storage-url="${EQUINIXMETAL_STORAGE_URL}" \
         --gce-json-key=<(echo "${GCP_JSON_KEY}" | base64 --decode) \
-        --equinixmetal-api-key="${EQUINIXMETAL_KEY}" \
-        "${@}"
+        --equinixmetal-api-key="${EQUINIXMETAL_KEY}"
 }
 
 run_default_kola_tests

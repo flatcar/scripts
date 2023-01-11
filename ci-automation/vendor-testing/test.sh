@@ -48,8 +48,7 @@ run_kola_tests() {
 
     kola_run \
         --parallel=42 \
-        --platform=test \
-        "${@}"
+        --platform=test
 }
 
 run_default_kola_tests

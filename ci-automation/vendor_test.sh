@@ -117,6 +117,13 @@ CIA_VENDOR_SCRIPTS_DIR="${ciavts_vendor_scripts_dir}"
 # Unset all variables with ciavts_ prefix now.
 unset -v "${!ciavts_@}"
 
+function generate_fail_tapfile() {
+    local tapfile="${1}"; shift
+    # rest of the args are test names
+    echo "1..${#@}" >"${tapfile}"
+    printf 'not ok - %s\n' "${@}" >>"${tapfile}"
+}
+
 trap handle_flaky_setup ERR
 function handle_flaky_setup() {
     if [[ -e "${CIA_TAPFILE}" ]]; then
@@ -161,8 +168,7 @@ function handle_flaky_setup() {
         all_tests=( "${CIA_OUTPUT_ALL_TESTS[@]}" )
     fi
 
-    echo "1..${#all_tests[@]}" >"${CIA_TAPFILE}"
-    printf 'not ok - %s\n' "${all_tests[@]}" >>"${CIA_TAPFILE}"
+    generate_fail_tapfile "${CIA_TAPFILE}" "${all_tests[@]}"
     return 0
 }
 
@@ -306,8 +312,6 @@ function merge_tap_files() {
 #
 # run_kola_tests that takes the following parameters:
 # 1 - instance type
-# 2 - tap file
-# @ - tests to run
 #
 # query_kola_tests that takes the following parameters:
 # 1 - instance type
@@ -317,28 +321,26 @@ function merge_tap_files() {
 # the line will be ignored.
 #
 # Typical use:
+#
+# CIA_OUTPUT_MAIN_INSTANCE=…
+# CIA_OUTPUT_ALL_TESTS=( … )
+# CIA_OUTPUT_EXTRA_INSTANCES=( … )
+# CIA_OUTPUT_EXTRA_INSTANCE_TESTS=( … )
+# CIA_OUTPUT_TIMEOUT=…
+#
 # function run_kola_tests() {
 #     local instance_type="${1}"; shift
-#     local tap_file="${1}"; shift
-#     kola run … "${@}"
+#     kola_run …
 # }
+#
+# # Setup (download and prepare images for kola)
 #
 # function query_kola_tests() {
 #     local instance_type="${1}"; shift
 #     kola list … "${@}"
 # }
 #
-# args=(
-#     "${main_instance}"
-#     "${CIA_TAPFILE}"
-#     "${CIA_FIRST_RUN}"
-#     "${other_instance_types[@]}"
-#     '--'
-#     'cl.internet'
-#     '--'
-#     "${tests_to_run[@]}"
-# )
-# run_kola_tests_on_instances "${args[@]}"
+# run_default_kola_tests
 #
 # Parameters:
 # 1 - main instance type - there all the tests are being run
@@ -430,6 +432,7 @@ function run_kola_tests_on_instances() {
 function run_kola_tests_internal() {
     local instance_type="${1}"; shift
     local CIA_INTERNAL_TAPFILE="${1}"; shift
+    local CIA_INTERNAL_TESTS=( "${@}" )
     run_kola_tests "${instance_type}" "${@}"
 }
 
@@ -473,7 +476,7 @@ function run_default_kola_tests() {
 # run_kola_tests callback used by run_default_kola_tests or
 # run_kola_tests_on_instances.
 function kola_run() {
-    local common_opts
+    local -a common_opts kola_cmd
 
     common_opts=(
         --board="${CIA_ARCH}-usr"
@@ -481,19 +484,21 @@ function kola_run() {
         --torcx-manifest="${CIA_TORCX_MANIFEST}"
         --channel="${CIA_CHANNEL}"
     )
+    kola_cmd=()
     if [[ -n "${CIA_OUTPUT_TIMEOUT:-}" ]]; then
-        unsafe_code_section \
-            timeout --signal=SIGQUIT "${CIA_OUTPUT_TIMEOUT}" \
-                kola run "${common_opts[@]}" "${@}"
-    else
-        unsafe_code_section \
-            kola run "${common_opts[@]}" "${@}"
+        kola_cmd+=( timeout --signal=SIGQUIT "${CIA_OUTPUT_TIMEOUT}" )
     fi
+    kola_cmd+=( kola run "${common_opts[@]}" "${@}" "${CIA_INTERNAL_TESTS[@]}" )
+    # Run in a subshell to avoid executing the err handler.
+    (
+        printf "%q" "${kola_cmd[@]}"; printf '\n'
+        "${kola_cmd[@]}" || :
+    )
     # In case of timeout, the tapfile might be still missing. But
     # since we were ignoring the error at the time, handle_flaky_setup
     # didn't run, so do it now.
     if [[ ! -e "${CIA_INTERNAL_TAPFILE}" ]]; then
-        handle_flaky_setup
+        generate_fail_tapfile "${CIA_INTERNAL_TAPFILE}" "${CIA_INTERNAL_TESTS[@]}"
     fi
 }
 

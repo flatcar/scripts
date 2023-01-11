@@ -67,8 +67,7 @@ run_kola_tests() {
         --openstack-host="${OPENSTACK_HOST}" \
         --openstack-keyfile="${openstack_keyfile}" \
         --openstack-image="${IMAGE_ID}" \
-        --openstack-config-file="${config_file}" \
-        "${@}"
+        --openstack-config-file="${config_file}"
 }
 
 run_default_kola_tests

@@ -59,8 +59,7 @@ run_kola_tests() {
         --do-config-file="${config_file}" \
         --do-image="${image_name}" \
         --parallel="${DIGITALOCEAN_PARALLEL}" \
-        --platform=do \
-        "${@}"
+        --platform=do
 }
 
 run_default_kola_tests
