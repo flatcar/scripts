@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -16,36 +16,48 @@ if [[ ${PV} == *9999 ]] ; then
 	PRERELEASE="2.6.0"
 	inherit autotools git-r3
 else
-	SRC_URI="https://github.com/seccomp/libseccomp/releases/download/v${PV}/${P}.tar.gz"
-	KEYWORDS="-* ~amd64 ~arm ~arm64 ~hppa ~mips ~ppc ~ppc64 ~riscv ~s390 ~x86 ~amd64-linux ~x86-linux"
+	SRC_URI="https://github.com/seccomp/libseccomp/releases/download/v${PV}/${P}.tar.gz
+		experimental-loong? ( https://dev.gentoo.org/~xen0n/distfiles/${P}-loongarch64-20220622.patch.xz )"
+	#KEYWORDS="-* amd64 arm arm64 hppa ~loong ~mips ppc ppc64 ~riscv ~s390 x86 ~amd64-linux ~x86-linux"
+	KEYWORDS="-* ~loong"
 fi
 
 LICENSE="LGPL-2.1"
 SLOT="0"
-IUSE="python static-libs test"
+IUSE="experimental-loong python static-libs test"
 RESTRICT="!test? ( test )"
 
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
-DEPEND="python? ( ${PYTHON_DEPS} )"
+# We need newer kernel headers; we don't keep strict control of the exact
+# version here, just be safe and pull in the latest stable ones. bug #551248
+DEPEND=">=sys-kernel/linux-headers-5.15
+	python? ( ${PYTHON_DEPS} )"
 RDEPEND="${DEPEND}"
 BDEPEND="${DEPEND}
 	dev-util/gperf
-	python? ( dev-python/cython[${PYTHON_USEDEP}] )
-"
-# We need newer kernel headers; we don't keep strict control of the exact
-# version here, just be safe and pull in the latest stable ones. #551248
-DEPEND="${DEPEND} >=sys-kernel/linux-headers-4.3"
+	python? ( dev-python/cython[${PYTHON_USEDEP}] )"
+
+PATCHES=(
+	"${FILESDIR}"/libseccomp-python-shared.patch
+	"${FILESDIR}"/libseccomp-2.5.3-skip-valgrind.patch
+)
 
 src_prepare() {
-	local PATCHES=(
-		"${FILESDIR}/libseccomp-python-shared.patch"
-		"${FILESDIR}/libseccomp-2.5.3-skip-valgrind.patch"
-	)
+	if use experimental-loong; then
+		PATCHES+=( "${WORKDIR}/${P}-loongarch64-20220622.patch" )
+	fi
 
 	default
 
-	if [[ "${PV}" == *9999 ]] ; then
+	if use experimental-loong; then
+		# touch generated files to avoid activating maintainer mode
+		# remove when loong-fix-build.patch is no longer necessary
+		touch ./aclocal.m4 ./configure ./configure.h.in || die
+		find . -name Makefile.in -exec touch {} + || die
+	fi
+
+	if [[ ${PV} == *9999 ]] ; then
 		sed -i -e "s/0.0.0/${PRERELEASE}/" configure.ac || die
 
 		eautoreconf
@@ -76,8 +88,8 @@ multilib_src_compile() {
 	if multilib_is_native_abi && use python ; then
 		# setup.py expects libseccomp.so to live in "../.libs"
 		# Copy the python files to the right place for this.
-		rm -r "${BUILD_DIR}/src/python" || die
-		cp -r "${S}/src/python" "${BUILD_DIR}/src/python" || die
+		rm -r "${BUILD_DIR}"/src/python || die
+		cp -r "${S}"/src/python "${BUILD_DIR}"/src/python || die
 		local -x CPPFLAGS="-I\"${BUILD_DIR}/include\" -I\"${S}/include\" ${CPPFLAGS}"
 
 		do_python distutils-r1_src_compile

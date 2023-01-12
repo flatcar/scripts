@@ -1,22 +1,29 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-PYTHON_COMPAT=( python3_{8..10} )
+DISTUTILS_USE_PEP517=setuptools
 DISTUTILS_OPTIONAL=1
+PYTHON_COMPAT=( python3_{8..11} )
 
 inherit distutils-r1 libtool toolchain-funcs multilib-minimal
 
-if [[ ${PV} == "9999" ]] ; then
+if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://github.com/glensc/file.git"
 	inherit autotools git-r3
 else
+	VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/file.asc
+	inherit verify-sig
 	SRC_URI="ftp://ftp.astron.com/pub/file/${P}.tar.gz"
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	SRC_URI+=" verify-sig? ( ftp://ftp.astron.com/pub/file/${P}.tar.gz.asc )"
+
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+
+	BDEPEND="verify-sig? ( sec-keys/openpgp-keys-file )"
 fi
 
-DESCRIPTION="identify a file's format by scanning binary data for patterns"
+DESCRIPTION="Identify a file's format by scanning binary data for patterns"
 HOMEPAGE="https://www.darwinsys.com/file/"
 
 LICENSE="BSD-2"
@@ -35,14 +42,16 @@ DEPEND="
 RDEPEND="${DEPEND}
 	python? ( !dev-python/python-magic )
 	seccomp? ( sys-libs/libseccomp[${MULTILIB_USEDEP}] )"
+BDEPEND+="
+	python? (
+		${PYTHON_DEPS}
+		${DISTUTILS_DEPS}
+	)"
 
 PATCHES=(
-	"${FILESDIR}/file-5.39-portage-sandbox.patch" #713710 #728978
-	"${FILESDIR}/file-5.40-xz_magic.patch" #784773
-	"${FILESDIR}/file-5.40-seccomp-faccessat.patch"
-	"${FILESDIR}/file-5.40-seccomp-fstatat64.patch" #784857
-	"${FILESDIR}/file-5.40-revert-char-count.patch" #799188
-	"${FILESDIR}/file-5.40-seccomp-fstatat64-musl.patch" #789336, not upstream yet
+	"${FILESDIR}/file-5.43-portage-sandbox.patch" #713710 #728978
+	"${FILESDIR}/file-5.43-seccomp-fstatat64-musl.patch" #789336, not upstream yet
+	"${FILESDIR}/${P}-configure-clang16.patch"
 )
 
 src_prepare() {
@@ -50,13 +59,14 @@ src_prepare() {
 
 	if [[ ${PV} == 9999 ]] ; then
 		eautoreconf
+	else
+		elibtoolize
 	fi
 
-	elibtoolize
-
-	# don't let python README kill main README #60043
+	# don't let python README kill main README, bug ##60043
 	mv python/README.md python/README.python.md || die
-	sed 's@README.md@README.python.md@' -i python/setup.py || die #662090
+	# bug #662090
+	sed 's@README.md@README.python.md@' -i python/setup.py || die
 }
 
 multilib_src_configure() {
@@ -79,13 +89,14 @@ build_src_configure() {
 		--disable-xzlib
 		--disable-zlib
 	)
-	tc-env_build econf "${myeconfargs[@]}"
+
+	econf_build "${myeconfargs[@]}"
 }
 
 need_build_file() {
 	# when cross-compiling, we need to build up our own file
 	# because people often don't keep matching host/target
-	# file versions #362941
+	# file versions, bug #362941
 	tc-is-cross-compiler && ! has_version -b "~${CATEGORY}/${P}"
 }
 
@@ -105,18 +116,20 @@ multilib_src_compile() {
 	if multilib_is_native_abi ; then
 		emake
 	else
-		cd src || die
-		emake magic.h #586444
-		emake libmagic.la
+		# bug #586444
+		emake -C src magic.h
+		emake -C src libmagic.la
 	fi
 }
 
 src_compile() {
 	if need_build_file ; then
-		emake -C "${WORKDIR}"/build/src magic.h #586444
+		# bug #586444
+		emake -C "${WORKDIR}"/build/src magic.h
 		emake -C "${WORKDIR}"/build/src file
 		local -x PATH="${WORKDIR}/build/src:${PATH}"
 	fi
+
 	multilib-minimal_src_compile
 
 	if use python ; then
@@ -134,7 +147,7 @@ multilib_src_install() {
 }
 
 multilib_src_install_all() {
-	dodoc ChangeLog MAINT README
+	dodoc ChangeLog MAINT # README
 
 	# Required for `file -C`
 	insinto /usr/share/misc/magic
@@ -144,5 +157,6 @@ multilib_src_install_all() {
 		cd python || die
 		distutils-r1_src_install
 	fi
+
 	find "${ED}" -type f -name "*.la" -delete || die
 }
