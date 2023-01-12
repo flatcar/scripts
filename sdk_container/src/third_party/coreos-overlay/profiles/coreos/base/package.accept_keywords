@@ -29,8 +29,6 @@
 
 =sys-fs/cryptsetup-2.4.1-r1 ~amd64 ~arm64
 
-=sys-libs/libseccomp-2.5.0 ~amd64 ~arm64
-
 # Keep headers in sync with kernel version.
 =sys-kernel/linux-headers-5.15 ~amd64 ~arm64
 

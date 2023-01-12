@@ -80,11 +80,13 @@ CONFIG_PROTECT="
 # Remove Gentoo init files since we use systemd.
 # Remove build-id, there is some issue with it causing collisions.
 # Remove default files from sys-power/acpid.
+# Do not install default repos.conf, we always put repository configuration in /etc.
 INSTALL_MASK="
   /usr/lib*/*.la
   /etc/init.d /etc/conf.d
   /usr/lib/debug/.build-id
   /etc/acpi
+  /usr/share/portage/config/repos.conf
 "
 
 # Prevent 'ignition' binary from being installed from sys-apps/ignition binary package.
@@ -103,10 +105,15 @@ PORTAGE_BUNZIP2_COMMAND="lbunzip2"
 # Always build binary packages, remove old build logs, avoid running as root.
 FEATURES="buildpkg clean-logs compressdebug parallel-install splitdebug
           userfetch userpriv usersandbox ipc-sandbox network-sandbox
-          -ccache -merge-sync"
+          -ccache -merge-sync -binpkg-multi-instance"
 
 # No need to restrict access to build directories in dev environments.
 PORTAGE_WORKDIR_MODE="0755"
 
 # Don't let GRUB whine about /boot
 DONT_MOUNT_BOOT=1
+
+# Keep using bzip2 as a compressor for binary packages. Some hacks
+# inside the scripts repository that poke binary packages assume that
+# bzip2 is used, not zstd. Eventually we will want to move to zstd.
+BINPKG_COMPRESS=bzip2
