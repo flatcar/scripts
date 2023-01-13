@@ -10,7 +10,7 @@ CROS_WORKON_REPO="https://github.com"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	CROS_WORKON_COMMIT="bda2db88381eab5a572a50c0eaae747906a7005c" # flatcar-master
+	CROS_WORKON_COMMIT="d362a47d14612edb584f9d122cb883650a7bb6b8" # flatcar-master
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
@@ -38,5 +38,6 @@ src_install() {
 		"${D}"/usr/lib/dracut/modules.d/30ignition/retry-umount.sh \
 		"${D}"/usr/lib/dracut/modules.d/35torcx/torcx-profile-populate-generator \
 		"${D}"/usr/lib/dracut/modules.d/99setup-root/initrd-setup-root \
+		"${D}"/usr/lib/dracut/modules.d/99setup-root/initrd-setup-root-after-ignition \
 		|| die chmod
 }
