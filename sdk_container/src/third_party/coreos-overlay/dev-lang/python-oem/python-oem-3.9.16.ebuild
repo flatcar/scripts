@@ -4,8 +4,8 @@
 EAPI="7"
 WANT_LIBTOOL="none"
 
-inherit autotools check-reqs flag-o-matic multiprocessing \
-	python-utils-r1 toolchain-funcs verify-sig
+inherit autotools check-reqs flag-o-matic multiprocessing
+inherit prefix python-utils-r1 toolchain-funcs verify-sig
 
 MY_PV=${PV/_rc/rc}
 MY_P="Python-${MY_PV%_p*}"
@@ -13,19 +13,22 @@ PYVER=$(ver_cut 1-2)
 PATCHSET="python-gentoo-patches-${MY_PV}"
 
 DESCRIPTION="An interpreted, interactive, object-oriented programming language"
-HOMEPAGE="https://www.python.org/"
+HOMEPAGE="
+	https://www.python.org/
+	https://github.com/python/cpython/
+"
 SRC_URI="
-	https://www.python.org/ftp/python/${PV%_*}/${MY_P}.tar.xz
+	https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz
 	https://dev.gentoo.org/~mgorny/dist/python/${PATCHSET}.tar.xz
 	verify-sig? (
-		https://www.python.org/ftp/python/${PV%_*}/${MY_P}.tar.xz.asc
+		https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz.asc
 	)
 "
 S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc ~x86"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 IUSE="hardened"
 
 # Do not add a dependency on dev-lang/python to this ebuild.
@@ -42,12 +45,12 @@ DEPEND="
 	virtual/libcrypt:=
 	virtual/libintl
 "
+# autoconf-archive needed to eautoreconf
 BDEPEND="
+	sys-devel/autoconf-archive
 	app-alternatives/awk
 	virtual/pkgconfig
-	sys-devel/autoconf-archive
 	verify-sig? ( sec-keys/openpgp-keys-python )
-	!sys-devel/gcc[libffi(-)]
 "
 
 VERIFY_SIG_OPENPGP_KEY_PATH=${BROOT}/usr/share/openpgp-keys/python.org.asc
@@ -65,21 +68,18 @@ src_unpack() {
 }
 
 src_prepare() {
-	# Ensure that internal copies of zlib are not used.
-	rm -fr Modules/zlib || die
-
 	local PATCHES=(
 		"${WORKDIR}/${PATCHSET}"
 	)
 
 	default
 
-	sed -i -e "s:@@GENTOO_LIBDIR@@:$(get_libdir):g" \
-		setup.py || die "sed failed to replace @@GENTOO_LIBDIR@@"
+	# https://bugs.gentoo.org/850151
+	sed -i -e "s:@@GENTOO_LIBDIR@@:$(get_libdir):g" setup.py || die
 
-	# force correct number of jobs
+	# force the correct number of jobs
 	# https://bugs.gentoo.org/737660
-	local jobs=$(makeopts_jobs "${MAKEOPTS}" "$(get_nproc)")
+	local jobs=$(makeopts_jobs)
 	sed -i -e "s:-j0:-j${jobs}:" Makefile.pre.in || die
 	sed -i -e "/self\.parallel/s:True:${jobs}:" setup.py || die
 
@@ -87,7 +87,6 @@ src_prepare() {
 }
 
 src_configure() {
-	local disable
 	# disable automagic bluetooth headers detection
 	export ac_cv_header_bluetooth_bluetooth_h=no
 	disable+=" gdbm"
@@ -102,17 +101,8 @@ src_configure() {
 		einfo "Disabled modules: ${PYTHON_DISABLE_MODULES}"
 	fi
 
-	if [[ "$(gcc-major-version)" -ge 4 ]]; then
-		append-flags -fwrapv
-	fi
-
+	append-flags -fwrapv
 	filter-flags -malign-double
-
-	# https://bugs.gentoo.org/show_bug.cgi?id=50309
-	if is-flagq -O3; then
-		is-flagq -fstack-protector-all && replace-flags -O3 -O2
-		use hardened && replace-flags -O3 -O2
-	fi
 
 	# https://bugs.gentoo.org/700012
 	if is-flagq -flto || is-flagq '-flto=*'; then
@@ -126,9 +116,10 @@ src_configure() {
 	fi
 
 	# Export CXX so it ends up in /usr/lib/python3.X/config/Makefile.
-	tc-export CXX
+	# PKG_CONFIG needed for cross.
+	tc-export CXX PKG_CONFIG
 
-	local dbmliborder
+	local dbmliborder=
 
 	local myeconfargs=(
 		# glibc-2.30 removes it; since we can't cleanly force-rebuild
@@ -156,12 +147,73 @@ src_configure() {
 
 	# disable implicit optimization/debugging flags
 	local -x OPT=
+
+	if tc-is-cross-compiler ; then
+		# Hack to workaround get_libdir not being able to handle CBUILD, bug #794181
+		local cbuild_libdir=$(unset PKG_CONFIG_PATH ; $(tc-getBUILD_PKG_CONFIG) --keep-system-libs --libs-only-L libffi)
+
+		# pass system CFLAGS & LDFLAGS as _NODIST, otherwise they'll get
+		# propagated to sysconfig for built extensions
+		local -x CFLAGS_NODIST=${CFLAGS_FOR_BUILD}
+		local -x LDFLAGS_NODIST=${LDFLAGS_FOR_BUILD}
+		local -x CFLAGS= LDFLAGS=
+
+		# We need to build our own Python on CBUILD first, and feed it in.
+		# bug #847910 and bug #864911.
+		local myeconfargs_cbuild=(
+			"${myeconfargs[@]}"
+
+			--libdir="${cbuild_libdir:2}"
+
+			# As minimal as possible for the mini CBUILD Python
+			# we build just for cross.
+			--without-lto
+			--disable-optimizations
+		)
+
+		# Point the imminent CHOST build to the Python we just
+		# built for CBUILD.
+		export PATH="${WORKDIR}/${P}-${CBUILD}:${PATH}"
+
+		mkdir "${WORKDIR}"/${P}-${CBUILD} || die
+		pushd "${WORKDIR}"/${P}-${CBUILD} &> /dev/null || die
+		# We disable _ctypes and _crypt for CBUILD because Python's setup.py can't handle locating
+		# libdir correctly for cross.
+		PYTHON_DISABLE_MODULES="${PYTHON_DISABLE_MODULES} _ctypes _crypt" \
+			ECONF_SOURCE="${S}" econf_build "${myeconfargs_cbuild[@]}"
+
+		# Avoid as many dependencies as possible for the cross build.
+		cat >> Makefile <<-EOF || die
+			MODULE_NIS=disabled
+			MODULE__DBM=disabled
+			MODULE__GDBM=disabled
+			MODULE__DBM=disabled
+			MODULE__SQLITE3=disabled
+			MODULE__HASHLIB=disabled
+			MODULE__SSL=disabled
+			MODULE__CURSES=disabled
+			MODULE__CURSES_PANEL=disabled
+			MODULE_READLINE=disabled
+			MODULE__TKINTER=disabled
+			MODULE_PYEXPAT=disabled
+			MODULE_ZLIB=disabled
+		EOF
+
+		# Unfortunately, we do have to build this immediately, and
+		# not in src_compile, because CHOST configure for Python
+		# will check the existence of the Python it was pointed to
+		# immediately.
+		PYTHON_DISABLE_MODULES="${PYTHON_DISABLE_MODULES} _ctypes _crypt" emake
+		popd &> /dev/null || die
+	fi
+
 	# pass system CFLAGS & LDFLAGS as _NODIST, otherwise they'll get
 	# propagated to sysconfig for built extensions
 	local -x CFLAGS_NODIST=${CFLAGS}
 	local -x LDFLAGS_NODIST=${LDFLAGS}
 	local -x CFLAGS= LDFLAGS=
 
+	hprefixify setup.py
 	econf "${myeconfargs[@]}"
 
 	if grep -q "#define POSIX_SEMAPHORES_NOT_ENABLED 1" pyconfig.h; then
@@ -169,6 +221,9 @@ src_configure() {
 		eerror "Please ensure that /dev/shm is mounted as a tmpfs with mode 1777."
 		die "Broken sem_open function (bug 496328)"
 	fi
+
+	# install epython.py as part of stdlib
+	echo "EPYTHON='python${PYVER}'" > Lib/epython.py || die
 }
 
 src_compile() {

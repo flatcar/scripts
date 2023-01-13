@@ -82,6 +82,3 @@ Modifications made:
   - Create versionless links (python and python3) to python executable.
 
   - Remove installed stuff in `/discard`.
-
-- Replace the dependency on `virtual/awk` with `app-alternatives/awk`.
-  The former is gone in favor of the latter.
