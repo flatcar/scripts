@@ -94,6 +94,16 @@ cros_pre_pkg_setup_sysroot_build_bin_dir() {
 	PATH+=":${CROS_BUILD_BOARD_BIN}"
 }
 
+# Avoid modifications of the preexisting users - these are provided by
+# our baselayout and usermod can't change anything there anyway (it
+# complains that the user is not in /etc/passwd).
+cros_pre_pkg_postinst_no_modifications_of_users() {
+    if [[ "${CATEGORY}" != 'acct-user' ]]; then
+        return 0
+    fi
+    export ACCT_USER_NO_MODIFY=x
+}
+
 # Source hooks for SLSA build provenance report generation
 source "${BASH_SOURCE[0]}.slsa-provenance"
 
