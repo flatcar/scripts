@@ -10,7 +10,7 @@ CROS_WORKON_REPO="https://github.com"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	CROS_WORKON_COMMIT="d362a47d14612edb584f9d122cb883650a7bb6b8" # flatcar-master
+	CROS_WORKON_COMMIT="aa8a19eb8e555d75535632600a353ea4cb5576eb" # flatcar-master
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
@@ -31,6 +31,7 @@ src_install() {
 	# re-use existing filesystem permissions during initrd creation.
 	chmod +x "${D}"/usr/lib/dracut/modules.d/10*-generator/*-generator \
 		"${D}"/usr/lib/dracut/modules.d/10diskless-generator/diskless-btrfs \
+		"${D}"/usr/lib/dracut/modules.d/03flatcar-network/parse-ip-for-networkd.sh \
 		"${D}"/usr/lib/dracut/modules.d/30disk-uuid/disk-uuid.sh \
 		"${D}"/usr/lib/dracut/modules.d/30ignition/ignition-generator \
 		"${D}"/usr/lib/dracut/modules.d/30ignition/ignition-setup.sh \
@@ -39,5 +40,7 @@ src_install() {
 		"${D}"/usr/lib/dracut/modules.d/35torcx/torcx-profile-populate-generator \
 		"${D}"/usr/lib/dracut/modules.d/99setup-root/initrd-setup-root \
 		"${D}"/usr/lib/dracut/modules.d/99setup-root/initrd-setup-root-after-ignition \
+		"${D}"/usr/lib/dracut/modules.d/30ignition/coreos-metadata-wrapper \
+		"${D}"/usr/lib/dracut/modules.d/30ignition/ignition-wrapper \
 		|| die chmod
 }

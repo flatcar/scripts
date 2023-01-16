@@ -89,9 +89,8 @@ INSTALL_MASK="
   /usr/share/portage/config/repos.conf
 "
 
-# Prevent 'ignition' binary from being installed from sys-apps/ignition binary package.
+# Prevent binaries from being installed to rootfs from binary packages
 PKG_INSTALL_MASK="
-  /usr/bin/ignition
 "
 
 # Keep the default languages small.
