@@ -42,5 +42,4 @@ UNIPATCH_LIST="
 	${PATCH_DIR}/z0005-Drivers-hv-vmbus-Propagate-VMbus-coherence-to-each-V.patch \
 	${PATCH_DIR}/z0006-PCI-hv-Avoid-the-retarget-interrupt-hypercall-in-irq.patch \
 	${PATCH_DIR}/z0007-PCI-hv-Remove-unused-hv_set_msi_entry_from_desc.patch \
-	${PATCH_DIR}/z0008-ext4-Fix-deadlock-due-to-mbcache-en.patch \
 "
