@@ -189,8 +189,6 @@ emerge_to_image() {
   # Make sure profile.env has been generated
   sudo -E ROOT="${root_fs_dir}" env-update --no-ldconfig
 
-  fixup_gcc_config_softlinks "${root_fs_dir}"
-
   # TODO(marineam): just call ${BUILD_LIBRARY_DIR}/check_root directly once
   # all tests are fatal, for now let the old function skip soname errors.
   ROOT="${root_fs_dir}" PORTAGE_CONFIGROOT="${BUILD_DIR}"/configroot \

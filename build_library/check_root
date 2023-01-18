@@ -301,7 +301,7 @@ def check_symlink():
 
                 if os.path.islink(path) and not os.path.exists(path):
                     ok = False
-                    error("broken link: %s", path)
+                    error("broken link: %s -> %s", path, os.readlink(path))
 
     return ok
 
