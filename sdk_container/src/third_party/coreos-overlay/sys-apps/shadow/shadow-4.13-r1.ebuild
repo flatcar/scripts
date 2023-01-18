@@ -1,10 +1,16 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
+# Upstream sometimes pushes releases as pre-releases before marking them
+# official. Don't keyword the pre-releases!
+# Check https://github.com/shadow-maint/shadow/releases.
+
+# Flatcar:
 TMPFILES_OPTIONAL=1
 VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/sergehallyn.asc
+# Flatcar: install systemd units and tmpfiles
 inherit libtool pam verify-sig systemd tmpfiles
 
 DESCRIPTION="Utilities to deal with user accounts"
@@ -15,7 +21,7 @@ SRC_URI+=" verify-sig? ( https://github.com/shadow-maint/shadow/releases/downloa
 LICENSE="BSD GPL-2"
 # Subslot is for libsubid's SONAME.
 SLOT="0/4"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 IUSE="acl audit bcrypt cracklib nls pam selinux skey split-usr su xattr"
 # Taken from the man/Makefile.am file.
 LANGS=( cs da de es fi fr hu id it ja ko pl pt_BR ru sv tr zh_CN zh_TW )
@@ -58,7 +64,7 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}/${PN}-4.1.3-dots-in-usernames.patch"
+	"${FILESDIR}"/${P}-configure-clang16.patch
 )
 
 src_prepare() {
@@ -99,6 +105,7 @@ src_configure() {
 }
 
 set_login_opt() {
+	# Flatcar: /etc/login.defs becomes /usr/share/shadow/login.defs
 	local comment="" opt=${1} val=${2}
 	if [[ -z ${val} ]]; then
 		comment="#"
@@ -122,6 +129,7 @@ src_install() {
 
 	find "${ED}" -name '*.la' -type f -delete || die
 
+	# Flatcar:
 	# Remove files from /etc, they will be symlinks to /usr instead.
 	rm -f "${ED}"/etc/{limits,login.access,login.defs,securetty,default/useradd}
 
@@ -137,6 +145,7 @@ src_install() {
 		insopts -m0600
 		doins etc/login.access etc/limits
 	fi
+	# Flatcar:
 	# Using a securetty with devfs device names added
 	# (compat names kept for non-devfs compatibility)
 	insopts -m0600 ; doins "${FILESDIR}"/securetty
