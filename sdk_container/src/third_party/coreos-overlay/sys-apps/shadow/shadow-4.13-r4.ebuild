@@ -7,8 +7,11 @@ EAPI=8
 # official. Don't keyword the pre-releases!
 # Check https://github.com/shadow-maint/shadow/releases.
 
+# Flatcar:
+TMPFILES_OPTIONAL=1
 VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/sergehallyn.asc
-inherit libtool pam verify-sig
+# Flatcar: install systemd units and tmpfiles
+inherit libtool pam verify-sig systemd tmpfiles
 
 DESCRIPTION="Utilities to deal with user accounts"
 HOMEPAGE="https://github.com/shadow-maint/shadow"
@@ -107,19 +110,20 @@ src_configure() {
 }
 
 set_login_opt() {
+	# Flatcar: /etc/login.defs becomes /usr/share/shadow/login.defs
 	local comment="" opt=${1} val=${2}
 	if [[ -z ${val} ]]; then
 		comment="#"
 		sed -i \
 			-e "/^${opt}\>/s:^:#:" \
-			"${ED}"/etc/login.defs || die
+			"${ED}"/usr/share/shadow/login.defs || die
 	else
 		sed -i -r \
 			-e "/^#?${opt}\>/s:.*:${opt} ${val}:" \
-			"${ED}"/etc/login.defs
+			"${ED}"/usr/share/shadow/login.defs
 	fi
-	local res=$(grep "^${comment}${opt}\>" "${ED}"/etc/login.defs)
-	einfo "${res:-Unable to find ${opt} in /etc/login.defs}"
+	local res=$(grep "^${comment}${opt}\>" "${ED}"/usr/share/shadow/login.defs)
+	einfo "${res:-Unable to find ${opt} in /usr/share/shadow/login.defs}"
 }
 
 src_install() {
@@ -130,29 +134,43 @@ src_install() {
 
 	find "${ED}" -name '*.la' -type f -delete || die
 
-	insinto /etc
+	# Flatcar:
+	# Remove files from /etc, they will be symlinks to /usr instead.
+	rm -f "${ED}"/etc/{limits,login.access,login.defs,securetty,default/useradd}
+
+	# CoreOS: break shadow.conf into two files so that we only have to apply
+	# etc-shadow.conf in the initrd.
+	dotmpfiles "${FILESDIR}"/tmpfiles.d/etc-shadow.conf
+	dotmpfiles "${FILESDIR}"/tmpfiles.d/var-shadow.conf
+	# Package the symlinks for the SDK and containers.
+	systemd-tmpfiles --create --root="${ED}" "${FILESDIR}"/tmpfiles.d/*
+
+	insinto /usr/share/shadow
 	if ! use pam ; then
 		insopts -m0600
 		doins etc/login.access etc/limits
 	fi
+	# Flatcar:
+	# Using a securetty with devfs device names added
+	# (compat names kept for non-devfs compatibility)
+	insopts -m0600 ; doins "${FILESDIR}"/securetty
+	# Output arch-specific cruft
+	local devs
+	case $(tc-arch) in
+		ppc*)  devs="hvc0 hvsi0 ttyPSC0";;
+		hppa)  devs="ttyB0";;
+		arm)   devs="ttyFB0 ttySAC0 ttySAC1 ttySAC2 ttySAC3 ttymxc0 ttymxc1 ttymxc2 ttymxc3 ttyO0 ttyO1 ttyO2";;
+		sh)    devs="ttySC0 ttySC1";;
+		amd64|x86)      devs="hvc0";;
+	esac
+	if [[ -n ${devs} ]]; then
+		printf '%s\n' ${devs} >> "${ED}"/usr/share/shadow/securetty
+	fi
 
 	# needed for 'useradd -D'
-	insinto /etc/default
 	insopts -m0600
 	doins "${FILESDIR}"/default/useradd
 
-	if use split-usr ; then
-		# move passwd to / to help recover broke systems #64441
-		# We cannot simply remove this or else net-misc/scponly
-		# and other tools will break because of hardcoded passwd
-		# location
-		dodir /bin
-		mv "${ED}"/usr/bin/passwd "${ED}"/bin/ || die
-		dosym ../../bin/passwd /usr/bin/passwd
-	fi
-
-	cd "${S}" || die
-	insinto /etc
 	insopts -m0644
 	newins etc/login.defs login.defs
 
@@ -206,7 +224,7 @@ src_install() {
 			-e 'b exit' \
 			-e ': pamnote; i# NOTE: This setting should be configured via /etc/pam.d/ and not in this file.' \
 			-e ': exit' \
-			"${ED}"/etc/login.defs || die
+			"${ED}"/usr/share/shadow/login.defs || die
 
 		# Remove manpages that pam will install for us
 		# and/or don't apply when using pam
