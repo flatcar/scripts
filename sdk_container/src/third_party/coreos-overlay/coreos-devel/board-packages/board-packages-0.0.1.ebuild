@@ -27,7 +27,7 @@ RDEPEND="
 	)
 	arm64? (
 		sys-boot/grub
-		sys-firmware/edk2-ovmf
+		sys-firmware/edk2-ovmf-bin
 	)
 	app-emulation/amazon-ssm-agent
 	app-emulation/wa-linux-agent

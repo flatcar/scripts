@@ -7,8 +7,6 @@
 
 =app-arch/zstd-1.4.9 ~amd64 ~arm64
 
-=app-emulation/qemu-7.0.0-r1 ~arm64
-
 =coreos-devel/fero-client-0.1.1 **
 
 # Accept unstable host Rust compilers
@@ -28,9 +26,6 @@
 =net-misc/rsync-3.2.6 ~amd64 ~arm64
 
 =sys-fs/cryptsetup-2.4.1-r1 ~amd64 ~arm64
-
-# Keep headers in sync with kernel version.
-=sys-kernel/linux-headers-5.15 ~amd64 ~arm64
 
 # Keep iproute in sync with kernel version.
 =sys-apps/iproute2-5.15.0 ~amd64 ~arm64

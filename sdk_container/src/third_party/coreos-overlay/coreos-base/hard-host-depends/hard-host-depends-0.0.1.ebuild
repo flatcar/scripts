@@ -67,7 +67,6 @@ RDEPEND="${RDEPEND}
 	sys-apps/usbutils
 	sys-devel/bc
 	sys-libs/nss-usrfiles
-	sys-power/iasl
 	virtual/udev
 	"
 
