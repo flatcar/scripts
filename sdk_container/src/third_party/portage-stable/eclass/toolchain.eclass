@@ -280,6 +280,7 @@ if [[ ${PN} != kgcc64 && ${PN} != gcc-* ]] ; then
 	tc_version_is_at_least 12 && IUSE+=" ieee-long-double"
 	tc_version_is_at_least 12.2.1_p20221203 ${PV} && IUSE+=" default-znow"
 	tc_version_is_at_least 12.2.1_p20221203 ${PV} && IUSE+=" default-stack-clash-protection"
+	tc_version_is_at_least 13.0.0_pre20221211 ${PV} && IUSE+=" rust"
 fi
 
 if tc_version_is_at_least 10; then
@@ -819,6 +820,10 @@ make_gcc_hard() {
 			# * -z now
 			# See gcc *_all_extra-options.patch patches.
 			gcc_hard_flags+=" -DEXTRA_OPTIONS"
+			# Default to -D_FORTIFY_SOURCE=3 instead of -D_FORTIFY_SOURCE=2
+			gcc_hard_flags+=" -DGENTOO_FORTIFY_SOURCE_LEVEL=3"
+			# Add -D_GLIBCXX_ASSERTIONS
+			gcc_hard_flags+=" -DDEF_GENTOO_GLIBCXX_ASSERTIONS"
 
 			if _tc_use_if_iuse cet && [[ ${CTARGET} == *x86_64*-linux* ]] ; then
 				gcc_hard_flags+=" -DEXTRA_OPTIONS_CF"
@@ -1020,8 +1025,8 @@ toolchain_src_configure() {
 	is_fortran && GCC_LANG+=",fortran"
 	is_f77 && GCC_LANG+=",f77"
 	is_f95 && GCC_LANG+=",f95"
-
 	is_ada && GCC_LANG+=",ada"
+	is_rust && GCC_LANG+=",rust"
 
 	confgcc+=( --enable-languages=${GCC_LANG} )
 
@@ -2108,7 +2113,7 @@ toolchain_src_install() {
 	cd "${D}"${BINPATH} || die
 	# Ugh: we really need to auto-detect this list.
 	#      It's constantly out of date.
-	for x in cpp gcc g++ c++ gcov g77 gcj gcjh gfortran gccgo gnat* ; do
+	for x in cpp gcc gccrs g++ c++ gcov g77 gcj gcjh gfortran gccgo gnat* ; do
 		# For some reason, g77 gets made instead of ${CTARGET}-g77...
 		# this should take care of that
 		if [[ -f ${x} ]] ; then
@@ -2687,6 +2692,11 @@ is_objc() {
 is_objcxx() {
 	gcc-lang-supported 'obj-c++' || return 1
 	_tc_use_if_iuse cxx && _tc_use_if_iuse objc++
+}
+
+is_rust() {
+	gcc-lang-supported rust || return 1
+	_tc_use_if_iuse rust
 }
 
 # Grab a variable from the build system (taken from linux-info.eclass)
