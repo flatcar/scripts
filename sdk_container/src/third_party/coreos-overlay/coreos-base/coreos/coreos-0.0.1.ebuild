@@ -97,6 +97,7 @@ RDEPEND="${RDEPEND}
 	app-arch/torcx
 	app-arch/unzip
 	app-arch/zip
+	app-arch/ncompress
 	app-crypt/adcli
 	app-crypt/gnupg
 	app-crypt/go-tspi

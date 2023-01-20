@@ -1,0 +1,41 @@
+From 67176ea3ab5eccd004ca9cacef103d1f0636828a Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Mon, 16 Jan 2023 10:26:24 +0100
+Subject: [PATCH] "Fix" link creation
+
+It's not a proper fix as it stands, because it would try to create a
+hardlink at $(DESTDIR)$(BINDIR)/uncompress using compress from a
+current working directory (so this may work only by chance if compress
+actually exists there), but app-arch/ncompress is also patching
+Makefile.def to use symbolic links. So those two hacks together should
+do the trick by creating a symbolic link at
+$(DESTDIR)$(BINDIR)/uncompress pointing to compress in the same
+directory, instead of creating a dangling symlink.
+---
+ Makefile.def | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Makefile.def b/Makefile.def
+index 94c9719..0fafc7a 100644
+--- a/Makefile.def
++++ b/Makefile.def
+@@ -44,14 +44,14 @@ install_core:	compress
+ 		mkdir -p $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)
+ 		cp compress $(DESTDIR)$(BINDIR)/compress
+ 		rm -f $(DESTDIR)$(BINDIR)/uncompress
+-		ln $(DESTDIR)$(BINDIR)/compress $(DESTDIR)$(BINDIR)/uncompress
++		ln compress $(DESTDIR)$(BINDIR)/uncompress
+ 		cp compress.1 uncompress.1 $(DESTDIR)$(MANDIR)/.
+ 		chmod 0644 $(DESTDIR)$(MANDIR)/compress.1 $(DESTDIR)$(MANDIR)/uncompress.1
+ 
+ install_extra: install_core
+ 		mkdir -p $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)
+ 		rm -f $(DESTDIR)$(BINDIR)/zcat
+-		ln -f $(DESTDIR)$(BINDIR)/compress $(DESTDIR)$(BINDIR)/zcat
++		ln -f compress $(DESTDIR)$(BINDIR)/zcat
+ 		cp zcmp zdiff zmore $(DESTDIR)$(BINDIR)/.
+ 		chmod 0755 $(DESTDIR)$(BINDIR)/compress $(DESTDIR)$(BINDIR)/zcmp $(DESTDIR)$(BINDIR)/zdiff $(DESTDIR)$(BINDIR)/zmore
+ 		cp zcmp.1 zmore.1 $(DESTDIR)$(MANDIR)/.
+-- 
+2.25.1
+
