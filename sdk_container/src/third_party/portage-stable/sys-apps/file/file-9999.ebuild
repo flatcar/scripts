@@ -1,11 +1,11 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 DISTUTILS_USE_PEP517=setuptools
 DISTUTILS_OPTIONAL=1
-PYTHON_COMPAT=( python3_{8..11} )
+PYTHON_COMPAT=( python3_{9..11} )
 
 inherit distutils-r1 libtool toolchain-funcs multilib-minimal
 
@@ -39,17 +39,21 @@ DEPEND="
 		${PYTHON_DEPS}
 		dev-python/setuptools[${PYTHON_USEDEP}]
 	)
+	seccomp? ( >=sys-libs/libseccomp-2.5.4[${MULTILIB_USEDEP}] )
 	zlib? ( >=sys-libs/zlib-1.2.8-r1[${MULTILIB_USEDEP}] )
 	zstd? ( app-arch/zstd:=[${MULTILIB_USEDEP}] )
 "
-RDEPEND="${DEPEND}
+RDEPEND="
+	${DEPEND}
 	python? ( !dev-python/python-magic )
-	seccomp? ( sys-libs/libseccomp[${MULTILIB_USEDEP}] )"
+	seccomp? ( >=sys-libs/libseccomp-2.5.4[${MULTILIB_USEDEP}] )
+"
 BDEPEND+="
 	python? (
 		${PYTHON_DEPS}
 		${DISTUTILS_DEPS}
-	)"
+	)
+"
 
 PATCHES=(
 	"${FILESDIR}/file-5.43-seccomp-fstatat64-musl.patch" #789336, not upstream yet
