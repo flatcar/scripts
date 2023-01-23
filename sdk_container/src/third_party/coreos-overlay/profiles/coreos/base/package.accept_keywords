@@ -22,6 +22,9 @@
 
 =dev-libs/libgcrypt-1.9.4 ~amd64 ~arm64
 
+# Keep the version of bind-tools the same on all arches.
+=net-dns/bind-tools-9.16.36 ~arm64
+
 # Required for addressing CVE-2022-29154
 =net-misc/rsync-3.2.7-r1 ~amd64 ~arm64
 
