@@ -1,10 +1,10 @@
-# Copyright 2021-2022 Gentoo Authors
+# Copyright 2021-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{8..10} )
-inherit estack linux-info optfeature python-any-r1 toolchain-funcs
+PYTHON_COMPAT=( python3_{9..10} )
+inherit estack linux-info optfeature python-any-r1 bash-completion-r1 toolchain-funcs
 
 MY_PV="${PV/_/-}"
 MY_PV="${MY_PV/-pre/-git}"
@@ -27,7 +27,7 @@ S="${S_K}/tools/bpf/bpftool"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~riscv ~x86"
+KEYWORDS="amd64 ~riscv ~x86"
 IUSE="caps"
 
 RDEPEND="
@@ -43,6 +43,7 @@ DEPEND="
 BDEPEND="
 	${LINUX_PATCH+dev-util/patchutils}
 	${PYTHON_DEPS}
+	app-arch/tar
 	dev-python/docutils
 "
 
@@ -56,10 +57,9 @@ src_unpack() {
 		tools/{arch,build,include,lib,perf,scripts} {scripts,include,lib} "arch/*/lib"
 	)
 
-	# We expect the tar implementation to support the -j option (both
-	# GNU tar and libarchive's tar support that).
+	# We expect the tar implementation to support the -j and --wildcards option
 	echo ">>> Unpacking ${LINUX_SOURCES} (${paths[*]}) to ${PWD}"
-	tar --wildcards -xpf "${DISTDIR}"/${LINUX_SOURCES} \
+	gtar --wildcards -xpf "${DISTDIR}"/${LINUX_SOURCES} \
 		"${paths[@]/#/linux-${LINUX_VER}/}" || die
 
 	if [[ -n ${LINUX_PATCH} ]] ; then
@@ -92,6 +92,7 @@ src_prepare() {
 	# Used `git format-patch 00b32625982e0c796f0abb8effcac9c05ef55bd3...600b7b26c07a070d0153daa76b3806c1e52c9e00`
 	# bug #868123
 	eapply "${WORKDIR}"/perf-5.19-binutils-2.39-patches
+	eapply "${FILESDIR}"/${PV}-no-stack-protector.patch
 	popd || die
 
 	# dev-python/docutils installs rst2man.py, not rst2man
@@ -106,6 +107,7 @@ bpftool_make() {
 		HOSTCC="$(tc-getBUILD_CC)" HOSTLD="$(tc-getBUILD_LD)" \
 		EXTRA_CFLAGS="${CFLAGS}" ARCH="${arch}" BPFTOOL_VERSION="${MY_PV}" \
 		prefix="${EPREFIX}"/usr \
+		bash_compdir="$(get_bashcompdir)" \
 		feature-libcap="$(usex caps 1 0)" \
 		"$@"
 }

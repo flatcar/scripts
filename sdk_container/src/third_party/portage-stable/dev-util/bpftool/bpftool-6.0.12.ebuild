@@ -1,10 +1,10 @@
-# Copyright 2021-2022 Gentoo Authors
+# Copyright 2021-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{8..10} )
-inherit estack linux-info optfeature python-any-r1 toolchain-funcs
+PYTHON_COMPAT=( python3_{9..10} )
+inherit estack linux-info optfeature python-any-r1 bash-completion-r1 toolchain-funcs
 
 MY_PV="${PV/_/-}"
 MY_PV="${MY_PV/-pre/-git}"
@@ -41,6 +41,7 @@ DEPEND="
 BDEPEND="
 	${LINUX_PATCH+dev-util/patchutils}
 	${PYTHON_DEPS}
+	app-arch/tar
 	dev-python/docutils
 "
 
@@ -54,10 +55,9 @@ src_unpack() {
 		tools/{arch,build,include,lib,perf,scripts} {scripts,include,lib} "arch/*/lib"
 	)
 
-	# We expect the tar implementation to support the -j option (both
-	# GNU tar and libarchive's tar support that).
+	# We expect the tar implementation to support the -j and --wildcards option
 	echo ">>> Unpacking ${LINUX_SOURCES} (${paths[*]}) to ${PWD}"
-	tar --wildcards -xpf "${DISTDIR}"/${LINUX_SOURCES} \
+	gtar --wildcards -xpf "${DISTDIR}"/${LINUX_SOURCES} \
 		"${paths[@]/#/linux-${LINUX_VER}/}" || die
 
 	if [[ -n ${LINUX_PATCH} ]] ; then
@@ -86,6 +86,11 @@ src_prepare() {
 		popd || die
 	fi
 
+	pushd "${S_K}" >/dev/null || die
+	# bug #890638
+	eapply "${FILESDIR}"/5.19.12-no-stack-protector.patch
+	popd || die
+
 	# dev-python/docutils installs rst2man.py, not rst2man
 	sed -i -e 's/rst2man/rst2man.py/g' Documentation/Makefile || die
 }
@@ -98,6 +103,7 @@ bpftool_make() {
 		HOSTCC="$(tc-getBUILD_CC)" HOSTLD="$(tc-getBUILD_LD)" \
 		EXTRA_CFLAGS="${CFLAGS}" ARCH="${arch}" BPFTOOL_VERSION="${MY_PV}" \
 		prefix="${EPREFIX}"/usr \
+		bash_compdir="$(get_bashcompdir)" \
 		feature-libcap="$(usex caps 1 0)" \
 		"$@"
 }
