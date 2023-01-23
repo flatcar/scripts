@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 #
 # System-wide defaults for the Portage system
@@ -43,7 +43,7 @@ CONFIG_PROTECT_MASK="/etc/env.d /etc/gconf"
 # GOBIN needs to be cleaned as random values in GOBIN can affect the
 # building of some packages:
 # https://archives.gentoo.org/gentoo-dev/message/163010f83ae7819d80c0cfdf797cbfe0
-ENV_UNSET="DBUS_SESSION_BUS_ADDRESS DISPLAY CARGO_HOME XAUTHORITY XDG_CACHE_HOME XDG_CONFIG_HOME XDG_DATA_HOME XDG_STATE_HOME XDG_RUNTIME_DIR PERL_MM_OPT PERL5LIB PERL5OPT PERL_MB_OPT PERL_CORE PERLPREFIX GOBIN GOPATH"
+ENV_UNSET="DBUS_SESSION_BUS_ADDRESS DISPLAY CARGO_HOME GDK_PIXBUF_MODULE_FILE XAUTHORITY XDG_CACHE_HOME XDG_CONFIG_HOME XDG_DATA_HOME XDG_STATE_HOME XDG_RUNTIME_DIR PERL_MM_OPT PERL5LIB PERL5OPT PERL_MB_OPT PERL_CORE PERLPREFIX GOBIN GOPATH"
 
 # Variables that are set exclusively by the profile
 # and not by user configuration files.
@@ -101,8 +101,8 @@ LCD_DEVICES="bayrad cfontz cfontz633 glk hd44780 lb216 lcdm001 mtxorb ncurses te
 
 # Manuel Rüger <mrueg@gentoo.org> (2015-09-09)
 # Default Ruby build target(s)
-# Updated to include ruby27 on 2021-10-10
-RUBY_TARGETS="ruby27"
+# Updated to include ruby30 on 2023-01-15
+RUBY_TARGETS="ruby27 ruby30"
 
 # Andreas K. Hüttel <dilfridge@gentoo.org> (2022-10-22)
 # These USE flags are what is common between the various sub-profiles. Stages 2

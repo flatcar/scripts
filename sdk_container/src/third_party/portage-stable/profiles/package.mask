@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 ####################################################################
@@ -33,6 +33,173 @@
 
 #--- END OF EXAMPLES ---
 
+# Sam James <sam@gentoo.org> (2023-01-23)
+# Please upgrade to >=app-eselect/eselect-wxwidgets-20230114-r1 as -r0 may
+# lead to build failures.
+=app-eselect/eselect-wxwidgets-20230114
+
+# Michał Górny <mgorny@gentoo.org> (2023-01-21)
+# Packages that are incompatible with ffmpeg-5.
+#
+# media-libs/libextractor: no Gentoo maintainer, ver from 2019, bug #834382
+# media-libs/qtav: no Gentoo maintainer, no porting progress, bug #834386
+# media-plugins/vdr-vaapidevice: no activity since 2019, bug #834390
+# media-sound/potamus: last rel. 2018, one commit in 2020, bug #834396
+# media-video/ffmpeg2theora: no activity since 2016, bug #834403
+#
+# Removal on 2023-02-20.
+media-libs/libextractor
+media-libs/qtav
+media-plugins/vdr-vaapidevice
+media-sound/potamus
+media-video/ffmpeg2theora
+
+# Michał Górny <mgorny@gentoo.org> (2023-01-21)
+# Obsoleted in favor of using extract-on-the-first-run feature
+# of games-strategy/wargus.
+# Removal on 2023-02-20.  Bug #578340.
+games-strategy/wargus-data
+
+# Joonas Niilola <juippis@gentoo.org> (2023-01-21)
+# 102.7.0 has a critical authentication issue with Microsoft 365
+# Business accounts. Fix should land in 102.7.1. If you're not affected
+# and really want this update, please unmask it for yourself.
+~mail-client/thunderbird-102.7.0
+~mail-client/thunderbird-bin-102.7.0
+
+# Hans de Graaff <graaff@gentoo.org> (2023-01-21)
+# No longer maintained upstream and missing recent security fixes.
+# Use a newer Rails version instead.
+# This mask also includes several supporting or rails 5.2-only packages.
+# Masked for removal after 2023-02-21.
+dev-ruby/actioncable:5.2
+dev-ruby/actionmailer:5.2
+dev-ruby/actionpack:5.2
+dev-ruby/actionview:5.2
+dev-ruby/activejob:5.2
+dev-ruby/activemodel:5.2
+dev-ruby/activerecord:5.2
+dev-ruby/activestorage:5.2
+dev-ruby/activesupport:5.2
+dev-ruby/rails:5.2
+dev-ruby/railties:5.2
+dev-ruby/arel
+=www-apps/redmine-4.2.9
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2023-01-20)
+# KDE Plasma 5.26.90 (5.27 Beta) mask
+# Pre-release version - happy testing!
+~kde-plasma/bluedevil-5.26.90
+~kde-plasma/breeze-5.26.90
+~kde-plasma/breeze-grub-5.26.90
+~kde-plasma/breeze-gtk-5.26.90
+~kde-plasma/breeze-plymouth-5.26.90
+~kde-plasma/discover-5.26.90
+~kde-plasma/drkonqi-5.26.90
+~kde-plasma/kactivitymanagerd-5.26.90
+~kde-plasma/kde-cli-tools-5.26.90
+~kde-plasma/kde-gtk-config-5.26.90
+~kde-plasma/kdecoration-5.26.90
+~kde-plasma/kdeplasma-addons-5.26.90
+~kde-plasma/kgamma-5.26.90
+~kde-plasma/khotkeys-5.26.90
+~kde-plasma/kinfocenter-5.26.90
+~kde-plasma/kmenuedit-5.26.90
+~kde-plasma/kpipewire-5.26.90
+~kde-plasma/kscreen-5.26.90
+~kde-plasma/kscreenlocker-5.26.90
+~kde-plasma/ksshaskpass-5.26.90
+~kde-plasma/ksystemstats-5.26.90
+~kde-plasma/kwallet-pam-5.26.90
+~kde-plasma/kwayland-integration-5.26.90
+~kde-plasma/kwin-5.26.90
+~kde-plasma/kwrited-5.26.90
+~kde-plasma/layer-shell-qt-5.26.90
+~kde-plasma/libkscreen-5.26.90
+~kde-plasma/libksysguard-5.26.90
+~kde-plasma/libkworkspace-5.26.90
+~kde-plasma/milou-5.26.90
+~kde-plasma/oxygen-5.26.90
+~kde-plasma/oxygen-sounds-5.26.90
+~kde-plasma/plasma-browser-integration-5.26.90
+~kde-plasma/plasma-desktop-5.26.90
+~kde-plasma/plasma-disks-5.26.90
+~kde-plasma/plasma-firewall-5.26.90
+~kde-plasma/plasma-integration-5.26.90
+~kde-plasma/plasma-meta-5.26.90
+~kde-plasma/plasma-nm-5.26.90
+~kde-plasma/plasma-pa-5.26.90
+~kde-plasma/plasma-sdk-5.26.90
+~kde-plasma/plasma-systemmonitor-5.26.90
+~kde-plasma/plasma-thunderbolt-5.26.90
+~kde-plasma/plasma-workspace-5.26.90
+~kde-plasma/plasma-workspace-wallpapers-5.26.90
+~kde-plasma/plasma-vault-5.26.90
+~kde-plasma/plymouth-kcm-5.26.90
+~kde-plasma/polkit-kde-agent-5.26.90
+~kde-plasma/powerdevil-5.26.90
+~kde-plasma/sddm-kcm-5.26.90
+~kde-plasma/systemsettings-5.26.90
+~kde-plasma/xdg-desktop-portal-kde-5.26.90
+~kde-plasma/xembed-sni-proxy-5.26.90
+
+# Alfredo Tupone <tupone@gentoo.org> (2023-01-18)
+# Masked for removal in 30 days.
+# Not maintained (2006), no rev dep, bugs
+# (bug #891283)
+dev-tcltk/tclperl
+
+# David Seifert <soap@gentoo.org> (2023-01-14)
+# Py3.8 only backports
+dev-python/backports-tempfile
+dev-python/backports-weakref
+dev-python/backports-zoneinfo
+dev-python/pkgutil_resolve_name
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2023-01-10)
+# Unmaintained and reportedly broken by KDE Plasma 5.25 already.
+# Masking current stable version is the first step towards last-rites.
+# Consider migrating away from latte-dock for your workflow.
+# See also: https://tinyurl.com/39dkw43a (links to reddit)
+# Removal on 2023-01-30.
+=kde-misc/latte-dock-0.10.8*
+
+# Jonas Stein <jstein@gentoo.org> (2023-01-09)
+# Dead upstream, open bugs unmaintained.
+# Removal after 2023-03-01.  Bug #890244.
+www-client/dillo
+
+# John Helmert III <ajak@gentoo.org> (2023-01-08)
+# Multiple vulnerabilities include remote code execution, maintainer
+# needed, removal in 30 days. Bug #834501
+dev-util/artifactory-bin
+
+# Michael Mair-Keimberger <mmk@levelnine.at> (2023-01-08)
+# Broken since many years, no reverse dependencies, last release from 2000
+# Bug #678518. Removal on 2023-02-08.
+net-dns/dnswalk
+
+# Michael Mair-Keimberger <mmk@levelnine.at> (2023-01-08)
+# EAPI=6, Installs only card pictures and has no reverse dependencies.
+# Bug #805278. Removal on 2023-02-08.
+dev-games/cardpics
+
+# Michael Mair-Keimberger <mmk@levelnine.at> (2023-01-08)
+# Dependencies of games-server/cyphesis, which got removed ~4 years ago, no
+# other reverse dependencies. Bug #728230
+# Removal on 2023-02-08.
+dev-games/mercator
+dev-games/wfmath
+
+# Sam James <sam@gentoo.org> (2023-01-05)
+# Breaks reverse dependencies: bug #889694, bug #888579.
+=sys-fs/btrfs-progs-6.1.1
+
+# David Seifert <soap@gentoo.org> (2023-01-02)
+# EAPI 6, pretty much no upstream activity, outdated, last upstream
+# release over 3 years ago, no revdeps. Removal on 2023-02-01.
+dev-cpp/pngpp
+
 # Jonas Stein <jstein@gentoo.org> (2023-01-01)
 # Package is broken and unusable, no activity upstream.
 # Removal after 2023-02-01.  Bug #722568.
@@ -42,11 +209,6 @@ net-analyzer/chaosreader
 # EAPI=6 ebuild, live only packages for 1 year! maintainer-needed package.
 # Removal: 2023-01-30.  Bug #889200.
 app-containers/docker-gc
-
-# Arthur Zamarin <arthurzam@gentoo.org> (2022-12-31)
-# EAPI=6 ebuild, live only packages for 6 years!
-# Removal: 2023-01-30.  Bug #889198.
-app-vim/lightline
 
 # Arthur Zamarin <arthurzam@gentoo.org> (2022-12-31)
 # Live only packages for 4 years!
@@ -79,7 +241,7 @@ sys-auth/pam_fprint
 
 # Sam James <sam@gentoo.org> (2022-12-27)
 # Obsolete and incompatible with app-alternatives/* (see news item).
-# Removal on 2023-01-27. bug #886019 and bug #886021 respectivly.
+# Removal on 2023-01-27. bug #886019 and bug #886021 respectively.
 app-eselect/eselect-awk
 app-eselect/eselect-sh
 
@@ -117,13 +279,6 @@ dev-python/pytest-toolbox
 # The project did not catch, with hardly any data submissions.
 # Removal on 2023-01-24.  Bug #843344.
 app-portage/gander
-
-# Michał Górny <mgorny@gentoo.org> (2022-12-25)
-# make.conf writing is broken and package.use support incomplete.
-# Last release in 2013.  Attempted unsuccessfully fixing it in 2017.
-# Use an editor instead.
-# Removal on 2023-01-24.  Bug #888423.
-app-portage/flaggie
 
 # Hans de Graaff <graaff@gentoo.org> (2022-12-25)
 # Last release in 2018. Poor quality C extension code. Package
@@ -652,17 +807,6 @@ sci-chemistry/votca-csgapps
 sci-chemistry/votca-xtp
 sci-libs/votca-tools
 
-# Matt Turner <mattst88@gentoo.org> (2022-12-21)
-# Archived upstream, now that fwupd can handle updates.
-# Removal on 2023-01-20.
-media-gfx/colorhug-client
-
-# Matt Turner <mattst88@gentoo.org> (2022-12-21)
-# No reverse dependencies. GTK 4 doesn't use it.
-# See https://gitlab.gnome.org/GNOME/atkmm/-/issues/4
-# Removal on 2023-01-20.
-dev-cpp/atkmm:2.36
-
 # Michał Górny <mgorny@gentoo.org> (2022-12-21)
 # The mauve project is no longer maintained upstream, and the actual
 # program has been removed from Gentoo in 2016.  These are leftover
@@ -684,167 +828,9 @@ dev-db/mysql-super-smack
 # Removal on 2023-01-20.  Bug #737842.
 dev-php/phptal
 
-# Michał Górny <mgorny@gentoo.org> (2022-12-20)
-# Pending version bump since 2015.  No new upstream releases since.
-# Removal on 2023-01-19.  Bug #887489.
-sys-cluster/ganglia
-
-# Michał Górny <mgorny@gentoo.org> (2022-12-20)
-# Unmaintained.  Pending version bump since 2019.  Even then, the newest
-# upstream release has known vulnerabilities.
-# Removal on 2023-01-19.  Bug #696480.
-sys-cluster/ganglia-web
-
-# Michał Górny <mgorny@gentoo.org> (2022-12-20)
-# Proprietary MPEG library that is no longer fetchable.  No reverse
-# dependencies.
-# Removal on 2023-01-19.  Bug #759190.
-media-video/mpeg2vidcodec
-
-# Michał Górny <mgorny@gentoo.org> (2022-12-20)
-# An unmaintained library that was "quickly whipped up for some demos".
-# Last bumped in 2011.  No reverse dependencies.
-# Removal on 2023-01-19.  Bug #847406.
-media-libs/guilib
-
 # Georgy Yakovlev <gyakovlev@gentoo.org> (2022-12-19)
 # This version currently is not compatible with kernel build (yet)
 ~dev-util/bindgen-0.63.0
-
-# Matt Turner <mattst88@gentoo.org> (2022-12-19)
-# Only reverse dependency was x11-terms/eterm which was removed almost a year
-# ago.
-# Removal on 2023-01-20. Bug #875143.
-x11-libs/libast
-
-# Michał Górny <mgorny@gentoo.org> (2022-12-19)
-# Unmaintained.  The current sawfish version in ::gentoo is a prerelease
-# from 2017, there was a single release in 2021.  Bugs are accumulating.
-# Includes dependencies specific to Sawfish.
-# Removal on 2023-01-18.  Bug #637978.
-dev-libs/librep
-x11-libs/rep-gtk
-x11-themes/sawfish-themes
-x11-wm/sawfish
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2022-12-18)
-# Bundled by >=dev-util/hip-5, removal on 2023-01-19
-dev-libs/rocclr
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2022-12-18)
-# Stuck at 2.7.0, no revdeps; removal on 2023-01-19
-dev-libs/rocm-hostcall
-
-# Pacho Ramos <pacho@gentoo.org> (2022-12-18)
-# Dead for ages, still included and barely maintained in bluez[deprecated].
-# See bug #885459
-# Removal: 2023-01-17.  Bug #885459.
-net-wireless/bluez-hcidump
-
-# Michał Górny <mgorny@gentoo.org> (2022-12-17)
-# The new version requires `multipart` that conflicts
-# with dev-python/python-multipart used by dev-python/starlette.
-# No reverse dependencies.
-# Removal on 2023-01-16.  Bug #886475.
-dev-python/test_server
-
-# Michał Górny <mgorny@gentoo.org> (2022-12-17)
-# Discontinued upstream.  Fails to build for some users.  No reverse
-# dependencies.
-# Removal on 2023-01-16.  Bug #650346.
-dev-perl/perl-mozldap
-
-# Michał Górny <mgorny@gentoo.org> (2022-12-17)
-# No longer downloadable.  Pending version bump with no reply from
-# the maintainer.
-# Removal on 2023-01-16.  Bug #786912.
-media-gfx/iscan-plugin-network-nt
-
-# Michał Górny <mgorny@gentoo.org> (2022-12-17)
-# Merged into sys-apps/util-linux.
-# Removal on 2023-01-16.  Bug #867220.
-net-wireless/rfkill
-
-# Michał Górny <mgorny@gentoo.org> (2022-12-16)
-# Requires legacy gnome-base/gconf.  A number of other unresolved
-# issues.  Last release in 2014.
-# Removal on 2023-01-15.  Bug #873871.
-media-video/ogmrip
-media-video/shrip
-
-# Michał Górny <mgorny@gentoo.org> (2022-12-16)
-# Multiple build failures reported.  Last bumped in 2010.
-# Homepage gone.
-# Removal on 2023-01-15.  Bug #839723.
-net-firewall/nufw
-
-# Michał Górny <mgorny@gentoo.org> (2022-12-16)
-# Unmaintained.  Broken with >=net-nds/openldap-2.6.
-# Last release in 2009.
-# Removal on 2023-01-15.  Bug #835649.
-net-nds/adtool
-
-# Michał Górny <mgorny@gentoo.org> (2022-12-16)
-# The distfile was removed from Gentoo servers in 2021, and it is
-# unclear if we were allowed to host it in the first place.  Also,
-# it had a build failure reported in 2020.  No reverse dependencies.
-# Removal on 2023-01-15.  Bug #790026.
-sci-libs/libcmatrix
-
-# Hans de Graaff <graaff@gentoo.org> (2022-12-16)
-# ruby27-only package. No longer maintained upstream.
-# No reverse dependencies. Masked for removal in 30 days.
-dev-ruby/daemon_controller
-
-# Hans de Graaff <graaff@gentoo.org> (2022-12-16)
-# ruby27-only package. No longer maintained upstream.
-# No reverse dependencies. Masked for removal in 30 days.
-dev-ruby/ferret
-
-# Michał Górny <mgorny@gentoo.org> (2022-12-16)
-# Not installable since at least Dec 2020 due to checksum mismatch.
-# Ebuild not touched since 2018.
-# Removal on 2023-01-15.  Bug #759121.
-games-puzzle/mindless
-
-# Michał Górny <mgorny@gentoo.org> (2022-12-16)
-# NTLK relies on a large number of corpora that either have unknown
-# license, a non-free license or that may be in violation of copyright.
-# We have been rubber stamping over this in dev-python/nltk-data
-# via LICENSE=all-rights-reserved + RESTRICT=bindist but this
-# is not a feasible long-term solution.
-#
-# dev-python/lunr is the only revdep and has no reverse dependencies
-# itself.
-#
-# Removal on 2023-01-15.  Bug #886203.
-dev-python/lunr
-dev-python/nltk
-dev-python/nltk-data
-
-# Michał Górny <mgorny@gentoo.org> (2022-12-15)
-# Fails to build since 2019.  Last bumped in 2017.
-# Removal on 2023-01-14.  Bug #688950.
-sci-astronomy/skycat
-
-# Marco Scardovi <mscardovi@icloud.com> (2022-12-15)
-# We are literally the only distro that still have
-# an installation option for that package.
-# It still uses EAPI 6 and no real support since
-# years.
-# Removal on 2023-01-14. Bug #885605
-net-print/kyocera-mita-ppds
-
-# Marco Scardovi <mscardovi@icloud.com> (2022-12-15)
-# Dead upstream, dead homepage, dead symlinks,
-# no revdeps and no version bump since 2011
-# Removal on 2023-01-14. Bug #884881
-net-print/apsfilter
-
-# James Le Cuirot <chewi@gentoo.org> (2022-12-14)
-# Merged into games-engines/scummvm a while back. No longer maintained upstream.
-# Removal in 30 days.
-games-engines/residualvm
 
 # Jaco Kroon <jaco@uls.co.za> (2022-12-14)
 # Multiple open bugs (bug #870910, bug #877731, bug #884815), only one of which
@@ -859,190 +845,32 @@ games-engines/residualvm
 # Removal on 2023-01-31.
 net-voip/captagent
 
-# Hans de Graaff <graaff@gentoo.org> (2022-12-11)
-# ruby27-only package. No reverse dependencies.
-# Last release in 2012. Removal in 30 days.
-dev-ruby/log_buddy
-
-# Hans de Graaff <graaff@gentoo.org> (2022-12-11)
-# ruby27-only slot. No reverse dependencies.
-# Use a newer mime-types slot.
-# Removal in 30 days.
-dev-ruby/mime-types:2
-
-# Hans de Graaff <graaff@gentoo.org> (2022-12-11)
-# ruby27-only package. No reverse dependencies.
-# Last release in 2013. Removal in 30 days.
-dev-ruby/nagios_analyzer
-
-# Hans de Graaff <graaff@gentoo.org> (2022-12-11)
-# ruby27-only package. No reverse dependencies.
-# Last release in 2009. Removal in 30 days.
-dev-ruby/ntlm-http
-
-# Hans de Graaff <graaff@gentoo.org> (2022-12-11)
-# ruby27-only package. No reverse dependencies.
-# Removal in 30 days.
-dev-ruby/posix-spawn
-
 # Jonas Stein <jstein@gentoo.org> (2022-12-11)
 # Unfetchable and mirror-restricted.
 # Upstream discontinued
 # Removal after 2023-02-01.  Bug #884715.
 dev-cpp/sourcetrail
 
-# Andreas K. Hüttel <dilfridge@gentoo.org> (2022-12-10)
-# Fails to build with recent perl. No maintainer, no revdeps.
-# Removal in 30 days. Bug 849518
-net-p2p/opendchub
-
 # Sam James <sam@gentoo.org> (2022-12-09)
 # Breaks compilation of reverse dependencies with broken pkgconfig (pc) file
 # bug #885075, https://github.com/libarchive/libarchive/issues/1766
 =app-arch/libarchive-3.6.2
-
-# Sam James <sam@gentoo.org> (2022-12-09)
-# mpc.h breaks compilation of reverse dependencies, reported upstream to ML
-=dev-libs/mpc-1.3.0
-
-# Michał Górny <mgorny@gentoo.org> (2022-12-09)
-# Unfetchable as the upstream homepage is gone, and mirror-restricted.
-# No package activity since 2018.
-# Removal on 2023-01-08.  Bug #668090.
-games-strategy/netherearth
 
 # Michał Górny <mgorny@gentoo.org> (2022-12-08)
 # Seems to break some logic in pkg_resources.  Masked for the time being
 # to prevent breakage.
 >=dev-python/packaging-22.0
 
-# Ionen Wolkens <ionen@gentoo.org> (2022-12-07)
-# Formerly added to apply binary git patches to wine-staging without git, but
-# has not been used since 2017 and stuck on EAPI-6. Alternatives: dev-vcs/git
-# Removal: 2023-01-06.
-dev-util/patchbin
-
-# Sam James <sam@gentoo.org> (2022-12-07)
-# HOMEPAGE & remote-id are for a different project, SRC_URI is gone,
-# only results on Google are for Gentoo mirrors, EAPI 6. Removal on 2023-01-07.
-# bug #630264, bug #655964, bug #750071.
-dev-vcs/git-pimp
-
-# Sam James <sam@gentoo.org> (2022-12-07)
-# These versions have been masked for testing since 2014(!). These versions
-# had a controversial licence change and therefore had limited adoption.
-# See also the old 2021-05-30-deprecate-old-bdb-slots news item for
-# additional context.
-# Removal on 2023-01-07.
-=sys-libs/db-6.1*
-=sys-libs/db-6.2*
-=sys-libs/db-18.1*
-
-# Naohiro Aota <naota@gentoo.org> (2022-12-07)
-# Masked for removal in 30 days. Depends on gnome-base/gconf. Last release
-# in 2011. See bug #873880.
-sys-apps/gpet
-
-# David Seifert <soap@gentoo.org> (2022-12-06)
-# EAPI 6, untouched for years, no revdeps. Removal on 2023-01-05.
-media-video/nvidia-video-codec
-
-# Sam James <sam@gentoo.org> (2022-12-06)
-# Broke C++ reverse dependencies. Please upgrade to 1.1.0-r1. See bug #884369.
-=x11-libs/libICE-1.1.0
-
-# Hans de Graaff <graaff@gentoo.org> (2022-12-05)
-# ruby27-only package. No longer maintained upstream. Last release in 2017.
-# No reverse dependencies. Removal in 30 days.
-dev-ruby/hipchat
-
-# Hans de Graaff <graaff@gentoo.org> (2022-12-05)
-# This package has been subsumed into its only consumer:
-# dev-ruby/nio4r. It is no longer developed, and its last standalone
-# release was 11 years ago. Removal in 30 days.
-dev-ruby/iobuffer
-
-# Marek Szuba <marecki@gentoo.org> (2022-12-05)
-# No releases since 2003 (!), upstream effectively dead, no Unicode support,
-# EAPI 6. Removal in 30 days (#884429)
-app-editors/elvis
-
-# Robin H. Johnson <robbat2@gentoo.org> (2022-12-04)
-# sys-boot/mbr-gpt was a bizzare package extremely sensitive to compiler &
-# linker changes. I don't know of any remaining consumers other than one weird
-# system I have.
-# If you're a consumer: syslinux gptmbr was the successor to this approach,
-# you'll need to replace the contents of your BIOS Boot Partition, because it's
-# not a direct 1:1 change.
-# Only upstream release in 2008. Removal in 30 days.
-sys-boot/mbr-gpt
-
-# Hans de Graaff <graaff@gentoo.org> (2022-12-03)
-# ruby27-only package with no reverse dependencies.
-# Last release in 2019. Removal in 30 days.
-dev-ruby/logue
-
-# Hans de Graaff <graaff@gentoo.org> (2022-12-04)
-# Obsolete slot without reverse dependencies. Use a newer
-# public_suffix slot instead. Masked for removal in 30 days.
-dev-ruby/public_suffix:3
-
-# Hans de Graaff <graaff@gentoo.org> (2022-12-04)
-# Obsolete slot without reverse dependencies. Use a newer
-# rspec-rails slot instead. Masked for removal in 30 days.
-dev-ruby/rspec-rails:4
-
-# Hans de Graaff <graaff@gentoo.org> (2022-12-04)
-# Obsolete slot without reverse dependencies. Use a newer
-# selenium-webdriver slot instead. Masked for removal in 30 days.
-dev-ruby/selenium-webdriver:3
-
-# Hans de Graaff <graaff@gentoo.org> (2022-12-03)
-# ruby27-only packages with no other reverse dependencies.
-# Last releases in 2013 and 2015. Removal in 30 days.
-dev-ruby/textpow
-dev-ruby/ultraviolet
-
-# Hans de Graaff <graaff@gentoo.org> (2022-12-03)
-# Obsolete slot without reverse dependencies. Use a newer vcr
-# slot instead. Masked for removal in 30 days.
-dev-ruby/vcr:3
-
-# Sam James <sam@gentoo.org> (2022-12-03)
+# Stephan Hartmann <sultan@gentoo.org> (2023-01-15)
 # Dev channel releases are only for people who
 # are developers or want more experimental features
 # and accept a more unstable release.
->=www-client/chromium-110
-
-# Hans de Graaff <graaff@gentoo.org> (2022-12-03)
-# Obsolete slot without reverse dependencies. Use a newer faraday
-# slot instead. Masked for removal in 30 days.
-dev-ruby/faraday:0
-
-# Hans de Graaff <graaff@gentoo.org> (2022-12-03)
-# Obsolete slot without reverse dependencies. Use a newer net-ssh
-# slot instead. Masked for removal in 30 days.
-dev-ruby/net-ssh:5
-
-# Hans de Graaff <graaff@gentoo.org> (2022-12-03)
-# ruby27-only packages. No recent releases. No reverse dependencies
-# anymore. Maksed for removal in 30 days.
-dev-ruby/rspec-retry
-
-# Oz Tiram <oz.tiram@gmail.com> (2022-12-03)
-# Mate-desktop no longer supports gtk+:2, so there is
-# no need for this package. Removal on 2023-01-03.
-x11-themes/mate-themes-meta
+>=www-client/chromium-111
 
 # Piotr Karbowski <slashbeast@gentoo.org> (2022-11-29)
 # Multiple stability issues, deadlocks on exit, broken API.
 # Bug #883559
 =net-p2p/qbittorrent-4.5.0
-
-# David Seifert <soap@gentoo.org> (2022-11-27)
-# Broke API for C++, causes massive carnage for consumers.
-# Bug #883223.
-~dev-libs/glib-2.74.2
 
 # Matt Turner <mattst88@gentoo.org> (2022-11-16)
 # Packages or their dependencies have not been ported to libsoup:3.0, while
@@ -1062,11 +890,6 @@ net-misc/gnome-online-miners
 =net-misc/asterisk-opus-20*
 =net-misc/asterisk-g729-20*
 
-# Sam James <sam@gentoo.org> (2022-10-28)
-# Please upgrade to >=media-libs/fontconfig-2.14.1-r1 for fixed
-# cache dir to avoid sandbox violation errors, bug #878471.
-=media-libs/fontconfig-2.14.1
-
 # John Helmert III <ajak@gentoo.org> (2022-10-16)
 # <OpenSSL-1.1.1 are EOL and contain known vulnerabilities. Users should
 # migrate to a newer branch.
@@ -1075,11 +898,6 @@ net-misc/gnome-online-miners
 # John Helmert III <ajak@gentoo.org> (2022-09-18)
 # Unfixed root privilege escalation, bug #631552
 sys-cluster/slurm
-
-# Matthias Schwarzott <zzam@gentoo.org> (2022-09-08)
-# Breaks kernel builds with BTF enabled.
-# Bug #868762.
-=dev-util/pahole-1.24
 
 # hololeap <hololeap@protonmail.com> (2022-08-21)
 # doctest-parallel does not currently work with Setup.hs (used internally by
@@ -1118,6 +936,7 @@ dev-qt/qtwayland:6
 dev-qt/qtwebchannel:6
 dev-qt/qtwebengine:6
 dev-qt/qtwebsockets:6
+>=media-video/bino-2
 
 # Fabian Groffen <grobian@gentoo.org> (2022-07-02)
 # Segfaults handling SPF validations (warn on permerror), like the
@@ -1197,11 +1016,6 @@ dev-ml/patience_diff:0/0.15
 dev-util/patdiff:0/0.15
 =dev-ml/alcotest-1.6.0*
 
-# David Seifert <soap@gentoo.org> (2022-04-06)
-# Unsupported branches, no consumers left, removal on 2023-01-01.
-sys-devel/automake:1.13
-sys-devel/automake:1.15
-
 # Maciej Barć <xgqt@gentoo.org> (2022-02-20)
 # Masked for testing, builds and passes tests but randomly segfaults,
 # meaningless backtrace, debugging (flags, symbols) do not help
@@ -1229,6 +1043,7 @@ sys-devel/automake:1.15
 # FFmpeg 5.0 ABI/API changes break many packages.
 # Masking for tracker/tinderbox. Bug #831437
 =media-video/ffmpeg-5*
+>=media-sound/spek-0.8.5
 
 # Brian Evans <grknight@gentoo.org> (2022-01-07)
 # The main consumer, phpunit, does not initiate the new timer correctly

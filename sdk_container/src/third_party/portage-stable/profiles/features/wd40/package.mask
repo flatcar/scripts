@@ -41,6 +41,7 @@ dev-python/openstacksdk
 dev-python/os-client-config
 dev-python/osc-lib
 dev-python/paramiko
+dev-python/pooch
 dev-python/pyfuse3
 >=dev-python/pyopenssl-22
 dev-python/pymdown-extensions
@@ -67,6 +68,7 @@ dev-python/twine
 dev-python/watchfiles
 dev-python/wcmatch
 dev-ros/roswtf
+dev-util/buildbot-worker
 dev-util/cargo-c
 dev-util/cbindgen
 dev-util/git-delta
@@ -85,7 +87,6 @@ gnome-extra/sushi
 >=media-gfx/libimagequant-4
 media-libs/libavif
 >=media-libs/libopenraw-0.3.2
-media-video/ogmrip
 media-video/rav1e
 net-im/gajim
 >=net-irc/polari-3.37
