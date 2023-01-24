@@ -1,13 +1,13 @@
-# Copyright 2021-2022 Gentoo Authors
+# Copyright 2021-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # please keep this ebuild at EAPI 7 -- sys-apps/portage dep
 EAPI=7
 
-DISTUTILS_USE_SETUPTOOLS=manual
-PYTHON_COMPAT=( python3_{8..11} pypy3 )
+DISTUTILS_USE_PEP517=no
+PYTHON_COMPAT=( python3_{9..11} pypy3 )
 
-inherit distutils-r1
+inherit distutils-r1 pypi
 
 DESCRIPTION="A lil' TOML parser"
 HOMEPAGE="
@@ -17,10 +17,8 @@ HOMEPAGE="
 SRC_URI="
 	https://github.com/hukkin/tomli/archive/${PV}.tar.gz
 		-> ${P}.gh.tar.gz
-	https://files.pythonhosted.org/packages/py3/${PN::1}/${PN}/${P}-py3-none-any.whl
-		-> ${P}-py3-none-any.whl.zip
+	$(pypi_wheel_url --unpack)
 "
-S=${WORKDIR}
 
 LICENSE="MIT"
 SLOT="0"
@@ -32,13 +30,11 @@ BDEPEND="
 
 distutils_enable_tests unittest
 
-# do not use any build system to avoid circular deps
-python_compile() { :; }
-
-python_test() {
-	eunittest -s "${P}"
+python_compile() {
+	python_domodule src/tomli "${WORKDIR}"/*.dist-info
 }
 
 python_install() {
-	python_domodule tomli *.dist-info
+	distutils-r1_python_install
+	python_optimize
 }
