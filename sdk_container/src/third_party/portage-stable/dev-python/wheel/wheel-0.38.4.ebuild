@@ -1,11 +1,11 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # please keep this ebuild at EAPI 7 -- sys-apps/portage dep
 EAPI=7
 
 DISTUTILS_USE_PEP517=flit
-PYTHON_COMPAT=( python3_{8..11} pypy3 )
+PYTHON_COMPAT=( python3_{9..11} pypy3 )
 
 inherit distutils-r1
 
@@ -14,8 +14,10 @@ HOMEPAGE="
 	https://github.com/pypa/wheel/
 	https://pypi.org/project/wheel/
 "
-SRC_URI="mirror://pypi/${PN:0:1}/${PN}/${P}.tar.gz"
-SRC_URI="https://github.com/pypa/wheel/archive/${PV}.tar.gz -> ${P}.gh.tar.gz"
+SRC_URI="
+	https://github.com/pypa/wheel/archive/${PV}.tar.gz
+		-> ${P}.gh.tar.gz
+"
 
 LICENSE="MIT"
 SLOT="0"
@@ -33,13 +35,10 @@ BDEPEND="
 distutils_enable_tests pytest
 
 src_prepare() {
-	sed \
-		-e 's:--cov --cov-config=setup.cfg::g' \
-		-i setup.cfg || die
-
 	# unbundle packaging
 	rm -r src/wheel/vendored || die
 	sed -i -e 's:\.vendored\.::' src/wheel/*.py || die
+	sed -i -e 's:wheel\.vendored\.::' tests/*.py || die
 
 	distutils-r1_src_prepare
 }
