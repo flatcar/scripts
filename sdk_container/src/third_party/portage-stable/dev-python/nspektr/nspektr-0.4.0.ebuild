@@ -1,22 +1,18 @@
-# Copyright 2022 Gentoo Authors
+# Copyright 2022-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # please keep this ebuild at EAPI 7 -- sys-apps/portage dep
 EAPI=7
 
 DISTUTILS_USE_PEP517=flit
-PYTHON_COMPAT=( pypy3 python3_{8..11} )
+PYTHON_COMPAT=( pypy3 python3_{9..11} )
 
-inherit distutils-r1
+inherit distutils-r1 pypi
 
 DESCRIPTION="Distribution package dependency inspector"
 HOMEPAGE="
 	https://github.com/jaraco/nspektr/
 	https://pypi.org/project/nspektr/
-"
-SRC_URI="
-	https://github.com/jaraco/nspektr/archive/v${PV}.tar.gz
-		-> ${P}.tar.gz
 "
 
 LICENSE="MIT"
@@ -34,12 +30,6 @@ RDEPEND="
 "
 
 distutils_enable_tests pytest
-
-src_prepare() {
-	# avoid unnecessary test dep on pip
-	sed -i -e 's:pip:pytest:' nspektr/__init__.py || die
-	distutils-r1_src_prepare
-}
 
 src_configure() {
 	grep -q 'build-backend = "setuptools' pyproject.toml ||
