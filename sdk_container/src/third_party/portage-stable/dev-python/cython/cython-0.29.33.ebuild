@@ -1,16 +1,13 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{8..11} pypy3 )
+PYTHON_COMPAT=( python3_{9..11} pypy3 )
 PYTHON_REQ_USE="threads(+)"
 
 inherit distutils-r1 toolchain-funcs elisp-common
-
-EGIT_COMMIT="74073417c4f7e616af0a139a55f790f1ec7fe728"
-MY_P=${PN}-${EGIT_COMMIT}
 
 DESCRIPTION="A Python to C compiler"
 HOMEPAGE="
@@ -19,10 +16,9 @@ HOMEPAGE="
 	https://pypi.org/project/Cython/
 "
 SRC_URI="
-	https://github.com/cython/cython/archive/${EGIT_COMMIT}.tar.gz
-		-> ${MY_P}.gh.tar.gz
+	https://github.com/cython/cython/archive/${PV}.tar.gz
+		-> ${P}.gh.tar.gz
 "
-S=${WORKDIR}/${MY_P}
 
 LICENSE="Apache-2.0"
 SLOT="0"
@@ -63,7 +59,7 @@ python_compile_all() {
 }
 
 python_test() {
-	if [[ ${EPYTHON} == python3.11 ]]; then
+	if has "${EPYTHON}" pypy3 python3.11; then
 		einfo "Skipping tests on ${EPYTHON} (xfail)"
 		return
 	fi
