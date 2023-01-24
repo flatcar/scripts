@@ -1,10 +1,10 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{8..11} pypy3 )
+PYTHON_COMPAT=( python3_{9..11} pypy3 )
 
 inherit distutils-r1 optfeature toolchain-funcs
 
@@ -12,9 +12,12 @@ DESCRIPTION="A Pythonic binding for the libxml2 and libxslt libraries"
 HOMEPAGE="
 	https://lxml.de/
 	https://pypi.org/project/lxml/
-	https://github.com/lxml/lxml
+	https://github.com/lxml/lxml/
 "
-SRC_URI="https://github.com/lxml/lxml/archive/${P}.tar.gz"
+SRC_URI="
+	https://github.com/lxml/lxml/archive/${P}.tar.gz
+		-> ${P}.gh.tar.gz
+"
 S=${WORKDIR}/lxml-${P}
 
 LICENSE="BSD ElementTree GPL-2 PSF-2"
@@ -26,19 +29,20 @@ RESTRICT="!test? ( test )"
 # Note: lib{xml2,xslt} are used as C libraries, not Python modules.
 DEPEND="
 	>=dev-libs/libxml2-2.9.12-r2
-	>=dev-libs/libxslt-1.1.28"
+	>=dev-libs/libxslt-1.1.28
+"
 RDEPEND="
 	${DEPEND}
 "
 BDEPEND="
 	virtual/pkgconfig
-	dev-python/cython[${PYTHON_USEDEP}]
+	>=dev-python/cython-0.29.29[${PYTHON_USEDEP}]
 	doc? (
 		$(python_gen_any_dep '
 			dev-python/docutils[${PYTHON_USEDEP}]
 			dev-python/pygments[${PYTHON_USEDEP}]
 			dev-python/sphinx[${PYTHON_USEDEP}]
-			dev-python/sphinx_rtd_theme[${PYTHON_USEDEP}]
+			dev-python/sphinx-rtd-theme[${PYTHON_USEDEP}]
 		')
 	)
 	test? (
@@ -52,10 +56,10 @@ PATCHES=(
 
 python_check_deps() {
 	use doc || return 0
-	has_version "dev-python/docutils[${PYTHON_USEDEP}]" &&
-	has_version "dev-python/pygments[${PYTHON_USEDEP}]" &&
-	has_version "dev-python/sphinx[${PYTHON_USEDEP}]" &&
-	has_version "dev-python/sphinx_rtd_theme[${PYTHON_USEDEP}]"
+	python_has_version -b "dev-python/docutils[${PYTHON_USEDEP}]" &&
+	python_has_version -b "dev-python/pygments[${PYTHON_USEDEP}]" &&
+	python_has_version -b "dev-python/sphinx[${PYTHON_USEDEP}]" &&
+	python_has_version -b "dev-python/sphinx-rtd-theme[${PYTHON_USEDEP}]"
 }
 
 python_prepare_all() {
