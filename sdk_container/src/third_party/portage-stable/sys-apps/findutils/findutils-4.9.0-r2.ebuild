@@ -1,29 +1,35 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="7"
+EAPI=8
 
-PYTHON_COMPAT=( python3_{7..9} )
-
-inherit flag-o-matic python-any-r1
+PYTHON_COMPAT=( python3_{9..11} )
+VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/findutils.asc
+inherit flag-o-matic python-any-r1 verify-sig
 
 DESCRIPTION="GNU utilities for finding files"
 HOMEPAGE="https://www.gnu.org/software/findutils/"
 SRC_URI="mirror://gnu/${PN}/${P}.tar.xz"
+SRC_URI+=" verify-sig? ( mirror://gnu/${PN}/${P}.tar.xz.sig )"
 
 LICENSE="GPL-3+"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="nls selinux static test"
 RESTRICT="!test? ( test )"
 
-RDEPEND="selinux? ( sys-libs/libselinux )
-	nls? ( virtual/libintl )"
-DEPEND="${RDEPEND}
-	test? ( ${PYTHON_DEPS} )
+RDEPEND="
+	selinux? ( sys-libs/libselinux )
+	nls? ( virtual/libintl )
 "
+DEPEND="${RDEPEND}"
 BDEPEND="
 	nls? ( sys-devel/gettext )
+	test? (
+		${PYTHON_DEPS}
+		dev-util/dejagnu
+	)
+	verify-sig? ( sec-keys/openpgp-keys-findutils )
 "
 
 pkg_setup() {
@@ -42,13 +48,12 @@ src_prepare() {
 }
 
 src_configure() {
-	append-lfs-flags #471102
-	append-cppflags -D_TIME_BITS=64
-
 	if use static; then
 		append-flags -pthread
 		append-ldflags -static
 	fi
+
+	append-lfs-flags
 
 	if [[ ${CHOST} == *-darwin* ]] ; then
 		# https://lists.gnu.org/archive/html/bug-findutils/2021-01/msg00050.html
@@ -56,21 +61,37 @@ src_configure() {
 		append-cppflags '-D__nonnull\(X\)='
 	fi
 
-	program_prefix=$(usex userland_GNU '' g)
 	local myeconfargs=(
 		--with-packager="Gentoo"
 		--with-packager-version="${PVR}"
 		--with-packager-bug-reports="https://bugs.gentoo.org/"
-		--program-prefix=${program_prefix}
 		$(use_enable nls)
 		$(use_with selinux)
 		--libexecdir='$(libdir)'/find
+		# rename to gfind, gxargs for better BSD compatibility
+		--program-prefix=g
 	)
 	econf "${myeconfargs[@]}"
+}
+
+src_test() {
+	local -x SANDBOX_PREDICT=${SANDBOX_PREDICT}
+	addpredict /
+	default
 }
 
 src_compile() {
 	# We don't build locate, but the docs want a file in there.
 	emake -C locate dblocation.texi
 	default
+}
+
+src_install() {
+	default
+
+	# symlink to the standard names
+	dosym gfind /usr/bin/find
+	dosym gxargs /usr/bin/xargs
+	dosym gfind.1 /usr/share/man/man1/find.1
+	dosym gxargs.1 /usr/share/man/man1/xargs.1
 }
