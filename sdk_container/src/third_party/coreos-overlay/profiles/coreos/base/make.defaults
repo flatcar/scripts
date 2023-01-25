@@ -46,11 +46,6 @@ BOOTSTRAP_USE="${BOOTSTRAP_USE} curl_ssl_openssl ssl"
 # Add `xml` USE flag to avoid build failures from sys-apps/portage 3.0.28
 BOOTSTRAP_USE="${BOOTSTRAP_USE} xml"
 
-# Add `bison` USE flag, so we pick a proper yacc alternative from
-# app-alternatives/yacc (normally bison is enabled by default, but
-# it's disabled during building stage2 for some reason).
-BOOTSTRAP_USE="${BOOTSTRAP_USE} bison"
-
 # Set SELinux policy
 POLICY_TYPES="targeted mcs mls"
 
