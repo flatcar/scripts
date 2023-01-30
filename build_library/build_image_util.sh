@@ -610,6 +610,8 @@ finish_image() {
   local image_grub="$8"
   local image_shim="$9"
   local image_kconfig="${10}"
+  local image_initrd_contents="${11}"
+  local image_initrd_contents_wtd="${12}"
 
   local install_grub=0
   local disk_img="${BUILD_DIR}/${image_name}"
@@ -748,6 +750,18 @@ EOF
     ${BUILD_LIBRARY_DIR}/generate_kernel_hash.py \
         "${root_fs_dir}/boot/flatcar/vmlinuz-a" ${FLATCAR_VERSION} \
         >"${BUILD_DIR}/pcrs/kernel.config"
+  fi
+
+  if [[ -n "${image_initrd_contents}" ]] || [[ -n "${image_initrd_contents_wtd}" ]]; then
+      "${BUILD_LIBRARY_DIR}/extract-initramfs-from-vmlinuz.sh" "${root_fs_dir}/boot/flatcar/vmlinuz-a" "${BUILD_DIR}/tmp_initrd_contents"
+      if [[ -n "${image_initrd_contents}" ]]; then
+          write_contents "${BUILD_DIR}/tmp_initrd_contents" "${BUILD_DIR}/${image_initrd_contents}"
+      fi
+
+      if [[ -n "${image_initrd_contents_wtd}" ]]; then
+          write_contents_with_technical_details "${BUILD_DIR}/tmp_initrd_contents" "${BUILD_DIR}/${image_initrd_contents_wtd}"
+      fi
+      rm -rf "${BUILD_DIR}/tmp_initrd_contents"
   fi
 
   rm -rf "${BUILD_DIR}"/configroot
