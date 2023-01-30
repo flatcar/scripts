@@ -244,9 +244,33 @@ systemd_enable() {
 write_contents() {
     info "Writing ${2##*/}"
     pushd "$1" >/dev/null
+    # %M - file permissions
+    # %n - number of hard links to file
+    # %u - file's user name
+    # %g - file's group name
+    # %s - size in bytes
+    # %Tx - modification time (Y - year, m - month, d - day, H - hours, M - minutes)
+    # %P - file's path
+    # %l - symlink target (empty if not a symlink)
     sudo TZ=UTC find -printf \
         '%M %2n %-7u %-7g %7s %TY-%Tm-%Td %TH:%TM ./%P -> %l\n' \
         | sed -e 's/ -> $//' > "$2"
+    popd >/dev/null
+}
+
+# Generate a listing that can be used by other tools to analyze
+# image/file size changes.
+write_contents_with_technical_details() {
+    info "Writing ${2##*/}"
+    pushd "$1" >/dev/null
+    # %M - file permissions
+    # %D - ID of a device where file resides
+    # %i - inode number
+    # %n - number of hard links to file
+    # %s - size in bytes
+    # %P - file's path
+    sudo find -printf \
+        '%M %D %i %n %s ./%P\n' > "$2"
     popd >/dev/null
 }
 
@@ -624,11 +648,12 @@ finish_image() {
   local disk_layout="$2"
   local root_fs_dir="$3"
   local image_contents="$4"
-  local image_kernel="$5"
-  local pcr_policy="$6"
-  local image_grub="$7"
-  local image_shim="$8"
-  local image_kconfig="$9"
+  local image_contents_wtd="$5"
+  local image_kernel="$6"
+  local pcr_policy="$7"
+  local image_grub="$8"
+  local image_shim="$9"
+  local image_kconfig="${10}"
 
   local install_grub=0
   local disk_img="${BUILD_DIR}/${image_name}"
@@ -731,6 +756,7 @@ EOF
   fi
 
   write_contents "${root_fs_dir}" "${BUILD_DIR}/${image_contents}"
+  write_contents_with_technical_details "${root_fs_dir}" "${BUILD_DIR}/${image_contents_wtd}"
 
   # Zero all fs free space to make it more compressible so auto-update
   # payloads become smaller, not fatal since it won't work on linux < 3.2
