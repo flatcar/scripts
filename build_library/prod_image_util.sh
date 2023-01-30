@@ -64,6 +64,7 @@ create_prod_image() {
   info "Building production image ${image_name}"
   local root_fs_dir="${BUILD_DIR}/rootfs"
   local image_contents="${image_name%.bin}_contents.txt"
+  local image_contents_wtd="${image_name%.bin}_contents_wtd.txt"
   local image_packages="${image_name%.bin}_packages.txt"
   local image_licenses="${image_name%.bin}_licenses.json"
   local image_kconfig="${image_name%.bin}_kernel_config.txt"
@@ -127,6 +128,7 @@ EOF
       "${disk_layout}" \
       "${root_fs_dir}" \
       "${image_contents}" \
+      "${image_contents_wtd}" \
       "${image_kernel}" \
       "${image_pcr_policy}" \
       "${image_grub}" \
@@ -136,6 +138,7 @@ EOF
   # Upload
   local to_upload=(
     "${BUILD_DIR}/${image_contents}"
+    "${BUILD_DIR}/${image_contents_wtd}"
     "${BUILD_DIR}/${image_packages}"
     "${BUILD_DIR}/${image_licenses}"
     "${BUILD_DIR}/${image_kernel}"
