@@ -74,6 +74,8 @@ create_prod_image() {
   local image_pcr_policy="${image_name%.bin}_pcr_policy.zip"
   local image_grub="${image_name%.bin}.grub"
   local image_shim="${image_name%.bin}.shim"
+  local image_initrd_contents="${image_name%.bin}_initrd_contents.txt"
+  local image_initrd_contents_wtd="${image_name%.bin}_initrd_contents_wtd.txt"
 
   start_image "${image_name}" "${disk_layout}" "${root_fs_dir}" "${update_group}"
 
@@ -137,7 +139,9 @@ EOF
       "${image_pcr_policy}" \
       "${image_grub}" \
       "${image_shim}" \
-      "${image_kconfig}"
+      "${image_kconfig}" \
+      "${image_initrd_contents}" \
+      "${image_initrd_contents_wtd}"
 
   # Upload
   local to_upload=(
@@ -150,6 +154,8 @@ EOF
     "${BUILD_DIR}/${image_pcr_policy}"
     "${BUILD_DIR}/${image_grub}"
     "${BUILD_DIR}/${image_kconfig}"
+    "${BUILD_DIR}/${image_initrd_contents}"
+    "${BUILD_DIR}/${image_initrd_contents_wtd}"
   )
 
   local files_to_evaluate=( "${BUILD_DIR}/${image_name}" )
