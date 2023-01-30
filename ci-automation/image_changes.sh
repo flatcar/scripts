@@ -103,6 +103,9 @@ function _image_changes_impl() {
     echo "Image kernel config changes, compared to ${CHANNEL_A} ${VERSION_A}:"
     FILE=flatcar_production_image_kernel_config.txt flatcar-build-scripts/package-diff "${VERSION_A}" "${VERSION_B}"
     echo
+    echo "Image init ramdisk file changes, compared to ${CHANNEL_A} ${VERSION_A}:"
+    FILE=flatcar_production_image_initrd_contents.txt FILESONLY=1 flatcar-build-scripts/package-diff "${VERSION_A}" "${VERSION_B}"
+    echo
     echo "Image file size change (includes /boot, /usr and the default rootfs partitions), compared to ${CHANNEL_A} ${VERSION_A}:"
     FILE=flatcar_production_image_contents.txt CALCSIZE=1 flatcar-build-scripts/package-diff "${VERSION_A}" "${VERSION_B}"
     echo
