@@ -28,12 +28,6 @@ find profiles -name 'package.*' | xargs sed -i "s/\([><]*=\|~\)*dev-lang\/rust-\
 find profiles -name 'package.*' | xargs sed -i "s/\([><]*=\|~\)*virtual\/rust-\S\+/\1virtual\/rust-${VERSION_NEW}/"
 
 EBUILD_FILENAME=$(get_ebuild_filename "dev-lang" "rust" "${VERSION_OLD}")
-
-# Every ebuild for dev-lang/rust does a specific check if PV is the version.
-# e.g. if [[ "${PV}" == 1.66.1 ]]; then,
-# So it is needed to replace the hard-coded version with the new version.
-sed -i "s/PV\(.*\)${VERSION_OLD}/PV\1${VERSION_NEW}/g" ${EBUILD_FILENAME}
-
 git mv "${EBUILD_FILENAME}" "dev-lang/rust/rust-${VERSION_NEW}.ebuild"
 EBUILD_FILENAME=$(get_ebuild_filename "virtual" "rust" "${VERSION_OLD}")
 git mv "${EBUILD_FILENAME}" "virtual/rust/rust-${VERSION_NEW}.ebuild"
