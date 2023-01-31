@@ -284,9 +284,16 @@ _configure_sysroot() {
     $sudo cp /etc/portage/repos.conf/* "${ROOT}/etc/portage/repos.conf/"
     $sudo eselect profile set --force "$profile"
 
-    $sudo tee "${ROOT}/etc/portage/make.conf" >/dev/null <<EOF
-$(portageq envvar -v CHOST CBUILD ROOT \
-    PORTDIR PORTDIR_OVERLAY DISTDIR PKGDIR)
+    local coreos_path
+    coreos_path=$(portageq get_repo_path "${ROOT}" coreos)
+    $sudo ln -sfT "${coreos_path}/coreos/user-patches" "${ROOT}/etc/portage/patches"
+
+    echo "Writing make.conf for the sysroot ${SYSROOT}, root ${ROOT}"
+    $sudo tee "${ROOT}/etc/portage/make.conf" <<EOF
+$(portageq envvar -v CHOST CBUILD ROOT DISTDIR PKGDIR)
+# TODO: These are deprecated, drop them eventually.
+PORTDIR="$(portageq get_repo_path "${ROOT}" portage-stable)"
+PORTDIR_OVERLAY="${coreos_path} $(portageq get_repo_path "${ROOT}" x-crossdev)"
 HOSTCC=\${CBUILD}-gcc
 PKG_CONFIG_PATH="\${SYSROOT}/usr/lib/pkgconfig/"
 # Enable provenance reporting by default. Produced files are in /usr/share/SLSA
