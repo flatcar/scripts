@@ -83,7 +83,7 @@ info "Setting up portage..."
 sudo mkdir -p "${REPO_CACHE_DIR}/distfiles"
 sudo chown "${PORTAGE_USERNAME}:portage" "${REPO_CACHE_DIR}/distfiles"
 sudo mkdir -p /etc/portage/repos.conf /var/lib/portage/pkgs
-sudo ln -sf "${COREOS_OVERLAY}/coreos/user-patches" '/etc/portage/patches'
+sudo ln -sfT "${COREOS_OVERLAY}/coreos/user-patches" '/etc/portage/patches'
 sudo touch /etc/portage/make.conf.user
 
 sudo_clobber "/etc/portage/make.conf" <<EOF
