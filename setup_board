@@ -233,7 +233,7 @@ fi
 
 info "Configuring portage in ${BOARD_ROOT}"
 sudo mkdir -p "${BOARD_ETC}/portage/"{profile,repos.conf}
-sudo ln -sf "$(portageq get_repo_path / coreos)/coreos/user-patches" \
+sudo ln -sfT "$(portageq get_repo_path / coreos)/coreos/user-patches" \
    "${BOARD_ETC}/portage/patches"
 sudo cp /etc/portage/repos.conf/* "${BOARD_ETC}"/portage/repos.conf/
 sudo ROOT="${BOARD_ROOT}" eselect profile set --force "${PORTAGE_PROFILE}"
