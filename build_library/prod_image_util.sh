@@ -74,6 +74,7 @@ create_prod_image() {
   local image_shim="${image_name%.bin}.shim"
   local image_initrd_contents="${image_name%.bin}_initrd_contents.txt"
   local image_initrd_contents_wtd="${image_name%.bin}_initrd_contents_wtd.txt"
+  local image_disk_usage="${image_name%.bin}_disk_usage.txt"
 
   start_image "${image_name}" "${disk_layout}" "${root_fs_dir}" "${update_group}"
 
@@ -137,7 +138,8 @@ EOF
       "${image_shim}" \
       "${image_kconfig}" \
       "${image_initrd_contents}" \
-      "${image_initrd_contents_wtd}"
+      "${image_initrd_contents_wtd}" \
+      "${image_disk_usage}"
 
   # Upload
   local to_upload=(
@@ -151,6 +153,7 @@ EOF
     "${BUILD_DIR}/${image_kconfig}"
     "${BUILD_DIR}/${image_initrd_contents}"
     "${BUILD_DIR}/${image_initrd_contents_wtd}"
+    "${BUILD_DIR}/${image_disk_usage}"
   )
 
   local files_to_evaluate=( "${BUILD_DIR}/${image_name}" )
