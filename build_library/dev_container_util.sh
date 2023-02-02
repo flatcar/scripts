@@ -77,6 +77,7 @@ create_dev_container() {
   info "Building developer image ${image_name}"
   local root_fs_dir="${BUILD_DIR}/rootfs"
   local image_contents="${image_name%.bin}_contents.txt"
+  local image_contents_wtd="${image_name%.bin}_contents_wtd.txt"
   local image_packages="${image_name%.bin}_packages.txt"
   local image_licenses="${image_name%.bin}_licenses.json"
 
@@ -104,7 +105,7 @@ create_dev_container() {
   # The remount services are provided by coreos-base/coreos-init
   systemd_enable "${root_fs_dir}" "multi-user.target" "remount-usr.service"
 
-  finish_image "${image_name}" "${disk_layout}" "${root_fs_dir}" "${image_contents}"
+  finish_image "${image_name}" "${disk_layout}" "${root_fs_dir}" "${image_contents}" "${image_contents_wtd}"
 
   declare -a files_to_evaluate
   declare -a compressed_images
@@ -115,6 +116,7 @@ create_dev_container() {
 
   upload_image -d "${BUILD_DIR}/${image_name}.DIGESTS" \
       "${BUILD_DIR}/${image_contents}" \
+      "${BUILD_DIR}/${image_contents_wtd}" \
       "${BUILD_DIR}/${image_packages}" \
       "${BUILD_DIR}/${image_licenses}" \
       "${compressed_images[@]}" \
