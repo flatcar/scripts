@@ -7,6 +7,10 @@ app-editors/vim		minimal -crypt
 # minimal: Don't pull app-vim/gentoo-syntax
 app-editors/vim-core	minimal
 dev-lang/python		gdbm
+
+# Disable everything for python-oem except of build and xml
+dev-lang/python-oem -bluetooth build -ensurepip -examples -gdbm -hardened -libedit -lto -ncurses -pgo -readline -sqlite -ssl -test -tk -valgrind xml
+
 dev-libs/dbus-glib	tools
 dev-libs/elfutils	-utils
 dev-libs/openssl	pkcs11

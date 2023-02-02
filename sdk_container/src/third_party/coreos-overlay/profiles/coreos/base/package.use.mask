@@ -26,3 +26,4 @@ sys-libs/glibc -crypt
 
 # We don't use pip.
 dev-lang/python ensurepip
+dev-lang/python-oem ensurepip
