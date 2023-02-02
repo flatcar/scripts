@@ -86,6 +86,10 @@ function _image_changes_impl() {
     export FROM_B="bincache"
     export VERSION_B="${vernum}"
     export BOARD_B="${arch}-usr"
+    # First parts of the size-changes-report specs, the kind is
+    # appended at call sites.
+    SPEC_A_PART="${FROM_A}:${CHANNEL_A}:${arch}-usr:${VERSION_A}"
+    SPEC_B_PART="${FROM_B}:${arch}:${VERSION_B}"
     # CHANNEL_B is unused
     echo "== Image differences compared to ${CHANNEL_A} ${VERSION_A} =="
     NEW_VERSION=$(git tag --points-at HEAD)
@@ -102,6 +106,22 @@ function _image_changes_impl() {
     echo
     echo "Image kernel config changes, compared to ${CHANNEL_A} ${VERSION_A}:"
     FILE=flatcar_production_image_kernel_config.txt flatcar-build-scripts/package-diff "${VERSION_A}" "${VERSION_B}"
+    echo
+    echo "Image init ramdisk file changes, compared to ${CHANNEL_A} ${VERSION_A}:"
+    FILE=flatcar_production_image_initrd_contents.txt FILESONLY=1 flatcar-build-scripts/package-diff "${VERSION_A}" "${VERSION_B}"
+    echo
+    echo "Image file size changes, compared to ${CHANNEL_A} ${VERSION_A}:"
+    if ! flatcar-build-scripts/size-change-report.sh "${SPEC_A_PART}:wtd" "${SPEC_B_PART}:wtd"; then
+        flatcar-build-scripts/size-change-report.sh "${SPEC_A_PART}:old" "${SPEC_B_PART}:old"
+    fi
+    echo
+    echo "Image init ramdisk file size changes, compared to ${CHANNEL_A} ${VERSION_A}:"
+    if ! flatcar-build-scripts/size-change-report.sh "${SPEC_A_PART}:initrd-wtd" "${SPEC_B_PART}:initrd-wtd"; then
+        flatcar-build-scripts/size-change-report.sh "${SPEC_A_PART}:initrd-old" "${SPEC_B_PART}:initrd-old"
+    fi
+    echo "Take the total size difference with a grain of salt as normally initrd is compressed, so the actual difference will be smaller."
+    echo "To see the actual difference in size, see if there was a report for /boot/flatcar/vmlinuz-a."
+    echo "Note that vmlinuz-a also contains the kernel code, which might have changed too, so the reported difference does not accurately describe the change in initrd."
     echo
     echo "Image file size change (includes /boot, /usr and the default rootfs partitions), compared to ${CHANNEL_A} ${VERSION_A}:"
     FILE=flatcar_production_image_contents.txt CALCSIZE=1 flatcar-build-scripts/package-diff "${VERSION_A}" "${VERSION_B}"
