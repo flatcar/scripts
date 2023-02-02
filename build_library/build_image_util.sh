@@ -245,9 +245,57 @@ systemd_enable() {
 write_contents() {
     info "Writing ${2##*/}"
     pushd "$1" >/dev/null
+    # %M - file permissions
+    # %n - number of hard links to file
+    # %u - file's user name
+    # %g - file's group name
+    # %s - size in bytes
+    # %Tx - modification time (Y - year, m - month, d - day, H - hours, M - minutes)
+    # %P - file's path
+    # %l - symlink target (empty if not a symlink)
     sudo TZ=UTC find -printf \
         '%M %2n %-7u %-7g %7s %TY-%Tm-%Td %TH:%TM ./%P -> %l\n' \
         | sed -e 's/ -> $//' > "$2"
+    popd >/dev/null
+}
+
+# Generate a listing that can be used by other tools to analyze
+# image/file size changes.
+write_contents_with_technical_details() {
+    info "Writing ${2##*/}"
+    pushd "$1" >/dev/null
+    # %M - file permissions
+    # %D - ID of a device where file resides
+    # %i - inode number
+    # %n - number of hard links to file
+    # %s - size in bytes
+    # %P - file's path
+    sudo find -printf \
+        '%M %D %i %n %s ./%P\n' > "$2"
+    popd >/dev/null
+}
+
+# Generate a report like the following:
+#
+# File    Size  Used Avail Use% Type
+# /boot   127M   62M   65M  50% vfat
+# /usr    983M  721M  212M  78% ext2
+# /       6,0G   13M  5,6G   1% ext4
+# SUM     7,0G  796M  5,9G  12% -
+write_disk_space_usage() {
+    info "Writing ${2##*/}"
+    pushd "${1}" >/dev/null
+    # The sed's first command turns './<path>' into '/<path> ', second
+    # command replaces '- ' with 'SUM' for the total row. All this to
+    # keep the numbers neatly aligned in columns.
+    sudo df \
+         --human-readable \
+         --total \
+         --output='file,size,used,avail,pcent,fstype' \
+         ./boot ./usr ./ | \
+        sed \
+            -e 's#^\.\(/[^ ]*\)#\1 #' \
+            -e 's/^-  /SUM/' >"${2}"
     popd >/dev/null
 }
 
@@ -580,11 +628,15 @@ finish_image() {
   local disk_layout="$2"
   local root_fs_dir="$3"
   local image_contents="$4"
-  local image_kernel="$5"
-  local pcr_policy="$6"
-  local image_grub="$7"
-  local image_shim="$8"
-  local image_kconfig="$9"
+  local image_contents_wtd="$5"
+  local image_kernel="$6"
+  local pcr_policy="$7"
+  local image_grub="$8"
+  local image_shim="$9"
+  local image_kconfig="${10}"
+  local image_initrd_contents="${11}"
+  local image_initrd_contents_wtd="${12}"
+  local image_disk_space_usage="${13}"
 
   local install_grub=0
   local disk_img="${BUILD_DIR}/${image_name}"
@@ -667,8 +719,6 @@ EOF
     cp "${root_fs_dir}/usr/boot/config" \
         "${BUILD_DIR}/${image_kconfig}"
   fi
-
-  write_contents "${root_fs_dir}" "${BUILD_DIR}/${image_contents}"
 
   # Zero all fs free space to make it more compressible so auto-update
   # payloads become smaller, not fatal since it won't work on linux < 3.2
@@ -766,4 +816,31 @@ EOF
     popd >/dev/null
     rm -rf "${BUILD_DIR}/pcrs"
   fi
+
+  # Mount the final image again, as readonly, to generate some reports.
+  "${BUILD_LIBRARY_DIR}/disk_util" --disk_layout="${disk_layout}" \
+      mount --read_only "${disk_img}" "${root_fs_dir}"
+  trap "cleanup_mounts '${root_fs_dir}'" EXIT
+
+  write_contents "${root_fs_dir}" "${BUILD_DIR}/${image_contents}"
+  write_contents_with_technical_details "${root_fs_dir}" "${BUILD_DIR}/${image_contents_wtd}"
+
+  if [[ -n "${image_initrd_contents}" ]] || [[ -n "${image_initrd_contents_wtd}" ]]; then
+      "${BUILD_LIBRARY_DIR}/extract-initramfs-from-vmlinuz.sh" "${root_fs_dir}/boot/flatcar/vmlinuz-a" "${BUILD_DIR}/tmp_initrd_contents"
+      if [[ -n "${image_initrd_contents}" ]]; then
+          write_contents "${BUILD_DIR}/tmp_initrd_contents" "${BUILD_DIR}/${image_initrd_contents}"
+      fi
+
+      if [[ -n "${image_initrd_contents_wtd}" ]]; then
+          write_contents_with_technical_details "${BUILD_DIR}/tmp_initrd_contents" "${BUILD_DIR}/${image_initrd_contents_wtd}"
+      fi
+      rm -rf "${BUILD_DIR}/tmp_initrd_contents"
+  fi
+
+  if [[ -n "${image_disk_space_usage}" ]]; then
+      write_disk_space_usage "${root_fs_dir}" "${BUILD_DIR}/${image_disk_space_usage}"
+  fi
+
+  cleanup_mounts "${root_fs_dir}"
+  trap - EXIT
 }

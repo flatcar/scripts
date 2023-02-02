@@ -64,6 +64,7 @@ create_prod_image() {
   info "Building production image ${image_name}"
   local root_fs_dir="${BUILD_DIR}/rootfs"
   local image_contents="${image_name%.bin}_contents.txt"
+  local image_contents_wtd="${image_name%.bin}_contents_wtd.txt"
   local image_packages="${image_name%.bin}_packages.txt"
   local image_licenses="${image_name%.bin}_licenses.json"
   local image_kconfig="${image_name%.bin}_kernel_config.txt"
@@ -71,6 +72,9 @@ create_prod_image() {
   local image_pcr_policy="${image_name%.bin}_pcr_policy.zip"
   local image_grub="${image_name%.bin}.grub"
   local image_shim="${image_name%.bin}.shim"
+  local image_initrd_contents="${image_name%.bin}_initrd_contents.txt"
+  local image_initrd_contents_wtd="${image_name%.bin}_initrd_contents_wtd.txt"
+  local image_disk_usage="${image_name%.bin}_disk_usage.txt"
 
   start_image "${image_name}" "${disk_layout}" "${root_fs_dir}" "${update_group}"
 
@@ -127,21 +131,29 @@ EOF
       "${disk_layout}" \
       "${root_fs_dir}" \
       "${image_contents}" \
+      "${image_contents_wtd}" \
       "${image_kernel}" \
       "${image_pcr_policy}" \
       "${image_grub}" \
       "${image_shim}" \
-      "${image_kconfig}"
+      "${image_kconfig}" \
+      "${image_initrd_contents}" \
+      "${image_initrd_contents_wtd}" \
+      "${image_disk_usage}"
 
   # Upload
   local to_upload=(
     "${BUILD_DIR}/${image_contents}"
+    "${BUILD_DIR}/${image_contents_wtd}"
     "${BUILD_DIR}/${image_packages}"
     "${BUILD_DIR}/${image_licenses}"
     "${BUILD_DIR}/${image_kernel}"
     "${BUILD_DIR}/${image_pcr_policy}"
     "${BUILD_DIR}/${image_grub}"
     "${BUILD_DIR}/${image_kconfig}"
+    "${BUILD_DIR}/${image_initrd_contents}"
+    "${BUILD_DIR}/${image_initrd_contents_wtd}"
+    "${BUILD_DIR}/${image_disk_usage}"
   )
 
   local files_to_evaluate=( "${BUILD_DIR}/${image_name}" )
