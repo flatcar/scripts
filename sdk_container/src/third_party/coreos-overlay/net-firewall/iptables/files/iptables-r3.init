@@ -1,5 +1,5 @@
 #!/sbin/openrc-run
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 extra_commands="check save panic"
@@ -38,7 +38,7 @@ set_table_policy() {
 
 	local chain
 	for chain in ${chains} ; do
-		${iptables_bin} --wait ${iptables_lock_wait_time} --wait-interval ${iptables_lock_wait_interval} -t ${table} -P ${chain} ${policy}
+		${iptables_bin} --wait ${iptables_lock_wait_time} -t ${table} -P ${chain} ${policy}
 		[ $? -ne 0 ] && has_errors=1
 	done
 
@@ -69,7 +69,7 @@ start_pre() {
 
 start() {
 	ebegin "Loading ${iptables_name} state and starting firewall"
-	${iptables_bin}-restore --wait ${iptables_lock_wait_time} --wait-interval ${iptables_lock_wait_interval} ${SAVE_RESTORE_OPTIONS} < "${iptables_save}"
+	${iptables_bin}-restore --wait ${iptables_lock_wait_time} ${SAVE_RESTORE_OPTIONS} < "${iptables_save}"
 	eend $?
 }
 
@@ -88,10 +88,10 @@ stop() {
 		set_table_policy $a ACCEPT
 		[ $? -ne 0 ] && has_errors=1
 
-		${iptables_bin} --wait ${iptables_lock_wait_time} --wait-interval ${iptables_lock_wait_interval} -F -t $a
+		${iptables_bin} --wait ${iptables_lock_wait_time} -F -t $a
 		[ $? -ne 0 ] && has_errors=1
 
-		${iptables_bin} --wait ${iptables_lock_wait_time} --wait-interval ${iptables_lock_wait_interval} -X -t $a
+		${iptables_bin} --wait ${iptables_lock_wait_time} -X -t $a
 		[ $? -ne 0 ] && has_errors=1
 	done
 	eend ${has_errors}
@@ -103,10 +103,10 @@ reload() {
 	ebegin "Flushing firewall"
 	local has_errors=0 a
 	for a in $(cat ${iptables_proc}) ; do
-		${iptables_bin} --wait ${iptables_lock_wait_time} --wait-interval ${iptables_lock_wait_interval} -F -t $a
+		${iptables_bin} --wait ${iptables_lock_wait_time} -F -t $a
 		[ $? -ne 0 ] && has_errors=1
 
-		${iptables_bin} --wait ${iptables_lock_wait_time} --wait-interval ${iptables_lock_wait_interval} -X -t $a
+		${iptables_bin} --wait ${iptables_lock_wait_time} -X -t $a
 		[ $? -ne 0 ] && has_errors=1
 	done
 	eend ${has_errors}
@@ -136,7 +136,7 @@ save() {
 panic() {
 	# use iptables autoload capability to load at least all required
 	# modules and filter table
-	${iptables_bin} --wait ${iptables_lock_wait_time} --wait-interval ${iptables_lock_wait_interval} -S >/dev/null
+	${iptables_bin} --wait ${iptables_lock_wait_time} -S >/dev/null
 	if [ $? -ne 0 ] ; then
 		eerror "${iptables_bin} failed to load"
 		return 1
@@ -149,10 +149,10 @@ panic() {
 	local has_errors=0 a
 	ebegin "Dropping all packets"
 	for a in $(cat ${iptables_proc}) ; do
-		${iptables_bin} --wait ${iptables_lock_wait_time} --wait-interval ${iptables_lock_wait_interval} -F -t $a
+		${iptables_bin} --wait ${iptables_lock_wait_time} -F -t $a
 		[ $? -ne 0 ] && has_errors=1
 
-		${iptables_bin} --wait ${iptables_lock_wait_time} --wait-interval ${iptables_lock_wait_interval} -X -t $a
+		${iptables_bin} --wait ${iptables_lock_wait_time} -X -t $a
 		[ $? -ne 0 ] && has_errors=1
 
 		if [ "${a}" != "nat" ]; then
