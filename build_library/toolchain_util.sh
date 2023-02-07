@@ -301,7 +301,7 @@ GENERATE_SLSA_PROVENANCE="true"
 EOF
 }
 
-# Dump crossdev information to determine if configs must be reganerated
+# Dump crossdev information to determine if configs must be regenerated
 _crossdev_info() {
     local cross_chost="$1"; shift
     echo -n "# "; crossdev --version
@@ -309,17 +309,66 @@ _crossdev_info() {
     crossdev "$@" --show-target-cfg
 }
 
+# Gets atoms for emerge and flags for crossdev that will install such
+# versions of cross toolchain packages that they will match versions
+# of a normal packages that would be installed. That way, if, for
+# example, some version of sys-devel/gcc needs to be masked, then
+# there is no need to also mask cross-<arch>-cros-linux-gnu/gcc
+# package.
+#
+# Example use:
+#
+# local -a emerge_atoms=() crossdev_flags=()
+# _get_cross_pkgs_for_emerge_and_crossdev x86_64-cros-linux-gnu emerge_atoms crossdev_flags
+#
+# emerge_atoms will have atoms like "=cross-x86_64-cros-linux-gnu/gcc-11.3.1_p20221209"
+#
+# crossdev_flags will have flags like "--gcc" "=11.3.1_p20221209"
+_get_cross_pkgs_for_emerge_and_crossdev() {
+    local cross_chost="${1}"; shift
+    local gcpfeac_emerge_atoms_var_name="${1}"; shift
+    local gcpfeac_crossdev_pkg_flags_var_name="${1}"; shift
+    local -n gcpfeac_emerge_atoms_var_ref="${gcpfeac_emerge_atoms_var_name}"
+    local -n gcpfeac_crossdev_pkg_flags_var_ref="${gcpfeac_crossdev_pkg_flags_var_name}"
+
+    local -a all_pkgs=( "${TOOLCHAIN_PKGS[@]}" sys-devel/gdb )
+    local -A crossdev_flags_map=(
+        [binutils]=--binutils
+        [gdb]=--gdb
+        [gcc]=--gcc
+        [linux-headers]=--kernel
+        [glibc]=--libc
+    )
+    local emerge_report pkg line version pkg_name crossdev_flag
+
+    emerge_report=$(emerge --quiet --pretend --oneshot --nodeps "${all_pkgs[@]}")
+    for pkg in "${all_pkgs[@]}"; do
+        line=$(grep -o "${pkg}-[^ ]*" <<<"${emerge_report}")
+        cross_pkg="${pkg/*\//cross-${cross_chost}/}"
+        version="${line#${pkg}-}"
+        gcpfeac_emerge_atoms_var_ref+=( "=${cross_pkg}-${version}" )
+        pkg_name="${pkg#*/}"
+        crossdev_flag="${crossdev_flags_map[${pkg_name}]}"
+        gcpfeac_crossdev_pkg_flags_var_ref+=( "${crossdev_flag}" "=${version}" )
+    done
+}
+
 # Build/install a toolchain w/ crossdev.
 # Usage: build_cross_toolchain chost [--portage-opts....]
 install_cross_toolchain() {
-    local cross_chost="$1"; shift
-    local cross_pkgs=( $(get_cross_pkgs $cross_chost) )
-    # build gdb as an extra step, default to stable ebuilds
-    local cross_flags=( --ex-gdb --stable --target "${cross_chost}" )
-    local cross_cfg="/usr/${cross_chost}/etc/portage/${cross_chost}-crossdev"
-    local cross_cfg_data=$(_crossdev_info "${cross_flags[@]}")
-    local cbuild="$(portageq envvar CBUILD)"
-    local emerge_flags=( "$@" --binpkg-respect-use=y --update --newuse )
+    local cross_chost="${1}"; shift
+    local cross_cfg cross_cfg_data cbuild
+    local -a cross_flags emerge_flags emerge_atoms cross_pkg_flags
+
+    emerge_atoms=()
+    cross_pkg_flags=()
+    _get_cross_pkgs_for_emerge_and_crossdev "${cross_chost}" emerge_atoms cross_pkg_flags
+    # build gdb as an extra step, use specific versions of toolchain packages
+    cross_flags=( --ex-gdb --target "${cross_chost}" "${cross_pkg_flags[@]}" )
+    cross_cfg="/usr/${cross_chost}/etc/portage/${cross_chost}-crossdev"
+    cross_cfg_data=$(_crossdev_info "${cross_flags[@]}")
+    cbuild=$(portageq envvar CBUILD)
+    emerge_flags=( "$@" --binpkg-respect-use=y --update --newuse )
 
     # Forcing binary packages for toolchain packages breaks crossdev since it
     # prevents it from rebuilding with different use flags during bootstrap.
@@ -335,7 +384,8 @@ install_cross_toolchain() {
 
     # crossdev will arbitrarily choose an overlay that it finds first.
     # Force it to use the one created by configure_crossdev_overlay
-    local cross_overlay=$(portageq get_repo_path / x-crossdev)
+    local cross_overlay
+    cross_overlay=$(portageq get_repo_path / x-crossdev)
     if [[ -n "${cross_overlay}" ]]; then
         cross_flags+=( --ov-output "${cross_overlay}" )
     else
@@ -354,14 +404,13 @@ install_cross_toolchain() {
     # bootstrap via crossdev, otherwise just install the binaries (if enabled).
     # It is ok to build gdb from source outside of crossdev.
     if emerge "${emerge_flags[@]}" \
-        --pretend "${cross_pkgs[@]}" | grep -q '^\[ebuild'
+        --pretend "${emerge_atoms[@]}" | grep -q '^\[ebuild'
     then
         echo "Doing a full bootstrap via crossdev"
         $sudo crossdev "${cross_flags[@]}" --stage4
     else
         echo "Installing existing binaries"
-        $sudo emerge "${emerge_flags[@]}" \
-            "cross-${cross_chost}/gdb" "${cross_pkgs[@]}"
+        $sudo emerge "${emerge_flags[@]}" "${emerge_atoms[@]}"
         if [ "${cbuild}" = "x86_64-pc-linux-gnu" ] && [ "${cross_chost}" = aarch64-cros-linux-gnu ] && \
            [ ! -d /usr/lib/rust-*/rustlib/aarch64-unknown-linux-gnu ] && [ ! -d /usr/lib/rustlib/aarch64-unknown-linux-gnu ]; then
           # If no aarch64 folder exists, warn about the situation but don't compile Rust here or download it as binary package
