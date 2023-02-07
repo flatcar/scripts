@@ -9,7 +9,7 @@ dev-libs/dbus-glib	tools
 dev-libs/libxml2	-python
 dev-libs/libxslt	-python
 dev-util/perf		-doc
-dev-vcs/git		webdav curl bash-completion
+dev-vcs/git		webdav curl
 net-misc/curl		kerberos telnet
 net-misc/iputils	arping tracepath
 sys-devel/gettext	-git

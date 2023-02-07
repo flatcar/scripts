@@ -2,7 +2,17 @@
 # Copyright (c) 2013 The CoreOS Authors. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
+# Necessary for the symlink fix for uncompress utility.
+=app-arch/ncompress-5.0-r1 ~amd64 ~arm64
+
 =app-arch/zstd-1.4.9 ~amd64 ~arm64
+
+# Necessary to fix CVE-2023-0049, CVE-2023-0051 and CVE-2023-0054.
+=app-editors/vim-9.0.1157 ~amd64 ~arm64
+=app-editors/vim-core-9.0.1157 ~amd64 ~arm64
+
+# Keep the version of qemu the same on all arches.
+=app-emulation/qemu-7.2.0 ~arm64
 
 =coreos-devel/fero-client-0.1.1 **
 
@@ -12,8 +22,15 @@
 
 =dev-libs/libgcrypt-1.9.4 ~amd64 ~arm64
 
+# Keep the version of bind-tools the same on all arches.
+=net-dns/bind-tools-9.16.36 ~arm64
+
 # Required for addressing CVE-2022-29154
-=net-misc/rsync-3.2.7-r1 ~amd64 ~arm64
+=net-misc/rsync-3.2.7-r2 ~amd64 ~arm64
+
+# Keep the version of curl the same on all arches.
+# Also needed for CVE-2022-43551 and CVE-2022-43552.
+=net-misc/curl-7.87.0-r2 ~arm64
 
 =sys-fs/cryptsetup-2.4.1-r1 ~amd64 ~arm64
 
