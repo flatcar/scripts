@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -9,8 +9,7 @@ DESCRIPTION="Tools necessary to build programs"
 HOMEPAGE="https://sourceware.org/binutils/"
 
 LICENSE="GPL-3+"
-IUSE="cet default-gold doc gold gprofng multitarget +nls pgo +plugins static-libs test vanilla zstd"
-REQUIRED_USE="default-gold? ( gold )"
+IUSE="cet doc gold gprofng multitarget +nls pgo +plugins static-libs test vanilla zstd"
 
 # Variables that can be set here  (ignored for live ebuilds)
 # PATCH_VER          - the patchset version
@@ -63,6 +62,7 @@ BDEPEND="
 		sys-devel/bc
 	)
 	nls? ( sys-devel/gettext )
+	zstd? ( virtual/pkgconfig )
 	sys-devel/flex
 	app-alternatives/yacc
 "
@@ -172,6 +172,13 @@ src_configure() {
 	# Keep things sane
 	strip-flags
 
+	# ideally we want !tc-ld-is-bfd for best future-proofing, but it needs
+	# https://github.com/gentoo/gentoo/pull/28355
+	# mold needs this too but right now tc-ld-is-mold is also not available
+	if tc-ld-is-lld; then
+		append-ldflags -Wl,--undefined-version
+	fi
+
 	use elibc_musl && append-ldflags -Wl,-z,stack-size=2097152
 
 	local x
@@ -190,9 +197,6 @@ src_configure() {
 	# enable gold (installed as ld.gold) and ld's plugin architecture
 	if use gold ; then
 		myconf+=( --enable-gold )
-		if use default-gold; then
-			myconf+=( --enable-gold=default )
-		fi
 	fi
 
 	if use nls ; then

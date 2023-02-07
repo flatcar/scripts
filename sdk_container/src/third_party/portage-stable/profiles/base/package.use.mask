@@ -1,10 +1,43 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # New entries go on top.
 
 # This file is only for generic masks. For arch-specific masks (i.e.
 # mask everywhere, unmask on arch/*) use arch/base.
+
+# Michał Górny <mgorny@gentoo.org> (2023-01-21)
+# media-libs/libextractor is masked for removal.
+media-plugins/vdr-xineliboutput libextractor
+
+# Michał Górny <mgorny@gentoo.org> (2023-01-21)
+# media-libs/qtav is masked for removal.
+media-gfx/digikam mediaplayer
+media-gfx/kphotoalbum qtav
+
+# Sam James <sam@gentoo.org> (2023-01-21)
+# Fails to compile: https://github.com/libffi/libffi/issues/760
+dev-libs/libffi exec-static-trampoline
+
+# Sam James <sam@gentoo.org> (2023-01-10)
+# Needs last-rited www-client/dillo, bug #890244
+mail-client/claws-mail dillo
+
+# Joonas Niilola <juippis@gentoo.org> (2023-01-08)
+# Doesn't compile currently, bug #853094.
+>=net-dialup/freeradius-3.2.0 oracle
+
+# David Seifert <soap@gentoo.org> (2023-01-04)
+# Out of date patchset, warns on latest version about being "expired",
+# unofficial and maintainer discourages people upgrading to latest (non-packaged)
+# versions of knots too. The upstream maintainer was recently compromised
+# and there is no explanation as to how, so continuing to provide these patches
+# would be irresponsible. Bug #889326
+dev-util/bitcoin-tx knots
+net-libs/libbitcoinconsensus knots
+net-p2p/bitcoin-cli knots
+net-p2p/bitcoin-qt knots
+net-p2p/bitcoind knots
 
 # Matt Turner <mattst88@gentoo.org> (2023-01-01)
 # Depends on nautilus < 43
@@ -98,7 +131,7 @@ sys-libs/minizip-ng compat
 # Georgy Yakovlev <gyakovlev@gentoo.org> (2022-09-17)
 # po4a crashes while translating
 # mask for now
-=dev-util/schroot-1.6.13_p2 nls
+dev-util/schroot nls
 
 # Sam James <sam@gentoo.org> (2022-09-15)
 # Doesn't work on e.g. glibc systems. Unmasked on the LLVM profiles.
@@ -204,13 +237,6 @@ media-video/wireplumber system-service
 sys-libs/glibc custom-cflags
 sys-devel/gcc custom-cflags
 
-# Sam James <sam@gentoo.org> (2022-01-12)
-# Unmask PCH for now for GCC to avoid unnecessary rebuilds
-# (USE=pch is now use.mask-ed globally)
-<sys-devel/gcc-10.4:10 -pch
-=sys-devel/gcc-9* -pch
-=sys-devel/gcc-8* -pch
-
 # John Helmert III <ajak@gentoo.org> (2021-12-31)
 # Rizin tests require a tarball of binaries of ambiguous license.
 # As such, we cannot properly test it, so mask the flag until this
@@ -279,14 +305,6 @@ dev-lang/rust parallel-compiler
 # Matt Turner <mattst88@gentoo.org> (2021-08-28)
 # Mask experimental options.
 gui-libs/gtk ffmpeg vulkan
-
-# Sam James <sam@gentoo.org> (2021-07-24)
-# USE=exec-static-trampoline can break consumers due to
-# faulty assumptions. Masked for now due to the possibility
-# of breaking systems.
-# https://archives.gentoo.org/gentoo-dev/message/576259af17d008d4ec935f69a9049af7
-# bug #801109
-dev-libs/libffi exec-static-trampoline
 
 # Marek Szuba <marecki@gentoo.org> (2021-07-14)
 # Makes two tests fail (when linked against openmpi, at least) due to
