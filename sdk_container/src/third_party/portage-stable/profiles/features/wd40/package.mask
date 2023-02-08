@@ -67,7 +67,6 @@ dev-python/trio
 dev-python/twine
 dev-python/watchfiles
 dev-python/wcmatch
-dev-ros/roswtf
 dev-util/buildbot-worker
 dev-util/cargo-c
 dev-util/cbindgen
@@ -85,7 +84,6 @@ gnome-extra/gnome-browser-connector
 gnome-extra/gnome-tweaks
 gnome-extra/sushi
 >=media-gfx/libimagequant-4
-media-libs/libavif
 >=media-libs/libopenraw-0.3.2
 media-video/rav1e
 net-im/gajim
@@ -95,7 +93,6 @@ net-misc/electrum-ltc
 net-misc/gsutil
 net-news/newsboat
 net-p2p/deluge
-ros-meta/ros_comm
 sci-geosciences/gnome-maps
 >=sys-apps/bat-0.18.1
 sys-fs/bcachefs-tools
