@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: linux-mod.eclass
@@ -624,10 +624,6 @@ linux-mod_src_compile() {
 			cd "${srcdir}" || die
 			ln -s "${S}"/Module.symvers Module.symvers # no die for bug #888679
 			einfo "Preparing ${modulename} module"
-			if [[ -n ${ECONF_PARAMS} ]]; then
-				eqawarn "This package relies on the deprecated functionality of econf being called in linux-mod_src_compile (ECONF_PARAMS), which will go away in 30 days (20230107) (https://bugs.gentoo.org/340597)"
-				econf ${ECONF_PARAMS}
-			fi
 
 			# This looks messy, but it is needed to handle multiple variables
 			# being passed in the BUILD_* stuff where the variables also have
