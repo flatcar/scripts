@@ -89,6 +89,8 @@ app-editors/vim-core
 app-emulation/qemu
 app-emulation/qemu-guest-agent
 
+app-eselect/eselect-iptables
+
 app-portage/portage-utils
 
 dev-db/sqlite
