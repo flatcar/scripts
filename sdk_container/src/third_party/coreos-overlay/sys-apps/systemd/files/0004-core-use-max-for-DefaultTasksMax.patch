@@ -1,7 +1,7 @@
-From 485151e5ecc94402d81ff755c02a244980f931fa Mon Sep 17 00:00:00 2001
+From 7f71d79cc1cac4dc509cecb2f5c00b6dcfd7732b Mon Sep 17 00:00:00 2001
 From: Sayan Chowdhury <sayan@kinvolk.io>
 Date: Thu, 22 Apr 2021 20:08:33 +0530
-Subject: [PATCH 4/6] core: use max for DefaultTasksMax
+Subject: [PATCH 4/7] core: use max for DefaultTasksMax
 
 Since systemd v228, systemd has a DefaultTasksMax which defaulted
 to 512, later 15% of the system's maximum number of PIDs.  This
@@ -21,10 +21,10 @@ Signed-off-by: Sayan Chowdhury <sayan@kinvolk.io>
  3 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/man/systemd-system.conf.xml b/man/systemd-system.conf.xml
-index b104044cc2..32e07f8e5e 100644
+index ac21c31d9a..39323f6a55 100644
 --- a/man/systemd-system.conf.xml
 +++ b/man/systemd-system.conf.xml
-@@ -448,7 +448,7 @@
+@@ -461,7 +461,7 @@
          <listitem><para>Configure the default value for the per-unit <varname>TasksMax=</varname> setting. See
          <citerefentry><refentrytitle>systemd.resource-control</refentrytitle><manvolnum>5</manvolnum></citerefentry>
          for details. This setting applies to all unit types that support resource control settings, with the exception
@@ -34,7 +34,7 @@ index b104044cc2..32e07f8e5e 100644
          Kernel has a default value for <varname>kernel.pid_max=</varname> and an algorithm of counting in case of more than 32 cores.
          For example with the default <varname>kernel.pid_max=</varname>, <varname>DefaultTasksMax=</varname> defaults to 4915,
 diff --git a/src/core/main.c b/src/core/main.c
-index 79c0e0fbf6..4d72ba3b24 100644
+index a3fdd1dfe1..9b79308397 100644
 --- a/src/core/main.c
 +++ b/src/core/main.c
 @@ -100,7 +100,7 @@
@@ -47,11 +47,11 @@ index 79c0e0fbf6..4d72ba3b24 100644
  static enum {
          ACTION_RUN,
 diff --git a/src/core/system.conf.in b/src/core/system.conf.in
-index 67e55f10a2..8ba48406b1 100644
+index 71a5869ec0..92fe35b2d6 100644
 --- a/src/core/system.conf.in
 +++ b/src/core/system.conf.in
 @@ -56,7 +56,7 @@
- #DefaultBlockIOAccounting=no
+ #DefaultIPAccounting=no
  #DefaultMemoryAccounting={{ 'yes' if MEMORY_ACCOUNTING_DEFAULT else 'no' }}
  #DefaultTasksAccounting=yes
 -#DefaultTasksMax=15%

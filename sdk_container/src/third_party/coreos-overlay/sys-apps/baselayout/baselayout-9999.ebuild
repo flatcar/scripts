@@ -242,4 +242,15 @@ pkg_postinst() {
 		mkdir -p "${ROOT}/etc/init.d"
 		ln -sf "${func}" "${ROOT}/etc/init.d/functions.sh"
 	fi
+	# install compat symlinks in production images, not in SDK
+	# os-release symlink is set up in scripts
+	if ! use cros_host; then
+		local compat libdir
+		for compat in systemd kernel modprobe.d pam pam.d sysctl.d udev ; do
+			for libdir in $(get_all_libdirs) ; do
+				if [[ "${libdir}" == 'lib' ]]; then continue; fi
+				ln -sfT "../lib/${compat}" "${ROOT}/usr/${libdir}/${compat}"
+			done
+		done
+	fi
 }

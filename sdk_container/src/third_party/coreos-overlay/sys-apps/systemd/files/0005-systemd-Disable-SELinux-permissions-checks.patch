@@ -1,7 +1,7 @@
-From 505f92caa2e1d93cf385dbeaefa9225eff4422b4 Mon Sep 17 00:00:00 2001
+From 0a5e52f5511cd7a5312d06abff12bc432bdedc96 Mon Sep 17 00:00:00 2001
 From: Matthew Garrett <mjg59@coreos.com>
 Date: Tue, 20 Dec 2016 16:43:22 +0000
-Subject: [PATCH 5/6] systemd: Disable SELinux permissions checks
+Subject: [PATCH 5/7] systemd: Disable SELinux permissions checks
 
 We don't care about the interaction between systemd and SELinux policy, so
 let's just disable these checks rather than having to incorporate policy
@@ -12,7 +12,7 @@ to limit containers and not anything running directly on the host.
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/core/selinux-access.c b/src/core/selinux-access.c
-index 2b6a6a654a..5a0b8f5dc0 100644
+index 11dbf4640e..c839a4f39e 100644
 --- a/src/core/selinux-access.c
 +++ b/src/core/selinux-access.c
 @@ -2,7 +2,7 @@

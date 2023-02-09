@@ -1,8 +1,8 @@
-# Copyright 2011-2022 Gentoo Authors
+# Copyright 2011-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-PYTHON_COMPAT=( python3_{8..11} )
+PYTHON_COMPAT=( python3_{9..11} )
 
 # Avoid QA warnings
 TMPFILES_OPTIONAL=1
@@ -27,10 +27,10 @@ else
 	KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 fi
 
-inherit bash-completion-r1 flag-o-matic linux-info meson-multilib pam
+inherit bash-completion-r1 linux-info meson-multilib pam
 # Flatcar: We don't use gen_usr_ldscript so dropping usr-ldscript.
 # Adding tmpfiles, since we use it for installing some files.
-inherit python-any-r1 systemd tmpfiles toolchain-funcs udev
+inherit python-any-r1 systemd tmpfiles toolchain-funcs udev usr-ldscript
 
 DESCRIPTION="System and service manager for Linux"
 HOMEPAGE="http://systemd.io/"
@@ -239,7 +239,7 @@ src_unpack() {
 
 src_prepare() {
 	local PATCHES=(
-		"${FILESDIR}/251-gpt-auto-no-cryptsetup.patch"
+		"${FILESDIR}/252-no-stack-protector-bpf.patch"
 		# Flatcar: Adding our own patches here.
 		"${FILESDIR}/0001-wait-online-set-any-by-default.patch"
 		"${FILESDIR}/0002-networkd-default-to-kernel-IPForwarding-setting.patch"
@@ -247,6 +247,7 @@ src_prepare() {
 		"${FILESDIR}/0004-core-use-max-for-DefaultTasksMax.patch"
 		"${FILESDIR}/0005-systemd-Disable-SELinux-permissions-checks.patch"
 		"${FILESDIR}/0006-Revert-getty-Pass-tty-to-use-by-agetty-via-stdin.patch"
+		"${FILESDIR}/0007-units-Keep-using-old-journal-file-format.patch"
 	)
 
 	if ! use vanilla; then
@@ -281,20 +282,6 @@ src_prepare() {
 src_configure() {
 	# Prevent conflicts with i686 cross toolchain, bug 559726
 	tc-export AR CC NM OBJCOPY RANLIB
-
-	# Broken with FORTIFY_SOURCE=3: bug #841770.
-	#
-	# Our toolchain sets F_S=2 by default w/ >= -O2, so we need
-	# to unset F_S first, then explicitly set 2, to negate any default
-	# and anything set by the user if they're choosing 3 (or if they've
-	# modified GCC to set 3).
-	#
-	if is-flagq '-O[23]' || is-flagq '-Ofast' ; then
-		# We can't unconditionally do this b/c we fortify needs
-		# some level of optimisation.
-		filter-flags -D_FORTIFY_SOURCE=3
-		append-cppflags -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
-	fi
 
 	python_setup
 
