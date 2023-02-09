@@ -409,6 +409,9 @@ multilib_src_configure() {
 		# for https://github.com/flatcar/Flatcar/issues/36
 		-Ddefault-net-naming-scheme=latest
 
+		# Flatcar: Combined log format: name plus description
+		-Dstatus-unit-format-default=combined
+
 		# Flatcar: Unported options, still needed?
 		-Dquotaon-path=/usr/sbin/quotaon
 		-Dquotacheck-path=/usr/sbin/quotacheck
