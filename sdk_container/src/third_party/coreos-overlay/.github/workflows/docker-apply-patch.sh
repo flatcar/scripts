@@ -49,9 +49,17 @@ sed -i "s/github.com\/docker\/docker-ce\/blob\/v${VERSION_OLD}/github.com\/docke
 
 popd >/dev/null || exit
 
-# drop all dots
+# URL for Docker release notes has a specific format of
+#   https://docs.docker.com/engine/release-notes/MAJOR.MINOR/#COMBINEDFULLVERSION
+# To get the subfolder part MAJOR.MINOR, drop the patchlevel of the semver.
+#   e.g. 20.10.23 -> 20.10
+# To get the combined full version, drop all dots from the full version.
+#   e.g. 20.10.23 -> 201023
+# So the result becomes like:
+#   https://docs.docker.com/engine/release-notes/20.10/#201023
+URLSUBFOLDER=${VERSION_NEW%.*}
 URLVERSION="${VERSION_NEW//./}"
-URL="https://docs.docker.com/engine/release-notes/#${URLVERSION}"
+URL="https://docs.docker.com/engine/release-notes/${URLSUBFOLDER}/#${URLVERSION}"
 
 generate_update_changelog 'Docker' "${VERSION_NEW}" "${URL}" 'docker'
 
