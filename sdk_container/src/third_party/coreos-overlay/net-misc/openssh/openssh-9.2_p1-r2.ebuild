@@ -1,7 +1,7 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 inherit user-info flag-o-matic autotools pam systemd toolchain-funcs verify-sig
 
@@ -19,22 +19,23 @@ HPN_PATCHES=(
 	${PN}-${HPN_PV/./_}-hpn-AES-CTR-${HPN_VER}.diff
 	${PN}-${HPN_PV/./_}-hpn-PeakTput-${HPN_VER}.diff
 )
-HPN_GLUE_PATCH="${PN}-9.1_p1-hpn-${HPN_VER}-glue.patch"
+HPN_GLUE_PATCH="${PN}-9.2_p1-hpn-${HPN_VER}-glue.patch"
+HPN_PATCH_DIR="HPN-SSH%%20${HPN_VER/./v}%%20${HPN_PV/_P/p}"
 
 SCTP_VER="1.2"
 SCTP_PATCH="${PARCH}-sctp-${SCTP_VER}.patch.xz"
 
-X509_VER="13.5"
+X509_VER="14.1"
 X509_PATCH="${PARCH}+x509-${X509_VER}.diff.gz"
 X509_GLUE_PATCH="${P}-X509-glue-${X509_VER}.patch"
-X509_HPN_GLUE_PATCH="${PN}-9.1_p1-hpn-${HPN_VER}-X509-glue.patch"
+X509_HPN_GLUE_PATCH="${PN}-9.2_p1-hpn-${HPN_VER}-X509-${X509_VER}-glue.patch"
 
 DESCRIPTION="Port of OpenBSD's free SSH release"
 HOMEPAGE="https://www.openssh.com/"
 SRC_URI="mirror://openbsd/OpenSSH/portable/${PARCH}.tar.gz
 	${SCTP_PATCH:+sctp? ( https://dev.gentoo.org/~chutzpah/dist/openssh/${SCTP_PATCH} )}
 	${HPN_VER:+hpn? (
-		$(printf "mirror://sourceforge/project/hpnssh/Patches/HPN-SSH%%20${HPN_VER/./v}%%20${HPN_PV/_P/p}/%s\n" "${HPN_PATCHES[@]}")
+		$(printf "mirror://sourceforge/project/hpnssh/Patches/${HPN_PATCH_DIR}/%s\n" "${HPN_PATCHES[@]}")
 		https://dev.gentoo.org/~chutzpah/dist/openssh/${HPN_GLUE_PATCH}.xz
 	)}
 	${X509_PATCH:+X509? (
@@ -49,7 +50,7 @@ S="${WORKDIR}/${PARCH}"
 
 LICENSE="BSD GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 # Probably want to drop ssl defaulting to on in a future version.
 IUSE="abi_mips_n32 audit debug hpn kerberos ldns libedit livecd pam +pie sctp security-key selinux +ssl static test X X509 xmss"
 
@@ -123,7 +124,6 @@ PATCHES=(
 	"${FILESDIR}/${PN}-8.0_p1-deny-shmget-shmat-shmdt-in-preauth-privsep-child.patch"
 	"${FILESDIR}/${PN}-8.9_p1-allow-ppoll_time64.patch" #834019
 	"${FILESDIR}/${PN}-8.9_p1-gss-use-HOST_NAME_MAX.patch" #834044
-	"${FILESDIR}/${PN}-9.1_p1-build-tests.patch"
 )
 
 pkg_pretend() {
@@ -164,7 +164,7 @@ src_prepare() {
 	# don't break .ssh/authorized_keys2 for fun
 	sed -i '/^AuthorizedKeysFile/s:^:#:' sshd_config || die
 
-	eapply "${PATCHES[@]}"
+	eapply -- "${PATCHES[@]}"
 
 	[[ -d ${WORKDIR}/patches ]] && eapply "${WORKDIR}"/patches
 
@@ -269,10 +269,6 @@ src_prepare() {
 			"${S}"/version.h || die "Failed to patch SSH_RELEASE (version.h)"
 	fi
 
-	sed -i \
-		-e "/#UseLogin no/d" \
-		"${S}"/sshd_config || die "Failed to remove removed UseLogin option (sshd_config)"
-
 	eapply_user #473004
 
 	# These tests are currently incompatible with PORTAGE_TMPDIR/sandbox
@@ -282,8 +278,6 @@ src_prepare() {
 	tc-export PKG_CONFIG
 	local sed_args=(
 		-e "s:-lcrypto:$(${PKG_CONFIG} --libs openssl):"
-		# Disable PATH reset, trust what portage gives us #254615
-		-e 's:^PATH=/:#PATH=/:'
 		# Disable fortify flags ... our gcc does this for us
 		-e 's:-D_FORTIFY_SOURCE=2::'
 	)
@@ -425,6 +419,8 @@ src_install() {
 	emake install-nokeys DESTDIR="${D}"
 	fperms 600 /etc/ssh/sshd_config
 	dobin contrib/ssh-copy-id
+	newinitd "${FILESDIR}"/sshd-r1.initd sshd
+	newconfd "${FILESDIR}"/sshd-r1.confd sshd
 
 	if use pam; then
 		newpamd "${FILESDIR}"/sshd.pam_include.2 sshd
@@ -441,8 +437,9 @@ src_install() {
 	dodir /etc/skel/.ssh
 	rmdir "${ED}"/var/empty || die
 
-	systemd_dounit "${FILESDIR}"/sshd.{service,socket}
-	systemd_newunit "${FILESDIR}"/sshd_at.service 'sshd@.service'
+	systemd_dounit "${FILESDIR}"/sshd.socket
+	systemd_newunit "${FILESDIR}"/sshd.service.1 sshd.service
+	systemd_newunit "${FILESDIR}"/sshd_at.service.1 'sshd@.service'
 }
 
 pkg_preinst() {
@@ -489,6 +486,14 @@ pkg_postinst() {
 			ewarn "After upgrading to openssh-8.2p1 please restart sshd, otherwise you"
 			ewarn "will not be able to establish new sessions. Restarting sshd over a ssh"
 			ewarn "connection is generally safe."
+		fi
+		if ver_test "${old_ver}" -lt "9.2_p1-r1" && systemd_is_booted; then
+			ewarn "From openssh-9.2_p1-r1 the supplied systemd unit file defaults to"
+			ewarn "'Restart=on-failure', which causes the service to automatically restart if it"
+			ewarn "terminates with an unclean exit code or signal. This feature is useful for most users,"
+			ewarn "but it can increase the vulnerability of the system in the event of a future exploit."
+			ewarn "If you have a web-facing setup or are concerned about security, it is recommended to"
+			ewarn "set 'Restart=no' in your sshd unit file."
 		fi
 	done
 
