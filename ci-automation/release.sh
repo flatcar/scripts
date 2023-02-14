@@ -208,7 +208,7 @@ function _release_build_impl() {
 
     touch sdk_container/.env # This file should already contain the required credentials as env vars
     docker run --pull always --rm --name="${container_name}" --net host \
-      -w /work -v "$PWD":/work "${mantle_ref}" bash -c "source ci-automation/release.sh; _inside_mantle"
+      -w /work -v "$PWD":/work "${mantle_ref}" bash -c "git config --global --add safe.directory /work && source ci-automation/release.sh && _inside_mantle"
     # Push flatcar_production_ami_*txt and flatcar_production_ami_*json to the right bincache folder
     for arch in amd64 arm64; do
       sudo chown -R "$USER:$USER" "aws-${arch}"
