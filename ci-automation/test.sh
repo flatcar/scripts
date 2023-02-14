@@ -190,7 +190,7 @@ function _test_run_impl() {
         touch sdk_container/.env
         docker run --pull always --rm --name="${container_name}" --privileged --net host -v /dev:/dev \
           -w /work -v "$PWD":/work "${mantle_ref}" \
-         bash -c "set -o noglob && source sdk_container/.env && ci-automation/vendor-testing/${image}.sh \
+         bash -c "set -o noglob && git config --global --add safe.directory /work && source sdk_container/.env && ci-automation/vendor-testing/${image}.sh \
                 \"${work_dir}\" \
                 \"${tests_dir}\" \
                 \"${arch}\" \
@@ -200,6 +200,7 @@ function _test_run_impl() {
         set -e
         rm -f "${work_dir}/first_run"
 
+        # Note: git safe.directory is not set in this run as it does not use git
         docker run --pull always --rm --name="${container_name}" --privileged --net host -v /dev:/dev \
           -w /work -v "$PWD":/work "${mantle_ref}" \
             ci-automation/test_update_reruns.sh \
