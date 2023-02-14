@@ -183,7 +183,10 @@ build_stage1() {
     sed -i "s:^portdir.*:portdir=\"$stage1_repos/gentoo\":" \
          "$TEMPDIR/catalyst-stage1.conf"
     # take the "portage directory" (portage-stable copy) snapshot
-    catalyst $DEBUG -c "$TEMPDIR/catalyst-stage1.conf" -s "$FLAGS_version-stage1"
+    catalyst \
+        "${DEBUG[@]}" \
+        --config "$TEMPDIR/catalyst-stage1.conf" \
+        --snapshot "$FLAGS_version-stage1"
 
     # Update the stage 1 spec to use the "known-good" portage-stable snapshot
     #  and coreos-overlay copy repository versions from above.

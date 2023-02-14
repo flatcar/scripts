@@ -233,21 +233,21 @@ configure_crossdev_overlay() {
     local location="$2"
 
     # may be called from either catalyst (root) or update_chroot (user)
-    local sudo="env"
+    local sudo=("env")
     if [[ $(id -u) -ne 0 ]]; then
-        sudo="sudo -E"
+        sudo=("sudo" "-E")
     fi
 
-    $sudo mkdir -p "${root}${location}/"{profiles,metadata}
+    "${sudo[@]}" mkdir -p "${root}${location}/"{profiles,metadata}
     echo "x-crossdev" | \
-        $sudo tee "${root}${location}/profiles/repo_name" > /dev/null
-    $sudo tee "${root}${location}/metadata/layout.conf" > /dev/null <<EOF
+        "${sudo[@]}" tee "${root}${location}/profiles/repo_name" > /dev/null
+    "${sudo[@]}" tee "${root}${location}/metadata/layout.conf" > /dev/null <<EOF
 masters = portage-stable coreos
 use-manifests = true
 thin-manifests = true
 EOF
 
-    $sudo tee "${root}/etc/portage/repos.conf/crossdev.conf" > /dev/null <<EOF
+    "${sudo[@]}" tee "${root}/etc/portage/repos.conf/crossdev.conf" > /dev/null <<EOF
 [x-crossdev]
 location = ${location}
 EOF
@@ -275,21 +275,21 @@ _configure_sysroot() {
     local profile="$1"
 
     # may be called from either catalyst (root) or setup_board (user)
-    local sudo="env"
+    local sudo=("env")
     if [[ $(id -u) -ne 0 ]]; then
-        sudo="sudo -E"
+        sudo=("sudo" "-E")
     fi
 
-    $sudo mkdir -p "${ROOT}/etc/portage/"{profile,repos.conf}
-    $sudo cp /etc/portage/repos.conf/* "${ROOT}/etc/portage/repos.conf/"
-    $sudo eselect profile set --force "$profile"
+    "${sudo[@]}" mkdir -p "${ROOT}/etc/portage/"{profile,repos.conf}
+    "${sudo[@]}" cp /etc/portage/repos.conf/* "${ROOT}/etc/portage/repos.conf/"
+    "${sudo[@]}" eselect profile set --force "$profile"
 
     local coreos_path
     coreos_path=$(portageq get_repo_path "${ROOT}" coreos)
-    $sudo ln -sfT "${coreos_path}/coreos/user-patches" "${ROOT}/etc/portage/patches"
+    "${sudo[@]}" ln -sfT "${coreos_path}/coreos/user-patches" "${ROOT}/etc/portage/patches"
 
     echo "Writing make.conf for the sysroot ${SYSROOT}, root ${ROOT}"
-    $sudo tee "${ROOT}/etc/portage/make.conf" <<EOF
+    "${sudo[@]}" tee "${ROOT}/etc/portage/make.conf" <<EOF
 $(portageq envvar -v CHOST CBUILD ROOT DISTDIR PKGDIR)
 # TODO: These are deprecated, drop them eventually.
 PORTDIR="$(portageq get_repo_path "${ROOT}" portage-stable)"
@@ -377,9 +377,9 @@ install_cross_toolchain() {
     cross_flags+=( --portage "${safe_flags[*]}" )
 
     # may be called from either catalyst (root) or upgrade_chroot (user)
-    local sudo="env"
+    local sudo=("env")
     if [[ $(id -u) -ne 0 ]]; then
-        sudo="sudo -E"
+        sudo=("sudo" "-E")
     fi
 
     # crossdev will arbitrarily choose an overlay that it finds first.
@@ -396,8 +396,8 @@ install_cross_toolchain() {
     # Only call crossdev to regenerate configs if something has changed
     if [[ ! -d "${cross_overlay}/cross-${cross_chost}" ]] || ! cmp --quiet - "${cross_cfg}" <<<"${cross_cfg_data}"
     then
-        $sudo crossdev "${cross_flags[@]}" --init-target
-        $sudo tee "${cross_cfg}" <<<"${cross_cfg_data}" >/dev/null
+        "${sudo[@]}" crossdev "${cross_flags[@]}" --init-target
+        "${sudo[@]}" tee "${cross_cfg}" <<<"${cross_cfg_data}" >/dev/null
     fi
 
     # Check if any packages need to be built from source. If so do a full
@@ -407,16 +407,16 @@ install_cross_toolchain() {
         --pretend "${emerge_atoms[@]}" | grep -q '^\[ebuild'
     then
         echo "Doing a full bootstrap via crossdev"
-        $sudo crossdev "${cross_flags[@]}" --stage4
+        "${sudo[@]}" crossdev "${cross_flags[@]}" --stage4
     else
         echo "Installing existing binaries"
-        $sudo emerge "${emerge_flags[@]}" "${emerge_atoms[@]}"
+        "${sudo[@]}" emerge "${emerge_flags[@]}" "${emerge_atoms[@]}"
         if [ "${cbuild}" = "x86_64-pc-linux-gnu" ] && [ "${cross_chost}" = aarch64-cros-linux-gnu ] && \
            [ ! -d /usr/lib/rust-*/rustlib/aarch64-unknown-linux-gnu ] && [ ! -d /usr/lib/rustlib/aarch64-unknown-linux-gnu ]; then
           # If no aarch64 folder exists, warn about the situation but don't compile Rust here or download it as binary package
           echo "WARNING: No aarch64 cross-compilation Rust libraries found!"
-          echo "In case building fails, make sure the old Rust version is deleted with: sudo emerge -C virtual/rust dev-lang/rust"
-          echo "Then install it again with: sudo emerge "${emerge_flags[@]}" virtual/rust"
+          echo "In case building fails, make sure the old Rust version is deleted with: sudo emerge --unmerge virtual/rust dev-lang/rust"
+          echo "Then install it again with: sudo emerge ${emerge_flags[@]} virtual/rust"
           echo "This will download the binary package or build from source."
         fi
     fi
@@ -424,7 +424,7 @@ install_cross_toolchain() {
     # Setup environment and wrappers for our shiny new toolchain
     binutils_set_latest_profile "${cross_chost}"
     gcc_set_latest_profile "${cross_chost}"
-    $sudo CC_QUIET=1 sysroot-config --install-links "${cross_chost}"
+    "${sudo[@]}" CC_QUIET=1 sysroot-config --install-links "${cross_chost}"
 }
 
 # Build/install toolchain dependencies into the cross sysroot for a
@@ -437,9 +437,9 @@ install_cross_libs() {
     local package_provided="$ROOT/etc/portage/profile/package.provided"
 
     # may be called from either catalyst (root) or setup_board (user)
-    local sudo="env"
+    local sudo=("env")
     if [[ $(id -u) -ne 0 ]]; then
-        sudo="sudo -E"
+        sudo=("sudo" "-E")
     fi
 
     CBUILD="$(portageq envvar CBUILD)" \
@@ -450,26 +450,26 @@ install_cross_libs() {
 
     # In order to get a dependency list we must calculate it before
     # updating package.provided. Otherwise portage will no-op.
-    $sudo rm -f "${package_provided}/cross-${cross_chost}"
+    "${sudo[@]}" rm -f "${package_provided}/cross-${cross_chost}"
     local cross_deps=$(ROOT="$ROOT" SYSROOT="$ROOT" _get_dependency_list \
-        "$@" "${TOOLCHAIN_PKGS[@]}" | $sudo tee \
+        "$@" "${TOOLCHAIN_PKGS[@]}" | "${sudo[@]}" tee \
         "$ROOT/etc/portage/cross-${cross_chost}-depends")
 
     # Add toolchain to packages.provided since they are on the host system
     if [[ -f "${package_provided}" ]]; then
         # emerge-wrapper is trying a similar trick but doesn't work
-        $sudo rm -f "${package_provided}"
+        "${sudo[@]}" rm -f "${package_provided}"
     fi
-    $sudo mkdir -p "${package_provided}"
+    "${sudo[@]}" mkdir -p "${package_provided}"
     local native_pkg cross_pkg cross_pkg_version
     for native_pkg in "${TOOLCHAIN_PKGS[@]}"; do
         cross_pkg="${native_pkg/*\//cross-${cross_chost}/}"
         cross_pkg_version=$(portageq match / "${cross_pkg}")
         echo "${native_pkg%/*}/${cross_pkg_version#*/}"
-    done | $sudo tee "${package_provided}/cross-${cross_chost}" >/dev/null
+    done | "${sudo[@]}" tee "${package_provided}/cross-${cross_chost}" >/dev/null
 
     # OK, clear as mud? Install those dependencies now!
-    PORTAGE_CONFIGROOT="$ROOT" $sudo emerge --root="$ROOT" --sysroot="$ROOT" "$@" -u $cross_deps
+    PORTAGE_CONFIGROOT="$ROOT" "${sudo[@]}" emerge --root="$ROOT" --sysroot="$ROOT" "$@" --update $cross_deps
 }
 
 install_cross_rust() {
@@ -478,16 +478,16 @@ install_cross_rust() {
     local cbuild="$(portageq envvar CBUILD)"
 
     # may be called from either catalyst (root) or upgrade_chroot (user)
-    local sudo="env"
+    local sudo=("env")
     if [[ $(id -u) -ne 0 ]]; then
-        sudo="sudo -E"
+        sudo=("sudo" "-E")
     fi
 
     if [ "${cbuild}" = "x86_64-pc-linux-gnu" ] && [ "${cross_chost}" = "aarch64-cros-linux-gnu" ]; then
         echo "Building Rust for arm64"
         # If no aarch64 folder exists, try to remove any existing Rust packages.
-        [ ! -d /usr/lib/rustlib/aarch64-unknown-linux-gnu ] && ($sudo emerge -C dev-lang/rust || true)
-        $sudo emerge "${emerge_flags[@]}" dev-lang/rust
+        [ ! -d /usr/lib/rustlib/aarch64-unknown-linux-gnu ] && ("${sudo[@]}" emerge --unmerge dev-lang/rust || true)
+        "${sudo[@]}" emerge "${emerge_flags[@]}" dev-lang/rust
     fi
 }
 
@@ -501,12 +501,12 @@ binutils_set_latest_profile() {
     fi
 
     # may be called from either catalyst (root) or upgrade_chroot (user)
-    local sudo="env"
+    local sudo=("env")
     if [[ $(id -u) -ne 0 ]]; then
-        sudo="sudo -E"
+        sudo=("sudo" "-E")
     fi
 
-    $sudo binutils-config "${latest}"
+    "${sudo[@]}" binutils-config "${latest}"
 }
 
 # Get the latest GCC profile for a given CHOST
@@ -535,10 +535,10 @@ gcc_set_latest_profile() {
     fi
 
     # may be called from either catalyst (root) or upgrade_chroot (user)
-    local sudo="env"
+    local sudo=("env")
     if [[ $(id -u) -ne 0 ]]; then
-        sudo="sudo -E"
+        sudo=("sudo" "-E")
     fi
 
-    $sudo gcc-config "${latest}"
+    "${sudo[@]}" gcc-config "${latest}"
 }

@@ -34,4 +34,4 @@ else
     sudo rm -f "${BOARD_ROOT}/etc/portage/package.use/official"
 fi
 
-emerge-${BOARD} -v --quiet-build=y --nospinner coreos-base/coreos-au-key
+emerge-${BOARD} --verbose --quiet-build=y --nospinner coreos-base/coreos-au-key

@@ -55,7 +55,7 @@ remove_hard_blocks() {
     done
     if [[ ${#pkgs_to_drop[@]} -gt 0 ]]; then
         info "Dropping the following packages to avoid hard blocks: ${pkgs_to_drop[@]}"
-        "${emerge_cmd}" -C "${pkgs_to_drop[@]}"
+        "${emerge_cmd}" --unmerge "${pkgs_to_drop[@]}"
     else
         info "No hard blockers to remove"
     fi

@@ -76,7 +76,9 @@ esac
 
 if [[ $BOARD_GRUB -eq 1 ]]; then
     info "Updating GRUB in ${BOARD_ROOT}"
-    emerge-${BOARD} --nodeps --select -qugKN sys-boot/grub
+    emerge-${BOARD} \
+           --nodeps --select --quiet --update --getbinpkg --usepkgonly --newuse \
+           sys-boot/grub
     GRUB_SRC="${BOARD_ROOT}/usr/lib/grub/${FLAGS_target}"
 fi
 [[ -d "${GRUB_SRC}" ]] || die "GRUB not installed at ${GRUB_SRC}"

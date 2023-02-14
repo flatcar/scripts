@@ -183,7 +183,7 @@ done
 
 "${BUILD_LIBRARY_DIR}/set_lsb_release" --root /
 
-EMERGE_FLAGS=( -uNv --with-bdeps=y --select )
+EMERGE_FLAGS=( --update --newuse --verbose --with-bdeps=y --select )
 REBUILD_FLAGS=()
 if [ "${FLAGS_usepkg}" -eq "${FLAGS_TRUE}" ]; then
   EMERGE_FLAGS+=( --usepkg )

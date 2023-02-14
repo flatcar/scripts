@@ -734,7 +734,7 @@ _write_qemu_uefi_conf() {
         arm64-usr)
             # Get edk2 files into local build workspace.
             info "Updating edk2 in /build/${BOARD}"
-            emerge-${BOARD} --nodeps --select -qugN sys-firmware/edk2-aarch64
+            emerge-${BOARD} --nodeps --select --quiet --update --getbinpkg --newuse sys-firmware/edk2-aarch64
             # Create 64MiB flash device image files.
             dd if=/dev/zero bs=1M count=64 of="$(_dst_dir)/${flash_rw}" \
                 status=none

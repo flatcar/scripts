@@ -130,7 +130,7 @@ fi
 . "${BUILD_LIBRARY_DIR}/test_image_content.sh" || exit 1
 
 # Setup all the emerge command/flags.
-EMERGE_FLAGS=( -uDNv --backtrack=30 --select )
+EMERGE_FLAGS=( --update --deep --newuse --verbose --backtrack=30 --select )
 REBUILD_FLAGS=()
 EMERGE_CMD=( "emerge-${FLAGS_board}" )
 if [[ "${FLAGS_fetchonly}" -eq "${FLAGS_TRUE}" ]]; then
