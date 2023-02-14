@@ -131,7 +131,7 @@ fi
 
 # Setup all the emerge command/flags.
 EMERGE_FLAGS=( --update --deep --newuse --verbose --backtrack=30 --select )
-REBUILD_FLAGS=()
+REBUILD_FLAGS=( --verbose )
 EMERGE_CMD=( "emerge-${FLAGS_board}" )
 if [[ "${FLAGS_fetchonly}" -eq "${FLAGS_TRUE}" ]]; then
   EMERGE_CMD+=( --fetchonly )
@@ -285,7 +285,7 @@ info "Merging board packages now"
 sudo -E "${EMERGE_CMD[@]}" "${EMERGE_FLAGS[@]}" "$@"
 
 info "Removing obsolete packages"
-sudo -E "${EMERGE_CMD[@]}" --quiet --depclean @unavailable
+sudo -E "${EMERGE_CMD[@]}" --verbose --depclean @unavailable
 
 if [[ "${FLAGS_usepkgonly}" -eq "${FLAGS_FALSE}" ]]; then
   if "portageq-${BOARD}" list_preserved_libs "${BOARD_ROOT}" >/dev/null; then

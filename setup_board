@@ -269,7 +269,7 @@ PORTAGE_BINHOST="${BOARD_BINHOST}"
 
 # Generally there isn't any need to add packages to @world by default.
 # You can use --select to override this.
-EMERGE_DEFAULT_OPTS="--oneshot"
+EMERGE_DEFAULT_OPTS="--oneshot --verbose"
 
 # Enable provenance reporting by default. Produced files are in /usr/share/SLSA
 GENERATE_SLSA_PROVENANCE="true"
@@ -297,7 +297,7 @@ ${EMAINT_WRAPPER} --fix moveinst
 ${EMAINT_WRAPPER} --fix world
 
 if [[ ${FLAGS_regen_configs} -eq ${FLAGS_FALSE} ]]; then
-  EMERGE_FLAGS=( --select --quiet --root-deps=rdeps )
+  EMERGE_FLAGS=( --select --verbose --root-deps=rdeps )
   EMERGE_FLAGS+=( "--jobs=${NUM_JOBS}" )
   EMERGE_TOOLCHAIN_FLAGS=( "${EMERGE_FLAGS[@]}" )
 

@@ -471,7 +471,7 @@ install_oem_package() {
     info "Building ${oem_pkg}"
     USE="${oem_use}" emerge-${BOARD} \
         --nodeps --buildpkgonly --usepkg n \
-        --quiet "${oem_pkg}"
+        --verbose "${oem_pkg}"
 
     local getbinpkg
     if [[ ${FLAGS_getbinpkg} -eq ${FLAGS_TRUE} ]]; then
@@ -482,7 +482,7 @@ install_oem_package() {
     USE="${oem_use}" emerge-${BOARD} \
         --root="${oem_tmp}" --sysroot="${oem_tmp}" \
         --root-deps=rdeps --usepkgonly ${getbinpkg} \
-        --quiet --jobs=2 "${oem_pkg}"
+        --verbose --jobs=2 "${oem_pkg}"
     sudo rsync -a "${oem_tmp}/usr/share/oem/" "${VM_TMP_ROOT}/usr/share/oem/"
     sudo rm -rf "${oem_tmp}"
 }
@@ -734,7 +734,7 @@ _write_qemu_uefi_conf() {
         arm64-usr)
             # Get edk2 files into local build workspace.
             info "Updating edk2 in /build/${BOARD}"
-            emerge-${BOARD} --nodeps --select --quiet --update --getbinpkg --newuse sys-firmware/edk2-aarch64
+            emerge-${BOARD} --nodeps --select --verbose --update --getbinpkg --newuse sys-firmware/edk2-aarch64
             # Create 64MiB flash device image files.
             dd if=/dev/zero bs=1M count=64 of="$(_dst_dir)/${flash_rw}" \
                 status=none

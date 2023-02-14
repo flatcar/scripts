@@ -185,6 +185,7 @@ build_stage1() {
     # take the "portage directory" (portage-stable copy) snapshot
     catalyst \
         "${DEBUG[@]}" \
+        --verbose \
         --config "$TEMPDIR/catalyst-stage1.conf" \
         --snapshot "$FLAGS_version-stage1"
 

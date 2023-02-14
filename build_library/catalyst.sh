@@ -74,7 +74,7 @@ local load=$((NUM_JOBS * 2))
 cat <<EOF
 export TERM='${TERM}'
 export MAKEOPTS='--jobs=${NUM_JOBS} --load-average=${load}'
-export EMERGE_DEFAULT_OPTS="\$MAKEOPTS"
+export EMERGE_DEFAULT_OPTS="--verbose \$MAKEOPTS"
 export PORTAGE_USERNAME=portage
 export PORTAGE_GRPNAME=portage
 export GENTOO_MIRRORS='$(portageq envvar GENTOO_MIRRORS)'
@@ -180,7 +180,7 @@ catalyst_init() {
 
     DEBUG=()
     if [[ ${FLAGS_debug} -eq ${FLAGS_TRUE} ]]; then
-        DEBUG=( --debug --verbose )
+        DEBUG=("--debug")
     fi
 
     # Create output dir, expand path for easy comparison later
@@ -264,6 +264,7 @@ build_stage() {
     info "Starting $stage"
     catalyst \
         "${DEBUG[@]}" \
+        --verbose \
         --config "$TEMPDIR/catalyst.conf" \
         --file "$TEMPDIR/${stage}.spec" \
         --cli "source_subpath=$srcpath"
@@ -284,6 +285,7 @@ build_snapshot() {
         info "Creating snapshot ${snapshot_path}"
         catalyst \
             "${DEBUG[@]}" \
+            --verbose \
             --config "$TEMPDIR/catalyst.conf" \
             --snapshot "$FLAGS_version"
     fi
