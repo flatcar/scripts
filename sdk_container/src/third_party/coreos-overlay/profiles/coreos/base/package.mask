@@ -22,7 +22,7 @@
 # up. Drop this when we switch to it.
 >=dev-lang/python-3.10
 
-# sys-devel/gcc-11.3.1_p20221209 is the latest gcc version that is
-# stable on both amd64 and arm64. There are newer versions of gcc
-# which are stable only on one of them, so mask them.
->sys-devel/gcc-11.3.1_p20221209
+# sys-devel/gcc-11.3.1_p20230120-r1 is the latest stable gcc version
+# that fixes the CET build issue of glibc. There are newer versions of
+# gcc that are not tested enough for CET, so mask them.
+>sys-devel/gcc-11.3.1_p20230120-r1
