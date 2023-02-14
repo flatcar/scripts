@@ -174,7 +174,7 @@ catalyst_init() {
         die_notrace "This script must be run as root."
     fi
 
-    if ! which catalyst &>/dev/null; then
+    if ! command -v catalyst >/dev/null 2>&1; then
         die_notrace "catalyst not found, not installed or bad PATH?"
     fi
 
