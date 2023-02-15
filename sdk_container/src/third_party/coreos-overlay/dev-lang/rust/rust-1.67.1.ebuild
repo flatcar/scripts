@@ -1,9 +1,9 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{8..11} )
+PYTHON_COMPAT=( python3_{9..11} )
 
 inherit bash-completion-r1 check-reqs estack flag-o-matic llvm multiprocessing \
 	multilib multilib-build python-any-r1 rust-toolchain toolchain-funcs verify-sig
@@ -40,9 +40,9 @@ ALL_LLVM_TARGETS=( AArch64 AMDGPU ARM AVR BPF Hexagon Lanai Mips MSP430
 ALL_LLVM_TARGETS=( "${ALL_LLVM_TARGETS[@]/#/llvm_targets_}" )
 LLVM_TARGET_USEDEPS=${ALL_LLVM_TARGETS[@]/%/(-)?}
 
-LICENSE="|| ( MIT Apache-2.0 ) BSD-1 BSD-2 BSD-4 UoI-NCSA"
+LICENSE="|| ( MIT Apache-2.0 ) BSD BSD-1 BSD-2 BSD-4 UoI-NCSA"
 
-IUSE="clippy cpu_flags_x86_sse2 debug dist doc llvm-libunwind miri nightly parallel-compiler profiler rls rustfmt rust-analyzer rust-src system-bootstrap system-llvm test wasm ${ALL_LLVM_TARGETS[*]}"
+IUSE="clippy cpu_flags_x86_sse2 debug dist doc llvm-libunwind miri nightly parallel-compiler profiler rustfmt rust-analyzer rust-src system-bootstrap system-llvm test wasm ${ALL_LLVM_TARGETS[*]}"
 
 # Please keep the LLVM dependency block separate. Since LLVM is slotted,
 # we need to *really* make sure we're not pulling more than one slot
@@ -126,7 +126,6 @@ RDEPEND="${DEPEND}
 REQUIRED_USE="|| ( ${ALL_LLVM_TARGETS[*]} )
 	miri? ( nightly )
 	parallel-compiler? ( nightly )
-	rls? ( rust-src )
 	test? ( ${ALL_LLVM_TARGETS[*]} )
 	wasm? ( llvm_targets_WebAssembly )
 	x86? ( cpu_flags_x86_sse2 )
@@ -166,7 +165,7 @@ VERIFY_SIG_OPENPGP_KEY_PATH=${BROOT}/usr/share/openpgp-keys/rust.asc
 PATCHES=(
 	"${FILESDIR}"/1.65.0-ignore-broken-and-non-applicable-tests.patch
 	"${FILESDIR}"/1.62.1-musl-dynamic-linking.patch
-	"${FILESDIR}"/1.67.0-bootstrap.patch
+	"${FILESDIR}"/1.67.0-doc-wasm.patch
 )
 
 S="${WORKDIR}/${MY_P}-src"
@@ -207,7 +206,6 @@ pre_build_checks() {
 	fi
 	M=$(( $(usex clippy 128 0) + ${M} ))
 	M=$(( $(usex miri 128 0) + ${M} ))
-	M=$(( $(usex rls 512 0) + ${M} ))
 	M=$(( $(usex rustfmt 256 0) + ${M} ))
 	# add 2G if we compile llvm and 256M per llvm_target
 	if ! use system-llvm; then
@@ -324,9 +322,8 @@ src_configure() {
 	use clippy && tools+=',"clippy"'
 	use miri && tools+=',"miri"'
 	use profiler && tools+=',"rust-demangler"'
-	use rls && tools+=',"rls","analysis"'
 	use rustfmt && tools+=',"rustfmt"'
-	use rust-analyzer && tools+=',"rust-analyzer"'
+	use rust-analyzer && tools+=',"rust-analyzer","analysis"'
 	use rust-src && tools+=',"src"'
 
 	local rust_stage0_root
@@ -675,7 +672,6 @@ src_install() {
 	use clippy && symlinks+=( clippy-driver cargo-clippy )
 	use miri && symlinks+=( miri cargo-miri )
 	use profiler && symlinks+=( rust-demangler )
-	use rls && symlinks+=( rls )
 	use rustfmt && symlinks+=( rustfmt cargo-fmt )
 	use rust-analyzer && symlinks+=( rust-analyzer )
 
@@ -735,9 +731,6 @@ src_install() {
 	fi
 	if use profiler; then
 		echo /usr/bin/rust-demangler >> "${T}/provider-${P}"
-	fi
-	if use rls; then
-		echo /usr/bin/rls >> "${T}/provider-${P}"
 	fi
 	if use rustfmt; then
 		echo /usr/bin/rustfmt >> "${T}/provider-${P}"
