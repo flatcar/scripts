@@ -37,6 +37,6 @@ for oem in "${VALID_OEM_PACKAGES[@]/#/oem-}"; do
   for use in "${uses[@]}"; do
     info "Checking ${oem}${use:+[${use}]}"
     USE="${use}" emerge-${BOARD} --usepkg --getbinpkg \
-        --emptytree --pretend --quiet "coreos-base/${oem}"
+        --emptytree --pretend --verbose "coreos-base/${oem}"
   done
 done

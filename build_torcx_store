@@ -80,7 +80,7 @@ function torcx_build() (
             --buildpkgonly \
             --nodeps \
             --oneshot \
-            --quiet \
+            --verbose \
             --root-deps=rdeps \
             "${pkgs[@]}"
 
@@ -89,7 +89,7 @@ function torcx_build() (
             --jobs="${NUM_JOBS}" \
             --nodeps \
             --oneshot \
-            --quiet \
+            --verbose \
             --root="${tmproot}" \
             --root-deps=rdeps \
             --sysroot="${tmproot}" \

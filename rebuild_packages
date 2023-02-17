@@ -74,7 +74,7 @@ if [[ "${#rebuild_atoms[@]}" -eq 0 ]]; then
     info "No ebuild changes detected"
 else
     info "Rebuilding ${#rebuild_atoms[@]} packages..."
-    emerge-$BOARD "--jobs=${NUM_JOBS}" "${rebuild_atoms[@]}"
+    emerge-$BOARD --verbose "--jobs=${NUM_JOBS}" "${rebuild_atoms[@]}"
 
     info "Checking build root"
     test_image_content "${BOARD_ROOT}"

@@ -269,7 +269,7 @@ PORTAGE_BINHOST="${BOARD_BINHOST}"
 
 # Generally there isn't any need to add packages to @world by default.
 # You can use --select to override this.
-EMERGE_DEFAULT_OPTS="--oneshot"
+EMERGE_DEFAULT_OPTS="--oneshot --verbose"
 
 # Enable provenance reporting by default. Produced files are in /usr/share/SLSA
 GENERATE_SLSA_PROVENANCE="true"
@@ -297,23 +297,23 @@ ${EMAINT_WRAPPER} --fix moveinst
 ${EMAINT_WRAPPER} --fix world
 
 if [[ ${FLAGS_regen_configs} -eq ${FLAGS_FALSE} ]]; then
-  EMERGE_FLAGS="--select --quiet --root-deps=rdeps"
-  EMERGE_FLAGS+=" --jobs=${NUM_JOBS}"
-  EMERGE_TOOLCHAIN_FLAGS="${EMERGE_FLAGS}"
+  EMERGE_FLAGS=( --select --verbose --root-deps=rdeps )
+  EMERGE_FLAGS+=( "--jobs=${NUM_JOBS}" )
+  EMERGE_TOOLCHAIN_FLAGS=( "${EMERGE_FLAGS[@]}" )
 
   if [[ "${FLAGS_usepkg}" -eq "${FLAGS_TRUE}"  && \
         "${FLAGS_getbinpkg}" -eq "${FLAGS_TRUE}" ]]
   then
     if [[ "${FLAGS_usepkgonly}" -eq "${FLAGS_TRUE}" ]]; then
-      EMERGE_FLAGS+=" --usepkgonly --rebuilt-binaries n"
+      EMERGE_FLAGS+=( --usepkgonly --rebuilt-binaries n )
     else
-      EMERGE_FLAGS+=" --usepkg"
+      EMERGE_FLAGS+=( --usepkg )
     fi
-    EMERGE_FLAGS+=" --getbinpkg"
+    EMERGE_FLAGS+=( --getbinpkg )
   fi
 
   info "Installing baselayout"
-  "${EMERGE_WRAPPER}" ${EMERGE_FLAGS} --nodeps sys-apps/baselayout
+  "${EMERGE_WRAPPER}" "${EMERGE_FLAGS[@]}" --nodeps sys-apps/baselayout
 
   if [[ "${FLAGS_usepkg}" -ne "${FLAGS_TRUE}" ||
         "${FLAGS_getbinpkg}" -ne "${FLAGS_TRUE}" ]]
@@ -321,22 +321,22 @@ if [[ ${FLAGS_regen_configs} -eq ${FLAGS_FALSE} ]]; then
     # When binary packages are disabled we need to make sure the cross
     # sysroot includes any build dependencies for the toolchain.
     info "Installing toolchain build dependencies"
-    install_cross_libs "${BOARD_CHOST}" ${EMERGE_FLAGS} --buildpkg=n
+    install_cross_libs "${BOARD_CHOST}" "${EMERGE_FLAGS[@]}" --buildpkg=n
 
     info "Building toolchain dependencies"
     "${EMERGE_WRAPPER}" --buildpkg --buildpkgonly \
         --root="/usr/${BOARD_CHOST}" --sysroot="/usr/${BOARD_CHOST}" \
-        ${EMERGE_TOOLCHAIN_FLAGS} $(< "/usr/${BOARD_CHOST}/etc/portage/cross-${BOARD_CHOST}-depends")
+        "${EMERGE_TOOLCHAIN_FLAGS[@]}" $(< "/usr/${BOARD_CHOST}/etc/portage/cross-${BOARD_CHOST}-depends")
     info "Building toolchain"
     "${EMERGE_WRAPPER}" --buildpkg --buildpkgonly \
         --root="/usr/${BOARD_CHOST}" --sysroot="/usr/${BOARD_CHOST}" \
-	${EMERGE_TOOLCHAIN_FLAGS} "${TOOLCHAIN_PKGS[@]}"
+	"${EMERGE_TOOLCHAIN_FLAGS[@]}" "${TOOLCHAIN_PKGS[@]}"
   fi
 
   info "Installing toolchain"
   "${EMERGE_WRAPPER}" \
       --usepkgonly --getbinpkg --rebuilt-binaries n \
-      ${EMERGE_TOOLCHAIN_FLAGS} "${TOOLCHAIN_PKGS[@]}"
+      "${EMERGE_TOOLCHAIN_FLAGS[@]}" "${TOOLCHAIN_PKGS[@]}"
 fi
 
 if [[ ${FLAGS_regen_configs_only} -eq ${FLAGS_FALSE} ]]; then

@@ -19,7 +19,7 @@
 
 # Values set in catalyst_init, don't use till after calling it
 CATALYST_ROOT=
-DEBUG=
+DEBUG=()
 BUILDS=
 BINPKGS=
 DISTDIR=
@@ -74,7 +74,7 @@ local load=$((NUM_JOBS * 2))
 cat <<EOF
 export TERM='${TERM}'
 export MAKEOPTS='--jobs=${NUM_JOBS} --load-average=${load}'
-export EMERGE_DEFAULT_OPTS="\$MAKEOPTS"
+export EMERGE_DEFAULT_OPTS="--verbose \$MAKEOPTS"
 export PORTAGE_USERNAME=portage
 export PORTAGE_GRPNAME=portage
 export GENTOO_MIRRORS='$(portageq envvar GENTOO_MIRRORS)'
@@ -174,13 +174,13 @@ catalyst_init() {
         die_notrace "This script must be run as root."
     fi
 
-    if ! which catalyst &>/dev/null; then
+    if ! command -v catalyst >/dev/null 2>&1; then
         die_notrace "catalyst not found, not installed or bad PATH?"
     fi
 
-    DEBUG=
+    DEBUG=()
     if [[ ${FLAGS_debug} -eq ${FLAGS_TRUE} ]]; then
-        DEBUG="--debug --verbose"
+        DEBUG=("--debug")
     fi
 
     # Create output dir, expand path for easy comparison later
@@ -262,10 +262,12 @@ build_stage() {
     fi
 
     info "Starting $stage"
-    catalyst $DEBUG \
-        -c "$TEMPDIR/catalyst.conf" \
-        -f "$TEMPDIR/${stage}.spec" \
-        -C "source_subpath=$srcpath"
+    catalyst \
+        "${DEBUG[@]}" \
+        --verbose \
+        --config "$TEMPDIR/catalyst.conf" \
+        --file "$TEMPDIR/${stage}.spec" \
+        --cli "source_subpath=$srcpath"
     # Catalyst doesn't clean up after itself...
     rm -rf "$TEMPDIR/$stage-${ARCH}-${FLAGS_version}"
     ln -sf "$stage-${ARCH}-${FLAGS_version}.tar.bz2" \
@@ -281,7 +283,11 @@ build_snapshot() {
         info "Skipping snapshot, ${snapshot_path} exists"
     else
         info "Creating snapshot ${snapshot_path}"
-        catalyst $DEBUG -c "$TEMPDIR/catalyst.conf" -s "$FLAGS_version"
+        catalyst \
+            "${DEBUG[@]}" \
+            --verbose \
+            --config "$TEMPDIR/catalyst.conf" \
+            --snapshot "$FLAGS_version"
     fi
 }
 

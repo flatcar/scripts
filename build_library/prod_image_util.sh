@@ -18,7 +18,7 @@ get_binary_pkg() {
 
     # Nothing? Maybe we can fetch it.
     if [[ -z "${version}" && ${FLAGS_getbinpkg} -eq ${FLAGS_TRUE} ]]; then
-        emerge-${BOARD} --getbinpkg --usepkgonly --fetchonly --nodeps "${name}" >&2
+        emerge-${BOARD} --verbose --getbinpkg --usepkgonly --fetchonly --nodeps "${name}" >&2
         version=$(pkg_version binary "${name}")
     fi
 

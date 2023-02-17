@@ -181,7 +181,7 @@ emerge_to_image() {
   sudo -E ROOT="${root_fs_dir}" \
       FEATURES="-ebuild-locks" \
       PORTAGE_CONFIGROOT="${BUILD_DIR}"/configroot \
-      emerge --root-deps=rdeps --usepkgonly --jobs="${NUM_JOBS}" -v "$@"
+      emerge --root-deps=rdeps --usepkgonly --jobs="${NUM_JOBS}" --verbose "$@"
 
   # Shortcut if this was just baselayout
   [[ "$*" == *sys-apps/baselayout ]] && return
@@ -206,7 +206,7 @@ emerge_to_image_unchecked() {
 
   sudo -E ROOT="${root_fs_dir}" \
       PORTAGE_CONFIGROOT="${BUILD_DIR}"/configroot \
-      emerge --root-deps=rdeps --usepkgonly --jobs="${NUM_JOBS}" -v "$@"
+      emerge --root-deps=rdeps --usepkgonly --jobs="${NUM_JOBS}" --verbose "$@"
 
   # Shortcut if this was just baselayout
   [[ "$*" == *sys-apps/baselayout ]] && return

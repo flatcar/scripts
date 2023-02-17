@@ -99,7 +99,7 @@ MAKEOPTS="--jobs=${NUM_JOBS} --load-average=$((NUM_JOBS * 2))"
 
 # Generally there isn't any need to add packages to @world by default.
 # You can use --select to override this.
-EMERGE_DEFAULT_OPTS="--oneshot"
+EMERGE_DEFAULT_OPTS="--verbose --oneshot"
 
 # Allow the user to override or define additional settings.
 source "/etc/portage/make.conf.user"
@@ -183,8 +183,8 @@ done
 
 "${BUILD_LIBRARY_DIR}/set_lsb_release" --root /
 
-EMERGE_FLAGS=( -uNv --with-bdeps=y --select )
-REBUILD_FLAGS=()
+EMERGE_FLAGS=( --update --newuse --verbose --with-bdeps=y --select )
+REBUILD_FLAGS=( --verbose )
 if [ "${FLAGS_usepkg}" -eq "${FLAGS_TRUE}" ]; then
   EMERGE_FLAGS+=( --usepkg )
   if [[ "${FLAGS_usepkgonly}" -eq "${FLAGS_TRUE}" ]]; then
@@ -208,7 +208,7 @@ EMERGE_CMD="emerge"
 # In first pass, update portage and toolchains. Lagged updates of both
 # can cause serious issues later.
 info "Updating basic system packages"
-sudo -E ${EMERGE_CMD} --quiet "${EMERGE_FLAGS[@]}" \
+sudo -E ${EMERGE_CMD} "${EMERGE_FLAGS[@]}" \
     sys-apps/portage \
     sys-devel/crossdev \
     sys-devel/sysroot-wrappers \
@@ -230,7 +230,7 @@ if [[ "${FLAGS_skip_toolchain_update}" -eq "${FLAGS_FALSE}" && \
 
   for cross_chost in "${CROSS_CHOSTS[@]}"; do
     info "Updating cross ${cross_chost} toolchain"
-    install_cross_toolchain "${cross_chost}" --quiet "${EMERGE_FLAGS[@]}"
+    install_cross_toolchain "${cross_chost}" "${EMERGE_FLAGS[@]}"
   done
 fi
 
@@ -259,7 +259,7 @@ sudo -E ${EMERGE_CMD} "${EMERGE_FLAGS[@]}" \
     coreos-devel/sdk-depends world
 
 info "Removing obsolete packages"
-sudo -E ${EMERGE_CMD} --quiet --depclean @unavailable
+sudo -E ${EMERGE_CMD} --verbose --depclean @unavailable
 
 if portageq list_preserved_libs / >/dev/null; then
   info "Rebuilding packages linked against old libraries"
