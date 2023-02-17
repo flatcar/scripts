@@ -13,7 +13,7 @@ KEYWORDS="amd64 arm64"
 RDEPEND="
 	~app-emulation/docker-20.10.23
 	~app-emulation/docker-cli-20.10.23
-	~app-emulation/containerd-1.6.16
+	~app-emulation/containerd-1.6.18
 	~app-emulation/docker-proxy-0.8.0_p20210525
 	~app-emulation/docker-runc-1.1.4
 	=dev-libs/libltdl-2.4.7
