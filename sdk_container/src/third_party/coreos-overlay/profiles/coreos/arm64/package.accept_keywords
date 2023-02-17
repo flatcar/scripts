@@ -34,6 +34,10 @@
 # needed to force enable ipvsadm for arm64
 =sys-cluster/ipvsadm-1.27-r1 **
 
+# needed to enable gcc 11.3.1_p20230120-r1 for arm64, a required version
+# for fixing build issues in glibc with gcc, w.r.t USE flag cet.
+=sys-devel/gcc-11.3.1_p20230120-r1 ~arm64
+
 =sys-firmware/edk2-aarch64-18.02 **
 =sys-fs/btrfs-progs-4.19.1 ~arm64
 =sys-libs/libselinux-3.1-r2 ~arm64
