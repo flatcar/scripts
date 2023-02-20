@@ -34,6 +34,9 @@
 
 =sys-fs/cryptsetup-2.4.1-r1 ~amd64 ~arm64
 
+# Required for addressing CVE-2022-1304
+=sys-fs/e2fsprogs-1.46.6 ~amd64 ~arm64
+
 # Keep iproute in sync with kernel version.
 =sys-apps/iproute2-5.15.0 ~amd64 ~arm64
 
