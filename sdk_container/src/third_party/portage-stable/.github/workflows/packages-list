@@ -93,11 +93,17 @@ app-eselect/eselect-iptables
 
 app-portage/portage-utils
 
+app-shells/bash-completion
+
+app-text/asciidoc
+
 dev-db/sqlite
 
 dev-lang/duktape
 dev-lang/perl
 dev-lang/python
+dev-lang/python-exec
+dev-lang/python-exec-conf
 
 dev-libs/boost
 dev-libs/cJSON
@@ -108,9 +114,11 @@ dev-libs/glib
 dev-libs/gmp
 dev-libs/gobject-introspection
 dev-libs/gobject-introspection-common
+dev-libs/jsoncpp
 dev-libs/libaio
 dev-libs/libksba
 dev-libs/libltdl
+dev-libs/libnl
 dev-libs/libpcre2
 dev-libs/libtasn1
 dev-libs/libxml2
@@ -125,7 +133,42 @@ dev-perl/Text-Unidecode
 dev-perl/Unicode-EastAsianWidth
 dev-perl/libintl-perl
 
+dev-python/appdirs
+dev-python/autocommand
+dev-python/boto
+dev-python/certifi
+dev-python/crcmod
+dev-python/cython
+dev-python/distro
+dev-python/docutils
 dev-python/fasteners
+dev-python/flit_core
+dev-python/gentoo-common
+dev-python/gpep517
+dev-python/inflect
+dev-python/installer
+dev-python/jaraco-context
+dev-python/jaraco-functools
+dev-python/jaraco-text
+dev-python/jinja
+dev-python/lazy-object-proxy
+dev-python/lxml
+dev-python/markupsafe
+dev-python/more-itertools
+dev-python/nspektr
+dev-python/ordered-set
+dev-python/packaging
+dev-python/pydantic
+dev-python/pydecomp
+dev-python/pygments
+dev-python/pyparsing
+dev-python/setuptools
+dev-python/setuptools_scm
+dev-python/six
+dev-python/snakeoil
+dev-python/tomli
+dev-python/typing-extensions
+dev-python/wheel
 
 dev-util/b2
 dev-util/bpftool
@@ -150,6 +193,7 @@ dev-util/re2c
 dev-util/strace
 
 dev-vcs/git
+dev-vcs/repo
 
 eclass/acct-group.eclass
 eclass/acct-user.eclass
@@ -162,7 +206,9 @@ eclass/autotools.eclass
 eclass/cmake-multilib.eclass
 eclass/cmake.eclass
 eclass/desktop.eclass
+eclass/distutils-r1.eclass
 eclass/eapi7-ver.eclass
+eclass/eapi8-dosym.eclass
 eclass/edo.eclass
 eclass/edos2unix.eclass
 eclass/elisp-common.eclass
@@ -185,12 +231,14 @@ eclass/llvm.eclass
 eclass/ltprune.eclass
 eclass/meson-multilib.eclass
 eclass/meson.eclass
+eclass/multibuild.eclass
 eclass/multilib-build.eclass
 eclass/multilib-minimal.eclass
 eclass/multilib.eclass
 eclass/multiprocessing.eclass
 eclass/ninja-utils.eclass
 eclass/optfeature.eclass
+eclass/out-of-source-utils.eclass
 eclass/pam.eclass
 eclass/pax-utils.eclass
 eclass/perl-functions.eclass
@@ -198,7 +246,12 @@ eclass/portability.eclass
 eclass/plocale.eclass
 eclass/prefix.eclass
 eclass/preserve-libs.eclass
-eclass/readme.gentoo-r1
+eclass/pypi.eclass
+eclass/python-any-r1.eclass
+eclass/python-r1.eclass
+eclass/python-single-r1.eclass
+eclass/python-utils-r1.eclass
+eclass/readme.gentoo-r1.eclass
 eclass/savedconfig.eclass
 eclass/strip-linguas.eclass
 eclass/systemd.eclass
@@ -215,6 +268,7 @@ eclass/verify-sig.eclass
 eclass/vim-doc.eclass
 eclass/vim-plugin.eclass
 eclass/virtualx.eclass
+eclass/waf-utils.eclass
 eclass/wrapper.eclass
 eclass/xdg-utils.eclass
 
@@ -257,6 +311,7 @@ sys-apps/attr
 sys-apps/diffutils
 sys-apps/dtc
 sys-apps/file
+sys-apps/findutils
 sys-apps/gawk
 sys-apps/gentoo-functions
 sys-apps/help2man
