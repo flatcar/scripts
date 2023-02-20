@@ -1,84 +1,45 @@
 Modifications made:
 
-- Drop `pgo` and `lto` USE flags, so flags passed to configure are
-  `--without-lto` and `--disable-optimizations`. Also drop `pgo` code
-  in `src_configure` and `src_compile`.
+- Keep using internal expat and libffi, thus dropping dev-libs/libffi
+  and dev-libs/expat from the dependencies.
 
-- We are not running any tests, so drop the `test` use flag and
-  `src_test` function. Drop also `pkg_pretend` and `pkg_setup`
-  functions as they were only doing some stuff if `test` use flag was
-  enabled.
+- Drop dev-python/gentoo-common dependency, it provides the
+  EXTERNALLY-MANAGED file, but we will provide our own.
 
-- Fix a path to a patchset that was using a `${PN}` variable, but
-  expected it to be `python` while our package is actually
-  `python-oem`.
+- Since this package is installed only for OEM partition as a binary
+  package, and the installation there happens after the packages
+  database is removed, we unset the RDEPEND variable. The RDEPEND
+  variable needs to be empty as it's also used during the binary
+  package installation. The contents of RDEPEND are already inside the
+  DEPEND variable, so we are safe.
 
-- Drop the following use flags and simplify the ebuild assuming that
-  they were disabled: `bluetooth examples gdbm ncurses readline sqlite
-  ssl tk wininst`.
+- We modify the configure flags:
 
-- Drop the following use flags and simplify the ebuild assuming that
-  they were enabled: `build`.
+  - Add `--prefix=/usr/share/oem/python` as `/usr/share/oem` is where
+    the OEM partition is mounted.
 
-- Drop `xml` use flag. Drop the dependency on expat, but instead keep
-  the internal copy of expat, so we keep `_elementtree` and `pyexpat`
-  modules enabled. Finally tell the configure script to use the
-  internal stuff (by passing the `--without-system-expat` flag).
+  - Add `--with-platlibdir="$(get_libdir)"`, this is to make sure that
+    consistent library directory gets picked. In our case for both
+    amd64 and arm64, it's lib64.
 
-- Drop the dependency on libffi, instead keep using internal libffi
-  and tell the configure script to use internal stuff (by passing the
-  `--without-system-ffi` flag).
+  - Change `--enable-shared` to `--disable-shared`. This will skip
+    building dynamic libraries, as we don't need them.
 
-- Rename `RDEPEND` to `DEPEND`, so `RDEPEND` remains empty. OEM
-  packages are installed after production images are pruned of the
-  previously installed package database.
+  - Add `--includedir=/discard/include` and change `--mandir` and
+    `--infodir` to also use `/discard` to install files there. Makes
+    it easy to remove the unnecessary files.
 
-- Make the following changes in configure flags:
+  - We disable loadable sqlite extensions.
 
-  - Add `--prefix=/usr/share/oem/python` to the `myeconfargs` variable.
+  - As we want to use the internal versions of expat and libffi, we
+    change `--with-system-{expat,ffi}` to
+    `--without-system-{expat,ffi}`.
 
-  - To make sure that python library ends up where we want (for
-    example, in `lib64` instead of `lib`, because in this prefix, we
-    have no symlinks from `lib` to `lib64`), add
-    `--with-platlibdir=$(get_libdir)` to the `myeconfargs` variable.
+  - Comment out the `--with-wheel-pkg-dir` as it's some ensurepip
+    stuff we are disabling anyway.
 
-  - Change `--enable-shared` to `--disable-shared`.
-
-  - Set `--mandir`, `--infodir` and `--includedir` to some subdirectory of
-    `/discard`, so during installation this could be easily removed.
-
-  - Drop `--enable-loadable-sqlite-extensions` flag.
-
-- Export some configure variables for the cross-compilation:
-  `ac_cv_file__dev_ptc` and `ac_cv_file__dev_ptmx`. If not done, build
-  will fail with a message saying that these should be set to either
-  yes or no.
-
-- Drop pax stuff (search for `pax-utils` and `pax-mark`) - it's noop
-  on Flatcar.
-
-- Simplify `src_install`:
-
-  - Replace the hardcoded `${ED}/usr` with `${ED}/usr/share/oem/python`.
-
-  - Drop sed stuff mucking with `LDFLAGS`.
-
-  - Drop collision fixes.
-
-  - Drop `ABIFLAGS` hack.
-
-  - Do not install ACKS, HISTORY and NEWS files.
-
-  - Drop gdb autoload stuff.
-
-  - Drop `pydoc.{conf,init}` stuff.
-
-  - Drop `epython.py` stuff.
-
-  - Drop python-exec stuff.
-
-    - Just everything below that involves `${scriptdir}`.
-
-  - Create versionless links (python and python3) to python executable.
-
-  - Remove installed stuff in `/discard`.
+- Essentially drop `src_install` and write our own variant, where we
+  run `make altinstall`, remove unnecessary files (the original
+  `src_install` could be read to find out which files to remove),
+  creates a versionless python symlink, adds an EXTERNALLY-MANAGED
+  file, and removes the `/discard` directory.

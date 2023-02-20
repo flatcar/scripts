@@ -1,7 +1,7 @@
 # Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 CROS_WORKON_PROJECT="flatcar/grub"
 CROS_WORKON_REPO="https://github.com"
@@ -21,7 +21,7 @@ if [[ -n ${GRUB_AUTOGEN} ]]; then
 	inherit autotools python-any-r1
 fi
 
-inherit autotools bash-completion-r1 flag-o-matic multibuild pax-utils toolchain-funcs versionator
+inherit autotools bash-completion-r1 flag-o-matic multibuild pax-utils toolchain-funcs
 DEJAVU=dejavu-sans-ttf-2.37
 UNIFONT=unifont-9.0.06
 SRC_URI+=" fonts? ( mirror://gnu/unifont/${UNIFONT}/${UNIFONT}.pcf.gz )

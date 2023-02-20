@@ -26,3 +26,7 @@ sys-libs/glibc -crypt
 
 # We don't use pip.
 dev-lang/python ensurepip
+dev-lang/python-oem ensurepip
+
+# Pulls dev-python/sphinx, which in turn pulls a lot of other python stuff.
+sys-fs/btrfs-progs man

@@ -1,0 +1,1 @@
+- btrfs-progs ([6.0.2](https://btrfs.readthedocs.io/en/latest/CHANGES.html#btrfs-progs-6-0-2-2022-11-24), includes [6.0](https://btrfs.readthedocs.io/en/latest/CHANGES.html#btrfs-progs-6-0-2022-10-11))
