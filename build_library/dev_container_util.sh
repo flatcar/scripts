@@ -14,18 +14,22 @@ get_binhost_url() {
 }
 
 configure_dev_portage() {
+    local root_fs_dir="${1}"; shift
+    local binhost="${1}"; shift
+    local update_group="${1}"; shift
+
     # Need profiles at the bare minimum
     local repo
     for repo in portage-stable coreos-overlay; do
-        sudo mkdir -p "$1/var/lib/portage/${repo}"
+        sudo mkdir -p "${root_fs_dir}/var/lib/portage/${repo}"
         sudo rsync -rtl --exclude=md5-cache \
             "${SRC_ROOT}/third_party/${repo}/metadata" \
             "${SRC_ROOT}/third_party/${repo}/profiles" \
-            "$1/var/lib/portage/${repo}"
+            "${root_fs_dir}/var/lib/portage/${repo}"
     done
 
-    sudo mkdir -p "$1/etc/portage/repos.conf"
-    sudo_clobber "$1/etc/portage/make.conf" <<EOF
+    sudo mkdir -p "${root_fs_dir}/etc/portage/repos.conf"
+    sudo_clobber "${root_fs_dir}/etc/portage/make.conf" <<EOF
 # make.conf for Flatcar dev images
 ARCH=$(get_board_arch $BOARD)
 CHOST=$(get_board_chost $BOARD)
@@ -34,13 +38,11 @@ CHOST=$(get_board_chost $BOARD)
 DISTDIR="/var/lib/portage/distfiles"
 PKGDIR="/var/lib/portage/pkgs"
 PORT_LOGDIR="/var/log/portage"
-PORTDIR="/var/lib/portage/portage-stable"
-PORTDIR_OVERLAY="/var/lib/portage/coreos-overlay"
-PORTAGE_BINHOST="$(get_binhost_url "$2" "$3" 'pkgs')
-$(get_binhost_url "$2" "$3" 'toolchain')"
+PORTAGE_BINHOST="$(get_binhost_url "${binhost}" "${update_group}" 'pkgs')
+$(get_binhost_url "${binhost}" "${update_group}" 'toolchain')"
 EOF
 
-sudo_clobber "$1/etc/portage/repos.conf/coreos.conf" <<EOF
+    sudo_clobber "${root_fs_dir}/etc/portage/repos.conf/coreos.conf" <<EOF
 [DEFAULT]
 main-repo = portage-stable
 
@@ -55,11 +57,18 @@ sync-type = git
 sync-uri = https://github.com/flatcar/portage-stable.git
 EOF
 
-    # Now set the correct profile
-    sudo PORTAGE_CONFIGROOT="$1" ROOT="$1" \
-        PORTDIR="$1/var/lib/portage/portage-stable" \
-        PORTDIR_OVERLAY="$1/var/lib/portage/coreos-overlay" \
-        eselect profile set --force $(get_board_profile $BOARD)/dev
+    # Now set the correct profile, we do not use the eselect tool - it
+    # does not seem to be usable outside of the chroot without using
+    # deprecated PORTDIR and PORTDIR_OVERLAY environment variables.
+    local profile_name=$(get_board_profile "${BOARD}")
+    # Turn coreos:coreos/amd64/generic into coreos/amd64/generic/dev
+    profile_name="${profile_name#*:}/dev"
+    local profile_directory="${root_fs_dir}/var/lib/portage/coreos-overlay/profiles/${profile_name}"
+    if [[ ! -d "${profile_directory}" ]]; then
+        die "Not a valid profile: ${profile_name}"
+    fi
+    local profile_link="${root_fs_dir}/etc/portage/make.profile"
+    sudo ln -sfrT "${profile_directory}" "${profile_link}"
 }
 
 create_dev_container() {
