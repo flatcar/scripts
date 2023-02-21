@@ -25,10 +25,6 @@
 # Required for addressing CVE-2022-29154
 =net-misc/rsync-3.2.7-r2 ~amd64 ~arm64
 
-# Keep the version of curl the same on all arches.
-# Also needed for CVE-2022-43551 and CVE-2022-43552.
-=net-misc/curl-7.87.0-r2 ~arm64
-
 =sys-fs/cryptsetup-2.4.1-r1 ~amd64 ~arm64
 
 # Keep iproute in sync with kernel version.
