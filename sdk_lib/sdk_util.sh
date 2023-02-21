@@ -13,7 +13,6 @@ FLATCAR_SDK_TARBALL_CACHE="${REPO_CACHE_DIR}/sdks"
 FLATCAR_SDK_TARBALL_PATH="${FLATCAR_SDK_TARBALL_CACHE}/${FLATCAR_SDK_TARBALL}"
 FLATCAR_DEV_BUILDS_SDK="${FLATCAR_DEV_BUILDS_SDK-$FLATCAR_DEV_BUILDS/sdk}"
 FLATCAR_SDK_URL="${FLATCAR_DEV_BUILDS_SDK}/${FLATCAR_SDK_ARCH}/${FLATCAR_SDK_VERSION}/${FLATCAR_SDK_TARBALL}"
-FLATCAR_SDK_RELEASE_URL="https://mirror.release.flatcar-linux.net/sdk/${FLATCAR_SDK_ARCH}/${FLATCAR_SDK_VERSION}/${FLATCAR_SDK_TARBALL}"
 
 # Download the current SDK tarball (if required) and verify digests/sig
 sdk_download_tarball() {
@@ -22,21 +21,53 @@ sdk_download_tarball() {
     fi
 
     info "Downloading ${FLATCAR_SDK_TARBALL}"
-    info "URL: ${FLATCAR_SDK_URL}"
-    local suffix
-    for suffix in "" ".DIGESTS"; do # TODO(marineam): download .asc
-        # First try bincache then release to allow a bincache overwrite
-        wget --tries=3 --timeout=30 --continue \
-            -O  "${FLATCAR_SDK_TARBALL_PATH}${suffix}" \
-            "${FLATCAR_SDK_URL}${suffix}" \
-            || wget --tries=3 --timeout=30 --continue \
-            -O "${FLATCAR_SDK_TARBALL_PATH}${suffix}" \
-            "${FLATCAR_SDK_RELEASE_URL}${suffix}" \
-            || die_notrace "SDK download failed!"
-    done
+    local server url suffix
+    local -a suffixes
 
-    sdk_verify_digests || die_notrace "SDK digest verification failed!"
-    sdk_clean_cache
+    suffixes=('' '.DIGESTS') # TODO(marineam): download .asc
+    for server in "${FLATCAR_SDK_SERVERS[@]}"; do
+        url="${server}/sdk/${FLATCAR_SDK_ARCH}/${FLATCAR_SDK_VERSION}/${FLATCAR_SDK_TARBALL}"
+        info "URL: ${url}"
+        for suffix in "${suffixes[@]}"; do
+            # If all downloads fail, we will detect it later.
+            if ! wget --tries=3 --timeout=30 --continue \
+                 -O "${FLATCAR_SDK_TARBALL_PATH}${suffix}" \
+                 "${url}${suffix}"; then
+                break
+            fi
+        done
+        if _sdk_check_downloads "${FLATCAR_SDK_TARBALL_PATH}" "${suffixes[@]}"; then
+            if sdk_verify_digests; then
+                sdk_clean_cache
+                return 0
+            fi
+            info "SDK digest verification failed, cleaning up and will try another server"
+        else
+            info "Downloading SDK from ${url} failed, cleaning up and will try another server"
+        fi
+        _sdk_remove_downloads "${FLATCAR_SDK_TARBALL_PATH}" "${suffixes[@]}"
+    done
+    die_notrace "SDK download failed!"
+}
+
+_sdk_remove_downloads() {
+    local path="${1}"; shift
+    # rest of the params are suffixes
+
+    rm -f "${@/#/${path}}"
+}
+
+_sdk_check_downloads() {
+    local path="${1}"; shift
+    # rest of the params are suffixes
+    local suffix
+
+    for suffix; do
+        if [[ ! -s "${path}${suffix}" ]]; then
+            return 1
+        fi
+    done
+    return 0
 }
 
 sdk_verify_digests() {
