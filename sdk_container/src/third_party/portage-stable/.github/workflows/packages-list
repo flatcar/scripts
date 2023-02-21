@@ -280,6 +280,7 @@ net-analyzer/nmap
 net-analyzer/traceroute
 
 net-dns/bind-tools
+net-dns/dnsmasq
 
 net-fs/cifs-utils
 
