@@ -11,9 +11,6 @@
 =app-editors/vim-9.0.1157 ~amd64 ~arm64
 =app-editors/vim-core-9.0.1157 ~amd64 ~arm64
 
-# Keep the version of qemu the same on all arches.
-=app-emulation/qemu-7.2.0 ~arm64
-
 =coreos-devel/fero-client-0.1.1 **
 
 # Accept unstable host Rust compilers
