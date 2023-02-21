@@ -317,6 +317,7 @@ sys-apps/gentoo-functions
 sys-apps/help2man
 sys-apps/i2c-tools
 sys-apps/iucode_tool
+sys-apps/less
 sys-apps/portage
 
 sys-devel/autoconf
