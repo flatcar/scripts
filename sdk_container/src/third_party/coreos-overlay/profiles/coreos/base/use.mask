@@ -15,3 +15,7 @@ python_single_target_python3_10
 
 # Unmask selinux so it can be enabled selectively in package.use
 -selinux
+
+# Mask cet flag, it isn't working with the compiler versions we are
+# having now.
+cet
