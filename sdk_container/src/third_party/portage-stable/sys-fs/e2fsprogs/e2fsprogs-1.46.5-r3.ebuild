@@ -17,7 +17,7 @@ RESTRICT="!test? ( test )"
 
 RDEPEND="
 	!sys-libs/${PN}-libs
-	cron? ( sys-fs/lvm2[-device-mapper-only(-)] )
+	cron? ( sys-fs/lvm2[lvm] )
 	fuse? ( sys-fs/fuse:0 )
 	nls? ( virtual/libintl )
 	tools? ( sys-apps/util-linux )"
@@ -155,4 +155,12 @@ multilib_src_install_all() {
 		insinto /etc
 		doins "${FILESDIR}"/e2fsck.conf
 	fi
+}
+
+pkg_postinst() {
+	udev_reload
+}
+
+pkg_postrm() {
+	udev_reload
 }
