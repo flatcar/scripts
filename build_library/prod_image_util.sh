@@ -77,6 +77,7 @@ create_prod_image() {
   local image_initrd_contents="${image_name%.bin}_initrd_contents.txt"
   local image_initrd_contents_wtd="${image_name%.bin}_initrd_contents_wtd.txt"
   local image_disk_usage="${image_name%.bin}_disk_usage.txt"
+  local image_pkgdb="${image_name%.bin}_pkgdb.tar.xz"
 
   start_image "${image_name}" "${disk_layout}" "${root_fs_dir}" "${update_group}"
 
@@ -99,6 +100,8 @@ create_prod_image() {
           "${root_fs_dir}"/var/db/pkg/coreos-base/coreos-au-key-*/USE \
           || die_notrace "coreos-au-key is missing the 'official' use flag"
   fi
+
+  tar -cf "${BUILD_DIR}/${image_pkgdb}" -C "${root_fs_dir}" var/cache/edb var/db/pkg
 
   # clean-ups of things we do not need
   sudo rm ${root_fs_dir}/etc/csh.env
