@@ -105,7 +105,7 @@ if [ -f "${FLAGS_from}/version.txt" ]; then
     FLATCAR_VERSION_STRING="${FLATCAR_VERSION}"
 fi
 
-set_vm_paths "${FLAGS_from}" "${FLAGS_to}" "${FLATCAR_PRODUCTION_IMAGE_NAME}"
+set_vm_paths "${FLAGS_from}" "${FLAGS_to}" "${FLATCAR_PRODUCTION_IMAGE_NAME}" "${FLATCAR_PRODUCTION_IMAGE_PKGDB_NAME}"
 
 # Make sure things are cleaned up on failure
 trap vm_cleanup EXIT
@@ -118,6 +118,7 @@ setup_disk_image "${FLAGS_disk_layout}"
 # Optionally install any OEM packages
 install_oem_package
 install_oem_aci
+install_oem_sysext
 run_fs_hook
 
 # Changes done, glue it together

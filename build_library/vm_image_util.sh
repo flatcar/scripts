@@ -71,6 +71,7 @@ VM_IMG_TYPE=DEFAULT
 
 # Set at runtime to the source and destination image paths
 VM_SRC_IMG=
+VM_SRC_PKGDB=
 VM_TMP_IMG=
 VM_TMP_DIR=
 VM_TMP_ROOT=
@@ -97,6 +98,12 @@ IMG_DEFAULT_OEM_USE=
 
 # Forced USE flags for the OEM package
 IMG_FORCE_OEM_USE=
+
+# If set install the given package name to the OEM sysext image
+IMG_DEFAULT_OEM_SYSEXT=
+
+# Forced OEM package name overriding what may be in the format
+IMG_FORCE_OEM_SYSEXT=
 
 # Hook to do any final tweaks or grab data while fs is mounted.
 IMG_DEFAULT_FS_HOOK=
@@ -345,13 +352,18 @@ set_vm_oem_pkg() {
 
 # Validate and set source vm image path
 set_vm_paths() {
-    local src_dir="$1"
-    local dst_dir="$2"
-    local src_name="$3"
+    local src_dir="${1}"; shift
+    local dst_dir="${1}"; shift
+    local src_name="${1}"; shift
+    local pkgdb_name="${1}"; shift
 
     VM_SRC_IMG="${src_dir}/${src_name}"
     if [[ ! -f "${VM_SRC_IMG}" ]]; then
-        die "Source image does not exist: $VM_SRC_IMG"
+        die "Source image does not exist: ${VM_SRC_IMG}"
+    fi
+    VM_SRC_PKGDB="${src_dir}/${pkgdb_name}"
+    if [[ ! -f "${VM_SRC_PKGDB}" ]]; then
+        die "Source package database does not exist: ${VM_SRC_PKGDB}"
     fi
 
     local dst_name="$(_src_to_dst_name "${src_name}" "_image.$(_disk_ext)")"
@@ -515,6 +527,50 @@ install_oem_aci() {
     die "Could not install ${oem_aci} OEM ACI"
     # Remove aci_dir if building ACI and installing it succeeded
     rm -rf "${aci_dir}"
+}
+
+# Write the OEM sysext file into the OEM partition.
+install_oem_sysext() {
+    local oem_sysext=$(_get_vm_opt OEM_SYSEXT)
+
+    if [[ -z "${oem_sysext}" ]]; then
+        return 0
+    fi
+
+    local built_sysext_dir="${FLAGS_to}/${oem_sysext}-sysext"
+    local built_sysext_filename="${oem_sysext}.raw"
+    local built_sysext_path="${built_sysext_dir}/${built_sysext_filename}"
+
+    "${SCRIPT_ROOT}/build_oem_sysext" \
+        --board="${BOARD}" \
+        --build_dir="${built_sysext_dir}" \
+        --prod_image_path="${VM_SRC_IMG}" \
+        --prod_pkgdb_path="${VM_SRC_PKGDB}" \
+        "${oem_sysext}"
+
+    local installed_sysext_oem_dir='/usr/share/oem/sysext'
+    local installed_sysext_file_prefix="${oem_sysext}-${FLATCAR_VERSION}"
+    local installed_sysext_filename="${installed_sysext_file_prefix}.raw"
+    local installed_sysext_abspath="${installed_sysext_oem_dir}/${installed_sysext_filename}"
+    info "Installing ${oem_sysext} sysext"
+    sudo install -Dpm 0644 \
+         "${built_sysext_path}" \
+         "${VM_TMP_ROOT}${installed_sysext_abspath}" ||
+        die "Could not install ${oem_sysext} sysext"
+    # Move sysext image and reports to a destination directory to
+    # upload them, thus making them available as separate artifacts to
+    # download.
+    local upload_dir to_move
+    upload_dir="$(_dst_dir)"
+    for to_move in "${built_sysext_dir}/${oem_sysext}"*; do
+        mv "${to_move}" "${upload_dir}/${to_move##*/}"
+    done
+    # Remove sysext_dir if building sysext and installing it
+    # succeeded.
+    rm -rf "${built_sysext_dir}"
+
+    # Mark the installed sysext as active.
+    sudo touch "${VM_TMP_ROOT}${installed_sysext_oem_dir}/active-${oem_sysext}"
 }
 
 # Any other tweaks required?
