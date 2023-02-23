@@ -121,6 +121,7 @@ dev-libs/libltdl
 dev-libs/libnl
 dev-libs/libpcre2
 dev-libs/libtasn1
+dev-libs/libuv
 dev-libs/libxml2
 dev-libs/libxslt
 dev-libs/nettle

@@ -33,6 +33,591 @@
 
 #--- END OF EXAMPLES ---
 
+# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2023-02-07)
+# Unused Java libraries. Removal on 2023-03-08.
+# jspeex had last upstream activities in 2005.
+dev-java/jspeex
+dev-java/osgi-annotation-versioning
+dev-java/commons-text
+
+# Michał Górny <mgorny@gentoo.org> (2023-02-05)
+# dev-python/python-box has broken build system that prevents us from
+# bumping it.  Its only used by dev-python/tavern that is last rited,
+# and dev-python/tavalidate that no longer has any revdeps.
+# Removal on 2023-03-07.
+dev-python/python-box
+dev-python/tavalidate
+
+# Arthur Zamarin <arthurzam@gentoo.org> (2023-02-04)
+# pytest plugin, which breaks a lot of python_test of other ebuilds
+# if installed unless disabled. The package itself is hard to
+# maintain. No reverse dependencies.
+# Removal: 2023-03-06.  Bug #893212.
+dev-python/tavern
+
+# Michał Górny <mgorny@gentoo.org> (2023-02-03)
+# Uses unmaintained dev-python/future.  No reverse dependencies.
+# Removal on 2023-03-05.  Bug #888283.
+dev-python/textX
+
+# Michał Górny <mgorny@gentoo.org> (2023-02-03)
+# Hacky build system that does not work via PEP517 build backend.
+# No reverse dependencies.
+# Removal on 2023-03-05.  Bug #890321.
+dev-python/pyFFTW
+
+# Michał Górny <mgorny@gentoo.org> (2023-02-03)
+# Dead upstream, no active maintainer, no reverse dependencies.
+# Removal on 2023-03-05.  Bug #892916.
+x11-themes/echo-icon-theme
+
+# Michał Górny <mgorny@gentoo.org> (2023-02-03)
+# Dead upstream, no active maintainer, no reverse dependencies,
+# build issues.
+# Removal on 2023-03-05.  Bug #892918.
+x11-themes/gtk-engines-nodoka
+
+# Michał Górny <mgorny@gentoo.org> (2023-02-03)
+# The package has been archived upstream.  It is broken with all Python
+# versions supported by Gentoo, and it is broken with django-2.
+# The other listed packages are its reverse dependencies.
+# Removal on 2023-03-05.  Bug #718972.
+app-misc/gcalcli
+app-misc/goobook
+dev-python/gcs-oauth2-boto-plugin
+dev-python/google-apitools
+dev-python/google-reauth-python
+dev-python/oauth2client
+net-misc/gsutil
+
+# Michał Górny <mgorny@gentoo.org> (2023-02-02)
+# dev-python/citeproc-py requires dev-python/nose and is not maintained
+# upstream.  Its only revdep, dev-python/duecredit has no reverse
+# dependencies left.
+# Removal on 2023-03-04.  Bug #888239.
+dev-python/citeproc-py
+dev-python/duecredit
+
+# Michał Górny <mgorny@gentoo.org> (2023-02-01)
+# dev-python/blockdiag still requires dev-python/nose.  There was a PR
+# made to switch to pytest in Feb 2020 but it's not progressing at all.
+# It was needed only for dev-python/aiohttp[doc].
+# Removal on 2023-03-03.  Bug #888233.
+dev-python/blockdiag
+dev-python/sphinxcontrib-blockdiag
+
+# Michał Górny <mgorny@gentoo.org> (2023-02-01)
+# Requires legacy setuptools backend.  Hacky build system.  The only
+# revdep is dev-python/rdflib where it is entirely optional.
+# Removal on 2023-03-03.  Bug #892854.
+dev-python/berkeleydb
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2023-02-01)
+# >=5.1 series uses vanilla llvm/clang instead of forked versions.
+# Removal on 2023-03-02
+sys-devel/llvm-roc
+dev-util/rocm-clang-ocl
+
+# Michał Górny <mgorny@gentoo.org> (2023-01-31)
+# No tests, no activity since Aug 2020, no reverse dependencies.
+# Removal on 2023-03-02.  Bug #892744.
+dev-python/alagitpull
+
+# Michał Górny <mgorny@gentoo.org> (2023-01-31)
+# The test suite is broken (async tests don't run).  No revdeps.
+# Removal on 2023-03-02.  Bug #892742.
+dev-python/aiohttp-jinja2
+
+# Ben Kohler <bkohler@gentoo.org> (2023-01-30)
+# Breaks too many revdeps for now
+=app-text/discount-3*
+
+# Sam James <sam@gentoo.org> (2023-01-29)
+# Commands trigger an assertion and crashes, bug #892487
+=sys-fs/lvm2-2.03.18
+
+# Bernd Waibel <waebbl-gentoo@posteo.net> (2023-01-28)
+# Possible security issues, obsolete. Use OpenEXR-3 / Imath instead.
+# No revdeps and consumers left in ::gentoo
+# Removal in 30 days. Bug #892375
+media-libs/ilmbase
+
+# Hans de Graaff <graaff@gentoo.org> (2023-01-28)
+# No upstream releases since 2010. No longer maintained
+# upstream. ruby27-only package. Masked for removal on 2023-02-27.
+dev-ruby/ruby_gntp
+
+# Mike Gilbert <floppym@gentoo.org> (2023-01-28)
+# No upstream releases since 2008.
+# No Gentoo maintainer since 2009.
+# Installs files in the wrong places (bug #455542)
+# and with the wrong mode (bug #892325).
+# Removal on 2023-02-27.
+app-admin/bastille
+
+# Ionen Wolkens <ionen@gentoo.org> (2023-01-28)
+# Recently broke at runtime, and its relationship with evolving
+# swig+python is likely to keep breaking this further without an
+# active upstream (no activty since 2018) to keep up with changes.
+# Removal: 2023-02-27. Bug #892323
+games-rpg/adonthell
+games-rpg/wastesedge
+
+# Florian Schmaus <flow@gentoo.org> (2023-01-27)
+# Previous dependencies of dev-lang/clojure, now part of the clojure
+# ebuild and no longer needed.
+# Removal on 2023-02-27.
+dev-java/core-specs-alpha
+dev-java/spec-alpha
+
+# Michał Górny <mgorny@gentoo.org> (2023-01-26)
+# Unmaintained.  Last release in 2003.  The package fails to install
+# since Aug 2021 and while a fix would be trivial, there does not seem
+# to have been any interest in it during that period.
+# Removal on 2023-02-25.  Bug #806384.
+www-misc/wsmake
+
+# Marek Szuba <marecki@gentoo.org> (2023-01-26)
+# Upstream keeps the module files unversioned so it is only the use of
+# mirroring that has prevented us from seeing regular hash mismatches
+# - and it is not clear for many of the modules whether we are allowed
+# to mirror them or not. A convoluted and fragile process has been
+# required to detect new modules and versions, and the request for a
+# Repology-friendly upstream endpoint appears to have stalled.
+# Please switch to managing SWORD modules on a per-user basis, using
+# tools bundled with app-text/sword (see e.g.
+# https://wiki.crosswire.org/SWORD_Module_Source_Discovery_and_Module_Updating)
+# or appropriate functionality in GUI front-end software.
+# Removal on 2023-02-26. Bug #892069.
+app-dicts/sword-2BabDict
+app-dicts/sword-AB
+app-dicts/sword-Abbott
+app-dicts/sword-AbbottSmith
+app-dicts/sword-AbbottSmithStrongs
+app-dicts/sword-ABP
+app-dicts/sword-ABPGRK
+app-dicts/sword-ABS_Essay_GoodSam_SWB
+app-dicts/sword-ACV
+app-dicts/sword-Afr1953
+app-dicts/sword-AKJV
+app-dicts/sword-Alb
+app-dicts/sword-Aleppo
+app-dicts/sword-alzat
+app-dicts/sword-AmTract
+app-dicts/sword-Anderson
+app-dicts/sword-Antoniades
+app-dicts/sword-AraNAV
+app-dicts/sword-AraSVD
+app-dicts/sword-ArmEastern
+app-dicts/sword-ArmWestern
+app-dicts/sword-ASV
+app-dicts/sword-Azeri
+app-dicts/sword-BaptistConfession1646
+app-dicts/sword-BaptistConfession1689
+app-dicts/sword-Barnes
+app-dicts/sword-BasHautin
+app-dicts/sword-BBE
+app-dicts/sword-BDBGlosses_Strongs
+app-dicts/sword-BeaMRK
+app-dicts/sword-Bela
+app-dicts/sword-br_en
+app-dicts/sword-BretonNT
+app-dicts/sword-BulCarigradNT
+app-dicts/sword-BulVeren
+app-dicts/sword-BurCBCM
+app-dicts/sword-BurJudson
+app-dicts/sword-Burkitt
+app-dicts/sword-BWE
+app-dicts/sword-Byz
+app-dicts/sword-Calo
+app-dicts/sword-Catena
+app-dicts/sword-Cawdrey
+app-dicts/sword-CBC
+app-dicts/sword-CebPinadayag
+app-dicts/sword-Chamorro
+app-dicts/sword-Che1860
+app-dicts/sword-ChiNCVs
+app-dicts/sword-ChiNCVt
+app-dicts/sword-ChiSB
+app-dicts/sword-ChiUn
+app-dicts/sword-ChiUnL
+app-dicts/sword-ChiUns
+app-dicts/sword-Clarke
+app-dicts/sword-Common
+app-dicts/sword-Concord
+app-dicts/sword-CopNT
+app-dicts/sword-CopSahBible2
+app-dicts/sword-CopSahHorner
+app-dicts/sword-CopSahidica
+app-dicts/sword-CopSahidicMSS
+app-dicts/sword-CPDV
+app-dicts/sword-CroSaric
+app-dicts/sword-CSlElizabeth
+app-dicts/sword-CzeB21
+app-dicts/sword-CzeBKR
+app-dicts/sword-CzeCEP
+app-dicts/sword-CzeCSP
+app-dicts/sword-Daily
+app-dicts/sword-DaNT1819
+app-dicts/sword-DaOT1871NT1907
+app-dicts/sword-DaOT1931NT1907
+app-dicts/sword-Darby
+app-dicts/sword-Dari
+app-dicts/sword-DarkNightOfTheSoul
+app-dicts/sword-DBD
+app-dicts/sword-Diaglott
+app-dicts/sword-Dodson
+app-dicts/sword-DRC
+app-dicts/sword-DTN
+app-dicts/sword-DutKant
+app-dicts/sword-DutKingComm
+app-dicts/sword-DutSVV
+app-dicts/sword-DutSVVA
+app-dicts/sword-Easton
+app-dicts/sword-Elzevir
+app-dicts/sword-EMBReality
+app-dicts/sword-EMTV
+app-dicts/sword-en_eu
+app-dicts/sword-Esperanto
+app-dicts/sword-Est
+app-dicts/sword-Etheridge
+app-dicts/sword-Eusebian_num
+app-dicts/sword-Eusebian_vs
+app-dicts/sword-f35
+app-dicts/sword-Family
+app-dicts/sword-FarHezareNoh
+app-dicts/sword-FarOPV
+app-dicts/sword-FarTPV
+app-dicts/sword-FinBiblia
+app-dicts/sword-Finney
+app-dicts/sword-FinPR
+app-dicts/sword-FinPR92
+app-dicts/sword-FinRK
+app-dicts/sword-FinSTLK2017
+app-dicts/sword-FreAug
+app-dicts/sword-FreBailly
+app-dicts/sword-FreBBB
+app-dicts/sword-FreBDM1707
+app-dicts/sword-FreBDM1744
+app-dicts/sword-FreChry
+app-dicts/sword-FreCJE
+app-dicts/sword-FreCrampon
+app-dicts/sword-FreDAW
+app-dicts/sword-FreGBM
+app-dicts/sword-FreGeneve1669
+app-dicts/sword-FreJND
+app-dicts/sword-FreKhan
+app-dicts/sword-FreLSN1872
+app-dicts/sword-FreLXX
+app-dicts/sword-FreOltramare1874
+app-dicts/sword-FrePGR
+app-dicts/sword-FrePilgrim
+app-dicts/sword-FreSegond1910
+app-dicts/sword-FreStapfer1889
+app-dicts/sword-FreSynodale1921
+app-dicts/sword-FVDPVietAnh
+app-dicts/sword-Geez
+app-dicts/sword-Geneva
+app-dicts/sword-Geneva1599
+app-dicts/sword-GerAlbrecht
+app-dicts/sword-GerAugustinus
+app-dicts/sword-GerBoLut
+app-dicts/sword-GerElb1871
+app-dicts/sword-GerElb1905
+app-dicts/sword-GerGruenewald
+app-dicts/sword-GerHfa2002
+app-dicts/sword-GerHfaLex2002
+app-dicts/sword-GerKingComm
+app-dicts/sword-GerLeoNA28
+app-dicts/sword-GerLeoRP18
+app-dicts/sword-GerLutherpredigten
+app-dicts/sword-GerMenge
+app-dicts/sword-GerNeUe
+app-dicts/sword-GerOffBiSt
+app-dicts/sword-GerReinhardt
+app-dicts/sword-GerSch
+app-dicts/sword-GerTafel
+app-dicts/sword-GerTextbibel
+app-dicts/sword-GerZurcher
+app-dicts/sword-Godbey
+app-dicts/sword-GodsWord
+app-dicts/sword-GreekHebrew
+app-dicts/sword-GreVamvas
+app-dicts/sword-Haitian
+app-dicts/sword-HebDelitzsch
+app-dicts/sword-HebModern
+app-dicts/sword-HebrewGreek
+app-dicts/sword-Heretics
+app-dicts/sword-HinERV
+app-dicts/sword-Hitchcock
+app-dicts/sword-HunIMIT
+app-dicts/sword-HunKar
+app-dicts/sword-HunKNB
+app-dicts/sword-HunRUF
+app-dicts/sword-HunUj
+app-dicts/sword-Imitation
+app-dicts/sword-Institutes
+app-dicts/sword-IriODomhnuill
+app-dicts/sword-ISBE
+app-dicts/sword-ISV
+app-dicts/sword-ItaDio
+app-dicts/sword-ItaRive
+app-dicts/sword-ItDizGreco
+app-dicts/sword-ItNomiBibbia
+app-dicts/sword-JapBungo
+app-dicts/sword-JapDenmo
+app-dicts/sword-JapKougo
+app-dicts/sword-JapMeiji
+app-dicts/sword-JapRaguet
+app-dicts/sword-JCRHoliness
+app-dicts/sword-JEAffections
+app-dicts/sword-JESermons
+app-dicts/sword-JFB
+app-dicts/sword-JOChrist
+app-dicts/sword-JOCommGod
+app-dicts/sword-JOGlory
+app-dicts/sword-JOMortSin
+app-dicts/sword-Josephus
+app-dicts/sword-JPS
+app-dicts/sword-JST
+app-dicts/sword-Jubilee2000
+app-dicts/sword-Kapingamarangi
+app-dicts/sword-Kaz
+app-dicts/sword-KD
+app-dicts/sword-Kekchi
+app-dicts/sword-KhmerNT
+app-dicts/sword-KingComm
+app-dicts/sword-KJV
+app-dicts/sword-KJVA
+app-dicts/sword-KJVPCE
+app-dicts/sword-KLV
+app-dicts/sword-KLVen_iklingon
+app-dicts/sword-KLViklingon_en
+app-dicts/sword-KorHKJV
+app-dicts/sword-KorRV
+app-dicts/sword-KtuVB
+app-dicts/sword-la_en
+app-dicts/sword-Latvian
+app-dicts/sword-LawGospel
+app-dicts/sword-LEB
+app-dicts/sword-Leeser
+app-dicts/sword-Lightfoot
+app-dicts/sword-LinVB
+app-dicts/sword-LITV
+app-dicts/sword-LO
+app-dicts/sword-LtKBB
+app-dicts/sword-Luther
+app-dicts/sword-LvGluck8
+app-dicts/sword-LXX
+app-dicts/sword-MAK
+app-dicts/sword-Mal1910
+app-dicts/sword-ManxGaelic
+app-dicts/sword-Maori
+app-dicts/sword-MapM
+app-dicts/sword-Mg1865
+app-dicts/sword-MHC
+app-dicts/sword-MHCC
+app-dicts/sword-MKJV
+app-dicts/sword-MLStrong
+app-dicts/sword-MollColossians
+app-dicts/sword-MonKJV
+app-dicts/sword-Montgomery
+app-dicts/sword-MorphGNT
+app-dicts/sword-Murdock
+app-dicts/sword-Nave
+app-dicts/sword-Ndebele
+app-dicts/sword-Nestle1904
+app-dicts/sword-NETfree
+app-dicts/sword-NETnotesfree
+app-dicts/sword-NETtext
+app-dicts/sword-NHEB
+app-dicts/sword-NHEBJE
+app-dicts/sword-NHEBME
+app-dicts/sword-NlCanisius1939
+app-dicts/sword-NorBroed
+app-dicts/sword-Norsk
+app-dicts/sword-NorSMB
+app-dicts/sword-NorthernAzeri
+app-dicts/sword-Noyes
+app-dicts/sword-OEB
+app-dicts/sword-OEBcth
+app-dicts/sword-OrthJBC
+app-dicts/sword-Orthodoxy
+app-dicts/sword-OSHB
+app-dicts/sword-OSHM
+app-dicts/sword-OxfordTR
+app-dicts/sword-Packard
+app-dicts/sword-Passion
+app-dicts/sword-Personal
+app-dicts/sword-Peshitta
+app-dicts/sword-Phaistos
+app-dicts/sword-Pilgrim
+app-dicts/sword-PNT
+app-dicts/sword-PohnOld
+app-dicts/sword-Pohnpeian
+app-dicts/sword-PolGdanska
+app-dicts/sword-PolUGdanska
+app-dicts/sword-PorAlmeida1911
+app-dicts/sword-PorAR
+app-dicts/sword-PorBLivre
+app-dicts/sword-PorBLivreTR
+app-dicts/sword-PorCap
+app-dicts/sword-PorIBP
+app-dicts/sword-PotLykins
+app-dicts/sword-Practice
+app-dicts/sword-QuotingPassages
+app-dicts/sword-RecVer
+app-dicts/sword-Rieger
+app-dicts/sword-RKJNT
+app-dicts/sword-RNKJV
+app-dicts/sword-Robinson
+app-dicts/sword-RomCor
+app-dicts/sword-Rotherham
+app-dicts/sword-RusCARS
+app-dicts/sword-RusCARSA
+app-dicts/sword-RusCARSADICT
+app-dicts/sword-RusCARSDict
+app-dicts/sword-RusCARST
+app-dicts/sword-RusCARSTDICT
+app-dicts/sword-RusMakarij
+app-dicts/sword-RusSynodal
+app-dicts/sword-RusSynodalLIO
+app-dicts/sword-RusVZh
+app-dicts/sword-RWebster
+app-dicts/sword-RWP
+app-dicts/sword-SahidicBible
+app-dicts/sword-SAOA
+app-dicts/sword-SBLGNT
+app-dicts/sword-SBLGNTApp
+app-dicts/sword-Scofield
+app-dicts/sword-ScotsGaelic
+app-dicts/sword-Sentiment
+app-dicts/sword-Shona
+app-dicts/sword-SloKJV
+app-dicts/sword-SloOjacano
+app-dicts/sword-SloStritar
+app-dicts/sword-SME
+app-dicts/sword-Smith
+app-dicts/sword-sml_BL_2008
+app-dicts/sword-SomKQA
+app-dicts/sword-Sorani
+app-dicts/sword-SP
+app-dicts/sword-SpaPlatense
+app-dicts/sword-SpaRV
+app-dicts/sword-SpaRV1865
+app-dicts/sword-SpaRV1909
+app-dicts/sword-SpaRVG
+app-dicts/sword-SpaTDP
+app-dicts/sword-SpaVNT
+app-dicts/sword-SPDSS
+app-dicts/sword-SPE
+app-dicts/sword-SPMT
+app-dicts/sword-Spurious
+app-dicts/sword-SPVar
+app-dicts/sword-SrKDEkavski
+app-dicts/sword-SrKDIjekav
+app-dicts/sword-StrongsGreek
+app-dicts/sword-StrongsHebrew
+app-dicts/sword-Swahili
+app-dicts/sword-Swe1917
+app-dicts/sword-Swe1917Of
+app-dicts/sword-SweFolk1998
+app-dicts/sword-SweKarlXII
+app-dicts/sword-SweKarlXII1873
+app-dicts/sword-Tagalog
+app-dicts/sword-TagAngBiblia
+app-dicts/sword-Tausug
+app-dicts/sword-TCR
+app-dicts/sword-TDavid
+app-dicts/sword-TFG
+app-dicts/sword-ThaiKJV
+app-dicts/sword-Tisch
+app-dicts/sword-TNT
+app-dicts/sword-Torrey
+app-dicts/sword-TR
+app-dicts/sword-TSK
+app-dicts/sword-TurHADI
+app-dicts/sword-TurNTB
+app-dicts/sword-Twenty
+app-dicts/sword-Tyndale
+app-dicts/sword-UKJV
+app-dicts/sword-Ukrainian
+app-dicts/sword-UkrKulish
+app-dicts/sword-Uma
+app-dicts/sword-UrduGeo
+app-dicts/sword-UrduGeoDeva
+app-dicts/sword-UrduGeoRoman
+app-dicts/sword-UyCyr
+app-dicts/sword-VarApp
+app-dicts/sword-VieRobinson
+app-dicts/sword-VieStrongsGreek
+app-dicts/sword-Viet
+app-dicts/sword-VietLCCMN
+app-dicts/sword-VietLCCMNCT
+app-dicts/sword-VietNVB
+app-dicts/sword-vlsJoNT
+app-dicts/sword-Vulgate
+app-dicts/sword-Vulgate_HebPs
+app-dicts/sword-VulgClementine
+app-dicts/sword-VulgConte
+app-dicts/sword-VulgGlossa
+app-dicts/sword-VulgHetzenauer
+app-dicts/sword-VulgSistine
+app-dicts/sword-Webster
+app-dicts/sword-Webster1806
+app-dicts/sword-Webster1913
+app-dicts/sword-WelBeiblNet
+app-dicts/sword-Wesley
+app-dicts/sword-Westminster
+app-dicts/sword-Westminster21
+app-dicts/sword-Weymouth
+app-dicts/sword-WHNU
+app-dicts/sword-WLC
+app-dicts/sword-Worsley
+app-dicts/sword-Wulfila
+app-dicts/sword-Wycliffe
+app-dicts/sword-YLT
+app-dicts/sword-ZhEnglish
+app-dicts/sword-ZhHanzi
+app-dicts/sword-ZhPinyin
+app-text/sword-modules
+
+# Michał Górny <mgorny@gentoo.org> (2023-01-25)
+# Unmaintained.  Multiple build failure bugs reported.  This version
+# predates 2008.
+# Removal on 2023-02-24.  Bug #837611.
+sys-cluster/wulfware
+
+# Ionen Wolkens <ionen@gentoo.org> (2023-01-24)
+# Mostly obsoleted by the better maintained net-misc/yt-dlp, please
+# migrate. If had USE=yt-dlp enabled (default) then was likely already
+# using through its youtube-dl compatibility wrapper and this will
+# change nothing beside needing to ensure that it is not depcleaned.
+#
+# Upstream is mostly focusing on compatibility and old python support,
+# still uses deprecated Nose for tests, and has not seen a new release
+# to deploy fixes in a long time despite major issues (e.g. throttling).
+#
+# Been kept due to some packages lacking compatibility with yt-dlp's
+# python modules, but none are left in tree. Those that call the command
+# rather than modules will often work as-is with yt-dlp's wrapper.
+# Removal: 2023-02-23. Bug #891917
+net-misc/youtube-dl
+
+# Michał Górny <mgorny@gentoo.org> (2023-01-24)
+# mps-youtube does not seem to work "out of the box".  It has had its
+# last release in 2018, and no commits since 2020.  It is the only
+# package needing dev-python/pafy, and pafy is the final package
+# requiring net-misc/youtube-dl.
+# Removal on 2023-02-23.  Bug #891911.
+dev-python/pafy
+media-sound/mps-youtube
+
+# David Seifert <soap@gentoo.org> (2023-01-23)
+# EOL branch, switch to mariadb-10.4/galera-26.4, removal on 2023-02-22.
+<dev-db/mariadb-10.4
+<sys-cluster/galera-26.4
+
 # Sam James <sam@gentoo.org> (2023-01-23)
 # Please upgrade to >=app-eselect/eselect-wxwidgets-20230114-r1 as -r0 may
 # lead to build failures.
@@ -59,13 +644,6 @@ media-video/ffmpeg2theora
 # of games-strategy/wargus.
 # Removal on 2023-02-20.  Bug #578340.
 games-strategy/wargus-data
-
-# Joonas Niilola <juippis@gentoo.org> (2023-01-21)
-# 102.7.0 has a critical authentication issue with Microsoft 365
-# Business accounts. Fix should land in 102.7.1. If you're not affected
-# and really want this update, please unmask it for yourself.
-~mail-client/thunderbird-102.7.0
-~mail-client/thunderbird-bin-102.7.0
 
 # Hans de Graaff <graaff@gentoo.org> (2023-01-21)
 # No longer maintained upstream and missing recent security fixes.
@@ -220,12 +798,6 @@ sys-auth/google-authenticator-libpam-hardened
 # Removal: 2023-01-30.  Bug #889194.
 x11-plugins/pidgin-funyahoo-plusplus
 
-# Maciej Barć <xgqt@gentoo.org> (2022-12-29)
-# Real upstream dead, uses old R5RS standard, many open bugs.
-# Removal on 2022-01-29.
-app-shells/scsh
-dev-scheme/scsh-lib
-
 # Volkmar W. Pogatzki <gentoo@pogatzki.net> (2022-12-29)
 # Upstream is dead, last activity in Nov 2017. Does not
 # work with newer log4j, bug #857663. Use net-p2p/biglybt
@@ -233,67 +805,10 @@ dev-scheme/scsh-lib
 net-p2p/vuze
 net-p2p/vuze-coreplugins
 
-# Marco Scardovi <mscardovi@icloud.com> (2022-12-27)
-# It builds only with a really old version of libfprint
-# and has never been updated to new one. No revdeps, no real usage
-# Removal on 2023-01-26. Bug #888665
-sys-auth/pam_fprint
-
-# Sam James <sam@gentoo.org> (2022-12-27)
-# Obsolete and incompatible with app-alternatives/* (see news item).
-# Removal on 2023-01-27. bug #886019 and bug #886021 respectively.
-app-eselect/eselect-awk
-app-eselect/eselect-sh
-
 # Sam James <sam@gentoo.org> (2022-12-27)
 # Regression in listing subvolumes (no UUIDs), bug #888549
 # https://github.com/kdave/btrfs-progs/issues/562
 =sys-fs/btrfs-progs-6.1
-
-# Fabian Groffen <grobian@gentoo.org> (2022-12-27)
-# Old SVN version, with open bugs #830031, #770946, #712534, all fixed
-# in app-admin/coreboot-utils package.  (Conflict in #888581)  Removal
-# on 2023-01-26.
-sys-apps/superiotool
-
-# David Seifert <soap@gentoo.org> (2022-12-26)
-# Lots of K&R C, hidden behind an annoying authwall, fails with modern
-# GCC and Clang (-fcommon), license prohibits distributing, EAPI 6,
-# last release 8 years ago. Removal on 2023-01-25.
-sci-biology/consed
-sci-biology/phrap
-sci-biology/phred
-
-# David Seifert <soap@gentoo.org> (2022-12-26)
-# EAPI 6, cheesy build system, last release over 13 years ago, no other
-# distro packages this. Removal on 2023-01-25.
-sci-misc/flashdot
-
-# Michał Górny <mgorny@gentoo.org> (2022-12-25)
-# Broken with pytest-7.2.  Repository archived upstream.  No reverse
-# dependencies.
-# Removal on 2023-01-24.  Bug #888219.
-dev-python/pytest-toolbox
-
-# Michał Górny <mgorny@gentoo.org> (2022-12-25)
-# The project did not catch, with hardly any data submissions.
-# Removal on 2023-01-24.  Bug #843344.
-app-portage/gander
-
-# Hans de Graaff <graaff@gentoo.org> (2022-12-25)
-# Last release in 2018. Poor quality C extension code. Package
-# consistently segfaults on it tests with the latest ruby versions.
-# No reverse dependencies. Removal in 30 days.
-dev-ruby/hiredis
-
-# Marco Scardovi <mscardovi@icloud.com> (2022-12-22)
-# Per robbat2 request, I'm gonna treeclean it as we
-# are actually the only one maintaining it.
-# No update upstream, EAPI 6 and with a bug #687786
-# As replacement, it is possible to use pv --rate-limit
-# instead.
-# Removal on 2023-01-21
-net-misc/valve
 
 # Ionen Wolkens <ionen@gentoo.org> (2022-12-24)
 # Upstream dropped wxGTK support in >=games-emulation/pcsx2-1.7.3773,
@@ -303,530 +818,6 @@ net-misc/valve
 # https://gitweb.gentoo.org/repo/gentoo.git/tree/profiles/package.mask
 # and package.unmask the whole list alongside pcsx2.
 >=games-emulation/pcsx2-1.7.3773
-
-# Arthur Zamarin <arthurzam@gentoo.org> (2022-12-24)
-# Live only packages for 4 years! Upstream repositories are archived
-# or inactive.
-# Removal: 2023-01-23.  Bug #888175.
-media-libs/kodi-platform
-media-plugins/kodi-game-libretro-fceumm
-media-plugins/kodi-peripheral-steamcontroller
-
-# Arthur Zamarin <arthurzam@gentoo.org> (2022-12-24)
-# EAPI=6 ebuilds, live only packages for 5.79 years!
-# maintainer-needed packages for a long time.
-# Removal: 2023-01-23.  Bug #888173.
-x11-misc/xowl
-x11-wm/xoat
-
-# Michał Górny <mgorny@gentoo.org> (2022-12-24)
-# Obsolete package with broken tests.  Last released in 2018, last
-# activity in 2021.  No reverse dependencies.
-# Removal on 2023-01-23.  Bug #888147.
-dev-python/ndg-httpsclient
-
-# Michał Górny <mgorny@gentoo.org> (2022-12-24)
-# RobotOS is suffering from serious lack of manpower in Gentoo.
-# While the packages are being bumped, the bugs reported against them
-# are not being addressed.  Whenever tests are present, they are often
-# failing and/or still relying on dead dev-python/nose.  Python 3.11
-# support is blocked, and 3.10 barely managed.
-# Removal on 2023-01-23.  Bug #888167.
-acct-group/ros
-acct-user/ros
-dev-python/ament_package
-dev-python/catkin_pkg
-dev-python/osrf_pycommon
-dev-python/python_orocos_kdl
-dev-python/rosdistro
-dev-python/rospkg
-dev-python/urdf_parser_py
-dev-python/vcstools
-dev-ros/actionlib
-dev-ros/actionlib_msgs
-dev-ros/actionlib_tools
-dev-ros/actionlib_tutorials
-dev-ros/amcl
-dev-ros/ament_cmake_copyright
-dev-ros/ament_cmake_core
-dev-ros/ament_cmake_cppcheck
-dev-ros/ament_cmake_cpplint
-dev-ros/ament_cmake_export_definitions
-dev-ros/ament_cmake_export_dependencies
-dev-ros/ament_cmake_export_include_directories
-dev-ros/ament_cmake_export_interfaces
-dev-ros/ament_cmake_export_libraries
-dev-ros/ament_cmake_export_link_flags
-dev-ros/ament_cmake_export_targets
-dev-ros/ament_cmake_gen_version_h
-dev-ros/ament_cmake_gmock
-dev-ros/ament_cmake_gtest
-dev-ros/ament_cmake_include_directories
-dev-ros/ament_cmake_libraries
-dev-ros/ament_cmake_lint_cmake
-dev-ros/ament_cmake_pytest
-dev-ros/ament_cmake_python
-dev-ros/ament_cmake_ros
-dev-ros/ament_cmake_target_dependencies
-dev-ros/ament_cmake_test
-dev-ros/ament_cmake_uncrustify
-dev-ros/ament_cmake_version
-dev-ros/ament_cmake_xmllint
-dev-ros/ament_copyright
-dev-ros/ament_cppcheck
-dev-ros/ament_cpplint
-dev-ros/ament_flake8
-dev-ros/ament_lint
-dev-ros/ament_lint_auto
-dev-ros/ament_lint_cmake
-dev-ros/ament_pep257
-dev-ros/ament_uncrustify
-dev-ros/ament_xmllint
-dev-ros/angles
-dev-ros/audio_capture
-dev-ros/audio_common_msgs
-dev-ros/audio_play
-dev-ros/base_local_planner
-dev-ros/bond
-dev-ros/bondcpp
-dev-ros/bondpy
-dev-ros/calibration_estimation
-dev-ros/calibration_launch
-dev-ros/calibration_msgs
-dev-ros/calibration_setup_helper
-dev-ros/camera_calibration
-dev-ros/camera_calibration_parsers
-dev-ros/camera_info_manager
-dev-ros/carrot_planner
-dev-ros/class_loader
-dev-ros/clear_costmap_recovery
-dev-ros/cmake_modules
-dev-ros/collada_parser
-dev-ros/collada_urdf
-dev-ros/combined_robot_hw
-dev-ros/combined_robot_hw_tests
-dev-ros/compressed_depth_image_transport
-dev-ros/compressed_image_transport
-dev-ros/console_bridge_vendor
-dev-ros/controller_interface
-dev-ros/controller_manager
-dev-ros/controller_manager_msgs
-dev-ros/controller_manager_tests
-dev-ros/control_msgs
-dev-ros/control_toolbox
-dev-ros/convex_decomposition
-dev-ros/costmap_2d
-dev-ros/cpp_common
-dev-ros/cv_bridge
-dev-ros/depth_image_proc
-dev-ros/depthimage_to_laserscan
-dev-ros/diagnostic_aggregator
-dev-ros/diagnostic_analysis
-dev-ros/diagnostic_common_diagnostics
-dev-ros/diagnostic_msgs
-dev-ros/diagnostic_updater
-dev-ros/driver_base
-dev-ros/dwa_local_planner
-dev-ros/dynamic_reconfigure
-dev-ros/eigen_conversions
-dev-ros/eigen_stl_containers
-dev-ros/fake_localization
-dev-ros/filters
-dev-ros/gazebo_dev
-dev-ros/gazebo_msgs
-dev-ros/gazebo_plugins
-dev-ros/gazebo_ros
-dev-ros/gazebo_ros_control
-dev-ros/gencpp
-dev-ros/geneus
-dev-ros/genlisp
-dev-ros/genmsg
-dev-ros/gennodejs
-dev-ros/genpy
-dev-ros/geodesy
-dev-ros/geographic_msgs
-dev-ros/geometric_shapes
-dev-ros/geometry_msgs
-dev-ros/global_planner
-dev-ros/gmapping
-dev-ros/hardware_interface
-dev-ros/hector_compressed_map_transport
-dev-ros/hector_geotiff
-dev-ros/hector_geotiff_launch
-dev-ros/hector_geotiff_plugins
-dev-ros/hector_imu_attitude_to_tf
-dev-ros/hector_imu_tools
-dev-ros/hector_mapping
-dev-ros/hector_map_server
-dev-ros/hector_map_tools
-dev-ros/hector_marker_drawing
-dev-ros/hector_nav_msgs
-dev-ros/hector_pose_estimation
-dev-ros/hector_pose_estimation_core
-dev-ros/hector_slam_launch
-dev-ros/hector_trajectory_server
-dev-ros/image_cb_detector
-dev-ros/image_geometry
-dev-ros/image_proc
-dev-ros/image_publisher
-dev-ros/image_rotate
-dev-ros/image_transport
-dev-ros/image_view
-dev-ros/imu_complementary_filter
-dev-ros/imu_filter_madgwick
-dev-ros/imu_processors
-dev-ros/imu_transformer
-dev-ros/interactive_markers
-dev-ros/interactive_marker_tutorials
-dev-ros/interval_intersection
-dev-ros/ivcon
-dev-ros/joint_limits_interface
-dev-ros/joint_state_publisher
-dev-ros/joint_state_publisher_gui
-dev-ros/joint_states_settler
-dev-ros/kdl_conversions
-dev-ros/kdl_parser
-dev-ros/kdl_parser_py
-dev-ros/laser_assembler
-dev-ros/laser_cb_detector
-dev-ros/laser_filters
-dev-ros/laser_geometry
-dev-ros/laser_proc
-dev-ros/libmavconn
-dev-ros/librviz_tutorial
-dev-ros/map_msgs
-dev-ros/map_server
-dev-ros/mavlink-gbp-release
-dev-ros/mavros
-dev-ros/mavros_extras
-dev-ros/mavros_msgs
-dev-ros/media_export
-dev-ros/message_filters
-dev-ros/message_generation
-dev-ros/message_runtime
-dev-ros/message_to_tf
-dev-ros/mk
-dev-ros/monocam_settler
-dev-ros/move_base
-dev-ros/move_base_msgs
-dev-ros/moveit_msgs
-dev-ros/move_slow_and_clear
-dev-ros/nav_core
-dev-ros/navfn
-dev-ros/nav_msgs
-dev-ros/nmea_msgs
-dev-ros/nodelet
-dev-ros/nodelet_topic_tools
-dev-ros/nodelet_tutorial_math
-dev-ros/object_recognition_msgs
-dev-ros/octomap_msgs
-dev-ros/octomap_ros
-dev-ros/opencv_apps
-dev-ros/opencv_tests
-dev-ros/openni2_camera
-dev-ros/openni2_launch
-dev-ros/openslam_gmapping
-dev-ros/pcl_conversions
-dev-ros/pcl_msgs
-dev-ros/pcl_ros
-dev-ros/pluginlib
-dev-ros/pluginlib_tutorials
-dev-ros/poco_vendor
-dev-ros/pointcloud_to_laserscan
-dev-ros/polled_camera
-dev-ros/pr2_dashboard_aggregator
-dev-ros/pr2_description
-dev-ros/pr2_machine
-dev-ros/pr2_msgs
-dev-ros/python_cmake_module
-dev-ros/python_qt_binding
-dev-ros/qt_dotgraph
-dev-ros/qt_gui
-dev-ros/qt_gui_app
-dev-ros/qt_gui_cpp
-dev-ros/qt_gui_py_common
-dev-ros/random_numbers
-dev-ros/realtime_tools
-dev-ros/resource_retriever
-dev-ros/rgbd_launch
-dev-ros/robot_localization
-dev-ros/robot_pose_ekf
-dev-ros/robot_pose_publisher
-dev-ros/robot_state_publisher
-dev-ros/rosapi
-dev-ros/rosauth
-dev-ros/rosbag
-dev-ros/rosbag_migration_rule
-dev-ros/rosbag_storage
-dev-ros/rosbash
-dev-ros/rosboost_cfg
-dev-ros/rosbridge_library
-dev-ros/rosbridge_msgs
-dev-ros/rosbridge_server
-dev-ros/rosbuild
-dev-ros/rosclean
-dev-ros/rosconsole
-dev-ros/rosconsole_bridge
-dev-ros/roscpp
-dev-ros/roscpp_serialization
-dev-ros/roscpp_traits
-dev-ros/roscpp_tutorials
-dev-ros/roscreate
-dev-ros/rosdiagnostic
-dev-ros/ros_environment
-dev-ros/rosgraph
-dev-ros/rosgraph_msgs
-dev-ros/roslang
-dev-ros/roslaunch
-dev-ros/roslib
-dev-ros/roslint
-dev-ros/roslisp
-dev-ros/roslz4
-dev-ros/rosmake
-dev-ros/rosmaster
-dev-ros/rosmsg
-dev-ros/rosnode
-dev-ros/rosout
-dev-ros/rospack
-dev-ros/rosparam
-dev-ros/rospy
-dev-ros/rospy_tutorials
-dev-ros/rosserial_arduino
-dev-ros/rosserial_client
-dev-ros/rosserial_embeddedlinux
-dev-ros/rosserial_msgs
-dev-ros/rosserial_python
-dev-ros/rosserial_server
-dev-ros/rosserial_tivac
-dev-ros/rosserial_windows
-dev-ros/rosserial_xbee
-dev-ros/rosservice
-dev-ros/rostest
-dev-ros/rostime
-dev-ros/rostopic
-dev-ros/rosunit
-dev-ros/roswtf
-dev-ros/rotate_recovery
-dev-ros/rqt_action
-dev-ros/rqt_bag
-dev-ros/rqt_bag_plugins
-dev-ros/rqt_console
-dev-ros/rqt_controller_manager
-dev-ros/rqt_dep
-dev-ros/rqt_graph
-dev-ros/rqt_gui
-dev-ros/rqt_gui_cpp
-dev-ros/rqt_gui_py
-dev-ros/rqt_image_view
-dev-ros/rqt_launch
-dev-ros/rqt_logger_level
-dev-ros/rqt_moveit
-dev-ros/rqt_msg
-dev-ros/rqt_nav_view
-dev-ros/rqt_plot
-dev-ros/rqt_pose_view
-dev-ros/rqt_publisher
-dev-ros/rqt_py_common
-dev-ros/rqt_py_console
-dev-ros/rqt_reconfigure
-dev-ros/rqt_robot_dashboard
-dev-ros/rqt_robot_monitor
-dev-ros/rqt_robot_steering
-dev-ros/rqt_runtime_monitor
-dev-ros/rqt_rviz
-dev-ros/rqt_service_caller
-dev-ros/rqt_shell
-dev-ros/rqt_srv
-dev-ros/rqt_tf_tree
-dev-ros/rqt_top
-dev-ros/rqt_topic
-dev-ros/rqt_web
-dev-ros/rviz
-dev-ros/rviz_imu_plugin
-dev-ros/rviz_plugin_tutorials
-dev-ros/rviz_python_tutorial
-dev-ros/self_test
-dev-ros/sensor_msgs
-dev-ros/settlerlib
-dev-ros/shape_msgs
-dev-ros/smach
-dev-ros/smach_msgs
-dev-ros/smach_ros
-dev-ros/smclib
-dev-ros/stage_ros
-dev-ros/std_msgs
-dev-ros/std_srvs
-dev-ros/stereo_image_proc
-dev-ros/stereo_msgs
-dev-ros/test_bond
-dev-ros/test_diagnostic_aggregator
-dev-ros/test_nodelet
-dev-ros/test_nodelet_topic_tools
-dev-ros/test_rosbag
-dev-ros/test_rosbag_storage
-dev-ros/test_roscpp
-dev-ros/test_rosgraph
-dev-ros/test_roslaunch
-dev-ros/test_roslib_comm
-dev-ros/test_rosmaster
-dev-ros/test_rosparam
-dev-ros/test_rospy
-dev-ros/test_rosservice
-dev-ros/test_tf2
-dev-ros/tf
-dev-ros/tf2
-dev-ros/tf2_bullet
-dev-ros/tf2_eigen
-dev-ros/tf2_geometry_msgs
-dev-ros/tf2_kdl
-dev-ros/tf2_msgs
-dev-ros/tf2_py
-dev-ros/tf2_ros
-dev-ros/tf2_sensor_msgs
-dev-ros/tf2_tools
-dev-ros/tf_conversions
-dev-ros/theora_image_transport
-dev-ros/timestamp_tools
-dev-ros/topic_tools
-dev-ros/trajectory_msgs
-dev-ros/transmission_interface
-dev-ros/turtle_actionlib
-dev-ros/turtlesim
-dev-ros/turtle_tf
-dev-ros/turtle_tf2
-dev-ros/unique_id
-dev-ros/urdf
-dev-ros/urdf_parser_plugin
-dev-ros/urdf_tutorial
-dev-ros/urg_c
-dev-ros/urg_node
-dev-ros/uuid_msgs
-dev-ros/visp_auto_tracker
-dev-ros/visp_bridge
-dev-ros/visp_camera_calibration
-dev-ros/visp_hand2eye_calibration
-dev-ros/visp_tracker
-dev-ros/visualization_marker_tutorials
-dev-ros/visualization_msgs
-dev-ros/voxel_grid
-dev-ros/xacro
-dev-ros/xmlrpcpp
-dev-util/catkin
-dev-util/rosdep
-dev-util/rosinstall
-dev-util/wstool
-ros-meta/ament_cmake
-ros-meta/audio_common
-ros-meta/bond_core
-ros-meta/calibration
-ros-meta/common_msgs
-ros-meta/common_tutorials
-ros-meta/desktop
-ros-meta/desktop_full
-ros-meta/diagnostics
-ros-meta/driver_common
-ros-meta/executive_smach
-ros-meta/gazebo_ros_pkgs
-ros-meta/geographic_info
-ros-meta/geometry
-ros-meta/geometry2
-ros-meta/geometry_tutorials
-ros-meta/hector_localization
-ros-meta/hector_slam
-ros-meta/image_common
-ros-meta/image_pipeline
-ros-meta/image_transport_plugins
-ros-meta/imu_pipeline
-ros-meta/imu_tools
-ros-meta/laser_pipeline
-ros-meta/mavros
-ros-meta/navigation
-ros-meta/nodelet_core
-ros-meta/perception
-ros-meta/perception_pcl
-ros-meta/pr2_common
-ros-meta/qt_gui_core
-ros-meta/robot
-ros-meta/robot_model
-ros-meta/ros
-ros-meta/ros_base
-ros-meta/rosbridge_suite
-ros-meta/ros_comm
-ros-meta/ros_control
-ros-meta/ros_core
-ros-meta/roscpp_core
-ros-meta/rosserial
-ros-meta/ros_tutorials
-ros-meta/rqt
-ros-meta/rqt_common_plugins
-ros-meta/rqt_robot_plugins
-ros-meta/simulators
-ros-meta/slam_gmapping
-ros-meta/unique_identifier
-ros-meta/vision_opencv
-ros-meta/vision_visp
-ros-meta/visualization_tutorials
-ros-meta/viz
-
-# Michał Górny <mgorny@gentoo.org> (2022-12-23)
-# Packages that still use dev-python/nose and have no revdeps.
-#
-# dev-python/blessings: EAPI 7, last rel. in 2018, git act. in 2020
-# dev-python/errorhandler: EAPI 7, last rel. in 2016, git act. in 2018
-# dev-python/flask-restful: EAPI 7, last rel. in 2021, git act. in Mar
-# dev-python/imread: non-PEP517, last rel. in 2020, uses pytest in git
-# dev-python/influxdb: EAPI 7, last rel. 2020, archived on GitHub
-# dev-python/nose-random: nose plugin
-# dev-python/pilkit: EAPI 7, last rel. in 2017, uses pytest in git
-# dev-python/PyContracts: EAPI 7, last rel. in 2019, git act. in 2020
-# dev-python/python-zipstream: EAPI 7, last rel. in 2016, git in 2018
-# dev-python/PyUtilib: EAPI 7, last rel. and git act. in 2020
-# dev-python/socketio-client: EAPI 7, last rel. in 2016, git in 2017
-# dev-python/www-authenticate: EAPI 7, last rel. in 2015, git in 2019
-#
-# Removal on 2023-01-22.  Bug #888087.
-dev-python/blessings
-dev-python/errorhandler
-dev-python/flask-restful
-dev-python/imread
-dev-python/influxdb
-dev-python/nose-random
-dev-python/pilkit
-dev-python/PyContracts
-dev-python/python-zipstream
-dev-python/PyUtilib
-dev-python/socketio-client
-dev-python/www-authenticate
-
-# Michał Górny <mgorny@gentoo.org> (2022-12-23)
-# sci-libs/votca-tools fail to build with GCC 12.  Pending version bump
-# since January 2022.
-# Removal on 2023-01-22.  Bug #841830.
-sci-chemistry/votca-csg
-sci-chemistry/votca-csgapps
-sci-chemistry/votca-xtp
-sci-libs/votca-tools
-
-# Michał Górny <mgorny@gentoo.org> (2022-12-21)
-# The mauve project is no longer maintained upstream, and the actual
-# program has been removed from Gentoo in 2016.  These are leftover
-# libraries with no reverse dependencies.  Last bumped in 2009.
-# Removal on 2023-01-20.  Bug #677558.
-sci-libs/libgenome
-sci-libs/libmems
-
-# Michał Górny <mgorny@gentoo.org> (2022-12-21)
-# Fails to build both against MySQL and PostgreSQL.  Homepage gone.
-# Last bumped in 2005.
-# Removal on 2023-01-20.  Bug #677528, #807835.
-dev-db/mysql-super-smack
-
-# Michał Górny <mgorny@gentoo.org> (2022-12-21)
-# Reported to be incompatible with PHP 7+.  Abandoned upstream.
-# No reverse dependencies.  There is a maintained fork, should anyone
-# want to revive it.
-# Removal on 2023-01-20.  Bug #737842.
-dev-php/phptal
 
 # Georgy Yakovlev <gyakovlev@gentoo.org> (2022-12-19)
 # This version currently is not compatible with kernel build (yet)
@@ -855,11 +846,6 @@ dev-cpp/sourcetrail
 # Breaks compilation of reverse dependencies with broken pkgconfig (pc) file
 # bug #885075, https://github.com/libarchive/libarchive/issues/1766
 =app-arch/libarchive-3.6.2
-
-# Michał Górny <mgorny@gentoo.org> (2022-12-08)
-# Seems to break some logic in pkg_resources.  Masked for the time being
-# to prevent breakage.
->=dev-python/packaging-22.0
 
 # Stephan Hartmann <sultan@gentoo.org> (2023-01-15)
 # Dev channel releases are only for people who
@@ -915,6 +901,7 @@ dev-python/pyside6-tools
 # Jimi Huotari <chiitoo@gentoo.org> (2022-08-02)
 # Masked for testing. The split of some packages may still
 # change. bug #838970.
+>=app-editors/retext-8.0.0
 dev-python/PyQt6
 dev-python/PyQt6-WebEngine
 dev-qt/qt5compat:6
@@ -953,87 +940,6 @@ dev-qt/qtwebsockets:6
 # Apparently the "b" in version means "beta". 3.24 is available, we
 # should update to that. #841437
 ~sci-physics/bullet-3.22b
-
-# Alfredo Tupone <tupone@gentoo.org> (2022-04-27)
-# New release of janestreet packages need to tested
-dev-ml/sexplib0:0/0.15
-dev-ml/sexplib:0/0.15
-dev-ml/base:0/0.15
-dev-ml/stdio:0/0.15
-dev-ml/ppx_sexp_conv:0/0.15
-dev-ml/ppx_enumerate:0/0.15
-dev-ml/ppx_compare:0/0.15
-dev-ml/ppx_hash:0/0.15
-dev-ml/ppx_cold:0/0.15
-dev-ml/parsexp:0/0.15
-dev-ml/ppx_base:0/0.15
-dev-ml/ppx_fields_conv:0/0.15
-dev-ml/ppx_here:0/0.15
-dev-ml/ppx_let:0/0.15
-dev-ml/ppx_sexp_message:0/0.15
-dev-ml/ppx_sexp_value:0/0.15
-dev-ml/ppx_assert:0/0.15
-dev-ml/ppx_optcomp:0/0.15
-dev-ml/time_now:0/0.15
-dev-ml/ppx_inline_test:0/0.15
-dev-ml/ppx_bench:0/0.15
-dev-ml/splittable_random:0/0.15
-dev-ml/base_quickcheck:0/0.15
-dev-ml/ppx_bin_prot:0/0.15
-dev-ml/ppx_custom_printf:0/0.15
-dev-ml/ppx_disable_unused_warnings:0/0.15
-dev-ml/ppx_expect:0/0.15
-dev-ml/ppx_fixed_literal:0/0.15
-dev-ml/ppx_log:0/0.15
-dev-ml/ppx_module_timer:0/0.15
-dev-ml/ppx_optional:0/0.15
-dev-ml/ppx_stable:0/0.15
-dev-ml/ppx_string:0/0.15
-dev-ml/typerep:0/0.15
-dev-ml/ppx_typerep_conv:0/0.15
-dev-ml/variantslib:0/0.15
-dev-ml/ppx_variants_conv:0/0.15
-dev-ml/ppx_jane:0/0.15
-dev-ml/int_repr:0/0.15
-dev-ml/base_bigstring:0/0.15
-dev-ml/ppx_js_style:0/0.15
-dev-ml/core:0/0.15
-dev-ml/core_kernel:0/0.15
-dev-ml/sexp_pretty:0/0.15
-dev-ml/expect_test_helpers_core:0/0.15
-dev-ml/timezone:0/0.15
-dev-ml/core_unix:0/0.15
-dev-ml/textutils_kernel:0/0.15
-dev-ml/textutils:0/0.15
-dev-ml/async_kernel:0/0.15
-dev-ml/protocol_version_header:0/0.15
-dev-ml/async_rpc_kernel:0/0.15
-dev-ml/async_unix:0/0.15
-dev-ml/async:0/0.15
-dev-ml/async_extra:0/0.15
-dev-ml/core_bench:0/0.15
-dev-ml/patience_diff:0/0.15
-dev-util/patdiff:0/0.15
-=dev-ml/alcotest-1.6.0*
-
-# Maciej Barć <xgqt@gentoo.org> (2022-02-20)
-# Masked for testing, builds and passes tests but randomly segfaults,
-# meaningless backtrace, debugging (flags, symbols) do not help
->app-shells/scsh-0.6.9
-
-# Zoltan Puskas <zoltan@sinustrom.info> (2022-02-18)
-# Multiple vulnerabilities (CVE-2022-{23803,23804,23946,23947})
-# 5.X series is masked to avoid accidental use, but it's kept for
-# industrial users who are in the process of migrating to the new
-# format of the 6.X series.
-<sci-electronics/kicad-6.0.2
-<sci-electronics/kicad-footprints-6.0.2
-<sci-electronics/kicad-i18n-6.0.2
-<sci-electronics/kicad-meta-6.0.2
-<sci-electronics/kicad-packages3d-6.0.2
-<sci-electronics/kicad-symbols-6.0.2
-<sci-electronics/kicad-templates-6.0.2
-<app-doc/kicad-doc-6.0.2
 
 # Eray Aslan <eras@gentoo.org> (2022-01-24)
 # Mask experimental software

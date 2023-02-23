@@ -6,7 +6,7 @@ EAPI=8
 TOOLCHAIN_PATCH_DEV="sam"
 PATCH_VER="10"
 PATCH_GCC_VER="12.2.0"
-MUSL_VER="1"
+MUSL_VER="7"
 MUSL_GCC_VER="12.2.0"
 
 if [[ $(ver_cut 3) == 9999 ]] ; then
@@ -35,7 +35,7 @@ EGIT_BRANCH=releases/gcc-$(ver_cut 1)
 
 # Don't keyword live ebuilds
 if ! tc_is_live && [[ -z ${TOOLCHAIN_USE_GIT_PATCHES} ]] ; then
-	KEYWORDS="~alpha amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ~ppc ppc64 ~riscv ~s390 sparc ~x86"
 fi
 
 # Technically only if USE=hardened *too* right now, but no point in complicating it further.
