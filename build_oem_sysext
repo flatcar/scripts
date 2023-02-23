@@ -1,0 +1,77 @@
+#!/bin/bash
+#
+# Copyright (c) 2023 The Flatcar Maintainers.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+SCRIPT_ROOT=$(dirname $(readlink -f "$0"))
+. "${SCRIPT_ROOT}/common.sh" || exit 1
+
+# Script must run inside the chroot
+assert_inside_chroot
+
+assert_not_root_user
+
+# Developer-visible flags.
+DEFINE_string board "${DEFAULT_BOARD}" \
+  "The board to build an image for."
+DEFINE_string build_dir "" \
+  "Directory in which to place image result directories (named by version)"
+DEFINE_string prod_image_path "" \
+  "Path to the generic production image"
+DEFINE_string prod_pkgdb_path "" \
+  "Path to the tarball with portage package database from generic image production image"
+DEFINE_string version_id "${FLATCAR_VERSION_ID}" \
+  "Version ID stored inside the sysext extension"
+
+FLAGS_HELP="USAGE: build_oem_sysext [flags] [oem name].
+This script is used to build a Flatcar OEM sysext images.
+The built image is in <build_dir>/flatcar-oem-<oem>.raw.
+
+Examples:
+
+build_oem_sysext \
+    --board=amd64-usr \
+    --build_dir=<build_dir> \
+    --prod_image_path=<path_to_bin_file> \
+    --prod_pkgdb_path=<path_to_pkgdb_tarbal> \
+    --version_id=\"\${FLATCAR_VERSION_ID}\" \
+    oem-azure
+...
+"
+show_help_if_requested "$@"
+
+# Parse command line.
+FLAGS "$@" || exit 1
+if [[ -z "${FLAGS_ARGV}" ]]; then
+    echo 'No OEM given'
+    exit 0
+fi
+
+eval set -- "${FLAGS_ARGV}"
+
+# Only now can we die on error.  shflags functions leak non-zero error codes,
+# so will die prematurely if 'switch_to_strict_mode' is specified before now.
+switch_to_strict_mode
+
+# N.B.  Ordering matters for some of the libraries below, because
+# some of the files contain initialization used by later files.
+. "${BUILD_LIBRARY_DIR}/toolchain_util.sh" || exit 1
+. "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
+. "${BUILD_LIBRARY_DIR}/oem_sysext_util.sh" || exit 1
+
+BUILD_DIR=${FLAGS_build_dir:-"${BUILD_DIR}"}
+
+if [[ -z "${FLAGS_prod_image_path}" ]]; then
+    error "--prod_image_path is required."
+    exit 1
+fi
+
+if [[ -z "${FLAGS_prod_pkgdb_path}" ]]; then
+    error "--prod_pkgdb_path is required."
+    exit 1
+fi
+
+for oem; do
+    oem_sysext_create "${oem}" "${BOARD}" "${FLAGS_version_id}" "${FLAGS_prod_image_path}" "${FLAGS_prod_pkgdb_path}" "${BUILD_DIR}"
+done
