@@ -108,9 +108,11 @@ function _vm_build_impl() {
     formats=$(echo "$formats" | tr ' ' '\n' | sed 's/equinix_metal/packet/g')
 
     local images_in="images-in/"
+    local file
     rm -rf "${images_in}"
-    copy_from_buildcache "images/${arch}/${vernum}/flatcar_production_image.bin.bz2" "${images_in}"
-    copy_from_buildcache "images/${arch}/${vernum}/version.txt" "${images_in}"
+    for file in flatcar_production_image.bin.bz2 flatcar_production_image_pkgdb.tar.xz version.txt; do
+        copy_from_buildcache "images/${arch}/${vernum}/${file}" "${images_in}"
+    done
     lbunzip2 "${images_in}/flatcar_production_image.bin.bz2"
     ./run_sdk_container -x ./ci-cleanup.sh -n "${vms_container}" -C "${packages_image}" \
             -v "${vernum}" \
