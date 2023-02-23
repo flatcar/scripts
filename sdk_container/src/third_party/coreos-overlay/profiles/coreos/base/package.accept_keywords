@@ -11,9 +11,6 @@
 =app-editors/vim-9.0.1157 ~amd64 ~arm64
 =app-editors/vim-core-9.0.1157 ~amd64 ~arm64
 
-# Keep the version of qemu the same on all arches.
-=app-emulation/qemu-7.2.0 ~arm64
-
 =coreos-devel/fero-client-0.1.1 **
 
 # Accept unstable host Rust compilers
@@ -27,10 +24,6 @@
 
 # Required for addressing CVE-2022-29154
 =net-misc/rsync-3.2.7-r2 ~amd64 ~arm64
-
-# Keep the version of curl the same on all arches.
-# Also needed for CVE-2022-43551 and CVE-2022-43552.
-=net-misc/curl-7.87.0-r2 ~arm64
 
 =sys-fs/cryptsetup-2.4.1-r1 ~amd64 ~arm64
 
@@ -49,7 +42,3 @@
 =sys-libs/liburing-2.1-r2 ~amd64 ~arm64
 
 =app-crypt/adcli-0.9.2 ~amd64 ~arm64
-
-# These are stable for amd64, so pull them in for arm64 too.
-=dev-libs/glib-2.74.4 ~arm64
-=dev-util/gdbus-codegen-2.74.4 ~arm64
