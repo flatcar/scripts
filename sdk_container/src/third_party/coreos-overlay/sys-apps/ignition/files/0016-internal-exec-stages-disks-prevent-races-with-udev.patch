@@ -1,7 +1,7 @@
-From a0bf53e18fc9de8f6bce2f37faf9e5810a7faa18 Mon Sep 17 00:00:00 2001
+From e7cfcc2d44f83d2bc7a481c62a09b7d8c7aee2f4 Mon Sep 17 00:00:00 2001
 From: Kai Lueke <kailuke@microsoft.com>
 Date: Fri, 11 Feb 2022 15:41:12 +0100
-Subject: [PATCH 16/16] internal/exec/stages/disks: prevent races with udev
+Subject: [PATCH 16/18] internal/exec/stages/disks: prevent races with udev
 
 The "udevadm settle" command used to wait for udev to process the disk
 changes and recreate the entries under /dev was still prone to races
@@ -29,18 +29,18 @@ be done for LUKS.
  4 files changed, 78 insertions(+), 29 deletions(-)
 
 diff --git a/internal/exec/stages/disks/disks.go b/internal/exec/stages/disks/disks.go
-index 4bb3e459..23bb7866 100644
+index fcc60b88..7baca8fc 100644
 --- a/internal/exec/stages/disks/disks.go
 +++ b/internal/exec/stages/disks/disks.go
-@@ -22,6 +22,7 @@ import (
+@@ -23,6 +23,7 @@ import (
  	"errors"
  	"fmt"
  	"os/exec"
 +	"path/filepath"
  
- 	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
+ 	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
  	"github.com/flatcar/ignition/v2/internal/distro"
-@@ -105,35 +106,39 @@ func (s stage) Run(config types.Config) error {
+@@ -106,35 +107,39 @@ func (s stage) Run(config types.Config) error {
  		return fmt.Errorf("failed to create filesystems: %v", err)
  	}
  
@@ -110,7 +110,7 @@ index 4bb3e459..23bb7866 100644
  
  	return nil
 diff --git a/internal/exec/stages/disks/filesystems.go b/internal/exec/stages/disks/filesystems.go
-index 4de09498..ed7430fa 100644
+index 72baf50d..67fec316 100644
 --- a/internal/exec/stages/disks/filesystems.go
 +++ b/internal/exec/stages/disks/filesystems.go
 @@ -210,6 +210,29 @@ func (s stage) createFilesystem(fs types.Filesystem) error {
@@ -144,7 +144,7 @@ index 4de09498..ed7430fa 100644
  }
  
 diff --git a/internal/exec/stages/disks/partitions.go b/internal/exec/stages/disks/partitions.go
-index fee39c0a..feb006bd 100644
+index 5578ffd7..747f08dc 100644
 --- a/internal/exec/stages/disks/partitions.go
 +++ b/internal/exec/stages/disks/partitions.go
 @@ -394,5 +394,14 @@ func (s stage) partitionDisk(dev types.Disk, devAlias string) error {
@@ -163,7 +163,7 @@ index fee39c0a..feb006bd 100644
  	return nil
  }
 diff --git a/internal/exec/stages/disks/raid.go b/internal/exec/stages/disks/raid.go
-index 2781131b..2da3f5ec 100644
+index 41f98a41..d22f604c 100644
 --- a/internal/exec/stages/disks/raid.go
 +++ b/internal/exec/stages/disks/raid.go
 @@ -22,6 +22,7 @@ package disks
@@ -172,7 +172,7 @@ index 2781131b..2da3f5ec 100644
  	"os/exec"
 +	"strings"
  
- 	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
+ 	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
  	"github.com/flatcar/ignition/v2/internal/distro"
 @@ -78,6 +79,17 @@ func (s stage) createRaids(config types.Config) error {
  		); err != nil {

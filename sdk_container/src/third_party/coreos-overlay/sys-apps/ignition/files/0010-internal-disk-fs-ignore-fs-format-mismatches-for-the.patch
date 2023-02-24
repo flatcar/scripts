@@ -1,7 +1,7 @@
-From 455292b4dc604c8a4195abf8be5386ff2600ad57 Mon Sep 17 00:00:00 2001
+From 14818bec1b1abf628cfbc5885063561019679044 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Wed, 22 Sep 2021 14:53:49 +0200
-Subject: [PATCH 10/16] internal/disk/fs: ignore fs format mismatches for the
+Subject: [PATCH 10/18] internal/disk/fs: ignore fs format mismatches for the
  OEM partition
 
 As soon as the OEM partition's filesystem format changes, all users
@@ -22,7 +22,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/internal/exec/stages/disks/filesystems.go b/internal/exec/stages/disks/filesystems.go
-index b7f3795a..4de09498 100644
+index 18103f38..72baf50d 100644
 --- a/internal/exec/stages/disks/filesystems.go
 +++ b/internal/exec/stages/disks/filesystems.go
 @@ -126,7 +126,7 @@ func (s stage) createFilesystem(fs types.Filesystem) error {

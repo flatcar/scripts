@@ -1,7 +1,7 @@
-From 1f7edd0e4d53f1bf6c07339293330b850bdeadf4 Mon Sep 17 00:00:00 2001
+From 1e5bc7ec945f2dd905235b1019c426a0cfa94e6b Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Wed, 21 Dec 2022 17:25:02 +0100
-Subject: [PATCH] revert: internal/oem: drop noop OEMs
+Subject: [PATCH 18/18] revert: internal/oem: drop noop OEMs
 
 This reverts: https://github.com/coreos/ignition/commit/26828f92e00060aa8ebf2197545ad602af237132
 
