@@ -752,9 +752,6 @@ finish_image() {
   sudo "${BUILD_LIBRARY_DIR}/gen_tmpfiles.py" --root="${root_fs_dir}" \
       --output="${root_fs_dir}/usr/lib/tmpfiles.d/base_image_var.conf" \
       ${tmp_ignore} "${root_fs_dir}/var"
-  sudo "${BUILD_LIBRARY_DIR}/gen_tmpfiles.py" --root="${root_fs_dir}" \
-      --output="${root_fs_dir}/usr/lib/tmpfiles.d/base_image_etc.conf" \
-      ${tmp_ignore} "${root_fs_dir}/etc"
 
   # Only configure bootloaders if there is a boot partition
   if mountpoint -q "${root_fs_dir}"/boot; then
@@ -782,16 +779,70 @@ EOF
         "${BUILD_DIR}/${image_kconfig}"
   fi
 
+  # Build the selinux policy
+  if pkg_use_enabled coreos-base/coreos selinux; then
+      sudo chroot "${root_fs_dir}" bash -c "cd /usr/share/selinux/mcs && semodule -s mcs -i *.pp"
+  fi
+
+  # Run tmpfiles once to make sure that /etc has everything in place before
+  # we freeze it in /usr/share/flatcar/etc as lowerdir in the overlayfs.
+
+  # But first, to successfully run tmpfiles, we need to have all users/groups
+  # in /etc/passwd, and afterwards we can recreate the files for the dev
+  # container with flatcar-tmpfiles (not really needed but maybe nice to have
+  # as it also lands as reference in /usr/share/flatcar/etc).
+  local dbfile
+  for dbfile in passwd shadow group gshadow; do
+    sudo cp -f "${root_fs_dir}"/usr/share/baselayout/"${dbfile}" "${root_fs_dir}"/etc/
+  done
+  sudo systemd-tmpfiles --create --remove --boot --exclude-prefix=/dev --root="${root_fs_dir}"
+  for dbfile in passwd shadow group gshadow; do
+    sudo rm -f "${root_fs_dir}"/etc/"${dbfile}"
+  done
+  sudo "${root_fs_dir}"/usr/sbin/flatcar-tmpfiles "${root_fs_dir}"
+  # Now that we used the tmpfiles for creating /etc we delete them because
+  # the L, d, and C entries cause upcopies
+  sudo sed -i '/^[CLd] *\/etc\//d' "${root_fs_dir}"/usr/lib/tmpfiles.d/*
+
+  # SELinux: Label the root filesystem for using 'file_contexts'.
+  # The labeling has to be done before moving /etc to /usr/share/flatcar/etc to prevent wrong labels for these files and as
+  # the relabeling on boot would cause upcopies in the overlay.
+  if pkg_use_enabled coreos-base/coreos selinux; then
+    # TODO: Breaks the system:
+    # sudo setfiles -Dv -r "${root_fs_dir}" "${root_fs_dir}"/etc/selinux/mcs/contexts/files/file_contexts "${root_fs_dir}"
+    # sudo setfiles -Dv -r "${root_fs_dir}" "${root_fs_dir}"/etc/selinux/mcs/contexts/files/file_contexts "${root_fs_dir}"/usr
+    # For now we only try it with /etc
+    sudo setfiles -Dv -r "${root_fs_dir}" "${root_fs_dir}"/etc/selinux/mcs/contexts/files/file_contexts "${root_fs_dir}"/etc
+  fi
+
+  # Backup the /etc contents to /usr/share/flatcar/etc to serve as source
+  # for creating missing files
+  sudo cp -a "${root_fs_dir}/etc" "${root_fs_dir}/usr/share/flatcar/etc"
+  # Remove the rootfs state as it should be recreated through the
+  # tmpfiles and may not be present on updating machines. This
+  # makes sure our tests cover the case of missing files in the
+  # rootfs and don't rely on the new image. Not done for the developer
+  # container.
+  if [[ -n "${image_kernel}" ]]; then
+    local folder
+    # Everything except /boot and /usr because they are mountpoints and /lost+found because e2fsck expects it
+    for folder in "${root_fs_dir}/"*; do
+      if [ "${folder}" = "${root_fs_dir}/boot" ] || [ "${folder}" = "${root_fs_dir}/usr" ] || [ "${folder}" = "${root_fs_dir}/lost+found" ]; then
+        continue
+      fi
+      sudo rm --one-file-system -rf "${folder}"
+    done
+  else
+    # For the developer container we still need to remove the resolv.conf symlink to /run
+    # because the resolved-managed file is not present there
+    sudo rm "${root_fs_dir}/etc/resolv.conf"
+  fi
+
   # Zero all fs free space to make it more compressible so auto-update
   # payloads become smaller, not fatal since it won't work on linux < 3.2
   sudo fstrim "${root_fs_dir}" || true
   if mountpoint -q "${root_fs_dir}/usr"; then
     sudo fstrim "${root_fs_dir}/usr" || true
-  fi
-
-  # Build the selinux policy
-  if pkg_use_enabled coreos-base/coreos selinux; then
-      sudo chroot "${root_fs_dir}" bash -c "cd /usr/share/selinux/mcs && semodule -s mcs -i *.pp"
   fi
 
   # Make the filesystem un-mountable as read-write and setup verity.
