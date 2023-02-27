@@ -599,16 +599,6 @@ _tc-has-openmp() {
 	return ${ret}
 }
 
-# @FUNCTION: tc-has-openmp
-# @USAGE: [toolchain prefix]
-# @DEPRECATED: tc-check-openmp
-# @DESCRIPTION:
-# See if the toolchain supports OpenMP.  This function is deprecated and will be
-# removed on 2023-01-01.
-tc-has-openmp() {
-	_tc-has-openmp "$@"
-}
-
 # @FUNCTION: tc-check-openmp
 # @DESCRIPTION:
 # Test for OpenMP support with the current compiler and error out with
@@ -767,6 +757,13 @@ tc-arch() {
 	tc-ninja_magic_to_arch portage "$@"
 }
 
+# @FUNCTION: tc-endian
+# @USAGE: [toolchain prefix]
+# @RETURN: 'big' or 'little' corresponding to the passed (or host) endianness
+# @DESCRIPTION:
+# Accepts 'host' as an argument which defaults to CTARGET and falls back to CHOST
+# if unspecified.  Returns 'big' or 'little' depending on whether 'host' is
+# big or little endian.
 tc-endian() {
 	local host=$1
 	[[ -z ${host} ]] && host=${CTARGET:-${CHOST}}
