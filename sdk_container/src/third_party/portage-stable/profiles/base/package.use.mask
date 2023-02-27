@@ -6,11 +6,24 @@
 # This file is only for generic masks. For arch-specific masks (i.e.
 # mask everywhere, unmask on arch/*) use arch/base.
 
+# Michał Górny <mgorny@gentoo.org> (2023-02-20)
+# dev-python/colorspacious is masked for removal.
+<dev-python/matplotlib-3.7.1 doc
+
+# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2023-02-09)
+# Bug #893686. Presently nothing depends on dev-java/swt built with this flag.
+dev-java/swt:4.10 webkit
+
 # Bernd Waibel <waebbl-gentoo@posteo.net> (2023-01-28)
 # Has some issues building and needs some love first.
 # Bug #891829
 # https://github.com/gentoo/gentoo/pull/29236#issuecomment-1407373536
 sci-libs/vtk debug
+
+# Yiyang Wu <xgreenlandforwyy@gmail.com> (2023-01-27)
+# AMDGPU enablement depends on dev-libs/rocr-runtime, ~amd64 only
+# See also: https://bugs.gentoo.org/891499
+sys-libs/libomp llvm_targets_AMDGPU
 
 # Michał Górny <mgorny@gentoo.org> (2023-01-21)
 # media-libs/libextractor is masked for removal.
@@ -154,7 +167,7 @@ app-antivirus/clamav jit
 
 # Sam James <sam@gentoo.org> (2022-08-26)
 # Broken at runtime for now (bug #865113).
-sys-devel/binutils gprofng
+<sys-devel/binutils-2.40-r1 gprofng
 
 # John Helmert III <ajak@gentoo.org> (2022-08-14)
 # slurm is last rited
@@ -413,9 +426,6 @@ x11-libs/colord-gtk doc
 # Mask the experimental targets in release ebuilds.
 # Note to self: remember to move still-applicable masks to the newer
 # version when master is bumped.
-<dev-ml/llvm-ocaml-14 llvm_targets_VE
-<sys-devel/clang-14 llvm_targets_VE
-<sys-devel/llvm-14 llvm_targets_VE
 <dev-ml/llvm-ocaml-16 llvm_targets_ARC llvm_targets_CSKY
 <sys-devel/clang-16 llvm_targets_ARC llvm_targets_CSKY
 <sys-devel/llvm-16 llvm_targets_ARC llvm_targets_CSKY
