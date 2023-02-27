@@ -170,7 +170,7 @@ SOFTMMU_TOOLS_DEPEND="
 	alsa? ( >=media-libs/alsa-lib-1.0.13 )
 	bpf? ( dev-libs/libbpf:= )
 	bzip2? ( app-arch/bzip2[static-libs(+)] )
-	capstone? ( dev-libs/capstone:= )
+	capstone? ( dev-libs/capstone:=[static-libs(+)] )
 	curl? ( >=net-misc/curl-7.15.4[static-libs(+)] )
 	fdt? ( >=sys-apps/dtc-1.5.1[static-libs(+)] )
 	fuse? ( >=sys-fs/fuse-3.1:3[static-libs(+)] )
@@ -277,7 +277,7 @@ BDEPEND="
 	virtual/pkgconfig
 	doc? (
 		dev-python/sphinx[${PYTHON_USEDEP}]
-		dev-python/sphinx_rtd_theme[${PYTHON_USEDEP}]
+		dev-python/sphinx-rtd-theme[${PYTHON_USEDEP}]
 	)
 	gtk? ( nls? ( sys-devel/gettext ) )
 	test? (
@@ -315,6 +315,8 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-7.1.0-also-build-virtfs-proxy-helper.patch
 	"${FILESDIR}"/${PN}-7.1.0-capstone-include-path.patch
 	"${FILESDIR}"/${PN}-7.2.0-disable-gmp.patch
+	"${FILESDIR}"/${PN}-7.2.0-linux-headers-6.2-glibc-2.36.patch
+	"${FILESDIR}"/${PN}-7.2.0-tcg-curl-ssl.patch
 )
 
 QA_PREBUILT="

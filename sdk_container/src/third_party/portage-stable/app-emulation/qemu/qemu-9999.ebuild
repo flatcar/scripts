@@ -171,7 +171,7 @@ SOFTMMU_TOOLS_DEPEND="
 	alsa? ( >=media-libs/alsa-lib-1.0.13 )
 	bpf? ( dev-libs/libbpf:= )
 	bzip2? ( app-arch/bzip2[static-libs(+)] )
-	capstone? ( dev-libs/capstone:= )
+	capstone? ( dev-libs/capstone:=[static-libs(+)] )
 	curl? ( >=net-misc/curl-7.15.4[static-libs(+)] )
 	fdt? ( >=sys-apps/dtc-1.5.1[static-libs(+)] )
 	fuse? ( >=sys-fs/fuse-3.1:3[static-libs(+)] )
@@ -275,7 +275,7 @@ BDEPEND="
 	virtual/pkgconfig
 	doc? (
 		dev-python/sphinx[${PYTHON_USEDEP}]
-		dev-python/sphinx_rtd_theme[${PYTHON_USEDEP}]
+		dev-python/sphinx-rtd-theme[${PYTHON_USEDEP}]
 	)
 	gtk? ( nls? ( sys-devel/gettext ) )
 	test? (
@@ -625,7 +625,7 @@ qemu_src_configure() {
 		conf_opts+=(
 			--enable-linux-user
 			--disable-system
-			--disable-blobs
+			--disable-install-blobs
 			--disable-tools
 			--disable-cap-ng
 			--disable-seccomp
@@ -646,7 +646,7 @@ qemu_src_configure() {
 		conf_opts+=(
 			--disable-linux-user
 			--disable-system
-			--disable-blobs
+			--disable-install-blobs
 			--enable-tools
 			--enable-cap-ng
 		)
@@ -658,7 +658,7 @@ qemu_src_configure() {
 	[[ -n ${targets} ]] && conf_opts+=( --target-list="${!targets}" )
 
 	# Add support for SystemTAP
-	use systemtap && conf_opts+=( --enable-trace-backend=dtrace )
+	use systemtap && conf_opts+=( --enable-trace-backends=dtrace )
 
 	# We always want to attempt to build with PIE support as it results
 	# in a more secure binary. But it doesn't work with static or if
