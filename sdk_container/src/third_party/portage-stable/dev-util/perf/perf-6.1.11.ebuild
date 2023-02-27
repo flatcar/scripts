@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{9..10} )
+PYTHON_COMPAT=( python3_{9..11} )
 inherit bash-completion-r1 estack llvm toolchain-funcs python-r1 linux-info
 
 DESCRIPTION="Userland tools for Linux Performance Counters"
@@ -24,7 +24,6 @@ elif [[ ${PV} == *.*.* ]] ; then
 else
 	LINUX_VER=${PV}
 	SRC_URI=""
-	SRC_URI+=" https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${P}-binutils-2.39-patches.tar.xz"
 fi
 
 LINUX_SOURCES="linux-${LINUX_VER}.tar.xz"
@@ -32,7 +31,7 @@ SRC_URI+=" https://www.kernel.org/pub/linux/kernel/v${LINUX_V}/${LINUX_SOURCES}"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 arm arm64 ~mips ppc ppc64 ~riscv x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~amd64 ~arm ~arm64 ~mips ~ppc ~ppc64 ~riscv ~x86 ~amd64-linux ~x86-linux"
 IUSE="audit babeltrace clang crypt debug +doc gtk java libpfm lzma numa perl python slang systemtap unwind zlib zstd"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
@@ -143,13 +142,7 @@ src_prepare() {
 	fi
 
 	pushd "${S_K}" >/dev/null || die
-	eapply "${FILESDIR}"/${PN}-5.18-clang.patch
-	# Used `git format-patch 00b32625982e0c796f0abb8effcac9c05ef55bd3...600b7b26c07a070d0153daa76b3806c1e52c9e00`
-	# bug #868129
-	rm "${WORKDIR}"/${P}-binutils-2.39-patches/0005-tools-bpf_jit_disasm-Fix-compilation-error-with-new-.patch || die
-	rm "${WORKDIR}"/${P}-binutils-2.39-patches/0006-tools-bpf_jit_disasm-Don-t-display-disassembler-four.patch || die
-	rm "${WORKDIR}"/${P}-binutils-2.39-patches/0007-tools-bpftool-Fix-compilation-error-with-new-binutil.patch || die
-	eapply "${WORKDIR}"/${P}-binutils-2.39-patches
+	eapply "${FILESDIR}"/perf-6.0-clang.patch
 	popd || die
 
 	# Drop some upstream too-developer-oriented flags and fix the
@@ -159,7 +152,8 @@ src_prepare() {
 		"${S}"/Makefile.perf || die
 	# A few places still use -Werror w/out $(WERROR) protection.
 	sed -i -e 's@-Werror@@' \
-		"${S}"/Makefile.perf "${S_K}"/tools/lib/bpf/Makefile || die
+		"${S}"/Makefile.perf "${S_K}"/tools/lib/bpf/Makefile \
+		"${S_K}"/tools/lib/perf/Makefile || die
 
 	# Avoid the call to make kernelversion
 	sed -i -e '/PERF-VERSION-GEN/d' Makefile.perf || die
