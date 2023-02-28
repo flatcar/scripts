@@ -7,10 +7,6 @@
 
 =app-arch/zstd-1.4.9 ~amd64 ~arm64
 
-# Necessary to fix CVE-2023-0049, CVE-2023-0051 and CVE-2023-0054.
-=app-editors/vim-9.0.1157 ~amd64 ~arm64
-=app-editors/vim-core-9.0.1157 ~amd64 ~arm64
-
 =coreos-devel/fero-client-0.1.1 **
 
 # Accept unstable host Rust compilers
