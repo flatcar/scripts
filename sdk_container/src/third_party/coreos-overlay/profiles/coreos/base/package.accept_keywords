@@ -9,6 +9,9 @@
 
 =coreos-devel/fero-client-0.1.1 **
 
+# Keep versions even for both arches
+=dev-lang/python-3.10.10_p2 ~arm64
+
 # Accept unstable host Rust compilers
 =dev-lang/rust-1.67.1 ~amd64 ~arm64
 =virtual/rust-1.67.1 ~amd64 ~arm64
