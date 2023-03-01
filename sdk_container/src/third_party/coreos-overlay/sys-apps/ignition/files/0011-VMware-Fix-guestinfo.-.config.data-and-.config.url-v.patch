@@ -1,7 +1,7 @@
-From 7b83d08d8d38f5596f1f7b97b6bfa749631d45e0 Mon Sep 17 00:00:00 2001
+From ee9b77b552d65f8620abee384beb60dd3ffeb93d Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Wed, 25 May 2022 10:34:32 +0200
-Subject: [PATCH 11/16] VMware: Fix guestinfo.*.config.data and *.config.url
+Subject: [PATCH 11/18] VMware: Fix guestinfo.*.config.data and *.config.url
  variables
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -25,7 +25,7 @@ Co-authored-by: Kai Lüke <kailuke@microsoft.com>
  1 file changed, 74 insertions(+), 22 deletions(-)
 
 diff --git a/internal/providers/vmware/vmware_amd64.go b/internal/providers/vmware/vmware_amd64.go
-index 0c2f0d97..3c3d1634 100644
+index b41b54bc..5a660b6c 100644
 --- a/internal/providers/vmware/vmware_amd64.go
 +++ b/internal/providers/vmware/vmware_amd64.go
 @@ -19,6 +19,7 @@ package vmware
@@ -34,7 +34,7 @@ index 0c2f0d97..3c3d1634 100644
  	"fmt"
 +	"net/url"
  
- 	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
+ 	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
  	"github.com/flatcar/ignition/v2/internal/providers"
 @@ -50,26 +51,85 @@ func FetchConfig(f *resource.Fetcher) (types.Config, report.Report, error) {
  		return types.Config{}, report.Report{}, providers.ErrNoProvider

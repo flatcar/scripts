@@ -1,28 +1,28 @@
-From 8eb60d346a2b792b6fb53fc7066ef4ba789974f9 Mon Sep 17 00:00:00 2001
-From: Mathieu Tortuyaux <mathieu@kinvolk.io>
-Date: Fri, 13 Aug 2021 11:47:01 +0200
-Subject: [PATCH 08/16] provider/qemu: apply fw_cfg patch
+From 3f6a1a26812dc29fbb97ced24959a991bcc85a83 Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Fri, 24 Feb 2023 09:40:01 +0100
+Subject: [PATCH 08/18] provider/qemu: apply fw_cfg patch
 
 we support both CoreOS and Flatcar fw_cfg path to ensure compatiblity
 
-Signed-off-by: Mathieu Tortuyaux <mathieu@kinvolk.io>
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 ---
- internal/providers/qemu/qemu_fwcfg.go | 123 ++++++++++++++------------
- 1 file changed, 68 insertions(+), 55 deletions(-)
+ internal/providers/qemu/qemu_fwcfg.go | 118 ++++++++++++++------------
+ 1 file changed, 63 insertions(+), 55 deletions(-)
 
 diff --git a/internal/providers/qemu/qemu_fwcfg.go b/internal/providers/qemu/qemu_fwcfg.go
-index 46ab7ae0..2de49881 100644
+index f8bf820e..89515187 100644
 --- a/internal/providers/qemu/qemu_fwcfg.go
 +++ b/internal/providers/qemu/qemu_fwcfg.go
-@@ -30,6 +30,7 @@ import (
+@@ -29,6 +29,7 @@ import (
  	"strings"
  	"time"
  
 +	iErrors "github.com/flatcar/ignition/v2/config/shared/errors"
- 	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
+ 	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
  	"github.com/flatcar/ignition/v2/internal/providers/util"
  	"github.com/flatcar/ignition/v2/internal/resource"
-@@ -37,9 +38,11 @@ import (
+@@ -36,9 +37,11 @@ import (
  	"github.com/coreos/vcontext/report"
  )
  
@@ -37,12 +37,12 @@ index 46ab7ae0..2de49881 100644
  )
  
  func FetchConfig(f *resource.Fetcher) (types.Config, report.Report, error) {
-@@ -49,63 +52,73 @@ func FetchConfig(f *resource.Fetcher) (types.Config, report.Report, error) {
+@@ -48,63 +51,68 @@ func FetchConfig(f *resource.Fetcher) (types.Config, report.Report, error) {
  		return types.Config{}, report.Report{}, err
  	}
  
 -	// get size of firmware blob, if it exists
--	sizeBytes, err := ioutil.ReadFile(firmwareConfigSizePath)
+-	sizeBytes, err := os.ReadFile(firmwareConfigSizePath)
 -	if os.IsNotExist(err) {
 -		f.Logger.Info("QEMU firmware config was not found. Ignoring...")
 -		return util.ParseConfig(f.Logger, []byte{})
@@ -56,16 +56,10 @@ index 46ab7ae0..2de49881 100644
 -		return types.Config{}, report.Report{}, err
 -	}
 +	for cfg, size := range firmwareConfigPaths {
-+		// get size of firmware blob, if it exists
-+		sizeBytes, err := ioutil.ReadFile(size)
-+		if os.IsNotExist(err) {
-+			f.Logger.Info("QEMU firmware config was not found. Ignoring...")
-+			continue
-+		}
  
 -	// Read firmware blob.  We need to make as few, large read() calls as
 -	// possible, since the qemu_fw_cfg kernel module takes O(offset)
--	// time for each read syscall.  ioutil.ReadFile() would eventually
+-	// time for each read syscall.  os.ReadFile() would eventually
 -	// converge on the correct read size (one page) but we can do
 -	// better, and without reallocating.
 -	// Leave an extra guard byte to check for EOF
@@ -82,38 +76,38 @@ index 46ab7ae0..2de49881 100644
 -		// if size is correct, we will never call this at an offset
 -		// where it would return io.EOF
 -		n, err := fh.Read(data[len(data):cap(data)])
++		// get size of firmware blob, if it exists
++		sizeBytes, err := os.ReadFile(size)
++		if os.IsNotExist(err) {
++			f.Logger.Info("QEMU firmware config was not found. Ignoring...")
++			continue
++		} else if err != nil {
++			f.Logger.Err("couldn't read QEMU firmware config size: %v", err)
++			return types.Config{}, report.Report{}, err
++		}
++		size, err := strconv.Atoi(strings.TrimSpace(string(sizeBytes)))
++		if err != nil {
++			f.Logger.Err("couldn't parse QEMU firmware config size: %v", err)
++			return types.Config{}, report.Report{}, err
++		}
++
++		// Read firmware blob.  We need to make as few, large read() calls as
++		// possible, since the qemu_fw_cfg kernel module takes O(offset)
++		// time for each read syscall.  os.ReadFile() would eventually
++		// converge on the correct read size (one page) but we can do
++		// better, and without reallocating.
++		// Leave an extra guard byte to check for EOF
++		data := make([]byte, 0, size+1)
++		fh, err := os.Open(cfg)
  		if err != nil {
 -			f.Logger.Err("couldn't read QEMU firmware config: %v", err)
-+			f.Logger.Err("couldn't read QEMU firmware config size: %v", err)
++			f.Logger.Err("couldn't open QEMU firmware config: %v", err)
  			return types.Config{}, report.Report{}, err
  		}
 -		data = data[:len(data)+n]
 -		if !reporting && time.Since(lastReport).Seconds() >= 10 {
 -			f.Logger.Warning("Reading QEMU fw_cfg takes quadratic time. Consider moving large files or config fragments to a remote URL.")
 -			reporting = true
-+
-+		size, err := strconv.Atoi(strings.TrimSpace(string(sizeBytes)))
-+		if err != nil {
-+			f.Logger.Err("couldn't parse QEMU firmware config size: %v", err)
-+			return types.Config{}, report.Report{}, err
- 		}
--		if reporting && (time.Since(lastReport).Seconds() >= 5 || len(data) >= size) {
--			f.Logger.Info("Reading config from QEMU fw_cfg: %d/%d KB", len(data)/1024, size/1024)
--			lastReport = time.Now()
-+
-+		// Read firmware blob.  We need to make as few, large read() calls as
-+		// possible, since the qemu_fw_cfg kernel module takes O(offset)
-+		// time for each read syscall.  ioutil.ReadFile() would eventually
-+		// converge on the correct read size (one page) but we can do
-+		// better, and without reallocating.
-+		// Leave an extra guard byte to check for EOF
-+		data := make([]byte, 0, size+1)
-+		fh, err := os.Open(cfg)
-+		if err != nil {
-+			f.Logger.Err("couldn't open QEMU firmware config: %v", err)
-+			return types.Config{}, report.Report{}, err
- 		}
-+
 +		defer fh.Close()
 +		lastReport := time.Now()
 +		reporting := false
@@ -125,29 +119,31 @@ index 46ab7ae0..2de49881 100644
 +				f.Logger.Err("couldn't read QEMU firmware config: %v", err)
 +				return types.Config{}, report.Report{}, err
 +			}
-+
 +			data = data[:len(data)+n]
 +			if !reporting && time.Since(lastReport).Seconds() >= 10 {
 +				f.Logger.Warning("Reading QEMU fw_cfg takes quadratic time. Consider moving large files or config fragments to a remote URL.")
 +				reporting = true
 +			}
-+
 +			if reporting && (time.Since(lastReport).Seconds() >= 5 || len(data) >= size) {
 +				f.Logger.Info("Reading config from QEMU fw_cfg: %d/%d KB", len(data)/1024, size/1024)
 +				lastReport = time.Now()
 +			}
-+		}
+ 		}
+-		if reporting && (time.Since(lastReport).Seconds() >= 5 || len(data) >= size) {
+-			f.Logger.Info("Reading config from QEMU fw_cfg: %d/%d KB", len(data)/1024, size/1024)
+-			lastReport = time.Now()
 +		if len(data) > size {
 +			// overflowed into guard byte
 +			f.Logger.Err("missing EOF reading QEMU firmware config")
 +			return types.Config{}, report.Report{}, errors.New("missing EOF")
-+		}
+ 		}
 +		// If size is not at a page boundary, we know we're at EOF because
 +		// the guard byte was not filled.  If size is at a page boundary,
 +		// trust that firmwareConfigSizePath was telling the truth to avoid
 +		// incurring an extra read call to check for EOF.  We're at the end
 +		// of the file so the extra read would be maximally expensive.
 +		return util.ParseConfig(f.Logger, data)
++
  	}
 -	if len(data) > size {
 -		// overflowed into guard byte
@@ -160,7 +156,6 @@ index 46ab7ae0..2de49881 100644
 -	// incurring an extra read call to check for EOF.  We're at the end
 -	// of the file so the extra read would be maximally expensive.
 -	return util.ParseConfig(f.Logger, data)
-+
 +	return types.Config{}, report.Report{}, iErrors.ErrEmpty
  }
 -- 

@@ -1,24 +1,24 @@
-From ab4a9ade5b2e43a4d164392becf8d421256d8ffa Mon Sep 17 00:00:00 2001
+From b33b28b0c5373c40b3cd9480be5519fe579612cf Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Wed, 25 May 2022 10:20:09 +0200
-Subject: [PATCH 06/16] config/v3_4: convert ignition 2.x to 3.4-exp
+Subject: [PATCH 06/18] config/v3_5: convert ignition 2.x to 3.x
 
-if the version of ignition is 2.x we convert it to 3.4-exp using
+if the version of ignition is 2.x we convert it to 3.x using
 ign-converter.
 
 it should support any 2.x version (or at the least the last 2 releases)
 
 Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 ---
- config/v3_4_experimental/config.go | 37 ++++++++++++++++++++++++++++++
+ config/v3_5_experimental/config.go | 37 ++++++++++++++++++++++++++++++
  1 file changed, 37 insertions(+)
 
-diff --git a/config/v3_4_experimental/config.go b/config/v3_4_experimental/config.go
-index 097dbd83..e666c876 100644
---- a/config/v3_4_experimental/config.go
-+++ b/config/v3_4_experimental/config.go
+diff --git a/config/v3_5_experimental/config.go b/config/v3_5_experimental/config.go
+index f0d4bb84..dccc5c4c 100644
+--- a/config/v3_5_experimental/config.go
++++ b/config/v3_5_experimental/config.go
 @@ -15,9 +15,14 @@
- package v3_4_experimental
+ package v3_5_experimental
  
  import (
 +	"encoding/json"
@@ -29,9 +29,9 @@ index 097dbd83..e666c876 100644
  	"github.com/flatcar/ignition/v2/config/shared/errors"
  	"github.com/flatcar/ignition/v2/config/util"
 +	"github.com/flatcar/ignition/v2/config/v24tov31"
- 	prev "github.com/flatcar/ignition/v2/config/v3_3"
- 	"github.com/flatcar/ignition/v2/config/v3_4_experimental/translate"
- 	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
+ 	prev "github.com/flatcar/ignition/v2/config/v3_4"
+ 	"github.com/flatcar/ignition/v2/config/v3_5_experimental/translate"
+ 	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
 @@ -67,6 +72,38 @@ func ParseCompatibleVersion(raw []byte) (types.Config, report.Report, error) {
  		return types.Config{}, rpt, err
  	}

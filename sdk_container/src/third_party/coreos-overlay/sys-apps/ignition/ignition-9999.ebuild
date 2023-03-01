@@ -12,7 +12,7 @@ inherit coreos-go cros-workon systemd udev
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	CROS_WORKON_COMMIT="fef845a7d5ba463b4a93a5ed03a76721164c4a84" # v2.14.0
+	CROS_WORKON_COMMIT="13f05b3c9f6221fb68234387ff2e4c2d63a39b63" # v2.15.0
 	KEYWORDS="amd64 arm64"
 fi
 
@@ -47,10 +47,10 @@ PATCHES=(
 	"${FILESDIR}/0003-sum-go-mod-tidy.patch"
 	"${FILESDIR}/0004-vendor-go-mod-vendor.patch"
 	"${FILESDIR}/0005-config-add-ignition-translation.patch"
-	"${FILESDIR}/0006-config-v3_4-convert-ignition-2.x-to-3.4-exp.patch"
+	"${FILESDIR}/0006-config-v3_5-convert-ignition-2.x-to-3.x.patch"
 	"${FILESDIR}/0007-internal-prv-cmdline-backport-flatcar-patch.patch"
 	"${FILESDIR}/0008-provider-qemu-apply-fw_cfg-patch.patch"
-	"${FILESDIR}/0009-config-3_4-test-add-ignition-2.x-test-cases.patch"
+	"${FILESDIR}/0009-config-3_5-test-add-ignition-2.x-test-cases.patch"
 	"${FILESDIR}/0010-internal-disk-fs-ignore-fs-format-mismatches-for-the.patch"
 	"${FILESDIR}/0011-VMware-Fix-guestinfo.-.config.data-and-.config.url-v.patch"
 	"${FILESDIR}/0012-config-version-handle-configuration-version-1.patch"
