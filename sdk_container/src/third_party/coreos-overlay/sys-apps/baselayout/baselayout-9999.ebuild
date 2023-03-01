@@ -9,7 +9,7 @@ CROS_WORKON_REPO="https://github.com"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	CROS_WORKON_COMMIT="9082621e94ee6a1cdad9e15aa17a747d46c33c6f" # flatcar-master
+	CROS_WORKON_COMMIT="d4d6da73919bacc5b05a012d3d00dc8e2d669c0d" # flatcar-master
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
@@ -132,11 +132,6 @@ src_install() {
 	done
 
 	doenvd "env.d/99flatcar_ldpath"
-
-	# Add /sbin:/bin into the PATH when they aren't links into /usr.
-	if ! use symlink-usr; then
-		echo ROOTPATH=/sbin:/bin > "${D}"/etc/env.d/99flatcar_bin || die
-	fi
 
 	# handle multilib paths.  do it here because we want this behavior
 	# regardless of the C library that you're using.  we do explicitly
