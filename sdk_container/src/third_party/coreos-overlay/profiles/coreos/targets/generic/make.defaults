@@ -107,6 +107,3 @@ ACCT_USER_SYSTEMD_RESOLVE_ID=245
 # tss seems to be one of those users with a mismatching UID/GID
 ACCT_GROUP_TSS_ID=252
 ACCT_USER_TSS_ID=236
-
-# Disable creation of /usr/lib as symlink
-SYMLINK_LIB="no"
