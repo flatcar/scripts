@@ -42,7 +42,6 @@ MOUNT_POINTS=(
 	/sys
 )
 
-declare -A LIB_SYMS		# list of /lib->lib64 symlinks
 declare -A USR_SYMS		# list of /foo->usr/foo symlinks
 declare -a BASE_DIRS	# list of absolute paths that should be directories
 
@@ -57,24 +56,16 @@ check_sym() {
 }
 
 pkg_setup() {
-	local libdirs=$(get_all_libdirs) def_libdir=$(get_abi_LIBDIR $DEFAULT_ABI)
+	local libdirs=$(get_all_libdirs)
 
-	if [[ -z "${libdirs}" || -z "${def_libdir}" ]]; then
+	if [[ -z "${libdirs}" ]]; then
 		die "your DEFAULT_ABI=$DEFAULT_ABI appears to be invalid"
 	fi
 
 	# figure out which paths should be symlinks and which should be directories
 	local d
 	for d in bin sbin ${libdirs} ; do
-		if [[ "${SYMLINK_LIB}" == "yes" && "${d}" == "lib" ]] ; then
-			if use symlink-usr; then
-				USR_SYMS["/lib"]="usr/${def_libdir}"
-			else
-				LIB_SYMS["/lib"]="${def_libdir}"
-			fi
-			LIB_SYMS["/usr/lib"]="${def_libdir}"
-			LIB_SYMS["/usr/local/lib"]="${def_libdir}"
-		elif use symlink-usr; then
+		if use symlink-usr; then
 			USR_SYMS["/$d"]="usr/$d"
 			BASE_DIRS+=( "/usr/$d" "/usr/local/$d" )
 		else
@@ -84,9 +75,6 @@ pkg_setup() {
 
 	# make sure any pre-existing symlinks map to the expected locations.
 	local sym
-	for sym in "${!LIB_SYMS[@]}" ; do
-		check_sym "${sym}" "${LIB_SYMS[$sym]}"
-	done
 	if use symlink-usr; then
 		for sym in "${!USR_SYMS[@]}" ; do
 			check_sym "${sym}" "${USR_SYMS[$sym]}"
@@ -108,12 +96,7 @@ src_compile() {
 }
 
 src_install() {
-	# lib symlinks must be in place before make install
 	dodir "${BASE_DIRS[@]}"
-	local sym
-	for sym in "${!LIB_SYMS[@]}" ; do
-		dosym "${LIB_SYMS[$sym]}" "${sym}"
-	done
 
 	if use cros_host; then
 		# Since later systemd-tmpfiles --root is used only users from
@@ -220,10 +203,6 @@ pkg_postinst() {
 	local dir
 	for dir in "${BASE_DIRS[@]}"; do
 		mkdir -p "${ROOT}/usr/lib/debug/${dir}"
-	done
-	local sym
-	for sym in "${!LIB_SYMS[@]}" ; do
-		ln -sfT "${LIB_SYMS[$sym]}" "${ROOT}/usr/lib/debug/${sym}"
 	done
 	if use symlink-usr; then
 		for sym in "${!USR_SYMS[@]}" ; do
