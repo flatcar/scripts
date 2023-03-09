@@ -19,10 +19,10 @@ LICENSE="BSD"
 SLOT="0"
 IUSE=""
 
-RDEPEND="!coreos-base/vboot_reference
-	!sys-apps/rootdev
+RDEPEND="
 	sys-apps/util-linux
-	sys-fs/e2fsprogs"
+	sys-fs/e2fsprogs
+"
 DEPEND="${RDEPEND}"
 
 src_prepare() {

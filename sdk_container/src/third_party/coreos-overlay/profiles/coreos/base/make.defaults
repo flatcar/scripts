@@ -53,10 +53,13 @@ POLICY_TYPES="targeted mcs mls"
 ACCEPT_RESTRICT="* -bindist"
 USE="${USE} bindist"
 
-# Default licenses that are accepted for ChromiumOS builds.
-# If you want to accept more, use the --accept_licenses flag
-# when running setup_board.
-ACCEPT_LICENSE="* -@EULA -@CHROMEOS"
+# Additional licenses accepted for Flatcar builds.
+#
+# netperf - license for net-analyzer/netperf
+# no-source-code - license for sys-kernel/coreos-firmware
+# freedist - license for sys-kernel/coreos-kernel
+# BSD-2-Clause-Patent - license for sys-firmware/edk2-aarch64
+ACCEPT_LICENSE="${ACCEPT_LICENSE} netperf no-source-code freedist BSD-2-Clause-Patent"
 
 # Favor our own mirrors over Gentoo's
 GENTOO_MIRRORS="
