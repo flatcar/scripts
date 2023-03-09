@@ -91,6 +91,7 @@ RDEPEND="${RDEPEND}
 	app-arch/bzip2
 	app-arch/lbzip2
 	app-arch/lz4
+	app-arch/pigz
 	app-arch/xz-utils
 	app-arch/zstd
 	app-arch/tar
