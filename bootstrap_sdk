@@ -158,6 +158,20 @@ stage_repo() {
             && git fetch --all \
             && git checkout "$gitref" )
     fi
+    (
+        set -euo pipefail
+        local repo_var hook name
+
+        # FLAGS_coreos_overlay for gitname coreos-overlay
+        repo_var="FLAGS_${gitname//-/_}"
+        shopt -s nullglob
+        for hook in "${FLAGS_coreos_overlay}/coreos/stage1_hooks/"*"-${gitname}.sh"; do
+            name=${hook##*/}
+            name=${name%"-${gitname}.sh"}
+            info "Invoking stage1 ${gitname} hook ${name} on ${dest}/${repo}"
+            "${hook}" "${dest}/${repo}" "${!repo_var}"
+        done
+    )
 }
 
 build_stage1() {
