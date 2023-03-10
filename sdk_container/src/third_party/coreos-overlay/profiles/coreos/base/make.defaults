@@ -59,7 +59,8 @@ USE="${USE} bindist"
 # no-source-code - license for sys-kernel/coreos-firmware
 # freedist - license for sys-kernel/coreos-kernel
 # BSD-2-Clause-Patent - license for sys-firmware/edk2-aarch64
-ACCEPT_LICENSE="${ACCEPT_LICENSE} netperf no-source-code freedist BSD-2-Clause-Patent"
+# intel-ucode - license for sys-firmware/intel-microcode
+ACCEPT_LICENSE="${ACCEPT_LICENSE} netperf no-source-code freedist BSD-2-Clause-Patent intel-ucode"
 
 # Favor our own mirrors over Gentoo's
 GENTOO_MIRRORS="
