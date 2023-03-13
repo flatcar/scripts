@@ -21,8 +21,3 @@
 # Python 3.11 is stable in portage-stable, so avoid picking it
 # up. Drop this when we switch to it.
 >=dev-lang/python-3.11
-
-# sys-devel/gcc-11.3.1_p20230120-r1 is the latest stable gcc version
-# that fixes the CET build issue of glibc. There are newer versions of
-# gcc that are not tested enough for CET, so mask them.
->sys-devel/gcc-11.3.1_p20230120-r1

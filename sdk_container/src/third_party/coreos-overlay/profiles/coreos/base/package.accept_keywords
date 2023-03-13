@@ -7,11 +7,11 @@
 
 =app-arch/zstd-1.4.9 ~amd64 ~arm64
 
-# Necessary to fix CVE-2023-0049, CVE-2023-0051 and CVE-2023-0054.
-=app-editors/vim-9.0.1157 ~amd64 ~arm64
-=app-editors/vim-core-9.0.1157 ~amd64 ~arm64
-
 =coreos-devel/fero-client-0.1.1 **
+
+# Keep versions even for both arches
+=dev-lang/python-3.10.10_p2 ~arm64
+=dev-lang/python-oem-3.10.10_p2 ~arm64
 
 # Accept unstable host Rust compilers
 =dev-lang/rust-1.67.1 ~amd64 ~arm64
@@ -19,8 +19,15 @@
 
 =dev-libs/libgcrypt-1.9.4 ~amd64 ~arm64
 
-# Keep the version of bind-tools the same on all arches.
-=net-dns/bind-tools-9.16.36 ~arm64
+# upstream stabilizes arm64 for dev-lang/cython
+# stabilize dev-python/cython for amd64 to keep the version same for both arch
+=dev-python/cython-0.29.33 ~amd64
+
+# Required for addressing CVE-2023-0361.
+=net-libs/gnutls-3.8.0 ~amd64 ~arm64
+
+# Required for addressing CVE-2023-23914, CVE-2023-23915 and CVE-2023-23916.
+=net-misc/curl-7.88.1-r1 ~amd64 ~arm64
 
 # Required for addressing CVE-2022-29154
 =net-misc/rsync-3.2.7-r2 ~amd64 ~arm64

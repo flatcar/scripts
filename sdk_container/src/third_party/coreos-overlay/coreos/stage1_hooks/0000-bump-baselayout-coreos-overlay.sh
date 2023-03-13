@@ -5,7 +5,7 @@ set -euo pipefail
 stage1_repo="${1}"
 new_repo="${2}"
 
-good_version="3.6.8-r9"
+good_version="3.6.8-r10"
 stage1_version=''
 
 for f in "${stage1_repo}/sys-apps/baselayout/baselayout-"*'.ebuild'; do
