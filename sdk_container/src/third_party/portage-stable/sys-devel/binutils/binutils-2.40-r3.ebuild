@@ -19,7 +19,7 @@ IUSE="cet doc gold gprofng multitarget +nls pgo +plugins static-libs test vanill
 # PATCH_DEV          - Use download URI https://dev.gentoo.org/~{PATCH_DEV}/distfiles/...
 #                      for the patchsets
 
-PATCH_VER=1
+PATCH_VER=3
 PATCH_DEV=dilfridge
 
 if [[ ${PV} == 9999* ]]; then
@@ -112,6 +112,10 @@ src_prepare() {
 			einfo "Applying binutils patchset ${patchsetname}"
 			eapply "${WORKDIR}/patch"
 			einfo "Done."
+
+			# This is applied conditionally for now just out of caution.
+			# It should be okay on non-prefix systems though. See bug #892549.
+			use prefix && eapply "${FILESDIR}"/binutils-2.40-linker-search-path.patch
 		fi
 	fi
 
@@ -173,6 +177,13 @@ src_configure() {
 	strip-flags
 	use cet && filter-flags -mindirect-branch -mindirect-branch=*
 	use elibc_musl && append-ldflags -Wl,-z,stack-size=2097152
+
+	# ideally we want !tc-ld-is-bfd for best future-proofing, but it needs
+	# https://github.com/gentoo/gentoo/pull/28355
+	# mold needs this too but right now tc-ld-is-mold is also not available
+	if tc-ld-is-lld; then
+		append-ldflags -Wl,--undefined-version
+	fi
 
 	local x
 	echo
