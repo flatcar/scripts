@@ -96,6 +96,11 @@ app-portage/portage-utils
 app-shells/bash-completion
 
 app-text/asciidoc
+app-text/build-docbook-catalog
+app-text/docbook-xml-dtd
+app-text/docbook-xsl-ns-stylesheets
+app-text/docbook-xsl-stylesheets
+app-text/sgml-common
 
 dev-db/sqlite
 
@@ -134,7 +139,6 @@ dev-perl/Text-Unidecode
 dev-perl/Unicode-EastAsianWidth
 dev-perl/libintl-perl
 
-dev-python/appdirs
 dev-python/autocommand
 dev-python/boto
 dev-python/certifi
@@ -159,6 +163,7 @@ dev-python/more-itertools
 dev-python/nspektr
 dev-python/ordered-set
 dev-python/packaging
+dev-python/platformdirs
 dev-python/pydantic
 dev-python/pydecomp
 dev-python/pygments
@@ -288,6 +293,7 @@ net-fs/cifs-utils
 net-libs/gnutls
 net-libs/libpcap
 net-libs/libslirp
+net-libs/nghttp2
 
 net-misc/bridge-utils
 net-misc/curl
@@ -321,6 +327,7 @@ sys-apps/i2c-tools
 sys-apps/iucode_tool
 sys-apps/less
 sys-apps/portage
+sys-apps/texinfo
 
 sys-devel/autoconf
 sys-devel/autoconf-archive
@@ -357,8 +364,6 @@ sys-libs/libcap
 sys-libs/libcap-ng
 sys-libs/libseccomp
 sys-libs/zlib
-
-sys-power/iasl
 
 virtual/libcrypt
 virtual/libelf

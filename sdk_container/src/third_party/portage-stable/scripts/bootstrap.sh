@@ -328,8 +328,7 @@ if [ ${BOOTSTRAP_STAGE} -le 1 ] ; then
 	echo -------------------------------------------------------------------------------
 	set_bootstrap_stage 2
 fi
-# Flatcar: Add openmp and static-libs to fix catalyst bootstrap stage2.
-export USE="-* bootstrap ${ALLOWED_USE} ${BOOTSTRAP_USE} openmp static-libs"
+export USE="-* bootstrap ${ALLOWED_USE} ${BOOTSTRAP_USE}"
 
 # We can't unmerge headers which may or may not exist yet. If your
 # trying to use nptl, it may be needed to flush out any old headers
@@ -357,7 +356,6 @@ fi
 if [[ -n ${STRAP_RUN} ]] ; then
 	if [[ -x ${GCC_CONFIG} ]] && ${GCC_CONFIG} --get-current-profile &>/dev/null
 	then
-		# Flatcar: avoid failures when bootstraping in verbose mode
 		output=$(${V_ECHO} emerge ${STRAP_EMERGE_OPTS} --prune --pretend --quiet sys-devel/gcc 2>/dev/null)
 		if [[ ${DEBUG} = "1" ]] ; then
 			echo "${output}"

@@ -1,14 +1,10 @@
 # Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# Maciej Barć <xgqt@gentoo.org> (2023-01-07)
-# Currently ACL2 (sci-mathematics/acl2) unconditionally depends
-# on SBCL (dev-lisp/sbcl), which is masked on the musl profile.
-sci-mathematics/acl2
-
 # Sam James <sam@gentoo.org> (2023-01-02)
 # Uses error.h, bug #888956
 =sys-libs/liburing-2.3
+=sys-libs/liburing-2.3-r1
 
 # Conrad Kostecki <conikost@gentoo.org> (2022-12-31)
 # RTLD_DEEPBIND does not exist on musl
@@ -24,15 +20,14 @@ dev-libs/intel-compute-runtime
 =sys-devel/gcc-12.2.1_p20230121:12
 
 # Andrey Grozin <grozin@gentoo.org> (2022-12-01)
-# These packages depend on dev-lisp/sbcl unconditionally
+# sbcl upstream supports only glibc Linux systems, bug #712626
+# and these packages depend on dev-lisp/sbcl unconditionally
+dev-lisp/sbcl
 app-emacs/sly
 dev-lisp/alexandria
+sci-mathematics/acl2
 x11-wm/stumpwm
 x11-wm/stumpwm-contrib
-
-# Andrey Grozin <grozin@gentoo.org> (2022-12-01)
-# The upstream supports only glibc Linux systems, bug #712626
-dev-lisp/sbcl
 
 # Sam James <sam@gentoo.org> (2022-10-17)
 # Needs porting to musl
@@ -64,7 +59,7 @@ net-analyzer/ipcad
 
 # Sam James <sam@gentoo.org> (2022-09-17)
 # Fails to compile on musl: bug #832868
-sys-apps/uutils
+sys-apps/uutils-coreutils
 
 # Sam James <sam@gentoo.org> (2022-09-12)
 # libxcrypt migration masks.
@@ -99,8 +94,15 @@ net-misc/casync
 # Bernd Waibel <waebbl-gentoo@posteo.net> (2022-03-14)
 # Doesn't build with musl, bug #832742
 app-eselect/eselect-opencascade
+app-doc/kicad-doc
 media-gfx/freecad
 media-gfx/prusaslicer
+sci-electronics/kicad
+sci-electronics/kicad-footprints
+sci-electronics/kicad-meta
+sci-electronics/kicad-packages3d
+sci-electronics/kicad-symbols
+sci-electronics/kicad-templates
 sci-libs/opencascade
 
 # Stephan Hartmann <sultan@gentoo.org> (2022-02-10)
@@ -112,13 +114,6 @@ www-client/chromium
 # bug #832551
 net-misc/netkit-telnetd
 net-misc/sitecopy
-
-# Sam James <sam@gentoo.org> (2022-02-06)
-# Latest version doesn't build on musl
-# bug #831363
-=sys-libs/efivar-38
-app-crypt/pesign
-sys-kernel/kpatch
 
 # Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2022-01-05)
 # Binary package linked to glibc (rolling mask, use for all such binpkgs)
@@ -146,6 +141,7 @@ dev-games/ps2-packer
 dev-java/openjdk-bin
 dev-java/openjdk-jre-bin
 dev-libs/luise
+dev-libs/nwjs
 dev-perl/Lab-Zhinst
 dev-php/PEAR-MDB2_Driver_oci8
 dev-python/pyzotero
@@ -190,6 +186,7 @@ games-fps/ut2004-demo
 games-puzzle/world-of-goo-demo
 games-puzzle/world-of-goo-gog
 games-puzzle/world-of-goo-hb
+games-rpg/crosscode
 games-server/bedrock-server
 games-server/etqw-ded
 games-server/mtavc
