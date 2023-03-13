@@ -1,11 +1,14 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 inherit multilib-minimal toolchain-funcs verify-sig
 
 DESCRIPTION="Multi-format archive and compression library"
-HOMEPAGE="https://www.libarchive.org/"
+HOMEPAGE="
+	https://www.libarchive.org/
+	https://github.com/libarchive/libarchive/
+"
 SRC_URI="
 	https://www.libarchive.de/downloads/${P}.tar.xz
 	verify-sig? ( https://www.libarchive.de/downloads/${P}.tar.xz.asc )
@@ -44,6 +47,13 @@ DEPEND="${RDEPEND}
 BDEPEND="
 	verify-sig? ( >=sec-keys/openpgp-keys-libarchive-20221209 )
 "
+
+# false positives (checks for libc-defined hash functions)
+QA_CONFIG_IMPL_DECL_SKIP=(
+	SHA256_Init SHA256_Update SHA256_Final
+	SHA384_Init SHA384_Update SHA384_Final
+	SHA512_Init SHA512_Update SHA512_Final
+)
 
 multilib_src_configure() {
 	export ac_cv_header_ext2fs_ext2_fs_h=$(usex e2fsprogs) #354923
@@ -123,4 +133,7 @@ multilib_src_install() {
 
 	# Libs.private: should be used from libarchive.pc instead
 	find "${ED}" -type f -name "*.la" -delete || die
+	# https://github.com/libarchive/libarchive/issues/1766
+	sed -e '/Requires\.private/s:iconv::' \
+		-i "${ED}/usr/$(get_libdir)/pkgconfig/libarchive.pc" || die
 }
