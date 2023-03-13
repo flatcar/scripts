@@ -6,6 +6,10 @@
 # This file is only for generic masks. For arch-specific masks (i.e.
 # mask everywhere, unmask on arch/*) use arch/base.
 
+# Matt Turner <mattst88@gentoo.org> (2023-03-03)
+# Depends on deprecated gnome-base/gconf and gtk+:2
+sys-power/apcupsd gnome
+
 # Michał Górny <mgorny@gentoo.org> (2023-02-20)
 # dev-python/colorspacious is masked for removal.
 <dev-python/matplotlib-3.7.1 doc
@@ -66,12 +70,6 @@ net-p2p/bitcoind knots
 # seccomp cannot be disabled via a runtime toggle which introduces substantial
 # fragility to Portage which relies on pax-utils' scanelf heavily. bug #815877.
 app-misc/pax-utils seccomp
-
-# Ionen Wolkens <ionen@gentoo.org> (2022-12-29)
-# Blocks eventual cleanup of <dev-util/glslang-1.3.231, and the same
-# functionality can be got through USE=shaderc without direct usage.
-# Use newer libplacebo if really want to use this.
-~media-libs/libplacebo-4.192.1 glslang
 
 # Michał Górny <mgorny@gentoo.org> (2022-12-20)
 # sys-cluster/ganglia is masked for removal.
