@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9..10} )
+PYTHON_COMPAT=( python3_{9..11} )
 inherit estack linux-info optfeature python-any-r1 bash-completion-r1 toolchain-funcs
 
 MY_PV="${PV/_/-}"
@@ -25,7 +25,7 @@ S="${S_K}/tools/bpf/bpftool"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~riscv ~x86"
+KEYWORDS="~amd64 ~arm ~arm64 ~riscv ~x86"
 IUSE="caps"
 
 RDEPEND="
