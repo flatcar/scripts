@@ -5,7 +5,7 @@ EAPI=8
 PYTHON_REQ_USE="xml(+)"
 PYTHON_COMPAT=( python3_{9..11} )
 
-inherit flag-o-matic gnome.org gnome2-utils linux-info meson-multilib multilib python-any-r1 toolchain-funcs xdg
+inherit gnome.org gnome2-utils linux-info meson-multilib multilib python-any-r1 toolchain-funcs xdg
 
 DESCRIPTION="The GLib library of C routines"
 HOMEPAGE="https://www.gtk.org/"
@@ -14,9 +14,9 @@ LICENSE="LGPL-2.1+"
 SLOT="2"
 IUSE="dbus debug +elf gtk-doc +mime selinux static-libs sysprof systemtap test utils xattr"
 RESTRICT="!test? ( test )"
-#REQUIRED_USE="gtk-doc? ( test )" # Bug #777636
+REQUIRED_USE="gtk-doc? ( test )" # Bug #777636
 
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux"
 
 # * elfutils (via libelf) does not build on Windows. gresources are not embedded
 # within ELF binaries on that platform anyway and inspecting ELF binaries from
@@ -69,8 +69,6 @@ MULTILIB_CHOST_TOOLS=(
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.64.1-mark-gdbus-server-auth-test-flaky.patch
-
-	"${FILESDIR}"/${P}-tests-Skip-assert-msg-test.py-if-gdb-fails.patch
 )
 
 pkg_setup() {
@@ -143,12 +141,6 @@ src_prepare() {
 }
 
 multilib_src_configure() {
-	if use debug; then
-		append-cflags -DG_ENABLE_DEBUG
-	else
-		append-cflags -DG_DISABLE_CAST_CHECKS # https://gitlab.gnome.org/GNOME/glib/issues/1833
-	fi
-
 	# TODO: figure a way to pass appropriate values for all cross properties that glib uses (search for get_cross_property)
 	#if tc-is-cross-compiler ; then
 		# https://bugzilla.gnome.org/show_bug.cgi?id=756473
@@ -160,7 +152,9 @@ multilib_src_configure() {
 	#fi
 
 	local emesonargs=(
+		--buildtype $(usex debug debug plain)
 		-Ddefault_library=$(usex static-libs both shared)
+		-Druntime_dir="${EPREFIX}"/run
 		$(meson_feature selinux)
 		$(meson_use xattr)
 		-Dlibmount=enabled # only used if host_system == 'linux'
