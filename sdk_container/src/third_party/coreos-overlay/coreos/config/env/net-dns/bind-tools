@@ -5,6 +5,8 @@
 # and grepping for -Wattributes instead, but we are not yet packaging
 # it. We also know that constructor and destructor attributes are
 # supported - they are available since at least gcc 3.4.
+#
+# Drop this when updating to bind tools 9.17.13 or newer.
 
 EXTRA_ECONF+=" ax_cv_have_func_attribute_constructor=yes"
 EXTRA_ECONF+=" ax_cv_have_func_attribute_destructor=yes"
