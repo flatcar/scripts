@@ -28,7 +28,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
-KEYWORDS="~alpha amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 IUSE="
 	bluetooth build +ensurepip examples gdbm hardened libedit lto
 	+ncurses pgo +readline +sqlite +ssl test tk valgrind +xml
@@ -40,13 +40,11 @@ RESTRICT="!test? ( test )"
 # run the bootstrap code on your dev box and include the results in the
 # patchset. See bug 447752.
 
-# Flatcar: Drop a dependency on dev-libs/expat, we will use the internal one.
-# Flatcar: Drop a dependency on dev-libs/libffi, we will use the internal one.
-# Flatcar: Drop a dependency on dev-python/gentoo-common, we will install our own EXTERNALLY-MANAGED file
 RDEPEND="
 	app-arch/bzip2:=
 	app-arch/xz-utils:=
 	dev-lang/python-exec[python_targets_python3_10(-)]
+	dev-libs/libffi:=
 	dev-python/gentoo-common
 	sys-apps/util-linux:=
 	>=sys-libs/zlib-1.1.3:=
@@ -67,6 +65,7 @@ RDEPEND="
 		dev-tcltk/blt:=
 		dev-tcltk/tix
 	)
+	xml? ( >=dev-libs/expat-2.1:= )
 	!!<sys-apps/sandbox-2.21
 "
 # bluetooth requires headers from bluez
@@ -87,17 +86,14 @@ RDEPEND+="
 	!build? ( app-misc/mime-types )
 "
 
-# Flatcar: Unset RDEPEND, DEPEND already contains it. OEM packages are
-# installed after production images are pruned of the previously
-# installed package database.
-unset RDEPEND
-
 VERIFY_SIG_OPENPGP_KEY_PATH=${BROOT}/usr/share/openpgp-keys/python.org.asc
 
 # large file tests involve a 2.5G file being copied (duplicated)
 CHECKREQS_DISK_BUILD=5500M
 
 QA_PKGCONFIG_VERSION=${PYVER}
+# false positives -- functions specific to *BSD
+QA_CONFIG_IMPL_DECL_SKIP=( chflags lchflags )
 
 pkg_pretend() {
 	use test && check-reqs_pkg_pretend
@@ -115,11 +111,9 @@ src_unpack() {
 }
 
 src_prepare() {
-	# Flatcar: We keep the internal expat copy.
-	# Flatcar: We keep the internal libffi copy.
-	# # Ensure that internal copies of expat and libffi are not used.
-	# rm -r Modules/expat || die
-	# rm -r Modules/_ctypes/libffi* || die
+	# Ensure that internal copies of expat and libffi are not used.
+	rm -r Modules/expat || die
+	rm -r Modules/_ctypes/libffi* || die
 
 	local PATCHES=(
 		"${WORKDIR}/${PATCHSET}"
@@ -215,37 +209,19 @@ src_configure() {
 		# a chance for users rebuilding python before glibc
 		ac_cv_header_stropts_h=no
 
-		# Flatcar: Use oem-specific prefix.
-		--prefix=/usr/share/oem/python
-		# Flatcar: Make sure we put libs into a correct subdirectory.
-		--with-platlibdir="$(get_libdir)"
-		# Flatcar: No need for shared libs.
-		# --enable-shared
-		--disable-shared
+		--enable-shared
 		--without-static-libpython
 		--enable-ipv6
-		# Flatcar: Set includedir to discardable directory
-		--includedir='/discard/include'
-		# Flatcar: Set infodir and mandir to discardable directory
-		# --infodir='/${prefix}/share/info'
-		# --mandir='/${prefix}/share/man'
-		--infodir='/discard/info'
-		--mandir='/discard/man'
+		--infodir='${prefix}/share/info'
+		--mandir='${prefix}/share/man'
 		--with-computed-gotos
 		--with-dbmliborder="${dbmliborder}"
 		--with-libc=
-		# Flatcar: No need for loadable extensions.
-		# --enable-loadable-sqlite-extensions
-		--disable-loadable-sqlite-extensions
+		--enable-loadable-sqlite-extensions
 		--without-ensurepip
-		# Flatcar: We use internal expat
-		# --with-system-expat
-		--without-system-expat
-		# Flatcar: We use internal ffi
-		# --with-system-ffi
-		--without-system-ffi
-		# Flatcar: It's for ensurepip, which we disable
-		# --with-wheel-pkg-dir="${EPREFIX}"/usr/lib/python/ensurepip
+		--with-system-expat
+		--with-system-ffi
+		--with-wheel-pkg-dir="${EPREFIX}"/usr/lib/python/ensurepip
 
 		$(use_with lto)
 		$(use_enable pgo optimizations)
@@ -421,39 +397,92 @@ src_test() {
 	[[ ${ret} -eq 0 ]] || die "emake test failed"
 }
 
-# Flatcar: Rewrite src_install to just run make altinstall, remove
-# some installed files (refer to the original src_install to see which
-# files to drop), adding symlinks and the EXTERNALLY-MANAGED file, and
-# removing the /discard directory.
 src_install() {
-	local prefix=/usr/share/oem/python
-	local eprefix="${ED}${prefix}"
-        local libdir="${prefix}/$(get_libdir)"
-	local elibdir="${eprefix}/$(get_libdir)"
-	local pythonplatlibdir="${libdir}/python${PYVER}"
-	local epythonplatlibdir="${elibdir}/python${PYVER}"
-	local bindir="${prefix}/bin"
-	local ebindir="${eprefix}/bin"
+	local libdir=${ED}/usr/lib/python${PYVER}
 
 	emake DESTDIR="${D}" altinstall
 
-	rm -r "${epythonplatlibdir}"/ensurepip || die
-	rm -r "${epythonplatlibdir}/"{sqlite3,test/test_sqlite*} || die
-	rm -r "${ebindir}/idle${PYVER}" || die
-	rm -r "${epythonplatlibdir}/"{idlelib,tkinter,test/test_tk*} || die
+	# Fix collisions between different slots of Python.
+	rm "${ED}/usr/$(get_libdir)/libpython3.so" || die
 
-	# create a simple versionless 'python' symlink
-	dosym "python${PYVER}" "${bindir}/python"
-	dosym "python${PYVER}" "${bindir}/python3"
+	# Cheap hack to get version with ABIFLAGS
+	local abiver=$(cd "${ED}/usr/include"; echo python*)
+	if [[ ${abiver} != python${PYVER} ]]; then
+		# Replace python3.X with a symlink to python3.Xm
+		rm "${ED}/usr/bin/python${PYVER}" || die
+		dosym "${abiver}" "/usr/bin/python${PYVER}"
+		# Create python3.X-config symlink
+		dosym "${abiver}-config" "/usr/bin/python${PYVER}-config"
+		# Create python-3.5m.pc symlink
+		dosym "python-${PYVER}.pc" "/usr/$(get_libdir)/pkgconfig/${abiver/${PYVER}/-${PYVER}}.pc"
+	fi
 
-	insinto "${pythonplatlibdir}"
-	# https://peps.python.org/pep-0668/
-	newins - EXTERNALLY-MANAGED <<-EOF
-		[externally-managed]
-		Error=
-		 Please contact Flatcar maintainers if some python package
-		 is necessary for this OEM image.
+	# python seems to get rebuilt in src_install (bug 569908)
+	# Work around it for now.
+	if has_version dev-libs/libffi[pax-kernel]; then
+		pax-mark E "${ED}/usr/bin/${abiver}"
+	else
+		pax-mark m "${ED}/usr/bin/${abiver}"
+	fi
+
+	rm -r "${libdir}"/ensurepip/_bundled || die
+	if ! use ensurepip; then
+		rm -r "${libdir}"/ensurepip || die
+	fi
+	if ! use sqlite; then
+		rm -r "${libdir}/"{sqlite3,test/test_sqlite*} || die
+	fi
+	if ! use tk; then
+		rm -r "${ED}/usr/bin/idle${PYVER}" || die
+		rm -r "${libdir}/"{idlelib,tkinter,test/test_tk*} || die
+	fi
+
+	ln -s ../python/EXTERNALLY-MANAGED "${libdir}/EXTERNALLY-MANAGED" || die
+
+	dodoc Misc/{ACKS,HISTORY,NEWS}
+
+	if use examples; then
+		docinto examples
+		find Tools -name __pycache__ -exec rm -fr {} + || die
+		dodoc -r Tools
+	fi
+	insinto /usr/share/gdb/auto-load/usr/$(get_libdir) #443510
+	local libname=$(
+		printf 'e:\n\t@echo $(INSTSONAME)\ninclude Makefile\n' |
+		emake --no-print-directory -s -f - 2>/dev/null
+	)
+	newins Tools/gdb/libpython.py "${libname}"-gdb.py
+
+	newconfd "${FILESDIR}/pydoc.conf" pydoc-${PYVER}
+	newinitd "${FILESDIR}/pydoc.init" pydoc-${PYVER}
+	sed \
+		-e "s:@PYDOC_PORT_VARIABLE@:PYDOC${PYVER/./_}_PORT:" \
+		-e "s:@PYDOC@:pydoc${PYVER}:" \
+		-i "${ED}/etc/conf.d/pydoc-${PYVER}" \
+		"${ED}/etc/init.d/pydoc-${PYVER}" || die "sed failed"
+
+	# python-exec wrapping support
+	local pymajor=${PYVER%.*}
+	local EPYTHON=python${PYVER}
+	local scriptdir=${D}$(python_get_scriptdir)
+	mkdir -p "${scriptdir}" || die
+	# python and pythonX
+	ln -s "../../../bin/${abiver}" "${scriptdir}/python${pymajor}" || die
+	ln -s "python${pymajor}" "${scriptdir}/python" || die
+	# python-config and pythonX-config
+	# note: we need to create a wrapper rather than symlinking it due
+	# to some random dirname(argv[0]) magic performed by python-config
+	cat > "${scriptdir}/python${pymajor}-config" <<-EOF || die
+		#!/bin/sh
+		exec "${abiver}-config" "\${@}"
 	EOF
-
-	rm -r "${ED}/discard" || die
+	chmod +x "${scriptdir}/python${pymajor}-config" || die
+	ln -s "python${pymajor}-config" "${scriptdir}/python-config" || die
+	# 2to3, pydoc
+	ln -s "../../../bin/2to3-${PYVER}" "${scriptdir}/2to3" || die
+	ln -s "../../../bin/pydoc${PYVER}" "${scriptdir}/pydoc" || die
+	# idle
+	if use tk; then
+		ln -s "../../../bin/idle${PYVER}" "${scriptdir}/idle" || die
+	fi
 }
