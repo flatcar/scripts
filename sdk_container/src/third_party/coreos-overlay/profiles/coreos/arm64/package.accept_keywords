@@ -17,9 +17,6 @@
 
 =net-dns/c-ares-1.17.2 ~arm64
 
-# needed to address CVE-2022-0934
-=net-dns/dnsmasq-2.89 ~arm64
-
 =net-firewall/conntrack-tools-1.4.6-r1 ~arm64
 =net-libs/libnetfilter_cthelper-1.0.0-r1 ~arm64
 =net-libs/libnetfilter_cttimeout-1.0.0-r1 ~arm64
