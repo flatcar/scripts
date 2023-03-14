@@ -2,9 +2,6 @@
 # Copyright (c) 2013 The CoreOS Authors. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
-# Necessary for the symlink fix for uncompress utility.
-=app-arch/ncompress-5.0-r1 ~amd64 ~arm64
-
 =app-arch/zstd-1.4.9 ~amd64 ~arm64
 
 # Necessary to fix CVE-2023-0288 and CVE-2023-0433.
