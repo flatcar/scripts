@@ -14,8 +14,8 @@
 =dev-lang/python-oem-3.10.10_p2 ~arm64
 
 # Accept unstable host Rust compilers
-=dev-lang/rust-1.67.1 ~amd64 ~arm64
-=virtual/rust-1.67.1 ~amd64 ~arm64
+=dev-lang/rust-1.68.0 ~amd64 ~arm64
+=virtual/rust-1.68.0 ~amd64 ~arm64
 
 =dev-libs/libgcrypt-1.9.4 ~amd64 ~arm64
 
