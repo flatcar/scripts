@@ -3,11 +3,6 @@ on:
   pull_request:
   workflow_dispatch:
     inputs:
-      bincache_server:
-        description: |
-          Bincache server.
-        default: "bincache.flatcar-linux.net"
-        required: true
       image_formats:
         description: |
           Space-separated vendor formats to build.
@@ -79,7 +74,6 @@ jobs:
       - name: Set environment
         shell: bash
         run: |
-          BUILDCACHE_SERVER="bincache.flatcar-linux.net"
           arch="${{ matrix.arch }}"
           COREOS_REMOTE=""
           COREOS_REF=""
@@ -87,20 +81,27 @@ jobs:
           PORTAGE_REF=""
           IMAGE_FORMATS="qemu_uefi"
 
-          [ -z "${{ github.event.inputs.bincache_server }}" ] || BUILDCACHE_SERVER="${{ github.event.inputs.bincache_server }}"
           [ -z "${{ github.event.inputs.coreos_remote }}" ] || COREOS_REMOTE="${{ github.event.inputs.coreos_remote }}"
           [ -z "${{ github.event.inputs.coreos_ref }}" ] || COREOS_REF="${{ github.event.inputs.coreos_ref }}"
           [ -z "${{ github.event.inputs.portage_remote }}" ] || PORTAGE_REMOTE="${{ github.event.inputs.portage_remote }}"
           [ -z "${{ github.event.inputs.portage_ref }}" ] || PORTAGE_REF="${{ github.event.inputs.portage_ref }}"
           [ -z "${{ github.event.inputs.image_formats }}" ] || IMAGE_FORMATS="${{ github.event.inputs.image_formats }}"
 
-          echo "BUILDCACHE_SERVER=${BUILDCACHE_SERVER}" >> $GITHUB_ENV
           echo "arch=${arch}" >> $GITHUB_ENV
           echo "COREOS_REMOTE=${COREOS_REMOTE}" >> $GITHUB_ENV
           echo "COREOS_REF=${COREOS_REF}" >> $GITHUB_ENV
           echo "PORTAGE_REMOTE=${PORTAGE_REMOTE}" >> $GITHUB_ENV
           echo "PORTAGE_REF=${PORTAGE_REF}" >> $GITHUB_ENV
           echo "IMAGE_FORMATS=${IMAGE_FORMATS}" >> $GITHUB_ENV
+
+          # Artifact root for images and torcx tarball as seen from within the container
+          echo "CI_CONTAINER_ARTIFACT_ROOT=/home/sdk/trunk/src/scripts/artifacts" >> $GITHUB_ENV
+          echo "CI_CONTAINER_TORCX_ROOT=/home/sdk/trunk/src/scripts/artifacts/torcx" >> $GITHUB_ENV
+          mkdir -p artifacts/torcx
+
+          # Placeholder URL for run-kola-tests.yaml, "Extract artifacts" step which will replace
+          #  this with its IP address.
+          echo "TORCX_TESTS_PACKAGE_URL=http://localhost:12345" >> $GITHUB_ENV
 
       - name: Checkout submodules
         shell: bash
@@ -129,7 +130,7 @@ jobs:
         shell: bash
         run: |
           exec 2>&1
-          set +x
+          set -x
           set -euo pipefail
 
           source ci-automation/ci_automation_common.sh
@@ -144,92 +145,70 @@ jobs:
           docker_image_from_registry_or_buildcache "${sdk_name}" "${docker_sdk_vernum}"
           sdk_image="$(docker_image_fullname "${sdk_name}" "${docker_sdk_vernum}")"
 
-          vernum="${version#*-}" # remove main-,alpha-,beta-,stable-,lts- version tag
-          docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
-          packages_container="flatcar-packages-${arch}-${docker_vernum}"
+          container_name="flatcar-ci-build"
 
           # Create version file
           (
             source sdk_lib/sdk_container_common.sh
             create_versionfile "$sdk_version" "$version"
           )
-          ./run_sdk_container -n "${packages_container}" -v "${version}" \
+
+          # Run the packages build. This will create the ci build container
+          #  which will be re-used by subsequent build steps.
+          ./run_sdk_container -n "${container_name}" -v "${version}" \
             -C "${sdk_image}" \
             ./build_packages --board="${arch}-usr" \
-                --torcx_output_root="${CONTAINER_TORCX_ROOT}"
+                --torcx_output_root="${CI_CONTAINER_TORCX_ROOT}" \
+                --torcx_extra_pkg_url="${TORCX_TESTS_PACKAGE_URL}"
 
-          # copy torcx manifest and docker tarball for publishing
-          torcx_tmp="__build__/torcx_tmp"
-          rm -rf "${torcx_tmp}"
-          mkdir "${torcx_tmp}"
-          ./run_sdk_container -n "${packages_container}" -v "${version}" \
-              -C "${sdk_image}" \
-              cp -r "${CONTAINER_TORCX_ROOT}/" \
-              "${torcx_tmp}"
+          # Copy logs
+          ./run_sdk_container -n "${container_name}" \
+              tar -cJf ebuild_logs.tar.xz /build/${arch}-usr/var/log/portage \
+              /build/${arch}-usr/var/tmp/portage
 
-          source sdk_container/.repo/manifests/version.txt
-          vernum="${FLATCAR_VERSION}"
-          docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
-          packages_image="flatcar-packages-${arch}"
+          # Create binpkgs tarball for archiving as artifact later
+          ./run_sdk_container -n "${container_name}" \
+              tar -C "/build/${arch}-usr/var/lib/portage/pkgs/" \
+                -cvf binpkgs.tar .
 
-          echo "vernum=${vernum}" >> $GITHUB_ENV
-          echo "docker_vernum=${docker_vernum}" >> $GITHUB_ENV
-          echo "packages_image=${packages_image}" >> $GITHUB_ENV
-          echo "arch=${arch}" >> $GITHUB_ENV
-          echo "sdk_image=${sdk_image}" >> $GITHUB_ENV
-          echo "packages_container=${packages_container}" >> $GITHUB_ENV
-          docker commit "${packages_container}" "${packages_image}:${docker_vernum}"
-          docker rm -f "${packages_container}"
+          echo "container_name=${container_name}" >> "$GITHUB_ENV"
+
+      - name: Upload build logs
+        uses: actions/upload-artifact@v3
+        with:
+          retention-days: 7
+          name: ${{ matrix.arch }}-build-logs
+          path: |
+            scripts/ebuild_logs.tar.xz
 
       - name: Build image
         shell: bash
         run: |
           set -euo pipefail
-          set +x
+          set -x
 
           echo 'channel="developer"' >> $GITHUB_ENV
           channel="developer"
 
           source ci-automation/ci_automation_common.sh
 
-          packages="flatcar-packages-${arch}"
-          packages_image="${packages}:${docker_vernum}"
-          image="flatcar-images-${arch}"
-          image_container="${image}-${docker_vernum}"
           official_arg="--noofficial"
 
-          echo "image=flatcar-images-${arch}" >> $GITHUB_ENV
-          echo "image_image=${image}:${docker_vernum}" >> $GITHUB_ENV
-
-          ./run_sdk_container -x ./ci-cleanup.sh -n "${image_container}" -C "${packages_image}" \
-                  -v "${vernum}" \
-                  mkdir -p "${CONTAINER_IMAGE_ROOT}"
-          ./run_sdk_container -n "${image_container}" -C "${packages_image}" \
-                  -v "${vernum}" \
+          ./run_sdk_container -n  "${container_name}" \
                   ./set_official --board="${arch}-usr" "${official_arg}"
-          ./run_sdk_container -n "${image_container}" -C "${packages_image}" \
-                  -v "${vernum}" \
+          ./run_sdk_container -n "${container_name}" \
                   ./build_image --board="${arch}-usr" --group="${channel}" \
-                                --output_root="${CONTAINER_IMAGE_ROOT}" \
-                                --torcx_root="${CONTAINER_TORCX_ROOT}" prodtar container
+                                --output_root="${CI_CONTAINER_ARTIFACT_ROOT}" \
+                                --torcx_root="${CI_CONTAINER_TORCX_ROOT}" prodtar container
 
-          # Copy logs
-          ./run_sdk_container -n "${image_container}" -C "${packages_image}" -v "${vernum}" \
-              tar -cJf ebuild_logs.tar.xz /build/${arch}-usr/var/log/portage \
-              /build/${arch}-usr/var/tmp/portage
-
-          docker commit "${image_container}" "${image}:${docker_vernum}"
-          docker rm -f "${image_container}"
-
-      - name: Build VM image
+      - name: Build VM image(s)
         shell: bash
         run: |
           set -euo pipefail
-          set +x
+          set -x
 
           source ci-automation/ci_automation_common.sh
 
-          vms_container="flatcar-vms-${docker_vernum}"
           images_out="images"
 
           has_packet=0
@@ -254,35 +233,96 @@ jobs:
 
           for format in ${formats}; do
               echo " ###################  VENDOR '${format}' ################### "
-              ./run_sdk_container -n "${vms_container}" -C "${image_image}" \
-                  -v "${vernum}" \
+              ./run_sdk_container -n "${container_name}" \
                   ./image_to_vm.sh --format "${format}" --board="${arch}-usr" \
-                      --from "${CONTAINER_IMAGE_ROOT}/${arch}-usr/latest" \
+                      --from "${CI_CONTAINER_ARTIFACT_ROOT}/${arch}-usr/latest" \
                       --image_compression_formats=bz2
           done
 
-          # copy resulting images
-          ./run_sdk_container -n "${vms_container}" \
-              -v "${vernum}" \
-              mv "${CONTAINER_IMAGE_ROOT}/${arch}-usr" "./${images_out}"
+          # upload-artifacts cannot handle artifact uploads from sym-linked directories (no, really)
+          #  so we move things around.
+          mkdir -p artifacts/images
+          (
+            cd artifacts/${arch}-usr/latest/
+            mv * ../../images/
+          )
 
-          # remove symlinks before upload
-          find "./${images_out}" -type l -delete
+          # create a tarball for torcx package + JSON file because upload-artifacts cannot handle filenames containing colons
+          #  (such as "docker:20.10.torcx.tgz")
+          mv artifacts/torcx/${arch}-usr/latest/torcx_manifest.json artifacts/torcx/pkgs/
+          tar -C artifacts/torcx/pkgs/ -cvf torcx.tar .
 
-          docker rm -f "${vms_container}"
 
-      - name: Upload artifacts
+      - name: Upload binpkgs
         uses: actions/upload-artifact@v3
         with:
-          name: images-${{ matrix.arch }}
+          retention-days: 7
+          name: ${{ matrix.arch }}-binpkgs
           path: |
-            scripts/images/**/*.img.bz2
-            scripts/images/**/*.bin.bz2
-            scripts/images/**/flatcar_production_*_efi_*.fd
-            scripts/images/**/*.txt
-            scripts/images/**/flatcar_production_*.sh
-            scripts/images/**/flatcar_test_update.gz
-            scripts/ebuild_logs.tar.xz
+            scripts/binpkgs.tar
+
+      - name: Upload update image (used with kola tests later)
+        uses: actions/upload-artifact@v3
+        with:
+          retention-days: 7
+          name: ${{ matrix.arch }}-test-update
+          path: |
+            scripts/artifacts/images/flatcar_test_update.gz
+
+      - name: Upload generic image
+        uses: actions/upload-artifact@v3
+        with:
+          retention-days: 7
+          name: ${{ matrix.arch }}-generic-image
+          path: |
+            scripts/artifacts/images/flatcar_production_image.bin.bz2
+            scripts/artifacts/images/flatcar_production_image.grub
+            scripts/artifacts/images/flatcar_production_image.shim
+            scripts/artifacts/images/flatcar_production_image.vmlinuz
+            scripts/artifacts/images/flatcar_production_image*.txt
+            scripts/artifacts/images/flatcar_production_image*.json
+            scripts/artifacts/images/flatcar_production_image_pcr_policy.zip
+            scripts/artifacts/images/flatcar_production_*_efi_*.fd
+
+      - name: Upload developer container
+        uses: actions/upload-artifact@v3
+        with:
+          retention-days: 7
+          name: ${{ matrix.arch }}-devcontainer
+          path: |
+            scripts/artifacts/images/flatcar_developer_container*
+
+      - name: Upload torcx tarball
+        uses: actions/upload-artifact@v3
+        with:
+          retention-days: 7
+          name: ${{ matrix.arch }}-torcx
+          path: |
+            scripts/torcx.tar
+
+      # Clean up what we uploaded already so the "vendor images" wildcard
+      #  works when uploading artifacts in the next step.
+      - name: Remove update, generic and devcontainer images
+        shell: bash
+        run: |
+          set -euo pipefail
+          set -x
+          rm -f artifacts/images/flatcar_test_update.gz \
+                artifacts/images/flatcar_production_image* \
+                artifacts/images/flatcar_developer_container* \
+                artifacts/images/flatcar_production_update*
+
+      - name: Upload vendor images
+        uses: actions/upload-artifact@v3
+        with:
+          retention-days: 7
+          name: ${{ matrix.arch }}-vm-images
+          path: |
+            scripts/artifacts/images/*.img.bz2
+            scripts/artifacts/images/*.bin.bz2
+            scripts/artifacts/images/flatcar_production_*_efi_*.fd
+            scripts/artifacts/images/*.txt
+            scripts/artifacts/images/flatcar_production_*.sh
 
   test:
     needs: packages
