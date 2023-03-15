@@ -19,6 +19,8 @@ fi
 BUILD_DIR="${FLAGS_output_root}/${BOARD}/${IMAGE_SUBDIR}"
 OUTSIDE_OUTPUT_DIR="../build/images/${BOARD}/${IMAGE_SUBDIR}"
 
+source "${BUILD_LIBRARY_DIR}/reports_util.sh" || exit 1
+
 set_build_symlinks() {
     local build=$(basename ${BUILD_DIR})
     local link
@@ -237,65 +239,6 @@ systemd_enable() {
 
   sudo mkdir -p "${wants_dir}"
   sudo ln -sf "../${unit_file}" "${wants_dir}/${unit_alias}"
-}
-
-# Generate a ls-like listing of a directory tree.
-# The ugly printf is used to predictable time format and size in bytes.
-write_contents() {
-    info "Writing ${2##*/}"
-    pushd "$1" >/dev/null
-    # %M - file permissions
-    # %n - number of hard links to file
-    # %u - file's user name
-    # %g - file's group name
-    # %s - size in bytes
-    # %Tx - modification time (Y - year, m - month, d - day, H - hours, M - minutes)
-    # %P - file's path
-    # %l - symlink target (empty if not a symlink)
-    sudo TZ=UTC find -printf \
-        '%M %2n %-7u %-7g %7s %TY-%Tm-%Td %TH:%TM ./%P -> %l\n' \
-        | sed -e 's/ -> $//' > "$2"
-    popd >/dev/null
-}
-
-# Generate a listing that can be used by other tools to analyze
-# image/file size changes.
-write_contents_with_technical_details() {
-    info "Writing ${2##*/}"
-    pushd "$1" >/dev/null
-    # %M - file permissions
-    # %D - ID of a device where file resides
-    # %i - inode number
-    # %n - number of hard links to file
-    # %s - size in bytes
-    # %P - file's path
-    sudo find -printf \
-        '%M %D %i %n %s ./%P\n' > "$2"
-    popd >/dev/null
-}
-
-# Generate a report like the following:
-#
-# File    Size  Used Avail Use% Type
-# /boot   127M   62M   65M  50% vfat
-# /usr    983M  721M  212M  78% ext2
-# /       6,0G   13M  5,6G   1% ext4
-# SUM     7,0G  796M  5,9G  12% -
-write_disk_space_usage() {
-    info "Writing ${2##*/}"
-    pushd "${1}" >/dev/null
-    # The sed's first command turns './<path>' into '/<path> ', second
-    # command replaces '- ' with 'SUM' for the total row. All this to
-    # keep the numbers neatly aligned in columns.
-    sudo df \
-         --human-readable \
-         --total \
-         --output='file,size,used,avail,pcent,fstype' \
-         ./boot ./usr ./ | \
-        sed \
-            -e 's#^\.\(/[^ ]*\)#\1 #' \
-            -e 's/^-  /SUM/' >"${2}"
-    popd >/dev/null
 }
 
 # "equery list" a potentially uninstalled board package
