@@ -137,7 +137,6 @@ dev-perl/Locale-gettext
 dev-perl/Parse-Yapp
 dev-perl/Text-Unidecode
 dev-perl/Unicode-EastAsianWidth
-dev-perl/libintl-perl
 
 dev-python/autocommand
 dev-python/boto
@@ -169,7 +168,7 @@ dev-python/pydecomp
 dev-python/pygments
 dev-python/pyparsing
 dev-python/setuptools
-dev-python/setuptools_scm
+dev-python/setuptools-scm
 dev-python/six
 dev-python/snakeoil
 dev-python/tomli
