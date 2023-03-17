@@ -30,9 +30,9 @@ sdk_download_tarball() {
         info "URL: ${url}"
         for suffix in "${suffixes[@]}"; do
             # If all downloads fail, we will detect it later.
-            if ! wget --tries=3 --timeout=30 --continue \
-                 -O "${FLATCAR_SDK_TARBALL_PATH}${suffix}" \
-                 "${url}${suffix}"; then
+            if ! curl --fail --silent --show-error --location --retry-delay 1 --retry 60 \
+                 --retry-connrefused --retry-max-time 60 --connect-timeout 20 \
+                 --output "${FLATCAR_SDK_TARBALL_PATH}${suffix}" "${url}${suffix}"; then
                 break
             fi
         done
