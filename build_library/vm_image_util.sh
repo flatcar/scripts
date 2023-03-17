@@ -279,7 +279,9 @@ IMG_exoscale_OEM_PACKAGE=oem-exoscale
 ## azure
 IMG_azure_DISK_FORMAT=vhd_fixed
 IMG_azure_DISK_LAYOUT=azure
-IMG_azure_OEM_PACKAGE=oem-azure
+IMG_azure_OEM_USE=azure
+IMG_azure_OEM_PACKAGE=common-oem-files
+IMG_azure_OEM_SYSEXT=oem-azure
 
 ## hyper-v
 IMG_hyperv_DISK_FORMAT=vhd
