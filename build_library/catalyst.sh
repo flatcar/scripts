@@ -221,6 +221,7 @@ catalyst_init() {
         SEED="seed/${FLAGS_seed_tarball##*/}"
         SEED="${SEED%.tar.bz2}"
     fi
+    die_notrace "SDK DOWNLOAD WITH CURL SUCCEEDED!"
 }
 
 write_configs() {
