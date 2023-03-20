@@ -1,0 +1,1 @@
+- Restored the support to specify OEM partition files in Ignition when `/usr/share/oem` is given as initrd mount point ([bootengine#58](https://github.com/flatcar/bootengine/pull/58))

@@ -1,0 +1,1 @@
+- Specifying the OEM filesystem in Ignition to write files to `/usr/share/oem` is not needed anymore ([bootengine#58](https://github.com/flatcar/bootengine/pull/58))
