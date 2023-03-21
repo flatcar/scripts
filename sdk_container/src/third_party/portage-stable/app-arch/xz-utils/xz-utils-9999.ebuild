@@ -47,7 +47,7 @@ HOMEPAGE="https://tukaani.org/xz/"
 # See top-level COPYING file as it outlines the various pieces and their licenses.
 LICENSE="public-domain LGPL-2.1+ GPL-2+"
 SLOT="0"
-IUSE="+extra-filters nls static-libs"
+IUSE="doc +extra-filters nls static-libs"
 
 if [[ ${PV} != 9999 ]] ; then
 	BDEPEND+=" verify-sig? ( >=sec-keys/openpgp-keys-lassecollin-20230213 )"
@@ -68,6 +68,7 @@ src_prepare() {
 multilib_src_configure() {
 	local myconf=(
 		--enable-threads
+		$(multilib_native_use_enable doc)
 		$(use_enable nls)
 		$(use_enable static-libs static)
 	)
@@ -110,7 +111,10 @@ multilib_src_install() {
 
 multilib_src_install_all() {
 	find "${ED}" -type f -name '*.la' -delete || die
-	rm "${ED}"/usr/share/doc/${PF}/COPYING* || die
+
+	if use doc ; then
+		rm "${ED}"/usr/share/doc/${PF}/COPYING* || die
+	fi
 }
 
 pkg_preinst() {
