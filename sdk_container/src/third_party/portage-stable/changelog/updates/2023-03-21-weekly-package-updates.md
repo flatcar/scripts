@@ -1,2 +1,1 @@
-- SDK: pahole ([1.24_p20221024](https://github.com/acmel/dwarves/releases/tag/v1.24))
-- SDK: Python ([3.10.10_p3](https://www.python.org/downloads/release/python-31010/))
+- SDK: pahole ([1.24](https://github.com/acmel/dwarves/releases/tag/v1.24))
