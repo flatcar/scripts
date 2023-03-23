@@ -20,8 +20,8 @@ RDEPEND="
 	coreos-base/coreos
 	coreos-base/emerge-gitclone
 	dev-lang/python
-	dev-util/strace
 	dev-util/pahole
+	dev-util/strace
 	dev-vcs/repo
 	net-analyzer/netperf
 	net-analyzer/traceroute
@@ -43,6 +43,7 @@ RDEPEND="
 	sys-devel/gcc
 	sys-devel/gdb
 	sys-fs/lvm2
+	sys-fs/squashfs-tools
 	sys-process/procps
 	sys-process/psmisc
 	"
