@@ -74,9 +74,13 @@ app-arch/libarchive
 app-arch/ncompress
 app-arch/pbzip2
 app-arch/pigz
+app-arch/rpm2targz
+app-arch/sharutils
 app-arch/tar
 app-arch/unzip
 app-arch/xz-utils
+app-arch/zip
+app-arch/zstd
 
 app-cdr/cdrtools
 
