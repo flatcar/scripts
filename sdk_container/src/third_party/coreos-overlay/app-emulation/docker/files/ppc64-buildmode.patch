@@ -17,14 +17,14 @@ index 5ea3e373f2..7a911de15a 100644
 --- a/hack/make/.binary
 +++ b/hack/make/.binary
 @@ -70,7 +70,7 @@ hash_files() {
- 	if [[ " $BUILDFLAGS " != *" -race "* ]]; then
- 		# -buildmode=pie is not supported on Windows and Linux on mips and riscv64.
- 		case "$(go env GOOS)/$(go env GOARCH)" in
--			windows/* | linux/mips* | linux/riscv*) ;;
-+			windows/* | linux/mips* | linux/riscv* | linux/ppc64) ;;
  
- 			*)
- 				BUILDFLAGS+=("-buildmode=pie")
+ 	# -buildmode=pie is not supported on Windows and Linux on mips and riscv64.
+ 	case "$(go env GOOS)/$(go env GOARCH)" in
+-		windows/* | linux/mips* | linux/riscv*) ;;
++		windows/* | linux/mips* | linux/riscv* | linux/ppc64) ;;
+ 
+ 		*)
+ 			BUILDFLAGS+=("-buildmode=pie")
 -- 
 2.32.0
 
