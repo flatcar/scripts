@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-	<maintainer type="person">
-		<email>zlogene@gentoo.org</email>
-		<name>Mikle Kolyada</name>
-	</maintainer>
 	<maintainer type="project">
 		<email>base-system@gentoo.org</email>
 		<name>Gentoo Base System</name>
@@ -14,6 +10,6 @@
 	</upstream>
 	<use>
 		<flag name="asm">Enable assembly for optimization</flag>
-		<flag name="o-flag-munging">Enable O-flag mangling during build</flag>
+		<flag name="getentropy">Use getentropy function to obtain randomness from the kernel</flag>
 	</use>
 </pkgmetadata>
