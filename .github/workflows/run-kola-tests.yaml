@@ -100,6 +100,9 @@ jobs:
           export QEMU_IMAGE_NAME="/work/flatcar_production_image.bin"
           export QEMU_UEFI_BIOS="/work/flatcar_production_qemu_uefi_efi_code.fd"
           export PARALLEL_TESTS=${PARALLEL_ARCH}
+          # The runner uses lxc containers for kola, and can't use loopback devices to
+          # prepare the serial console setting - this means that kola may miss some errors
+          export QEMU_KOLA_SKIP_MANGLE=true
           EOF
 
           export MAX_RETRIES=5
