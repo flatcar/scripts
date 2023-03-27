@@ -60,6 +60,22 @@ jobs:
           fetch-depth: 0
           submodules: true
 
+      # Hack alert: actions/checkout will check out the (disjunct) merge commit of a PR
+      #  instead of its head commit. That commit is not connected to any branch.
+      # This is not technically necessary for the tests run but it is done to remain aligned
+      #  with the ref.
+      - name: If this is a PR build, use head commit instead of the merge commit
+        if: ${{ github.event.pull_request.head.sha }}
+        shell: bash
+        run: |
+          exec 2>&1
+          set -x
+          set -euo pipefail
+
+          cd scripts
+          git checkout ${{ github.event.pull_request.head.sha }}
+          git submodule update
+
       - name: Download binpkgs
         if: ${{ !inputs.workflow_run_id }}
         uses: actions/download-artifact@v3
