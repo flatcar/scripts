@@ -151,6 +151,7 @@ jobs:
           sdk_image="$(docker_image_fullname "${sdk_name}" "${docker_sdk_vernum}")"
 
           container_name="flatcar-ci-build"
+          echo "container_name=${container_name}" >> "$GITHUB_ENV"
 
           # Create version file
           (
@@ -166,19 +167,24 @@ jobs:
                 --torcx_output_root="${CI_CONTAINER_TORCX_ROOT}" \
                 --torcx_extra_pkg_url="${TORCX_TESTS_PACKAGE_URL}"
 
-          # Copy logs
-          ./run_sdk_container -n "${container_name}" \
-              tar -cJf ebuild_logs.tar.xz /build/${arch}-usr/var/log/portage \
-              /build/${arch}-usr/var/tmp/portage
-
           # Create binpkgs tarball for archiving as artifact later
           ./run_sdk_container -n "${container_name}" \
               tar -C "/build/${arch}-usr/var/lib/portage/pkgs/" \
                 -cvf binpkgs.tar .
 
-          echo "container_name=${container_name}" >> "$GITHUB_ENV"
+      - name: Extract build logs
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          set -x
+          # Copy logs
+          ./run_sdk_container -n "${container_name}" \
+              tar -cJf ebuild_logs.tar.xz /build/${arch}-usr/var/log/portage \
+              /build/${arch}-usr/var/tmp/portage
 
       - name: Upload build logs
+        if: always()
         uses: actions/upload-artifact@v3
         with:
           retention-days: 7
