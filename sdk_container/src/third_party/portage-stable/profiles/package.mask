@@ -33,6 +33,39 @@
 
 #--- END OF EXAMPLES ---
 
+# Michał Górny <mgorny@gentoo.org> (2023-03-26)
+# No py3.11.  Last release in 2014.  No revdeps.
+# Removal on 2023-04-25.  Bug #896762.
+dev-python/collective-checkdocs
+
+# Hans de Graaff <graaff@gentoo.org> (2023-03-26)
+# Mask ruby27-only packages related to hiera-eyaml. These require a now
+# masked version of puppet and other obsolete ruby27-only test
+# dependencies. Masked for removal on 2023-04-26.
+dev-ruby/hiera-eyaml
+dev-ruby/hiera-eyaml-gpg
+
+# Hans de Graaff <graaff@gentoo.org> (2023-03-26)
+# Mask ruby27-only version of puppet for removal. Please upgrade to
+# puppetserver 7 and either puppet-agent 7 or puppet 7.
+# Masked for removal on 2023-04-26.
+=app-admin/puppet-5*
+
+# Sam James <sam@gentoo.org> (2023-03-24)
+# Please upgrade to make-4.4.1 as make-4.4 has a bunch of issues.
+=sys-devel/make-4.4
+
+# John Helmert III <ajak@gentoo.org> (2023-03-22)
+# Multiple vulnerabilities, unmaintained and broken in Gentoo, removal
+# on 2023-04-22. Bug #782037, #850547.
+net-fs/minio
+
+# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2023-03-23)
+# Unused Java libraries. Removal on 2023-04-22.
+dev-java/tomcat-jsp-api
+dev-java/tomcat-el-api
+dev-java/glassfish-xmlrpc-api
+
 # David Seifert <soap@gentoo.org> (2023-03-19)
 # Unmaintained, last release 18 years ago, assortment of QA issues,
 # upstream gone, fails with modern C, no revdeps remaining.
@@ -154,42 +187,6 @@ app-crypt/yubioath-desktop
 # Masked for removal on 2023-04-12.
 dev-ruby/net-http-persistent:3
 
-# Guillermo Joandet <gjoandet@gmail.com> (2023-03-11)
-# In preparation for GNOME 44
->=app-editors/gnome-text-editor-44_rc
->=app-text/evince-44_rc
->=dev-libs/gjs-1.75
->=dev-python/pygobject-3.43
->=gnome-base/gnome-session-44_rc
->=gnome-base/gnome-settings-daemon-44_rc
->=gnome-base/gnome-shell-44_rc
->=gnome-base/librsvg-2.55.90
->=gnome-base/nautilus-44_rc
->=gnome-extra/gnome-boxes-44_rc
->=gnome-extra/gnome-calculator-44_rc
->=gnome-extra/gnome-calendar-44_rc
->=gnome-extra/gnome-characters-44_rc
->=gnome-extra/gnome-clocks-44_rc
->=gnome-extra/gnome-contacts-44_rc
->=gnome-extra/gnome-shell-extensions-44_rc
->=gnome-extra/gnome-software-44_rc
->=gnome-extra/gnome-system-monitor-44_rc
->=gnome-extra/gnome-user-docs-44_rc
->=gnome-extra/gnome-weather-44_rc
->=gui-apps/gnome-console-44_beta
->=gui-libs/libadwaita-1.3_rc
->=media-gfx/eog-44_beta
->=media-gfx/gnome-font-viewer-44_rc
->=net-libs/glib-networking-2.76_beta
->=net-libs/webkit-gtk-2.40.0
->=net-misc/gnome-connections-44_rc
->=net-misc/gnome-remote-desktop-44_rc
->=sci-geosciences/gnome-maps-44_rc
->=sys-apps/baobab-44_rc
->=sys-apps/gnome-disk-utility-44_rc
->=sys-apps/xdg-desktop-portal-gnome-44_rc
->=x11-wm/mutter-44_rc
-
 # Hans de Graaff <graaff@gentoo.org> (2023-03-11)
 # Mask ruby27-only dev-ruby/sass-rails:5.0 for removal. Use a newer
 # sass-rails slot or consider migrating to sassc-rails.  Masked for
@@ -267,115 +264,9 @@ x11-libs/libcryptui
 # Removal on 2023-03-27. Bug 896898 and 888444
 dev-python/trio-asyncio
 
-# Michał Górny <mgorny@gentoo.org> (2023-02-24)
-# Unmaintained with multiple reported bugs.  Last release is a RC
-# from 2017, upstream recommends using trunk.
-# Removal on 2023-03-26.  Bug #855548.
-media-gfx/fim
-
-# Michał Górny <mgorny@gentoo.org> (2023-02-24)
-# Unmaintained with reported build failure.  The last release is a beta
-# from 2019, the package had only marginal activity in 2020 and 2021.
-# Removal on 2023-03-26.  Bug #732194.
-app-editors/notepadqq
-
-# Michał Górny <mgorny@gentoo.org> (2023-02-24)
-# Unmaintained.  Fails to build with current sys-libs/ncurses.  Homepage
-# gone, last release in 2002.
-# Removal on 2023-03-26.  Bug #776832.
-app-text/reed
-
-# Michał Górny <mgorny@gentoo.org> (2023-02-24)
-# Unmaintained with multiple build failures reported.  The current
-# Gentoo version is from 2015, and is a few releases behind upstream.
-# Removal on 2023-03-26.  Bug #894626.
-dev-lang/regina-rexx
-
-# Michał Górny <mgorny@gentoo.org> (2023-02-24)
-# Unmaintained with reported bugs.  Last release in 2004.
-# Removal on 2023-03-26.  Bug #740480.
-media-tv/nvtv
-
-# Michał Górny <mgorny@gentoo.org> (2023-02-24)
-# Fails to build with setuptools-67.2.0.  Release from Aug 2020.
-# Upstream has made a number of releases since.  No revdeps.
-# Removal on 2023-03-26.  Bug #892347.
-dev-python/pygame_sdl2
-
-# Michał Górny <mgorny@gentoo.org> (2023-02-24)
-# Fails to build with setuptools-67.2.0.  The current version is from
-# Jan 2021, upstream had a few releases in 2022.  Multiple other bugs..
-# Removal on 2023-03-26.  Bug #891757.
-dev-lang/hy
-
-# Michał Górny <mgorny@gentoo.org> (2023-02-24)
-# Unmaintained.  Does not build against the current version
-# of app-text/htmltidy.  Last upstream commit in 2013.
-# Removal on 2023-03-26.  Bug #806480.
-net-misc/cbugzilla
-
-# Mike Gilbert <floppym@gentoo.org> (2023-02-23)
-# Deprecated upstream. Use the progressive web app instead.
-# Removal on 2023-03-26. Bug 880425.
-net-im/teams
-
-# Alexey Sokolov <alexey+gentoo@asokolov.org> (2023-02-23)
-# No revdeps left. Bug #745234
-# Removal in 30 days.
-dev-libs/qtcompress
-
-# Alfredo Tupone <tupone@gentoo.org> (2023-02-22)
-# Masked for removal in 30 days.
-# Not maintained (2021), no rev dep
-dev-python/quex
-
-# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2023-02-20)
-# Unused Java libraries. Removal on 2023-03-22.
-dev-java/jboss-modules
-dev-java/sac
-
-# Michał Górny <mgorny@gentoo.org> (2023-02-20)
-# No declared Python 3.11 support.  Multiple failing tests (probably due
-# to being online tests).  Last release in 2021, upstream CI is all red.
-# No revdeps.
-# Removal on 2023-03-22.  Bug #895614.
-dev-python/pandas-datareader
-
-# Michał Górny <mgorny@gentoo.org> (2023-02-20)
-# Uses dev-python/nose, no py3.11 support.  Last upstream commit
-# in 2019.  Used only for dev-python/matplotlib[doc].
-# Removal on 2023-03-22.  Bug #888241.
-dev-python/colorspacious
-
-# Bernd Waibel <waebbl-gentoo@posteo.net> (2023-02-19)
-# Obsolete, last consumer is gone.
-# Removal on 2023-03-21. Bug #892209
-app-eselect/eselect-opencascade
-
-# Michał Górny <mgorny@gentoo.org> (2023-02-19)
-# Incompatible with Python 3.11.  Last commit in 2017, archived in 2020.
-# No revdeps.
-# Removal on 2023-03-21.  Bug #895342.
-dev-python/flask-script
-
-# Florian Schmaus <flow@gentoo.org> (2023-02-09)
-# Leftovers from net-im/jabber-base. Unused and obsolete.
-# Removal on 2023-03-09.
-acct-user/jabber
-acct-group/jabber
-
 # Ben Kohler <bkohler@gentoo.org> (2023-01-30)
 # Breaks too many revdeps for now
 =app-text/discount-3*
-
-# Sam James <sam@gentoo.org> (2023-01-29)
-# Commands trigger an assertion and crashes, bug #892487
-=sys-fs/lvm2-2.03.18
-
-# Sam James <sam@gentoo.org> (2023-01-23)
-# Please upgrade to >=app-eselect/eselect-wxwidgets-20230114-r1 as -r0 may
-# lead to build failures.
-=app-eselect/eselect-wxwidgets-20230114
 
 # David Seifert <soap@gentoo.org> (2023-01-14)
 # Py3.8 only backports
@@ -627,3 +518,4 @@ www-plugins/chrome-binary-plugins:unstable
 dev-util/mingw64-runtime
 sys-libs/newlib
 dev-embedded/avr-libc
+sys-devel/nvptx-tools
