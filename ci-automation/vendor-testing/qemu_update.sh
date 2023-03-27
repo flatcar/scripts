@@ -106,7 +106,7 @@ run_kola_tests() {
       --tapfile="${instance_tapfile}" \
       --torcx-manifest="${CIA_TORCX_MANIFEST}" \
       --update-payload=tmp/flatcar_test_update.gz \
-      --qemu-skip-mangle \
+      ${QEMU_KOLA_SKIP_MANGLE:+--qemu-skip-mangle} \
       cl.update.payload
 }
 
