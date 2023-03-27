@@ -18,6 +18,7 @@ jobs:
       - name: Figure out branch
         id: figure-out-branch
         run: |
+          set -euo pipefail # The line with major=$(curl | awk) requires pipefail for error handling
           skip=0
           branch=''
           if [ ${{ matrix.branch }} = "main" ]; then
@@ -39,7 +40,7 @@ jobs:
             fi
             rm -f lts-info
           else
-            major=$(curl -sSL https://${{ matrix.branch }}.release.flatcar-linux.net/amd64-usr/current/version.txt | awk -F= '/FLATCAR_BUILD=/{ print $2 }')
+            major=$(curl -fsSL --retry-delay 1 --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 https://${{ matrix.branch }}.release.flatcar-linux.net/amd64-usr/current/version.txt | awk -F= '/FLATCAR_BUILD=/{ print $2 }')
             branch="flatcar-${major}"
           fi
           echo "BRANCH=${branch}" >>"${GITHUB_OUTPUT}"
@@ -53,11 +54,13 @@ jobs:
         if: ${{ steps.figure-out-branch.outputs.SKIP == 0 }}
         id: fetch-latest-mantle
         run: |
+          set -euo pipefail
           commit=$(git ls-remote  https://github.com/flatcar/mantle refs/heads/flatcar-master | cut -f1)
           echo "COMMIT=${commit}" >>"${GITHUB_OUTPUT}"
       - name: Try to apply patch
         if: ${{ steps.figure-out-branch.outputs.SKIP == 0 }}
         run: |
+          set -euo pipefail
           set -x
           commit=${{ steps.fetch-latest-mantle.outputs.COMMIT }}
           if ! grep -q "ghcr.io/flatcar/mantle:git-${commit}" sdk_container/.repo/manifests/mantle-container; then
