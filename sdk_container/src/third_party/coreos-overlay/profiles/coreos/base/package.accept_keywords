@@ -2,9 +2,10 @@
 # Copyright (c) 2013 The CoreOS Authors. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
-# Necessary to fix CVE-2023-0288 and CVE-2023-0433.
-=app-editors/vim-9.0.1363 ~amd64 ~arm64
-=app-editors/vim-core-9.0.1363 ~amd64 ~arm64
+# Necessary to fix CVE-2023-0288, CVE-2023-0433, CVE-2023-1127,
+# CVE-2023-1175 and CVE-2023-1170.
+=app-editors/vim-9.0.1403 ~amd64 ~arm64
+=app-editors/vim-core-9.0.1403 ~amd64 ~arm64
 
 # To keep the same version on both arches
 =app-portage/portage-utils-0.95 ~arm64
