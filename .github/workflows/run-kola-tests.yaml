@@ -248,11 +248,11 @@ jobs:
         with:
           name: ${{ matrix.arch }}-test-results
           path: |
-            scripts/__TESTS__
-            scripts/results-.*.tap
+            scripts/__TESTS__/*/_kola_temp/
+            scripts/results-*.tap
 
       - name: Create Test Summary
         if: always()
         uses: test-summary/action@v2
         with:
-          paths: "scripts/results-.*.tap"
+          paths: "scripts/results-*.tap"
