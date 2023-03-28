@@ -254,8 +254,26 @@ jobs:
             scripts/__TESTS__/*/_kola_temp/
             scripts/results-*.tap
 
+      - name: Patch TAP reports so test-summary can parse
+        if: always()
+        shell: bash
+        run: |
+          exec 2>&1
+          set -x
+          set -euo pipefail
+
+          cd scripts
+          for tap in results-*.tap; do
+            sumtap="test-summary-${tap}"
+            # If this is missing then test-summary assumes the TAP report
+            #   is, in fact, XML.
+            # See https://github.com/flatcar/scripts/pull/696#discussion_r1151027499
+            echo "TAP version 13" > "${sumtap}"
+            cat "${tap}" >> "${sumtap}"
+          done
+
       - name: Create Test Summary
         if: always()
         uses: test-summary/action@v2
         with:
-          paths: "scripts/results-*.tap"
+          paths: "scripts/test-summary-results-*.tap"
