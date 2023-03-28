@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -11,15 +11,18 @@ MY_P="pcre-${PV/_rc/-RC}"
 if [[ ${PV} != *_rc* ]] ; then
 	# Only the final releases are available here.
 	SRC_URI="mirror://sourceforge/pcre/${MY_P}.tar.bz2
+		https://ftp.pcre.org/pub/pcre/${MY_P}.tar.bz2
 		ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/${MY_P}.tar.bz2"
 else
 	SRC_URI="ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/Testing/${MY_P}.tar.bz2"
 fi
 
+S="${WORKDIR}/${MY_P}"
+
 LICENSE="BSD"
 SLOT="3"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt"
-IUSE="bzip2 +cxx +jit libedit pcre16 pcre32 +readline +recursion-limit static-libs unicode zlib"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt"
+IUSE="bzip2 +cxx +jit libedit pcre16 pcre32 +readline static-libs unicode zlib"
 REQUIRED_USE="readline? ( !libedit )
 	libedit? ( !readline )"
 
@@ -30,11 +33,7 @@ RDEPEND="
 	readline? ( sys-libs/readline:0= )
 "
 DEPEND="${RDEPEND}"
-BDEPEND="
-	virtual/pkgconfig
-"
-
-S="${WORKDIR}/${MY_P}"
+BDEPEND="virtual/pkgconfig"
 
 MULTILIB_CHOST_TOOLS=(
 	/usr/bin/pcre-config
@@ -46,13 +45,13 @@ PATCHES=(
 
 src_prepare() {
 	default
+
 	sed -i -e "s:-lpcre ::" libpcrecpp.pc.in || die
 	elibtoolize
 }
 
 multilib_src_configure() {
 	local myeconfargs=(
-		--with-match-limit-recursion=$(usex recursion-limit 8192 MATCH_LIMIT)
 		$(multilib_native_use_enable bzip2 pcregrep-libbz2)
 		$(use_enable cxx cpp)
 		$(use_enable jit)
@@ -65,9 +64,11 @@ multilib_src_configure() {
 		$(use_enable unicode utf)
 		$(use_enable unicode unicode-properties)
 		$(multilib_native_use_enable zlib pcregrep-libz)
+
 		--enable-pcre8
 		--enable-shared
 	)
+
 	ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
 }
 
@@ -80,6 +81,7 @@ multilib_src_install() {
 		DESTDIR="${D}" \
 		$(multilib_is_native_abi || echo "bin_PROGRAMS= dist_html_DATA=") \
 		install
+
 	gen_usr_ldscript -a pcre
 }
 
