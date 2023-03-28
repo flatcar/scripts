@@ -58,14 +58,11 @@ jobs:
           cd ..
           new_head=$(git -C portage-stable rev-parse HEAD)
           updated=0
-          count=0
           if [[ "${new_head}" != "${old_head}" ]]; then
               updated=1
-              count=$(git -C portage-stable rev-list --count "${old_head}..${new_head}")
           fi
           todaydate=$(date +%Y-%m-%d)
           echo "UPDATED=${updated}" >>"${GITHUB_OUTPUT}"
-          echo "COUNT=${count}" >>"${GITHUB_OUTPUT}"
           echo "TODAYDATE=${todaydate}" >>"${GITHUB_OUTPUT}"
       - name: Create pull request for main branch
         uses: peter-evans/create-pull-request@v4
@@ -77,5 +74,18 @@ jobs:
           delete-branch: true
           base: main
           title: Weekly package updates ${{steps.update-listed-packages.outputs.TODAYDATE }}
-          body: Updated ${{steps.update-listed-packages.outputs.COUNT }} package(s).
+          body: |
+            CI: TODO
+
+            Should be merged together with COREOS_OVERLAY_PR.
+
+            --
+
+            TODO: Changes.
+
+            --
+
+            - [ ] changelog
+            - [ ] image diff
           labels: main
+          draft: true
