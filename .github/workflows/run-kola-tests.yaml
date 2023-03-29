@@ -26,6 +26,8 @@ jobs:
       fail-fast: false
       matrix:
         arch: ["amd64", "arm64"]
+    permissions:
+          pull-requests: write
 
     steps:
       - name: Prepare machine
@@ -196,7 +198,6 @@ jobs:
 
           mv flatcar_test_update.gz scripts/
 
-
       - name: Run tests
         shell: bash
         run: |
@@ -235,15 +236,34 @@ jobs:
           export MAX_RETRIES=5
           export SKIP_COPY_TO_BINCACHE=1
 
-          # run the test.
+          # run the tests.
           test_run ${{ matrix.arch }} qemu_uefi
-
           test_run ${{ matrix.arch }} qemu_update
 
           # Stop the background webserver
           set +e
           kill %1
           set -e
+
+      - name: Create Test Summary
+        if: always()
+        shell: bash
+        run: |
+          exec 2>&1
+          set -x
+          set -euo pipefail
+
+          # qemu_update report includes all reqults of qemu_uefi as test results are
+          #  stored in a temporary sqlite DB in scripts/ which is not deleted between test runs.
+          cp scripts/results-qemu_update.md ./test-results.md
+          cat test-results.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: If started from a PR, post test summary to PR
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: mshick/add-pr-comment@v2
+        with:
+          if: always()
+          message-path: "test-results.md"
 
       - name: Upload artifacts
         if: always()
@@ -252,28 +272,8 @@ jobs:
           name: ${{ matrix.arch }}-test-results
           path: |
             scripts/__TESTS__/*/_kola_temp/
+            scripts/__TESTS__/*/*.tap
+            scripts/__TESTS__/*/*.txt
             scripts/results-*.tap
-
-      - name: Patch TAP reports so test-summary can parse
-        if: always()
-        shell: bash
-        run: |
-          exec 2>&1
-          set -x
-          set -euo pipefail
-
-          cd scripts
-          for tap in results-*.tap; do
-            sumtap="test-summary-${tap}"
-            # If this is missing then test-summary assumes the TAP report
-            #   is, in fact, XML.
-            # See https://github.com/flatcar/scripts/pull/696#discussion_r1151027499
-            echo "TAP version 13" > "${sumtap}"
-            cat "${tap}" >> "${sumtap}"
-          done
-
-      - name: Create Test Summary
-        if: always()
-        uses: test-summary/action@v2
-        with:
-          paths: "scripts/test-summary-results-*.tap"
+            scripts/results-*.md
+            test-results.md

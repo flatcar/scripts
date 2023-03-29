@@ -19,8 +19,12 @@ failfile="$6"
 merged_summary="$7"
 merged_detailed="$8"
 
+source ci-automation/ci-config.env
 source ci-automation/tapfile_helper_lib.sh
 tap_ingest_tapfile "${tapfile}" "${image}" "${retry}"
 tap_failed_tests_for_vendor "${image}" > "${failfile}"
-tap_generate_report "${arch}" "${vernum}"  > "${merged_summary}"
-tap_generate_report "${arch}" "${vernum}"  "true" > "${merged_detailed}"
+
+for format in "${TEST_REPORT_FORMATS[@]}"; do
+    tap_generate_report "${arch}" "${vernum}" "${format}" > "${merged_summary}.${format}"
+    tap_generate_report "${arch}" "${vernum}" "${format}" "true" > "${merged_detailed}.${format}"
+done
