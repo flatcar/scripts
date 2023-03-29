@@ -1,18 +1,18 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 inherit flag-o-matic toolchain-funcs
 
 DESCRIPTION="GPT partition table manipulator for Linux"
 HOMEPAGE="https://www.rodsbooks.com/gdisk/"
-SRC_URI="mirror://sourceforge/${PN}/${P}.tar.gz"
+SRC_URI="mirror://sourceforge/${PN}/${PN}/${PV}/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~mips ppc ppc64 sparc x86 ~amd64-linux ~x86-linux"
-IUSE="kernel_linux ncurses static"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~mips ppc ppc64 ~riscv sparc x86 ~amd64-linux ~x86-linux"
+IUSE="ncurses static"
 
 # libuuid from util-linux is required.
 RDEPEND="!static? (
@@ -27,11 +27,12 @@ DEPEND="
 		ncurses? ( sys-libs/ncurses:=[unicode(+),static-libs(+)] )
 		kernel_linux? ( sys-apps/util-linux[static-libs(+)] )
 	)
+	virtual/pkgconfig
 "
-BDEPEND="virtual/pkgconfig"
 
 PATCHES=(
-	"${FILESDIR}/${P}-remove_byteswap.patch" #797412
+	"${FILESDIR}/${PN}-1.0.9-libuuid.patch" #844073
+	"${FILESDIR}/${PN}-1.0.9-popt_segv.patch" #872131
 )
 
 src_prepare() {
