@@ -18,7 +18,8 @@ on:
           You can e.g. get this from a run's URL - 
               https://github.com/flatcar/scripts/actions/runs/<ID> .
 
-permissions: {}
+permissions:
+  pull-requests: write
 
 jobs:
   test:
