@@ -42,6 +42,16 @@ if [ "${CIA_TESTSCRIPT}" = "qemu_uefi.sh" ] ; then
     fi
 fi
 
+declare -a devcontainer_opts
+if [ -n "${QEMU_DEVCONTAINER_URL}" ] ; then
+    echo "++++ Using custom devcontainer URL '${QEMU_DEVCONTAINER_URL}'"
+    devcontainer_opts+=( "--devcontainer-url" "${QEMU_DEVCONTAINER_URL}" )
+fi
+if [ -n "${QEMU_DEVCONTAINER_BINHOST_URL}" ] ; then
+    echo "++++ Using custom devcontainer binhost '${QEMU_DEVCONTAINER_BINHOST_URL}'"
+    devcontainer_opts+=( "--devcontainer-binhost-url" "${QEMU_DEVCONTAINER_BINHOST_URL}" )
+fi
+
 set -x
 
 kola run \
@@ -52,7 +62,8 @@ kola run \
     --qemu-image="${QEMU_IMAGE_NAME}" \
     --tapfile="${CIA_TAPFILE}" \
     --torcx-manifest="${CIA_TORCX_MANIFEST}" \
-    --qemu-skip-mangle \
+    ${QEMU_KOLA_SKIP_MANGLE:+--qemu-skip-mangle} \
+    "${devcontainer_opts[@]}" \
     "${@}"
 
 set +x

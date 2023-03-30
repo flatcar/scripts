@@ -8,14 +8,18 @@ on:
         required: true
         default: ci.yaml
         description: |
-          The workflow ID from where we'll download the artifacts to be tested.
+          The workflow name or ID from where we'll download the artifacts to be tested.
+          E.g. the name of the YAML file (w/o path) of the respective workflow.
       workflow_run_id:
         type: string
         required: true
         description: |
-          The run ID of the workflow specified in workflow_name_or_id
+          The run ID of the workflow specified in workflow_name_or_id.
+          You can e.g. get this from a run's URL - 
+              https://github.com/flatcar/scripts/actions/runs/<ID> .
 
-permissions: {}
+permissions:
+  pull-requests: write
 
 jobs:
   test:
