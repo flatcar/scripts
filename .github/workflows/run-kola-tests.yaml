@@ -34,7 +34,7 @@ jobs:
         run: |
           sudo rm /bin/sh
           sudo ln -s /bin/bash /bin/sh
-          sudo apt-get install -y ca-certificates curl gnupg lsb-release qemu-system git bzip2 jq dnsmasq
+          sudo apt-get install -y ca-certificates curl gnupg lsb-release qemu-system git bzip2 jq dnsmasq python3
           sudo systemctl stop dnsmasq
           sudo systemctl mask dnsmasq
 
@@ -60,38 +60,161 @@ jobs:
           fetch-depth: 0
           submodules: true
 
-      - name: Download artifact
+      # Hack alert: actions/checkout will check out the (disjunct) merge commit of a PR
+      #  instead of its head commit. That commit is not connected to any branch.
+      # This is not technically necessary for the tests run but it is done to remain aligned
+      #  with the ref.
+      - name: If this is a PR build, use head commit instead of the merge commit
+        if: ${{ github.event.pull_request.head.sha }}
+        shell: bash
+        run: |
+          exec 2>&1
+          set -x
+          set -euo pipefail
+
+          cd scripts
+          git checkout ${{ github.event.pull_request.head.sha }}
+          git submodule update
+
+      - name: Download binpkgs
         if: ${{ !inputs.workflow_run_id }}
         uses: actions/download-artifact@v3
         with:
-          name: images-${{ matrix.arch }}
+          name: ${{ matrix.arch }}-binpkgs
 
-      - name: Download artifacts from other workflow
+      - name: Download test update image
+        if: ${{ !inputs.workflow_run_id }}
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ matrix.arch }}-test-update
+
+      - name: Download generic image
+        if: ${{ !inputs.workflow_run_id }}
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ matrix.arch }}-generic-image
+
+      - name: Download developer container
+        if: ${{ !inputs.workflow_run_id }}
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ matrix.arch }}-devcontainer
+
+      - name: Download torcx tarball
+        if: ${{ !inputs.workflow_run_id }}
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ matrix.arch }}-torcx
+
+      - name: Download binpkgs from other workflow
         uses: gabriel-samfira/action-download-artifact@v5
         if: ${{ inputs.workflow_run_id }}
         with:
           workflow: ${{ inputs.workflow_name_or_id }}
           workflow_conclusion: success
           run_id: ${{ inputs.workflow_run_id }}
-          name: images-${{ matrix.arch }}
+          name: ${{ matrix.arch }}-binpkgs
+
+      - name: Download test update image from other workflow
+        uses: gabriel-samfira/action-download-artifact@v5
+        if: ${{ inputs.workflow_run_id }}
+        with:
+          workflow: ${{ inputs.workflow_name_or_id }}
+          workflow_conclusion: success
+          run_id: ${{ inputs.workflow_run_id }}
+          name: ${{ matrix.arch }}-test-update
+
+      - name: Download generic image from other workflow
+        uses: gabriel-samfira/action-download-artifact@v5
+        if: ${{ inputs.workflow_run_id }}
+        with:
+          workflow: ${{ inputs.workflow_name_or_id }}
+          workflow_conclusion: success
+          run_id: ${{ inputs.workflow_run_id }}
+          name: ${{ matrix.arch }}-generic-image
+
+      - name: Download developer container from other workflow
+        uses: gabriel-samfira/action-download-artifact@v5
+        if: ${{ inputs.workflow_run_id }}
+        with:
+          workflow: ${{ inputs.workflow_name_or_id }}
+          workflow_conclusion: success
+          run_id: ${{ inputs.workflow_run_id }}
+          name: ${{ matrix.arch }}-devcontainer
+
+      - name: Download torcx tarball from other workflow
+        uses: gabriel-samfira/action-download-artifact@v5
+        if: ${{ inputs.workflow_run_id }}
+        with:
+          workflow: ${{ inputs.workflow_name_or_id }}
+          workflow_conclusion: success
+          run_id: ${{ inputs.workflow_run_id }}
+          name: ${{ matrix.arch }}-torcx
+
+      - name: Extract artifacts
+        shell: bash
+        run: |
+          exec 2>&1
+          set -x
+          set -euo pipefail
+
+          # Set up a webserver for devcontainer and torcx tests.
+          # The respective tests will download devcontainer and torcx tarball via http.
+          # The devcontainer test will then run a build
+          #   which will download and install binpkgs into the dev container.
+          # For the sake of that test we will serve both via a temporary local web server.
+          TESTS_WEBSERVER_WEBROOT="scripts/devcontainer-webroot"
+          default_rout_device="$(sudo ip -j route sh default |jq -r .[0].dev)"
+          TESTS_WEBSERVER_IP="$(sudo ip -j address show dev "${default_rout_device}" | jq -r .[0].addr_info[0].local)"
+          TESTS_WEBSERVER_PORT=12345
+          echo "TESTS_WEBSERVER_WEBROOT=${TESTS_WEBSERVER_WEBROOT}" >> "$GITHUB_ENV"
+          echo "TESTS_WEBSERVER_IP=${TESTS_WEBSERVER_IP}" >> "$GITHUB_ENV"
+          echo "TESTS_WEBSERVER_PORT=${TESTS_WEBSERVER_PORT}" >> "$GITHUB_ENV"
+
+          mkdir ${TESTS_WEBSERVER_WEBROOT}
+          mv flatcar_developer_container* ${TESTS_WEBSERVER_WEBROOT}
+          tar -C ${TESTS_WEBSERVER_WEBROOT} -xvf binpkgs.tar
+
+          tar -C ${TESTS_WEBSERVER_WEBROOT} -xvf torcx.tar
+
+          # Move torcx package into plain webroot
+          #  (path consists of <arch>/<packagename>/<checksum>/<packagename>:<version>.torcx.tar.gz)
+          mv "${TESTS_WEBSERVER_WEBROOT}/${{ matrix.arch }}-usr"/*/*/*.torcx.tgz \
+             "${TESTS_WEBSERVER_WEBROOT}"
+
+          # Update torcx.json's http URL to point to the webserver IP.
+          # ci.yaml defines the "localhost" placeholder in its "Set Environment" step.
+          sed -i "s,http://localhost:12345,http://${TESTS_WEBSERVER_IP}:${TESTS_WEBSERVER_PORT}," \
+                 "${TESTS_WEBSERVER_WEBROOT}/torcx_manifest.json"
+          cat "${TESTS_WEBSERVER_WEBROOT}/torcx_manifest.json"
+
+          # Extract the generic image we'll use for qemu tests.
+          # Note that the qemu[_uefi] tests use the generic image instead of the
+          #  qemu vendor VM image ("Astronaut: [...] Always have been.").
+          bzip2 --decompress flatcar_production_image.bin.bz2
+          mv flatcar_production_image.bin flatcar_production_qemu_uefi_efi_code.fd scripts/
+
+          mv flatcar_test_update.gz scripts/
 
       - name: Run tests
         shell: bash
         run: |
           exec 2>&1
-          set +x
+          set -x
           set -euo pipefail
 
-          # extract the image.
-          IMG_ARCHIVE=$(readlink -f images/**/flatcar_production_image.bin.bz2)
-          QEMU_UEFI_BIOS_FILE=$(readlink -f images/**/flatcar_production_qemu_uefi_efi_code.fd)
-          bzip2 --decompress ${IMG_ARCHIVE}
-
-          cp ${IMG_ARCHIVE%%.bz2} ./scripts/
-          cp ${QEMU_UEFI_BIOS_FILE} ./scripts/
+          python3 -m http.server -d "${TESTS_WEBSERVER_WEBROOT}" -b "${TESTS_WEBSERVER_IP}" "${TESTS_WEBSERVER_PORT}" &
 
           pushd scripts
           source ci-automation/test.sh
+
+          # Provide our own torcx prepare function so we use our local manifest json.
+          # This is called by test_run below.
+          function __prepare_torcx() {
+            shift; shift # no need for arch or vernum
+            local destdir="$1"
+            cp "../${TESTS_WEBSERVER_WEBROOT}/torcx_manifest.json" "${destdir}"
+          }
 
           PARALLEL_ARCH=10
 
@@ -99,6 +222,9 @@ jobs:
           # export the QEMU_IMAGE_NAME to avoid to download it.
           export QEMU_IMAGE_NAME="/work/flatcar_production_image.bin"
           export QEMU_UEFI_BIOS="/work/flatcar_production_qemu_uefi_efi_code.fd"
+          export QEMU_UPDATE_PAYLOAD="/work/flatcar_test_update.gz"
+          export QEMU_DEVCONTAINER_URL="http://${TESTS_WEBSERVER_IP}:${TESTS_WEBSERVER_PORT}"
+          export QEMU_DEVCONTAINER_BINHOST_URL="http://${TESTS_WEBSERVER_IP}:${TESTS_WEBSERVER_PORT}"
           export PARALLEL_TESTS=${PARALLEL_ARCH}
           # The runner uses lxc containers for kola, and can't use loopback devices to
           # prepare the serial console setting - this means that kola may miss some errors
@@ -108,14 +234,126 @@ jobs:
           export MAX_RETRIES=5
           export SKIP_COPY_TO_BINCACHE=1
 
-          # run the test.
+          # run the tests.
           test_run ${{ matrix.arch }} qemu_uefi
+          test_run ${{ matrix.arch }} qemu_update
 
-      - name: Upload artifacts
+          # Stop the background webserver
+          set +e
+          kill %1
+          set -e
+
+      - name: Upload detailed test logs
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: test-results-${{ matrix.arch }}
+          name: ${{ matrix.arch }}-test-logs-and-results
           path: |
-            scripts/__TESTS__
-            scripts/results-.*.tap
+            scripts/__TESTS__/*/_kola_temp/
+            scripts/__TESTS__/*/*.tap
+            scripts/__TESTS__/*/*.txt
+            scripts/results-*.tap
+            scripts/results-*.md
+
+      - name: Upload raw TAP files of all runs for later merging
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.arch }}-raw-tapfiles
+          path: |
+            scripts/__TESTS__/*/*.tap
+
+
+  merge_and_publish_results:
+    name: "Merge TAP reports and post results"
+    needs: tests
+    if: always()
+    runs-on:
+      - self-hosted
+      - debian
+      - kola
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Prepare machine
+        shell: bash
+        working-directory: ${{ github.workspace }}
+        run: |
+          sudo rm /bin/sh
+          sudo ln -s /bin/bash /bin/sh
+          sudo apt-get install -y ca-certificates curl gnupg lsb-release git bzip2 jq sqlite3
+
+      - uses: actions/checkout@v3
+        with:
+          path: scripts
+          fetch-depth: 0
+          submodules: true
+
+      # Hack alert: actions/checkout will check out the (disjunct) merge commit of a PR
+      #  instead of its head commit. That commit is not connected to any branch.
+      # This is not technically necessary for the tests run but it is done to remain aligned
+      #  with the ref.
+      - name: If this is a PR build, use head commit instead of the merge commit
+        if: ${{ github.event.pull_request.head.sha }}
+        shell: bash
+        run: |
+          exec 2>&1
+          set -x
+          set -euo pipefail
+
+          cd scripts
+          git checkout ${{ github.event.pull_request.head.sha }}
+          git submodule update
+
+      # This is clunky. Haven't figured out how to re-use matrix.arch here for downloads,
+      #  so we download each arch individually.
+      - name: Download amd64 tapfiles
+        uses: actions/download-artifact@v3
+        with:
+          name: amd64-raw-tapfiles
+          path: scripts/__TAP__/amd64
+
+      - name: Download arm64 tapfiles
+        uses: actions/download-artifact@v3
+        with:
+          name: arm64-raw-tapfiles
+          path: scripts/__TAP__/arm64
+
+      - name: Create Test Summary
+        shell: bash
+        run: |
+          exec 2>&1
+          set -x
+          set -euo pipefail
+
+          cd scripts
+
+          ls -laR __TAP__
+
+          source ci-automation/tapfile_helper_lib.sh
+
+          all_archs=""
+          for arch in __TAP__/*; do
+            arch_name="$(basename "${arch}")"
+            all_archs="${all_archs} ${arch_name}"
+            for vendor in "${arch}"/*; do
+              vendor_name="$(basename "${vendor}")"
+              run=1
+              for tap in "${vendor}"/*.tap; do
+                tap_ingest_tapfile "${tap}" "${vendor_name}-${arch_name}" "${run}"
+                ((run++))
+              done
+            done
+          done
+
+          source sdk_container/.repo/manifests/version.txt
+          tap_generate_report "${all_archs}"  "${FLATCAR_VERSION}" "md" "true" > test-results.md
+
+          cat test-results.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: If started from a PR, post test summary to PR
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: mshick/add-pr-comment@v2
+        with:
+          message-path: "test-results.md"

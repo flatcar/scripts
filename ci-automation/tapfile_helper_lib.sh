@@ -197,27 +197,167 @@ function tap_failed_tests_for_vendor() {
 }
 # --
 
+# TAP output format primitives for tap_generate_report()
+
+__tap_print_header() {
+    local arch="$1"
+    local version="$2"
+    local vendors="$3"
+    local count="$4"
+
+    # We use count + 1 here because the very first "test result" will just print
+    #  the list of platforms tested, not an actual test's result.
+    echo "1..$((count+1))"
+    echo "ok - Version: ${version}, Architecture: ${arch}"
+    echo "   ---"
+    echo "   Platforms tested: ${vendors}"
+    echo "   ..."
+}
+# --
+
+__tap_print_test_verdict() {
+    local verdict="$1"
+    local name="$2"
+    local succeded_vendors="$3"
+    local failed_vendors="$4"
+
+    echo "${verdict} - ${test_name}"
+    echo "   ---"
+
+    if [ -n "${succeded_vendors}" ] ; then
+        echo "   Succeeded: ${succeded_vendors}"
+    fi
+    if [ -n "${failed_vendors}" ] ; then
+        echo "   Failed: ${failed_vendors}"
+    fi
+}
+# --
+
+__tap_print_test_run_diag_output() {
+    local vendor="$1"
+    local run="$2"
+    echo "   Error messages for ${vendor}, run ${run}:"
+    cat -
+}
+# --
+
+__tap_finish_test_verdict() {
+    local verdict="$1"
+    local name="$2"
+    local succeded_vendors="$3"
+    local failed_vendors="$4"
+    echo "   ..."
+}
+# --
+
+__tap_finish_test_report() {
+    true
+}
+# --
+
+# markdown output format primitives for tap_generate_report()
+
+__md_print_header() {
+    local arch="$1"
+    local version="$2"
+    local vendors="$3"
+    local count="$4"
+
+    echo "### Test report for ${version} / ${arch}"
+    echo
+    echo "**Platforms tested** : ${vendors}"
+}
+# --
+
+__md_print_test_verdict() {
+    local verdict="$1"
+    local name="$2"
+    local succeded_vendors="$3"
+    local failed_vendors="$4"
+
+    v="![${verdict}](https://via.placeholder.com/50x20/00ff00/000000?text=PASS)"
+    if [ "${verdict}" = "not ok" ] ; then
+        v="![${verdict}](https://via.placeholder.com/50x20/ff0000/ffffff?text=FAIL)"
+    fi
+
+    echo
+    echo -n "${v} **${name}**"
+    if [ -n "${succeded_vendors}" ] ; then
+        echo -n " 🟢 Succeeded: ${succeded_vendors}"
+    fi
+    if [ -n "${failed_vendors}" ] ; then
+        echo -n " ❌ Failed: ${failed_vendors}"
+    fi
+    echo
+    if [ "${verdict}" = "not ok" ] ; then
+        echo
+        echo "<details>"
+        echo
+    fi
+}
+# --
+
+__md_print_test_run_diag_output() {
+    local vendor="$1"
+    local run="$2"
+
+    echo "* Diagnostic output for ${vendor}, run ${run}"
+    echo
+    echo "  \`\`\`"
+    cat -
+    echo "  \`\`\`"
+    echo
+
+}
+# --
+#
+__md_finish_test_verdict() {
+    local verdict="$1"
+    local name="$2"
+    local succeded_vendors="$3"
+    local failed_vendors="$4"
+    if [ "${verdict}" = "not ok" ] ; then
+        echo
+        echo "</details>"
+        echo
+    fi
+}
+# --
+
+__md_finish_test_report() {
+    true
+}
+# --
+
+
 # Print the tap file from contents of the database.
 # INPUT:
 # 1: <arch>    - Architecture to be included in the first line of the report
 # 2: <version> - OS version tested, to be included in the first line of the report
-# 3: <include_transient_errors> - If set to "true" then debug output of transient test failures
+# 3: <format>  - Output format of the report. "tap" and "markdown" are supported.
+# 4: <include_transient_errors> - If set to "true" then debug output of transient test failures
 #                   is included in the result report.
 function tap_generate_report() {
     local arch="$1"
     local version="$2"
-    local full_error_report="${3:-false}"
+    local format="$3"
+    local full_error_report="${4:-false}"
+
+    case "${format}" in
+        tap) ;;
+        md) ;;
+        *) echo "ERROR: tap_generate_report() unknown format '${format}'" >&2
+           return 1
+           ;;
+    esac
+
 
     local count
     count="$(__sqlite3_wrapper 'SELECT count(name) FROM test_case;')"
     local vendors
     vendors="$(__sqlite3_wrapper 'SELECT name FROM vendor;' | tr '\n' ' ')"
 
-    echo "1..$((count+1))"
-    echo "ok - Version: ${version}, Architecture: ${arch}" 
-    echo "   ---"
-    echo "   Platforms tested: ${vendors}"
-    echo "   ..."
+    __"${format}"_print_header "${arch}" "${version}" "${vendors}" "${count}"
 
     # Print result line for every test, including platforms it succeeded on
     #  and transient failed runs.
@@ -265,21 +405,17 @@ function tap_generate_report() {
                                 r=r ", " $2
                              else
                                 r="(" $2 ; }
-                            END { if (t) print t r ")"; }'
+                            END { if (t) print t " " r ")"; }'
         }
 
-        local succeded
-        succeded="$(list_runs 1)"
+        local succeeded
+        succeeded="$(list_runs 1)"
         local failed
         failed="$(list_runs 0)"
 
-        echo "${verdict} - ${test_name}"
-        echo "   ---"
-        if [ -n "${succeded}" ] ; then
-            echo "   Succeeded: ${succeded}"
-        fi
+        __"${format}"_print_test_verdict "${verdict}" "${test_name}" \
+                                        "${succeeded}" "${failed}"
         if [ -n "${failed}" ] ; then
-            echo "   Failed: ${failed}"
             if [ "${verdict}" = "not ok" -o "${full_error_report}" = "true" ] ; then
                 # generate diagnostic output, per failed run.
                 __sqlite3_wrapper -csv "
@@ -291,7 +427,7 @@ function tap_generate_report() {
                     ORDER BY t.run DESC;" | \
                 sed 's/,/ /' | \
                 while read -r vendor run; do
-                    echo "   Error messages for ${vendor}, run ${run}:"
+                {
                     __sqlite3_wrapper -csv "
                     SELECT t.output FROM test_run AS t, test_case AS c
                         WHERE t.case_id=c.id
@@ -299,10 +435,14 @@ function tap_generate_report() {
                         AND t.run='${run}';" | \
                     sed 's/"/ /g' | \
                     awk '{print "      L" NR ": \"" $0 "\""}'
+                } | __"${format}"_print_test_run_diag_output "${vendor}" "${run}"
                 done
             fi
         fi
-        echo "   ..."
+        __"${format}"_finish_test_verdict "${verdict}" "${test_name}" \
+                                        "${succeeded}" "${failed}"
     done
+
+    __"${format}"_finish_test_report
 }
 # --
