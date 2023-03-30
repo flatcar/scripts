@@ -1,0 +1,1 @@
+- Fixed `journalctl --user` permission issue ([Flatcar#989](https://github.com/flatcar/Flatcar/issues/989))
