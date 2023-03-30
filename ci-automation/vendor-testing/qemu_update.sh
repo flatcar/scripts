@@ -23,9 +23,9 @@ if [ "$*" != "" ] && [ "$*" != "*" ] && [[ "$*" != *"cl.update.payload" ]]; then
     exit 1
 fi
 
-mkdir -p tmp/
-if [ -f tmp/flatcar_test_update.gz ] ; then
-    echo "++++ ${CIA_TESTSCRIPT}: Using existing ./tmp/flatcar_test_update.gz for testing ${CIA_VERNUM} (${CIA_ARCH}) ++++"
+mkdir -p "$(dirname ${QEMU_UPDATE_PAYLOAD})"
+if [ -f "${QEMU_UPDATE_PAYLOAD}" ] ; then
+    echo "++++ ${CIA_TESTSCRIPT}: Using existing ${QEMU_UPDATE_PAYLOAD} for testing ${CIA_VERNUM} (${CIA_ARCH}) ++++"
 else
     echo "++++ ${CIA_TESTSCRIPT}: downloading flatcar_test_update.gz for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
     copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/flatcar_test_update.gz" tmp/
@@ -105,8 +105,8 @@ run_kola_tests() {
       --qemu-image="${image}" \
       --tapfile="${instance_tapfile}" \
       --torcx-manifest="${CIA_TORCX_MANIFEST}" \
-      --update-payload=tmp/flatcar_test_update.gz \
-      --qemu-skip-mangle \
+      --update-payload="${QEMU_UPDATE_PAYLOAD}" \
+      ${QEMU_KOLA_SKIP_MANGLE:+--qemu-skip-mangle} \
       cl.update.payload
 }
 
