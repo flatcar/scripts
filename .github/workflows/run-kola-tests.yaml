@@ -26,8 +26,6 @@ jobs:
       fail-fast: false
       matrix:
         arch: ["amd64", "arm64"]
-    permissions:
-          pull-requests: write
 
     steps:
       - name: Prepare machine
@@ -245,35 +243,117 @@ jobs:
           kill %1
           set -e
 
-      - name: Create Test Summary
-        if: always()
-        shell: bash
-        run: |
-          exec 2>&1
-          set -x
-          set -euo pipefail
-
-          # qemu_update report includes all reqults of qemu_uefi as test results are
-          #  stored in a temporary sqlite DB in scripts/ which is not deleted between test runs.
-          cp scripts/results-qemu_update.md ./test-results.md
-          cat test-results.md >> "$GITHUB_STEP_SUMMARY"
-
-      - name: If started from a PR, post test summary to PR
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: mshick/add-pr-comment@v2
-        with:
-          if: always()
-          message-path: "test-results.md"
-
-      - name: Upload artifacts
+      - name: Upload detailed test logs
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.arch }}-test-results
+          name: ${{ matrix.arch }}-test-logs-and-results
           path: |
             scripts/__TESTS__/*/_kola_temp/
             scripts/__TESTS__/*/*.tap
             scripts/__TESTS__/*/*.txt
             scripts/results-*.tap
             scripts/results-*.md
-            test-results.md
+
+      - name: Upload raw TAP files of all runs for later merging
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.arch }}-raw-tapfiles
+          path: |
+            scripts/__TESTS__/*/*.tap
+
+
+  merge_and_publish_results:
+    name: "Merge TAP reports and post results"
+    needs: tests
+    if: always()
+    runs-on:
+      - self-hosted
+      - debian
+      - kola
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Prepare machine
+        shell: bash
+        working-directory: ${{ github.workspace }}
+        run: |
+          sudo rm /bin/sh
+          sudo ln -s /bin/bash /bin/sh
+          sudo apt-get install -y ca-certificates curl gnupg lsb-release git bzip2 jq sqlite3
+
+      - uses: actions/checkout@v3
+        with:
+          path: scripts
+          fetch-depth: 0
+          submodules: true
+
+      # Hack alert: actions/checkout will check out the (disjunct) merge commit of a PR
+      #  instead of its head commit. That commit is not connected to any branch.
+      # This is not technically necessary for the tests run but it is done to remain aligned
+      #  with the ref.
+      - name: If this is a PR build, use head commit instead of the merge commit
+        if: ${{ github.event.pull_request.head.sha }}
+        shell: bash
+        run: |
+          exec 2>&1
+          set -x
+          set -euo pipefail
+
+          cd scripts
+          git checkout ${{ github.event.pull_request.head.sha }}
+          git submodule update
+
+      # This is clunky. Haven't figured out how to re-use matrix.arch here for downloads,
+      #  so we download each arch individually.
+      - name: Download amd64 tapfiles
+        uses: actions/download-artifact@v3
+        with:
+          name: amd64-raw-tapfiles
+          path: scripts/__TAP__/amd64
+
+      - name: Download arm64 tapfiles
+        uses: actions/download-artifact@v3
+        with:
+          name: arm64-raw-tapfiles
+          path: scripts/__TAP__/arm64
+
+      - name: Create Test Summary
+        shell: bash
+        run: |
+          exec 2>&1
+          set -x
+          set -euo pipefail
+
+          cd scripts
+
+          ls -laR __TAP__
+
+          source ci-automation/tapfile_helper_lib.sh
+
+          all_archs=""
+          for arch in __TAP__/*; do
+            arch_name="$(basename "${arch}")"
+            all_archs="${all_archs} ${arch_name}"
+            for vendor in "${arch}"/*; do
+              vendor_name="$(basename "${vendor}")"
+              run=1
+              for tap in "${vendor}"/*.tap; do
+                tap_ingest_tapfile "${tap}" "${vendor_name}-${arch_name}" "${run}"
+                ((run++))
+              done
+            done
+          done
+
+          source sdk_container/.repo/manifests/version.txt
+          tap_generate_report "${all_archs}"  "${FLATCAR_VERSION}" "md" "true" > test-results.md
+
+          cat test-results.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: If started from a PR, post test summary to PR
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: mshick/add-pr-comment@v2
+        with:
+          message-path: "test-results.md"
