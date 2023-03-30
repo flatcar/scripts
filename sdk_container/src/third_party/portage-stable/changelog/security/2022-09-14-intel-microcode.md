@@ -1,0 +1,1 @@
+- intel-microcode ([CVE-2022-21233](https://nvd.nist.gov/vuln/detail/CVE-2022-21233))

@@ -1,0 +1,6 @@
+- vim ([9.0.1363](https://github.com/vim/vim/releases/tag/v9.0.1363))
+- qemu guest agent ([7.1.0](https://wiki.qemu.org/ChangeLog/7.1#Guest_agent))
+- traceroute (2.1.1)
+- libpcap ([1.10.3](https://git.tcpdump.org/libpcap/blob/refs/tags/libpcap-1.10.3:/CHANGES) (includes [1.10.2](https://git.tcpdump.org/libpcap/blob/refs/tags/libpcap-1.10.2:/CHANGES)))
+- socat ([1.7.4.4](https://repo.or.cz/socat.git/blob/refs/tags/tag-1.7.4.4:/CHANGES))
+- diffutils ([3.9](https://savannah.gnu.org/forum/forum.php?forum_id=10282))
