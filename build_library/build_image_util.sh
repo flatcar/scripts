@@ -801,8 +801,9 @@ EOF
   done
   sudo "${root_fs_dir}"/usr/sbin/flatcar-tmpfiles "${root_fs_dir}"
   # Now that we used the tmpfiles for creating /etc we delete them because
-  # the L, d, and C entries cause upcopies
-  sudo sed -i '/^[CLd] *\/etc\//d' "${root_fs_dir}"/usr/lib/tmpfiles.d/*
+  # the L, d, and C entries cause upcopies. Also filter out rules with ! or - but no other modifiers
+  # like + or = which explicitly recreate files.
+  sudo sed -i '/^[CLd]-*!*-*[ \t]*\/etc\//d' "${root_fs_dir}"/usr/lib/tmpfiles.d/*
 
   # SELinux: Label the root filesystem for using 'file_contexts'.
   # The labeling has to be done before moving /etc to /usr/share/flatcar/etc to prevent wrong labels for these files and as
