@@ -12,23 +12,6 @@ source ci-automation/ci-config.env
 
 : ${TEST_WORK_DIR:='__TESTS__'}
 
-function init_submodules() {
-    git submodule init
-    git submodule update
-}
-# --
-
-function update_submodule() {
-    local submodule="$1"
-    local commit_ish="$2"
-
-    cd "sdk_container/src/third_party/${submodule}"
-    git fetch --all --tags
-    git checkout "${commit_ish}"
-    cd -
-}
-# --
-
 function check_version_string() {
     local version="$1"
 
@@ -36,16 +19,6 @@ function check_version_string() {
         echo "ERROR: invalid version '${version}', must start with 'main', 'alpha', 'beta', 'stable' or 'lts', followed by a dash and three dot-separated numbers, optionally followed by a dash and a non-empty build ID"
         exit 1
     fi
-}
-# --
-
-function update_submodules() {
-    local coreos_git="$1"
-    local portage_git="$2"
-
-    init_submodules
-    update_submodule "coreos-overlay" "${coreos_git}"
-    update_submodule "portage-stable" "${portage_git}"
 }
 # --
 
@@ -62,8 +35,6 @@ function update_and_push_version() {
     fi
 
     # Add and commit local changes
-    git add "sdk_container/src/third_party/coreos-overlay"
-    git add "sdk_container/src/third_party/portage-stable"
     git add "sdk_container/.repo/manifests/version.txt"
 
     git commit --allow-empty -m "New version: ${version}"
@@ -77,7 +48,7 @@ function update_and_push_version() {
     #  - the remote tag has changes compared to the local tree (rc: 1)
     if [ "$ret" = "0" ]; then
       echo "Reusing existing tag" >&2
-      git checkout -f --recurse-submodules "${version}"
+      git checkout -f "${version}"
       return
     elif [ "$ret" = "1" ]; then
       echo "Remote tag exists already and is not equal" >&2
@@ -476,35 +447,20 @@ function list_files() {
 }
 # --
 
-# Looks for ../scripts.patch, ../overlay.patch, ../portage.patch and
-# applies them to the current repo or the respective sub-module checkout.
+# Applies ../scripts.patch to the current repo.
 function apply_local_patches() {
-  local patch_files=(../scripts.patch ../overlay.patch ../portage.patch)
-  local patch_file
+  local patch_file="../scripts.patch"
   local patch_id
-  local dirarg
-  echo "Looking for local patches ${patch_files[*]}"
-  for patch_file in "${patch_files[@]}"; do
-    if [ "${patch_file}" = "../scripts.patch" ]; then
-      dirarg=()
-    elif [ "${patch_file}" = "../overlay.patch" ]; then
-      dirarg=("-C" "sdk_container/src/third_party/coreos-overlay/")
-    elif [ "${patch_file}" = "../portage.patch" ]; then
-      dirarg=("-C" "sdk_container/src/third_party/portage-stable/")
+  echo "Looking for local patches ${patch_file}"
+  patch_id=$(test -e "${patch_file}" && { cat "${patch_file}" | git patch-id | cut -d ' ' -f 1 ; } || true)
+  if [ "${patch_id}" != "" ]; then
+    if git "${dirarg[@]}" log --no-merges -p HEAD | git patch-id | cut -d ' ' -f 1 | grep -q "${patch_id}"; then
+      echo "Skipping already applied ${patch_file}"
     else
-      echo "wrong case: unexpected ${patch_file}"
-      exit 1
+      echo "Applying ${patch_file}"
+      GIT_COMMITTER_NAME="Flatcar Buildbot" GIT_COMMITTER_EMAIL="buildbot@flatcar-linux.org" git am -3 "$PWD/${patch_file}"
     fi
-    patch_id=$(test -e "${patch_file}" && { cat "${patch_file}" | git patch-id | cut -d ' ' -f 1 ; } || true)
-    if [ "${patch_id}" != "" ]; then
-      if git "${dirarg[@]}" log --no-merges -p HEAD | git patch-id | cut -d ' ' -f 1 | grep -q "${patch_id}"; then
-        echo "Skipping already applied ${patch_file}"
-      else
-        echo "Applying ${patch_file}"
-        GIT_COMMITTER_NAME="Flatcar Buildbot" GIT_COMMITTER_EMAIL="buildbot@flatcar-linux.org" git "${dirarg[@]}" am -3 "$PWD/${patch_file}"
-      fi
-    fi
-  done
+  fi
 }
 # --
 

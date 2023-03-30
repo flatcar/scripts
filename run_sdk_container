@@ -124,8 +124,6 @@ if [ -z "$stat" ] ; then
     $docker create $tty -i \
        -v /dev:/dev \
        -v "$(pwd)/sdk_container:/mnt/host/source/" \
-       -v "$(pwd)/sdk_container/git-override/.git-coreos-overlay:/mnt/host/source/src/third_party/coreos-overlay/.git" \
-       -v "$(pwd)/sdk_container/git-override/.git-portage-stable:/mnt/host/source/src/third_party/portage-stable/.git" \
        -v "$(pwd)/__build__/images:/mnt/host/source/src/build" \
        -v "$(pwd):/mnt/host/source/src/scripts" \
        $gpg_volumes \
