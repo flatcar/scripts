@@ -1,0 +1,99 @@
+--- orig/bootstrap.sh	2021-02-02 14:04:27.121358890 +0100
++++ flatcar/bootstrap.sh	2021-02-02 14:07:15.175175277 +0100
+@@ -268,6 +268,9 @@
+     exit  1
+ fi
+ 
++# Store the cluster name in a config file, to use it from other sources
++mkdir -p /etc/eks
++echo "CLUSTER_NAME=\"${CLUSTER_NAME}\"" > /etc/eks/cluster.conf
+ 
+ TOKEN=$(get_token)
+ AWS_DEFAULT_REGION=$(get_meta_data 'latest/dynamic/instance-identity/document' | jq .region -r)
+@@ -284,7 +287,8 @@
+ PAUSE_CONTAINER="$PAUSE_CONTAINER_IMAGE:$PAUSE_CONTAINER_VERSION"
+ 
+ ### kubelet kubeconfig
+-
++shopt -s expand_aliases
++alias aws="docker run --rm --network host amazon/aws-cli"
+ CA_CERTIFICATE_DIRECTORY=/etc/kubernetes/pki
+ CA_CERTIFICATE_FILE_PATH=$CA_CERTIFICATE_DIRECTORY/ca.crt
+ mkdir -p $CA_CERTIFICATE_DIRECTORY
+@@ -324,9 +328,9 @@
+ 
+ echo $B64_CLUSTER_CA | base64 -d > $CA_CERTIFICATE_FILE_PATH
+ 
+-sed -i s,CLUSTER_NAME,$CLUSTER_NAME,g /var/lib/kubelet/kubeconfig
+-sed -i s,MASTER_ENDPOINT,$APISERVER_ENDPOINT,g /var/lib/kubelet/kubeconfig
+-sed -i s,AWS_REGION,$AWS_DEFAULT_REGION,g /var/lib/kubelet/kubeconfig
++sed -i s,CLUSTER_NAME,$CLUSTER_NAME,g /usr/share/oem/eks/kubelet-kubeconfig
++sed -i s,MASTER_ENDPOINT,$APISERVER_ENDPOINT,g /usr/share/oem/eks/kubelet-kubeconfig
++sed -i s,AWS_REGION,$AWS_DEFAULT_REGION,g /usr/share/oem/eks/kubelet-kubeconfig
+ ### kubelet.service configuration
+ 
+ if [[ -z "${DNS_CLUSTER_IP}" ]]; then
+@@ -345,7 +349,7 @@
+   DNS_CLUSTER_IP="${DNS_CLUSTER_IP}"
+ fi
+ 
+-KUBELET_CONFIG=/etc/kubernetes/kubelet/kubelet-config.json
++KUBELET_CONFIG=/usr/share/oem/eks/kubelet-config.json
+ echo "$(jq ".clusterDNS=[\"$DNS_CLUSTER_IP\"]" $KUBELET_CONFIG)" > $KUBELET_CONFIG
+ 
+ INTERNAL_IP=$(get_meta_data 'latest/meta-data/local-ipv4')
+@@ -357,7 +361,7 @@
+ # with this formula when scheduling pods: Allocatable = Capacity - Reserved - Eviction Threshold.
+ 
+ #calculate the max number of pods per instance type
+-MAX_PODS_FILE="/etc/eks/eni-max-pods.txt"
++MAX_PODS_FILE="/usr/share/oem/eks/eni-max-pods.txt"
+ set +o pipefail
+ MAX_PODS=$(cat $MAX_PODS_FILE | awk "/^${INSTANCE_TYPE:-unset}/"' { print $2 }')
+ set -o pipefail
+@@ -382,6 +386,8 @@
+     fi
+ fi
+ 
++cp /usr/share/oem/eks/kubelet.service /etc/systemd/system/
++
+ mkdir -p /etc/systemd/system/kubelet.service.d
+ 
+ cat <<EOF > /etc/systemd/system/kubelet.service.d/10-kubelet-args.conf
+@@ -396,10 +402,16 @@
+ EOF
+ fi
+ 
++
+ # Replace with custom docker config contents.
++mkdir -p /etc/docker
+ if [[ -n "$DOCKER_CONFIG_JSON" ]]; then
+     echo "$DOCKER_CONFIG_JSON" > /etc/docker/daemon.json
+     systemctl restart docker
++else
++    # Copy the docker config shipped in /usr/share/oem
++    cp /usr/share/oem/eks/docker-daemon.json /etc/docker/daemon.json
++    systemctl restart docker
+ fi
+ 
+ if [[ "$ENABLE_DOCKER_BRIDGE" = "true" ]]; then
+@@ -409,7 +421,19 @@
+     systemctl restart docker
+ fi
+ 
++# sysctl tweaking
++cat <<EOF | sudo tee -a /etc/sysctl.d/99-kubelet.conf
++# Needed for protectKernelDefaults=true
++vm.overcommit_memory=1
++kernel.panic=10
++kernel.panic_on_oops=1
++# Other kubelet tweaks
++fs.inotify.max_user_watches=524288
++vm.max_map_count=524288
++EOF
++
+ systemctl daemon-reload
++systemctl restart systemd-sysctl
+ systemctl enable kubelet
+ systemctl start kubelet
+ 

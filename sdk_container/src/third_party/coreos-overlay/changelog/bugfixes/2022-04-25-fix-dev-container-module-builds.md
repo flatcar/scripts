@@ -1,0 +1,1 @@
+- Added pahole to developer container, without it kernel modules built against /usr/src/linux may fail to probe with an 'invalid relocation target' error ([PR#1839](https://github.com/flatcar-linux/coreos-overlay/pull/1839))

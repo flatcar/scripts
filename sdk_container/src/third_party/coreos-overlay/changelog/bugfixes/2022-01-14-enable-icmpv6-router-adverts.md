@@ -1,0 +1,1 @@
+- network: Accept ICMPv6 Router Advertisements to fix IPv6 address assignment in the default DHCP setting ([PR#51](https://github.com/flatcar-linux/init/pull/51), [PR#12](https://github.com/flatcar-linux/coreos-cloudinit/pull/12), [PR#30](https://github.com/flatcar-linux/bootengine/pull/30))

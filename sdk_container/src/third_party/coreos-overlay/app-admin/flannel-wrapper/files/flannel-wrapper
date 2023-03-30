@@ -1,0 +1,42 @@
+#!/bin/bash
+# The "flannel-wrapper" script can't be deleted because ct overwrites
+# the ExecStart directive with flannel-wrapper. Do the new action of
+# ExecStart here.
+set -e
+
+ETCD_SSL_DIR="${ETCD_SSL_DIR:-/etc/ssl/etcd}"
+RUN_ARGS=""
+if [[ -d "${ETCD_SSL_DIR}" ]]; then
+	RUN_ARGS="-v ${ETCD_SSL_DIR}:${ETCD_SSL_DIR}:ro"
+fi
+
+mkdir --parents /run/flannel
+
+
+WRAP=""
+if [[ -S "${NOTIFY_SOCKET}" ]]; then
+  WRAP="/usr/libexec/sdnotify-proxy /run/${FLANNEL_CONTAINER}-notify"
+fi
+
+# A better way to run the Flannel/etcd container image is Podman because
+# Flannel depends on etcd but wants to be run before Docker so that it
+# can set up the Docker networking. Etcd and Flannel are part of the
+# Container Linux Config specification and thus can't be dropped easily.
+# For now we have to resort to running these services with Docker and try
+# to restart Docker for the Flannel options to take effect (but that also
+# terminates the etcd and flannel containers, causing the services to
+# restart).
+RESTART_DOCKER=0
+if [ "${FLANNEL_CMD}" = "/opt/bin/mk-docker-opts.sh" ] && [ "$1" = "-d" ] && [ ! -f "$2" ]; then
+  # only restart Docker only on first run, propagating updates on later runs was not done before in the rkt version, so keep the behavior
+  # (which also helps to break the loop which otherwise exists because "restart docker" mentioned above)
+  RESTART_DOCKER=1
+fi
+/usr/bin/docker stop ${FLANNEL_CONTAINER} || true
+/usr/bin/docker rm -f ${FLANNEL_CONTAINER} || true
+# mapping only /run/${FLANNEL_CONTAINER}-notify does not work and we map the full /run (using /run:/run covers /run/flannel, too), also we must set NOTIFY_SOCKET in the container but use the original for /usr/libexec/sdnotify-proxy
+${WRAP} /usr/bin/docker run --name ${FLANNEL_CONTAINER} --privileged --network=host --ipc=host ${RUN_ARGS} -v /run:/run:rw -v /etc/ssl/certs:/etc/ssl/certs:ro -v /usr/share/ca-certificates:/usr/share/ca-certificates:ro --env-file <(env; echo PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin; echo NOTIFY_SOCKET=/run/${FLANNEL_CONTAINER}-notify) --entrypoint ${FLANNEL_CMD} ${FLANNEL_IMAGE:-${FLANNEL_IMAGE_URL}:${FLANNEL_IMAGE_TAG}} "$@"
+if [ "${RESTART_DOCKER}" = 1 ]; then
+  systemctl restart docker
+  echo "Restarted Docker to apply Flannel options"
+fi

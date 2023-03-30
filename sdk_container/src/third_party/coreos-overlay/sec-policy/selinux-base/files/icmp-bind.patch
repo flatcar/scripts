@@ -1,0 +1,40 @@
+diff -u -r refpolicy/policy/modules/kernel/corenetwork.if.in refpolicy2/policy/modules/kernel/corenetwork.if.in
+--- refpolicy/policy/modules/kernel/corenetwork.if.in	2022-01-12 16:59:47.572670384 -0000
++++ refpolicy2/policy/modules/kernel/corenetwork.if.in	2022-01-12 17:01:54.974858982 -0000
+@@ -879,6 +879,24 @@
+ 
+ ########################################
+ ## <summary>
++##	Bind ICMP sockets to generic nodes.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`corenet_icmp_bind_generic_node',`
++	gen_require(`
++		type node_t;
++	')
++
++	allow $1 node_t:icmp_socket node_bind;
++')
++
++########################################
++## <summary>
+ ##	Bind TCP sockets to generic nodes.
+ ## </summary>
+ ## <desc>
+diff -u -r refpolicy/policy/modules/kernel/corenetwork.te.in refpolicy2/policy/modules/kernel/corenetwork.te.in
+--- refpolicy/policy/modules/kernel/corenetwork.te.in	2022-01-12 16:59:47.573670362 -0000
++++ refpolicy2/policy/modules/kernel/corenetwork.te.in	2022-01-12 17:03:12.754142616 -0000
+@@ -373,7 +373,7 @@
+ 
+ # Bind to any network address.
+ allow corenet_unconfined_type port_type:{ tcp_socket udp_socket rawip_socket sctp_socket } name_bind;
+-allow corenet_unconfined_type node_type:{ tcp_socket udp_socket rawip_socket sctp_socket } node_bind;
++allow corenet_unconfined_type node_type:{ icmp_socket tcp_socket udp_socket rawip_socket sctp_socket } node_bind;
+ 
+ # Infiniband
+ corenet_ib_access_all_pkeys(corenet_unconfined_type)

@@ -1,0 +1,24 @@
+From 607ff9b67848aafd1bdefa6eda7ade0fd7161d04 Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mathieu@kinvolk.io>
+Date: Fri, 4 Jun 2021 13:17:44 +0200
+Subject: [PATCH] policy/modules/kernel: all more actions for kernel
+
+Signed-off-by: Mathieu Tortuyaux <mathieu@kinvolk.io>
+---
+ policy/modules/kernel/kernel.te | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git refpolicy/policy/modules/kernel/kernel.te refpolicy/policy/modules/kernel/kernel.te
+--- refpolicy/policy/modules/kernel/kernel.te
++++ refpolicy/policy/modules/kernel/kernel.te
+@@ -351,6 +351,10 @@ files_list_home(kernel_t)
+ files_read_usr_files(kernel_t)
+ 
+ mcs_process_set_categories(kernel_t)
++mcs_killall(kernel_t)
++mcs_file_read_all(kernel_t)
++mcs_file_write_all(kernel_t)
++mcs_ptrace_all(kernel_t)
+ 
+ mls_process_read_all_levels(kernel_t)
+ mls_process_write_all_levels(kernel_t)

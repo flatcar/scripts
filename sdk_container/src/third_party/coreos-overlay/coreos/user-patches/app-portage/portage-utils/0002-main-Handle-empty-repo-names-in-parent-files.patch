@@ -1,0 +1,141 @@
+From 8f7064fdf7aa08e00bb24e5e479c1df4be9ae5e7 Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Wed, 14 Dec 2022 12:53:33 +0100
+Subject: [PATCH 2/2] main: Handle empty repo names in parent files
+
+Empty repo name is documented in portage(5).
+
+Signed-off-by: Krzesimir Nowak <knowak@microsoft.com>
+Signed-off-by: Fabian Groffen <grobian@gentoo.org>
+---
+ main.c | 105 ++++++++++++++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 89 insertions(+), 16 deletions(-)
+
+diff --git a/main.c b/main.c
+index f6a39f9..347a50b 100644
+--- a/main.c
++++ b/main.c
+@@ -598,6 +598,65 @@ read_portage_file(const char *file, enum portage_file_type type, void *data)
+ 		fprintf(stderr, "read profile %s\n", file);
+ }
+ 
++/* Helper to check if a string starts with a prefix. If so, returns
++ * true and gets the length of the prefix. Otherwise returns false,
++ * leaving the prefix length unmodified. */
++static bool
++starts_with(const char *str, const char *prefix, size_t *prefix_len)
++{
++	const char *s;
++	const char *p;
++	size_t len;
++
++	if (prefix == NULL) {
++		/* every string starts with a null string */
++		if (prefix_len != NULL)
++			*prefix_len = 0;
++		return true;
++	}
++	if (str == NULL)
++		/* null string only starts with a null string, and prefix isn't null */
++		return false;
++
++	len = 0;
++	for (s = str, p = prefix; *s != '\0' && *p != '\0'; ++s, ++p, ++len) {
++		if (*s != *p)
++			return false;
++	}
++	if (*p == '\0') {
++		if (prefix_len != NULL)
++			*prefix_len = len;
++		return true;
++	}
++	return false;
++}
++
++/* Helper to figure out inside of which overlay a path is. Returns
++ * null if nonesuch is found. */
++static const char *
++overlay_from_path (const char *path)
++{
++	size_t n;
++	char *overlay;
++	size_t max_match = 0;
++	const char *found_overlay = NULL;
++
++	array_for_each(overlays, n, overlay) {
++		size_t overlay_len;
++
++		if (!starts_with(path, overlay, &overlay_len))
++			continue;
++
++		if (overlay_len <= max_match)
++			continue;
++
++		max_match = overlay_len;
++		found_overlay = overlay;
++	}
++
++	return found_overlay;
++}
++
+ /* Helper to recursively read stacked make.defaults in profiles */
+ static void
+ read_portage_profile(const char *profile, env_vars vars[], set *masks)
+@@ -634,24 +693,38 @@ read_portage_profile(const char *profile, env_vars vars[], set *masks)
+ 				/* split repo from target */
+ 				*p++ = '\0';
+ 
+-				/* match the repo */
+-				repo_name = NULL;
+-				array_for_each(overlays, n, overlay) {
+-					repo_name = xarrayget(overlay_names, n);
+-					if (strcmp(repo_name, s) == 0) {
+-						snprintf(profile_file, sizeof(profile_file),
+-								"%s/profiles/%s/", overlay, p);
+-						break;
++				if (s[0] == '\0') {
++					/* empty repo name means a repo where the profile is */
++					const char* current_overlay = overlay_from_path (profile);
++					if (current_overlay == NULL) {
++						/* bring back the colon to see the ignored parent line */
++						*(--p) = ':';
++						warn("could not figure out current repo of profile %s, ignoring parent %s",
++							       profile, s);
++						continue;
+ 					}
++					snprintf(profile_file, sizeof(profile_file),
++							"%s/profiles/%s", current_overlay, p);
++				} else {
++					/* match the repo */
+ 					repo_name = NULL;
+-				}
+-				if (repo_name == NULL) {
+-					/* bring back the colon to see the ignored parent line */
+-					*(--p) = ':';
+-					warn("ignoring parent with unknown repo in profile %s: %s",
+-							profile, s);
+-					continue;
+-				}
++					array_for_each(overlays, n, overlay) {
++						repo_name = xarrayget(overlay_names, n);
++						if (strcmp(repo_name, s) == 0) {
++							snprintf(profile_file, sizeof(profile_file),
++									"%s/profiles/%s/", overlay, p);
++							break;
++						}
++						repo_name = NULL;
++					}
++					if (repo_name == NULL) {
++						/* bring back the colon to see the ignored parent line */
++						*(--p) = ':';
++						warn("ignoring parent with unknown repo in profile %s: %s",
++								profile, s);
++						continue;
++					}
++                                }
+ 			} else {
+ 				snprintf(profile_file + profile_len,
+ 						sizeof(profile_file) - profile_len, "%s", s);
+-- 
+2.25.1
+

@@ -1,0 +1,2 @@
+# We know that memcmp works fine for us, but the configure script decides that it won't work just because we are cross-compiling.
+export ac_cv_func_memcmp_working=yes

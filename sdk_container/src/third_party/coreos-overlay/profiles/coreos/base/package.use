@@ -1,0 +1,160 @@
+# The USE flags specified in this file are applied to packages
+# for all linux targets. In ChromeOS, that means they are applied
+# to the host packages in the chroot, as well as packages built for a
+# target board.
+
+app-arch/tar		minimal
+app-crypt/mit-krb5	-keyutils
+dev-libs/dbus-glib	tools
+dev-libs/libxml2	-python
+dev-libs/libxslt	-python
+dev-util/perf		-doc
+dev-vcs/git		webdav curl
+net-misc/curl		kerberos telnet
+net-misc/iputils	arping tracepath
+sys-devel/gettext	-git
+
+sys-apps/gptfdisk -icu
+
+# for profile migration, needs to be enabled despite the fact it's
+# enabled by default in the ebuild, because berkdb is disabled
+# globally in make.defaults.
+sys-libs/gdbm berkdb
+
+dev-vcs/git -perl -iconv
+
+# symlink: to add a link between ncat and nc
+net-analyzer/nmap ncat -system-lua symlink
+
+# removes mta dependencies
+app-admin/sudo -sendmail
+
+# disable hybrid cgroup as we use the unified mode now
+# use lzma which is the default on non-gentoo systems, enable selinux,
+sys-apps/systemd -cgroup-hybrid curl idn lzma selinux
+net-libs/libmicrohttpd -ssl
+
+# disable kernel config detection and module building
+net-firewall/ipset -modules
+
+# do not pull in x11-misc/shared-mime-info
+dev-libs/glib -mime
+
+# keep grub build simple
+sys-boot/grub -multislot -nls -themes
+
+# disable "high performance ssh" patch, turn on kerberos
+net-misc/openssh -hpn kerberos
+
+# xz and lzo are required to run grub tests
+sys-fs/squashfs-tools lzo xz
+
+# make the kernel version discoverable via the traditional gentoo symlink
+sys-kernel/coreos-sources symlink
+
+# set build options for ssdp
+net-nds/openldap minimal sasl
+sys-libs/glibc nscd
+
+# disable database build because otherwise it tries to generate a database in /etc
+dev-libs/cyrus-sasl kerberos -gdbm
+
+# don't build manpages for sssd
+sys-auth/sssd -python samba kerberos gssapi ssh sudo selinux
+
+# enable logging command-line options in update_engine
+dev-cpp/glog gflags
+
+# enable rpc for rpc.rquotad
+sys-fs/quota rpc
+
+# Don't bother building portage w/xattr, we don't need XATTR_PAX
+# Disable rsync-verify to avoid pulling in more deps.
+sys-apps/portage -xattr -rsync-verify
+
+# Enable -M and -Z flags; -M is used by mayday
+sys-process/lsof rpc selinux
+
+# can be removed with socat-2.0.0; this is the openssl/readline license
+# incompatibility 
+net-misc/socat -ssl
+
+# Prevent pulling in a ton of perl dependencies
+sys-apps/man-db -nls
+
+# Disable zstd to avoid adding it to prod images until something needs it
+sys-fs/btrfs-progs -zstd
+
+# Enable SELinux for all targets
+coreos-base/coreos          selinux
+sys-apps/dbus               selinux
+
+# Enable SELinux for coreutils
+sys-apps/coreutils          selinux
+
+# Enable SELinux for tar
+app-arch/tar                selinux
+
+# Enable SELinux for docker-runc
+app-emulation/docker-runc selinux
+
+# enable regular expression processing in jq
+app-misc/jq oniguruma
+
+# Don't read the firmware config from /etc/portage/savedconfig/
+sys-kernel/coreos-firmware -savedconfig
+
+# Make kmod support kernel modules compressed via lzma(xz)
+sys-apps/kmod lzma
+
+# net-libs/nghttp2 should be built with -cxx to avoid issues with boost 1.65.
+# configure script is not able to check if Boost:ASIO library exists.
+net-libs/nghttp2 -cxx
+
+# These (qmanifest and qtegrity) are new tools and they pull even more dependencies.
+app-portage/portage-utils -qmanifest -qtegrity
+
+# Disable unnecessary regedit in samba to minimize the package size.
+net-fs/samba -regedit
+
+# Drop extra dependencies
+sys-libs/ldb -lmdb -python
+
+# Enable nftables backend for the iptables instead of legacy backend
+net-firewall/iptables nftables
+
+# Install `perl` with a minimal set of dependencies
+dev-lang/perl minimal
+
+# Remove support for GObject introspection
+sys-auth/polkit -introspection
+
+# enables ELF support to e.g. allow tc to handle BPF filters.
+sys-apps/iproute2 elf
+
+# Enable su for shadow, because shadow >= 4.11 does not have it by default.
+# Ideally util-linux should have the su binary, but that is currently not
+# possible, because of a bunch of additional dependencies in SDK like
+# pam_sssd in baselayout.
+#
+# Disable su for util-linux to avoid conflict with sys-apps/shadow, which
+# has its own su binary.
+sys-apps/shadow su
+sys-apps/util-linux -su
+
+# Enable kerberos support for NFS
+net-fs/nfs-utils kerberos nfsv41 nfsv4 junction ldap libmount nfsdcld uuid
+net-libs/libtirpc kerberos
+
+# Disable enabled-by-default support for 16-bit characters, we didn't
+# need it before, so we don't need it now. Enable unicode support, as
+# glib requires it now.
+dev-libs/libpcre2 -pcre16 unicode
+
+# Disable extra stuff for tcpdump, there was no explanation why it was
+# enabled by upstream. Samba was enabled to make some tests pass. But
+# smi and ssl, no clue.
+net-analyzer/tcpdump -ssl -smi -samba
+
+# selinux: to find files with a particular SElinux label
+sys-apps/findutils selinux

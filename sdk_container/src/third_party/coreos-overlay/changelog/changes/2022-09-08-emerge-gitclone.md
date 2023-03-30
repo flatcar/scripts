@@ -1,0 +1,1 @@
+- emerge-gitclone: Migrate emerge-gitclone to use scripts repo tags and submodule refs

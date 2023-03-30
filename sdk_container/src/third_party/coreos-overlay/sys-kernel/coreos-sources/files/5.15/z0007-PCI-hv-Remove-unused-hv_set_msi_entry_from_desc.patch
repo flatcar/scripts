@@ -1,0 +1,50 @@
+From d840bda57a70e672dcd2d5adbac5ef1f76c3082a Mon Sep 17 00:00:00 2001
+From: YueHaibing <yuehaibing@huawei.com>
+Date: Thu, 17 Mar 2022 16:51:30 +0800
+Subject: [PATCH 7/7] PCI: hv: Remove unused hv_set_msi_entry_from_desc()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Fix the following build error:
+
+  drivers/pci/controller/pci-hyperv.c:769:13: error: ‘hv_set_msi_entry_from_desc’ defined but not used [-Werror=unused-function]
+    769 | static void hv_set_msi_entry_from_desc(union hv_msi_entry *msi_entry,
+
+The arm64 implementation of hv_set_msi_entry_from_desc() is not used after
+d06957d7a692 ("PCI: hv: Avoid the retarget interrupt hypercall in
+irq_unmask() on ARM64"), so remove it.
+
+Fixes: d06957d7a692 ("PCI: hv: Avoid the retarget interrupt hypercall in irq_unmask() on ARM64")
+Link: https://lore.kernel.org/r/20220317085130.36388-1-yuehaibing@huawei.com
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Acked-by: Boqun Feng <boqun.feng@gmail.com>
+(cherry picked from commit 22ef7ee3eeb2a41e07f611754ab9a2663232fedf)
+---
+ drivers/pci/controller/pci-hyperv.c | 8 --------
+ 1 file changed, 8 deletions(-)
+
+diff --git a/drivers/pci/controller/pci-hyperv.c b/drivers/pci/controller/pci-hyperv.c
+index 165dfb98d3d8..2db98b4fbc1f 100644
+--- a/drivers/pci/controller/pci-hyperv.c
++++ b/drivers/pci/controller/pci-hyperv.c
+@@ -771,14 +771,6 @@ static unsigned int hv_msi_get_int_vector(struct irq_data *irqd)
+ 	return irqd->parent_data->hwirq;
+ }
+ 
+-static void hv_set_msi_entry_from_desc(union hv_msi_entry *msi_entry,
+-				       struct msi_desc *msi_desc)
+-{
+-	msi_entry->address = ((u64)msi_desc->msg.address_hi << 32) |
+-			      msi_desc->msg.address_lo;
+-	msi_entry->data = msi_desc->msg.data;
+-}
+-
+ /*
+  * @nr_bm_irqs:		Indicates the number of IRQs that were allocated from
+  *			the bitmap.
+-- 
+2.34.1
+

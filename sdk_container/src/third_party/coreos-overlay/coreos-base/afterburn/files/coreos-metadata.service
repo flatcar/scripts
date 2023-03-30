@@ -1,0 +1,16 @@
+[Unit]
+Description=Flatcar Metadata Agent
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+Restart=on-failure
+RestartSec=10
+Environment=COREOS_METADATA_OPT_PROVIDER=--cmdline
+ExecStart=/usr/bin/coreos-metadata ${COREOS_METADATA_OPT_PROVIDER} --attributes=/run/metadata/flatcar
+ExecStartPost=/usr/bin/sed --in-place "s/AFTERBURN/COREOS/g ; s/AWS/EC2/g ; s/GCP/GCE/g" /run/metadata/flatcar
+ExecStartPost=/usr/bin/ln -fs /run/metadata/flatcar /run/metadata/coreos
+
+[Install]
+RequiredBy=metadata.target
+Alias=afterburn.service
