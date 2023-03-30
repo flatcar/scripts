@@ -169,8 +169,8 @@ function _test_run_impl() {
     # Make the torcx artifacts available to test implementation
     __prepare_torcx "${arch}" "${vernum}" "${work_dir}"
 
-    local tap_merged_summary="results-${image}.tap"
-    local tap_merged_detailed="results-${image}-detailed.tap"
+    local tap_merged_summary="results-${image}"
+    local tap_merged_detailed="results-${image}-detailed"
     local retry=""
     local success=false
     local print_give_up=true
@@ -246,9 +246,9 @@ function _test_run_impl() {
         copy_to_buildcache "testing/${vernum}/${arch}/${image}" \
             "${tests_dir}/"*.tap
         copy_to_buildcache "testing/${vernum}/${arch}/${image}" \
-            "${tap_merged_summary}"
+            "${tap_merged_summary}"*
         copy_to_buildcache "testing/${vernum}/${arch}/${image}" \
-            "${tap_merged_detailed}"
+            "${tap_merged_detailed}"*
     fi
     if ! $success; then
         return 1
