@@ -356,4 +356,4 @@ jobs:
         if: ${{ github.event_name == 'pull_request' }}
         uses: mshick/add-pr-comment@v2
         with:
-          message-path: "test-results.md"
+          message-path: "scripts/test-results.md"
