@@ -22,11 +22,11 @@ src_prepare() {
 }
 
 src_install() {
-	insinto "/usr/share/oem"
+	insinto "/oem"
 	doins "${T}/cloud-config.yml"
 	doins -r "${FILESDIR}/box"
 	doins "${FILESDIR}/grub.cfg"
 
-	into "/usr/share/oem"
+	into "/oem"
 	dobin "${FILESDIR}/flatcar-setup-environment"
 }

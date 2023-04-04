@@ -32,7 +32,7 @@ src_compile() {
 }
 
 src_install() {
-	insinto "/usr/share/oem/python/$(get_libdir)/python${DEP_PYVER}/site-packages"
+	insinto "/oem/python/$(get_libdir)/python${DEP_PYVER}/site-packages"
 	local ssd="${S}/src/distro"
 	doins "${ssd}/distro.py"
 	doins "${ssd}/__init__.py"

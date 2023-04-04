@@ -3,19 +3,13 @@
 
 EAPI=7
 
-DESCRIPTION="OEM suite for VMware"
-HOMEPAGE="https://github.com/flatcar/coreos-overlay/tree/main/coreos-base"
+DESCRIPTION="OEM suite for Packet images"
+HOMEPAGE=""
 SRC_URI=""
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="amd64"
-IUSE=""
-
-DEPEND="
-	~app-emulation/open-vm-tools-${PV}
-	"
-RDEPEND="${DEPEND}"
+KEYWORDS="amd64 arm64 x86"
 
 # no source directory
 S="${WORKDIR}"
@@ -27,7 +21,7 @@ src_prepare() {
 }
 
 src_install() {
-	insinto "/usr/share/oem"
+	insinto "/oem"
 	doins "${FILESDIR}/grub.cfg"
 	doins "${T}/oem-release"
 	doins -r "${FILESDIR}/base"

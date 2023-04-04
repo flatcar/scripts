@@ -9,7 +9,7 @@ Before=sshd.socket
 [Service]
 Type=oneshot
 
-ExecStart=/usr/share/oem/bin/enable-oslogin
+ExecStart=/oem/bin/enable-oslogin
 
 [Install]
 WantedBy=sysinit.target

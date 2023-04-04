@@ -3,22 +3,17 @@
 
 EAPI=7
 
-DESCRIPTION="OEM suite for Azure"
+DESCRIPTION="OEM suite for Hyper-V"
 HOMEPAGE=""
 SRC_URI=""
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="amd64 arm64"
+KEYWORDS="amd64"
 IUSE=""
 
 # no source directory
 S="${WORKDIR}"
-
-RDEPEND="
-  ~app-emulation/wa-linux-agent-${PV}
-  x11-drivers/nvidia-drivers
-"
 
 src_prepare() {
 	default
@@ -27,10 +22,7 @@ src_prepare() {
 }
 
 src_install() {
-	insinto "/usr/share/oem"
+	insinto "/oem"
 	doins "${FILESDIR}/grub.cfg"
 	doins "${T}/oem-release"
-	doins -r "${FILESDIR}/base"
-	doins -r "${FILESDIR}/units"
-	dosym "/usr/bin/true" "/usr/share/oem/bin/eject"
 }

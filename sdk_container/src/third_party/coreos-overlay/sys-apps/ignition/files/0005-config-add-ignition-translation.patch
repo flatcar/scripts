@@ -1,7 +1,7 @@
-From 54fa31c31ed431678adc89b6dfa450022d2f96fa Mon Sep 17 00:00:00 2001
+From beac2bed3719b9e9f1eded4abf1730c8dd7d50a0 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Mon, 26 Sep 2022 12:12:04 +0200
-Subject: [PATCH 05/18] config: add ignition translation
+Subject: [PATCH 05/21] config: add ignition translation
 
 it's a merge from flatcar/ign-converter
 
@@ -2621,5 +2621,5 @@ index 00000000..e81f6bed
 +	}
 +}
 -- 
-2.35.1
+2.25.1
 

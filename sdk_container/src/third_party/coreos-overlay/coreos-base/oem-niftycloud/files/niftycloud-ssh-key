@@ -3,8 +3,8 @@
 set -e
 
 VMTOOLSD=""
-if [ -x /usr/share/oem/bin/vmtoolsd ]; then
-    VMTOOLSD="/usr/share/oem/bin/vmtoolsd"
+if [ -x /oem/bin/vmtoolsd ]; then
+    VMTOOLSD="/oem/bin/vmtoolsd"
 else
     exit 1
 fi

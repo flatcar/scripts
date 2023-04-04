@@ -3,13 +3,19 @@
 
 EAPI=7
 
-DESCRIPTION="OEM suite for DigitalOcean images"
-HOMEPAGE=""
+DESCRIPTION="OEM suite for VMware"
+HOMEPAGE="https://github.com/flatcar/coreos-overlay/tree/main/coreos-base"
 SRC_URI=""
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="amd64 x86"
+KEYWORDS="amd64"
+IUSE=""
+
+DEPEND="
+	~app-emulation/open-vm-tools-${PV}
+	"
+RDEPEND="${DEPEND}"
 
 # no source directory
 S="${WORKDIR}"
@@ -17,12 +23,13 @@ S="${WORKDIR}"
 src_prepare() {
 	default
 	sed -e "s\\@@OEM_VERSION_ID@@\\${PVR}\\g" \
-	    "${FILESDIR}/oem-release" > "${T}/oem-release" || die
+		"${FILESDIR}/oem-release" > "${T}/oem-release" || die
 }
 
 src_install() {
-	insinto "/usr/share/oem"
+	insinto "/oem"
 	doins "${FILESDIR}/grub.cfg"
 	doins "${T}/oem-release"
 	doins -r "${FILESDIR}/base"
+	doins -r "${FILESDIR}/units"
 }

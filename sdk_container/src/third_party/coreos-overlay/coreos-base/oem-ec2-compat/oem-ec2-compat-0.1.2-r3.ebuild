@@ -48,7 +48,7 @@ src_prepare() {
 }
 
 src_install() {
-	insinto "/usr/share/oem"
+	insinto "/oem"
 	doins "${T}/oem-release"
 	if use ec2 ; then
 		newins "${FILESDIR}/grub-ec2.cfg" grub.cfg
@@ -58,7 +58,7 @@ src_install() {
 		newins "${FILESDIR}/grub-brightbox.cfg" grub.cfg
 	fi
 
-	insinto "/usr/share/oem/base"
+	insinto "/oem/base"
 	doins "${FILESDIR}/base/README"
 	if use ec2 ; then
 		newins "${FILESDIR}/base/base-ec2.ign" base.ign

@@ -70,7 +70,7 @@ function extract_nvidia_installer() {
 function run_nspawn_container() {
   echo Spawn system-nspawn container to install the NVIDIA drivers
 
-  sudo systemd-nspawn --read-only --volatile=overlay --image="${FLATCAR_ROOT_WORKDIR}/${FLATCAR_DEVELOPER_CONTAINER}" --bind="${FLATCAR_ROOT_WORKDIR}/${NVIDIA_WORKDIR}":/nvidia --bind=/usr/share/oem/bin:/app/bin/ /app/bin/install-nvidia "$NVIDIA_DRIVER_BASENAME"
+  sudo systemd-nspawn --read-only --volatile=overlay --image="${FLATCAR_ROOT_WORKDIR}/${FLATCAR_DEVELOPER_CONTAINER}" --bind="${FLATCAR_ROOT_WORKDIR}/${NVIDIA_WORKDIR}":/nvidia --bind=/oem/bin:/app/bin/ /app/bin/install-nvidia "$NVIDIA_DRIVER_BASENAME"
 }
 
 function copy_nvidia_build_artifacts() {

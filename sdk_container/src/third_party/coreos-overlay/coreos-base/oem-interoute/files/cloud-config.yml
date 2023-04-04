@@ -11,8 +11,8 @@ coreos:
           ConditionVirtualization=vmware
 
           [Service]
-          ExecStartPre=/usr/bin/ln -sfT /usr/share/oem/vmware-tools /etc/vmware-tools
-          ExecStart=/usr/share/oem/bin/vmtoolsd
+          ExecStartPre=/usr/bin/ln -sfT /oem/vmware-tools /etc/vmware-tools
+          ExecStart=/oem/bin/vmtoolsd
           TimeoutStopSec=5
       - name: cloudstack-ssh-key.service
         command: restart
@@ -27,7 +27,7 @@ coreos:
           Type=oneshot
           StandardOutput=journal+console
           EnvironmentFile=/etc/environment
-          ExecStart=/usr/share/oem/bin/cloudstack-ssh-key
+          ExecStart=/oem/bin/cloudstack-ssh-key
       - name: cloudstack-cloudinit.service
         command: restart
         runtime: yes
@@ -40,7 +40,7 @@ coreos:
           [Service]
           Type=oneshot
           EnvironmentFile=/etc/environment
-          ExecStart=/usr/share/oem/bin/cloudstack-coreos-cloudinit
+          ExecStart=/oem/bin/cloudstack-coreos-cloudinit
       - name: cloudstack-set-guest-password.service
         runtime: yes
         content: |
@@ -51,11 +51,11 @@ coreos:
 
           [Service]
           Type=oneshot
-          ExecStart=/usr/share/oem/bin/cloudstack-set-guest-password
+          ExecStart=/oem/bin/cloudstack-set-guest-password
           EnvironmentFile=/etc/environment
     oem:
       id: interoute
-      name: Interoute 
+      name: Interoute
       version-id: @@OEM_VERSION_ID@@
       home-url: http://interoute.com/
       bug-report-url: https://issues.flatcar.org

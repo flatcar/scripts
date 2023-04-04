@@ -1,9 +1,9 @@
-# Copyright (c) 2015 CoreOS, Inc.. All rights reserved.
+# Copyright (c) 2013 CoreOS, Inc.. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-DESCRIPTION="OEM suite for CloudSigma images"
+DESCRIPTION="OEM suite for Rackspace Teeth images"
 HOMEPAGE=""
 SRC_URI=""
 
@@ -21,7 +21,7 @@ src_prepare() {
 }
 
 src_install() {
-	insinto "/usr/share/oem"
+	insinto "/oem"
 	doins "${T}/cloud-config.yml"
 	doins "${FILESDIR}/grub.cfg"
 }

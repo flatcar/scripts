@@ -48,10 +48,10 @@ src_compile() {
 }
 
 src_install() {
-	into "/usr/share/oem"
+	into "/oem"
 	dobin bin/amazon-ssm-agent bin/ssm-cli bin/ssm-document-worker bin/ssm-session-logger bin/ssm-session-worker
 	# files used by ignition on a first run
-	insinto "/usr/share/oem/ssm"
+	insinto "/oem/ssm"
 	newins seelog_unix.xml seelog.xml.template
 	doins amazon-ssm-agent.json.template
 }

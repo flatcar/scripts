@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. /usr/share/oem/bin/cloudstack-dhcp
+. /oem/bin/cloudstack-dhcp
 
 DHCP_SERVER=$(get_dhcp_ip)
 KEY_URL="http://${DHCP_SERVER}/latest/meta-data/public-keys"

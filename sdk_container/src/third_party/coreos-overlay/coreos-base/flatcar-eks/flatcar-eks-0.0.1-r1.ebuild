@@ -31,7 +31,7 @@ src_prepare() {
 }
 
 src_install() {
-    insinto /usr/share/oem/eks
+    insinto /oem/eks
     doins "${WORKDIR}/bootstrap.sh"
 
     # These files are based on the ones found on the amazon-eks-ami repository,
@@ -53,5 +53,5 @@ src_install() {
     # necessary files to run the kubelet on the node.
     doins "${FILESDIR}/download-kubelet.sh"
 
-    chmod +x "${D}/usr/share/oem/eks/bootstrap.sh" "${D}/usr/share/oem/eks/download-kubelet.sh"
+    chmod +x "${D}/oem/eks/bootstrap.sh" "${D}/oem/eks/download-kubelet.sh"
 }

@@ -13,6 +13,6 @@ KEYWORDS="amd64 x86"
 IUSE=""
 
 src_install() {
-	dodir /usr/share/oem/nova-agent
-	rsync -aq "${S}/" "${D}/usr/share/oem/nova-agent/" || die
+	dodir /oem/nova-agent
+	rsync -aq "${S}/" "${D}/oem/nova-agent/" || die
 }

@@ -1,7 +1,7 @@
-From 4e107fd4f2bad2b3926dadef7b1143a4b2b43e3f Mon Sep 17 00:00:00 2001
+From 4395ad82b1c264dc05d67de5a739d1f65ef16f38 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Fri, 24 Feb 2023 09:13:33 +0100
-Subject: [PATCH 02/18] mod: add flatcar/ignition@0.36.2
+Subject: [PATCH 02/21] mod: add flatcar/ignition@0.36.2
 
 it's required for Ignition conversion.
 
@@ -41,5 +41,5 @@ index 85b3e34e..b109532e 100644
  	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
  	google.golang.org/appengine v1.6.7 // indirect
 -- 
-2.35.1
+2.25.1
 

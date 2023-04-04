@@ -15,8 +15,8 @@ Modifications made:
 
 - We modify the configure flags:
 
-  - Add `--prefix=/usr/share/oem/python` as `/usr/share/oem` is where
-    the OEM partition is mounted.
+  - Add `--prefix=/oem/python` as `/oem` is where the OEM partition is
+    mounted.
 
   - Add `--with-platlibdir="$(get_libdir)"`, this is to make sure that
     consistent library directory gets picked. In our case for both

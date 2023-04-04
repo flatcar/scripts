@@ -27,9 +27,9 @@
 -sed -i s,CLUSTER_NAME,$CLUSTER_NAME,g /var/lib/kubelet/kubeconfig
 -sed -i s,MASTER_ENDPOINT,$APISERVER_ENDPOINT,g /var/lib/kubelet/kubeconfig
 -sed -i s,AWS_REGION,$AWS_DEFAULT_REGION,g /var/lib/kubelet/kubeconfig
-+sed -i s,CLUSTER_NAME,$CLUSTER_NAME,g /usr/share/oem/eks/kubelet-kubeconfig
-+sed -i s,MASTER_ENDPOINT,$APISERVER_ENDPOINT,g /usr/share/oem/eks/kubelet-kubeconfig
-+sed -i s,AWS_REGION,$AWS_DEFAULT_REGION,g /usr/share/oem/eks/kubelet-kubeconfig
++sed -i s,CLUSTER_NAME,$CLUSTER_NAME,g /oem/eks/kubelet-kubeconfig
++sed -i s,MASTER_ENDPOINT,$APISERVER_ENDPOINT,g /oem/eks/kubelet-kubeconfig
++sed -i s,AWS_REGION,$AWS_DEFAULT_REGION,g /oem/eks/kubelet-kubeconfig
  ### kubelet.service configuration
  
  if [[ -z "${DNS_CLUSTER_IP}" ]]; then
@@ -38,7 +38,7 @@
  fi
  
 -KUBELET_CONFIG=/etc/kubernetes/kubelet/kubelet-config.json
-+KUBELET_CONFIG=/usr/share/oem/eks/kubelet-config.json
++KUBELET_CONFIG=/oem/eks/kubelet-config.json
  echo "$(jq ".clusterDNS=[\"$DNS_CLUSTER_IP\"]" $KUBELET_CONFIG)" > $KUBELET_CONFIG
  
  INTERNAL_IP=$(get_meta_data 'latest/meta-data/local-ipv4')
@@ -47,7 +47,7 @@
  
  #calculate the max number of pods per instance type
 -MAX_PODS_FILE="/etc/eks/eni-max-pods.txt"
-+MAX_PODS_FILE="/usr/share/oem/eks/eni-max-pods.txt"
++MAX_PODS_FILE="/oem/eks/eni-max-pods.txt"
  set +o pipefail
  MAX_PODS=$(cat $MAX_PODS_FILE | awk "/^${INSTANCE_TYPE:-unset}/"' { print $2 }')
  set -o pipefail
@@ -55,7 +55,7 @@
      fi
  fi
  
-+cp /usr/share/oem/eks/kubelet.service /etc/systemd/system/
++cp /oem/eks/kubelet.service /etc/systemd/system/
 +
  mkdir -p /etc/systemd/system/kubelet.service.d
  
@@ -71,8 +71,8 @@
      echo "$DOCKER_CONFIG_JSON" > /etc/docker/daemon.json
      systemctl restart docker
 +else
-+    # Copy the docker config shipped in /usr/share/oem
-+    cp /usr/share/oem/eks/docker-daemon.json /etc/docker/daemon.json
++    # Copy the docker config shipped in /oem
++    cp /oem/eks/docker-daemon.json /etc/docker/daemon.json
 +    systemctl restart docker
  fi
  

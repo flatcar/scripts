@@ -19,7 +19,7 @@ ExecStartPre=/usr/bin/rm -rf /var/lib/flatcar-oem-gce
 ExecStartPre=/usr/bin/mkdir -p /var/lib/flatcar-oem-gce
 ExecStartPre=-/usr/bin/umount /var/lib/flatcar-oem-gce.img
 ExecStartPre=/usr/bin/mount /var/lib/flatcar-oem-gce.img /var/lib/flatcar-oem-gce
-ExecStartPre=/usr/bin/tar --directory=/var/lib/flatcar-oem-gce --extract --file=/usr/share/oem/flatcar-oem-gce.aci --strip-components=1 rootfs
+ExecStartPre=/usr/bin/tar --directory=/var/lib/flatcar-oem-gce --extract --file=/oem/flatcar-oem-gce.aci --strip-components=1 rootfs
 ExecStartPre=/usr/bin/umount /var/lib/flatcar-oem-gce.img
 # the container expects to be able to optmize irq settings in /proc/irq and /sys/
 Environment=SYSTEMD_NSPAWN_API_VFS_WRITABLE=1

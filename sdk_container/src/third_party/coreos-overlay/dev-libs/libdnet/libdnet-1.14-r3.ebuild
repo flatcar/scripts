@@ -51,8 +51,8 @@ src_prepare() {
 src_configure() {
 	# Install into OEM, don't bother with a sbin directory.
 	econf \
-		--prefix=/usr/share/oem \
-		--sbindir=/usr/share/oem/bin \
+		--prefix=/oem \
+		--sbindir=/oem/bin \
 		--disable-static \
 		--without-python
 }
