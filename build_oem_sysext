@@ -26,7 +26,7 @@ DEFINE_string version_id "${FLATCAR_VERSION_ID}" \
 
 FLAGS_HELP="USAGE: build_oem_sysext [flags] [oem name].
 This script is used to build a Flatcar OEM sysext images.
-The built image is in <build_dir>/flatcar-oem-<oem>.raw.
+The built image is in <build_dir>/oem-<oem>.raw.
 
 Examples:
 
