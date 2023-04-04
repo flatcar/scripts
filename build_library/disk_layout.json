@@ -53,7 +53,7 @@
         "blocks":"262144",
         "fs_type":"btrfs",
         "fs_compression":"zlib",
-        "mount":"/usr/share/oem"
+        "mount":"/oem"
       },
       "7":{
         "label":"OEM-CONFIG",

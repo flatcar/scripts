@@ -483,7 +483,7 @@ install_oem_package() {
         --root="${oem_tmp}" --sysroot="${oem_tmp}" \
         --root-deps=rdeps --usepkgonly ${getbinpkg} \
         --verbose --jobs=2 "${oem_pkg}"
-    sudo rsync -a "${oem_tmp}/usr/share/oem/" "${VM_TMP_ROOT}/usr/share/oem/"
+    sudo rsync -a "${oem_tmp}/oem/" "${VM_TMP_ROOT}/oem/"
     sudo rm -rf "${oem_tmp}"
 }
 
@@ -511,7 +511,7 @@ install_oem_aci() {
     info "Installing ${oem_aci} OEM ACI"
     sudo install -Dpm 0644 \
         "${aci_path}" \
-        "${VM_TMP_ROOT}/usr/share/oem/flatcar-oem-${oem_aci}.aci" ||
+        "${VM_TMP_ROOT}/oem/flatcar-oem-${oem_aci}.aci" ||
     die "Could not install ${oem_aci} OEM ACI"
     # Remove aci_dir if building ACI and installing it succeeded
     rm -rf "${aci_dir}"
@@ -529,8 +529,8 @@ run_fs_hook() {
 _run_box_fs_hook() {
     # Copy basic Vagrant configs from OEM
     mkdir -p "${VM_TMP_DIR}/box"
-    cp -R "${VM_TMP_ROOT}/usr/share/oem/box/." "${VM_TMP_DIR}/box"
-    sudo rm -fr "${VM_TMP_ROOT}/usr/share/oem/box"
+    cp -R "${VM_TMP_ROOT}/oem/box/." "${VM_TMP_DIR}/box"
+    sudo rm -fr "${VM_TMP_ROOT}/oem/box"
 }
 
 # Write the vm disk image to the target directory in the proper format
