@@ -1,0 +1,35 @@
+name: Keep GLSA metadata updated
+on:
+  schedule:
+    - cron:  '0 7 1 * *'
+  workflow_dispatch:
+
+jobs:
+  keep-glsa-metadata-updated:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out scripts
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Update GLSA metadata
+        id: update-glsa-metadata
+        run: |
+          glsa_dir='sdk_container/src/third_party/portage-stable/metadata/glsa'
+          rm -rf "${glsa_dir}"
+          mkdir --parents "${glsa_dir}"
+          rsync --archive rsync://rsync.gentoo.org/gentoo-portage/metadata/glsa/* "${glsa_dir}"
+          todaydate=$(date +%Y-%m-%d)
+          echo "TODAYDATE=${todaydate}" >>"${GITHUB_OUTPUT}"
+      - name: Create pull request for main branch
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: buildbot/monthly-glsa-metadata-updates-${{steps.update-glsa-metadata.outputs.TODAYDATE }}
+          delete-branch: true
+          base: main
+          title: Monthly GLSA metadata ${{steps.update-glsa-metadata.outputs.TODAYDATE }}
+          body: Updated GLSA metadata
+          commit-message: "portage-stable/metadata: Monthly GLSA metadata updates"
+          author: Flatcar Buildbot <buildbot@flatcar-linux.org>
+          labels: main
