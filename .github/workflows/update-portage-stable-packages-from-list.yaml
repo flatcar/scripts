@@ -1,0 +1,92 @@
+name: Keep portage-stable packages updated
+on:
+  schedule:
+    - cron:  '0 7 * * 1'
+  workflow_dispatch:
+
+jobs:
+  keep-packages-updated:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out scripts
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: ./scripts
+      - name: Check out Gentoo
+        uses: actions/checkout@v3
+        with:
+          repository: gentoo/gentoo
+          path: gentoo
+          # Gentoo is quite a large repo, so limit ourselves to last
+          # quarter milion of commits. It is about two years worth of changes.
+          # Is is needed by the sync script to find out the hash of the last commit
+          # that made the changes to the package.
+          fetch-depth: 250000
+          ref: master
+      - name: Check out build scripts
+        uses: actions/checkout@v3
+        with:
+          repository: flatcar/flatcar-build-scripts
+          path: flatcar-build-scripts
+      - name: Update listed packages
+        id: update-listed-packages
+        run: |
+          git config --global user.name "Flatcar Buildbot"
+          git config --global user.email "buildbot@flatcar-linux.org"
+          old_head=$(git -C scripts rev-parse HEAD)
+          packages_list=$(realpath scripts/.github/workflows/portage-stable-packages-list)
+          gentoo_repo=$(realpath gentoo)
+          build_scripts=$(realpath flatcar-build-scripts)
+          pushd scripts/sdk_container/src/third_party/portage-stable
+          while read -r package; do
+              if [[ ! -e "${package}" ]]; then
+                  # If this happens, it means that the package was moved to overlay
+                  # or dropped, the list ought to be updated.
+                  echo "::warning title=${package}::Nonexistent package"
+                  continue
+              fi
+              if [[ ! -e "${gentoo_repo}/${package}" ]]; then
+                  # If this happens, it means that the package was obsoleted or moved
+                  # in Gentoo. The obsoletion needs to be handled in the case-by-case
+                  # manner, while move should be handled by doing the same move
+                  # in portage-stable. The build should not break because of the move,
+                  # because most likely it's already reflected in the profiles/updates
+                  # directory.
+                  echo "::warning title=${package}::Obsolete or moved package"
+                  continue
+              fi
+              GENTOO_REPO="${gentoo_repo}" "${build_scripts}/sync-with-gentoo" "${package}"
+          done < <(grep '^[^#]' "${packages_list}")
+          popd
+          new_head=$(git -C scripts rev-parse HEAD)
+          updated=0
+          if [[ "${new_head}" != "${old_head}" ]]; then
+              updated=1
+          fi
+          todaydate=$(date +%Y-%m-%d)
+          echo "UPDATED=${updated}" >>"${GITHUB_OUTPUT}"
+          echo "TODAYDATE=${todaydate}" >>"${GITHUB_OUTPUT}"
+      - name: Create pull request for main branch
+        uses: peter-evans/create-pull-request@v5
+        if: steps.update-listed-packages.outputs.UPDATED == 1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: scripts
+          branch: buildbot/weekly-portage-stable-package-updates-${{steps.update-listed-packages.outputs.TODAYDATE }}
+          delete-branch: true
+          base: main
+          title: Weekly portage-stable package updates ${{steps.update-listed-packages.outputs.TODAYDATE }}
+          body: |
+            CI: TODO
+
+            --
+
+            TODO: Changes.
+
+            --
+
+            - [ ] changelog
+            - [ ] image diff
+          labels: main
+          draft: true
