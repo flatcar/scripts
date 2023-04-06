@@ -8,7 +8,9 @@ jobs:
   get-cacerts-release:
     strategy:
       matrix:
-        channel: [main,alpha,beta,stable,lts,lts-old]
+        # TODO: revert this after all channel are ported to merged scripts repo
+        # channel: [main,alpha,beta,stable,lts,lts-old]
+        channel: [main]
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
