@@ -1,0 +1,49 @@
+name: Get the latest Containerd release for main
+on:
+  schedule:
+    - cron:  '00 8 * * 5'
+  workflow_dispatch:
+
+jobs:
+  get-containerd-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out scripts
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: scripts
+      - name: Figure out latest Containerd release version
+        id: containerd-latest-release
+        run: |
+          versionCommitPair=( $(git ls-remote --tags https://github.com/containerd/containerd | grep 'refs/tags/v[0-9]*\.[0-9]*\.[0-9]*$' | sed -e 's#^\([0-9a-fA-F]*\)[[:space:]]*refs/tags/v\(.*\)$#\2 \1#g' | sort --reverse --unique --version-sort | head --lines 1) )
+
+          echo "VERSION_NEW=${versionCommitPair[0]}" >>"${GITHUB_OUTPUT}"
+          echo "COMMIT_HASH=${versionCommitPair[1]}" >>"${GITHUB_OUTPUT}"
+      - name: Set up Flatcar SDK
+        id: setup-flatcar-sdk
+        env:
+          WORK_SCRIPTS_DIR: "${{ github.workspace }}/scripts"
+          CHANNEL: main
+        run: scripts/.github/workflows/setup-flatcar-sdk.sh
+      - name: Apply patch for main
+        id: apply-patch-main
+        env:
+          GHA_SCRIPTS_DIR: "${{ github.workspace }}/scripts"
+          WORK_SCRIPTS_DIR: "${{ github.workspace }}/scripts"
+          VERSION_NEW: ${{ steps.containerd-latest-release.outputs.VERSION_NEW }}
+          COMMIT_HASH: ${{ steps.containerd-latest-release.outputs.COMMIT_HASH }}
+          PACKAGES_CONTAINER: ${{ steps.setup-flatcar-sdk.outputs.PACKAGES_CONTAINER }}
+          SDK_NAME: ${{ steps.setup-flatcar-sdk.outputs.SDK_NAME }}
+        run: scripts/.github/workflows/containerd-apply-patch.sh
+      - name: Create pull request for main
+        uses: peter-evans/create-pull-request@v5
+        if: steps.apply-patch-main.outputs.UPDATE_NEEDED == 1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: scripts
+          branch: "containerd-${{ steps.containerd-latest-release.outputs.VERSION_NEW }}-main"
+          base: main
+          title: Upgrade Containerd in main from ${{ steps.apply-patch-main.outputs.VERSION_OLD }} to ${{ steps.containerd-latest-release.outputs.VERSION_NEW }}
+          body: Subject says it all.
+          labels: main
