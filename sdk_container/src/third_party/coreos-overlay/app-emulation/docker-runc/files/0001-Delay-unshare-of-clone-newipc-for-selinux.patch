@@ -9,38 +9,38 @@ root. This allows us to apply the container SELinux label
 to mqueue.
 
 Signed-off-by: Mrunal Patel <mrunalp@gmail.com>
+(dpark: Adjust the logic according to the new code of v1.1.5)
+Signed-off-by: Dongsu Park <dpark@linux.microsoft.com>
 ---
  libcontainer/nsenter/nsexec.c | 12 +++++++++++-
  1 file changed, 11 insertions(+), 1 deletion(-)
 
 diff --git a/libcontainer/nsenter/nsexec.c b/libcontainer/nsenter/nsexec.c
-index 0ad68834..5100698a 100644
+index 2d224bab..4865261f 100644
 --- a/libcontainer/nsenter/nsexec.c
 +++ b/libcontainer/nsenter/nsexec.c
-@@ -719,7 +719,12 @@ void nsexec(void)
+@@ -1241,7 +1241,12 @@ void nsexec(void)
  			 * some old kernel versions where clone(CLONE_PARENT | CLONE_NEWPID)
  			 * was broken, so we'll just do it the long way anyway.
  			 */
- 			write_log(DEBUG, "unshare remaining namespace (except cgroupns)");
--			if (unshare(config.cloneflags & ~CLONE_NEWCGROUP) < 0)
+-			try_unshare(config.cloneflags & ~CLONE_NEWCGROUP, "remaining namespaces (except cgroupns)");
 +			uint32_t apply_cloneflags = config.cloneflags;
 +			if ((config.cloneflags & CLONE_NEWUSER) && (config.cloneflags & CLONE_NEWIPC)) {
 +				apply_cloneflags &= ~CLONE_NEWIPC;
 +			}
 +
-+			if (unshare(apply_cloneflags & ~CLONE_NEWCGROUP) < 0)
- 				bail("failed to unshare remaining namespaces (except cgroupns)");
++			try_unshare(apply_cloneflags & ~CLONE_NEWCGROUP, "remaining namespaces (except cgroupns)");
  
- 			/*
-@@ -841,6 +846,11 @@ void nsexec(void)
- 					bail("setgroups failed");
+ 			/* Ask our parent to send the mount sources fds. */
+ 			if (config.mountsources) {
+@@ -1362,6 +1367,10 @@ void nsexec(void)
+ 				try_unshare(CLONE_NEWCGROUP, "cgroup namespace");
  			}
  
 +			if ((config.cloneflags & CLONE_NEWUSER) && (config.cloneflags & CLONE_NEWIPC)) {
-+				if (unshare(CLONE_NEWIPC) < 0)
-+					bail("unshare ipc failed");
++				try_unshare(CLONE_NEWIPC, "ipc namespace");
 +			}
 +
- 			/*
- 			 * Wait until our topmost parent has finished cgroup setup in
- 			 * p.manager.Apply().
+ 			write_log(DEBUG, "signal completion to stage-0");
+ 			s = SYNC_CHILD_FINISH;
+ 			if (write(syncfd, &s, sizeof(s)) != sizeof(s))
