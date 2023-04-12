@@ -1,0 +1,47 @@
+name: Get the latest Go release for main
+on:
+  schedule:
+    - cron:  '15 7 * * 1'
+  workflow_dispatch:
+
+jobs:
+  get-go-releases:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out scripts
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: scripts
+      - name: Figure out latest Go release versions
+        id: go-latest-release
+        env:
+          GHA_SCRIPTS_DIR: "${{ github.workspace }}/scripts"
+          WORK_SCRIPTS_DIR: "${{ github.workspace }}/scripts"
+        run: scripts/.github/workflows/go-current-major-versions.sh
+      - name: Set up Flatcar SDK
+        id: setup-flatcar-sdk
+        env:
+          WORK_SCRIPTS_DIR: "${{ github.workspace }}/scripts"
+          CHANNEL: main
+        run: scripts/.github/workflows/setup-flatcar-sdk.sh
+      - name: Apply patch for main
+        id: apply-patch-main
+        env:
+          GHA_SCRIPTS_DIR: "${{ github.workspace }}/scripts"
+          WORK_SCRIPTS_DIR: "${{ github.workspace }}/scripts"
+          VERSIONS_NEW: ${{ steps.go-latest-release.outputs.VERSIONS_NEW }}
+          PACKAGES_CONTAINER: ${{ steps.setup-flatcar-sdk.outputs.PACKAGES_CONTAINER }}
+          SDK_NAME: ${{ steps.setup-flatcar-sdk.outputs.SDK_NAME }}
+        run: scripts/.github/workflows/go-apply-patch.sh
+      - name: Create pull request for main
+        uses: peter-evans/create-pull-request@v5
+        if: steps.apply-patch-main.outputs.UPDATE_NEEDED == 1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: scripts
+          branch: ${{ steps.apply-patch-main.outputs.BRANCH_NAME }}
+          base: main
+          title: Upgrade Go from ${{ steps.apply-patch-main.outputs.VERSIONS_OLD }} to ${{ steps.apply-patch-main.outputs.VERSIONS_NEW }}
+          body: Subject says it all.
+          labels: main
