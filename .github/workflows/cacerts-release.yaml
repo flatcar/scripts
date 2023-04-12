@@ -1,0 +1,67 @@
+name: Get the latest ca-certificates release for all maintained branches
+on:
+  schedule:
+    - cron:  '0 7 * * 1'
+  workflow_dispatch:
+
+jobs:
+  get-cacerts-release:
+    strategy:
+      matrix:
+        channel: [main,alpha,beta,stable,lts,lts-old]
+      fail-fast: false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out main scripts branch for GitHub workflow scripts only
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: gha
+          ref: main
+      - name: Figure out branch
+        id: figure-out-branch
+        run: gha/.github/workflows/figure-out-branch.sh '${{ matrix.channel }}'
+      - name: Check out work scripts branch for updating
+        if: steps.figure-out-branch.outputs.SKIP == 0
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: work
+          ref: ${{ steps.figure-out-branch.outputs.BRANCH }}
+      - name: Figure out latest ca-certificates release version
+        if: steps.figure-out-branch.outputs.SKIP == 0
+        id: nss-latest-release
+        run: |
+          nssVersion=$(git ls-remote --tags https://github.com/nss-dev/nss | cut -f2 | sed -n "s/refs\/tags\/NSS_\([0-9]_[0-9_]*\).*_RTM$/\1/p" | sort -s -t_ -k1,1 -k2,2n -k3,3n | tr '_' '.' | tail -n1)
+          echo "NSS_VERSION=${nssVersion}" >>"${GITHUB_OUTPUT}"
+      - name: Set up Flatcar SDK
+        if: steps.figure-out-branch.outputs.SKIP == 0
+        id: setup-flatcar-sdk
+        env:
+          WORK_SCRIPTS_DIR: "${{ github.workspace }}/work"
+          CHANNEL: ${{ steps.figure-out-branch.outputs.LABEL }}
+          # This will be empty for the main channel, but we handle
+          # this case inside setup-flatcar-sdk.sh.
+          MIRROR_LINK: ${{ steps.figure-out-branch.outputs.LINK }}
+        run: gha/.github/workflows/setup-flatcar-sdk.sh
+      - name: Apply patch
+        if: steps.figure-out-branch.outputs.SKIP == 0
+        id: apply-patch
+        env:
+          GHA_SCRIPTS_DIR: "${{ github.workspace }}/gha"
+          WORK_SCRIPTS_DIR: "${{ github.workspace }}/work"
+          VERSION_NEW: ${{ steps.nss-latest-release.outputs.NSS_VERSION }}
+          PACKAGES_CONTAINER: ${{ steps.setup-flatcar-sdk.outputs.PACKAGES_CONTAINER }}
+          SDK_NAME: ${{ steps.setup-flatcar-sdk.outputs.SDK_NAME }}
+        run: gha/.github/workflows/cacerts-apply-patch.sh
+      - name: Create pull request
+        if: (steps.figure-out-branch.outputs.SKIP == 0) && (steps.apply-patch.outputs.UPDATE_NEEDED == 1)
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: work
+          branch: "cacerts-${{ steps.nss-latest-release.outputs.NSS_VERSION }}-${{ steps.figure-out-branch.outputs.BRANCH }}"
+          base: ${{ steps.figure-out-branch.outputs.BRANCH }}
+          title: Update ca-certificates in ${{ steps.figure-out-branch.outputs.BRANCH }} from ${{ steps.apply-patch.outputs.VERSION_OLD }} to ${{ steps.nss-latest-release.outputs.NSS_VERSION }}
+          body: Subject says it all.
+          labels: ${{ steps.figure-out-branch.outputs.LABEL }}
