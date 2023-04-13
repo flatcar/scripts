@@ -1,0 +1,3 @@
+- libcap ([2.66](https://sites.google.com/site/fullycapable/release-notes-for-libcap#h.d9ygdose5kw))
+- vim ([9.0.0828](https://github.com/vim/vim/releases/tag/v9.0.0828))
+- glib ([2.74.1](https://gitlab.gnome.org/GNOME/glib/-/tags/2.74.1))

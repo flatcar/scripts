@@ -1,0 +1,3 @@
+- portage ([3.0.41](https://gitweb.gentoo.org/proj/portage.git/tree/NEWS?h=portage-3.0.41))
+- file ([5.43](https://mailman.astron.com/pipermail/file/2022-September/000857.html))
+- libseccomp ([2.5.4](https://github.com/seccomp/libseccomp/releases/tag/v2.5.4) (contains [2.5.2](https://github.com/seccomp/libseccomp/releases/tag/v2.5.2), [2.5.3](https://github.com/seccomp/libseccomp/releases/tag/v2.5.3)))

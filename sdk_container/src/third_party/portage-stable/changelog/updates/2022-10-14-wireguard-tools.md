@@ -1,0 +1,1 @@
+- wireguard-tools ([1.0.20210914](https://github.com/WireGuard/wireguard-tools/releases/tag/v1.0.20210914))

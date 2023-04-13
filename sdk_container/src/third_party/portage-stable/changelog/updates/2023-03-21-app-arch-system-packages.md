@@ -1,0 +1,1 @@
+- Zstandard ([1.5.2](https://github.com/facebook/zstd/releases/tag/v1.5.2) (includes [1.5.1](https://github.com/facebook/zstd/releases/tag/v1.5.1) and [1.5.0](https://github.com/facebook/zstd/releases/tag/v1.5.0)))

@@ -1,0 +1,8 @@
+- SDK: python ([3.10.10](https://docs.python.org/3.10/whatsnew/changelog.html#python-3-10-10-final))
+- GLib ([2.74.5](https://gitlab.gnome.org/GNOME/glib/-/tags/2.74.5))
+- git ([2.39.2](https://github.com/git/git/blob/v2.39.2/Documentation/RelNotes/2.39.2.txt))
+- bind tools ([9.16.37](https://bind9.readthedocs.io/en/v9_16_37/notes.html#notes-for-bind-9-16-37))
+- GnuTLS ([3.8.0](https://gitlab.com/gnutls/gnutls/-/blob/3.8.0/NEWS))
+- curl ([7.88.1](https://curl.se/changes.html#7_88_1) (includes [7.88.0](https://curl.se/changes.html#7_88_0)))
+- SDK: portage ([3.0.44](https://gitweb.gentoo.org/proj/portage.git/tree/NEWS?h=portage-3.0.44))
+- gcc ([12.2.1](https://gcc.gnu.org/gcc-12/changes.html))
