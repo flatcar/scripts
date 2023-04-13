@@ -1,0 +1,208 @@
+# Copyright 2022-2023 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+# Hans de Graaff <graaff@gentoo.org) (2023-02-27)
+# Depends on virtual/rust
+dev-lang/ruby jit
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-06)
+# dev-cpp/glog fails tests, needs checknig
+media-libs/opencv glog contribsfm
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-06)
+# sci-libs/gdal not keyworded yet
+media-libs/opencv gdal
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-06)
+# app-crypt/heimdal not keyworded yet
+net-nds/openldap kerberos
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-06)
+# net-vpn/ocserv fails tests, probably kernel config related but needs
+# further investigation.
+net-vpn/openconnect test
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-06)
+# dev-python/pyside2 not keyworded yet
+dev-python/QtPy pyside2
+dev-python/qtconsole test
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-06)
+# dev-qt/qtwebengine:5 isn't available on loong.
+dev-python/QtPy webengine
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-05)
+# app-arch/p7zip fails one test
+kde-apps/kdeutils-meta 7zip
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-05)
+# <dev-cpp/tbb-2021 fails to build on loong w/ gcc-13
+sci-libs/spqr tbb
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-05)
+# in-tree version of sys-apps/flashrom (1.2) is outdated and cannot build
+# on loong
+sys-apps/fwupd flashrom
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-05)
+# sys-boot/gnu-efi upstream hasn't merged the loong port yet
+sys-apps/fwupd uefi
+sys-apps/systemd gnuefi
+sys-apps/systemd-utils boot
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-05)
+# The loong port of sys-boot/grub:2 isn't upstreamed yet.
+dev-util/ostree grub
+sys-libs/efivar test
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-05)
+# sci-libs/adolc fails to build on loong for now.
+dev-cpp/eigen test
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-05)
+# app-misc/tracker fails tests on loong.
+app-cdr/brasero tracker
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-05)
+# dev-libs/libcdio fails to build on loong for now.
+gnome-base/gvfs cdda
+media-video/ffmpeg cdio
+media-video/mpv cdda
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-05)
+# Respective dependency fails to build, pending investigation, mask for the
+# time being
+app-text/enchant voikko
+dev-cpp/libcmis man
+media-libs/opencv tesseract
+media-video/ffmpeg libilbc libtesseract
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-05)
+# sys-auth/sssd isn't keyworded here yet
+app-admin/sudo sssd
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-04)
+# neither app-text/ronn or app-text/ronn-ng can be built with
+# RUBY_TARGETS=ruby30
+app-accessibility/espeakup man
+app-accessibility/espeak-ng man
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-04)
+# dev-libs/boxfort is only supported on amd64, arm64, arm and x86 due to
+# inline asm, so we have no dev-libs/criterion
+app-admin/syslog-ng test
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-03)
+# Things requiring net-libs/gnome-online-accounts, which depends on
+# net-libs/webkit-gtk.
+gnome-base/gvfs google
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-02)
+# sys-cluster/ceph is not keyworded yet.
+net-analyzer/rrdtool rados
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-02)
+# Boost.Context has had support for loong since 1.79.0.
+dev-libs/boost -context
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-02)
+# dev-qt/qtlocation:5 fails to compile with gcc-13 for now.
+dev-python/PyQt5 location
+dev-python/QtPy test
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-01)
+# sys-libs/libhugetlbfs isn't buildable here yet due to arch-specific code.
+sys-apps/nvme-cli hugepages
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-12-01)
+# Mask GRUB2 platforms not applicable to loong.
+sys-boot/grub:2 grub_platforms_efi-32 grub_platforms_ieee1275 grub_platforms_pc grub_platforms_uboot grub_platforms_xen grub_platforms_xen-pvh
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-11-30)
+# No Haskell on loong yet (port under review), hence no virtual/pandoc and
+# friends.
+www-apps/hugo test
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-11-30)
+# Test phase apparently requires an ocamlopt port.
+dev-lang/ocaml test
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-11-29)
+# Dep media-plugins/libvisual-plugins fails to build, seems too hairy to fix.
+media-plugins/gst-plugins-meta libvisual
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-11-27)
+# Mask configurations not accepting llvm:16 and/or clang:16, either due to
+# lack of testing or simply being unsupported upstream (the opaque pointers
+# in particular need downstream changes).
+app-office/libreoffice clang
+<dev-db/postgresql-16 llvm
+<media-libs/mesa-22.3.0 llvm
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-11-27)
+# LLVM toolchain now partially usable on loong, mask the remaining pieces
+# pending test/bugfixes/porting.
+#
+# - sys-devel/lld: port is still under review
+dev-util/lldb test
+sys-devel/clang-common default-lld
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-11-18)
+# net-libs/webkit-gtk is not available on loong yet.
+app-text/atril epub
+gnome-extra/evolution-data-server oauth
+mate-base/mate help
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-10-04)
+# Sanitizers partially supported on this architecture.
+#
+# ASan: https://reviews.llvm.org/D129418 (LLVM 15 and above)
+# Scudo: https://reviews.llvm.org/D138350 (LLVM 16 since 20221122)
+# TSan: https://reviews.llvm.org/D139292 (LLVM 16 since 20221208)
+# UBSan: https://reviews.llvm.org/D139292 (LLVM 16 since 20221208)
+# SafeStack: https://reviews.llvm.org/D139494 (LLVM 16 since 20221210)
+# LSan: https://reviews.llvm.org/D139686 (LLVM 16 since 20230114)
+>=sys-libs/compiler-rt-sanitizers-15 -asan
+>=sys-libs/compiler-rt-sanitizers-16.0.0_rc1 -lsan -safestack -scudo -tsan -ubsan
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-07-08)
+# virtual/{jdk,jre} is not available on loong yet.
+app-office/libreoffice libreoffice_extensions_scripting-beanshell libreoffice_extensions_scripting-javascript
+media-libs/rubberband jni
+www-client/chromium js-type-check
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-05-13)
+# Fails testing at least with libssh-0.9.6 and mbedtls-2.28.0-r1, needs
+# investigation.
+net-libs/libssh mbedtls
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-04-24)
+# Unmask experimental-loong on packages; we're loong.
+sys-libs/glibc -experimental-loong
+sys-libs/libseccomp -experimental-loong
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-04-18)
+# Mask io-uring & zbc pending keywording
+sys-block/fio -io-uring -zbc
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-04-18)
+# We never had non-deprecated libcrypt support from glibc, so disable compat
+# from libxcrypt for a world without libcrypt.so.1
+sys-libs/libxcrypt compat
+
+# WANG Xuerui <xen0n@gentoo.org> (2022-04-18)
+# Catalyst has support for assembling bootloader on this arch
+dev-util/catalyst -system-bootloader
+
+# The below masks are liberally taken from riscv, which has similar
+# limitations.
+
+# LoongArch has no gold
+sys-devel/binutils gold
+
+# These aren't ported to LoongArch yet
+dev-libs/libpcre2 jit
+dev-libs/libpcre jit
+www-servers/nginx pcre-jit
+
+# End snippets taken from riscv

@@ -1,0 +1,1 @@
+- libarchive ([CVE-2022-26280](https://nvd.nist.gov/vuln/detail/CVE-2022-26280))

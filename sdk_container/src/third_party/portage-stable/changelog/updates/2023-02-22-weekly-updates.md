@@ -1,0 +1,4 @@
+- SDK: cmake ([3.25.2](https://cmake.org/cmake/help/v3.25/release/3.25.html))
+- iputils ([20221126](https://github.com/iputils/iputils/releases/tag/20221126))
+- libpcre2 ([10.42](https://github.com/PCRE2Project/pcre2/blob/pcre2-10.42/NEWS))
+- strace ([6.1](https://github.com/strace/strace/releases/tag/v6.1))

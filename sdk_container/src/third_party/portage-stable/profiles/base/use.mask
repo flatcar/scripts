@@ -1,0 +1,91 @@
+# Copyright 1999-2022 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+# This file is only for generic masks. For arch-specific masks (i.e.
+# mask everywhere, unmask on arch/*) use arch/base.
+
+# Sam James <sam@gentoo.org> (2022-08-02)
+# Masked for testing. The split of some packages may still
+# change. bug #838970.
+qt6
+
+# Matt Turner <mattst88@gentoo.org> (2022-04-16)
+# dev-util/sysprof not keyworded on most arches yet
+sysprof
+
+# Brian Evans <grknight@gentoo.org> (2022-01-21)
+# PHP 7.3 is end-of-life
+# Please upgrade to a newer slot
+php_targets_php7-3
+
+# Sam James <sam@gentoo.org> (2022-01-12)
+# PCH has proven itself to be unreliable and lead to spurious build
+# failures. Masking so users aren't exposed to such failures without opting-in.
+# Failures aren't always reproducible and implementations are often fragile.
+# Please speak to <toolchain@gentoo.org> and/or <qa@gentoo.org> before dropping.
+# See e.g. bug #753323, bug #822690.
+pch
+
+# Brian Evans <grknight@gentoo.org> (2021-01-07)
+# PHP 7.2 is security vulnerable and end-of-life
+# Please upgrade to a newer slot
+php_targets_php7-2
+
+# Matt Turner <mattst88@gentoo.org> (2019-09-01)
+# app-office/texmacs is package.mask'd. Bug #436400
+texmacs
+
+# Matt Turner <mattst88@gentoo.org> (2018-11-11)
+# d3d9 only works on amd64/x86.
+d3d9
+
+# winssl is for prefix/windows/winnt only
+winssl
+
+# CURL_SSL=winssl is for prefix/windows/winnt only
+curl_ssl_winssl
+
+# masking here and unmasking in default/linux/
+kmod
+
+# not ready for primetime
+packagekit
+
+# profile specific USE flags
+# Don't put hardened in here.
+# TODO: move multilib into arch/base once inherit order is fixed
+selinux
+multilib
+
+# Mask ELIBC, KERNEL, and USERLAND flags that apply to specific profiles.
+userland_BSD
+
+elibc_bionic
+elibc_Cygwin
+elibc_Darwin
+elibc_musl
+elibc_SunOS
+elibc_Winnt
+
+kernel_Darwin
+kernel_SunOS
+kernel_Winnt
+
+# Diego Pettenò <flameeyes@gentoo.org> (2006-12-30)
+# These are specific of Mac OS X
+aqua
+coreaudio
+
+# Jeremy Olexa <darkside@gentoo.org>
+# The prefix USE flags should never be used on non prefix profiles
+prefix
+prefix-guest
+prefix-stack
+
+# Diego Elio Pettenò <flameeyes@gentoo.org> (2012-08-18)
+# Prelude is being masked for removal
+prelude
+
+# Diego Elio Pettenò <flameeyes@gentoo.org> (2012-08-27)
+# netlink is a Linux-specific interface
+netlink

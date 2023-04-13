@@ -1,0 +1,2 @@
+- tar ([CVE-2022-48303](https://nvd.nist.gov/vuln/detail/CVE-2022-48303))
+- vim ([CVE-2023-1127](https://nvd.nist.gov/vuln/detail/CVE-2023-1127), [CVE-2023-1175](https://nvd.nist.gov/vuln/detail/CVE-2023-1175), [CVE-2023-1170](https://nvd.nist.gov/vuln/detail/CVE-2023-1170))

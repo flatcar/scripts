@@ -1,0 +1,1 @@
+- bind tools ([9.16.33](https://gitlab.isc.org/isc-projects/bind9/-/raw/v9_16_33/CHANGES))

@@ -1,0 +1,1 @@
+- libxml2 ([CVE-2022-40303](https://nvd.nist.gov/vuln/detail/CVE-2022-40303), [CVE-2022-40304](https://nvd.nist.gov/vuln/detail/CVE-2022-40304))
