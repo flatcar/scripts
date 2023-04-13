@@ -16,8 +16,6 @@ if [ $# -lt 1 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
   echo "restart the leaf job after retagging. Note: Just starting a leaf job with your"
   echo "branch as reference is not valid because it would overwrite the nightly build"
   echo "artifacts!"
-  echo
-  echo "TODO: Add feature to update coreos-overlay/portage-stable submodule refs"
   exit 1
 fi
 
