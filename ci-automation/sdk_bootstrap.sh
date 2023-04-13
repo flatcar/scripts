@@ -26,41 +26,27 @@
 #
 # OPTIONAL INPUT:
 #
-#   3. coreos-overlay repository tag to use (commit-ish).
-#       This version will be checked out / pulled from remote in the coreos-overlay git submodule.
-#       The submodule config will be updated to point to this version before the TARGET SDK tag is created and pushed.
-#       Leave empty to use coreos-overlay as-is.
-#
-#   4. portage-stable repository tag to use (commit-ish).
-#       This version will be checked out / pulled from remote in the portage-stable git submodule.
-#       The submodule config will be updated to point to this version before the TARGET SDK tag is created and pushed.
-#       Leave empty to use portage-stable as-is.
-#
-#   5. ARCH. Environment variable. Target architecture for the SDK to run on.
+#   3. ARCH. Environment variable. Target architecture for the SDK to run on.
 #        Either "amd64" or "arm64"; defaults to "amd64" if not set.
 #
-#   6. SIGNER. Environment variable. Name of the owner of the artifact signing key.
+#   4. SIGNER. Environment variable. Name of the owner of the artifact signing key.
 #        Defaults to nothing if not set - in such case, artifacts will not be signed.
 #        If provided, SIGNING_KEY environment variable should also be provided, otherwise this environment variable will be ignored.
 #
-#   7. SIGNING_KEY. Environment variable. The artifact signing key.
+#   5. SIGNING_KEY. Environment variable. The artifact signing key.
 #        Defaults to nothing if not set - in such case, artifacts will not be signed.
 #        If provided, SIGNER environment variable should also be provided, otherwise this environment variable will be ignored.
 #
-#   8. A file ../scripts.patch to apply with "git am -3" for the scripts repo.
+#   6. A file ../scripts.patch to apply with "git am -3" for the scripts repo.
 #
-#   9. A file ../overlay.patch to apply with "git am -3" for the coreos-overlay sub-module.
-#
-#   10. A file ../portage.patch to apply with "git am -3" for the portage-stable sub-module.
-#
-#   11. AVOID_NIGHTLY_BUILD_SHORTCUTS. Environment variable. Tells the script to build the SDK even if nothing has changed since last nightly build.
+#   7. AVOID_NIGHTLY_BUILD_SHORTCUTS. Environment variable. Tells the script to build the SDK even if nothing has changed since last nightly build.
 #        See the description in ci-config.env.
 #
 # OUTPUT:
 #
 #   1. SDK tarball (gentoo catalyst output) of the new SDK, pushed to buildcache.
 #   2. Updated scripts repository
-#        - version tag w/ submodules
+#        - version tag
 #        - sdk_container/.repo/manifests/version.txt denotes new SDK version
 #   3. "./ci-cleanup.sh" with commands to clean up temporary build resources,
 #        to be run after this step finishes / when this step is aborted.
@@ -81,32 +67,19 @@ function sdk_bootstrap() {
 function _sdk_bootstrap_impl() {
     local seed_version="$1"
     local version="$2"
-    local coreos_git="${3-}"
-    local portage_git="${4-}"
     : ${ARCH:="amd64"}
 
     source ci-automation/ci_automation_common.sh
     source ci-automation/gpg_setup.sh
-    init_submodules
 
     check_version_string "${version}"
 
-    if [ -n "${coreos_git}" ] ; then
-        update_submodule "coreos-overlay" "${coreos_git}"
-    fi
-    if [ -n "${portage_git}" ] ; then
-        update_submodule "portage-stable" "${portage_git}"
-    fi
-
-    # Create new tag in scripts repo w/ updated versionfile + submodules.
+    # Create new tag in scripts repo w/ updated versionfile.
     # Also push the changes to the branch ONLY IF we're doing a nightly
     #   build of the 'main' branch AND we're definitely ON the main branch
-    #   (`scripts` and submodules).
     local push_branch="false"
     if   [[ "${version}" =~ ^main-[0-9.]+-nightly-[-0-9]+$ ]] \
-       && [ "$(git rev-parse --abbrev-ref HEAD)" = "main"  ] \
-       && [ "$(git -C sdk_container/src/third_party/coreos-overlay/ rev-parse --abbrev-ref HEAD)" = "main"  ] \
-       && [ "$(git -C sdk_container/src/third_party/portage-stable/ rev-parse --abbrev-ref HEAD)" = "main"  ] ; then
+       && [ "$(git rev-parse --abbrev-ref HEAD)" = "main"  ] ; then
         push_branch="true"
         local existing_tag=""
         # Check for the existing tag only when we allow shortcutting
