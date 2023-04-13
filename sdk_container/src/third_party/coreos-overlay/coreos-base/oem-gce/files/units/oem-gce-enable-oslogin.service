@@ -1,0 +1,15 @@
+[Unit]
+Description=Enable GCE OS Login
+ConditionFirstBoot=true
+DefaultDependencies=false
+After=systemd-tmpfiles-setup.service
+Before=sshd.service
+Before=sshd.socket
+
+[Service]
+Type=oneshot
+
+ExecStart=/usr/share/oem/bin/enable-oslogin
+
+[Install]
+WantedBy=sysinit.target

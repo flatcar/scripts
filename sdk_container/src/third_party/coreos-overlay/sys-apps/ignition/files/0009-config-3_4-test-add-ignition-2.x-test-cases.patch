@@ -1,0 +1,44 @@
+From 31c8a45bd9468de7e348f28301d979614ae25c83 Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mathieu@kinvolk.io>
+Date: Thu, 2 Sep 2021 11:03:17 +0200
+Subject: [PATCH 09/16] config/3_4/test: add ignition 2.x test cases
+
+Signed-off-by: Mathieu Tortuyaux <mathieu@kinvolk.io>
+---
+ config/v3_4_experimental/config_test.go | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+
+diff --git a/config/v3_4_experimental/config_test.go b/config/v3_4_experimental/config_test.go
+index e334ca85..eaa817be 100644
+--- a/config/v3_4_experimental/config_test.go
++++ b/config/v3_4_experimental/config_test.go
+@@ -149,6 +149,26 @@ func TestParse(t *testing.T) {
+ 		in  in
+ 		out out
+ 	}{
++		{
++			in:  in{config: []byte(`{"ignition": {"version": "2.0.0"}}`)},
++			out: out{config: types.Config{Ignition: types.Ignition{Version: types.MaxVersion.String()}}},
++		},
++		{
++			in:  in{config: []byte(`{"ignition": {"version": "2.1.0"}}`)},
++			out: out{config: types.Config{Ignition: types.Ignition{Version: types.MaxVersion.String()}}},
++		},
++		{
++			in:  in{config: []byte(`{"ignition": {"version": "2.2.0"}}`)},
++			out: out{config: types.Config{Ignition: types.Ignition{Version: types.MaxVersion.String()}}},
++		},
++		{
++			in:  in{config: []byte(`{"ignition": {"version": "2.3.0"}}`)},
++			out: out{config: types.Config{Ignition: types.Ignition{Version: types.MaxVersion.String()}}},
++		},
++		{
++			in:  in{config: []byte(`{"ignition": {"version": "2.4.0"}}`)},
++			out: out{config: types.Config{Ignition: types.Ignition{Version: types.MaxVersion.String()}}},
++		},
+ 		{
+ 			in:  in{config: []byte(`{"ignition": {"version": "3.0.0"}}`)},
+ 			out: out{config: types.Config{Ignition: types.Ignition{Version: types.MaxVersion.String()}}},
+-- 
+2.35.1
+

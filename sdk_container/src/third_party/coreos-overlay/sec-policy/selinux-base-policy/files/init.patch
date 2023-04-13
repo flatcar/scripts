@@ -1,0 +1,11 @@
+diff --git a/policy/modules/system/init.te b/policy/modules/system/init.te
+index dbd39cf8f..563559ca7 100644
+--- refpolicy/policy/modules/system/init.te
++++ refpolicy/policy/modules/system/init.te
+@@ -1503,3 +1503,6 @@ optional_policy(`
+ 	userdom_dontaudit_rw_all_users_stream_sockets(systemprocess)
+ 	userdom_dontaudit_write_user_tmp_files(systemprocess)
+ ')
++
++require { type unconfined_t; }
++allow init_t unconfined_t:file exec_file_perms;

@@ -1,0 +1,12 @@
+As Flatcar uses the flatcar-network module, we need to replace it in the iscsi
+module setup in order to enable iscsi support.
+diff --git a/modules.d/95iscsi/module-setup.sh b/modules.d/95iscsi/module-setup.sh
+@@ -183,7 +183,7 @@
+ 
+ # called by dracut
+ depends() {
+-    echo network rootfs-block
++    echo flatcar-network rootfs-block
+ }
+ 
+ # called by dracut

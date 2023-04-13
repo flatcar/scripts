@@ -1,0 +1,1 @@
+- systemd ([CVE-2022-3821](https://nvd.nist.gov/vuln/detail/CVE-2022-3821), [CVE-2022-4415](https://nvd.nist.gov/vuln/detail/CVE-2022-4415))

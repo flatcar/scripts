@@ -1,0 +1,14 @@
+The constexpr keyword is missing for a function that was invoked from
+another constexpr function. Add the missing keyword.
+
+--- a/libstdc++-v3/src/c++17/memory_resource.cc	2022-12-09 22:33:43.000000000 -0000
++++ b/libstdc++-v3/src/c++17/memory_resource.cc	2023-01-25 13:14:24.025359063 -0000
+@@ -603,7 +603,7 @@
+     void* pointer = nullptr;
+     aligned_size<min> _M_size;
+ 
+-    size_t size() const noexcept
++    constexpr size_t size() const noexcept
+     {
+       if (_M_size.value == size_t(-1)) [[unlikely]]
+ 	return size_t(-1);

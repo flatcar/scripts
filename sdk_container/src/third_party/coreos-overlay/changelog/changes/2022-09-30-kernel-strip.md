@@ -1,0 +1,1 @@
+- Switched from `--strip-unneeded` to `--strip-debug` when installing kernel modules, which makes kernel stacktraces more accurate and makes debugging issues easier ([coreos-overlay#2196](https://github.com/flatcar/coreos-overlay/pull/2196))

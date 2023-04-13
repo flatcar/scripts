@@ -1,0 +1,40 @@
+From b91011089663e9633e0f0866eff618f8b6d16b3d Mon Sep 17 00:00:00 2001
+From: Kai Lueke <kailuke@microsoft.com>
+Date: Tue, 15 Nov 2022 18:55:42 +0100
+Subject: [PATCH] Workaround for the gentoo eclass
+
+---
+ Cargo.lock | 3 ++-
+ Cargo.toml | 2 +-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/Cargo.lock b/Cargo.lock
+index f9e965e..f3827fc 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -155,7 +155,8 @@ dependencies = [
+ [[package]]
+ name = "openssh-keys"
+ version = "0.5.1-alpha.0"
+-source = "git+https://github.com/pothos/openssh-keys?branch=add-sk-keys#66e2295928e09c596ba258482b0fad78f50d167b"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "91103a05342d53a67cf387a8610e523347143a4230814f385d31759431ddfa8d"
+ dependencies = [
+  "base64",
+  "byteorder",
+diff --git a/Cargo.toml b/Cargo.toml
+index 1ff4f81..5ff86d7 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -14,7 +14,7 @@ clap = "2.33"
+ fs2 = "0.4"
+ # Public dependencies, exposed through library API.
+ error-chain = { version = "0.12", default-features = false }
+-openssh-keys = { git = "https://github.com/pothos/openssh-keys", branch = "add-sk-keys" }
++openssh-keys = "0.5.1-alpha.0"
+ users = "0.9"
+ 
+ [[bin]]
+-- 
+2.38.1
+

@@ -1,0 +1,1 @@
+- ca-certificates ([3.88.1](https://firefox-source-docs.mozilla.org/security/nss/releases/nss_3_88_1.html))

@@ -1,0 +1,5 @@
+# Checking if a GSSAPI implementation supports SPNEGO feature involves
+# running a binary built during the configuration phase. This
+# obviously won't work in case of cross-compilation, so we state up
+# front that SPNEGO is supported.
+export ac_cv_gssapi_supports_spnego=yes

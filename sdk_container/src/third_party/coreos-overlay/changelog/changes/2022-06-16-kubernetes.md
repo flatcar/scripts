@@ -1,0 +1,1 @@
+- Enabled `containerd.service` unit, `br_netfilter` and `overlay` modules by default to follow Kubernetes requirements ([coreos-overlay#1944](https://github.com/flatcar-linux/coreos-overlay/pull/1944), [init#72](https://github.com/flatcar-linux/init/pull/72))

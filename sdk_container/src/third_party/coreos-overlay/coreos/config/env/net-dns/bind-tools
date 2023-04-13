@@ -1,0 +1,10 @@
+# Work around lame function attribute checks when cross-compiling.
+# Linker emits a bunch of irrelevant warnings and that trips configure
+# script up into thinking that those attributes are not
+# supported. Upstream bind-tools already fixed that by being smarter
+# and grepping for -Wattributes instead, but we are not yet packaging
+# it. We also know that constructor and destructor attributes are
+# supported - they are available since at least gcc 3.4.
+
+EXTRA_ECONF+=" ax_cv_have_func_attribute_constructor=yes"
+EXTRA_ECONF+=" ax_cv_have_func_attribute_destructor=yes"

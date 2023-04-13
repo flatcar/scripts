@@ -1,0 +1,197 @@
+From a0bf53e18fc9de8f6bce2f37faf9e5810a7faa18 Mon Sep 17 00:00:00 2001
+From: Kai Lueke <kailuke@microsoft.com>
+Date: Fri, 11 Feb 2022 15:41:12 +0100
+Subject: [PATCH 16/16] internal/exec/stages/disks: prevent races with udev
+
+The "udevadm settle" command used to wait for udev to process the disk
+changes and recreate the entries under /dev was still prone to races
+where udev didn't get notified yet of the final event to wait for.
+This caused the boot with a btrfs root filesystem created by Ignition
+to fail almost every time on certain hardware.
+
+Issue tagged events and wait for them to be processed by udev. This is
+actually meanigful in all stages not only for the other parts of the
+initramfs which may be surprised by sudden device nodes disappearing
+shortly like the case was with systemd's fsck service but also for the
+inter-stage dependencies which currently are using the waiter for
+systemd device units but that doesn't really prevent from races with
+udev device node recreation. Thus, these changes are complementary to
+the existing waiter which mainly has the purpose to wait for unmodified
+devices. For newly created RAIDs we can wait for the new node to be
+available as udev will not recreate it.
+Note: This is a port for Ignition 0.35 while for 2.2 this also should
+be done for LUKS.
+---
+ internal/exec/stages/disks/disks.go       | 63 ++++++++++++-----------
+ internal/exec/stages/disks/filesystems.go | 23 +++++++++
+ internal/exec/stages/disks/partitions.go  |  9 ++++
+ internal/exec/stages/disks/raid.go        | 12 +++++
+ 4 files changed, 78 insertions(+), 29 deletions(-)
+
+diff --git a/internal/exec/stages/disks/disks.go b/internal/exec/stages/disks/disks.go
+index 4bb3e459..23bb7866 100644
+--- a/internal/exec/stages/disks/disks.go
++++ b/internal/exec/stages/disks/disks.go
+@@ -22,6 +22,7 @@ import (
+ 	"errors"
+ 	"fmt"
+ 	"os/exec"
++	"path/filepath"
+ 
+ 	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
+ 	"github.com/flatcar/ignition/v2/internal/distro"
+@@ -105,35 +106,39 @@ func (s stage) Run(config types.Config) error {
+ 		return fmt.Errorf("failed to create filesystems: %v", err)
+ 	}
+ 
+-	// udevd registers an IN_CLOSE_WRITE inotify watch on block device
+-	// nodes, and synthesizes udev "change" events when the watch fires.
+-	// mkfs.btrfs triggers multiple such events, the first of which
+-	// occurs while there is no recognizable filesystem on the
+-	// partition. Thus, if an existing partition is reformatted as
+-	// btrfs while keeping the same filesystem label, there will be a
+-	// synthesized uevent that deletes the /dev/disk/by-label symlink
+-	// and a second one that restores it. If we didn't account for this,
+-	// a systemd unit that depended on the by-label symlink (e.g.
+-	// systemd-fsck-root.service) could have the symlink deleted out
+-	// from under it.
+-	//
+-	// There's no way to fix this completely. We can't wait for the
+-	// restoring uevent to propagate, since we can't determine which
+-	// specific uevents were triggered by the mkfs. We can wait for
+-	// udev to settle, though it's conceivable that the deleting uevent
+-	// has already been processed and the restoring uevent is still
+-	// sitting in the inotify queue. In practice the uevent queue will
+-	// be the slow one, so this should be good enough.
+-	//
+-	// Test case: boot failure in coreos.ignition.*.btrfsroot kola test.
+-	//
+-	// Additionally, partitioning (and possibly creating raid) suffers
+-	// the same problem. To be safe, always settle.
+-	if _, err := s.Logger.LogCmd(
+-		exec.Command(distro.UdevadmCmd(), "settle"),
+-		"waiting for udev to settle",
+-	); err != nil {
+-		return fmt.Errorf("udevadm settle failed: %v", err)
++	return nil
++}
++
++// waitForUdev triggers a tagged event and waits for it to bubble up
++// again. This ensures that udev processed the device changes.
++// The requirement is that the used device path exists and itself is
++// not recreated by udev seeing the changes done. Thus, resolve a
++// /dev/disk/by-something/X symlink before performing the device
++// changes (i.e., pass /run/ignition/dev_aliases/X) and, e.g., don't
++// call it for a partition but the full disk if you modified the
++// partition table.
++func (s stage) waitForUdev(dev, ctxt string) error {
++	// Resolve the original /dev/ABC entry because udevadm wants
++	// this as argument instead of a symlink like
++	// /run/ignition/dev_aliases/X.
++	devPath, err := filepath.EvalSymlinks(dev)
++	if err != nil {
++		return fmt.Errorf("failed to resolve device alias %q on %s: %v", dev, ctxt, err)
++	}
++	// By triggering our own event and waiting for it we know that udev
++	// will have processed the device changes, a bare "udevadm settle"
++	// is prone to races with the inotify queue. We expect the /dev/DISK
++	// entry to exist because this function is either called for the full
++	// disk and only the /dev/DISKpX partition entries will change, or the
++	// function is called for a partition where the contents changed and
++	// nothing causes the kernel/udev to reread the partition table and
++	// recreate the /dev/DISKpX entries. If that was the case best we could
++	// do here is to add a retry loop (and relax the function comment).
++	_, err = s.Logger.LogCmd(
++		exec.Command(distro.UdevadmCmd(), "trigger", "--settle",
++			devPath), "waiting for triggered uevent")
++	if err != nil {
++		return fmt.Errorf("udevadm trigger failed on %s: %v", ctxt, err)
+ 	}
+ 
+ 	return nil
+diff --git a/internal/exec/stages/disks/filesystems.go b/internal/exec/stages/disks/filesystems.go
+index 4de09498..ed7430fa 100644
+--- a/internal/exec/stages/disks/filesystems.go
++++ b/internal/exec/stages/disks/filesystems.go
+@@ -210,6 +210,29 @@ func (s stage) createFilesystem(fs types.Filesystem) error {
+ 		return fmt.Errorf("mkfs failed: %v", err)
+ 	}
+ 
++	// udevd registers an IN_CLOSE_WRITE inotify watch on block device
++	// nodes, and synthesizes udev "change" events when the watch fires.
++	// mkfs.btrfs triggers multiple such events, the first of which
++	// occurs while there is no recognizable filesystem on the
++	// partition. Thus, if an existing partition is reformatted as
++	// btrfs while keeping the same filesystem label, there will be a
++	// synthesized uevent that deletes the /dev/disk/by-label symlink
++	// and a second one that restores it. If we didn't account for this,
++	// a systemd unit that depended on the by-label symlink (e.g.
++	// systemd-fsck-root.service) could have the symlink deleted out
++	// from under it.
++	// Trigger a tagged uevent and wait for it because a bare "udevadm
++	// settle" does not guarantee that all changes were processed
++	// because it's conceivable that only the deleting uevent has
++	// already been processed (or none!) while the restoring uevent
++	// is still sitting in the inotify queue. By triggering our own
++	// event and waiting for it we know that udev will have processed
++	// the device changes.
++	// Test case: boot failure in coreos.ignition.*.btrfsroot kola test.
++	if err := s.waitForUdev(devAlias, "createFilesystems"); err != nil {
++		return err
++	}
++
+ 	return nil
+ }
+ 
+diff --git a/internal/exec/stages/disks/partitions.go b/internal/exec/stages/disks/partitions.go
+index fee39c0a..feb006bd 100644
+--- a/internal/exec/stages/disks/partitions.go
++++ b/internal/exec/stages/disks/partitions.go
+@@ -394,5 +394,14 @@ func (s stage) partitionDisk(dev types.Disk, devAlias string) error {
+ 	if err := op.Commit(); err != nil {
+ 		return fmt.Errorf("commit failure: %v", err)
+ 	}
++
++	// It's best to wait here for the /dev/ABC entries to be
++	// (re)created, not only for other parts of the initramfs but
++	// also because s.waitOnDevices() can still race with udev's
++	// partition entry recreation.
++	if err := s.waitForUdev(devAlias, "createPartitions"); err != nil {
++		return err
++	}
++
+ 	return nil
+ }
+diff --git a/internal/exec/stages/disks/raid.go b/internal/exec/stages/disks/raid.go
+index 2781131b..2da3f5ec 100644
+--- a/internal/exec/stages/disks/raid.go
++++ b/internal/exec/stages/disks/raid.go
+@@ -22,6 +22,7 @@ package disks
+ import (
+ 	"fmt"
+ 	"os/exec"
++	"strings"
+ 
+ 	"github.com/flatcar/ignition/v2/config/v3_4_experimental/types"
+ 	"github.com/flatcar/ignition/v2/internal/distro"
+@@ -78,6 +79,17 @@ func (s stage) createRaids(config types.Config) error {
+ 		); err != nil {
+ 			return fmt.Errorf("mdadm failed: %v", err)
+ 		}
++
++		devName := md.Name
++		if !strings.HasPrefix(devName, "/dev") {
++			devName = "/dev/md/" + md.Name
++		}
++		// Wait for the created device node to show up, no udev
++		// race prevention required because this node did not
++		// exist before.
++		if err := s.waitOnDevices([]string{devName}, "raids"); err != nil {
++			return err
++		}
+ 	}
+ 
+ 	return nil
+-- 
+2.35.1
+

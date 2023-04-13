@@ -1,0 +1,1 @@
+- The Ignition v3 kargs directive failed before when used with the generic image where no `grub.cfg` exists, this was fixed by creating it first ([bootengine#47](https://github.com/flatcar-linux/bootengine/pull/47))

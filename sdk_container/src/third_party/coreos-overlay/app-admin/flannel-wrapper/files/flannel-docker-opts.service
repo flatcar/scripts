@@ -1,0 +1,24 @@
+[Unit]
+Description=flannel docker export service - Network fabric for containers (System Application Container)
+Documentation=https://github.com/coreos/flannel
+PartOf=flanneld.service
+Requires=flanneld.service
+After=flanneld.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+Restart=on-failure
+RestartSec=5s
+
+Environment="FLANNEL_IMAGE_URL=quay.io/coreos/flannel"
+Environment="FLANNEL_IMAGE_TAG=@FLANNEL_IMAGE_TAG@"
+Environment="FLANNEL_CMD=/opt/bin/mk-docker-opts.sh"
+Environment="FLANNEL_CONTAINER=flannel-docker-opts"
+
+ExecStart=/usr/lib/flatcar/flannel-wrapper -d /run/flannel/flannel_docker_opts.env -i
+ExecStop=/usr/bin/docker stop flannel-docker-opts
+ExecStopPost=/usr/bin/docker rm flannel-docker-opts
+
+[Install]
+WantedBy=multi-user.target

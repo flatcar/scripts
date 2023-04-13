@@ -1,0 +1,1 @@
+- Python for OEM images (Azure) ([3.9.8](https://www.python.org/downloads/release/python-398/))

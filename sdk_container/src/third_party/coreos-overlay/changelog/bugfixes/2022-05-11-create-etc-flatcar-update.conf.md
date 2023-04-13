@@ -1,0 +1,1 @@
+- Ensured `/etc/flatcar/update.conf` exists because it happens to be used as flag file for Ansible ([init#71](https://github.com/flatcar-linux/init/pull/71))

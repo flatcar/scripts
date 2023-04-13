@@ -1,0 +1,15 @@
+[Unit]
+Description=Set time via SNTP
+After=network.target NetworkManager-wait-online.service nss-lookup.target
+Before=time-sync.target
+Wants=time-sync.target
+Conflicts=systemd-timesyncd.service
+
+[Service]
+Type=oneshot
+Environment="SERVER=0.flatcar.pool.ntp.org 1.flatcar.pool.ntp.org 2.flatcar.pool.ntp.org 3.flatcar.pool.ntp.org"
+ExecStart=/usr/bin/sntp -s $SERVER
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

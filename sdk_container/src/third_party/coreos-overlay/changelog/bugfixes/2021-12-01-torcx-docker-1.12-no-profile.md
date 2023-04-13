@@ -1,0 +1,1 @@
+- The Torcx profile `docker-1.12-no` got fixed to reference the current Docker version instead of 19.03 which wasn't found on the image, causing Torcx to fail to provide Docker [PR#1456](https://github.com/flatcar-linux/coreos-overlay/pull/1456)
