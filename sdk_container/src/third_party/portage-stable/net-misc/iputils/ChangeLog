@@ -1,0 +1,219 @@
+# ChangeLog for net-misc/iputils
+# Copyright 1999-2016 Gentoo Foundation; Distributed under the GPL v2
+# (auto-generated from git log)
+
+*iputils-99999999 (09 Aug 2015)
+*iputils-20121221-r2 (09 Aug 2015)
+*iputils-20121221-r1 (09 Aug 2015)
+*iputils-20121221 (09 Aug 2015)
+
+  09 Aug 2015; Robin H. Johnson <robbat2@gentoo.org>
+  +files/021109-uclibc-no-ether_ntohost.patch,
+  +files/iputils-20071127-nonroot-floodping.patch,
+  +files/iputils-20100418-so_mark.patch,
+  +files/iputils-20121221-crypto-build.patch,
+  +files/iputils-20121221-makefile.patch,
+  +files/iputils-20121221-openssl.patch,
+  +files/iputils-20121221-owl-pingsock.diff,
+  +files/iputils-20121221-parallel-doc.patch,
+  +files/iputils-20121221-printf-size.patch,
+  +files/iputils-20121221-strtod.patch,
+  +files/iputils-20121221-tftpd-setid.patch,
+  +files/iputils-20121221-tftpd-syslog.patch,
+  +files/iputils-99999999-openssl.patch,
+  +files/iputils-99999999-tftpd-syslog.patch, +files/rarpd.conf.d,
+  +files/rarpd.init.d, +iputils-20121221.ebuild, +iputils-20121221-r1.ebuild,
+  +iputils-20121221-r2.ebuild, +iputils-99999999.ebuild, +metadata.xml:
+  proj/gentoo: Initial commit
+
+  This commit represents a new era for Gentoo:
+  Storing the gentoo-x86 tree in Git, as converted from CVS.
+
+  This commit is the start of the NEW history.
+  Any historical data is intended to be grafted onto this point.
+
+  Creation process:
+  1. Take final CVS checkout snapshot
+  2. Remove ALL ChangeLog* files
+  3. Transform all Manifests to thin
+  4. Remove empty Manifests
+  5. Convert all stale $Header$/$Id$ CVS keywords to non-expanded Git $Id$
+  5.1. Do not touch files with -kb/-ko keyword flags.
+
+  Signed-off-by: Robin H. Johnson <robbat2@gentoo.org>
+  X-Thanks: Alec Warner <antarus@gentoo.org> - did the GSoC 2006 migration
+  tests
+  X-Thanks: Robin H. Johnson <robbat2@gentoo.org> - infra guy, herding this
+  project
+  X-Thanks: Nguyen Thai Ngoc Duy <pclouds@gentoo.org> - Former Gentoo
+  developer, wrote Git features for the migration
+  X-Thanks: Brian Harring <ferringb@gentoo.org> - wrote much python to improve
+  cvs2svn
+  X-Thanks: Rich Freeman <rich0@gentoo.org> - validation scripts
+  X-Thanks: Patrick Lauer <patrick@gentoo.org> - Gentoo dev, running new 2014
+  work in migration
+  X-Thanks: Michał Górny <mgorny@gentoo.org> - scripts, QA, nagging
+  X-Thanks: All of other Gentoo developers - many ideas and lots of paint on
+  the bikeshed
+
+  09 Aug 2015; Ulrich Müller <ulm@gentoo.org> files/rarpd.init.d:
+  [QA] Remove executable bit from files, bug 550434.
+
+*iputils-20150815 (20 Aug 2015)
+
+  20 Aug 2015; Lars Wendler <polynomial-c@gentoo.org>
+  +files/iputils-20150815-nonroot-floodping.patch,
+  +files/iputils-20150815-ping6_crypto.patch,
+  +files/iputils-20150815-ping_default_ipv4.patch, +iputils-20150815.ebuild,
+  metadata.xml:
+  Bump to version 20150815.
+
+  Package-Manager: portage-2.2.20.1
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
+  24 Aug 2015; Justin Lecher <jlec@gentoo.org> iputils-20150815.ebuild,
+  metadata.xml:
+  Use https by default
+
+  Convert all URLs for sites supporting encrypted connections from http to
+  https
+
+  Signed-off-by: Justin Lecher <jlec@gentoo.org>
+
+  24 Aug 2015; Mike Gilbert <floppym@gentoo.org> metadata.xml:
+  Revert DOCTYPE SYSTEM https changes in metadata.xml
+
+  repoman does not yet accept the https version.
+  This partially reverts eaaface92ee81f30a6ac66fe7acbcc42c00dc450.
+
+  Bug: https://bugs.gentoo.org/552720
+
+*iputils-20150815-r1 (05 Oct 2015)
+
+  05 Oct 2015; Julian Ospald <hasufell@gentoo.org>
+  +iputils-20150815-r1.ebuild, iputils-99999999.ebuild:
+  add libressl support
+
+  05 Oct 2015; Julian Ospald <hasufell@gentoo.org> iputils-20150815-r1.ebuild,
+  iputils-99999999.ebuild:
+  fix bash substitution for libressl USE flag
+
+  16 Oct 2015; Justin Lecher <jlec@gentoo.org> metadata.xml:
+  Update remote-ids
+
+  Signed-off-by: Justin Lecher <jlec@gentoo.org>
+
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Unify quoting in metadata.xml files for machine processing
+
+  Force unified quoting in all metadata.xml files since lxml does not
+  preserve original use of single and double quotes. Ensuring unified
+  quoting before the process allows distinguishing the GLEP 67-related
+  metadata.xml changes from unrelated quoting changes.
+
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Replace all herds with appropriate projects (GLEP 67)
+
+  Replace all uses of herd with appropriate project maintainers, or no
+  maintainers in case of herds requested to be disbanded.
+
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Set appropriate maintainer types in metadata.xml (GLEP 67)
+
+  07 Mar 2016; Anthony G. Basile <blueness@gentoo.org>
+  iputils-20121221-r2.ebuild:
+  add libressl support to version 20121221-r2
+
+  Package-Manager: portage-2.2.26
+
+  07 Mar 2016; Anthony G. Basile <blueness@gentoo.org>
+  -iputils-20150815.ebuild:
+  remove 20150815 without libressl support
+
+  Package-Manager: portage-2.2.26
+
+  07 Mar 2016; Lars Wendler <polynomial-c@gentoo.org>
+  +files/iputils-20150815-defines_and_libs.patch,
+  +files/iputils-20150815-handle_single_protocol_system.patch,
+  -files/iputils-20150815-ping6_crypto.patch,
+  -files/iputils-20150815-ping_default_ipv4.patch, iputils-20150815-r1.ebuild:
+  Replaced two patches with upstream equivalents.
+
+  Package-Manager: portage-2.2.27
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
+*iputils-20160308 (09 Mar 2016)
+
+  09 Mar 2016; Lars Wendler <polynomial-c@gentoo.org>
+  iputils-20150815-r1.ebuild, +iputils-20160308.ebuild:
+  Bump to version 20160308
+
+  Package-Manager: portage-2.2.27
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
+*iputils-20151218 (19 Apr 2016)
+
+  19 Apr 2016; Lars Wendler <polynomial-c@gentoo.org>
+  +iputils-20151218.ebuild:
+  Bump to version 20151218
+
+  Package-Manager: portage-2.2.28
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
+  19 Apr 2016; Lars Wendler <polynomial-c@gentoo.org> iputils-99999999.ebuild:
+  Synced live ebuild with latest official release.
+
+  Package-Manager: portage-2.2.28
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
+  19 Apr 2016; Lars Wendler <polynomial-c@gentoo.org>
+  -iputils-20121221.ebuild, -iputils-20150815-r1.ebuild:
+  Removed old.
+
+  Package-Manager: portage-2.2.28
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
+  18 May 2016; Austin English <wizardedit@gentoo.org> files/rarpd.init.d:
+  use #!/sbin/openrc-run instead of #!/sbin/runscript
+
+  25 May 2016; Jeroen Roovers <jer@gentoo.org> iputils-20151218.ebuild:
+  Stable for HPPA PPC64 (bug #583960).
+
+  Package-Manager: portage-2.3.0_rc1
+  RepoMan-Options: --ignore-arches
+
+  25 May 2016; Matt Turner <mattst88@gentoo.org> iputils-20151218.ebuild:
+  alpha stable, bug 583960.
+
+  26 May 2016; Lars Wendler <polynomial-c@gentoo.org> iputils-20151218.ebuild:
+  x86 stable (bug #583960).
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="x86"
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
+  27 May 2016; Lars Wendler <polynomial-c@gentoo.org> iputils-20151218.ebuild:
+  amd64 stable (bug #583960).
+
+  Package-Manager: portage-2.2.28
+  Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+
+  01 Jun 2016; Mike Frysinger <vapier@gentoo.org> iputils-20151218.ebuild:
+  mark 20151218 arm/arm64/ia64/m68k/ppc/s390/sh/sparc stable #583960
+
+  01 Jun 2016; Mike Frysinger <vapier@gentoo.org> iputils-20151218.ebuild,
+  iputils-99999999.ebuild:
+  make -lresolv linkage dynamic #584132
+
+  01 Jun 2016; Mike Frysinger <vapier@gentoo.org> iputils-20121221-r2.ebuild,
+  iputils-20151218.ebuild, iputils-20160308.ebuild, iputils-99999999.ebuild:
+  update traceroute blocker after package move #584362
+
+  19 Jun 2016; Benda Xu <heroxbd@gentoo.org> iputils-20151218.ebuild,
+  iputils-20160308.ebuild, iputils-99999999.ebuild:
+  remove EPREFIX from dosym.
+
+    ebuild helpers includes EPREFIX by default.
+
+  Package-Manager: portage-2.2.28
+
