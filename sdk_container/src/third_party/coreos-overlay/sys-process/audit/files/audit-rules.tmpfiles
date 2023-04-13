@@ -1,0 +1,6 @@
+d   /etc/audit                          750   -   -   -   -
+C   /etc/audit/auditd.conf              640  -   -   -   /usr/share/auditd/auditd.conf
+d   /etc/audit/rules.d                  750   -   -   -   -
+L   /etc/audit/rules.d/00-clear.rules   640   -   -   -   /usr/share/audit/rules.d/00-clear.rules
+L   /etc/audit/rules.d/80-selinux.rules 640   -   -   -   /usr/share/audit/rules.d/80-selinux.rules
+L   /etc/audit/rules.d/99-default.rules 640   -   -   -   /usr/share/audit/rules.d/99-default.rules

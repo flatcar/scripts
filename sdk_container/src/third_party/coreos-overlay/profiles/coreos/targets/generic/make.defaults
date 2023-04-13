@@ -1,0 +1,109 @@
+# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
+# Distributed under the terms of the GNU General Public License v2
+
+USE="cros-debug acpi usb symlink-usr cryptsetup policykit"
+USE="${USE} -split-usr -cros_host -expat -cairo -X -man"
+USE="${USE} -acl -gpm -python"
+USE="${USE} -fortran -abiword -perl -cups -poppler-data -nls"
+
+# Exclude documentation
+FEATURES="nodoc noinfo noman"
+
+# Exclude even more documentation
+# Remove bash-completion files as we don't install bash-completion.
+# Remove locale LC_MESSAGES files.
+# Remove sqlite3 binary installation provided by dev-db/sqlite as we only need the libs.
+INSTALL_MASK="${INSTALL_MASK}
+  /usr/sbin/locale-gen
+  /usr/share/bash-completion
+  /usr/share/gtk-doc
+  /usr/share/locale
+  /usr/share/zsh
+  /var/db/Makefile
+  /usr/bin/sqlite3
+"
+
+# Exclude assorted config files that we can do without
+INSTALL_MASK="${INSTALL_MASK}
+  /etc/bash_completion.d
+  /etc/DIR_COLORS
+  /etc/dmtab
+  /etc/e2fsck.conf
+  /etc/libnl
+  /etc/logrotate.conf
+  /etc/logrotate.d
+  /etc/lvm/*
+  /etc/mdadm.conf
+  /etc/rsyncd.conf
+  /etc/sudoers
+  /etc/wgetrc
+  /etc/xinetd.d
+  /etc/vim/vimrc
+"
+
+# Remove selinuxenabled because it triggers breakage in Ansible
+INSTALL_MASK="${INSTALL_MASK}
+  /usr/sbin/selinuxenabled
+"
+
+# Remove files which depends on interpreters not present in boards.
+INSTALL_MASK="${INSTALL_MASK}
+  /usr/sbin/i2c-stub-from-dump
+
+  /usr/lib/modules/*-coreos/source/scripts/*.pl
+
+  /usr/share/git-core/templates/hooks/fsmonitor-watchman.sample
+  /usr/share/rsync/*
+
+  /usr/bin/glib-mkenums
+  /usr/bin/afmtodit
+  /usr/bin/decode-edid
+  /usr/bin/gtkdoc-rebase
+  /usr/bin/ddcmon
+  /usr/bin/mtrace
+  /usr/bin/import-tars
+  /usr/bin/help2man
+  /usr/bin/gropdf
+  /usr/bin/mmroff
+  /usr/bin/decode-dimms
+  /usr/bin/pdfmom
+  /usr/bin/decode-vaio
+  /etc/ssl/misc/CA.pl
+  /etc/ssl/misc/tsget
+"
+
+# Remove tools that don't need to be installed on every server.
+INSTALL_MASK="${INSTALL_MASK}
+  /usr/bin/cvtsudoers
+"
+
+# Do not install some of the tools from e2fsprogs.
+INSTALL_MASK="${INSTALL_MASK}
+  /usr/bin/mk_cmds
+  /usr/bin/compile_et
+  /usr/share/et
+  /usr/share/ss
+"
+
+# Override UIDs and GIDs where ours differ from Gentoo defaults.
+ACCT_GROUP_DIALOUT_ID=249
+ACCT_GROUP_INPUT_ID=28
+ACCT_GROUP_MESSAGEBUS_ID=201
+ACCT_USER_MESSAGEBUS_ID=201
+ACCT_GROUP_NTP_ID=203
+ACCT_USER_NTP_ID=203
+ACCT_GROUP_POLKITD_ID=235
+ACCT_USER_POLKITD_ID=235
+ACCT_GROUP_RENDER_ID=30
+ACCT_GROUP_SSHD_ID=204
+ACCT_USER_SSHD_ID=204
+ACCT_GROUP_SYSTEMD_JOURNAL_ID=248
+ACCT_GROUP_SYSTEMD_JOURNAL_REMOTE_ID=242
+ACCT_USER_SYSTEMD_JOURNAL_REMOTE_ID=242
+ACCT_GROUP_SYSTEMD_NETWORK_ID=244
+ACCT_USER_SYSTEMD_NETWORK_ID=244
+ACCT_GROUP_SYSTEMD_RESOLVE_ID=245
+ACCT_USER_SYSTEMD_RESOLVE_ID=245
+# tss seems to be one of those users with a mismatching UID/GID
+ACCT_GROUP_TSS_ID=252
+ACCT_USER_TSS_ID=236

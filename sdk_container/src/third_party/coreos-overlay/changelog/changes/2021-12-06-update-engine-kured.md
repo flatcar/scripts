@@ -1,0 +1,1 @@
+- Update-engine now creates the `/run/reboot-required` flag file for [kured](https://github.com/weaveworks/kured) ([PR#15](https://github.com/flatcar-linux/update_engine/pull/15))

@@ -1,0 +1,9 @@
+# Work around configure test that cannot be cross compiled :(
+#
+# When checking if this is still applicable, try grepping the
+# configure script for lines with "$cross_compiling", like
+#
+# grep -B 20 -F 'when cross compiling' configure
+
+export ac_cv_file__dev_ptc=no
+export ac_cv_file__dev_ptmx=yes

@@ -1,0 +1,1 @@
+- sbsigntools ([0.9.4](https://git.kernel.org/pub/scm/linux/kernel/git/jejb/sbsigntools.git/tag/?h=v0.9.4))

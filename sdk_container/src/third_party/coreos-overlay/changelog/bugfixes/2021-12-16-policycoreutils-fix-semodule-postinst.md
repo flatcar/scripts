@@ -1,0 +1,1 @@
+- SDK: Fixed build error popping up in the new SDK Container because `policycoreutils` used the wrong ROOT to update the SELinux store ([PR#1502](https://github.com/flatcar-linux/coreos-overlay/pull/1502))

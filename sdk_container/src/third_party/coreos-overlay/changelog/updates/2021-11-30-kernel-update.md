@@ -1,0 +1,4 @@
+- Linux ([5.15.4](https://lwn.net/Articles/876611/))
+- systemd ([249.7](https://github.com/systemd/systemd-stable/blob/v249.7/NEWS))
+- audit ([3.0.6](https://listman.redhat.com/archives/linux-audit/2021-October/msg00000.html))
+- btrfs-progs ([5.15.1](https://btrfs.wiki.kernel.org/index.php/Changelog#btrfs-progs_v5.15_.28Nov_2021.29))

@@ -1,0 +1,513 @@
+From ccaf67b639741cd3716c556aad70e5bf32272979 Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Wed, 25 May 2022 10:38:16 +0200
+Subject: [PATCH 14/18] Revert "*: drop OEM URI support"
+
+This reverts commit 0c088d6de77aa1b1f47b9252a07f51cb1e249df3.
+---
+ config/v3_0/types/url.go             |  2 +-
+ config/v3_1/types/url.go             |  2 +-
+ config/v3_2/types/url.go             |  2 +-
+ config/v3_3/types/url.go             |  2 +-
+ config/v3_4/types/url.go             |  2 +-
+ docs/supported-platforms.md          |  1 +
+ internal/distro/distro.go            | 11 +++-
+ internal/resource/url.go             | 92 ++++++++++++++++++++++++++++
+ tests/blackbox_test.go               | 14 ++++-
+ tests/negative/files/missing_file.go | 27 ++++++++
+ tests/negative/general/config.go     | 52 ++++++++++++++++
+ tests/positive/files/remote.go       | 44 +++++++++++++
+ tests/types/types.go                 |  1 +
+ 13 files changed, 243 insertions(+), 9 deletions(-)
+
+diff --git a/config/v3_0/types/url.go b/config/v3_0/types/url.go
+index 2d8c44b1..f560bc22 100644
+--- a/config/v3_0/types/url.go
++++ b/config/v3_0/types/url.go
+@@ -30,7 +30,7 @@ func validateURL(s string) error {
+ 	}
+ 
+ 	switch u.Scheme {
+-	case "http", "https", "tftp":
++	case "http", "https", "tftp", "oem":
+ 		return nil
+ 	case "s3":
+ 		if v, ok := u.Query()["versionId"]; ok {
+diff --git a/config/v3_1/types/url.go b/config/v3_1/types/url.go
+index 2d8c44b1..f560bc22 100644
+--- a/config/v3_1/types/url.go
++++ b/config/v3_1/types/url.go
+@@ -30,7 +30,7 @@ func validateURL(s string) error {
+ 	}
+ 
+ 	switch u.Scheme {
+-	case "http", "https", "tftp":
++	case "http", "https", "tftp", "oem":
+ 		return nil
+ 	case "s3":
+ 		if v, ok := u.Query()["versionId"]; ok {
+diff --git a/config/v3_2/types/url.go b/config/v3_2/types/url.go
+index bf1f3a5e..63297beb 100644
+--- a/config/v3_2/types/url.go
++++ b/config/v3_2/types/url.go
+@@ -30,7 +30,7 @@ func validateURL(s string) error {
+ 	}
+ 
+ 	switch u.Scheme {
+-	case "http", "https", "tftp", "gs":
++	case "http", "https", "tftp", "gs", "oem":
+ 		return nil
+ 	case "s3":
+ 		if v, ok := u.Query()["versionId"]; ok {
+diff --git a/config/v3_3/types/url.go b/config/v3_3/types/url.go
+index bf1f3a5e..63297beb 100644
+--- a/config/v3_3/types/url.go
++++ b/config/v3_3/types/url.go
+@@ -30,7 +30,7 @@ func validateURL(s string) error {
+ 	}
+ 
+ 	switch u.Scheme {
+-	case "http", "https", "tftp", "gs":
++	case "http", "https", "tftp", "gs", "oem":
+ 		return nil
+ 	case "s3":
+ 		if v, ok := u.Query()["versionId"]; ok {
+diff --git a/config/v3_4/types/url.go b/config/v3_4/types/url.go
+index 9b2b4405..5258c3c6 100644
+--- a/config/v3_4/types/url.go
++++ b/config/v3_4/types/url.go
+@@ -32,7 +32,7 @@ func validateURL(s string) error {
+ 	}
+ 
+ 	switch u.Scheme {
+-	case "http", "https", "tftp", "gs":
++	case "http", "https", "tftp", "gs", "oem":
+ 		return nil
+ 	case "s3":
+ 		if v, ok := u.Query()["versionId"]; ok {
+diff --git a/docs/supported-platforms.md b/docs/supported-platforms.md
+index 9ecb590a..f7bb4b40 100644
+--- a/docs/supported-platforms.md
++++ b/docs/supported-platforms.md
+@@ -10,6 +10,7 @@ Ignition is currently only supported for the following platforms:
+ * [Amazon Web Services] (`aws`) - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.
+ * [Microsoft Azure] (`azure`)- Ignition will read its configuration from the custom data provided to the instance. Cloud SSH keys are handled separately.
+ * [Microsoft Azure Stack] (`azurestack`) - Ignition will read its configuration from the custom data provided to the instance. Cloud SSH keys are handled separately.
++* Bare Metal - Use the `ignition.config.url` kernel parameter to provide a URL to the configuration. The URL can use the `http://`, `https://`, `tftp://`, `s3://`, or `gs://` schemes to specify a remote config or the `oem://` scheme to specify a local config, rooted in `/usr/share/oem`.
+ * [Brightbox] (`brightbox`) - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.
+ * [CloudStack] (`cloudstack`) - Ignition will read its configuration from the instance userdata via either metadata service or config drive. Cloud SSH keys are handled separately.
+ * [DigitalOcean] (`digitalocean`) - Ignition will read its configuration from the droplet userdata. Cloud SSH keys and network configuration are handled separately.
+diff --git a/internal/distro/distro.go b/internal/distro/distro.go
+index 703385ea..644c42c4 100644
+--- a/internal/distro/distro.go
++++ b/internal/distro/distro.go
+@@ -23,13 +23,17 @@ import (
+ // -X github.com/flatcar/ignition/v2/internal/distro.mdadmCmd=/opt/bin/mdadm
+ var (
+ 	// Device node directories and paths
+-	diskByLabelDir = "/dev/disk/by-label"
++	diskByLabelDir    = "/dev/disk/by-label"
++	diskByPartUUIDDir = "/dev/disk/by-partuuid"
++	oemDevicePath     = "/dev/disk/by-label/OEM"
+ 
+ 	// initrd file paths
+ 	kernelCmdlinePath = "/proc/cmdline"
+ 	bootIDPath        = "/proc/sys/kernel/random/boot_id"
+ 	// initramfs directory containing distro-provided base config
+ 	systemConfigDir = "/usr/lib/ignition"
++	// initramfs directory to check before retrieving file from OEM partition
++	oemLookasideDir = "/usr/share/oem"
+ 
+ 	// Helper programs
+ 	groupaddCmd  = "groupadd"
+@@ -79,11 +83,14 @@ var (
+ 	resultFilePath          = "/etc/.ignition-result.json"
+ )
+ 
+-func DiskByLabelDir() string { return diskByLabelDir }
++func DiskByLabelDir() string    { return diskByLabelDir }
++func DiskByPartUUIDDir() string { return diskByPartUUIDDir }
++func OEMDevicePath() string     { return fromEnv("OEM_DEVICE", oemDevicePath) }
+ 
+ func KernelCmdlinePath() string { return kernelCmdlinePath }
+ func BootIDPath() string        { return bootIDPath }
+ func SystemConfigDir() string   { return fromEnv("SYSTEM_CONFIG_DIR", systemConfigDir) }
++func OEMLookasideDir() string   { return fromEnv("OEM_LOOKASIDE_DIR", oemLookasideDir) }
+ 
+ func GroupaddCmd() string  { return groupaddCmd }
+ func GroupdelCmd() string  { return groupdelCmd }
+diff --git a/internal/resource/url.go b/internal/resource/url.go
+index 44253568..3f5fb4ab 100644
+--- a/internal/resource/url.go
++++ b/internal/resource/url.go
+@@ -23,16 +23,21 @@ import (
+ 	"fmt"
+ 	"hash"
+ 	"io"
++	"io/ioutil"
+ 	"net/http"
+ 	"net/url"
+ 	"os"
++	"path/filepath"
+ 	"strings"
++	"syscall"
+ 	"time"
+ 
+ 	"cloud.google.com/go/compute/metadata"
+ 	"cloud.google.com/go/storage"
+ 	configErrors "github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/internal/distro"
+ 	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/systemd"
+ 	"github.com/flatcar/ignition/v2/internal/util"
+ 	"golang.org/x/oauth2/google"
+ 	"google.golang.org/api/option"
+@@ -144,6 +149,8 @@ func (f *Fetcher) FetchToBuffer(u url.URL, opts FetchOptions) ([]byte, error) {
+ 		err = f.fetchFromTFTP(u, dest, opts)
+ 	case "data":
+ 		err = f.fetchFromDataURL(u, dest, opts)
++	case "oem":
++		err = f.fetchFromOEM(u, dest, opts)
+ 	case "s3", "arn":
+ 		buf := &s3buf{
+ 			WriteAtBuffer: aws.NewWriteAtBuffer([]byte{}),
+@@ -205,6 +212,8 @@ func (f *Fetcher) Fetch(u url.URL, dest *os.File, opts FetchOptions) error {
+ 		return f.fetchFromTFTP(u, dest, opts)
+ 	case "data":
+ 		return f.fetchFromDataURL(u, dest, opts)
++	case "oem":
++		return f.fetchFromOEM(u, dest, opts)
+ 	case "s3", "arn":
+ 		return f.fetchFromS3(u, dest, opts)
+ 	case "gs":
+@@ -391,6 +400,53 @@ type s3target interface {
+ 	io.ReadSeeker
+ }
+ 
++// FetchFromOEM gets data off the oem partition as described by u and writes it
++// into dest, returning an error if one is encountered.
++func (f *Fetcher) fetchFromOEM(u url.URL, dest io.Writer, opts FetchOptions) error {
++	path := filepath.Clean(u.Path)
++	if !filepath.IsAbs(path) {
++		f.Logger.Err("oem path is not absolute: %q", u.Path)
++		return ErrPathNotAbsolute
++	}
++
++	// check if present in OEM lookaside dir, if so use it.
++	absPath := filepath.Join(distro.OEMLookasideDir(), path)
++
++	if fi, err := os.Open(absPath); err == nil {
++		defer fi.Close()
++		return f.decompressCopyHashAndVerify(dest, fi, opts)
++	} else if !os.IsNotExist(err) {
++		f.Logger.Err("failed to read oem config: %v", err)
++		return ErrFailed
++	}
++
++	f.Logger.Info("oem config not found in %q, looking on oem partition",
++		distro.OEMLookasideDir())
++
++	oemMountPath, err := ioutil.TempDir("/mnt", "oem")
++	if err != nil {
++		f.Logger.Err("failed to create mount path for oem partition: %v", err)
++		return ErrFailed
++	}
++	// try oemMountPath, requires mounting it.
++	if err := f.mountOEM(oemMountPath); err != nil {
++		f.Logger.Err("failed to mount oem partition: %v", err)
++		return ErrFailed
++	}
++	defer os.Remove(oemMountPath)
++	defer f.umountOEM(oemMountPath)
++
++	absPath = filepath.Join(oemMountPath, path)
++	fi, err := os.Open(absPath)
++	if err != nil {
++		f.Logger.Err("failed to read oem config: %v", err)
++		return ErrFailed
++	}
++	defer fi.Close()
++
++	return f.decompressCopyHashAndVerify(dest, fi, opts)
++}
++
+ // FetchFromS3 gets data from an S3 bucket as described by u and writes it into
+ // dest, returning an error if one is encountered. It will attempt to acquire
+ // IAM credentials from the EC2 metadata service, and if this fails will attempt
+@@ -618,3 +674,39 @@ func (f *Fetcher) parseARN(arnURL string) (string, string, string, string, error
+ 	key := strings.Join(urlSplit[1:], "/")
+ 	return bucket, key, "", regionHint, nil
+ }
++
++// mountOEM waits for the presence of and mounts the oem partition at
++// oemMountPath. oemMountPath will be created if it does not exist.
++func (f *Fetcher) mountOEM(oemMountPath string) error {
++	dev := []string{distro.OEMDevicePath()}
++	if err := systemd.WaitOnDevices(context.Background(), dev, "oem-cmdline"); err != nil {
++		f.Logger.Err("failed to wait for oem device: %v", err)
++		return err
++	}
++
++	if err := os.MkdirAll(oemMountPath, 0700); err != nil {
++		f.Logger.Err("failed to create oem mount point: %v", err)
++		return err
++	}
++
++	if err := f.Logger.LogOp(
++		func() error {
++			return syscall.Mount(dev[0], oemMountPath, "ext4", 0, "")
++		},
++		"mounting %q at %q", distro.OEMDevicePath(), oemMountPath,
++	); err != nil {
++		return fmt.Errorf("failed to mount device %q at %q: %v",
++			distro.OEMDevicePath(), oemMountPath, err)
++	}
++
++	return nil
++}
++
++// umountOEM unmounts the oem partition at oemMountPath.
++func (f *Fetcher) umountOEM(oemMountPath string) {
++	// ignore the error for the linter
++	_ = f.Logger.LogOp(
++		func() error { return syscall.Unmount(oemMountPath, 0) },
++		"unmounting %q", oemMountPath,
++	)
++}
+diff --git a/tests/blackbox_test.go b/tests/blackbox_test.go
+index 7914738b..2fb15345 100644
+--- a/tests/blackbox_test.go
++++ b/tests/blackbox_test.go
+@@ -139,13 +139,19 @@ func outer(t *testing.T, test types.Test, negativeTests bool) error {
+ 		return fmt.Errorf("failed to change mode of temp dir: %v", err)
+ 	}
+ 
++	oemLookasideDir := filepath.Join(tmpDirectory, "oem-lookaside")
+ 	systemConfigDir := filepath.Join(tmpDirectory, "system")
+ 	var rootPartition *types.Partition
+ 
+ 	// Setup
+-	err = createFilesFromSlice(systemConfigDir, test.SystemDirFiles)
++	err = createFilesFromSlice(oemLookasideDir, test.OEMLookasideFiles)
+ 	// Defer before the error handling because the createFilesFromSlice function
+ 	// can fail after partially-creating things
++	defer os.RemoveAll(oemLookasideDir)
++	if err != nil {
++		return err
++	}
++	err = createFilesFromSlice(systemConfigDir, test.SystemDirFiles)
+ 	defer os.RemoveAll(systemConfigDir)
+ 	if err != nil {
+ 		return err
+@@ -275,7 +281,11 @@ func outer(t *testing.T, test types.Test, negativeTests bool) error {
+ 
+ 	// Ignition
+ 	appendEnv := test.Env
+-	appendEnv = append(appendEnv, "IGNITION_SYSTEM_CONFIG_DIR="+systemConfigDir)
++	appendEnv = append(appendEnv, []string{
++		"IGNITION_OEM_DEVICE=" + test.In[0].Partitions.GetPartition("OEM").Device,
++		"IGNITION_OEM_LOOKASIDE_DIR=" + oemLookasideDir,
++		"IGNITION_SYSTEM_CONFIG_DIR=" + systemConfigDir,
++	}...)
+ 
+ 	if !negativeTests {
+ 		if err := runIgnition(t, ctx, "fetch", "", tmpDirectory, appendEnv); err != nil {
+diff --git a/tests/negative/files/missing_file.go b/tests/negative/files/missing_file.go
+index 251f5593..4f6a9801 100644
+--- a/tests/negative/files/missing_file.go
++++ b/tests/negative/files/missing_file.go
+@@ -23,6 +23,7 @@ func init() {
+ 	register.Register(register.NegativeTest, MissingRemoteContentsHTTP())
+ 	register.Register(register.NegativeTest, InvalidHeaderRemoteContentsHTTP())
+ 	register.Register(register.NegativeTest, MissingRemoteContentsTFTP())
++	register.Register(register.NegativeTest, MissingRemoteContentsOEM())
+ }
+ 
+ func MissingRemoteContentsHTTP() types.Test {
+@@ -103,3 +104,29 @@ func MissingRemoteContentsTFTP() types.Test {
+ 		ConfigMinVersion: configMinVersion,
+ 	}
+ }
++
++func MissingRemoteContentsOEM() types.Test {
++	name := "Create Files from Remote Contents - OEM"
++	in := types.GetBaseDisk()
++	out := in
++	config := `{
++	  "ignition": { "version": "$version" },
++	  "storage": {
++	    "files": [{
++	      "path": "/foo/bar",
++	      "contents": {
++	        "source": "oem:///source"
++	      }
++	    }]
++	  }
++	}`
++	configMinVersion := "3.0.0-experimental"
++
++	return types.Test{
++		Name:             name,
++		In:               in,
++		Out:              out,
++		Config:           config,
++		ConfigMinVersion: configMinVersion,
++	}
++}
+diff --git a/tests/negative/general/config.go b/tests/negative/general/config.go
+index 6fcabe80..6d3cf848 100644
+--- a/tests/negative/general/config.go
++++ b/tests/negative/general/config.go
+@@ -29,12 +29,14 @@ func init() {
+ 	register.Register(register.NegativeTest, ReplaceConfigWithMissingFileHTTP())
+ 	register.Register(register.NegativeTest, ReplaceConfigWithInvalidHeaderHTTP())
+ 	register.Register(register.NegativeTest, ReplaceConfigWithMissingFileTFTP())
++	register.Register(register.NegativeTest, ReplaceConfigWithMissingFileOEM())
+ 	register.Register(register.NegativeTest, AppendConfigWithMissingFileHTTP())
+ 	register.Register(register.NegativeTest, AppendConfigWithInvalidHeaderHTTP())
+ 	register.Register(register.NegativeTest, AppendConfigWithMissingFileTFTP())
+ 	register.Register(register.NegativeTest, VersionOnlyConfig25())
+ 	register.Register(register.NegativeTest, VersionOnlyConfig35())
+ 	register.Register(register.NegativeTest, MergingCanFail())
++	register.Register(register.NegativeTest, AppendConfigWithMissingFileOEM())
+ }
+ 
+ func ReplaceConfigWithInvalidHash() types.Test {
+@@ -185,6 +187,31 @@ func ReplaceConfigWithMissingFileTFTP() types.Test {
+ 	}
+ }
+ 
++func ReplaceConfigWithMissingFileOEM() types.Test {
++	name := "Replace Config with Missing File - OEM"
++	in := types.GetBaseDisk()
++	out := in
++	config := `{
++	  "ignition": {
++	    "version": "$version",
++	    "config": {
++	      "replace": {
++	        "source": "oem:///asdf"
++	      }
++	    }
++	  }
++	}`
++	configMinVersion := "3.0.0-experimental"
++
++	return types.Test{
++		Name:             name,
++		In:               in,
++		Out:              out,
++		Config:           config,
++		ConfigMinVersion: configMinVersion,
++	}
++}
++
+ func AppendConfigWithMissingFileHTTP() types.Test {
+ 	name := "config.merge.http.notfound"
+ 	in := types.GetBaseDisk()
+@@ -261,6 +288,31 @@ func AppendConfigWithMissingFileTFTP() types.Test {
+ 	}
+ }
+ 
++func AppendConfigWithMissingFileOEM() types.Test {
++	name := "Append Config with Missing File - OEM"
++	in := types.GetBaseDisk()
++	out := in
++	config := `{
++	  "ignition": {
++	    "version": "$version",
++	    "config": {
++	      "append": [{
++	        "source": "oem:///asdf"
++	      }]
++	    }
++	  }
++	}`
++	configMinVersion := "3.0.0-experimental"
++
++	return types.Test{
++		Name:             name,
++		In:               in,
++		Out:              out,
++		Config:           config,
++		ConfigMinVersion: configMinVersion,
++	}
++}
++
+ func VersionOnlyConfig25() types.Test {
+ 	name := "config.version.2.5.0-exp"
+ 	in := types.GetBaseDisk()
+diff --git a/tests/positive/files/remote.go b/tests/positive/files/remote.go
+index 792bdae7..9117e651 100644
+--- a/tests/positive/files/remote.go
++++ b/tests/positive/files/remote.go
+@@ -29,6 +29,7 @@ func init() {
+ 	register.Register(register.PositiveTest, CreateFileFromRemoteContentsHTTPUsingHeadersWithRedirect())
+ 	register.Register(register.PositiveTest, CreateFileFromRemoteContentsHTTPUsingOverwrittenHeaders())
+ 	register.Register(register.PositiveTest, CreateFileFromRemoteContentsTFTP())
++	register.Register(register.PositiveTest, CreateFileFromRemoteContentsOEM())
+ }
+ 
+ func CreateFileFromRemoteContentsHTTP() types.Test {
+@@ -252,3 +253,46 @@ func CreateFileFromRemoteContentsTFTP() types.Test {
+ 		ConfigMinVersion: configMinVersion,
+ 	}
+ }
++
++func CreateFileFromRemoteContentsOEM() types.Test {
++	name := "Create Files from Remote Contents - OEM"
++	in := types.GetBaseDisk()
++	out := types.GetBaseDisk()
++	config := `{
++	  "ignition": { "version": "$version" },
++	  "storage": {
++	    "files": [{
++	      "path": "/foo/bar",
++	      "contents": {
++	        "source": "oem:///source"
++	      }
++	    }]
++	  }
++	}`
++	in[0].Partitions.AddFiles("OEM", []types.File{
++		{
++			Node: types.Node{
++				Name: "source",
++			},
++			Contents: "asdf\nfdsa",
++		},
++	})
++	out[0].Partitions.AddFiles("ROOT", []types.File{
++		{
++			Node: types.Node{
++				Name:      "bar",
++				Directory: "foo",
++			},
++			Contents: "asdf\nfdsa",
++		},
++	})
++	configMinVersion := "3.0.0-experimental"
++
++	return types.Test{
++		Name:             name,
++		In:               in,
++		Out:              out,
++		Config:           config,
++		ConfigMinVersion: configMinVersion,
++	}
++}
+diff --git a/tests/types/types.go b/tests/types/types.go
+index d5bd3fe7..ea4ff6ab 100644
+--- a/tests/types/types.go
++++ b/tests/types/types.go
+@@ -97,6 +97,7 @@ type Test struct {
+ 	In                []Disk // Disk state before running Ignition
+ 	Out               []Disk // Expected disk state after running Ignition
+ 	MntDevices        []MntDevice
++	OEMLookasideFiles []File
+ 	SystemDirFiles    []File
+ 	Env               []string // Environment variables for Ignition
+ 	Config            string
+-- 
+2.35.1
+

@@ -1,0 +1,31 @@
+[Unit]
+Description=GCE Linux Agent
+After=local-fs.target network-online.target
+
+[Service]
+Type=notify
+NotifyAccess=all
+Restart=always
+RestartSec=5
+
+# There is a custom main process that kills all of the contained services.
+KillMode=process
+KillSignal=SIGTERM
+
+ExecStartPre=/usr/bin/rm -f /var/lib/flatcar-oem-gce.img
+ExecStartPre=/usr/bin/truncate -s 1G /var/lib/flatcar-oem-gce.img
+ExecStartPre=/usr/sbin/mkfs.ext4 /var/lib/flatcar-oem-gce.img
+ExecStartPre=/usr/bin/rm -rf /var/lib/flatcar-oem-gce
+ExecStartPre=/usr/bin/mkdir -p /var/lib/flatcar-oem-gce
+ExecStartPre=-/usr/bin/umount /var/lib/flatcar-oem-gce.img
+ExecStartPre=/usr/bin/mount /var/lib/flatcar-oem-gce.img /var/lib/flatcar-oem-gce
+ExecStartPre=/usr/bin/tar --directory=/var/lib/flatcar-oem-gce --extract --file=/usr/share/oem/flatcar-oem-gce.aci --strip-components=1 rootfs
+ExecStartPre=/usr/bin/umount /var/lib/flatcar-oem-gce.img
+# the container expects to be able to optmize irq settings in /proc/irq and /sys/
+Environment=SYSTEMD_NSPAWN_API_VFS_WRITABLE=1
+ExecStart=/usr/bin/systemd-nspawn --keep-unit --register=no --link-journal=no \
+    --machine=oem-gce --capability=CAP_NET_ADMIN --bind=/dev/log --bind=/run/systemd --tmpfs=/run/lock --bind=/etc --bind=/home --bind-ro=/usr/share/google-oslogin/nsswitch.conf \
+    --read-only --volatile=overlay --image=/var/lib/flatcar-oem-gce.img --kill-signal=SIGTERM /init.sh
+
+[Install]
+WantedBy=multi-user.target
