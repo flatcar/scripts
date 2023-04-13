@@ -1,0 +1,145 @@
+# ChangeLog for net-misc/iperf
+# Copyright 1999-2016 Gentoo Foundation; Distributed under the GPL v2
+# (auto-generated from git log)
+
+*iperf-3.1_beta3 (09 Aug 2015)
+*iperf-3.0.11 (09 Aug 2015)
+*iperf-2.0.5-r2 (09 Aug 2015)
+
+  09 Aug 2015; Robin H. Johnson <robbat2@gentoo.org>
+  +files/iperf-3.0.5-flags.patch, +files/iperf-bidirectional-tcp-server.patch,
+  +files/iperf-cast-to-max_size_t-instead-of-int.patch,
+  +files/iperf-die-on-bind-fail.patch, +files/iperf-fix-bandwidth-limit.patch,
+  +files/iperf-fix-format-security-ftbfs.patch,
+  +files/iperf-ipv6_mcast_check.patch, +files/iperf.confd,
+  +files/iperf.initd-r1, +iperf-2.0.5-r2.ebuild, +iperf-3.0.11.ebuild,
+  +iperf-3.1_beta3.ebuild, +metadata.xml:
+  proj/gentoo: Initial commit
+
+  This commit represents a new era for Gentoo:
+  Storing the gentoo-x86 tree in Git, as converted from CVS.
+
+  This commit is the start of the NEW history.
+  Any historical data is intended to be grafted onto this point.
+
+  Creation process:
+  1. Take final CVS checkout snapshot
+  2. Remove ALL ChangeLog* files
+  3. Transform all Manifests to thin
+  4. Remove empty Manifests
+  5. Convert all stale $Header$/$Id$ CVS keywords to non-expanded Git $Id$
+  5.1. Do not touch files with -kb/-ko keyword flags.
+
+  Signed-off-by: Robin H. Johnson <robbat2@gentoo.org>
+  X-Thanks: Alec Warner <antarus@gentoo.org> - did the GSoC 2006 migration
+  tests
+  X-Thanks: Robin H. Johnson <robbat2@gentoo.org> - infra guy, herding this
+  project
+  X-Thanks: Nguyen Thai Ngoc Duy <pclouds@gentoo.org> - Former Gentoo
+  developer, wrote Git features for the migration
+  X-Thanks: Brian Harring <ferringb@gentoo.org> - wrote much python to improve
+  cvs2svn
+  X-Thanks: Rich Freeman <rich0@gentoo.org> - validation scripts
+  X-Thanks: Patrick Lauer <patrick@gentoo.org> - Gentoo dev, running new 2014
+  work in migration
+  X-Thanks: Michał Górny <mgorny@gentoo.org> - scripts, QA, nagging
+  X-Thanks: All of other Gentoo developers - many ideas and lots of paint on
+  the bikeshed
+
+  24 Aug 2015; Justin Lecher <jlec@gentoo.org> metadata.xml:
+  Use https by default
+
+  Convert all URLs for sites supporting encrypted connections from http to
+  https
+
+  Signed-off-by: Justin Lecher <jlec@gentoo.org>
+
+  24 Aug 2015; Mike Gilbert <floppym@gentoo.org> metadata.xml:
+  Revert DOCTYPE SYSTEM https changes in metadata.xml
+
+  repoman does not yet accept the https version.
+  This partially reverts eaaface92ee81f30a6ac66fe7acbcc42c00dc450.
+
+  Bug: https://bugs.gentoo.org/552720
+
+  01 Oct 2015; Justin Lecher <jlec@gentoo.org> metadata.xml:
+  Add missing remote-id type=sourceforge
+
+  Signed-off-by: Justin Lecher <jlec@gentoo.org>
+
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Unify quoting in metadata.xml files for machine processing
+
+  Force unified quoting in all metadata.xml files since lxml does not
+  preserve original use of single and double quotes. Ensuring unified
+  quoting before the process allows distinguishing the GLEP 67-related
+  metadata.xml changes from unrelated quoting changes.
+
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Replace all herds with appropriate projects (GLEP 67)
+
+  Replace all uses of herd with appropriate project maintainers, or no
+  maintainers in case of herds requested to be disbanded.
+
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Set appropriate maintainer types in metadata.xml (GLEP 67)
+
+  29 Jan 2016; Jason A. Donenfeld <zx2c4@gentoo.org> iperf-3.1_beta3.ebuild,
+  metadata.xml:
+  add sctp support
+
+  Package-Manager: portage-2.2.26
+
+*iperf-3.1.2 (16 Feb 2016)
+
+  16 Feb 2016; Jeroen Roovers <jer@gentoo.org> +files/iperf3.initd,
+  -iperf-3.1_beta3.ebuild, +iperf-3.1.2.ebuild:
+  Version bump.
+
+   Add init.d/conf.d scripts for iamben
+
+  Package-Manager: portage-2.2.27
+
+  16 Feb 2016; Jeroen Roovers <jer@gentoo.org> iperf-2.0.5-r2.ebuild:
+  Drop unused base.eclass
+
+  Package-Manager: portage-2.2.27
+
+  18 May 2016; Austin English <wizardedit@gentoo.org> files/iperf.initd-r1,
+  files/iperf3.initd:
+  use #!/sbin/openrc-run instead of #!/sbin/runscript
+
+*iperf-3.1.3 (10 Jun 2016)
+*iperf-3.0.12 (10 Jun 2016)
+
+  10 Jun 2016; Jeroen Roovers <jer@gentoo.org> +iperf-3.0.12.ebuild,
+  +iperf-3.1.3.ebuild:
+  Version bump.
+
+  Package-Manager: portage-2.3.0_rc1
+
+  10 Jun 2016; Agostino Sarubbo <ago@gentoo.org> iperf-3.0.12.ebuild:
+  amd64 stable wrt bug #585504
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="amd64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  11 Jun 2016; Jeroen Roovers <jer@gentoo.org> -iperf-3.1.2.ebuild:
+  Old.
+
+  Package-Manager: portage-2.3.0_rc1
+
+  11 Jun 2016; Jeroen Roovers <jer@gentoo.org> iperf-3.0.12.ebuild:
+  Stable for HPPA PPC64 (bug #585504).
+
+  Package-Manager: portage-2.3.0_rc1
+  RepoMan-Options: --ignore-arches
+
+  27 Jun 2016; Agostino Sarubbo <ago@gentoo.org> iperf-3.0.12.ebuild:
+  x86 stable wrt bug #585504
+
+  Package-Manager: portage-2.2.28
+  RepoMan-Options: --include-arches="x86"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+

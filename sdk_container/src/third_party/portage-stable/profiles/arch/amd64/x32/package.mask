@@ -1,0 +1,59 @@
+# Copyright 1999-2020 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+# Andreas K. Hüttel <dilfridge@gentoo.org> (2020-09-20)
+# Binary-only with no x32 support
+app-office/libreoffice-bin
+app-office/libreoffice-bin-debug
+
+# Ben Kohler <bkohler@gentoo.org> (2020-08-12)
+# Breaks several portage features, see bug 736904
+=sys-libs/glibc-2.31-r6
+
+# Marek Szuba <marecki@gentoo.org> (2020-05-08)
+# Requires sys-cluster/ceph, which is masked in this profile as well
+# (see below)
+net-libs/xrootd-ceph
+
+# Hasan ÇALIŞIR <hasan.calisir@psauxit.com> (2019-10-28)
+# requires net-libs/nodejs | sys-apps/yarn
+>=net-analyzer/greenbone-security-assistant-8.0.1
+net-analyzer/gvm
+
+# Marek Szuba <marecki@gentoo.org> (2019-07-26)
+# Binary-only package with no x32 support
+dev-libs/amdgpu-pro-opencl
+
+# Thomas Deutschmann <whissi@gentoo.org> (2018-10-23)
+# requires net-libs/nodejs
+>=www-client/firefox-63.0
+>=mail-client/thunderbird-68.0
+
+# Patrick McLean <chutzpah@gentoo.org> (2018-07-12)
+# requires nodejs
+>=sys-cluster/ceph-13
+
+# Michał Górny <mgorny@gentoo.org> (2018-04-15)
+# Broken multilib dependencies.
+net-im/mattermost-desktop-bin
+net-im/skypeforlinux
+net-im/skype-dbus-mock
+net-im/slack
+
+# Pawel Hajdan jr <phajdan.jr@gentoo.org> (2012-10-07)
+# V8 upstream said they won't support x32, bug #423815
+# Masked packages containing V8.
+# Michał Górny <mgorny@gentoo.org> (2018-01-12)
+# ...and their reverse dependencies.
+dev-lang/coffee-script
+dev-ruby/autoprefixer-rails
+dev-ruby/coffee-rails
+dev-ruby/coffee-script
+dev-ruby/execjs
+dev-ruby/turbolinks
+dev-ruby/uglifier
+net-libs/nodejs
+sys-apps/yarn
+www-apps/jekyll-coffeescript
+www-apps/kibana-bin
+www-client/chromium

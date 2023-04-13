@@ -1,0 +1,74 @@
+# ChangeLog for app-misc/c_rehash
+# Copyright 1999-2016 Gentoo Foundation; Distributed under the GPL v2
+# (auto-generated from git log)
+
+*c_rehash-1.7 (20 Sep 2015)
+
+  20 Sep 2015; Julian Ospald <hasufell@gentoo.org> +c_rehash-1.7.ebuild,
+  +metadata.xml:
+  initial import of version 1.7 for libressl compat
+
+*c_rehash-1.7-r1 (01 Oct 2015)
+
+  01 Oct 2015; Julian Ospald <hasufell@gentoo.org> +c_rehash-1.7-r1.ebuild:
+  update openssl blocker
+
+  Gentoo-Bug: 561852
+
+  01 Oct 2015; Julian Ospald <hasufell@gentoo.org> metadata.xml:
+  add base-system to maintainers
+
+  01 Oct 2015; Julian Ospald <hasufell@gentoo.org> -c_rehash-1.7.ebuild:
+  drop old
+
+  05 Dec 2015; Jeroen Roovers <jer@gentoo.org> c_rehash-1.7-r1.ebuild:
+  Stable for HPPA PPC64 (bug #567476).
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --ignore-arches
+
+  06 Dec 2015; Matt Turner <mattst88@gentoo.org> c_rehash-1.7-r1.ebuild:
+  alpha stable, bug 567476.
+
+  07 Dec 2015; Agostino Sarubbo <ago@gentoo.org> c_rehash-1.7-r1.ebuild:
+  amd64 stable wrt bug #567476
+
+  Package-Manager: portage-2.2.20.1
+  RepoMan-Options: --include-arches="amd64"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  09 Dec 2015; Markus Meier <maekke@gentoo.org> c_rehash-1.7-r1.ebuild:
+  arm stable, bug #567476
+
+  Package-Manager: portage-2.2.26
+  RepoMan-Options: --include-arches="arm"
+
+  11 Dec 2015; Mikle Kolyada <zlogene@gentoo.org> c_rehash-1.7-r1.ebuild:
+  ia64 stable wrt bug #567476
+
+  Package-Manager: portage-2.2.20.1
+
+  13 Dec 2015; Mike Frysinger <vapier@gentoo.org> c_rehash-1.7-r1.ebuild:
+  mark 1.7-r1 arm64/m68k/s390/sh/sparc/x86 stable #567476
+
+  26 Dec 2015; Agostino Sarubbo <ago@gentoo.org> c_rehash-1.7-r1.ebuild:
+  ppc stable wrt bug #567476
+
+  Package-Manager: portage-2.2.24
+  RepoMan-Options: --include-arches="ppc"
+  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
+
+  05 Jan 2016; Fabian Groffen <grobian@gentoo.org> c_rehash-1.7-r1.ebuild:
+  add Prefix keywords
+
+  Package-Manager: portage-2.2.20-prefix
+
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Replace all herds with appropriate projects (GLEP 67)
+
+  Replace all uses of herd with appropriate project maintainers, or no
+  maintainers in case of herds requested to be disbanded.
+
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Set appropriate maintainer types in metadata.xml (GLEP 67)
+
