@@ -1,0 +1,1 @@
+- Merge the Flatcar Pro features into the regular Flatcar images ([#1679](https://github.com/flatcar-linux/coreos-overlay/pull/1679)) 

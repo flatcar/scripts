@@ -1,0 +1,1 @@
+- Added `cryptsetup` to the initramfs for the Ignition `luks` directive ([flatcar-linux/coreos-overlay#1760](https://github.com/flatcar-linux/coreos-overlay/pull/1760))

@@ -1,0 +1,1 @@
+- flatcar-update: Stopped checking for the `USER` environment variable which may not be set in all environments, causing the script to fail unless a workaround was used like prepending an additional `sudo` invocation ([PR#58](https://github.com/flatcar-linux/init/pull/58))

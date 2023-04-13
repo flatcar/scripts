@@ -1,0 +1,194 @@
+# Build provenance hooks
+# ======================
+# The functions below hook into every ebuild's execution and generate provenance files
+#   to meet the SLSA provenance requirements (https://slsa.dev/spec/v0.1/requirements#available).
+# All input files (source tarball / git commit hash) plus added patches / files,
+#   and all resulting installation binaries and files are captured.
+# The information is emitted in SLSA provenance 0.2 format (see https://slsa.dev/provenance/v0.2)
+
+
+# We only record provenance when a package is actually being built.
+# See profiles/coreos/base/profile.bashrc for cros_...
+cros_post_src_configure_enable_slsa_provenance_report() {
+    if [ "${GENERATE_SLSA_PROVENANCE:-}" != "true" ] ; then
+        einfo "Provenance generation not requested by build; skipping."
+        return 0
+    fi
+    export generate_slsa_provenance_report="yes"
+}
+# --
+
+# Generate SLSA provenance 0.2 Subject information.
+# The information will cover all installation files shipped with a package.
+__slsa_provenance_subject() {
+    local parallel="$(nproc)"
+    local comma=""
+
+    einfo "    Provenance: recording subject (output)"
+
+    echo '   "subject": ['
+
+    (
+        cd "$D"
+        find . -type f -print | sed 's:^./::' | xargs -P "$parallel" -L 1 sha512sum | sort -k2
+    ) | while read checksum filepath; do
+        echo -en "${comma}     {\"name\":\"/$filepath\", \"digest\":{\"sha512\":\"$checksum\"}}"
+        if [ -z "$comma" ] ; then
+            comma=',\n'
+        fi
+    done
+   echo -en "\n   ]"
+}
+# --
+
+__slsa_provenance_materials() {
+    local csum="" uri="" repo="" ebuild="" ebuildcsum=""
+
+    local ebuild="${CATEGORY}/${PN}/${PF}.ebuild"
+    local repopath="$(portageq get_repo_path ${ROOT:-/} coreos)"
+    if [ -f "${repopath}/${ebuild}" ] ; then
+        repo="coreos-overlay"
+        ebuildcsum=$(sha1sum - < "${repopath}/${ebuild}")
+    else
+        repopath="$(portageq get_repo_path ${ROOT:-/} portage-stable)"
+        if [ -f "${repopath}/${ebuild}" ] ; then
+            repo="portage-stable"
+            ebuildcsum=$(sha1sum - < "${repopath}/${ebuild}")
+        fi
+    fi
+    if [ -z "${repo}" ]; then
+        die "SLSA provenance: Unable to detect ebuild repository for package '${ebuild}'"
+    fi
+    ebuildcsum=${ebuildcsum%% *}
+
+    einfo "    Provenance: recording ebuild material (input) '${repo}/${ebuild}'"
+    echo '   "materials": ['
+
+    # The ebuild. Since "configSource" in "invocation" cannot have more than one (top/level) entry
+    #  we add the ebuild and git repo checksum here, as a material.
+    csum="$(cat "/mnt/host/source/src/scripts/.git/modules/sdk_container/src/third_party/${repo}/HEAD")"
+    uri="git+https://github.com/flatcar/${repo}.git@${csum}#${ebuild}"
+    echo -e "      { \"uri\": \"${uri}\","
+    echo -n "        \"digest\": {\"sha1\":\"${ebuildcsum}\"} }"
+
+    # The main sources
+    if [ -n "${A}" ] ; then
+        # Package is built from downloaded source tarball(s)
+        # There can be multiple, and can be used conditionally based on use flags,
+        #  and even replaced with different local names ("http://... -> othername.tgz"). So
+        #  we go through what's actually used ($A), then find the corresponding source URI.
+        local src="" prev_uri="" rename="false" orig_name=""
+        for src in ${A}; do
+            local found="false"
+            for uri in ${SRC_URI}; do
+                if [ "${uri}" = "->" ] ; then
+                    rename="true"
+                    continue
+                fi
+                if [ "${src}" = "$(basename "${uri}")" ] ; then
+                    orig_name="${src}"
+                    if [ "${rename}" = "true" ] ; then
+                        uri="${prev_uri}"
+                        orig_name="$(basename "${uri}")"
+                    fi
+                    einfo "    Provenance: recording tarball material (input) '${src}' ('${orig_name}')"
+                    csum="$(sha512sum "${DISTDIR}/${src}" | cut -d' ' -f1)"
+                    echo -e ",\n      { \"uri\": \"${uri}\","
+                    echo -n "        \"digest\": {\"sha512\":\"${csum}\"} }"
+                    found="true"
+                fi
+                rename="false"
+                prev_uri="${uri}"
+            done
+            if [ "${found}" != "true" ] ; then
+                die "No SRC_URI found for source '${src}', unable to record provenance!"
+            fi
+        done
+    elif [ -n "${EGIT_REPO_URI:-}" ] ; then
+        # package is built from repo checkout (git)
+        einfo "    Provenance: recording GIT material (input) '${EGIT_REPO_URI}'"
+        csum="${EGIT_COMMIT}"
+        uri="${EGIT_REPO_URI}"
+        echo -e ",\n      { \"uri\": \"${uri}\","
+        echo -n "        \"digest\": {\"sha1\":\"$csum\"} }"
+    fi
+
+    # Patches / files shipped with the ebuild (if any)
+    csum="$(cat "/mnt/host/source/src/scripts/.git/modules/sdk_container/src/third_party/${repo}/HEAD")"
+    uri="git+https://github.com/flatcar/${repo}.git@${csum}#${CATEGORY}/${PN}/files"
+    if [ -d "${FILESDIR}" ] ; then
+        for file in $(cd "$FILESDIR" && find . -type f | sed 's:^./::') ; do
+            csum="$(sha1sum - <"${FILESDIR}/${file}")"
+            csum="${csum%% *}"
+            einfo "    Provenance: recording ebuild material (input) '${file}'"
+            echo -e ",\n      { \"uri\": \"${uri}/${file}\","
+            echo -n "        \"digest\": {\"sha1\":\"$csum\"} }"
+        done
+    fi
+
+    echo -ne '\n   ]'
+}
+# --
+
+__slsa_provenance_report() {
+    local scripts_hash="$(cat "/mnt/host/source/src/scripts/.git/HEAD")"
+    local buildcmd="emerge"
+    # extract board from e.g. '/build/amd64-usr/build'. Empty if no board is set (SDK build).
+    local board="$(echo "${CROS_BUILD_BOARD_TREE:-}" | sed -n 's:^/build/\([^/]\+\)/.*:\1:p')"
+    if [ -n "$board" ] ; then
+        buildcmd="emerge-${board}"
+    fi
+    if [[ "${scripts_hash}" == "ref:"* ]]; then
+        scripts_hash="$(cat /mnt/host/source/src/scripts/.git/${scripts_hash#ref: })"
+    fi
+
+    # FIXME: Supply SDK image ID and sha256 digest along with the version tag
+    local sdk_version="$(source /mnt/host/source/.repo/manifests/version.txt; echo ${FLATCAR_SDK_VERSION})"
+
+    # FIXME: add builder ID
+cat <<EOF
+{
+ "_type": "https://in-toto.io/Statement/v0.1",
+ "predicateType": "https://slsa.dev/provenance/v0.2",
+ "predicate": {
+   "buildType": "ghcr.io/flatcar/flatcar-sdk-all:${sdk_version}",
+   "builder": {"id": "TODO - builder ID" },
+   "invocation": {
+      "configSource": {
+        "uri": "https://github.com/flatcar/scripts",
+        "digest": {"sha1": "${scripts_hash}"}
+      }
+   },
+   "buildConfig": {
+     "commands": [
+        "git checkout ${scripts_hash}",
+        "git submodule init",
+        "git submodule update",
+        "./run_sdk_container ${buildcmd} =${CATEGORY}/${PF}"
+    ]
+   },
+EOF
+    __slsa_provenance_materials
+    echo ","
+    __slsa_provenance_subject
+    echo ""
+cat <<EOF
+  }
+}
+EOF
+}
+# --
+
+cros_post_src_install_generate_slsa_provenance_report() {
+    if [ "${generate_slsa_provenance_report:-no}" != "yes" ] ; then
+        return
+    fi
+
+    local report_file="${CATEGORY}_${PF}.json.bz2"
+    local dest_dir="${D}/usr/share/SLSA/"
+
+    __slsa_provenance_report | jq | lbzip2 -9cz > "${T}/${report_file}"
+
+    mkdir -p "${dest_dir}"
+    mv "${T}/${report_file}" "${dest_dir}"
+}

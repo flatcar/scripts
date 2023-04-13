@@ -1,0 +1,1 @@
+- Ensured that the `/run/xtables.lock` coordination file exists for modifications of the xtables backend from containers (must be bind-mounted) or the `iptables-legacy` binaries on the host ([PR#57](https://github.com/flatcar-linux/init/pull/57))

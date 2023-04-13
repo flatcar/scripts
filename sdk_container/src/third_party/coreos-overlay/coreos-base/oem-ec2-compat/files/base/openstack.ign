@@ -1,0 +1,13 @@
+{
+  "ignition": {
+    "version": "3.3.0"
+  },
+  "systemd": {
+    "units": [
+      {
+        "enabled": true,
+        "name": "coreos-metadata-sshkeys@.service"
+      }
+    ]
+  }
+}
