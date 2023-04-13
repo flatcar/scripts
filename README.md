@@ -11,12 +11,10 @@ The SDK can be used to
 
 [flatcar-docs]: https://www.flatcar.org/docs/latest/reference/developer-guides/sdk-modifying-flatcar/
 
-# Using the scripts repository: submodules and tags
+# Using the scripts repository
 
 The repository is meant to be the entry point for Flatcar builds and development.
-For building packages, there are 2 additional repositories, [coreos-overlay](https://github.com/flatcar/coreos-overlay) and [portage-stable](https://github.com/flatcar/portage-stable), which contain all packages' `ebuild` (build configuration) files.
-These repositories are included in `scripts` via git submodules and are used by the SDK container wrapper scripts detailed on further below.
-The submodules reside in:
+Ebuilds for all packages reside in one of 2 subdirectories - [coreos-overlay](sdk_container/src/third_party/coreos-overlay) and [portage-stable](sdk_container/src/third_party/portage-stable/):
 ```
 scripts
    +--sdk_container
@@ -26,10 +24,10 @@ scripts
                              +------portage-stable
 ```
 
-When working with the scripts repo always make sure to initialise and to update these submodules; otherwise builds will break because build configuration is missing:
-```bash
-$ git clone --recurse-submodules https://github.com/flatcar/scripts.git
-```
+`portage-stable` is kept in alignment with upstream Gentoo and should not contain any modifications (with only minor, well-justified exceptions).
+Consider it a small sub-set of Gentoo.
+
+`coreos-overlay` contains significantly modified or even entirely self-written ebuilds.
 
 The `scripts` repository makes ample use of tags to mark releases.
 Sometimes, local and origin tags can diverge (e.g. when re-tagging something locally to test a build).
@@ -54,7 +52,7 @@ While work on a native ARM64 native SDK is ongoing, it's unfortunately not ready
 
 The container can be run in one of two ways - "standalone", or integrated with the [scripts](https://github.com/flatcar/scripts) repo:
 * Standalone mode will use no host volumes and will allow you to play with the SDK in a sandboxed throw-away environment. In standalone mode, you interface with Docker directly to use the SDK container.
-* Integrated mode will closely integrate with the scripts repo directory and bind-mount it as well as the portage-stable and coreos-overlay gitmodules into the container. Integrated mode uses wrapper scripts to interact with the SDK container. This is the recommended way for developing patches for Flatcar.
+* Integrated mode will closely integrate with the scripts repo directory and bind-mount it as well as the portage-stable and coreos-overlay directories into the container. Integrated mode uses wrapper scripts to interact with the SDK container. This is the recommended way for developing patches for Flatcar.
 
 ## Standalone mode
 
@@ -67,7 +65,7 @@ In standalone mode, the SDK is just another Docker container. Interaction with t
 * Start the image in interactive (tty) mode: `docker run -ti ghcr.io/flatcar/flatcar-sdk-all:3033.0.0`
   You are now inside the SDK container (the hostname will likely differ):
   `sdk@f236fda982a4 ~/trunk/src/scripts $`
-* Initialise the SDK in self-contained mode. This needs to be done once per container and will check out the scripts, coreos-overlay, and portage-stable repositories into the container.
+* Initialise the SDK in self-contained mode. This needs to be done once per container and will check out the scripts repository into the container.
   `sdk@f236fda982a4 ../sdk_init_selfcontained.sh`
 
 You can now work with the SDK container.
@@ -84,7 +82,7 @@ To start a container in privileged mode with `/dev` available use:
 
 This is the preferred mode of working with the SDK.
 Interaction with the container happens via wrapper scripts from the scripts repository.
-Both the host's scripts repo as well as its submodules (portage-stable and coreos-overlay) are made available in the container, allowing for work on these repos directly.
+Both the host's scripts repo as well as the ebuild paths (portage-stable and coreos-overlay) are made available in the container, allowing for work on these directly.
 The wrapper scripts will re-use existing containers instead of creating new ones to preserve your work in the container, enabling consistency.
 
 To clone the scripts repo and pick a version:
@@ -92,8 +90,6 @@ To clone the scripts repo and pick a version:
 * Optionally, check out a release tag to base your work on
   * list releases (e.g. all Alpha releases): `git tag -l alpha-*`
   * check out the release version, e.g. `3033.0.0`: `git checkout 3033.0.0`
-* Make sure to initialise and fetch git submodules - Flatcar's ebuilds are in 2 separate repositories, connected to `scripts` via submodules.
-  * `git submodule init; git submodule update`
 
 To use the SDK container:
 * Fetch image and start the SDK container: `./run_sdk_container -t`

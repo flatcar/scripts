@@ -23,9 +23,9 @@
 #      built in stage 1. See "stage_repo()" documentation further below for more.
 #     This stage uses:
 #     - portage-stable from the SDK's /var/lib/gentoo/repos/gentoo
-#        or a git ref via --stage1_portage_ref command line option
+#        or a custom path via --stage1_portage_path command line option
 #     - coreos-overlay  from the SDK's /var/lib/gentoo/repos/coreos-overlay
-#        or a git ref via --stage1_overlay_ref command line option
+#        or a custom path via --stage1_overlay_path command line option
 #     Command line option refs need caution though, since
 #     stage1 must not contain updated ebuilds (see build_stage1 below).
 #
@@ -59,10 +59,10 @@ TYPE="flatcar-sdk"
 . "${BUILD_LIBRARY_DIR}/release_util.sh" || exit 1
 
 
-DEFINE_string stage1_portage_ref "" \
-  "Custom portage repo git ref to use in stage 1 (USE WITH CAUTION)"
-DEFINE_string stage1_overlay_ref "" \
-  "Custom overlay repo git ref to use in stage 1 (USE WITH CAUTION)"
+DEFINE_string stage1_portage_path "" \
+  "Path to custom portage ebuilds tree to use in stage 1 (DANGEROUS; USE WITH CAUTION)"
+DEFINE_string stage1_overlay_path "" \
+  "Path to custom overlay ebuilds tree to use in stage 1 (DANGEROUS; USE WITH CAUTION)"
 
 
 ## Define the stage4 config template
@@ -113,11 +113,11 @@ chmod 1777 "${ROOT_OVERLAY}/tmp"
 cp "${BUILD_LIBRARY_DIR}/toolchain_util.sh" "${ROOT_OVERLAY}/tmp"
 
 
-# Stage 1 uses "known-good" ebuild repos (both coreos-overlay and portage-stable)
+# Stage 1 uses "known-good" ebuilds (from both coreos-overlay and portage-stable)
 #  to build a minimal toolchain (USE="-*") for stage 2.
 #
 # No package updates must happen in stage 1, so we use the portage-stable and
-#  coreos-overlay repos included with the current SDK (from the SDK chroot's
+#  coreos-overlay paths included with the current SDK (from the SDK chroot's
 #  /var/lib/gentoo/repos/). "Current SDK" refers to the SDK we entered with
 #  'cork enter', i.e. the SDK we run ./bootstrap_sdk in.
 #
@@ -125,21 +125,27 @@ cp "${BUILD_LIBRARY_DIR}/toolchain_util.sh" "${ROOT_OVERLAY}/tmp"
 #  a minimal stage 2 from known-good ebuild versions - the same ebuild versions
 #  that were used to build the very SDK we run ./bootstrap_sdk in.
 #
-# This is needed because stage 1 lacks proper isolation and will link all packages built for
+# DANGER ZONE
+#
+# Stage 1 lacks proper isolation and will link all packages built for
 #  stage 2 against its own seed libraries ("/" in the catalyst chroot) instead of against libraries
 #  installed into the FS root of the stage 2 seed ("/tmp/stage1root" in the catalyst chroot).
 #  This is why we must prevent any updated package ebuilds to "leak" into stage 1, hence we use
 #  "known good" ebuild repo versions outlined above.
 #
-# In special circumstances it may be required to circumvent this and use git
-#  refs of either (or both) portage and overlay. The command line options
-#  --stage1-portage-ref and --stage1-overlay-ref may be used to specify
-#  a git ref known to work for stage1. In that case the stage1 seed (i.e. the seed SDK)
+# In special circumstances it may be required to circumvent this and use custom paths
+#  for either (or both) portage and overlay. The command line options
+#  --stage1-portage-path and --stage1-overlay-path may be used to specify
+#  a repo path known to work for stage1. In that case the stage1 seed (i.e. the seed SDK)
 #  will be updated prior to starting to build stage 2.
+#  NOTE that this should never be used to introduce library updates in stage 1. All binaries
+#  produced in stage 1 are linked against libraries in the seed tarball, NOT libraries produced
+#  by stage one. Therefore, these binaries will cease to work in stage 2 when linked against
+#  outdated "seed tarball" libraries which have been updated to newer versions in stage 1.
 
 stage_repo() {
     local repo="$1"
-    local gitref="$2"
+    local path="$2"
     local dest="$3"
     local gitname="$repo"
 
@@ -147,16 +153,14 @@ stage_repo() {
         gitname="portage-stable"
     fi
 
-    if [ -z "$gitref" ]; then
+    if [ -z "$path" ]; then
         cp -R "/var/gentoo/repos/${repo}" "$dest"
         info "Using local SDK's ebuild repo '$repo' ('$gitname') in stage 1."
     else
-        info "Using git ref '$gitref' for ebuild repo '$repo' ('$gitname') in stage 1."
         mkdir "$dest/$repo"
-        (   cd "$dest/$repo" \
-            && git clone "https://github.com/flatcar/$gitname.git" . \
-            && git fetch --all \
-            && git checkout "$gitref" )
+        cp -R "${path}/"* "$dest/${repo}/"
+        info "Using custom path '$path' for ebuild repo '$repo' ('$gitname') in stage 1."
+        info "This may break stage 2. YOU HAVE BEEN WARNED. You break it, you keep it."
     fi
     (
         set -euo pipefail
@@ -186,9 +190,9 @@ build_stage1() {
     mkdir "$stage1_repos"
 
     # prepare ebuild repos for stage 1, either from the local SDK (default)
-    #  or from git refs specified via command line flags
-    stage_repo "gentoo" "${FLAGS_stage1_portage_ref}" "$stage1_repos"
-    stage_repo "coreos-overlay" "${FLAGS_stage1_overlay_ref}" "$stage1_repos"
+    #  or from custom paths specified via command line flags
+    stage_repo "gentoo" "${FLAGS_stage1_portage_path}" "$stage1_repos"
+    stage_repo "coreos-overlay" "${FLAGS_stage1_overlay_path}" "$stage1_repos"
 
     # Create a snapshot of "known-good" portage-stable repo copy for use in stage 1
     #  This requires us to create a custom catalyst config to point it to the
@@ -209,8 +213,8 @@ build_stage1() {
            -e "s,^portage_overlay:.*,portage_overlay: $stage1_repos/coreos-overlay," \
         "$TEMPDIR/stage1.spec"
 
-    # If we are to use a git ref for either ebuild repo we want to update the stage1 seed SDK
-    if [ -n "${FLAGS_stage1_portage_ref}" -o -n "${FLAGS_stage1_overlay_ref}" ] ; then
+    # If we are to use a custom path for either ebuild repo we want to update the stage1 seed SDK
+    if [ -n "${FLAGS_stage1_portage_path}" -o -n "${FLAGS_stage1_overlay_path}" ] ; then
         sed -i 's/^update_seed: no/update_seed: yes/' "$TEMPDIR/stage1.spec"
         echo "update_seed_command: --update --deep --newuse --complete-graph --rebuild-if-new-ver --rebuild-exclude cross-*-cros-linux-gnu/* sys-devel/gcc " \
             >>"$TEMPDIR/stage1.spec"
