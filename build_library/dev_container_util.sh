@@ -46,13 +46,9 @@ main-repo = portage-stable
 
 [coreos]
 location = /var/lib/portage/coreos-overlay
-sync-type = git
-sync-uri = https://github.com/flatcar/coreos-overlay.git
 
 [portage-stable]
 location = /var/lib/portage/portage-stable
-sync-type = git
-sync-uri = https://github.com/flatcar/portage-stable.git
 EOF
 
     # Now set the correct profile

@@ -400,8 +400,7 @@ get_metadata() {
         # SRC_URI is empty for the special github.com/flatcar projects
         if [ -z "${val}" ]; then
             # The grep invocation gives errors when the ebuild file is not present.
-            # This can happen if a "scripts" branch does not match the "coreos-overlay" branch
-            # or when the binary packages from ./build_packages are outdated.
+            # This can happen when the binary packages from ./build_packages are outdated.
             val="$(grep "CROS_WORKON_PROJECT=" "${ebuild_path}" | cut -d '"' -f 2)"
             if [ -n "${val}" ]; then
                 val="https://github.com/${val}"
@@ -541,8 +540,6 @@ You can read it with "less licenses.json.bz2" or convert it to a text format wit
 bzcat licenses.json.bz2 | jq -r '.[] | "\(.project):\nDescription: \(.description)\nLicenses: \(.licenses)\nHomepage: \(.homepage)\nSource code: \(.source)\nFiles:\n\(.files)\n"'
 The license texts are available under /usr/share/licenses/common/ and can be read with "less NAME.gz".
 Build system files and patches used to build these projects are located at:
-https://github.com/flatcar/coreos-overlay/
-https://github.com/flatcar/portage-stable/
 https://github.com/flatcar/scripts/
 Information on how to build Flatcar Container Linux can be found under:
 https://www.flatcar.org/docs/latest/reference/developer-guides/sdk-modifying-flatcar/
