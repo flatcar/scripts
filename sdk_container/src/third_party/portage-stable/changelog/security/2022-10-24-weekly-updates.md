@@ -1,0 +1,1 @@
+- git ([CVE-2022-39253](https://nvd.nist.gov/vuln/detail/CVE-2022-39253), [CVE-2022-39260](https://nvd.nist.gov/vuln/detail/CVE-2022-39260))

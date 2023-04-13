@@ -1,0 +1,7 @@
+- automake ([1.16.5](https://savannah.gnu.org/forum/forum.php?forum_id=10055))
+- binutils ([2.38](https://lwn.net/Articles/884264/))
+- bison ([3.8.2](https://lists.gnu.org/archive/html/bug-bison/2021-09/msg00056.html))
+- gcc ([11.3.0](https://gcc.gnu.org/gcc-11/changes.html))
+- libtool ([2.4.7](https://savannah.gnu.org/forum/forum.php?forum_id=10139))
+- perl ([5.34.1](https://perldoc.perl.org/5.34.1/perldelta))
+- pkgconf ([1.8.0](https://gitea.treehouse.systems/ariadne/pkgconf/src/tag/pkgconf-1.8.0/NEWS))
