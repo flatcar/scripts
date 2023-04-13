@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# Hide stdout until a --quiet switch is added:
+# https://github.com/smartmontools/smartmontools/issues/110
+/usr/sbin/update-smart-drivedb > /dev/null
