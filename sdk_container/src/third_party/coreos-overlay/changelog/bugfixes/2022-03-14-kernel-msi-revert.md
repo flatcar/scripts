@@ -1,0 +1,1 @@
+- Reverted the Linux kernel commit which broke networking on AWS instances which use Intel 82559 NIC (c4/m4) ([Flatcar#665](https://github.com/flatcar-linux/Flatcar/issues/665), [PR#1720](https://github.com/flatcar-linux/coreos-overlay/pull/1720))

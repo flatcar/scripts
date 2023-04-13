@@ -1,0 +1,17 @@
+# We don't ship GnuTLS by default, and smartcard has a dep loop
+app-crypt/gnupg smartcard ssl
+
+# We don't need integration with cvs, perl, or subversion in git, so we can
+dev-vcs/git cvs perl subversion
+
+# not needed, requires cython
+dev-lang/yasm python
+
+# not needed, requires dev-lang/python-exec
+sys-apps/util-linux python
+
+# not needed, requires lots of Perl
+sys-boot/syslinux perl
+
+# not needed, problems building with GCC 7.3.0
+sys-libs/ncurses cxx

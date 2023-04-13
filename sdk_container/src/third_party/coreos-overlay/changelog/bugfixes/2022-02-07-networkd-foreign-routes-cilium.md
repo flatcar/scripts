@@ -1,0 +1,1 @@
+- Disabled the systemd-networkd settings `ManageForeignRoutes` and `ManageForeignRoutingPolicyRules` by default to ensure that CNIs like Cilium don't get their routes or routing policy rules discarded on network reconfiguration events ([Flatcar#620](https://github.com/flatcar-linux/Flatcar/issues/620)).

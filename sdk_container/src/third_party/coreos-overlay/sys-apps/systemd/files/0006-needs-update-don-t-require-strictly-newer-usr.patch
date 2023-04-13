@@ -1,0 +1,58 @@
+From e073ce40241db173d160d5d9986129820a98270a Mon Sep 17 00:00:00 2001
+From: Alex Crawford <alex.crawford@coreos.com>
+Date: Wed, 2 Mar 2016 10:46:33 -0800
+Subject: [PATCH 3/5] needs-update: don't require strictly newer usr
+
+Updates should be triggered whenever usr changes, not only when it is newer.
+---
+ man/systemd-update-done.service.xml | 2 +-
+ src/shared/condition.c              | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/man/systemd-update-done.service.xml b/man/systemd-update-done.service.xml
+index 3393010ff6..5478baca25 100644
+--- a/man/systemd-update-done.service.xml
++++ b/man/systemd-update-done.service.xml
+@@ -50,7 +50,7 @@
+     <varname>ConditionNeedsUpdate=</varname> (see
+     <citerefentry><refentrytitle>systemd.unit</refentrytitle><manvolnum>5</manvolnum></citerefentry>)
+     condition to make sure to run when <filename>/etc/</filename> or
+-    <filename>/var/</filename> are older than <filename>/usr/</filename>
++    <filename>/var/</filename> aren't the same age as <filename>/usr/</filename>
+     according to the modification times of the files described above.
+     This requires that updates to <filename>/usr/</filename> are always
+     followed by an update of the modification time of
+diff --git a/src/shared/condition.c b/src/shared/condition.c
+index b2ec690bc3..4cf6523b90 100644
+--- a/src/shared/condition.c
++++ b/src/shared/condition.c
+@@ -593,7 +593,7 @@ static int condition_test_needs_update(Condition *c, char **env) {
+          * First, compare seconds as they are always accurate...
+          */
+         if (usr.st_mtim.tv_sec != other.st_mtim.tv_sec)
+-                return usr.st_mtim.tv_sec > other.st_mtim.tv_sec;
++                return true;
+
+         /*
+          * ...then compare nanoseconds.
+@@ -604,7 +604,7 @@ static int condition_test_needs_update(Condition *c, char **env) {
+          * (otherwise the filesystem supports nsec timestamps, see stat(2)).
+          */
+         if (usr.st_mtim.tv_nsec == 0 || other.st_mtim.tv_nsec > 0)
+-                return usr.st_mtim.tv_nsec > other.st_mtim.tv_nsec;
++                return usr.st_mtim.tv_nsec != other.st_mtim.tv_nsec;
+
+         _cleanup_free_ char *timestamp_str = NULL;
+         r = parse_env_file(NULL, p, "TIMESTAMP_NSEC", &timestamp_str);
+@@ -623,7 +623,7 @@ static int condition_test_needs_update(Condition *c, char **env) {
+                 return true;
+         }
+
+-        return timespec_load_nsec(&usr.st_mtim) > timestamp;
++        return timespec_load_nsec(&usr.st_mtim) != timestamp;
+ }
+
+ static int condition_test_first_boot(Condition *c, char **env) {
+--
+2.26.2
+
