@@ -1,0 +1,5 @@
+# Skip MTA dependencies.
+virtual/mta-1
+
+# pulled in by dev-libs/cyrus-sasl
+net-mail/mailbase-1.1

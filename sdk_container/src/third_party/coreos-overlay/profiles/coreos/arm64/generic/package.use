@@ -1,0 +1,2 @@
+# Disable crypt to avoid installing libsodlium in arm64.
+app-editors/vim		-crypt

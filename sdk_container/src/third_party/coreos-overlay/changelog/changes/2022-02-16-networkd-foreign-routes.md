@@ -1,0 +1,1 @@
+- The systemd-networkd `ManageForeignRoutes` and `ManageForeignRoutingPolicyRules` settings are now disabled through a drop-in file and thus can only be enabled again by a drop-in file under `/etc/systemd/networkd.conf.d/` because drop-in files take precedence over `/etc/systemd/networkd.conf` ([PR#61](https://github.com/flatcar-linux/init/pull/61))

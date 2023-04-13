@@ -1,0 +1,79 @@
+glibc-2.30 and above ship their own version of nss_setpwent, nss_endpwent,
+nss_setgrent, and nss_endgrent. So we rename the static functions here to
+prevent a name clash.
+
+Also see https://forums.gentoo.org/viewtopic-t-1118902.html?sid=e1809c2d407bafda1df63d9115bcaaef
+
+--- a/nsswitch/nsstest.c   2019-12-06 06:46:56.000000000 -0300
++++ b/nsswitch/nsstest.c   2020-09-11 18:35:27.199949579 -0300
+@@ -137,7 +137,7 @@
+ 	return &pwd;
+ }
+ 
+-static void nss_setpwent(void)
++static void nss_setpwent2(void)
+ {
+ 	NSS_STATUS (*_nss_setpwent)(void) =
+ 		(NSS_STATUS(*)(void))find_fn("setpwent");
+@@ -152,7 +152,7 @@
+ 	}
+ }
+ 
+-static void nss_endpwent(void)
++static void nss_endpwent2(void)
+ {
+ 	NSS_STATUS (*_nss_endpwent)(void) =
+ 		(NSS_STATUS (*)(void))find_fn("endpwent");
+@@ -290,7 +290,7 @@
+ 	return &grp;
+ }
+ 
+-static void nss_setgrent(void)
++static void nss_setgrent2(void)
+ {
+ 	NSS_STATUS (*_nss_setgrent)(void) =
+ 		(NSS_STATUS (*)(void))find_fn("setgrent");
+@@ -305,7 +305,7 @@
+ 	}
+ }
+ 
+-static void nss_endgrent(void)
++static void nss_endgrent2(void)
+ {
+ 	NSS_STATUS (*_nss_endgrent)(void) =
+ 		(NSS_STATUS (*)(void))find_fn("endgrent");
+@@ -402,7 +402,7 @@
+ {
+ 	struct passwd *pwd;
+ 
+-	nss_setpwent();
++	nss_setpwent2();
+ 	/* loop over all users */
+ 	while ((pwd = nss_getpwent())) {
+ 		printf("Testing user %s\n", pwd->pw_name);
+@@ -424,14 +424,14 @@
+ 		printf("initgroups: "); nss_test_initgroups(pwd->pw_name, pwd->pw_gid);
+ 		printf("\n");
+ 	}
+-	nss_endpwent();
++	nss_endpwent2();
+ }
+ 
+ static void nss_test_groups(void)
+ {
+ 	struct group *grp;
+ 
+-	nss_setgrent();
++	nss_setgrent2();
+ 	/* loop over all groups */
+ 	while ((grp = nss_getgrent())) {
+ 		printf("Testing group %s\n", grp->gr_name);
+@@ -452,7 +452,7 @@
+ 		printf("getgrgid: "); print_group(grp);
+ 		printf("\n");
+ 	}
+-	nss_endgrent();
++	nss_endgrent2();
+ }
+ 
+ static void nss_test_errors(void)

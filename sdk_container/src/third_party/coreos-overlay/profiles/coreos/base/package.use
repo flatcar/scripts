@@ -1,0 +1,157 @@
+# The USE flags specified in this file are applied to packages
+# for all linux targets. In ChromeOS, that means they are applied
+# to the host packages in the chroot, as well as packages built for a
+# target board.
+
+app-arch/tar		minimal
+app-crypt/mit-krb5	-keyutils
+dev-libs/dbus-glib	tools
+dev-libs/protobuf 	-python
+dev-libs/libxml2	-python
+dev-util/perf		tui -doc
+dev-vcs/git		webdav curl bash-completion
+# We don't want any driver/hw rendering on the host
+net-misc/curl		kerberos threads telnet
+net-misc/iputils	arping tracepath traceroute
+sys-devel/gettext	-git
+app-emulation/qemu	aio caps curl ncurses png python threads uuid vhost-net virtfs vnc -xkb -slirp -jpeg qemu_softmmu_targets_x86_64 qemu_softmmu_targets_aarch64 python_targets_python3_7
+
+# python3 problems
+app-portage/gentoolkit python_single_target_python3_6
+sys-apps/portage python_single_target_python3_6
+
+# python3 only
+dev-util/dwarves python_single_target_python3_6
+dev-util/gdbus-codegen python_single_target_python3_6
+dev-util/glib-utils python_single_target_python3_6
+net-fs/samba python_single_target_python3_6
+sys-libs/talloc python_single_target_python3_6
+sys-libs/tdb python_single_target_python3_6
+sys-libs/tevent python_single_target_python3_6
+
+sys-apps/gptfdisk -icu
+
+# for profile migration
+sys-libs/gdbm berkdb
+
+dev-vcs/git -pcre-jit -perl -iconv
+
+net-analyzer/nmap ncat -lua
+
+# removes mta dependencies
+app-admin/sudo -sendmail
+
+# use lzma which is the default on non-gentoo systems, avoid pulling in gnutls
+sys-apps/systemd build curl gcrypt idn libidn2 lzma -ssl
+net-libs/libmicrohttpd -ssl
+
+# disable kernel config detection and module building
+net-firewall/ipset -modules
+
+dev-lang/spidermonkey minimal
+
+# do not pull in x11-misc/shared-mime-info
+dev-libs/glib -mime
+
+# keep grub build simple
+sys-boot/grub -multislot -nls -themes
+
+# disable "high performance ssh" patch, turn on kerberos
+net-misc/openssh -hpn kerberos
+
+# xz and lzo are required to run grub tests
+sys-fs/squashfs-tools lzo xz
+
+# make the kernel version discoverable via the traditional gentoo symlink
+sys-kernel/coreos-sources symlink
+
+# set build options for ssdp
+net-nds/openldap minimal sasl
+sys-libs/glibc nscd
+
+# disable database build because otherwise it tries to generate a database in /etc
+dev-libs/cyrus-sasl kerberos -berkdb -gdbm
+
+# don't build manpages for sssd
+sys-auth/sssd -python samba kerberos gssapi ssh sudo
+
+# enable logging command-line options in update_engine
+dev-cpp/glog gflags
+
+# enable rpc for rpc.rquotad
+sys-fs/quota rpc
+
+# Don't bother building portage w/xattr, we don't need XATTR_PAX
+sys-apps/portage -xattr
+
+# Enable -M and -Z flags; -M is used by mayday
+sys-process/lsof rpc selinux
+
+# can be removed with socat-2.0.0; this is the openssl/readline license
+# incompatibility 
+net-misc/socat -ssl
+
+# Prevent pulling in a ton of perl dependencies
+sys-apps/man-db -nls
+
+# Disable zstd to avoid adding it to prod images until something needs it
+sys-fs/btrfs-progs -zstd
+
+# Enable SELinux for all targets
+coreos-base/coreos          selinux
+sys-apps/dbus               selinux
+sys-apps/systemd            selinux
+
+# Enable SELinux for coreutils
+sys-apps/coreutils          selinux
+
+# Enable SELinux for tar
+app-arch/tar                selinux
+
+# Enable SELinux for docker-runc
+app-emulation/docker-runc selinux
+
+# enable regular expression processing in jq
+app-misc/jq oniguruma
+
+# Disable sse2 from CPU_FLAGS_X86 to avoid config error around simd
+net-misc/rsync -cpu_flags_x86_sse2
+
+# Don't read the firmware config from /etc/portage/savedconfig/
+sys-kernel/coreos-firmware -savedconfig
+
+# Make kmod support kernel modules compressed via lzma(xz)
+sys-apps/kmod lzma
+
+# net-libs/nghttp2 should be built with -cxx to avoid issues with boost 1.65.
+# configure script is not able to check if Boost:ASIO library exists.
+net-libs/nghttp2 -cxx
+
+# These (qmanifest and qtegrity) are new tools and they pull even more dependencies.
+app-portage/portage-utils -qmanifest -qtegrity
+
+# Disable unnecessary regedit in samba to minimize the package size.
+net-fs/samba -regedit
+
+# Drop extra dependencies
+sys-libs/ldb -lmdb -python
+
+# Enable nftables backend for the iptables instead of legacy backend
+net-firewall/iptables nftables
+
+# Install `perl` with a minimal set of dependencies
+dev-lang/perl minimal
+
+# Disable cgroup-hybrid as we use the unified mode
+sys-apps/systemd -cgroup-hybrid
+
+# Remove support for GObject introspection
+sys-auth/polkit -introspection
+
+# enables ELF support to e.g. allow tc to handle BPF filters.
+sys-apps/iproute2 elf
+
+# `bindist` pulls patches from https://dev.gentoo.org/~whissi/dist/openssl/
+# and there is no patches for opensslv3 at the moment.
+# https://marc.info/?l=gentoo-dev&m=163216172229772&w=2
+net-misc/openssh -bindist

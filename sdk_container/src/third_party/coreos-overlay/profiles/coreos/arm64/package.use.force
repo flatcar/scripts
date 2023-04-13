@@ -1,0 +1,6 @@
+sys-apps/systemd -introspection
+
+# Matt Turner <mattst88@gentoo.org> (2020-03-28)
+# wget is the default FETCHCOMMAND, and most distfiles are distributed via
+# HTTPS. Bug #611072
+net-misc/wget ssl

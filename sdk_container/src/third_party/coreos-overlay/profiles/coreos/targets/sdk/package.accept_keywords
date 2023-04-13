@@ -1,0 +1,3 @@
+
+# Accept perl libs required to build >=samba-4.12
+dev-perl/Parse-Yapp ~amd64 ~arm64

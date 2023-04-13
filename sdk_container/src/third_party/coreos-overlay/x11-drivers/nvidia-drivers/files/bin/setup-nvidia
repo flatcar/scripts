@@ -1,0 +1,142 @@
+#!/bin/bash
+set -euo pipefail
+
+. /usr/share/flatcar/release
+. /usr/share/flatcar/update.conf
+. /usr/share/flatcar/nvidia-metadata
+
+NVIDIA_DOWNLOAD_BASEURL="https://us.download.nvidia.com/${NVIDIA_PRODUCT_TYPE}/"
+NVIDIA_DRIVER_BASENAME="NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}"
+NVIDIA_WORKDIR='nvidia-workdir'
+
+FLATCAR_DEVELOPER_CONTAINER="flatcar_developer_container.bin"
+FLATCAR_DEVELOPER_CONTAINER_URL=""
+FLATCAR_ROOT_WORKDIR="/opt/nvidia/workdir"
+FLATCAR_KERNEL_VERSION=$(uname -r)
+NVIDIA_FLATCAR_VERSION_PAIR="${NVIDIA_DRIVER_VERSION}/${FLATCAR_KERNEL_VERSION}"
+NVIDIA_CURRENT_INSTALLATION="current"
+
+function download_flatcar_developer_container() {
+  echo Downloading Flatcar Container Linux Developer Container for version: "${FLATCAR_RELEASE_VERSION}"
+
+  if [[ ! -f "${FLATCAR_ROOT_WORKDIR}/${FLATCAR_DEVELOPER_CONTAINER}" ]]
+  then
+
+    if [[ "$GROUP" == "developer" ]]
+    then
+      FLATCAR_DEVELOPER_CONTAINER_URL="https://bucket.release.flatcar-linux.net/flatcar-jenkins/developer/developer/boards/${FLATCAR_RELEASE_BOARD}/${FLATCAR_RELEASE_VERSION}/${FLATCAR_DEVELOPER_CONTAINER}.bz2"
+    else if [[ "$(curl -I -s -o /dev/null -w "%{http_code}" "https://${GROUP}.release.flatcar-linux.net/${FLATCAR_RELEASE_BOARD}/${FLATCAR_RELEASE_VERSION}/${FLATCAR_DEVELOPER_CONTAINER}.bz2")" == 200 ]]
+      then
+        FLATCAR_DEVELOPER_CONTAINER_URL="https://${GROUP}.release.flatcar-linux.net/${FLATCAR_RELEASE_BOARD}/${FLATCAR_RELEASE_VERSION}/${FLATCAR_DEVELOPER_CONTAINER}.bz2"
+      else
+        FLATCAR_DEVELOPER_CONTAINER_URL="https://bucket.release.flatcar-linux.net/flatcar-jenkins/${GROUP}/boards/${FLATCAR_RELEASE_BOARD}/${FLATCAR_RELEASE_VERSION}/${FLATCAR_DEVELOPER_CONTAINER}.bz2"
+      fi
+    fi
+
+    if [ ! -n "${FLATCAR_DEVELOPER_CONTAINER_URL}" ]
+    then
+      return 1
+    fi
+
+    curl -L --fail "${FLATCAR_DEVELOPER_CONTAINER_URL}" -o "${FLATCAR_ROOT_WORKDIR}/${FLATCAR_DEVELOPER_CONTAINER}.bz2"
+    bzip2 -d "${FLATCAR_ROOT_WORKDIR}/${FLATCAR_DEVELOPER_CONTAINER}.bz2"
+
+  fi
+
+  return 0
+}
+
+function download_nvidia_driver_archive() {
+  echo Downloading NVIDIA "${NVIDIA_DRIVER_VERSION}" Driver
+
+  if [ ! -f "${FLATCAR_ROOT_WORKDIR}/${NVIDIA_WORKDIR}/${NVIDIA_DRIVER_BASENAME}.run" ]
+  then
+    curl --retry-delay 1 --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 --fail "${NVIDIA_DOWNLOAD_BASEURL}/${NVIDIA_DRIVER_VERSION}/${NVIDIA_DRIVER_BASENAME}.run" -o "${FLATCAR_ROOT_WORKDIR}/${NVIDIA_WORKDIR}/${NVIDIA_DRIVER_BASENAME}.run.tmp"
+    mv "${FLATCAR_ROOT_WORKDIR}/${NVIDIA_WORKDIR}/${NVIDIA_DRIVER_BASENAME}.run.tmp" "${FLATCAR_ROOT_WORKDIR}/${NVIDIA_WORKDIR}/${NVIDIA_DRIVER_BASENAME}.run"
+  fi
+}
+
+function extract_nvidia_installer() {
+  echo Extract the NVIDIA Driver Installer ${NVIDIA_DRIVER_VERSION}
+
+  pushd "${FLATCAR_ROOT_WORKDIR}/${NVIDIA_WORKDIR}"
+  chmod +x "${NVIDIA_DRIVER_BASENAME}.run"
+  "./${NVIDIA_DRIVER_BASENAME}.run" -x -s
+  popd
+}
+
+function run_nspawn_container() {
+  echo Spawn system-nspawn container to install the NVIDIA drivers
+
+  sudo systemd-nspawn --image="${FLATCAR_ROOT_WORKDIR}/${FLATCAR_DEVELOPER_CONTAINER}" --bind="${FLATCAR_ROOT_WORKDIR}/${NVIDIA_WORKDIR}":/nvidia --bind=/usr/share/oem/bin:/app/bin/ /app/bin/install-nvidia "$NVIDIA_DRIVER_BASENAME"
+}
+
+function copy_nvidia_build_artifacts() {
+  mkdir -p "/opt/nvidia/${NVIDIA_FLATCAR_VERSION_PAIR}/lib64"
+  cp "$FLATCAR_ROOT_WORKDIR/$NVIDIA_WORKDIR/${NVIDIA_DRIVER_BASENAME}"/*.so.* "/opt/nvidia/${NVIDIA_FLATCAR_VERSION_PAIR}/lib64/"
+
+  mkdir -p /opt/bin
+  cp "$FLATCAR_ROOT_WORKDIR/$NVIDIA_WORKDIR/${NVIDIA_DRIVER_BASENAME}"/{nvidia-debugdump,nvidia-cuda-mps-control,nvidia-xconfig,nvidia-modprobe,nvidia-smi,nvidia-cuda-mps-server,nvidia-persistenced,nvidia-settings} /opt/bin/
+
+  mkdir -p "/opt/nvidia/${NVIDIA_FLATCAR_VERSION_PAIR}/lib64/modules/$(uname -r)/video/"
+  cp "$FLATCAR_ROOT_WORKDIR/$NVIDIA_WORKDIR/${NVIDIA_DRIVER_BASENAME}"/kernel/*.ko "/opt/nvidia/${NVIDIA_FLATCAR_VERSION_PAIR}/lib64/modules/$(uname -r)/video/"
+
+  pushd /opt/nvidia
+  ln -sfn "${NVIDIA_FLATCAR_VERSION_PAIR}" current
+  popd
+}
+
+function install_and_load() {
+  insmod "/opt/nvidia/${NVIDIA_CURRENT_INSTALLATION}/lib64/modules/$(uname -r)/video/nvidia.ko"
+
+  if [ ! -f /dev/nvidiactl ]
+  then
+    mknod -m 666 /dev/nvidiactl c 195 255
+  fi
+
+  if [ ! -f /dev/nvidia0 ]
+  then
+    mknod -m 666 /dev/nvidia0 c 195 0
+  fi
+
+  mkdir -p /etc/ld.so.conf.d/
+  echo "/opt/nvidia/${NVIDIA_CURRENT_INSTALLATION}/lib64" > /etc/ld.so.conf.d/nvidia.conf
+  ldconfig
+}
+
+function verify_installation() {
+  nvidia-smi
+  nvidia-modprobe -u -m -c 0
+}
+
+function is_nvidia_installation_required() {
+  if [[ -z "$(lspci | grep -i "${NVIDIA_PRODUCT_TYPE}")" ]]; then
+    return 1
+  fi
+
+  if [[ -d "/opt/nvidia/${NVIDIA_FLATCAR_VERSION_PAIR}" ]]; then
+    return 1
+  fi
+}
+
+function presetup() {
+  mkdir -p "${FLATCAR_ROOT_WORKDIR}"
+  mkdir -p "${FLATCAR_ROOT_WORKDIR}/${NVIDIA_WORKDIR}"
+}
+
+function setup() {
+  download_flatcar_developer_container
+  download_nvidia_driver_archive
+  extract_nvidia_installer
+  run_nspawn_container
+  copy_nvidia_build_artifacts
+  install_and_load
+  verify_installation
+}
+
+if is_nvidia_installation_required
+then
+  presetup "$@"
+  setup "$@"
+  exit 0
+fi

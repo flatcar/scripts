@@ -1,0 +1,44 @@
+# Copyright (c) 2009 The Chromium OS Authors. All rights reserved.
+# Distributed under the terms of the GNU General Public License v2
+
+app-admin/sudo		ldap sssd
+app-editors/vim		minimal
+dev-lang/python		-berkdb gdbm
+dev-libs/dbus-glib	tools
+dev-libs/elfutils	-utils
+dev-libs/openssl	pkcs11
+dev-util/perf		-doc -demangle -tui -ncurses -perl -python
+dev-util/perf-next	-doc -demangle -tui -ncurses -perl -python
+net-analyzer/tcpdump	-chroot
+net-misc/dhcp	        -server
+net-misc/iperf		threads
+net-misc/ntp            caps
+sys-apps/smartmontools	minimal
+sys-block/parted        device-mapper
+sys-fs/lvm2		-readline
+sys-libs/ncurses	minimal
+sys-libs/pam		-berkdb audit
+sys-libs/gdbm		berkdb
+
+# enable journal gateway and container features
+sys-apps/systemd audit importd http nat
+
+# epoll is needed for systemd-journal-remote to work. coreos/bugs#919
+net-libs/libmicrohttpd epoll
+
+sys-boot/syslinux       -custom-cflags
+
+# break dependency loop between pkg-config and glib
+dev-util/pkgconfig internal-glib
+
+# minimize risk removing unneeded patches and networking support
+app-shells/bash -net vanilla
+
+# needed by docker
+sys-libs/libseccomp static-libs
+
+# bind-tools' configure script breaks when cross-compiling with seccomp enabled
+net-dns/bind-tools -seccomp
+
+# Gentoo's new hardened profile disables PIC, but open-vm-tools needs it
+app-emulation/open-vm-tools pic

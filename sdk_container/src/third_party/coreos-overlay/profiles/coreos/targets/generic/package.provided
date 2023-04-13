@@ -1,0 +1,30 @@
+# Copyright (c) 2009 The Chromium OS Authors. All rights reserved.
+# Distributed under the terms of the GNU General Public License v2
+
+# Packages that are pulled in via RDEPEND without a use flag to
+# disable them and we have no need/use for them in prod images.
+
+# pulled in by app-crypt/pinentry
+app-eselect/eselect-pinentry-0.7
+
+# pulled in by app-editors/vim
+app-admin/eselect-vi-1.1.5
+app-eselect/eselect-vi-1.1.7-r1
+
+# pulled in by net-firewall/iptables
+app-eselect/eselect-iptables-20200508
+
+# pulled in by app-admin/sudo
+app-misc/editor-wrapper-4
+
+# pulled in by dev-libs/cyrus-sasl
+net-mail/mailbase-1.1
+
+# elt-patches has a cyclic dependency
+app-arch/xz-utils-0
+
+# doesn't cross-compile, but required for glog, gflags, etc.
+dev-util/cmake-3.9.6
+
+# pulled in by dev-libs/glib
+dev-util/glib-utils-9999

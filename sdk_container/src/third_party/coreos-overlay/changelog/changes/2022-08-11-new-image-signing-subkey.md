@@ -1,0 +1,1 @@
+- The new image signing subkey was added to the public key embedded into `flatcar-install` (the old expired on 10th August 2022), only an updated `flatcar-install` script can verify releases signed with the new key ([init#79](https://github.com/flatcar-linux/init/pull/79))

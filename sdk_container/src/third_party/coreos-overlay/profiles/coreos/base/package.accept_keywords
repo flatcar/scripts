@@ -1,0 +1,109 @@
+# Copyright (c) 2009 The Chromium OS Authors. All rights reserved.
+# Copyright (c) 2013 The CoreOS Authors. All rights reserved.
+# Distributed under the terms of the GNU General Public License v2
+
+=dev-util/perf-4.9.13 ~amd64
+
+# Everything needed for the boot engine
+>=sys-apps/kexec-tools-2.0.4-r1 ~amd64
+=sys-kernel/dracut-049 **
+
+# Needed by coreos-oem-gce
+dev-python/boto
+
+# efitools and dependency libraries for signing kernel images
+>=sys-boot/gnu-efi-3.0u		~amd64
+>=app-crypt/efitools-1.4.1-r2	~amd64
+
+# no version marked stable upstream
+dev-util/checkbashisms
+
+# jq 1.5-r2 for heap overflow fix
+# https://bugs.gentoo.org/show_bug.cgi?id=580606
+# jq 1.6-r3 for CVE-2015-8863
+>=app-misc/jq-1.5-r2 ~amd64 ~arm64
+
+# Must use the same version across all architectures
+=dev-libs/protobuf-2.6.1-r3
+
+# All versions are ~amd64 and not enabled on arm64
+=sys-apps/nvme-cli-1.1 **
+
+# CVE-2017-8779
+=net-nds/rpcbind-0.2.4-r1
+
+# Pick up fixes for bugs introduced in 4.0
+=sys-fs/dosfstools-4.1 **
+
+# iproute2 4.13 includes a patch to avoid leaking netns mounts in rkt
+# https://git.kernel.org/pub/scm/linux/kernel/git/shemminger/iproute2.git/commit/?id=d6a4076b6ba6547d7e52c377a7c58c56eb5ea16e
+=sys-apps/iproute2-4.13.0 ~amd64 ~arm64
+
+# Upgrade to GCC 9.3.0 to support latest glibc builds
+=sys-devel/gcc-config-1.9.1 ~amd64 ~arm64
+=sys-devel/binutils-2.37_p1 ~amd64 ~arm64
+=sys-libs/binutils-libs-2.37_p1 ~amd64 ~arm64
+=sys-devel/gcc-8.3.0  ~amd64 ~arm64
+=sys-devel/gcc-9.3.0-r1 ~amd64 ~arm64
+=cross-aarch64-cros-linux-gnu/gcc-9.3.0-r1 ~arm64
+=cross-x86_64-cros-linux-gnu/gcc-9.3.0-r1 ~amd64
+
+# Force upgrades to work around catalyst problems while upgrading ncurses.
+=sys-apps/gptfdisk-1.0.3 ~amd64 ~arm64
+
+# Choose the newer spidermonkey revision to support GCC 8.3.0.
+# https://bugs.gentoo.org/686744
+=dev-lang/spidermonkey-1.8.5-r7
+
+=sys-firmware/edk2-ovmf-201905 ~arm64
+
+=sys-auth/google-oslogin-20180611 **
+
+=sys-process/tini-0.18.0 ~arm64
+
+=sys-libs/libsepol-2.4 **
+=sys-libs/libselinux-2.4 **
+=sys-apps/checkpolicy-3.1 **
+=sec-policy/selinux-base-2.20200818-r2 **
+=sec-policy/selinux-base-policy-2.20200818-r2 **
+=sec-policy/selinux-unconfined-2.20200818-r2 **
+=sec-policy/selinux-virt-2.20200818-r2 **
+
+=net-misc/openssh-8.7_p1-r1 ~amd64 ~arm64
+
+=sys-firmware/sgabios-0.1_pre8-r1 ~amd64 ~arm64
+
+=coreos-devel/fero-client-0.1.1 **
+
+# Accept unstable host Rust compilers
+=virtual/rust-1.55.0 ~amd64 ~arm64
+=dev-lang/rust-1.55.0 ~amd64 ~arm64
+
+=sys-fs/cryptsetup-2.0.3 ~amd64
+
+=sys-libs/libseccomp-2.5.0 ~amd64 ~arm64
+
+>=dev-util/dwarves-1.18 ~amd64
+>=dev-libs/elfutils-0.178 ~amd64
+
+=sys-fs/multipath-tools-0.8.5 ~amd64 ~arm64
+
+=app-arch/zstd-1.4.9 ~amd64 ~arm64
+
+=net-libs/gnutls-3.7.1 ~amd64 ~arm64
+
+=net-nds/openldap-2.4.58 ~amd64 ~arm64
+
+=dev-libs/libxml2-2.9.12-r2 ~amd64 ~arm64
+
+=dev-libs/libgcrypt-1.9.4 ~amd64 ~arm64
+
+=net-libs/libnftnl-1.2.0 ~amd64 ~arm64
+
+=net-misc/curl-7.79.1 ~arm64
+
+# We need 2.3.2, but it still marked as unstable on arm64. Can't
+# update the package to a newer revision from gentoo (where it is
+# already stabilised for both amd64 and arm64) until we move off from
+# python3.6.
+=sys-libs/talloc-2.3.2 ~amd64 ~arm64

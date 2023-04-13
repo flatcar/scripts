@@ -1,0 +1,4 @@
+# Overwrite portage-stable mask - this package was removed in
+# gentoo. We still need it, since sys-libs/libsemanage still requires
+# it. When we update selinux, this can be dropped.
+=dev-libs/ustr-1.0.4-r8
