@@ -38,10 +38,6 @@
 #
 #   4. A file ../scripts.patch to apply with "git am -3" for the scripts repo.
 #
-#   5. A file ../overlay.patch to apply with "git am -3" for the coreos-overlay sub-module.
-#
-#   6. A file ../portage.patch to apply with "git am -3" for the portage-stable sub-module.
-#
 # OUTPUT:
 #
 #   1. Exported container image "flatcar-packages-[ARCH]-[VERSION].tar.gz" with binary packages
@@ -68,7 +64,6 @@ function _packages_build_impl() {
 
     source ci-automation/ci_automation_common.sh
     source ci-automation/gpg_setup.sh
-    init_submodules
 
     source sdk_container/.repo/manifests/version.txt
     local sdk_version="${FLATCAR_SDK_VERSION}"

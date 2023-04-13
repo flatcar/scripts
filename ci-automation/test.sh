@@ -144,7 +144,6 @@ function _test_run_impl() {
     source ci-automation/tapfile_helper_lib.sh
     source ci-automation/ci_automation_common.sh
     source sdk_lib/sdk_container_common.sh
-    init_submodules
 
     source sdk_container/.repo/manifests/version.txt
     local vernum="${FLATCAR_VERSION}"
