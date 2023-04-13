@@ -56,8 +56,6 @@ function _sdk_container_build_impl() {
     source ci-automation/ci_automation_common.sh
     source ci-automation/gpg_setup.sh
 
-    init_submodules
-
     source sdk_container/.repo/manifests/version.txt
     local vernum="${FLATCAR_SDK_VERSION}"
     local sdk_tarball="flatcar-sdk-${ARCH}-${vernum}.tar.bz2"
