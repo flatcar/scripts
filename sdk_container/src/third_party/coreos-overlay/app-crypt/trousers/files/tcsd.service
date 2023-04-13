@@ -1,0 +1,13 @@
+[Unit]
+Description=TCG Core Services Daemon
+ConditionPathExists=/dev/tpm0
+ConditionSecurity=!tpm2
+
+[Service]
+User=tss
+ExecCondition=/bin/bash -c "/usr/bin/test $(cat /sys/class/tpm/*/tpm_version_major | grep -m 1 1 || echo 0) -eq 1"
+ExecStart=/usr/sbin/tcsd -f
+
+[Install]
+WantedBy=multi-user.target
+

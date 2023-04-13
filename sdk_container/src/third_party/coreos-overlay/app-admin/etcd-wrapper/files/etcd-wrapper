@@ -1,0 +1,36 @@
+#!/bin/bash
+# The "etcd-wrapper" script can't be deleted because ct overwrites
+# the ExecStart directive with etcd-wrapper. Do the new action of
+# ExecStart here.
+set -e
+
+# Since etcd/v3 we can't use both `--name` and `ETCD_NAME` at the same time.
+# We parse the etcd command line options to find a `--name/-name` flag if we found one,
+# we unset the `ETCD_NAME` to not conflict with it.
+for f in "${@}"; do
+    if [[ $f =~ ^-?-name=? ]]; then
+        unset ETCD_NAME
+        break
+    fi
+done
+
+
+# Do not pass ETCD_DATA_DIR through to the container. The default path,
+# /var/lib/etcd is always used inside the container.
+etcd_data_dir="${ETCD_DATA_DIR}"
+ETCD_DATA_DIR="/var/lib/etcd"
+mkdir -p ${etcd_data_dir}
+chown -R etcd:etcd ${etcd_data_dir}
+chmod 700 ${etcd_data_dir}
+# A better way to run the Flannel/etcd container image is Podman because
+# Flannel depends on etcd but wants to be run before Docker so that it
+# can set up the Docker networking. Etcd and Flannel are part of the
+# Container Linux Config specification and thus can't be dropped easily.
+# For now we have to resort to running these services with Docker and try
+# to restart Docker for the Flannel options to take effect.
+/usr/bin/docker stop etcd-member || true
+/usr/bin/docker rm -f etcd-member || true
+# set umask so that sdnotify-proxy creates /run/etcd-notify with the same relaxed permissions as NOTIFY_SOCKET (/run/systemd/notify) normally has, to allow ETCD_USER to write to it
+umask 000
+# mapping only /run/etcd-notify does not work and we use the full /run, also we must set NOTIFY_SOCKET in the container but use the original for /usr/libexec/sdnotify-proxy
+/usr/libexec/sdnotify-proxy /run/etcd-notify /usr/bin/docker run --name etcd-member --network=host --ipc=host -u $(id -u ${ETCD_USER}):$(id -g ${ETCD_USER}) -v /run:/run -v /usr/share/ca-certificates:/usr/share/ca-certificates:ro -v ${etcd_data_dir}:/var/lib/etcd:rw -v ${ETCD_SSL_DIR}:/etc/ssl/certs:ro --env-file <(env; echo PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin; echo NOTIFY_SOCKET=/run/etcd-notify) --entrypoint /usr/local/bin/etcd ${ETCD_IMAGE:-${ETCD_IMAGE_URL}:${ETCD_IMAGE_TAG}} "$@"

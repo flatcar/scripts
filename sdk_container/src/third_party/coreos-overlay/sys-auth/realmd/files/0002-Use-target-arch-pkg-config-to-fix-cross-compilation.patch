@@ -1,0 +1,30 @@
+From 70b6ab558f89c70b0085924bdb9b506c8fc6ce93 Mon Sep 17 00:00:00 2001
+From: Helmut Grohne <helmut@subdivi.de>
+Date: Mon, 16 Aug 2021 17:45:11 +0200
+Subject: [PATCH 2/4] Use target arch pkg-config to fix cross compilation
+
+Consider $ac_tool_prefix when searching for pkg-config.
+
+Bug-Debian: https://bugs.debian.org/862213
+
+Fixes: #35
+---
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index 33f6890..63dbc94 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -63,7 +63,7 @@ AC_PROG_LN_S
+ AC_PROG_MAKE_SET
+ AC_PROG_RANLIB
+ IT_PROG_INTLTOOL($INTLTOOL_REQ)
+-AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
++PKG_PROG_PKG_CONFIG
+ 
+ GETTEXT_PACKAGE=realmd
+ AC_SUBST([GETTEXT_PACKAGE])
+-- 
+2.35.1
+

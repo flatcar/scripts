@@ -1,0 +1,24 @@
+#!/bin/bash
+
+. /usr/share/coreos/release
+NVIDIA_DRIVER_BASENAME="$1"
+KERNEL_NAME="$(ls /lib/modules)"
+
+cd "/nvidia/${NVIDIA_DRIVER_BASENAME}"
+./nvidia-installer -s -n \
+  --no-check-for-alternate-installs \
+  --no-kernel-module-source \
+  --kernel-name="${KERNEL_NAME}" \
+  --no-opengl-files \
+  --no-distro-scripts \
+  --no-systemd \
+  --skip-depmod \
+  --kernel-install-path="${PWD}/install-mod" \
+  --log-file-name="${PWD}/nvidia-installer.log" || true
+
+mkdir -p /lib/modules/${KERNEL_NAME}/video
+mkdir -p "${PWD}"/install-mod
+cp "${PWD}"/kernel/*.ko "${PWD}"/install-mod
+cp "${PWD}"/install-mod/*.ko /lib/modules/${KERNEL_NAME}/video/
+depmod -a
+cp /lib/modules/${KERNEL_NAME}/modules.* "${PWD}/install-mod/"

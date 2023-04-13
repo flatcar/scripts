@@ -1,0 +1,4 @@
+# We don't have a separate /{bin,lib} and /usr/{bin,lib}. But the base
+# profile in portage-stable forces split-usr, so in use.force we
+# unforce it and here we mask it.
+split-usr

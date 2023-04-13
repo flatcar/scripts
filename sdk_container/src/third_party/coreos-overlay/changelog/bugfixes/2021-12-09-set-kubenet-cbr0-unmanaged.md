@@ -1,0 +1,1 @@
+- Excluded the Kubenet cbr0 interface from networkd's DHCP config and set it to Unmanaged to prevent interference and ensure that it is not part of the network online check ([PR#55](https://github.com/flatcar-linux/init/pull/55))

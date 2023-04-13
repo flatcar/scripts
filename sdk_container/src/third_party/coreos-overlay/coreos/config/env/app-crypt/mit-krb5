@@ -1,0 +1,10 @@
+# Work around configure test that cannot be cross compiled :(
+#
+# When checking if this is still applicable, try grepping the
+# configure script for lines with "$cross_compiling", like
+#
+# grep -B 20 -F 'when cross compiling' configure
+
+export krb5_cv_attr_constructor_destructor=yes,yes
+export ac_cv_func_regcomp=yes
+export ac_cv_printf_positional=yes
