@@ -1,0 +1,1 @@
+- Added a new flatcar-update tool to the image to ease manual updates, rollbacks, channel/release jumping, and airgapped updates ([PR#53](https://github.com/flatcar-linux/init/pull/53))

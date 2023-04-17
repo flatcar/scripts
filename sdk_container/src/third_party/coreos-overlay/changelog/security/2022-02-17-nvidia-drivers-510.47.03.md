@@ -1,0 +1,1 @@
+- nvidia-drivers ([CVE-2022-21814](https://nvd.nist.gov/vuln/detail/CVE-2022-21814), [CVE-2022-21813](https://nvd.nist.gov/vuln/detail/CVE-2022-21813))

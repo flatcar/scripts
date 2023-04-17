@@ -1,0 +1,1 @@
+- Ensured that `/var/log/journal/` is created early enough for systemd-journald to persist the logs on first boot ([bootengine#60](https://github.com/flatcar/bootengine/pull/60), [baselayout#29](https://github.com/flatcar/baselayout/pull/29))

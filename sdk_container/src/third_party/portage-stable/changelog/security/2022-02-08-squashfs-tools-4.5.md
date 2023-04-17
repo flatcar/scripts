@@ -1,0 +1,1 @@
+- SDK: squashfs-tools ([CVE-2021-40153](https://nvd.nist.gov/vuln/detail/CVE-2021-40153), [CVE-2021-41072](https://nvd.nist.gov/vuln/detail/CVE-2021-41072))

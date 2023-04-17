@@ -1,0 +1,1 @@
+- Reverted the Linux kernel change to forbid xfrm id 0 for IPSec state because it broke Cilium ([Flatcar#626](https://github.com/flatcar-linux/Flatcar/issues/626), [PR#1682](https://github.com/flatcar-linux/coreos-overlay/pull/1682))

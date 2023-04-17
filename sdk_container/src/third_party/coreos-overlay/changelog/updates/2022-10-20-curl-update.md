@@ -1,0 +1,1 @@
+- curl ([7.85](https://curl.se/mail/archive-2022-08/0012.html))

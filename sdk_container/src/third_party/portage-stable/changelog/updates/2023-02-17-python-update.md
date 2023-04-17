@@ -1,0 +1,2 @@
+- findutils ([4.9.0](https://lists.gnu.org/archive/html/info-gnu/2022-02/msg00003.html))
+- SDK: python ([3.10.9](https://docs.python.org/3.10/whatsnew/changelog.html#python-3-10-9-final) (includes [3.10](https://www.python.org/downloads/release/python-3100/))

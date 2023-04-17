@@ -1,0 +1,1 @@
+- Fixed space escaping in the `networkd` Ignition translation ([Flatcar#812](https://github.com/flatcar-linux/Flatcar/issues/812))

@@ -1,0 +1,1 @@
+- GCE: google compute-image-packages ([20190124](https://github.com/GoogleCloudPlatform/compute-image-packages/releases/tag/20190124))

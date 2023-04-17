@@ -1,0 +1,1 @@
+- Fixed leak of SELinux policy store to the root filesystem top directory due to wrong store path in `policycoreutils` instead of `/var/lib/selinux` ([flatcar-linux/Flatcar#596](https://github.com/flatcar-linux/Flatcar/issues/596))

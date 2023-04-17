@@ -1,0 +1,1 @@
+- Improved the OS reset tool to offer preview, backup and restore ([init#94](https://github.com/flatcar/init/pull/94))

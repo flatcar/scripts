@@ -1,0 +1,1 @@
+- Added CONFIG_NF_CT_NETLINK_HELPER (for libnetfilter_cthelper), CONFIG_NET_VRF (for virtual routing and forwarding) and CONFIG_KEY_DH_OPERATIONS (for keyutils) to the kernel config ([PR#1524](https://github.com/flatcar-linux/coreos-overlay/pull/1524))

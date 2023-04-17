@@ -1,0 +1,1 @@
+- Bring in dependencies for NFS4 with Kerberos both in kernel and userspace. Tested against NFS4.1 server. [PR#1664](https://github.com/flatcar-linux/coreos-overlay/pull/1664)

@@ -1,0 +1,2 @@
+# Allow smartcard support in the SDK for image signing
+app-crypt/gnupg -smartcard
