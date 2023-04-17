@@ -1,0 +1,1 @@
+- WALinuxAgent ([2.6.0.2](https://github.com/Azure/WALinuxAgent/releases/tag/v2.6.0.2))

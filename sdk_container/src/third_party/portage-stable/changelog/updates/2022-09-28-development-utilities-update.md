@@ -1,0 +1,7 @@
+- bpftool ([5.18.11](https://lwn.net/Articles/900912/))
+- SDK: catalyst ([3.0.21](https://gitweb.gentoo.org/proj/catalyst.git/log/?h=3.0.21))
+- SDK: cmake ([3.23.3](https://cmake.org/cmake/help/v3.23/release/3.23.html))
+- SDK: meson ([0.62.2](https://mesonbuild.com/Release-notes-for-0-62-0.html))
+- SDK: ninja ([1.11.0](https://groups.google.com/g/ninja-build/c/R2oCyDctDf8/m/-U94Y5I8AgAJ?pli=1))
+- pahole ([1.23](https://git.kernel.org/pub/scm/devel/pahole/pahole.git/tag/?h=v1.23))
+- strace ([5.19](https://github.com/strace/strace/releases/tag/v5.19))

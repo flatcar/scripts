@@ -1,0 +1,1 @@
+- Re-added the `brd drbd nbd rbd xen-blkfront zram libarc4 lru_cache zsmalloc` kernel modules to the initramfs since they were missing compared to the Flatcar 3033.2.x releases where the 5.10 kernel is used ([PR#40](https://github.com/flatcar-linux/bootengine))

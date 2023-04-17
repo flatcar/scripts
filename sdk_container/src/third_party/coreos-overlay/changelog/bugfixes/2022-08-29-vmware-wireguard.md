@@ -1,0 +1,1 @@
+- VMWare: excluded `wireguard` (and others) from `systemd-networkd` management. ([init#80](https://github.com/flatcar-linux/init/pull/80))

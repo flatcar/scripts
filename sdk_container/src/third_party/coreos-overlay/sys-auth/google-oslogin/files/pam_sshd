@@ -1,0 +1,12 @@
+# Needed for oslogin support (needs to be prepended)
+auth       [default=ignore] pam_group.so
+auth       [success=done perm_denied=die default=ignore] pam_oslogin_login.so
+account    [success=ok default=ignore] pam_oslogin_admin.so
+account    [success=ok ignore=ignore default=die] pam_oslogin_login.so
+session    [success=ok default=ignore] pam_mkhomedir.so
+
+# Keep this file in sync with the net-misc/openssh/files/sshd.pam_include.2
+auth       include	system-remote-login
+account    include	system-remote-login
+password   include	system-remote-login
+session	   include	system-remote-login

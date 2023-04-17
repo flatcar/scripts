@@ -1,0 +1,1 @@
+- Enabled elfutils support in systemd-coredump. A backtrace will now appear in the journal for any program that dumps core ([coreos-overlay#2489](https://github.com/flatcar/coreos-overlay/pull/2489))

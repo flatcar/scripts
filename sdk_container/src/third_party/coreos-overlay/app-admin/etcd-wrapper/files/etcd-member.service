@@ -1,0 +1,29 @@
+[Unit]
+Description=etcd (System Application Container)
+Documentation=https://github.com/etcd-io/etcd
+Wants=network-online.target network.target
+After=network-online.target
+Conflicts=etcd.service
+Conflicts=etcd2.service
+
+[Service]
+Type=notify
+NotifyAccess=all
+Restart=always
+RestartSec=10s
+TimeoutStartSec=0
+LimitNOFILE=40000
+
+Environment="ETCD_IMAGE_URL=quay.io/coreos/etcd"
+Environment="ETCD_IMAGE_TAG=@ETCD_IMAGE_TAG@"
+Environment="ETCD_NAME=%m"
+Environment="ETCD_USER=etcd"
+Environment="ETCD_DATA_DIR=/var/lib/etcd"
+Environment="ETCD_SSL_DIR=/etc/ssl/certs"
+
+ExecStart=/usr/lib/flatcar/etcd-wrapper $ETCD_OPTS
+ExecStop=/usr/bin/docker stop etcd-member
+ExecStopPost=/usr/bin/docker rm etcd-member
+
+[Install]
+WantedBy=multi-user.target

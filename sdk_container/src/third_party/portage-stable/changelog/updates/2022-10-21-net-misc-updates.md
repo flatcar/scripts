@@ -1,0 +1,5 @@
+- iputils ([20211215](https://github.com/iputils/iputils/releases/tag/20211215))
+- wget ([1.21.3](https://lists.gnu.org/archive/html/info-gnu/2022-02/msg00017.html))
+- whois ([5.5.13](https://github.com/rfc1036/whois/blob/v5.5.13/debian/changelog))
+- xz-utils ([5.2.6](https://git.tukaani.org/?p=xz.git;a=blob;f=NEWS;h=4c79b18ff26a1c479a920b21f07d050599c04c9e;hb=8dfed05bdaa4873833ba24279f02ad2db25effea))
+- libcap ([2.65](https://sites.google.com/site/fullycapable/release-notes-for-libcap?authuser=0#h.wfblevfzkj0))

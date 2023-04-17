@@ -1,0 +1,3 @@
+sys-apps/dbus
+sys-apps/gentoo-functions
+-sys-apps/openrc

@@ -1,0 +1,1 @@
+- VMWare: Added `ignition-delete-config.service` to remove Ignition config from VM metadata, see also [here](https://coreos.github.io/ignition/operator-notes/#automatic-config-deletion) ([coreos-overlay#1948](https://github.com/flatcar-linux/coreos-overlay/pull/1948))

@@ -1,0 +1,1 @@
+- cryptsetup ([CVE-2021-4122](https://nvd.nist.gov/vuln/detail/CVE-2021-4122)) 

@@ -1,0 +1,1 @@
+- libarchive ([libarchive-1565](https://github.com/libarchive/libarchive/issues/1565), [libarchive-1566](https://github.com/libarchive/libarchive/issues/1566))

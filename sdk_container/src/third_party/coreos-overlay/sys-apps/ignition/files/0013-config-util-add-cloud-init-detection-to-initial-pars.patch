@@ -1,0 +1,79 @@
+From 105a9165b37c962153a4b671bea8025122e81a72 Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Tue, 22 Feb 2022 15:41:13 +0100
+Subject: [PATCH 13/18] config/util: add cloud init detection to initial
+ parsing
+
+we detect if the config is not an ignition one (script/cloudinit) and we
+return an ErrEmpty which will make Ignition to ignore this user config.
+
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+---
+ config/util/parsingErrors.go | 39 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 39 insertions(+)
+
+diff --git a/config/util/parsingErrors.go b/config/util/parsingErrors.go
+index 865d75d2..914bf2bf 100644
+--- a/config/util/parsingErrors.go
++++ b/config/util/parsingErrors.go
+@@ -15,7 +15,12 @@
+ package util
+ 
+ import (
++	"bytes"
++	"compress/gzip"
+ 	"encoding/json"
++	"io/ioutil"
++	"strings"
++	"unicode"
+ 
+ 	"github.com/flatcar/ignition/v2/config/shared/errors"
+ 
+@@ -24,10 +29,44 @@ import (
+ 	"github.com/coreos/vcontext/tree"
+ )
+ 
++func isCloudConfig(userdata []byte) bool {
++	header := strings.SplitN(string(decompressIfGzipped(userdata)), "\n", 2)[0]
++
++	// Trim trailing whitespaces
++	header = strings.TrimRightFunc(header, unicode.IsSpace)
++
++	return (header == "#cloud-config")
++}
++
++func isScript(userdata []byte) bool {
++	header := strings.SplitN(string(decompressIfGzipped(userdata)), "\n", 2)[0]
++	return strings.HasPrefix(header, "#!")
++}
++
++func decompressIfGzipped(data []byte) []byte {
++	if reader, err := gzip.NewReader(bytes.NewReader(data)); err == nil {
++		uncompressedData, err := ioutil.ReadAll(reader)
++		reader.Close()
++		if err == nil {
++			return uncompressedData
++		} else {
++			return data
++		}
++	} else {
++		return data
++	}
++}
++
+ // HandleParseErrors will attempt to unmarshal an invalid rawConfig into "to".
+ // If it fails to unmarsh it will generate a report.Report from the errors.
+ func HandleParseErrors(rawConfig []byte, to interface{}) (report.Report, error) {
+ 	r := report.Report{}
++
++	if isCloudConfig(rawConfig) || isScript(rawConfig) {
++		// returning ErrEmpty will make ignition ignoring this user provided config.
++		return report.Report{}, errors.ErrEmpty
++	}
++
+ 	err := json.Unmarshal(rawConfig, to)
+ 	if err == nil {
+ 		return report.Report{}, nil
+-- 
+2.35.1
+

@@ -1,0 +1,30 @@
+coreos-base/update_engine delta_generator
+
+dev-vcs/git pcre
+
+dev-lang/rust rustfmt
+
+# Allow smartcard support in the SDK for image signing
+app-crypt/gnupg smartcard usb
+
+# for qemu
+app-arch/bzip2 static-libs
+app-emulation/qemu -doc -jpeg ncurses python static-user virtfs qemu_softmmu_targets_x86_64 qemu_softmmu_targets_aarch64
+dev-libs/glib static-libs
+dev-libs/libaio static-libs
+dev-libs/libpcre2 static-libs
+dev-libs/openssl static-libs
+media-libs/libjpeg-turbo static-libs
+media-libs/libpng static-libs
+net-misc/curl static-libs
+sys-apps/attr static-libs
+sys-apps/dtc static-libs
+sys-libs/libcap-ng static-libs
+sys-libs/libseccomp static-libs
+sys-libs/ncurses static-libs
+sys-libs/zlib static-libs
+virtual/jpeg static-libs
+x11-libs/pixman static-libs
+
+# Enable gssapi for SDK
+net-dns/bind-tools           gssapi

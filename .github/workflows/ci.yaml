@@ -11,24 +11,6 @@ on:
           Space-separated vendor formats to build.
         required: true
         default: qemu_uefi
-      portage_remote:
-        description: |
-          The remote we should pull portage-stable from. This defaults to whatever the submodule is set to in this repo.
-          If triggered by a change in the portage repo, please set this to the remote which is proposing a change.
-        required: false
-      portage_ref:
-        description: |
-          This is the ref we will use to pull the changes from the portage_remote.
-        required: false
-      coreos_remote:
-        description: |
-          The remote we should pull coreos-overlay from. This defaults to whatever the submodule is set to in this repo.
-          If triggered by a change in the portage repo, please set this to the remote which is proposing a change.
-        required: false
-      coreos_ref:
-        description: |
-          This is the ref we will use to pull the changes from the coreos_remote.
-        required: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }} 
@@ -75,7 +57,6 @@ jobs:
         with:
           path: scripts
           fetch-depth: 0
-          submodules: true
 
       # Hack alert: actions/checkout will check out the (disjunct) merge commit of a PR
       #  instead of its head commit. That commit is not connected to any branch.
@@ -96,23 +77,10 @@ jobs:
         shell: bash
         run: |
           arch="${{ matrix.arch }}"
-          COREOS_REMOTE=""
-          COREOS_REF=""
-          PORTAGE_REMOTE=""
-          PORTAGE_REF=""
-          IMAGE_FORMATS="qemu_uefi"
-
-          [ -z "${{ github.event.inputs.coreos_remote }}" ] || COREOS_REMOTE="${{ github.event.inputs.coreos_remote }}"
-          [ -z "${{ github.event.inputs.coreos_ref }}" ] || COREOS_REF="${{ github.event.inputs.coreos_ref }}"
-          [ -z "${{ github.event.inputs.portage_remote }}" ] || PORTAGE_REMOTE="${{ github.event.inputs.portage_remote }}"
-          [ -z "${{ github.event.inputs.portage_ref }}" ] || PORTAGE_REF="${{ github.event.inputs.portage_ref }}"
-          [ -z "${{ github.event.inputs.image_formats }}" ] || IMAGE_FORMATS="${{ github.event.inputs.image_formats }}"
-
           echo "arch=${arch}" >> $GITHUB_ENV
-          echo "COREOS_REMOTE=${COREOS_REMOTE}" >> $GITHUB_ENV
-          echo "COREOS_REF=${COREOS_REF}" >> $GITHUB_ENV
-          echo "PORTAGE_REMOTE=${PORTAGE_REMOTE}" >> $GITHUB_ENV
-          echo "PORTAGE_REF=${PORTAGE_REF}" >> $GITHUB_ENV
+
+          IMAGE_FORMATS="qemu_uefi"
+          [ -z "${{ github.event.inputs.image_formats }}" ] || IMAGE_FORMATS="${{ github.event.inputs.image_formats }}"
           echo "IMAGE_FORMATS=${IMAGE_FORMATS}" >> $GITHUB_ENV
 
           # Artifact root for images and torcx tarball as seen from within the container
@@ -123,29 +91,6 @@ jobs:
           # Placeholder URL for run-kola-tests.yaml, "Extract artifacts" step which will replace
           #  this with its IP address.
           echo "TORCX_TESTS_PACKAGE_URL=http://localhost:12345" >> $GITHUB_ENV
-
-      - name: Checkout submodules
-        shell: bash
-        run: |
-          if [ "${COREOS_REMOTE}" != "" -a  "${COREOS_REF}" != "" ]
-          then
-            REMOTE="${COREOS_REMOTE}"
-            REPO_PATH="sdk_container/src/third_party/coreos-overlay"
-            [[ "$REMOTE" == "https:*" ]] || REMOTE="https://github.com/${COREOS_REMOTE}"
-            git -C "$REPO_PATH" remote add test "$REMOTE"
-            git -C "$REPO_PATH" fetch test
-            git -C "$REPO_PATH" checkout "test/${COREOS_REF}"
-          fi
-
-          if [ "${PORTAGE_REMOTE}" != "" -a  "${PORTAGE_REF}" != "" ]
-          then
-            REMOTE="${PORTAGE_REMOTE}"
-            REPO_PATH="sdk_container/src/third_party/portage-stable"
-            [[ "$REMOTE" == "https:*" ]] || REMOTE="https://github.com/${PORTAGE_REMOTE}"
-            git -C "$REPO_PATH" remote add test "$REMOTE"
-            git -C "$REPO_PATH" fetch test
-            git -C "$REPO_PATH" checkout "test/${PORTAGE_REF}"
-          fi 
 
       - name: Build packages
         shell: bash

@@ -1,0 +1,3 @@
+- XZ utils ([5.2.8](https://git.tukaani.org/?p=xz.git;a=blob;f=NEWS;h=c244b42a6771a6e8af206318dfc500d78929fd6f;hb=5476089d9c42b9b04e92b80e1800b384a98265cb))
+- GnuTLS ([3.7.8](https://lists.gnupg.org/pipermail/gnutls-help/2022-September/004765.html))
+- gettext ([0.21.1](https://git.savannah.gnu.org/gitweb/?p=gettext.git;a=blob;f=NEWS;h=cdbb16746c23555e70bb1e16917f5c349ce92d9e;hb=8b38ee827251cadbb90cb6cb576ae98702566288))

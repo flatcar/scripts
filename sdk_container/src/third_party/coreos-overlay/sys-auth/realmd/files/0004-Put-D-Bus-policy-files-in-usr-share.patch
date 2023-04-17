@@ -1,0 +1,25 @@
+From 3cf77b5b11ab9e460959a7eb1cd49c901b94385c Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Tue, 21 Sep 2021 13:55:36 +0200
+Subject: [PATCH 4/4] Put D-Bus policy files in /usr/share
+
+---
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index c07ed4d..6d57abe 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -217,7 +217,7 @@ AC_SUBST(LDAP_CFLAGS)
+ DBUS_SERVICES_DIR="${datadir}/dbus-1/system-services"
+ AC_SUBST(DBUS_SERVICES_DIR)
+ 
+-DBUS_POLICY_DIR="${sysconfdir}/dbus-1/system.d"
++DBUS_POLICY_DIR="${datadir}/dbus-1/system.d"
+ AC_SUBST(DBUS_POLICY_DIR)
+ 
+ POLKIT_ACTION_DIR="${datadir}/polkit-1/actions"
+-- 
+2.35.1
+
