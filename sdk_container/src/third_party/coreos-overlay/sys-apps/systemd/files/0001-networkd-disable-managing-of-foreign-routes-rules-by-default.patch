@@ -1,0 +1,63 @@
+From 513429b47f0852d17ba721ad5d55baa985f48ddb Mon Sep 17 00:00:00 2001
+From: Kai Lueke <kailuke@microsoft.com>
+Date: Mon, 7 Feb 2022 17:39:23 +0100
+Subject: [PATCH] networkd: disable managing of foreign routes/rules by default
+
+While systemd-networkd follows the principle of a declarative network
+configuration and thus needs a way to ensure that unwanted routes or
+routing policy rules get discarded, the interfacing with procedural
+network management from CNIs like Cilium is limited, so that when the
+interface is set to "unmanaged" through a networkd unit, any routing
+policies there would also be ignored and discarded unless they would
+be defined for a new unit for a dummy network interface. This means
+the only option left is to disable the discarding of foreign rules
+globally.
+
+Change the default for ManageForeignRoutes and
+ManageForeignRoutingPolicyRules to "no" to ensure that we don't
+interfere with the network management of the CNIs. Users that rely on
+the setting can still enable it again. The default networkd config
+mentions the setting with a default value but since the networkd
+config resides on "/etc" it isn't auto updated on Flatcar and users
+may still see a wrong default value annotated there.
+
+https://github.com/cilium/cilium/issues/18706
+https://github.com/flatcar-linux/Flatcar/issues/620
+---
+ src/network/networkd-manager.c | 4 ++--
+ src/network/networkd.conf      | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/src/network/networkd-manager.c b/src/network/networkd-manager.c
+index 374d27bef3..deb46e4a15 100644
+--- a/src/network/networkd-manager.c
++++ b/src/network/networkd-manager.c
+@@ -383,8 +383,8 @@ int manager_new(Manager **ret) {
+         *m = (Manager) {
+                 .speed_meter_interval_usec = SPEED_METER_DEFAULT_TIME_INTERVAL,
+                 .online_state = _LINK_ONLINE_STATE_INVALID,
+-                .manage_foreign_routes = true,
+-                .manage_foreign_rules = true,
++                .manage_foreign_routes = false,
++                .manage_foreign_rules = false,
+                 .ethtool_fd = -1,
+                 .dhcp_duid.type = DUID_TYPE_EN,
+                 .dhcp6_duid.type = DUID_TYPE_EN,
+diff --git a/src/network/networkd.conf b/src/network/networkd.conf
+index 38dc9f1f79..57c661d600 100644
+--- a/src/network/networkd.conf
++++ b/src/network/networkd.conf
+@@ -15,8 +15,8 @@
+ [Network]
+ #SpeedMeter=no
+ #SpeedMeterIntervalSec=10sec
+-#ManageForeignRoutingPolicyRules=yes
+-#ManageForeignRoutes=yes
++#ManageForeignRoutingPolicyRules=no
++#ManageForeignRoutes=no
+ #RouteTable=
+ 
+ [DHCPv4]
+-- 
+2.35.1
+

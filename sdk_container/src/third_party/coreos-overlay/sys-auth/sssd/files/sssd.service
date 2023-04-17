@@ -1,0 +1,10 @@
+[Unit]
+Description=System Security Services Daemon
+After=nscd.service
+
+[Service]
+ExecStart=/usr/sbin/sssd -i
+PIDFile=/run/sssd.pid
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,223 @@
+# ChangeLog for sys-apps/rng-tools
+# Copyright 1999-2016 Gentoo Foundation; Distributed under the GPL v2
+# (auto-generated from git log)
+
+*rng-tools-5 (09 Aug 2015)
+*rng-tools-4-r7 (09 Aug 2015)
+
+  09 Aug 2015; Robin H. Johnson <robbat2@gentoo.org>
+  +files/fix-textrels-on-PIC-x86.patch,
+  +files/rng-tools-5-fix-textrels-on-PIC-x86.patch, +files/rngd-confd-4.1,
+  +files/rngd-initd-4.1, +files/rngd-initd-r1-4.1, +files/rngd.service,
+  +files/test-for-argp.patch, +metadata.xml, +rng-tools-4-r7.ebuild,
+  +rng-tools-5.ebuild:
+  proj/gentoo: Initial commit
+
+  This commit represents a new era for Gentoo:
+  Storing the gentoo-x86 tree in Git, as converted from CVS.
+
+  This commit is the start of the NEW history.
+  Any historical data is intended to be grafted onto this point.
+
+  Creation process:
+  1. Take final CVS checkout snapshot
+  2. Remove ALL ChangeLog* files
+  3. Transform all Manifests to thin
+  4. Remove empty Manifests
+  5. Convert all stale $Header$/$Id$ CVS keywords to non-expanded Git $Id$
+  5.1. Do not touch files with -kb/-ko keyword flags.
+
+  Signed-off-by: Robin H. Johnson <robbat2@gentoo.org>
+  X-Thanks: Alec Warner <antarus@gentoo.org> - did the GSoC 2006 migration
+  tests
+  X-Thanks: Robin H. Johnson <robbat2@gentoo.org> - infra guy, herding this
+  project
+  X-Thanks: Nguyen Thai Ngoc Duy <pclouds@gentoo.org> - Former Gentoo
+  developer, wrote Git features for the migration
+  X-Thanks: Brian Harring <ferringb@gentoo.org> - wrote much python to improve
+  cvs2svn
+  X-Thanks: Rich Freeman <rich0@gentoo.org> - validation scripts
+  X-Thanks: Patrick Lauer <patrick@gentoo.org> - Gentoo dev, running new 2014
+  work in migration
+  X-Thanks: Michał Górny <mgorny@gentoo.org> - scripts, QA, nagging
+  X-Thanks: All of other Gentoo developers - many ideas and lots of paint on
+  the bikeshed
+
+  10 Aug 2015; Mikle Kolyada <zlogene@gentoo.org> rng-tools-5.ebuild:
+  add ~arm keyword wrt bug #542360
+
+  Package-Manager: portage-2.2.20
+
+*rng-tools-5-r1 (14 Aug 2015)
+
+  14 Aug 2015; Mike Frysinger <vapier@gentoo.org>
+  +files/rng-tools-5-man-fill-watermark.patch,
+  +files/rng-tools-5-man-rng-device.patch, +rng-tools-5-r1.ebuild:
+  improve the man pages #555094 #555106
+
+  24 Aug 2015; Justin Lecher <jlec@gentoo.org> metadata.xml:
+  Use https by default
+
+  Convert all URLs for sites supporting encrypted connections from http to
+  https
+
+  Signed-off-by: Justin Lecher <jlec@gentoo.org>
+
+  24 Aug 2015; Mike Gilbert <floppym@gentoo.org> metadata.xml:
+  Revert DOCTYPE SYSTEM https changes in metadata.xml
+
+  repoman does not yet accept the https version.
+  This partially reverts eaaface92ee81f30a6ac66fe7acbcc42c00dc450.
+
+  Bug: https://bugs.gentoo.org/552720
+
+  24 Sep 2015; Agostino Sarubbo <ago@gentoo.org> rng-tools-5.ebuild:
+  amd64 stable wrt bug #555100
+
+  Package-Manager: portage-2.2.20.1
+  RepoMan-Options: --include-arches="amd64"
+
+  25 Sep 2015; Agostino Sarubbo <ago@gentoo.org> rng-tools-5.ebuild:
+  x86 stable wrt bug #555100
+
+  Package-Manager: portage-2.2.20.1
+  RepoMan-Options: --include-arches="x86"
+
+  01 Oct 2015; Gokturk Yuksek <gokturk@binghamton.edu>
+  files/rngd-initd-r1-4.1:
+  remove unused lines from the init script.
+
+  rngd-initd-r1-4.1 has been created as a result of the patch
+  proposed for bug 481254. However, one chunk has been missed
+  and did not make it to the commit.
+
+  The variable DEFAULT_DEVICE isn't used by the init script.
+  Remove the related lines from the script.
+
+  Package-Manager: portage-2.2.20.1
+
+*rng-tools-5-r2 (01 Oct 2015)
+
+  01 Oct 2015; Gokturk Yuksek <gokturk@binghamton.edu> +rng-tools-5-r2.ebuild:
+  do not specify rng device in init script #481254
+
+  Linux hw_random driver provides a unified interface for multiple RNGs
+  and the RNG source is exposed through /dev/hwrng device node. There is
+  no need for the init script to look for other device nodes under
+  /dev. By default, rngd uses /dev/hwrng as the entropy source,
+  therefore it's not required to specify it on the command line
+  explicitly.
+
+  The creation of /dev/hwrng requires CONFIG_DEVTMPFS support in the
+  kernel. Due to the way hw_random module is written, some device
+  managers may fail to create /dev/hwrng successfuly. Mdev, for example,
+  incorrectly creates /dev/hw_random instead of /dev/hwrng, mistaking
+  module's own name for the device node's name (see related bug
+  561102). However, per gentoo wiki [1], CONFIG_DEVTMPFS is part of the
+  mdev setup and these systems will have two device nodes
+  (/dev/hw_random and /dev/hwrng) that point to the same device. Even in
+  such setups, rngd will successfuly find /dev/hwrng.
+
+  [1] https://wiki.gentoo.org/index.php?title=Mdev&oldid=246636
+
+  Gentoo-Bug: https://bugs.gentoo.org/481254
+
+  Package-Manager: portage-2.2.20.1
+
+  01 Oct 2015; Gokturk Yuksek <gokturk@binghamton.edu> rng-tools-5-r2.ebuild:
+  handle if redirecting output to a file fails in ebuild
+
+  Use '|| die' to handle if redirecting output to a file fails.
+
+  Package-Manager: portage-2.2.20.1
+
+  01 Oct 2015; Gokturk Yuksek <gokturk@binghamton.edu>
+  +files/rng-tools-5-fix-noctty.patch, rng-tools-5-r2.ebuild:
+  open entropy src with O_NOCTTY flag #556456
+
+  This revision patches the source file 'rngd_entsource.c', adding 'O_NOCTTY'
+  flag to the open() call that opens the entropy source for rngd.
+
+  Gentoo-Bug: https://bugs.gentoo.org/556456
+
+  Package-Manager: portage-2.2.20.1
+
+  19 Oct 2015; Agostino Sarubbo <ago@gentoo.org> rng-tools-5-r2.ebuild:
+  amd64 stable wrt bug #562520
+
+  Package-Manager: portage-2.2.20.1
+  RepoMan-Options: --include-arches="amd64"
+
+  25 Oct 2015; Mikle Kolyada <zlogene@gentoo.org> rng-tools-5-r2.ebuild:
+  x86 stable wrt bug #562520
+
+  Package-Manager: portage-2.2.20.1
+
+  30 Oct 2015; Agostino Sarubbo <ago@gentoo.org> rng-tools-5-r2.ebuild:
+  ppc stable wrt bug #562520
+
+  Package-Manager: portage-2.2.20.1
+  RepoMan-Options: --include-arches="ppc"
+
+  03 Nov 2015; Markus Meier <maekke@gentoo.org> rng-tools-5-r2.ebuild:
+  arm stable, bug #562520
+
+  Package-Manager: portage-2.2.23
+  RepoMan-Options: --include-arches="arm"
+
+  07 Nov 2015; Mikle Kolyada <zlogene@gentoo.org> rng-tools-5-r2.ebuild:
+  ia64 stable wrt bug #562520
+
+  Package-Manager: portage-2.2.20.1
+
+  23 Nov 2015; Agostino Sarubbo <ago@gentoo.org> rng-tools-5-r2.ebuild:
+  alpha stable wrt bug #562520
+
+  Package-Manager: portage-2.2.20.1
+  RepoMan-Options: --include-arches="alpha"
+
+  24 Nov 2015; Mike Frysinger <vapier@gentoo.org> metadata.xml:
+  standardize various metadata.xml style
+
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Unify quoting in metadata.xml files for machine processing
+
+  Force unified quoting in all metadata.xml files since lxml does not
+  preserve original use of single and double quotes. Ensuring unified
+  quoting before the process allows distinguishing the GLEP 67-related
+  metadata.xml changes from unrelated quoting changes.
+
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Replace all herds with appropriate projects (GLEP 67)
+
+  Replace all uses of herd with appropriate project maintainers, or no
+  maintainers in case of herds requested to be disbanded.
+
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Set appropriate maintainer types in metadata.xml (GLEP 67)
+
+  23 Apr 2016; Patrice Clement <monsieurp@gentoo.org> metadata.xml:
+  reorder maintainers, remove <description>, fix <name>
+
+  Package-Manager: portage-2.2.26
+  Closes: https://github.com/gentoo/gentoo/pull/1316
+
+  Signed-off-by: Patrice Clement <monsieurp@gentoo.org>
+
+  23 Apr 2016; Patrice Clement <monsieurp@gentoo.org> metadata.xml:
+  Fixes maintainer's name.
+
+  18 May 2016; Austin English <wizardedit@gentoo.org> files/rngd-initd-4.1,
+  files/rngd-initd-r1-4.1:
+  use #!/sbin/openrc-run instead of #!/sbin/runscript
+
+  22 May 2016; Göktürk Yüksek <gokturk@gentoo.org> metadata.xml:
+  update maintainer email and remove proxy-maint
+
+  Package-Manager: portage-2.2.28
+
+  29 May 2016; Pacho Ramos <pacho@gentoo.org> metadata.xml:
+  Cleanup due to #390951
+
+  Package-Manager: portage-2.3.0_rc1
+

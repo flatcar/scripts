@@ -1,0 +1,11 @@
+index 7c60eda2c..736187b7a 100644
+--- refpolicy/policy/modules/kernel/kernel.te
++++ refpolicy/policy/modules/kernel/kernel.te
+@@ -191,6 +191,7 @@ genfscon proc /sys/dev gen_context(system_u:object_r:sysctl_dev_t,s0)
+ type unlabeled_t;
+ kernel_rootfs_mountpoint(unlabeled_t)
+ fs_associate(unlabeled_t)
++fs_associate_tmpfs(unlabeled_t)
+ sid file gen_context(system_u:object_r:unlabeled_t,s0)
+ sid unlabeled gen_context(system_u:object_r:unlabeled_t,mls_systemhigh)
+ neverallow * unlabeled_t:file entrypoint;

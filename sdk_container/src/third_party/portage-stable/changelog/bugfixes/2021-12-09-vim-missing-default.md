@@ -1,0 +1,1 @@
+- vim with USE=minimal was fixed to run without warning in the beginning [PR#260](https://github.com/flatcar-linux/portage-stable/pull/260)

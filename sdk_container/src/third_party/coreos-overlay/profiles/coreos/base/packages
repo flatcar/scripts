@@ -1,0 +1,8 @@
+-*sys-apps/busybox
+-*sys-apps/kbd
+*app-arch/lbzip2
+*sys-libs/nss-usrfiles
+
+# temporary hack because catalyst is not passing --deep to an emerge @system
+# command and therefore not resolving a block that can be easily fixed.
+*app-shells/bash-completion

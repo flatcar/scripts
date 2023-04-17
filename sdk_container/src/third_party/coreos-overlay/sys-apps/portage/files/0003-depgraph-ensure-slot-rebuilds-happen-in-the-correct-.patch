@@ -1,0 +1,35 @@
+From 91f1cc6fa46e149094a7021f43b10bd13d39b7d9 Mon Sep 17 00:00:00 2001
+From: Michael Marineau <mike@marineau.org>
+Date: Tue, 27 Oct 2020 19:50:07 +0100
+Subject: [PATCH 3/3] depgraph: ensure slot rebuilds happen in the correct root
+
+https://bugs.gentoo.org/520112
+---
+ lib/_emerge/depgraph.py | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/lib/_emerge/depgraph.py b/lib/_emerge/depgraph.py
+index 0bb0352..3d1cdbc 100644
+--- a/lib/_emerge/depgraph.py
++++ b/lib/_emerge/depgraph.py
+@@ -4384,13 +4384,13 @@ class depgraph:
+ 		a favorite list."""
+ 		debug = "--debug" in self._frozen_config.myopts
+ 		onlydeps = "--onlydeps" in self._frozen_config.myopts
+-		myroot = self._frozen_config.target_root
+-		pkgsettings = self._frozen_config.pkgsettings[myroot]
+-		pprovideddict = pkgsettings.pprovideddict
+-		virtuals = pkgsettings.getvirtuals()
+ 		args = self._dynamic_config._initial_arg_list[:]
+ 
+ 		for arg in self._expand_set_args(args, add_to_digraph=True):
++			myroot = arg.root_config.root
++			pkgsettings = self._frozen_config.pkgsettings[myroot]
++			pprovideddict = pkgsettings.pprovideddict
++			virtuals = pkgsettings.getvirtuals()
+ 			for atom in sorted(arg.pset.getAtoms()):
+ 				self._spinner_update()
+ 				dep = Dependency(atom=atom, onlydeps=onlydeps,
+-- 
+2.26.2
+

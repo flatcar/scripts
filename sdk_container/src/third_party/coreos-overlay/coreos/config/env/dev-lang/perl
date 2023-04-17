@@ -1,0 +1,5 @@
+if [[ ${EBUILD_PHASE} == configure ]]; then
+  if tc-is-cross-compiler; then
+    append-cflags "-fwrapv -fno-strict-aliasing"
+  fi
+fi

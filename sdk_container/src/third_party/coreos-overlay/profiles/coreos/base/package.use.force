@@ -1,0 +1,14 @@
+# Copyright (c) 2014 The CoreOS Authors. All rights reserved.
+# Distributed under the terms of the GNU General Public License v2
+
+# Force libcrypt so it's included in stage-1 of the SDK build.
+# +crypt was introduced in glibc-2.30 and above.
+sys-libs/glibc crypt
+
+# Do not force this flag, we don't need XATTR_PAX
+sys-apps/portage -xattr
+
+# Matt Turner <mattst88@gentoo.org> (2020-03-28)
+# wget is the default FETCHCOMMAND, and most distfiles are distributed via
+# HTTPS. Bug #611072
+net-misc/wget ssl

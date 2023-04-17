@@ -1,0 +1,4 @@
+# We don't have a separate /{bin,lib} and /usr/{bin,lib}
+sys-apps/coreutils -split-usr
+sys-apps/systemd -split-usr
+sys-apps/shadow -split-usr
