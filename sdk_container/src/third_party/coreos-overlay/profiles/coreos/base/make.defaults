@@ -1,0 +1,118 @@
+# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+# Distributed under the terms of the GNU General Public License v2
+
+# ChromeOS-specific: CROS_WORKON_TREE for cros-workon
+#                    TESTS USE_EXPAND for autotest
+USE_EXPAND="${USE_EXPAND} CROS_WORKON_TREE TESTS"
+USE_EXPAND_HIDDEN="${USE_EXPAND_HIDDEN} CROS_WORKON_TREE"
+
+# Use go_version_* flags to indicate which major version was used.
+# For now this is only informational and set by coreos-go.eclass
+USE_EXPAND="${USE_EXPAND} GO_VERSION"
+
+# Extra use flags for CoreOS SDK
+USE="${USE} cros_host expat -cracklib -introspection -cups -tcpd -berkdb"
+
+# Use Python 3 as the default version
+USE="${USE} -python_single_target_python2_7 python_single_target_python3_9"
+USE="${USE} -python_targets_python2_7 python_targets_python3_9"
+
+# Use Python 3 as the default version
+BOOTSTRAP_USE="${BOOTSTRAP_USE} -python_single_target_python2_7 python_single_target_python3_9"
+BOOTSTRAP_USE="${BOOTSTRAP_USE} -python_targets_python2_7 python_targets_python3_9"
+
+# Never install cron or cron jobs
+USE="${USE} -cron"
+
+# No need for zeroconf, that's a desktop world thing.
+# Namely dhcpcd shoudln't make up random ipv4 addresses using ipv4ll
+USE="${USE} -zeroconf"
+
+# No need for OpenMP support in GCC and other apps
+USE="${USE} -openmp"
+
+# Let's enable FIPS support for supported software.
+USE="${USE} fips"
+
+# The git-r3 eclass now depends on curl support, which is used in catalyst.
+BOOTSTRAP_USE="${BOOTSTRAP_USE} curl"
+
+# Add `minimal` useflag to prevent texinfo to pull dev-lang/perl with not required set of dependencies.
+BOOTSTRAP_USE="${BOOTSTRAP_USE} minimal"
+
+# Add `ssl` USE flag to make libcurl capable of fetching from https URLs.
+BOOTSTRAP_USE="${BOOTSTRAP_USE} curl_ssl_openssl ssl"
+
+# Add `xml` USE flag to avoid build failures from sys-apps/portage 3.0.28
+BOOTSTRAP_USE="${BOOTSTRAP_USE} xml"
+
+# Set SELinux policy
+POLICY_TYPES="targeted mcs mls"
+
+# Disable packages or optional features with distribution issues.
+ACCEPT_RESTRICT="* -bindist"
+USE="${USE} bindist"
+
+# Default licenses that are accepted for ChromiumOS builds.
+# If you want to accept more, use the --accept_licenses flag
+# when running setup_board.
+ACCEPT_LICENSE="* -@EULA -@CHROMEOS"
+
+# Favor our own mirrors over Gentoo's
+GENTOO_MIRRORS="
+    https://mirror.release.flatcar-linux.net/portage-stable/
+    https://mirror.release.flatcar-linux.net/coreos/
+    http://distfiles.gentoo.org/
+"
+
+# The following files are modified by make_chroot, and we do not want to
+# clobber them.  All other config files should not be protected, so we
+# remove all existing protection (via the -*).
+CONFIG_PROTECT="
+	-*
+	/etc/locale.gen
+	/etc/hosts
+	/etc/localtime
+	/etc/make.conf
+"
+
+# Remove libtool .la files for non-plugin libraries.
+# Remove Gentoo init files since we use systemd.
+# Remove build-id, there is some issue with it causing collisions.
+# Remove default files from sys-power/acpid.
+# Do not install default repos.conf, we always put repository configuration in /etc.
+INSTALL_MASK="
+  /usr/lib*/*.la
+  /etc/init.d /etc/conf.d
+  /usr/lib/debug/.build-id
+  /etc/acpi
+  /usr/share/portage/config/repos.conf
+"
+
+# Prevent binaries from being installed to rootfs from binary packages
+PKG_INSTALL_MASK="
+"
+
+# Keep the default languages small.
+# (not many things respect this though)
+LINGUAS="en"
+
+# Use parallel bzip2 for binary packages
+PORTAGE_BZIP2_COMMAND="lbzip2"
+PORTAGE_BUNZIP2_COMMAND="lbunzip2"
+
+# Always build binary packages, remove old build logs, avoid running as root.
+FEATURES="buildpkg clean-logs compressdebug parallel-install splitdebug
+          userfetch userpriv usersandbox ipc-sandbox network-sandbox
+          -ccache -merge-sync -binpkg-multi-instance"
+
+# No need to restrict access to build directories in dev environments.
+PORTAGE_WORKDIR_MODE="0755"
+
+# Don't let GRUB whine about /boot
+DONT_MOUNT_BOOT=1
+
+# Keep using bzip2 as a compressor for binary packages. Some hacks
+# inside the scripts repository that poke binary packages assume that
+# bzip2 is used, not zstd. Eventually we will want to move to zstd.
+BINPKG_COMPRESS=bzip2

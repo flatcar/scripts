@@ -1,0 +1,1 @@
+- torcx ([CVE-2022-27191](https://nvd.nist.gov/vuln/detail/CVE-2022-27191))

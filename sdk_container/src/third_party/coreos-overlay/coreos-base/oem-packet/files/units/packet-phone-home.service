@@ -1,0 +1,14 @@
+[Unit]
+Description=Report Success to Packet
+ConditionFirstBoot=true
+Requires=coreos-metadata.service
+After=coreos-metadata.service
+
+[Service]
+EnvironmentFile=/run/metadata/flatcar
+ExecStart=/usr/bin/curl --header "Content-Type: application/json" --request POST "${COREOS_PACKET_PHONE_HOME_URL}"
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

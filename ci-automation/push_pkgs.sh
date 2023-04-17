@@ -78,7 +78,6 @@ function _push_packages_impl() {
 
     source ci-automation/ci_automation_common.sh
     source ci-automation/gpg_setup.sh
-    init_submodules
 
     source sdk_container/.repo/manifests/version.txt
     local vernum="${FLATCAR_VERSION}"

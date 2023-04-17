@@ -1,0 +1,1 @@
+- vim ([CVE-2022-3705](https://nvd.nist.gov/vuln/detail/CVE-2022-3705))

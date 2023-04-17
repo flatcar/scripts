@@ -1,0 +1,5 @@
+[Match]
+OriginalName=flannel*
+
+[Link]
+MACAddressPolicy=none

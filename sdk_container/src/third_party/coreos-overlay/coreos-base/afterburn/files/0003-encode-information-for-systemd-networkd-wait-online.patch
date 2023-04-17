@@ -1,0 +1,368 @@
+From f88600293ee1c3e7d08ee724b18944dd1c40deff Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Kai=20L=C3=BCke?= <kai@kinvolk.io>
+Date: Thu, 15 Oct 2020 15:49:02 +0900
+Subject: [PATCH 3/3] network: Encode information for
+ systemd-networkd-wait-online
+
+The network-online.target can use systemd-networkd-wait-online.service
+to wait for all interfaces to come up. It will fail if the interfaces
+didn't came up but sometimes it is actually ok for some interfaces to
+be down because they are unused or they are just one of two parts of a
+bond. We should encode when interfaces will never come up and when it
+is acceptable to have interfaces in a degraded state and which.
+Extend the network logic to handle this additional configuration. For
+Packet we expect the metadata to specify all interfaces, and any other
+physical NICs can be set to "unmanaged" so that we don't wait for them.
+Introduce "Path" matching in the networkd unit file for that.
+We also allow bonds to operate with only one working link, and we don't
+wait for all bonded interfaces to be configured.
+This is a port of https://github.com/flatcar-linux/afterburn/pull/10
+to afterburn's main branch.
+---
+ src/network.rs                        | 99 +++++++++++++++++++++++++--
+ src/providers/digitalocean/mod.rs     |  2 +
+ src/providers/ibmcloud_classic/mod.rs |  2 +
+ src/providers/packet/mod.rs           | 30 ++++++++
+ 4 files changed, 128 insertions(+), 5 deletions(-)
+
+diff --git a/src/network.rs b/src/network.rs
+index abf36f2..40f18a8 100644
+--- a/src/network.rs
++++ b/src/network.rs
+@@ -72,6 +72,8 @@ pub struct Interface {
+     pub name: Option<String>,
+     /// Interface MAC address.
+     pub mac_address: Option<MacAddr>,
++    /// Path as identifier
++    pub path: Option<String>,
+     /// Relative priority for interface configuration.
+     pub priority: u8,
+     pub nameservers: Vec<IpAddr>,
+@@ -79,6 +81,8 @@ pub struct Interface {
+     pub routes: Vec<NetworkRoute>,
+     pub bond: Option<String>,
+     pub unmanaged: bool,
++    /// Optional requirement setting instead of the default
++    pub required_for_online: Option<String>,
+ }
+ 
+ /// A virtual network interface.
+@@ -126,10 +130,11 @@ impl NetDevKind {
+ impl Interface {
+     /// Return a deterministic `systemd.network` unit name for this device.
+     pub fn sd_network_unit_name(&self) -> Result<String> {
+-        let iface_name = match (&self.name, &self.mac_address) {
+-            (Some(ref name), _) => name.clone(),
+-            (None, Some(ref addr)) => addr.to_string(),
+-            (None, None) => bail!("network interface without name nor MAC address"),
++        let iface_name = match (&self.name, &self.mac_address, &self.path) {
++            (Some(ref name), _, _) => name.clone(),
++            (None, Some(ref addr), _) => addr.to_string(),
++            (None, None, Some(ref path)) => path.to_string(),
++            (None, None, None) => bail!("network interface without name nor MAC address"),
+         };
+         let unit_name = format!("{:02}-{}.network", self.priority, iface_name);
+         Ok(unit_name)
+@@ -146,6 +151,9 @@ impl Interface {
+         if let Some(mac) = self.mac_address {
+             config.push_str(&format!("MACAddress={}\n", mac));
+         }
++        if let Some(path) = &self.path {
++            config.push_str(&format!("Path={}\n", path));
++        }
+ 
+         // [Network] section
+         config.push_str("\n[Network]\n");
+@@ -157,8 +165,14 @@ impl Interface {
+         }
+ 
+         // [Link] section
++        if self.unmanaged || self.required_for_online.is_some() {
++            config.push_str("\n[Link]\n");
++        }
+         if self.unmanaged {
+-            config.push_str("\n[Link]\nUnmanaged=yes\n");
++            config.push_str("Unmanaged=yes\n");
++        }
++        if let Some(operational_state) = &self.required_for_online {
++            config.push_str(&format!("RequiredForOnline={}\n", operational_state));
+         }
+ 
+         // [Address] sections
+@@ -225,12 +239,14 @@ mod tests {
+                 Interface {
+                     name: Some(String::from("lo")),
+                     mac_address: Some(MacAddr(0, 0, 0, 0, 0, 0)),
++                    path: None,
+                     priority: 20,
+                     nameservers: vec![],
+                     ip_addresses: vec![],
+                     routes: vec![],
+                     bond: None,
+                     unmanaged: false,
++                    required_for_online: None,
+                 },
+                 "20-lo.network",
+             ),
+@@ -238,12 +254,14 @@ mod tests {
+                 Interface {
+                     name: Some(String::from("lo")),
+                     mac_address: Some(MacAddr(0, 0, 0, 0, 0, 0)),
++                    path: None,
+                     priority: 10,
+                     nameservers: vec![],
+                     ip_addresses: vec![],
+                     routes: vec![],
+                     bond: None,
+                     unmanaged: false,
++                    required_for_online: None,
+                 },
+                 "10-lo.network",
+             ),
+@@ -251,12 +269,14 @@ mod tests {
+                 Interface {
+                     name: None,
+                     mac_address: Some(MacAddr(0, 0, 0, 0, 0, 0)),
++                    path: None,
+                     priority: 20,
+                     nameservers: vec![],
+                     ip_addresses: vec![],
+                     routes: vec![],
+                     bond: None,
+                     unmanaged: false,
++                    required_for_online: None,
+                 },
+                 "20-00:00:00:00:00:00.network",
+             ),
+@@ -264,15 +284,32 @@ mod tests {
+                 Interface {
+                     name: Some(String::from("lo")),
+                     mac_address: None,
++                    path: None,
+                     priority: 20,
+                     nameservers: vec![],
+                     ip_addresses: vec![],
+                     routes: vec![],
+                     bond: None,
+                     unmanaged: false,
++                    required_for_online: None,
+                 },
+                 "20-lo.network",
+             ),
++            (
++                Interface {
++                    name: None,
++                    mac_address: None,
++                    path: Some("pci-*".to_owned()),
++                    priority: 20,
++                    nameservers: vec![],
++                    ip_addresses: vec![],
++                    routes: vec![],
++                    bond: None,
++                    unmanaged: false,
++                    required_for_online: None,
++                },
++                "20-pci-*.network",
++            ),
+         ];
+ 
+         for (iface, expected) in cases {
+@@ -286,12 +323,14 @@ mod tests {
+         let i = Interface {
+             name: None,
+             mac_address: None,
++            path: None,
+             priority: 20,
+             nameservers: vec![],
+             ip_addresses: vec![],
+             routes: vec![],
+             bond: None,
+             unmanaged: false,
++            required_for_online: None,
+         };
+         i.sd_network_unit_name().unwrap_err();
+     }
+@@ -333,6 +372,7 @@ mod tests {
+                 Interface {
+                     name: Some(String::from("lo")),
+                     mac_address: Some(MacAddr(0, 0, 0, 0, 0, 0)),
++                    path: None,
+                     priority: 20,
+                     nameservers: vec![
+                         IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)),
+@@ -352,6 +392,7 @@ mod tests {
+                     }],
+                     bond: Some(String::from("james")),
+                     unmanaged: false,
++                    required_for_online: None,
+                 },
+                 "[Match]
+ Name=lo
+@@ -380,16 +421,64 @@ Gateway=127.0.0.1
+                 Interface {
+                     name: None,
+                     mac_address: None,
++                    path: None,
+                     priority: 10,
+                     nameservers: vec![],
+                     ip_addresses: vec![],
+                     routes: vec![],
+                     bond: None,
+                     unmanaged: false,
++                    required_for_online: None,
+                 },
+                 "[Match]
+ 
+ [Network]
++",
++            ),
++            // test the path and required_for_online settings
++            (
++                Interface {
++                    name: None,
++                    mac_address: None,
++                    path: Some("pci-*".to_owned()),
++                    priority: 10,
++                    nameservers: vec![],
++                    ip_addresses: vec![],
++                    routes: vec![],
++                    bond: None,
++                    unmanaged: false,
++                    required_for_online: Some("no".to_owned()),
++                },
++                "[Match]
++Path=pci-*
++
++[Network]
++
++[Link]
++RequiredForOnline=no
++",
++            ),
++            // test the unmanaged setting
++            (
++                Interface {
++                    name: Some("*".to_owned()),
++                    mac_address: None,
++                    path: None,
++                    priority: 10,
++                    nameservers: vec![],
++                    ip_addresses: vec![],
++                    routes: vec![],
++                    bond: None,
++                    unmanaged: true,
++                    required_for_online: None,
++                },
++                "[Match]
++Name=*
++
++[Network]
++
++[Link]
++Unmanaged=yes
+ ",
+             ),
+         ];
+diff --git a/src/providers/digitalocean/mod.rs b/src/providers/digitalocean/mod.rs
+index 3d74d29..381b90b 100644
+--- a/src/providers/digitalocean/mod.rs
++++ b/src/providers/digitalocean/mod.rs
+@@ -159,8 +159,10 @@ impl DigitalOceanProvider {
+                     routes,
+                     bond: None,
+                     name: None,
++                    path: None,
+                     priority: 10,
+                     unmanaged: false,
++                    required_for_online: None,
+                 },
+             );
+         }
+diff --git a/src/providers/ibmcloud_classic/mod.rs b/src/providers/ibmcloud_classic/mod.rs
+index 25e83b5..d8f0086 100644
+--- a/src/providers/ibmcloud_classic/mod.rs
++++ b/src/providers/ibmcloud_classic/mod.rs
+@@ -243,12 +243,14 @@ impl IBMClassicProvider {
+             let iface = network::Interface {
+                 name: Some(name),
+                 mac_address: Some(mac_addr),
++                path: None,
+                 priority: 10,
+                 nameservers: nameservers.clone(),
+                 ip_addresses: vec![ip_net],
+                 routes,
+                 bond: None,
+                 unmanaged: false,
++                required_for_online: None,
+             };
+             output.push(iface);
+         }
+diff --git a/src/providers/packet/mod.rs b/src/providers/packet/mod.rs
+index 7a643e8..e789773 100644
+--- a/src/providers/packet/mod.rs
++++ b/src/providers/packet/mod.rs
+@@ -219,6 +219,7 @@ impl PacketProvider {
+                 mac_address: Some(mac),
+                 bond: i.bond.clone(),
+                 name: None,
++                path: None,
+                 priority: 10,
+                 nameservers: Vec::new(),
+                 ip_addresses: Vec::new(),
+@@ -226,6 +227,15 @@ impl PacketProvider {
+                 // the interface should be unmanaged if it doesn't have a bond
+                 // section
+                 unmanaged: i.bond.is_none(),
++                required_for_online: if i.bond.is_none() {
++                    // use the default requirement
++                    None
++                } else {
++                    // We care about the state of the bond interface and accept if any of the bonded
++                    // interfaces are down. Actually the desired minimal state is "no-carrier" but
++                    // systemd-networkd-wait-online does not work well with it currently, thus "no".
++                    Some("no".to_owned())
++                },
+             });
+ 
+             // if there is a bond key, make sure we have a bond device for it
+@@ -235,10 +245,12 @@ impl PacketProvider {
+                     priority: 5,
+                     nameservers: dns_servers.clone(),
+                     mac_address: None,
++                    path: None,
+                     bond: None,
+                     ip_addresses: Vec::new(),
+                     routes: Vec::new(),
+                     unmanaged: false,
++                    required_for_online: Some("degraded-carrier".to_owned()),
+                 };
+                 if !bonds
+                     .iter()
+@@ -319,6 +331,24 @@ impl PacketProvider {
+             interfaces.push(bond)
+         }
+ 
++        // Create a fallback rule for all physical NICs that haven't been configured
++        // because otherwise systemd-networkd-wait-online will wait for them and even if told
++        // to only wait for bond0 this won't work with systemd 246 because the bond0 interface
++        // never leaves the "configuring" phase when the other NICs are also still configuring.
++        let fallback = Interface {
++            path: Some("pci-*".to_owned()),
++            unmanaged: true,
++            priority: 80,
++            name: None,
++            mac_address: None,
++            bond: None,
++            nameservers: Vec::new(),
++            ip_addresses: Vec::new(),
++            routes: Vec::new(),
++            required_for_online: None,
++        };
++        interfaces.push(fallback);
++
+         Ok((interfaces, network_devices))
+     }
+ }
+-- 
+2.34.1
+

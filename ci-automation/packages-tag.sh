@@ -32,29 +32,15 @@
 #
 # OPTIONAL INPUT:
 #
-#   2. coreos-overlay repository tag to use (commit-ish).
-#       Optional - use scripts repo sub-modules as-is if not set.
-#       This version will be checked out / pulled from remote in the coreos-overlay git submodule.
-#       The submodule config will be updated to point to this version before the TARGET SDK tag is created and pushed.
+#   1. A file ../scripts.patch to apply with "git am -3" for the scripts repo.
 #
-#   3. portage-stable repository tag to use (commit-ish).
-#       Optional - use scripts repo sub-modules as-is if not set.
-#       This version will be checked out / pulled from remote in the portage-stable git submodule.
-#       The submodule config will be updated to point to this version before the TARGET SDK tag is created and pushed.
-#
-#   4. A file ../scripts.patch to apply with "git am -3" for the scripts repo.
-#
-#   5. A file ../overlay.patch to apply with "git am -3" for the coreos-overlay sub-module.
-#
-#   6. A file ../portage.patch to apply with "git am -3" for the portage-stable sub-module.
-#
-#   7. AVOID_NIGHTLY_BUILD_SHORTCUTS. Environment variable. Tells the script to build the SDK even if nothing has changed since last nightly build.
+#   2. AVOID_NIGHTLY_BUILD_SHORTCUTS. Environment variable. Tells the script to build the SDK even if nothing has changed since last nightly build.
 #        See the description in ci-config.env.
 #
 # OUTPUT:
 #
 #   1. Updated scripts repository
-#        - version tag w/ submodules
+#        - version tag
 #        - sdk_container/.repo/manifests/version.txt denotes new FLATCAR OS version
 #   2. "./skip-build" as flag file to signal that the build should stop
 
@@ -71,34 +57,21 @@ function packages_tag() {
 
 function _packages_tag_impl() {
     local version="$1"
-    local coreos_git="${2:-}"
-    local portage_git="${3:-}"
 
     source ci-automation/ci_automation_common.sh
     source ci-automation/gpg_setup.sh
-    init_submodules
 
     check_version_string "${version}"
 
     source sdk_container/.repo/manifests/version.txt
     local sdk_version="${FLATCAR_SDK_VERSION}"
 
-    if [ -n "${coreos_git}" ] ; then
-        update_submodule "coreos-overlay" "${coreos_git}"
-    fi
-    if [ -n "${portage_git}" ] ; then
-        update_submodule "portage-stable" "${portage_git}"
-    fi
-
-    # Create new tag in scripts repo w/ updated versionfile + submodules.
+    # Create new tag in scripts repo w/ updated versionfile
     # Also push the changes to the branch ONLY IF we're doing a nightly
     #   build of the 'main'/'flatcar-MAJOR' branch AND we're definitely ON the respective branch
-    #   (`scripts` and submodules).
     local push_branch="false"
     if    [[ "${version}" =~ ^(stable|alpha|beta|lts)-[0-9.]+-nightly-[-0-9]+$ ]] \
-       && [[ "$(git rev-parse --abbrev-ref HEAD)" =~ ^flatcar-[0-9]+$ ]] \
-       && [[ "$(git -C sdk_container/src/third_party/coreos-overlay/ rev-parse --abbrev-ref HEAD)" =~ ^flatcar-[0-9]+$ ]] \
-       && [[ "$(git -C sdk_container/src/third_party/portage-stable/ rev-parse --abbrev-ref HEAD)" =~ ^flatcar-[0-9]+$ ]] ; then
+       && [[ "$(git rev-parse --abbrev-ref HEAD)" =~ ^flatcar-[0-9]+$ ]] ; then
         push_branch="true"
         local existing_tag=""
         # Check for the existing tag only when we allow shortcutting

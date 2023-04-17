@@ -1,0 +1,17 @@
+# Copyright (c) 2009 The Chromium OS Authors. All rights reserved.
+# Distributed under the terms of the GNU General Public License v2
+
+# Packages that are pulled in via RDEPEND without a use flag to
+# disable them and we have no need/use for them in prod images.
+
+# pulled in by app-crypt/pinentry
+app-eselect/eselect-pinentry-0.7.2
+
+# pulled in by app-editors/vim
+app-eselect/eselect-vi-1.2
+
+# pulled in by net-firewall/iptables
+app-eselect/eselect-iptables-20200508
+
+# pulled in by app-admin/sudo
+app-misc/editor-wrapper-4

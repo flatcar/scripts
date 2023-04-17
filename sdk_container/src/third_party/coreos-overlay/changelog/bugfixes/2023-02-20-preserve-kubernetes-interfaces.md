@@ -1,0 +1,1 @@
+- Excluded the special Kubernetes network interfaces `nodelocaldns` and `kube-ipvs0` from being managed with systemd-networkd which interfered with the setup ([init#89](https://github.com/flatcar/init/pull/89)).

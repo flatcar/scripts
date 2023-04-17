@@ -1,0 +1,1175 @@
+# Copyright 1999-2023 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+####################################################################
+#
+# When you add an entry to the top of this file, add your name, the date
+# in the UTC timezone with a format of YYYY-MM-DD, and an explanation of why
+# something is getting masked.
+# Please be extremely careful not to commit atoms that are not valid, as it can
+# cause large-scale breakage, especially if it ends up in the daily snapshot.
+#
+## Example:
+##
+## # Dev E. Loper <developer@gentoo.org> (2019-07-01)
+## # Masking  these versions until we can get the
+## # v4l stuff to work properly again
+## =media-video/mplayer-0.90_pre5
+## =media-video/mplayer-0.90_pre5-r1
+#
+# - Best last rites (removal) practices -
+# Include the following info:
+# a) reason for masking
+# b) bug # for the removal (and yes you should have one)
+# c) date of removal (either the date or "in x days")
+#
+## Example:
+##
+## # Dev E. Loper <developer@gentoo.org> (2019-07-01)
+## # Masked for removal in 30 days.  Doesn't work
+## # with new libfoo. Upstream dead, gtk-1, smells
+## # funny. (bug #987654)
+## app-misc/some-package
+
+#--- END OF EXAMPLES ---
+
+# Sam James <sam@gentoo.org> (2023-01-23)
+# Please upgrade to >=app-eselect/eselect-wxwidgets-20230114-r1 as -r0 may
+# lead to build failures.
+=app-eselect/eselect-wxwidgets-20230114
+
+# Michał Górny <mgorny@gentoo.org> (2023-01-21)
+# Packages that are incompatible with ffmpeg-5.
+#
+# media-libs/libextractor: no Gentoo maintainer, ver from 2019, bug #834382
+# media-libs/qtav: no Gentoo maintainer, no porting progress, bug #834386
+# media-plugins/vdr-vaapidevice: no activity since 2019, bug #834390
+# media-sound/potamus: last rel. 2018, one commit in 2020, bug #834396
+# media-video/ffmpeg2theora: no activity since 2016, bug #834403
+#
+# Removal on 2023-02-20.
+media-libs/libextractor
+media-libs/qtav
+media-plugins/vdr-vaapidevice
+media-sound/potamus
+media-video/ffmpeg2theora
+
+# Michał Górny <mgorny@gentoo.org> (2023-01-21)
+# Obsoleted in favor of using extract-on-the-first-run feature
+# of games-strategy/wargus.
+# Removal on 2023-02-20.  Bug #578340.
+games-strategy/wargus-data
+
+# Joonas Niilola <juippis@gentoo.org> (2023-01-21)
+# 102.7.0 has a critical authentication issue with Microsoft 365
+# Business accounts. Fix should land in 102.7.1. If you're not affected
+# and really want this update, please unmask it for yourself.
+~mail-client/thunderbird-102.7.0
+~mail-client/thunderbird-bin-102.7.0
+
+# Hans de Graaff <graaff@gentoo.org> (2023-01-21)
+# No longer maintained upstream and missing recent security fixes.
+# Use a newer Rails version instead.
+# This mask also includes several supporting or rails 5.2-only packages.
+# Masked for removal after 2023-02-21.
+dev-ruby/actioncable:5.2
+dev-ruby/actionmailer:5.2
+dev-ruby/actionpack:5.2
+dev-ruby/actionview:5.2
+dev-ruby/activejob:5.2
+dev-ruby/activemodel:5.2
+dev-ruby/activerecord:5.2
+dev-ruby/activestorage:5.2
+dev-ruby/activesupport:5.2
+dev-ruby/rails:5.2
+dev-ruby/railties:5.2
+dev-ruby/arel
+=www-apps/redmine-4.2.9
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2023-01-20)
+# KDE Plasma 5.26.90 (5.27 Beta) mask
+# Pre-release version - happy testing!
+~kde-plasma/bluedevil-5.26.90
+~kde-plasma/breeze-5.26.90
+~kde-plasma/breeze-grub-5.26.90
+~kde-plasma/breeze-gtk-5.26.90
+~kde-plasma/breeze-plymouth-5.26.90
+~kde-plasma/discover-5.26.90
+~kde-plasma/drkonqi-5.26.90
+~kde-plasma/kactivitymanagerd-5.26.90
+~kde-plasma/kde-cli-tools-5.26.90
+~kde-plasma/kde-gtk-config-5.26.90
+~kde-plasma/kdecoration-5.26.90
+~kde-plasma/kdeplasma-addons-5.26.90
+~kde-plasma/kgamma-5.26.90
+~kde-plasma/khotkeys-5.26.90
+~kde-plasma/kinfocenter-5.26.90
+~kde-plasma/kmenuedit-5.26.90
+~kde-plasma/kpipewire-5.26.90
+~kde-plasma/kscreen-5.26.90
+~kde-plasma/kscreenlocker-5.26.90
+~kde-plasma/ksshaskpass-5.26.90
+~kde-plasma/ksystemstats-5.26.90
+~kde-plasma/kwallet-pam-5.26.90
+~kde-plasma/kwayland-integration-5.26.90
+~kde-plasma/kwin-5.26.90
+~kde-plasma/kwrited-5.26.90
+~kde-plasma/layer-shell-qt-5.26.90
+~kde-plasma/libkscreen-5.26.90
+~kde-plasma/libksysguard-5.26.90
+~kde-plasma/libkworkspace-5.26.90
+~kde-plasma/milou-5.26.90
+~kde-plasma/oxygen-5.26.90
+~kde-plasma/oxygen-sounds-5.26.90
+~kde-plasma/plasma-browser-integration-5.26.90
+~kde-plasma/plasma-desktop-5.26.90
+~kde-plasma/plasma-disks-5.26.90
+~kde-plasma/plasma-firewall-5.26.90
+~kde-plasma/plasma-integration-5.26.90
+~kde-plasma/plasma-meta-5.26.90
+~kde-plasma/plasma-nm-5.26.90
+~kde-plasma/plasma-pa-5.26.90
+~kde-plasma/plasma-sdk-5.26.90
+~kde-plasma/plasma-systemmonitor-5.26.90
+~kde-plasma/plasma-thunderbolt-5.26.90
+~kde-plasma/plasma-workspace-5.26.90
+~kde-plasma/plasma-workspace-wallpapers-5.26.90
+~kde-plasma/plasma-vault-5.26.90
+~kde-plasma/plymouth-kcm-5.26.90
+~kde-plasma/polkit-kde-agent-5.26.90
+~kde-plasma/powerdevil-5.26.90
+~kde-plasma/sddm-kcm-5.26.90
+~kde-plasma/systemsettings-5.26.90
+~kde-plasma/xdg-desktop-portal-kde-5.26.90
+~kde-plasma/xembed-sni-proxy-5.26.90
+
+# Alfredo Tupone <tupone@gentoo.org> (2023-01-18)
+# Masked for removal in 30 days.
+# Not maintained (2006), no rev dep, bugs
+# (bug #891283)
+dev-tcltk/tclperl
+
+# David Seifert <soap@gentoo.org> (2023-01-14)
+# Py3.8 only backports
+dev-python/backports-tempfile
+dev-python/backports-weakref
+dev-python/backports-zoneinfo
+dev-python/pkgutil_resolve_name
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2023-01-10)
+# Unmaintained and reportedly broken by KDE Plasma 5.25 already.
+# Masking current stable version is the first step towards last-rites.
+# Consider migrating away from latte-dock for your workflow.
+# See also: https://tinyurl.com/39dkw43a (links to reddit)
+# Removal on 2023-01-30.
+=kde-misc/latte-dock-0.10.8*
+
+# Jonas Stein <jstein@gentoo.org> (2023-01-09)
+# Dead upstream, open bugs unmaintained.
+# Removal after 2023-03-01.  Bug #890244.
+www-client/dillo
+
+# John Helmert III <ajak@gentoo.org> (2023-01-08)
+# Multiple vulnerabilities include remote code execution, maintainer
+# needed, removal in 30 days. Bug #834501
+dev-util/artifactory-bin
+
+# Michael Mair-Keimberger <mmk@levelnine.at> (2023-01-08)
+# Broken since many years, no reverse dependencies, last release from 2000
+# Bug #678518. Removal on 2023-02-08.
+net-dns/dnswalk
+
+# Michael Mair-Keimberger <mmk@levelnine.at> (2023-01-08)
+# EAPI=6, Installs only card pictures and has no reverse dependencies.
+# Bug #805278. Removal on 2023-02-08.
+dev-games/cardpics
+
+# Michael Mair-Keimberger <mmk@levelnine.at> (2023-01-08)
+# Dependencies of games-server/cyphesis, which got removed ~4 years ago, no
+# other reverse dependencies. Bug #728230
+# Removal on 2023-02-08.
+dev-games/mercator
+dev-games/wfmath
+
+# Sam James <sam@gentoo.org> (2023-01-05)
+# Breaks reverse dependencies: bug #889694, bug #888579.
+=sys-fs/btrfs-progs-6.1.1
+
+# David Seifert <soap@gentoo.org> (2023-01-02)
+# EAPI 6, pretty much no upstream activity, outdated, last upstream
+# release over 3 years ago, no revdeps. Removal on 2023-02-01.
+dev-cpp/pngpp
+
+# Jonas Stein <jstein@gentoo.org> (2023-01-01)
+# Package is broken and unusable, no activity upstream.
+# Removal after 2023-02-01.  Bug #722568.
+net-analyzer/chaosreader
+
+# Arthur Zamarin <arthurzam@gentoo.org> (2022-12-31)
+# EAPI=6 ebuild, live only packages for 1 year! maintainer-needed package.
+# Removal: 2023-01-30.  Bug #889200.
+app-containers/docker-gc
+
+# Arthur Zamarin <arthurzam@gentoo.org> (2022-12-31)
+# Live only packages for 4 years!
+# Removal: 2023-01-30.  Bug #889196.
+sys-auth/google-authenticator-libpam-hardened
+
+# Arthur Zamarin <arthurzam@gentoo.org> (2022-12-31)
+# EAPI=6 ebuild, live only packages for 6 years!
+# Removal: 2023-01-30.  Bug #889194.
+x11-plugins/pidgin-funyahoo-plusplus
+
+# Maciej Barć <xgqt@gentoo.org> (2022-12-29)
+# Real upstream dead, uses old R5RS standard, many open bugs.
+# Removal on 2022-01-29.
+app-shells/scsh
+dev-scheme/scsh-lib
+
+# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2022-12-29)
+# Upstream is dead, last activity in Nov 2017. Does not
+# work with newer log4j, bug #857663. Use net-p2p/biglybt
+# instead. Removal on 2023-02-28.
+net-p2p/vuze
+net-p2p/vuze-coreplugins
+
+# Marco Scardovi <mscardovi@icloud.com> (2022-12-27)
+# It builds only with a really old version of libfprint
+# and has never been updated to new one. No revdeps, no real usage
+# Removal on 2023-01-26. Bug #888665
+sys-auth/pam_fprint
+
+# Sam James <sam@gentoo.org> (2022-12-27)
+# Obsolete and incompatible with app-alternatives/* (see news item).
+# Removal on 2023-01-27. bug #886019 and bug #886021 respectively.
+app-eselect/eselect-awk
+app-eselect/eselect-sh
+
+# Sam James <sam@gentoo.org> (2022-12-27)
+# Regression in listing subvolumes (no UUIDs), bug #888549
+# https://github.com/kdave/btrfs-progs/issues/562
+=sys-fs/btrfs-progs-6.1
+
+# Fabian Groffen <grobian@gentoo.org> (2022-12-27)
+# Old SVN version, with open bugs #830031, #770946, #712534, all fixed
+# in app-admin/coreboot-utils package.  (Conflict in #888581)  Removal
+# on 2023-01-26.
+sys-apps/superiotool
+
+# David Seifert <soap@gentoo.org> (2022-12-26)
+# Lots of K&R C, hidden behind an annoying authwall, fails with modern
+# GCC and Clang (-fcommon), license prohibits distributing, EAPI 6,
+# last release 8 years ago. Removal on 2023-01-25.
+sci-biology/consed
+sci-biology/phrap
+sci-biology/phred
+
+# David Seifert <soap@gentoo.org> (2022-12-26)
+# EAPI 6, cheesy build system, last release over 13 years ago, no other
+# distro packages this. Removal on 2023-01-25.
+sci-misc/flashdot
+
+# Michał Górny <mgorny@gentoo.org> (2022-12-25)
+# Broken with pytest-7.2.  Repository archived upstream.  No reverse
+# dependencies.
+# Removal on 2023-01-24.  Bug #888219.
+dev-python/pytest-toolbox
+
+# Michał Górny <mgorny@gentoo.org> (2022-12-25)
+# The project did not catch, with hardly any data submissions.
+# Removal on 2023-01-24.  Bug #843344.
+app-portage/gander
+
+# Hans de Graaff <graaff@gentoo.org> (2022-12-25)
+# Last release in 2018. Poor quality C extension code. Package
+# consistently segfaults on it tests with the latest ruby versions.
+# No reverse dependencies. Removal in 30 days.
+dev-ruby/hiredis
+
+# Marco Scardovi <mscardovi@icloud.com> (2022-12-22)
+# Per robbat2 request, I'm gonna treeclean it as we
+# are actually the only one maintaining it.
+# No update upstream, EAPI 6 and with a bug #687786
+# As replacement, it is possible to use pv --rate-limit
+# instead.
+# Removal on 2023-01-21
+net-misc/valve
+
+# Ionen Wolkens <ionen@gentoo.org> (2022-12-24)
+# Upstream dropped wxGTK support in >=games-emulation/pcsx2-1.7.3773,
+# and it now always requires Qt6. Masked given Qt6 is also masked in
+# Gentoo at the moment. It is recommended to use <=pcsx2-1.7.3772 for
+# now, but you can opt-in for testing by searching for "qtbase" in:
+# https://gitweb.gentoo.org/repo/gentoo.git/tree/profiles/package.mask
+# and package.unmask the whole list alongside pcsx2.
+>=games-emulation/pcsx2-1.7.3773
+
+# Arthur Zamarin <arthurzam@gentoo.org> (2022-12-24)
+# Live only packages for 4 years! Upstream repositories are archived
+# or inactive.
+# Removal: 2023-01-23.  Bug #888175.
+media-libs/kodi-platform
+media-plugins/kodi-game-libretro-fceumm
+media-plugins/kodi-peripheral-steamcontroller
+
+# Arthur Zamarin <arthurzam@gentoo.org> (2022-12-24)
+# EAPI=6 ebuilds, live only packages for 5.79 years!
+# maintainer-needed packages for a long time.
+# Removal: 2023-01-23.  Bug #888173.
+x11-misc/xowl
+x11-wm/xoat
+
+# Michał Górny <mgorny@gentoo.org> (2022-12-24)
+# Obsolete package with broken tests.  Last released in 2018, last
+# activity in 2021.  No reverse dependencies.
+# Removal on 2023-01-23.  Bug #888147.
+dev-python/ndg-httpsclient
+
+# Michał Górny <mgorny@gentoo.org> (2022-12-24)
+# RobotOS is suffering from serious lack of manpower in Gentoo.
+# While the packages are being bumped, the bugs reported against them
+# are not being addressed.  Whenever tests are present, they are often
+# failing and/or still relying on dead dev-python/nose.  Python 3.11
+# support is blocked, and 3.10 barely managed.
+# Removal on 2023-01-23.  Bug #888167.
+acct-group/ros
+acct-user/ros
+dev-python/ament_package
+dev-python/catkin_pkg
+dev-python/osrf_pycommon
+dev-python/python_orocos_kdl
+dev-python/rosdistro
+dev-python/rospkg
+dev-python/urdf_parser_py
+dev-python/vcstools
+dev-ros/actionlib
+dev-ros/actionlib_msgs
+dev-ros/actionlib_tools
+dev-ros/actionlib_tutorials
+dev-ros/amcl
+dev-ros/ament_cmake_copyright
+dev-ros/ament_cmake_core
+dev-ros/ament_cmake_cppcheck
+dev-ros/ament_cmake_cpplint
+dev-ros/ament_cmake_export_definitions
+dev-ros/ament_cmake_export_dependencies
+dev-ros/ament_cmake_export_include_directories
+dev-ros/ament_cmake_export_interfaces
+dev-ros/ament_cmake_export_libraries
+dev-ros/ament_cmake_export_link_flags
+dev-ros/ament_cmake_export_targets
+dev-ros/ament_cmake_gen_version_h
+dev-ros/ament_cmake_gmock
+dev-ros/ament_cmake_gtest
+dev-ros/ament_cmake_include_directories
+dev-ros/ament_cmake_libraries
+dev-ros/ament_cmake_lint_cmake
+dev-ros/ament_cmake_pytest
+dev-ros/ament_cmake_python
+dev-ros/ament_cmake_ros
+dev-ros/ament_cmake_target_dependencies
+dev-ros/ament_cmake_test
+dev-ros/ament_cmake_uncrustify
+dev-ros/ament_cmake_version
+dev-ros/ament_cmake_xmllint
+dev-ros/ament_copyright
+dev-ros/ament_cppcheck
+dev-ros/ament_cpplint
+dev-ros/ament_flake8
+dev-ros/ament_lint
+dev-ros/ament_lint_auto
+dev-ros/ament_lint_cmake
+dev-ros/ament_pep257
+dev-ros/ament_uncrustify
+dev-ros/ament_xmllint
+dev-ros/angles
+dev-ros/audio_capture
+dev-ros/audio_common_msgs
+dev-ros/audio_play
+dev-ros/base_local_planner
+dev-ros/bond
+dev-ros/bondcpp
+dev-ros/bondpy
+dev-ros/calibration_estimation
+dev-ros/calibration_launch
+dev-ros/calibration_msgs
+dev-ros/calibration_setup_helper
+dev-ros/camera_calibration
+dev-ros/camera_calibration_parsers
+dev-ros/camera_info_manager
+dev-ros/carrot_planner
+dev-ros/class_loader
+dev-ros/clear_costmap_recovery
+dev-ros/cmake_modules
+dev-ros/collada_parser
+dev-ros/collada_urdf
+dev-ros/combined_robot_hw
+dev-ros/combined_robot_hw_tests
+dev-ros/compressed_depth_image_transport
+dev-ros/compressed_image_transport
+dev-ros/console_bridge_vendor
+dev-ros/controller_interface
+dev-ros/controller_manager
+dev-ros/controller_manager_msgs
+dev-ros/controller_manager_tests
+dev-ros/control_msgs
+dev-ros/control_toolbox
+dev-ros/convex_decomposition
+dev-ros/costmap_2d
+dev-ros/cpp_common
+dev-ros/cv_bridge
+dev-ros/depth_image_proc
+dev-ros/depthimage_to_laserscan
+dev-ros/diagnostic_aggregator
+dev-ros/diagnostic_analysis
+dev-ros/diagnostic_common_diagnostics
+dev-ros/diagnostic_msgs
+dev-ros/diagnostic_updater
+dev-ros/driver_base
+dev-ros/dwa_local_planner
+dev-ros/dynamic_reconfigure
+dev-ros/eigen_conversions
+dev-ros/eigen_stl_containers
+dev-ros/fake_localization
+dev-ros/filters
+dev-ros/gazebo_dev
+dev-ros/gazebo_msgs
+dev-ros/gazebo_plugins
+dev-ros/gazebo_ros
+dev-ros/gazebo_ros_control
+dev-ros/gencpp
+dev-ros/geneus
+dev-ros/genlisp
+dev-ros/genmsg
+dev-ros/gennodejs
+dev-ros/genpy
+dev-ros/geodesy
+dev-ros/geographic_msgs
+dev-ros/geometric_shapes
+dev-ros/geometry_msgs
+dev-ros/global_planner
+dev-ros/gmapping
+dev-ros/hardware_interface
+dev-ros/hector_compressed_map_transport
+dev-ros/hector_geotiff
+dev-ros/hector_geotiff_launch
+dev-ros/hector_geotiff_plugins
+dev-ros/hector_imu_attitude_to_tf
+dev-ros/hector_imu_tools
+dev-ros/hector_mapping
+dev-ros/hector_map_server
+dev-ros/hector_map_tools
+dev-ros/hector_marker_drawing
+dev-ros/hector_nav_msgs
+dev-ros/hector_pose_estimation
+dev-ros/hector_pose_estimation_core
+dev-ros/hector_slam_launch
+dev-ros/hector_trajectory_server
+dev-ros/image_cb_detector
+dev-ros/image_geometry
+dev-ros/image_proc
+dev-ros/image_publisher
+dev-ros/image_rotate
+dev-ros/image_transport
+dev-ros/image_view
+dev-ros/imu_complementary_filter
+dev-ros/imu_filter_madgwick
+dev-ros/imu_processors
+dev-ros/imu_transformer
+dev-ros/interactive_markers
+dev-ros/interactive_marker_tutorials
+dev-ros/interval_intersection
+dev-ros/ivcon
+dev-ros/joint_limits_interface
+dev-ros/joint_state_publisher
+dev-ros/joint_state_publisher_gui
+dev-ros/joint_states_settler
+dev-ros/kdl_conversions
+dev-ros/kdl_parser
+dev-ros/kdl_parser_py
+dev-ros/laser_assembler
+dev-ros/laser_cb_detector
+dev-ros/laser_filters
+dev-ros/laser_geometry
+dev-ros/laser_proc
+dev-ros/libmavconn
+dev-ros/librviz_tutorial
+dev-ros/map_msgs
+dev-ros/map_server
+dev-ros/mavlink-gbp-release
+dev-ros/mavros
+dev-ros/mavros_extras
+dev-ros/mavros_msgs
+dev-ros/media_export
+dev-ros/message_filters
+dev-ros/message_generation
+dev-ros/message_runtime
+dev-ros/message_to_tf
+dev-ros/mk
+dev-ros/monocam_settler
+dev-ros/move_base
+dev-ros/move_base_msgs
+dev-ros/moveit_msgs
+dev-ros/move_slow_and_clear
+dev-ros/nav_core
+dev-ros/navfn
+dev-ros/nav_msgs
+dev-ros/nmea_msgs
+dev-ros/nodelet
+dev-ros/nodelet_topic_tools
+dev-ros/nodelet_tutorial_math
+dev-ros/object_recognition_msgs
+dev-ros/octomap_msgs
+dev-ros/octomap_ros
+dev-ros/opencv_apps
+dev-ros/opencv_tests
+dev-ros/openni2_camera
+dev-ros/openni2_launch
+dev-ros/openslam_gmapping
+dev-ros/pcl_conversions
+dev-ros/pcl_msgs
+dev-ros/pcl_ros
+dev-ros/pluginlib
+dev-ros/pluginlib_tutorials
+dev-ros/poco_vendor
+dev-ros/pointcloud_to_laserscan
+dev-ros/polled_camera
+dev-ros/pr2_dashboard_aggregator
+dev-ros/pr2_description
+dev-ros/pr2_machine
+dev-ros/pr2_msgs
+dev-ros/python_cmake_module
+dev-ros/python_qt_binding
+dev-ros/qt_dotgraph
+dev-ros/qt_gui
+dev-ros/qt_gui_app
+dev-ros/qt_gui_cpp
+dev-ros/qt_gui_py_common
+dev-ros/random_numbers
+dev-ros/realtime_tools
+dev-ros/resource_retriever
+dev-ros/rgbd_launch
+dev-ros/robot_localization
+dev-ros/robot_pose_ekf
+dev-ros/robot_pose_publisher
+dev-ros/robot_state_publisher
+dev-ros/rosapi
+dev-ros/rosauth
+dev-ros/rosbag
+dev-ros/rosbag_migration_rule
+dev-ros/rosbag_storage
+dev-ros/rosbash
+dev-ros/rosboost_cfg
+dev-ros/rosbridge_library
+dev-ros/rosbridge_msgs
+dev-ros/rosbridge_server
+dev-ros/rosbuild
+dev-ros/rosclean
+dev-ros/rosconsole
+dev-ros/rosconsole_bridge
+dev-ros/roscpp
+dev-ros/roscpp_serialization
+dev-ros/roscpp_traits
+dev-ros/roscpp_tutorials
+dev-ros/roscreate
+dev-ros/rosdiagnostic
+dev-ros/ros_environment
+dev-ros/rosgraph
+dev-ros/rosgraph_msgs
+dev-ros/roslang
+dev-ros/roslaunch
+dev-ros/roslib
+dev-ros/roslint
+dev-ros/roslisp
+dev-ros/roslz4
+dev-ros/rosmake
+dev-ros/rosmaster
+dev-ros/rosmsg
+dev-ros/rosnode
+dev-ros/rosout
+dev-ros/rospack
+dev-ros/rosparam
+dev-ros/rospy
+dev-ros/rospy_tutorials
+dev-ros/rosserial_arduino
+dev-ros/rosserial_client
+dev-ros/rosserial_embeddedlinux
+dev-ros/rosserial_msgs
+dev-ros/rosserial_python
+dev-ros/rosserial_server
+dev-ros/rosserial_tivac
+dev-ros/rosserial_windows
+dev-ros/rosserial_xbee
+dev-ros/rosservice
+dev-ros/rostest
+dev-ros/rostime
+dev-ros/rostopic
+dev-ros/rosunit
+dev-ros/roswtf
+dev-ros/rotate_recovery
+dev-ros/rqt_action
+dev-ros/rqt_bag
+dev-ros/rqt_bag_plugins
+dev-ros/rqt_console
+dev-ros/rqt_controller_manager
+dev-ros/rqt_dep
+dev-ros/rqt_graph
+dev-ros/rqt_gui
+dev-ros/rqt_gui_cpp
+dev-ros/rqt_gui_py
+dev-ros/rqt_image_view
+dev-ros/rqt_launch
+dev-ros/rqt_logger_level
+dev-ros/rqt_moveit
+dev-ros/rqt_msg
+dev-ros/rqt_nav_view
+dev-ros/rqt_plot
+dev-ros/rqt_pose_view
+dev-ros/rqt_publisher
+dev-ros/rqt_py_common
+dev-ros/rqt_py_console
+dev-ros/rqt_reconfigure
+dev-ros/rqt_robot_dashboard
+dev-ros/rqt_robot_monitor
+dev-ros/rqt_robot_steering
+dev-ros/rqt_runtime_monitor
+dev-ros/rqt_rviz
+dev-ros/rqt_service_caller
+dev-ros/rqt_shell
+dev-ros/rqt_srv
+dev-ros/rqt_tf_tree
+dev-ros/rqt_top
+dev-ros/rqt_topic
+dev-ros/rqt_web
+dev-ros/rviz
+dev-ros/rviz_imu_plugin
+dev-ros/rviz_plugin_tutorials
+dev-ros/rviz_python_tutorial
+dev-ros/self_test
+dev-ros/sensor_msgs
+dev-ros/settlerlib
+dev-ros/shape_msgs
+dev-ros/smach
+dev-ros/smach_msgs
+dev-ros/smach_ros
+dev-ros/smclib
+dev-ros/stage_ros
+dev-ros/std_msgs
+dev-ros/std_srvs
+dev-ros/stereo_image_proc
+dev-ros/stereo_msgs
+dev-ros/test_bond
+dev-ros/test_diagnostic_aggregator
+dev-ros/test_nodelet
+dev-ros/test_nodelet_topic_tools
+dev-ros/test_rosbag
+dev-ros/test_rosbag_storage
+dev-ros/test_roscpp
+dev-ros/test_rosgraph
+dev-ros/test_roslaunch
+dev-ros/test_roslib_comm
+dev-ros/test_rosmaster
+dev-ros/test_rosparam
+dev-ros/test_rospy
+dev-ros/test_rosservice
+dev-ros/test_tf2
+dev-ros/tf
+dev-ros/tf2
+dev-ros/tf2_bullet
+dev-ros/tf2_eigen
+dev-ros/tf2_geometry_msgs
+dev-ros/tf2_kdl
+dev-ros/tf2_msgs
+dev-ros/tf2_py
+dev-ros/tf2_ros
+dev-ros/tf2_sensor_msgs
+dev-ros/tf2_tools
+dev-ros/tf_conversions
+dev-ros/theora_image_transport
+dev-ros/timestamp_tools
+dev-ros/topic_tools
+dev-ros/trajectory_msgs
+dev-ros/transmission_interface
+dev-ros/turtle_actionlib
+dev-ros/turtlesim
+dev-ros/turtle_tf
+dev-ros/turtle_tf2
+dev-ros/unique_id
+dev-ros/urdf
+dev-ros/urdf_parser_plugin
+dev-ros/urdf_tutorial
+dev-ros/urg_c
+dev-ros/urg_node
+dev-ros/uuid_msgs
+dev-ros/visp_auto_tracker
+dev-ros/visp_bridge
+dev-ros/visp_camera_calibration
+dev-ros/visp_hand2eye_calibration
+dev-ros/visp_tracker
+dev-ros/visualization_marker_tutorials
+dev-ros/visualization_msgs
+dev-ros/voxel_grid
+dev-ros/xacro
+dev-ros/xmlrpcpp
+dev-util/catkin
+dev-util/rosdep
+dev-util/rosinstall
+dev-util/wstool
+ros-meta/ament_cmake
+ros-meta/audio_common
+ros-meta/bond_core
+ros-meta/calibration
+ros-meta/common_msgs
+ros-meta/common_tutorials
+ros-meta/desktop
+ros-meta/desktop_full
+ros-meta/diagnostics
+ros-meta/driver_common
+ros-meta/executive_smach
+ros-meta/gazebo_ros_pkgs
+ros-meta/geographic_info
+ros-meta/geometry
+ros-meta/geometry2
+ros-meta/geometry_tutorials
+ros-meta/hector_localization
+ros-meta/hector_slam
+ros-meta/image_common
+ros-meta/image_pipeline
+ros-meta/image_transport_plugins
+ros-meta/imu_pipeline
+ros-meta/imu_tools
+ros-meta/laser_pipeline
+ros-meta/mavros
+ros-meta/navigation
+ros-meta/nodelet_core
+ros-meta/perception
+ros-meta/perception_pcl
+ros-meta/pr2_common
+ros-meta/qt_gui_core
+ros-meta/robot
+ros-meta/robot_model
+ros-meta/ros
+ros-meta/ros_base
+ros-meta/rosbridge_suite
+ros-meta/ros_comm
+ros-meta/ros_control
+ros-meta/ros_core
+ros-meta/roscpp_core
+ros-meta/rosserial
+ros-meta/ros_tutorials
+ros-meta/rqt
+ros-meta/rqt_common_plugins
+ros-meta/rqt_robot_plugins
+ros-meta/simulators
+ros-meta/slam_gmapping
+ros-meta/unique_identifier
+ros-meta/vision_opencv
+ros-meta/vision_visp
+ros-meta/visualization_tutorials
+ros-meta/viz
+
+# Michał Górny <mgorny@gentoo.org> (2022-12-23)
+# Packages that still use dev-python/nose and have no revdeps.
+#
+# dev-python/blessings: EAPI 7, last rel. in 2018, git act. in 2020
+# dev-python/errorhandler: EAPI 7, last rel. in 2016, git act. in 2018
+# dev-python/flask-restful: EAPI 7, last rel. in 2021, git act. in Mar
+# dev-python/imread: non-PEP517, last rel. in 2020, uses pytest in git
+# dev-python/influxdb: EAPI 7, last rel. 2020, archived on GitHub
+# dev-python/nose-random: nose plugin
+# dev-python/pilkit: EAPI 7, last rel. in 2017, uses pytest in git
+# dev-python/PyContracts: EAPI 7, last rel. in 2019, git act. in 2020
+# dev-python/python-zipstream: EAPI 7, last rel. in 2016, git in 2018
+# dev-python/PyUtilib: EAPI 7, last rel. and git act. in 2020
+# dev-python/socketio-client: EAPI 7, last rel. in 2016, git in 2017
+# dev-python/www-authenticate: EAPI 7, last rel. in 2015, git in 2019
+#
+# Removal on 2023-01-22.  Bug #888087.
+dev-python/blessings
+dev-python/errorhandler
+dev-python/flask-restful
+dev-python/imread
+dev-python/influxdb
+dev-python/nose-random
+dev-python/pilkit
+dev-python/PyContracts
+dev-python/python-zipstream
+dev-python/PyUtilib
+dev-python/socketio-client
+dev-python/www-authenticate
+
+# Michał Górny <mgorny@gentoo.org> (2022-12-23)
+# sci-libs/votca-tools fail to build with GCC 12.  Pending version bump
+# since January 2022.
+# Removal on 2023-01-22.  Bug #841830.
+sci-chemistry/votca-csg
+sci-chemistry/votca-csgapps
+sci-chemistry/votca-xtp
+sci-libs/votca-tools
+
+# Michał Górny <mgorny@gentoo.org> (2022-12-21)
+# The mauve project is no longer maintained upstream, and the actual
+# program has been removed from Gentoo in 2016.  These are leftover
+# libraries with no reverse dependencies.  Last bumped in 2009.
+# Removal on 2023-01-20.  Bug #677558.
+sci-libs/libgenome
+sci-libs/libmems
+
+# Michał Górny <mgorny@gentoo.org> (2022-12-21)
+# Fails to build both against MySQL and PostgreSQL.  Homepage gone.
+# Last bumped in 2005.
+# Removal on 2023-01-20.  Bug #677528, #807835.
+dev-db/mysql-super-smack
+
+# Michał Górny <mgorny@gentoo.org> (2022-12-21)
+# Reported to be incompatible with PHP 7+.  Abandoned upstream.
+# No reverse dependencies.  There is a maintained fork, should anyone
+# want to revive it.
+# Removal on 2023-01-20.  Bug #737842.
+dev-php/phptal
+
+# Georgy Yakovlev <gyakovlev@gentoo.org> (2022-12-19)
+# This version currently is not compatible with kernel build (yet)
+~dev-util/bindgen-0.63.0
+
+# Jaco Kroon <jaco@uls.co.za> (2022-12-14)
+# Multiple open bugs (bug #870910, bug #877731, bug #884815), only one of which
+# is trivial to solve.
+# With more and more SIP traffic using TLS rather than plaintext UDP or TCP
+# this is fast becomming less and less useful.  You should rather use
+# asterisk's res_hep which can also report encrypted SIP and RTP to any HEP
+# compatible reporting tool (including Homer).
+# I'm no longer using this and don't recommend it's use, if you want this to be
+# unmasked again, please contact me so that we can figure out how to approach
+# maintenance thereof. Last-rites bug #885845.
+# Removal on 2023-01-31.
+net-voip/captagent
+
+# Jonas Stein <jstein@gentoo.org> (2022-12-11)
+# Unfetchable and mirror-restricted.
+# Upstream discontinued
+# Removal after 2023-02-01.  Bug #884715.
+dev-cpp/sourcetrail
+
+# Sam James <sam@gentoo.org> (2022-12-09)
+# Breaks compilation of reverse dependencies with broken pkgconfig (pc) file
+# bug #885075, https://github.com/libarchive/libarchive/issues/1766
+=app-arch/libarchive-3.6.2
+
+# Michał Górny <mgorny@gentoo.org> (2022-12-08)
+# Seems to break some logic in pkg_resources.  Masked for the time being
+# to prevent breakage.
+>=dev-python/packaging-22.0
+
+# Stephan Hartmann <sultan@gentoo.org> (2023-01-15)
+# Dev channel releases are only for people who
+# are developers or want more experimental features
+# and accept a more unstable release.
+>=www-client/chromium-111
+
+# Piotr Karbowski <slashbeast@gentoo.org> (2022-11-29)
+# Multiple stability issues, deadlocks on exit, broken API.
+# Bug #883559
+=net-p2p/qbittorrent-4.5.0
+
+# Matt Turner <mattst88@gentoo.org> (2022-11-16)
+# Packages or their dependencies have not been ported to libsoup:3.0, while
+# other non-slotted dependencies have been.
+media-gfx/gnome-photos
+media-sound/gnome-music
+net-libs/libzapojit
+net-misc/gnome-online-miners
+
+# Jaco Kroon <jaco@uls.co.za> (2022-11-05)
+# Some potentially breaking changes here, please check the UPGRADE.txt file.
+# Most important:  chan_sip no longer builds by default, if you've migrated to
+# PJSIP you should be OK and most likely you should be able to safely unmask.
+# For now to prevent accidental upgrades and to allow proper testing this will
+# be in place for minimum six months (2023-04-22).
+=net-misc/asterisk-20*
+=net-misc/asterisk-opus-20*
+=net-misc/asterisk-g729-20*
+
+# John Helmert III <ajak@gentoo.org> (2022-10-16)
+# <OpenSSL-1.1.1 are EOL and contain known vulnerabilities. Users should
+# migrate to a newer branch.
+<dev-libs/openssl-1.1.1
+
+# John Helmert III <ajak@gentoo.org> (2022-09-18)
+# Unfixed root privilege escalation, bug #631552
+sys-cluster/slurm
+
+# hololeap <hololeap@protonmail.com> (2022-08-21)
+# doctest-parallel does not currently work with Setup.hs (used internally by
+# haskell-cabal.eclass)
+# See: <https://github.com/martijnbastiaan/doctest-parallel/issues/45>
+dev-haskell/doctest-parallel
+
+# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2022-08-12)
+# Masked for testing, depends on dev-qt/qt*:6
+# Pyside6 is stuck on python3_10 for the moment being
+dev-python/shiboken6
+dev-python/pyside6
+dev-python/pyside6-tools
+
+# Jimi Huotari <chiitoo@gentoo.org> (2022-08-02)
+# Masked for testing. The split of some packages may still
+# change. bug #838970.
+dev-python/PyQt6
+dev-python/PyQt6-WebEngine
+dev-qt/qt5compat:6
+dev-qt/qtbase:6
+dev-qt/qtcharts:6
+dev-qt/qtdeclarative:6
+dev-qt/qtimageformats:6
+dev-qt/qtlocation:6
+dev-qt/qtmultimedia:6
+dev-qt/qtnetworkauth:6
+dev-qt/qtpositioning:6
+dev-qt/qtquick3d:6
+dev-qt/qtquicktimeline:6
+dev-qt/qtserialport:6
+dev-qt/qtshadertools:6
+dev-qt/qtsvg:6
+dev-qt/qttools:6
+dev-qt/qtwayland:6
+dev-qt/qtwebchannel:6
+dev-qt/qtwebengine:6
+dev-qt/qtwebsockets:6
+>=media-video/bino-2
+
+# Fabian Groffen <grobian@gentoo.org> (2022-07-02)
+# Segfaults handling SPF validations (warn on permerror), like the
+# previous release, better not to trust your important mail to
+~mail-mta/exim-4.96
+
+# Sam James <sam@gentoo.org> (2022-05-28)
+# GCC 9 and older no longer receive upstream support or fixes for
+# bugs. Please switch to a newer GCC version using gcc-config.
+# The lowest supported version of GCC is GCC 10.
+<sys-devel/gcc-10
+
+# Joonas Niilola <juippis@gentoo.org> (2022-04-29)
+# Apparently the "b" in version means "beta". 3.24 is available, we
+# should update to that. #841437
+~sci-physics/bullet-3.22b
+
+# Alfredo Tupone <tupone@gentoo.org> (2022-04-27)
+# New release of janestreet packages need to tested
+dev-ml/sexplib0:0/0.15
+dev-ml/sexplib:0/0.15
+dev-ml/base:0/0.15
+dev-ml/stdio:0/0.15
+dev-ml/ppx_sexp_conv:0/0.15
+dev-ml/ppx_enumerate:0/0.15
+dev-ml/ppx_compare:0/0.15
+dev-ml/ppx_hash:0/0.15
+dev-ml/ppx_cold:0/0.15
+dev-ml/parsexp:0/0.15
+dev-ml/ppx_base:0/0.15
+dev-ml/ppx_fields_conv:0/0.15
+dev-ml/ppx_here:0/0.15
+dev-ml/ppx_let:0/0.15
+dev-ml/ppx_sexp_message:0/0.15
+dev-ml/ppx_sexp_value:0/0.15
+dev-ml/ppx_assert:0/0.15
+dev-ml/ppx_optcomp:0/0.15
+dev-ml/time_now:0/0.15
+dev-ml/ppx_inline_test:0/0.15
+dev-ml/ppx_bench:0/0.15
+dev-ml/splittable_random:0/0.15
+dev-ml/base_quickcheck:0/0.15
+dev-ml/ppx_bin_prot:0/0.15
+dev-ml/ppx_custom_printf:0/0.15
+dev-ml/ppx_disable_unused_warnings:0/0.15
+dev-ml/ppx_expect:0/0.15
+dev-ml/ppx_fixed_literal:0/0.15
+dev-ml/ppx_log:0/0.15
+dev-ml/ppx_module_timer:0/0.15
+dev-ml/ppx_optional:0/0.15
+dev-ml/ppx_stable:0/0.15
+dev-ml/ppx_string:0/0.15
+dev-ml/typerep:0/0.15
+dev-ml/ppx_typerep_conv:0/0.15
+dev-ml/variantslib:0/0.15
+dev-ml/ppx_variants_conv:0/0.15
+dev-ml/ppx_jane:0/0.15
+dev-ml/int_repr:0/0.15
+dev-ml/base_bigstring:0/0.15
+dev-ml/ppx_js_style:0/0.15
+dev-ml/core:0/0.15
+dev-ml/core_kernel:0/0.15
+dev-ml/sexp_pretty:0/0.15
+dev-ml/expect_test_helpers_core:0/0.15
+dev-ml/timezone:0/0.15
+dev-ml/core_unix:0/0.15
+dev-ml/textutils_kernel:0/0.15
+dev-ml/textutils:0/0.15
+dev-ml/async_kernel:0/0.15
+dev-ml/protocol_version_header:0/0.15
+dev-ml/async_rpc_kernel:0/0.15
+dev-ml/async_unix:0/0.15
+dev-ml/async:0/0.15
+dev-ml/async_extra:0/0.15
+dev-ml/core_bench:0/0.15
+dev-ml/patience_diff:0/0.15
+dev-util/patdiff:0/0.15
+=dev-ml/alcotest-1.6.0*
+
+# Maciej Barć <xgqt@gentoo.org> (2022-02-20)
+# Masked for testing, builds and passes tests but randomly segfaults,
+# meaningless backtrace, debugging (flags, symbols) do not help
+>app-shells/scsh-0.6.9
+
+# Zoltan Puskas <zoltan@sinustrom.info> (2022-02-18)
+# Multiple vulnerabilities (CVE-2022-{23803,23804,23946,23947})
+# 5.X series is masked to avoid accidental use, but it's kept for
+# industrial users who are in the process of migrating to the new
+# format of the 6.X series.
+<sci-electronics/kicad-6.0.2
+<sci-electronics/kicad-footprints-6.0.2
+<sci-electronics/kicad-i18n-6.0.2
+<sci-electronics/kicad-meta-6.0.2
+<sci-electronics/kicad-packages3d-6.0.2
+<sci-electronics/kicad-symbols-6.0.2
+<sci-electronics/kicad-templates-6.0.2
+<app-doc/kicad-doc-6.0.2
+
+# Eray Aslan <eras@gentoo.org> (2022-01-24)
+# Mask experimental software
+=mail-mta/postfix-3.8*
+
+# James Beddek <telans@posteo.de> (2022-01-19)
+# FFmpeg 5.0 ABI/API changes break many packages.
+# Masking for tracker/tinderbox. Bug #831437
+=media-video/ffmpeg-5*
+>=media-sound/spek-0.8.5
+
+# Brian Evans <grknight@gentoo.org> (2022-01-07)
+# The main consumer, phpunit, does not initiate the new timer correctly
+# This is likely to cause issues in tests; Unmask if using for other purposes
+>=dev-php/PHP_Timer-5.0
+
+# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2021-11-23)
+# Does not support updated dev-java/pdfbox-2.0.24, Bug #803488
+# Blocks (CVE-2018-11797, CVE-2021-{27807,27906,31811,31812})
+dev-tex/pdfannotextractor
+
+# Ionen Wolkens <ionen@gentoo.org> (2021-10-09)
+# Vulkan beta driver branch aimed at Vulkan developers for testing
+# new features. Beside vulkan, it is typically behind the main branch
+# and may be buggier or less secure. Only unmask if really wanted.
+x11-drivers/nvidia-drivers:0/vulkan
+
+# Mart Raudsepp <leio@gentoo.org> (2021-09-23)
+# Incompatible with c++17 abseil-cpp, no in-tree consumers yet
+media-libs/webrtc-audio-processing:1
+
+# Andreas K. Hüttel <dilfridge@gentoo.org> (2021-09-18)
+# sys-devel/automake version 1.11 is EOL and is only useful for testing
+# old de-ANSI-fication/ansi2knr/AM_C_PROTOTYPES code. Please uninstall.
+sys-devel/automake:1.11
+
+# Joonas Niilola <juippis@gentoo.org> (2021-07-29)
+# Upstream provided migration instructions from 2. -> 3. update,
+# breaks if not all at least many revdeps. #805011 for tracker bug.
+>=net-libs/mbedtls-3.0.0
+
+# Michał Górny <mgorny@gentoo.org> (2021-07-06)
+# Upstream changed license to GPL-3+ in order to deliberately cause
+# incompatiblity with revdep licenses.  Mask until the situation
+# is resolved.  Bug #791259.
+>=media-libs/libopenaptx-0.2.1
+
+# Ulrich Müller <ulm@gentoo.org> (2021-04-20)
+# Version 3.15 is broken with Emacs 27.2.
+=app-emacs/mic-paren-3.15-r0
+
+# Sam James <sam@gentoo.org> (2021-03-30)
+# Seems to break dev-tex/culmus-latex
+# Masking until we can investigate & fix
+# bug #737406
+=media-fonts/culmus-0.133-r1
+
+# Sam James <sam@gentoo.org> (2021-03-03)
+# Doesn't seem to sync clock correctly
+# in some cases.
+# bug #772998
+~net-misc/openntpd-6.8_p1
+
+# Michał Górny <mgorny@gentoo.org> (2020-11-10)
+# This old Kodi version requires vulnerable dev-python/pillow
+# and prevents users from upgrading.  Masked for the time being.
+# Bug #729672.
+media-plugins/kodi-game-libretro-nestopia
+media-plugins/kodi-game-libretro-dosbox
+
+# Sam James <sam@gentoo.org> (2020-10-05)
+# Masked for testing. New major versions of Guile
+# often break reverse dependencies.
+# Guile in Gentoo is not slotted, so let's be cautious.
+# bug #705554, bug #689408.
+>=dev-scheme/guile-3.0.4
+
+# Matt Turner <mattst88@gentoo.org> (2019-09-01)
+# TeXmacs is the only remaining package in tree that requires guile-1.8, which
+# is unsupported upstream. A TeXmacs port to Guile-2 has been in progress for a
+# few years. Bug #436400
+app-office/texmacs
+<dev-scheme/guile-2
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2018-10-07)
+# Masked for more testing especially of reverse-deps.
+# ogre 1.11/1.12 breakage: bug #834468
+# ogre 2.x breakage: bug #740424
+>=dev-games/ogre-1.11.2
+
+# Andreas K. Hüttel <dilfridge@gentoo.org> (2018-09-11)
+# Mask transition ebuilds that were needed only for <glibc-2.26
+# We will keep them in the tree as long as we have masked
+# <glibc-2.26.
+~net-libs/libnsl-0
+~net-libs/rpcsvc-proto-0
+
+# Nicolas Bock <nicolasbock@gentoo.org> (2017-10-31)
+# There are multiple unresolved upstream issues with >=jabref-bin-4.0 (#636036).
+# If you still would like to use this version, please report any issues to
+# upstream.
+>=app-text/jabref-bin-4.0
+
+# Michał Górny <mgorny@gentoo.org> (2017-05-22)
+# for Maciej S. Szmigiero <mail@maciej.szmigiero.name>
+# Any version above 5.100.138 breaks b43 driver in various ways.
+# Also, b43 wiki page says to use 5.100.138. Bug #541080.
+>=sys-firmware/b43-firmware-6.30.163.46
+
+# Andreas K. Hüttel <dilfridge@gentoo.org> (2017-05-21)
+# (and others, updated later)
+# These old versions of toolchain packages (binutils, gcc, glibc) are no
+# longer officially supported and are not suitable for general use. Using
+# these packages can result in build failures (and possible breakage) for
+# many packages, and may leave your system vulnerable to known security
+# exploits.
+# If you still use one of these old toolchain packages, please upgrade (and
+# switch the compiler / the binutils) ASAP. If you need them for a specific
+# (isolated) use case, feel free to unmask them on your system.
+<sys-libs/glibc-2.36-r5
+<sys-devel/binutils-2.38
+
+# Michael Orlitzky <mjo@gentoo.org> (2017-01-07)
+# This package has some dangerous quality and security issues, but
+# people may still find it useful. It is masked to prevent accidental
+# use. See bugs 603346 and 604998 for more information.
+app-admin/amazon-ec2-init
+
+# Mike Gilbert <floppym@gentoo.org> (2014-03-04)
+# Dev channel releases are only for people who are developers or want more
+# experimental features and accept a more unstable release.
+www-plugins/chrome-binary-plugins:unstable
+
+# Diego E. Pettenò <flameeyes@gentoo.org> (2009-01-03)
+# These packages are not supposed to be merged directly, instead
+# please use sys-devel/crossdev to install them.
+dev-util/mingw64-runtime
+sys-libs/newlib
+dev-embedded/avr-libc

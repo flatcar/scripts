@@ -1,0 +1,1 @@
+- OpenSSL ([CVE-2022-3602](https://nvd.nist.gov/vuln/detail/CVE-2022-3602), [CVE-2022-3786](https://nvd.nist.gov/vuln/detail/CVE-2022-3786))

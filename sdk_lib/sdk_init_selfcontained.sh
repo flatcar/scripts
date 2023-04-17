@@ -31,6 +31,3 @@ version="$(source /mnt/host/source/.repo/manifests/version.txt; echo $FLATCAR_VE
 mkdir -p /home/sdk/trunk/src/third_party/
 
 clone_version scripts /home/sdk/trunk/src/scripts "$version"
-clone_version portage-stable /home/sdk/trunk/src/third_party/portage-stable "$version"
-clone_version coreos-overlay /home/sdk/trunk/src/third_party/coreos-overlay "$version"
-
