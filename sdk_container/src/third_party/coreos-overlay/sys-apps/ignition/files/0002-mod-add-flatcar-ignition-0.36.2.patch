@@ -1,0 +1,45 @@
+From 4e107fd4f2bad2b3926dadef7b1143a4b2b43e3f Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Fri, 24 Feb 2023 09:13:33 +0100
+Subject: [PATCH 02/18] mod: add flatcar/ignition@0.36.2
+
+it's required for Ignition conversion.
+
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+---
+ go.mod | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/go.mod b/go.mod
+index 85b3e34e..b109532e 100644
+--- a/go.mod
++++ b/go.mod
+@@ -10,6 +10,7 @@ require (
+ 	github.com/coreos/go-semver v0.3.1
+ 	github.com/coreos/go-systemd/v22 v22.5.0
+ 	github.com/coreos/vcontext v0.0.0-20230201181013-d72178a18687
++	github.com/flatcar/ignition v0.36.2
+ 	github.com/google/renameio/v2 v2.0.0
+ 	github.com/google/uuid v1.3.0
+ 	github.com/pin/tftp v2.1.0+incompatible
+@@ -27,7 +28,9 @@ require (
+ 	cloud.google.com/go v0.107.0 // indirect
+ 	cloud.google.com/go/compute v1.18.0 // indirect
+ 	cloud.google.com/go/iam v0.8.0 // indirect
++	github.com/ajeddeloh/go-json v0.0.0-20160803184958-73d058cf8437 // indirect
+ 	github.com/coreos/go-json v0.0.0-20230131223807-18775e0fb4fb // indirect
++	github.com/coreos/go-systemd v0.0.0-20181031085051-9002847aa142 // indirect
+ 	github.com/davecgh/go-spew v1.1.1 // indirect
+ 	github.com/godbus/dbus/v5 v5.0.4 // indirect
+ 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
+@@ -38,6 +41,7 @@ require (
+ 	github.com/jmespath/go-jmespath v0.4.0 // indirect
+ 	github.com/pmezard/go-difflib v1.0.0 // indirect
+ 	go.opencensus.io v0.24.0 // indirect
++	go4.org v0.0.0-20160314031811-03efcb870d84 // indirect
+ 	golang.org/x/text v0.7.0 // indirect
+ 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
+ 	google.golang.org/appengine v1.6.7 // indirect
+-- 
+2.35.1
+

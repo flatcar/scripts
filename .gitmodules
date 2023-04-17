@@ -1,6 +1,0 @@
-[submodule "sdk_container/src/third_party/coreos-overlay"]
-	path = sdk_container/src/third_party/coreos-overlay
-	url = https://github.com/flatcar/coreos-overlay.git
-[submodule "sdk_container/src/third_party/portage-stable"]
-	path = sdk_container/src/third_party/portage-stable
-	url = https://github.com/flatcar/portage-stable.git

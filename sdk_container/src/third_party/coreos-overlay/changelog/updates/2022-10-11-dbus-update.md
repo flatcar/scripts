@@ -1,0 +1,1 @@
+- dbus ([1.14.4](https://gitlab.freedesktop.org/dbus/dbus/-/raw/dbus-1.14.4/NEWS))

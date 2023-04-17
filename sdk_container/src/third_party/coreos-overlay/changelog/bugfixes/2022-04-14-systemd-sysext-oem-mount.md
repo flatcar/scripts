@@ -1,0 +1,1 @@
+- Added a remount action as `systemd-sysext.service` drop-in unit to restore the OEM partition mount after the overlay mounts in `/usr` are done ([PR#69](https://github.com/flatcar-linux/init/pull/69))

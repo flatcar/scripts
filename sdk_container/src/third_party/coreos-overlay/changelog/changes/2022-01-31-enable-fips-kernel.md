@@ -1,0 +1,1 @@
+- Enabled the FIPS support for the Linux kernel, which users can now choose through a kernel parameter in `grub.cfg` (check it taking effect with `cat /proc/sys/crypto/fips_enabled`) ([PR#1602](https://github.com/flatcar-linux/coreos-overlay/pull/1602))

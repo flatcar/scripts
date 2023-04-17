@@ -1,0 +1,1 @@
+- open-vm-tools ([CVE-2022-31676](https://nvd.nist.gov/vuln/detail/CVE-2022-31676))

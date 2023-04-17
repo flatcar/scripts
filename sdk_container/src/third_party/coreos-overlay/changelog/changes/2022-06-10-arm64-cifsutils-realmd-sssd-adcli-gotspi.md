@@ -1,0 +1,3 @@
+- ARM64: Added [sssd](https://sssd.io/), [adcli](https://www.freedesktop.org/software/realmd/adcli/adcli.html) and realmd for ARM64
+- ARM64: Added [cifs-utils](https://wiki.samba.org/index.php/LinuxCIFS_utils) for ARM64
+- SDK / ARM64: Added [go-tspi](https://pkg.go.dev/github.com/coreos/go-tspi) bindings for ARM64

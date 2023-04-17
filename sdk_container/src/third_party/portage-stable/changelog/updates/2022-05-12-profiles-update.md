@@ -1,0 +1,5 @@
+- SDK: qemu ([7.0.0](https://wiki.qemu.org/ChangeLog/7.0))
+- e2fsprogs ([1.46.5](http://e2fsprogs.sourceforge.net/e2fsprogs-release.html#1.46.5))
+- ldb ([2.4.1](https://gitlab.com/samba-team/samba/-/commit/a795e0c84597aa045d011e663dbad3cdabf0f1e6))
+- talloc ([2.3.3](https://gitlab.com/samba-team/samba/-/commit/bc1ee7ca0640f0136e5af7dcc4ca8ed0a5893053))
+- tevent ([0.11.0](https://gitlab.com/samba-team/samba/-/commit/de4e8a1af9564f6056f9af90867c2f013449051c))

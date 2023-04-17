@@ -1,0 +1,62 @@
+# Copyright (c) 2014 The CoreOS Authors. All rights reserved.
+# Distributed under the terms of the GNU General Public License v2
+
+# Restrictive mask for production images.
+INSTALL_MASK="${INSTALL_MASK}
+  *.a *.la *.hpp *.o
+  /etc/sandbox.d
+  /lib*/pkgconfig
+  /usr/include
+  /usr/lib*/*/include
+  -/usr/lib*/modules/*/include
+  /usr/lib*/cmake
+  /usr/lib*/debug
+  /usr/lib*/pkgconfig
+  /usr/lib*/rpm
+  /usr/share/aclocal*
+  /usr/share/awk
+  /usr/share/gdb
+  /usr/share/gettext
+  /usr/share/gobject-introspection-1.0
+  /usr/share/pkgconfig
+  /usr/share/readline
+  /usr/src
+"
+
+# Exclude nmap from prod image, we just want ncat/nping in there
+# Also remove ncat's second ca-bundle.crt, just use the system's
+INSTALL_MASK="${INSTALL_MASK}
+  /usr/bin/nmap
+  /usr/share/ncat
+  /usr/share/nmap
+"
+
+# Remove files which depend on interpreters not present in boards.
+INSTALL_MASK="${INSTALL_MASK}
+  /usr/lib*/systemd/system/xfs_scrub_all*
+  /usr/share/git/contrib/*
+  /usr/bin/diff-highlight
+  /usr/bin/autoscan-2.13
+  /usr/bin/autoupdate-2.69
+  /usr/bin/autoreconf-2.69
+  /usr/bin/automake-1.14
+  /usr/bin/autom4te-2.69
+  /usr/bin/autoheader-2.69
+  /usr/bin/aclocal-1.14
+  /usr/bin/aclocal-1.15
+  /usr/bin/automake-1.15
+  /usr/bin/ifnames-2.69
+  /usr/bin/intltool-update
+  /usr/bin/intltool-merge
+  /usr/bin/intltool-prepare
+  /usr/bin/intltool-extract
+  /usr/bin/autoscan-2.69
+  /usr/bin/code2color
+  /usr/bin/event_rpcgen.py
+  /usr/libexec/selinux/semanage_migrate_store
+  /usr/libexec/git-core/git-contacts
+  /usr/sbin/mountstats
+  /usr/sbin/nfsiostat
+  /sbin/ebtables-save
+  /sbin/xfs_scrub_all
+"

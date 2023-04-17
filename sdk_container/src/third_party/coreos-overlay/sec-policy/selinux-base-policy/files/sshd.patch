@@ -1,0 +1,22 @@
+diff --git a/policy/modules/services/ssh.fc b/policy/modules/services/ssh.fc
+index 60060c35c..8d9f5b7a6 100644
+--- refpolicy/policy/modules/services/ssh.fc
++++ refpolicy/policy/modules/services/ssh.fc
+@@ -6,7 +6,7 @@ HOME_DIR/\.ssh(/.*)?			gen_context(system_u:object_r:ssh_home_t,s0)
+ /usr/bin/ssh			--	gen_context(system_u:object_r:ssh_exec_t,s0)
+ /usr/bin/ssh-agent		--	gen_context(system_u:object_r:ssh_agent_exec_t,s0)
+ /usr/bin/ssh-keygen		--	gen_context(system_u:object_r:ssh_keygen_exec_t,s0)
+-/usr/bin/sshd			--	gen_context(system_u:object_r:sshd_exec_t,s0)
++/usr/bin/sshd			--	gen_context(system_u:object_r:unconfined_t,s0)
+ 
+ /usr/lib/openssh/ssh-keysign	--	gen_context(system_u:object_r:ssh_keysign_exec_t,s0)
+ /usr/lib/ssh/ssh-keysign	--	gen_context(system_u:object_r:ssh_keysign_exec_t,s0)
+@@ -17,7 +17,7 @@ HOME_DIR/\.ssh(/.*)?			gen_context(system_u:object_r:ssh_home_t,s0)
+ 
+ /usr/libexec/openssh/ssh-keysign --	gen_context(system_u:object_r:ssh_keysign_exec_t,s0)
+ 
+-/usr/sbin/sshd			--	gen_context(system_u:object_r:sshd_exec_t,s0)
++/usr/sbin/sshd			--	gen_context(system_u:object_r:unconfined_t,s0)
+ 
+ /run/sshd(/.*)?			gen_context(system_u:object_r:sshd_runtime_t,s0)
+ /run/sshd\.init\.pid	--	gen_context(system_u:object_r:sshd_runtime_t,s0)

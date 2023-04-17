@@ -1,0 +1,1 @@
+- GCE: Restored oem-gce.service functionality on GCP ([PR#1813](https://github.com/flatcar-linux/coreos-overlay/pull/1813))

@@ -1,0 +1,1 @@
+- Added support for hardware security keys in update-ssh-keys ([update-ssh-keys#7](https://github.com/flatcar/update-ssh-keys/pull/7))
