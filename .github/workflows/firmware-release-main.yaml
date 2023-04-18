@@ -1,0 +1,46 @@
+name: Get the latest Linux Firmware release for main
+on:
+  schedule:
+    - cron:  '0 7 * * 4'
+  workflow_dispatch:
+
+jobs:
+  get-firmware-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out scripts
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: scripts
+      - name: Figure out latest Linux Firmware release version
+        id: firmware-latest-release
+        run: |
+          versionNew=$(git ls-remote --tags https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git | cut -f2 | sed -n "/refs\/tags\/[0-9]*$/s/^refs\/tags\///p" | sort -ruV | head -n1)
+          echo "VERSION_NEW=${versionNew}" >>"${GITHUB_OUTPUT}"
+      - name: Set up Flatcar SDK
+        id: setup-flatcar-sdk
+        env:
+          WORK_SCRIPTS_DIR: "${{ github.workspace }}/scripts"
+          CHANNEL: main
+        run: scripts/.github/workflows/setup-flatcar-sdk.sh
+      - name: Apply patch for main
+        id: apply-patch-main
+        env:
+          GHA_SCRIPTS_DIR: "${{ github.workspace }}/scripts"
+          WORK_SCRIPTS_DIR: "${{ github.workspace }}/scripts"
+          VERSION_NEW: ${{ steps.firmware-latest-release.outputs.VERSION_NEW }}
+          PACKAGES_CONTAINER: ${{ steps.setup-flatcar-sdk.outputs.PACKAGES_CONTAINER }}
+          SDK_NAME: ${{ steps.setup-flatcar-sdk.outputs.SDK_NAME }}
+        run: scripts/.github/workflows/firmware-apply-patch.sh
+      - name: Create pull request for main
+        uses: peter-evans/create-pull-request@v5
+        if: steps.apply-patch-main.outputs.UPDATE_NEEDED == 1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: scripts
+          branch: firmware-${{ steps.firmware-latest-release.outputs.VERSION_NEW }}-main
+          base: main
+          title: Upgrade Linux Firmware in main from ${{ steps.apply-patch-main.outputs.VERSION_OLD }} to ${{ steps.firmware-latest-release.outputs.VERSION_NEW }}
+          body: Subject says it all.
+          labels: main

@@ -1,0 +1,64 @@
+name: Get the latest Runc release for main
+on:
+  schedule:
+    - cron:  '50 7 * * 4'
+  workflow_dispatch:
+
+jobs:
+  get-runc-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out scripts
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: scripts
+      - name: Figure out latest Runc release version
+        id: runc-latest-release
+        run: |
+          REMOTE='https://github.com/opencontainers/runc'
+          # Get the newest runc version, including official releases
+          # and rc versions. We need some sed tweaks like replacing
+          # dots with underscores, adding trailing underscore, sort,
+          # and trim the trailing underscore and replace other
+          # underscores with dots again, so that sort -V can properly
+          # sort "1.0.0" as newer than "1.0.0-rc95" and "0.0.2.1" as
+          # newer than "0.0.2".
+          versionCommitPair=( $(git ls-remote --tags "${REMOTE}" | grep 'refs/tags/v[a-z0-9._-]*$' | sed -e 's#^\([0-9a-fA-F]*\)[[:space:]]*refs/tags/v\(.*\)$#\2_ \1#g' -e 's/\./_/g' | sort --reverse --unique --version-sort --key=1,1 | sed -e 's/_ / /' -e 's/_/./g' | head --lines=1) )
+          versionNew="${versionCommitPair[0]}"
+          # Gentoo expects an underline between version and rc, so
+          # "1.1.0-rc.1" becomes "1.1.0_rc.1".
+          versionNew="${versionNew//-/_}"
+          # Gentoo expects no separators between rc and the number, so
+          # "1.1.0_rc.1" becomes "1.1.0_rc1"
+          versionNew="${versionNew//rc./rc}"
+          commitHash="${versionCommitPair[1]}"
+          echo "VERSION_NEW=${versionNew}" >>"${GITHUB_OUTPUT}"
+          echo "COMMIT_HASH=${commitHash}" >>"${GITHUB_OUTPUT}"
+      - name: Set up Flatcar SDK
+        id: setup-flatcar-sdk
+        env:
+          WORK_SCRIPTS_DIR: "${{ github.workspace }}/scripts"
+          CHANNEL: main
+        run: scripts/.github/workflows/setup-flatcar-sdk.sh
+      - name: Apply patch for main
+        id: apply-patch-main
+        env:
+          GHA_SCRIPTS_DIR: "${{ github.workspace }}/scripts"
+          WORK_SCRIPTS_DIR: "${{ github.workspace }}/scripts"
+          VERSION_NEW: ${{ steps.runc-latest-release.outputs.VERSION_NEW }}
+          COMMIT_HASH: ${{ steps.runc-latest-release.outputs.COMMIT_HASH }}
+          PACKAGES_CONTAINER: ${{ steps.setup-flatcar-sdk.outputs.PACKAGES_CONTAINER }}
+          SDK_NAME: ${{ steps.setup-flatcar-sdk.outputs.SDK_NAME }}
+        run: scripts/.github/workflows/runc-apply-patch.sh
+      - name: Create pull request for main
+        uses: peter-evans/create-pull-request@v5
+        if: steps.apply-patch-main.outputs.UPDATE_NEEDED == 1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: scripts
+          branch: runc-${{ steps.runc-latest-release.outputs.VERSION_NEW }}-main
+          base: main
+          title: Upgrade Runc in main from ${{ steps.apply-patch-main.outputs.VERSION_OLD }} to ${{ steps.runc-latest-release.outputs.VERSION_NEW }}
+          body: Subject says it all.
+          labels: main
