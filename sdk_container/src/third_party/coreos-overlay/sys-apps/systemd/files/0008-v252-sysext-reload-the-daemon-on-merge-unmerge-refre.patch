@@ -1,0 +1,130 @@
+From cf123c1e10a645709046a4db5085aeb764f815d3 Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Mon, 17 Apr 2023 12:27:55 +0200
+Subject: [PATCH] v252-sysext: reload the daemon on merge/unmerge/refresh
+
+this ensure to properly load/unload the systemd unit files from the
+systemd sysext image.
+
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+---
+ src/sysext/sysext.c | 48 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 48 insertions(+)
+
+diff --git a/src/sysext/sysext.c b/src/sysext/sysext.c
+index 0875099d5f..cc6b7365f9 100644
+--- a/src/sysext/sysext.c
++++ b/src/sysext/sysext.c
+@@ -7,8 +7,14 @@
+ #include <sys/mount.h>
+ #include <unistd.h>
+ 
++#include "sd-bus.h"
++
++#include "bus-locator.h"
++#include "bus-error.h"
++#include "bus-util.h"
+ #include "capability-util.h"
+ #include "chase-symlinks.h"
++#include "def.h"
+ #include "devnum-util.h"
+ #include "discover-image.h"
+ #include "dissect-image.h"
+@@ -43,10 +49,33 @@ static JsonFormatFlags arg_json_format_flags = JSON_FORMAT_OFF;
+ static PagerFlags arg_pager_flags = 0;
+ static bool arg_legend = true;
+ static bool arg_force = false;
++static bool arg_no_reload = false;
+ 
+ STATIC_DESTRUCTOR_REGISTER(arg_hierarchies, strv_freep);
+ STATIC_DESTRUCTOR_REGISTER(arg_root, freep);
+ 
++static int daemon_reload(void) {
++        _cleanup_(sd_bus_error_free) sd_bus_error error = SD_BUS_ERROR_NULL;
++        _cleanup_(sd_bus_message_unrefp) sd_bus_message *m = NULL;
++        sd_bus *bus;
++        int r;
++
++        r = bus_connect_system_systemd(&bus);
++        if (r < 0)
++                return r;
++
++        r = bus_message_new_method_call(bus, &m, bus_systemd_mgr, "Reload");
++        if (r < 0)
++                return bus_log_create_error(r);
++
++        /* Reloading the daemon may take long, hence set a longer timeout here */
++        r = sd_bus_call(bus, m, DAEMON_RELOAD_TIMEOUT_SEC, &error, NULL);
++        if (r < 0)
++                return log_error_errno(r, "Failed to reload daemon: %s", bus_error_message(&error, r));
++
++        return 0;
++}
++
+ static int is_our_mount_point(const char *p) {
+         _cleanup_free_ char *buf = NULL, *f = NULL;
+         struct stat st;
+@@ -147,6 +176,12 @@ static int unmerge(void) {
+                         ret = r;
+         }
+ 
++        if (!arg_no_reload) {
++                r = daemon_reload();
++                if (r < 0)
++                        return r;
++        }
++
+         return ret;
+ }
+ 
+@@ -724,6 +759,12 @@ static int merge(Hashmap *images) {
+         if (r < 0)
+                 return r;
+ 
++        if (!arg_no_reload) {
++                r = daemon_reload();
++                if (r < 0)
++                        return r;
++        }
++
+         return r != 123; /* exit code 123 means: didn't do anything */
+ }
+ 
+@@ -889,6 +930,7 @@ static int verb_help(int argc, char **argv, void *userdata) {
+                "     --json=pretty|short|off\n"
+                "                          Generate JSON output\n"
+                "     --force              Ignore version incompatibilities\n"
++               "     --no-reload          Do not reload the daemon\n"
+                "\nSee the %2$s for details.\n",
+                program_invocation_short_name,
+                link,
+@@ -909,6 +951,7 @@ static int parse_argv(int argc, char *argv[]) {
+                 ARG_ROOT,
+                 ARG_JSON,
+                 ARG_FORCE,
++                ARG_NO_RELOAD,
+         };
+ 
+         static const struct option options[] = {
+@@ -919,6 +962,7 @@ static int parse_argv(int argc, char *argv[]) {
+                 { "root",      required_argument, NULL, ARG_ROOT      },
+                 { "json",      required_argument, NULL, ARG_JSON      },
+                 { "force",     no_argument,       NULL, ARG_FORCE     },
++                { "no-reload", no_argument,       NULL, ARG_NO_RELOAD },
+                 {}
+         };
+ 
+@@ -962,6 +1006,10 @@ static int parse_argv(int argc, char *argv[]) {
+                         arg_force = true;
+                         break;
+ 
++                case ARG_NO_RELOAD:
++                        arg_no_reload = true;
++                        break;
++
+                 case '?':
+                         return -EINVAL;
+ 
+-- 
+2.35.1
+
