@@ -7,14 +7,12 @@ inherit meson-multilib usr-ldscript
 
 DESCRIPTION="zstd fast compression library"
 HOMEPAGE="https://facebook.github.io/zstd/"
-# Drop .gh on next bump (>1.5.4), it's only here as we switched to release
-# tarball.
-SRC_URI="https://github.com/facebook/zstd/releases/download/v${PV}/${P}.tar.gz -> ${P}.gh.tar.gz"
+SRC_URI="https://github.com/facebook/zstd/releases/download/v${PV}/${P}.tar.gz"
 S="${WORKDIR}"/${P}/build/meson
 
 LICENSE="|| ( BSD GPL-2 )"
 SLOT="0/1"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="+lzma lz4 static-libs test zlib"
 RESTRICT="!test? ( test )"
 
@@ -28,14 +26,9 @@ DEPEND="${RDEPEND}"
 MESON_PATCHES=(
 	# Workaround until Valgrind bugfix lands
 	"${FILESDIR}"/${PN}-1.5.4-no-find-valgrind.patch
-	# Allow building tests w/o programs (useful for multilib)
-	"${FILESDIR}"/${PN}-1.5.4-tests-no-programs.patch
 )
 
 PATCHES=(
-	# Fix build w/o zlib, bug #894058
-	"${FILESDIR}"/${P}-fix-no-zlib-build.patch
-	"${FILESDIR}"/${P}-crash-no-directory.patch
 )
 
 src_prepare() {
