@@ -377,7 +377,6 @@ virtual/perl-File-Spec
 virtual/perl-File-Temp
 virtual/perl-Getopt-Long
 virtual/perl-IO
-virtual/perl-version
 virtual/pkgconfig
 
 x11-libs/pixman
