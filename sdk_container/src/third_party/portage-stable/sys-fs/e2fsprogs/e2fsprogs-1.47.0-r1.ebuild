@@ -11,7 +11,7 @@ SRC_URI="https://www.kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v${PV}/$
 
 LICENSE="GPL-2 BSD"
 SLOT="0"
-KEYWORDS="~alpha amd64 ~arm ~arm64 hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux"
 IUSE="cron fuse nls static-libs test +tools"
 RESTRICT="!test? ( test )"
 
@@ -40,6 +40,9 @@ MULTILIB_WRAPPED_HEADERS=(
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.42.13-fix-build-cflags.patch # bug #516854
+	# We can drop this metadata patch after 6 months or so to let initramfses
+	# upgrade. See bug #904093 and bug #904048.
+	"${FILESDIR}"/${PN}-1.47.0-disable-metadata_csum_seed-and-orphan_file-by-default.patch
 
 	# Upstream patches (can usually removed with next version bump)
 )
