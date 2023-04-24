@@ -118,6 +118,8 @@ function generate_update_changelog() {
 
     file="changelog/updates/$(date '+%Y-%m-%d')-${update_name}-${version}-update.md"
 
+    pushd "${SDK_OUTER_TOPDIR}"
+
     if [[ -d changelog/updates ]]; then
         printf '%s %s ([%s](%s)' '-' "${name}" "${version}" "${url}" > "${file}"
         if [[ $# -gt 0 ]]; then
@@ -131,6 +133,8 @@ function generate_update_changelog() {
         fi
         echo ')' >> "${file}"
     fi
+
+    popd
 }
 
 # Regenerates manifest for given package, and commits changes made for
