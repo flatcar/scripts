@@ -42,6 +42,9 @@
 # Required for addressing CVE-2022-1304
 =sys-fs/e2fsprogs-1.46.6 ~amd64 ~arm64
 
+# To keep the same version on both arches
+=sys-fs/multipath-tools-0.9.4-r1 ~amd64
+
 # Keep iproute in sync with kernel version.
 =sys-apps/iproute2-5.15.0 ~amd64 ~arm64
 
