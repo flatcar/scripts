@@ -3,6 +3,7 @@
 
 EAPI=8
 
+TOOLCHAIN_GCC_RC=1
 TOOLCHAIN_PATCH_DEV="sam"
 PATCH_VER="9"
 PATCH_GCC_VER="13.1.0"
@@ -21,11 +22,16 @@ if [[ $(ver_cut 3) == 9999 ]] ; then
 
 	# e.g. 12.2.9999 -> 12.1.1
 	TOOLCHAIN_GCC_PV=$(ver_cut 1).${MY_PV_2}.${MY_PV_3}
+elif [[ -n ${TOOLCHAIN_GCC_RC} ]] ; then
+	# Cheesy hack for RCs
+	MY_PV=$(ver_cut 1).$((($(ver_cut 2) + 1))).$((($(ver_cut 3) - 1)))-RC-$(ver_cut 5)
+	MY_P=${PN}-${MY_PV}
+	GCC_TARBALL_SRC_URI="mirror://gcc/snapshots/${MY_PV}/${MY_P}.tar.xz"
+	TOOLCHAIN_SET_S=no
+	S="${WORKDIR}"/${MY_P}
 fi
 
 inherit toolchain
-# Needs to be after inherit (for now?), bug #830908
-EGIT_BRANCH=master
 
 # Don't keyword live ebuilds
 if ! tc_is_live && [[ -z ${TOOLCHAIN_USE_GIT_PATCHES} ]] ; then
