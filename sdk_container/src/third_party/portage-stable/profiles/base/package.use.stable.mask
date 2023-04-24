@@ -4,6 +4,10 @@
 # This file requires eapi 5 or later. New entries go on top.
 # Please use the same syntax as in package.use.mask
 
+# Alfredo Tupone <tupone@gentoo.org> (2023-04-02)
+# For doc, dev-python/sphinxcontrib-bibtex is required
+sci-mathematics/why3-for-spark doc
+
 # Daniel Pielmeier <billie@gentoo.org> (2023-03-04)
 # For docs, app-text/pandoc is required. For details see:
 # Bug #737612
@@ -22,6 +26,7 @@ sci-physics/lammps hip
 # Sam James <sam@gentoo.org> (2022-12-07)
 # Needs unstable media-libs/oneVPL
 media-libs/gst-plugins-bad qsv
+media-video/ffmpeg qsv
 
 # Guillermo Joandet <gjoandet@gmail.com> (2022-11-22)
 # app-text/pandoc is not stable
@@ -247,17 +252,17 @@ media-libs/opencv vtk
 # dev-libs/opencryptoki will not be stabile any time soon (bug#510204)
 app-crypt/tpm-tools pkcs11
 
+# Samuli Suominen <ssuominen@gentoo.org> (2014-03-19)
+# Some open source OpenCL providers cause sandbox violation while accessing /dev/dri/card*
+# from a command like eg. `/usr/bin/mogrify -version`, see bug #472766
+<media-gfx/imagemagick-7.0.10.34 opencl
+
 # Ian Delaney <idella4@gentoo.org> (2013-12-09)
 # subsequent to the total inaction of the maintainer of
 # ocaml to honour / respond in any way to
 # Bug #486076, ocaml masked to allow xen to once again
 # become a stabilisable package
 app-emulation/xen-tools ocaml
-
-# Samuli Suominen <ssuominen@gentoo.org> (2014-03-19)
-# Some open source OpenCL providers cause sandbox violation while accessing /dev/dri/card*
-# from a command like eg. `/usr/bin/mogrify -version`, see bug #472766
-<media-gfx/imagemagick-7.0.10.34 opencl
 
 # Andreas K. Huettel <dilfridge@gentoo.org> (2013-03-28)
 # Depends on unstable sci-libs/avogadrolibs
