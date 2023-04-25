@@ -21,6 +21,9 @@
 
 =dev-libs/libgcrypt-1.9.4 ~amd64 ~arm64
 
+# Required for CVE-2023-28484 and CVE-2023-29469
+=dev-libs/libxml2-2.10.4 ~amd64 ~arm64
+
 # Required for addressing CVE-2023-0361.
 =net-libs/gnutls-3.8.0 ~amd64 ~arm64
 
