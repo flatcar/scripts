@@ -10,9 +10,6 @@
 =app-editors/vim-9.0.1403 ~amd64 ~arm64
 =app-editors/vim-core-9.0.1403 ~amd64 ~arm64
 
-# To keep the same version on both arches
-=app-portage/portage-utils-0.95 ~arm64
-
 =coreos-devel/fero-client-0.1.1 **
 
 # Accept unstable host Rust compilers
