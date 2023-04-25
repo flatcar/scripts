@@ -21,10 +21,6 @@
 
 =dev-libs/libgcrypt-1.9.4 ~amd64 ~arm64
 
-# upstream stabilizes arm64 for dev-lang/cython
-# stabilize dev-python/cython for amd64 to keep the version same for both arch
-=dev-python/cython-0.29.33 ~amd64
-
 # Required for addressing CVE-2023-0361.
 =net-libs/gnutls-3.8.0 ~amd64 ~arm64
 
