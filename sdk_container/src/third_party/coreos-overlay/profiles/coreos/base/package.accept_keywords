@@ -35,6 +35,7 @@
 =net-misc/rsync-3.2.7-r2 ~amd64 ~arm64
 
 # To keep the same version on both arches
+=sys-devel/gcc-12.2.1_p20230340 ~arm64
 =sys-libs/binutils-libs-2.39-r5 ~arm64
 
 =sys-fs/cryptsetup-2.4.1-r1 ~amd64 ~arm64
