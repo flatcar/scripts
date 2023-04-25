@@ -24,7 +24,7 @@ sys-libs/gdbm berkdb
 dev-vcs/git -perl -iconv
 
 # symlink: to add a link between ncat and nc
-net-analyzer/nmap ncat -system-lua symlink
+net-analyzer/nmap ncat symlink
 
 # removes mta dependencies
 app-admin/sudo -sendmail
