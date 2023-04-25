@@ -32,7 +32,8 @@
 =net-misc/curl-7.88.1-r1 ~amd64 ~arm64
 
 # Required for addressing CVE-2022-29154
-=net-misc/rsync-3.2.7-r2 ~amd64 ~arm64
+# Also to keep the same version on both arches
+=net-misc/rsync-3.2.7-r2 ~amd64
 
 # To keep the same version on both arches
 =sys-devel/binutils-2.39-r5 ~arm64
