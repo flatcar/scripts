@@ -11,7 +11,7 @@ jobs:
       - name: Check out scripts
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.BOT_PR_TOKEN }}
           path: scripts
       - name: Figure out latest open-vm-tools release version
         id: openvmtools-latest-release
@@ -40,7 +40,7 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         if: steps.apply-patch-main.outputs.UPDATE_NEEDED == 1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.BOT_PR_TOKEN }}
           path: scripts
           branch: vmware-${{ steps.openvmtools-latest-release.outputs.VERSION_NEW }}-main
           base: main

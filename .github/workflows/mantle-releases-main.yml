@@ -48,7 +48,7 @@ jobs:
       - uses: actions/checkout@v3
         if: ${{ steps.figure-out-branch.outputs.SKIP == 0 }}
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.BOT_PR_TOKEN }}
           ref: ${{ steps.figure-out-branch.outputs.BRANCH }}
       - name: Fetch latest mantle hash
         if: ${{ steps.figure-out-branch.outputs.SKIP == 0 }}
@@ -71,7 +71,7 @@ jobs:
         if: ${{ steps.figure-out-branch.outputs.SKIP == 0 }}
         uses: peter-evans/create-pull-request@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.BOT_PR_TOKEN }}
           base: ${{ steps.figure-out-branch.outputs.BRANCH }}
           branch: mantle-update-${{ steps.figure-out-branch.outputs.BRANCH }}
           author: Flatcar Buildbot <buildbot@flatcar-linux.org>
