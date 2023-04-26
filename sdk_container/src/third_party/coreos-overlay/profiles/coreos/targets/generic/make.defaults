@@ -13,6 +13,7 @@ FEATURES="nodoc noinfo noman"
 # Remove bash-completion files as we don't install bash-completion.
 # Remove locale LC_MESSAGES files.
 # Remove sqlite3 binary installation provided by dev-db/sqlite as we only need the libs.
+# Remove lua binaries as we only need the libs.
 INSTALL_MASK="${INSTALL_MASK}
   /usr/sbin/locale-gen
   /usr/share/bash-completion
@@ -21,6 +22,7 @@ INSTALL_MASK="${INSTALL_MASK}
   /usr/share/zsh
   /var/db/Makefile
   /usr/bin/sqlite3
+  /usr/bin/lua*
 "
 
 # Exclude assorted config files that we can do without
