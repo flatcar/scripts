@@ -21,6 +21,9 @@
 # Required for CVE-2023-28484 and CVE-2023-29469
 =dev-libs/libxml2-2.10.4 ~amd64 ~arm64
 
+# To keep the same version on both arches
+=dev-util/bpftool-6.2.1 ~arm64
+
 # Required for addressing CVE-2023-0361.
 =net-libs/gnutls-3.8.0 ~amd64 ~arm64
 
