@@ -21,7 +21,14 @@ def main():
     parser.add_option('--output', help='Write output to the given file')
     parser.add_option('--ignore', action='append', default=[],
                       help='Ignore one or more paths (use multiple times)')
+    parser.add_option('--allow-user', action='append', default=[],
+                      help='Allow entries owned by this user only (use multiple times for multiple users)')
+    parser.add_option('--allow-group', action='append', default=[],
+                      help='Allow entries owned by this group only (use multiple times for multiple groups)')
     opts, args = parser.parse_args()
+
+    allowed_users = set(opts.allow_user)
+    allowed_groups = set(opts.allow_group)
 
     if opts.root:
         opts.root = os.path.abspath(opts.root)
@@ -59,7 +66,7 @@ def main():
             stripped = path
 
         if stripped in opts.ignore:
-          continue
+            continue
 
         info = os.stat(path)
         assert stat.S_ISDIR(info.st_mode)
@@ -67,10 +74,14 @@ def main():
 
         try:
             owner = pwd.getpwuid(info.st_uid).pw_name
+            if allowed_users and owner not in allowed_users:
+                continue
         except KeyError:
             owner = str(info.st_uid)
         try:
             group = grp.getgrgid(info.st_gid).gr_name
+            if allowed_groups and group not in allowed_groups:
+                continue
         except KeyError:
             group = str(info.st_gid)
 
