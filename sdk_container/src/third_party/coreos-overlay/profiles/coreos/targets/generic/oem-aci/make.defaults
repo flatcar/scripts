@@ -11,6 +11,7 @@ INSTALL_MASK="${INSTALL_MASK}
   /usr/lib*/pkgconfig
   /usr/share/aclocal*
   /usr/share/awk
+  /usr/share/eselect
   /usr/share/gdb
   /usr/share/gettext
   /usr/share/gobject-introspection-1.0
