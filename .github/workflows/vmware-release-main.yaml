@@ -35,6 +35,7 @@ jobs:
           VERSION_NEW: ${{ steps.openvmtools-latest-release.outputs.VERSION_NEW }}
           PACKAGES_CONTAINER: ${{ steps.setup-flatcar-sdk.outputs.PACKAGES_CONTAINER }}
           SDK_NAME: ${{ steps.setup-flatcar-sdk.outputs.SDK_NAME }}
+          TARGET_BRANCH: main
         run: scripts/.github/workflows/vmware-apply-patch.sh
       - name: Create pull request for main
         uses: peter-evans/create-pull-request@v5

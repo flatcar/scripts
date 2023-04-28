@@ -32,6 +32,7 @@ jobs:
           VERSION_NEW: ${{ steps.firmware-latest-release.outputs.VERSION_NEW }}
           PACKAGES_CONTAINER: ${{ steps.setup-flatcar-sdk.outputs.PACKAGES_CONTAINER }}
           SDK_NAME: ${{ steps.setup-flatcar-sdk.outputs.SDK_NAME }}
+          TARGET_BRANCH: main
         run: scripts/.github/workflows/firmware-apply-patch.sh
       - name: Create pull request for main
         uses: peter-evans/create-pull-request@v5

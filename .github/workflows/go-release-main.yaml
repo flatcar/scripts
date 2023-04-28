@@ -33,6 +33,7 @@ jobs:
           VERSIONS_NEW: ${{ steps.go-latest-release.outputs.VERSIONS_NEW }}
           PACKAGES_CONTAINER: ${{ steps.setup-flatcar-sdk.outputs.PACKAGES_CONTAINER }}
           SDK_NAME: ${{ steps.setup-flatcar-sdk.outputs.SDK_NAME }}
+          TARGET_BRANCH: main
         run: scripts/.github/workflows/go-apply-patch.sh
       - name: Create pull request for main
         uses: peter-evans/create-pull-request@v5
