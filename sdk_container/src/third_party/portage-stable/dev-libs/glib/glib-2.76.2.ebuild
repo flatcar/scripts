@@ -67,11 +67,6 @@ MULTILIB_CHOST_TOOLS=(
 	/usr/bin/gio-querymodules$(get_exeext)
 )
 
-PATCHES=(
-	"${FILESDIR}"/${PN}-2.64.1-mark-gdbus-server-auth-test-flaky.patch
-	"${FILESDIR}"/${PN}-2.76.0-g_strdup-c++.patch
-)
-
 pkg_setup() {
 	if use kernel_linux ; then
 		CONFIG_CHECK="~INOTIFY_USER"
