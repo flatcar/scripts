@@ -25,7 +25,7 @@ S="${S_K}/tools/bpf/bpftool"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 ~arm ~arm64 ~riscv ~x86"
+KEYWORDS="~amd64 ~arm ~arm64 ~riscv ~x86"
 IUSE="caps"
 
 RDEPEND="
@@ -85,11 +85,6 @@ src_prepare() {
 		eapply "${WORKDIR}"/${P}.patch
 		popd || die
 	fi
-
-	pushd "${S_K}" >/dev/null || die
-	# bug #890638
-	eapply "${FILESDIR}"/5.19.12-no-stack-protector.patch
-	popd || die
 
 	# dev-python/docutils installs rst2man.py, not rst2man
 	sed -i -e 's/rst2man/rst2man.py/g' Documentation/Makefile || die
