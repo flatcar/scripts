@@ -1,9 +1,17 @@
 # Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Sam James <sam@gentoo.org> (2023-04-14)
+# Needs dev-python/sympy which is not keyworded
+dev-python/nbval test
+
+# Sam James <sam@gentoo.org> (2023-04-07)
+# dev-db/mysql not stable here
+dev-ruby/mysql2 mysql
+
 # Sam James <sam@gentoo.org> (2023-01-05)
 # dev-python/pythran fails tests on ppc32 right now, bug #880263
-dev-python/scipy fortran pythran
+dev-python/scipy fortran
 
 # Sam James <sam@gentoo.org> (2022-12-26)
 # Unkeyworded dependencies
@@ -75,8 +83,6 @@ sci-mathematics/singular polymake
 # keep masks here (for now?).
 # Needs unkeyworded gnome-extra/sushi
 gnome-base/nautilus previewer
-# needs mail-client/evolution, depends on net-libs/webkit-gtk
-app-office/planner eds
 # needs gnome-extra/sushi, depends on net-libs/webkit-gtk
 gnome-base/nautilus previewer
 # needs libgdata[gnome-online-accounts], depends on net-libs/webkit-gtk
@@ -203,10 +209,6 @@ sci-libs/gdal armadillo
 # Arfrever Frehtes Taifersar Arahesis <arfrever.fta@gmail.com> (2016-08-01)
 # kde-frameworks/*:5 not keyworded.
 net-irc/kvirc kde
-
-# Alexandre Rostovtsev <tetromino@gentoo.org> (2016-06-28)
-# Missing keywords on app-text/gspell - bug #587368
->=app-editors/gedit-3.20 spell
 
 # James Le Cuirot <chewi@gentoo.org> (2015-01-12)
 # Java is no longer supported on ppc.

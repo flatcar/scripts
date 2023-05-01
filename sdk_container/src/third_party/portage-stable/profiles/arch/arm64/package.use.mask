@@ -1,6 +1,11 @@
 # Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Sam James <sam@gentoo.org> (2023-04-17)
+# Ruby has several JITs available but they need porting to individual arches.
+# Unmask on specific arches where it's available.
+dev-lang/ruby -jit
+
 # Sam James <sam@gentoo.org> (2023-01-27)
 # media-libs/shaderc not keyworded here
 games-action/supertuxkart vulkan
@@ -368,10 +373,6 @@ app-emulation/libvirt xen
 # Michał Górny <mgorny@gentoo.org> (2018-01-12)
 # Requires USE=sdl that is masked in this profile.
 media-video/mjpegtools sdlgfx
-
-# Ian Whyman <thev00d00@gentoo.org> (2017-09-05)
-# missing keywords media-libs/lastfmlib
-net-misc/gerbera lastfm
 
 # Roy Bamford <neddysegoon@gentoo.org> (2017-08-24)
 # Support for g15daemon still needs -9999 packages on all arches
