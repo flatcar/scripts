@@ -4,7 +4,7 @@
 EAPI=8
 
 VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/diffutils.asc
-inherit flag-o-matic verify-sig
+inherit verify-sig
 
 DESCRIPTION="Tools to make diffs and compare files"
 HOMEPAGE="https://www.gnu.org/software/diffutils/"
@@ -20,12 +20,12 @@ if [[ ${PV} == *_p* ]] ; then
 else
 	SRC_URI="mirror://gnu/${PN}/${P}.tar.xz"
 	SRC_URI+=" verify-sig? ( mirror://gnu/${PN}/${P}.tar.xz.sig )"
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 fi
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="nls static"
+IUSE="nls"
 
 BDEPEND="
 	nls? ( sys-devel/gettext )
@@ -45,8 +45,6 @@ src_prepare() {
 }
 
 src_configure() {
-	use static && append-ldflags -static
-
 	# Disable automagic dependency over libsigsegv; see bug #312351.
 	export ac_cv_libsigsegv=no
 
