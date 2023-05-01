@@ -4,10 +4,10 @@
 EAPI=8
 
 TOOLCHAIN_PATCH_DEV="sam"
-PATCH_VER="13"
-PATCH_GCC_VER="12.2.0"
-MUSL_VER="7"
-MUSL_GCC_VER="12.2.0"
+PATCH_VER="2"
+PATCH_GCC_VER="12.3.0"
+MUSL_VER="1"
+MUSL_GCC_VER="12.3.0"
 
 if [[ $(ver_cut 3) == 9999 ]] ; then
 	MY_PV_2=$(ver_cut 2)
@@ -35,7 +35,7 @@ EGIT_BRANCH=releases/gcc-$(ver_cut 1)
 
 # Don't keyword live ebuilds
 if ! tc_is_live && [[ -z ${TOOLCHAIN_USE_GIT_PATCHES} ]] ; then
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ~ppc ppc64 ~riscv ~s390 sparc x86"
 fi
 
 if [[ ${CATEGORY} != cross-* ]] ; then
@@ -46,6 +46,7 @@ if [[ ${CATEGORY} != cross-* ]] ; then
 	DEPEND="${RDEPEND}"
 	BDEPEND=">=${CATEGORY}/binutils-2.30[cet(-)?]"
 fi
+
 src_prepare() {
 	toolchain_src_prepare
 
