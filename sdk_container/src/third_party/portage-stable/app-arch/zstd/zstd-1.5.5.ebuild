@@ -7,9 +7,7 @@ inherit meson-multilib usr-ldscript
 
 DESCRIPTION="zstd fast compression library"
 HOMEPAGE="https://facebook.github.io/zstd/"
-# Drop .gh on next bump (>1.5.4), it's only here as we switched to release
-# tarball.
-SRC_URI="https://github.com/facebook/zstd/releases/download/v${PV}/${P}.tar.gz -> ${P}.gh.tar.gz"
+SRC_URI="https://github.com/facebook/zstd/releases/download/v${PV}/${P}.tar.gz"
 S="${WORKDIR}"/${P}/build/meson
 
 LICENSE="|| ( BSD GPL-2 )"
@@ -28,14 +26,9 @@ DEPEND="${RDEPEND}"
 MESON_PATCHES=(
 	# Workaround until Valgrind bugfix lands
 	"${FILESDIR}"/${PN}-1.5.4-no-find-valgrind.patch
-	# Allow building tests w/o programs (useful for multilib)
-	"${FILESDIR}"/${PN}-1.5.4-tests-no-programs.patch
 )
 
 PATCHES=(
-	# Fix build w/o zlib, bug #894058
-	"${FILESDIR}"/${P}-fix-no-zlib-build.patch
-	"${FILESDIR}"/${P}-crash-no-directory.patch
 )
 
 src_prepare() {
