@@ -1,8 +1,8 @@
 # Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# please keep this ebuild at EAPI 7 -- sys-apps/portage dep
-EAPI=7
+# please keep this ebuild at EAPI 8 -- sys-apps/portage dep
+EAPI=8
 
 # please bump dev-python/ensurepip-setuptools along with this package!
 
@@ -34,7 +34,7 @@ RDEPEND="
 	>=dev-python/platformdirs-2.6.2-r1[${PYTHON_USEDEP}]
 	>=dev-python/tomli-2.0.1[${PYTHON_USEDEP}]
 	$(python_gen_cond_dep '
-		>=dev-python/importlib_metadata-4.11.1[${PYTHON_USEDEP}]
+		>=dev-python/importlib-metadata-4.11.1[${PYTHON_USEDEP}]
 	' 3.9)
 "
 BDEPEND="
@@ -115,6 +115,8 @@ python_test() {
 		setuptools/tests/test_editable_install.py::test_editable_with_pyproject
 		# fails if python-xlib is installed
 		setuptools/tests/test_easy_install.py::TestSetupRequires::test_setup_requires_with_allow_hosts
+		# fails with importlib-metadata-6.6.0
+		setuptools/tests/test_egg_info.py::TestWriteEntries::test_invalid_entry_point
 	)
 
 	if has_version "<dev-python/packaging-22"; then
