@@ -21,8 +21,8 @@ inherit autotools
 MY_PV=${PV/_beta/-beta}
 MY_P=${PN}-${MY_PV}
 DESCRIPTION="Excellent text file viewer"
-HOMEPAGE="http://www.greenwoodsoftware.com/less/"
-[[ ${PV} != 9999 ]] && SRC_URI="http://www.greenwoodsoftware.com/less/${MY_P}.tar.gz"
+HOMEPAGE="https://www.greenwoodsoftware.com/less/"
+[[ ${PV} != 9999 ]] && SRC_URI="https://www.greenwoodsoftware.com/less/${MY_P}.tar.gz"
 S="${WORKDIR}"/${MY_P/?beta}
 
 LICENSE="|| ( GPL-3 BSD-2 )"
