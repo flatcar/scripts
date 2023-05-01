@@ -16,7 +16,7 @@ S="${WORKDIR}/${PN}_${MY_PV}"
 
 LICENSE="Boost-1.0"
 SLOT="0/${PV}" # ${PV} instead of the major version due to bug 486122
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt"
 IUSE="bzip2 context debug doc icu lzma +nls mpi numpy python tools zlib zstd"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 # the tests will never fail because these are not intended as sanity
@@ -27,7 +27,6 @@ REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 RESTRICT="test"
 
 RDEPEND="
-	!<dev-libs/leatherman-1.12.0-r1
 	bzip2? ( app-arch/bzip2:=[${MULTILIB_USEDEP}] )
 	icu? ( >=dev-libs/icu-3.6:=[${MULTILIB_USEDEP}] )
 	!icu? ( virtual/libiconv[${MULTILIB_USEDEP}] )
@@ -43,17 +42,15 @@ DEPEND="${RDEPEND}"
 BDEPEND=">=dev-util/b2-4.9.2"
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-1.80.0-disable_icu_rpath.patch
+	"${FILESDIR}"/${PN}-1.81.0-disable_icu_rpath.patch
 	"${FILESDIR}"/${PN}-1.79.0-context-x32.patch
 	"${FILESDIR}"/${PN}-1.79.0-build-auto_index-tool.patch
 	# Boost.MPI's __init__.py doesn't work on Py3
 	"${FILESDIR}"/${PN}-1.79.0-boost-mpi-python-PEP-328.patch
 	"${FILESDIR}"/${PN}-1.80.0-fix-mips1-transition.patch
+	"${FILESDIR}"/${PN}-1.81.0-phoenix-multiple-definitions.patch
+
 	# (upstreamed)
-	"${FILESDIR}"/${PN}-1.80.0-unordered-fix.patch
-	"${FILESDIR}"/${PN}-1.80.0-unary-function.patch
-	"${FILESDIR}"/${PN}-1.80.0-python3.11.patch
-	"${FILESDIR}"/${PN}-1.80.0-unordered-ftm-malloc.patch
 )
 
 python_bindings_needed() {
@@ -87,7 +84,7 @@ create_user-config.jam() {
 	fi
 
 	cat > "${user_config_jam}" <<- __EOF__ || die
-		using ${compiler} : ${compiler_version} : ${compiler_executable} : <cflags>"${CFLAGS}" <cxxflags>"${CXXFLAGS}" <linkflags>"${LDFLAGS}" <archiver>"$(tc-getAR)" <ranlib>"$(tc-getRANLIB)" ;
+		using ${compiler} : ${compiler_version} : ${compiler_executable} : <cflags>"${CPPFLAGS} ${CFLAGS}" <cxxflags>"${CPPFLAGS} ${CXXFLAGS}" <linkflags>"${LDFLAGS}" <archiver>"$(tc-getAR)" <ranlib>"$(tc-getRANLIB)" ;
 		${mpi_configuration}
 	__EOF__
 
@@ -196,6 +193,9 @@ src_configure() {
 
 	# Use C++17 globally as of 1.80
 	append-cxxflags -std=c++17
+
+	# need to enable LFS explicitly for 64-bit offsets on 32-bit hosts (#894564)
+	append-lfs-flags
 }
 
 multilib_src_compile() {
