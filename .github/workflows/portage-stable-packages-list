@@ -105,6 +105,7 @@ app-misc/editor-wrapper
 app-portage/elt-patches
 app-portage/portage-utils
 
+app-shells/bash
 app-shells/bash-completion
 
 app-text/asciidoc
@@ -305,6 +306,7 @@ net-dns/dnsmasq
 net-fs/cifs-utils
 
 net-libs/gnutls
+net-libs/libnsl
 net-libs/libpcap
 net-libs/libslirp
 net-libs/nghttp2
@@ -357,6 +359,7 @@ sys-devel/crossdev
 sys-devel/flex
 sys-devel/gcc
 sys-devel/gcc-config
+sys-devel/gdb
 sys-devel/gettext
 sys-devel/gnuconfig
 sys-devel/libtool
@@ -378,6 +381,7 @@ sys-libs/binutils-libs
 sys-libs/libcap
 sys-libs/libcap-ng
 sys-libs/libseccomp
+sys-libs/readline
 sys-libs/zlib
 
 virtual/libcrypt
