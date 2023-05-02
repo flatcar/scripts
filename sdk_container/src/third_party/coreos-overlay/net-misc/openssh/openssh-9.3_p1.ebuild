@@ -19,16 +19,16 @@ HPN_PATCHES=(
 	${PN}-${HPN_PV/./_}-hpn-AES-CTR-${HPN_VER}.diff
 	${PN}-${HPN_PV/./_}-hpn-PeakTput-${HPN_VER}.diff
 )
-HPN_GLUE_PATCH="${PN}-9.2_p1-hpn-${HPN_VER}-glue.patch"
+HPN_GLUE_PATCH="${PN}-9.3_p1-hpn-${HPN_VER}-glue.patch"
 HPN_PATCH_DIR="HPN-SSH%%20${HPN_VER/./v}%%20${HPN_PV/_P/p}"
 
 SCTP_VER="1.2"
 SCTP_PATCH="${PARCH}-sctp-${SCTP_VER}.patch.xz"
 
-X509_VER="14.1"
+X509_VER="14.1.1"
 X509_PATCH="${PARCH}+x509-${X509_VER}.diff.gz"
 X509_GLUE_PATCH="${P}-X509-glue-${X509_VER}.patch"
-X509_HPN_GLUE_PATCH="${PN}-9.2_p1-hpn-${HPN_VER}-X509-${X509_VER}-glue.patch"
+X509_HPN_GLUE_PATCH="${PN}-9.3_p1-hpn-${HPN_VER}-X509-${X509_VER}-glue.patch"
 
 DESCRIPTION="Port of OpenBSD's free SSH release"
 HOMEPAGE="https://www.openssh.com/"
@@ -38,7 +38,7 @@ SRC_URI="mirror://openbsd/OpenSSH/portable/${PARCH}.tar.gz
 		$(printf "mirror://sourceforge/project/hpnssh/Patches/${HPN_PATCH_DIR}/%s\n" "${HPN_PATCHES[@]}")
 		https://dev.gentoo.org/~chutzpah/dist/openssh/${HPN_GLUE_PATCH}.xz
 	)}
-	${X509_PATCH:+X509? (
+	${X509_VER:+X509? (
 		https://roumenpetrov.info/openssh/x509-${X509_VER}/${X509_PATCH}
 		https://dev.gentoo.org/~chutzpah/dist/openssh/${X509_GLUE_PATCH}.xz
 		${HPN_VER:+hpn? ( https://dev.gentoo.org/~chutzpah/dist/openssh/${X509_HPN_GLUE_PATCH}.xz )}
@@ -50,7 +50,7 @@ S="${WORKDIR}/${PARCH}"
 
 LICENSE="BSD GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 # Probably want to drop ssl defaulting to on in a future version.
 IUSE="abi_mips_n32 audit debug hpn kerberos ldns libedit livecd pam +pie sctp security-key selinux +ssl static test X X509 xmss"
 
@@ -121,9 +121,10 @@ PATCHES=(
 	"${FILESDIR}/${PN}-6.7_p1-openssl-ignore-status.patch"
 	"${FILESDIR}/${PN}-7.5_p1-disable-conch-interop-tests.patch"
 	"${FILESDIR}/${PN}-8.0_p1-fix-putty-tests.patch"
-	"${FILESDIR}/${PN}-8.0_p1-deny-shmget-shmat-shmdt-in-preauth-privsep-child.patch"
+	"${FILESDIR}/${PN}-9.3_p1-deny-shmget-shmat-shmdt-in-preauth-privsep-child.patch"
 	"${FILESDIR}/${PN}-8.9_p1-allow-ppoll_time64.patch" #834019
 	"${FILESDIR}/${PN}-8.9_p1-gss-use-HOST_NAME_MAX.patch" #834044
+	"${FILESDIR}/${PN}-9.3_p1-openssl-version-compat-check.patch"
 )
 
 pkg_pretend() {
@@ -419,6 +420,8 @@ src_install() {
 	emake install-nokeys DESTDIR="${D}"
 	fperms 600 /etc/ssh/sshd_config
 	dobin contrib/ssh-copy-id
+	newinitd "${FILESDIR}"/sshd-r1.initd sshd
+	newconfd "${FILESDIR}"/sshd-r1.confd sshd
 
 	if use pam; then
 		newpamd "${FILESDIR}"/sshd.pam_include.2 sshd
