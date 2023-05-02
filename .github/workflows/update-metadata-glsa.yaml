@@ -11,7 +11,7 @@ jobs:
       - name: Check out scripts
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.BOT_PR_TOKEN }}
       - name: Update GLSA metadata
         id: update-glsa-metadata
         run: |
@@ -24,7 +24,7 @@ jobs:
       - name: Create pull request for main branch
         uses: peter-evans/create-pull-request@v5
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.BOT_PR_TOKEN }}
           branch: buildbot/monthly-glsa-metadata-updates-${{steps.update-glsa-metadata.outputs.TODAYDATE }}
           delete-branch: true
           base: main

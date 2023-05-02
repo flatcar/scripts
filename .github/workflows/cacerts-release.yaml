@@ -15,7 +15,7 @@ jobs:
       - name: Check out main scripts branch for GitHub workflow scripts only
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.BOT_PR_TOKEN }}
           path: gha
           ref: main
       - name: Figure out branch
@@ -25,7 +25,7 @@ jobs:
         if: steps.figure-out-branch.outputs.SKIP == 0
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.BOT_PR_TOKEN }}
           path: work
           ref: ${{ steps.figure-out-branch.outputs.BRANCH }}
       - name: Figure out latest ca-certificates release version
@@ -58,7 +58,7 @@ jobs:
         if: (steps.figure-out-branch.outputs.SKIP == 0) && (steps.apply-patch.outputs.UPDATE_NEEDED == 1)
         uses: peter-evans/create-pull-request@v5
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.BOT_PR_TOKEN }}
           path: work
           branch: "cacerts-${{ steps.nss-latest-release.outputs.NSS_VERSION }}-${{ steps.figure-out-branch.outputs.BRANCH }}"
           base: ${{ steps.figure-out-branch.outputs.BRANCH }}
