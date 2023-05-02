@@ -113,6 +113,7 @@ RDEPEND="${RDEPEND}
 	coreos-base/afterburn
 	coreos-base/coreos-cloudinit
 	coreos-base/coreos-init
+	coreos-base/misc-files
 	coreos-base/update-ssh-keys
 	coreos-base/update_engine
 	dev-db/etcdctl
