@@ -2,7 +2,7 @@ name: "Run build"
 on:
   pull_request:
     # Run when the PR is opened, reopened, or updated (synchronize)
-    types: [opened, reopened, synchronize]
+    types: [opened, ready_for_review, reopened, synchronize]
   workflow_dispatch:
     inputs:
       image_formats:
