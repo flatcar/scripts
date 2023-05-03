@@ -1,0 +1,1 @@
+- bash ([CVE-2022-3715](https://nvd.nist.gov/vuln/detail/CVE-2022-3715))

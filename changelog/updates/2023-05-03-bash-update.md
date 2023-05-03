@@ -1,0 +1,3 @@
+- bash ([5.2](https://lists.gnu.org/archive/html/bash-announce/2022-09/msg00000.html))
+- readline ([8.2](https://lists.gnu.org/archive/html/info-gnu/2022-09/msg00013.html))
+- gdb ([13.1.90](https://lwn.net/Articles/923819/))
