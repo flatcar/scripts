@@ -744,11 +744,34 @@ finish_image() {
   done
   # Record directories installed to the state partition.
   # Explicitly ignore entries covered by existing configs.
-  local tmp_ignore=$(awk '/^[dDfFL]/ {print "--ignore=" $2}' \
-      "${root_fs_dir}"/usr/lib/tmpfiles.d/*.conf)
+  local ignores=() allowed_users=() allowed_groups=()
+  mapfile -t ignores < <(awk '/^[dDfFL]/ {print "--ignore=" $2}' \
+                             "${root_fs_dir}"/usr/lib/tmpfiles.d/*.conf)
+  # Also ignore directories owned by users/groups not in /etc/passwd
+  # or /etc/group. This is for setting up needed directories in very
+  # early boot phase (initrd-setup-root). Our source of truth for
+  # allowed users and groups are users and groups copied by the
+  # flatcar-tmpfiles script.
+
+  # The grep, sed and tr below basically turn a line like:
+  # COPY_USERS="root|core"
+  # into:
+  # --allow-user=root
+  # --allow-user=core
+  mapfile -t allowed_users < <(grep '^COPY_USERS=' "${root_fs_dir}/sbin/flatcar-tmpfiles" | sed -e 's/.*="\([^"]*\)"/\1/' | tr '|' '\n' | sed -e 's/^/--allow-user=/')
+  mapfile -t allowed_users < <(grep '^COPY_GROUPS=' "${root_fs_dir}/sbin/flatcar-tmpfiles" | sed -e 's/.*="\([^"]*\)"/\1/' | tr '|' '\n' | sed -e 's/^/--allow-group=/')
   sudo "${BUILD_LIBRARY_DIR}/gen_tmpfiles.py" --root="${root_fs_dir}" \
       --output="${root_fs_dir}/usr/lib/tmpfiles.d/base_image_var.conf" \
-      ${tmp_ignore} "${root_fs_dir}/var"
+      "${ignores[@]}" "${allowed_users[@]}" "${allowed_groups[@]}" "${root_fs_dir}/var"
+
+  # Now record the rest of the directories installed to the state
+  # partition. We go through tmpfiles again to also ignore the entries
+  # from the just generated base_image_var.conf.
+  mapfile -t ignores < <(awk '/^[dDfFL]/ {print "--ignore=" $2}' \
+                             "${root_fs_dir}"/usr/lib/tmpfiles.d/*.conf)
+  sudo "${BUILD_LIBRARY_DIR}/gen_tmpfiles.py" --root="${root_fs_dir}" \
+      --output="${root_fs_dir}/usr/lib/tmpfiles.d/base_image_var_late.conf" \
+      "${ignores[@]}" "${root_fs_dir}/var"
 
   # Only configure bootloaders if there is a boot partition
   if mountpoint -q "${root_fs_dir}"/boot; then
