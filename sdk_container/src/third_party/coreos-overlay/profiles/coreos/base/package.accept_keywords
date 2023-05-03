@@ -7,11 +7,8 @@
 
 # Necessary to fix CVE-2023-0288, CVE-2023-0433, CVE-2023-1127,
 # CVE-2023-1175 and CVE-2023-1170.
-=app-editors/vim-9.0.1403 ~amd64 ~arm64
-=app-editors/vim-core-9.0.1403 ~amd64 ~arm64
-
-# To keep the same version on both arches
-=app-portage/portage-utils-0.95 ~arm64
+=app-editors/vim-9.0.1403 ~arm64
+=app-editors/vim-core-9.0.1403 ~arm64
 
 =coreos-devel/fero-client-0.1.1 **
 
@@ -21,23 +18,31 @@
 
 =dev-libs/libgcrypt-1.9.4 ~amd64 ~arm64
 
-# upstream stabilizes arm64 for dev-lang/cython
-# stabilize dev-python/cython for amd64 to keep the version same for both arch
-=dev-python/cython-0.29.33 ~amd64
+# Required for CVE-2023-28484 and CVE-2023-29469
+=dev-libs/libxml2-2.10.4 ~amd64 ~arm64
+
+# To keep the same version on both arches
+=dev-util/bpftool-6.2.1 ~arm64
 
 # Required for addressing CVE-2023-0361.
 =net-libs/gnutls-3.8.0 ~amd64 ~arm64
 
-# Required for addressing CVE-2023-23914, CVE-2023-23915 and CVE-2023-23916.
-=net-misc/curl-7.88.1-r1 ~amd64 ~arm64
+# Required for addressing CVE-2023-27533, CVE-2023-27534, CVE-2023-27535, CVE-2023-27536, CVE-2023-27537 and CVE-2023-27538
+=net-misc/curl-8.0.1 ~amd64 ~arm64
 
 # Required for addressing CVE-2022-29154
-=net-misc/rsync-3.2.7-r2 ~amd64 ~arm64
+# Also to keep the same version on both arches
+=net-misc/rsync-3.2.7-r2 ~amd64
+
+# To keep the same version on both arches
+=sys-devel/binutils-2.39-r5 ~arm64
+=sys-devel/gcc-12.2.1_p20230340 ~arm64
+=sys-libs/binutils-libs-2.39-r5 ~arm64
 
 =sys-fs/cryptsetup-2.4.1-r1 ~amd64 ~arm64
 
-# Required for addressing CVE-2022-1304
-=sys-fs/e2fsprogs-1.46.6 ~amd64 ~arm64
+# To keep the same version on both arches
+=sys-fs/multipath-tools-0.9.4-r1 ~amd64
 
 # Keep iproute in sync with kernel version.
 =sys-apps/iproute2-5.15.0 ~amd64 ~arm64

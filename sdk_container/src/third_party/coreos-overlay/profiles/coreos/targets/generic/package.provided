@@ -15,3 +15,6 @@ app-eselect/eselect-iptables-20200508
 
 # pulled in by app-admin/sudo
 app-misc/editor-wrapper-4
+
+# pulled in by dev-lang/lua
+app-eselect/eselect-lua-4

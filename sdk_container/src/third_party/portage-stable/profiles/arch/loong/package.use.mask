@@ -1,12 +1,17 @@
 # Copyright 2022-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# Hans de Graaff <graaff@gentoo.org) (2023-02-27)
-# Depends on virtual/rust
-dev-lang/ruby jit
+# WANG Xuerui <xen0n@gentoo.org> (2023-04-16)
+# dev-python/pyopengl fails tests
+dev-python/sympy opengl
+
+# WANG Xuerui <xen0n@gentoo.org> (2023-04-16)
+# dev-python/aesara doesn't work on loong yet (due to hardcoding -m64 in its
+# cc invocations)
+dev-python/sympy aesara
 
 # WANG Xuerui <xen0n@gentoo.org> (2022-12-06)
-# dev-cpp/glog fails tests, needs checknig
+# dev-cpp/glog fails tests, needs checking
 media-libs/opencv glog contribsfm
 
 # WANG Xuerui <xen0n@gentoo.org> (2022-12-06)
@@ -62,12 +67,6 @@ dev-cpp/eigen test
 # WANG Xuerui <xen0n@gentoo.org> (2022-12-05)
 # app-misc/tracker fails tests on loong.
 app-cdr/brasero tracker
-
-# WANG Xuerui <xen0n@gentoo.org> (2022-12-05)
-# dev-libs/libcdio fails to build on loong for now.
-gnome-base/gvfs cdda
-media-video/ffmpeg cdio
-media-video/mpv cdda
 
 # WANG Xuerui <xen0n@gentoo.org> (2022-12-05)
 # Respective dependency fails to build, pending investigation, mask for the

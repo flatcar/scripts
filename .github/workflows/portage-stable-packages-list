@@ -94,6 +94,7 @@ app-emulation/qemu
 app-emulation/qemu-guest-agent
 
 app-eselect/eselect-iptables
+app-eselect/eselect-lua
 
 app-portage/portage-utils
 
@@ -109,6 +110,7 @@ app-text/sgml-common
 dev-db/sqlite
 
 dev-lang/duktape
+dev-lang/lua
 dev-lang/perl
 dev-lang/python
 dev-lang/python-exec
@@ -377,7 +379,6 @@ virtual/perl-File-Spec
 virtual/perl-File-Temp
 virtual/perl-Getopt-Long
 virtual/perl-IO
-virtual/perl-version
 virtual/pkgconfig
 
 x11-libs/pixman

@@ -1,9 +1,18 @@
 # Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Conrad Kostecki <conikost@gentoo.org> (2023-04-23)
+# Needs dev-perl/Math-Int64 which is not keyworded
+dev-perl/IP-Country-DB_File test
+
+# Sam James <sam@gentoo.org> (2023-04-14)
+# Needs dev-python/sympy which is not keyworded
+dev-python/nbval test
+
 # Michał Górny <mgorny@gentoo.org> (2023-03-14)
 # Requires virtual/pandoc.
 dev-python/nbclassic doc
+dev-python/nbval doc
 
 # Florian Schmaus <flow@gentoo.org> (2022-11-23)
 # avoid larger deptree, bug #882593
@@ -20,6 +29,7 @@ dev-ruby/stringex test
 # heif: media-libs/libheif not keyworded here
 # jpegxl: libjxl not keyworded here
 media-libs/imlib2 eps heif jpegxl
+media-gfx/imagemagick jpegxl
 
 # Sam James <sam@gentoo.org> (2022-04-26)
 # Avoid unkeyworded dependencies
