@@ -64,6 +64,15 @@ function prepare_git_repo() {
   git -C "${SDK_OUTER_TOPDIR}" config user.email "${BUILDBOT_USEREMAIL}"
 }
 
+function check_remote_branch() {
+  local target_branch="${1}"
+
+  if git -C "${SDK_OUTER_TOPDIR}" show-ref "remotes/origin/${target_branch}"; then
+    return 1
+  fi
+  return 0
+}
+
 # Regenerates a manifest file using an ebuild of a given package with
 # a given version.
 #
@@ -164,12 +173,17 @@ function commit_changes() {
 
   regenerate_manifest "${pkg}" "${new_version}"
 
-  pushd "${SDK_OUTER_OVERLAY}"
+  pushd "${SDK_OUTER_TOPDIR}"
 
-  git add "${pkg}"
   if [[ -d changelog ]]; then
     git add changelog
   fi
+
+  popd
+
+  pushd "${SDK_OUTER_OVERLAY}"
+
+  git add "${pkg}"
   for dir; do
     git add "${dir}"
   done
@@ -184,7 +198,7 @@ function commit_changes() {
 # avoid unwanted changes to be a part of a PR created by the
 # peter-evans/create-pull-request action that follows up.
 function cleanup_repo() {
-    git -C "${SDK_OUTER_OVERLAY}" status
-    git -C "${SDK_OUTER_OVERLAY}" reset --hard HEAD
-    git -C "${SDK_OUTER_OVERLAY}" clean -ffdx
+    git -C "${SDK_OUTER_TOPDIR}" status
+    git -C "${SDK_OUTER_TOPDIR}" reset --hard HEAD
+    git -C "${SDK_OUTER_TOPDIR}" clean -ffdx
 }

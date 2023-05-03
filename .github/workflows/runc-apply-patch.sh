@@ -6,6 +6,11 @@ source "${GHA_SCRIPTS_DIR}/.github/workflows/common.sh"
 
 prepare_git_repo
 
+if ! check_remote_branch "runc-${VERSION_NEW}-${TARGET_BRANCH}"; then
+    echo "remote branch already exists, nothing to do"
+    exit 0
+fi
+
 pushd "${SDK_OUTER_OVERLAY}"
 
 # Get the newest runc version, including official releases and rc
@@ -16,8 +21,8 @@ pushd "${SDK_OUTER_OVERLAY}"
 # "0.0.2.1" as newer than "0.0.2".
 VERSION_OLD=$(sed -n "s/^DIST docker-runc-\([0-9]*\.[0-9]*.*\)\.tar.*/\1_/p" app-emulation/docker-runc/Manifest | tr '.' '_' | sort -ruV | sed -e 's/_$//' | tr '_' '.' | head -n1)
 if [[ "${VERSION_NEW}" = "${VERSION_OLD}" ]]; then
-  echo "already the latest Runc, nothing to do"
-  exit 0
+    echo "already the latest Runc, nothing to do"
+    exit 0
 fi
 
 runcEbuildOld=$(get_ebuild_filename app-emulation/docker-runc "${VERSION_OLD}")

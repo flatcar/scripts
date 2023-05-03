@@ -6,12 +6,17 @@ source "${GHA_SCRIPTS_DIR}/.github/workflows/common.sh"
 
 prepare_git_repo
 
+if ! check_remote_branch "docker-${VERSION_NEW}-${TARGET_BRANCH}"; then
+    echo "remote branch already exists, nothing to do"
+    exit 0
+fi
+
 pushd "${SDK_OUTER_OVERLAY}"
 
 VERSION_OLD=$(sed -n "s/^DIST docker-\([0-9]*.[0-9]*.[0-9]*\).*/\1/p" app-emulation/docker/Manifest | sort -ruV | head -n1)
 if [[ "${VERSION_NEW}" = "${VERSION_OLD}" ]]; then
-  echo "already the latest Docker, nothing to do"
-  exit 0
+    echo "already the latest Docker, nothing to do"
+    exit 0
 fi
 
 # we need to update not only the main ebuild file, but also its DOCKER_GITCOMMIT,

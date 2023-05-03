@@ -18,6 +18,11 @@ done
 
 branch_name="go-$(join_by '-and-' ${VERSIONS_NEW})-main"
 
+if ! check_remote_branch "${branch_name}"; then
+  echo "remote branch already exists, nothing to do"
+  exit 0
+fi
+
 # Parse the Manifest file for already present source files and keep the latest version in the current series
 # DIST go1.17.src.tar.gz ... => 1.17
 # DIST go1.17.1.src.tar.gz ... => 1.17.1
@@ -56,8 +61,8 @@ done
 cleanup_repo
 
 if [[ $any_different -eq 0 ]]; then
-  echo "go packages were already at the latest versions, nothing to do"
-  exit 0
+    echo "go packages were already at the latest versions, nothing to do"
+    exit 0
 fi
 
 vo_gh="$(join_by ' and ' "${UPDATED_VERSIONS_OLD[@]}")"

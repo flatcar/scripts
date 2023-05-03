@@ -53,6 +53,7 @@ jobs:
           VERSION_NEW: ${{ steps.nss-latest-release.outputs.NSS_VERSION }}
           PACKAGES_CONTAINER: ${{ steps.setup-flatcar-sdk.outputs.PACKAGES_CONTAINER }}
           SDK_NAME: ${{ steps.setup-flatcar-sdk.outputs.SDK_NAME }}
+          TARGET_BRANCH: ${{ steps.figure-out-branch.outputs.BRANCH }}
         run: gha/.github/workflows/cacerts-apply-patch.sh
       - name: Create pull request
         if: (steps.figure-out-branch.outputs.SKIP == 0) && (steps.apply-patch.outputs.UPDATE_NEEDED == 1)

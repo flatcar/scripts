@@ -38,6 +38,7 @@ jobs:
           COMMIT_HASH_CLI: ${{ steps.docker-latest-release.outputs.COMMIT_HASH_CLI }}
           PACKAGES_CONTAINER: ${{ steps.setup-flatcar-sdk.outputs.PACKAGES_CONTAINER }}
           SDK_NAME: ${{ steps.setup-flatcar-sdk.outputs.SDK_NAME }}
+          TARGET_BRANCH: main
         run: scripts/.github/workflows/docker-apply-patch.sh
       - name: Create pull request for main
         uses: peter-evans/create-pull-request@v5

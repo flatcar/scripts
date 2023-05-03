@@ -6,6 +6,11 @@ source "${GHA_SCRIPTS_DIR}/.github/workflows/common.sh"
 
 prepare_git_repo
 
+if ! check_remote_branch "linux-${VERSION_NEW}-${TARGET_BRANCH}"; then
+    echo "remote branch already exists, nothing to do"
+    exit 0
+fi
+
 pushd "${SDK_OUTER_OVERLAY}"
 
 # trim the 3rd part in the input semver, e.g. from 5.4.1 to 5.4
