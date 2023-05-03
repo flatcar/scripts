@@ -248,7 +248,8 @@ info "Maybe removing some hard blocks"
 # versions have !!<dev-python/setuptools_scm-2 in BDEPEND).
 remove_hard_blocks \
     sudo_e_emerge equery \
-    dev-python/setuptools_scm:2
+    dev-python/setuptools_scm:2 \
+    dev-python/setuptools-scm:2
 
 # Second pass, update everything else.
 EMERGE_FLAGS+=( --deep )

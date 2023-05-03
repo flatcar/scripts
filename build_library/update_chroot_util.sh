@@ -6,7 +6,7 @@ get_versions_from_equery() {
     local equery_cmd="${1}"
     local pkg="${2}"
 
-    "${equery_cmd}" --quiet --no-color list --format='${version} ${fullversion}' "${pkg}"
+    "${equery_cmd}" --quiet --no-color list --format='${version} ${fullversion}' "${pkg}" || :
 }
 
 filter_out_too_new() {
