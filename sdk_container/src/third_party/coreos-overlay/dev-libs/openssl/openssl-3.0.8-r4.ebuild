@@ -4,8 +4,7 @@
 EAPI=8
 
 VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/openssl.org.asc
-TMPFILES_OPTIONAL=1
-inherit edo flag-o-matic linux-info toolchain-funcs multilib-minimal multiprocessing verify-sig systemd tmpfiles
+inherit edo flag-o-matic linux-info toolchain-funcs multilib-minimal multiprocessing verify-sig
 
 DESCRIPTION="Robust, full-featured Open Source Toolkit for the Transport Layer Security (TLS)"
 HOMEPAGE="https://www.openssl.org/"
@@ -19,8 +18,7 @@ if [[ ${PV} == 9999 ]] ; then
 else
 	SRC_URI="mirror://openssl/source/${MY_P}.tar.gz
 		verify-sig? ( mirror://openssl/source/${MY_P}.tar.gz.asc )"
-	#KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x86-linux"
-	KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos"
 fi
 
 S="${WORKDIR}"/${MY_P}
@@ -30,11 +28,7 @@ SLOT="0/3" # .so version of libssl/libcrypto
 IUSE="+asm cpu_flags_x86_sse2 fips ktls rfc3779 sctp static-libs test tls-compression vanilla verify-sig weak-ssl-ciphers"
 RESTRICT="!test? ( test )"
 
-# Flatcar: Gentoo dropped dependency on c_rehash, a required tool for
-# generating certs, and does not provide a built-in tool either.
-# Continue shipping it.
 COMMON_DEPEND="
-	>=app-misc/c_rehash-1.7-r1
 	tls-compression? ( >=sys-libs/zlib-1.2.8-r1[static-libs(+)?,${MULTILIB_USEDEP}] )
 "
 BDEPEND="
@@ -53,6 +47,14 @@ PDEPEND="app-misc/ca-certificates"
 
 MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/openssl/configuration.h
+)
+
+PATCHES=(
+	"${FILESDIR}"/openssl-3.0.8-mips-cflags.patch
+	"${FILESDIR}"/openssl-3.0.8-CVE-2023-0464.patch
+	"${FILESDIR}"/openssl-3.0.8-CVE-2023-0465.patch
+	"${FILESDIR}"/openssl-3.0.8-CVE-2023-0466.patch
+	"${FILESDIR}"/openssl-3.0.8-CVE-2023-1255.patch
 )
 
 pkg_setup() {
@@ -93,13 +95,6 @@ src_unpack() {
 }
 
 src_prepare() {
-	# Allow openssl to be cross-compiled
-	cp "${FILESDIR}"/gentoo.config-1.0.4 gentoo.config || die
-	chmod a+rx gentoo.config || die
-
-	# Keep this in sync with app-misc/c_rehash
-	SSL_CNF_DIR="/etc/ssl"
-
 	# Make sure we only ever touch Makefile.org and avoid patching a file
 	# that gets blown away anyways by the Configure script in src_configure
 	rm -f Makefile
@@ -117,6 +112,14 @@ src_prepare() {
 		rm test/recipes/80-test_ssl_new.t || die
 	fi
 
+	# Test fails depending on kernel configuration, bug #699134
+	rm test/recipes/30-test_afalg.t || die
+}
+
+src_configure() {
+	# Keep this in sync with app-misc/c_rehash
+	SSL_CNF_DIR="/etc/ssl"
+
 	# Quiet out unknown driver argument warnings since openssl
 	# doesn't have well-split CFLAGS and we're making it even worse
 	# and 'make depend' uses -Werror for added fun (bug #417795 again)
@@ -132,17 +135,13 @@ src_prepare() {
 	# Don't remove the no strict aliasing bits below!
 	filter-flags -fstrict-aliasing
 	append-flags -fno-strict-aliasing
+	# The OpenSSL developers don't test with LTO right now, it leads to various
+	# warnings/errors (which may or may not be false positives), it's considered
+	# unsupported, and it's not tested in CI: https://github.com/openssl/openssl/issues/18663.
+	filter-lto
 
 	append-flags $(test-flags-CC -Wa,--noexecstack)
 
-	local sslout=$(./gentoo.config)
-	einfo "Using configuration: ${sslout:-(openssl knows best)}"
-	edo perl Configure ${sslout} --test-sanity
-
-	multilib_copy_sources
-}
-
-multilib_src_configure() {
 	# bug #197996
 	unset APPS
 	# bug #312551
@@ -152,6 +151,10 @@ multilib_src_configure() {
 
 	tc-export AR CC CXX RANLIB RC
 
+	multilib-minimal_src_configure
+}
+
+multilib_src_configure() {
 	use_ssl() { usex $1 "enable-${2:-$1}" "no-${2:-$1}" " ${*:3}" ; }
 
 	local krb5=$(has_version app-crypt/mit-krb5 && echo "MIT" || echo "Heimdal")
@@ -168,7 +171,7 @@ multilib_src_configure() {
 	#       ec_nistp_64_gcc_128="enable-ec_nistp_64_gcc_128"
 	#fi
 
-	local sslout=$(./gentoo.config)
+	local sslout=$(bash "${FILESDIR}/gentoo.config-1.0.4")
 	einfo "Using configuration: ${sslout:-(openssl knows best)}"
 
 	# https://github.com/openssl/openssl/blob/master/INSTALL.md#enable-and-disable-features
@@ -202,7 +205,7 @@ multilib_src_configure() {
 		threads
 	)
 
-	edo perl Configure "${myeconfargs[@]}"
+	edo perl "${S}/Configure" "${myeconfargs[@]}"
 }
 
 multilib_src_compile() {
@@ -223,6 +226,8 @@ multilib_src_install() {
 	emake DESTDIR="${D}" install_sw
 	if use fips; then
 		emake DESTDIR="${D}" install_fips
+		# Regen this in pkg_preinst, bug 900625
+		rm "${ED}${SSL_CNF_DIR}"/fipsmodule.cnf || die
 	fi
 
 	if multilib_is_native_abi; then
@@ -247,19 +252,30 @@ multilib_src_install_all() {
 
 	dodoc {AUTHORS,CHANGES,NEWS,README,README-PROVIDERS}.md doc/*.txt doc/${PN}-c-indent.el
 
+	# Create the certs directory
+	keepdir ${SSL_CNF_DIR}/certs
+
 	# bug #254521
 	dodir /etc/sandbox.d
 	echo 'SANDBOX_PREDICT="/dev/crypto"' > "${ED}"/etc/sandbox.d/10openssl
 
-	# flatcar changes: do not keep the sample CA files in `/etc`
-	rm -rf "${ED}"${SSL_CNF_DIR}
+	diropts -m0700
+	keepdir ${SSL_CNF_DIR}/private
+}
 
-	# flatcar changes: save the default `openssl.cnf` in `/usr`
-	dodir /usr/share/ssl
-	insinto /usr/share/ssl
-	doins "${S}"/apps/openssl.cnf
-	dotmpfiles "${FILESDIR}"/openssl.conf
+pkg_preinst() {
+	if use fips; then
+		# Regen fipsmodule.cnf, bug 900625
+		ebegin "Running openssl fipsinstall"
+		"${ED}/usr/bin/openssl" fipsinstall -quiet \
+			-out "${ED}${SSL_CNF_DIR}/fipsmodule.cnf" \
+			-module "${ED}/usr/$(get_libdir)/ossl-modules/fips.so"
+		eend $?
+	fi
+}
 
-	# flatcar changes: package `tmpfiles.d` setup for SDK bootstrapping.
-	systemd-tmpfiles --create --root="${ED}" "${FILESDIR}"/openssl.conf
+pkg_postinst() {
+	ebegin "Running 'openssl rehash ${EROOT}${SSL_CNF_DIR}/certs' to rebuild hashes (bug #333069)"
+	openssl rehash "${EROOT}${SSL_CNF_DIR}/certs"
+	eend $?
 }
