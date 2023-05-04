@@ -1,34 +1,58 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-PYTHON_COMPAT=( python3_{8..10} )
+# Try to keep an eye on Fedora's packaging: https://src.fedoraproject.org/rpms/coreutils
+# The upstream coreutils maintianers also maintain the package in Fedora and may
+# backport fixes which we want to pick up.
 
-inherit flag-o-matic python-any-r1 toolchain-funcs
+PYTHON_COMPAT=( python3_{9..11} )
+VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/coreutils.asc
+inherit flag-o-matic python-any-r1 toolchain-funcs verify-sig
 
-PATCH="${PN}-8.30-patches-01"
+MY_PATCH="${PN}-9.0_p20220409-patches-01"
 DESCRIPTION="Standard GNU utilities (chmod, cp, dd, ls, sort, tr, head, wc, who,...)"
 HOMEPAGE="https://www.gnu.org/software/coreutils/"
-SRC_URI="mirror://gnu/${PN}/${P}.tar.xz
-	!vanilla? (
-		mirror://gentoo/${PATCH}.tar.xz
-		https://dev.gentoo.org/~polynomial-c/dist/${PATCH}.tar.xz
-	)"
 
-LICENSE="GPL-3"
+if [[ ${PV} == 9999 ]] ; then
+	EGIT_REPO_URI="https://git.savannah.gnu.org/git/coreutils.git"
+	inherit git-r3
+elif [[ ${PV} == *_p* ]] ; then
+	# Note: could put this in devspace, but if it's gone, we don't want
+	# it in tree anyway. It's just for testing.
+	MY_SNAPSHOT="$(ver_cut 1-2).198-e68b1"
+	SRC_URI="https://www.pixelbeat.org/cu/coreutils-${MY_SNAPSHOT}.tar.xz -> ${P}.tar.xz"
+	SRC_URI+=" verify-sig? ( https://www.pixelbeat.org/cu/coreutils-${MY_SNAPSHOT}.tar.xz.sig -> ${P}.tar.xz.sig )"
+	S="${WORKDIR}"/${PN}-${MY_SNAPSHOT}
+else
+	SRC_URI="
+		mirror://gnu/${PN}/${P}.tar.xz
+		verify-sig? ( mirror://gnu/${PN}/${P}.tar.xz.sig )
+	"
+
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x86-linux"
+fi
+
+SRC_URI+=" !vanilla? ( https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${MY_PATCH}.tar.xz )"
+
+LICENSE="GPL-3+"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x86-linux"
-IUSE="acl caps gmp hostname kill multicall nls selinux +split-usr static test vanilla xattr"
+IUSE="acl caps gmp hostname kill multicall nls +openssl selinux +split-usr static test vanilla xattr"
 RESTRICT="!test? ( test )"
 
-LIB_DEPEND="acl? ( sys-apps/acl[static-libs] )
+LIB_DEPEND="
+	acl? ( sys-apps/acl[static-libs] )
 	caps? ( sys-libs/libcap )
 	gmp? ( dev-libs/gmp:=[static-libs] )
-	xattr? ( sys-apps/attr[static-libs] )"
-RDEPEND="!static? ( ${LIB_DEPEND//\[static-libs]} )
+	openssl? ( dev-libs/openssl:=[static-libs] )
+	xattr? ( sys-apps/attr[static-libs] )
+"
+RDEPEND="
+	!static? ( ${LIB_DEPEND//\[static-libs]} )
 	selinux? ( sys-libs/libselinux )
-	nls? ( virtual/libintl )"
+	nls? ( virtual/libintl )
+"
 DEPEND="
 	${RDEPEND}
 	static? ( ${LIB_DEPEND} )
@@ -42,6 +66,7 @@ BDEPEND="
 		dev-util/strace
 		${PYTHON_DEPS}
 	)
+	verify-sig? ( sec-keys/openpgp-keys-coreutils )
 "
 RDEPEND+="
 	hostname? ( !sys-apps/net-tools[hostname] )
@@ -58,61 +83,37 @@ RDEPEND+="
 	!<app-forensics/tct-1.18-r1
 	!<net-fs/netatalk-2.0.3-r4"
 
-pkg_pretend() {
-	if has_version "<sys-fs/zfs-9999" ; then
-		einfo "Checking for running ZFS module version"
-
-		local kmodv minver
-		kmodv="$(grep kmod <(zfs -V 2>/dev/null))"
-		# Convert zfs-kmod-2.1.1-r3-gentoo -> 2.1.1-r3
-		kmodv="${kmodv//zfs-kmod-}"
-		kmodv="${kmodv%%-gentoo}"
-
-		minver="$(ver_cut 2 ${kmodv})"
-		local diemsg=$(cat <<-EOF
-			Attempted installation of ${P} on unsupported version of zfs-kmod!
-			Please reboot to a newer version of zfs-kmod first:
-			zfs-kmod >=2.0.7 or zfs-kmod >=2.1.1-r3
-			Using ${P} with running version of zfs-kmod of can
-			lead to data loss while using cp command on some configurations.
-			See https://github.com/openzfs/zfs/issues/11900 for details.
-		EOF
-		)
-
-		case "${minver}" in
-			# 2.0.x
-			0)
-				ver_test "${kmodv}" -lt 2.0.7 && die "${diemsg}"
-				;;
-			# 2.1.x
-			1)
-				ver_test "${kmodv}" -lt 2.1.1-r3 && die "${diemsg}"
-				;;
-			# 0.8.x/9999
-			*)
-				# We can't really cover this case realistically
-				# 9999 is too hard to check and 0.8.x isn't being supported anymore.
-				;;
-		esac
-	fi
-
-}
-
 pkg_setup() {
 	if use test ; then
 		python-any-r1_pkg_setup
 	fi
 }
 
+src_unpack() {
+	if [[ ${PV} == 9999 ]] ; then
+		git-r3_src_unpack
+
+		cd "${S}" || die
+		./bootstrap || die
+
+		sed -i -e "s:submodule-checks ?= no-submodule-changes public-submodule-commit:submodule-checks ?= no-submodule-changes:" gnulib/top/maint.mk || die
+	elif use verify-sig ; then
+		# Needed for downloaded patch (which is unsigned, which is fine)
+		verify-sig_verify_detached "${DISTDIR}"/${P}.tar.xz{,.sig}
+	fi
+
+	default
+}
+
 src_prepare() {
 	local PATCHES=(
 		# Upstream patches
-		"${FILESDIR}"/${P}-fix-chmod-symlink-exit.patch
+		"${FILESDIR}"/${P}-cksum-result-reporting.patch
+		"${FILESDIR}"/${P}-cp-reflink-auto-fallback.patch
 	)
 
-	if ! use vanilla ; then
+	if ! use vanilla && [[ -d "${WORKDIR}"/patch ]] ; then
 		PATCHES+=( "${WORKDIR}"/patch )
-		PATCHES+=( "${FILESDIR}"/${PN}-8.32-sandbox-env-test.patch )
 	fi
 
 	default
@@ -150,6 +151,7 @@ src_configure() {
 		$(use_enable multicall single-binary)
 		$(use_enable xattr)
 		$(use_with gmp libgmp)
+		$(use_with openssl)
 	)
 
 	if use gmp ; then
@@ -216,8 +218,8 @@ src_test() {
 	addwrite /dev/full
 	#export RUN_EXPENSIVE_TESTS="yes"
 	#export FETISH_GROUPS="portage wheel"
-	env PATH="${T}/mount-wrappers:${PATH}" \
-	emake -j1 -k check
+	env PATH="${T}/mount-wrappers:${PATH}" gl_public_submodule_commit= \
+		emake -k check VERBOSE=yes
 }
 
 src_install() {
