@@ -1,0 +1,2 @@
+- pinentry ([1.2.1](https://git.gnupg.org/cgi-bin/gitweb.cgi?p=pinentry.git;a=blob;f=NEWS;h=c080b34e57d01a6ccca9d2996d7096c42b1a3f84;hb=8ab1682e80a2b4185ee9ef66cbb44340245966fc))
+- SDK: nano ([7.2](https://git.savannah.gnu.org/cgit/nano.git/tree/NEWS?h=v7.2))

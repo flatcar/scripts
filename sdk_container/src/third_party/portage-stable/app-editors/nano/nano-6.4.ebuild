@@ -11,7 +11,7 @@ if [[ ${PV} == 9999 ]] ; then
 else
 	MY_P="${PN}-${PV/_}"
 	SRC_URI="https://www.nano-editor.org/dist/v${PV:0:1}/${MY_P}.tar.xz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 fi
 
 DESCRIPTION="GNU GPL'd Pico clone with more functionality"
@@ -19,7 +19,7 @@ HOMEPAGE="https://www.nano-editor.org/ https://wiki.gentoo.org/wiki/Nano/Basics_
 
 LICENSE="GPL-3+ LGPL-2.1+ || ( GPL-3+ FDL-1.2+ )"
 SLOT="0"
-IUSE="debug justify magic minimal ncurses nls +spell static unicode"
+IUSE="debug justify magic minimal ncurses nls +spell +split-usr static unicode"
 
 LIB_DEPEND="
 	>=sys-libs/ncurses-5.9-r1:=[unicode(+)?]
@@ -97,6 +97,8 @@ src_install() {
 		insinto "${rcdir}"
 		newins "${FILESDIR}/gentoo.nanorc-r1" gentoo.nanorc
 	fi
+
+	use split-usr && dosym ../../bin/nano /usr/bin/nano
 }
 
 pkg_postrm() {

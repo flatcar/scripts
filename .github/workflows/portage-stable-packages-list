@@ -85,8 +85,11 @@ app-arch/zstd
 app-cdr/cdrtools
 
 app-crypt/adcli
+app-crypt/libmd
 app-crypt/mit-krb5
+app-crypt/pinentry
 
+app-editors/nano
 app-editors/vim
 app-editors/vim-core
 
@@ -96,6 +99,10 @@ app-emulation/qemu-guest-agent
 app-eselect/eselect-iptables
 app-eselect/eselect-lua
 
+app-misc/c_rehash
+app-misc/editor-wrapper
+
+app-portage/elt-patches
 app-portage/portage-utils
 
 app-shells/bash-completion
@@ -105,6 +112,7 @@ app-text/build-docbook-catalog
 app-text/docbook-xml-dtd
 app-text/docbook-xsl-ns-stylesheets
 app-text/docbook-xsl-stylesheets
+app-text/manpager
 app-text/sgml-common
 
 dev-db/sqlite
