@@ -1,0 +1,17 @@
+name: "Run faux workflow"
+on:
+  push:
+    branches:
+    - mkulke/add-faux-wf
+
+jobs:
+  faux:
+    name: "Faux workflow"
+    runs-on:
+      - self-hosted
+      - debian
+      - build
+      - x64
+
+    steps:
+      - run: echo "🐇 This job is now running on self-hosted ${{ runner.os }} server called ${{ runner.name }}."
