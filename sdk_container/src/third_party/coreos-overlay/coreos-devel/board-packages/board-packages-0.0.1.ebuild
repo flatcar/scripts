@@ -20,7 +20,6 @@ IUSE=""
 DEPEND=""
 RDEPEND="
 	amd64? (
-		app-emulation/open-vm-tools
 		coreos-base/coreos-oem-gce
 		coreos-base/nova-agent-container
 		coreos-base/nova-agent-watcher
@@ -30,6 +29,7 @@ RDEPEND="
 		sys-firmware/edk2-ovmf-bin
 	)
 	app-emulation/amazon-ssm-agent
+	app-emulation/open-vm-tools
 	app-emulation/wa-linux-agent
 	coreos-base/coreos
 	coreos-base/coreos-dev
