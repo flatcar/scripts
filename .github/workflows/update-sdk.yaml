@@ -1,0 +1,145 @@
+name: "Build an updated SDK container and store it on bincache"
+on:
+  workflow_dispatch:
+    inputs:
+      source_sdk_version:
+        type: string
+        required: false
+        description: |
+          Source SDK container to use. Defaults to version defined in version.txt.
+      custom_sdk_version:
+        type: string
+        required: false
+        description: |
+          Custom SDK container version to build. Defaults to source SDK version w/ patch version bumped +1.
+
+  workflow_call:
+    inputs:
+      source_sdk_version:
+        type: string
+        required: false
+        description: |
+          Source SDK container to use. Defaults to version defined in version.txt.
+      custom_sdk_version:
+        type: string
+        required: false
+        description: |
+          Custom SDK container version to build. Defaults to source SDK w/ "-github-[DATE]" appended.
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }} 
+  cancel-in-progress: true
+
+permissions:
+  pull-requests: write
+
+jobs:
+  update_sdk:
+    name: "Build updated SDK container image"
+    runs-on:
+      - self-hosted
+      - debian
+      - build
+      - x64
+    strategy:
+      fail-fast: false
+    defaults:
+      run:
+        working-directory: scripts
+
+    steps:
+      - name: Prepare machine
+        shell: bash
+        working-directory: ${{ github.workspace }}
+        run: |
+          sudo rm /bin/sh
+          sudo ln -s /bin/bash /bin/sh
+          sudo apt-get install -y ca-certificates curl gnupg lsb-release qemu-user-static git
+          sudo mkdir -p /etc/apt/keyrings
+          curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+          echo \
+            "deb [signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
+            $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+          sudo apt-get update
+          sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+      - uses: actions/checkout@v3
+        with:
+          path: scripts
+          fetch-depth: 0
+
+      - name: Set environment
+        shell: bash
+        run: |
+          if [ -n "${{ github.event.inputs.source_sdk_version }}" ] ; then
+              echo "SOURCE_SDK_VERSION=${{ github.event.inputs.source_sdk_version }}" >> $GITHUB_ENV
+          fi
+          if [ -n "${{ github.event.inputs.custom_sdk_version }}" ] ; then
+              echo "CUSTOM_SDK_VERSION=${{ github.event.inputs.custom_sdk_version }}" >> $GITHUB_ENV
+          fi
+
+      - name: Build an updated SDK container
+        shell: bash
+        run: |
+          exec 2>&1
+          set -x
+          set -euo pipefail
+
+          source ci-automation/ci_automation_common.sh
+          source sdk_container/.repo/manifests/version.txt
+
+          check_version_string "$version"
+          sdk_version="${SOURCE_SDK_VERSION:-FLATCAR_SDK_VERSION}"
+
+          sdk_name="flatcar-sdk-amd64"
+          docker_sdk_vernum="$(vernum_to_docker_image_version "${sdk_version}")"
+          docker_image_from_registry_or_buildcache "${sdk_name}" "${docker_sdk_vernum}"
+          sdk_image="$(docker_image_fullname "${sdk_name}" "${docker_sdk_vernum}")"
+
+          echo "container_name=${container_name}" >> "$GITHUB_ENV"
+
+          # Create version file
+          (
+            source sdk_lib/sdk_container_common.sh
+            create_versionfile "$sdk_version" "$version"
+          )
+
+          target_version="github-$(date '+%Y_%m_%d__%H_%M_%S')"
+          target_version="${CUSTOM_SDK_VERSION:-target_version}"
+
+          # This updates sdk_container/.repo/manifests/version.txt with the new SDK version.
+          ./update_sdk_container_image "${target_version}"
+
+      - name: Upload the SDK container and binary packages to bincache
+        with:
+          bincache_ssh: ${{ secrets.bincacheSSH }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p ~/.ssh
+          trap 'rm -f ~/.ssh/bincache' EXIT
+          echo "${{ github.event.inputs.bincacheSSH }}" > ~/.ssh/bincache
+          chmod 600 ~/.ssh/bincache
+          echo "Host ${BUILDCACHE_SERVER}" >> ~/.ssh/config
+          echo "    User ${BUILDCACHE_USER}" >> ~/.ssh/config
+          echo "    IdentityFile ~/.ssh/bincache" >> ~/.ssh/config
+
+          source ci-automation/ci_automation_common.sh
+          source sdk_container/.repo/manifests/version.txt
+          local vernum="${FLATCAR_SDK_VERSION}"
+
+          local docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
+
+          docker_image_to_buildcache "${CONTAINER_REGISTRY}/flatcar-sdk-all" "${docker_vernum}"
+          docker_image_to_buildcache "${CONTAINER_REGISTRY}/flatcar-sdk-amd64" "${docker_vernum}"
+          docker_image_to_buildcache "${CONTAINER_REGISTRY}/flatcar-sdk-arm64" "${docker_vernum}"
+
+          rm -f ~/.ssh/bincache
+
+  build_image:
+    needs: update_sdk
+    name: "Build the OS image"
+    uses: ./.github/workflows/ci.yaml
+    with:
+      custom_sdk_version: ${{ github.event.inputs.custom_sdk_version }}
