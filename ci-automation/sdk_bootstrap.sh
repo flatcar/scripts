@@ -78,10 +78,10 @@ function _sdk_bootstrap_impl() {
     # Also push the changes to the branch ONLY IF we're doing a nightly
     #   build of the 'main' branch AND we're definitely ON the main branch.
     #   This includes intermediate SDKs when doing 2-phase nightly builds.
-    local push_branch="false"
+    local target_branch=''
     if   [[ "${version}" =~ ^main-[0-9.]+-nightly-[-0-9]+(-INTERMEDIATE)?$ ]] \
-       && [ "$(git rev-parse --abbrev-ref HEAD)" = "main"  ] ; then
-        push_branch="true"
+       && [ "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"  ] ; then
+        target_branch='main'
         local existing_tag=""
         # Check for the existing tag only when we allow shortcutting
         # the builds. That way we can skip the checks for build
@@ -132,7 +132,7 @@ function _sdk_bootstrap_impl() {
       source sdk_lib/sdk_container_common.sh
       create_versionfile "${vernum}"
     )
-    update_and_push_version "${version}" "${push_branch}"
+    update_and_push_version "${version}" "${target_branch}"
     apply_local_patches
 
     ./bootstrap_sdk_container -x ./ci-cleanup.sh "${seed_version}" "${vernum}"
