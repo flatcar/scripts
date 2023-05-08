@@ -66,8 +66,7 @@ function prepare_git_repo() {
 
 function check_remote_branch() {
   local target_branch="${1}"
-
-  if git -C "${SDK_OUTER_TOPDIR}" show-ref "remotes/origin/${target_branch}"; then
+  if git -C "${SDK_OUTER_TOPDIR}" ls-remote --refs --heads --exit-code origin "${target_branch}" >/dev/null; then
     return 1
   fi
   return 0
