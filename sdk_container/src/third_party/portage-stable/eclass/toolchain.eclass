@@ -242,7 +242,14 @@ if [[ ${PN} != kgcc64 && ${PN} != gcc-* ]] ; then
 	IUSE+=" pgo"
 	IUSE+=" objc-gc" TC_FEATURES+=( objc-gc )
 	IUSE+=" libssp objc++"
-	IUSE+=" +openmp"
+
+	# Stop forcing openmp on by default in the eclass. Gradually phase it out.
+	# See bug #890999.
+	if tc_version_is_at_least 13.0.0_pre20221218 ; then
+		IUSE+=" openmp"
+	else
+		IUSE+=" +openmp"
+	fi
 
 	tc_version_is_at_least 4.3 && IUSE+=" fixed-point"
 	tc_version_is_at_least 4.7 && IUSE+=" go"
@@ -641,6 +648,11 @@ toolchain_fetch_git_patches() {
 toolchain_src_unpack() {
 	if tc_is_live ; then
 		git-r3_src_unpack
+
+		# Needed for gcc --version to include the upstream commit used
+		# rather than only the commit after we apply our patches.
+		# It includes both with this.
+		echo "${EGIT_VERSION}" > "${S}"/gcc/REVISION || die
 
 		if [[ -z ${PATCH_VER} ]] && ! use vanilla ; then
 			toolchain_fetch_git_patches
