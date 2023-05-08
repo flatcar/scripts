@@ -68,11 +68,11 @@ function _packages_tag_impl() {
 
     # Create new tag in scripts repo w/ updated versionfile
     # Also push the changes to the branch ONLY IF we're doing a nightly
-    #   build of the 'main'/'flatcar-MAJOR' branch AND we're definitely ON the respective branch
-    local push_branch="false"
+    #   build of the 'flatcar-MAJOR' branch AND we're definitely ON the respective branch
+    local target_branch=''
     if    [[ "${version}" =~ ^(stable|alpha|beta|lts)-[0-9.]+-nightly-[-0-9]+$ ]] \
        && [[ "$(git rev-parse --abbrev-ref HEAD)" =~ ^flatcar-[0-9]+$ ]] ; then
-        push_branch="true"
+        target_branch="$(git rev-parse --abbrev-ref HEAD)"
         local existing_tag=""
         # Check for the existing tag only when we allow shortcutting
         # the builds. That way we can skip the checks for build
@@ -108,7 +108,7 @@ function _packages_tag_impl() {
       source sdk_lib/sdk_container_common.sh
       create_versionfile "$sdk_version" "$version"
     )
-    update_and_push_version "${version}" "${push_branch}"
+    update_and_push_version "${version}" "${target_branch}"
     apply_local_patches
 }
 # --

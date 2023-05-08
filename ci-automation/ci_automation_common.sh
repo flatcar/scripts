@@ -23,7 +23,7 @@ function check_version_string() {
 
 function update_and_push_version() {
     local version="$1"
-    local push_to_branch="${2:-false}"
+    local target_branch="${2:-}"
 
     # set up author and email so git does not complain when tagging
     if ! git config --get user.name >/dev/null 2>&1 ; then
@@ -64,9 +64,8 @@ function update_and_push_version() {
 
     git tag -f "${TAG_ARGS[@]}" "${version}"
 
-    if [ "${push_to_branch}" = "true" ]; then
-      local branch="$(git rev-parse --abbrev-ref HEAD)"
-      git push origin "${branch}"
+    if [[ -n "${target_branch}" ]]; then
+      git push origin "HEAD:${target_branch}"
     fi
 
     git push origin "${version}"
