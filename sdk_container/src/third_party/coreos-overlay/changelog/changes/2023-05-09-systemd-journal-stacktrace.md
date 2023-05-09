@@ -1,0 +1,1 @@
+- Enabled support for coredump stacktraces in the system journal ([]())

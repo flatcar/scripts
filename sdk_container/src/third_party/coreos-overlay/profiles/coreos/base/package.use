@@ -31,7 +31,7 @@ app-admin/sudo -sendmail
 
 # disable hybrid cgroup as we use the unified mode now
 # use lzma which is the default on non-gentoo systems, enable selinux,
-sys-apps/systemd -cgroup-hybrid curl idn lzma selinux
+sys-apps/systemd -cgroup-hybrid curl elfutils idn lzma selinux
 net-libs/libmicrohttpd -ssl
 
 # disable kernel config detection and module building
