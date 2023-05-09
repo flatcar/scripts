@@ -1,23 +1,22 @@
-name: "Dispatch SDK container rebuilds, OS image builds, and OS image tests from PR comments"
+name: "PR command build dispatcher"
 on:
   issue_comment:
     types: [created]
-  pull_request:
-    # This is temporary for testing the workflow.
-    #  Comment events are only processed for workflows in the main branch
-    types: [opened, reopened, synchronize]
 
 permissions:
   pull-requests: write
 
-jobs:
+concurrency:
+  group: ${{ github.workflow }}-pr-command-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
 
+jobs:
   check_maintainer_membership:
     # Only run if this is a PR comment that contains a valid command
-#    if: |
-#      ${{ github.event.issue.pull_request }} &&
-#        (    contains(github.event.comment.body, '/build-sdk')
-#          || contains(github.event.comment.body, '/build-image') )
+    if: |
+      ${{ github.event.issue.pull_request }} &&
+        (    contains(github.event.comment.body, '/build-sdk')
+          || contains(github.event.comment.body, '/build-image') )
     name: Check if commenter is in the Flatcar maintainers team
     outputs:
       maintainers: steps.step1.output.maintainers
@@ -26,8 +25,7 @@ jobs:
     steps:
       - name: Fetch members of the maintainers team
         env:
-#          - requester: ${{ github.event.comment.user.login }}
-          requester: "t-lo"
+          requester: ${{ github.event.comment.user.login }}
         shell: bash
         run: |
           curl -L --silent \
@@ -51,7 +49,22 @@ jobs:
 
           $res
 
-#    name: "Build the OS image"
-#    uses: ./.github/workflows/ci.yaml
-#    with:
-#      custom_sdk_version: ${{ github.event.inputs.custom_sdk_version }}
+  build_sdk:
+    needs: check_maintainer_membership
+    if: ( always() && needs.check_maintainer_membership.result == 'success'
+                   && contains(github.event.comment.body, '/build-sdk') )
+    name: "Build the SDK container"
+    # SDK build needs access to bincache ssh secret
+    secrets: inherit
+    uses: ./.github/workflows/update-sdk.yaml
+
+  build_image:
+    needs: [ check_maintainer_membership, build_sdk ]
+    if: ( always() && needs.check_maintainer_membership.result == 'success'
+                   && (    contains(github.event.comment.body, '/build-image')
+                        || needs.build_sdk.result == 'success' ) )
+    name: "Build the OS image"
+    uses: ./.github/workflows/ci.yaml
+    with:
+      custom_sdk_version: ${{ needs.update_sdk.outputs.sdk_version }}
+      image_formats: qemu_uefi

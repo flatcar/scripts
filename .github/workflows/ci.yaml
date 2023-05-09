@@ -1,8 +1,5 @@
 name: "Run build"
 on:
-  pull_request:
-    # Run when the PR is opened, reopened, or updated (synchronize)
-    types: [opened, ready_for_review, reopened, synchronize]
   workflow_dispatch:
     inputs:
       image_formats:
@@ -31,17 +28,11 @@ on:
         description: |
           Custom SDK container version to use for this build.
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }} 
-  cancel-in-progress: true
-
 permissions:
   pull-requests: write
 
 jobs:
   packages:
-    # Do not run when still in draft mode but a review was requested anyway
-    if: github.event.pull_request.draft == false
     name: "Build Flatcar packages"
     runs-on:
       - self-hosted
@@ -126,7 +117,7 @@ jobs:
 
           version="alpha-$FLATCAR_VERSION_ID"
           check_version_string "$version"
-          sdk_version="${CUSTOM_SDK_VERSION:-FLATCAR_SDK_VERSION}"
+          sdk_version="${CUSTOM_SDK_VERSION:-$FLATCAR_SDK_VERSION}"
 
           sdk_name="flatcar-sdk-${arch}"
           docker_sdk_vernum="$(vernum_to_docker_image_version "${sdk_version}")"
