@@ -1,0 +1,32 @@
+From 7246ee058019099c59f9cce29b861df0613c0236 Mon Sep 17 00:00:00 2001
+From: Jeremi Piotrowski <jpiotrowski@microsoft.com>
+Date: Wed, 10 May 2023 08:48:09 +0200
+Subject: [PATCH 2/2] Revert "scripts/pahole-flags.sh: Parse DWARF and generate
+ BTF with multithreading."
+
+This breaks reproducibility of vmlinux btf output. The '--sort' arg does not
+seem to work.
+
+This reverts commit b4f72786429cc57383ff41e02407726313ca178d.
+
+Signed-off-by: Jeremi Piotrowski <jpiotrowski@microsoft.com>
+---
+ scripts/pahole-flags.sh | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/scripts/pahole-flags.sh b/scripts/pahole-flags.sh
+index 0d99ef17e4a5..c293941612e7 100755
+--- a/scripts/pahole-flags.sh
++++ b/scripts/pahole-flags.sh
+@@ -16,8 +16,5 @@ fi
+ if [ "${pahole_ver}" -ge "121" ]; then
+ 	extra_paholeopt="${extra_paholeopt} --btf_gen_floats"
+ fi
+-if [ "${pahole_ver}" -ge "122" ]; then
+-	extra_paholeopt="${extra_paholeopt} -j"
+-fi
+ 
+ echo ${extra_paholeopt}
+-- 
+2.25.1
+
