@@ -1,7 +1,7 @@
 # Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 inherit flag-o-matic multilib-minimal libtool toolchain-funcs
 
@@ -16,11 +16,15 @@ IUSE="nls static-libs"
 
 RDEPEND="nls? ( >=virtual/libintl-0-r1[${MULTILIB_USEDEP}] )"
 DEPEND="${RDEPEND}"
-BDEPEND="nls? ( sys-devel/gettext )"
+BDEPEND="nls? ( >=sys-devel/gettext-0.19.8 )"
 
 src_prepare() {
 	default
+
+	# Unclear what the background to this is, perhaps
+	# https://git.exherbo.org/arbor.git/commit/?id=5545d22d3493279acf7a55246179f818ef22f5fa
 	sed -i -e 's:lt-test1:test1:' tests/testit.sh || die
+
 	elibtoolize
 }
 
@@ -33,13 +37,16 @@ multilib_src_configure() {
 	fi
 
 	local myeconfargs=(
+		--disable-werror
 		$(use_enable static-libs static)
 		$(use_enable nls)
 	)
+
 	ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
 }
 
 multilib_src_install_all() {
-	dodoc CHANGES README
+	einstalldocs
+
 	find "${ED}" -type f -name "*.la" -delete || die
 }
