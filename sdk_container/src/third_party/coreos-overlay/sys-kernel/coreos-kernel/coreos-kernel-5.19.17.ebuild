@@ -67,7 +67,6 @@ src_prepare() {
 	# Symlink to bootengine.cpio so we can stick with relative paths in .config
 	ln -sv "${SYSROOT%/}"/usr/share/bootengine/bootengine.cpio build/ || die
 	config_update 'CONFIG_INITRAMFS_SOURCE="bootengine.cpio"'
-	config_update 'CONFIG_INITRAMFS_COMPRESSION_ZSTD=y'
 
 	# include all intel and amd microcode files, avoiding the signatures
 	local fw_dir="${SYSROOT%/}/lib/firmware"
