@@ -6,6 +6,13 @@ EGO_PN=github.com/moby/libnetwork
 GIT_COMMIT=05b93e0d3a95952f70c113b0bc5bdb538d7afdd7
 inherit golang-vcs-snapshot
 
+# Flatcar: Add coreos go goo.
+COREOS_GO_PACKAGE="${EGO_PN}"
+COREOS_GO_VERSION="go1.18"
+COREOS_GO_GO111MODULE="off"
+
+inherit coreos-go
+
 DESCRIPTION="Docker container networking"
 HOMEPAGE="https://github.com/docker/libnetwork"
 SRC_URI="https://github.com/moby/libnetwork/archive/${GIT_COMMIT}.tar.gz -> ${P}.tar.gz"
@@ -19,12 +26,13 @@ S=${WORKDIR}/${P}/src/${EGO_PN}
 # needs dockerd
 RESTRICT="strip test"
 
+# Flatcar: Rewrite src_compile
 src_compile() {
-	GO111MODULE=auto GOPATH="${WORKDIR}/${P}" \
-		go build -o "bin/docker-proxy" ./cmd/proxy || die
+	go_build "${COREOS_GO_PACKAGE}/cmd/proxy"
 }
 
+# Flatcar: Rewrite src_install
 src_install() {
-	dobin bin/docker-proxy
 	dodoc README.md CHANGELOG.md
+	newbin "${GOBIN}"/proxy docker-proxy
 }
