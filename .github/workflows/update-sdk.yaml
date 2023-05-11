@@ -32,7 +32,7 @@ permissions:
 
 jobs:
   update_sdk:
-    name: "Build updated SDK container image"
+    name: "Build an updated SDK container image"
     runs-on:
       - self-hosted
       - debian

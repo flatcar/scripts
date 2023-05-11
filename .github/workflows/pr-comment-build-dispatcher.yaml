@@ -15,7 +15,7 @@ jobs:
     # Only run if this is a PR comment that contains a valid command
     if: |
       ${{ github.event.issue.pull_request }} &&
-        (    contains(github.event.comment.body, '/build-sdk')
+        (    contains(github.event.comment.body, '/update-sdk')
           || contains(github.event.comment.body, '/build-image') )
     name: Check if commenter is in the Flatcar maintainers team
     outputs:
@@ -49,11 +49,11 @@ jobs:
 
           $res
 
-  build_sdk:
+  update_sdk:
     needs: check_maintainer_membership
     if: ( always() && needs.check_maintainer_membership.result == 'success'
-                   && contains(github.event.comment.body, '/build-sdk') )
-    name: "Build the SDK container"
+                   && contains(github.event.comment.body, '/update-sdk') )
+    name: "Build an updated SDK container"
     # SDK build needs access to bincache ssh secret
     secrets: inherit
     uses: ./.github/workflows/update-sdk.yaml
