@@ -3,6 +3,9 @@
 
 EAPI=8
 
+TMPFILES_OPTIONAL=1
+inherit tmpfiles
+
 DESCRIPTION='Flatcar miscellaneous files'
 HOMEPAGE='https://www.flatcar.org/'
 
@@ -19,10 +22,28 @@ RDEPEND="
 	>=app-shells/bash-5.2_p15-r2
 "
 
+declare -A CORE_BASH_SYMLINKS
+CORE_BASH_SYMLINKS=(
+    ['.bash_logout']='../../usr/share/flatcar/etc/skel/.bash_logout'
+    ['.bash_profile']='../../usr/share/flatcar/etc/skel/.bash_profile'
+    ['.bashrc']='../../usr/share/flatcar/etc/skel/.bashrc'
+)
+
 src_compile() {
     # An empty file for temporary symlink destinations under
     # /usr/share/flatcar/etc.
     touch "${T}/empty-file"
+    # Generate the tmpfiles config file for bash symlinks in core home
+    # directory.
+    local name config config_tmp target
+    config="${T}/home-core-bash-symlinks.conf"
+    config_tmp="${config}.tmp"
+    truncate --size 0 "${config_tmp}"
+    for name in "${!CORE_BASH_SYMLINKS[@]}"; do
+        target=${CORE_BASH_SYMLINKS["${name}"]}
+        echo "L /home/core/${name} - core core - ${target}" >>"${config_tmp}"
+    done
+    LC_ALL=C sort "${config_tmp}" >"${config}"
 }
 
 src_install() {
@@ -57,4 +78,18 @@ src_install() {
 
     insinto '/etc/bash/bashrc.d'
     doins "${FILESDIR}/99-flatcar-bcc"
+
+    dotmpfiles "${T}/home-core-bash-symlinks.conf"
+    # Ideally we would be calling systemd-tmpfiles to create the
+    # symlinks, but at this point systemd may not have any info about
+    # the core user. Thus we hardcode the id 500.
+    dodir /home/core
+    fowners 500:500 /home/core
+    local name
+    for name in "${!CORE_BASH_SYMLINKS[@]}"; do
+        target=${CORE_BASH_SYMLINKS["${name}"]}
+        link="/home/core/${name}"
+        dosym "${target}" "${link}"
+        fowners --no-dereference 500:500 "${link}"
+    done
 }
