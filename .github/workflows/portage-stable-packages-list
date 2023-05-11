@@ -329,6 +329,7 @@ profiles
 #
 # scripts
 
+sys-apps/acl
 sys-apps/attr
 sys-apps/diffutils
 sys-apps/dtc
