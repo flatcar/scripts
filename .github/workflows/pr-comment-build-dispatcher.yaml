@@ -28,7 +28,8 @@ jobs:
           requester: ${{ github.event.comment.user.login }}
         shell: bash
         run: |
-          curl -L --silent \
+          set -euo pipefail
+          curl --fail --show-error -L --silent \
                   -H "Accept: application/vnd.github+json" \
                   -H "Authorization: Bearer ${{ secrets.GH_ACTIONS_ORG_READ }}" \
                   -H "X-GitHub-Api-Version: 2022-11-28" \
