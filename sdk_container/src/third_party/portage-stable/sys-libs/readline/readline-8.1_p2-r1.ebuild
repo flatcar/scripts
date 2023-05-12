@@ -1,9 +1,10 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit flag-o-matic multilib multilib-minimal preserve-libs toolchain-funcs usr-ldscript
+VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/chetramey.asc
+inherit flag-o-matic multilib multilib-minimal preserve-libs toolchain-funcs usr-ldscript verify-sig
 
 # Official patches
 # See ftp://ftp.cwru.edu/pub/bash/readline-8.1-patches/
@@ -11,21 +12,9 @@ PLEVEL="${PV##*_p}"
 MY_PV="${PV/_p*}"
 MY_PV="${MY_PV/_/-}"
 MY_P="${PN}-${MY_PV}"
+MY_PATCHES=()
+
 [[ ${PV} != *_p* ]] && PLEVEL=0
-patches() {
-	[[ ${PLEVEL} -eq 0 ]] && return 1
-	local opt=$1
-	eval set -- {1..${PLEVEL}}
-	set -- $(printf "${PN}${MY_PV/\.}-%03d " "$@")
-	if [[ ${opt} == -s ]] ; then
-		echo "${@/#/${DISTDIR}/}"
-	else
-		local u
-		for u in ftp://ftp.cwru.edu/pub/bash mirror://gnu/${PN} ; do
-			printf "${u}/${PN}-${MY_PV}-patches/%s " "$@"
-		done
-	fi
-}
 
 DESCRIPTION="Another cute console display library"
 HOMEPAGE="https://tiswww.case.edu/php/chet/readline/rltop.html"
@@ -33,21 +22,45 @@ HOMEPAGE="https://tiswww.case.edu/php/chet/readline/rltop.html"
 case ${PV} in
 	*_alpha*|*_beta*|*_rc*)
 		SRC_URI+=" ftp://ftp.cwru.edu/pub/bash/${MY_P}.tar.gz"
+		SRC_URI+=" verify-sig? ( ftp://ftp.cwru.edu/pub/bash/${MY_P}.tar.gz.sig )"
 	;;
+
 	*)
-		SRC_URI="mirror://gnu/${PN}/${MY_P}.tar.gz $(patches)"
+		SRC_URI="mirror://gnu/${PN}/${MY_P}.tar.gz"
+		SRC_URI+=" verify-sig? ( mirror://gnu/${PN}/${MY_P}.tar.gz.sig )"
+
+		if [[ ${PLEVEL} -gt 0 ]] ; then
+			# bash-5.1 -> bash51
+			my_p=${PN}$(ver_rs 1-2 '' $(ver_cut 1-2))
+
+			patch_url=
+			my_patch_index=
+
+			for ((my_patch_index=1; my_patch_index <= ${PLEVEL} ; my_patch_index++)) ; do
+				for url in mirror://gnu/${pn} ftp://ftp.cwru.edu/pub/bash ; do
+					patch_url=$(printf "${url}/${PN}-$(ver_cut 1-2)-patches/${my_p}-%03d" ${my_patch_index})
+					SRC_URI+=" ${patch_url}"
+					SRC_URI+=" verify-sig? ( ${patch_url}.sig )"
+				done
+
+				MY_PATCHES+=( "${DISTDIR}"/$(printf ${my_p}-%03d ${my_patch_index}) )
+			done
+
+			unset my_pn patch_url my_patch_index
+		fi
 	;;
 esac
 
 LICENSE="GPL-3"
 SLOT="0/8"  # subslot matches SONAME major
-[[ "${PV}" == *_rc* ]] || \
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+[[ ${PV} == *_rc* ]] || \
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="static-libs +unicode utils"
 
 RDEPEND=">=sys-libs/ncurses-5.9-r3:=[static-libs?,unicode(+)?,${MULTILIB_USEDEP}]"
 DEPEND="${RDEPEND}"
-BDEPEND="virtual/pkgconfig"
+BDEPEND="virtual/pkgconfig
+	verify-sig? ( sec-keys/openpgp-keys-chetramey )"
 
 S="${WORKDIR}/${MY_P}"
 
@@ -63,11 +76,14 @@ PATCHES=(
 # Needed because we don't want the patches being unpacked
 # (which emits annoying and useless error messages)
 src_unpack() {
+	verify-sig_src_unpack
+
 	unpack ${MY_P}.tar.gz
 }
 
 src_prepare() {
-	[[ ${PLEVEL} -gt 0 ]] && eapply -p0 $(patches -s)
+	[[ ${PLEVEL} -gt 0 ]] && eapply -p0 "${MY_PATCHES[@]}"
+
 	default
 
 	if use prefix && [[ ! -x "${BROOT}"/usr/bin/pkg-config ]] ; then

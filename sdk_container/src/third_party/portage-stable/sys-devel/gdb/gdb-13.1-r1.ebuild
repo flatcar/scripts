@@ -1,9 +1,12 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-PYTHON_COMPAT=( python3_{8,9,10} )
+# See https://sourceware.org/gdb/wiki/DistroAdvice for general packaging
+# tips & notes.
+
+PYTHON_COMPAT=( python3_{9..11} )
 inherit flag-o-matic python-single-r1 strip-linguas toolchain-funcs
 
 export CTARGET=${CTARGET:-${CHOST}}
@@ -23,48 +26,49 @@ case ${PV} in
 		inherit git-r3
 		SRC_URI=""
 		;;
-	*.*.50.2???????)
-		# weekly snapshots
-		SRC_URI="ftp://sourceware.org/pub/gdb/snapshots/current/gdb-weekly-${PV}.tar.xz"
+	*.*.50_p2???????|*.*.90_p2???????)
+		# Weekly snapshots
+		MY_PV="${PV/_p/.}"
+		SRC_URI="
+			https://sourceware.org/pub/gdb/snapshots/branch/gdb-weekly-${MY_PV}.tar.xz
+			https://sourceware.org/pub/gdb/snapshots/current/gdb-weekly-${MY_PV}.tar.xz
+		"
+		S="${WORKDIR}/${PN}-${MY_PV}"
+		;;
+	*.*.9?)
+		# Prereleases
+		MY_PV="${PV/_p/.}"
+		SRC_URI="
+			https://sourceware.org/pub/gdb/snapshots/branch/gdb-${MY_PV}.tar.xz
+		"
+		S="${WORKDIR}/${PN}-${MY_PV}"
 		;;
 	*)
 		# Normal upstream release
-		SRC_URI="mirror://gnu/gdb/${P}.tar.xz
-			ftp://sourceware.org/pub/gdb/releases/${P}.tar.xz"
+		SRC_URI="
+			mirror://gnu/gdb/${P}.tar.xz
+			https://sourceware.org/pub/gdb/releases/${P}.tar.xz
+		"
+
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 		;;
 esac
 
-PATCH_VER=""
 PATCH_DEV=""
+PATCH_VER=""
 DESCRIPTION="GNU debugger"
 HOMEPAGE="https://sourceware.org/gdb/"
-SRC_URI="${SRC_URI}
-	${PATCH_DEV:+https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${P}-patches-${PATCH_VER}.tar.xz}
+SRC_URI="
+	${SRC_URI}
+	${PATCH_DEV:+https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${CATEGORY}/${PN}/${P}-patches-${PATCH_VER}.tar.xz}
 	${PATCH_VER:+mirror://gentoo/${P}-patches-${PATCH_VER}.tar.xz}
 "
 
 LICENSE="GPL-3+ LGPL-2.1+"
 SLOT="0"
-
-if [[ ${PV} != 9999* ]] ; then
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-fi
-
-IUSE="cet guile lzma multitarget nls +python +server source-highlight test vanilla xml xxhash"
+IUSE="cet guile lzma multitarget nls +python +server sim source-highlight test vanilla xml xxhash zstd"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
-
-# In fact, gdb's test suite needs some work to get passing.
-# See e.g. https://sourceware.org/gdb/wiki/TestingGDB.
-# As of 11.2, on amd64: "# of unexpected failures    8600"
-# ia64 kernel crashes when gdb testsuite is running
-# in fact, gdb's test suite needs some work to get passing.
-# See e.g. https://sourceware.org/gdb/wiki/TestingGDB.
-# As of 11.2, on amd64: "# of unexpected failures    8600"
-RESTRICT="
-	ia64? ( test )
-	!test? ( test )
-	test
-"
+RESTRICT="!test? ( test )"
 
 RDEPEND="
 	dev-libs/mpfr:0=
@@ -72,6 +76,7 @@ RDEPEND="
 	>=sys-libs/ncurses-5.2-r2:0=
 	>=sys-libs/readline-7:0=
 	sys-libs/zlib
+	elibc_glibc? ( net-libs/libnsl:= )
 	lzma? ( app-arch/xz-utils )
 	python? ( ${PYTHON_DEPS} )
 	guile? ( >=dev-scheme/guile-2.0 )
@@ -82,6 +87,7 @@ RDEPEND="
 	xxhash? (
 		dev-libs/xxhash
 	)
+	zstd? ( app-arch/zstd:= )
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
@@ -95,7 +101,7 @@ BDEPEND="
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-8.3.1-verbose-build.patch
-	"${FILESDIR}"/${P}-glibc-2.35-fsqrt.patch
+	"${FILESDIR}"/${P}-Wenum-constexpr-conversion-clang16.patch
 )
 
 pkg_setup() {
@@ -142,7 +148,7 @@ src_configure() {
 		--with-bugurl='https://bugs.gentoo.org/'
 		--disable-werror
 		# Disable modules that are in a combined binutils/gdb tree. bug #490566
-		--disable-{binutils,etc,gas,gold,gprof,ld}
+		--disable-{binutils,etc,gas,gold,gprof,gprofng,ld}
 
 		# avoid automagic dependency on (currently prefix) systems
 		# systems with debuginfod library, bug #754753
@@ -155,21 +161,13 @@ src_configure() {
 		# But the check does not quite work on i686: bug #760926.
 		$(use_enable cet)
 
-		# Flatcar: we need to set both configure options, --with-sysroot
-		# and --libdir, to fix cross build issues that happen when
-		# configuring gmp. We explicitly need --libdir. Having only
-		# --with-sysroot without --libdir would not fix the build issues.
-		# For some reason, it is not enough to set only --with-sysroot,
-		# also not enough to pass --with-gmp-xxx options.
-		--with-sysroot="${ESYSROOT}"
-		--libdir="${ESYSROOT}/usr/$(get_libdir)"
+		# Helps when cross-compiling. Not to be confused with --with-sysroot.
+		--with-build-sysroot="${ESYSROOT}"
 	)
 
-	local sysroot="${EPREFIX}/usr/${CTARGET}"
-
 	is_cross && myconf+=(
-		--with-sysroot="${sysroot}"
-		--includedir="${sysroot}/usr/include"
+		--with-sysroot="\${prefix}/${CTARGET}"
+		--includedir="\${prefix}/include/${CTARGET}"
 		--with-gdb-datadir="\${datadir}/gdb/${CTARGET}"
 	)
 
@@ -199,11 +197,20 @@ src_configure() {
 		$(use_with xml expat)
 		$(use_with lzma)
 		$(use_enable nls)
+		$(use_enable sim)
 		$(use_enable source-highlight)
 		$(use multitarget && echo --enable-targets=all)
 		$(use_with python python "${EPYTHON}")
 		$(use_with xxhash)
 		$(use_with guile)
+		$(use_with zstd)
+
+		# Find libraries using the toolchain sysroot rather than the configured
+		# prefix. Needed when cross-compiling.
+		#
+		# Check which libraries to apply this to with:
+		# "${S}"/gdb/configure --help | grep without-lib | sort
+		--without-lib{babeltrace,expat,gmp,iconv,ipt,lzma,mpfr,xxhash}-prefix
 	)
 
 	if use sparc-solaris || use x86-solaris ; then
@@ -225,6 +232,18 @@ src_configure() {
 
 src_compile() {
 	emake V=1
+}
+
+src_test() {
+	# Run the unittests (nabbed invocation from Fedora's spec file) at least
+	emake -k -C gdb run GDBFLAGS='-batch -ex "maintenance selftest"'
+
+	# Too many failures
+	# In fact, gdb's test suite needs some work to get passing.
+	# See e.g. https://sourceware.org/gdb/wiki/TestingGDB.
+	# As of 11.2, on amd64: "# of unexpected failures    8600"
+	# Also, ia64 kernel crashes when gdb testsuite is running.
+	#emake -k check
 }
 
 src_install() {
@@ -260,21 +279,17 @@ src_install() {
 
 	docinto gdb
 	dodoc gdb/CONTRIBUTE gdb/README gdb/MAINTAINERS \
-		gdb/NEWS gdb/ChangeLog gdb/PROBLEMS
+		gdb/NEWS gdb/PROBLEMS
 	docinto sim
-	dodoc sim/{ChangeLog,MAINTAINERS,README-HACKING}
+	dodoc sim/{MAINTAINERS,README-HACKING}
 
 	if use server ; then
 		docinto gdbserver
-		dodoc gdbserver/{ChangeLog,README}
-	fi
-
-	if [[ -n ${PATCH_VER} ]] ; then
-		dodoc "${WORKDIR}"/extra/gdbinit.sample
+		dodoc gdbserver/README
 	fi
 
 	# Remove shared info pages
-	rm -f "${ED}"/usr/share/info/{annotate,bfd,configure,standards}.info*
+	rm -f "${ED}"/usr/share/info/{annotate,bfd,configure,ctf-spec,standards}.info*
 
 	if use python ; then
 		python_optimize "${ED}"/usr/share/gdb/python/gdb

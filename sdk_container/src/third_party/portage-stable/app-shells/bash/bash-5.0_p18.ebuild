@@ -1,69 +1,51 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/chetramey.asc
-inherit flag-o-matic toolchain-funcs prefix verify-sig
+inherit flag-o-matic toolchain-funcs prefix
 
 # Uncomment if we have a patchset
 GENTOO_PATCH_DEV="sam"
 GENTOO_PATCH_VER="${PV}"
 
 # Official patchlevel
-# See ftp://ftp.cwru.edu/pub/bash/bash-5.1-patches/
+# See ftp://ftp.cwru.edu/pub/bash/bash-5.0-patches/
 PLEVEL="${PV##*_p}"
 MY_PV="${PV/_p*}"
 MY_PV="${MY_PV/_/-}"
 MY_P="${PN}-${MY_PV}"
-MY_PATCHES=()
-
 is_release() {
 	case ${PV} in
-		*_alpha*|*_beta*|*_rc*)
-			return 1
-			;;
-		*)
-			return 0
-			;;
+	*_alpha*|*_beta*|*_rc*) return 1 ;;
+	*) return 0 ;;
 	esac
 }
-
 [[ ${PV} != *_p* ]] && PLEVEL=0
+patches() {
+	local opt=${1} plevel=${2:-${PLEVEL}} pn=${3:-${PN}} pv=${4:-${MY_PV}}
+	[[ ${plevel} -eq 0 ]] && return 1
+	eval set -- {1..${plevel}}
+	set -- $(printf "${pn}${pv/\.}-%03d " "$@")
+	if [[ ${opt} == -s ]] ; then
+		echo "${@/#/${DISTDIR}/}"
+	else
+		local u
+		for u in ftp://ftp.cwru.edu/pub/bash mirror://gnu/${pn} ; do
+			printf "${u}/${pn}-${pv}-patches/%s " "$@"
+		done
+	fi
+}
 
 # The version of readline this bash normally ships with.
-READLINE_VER="8.1"
+READLINE_VER="8.0"
 
 DESCRIPTION="The standard GNU Bourne again shell"
 HOMEPAGE="https://tiswww.case.edu/php/chet/bash/bashtop.html"
-
 if is_release ; then
-	SRC_URI="mirror://gnu/bash/${MY_P}.tar.gz"
-	SRC_URI+=" verify-sig? ( mirror://gnu/bash/${MY_P}.tar.gz.sig )"
-
-	if [[ ${PLEVEL} -gt 0 ]] ; then
-		# bash-5.1 -> bash51
-		my_p=${PN}$(ver_rs 1-2 '' $(ver_cut 1-2))
-
-	        patch_url=
-		my_patch_index=
-
-		for ((my_patch_index=1; my_patch_index <= ${PLEVEL} ; my_patch_index++)) ; do
-			for url in mirror://gnu/${pn} ftp://ftp.cwru.edu/pub/bash ; do
-				patch_url=$(printf "${url}/${PN}-$(ver_cut 1-2)-patches/${my_p}-%03d" ${my_patch_index})
-				SRC_URI+=" ${patch_url}"
-				SRC_URI+=" verify-sig? ( ${patch_url}.sig )"
-
-			done
-
-			MY_PATCHES+=( "${DISTDIR}"/$(printf ${my_p}-%03d ${my_patch_index}) )
-		done
-
-		unset my_pn patch_url my_patch_index
-	fi
+	SRC_URI="mirror://gnu/bash/${MY_P}.tar.gz $(patches)"
 else
 	SRC_URI="ftp://ftp.cwru.edu/pub/bash/${MY_P}.tar.gz"
-	SRC_URI+=" verify-sig? ( ftp://ftp.cwru.edu/pub/bash/${MY_P}.tar.gz.sig )"
 fi
 
 if [[ -n ${GENTOO_PATCH_VER} ]] ; then
@@ -72,8 +54,7 @@ fi
 
 LICENSE="GPL-3"
 SLOT="0"
-[[ "${PV}" == *_rc* ]] || \
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="afs bashlogger examples mem-scramble +net nls plugins +readline"
 
 DEPEND="
@@ -84,14 +65,14 @@ DEPEND="
 RDEPEND="
 	${DEPEND}
 "
-# We only need yacc when the .y files get patched (bash42-005, bash51-011)
-BDEPEND="app-alternatives/yacc
-	verify-sig? ( sec-keys/openpgp-keys-chetramey )"
+# We only need yacc when the .y files get patched (bash42-005)
+#BDEPEND="app-alternatives/yacc"
 
 S="${WORKDIR}/${MY_P}"
 
 PATCHES=(
 	# Patches from Chet sent to bashbug ml
+	"${WORKDIR}"/${PN}-${GENTOO_PATCH_VER}-patches/${PN}-5.0-history-append.patch
 	"${WORKDIR}"/${PN}-${GENTOO_PATCH_VER}-patches/${PN}-5.0-syslog-history-extern.patch
 )
 
@@ -110,29 +91,16 @@ pkg_setup() {
 }
 
 src_unpack() {
-	if [[ ${PV} == 9999 ]] ; then
-		git-r3_src_unpack
-	else
-		if use verify-sig ; then
-			verify-sig_verify_detached "${DISTDIR}"/${MY_P}.tar.gz{,.sig}
+	unpack ${MY_P}.tar.gz
 
-			local patch
-			for patch in "${MY_PATCHES[@]}" ; do
-				verify-sig_verify_detached ${patch}{,.sig}
-			done
-		fi
-
-		unpack ${MY_P}.tar.gz
-
-		if [[ -n ${GENTOO_PATCH_VER} ]] ; then
-			unpack ${PN}-${GENTOO_PATCH_VER}-patches.tar.xz
-		fi
+	if [[ -n ${GENTOO_PATCH_VER} ]] ; then
+		unpack ${PN}-${GENTOO_PATCH_VER}-patches.tar.xz
 	fi
 }
 
 src_prepare() {
 	# Include official patches
-	[[ ${PLEVEL} -gt 0 ]] && eapply -p0 "${MY_PATCHES[@]}"
+	[[ ${PLEVEL} -gt 0 ]] && eapply -p0 $(patches -s)
 
 	# Clean out local libs so we know we use system ones w/releases.
 	if is_release ; then
@@ -174,10 +142,10 @@ src_configure() {
 	# For descriptions of these, see config-top.h
 	# bashrc/#26952 bash_logout/#90488 ssh/#24762 mktemp/#574426
 	append-cppflags \
-		-DDEFAULT_PATH_VALUE=\'\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\"\' \
-		-DSTANDARD_UTILS_PATH=\'\"/bin:/usr/bin:/sbin:/usr/sbin\"\' \
-		-DSYS_BASHRC=\'\"/etc/bash/bashrc\"\' \
-		-DSYS_BASH_LOGOUT=\'\"/etc/bash/bash_logout\"\' \
+		-DDEFAULT_PATH_VALUE=\'\""${EPREFIX}"/usr/local/sbin:"${EPREFIX}"/usr/local/bin:"${EPREFIX}"/usr/sbin:"${EPREFIX}"/usr/bin:"${EPREFIX}"/sbin:"${EPREFIX}"/bin\"\' \
+		-DSTANDARD_UTILS_PATH=\'\""${EPREFIX}"/bin:"${EPREFIX}"/usr/bin:"${EPREFIX}"/sbin:"${EPREFIX}"/usr/sbin\"\' \
+		-DSYS_BASHRC=\'\""${EPREFIX}"/etc/bash/bashrc\"\' \
+		-DSYS_BASH_LOGOUT=\'\""${EPREFIX}"/etc/bash/bash_logout\"\' \
 		-DNON_INTERACTIVE_LOGIN_SHELLS \
 		-DSSH_SOURCE_BASHRC \
 		$(use bashlogger && echo -DSYSLOG_HISTORY)
@@ -203,7 +171,7 @@ src_configure() {
 	fi
 
 	if use plugins ; then
-		append-ldflags -Wl,-rpath,"${EPREFIX}"/usr/$(get_libdir)/bash
+		append-ldflags -Wl,-rpath,/usr/$(get_libdir)/bash
 	else
 		# Disable the plugins logic by hand since bash doesn't
 		# provide a way of doing it.
@@ -238,16 +206,15 @@ src_install() {
 	mv "${ED}"/usr/bin/bash "${ED}"/bin/ || die
 	dosym bash /bin/rbash
 
-	insinto /usr/share/bash
-	for f in bash{_logout,rc} ; do
-		doins "${FILESDIR}"/${f}
-		dosym ../../usr/share/bash/${f} /etc/bash/${f}
-	done
+	insinto /etc/bash
+	doins "${FILESDIR}"/bash_logout
+	doins "$(prefixify_ro "${FILESDIR}"/bashrc)"
 
-	insinto /usr/share/skel
+	keepdir /etc/bash/bashrc.d
+
+	insinto /etc/skel
 	for f in bash{_logout,_profile,rc} ; do
 		newins "${FILESDIR}"/dot-${f} .${f}
-		dosym ../../usr/share/skel/.${f} /etc/skel/.${f}
 	done
 
 	local sed_args=(
@@ -265,8 +232,8 @@ src_install() {
 
 	sed -i \
 		"${sed_args[@]}" \
-		"${ED}"/usr/share/skel/.bashrc \
-		"${ED}"/usr/share/bash/bashrc || die
+		"${ED}"/etc/skel/.bashrc \
+		"${ED}"/etc/bash/bashrc || die
 
 	if use plugins ; then
 		exeinto /usr/$(get_libdir)/bash
@@ -290,11 +257,7 @@ src_install() {
 		done
 	fi
 
-	# Install bash_builtins.1 and rbash.1
-	emake -C doc DESTDIR="${D}" install_builtins
-	sed 's:bash\.1:man1/&:' doc/rbash.1 > "${T}"/rbash.1 || die
-	doman "${T}"/rbash.1
-
+	doman doc/*.1
 	newdoc CWRU/changelog ChangeLog
 	dosym bash.info /usr/share/info/bashref.info
 }

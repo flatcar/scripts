@@ -836,9 +836,18 @@ EOF
     sudo setfiles -Dv -r "${root_fs_dir}" "${root_fs_dir}"/etc/selinux/mcs/contexts/files/file_contexts "${root_fs_dir}"/etc
   fi
 
-  # Backup the /etc contents to /usr/share/flatcar/etc to serve as source
-  # for creating missing files
+  # Backup the /etc contents to /usr/share/flatcar/etc to serve as
+  # source for creating missing files. Make sure that the preexisting
+  # /usr/share/flatcar/etc does not have any meaningful (non-empty)
+  # files, so we remove nothing important. There shouldn't be any
+  # symlinks either. Add "! -type d" to exclude directories as "stat"
+  # usually returns a size of a directory being 4096 or so.
+  if [[ $(sudo find "${root_fs_dir}/usr/share/flatcar/etc" -size +0 ! -type d 2>/dev/null | wc -l) -gt 0 ]]; then
+    die "Unexpected non-empty files in ${root_fs_dir}/usr/share/flatcar/etc"
+  fi
+  sudo rm -rf "${root_fs_dir}/usr/share/flatcar/etc"
   sudo cp -a "${root_fs_dir}/etc" "${root_fs_dir}/usr/share/flatcar/etc"
+
   # Remove the rootfs state as it should be recreated through the
   # tmpfiles and may not be present on updating machines. This
   # makes sure our tests cover the case of missing files in the

@@ -10,6 +10,9 @@
 =app-editors/vim-9.0.1403 ~arm64
 =app-editors/vim-core-9.0.1403 ~arm64
 
+# Required for addressing CVE-2022-3715.
+=app-shells/bash-5.2_p15-r2 ~amd64 ~arm64
+
 =coreos-devel/fero-client-0.1.1 **
 
 # Accept unstable host Rust compilers
@@ -51,6 +54,10 @@
 =sys-fs/cryptsetup-2.4.3-r1 ~amd64 ~arm64
 
 =sys-power/acpid-2.0.33 ~amd64 ~arm64
+
+# A dependency of app-shells/bash version that we need for security
+# fixes.
+=sys-libs/readline-8.2_p1 ~amd64 ~arm64
 
 # Overwrite portage-stable mask - use latest liburing -r2 for ARM64 and AMD64
 =sys-libs/liburing-2.1-r2 ~amd64 ~arm64
