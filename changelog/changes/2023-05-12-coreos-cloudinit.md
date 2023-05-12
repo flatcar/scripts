@@ -1,0 +1,1 @@
+- Update coreos-cloudinit to the [latest commit](https://github.com/flatcar/coreos-cloudinit/commit/89319292b9bca85a7a1f5f8a47c459dd45a8cc7a). This commit changes how coreos-cloudinit sets the hostname fetched from the metadata service. The short form hostname is now set as opposed to the FQDN.
