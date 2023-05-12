@@ -1,0 +1,1 @@
+- Changed coreos-cloudinit to now set the short hostname instead of the FQDN when fetched from the metadata service ([coreos-cloudinit#19](https://github.com/flatcar/coreos-cloudinit/pull/19))
