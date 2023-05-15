@@ -107,7 +107,7 @@ esac
 # The variable specifies the build system used.  Currently,
 # the following values are supported:
 #
-# - flit - flit_core backend
+# - flit - flit-core backend
 #
 # - flit_scm - flit_scm backend
 #
@@ -210,7 +210,7 @@ _distutils_set_globals() {
 		case ${DISTUTILS_USE_PEP517} in
 			flit)
 				bdep+='
-					>=dev-python/flit_core-3.8.0[${PYTHON_USEDEP}]
+					>=dev-python/flit-core-3.8.0[${PYTHON_USEDEP}]
 				'
 				;;
 			flit_scm)
@@ -330,8 +330,11 @@ _distutils_set_globals() {
 
 		if [[ ${DISTUTILS_EXT} ]]; then
 			DEPEND="${PYTHON_DEPS}"
-			IUSE="debug"
 		fi
+	fi
+
+	if [[ ${DISTUTILS_EXT} ]]; then
+		IUSE="debug"
 	fi
 }
 _distutils_set_globals
@@ -918,12 +921,12 @@ _distutils-r1_print_package_versions() {
 		case ${DISTUTILS_USE_PEP517} in
 			flit)
 				packages+=(
-					dev-python/flit_core
+					dev-python/flit-core
 				)
 				;;
 			flit_scm)
 				packages+=(
-					dev-python/flit_core
+					dev-python/flit-core
 					dev-python/flit_scm
 					dev-python/setuptools-scm
 				)
@@ -1142,7 +1145,7 @@ _distutils-r1_backend_to_key() {
 
 	local backend=${1}
 	case ${backend} in
-		flit_core.buildapi|flit.buildapi)
+		flit-core.buildapi|flit.buildapi)
 			echo flit
 			;;
 		flit_scm:buildapi)
@@ -1221,7 +1224,7 @@ _distutils-r1_get_backend() {
 		local new_backend=
 		case ${build_backend} in
 			flit.buildapi)
-				new_backend=flit_core.buildapi
+				new_backend=flit-core.buildapi
 				;;
 			poetry.masonry.api)
 				new_backend=poetry.core.masonry.api
@@ -1305,6 +1308,7 @@ distutils_pep517_install() {
 	fi
 
 	local root=${1}
+	export BUILD_DIR
 	local -x WHEEL_BUILD_DIR=${BUILD_DIR}/wheel
 	mkdir -p "${WHEEL_BUILD_DIR}" || die
 
@@ -1316,23 +1320,42 @@ distutils_pep517_install() {
 	case ${DISTUTILS_USE_PEP517} in
 		meson-python)
 			local -x NINJAOPTS=$(get_NINJAOPTS)
-			config_settings=$(
-				"${EPYTHON}" - "${DISTUTILS_ARGS[@]}" <<-EOF || die
-					import json
-					import os
-					import shlex
-					import sys
+			if has_version -b '>=dev-python/meson-python-0.13'; then
+				config_settings=$(
+					"${EPYTHON}" - "${DISTUTILS_ARGS[@]}" <<-EOF || die
+						import json
+						import os
+						import shlex
+						import sys
 
-					ninjaopts = shlex.split(os.environ["NINJAOPTS"])
-					print(json.dumps({
-						"setup-args": sys.argv[1:],
-						"compile-args": [
-							"-v",
-							f"--ninja-args={ninjaopts!r}",
-						],
-					}))
-				EOF
-			)
+						ninjaopts = shlex.split(os.environ["NINJAOPTS"])
+						print(json.dumps({
+							"builddir": "${BUILD_DIR}",
+							"setup-args": sys.argv[1:],
+							"compile-args": ["-v"] + ninjaopts,
+						}))
+					EOF
+				)
+			else
+				config_settings=$(
+					"${EPYTHON}" - "${DISTUTILS_ARGS[@]}" <<-EOF || die
+						import json
+						import os
+						import shlex
+						import sys
+
+						ninjaopts = shlex.split(os.environ["NINJAOPTS"])
+						print(json.dumps({
+							"builddir": "${BUILD_DIR}",
+							"setup-args": sys.argv[1:],
+							"compile-args": [
+								"-v",
+								f"--ninja-args={ninjaopts!r}",
+							],
+						}))
+					EOF
+				)
+			fi
 			;;
 		setuptools)
 			if [[ -n ${DISTUTILS_ARGS[@]} ]]; then
