@@ -1,9 +1,9 @@
 # Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
-PYTHON_COMPAT=( python3_{9,10} )
+EAPI=8
 
+PYTHON_COMPAT=( python3_{9..11} )
 inherit python-single-r1
 
 DESCRIPTION="USB enumeration utilities"
@@ -17,17 +17,20 @@ KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv 
 IUSE="python"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
-DEPEND="virtual/libusb:1=
-	virtual/libudev:="
-BDEPEND="
-	app-arch/xz-utils
-	virtual/pkgconfig
-	python? ( ${PYTHON_DEPS} )"
-RDEPEND="${DEPEND}
+DEPEND="
+	virtual/libusb:1=
+	virtual/libudev:=
+"
+RDEPEND="
+	${DEPEND}
 	python? (
 		${PYTHON_DEPS}
 		sys-apps/hwdata
 	)
+"
+BDEPEND="
+	virtual/pkgconfig
+	python? ( ${PYTHON_DEPS} )
 "
 
 pkg_setup() {
@@ -51,6 +54,7 @@ src_configure() {
 
 src_install() {
 	default
+
 	newdoc usbhid-dump/NEWS NEWS.usbhid-dump
 	dobin usbreset # noinst_PROGRAMS, but installed by other distros
 
