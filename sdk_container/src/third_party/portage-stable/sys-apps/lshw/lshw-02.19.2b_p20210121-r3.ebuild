@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -31,6 +31,8 @@ BDEPEND="gtk? ( virtual/pkgconfig )
 S=${WORKDIR}/${PN}
 
 DOCS=( COPYING README.md docs/{Changelog,TODO,IODC.txt,lshw.xsd,proc_usb_info.txt} )
+
+PATCHES=( "${FILESDIR}"/lshw-02.19.2b-respect-LDFLAGS.patch )
 
 src_prepare() {
 	default
@@ -73,7 +75,7 @@ src_compile() {
 src_install() {
 	emake VERSION=${MY_PV} DESTDIR="${D}" PREFIX="${EPREFIX}/usr" install $(usex gtk 'install-gui' '')
 	if use gtk ; then
-		newicon -s scalable src/gui/artwork/logo.svg gtk-lshw.svg
+		newicon -s scalable src/gui/artwork/logo.svg lshw.svg
 		make_desktop_entry \
 			"${EPREFIX}"/usr/sbin/gtk-lshw \
 			"${DESCRIPTION}"
