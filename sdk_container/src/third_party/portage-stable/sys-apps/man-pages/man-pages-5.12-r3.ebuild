@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -14,7 +14,7 @@ SRC_URI="https://www.kernel.org/pub/linux/docs/man-pages/Archive/${P}.tar.xz
 
 LICENSE="man-pages GPL-2+ BSD"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 amd64-linux ~x86-linux"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 amd64-linux ~x86-linux ~arm64-macos"
 IUSE_L10N=" de es fr it ja nl pl pt-BR ro ru zh-CN"
 IUSE="${IUSE_L10N// / l10n_}"
 RESTRICT="binchecks"
@@ -37,7 +37,6 @@ PDEPEND="
 	l10n_ro? ( app-i18n/man-pages-l10n[l10n_ro(-)] )
 	l10n_ru? ( app-i18n/man-pages-ru )
 	l10n_zh-CN? ( app-i18n/man-pages-zh_CN )
-	sys-apps/man-pages-posix
 "
 
 src_prepare() {
@@ -59,4 +58,16 @@ src_install() {
 	cd "${WORKDIR}"/man-pages-gentoo || die
 	doman */*
 	dodoc README.Gentoo
+}
+
+pkg_postinst() {
+	for ver in ${REPLACING_VERSIONS} ; do
+		if ver_test ${ver} -lt 5.12-r3 ; then
+			# Avoid ACCEPT_LICENSE issues for users by default
+			# bug #871636
+			ewarn "This version of ${PN} no longer depends on sys-apps/man-pages-posix!"
+			ewarn "Please install sys-apps/man-pages-posix yourself if needed."
+			break
+		fi
+	done
 }
