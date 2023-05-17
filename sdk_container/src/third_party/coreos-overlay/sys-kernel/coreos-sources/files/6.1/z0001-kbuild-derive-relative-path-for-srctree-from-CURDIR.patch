@@ -1,7 +1,7 @@
-From 5ae7cedb969c1a392e29653e7a1275ee5ffa9e50 Mon Sep 17 00:00:00 2001
+From dcf70e8275cf5cc964a0657312af9210996ae2e7 Mon Sep 17 00:00:00 2001
 From: Vito Caputo <vito.caputo@coreos.com>
 Date: Wed, 25 Nov 2015 02:59:45 -0800
-Subject: [PATCH 1/7] kbuild: derive relative path for srctree from CURDIR
+Subject: [PATCH 1/2] kbuild: derive relative path for srctree from CURDIR
 
 This enables relocating source and build trees to different roots,
 provided they stay reachable relative to one another.  Useful for
@@ -12,10 +12,10 @@ by some undesirable path component.
  1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/Makefile b/Makefile
-index d7ba0de250cb..4da8ba21cab8 100644
+index a5cfcd0a85a9..b81055b65169 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -243,8 +243,10 @@ else
+@@ -262,8 +262,10 @@ else
  	building_out_of_srctree := 1
  endif
  

@@ -1,25 +1,27 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 EGO_PN=github.com/docker/docker
+MY_PV=${PV/_/-}
 GIT_COMMIT=d6cbf44b8c
+inherit linux-info systemd udev golang-vcs-snapshot
+
 COREOS_GO_VERSION="go1.18"
 COREOS_GO_GO111MODULE="off"
 
-inherit bash-completion-r1 linux-info systemd udev golang-vcs-snapshot
 inherit coreos-go-depend
 
 DESCRIPTION="The core functions you need to create Docker images and run Docker containers"
 HOMEPAGE="https://www.docker.com/"
-MY_PV=${PV/_/-}
 SRC_URI="https://github.com/moby/moby/archive/v${MY_PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="amd64 ~arm arm64 ppc64 ~x86"
+KEYWORDS="amd64 ~arm arm64 ppc64 ~riscv ~x86"
 # Flatcar: default enable required USE flags
-IUSE="apparmor aufs +btrfs +cli +container-init +device-mapper +hardened +overlay +seccomp +journald"
+IUSE="apparmor aufs +btrfs +cli +container-init +device-mapper +hardened
++overlay +seccomp selinux"
 
 DEPEND="
 	acct-group/docker
@@ -34,7 +36,9 @@ DEPEND="
 # For CoreOS builds coreos-kernel must be installed because this ebuild
 # checks the kernel config. The kernel config is left by the kernel compile
 # or an explicit copy when installing binary packages. See coreos-kernel.eclass
-DEPEND+="sys-kernel/coreos-kernel"
+DEPEND+="
+	sys-kernel/coreos-kernel
+"
 
 # https://github.com/moby/moby/blob/master/project/PACKAGERS.md#runtime-dependencies
 # https://github.com/moby/moby/blob/master/project/PACKAGERS.md#optional-dependencies
@@ -44,6 +48,7 @@ DEPEND+="sys-kernel/coreos-kernel"
 # Flatcar:
 # containerd ebuild doesn't support apparmor, device-mapper and seccomp use flags
 # tini ebuild doesn't support static use flag
+# use the old category app-emulation instead of app-containers for containerd, docker-proxy and docker-cli
 RDEPEND="
 	${DEPEND}
 	>=net-firewall/iptables-1.4
@@ -51,16 +56,17 @@ RDEPEND="
 	>=dev-vcs/git-1.7
 	>=app-arch/xz-utils-4.9
 	dev-libs/libltdl
-	>=app-emulation/containerd-1.4.6[btrfs?]
-	~app-emulation/docker-proxy-0.8.0_p20210525
-	cli? ( app-emulation/docker-cli )
+	>=app-emulation/containerd-1.6.16[btrfs?]
+	~app-emulation/docker-proxy-0.8.0_p20230118
+	cli? ( ~app-emulation/docker-cli-${PV} )
 	container-init? ( >=sys-process/tini-0.19.0 )
+	selinux? ( sec-policy/selinux-docker )
 "
 
 # https://github.com/docker/docker/blob/master/project/PACKAGERS.md#build-dependencies
 # Flatcar: drop go-md2man
 BDEPEND="
-	>=dev-lang/go-1.13.12
+	>=dev-lang/go-1.16.12
 	virtual/pkgconfig
 "
 # tests require running dockerd as root and downloading containers
@@ -68,6 +74,7 @@ RESTRICT="installsources strip test"
 
 S="${WORKDIR}/${P}/src/${EGO_PN}"
 
+# Flatcar: Dropped outdated bug links, dropped openrc init script patch
 PATCHES=(
 	"${FILESDIR}/ppc64-buildmode.patch"
 )
@@ -87,7 +94,6 @@ CONFIG_CHECK="
 	~USER_NS
 	~SECCOMP
 	~CGROUP_PIDS
-	~MEMCG_SWAP
 
 	~BLK_CGROUP ~BLK_DEV_THROTTLING
 	~CGROUP_PERF
@@ -152,6 +158,12 @@ pkg_setup() {
 		"
 	fi
 
+	if kernel_is lt 6 1; then
+		CONFIG_CHECK+="
+			~MEMCG_SWAP
+		"
+	fi
+
 	if use aufs; then
 		CONFIG_CHECK+="
 			~AUFS_FS
@@ -197,11 +209,13 @@ src_compile() {
 		fi
 	done
 
-	for tag in apparmor seccomp journald; do
+	for tag in apparmor seccomp; do
 		if use $tag; then
 			DOCKER_BUILDTAGS+=" $tag"
 		fi
 	done
+	# Flatcar: Add journald to build tags.
+	DOCKER_BUILDTAGS+=' journald'
 
 	# Flatcar:
 	# inject LDFLAGS for torcx
@@ -229,7 +243,10 @@ src_install() {
 
 	# Flatcar:
 	# install our systemd units/network config and our wrapper into
-	# /usr/lib/flatcar/docker for backwards compatibility
+	# /usr/lib/flatcar/docker for backwards compatibility instead of
+	# the units from contrib/init/systemd directory.
+	#
+	# systemd_dounit contrib/init/systemd/docker.{service,socket}
 	exeinto /usr/lib/flatcar
 	doexe "${FILESDIR}/dockerd"
 
@@ -247,6 +264,9 @@ src_install() {
 
 	# Flatcar:
 	# don't install contrib bits
+	# # note: intentionally not using "doins" so that we preserve +x bits
+	# dodir /usr/share/${PN}/contrib
+	# cp -R contrib/* "${ED}/usr/share/${PN}/contrib"
 }
 
 pkg_postinst() {
@@ -287,6 +307,8 @@ pkg_postinst() {
 		ewarn "Starting with docker 20.10.2, docker has been split into"
 		ewarn "two packages upstream, so Gentoo has followed suit."
 		ewarn
+		# Flatcar: We still use the old app-emulation category,
+		# instead of app-containers.
 		ewarn "app-emulation/docker contains the daemon and"
 		ewarn "app-emulation/docker-cli contains the docker command."
 		ewarn
@@ -295,6 +317,8 @@ pkg_postinst() {
 		ewarn "This use flag is temporary, so you need to take the"
 		ewarn "following actions:"
 		ewarn
+		# Flatcar: We still use the old app-emulation category,
+		# instead of app-containers.
 		ewarn "First, disable the cli use flag for app-emulation/docker"
 		ewarn
 		ewarn "Then, if you need docker-cli and docker on the same machine,"
@@ -303,4 +327,8 @@ pkg_postinst() {
 		ewarn "# emerge --noreplace docker-cli"
 		ewarn
 	fi
+}
+
+pkg_postrm() {
+	udev_reload
 }

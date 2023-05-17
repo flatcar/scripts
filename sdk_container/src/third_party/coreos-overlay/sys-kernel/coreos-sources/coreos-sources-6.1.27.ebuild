@@ -36,10 +36,5 @@ IUSE=""
 # local patches overlap with the upstream patch.
 UNIPATCH_LIST="
 	${PATCH_DIR}/z0001-kbuild-derive-relative-path-for-srctree-from-CURDIR.patch \
-	${PATCH_DIR}/z0002-tools-objtool-Makefile-Don-t-fail-on-fallthrough-wit.patch \
-	${PATCH_DIR}/z0003-PCI-hv-Make-the-code-arch-neutral-by-adding-arch-spe.patch \
-	${PATCH_DIR}/z0004-PCI-hv-Add-arm64-Hyper-V-vPCI-support.patch \
-	${PATCH_DIR}/z0005-Drivers-hv-vmbus-Propagate-VMbus-coherence-to-each-V.patch \
-	${PATCH_DIR}/z0006-PCI-hv-Avoid-the-retarget-interrupt-hypercall-in-irq.patch \
-	${PATCH_DIR}/z0007-PCI-hv-Remove-unused-hv_set_msi_entry_from_desc.patch \
+	${PATCH_DIR}/z0002-Revert-scripts-pahole-flags.sh-Parse-DWARF-and-gener.patch \
 "

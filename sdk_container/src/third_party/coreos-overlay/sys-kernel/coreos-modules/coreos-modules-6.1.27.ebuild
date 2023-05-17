@@ -18,10 +18,12 @@ src_prepare() {
 		elog "Building using config ${archconfig} and ${commonconfig}"
 		cat "${archconfig}" "${commonconfig}" >> build/.config || die
 	fi
+	cpio -ov </dev/null >build/bootengine.cpio
 
 	# Check that an old pre-ebuild-split config didn't leak in.
 	grep -q "^CONFIG_INITRAMFS_SOURCE=" build/.config && \
 		die "CONFIG_INITRAMFS_SOURCE must be removed from kernel config"
+	config_update 'CONFIG_INITRAMFS_SOURCE="bootengine.cpio"'
 }
 
 src_compile() {
