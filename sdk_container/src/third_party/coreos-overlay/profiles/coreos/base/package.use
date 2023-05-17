@@ -14,8 +14,6 @@ net-misc/curl		kerberos telnet
 net-misc/iputils	arping tracepath
 sys-devel/gettext	-git
 
-sys-apps/gptfdisk -icu
-
 # for profile migration, needs to be enabled despite the fact it's
 # enabled by default in the ebuild, because berkdb is disabled
 # globally in make.defaults.
