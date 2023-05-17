@@ -1,4 +1,4 @@
-From 807d6a9724d1155526d42ed47a2bfb2fc8fb6ca3 Mon Sep 17 00:00:00 2001
+From a9f374dae80f4a5f645d6612174fea0c7304436b Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Fri, 24 Feb 2023 09:14:24 +0100
 Subject: [PATCH 04/21] vendor: go mod vendor
@@ -17091,5 +17091,5 @@ index 9b01b083..1e050725 100644
  ## explicit; go 1.17
  golang.org/x/net/context
 -- 
-2.25.1
+2.34.1
 

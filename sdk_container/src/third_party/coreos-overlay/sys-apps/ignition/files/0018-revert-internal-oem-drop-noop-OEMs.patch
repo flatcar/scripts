@@ -1,4 +1,4 @@
-From bb172f1cbf23695214e5556b6f40b92eae6af0bb Mon Sep 17 00:00:00 2001
+From cee296c017c4b654d637e38a81c1725b23338bc1 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Wed, 21 Dec 2022 17:25:02 +0100
 Subject: [PATCH 18/21] revert: internal/oem: drop noop OEMs
@@ -75,5 +75,5 @@ index 51bf5174..3169536c 100644
  		name:      "virtualbox",
  		fetch:     virtualbox.FetchConfig,
 -- 
-2.25.1
+2.34.1
 

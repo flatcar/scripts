@@ -1,4 +1,4 @@
-From 750d5021772a4865f9389038d32be05e41bb5fb7 Mon Sep 17 00:00:00 2001
+From 24b862a90711a3e1564cba7548defdcf5114ab0f Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Fri, 24 Feb 2023 09:08:13 +0100
 Subject: [PATCH 01/21] *: sed `s/coreos/flatcar/`
@@ -6355,5 +6355,5 @@ index bec64866..ed027604 100644
  
  var (
 -- 
-2.25.1
+2.34.1
 

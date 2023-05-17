@@ -1,4 +1,4 @@
-From e7ce683cec079bbd796827da3bce6cfe2a9fe3cd Mon Sep 17 00:00:00 2001
+From 0370ca89e1fdcdcafcd0d1be5787272700f690bc Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Tue, 22 Feb 2022 15:41:13 +0100
 Subject: [PATCH 13/21] config/util: add cloud init detection to initial
@@ -8,31 +8,46 @@ we detect if the config is not an ignition one (script/cloudinit) and we
 return an ErrEmpty which will make Ignition to ignore this user config.
 
 Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Signed-off-by: Gabriel Adrian Samfira <gsamfira@cloudbasesolutions.com>
 ---
- config/util/parsingErrors.go | 39 ++++++++++++++++++++++++++++++++++++
- 1 file changed, 39 insertions(+)
+ config/util/parsingErrors.go | 53 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 53 insertions(+)
 
 diff --git a/config/util/parsingErrors.go b/config/util/parsingErrors.go
-index 865d75d2..914bf2bf 100644
+index 865d75d2..313d42ea 100644
 --- a/config/util/parsingErrors.go
 +++ b/config/util/parsingErrors.go
-@@ -15,7 +15,12 @@
+@@ -15,7 +15,14 @@
  package util
  
  import (
++	"bufio"
 +	"bytes"
 +	"compress/gzip"
  	"encoding/json"
 +	"io/ioutil"
++	"net/textproto"
 +	"strings"
 +	"unicode"
  
  	"github.com/flatcar/ignition/v2/config/shared/errors"
  
-@@ -24,10 +29,44 @@ import (
+@@ -24,10 +31,56 @@ import (
  	"github.com/coreos/vcontext/tree"
  )
  
++func isMultipartMime(userdata []byte) bool {
++	userdata = decompressIfGzipped(userdata)
++	mimeReader := textproto.NewReader(bufio.NewReader(bytes.NewReader(userdata)))
++	header, err := mimeReader.ReadMIMEHeader()
++	if err != nil {
++		return false
++	}
++	contentType := header.Get("Content-Type")
++
++	return strings.Contains(contentType, "multipart/mixed")
++}
++
 +func isCloudConfig(userdata []byte) bool {
 +	header := strings.SplitN(string(decompressIfGzipped(userdata)), "\n", 2)[0]
 +
@@ -66,7 +81,7 @@ index 865d75d2..914bf2bf 100644
  func HandleParseErrors(rawConfig []byte, to interface{}) (report.Report, error) {
  	r := report.Report{}
 +
-+	if isCloudConfig(rawConfig) || isScript(rawConfig) {
++	if isCloudConfig(rawConfig) || isScript(rawConfig) || isMultipartMime(rawConfig) {
 +		// returning ErrEmpty will make ignition ignoring this user provided config.
 +		return report.Report{}, errors.ErrEmpty
 +	}
@@ -75,5 +90,5 @@ index 865d75d2..914bf2bf 100644
  	if err == nil {
  		return report.Report{}, nil
 -- 
-2.25.1
+2.34.1
 
