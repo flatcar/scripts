@@ -314,9 +314,12 @@ net-dns/bind-tools
 net-dns/c-ares
 net-dns/dnsmasq
 
+net-firewall/ipset
+
 net-fs/cifs-utils
 
 net-libs/gnutls
+net-libs/libnftnl
 net-libs/libnsl
 net-libs/libpcap
 net-libs/libslirp
@@ -331,6 +334,8 @@ net-misc/rsync
 net-misc/socat
 net-misc/wget
 net-misc/whois
+
+net-nds/rpcbind
 
 net-vpn/wireguard-tools
 

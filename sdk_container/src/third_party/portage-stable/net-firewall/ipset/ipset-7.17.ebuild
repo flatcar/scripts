@@ -1,27 +1,31 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="7"
+EAPI=8
+
 MODULES_OPTIONAL_USE=modules
-inherit autotools linux-info linux-mod systemd
+inherit autotools bash-completion-r1 linux-info linux-mod systemd
 
 DESCRIPTION="IPset tool for iptables, successor to ippool"
-HOMEPAGE="https://ipset.netfilter.org/"
+HOMEPAGE="https://ipset.netfilter.org/ https://git.netfilter.org/ipset/"
 SRC_URI="https://ipset.netfilter.org/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~arm64 ~ppc ~ppc64 ~riscv ~x86"
+KEYWORDS="amd64 arm arm64 ~loong ppc ppc64 ~riscv x86"
 
-BDEPEND="virtual/pkgconfig"
-
-RDEPEND=">=net-firewall/iptables-1.4.7
-	net-libs/libmnl:="
+RDEPEND="
+	>=net-firewall/iptables-1.4.7
+	net-libs/libmnl:=
+"
 DEPEND="${RDEPEND}"
+BDEPEND="virtual/pkgconfig"
 
 DOCS=( ChangeLog INSTALL README UPGRADE )
 
-PATCHES=( "${FILESDIR}"/${PN}-7.4-fix-pkgconfig-dir.patch )
+PATCHES=(
+	"${FILESDIR}"/${PN}-7.16-bashism.patch
+)
 
 # configurable from outside, e.g. /etc/portage/make.conf
 IP_NF_SET_MAX=${IP_NF_SET_MAX:-256}
@@ -76,11 +80,12 @@ src_prepare() {
 }
 
 src_configure() {
+	export bashcompdir="$(get_bashcompdir)"
+
 	econf \
+		--enable-bashcompl \
 		$(use_with modules kmod) \
-		--disable-static \
 		--with-maxsets=${IP_NF_SET_MAX} \
-		--libdir="${EPREFIX}/$(get_libdir)" \
 		--with-ksource="${KV_DIR}" \
 		--with-kbuild="${KV_OUT_DIR}"
 }
@@ -104,7 +109,7 @@ src_install() {
 
 	newinitd "${FILESDIR}"/ipset.initd-r4 ${PN}
 	newconfd "${FILESDIR}"/ipset.confd ${PN}
-	systemd_newunit "${FILESDIR}"/ipset.systemd ${PN}.service
+	systemd_newunit "${FILESDIR}"/ipset.systemd-r1 ${PN}.service
 	keepdir /var/lib/ipset
 
 	if [[ ${build_modules} -eq 1 ]]; then
