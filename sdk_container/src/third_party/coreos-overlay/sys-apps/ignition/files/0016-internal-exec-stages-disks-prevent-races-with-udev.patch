@@ -1,4 +1,4 @@
-From e7cfcc2d44f83d2bc7a481c62a09b7d8c7aee2f4 Mon Sep 17 00:00:00 2001
+From 1280d62d27356a7f83a638a828c1028618461a48 Mon Sep 17 00:00:00 2001
 From: Kai Lueke <kailuke@microsoft.com>
 Date: Fri, 11 Feb 2022 15:41:12 +0100
 Subject: [PATCH 16/18] internal/exec/stages/disks: prevent races with udev
@@ -193,5 +193,5 @@ index 41f98a41..d22f604c 100644
  
  	return nil
 -- 
-2.35.1
+2.34.1
 
