@@ -1,4 +1,4 @@
-From b2f30b420740fc48611fe28d39c1e87a7efe9dc9 Mon Sep 17 00:00:00 2001
+From 9c5f6d148f091334f9086e9615118aeb314d7574 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mathieu@kinvolk.io>
 Date: Fri, 30 Jul 2021 14:21:31 +0200
 Subject: [PATCH 07/18] internal/prv/cmdline: backport flatcar patch
@@ -36,5 +36,5 @@ index f09e6fcb..b6de99d5 100644
  		}
  
 -- 
-2.35.1
+2.34.1
 
