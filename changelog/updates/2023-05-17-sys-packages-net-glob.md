@@ -1,0 +1,2 @@
+- ipset ([7.17](https://git.netfilter.org/ipset/tree/ChangeLog?id=186f9b57c60bb53aae5f6633eff1e9d5e9095c3e)
+- libnftnl ([1.2.5](https://git.netfilter.org/libnftnl/log/?h=libnftnl-1.2.5))
