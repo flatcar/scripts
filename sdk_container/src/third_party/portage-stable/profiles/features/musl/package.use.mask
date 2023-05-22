@@ -1,13 +1,13 @@
 # Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Sam James <sam@gentoo.org> (2023-05-08)
+# Needs fpu_control.h, bug #891063
+media-sound/lame debug
+
 # Conrad Kostecki <conikost@gentoo.org> (2023-03-01)
 # sys-block/arcconf is masked on musl
 net-analyzer/nagios-plugin-check_raid aacraid
-
-# Sam James <sam@gentoo.org> (2023-02-17)
-# dev-lisp/sbcl is masked on musl
-sci-mathematics/fricas sbcl
 
 # Bernd Waibel <waebbl-gentoo@posteo.net> (2022-10-04)
 # Mask loguru until fixed upstream #873601
@@ -91,6 +91,7 @@ sys-apps/man-pages l10n_sr l10n_sv l10n_uk l10n_vi
 sys-apps/man-pages l10n_ja l10n_ru l10n_zh-CN
 sys-apps/sysvinit nls
 sys-auth/sssd man
+sys-apps/util-linux nls
 
 # Sam James <sam@gentoo.org> (2021-11-07)
 # Disable some sanitizers for LLVM, see bug #753935
