@@ -33,7 +33,7 @@ function garbage_collect_github_ci() {
 # --
 
 function _garbage_collect_github_ci_impl() {
-    local keep="${1:-50}"
+    local keep="${1:-20}"
     local dry_run="${DRY_RUN:-}"
 
     # Example version string
@@ -55,9 +55,9 @@ function _garbage_collect_github_ci_impl() {
     echo "######## Full list of version(s) found ########"
     echo "${versions_sorted}" | awk '{printf "%5d %s\n", NR, $0}'
 
-    keep="$((keep + 1))" # for tail -n+...
+    local tail_keep="$((keep + 1))" # for tail -n+...
     local purge_versions
-    mapfile -t purge_versions < <(tail -n+"${keep}" <<<"${versions_sorted}")
+    mapfile -t purge_versions < <(tail -n+"${tail_keep}" <<<"${versions_sorted}")
 
     source ci-automation/ci_automation_common.sh
     local sshcmd="$(gen_sshcmd)"
@@ -69,7 +69,7 @@ function _garbage_collect_github_ci_impl() {
         echo "(NOTE this is just a dry run since DRY_RUN=y)"
         echo
     fi
-    printf '%s\n' "${purge_versions[@]}" | awk -v keep="${keep}" '{if ($0 == "") next; printf "%5d %s\n", NR + keep - 1, $0}'
+    printf '%s\n' "${purge_versions[@]}" | awk -v keep="${keep}" '{if ($0 == "") next; printf "%5d %s\n", NR + keep, $0}'
     echo
     echo
 
