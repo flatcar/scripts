@@ -147,7 +147,7 @@ function _garbage_collect_impl() {
     echo
     echo "########################################"
     echo
-    echo    Running cloud garbace collector
+    echo    Running cloud garbage collector
     echo
 
     local mantle_ref
@@ -165,7 +165,7 @@ function _garbage_collect_impl() {
     echo
     echo "#############################################"
     echo
-    echo    Running Github CI SDK garbace collector
+    echo    Running Github CI SDK garbage collector
     echo
 
     source ci-automation/garbage_collect_github_ci_sdk.sh
