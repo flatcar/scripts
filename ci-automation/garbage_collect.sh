@@ -18,6 +18,8 @@
 # Flatcar CI automation garbage collector.
 #  This script removes development (non-official) build artifacts:
 #   - SDK tarballs, build step containers, and vendor images on buildcache
+#   - SDK containers built via Github actions (e.g. from PRs).
+#      See https://github.com/flatcar/scripts/blob/main/.github/workflows/update-sdk.yaml
 #   - tags from the scripts repository
 #
 #  Garbage collection is based on development (non-official) version tags
@@ -142,6 +144,12 @@ function _garbage_collect_impl() {
         fi
     done
 
+    echo
+    echo "########################################"
+    echo
+    echo    Running cloud garbage collector
+    echo
+
     local mantle_ref
     mantle_ref=$(cat sdk_container/.repo/manifests/mantle-container)
     docker run --pull always --rm --net host \
@@ -153,5 +161,14 @@ function _garbage_collect_impl() {
       --env VMWARE_ESX_CREDS \
       --env OPENSTACK_CREDS \
       -w /work -v "$PWD":/work "${mantle_ref}" /work/ci-automation/garbage_collect_cloud.sh
+
+    echo
+    echo "#############################################"
+    echo
+    echo    Running Github CI SDK garbage collector
+    echo
+
+    source ci-automation/garbage_collect_github_ci_sdk.sh
+    garbage_collect_github_ci
 }
 # --

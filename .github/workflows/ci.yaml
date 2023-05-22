@@ -1,27 +1,38 @@
 name: "Run build"
 on:
-  pull_request:
-    # Run when the PR is opened, reopened, or updated (synchronize)
-    types: [opened, ready_for_review, reopened, synchronize]
   workflow_dispatch:
     inputs:
       image_formats:
+        type: string
         description: |
           Space-separated vendor formats to build.
         required: true
         default: qemu_uefi
+      custom_sdk_version:
+        type: string
+        required: false
+        description: |
+          Custom SDK container version to use for this build.
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }} 
-  cancel-in-progress: true
+  workflow_call:
+    inputs:
+      image_formats:
+        type: string
+        description: |
+          Space-separated vendor formats to build.
+        required: true
+        default: qemu_uefi
+      custom_sdk_version:
+        type: string
+        required: false
+        description: |
+          Custom SDK container version to use for this build.
 
 permissions:
   pull-requests: write
 
 jobs:
   packages:
-    # Do not run when still in draft mode but a review was requested anyway
-    if: github.event.pull_request.draft == false
     name: "Build Flatcar packages"
     runs-on:
       - self-hosted
@@ -70,7 +81,6 @@ jobs:
           set -euo pipefail
 
           git checkout ${{ github.event.pull_request.head.sha }}
-          git submodule update
 
       - name: Set environment
         shell: bash
@@ -91,6 +101,10 @@ jobs:
           #  this with its IP address.
           echo "TORCX_TESTS_PACKAGE_URL=http://localhost:12345" >> $GITHUB_ENV
 
+          if [ -n "${{ github.event.inputs.custom_sdk_version }}" ] ; then
+              echo "CUSTOM_SDK_VERSION=${{ github.event.inputs.custom_sdk_version }}" >> $GITHUB_ENV
+          fi
+
       - name: Build packages
         shell: bash
         run: |
@@ -103,7 +117,7 @@ jobs:
 
           version="alpha-$FLATCAR_VERSION_ID"
           check_version_string "$version"
-          sdk_version="${FLATCAR_SDK_VERSION}"
+          sdk_version="${CUSTOM_SDK_VERSION:-$FLATCAR_SDK_VERSION}"
 
           sdk_name="flatcar-sdk-${arch}"
           docker_sdk_vernum="$(vernum_to_docker_image_version "${sdk_version}")"
