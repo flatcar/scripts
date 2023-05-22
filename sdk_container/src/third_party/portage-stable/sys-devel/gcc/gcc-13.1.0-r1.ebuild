@@ -4,10 +4,10 @@
 EAPI=8
 
 TOOLCHAIN_PATCH_DEV="sam"
-PATCH_VER="15"
-PATCH_GCC_VER="12.2.0"
-MUSL_VER="7"
-MUSL_GCC_VER="12.2.0"
+PATCH_VER="1"
+PATCH_GCC_VER="13.2.0"
+MUSL_VER="2"
+MUSL_GCC_VER="13.2.0"
 
 if [[ $(ver_cut 3) == 9999 ]] ; then
 	MY_PV_2=$(ver_cut 2)
@@ -23,7 +23,7 @@ elif [[ -n ${TOOLCHAIN_GCC_RC} ]] ; then
 	# Cheesy hack for RCs
 	MY_PV=$(ver_cut 1).$((($(ver_cut 2) + 1))).$((($(ver_cut 3) - 1)))-RC-$(ver_cut 5)
 	MY_P=${PN}-${MY_PV}
-	GCC_TARBALL_SRC_URI="https://gcc.gnu.org/pub/gcc/snapshots/${MY_PV}/${MY_P}.tar.xz"
+	GCC_TARBALL_SRC_URI="mirror://gcc/snapshots/${MY_PV}/${MY_P}.tar.xz"
 	TOOLCHAIN_SET_S=no
 	S="${WORKDIR}"/${MY_P}
 fi
@@ -34,9 +34,9 @@ inherit toolchain
 EGIT_BRANCH=releases/gcc-$(ver_cut 1)
 
 # Don't keyword live ebuilds
-#if ! tc_is_live && [[ -z ${TOOLCHAIN_USE_GIT_PATCHES} ]] ; then
-#	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
-#fi
+if ! tc_is_live && [[ -z ${TOOLCHAIN_USE_GIT_PATCHES} ]] ; then
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+fi
 
 if [[ ${CATEGORY} != cross-* ]] ; then
 	# Technically only if USE=hardened *too* right now, but no point in complicating it further.
@@ -48,7 +48,15 @@ if [[ ${CATEGORY} != cross-* ]] ; then
 fi
 
 src_prepare() {
+	local p upstreamed_patches=(
+		# add them here
+	)
+	for p in "${upstreamed_patches[@]}"; do
+		rm -v "${WORKDIR}/patch/${p}" || die
+	done
+
 	toolchain_src_prepare
 
+	eapply "${FILESDIR}"/${PN}-13-fix-cross-fixincludes.patch
 	eapply_user
 }
