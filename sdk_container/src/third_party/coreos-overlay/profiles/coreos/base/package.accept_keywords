@@ -55,6 +55,9 @@
 # FIPS support is still being tested
 =sys-fs/cryptsetup-2.4.3-r1 ~amd64 ~arm64
 
+# Needed to address CVE-2023-2602 and CVE-2023-2603
+=sys-libs/libcap-2.69 ~amd64 ~arm64
+
 =sys-power/acpid-2.0.33 ~amd64 ~arm64
 
 # A dependency of app-shells/bash version that we need for security
