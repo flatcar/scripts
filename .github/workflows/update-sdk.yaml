@@ -48,6 +48,7 @@ jobs:
 
     steps:
       - name: Prepare machine
+        id: step1
         shell: bash
         working-directory: ${{ github.workspace }}
         run: |
@@ -63,11 +64,13 @@ jobs:
           sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 
       - uses: actions/checkout@v3
+        id: step2
         with:
           path: scripts
           fetch-depth: 0
 
       - name: Set environment
+        id: step3
         shell: bash
         run: |
           if [ -n "${{ github.event.inputs.source_sdk_version }}" ] ; then
@@ -78,6 +81,7 @@ jobs:
           fi
 
       - name: Build an updated SDK container
+        id: step4
         shell: bash
         run: |
           exec 2>&1
@@ -119,6 +123,7 @@ jobs:
           ./update_sdk_container_image "${target_version}"
 
       - name: Upload the SDK container and binary packages to bincache
+        id: step5
         shell: bash
         run: |
           set -euo pipefail
