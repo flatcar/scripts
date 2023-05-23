@@ -41,7 +41,6 @@
 
 # To keep the same version on both arches
 =sys-devel/binutils-2.39-r5 ~arm64
-=sys-devel/gcc-12.2.1_p20230340 ~arm64
 
 =sys-fs/cryptsetup-2.4.1-r1 ~amd64 ~arm64
 
