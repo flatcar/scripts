@@ -15,8 +15,7 @@ jobs:
     # Only run if this is a PR comment that contains a valid command
     if: |
       ${{ github.event.issue.pull_request }} &&
-        (    contains(github.event.comment.body, '/update-sdk')
-          || contains(github.event.comment.body, '/build-image') )
+        (    contains(github.event.comment.body, '/update-sdk') || contains(github.event.comment.body, '/build-image') )
     name: Check if commenter is in the Flatcar maintainers team
     outputs:
       maintainers: steps.step1.output.maintainers
@@ -60,10 +59,9 @@ jobs:
     uses: ./.github/workflows/update-sdk.yaml
 
   build_image:
-    needs: [ check_maintainer_membership, build_sdk ]
+    needs: [ check_maintainer_membership, update_sdk ]
     if: ( always() && needs.check_maintainer_membership.result == 'success'
-                   && (    contains(github.event.comment.body, '/build-image')
-                        || needs.build_sdk.result == 'success' ) )
+                   && (    contains(github.event.comment.body, '/build-image') || needs.update_sdk.result == 'success' ) )
     name: "Build the OS image"
     uses: ./.github/workflows/ci.yaml
     with:
