@@ -39,9 +39,6 @@
 # Also to keep the same version on both arches
 =net-misc/rsync-3.2.7-r2 ~amd64
 
-# To keep the same version on both arches
-=sys-devel/binutils-2.39-r5 ~arm64
-
 =sys-fs/cryptsetup-2.4.1-r1 ~amd64 ~arm64
 
 # To keep the same version on both arches
