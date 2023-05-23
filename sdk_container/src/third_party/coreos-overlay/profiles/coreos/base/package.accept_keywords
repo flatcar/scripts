@@ -23,9 +23,6 @@
 =dev-libs/libbsd-0.11.7-r2 ~arm64
 =dev-libs/libgcrypt-1.10.1-r3 ~arm64
 
-# Required for CVE-2023-28484 and CVE-2023-29469
-=dev-libs/libxml2-2.10.4 ~amd64 ~arm64
-
 # To keep the same version on both arches
 =dev-util/bpftool-6.2.1 ~arm64
 
