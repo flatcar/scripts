@@ -172,7 +172,7 @@ dev-python/cython
 dev-python/distro
 dev-python/docutils
 dev-python/fasteners
-dev-python/flit_core
+dev-python/flit-core
 dev-python/gentoo-common
 dev-python/gpep517
 dev-python/inflect
@@ -361,6 +361,7 @@ sys-apps/i2c-tools
 sys-apps/iucode_tool
 sys-apps/less
 sys-apps/portage
+sys-apps/sed
 sys-apps/texinfo
 
 sys-devel/autoconf
