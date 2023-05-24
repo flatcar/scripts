@@ -272,7 +272,7 @@ build_stage() {
         --config "$TEMPDIR/catalyst.conf" \
         --file "$TEMPDIR/${stage}.spec" \
         --cli "source_subpath=$srcpath"
-    # Catalyst doesn't clean up after itself...
+    # Catalyst does not clean up after itself...
     rm -rf "$TEMPDIR/$stage-${ARCH}-${FLAGS_version}"
     ln -sf "$stage-${ARCH}-${FLAGS_version}.tar.bz2" \
         "$BUILDS/$stage-${ARCH}-latest.tar.bz2"
@@ -280,8 +280,13 @@ build_stage() {
 }
 
 build_snapshot() {
-    local snapshot="portage-${FLAGS_version}.tar.bz2"
-    local snapshot_path="$CATALYST_ROOT/snapshots/${snapshot}"
+    local catalyst_conf snapshot snapshots_dir snapshot_base snapshot_path
+
+    catalyst_conf=${1:-"${TEMPDIR}/catalyst.conf"}
+    snapshot=${2:-"${FLAGS_version}"}
+    snapshots_dir="${CATALYST_ROOT}/snapshots"
+    snapshot_base="${snapshots_dir}/gentoo-${snapshot}"
+    snapshot_path="${snapshot_base}.tar.bz2"
     if [[ -f "${snapshot_path}" && $FLAGS_rebuild == $FLAGS_FALSE ]]
     then
         info "Skipping snapshot, ${snapshot_path} exists"
@@ -290,8 +295,31 @@ build_snapshot() {
         catalyst \
             "${DEBUG[@]}" \
             --verbose \
-            --config "$TEMPDIR/catalyst.conf" \
-            --snapshot "$FLAGS_version"
+            --config "${catalyst_conf}" \
+            --snapshot "${snapshot}"
+    fi
+    local f
+    local to_remove=()
+    # This will expand to at least our just built snapshot tarball, so
+    # no nullglob is needed here.
+    for f in "${snapshot_base}".*; do
+        case "${f}" in
+            "${snapshot_path}")
+                # Our snapshot, keep it as is.
+                :
+                ;;
+            *.CONTENTS|*.CONTENTS.gz|*.DIGESTS)
+                # These can stay, catalyst is not bothered by those.
+                :
+                ;;
+            *)
+                to_remove+=("${f}")
+                ;;
+        esac
+    done
+    if [[ ${#to_remove[@]} -gt 0 ]]; then
+        info "$(printf '%s\n' 'Found spurious files in snapshots directory that may confuse Catalyst, removing them:' "${to_remove[@]}")"
+        rm -rf "${to_remove[@]}"
     fi
 }
 
@@ -336,5 +364,5 @@ catalyst_build() {
     fi
 
     # Cleanup snapshots, we don't use them
-    rm -rf "$CATALYST_ROOT/snapshots/portage-${FLAGS_version}.tar.bz2"*
+    rm -rf "$CATALYST_ROOT/snapshots/gentoo-${FLAGS_version}.tar.bz2"*
 }
