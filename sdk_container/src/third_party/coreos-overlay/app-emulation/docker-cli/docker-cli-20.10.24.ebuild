@@ -6,7 +6,7 @@ GIT_COMMIT=e78084afe5
 EGO_PN="github.com/docker/cli"
 
 COREOS_GO_PACKAGE="${EGO_PN}"
-COREOS_GO_VERSION="go1.18"
+COREOS_GO_VERSION="go1.19"
 
 inherit bash-completion-r1  golang-vcs-snapshot coreos-go-depend
 

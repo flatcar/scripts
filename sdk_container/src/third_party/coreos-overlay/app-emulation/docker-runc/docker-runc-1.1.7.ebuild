@@ -5,7 +5,7 @@ EAPI=6
 
 GITHUB_URI="github.com/opencontainers/runc"
 COREOS_GO_PACKAGE="${GITHUB_URI}"
-COREOS_GO_VERSION="go1.18"
+COREOS_GO_VERSION="go1.19"
 # the commit of runc that docker uses.
 # see https://github.com/docker/docker-ce/blob/v19.03.15/components/engine/hack/dockerfile/install/runc.installer#L4
 COMMIT_ID="532d81d385677036958916d9aed5dd3431c5edb5"
