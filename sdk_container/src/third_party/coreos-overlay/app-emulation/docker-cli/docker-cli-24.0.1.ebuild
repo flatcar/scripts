@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-GIT_COMMIT=e78084afe5
+GIT_COMMIT=11bdd6dc7cff8b20b768e1462e1be81b26bbc08f
 EGO_PN="github.com/docker/cli"
 
 COREOS_GO_PACKAGE="${EGO_PN}"
