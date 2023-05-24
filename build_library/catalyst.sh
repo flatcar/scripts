@@ -157,6 +157,8 @@ catalyst_init() {
     switch_to_strict_mode
     eval set -- "${FLAGS_ARGV}"
 
+    local stage
+
     if [[ -n "${FORCE_STAGES}" ]]; then
         STAGES="${FORCE_STAGES}"
     elif [[ $# -eq 0 ]]; then
@@ -248,6 +250,8 @@ write_configs() {
 }
 
 build_stage() {
+    local stage srcpath catalyst_conf target_tarball
+
     stage="$1"
     srcpath="$2"
     catalyst_conf="$3"
@@ -298,6 +302,8 @@ catalyst_build() {
     info "Building stages: $STAGES"
     write_configs
     build_snapshot
+
+    local used_seed
 
     used_seed=0
     if [[ "$STAGES" =~ stage1 ]]; then
