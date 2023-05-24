@@ -7,7 +7,7 @@ MY_PV=${PV/_/-}
 GIT_COMMIT=d6cbf44b8c
 inherit linux-info systemd udev golang-vcs-snapshot
 
-COREOS_GO_VERSION="go1.18"
+COREOS_GO_VERSION="go1.19"
 COREOS_GO_GO111MODULE="off"
 
 inherit coreos-go-depend

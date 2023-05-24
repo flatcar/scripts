@@ -8,7 +8,7 @@ inherit golang-vcs-snapshot
 
 # Flatcar: Add coreos go goo.
 COREOS_GO_PACKAGE="${EGO_PN}"
-COREOS_GO_VERSION="go1.18"
+COREOS_GO_VERSION="go1.19"
 COREOS_GO_GO111MODULE="off"
 
 inherit coreos-go
