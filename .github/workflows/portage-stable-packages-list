@@ -119,6 +119,7 @@ app-text/sgml-common
 dev-db/sqlite
 
 dev-lang/duktape
+dev-lang/go-bootstrap
 dev-lang/lua
 dev-lang/perl
 dev-lang/python
