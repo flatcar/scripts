@@ -50,7 +50,7 @@ RDEPEND="${RDEPEND}
 	dev-libs/libyaml
 	dev-libs/nspr
 	dev-libs/protobuf
-	dev-python/flit_core
+	dev-python/flit-core
 	dev-python/gpep517
 	dev-python/setuptools
 	dev-python/wheel

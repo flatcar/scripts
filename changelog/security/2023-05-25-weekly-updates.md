@@ -1,0 +1,3 @@
+- git ([CVE-2023-25652](https://nvd.nist.gov/vuln/detail/CVE-2023-25652), [CVE-2023-25815](https://nvd.nist.gov/vuln/detail/CVE-2023-25815), [CVE-2023-29007](https://nvd.nist.gov/vuln/detail/CVE-2023-29007))
+- curl ([CVE-2023-28319](https://nvd.nist.gov/vuln/detail/CVE-2023-28319), [CVE-2023-28320](https://nvd.nist.gov/vuln/detail/CVE-2023-28320), [CVE-2023-28321](https://nvd.nist.gov/vuln/detail/CVE-2023-28321), [CVE-2023-28322](https://nvd.nist.gov/vuln/detail/CVE-2023-28322))
+- libcap ([CVE-2023-2602](https://nvd.nist.gov/vuln/detail/CVE-2023-2602), [CVE-2023-2603](https://nvd.nist.gov/vuln/detail/CVE-2023-2603))
