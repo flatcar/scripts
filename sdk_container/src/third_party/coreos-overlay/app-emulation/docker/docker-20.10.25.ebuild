@@ -4,7 +4,7 @@
 EAPI=7
 EGO_PN=github.com/docker/docker
 MY_PV=${PV/_/-}
-GIT_COMMIT=d6cbf44b8c
+GIT_COMMIT=7ef85d4ca53aba3a1356d6a01497536c3f34982d
 inherit linux-info systemd udev golang-vcs-snapshot
 
 COREOS_GO_VERSION="go1.18"

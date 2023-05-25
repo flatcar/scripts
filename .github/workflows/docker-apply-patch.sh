@@ -42,7 +42,7 @@ sed -i "s/docker-cli-${VERSION_OLD}/docker-cli-${VERSION_NEW}/g" "${torcxEbuildF
 # update also docker versions used by the current docker-runc ebuild file.
 versionRunc=$(sed -n "s/^DIST docker-runc-\([0-9]*.[0-9]*.*\)\.tar.*/\1/p" app-emulation/docker-runc/Manifest | sort -ruV | head -n1)
 runcEbuildFile=$(get_ebuild_filename app-emulation/docker-runc "${versionRunc}")
-sed -i "s/github.com\/docker\/docker-ce\/blob\/v${VERSION_OLD}/github.com\/docker\/docker-ce\/blob\/v${VERSION_NEW}/g" ${runcEbuildFile}
+sed -i "s/github.com\/docker\/docker-ce\/blob\/v${VERSION_OLD}/github.com\/docker\/docker-ce\/blob\/v${VERSION_NEW}/g" "${runcEbuildFile}"
 
 popd
 
