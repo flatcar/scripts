@@ -32,7 +32,7 @@ IUSE=""
 
 RDEPEND="app-eselect/eselect-go"
 DEPEND="${RDEPEND}
-	>=dev-lang/go-bootstrap-1.5.3"
+	>=dev-lang/go-bootstrap-1.17.13"
 
 # These test data objects have writable/executable stacks.
 QA_EXECSTACK="usr/lib/go${GOSLOT}/src/debug/elf/testdata/*.obj"
@@ -100,7 +100,12 @@ coreos-go-lang_src_install() {
 	insinto "/usr/lib/go${GOSLOT}"
 	doins -r doc lib src
 	insinto "/usr/lib/go${GOSLOT}/pkg"
-	doins -r "pkg/include" "pkg/$(go_tuple)"
+	doins -r "pkg/include"
+
+	# Install pkg/linux_{amd64,arm64} only for Go <= 1.19, as Go 1.20+
+	# does not ship pre-compiled package archives for the standard library
+	# in $GOROOT/pkg. See https://go.dev/doc/go1.20.
+	ver_test "${GOSLOT}" -lt 1.20 && doins -r "pkg/$(go_tuple)"
 
 	dodoc CONTRIBUTING.md PATENTS README.md
 }
