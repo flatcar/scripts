@@ -1,0 +1,8 @@
+- zstandard ([1.5.5](https://github.com/facebook/zstd/releases/tag/v1.5.5))
+- qemu guest agent ([8.0.0](https://wiki.qemu.org/ChangeLog/8.0#Guest_agent))
+- SDK: python ([3.10.11](https://www.python.org/downloads/release/python-31011/))
+- glib ([2.76.2](https://gitlab.gnome.org/GNOME/glib/-/releases/2.76.2))
+- git ([2.39.3](https://github.com/git/git/blob/v2.39.3/Documentation/RelNotes/2.39.3.txt))
+- curl ([8.1.0](https://curl.se/changes.html#8_1_0))
+- sed ([4.9](https://lists.gnu.org/archive/html/info-gnu/2022-11/msg00001.html))
+- libcap ([2.69](https://sites.google.com/site/fullycapable/release-notes-for-libcap#h.iuvg7sbjg8pe))
