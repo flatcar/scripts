@@ -1,0 +1,162 @@
+From f877049f1f6d088d5770d188fdf156bfce609261 Mon Sep 17 00:00:00 2001
+From: Kai Lueke <kailuke@microsoft.com>
+Date: Thu, 25 May 2023 13:54:18 +0200
+Subject: [PATCH] backport PR 27754 to 252.5
+
+---
+ src/core/main.c       | 16 ++++++++++++----
+ src/shared/fdset.c    | 19 +++++++++++++++++--
+ src/shared/fdset.h    |  2 +-
+ src/test/test-fdset.c | 42 ++++++++++++++++++++++++++++++++++++++----
+ 4 files changed, 68 insertions(+), 11 deletions(-)
+
+diff --git a/src/core/main.c b/src/core/main.c
+index a3fdd1dfe1..842cc24528 100644
+--- a/src/core/main.c
++++ b/src/core/main.c
+@@ -2616,16 +2616,24 @@ static int collect_fds(FDSet **ret_fds, const char **ret_error_message) {
+         assert(ret_fds);
+         assert(ret_error_message);
+ 
+-        r = fdset_new_fill(ret_fds);
++        /* Pick up all fds passed to us. We apply a filter here: we only take the fds that have O_CLOEXEC
++         * off. All fds passed via execve() to us must have O_CLOEXEC off, and our own code and dependencies
++         * should be clean enough to set O_CLOEXEC universally. Thus checking the bit should be a safe
++         * mechanism to distinguish passed in fds from our own.
++         *
++         * Why bother? Some subsystems we initialize early, specifically selinux might keep fds open in our
++         * process behind our back. We should not take possession of that (and then accidentally close
++         * it). SELinux thankfully sets O_CLOEXEC on its fds, so this test should work. */
++        r = fdset_new_fill(/* filter_cloexec= */ 0, ret_fds);
+         if (r < 0) {
+                 *ret_error_message = "Failed to allocate fd set";
+                 return log_emergency_errno(r, "Failed to allocate fd set: %m");
+         }
+ 
+-        fdset_cloexec(*ret_fds, true);
++        (void) fdset_cloexec(*ret_fds, true);
+ 
+-        if (arg_serialization)
+-                assert_se(fdset_remove(*ret_fds, fileno(arg_serialization)) >= 0);
++        /* The serialization fd should have O_CLOEXEC turned on already, let's verify that we didn't pick it up here */
++        assert_se(!arg_serialization || !fdset_contains(*ret_fds, fileno(arg_serialization)));
+ 
+         return 0;
+ }
+diff --git a/src/shared/fdset.c b/src/shared/fdset.c
+index 183fa239b6..26e7f2ab3d 100644
+--- a/src/shared/fdset.c
++++ b/src/shared/fdset.c
+@@ -110,7 +110,9 @@ int fdset_remove(FDSet *s, int fd) {
+         return set_remove(MAKE_SET(s), FD_TO_PTR(fd)) ? fd : -ENOENT;
+ }
+ 
+-int fdset_new_fill(FDSet **_s) {
++int fdset_new_fill(
++                int filter_cloexec, /* if < 0 takes all fds, otherwise only those with O_CLOEXEC set (1) or unset (0) */
++                FDSet **_s) {
+         _cleanup_closedir_ DIR *d = NULL;
+         int r = 0;
+         FDSet *s;
+@@ -132,7 +134,6 @@ int fdset_new_fill(FDSet **_s) {
+ 
+         FOREACH_DIRENT(de, d, return -errno) {
+                 int fd = -1;
+-
+                 r = safe_atoi(de->d_name, &fd);
+                 if (r < 0)
+                         goto finish;
+@@ -143,6 +144,20 @@ int fdset_new_fill(FDSet **_s) {
+                 if (fd == dirfd(d))
+                         continue;
+ 
++                if (filter_cloexec >= 0) {
++                        int fl;
++
++                        /* If user asked for that filter by O_CLOEXEC. This is useful so that fds that have
++                         * been passed in can be collected and fds which have been created locally can be
++                         * ignored, under the assumption that only the latter have O_CLOEXEC set. */
++                        fl = fcntl(fd, F_GETFD);
++                        if (fl < 0)
++                                return -errno;
++
++                        if (FLAGS_SET(fl, FD_CLOEXEC) != !!filter_cloexec)
++                                continue;
++                }
++
+                 r = fdset_put(s, fd);
+                 if (r < 0)
+                         goto finish;
+diff --git a/src/shared/fdset.h b/src/shared/fdset.h
+index 39d15ee4aa..e8a6b4869d 100644
+--- a/src/shared/fdset.h
++++ b/src/shared/fdset.h
+@@ -19,7 +19,7 @@ bool fdset_contains(FDSet *s, int fd);
+ int fdset_remove(FDSet *s, int fd);
+ 
+ int fdset_new_array(FDSet **ret, const int *fds, size_t n_fds);
+-int fdset_new_fill(FDSet **ret);
++int fdset_new_fill(int filter_cloexec, FDSet **ret);
+ int fdset_new_listen_fds(FDSet **ret, bool unset);
+ 
+ int fdset_cloexec(FDSet *fds, bool b);
+diff --git a/src/test/test-fdset.c b/src/test/test-fdset.c
+index 5d63eeee37..e2ef86343a 100644
+--- a/src/test/test-fdset.c
++++ b/src/test/test-fdset.c
+@@ -13,14 +13,48 @@
+ TEST(fdset_new_fill) {
+         int fd = -1;
+         _cleanup_fdset_free_ FDSet *fdset = NULL;
+-        char name[] = "/tmp/test-fdset_new_fill.XXXXXX";
+ 
+-        fd = mkostemp_safe(name);
++        log_close();
++        log_set_open_when_needed(true);
++
++        fd = open("/dev/null", O_CLOEXEC|O_RDONLY);
+         assert_se(fd >= 0);
+-        assert_se(fdset_new_fill(&fdset) >= 0);
++
++        assert_se(fdset_new_fill(/* filter_cloexec= */ -1, &fdset) >= 0);
+         assert_se(fdset_contains(fdset, fd));
++        fdset = fdset_free(fdset);
++        assert_se(fcntl(fd, F_GETFD) < 0);
++        assert_se(errno == EBADF);
+ 
+-        unlink(name);
++        fd = open("/dev/null", O_CLOEXEC|O_RDONLY);
++        assert_se(fd >= 0);
++
++        assert_se(fdset_new_fill(/* filter_cloexec= */ 0, &fdset) >= 0);
++        assert_se(!fdset_contains(fdset, fd));
++        fdset = fdset_free(fdset);
++        assert_se(fcntl(fd, F_GETFD) >= 0);
++
++        assert_se(fdset_new_fill(/* filter_cloexec= */ 1, &fdset) >= 0);
++        assert_se(fdset_contains(fdset, fd));
++        fdset = fdset_free(fdset);
++        assert_se(fcntl(fd, F_GETFD) < 0);
++        assert_se(errno == EBADF);
++
++        fd = open("/dev/null", O_RDONLY);
++        assert_se(fd >= 0);
++
++        assert_se(fdset_new_fill(/* filter_cloexec= */ 1, &fdset) >= 0);
++        assert_se(!fdset_contains(fdset, fd));
++        fdset = fdset_free(fdset);
++        assert_se(fcntl(fd, F_GETFD) >= 0);
++
++        assert_se(fdset_new_fill(/* filter_cloexec= */ 0, &fdset) >= 0);
++        assert_se(fdset_contains(fdset, fd));
++        fdset = fdset_free(fdset);
++        assert_se(fcntl(fd, F_GETFD) < 0);
++        assert_se(errno == EBADF);
++
++        log_open();
+ }
+ 
+ TEST(fdset_put_dup) {
+-- 
+2.40.1
+
