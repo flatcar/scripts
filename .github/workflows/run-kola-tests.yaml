@@ -351,8 +351,9 @@ jobs:
 
           cat test-results.md >> "$GITHUB_STEP_SUMMARY"
 
-      - name: If started from a PR, post test summary to PR
-        if: ${{ github.event_name == 'pull_request' }}
+      - name: If started from a PR event or a PR comment command, post test summary to PR
+        if: ${{ github.event_name == 'pull_request' || github.event.issue.pull_request }}
         uses: mshick/add-pr-comment@v2
         with:
+          issue: ${{ github.event.pull_request.number || github.event.issue.pull_request.number }}
           message-path: "scripts/test-results.md"
