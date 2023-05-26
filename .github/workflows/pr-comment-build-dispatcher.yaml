@@ -49,6 +49,12 @@ jobs:
 
           $res
 
+      - name: Post a link to the workflow run to the PR
+        uses: mshick/add-pr-comment@v2
+        with:
+          issue: ${{ github.event.issue.pull_request.number }}
+          message: "Build action triggered: [${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+
   update_sdk:
     needs: check_maintainer_membership
     if: ( always() && needs.check_maintainer_membership.result == 'success'
