@@ -220,6 +220,7 @@ __tap_print_test_verdict() {
     local name="$2"
     local succeded_vendors="$3"
     local failed_vendors="$4"
+    local full_error_report="$5" # ignored
 
     echo "${verdict} - ${test_name}"
     echo "   ---"
@@ -246,6 +247,8 @@ __tap_finish_test_verdict() {
     local name="$2"
     local succeded_vendors="$3"
     local failed_vendors="$4"
+    local full_error_report="$5" # ignored
+
     echo "   ..."
 }
 # --
@@ -275,6 +278,7 @@ __md_print_test_verdict() {
     local succeded_vendors="$3"
     local failed_vendors="$4"
 
+
     v="![${verdict}](https://via.placeholder.com/50x20/00ff00/000000?text=PASS)"
     if [ "${verdict}" = "not ok" ] ; then
         v="![${verdict}](https://via.placeholder.com/50x20/ff0000/ffffff?text=FAIL)"
@@ -289,7 +293,8 @@ __md_print_test_verdict() {
         echo -n " ❌ Failed: ${failed_vendors}"
     fi
     echo
-    if [ "${verdict}" = "not ok" ] ; then
+    if    [ "${verdict}" = "not ok" ] \
+       || [ "${full_error_report}" = "true" -a "${failed_vendors}" ] ; then
         echo
         echo "<details>"
         echo
@@ -301,7 +306,7 @@ __md_print_test_run_diag_output() {
     local vendor="$1"
     local run="$2"
 
-    echo "* Diagnostic output for ${vendor}, run ${run}"
+    echo "<summary>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Diagnostic output for ${vendor}, run ${run}</summary>"
     echo
     echo "  \`\`\`"
     cat -
@@ -316,7 +321,10 @@ __md_finish_test_verdict() {
     local name="$2"
     local succeded_vendors="$3"
     local failed_vendors="$4"
-    if [ "${verdict}" = "not ok" ] ; then
+    local full_error_report="$5" # ignored
+
+    if    [ "${verdict}" = "not ok" ] \
+       || [ "${full_error_report}" = "true" -a "${failed_vendors}" ] ; then
         echo
         echo "</details>"
         echo
@@ -414,7 +422,7 @@ function tap_generate_report() {
         failed="$(list_runs 0)"
 
         __"${format}"_print_test_verdict "${verdict}" "${test_name}" \
-                                        "${succeeded}" "${failed}"
+                                        "${succeeded}" "${failed}" "${full_error_report}"
         if [ -n "${failed}" ] ; then
             if [ "${verdict}" = "not ok" -o "${full_error_report}" = "true" ] ; then
                 # generate diagnostic output, per failed run.
@@ -440,7 +448,7 @@ function tap_generate_report() {
             fi
         fi
         __"${format}"_finish_test_verdict "${verdict}" "${test_name}" \
-                                        "${succeeded}" "${failed}"
+                                        "${succeeded}" "${failed}" "${full_error_report}"
     done
 
     __"${format}"_finish_test_report
