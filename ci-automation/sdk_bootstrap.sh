@@ -76,9 +76,10 @@ function _sdk_bootstrap_impl() {
 
     # Create new tag in scripts repo w/ updated versionfile.
     # Also push the changes to the branch ONLY IF we're doing a nightly
-    #   build of the 'main' branch AND we're definitely ON the main branch
+    #   build of the 'main' branch AND we're definitely ON the main branch.
+    #   This includes intermediate SDKs when doing 2-phase nightly builds.
     local push_branch="false"
-    if   [[ "${version}" =~ ^main-[0-9.]+-nightly-[-0-9]+$ ]] \
+    if   [[ "${version}" =~ ^main-[0-9.]+-nightly-[-0-9]+(-INTERMEDIATE)?$ ]] \
        && [ "$(git rev-parse --abbrev-ref HEAD)" = "main"  ] ; then
         push_branch="true"
         local existing_tag=""
