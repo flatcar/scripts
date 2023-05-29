@@ -3,11 +3,14 @@
 
 EAPI=8
 
+DISTUTILS_EXT=1
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{9..11} pypy3 )
+PYTHON_TESTED=( python3_{10..11} )
+# 3.12 not tested yet for https://github.com/cython/cython/issues/5285.
+PYTHON_COMPAT=( "${PYTHON_TESTED[@]}" python3_12 pypy3 )
 PYTHON_REQ_USE="threads(+)"
 
-inherit distutils-r1 toolchain-funcs elisp-common
+inherit distutils-r1 multiprocessing toolchain-funcs elisp-common
 
 DESCRIPTION="A Python to C compiler"
 HOMEPAGE="
@@ -22,7 +25,7 @@ SRC_URI="
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="emacs test"
 RESTRICT="!test? ( test )"
 
@@ -34,13 +37,14 @@ BDEPEND="
 	test? (
 		$(python_gen_cond_dep '
 			dev-python/numpy[${PYTHON_USEDEP}]
-		' python3_{8..10})
+		' python3_{10..11})
 	)
 "
 
 PATCHES=(
 	"${FILESDIR}/${PN}-0.29.22-spawn-multiprocessing.patch"
 	"${FILESDIR}/${PN}-0.29.23-test_exceptions-py310.patch"
+	"${FILESDIR}/${PN}-0.29.23-pythran-parallel-install.patch"
 )
 
 SITEFILE=50cython-gentoo.el
@@ -59,7 +63,7 @@ python_compile_all() {
 }
 
 python_test() {
-	if has "${EPYTHON}" pypy3 python3.11; then
+	if ! has "${EPYTHON/./_}" "${PYTHON_TESTED[@]}"; then
 		einfo "Skipping tests on ${EPYTHON} (xfail)"
 		return
 	fi
@@ -67,7 +71,7 @@ python_test() {
 	tc-export CC
 	# https://github.com/cython/cython/issues/1911
 	local -x CFLAGS="${CFLAGS} -fno-strict-overflow"
-	"${PYTHON}" runtests.py -vv --work-dir "${BUILD_DIR}"/tests ||
+	"${PYTHON}" runtests.py -vv -j "$(makeopts_jobs)" --work-dir "${BUILD_DIR}"/tests ||
 		die "Tests fail with ${EPYTHON}"
 }
 
