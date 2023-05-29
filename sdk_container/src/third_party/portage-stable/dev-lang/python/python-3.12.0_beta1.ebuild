@@ -7,7 +7,7 @@ WANT_LIBTOOL="none"
 inherit autotools check-reqs flag-o-matic multiprocessing pax-utils
 inherit prefix python-utils-r1 toolchain-funcs verify-sig
 
-MY_PV=${PV/_alpha/a}
+MY_PV=${PV/_beta/b}
 MY_P="Python-${MY_PV%_p*}"
 PYVER=$(ver_cut 1-2)
 PATCHSET="python-gentoo-patches-${MY_PV}"
@@ -30,7 +30,7 @@ LICENSE="PSF-2"
 SLOT="${PYVER}"
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="
-	bluetooth build +ensurepip examples gdbm hardened libedit lto
+	bluetooth build debug +ensurepip examples gdbm hardened libedit lto
 	+ncurses pgo +readline +sqlite +ssl test tk valgrind
 "
 RESTRICT="!test? ( test )"
@@ -215,6 +215,7 @@ src_configure() {
 		--with-pkg-config=yes
 		--with-wheel-pkg-dir="${EPREFIX}"/usr/lib/python/ensurepip
 
+		$(use_with debug assertions)
 		$(use_with lto)
 		$(use_enable pgo optimizations)
 		$(use_with readline readline "$(usex libedit editline readline)")

@@ -7,7 +7,7 @@ WANT_LIBTOOL="none"
 inherit autotools check-reqs flag-o-matic multiprocessing pax-utils
 inherit prefix python-utils-r1 toolchain-funcs verify-sig
 
-MY_PV=${PV/_rc/rc}
+MY_PV=${PV/_beta/b}
 MY_P="Python-${MY_PV%_p*}"
 PYVER=$(ver_cut 1-2)
 PATCHSET="python-gentoo-patches-${MY_PV}"
@@ -28,7 +28,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="
 	bluetooth build debug +ensurepip examples gdbm hardened libedit lto
 	+ncurses pgo +readline +sqlite +ssl test tk valgrind
@@ -80,7 +80,7 @@ BDEPEND="
 	sys-devel/autoconf-archive
 	app-alternatives/awk
 	virtual/pkgconfig
-	verify-sig? ( sec-keys/openpgp-keys-python )
+	verify-sig? ( >=sec-keys/openpgp-keys-python-20221025 )
 "
 RDEPEND+="
 	!build? ( app-misc/mime-types )
@@ -117,8 +117,8 @@ src_unpack() {
 
 src_prepare() {
 	# Ensure that internal copies of expat and libffi are not used.
-	rm -r Modules/expat || die
-	rm -r Modules/_ctypes/libffi* || die
+	# TODO: Makefile has annoying deps on expat headers
+	#rm -r Modules/expat || die
 
 	local PATCHES=(
 		"${WORKDIR}/${PATCHSET}"
@@ -126,14 +126,9 @@ src_prepare() {
 
 	default
 
-	# https://bugs.gentoo.org/850151
-	sed -i -e "s:@@GENTOO_LIBDIR@@:$(get_libdir):g" setup.py || die
-
 	# force the correct number of jobs
 	# https://bugs.gentoo.org/737660
-	local jobs=$(makeopts_jobs)
-	sed -i -e "s:-j0:-j${jobs}:" Makefile.pre.in || die
-	sed -i -e "/self\.parallel/s:True:${jobs}:" setup.py || die
+	sed -i -e "s:-j0:-j$(makeopts_jobs):" Makefile.pre.in || die
 
 	eautoreconf
 }
@@ -216,7 +211,6 @@ src_configure() {
 		--enable-loadable-sqlite-extensions
 		--without-ensurepip
 		--with-system-expat
-		--with-system-ffi
 		--with-platlibdir=lib
 		--with-pkg-config=yes
 		--with-wheel-pkg-dir="${EPREFIX}"/usr/lib/python/ensurepip
@@ -338,9 +332,6 @@ src_compile() {
 	# Ensure sed works as expected
 	# https://bugs.gentoo.org/594768
 	local -x LC_ALL=C
-	# Prevent using distutils bundled by setuptools.
-	# https://bugs.gentoo.org/823728
-	export SETUPTOOLS_USE_DISTUTILS=stdlib
 	export PYTHONSTRICTEXTENSIONBUILD=1
 
 	# Save PYTHONDONTWRITEBYTECODE so that 'has_version' doesn't
@@ -421,6 +412,10 @@ src_test() {
 
 src_install() {
 	local libdir=${ED}/usr/lib/python${PYVER}
+
+	# the Makefile rules are broken
+	# https://github.com/python/cpython/issues/100221
+	mkdir -p "${libdir}"/lib-dynload || die
 
 	# -j1 hack for now for bug #843458
 	emake -j1 DESTDIR="${D}" altinstall
