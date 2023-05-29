@@ -19,3 +19,7 @@ move dev-python/jupyter_server_mathjax dev-python/jupyter-server-mathjax
 move dev-python/jupyter_packaging dev-python/jupyter-packaging
 move dev-python/jupyterlab_pygments dev-python/jupyterlab-pygments
 move dev-python/sphinxcontrib-log_cabinet dev-python/sphinxcontrib-log-cabinet
+move app-misc/pdfpc app-text/pdfpc
+move dev-python/python-email-validator dev-python/email-validator
+move dev-python/semantic_version dev-python/semantic-version
+move dev-python/prometheus_client dev-python/prometheus-client
