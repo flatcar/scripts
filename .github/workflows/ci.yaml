@@ -1,5 +1,6 @@
 name: "Run build"
 on:
+  pull_request:
   workflow_dispatch:
     inputs:
       image_formats:
@@ -29,7 +30,7 @@ on:
           Custom SDK container version to use for this build.
 
 permissions:
-  pull-requests: write
+  pull-requests: write 
 
 jobs:
   packages:
@@ -39,6 +40,7 @@ jobs:
       - debian
       - build
       - x64
+    environment: main
     strategy:
       fail-fast: false
       matrix:
