@@ -1,7 +1,7 @@
 # Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/m4.asc
 inherit verify-sig
@@ -17,7 +17,7 @@ else
 	SRC_URI="mirror://gnu/${PN}/${P}.tar.xz"
 	SRC_URI+=" https://dev.gentoo.org/~floppym/dist/${P}-test-198-sysval-r1.patch.gz"
 	SRC_URI+=" verify-sig? ( mirror://gnu/${PN}/${P}.tar.xz.sig )"
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 
 LICENSE="GPL-3"
@@ -41,6 +41,7 @@ PATCHES=(
 	"${FILESDIR}"/loong-fix-build.patch
 	"${FILESDIR}"/${PN}-1.4.19-make-4.4-tests.patch
 	"${WORKDIR}"/${P}-test-198-sysval-r1.patch
+	"${FILESDIR}"/${PN}-1.4.19-fortify-source.patch
 )
 
 src_unpack() {
@@ -75,8 +76,6 @@ src_configure() {
 		# Disable automagic dependency over libsigsegv; see bug #278026
 		ac_cv_libsigsegv=no
 	)
-
-	[[ ${USERLAND} != GNU ]] && myeconfargs+=( --program-prefix=g )
 
 	econf "${myeconfargs[@]}"
 }
