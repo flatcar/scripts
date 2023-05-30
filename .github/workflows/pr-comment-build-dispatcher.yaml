@@ -57,8 +57,8 @@ jobs:
 
   update_sdk:
     needs: check_maintainer_membership
-    if: ( always() && needs.check_maintainer_membership.result == 'success'
-                   && contains(github.event.comment.body, '/update-sdk') )
+    if: ( needs.check_maintainer_membership.result == 'success'
+           && contains(github.event.comment.body, '/update-sdk') )
     name: "Build an updated SDK container"
     # SDK build needs access to bincache ssh secret
     secrets: inherit
@@ -66,8 +66,8 @@ jobs:
 
   build_image:
     needs: [ check_maintainer_membership, update_sdk ]
-    if: ( always() && needs.check_maintainer_membership.result == 'success'
-                   && (    contains(github.event.comment.body, '/build-image') || needs.update_sdk.result == 'success' ) )
+    if: ( needs.check_maintainer_membership.result == 'success'
+          && (    contains(github.event.comment.body, '/build-image') || needs.update_sdk.result == 'success' ) )
     name: "Build the OS image"
     uses: ./.github/workflows/ci.yaml
     with:
