@@ -50,13 +50,13 @@ override_vmw_check_lib() {
 }
 
 src_configure() {
-	local oemlib="/usr/share/oem/$(get_libdir)"
-	local oeminc="/usr/share/oem/include"
+	local oemlib="/oem/$(get_libdir)"
+	local oeminc="/oem/include"
 
 	# set rpath even if oem is in ld.so.conf
 	append-ldflags "-Wl,-rpath,${oemlib}"
 
-	# libdnet is installed to /usr/share/oem
+	# libdnet is installed to /oem
 	export CUSTOM_DNET_CPPFLAGS="-I=${oeminc}"
 	export CUSTOM_DNET_LIBS="-L=${oemlib}"
 	export CUSTOM_MSPACK_CPPFLAGS="-I=${oeminc}"
@@ -71,7 +71,7 @@ src_configure() {
 	override_vmw_check_lib gthread-2.0 GTHREAD
 
 	local myeconfargs=(
-		--prefix=/usr/share/oem
+		--prefix=/oem
 		$(use_enable deploypkg)
 		$(use_enable salt-minion)
 		--disable-containerinfo
@@ -99,7 +99,7 @@ src_configure() {
 src_install() {
 	# Relocate event scripts, a symlink will be created by the systemd
 	# unit.
-	emake DESTDIR="${D}" confdir=/usr/share/oem/vmware-tools install
+	emake DESTDIR="${D}" confdir=/oem/vmware-tools install
 
 	rm "${D}"/etc/pam.d/vmtoolsd
 	# TODO: pamd_mimic_system vmtoolsd auth account

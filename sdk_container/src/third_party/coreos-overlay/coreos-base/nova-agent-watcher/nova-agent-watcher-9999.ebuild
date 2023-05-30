@@ -25,7 +25,7 @@ SLOT="0"
 IUSE=""
 
 src_install() {
-	into "/usr/share/oem"
+	into "/oem"
 	dobin ${S}/scripts/gentoo-to-networkd
 	dobin ${GOBIN}/nova-agent-watcher
 }

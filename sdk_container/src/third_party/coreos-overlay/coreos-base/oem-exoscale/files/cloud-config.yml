@@ -12,7 +12,7 @@ coreos:
           [Service]
           Type=oneshot
           StandardOutput=journal+console
-          ExecStart=/usr/share/oem/bin/exoscale-ssh-key
+          ExecStart=/oem/bin/exoscale-ssh-key
       - name: exoscale-cloudinit.service
         command: restart
         runtime: yes
@@ -25,7 +25,7 @@ coreos:
           [Service]
           Type=oneshot
           EnvironmentFile=/etc/environment
-          ExecStart=/usr/share/oem/bin/exoscale-coreos-cloudinit
+          ExecStart=/oem/bin/exoscale-coreos-cloudinit
     oem:
       id: exoscale
       name: exoscale

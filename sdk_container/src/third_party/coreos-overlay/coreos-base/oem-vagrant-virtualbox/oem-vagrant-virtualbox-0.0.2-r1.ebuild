@@ -1,9 +1,9 @@
-# Copyright 2013 The CoreOS Authors
+# Copyright 2017 The CoreOS Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-DESCRIPTION="OEM suite for login access via Vagrant's ssh key."
+DESCRIPTION="OEM suite for vagrant images (virtualbox)"
 HOMEPAGE=""
 SRC_URI=""
 
@@ -16,7 +16,7 @@ IUSE=""
 S="${WORKDIR}"
 
 src_install() {
-	insinto "/usr/share/oem"
-	doins "${FILESDIR}/cloud-config.yml"
+	insinto "/oem"
+	doins -r "${FILESDIR}/box"
 	doins "${FILESDIR}/grub.cfg"
 }

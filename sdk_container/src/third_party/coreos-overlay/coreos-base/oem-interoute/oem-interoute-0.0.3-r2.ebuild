@@ -7,14 +7,19 @@
 
 EAPI=7
 
-DESCRIPTION="OEM suite for CloudStack images"
+DESCRIPTION="OEM suite for Interoute images"
 HOMEPAGE=""
 SRC_URI=""
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="amd64 x86"
+KEYWORDS="amd64"
 IUSE=""
+
+DEPEND="
+	app-emulation/open-vm-tools
+	"
+RDEPEND="${DEPEND}"
 
 # no source directory
 S="${WORKDIR}"
@@ -26,13 +31,13 @@ src_prepare() {
 }
 
 src_install() {
-	into "/usr/share/oem"
-	dobin "${FILESDIR}/cloudstack-dhcp"
+	into "/oem"
+	dobin "${FILESDIR}/cloudstack-set-guest-password"
 	dobin "${FILESDIR}/cloudstack-ssh-key"
 	dobin "${FILESDIR}/cloudstack-coreos-cloudinit"
 	dobin "${FILESDIR}/flatcar-setup-environment"
 
-	insinto "/usr/share/oem"
+	insinto "/oem"
 	doins "${T}/cloud-config.yml"
 	doins "${FILESDIR}/grub.cfg"
 }

@@ -25,12 +25,12 @@ dev-python/distro-oem
 S="${WORKDIR}/WALinuxAgent-${PV}"
 
 src_install() {
-	into "/usr/share/oem"
+	into "/oem"
 	dobin "${S}/bin/waagent"
 
-	insinto "/usr/share/oem/python/$(get_libdir)/python${DEP_PYVER}/site-packages"
+	insinto "/oem/python/$(get_libdir)/python${DEP_PYVER}/site-packages"
 	doins -r "${S}/azurelinuxagent/"
 
-	insinto "/usr/share/oem"
+	insinto "/oem"
 	doins "${FILESDIR}/waagent.conf"
 }

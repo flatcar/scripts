@@ -9,7 +9,7 @@ CROS_WORKON_REPO="https://github.com"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	CROS_WORKON_COMMIT="25680dba1b3a314d1024db000d307735f59b5cf1" # flatcar-master
+	CROS_WORKON_COMMIT="a482cb4b69ffa5cf92d9cd719409e7abd7f382a3" # flatcar-master
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
@@ -149,7 +149,7 @@ src_install() {
 	# This simplifies the configuration of OEMs with dynamic libs.
 	ldpaths=
 	for libdir in $(get_all_libdirs) ; do
-		ldpaths+=":/usr/share/oem/${libdir}"
+		ldpaths+=":/oem/${libdir}"
 	done
 	echo "LDPATH='${ldpaths#:}'" >> "${D}"/etc/env.d/80oem || die
 
@@ -226,5 +226,10 @@ pkg_postinst() {
 				ln -sfT "../lib/${compat}" "${ROOT}/usr/${libdir}/${compat}"
 			done
 		done
+		# Create a compatibility symlink for OEM.
+		ln -sfT ../../oem "${ROOT}/usr/share/oem"
+		# Also create the directory to avoid having dangling
+		# symlinks.
+		mkdir -p "${ROOT}/oem"
 	fi
 }

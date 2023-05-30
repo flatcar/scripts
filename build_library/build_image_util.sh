@@ -855,12 +855,21 @@ EOF
   # container.
   if [[ -n "${image_kernel}" ]]; then
     local folder
-    # Everything except /boot and /usr because they are mountpoints and /lost+found because e2fsck expects it
     for folder in "${root_fs_dir}/"*; do
-      if [ "${folder}" = "${root_fs_dir}/boot" ] || [ "${folder}" = "${root_fs_dir}/usr" ] || [ "${folder}" = "${root_fs_dir}/lost+found" ]; then
-        continue
-      fi
-      sudo rm --one-file-system -rf "${folder}"
+      case "${folder#"${root_fs_dir}"}" in
+        /boot|/usr|/oem)
+          # Keep those because they are mountpoints, so not really
+          # parts of the rootfs state.
+          :
+          ;;
+        /lost+found)
+          # Keep lost+found because e2fsck expects it.
+          :
+          ;;
+        *)
+          sudo rm --one-file-system -rf "${folder}"
+          ;;
+      esac
     done
   else
     # For the developer container we still need to remove the resolv.conf symlink to /run

@@ -7,7 +7,7 @@
 
 EAPI=7
 
-DESCRIPTION="OEM suite for Exoscale images"
+DESCRIPTION="OEM suite for CloudStack images"
 HOMEPAGE=""
 SRC_URI=""
 
@@ -26,13 +26,13 @@ src_prepare() {
 }
 
 src_install() {
-	into "/usr/share/oem"
-	dobin "${FILESDIR}/exoscale-dhcp"
-	dobin "${FILESDIR}/exoscale-ssh-key"
-	dobin "${FILESDIR}/exoscale-coreos-cloudinit"
+	into "/oem"
+	dobin "${FILESDIR}/cloudstack-dhcp"
+	dobin "${FILESDIR}/cloudstack-ssh-key"
+	dobin "${FILESDIR}/cloudstack-coreos-cloudinit"
 	dobin "${FILESDIR}/flatcar-setup-environment"
 
-	insinto "/usr/share/oem"
+	insinto "/oem"
 	doins "${T}/cloud-config.yml"
 	doins "${FILESDIR}/grub.cfg"
 }

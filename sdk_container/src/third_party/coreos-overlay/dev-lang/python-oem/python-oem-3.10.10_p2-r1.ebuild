@@ -218,7 +218,7 @@ src_configure() {
 		ac_cv_header_stropts_h=no
 
 		# Flatcar: Use oem-specific prefix.
-		--prefix=/usr/share/oem/python
+		--prefix=/oem/python
 		# Flatcar: Make sure we put libs into a correct subdirectory.
 		--with-platlibdir="$(get_libdir)"
 		# Flatcar: No need for shared libs.
@@ -428,7 +428,7 @@ src_test() {
 # files to drop), adding symlinks and the EXTERNALLY-MANAGED file, and
 # removing the /discard directory.
 src_install() {
-	local prefix=/usr/share/oem/python
+	local prefix=/oem/python
 	local eprefix="${ED}${prefix}"
         local libdir="${prefix}/$(get_libdir)"
 	local elibdir="${eprefix}/$(get_libdir)"

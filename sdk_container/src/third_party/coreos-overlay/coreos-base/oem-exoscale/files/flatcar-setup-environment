@@ -18,7 +18,7 @@ sed -i -e '/^COREOS_PUBLIC_IPV4=/d' \
     -e '/^COREOS_PRIVATE_IPV4=/d' \
     "${ENV}"
 
-. /usr/share/oem/bin/exoscale-dhcp
+. /oem/bin/exoscale-dhcp
 
 DHCP_SERVER=$(get_dhcp_ip)
 METADATA_URL="http://${DHCP_SERVER}/latest/"

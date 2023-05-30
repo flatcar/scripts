@@ -20,9 +20,9 @@ RDEPEND="
 "
 
 src_install() {
-  insinto "/usr/share/oem"
+  insinto "/oem"
   doins -r "${FILESDIR}/units"
-  exeinto "/usr/share/oem/bin"
+  exeinto "/oem/bin"
   doexe "${FILESDIR}/bin/install-nvidia"
   doexe "${FILESDIR}/bin/setup-nvidia"
 }

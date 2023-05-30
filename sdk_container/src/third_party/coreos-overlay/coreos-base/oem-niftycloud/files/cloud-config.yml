@@ -20,9 +20,9 @@ coreos:
         ConditionVirtualization=vmware
 
         [Service]
-        ExecStartPre=/usr/bin/ln -sfT /usr/share/oem/vmware-tools /etc/vmware-tools
-        ExecStart=/usr/share/oem/bin/vmtoolsd
-        ExecStartPost=/usr/share/oem/bin/vmware-toolbox-cmd timesync enable 
+        ExecStartPre=/usr/bin/ln -sfT /oem/vmware-tools /etc/vmware-tools
+        ExecStart=/oem/bin/vmtoolsd
+        ExecStartPost=/oem/bin/vmware-toolbox-cmd timesync enable
         TimeoutStopSec=5
     - name: niftycloud-coreos-cloudinit.service
       command: restart
@@ -37,7 +37,7 @@ coreos:
         [Service]
         Type=oneshot
         EnvironmentFile=/etc/environment
-        ExecStart=/usr/share/oem/bin/niftycloud-coreos-cloudinit
+        ExecStart=/oem/bin/niftycloud-coreos-cloudinit
     - name: niftycloud-ssh-key.service
       command: restart
       runtime: yes
@@ -47,7 +47,7 @@ coreos:
         [Service]
         Type=oneshot
         StandardOutput=journal+console
-        ExecStart=/usr/share/oem/bin/niftycloud-ssh-key
+        ExecStart=/oem/bin/niftycloud-ssh-key
 
   oem:
     id: niftycloud

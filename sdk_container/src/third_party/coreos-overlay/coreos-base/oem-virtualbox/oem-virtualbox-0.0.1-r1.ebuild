@@ -1,15 +1,15 @@
-# Copyright (c) 2020 Kinvolk GmbH. All rights reserved.
+# Copyright (c) 2013 CoreOS, Inc.. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-DESCRIPTION="OEM suite for QEMU"
+DESCRIPTION="OEM suite for VirtualBox"
 HOMEPAGE=""
 SRC_URI=""
 
-LICENSE="GPL-2"
+LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="amd64 arm64"
+KEYWORDS="amd64"
 IUSE=""
 
 # no source directory
@@ -22,7 +22,7 @@ src_prepare() {
 }
 
 src_install() {
-	insinto "/usr/share/oem"
+	insinto "/oem"
 	doins "${FILESDIR}/grub.cfg"
 	doins "${T}/oem-release"
 }

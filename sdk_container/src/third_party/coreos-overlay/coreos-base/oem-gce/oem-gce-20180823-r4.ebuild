@@ -22,12 +22,12 @@ src_prepare() {
 }
 
 src_install() {
-	insinto "/usr/share/oem"
+	insinto "/oem"
 	doins "${FILESDIR}/grub.cfg"
 	doins "${T}/oem-release"
 	doins -r "${FILESDIR}/base"
 	doins -r "${FILESDIR}/files"
 	doins -r "${FILESDIR}/units"
-	exeinto "/usr/share/oem/bin"
+	exeinto "/oem/bin"
 	doexe "${FILESDIR}/bin/enable-oslogin"
 }

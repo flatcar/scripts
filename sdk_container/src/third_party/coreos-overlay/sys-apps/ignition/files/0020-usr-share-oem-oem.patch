@@ -1,0 +1,56 @@
+From 38bc8c588bd7e4c5c6de85ccb182c3c794363448 Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Tue, 4 Apr 2023 12:12:42 +0200
+Subject: [PATCH 20/21] /usr/share/oem -> /oem
+
+---
+ config/util/translate.go    | 2 +-
+ docs/supported-platforms.md | 2 +-
+ internal/distro/distro.go   | 5 ++++-
+ 3 files changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/config/util/translate.go b/config/util/translate.go
+index 347d148c..d4c057b2 100644
+--- a/config/util/translate.go
++++ b/config/util/translate.go
+@@ -154,7 +154,7 @@ func FSGeneration(name string, fsMap map[string]string) (string, error) {
+ 	if _, ok := fsMap[name]; !ok {
+ 		addedSuffixCounter += 1
+ 		if name == "oem" {
+-			fsMap[name] = "/usr/share/oem"
++			fsMap[name] = "/oem"
+ 		} else {
+ 			// generate a new path
+ 			fsMap[name] = "/tmp/" + name + "-ign" + strconv.FormatUint(addedSuffixCounter, 10)
+diff --git a/docs/supported-platforms.md b/docs/supported-platforms.md
+index 90df6c6a..7867ba09 100644
+--- a/docs/supported-platforms.md
++++ b/docs/supported-platforms.md
+@@ -10,7 +10,7 @@ Ignition is currently only supported for the following platforms:
+ * [Amazon Web Services] (`aws`) - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.
+ * [Microsoft Azure] (`azure`)- Ignition will read its configuration from the custom data provided to the instance. Cloud SSH keys are handled separately.
+ * [Microsoft Azure Stack] (`azurestack`) - Ignition will read its configuration from the custom data provided to the instance. Cloud SSH keys are handled separately.
+-* Bare Metal - Use the `ignition.config.url` kernel parameter to provide a URL to the configuration. The URL can use the `http://`, `https://`, `tftp://`, `s3://`, or `gs://` schemes to specify a remote config or the `oem://` scheme to specify a local config, rooted in `/usr/share/oem`.
++* Bare Metal - Use the `ignition.config.url` kernel parameter to provide a URL to the configuration. The URL can use the `http://`, `https://`, `tftp://`, `s3://`, or `gs://` schemes to specify a remote config or the `oem://` scheme to specify a local config, rooted in `/oem`.
+ * [Brightbox] (`brightbox`) - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.
+ * `cloudsigma` - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.
+ * [CloudStack] (`cloudstack`) - Ignition will read its configuration from the instance userdata via either metadata service or config drive. Cloud SSH keys are handled separately.
+diff --git a/internal/distro/distro.go b/internal/distro/distro.go
+index 644c42c4..9e96166e 100644
+--- a/internal/distro/distro.go
++++ b/internal/distro/distro.go
+@@ -32,7 +32,10 @@ var (
+ 	bootIDPath        = "/proc/sys/kernel/random/boot_id"
+ 	// initramfs directory containing distro-provided base config
+ 	systemConfigDir = "/usr/lib/ignition"
+-	// initramfs directory to check before retrieving file from OEM partition
++	// initramfs directory to check before retrieving file from
++	// OEM partition; note that OEM partition is mounted on /oem
++	// on the host, but initrds still use /usr/share/oem for
++	// backwards compatilibity
+ 	oemLookasideDir = "/usr/share/oem"
+ 
+ 	// Helper programs
+-- 
+2.25.1
+

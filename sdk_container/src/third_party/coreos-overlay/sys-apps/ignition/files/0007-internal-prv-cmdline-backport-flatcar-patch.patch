@@ -1,7 +1,7 @@
-From b2f30b420740fc48611fe28d39c1e87a7efe9dc9 Mon Sep 17 00:00:00 2001
+From 5c0764d31cf5a565dcd76a6c9508762e0928ef6f Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mathieu@kinvolk.io>
 Date: Fri, 30 Jul 2021 14:21:31 +0200
-Subject: [PATCH 07/18] internal/prv/cmdline: backport flatcar patch
+Subject: [PATCH 07/21] internal/prv/cmdline: backport flatcar patch
 
 this patch provides backward compatibility for various config
 key
@@ -36,5 +36,5 @@ index f09e6fcb..b6de99d5 100644
  		}
  
 -- 
-2.35.1
+2.25.1
 

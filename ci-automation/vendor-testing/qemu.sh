@@ -46,6 +46,9 @@ declare -a devcontainer_opts
 if [ -n "${QEMU_DEVCONTAINER_URL}" ] ; then
     echo "++++ Using custom devcontainer URL '${QEMU_DEVCONTAINER_URL}'"
     devcontainer_opts+=( "--devcontainer-url" "${QEMU_DEVCONTAINER_URL}" )
+elif [ -n "${QEMU_DEVCONTAINER_FILE}" ]; then
+    echo "++++ Using custom devcontainer FILE '${QEMU_DEVCONTAINER_FILE}'"
+    devcontainer_opts+=( "--devcontainer-file" "${QEMU_DEVCONTAINER_FILE}" )
 fi
 if [ -n "${QEMU_DEVCONTAINER_BINHOST_URL}" ] ; then
     echo "++++ Using custom devcontainer binhost '${QEMU_DEVCONTAINER_BINHOST_URL}'"

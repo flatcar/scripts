@@ -4,8 +4,8 @@ Documentation=https://github.com/vmware/open-vm-tools
 ConditionVirtualization=vmware
 
 [Service]
-ExecStartPre=/usr/bin/ln -sfT /usr/share/oem/vmware-tools /etc/vmware-tools
-ExecStart=/usr/share/oem/bin/vmtoolsd
+ExecStartPre=/usr/bin/ln -sfT /oem/vmware-tools /etc/vmware-tools
+ExecStart=/oem/bin/vmtoolsd
 TimeoutStopSec=5
 PrivateTmp=true
 
