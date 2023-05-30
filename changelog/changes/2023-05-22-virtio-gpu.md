@@ -1,0 +1,1 @@
+- Enabled the virtio GPU driver ([scripts#830](https://github.com/flatcar/scripts/pull/830))
