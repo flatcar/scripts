@@ -1,0 +1,56 @@
+name: "Run PR workflows"
+on:
+  pull_request:
+
+permissions:
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-pr-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  check_for_sdk_changes:
+    name: "Check for SDK changes"
+    runs-on: ubuntu-latest
+    environment: development
+    outputs:
+      sdk_changes: ${{ steps.step2.outputs.sdk_changes }}
+    steps:
+      - uses: actions/checkout@v3
+        id: step1
+        with:
+          path: scripts
+          fetch-depth: 0
+
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          working-directory: scripts
+          filters: |
+            sdk_changes:
+              - 'sdk_container/**'
+              - 'sdk_libs/**'
+
+      - name: Set outputs
+        id: step2
+        shell: bash
+        run: |
+          echo "sdk_changes=${{ steps.filter.outputs.sdk_changes }}" >> $GITHUB_OUTPUT
+
+  update_sdk:
+    name: "Build an updated SDK container"
+    needs: [ check_for_sdk_changes ]
+    if: needs.check_for_sdk_changes.sdk_changes == 'true'
+    # SDK build needs access to bincache ssh secret
+    secrets: inherit
+    uses: ./.github/workflows/update-sdk.yaml
+
+  build_image:
+    needs: [ update_sdk ]
+    if: (always() && ! cancelled()) && needs.update_sdk.result != 'failure'
+    name: "Build the OS image"
+    uses: ./.github/workflows/ci.yaml
+    with:
+      custom_sdk_version: ${{ needs.update_sdk.outputs.sdk_version }}
+      image_formats: qemu_uefi
