@@ -10,44 +10,37 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check_for_sdk_changes:
-    name: "Check for SDK changes"
+  pre_check:
+    name: "Check if we need to update the SDK"
     runs-on: ubuntu-latest
+    # Setting the environment is the more important reason we need this job.
+    # We use this job as a gate, so we can approve the PR workflow only once. If
+    # we set this in the update_sdk job and in the build_image job, we would have
+    # to approve the workflow for every job that kicks off. Given that the jobs
+    # are sequenced, this is cumbersome. Use this job as a gate and make the rest
+    # dependent on it.
     environment: development
     outputs:
-      sdk_changes: ${{ steps.step2.outputs.sdk_changes }}
+      sdk_changes: ${{ steps.step1.outputs.sdk_changes }}
     steps:
-      - uses: actions/checkout@v3
-        id: step1
-        with:
-          path: scripts
-          fetch-depth: 0
-
-      - uses: dorny/paths-filter@v2
-        id: filter
-        with:
-          working-directory: scripts
-          filters: |
-            sdk_changes:
-              - 'sdk_container/**'
-              - 'sdk_libs/**'
-
       - name: Set outputs
-        id: step2
+        id: step1
         shell: bash
         run: |
-          echo "sdk_changes=${{ steps.filter.outputs.sdk_changes }}" >> $GITHUB_OUTPUT
+          echo "sdk_changes=${{ contains(github.event.pull_request.body, '/update-sdk') }}" >> $GITHUB_OUTPUT
 
   update_sdk:
     name: "Build an updated SDK container"
-    needs: [ check_for_sdk_changes ]
-    if: needs.check_for_sdk_changes.sdk_changes == 'true'
+    needs: [ pre_check ]
+    if: needs.pre_check.outputs.sdk_changes == 'true'
     # SDK build needs access to bincache ssh secret
     secrets: inherit
     uses: ./.github/workflows/update-sdk.yaml
 
   build_image:
     needs: [ update_sdk ]
+    # The update-sdk job may be skipped, which is fine. We only care if it tried to
+    # run, but failed.
     if: (always() && ! cancelled()) && needs.update_sdk.result != 'failure'
     name: "Build the OS image"
     uses: ./.github/workflows/ci.yaml
