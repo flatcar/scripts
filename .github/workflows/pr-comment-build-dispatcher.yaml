@@ -7,7 +7,7 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: ${{ github.workflow }}-pr-command-${{ github.head_ref || github.ref_name }}
+  group: ${{ github.workflow }}-pr-command-${{ github.event.issue.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
@@ -49,10 +49,16 @@ jobs:
 
           $res
 
+      - name: Post a link to the workflow run to the PR
+        uses: mshick/add-pr-comment@v2
+        with:
+          issue: ${{ github.event.issue.pull_request.number }}
+          message: "Build action triggered: [${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+
   update_sdk:
     needs: check_maintainer_membership
-    if: ( always() && needs.check_maintainer_membership.result == 'success'
-                   && contains(github.event.comment.body, '/update-sdk') )
+    if: ( needs.check_maintainer_membership.result == 'success'
+           && contains(github.event.comment.body, '/update-sdk') )
     name: "Build an updated SDK container"
     # SDK build needs access to bincache ssh secret
     secrets: inherit
@@ -60,8 +66,8 @@ jobs:
 
   build_image:
     needs: [ check_maintainer_membership, update_sdk ]
-    if: ( always() && needs.check_maintainer_membership.result == 'success'
-                   && (    contains(github.event.comment.body, '/build-image') || needs.update_sdk.result == 'success' ) )
+    if: ( needs.check_maintainer_membership.result == 'success'
+          && (    contains(github.event.comment.body, '/build-image') || needs.update_sdk.result == 'success' ) )
     name: "Build the OS image"
     uses: ./.github/workflows/ci.yaml
     with:
