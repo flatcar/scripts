@@ -105,7 +105,7 @@ RDEPEND="${RDEPEND}
 	app-crypt/tpmpolicy
 	app-editors/vim
 	app-emulation/actool
-	app-emulation/cri-tools
+	app-containers/cri-tools
 	app-misc/ca-certificates
 	app-misc/jq
 	app-misc/pax-utils

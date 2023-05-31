@@ -93,8 +93,8 @@ sys-apps/coreutils          selinux
 # Enable SELinux for tar
 app-arch/tar                selinux
 
-# Enable SELinux for docker-runc
-app-emulation/docker-runc selinux
+# Enable SELinux for runc
+app-containers/runc selinux
 
 # enable regular expression processing in jq
 app-misc/jq oniguruma

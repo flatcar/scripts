@@ -47,7 +47,6 @@ DEPEND+="
 # for appropriate branchch/version of course
 # Flatcar:
 # containerd ebuild doesn't support apparmor, device-mapper and seccomp use flags
-# use the old category app-emulation instead of app-containers for containerd, docker-proxy and docker-cli
 RDEPEND="
 	${DEPEND}
 	>=net-firewall/iptables-1.4
@@ -55,9 +54,9 @@ RDEPEND="
 	>=dev-vcs/git-1.7
 	>=app-arch/xz-utils-4.9
 	dev-libs/libltdl
-	>=app-emulation/containerd-1.6.16[btrfs?]
-	~app-emulation/docker-proxy-0.8.0_p20230118
-	cli? ( ~app-emulation/docker-cli-${PV} )
+	>=app-containers/containerd-1.6.16[btrfs?]
+	~app-containers/docker-proxy-0.8.0_p20230118
+	cli? ( ~app-containers/docker-cli-${PV} )
 	container-init? ( >=sys-process/tini-0.19.0[static] )
 	selinux? ( sec-policy/selinux-docker )
 "
@@ -306,19 +305,15 @@ pkg_postinst() {
 		ewarn "Starting with docker 20.10.2, docker has been split into"
 		ewarn "two packages upstream, so Gentoo has followed suit."
 		ewarn
-		# Flatcar: We still use the old app-emulation category,
-		# instead of app-containers.
-		ewarn "app-emulation/docker contains the daemon and"
-		ewarn "app-emulation/docker-cli contains the docker command."
+		ewarn "app-containers/docker contains the daemon and"
+		ewarn "app-containers/docker-cli contains the docker command."
 		ewarn
 		ewarn "docker currently installs docker-cli using the cli use flag."
 		ewarn
 		ewarn "This use flag is temporary, so you need to take the"
 		ewarn "following actions:"
 		ewarn
-		# Flatcar: We still use the old app-emulation category,
-		# instead of app-containers.
-		ewarn "First, disable the cli use flag for app-emulation/docker"
+		ewarn "First, disable the cli use flag for app-containers/docker"
 		ewarn
 		ewarn "Then, if you need docker-cli and docker on the same machine,"
 		ewarn "run the following command:"
