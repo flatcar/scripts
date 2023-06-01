@@ -41,7 +41,7 @@ jobs:
     needs: [ update_sdk ]
     # The update-sdk job may be skipped, which is fine. We only care if it tried to
     # run, but failed.
-    if: (always() && ! cancelled()) && needs.update_sdk.result != 'failure'
+    if: (always() && !cancelled()) && needs.update_sdk.result != 'failure'
     name: "Build the OS image"
     uses: ./.github/workflows/ci.yaml
     with:
