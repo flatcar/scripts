@@ -147,7 +147,7 @@ jobs:
                 -cvf binpkgs.tar .
 
       - name: Extract build logs
-        if: always()
+        if: always() && !cancelled()
         shell: bash
         run: |
           set -euo pipefail
@@ -158,7 +158,7 @@ jobs:
               /build/${arch}-usr/var/tmp/portage
 
       - name: Upload build logs
-        if: always()
+        if: always() && !cancelled()
         uses: actions/upload-artifact@v3
         with:
           retention-days: 7
