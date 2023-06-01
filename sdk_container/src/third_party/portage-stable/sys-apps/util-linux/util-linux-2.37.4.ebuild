@@ -330,4 +330,5 @@ pkg_postinst() {
 		elog "The agetty util now clears the terminal by default. You"
 		elog "might want to add --noclear to your /etc/inittab lines."
 	fi
+	cp "${FILESDIR}/fstrim.conf" /etc/fstrim.conf
 }
