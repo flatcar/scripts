@@ -403,6 +403,8 @@ sys-libs/libseccomp
 sys-libs/readline
 sys-libs/zlib
 
+sys-process/tini
+
 virtual/libcrypt
 virtual/libelf
 virtual/perl-Carp
