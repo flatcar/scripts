@@ -47,7 +47,6 @@ DEPEND+="
 # for appropriate branchch/version of course
 # Flatcar:
 # containerd ebuild doesn't support apparmor, device-mapper and seccomp use flags
-# tini ebuild doesn't support static use flag
 # use the old category app-emulation instead of app-containers for containerd, docker-proxy and docker-cli
 RDEPEND="
 	${DEPEND}
@@ -59,7 +58,7 @@ RDEPEND="
 	>=app-emulation/containerd-1.6.16[btrfs?]
 	~app-emulation/docker-proxy-0.8.0_p20230118
 	cli? ( ~app-emulation/docker-cli-${PV} )
-	container-init? ( >=sys-process/tini-0.19.0 )
+	container-init? ( >=sys-process/tini-0.19.0[static] )
 	selinux? ( sec-policy/selinux-docker )
 "
 
