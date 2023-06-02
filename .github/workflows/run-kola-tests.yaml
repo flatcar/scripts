@@ -243,7 +243,7 @@ jobs:
           set -e
 
       - name: Upload detailed test logs
-        if: always()
+        if: always() && !cancelled()
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.arch }}-test-logs-and-results
@@ -255,7 +255,7 @@ jobs:
             scripts/results-*.md
 
       - name: Upload raw TAP files of all runs for later merging
-        if: always()
+        if: always() && !cancelled()
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.arch }}-raw-tapfiles
@@ -266,7 +266,7 @@ jobs:
   merge_and_publish_results:
     name: "Merge TAP reports and post results"
     needs: tests
-    if: always()
+    if: always() && !cancelled()
     runs-on:
       - self-hosted
       - debian

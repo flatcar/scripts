@@ -11,18 +11,18 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check_maintainer_membership:
+  run_pre_checks:
     # Only run if this is a PR comment that contains a valid command
-    if: |
-      ${{ github.event.issue.pull_request }} &&
-        (    contains(github.event.comment.body, '/update-sdk') || contains(github.event.comment.body, '/build-image') )
+    if: ${{ github.event.issue.pull_request }} && ( contains(github.event.comment.body, '/build-image') || contains(github.event.comment.body, '/update-sdk'))
     name: Check if commenter is in the Flatcar maintainers team
     outputs:
       maintainers: steps.step1.output.maintainers
+      sdk_changes: ${{ steps.step3.outputs.sdk_changes }}
     runs-on:
       - ubuntu-latest
     steps:
       - name: Fetch members of the maintainers team
+        id: step1
         env:
           requester: ${{ github.event.comment.user.login }}
         shell: bash
@@ -49,25 +49,30 @@ jobs:
 
           $res
 
+      - name: Set outputs
+        id: step2
+        shell: bash
+        run: |
+          echo "sdk_changes=${{ contains(github.event.comment.body, '/update-sdk') }}" >> $GITHUB_OUTPUT
+
       - name: Post a link to the workflow run to the PR
+        id: step3
         uses: mshick/add-pr-comment@v2
         with:
           issue: ${{ github.event.issue.pull_request.number }}
           message: "Build action triggered: [${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
 
   update_sdk:
-    needs: check_maintainer_membership
-    if: ( needs.check_maintainer_membership.result == 'success'
-           && contains(github.event.comment.body, '/update-sdk') )
+    needs: run_pre_checks
+    if: needs.run_pre_checks.result == 'success' && needs.run_pre_checks.outputs.sdk_changes == 'true'
     name: "Build an updated SDK container"
     # SDK build needs access to bincache ssh secret
     secrets: inherit
     uses: ./.github/workflows/update-sdk.yaml
 
   build_image:
-    needs: [ check_maintainer_membership, update_sdk ]
-    if: ( needs.check_maintainer_membership.result == 'success'
-          && (    contains(github.event.comment.body, '/build-image') || needs.update_sdk.result == 'success' ) )
+    needs: [ run_pre_checks, update_sdk ]
+    if: (always() && ! cancelled()) && needs.run_pre_checks.result == 'success' && needs.update_sdk.result != 'failure' && contains(github.event.comment.body, '/build-image')
     name: "Build the OS image"
     uses: ./.github/workflows/ci.yaml
     with:

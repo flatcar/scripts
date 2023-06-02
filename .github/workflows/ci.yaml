@@ -89,7 +89,7 @@ jobs:
           echo "arch=${arch}" >> $GITHUB_ENV
 
           IMAGE_FORMATS="qemu_uefi"
-          [ -z "${{ github.event.inputs.image_formats }}" ] || IMAGE_FORMATS="${{ github.event.inputs.image_formats }}"
+          [ -z "${{ inputs.image_formats }}" ] || IMAGE_FORMATS="${{ inputs.image_formats }}"
           echo "IMAGE_FORMATS=${IMAGE_FORMATS}" >> $GITHUB_ENV
 
           # Artifact root for images and torcx tarball as seen from within the container
@@ -101,8 +101,8 @@ jobs:
           #  this with its IP address.
           echo "TORCX_TESTS_PACKAGE_URL=http://localhost:12345" >> $GITHUB_ENV
 
-          if [ -n "${{ github.event.inputs.custom_sdk_version }}" ] ; then
-              echo "CUSTOM_SDK_VERSION=${{ github.event.inputs.custom_sdk_version }}" >> $GITHUB_ENV
+          if [ -n "${{ inputs.custom_sdk_version }}" ] ; then
+              echo "CUSTOM_SDK_VERSION=${{ inputs.custom_sdk_version }}" >> $GITHUB_ENV
           fi
 
       - name: Build packages
@@ -147,7 +147,7 @@ jobs:
                 -cvf binpkgs.tar .
 
       - name: Extract build logs
-        if: always()
+        if: always() && !cancelled()
         shell: bash
         run: |
           set -euo pipefail
@@ -158,7 +158,7 @@ jobs:
               /build/${arch}-usr/var/tmp/portage
 
       - name: Upload build logs
-        if: always()
+        if: always() && !cancelled()
         uses: actions/upload-artifact@v3
         with:
           retention-days: 7

@@ -14,6 +14,10 @@ on:
           Custom SDK container version to build. Defaults to source SDK w/ "-github-[DATE]" appended.
 
   workflow_call:
+    outputs:
+      sdk_version:
+        description: "The version of the SDK container that was built"
+        value: ${{ jobs.update_sdk.outputs.sdk_version }}
     inputs:
       source_sdk_version:
         type: string
@@ -117,6 +121,7 @@ jobs:
               target_version="${CUSTOM_SDK_VERSION}"
           fi
 
+          echo "setting sdk_version=${target_version} as a github output"
           echo "sdk_version=${target_version}" >> "$GITHUB_OUTPUT"
 
           # This also updates sdk_container/.repo/manifests/version.txt with the new SDK version.
