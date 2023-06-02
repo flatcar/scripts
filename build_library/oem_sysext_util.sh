@@ -157,12 +157,17 @@ oem_sysext_create() {
         rm -rf "${entry}"
     done
 
-    local metadata metadata_file
+    local metadata metadata_file metadata_version_entry
     info "Adding sysext metadata"
     mkdir -p "${sysext_rootfs}/usr/lib/extension-release.d"
+    if [[ "${version_id}" = 'initial' ]]; then
+        metadata_version_entry="SYSEXT_LEVEL=1.0"
+    else
+        metadata_version_entry="VERSION_ID=${version_id}"
+    fi
     metadata=(
         'ID=flatcar'
-        "VERSION_ID=${version_id}"
+        "${metadata_version_entry}"
         "ARCHITECTURE=$(_get_sysext_arch "${board}")"
     )
     metadata_file="${sysext_rootfs}/usr/lib/extension-release.d/extension-release.${oem}"
