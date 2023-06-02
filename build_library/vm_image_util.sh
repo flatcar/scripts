@@ -780,7 +780,7 @@ You can pass extra kernel parameters with -append, for example:
 When using -nographic or -serial you must also enable the serial console:
   ./$(basename "${script}") -nographic -append 'console=ttyS0,115200n8'
 EOF
-    local packetipxe="$(_dst_dir)/flatcar_production_packet.ipxe"
+    local packetipxe="$(_dst_dir)/flatcar_production_equinix_metal.ipxe"
     cat > "$packetipxe" <<EOF
 #!ipxe
 
