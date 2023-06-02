@@ -36,7 +36,6 @@
 =sys-libs/libselinux-3.1-r2 ~arm64
 =sys-libs/libsemanage-3.1-r1 ~arm64
 =sys-libs/libsepol-3.1 ~arm64
-=sys-process/tini-0.18.0 ~arm64
 
 # Overwrite portage-stable mask - enable ding-libs for ARM64
 =dev-libs/ding-libs-0.6.1-r1 ~arm64
