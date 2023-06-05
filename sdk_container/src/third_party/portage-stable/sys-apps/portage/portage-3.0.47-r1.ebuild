@@ -93,7 +93,7 @@ PDEPEND="
 	)
 "
 
-distutils_enable_tests pytest
+distutils_enable_tests setup.py
 
 pkg_pretend() {
 	local CONFIG_CHECK="~IPC_NS ~PID_NS ~NET_NS ~UTS_NS"
