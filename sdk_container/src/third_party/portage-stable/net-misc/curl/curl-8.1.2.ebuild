@@ -8,20 +8,28 @@ inherit autotools multilib-minimal prefix verify-sig
 
 DESCRIPTION="A Client that groks URLs"
 HOMEPAGE="https://curl.se/"
-SRC_URI="
-	https://curl.se/download/${P}.tar.xz
-	verify-sig? ( https://curl.se/download/${P}.tar.xz.asc )
-"
+
+if [[ ${PV} == 9999 ]]; then
+	inherit git-r3
+	EGIT_REPO_URI="https://github.com/curl/curl.git"
+else
+	SRC_URI="
+		https://curl.se/download/${P}.tar.xz
+		verify-sig? ( https://curl.se/download/${P}.tar.xz.asc )
+	"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+fi
 
 LICENSE="curl"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="+adns alt-svc brotli +ftp gnutls gopher hsts +http2 idn +imap kerberos ldap mbedtls nss +openssl +pop3 +progress-meter rtmp rustls samba +smtp ssh ssl sslv3 static-libs test telnet +tftp websockets zstd"
+# These select the default SSL implementation
 IUSE+=" curl_ssl_gnutls curl_ssl_mbedtls curl_ssl_nss +curl_ssl_openssl curl_ssl_rustls"
 IUSE+=" nghttp3"
 RESTRICT="!test? ( test )"
 
 # Only one default ssl provider can be enabled
+# The default ssl provider needs its USE satisfied
 REQUIRED_USE="
 	ssl? (
 		^^ (
@@ -32,6 +40,11 @@ REQUIRED_USE="
 			curl_ssl_rustls
 		)
 	)
+	curl_ssl_gnutls? ( gnutls )
+	curl_ssl_mbedtls? ( mbedtls )
+	curl_ssl_nss? ( nss )
+	curl_ssl_openssl? ( openssl )
+	curl_ssl_rustls? ( rustls )
 "
 
 RDEPEND="
@@ -106,7 +119,7 @@ QA_CONFIG_IMPL_DECL_SKIP=(
 )
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-7.30.0-prefix.patch
+	"${FILESDIR}"/${PN}-prefix.patch
 	"${FILESDIR}"/${PN}-respect-cflags-3.patch
 )
 
@@ -124,44 +137,43 @@ multilib_src_configure() {
 	local myconf=()
 
 	myconf+=( --without-ca-fallback --with-ca-bundle="${EPREFIX}"/etc/ssl/certs/ca-certificates.crt  )
-	#myconf+=( --without-default-ssl-backend )
 	if use ssl ; then
 		myconf+=( --without-gnutls --without-mbedtls --without-nss --without-rustls )
 
-		if use gnutls || use curl_ssl_gnutls; then
-			einfo "SSL provided by gnutls"
+		if use gnutls; then
+			multilib_is_native_abi && einfo "SSL provided by gnutls"
 			myconf+=( --with-gnutls )
 		fi
-		if use mbedtls || use curl_ssl_mbedtls; then
-			einfo "SSL provided by mbedtls"
+		if use mbedtls; then
+			multilib_is_native_abi && einfo "SSL provided by mbedtls"
 			myconf+=( --with-mbedtls )
 		fi
-		if use nss || use curl_ssl_nss; then
-			einfo "SSL provided by nss"
+		if use nss; then
+			multilib_is_native_abi && einfo "SSL provided by nss"
 			myconf+=( --with-nss --with-nss-deprecated )
 		fi
-		if use openssl || use curl_ssl_openssl; then
-			einfo "SSL provided by openssl"
+		if use openssl; then
+			multilib_is_native_abi && einfo "SSL provided by openssl"
 			myconf+=( --with-ssl --with-ca-path="${EPREFIX}"/etc/ssl/certs )
 		fi
-		if use rustls || use curl_ssl_rustls; then
-			einfo "SSL provided by rustls"
+		if use rustls; then
+			multilib_is_native_abi && einfo "SSL provided by rustls"
 			myconf+=( --with-rustls )
 		fi
 		if use curl_ssl_gnutls; then
-			einfo "Default SSL provided by gnutls"
+			multilib_is_native_abi && einfo "Default SSL provided by gnutls"
 			myconf+=( --with-default-ssl-backend=gnutls )
 		elif use curl_ssl_mbedtls; then
-			einfo "Default SSL provided by mbedtls"
+			multilib_is_native_abi && einfo "Default SSL provided by mbedtls"
 			myconf+=( --with-default-ssl-backend=mbedtls )
 		elif use curl_ssl_nss; then
-			einfo "Default SSL provided by nss"
+			multilib_is_native_abi && einfo "Default SSL provided by nss"
 			myconf+=( --with-default-ssl-backend=nss )
 		elif use curl_ssl_openssl; then
-			einfo "Default SSL provided by openssl"
+			multilib_is_native_abi && einfo "Default SSL provided by openssl"
 			myconf+=( --with-default-ssl-backend=openssl )
 		elif use curl_ssl_rustls; then
-			einfo "Default SSL provided by rustls"
+			multilib_is_native_abi && einfo "Default SSL provided by rustls"
 			myconf+=( --with-default-ssl-backend=rustls )
 		else
 			eerror "We can't be here because of REQUIRED_USE."
@@ -293,6 +305,8 @@ multilib_src_configure() {
 	echo "Requires.private: ${priv[*]}" >> libcurl.pc || die
 }
 
+# There is also a pytest harness that tests for bugs in some very specific
+# situations; we can rely on upstream for this rather than adding additional test deps.
 multilib_src_test() {
 	# See https://github.com/curl/curl/blob/master/tests/runtests.pl#L5721
 	# -n: no valgrind (unreliable in sandbox and doesn't work correctly on all arches)
@@ -301,9 +315,9 @@ multilib_src_test() {
 	# -k: keep test files after completion
 	# -am: automake style TAP output
 	# -p: print logs if test fails
-	# Note: if needed, we can skip specific tests. Prefix the test number in TFLAGS
-	# with a '!'. For example, to skip test 241 and 1083, use '!241 !1083'.
-	# See https://github.com/curl/curl/tree/master/tests#run for advanced test selection.
+	# Note: if needed, we can skip specific tests. See e.g. Fedora's packaging
+	# or just read https://github.com/curl/curl/tree/master/tests#run.
+	# Note: we don't run the testsuite for cross-compilation.
 	# The network sandbox causes tests 241 and 1083 to fail; these are typically skipped
 	# as most gentoo users don't have an 'ip6-localhost'
 	multilib_is_native_abi && emake test TFLAGS="-n -v -a -k -am -p !241 !1083"
