@@ -1,7 +1,3 @@
-# Flatcar GRUB settings
-
-set oem_id="azure"
-
 set linux_append="flatcar.autologin"
 
 # Azure only has a serial console.

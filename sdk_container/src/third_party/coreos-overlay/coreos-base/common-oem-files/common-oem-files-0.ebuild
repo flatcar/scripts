@@ -4,6 +4,7 @@
 EAPI=8
 
 OEMIDS=(
+    azure
 )
 
 DESCRIPTION='Common OEM files'
