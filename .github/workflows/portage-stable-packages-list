@@ -350,6 +350,7 @@ profiles
 
 sys-apps/acl
 sys-apps/attr
+sys-apps/config-site
 sys-apps/coreutils
 sys-apps/debianutils
 sys-apps/diffutils
