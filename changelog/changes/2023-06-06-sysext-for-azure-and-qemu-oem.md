@@ -1,0 +1,1 @@
+- Azure and QEMU images currently use sysext images for additional platform-specific software. For Azure images this also means that the image will have a normal python installation available through the sysext image.
