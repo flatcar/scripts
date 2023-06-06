@@ -1,1 +1,1 @@
-- Azure and QEMU images currently use sysext images for additional platform-specific software. For Azure images this also means that the image will have a normal python installation available through the sysext image.
+- Azure and QEMU OEM images now use systemd-sysext images for layering additional platform-specific software on top of `/usr`. For Azure images this also means that the image has a normal Python installation available through the sysext image. The OEM software is still not updated but this will be added soon.
