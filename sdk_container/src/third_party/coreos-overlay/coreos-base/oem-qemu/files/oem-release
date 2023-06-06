@@ -1,5 +1,0 @@
-ID=qemu
-VERSION_ID=@@OEM_VERSION_ID@@
-NAME="QEMU"
-HOME_URL="https://www.qemu.org/"
-BUG_REPORT_URL="https://issues.flatcar.org"

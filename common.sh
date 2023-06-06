@@ -425,6 +425,7 @@ BUILD_DIR=
 # Standard filenames
 FLATCAR_DEVELOPER_CONTAINER_NAME="flatcar_developer_container.bin"
 FLATCAR_PRODUCTION_IMAGE_NAME="flatcar_production_image.bin"
+FLATCAR_PRODUCTION_IMAGE_PKGDB_NAME="flatcar_production_image_pkgdb.tar.xz"
 
 # -----------------------------------------------------------------------------
 # Functions
