@@ -67,11 +67,6 @@
 
 # Keep versions on both arches in sync.
 =sys-fs/multipath-tools-0.9.4-r1 ~amd64
-
-# Needed to address CVE-2023-2602 and CVE-2023-2603.
-=sys-libs/libcap-2.69 ~amd64 ~arm64
-
-# Keep versions on both arches in sync.
 =sys-libs/libselinux-3.1-r2 ~arm64
 =sys-libs/libsemanage-3.1-r1 ~arm64
 =sys-libs/libsepol-3.1 ~arm64
