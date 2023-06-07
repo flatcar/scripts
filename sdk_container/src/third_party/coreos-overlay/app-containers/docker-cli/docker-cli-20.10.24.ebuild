@@ -20,7 +20,7 @@ SLOT="0"
 KEYWORDS="amd64 arm64"
 IUSE="hardened"
 
-RDEPEND="!<app-emulation/docker-20.10.1"
+RDEPEND="!<app-containers/docker-20.10.1"
 
 RESTRICT="installsources strip"
 

@@ -41,7 +41,7 @@ PATCHES=(
 )
 
 src_compile() {
-	# Taken from app-emulation/docker-1.7.0-r1
+	# Taken from app-containers/docker-1.7.0-r1
 	export CGO_CFLAGS="-I${SYSROOT}/usr/include"
 	export CGO_LDFLAGS="$(usex hardened '-fno-PIC ' '')
 		-L${SYSROOT}/usr/$(get_libdir)"
