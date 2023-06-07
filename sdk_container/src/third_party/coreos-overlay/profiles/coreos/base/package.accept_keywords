@@ -13,7 +13,7 @@
 =app-emulation/open-vmdk-1.0 *
 
 # Required for addressing CVE-2022-3715.
-=app-shells/bash-5.2_p15-r2 ~amd64 ~arm64
+=app-shells/bash-5.2_p15-r3 ~amd64 ~arm64
 
 # No keyword for arm64 yet.
 =coreos-devel/fero-client-0.1.1 **
