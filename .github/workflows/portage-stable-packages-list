@@ -163,7 +163,6 @@ dev-perl/File-Slurp
 dev-perl/Locale-gettext
 dev-perl/Parse-Yapp
 dev-perl/Text-Unidecode
-dev-perl/Unicode-EastAsianWidth
 
 dev-python/autocommand
 dev-python/boto
