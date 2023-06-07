@@ -42,7 +42,7 @@
 =net-libs/libnetfilter_cttimeout-1.0.0-r1 ~arm64
 
 # Required for addressing CVE-2023-28319, CVE-2023-28320, CVE-2023-28321 and CVE-2023-28322.
-=net-misc/curl-8.1.0 ~amd64 ~arm64
+=net-misc/curl-8.1.0-r1 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
 =sec-policy/selinux-base-2.20200818-r2 ~arm64
