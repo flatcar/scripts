@@ -162,7 +162,6 @@ dev-libs/userspace-rcu
 dev-perl/File-Slurp
 dev-perl/Locale-gettext
 dev-perl/Parse-Yapp
-dev-perl/Text-Unidecode
 
 dev-python/autocommand
 dev-python/boto
