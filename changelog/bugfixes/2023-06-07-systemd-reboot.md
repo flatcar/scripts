@@ -1,0 +1,1 @@
+- Resolved the conflicting FD usage of libselinux and systemd which caused, e.g., a systemd crash on certain watchdog interaction during shutdown (patch in systemd 252.11)
