@@ -300,6 +300,7 @@ eclass/virtualx.eclass
 eclass/waf-utils.eclass
 eclass/wrapper.eclass
 eclass/xdg-utils.eclass
+eclass/xorg-3.eclass
 
 licenses
 
