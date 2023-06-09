@@ -1,4 +1,4 @@
-From b128acae78ba4ef918fa0d6fe11a13aed9c4c283 Mon Sep 17 00:00:00 2001
+From b97c1d2e96a66d6b7d02ff5c2535e9c34b6336e1 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Wed, 22 Sep 2021 14:53:49 +0200
 Subject: [PATCH 10/21] internal/disk/fs: ignore fs format mismatches for the
@@ -35,5 +35,5 @@ index 18103f38..72baf50d 100644
  			(fs.UUID == nil || canonicalizeFilesystemUUID(info.Type, info.UUID) == canonicalizeFilesystemUUID(fileSystemFormat, *fs.UUID)) {
  			s.Logger.Info("filesystem at %q is already correctly formatted. Skipping mkfs...", fs.Device)
 -- 
-2.25.1
+2.34.1
 

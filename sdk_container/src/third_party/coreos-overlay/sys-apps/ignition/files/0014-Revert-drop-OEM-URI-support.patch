@@ -1,4 +1,4 @@
-From d745d6f67a2ec9b4bc9cca183ea078ea8be618d1 Mon Sep 17 00:00:00 2001
+From fb26081aa46b3edd9d878630ef52aea2d4ea8613 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Wed, 25 May 2022 10:38:16 +0200
 Subject: [PATCH 14/21] Revert "*: drop OEM URI support"
@@ -509,5 +509,5 @@ index d5bd3fe7..ea4ff6ab 100644
  	Env               []string // Environment variables for Ignition
  	Config            string
 -- 
-2.25.1
+2.34.1
 

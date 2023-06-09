@@ -1,4 +1,4 @@
-From e27ff547ae16e31e0c61f7e393437f4df57887ed Mon Sep 17 00:00:00 2001
+From 14e02dfa9ed7dd7d0d6e47960cf08011edb46861 Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Fri, 14 Apr 2023 11:37:20 +0200
 Subject: [PATCH 19/21] docs: Add re-added platforms to docs to pass tests
@@ -38,5 +38,5 @@ index f7bb4b40..90df6c6a 100644
  * [VMware] (`vmware`) - Use the VMware Guestinfo variables `ignition.config.data` and `ignition.config.data.encoding` to provide the config and its encoding to the virtual machine. Valid encodings are "", "base64", and "gzip+base64". Guestinfo variables can be provided directly or via an OVF environment, with priority given to variables specified directly.
  * [Vultr] (`vultr`) - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.
 -- 
-2.25.1
+2.34.1
 
