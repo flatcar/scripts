@@ -1,0 +1,49 @@
+- gh action plan:
+  - clone scripts
+  - find out the latest nightly tag (`git describe  --tags --match 'main-*-nightly-*' --abbrev=0`)
+  - create a scripts worktree with the nightly tag
+  - clone gentoo:
+    - needs to be done somewhere inside the nightly scripts, so the gentoo repo is visible from inside the sdk container
+  - run_sdk_container:
+    - assumptions:
+      - gentoo repo is available
+      - sync script is available
+      - git author name and email are set up
+    - create two worktrees of scripts repo based on origin/main:
+      - one for old state
+      - one for new state
+    - for each package:
+      - record the current hash in new state
+      - sync the package in new state
+      - check if current hash in new state is different:
+        - if so, store commit and package name in "updated" list
+    - set up a bunch of rootfses:
+      - old amd64 sdk rootfs with repos from old state using sdk profile
+      - new amd64 sdk rootfs with repos from new state using sdk profile
+      - old amd64 pkgs rootfs with repos from old state using generic/prod profile
+      - new amd64 pkgs rootfs with repos from new state using generic/prod profile
+      - old arm64 sdk rootfs with repos from old state using sdk profile
+      - new arm64 sdk rootfs with repos from new state using sdk profile
+      - old arm64 pkgs rootfs with repos from old state using generic/prod profile
+      - new arm64 pkgs rootfs with repos from new state using generic/prod profile
+    - for each entry in "updated" list:
+      - if entry is a package:
+        - figure out all old versions:
+          - warn if there a multiple different versions
+        - figure out a new version:
+          - the highest possible version that is stable on at least one of arm64 or amd64
+        - figure out package use
+          - SDK, PROD, DEV
+        - if no use, drop the package?
+        - generate a diff between ebuilds
+        - generate a stub change entry
+      - if entry is an eclass:
+        - generate a diff between eclasses
+      - if entry is licenses:
+        - generate a summary (added, removed, modified)
+      - if entry is profiles:
+        - blah, maybe try to filter out irrelevant profiles changes (for arches other than amd64, arm64 or base)
+      - if entry is scripts:
+        - backport changes?
+  - prepare a PR body
+    - diffs hidden in summaries
