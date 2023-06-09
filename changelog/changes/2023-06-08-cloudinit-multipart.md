@@ -1,1 +1,1 @@
-- Added support for multipart MIME userdata (scripts#873)
+- Added support for multipart MIME userdata in coreos-cloudinit. Ignition now detects multipart userdata and delegates execution to coreos-cloudinit. (scripts#873)
