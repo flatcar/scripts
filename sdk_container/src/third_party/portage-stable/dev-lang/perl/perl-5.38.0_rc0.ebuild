@@ -7,7 +7,7 @@ inherit alternatives flag-o-matic toolchain-funcs multilib multiprocessing
 
 PATCH_VER=1
 CROSS_VER=1.4.1
-PATCH_BASE="perl-5.36.0-patches-${PATCH_VER}"
+PATCH_BASE="perl-5.38.0-patches-${PATCH_VER}"
 PATCH_DEV=dilfridge
 
 DIST_AUTHOR=RJBS
@@ -39,12 +39,13 @@ MY_PV="${DIST_VERSION%-RC*}"
 
 DESCRIPTION="Larry Wall's Practical Extraction and Report Language"
 
+#	mirror://cpan/src/5.0/${MY_P}.tar.xz
+#	mirror://cpan/authors/id/${DIST_AUTHOR:0:1}/${DIST_AUTHOR:0:2}/${DIST_AUTHOR}/${MY_P}.tar.xz
 SRC_URI="
-	mirror://cpan/src/5.0/${MY_P}.tar.xz
-	mirror://cpan/authors/id/${DIST_AUTHOR:0:1}/${DIST_AUTHOR:0:2}/${DIST_AUTHOR}/${MY_P}.tar.xz
-	https://github.com/gentoo-perl/perl-patchset/releases/download/${PATCH_BASE}/${PATCH_BASE}.tar.xz
-	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${PATCH_BASE}.tar.xz
+	https://github.com/gentoo-perl/perl-patchset/archive/refs/tags/${PATCH_BASE}.tar.gz
+	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${PATCH_BASE}.tar.gz
 	https://github.com/arsv/perl-cross/releases/download/${CROSS_VER}/perl-cross-${CROSS_VER}.tar.gz
+	https://semiotic.systems/perl-5.38.0-RC0.tar.gz
 "
 
 HOMEPAGE="https://www.perl.org/"
@@ -53,7 +54,7 @@ LICENSE="|| ( Artistic GPL-1+ )"
 SLOT="0/${SUBSLOT}"
 
 if [[ "${PV##*.}" != "9999" ]] && [[ "${PV/rc//}" == "${PV}" ]] ; then
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 
 IUSE="berkdb debug doc gdbm ithreads minimal quadmath"
@@ -85,20 +86,20 @@ S="${WORKDIR}/${MY_P}"
 
 dual_scripts() {
 	src_remove_dual      perl-core/Archive-Tar        2.400.0       ptar ptardiff ptargrep
-	src_remove_dual      perl-core/CPAN               2.330.0       cpan
-	src_remove_dual      perl-core/Digest-SHA         6.20.0        shasum
-	src_remove_dual      perl-core/Encode             3.170.0       enc2xs piconv
-	src_remove_dual      perl-core/ExtUtils-MakeMaker 7.640.0       instmodsh
-	src_remove_dual      perl-core/ExtUtils-ParseXS   3.450.0       xsubpp
-	src_remove_dual      perl-core/IO-Compress        2.106.0       zipdetails
-	src_remove_dual      perl-core/JSON-PP            4.70.0        json_pp
-	src_remove_dual      perl-core/Module-CoreList    5.202.304.230 corelist
-	src_remove_dual      perl-core/Pod-Checker        1.740.0       podchecker
+	src_remove_dual      perl-core/CPAN               2.360.0       cpan
+	src_remove_dual      perl-core/Digest-SHA         6.40.0        shasum
+	src_remove_dual      perl-core/Encode             3.190.0       enc2xs piconv
+	src_remove_dual      perl-core/ExtUtils-MakeMaker 7.700.0       instmodsh
+	src_remove_dual      perl-core/ExtUtils-ParseXS   3.510.0       xsubpp
+	src_remove_dual      perl-core/IO-Compress        2.204.0       zipdetails
+	src_remove_dual      perl-core/JSON-PP            4.160.0        json_pp
+	src_remove_dual      perl-core/Module-CoreList    5.202.305.200 corelist
+	src_remove_dual      perl-core/Pod-Checker        1.750.0       podchecker
 	src_remove_dual      perl-core/Pod-Perldoc        3.280.100     perldoc
-	src_remove_dual      perl-core/Pod-Usage          2.10.0       pod2usage
+	src_remove_dual      perl-core/Pod-Usage          2.30.0       pod2usage
 	src_remove_dual      perl-core/Test-Harness       3.440.0       prove
-	src_remove_dual      perl-core/podlators          4.140.0       pod2man pod2text
-	src_remove_dual_man  perl-core/podlators          4.140.0       /usr/share/man/man1/perlpodstyle.1
+	src_remove_dual      perl-core/podlators          5.10.0       pod2man pod2text
+	src_remove_dual_man  perl-core/podlators          5.10.0       /usr/share/man/man1/perlpodstyle.1
 }
 
 check_rebuild() {
@@ -144,13 +145,8 @@ check_rebuild() {
 
 pkg_setup() {
 	case ${CHOST} in
-		*-freebsd*)   osname="freebsd" ;;
-		*-dragonfly*) osname="dragonfly" ;;
-		*-netbsd*)    osname="netbsd" ;;
-		*-openbsd*)   osname="openbsd" ;;
 		*-darwin*)    osname="darwin" ;;
 		*-solaris*)   osname="solaris" ;;
-		*-cygwin*)    osname="cygwin" ;;
 		*)            osname="linux" ;;
 	esac
 
@@ -388,7 +384,11 @@ apply_patchdir() {
 }
 
 src_prepare() {
+
 	local patchdir="${WORKDIR}/patches"
+
+	mv -v "${WORKDIR}/perl-patchset-${PATCH_BASE}/patches" "${WORKDIR}/patches" || die
+	mv -v "${WORKDIR}/perl-patchset-${PATCH_BASE}/patch-info" "${WORKDIR}/patch-info" || die
 
 	# Prepare Patch dir with additional patches / remove unwanted patches
 	# Inject bug/desc entries for perl -V
@@ -632,10 +632,6 @@ src_configure() {
 	[[ ${CHOST} == *-darwin* && ${CHOST##*darwin} -le 9 ]] && tc-is-gcc && \
 		append-cflags -Dinline=__inline__ -DPERL_DARWIN
 
-	# flock on 32-bit sparc Solaris is broken, fall back to fcntl
-	[[ ${CHOST} == sparc-*-solaris* ]] && \
-		myconf -Ud_flock
-
 	# Prefix: the host system needs not to follow Gentoo multilib stuff, and in
 	# Prefix itself we don't do multilib either, so make sure perl can find
 	# something compatible.
@@ -680,7 +676,7 @@ src_configure() {
 		-Dnm="$(tc-getNM)" \
 		-Dcpp="$(tc-getCPP)" \
 		-Dranlib="$(tc-getRANLIB)" \
-		-Accflags="${CFLAGS}" \
+		-Accflags="${CFLAGS} -DNO_PERL_RAND_SEED" \
 		-Doptimize="${CFLAGS}" \
 		-Dldflags="${LDFLAGS}" \
 		-Dprefix="${EPREFIX}"'/usr' \
