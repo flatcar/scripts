@@ -50,7 +50,7 @@ case ${PV} in
 			https://sourceware.org/pub/gdb/releases/${P}.tar.xz
 		"
 
-		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~x64-macos ~x64-solaris"
 		;;
 esac
 
@@ -212,12 +212,6 @@ src_configure() {
 		# "${S}"/gdb/configure --help | grep without-lib | sort
 		--without-lib{babeltrace,expat,gmp,iconv,ipt,lzma,mpfr,xxhash}-prefix
 	)
-
-	if use sparc-solaris || use x86-solaris ; then
-		# Disable largefile support
-		# https://sourceware.org/ml/gdb-patches/2014-12/msg00058.html
-		myconf+=( --disable-largefile )
-	fi
 
 	# source-highlight is detected with pkg-config: bug #716558
 	export ac_cv_path_pkg_config_prog_path="$(tc-getPKG_CONFIG)"
