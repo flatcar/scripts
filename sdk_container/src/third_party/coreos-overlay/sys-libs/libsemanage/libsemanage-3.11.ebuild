@@ -18,57 +18,42 @@ if [[ ${PV} == 9999 ]]; then
 	S="${WORKDIR}/${P}/${PN}"
 else
 	SRC_URI="https://github.com/SELinuxProject/selinux/releases/download/${MY_PV}/${MY_P}.tar.gz"
-	KEYWORDS="~amd64 ~arm ~arm64 ~mips ~riscv ~x86"
+	KEYWORDS="amd64 arm arm64 mips riscv x86"
 	S="${WORKDIR}/${MY_P}"
 fi
 
 LICENSE="GPL-2"
 SLOT="0/2"
-REQUIRED_USE="${PYTHON_REQUIRED_USE}"
+IUSE="+python"
+REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
-RDEPEND="app-arch/bzip2[${MULTILIB_USEDEP}]
+RDEPEND="
+	app-arch/bzip2[${MULTILIB_USEDEP}]
 	>=sys-libs/libsepol-${PV}:=[${MULTILIB_USEDEP}]
 	>=sys-libs/libselinux-${PV}:=[${MULTILIB_USEDEP}]
 	>=sys-process/audit-2.2.2[${MULTILIB_USEDEP}]
-	${PYTHON_DEPS}"
+	python? ( ${PYTHON_DEPS} )
+"
 DEPEND="${RDEPEND}"
-BDEPEND=">=dev-lang/swig-2.0.4-r1
+BDEPEND="
 	app-alternatives/yacc
 	app-alternatives/lex
-	virtual/pkgconfig"
+	python? (
+		>=dev-lang/swig-2.0.4-r1
+		virtual/pkgconfig
+	)
+"
 
 # tests are not meant to be run outside of the
 # full SELinux userland repo
 RESTRICT="test"
 
+PATCHES=(
+    "${FILESDIR}/libsemanage-extra-config.patch"
+)
+
 src_prepare() {
-	eapply_user
-
-	cat <<-EOF >> "${S}/src/semanage.conf" || die
-	# Set this to true to save the linked policy.
-	# This is normally only useful for analysis
-	# or debugging of policy.
-	save-linked=false
-
-	# Set this to 0 to disable assertion checking.
-	# This should speed up building the kernel policy
-	# from policy modules, but may leave you open to
-	# dangerous rules which assertion checking
-	# would catch.
-	expand-check=1
-
-	# Modules in the module store can be compressed
-	# with bzip2.  Set this to the bzip2 blocksize
-	# 1-9 when compressing.  The higher the number,
-	# the more memory is traded off for disk space.
-	# Set to 0 to disable bzip2 compression.
-	bzip-blocksize=0
-
-	# Reduce memory usage for bzip2 compression and
-	# decompression of modules in the module store.
-	bzip-small=true
-	EOF
-
+	default
 	multilib_copy_sources
 }
 
@@ -86,7 +71,7 @@ multilib_src_compile() {
 		LIBDIR="${EPREFIX}/usr/$(get_libdir)" \
 		all
 
-	if multilib_is_native_abi; then
+	if use python && multilib_is_native_abi; then
 		building_py() {
 			emake \
 				AR="$(tc-getAR)" \
@@ -107,7 +92,7 @@ multilib_src_install() {
 
 	strip-lto-bytecode
 
-	if multilib_is_native_abi; then
+	if use python && multilib_is_native_abi; then
 		installation_py() {
 			emake DESTDIR="${ED}" \
 				LIBDIR="${EPREFIX}/usr/$(get_libdir)" \
@@ -120,6 +105,8 @@ multilib_src_install() {
 }
 
 multiib_src_install_all() {
-	python_setup
-	python_fix_shebang "${ED}"/usr/libexec/selinux/semanage_migrate_store
+	if use python; then
+		python_setup
+		python_fix_shebang "${ED}"/usr/libexec/selinux/semanage_migrate_store
+	fi
 }
