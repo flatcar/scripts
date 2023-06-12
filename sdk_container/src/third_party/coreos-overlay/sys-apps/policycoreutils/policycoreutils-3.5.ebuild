@@ -5,7 +5,8 @@ EAPI="7"
 PYTHON_COMPAT=( python3_{9..11} )
 PYTHON_REQ_USE="xml(+)"
 
-inherit multilib python-r1 toolchain-funcs bash-completion-r1
+TMPFILES_OPTIONAL=1
+inherit multilib python-r1 toolchain-funcs bash-completion-r1 tmpfiles
 
 MY_PV="${PV//_/-}"
 MY_P="${PN}-${MY_PV}"
@@ -35,14 +36,12 @@ SLOT="0"
 IUSE="audit pam split-usr"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
-DEPEND=">=sys-libs/libselinux-${PV}:=[python,${PYTHON_USEDEP}]
-	>=sys-libs/libsemanage-${PV}:=[python(+),${PYTHON_USEDEP}]
+DEPEND=">=sys-libs/libselinux-${PV}:=
+	>=sys-libs/libsemanage-${PV}:=
 	>=sys-libs/libsepol-${PV}:=
 	sys-libs/libcap-ng:=
-	>=app-admin/setools-4.2.0[${PYTHON_USEDEP}]
 	audit? ( >=sys-process/audit-1.5.1[python,${PYTHON_USEDEP}] )
-	pam? ( sys-libs/pam:= )
-	${PYTHON_DEPS}"
+	pam? ( sys-libs/pam:= )"
 
 # Avoid dependency loop in the cross-compile case, bug #755173
 # (Still exists in native)
@@ -52,8 +51,7 @@ BDEPEND="sys-devel/gettext"
 RDEPEND="${DEPEND}
 	app-misc/pax-utils"
 
-PDEPEND="sys-apps/semodule-utils
-	sys-apps/selinux-python"
+PDEPEND="sys-apps/semodule-utils"
 
 src_unpack() {
 	# Override default one because we need the SRC_URI ones even in case of 9999 ebuilds
@@ -80,14 +78,6 @@ src_prepare() {
 	eapply_user
 
 	sed -i 's/-Werror//g' "${S1}"/*/Makefile || die "Failed to remove Werror"
-
-	python_copy_sources
-	# Our extra code is outside the regular directory, so set it to the extra
-	# directory. We really should optimize this as it is ugly, but the extra
-	# code is needed for Gentoo at the same time that policycoreutils is present
-	# (so we cannot use an additional package for now).
-	S="${S2}"
-	python_copy_sources
 }
 
 src_compile() {
@@ -100,10 +90,8 @@ src_compile() {
 			CC="$(tc-getCC)" \
 			LIBDIR="\$(PREFIX)/$(get_libdir)"
 	}
-	S="${S1}" # Regular policycoreutils
-	python_foreach_impl building
-	S="${S2}" # Extra set
-	python_foreach_impl building
+	BUILD_DIR="${S1}"
+	building
 }
 
 src_install() {
@@ -118,7 +106,6 @@ src_install() {
 			CC="$(tc-getCC)" \
 			LIBDIR="\$(PREFIX)/$(get_libdir)" \
 			install
-		python_optimize
 	}
 
 	installation-extras() {
@@ -126,14 +113,11 @@ src_install() {
 		emake -C "${BUILD_DIR}" \
 			DESTDIR="${D}" \
 			install
-		python_optimize
 	}
 
-	S="${S1}" # policycoreutils
-	python_foreach_impl installation-policycoreutils
-	S="${S2}" # extras
-	python_foreach_impl installation-extras
-	S="${S1}" # back for later
+	BUILD_DIR="${S1}"
+	installation-policycoreutils
+
 
 	# remove redhat-style init script
 	rm -fR "${D}/etc/rc.d" || die
@@ -148,14 +132,12 @@ src_install() {
 
 	bashcomp_alias setsebool getsebool
 
-	# location for policy definitions
-	dodir /var/lib/selinux
-	keepdir /var/lib/selinux
+	dodir /usr/lib/selinux/policy
+	dosym ../../usr/lib/selinux/policy /var/lib/selinux
+	keepdir /usr/lib/selinux/policy
 
-	# Set version-specific scripts
-	for pyscript in rlpkg; do
-	  python_replicate_script "${ED}/usr/sbin/${pyscript}"
-	done
+	# Recreate the symlink in /var in case of wiping the root filesystem.
+	dotmpfiles "${FILESDIR}/tmpfiles.d/10-var-lib-selinux.conf"
 }
 
 pkg_postinst() {
