@@ -1,16 +1,15 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
-PYTHON_COMPAT=( python3_{6..10} )
-PYTHON_REQ_USE="xml"
+PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_REQ_USE="xml(+)"
 
 inherit multilib python-r1 toolchain-funcs bash-completion-r1
 
+MY_PV="${PV//_/-}"
+MY_P="${PN}-${MY_PV}"
 EXTRAS_VER="1.37"
-
-IUSE="audit pam split-usr"
-REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 DESCRIPTION="SELinux core utilities"
 HOMEPAGE="https://github.com/SELinuxProject/selinux/wiki"
@@ -19,20 +18,22 @@ if [[ ${PV} == 9999 ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/SELinuxProject/selinux.git"
 	SRC_URI="https://dev.gentoo.org/~perfinion/distfiles/policycoreutils-extra-${EXTRAS_VER}.tar.bz2"
-	S1="${WORKDIR}/${PN}"
+	S1="${WORKDIR}/${P}/${PN}"
 	S2="${WORKDIR}/policycoreutils-extra"
 	S="${S1}"
 else
-	SRC_URI="https://github.com/SELinuxProject/selinux/releases/download/${PV}/${P}.tar.gz
+	SRC_URI="https://github.com/SELinuxProject/selinux/releases/download/${MY_PV}/${MY_P}.tar.gz
 		https://dev.gentoo.org/~perfinion/distfiles/policycoreutils-extra-${EXTRAS_VER}.tar.bz2"
-	KEYWORDS="~amd64 ~arm64 ~mips ~x86"
-	S1="${WORKDIR}/${P}"
+	KEYWORDS="amd64 arm arm64 ~mips x86"
+	S1="${WORKDIR}/${MY_P}"
 	S2="${WORKDIR}/policycoreutils-extra"
 	S="${S1}"
 fi
 
 LICENSE="GPL-2"
 SLOT="0"
+IUSE="audit pam split-usr"
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 DEPEND=">=sys-libs/libselinux-${PV}:=[python,${PYTHON_USEDEP}]
 	>=sys-libs/libsemanage-${PV}:=[python(+),${PYTHON_USEDEP}]
@@ -138,7 +139,12 @@ src_install() {
 	rm -fR "${D}/etc/rc.d" || die
 
 	# compatibility symlinks
-	use split-usr && dosym ../../sbin/setfiles /usr/sbin/setfiles
+	if use split-usr; then
+		dosym ../../sbin/setfiles /usr/sbin/setfiles
+	else
+		# remove sestatus symlink
+		rm -f "${D}"/usr/sbin/sestatus || die
+	fi
 
 	bashcomp_alias setsebool getsebool
 
@@ -156,7 +162,7 @@ pkg_postinst() {
 	for POLICY_TYPE in ${POLICY_TYPES} ; do
 		# There have been some changes to the policy store, rebuilding now.
 		# https://marc.info/?l=selinux&m=143757277819717&w=2
-		einfo "Rebuilding store ${POLICY_TYPE} (without re-loading)."
-		semodule -s "${POLICY_TYPE}" -n -B || die "Failed to rebuild policy store ${POLICY_TYPE}"
+		einfo "Rebuilding store ${POLICY_TYPE} in '${ROOT:-/}' (without re-loading)."
+		semodule -p "${ROOT:-/}" -s "${POLICY_TYPE}" -n -B || die "Failed to rebuild policy store ${POLICY_TYPE}"
 	done
 }
