@@ -7,8 +7,8 @@ EAPI=8
 # Set to 1 if prebuilt, 0 if not
 # (the construct below is to allow overriding from env for script)
 QEMU_DOCS_PREBUILT=${QEMU_DOCS_PREBUILT:-1}
-QEMU_DOCS_PREBUILT_DEV=ajak
-QEMU_DOCS_VERSION="${PV}"
+QEMU_DOCS_PREBUILT_DEV=sam
+QEMU_DOCS_VERSION="8.0.0"
 # Default to generating docs (inc. man pages) if no prebuilt; overridden later
 # bug #830088
 QEMU_DOC_USEFLAG="+doc"
@@ -41,7 +41,7 @@ else
 	fi
 
 	S="${WORKDIR}/${MY_P}"
-	[[ "${PV}" != *_rc* ]] && KEYWORDS="amd64 ~arm arm64 ~loong ~ppc ppc64 ~riscv x86"
+	[[ "${PV}" != *_rc* ]] && KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc ~ppc64 ~riscv ~x86"
 fi
 
 DESCRIPTION="QEMU + Kernel-based Virtual Machine userland tools"
@@ -57,9 +57,9 @@ IUSE="accessibility +aio alsa bpf bzip2 capstone +curl debug ${QEMU_DOC_USEFLAG}
 	jack jemalloc +jpeg
 	lzo multipath
 	ncurses nfs nls numa opengl +oss pam +pin-upstream-blobs
-	plugins +png pulseaudio python rbd sasl sdl sdl-image selinux
+	plugins +png pulseaudio python rbd sasl +seccomp sdl sdl-image selinux
 	+slirp
-	smartcard snappy spice ssh static static-user systemtap test udev usb
+	smartcard snappy spice ssh static-user systemtap test udev usb
 	usbredir vde +vhost-net virgl virtfs +vnc vte xattr xen
 	zstd"
 
@@ -115,6 +115,7 @@ use_user_targets=$(printf ' qemu_user_targets_%s' ${IUSE_USER_TARGETS})
 IUSE+=" ${use_softmmu_targets} ${use_user_targets}"
 
 RESTRICT="!test? ( test )"
+
 # Allow no targets to be built so that people can get a tools-only build.
 # Block USE flag configurations known to not work.
 REQUIRED_USE="
@@ -128,15 +129,17 @@ REQUIRED_USE="
 	qemu_softmmu_targets_riscv64? ( fdt )
 	qemu_softmmu_targets_x86_64? ( fdt )
 	sdl-image? ( sdl )
-	static? ( static-user !alsa !gtk !jack !opengl !pam !pulseaudio !plugins !rbd !snappy !udev )
 	static-user? ( !plugins )
 	virgl? ( opengl )
 	virtfs? ( xattr )
 	vnc? ( gnutls )
 	vte? ( gtk )
 	multipath? ( udev )
-	plugins? ( !static !static-user )
+	plugins? ( !static-user )
 "
+for smname in ${IUSE_SOFTMMU_TARGETS} ; do
+	REQUIRED_USE+=" qemu_softmmu_targets_${smname}? ( kernel_linux? ( seccomp ) )"
+done
 
 # Dependencies required for qemu tools (qemu-nbd, qemu-img, qemu-io, ...)
 # and user/softmmu targets (qemu-*, qemu-system-*).
@@ -147,7 +150,7 @@ REQUIRED_USE="
 # respected).  This is because qemu supports using the C library's API
 # when available rather than always using the external library.
 ALL_DEPEND="
-	>=dev-libs/glib-2.0[static-libs(+)]
+	dev-libs/glib:2[static-libs(+)]
 	sys-libs/zlib[static-libs(+)]
 	python? ( ${PYTHON_DEPS} )
 	systemtap? ( dev-util/systemtap )
@@ -156,8 +159,6 @@ ALL_DEPEND="
 # Dependencies required for qemu tools (qemu-nbd, qemu-img, qemu-io, ...)
 # softmmu targets (qemu-system-*).
 SOFTMMU_TOOLS_DEPEND="
-	sys-libs/libcap-ng[static-libs(+)]
-	>=sys-libs/libseccomp-2.1.0[static-libs(+)]
 	>=x11-libs/pixman-0.28.0[static-libs(+)]
 	accessibility? (
 		app-accessibility/brltty[api]
@@ -167,17 +168,20 @@ SOFTMMU_TOOLS_DEPEND="
 	alsa? ( >=media-libs/alsa-lib-1.0.13 )
 	bpf? ( dev-libs/libbpf:= )
 	bzip2? ( app-arch/bzip2[static-libs(+)] )
-	capstone? ( dev-libs/capstone:= )
+	capstone? ( dev-libs/capstone:=[static-libs(+)] )
 	curl? ( >=net-misc/curl-7.15.4[static-libs(+)] )
 	fdt? ( >=sys-apps/dtc-1.5.1[static-libs(+)] )
 	fuse? ( >=sys-fs/fuse-3.1:3[static-libs(+)] )
 	glusterfs? ( >=sys-cluster/glusterfs-3.4.0[static-libs(+)] )
 	gnutls? (
-		dev-libs/nettle:=[static-libs(+)]
 		>=net-libs/gnutls-3.0:=[static-libs(+)]
+		dev-libs/nettle:=[static-libs(+)]
 	)
 	gtk? (
+		x11-libs/cairo
+		x11-libs/gdk-pixbuf:2
 		x11-libs/gtk+:3
+		x11-libs/libX11
 		vte? ( x11-libs/vte:2.91 )
 	)
 	infiniband? ( sys-cluster/rdma-core[static-libs(+)] )
@@ -186,6 +190,7 @@ SOFTMMU_TOOLS_DEPEND="
 	jack? ( virtual/jack )
 	jemalloc? ( dev-libs/jemalloc )
 	jpeg? ( media-libs/libjpeg-turbo:=[static-libs(+)] )
+	kernel_linux? ( sys-libs/libcap-ng[static-libs(+)] )
 	lzo? ( dev-libs/lzo:2[static-libs(+)] )
 	multipath? ( sys-fs/multipath-tools )
 	ncurses? (
@@ -201,8 +206,8 @@ SOFTMMU_TOOLS_DEPEND="
 		media-libs/mesa[egl(+),gbm(+)]
 	)
 	pam? ( sys-libs/pam )
-	png? ( media-libs/libpng:0=[static-libs(+)] )
-	pulseaudio? ( media-sound/pulseaudio )
+	png? ( >=media-libs/libpng-1.6.34:=[static-libs(+)] )
+	pulseaudio? ( media-libs/libpulse )
 	rbd? ( sys-cluster/ceph )
 	sasl? ( dev-libs/cyrus-sasl[static-libs(+)] )
 	sdl? (
@@ -210,16 +215,17 @@ SOFTMMU_TOOLS_DEPEND="
 		media-libs/libsdl2[static-libs(+)]
 	)
 	sdl-image? ( media-libs/sdl2-image[static-libs(+)] )
+	seccomp? ( >=sys-libs/libseccomp-2.1.0[static-libs(+)] )
 	slirp? ( net-libs/libslirp[static-libs(+)] )
 	smartcard? ( >=app-emulation/libcacard-2.5.0[static-libs(+)] )
 	snappy? ( app-arch/snappy:= )
 	spice? (
-		>=app-emulation/spice-protocol-0.12.3
-		>=app-emulation/spice-0.12.0[static-libs(+)]
+		>=app-emulation/spice-protocol-0.14.0
+		>=app-emulation/spice-0.14.0[static-libs(+)]
 	)
 	ssh? ( >=net-libs/libssh-0.8.6[static-libs(+)] )
 	udev? ( virtual/libudev:= )
-	usb? ( >=virtual/libusb-1-r2[static-libs(+)] )
+	usb? ( >=virtual/libusb-1-r2:1[static-libs(+)] )
 	usbredir? ( >=sys-apps/usbredir-0.6[static-libs(+)] )
 	vde? ( net-misc/vde[static-libs(+)] )
 	virgl? ( media-libs/virglrenderer[static-libs(+)] )
@@ -279,10 +285,8 @@ BDEPEND="
 	)
 "
 CDEPEND="
-	!static? (
-		${ALL_DEPEND//\[static-libs(+)]}
-		${SOFTMMU_TOOLS_DEPEND//\[static-libs(+)]}
-	)
+	${ALL_DEPEND//\[static-libs(+)]}
+	${SOFTMMU_TOOLS_DEPEND//\[static-libs(+)]}
 	qemu_softmmu_targets_i386? ( ${X86_FIRMWARE_DEPEND} )
 	qemu_softmmu_targets_x86_64? ( ${X86_FIRMWARE_DEPEND} )
 	qemu_softmmu_targets_ppc? ( ${PPC_FIRMWARE_DEPEND} )
@@ -290,10 +294,6 @@ CDEPEND="
 "
 DEPEND="${CDEPEND}
 	kernel_linux? ( >=sys-kernel/linux-headers-2.6.35 )
-	static? (
-		${ALL_DEPEND}
-		${SOFTMMU_TOOLS_DEPEND}
-	)
 	static-user? ( ${ALL_DEPEND} )"
 RDEPEND="${CDEPEND}
 	acct-group/kvm
@@ -303,10 +303,12 @@ RDEPEND="${CDEPEND}
 	)"
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-5.2.0-disable-keymap.patch
-	"${FILESDIR}"/${PN}-6.0.0-make.patch
+	"${FILESDIR}"/${PN}-8.0.0-disable-keymap.patch
+	"${FILESDIR}"/${PN}-8.0.0-make.patch
 	"${FILESDIR}"/${PN}-7.1.0-also-build-virtfs-proxy-helper.patch
 	"${FILESDIR}"/${PN}-7.1.0-capstone-include-path.patch
+	"${FILESDIR}"/${PN}-7.2.0-disable-gmp.patch
+	"${FILESDIR}"/${PN}-8.0.0-remove-python-meson-check.patch
 )
 
 QA_PREBUILT="
@@ -577,6 +579,7 @@ qemu_src_configure() {
 		$(conf_notuser sasl vnc-sasl)
 		$(conf_notuser sdl)
 		$(conf_softmmu sdl-image)
+		$(conf_notuser seccomp)
 		$(conf_notuser slirp)
 		$(conf_notuser smartcard)
 		$(conf_notuser snappy)
@@ -619,7 +622,6 @@ qemu_src_configure() {
 		conf_opts+=(
 			--enable-linux-user
 			--disable-system
-			--disable-blobs
 			--disable-tools
 			--disable-cap-ng
 			--disable-seccomp
@@ -634,18 +636,16 @@ qemu_src_configure() {
 			--enable-cap-ng
 			--enable-seccomp
 		)
-		local static_flag="static"
+		local static_flag="none"
 		;;
 	tools)
 		conf_opts+=(
 			--disable-linux-user
 			--disable-system
-			--disable-blobs
 			--enable-tools
 			--enable-cap-ng
-			--enable-seccomp
 		)
-		local static_flag="static"
+		local static_flag="none"
 		;;
 	esac
 
@@ -653,12 +653,12 @@ qemu_src_configure() {
 	[[ -n ${targets} ]] && conf_opts+=( --target-list="${!targets}" )
 
 	# Add support for SystemTAP
-	use systemtap && conf_opts+=( --enable-trace-backend=dtrace )
+	use systemtap && conf_opts+=( --enable-trace-backends="dtrace" )
 
 	# We always want to attempt to build with PIE support as it results
 	# in a more secure binary. But it doesn't work with static or if
 	# the current GCC doesn't have PIE support.
-	if use ${static_flag}; then
+	if [[ ${static_flag} != "none" ]] && use ${static_flag}; then
 		conf_opts+=( --static --disable-pie )
 	else
 		tc-enables-pie && conf_opts+=( --enable-pie )
