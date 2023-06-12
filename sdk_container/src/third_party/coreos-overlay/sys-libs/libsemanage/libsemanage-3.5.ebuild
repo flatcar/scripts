@@ -24,18 +24,15 @@ fi
 
 LICENSE="GPL-2"
 SLOT="0/2"
-REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 RDEPEND="app-arch/bzip2[${MULTILIB_USEDEP}]
 	>=sys-libs/libsepol-${PV}:=[${MULTILIB_USEDEP}]
 	>=sys-libs/libselinux-${PV}:=[${MULTILIB_USEDEP}]
-	>=sys-process/audit-2.2.2[${MULTILIB_USEDEP}]
-	${PYTHON_DEPS}"
+	>=sys-process/audit-2.2.2[${MULTILIB_USEDEP}]"
+
 DEPEND="${RDEPEND}"
-BDEPEND=">=dev-lang/swig-2.0.4-r1
-	sys-devel/bison
-	sys-devel/flex
-	virtual/pkgconfig"
+BDEPEND="sys-devel/bison
+	sys-devel/flex"
 
 # tests are not meant to be run outside of the
 # full SELinux userland repo
@@ -79,41 +76,14 @@ multilib_src_compile() {
 		CC="$(tc-getCC)" \
 		LIBDIR="${EPREFIX}/usr/$(get_libdir)" \
 		all
-
-	if multilib_is_native_abi; then
-		building_py() {
-			emake \
-				AR="$(tc-getAR)" \
-				CC="$(tc-getCC)" \
-				PKG_CONFIG="$(tc-getPKG_CONFIG)" \
-				LIBDIR="${EPREFIX}/usr/$(get_libdir)" \
-				"$@"
-		}
-		python_foreach_impl building_py swigify
-		python_foreach_impl building_py pywrap
-	fi
 }
 
 multilib_src_install() {
 	emake \
 		LIBDIR="${EPREFIX}/usr/$(get_libdir)" \
-		DESTDIR="${ED}" install
-
-	if multilib_is_native_abi; then
-		installation_py() {
-			emake DESTDIR="${ED}" \
-				LIBDIR="${EPREFIX}/usr/$(get_libdir)" \
-				PKG_CONFIG="$(tc-getPKG_CONFIG)" \
-				install-pywrap
-			python_optimize # bug 531638
-		}
-		python_foreach_impl installation_py
-	fi
-}
-
-multiib_src_install_all() {
-	python_setup
-	python_fix_shebang "${ED}"/usr/libexec/selinux/semanage_migrate_store
+		SHLIBDIR="/usr/$(get_libdir)" \
+		DESTDIR="${ED}" \
+		install
 }
 
 pkg_postinst() {
