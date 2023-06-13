@@ -3,7 +3,8 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9..12} )
+# Flatcar: skip python3_12 which is not supported
+PYTHON_COMPAT=( python3_{9..11} )
 
 inherit bash-completion-r1 check-reqs estack flag-o-matic llvm multiprocessing \
 	multilib multilib-build python-any-r1 rust-toolchain toolchain-funcs verify-sig
@@ -22,6 +23,8 @@ else
 	KEYWORDS="~amd64 ~arm ~arm64 ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
 fi
 
+# Flatcar: keep the patchlevel "0", no matter what it changes from Gentoo.
+# That is necessary for automatic package updates of Flatcar to work correctly.
 RUST_STAGE0_VERSION="1.$(($(ver_cut 2) - 1)).0"
 
 DESCRIPTION="Systems programming language from Mozilla"
@@ -116,15 +119,16 @@ DEPEND="
 	)
 "
 
+# Flatcar: lsb-release must be removed, as it conflicts with baselayout
+# of Flatcar.
 RDEPEND="${DEPEND}
 	app-eselect/eselect-rust
-	sys-apps/lsb-release
 "
 
+# Flatcar: rust-src must be removed for keeping the SDK size minimal.
 REQUIRED_USE="|| ( ${ALL_LLVM_TARGETS[*]} )
 	miri? ( nightly )
 	parallel-compiler? ( nightly )
-	rust-analyzer? ( rust-src )
 	test? ( ${ALL_LLVM_TARGETS[*]} )
 	wasm? ( llvm_targets_WebAssembly )
 	x86? ( cpu_flags_x86_sse2 )
@@ -311,10 +315,14 @@ src_configure() {
 			sed -i '/linker:/ s/rust-lld/wasm-ld/' compiler/rustc_target/src/spec/wasm_base.rs || die
 		fi
 	fi
+	# Flatcar: Auto-enable cross-building only if the cross-compiler is available
+	if [ "${CBUILD}" != "aarch64-unknown-linux-gnu" ] && [ -f /usr/bin/aarch64-cros-linux-gnu-gcc ]; then
+		rust_targets="${rust_targets},\"aarch64-unknown-linux-gnu\""
+	fi
 	rust_targets="${rust_targets#,}"
 
-	# cargo and rustdoc are mandatory and should always be included
-	local tools='"cargo","rustdoc"'
+	# Flatcar: Remove rustdoc to keep the SDK size minimal.
+	local tools='"cargo"'
 	use clippy && tools+=',"clippy"'
 	use miri && tools+=',"miri"'
 	use profiler && tools+=',"rust-demangler"'
@@ -465,6 +473,30 @@ src_configure() {
 			_EOF_
 		fi
 	done
+	# Flatcar: workaround for cross-compile. Could soon be replaced
+	# by the "experimental cross support" below
+	if [ "${CBUILD}" != "aarch64-unknown-linux-gnu" ] && [ -f /usr/bin/aarch64-cros-linux-gnu-gcc ]; then
+		cat <<- 'EOF' > "${S}/cc.sh"
+			#!/bin/bash
+			args=("$@")
+			filtered=()
+			for i in "${args[@]}"; do
+			  if [ "$i" != "-mindirect-branch-register" ] && [ "$i" != "-mindirect-branch=thunk" ]; then
+			    filtered+=("$i")
+			  fi
+			done
+			aarch64-cros-linux-gnu-gcc --sysroot=/usr/aarch64-cros-linux-gnu "${filtered[@]}"
+		EOF
+		sed 's/gcc/g++/g' "${S}/cc.sh" > "${S}/cxx.sh"
+		chmod +x "${S}/cc.sh" "${S}/cxx.sh"
+		cat <<- EOF >> "${S}"/config.toml
+			[target.aarch64-unknown-linux-gnu]
+			cc = "${S}/cc.sh"
+			cxx = "${S}/cxx.sh"
+			linker = "${S}/cc.sh"
+			ar = "aarch64-cros-linux-gnu-ar"
+		EOF
+	fi
 	if use wasm; then
 		cat <<- _EOF_ >> "${S}"/config.toml
 			[target.wasm32-unknown-unknown]
