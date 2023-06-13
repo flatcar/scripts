@@ -2,50 +2,53 @@
 # Copyright (c) 2013 The CoreOS Authors. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
+# Seems to be the only available ebuild in portage-stable right now.
 =app-crypt/adcli-0.9.2 ~amd64 ~arm64
 
 # Required for addressing CVE-2022-3715.
 =app-shells/bash-5.2_p15-r2 ~amd64 ~arm64
 
+# No keyword for arm64 yet.
 =coreos-devel/fero-client-0.1.1 **
 
-# Accept unstable host Rust compilers
+# Accept unstable host Rust compilers.
 =dev-lang/rust-1.69.0 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
 =dev-libs/libbsd-0.11.7-r2 ~arm64
 =dev-libs/libgcrypt-1.10.1-r3 ~arm64
 
-# To keep the same version on both arches
+# To keep the same version on both arches.
 =dev-util/bpftool-6.2.1 ~arm64
 
 # Required for addressing CVE-2023-0361.
 =net-libs/gnutls-3.8.0 ~amd64 ~arm64
 
-# Required for addressing CVE-2023-28319, CVE-2023-28320, CVE-2023-28321 and CVE-2023-28322
+# Required for addressing CVE-2023-28319, CVE-2023-28320, CVE-2023-28321 and CVE-2023-28322.
 =net-misc/curl-8.1.0 ~amd64 ~arm64
 
+# These should be gone.
 =sys-apps/nvme-cli-2.4-r2 ~amd64 ~arm64
-
 =sys-fs/cryptsetup-2.4.1-r1 ~amd64 ~arm64
 
-# FIPS support is still being tested
+# FIPS support is still being tested.
 =sys-fs/cryptsetup-2.4.3-r1 ~amd64 ~arm64
 
-# To keep the same version on both arches
+# To keep the same version on both arches.
 =sys-fs/multipath-tools-0.9.4-r1 ~amd64
 
-# Needed to address CVE-2023-2602 and CVE-2023-2603
+# Needed to address CVE-2023-2602 and CVE-2023-2603.
 =sys-libs/libcap-2.69 ~amd64 ~arm64
 
-# Overwrite portage-stable mask - use latest liburing -r2 for ARM64 and AMD64
+# Overwrite portage-stable mask - use latest liburing -r2 for ARM64 and AMD64.
 =sys-libs/liburing-2.1-r2 ~amd64 ~arm64
 
 # A dependency of app-shells/bash version that we need for security
 # fixes.
 =sys-libs/readline-8.2_p1 ~amd64 ~arm64
 
+# ?
 =sys-power/acpid-2.0.33 ~amd64 ~arm64
 
-# Accept unstable host Rust compilers
+# Accept unstable host Rust compilers.
 =virtual/rust-1.69.0 ~amd64 ~arm64
