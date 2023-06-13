@@ -548,19 +548,22 @@ install_oem_sysext() {
     local built_sysext_dir="${FLAGS_to}/${oem_sysext}-sysext"
     local built_sysext_filename="${oem_sysext}.raw"
     local built_sysext_path="${built_sysext_dir}/${built_sysext_filename}"
+    # TODO: Set 'version' to with "${FLATCAR_VERSION}" and
+    # 'version_id' to "${FLATCAR_VERSION_ID}" when we implement updating OEM sysexts
+    local version='initial'
+    local version_id='initial'
     local build_oem_sysext_flags=(
         --board="${BOARD}"
         --build_dir="${built_sysext_dir}"
         --prod_image_path="${VM_SRC_IMG}"
         --prod_pkgdb_path="${VM_SRC_PKGDB}"
-        # TODO: Drop this when we implement updating OEM sysexts.
-        --version_id=initial
+        --version_id="${version_id}"
     )
 
     "${SCRIPT_ROOT}/build_oem_sysext" "${build_oem_sysext_flags[@]}" "${oem_sysext}"
 
     local installed_sysext_oem_dir='/oem/sysext'
-    local installed_sysext_file_prefix="${oem_sysext}-${FLATCAR_VERSION}"
+    local installed_sysext_file_prefix="${oem_sysext}-${version}"
     local installed_sysext_filename="${installed_sysext_file_prefix}.raw"
     local installed_sysext_abspath="${installed_sysext_oem_dir}/${installed_sysext_filename}"
     info "Installing ${oem_sysext} sysext"
