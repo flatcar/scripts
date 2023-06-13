@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
@@ -11,8 +11,8 @@ if [[ ${PV} == 9999* ]]; then
 	inherit git-r3
 else
 	SRC_URI="https://github.com/SELinuxProject/refpolicy/releases/download/RELEASE_${PV/./_}/refpolicy-${PV}.tar.bz2
-			https://dev.gentoo.org/~perfinion/patches/${PN}/patchbundle-${PN}-${PV}-r2.tar.bz2"
-	KEYWORDS="amd64 -arm ~arm64 ~mips x86"
+			https://dev.gentoo.org/~perfinion/patches/${PN}/patchbundle-${PN}-${PVR}.tar.bz2"
+	KEYWORDS="amd64 arm arm64 ~mips x86"
 fi
 
 HOMEPAGE="https://wiki.gentoo.org/wiki/Project:SELinux"
@@ -27,25 +27,11 @@ BDEPEND="
 	sys-apps/checkpolicy
 	sys-devel/m4"
 
-MODS="application authlogin bootloader clock consoletype cron dmesg fstools getty hostname hotplug init iptables libraries locallogin logging lvm miscfiles modutils mount mta netutils nscd portage raid rsync selinuxutil setrans ssh staff storage su sysadm sysnetwork systemd tmpfiles udev userdomain usermanage unprivuser xdg"
+MODS="application authlogin bootloader clock consoletype cron dmesg fstools getty hostname init iptables libraries locallogin logging lvm miscfiles modutils mount mta netutils nscd portage raid rsync selinuxutil setrans ssh staff storage su sysadm sysnetwork systemd tmpfiles udev userdomain usermanage unprivuser xdg"
+DEL_MODS="hotplug"
 LICENSE="GPL-2"
 SLOT="0"
 S="${WORKDIR}/"
-
-# flatcar changes: apply a couple of
-# patches on the current policies
-PATCHES=(
-	"${FILESDIR}/sshd.patch"
-	"${FILESDIR}/init.patch"
-	"${FILESDIR}/locallogin.patch"
-	"${FILESDIR}/logging.patch"
-	# this patch is required to prevent `torcx-generator`
-	# to fail if SELinux is enforced in early boot.
-	# It can be removed once we drop torcx support.
-	"${FILESDIR}/unlabeled.patch"
-	# This is to allow pings from some IP address.
-	"${FILESDIR}/ping.patch"
-)
 
 # Code entirely copied from selinux-eclass (cannot inherit due to dependency on
 # itself), when reworked reinclude it. Only postinstall (where -b base.pp is
@@ -67,13 +53,16 @@ src_prepare() {
 		eapply -p0 "${WORKDIR}/0001-full-patch-against-stable-release.patch"
 	fi
 
-	eapply -p0 "${PATCHES[@]}"
 	eapply_user
 
 	# Collect only those files needed for this particular module
 	for i in ${MODS}; do
-		modfiles="$(find ${S}/refpolicy/policy/modules -iname $i.te) $modfiles"
-		modfiles="$(find ${S}/refpolicy/policy/modules -iname $i.fc) $modfiles"
+		modfiles="$(find "${S}"/refpolicy/policy/modules -iname $i.te) $modfiles"
+		modfiles="$(find "${S}"/refpolicy/policy/modules -iname $i.fc) $modfiles"
+	done
+
+	for i in ${DEL_MODS}; do
+		[[ "${MODS}" != *${i}* ]] || die "Duplicate module in MODS and DEL_MODS: ${i}"
 	done
 
 	for i in ${POLICY_TYPES}; do
@@ -88,7 +77,7 @@ src_prepare() {
 
 src_compile() {
 	for i in ${POLICY_TYPES}; do
-		emake NAME=$i SHAREDIR="${ROOT}"/usr/share/selinux -C "${S}"/${i}
+		emake NAME=$i SHAREDIR="${SYSROOT%/}/usr/share/selinux" -C "${S}"/${i}
 	done
 }
 
@@ -127,6 +116,13 @@ pkg_postinst() {
 		cd "${ROOT}/usr/share/selinux/${i}"
 
 		semodule ${root_opts} -s ${i} ${COMMAND}
+
+		for mod in ${DEL_MODS}; do
+			if semodule ${root_opts} -s ${i} -l | grep -q "\b${mod}\b"; then
+				einfo "Removing obsolete ${i} ${mod} policy package"
+				semodule ${root_opts} -s ${i} -r ${mod}
+			fi
+		done
 	done
 
 	# Don't relabel when cross compiling
