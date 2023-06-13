@@ -1,13 +1,11 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
 
-# flatcar changes
-PYTHON_COMPAT=( python3_{8,9,10,11} )
+PYTHON_COMPAT=( python3_{9..11} )
 PYTHON_REQ_USE="xml(+)"
-TMPFILES_OPTIONAL=1
-inherit systemd tmpfiles python-any-r1
+inherit python-any-r1
 
 if [[ ${PV} == 9999* ]]; then
 	EGIT_REPO_URI="${SELINUX_GIT_REPO:-https://anongit.gentoo.org/git/proj/hardened-refpolicy.git}"
@@ -17,9 +15,9 @@ if [[ ${PV} == 9999* ]]; then
 	inherit git-r3
 else
 	SRC_URI="https://github.com/SELinuxProject/refpolicy/releases/download/RELEASE_${PV/./_}/refpolicy-${PV}.tar.bz2
-			https://dev.gentoo.org/~perfinion/patches/selinux-base-policy/patchbundle-selinux-base-policy-${PV}-r2.tar.bz2"
+			https://dev.gentoo.org/~perfinion/patches/selinux-base-policy/patchbundle-selinux-base-policy-${PVR}.tar.bz2"
 
-	KEYWORDS="amd64 -arm ~arm64 ~mips x86"
+	KEYWORDS="amd64 arm arm64 ~mips x86"
 fi
 
 IUSE="doc +unknown-perms systemd +ubac +unconfined"
@@ -29,24 +27,12 @@ HOMEPAGE="https://wiki.gentoo.org/wiki/Project:SELinux"
 LICENSE="GPL-2"
 SLOT="0"
 
-# flatcar changes
-RDEPEND=">=sys-apps/policycoreutils-2.8
-	>=sys-apps/checkpolicy-2.8
-"
+RDEPEND=">=sys-apps/policycoreutils-2.8"
 DEPEND="${RDEPEND}"
-# flatcar: BDEPEND on python - normally pulled in through policycoreutils
-# but we made that dep conditional on USE=python
-BDEPEND="sys-devel/m4
-    ${PYTHON_DEPS}
-"
-
-
-# flatcar changes
-PATCHES=(
-	"${FILESDIR}"/0001-policy-modules-kernel-all-more-actions-for-kernel.patch
-	"${FILESDIR}"/0001-policy-ms-MCS-restricts-relabelfrom.patch
-	"${FILESDIR}"/icmp-bind.patch
-)
+BDEPEND="
+	${PYTHON_DEPS}
+	>=sys-apps/checkpolicy-2.8
+	sys-devel/m4"
 
 S=${WORKDIR}/
 
@@ -56,8 +42,6 @@ src_prepare() {
 		eapply -p0 "${WORKDIR}/0001-full-patch-against-stable-release.patch"
 	fi
 
-	# flatcar changes
-	eapply -p0 "${PATCHES[@]}"
 	eapply_user
 
 	cd "${S}/refpolicy" || die
@@ -99,10 +83,6 @@ src_configure() {
 
 		sed -i -e "/= module/d" "${S}/${i}/policy/modules.conf" || die
 
-		# flatcar changes: it's required to run polkit without segfault
-		# we need to pass this argument now before the compilation of the policy
-		sed -i "s/allow_execmem = false/allow_execmem = true/" "${S}/${i}/policy/booleans.conf" || die
-
 		sed -i -e '/^QUIET/s/n/y/' -e "/^NAME/s/refpolicy/$i/" \
 			"${S}/${i}/build.conf" || die "build.conf setup failed."
 
@@ -132,9 +112,7 @@ src_compile() {
 
 	for i in ${POLICY_TYPES}; do
 		cd "${S}/${i}" || die
-		# flatcar changes
-		emake base BINDIR="${ROOT}/usr/bin" NAME=$i SHAREDIR="${ROOT%/}"/usr/share/selinux \
-			LD_LIBRARY_PATH="${ROOT}/usr/lib64:${LD_LIBRARY_PATH}" -C "${S}"/${i}
+		emake base
 		if use doc; then
 			emake html
 		fi
@@ -167,28 +145,13 @@ src_install() {
 
 	done
 
-	# flatcar changes
-	dotmpfiles "${FILESDIR}/tmpfiles.d/selinux-base.conf"
-	systemd-tmpfiles --root="${D}" --create selinux-base.conf
-
 	docinto /
 	dodoc doc/Makefile.example doc/example.{te,fc,if}
 
 	doman man/man8/*.8;
 
-	# flatcar changes
-	insinto /usr/lib/selinux
+	insinto /etc/selinux
 	doins "${FILESDIR}/config"
-
-	insinto /etc/selinux/mcs/contexts
-	doins "${FILESDIR}/lxc_contexts"
-
-	# flatcar changes
-	mkdir -p "${D}/usr/lib/selinux"
-	for i in ${POLICY_TYPES}; do
-		mv "${D}/etc/selinux/${i}" "${D}/usr/lib/selinux"
-		dosym "../../usr/lib/selinux/${i}" "/etc/selinux/${i}"
-	done
 
 	insinto /usr/share/portage/config/sets
 	doins "${FILESDIR}/selinux.conf"
