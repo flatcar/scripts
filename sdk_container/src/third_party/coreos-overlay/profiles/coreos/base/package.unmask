@@ -3,7 +3,3 @@
 # that results from the migration (python -> virtual/libcrypt ->
 # libxcrypt -> glibc -> python).
 =virtual/libcrypt-1-r1
-
-# Overwrite portage-stable mask. OpenSSL-3* is building fine on Flatcar
-# and Flatcar's dependencies are building fine against it.
-=dev-libs/openssl-3.0*
