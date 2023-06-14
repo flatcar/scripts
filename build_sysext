@@ -1,0 +1,171 @@
+#!/bin/bash
+
+# Copyright (c) 2023 The Flatcar Maintainers.
+# Use of this source code is governed by a BSD-style license that can
+# be found in the LICENSE file.
+#
+# Script to generate sysext. See systemd-sysext(8). Prerequisite is
+# that you've run build_packages and build_image.
+
+SCRIPT_ROOT=$(dirname "$(readlink -f "$0")")
+. "${SCRIPT_ROOT}/common.sh" || exit 1
+
+# Script must run inside the chroot
+assert_inside_chroot
+assert_root_user
+
+# All these are used to set up the 'BUILD_DIR' variable
+DEFINE_string board "${DEFAULT_BOARD}" \
+  "The board to build a sysext for."
+DEFINE_string build_dir '' \
+  "Directory used for building the sysext image, must exist, but should be empty."
+DEFINE_string metapkgs '' \
+  "Comma-separated list of meta-packages to build from source and install into sysext image."
+DEFINE_string manglefs_script '' \
+  "A path to executable that will customize the rootfs of the sysext image."
+DEFINE_string squashfs_base '' \
+  "The path to the squashfs base image."
+
+FLAGS_HELP="USAGE: build_sysext [flags] [sysext name] [binary packages to install into image].
+
+This script is used to build a Flatcar sysext image. 
+
+Examples:
+
+Builds a sysext image named interpreters in the images
+directory with dev-lang/python and dev-lang/perl packages for amd64:
+
+sudo build_sysext \
+     --board=amd64-usr \
+     --build_dir=images \
+     interpreters dev-lang/python dev-lang/perl
+
+Builds a sysext image named oem-azure in the oem-images directory with
+metapackage coreos-base/oem-azure for arm64:
+
+sudo build_sysext \
+     --board=arm64-usr \
+     --build_dir=oem-images \
+     --metapkgs=coreos-base/oem-azure \
+     --mangle_fs=…/coreos-base/oem-azure/files/manglefs.sh \
+     oem-azure
+
+"
+
+show_help_if_requested "$@"
+
+# Parse command line
+FLAGS "$@" || exit 1
+
+eval set -- "${FLAGS_ARGV}"
+
+. "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
+
+if [[ -z "${FLAGS_build_dir}" ]]; then
+  die "Need a build directory to be specified with a --build_dir option"
+fi
+
+BUILD_DIR=$(realpath "${FLAGS_build_dir}")
+
+# Architecture values are taken from systemd.unit(5).
+declare -A SYSEXT_ARCHES
+SYSEXT_ARCHES['amd64-usr']='x86-64'
+SYSEXT_ARCHES['arm64-usr']='arm64'
+
+declare -r SYSEXT_ARCHES
+
+# Usage: _get_sysext_arch board [board...]
+_get_sysext_arch() {
+    local board=${1}
+    if [[ ${#SYSEXT_ARCHES["${board}"]} -ne 0 ]]; then
+        echo "${SYSEXT_ARCHES["${board}"]}"
+    else
+        die "Unknown board '${board}'"
+    fi
+}
+
+
+set -euo pipefail
+
+cleanup() {
+  umount "${BUILD_DIR}/fs-root" "${BUILD_DIR}/install-root" "${BUILD_DIR}/workdir" 2>/dev/null || true
+  rm -rf "${BUILD_DIR}/fs-root" "${BUILD_DIR}/install-root" "${BUILD_DIR}/workdir" || true
+}
+
+if [[ ${#} -lt 1 ]]; then
+   show_help_if_requested -h
+  die 'Expected at least one parameter for sysext image name'
+fi
+
+SYSEXTNAME="${1}"
+shift
+
+# Set up trap to execute cleanup() on script exit
+trap cleanup EXIT
+
+ARCH=$(_get_sysext_arch "${FLAGS_board}")
+if [[ -z "${FLAGS_squashfs_base}" ]]; then
+  FLAGS_squashfs_base="${BUILD_DIR}/flatcar_production_image_sysext.squashfs"
+fi
+cleanup
+
+mkdir "${BUILD_DIR}/fs-root"
+mount -rt squashfs -o loop,nodev "${FLAGS_squashfs_base}" "${BUILD_DIR}/fs-root"
+mkdir "${BUILD_DIR}/install-root"
+mkdir "${BUILD_DIR}/workdir"
+mount -t overlay overlay -o lowerdir="${BUILD_DIR}/fs-root",upperdir="${BUILD_DIR}/install-root",workdir="${BUILD_DIR}/workdir" "${BUILD_DIR}/install-root"
+VERSION_BOARD=$(grep "^VERSION=" ${BUILD_DIR}/fs-root/usr/lib/os-release | cut -d = -f 2-)
+if [ "$VERSION_BOARD" != "$FLATCAR_VERSION" ]; then
+  echo "$VERSION_BOARD"
+  echo "$FLATCAR_VERSION"
+  echo "Version mismatch between board flatcar release and SDK container flatcar release"
+  exit 1
+fi
+
+if [[ -n "${FLAGS_metapkgs}" ]]; then
+  mapfile -t metapkgs < <(tr ',' '\n' <<<"${FLAGS_metapkgs}")
+  "emerge-${FLAGS_board}" --nodeps --buildpkgonly --usepkg n --verbose "${metapkgs[@]}"
+  set -- "${metapkgs[@]}" "${@}"
+fi
+
+for package; do
+  echo "Installing package into sysext image: $package"
+  FEATURES="-ebuild-locks" emerge \
+    --root="${BUILD_DIR}/install-root" \
+    --config-root="/build/${FLAGS_board}"  \
+    --sysroot="/build/${FLAGS_board}"  \
+    --root-deps=rdeps \
+    --usepkgonly \
+    --verbose \
+    "${package}"
+done
+
+# Unmount in order to get rid of the overlay
+umount "${BUILD_DIR}/install-root"
+umount "${BUILD_DIR}/fs-root"
+
+if [[ -n "${FLAGS_manglefs_script}" ]]; then
+  if [[ ! -x "${FLAGS_manglefs_script}" ]]; then
+    die "${FLAGS_manglefs_script} is not executable"
+  fi
+  "${FLAGS_manglefs_script}" "${BUILD_DIR}/install-root"
+fi
+
+info "Removing non-/usr directories from sysext image"
+for entry in "${BUILD_DIR}/install-root"/*; do
+  if [[ "${entry}" = */usr ]]; then
+    continue
+  fi
+  info "  Removing ${entry##*/}"
+  rm -rf "${entry}"
+done
+mkdir -p "${BUILD_DIR}/install-root/usr/lib/extension-release.d"
+version_field="${VERSION_FIELD_OVERRIDE:-VERSION_ID=${FLATCAR_VERSION_ID}}"
+all_fields=(
+  'ID=flatcar'
+  "${version_field}"
+  "ARCHITECTURE=${ARCH}"
+)
+printf '%s\n' "${all_fields[@]}" >"${BUILD_DIR}/install-root/usr/lib/extension-release.d/extension-release.${SYSEXTNAME}"
+mksquashfs "${BUILD_DIR}/install-root" "${BUILD_DIR}/${SYSEXTNAME}.raw"
+rm -rf "${BUILD_DIR}"/{fs-root,install-root,workdir}
