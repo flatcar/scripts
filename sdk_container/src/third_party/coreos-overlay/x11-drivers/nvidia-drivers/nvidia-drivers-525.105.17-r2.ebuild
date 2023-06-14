@@ -3,6 +3,8 @@
 
 EAPI=7
 
+inherit systemd
+
 DESCRIPTION="NVIDIA drivers"
 HOMEPAGE=""
 SRC_URI=""
@@ -15,14 +17,12 @@ IUSE=""
 # no source directory
 S="${WORKDIR}"
 
-RDEPEND="
-	=x11-drivers/nvidia-metadata-${PV}
-"
-
 src_install() {
-  insinto "/oem"
-  doins -r "${FILESDIR}/units"
-  exeinto "/oem/bin"
+  systemd_dounit "${FILESDIR}/units/nvidia.service"
+  systemd_enable_service multi-user.target nvidia.service
+  exeinto "/usr/lib/nvidia/bin"
   doexe "${FILESDIR}/bin/install-nvidia"
   doexe "${FILESDIR}/bin/setup-nvidia"
+  insinto "/usr/share/flatcar"
+  doins "${FILESDIR}/nvidia-metadata"
 }

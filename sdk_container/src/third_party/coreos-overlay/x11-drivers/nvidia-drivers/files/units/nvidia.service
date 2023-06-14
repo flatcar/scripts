@@ -7,7 +7,7 @@ After=network-online.target
 Type=simple
 Restart=no
 Environment=PATH=/opt/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
-ExecStart=/oem/bin/setup-nvidia
+ExecStart=/usr/lib/nvidia/bin/setup-nvidia
 
 [Install]
 WantedBy=multi-user.target

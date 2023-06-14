@@ -16,7 +16,6 @@ REQUIRED_USE="^^ ( ec2 openstack brightbox )"
 RDEPEND="
 	ec2? ( app-emulation/amazon-ssm-agent )
 	coreos-base/flatcar-eks
-	x11-drivers/nvidia-drivers
 "
 
 # no source directory
