@@ -1,15 +1,12 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
 
 inherit toolchain-funcs
 
-MY_P="${P//_/-}"
-MY_RELEASEDATE="20200710"
-
-SEPOL_VER="${PV}"
-SEMNG_VER="${PV}"
+MY_PV="${PV//_/-}"
+MY_P="${PN}-${MY_PV}"
 
 DESCRIPTION="SELinux policy compiler"
 HOMEPAGE="http://userspace.selinuxproject.org"
@@ -17,10 +14,10 @@ HOMEPAGE="http://userspace.selinuxproject.org"
 if [[ ${PV} == 9999 ]] ; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/SELinuxProject/selinux.git"
-	S="${WORKDIR}/${MY_P}/${PN}"
+	S="${WORKDIR}/${P}/${PN}"
 else
-	SRC_URI="https://github.com/SELinuxProject/selinux/releases/download/${MY_RELEASEDATE}/${MY_P}.tar.gz"
-	KEYWORDS="amd64 ~arm ~arm64 ~mips x86"
+	SRC_URI="https://github.com/SELinuxProject/selinux/releases/download/${MY_PV}/${MY_P}.tar.gz"
+	KEYWORDS="~amd64 ~arm ~arm64 ~mips ~riscv ~x86"
 	S="${WORKDIR}/${MY_P}"
 fi
 
@@ -28,29 +25,21 @@ LICENSE="GPL-2"
 SLOT="0"
 IUSE="debug"
 
-DEPEND=">=sys-libs/libsepol-${SEPOL_VER}"
+DEPEND=">=sys-libs/libsepol-${PV}"
 BDEPEND="sys-devel/flex
 	sys-devel/bison"
 
-RDEPEND=">=sys-libs/libsepol-${SEPOL_VER}"
+RDEPEND=">=sys-libs/libsepol-${PV}"
 
 src_compile() {
-	# flatcar changes
 	emake \
 		CC="$(tc-getCC)" \
 		YACC="bison -y" \
-		PREFIX="/usr" \
-		LIBDIR="${ROOT:-/}\$(PREFIX)/$(get_libdir)" \
-		INCLUDEDIR="${ROOT}\$(PREFIX)/include"
+		LIBDIR="\$(PREFIX)/$(get_libdir)"
 }
 
 src_install() {
-	# flatcar changes
-	# we remove the `default` behavior to override
-	# the LIBSEPOLA variable in order to fix cross compile
-	emake DESTDIR="${D}" \
-		LIBSEPOLA="${ROOT:-/}/usr/$(get_libdir)/libsepol.a" \
-		install
+	default
 
 	if use debug; then
 		dobin "${S}/test/dismod"
