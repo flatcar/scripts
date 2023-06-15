@@ -446,6 +446,7 @@ sys-libs/gdbm
 sys-libs/ldb
 sys-libs/libcap
 sys-libs/libcap-ng
+sys-libs/libnvme
 sys-libs/libseccomp
 sys-libs/ncurses
 sys-libs/readline
