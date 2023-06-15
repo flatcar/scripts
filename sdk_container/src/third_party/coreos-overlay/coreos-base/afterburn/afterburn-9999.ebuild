@@ -224,6 +224,7 @@ PATCHES=(
 	"${FILESDIR}"/0001-Revert-remove-cl-legacy-feature.patch
 	"${FILESDIR}"/0002-util-cmdline-Handle-the-cmdline-flags-as-list-of-sup.patch
 	"${FILESDIR}"/0003-encode-information-for-systemd-networkd-wait-online.patch
+	"${FILESDIR}"/0004-lto-thin.patch
 )
 
 src_unpack() {
