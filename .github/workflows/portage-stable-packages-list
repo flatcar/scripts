@@ -400,6 +400,10 @@ sys-apps/usbutils
 sys-apps/util-linux
 sys-apps/which
 
+sys-block/open-isns
+sys-block/parted
+sys-block/thin-provisioning-tools
+
 sys-devel/autoconf
 sys-devel/autoconf-archive
 sys-devel/autoconf-wrapper
@@ -426,12 +430,19 @@ sys-firmware/ipxe
 sys-firmware/seabios-bin
 sys-firmware/sgabios
 
+sys-fs/cryptsetup
+sys-fs/dosfstools
 sys-fs/e2fsprogs
+sys-fs/lsscsi
+sys-fs/mtools
 sys-fs/multipath-tools
+sys-fs/quota
+sys-fs/xfsprogs
 
 sys-kernel/linux-headers
 
 sys-libs/binutils-libs
+sys-libs/gdbm
 sys-libs/ldb
 sys-libs/libcap
 sys-libs/libcap-ng
@@ -443,12 +454,22 @@ sys-libs/tdb
 sys-libs/tevent
 sys-libs/zlib
 
+sys-process/lsof
+sys-process/procps
+sys-process/psmisc
 sys-process/tini
 
+virtual/acl
+virtual/dev-manager
+virtual/editor
 virtual/libc
 virtual/libcrypt
 virtual/libelf
+virtual/libusb
+virtual/man
+virtual/openssh
 virtual/os-headers
+virtual/package-manager
 virtual/perl-Carp
 virtual/perl-Exporter
 virtual/perl-ExtUtils-MakeMaker
@@ -457,6 +478,8 @@ virtual/perl-File-Temp
 virtual/perl-Getopt-Long
 virtual/perl-IO
 virtual/pkgconfig
+virtual/service-manager
+virtual/ssh
 
 x11-base/xorg-proto
 
