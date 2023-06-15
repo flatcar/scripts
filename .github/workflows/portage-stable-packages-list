@@ -97,7 +97,6 @@ app-emulation/qemu
 app-emulation/qemu-guest-agent
 
 app-eselect/eselect-iptables
-app-eselect/eselect-lua
 
 app-misc/c_rehash
 app-misc/editor-wrapper
@@ -162,8 +161,6 @@ dev-libs/userspace-rcu
 dev-perl/File-Slurp
 dev-perl/Locale-gettext
 dev-perl/Parse-Yapp
-dev-perl/Text-Unidecode
-dev-perl/Unicode-EastAsianWidth
 
 dev-python/autocommand
 dev-python/boto
@@ -303,6 +300,7 @@ eclass/virtualx.eclass
 eclass/waf-utils.eclass
 eclass/wrapper.eclass
 eclass/xdg-utils.eclass
+eclass/xorg-3.eclass
 
 licenses
 
@@ -350,6 +348,7 @@ profiles
 
 sys-apps/acl
 sys-apps/attr
+sys-apps/config-site
 sys-apps/coreutils
 sys-apps/debianutils
 sys-apps/diffutils

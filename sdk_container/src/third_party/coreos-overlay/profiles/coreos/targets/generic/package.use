@@ -27,8 +27,8 @@ net-libs/libmicrohttpd epoll
 
 sys-boot/syslinux       -custom-cflags
 
-# minimize risk removing unneeded patches and networking support
-app-shells/bash -net vanilla
+# minimize risk removing networking support
+app-shells/bash -net
 
 # needed by docker
 sys-libs/libseccomp static-libs

@@ -13,7 +13,7 @@
 =app-emulation/open-vmdk-1.0 *
 
 # Required for addressing CVE-2022-3715.
-=app-shells/bash-5.2_p15-r2 ~amd64 ~arm64
+=app-shells/bash-5.2_p15-r3 ~amd64 ~arm64
 
 # No keyword for arm64 yet.
 =coreos-devel/fero-client-0.1.1 **
@@ -32,6 +32,12 @@
 =dev-libs/ding-libs-0.6.1-r1 ~arm64
 =dev-libs/libgcrypt-1.10.1-r3 ~arm64
 =dev-util/bpftool-6.2.1 ~arm64
+
+# Required for addressing CVE-2023-31124, CVE-2023-31130,
+# CVE-2023-31147 and CVE-2023-32067.
+=net-dns/c-ares-1.19.1 ~amd64 ~arm64
+
+# Keep versions on both arches in sync.
 =net-firewall/conntrack-tools-1.4.6-r1 ~arm64
 
 # Required for addressing CVE-2023-0361.
@@ -42,7 +48,7 @@
 =net-libs/libnetfilter_cttimeout-1.0.0-r1 ~arm64
 
 # Required for addressing CVE-2023-28319, CVE-2023-28320, CVE-2023-28321 and CVE-2023-28322.
-=net-misc/curl-8.1.0 ~amd64 ~arm64
+=net-misc/curl-8.1.0-r1 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
 =sec-policy/selinux-base-2.20200818-r2 ~arm64
@@ -67,11 +73,6 @@
 
 # Keep versions on both arches in sync.
 =sys-fs/multipath-tools-0.9.4-r1 ~amd64
-
-# Needed to address CVE-2023-2602 and CVE-2023-2603.
-=sys-libs/libcap-2.69 ~amd64 ~arm64
-
-# Keep versions on both arches in sync.
 =sys-libs/libselinux-3.1-r2 ~arm64
 =sys-libs/libsemanage-3.1-r1 ~arm64
 =sys-libs/libsepol-3.1 ~arm64

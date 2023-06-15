@@ -33,6 +33,111 @@
 
 #--- END OF EXAMPLES ---
 
+# Sam James <sam@gentoo.org> (2023-06-05)
+# Fails to boostrap, see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=110120.
+=sys-devel/gcc-14.0.0_pre20230604
+
+# Michael Orlitzky <mjo@gentoo.org> (2023-06-04)
+# Obsolete and insecure SageMath (out of tree) dependency.
+# Removal on 2023-07-04.
+sci-mathematics/flintqs
+
+# Michał Górny <mgorny@gentoo.org> (2023-06-03)
+# Obsoleted by dev-python/pyspnego.  No revdeps left.
+# Removal on 2023-07-03.  Bug #895004.
+dev-python/ntlm-auth
+
+# Bernd Waibel <waebbl-gentoo@posteo.net> (2023-05-31)
+# Mask this version for uptime soversion issue. There will be an updated release
+# shortly which fixes this.
+# See https://github.com/AcademySoftwareFoundation/Imath/issues/189#issuecomment-1567077722
+# Bug: #907211
+=dev-libs/imath-3.1.7
+
+# Andeas K. Hüttel <dilfridge@gentoo.org> (2023-06-02)
+# Work in progress
+=dev-lang/perl-5.38*
+~virtual/perl-Attribute-Handlers-1.30.0
+~virtual/perl-autodie-2.360.0
+~virtual/perl-bignum-0.660.0
+~virtual/perl-Carp-1.540.0
+~virtual/perl-Compress-Raw-Bzip2-2.204.1_rc
+~virtual/perl-Compress-Raw-Zlib-2.204.1_rc
+~virtual/perl-CPAN-2.360.0
+~virtual/perl-Data-Dumper-2.188.0
+~virtual/perl-DB_File-1.858.0
+~virtual/perl-Devel-PPPort-3.710.0
+~virtual/perl-Digest-MD5-2.580.100_rc
+~virtual/perl-Digest-SHA-6.40.0
+~virtual/perl-Encode-3.190.0
+~virtual/perl-ExtUtils-CBuilder-0.280.238
+~virtual/perl-ExtUtils-Install-2.220.0
+~virtual/perl-ExtUtils-MakeMaker-7.700.0
+~virtual/perl-ExtUtils-ParseXS-3.510.0
+~virtual/perl-File-Spec-3.880.0
+~virtual/perl-Getopt-Long-2.540.0
+~virtual/perl-HTTP-Tiny-0.82.0
+~virtual/perl-IO-1.520.0
+~virtual/perl-IO-Compress-2.204.0
+~virtual/perl-IO-Zlib-1.140.0
+~virtual/perl-JSON-PP-4.160.0
+~virtual/perl-libnet-3.150.0
+~virtual/perl-Locale-Maketext-1.330.0
+~virtual/perl-Math-BigInt-1.999.837
+~virtual/perl-Math-BigInt-FastCalc-0.501.300
+~virtual/perl-Math-BigRat-0.262.400
+~virtual/perl-Math-Complex-1.620.0
+~virtual/perl-Memoize-1.160.0
+~virtual/perl-MIME-Base64-3.160.100_rc
+~virtual/perl-Module-CoreList-5.202.305.200
+~virtual/perl-Net-Ping-2.760.0
+~virtual/perl-parent-0.241.0
+~virtual/perl-podlators-5.10.0
+~virtual/perl-Safe-2.440.0
+~virtual/perl-Scalar-List-Utils-1.630.0
+~virtual/perl-Socket-2.36.0
+~virtual/perl-Storable-3.320.0
+~virtual/perl-Test-Simple-1.302.194
+~virtual/perl-Text-Balanced-2.60.0
+~virtual/perl-threads-2.360.0
+~virtual/perl-threads-shared-1.680.0
+~virtual/perl-Time-HiRes-1.977.500
+~virtual/perl-Time-Piece-1.340.101_rc
+~virtual/perl-Unicode-Normalize-1.320.0
+~virtual/perl-XSLoader-0.320.0
+
+# Michał Górny <mgorny@gentoo.org> (2023-05-31)
+# Unmaintained.  Last commit in 2020.  Does not work with Python 3.12.
+# No revdeps.
+# Removal on 2023-06-30.  Bug #907495.
+dev-python/http-parser
+
+# Sam James <sam@gentoo.org> (2023-05-29)
+# Masked until enough reverse dependencies are fixed, bug #901257.
+=media-video/ffmpeg-6*
+
+# Andreas K. Hüttel <dilfridge@gentoo.org> (2023-05-28)
+# Causes only problems, at negligible gain. Removal in 30days.
+# Bugs 880573, 864157, 885471, 870454, 884571
+sys-libs/libbacktrace
+
+# Fabian Groffen <grobian@gentoo.org> (2023-05-26)
+# Cygwin package for which keyword/profile support was dropped
+# Removal on 2023-06-25.  Bug #907194.
+app-admin/cygwin-rebase
+dev-libs/pthreads4w
+sys-devel/parity
+sys-libs/cygwin-crypt
+
+# Sam James <sam@gentoo.org> (2023-05-24)
+# Breaks building C++ consumers at least: bug #906755, bug #906879, bug #906957.
+# Please upgrade to >=0.5.1.
+=net-libs/libproxy-0.5.0
+
+# Sam James <sam@gentoo.org> (2023-05-23)
+# Argument splitting seems broken, see bug #906892 and https://github.com/ffi/ffi-compiler/issues/23.
+=dev-ruby/ffi-compiler-1.2.0
+
 # Sam James <sam@gentoo.org> (2023-05-20)
 # Various regressions, please upgrade to the latest libxml2 (>=2.11.4).
 =dev-libs/libxml2-2.11.1
@@ -168,22 +273,10 @@ www-client/chromium-bin
 =sci-libs/metis-5.2.1-r1
 =sci-libs/parmetis-4.0.3_p20230326
 
-# Michał Górny <mgorny@gentoo.org> (2023-05-03)
-# Unmaintained upstream.  Fails to build without sys-apps/which, fails
-# with modern autoconf.
-# Removal on 2023-06-02.  Bug #896896.
-dev-python/thunarx-python
-
 # Sam James <sam@gentoo.org> (2023-05-01)
 # Breaks dev-python/scipy build. See bug #905396 and https://github.com/serge-sans-paille/gast/issues/74.
 =dev-python/pythran-0.13.0
 =dev-python/gast-0.5.4
-
-# John Helmert III <ajak@gentoo.org> (2023-04-30)
-# STARTTLS vulnerability, depends on gtk+:2, practically unmainatined
-# upstream. Use mail-client/claws instead. Removal in 30 days, bugs
-# #769293, #807358
-mail-client/sylpheed
 
 # Sam James <sam@gentoo.org> (2023-05-01)
 # Quite broken, see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=109672.
@@ -192,44 +285,6 @@ mail-client/sylpheed
 # Andreas Sturmlechner <asturm@gentoo.org> 2023-04-30
 # Breaking even latest ~arch version of KDE PIM, bug #905352.
 =dev-libs/ktextaddons-1.3*
-
-# Matt Turner <mattst88@gentoo.org> (2023-04-26)
-# Package contains only a script that runs an X application on a remote system
-# with rsh (use ssh -Y instead), and two scripts that were probably used for
-# converting the old BDF fonts to XLFD names back in the early 90's. None of
-# these are useful today.
-# Removal on 2023-05-26
-x11-apps/scripts
-
-# Mike Gilbert <floppym@gentoo.org> (2023-04-26)
-# Merged into net-libs/ldns.  Bug 828109.
-# Removal on 2023-05-26.
-net-dns/ldns-utils
-
-# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2023-04-22)
-# Unused acct-group. Removal on 2023-05-22
-# The server was removed on 2021-08-24 with commit
-# 7a1e8a90fa8a09a84741dc8ef5f774d92ae8433c
-acct-group/resin
-
-# Conrad Kostecki <conikost@gentoo.org> (2023-04-23)
-# Very old package, does not build with modern compilers.
-# It provides BOOTP support, predecessor of DHCP.
-# Removal on 2023-05-23. Bugs #894128, #884335
-sys-boot/netboot
-
-# Jakov Smolić <jsmolic@gentoo.org> (2023-04-21)
-# Does not support python 3.11, uses deprecated dev-python/future,
-# inactive upstream (last commit in 2019).
-# Removal on 2023-05-21. Bugs #897102, #888293
-net-irc/quasselgrep
-
-# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2023-04-21)
-# Unused java libraries. Removal on 2023-05-22
-dev-java/avalon-framework
-dev-java/avalon-logkit
-java-virtuals/servlet-api
-dev-java/resin-servlet-api
 
 # Sam James <sam@gentoo.org> (2023-04-19)
 # Last-minute libstdc++ symbol versioning magic causes e.g. mold, cmake
@@ -259,6 +314,7 @@ dev-java/resin-servlet-api
 # - sys-apps/openrc: https://github.com/OpenRC/openrc/issues/619
 =sys-libs/ncurses-6.4_p20230424
 =sys-libs/ncurses-6.4_p20230506
+=sys-libs/ncurses-6.4_p20230527
 
 # Eray Aslan <eras@gentoo.org> (2023-04-12)
 # Mask experimental software
@@ -410,11 +466,6 @@ dev-qt/qtwebsockets:6
 >=media-video/bino-2
 >=x11-misc/albert-0.20.13
 
-# Fabian Groffen <grobian@gentoo.org> (2022-07-02)
-# Segfaults handling SPF validations (warn on permerror), like the
-# previous release, better not to trust your important mail to
-~mail-mta/exim-4.96
-
 # Sam James <sam@gentoo.org> (2022-05-28)
 # GCC 9 and older no longer receive upstream support or fixes for
 # bugs. Please switch to a newer GCC version using gcc-config.
@@ -425,12 +476,6 @@ dev-qt/qtwebsockets:6
 # Apparently the "b" in version means "beta". 3.24 is available, we
 # should update to that. #841437
 ~sci-physics/bullet-3.22b
-
-# James Beddek <telans@posteo.de> (2022-01-19)
-# FFmpeg 5.0 ABI/API changes break many packages.
-# Masking for tracker/tinderbox. Bug #831437
->=media-video/ffmpeg-5
->=media-sound/spek-0.8.5
 
 # Brian Evans <grknight@gentoo.org> (2022-01-07)
 # The main consumer, phpunit, does not initiate the new timer correctly
