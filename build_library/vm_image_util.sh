@@ -579,6 +579,11 @@ install_oem_sysext() {
     for to_move in "${built_sysext_dir}/${oem_sysext}"*; do
         mv "${to_move}" "${upload_dir}/${to_move##*/}"
     done
+    # Generate dev-key-signed update payload for testing
+    delta_generator \
+      -private_key "/usr/share/update_engine/update-payload-key.key.pem" \
+      -new_image "${upload_dir}/${built_sysext_filename}" \
+      -out_file "${upload_dir}/flatcar_test_update-${oem_sysext}.gz"
     # Remove sysext_dir if building sysext and installing it
     # succeeded.
     rm -rf "${built_sysext_dir}"
