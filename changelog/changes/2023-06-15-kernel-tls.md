@@ -1,0 +1,1 @@
+- Added TLS Kernel module ([scripts#865](https://github.com/flatcar/scripts/pull/865))
