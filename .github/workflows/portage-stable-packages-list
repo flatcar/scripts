@@ -274,8 +274,8 @@ eclass/out-of-source-utils.eclass
 eclass/pam.eclass
 eclass/pax-utils.eclass
 eclass/perl-functions.eclass
-eclass/portability.eclass
 eclass/plocale.eclass
+eclass/portability.eclass
 eclass/prefix.eclass
 eclass/preserve-libs.eclass
 eclass/pypi.eclass
@@ -417,10 +417,10 @@ sys-firmware/ipxe
 sys-firmware/seabios-bin
 sys-firmware/sgabios
 
-sys-kernel/linux-headers
-
 sys-fs/e2fsprogs
 sys-fs/multipath-tools
+
+sys-kernel/linux-headers
 
 sys-libs/binutils-libs
 sys-libs/libcap

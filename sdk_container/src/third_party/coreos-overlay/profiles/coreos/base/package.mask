@@ -14,10 +14,9 @@
 # Overwrite portage-stable mask. We are delaying the transition to
 # libxcrypt, because we need to figure out how to solve the dep loop
 # that results from the migration (python -> virtual/libcrypt ->
-# libxcrypt -> glibc -> python), and also we need to update gcc to
-# version 10 or later.
+# libxcrypt -> glibc -> python).
 >=virtual/libcrypt-2
 
 # Python 3.11 is stable in portage-stable, so avoid picking it
-# up. Drop this when we switch to it.
+# up. Update this to mask later versions when we switch to 3.11.
 >=dev-lang/python-3.11

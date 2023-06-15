@@ -1,10 +1,5 @@
 # Overwrite portage-stable mask. We are delaying the transition to
 # libxcrypt, because we need to figure out how to solve the dep loop
 # that results from the migration (python -> virtual/libcrypt ->
-# libxcrypt -> glibc -> python), and also we need to update gcc to
-# version 10 or later.
+# libxcrypt -> glibc -> python).
 =virtual/libcrypt-1-r1
-
-# Overwrite portage-stable mask. OpenSSL-3* is building fine on Flatcar
-# and Flatcar's dependencies are building fine against it.
-=dev-libs/openssl-3.0*
