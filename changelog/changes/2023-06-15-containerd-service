@@ -1,0 +1,1 @@
+- Migrate to Type=notify in containerd.service. Changed the unit to Type=notify, utilizing the existing containerd support for sd_notify call after socket setup.
