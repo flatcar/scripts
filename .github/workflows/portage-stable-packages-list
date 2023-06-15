@@ -270,6 +270,7 @@ eclass/llvm.eclass
 eclass/ltprune.eclass
 eclass/meson-multilib.eclass
 eclass/meson.eclass
+eclass/mount-boot.eclass
 eclass/multibuild.eclass
 eclass/multilib-build.eclass
 eclass/multilib-minimal.eclass
@@ -295,6 +296,7 @@ eclass/savedconfig.eclass
 eclass/strip-linguas.eclass
 eclass/systemd.eclass
 eclass/tmpfiles.eclass
+eclass/toolchain-autoconf.eclass
 eclass/toolchain-funcs.eclass
 eclass/toolchain.eclass
 eclass/udev.eclass
@@ -304,6 +306,7 @@ eclass/user-info.eclass
 # eclass/usr-ldscript.eclass
 eclass/vcs-clean.eclass
 eclass/verify-sig.eclass
+eclass/versionator.eclass
 eclass/vim-doc.eclass
 eclass/vim-plugin.eclass
 eclass/virtualx.eclass
