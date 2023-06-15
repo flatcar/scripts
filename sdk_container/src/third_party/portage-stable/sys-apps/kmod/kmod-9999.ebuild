@@ -1,19 +1,18 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-PYTHON_COMPAT=( python3_{7..10} )
+PYTHON_COMPAT=( python3_{9..11} )
 
-inherit autotools bash-completion-r1 multilib python-r1
+inherit autotools libtool bash-completion-r1 python-r1
 
 if [[ ${PV} == 9999* ]]; then
 	EGIT_REPO_URI="https://git.kernel.org/pub/scm/utils/kernel/${PN}/${PN}.git"
 	inherit git-r3
 else
 	SRC_URI="https://www.kernel.org/pub/linux/utils/kernel/kmod/${P}.tar.xz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
-	#inherit libtool
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 fi
 
 DESCRIPTION="library and tools for managing linux kernel modules"
@@ -21,25 +20,26 @@ HOMEPAGE="https://git.kernel.org/?p=utils/kernel/kmod/kmod.git"
 
 LICENSE="LGPL-2"
 SLOT="0"
-IUSE="debug doc +lzma pkcs7 python static-libs +tools +zlib zstd"
+IUSE="debug doc +lzma pkcs7 python static-libs +tools +zlib +zstd"
 
 # Upstream does not support running the test suite with custom configure flags.
 # I was also told that the test suite is intended for kmod developers.
 # So we have to restrict it.
 # See bug #408915.
-RESTRICT="test"
+#RESTRICT="test"
 
-# >=zlib-1.2.6 required because of bug #427130
-# Block systemd below 217 for -static-nodes-indicate-that-creation-of-static-nodes-.patch
+# - >=zlib-1.2.6 required because of bug #427130
+# - Block systemd below 217 for -static-nodes-indicate-that-creation-of-static-nodes-.patch
+# - >=zstd-1.5.2-r1 required for bug #771078
 RDEPEND="!sys-apps/module-init-tools
 	!sys-apps/modutils
 	!<sys-apps/openrc-0.13.8
 	!<sys-apps/systemd-216-r3
 	lzma? ( >=app-arch/xz-utils-5.0.4-r1 )
 	python? ( ${PYTHON_DEPS} )
-	pkcs7? ( >=dev-libs/openssl-1.1.0:0= )
+	pkcs7? ( >=dev-libs/openssl-1.1.0:= )
 	zlib? ( >=sys-libs/zlib-1.2.6 )
-	zstd? ( >=app-arch/zstd-1.4.4 )"
+	zstd? ( >=app-arch/zstd-1.5.2-r1:= )"
 DEPEND="${RDEPEND}"
 BDEPEND="
 	doc? (
@@ -50,7 +50,7 @@ BDEPEND="
 	python? (
 		dev-python/cython[${PYTHON_USEDEP}]
 		virtual/pkgconfig
-		)
+	)
 	zlib? ( virtual/pkgconfig )
 "
 if [[ ${PV} == 9999* ]]; then
@@ -60,7 +60,7 @@ fi
 
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
-DOCS=( NEWS README TODO )
+DOCS=( NEWS README.md TODO )
 
 src_prepare() {
 	default
@@ -77,7 +77,7 @@ src_prepare() {
 		elibtoolize
 	fi
 
-	# Restore possibility of running --enable-static wrt #472608
+	# Restore possibility of running --enable-static, bug #472608
 	sed -i \
 		-e '/--enable-static is not supported by kmod/s:as_fn_error:echo:' \
 		configure || die
@@ -118,7 +118,7 @@ src_compile() {
 	emake -C "${BUILD_DIR}"
 
 	if use python; then
-		local native_builddir=${BUILD_DIR}
+		local native_builddir="${BUILD_DIR}"
 
 		python_compile() {
 			emake -C "${BUILD_DIR}" -f Makefile -f - python \
@@ -132,12 +132,32 @@ src_compile() {
 	fi
 }
 
+src_test() {
+	python_test() {
+		mkdir "${T}/test-${EPYTHON}" || die
+		emake -C "${BUILD_DIR}" DESTDIR="${T}/test-${EPYTHON}" \
+                                VPATH="${native_builddir}:${S}" \
+                                install-pkgpyexecLTLIBRARIES \
+                                install-dist_pkgpyexecPYTHON
+
+		# Smoke test based on https://bugs.gentoo.org/891975#c5
+		local -x PYTHONPATH="${T}/test-${EPYTHON}/usr/lib/${EPYTHON}/site-packages:${PYTHONPATH}"
+		${EPYTHON} -c 'import kmod; km = kmod.Kmod(); print([(m.name, m.size) for m in km.loaded()])' || die
+		rm -r "${T}/test-${EPYTHON}" || die
+	}
+
+	if use python; then
+		python_foreach_impl python_test
+	fi
+}
+
 src_install() {
 	emake -C "${BUILD_DIR}" DESTDIR="${D}" install
+
 	einstalldocs
 
 	if use python; then
-		local native_builddir=${BUILD_DIR}
+		local native_builddir="${BUILD_DIR}"
 
 		python_install() {
 			emake -C "${BUILD_DIR}" DESTDIR="${D}" \
@@ -170,7 +190,8 @@ src_install() {
 	EOF
 
 	insinto /lib/modprobe.d
-	doins "${T}"/usb-load-ehci-first.conf #260139
+	# bug #260139
+	doins "${T}"/usb-load-ehci-first.conf
 
 	newinitd "${FILESDIR}"/kmod-static-nodes-r1 kmod-static-nodes
 }

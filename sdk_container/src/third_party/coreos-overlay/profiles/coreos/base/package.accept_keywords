@@ -29,9 +29,6 @@
 # To keep the same version on both arches
 =sys-fs/multipath-tools-0.9.4-r1 ~amd64
 
-# Keep iproute in sync with kernel version.
-=sys-apps/iproute2-5.15.0 ~amd64 ~arm64
-
 # FIPS support is still being tested
 =sys-fs/cryptsetup-2.4.3-r1 ~amd64 ~arm64
 
@@ -48,3 +45,4 @@
 =sys-libs/liburing-2.1-r2 ~amd64 ~arm64
 
 =app-crypt/adcli-0.9.2 ~amd64 ~arm64
+=sys-apps/nvme-cli-2.4-r2 ~amd64 ~arm64
