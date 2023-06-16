@@ -1,0 +1,1 @@
+- Migrated the NVIDIA installer from the Azure/AWS OEM partition to `/usr` to make it available on all platforms ([scripts#932](https://github.com/flatcar/scripts/pull/932/), [Flatcar#1077](https://github.com/flatcar/Flatcar/issues/1077))
