@@ -74,7 +74,7 @@ query_kola_tests() {
     kola list --platform=azure --filter "${@}"
 }
 
-other_instance_types=()
+other_instance_types=("Standard_NC6s_v3")
 if [[ "${CIA_ARCH}" = 'amd64' ]]; then
     other_instance_types+=('V1')
 fi
@@ -85,6 +85,6 @@ run_kola_tests_on_instances \
     "${CIA_FIRST_RUN}" \
     "${other_instance_types[@]}" \
     '--' \
-    'cl.internet' \
+    'cl.internet' 'cl.misc.nvidia'\
     '--' \
     "${@}"

@@ -24,15 +24,12 @@ function download_flatcar_developer_container() {
   then
     rm -f "${FLATCAR_ROOT_WORKDIR}/"flatcar_developer_container*.bin
     FLATCAR_REMOTE_FILENAME=${FLATCAR_DEVELOPER_CONTAINER%%-*}.bin.bz2
-    if [[ "$GROUP" == "developer" ]]
+    if [[ "$(curl -I --retry-delay 1 --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 -L -s -o /dev/null -w "%{http_code}" "https://${GROUP}.release.flatcar-linux.net/${FLATCAR_RELEASE_BOARD}/${FLATCAR_RELEASE_VERSION}/${FLATCAR_REMOTE_FILENAME}")" == 200 ]]
     then
-      FLATCAR_DEVELOPER_CONTAINER_URL="https://bucket.release.flatcar-linux.net/flatcar-jenkins/developer/developer/boards/${FLATCAR_RELEASE_BOARD}/${FLATCAR_RELEASE_VERSION}/${FLATCAR_REMOTE_FILENAME}"
-    else if [[ "$(curl -I -s -o /dev/null -w "%{http_code}" "https://${GROUP}.release.flatcar-linux.net/${FLATCAR_RELEASE_BOARD}/${FLATCAR_RELEASE_VERSION}/${FLATCAR_REMOTE_FILENAME}")" == 200 ]]
-      then
-        FLATCAR_DEVELOPER_CONTAINER_URL="https://${GROUP}.release.flatcar-linux.net/${FLATCAR_RELEASE_BOARD}/${FLATCAR_RELEASE_VERSION}/${FLATCAR_REMOTE_FILENAME}"
-      else
-        FLATCAR_DEVELOPER_CONTAINER_URL="https://bucket.release.flatcar-linux.net/flatcar-jenkins/${GROUP}/boards/${FLATCAR_RELEASE_BOARD}/${FLATCAR_RELEASE_VERSION}/${FLATCAR_REMOTE_FILENAME}"
-      fi
+      FLATCAR_DEVELOPER_CONTAINER_URL="https://${GROUP}.release.flatcar-linux.net/${FLATCAR_RELEASE_BOARD}/${FLATCAR_RELEASE_VERSION}/${FLATCAR_REMOTE_FILENAME}"
+    else
+      FLATCAR_RELEASE_BOARD=${FLATCAR_RELEASE_BOARD//-usr/}
+      FLATCAR_DEVELOPER_CONTAINER_URL="https://bincache.flatcar-linux.net/images/${FLATCAR_RELEASE_BOARD}/${FLATCAR_RELEASE_VERSION}/${FLATCAR_REMOTE_FILENAME}"
     fi
 
     if [ ! -n "${FLATCAR_DEVELOPER_CONTAINER_URL}" ]
@@ -70,7 +67,7 @@ function extract_nvidia_installer() {
 function run_nspawn_container() {
   echo Spawn system-nspawn container to install the NVIDIA drivers
 
-  sudo systemd-nspawn --read-only --volatile=overlay --image="${FLATCAR_ROOT_WORKDIR}/${FLATCAR_DEVELOPER_CONTAINER}" --bind="${FLATCAR_ROOT_WORKDIR}/${NVIDIA_WORKDIR}":/nvidia --bind=/oem/bin:/app/bin/ /app/bin/install-nvidia "$NVIDIA_DRIVER_BASENAME"
+  sudo systemd-nspawn --read-only --volatile=overlay --image="${FLATCAR_ROOT_WORKDIR}/${FLATCAR_DEVELOPER_CONTAINER}" --bind="${FLATCAR_ROOT_WORKDIR}/${NVIDIA_WORKDIR}":/nvidia --bind=/usr/lib/nvidia/bin:/app/bin/ /app/bin/install-nvidia "$NVIDIA_DRIVER_BASENAME"
 }
 
 function copy_nvidia_build_artifacts() {

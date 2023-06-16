@@ -14,7 +14,6 @@ IUSE=""
 
 RDEPEND="
   ~app-emulation/wa-linux-agent-${PV}
-  x11-drivers/nvidia-drivers
 "
 
 # for coreos-base/common-oem-files

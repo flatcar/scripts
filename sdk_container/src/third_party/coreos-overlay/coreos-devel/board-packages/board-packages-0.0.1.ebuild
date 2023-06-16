@@ -34,5 +34,4 @@ RDEPEND="
 	coreos-base/coreos
 	coreos-base/coreos-dev
 	coreos-base/flatcar-eks
-	x11-drivers/nvidia-drivers
 	"
