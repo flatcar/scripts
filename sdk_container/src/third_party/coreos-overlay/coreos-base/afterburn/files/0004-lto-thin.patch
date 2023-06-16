@@ -1,0 +1,29 @@
+From 28a17874ace612fa1c93f6cfb46b9f5982027833 Mon Sep 17 00:00:00 2001
+Message-Id: <28a17874ace612fa1c93f6cfb46b9f5982027833.1686823250.git.dpark@linux.microsoft.com>
+From: Dongsu Park <dpark@linux.microsoft.com>
+Date: Thu, 15 Jun 2023 12:00:33 +0200
+Subject: [PATCH] Cargo: set LTO to false
+
+Set LTO to false (a.k.a. "thin-local") to avoid build failures
+related to LLVM, especially with Rust 1.70.0+.
+
+---
+ Cargo.toml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Cargo.toml b/Cargo.toml
+index e5b3dc30..46bbda69 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -22,7 +22,7 @@ name = "afterburn"
+ path = "src/main.rs"
+ 
+ [profile.release]
+-lto = true
++lto = false
+ # We assume we're being delivered via e.g. RPM which supports split debuginfo
+ debug = true
+ 
+-- 
+2.34.1
+
