@@ -6,6 +6,8 @@ EAPI=8
 # Try to keep an eye on Fedora's packaging: https://src.fedoraproject.org/rpms/coreutils
 # The upstream coreutils maintainers also maintain the package in Fedora and may
 # backport fixes which we want to pick up.
+#
+# Also recommend subscribing to the coreutils and bug-coreutils MLs.
 
 PYTHON_COMPAT=( python3_{9..11} )
 VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/coreutils.asc
@@ -21,7 +23,7 @@ if [[ ${PV} == 9999 ]] ; then
 elif [[ ${PV} == *_p* ]] ; then
 	# Note: could put this in devspace, but if it's gone, we don't want
 	# it in tree anyway. It's just for testing.
-	MY_SNAPSHOT="$(ver_cut 1-2).198-e68b1"
+	MY_SNAPSHOT="$(ver_cut 1-2).18-ffd62"
 	SRC_URI="https://www.pixelbeat.org/cu/coreutils-${MY_SNAPSHOT}.tar.xz -> ${P}.tar.xz"
 	SRC_URI+=" verify-sig? ( https://www.pixelbeat.org/cu/coreutils-${MY_SNAPSHOT}.tar.xz.sig -> ${P}.tar.xz.sig )"
 	S="${WORKDIR}"/${PN}-${MY_SNAPSHOT}
@@ -108,8 +110,8 @@ src_unpack() {
 src_prepare() {
 	local PATCHES=(
 		# Upstream patches
-		"${FILESDIR}"/${P}-cksum-result-reporting.patch
-		"${FILESDIR}"/${P}-cp-reflink-auto-fallback.patch
+		"${FILESDIR}"/${P}-cp-parents-preserve-permissions.patch
+		"${FILESDIR}"/${P}-old-kernel-copy_file_range.patch
 	)
 
 	if ! use vanilla && [[ -d "${WORKDIR}"/patch ]] ; then
@@ -117,6 +119,9 @@ src_prepare() {
 	fi
 
 	default
+
+	# Just for ${P}-old-kernel-copy_file_range.patch
+	touch aclocal.m4 configure.ac Makefile.in gnulib-tests/Makefile.in configure || die
 
 	# Since we've patched many .c files, the make process will try to
 	# re-build the manpages by running `./bin --help`.  When doing a
@@ -135,6 +140,10 @@ src_prepare() {
 }
 
 src_configure() {
+	# On alpha at least, gnulib (as of 9.3) can't seem to figure out we need
+	# _F_O_B=64: https://debbugs.gnu.org/64123
+	append-lfs-flags
+
 	local myconf=(
 		--with-packager="Gentoo"
 		--with-packager-version="${PVR} (p${PATCH_VER:-0})"
@@ -144,7 +153,6 @@ src_configure() {
 		# hostname    - net-tools
 		--enable-install-program="arch,$(usev hostname),$(usev kill)"
 		--enable-no-install-program="groups,$(usev !hostname),$(usev !kill),su,uptime"
-		--enable-largefile
 		$(usex caps '' --disable-libcap)
 		$(use_enable nls)
 		$(use_enable acl)
