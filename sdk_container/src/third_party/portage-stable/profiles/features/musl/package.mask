@@ -1,6 +1,15 @@
 # Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Brahmajit Das <brahmajit.xyz@gmail.com> (2023-06-15)
+# The package uses innetgr which is not available in musl, bug 898556
+# The package is only for long-obsolete polkit policies anyway.
+sys-auth/polkit-pkla-compat
+
+# Mike Gilbert <floppym@gentoo.org> (2023-06-15)
+# Reverse entry from base profile.
+-sys-apps/musl-locales
+
 # Maciej Barć <xgqt@gentoo.org> (2023-04-03)
 # Mask until execinfo.h use can be properly patched, bug #877721 and #903689.
 dev-scheme/guile-ssh
@@ -159,6 +168,8 @@ games-action/brutal-legend-hb
 games-action/descent3
 games-action/descent3-demo
 games-action/minecraft-launcher
+games-action/psychonauts-gog
+games-action/psychonauts-hb
 games-action/psychonauts2-hb
 games-action/shadowgrounds-bin
 games-action/shadowgrounds-survivor-bin

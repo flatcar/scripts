@@ -6,6 +6,15 @@
 # This file is only for generic masks. For arch-specific masks (i.e.
 # mask everywhere, unmask on arch/*) use arch/base.
 
+# Joonas Niilola <juippis@gentoo.org> (2023-06-06)
+# Runtime not tested, may require more configuration in the ebuild.
+# Bug: #906509.
+www-client/firefox valgrind
+
+# Sam James <sam@gentoo.org> (2023-06-06)
+# Needs linux-only dev-libs/libaio.
+app-emulation/qemu aio
+
 # Joonas Niilola <juippis@gentoo.org> (2023-05-07)
 # Doesn't compile, see #894210.
 dev-libs/log4cxx smtp
@@ -72,10 +81,6 @@ sci-libs/vtk debug
 # AMDGPU enablement depends on dev-libs/rocr-runtime, ~amd64 only
 # See also: https://bugs.gentoo.org/891499
 sys-libs/libomp llvm_targets_AMDGPU
-
-# Michał Górny <mgorny@gentoo.org> (2023-01-21)
-# media-libs/libextractor is masked for removal.
-media-plugins/vdr-xineliboutput libextractor
 
 # Michał Górny <mgorny@gentoo.org> (2023-01-21)
 # media-libs/qtav is masked for removal.
@@ -206,10 +211,6 @@ app-antivirus/clamav jit
 # slurm is last rited
 app-metrics/collectd collectd_plugins_slurm
 sys-cluster/openmpi openmpi_rm_slurm
-
-# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2022-08-13)
-# PyQt6/PySide6 are masked for testing
-dev-python/QtPy pyqt6 pyside6
 
 # Joonas Niilola <juippis@gentoo.org> (2022-08-02)
 # Doesn't compile with 'Xaw3d' use flag, #849947.

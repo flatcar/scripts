@@ -12,6 +12,8 @@ ruby_targets_ruby27
 # Masked for testing. The split of some packages may still
 # change. bug #838970.
 qt6
+pyqt6
+pyside6
 
 # Matt Turner <mattst88@gentoo.org> (2022-04-16)
 # dev-util/sysprof not keyworded on most arches yet
@@ -42,12 +44,6 @@ texmacs
 # Matt Turner <mattst88@gentoo.org> (2018-11-11)
 # d3d9 only works on amd64/x86.
 d3d9
-
-# winssl is for prefix/windows/winnt only
-winssl
-
-# CURL_SSL=winssl is for prefix/windows/winnt only
-curl_ssl_winssl
 
 # masking here and unmasking in default/linux/
 kmod
