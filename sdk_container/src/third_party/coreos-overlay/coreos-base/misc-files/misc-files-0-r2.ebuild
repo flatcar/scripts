@@ -4,7 +4,7 @@
 EAPI=8
 
 TMPFILES_OPTIONAL=1
-inherit tmpfiles
+inherit systemd tmpfiles
 
 DESCRIPTION='Flatcar miscellaneous files'
 HOMEPAGE='https://www.flatcar.org/'
@@ -12,13 +12,24 @@ HOMEPAGE='https://www.flatcar.org/'
 LICENSE='Apache-2.0'
 SLOT='0'
 KEYWORDS='amd64 arm64'
+IUSE="openssh"
 
 # No source directory.
 S="${WORKDIR}"
 
 # Versions listed below are version of packages that shedded the
 # modifications in their ebuilds.
+#
+# net-misc/openssh must be installed on host for enabling its unit to
+# work during installation.
+DEPEND="
+	openssh? ( >=net-misc/openssh-9.4_p1 )
+"
+
+# Versions listed below are version of packages that shedded the
+# modifications in their ebuilds.
 RDEPEND="
+	${DEPEND}
 	>=app-shells/bash-5.2_p15-r2
 "
 
@@ -56,7 +67,7 @@ src_install() {
     # /etc will be moved in its place.
     #
     # These links exist because old installations can still have
-    # references to `/usr/share/(bash|skel)`.
+    # references to them.
     local -A compat_symlinks
     compat_symlinks=(
         ['/usr/share/bash/bash_logout']='/usr/share/flatcar/etc/bash/bash_logout'
@@ -68,6 +79,12 @@ src_install() {
         ['/usr/lib/selinux/mcs']='/usr/share/flatcar/etc/selinux/mcs'
         ['/usr/lib/selinux/semanage.conf']='/usr/share/flatcar/etc/selinux/semanage.conf'
     )
+    if use openssh; then
+        compat_symlinks+=(
+            ['/usr/share/ssh/ssh_config']='/usr/share/flatcar/etc/ssh/ssh_config.d/50-flatcar-ssh.conf'
+            ['/usr/share/ssh/sshd_config']='/usr/share/flatcar/etc/ssh/sshd_config.d/50-flatcar-sshd.conf'
+        )
+    fi
 
     local link target
     for link in "${!compat_symlinks[@]}"; do
@@ -106,4 +123,23 @@ src_install() {
         dosym "${target}" "${link}"
         fowners --no-dereference 500:500 "${link}"
     done
+
+    if use openssh; then
+        # Install our configuration snippets.
+        insinto /etc/ssh/ssh_config.d
+        doins "${FILESDIR}/50-flatcar-ssh.conf"
+        insinto /etc/ssh/sshd_config.d
+        doins "${FILESDIR}/50-flatcar-sshd.conf"
+
+        # Install our socket drop-in file that disables the rate
+        # limiting on the sshd socket.
+        local override_dir
+        override_dir="$(systemd_get_systemunitdir)/sshd.socket.d"
+        dodir "${override_dir}"
+        insinto "${override_dir}"
+        doins "${FILESDIR}/no-trigger-limit-burst.conf"
+
+        # Enable some sockets that aren't enabled by their own ebuilds.
+        systemd_enable_service sockets.target sshd.socket
+    fi
 }
