@@ -12,7 +12,7 @@
         "name": "amazon-ssm-agent.service",
         "enabled": true,
         "contents": "[Unit]\nDescription=amazon-ssm-agent\nAfter=network-online.target\n\n[Service]\nType=simple\nWorkingDirectory=/oem\nExecStart=/oem/bin/amazon-ssm-agent\nKillMode=process\nRestart=on-failure\nRestartForceExitStatus=SIGPIPE\nRestartSec=15min\n\n[Install]\nWantedBy=multi-user.target\n"
-      },
+      }
     ]
   },
   "storage": {
@@ -40,7 +40,7 @@
           "source": "oem:///eks/bootstrap.sh"
         },
         "mode": 493
-      },
+      }
     ]
   }
 }
