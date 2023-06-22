@@ -31,7 +31,7 @@
 # Keep versions on both arches in sync.
 =dev-libs/ding-libs-0.6.1-r1 ~arm64
 =dev-libs/libgcrypt-1.10.1-r3 ~arm64
-=dev-util/bpftool-6.2.1 ~arm64
+=dev-util/bpftool-6.3 ~arm64
 
 # Required for addressing CVE-2023-31124, CVE-2023-31130,
 # CVE-2023-31147 and CVE-2023-32067.
