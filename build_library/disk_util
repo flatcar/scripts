@@ -403,7 +403,7 @@ def FormatExt(part, device):
                   '-t', part['fs_type'],
                   '-b', part['fs_block_size'],
                   '-i', part.get('fs_bytes_per_inode', part['fs_block_size']),
-                  '-I', part.get('fs_inode_size', 128),
+                  '-I', part.get('fs_inode_size', 256),
                   device,
                   part['fs_blocks']])
 
