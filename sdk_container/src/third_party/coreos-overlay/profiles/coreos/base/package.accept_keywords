@@ -33,10 +33,6 @@
 =dev-libs/libgcrypt-1.10.1-r3 ~arm64
 =dev-util/bpftool-6.3 ~arm64
 
-# Required for addressing CVE-2023-31124, CVE-2023-31130,
-# CVE-2023-31147 and CVE-2023-32067.
-=net-dns/c-ares-1.19.1 ~amd64 ~arm64
-
 # Keep versions on both arches in sync.
 =net-firewall/conntrack-tools-1.4.6-r1 ~arm64
 
