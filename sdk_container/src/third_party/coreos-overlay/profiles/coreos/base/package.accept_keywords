@@ -68,7 +68,7 @@
 =sys-fs/cryptsetup-2.4.3-r1 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
-=sys-fs/multipath-tools-0.9.4-r1 ~amd64
+=sys-fs/multipath-tools-0.9.5 ~amd64
 =sys-libs/libselinux-3.1-r2 ~arm64
 =sys-libs/libsemanage-3.1-r1 ~arm64
 =sys-libs/libsepol-3.1 ~arm64
