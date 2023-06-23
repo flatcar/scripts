@@ -68,6 +68,8 @@ oem_sysext_create() {
     local sysext_work_dir="${work_dir}/sysext-${oem}"
     local prod_rw_image="${sysext_work_dir}/prod_for_sysext.bin"
     local prod_rw_rootfs="${sysext_work_dir}/prod_rw_rootfs"
+    local sysext_overlay_work="${sysext_work_dir}/overlay.work"
+    local sysext_overlay_upper="${sysext_work_dir}/overlay.upper"
 
     local cleanup_actions=()
     trap '_invoke_actions "${cleanup_actions[@]}"' EXIT
@@ -82,20 +84,28 @@ oem_sysext_create() {
     info 'Preparing work image for mounting'
     "${BUILD_LIBRARY_DIR}/disk_util" --disk_layout=base \
         tune --randomize_uuid "${prod_rw_image}" OEM
-    "${BUILD_LIBRARY_DIR}/disk_util" --disk_layout=base \
-        tune --enable2fs_rw "${prod_rw_image}" USR-A
 
     info "Mounting work image to ${prod_rw_rootfs}"
     _prepend_action cleanup_actions rmdir "${prod_rw_rootfs}"
     _prepend_action cleanup_actions "${BUILD_LIBRARY_DIR}/disk_util" --disk_layout=base \
         umount "${prod_rw_rootfs}"
     "${BUILD_LIBRARY_DIR}/disk_util" --disk_layout=base \
-        mount --writable_verity "${prod_rw_image}" "${prod_rw_rootfs}"
+        mount "${prod_rw_image}" "${prod_rw_rootfs}"
 
     local initial_files="${sysext_work_dir}/initial_files"
     info "Generating list of initial files in work image"
     _prepend_action cleanup_actions rm -f "${initial_files}"
     _generate_listing "${prod_rw_rootfs}" "${initial_files}"
+
+    # /usr partition may be too small to fit the sysext files, so mount
+    # an overlay temporarily.
+    _prepend_action cleanup_actions sudo rm -rf "${sysext_overlay_work}" "${sysext_overlay_upper}"
+    mkdir -p "${sysext_overlay_work}" "${sysext_overlay_upper}"
+
+    _prepend_action cleanup_actions sudo umount "${prod_rw_rootfs}/usr"
+    sudo mount -t overlay usr-overlay \
+        -o lowerdir="${prod_rw_rootfs}/usr",upperdir="${sysext_overlay_upper}",workdir="${sysext_overlay_work}" \
+        "${prod_rw_rootfs}/usr"
 
     info "Stuffing package database into into ${prod_rw_rootfs}"
     sudo tar -xf "${prod_pkgdb}" -C "${prod_rw_rootfs}"
