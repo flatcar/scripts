@@ -17,6 +17,14 @@
 
 #--- END OF EXAMPLES ---
 
+# Michał Górny <mgorny@gentoo.org> (2023-06-24)
+# dev-db/mongodb miraculously got keyworded here.
+dev-python/pymongo -test-full
+
+# Sam James <sam@gentoo.org> (2023-06-09)
+# dev-cpp/cppdap is not keyworded on most arches
+dev-util/cmake -debugger
+
 # Sam James <sam@gentoo.org> (2023-05-15)
 # net-libs/rustls-ffi is keyworded here
 www-servers/apache -apache2_modules_tls
@@ -253,10 +261,6 @@ net-vpn/strongswan -strongswan_plugins_aesni -strongswan_plugins_rdrand
 # Michael Palimaka <kensington@gentoo.org> (2018-10-12)
 # Unmask arch-specific USE flags available on amd64
 net-analyzer/testssl -bundled-openssl -kerberos
-
-# Thomas Deutschmann <whissi@gentoo.org> (2018-09-30)
-# Unmask libheif support where media-libs/libheif is keyworded
-media-gfx/imagemagick -heif
 
 # Thomas Deutschmann <whissi@gentoo.org> (2018-08-23)
 # Dependency sys-cluster/ceph is keyworded for amd64

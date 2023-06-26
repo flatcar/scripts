@@ -7,8 +7,8 @@
 # Profile IUSE injection (applies only to ebuilds which use EAPI 5 or later)
 IUSE_IMPLICIT="prefix prefix-guest prefix-stack"
 USE_EXPAND_IMPLICIT="ELIBC KERNEL"
-USE_EXPAND_VALUES_ELIBC="bionic Cygwin Darwin glibc mingw musl SunOS"
-USE_EXPAND_VALUES_KERNEL="Darwin linux SunOS Winnt"
+USE_EXPAND_VALUES_ELIBC="bionic Darwin glibc mingw musl SunOS"
+USE_EXPAND_VALUES_KERNEL="Darwin linux SunOS"
 
 # Env vars to expand into USE vars.  Modifying this requires prior
 # discussion on gentoo-dev@lists.gentoo.org.
@@ -99,8 +99,8 @@ LCD_DEVICES="bayrad cfontz cfontz633 glk hd44780 lb216 lcdm001 mtxorb ncurses te
 
 # Manuel Rüger <mrueg@gentoo.org> (2015-09-09)
 # Default Ruby build target(s)
-# Updated to add ruby31 on 2023-05-29
-RUBY_TARGETS="ruby30 ruby31"
+# Updated to add ruby31 on 2023-05-29 and to drop ruby30 on 2023-06-17
+RUBY_TARGETS="ruby31"
 
 # Andreas K. Hüttel <dilfridge@gentoo.org> (2022-10-22)
 # These USE flags are what is common between the various sub-profiles. Stages 2
@@ -168,7 +168,7 @@ POSTGRES_TARGETS="postgres12 postgres13"
 # Moreover, it should only contain targets that have a stable version
 # of PHP, to avoid pulling in an unstable PHP on stable systems.
 #
-PHP_TARGETS="php7-4 php8-0"
+PHP_TARGETS="php8-1"
 
 # Alfredo Tupone <tupone@gentoo.org> (2022-11-16)
 #
