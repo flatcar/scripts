@@ -4,8 +4,9 @@
 EAPI=7
 
 DISTUTILS_EXT=1
-PYTHON_COMPAT=( pypy3 python3_{10..11} )
+PYTHON_COMPAT=( pypy3 python3_{10..12} )
 PYTHON_REQ_USE='bzip2(+),threads(+)'
+SETUPTOOLS_USE_DISTUTILS=local
 TMPFILES_OPTIONAL=1
 
 inherit distutils-r1 linux-info toolchain-funcs tmpfiles prefix
@@ -30,6 +31,7 @@ IUSE="apidoc build doc gentoo-dev +ipc +native-extensions +rsync-verify selinux 
 RESTRICT="!test? ( test )"
 
 BDEPEND="
+	dev-python/setuptools[${PYTHON_USEDEP}]
 	test? ( dev-vcs/git )
 "
 DEPEND="
@@ -59,12 +61,12 @@ RDEPEND="
 	>=sys-apps/baselayout-2.9
 	>=sys-apps/findutils-4.4
 	!build? (
-		>=sys-apps/sed-4.0.5
-		>=app-shells/bash-5.0:0[readline]
 		>=app-admin/eselect-1.2
+		>=app-shells/bash-5.0:0[readline]
+		>=sys-apps/sed-4.0.5
+		>=sec-keys/openpgp-keys-gentoo-release-20230329
 		rsync-verify? (
 			>=app-portage/gemato-14.5[${PYTHON_USEDEP}]
-			>=sec-keys/openpgp-keys-gentoo-release-20220101
 			>=app-crypt/gnupg-2.2.4-r2[ssl(-)]
 		)
 	)
@@ -91,7 +93,7 @@ PDEPEND="
 	)
 "
 
-distutils_enable_tests setup.py
+distutils_enable_tests pytest
 
 pkg_pretend() {
 	local CONFIG_CHECK="~IPC_NS ~PID_NS ~NET_NS ~UTS_NS"
