@@ -6,11 +6,11 @@ EAPI=7
 inherit alternatives flag-o-matic toolchain-funcs multilib multiprocessing
 
 PATCH_VER=1
-CROSS_VER=1.3.7
-PATCH_BASE="perl-5.34.0-patches-${PATCH_VER}"
+CROSS_VER=1.4.1
+PATCH_BASE="perl-5.38.0-patches-${PATCH_VER}"
 PATCH_DEV=dilfridge
 
-DIST_AUTHOR=XSAWYERX
+DIST_AUTHOR=RJBS
 
 # Greatest first, don't include yourself
 # Devel point-releases are not ABI-intercompatible, but stable point releases are
@@ -42,14 +42,9 @@ DESCRIPTION="Larry Wall's Practical Extraction and Report Language"
 SRC_URI="
 	mirror://cpan/src/5.0/${MY_P}.tar.xz
 	mirror://cpan/authors/id/${DIST_AUTHOR:0:1}/${DIST_AUTHOR:0:2}/${DIST_AUTHOR}/${MY_P}.tar.xz
-	https://github.com/gentoo-perl/perl-patchset/releases/download/${PATCH_BASE}/${PATCH_BASE}.tar.xz
-	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${PATCH_BASE}.tar.xz
+	https://github.com/gentoo-perl/perl-patchset/archive/refs/tags/${PATCH_BASE}.tar.gz
+	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${PATCH_BASE}.tar.gz
 	https://github.com/arsv/perl-cross/releases/download/${CROSS_VER}/perl-cross-${CROSS_VER}.tar.gz
-"
-
-SRC_URI+="
-	https://dev.gentoo.org/~dilfridge/distfiles/perl-5.34.1-zlib-1.2.12.patch.xz
-	https://dev.gentoo.org/~dilfridge/distfiles/perl-5.34.1-zlib-1.2.12-encrypt-standard.zip.bin
 "
 
 HOMEPAGE="https://www.perl.org/"
@@ -58,7 +53,7 @@ LICENSE="|| ( Artistic GPL-1+ )"
 SLOT="0/${SUBSLOT}"
 
 if [[ "${PV##*.}" != "9999" ]] && [[ "${PV/rc//}" == "${PV}" ]] ; then
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 
 IUSE="berkdb debug doc gdbm ithreads minimal quadmath"
@@ -67,7 +62,7 @@ RDEPEND="
 	berkdb? ( sys-libs/db:= )
 	gdbm? ( >=sys-libs/gdbm-1.8.3:= )
 	app-arch/bzip2
-	sys-libs/zlib
+	>=sys-libs/zlib-1.2.12
 	virtual/libcrypt:=
 "
 DEPEND="${RDEPEND}"
@@ -89,21 +84,21 @@ PDEPEND="
 S="${WORKDIR}/${MY_P}"
 
 dual_scripts() {
-	src_remove_dual      perl-core/Archive-Tar        2.380.0       ptar ptardiff ptargrep
-	src_remove_dual      perl-core/CPAN               2.280.0       cpan
-	src_remove_dual      perl-core/Digest-SHA         6.20.0        shasum
-	src_remove_dual      perl-core/Encode             3.80.100_rc   enc2xs piconv
-	src_remove_dual      perl-core/ExtUtils-MakeMaker 7.620.0       instmodsh
-	src_remove_dual      perl-core/ExtUtils-ParseXS   3.430.0       xsubpp
-	src_remove_dual      perl-core/IO-Compress        2.103.0        zipdetails
-	src_remove_dual      perl-core/JSON-PP            4.60.0        json_pp
-	src_remove_dual      perl-core/Module-CoreList    5.202.203.130 corelist
-	src_remove_dual      perl-core/Pod-Checker        1.740.0       podchecker
+	src_remove_dual      perl-core/Archive-Tar        2.400.0       ptar ptardiff ptargrep
+	src_remove_dual      perl-core/CPAN               2.360.0       cpan
+	src_remove_dual      perl-core/Digest-SHA         6.40.0        shasum
+	src_remove_dual      perl-core/Encode             3.190.0       enc2xs piconv
+	src_remove_dual      perl-core/ExtUtils-MakeMaker 7.700.0       instmodsh
+	src_remove_dual      perl-core/ExtUtils-ParseXS   3.510.0       xsubpp
+	src_remove_dual      perl-core/IO-Compress        2.204.0       zipdetails
+	src_remove_dual      perl-core/JSON-PP            4.160.0        json_pp
+	src_remove_dual      perl-core/Module-CoreList    5.202.305.200 corelist
+	src_remove_dual      perl-core/Pod-Checker        1.750.0       podchecker
 	src_remove_dual      perl-core/Pod-Perldoc        3.280.100     perldoc
-	src_remove_dual      perl-core/Pod-Usage          2.10.0       pod2usage
-	src_remove_dual      perl-core/Test-Harness       3.430.0       prove
-	src_remove_dual      perl-core/podlators          4.140.0       pod2man pod2text
-	src_remove_dual_man  perl-core/podlators          4.140.0       /usr/share/man/man1/perlpodstyle.1
+	src_remove_dual      perl-core/Pod-Usage          2.30.0       pod2usage
+	src_remove_dual      perl-core/Test-Harness       3.440.0       prove
+	src_remove_dual      perl-core/podlators          5.10.0       pod2man pod2text
+	src_remove_dual_man  perl-core/podlators          5.10.0       /usr/share/man/man1/perlpodstyle.1
 }
 
 check_rebuild() {
@@ -388,7 +383,11 @@ apply_patchdir() {
 }
 
 src_prepare() {
+
 	local patchdir="${WORKDIR}/patches"
+
+	mv -v "${WORKDIR}/perl-patchset-${PATCH_BASE}/patches" "${WORKDIR}/patches" || die
+	mv -v "${WORKDIR}/perl-patchset-${PATCH_BASE}/patch-info" "${WORKDIR}/patch-info" || die
 
 	# Prepare Patch dir with additional patches / remove unwanted patches
 	# Inject bug/desc entries for perl -V
@@ -396,18 +395,6 @@ src_prepare() {
 	# add_patch "${FILESDIR}/${PN}-5.26.2-hppa.patch" "100-5.26.2-hppa.patch"\
 	#		"Fix broken miniperl on hppa"\
 	#		"https://bugs.debian.org/869122" "https://bugs.gentoo.org/634162"
-
-	add_patch "${WORKDIR}/perl-5.34.1-zlib-1.2.12.patch" "0501-5.34.1-zlib-1.2.12.patch"\
-			"Update IO-Compress, Compress-Raw-* to 2.103"\
-			"https://bugs.gentoo.org/837176"
-	# this is the binary chunk that gnu patch can't do
-	cp "${DISTDIR}/perl-5.34.1-zlib-1.2.12-encrypt-standard.zip.bin" "${S}/cpan/IO-Compress/t/files/encrypt-standard.zip" || die
-
-	if use prefix ; then
-		add_patch "${FILESDIR}/${PN}"-5.34.0-fallback-getcwd-pwd.patch "0102-5.34.0-fallback-get-cwd-pwd.patch"\
-			"Fix installation during Prefix bootstrap (finding 'pwd' from coreutils)"\
-			"https://bugs.gentoo.org/818172"
-	fi
 
 	if [[ ${CHOST} == *-solaris* ]] ; then
 		# do NOT mess with nsl, on Solaris this is always necessary,
@@ -684,7 +671,7 @@ src_configure() {
 		-Dnm="$(tc-getNM)" \
 		-Dcpp="$(tc-getCPP)" \
 		-Dranlib="$(tc-getRANLIB)" \
-		-Accflags="${CFLAGS}" \
+		-Accflags="${CFLAGS} -DNO_PERL_RAND_SEED" \
 		-Doptimize="${CFLAGS}" \
 		-Dldflags="${LDFLAGS}" \
 		-Dprefix="${EPREFIX}"'/usr' \
