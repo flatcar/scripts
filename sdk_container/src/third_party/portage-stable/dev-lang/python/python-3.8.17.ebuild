@@ -4,7 +4,7 @@
 EAPI="7"
 WANT_LIBTOOL="none"
 
-inherit autotools check-reqs flag-o-matic multiprocessing pax-utils
+inherit autotools flag-o-matic multiprocessing pax-utils
 inherit prefix python-utils-r1 toolchain-funcs verify-sig
 
 MY_PV=${PV/_rc/rc}
@@ -30,8 +30,8 @@ LICENSE="PSF-2"
 SLOT="${PYVER}"
 KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 IUSE="
-	bluetooth build debug +ensurepip examples gdbm hardened libedit lto
-	+ncurses pgo +readline +sqlite +ssl test tk valgrind +xml
+	bluetooth build debug +ensurepip examples gdbm lto +ncurses pgo
+	+readline +sqlite +ssl test tk valgrind wininst +xml
 "
 RESTRICT="!test? ( test )"
 
@@ -43,9 +43,7 @@ RESTRICT="!test? ( test )"
 RDEPEND="
 	app-arch/bzip2:=
 	app-arch/xz-utils:=
-	dev-lang/python-exec[python_targets_python3_10(-)]
 	dev-libs/libffi:=
-	dev-python/gentoo-common
 	>=sys-libs/zlib-1.1.3:=
 	virtual/libcrypt:=
 	virtual/libintl
@@ -53,10 +51,7 @@ RDEPEND="
 	gdbm? ( sys-libs/gdbm:=[berkdb] )
 	kernel_linux? ( sys-apps/util-linux:= )
 	ncurses? ( >=sys-libs/ncurses-5.2:= )
-	readline? (
-		!libedit? ( >=sys-libs/readline-4.1:= )
-		libedit? ( dev-libs/libedit:= )
-	)
+	readline? ( >=sys-libs/readline-4.1:= )
 	sqlite? ( >=dev-db/sqlite-3.3.8:3= )
 	ssl? ( >=dev-libs/openssl-1.1.1:= )
 	tk? (
@@ -66,14 +61,13 @@ RDEPEND="
 		dev-tcltk/tix
 	)
 	xml? ( >=dev-libs/expat-2.1:= )
-	!!<sys-apps/sandbox-2.21
 "
 # bluetooth requires headers from bluez
 DEPEND="
 	${RDEPEND}
 	bluetooth? ( net-wireless/bluez )
-	valgrind? ( dev-util/valgrind )
 	test? ( app-arch/xz-utils[extra-filters(+)] )
+	valgrind? ( dev-util/valgrind )
 "
 # autoconf-archive needed to eautoreconf
 BDEPEND="
@@ -88,20 +82,9 @@ RDEPEND+="
 
 VERIFY_SIG_OPENPGP_KEY_PATH=${BROOT}/usr/share/openpgp-keys/python.org.asc
 
-# large file tests involve a 2.5G file being copied (duplicated)
-CHECKREQS_DISK_BUILD=5500M
-
 QA_PKGCONFIG_VERSION=${PYVER}
 # false positives -- functions specific to *BSD
 QA_CONFIG_IMPL_DECL_SKIP=( chflags lchflags )
-
-pkg_pretend() {
-	use test && check-reqs_pkg_pretend
-}
-
-pkg_setup() {
-	use test && check-reqs_pkg_setup
-}
 
 src_unpack() {
 	if use verify-sig; then
@@ -129,6 +112,10 @@ src_prepare() {
 	local jobs=$(makeopts_jobs)
 	sed -i -e "s:-j0:-j${jobs}:" Makefile.pre.in || die
 	sed -i -e "/self\.parallel/s:True:${jobs}:" setup.py || die
+
+	if ! use wininst; then
+		rm Lib/distutils/command/wininst*.exe || die
+	fi
 
 	eautoreconf
 }
@@ -159,6 +146,7 @@ src_configure() {
 	fi
 
 	append-flags -fwrapv
+
 	filter-flags -malign-double
 
 	# https://bugs.gentoo.org/700012
@@ -175,43 +163,6 @@ src_configure() {
 		dbmliborder+="${dbmliborder:+:}gdbm"
 	fi
 
-	if use pgo; then
-		local profile_task_flags=(
-			-m test
-			"-j$(makeopts_jobs)"
-			--pgo-extended
-			-u-network
-
-			# We use a timeout because of how often we've had hang issues
-			# here. It also matches the default upstream PROFILE_TASK.
-			--timeout 1200
-
-			-x test_gdb
-
-			# All of these seem to occasionally hang for PGO inconsistently
-			# They'll even hang here but be fine in src_test sometimes.
-			# bug #828535 (and related: bug #788022)
-			-x test_asyncio
-			-x test_httpservers
-			-x test_logging
-			-x test_multiprocessing_fork
-			-x test_socket
-			-x test_xmlrpc
-
-			# Hangs (actually runs indefinitely executing itself w/ many cpython builds)
-			# bug #900429
-			-x test_tools
-		)
-
-		if has_version "app-arch/rpm" ; then
-			# Avoid sandbox failure (attempts to write to /var/lib/rpm)
-			profile_task_flags+=(
-				-x test_distutils
-			)
-		fi
-		local -x PROFILE_TASK="${profile_task_flags[*]}"
-	fi
-
 	local myeconfargs=(
 		# glibc-2.30 removes it; since we can't cleanly force-rebuild
 		# Python on glibc upgrade, remove it proactively to give
@@ -219,7 +170,6 @@ src_configure() {
 		ac_cv_header_stropts_h=no
 
 		--enable-shared
-		--without-static-libpython
 		--enable-ipv6
 		--infodir='${prefix}/share/info'
 		--mandir='${prefix}/share/man'
@@ -233,9 +183,6 @@ src_configure() {
 		--with-wheel-pkg-dir="${EPREFIX}"/usr/lib/python/ensurepip
 
 		$(use_with debug assertions)
-		$(use_with lto)
-		$(use_enable pgo optimizations)
-		$(use_with readline readline "$(usex libedit editline readline)")
 		$(use_with valgrind)
 	)
 
@@ -336,25 +283,9 @@ src_compile() {
 	# https://bugs.gentoo.org/823728
 	export SETUPTOOLS_USE_DISTUTILS=stdlib
 
-	# Save PYTHONDONTWRITEBYTECODE so that 'has_version' doesn't
-	# end up writing bytecode & violating sandbox.
-	# bug #831897
-	local -x _PYTHONDONTWRITEBYTECODE=${PYTHONDONTWRITEBYTECODE}
-
-	if use pgo ; then
-		# bug 660358
-		local -x COLUMNS=80
-		local -x PYTHONDONTWRITEBYTECODE=
-
-		addpredict "/usr/lib/python${PYVER}/site-packages"
-	fi
-
 	# also need to clear the flags explicitly here or they end up
 	# in _sysconfigdata*
 	emake CPPFLAGS= CFLAGS= LDFLAGS=
-
-	# Restore saved value from above.
-	local -x PYTHONDONTWRITEBYTECODE=${_PYTHONDONTWRITEBYTECODE}
 
 	# Work around bug 329499. See also bug 413751 and 457194.
 	if has_version dev-libs/libffi[pax-kernel]; then
@@ -395,8 +326,6 @@ src_test() {
 	# bug 660358
 	local -x COLUMNS=80
 	local -x PYTHONDONTWRITEBYTECODE=
-	# workaround https://bugs.gentoo.org/775416
-	addwrite "/usr/lib/python${PYVER}/site-packages"
 
 	nonfatal emake test EXTRATESTOPTS="${test_opts[*]}" \
 		CPPFLAGS= CFLAGS= LDFLAGS= < /dev/tty
@@ -411,6 +340,9 @@ src_install() {
 	local libdir=${ED}/usr/lib/python${PYVER}
 
 	emake DESTDIR="${D}" altinstall
+
+	# Remove static library
+	rm "${ED}"/usr/$(get_libdir)/libpython*.a || die
 
 	# Fix collisions between different slots of Python.
 	rm "${ED}/usr/$(get_libdir)/libpython3.so" || die
@@ -446,8 +378,6 @@ src_install() {
 		rm -r "${ED}/usr/bin/idle${PYVER}" || die
 		rm -r "${libdir}/"{idlelib,tkinter,test/test_tk*} || die
 	fi
-
-	ln -s ../python/EXTERNALLY-MANAGED "${libdir}/EXTERNALLY-MANAGED" || die
 
 	dodoc Misc/{ACKS,HISTORY,NEWS}
 
