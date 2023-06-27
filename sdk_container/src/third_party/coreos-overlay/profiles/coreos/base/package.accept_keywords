@@ -54,6 +54,7 @@
 =sys-apps/checkpolicy-3.1 ~arm64
 
 # Keep versions on both arches in sync.
+=sys-apps/sandbox-2.30-r1 ~arm64
 =sys-apps/kexec-tools-2.0.24 ~arm64
 =sys-apps/policycoreutils-3.1-r3 ~arm64
 =sys-apps/semodule-utils-3.1 ~arm64
