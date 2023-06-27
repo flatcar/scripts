@@ -1,0 +1,1 @@
+- Worked around a bash regression in `flatcar-install` and added error reporting for disk write failures [Flatcar#1059](https://github.com/flatcar/Flatcar/issues/1059)
