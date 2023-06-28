@@ -123,6 +123,11 @@ function _packages_build_impl() {
     # generate image + push to build cache
     docker_commit_to_buildcache "${packages_container}" "${packages_image}" "${docker_vernum}"
 
+    # publish torcx output root for consumption by build_image
+    local torcx_root_tar="torcx_root.tar.zst"
+    tar --zstd -cpf "${torcx_root_tar}" -C "${torcx_tmp}/torcx" .
+    copy_to_buildcache "images/${arch}/${vernum}/torcx" "${torcx_root_tar}"
+
     # Publish torcx manifest and docker tarball to "images" cache so tests can pull it later.
     create_digests "${SIGNER}" \
         "${torcx_tmp}/torcx/${arch}-usr/latest/torcx_manifest.json" \
