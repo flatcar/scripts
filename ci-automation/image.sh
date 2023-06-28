@@ -84,11 +84,17 @@ function _image_build_impl() {
             official_arg="--noofficial"
     fi
 
+    local torcx_root_tar="torcx_root.tar.zst"
     apply_local_patches
+    copy_from_buildcache "images/${arch}/${vernum}/torcx/${torcx_root_tar}" .
+
     # build image and related artifacts
     ./run_sdk_container -x ./ci-cleanup.sh -n "${image_container}" -C "${packages_image}" \
             -v "${vernum}" \
-            mkdir -p "${CONTAINER_IMAGE_ROOT}"
+            mkdir -p "${CONTAINER_IMAGE_ROOT}" "${CONTAINER_TORCX_ROOT}"
+    ./run_sdk_container -n "${image_container}" -C "${packages_image}" \
+            -v "${vernum}" \
+            tar --zstd -xf "${torcx_root_tar}" -C "${CONTAINER_TORCX_ROOT}"
     ./run_sdk_container -n "${image_container}" -C "${packages_image}" \
             -v "${vernum}" \
             ./set_official --board="${arch}-usr" "${official_arg}"
