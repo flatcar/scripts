@@ -7,7 +7,6 @@
 # CI automation common functions.
 
 source ci-automation/ci-config.env
-: ${PIGZ:=pigz}
 : ${docker:=docker}
 
 : ${TEST_WORK_DIR:='__TESTS__'}
