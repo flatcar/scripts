@@ -1,0 +1,1 @@
+- Updated locksmith to use non-deprecated resource control options in the systemd unit ([Locksmith#20](https://github.com/flatcar/locksmith/pull/20))
