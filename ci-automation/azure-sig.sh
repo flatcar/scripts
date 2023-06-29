@@ -7,15 +7,16 @@ set -euo pipefail
 # Make sure Azure credentials are given without printing them.
 tracestate="$(shopt -po xtrace || true)"
 set +o xtrace
-_="
-${AZURE_CLIENT_ID}
-${AZURE_CLIENT_SECRET}
-"
 
 FLATCAR_AZURE_AUTH_CREDENTIALS=${FLATCAR_AZURE_AUTH_CREDENTIALS:-$HOME/.azure/credentials.json}
 if [[ -f "${FLATCAR_CREDENTIALS}" ]] && [[ -z "${AZURE_CLIENT_ID}"]] && [[ -z "${AZURE_CLIENT_SECRET}"]]; then
   AZURE_CLIENT_ID=$(jq ".clientId" "${FLATCAR_AZURE_AUTH_CREDENTIALS}")
   AZURE_CLIENT_SECRET=$(jq ".clientSecret" "${FLATCAR_AZURE_AUTH_CREDENTIALS}")
+else
+  _="
+  ${AZURE_CLIENT_ID}
+  ${AZURE_CLIENT_SECRET}
+  "
 fi
 
 eval "${tracestate}"
@@ -69,17 +70,12 @@ function publish-flatcar-capi-image() {
   # First, make sure staging image is available before publishing.
   build-capi-staging-image
 
-  login
+  azure_login
 
   IMAGE_NAME="${FLATCAR_CAPI_IMAGE_NAME}"
   IMAGE_VERSION="${FLATCAR_VERSION}"
   GALLERY_NAME="${FLATCAR_CAPI_GALLERY_NAME}"
   RESOURCE_GROUP_NAME="${PUBLISHING_SIG_RESOURCE_GROUP}"
-
-  # shellcheck disable=SC2310 # This might return 1.
-  if sig-image-version-exists; then
-    return
-  fi
 
   ensure-resource-group
   ensure-community-sig
@@ -107,11 +103,6 @@ function build-capi-staging-image() {
   IMAGE_VERSION="${FLATCAR_VERSION}"
   GALLERY_NAME="${FLATCAR_CAPI_STAGING_GALLERY_NAME}"
   RESOURCE_GROUP_NAME="${STAGING_SIG_RESOURCE_GROUP}"
-
-  # shellcheck disable=SC2310 # This might return 1.
-  if sig-image-version-exists; then
-    return
-  fi
 
   ensure-resource-group
   ensure-sig
@@ -169,7 +160,7 @@ EOF
 function publish-flatcar-image() {
   ensure-flatcar-staging-sig-image-version-from-vhd
 
-  login
+  login_to_azure
 
   IMAGE_NAME="${FLATCAR_IMAGE_NAME}"
   IMAGE_VERSION="${FLATCAR_VERSION}"
@@ -343,7 +334,7 @@ function ensure-resource-group() {
   fi
 }
 
-function login() {
+function azure_login() {
   tracestate="$(shopt -po xtrace || true)"
   set +o xtrace
   az login --service-principal -u "${AZURE_CLIENT_ID}" -p "${AZURE_CLIENT_SECRET}" --tenant "${AZURE_TENANT_ID}" >/dev/null 2>&1

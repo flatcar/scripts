@@ -67,45 +67,6 @@ function release_build() {
     )
 }
 
-function stg_release_build() {
-    # This is a staging release build, run via a staging job.
-    # Thi
-    # Run a subshell, so the traps, environment changes and global
-    # variables are not spilled into the caller.
-    (
-        set -euo pipefail
-
-        _release_build_impl "${@}"
-    )
-}
-
-function _stg_release_build_impl() {
-    source sdk_lib/sdk_container_common.sh
-    source ci-automation/ci_automation_common.sh
-    source ci-automation/gpg_setup.sh
-
-    source sdk_container/.repo/manifests/version.txt
-    # Needed because we are not the SDK container here
-    source sdk_container/.env
-    local sdk_version="${FLATCAR_SDK_VERSION}"
-    CHANNEL="$(get_git_channel)"
-    VERSION="${FLATCAR_VERSION}"
-
-    azure_profile_config_file=""
-    secret_to_file azure_profile_config_file "${AZURE_PROFILE}"
-    azure_auth_config_file=""
-    secret_to_file azure_auth_config_file "${AZURE_AUTH_CREDENTIALS}"
-
-    # Provide a python3 command for the k8s schedule parsing
-    export PATH="$PATH:$PWD/ci-automation/python-bin"
-    k8s_release_versions= $(ci-automation/get_kubernetes_releases.py)
-    for k8s_version in $k8s_release_versions
-    do
-      FLATCAR_CHANNEL="${CHANNEL}" FLATCAR_AZURE_AUTH_CREDENTIALS="${AZURE_AUTH_CREDENTIALS}" KUBERNETES_SEMVER="v${k8s_version}" ci-automation/azure-sig.sh
-    done
-}
-
-
 function _inside_mantle() {
   # Run a subshell for the same reasons as above
   (
