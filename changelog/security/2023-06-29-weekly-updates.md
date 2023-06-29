@@ -1,0 +1,1 @@
+- vim ([CVE-2023-2426](https://nvd.nist.gov/vuln/detail/CVE-2023-2426))
