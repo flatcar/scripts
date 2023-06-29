@@ -54,14 +54,6 @@ MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/openssl/configuration.h
 )
 
-PATCHES=(
-	"${FILESDIR}"/openssl-3.0.8-mips-cflags.patch
-	"${FILESDIR}"/openssl-3.0.8-CVE-2023-0464.patch
-	"${FILESDIR}"/openssl-3.0.8-CVE-2023-0465.patch
-	"${FILESDIR}"/openssl-3.0.8-CVE-2023-0466.patch
-	"${FILESDIR}"/openssl-3.0.8-CVE-2023-1255.patch
-)
-
 pkg_setup() {
 	if use ktls ; then
 		if kernel_is -lt 4 18 ; then
