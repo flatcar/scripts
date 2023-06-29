@@ -54,7 +54,7 @@ jobs:
         run: |
           sudo rm /bin/sh
           sudo ln -s /bin/bash /bin/sh
-          sudo apt-get install -y ca-certificates curl gnupg lsb-release qemu-user-static git
+          sudo apt-get install -y ca-certificates curl gnupg lsb-release qemu-user-static git zstd
           sudo mkdir -p /etc/apt/keyrings
           curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
           echo \

@@ -34,7 +34,7 @@ jobs:
         run: |
           sudo rm /bin/sh
           sudo ln -s /bin/bash /bin/sh
-          sudo apt-get install -y ca-certificates curl gnupg lsb-release qemu-system git bzip2 jq dnsmasq python3
+          sudo apt-get install -y ca-certificates curl gnupg lsb-release qemu-system git bzip2 jq dnsmasq python3 zstd
           sudo systemctl stop dnsmasq
           sudo systemctl mask dnsmasq
 
