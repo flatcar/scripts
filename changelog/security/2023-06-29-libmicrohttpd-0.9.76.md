@@ -1,0 +1,1 @@
+- libmicrohttpd ([CVE-2023-27371](https://nvd.nist.gov/vuln/detail/CVE-2023-27371))

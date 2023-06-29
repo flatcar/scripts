@@ -1,0 +1,1 @@
+- libmicrohttpd ([0.9.76](https://lists.gnu.org/archive/html/libmicrohttpd/2023-02/msg00000.html))
