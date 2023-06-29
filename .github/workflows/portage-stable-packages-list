@@ -318,6 +318,7 @@ net-firewall/ipset
 net-fs/cifs-utils
 
 net-libs/gnutls
+net-libs/libmicrohttpd
 net-libs/libnftnl
 net-libs/libnsl
 net-libs/libpcap
