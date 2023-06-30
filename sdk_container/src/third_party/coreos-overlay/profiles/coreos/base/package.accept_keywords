@@ -22,6 +22,9 @@
 =dev-embedded/u-boot-tools-2021.04_rc2 ~arm64
 =dev-lang/nasm-2.15.05 ~arm64
 
+# Keep versions on both arches in sync.
+=dev-lang/python-3.10.12 ~amd64
+
 # Accept unstable host Rust compilers
 =dev-lang/rust-1.70.0 ~amd64 ~arm64
 
@@ -31,11 +34,7 @@
 # Keep versions on both arches in sync.
 =dev-libs/ding-libs-0.6.1-r1 ~arm64
 =dev-libs/libgcrypt-1.10.1-r3 ~arm64
-=dev-util/bpftool-6.2.1 ~arm64
-
-# Required for addressing CVE-2023-31124, CVE-2023-31130,
-# CVE-2023-31147 and CVE-2023-32067.
-=net-dns/c-ares-1.19.1 ~amd64 ~arm64
+=dev-util/bpftool-6.3 ~arm64
 
 # Keep versions on both arches in sync.
 =net-firewall/conntrack-tools-1.4.6-r1 ~arm64
@@ -48,7 +47,7 @@
 =net-libs/libnetfilter_cttimeout-1.0.0-r1 ~arm64
 
 # Required for addressing CVE-2023-28319, CVE-2023-28320, CVE-2023-28321 and CVE-2023-28322.
-=net-misc/curl-8.1.0-r1 ~amd64 ~arm64
+=net-misc/curl-8.1.2 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
 =sec-policy/selinux-base-2.20200818-r2 ~arm64
@@ -56,10 +55,10 @@
 =sec-policy/selinux-unconfined-2.20200818-r2 ~arm64
 =sec-policy/selinux-virt-2.20200818-r2 ~arm64
 =sys-apps/checkpolicy-3.1 ~arm64
-
-# Keep versions on both arches in sync.
+=sys-apps/coreutils-9.3-r2 ~arm64
 =sys-apps/kexec-tools-2.0.24 ~arm64
 =sys-apps/policycoreutils-3.1-r3 ~arm64
+=sys-apps/sandbox-2.30-r1 ~arm64
 =sys-apps/semodule-utils-3.1 ~arm64
 
 # Needed to force enable ipvsadm for arm64.
@@ -72,7 +71,7 @@
 =sys-fs/cryptsetup-2.4.3-r1 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
-=sys-fs/multipath-tools-0.9.4-r1 ~amd64
+=sys-fs/multipath-tools-0.9.5 ~amd64
 =sys-libs/libselinux-3.1-r2 ~arm64
 =sys-libs/libsemanage-3.1-r1 ~arm64
 =sys-libs/libsepol-3.1 ~arm64
