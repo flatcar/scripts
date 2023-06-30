@@ -9,27 +9,40 @@
       - gentoo repo is available
       - sync script is available
       - git author name and email are set up
-    - create two worktrees of scripts repo based on origin/main:
+    - DONE: create two worktrees of scripts repo based on origin/main:
       - one for old state
       - one for new state
-    - for each package:
+    - DONE: for each package:
       - record the current hash in new state
       - sync the package in new state
       - check if current hash in new state is different:
         - if so, store commit and package name in "updated" list
-    - set up a bunch of rootfses:
+    - DONE: handle packages missing in Gentoo and in portage-stable
+      - Gentoo case: renamed:
+        - rename the package in portage-stable
+        - update packages list
+      - Gentoo case: else
+        - needs manual intervention
+      - portage-stable case:
+        - remove the package from packages list
+    - DONE: set up a bunch of rootfses:
       - old amd64 sdk rootfs with repos from old state using sdk profile
       - new amd64 sdk rootfs with repos from new state using sdk profile
       - old amd64 pkgs rootfs with repos from old state using generic/prod profile
       - new amd64 pkgs rootfs with repos from new state using generic/prod profile
-      - old arm64 sdk rootfs with repos from old state using sdk profile
-      - new arm64 sdk rootfs with repos from new state using sdk profile
+      - probably skip those for now:
+        - old arm64 sdk rootfs with repos from old state using sdk profile
+        - new arm64 sdk rootfs with repos from new state using sdk profile
       - old arm64 pkgs rootfs with repos from old state using generic/prod profile
       - new arm64 pkgs rootfs with repos from new state using generic/prod profile
     - for each entry in "updated" list:
       - if entry is a package:
         - figure out all old versions:
           - warn if there a multiple different versions
+          - SDK:
+            - use /var/db/pkg
+          - generic:
+            - maybe <ROOTFS>/var/db/pkg in case of packages SDK container?
         - figure out a new version:
           - the highest possible version that is stable on at least one of arm64 or amd64
         - figure out package use
