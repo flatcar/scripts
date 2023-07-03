@@ -1,9 +1,9 @@
 # Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 inherit bash-completion-r1 estack llvm toolchain-funcs python-r1 linux-info
 
 DESCRIPTION="Userland tools for Linux Performance Counters"
@@ -31,8 +31,8 @@ SRC_URI+=" https://www.kernel.org/pub/linux/kernel/v${LINUX_V}/${LINUX_SOURCES}"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 arm arm64 ~mips ppc ppc64 ~riscv x86 ~amd64-linux ~x86-linux"
-IUSE="audit babeltrace clang crypt debug +doc gtk java libpfm lzma numa perl python slang systemtap unwind zlib zstd"
+KEYWORDS="~amd64 ~arm ~arm64 ~mips ~ppc ~ppc64 ~riscv ~x86 ~amd64-linux ~x86-linux"
+IUSE="audit babeltrace caps clang crypt debug +doc gtk java libpfm lzma numa perl python slang systemtap unwind zstd"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
@@ -53,27 +53,30 @@ BDEPEND="
 	)
 "
 
-RDEPEND="audit? ( sys-process/audit )
+RDEPEND="
+	audit? ( sys-process/audit )
 	babeltrace? ( dev-util/babeltrace )
-	crypt? ( virtual/libcrypt:= )
+	caps? ( sys-libs/libcap )
 	clang? (
 		sys-devel/clang:=
 		sys-devel/llvm:=
 	)
+	crypt? ( dev-libs/openssl:= )
 	gtk? ( x11-libs/gtk+:2 )
 	java? ( virtual/jre:* )
-	libpfm? ( dev-libs/libpfm )
+	libpfm? ( dev-libs/libpfm:= )
 	lzma? ( app-arch/xz-utils )
 	numa? ( sys-process/numactl )
 	perl? ( dev-lang/perl:= )
 	python? ( ${PYTHON_DEPS} )
 	slang? ( sys-libs/slang )
 	systemtap? ( dev-util/systemtap )
-	unwind? ( sys-libs/libunwind )
-	zlib? ( sys-libs/zlib )
-	zstd? ( app-arch/zstd )
+	unwind? ( sys-libs/libunwind:= )
+	zstd? ( app-arch/zstd:= )
 	dev-libs/elfutils
-	sys-libs/binutils-libs:="
+	sys-libs/binutils-libs:=
+	sys-libs/zlib
+"
 
 DEPEND="${RDEPEND}
 	>=sys-kernel/linux-headers-5.10
@@ -181,46 +184,50 @@ perf_make() {
 	local java_dir
 	use java && java_dir="${EPREFIX}/etc/java-config-2/current-system-vm"
 	# FIXME: NO_CORESIGHT
-	emake V=1 VF=1 \
-		HOSTCC="$(tc-getBUILD_CC)" HOSTLD="$(tc-getBUILD_LD)" \
-		CC="$(tc-getCC)" CXX="$(tc-getCXX)" AR="$(tc-getAR)" LD="$(tc-getLD)" NM="$(tc-getNM)" \
-		PKG_CONFIG="$(tc-getPKG_CONFIG)" \
-		prefix="${EPREFIX}/usr" bindir_relative="bin" \
-		tipdir="share/doc/${PF}" \
-		EXTRA_CFLAGS="${CFLAGS}" \
-		EXTRA_LDFLAGS="${LDFLAGS}" \
-		ARCH="${arch}" \
-		JDIR="${java_dir}" \
-		LIBCLANGLLVM=$(usex clang 1 "") \
-		LIBPFM4=$(usex libpfm 1 "") \
-		NO_AUXTRACE="" \
-		NO_BACKTRACE="" \
-		NO_CORESIGHT=1 \
-		NO_DEMANGLE= \
-		GTK2=$(usex gtk 1 "") \
-		feature-gtk2-infobar=$(usex gtk 1 "") \
-		NO_JVMTI=$(puse java) \
-		NO_LIBAUDIT=$(puse audit) \
-		NO_LIBBABELTRACE=$(puse babeltrace) \
-		NO_LIBBIONIC=1 \
-		NO_LIBBPF= \
-		NO_LIBCRYPTO=$(puse crypt) \
-		NO_LIBDW_DWARF_UNWIND= \
-		NO_LIBELF= \
-		NO_LIBNUMA=$(puse numa) \
-		NO_LIBPERL=$(puse perl) \
-		NO_LIBPYTHON=$(puse python) \
-		NO_LIBUNWIND=$(puse unwind) \
-		NO_LIBZSTD=$(puse zstd) \
-		NO_SDT=$(puse systemtap) \
-		NO_SLANG=$(puse slang) \
-		NO_LZMA=$(puse lzma) \
-		NO_ZLIB=$(puse zlib) \
-		WERROR=0 \
-		LIBDIR="/usr/libexec/perf-core" \
-		libdir="${EPREFIX}/usr/$(get_libdir)" \
-		plugindir="${EPREFIX}/usr/$(get_libdir)/perf/plugins" \
+	local emakeargs=(
+		V=1 VF=1
+		HOSTCC="$(tc-getBUILD_CC)" HOSTLD="$(tc-getBUILD_LD)"
+		CC="$(tc-getCC)" CXX="$(tc-getCXX)" AR="$(tc-getAR)" LD="$(tc-getLD)" NM="$(tc-getNM)"
+		PKG_CONFIG="$(tc-getPKG_CONFIG)"
+		prefix="${EPREFIX}/usr" bindir_relative="bin"
+		tipdir="share/doc/${PF}"
+		EXTRA_CFLAGS="${CFLAGS}"
+		EXTRA_LDFLAGS="${LDFLAGS}"
+		ARCH="${arch}"
+		JDIR="${java_dir}"
+		LIBCLANGLLVM=$(usex clang 1 "")
+		LIBPFM4=$(usex libpfm 1 "")
+		NO_AUXTRACE=""
+		NO_BACKTRACE=""
+		NO_CORESIGHT=1
+		NO_DEMANGLE=
+		GTK2=$(usex gtk 1 "")
+		feature-gtk2-infobar=$(usex gtk 1 "")
+		NO_JVMTI=$(puse java)
+		NO_LIBAUDIT=$(puse audit)
+		NO_LIBBABELTRACE=$(puse babeltrace)
+		NO_LIBBIONIC=1
+		NO_LIBBPF=
+		NO_LIBCAP=$(puse caps)
+		NO_LIBCRYPTO=$(puse crypt)
+		NO_LIBDW_DWARF_UNWIND=
+		NO_LIBELF=
+		NO_LIBNUMA=$(puse numa)
+		NO_LIBPERL=$(puse perl)
+		NO_LIBPYTHON=$(puse python)
+		NO_LIBUNWIND=$(puse unwind)
+		NO_LIBZSTD=$(puse zstd)
+		NO_SDT=$(puse systemtap)
+		NO_SLANG=$(puse slang)
+		NO_LZMA=$(puse lzma)
+		NO_ZLIB=
+		WERROR=0
+		LIBDIR="/usr/libexec/perf-core"
+		libdir="${EPREFIX}/usr/$(get_libdir)"
+		plugindir="${EPREFIX}/usr/$(get_libdir)/perf/plugins"
 		"$@"
+	)
+	emake "${emakeargs[@]}"
 }
 
 src_compile() {
