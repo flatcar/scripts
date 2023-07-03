@@ -75,6 +75,7 @@
 
 # Keep versions on both arches in sync.
 =sys-fs/multipath-tools-0.9.5 ~amd64
+=sys-libs/binutils-libs-2.40-r5 ~arm64
 =sys-libs/libselinux-3.1-r3 ~arm64
 =sys-libs/libsemanage-3.1-r2 ~arm64
 =sys-libs/libsepol-3.1 ~arm64
