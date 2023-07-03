@@ -4,10 +4,10 @@
 EAPI=8
 
 TOOLCHAIN_PATCH_DEV="sam"
-PATCH_GCC_VER="12.3.0"
-PATCH_VER="2"
-MUSL_VER="1"
-MUSL_GCC_VER="12.3.0"
+PATCH_GCC_VER="10.5.0"
+PATCH_VER="6"
+MUSL_VER="2"
+MUSL_GCC_VER="10.5.0"
 
 if [[ ${PV} == *.9999 ]] ; then
 	MY_PV_2=$(ver_cut 2)
@@ -16,7 +16,7 @@ if [[ ${PV} == *.9999 ]] ; then
 		MY_PV_2=0
 		MY_PV_3=0
 	else
-	        MY_PV_2=$((${MY_PV_2} - 1))
+		MY_PV_2=$((${MY_PV_2} - 1))
 	fi
 
 	# e.g. 12.2.9999 -> 12.1.1
@@ -37,17 +37,12 @@ if tc_is_live ; then
 	EGIT_BRANCH=releases/gcc-$(ver_cut 1)
 elif [[ -z ${TOOLCHAIN_USE_GIT_PATCHES} ]] ; then
 	# Don't keyword live ebuilds
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ~ppc ppc64 ~riscv ~s390 sparc x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	:;
 fi
 
-if [[ ${CATEGORY} != cross-* ]] ; then
-	# Technically only if USE=hardened *too* right now, but no point in complicating it further.
-	# If GCC is enabling CET by default, we need glibc to be built with support for it.
-	# bug #830454
-	RDEPEND="elibc_glibc? ( sys-libs/glibc[cet(-)?] )"
-	DEPEND="${RDEPEND}"
-	BDEPEND=">=${CATEGORY}/binutils-2.30[cet(-)?]"
-fi
+RDEPEND=""
+BDEPEND="${CATEGORY}/binutils"
 
 src_prepare() {
 	local p upstreamed_patches=(
@@ -57,7 +52,9 @@ src_prepare() {
 		rm -v "${WORKDIR}/patch/${p}" || die
 	done
 
-	toolchain_src_prepare
+	if has_version '>=sys-libs/glibc-2.32-r1'; then
+		rm -v "${WORKDIR}/patch/23_all_disable-riscv32-ABIs.patch" || die
+	fi
 
-	eapply_user
+	toolchain_src_prepare
 }
