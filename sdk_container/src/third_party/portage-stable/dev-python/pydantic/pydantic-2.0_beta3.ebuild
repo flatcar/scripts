@@ -4,7 +4,7 @@
 EAPI=8
 
 DISTUTILS_USE_PEP517=hatchling
-PYTHON_COMPAT=( python3_{10..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 
 inherit distutils-r1 pypi
 
@@ -20,7 +20,7 @@ KEYWORDS=""
 
 RDEPEND="
 	>=dev-python/annotated-types-0.4.0[${PYTHON_USEDEP}]
-	>=dev-python/pydantic-core-0.38.0[${PYTHON_USEDEP}]
+	~dev-python/pydantic-core-0.39.0[${PYTHON_USEDEP}]
 	>=dev-python/typing-extensions-4.6.1[${PYTHON_USEDEP}]
 "
 BDEPEND="
