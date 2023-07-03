@@ -7,7 +7,7 @@ EAPI=8
 # please bump dev-python/ensurepip-setuptools along with this package!
 
 DISTUTILS_USE_PEP517=standalone
-PYTHON_TESTED=( python3_{9..11} pypy3 )
+PYTHON_TESTED=( python3_{10..12} pypy3 )
 PYTHON_COMPAT=( "${PYTHON_TESTED[@]}" )
 PYTHON_REQ_USE="xml(+)"
 
@@ -21,7 +21,7 @@ HOMEPAGE="
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
@@ -75,8 +75,7 @@ src_prepare() {
 
 	distutils-r1_src_prepare
 
-	# remove bundled dependencies, setuptools will switch to system deps
-	# automatically
+	# remove bundled dependencies
 	rm -r */_vendor || die
 
 	# remove the ugly */extern hack that breaks on unvendored deps
@@ -87,8 +86,6 @@ src_prepare() {
 }
 
 python_test() {
-	local -x SETUPTOOLS_USE_DISTUTILS=stdlib
-
 	if ! has "${EPYTHON}" "${PYTHON_TESTED[@]/_/.}"; then
 		return
 	fi
