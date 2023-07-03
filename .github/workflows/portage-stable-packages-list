@@ -389,7 +389,6 @@ sys-apps/portage
 sys-apps/pv
 sys-apps/sandbox
 sys-apps/sed
-sys-apps/semodule-utils
 sys-apps/smartmontools
 sys-apps/texinfo
 sys-apps/usbutils
