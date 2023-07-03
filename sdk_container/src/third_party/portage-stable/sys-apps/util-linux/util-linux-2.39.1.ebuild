@@ -94,13 +94,6 @@ fi
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} ) su? ( pam )"
 RESTRICT="!test? ( test )"
 
-PATCHES=(
-	"${FILESDIR}/${P}-check-for-mount_setattr.patch"
-	"${FILESDIR}/${P}-tests-for-mount_setattr.patch"
-	"${FILESDIR}/${P}-mount-parse-options-user.patch"
-	"${FILESDIR}/${P}-mount-dont-call-hooks.patch"
-)
-
 pkg_pretend() {
 	if use su && ! use suid ; then
 		elog "su will be installed as suid despite USE=-suid (bug #832092)"
@@ -212,6 +205,10 @@ multilib_src_configure() {
 		--localstatedir="${EPREFIX}/var"
 		--runstatedir="${EPREFIX}/run"
 		--enable-fs-paths-extra="${EPREFIX}/usr/sbin:${EPREFIX}/bin:${EPREFIX}/usr/bin"
+
+		# Temporary workaround until ~2.39.2. 2.39.x introduced a big rewrite.
+		# https://github.com/util-linux/util-linux/issues/2287#issuecomment-1576640373
+		--disable-libmount-mountfd-support
 	)
 
 	local myeconfargs=(
