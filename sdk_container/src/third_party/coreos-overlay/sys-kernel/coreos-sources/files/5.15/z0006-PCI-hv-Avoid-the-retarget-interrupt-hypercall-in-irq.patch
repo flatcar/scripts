@@ -173,7 +173,7 @@ index 42c625bc5944..165dfb98d3d8 100644
  #endif /* CONFIG_ARM64 */
  
  /**
-@@ -1462,122 +1586,9 @@ static void hv_irq_mask(struct irq_data *data)
+@@ -1462,127 +1586,9 @@ static void hv_irq_mask(struct irq_data *data)
  		irq_chip_mask_parent(data);
  }
  
@@ -207,6 +207,11 @@ index 42c625bc5944..165dfb98d3d8 100644
 -	pbus = pdev->bus;
 -	hbus = container_of(pbus->sysdata, struct hv_pcibus_device, sysdata);
 -	int_desc = data->chip_data;
+-	if (!int_desc) {
+-		dev_warn(&hbus->hdev->device, "%s() can not unmask irq %u\n",
+-			 __func__, data->irq);
+-		return;
+-	}
 -
 -	spin_lock_irqsave(&hbus->retarget_msi_interrupt_lock, flags);
 -
