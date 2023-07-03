@@ -7,7 +7,6 @@
 # CI automation common functions.
 
 source ci-automation/ci-config.env
-: ${PIGZ:=pigz}
 : ${docker:=docker}
 
 : ${TEST_WORK_DIR:='__TESTS__'}
@@ -155,10 +154,10 @@ function docker_image_to_buildcache() {
     local version="$2"
 
     # strip potential container registry prefix
-    local tarball="$(basename "$image")-${version}.tar.gz"
+    local tarball="$(basename "$image")-${version}.tar.zst"
     local id_file="$(basename "$image")-${version}.id"
 
-    $docker save "${image}":"${version}" | $PIGZ -c > "${tarball}"
+    $docker save "${image}":"${version}" | zstd -T0 -o "${tarball}"
     # Cut the "sha256:" prefix that is present in Docker but not in Podman
     $docker image inspect "${image}":"${version}" | jq -r '.[].Id' | sed 's/^sha256://' > "${id_file}"
     create_digests "${SIGNER:-}" "${tarball}" "${id_file}"
@@ -180,7 +179,8 @@ function docker_commit_to_buildcache() {
 function docker_image_from_buildcache() {
     local name="$1"
     local version="$2"
-    local tgz="${name}-${version}.tar.gz"
+    local compr="${3:-zst}"
+    local tgz="${name}-${version}.tar.${compr}"
     local id_file="${name}-${version}.id"
     local id_file_url="https://${BUILDCACHE_SERVER}/containers/${version}/${id_file}"
     local id_file_url_release="https://mirror.release.flatcar-linux.net/containers/${version}/${id_file}"
@@ -214,7 +214,8 @@ function docker_image_from_buildcache() {
         --retry-connrefused --retry-max-time 60 --connect-timeout 20 \
         --remote-name "${url_release}"
 
-    cat "${tgz}" | $PIGZ -d -c | $docker load
+    # zstd can handle zlib as well :)
+    zstd -d -c ${tgz} | $docker load
 
     rm "${tgz}"
 }
@@ -229,7 +230,8 @@ function docker_image_from_registry_or_buildcache() {
     fi
 
     echo "Falling back to tar ball download..." >&2
-    docker_image_from_buildcache "${image}" "${version}"
+    docker_image_from_buildcache "${image}" "${version}" zst || \
+        docker_image_from_buildcache "${image}" "${version}" gz
 }
 # --
 

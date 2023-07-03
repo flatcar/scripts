@@ -9,7 +9,7 @@ fi
 sudo ln -sfn /bin/bash /bin/sh
 sudo apt-get update
 sudo apt-get install -y ca-certificates curl git gnupg lbzip2 lsb-release \
-    qemu-user-static
+    qemu-user-static zstd
 sudo mkdir -p /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
     | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
