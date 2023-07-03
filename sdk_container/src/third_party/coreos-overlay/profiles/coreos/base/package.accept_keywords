@@ -68,6 +68,7 @@
 =sys-cluster/ipvsadm-1.27-r1 **
 
 # Keep versions on both arches in sync.
+=sys-devel/binutils-2.40-r5 ~arm64
 =sys-firmware/edk2-aarch64-18.02 **
 
 # FIPS support is still being tested.
