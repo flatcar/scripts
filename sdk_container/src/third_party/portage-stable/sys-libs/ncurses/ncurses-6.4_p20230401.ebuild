@@ -1,18 +1,29 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/thomasdickey.asc
-inherit toolchain-funcs multilib multilib-minimal preserve-libs usr-ldscript verify-sig
+inherit flag-o-matic toolchain-funcs multilib multilib-minimal preserve-libs usr-ldscript verify-sig
 
 MY_PV="${PV:0:3}"
 MY_P="${PN}-${MY_PV}"
 DESCRIPTION="Console display library"
 HOMEPAGE="https://www.gnu.org/software/ncurses/ https://invisible-island.net/ncurses/"
-SRC_URI="mirror://gnu/ncurses/${MY_P}.tar.gz
+# Keep invisible-mirror.net here as some users reported 403 forbidden with invisible-island.net
+SRC_URI="
+	mirror://gnu/ncurses/${MY_P}.tar.gz
 	https://invisible-island.net/archives/${PN}/${MY_P}.tar.gz
-	verify-sig? ( mirror://gnu/ncurses/${MY_P}.tar.gz.sig )"
+	https://invisible-mirror.net/archives/${PN}/${MY_P}.tar.gz
+	verify-sig? ( mirror://gnu/ncurses/${MY_P}.tar.gz.sig )
+"
+
+GENTOO_PATCH_DEV=sam
+GENTOO_PATCH_PV=6.4_p20230408
+GENTOO_PATCH_NAME=${PN}-${GENTOO_PATCH_PV}-patches
+
+# Populated below in a loop. Do not add patches manually here.
+UPSTREAM_PATCHES=()
 
 if [[ ${PV} == *_p* ]] ; then
 	# Sometimes, after releases, there's no megapatch available yet.
@@ -22,96 +33,104 @@ if [[ ${PV} == *_p* ]] ; then
 	#	"At times (generally to mark a relatively stable point), I create a rollup
 	#	patch, which consists of all changes from the release through the current date."
 	#
+	# Also, from https://lists.gnu.org/archive/html/bug-ncurses/2019-08/msg00039.html,
+	# the patches are considered to be acceptable to use after some testing. They
+	# are both for development but also bug fixes.
+	#
 	# This array should contain a list of all the snapshots since the last
 	# release if there's no megapatch available yet.
 	PATCH_DATES=(
-		20211026
-		20211030
-		20211106
-		20211113
-		20211115
-		20211120
-		20211127
-		20211204
-		20211211
-		20211219
-		20211225
-		20220101
-		20220115
-		20220122
-		20220129
-		20220205
-		20220212
-		20220219
-		20220226
-		20220305
-		20220312
-		20220319
-		20220326
-		20220402
-		20220409
-		20220416
+		20230107
+		20230114
+		20230121
+		20230128
+		20230211
+		20230218
+		20230225
+		20230311
 
 		# Latest patch is just _pN = $(ver_cut 4)
 		$(ver_cut 4)
 	)
 
 	if [[ -z ${PATCH_DATES[@]} ]] ; then
-		SRC_URI+=" https://invisible-island.net/archives/${PN}/${PV/_p*}/${P/_p/-}.patch.sh.gz"
-		SRC_URI+=" verify-sig? ( https://invisible-island.net/archives/${PN}/${PV/_p*}/${P/_p/-}.patch.sh.gz.asc"
+		SRC_URI+=" https://invisible-island.net/archives/${PN}/${PV/_p*}/${MY_P/_p/-}.patch.sh.gz"
+		SRC_URI+=" verify-sig? ( https://invisible-island.net/archives/${PN}/${PV/_p*}/${MY_P/_p/-}.patch.sh.gz.asc"
+
+		# If we have a rollup patch, use that instead of the individual ones.
+		UPSTREAM_PATCHES+=( patch.sh )
 	else
-		patch_url=
-		my_patch_index=
-		for ((my_patch_index=0; my_patch_index < "${#PATCH_DATES[@]}"; my_patch_index++)); do
-			patch_url="$(printf "https://invisible-island.net/archives/${PN}/${PV/_p*}/${MY_P}-%s" ${PATCH_DATES[${my_patch_index}]}.patch.gz)"
-			SRC_URI+=" ${patch_url}"
-			SRC_URI+=" verify-sig? ( ${patch_url}.asc )"
-		done
-		unset patch_url
-		unset my_patch_index
+		# We use a mirror as well because we've had reports of 403 forbidden for some users.
+		upstream_url_base="https://invisible-island.net/archives/${PN}/${PV/_p*}/${MY_P}-"
+		upstream_m_url_base="https://invisible-mirror.net/archives/${PN}/${PV/_p*}/${MY_P}-"
+
+		# Prefix each date with the upstream location (https://invisible-island.net/archives/${PN}/${PV/_p*}/${MY_P})
+		mangled_patches=( "${PATCH_DATES[@]/#/${upstream_url_base}}" )
+		# Suffix each with .patch.gz
+		mangled_patches=( "${mangled_patches[@]/%/.patch.gz}" )
+		mangled_patches_sig=( "${mangled_patches[@]/%/.asc}" )
+		# Repeat for .patch.gz.asc for verify-sig
+		SRC_URI+=" ${mangled_patches[@]}"
+		SRC_URI+=" verify-sig? ( ${mangled_patches_sig[@]} )"
+
+		# For all of the URLs, chuck in invisible-island.net too:
+		SRC_URI+=" ${mangled_patches[@]/${upstream_url_base}/${upstream_m_url_base}}"
+		SRC_URI+=" verify-sig? ( ${mangled_patches_sig[@]/${upstream_url_base}/${upstream_m_url_base}} )"
+
+		UPSTREAM_PATCHES=( "${PATCH_DATES[@]/%/.patch}" )
+
+		unset upstream_url_base upstream_m_url_base mangled_patches mangled_patches_sig
 	fi
 fi
+
+SRC_URI+=" https://dev.gentoo.org/~${GENTOO_PATCH_DEV}/distfiles/${CATEGORY}/${PN}/${GENTOO_PATCH_NAME}.tar.xz"
 
 LICENSE="MIT"
 # The subslot reflects the SONAME.
 SLOT="0/6"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="ada +cxx debug doc gpm minimal profile static-libs symlink-usr test tinfo trace"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+IUSE="ada +cxx debug doc gpm minimal profile split-usr +stack-realign static-libs test tinfo trace"
 RESTRICT="!test? ( test )"
 
 DEPEND="gpm? ( sys-libs/gpm[${MULTILIB_USEDEP}] )"
 # Block the older ncurses that installed all files w/SLOT=5, bug #557472
-RDEPEND="${DEPEND}
+RDEPEND="
+	${DEPEND}
 	!<=sys-libs/ncurses-5.9-r4:5
 	!<sys-libs/slang-2.3.2_pre23
 	!<x11-terms/rxvt-unicode-9.06-r3
-	!<x11-terms/st-0.6-r1"
+	!<x11-terms/st-0.6-r1
+"
 BDEPEND="verify-sig? ( sec-keys/openpgp-keys-thomasdickey )"
 
 S="${WORKDIR}/${MY_P}"
 
-MINIMAL_TERMINFO=(
-	ansi console dumb linux rxvt rxvt-256color rxvt-unicode rxvt-unicode-256color
-	screen screen-16color screen-256color sun vt{52,100,102,200,220}
-	xterm xterm-color xterm-256color xterm-xfree86
-)
-
 PATCHES=(
-	"${FILESDIR}/${PN}-5.7-nongnu.patch"
-	"${FILESDIR}/${PN}-6.0-rxvt-unicode-9.15.patch" # bug #192083, bug #383871
-	"${FILESDIR}/${PN}-6.0-pkg-config.patch"
-	"${FILESDIR}/${PN}-6.0-ticlib.patch" # bug #557360
-	"${FILESDIR}/${PN}-6.2_p20210123-cppflags-cross.patch" # bug #601426
+	"${UPSTREAM_PATCHES[@]/#/${WORKDIR}/${MY_P}-}"
+
+	# When rebasing Gentoo's patchset, please use git from a clean
+	# src_prepare with upstream patches already applied. git am --reject
+	# the existing patchset and rebase as required. This makes it easier
+	# to manage future rebasing & adding new patches.
+	#
+	# For the same reasons, please include the original configure.in changes,
+	# NOT just the generated results!
+	"${WORKDIR}"/${GENTOO_PATCH_NAME}
 )
 
-src_prepare() {
-	if [[ ${PV} == *_p* ]] ; then
-		if [[ -z ${PATCH_DATES[@]} ]] ; then
-			# If we have a rollup patch, use that instead of the individual ones.
-			eapply "${WORKDIR}"/${P/_p/-}-patch.sh
-		else
-			eapply "${WORKDIR}"/
-		fi
+src_unpack() {
+	# Avoid trying to verify our own patchset tarball, there's no point
+	if use verify-sig ; then
+		local file
+		for file in ${A} ; do
+			if [[ ${file} == ${MY_P}.tar.gz ]] ; then
+				verify-sig_verify_detached "${DISTDIR}"/${file} "${DISTDIR}"/${file}.sig
+			else
+				[[ ${file} == @(*${GENTOO_PATCH_NAME}.tar.xz|*.asc|*.sig) ]] && continue
+
+				verify-sig_verify_detached "${DISTDIR}"/${file} "${DISTDIR}"/${file}.asc
+			fi
+		done
 	fi
 
 	default
@@ -121,7 +140,7 @@ src_configure() {
 	# bug #115036
 	unset TERMINFO
 
-	tc-export_build_env BUILD_{CC,CPP}
+	tc-export_build_env BUILD_{CC,CXX,CPP}
 
 	# bug #214642
 	BUILD_CPPFLAGS+=" -D_GNU_SOURCE"
@@ -158,17 +177,25 @@ src_configure() {
 		# We can't re-use the multilib BUILD_DIR because we run outside of it.
 		BUILD_DIR="${WORKDIR}" \
 		CC=${BUILD_CC} \
+		CXX=${BUILD_CXX} \
+		CPP=${BUILD_CPP} \
 		CHOST=${CBUILD} \
 		CFLAGS=${BUILD_CFLAGS} \
 		CXXFLAGS=${BUILD_CXXFLAGS} \
 		CPPFLAGS=${BUILD_CPPFLAGS} \
 		LDFLAGS="${BUILD_LDFLAGS} ${lbuildflags}" \
-		do_configure cross --without-shared --with-normal --with-progs
+		do_configure cross --without-shared --with-normal --with-progs --without-ada
 	fi
 	multilib-minimal_src_configure
 }
 
 multilib_src_configure() {
+	if [[ ${ABI} == x86 ]] ; then
+		# For compatibility with older binaries at slight performance cost.
+		# bug #616402
+		use stack-realign && append-flags -mstackrealign
+	fi
+
 	local t
 	for t in "${NCURSES_TARGETS[@]}" ; do
 		do_configure "${t}"
@@ -176,10 +203,6 @@ multilib_src_configure() {
 }
 
 do_configure() {
-	# Flatcar: Also allow writes to /dev/ptmx, which sometimes
-	# causes the sandbox to fail Jenkins builds.
-	addwrite /dev/ptmx
-
 	local target=$1
 	shift
 
@@ -214,10 +237,9 @@ do_configure() {
 		$(use_with gpm gpm libgpm.so.1)
 		# Required for building  on mingw-w64, and possibly other windows
 		# platforms, bug #639670
-		$(use_enable kernel_Winnt term-driver)
+		--disable-term-driver
 		--disable-termcap
 		--enable-symlinks
-		--with-rcs-ids
 		--with-manpage-format=normal
 		--enable-const
 		--enable-colorfgbg
@@ -262,27 +284,13 @@ do_configure() {
 		[[ -d ${cross_path} ]] && export TIC_PATH="${cross_path}/progs/tic"
 	fi
 
-	# Force bash until upstream rebuilds the configure script with a newer
-	# version of autotools. bug #545532
-	#CONFIG_SHELL=${EPREFIX}/bin/bash \
-	ECONF_SOURCE="${S}" \
-	econf "${conf[@]}" "$@"
+	ECONF_SOURCE="${S}" econf "${conf[@]}" "$@"
 }
 
 src_compile() {
 	# See comments in src_configure.
 	if ! has_version -b "~sys-libs/${P}:0" ; then
-		# We could possibly merge these two branches but opting to be
-		# conservative when merging some of the Prefix changes.
-
-		if [[ ${CHOST} == *-cygwin* ]] && ! multilib_is_native_abi ; then
-			# We make 'tic$(x)' here, for Cygwin having x=".exe".
-			BUILD_DIR="${WORKDIR}" \
-				 do_compile cross -C progs all PROGS='tic$(x)'
-		else
-			BUILD_DIR="${WORKDIR}" \
-				 do_compile cross -C progs tic
-		fi
+		BUILD_DIR="${WORKDIR}" do_compile cross -C progs tic$(get_exeext)
 	fi
 
 	multilib-minimal_src_compile
@@ -329,11 +337,6 @@ multilib_src_install() {
 			$(usex tinfo 'tinfow tinfo' '')
 	fi
 
-	if ! tc-is-static-only ; then
-		# Provide a link for -lcurses.
-		ln -sf libncurses$(get_libname) "${ED}"/usr/$(get_libdir)/libcurses$(get_libname) || die
-	fi
-
 	# Don't delete '*.dll.a', needed for linking, bug #631468
 	if ! use static-libs; then
 		find "${ED}"/usr/ -name '*.a' ! -name '*.dll.a' -delete || die
@@ -346,16 +349,34 @@ multilib_src_install() {
 	# -FIXME-
 	dosym $(sed 's@[^/]\+@..@g' <<< $(get_libdir))/share/terminfo \
 		/usr/$(get_libdir)/terminfo
+
+	# Remove obsolete libcurses symlink that is created by the build
+	# system. Technically, this could be also achieved
+	# via --disable-overwrite but it also moves headers implicitly,
+	# and we do not want to do this yet.
+	# bug #836696
+	rm "${ED}"/usr/$(get_libdir)/libcurses* || die
 }
 
 multilib_src_install_all() {
-	# Flatcar: Add a symlink-usr USE flag for keeping a minimal
-	# set of terminfo files in /usr/share/terminfo.
-	if ! use symlink-usr ; then
+	local terms=(
+		# Dumb/simple values that show up when using the in-kernel VT.
+		ansi console dumb linux
+		vt{52,100,102,200,220}
+		# [u]rxvt users used to be pretty common.  Probably should drop this
+		# since upstream is dead and people are moving away from it.
+		rxvt{,-unicode}{,-256color}
+		# xterm users are common, as is terminals re-using/spoofing it.
+		xterm xterm-{,256}color
+		# screen is common (and reused by tmux).
+		screen{,-256color}
+		screen.xterm-256color
+	)
+	if use split-usr ; then
+		local x
 		# We need the basic terminfo files in /etc for embedded/recovery, bug #37026
 		einfo "Installing basic terminfo files in /etc..."
-		local x
-		for x in "${MINIMAL_TERMINFO[@]}"; do
+		for x in "${terms[@]}"; do
 			local termfile=$(find "${ED}"/usr/share/terminfo/ -name "${x}" 2>/dev/null)
 			local basedir=$(basename "$(dirname "${termfile}")")
 
@@ -373,12 +394,11 @@ multilib_src_install_all() {
 		# Because ncurses5-config --terminfo returns the directory we keep it
 		# bug #245374
 		keepdir /usr/share/terminfo
-	elif use minimal; then
-		# prune all files and symlinks not listed in MINIMAL_TERMINFO
-		find "${D}"/usr/share/terminfo ! -type d \
-			${MINIMAL_TERMINFO[@]/#/! -name } \
-			-delete || die
-		find "${D}"/usr/share/terminfo -type d -empty -delete || die
+	elif use minimal ; then
+		# Keep only the basic terminfo files
+		find "${ED}"/usr/share/terminfo/ \
+			\( -type f -o -type l \) ${terms[*]/#/! -name } -delete , \
+			-type d -empty -delete || die
 	fi
 
 	cd "${S}" || die
