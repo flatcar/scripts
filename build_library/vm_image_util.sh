@@ -72,6 +72,7 @@ VM_IMG_TYPE=DEFAULT
 # Set at runtime to the source and destination image paths
 VM_SRC_IMG=
 VM_SRC_PKGDB=
+VM_SRC_SYSEXT_IMG=
 VM_TMP_IMG=
 VM_TMP_DIR=
 VM_TMP_ROOT=
@@ -364,6 +365,7 @@ set_vm_paths() {
     local dst_dir="${1}"; shift
     local src_name="${1}"; shift
     local pkgdb_name="${1}"; shift
+    local sysext_base_name="${1}"; shift
 
     VM_SRC_IMG="${src_dir}/${src_name}"
     if [[ ! -f "${VM_SRC_IMG}" ]]; then
@@ -372,6 +374,10 @@ set_vm_paths() {
     VM_SRC_PKGDB="${src_dir}/${pkgdb_name}"
     if [[ ! -f "${VM_SRC_PKGDB}" ]]; then
         die "Source package database does not exist: ${VM_SRC_PKGDB}"
+    fi
+    VM_SRC_SYSEXT_IMG="${src_dir}/${sysext_base_name}"
+    if [[ ! -f "${VM_SRC_SYSEXT_IMG}" ]]; then
+        die "Sysext base image does not exist: ${VM_SRC_SYSEXT_IMG}"
     fi
 
     local dst_name="$(_src_to_dst_name "${src_name}" "_image.$(_disk_ext)")"
