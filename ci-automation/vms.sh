@@ -105,7 +105,7 @@ function _vm_build_impl() {
     local images_in="images-in/"
     local file
     rm -rf "${images_in}"
-    for file in flatcar_production_image.bin.bz2 flatcar_production_image_pkgdb.tar.xz flatcar_production_image_sysext.squashfs version.txt; do
+    for file in flatcar_production_image.bin.bz2 flatcar_production_image_sysext.squashfs version.txt; do
         copy_from_buildcache "images/${arch}/${vernum}/${file}" "${images_in}"
     done
     lbunzip2 "${images_in}/flatcar_production_image.bin.bz2"

@@ -105,7 +105,7 @@ if [ -f "${FLAGS_from}/version.txt" ]; then
     FLATCAR_VERSION_STRING="${FLATCAR_VERSION}"
 fi
 
-set_vm_paths "${FLAGS_from}" "${FLAGS_to}" "${FLATCAR_PRODUCTION_IMAGE_NAME}" "${FLATCAR_PRODUCTION_IMAGE_PKGDB_NAME}" "${FLATCAR_PRODUCTION_IMAGE_SYSEXT_BASE}"
+set_vm_paths "${FLAGS_from}" "${FLAGS_to}" "${FLATCAR_PRODUCTION_IMAGE_NAME}" "${FLATCAR_PRODUCTION_IMAGE_SYSEXT_BASE}"
 
 # Make sure things are cleaned up on failure
 trap vm_cleanup EXIT
