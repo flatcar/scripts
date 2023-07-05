@@ -28,7 +28,7 @@ DEFINE_string squashfs_base '' \
 
 FLAGS_HELP="USAGE: build_sysext [flags] [sysext name] [binary packages to install into image].
 
-This script is used to build a Flatcar sysext image. 
+This script is used to build a Flatcar sysext image.
 
 Examples:
 
@@ -59,7 +59,8 @@ FLAGS "$@" || exit 1
 
 eval set -- "${FLAGS_ARGV}"
 
-. "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
+source "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
+source "${BUILD_LIBRARY_DIR}/reports_util.sh" || exit 1
 
 if [[ -z "${FLAGS_build_dir}" ]]; then
   die "Need a build directory to be specified with a --build_dir option"
@@ -88,8 +89,14 @@ _get_sysext_arch() {
 set -euo pipefail
 
 cleanup() {
-  umount "${BUILD_DIR}/fs-root" "${BUILD_DIR}/install-root" "${BUILD_DIR}/workdir" 2>/dev/null || true
-  rm -rf "${BUILD_DIR}/fs-root" "${BUILD_DIR}/install-root" "${BUILD_DIR}/workdir" || true
+  local dirs=(
+    "${BUILD_DIR}/fs-root"
+    "${BUILD_DIR}/install-root"
+    "${BUILD_DIR}/workdir"
+    "${BUILD_DIR}/img-rootfs"
+  )
+  umount "${dirs[@]}" 2>/dev/null || true
+  rm -rf "${dirs[@]}" || true
 }
 
 if [[ ${#} -lt 1 ]]; then
@@ -169,3 +176,11 @@ all_fields=(
 printf '%s\n' "${all_fields[@]}" >"${BUILD_DIR}/install-root/usr/lib/extension-release.d/extension-release.${SYSEXTNAME}"
 mksquashfs "${BUILD_DIR}/install-root" "${BUILD_DIR}/${SYSEXTNAME}.raw"
 rm -rf "${BUILD_DIR}"/{fs-root,install-root,workdir}
+
+# Generate reports
+mkdir "${BUILD_DIR}/img-rootfs"
+mount -rt squashfs -o loop,nodev "${BUILD_DIR}/${SYSEXTNAME}.raw" "${BUILD_DIR}/img-rootfs"
+write_contents "${BUILD_DIR}/img-rootfs" "${BUILD_DIR}/${SYSEXTNAME}_contents.txt"
+write_contents_with_technical_details "${BUILD_DIR}/img-rootfs" "${BUILD_DIR}/${SYSEXTNAME}_contents_wtd.txt"
+write_disk_space_usage_in_paths "${BUILD_DIR}/img-rootfs" "${BUILD_DIR}/${SYSEXTNAME}_disk_usage.txt"
+umount "${BUILD_DIR}/img-rootfs"

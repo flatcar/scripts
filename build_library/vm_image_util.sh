@@ -71,7 +71,7 @@ VM_IMG_TYPE=DEFAULT
 
 # Set at runtime to the source and destination image paths
 VM_SRC_IMG=
-VM_SRC_PKGDB=
+VM_SRC_SYSEXT_IMG=
 VM_TMP_IMG=
 VM_TMP_DIR=
 VM_TMP_ROOT=
@@ -363,15 +363,15 @@ set_vm_paths() {
     local src_dir="${1}"; shift
     local dst_dir="${1}"; shift
     local src_name="${1}"; shift
-    local pkgdb_name="${1}"; shift
+    local sysext_base_name="${1}"; shift
 
     VM_SRC_IMG="${src_dir}/${src_name}"
     if [[ ! -f "${VM_SRC_IMG}" ]]; then
         die "Source image does not exist: ${VM_SRC_IMG}"
     fi
-    VM_SRC_PKGDB="${src_dir}/${pkgdb_name}"
-    if [[ ! -f "${VM_SRC_PKGDB}" ]]; then
-        die "Source package database does not exist: ${VM_SRC_PKGDB}"
+    VM_SRC_SYSEXT_IMG="${src_dir}/${sysext_base_name}"
+    if [[ ! -f "${VM_SRC_SYSEXT_IMG}" ]]; then
+        die "Sysext base image does not exist: ${VM_SRC_SYSEXT_IMG}"
     fi
 
     local dst_name="$(_src_to_dst_name "${src_name}" "_image.$(_disk_ext)")"
@@ -548,19 +548,30 @@ install_oem_sysext() {
     local built_sysext_dir="${FLAGS_to}/${oem_sysext}-sysext"
     local built_sysext_filename="${oem_sysext}.raw"
     local built_sysext_path="${built_sysext_dir}/${built_sysext_filename}"
-    # TODO: Set 'version' to with "${FLATCAR_VERSION}" and
-    # 'version_id' to "${FLATCAR_VERSION_ID}" when we implement updating OEM sysexts
+    # TODO: Set 'version' to "${FLATCAR_VERSION}" and drop
+    # VERSION_FIELD_OVERRIDE when we implement updating OEM sysexts.
     local version='initial'
-    local version_id='initial'
-    local build_oem_sysext_flags=(
+    local build_sysext_env=(
+        VERSION_FIELD_OVERRIDE='SYSEXT_LEVEL=1.0'
+    )
+    local metapkg="coreos-base/${oem_sysext}"
+    local build_sysext_flags=(
         --board="${BOARD}"
         --build_dir="${built_sysext_dir}"
-        --prod_image_path="${VM_SRC_IMG}"
-        --prod_pkgdb_path="${VM_SRC_PKGDB}"
-        --version_id="${version_id}"
+        --squashfs_base="${VM_SRC_SYSEXT_IMG}"
+        --metapkgs="${metapkg}"
     )
+    local overlay_path mangle_fs
+    overlay_path=$(portageq get_repo_path / coreos)
+    mangle_fs="${overlay_path}/${metapkg}/files/manglefs.sh"
+    if [[ -x "${mangle_fs}" ]]; then
+        build_sysext_flags+=(
+            --manglefs_script="${mangle_fs}"
+        )
+    fi
 
-    "${SCRIPT_ROOT}/build_oem_sysext" "${build_oem_sysext_flags[@]}" "${oem_sysext}"
+    mkdir -p "${built_sysext_dir}"
+    sudo "${build_sysext_env[@]}" "${SCRIPT_ROOT}/build_sysext" "${build_sysext_flags[@]}" "${oem_sysext}"
 
     local installed_sysext_oem_dir='/oem/sysext'
     local installed_sysext_file_prefix="${oem_sysext}-${version}"
