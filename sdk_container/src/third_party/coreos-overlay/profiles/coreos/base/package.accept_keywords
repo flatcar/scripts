@@ -81,6 +81,9 @@
 =sys-libs/libsemanage-3.1-r2 ~arm64
 =sys-libs/libsepol-3.1 ~arm64
 
+# Needed to fix CVE-2023-29491.
+=sys-libs/ncurses-6.4_p20230527 ~amd64 ~arm64
+
 # A dependency of app-shells/bash version that we need for security
 # fixes.
 =sys-libs/readline-8.2_p1 ~amd64 ~arm64
