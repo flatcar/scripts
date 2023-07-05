@@ -9,7 +9,6 @@
 
 # Needed by arm64-native SDK.
 =app-crypt/efitools-1.9.2 ~arm64
-=app-crypt/rhash-1.4.2 ~arm64
 =app-emulation/open-vmdk-1.0 *
 
 # Keep versions on both arches in sync.
