@@ -1,4 +1,4 @@
-From 9efd744fd662898a459ba9a4e8ff9f60f57a16a2 Mon Sep 17 00:00:00 2001
+From e028524c08935766822c3a1760124a14f6eb090c Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Fri, 24 Feb 2023 09:14:03 +0100
 Subject: [PATCH 03/21] sum: go mod tidy
@@ -119,5 +119,5 @@ index 087ef0ad..bb95e1fe 100644
  gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
  gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 -- 
-2.34.1
+2.25.1
 

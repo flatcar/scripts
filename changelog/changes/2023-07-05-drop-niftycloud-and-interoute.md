@@ -1,0 +1,1 @@
+- :warning: Dropped support for niftycloud and interoute. For interoute we haven't been generating the images for some time already. (TODO) :warning:

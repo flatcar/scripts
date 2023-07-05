@@ -1,4 +1,4 @@
-From d5fc344638287f835bf7d4793b46f166c7277950 Mon Sep 17 00:00:00 2001
+From 3adef6a01c987ed2156636fab1791e534f770621 Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Tue, 16 May 2023 17:43:43 +0200
 Subject: [PATCH 21/21] internal/exec/stages/mount: Mount /oem
@@ -28,5 +28,5 @@ index 8074dbe6..b8cdc5cb 100644
  	if err := checkForNonDirectories(path); err != nil {
  		return err
 -- 
-2.34.1
+2.25.1
 
