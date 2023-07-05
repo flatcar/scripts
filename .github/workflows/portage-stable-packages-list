@@ -86,6 +86,7 @@ app-arch/zstd
 app-cdr/cdrtools
 
 app-crypt/adcli
+app-crypt/libb2
 app-crypt/libmd
 app-crypt/mit-krb5
 app-crypt/pinentry
@@ -101,9 +102,11 @@ app-eselect/eselect-iptables
 
 app-misc/c_rehash
 app-misc/editor-wrapper
+app-misc/pax-utils
 
 app-portage/elt-patches
 app-portage/portage-utils
+app-portage/gentoolkit
 
 app-shells/bash
 app-shells/bash-completion
@@ -115,6 +118,8 @@ app-text/docbook-xsl-ns-stylesheets
 app-text/docbook-xsl-stylesheets
 app-text/manpager
 app-text/sgml-common
+
+dev-cpp/gtest
 
 dev-db/sqlite
 
@@ -423,10 +428,14 @@ sys-fs/multipath-tools
 sys-kernel/linux-headers
 
 sys-libs/binutils-libs
+sys-libs/ldb
 sys-libs/libcap
 sys-libs/libcap-ng
 sys-libs/libseccomp
 sys-libs/readline
+sys-libs/talloc
+sys-libs/tdb
+sys-libs/tevent
 sys-libs/zlib
 
 sys-process/tini
@@ -441,5 +450,7 @@ virtual/perl-File-Temp
 virtual/perl-Getopt-Long
 virtual/perl-IO
 virtual/pkgconfig
+
+x11-base/xorg-proto
 
 x11-libs/pixman
