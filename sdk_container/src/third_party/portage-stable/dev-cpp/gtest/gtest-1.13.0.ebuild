@@ -1,28 +1,27 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 # Python is required for tests and some build tasks.
-PYTHON_COMPAT=( python3_{8..10} )
+PYTHON_COMPAT=( python3_{9..11} )
 
-CMAKE_ECLASS=cmake
 inherit cmake-multilib python-any-r1
-
-GOOGLETEST_COMMIT=aee0f9d9b5b87796ee8a0ab26b7587ec30e8858e
 
 if [[ ${PV} == "9999" ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/google/googletest"
 else
 	if [[ -z ${GOOGLETEST_COMMIT} ]]; then
-		URI_PV=v${MY_PV:-${PV}}
+		SRC_URI="https://github.com/google/googletest/archive/refs/tags/v${PV}.tar.gz
+			-> ${P}.tar.gz"
+		S="${WORKDIR}"/googletest-${PV}
 	else
-		URI_PV=${MY_PV:=${GOOGLETEST_COMMIT}}
+		SRC_URI="https://github.com/google/googletest/archive/${GOOGLETEST_COMMIT}.tar.gz
+			-> ${P}.tar.gz"
+		S="${WORKDIR}"/googletest-${GOOGLETEST_COMMIT}
 	fi
-	SRC_URI="https://github.com/google/googletest/archive/${URI_PV}.tar.gz -> ${P}.tar.gz"
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-	S="${WORKDIR}"/googletest-${MY_PV}
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 
 DESCRIPTION="Google C++ Testing Framework"
@@ -34,10 +33,6 @@ IUSE="doc examples test"
 RESTRICT="!test? ( test )"
 
 BDEPEND="test? ( ${PYTHON_DEPS} )"
-
-PATCHES=(
-	"${FILESDIR}"/${PN}-1.10.0_p20200702-increase-clone-stack-size.patch
-)
 
 pkg_setup() {
 	use test && python-any-r1_pkg_setup
@@ -63,15 +58,18 @@ multilib_src_configure() {
 	cmake_src_configure
 }
 
+multilib_src_test() {
+	# Exclude tests that fail with FEATURES="usersandbox"
+	cmake_src_test -E "googletest-(death-test|port)-test"
+}
+
 multilib_src_install_all() {
 	einstalldocs
 
-	if use doc; then
-		docinto googletest
-		dodoc -r googletest/docs/.
-		docinto googlemock
-		dodoc -r googlemock/docs/.
-	fi
+	newdoc googletest/README.md README.googletest.md
+	newdoc googlemock/README.md README.googlemock.md
+
+	use doc && dodoc -r docs/.
 
 	if use examples; then
 		docinto examples
