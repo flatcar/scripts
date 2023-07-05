@@ -4,7 +4,7 @@
 EAPI=7
 
 # Flatcar: Support python 3.6.
-PYTHON_COMPAT=( python3_{6..10} )
+PYTHON_COMPAT=( python3_{6..11} )
 
 TMPFILES_OPTIONAL=1
 inherit autotools multilib-minimal toolchain-funcs python-r1 linux-info systemd usr-ldscript tmpfiles

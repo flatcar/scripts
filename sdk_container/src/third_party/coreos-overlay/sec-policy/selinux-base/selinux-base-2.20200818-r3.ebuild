@@ -4,8 +4,8 @@
 EAPI="7"
 
 # flatcar changes
-PYTHON_COMPAT=( python3_{8,9,10} )
-PYTHON_REQ_USE="xml"
+PYTHON_COMPAT=( python3_{8,9,10,11} )
+PYTHON_REQ_USE="xml(+)"
 TMPFILES_OPTIONAL=1
 inherit systemd tmpfiles python-any-r1
 
@@ -17,7 +17,7 @@ if [[ ${PV} == 9999* ]]; then
 	inherit git-r3
 else
 	SRC_URI="https://github.com/SELinuxProject/refpolicy/releases/download/RELEASE_${PV/./_}/refpolicy-${PV}.tar.bz2
-			https://dev.gentoo.org/~perfinion/patches/selinux-base-policy/patchbundle-selinux-base-policy-${PVR}.tar.bz2"
+			https://dev.gentoo.org/~perfinion/patches/selinux-base-policy/patchbundle-selinux-base-policy-${PV}-r2.tar.bz2"
 
 	KEYWORDS="amd64 -arm ~arm64 ~mips x86"
 fi

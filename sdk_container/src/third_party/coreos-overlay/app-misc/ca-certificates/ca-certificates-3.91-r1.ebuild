@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-PYTHON_COMPAT=( python3_{6..10} )
+PYTHON_COMPAT=( python3_{6..11} )
 TMPFILES_OPTIONAL=1
 inherit python-any-r1 systemd tmpfiles
 

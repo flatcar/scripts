@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{8..10} )
+PYTHON_COMPAT=( python3_{8..11} )
 PYTHON_REQ_USE="threads(+),xml(+)"
 TMPFILES_OPTIONAL=1
 inherit python-single-r1 waf-utils multilib-minimal linux-info systemd pam tmpfiles

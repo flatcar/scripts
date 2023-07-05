@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{8..10} )
+PYTHON_COMPAT=( python3_{8..11} )
 TMPFILES_OPTIONAL=1
 
 # At least at the moment, while a CMake port exists, it's not recommended

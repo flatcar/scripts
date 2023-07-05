@@ -8,7 +8,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6..10} )
+PYTHON_COMPAT=( python3_{6..11} )
 
 TMPFILES_OPTIONAL=1
 inherit autotools flag-o-matic linux-info multilib-minimal python-single-r1 pam systemd toolchain-funcs tmpfiles

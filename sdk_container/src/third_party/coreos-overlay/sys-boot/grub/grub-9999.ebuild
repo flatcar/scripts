@@ -16,7 +16,7 @@ fi
 inherit cros-workon
 
 if [[ -n ${GRUB_AUTOGEN} ]]; then
-	PYTHON_COMPAT=( python3_{6..10} )
+	PYTHON_COMPAT=( python3_{6..11} )
 	WANT_LIBTOOL=none
 	inherit autotools python-any-r1
 fi
