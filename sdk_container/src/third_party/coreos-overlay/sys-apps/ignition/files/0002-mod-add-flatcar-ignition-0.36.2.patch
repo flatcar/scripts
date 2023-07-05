@@ -1,4 +1,4 @@
-From d0ea026754fbd7ed889fa4af457308157c29570b Mon Sep 17 00:00:00 2001
+From b71a858e20878b09149f3b490e204aec738e2ed9 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Fri, 24 Feb 2023 09:13:33 +0100
 Subject: [PATCH 02/21] mod: add flatcar/ignition@0.36.2
@@ -41,5 +41,5 @@ index 85b3e34e..b109532e 100644
  	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
  	google.golang.org/appengine v1.6.7 // indirect
 -- 
-2.34.1
+2.25.1
 

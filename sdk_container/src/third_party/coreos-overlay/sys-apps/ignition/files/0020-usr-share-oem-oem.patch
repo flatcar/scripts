@@ -1,4 +1,4 @@
-From 080e4db8eabd64c12a049b9382c195675b16a189 Mon Sep 17 00:00:00 2001
+From b366b5c0e1e30e0743d387d6f5f100214149293e Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Tue, 4 Apr 2023 12:12:42 +0200
 Subject: [PATCH 20/21] /usr/share/oem -> /oem
@@ -23,7 +23,7 @@ index 347d148c..d4c057b2 100644
  			// generate a new path
  			fsMap[name] = "/tmp/" + name + "-ign" + strconv.FormatUint(addedSuffixCounter, 10)
 diff --git a/docs/supported-platforms.md b/docs/supported-platforms.md
-index 90df6c6a..7867ba09 100644
+index 242296d0..4ba98af5 100644
 --- a/docs/supported-platforms.md
 +++ b/docs/supported-platforms.md
 @@ -10,7 +10,7 @@ Ignition is currently only supported for the following platforms:
@@ -52,5 +52,5 @@ index 644c42c4..9e96166e 100644
  
  	// Helper programs
 -- 
-2.34.1
+2.25.1
 
