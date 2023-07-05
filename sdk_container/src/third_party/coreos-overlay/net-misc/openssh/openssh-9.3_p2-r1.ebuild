@@ -19,7 +19,7 @@ S="${WORKDIR}/${PARCH}"
 
 LICENSE="BSD GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 # Probably want to drop ssl defaulting to on in a future version.
 IUSE="abi_mips_n32 audit debug kerberos ldns libedit livecd pam +pie security-key selinux +ssl static test X xmss"
 
@@ -227,6 +227,37 @@ src_test() {
 	emake -j1 "${tests[@]}" </dev/null
 }
 
+insert_include() {
+	local src_config=${1} options=${2} includedir=${3}
+	local name copy regexp_options regexp lineno comment_options
+
+	name=${src_config##*/}
+	copy="${T}/${name}"
+	cp -a "${src_config}" "${copy}" || die
+
+	# Catch "Option ", "#Option " or "# Option ".
+	regexp_options=${options//,/'\|'}
+	regexp='^[[:space:]]*#\?[[:space:]]*\('"${regexp_options}"'\)[[:space:]]'
+	lineno=$(set -o pipefail; grep -ne "${regexp}" -m 1 "${copy}" | cut -d : -f 1 || die)
+	# We have found a first line with the option, now find a first
+	# non-comment line just above the comments of the option. The
+	# lineno - 2 is here to ignore the line just above the option
+	# in case the comment block is separated by an empty line.
+	lineno=$(set -o pipefail; head -n $((lineno - 2)) "${copy}" | grep -ne '^[[:space:]]*\([^#]\|$\)' | tail -n 1 | cut -d : -f 1 || die)
+
+	comment_options=${options//,/ or }
+	{
+		head -n "${lineno}" "${copy}" || die
+		cat <<-EOF || die
+		# Make sure that all ${comment_options} options are below this Include!
+		Include "${EPREFIX}/${includedir}/*.conf"
+
+		EOF
+		tail -n "+${lineno}" "${copy}" || die
+	} >"${src_config}"
+	rm -f "${copy}" || die
+}
+
 # Gentoo tweaks to default config files.
 tweak_ssh_configs() {
 	local locale_vars=(
@@ -240,12 +271,9 @@ tweak_ssh_configs() {
 	)
 
 	dodir /etc/ssh/ssh_config.d /etc/ssh/sshd_config.d
-	cat <<-EOF >> "${ED}"/etc/ssh/ssh_config || die
-	Include "${EPREFIX}/etc/ssh/ssh_config.d/*.conf"
-	EOF
-	cat <<-EOF >> "${ED}"/etc/ssh/sshd_config || die
-	Include "${EPREFIX}/etc/ssh/sshd_config.d/*.conf"
-	EOF
+
+	insert_include "${ED}"/etc/ssh/ssh_config 'Host,Match' '/etc/ssh/ssh_config.d'
+	insert_include "${ED}"/etc/ssh/sshd_config 'Match' '/etc/ssh/sshd_config.d'
 
 	cat <<-EOF >> "${ED}"/etc/ssh/ssh_config.d/9999999gentoo.conf || die
 	# Send locale environment variables (bug #367017)
@@ -263,6 +291,10 @@ tweak_ssh_configs() {
 	# https://github.blog/2023-03-23-we-updated-our-rsa-ssh-host-key/
 	ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==
 	EOF
+
+	# Move sshd's Subsystem option to a drop-in file.
+	grep -ie 'subsystem' "${ED}"/etc/ssh/sshd_config >"${ED}"/etc/ssh/sshd_config.d/9999999gentoo-subsystem.conf || die
+	sed -i -e '/[Ss]ubsystem/d' "${ED}"/etc/ssh/sshd_config
 
 	cat <<-EOF >> "${ED}"/etc/ssh/sshd_config.d/9999999gentoo.conf || die
 	# Allow client to pass locale environment variables (bug #367017)
@@ -289,6 +321,10 @@ tweak_ssh_configs() {
 		PermitRootLogin Yes
 		EOF
 	fi
+
+	local sshd_drop_ins=("${ED}"/etc/ssh/sshd_config.d/*.conf)
+	fperms 0700 /etc/ssh/sshd_config.d
+	fperms 0600 "${sshd_drop_ins[@]#${ED}}"
 }
 
 src_install() {
