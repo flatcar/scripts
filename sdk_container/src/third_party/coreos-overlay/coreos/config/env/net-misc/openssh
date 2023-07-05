@@ -3,6 +3,8 @@ if [[ $(cros_target) != "cros_host" ]] ; then
 	openssh_mask="
 		/etc/ssh/ssh_config
 		/etc/ssh/sshd_config
+		/etc/ssh/ssh_config.d
+		/etc/ssh/sshd_config.d
 		/usr/lib*/misc/ssh-keysign
 	"
 	PKG_INSTALL_MASK+=" ${openssh_mask}"
