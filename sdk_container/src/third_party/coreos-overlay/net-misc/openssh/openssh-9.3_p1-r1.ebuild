@@ -9,59 +9,26 @@ inherit user-info flag-o-matic autotools pam systemd toolchain-funcs verify-sig
 # and _p? releases.
 PARCH=${P/_}
 
-# PV to USE for HPN patches
-#HPN_PV="${PV^^}"
-HPN_PV="8.5_P1"
-
-HPN_VER="15.2"
-HPN_PATCHES=(
-	${PN}-${HPN_PV/./_}-hpn-DynWinNoneSwitch-${HPN_VER}.diff
-	${PN}-${HPN_PV/./_}-hpn-AES-CTR-${HPN_VER}.diff
-	${PN}-${HPN_PV/./_}-hpn-PeakTput-${HPN_VER}.diff
-)
-HPN_GLUE_PATCH="${PN}-9.3_p1-hpn-${HPN_VER}-glue.patch"
-HPN_PATCH_DIR="HPN-SSH%%20${HPN_VER/./v}%%20${HPN_PV/_P/p}"
-
-SCTP_VER="1.2"
-SCTP_PATCH="${PARCH}-sctp-${SCTP_VER}.patch.xz"
-
-X509_VER="14.1.1"
-X509_PATCH="${PARCH}+x509-${X509_VER}.diff.gz"
-X509_GLUE_PATCH="${P}-X509-glue-${X509_VER}.patch"
-X509_HPN_GLUE_PATCH="${PN}-9.3_p1-hpn-${HPN_VER}-X509-${X509_VER}-glue.patch"
-
 DESCRIPTION="Port of OpenBSD's free SSH release"
 HOMEPAGE="https://www.openssh.com/"
-SRC_URI="mirror://openbsd/OpenSSH/portable/${PARCH}.tar.gz
-	${SCTP_PATCH:+sctp? ( https://dev.gentoo.org/~chutzpah/dist/openssh/${SCTP_PATCH} )}
-	${HPN_VER:+hpn? (
-		$(printf "mirror://sourceforge/project/hpnssh/Patches/${HPN_PATCH_DIR}/%s\n" "${HPN_PATCHES[@]}")
-		https://dev.gentoo.org/~chutzpah/dist/openssh/${HPN_GLUE_PATCH}.xz
-	)}
-	${X509_VER:+X509? (
-		https://roumenpetrov.info/openssh/x509-${X509_VER}/${X509_PATCH}
-		https://dev.gentoo.org/~chutzpah/dist/openssh/${X509_GLUE_PATCH}.xz
-		${HPN_VER:+hpn? ( https://dev.gentoo.org/~chutzpah/dist/openssh/${X509_HPN_GLUE_PATCH}.xz )}
-	)}
-	verify-sig? ( mirror://openbsd/OpenSSH/portable/${PARCH}.tar.gz.asc )
-"
+SRC_URI="
+	mirror://openbsd/OpenSSH/portable/${PARCH}.tar.gz
+	verify-sig? ( mirror://openbsd/OpenSSH/portable/${PARCH}.tar.gz.asc )"
 VERIFY_SIG_OPENPGP_KEY_PATH=${BROOT}/usr/share/openpgp-keys/openssh.org.asc
 S="${WORKDIR}/${PARCH}"
 
 LICENSE="BSD GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 # Probably want to drop ssl defaulting to on in a future version.
-IUSE="abi_mips_n32 audit debug hpn kerberos ldns libedit livecd pam +pie sctp security-key selinux +ssl static test X X509 xmss"
+IUSE="abi_mips_n32 audit debug kerberos ldns libedit livecd pam +pie security-key selinux +ssl static test X xmss"
 
 RESTRICT="!test? ( test )"
 
 REQUIRED_USE="
-	hpn? ( ssl )
 	ldns? ( ssl )
 	pie? ( !static )
 	static? ( !kerberos !pam )
-	X509? ( !sctp ssl !xmss )
 	xmss? ( ssl  )
 	test? ( ssl )
 "
@@ -69,16 +36,13 @@ REQUIRED_USE="
 # tests currently fail with XMSS
 REQUIRED_USE+="test? ( !xmss )"
 
-# Blocker on older gcc-config for bug #872416
 LIB_DEPEND="
-	!<sys-devel/gcc-config-2.6
 	audit? ( sys-process/audit[static-libs(+)] )
 	ldns? (
 		net-libs/ldns[static-libs(+)]
 		net-libs/ldns[ecdsa(+),ssl(+)]
 	)
 	libedit? ( dev-libs/libedit:=[static-libs(+)] )
-	sctp? ( net-misc/lksctp-tools[static-libs(+)] )
 	security-key? ( >=dev-libs/libfido2-1.5.0:=[static-libs(+)] )
 	selinux? ( >=sys-libs/libselinux-1.28[static-libs(+)] )
 	ssl? ( >=dev-libs/openssl-1.1.1l-r1:0=[static-libs(+)] )
@@ -98,6 +62,7 @@ DEPEND="${RDEPEND}
 	static? ( ${LIB_DEPEND} )
 "
 RDEPEND="${RDEPEND}
+	!net-misc/openssh-contrib
 	pam? ( >=sys-auth/pambase-20081028 )
 	!prefix? ( sys-apps/shadow )
 	X? ( x11-apps/xauth )
@@ -116,31 +81,41 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}/${PN}-7.9_p1-include-stdlib.patch"
-	"${FILESDIR}/${PN}-8.7_p1-GSSAPI-dns.patch" #165444 integrated into gsskex
-	"${FILESDIR}/${PN}-6.7_p1-openssl-ignore-status.patch"
-	"${FILESDIR}/${PN}-7.5_p1-disable-conch-interop-tests.patch"
-	"${FILESDIR}/${PN}-8.0_p1-fix-putty-tests.patch"
+	"${FILESDIR}/${PN}-9.3_p1-GSSAPI-dns.patch" #165444 integrated into gsskex
+	"${FILESDIR}/${PN}-9.3_p1-openssl-ignore-status.patch"
+	"${FILESDIR}/${PN}-9.3_p1-disable-conch-interop-tests.patch"
+	"${FILESDIR}/${PN}-9.3_p1-fix-putty-tests.patch"
 	"${FILESDIR}/${PN}-9.3_p1-deny-shmget-shmat-shmdt-in-preauth-privsep-child.patch"
-	"${FILESDIR}/${PN}-8.9_p1-allow-ppoll_time64.patch" #834019
-	"${FILESDIR}/${PN}-8.9_p1-gss-use-HOST_NAME_MAX.patch" #834044
+	"${FILESDIR}/${PN}-9.3_p1-gss-use-HOST_NAME_MAX.patch" #834044
 	"${FILESDIR}/${PN}-9.3_p1-openssl-version-compat-check.patch"
 )
 
 pkg_pretend() {
-	# this sucks, but i'd rather have people unable to `emerge -u openssh`
-	# than not be able to log in to their server any more
-	local missing=()
-	check_feature() { use "${1}" && [[ -z ${!2} ]] && missing+=( "${1}" ); }
-	check_feature hpn HPN_VER
-	check_feature sctp SCTP_PATCH
-	check_feature X509 X509_PATCH
-	if [[ ${#missing[@]} -ne 0 ]] ; then
-		eerror "Sorry, but this version does not yet support features"
-		eerror "that you requested: ${missing[*]}"
-		eerror "Please mask ${PF} for now and check back later:"
-		eerror " # echo '=${CATEGORY}/${PF}' >> /etc/portage/package.mask"
-		die "Missing requested third party patch."
+	local i enabled_eol_flags disabled_eol_flags
+	for i in hpn sctp X509; do
+		if has_version "net-misc/openssh[${i}]"; then
+			enabled_eol_flags+="${i},"
+			disabled_eol_flags+="-${i},"
+		fi
+	done
+
+	if [[ -n ${enabled_eol_flags} && ${OPENSSH_EOL_USE_FLAGS_I_KNOW_WHAT_I_AM_DOING} != yes ]]; then
+		ewarn "net-misc/openssh does not support USE='${enabled_eol_flags%,}' anymore."
+		ewarn "The Base system team *STRONGLY* recommends you not rely on this functionality,"
+		ewarn "since these USE flags required third-party patches that often trigger bugs"
+		ewarn "and are of questionable provenance."
+		ewarn
+		ewarn "If you must continue relying on this functionality, switch to"
+		ewarn "net-misc/openssh-contrib. You will have to remove net-misc/openssh from your"
+		ewarn "world file first: 'emerge --deselect net-misc/openssh'"
+		ewarn
+		ewarn "In order to prevent loss of SSH remote login access, we will abort the build."
+		ewarn "Whether you proceed with disabling the USE flags or switch to the -contrib"
+		ewarn "variant, when re-emerging you will have to set"
+		ewarn
+		ewarn "  OPENSSH_EOL_USE_FLAGS_I_KNOW_WHAT_I_AM_DOING=yes"
+
+		die "Building net-misc/openssh[${disabled_eol_flags%,}] without OPENSSH_EOL_USE_FLAGS_I_KNOW_WHAT_I_AM_DOING=yes"
 	fi
 
 	# Make sure people who are using tcp wrappers are notified of its removal. #531156
@@ -148,13 +123,6 @@ pkg_pretend() {
 		ewarn "Sorry, but openssh no longer supports tcp-wrappers, and it seems like"
 		ewarn "you're trying to use it.  Update your ${EROOT}/etc/hosts.{allow,deny} please."
 	fi
-}
-
-src_unpack() {
-	default
-
-	# We don't have signatures for HPN, X509, so we have to write this ourselves
-	use verify-sig && verify-sig_verify_detached "${DISTDIR}"/${PARCH}.tar.gz{,.asc}
 }
 
 src_prepare() {
@@ -169,107 +137,6 @@ src_prepare() {
 
 	[[ -d ${WORKDIR}/patches ]] && eapply "${WORKDIR}"/patches
 
-	local PATCHSET_VERSION_MACROS=()
-
-	if use X509 ; then
-		pushd "${WORKDIR}" &>/dev/null || die
-		eapply "${WORKDIR}/${X509_GLUE_PATCH}"
-		popd &>/dev/null || die
-
-		eapply "${WORKDIR}"/${X509_PATCH%.*}
-		eapply "${FILESDIR}/${PN}-9.0_p1-X509-uninitialized-delay.patch"
-
-		# We need to patch package version or any X.509 sshd will reject our ssh client
-		# with "userauth_pubkey: could not parse key: string is too large [preauth]"
-		# error
-		einfo "Patching package version for X.509 patch set ..."
-		sed -i \
-			-e "s/^AC_INIT(\[OpenSSH\], \[Portable\]/AC_INIT([OpenSSH], [${X509_VER}]/" \
-			"${S}"/configure.ac || die "Failed to patch package version for X.509 patch"
-
-		einfo "Patching version.h to expose X.509 patch set ..."
-		sed -i \
-			-e "/^#define SSH_PORTABLE.*/a #define SSH_X509               \"-PKIXSSH-${X509_VER}\"" \
-			"${S}"/version.h || die "Failed to sed-in X.509 patch version"
-		PATCHSET_VERSION_MACROS+=( 'SSH_X509' )
-	fi
-
-	if use sctp ; then
-		eapply "${WORKDIR}"/${SCTP_PATCH%.*}
-
-		einfo "Patching version.h to expose SCTP patch set ..."
-		sed -i \
-			-e "/^#define SSH_PORTABLE/a #define SSH_SCTP        \"-sctp-${SCTP_VER}\"" \
-			"${S}"/version.h || die "Failed to sed-in SCTP patch version"
-		PATCHSET_VERSION_MACROS+=( 'SSH_SCTP' )
-
-		einfo "Disabling known failing test (cfgparse) caused by SCTP patch ..."
-		sed -i \
-			-e "/\t\tcfgparse \\\/d" \
-			"${S}"/regress/Makefile || die "Failed to disable known failing test (cfgparse) caused by SCTP patch"
-	fi
-
-	if use hpn ; then
-		local hpn_patchdir="${T}/${P}-hpn${HPN_VER}"
-		mkdir "${hpn_patchdir}" || die
-		cp $(printf -- "${DISTDIR}/%s\n" "${HPN_PATCHES[@]}") "${hpn_patchdir}" || die
-		pushd "${hpn_patchdir}" &>/dev/null || die
-		eapply "${WORKDIR}/${HPN_GLUE_PATCH}"
-		use X509 && eapply "${WORKDIR}/${X509_HPN_GLUE_PATCH}"
-		use sctp && eapply "${FILESDIR}"/${PN}-8.5_p1-hpn-${HPN_VER}-sctp-glue.patch
-		popd &>/dev/null || die
-
-		eapply "${hpn_patchdir}"
-
-		use X509 || eapply "${FILESDIR}/openssh-8.6_p1-hpn-version.patch"
-
-		einfo "Patching Makefile.in for HPN patch set ..."
-		sed -i \
-			-e "/^LIBS=/ s/\$/ -lpthread/" \
-			"${S}"/Makefile.in || die "Failed to patch Makefile.in"
-
-		einfo "Patching version.h to expose HPN patch set ..."
-		sed -i \
-			-e "/^#define SSH_PORTABLE/a #define SSH_HPN         \"-hpn${HPN_VER//./v}\"" \
-			"${S}"/version.h || die "Failed to sed-in HPN patch version"
-		PATCHSET_VERSION_MACROS+=( 'SSH_HPN' )
-
-		if [[ -n "${HPN_DISABLE_MTAES}" ]] ; then
-			einfo "Disabling known non-working MT AES cipher per default ..."
-
-			cat > "${T}"/disable_mtaes.conf <<- EOF
-
-			# HPN's Multi-Threaded AES CTR cipher is currently known to be broken
-			# and therefore disabled per default.
-			DisableMTAES yes
-			EOF
-			sed -i \
-				-e "/^#HPNDisabled.*/r ${T}/disable_mtaes.conf" \
-				"${S}"/sshd_config || die "Failed to disabled MT AES ciphers in sshd_config"
-
-			sed -i \
-				-e "/AcceptEnv.*_XXX_TEST$/a \\\tDisableMTAES\t\tyes" \
-				"${S}"/regress/test-exec.sh || die "Failed to disable MT AES ciphers in test config"
-		fi
-	fi
-
-	if use X509 || use sctp || use hpn ; then
-		einfo "Patching sshconnect.c to use SSH_RELEASE in send_client_banner() ..."
-		sed -i \
-			-e "s/PROTOCOL_MAJOR_2, PROTOCOL_MINOR_2, SSH_VERSION/PROTOCOL_MAJOR_2, PROTOCOL_MINOR_2, SSH_RELEASE/" \
-			"${S}"/sshconnect.c || die "Failed to patch send_client_banner() to use SSH_RELEASE (sshconnect.c)"
-
-		einfo "Patching sshd.c to use SSH_RELEASE in sshd_exchange_identification() ..."
-		sed -i \
-			-e "s/PROTOCOL_MAJOR_2, PROTOCOL_MINOR_2, SSH_VERSION/PROTOCOL_MAJOR_2, PROTOCOL_MINOR_2, SSH_RELEASE/" \
-			"${S}"/sshd.c || die "Failed to patch sshd_exchange_identification() to use SSH_RELEASE (sshd.c)"
-
-		einfo "Patching version.h to add our patch sets to SSH_RELEASE ..."
-		sed -i \
-			-e "s/^#define SSH_RELEASE.*/#define SSH_RELEASE     SSH_VERSION SSH_PORTABLE ${PATCHSET_VERSION_MACROS[*]}/" \
-			"${S}"/version.h || die "Failed to patch SSH_RELEASE (version.h)"
-	fi
-
 	eapply_user #473004
 
 	# These tests are currently incompatible with PORTAGE_TMPDIR/sandbox
@@ -283,11 +150,6 @@ src_prepare() {
 		-e 's:-D_FORTIFY_SOURCE=2::'
 	)
 
-	# The -ftrapv flag ICEs on hppa #505182
-	use hppa && sed_args+=(
-		-e '/CFLAGS/s:-ftrapv:-fdisable-this-test:'
-		-e '/OSSH_CHECK_CFLAG_LINK.*-ftrapv/d'
-	)
 	# _XOPEN_SOURCE causes header conflicts on Solaris
 	[[ ${CHOST} == *-solaris* ]] && sed_args+=(
 		-e 's/-D_XOPEN_SOURCE//'
@@ -323,20 +185,17 @@ src_configure() {
 		--datadir="${EPREFIX}"/usr/share/openssh
 		--with-privsep-path="${EPREFIX}"/var/empty
 		--with-privsep-user=sshd
+		--with-hardening
 		$(use_with audit audit linux)
 		$(use_with kerberos kerberos5 "${EPREFIX}"/usr)
-		# We apply the sctp patch conditionally, so can't pass --without-sctp
-		# unconditionally else we get unknown flag warnings.
-		$(use sctp && use_with sctp)
 		$(use_with ldns)
 		$(use_with libedit)
 		$(use_with pam)
 		$(use_with pie)
 		$(use_with selinux)
-		$(usex X509 '' "$(use_with security-key security-key-builtin)")
+		$(use_with security-key security-key-builtin)
 		$(use_with ssl openssl)
 		$(use_with ssl ssl-engine)
-		$(use_with !elibc_Cygwin hardening) #659210
 	)
 
 	if use elibc_musl; then
@@ -380,39 +239,55 @@ tweak_ssh_configs() {
 		LANGUAGE LC_ADDRESS LC_IDENTIFICATION LC_MEASUREMENT LC_NAME LC_PAPER LC_TELEPHONE
 	)
 
-	# First the server config.
-	cat <<-EOF >> "${ED}"/etc/ssh/sshd_config
-
-	# Allow client to pass locale environment variables. #367017
-	AcceptEnv ${locale_vars[*]}
-
-	# Allow client to pass COLORTERM to match TERM. #658540
-	AcceptEnv COLORTERM
+	dodir /etc/ssh/ssh_config.d /etc/ssh/sshd_config.d
+	cat <<-EOF >> "${ED}"/etc/ssh/ssh_config || die
+	Include "${EPREFIX}/etc/ssh/ssh_config.d/*.conf"
+	EOF
+	cat <<-EOF >> "${ED}"/etc/ssh/sshd_config || die
+	Include "${EPREFIX}/etc/ssh/sshd_config.d/*.conf"
 	EOF
 
-	# Then the client config.
-	cat <<-EOF >> "${ED}"/etc/ssh/ssh_config
-
-	# Send locale environment variables. #367017
+	cat <<-EOF >> "${ED}"/etc/ssh/ssh_config.d/9999999gentoo.conf || die
+	# Send locale environment variables (bug #367017)
 	SendEnv ${locale_vars[*]}
 
-	# Send COLORTERM to match TERM. #658540
+	# Send COLORTERM to match TERM (bug #658540)
 	SendEnv COLORTERM
 	EOF
 
+	cat <<-EOF >> "${ED}"/etc/ssh/ssh_config.d/9999999gentoo-security.conf || die
+	RevokedHostKeys "${EPREFIX}/etc/ssh/ssh_revoked_hosts"
+	EOF
+
+	cat <<-EOF >> "${ED}"/etc/ssh/ssh_revoked_hosts || die
+	# https://github.blog/2023-03-23-we-updated-our-rsa-ssh-host-key/
+	ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==
+	EOF
+
+	cat <<-EOF >> "${ED}"/etc/ssh/sshd_config.d/9999999gentoo.conf || die
+	# Allow client to pass locale environment variables (bug #367017)
+	AcceptEnv ${locale_vars[*]}
+
+	# Allow client to pass COLORTERM to match TERM (bug #658540)
+	AcceptEnv COLORTERM
+	EOF
+
 	if use pam ; then
-		sed -i \
-			-e "/^#UsePAM /s:.*:UsePAM yes:" \
-			-e "/^#PasswordAuthentication /s:.*:PasswordAuthentication no:" \
-			-e "/^#PrintMotd /s:.*:PrintMotd no:" \
-			-e "/^#PrintLastLog /s:.*:PrintLastLog no:" \
-			"${ED}"/etc/ssh/sshd_config || die
+		cat <<-EOF >> "${ED}"/etc/ssh/sshd_config.d/9999999gentoo-pam.conf || die
+		UsePAM yes
+		# This interferes with PAM.
+		PasswordAuthentication no
+		# PAM can do its own handling of MOTD.
+		PrintMotd no
+		PrintLastLog no
+		EOF
 	fi
 
 	if use livecd ; then
-		sed -i \
-			-e '/^#PermitRootLogin/c# Allow root login with password on livecds.\nPermitRootLogin Yes' \
-			"${ED}"/etc/ssh/sshd_config || die
+		cat <<-EOF >> "${ED}"/etc/ssh/sshd_config.d/9999999gentoo-livecd.conf || die
+		# Allow root login with password on livecds.
+		PermitRootLogin Yes
+		EOF
 	fi
 }
 
@@ -420,6 +295,8 @@ src_install() {
 	emake install-nokeys DESTDIR="${D}"
 	fperms 600 /etc/ssh/sshd_config
 	dobin contrib/ssh-copy-id
+	newinitd "${FILESDIR}"/sshd-r1.initd sshd
+	newconfd "${FILESDIR}"/sshd-r1.confd sshd
 
 	if use pam; then
 		newpamd "${FILESDIR}"/sshd.pam_include.2 sshd
@@ -428,9 +305,7 @@ src_install() {
 	tweak_ssh_configs
 
 	doman contrib/ssh-copy-id.1
-	dodoc CREDITS OVERVIEW README* TODO sshd_config
-	use hpn && dodoc HPN-README
-	use X509 || dodoc ChangeLog
+	dodoc ChangeLog CREDITS OVERVIEW README* TODO sshd_config
 
 	diropts -m 0700
 	dodir /etc/skel/.ssh
@@ -500,17 +375,5 @@ pkg_postinst() {
 		elog "Be aware that by disabling openssl support in openssh, the server and clients"
 		elog "no longer support dss/rsa/ecdsa keys.  You will need to generate ed25519 keys"
 		elog "and update all clients/servers that utilize them."
-	fi
-
-	if use hpn && [[ -n "${HPN_DISABLE_MTAES}" ]] ; then
-		elog ""
-		elog "HPN's multi-threaded AES CTR cipher is currently known to be broken"
-		elog "and therefore disabled at runtime per default."
-		elog "Make sure your sshd_config is up to date and contains"
-		elog ""
-		elog "  DisableMTAES yes"
-		elog ""
-		elog "Otherwise you maybe unable to connect to this sshd using any AES CTR cipher."
-		elog ""
 	fi
 }
