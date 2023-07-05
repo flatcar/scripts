@@ -1,9 +1,9 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{8..9} )
+PYTHON_COMPAT=( python3_{9..11} )
 PYTHON_REQ_USE="threads(+)"
 inherit python-single-r1 waf-utils multilib-minimal
 
@@ -13,11 +13,11 @@ SRC_URI="https://samba.org/ftp/pub/${PN}/${P}.tar.gz"
 
 LICENSE="LGPL-3"
 SLOT="0/${PV}"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 IUSE="doc ldap +lmdb python test"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}
-	test? ( python )"
+	test? ( lmdb python )"
 
 RESTRICT="!test? ( test )"
 
@@ -25,9 +25,9 @@ RDEPEND="
 	dev-libs/libbsd[${MULTILIB_USEDEP}]
 	dev-libs/popt[${MULTILIB_USEDEP}]
 	>=dev-util/cmocka-1.1.3[${MULTILIB_USEDEP}]
-	>=sys-libs/talloc-2.3.2[${MULTILIB_USEDEP}]
-	>=sys-libs/tdb-1.4.3[${MULTILIB_USEDEP}]
-	>=sys-libs/tevent-0.10.2[${MULTILIB_USEDEP}]
+	>=sys-libs/talloc-2.3.3[${MULTILIB_USEDEP}]
+	>=sys-libs/tdb-1.4.6[${MULTILIB_USEDEP}]
+	>=sys-libs/tevent-0.11.0[${MULTILIB_USEDEP}]
 	ldap? ( net-nds/openldap:= )
 	lmdb? ( >=dev-db/lmdb-0.9.16:=[${MULTILIB_USEDEP}] )
 	python? (
@@ -53,6 +53,8 @@ MULTILIB_WRAPPED_HEADERS=( /usr/include/pyldb.h )
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.5.2-optional_packages.patch
 	"${FILESDIR}"/${PN}-1.1.31-fix_PKGCONFIGDIR-when-python-disabled.patch
+	"${FILESDIR}"/${PN}-2.4.2-skip-32bit-time_t-tests.patch
+	"${FILESDIR}"/${PN}-2.5.2-skip-waf-tevent-check.patch
 )
 
 pkg_setup() {
