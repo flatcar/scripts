@@ -18,7 +18,6 @@ VALID_IMG_TYPES=(
     gce
     hyperv
     iso
-    niftycloud
     openstack
     openstack_mini
     packet
@@ -52,7 +51,6 @@ VALID_OEM_PACKAGES=(
     exoscale
     gce
     hyperv
-    niftycloud
     packet
     qemu
     rackspace
@@ -290,12 +288,6 @@ IMG_azure_OEM_SYSEXT=oem-azure
 ## hyper-v
 IMG_hyperv_DISK_FORMAT=vhd
 IMG_hyperv_OEM_PACKAGE=oem-hyperv
-
-## niftycloud
-IMG_niftycloud_DISK_FORMAT=vmdk_stream
-IMG_niftycloud_DISK_LAYOUT=vm
-IMG_niftycloud_CONF_FORMAT=niftycloud
-IMG_niftycloud_OEM_PACKAGE=oem-niftycloud
 
 ## cloudsigma
 IMG_cloudsigma_DISK_FORMAT=qcow2
@@ -1112,26 +1104,6 @@ _write_gce_conf() {
     mv "${VM_DST_IMG}" "${VM_TMP_DIR}/disk.raw"
     tar -czf "${tar_path}" -C "${VM_TMP_DIR}" "disk.raw"
     VM_GENERATED_FILES=( "${tar_path}" )
-}
-
-_write_niftycloud_conf() {
-    local vm_mem="${1:-$(_get_vm_opt MEM)}"
-    local src_name=$(basename "$VM_SRC_IMG")
-    local dst_name=$(basename "$VM_DST_IMG")
-    local ovf="$(_dst_dir)/$(_src_to_dst_name "${src_name}" ".ovf")"
-
-    "${BUILD_LIBRARY_DIR}/niftycloud_ovf.sh" \
-            --vm_name "$VM_NAME" \
-            --disk_vmdk "$VM_DST_IMG" \
-            --memory_size "$vm_mem" \
-            --output_ovf "$ovf"
-
-    local ovf_name=$(basename "${ovf}")
-    cat > "${VM_README}" <<EOF
-Import ${ovf_name} and ${dst_name} to NIFTY Cloud.
-EOF
-
-    VM_GENERATED_FILES+=( "$ovf" )
 }
 
 _write_ovf_vmware_conf() {

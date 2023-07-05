@@ -1,4 +1,4 @@
-From 31b8b62de7c0b617d03fc85b7190fb99048d941f Mon Sep 17 00:00:00 2001
+From 8e7ad5ef7ea79d541d8f960f2647a5cd17e72751 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Wed, 21 Dec 2022 17:25:02 +0100
 Subject: [PATCH 18/21] revert: internal/oem: drop noop OEMs
@@ -7,11 +7,11 @@ This reverts: https://github.com/coreos/ignition/commit/26828f92e00060aa8ebf2197
 
 Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 ---
- internal/platform/platform.go | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ internal/platform/platform.go | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
 diff --git a/internal/platform/platform.go b/internal/platform/platform.go
-index 51bf5174..64f6d364 100644
+index 51bf5174..5ed36663 100644
 --- a/internal/platform/platform.go
 +++ b/internal/platform/platform.go
 @@ -132,6 +132,10 @@ func init() {
@@ -36,18 +36,7 @@ index 51bf5174..64f6d364 100644
  	configs.Register(Config{
  		name:  "ibmcloud",
  		fetch: ibmcloud.FetchConfig,
-@@ -164,6 +172,10 @@ func init() {
- 		name:  "metal",
- 		fetch: noop.FetchConfig,
- 	})
-+	configs.Register(Config{
-+		name:  "niftycloud",
-+		fetch: noop.FetchConfig,
-+	})
- 	configs.Register(Config{
- 		name:  "nutanix",
- 		fetch: nutanix.FetchConfig,
-@@ -185,6 +197,18 @@ func init() {
+@@ -185,6 +193,18 @@ func init() {
  		name:  "qemu",
  		fetch: qemu.FetchConfig,
  	})
