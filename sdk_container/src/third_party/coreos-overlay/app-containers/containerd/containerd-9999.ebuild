@@ -13,7 +13,7 @@ if [[ ${PV} == *9999 ]]; then
 else
 	MY_PV="${PV/_rc/-rc.}"
 	EGIT_COMMIT="v${MY_PV}"
-	CONTAINERD_COMMIT="66c1fbccbaaac631b77184b7957e67fea4cf45ab"
+	CONTAINERD_COMMIT="d6d1c83955ed62e2833bd470453e0449a3164e7f"
 	SRC_URI="https://${GITHUB_URI}/archive/${EGIT_COMMIT}.tar.gz -> ${P}.tar.gz"
 	KEYWORDS="amd64 arm64"
 	inherit vcs-snapshot
