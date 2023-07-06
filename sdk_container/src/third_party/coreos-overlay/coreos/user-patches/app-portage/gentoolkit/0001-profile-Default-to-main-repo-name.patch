@@ -1,4 +1,4 @@
-From e40cd8c76bee4f7c108c1066d60aaf5d8c3adede Mon Sep 17 00:00:00 2001
+From b8396c72055ecc90b1a0e824b517a50cee9a843c Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Thu, 8 Dec 2022 16:25:39 +0100
 Subject: [PATCH] profile: Default to main repo name
@@ -11,42 +11,44 @@ Signed-off-by: Krzesimir Nowak <knowak@microsoft.com>
 Closes: https://github.com/gentoo/gentoolkit/pull/24
 Signed-off-by: Sam James <sam@gentoo.org>
 ---
- pym/gentoolkit/profile.py | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ pym/gentoolkit/profile.py | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
 diff --git a/pym/gentoolkit/profile.py b/pym/gentoolkit/profile.py
-index dcd02cc..c880137 100644
+index f6943be..7469138 100644
 --- a/pym/gentoolkit/profile.py
 +++ b/pym/gentoolkit/profile.py
-@@ -23,19 +23,26 @@ def warning(msg):
- 	print('warning: %s' % msg, file=sys.stderr)
+@@ -21,21 +21,26 @@ def warning(msg):
+     print("warning: %s" % msg, file=sys.stderr)
  
  
--def load_profile_data(portdir=None, repo='gentoo'):
-+def load_profile_data(portdir=None, repo=''):
- 	"""Load the list of known arches from the tree
+-def load_profile_data(portdir=None, repo="gentoo"):
++def load_profile_data(portdir=None, repo=""):
+     """Load the list of known arches from the tree
  
- 	Args:
- 	  portdir: The repository to load all data from (and ignore |repo|)
--	  repo: Look up this repository by name to locate profile data
-+	  repo: Look up this repository by name to locate profile data (if empty, uses main repo name)
+     Args:
+       portdir: The repository to load all data from (and ignore |repo|)
+-      repo: Look up this repository by name to locate profile data
++      repo: Look up this repository by name to locate profile data (if empty, uses main repo name)
  
- 	Returns:
- 	  A dict mapping the keyword to its preferred state:
- 	  {'x86': ('stable', 'arch'), 'mips': ('dev', '~arch'), ...}
- 	"""
- 	if portdir is None:
--		portdir = portage.db[portage.root]['vartree'].settings.repositories[repo].location
-+		repos = portage.db[portage.root]["vartree"].settings.repositories
-+		if repo == "":
-+			main_repo = repos.mainRepo()
-+			if main_repo is None:
-+				repo = "gentoo"
-+			else:
-+				repo = main_repo.name
-+		portdir = repos[repo].location
+     Returns:
+       A dict mapping the keyword to its preferred state:
+       {'x86': ('stable', 'arch'), 'mips': ('dev', '~arch'), ...}
+     """
+     if portdir is None:
+-        portdir = (
+-            portage.db[portage.root]["vartree"].settings.repositories[repo].location
+-        )
++        repos = portage.db[portage.root]["vartree"].settings.repositories
++        if repo == "":
++            main_repo = repos.mainRepo()
++            if main_repo is None:
++                repo = "gentoo"
++            else:
++                repo = main_repo.name
++        portdir = repos[repo].location
  
- 	arch_status = {}
+     arch_status = {}
  
 -- 
 2.25.1
