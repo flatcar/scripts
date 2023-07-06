@@ -59,7 +59,7 @@ RESTRICT="binchecks strip"
 # source name is linux-firmware, not coreos-firmware
 S="${WORKDIR}/linux-firmware-${PV}"
 
-CXGB_VERSION="1.27.1.0"
+CXGB_VERSION="1.27.3.0"
 ICE_DDP_VERSION="1.3.30.0"
 
 src_unpack() {
