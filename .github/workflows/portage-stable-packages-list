@@ -90,6 +90,7 @@ app-crypt/libb2
 app-crypt/libmd
 app-crypt/mit-krb5
 app-crypt/pinentry
+app-crypt/rhash
 
 app-editors/nano
 app-editors/vim
@@ -389,7 +390,6 @@ sys-apps/portage
 sys-apps/pv
 sys-apps/sandbox
 sys-apps/sed
-sys-apps/semodule-utils
 sys-apps/smartmontools
 sys-apps/texinfo
 sys-apps/usbutils
@@ -432,6 +432,7 @@ sys-libs/ldb
 sys-libs/libcap
 sys-libs/libcap-ng
 sys-libs/libseccomp
+sys-libs/ncurses
 sys-libs/readline
 sys-libs/talloc
 sys-libs/tdb
@@ -440,8 +441,10 @@ sys-libs/zlib
 
 sys-process/tini
 
+virtual/libc
 virtual/libcrypt
 virtual/libelf
+virtual/os-headers
 virtual/perl-Carp
 virtual/perl-Exporter
 virtual/perl-ExtUtils-MakeMaker

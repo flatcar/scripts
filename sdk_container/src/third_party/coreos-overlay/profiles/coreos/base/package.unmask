@@ -1,3 +1,8 @@
+# Overwrite portage-stable mask. The regressions that this version of
+# ncurses caused are in Gentoo packages that we don't have in
+# Flatcar. And we need it for a security fix.
+=sys-libs/ncurses-6.4_p20230527
+
 # Overwrite portage-stable mask. We are delaying the transition to
 # libxcrypt, because we need to figure out how to solve the dep loop
 # that results from the migration (python -> virtual/libcrypt ->

@@ -28,9 +28,9 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
-KEYWORDS="~alpha ~amd64 ~arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc ~x86"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 IUSE="
-	bluetooth build debug +ensurepip examples gdbm hardened libedit lto
+	bluetooth build debug +ensurepip examples gdbm libedit lto
 	+ncurses pgo +readline +sqlite +ssl test tk valgrind +xml
 "
 RESTRICT="!test? ( test )"
@@ -66,7 +66,6 @@ RDEPEND="
 		dev-tcltk/tix
 	)
 	xml? ( >=dev-libs/expat-2.1:= )
-	!!<sys-apps/sandbox-2.21
 "
 # bluetooth requires headers from bluez
 DEPEND="

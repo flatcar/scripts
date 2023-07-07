@@ -9,14 +9,14 @@
 
 # Needed by arm64-native SDK.
 =app-crypt/efitools-1.9.2 ~arm64
-=app-crypt/rhash-1.4.2 ~arm64
 =app-emulation/open-vmdk-1.0 *
 
 # Keep versions on both arches in sync.
+=app-emulation/qemu-7.2.3 ~arm64
 =app-misc/pax-utils-1.3.7 ~amd64
 
 # Required for addressing CVE-2022-3715.
-=app-shells/bash-5.2_p15-r3 ~amd64 ~arm64
+=app-shells/bash-5.2_p15-r5 ~amd64 ~arm64
 
 # No keyword for arm64 yet.
 =coreos-devel/fero-client-0.1.1 **
@@ -24,9 +24,6 @@
 # Needed by arm64-native SDK.
 =dev-embedded/u-boot-tools-2021.04_rc2 ~arm64
 =dev-lang/nasm-2.15.05 ~arm64
-
-# Keep versions on both arches in sync.
-=dev-lang/python-3.10.12 ~amd64
 
 # Accept unstable host Rust compilers
 =dev-lang/rust-1.70.0-r1 ~amd64 ~arm64
@@ -36,7 +33,9 @@
 
 # Keep versions on both arches in sync.
 =dev-libs/ding-libs-0.6.1-r1 ~arm64
+=dev-libs/elfutils-0.189-r1 ~amd64
 =dev-libs/libgcrypt-1.10.1-r3 ~arm64
+=dev-libs/nettle-3.9.1 ~arm64
 =dev-util/bpftool-6.3 ~arm64
 
 # Keep versions on both arches in sync.
@@ -61,13 +60,14 @@
 =sys-apps/coreutils-9.3-r2 ~arm64
 =sys-apps/kexec-tools-2.0.24 ~arm64
 =sys-apps/policycoreutils-3.1-r4 ~arm64
-=sys-apps/sandbox-2.30-r1 ~arm64
+=sys-apps/sandbox-2.32 ~arm64
 =sys-apps/semodule-utils-3.1 ~arm64
 
 # Needed to force enable ipvsadm for arm64.
 =sys-cluster/ipvsadm-1.27-r1 **
 
 # Keep versions on both arches in sync.
+=sys-devel/binutils-2.40-r5 ~arm64
 =sys-firmware/edk2-aarch64-18.02 **
 
 # FIPS support is still being tested.
@@ -75,9 +75,13 @@
 
 # Keep versions on both arches in sync.
 =sys-fs/multipath-tools-0.9.5 ~amd64
+=sys-libs/binutils-libs-2.40-r5 ~arm64
 =sys-libs/libselinux-3.1-r3 ~arm64
 =sys-libs/libsemanage-3.1-r2 ~arm64
 =sys-libs/libsepol-3.1 ~arm64
+
+# Needed to fix CVE-2023-29491.
+=sys-libs/ncurses-6.4_p20230527 ~amd64 ~arm64
 
 # A dependency of app-shells/bash version that we need for security
 # fixes.

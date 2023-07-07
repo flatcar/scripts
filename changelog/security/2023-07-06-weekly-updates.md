@@ -1,0 +1,2 @@
+- binutils ([CVE-2022-38533](https://nvd.nist.gov/vuln/detail/CVE-2022-38533), [CVE-2022-4285](https://nvd.nist.gov/vuln/detail/CVE-2022-4285), [CVE-2023-1579](https://nvd.nist.gov/vuln/detail/CVE-2023-1579), [CVE-2023-2222](https://nvd.nist.gov/vuln/detail/CVE-2023-2222))
+- ncurses ([CVE-2023-29491](https://nvd.nist.gov/vuln/detail/CVE-2023-29491))

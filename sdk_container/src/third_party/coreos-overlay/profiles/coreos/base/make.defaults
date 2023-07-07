@@ -13,9 +13,9 @@ USE_EXPAND="${USE_EXPAND} GO_VERSION"
 # Extra use flags for CoreOS SDK
 USE="${USE} cros_host expat -cracklib -introspection -cups -tcpd -berkdb"
 
-# Only net-analyzer/nmap uses lua and it's compatible only with lua5-3.
-LUA_SINGLE_TARGET="lua5-3"
-LUA_TARGETS="lua5-3"
+# Only net-analyzer/nmap uses lua and it's compatible only with lua5-4.
+LUA_SINGLE_TARGET="lua5-4"
+LUA_TARGETS="lua5-4"
 
 # Use Python 3 as the default version
 USE="${USE} -python_single_target_python2_7 python_single_target_python3_11"
