@@ -81,7 +81,7 @@ cros_pre_src_unpack_python_multilib_setup() {
 	[[ ${am_cv_python_version:+set} == "set" ]] && return
 
 	local py=${PYTHON:-python}
-	local py_ver=$(${py} -c 'import sys;sys.stdout.write(sys.version[:3])')
+	local py_ver=$(${py} -c 'import sys;sys.stdout.write(sys.version[:4])')
 
 	export am_cv_python_version=${py_ver}
 	export am_cv_python_pythondir="\${libdir}/python${py_ver}/site-packages"
