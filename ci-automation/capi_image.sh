@@ -40,7 +40,9 @@ function setup_capi_params() {
   secret_to_file azure_auth_config_file "${AZURE_AUTH_CREDENTIALS}"
 
   FLATCAR_ARCH="amd64"
-  FLATCAR_CHANNEL="$(get_git_channel)"
+  # FLATCAR_CHANNEL="$(get_git_channel)"
+  FLATCAR_CHANNEL="stable"
+  FLATCAR_VERSION="3510.2.4"
   FLATCAR_AZURE_AUTH_CREDENTIALS="${AZURE_AUTH_CREDENTIALS}"
   PUBLISHING_SIG_RESOURCE_GROUP=${PUBLISHING_SIG_RESOURCE_GROUP:-flatcar-image-gallery-publishing}
   STAGING_SIG_RESOURCE_GROUP=${STAGING_SIG_RESOURCE_GROUP:-flatcar-image-gallery-staging}

@@ -9,7 +9,7 @@ tracestate="$(shopt -po xtrace || true)"
 set +o xtrace
 
 FLATCAR_AZURE_AUTH_CREDENTIALS=${FLATCAR_AZURE_AUTH_CREDENTIALS:-$HOME/.azure/credentials.json}
-if [[ -f "${FLATCAR_CREDENTIALS}" ]] && [[ -z "${AZURE_CLIENT_ID}"]] && [[ -z "${AZURE_CLIENT_SECRET}"]]; then
+if [ -f "${FLATCAR_AZURE_AUTH_CREDENTIALS}" ] && [ -z "${AZURE_CLIENT_ID}"] && [ -z "${AZURE_CLIENT_SECRET}" ]; then
   AZURE_CLIENT_ID=$(jq ".clientId" "${FLATCAR_AZURE_AUTH_CREDENTIALS}")
   AZURE_CLIENT_SECRET=$(jq ".clientSecret" "${FLATCAR_AZURE_AUTH_CREDENTIALS}")
 else
