@@ -14,7 +14,7 @@ SCRIPT_ROOT=$(dirname "$(readlink -f "$0")")
 assert_inside_chroot
 assert_root_user
 
-default_squashfs_template="$(readlink -f "${SCRIPT_ROOT}/../build/images")/<BOARD>/latest/${FLATCAR_PRODUCTION_IMAGE_SYSEXT_BASE}"
+default_imagedir="$(readlink -f "${SCRIPT_ROOT}/../build/images")/<BOARD>/latest/"
 
 # All these are used to set up the 'BUILD_DIR' variable
 DEFINE_string board "${DEFAULT_BOARD}" \
@@ -22,27 +22,29 @@ DEFINE_string board "${DEFAULT_BOARD}" \
 DEFINE_string metapkgs '' \
   "Comma-separated list of meta-packages to build from source and install into sysext image."
 DEFINE_string squashfs_base '' \
-  "The path to the squashfs base image. Defaults to the most current image built in '${default_squashfs_template}'."
+  "The path to the squashfs base image. Defaults to the most current image built in '${default_imagedir}/${FLATCAR_PRODUCTION_IMAGE_SYSEXT_BASE}'."
+DEFINE_string image_builddir '' \
+  "Custom directory to build the sysext in. Defaults to a 'sysext' sub-directory of the directory the squashfs base image resides in; '${default_imagedir}/sysext' by default."
 DEFINE_string manglefs_script '' \
   "A path to executable that will customize the rootfs of the sysext image."
 DEFINE_boolean ignore_version_mismatch "${FLAGS_FALSE}" \
   "Ignore version mismatch between SDK board packages and base squashfs. DANGEROUS."
 
-FLAGS_HELP="USAGE: build_sysext [flags] <build_dir> <sysext_name> <binary_package> [<binary_package> ...]
+FLAGS_HELP="USAGE: build_sysext [flags] <sysext_name> <binary_package> [<binary_package> ...]
 
 This script is used to build a Flatcar sysext image.
-The sysext will be based on an OS image build's sysext base squashfs, i.e. it is specific to a Flatcar build or release.
-The base squashfs can either come from a local build or a downloaded from an official release.
+The sysext will be based on an OS image build's sysext base squashfs, i.e. it is specific to
+a Flatcar build or release.
+The base squashfs can either come from a local build or downloaded from an official release.
+By default, the sysext will be built in a 'sysext' sub-dir of the directory the squashfs base image
+is in, but this can be changed with the --image_builddir option.
 
 Examples:
 
-Builds a sysext image named 'interpreters' in the 'images'
-sub-directory with 'dev-lang/python' and 'dev-lang/perl' packages for the
-most recent amd64 production image:
+Builds a sysext image named 'interpreters' with 'dev-lang/python' and 'dev-lang/perl' packages for the
+most recent production image (default architecture, likely amd64) in the defaut build directory:
 
 sudo build_sysext \\
-     --board=amd64-usr \\
-     images \\
      interpreters dev-lang/python dev-lang/perl
 
 
@@ -55,12 +57,11 @@ sudo build_sysext \\
      --metapkgs=coreos-base/oem-azure \\
      --mangle_fs=sdk_container/src/third_party/coreos-overlay/coreos-base/oem-azure/files/manglefs.sh \\
      --squashfs_base=build/artifacts/flatcar_production_image_sysext.squashfs \\
-     oem-images \\
+     --image_builddir=oem-images \\
      oem-azure
 
 
 Mandatory command line parameters:
-  <build_dir>       - build directory to build the sysext in. Must exist but should be empty.
   <sysext_name>     - name of the sysext output file.
   <binary_package>  - List of existing binary packages to install. Can be omitted if --metapkgs was specified.
 "
@@ -74,13 +75,6 @@ eval set -- "${FLAGS_ARGV}"
 
 # Validate command line parameters
 
-build_dir="${1:-}"
-if [[ ! -d "${build_dir}" ]]; then
-  die "Build directory not provided or directory does not exist."
-fi
-BUILD_DIR=$(realpath "${build_dir}")
-shift
-
 SYSEXTNAME="${1:-}"
 if [[ -z "${SYSEXTNAME}" ]]; then
   die "No sysext name provided."
@@ -93,6 +87,12 @@ fi
 if [[ ! -f "${FLAGS_squashfs_base}" ]] ; then
   die "Squashfs base '${FLAGS_squashfs_base}' not found."
 fi
+
+if [[ -z "${FLAGS_image_builddir}" ]]; then
+  FLAGS_image_builddir="$(dirname "${FLAGS_squashfs_base}")/sysext"
+fi
+BUILD_DIR=$(realpath "${FLAGS_image_builddir}")
+mkdir -p "${BUILD_DIR}"
 
 source "${BUILD_LIBRARY_DIR}/toolchain_util.sh" || exit 1
 source "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
@@ -160,6 +160,8 @@ if [[ ${#} -lt 1 ]]; then
    error 'No packages or meta packages to install.'
    show_help_if_requested -h
 fi
+
+info "Building '${SYSEXTNAME}' with (meta-)packages '${@}' in '${BUILD_DIR}'".
 
 for package; do
   echo "Installing package into sysext image: $package"
