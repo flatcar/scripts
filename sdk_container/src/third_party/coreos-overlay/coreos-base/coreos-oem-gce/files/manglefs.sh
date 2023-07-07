@@ -52,3 +52,6 @@ EOF
 # Don't bundle these paths, since they are useless to us.
 mv usr/lib/systemd/lib*.so* usr/lib64/
 rm -fr boot etc/* usr/lib/systemd var/db/pkg
+
+# Remove test stuff from python - it's quite large.
+rm -rf usr/lib/python*/test

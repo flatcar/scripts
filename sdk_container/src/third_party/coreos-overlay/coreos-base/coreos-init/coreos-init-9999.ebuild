@@ -14,7 +14,7 @@ else
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
-PYTHON_COMPAT=( python3_{6..10} )
+PYTHON_COMPAT=( python3_{6..11} )
 
 inherit cros-workon systemd python-any-r1
 

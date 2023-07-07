@@ -17,6 +17,6 @@
 # libxcrypt -> glibc -> python).
 >=virtual/libcrypt-2
 
-# Python 3.11 is stable in portage-stable, so avoid picking it
+# Python 3.12 is in portage-stable (currently testing), so avoid picking it
 # up. Update this to mask later versions when we switch to 3.11.
->=dev-lang/python-3.11
+>=dev-lang/python-3.12
