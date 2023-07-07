@@ -53,6 +53,12 @@ function setup_capi_params() {
 }
 
 function _capi_image_build_impl() {
+    PUBLISHING_SIG_RESOURCE_GROUP="sayan-flatcar-image-gallery-publishing"
+    STAGING_SIG_RESOURCE_GROUP="sayan-flatcar-image-gallery-staging"
+    FLATCAR_GALLERY_NAME="sayan_flatcar"
+    FLATCAR_STAGING_GALLERY_NAME="sayan-flatcar_staging"
+    FLATCAR_CAPI_GALLERY_NAME="sayan_flatcar4capi"
+    FLATCAR_CAPI_STAGING_GALLERY_NAME="sayan_flatcar4capi_staging"
     for arch in amd64
     do
       setup_capi_params
@@ -69,6 +75,12 @@ function _capi_image_build_impl() {
 }
 
 function _capi_image_publish_impl() {
+    PUBLISHING_SIG_RESOURCE_GROUP="sayan-flatcar-image-gallery-publishing"
+    STAGING_SIG_RESOURCE_GROUP="sayan-flatcar-image-gallery-staging"
+    FLATCAR_GALLERY_NAME="sayan_flatcar"
+    FLATCAR_STAGING_GALLERY_NAME="sayan-flatcar_staging"
+    FLATCAR_CAPI_GALLERY_NAME="sayan_flatcar4capi"
+    FLATCAR_CAPI_STAGING_GALLERY_NAME="sayan_flatcar4capi_staging"
     for arch in amd64
     do
       setup_capi_params
