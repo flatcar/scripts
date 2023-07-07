@@ -625,26 +625,12 @@ finish_image() {
   local install_grub=0
   local disk_img="${BUILD_DIR}/${image_name}"
 
-  # Copy in packages from the torcx store that are marked as being on disk
-  if [ -n "${FLAGS_torcx_manifest}" ]; then
-    for pkg in $(torcx_manifest::get_pkg_names "${FLAGS_torcx_manifest}"); do
-      local default_version="$(torcx_manifest::default_version "${FLAGS_torcx_manifest}" "${pkg}")"
-      for version in $(torcx_manifest::get_versions "${FLAGS_torcx_manifest}" "${pkg}"); do
-        local on_disk_path="$(torcx_manifest::local_store_path "${FLAGS_torcx_manifest}" "${pkg}" "${version}")"
-        if [[ -n "${on_disk_path}" ]]; then
-          local casDigest="$(torcx_manifest::get_digest "${FLAGS_torcx_manifest}" "${pkg}" "${version}")"
-          sudo cp "${FLAGS_torcx_root}/pkgs/${BOARD}/${pkg}/${casDigest}/${pkg}:${version}.torcx.tgz" \
-            "${root_fs_dir}${on_disk_path}"
-          sudo tar xf "${root_fs_dir}${on_disk_path}" -C "${root_fs_dir}" --wildcards "./usr/share/SLSA"
-          if [[ "${version}" == "${default_version}" ]]; then
-            # Create the default symlink for this package
-            sudo ln -fns "${on_disk_path##*/}" \
-              "${root_fs_dir}/${on_disk_path%/*}/${pkg}:com.coreos.cl.torcx.tgz"
-          fi
-        fi
-      done
-    done
-  fi
+# Ship the docker systemd-sysext image and rip out torcx in same go; TODO: create seperate sysext images for containerd and docker
+  emerge-"${FLAGS_board}" app-containers/docker
+  sudo "$(dirname ${BASH_SOURCE[0]})/../build_sysext" --board="${BOARD}" --build_dir=${BUILD_DIR} --squashfs_base="${BUILD_DIR}/${image_sysext_base}" --manglefs_script="$(dirname ${BASH_SOURCE[0]})/../manglefs_docker" docker-flatcar app-containers/docker
+  sudo install -m 0644 -D "${BUILD_DIR}/docker-flatcar.raw" "${root_fs_dir}"/usr/share/flatcar/
+  sudo mkdir -p "${root_fs_dir}"/etc/extensions/·
+  sudo ln -sf /usr/share/flatcar/docker-flatcar.raw "${root_fs_dir}"/etc/extensions/docker-flatcar.raw
 
   # Only enable rootfs verification on prod builds.
   local disable_read_write="${FLAGS_FALSE}"

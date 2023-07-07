@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -euo pipefail
+rootfs="${1}"
+
+# docker:
+mkdir -p "${rootfs}/usr/lib/systemd/system/sockets.target.d"
+{ echo "[Unit]"; echo "Upholds=docker.socket"; } > "${rootfs}/usr/lib/systemd/system/sockets.target.d/10-docker-socket.conf"
+# containerd:
+mkdir -p "${rootfs}/usr/lib/systemd/system/multi-user.target.d"
+{ echo "[Unit]"; echo "Upholds=containerd.service"; } > "${rootfs}/usr/lib/systemd/system/multi-user.target.d/10-containerd-service.conf"

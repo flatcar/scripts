@@ -95,7 +95,6 @@ RDEPEND="${RDEPEND}
 	app-arch/xz-utils
 	app-arch/zstd
 	app-arch/tar
-	app-arch/torcx
 	app-arch/unzip
 	app-arch/zip
 	app-arch/ncompress
