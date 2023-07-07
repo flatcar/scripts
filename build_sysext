@@ -14,42 +14,56 @@ SCRIPT_ROOT=$(dirname "$(readlink -f "$0")")
 assert_inside_chroot
 assert_root_user
 
+default_imagedir="$(readlink -f "${SCRIPT_ROOT}/../build/images")/<BOARD>/latest/"
+
 # All these are used to set up the 'BUILD_DIR' variable
 DEFINE_string board "${DEFAULT_BOARD}" \
   "The board to build a sysext for."
-DEFINE_string build_dir '' \
-  "Directory used for building the sysext image, must exist, but should be empty."
 DEFINE_string metapkgs '' \
   "Comma-separated list of meta-packages to build from source and install into sysext image."
+DEFINE_string squashfs_base '' \
+  "The path to the squashfs base image. Defaults to the most current image built in '${default_imagedir}/${FLATCAR_PRODUCTION_IMAGE_SYSEXT_BASE}'."
+DEFINE_string image_builddir '' \
+  "Custom directory to build the sysext in. Defaults to a 'sysext' sub-directory of the directory the squashfs base image resides in; '${default_imagedir}/sysext' by default."
 DEFINE_string manglefs_script '' \
   "A path to executable that will customize the rootfs of the sysext image."
-DEFINE_string squashfs_base '' \
-  "The path to the squashfs base image."
+DEFINE_boolean ignore_version_mismatch "${FLAGS_FALSE}" \
+  "Ignore version mismatch between SDK board packages and base squashfs. DANGEROUS."
 
-FLAGS_HELP="USAGE: build_sysext [flags] [sysext name] [binary packages to install into image].
+FLAGS_HELP="USAGE: build_sysext [flags] <sysext_name> <binary_package> [<binary_package> ...]
 
 This script is used to build a Flatcar sysext image.
+The sysext will be based on an OS image build's sysext base squashfs, i.e. it is specific to
+a Flatcar build or release.
+The base squashfs can either come from a local build or downloaded from an official release.
+By default, the sysext will be built in a 'sysext' sub-dir of the directory the squashfs base image
+is in, but this can be changed with the --image_builddir option.
 
 Examples:
 
-Builds a sysext image named interpreters in the images
-directory with dev-lang/python and dev-lang/perl packages for amd64:
+Builds a sysext image named 'interpreters' with 'dev-lang/python' and 'dev-lang/perl' packages for the
+most recent production image (default architecture, likely amd64) in the defaut build directory:
 
-sudo build_sysext \
-     --board=amd64-usr \
-     --build_dir=images \
+sudo build_sysext \\
      interpreters dev-lang/python dev-lang/perl
 
-Builds a sysext image named oem-azure in the oem-images directory with
-metapackage coreos-base/oem-azure for arm64:
 
-sudo build_sysext \
-     --board=arm64-usr \
-     --build_dir=oem-images \
-     --metapkgs=coreos-base/oem-azure \
-     --mangle_fs=…/coreos-base/oem-azure/files/manglefs.sh \
+Builds a sysext image named 'oem-azure' in the 'oem-images' sub-directory with
+metapackage 'coreos-base/oem-azure' for the arm64 squashfs base at
+'build/artifacts/flatcar_production_image_sysext.squashfs':
+
+sudo build_sysext \\
+     --board=arm64-usr \\
+     --metapkgs=coreos-base/oem-azure \\
+     --mangle_fs=sdk_container/src/third_party/coreos-overlay/coreos-base/oem-azure/files/manglefs.sh \\
+     --squashfs_base=build/artifacts/flatcar_production_image_sysext.squashfs \\
+     --image_builddir=oem-images \\
      oem-azure
 
+
+Mandatory command line parameters:
+  <sysext_name>     - name of the sysext output file.
+  <binary_package>  - List of existing binary packages to install. Can be omitted if --metapkgs was specified.
 "
 
 show_help_if_requested "$@"
@@ -59,14 +73,30 @@ FLAGS "$@" || exit 1
 
 eval set -- "${FLAGS_ARGV}"
 
-source "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
-source "${BUILD_LIBRARY_DIR}/reports_util.sh" || exit 1
+# Validate command line parameters
 
-if [[ -z "${FLAGS_build_dir}" ]]; then
-  die "Need a build directory to be specified with a --build_dir option"
+SYSEXTNAME="${1:-}"
+if [[ -z "${SYSEXTNAME}" ]]; then
+  die "No sysext name provided."
+fi
+shift
+
+if [[ -z "$FLAGS_squashfs_base" ]] ; then
+  FLAGS_squashfs_base="$(readlink -f "${SCRIPT_ROOT}/../build/images/${FLAGS_board}/latest/${FLATCAR_PRODUCTION_IMAGE_SYSEXT_BASE}")"
+fi
+if [[ ! -f "${FLAGS_squashfs_base}" ]] ; then
+  die "Squashfs base '${FLAGS_squashfs_base}' not found."
 fi
 
-BUILD_DIR=$(realpath "${FLAGS_build_dir}")
+if [[ -z "${FLAGS_image_builddir}" ]]; then
+  FLAGS_image_builddir="$(dirname "${FLAGS_squashfs_base}")/sysext"
+fi
+BUILD_DIR=$(realpath "${FLAGS_image_builddir}")
+mkdir -p "${BUILD_DIR}"
+
+source "${BUILD_LIBRARY_DIR}/toolchain_util.sh" || exit 1
+source "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
+source "${BUILD_LIBRARY_DIR}/reports_util.sh" || exit 1
 
 # Architecture values are taken from systemd.unit(5).
 declare -A SYSEXT_ARCHES
@@ -85,7 +115,6 @@ _get_sysext_arch() {
     fi
 }
 
-
 set -euo pipefail
 
 cleanup() {
@@ -99,21 +128,10 @@ cleanup() {
   rm -rf "${dirs[@]}" || true
 }
 
-if [[ ${#} -lt 1 ]]; then
-   show_help_if_requested -h
-  die 'Expected at least one parameter for sysext image name'
-fi
-
-SYSEXTNAME="${1}"
-shift
-
 # Set up trap to execute cleanup() on script exit
 trap cleanup EXIT
 
 ARCH=$(_get_sysext_arch "${FLAGS_board}")
-if [[ -z "${FLAGS_squashfs_base}" ]]; then
-  FLAGS_squashfs_base="${BUILD_DIR}/flatcar_production_image_sysext.squashfs"
-fi
 cleanup
 
 mkdir "${BUILD_DIR}/fs-root"
@@ -123,10 +141,13 @@ mkdir "${BUILD_DIR}/workdir"
 mount -t overlay overlay -o lowerdir="${BUILD_DIR}/fs-root",upperdir="${BUILD_DIR}/install-root",workdir="${BUILD_DIR}/workdir" "${BUILD_DIR}/install-root"
 VERSION_BOARD=$(grep "^VERSION=" ${BUILD_DIR}/fs-root/usr/lib/os-release | cut -d = -f 2-)
 if [ "$VERSION_BOARD" != "$FLATCAR_VERSION" ]; then
-  echo "$VERSION_BOARD"
-  echo "$FLATCAR_VERSION"
-  echo "Version mismatch between board flatcar release and SDK container flatcar release"
-  exit 1
+  warn "Base squashfs version: $VERSION_BOARD"
+  warn "SDK board packages version: $FLATCAR_VERSION"
+  if [[ "${FLAGS_ignore_version_mismatch}" = "${FLAGS_TRUE}" ]] ; then
+    warn "Ignoring version mismatch as requested."
+  else
+    die "Version mismatch between board flatcar release and SDK container flatcar release."
+  fi
 fi
 
 if [[ -n "${FLAGS_metapkgs}" ]]; then
@@ -134,6 +155,13 @@ if [[ -n "${FLAGS_metapkgs}" ]]; then
   "emerge-${FLAGS_board}" --nodeps --buildpkgonly --usepkg n --verbose "${metapkgs[@]}"
   set -- "${metapkgs[@]}" "${@}"
 fi
+
+if [[ ${#} -lt 1 ]]; then
+   error 'No packages or meta packages to install.'
+   show_help_if_requested -h
+fi
+
+info "Building '${SYSEXTNAME}' with (meta-)packages '${@}' in '${BUILD_DIR}'".
 
 for package; do
   echo "Installing package into sysext image: $package"
@@ -174,7 +202,7 @@ all_fields=(
   "ARCHITECTURE=${ARCH}"
 )
 printf '%s\n' "${all_fields[@]}" >"${BUILD_DIR}/install-root/usr/lib/extension-release.d/extension-release.${SYSEXTNAME}"
-mksquashfs "${BUILD_DIR}/install-root" "${BUILD_DIR}/${SYSEXTNAME}.raw"
+mksquashfs "${BUILD_DIR}/install-root" "${BUILD_DIR}/${SYSEXTNAME}.raw" -noappend
 rm -rf "${BUILD_DIR}"/{fs-root,install-root,workdir}
 
 # Generate reports

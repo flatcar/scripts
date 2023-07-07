@@ -540,8 +540,8 @@ install_oem_sysext() {
     local metapkg="coreos-base/${oem_sysext}"
     local build_sysext_flags=(
         --board="${BOARD}"
-        --build_dir="${built_sysext_dir}"
         --squashfs_base="${VM_SRC_SYSEXT_IMG}"
+        --image_builddir="${built_sysext_dir}"
         --metapkgs="${metapkg}"
     )
     local overlay_path mangle_fs
