@@ -14,15 +14,15 @@ SCRIPT_ROOT=$(dirname "$(readlink -f "$0")")
 assert_inside_chroot
 assert_root_user
 
-default_squashfs_base="$(readlink -f "${SCRIPT_ROOT}/../build/images/amd64-usr/latest/${FLATCAR_PRODUCTION_IMAGE_SYSEXT_BASE}")"
+default_squashfs_template="$(readlink -f "${SCRIPT_ROOT}/../build/images")/<BOARD>/latest/${FLATCAR_PRODUCTION_IMAGE_SYSEXT_BASE}"
 
 # All these are used to set up the 'BUILD_DIR' variable
 DEFINE_string board "${DEFAULT_BOARD}" \
   "The board to build a sysext for."
 DEFINE_string metapkgs '' \
   "Comma-separated list of meta-packages to build from source and install into sysext image."
-DEFINE_string squashfs_base "${default_squashfs_base}" \
-  "The path to the squashfs base image. Defaults to the most current image built."
+DEFINE_string squashfs_base '' \
+  "The path to the squashfs base image. Defaults to the most current image built in '${default_squashfs_template}'."
 DEFINE_string manglefs_script '' \
   "A path to executable that will customize the rootfs of the sysext image."
 DEFINE_boolean ignore_version_mismatch "${FLAGS_FALSE}" \
@@ -87,8 +87,11 @@ if [[ -z "${SYSEXTNAME}" ]]; then
 fi
 shift
 
+if [[ -z "$FLAGS_squashfs_base" ]] ; then
+  FLAGS_squashfs_base="$(readlink -f "${SCRIPT_ROOT}/../build/images/${FLAGS_board}/latest/${FLATCAR_PRODUCTION_IMAGE_SYSEXT_BASE}")"
+fi
 if [[ ! -f "${FLAGS_squashfs_base}" ]] ; then
-    die "Squashfs base '${FLAGS_squashfs_base}' not found."
+  die "Squashfs base '${FLAGS_squashfs_base}' not found."
 fi
 
 source "${BUILD_LIBRARY_DIR}/toolchain_util.sh" || exit 1
@@ -197,7 +200,7 @@ all_fields=(
   "ARCHITECTURE=${ARCH}"
 )
 printf '%s\n' "${all_fields[@]}" >"${BUILD_DIR}/install-root/usr/lib/extension-release.d/extension-release.${SYSEXTNAME}"
-mksquashfs "${BUILD_DIR}/install-root" "${BUILD_DIR}/${SYSEXTNAME}.raw"
+mksquashfs "${BUILD_DIR}/install-root" "${BUILD_DIR}/${SYSEXTNAME}.raw" -noappend
 rm -rf "${BUILD_DIR}"/{fs-root,install-root,workdir}
 
 # Generate reports
