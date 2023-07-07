@@ -540,7 +540,6 @@ install_oem_sysext() {
     local metapkg="coreos-base/${oem_sysext}"
     local build_sysext_flags=(
         --board="${BOARD}"
-        --build_dir="${built_sysext_dir}"
         --squashfs_base="${VM_SRC_SYSEXT_IMG}"
         --metapkgs="${metapkg}"
     )
@@ -554,7 +553,7 @@ install_oem_sysext() {
     fi
 
     mkdir -p "${built_sysext_dir}"
-    sudo "${build_sysext_env[@]}" "${SCRIPT_ROOT}/build_sysext" "${build_sysext_flags[@]}" "${oem_sysext}"
+    sudo "${build_sysext_env[@]}" "${SCRIPT_ROOT}/build_sysext" "${build_sysext_flags[@]}" "${built_sysext_dir}" "${oem_sysext}"
 
     local installed_sysext_oem_dir='/oem/sysext'
     local installed_sysext_file_prefix="${oem_sysext}-${version}"
