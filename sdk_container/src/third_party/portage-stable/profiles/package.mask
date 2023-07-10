@@ -33,6 +33,81 @@
 
 #--- END OF EXAMPLES ---
 
+# Hans de Graaff <graaff@gentoo.org> (2023-07-08)
+# Obsolete component for dev-util/cucumber. Discontinued upstream.
+# No reverse dependencies. Masked for removal on 2023-08-08.
+dev-util/cucumber-wire
+
+# Hans de Graaff <graaff@gentoo.org> (2023-07-08)
+# Last release in 2010. Upstream is gone. No reverse dependencies.
+# Masked for removal on 2023-08-08
+dev-ruby/annoy
+
+# Hans de Graaff <graaff@gentoo.org> (2023-07-08)
+# Obsolete component for dev-util/cucumber. Discontinued upstream.
+# No reverse dependencies. Masked for removal on 2023-08-08.
+dev-ruby/c21e
+
+# Hans de Graaff <graaff@gentoo.org> (2023-07-06)
+# Last release in 2012. Upstream is gone. No reverse dependencies.
+# Masked for removal on 2023-08-06.
+dev-ruby/deprecated
+
+# Matt Turner <mattst88@gentoo.org> (2023-07-06)
+# Dead package. No reverse dependencies.
+# Removal on 2023-08-06.
+dev-perl/Gtk2-Notify
+
+# Matt Turner <mattst88@gentoo.org> (2023-07-06)
+# GNOME 45 mask
+>=gnome-base/gsettings-desktop-schemas-45_alpha
+>=gnome-extra/gnome-system-monitor-45_alpha
+>=gui-libs/gtk-4.11
+>=gui-libs/libadwaita-1.4_alpha
+>=media-gfx/gnome-font-viewer-45_alpha
+>=net-misc/gnome-remote-desktop-45_alpha
+>=sys-apps/baobab-45_alpha
+
+# Michael Orlitzky <mjo@gentoo.org> (2023-07-05)
+# I suspect I was its only user, and I'm not a user any more. Upstream
+# has deleted its autoloader for the second time, making an update more
+# trouble than removal, so: removal on or after 2023-08-05.
+dev-php/php-redmine-api
+
+# Michał Górny <mgorny@gentoo.org> (2023-07-05)
+# Discontinued in favor of built-in `ast` module on all supported
+# versions of Python.  No revdeps left.
+# Removal on 2023-08-04.
+dev-python/typed-ast
+
+# Sam James <sam@gentoo.org> (2023-07-05)
+# Doesn't install all needed files by e.g. kernelshark.
+# Need to either split into libtracecmd for the libraries or revert to Makefiles.
+# See bug #909439.
+=dev-util/trace-cmd-3.2
+
+# Hans de Graaff <graaff@gentoo.org> (2023-07-04)
+# Discontinued by upstream. No reverse dependencies. Upstream recommends
+# using dry-inflector. Please file a bug if you would like us to package
+# this. Masked for removal on 2023-08-04.
+dev-ruby/inflecto
+
+# Hans de Graaff <graaff@gentoo.org> (2023-07-04)
+# Archived by upstream. No reverse dependencies. Does not work with
+# ruby32. Masked for removal on 2023-08-04.
+dev-ruby/instantiator
+
+# Holger Hoffstätte <holger@applied-asynchrony.com> (2023-07-04)
+# Obsolete package, replaced by dev-util/scap-driver.
+# https://bugs.gentoo.org/907486
+# Masked for removal on 2023-08-04.
+dev-util/sysdig-kmod
+
+# Sam James <sam@gentoo.org> (2023-06-03)
+# Breaks dev-perl/Spreadsheet-ParseExcel, see bug #909564.
+# Please upgrade to >=dev-perl/dev-perl/OLE-StorageLite-0.220.0.
+=dev-perl/OLE-StorageLite-0.210.0
+
 # Hans de Graaff <graaff@gentoo.org> (2023-07-02)
 # Unmaintained and obsolete package. Last release 10 years ago. Upstream
 # advises to use dev-ruby/memoizable or dev-ruby/memoist instead.
@@ -180,21 +255,10 @@ dev-ruby/websocket-driver:0
 # Removal on 2023-07-12.  Bug #908378.
 dev-ruby/ruby-gtk2
 
-# Sam James <sam@gentoo.org> (2023-06-10)
-# Integrated into media-libs/gst-plugins-bad[vaapi]. Please use that instead.
-# Removal in 14 days.
-media-plugins/gst-plugins-va
-
 # Michał Górny <mgorny@gentoo.org> (2023-06-10)
 # Renamed to dev-python/pypdf.  No revdeps left.
 # Removal on 2023-07-10.  Bug #908227.
 dev-python/PyPDF2
-
-# Michał Górny <mgorny@gentoo.org> (2023-06-09)
-# Requires dev-python/nose.  Last activity in 2013.  No reverse
-# dependencies left.
-# Removal on 2023-07-09.  Bug #888245.
-dev-python/doctest-ignore-unicode
 
 # Georgy Yakovlev <gyakovlev@gentoo.org> (2023-06-08)
 # May be broken on some arches due to weird LLVM interaction.
@@ -204,28 +268,9 @@ dev-python/doctest-ignore-unicode
 ~dev-lang/rust-bin-1.70.0
 ~virtual/rust-1.70.0
 
-# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2023-06-06)
-# Vulnerable CVE-2023-33546, Bug #907927.
-# Reverse deps (logback-*, netty) are unused Java libraries.
-# Removal on 2023-07-06.
-dev-java/janino
-dev-java/logback-core
-dev-java/logback-classic
-dev-java/netty
-
 # Sam James <sam@gentoo.org> (2023-06-05)
 # Fails to bootstrap, see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=110120.
 =sys-devel/gcc-14.0.0_pre20230604
-
-# Michael Orlitzky <mjo@gentoo.org> (2023-06-04)
-# Obsolete and insecure SageMath (out of tree) dependency.
-# Removal on 2023-07-04.
-sci-mathematics/flintqs
-
-# Michał Górny <mgorny@gentoo.org> (2023-06-03)
-# Obsoleted by dev-python/pyspnego.  No revdeps left.
-# Removal on 2023-07-03.  Bug #895004.
-dev-python/ntlm-auth
 
 # Bernd Waibel <waebbl-gentoo@posteo.net> (2023-05-31)
 # Mask this version for uptime soversion issue. There will be an updated release
@@ -233,17 +278,6 @@ dev-python/ntlm-auth
 # See https://github.com/AcademySoftwareFoundation/Imath/issues/189#issuecomment-1567077722
 # Bug: #907211
 =dev-libs/imath-3.1.7
-
-# Michał Górny <mgorny@gentoo.org> (2023-05-31)
-# Unmaintained.  Last commit in 2020.  Does not work with Python 3.12.
-# No revdeps.
-# Removal on 2023-06-30.  Bug #907495.
-dev-python/http-parser
-
-# Andreas K. Hüttel <dilfridge@gentoo.org> (2023-05-28)
-# Causes only problems, at negligible gain. Removal in 30days.
-# Bugs 880573, 864157, 885471, 870454, 884571
-sys-libs/libbacktrace
 
 # Sam James <sam@gentoo.org> (2023-05-24)
 # Breaks building C++ consumers at least: bug #906755, bug #906879, bug #906957.
