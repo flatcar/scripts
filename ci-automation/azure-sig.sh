@@ -16,9 +16,17 @@ echo "${AZURE_CLIENT_ID}"
 
 eval "${tracestate}"
 
-daz () {
+function daz () {
   docker pull mcr.microsoft.com/azure-cli 2>/dev/null >/dev/null
   docker run -i mcr.microsoft.com/azure-cli sh -c "az $*"
+}
+
+function azure_login() {
+  tracestate="$(shopt -po xtrace || true)"
+  set +o xtrace
+  daz login --service-principal -u "${AZURE_CLIENT_ID}" -p "${AZURE_CLIENT_SECRET}" --tenant "${AZURE_TENANT_ID}" >/dev/null 2>&1
+  daz account set -s "${AZURE_SUBSCRIPTION_ID}" >/dev/null 2>&1
+  eval "${tracestate}"
 }
 
 
@@ -337,14 +345,6 @@ function ensure-resource-group() {
   if ! daz group show -n "${RESOURCE_GROUP_NAME}" -o none 2>/dev/null; then
     daz group create -n "${RESOURCE_GROUP_NAME}" -l "${AZURE_LOCATION}"
   fi
-}
-
-function azure_login() {
-  tracestate="$(shopt -po xtrace || true)"
-  set +o xtrace
-  daz login --service-principal -u "${AZURE_CLIENT_ID}" -p "${AZURE_CLIENT_SECRET}" --tenant "${AZURE_TENANT_ID}" >/dev/null 2>&1
-  daz account set -s "${AZURE_SUBSCRIPTION_ID}" >/dev/null 2>&1
-  eval "${tracestate}"
 }
 
 if [[ $# -eq 0 ]]; then
