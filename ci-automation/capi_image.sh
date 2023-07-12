@@ -39,15 +39,15 @@ function setup_capi_params() {
   azure_auth_config_file=""
   secret_to_file azure_auth_config_file "${AZURE_AUTH_CREDENTIALS}"
 
-  FLATCAR_ARCH="amd64"
+  export FLATCAR_ARCH="amd64"
   # FLATCAR_CHANNEL="$(get_git_channel)"
-  FLATCAR_CHANNEL="stable"
-  FLATCAR_VERSION="3510.2.4"
-  FLATCAR_AZURE_AUTH_CREDENTIALS="${AZURE_AUTH_CREDENTIALS}"
-  PUBLISHING_SIG_RESOURCE_GROUP=${PUBLISHING_SIG_RESOURCE_GROUP:-flatcar-image-gallery-publishing}
-  STAGING_SIG_RESOURCE_GROUP=${STAGING_SIG_RESOURCE_GROUP:-flatcar-image-gallery-staging}
-  FLATCAR_STAGING_GALLERY_NAME=${FLATCAR_STAGING_GALLERY_NAME:-flatcar_staging}
-  FLATCAR_GALLERY_NAME=${FLATCAR_GALLERY_NAME:-flatcar}
+  export FLATCAR_CHANNEL="stable"
+  export FLATCAR_VERSION="3510.2.4"
+  export FLATCAR_AZURE_AUTH_CREDENTIALS="${azure_auth_config_file}"
+  export PUBLISHING_SIG_RESOURCE_GROUP=${PUBLISHING_SIG_RESOURCE_GROUP:-flatcar-image-gallery-publishing}
+  export STAGING_SIG_RESOURCE_GROUP=${STAGING_SIG_RESOURCE_GROUP:-flatcar-image-gallery-staging}
+  export FLATCAR_STAGING_GALLERY_NAME=${FLATCAR_STAGING_GALLERY_NAME:-flatcar_staging}
+  export FLATCAR_GALLERY_NAME=${FLATCAR_GALLERY_NAME:-flatcar}
 
   # Provide a python3 command for the k8s schedule parsing
   export PATH="$PATH:$PWD/ci-automation/python-bin"
@@ -55,19 +55,19 @@ function setup_capi_params() {
 }
 
 function _capi_image_build_impl() {
-    PUBLISHING_SIG_RESOURCE_GROUP="sayan-flatcar-image-gallery-publishing"
-    STAGING_SIG_RESOURCE_GROUP="sayan-flatcar-image-gallery-staging"
-    FLATCAR_GALLERY_NAME="sayan_flatcar"
-    FLATCAR_STAGING_GALLERY_NAME="sayan-flatcar_staging"
-    FLATCAR_CAPI_GALLERY_NAME="sayan_flatcar4capi"
-    FLATCAR_CAPI_STAGING_GALLERY_NAME="sayan_flatcar4capi_staging"
+    export PUBLISHING_SIG_RESOURCE_GROUP="sayan-flatcar-image-gallery-publishing"
+    export STAGING_SIG_RESOURCE_GROUP="sayan-flatcar-image-gallery-staging"
+    export FLATCAR_GALLERY_NAME="sayan_flatcar"
+    export FLATCAR_STAGING_GALLERY_NAME="sayan-flatcar_staging"
+    export FLATCAR_CAPI_GALLERY_NAME="sayan_flatcar4capi"
+    export FLATCAR_CAPI_STAGING_GALLERY_NAME="sayan_flatcar4capi_staging"
     for arch in amd64
     do
       setup_capi_params
 
       for k8s_version in $k8s_release_versions
       do
-        KUBERNETES_SEMVER="v${k8s_version}"
+        export KUBERNETES_SEMVER="v${k8s_version}"
         echo "== Building Flatcar SIG images from VHDs"
         ci-automation/azure-sig.sh ensure-flatcar-staging-sig-image-version-from-vhd
         echo "== Building Flatcar CAPI SIG image"
