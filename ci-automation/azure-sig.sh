@@ -12,23 +12,24 @@ FLATCAR_AZURE_AUTH_CREDENTIALS=${FLATCAR_AZURE_AUTH_CREDENTIALS:-$HOME/.azure/cr
 AZURE_CLIENT_ID=$(jq ".clientId" "${FLATCAR_AZURE_AUTH_CREDENTIALS}")
 AZURE_CLIENT_SECRET=$(jq ".clientSecret" "${FLATCAR_AZURE_AUTH_CREDENTIALS}")
 
-echo "${AZURE_CLIENT_ID}"
-
 eval "${tracestate}"
 
-function daz () {
+function spawn_az_cli_container () {
   docker pull mcr.microsoft.com/azure-cli 2>/dev/null >/dev/null
-  docker run -i mcr.microsoft.com/azure-cli sh -c "az $*"
+  [ ! "$(docker ps -a | grep azcli)" ] && docker run --name azcli -i mcr.microsoft.com/azure-cli sh
+  [ "$(docker ps -a | grep azcli)" ] && docker start azcli  >/dev/null 2>&1
+}
+
+function daz () {
+  spawn_az_cli_container
+
+  docker exec -i azcli sh -c "az $*"
 }
 
 function azure_login() {
-  tracestate="$(shopt -po xtrace || true)"
-  set +o xtrace
-  daz login --service-principal -u "${AZURE_CLIENT_ID}" -p "${AZURE_CLIENT_SECRET}" --tenant "${AZURE_TENANT_ID}" >/dev/null 2>&1
-  daz account set -s "${AZURE_SUBSCRIPTION_ID}" >/dev/null 2>&1
-  eval "${tracestate}"
+  daz login --service-principal -u "${AZURE_CLIENT_ID}" -p "${AZURE_CLIENT_SECRET}" --tenant "${AZURE_TENANT_ID}"
+  daz account set -s "${AZURE_SUBSCRIPTION_ID}"
 }
-
 
 # Flatcar environment specific variables.
 AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID:-d38033ba-ec21-470c-96cf-4c6db9658d8b}
@@ -58,11 +59,8 @@ FLATCAR_COMMUNITY_GALLERY_PUBLIC_NAME_PREFIX=${FLATCAR_COMMUNITY_GALLERY_PUBLIC_
 
 # Regions below require explicit opt-in, so let's initially skip them from "default" regions until they are requested.
 BLACKLISTED_TARGET_REGIONS=${BLACKLISTED_TARGET_REGIONS:-polandcentral australiacentral2 brazilsoutheast centraluseuap eastus2euap eastusstg francesouth germanynorth jioindiacentral norwaywest southafricawest switzerlandwest uaecentral brazilus southcentralusstg}
-function compute_default_target_regions() {
-  azure_login
-  echo $(daz account list-locations -o json | jq -r '.[] | select( .metadata.regionType != "Logical" ) | .name' | sort | grep -v -E "(${BLACKLISTED_TARGET_REGIONS// /|})" | tr \\n ' ')
-}
-DEFAULT_TARGET_REGIONS=$(compute_default_target_regions)
+DEFAULT_TARGET_REGIONS=$(daz account list-locations -o json)
+DEFAULT_TARGET_REGIONS=$(echo "${DEFAULT_TARGET_REGIONS}" | jq -r '.[] | select( .metadata.regionType != "Logical" ) | .name' | sort | grep -v -E "(${BLACKLISTED_TARGET_REGIONS// /|})" | tr \\n ' ')
 TARGET_REGIONS=${TARGET_REGIONS:-${DEFAULT_TARGET_REGIONS}}
 
 # CAPI specific variables.

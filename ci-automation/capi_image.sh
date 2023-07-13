@@ -33,7 +33,6 @@ function setup_capi_params() {
   source ci-automation/gpg_setup.sh
   source sdk_container/.repo/manifests/version.txt
 
-  echo "==================================================================="
   azure_profile_config_file=""
   secret_to_file azure_profile_config_file "${AZURE_PROFILE}"
   azure_auth_config_file=""
