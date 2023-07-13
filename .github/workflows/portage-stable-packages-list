@@ -163,6 +163,7 @@ dev-libs/libxslt
 dev-libs/nettle
 dev-libs/oniguruma
 dev-libs/popt
+dev-libs/protobuf
 dev-libs/userspace-rcu
 
 dev-perl/File-Slurp
