@@ -4,6 +4,10 @@ set -euo pipefail
 
 [[ -n ${DEBUG:-} ]] && set -o xtrace
 
+# Flatcar environment specific variables (required for login).
+AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID:-d38033ba-ec21-470c-96cf-4c6db9658d8b}
+AZURE_TENANT_ID=${AZURE_TENANT_ID:-f41c056a-c993-42d0-8d91-57f0ff222694}
+
 function azure_login() {
   az login --service-principal -u "${AZURE_CLIENT_ID}" -p "${AZURE_CLIENT_SECRET}" --tenant "${AZURE_TENANT_ID}"
   az account set -s "${AZURE_SUBSCRIPTION_ID}"
@@ -12,8 +16,6 @@ function azure_login() {
 azure_login
 
 # Flatcar environment specific variables.
-AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID:-d38033ba-ec21-470c-96cf-4c6db9658d8b}
-AZURE_TENANT_ID=${AZURE_TENANT_ID:-f41c056a-c993-42d0-8d91-57f0ff222694}
 IMAGE_PUBLISHER_NAME=${IMAGE_PUBLISHER_NAME:-flatcar}
 IMAGE_PUBLISHER_URI=${IMAGE_PUBLISHER_URI:-https://www.flatcar.org/}
 IMAGE_PUBLISHER_CONTACT=${IMAGE_PUBLISHER_CONTACT:-infra@flatcar-linux.org}
