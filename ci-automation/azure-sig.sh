@@ -4,32 +4,8 @@ set -euo pipefail
 
 [[ -n ${DEBUG:-} ]] && set -o xtrace
 
-# Make sure Azure credentials are given without printing them.
-tracestate="$(shopt -po xtrace || true)"
-set +o xtrace
-
-FLATCAR_AZURE_AUTH_CREDENTIALS=${FLATCAR_AZURE_AUTH_CREDENTIALS:-$HOME/.azure/credentials.json}
-AZURE_CLIENT_ID=$(jq ".clientId" "${FLATCAR_AZURE_AUTH_CREDENTIALS}")
-AZURE_CLIENT_SECRET=$(jq ".clientSecret" "${FLATCAR_AZURE_AUTH_CREDENTIALS}")
-
-eval "${tracestate}"
-
-function spawn_az_cli_container () {
-  docker pull mcr.microsoft.com/azure-cli 2>/dev/null >/dev/null
-  [ ! "$(docker ps -a | grep azcli)" ] && docker run --name azcli -i mcr.microsoft.com/azure-cli sh
-  [ "$(docker ps -a | grep azcli)" ] && docker start azcli  >/dev/null 2>&1
-}
-
-function daz () {
-  spawn_az_cli_container
-
-  docker exec -i azcli sh -c "az $*"
-}
-
-function azure_login() {
-  daz login --service-principal -u "${AZURE_CLIENT_ID}" -p "${AZURE_CLIENT_SECRET}" --tenant "${AZURE_TENANT_ID}"
-  daz account set -s "${AZURE_SUBSCRIPTION_ID}"
-}
+AZURE_CLIENT_ID=$(jq ".clientId" "${AZURE_AUTH_CREDENTIALS}")
+AZURE_CLIENT_SECRET=$(jq ".clientSecret" "${AZURE_AUTH_CREDENTIALS}")
 
 # Flatcar environment specific variables.
 AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID:-d38033ba-ec21-470c-96cf-4c6db9658d8b}
@@ -59,8 +35,7 @@ FLATCAR_COMMUNITY_GALLERY_PUBLIC_NAME_PREFIX=${FLATCAR_COMMUNITY_GALLERY_PUBLIC_
 
 # Regions below require explicit opt-in, so let's initially skip them from "default" regions until they are requested.
 BLACKLISTED_TARGET_REGIONS=${BLACKLISTED_TARGET_REGIONS:-polandcentral australiacentral2 brazilsoutheast centraluseuap eastus2euap eastusstg francesouth germanynorth jioindiacentral norwaywest southafricawest switzerlandwest uaecentral brazilus southcentralusstg}
-DEFAULT_TARGET_REGIONS=$(daz account list-locations -o json)
-DEFAULT_TARGET_REGIONS=$(echo "${DEFAULT_TARGET_REGIONS}" | jq -r '.[] | select( .metadata.regionType != "Logical" ) | .name' | sort | grep -v -E "(${BLACKLISTED_TARGET_REGIONS// /|})" | tr \\n ' ')
+DEFAULT_TARGET_REGIONS=$(az account list-locations -o json | jq -r '.[] | select( .metadata.regionType != "Logical" ) | .name' | sort | grep -v -E "(${BLACKLISTED_TARGET_REGIONS// /|})" | tr \\n ' ')
 TARGET_REGIONS=${TARGET_REGIONS:-${DEFAULT_TARGET_REGIONS}}
 
 # CAPI specific variables.
@@ -74,6 +49,11 @@ FLATCAR_CAPI_COMMUNITY_GALLERY_PUBLIC_NAME_PREFIX=${FLATCAR_CAPI_COMMUNITY_GALLE
 IMAGE_BUILDER_GIT_REMOTE="${IMAGE_BUILDER_GIT_REMOTE:-https://github.com/kubernetes-sigs/image-builder.git}"
 IMAGE_BUILDER_GIT_REPOSITORY_PATH="${IMAGE_BUILDER_GIT_REPOSITORY_PATH:-/tmp/image-builder}"
 IMAGE_BUILDER_GIT_VERSION="${IMAGE_BUILDER_GIT_VERSION:-main}"
+
+function azure_login() {
+  az login --service-principal -u "${AZURE_CLIENT_ID}" -p "${AZURE_CLIENT_SECRET}" --tenant "${AZURE_TENANT_ID}"
+  az account set -s "${AZURE_SUBSCRIPTION_ID}"
+}
 
 function publish-flatcar-capi-image() {
   require-amd64-arch
@@ -222,7 +202,7 @@ function ensure-flatcar-staging-sig-image-version-from-vhd() {
   VHD_URI="https://${VHD_STORAGE_ACCOUNT_NAME}.blob.core.windows.net/${VHD_STORAGE_CONTAINER_NAME}"
   VHD_URI="${VHD_URI}/flatcar-linux-${IMAGE_VERSION}-${FLATCAR_CHANNEL}-${FLATCAR_ARCH}.vhd"
 
-  daz sig image-version create \
+  az sig image-version create \
     --resource-group "${RESOURCE_GROUP_NAME}" \
     --gallery-name "${GALLERY_NAME}" \
     --gallery-image-definition "${IMAGE_NAME}" \
@@ -248,7 +228,7 @@ function copy-sig-image-version() {
   SOURCE_VERSION="${SOURCE_VERSION:-}"
 
   # shellcheck disable=SC2086 # Apparently target regions must be space-separated for Azure CLI.
-  daz sig image-version create \
+  az sig image-version create \
     --gallery-image-definition "${IMAGE_NAME}" \
     --gallery-image-version "${IMAGE_VERSION}" \
     --gallery-name "${GALLERY_NAME}" \
@@ -264,7 +244,7 @@ function sig-image-version-exists() {
   GALLERY_NAME=${GALLERY_NAME:-}
   RESOURCE_GROUP_NAME=${RESOURCE_GROUP_NAME:-}
 
-  if ! daz sig image-version show \
+  if ! az sig image-version show \
     --gallery-image-definition "${IMAGE_NAME}" \
     --gallery-image-version "${IMAGE_VERSION}" \
     --gallery-name "${GALLERY_NAME}" \
@@ -303,7 +283,7 @@ function ensure-image-definition() {
       ;;
   esac
 
-  daz sig image-definition create \
+  az sig image-definition create \
     --gallery-image-definition "${IMAGE_NAME}" \
     --gallery-name "${GALLERY_NAME}" \
     --offer "${IMAGE_OFFER}" \
@@ -319,7 +299,7 @@ function ensure-sig() {
   GALLERY_NAME=${GALLERY_NAME:-}
   RESOURCE_GROUP_NAME=${RESOURCE_GROUP_NAME:-}
 
-  daz sig create \
+  az sig create \
     --gallery-name "${GALLERY_NAME}" \
     --resource-group "${RESOURCE_GROUP_NAME}"
 }
@@ -329,7 +309,7 @@ function ensure-community-sig() {
   RESOURCE_GROUP_NAME=${RESOURCE_GROUP_NAME:-}
   PUBLIC_NAME_PREFIX=${PUBLIC_NAME_PREFIX:-}
 
-  daz sig create \
+  az sig create \
     --gallery-name "${GALLERY_NAME}" \
     --resource-group "${RESOURCE_GROUP_NAME}" \
     --eula "${IMAGE_EULA_URL}" \
@@ -340,8 +320,8 @@ function ensure-community-sig() {
 function ensure-resource-group() {
   RESOURCE_GROUP_NAME=${RESOURCE_GROUP_NAME:-}
 
-  if ! daz group show -n "${RESOURCE_GROUP_NAME}" -o none 2>/dev/null; then
-    daz group create -n "${RESOURCE_GROUP_NAME}" -l "${AZURE_LOCATION}"
+  if ! az group show -n "${RESOURCE_GROUP_NAME}" -o none 2>/dev/null; then
+    az group create -n "${RESOURCE_GROUP_NAME}" -l "${AZURE_LOCATION}"
   fi
 }
 
