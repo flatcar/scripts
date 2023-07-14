@@ -4,6 +4,13 @@ set -euo pipefail
 
 [[ -n ${DEBUG:-} ]] && set -o xtrace
 
+function azure_login() {
+  az login --service-principal -u "${AZURE_CLIENT_ID}" -p "${AZURE_CLIENT_SECRET}" --tenant "${AZURE_TENANT_ID}"
+  az account set -s "${AZURE_SUBSCRIPTION_ID}"
+}
+
+azure_login
+
 # Flatcar environment specific variables.
 AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID:-d38033ba-ec21-470c-96cf-4c6db9658d8b}
 AZURE_TENANT_ID=${AZURE_TENANT_ID:-f41c056a-c993-42d0-8d91-57f0ff222694}
@@ -46,11 +53,6 @@ FLATCAR_CAPI_COMMUNITY_GALLERY_PUBLIC_NAME_PREFIX=${FLATCAR_CAPI_COMMUNITY_GALLE
 IMAGE_BUILDER_GIT_REMOTE="${IMAGE_BUILDER_GIT_REMOTE:-https://github.com/kubernetes-sigs/image-builder.git}"
 IMAGE_BUILDER_GIT_REPOSITORY_PATH="${IMAGE_BUILDER_GIT_REPOSITORY_PATH:-/tmp/image-builder}"
 IMAGE_BUILDER_GIT_VERSION="${IMAGE_BUILDER_GIT_VERSION:-main}"
-
-function azure_login() {
-  az login --service-principal -u "${AZURE_CLIENT_ID}" -p "${AZURE_CLIENT_SECRET}" --tenant "${AZURE_TENANT_ID}"
-  az account set -s "${AZURE_SUBSCRIPTION_ID}"
-}
 
 function publish-flatcar-capi-image() {
   require-amd64-arch
