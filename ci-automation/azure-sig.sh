@@ -4,7 +4,6 @@ set -euo pipefail
 
 [[ -n ${DEBUG:-} ]] && set -o xtrace
 
-
 # Flatcar environment specific variables.
 AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID:-d38033ba-ec21-470c-96cf-4c6db9658d8b}
 AZURE_TENANT_ID=${AZURE_TENANT_ID:-f41c056a-c993-42d0-8d91-57f0ff222694}
