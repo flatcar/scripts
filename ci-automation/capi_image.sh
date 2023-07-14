@@ -39,7 +39,7 @@ function setup_capi_params() {
 
   # Provide a python3 command for the k8s schedule parsing
   export PATH="$PATH:$PWD/ci-automation/python-bin"
-  k8s_release_versions=$(ci-automation/get_kubernetes_releases.py)
+  export K8S_VERSIONS=$(ci-automation/get_kubernetes_releases.py)
 }
 
 function _inside_capi_image_build() {
@@ -57,6 +57,8 @@ function _inside_capi_image_build() {
     secret_to_file azure_profile_config_file "${AZURE_PROFILE}"
     azure_auth_config_file=""
     secret_to_file azure_auth_config_file "${AZURE_AUTH_CREDENTIALS}"
+    export AZURE_CLIENT_ID=$(jq ".clientId" "${azure_auth_config_file}")
+    export AZURE_CLIENT_SECRET=$(jq ".clientSecret" ${azure_auth_config_file}")
 
     export FLATCAR_ARCH="amd64"
     # FLATCAR_CHANNEL="$(get_git_channel)"
@@ -98,13 +100,14 @@ function _capi_image_build_impl() {
 
   # A job on each worker prunes old mantle images (docker image prune), no need to do it here
   echo "docker rm -f '${container_name}'" >> ./ci-cleanup.sh
+
   for arch in amd64
   do
     setup_capi_params
-    for k8s_version in $k8s_release_versions
+    for K8S_VERSION in $K8S_VERSIONS
     do
       touch sdk_container/.env # This file should already contain the required credentials as env vars
-      echo 'export KUBERNETES_SEMVER="v${k8s_version}"' >> sdk_container/.env
+      echo "export KUBERNETES_SEMVER='v${K8S_VERSION}'" >> sdk_container/.env
       docker run --pull always --rm --name="${container_name}" --net host \
         -w /work -v "$PWD":/work "${mantle_ref}" bash -c "git config --global --add safe.directory /work && source ci-automation/capi_image.sh && _inside_capi_image_build"
     done
@@ -122,9 +125,10 @@ function _capi_image_publish_impl() {
     do
       setup_capi_params
 
-      for k8s_version in $k8s_release_versions
+      for K8S_VERSION in $K8S_VERSIONS
       do
-        KUBERNETES_SEMVER="v${k8s_version}"
+        touch sdk_container/.env # This file should already contain the required credentials as env vars
+        echo 'export KUBERNETES_SEMVER="v${K8S_VERSION}"' >> sdk_container/.env
         echo "== Publishing Flatcar SIG image"
         ci-automation/azure-sig.sh publish-flatcar-image
         # Publish Flatcar CAPI image

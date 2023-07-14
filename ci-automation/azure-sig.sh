@@ -4,8 +4,6 @@ set -euo pipefail
 
 [[ -n ${DEBUG:-} ]] && set -o xtrace
 
-AZURE_CLIENT_ID=$(jq ".clientId" "${AZURE_AUTH_CREDENTIALS}")
-AZURE_CLIENT_SECRET=$(jq ".clientSecret" "${AZURE_AUTH_CREDENTIALS}")
 
 # Flatcar environment specific variables.
 AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID:-d38033ba-ec21-470c-96cf-4c6db9658d8b}
