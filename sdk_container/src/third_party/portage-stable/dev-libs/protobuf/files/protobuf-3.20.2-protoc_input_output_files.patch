@@ -1,10 +1,10 @@
 https://github.com/protocolbuffers/protobuf/pull/235
 
---- /src/google/protobuf/compiler/command_line_interface.cc
-+++ /src/google/protobuf/compiler/command_line_interface.cc
-@@ -1110,6 +1110,28 @@
+--- a/src/google/protobuf/compiler/command_line_interface.cc
++++ b/src/google/protobuf/compiler/command_line_interface.cc
+@@ -1112,6 +1112,28 @@
    }
- 
+
    if (mode_ == MODE_ENCODE || mode_ == MODE_DECODE) {
 +    bool success = false;
 +    int in_fd = STDIN_FILENO;
@@ -31,9 +31,9 @@ https://github.com/protocolbuffers/protobuf/pull/235
      if (codec_type_.empty()) {
        // HACK:  Define an EmptyMessage type to use for decoding.
        DescriptorPool pool;
-@@ -1118,13 +1140,20 @@
+@@ -1120,13 +1142,20 @@
        file.add_message_type()->set_name("EmptyMessage");
-       GOOGLE_CHECK(pool.BuildFile(file) != NULL);
+       GOOGLE_CHECK(pool.BuildFile(file) != nullptr);
        codec_type_ = "EmptyMessage";
 -      if (!EncodeOrDecode(&pool)) {
 -        return 1;
@@ -57,8 +57,8 @@ https://github.com/protocolbuffers/protobuf/pull/235
 +      return 1;
      }
    }
- 
-@@ -1163,6 +1192,11 @@
+
+@@ -1165,6 +1194,11 @@
    for (int i = 0; i < proto_path_.size(); i++) {
      source_tree->MapPath(proto_path_[i].first, proto_path_[i].second);
    }
@@ -67,13 +67,13 @@ https://github.com/protocolbuffers/protobuf/pull/235
 +    std::cerr << "--protobuf_in and --protobuf_out are only valid with "
 +         << "decode operations. Ignoring.";
 +  }
- 
+
    // Map input files to virtual paths if possible.
    if (!MakeInputsBeProtoPathRelative(source_tree, fallback_database)) {
-@@ -1885,6 +1919,12 @@
+@@ -1888,6 +1922,12 @@
    } else if (name == "--deterministic_output") {
      deterministic_output_ = true;
- 
+
 +  } else if (name == "--protobuf_in") {
 +    protobuf_in_path_ = value;
 +
@@ -83,7 +83,7 @@ https://github.com/protocolbuffers/protobuf/pull/235
    } else if (name == "--error_format") {
      if (value == "gcc") {
        error_format_ = ERROR_FORMAT_GCC;
-@@ -2018,22 +2058,38 @@
+@@ -2021,22 +2061,38 @@
    --version                   Show version info and exit.
    -h, --help                  Show this text and exit.
    --encode=MESSAGE_TYPE       Read a text-format message of the given type
@@ -129,20 +129,20 @@ https://github.com/protocolbuffers/protobuf/pull/235
    --descriptor_set_in=FILES   Specifies a delimited list of FILES
                                each containing a FileDescriptorSet (a
                                protocol buffer defined in descriptor.proto).
-@@ -2344,7 +2400,9 @@
+@@ -2347,7 +2403,9 @@
    return true;
  }
- 
+
 -bool CommandLineInterface::EncodeOrDecode(const DescriptorPool* pool) {
 +bool CommandLineInterface::EncodeOrDecode(const DescriptorPool* pool,
 +                                          int in_fd,
 +                                          int out_fd) {
    // Look up the type.
    const Descriptor* type = pool->FindMessageTypeByName(codec_type_);
-   if (type == NULL) {
-@@ -2356,15 +2414,15 @@
+   if (type == nullptr) {
+@@ -2359,15 +2417,15 @@
    std::unique_ptr<Message> message(dynamic_factory.GetPrototype(type)->New());
- 
+
    if (mode_ == MODE_ENCODE) {
 -    SetFdToTextMode(STDIN_FILENO);
 -    SetFdToBinaryMode(STDOUT_FILENO);
@@ -154,31 +154,31 @@ https://github.com/protocolbuffers/protobuf/pull/235
 +    SetFdToBinaryMode(in_fd);
 +    SetFdToTextMode(out_fd);
    }
- 
+
 -  io::FileInputStream in(STDIN_FILENO);
 -  io::FileOutputStream out(STDOUT_FILENO);
 +  io::FileInputStream in(in_fd);
 +  io::FileOutputStream out(out_fd);
- 
+
    if (mode_ == MODE_ENCODE) {
      // Input is text.
---- /src/google/protobuf/compiler/command_line_interface.h
-+++ /src/google/protobuf/compiler/command_line_interface.h
-@@ -292,7 +292,9 @@
+--- a/src/google/protobuf/compiler/command_line_interface.h
++++ b/src/google/protobuf/compiler/command_line_interface.h
+@@ -294,7 +294,9 @@
        GeneratorContext* generator_context, std::string* error);
- 
+
    // Implements --encode and --decode.
 -  bool EncodeOrDecode(const DescriptorPool* pool);
 +  bool EncodeOrDecode(const DescriptorPool* pool,
 +                      int in_fd,
 +                      int out_fd);
- 
+
    // Implements the --descriptor_set_out option.
    bool WriteDescriptorSet(
-@@ -427,6 +429,13 @@
+@@ -429,6 +431,13 @@
    // parsed FileDescriptorSets to be used for loading protos.  Otherwise, empty.
    std::vector<std::string> descriptor_set_in_names_;
- 
+
 +  // When using --encode / --decode / --decode_raw absolute path to the output
 +  // file. (Empty string indicates write to STDOUT).
 +  std::string protobuf_out_path_;
@@ -189,12 +189,12 @@ https://github.com/protocolbuffers/protobuf/pull/235
    // If --descriptor_set_out was given, this is the filename to which the
    // FileDescriptorSet should be written.  Otherwise, empty.
    std::string descriptor_set_out_name_;
---- /src/google/protobuf/compiler/command_line_interface_unittest.cc
-+++ /src/google/protobuf/compiler/command_line_interface_unittest.cc
+--- a/src/google/protobuf/compiler/command_line_interface_unittest.cc
++++ b/src/google/protobuf/compiler/command_line_interface_unittest.cc
 @@ -99,7 +99,7 @@
-   virtual void SetUp();
-   virtual void TearDown();
- 
+   void SetUp() override;
+   void TearDown() override;
+
 -  // Runs the CommandLineInterface with the given command line.  The
 +  // Run the CommandLineInterface with the given command line.  The
    // command is automatically split on spaces, and the string "$tmpdir"
@@ -203,10 +203,10 @@ https://github.com/protocolbuffers/protobuf/pull/235
 @@ -2626,6 +2626,17 @@
                std::string::npos);
    }
- 
-+  void ExpectBinaryFilesMatch(const string &expected_file,
-+                              const string &actual_file) {
-+    string expected_output, actual_output;
+
++  void ExpectBinaryFilesMatch(const std::string &expected_file,
++                              const std::string &actual_file) {
++    std::string expected_output, actual_output;
 +    ASSERT_TRUE(File::ReadFileToString(expected_file, &expected_output));
 +    ASSERT_TRUE(File::ReadFileToString(actual_file, &actual_output));
 +
@@ -221,9 +221,9 @@ https://github.com/protocolbuffers/protobuf/pull/235
 @@ -2749,6 +2760,19 @@
        "Can only use --deterministic_output with --encode.\n");
  }
- 
+
 +TEST_P(EncodeDecodeTest, RedirectInputOutput) {
-+  string out_file = TestTempDir() + "/golden_message_out.pbf";
++  std::string out_file = TestTempDir() + "/golden_message_out.pbf";
 +  EXPECT_TRUE(
 +      Run(TestUtil::MaybeTranslatePath("net/proto2/internal/unittest.proto") +
 +          " --encode=protobuf_unittest.TestAllTypes" +
