@@ -57,8 +57,8 @@ function _inside_capi_image_build() {
     secret_to_file azure_profile_config_file "${AZURE_PROFILE}"
     azure_auth_config_file=""
     secret_to_file azure_auth_config_file "${AZURE_AUTH_CREDENTIALS}"
-    export AZURE_CLIENT_ID=$(jq ".clientId" "${azure_auth_config_file}")
-    export AZURE_CLIENT_SECRET=$(jq ".clientSecret" "${azure_auth_config_file}")
+    export AZURE_CLIENT_ID=$(jq -r ".clientId" "${azure_auth_config_file}")
+    export AZURE_CLIENT_SECRET=$(jq -r ".clientSecret" "${azure_auth_config_file}")
 
     export FLATCAR_ARCH="amd64"
     export DEBUG=true
