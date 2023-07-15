@@ -68,7 +68,7 @@ function _inside_capi_image_build() {
     export PUBLISHING_SIG_RESOURCE_GROUP="sayan-flatcar-image-gallery-publishing"
     export STAGING_SIG_RESOURCE_GROUP="sayan-flatcar-image-gallery-staging"
     export FLATCAR_GALLERY_NAME="sayan_flatcar"
-    export FLATCAR_STAGING_GALLERY_NAME="sayan-flatcar_staging"
+    export FLATCAR_STAGING_GALLERY_NAME="sayan_flatcar_staging"
     export FLATCAR_CAPI_GALLERY_NAME="sayan_flatcar4capi"
     export FLATCAR_CAPI_STAGING_GALLERY_NAME="sayan_flatcar4capi_staging"
 
