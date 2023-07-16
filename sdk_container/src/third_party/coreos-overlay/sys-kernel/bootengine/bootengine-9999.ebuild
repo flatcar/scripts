@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-CROS_WORKON_PROJECT="flatcar/bootengine"
+CROS_WORKON_PROJECT="krishjainx/bootengine"
 CROS_WORKON_LOCALNAME="bootengine"
 CROS_WORKON_OUTOFTREE_BUILD=1
 CROS_WORKON_REPO="https://github.com"
@@ -10,7 +10,7 @@ CROS_WORKON_REPO="https://github.com"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	CROS_WORKON_COMMIT="cc0fdec0cc6c5692acac95a928984ea8a5eb8f08" # flatcar-master
+	CROS_WORKON_COMMIT="6a286c04e4d0cccf70808ff5a9d9fb0f0aa76521" # flatcar-master
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
@@ -41,7 +41,6 @@ src_install() {
 		"${D}"/usr/lib/dracut/modules.d/99setup-root/initrd-setup-root \
 		"${D}"/usr/lib/dracut/modules.d/99setup-root/initrd-setup-root-after-ignition \
 		"${D}"/usr/lib/dracut/modules.d/99setup-root/gpg-agent-wrapper \
-		"${D}"/usr/lib/dracut/modules.d/30ignition/coreos-metadata-wrapper \
-		"${D}"/usr/lib/dracut/modules.d/30ignition/ignition-wrapper \
+		"${D}"/usr/lib/dracut/modules.d/30ignition/*-wrapper \
 		|| die chmod
 }

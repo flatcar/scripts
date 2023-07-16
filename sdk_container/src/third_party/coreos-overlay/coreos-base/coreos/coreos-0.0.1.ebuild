@@ -100,6 +100,7 @@ RDEPEND="${RDEPEND}
 	app-arch/zip
 	app-arch/ncompress
 	app-crypt/adcli
+	app-crypt/clevis
 	app-crypt/gnupg
 	app-crypt/go-tspi
 	app-crypt/tpmpolicy
