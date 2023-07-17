@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -euo pipefail
+rootfs="${1}"
+
+mkdir -p "${rootfs}/usr/lib/systemd/system/multi-user.target.d"
+{ echo "[Unit]"; echo "Upholds=containerd.service"; } > "${rootfs}/usr/lib/systemd/system/multi-user.target.d/10-containerd-service.conf"
