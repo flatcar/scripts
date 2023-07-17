@@ -188,7 +188,7 @@ if [ "${FLAGS_usepkg}" -eq "${FLAGS_TRUE}" ]; then
   if [[ "${FLAGS_usepkgonly}" -eq "${FLAGS_TRUE}" ]]; then
     EMERGE_FLAGS+=( --usepkgonly --rebuilt-binaries n )
   fi
-  if [ "${FLAGS_getbinpkg}" -eq "${FLAGS_TRUE}" ]; then
+  if [ "${FLAGS_getbinpkg}" -eq "${FLAGS_TRUE}" ] && [ -n "${PORTAGE_BINHOST// }" ]; then
     EMERGE_FLAGS+=( --getbinpkg )
   fi
 

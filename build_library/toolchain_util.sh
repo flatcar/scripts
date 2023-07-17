@@ -201,8 +201,10 @@ get_sdk_binhost() {
         # but normally it is not needed because everything is already part of the tarball.
         # To install the crossdev Rust package, /toolchain-arm64/ is derived from /toolchain/
         # when necessary in install_cross_toolchain().
-        echo "${FLATCAR_DEV_BUILDS_SDK}/${arch}/${ver}/toolchain/"
-        echo "${FLATCAR_DEV_BUILDS_SDK}/${arch}/${ver}/pkgs/"
+        if curl -Ifs -o /dev/null "${FLATCAR_DEV_BUILDS_SDK}/${arch}/${ver}/pkgs/"; then
+            echo "${FLATCAR_DEV_BUILDS_SDK}/${arch}/${ver}/toolchain/"
+            echo "${FLATCAR_DEV_BUILDS_SDK}/${arch}/${ver}/pkgs/"
+        fi
     done
 }
 
