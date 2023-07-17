@@ -636,7 +636,7 @@ finish_image() {
 
 
   emerge-"${FLAGS_board}" app-containers/containerd
-  sudo "$(dirname ${BASH_SOURCE[0]})/../build_sysext" --board="${BOARD}" --image_builddir=${BUILD_DIR} --squashfs_base="${BUILD_DIR}/${image_sysext_base}" containerd-flatcar app-containers/containerd
+  sudo "$(dirname ${BASH_SOURCE[0]})/../build_sysext" --board="${BOARD}" --image_builddir=${BUILD_DIR} --squashfs_base="${BUILD_DIR}/${image_sysext_base}" --manglefs_script="$(dirname ${BASH_SOURCE[0]})/../manglefs_containerd" containerd-flatcar app-containers/containerd
   sudo install -m 0644 -D "${BUILD_DIR}/containerd-flatcar.raw" "${root_fs_dir}"/usr/share/flatcar/
   sudo mkdir -p "${root_fs_dir}"/etc/extensions/
   sudo ln -sf /usr/share/flatcar/containerd-flatcar.raw "${root_fs_dir}"/etc/extensions/containerd-flatcar.raw
