@@ -102,6 +102,14 @@ function _vm_build_impl() {
     # Keep compatibility with SDK scripts where "equinix_metal" remains unknown.
     formats=$(echo "$formats" | tr ' ' '\n' | sed 's/equinix_metal/packet/g')
 
+    source sdk_lib/sdk_container_common.sh
+
+    if is_official "${vernum}"; then
+        export COREOS_OFFICIAL=1
+    else
+        export COREOS_OFFICIAL=0
+    fi
+
     local images_in="images-in/"
     local file
     rm -rf "${images_in}"
