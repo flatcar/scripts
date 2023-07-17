@@ -15,6 +15,7 @@
 # SDK container env passing helpers
 sdk_container/.env
 sdk_container/.sdkenv
+ci-cleanup.sh
 
 # build cache / artefacts directories
 __build__/
