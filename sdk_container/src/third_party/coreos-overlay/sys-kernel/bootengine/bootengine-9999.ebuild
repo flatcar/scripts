@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-CROS_WORKON_PROJECT="krishjainx/bootengine"
+CROS_WORKON_PROJECT="flatcar/bootengine"
 CROS_WORKON_LOCALNAME="bootengine"
 CROS_WORKON_OUTOFTREE_BUILD=1
 CROS_WORKON_REPO="https://github.com"
@@ -10,7 +10,7 @@ CROS_WORKON_REPO="https://github.com"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	CROS_WORKON_COMMIT="6a286c04e4d0cccf70808ff5a9d9fb0f0aa76521" # flatcar-master
+	CROS_WORKON_COMMIT="2a2b0f5217e72eeb22469a27734470cf5550be25" # krishjainx/add-clevis-krish
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
