@@ -626,17 +626,18 @@ finish_image() {
   local disk_img="${BUILD_DIR}/${image_name}"
 
   # Ship the docker systemd-sysext image and rip out torcx in same go; TODO: create seperate sysext images for containerd and docker
-  echo "app-containers/containerd-1.6.16" >> ~/trunk/src/third_party/coreos-overlay/profiles/coreos/base/package.provided
+  mkdir -p ${PORTAGE_CONFIGROOT}/etc/portage/profile
+  echo $(equery -q --no-color list --format '$cpv' -po  app-containers/containerd | grep -v 9999 | head -n 1) > ${PORTAGE_CONFIGROOT}/etc/portage/profile/package.provided # use a temporary package.provided to make emerge believe the dependencies are already installed
   emerge-"${FLAGS_board}" app-containers/docker
-  sudo "$(dirname ${BASH_SOURCE[0]})/../build_sysext" --board="${BOARD}" --image_builddir=${BUILD_DIR} --squashfs_base="${BUILD_DIR}/${image_sysext_base}" --manglefs_script="$(dirname ${BASH_SOURCE[0]})/../manglefs_docker" docker-flatcar app-containers/docker
+  sudo "${SCRIPTS_DIR}/build_sysext" --board="${BOARD}" --image_builddir=${BUILD_DIR} --squashfs_base="${BUILD_DIR}/${image_sysext_base}" --manglefs_script="${SCRIPTS_DIR}/manglefs_docker" docker-flatcar app-containers/docker
   sudo install -m 0644 -D "${BUILD_DIR}/docker-flatcar.raw" "${root_fs_dir}"/usr/share/flatcar/
   sudo mkdir -p "${root_fs_dir}"/etc/extensions/
   sudo ln -sf /usr/share/flatcar/docker-flatcar.raw "${root_fs_dir}"/etc/extensions/docker-flatcar.raw
-  sed -i '/containerd/d' ~/trunk/src/third_party/coreos-overlay/profiles/coreos/base/package.provided
+  rm ${PORTAGE_CONFIGROOT}/etc/portage/profile/package.provided
 
 
   emerge-"${FLAGS_board}" app-containers/containerd
-  sudo "$(dirname ${BASH_SOURCE[0]})/../build_sysext" --board="${BOARD}" --image_builddir=${BUILD_DIR} --squashfs_base="${BUILD_DIR}/${image_sysext_base}" --manglefs_script="$(dirname ${BASH_SOURCE[0]})/../manglefs_containerd" containerd-flatcar app-containers/containerd
+  sudo "${SCRIPTS_DIR}/build_sysext" --board="${BOARD}" --image_builddir=${BUILD_DIR} --squashfs_base="${BUILD_DIR}/${image_sysext_base}" --manglefs_script=""${SCRIPTS_DIR}/manglefs_containerd" containerd-flatcar app-containers/containerd
   sudo install -m 0644 -D "${BUILD_DIR}/containerd-flatcar.raw" "${root_fs_dir}"/usr/share/flatcar/
   sudo mkdir -p "${root_fs_dir}"/etc/extensions/
   sudo ln -sf /usr/share/flatcar/containerd-flatcar.raw "${root_fs_dir}"/etc/extensions/containerd-flatcar.raw
