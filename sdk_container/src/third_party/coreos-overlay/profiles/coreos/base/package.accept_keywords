@@ -92,6 +92,3 @@
 
 # Accept unstable host Rust compilers.
 =virtual/rust-1.71.0 ~amd64 ~arm64
-
-# Keep versions on both arches in sync.
-=x11-base/xorg-proto-2023.2 ~amd64
