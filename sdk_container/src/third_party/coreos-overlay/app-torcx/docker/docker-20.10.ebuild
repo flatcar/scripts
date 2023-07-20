@@ -15,7 +15,7 @@ RDEPEND="
 	~app-containers/docker-cli-20.10.24
 	~app-containers/containerd-1.7.2
 	~app-containers/docker-proxy-0.8.0_p20230118
-	~app-containers/runc-1.1.7
+	~app-containers/runc-1.1.8
 	~dev-libs/libltdl-2.4.7
 	~sys-process/tini-0.19.0
 "
