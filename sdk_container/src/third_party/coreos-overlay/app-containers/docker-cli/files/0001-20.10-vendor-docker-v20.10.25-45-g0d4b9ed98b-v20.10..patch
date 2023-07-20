@@ -1,0 +1,104 @@
+From 5d4e44df90bb913f30a1f0215f9715cb60e17d75 Mon Sep 17 00:00:00 2001
+Message-Id: <5d4e44df90bb913f30a1f0215f9715cb60e17d75.1689769748.git.dpark@linux.microsoft.com>
+From: Sebastiaan van Stijn <github@gone.nl>
+Date: Mon, 17 Jul 2023 16:48:27 +0200
+Subject: [PATCH] [20.10] vendor: docker v20.10.25-45-g0d4b9ed98b
+ (v20.10.26-dev)
+
+full diff: https://github.com/docker/docker/compare/v20.10.25...0d4b9ed98be2aecf27e8dd014bef7bad0be15457
+
+Signed-off-by: Sebastiaan van Stijn <github@gone.nl>
+---
+ .../github.com/docker/docker/client/client.go | 30 +++++++++++++++++++
+ .../github.com/docker/docker/client/hijack.go |  6 +++-
+ .../docker/docker/client/request.go           | 14 ++++-----
+ vendor/github.com/docker/docker/vendor.conf   |  2 +-
+ 5 files changed, 43 insertions(+), 11 deletions(-)
+
+diff --git a/vendor/github.com/docker/docker/client/client.go b/vendor/github.com/docker/docker/client/client.go
+index 0d3614d5..d0ce09ae 100644
+--- a/vendor/github.com/docker/docker/client/client.go
++++ b/vendor/github.com/docker/docker/client/client.go
+@@ -56,6 +56,36 @@ import (
+ 	"github.com/pkg/errors"
+ )
+ 
++// DummyHost is a hostname used for local communication.
++//
++// It acts as a valid formatted hostname for local connections (such as "unix://"
++// or "npipe://") which do not require a hostname. It should never be resolved,
++// but uses the special-purpose ".localhost" TLD (as defined in [RFC 2606, Section 2]
++// and [RFC 6761, Section 6.3]).
++//
++// [RFC 7230, Section 5.4] defines that an empty header must be used for such
++// cases:
++//
++//	If the authority component is missing or undefined for the target URI,
++//	then a client MUST send a Host header field with an empty field-value.
++//
++// However, [Go stdlib] enforces the semantics of HTTP(S) over TCP, does not
++// allow an empty header to be used, and requires req.URL.Scheme to be either
++// "http" or "https".
++//
++// For further details, refer to:
++//
++//   - https://github.com/docker/engine-api/issues/189
++//   - https://github.com/golang/go/issues/13624
++//   - https://github.com/golang/go/issues/61076
++//   - https://github.com/moby/moby/issues/45935
++//
++// [RFC 2606, Section 2]: https://www.rfc-editor.org/rfc/rfc2606.html#section-2
++// [RFC 6761, Section 6.3]: https://www.rfc-editor.org/rfc/rfc6761#section-6.3
++// [RFC 7230, Section 5.4]: https://datatracker.ietf.org/doc/html/rfc7230#section-5.4
++// [Go stdlib]: https://github.com/golang/go/blob/6244b1946bc2101b01955468f1be502dbadd6807/src/net/http/transport.go#L558-L569
++const DummyHost = "api.moby.localhost"
++
+ // ErrRedirect is the error returned by checkRedirect when the request is non-GET.
+ var ErrRedirect = errors.New("unexpected redirect in response")
+ 
+diff --git a/vendor/github.com/docker/docker/client/hijack.go b/vendor/github.com/docker/docker/client/hijack.go
+index e1dc49ef..b8fac0be 100644
+--- a/vendor/github.com/docker/docker/client/hijack.go
++++ b/vendor/github.com/docker/docker/client/hijack.go
+@@ -62,7 +62,11 @@ func fallbackDial(proto, addr string, tlsConfig *tls.Config) (net.Conn, error) {
+ }
+ 
+ func (cli *Client) setupHijackConn(ctx context.Context, req *http.Request, proto string) (net.Conn, error) {
+-	req.Host = cli.addr
++	req.URL.Host = cli.addr
++	if cli.proto == "unix" || cli.proto == "npipe" {
++		// Override host header for non-tcp connections.
++		req.Host = DummyHost
++	}
+ 	req.Header.Set("Connection", "Upgrade")
+ 	req.Header.Set("Upgrade", proto)
+ 
+diff --git a/vendor/github.com/docker/docker/client/request.go b/vendor/github.com/docker/docker/client/request.go
+index d3d9a3fe..66530d4b 100644
+--- a/vendor/github.com/docker/docker/client/request.go
++++ b/vendor/github.com/docker/docker/client/request.go
+@@ -88,15 +88,13 @@ func (cli *Client) buildRequest(method, path string, body io.Reader, headers hea
+ 		return nil, err
+ 	}
+ 	req = cli.addHeaders(req, headers)
+-
+-	if cli.proto == "unix" || cli.proto == "npipe" {
+-		// For local communications, it doesn't matter what the host is. We just
+-		// need a valid and meaningful host name. (See #189)
+-		req.Host = "docker"
+-	}
+-
+-	req.URL.Host = cli.addr
+ 	req.URL.Scheme = cli.scheme
++	req.URL.Host = cli.addr
++
++	if cli.proto == "unix" || cli.proto == "npipe" {
++		// Override host header for non-tcp connections.
++		req.Host = DummyHost
++	}
+ 
+ 	if expectedPayload && req.Header.Get("Content-Type") == "" {
+ 		req.Header.Set("Content-Type", "text/plain")
+-- 
+2.34.1
+
