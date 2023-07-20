@@ -628,15 +628,12 @@ finish_image() {
   # Ship the docker systemd-sysext image and rip out torcx in same go; TODO: create seperate sysext images for containerd and docker
   mkdir -p ${PORTAGE_CONFIGROOT}/etc/portage/profile
   query_available_package containerd > ${PORTAGE_CONFIGROOT}/etc/portage/profile/package.provided # use a temporary package.provided to make emerge believe the dependencies are already installed
-  emerge-"${FLAGS_board}" app-containers/docker
   sudo "${SCRIPTS_DIR}/build_sysext" --board="${BOARD}" --image_builddir=${BUILD_DIR} --squashfs_base="${BUILD_DIR}/${image_sysext_base}" --manglefs_script="${SCRIPTS_DIR}/manglefs_docker" docker-flatcar app-containers/docker
   sudo install -m 0644 -D "${BUILD_DIR}/docker-flatcar.raw" "${root_fs_dir}"/usr/share/flatcar/
   sudo mkdir -p "${root_fs_dir}"/etc/extensions/
   sudo ln -sf /usr/share/flatcar/docker-flatcar.raw "${root_fs_dir}"/etc/extensions/docker-flatcar.raw
   rm ${PORTAGE_CONFIGROOT}/etc/portage/profile/package.provided
 
-
-  emerge-"${FLAGS_board}" app-containers/containerd
   sudo "${SCRIPTS_DIR}/build_sysext" --board="${BOARD}" --image_builddir=${BUILD_DIR} --squashfs_base="${BUILD_DIR}/${image_sysext_base}" --manglefs_script=""${SCRIPTS_DIR}/manglefs_containerd" containerd-flatcar app-containers/containerd
   sudo install -m 0644 -D "${BUILD_DIR}/containerd-flatcar.raw" "${root_fs_dir}"/usr/share/flatcar/
   sudo ln -sf /usr/share/flatcar/containerd-flatcar.raw "${root_fs_dir}"/etc/extensions/containerd-flatcar.raw
