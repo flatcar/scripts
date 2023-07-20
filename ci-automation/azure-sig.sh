@@ -188,9 +188,9 @@ function ensure-flatcar-staging-sig-image-version-from-vhd() {
   RESOURCE_GROUP_NAME="${STAGING_SIG_RESOURCE_GROUP}"
 
   # shellcheck disable=SC2310 # This might return 1.
-  if sig-image-version-exists; then
-    return
-  fi
+  #if sig-image-version-exists; then
+    #return
+  #fi
 
   ensure-resource-group
   ensure-sig

@@ -75,8 +75,12 @@ function _inside_capi_image_build() {
     echo "== Building Flatcar SIG images from VHDs"
     ci-automation/azure-sig.sh azure_login
     ci-automation/azure-sig.sh ensure-flatcar-staging-sig-image-version-from-vhd
-    # echo "== Building Flatcar CAPI SIG image"
-    # ci-automation/azure-sig.sh build-capi-staging-image
+    for K8S_VERSION in $K8S_VERSIONS
+    do
+      export KUBERNETES_SEMVER="v${K8S_VERSION}"
+      echo "== Building Flatcar CAPI SIG image"
+      ci-automation/azure-sig.sh build-capi-staging-image
+    done
 
   )
 }
@@ -107,15 +111,10 @@ function _capi_image_build_impl() {
   do
     setup_capi_params
 
-    echo "==== $K8S_VERSIONS"
-
-    for K8S_VERSION in $K8S_VERSIONS
-    do
-      touch sdk_container/.env # This file should already contain the required credentials as env vars
-      echo "export KUBERNETES_SEMVER='v${K8S_VERSION}'" >> sdk_container/.env
-      docker run --pull always --rm --name="${container_name}" --net host \
-        -w /work -v "$PWD":/work "${mantle_ref}" bash -c "git config --global --add safe.directory /work && source ci-automation/capi_image.sh && _inside_capi_image_build"
-    done
+    touch sdk_container/.env # This file should already contain the required credentials as env vars
+    echo "export K8S_VERSIONS='${K8S_VERSIONS}'" >> sdk_container/.env
+    docker run --pull always --rm --name="${container_name}" --net host \
+      -w /work -v "$PWD":/work "${mantle_ref}" bash -c "git config --global --add safe.directory /work && source ci-automation/capi_image.sh && _inside_capi_image_build"
   done
 }
 
