@@ -343,6 +343,7 @@ net-misc/socat
 net-misc/wget
 net-misc/whois
 
+net-nds/openldap
 net-nds/rpcbind
 
 net-vpn/wireguard-tools
