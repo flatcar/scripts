@@ -639,7 +639,6 @@ finish_image() {
   emerge-"${FLAGS_board}" app-containers/containerd
   sudo "${SCRIPTS_DIR}/build_sysext" --board="${BOARD}" --image_builddir=${BUILD_DIR} --squashfs_base="${BUILD_DIR}/${image_sysext_base}" --manglefs_script=""${SCRIPTS_DIR}/manglefs_containerd" containerd-flatcar app-containers/containerd
   sudo install -m 0644 -D "${BUILD_DIR}/containerd-flatcar.raw" "${root_fs_dir}"/usr/share/flatcar/
-  sudo mkdir -p "${root_fs_dir}"/etc/extensions/
   sudo ln -sf /usr/share/flatcar/containerd-flatcar.raw "${root_fs_dir}"/etc/extensions/containerd-flatcar.raw
 
   # Only enable rootfs verification on prod builds.
