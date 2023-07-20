@@ -72,9 +72,13 @@ RESTRICT="installsources strip test"
 
 S="${WORKDIR}/${P}/src/${EGO_PN}"
 
-# Flatcar: Dropped outdated bug links, dropped openrc init script patch
+# Flatcar: Dropped outdated bug links, dropped openrc init script patch,
+# backport upstream patches for fixing invalid headers issue when building
+# with Go 1.19.11+.
 PATCHES=(
 	"${FILESDIR}/ppc64-buildmode.patch"
+	"${FILESDIR}/0001-client-define-a-dummy-hostname-to-use-for-local-conn.patch"
+	"${FILESDIR}/0002-pkg-plugins-use-a-dummy-hostname-for-local-connectio.patch"
 )
 
 # see "contrib/check-config.sh" from upstream's sources
