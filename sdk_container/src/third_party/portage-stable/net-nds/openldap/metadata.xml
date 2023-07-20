@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-	<maintainer type="person">
-		<email>zlogene@gentoo.org</email>
-		<name>Mikle Kolyada</name>
-	</maintainer>
 	<maintainer type="project">
 		<email>ldap-bugs@gentoo.org</email>
 	</maintainer>
@@ -24,6 +20,7 @@
 	<upstream>
 		<bugs-to>https://bugs.openldap.org/</bugs-to>
 		<remote-id type="cpe">cpe:/a:openldap:openldap</remote-id>
+		<remote-id type="github">openldap/openldap</remote-id>
 		<remote-id type="gitlab">openldap/openldap</remote-id>
 	</upstream>
 </pkgmetadata>
