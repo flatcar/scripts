@@ -29,6 +29,8 @@ RDEPEND="
 		sys-boot/grub
 		sys-firmware/edk2-ovmf-bin
 	)
+	app-containers/containerd
+	app-containers/docker
 	app-emulation/amazon-ssm-agent
 	app-emulation/wa-linux-agent
 	coreos-base/coreos
