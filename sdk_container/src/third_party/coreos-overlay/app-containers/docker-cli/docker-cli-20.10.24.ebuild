@@ -5,7 +5,10 @@ EAPI=7
 GIT_COMMIT=e78084afe5
 EGO_PN="github.com/docker/cli"
 
-inherit bash-completion-r1  golang-vcs-snapshot
+COREOS_GO_PACKAGE="${EGO_PN}"
+COREOS_GO_VERSION="go1.19"
+
+inherit bash-completion-r1  golang-vcs-snapshot coreos-go-depend
 
 DESCRIPTION="the command line binary for docker"
 HOMEPAGE="https://www.docker.com/"
@@ -29,12 +32,16 @@ src_prepare() {
 }
 
 src_compile() {
+	# Flatcar: override go version
+	go_export
+
 	export DISABLE_WARN_OUTSIDE_CONTAINER=1
 	export GOPATH="${WORKDIR}/${P}"
 	# setup CFLAGS and LDFLAGS for separate build target
 	# see https://github.com/tianon/docker-overlay/pull/10
-	export CGO_CFLAGS="-I${SYSROOT}/usr/include"
-	export CGO_LDFLAGS="-L${SYSROOT}/usr/$(get_libdir)"
+	# FLatcar: inject our own CFLAGS/LDFLAGS for torcx
+	export CGO_CFLAGS="${CGO_CFLAGS} -I${SYSROOT}/usr/include"
+	export CGO_LDFLAGS="${CGO_LDFLAGS} -L${SYSROOT}/usr/$(get_libdir)"
 		emake \
 		LDFLAGS="$(usex hardened '-extldflags -fno-PIC' '')" \
 		VERSION="${PV}" \
