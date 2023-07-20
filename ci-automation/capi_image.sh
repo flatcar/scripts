@@ -64,7 +64,7 @@ function _inside_capi_image_build() {
     export DEBUG=true
     # FLATCAR_CHANNEL="$(get_git_channel)"
     export FLATCAR_CHANNEL="stable"
-    export FLATCAR_VERSION="3510.2.4"
+    export FLATCAR_VERSION="3510.2.5"
     export PUBLISHING_SIG_RESOURCE_GROUP="sayan-flatcar-image-gallery-publishing"
     export STAGING_SIG_RESOURCE_GROUP="sayan-flatcar-image-gallery-staging"
     export FLATCAR_GALLERY_NAME="sayan_flatcar"
