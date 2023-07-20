@@ -106,6 +106,9 @@ function _capi_image_build_impl() {
   for arch in amd64
   do
     setup_capi_params
+
+    echo "==== $K8S_VERSIONS"
+
     for K8S_VERSION in $K8S_VERSIONS
     do
       touch sdk_container/.env # This file should already contain the required credentials as env vars
