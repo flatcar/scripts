@@ -259,6 +259,18 @@ image_packages_portage() {
     ROOT="$1" PORTAGE_CONFIGROOT="${BUILD_DIR}"/configroot \
         equery --no-color list --format '$cpv::$repo' '*'
 }
+
+# List dependencies for a package runtime dependencies
+
+function package_run_dependencies() (
+  pkg=${1:?}
+  ebuild=$(equery-${BOARD} w "${pkg}")
+  function inherit() { : ; }
+  . "${ebuild}"
+  echo ${RDEPEND}
+)
+
+
 # List packages implicitly contained in rootfs, such as in torcx packages or
 # initramfs.
 image_packages_implicit() {
@@ -294,6 +306,12 @@ image_packages_implicit() {
     [ -z "${FLAGS_torcx_manifest}" ] ||
     torcx_manifest::sources_on_disk "${FLAGS_torcx_manifest}" |
     while read pkg ; do query_available_package "${pkg}" ; done
+
+
+    # Include source packages of all sysext images installed on disk.
+    for docker_containerd_package in $(package_run_dependencies docker) $(package_run_dependencies containerd); do
+     query_available_package ${docker_containerd_package} 
+    done
 }
 
 # Generate a list of packages installed in an image.
