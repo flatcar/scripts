@@ -1,14 +1,13 @@
 # Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# please keep this ebuild at EAPI 7 -- sys-apps/portage dep
-EAPI=7
+# please keep this ebuild at EAPI 8 -- sys-apps/portage dep
+EAPI=8
 
 DISTUTILS_USE_PEP517=flit
 PYPI_NO_NORMALIZE=1
 PYPI_PN=${PN/-/.}
-CLI_COMPAT=( python3_{10..11} pypy3 )
-PYTHON_COMPAT=( "${CLI_COMPAT[@]}" python3_12 )
+PYTHON_COMPAT=( python3_{10..12} pypy3 )
 
 inherit distutils-r1 pypi
 
@@ -20,31 +19,11 @@ HOMEPAGE="
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
-IUSE="cli"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 
 RDEPEND="
 	>=dev-python/jaraco-context-4.1.1-r1[${PYTHON_USEDEP}]
 	>=dev-python/jaraco-functools-3.5.0-r1[${PYTHON_USEDEP}]
-"
-# needed only for CLI tool, make it PDEPEND to reduce pain in setuptools
-# bootstrap
-CLI_DEPEND="
-	$(python_gen_cond_dep '
-		dev-python/autocommand[${PYTHON_USEDEP}]
-		dev-python/inflect[${PYTHON_USEDEP}]
-		dev-python/more-itertools[${PYTHON_USEDEP}]
-	' "${CLI_COMPAT[@]}")
-"
-PDEPEND="
-	cli? (
-		${CLI_DEPEND}
-	)
-"
-BDEPEND="
-	test? (
-		${PDEPEND}
-	)
 "
 
 distutils_enable_tests pytest
@@ -63,19 +42,11 @@ src_configure() {
 		version = "${PV}"
 		description = "Module for text manipulation"
 	EOF
-}
 
-python_test() {
-	local EPYTEST_IGNORE=()
-
-	if ! use cli || ! has "${EPYTHON/./_}" "${CLI_COMPAT[@]}"; then
-		EPYTEST_IGNORE+=(
-			jaraco/text/show-newlines.py
-			jaraco/text/strip-prefix.py
-		)
-	fi
-
-	epytest
+	# remove CLI tools, they have annoying deps, no entry points
+	# and since there are dashes in their names, they can't be imported
+	# anyway
+	rm jaraco/text/*-*.py || die
 }
 
 python_install() {
