@@ -26,6 +26,11 @@ RESTRICT="installsources strip"
 
 S="${WORKDIR}/${P}/src/${EGO_PN}"
 
+# Flatcar: fix invalid headers issue when building with Go 1.19.11+.
+PATCHES=(
+	"${FILESDIR}/0001-20.10-vendor-docker-v20.10.25-45-g0d4b9ed98b-v20.10..patch"
+)
+
 src_prepare() {
 	default
 	sed -i 's@dockerd\?\.exe@@g' contrib/completion/bash/docker || die
@@ -47,8 +52,6 @@ src_compile() {
 		VERSION="${PV}" \
 		GITCOMMIT="${GIT_COMMIT}" \
 		dynbinary
-
-	# Flatcar: removed man page generation since they are not included in images
 }
 
 src_install() {
