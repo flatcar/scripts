@@ -93,6 +93,11 @@ PDEPEND="
 	)
 "
 
+# message patch used in 3.0.48.1 and 3.0.49 (bug 909853)
+PATCHES=(
+	"${FILESDIR}/depgraph.py-fix-no-ebuilds-binpkgs-message.patch"
+)
+
 distutils_enable_tests pytest
 
 pkg_pretend() {
