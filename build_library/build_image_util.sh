@@ -310,7 +310,7 @@ image_packages_implicit() {
 
     # Include source packages of all sysext images installed on disk.
     for docker_containerd_package in $(package_run_dependencies docker) $(package_run_dependencies containerd); do
-     query_available_package ${docker_containerd_package} 
+     query_available_package "${docker_containerd_package}" ;
     done
 }
 
@@ -644,7 +644,7 @@ finish_image() {
   local disk_img="${BUILD_DIR}/${image_name}"
 
   # Ship the docker systemd-sysext image and rip out torcx in same go; TODO: create seperate sysext images for containerd and docker
-  mkdir -p ${PORTAGE_CONFIGROOT}/etc/portage/profile
+  mkdir -p "${PORTAGE_CONFIGROOT}"/etc/portage/profile
   query_available_package containerd > ${PORTAGE_CONFIGROOT}/etc/portage/profile/package.provided # use a temporary package.provided to make emerge believe the dependencies are already installed
   sudo "${SCRIPTS_DIR}/build_sysext" --board="${BOARD}" --image_builddir=${BUILD_DIR} --squashfs_base="${BUILD_DIR}/${image_sysext_base}" --manglefs_script="${SCRIPTS_DIR}/manglefs_docker" docker-flatcar app-containers/docker
   sudo install -m 0644 -D "${BUILD_DIR}/docker-flatcar.raw" "${root_fs_dir}"/usr/share/flatcar/
@@ -652,7 +652,7 @@ finish_image() {
   sudo ln -sf /usr/share/flatcar/docker-flatcar.raw "${root_fs_dir}"/etc/extensions/docker-flatcar.raw
   rm ${PORTAGE_CONFIGROOT}/etc/portage/profile/package.provided
 
-  sudo "${SCRIPTS_DIR}/build_sysext" --board="${BOARD}" --image_builddir=${BUILD_DIR} --squashfs_base="${BUILD_DIR}/${image_sysext_base}" --manglefs_script=""${SCRIPTS_DIR}/manglefs_containerd" containerd-flatcar app-containers/containerd
+  sudo "${SCRIPTS_DIR}/build_sysext" --board="${BOARD}" --image_builddir=${BUILD_DIR} --squashfs_base="${BUILD_DIR}/${image_sysext_base}" --manglefs_script="${SCRIPTS_DIR}/manglefs_containerd" containerd-flatcar app-containers/containerd
   sudo install -m 0644 -D "${BUILD_DIR}/containerd-flatcar.raw" "${root_fs_dir}"/usr/share/flatcar/
   sudo ln -sf /usr/share/flatcar/containerd-flatcar.raw "${root_fs_dir}"/etc/extensions/containerd-flatcar.raw
 
