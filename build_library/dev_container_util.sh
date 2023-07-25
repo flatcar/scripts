@@ -110,7 +110,7 @@ create_dev_container() {
   # The remount services are provided by coreos-base/coreos-init
   systemd_enable "${root_fs_dir}" "multi-user.target" "remount-usr.service"
 
-  finish_image "${image_name}" "${disk_layout}" "${root_fs_dir}" "${image_contents}" "${image_contents_wtd}"
+  DEVCONTAINER=1 finish_image "${image_name}" "${disk_layout}" "${root_fs_dir}" "${image_contents}" "${image_contents_wtd}"
 
   declare -a files_to_evaluate
   declare -a compressed_images
