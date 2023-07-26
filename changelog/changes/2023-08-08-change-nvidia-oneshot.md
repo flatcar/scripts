@@ -1,0 +1,1 @@
+- Change nvidia.service to type oneshot (from the default "simple") so the subsequent services (configured with "Requires/After") are executed after the driver installation is successfully finished (flatcar/Flatcar#1136)
