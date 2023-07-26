@@ -8,7 +8,7 @@ CROS_WORKON_REPO="https://github.com"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	CROS_WORKON_COMMIT="c6f566d47d8949632f7f43871eb8d5c625af3209" # flatcar-master
+	CROS_WORKON_COMMIT="b3cdd63f96cfa35c73c56dc6ce4fbe6cbc5d6740" # flatcar-master
 	KEYWORDS="amd64 arm64"
 fi
 
@@ -101,6 +101,11 @@ src_install() {
 
 	insinto /usr/share/dbus-1/system.d
 	doins com.coreos.update1.conf
+
+	insinto /usr/share/update_engine
+	doins src/update_engine/update_metadata.proto
+	exeinto /usr/share/update_engine
+	doexe decode_payload
 
 	# Install rule to remove old UpdateEngine.conf from /etc
 	dotmpfiles "${FILESDIR}"/update-engine.conf

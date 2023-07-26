@@ -1,0 +1,13 @@
+/etc/systemd/system/nvidia.service
+/oem/bin/setup-nvidia
+/oem/bin/install-nvidia
+/oem/units/nvidia.service
+/etc/systemd/system/oem-cloudinit.service
+/etc/systemd/system/multi-user.target.wants/oem-cloudinit.service
+/etc/systemd/system/waagent.service
+/etc/systemd/system/multi-user.target.wants/waagent.service
+/oem/waagent.conf
+/oem/python/
+/oem/bin/
+/oem/units/
+/oem/base/

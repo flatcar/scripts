@@ -1,0 +1,1 @@
+- OEM vendor tools are now A/B updated if they are shipped as systemd-sysext images, the migration happens when both partitions require a systemd-sysext OEM image - note that this will delete the `nvidia.service` from `/etc` on Azure because it's now part of `/usr` ([Flatcar#60](https://github.com/flatcar/Flatcar/issues/60))

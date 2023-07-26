@@ -79,6 +79,14 @@ src_install() {
     insinto '/etc/bash/bashrc.d'
     doins "${FILESDIR}/99-flatcar-bcc"
 
+    insinto '/usr/share/flatcar'
+    # The "oems" folder should contain a file "$OEMID" for each expected OEM sysext and
+    # either be empty or contain a newline-separated list of files to delete during the
+    # migration (done from the initrd). The existence of the file will help old clients
+    # to do the fallback download of the sysext payload in the postinstall hook.
+    # The paths should use /oem instead of /usr/share/oem/ to avoid symlink resolution.
+    doins -r "${FILESDIR}"/oems
+
     dotmpfiles "${T}/home-core-bash-symlinks.conf"
     # Ideally we would be calling systemd-tmpfiles to create the
     # symlinks, but at this point systemd may not have any info about

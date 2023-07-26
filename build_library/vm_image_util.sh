@@ -531,12 +531,7 @@ install_oem_sysext() {
     local built_sysext_dir="${FLAGS_to}/${oem_sysext}-sysext"
     local built_sysext_filename="${oem_sysext}.raw"
     local built_sysext_path="${built_sysext_dir}/${built_sysext_filename}"
-    # TODO: Set 'version' to "${FLATCAR_VERSION}" and drop
-    # VERSION_FIELD_OVERRIDE when we implement updating OEM sysexts.
-    local version='initial'
-    local build_sysext_env=(
-        VERSION_FIELD_OVERRIDE='SYSEXT_LEVEL=1.0'
-    )
+    local version='${FLATCAR_VERSION}'
     local metapkg="coreos-base/${oem_sysext}"
     local build_sysext_flags=(
         --board="${BOARD}"
