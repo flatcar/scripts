@@ -1,7 +1,7 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 inherit autotools
 
@@ -11,12 +11,12 @@ SRC_URI="mirror://sourceforge/linuxquota/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~mips ppc ppc64 sparc x86"
-IUSE="ldap netlink nls rpc tcpd"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~mips ppc ppc64 ~riscv sparc x86"
+IUSE="ldap netlink nls rpc selinux tcpd"
 
 RDEPEND="
 	sys-fs/e2fsprogs
-	ldap? ( >=net-nds/openldap-2.3.35 )
+	ldap? ( >=net-nds/openldap-2.3.35:= )
 	netlink? (
 		sys-apps/dbus
 		dev-libs/libnl:3
@@ -31,14 +31,17 @@ RDEPEND="
 DEPEND="${RDEPEND}"
 BDEPEND="nls? ( sys-devel/gettext )"
 PDEPEND="rpc? ( net-nds/rpcbind )"
+RDEPEND+=" selinux? ( sec-policy/selinux-quota )"
 
 PATCHES=(
-	"${FILESDIR}"/${P}-musl-cdefs.patch
+	"${FILESDIR}"/${PN}-4.09-configure-bashism.patch
+	"${FILESDIR}"/${PN}-4.09-gettext-version.patch
 )
 
 src_prepare() {
 	default
 
+	# Only needed for bashism patch and stale macros patch
 	eautoreconf
 }
 
