@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -6,20 +6,22 @@ EAPI=7
 inherit linux-info tmpfiles
 
 DESCRIPTION="Tool to setup encrypted devices with dm-crypt"
-HOMEPAGE="https://gitlab.com/cryptsetup/cryptsetup/blob/master/README.md"
+HOMEPAGE="https://gitlab.com/cryptsetup/cryptsetup"
 SRC_URI="https://www.kernel.org/pub/linux/utils/${PN}/v$(ver_cut 1-2)/${P/_/-}.tar.xz"
 
 LICENSE="GPL-2+"
 SLOT="0/12" # libcryptsetup.so version
 [[ ${PV} != *_rc* ]] && \
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 CRYPTO_BACKENDS="gcrypt kernel nettle +openssl"
 # we don't support nss since it doesn't allow cryptsetup to be built statically
 # and it's missing ripemd160 support so it can't provide full backward compatibility
 IUSE="${CRYPTO_BACKENDS} +argon2 fips nls pwquality reencrypt ssh static static-libs test +udev urandom"
 RESTRICT="!test? ( test )"
 REQUIRED_USE="^^ ( ${CRYPTO_BACKENDS//+/} )
-	static? ( !gcrypt !ssh !udev !fips )" # 496612, 832711
+	static? ( !gcrypt !ssh !udev !fips )
+	fips? ( !kernel !nettle )
+" # 496612, 832711, 843863
 
 LIB_DEPEND="
 	dev-libs/json-c:=[static-libs(+)]
@@ -75,7 +77,7 @@ src_configure() {
 	local myeconfargs=(
 		--disable-internal-argon2
 		--enable-shared
-		--sbindir=/sbin
+		--sbindir="${EPREFIX}"/sbin
 		# for later use
 		--with-default-luks-format=LUKS2
 		--with-tmpfilesdir="${EPREFIX}/usr/lib/tmpfiles.d"
