@@ -1,1 +1,1 @@
-ghcr.io/flatcar/mantle:pr-445
+docker pull ghcr.io/flatcar/mantle:pr-445@sha256:b86eb93eb68b587e0e59ff38ae13cd1838255f350313e29cc441f940b43b7f87
