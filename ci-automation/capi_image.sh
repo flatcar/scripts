@@ -79,6 +79,7 @@ function _inside_capi_image_build() {
 break-system-packages = true
 END
 
+    export PATH="${HOME}/.local/bin:$PATH"
     echo "== Building Flatcar SIG images from VHDs"
     ci-automation/azure-sig.sh azure_login
     ci-automation/azure-sig.sh ensure-flatcar-staging-sig-image-version-from-vhd
