@@ -72,6 +72,13 @@ function _inside_capi_image_build() {
     export FLATCAR_CAPI_GALLERY_NAME="sayan_flatcar4capi"
     export FLATCAR_CAPI_STAGING_GALLERY_NAME="sayan_flatcar4capi_staging"
 
+
+    mkdir -p "${HOME}/.config/pip/"
+    tee "${HOME}/.config/pip/pip.conf" << END
+[global]
+break-system-packages = true
+END
+
     echo "== Building Flatcar SIG images from VHDs"
     ci-automation/azure-sig.sh azure_login
     ci-automation/azure-sig.sh ensure-flatcar-staging-sig-image-version-from-vhd
