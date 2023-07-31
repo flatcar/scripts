@@ -4,24 +4,30 @@
 EAPI=8
 
 VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/elfutils.gpg
-inherit flag-o-matic multilib-minimal verify-sig
+inherit autotools flag-o-matic multilib-minimal verify-sig
 
 DESCRIPTION="Libraries/utilities to handle ELF objects (drop in replacement for libelf)"
 HOMEPAGE="https://sourceware.org/elfutils/"
 SRC_URI="https://sourceware.org/elfutils/ftp/${PV}/${P}.tar.bz2"
-SRC_URI+=" https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${PN}-0.187-patches.tar.xz"
 SRC_URI+=" verify-sig? ( https://sourceware.org/elfutils/ftp/${PV}/${P}.tar.bz2.sig )"
 
 LICENSE="|| ( GPL-2+ LGPL-3+ ) utils? ( GPL-3+ )"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux"
-IUSE="bzip2 lzma nls static-libs test +utils zstd"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux"
+IUSE="bzip2 debuginfod lzma nls static-libs test +utils zstd"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
 	!dev-libs/libelf
 	>=sys-libs/zlib-1.2.8-r1[static-libs?,${MULTILIB_USEDEP}]
 	bzip2? ( >=app-arch/bzip2-1.0.6-r4[static-libs?,${MULTILIB_USEDEP}] )
+	debuginfod? (
+		app-arch/libarchive:=
+		dev-db/sqlite:3=
+		net-libs/libmicrohttpd:=
+
+		net-misc/curl[static-libs?,${MULTILIB_USEDEP}]
+	)
 	lzma? ( >=app-arch/xz-utils-5.0.5-r1[static-libs?,${MULTILIB_USEDEP}] )
 	zstd? ( app-arch/zstd:=[static-libs?,${MULTILIB_USEDEP}] )
 	elibc_musl? (
@@ -42,24 +48,20 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${WORKDIR}"/${PN}-0.187-patches/
+	"${FILESDIR}"/${PN}-0.189-PaX-support.patch
+	"${FILESDIR}"/${PN}-0.189-skip-DT_RELR-failing-tests.patch
+	"${FILESDIR}"/${PN}-0.189-tests-run-lfs-symbols.sh-needs-gawk.patch
+	"${FILESDIR}"/${PN}-0.189-musl-aarch64-regs.patch
+	"${FILESDIR}"/${PN}-0.189-musl-macros.patch
+	"${FILESDIR}"/${P}-configure-bashisms.patch
+	"${FILESDIR}"/${P}-clang16-tests.patch
 )
-
-src_unpack() {
-	if use verify-sig ; then
-		# Needed for downloaded patch (which is unsigned, which is fine)
-		verify-sig_verify_detached "${DISTDIR}"/${P}.tar.bz2{,.sig}
-	fi
-
-	default
-}
 
 src_prepare() {
 	default
 
-	if use elibc_musl; then
-		eapply "${WORKDIR}"/${PN}-0.187-patches/musl/
-	fi
+	# Only here for ${P}-configure-bashisms.patch, delete on next bump!
+	eautoreconf
 
 	if ! use static-libs; then
 		sed -i -e '/^lib_LIBRARIES/s:=.*:=:' -e '/^%.os/s:%.o$::' lib{asm,dw,elf}/Makefile.in || die
@@ -79,8 +81,8 @@ src_configure() {
 multilib_src_configure() {
 	local myeconfargs=(
 		$(use_enable nls)
-		--disable-debuginfod
-		--disable-libdebuginfod
+		$(multilib_native_use_enable debuginfod)
+		$(use_enable debuginfod libdebuginfod)
 
 		# explicitly disable thread safety, it's not recommended by upstream
 		# doesn't build either on musl.
