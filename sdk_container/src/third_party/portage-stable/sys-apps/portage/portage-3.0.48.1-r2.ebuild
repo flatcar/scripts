@@ -50,6 +50,9 @@ DEPEND="
 "
 # Require sandbox-2.2 for bug #288863.
 # For whirlpool hash, require python[ssl] (bug #425046).
+# For compgen, require bash[readline] (bug #445576).
+# app-portage/gemato goes without PYTHON_USEDEP since we're calling
+# the executable.
 RDEPEND="
 	acct-user/portage
 	app-arch/zstd
@@ -59,7 +62,7 @@ RDEPEND="
 	>=sys-apps/findutils-4.4
 	!build? (
 		>=app-admin/eselect-1.2
-		>=app-shells/bash-5.0:0
+		>=app-shells/bash-5.0:0[readline]
 		>=sys-apps/sed-4.0.5
 		>=sec-keys/openpgp-keys-gentoo-release-20230329
 		rsync-verify? (
@@ -89,6 +92,11 @@ PDEPEND="
 		>=sys-apps/file-5.44-r3
 	)
 "
+
+# message patch used in 3.0.48.1 and 3.0.49 (bug 909853)
+PATCHES=(
+	"${FILESDIR}/depgraph.py-fix-no-ebuilds-binpkgs-message.patch"
+)
 
 distutils_enable_tests pytest
 
