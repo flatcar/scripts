@@ -6,7 +6,7 @@ EAPI=7
 inherit alternatives flag-o-matic toolchain-funcs multilib multiprocessing
 
 PATCH_VER=1
-CROSS_VER=1.4.1
+CROSS_VER=1.5
 PATCH_BASE="perl-5.38.0-patches-${PATCH_VER}"
 PATCH_DEV=dilfridge
 
@@ -69,8 +69,8 @@ DEPEND="${RDEPEND}"
 BDEPEND="${RDEPEND}"
 
 PDEPEND="
+	>=app-admin/perl-cleaner-2.30
 	!minimal? (
-		>=app-admin/perl-cleaner-2.5
 		>=virtual/perl-CPAN-2.290.0
 		>=virtual/perl-Encode-3.120.0
 		>=virtual/perl-File-Temp-0.230.400-r2
