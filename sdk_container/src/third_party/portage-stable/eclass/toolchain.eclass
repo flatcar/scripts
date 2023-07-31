@@ -998,7 +998,13 @@ toolchain_src_configure() {
 			fi
 		fi
 
-		confgcc+=( --disable-bootstrap )
+		confgcc+=(
+			# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=100289
+			# TOOD: Find a way to disable this just for stage1 cross?
+			--disable-gcov
+
+			--disable-bootstrap
+		)
 	else
 		if tc-is-static-only ; then
 			confgcc+=( --disable-shared )
@@ -1298,6 +1304,7 @@ toolchain_src_configure() {
 		)
 	fi
 
+	# TODO: Ignore RCs here (but TOOLCHAIN_IS_RC isn't yet an eclass var)
 	if [[ ${PV} == *_p* && -f "${S}"/gcc/doc/gcc.info ]] ; then
 		# Safeguard against https://gcc.gnu.org/bugzilla/show_bug.cgi?id=106899 being fixed
 		# without corresponding ebuild changes.
@@ -1313,8 +1320,8 @@ toolchain_src_configure() {
 
 	confgcc+=( "$@" ${EXTRA_ECONF} )
 
-	if [[ -n ${build_config_targets} ]] ; then
-		# ./configure --with-build-config='bootstrap-lto bootstrap-cet'
+	if ! is_crosscompile && ! tc-is-cross-compiler && [[ -n ${build_config_targets} ]] ; then
+		# e.g. ./configure --with-build-config='bootstrap-lto bootstrap-cet'
 		confgcc+=( --with-build-config="${build_config_targets[*]}" )
 	fi
 
@@ -1629,7 +1636,7 @@ gcc_do_make() {
 			GCC_MAKE_TARGET=${GCC_MAKE_TARGET-all}
 
 			ewarn "Disabling bootstrapping. ONLY recommended for development."
-			ewarn "This is NOT a safe configuration for endusers!"
+			ewarn "This is NOT a safe configuration for end users!"
 			ewarn "This compiler may not be safe or reliable for production use!"
 		elif _tc_use_if_iuse pgo; then
 			GCC_MAKE_TARGET=${GCC_MAKE_TARGET-profiledbootstrap}
