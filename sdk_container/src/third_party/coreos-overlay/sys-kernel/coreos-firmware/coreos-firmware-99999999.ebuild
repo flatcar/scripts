@@ -10,7 +10,7 @@ inherit linux-info savedconfig
 
 # In case this is a real snapshot, fill in commit below.
 # For normal, tagged releases, leave blank
-MY_COMMIT=
+MY_COMMIT="59fbffa9ec8e4b0b31d2d13e715cf6580ad0e99c"
 
 if [[ ${PV} == 99999999* ]]; then
 	inherit git-r3
@@ -18,6 +18,7 @@ if [[ ${PV} == 99999999* ]]; then
 else
 	if [[ -n "${MY_COMMIT}" ]]; then
 		SRC_URI="https://git.kernel.org/cgit/linux/kernel/git/firmware/linux-firmware.git/snapshot/${MY_COMMIT}.tar.gz -> linux-firmware-${PV}.tar.gz"
+		S="${WORKDIR}/${MY_COMMIT}"
 	else
 		SRC_URI="https://mirrors.edge.kernel.org/pub/linux/kernel/firmware/linux-firmware-${PV}.tar.xz -> linux-firmware-${PV}.tar.xz"
 	fi
@@ -59,7 +60,7 @@ RESTRICT="binchecks strip"
 # source name is linux-firmware, not coreos-firmware
 S="${WORKDIR}/linux-firmware-${PV}"
 
-CXGB_VERSION="1.27.1.0"
+CXGB_VERSION="1.27.3.0"
 ICE_DDP_VERSION="1.3.30.0"
 
 src_unpack() {
@@ -67,6 +68,11 @@ src_unpack() {
 		git-r3_src_unpack
 	else
 		default
+		# rename directory from git snapshot tarball
+		if [[ ${#MY_COMMIT} -gt 8 ]]; then
+			mv ${MY_COMMIT}/ linux-firmware-${PV} || die
+		fi
+
 		# Upstream linux-firmware tarball does not contain
 		# symlinks for cxgb4 firmware files, but "modinfo
 		# cxgb4.ko" shows it requires t?fw.bin files. These
