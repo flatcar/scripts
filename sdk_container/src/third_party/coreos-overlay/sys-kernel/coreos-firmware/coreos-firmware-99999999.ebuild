@@ -2,23 +2,27 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-inherit linux-info mount-boot savedconfig multiprocessing
+
+# Flatcar: Tell linux-info where to find the kernel source/build
+KERNEL_DIR="${SYSROOT%/}/usr/src/linux"
+KBUILD_OUTPUT="${SYSROOT%/}/var/cache/portage/sys-kernel/coreos-kernel"
+inherit linux-info savedconfig
 
 # In case this is a real snapshot, fill in commit below.
 # For normal, tagged releases, leave blank
 MY_COMMIT="59fbffa9ec8e4b0b31d2d13e715cf6580ad0e99c"
 
+# Flatcar: use linux-firmware instead of ${PN}, coreos-firmware to avoid naming conflicts.
 if [[ ${PV} == 99999999* ]]; then
 	inherit git-r3
-	EGIT_REPO_URI="https://git.kernel.org/pub/scm/linux/kernel/git/firmware/${PN}.git"
+	EGIT_REPO_URI="https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git"
 else
 	if [[ -n "${MY_COMMIT}" ]]; then
-		SRC_URI="https://git.kernel.org/cgit/linux/kernel/git/firmware/linux-firmware.git/snapshot/${MY_COMMIT}.tar.gz -> ${P}.tar.gz"
+		SRC_URI="https://git.kernel.org/cgit/linux/kernel/git/firmware/linux-firmware.git/snapshot/${MY_COMMIT}.tar.gz -> linux-firmware-${PV}.tar.gz"
 		S="${WORKDIR}/${MY_COMMIT}"
 	else
-		SRC_URI="https://mirrors.edge.kernel.org/pub/linux/kernel/firmware/${P}.tar.xz"
+		SRC_URI="https://mirrors.edge.kernel.org/pub/linux/kernel/firmware/linux-firmware-${PV}.tar.xz -> linux-firmware-${PV}.tar.xz"
 	fi
-
 	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 fi
 
@@ -40,6 +44,9 @@ BDEPEND="initramfs? ( app-arch/cpio )
 	compress-xz? ( app-arch/xz-utils )
 	compress-zstd? ( app-arch/zstd )"
 
+# Flatcar: depend on Kernel source and modules
+DEPEND=">=sys-kernel/coreos-modules-6.1:=
+	sys-kernel/coreos-sources"
 #add anything else that collides to this
 RDEPEND="!savedconfig? (
 		redistributable? (
@@ -63,6 +70,9 @@ RDEPEND="!savedconfig? (
 
 QA_PREBUILT="*"
 
+# Flatcar: source name is linux-firmware, not coreos-firmware
+S="${WORKDIR}/linux-firmware-${PV}"
+
 pkg_setup() {
 	if use compress-xz || use compress-zstd ; then
 		local CONFIG_CHECK
@@ -84,52 +94,117 @@ pkg_pretend() {
 	use initramfs && mount-boot_pkg_pretend
 }
 
+# Flatcar: create symlinks for cxgb and ice firmwares
+CXGB_VERSION="1.27.3.0"
+ICE_DDP_VERSION="1.3.30.0"
+
 src_unpack() {
 	if [[ ${PV} == 99999999* ]]; then
 		git-r3_src_unpack
 	else
 		default
 		# rename directory from git snapshot tarball
-		if [[ ${#GIT_COMMIT} -gt 8 ]]; then
-			mv ${PN}-*/ ${P} || die
+		# Flatcar: move a correct directory ${MY_COMMIT}, as defined
+		# above in ${S}.
+		if [[ ${#MY_COMMIT} -gt 8 ]]; then
+			mv ${MY_COMMIT}/ linux-firmware-${PV} || die
 		fi
+
+		# Flatcar: Upstream linux-firmware tarball does not contain
+		# symlinks for cxgb4 firmware files, but "modinfo
+		# cxgb4.ko" shows it requires t?fw.bin files. These
+		# normally are installed by the copy-firmware.sh
+		# script, which refers to the WHENCE file. Both the
+		# script and the file are in the tarball. The WHENCE
+		# file actually mentions that these symlinks should be
+		# created, but apparently our ebuild is not using this
+		# way of installing the firmware files, so we need to
+		# create the symlinks to avoid failures at the
+		# firmware scanning stage.
+		ln -sfn t4fw-${CXGB_VERSION}.bin linux-firmware-${PV}/cxgb4/t4fw.bin
+		ln -sfn t5fw-${CXGB_VERSION}.bin linux-firmware-${PV}/cxgb4/t5fw.bin
+		ln -sfn t6fw-${CXGB_VERSION}.bin linux-firmware-${PV}/cxgb4/t6fw.bin
+
+		# Flatcar: Upstream linux-firmware tarball does not contain
+		# a correct symlink to intel/ice/ddp/ice-1.3.28.0.pkg,
+		# but "modinfo ice.ko" shows it requires ice.pkg.
+		# So we need to create the symlink to avoid failures at the
+		# firmware scanning stage.
+		ln -sfn ice-${ICE_DDP_VERSION}.pkg linux-firmware-${PV}/intel/ice/ddp/ice.pkg
 	fi
 }
 
 src_prepare() {
+	# Flatcar: generate a list of firmware
+	local kernel_mods="${SYSROOT%/}/lib/modules/${KV_FULL}"
+
+	# Fail if any firmware is missing.
+	einfo "Scanning for files required by ${KV_FULL}"
+	echo -n > "${T}/firmware-scan"
+	local kofile fwfile failed
+	for kofile in $(find "${kernel_mods}" -name '*.ko' -o -name '*.ko.xz'); do
+		for fwfile in $(modinfo --field firmware "${kofile}"); do
+			if [[ ! -e "${fwfile}" ]]; then
+				eerror "Missing firmware: ${fwfile} (${kofile##*/})"
+				failed=1
+			elif [[ -L "${fwfile}" ]]; then
+				echo "${fwfile}" >> "${T}/firmware-scan"
+				realpath --relative-to=. "${fwfile}" >> "${T}/firmware-scan"
+			else
+				echo "${fwfile}" >> "${T}/firmware-scan"
+			fi
+		done
+	done
+	if [[ -n "${failed}" ]]; then
+		die "Missing firmware"
+	fi
+
+	# AMD's microcode is shipped as part of coreos-firmware, but not a dependency to
+	# any module, so add it manually
+	use amd64 && find amd-ucode/ -type f -not -name "*.asc" >> "${T}/firmware-scan"
+
+	einfo "Pruning all unneeded firmware files..."
+	sort -u "${T}/firmware-scan" > "${T}/firmware"
+	find * -not -type d \
+		| sort "${T}/firmware" "${T}/firmware" - \
+		| uniq -u | xargs -r rm
+	find * -type f -name "* *" -exec rm -f {} \;
+
 	default
 
-	find . -type f -not -perm 0644 -print0 \
-		| xargs --null --no-run-if-empty chmod 0644 \
-		|| die
+	echo "# Remove files that shall not be installed from this list." > ${PN}.conf
+	find * \( \! -type d -and \! -name ${PN}.conf \) >> ${PN}.conf
 
-	chmod +x copy-firmware.sh || die
+	if use savedconfig; then
+		restore_config ${PN}.conf
+		ebegin "Removing all files not listed in config"
 
-	if use initramfs; then
-		if [[ -d "${S}/amd-ucode" ]]; then
-			local UCODETMP="${T}/ucode_tmp"
-			local UCODEDIR="${UCODETMP}/kernel/x86/microcode"
-			mkdir -p "${UCODEDIR}" || die
-			echo 1 > "${UCODETMP}/early_cpio"
+		local file delete_file preserved_file preserved_files=()
 
-			local amd_ucode_file="${UCODEDIR}/AuthenticAMD.bin"
-			cat "${S}"/amd-ucode/*.bin > "${amd_ucode_file}" || die "Failed to concat amd cpu ucode"
-
-			if [[ ! -s "${amd_ucode_file}" ]]; then
-				die "Sanity check failed: '${amd_ucode_file}' is empty!"
+		while IFS= read -r file; do
+			# Ignore comments.
+			if [[ ${file} != "#"* ]]; then
+				preserved_files+=("${file}")
 			fi
+		done < ${PN}.conf || die
 
-			pushd "${UCODETMP}" &>/dev/null || die
-			find . -print0 | cpio --quiet --null -o -H newc -R 0:0 > "${S}"/amd-uc.img
-			popd &>/dev/null || die
-			if [[ ! -s "${S}/amd-uc.img" ]]; then
-				die "Failed to create '${S}/amd-uc.img'!"
+		while IFS= read -d "" -r file; do
+			delete_file=true
+			for preserved_file in "${preserved_files[@]}"; do
+				if [[ "${file}" == "${preserved_file}" ]]; then
+					delete_file=false
+				fi
+			done
+
+			if ${delete_file}; then
+				rm "${file}" || die
 			fi
-		else
-			# If this will ever happen something has changed which
-			# must be reviewed
-			die "'${S}/amd-ucode' not found!"
-		fi
+		done < <(find * \( \! -type d -and \! -name ${PN}.conf \) -print0 || die)
+
+		eend || die
+
+		# remove empty directories, bug #396073
+		find -type d -empty -delete || die
 	fi
 
 	# whitelist of misc files
@@ -205,6 +280,8 @@ src_prepare() {
 	)
 
 	# blacklist of images with unknown license
+	# Flatcar: remove Alteon AceNIC drivers from unknown_license to install
+	# the firmware files: acenic/tg?.bin.
 	local unknown_license=(
 		korg/k1212.dsp
 		ess/maestro3_assp_kernel.fw
@@ -236,8 +313,6 @@ src_prepare() {
 		sb16/ima_adpcm_playback.csp
 		sb16/ima_adpcm_capture.csp
 		sun/cassini.bin
-		acenic/tg1.bin
-		acenic/tg2.bin
 		adaptec/starfire_rx.bin
 		adaptec/starfire_tx.bin
 		yam/1200.bin
@@ -251,7 +326,8 @@ src_prepare() {
 
 	if use !unknown-license; then
 		einfo "Removing files with unknown license ..."
-		rm -v "${unknown_license[@]}" || die
+		# Flatcar: do not die even if no such license file is there.
+		rm -v "${unknown_license[@]}"
 	fi
 
 	if use !redistributable; then
@@ -275,88 +351,16 @@ src_prepare() {
 }
 
 src_install() {
-	./copy-firmware.sh -v "${ED}/lib/firmware" || die
-
-	pushd "${ED}/lib/firmware" &>/dev/null || die
-
-	# especially use !redistributable will cause some broken symlinks
-	einfo "Removing broken symlinks ..."
-	find * -xtype l -print -delete || die
-
-	if use savedconfig; then
-		if [[ -s "${S}/${PN}.conf" ]]; then
-			local files_to_keep="${T}/files_to_keep.lst"
-			grep -v '^#' "${S}/${PN}.conf" 2>/dev/null > "${files_to_keep}" || die
-			[[ -s "${files_to_keep}" ]] || die "grep failed, empty config file?"
-
-			einfo "Applying USE=savedconfig; Removing all files not listed in config ..."
-			find ! -type d -printf "%P\n" \
-				| grep -Fvx -f "${files_to_keep}" \
-				| xargs -d '\n' --no-run-if-empty rm -v
-
-			if [[ ${PIPESTATUS[0]} -ne 0 ]]; then
-				die "Find failed to print installed files"
-			elif [[ ${PIPESTATUS[1]} -eq 2 ]]; then
-				# grep returns exit status 1 if no lines were selected
-				# which is the case when we want to keep all files
-				die "Grep failed to select files to keep"
-			elif [[ ${PIPESTATUS[2]} -ne 0 ]]; then
-				die "Failed to remove files not listed in config"
-			fi
-		fi
-	fi
-
-	# remove empty directories, bug #396073
-	find -type d -empty -delete || die
-
-	# sanity check
-	if ! ( shopt -s failglob; : * ) 2>/dev/null; then
-		eerror "No files to install. Check your USE flag settings"
-		eerror "and the list of files in your saved configuration."
-		die "Refusing to install an empty package"
-	fi
-
-	# create config file
-	echo "# Remove files that shall not be installed from this list." > "${S}"/${PN}.conf || die
-	find * ! -type d >> "${S}"/${PN}.conf || die
-	save_config "${S}"/${PN}.conf
-
-	if use compress-xz || use compress-zstd; then
-		einfo "Compressing firmware ..."
-		local target
-		local ext
-		local compressor
-
-		if use compress-xz; then
-			ext=xz
-			compressor="xz -T1 -C crc32"
-		elif use compress-zstd; then
-			ext=zst
-			compressor="zstd -15 -T1 -C -q --rm"
-		fi
-
-		# rename symlinks
-		while IFS= read -r -d '' f; do
-			# skip symlinks pointing to directories
-			[[ -d ${f} ]] && continue
-
-			target=$(readlink "${f}")
-			[[ $? -eq 0 ]] || die
-			ln -sf "${target}".${ext} "${f}" || die
-			mv -T "${f}" "${f}".${ext} || die
-		done < <(find . -type l -print0) || die
-
-		find . -type f ! -path "./amd-ucode/*" -print0 | \
-			xargs -0 -P $(makeopts_jobs) -I'{}' ${compressor} '{}' || die
-
-	fi
-
-	popd &>/dev/null || die
-
-	if use initramfs ; then
-		insinto /boot
-		doins "${S}"/amd-uc.img
-	fi
+	# Flatcar: take a simplified approach instead of cumbersome installation
+	# like done in Gentoo.
+	#
+	# Don't save the firmware config to /etc/portage/savedconfig/
+	# if we use !savedconfig; then
+	# 	save_config ${PN}.conf
+	# fi
+	rm ${PN}.conf || die
+	insinto /lib/firmware/
+	doins -r *
 }
 
 pkg_preinst() {
