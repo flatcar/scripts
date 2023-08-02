@@ -54,7 +54,8 @@ if [[ ${PV} != 9999 ]]; then
 		"
 		S=${WORKDIR}/${P%_*}
 	fi
-	KEYWORDS="amd64 ~arm ~arm64 ~ia64 ~ppc ~ppc64 ~riscv ~sparc x86"
+	# Flatcar: Mark as stable for arm64.
+	KEYWORDS="amd64 ~arm arm64 ~ia64 ~ppc ~ppc64 ~riscv ~sparc x86"
 else
 	inherit git-r3
 	EGIT_REPO_URI="https://git.savannah.gnu.org/git/grub.git"
@@ -67,6 +68,9 @@ PATCHES=(
 	"${FILESDIR}"/gfxpayload.patch
 	"${FILESDIR}"/grub-2.02_beta2-KERNEL_GLOBS.patch
 	"${FILESDIR}"/grub-2.06-test-words.patch
+	# Flatcar: Add our patches.
+	"${FILESDIR}"/grub-2.06-add-verity-hash.patch
+	"${FILESDIR}"/grub-2.06-add-gpt-partition-scheme.patch
 )
 
 DEJAVU=dejavu-sans-ttf-2.37
@@ -84,6 +88,9 @@ IUSE="device-mapper doc efiemu +fonts mount nls sdl test +themes truetype libzfs
 
 GRUB_ALL_PLATFORMS=( coreboot efi-32 efi-64 emu ieee1275 loongson multiboot
 	qemu qemu-mips pc uboot xen xen-32 xen-pvh )
+
+# Flatcar: Add arm64 to the list of platforms
+GRUB_ALL_PLATFORMS+=( arm64 )
 IUSE+=" ${GRUB_ALL_PLATFORMS[@]/#/grub_platforms_}"
 
 REQUIRED_USE="
@@ -93,12 +100,14 @@ REQUIRED_USE="
 	grub_platforms_loongson? ( fonts )
 "
 
+# Flatcar: Add a dependency on aarch64 cross gcc for arm64 platform.
 BDEPEND="
 	${PYTHON_DEPS}
 	>=sys-devel/flex-2.5.35
 	sys-devel/bison
 	sys-apps/help2man
 	sys-apps/texinfo
+	grub_platforms_arm64? ( cross-aarch64-cros-linux-gnu/gcc )
 	fonts? (
 		media-libs/freetype:2
 		virtual/pkgconfig
@@ -205,6 +214,8 @@ grub_configure() {
 		efi*) platform=efi ;;
 		xen-pvh) platform=xen_pvh ;;
 		xen*) platform=xen ;;
+		# Flatcar: Handle arm64 as efi platform
+		arm64*) platform=efi ;;
 		guessed) ;;
 		*) platform=${MULTIBUILD_VARIANT} ;;
 	esac

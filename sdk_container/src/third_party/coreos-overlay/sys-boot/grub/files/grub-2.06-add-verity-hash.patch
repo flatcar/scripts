@@ -1,0 +1,134 @@
+From 14d4760aacb8896f99422c06d100e5231e09e797 Mon Sep 17 00:00:00 2001
+From: Sayan Chowdhury <schowdhury@microsoft.com>
+Date: Thu, 24 Aug 2023 00:00:00 +0530
+Subject: Add verity hash passthrough
+
+Read the verity hash from the kernel binary and pass it to the running
+system via the kernel command line
+
+The patch is prepared using the coreos/grub PRs, picking the only
+required ones, and dropping the others. The README.md file in the
+coreos-overlay/sys-boot/grub/ contains more contexual information
+along with the commits used to create the patch.
+
+Authored-by: Matthew Garrett <mjg59@coreos.com>
+Signed-off-by: Sayan Chowdhury <schowdhury@microsoft.com>
+---
+ grub-core/loader/arm64/linux.c |  6 +++-
+ grub-core/loader/i386/linux.c  |  3 ++
+ include/grub/verity-hash.h     | 51 ++++++++++++++++++++++++++++++++++
+ 3 files changed, 59 insertions(+), 1 deletion(-)
+ create mode 100644 include/grub/verity-hash.h
+
+diff --git a/grub-core/loader/arm64/linux.c b/grub-core/loader/arm64/linux.c
+index ef3e9f944..17bed4e15 100644
+--- a/grub-core/loader/arm64/linux.c
++++ b/grub-core/loader/arm64/linux.c
+@@ -34,6 +34,8 @@
+ #include <grub/lib/cmdline.h>
+ #include <grub/verify.h>
+
++#include <grub/verity-hash.h>
++
+ GRUB_MOD_LICENSE ("GPLv3+");
+
+ static grub_dl_t my_mod;
+@@ -333,7 +335,8 @@ grub_cmd_linux (grub_command_t cmd __attribute__ ((unused)),
+
+   grub_dprintf ("linux", "kernel @ %p\n", kernel_addr);
+
+-  cmdline_size = grub_loader_cmdline_size (argc, argv) + sizeof (LINUX_IMAGE);
++  cmdline_size = grub_loader_cmdline_size (argc, argv) + sizeof (LINUX_IMAGE)
++	+ VERITY_CMDLINE_LENGTH;
+   linux_args = grub_malloc (cmdline_size);
+   if (!linux_args)
+     {
+@@ -350,6 +353,7 @@ grub_cmd_linux (grub_command_t cmd __attribute__ ((unused)),
+
+   if (grub_errno == GRUB_ERR_NONE)
+     {
++      grub_pass_verity_hash (kernel_addr, linux_args, cmdline_size);
+       grub_loader_set (grub_linux_boot, grub_linux_unload, 0);
+       loaded = 1;
+     }
+diff --git a/grub-core/loader/i386/linux.c b/grub-core/loader/i386/linux.c
+index 9f74a96b1..1c76ac5bf 100644
+--- a/grub-core/loader/i386/linux.c
++++ b/grub-core/loader/i386/linux.c
+@@ -38,6 +38,8 @@
+ #include <grub/machine/kernel.h>
+ #include <grub/safemath.h>
+
++#include <grub/verity-hash.h>
++
+ GRUB_MOD_LICENSE ("GPLv3+");
+
+ #ifdef GRUB_MACHINE_PCBIOS
+@@ -1006,6 +1008,7 @@ grub_cmd_linux (grub_command_t cmd __attribute__ ((unused)),
+       goto fail;
+   }
+
++  grub_pass_verity_hash(&lh, linux_cmdline, maximal_cmdline_size);
+   len = prot_file_size;
+   if (grub_file_read (file, prot_mode_mem, len) != len && !grub_errno)
+     grub_error (GRUB_ERR_BAD_OS, N_("premature end of file %s"),
+diff --git a/include/grub/verity-hash.h b/include/grub/verity-hash.h
+new file mode 100644
+index 000000000..448d9aff0
+--- /dev/null
++++ b/include/grub/verity-hash.h
+@@ -0,0 +1,51 @@
++/* CoreOS verity hash */
++
++#define VERITY_ARG " verity.usrhash="
++#define VERITY_ARG_LENGTH (sizeof (VERITY_ARG) - 1)
++#define VERITY_HASH_LENGTH 64
++#define VERITY_CMDLINE_LENGTH ((VERITY_ARG_LENGTH)+(VERITY_HASH_LENGTH))
++
++#if defined(__aarch64__)
++# define VERITY_HASH_OFFSET 512
++#elif defined(__i386__) || defined(__amd64__)
++# define VERITY_HASH_OFFSET 0x40
++#else
++# error Unsupported arch
++#endif
++
++
++/**
++ * grub_pass_verity_hash - Reads the CoreOS verity hash value from a well known
++ * kernel image offset and adds a kernel command line argument for it.
++ *
++ * @pImage: Kernel image buffer.
++ * @cmdline: Kernel command line buffer.
++ * @cmdline_max_len: Kernel command line buffer length.
++ */
++
++static inline void grub_pass_verity_hash(const void *pImage,
++					 char *cmdline,
++					 grub_size_t cmdline_max_len)
++{
++  const char *buf = pImage;
++  grub_size_t cmdline_len;
++  int i;
++
++  for (i=VERITY_HASH_OFFSET; i<VERITY_HASH_OFFSET + VERITY_HASH_LENGTH; i++)
++    {
++      if (buf[i] < '0' || buf[i] > '9') // Not a number
++	if (buf[i] < 'a' || buf[i] > 'f') // Not a hex letter
++	  return;
++    }
++
++  cmdline_len = grub_strlen(cmdline);
++  if (cmdline_len + VERITY_CMDLINE_LENGTH > cmdline_max_len)
++    return;
++
++  grub_memcpy (cmdline + cmdline_len, VERITY_ARG, VERITY_ARG_LENGTH);
++  cmdline_len += VERITY_ARG_LENGTH;
++  grub_memcpy (cmdline + cmdline_len, buf + VERITY_HASH_OFFSET,
++	       VERITY_HASH_LENGTH);
++  cmdline_len += VERITY_HASH_LENGTH;
++  cmdline[cmdline_len] = '\0';
++}
+--
+2.34.1
+
