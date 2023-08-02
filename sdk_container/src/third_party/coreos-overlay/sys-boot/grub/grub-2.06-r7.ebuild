@@ -21,8 +21,11 @@ if [[ ${PV} == 9999  ]]; then
 	GRUB_BOOTSTRAP=1
 fi
 
-PYTHON_COMPAT=( python3_{9..11} )
+GRUB_AUTOGEN=1
+GRUB_AUTORECONF=1
+PYTHON_COMPAT=( python3_{8..11} )
 WANT_LIBTOOL=none
+VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/dkiper.gpg
 
 if [[ -n ${GRUB_AUTOGEN} || -n ${GRUB_BOOTSTRAP} ]]; then
 	inherit python-any-r1
@@ -32,32 +35,47 @@ if [[ -n ${GRUB_AUTORECONF} ]]; then
 	inherit autotools
 fi
 
-inherit bash-completion-r1 flag-o-matic multibuild optfeature toolchain-funcs
+inherit bash-completion-r1 flag-o-matic multibuild optfeature toolchain-funcs verify-sig
 
+MY_P=${P}
 if [[ ${PV} != 9999 ]]; then
 	if [[ ${PV} == *_alpha* || ${PV} == *_beta* || ${PV} == *_rc* ]]; then
 		# The quote style is to work with <=bash-4.2 and >=bash-4.3 #503860
 		MY_P=${P/_/'~'}
-		SRC_URI="https://alpha.gnu.org/gnu/${PN}/${MY_P}.tar.xz"
+		SRC_URI="
+			https://alpha.gnu.org/gnu/${PN}/${MY_P}.tar.xz
+			verify-sig? ( https://alpha.gnu.org/gnu/${PN}/${MY_P}.tar.xz.sig )
+		"
 		S=${WORKDIR}/${MY_P}
 	else
-		SRC_URI="mirror://gnu/${PN}/${P}.tar.xz"
+		SRC_URI="
+			mirror://gnu/${PN}/${P}.tar.xz
+			verify-sig? ( mirror://gnu/${PN}/${P}.tar.xz.sig )
+		"
 		S=${WORKDIR}/${P%_*}
 	fi
-	KEYWORDS="~amd64 ~arm ~arm64 ~ia64 ~ppc ~ppc64 ~riscv ~sparc ~x86"
+	KEYWORDS="amd64 arm arm64 ~ia64 ppc ppc64 ~riscv sparc x86"
 else
 	inherit git-r3
 	EGIT_REPO_URI="https://git.savannah.gnu.org/git/grub.git"
 fi
 
+SRC_URI+=" https://dev.gentoo.org/~floppym/dist/${P}-backports-r2.tar.xz"
+
 PATCHES=(
+	"${WORKDIR}/${P}-backports"
 	"${FILESDIR}"/gfxpayload.patch
 	"${FILESDIR}"/grub-2.02_beta2-KERNEL_GLOBS.patch
 	"${FILESDIR}"/grub-2.06-test-words.patch
+	"${FILESDIR}"/grub-2.06-grub-mkconfig-restore-umask.patch
+	"${FILESDIR}"/grub-2.06-gentpl.py-Remove-.interp-section-from-.img-files.patch
+	"${FILESDIR}"/grub-2.06-fs-ext2-ignore-checksum-seed.patch
+	"${FILESDIR}"/grub-2.06-riscv.patch
+	"${FILESDIR}"/grub-2.06-locale.patch
 )
 
 DEJAVU=dejavu-sans-ttf-2.37
-UNIFONT=unifont-15.0.06
+UNIFONT=unifont-12.1.02
 SRC_URI+=" fonts? ( mirror://gnu/unifont/${UNIFONT}/${UNIFONT}.pcf.gz )
 	themes? ( mirror://sourceforge/dejavu/${DEJAVU}.zip )"
 
@@ -106,6 +124,7 @@ BDEPEND="
 		virtual/pkgconfig
 	)
 	truetype? ( virtual/pkgconfig )
+	verify-sig? ( sec-keys/openpgp-keys-danielkiper )
 "
 DEPEND="
 	app-arch/xz-utils
@@ -129,7 +148,7 @@ RDEPEND="${DEPEND}
 	nls? ( sys-devel/gettext )
 "
 
-RESTRICT="!test? ( test ) test? ( userpriv )"
+RESTRICT="!test? ( test )"
 
 QA_EXECSTACK="usr/bin/grub-emu* usr/lib/grub/*"
 QA_PRESTRIPPED="usr/lib/grub/.*"
@@ -149,6 +168,8 @@ src_unpack() {
 		git-r3_fetch "${GNULIB_URI}" "${GNULIB_REVISION}"
 		git-r3_checkout "${GNULIB_URI}" gnulib
 		popd >/dev/null || die
+	elif use verify-sig; then
+		verify-sig_verify_detached "${DISTDIR}"/${MY_P}.tar.xz{,.sig}
 	fi
 	default
 }
@@ -280,9 +301,7 @@ src_compile() {
 src_test() {
 	# The qemu dependency is a bit complex.
 	# You will need to adjust QEMU_SOFTMMU_TARGETS to match the cpu/platform.
-	local SANDBOX_WRITE=${SANDBOX_WRITE}
-	addwrite /dev
-	grub_do emake -j1 check
+	grub_do emake check
 }
 
 src_install() {
