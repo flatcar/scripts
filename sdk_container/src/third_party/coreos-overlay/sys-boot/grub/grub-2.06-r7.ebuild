@@ -72,6 +72,8 @@ PATCHES=(
 	"${FILESDIR}"/grub-2.06-fs-ext2-ignore-checksum-seed.patch
 	"${FILESDIR}"/grub-2.06-riscv.patch
 	"${FILESDIR}"/grub-2.06-locale.patch
+	"${FILESDIR}"/grub-2.06-add-verity-hash.patch
+	"${FILESDIR}"/grub-2.06-add-gpt-partition-scheme.patch
 )
 
 DEJAVU=dejavu-sans-ttf-2.37
@@ -89,6 +91,9 @@ IUSE="device-mapper doc efiemu +fonts mount nls sdl test +themes truetype libzfs
 
 GRUB_ALL_PLATFORMS=( coreboot efi-32 efi-64 emu ieee1275 loongson multiboot
 	qemu qemu-mips pc uboot xen xen-32 xen-pvh )
+
+# Flatcar: Add arm64 to the list of platforms
+GRUB_ALL_PLATFORMS+=( arm64 )
 IUSE+=" ${GRUB_ALL_PLATFORMS[@]/#/grub_platforms_}"
 
 REQUIRED_USE="
@@ -104,6 +109,7 @@ BDEPEND="
 	sys-devel/bison
 	sys-apps/help2man
 	sys-apps/texinfo
+	grub_platforms_arm64? ( cross-aarch64-cros-linux-gnu/gcc )
 	fonts? (
 		media-libs/freetype:2
 		virtual/pkgconfig
@@ -210,6 +216,7 @@ grub_configure() {
 		efi*) platform=efi ;;
 		xen-pvh) platform=xen_pvh ;;
 		xen*) platform=xen ;;
+		arm64*) platform=efi ;;
 		guessed) ;;
 		*) platform=${MULTIBUILD_VARIANT} ;;
 	esac
