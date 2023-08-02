@@ -5,7 +5,8 @@ EAPI=8
 
 VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/openssl.org.asc
 TMPFILES_OPTIONAL=1
-inherit edo flag-o-matic linux-info toolchain-funcs multilib-minimal multiprocessing verify-sig systemd tmpfiles
+inherit edo flag-o-matic linux-info toolchain-funcs
+inherit multilib multilib-minimal multiprocessing preserve-libs verify-sig tmpfiles
 
 DESCRIPTION="Robust, full-featured Open Source Toolkit for the Transport Layer Security (TLS)"
 HOMEPAGE="https://www.openssl.org/"
@@ -19,7 +20,7 @@ if [[ ${PV} == 9999 ]] ; then
 else
 	SRC_URI="mirror://openssl/source/${MY_P}.tar.gz
 		verify-sig? ( mirror://openssl/source/${MY_P}.tar.gz.asc )"
-	KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ~ppc ppc64 ~riscv ~s390 sparc x86 ~arm64-macos"
 fi
 
 S="${WORKDIR}"/${MY_P}
@@ -52,6 +53,11 @@ PDEPEND="app-misc/ca-certificates"
 
 MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/openssl/configuration.h
+)
+
+PATCHES=(
+	"${FILESDIR}"/${P}-CVE-2023-2975.patch
+	"${FILESDIR}"/${P}-CVE-2023-3446.patch
 )
 
 pkg_setup() {
@@ -139,6 +145,11 @@ src_configure() {
 
 	append-flags $(test-flags-CC -Wa,--noexecstack)
 
+	# bug #895308
+	append-atomic-flags
+	# Configure doesn't respect LIBS
+	export LDLIBS="${LIBS}"
+
 	# bug #197996
 	unset APPS
 	# bug #312551
@@ -216,7 +227,7 @@ multilib_src_compile() {
 multilib_src_test() {
 	# VFP = show subtests verbosely and show failed tests verbosely
 	# Normal V=1 would show everything verbosely but this slows things down.
-	emake HARNESS_JOBS="$(makeopts_jobs)" VFP=1 test
+	emake HARNESS_JOBS="$(makeopts_jobs)" -Onone VFP=1 test
 }
 
 multilib_src_install() {
@@ -275,5 +286,7 @@ pkg_preinst() {
 			-module "${ED}/usr/$(get_libdir)/ossl-modules/fips.so"
 		eend $?
 	fi
-}
 
+	preserve_old_lib /usr/$(get_libdir)/lib{crypto,ssl}$(get_libname 1) \
+		/usr/$(get_libdir)/lib{crypto,ssl}$(get_libname 1.1)
+}

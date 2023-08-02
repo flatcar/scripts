@@ -21,7 +21,7 @@ SRC_URI+=" verify-sig? ( https://github.com/shadow-maint/shadow/releases/downloa
 LICENSE="BSD GPL-2"
 # Subslot is for libsubid's SONAME.
 SLOT="0/4"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+KEYWORDS="~alpha amd64 ~arm arm64 hppa ~ia64 ~loong ~m68k ~mips ~ppc ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="acl audit bcrypt cracklib nls pam selinux skey split-usr su xattr"
 # Taken from the man/Makefile.am file.
 LANGS=( cs da de es fi fr hu id it ja ko pl pt_BR ru sv tr zh_CN zh_TW )
@@ -30,22 +30,24 @@ REQUIRED_USE="?? ( cracklib pam )"
 
 COMMON_DEPEND="
 	virtual/libcrypt:=
-	acl? ( sys-apps/acl:0= )
-	audit? ( >=sys-process/audit-2.6:0= )
-	cracklib? ( >=sys-libs/cracklib-2.7-r3:0= )
+	acl? ( sys-apps/acl:= )
+	audit? ( >=sys-process/audit-2.6:= )
+	cracklib? ( >=sys-libs/cracklib-2.7-r3:= )
 	nls? ( virtual/libintl )
-	pam? ( sys-libs/pam:0= )
-	skey? ( sys-auth/skey:0= )
+	pam? ( sys-libs/pam:= )
+	skey? ( sys-auth/skey:= )
 	selinux? (
-		>=sys-libs/libselinux-1.28:0=
-		sys-libs/libsemanage:0=
+		>=sys-libs/libselinux-1.28:=
+		sys-libs/libsemanage:=
 	)
-	xattr? ( sys-apps/attr:0= )
+	xattr? ( sys-apps/attr:= )
 "
-DEPEND="${COMMON_DEPEND}
+DEPEND="
+	${COMMON_DEPEND}
 	>=sys-kernel/linux-headers-4.14
 "
-RDEPEND="${COMMON_DEPEND}
+RDEPEND="
+	${COMMON_DEPEND}
 	!<sys-apps/man-pages-5.11-r1
 	!=sys-apps/man-pages-5.12-r0
 	!=sys-apps/man-pages-5.12-r1
@@ -65,6 +67,9 @@ BDEPEND="
 
 PATCHES=(
 	"${FILESDIR}"/${P}-configure-clang16.patch
+	"${FILESDIR}"/${P}-CVE-2023-29383.patch
+	"${FILESDIR}"/${P}-usermod-prefix-gid.patch
+	"${FILESDIR}"/${P}-password-leak.patch
 )
 
 src_prepare() {
@@ -180,7 +185,7 @@ src_install() {
 	else
 		dopamd "${FILESDIR}"/pam.d-include/shadow
 
-		for x in chsh shfn ; do
+		for x in chsh chfn ; do
 			newpamd "${FILESDIR}"/pam.d-include/passwd ${x}
 		done
 
