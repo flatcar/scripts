@@ -54,7 +54,8 @@ jobs:
         run: |
           sudo rm /bin/sh
           sudo ln -s /bin/bash /bin/sh
-          sudo apt-get install -y ca-certificates curl gnupg lsb-release qemu-user-static git zstd
+          sudo apt-get update
+          sudo apt-get install -y ca-certificates curl git gnupg lsb-release python3 qemu-user-static zstd
           sudo mkdir -p /etc/apt/keyrings
           curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
           echo \
@@ -63,10 +64,17 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 
-      - uses: actions/checkout@v3
+      - name: Checkout scripts
+        uses: actions/checkout@v3
         with:
           path: scripts
           fetch-depth: 0
+
+      - name: Checkout build scripts
+        uses: actions/checkout@v3
+        with:
+          repository: flatcar/flatcar-build-scripts
+          path: flatcar-build-scripts
 
       # Hack alert: actions/checkout will check out the (disjunct) merge commit of a PR
       #  instead of its head commit. That commit is not connected to any branch.
@@ -186,6 +194,53 @@ jobs:
                                 --output_root="${CI_CONTAINER_ARTIFACT_ROOT}" \
                                 --torcx_root="${CI_CONTAINER_TORCX_ROOT}" prodtar container
 
+      - name: Generate reports
+        shell: bash
+        run: |
+          set -euo pipefail
+          set -x
+
+          source ci-automation/image_changes.sh
+
+          channel=alpha
+          vernum=$(source sdk_container/.repo/manifests/version.txt; echo "${FLATCAR_VERSION}")
+          board="${arch}-usr"
+
+          package_diff_env=(
+              "FROM_B=file://${PWD}/artifacts/${arch}-usr/latest"
+              # BOARD_B and CHANNEL_B are unused.
+          )
+          package_diff_params_b=(
+              # The package-diff script appends version to the file
+              # URL, but the directory with the image has no version
+              # component at its end, so we use . as a version.
+              '.'
+          )
+          size_changes_env=(
+              # Nothing to add.
+          )
+          size_changes_params_b=(
+              "local:${PWD}/artifacts/${arch}-usr/latest"
+          )
+          show_changes_env=(
+              # Nothing to add.
+          )
+          show_changes_params_overrides=(
+              # We may not have a tag handy, so we tell show-changes
+              # to use git HEAD as a reference to new changelog
+              # entries.
+              'NEW_VERSION=HEAD'
+          )
+
+          # Parent directory of the scripts repo, required by some other
+          # script.
+          work_directory='..'
+          generate_image_changes_report \
+              "${arch}" "${channel}" "${vernum}" 'image-changes-reports.txt' "../flatcar-build-scripts" "${work_directory}" \
+              "${package_diff_env[@]}" --- "${package_diff_params_b[@]}" -- \
+              "${size_changes_env[@]}" --- "${size_changes_params_b[@]}" -- \
+              "${show_changes_env[@]}" --- "${show_changes_params_overrides[@]}"
+
       - name: Build VM image(s)
         shell: bash
         run: |
@@ -284,6 +339,14 @@ jobs:
           name: ${{ matrix.arch }}-torcx
           path: |
             scripts/torcx.tar
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v3
+        with:
+          retention-days: 7
+          name: ${{ matrix.arch }}-image-changes-reports
+          path: |
+            scripts/image-changes-reports.txt
 
       # Clean up what we uploaded already so the "vendor images" wildcard
       #  works when uploading artifacts in the next step.
