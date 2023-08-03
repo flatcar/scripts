@@ -11,9 +11,8 @@
 
 # Overwrite portage-stable mask. We haven't seen LLVM related problems
 # with rust so far, so keep using 1.70.0.
-~dev-lang/rust-1.71.0
-~dev-lang/rust-1.71.0
-~virtual/rust-1.71.0
+~dev-lang/rust-1.71.1
+~virtual/rust-1.71.1
 
 # portage-stable masked catalyst-3, and has not provided a stable way to
 # update to catalyst-4 so overriding the change for now to use catalyst-3
