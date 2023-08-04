@@ -13,7 +13,7 @@ else
 fi
 
 PYTHON_COMPAT=( python3_{9..11} )
-DISTUTILS_USE_SETUPTOOLS=no
+DISTUTILS_USE_PEP517=setuptools
 
 inherit distutils-r1 linux-info optfeature tmpfiles ${SRC_ECLASS}
 
@@ -90,7 +90,8 @@ python_prepare_all() {
 	distutils-r1_python_prepare_all
 }
 
-python_compile_all() {
+# Build man pages here so as to not clobber default src_compile
+src_configure() {
 	# build the man pages and docs
 	emake
 }
@@ -107,10 +108,15 @@ src_install() {
 
 	echo 'd /var/tmp/catalyst 0755 root root' > "${T}"/catalyst-tmpdir.conf
 	dotmpfiles "${T}"/catalyst-tmpdir.conf
+
+	doman files/catalyst.1 files/catalyst-config.5 files/catalyst-spec.5
+	insinto /etc/catalyst
+	doins etc/*
 }
 
 pkg_postinst() {
 	if [[ -z ${REPLACING_VERSIONS} ]]; then
 		optfeature "ccache support" dev-util/ccache
 	fi
+	tmpfiles_process catalyst-tmpdir.conf
 }

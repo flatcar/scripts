@@ -35,7 +35,7 @@
 =dev-libs/ding-libs-0.6.1-r1 ~arm64
 =dev-libs/elfutils-0.189-r1 ~amd64
 =dev-libs/libgcrypt-1.10.1-r3 ~arm64
-=dev-libs/nettle-3.9.1 ~arm64
+=dev-python/lxml-4.9.2-r1 ~arm64
 =dev-util/bpftool-6.3 ~arm64
 
 # Keep versions on both arches in sync.
@@ -60,14 +60,12 @@
 =sys-apps/coreutils-9.3-r2 ~arm64
 =sys-apps/kexec-tools-2.0.24 ~arm64
 =sys-apps/policycoreutils-3.1-r4 ~arm64
-=sys-apps/sandbox-2.32 ~arm64
 =sys-apps/semodule-utils-3.1 ~arm64
 
 # Needed to force enable ipvsadm for arm64.
 =sys-cluster/ipvsadm-1.27-r1 **
 
 # Keep versions on both arches in sync.
-=sys-devel/binutils-2.40-r5 ~arm64
 =sys-firmware/edk2-aarch64-18.02 **
 
 # FIPS support is still being tested.
@@ -75,7 +73,6 @@
 
 # Keep versions on both arches in sync.
 =sys-fs/multipath-tools-0.9.5 ~amd64
-=sys-libs/binutils-libs-2.40-r5 ~arm64
 =sys-libs/libselinux-3.1-r3 ~arm64
 =sys-libs/libsemanage-3.1-r2 ~arm64
 =sys-libs/libsepol-3.1 ~arm64
@@ -92,6 +89,3 @@
 
 # Accept unstable host Rust compilers.
 =virtual/rust-1.71.0 ~amd64 ~arm64
-
-# Keep versions on both arches in sync.
-=x11-base/xorg-proto-2023.2 ~amd64

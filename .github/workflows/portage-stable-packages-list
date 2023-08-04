@@ -7,6 +7,7 @@ acct-group/dialout
 acct-group/disk
 acct-group/dnsmasq
 acct-group/docker
+acct-group/floppy
 acct-group/input
 acct-group/kmem
 acct-group/kvm
@@ -35,6 +36,7 @@ acct-group/tss
 acct-group/tty
 acct-group/users
 acct-group/utmp
+acct-group/uucp
 acct-group/video
 acct-group/wheel
 

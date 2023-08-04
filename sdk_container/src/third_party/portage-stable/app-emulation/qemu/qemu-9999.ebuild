@@ -154,7 +154,8 @@ ALL_DEPEND="
 	sys-libs/zlib[static-libs(+)]
 	python? ( ${PYTHON_DEPS} )
 	systemtap? ( dev-util/systemtap )
-	xattr? ( sys-apps/attr[static-libs(+)] )"
+	xattr? ( sys-apps/attr[static-libs(+)] )
+"
 
 # Dependencies required for qemu tools (qemu-nbd, qemu-img, qemu-io, ...)
 # softmmu targets (qemu-system-*).
@@ -253,7 +254,8 @@ X86_FIRMWARE_DEPEND="
 			>=sys-firmware/seabios-bin-${SEABIOS_VERSION}
 		)
 		sys-firmware/sgabios
-	)"
+	)
+"
 PPC_FIRMWARE_DEPEND="
 	pin-upstream-blobs? (
 		~sys-firmware/seabios-bin-${SEABIOS_VERSION}
@@ -290,15 +292,19 @@ CDEPEND="
 	qemu_softmmu_targets_ppc? ( ${PPC_FIRMWARE_DEPEND} )
 	qemu_softmmu_targets_ppc64? ( ${PPC_FIRMWARE_DEPEND} )
 "
-DEPEND="${CDEPEND}
+DEPEND="
+	${CDEPEND}
 	kernel_linux? ( >=sys-kernel/linux-headers-2.6.35 )
-	static-user? ( ${ALL_DEPEND} )"
-RDEPEND="${CDEPEND}
+	static-user? ( ${ALL_DEPEND} )
+"
+RDEPEND="
+	${CDEPEND}
 	acct-group/kvm
 	selinux? (
 		sec-policy/selinux-qemu
 		sys-libs/libselinux
-	)"
+	)
+"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-8.0.0-disable-keymap.patch
@@ -319,7 +325,8 @@ QA_PREBUILT="
 	usr/share/qemu/u-boot.e500
 "
 
-QA_WX_LOAD="usr/bin/qemu-i386
+QA_WX_LOAD="
+	usr/bin/qemu-i386
 	usr/bin/qemu-x86_64
 	usr/bin/qemu-alpha
 	usr/bin/qemu-arm

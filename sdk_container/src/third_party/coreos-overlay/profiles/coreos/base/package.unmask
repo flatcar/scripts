@@ -14,3 +14,7 @@
 ~dev-lang/rust-1.71.0
 ~dev-lang/rust-1.71.0
 ~virtual/rust-1.71.0
+
+# portage-stable masked catalyst-3, and has not provided a stable way to
+# update to catalyst-4 so overriding the change for now to use catalyst-3
+<dev-util/catalyst-4
