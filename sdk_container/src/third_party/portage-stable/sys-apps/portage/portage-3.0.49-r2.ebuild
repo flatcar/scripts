@@ -22,7 +22,7 @@ if [[ ${PV} == 9999 ]] ; then
 	inherit git-r3
 else
 	SRC_URI="https://gitweb.gentoo.org/proj/portage.git/snapshot/${P}.tar.bz2"
-	KEYWORDS="~alpha amd64 ~arm arm64 hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 fi
 
 LICENSE="GPL-2"
@@ -93,9 +93,11 @@ PDEPEND="
 	)
 "
 
-# message patch used in 3.0.48.1 and 3.0.49 (bug 909853)
 PATCHES=(
+	# message patch used in 3.0.48.1 and 3.0.49 (bug 909853)
 	"${FILESDIR}/depgraph.py-fix-no-ebuilds-binpkgs-message.patch"
+	# backport from master to help Prefix bootstraps (bug #640658)
+	"${FILESDIR}/portage-3.0.49-prefixify-init-script-shebangs.patch"
 )
 
 distutils_enable_tests pytest
