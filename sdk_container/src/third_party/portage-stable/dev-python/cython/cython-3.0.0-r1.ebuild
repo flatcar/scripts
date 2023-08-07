@@ -11,7 +11,7 @@ PYTHON_REQ_USE="threads(+)"
 
 inherit distutils-r1 multiprocessing toolchain-funcs
 
-MY_P=${P/_beta/b}
+MY_P=${P/_rc/rc}
 DESCRIPTION="A Python to C compiler"
 HOMEPAGE="
 	https://cython.org/
@@ -19,7 +19,7 @@ HOMEPAGE="
 	https://pypi.org/project/Cython/
 "
 SRC_URI="
-	https://github.com/cython/cython/archive/${PV/_beta/b}.tar.gz
+	https://github.com/cython/cython/archive/${PV/_rc/rc}.tar.gz
 		-> ${MY_P}.gh.tar.gz
 "
 S=${WORKDIR}/${MY_P}
@@ -43,11 +43,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-0.29.22-spawn-multiprocessing.patch"
 	"${FILESDIR}/${PN}-0.29.23-test_exceptions-py310.patch"
 	"${FILESDIR}/${PN}-0.29.23-pythran-parallel-install.patch"
-	# backport upstream fix e.g. for dev-python/pysimdjson on py3.12
-	"${FILESDIR}/${P}-py312-long.patch"
-	# should fix dev-python/symengine
-	# https://github.com/cython/cython/pull/5483
-	"${FILESDIR}/${P}-const-iter.patch"
+	"${FILESDIR}/${P}-version-stderr-stdout.patch"
 )
 
 distutils_enable_sphinx docs \
@@ -68,11 +64,19 @@ python_test() {
 		return
 	fi
 
+	# Needed to avoid confusing cache tests
+	unset CYTHON_FORCE_REGEN
+
 	tc-export CC
 	# https://github.com/cython/cython/issues/1911
 	local -x CFLAGS="${CFLAGS} -fno-strict-overflow"
-	"${PYTHON}" runtests.py -vv -j "$(makeopts_jobs)" --work-dir "${BUILD_DIR}"/tests ||
-		die "Tests fail with ${EPYTHON}"
+	"${PYTHON}" runtests.py \
+		-vv \
+		-j "$(makeopts_jobs)" \
+		--work-dir "${BUILD_DIR}"/tests \
+		--no-examples \
+		--no-code-style \
+		|| die "Tests fail with ${EPYTHON}"
 }
 
 python_install_all() {
