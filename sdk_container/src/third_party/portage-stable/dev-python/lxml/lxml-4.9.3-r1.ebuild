@@ -18,6 +18,7 @@ HOMEPAGE="
 SRC_URI="
 	https://github.com/lxml/lxml/archive/${P}.tar.gz
 		-> ${P}.gh.tar.gz
+	https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${PN}-4.9.3-patches.tar.xz
 "
 S=${WORKDIR}/lxml-${P}
 
@@ -37,8 +38,7 @@ RDEPEND="
 "
 BDEPEND="
 	virtual/pkgconfig
-	<dev-python/cython-3[${PYTHON_USEDEP}]
-	>=dev-python/cython-0.29.29[${PYTHON_USEDEP}]
+	>=dev-python/cython-0.29.35[${PYTHON_USEDEP}]
 	doc? (
 		$(python_gen_any_dep '
 			dev-python/docutils[${PYTHON_USEDEP}]
@@ -54,6 +54,8 @@ BDEPEND="
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-4.9.3-tests-pypy.patch
+	"${FILESDIR}"/${PN}-4.9.3-tests-py3.11-cython3.patch
+	"${WORKDIR}"/${PN}-4.9.3-patches
 )
 
 python_check_deps() {
