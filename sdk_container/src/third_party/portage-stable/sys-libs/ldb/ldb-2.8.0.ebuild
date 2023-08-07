@@ -13,7 +13,7 @@ SRC_URI="https://samba.org/ftp/pub/${PN}/${P}.tar.gz"
 
 LICENSE="LGPL-3"
 SLOT="0/${PV}"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="doc ldap +lmdb python test"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}
@@ -21,9 +21,9 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}
 
 RESTRICT="!test? ( test )"
 
-TALLOC_VERSION="2.4.0"
-TDB_VERSION="1.4.8"
-TEVENT_VERSION="0.14.1"
+TALLOC_VERSION="2.4.1"
+TDB_VERSION="1.4.9"
+TEVENT_VERSION="0.15.0"
 
 RDEPEND="
 	dev-libs/libbsd[${MULTILIB_USEDEP}]
