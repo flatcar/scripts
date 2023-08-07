@@ -1,15 +1,23 @@
 # Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Ionen Wolkens <ionen@gentoo.org> (2023-07-26)
+# MPV currently[1] has no plans to support >=lua5-3 making luajit
+# the only choice for maintained lua. Apply mask/force to override
+# the profile's defaults, and invert on arches where not keyworded.
+# Done this way also avoids conflicts for users using another default.
+# [1] https://github.com/mpv-player/mpv/wiki/FAQ#why-does-mpv-not-support-lua-53-or-newer
+media-video/mpv lua_single_target_luajit
+
+# Joonas Niilola <juippis@gentoo.org> (2023-07-21)
+# -system-librnp is currently broken with upstream package.
+~mail-client/thunderbird-115.0 system-librnp
+~mail-client/thunderbird-115.0.1 system-librnp
+
 # Andreas K. Hüttel <dilfridge@gentoo.org> (2023-07-08)
 # Uses attr even if disabling is requested, bug 910070
 # Workaround that should fix some stage builds
 >=sys-devel/gettext-0.22-r1 xattr
-
-# Joonas Niilola <juippis@gentoo.org> (2023-06-06)
-# 114 looks very broken regarding unified build. It has too many 
-# conditions when it works and when it doesn't. Bug #905780
-~www-client/firefox-114.0 jumbo-build
 
 # Patrick McLean <chutzpah@gentoo.org> (2022-06-27)
 # Doesn't build with boost installed on the system, some deps require boost
