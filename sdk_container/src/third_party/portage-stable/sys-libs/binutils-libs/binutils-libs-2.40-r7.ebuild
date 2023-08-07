@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PATCH_VER=5
+PATCH_VER=6
 PATCH_DEV=dilfridge
 
 inherit libtool toolchain-funcs multilib-minimal
@@ -22,7 +22,7 @@ SRC_URI="mirror://gnu/binutils/${MY_P}.tar.xz
 LICENSE="|| ( GPL-3 LGPL-3 )"
 SLOT="0/${PV%_p?}"
 IUSE="64-bit-bfd cet multitarget nls static-libs test"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ppc64 ~riscv ~s390 sparc ~x86 ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-macos ~x64-solaris"
 RESTRICT="!test? ( test )"
 
 BDEPEND="

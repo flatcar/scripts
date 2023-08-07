@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PATCH_VER=5
+PATCH_VER=1
 PATCH_DEV=dilfridge
 
 inherit libtool toolchain-funcs multilib-minimal
@@ -22,7 +22,7 @@ SRC_URI="mirror://gnu/binutils/${MY_P}.tar.xz
 LICENSE="|| ( GPL-3 LGPL-3 )"
 SLOT="0/${PV%_p?}"
 IUSE="64-bit-bfd cet multitarget nls static-libs test"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ppc64 ~riscv ~s390 sparc ~x86 ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-macos ~x64-solaris"
 RESTRICT="!test? ( test )"
 
 BDEPEND="
@@ -74,6 +74,11 @@ pkgversion() {
 
 multilib_src_configure() {
 	local myconf=(
+		# portage's econf() does not detect presence of --d-d-t
+		# because it greps only top-level ./configure. But not
+		# libiberty's or bfd's configure.
+		--disable-dependency-tracking
+		--disable-silent-rules
 		--enable-obsolete
 		--enable-shared
 		--enable-threads
@@ -144,12 +149,8 @@ multilib_src_configure() {
 		Makefile || die
 }
 
-multilib_src_compile() {
-	emake V=1
-}
-
 multilib_src_install() {
-	emake V=1 DESTDIR="${D}" install
+	emake DESTDIR="${D}" install
 
 	# Provided by sys-devel/gdb instead
 	rm "${ED}"/usr/share/info/sframe-spec.info || die
