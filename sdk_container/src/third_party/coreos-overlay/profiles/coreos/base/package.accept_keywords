@@ -9,6 +9,12 @@
 
 # Needed by arm64-native SDK.
 =app-crypt/efitools-1.9.2 ~arm64
+
+# Needed to address CVE-2023-2609 and CVE-2023-2610.
+=app-editors/vim-9.0.1677 ~amd64 ~arm64
+=app-editors/vim-core-9.0.1677 ~amd64 ~arm64
+
+# Needed by arm64-native SDK.
 =app-emulation/open-vmdk-1.0 *
 
 # Keep versions on both arches in sync.
