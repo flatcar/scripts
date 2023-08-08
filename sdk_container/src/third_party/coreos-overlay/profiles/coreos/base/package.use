@@ -73,10 +73,6 @@ sys-apps/portage -xattr -rsync-verify
 # Enable -M and -Z flags; -M is used by mayday
 sys-process/lsof rpc selinux
 
-# can be removed with socat-2.0.0; this is the openssl/readline license
-# incompatibility 
-net-misc/socat -ssl
-
 # Prevent pulling in a ton of perl dependencies
 sys-apps/man-db -nls
 
