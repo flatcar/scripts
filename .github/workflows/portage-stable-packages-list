@@ -122,6 +122,8 @@ app-text/docbook-xsl-stylesheets
 app-text/manpager
 app-text/sgml-common
 
+sec-keys/openpgp-keys-gentoo-release
+
 dev-cpp/gtest
 
 dev-db/sqlite
