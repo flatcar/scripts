@@ -199,7 +199,6 @@ dev-python/nspektr
 dev-python/ordered-set
 dev-python/packaging
 dev-python/platformdirs
-dev-python/pydantic
 dev-python/pydecomp
 dev-python/pygments
 dev-python/pyparsing
