@@ -2,9 +2,11 @@
 Description=NVIDIA Configure Service
 Wants=network-online.target
 After=network-online.target
+Before=containerd.target
 
 [Service]
-Type=simple
+Type=oneshot
+RemainsAfterExit=true
 Restart=no
 Environment=PATH=/opt/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
 ExecStart=/usr/lib/nvidia/bin/setup-nvidia
