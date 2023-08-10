@@ -10,7 +10,7 @@ inherit linux-info savedconfig
 
 # In case this is a real snapshot, fill in commit below.
 # For normal, tagged releases, leave blank
-MY_COMMIT="59fbffa9ec8e4b0b31d2d13e715cf6580ad0e99c"
+MY_COMMIT=""
 
 # Flatcar: use linux-firmware instead of ${PN}, coreos-firmware to avoid naming conflicts.
 if [[ ${PV} == 99999999* ]]; then
