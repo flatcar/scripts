@@ -158,6 +158,14 @@ function docker_image_to_buildcache() {
     local id_file="$(basename "$image")-${version}.id"
 
     $docker save "${image}":"${version}" | zstd -T0 -o "${tarball}"
+
+    # It is necessary to chmod from 0600 to 0644 to make it readable
+    # afterwards by rsync during the release process. Zstd sets the mode
+    # of the output file to 0600 in case of temporary files to avoid race
+    # condition. See also https://github.com/facebook/zstd/pull/1644,
+    # https://github.com/facebook/zstd/pull/3432.
+    chmod 0644 "${tarball}"
+
     # Cut the "sha256:" prefix that is present in Docker but not in Podman
     $docker image inspect "${image}":"${version}" | jq -r '.[].Id' | sed 's/^sha256://' > "${id_file}"
     create_digests "${SIGNER:-}" "${tarball}" "${id_file}"
