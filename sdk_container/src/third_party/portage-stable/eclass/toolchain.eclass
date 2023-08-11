@@ -614,14 +614,11 @@ toolchain_src_prepare() {
 		done
 	fi
 
-	# >=gcc-4
-	if [[ -x contrib/gcc_update ]] ; then
-		einfo "Touching generated files"
-		./contrib/gcc_update --touch | \
-			while read f ; do
-				einfo "  ${f%%...}"
-			done
-	fi
+	einfo "Touching generated files"
+	./contrib/gcc_update --touch | \
+		while read f ; do
+			einfo "  ${f%%...}"
+		done
 }
 
 do_gcc_gentoo_patches() {
@@ -742,16 +739,10 @@ setup_multilib_osdirnames() {
 	config+="/t-linux64"
 
 	local sed_args=()
-	if tc_version_is_at_least 4.6 ; then
-		sed_args+=( -e 's:$[(]call if_multiarch[^)]*[)]::g' )
-	fi
+	sed_args+=( -e 's:$[(]call if_multiarch[^)]*[)]::g' )
 	if [[ ${SYMLINK_LIB} == "yes" ]] ; then
 		einfo "Updating multilib directories to be: ${libdirs}"
-		if tc_version_is_at_least 4.6.4 || tc_version_is_at_least 4.7 ; then
-			sed_args+=( -e '/^MULTILIB_OSDIRNAMES.*lib32/s:[$][(]if.*):../lib32:' )
-		else
-			sed_args+=( -e "/^MULTILIB_OSDIRNAMES/s:=.*:= ${libdirs}:" )
-		fi
+		sed_args+=( -e '/^MULTILIB_OSDIRNAMES.*lib32/s:[$][(]if.*):../lib32:' )
 	else
 		einfo "Using upstream multilib; disabling lib32 autodetection"
 		sed_args+=( -r -e 's:[$][(]if.*,(.*)[)]:\1:' )
@@ -800,7 +791,18 @@ toolchain_src_configure() {
 		--mandir="${DATAPATH}/man"
 		--infodir="${DATAPATH}/info"
 		--with-gxx-include-dir="${STDCXX_INCDIR}"
+
+		# portage's econf() does not detect presence of --d-s-r
+		# because it greps only top-level ./configure. But not
+		# libiberty's or gcc's configure.
+		--disable-silent-rules
 	)
+
+	if tc_version_is_at_least 10 ; then
+		confgcc+=(
+			--disable-dependency-tracking
+		)
+	fi
 
 	# Stick the python scripts in their own slotted directory (bug #279252)
 	#
@@ -869,8 +871,7 @@ toolchain_src_configure() {
 			# - After discussing in #gcc, we concluded that =yes,extra,rtl makes
 			#   more sense when a user explicitly requests USE=debug. If rtl is too slow,
 			#   we can change this to yes,extra.
-			local off=$(tc_version_is_at_least 4.0 && echo release || echo no)
-			confgcc+=( --enable-checking="${GCC_CHECKS_LIST:-$(usex debug yes,extra,rtl ${off})}" )
+			confgcc+=( --enable-checking="${GCC_CHECKS_LIST:-$(usex debug yes,extra,rtl release)}" )
 		fi
 	fi
 
@@ -998,7 +999,13 @@ toolchain_src_configure() {
 			fi
 		fi
 
-		confgcc+=( --disable-bootstrap )
+		confgcc+=(
+			# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=100289
+			# TOOD: Find a way to disable this just for stage1 cross?
+			--disable-gcov
+
+			--disable-bootstrap
+		)
 	else
 		if tc-is-static-only ; then
 			confgcc+=( --disable-shared )
@@ -1298,6 +1305,7 @@ toolchain_src_configure() {
 		)
 	fi
 
+	# TODO: Ignore RCs here (but TOOLCHAIN_IS_RC isn't yet an eclass var)
 	if [[ ${PV} == *_p* && -f "${S}"/gcc/doc/gcc.info ]] ; then
 		# Safeguard against https://gcc.gnu.org/bugzilla/show_bug.cgi?id=106899 being fixed
 		# without corresponding ebuild changes.
@@ -1313,8 +1321,8 @@ toolchain_src_configure() {
 
 	confgcc+=( "$@" ${EXTRA_ECONF} )
 
-	if [[ -n ${build_config_targets} ]] ; then
-		# ./configure --with-build-config='bootstrap-lto bootstrap-cet'
+	if ! is_crosscompile && ! tc-is-cross-compiler && [[ -n ${build_config_targets} ]] ; then
+		# e.g. ./configure --with-build-config='bootstrap-lto bootstrap-cet'
 		confgcc+=( --with-build-config="${build_config_targets[*]}" )
 	fi
 
@@ -1629,7 +1637,7 @@ gcc_do_make() {
 			GCC_MAKE_TARGET=${GCC_MAKE_TARGET-all}
 
 			ewarn "Disabling bootstrapping. ONLY recommended for development."
-			ewarn "This is NOT a safe configuration for endusers!"
+			ewarn "This is NOT a safe configuration for end users!"
 			ewarn "This compiler may not be safe or reliable for production use!"
 		elif _tc_use_if_iuse pgo; then
 			GCC_MAKE_TARGET=${GCC_MAKE_TARGET-profiledbootstrap}
@@ -1872,7 +1880,7 @@ toolchain_src_install() {
 	if ! is_crosscompile; then
 		# Rename the main go binaries as we don't want to clobber dev-lang/go
 		# when gcc-config runs. bug #567806
-		if tc_version_is_at_least 5 && is_go ; then
+		if is_go ; then
 			for x in go gofmt; do
 				mv ${x} ${x}-${GCCMAJOR} || die
 			done
