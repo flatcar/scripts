@@ -115,6 +115,7 @@ portage_stable="${new_state}/${portage_stable_suffix}"
 pushd "${portage_stable}"
 sync_script="${this_dir}/pkg-auto/sync-with-gentoo.sh"
 new_head=$(git -C "${new_state}" rev-parse HEAD)
+declare -A pkgs_set
 while read -r package; do
     old_head=${new_head}
     if [[ ! -e "${package}" ]]; then
@@ -136,7 +137,24 @@ while read -r package; do
     GENTOO_REPO="${gentoo}" "${sync_script}" "${package}"
     new_head=$(git -C "${new_state}" rev-parse HEAD)
     if [[ "${old_head}" != "${new_head}" ]]; then
-        updated+=("${package}")
+        pkgs_set=()
+        while read -r line; do
+            line=${line#"${portage_stable_suffix}/"}
+            category=${line%%/*}
+            case "${category}" in
+                eclass|virtual|*-*)
+                    pkg_and_rest=${line#"${category}"}
+                    pkg=${pkg_and_rest%%/*}
+                    if [[ -n "${pkg}" ]]; then
+                        pkgs_set["${category}/${pkg}"]=x
+                    fi
+                    ;;
+                *)
+                    pkgs_set["${category}"]=x
+                    ;;
+            esac
+        done < <(git -C "${new_state}" diff-tree --no-commit-id --name-only HEAD -r)
+        updated+=("${!pkgs_set[@]}")
     fi
 done < <(grep '^[^#]' "${packages_list}")
 popd
