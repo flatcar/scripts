@@ -27,11 +27,8 @@ fail() {
     exit 1
 }
 
-declare -a GLOBAL_extra_git_commit_options=()
-GLOBAL_single_commit=''
 declare -a GLOBAL_obsolete_packages=()
 GLOBAL_gentoo_repo="${GENTOO_REPO:-../gentoo}"
-GLOBAL_amend_mode=''
 
 while true; do
     case "${1}" in
@@ -39,26 +36,11 @@ while true; do
             echo "${0} [OPTIONS] CATEGORY[/PACKAGE_NAME] [CATEGORY[/PACKAGE_NAME] […]]"
             echo 'OPTIONS:'
             echo '  --help|-h: Print this help and quit'
-            echo '  --message|-m: Additional messages for commits, will be passed to git commit --message, can be specified many times'
-            echo '  --amend-mode|-a: Updates commit message to use the new used hash sum of the commit.'
-            echo '  --single-commit: Lump all the changes under a single commit'
             echo
             echo 'ENVIRONMENT VARIABLES:'
             echo '  GENTOO_REPO: Path to the Gentoo repo, from which the script syncs stuff.'
             echo
             exit 0
-            ;;
-        '--message'|'-m')
-            GLOBAL_extra_git_commit_options+=(--message "${2}")
-            shift 2
-            ;;
-        '--amend-mode'|'-a')
-            GLOBAL_amend_mode=1
-            shift
-            ;;
-        '--single-commit'|'-s')
-            GLOBAL_single_commit='x'
-            shift
             ;;
         *)
             break
@@ -91,10 +73,7 @@ echo "using Gentoo repo at ${GLOBAL_gentoo_repo}"
 
 commit_and_show() {
     if [[ -n "$(git status --porcelain | grep -v '^ ')" ]]; then
-        git commit \
-            --quiet \
-            "${@}" \
-            "${GLOBAL_extra_git_commit_options[@]}"
+        git commit --quiet "${@}"
         GIT_PAGER=cat git show --stat
         return 0
     fi
@@ -118,8 +97,10 @@ sync_git_prepare() {
         git rm --force --quiet "${path}"
         sync='x'
     fi
-    mkdir --parents "$(dirname ${path})"
-    cp --archive "${gentoo_path}" "$(dirname ${path})"
+    local parent
+    parent=$(dirname ${path})
+    mkdir --parents "${parent}"
+    cp --archive "${gentoo_path}" "${parent}"
     git add "${path}"
     if [[ -n "${sync}" ]]; then
         return 1
@@ -132,37 +113,17 @@ maybe_commit_with_gentoo_sha() {
     local name="${2}"
     local sync="${3}"
 
-    if [[ -z "${GLOBAL_single_commit}" ]]; then
-        local do_amend=''
-        local do_add=''
-        if [[ -n "${GLOBAL_amend_mode}" ]]; then
-            local subject
-
-            subject="$(git log -1 --pretty=format:%s)"
-            if [[ "${subject}" = "${name}:"* ]]; then
-                do_amend=1
-            fi
-            if [[ "${subject}" = *'Add from Gentoo'* ]]; then
-                do_add=1
-            fi
-        fi
-        local commit=''
-        local commit_msg=''
-        local amend_args=()
-        if [[ -n "${do_amend}" ]]; then
-            amend_args+=(--amend --no-edit)
-        fi
-        commit=$(git -C "${GLOBAL_gentoo_repo}" log --pretty=oneline -1 -- "${path}" | cut -f1 -d' ')
-        commit_msg="${name}: Add from Gentoo"
-        if [[ -n "${sync}" ]] && [[ -z "${do_add}" ]]; then
-            commit_msg="${name}: Sync with Gentoo"
-        fi
-        if ! commit_and_show \
-             "${amend_args[@]}" \
-             --message "${commit_msg}" \
-             --message "It's from Gentoo commit ${commit}."; then
-            echo "no changes in ${path}"
-        fi
+    local commit=''
+    local commit_msg=''
+    commit=$(git -C "${GLOBAL_gentoo_repo}" log --pretty=oneline -1 -- "${path}" | cut -f1 -d' ')
+    commit_msg="${name}: Add from Gentoo"
+    if [[ -n "${sync}" ]]; then
+        commit_msg="${name}: Sync with Gentoo"
+    fi
+    if ! commit_and_show \
+         --message "${commit_msg}" \
+         --message "It's from Gentoo commit ${commit}."; then
+        echo "no changes in ${path}"
     fi
 }
 
@@ -226,13 +187,6 @@ for cpn; do
             ;;
     esac
 done
-
-if [[ -n "${GLOBAL_single_commit}" ]]; then
-    if ! commit_and_show \
-         --message '*: Sync with Gentoo'; then
-        echo 'no changes made'
-    fi
-fi
 
 if [[ ${#GLOBAL_obsolete_packages[@]} -gt 0 ]]; then
     echo
