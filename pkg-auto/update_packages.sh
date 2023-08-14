@@ -102,8 +102,10 @@ updated=()
 missing_in_scripts=()
 missing_in_gentoo=()
 
-git -C "${new_state}" config user.name "${bot_name}"
-git -C "${new_state}" config user.email "${bot_email}"
+for role in AUTHOR COMMITTER; do
+    export "GIT_${role}_NAME=${bot_name}"
+    export "GIT_${role}_EMAIL=${bot_email}"
+done
 
 packages_list=$(realpath "${new_state}/.github/workflows/portage-stable-packages-list")
 missing_in_scripts=()
