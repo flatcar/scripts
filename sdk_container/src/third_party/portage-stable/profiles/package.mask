@@ -33,9 +33,48 @@
 
 #--- END OF EXAMPLES ---
 
-# Sam James <sam@gentoo.org> (2023-07-07)
-# Fails to boostrap: https://gcc.gnu.org/PR110926
-=sys-devel/gcc-14.0.0_pre20230806
+# Michael Orlitzky <mjo@gentoo.org> (2023-08-12)
+# More php:7.4 casualties that I missed the first time around.
+# They'll be removed whenever php:7.4 is removed.
+#
+#   * pecl-apcu_bc dead since 2019
+#   * pecl-http:7 is the old slot
+#   * pecl-ncurses dead since 2012
+#   * pecl-propro dead since 2020
+#   * pecl-taint dead in 2021
+#
+dev-php/pecl-apcu_bc
+dev-php/pecl-http:7
+dev-php/pecl-ncurses
+dev-php/pecl-propro
+dev-php/pecl-taint
+
+
+# Michael Orlitzky <mjo@gentoo.org> (2023-08-11)
+# php-7.x is End Of Life (EOL) upstream and no longer receives security
+# fixes. We lose phpunit because it depends on CodeCoverage which
+# depends on TokenStream, and TokenStream is limited to 7.x. Bug 887739
+# to upgrade moodle is seven months old, which I think is long enough to
+# have waited. Selfoss has a newer version. Removal after 2023-09-11.
+dev-lang/php:7.4
+dev-php/PHP_TokenStream
+dev-php/PHP_CodeCoverage
+dev-php/phpspec-prophecy
+dev-php/phpunit
+dev-php/phpunit-mock-objects
+dev-php/sebastian-comparator
+dev-php/sebastian-exporter
+dev-php/sebastian-global-state
+dev-php/sebastian-object-enumerator
+dev-php/sebastian-object-reflector
+dev-php/sebastian-recursion-context
+=mail-client/roundcube-1.4.11
+=virtual/httpd-php-7.4
+=www-apps/moodle-3.11.15
+=www-apps/moodle-4.0.9
+=www-apps/moodle-4.1.4
+=www-apps/moodle-4.2.1
+=www-apps/selfoss-2.19
 
 # Volkmar W. Pogatzki <gentoo@pogatzki.net> (2023-07-05)
 # Library without consumers. Bug #906882
@@ -102,12 +141,6 @@ sys-apps/gcp
 # 2011. No activity upstream. No reverse dependencies. Masked for
 # removal on 2023-08-22.
 dev-ruby/fast_xs
-
-# Arthur Zamarin <arthurzam@gentoo.org> (2023-07-21)
-# Broken runtime with ncurses version since last 2 years (unusable at
-# all), no upstream activity of any sort since 2016.
-# Removal on 2023-08-20.  Bug #910649.
-app-cdr/cdw
 
 # Hans de Graaff <graaff@gentoo.org> (2023-07-21)
 # Obsolete slot for a package that should not have been slotted. Please
@@ -288,37 +321,13 @@ dev-util/cucumber-html-formatter:17
 # https://github.com/scikit-build/scikit-build-core/issues/426
 =dev-python/scikit-build-core-0.4.7-r1
 
-# Hans de Graaff <graaff@gentoo.org> (2023-07-08)
-# Obsolete component for dev-util/cucumber. Discontinued upstream.
-# No reverse dependencies. Masked for removal on 2023-08-08.
-dev-util/cucumber-wire
-
-# Hans de Graaff <graaff@gentoo.org> (2023-07-08)
-# Last release in 2010. Upstream is gone. No reverse dependencies.
-# Masked for removal on 2023-08-08
-dev-ruby/annoy
-
-# Hans de Graaff <graaff@gentoo.org> (2023-07-08)
-# Obsolete component for dev-util/cucumber. Discontinued upstream.
-# No reverse dependencies. Masked for removal on 2023-08-08.
-dev-ruby/c21e
-
-# Hans de Graaff <graaff@gentoo.org> (2023-07-06)
-# Last release in 2012. Upstream is gone. No reverse dependencies.
-# Masked for removal on 2023-08-06.
-dev-ruby/deprecated
-
-# Matt Turner <mattst88@gentoo.org> (2023-07-06)
-# Dead package. No reverse dependencies.
-# Removal on 2023-08-06.
-dev-perl/Gtk2-Notify
-
 # Matt Turner <mattst88@gentoo.org> (2023-07-06)
 # GNOME 45 mask
 >=app-editors/gnome-text-editor-45_alpha
 >=app-misc/gnote-45_alpha
 >=app-misc/tracker-3.6_alpha
 >=app-misc/tracker-miners-3.6_alpha
+>=dev-cpp/gtkmm-4.11
 >=dev-libs/gjs-1.77
 >=dev-libs/libdex-0.3.0
 >=games-puzzle/gnome-sudoku-45_alpha
@@ -328,6 +337,7 @@ dev-perl/Gtk2-Notify
 >=gnome-base/nautilus-45_alpha
 >=gnome-extra/gnome-calculator-45_alpha
 >=gnome-extra/gnome-characters-45_alpha
+>=gnome-extra/gnome-logs-45_alpha
 >=gnome-extra/gnome-shell-extensions-45_alpha
 >=gnome-extra/gnome-software-45_alpha
 >=gnome-extra/gnome-system-monitor-45_alpha
@@ -336,26 +346,16 @@ dev-perl/Gtk2-Notify
 >=gui-apps/gnome-console-45_alpha
 >=gui-libs/gtk-4.11
 >=gui-libs/libadwaita-1.4_alpha
+>=media-gfx/eog-45_alpha
 >=media-gfx/gnome-font-viewer-45_alpha
 >=net-misc/gnome-connections-45_alpha
 >=net-misc/gnome-remote-desktop-45_alpha
 >=sci-geosciences/gnome-maps-45_alpha
 >=sys-apps/baobab-45_alpha
 >=sys-apps/xdg-desktop-portal-gnome-45_alpha
+>=x11-libs/pango-1.51.0
 >=x11-themes/gnome-backgrounds-45_alpha
 >=x11-wm/mutter-45_alpha
-
-# Michael Orlitzky <mjo@gentoo.org> (2023-07-05)
-# I suspect I was its only user, and I'm not a user any more. Upstream
-# has deleted its autoloader for the second time, making an update more
-# trouble than removal, so: removal on or after 2023-08-05.
-dev-php/php-redmine-api
-
-# Michał Górny <mgorny@gentoo.org> (2023-07-05)
-# Discontinued in favor of built-in `ast` module on all supported
-# versions of Python.  No revdeps left.
-# Removal on 2023-08-04.
-dev-python/typed-ast
 
 # Sam James <sam@gentoo.org> (2023-07-05)
 # Doesn't install all needed files by e.g. kernelshark.
@@ -363,46 +363,10 @@ dev-python/typed-ast
 # See bug #909439.
 =dev-util/trace-cmd-3.2
 
-# Hans de Graaff <graaff@gentoo.org> (2023-07-04)
-# Discontinued by upstream. No reverse dependencies. Upstream recommends
-# using dry-inflector. Please file a bug if you would like us to package
-# this. Masked for removal on 2023-08-04.
-dev-ruby/inflecto
-
-# Hans de Graaff <graaff@gentoo.org> (2023-07-04)
-# Archived by upstream. No reverse dependencies. Does not work with
-# ruby32. Masked for removal on 2023-08-04.
-dev-ruby/instantiator
-
-# Holger Hoffstätte <holger@applied-asynchrony.com> (2023-07-04)
-# Obsolete package, replaced by dev-util/scap-driver.
-# https://bugs.gentoo.org/907486
-# Masked for removal on 2023-08-04.
-dev-util/sysdig-kmod
-
 # Sam James <sam@gentoo.org> (2023-06-03)
 # Breaks dev-perl/Spreadsheet-ParseExcel, see bug #909564.
 # Please upgrade to >=dev-perl/dev-perl/OLE-StorageLite-0.220.0.
 =dev-perl/OLE-StorageLite-0.210.0
-
-# Hans de Graaff <graaff@gentoo.org> (2023-07-02)
-# Unmaintained and obsolete package. Last release 10 years ago. Upstream
-# advises to use dev-ruby/memoizable or dev-ruby/memoist instead.
-# Masked for removal on 2023-08-02.
-dev-ruby/memoize
-
-# Hans de Graaff <graaff@gentoo.org> (2023-07-02)
-# Obsolete slot only used by dev-util/cucumber. Use the newer slot
-# instead. Masked for removal on 2023-08-02.
-dev-ruby/multi_test:0
-
-# James Le Cuirot <chewi@gentoo.org> (2023-06-25)
-# Impossible to legally obtain the original native full game now. It freezes on
-# keyboard input, is incompatible with PipeWire, and requires gamescope to work
-# under Wayland. In short, it's a lost cause. Removal in 30 days. Bug #436140.
-# There is a modern SDL2-based port, but it is only available from Steam.
-games-action/descent3
-games-action/descent3-demo
 
 # Sam James <sam@gentoo.org> (2023-06-23)
 # Segfaults with non-bison yacc.
@@ -496,26 +460,6 @@ app-portage/layman
 # Lots of package breakage as usual for new versions. Masked until most/all
 # reverse dependencies are fixed. Tracker bug is bug #906077.
 =dev-libs/libfmt-10*
-
-# Michał Górny <mgorny@gentoo.org> (2023-05-05)
-# The Gentoo packages are severely out of date, and they haven't been
-# ported to Python 3.11.  They are hard to keep working, and there
-# are better alternatives available.  The suggested replacements are:
-# media-gfx/prusaslicer, media-gfx/superslicer and orcaslicer
-# (not packaged).
-# Removal on 2023-08-04.  Bug #905769.
-media-gfx/cura
-acct-group/ultimaker
-acct-user/ultimaker
-dev-libs/libarcus
-dev-libs/clipper
-dev-libs/libcharon
-dev-libs/libnest2d
-dev-libs/libsavitar
-dev-python/pynest2d
-dev-python/uranium
-media-gfx/fdm-materials
-media-gfx/curaengine
 
 # Sam James <sam@gentoo.org> (2023-05-03)
 # Broken pkgconfig file, please upgrade to -r1.
