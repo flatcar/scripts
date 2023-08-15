@@ -1,0 +1,4 @@
+- vim ([9.0.1678](https://github.com/vim/vim/commits/v9.0.1678))
+- qemu guest agent ([8.0.3](https://wiki.qemu.org/ChangeLog/8.0#Guest_agent))
+- cifs-utils ([7.0](https://lists.samba.org/archive/samba-technical/2022-August/137528.html))
+- intel-microcode ([20230808](https://github.com/intel/Intel-Linux-Processor-Microcode-Data-Files/releases/tag/microcode-20230808))
