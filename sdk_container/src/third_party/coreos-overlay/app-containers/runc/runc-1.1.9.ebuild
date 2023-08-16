@@ -8,7 +8,7 @@ COREOS_GO_PACKAGE="${GITHUB_URI}"
 COREOS_GO_VERSION="go1.19"
 # the commit of runc that docker uses.
 # see https://github.com/docker/docker-ce/blob/v19.03.15/components/engine/hack/dockerfile/install/runc.installer#L4
-COMMIT_ID="cbfeea55a256788411b6c9ec9324b938a1b4e19d"
+COMMIT_ID="f1136b082cc1c2840cdb3e0debf45e7ef832c918"
 
 inherit eutils flag-o-matic coreos-go vcs-snapshot
 
@@ -55,7 +55,7 @@ src_compile() {
 	)
 
 	GOPATH="${WORKDIR}/${P}" emake BUILDTAGS="${options[*]}" \
-		VERSION=1.1.8+dev.docker-20.10 \
+		VERSION=1.1.9+dev.docker-20.10 \
 		COMMIT="${COMMIT_ID}"
 }
 
