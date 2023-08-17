@@ -1,9 +1,11 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit flag-o-matic multilib-minimal toolchain-funcs usr-ldscript
+# See https://bugs.gentoo.org/835813 before bumping to 4.x!
+
+inherit flag-o-matic multilib-minimal usr-ldscript
 
 DESCRIPTION="Standard informational utilities and process-handling tools"
 HOMEPAGE="http://procps-ng.sourceforge.net/ https://gitlab.com/procps-ng/procps"
@@ -11,7 +13,7 @@ SRC_URI="mirror://sourceforge/${PN}-ng/${PN}-ng-${PV}.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0/8" # libprocps.so
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux"
 IUSE="elogind +kill modern-top +ncurses nls selinux static-libs systemd test unicode"
 RESTRICT="!test? ( test )"
 
@@ -37,6 +39,9 @@ RDEPEND="${DEPEND}
 	!<app-i18n/man-pages-pl-0.7-r1
 "
 
+# https://bugs.gentoo.org/898830
+QA_CONFIG_IMPL_DECL_SKIP=( makedev )
+
 PATCHES=(
 	"${FILESDIR}"/${PN}-3.3.11-sysctl-manpage.patch # 565304
 	"${FILESDIR}"/${PN}-3.3.12-proc-tests.patch # 583036
@@ -51,18 +56,9 @@ src_prepare() {
 }
 
 multilib_src_configure() {
-	if tc-is-cross-compiler ; then
-		# This isn't ideal but upstream don't provide a placement
-		# when malloc is missing anyway, leading to errors like:
-		# pslog.c:(.text.startup+0x108): undefined reference to `rpl_malloc'
-		# See https://sourceforge.net/p/psmisc/bugs/71/
-		# (and https://lists.gnu.org/archive/html/autoconf/2011-04/msg00019.html)
-		export ac_cv_func_malloc_0_nonnull=yes \
-			ac_cv_func_realloc_0_nonnull=yes
-	fi
-
 	# http://www.freelists.org/post/procps/PATCH-enable-transparent-large-file-support
 	append-lfs-flags #471102
+
 	local myeconfargs=(
 		$(multilib_native_use_with elogind) # No elogind multilib support
 		$(multilib_native_use_enable kill)

@@ -1,33 +1,32 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-inherit flag-o-matic toolchain-funcs systemd usr-ldscript
+inherit flag-o-matic systemd usr-ldscript
 
-DESCRIPTION="xfs filesystem utilities"
-HOMEPAGE="https://xfs.wiki.kernel.org/"
+DESCRIPTION="XFS filesystem utilities"
+HOMEPAGE="https://xfs.wiki.kernel.org/ https://git.kernel.org/pub/scm/fs/xfs/xfsprogs-dev.git/"
 SRC_URI="https://www.kernel.org/pub/linux/utils/fs/xfs/${PN}/${P}.tar.xz"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~mips ppc ppc64 ~s390 sparc x86"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 IUSE="icu libedit nls selinux"
 
-RDEPEND=">=sys-apps/util-linux-2.17.2
-	dev-libs/inih
+RDEPEND="dev-libs/inih
+	dev-libs/userspace-rcu:=
+	>=sys-apps/util-linux-2.17.2
 	icu? ( dev-libs/icu:= )
-	libedit? ( dev-libs/libedit )
-"
+	libedit? ( dev-libs/libedit )"
 DEPEND="${RDEPEND}"
-BDEPEND="
-	nls? ( sys-devel/gettext )
-"
+BDEPEND="nls? ( sys-devel/gettext )"
 RDEPEND+=" selinux? ( sec-policy/selinux-xfs )"
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-4.15.0-docdir.patch
 	"${FILESDIR}"/${PN}-5.3.0-libdir.patch
+	"${FILESDIR}"/${PN}-5.18.0-docdir.patch
+	"${FILESDIR}"/${PN}-6.3.0-gettext-0.22.patch
 )
 
 src_prepare() {
@@ -47,6 +46,9 @@ src_configure() {
 	# unnecessarily clutter CFLAGS (and fortran isn't used)
 	unset FCFLAGS
 
+	# If set in user env, this breaks configure
+	unset PLATFORM
+
 	export DEBUG=-DNDEBUG
 
 	# Package is honoring CFLAGS; No need to use OPTIMIZER anymore.
@@ -54,9 +56,7 @@ src_configure() {
 	# flags.
 	export OPTIMIZER=" "
 
-	unset PLATFORM # if set in user env, this breaks configure
-
-	# Avoid automagic on libdevmapper, #709694
+	# Avoid automagic on libdevmapper (bug #709694)
 	export ac_cv_search_dm_task_create=no
 
 	# Build fails with -O3 (bug #712698)
@@ -66,6 +66,7 @@ src_configure() {
 	# https://www.spinics.net/lists/linux-xfs/msg30185.html
 	# https://www.spinics.net/lists/linux-xfs/msg30272.html
 	local myconf=(
+		--enable-static
 		--enable-blkid
 		--with-crond-dir="${EPREFIX}/etc/cron.d"
 		--with-systemd-unit-dir="$(systemd_get_systemunitdir)"
