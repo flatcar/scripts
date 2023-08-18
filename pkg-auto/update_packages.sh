@@ -12,10 +12,16 @@
 ## 2: new branch name with updates
 ##
 ## Environment variables:
-## LISTINGS_DIR: Copy listings from that directory to worktree. If the
-## variable is empty, or the directory does not exist, download them
-## itself.
-##
+## WORKDIR
+## NO_CLEANUP
+## SCRIPTS_BASE
+## ARM64_PACKAGES_IMAGE
+## AMD64_PACKAGES_IMAGE
+## ARM64_PROD_LISTING
+## AMD64_PROD_LISTING
+## ARM64_DEV_LISTING
+## AMD64_DEV_LISTING
+## LISTINGS_DIR
 
 set -euo pipefail
 
@@ -171,7 +177,7 @@ fi
 
 renamed_from=()
 renamed_to=()
-# maps new name to old name
+# bidirectional mapping of a new name and an old name
 declare -A renamed_map_n_o renamed_map_o_n
 renamed_map_n_o=()
 renamed_map_o_n=()
@@ -219,127 +225,691 @@ if [[ ${#renamed_from[@]} -gt 0 ]]; then
     git -C "${new_state}" commit -m '.github: Update package names in automation'
 fi
 
-if [[ -n "${LISTINGS_DIR:-}" ]]; then
-    cp -a "${LISTINGS_DIR}" "${WORKDIR}/listings"
-else
-    flatcar_version=$(source /usr/share/flatcar/os-release; echo "${VERSION}")
-    "${this_dir}/download-listings.sh" "${flatcar_version}" "${WORKDIR}/listings"
-fi
-add_cleanup "rm -rf ${WORKDIR@Q}/listings"
+# 1. download amd64 and arm64 packages containers and listings for devcontainer and prod images
+# 2. to get old and new versions, do for each $arch:
+# 2a. run_sdk_container with the $arch packages image
+#      (package info - package name, version and slot)
+# 2b. get amd64 (not $arch!) SDK package info from /var/db/pkg
+#      (ext package info - package info + bdeps)
+# 2c. get $arch image ext package info from /build/$arch-usr/var/db/pkg
+# 2d. use emerge to get new package info for amd64 SDK
+# 2e. use emerge-$arch to get new package info for $arch image
+#     (bdeps could be packages that appear in lines without 'to /build/$arch-usr/')
 
-declare -A state_map
-declare -A profile_map
-state_map=(
-    ['old']="${old_state}"
-    ['new']="${new_state}"
-)
-profile_map=(
-    ['sdk']='coreos/@ARCH@/sdk'
-    ['generic']='coreos/@ARCH@/generic'
-)
+mkdir "${WORKDIR}/pkg-reports" "${WORKDIR}/sdk-images"
+add_cleanup \
+    "rm -rf ${WORKDIR@Q}/pkg-reports" \
+    "rmdir ${WORKDIR@Q}/sdk-images"
 
-function for_all_rootfses {
-    local callback=${1}
+function download {
+    local url="${1}"; shift
+    local output="${1}"; shift
 
-    for state in old new; do
-        for profile in sdk generic; do
-            for arch in arm64 amd64; do
-                rootfs="${WORKDIR}/rootfses/${state}-${profile}-${arch}"
-                "${callback}" "${rootfs}" "${state}" "${profile}" "${arch}"
+    curl \
+        --fail \
+        --silent \
+        --show-error \
+        --location \
+        --retry-delay 1 \
+        --retry 60 \
+        --retry-connrefused \
+        --retry-max-time 60 \
+        --connect-timeout 20 \
+        "${url}" >"${output}"
+}
+
+arches=(amd64 arm64)
+last_nightly_version_id=$(source "${new_state}/sdk_container/.repo/manifests/version.txt"; printf '%s' "${FLATCAR_VERSION_ID}")
+last_nightly_build_id=$(source "${new_state}/sdk_container/.repo/manifests/version.txt"; printf '%s' "${FLATCAR_BUILD_ID}")
+for arch in "${arches[@]}"; do
+    packages_image_var_name="${arch^^}_PACKAGES_IMAGE"
+    packages_image_name="flatcar-packages-${arch}:${last_nightly_version_id}-${last_nightly_build_id}"
+    declare -n packages_image_var="${packages_image_var_name}"
+    if [[ -n "${packages_image_var:-}" ]]; then
+        packages_image_name=${packages_image_var}
+        if ! docker images --format '{{.Repository}}:{{.Tag}}' | grep -q -x -F "${packages_image_name}"; then
+            fail "No SDK image named '${packages_image_name}' available locally, pull it before running this script"
+        fi
+    elif ! docker images --format '{{.Repository}}:{{.Tag}}' | grep -q -x -F "${packages_image_name}"; then
+        download "https://bincache.flatcar-linux.net/containers/${last_nightly_version_id}-${last_nightly_build_id}/flatcar-packages-${arch}-${last_nightly_version_id}-${last_nightly_build_id}.tar.zst" "${WORKDIR}/sdk-images/sdk-${arch}.tar.zst"
+        add_cleanup "rm -f ${WORKDIR@Q}/sdk-images/sdk-${arch}.tar.zst"
+        zstd -d -c "${WORKDIR}/sdk-images/sdk-${arch}.tar.zst" | docker load
+        add_cleanup "docker rmi ${packages_image_name@Q}"
+    fi
+    unset -n packages_image_var
+    declare -A kinds
+    kinds=(
+        [prod]=flatcar_production_image_packages.txt
+        [dev]=flatcar_developer_container_packages.txt
+    )
+    for kind in "${!kinds[@]}"; do
+        listing_var_name="${arch^^}_${kind^^}_LISTING"
+        listing_name=${kinds["${kind}"]}
+        listing="${WORKDIR}/listings/${arch}-${kind}"
+        declare -n listing_var="${listing_var_name}"
+        if [[ -n "${listing_var:-}" ]]; then
+            if [[ "${listing_var}" =~ /^[a-z+-]+:\/\// ]]; then
+                download "${listing_var}" "${listing}"
+            else
+                cp -a "${listing_var}" "${listing}"
+            fi
+        elif [[ -n "${LISTINGS_DIR}" ]]; then
+            cp -a "${LISTINGS_DIR}/${listing_name}" "${listing}"
+        else
+            download "https://bincache.flatcar-linux.net/images/${arch}/${last_nightly_version_id}+${last_nightly_build_id}/${listing_name}" "${listing}"
+        fi
+        unset -n listing_var
+    done
+done
+
+for arch in "${arches[@]}"; do
+    for sdk_run_kind in old new; do
+        state_var_name="${sdk_run_kind}_state"
+        sdk_run_state="${!state_var_name}_sdk_run"
+        state_branch_var_name="${sdk_run_kind}_state_branch"
+        sdk_run_state_branch="${!state_branch_var_name}-sdk-run"
+
+        git -C "${scripts}" \
+            worktree add -b "${sdk_run_state_branch}" "${sdk_run_state}" "${!state_branch_var_name}"
+        add_cleanup \
+            "git -C ${scripts@Q} worktree remove ${sdk_run_state@Q}" \
+            "git -C ${scripts@Q} branch -D ${sdk_run_state_branch@Q}"
+        cp -a "${this_dir}/pkg-auto/inside-sdk-container.sh" "${sdk_run_state}"
+        add_cleanup "rm -f ${sdk_run_state@Q}/inside-sdk-container.sh"
+        pushd "${sdk_run_state}"
+        ./run_sdk_container -C "${packages_image_name}" -n "pkg-${sdk_run_kind}-${arch}" --rm ./inside-sdk-container.sh "${arch}" pkg-reports
+        popd
+        mv "${sdk_run_state}/pkg-reports" "${WORKDIR}/pkg-reports/${sdk_run_kind}-${arch}"
+    done
+done
+
+# TODO: report bdeps missing from SDK
+
+# load package info into memory
+
+## MVM - multi-value-map
+
+source "${this_dir}/map.sh"
+
+# pkginfo: map[pkg]map[slot]version
+# earlier: map[pkg][]verslot
+function pkginfo_name() {
+    local which arch report pkginfo_pn_name_var_name
+
+    which=${1}; shift
+    arch=${1}; shift
+    report=${1}; shift
+    pkginfo_pn_name_var_name=${1}; shift
+    local -n pkginfo_pn_name_var="${pkginfo_pn_name_var_name}"
+
+    pkginfo_pn_name_var="pkginfo_mvm_${which}_${arch}_${report//-/_}"
+}
+
+function pkginfo_constructor() {
+    mvm_mvc_map_constructor "${@}"
+}
+
+function pkginfo_destructor() {
+    mvm_mvc_map_destructor "${@}"
+}
+
+function pkginfo_adder() {
+    local mark
+    local -n pkginfo_pa_map_var="${1}"; shift
+    while [[ ${#} -gt 1 ]]; do
+        mark=${pkginfo_pa_map_var["${1}"]:-}
+        if [[ -n "${mark}" ]]; then
+            fail "multiple versions for a single slot for a package in a single report"
+        fi
+        pkginfo_pa_map_var["${1}"]=${2}
+        shift 2
+    done
+}
+
+function pkginfo_declare() {
+    local which arch report pkginfo_pd_name_var_name
+    local -a extras
+
+    which=${1}; shift
+    arch=${1}; shift
+    report=${1}; shift
+    pkginfo_pd_name_var_name=${1}; shift
+
+    pkginfo_name "${which}" "${arch}" "${report}" "${pkginfo_pd_name_var_name}"
+    extras=(
+        'which' "${which}"
+        'arch' "${arch}"
+        'report' "${report}"
+    )
+
+    mvm_declare "${!pkginfo_pd_name_var_name}" pkginfo -- "${extras[@]}"
+}
+
+function pkginfo_process_file() {
+    mvm_call "${1}" pkginfo_c_process_file "${@:2}"
+}
+
+function pkginfo_c_process_file() {
+    local pkginfo_pcpf_pkg_set_var_name which arch report pkg version_slot v s throw_away
+
+    pkginfo_pcpf_pkg_set_var_name=${1}; shift
+    local -n pkginfo_pcpf_pkg_set_var="${pkginfo_pcpf_pkg_set_var_name}"
+
+    mvm_c_get_extra 'which' which
+    mvm_c_get_extra 'arch' arch
+    mvm_c_get_extra 'report' report
+
+    while read -r pkg version_slot throw_away; do
+        v=${version_slot%%:*}
+        s=${version_slot##*:}
+        mvm_c_add "${pkg}" "${s}" "${v}"
+        pkginfo_pcpf_pkg_set_var["${pkg}"]='x'
+    done < <("${WORKDIR}/pkg-reports/${which}-${arch}/${report}")
+}
+
+ARCHES=(amd64 arm64)
+WHICH=(old new)
+SDK_PKGS=sdk-pkgs
+BOARD_PKGS=board-pkgs
+REPORTS=("${SDK_PKGS}" "${BOARD_PKGS}")
+
+function read_reports() {
+    local rr_all_pkgs_var_name arch which report pi_name pkg
+    local -A all_packages_set
+
+    rr_all_pkgs_var_name=${1}; shift
+    all_packages_set=()
+    for arch in "${ARCHES[@]}"; do
+        for which in "${WHICH[@]}"; do
+            for report in "${REPORTS[@]}"; do
+                pkginfo_declare "${which}" "${arch}" "${report}" pi_name
+                pkginfo_process_file "${pi_name}" all_packages_set
             done
+        done
+    done
+    local -n rr_all_pkgs_var="${rr_all_pkgs_var_name}"
+    rr_all_pkgs_var=( "${!all_packages_set[@]}" )
+}
+
+###
+### BEGIN GENTOO VER COMP HACKS
+###
+
+EAPI=6
+function die() {
+    fail "$*"
+}
+
+source "${portage_stable}/eclass/eapi7-ver.eclass"
+
+function vercmp() {
+    local -
+    set +euo pipefail
+    ver_test "${@}"
+}
+
+###
+### END GENTOO VER COMP HACKS
+###
+
+function ver_min_max() {
+    local vmm_min_var_name vmm_max_var_name min max v
+
+    vmm_min_var_name=${1}; shift
+    local -n vmm_min_var="${vmm_min_var_name}"
+    vmm_max_var_name=${1}; shift
+    local -n vmm_max_var="${vmm_max_var_name}"
+
+    min=''
+    max=''
+
+    for v; do
+        if [[ -z ${min} ]] || vercmp "${v}" -lt "${min}"; then
+            min=${v}
+        fi
+        if [[ -z ${max} ]] || vercmp "${v}" -gt "${max}"; then
+            max=${v}
+        fi
+    done
+    vmm_min_var="${min}"
+    vmm_max_var="${max}"
+}
+
+# cases: (replace sdk and board with amd64 and arm64 if you want)
+# 0 in sdk, 0 in board - possibly unused package, or maybe arch specific stuff, ignore?
+# 1 in sdk, 0 in board - SDK only package, oldest/newest version for arch from SDK
+# 0 in sdk, 1 in board - board only package, oldest/newest version for arch from board
+# 1 in sdk, 1 in board - common package
+#                        if slots are equal, but not the versions, warn
+#                        if slots are different, suspicious
+#                        oldest/newest version from either
+# X in sdk, 0 in board - one version per slot,
+#                        if more versions per slot, warn
+#                        multiple old/new versions
+# 0 in sdk, X in board - same
+# X in sdk, 1 in board - if board slot is also in SDK, but versions differ, warn
+#                        if board slot is not in SDK, suspicious
+#                        multiple old/mew versions
+# 1 in sdk, X in board - if SDK slot is also in board, but versions differ, warn
+#                        if SDK slot is not in board, suspicious
+#                        multiple old/mew versions
+# X in sdk, X in board - common slots should have the same version, otherwise warn
+#                        slots only in SDK or only in board are suspicious
+#                        multiple old/new versions
+# function cc_0_1() {
+#     local cc01_vs_var_name cc01_pkg_versions_var_name v s
+#
+#     cc01_vs_var_name=${1}; shift
+#     local -n cc01_vs_var="${cc01_vs_var}"
+#     cc01_pkg_versions_var_name=${1}; shift
+#     local -n cc01_pkg_versions_var="${cc01_pkg_versions_var_name}"
+#
+#     v=${cc01_vs_var[0]%%:*}
+#     s=${cc01_vs_var[0]##*:}
+#     cc01_pkg_versions_var["${s}"]="${v}:${v}"
+# }
+#
+# function cc_0_x() {
+#     local cc0x_vs_var_name cc0x_pkg_versions_var_name vs v s cc0x_versions_array_name
+#     local -a slots
+#
+#     cc0x_vs_var_name=${1}; shift
+#     local -n cc0x_vs_var="${cc0x_vs_var_name}"
+#     cc0x_pkg_versions_var_name=${1}; shift
+#     local -n cc0x_pkg_versions_var="${cc0x_pkg_versions_var_name}"
+#
+#     mvm_declare cc0x_slot_map
+#     slots=()
+#     for vs in "${cc0x_vs_var[@]}"; do
+#         v=${vs%%:*}
+#         s=${vs##*:}
+#         mvm_add cc0x_slot_map "${s}" "${v}"
+#         slots+=( "${s}" )
+#     done
+#     for s in "${slots[@]}"; do
+#         mvm_get cc0x_slot_map "${s}" cc0x_versions_array_name
+#         local -n cc0x_versions_array="${cc0x_versions_array_name}"
+#         if [[ ${#cc0x_versions_array[@]} -gt 1 ]]; then
+#             local cc0x_min cc0x_max
+#             ver_min_max cc0x_min cc0x_max "${cc0x_versions_array[@]}"
+#             cc0x_pkg_versions_var["${s}"]="${cc0x_min}:${cc0x_max}"
+#             # TODO: warn about many versions for one slot
+#         else
+#             v=${cc0x_versions_array[0]}
+#             cc0x_pkg_versions_var["${s}"]="${v}:${v}"
+#         fi
+#         unset -n cc0x_versions_array
+#     done
+#     mvm_unset cc0x_slot_map
+# }
+#
+# function cc_1_x() {
+#     local only_verslot only_version only_slot cc1x_vs_var_name cc1x_pkg_versions_var_name vs v s slot_found cc1x_versions_array_name version_found cc1x_min cc1x_max
+#     local -a slots
+#
+#     only_verslot=${1}; shift
+#     only_version=${only_verslot%%:*}
+#     only_slot=${only_verslot##*:}
+#
+#     cc1x_vs_var_name=${1}; shift
+#     local -n cc1x_vs_var="${cc1x_vs_var_name}"
+#     cc1x_pkg_versions_var_name=${1}; shift
+#     local -n cc1x_pkg_versions_var="${cc1x_pkg_versions_var_name}"
+#
+#     mvm_declare cc1x_slot_map
+#     slots=()
+#     for vs in "${cc1x_vs_var[@]}"; do
+#         v=${vs%%:*}
+#         s=${vs##*:}
+#         mvm_add cc1x_slot_map "${s}" "${v}"
+#         slots+=( "${s}" )
+#     done
+#     slot_found=''
+#     for s in "${slots[@]}"; do
+#         mvm_get cc1x_slot_map "${s}" cc1x_versions_array_name
+#         local -n cc1x_versions_array="${cc1x_versions_array_name}"
+#         if [[ ${#cc1x_versions_array[@]} -gt 1 ]]; then
+#             # TODO: warn about many versions for one slot
+#             if [[ ${s} = ${only_slot} ]]; then
+#                 version_found=''
+#                 for v in "${cc1x_versions_array[@]}"; do
+#                     if [[ ${v} = ${only_version} ]]; then
+#                         version_found=x
+#                         break
+#                     fi
+#                 done
+#                 if [[ -z ${version_found} ]]; then
+#                     # TODO: warn about version mismatch, the only version does not match any on the other side
+#                 fi
+#             fi
+#         elif [[ ${s} = ${only_slot} ]] && [[ ${cc1x_versions_array[0]} != ${only_version} ]]; then
+#             # TODO: warn about version mismatch, the only version does not match any on the other side
+#         fi
+#         if [[ ${s} = ${only_slot} ]]; then
+#             slot_found=x
+#             ver_min_max cc1x_min cc1x_max "${cc1x_versions_array[@]}" "${only_version}"
+#         else
+#             ver_min_max cc1x_min cc1x_max "${cc1x_versions_array[@]}"
+#         fi
+#         cc1x_pkg_versions_var["${s}"]="${cc1x_min}:${cc1x_max}"
+#         unset -n cc1x_versions_array
+#     done
+#     if [[ -z ${slot_found} ]]; then
+#         # TODO: the only slot is not present on other side, suspicious
+#         cc1x_pkg_versions_var["${only_slot}"]="${only_version}:${only_version}"
+#     fi
+#     mvm_unset cc1x_slot_map
+# }
+
+# X in sdk, X in board - common slots should have the same version, otherwise warn
+#                        slots only in SDK or only in board are suspicious
+#                        multiple old/new versions
+function cc_x_x() {
+    local ccxx_slot_version1_map_var_name ccxx_slot_version2_map_var_name ccxx_slot_minmax_versions_map_var_name s v1 v2 ccxx_min ccxx_max
+    local -A slots
+
+    ccxx_slot_version1_map_var_name=${1}; shift
+    local -n ccxx_slot_version1_map_var="${ccxx_slot_version1_map_var_name}"
+    ccxx_slot_version2_map_var_name=${1}; shift
+    local -n ccxx_slot_version2_map_var="${ccxx_slot_version2_map_var_name}"
+    ccxx_slot_minmax_versions_map_var_name=${1}; shift
+    local -n ccxx_slot_minmax_versions_map_var="${ccxx_slot_minmax_versions_map_var_name}"
+
+    slots=()
+    for s in "${!ccxx_slot_version1_map_var[@]}"; do
+        slots["${s}"]=x
+    done
+    for s in "${!ccxx_slot_version2_map_var[@]}"; do
+        slots["${s}"]=x
+    done
+    for s in "${!slots[@]}"; do
+        # TODO make local
+        v1=${ccxx_slot_version1_map_var["${s}"]:-}
+        v2=${ccxx_slot_version2_map_var["${s}"]:-}
+
+        if [[ -n ${v1} ]] && [[ -n ${v2} ]]; then
+            if [[ ${v1} != ${v2} ]]; then
+                # TODO: warn about version mismatch for a slot in the package
+            fi
+        elif [[ -n ${v1} ]]; then
+            # only side1 has the slot
+            if [[ ${#ccxx_slot_version2_map_var[@]} -gt 0 ]]; then
+                # TODO: the slot is present only on one side, while
+                # other side has other slots, suspicious
+            fi
+        else
+            # only side 2 has the slot
+            if [[ ${#ccxx_slot_version1_map_var[@]} -gt 0 ]]; then
+                # TODO: the slot is present only on other side, while
+                # one side has other slots, suspicious
+            fi
+        fi
+
+        ver_min_max ccxx_min ccxx_max "${ccxx_versions1_array[@]}" "${ccxx_versions2_array[@]}"
+        ccxx_slot_minmax_versions_map_var["${s}"]="${ccxx_min}:${ccxx_max}"
+    done
+}
+
+function consistency_check_for_package() {
+    local pkg pi1 pi2 ccfp_slot_minmax_versions_map_var_name ccfp_slot_version1_map_name ccfp_slot_version2_map_name
+
+    pkg=${1}; shift
+    pi1=${1}; shift
+    pi2=${1}; shift
+    # map of slot to min#max
+    ccfp_slot_minmax_versions_map_var_name=${1}; shift
+
+    mvm_get "${p1}" "${pkg}" ccfp_slot_version1_map_name
+    mvm_get "${p2}" "${pkg}" ccfp_slot_version2_map_name
+
+    if [[ -z ${ccfp_slot_version1_map_name} ]]; then
+        local -A ccfp_slot_version_map1
+        ccfp_slot_version_map1=()
+    else
+        local -n ccfp_slot_version_map1="${ccfp_slot_version1_map_name}"
+    fi
+
+    if [[ -z ${ccfp_slot_version2_map_name} ]]; then
+        local -A ccfp_slot_version_map2
+        ccfp_slot_version_map2=()
+    else
+        local -n ccfp_slot_version_map2="${ccfp_slot_version2_map_name}"
+    fi
+
+    cc_x_x ccfp_slot_version_map1 ccfp_slot_version_map2 "${ccfp_slot_minmax_versions_map_var_name}"
+}
+
+# consistency checks between:
+# not yet: amd64 sdk <-> arm64 sdk
+# amd64 sdk <-> amd64 board
+# not yet: arm64 sdk <-> arm64 board
+# amd64 board <-> arm64 board
+function consistency_checks() {
+    local which cc_all_pkgs_var_name pkg_slot_minmax_versions_map cc_pi1_name cc_pi2_name cc_slot_minmax_versions_map
+
+    which=${1}; shift
+    cc_all_pkgs_var_name=${1}; shift
+    # map[pkg]map[slot]min:max
+    pkg_slot_minmax_versions_map=${1}; shift
+    local -n cc_all_pkgs_var="${cc_all_pkgs_var_name}"
+
+    # amd64 sdk <-> amd64 board
+    pkginfo_name "${which}" amd64 "${SDK_PKGS}" cc_pi1_name
+    pkginfo_name "${which}" amd64 "${BOARD_PKGS}" cc_pi2_name
+    for pkg in "${cc_all_pkgs_var[@]}"; do
+        mvm_get "${pkg_slot_minmax_versions_map}" "${pkg}" cc_slot_minmax_versions_map
+        consistency_check_for_package "${pkg}" "${cc_p1_name}" "${cc_pi2_name}" "${cc_slot_minmax_versions_map}"
+    done
+
+    # amd64 board <-> arm64 board
+    pkginfo_name "${which}" amd64 "${BOARD_PKGS}" cc_pi1_name
+    pkginfo_name "${which}" arm64 "${BOARD_PKGS}" cc_pi2_name
+    for pkg in "${cc_all_pkgs_var[@]}"; do
+        consistency_check_for_package "${pkg}" "${cc_p1_name}" "${cc_pi2_name}"
+    done
+}
+
+function stuff() {
+    local -A all_pkgs=()
+    local arch which report pi_name
+    for arch in amd64 arm64; do
+        for which in old new; do
+            for report in sdk-pkgs board-pkgs; do
+                pkginfo_declare "${which}" "${arch}" "${report}" pi_name
+                pkginfo_process_file "${pi_name}"
+            done
+        done
+    done
+    # old stuff first
+    local array_name verslot version slot
+    local -A slot_version_map
+    for pkg in "${all_pkgs[@]}"; do
+        for arch in amd64 arm64; do
+            local "${arch}_verslots"=()
+            local "${arch}_oldest"=''
+        done
+        for arch in amd64 arm64; do
+            local -n verslots="${arch_verslots}"
+            pkginfo_get old "${arch}" "${pkg}" array_name
+            if [[ -z "${array_name}" ]]; then
+                # no such package on this arch
+                continue
+            fi
+            local -n array="${array_name}"
+            verslots=("${array[@]}")
+            unset -n array
+            case ${#verslots[@]} in
+                0)
+                    fail "zero versions for package '${pkg}' on arch '${arch}', should have handled that earlier"
+                    ;;
+                1)
+                    local -n oldest="${arch}_oldest"
+                    oldest=${verslots[0]}
+                    unset -n oldest
+                    ;;
+                *)
+                    mvm_declare slot_map
+                    slot_version_map=()
+                    for verslot in "${verslots[@]}"; do
+                        version=${verslot%%:*}
+                        slot=${verslot##*:}
+                        mvm_add slot_map "${slot}" "${version}"
+                    done
+                    mvm_iterate slot_map ajwaj
+                    mvm_unset slot_map
+                    ;;
+            esac
+            unset -n verslots
         done
     done
 }
 
-function setup_rootfs {
-    local rootfs=${1}; shift
-    local state=${1}; shift
-    local profile=${1}; shift
-    local arch=${1}; shift
+function ajwaj() {
+    local slot a_array_name
 
-    mkdir "${WORKDIR}/rootfses/${rootfs}"
-    add_cleanup "rmdir ${rootfs@Q}"
-    mkdir -p "${rootfs}"{/etc/portage/repos.conf,stuff/{dist,logs/{emerge,portage},pkgs,tmp}}
-    add_cleanup "rm -rf ${rootfs@Q}/stuff"/{dist,logs/{emerge,portage},pkgs,tmp}
-    add_cleanup "rmdir ${rootfs@Q}"/{etc{/portage{/repos.conf,},},stuff{/logs,}}
-    cat >"${rootfs}/etc/portage/make.conf" <<EOF
-DISTDIR="${rootfs}/stuff/dist"
-PKGDIR="${rootfs}/stuff/pkgs"
-EMERGE_LOG_DIR="${rootfs}/stuff/logs/emerge"
-PORTAGE_TMPDIR="${rootfs}/stuff/tmp"
-PORTAGE_LOGDIR="${rootfs/stuff/logs/portage
-EOF
-    state_dir=${state_map["${state}"]}
-    add_cleanup "rm -f ${rootfs@Q}/etc/portage/make.conf"
-    profile_dir=${profile_map["${profile}"]//'@ARCH@'/"${arch}"}
-    ln -sfTr "${state_dir}/sdk_container/src/third_party/coreos-overlay/profiles/${profile_dir}" "${rootfs}/etc/portage/make.profile"
-    add_cleanup "rm -f ${rootfs@Q}/etc/portage/make.profile"
-    cat >"${rootfs}/etc/portage/repos.conf/flatcar.conf" <<EOF
-[DEFAULT]
-main-repo = portage-stable
-
-[coreos]
-location = ${state_dir}/sdk_container/src/third_party/coreos-overlay
-
-[portage-stable]
-location = ${state_dir}/sdk_container/src/third_party/portage-stable
-EOF
-    add_cleanup "rm -f ${rootfs@Q}/etc/portage/repos.conf/flatcar.conf"
+    slot=${1}; shift
+    a_array_name=${1}; shift
+    # rest are versions
+    if [[ ${#} -gt 1 ]]; then
+        # TODO: warning about two different versions of the package with the same slot on this arch
+    fi
 }
 
-mkdir -p "${WORKDIR}/rootfses"
-add_cleanup "rmdir ${WORKDIR@Q}/rootfses"
-for_all_rootfses setup_rootfs
+function process_reports_and_simplify() {
+    local all_pkgs_var_name=${1}
+    local report
 
-updated_pkgs=()
-# collect old versions of packages:
-for entry in "${updated[@]}"; do
-    case "${package}" in
-        eclass/*|profiles|licenses|scripts)
-            :
-            ;;
-        *)
-            updated_pkgs+=("${entry}")
-            declare -A all_old_versions
-            all_old_versions=()
-            function get_version {
-                local rootfs=${1}; shift
-                local state=${1}; shift
-                local profile=${1}; shift
-                local arch=${1}; shift
+    for report in sdk-pkgs board-pkgs; do
+        pi_c_process_file "${report}" "${all_pkgs_var_name}"
+    done
+    mvm_c_iterate simplify
+}
 
-                emerge --config-root="${rootfs}" --root="${rootfs}" --sysroot="${rootfs}" --oneshot --pretend --color n --columns --nodeps --nospinner "${entry}"
-            }
-            ;;
-    esac
-done
+function simplify() {
+    local pkg s_array_name
 
-function get_old_versions {
-    local rootfs=${1}; shift
-    local state=${1}; shift
-    local profile=${1}; shift
-    local arch=${1}; shift
-    local old_updated_pkgs=()
-    local pkg old_name line
+    pkg=${1}; shift
+    s_array_name=${1}; shift
+    # rest are version:slot items
+    if [[ ${#} -lt 2 ]]; then
+        return 0
+    fi
 
-    for pkg in "${updated_pkgs[@]}"; do
-        old_name=${renamed_map_n_o["${pkg}"]:-"${pkg}"}
-        old_updated_pkgs+=("${old_name}")
+    local version_slot
+    local -A tmp_set
+    tmp_set=()
+    for version_slot; do
+        tmp_set["${version_slot}"]=x
     done
 
-    while read -r line; do
-        '  R    sys-libs/glibc 2.36-r5 to /build/amd64-usr/'
-        ' N     app-portage/portage-utils 0.95 to /build/amd64-usr/'
-        ' N     sys-apps/portage 3.0.44-r1 to /build/amd64-usr/'
-
-    done < <(emerge --config-root="${rootfs}" --root="${rootfs}" --sysroot="${rootfs}" --oneshot --pretend --color n --columns --nodeps --nospinner --quiet "${old_updated_pkgs[@]}")
+    local -n s_array="${s_array_name}"
+    s_array=( "${!tmp_set[@]}" )
 }
 
-for_all_rootfses get_old_versions
 
+
+
+
+
+
+
+
+
+
+# multi_*_versions are mapping of package name to array variable name
+# containing most likely duplicated version:slot info
+declare -A old_versions new_versions multi_old_version multi_new_versions pkg_tags
+# array of all package names (from SDK and board)
+declare -a all_pkgs
+
+function multiversion_name() {
+    local which=${1}; shift
+    local arch=${1}; shift
+
+    printf 'multi_versions_%s_%s' "${which}" "${arch}"
+}
+
+function init_multiversion() {
+    local which=${1}; shift
+    local arch=${1}; shift
+}
+
+function is_multiversion() {
+    local which=${1}; shift
+    local arch=${1}; shift
+    local pkg=${1}; shift
+    local -n multi="multi_${which}_versions"
+    local var_name=${multi["${pkg}"]}
+
+    [[ -n ${var_name} ]]
+}
+
+function get_and_inc_multiversion_counter() {
+    local which=${1}; shift
+    local value_var_name=${1}; shift
+    local -n value_var="${value_var_name}"
+    local multi_name="multi_${which}_versions"
+    local -n multi="${multi_name}"
+    local counter=${multi['##counter']:-}
+
+    if [[ -z ${counter} ]]; then
+        counter=0
+    fi
+    multi['##counter']=$((counter + 1))
+    value_var=${counter}
+}
+
+function add_to_multiversion() {
+    local which=${1}; shift
+    local pkg=${1}; shift
+    local version_slot=${1}; shift
+    local multi_name="multi_${which}_versions"
+    local -n multi="${multi_name}"
+    local var_name=${multi["${pkg}"]:-}
+    local index
+
+    if [[ -n ${var_name} ]]; then
+        local -n array_var="${var_name}"
+        array_var+=( "${version_slot}" )
+    else
+        get_and_inc_multiversion_counter "${which}" index
+        var_name="${multi_name}_array_${index}"
+        declare -g -a "${var_name}"
+        local -n array_var="${var_name}"
+        array_var=( "${version_slot}" )
+        multi["${pkg}"]=${var_name}
+    fi
+}
+
+function process_package_info_file() {
+    local which=${1}; shift
+    local arch=${1}; shift
+    local report=${1}; shift
+    local pkg version_slot throw_away version old
+    local file="${WORKDIR}/pkg-reports/${which}-${arch}/${report}"
+    local -n versions="${which}_versions"
+
+    while read -r pkg version_slot throw_away; do
+        version=${version_slot%%:*}
+        old=${versions["${pkg}"]:-}
+        if is_multiversion old "${pkg}"; then
+            add_to_multiversion old "${pkg}" "${version_slot}"
+        elif [[ -n ${old} ]]; then
+            if [[ ${old} = ${version} ]]; then
+                continue
+            fi
+            unset old_versions["${pkg}"]
+            add_to_multiversion old "${pkg}" "${version_slot}"
+        else
+            versions["${pkg}"]=${version_slot}
+        fi
+    done < <("${file}")
+}
+
+updated_pkgs=()
 old_portage_stable="${old_state}/${portage_stable_suffix}"
 for entry in "${updated[@]}"; do
-    case "${package}" in
+    case "${entry}" in
         eclass/*)
             mkdir -p "${WORKDIR}/updates/eclass"
             { diff "${old_portage_stable}/${entry}" "${portage_stable}/${entry}" || : } >"${WORKDIR}/updates/${entry}"
@@ -357,16 +927,7 @@ for entry in "${updated[@]}"; do
             :
             ;;
         *)
-            declare -A all_old_versions
-            all_old_versions=()
-            function get_version {
-                local rootfs=${1}; shift
-                local state=${1}; shift
-                local profile=${1}; shift
-                local arch=${1}; shift
-
-                emerge --config-root="${rootfs}" --root="${rootfs}" --sysroot="${rootfs}" --oneshot --pretend --color n --columns --nodeps --nospinner "${entry}"
-            }
+            :
             ;;
     esac
 done
