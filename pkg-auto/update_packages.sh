@@ -390,10 +390,11 @@ function pkginfo_process_file() {
 }
 
 function pkginfo_c_process_file() {
-    local pkginfo_pcpf_pkg_set_var_name which arch report pkg version_slot v s throw_away
+    local pkginfo_pcpf_pkg_set_var_name pkginfo_pcpf_pkg_slots_mvm_var_name which arch report pkg version_slot v s throw_away
 
     pkginfo_pcpf_pkg_set_var_name=${1}; shift
     local -n pkginfo_pcpf_pkg_set_var="${pkginfo_pcpf_pkg_set_var_name}"
+    pkginfo_pcpf_pkg_slots_mvm_var_name=${1}; shift
 
     mvm_c_get_extra 'which' which
     mvm_c_get_extra 'arch' arch
@@ -404,6 +405,7 @@ function pkginfo_c_process_file() {
         s=${version_slot##*:}
         mvm_c_add "${pkg}" "${s}" "${v}"
         pkginfo_pcpf_pkg_set_var["${pkg}"]='x'
+        mvm_add "${pkginfo_pcpf_pkg_slots_mvm_var_name}" "${pkg}" "${s}"
     done < <("${WORKDIR}/pkg-reports/${which}-${arch}/${report}")
 }
 
@@ -414,16 +416,17 @@ BOARD_PKGS=board-pkgs
 REPORTS=("${SDK_PKGS}" "${BOARD_PKGS}")
 
 function read_reports() {
-    local rr_all_pkgs_var_name arch which report pi_name pkg
+    local rr_all_pkgs_var_name rr_pkg_slots_mvm_var_name arch which report pi_name
     local -A all_packages_set
 
     rr_all_pkgs_var_name=${1}; shift
+    rr_pkg_slots_mvm_var_name=${1}; shift
     all_packages_set=()
     for arch in "${ARCHES[@]}"; do
         for which in "${WHICH[@]}"; do
             for report in "${REPORTS[@]}"; do
                 pkginfo_declare "${which}" "${arch}" "${report}" pi_name
-                pkginfo_process_file "${pi_name}" all_packages_set
+                pkginfo_process_file "${pi_name}" all_packages_set "${rr_pkg_slots_mvm_var_name}"
             done
         done
     done
@@ -605,59 +608,59 @@ function ver_min_max() {
 #                        slots only in SDK or only in board are suspicious
 #                        multiple old/new versions
 function cc_x_x() {
-    local ccxx_slot_version1_map_var_name ccxx_slot_version2_map_var_name ccxx_slot_minmax_versions_map_var_name s v1 v2 ccxx_min ccxx_max
-    local -A slots
+    local pkg ccxx_slot_version1_map_var_name ccxx_slot_version2_map_var_name ccxx_pkg_slot_minmax_var_name ccxx_pkg_slots_var_name s v1 v2 ccxx_min ccxx_max mm
 
+    pkg=${1}; shift
     ccxx_slot_version1_map_var_name=${1}; shift
     local -n ccxx_slot_version1_map_var="${ccxx_slot_version1_map_var_name}"
     ccxx_slot_version2_map_var_name=${1}; shift
     local -n ccxx_slot_version2_map_var="${ccxx_slot_version2_map_var_name}"
-    ccxx_slot_minmax_versions_map_var_name=${1}; shift
-    local -n ccxx_slot_minmax_versions_map_var="${ccxx_slot_minmax_versions_map_var_name}"
+    ccxx_pkg_slot_minmax_var_name=${1}; shift
+    ccxx_pkg_slots_var_name=${1}; shift
 
-    slots=()
-    for s in "${!ccxx_slot_version1_map_var[@]}"; do
-        slots["${s}"]=x
-    done
-    for s in "${!ccxx_slot_version2_map_var[@]}"; do
-        slots["${s}"]=x
-    done
+    mvm_get "${ccxx_pkg_slots_var_name}" "${pkg}" ccxx_slots_name
+    local -n slots="${cxx_slots_name}"
     for s in "${!slots[@]}"; do
-        # TODO make local
         v1=${ccxx_slot_version1_map_var["${s}"]:-}
         v2=${ccxx_slot_version2_map_var["${s}"]:-}
+        mm
 
         if [[ -n ${v1} ]] && [[ -n ${v2} ]]; then
             if [[ ${v1} != ${v2} ]]; then
                 # TODO: warn about version mismatch for a slot in the package
             fi
+            ver_min_max ccxx_min ccxx_max "${v1}" "${v2}"
+            mm="${ccxx_min}:${ccxx_max}"
         elif [[ -n ${v1} ]]; then
             # only side1 has the slot
             if [[ ${#ccxx_slot_version2_map_var[@]} -gt 0 ]]; then
                 # TODO: the slot is present only on one side, while
                 # other side has other slots, suspicious
             fi
-        else
+            mm="${v1}:${v1}"
+        elif [[ -n ${v2} ]]; then
             # only side 2 has the slot
             if [[ ${#ccxx_slot_version1_map_var[@]} -gt 0 ]]; then
                 # TODO: the slot is present only on other side, while
                 # one side has other slots, suspicious
             fi
+            mm="${v2}:${v2}"
+        else
+            continue
         fi
 
-        ver_min_max ccxx_min ccxx_max "${ccxx_versions1_array[@]}" "${ccxx_versions2_array[@]}"
-        ccxx_slot_minmax_versions_map_var["${s}"]="${ccxx_min}:${ccxx_max}"
+        mvm_add "${ccxx_pkg_slot_minmax_var_name}" "${pkg}" "${s}" "${mm}"
     done
 }
 
 function consistency_check_for_package() {
-    local pkg pi1 pi2 ccfp_slot_minmax_versions_map_var_name ccfp_slot_version1_map_name ccfp_slot_version2_map_name
+    local pkg pi1 pi2 ccfp_pkg_slot_minmax_var_name ccfp_pkg_slots_var_name ccfp_slot_version1_map_name ccfp_slot_version2_map_name
 
     pkg=${1}; shift
     pi1=${1}; shift
     pi2=${1}; shift
-    # map of slot to min#max
-    ccfp_slot_minmax_versions_map_var_name=${1}; shift
+    ccfp_pkg_slot_minmax_var_name=${1}; shift
+    ccfp_pkg_slots_var_name=${1}; shift
 
     mvm_get "${p1}" "${pkg}" ccfp_slot_version1_map_name
     mvm_get "${p2}" "${pkg}" ccfp_slot_version2_map_name
@@ -676,7 +679,7 @@ function consistency_check_for_package() {
         local -n ccfp_slot_version_map2="${ccfp_slot_version2_map_name}"
     fi
 
-    cc_x_x ccfp_slot_version_map1 ccfp_slot_version_map2 "${ccfp_slot_minmax_versions_map_var_name}"
+    cc_x_x "${pkg}" ccfp_slot_version_map1 ccfp_slot_version_map2 "${ccfp_pkg_slot_minmax_var_name}" "${ccfp_pkg_slots_var_name}"
 }
 
 # consistency checks between:
@@ -685,81 +688,82 @@ function consistency_check_for_package() {
 # not yet: arm64 sdk <-> arm64 board
 # amd64 board <-> arm64 board
 function consistency_checks() {
-    local which cc_all_pkgs_var_name pkg_slot_minmax_versions_map cc_pi1_name cc_pi2_name cc_slot_minmax_versions_map
+    local which cc_all_pkgs_var_name cc_pkg_slots_var_name cc_pkg_slot_minmax_versions_var_name cc_pi1_name cc_pi2_name pkg
 
     which=${1}; shift
     cc_all_pkgs_var_name=${1}; shift
-    # map[pkg]map[slot]min:max
-    pkg_slot_minmax_versions_map=${1}; shift
     local -n cc_all_pkgs_var="${cc_all_pkgs_var_name}"
+    cc_pkg_slots_var_name=${1}; shift
+    cc_pkg_slot_minmax_versions_var_name=${1}; shift
 
     # amd64 sdk <-> amd64 board
     pkginfo_name "${which}" amd64 "${SDK_PKGS}" cc_pi1_name
     pkginfo_name "${which}" amd64 "${BOARD_PKGS}" cc_pi2_name
+    mvm_declare amd64_sdk_board_pkg_slot_minmax mvm_mvc_map
     for pkg in "${cc_all_pkgs_var[@]}"; do
-        mvm_get "${pkg_slot_minmax_versions_map}" "${pkg}" cc_slot_minmax_versions_map
-        consistency_check_for_package "${pkg}" "${cc_p1_name}" "${cc_pi2_name}" "${cc_slot_minmax_versions_map}"
+        consistency_check_for_package "${pkg}" "${cc_p1_name}" "${cc_pi2_name}" amd64_sdk_board_pkg_slot_minmax "${cc_pkg_slots_var_name}"
     done
 
     # amd64 board <-> arm64 board
     pkginfo_name "${which}" amd64 "${BOARD_PKGS}" cc_pi1_name
     pkginfo_name "${which}" arm64 "${BOARD_PKGS}" cc_pi2_name
+    mvm_declare amd64_arm64_board_pkg_slot_minmax mvm_mvc_map
     for pkg in "${cc_all_pkgs_var[@]}"; do
-        consistency_check_for_package "${pkg}" "${cc_p1_name}" "${cc_pi2_name}"
+        consistency_check_for_package "${pkg}" "${cc_p1_name}" "${cc_pi2_name}" amd64_arm64_board_pkg_slot_minmax "${cc_pkg_slots_var_name}"
     done
+
+    local m1_name m2_name s mm1 mm2 cc_min cc_max mm cc_slots_name
+    local -A empty
+    empty=()
+    for pkg in "${cc_all_pkgs_var[@]}"; do
+        mvm_get amd64_sdk_board_pkg_slot_minmax "${pkg}" m1_name
+        mvm_get amd64_arm64_board_pkg_slot_minmax "${pkg}" m2_name
+        mvm_get "${cc_pkg_slots_var_name}" "${pkg}" cc_slots_name
+        local -n m1="${m1_name:-empty}"
+        local -n m2="${m2_name:-empty}"
+        local -n all_slots="${cc_slots_name}"
+        for s in "${!all_slots[@]}"; do
+            mm1=${m1["${s}"]:-}
+            mm2=${m2["${s}"]:-}
+            if [[ -n "${mm1}" ]] && [[ -n "${mm2}" ]]; then
+                ver_min_max \
+                    cc_min cc_max \
+                    "{mm1%%:*}" "${mm1##*:}" "{mm2%%:*}" "${mm2##*:}"
+                mm="${cc_min}:${cc_max}"
+            elif [[ -n "${mm1}" ]]; then
+                mm="${mm1}"
+            elif [[ -n "${mm2}" ]]; then
+                mm="${mm2}"
+            else
+                continue
+            fi
+            mvm_add "${cc_pkg_slot_minmax_versions_var_name}" "${pkg}" "${S}" "${mm}"
+        done
+        unset -n all_slots m2 m1
+    done
+    mvm_unset amd64_arm64_board_pkg_slot_minmax
+    mvm_unset amd64_sdk_board_pkg_slot_minmax
 }
 
 function stuff() {
-    local -A all_pkgs=()
-    local arch which report pi_name
-    for arch in amd64 arm64; do
-        for which in old new; do
-            for report in sdk-pkgs board-pkgs; do
-                pkginfo_declare "${which}" "${arch}" "${report}" pi_name
-                pkginfo_process_file "${pi_name}"
-            done
-        done
-    done
-    # old stuff first
-    local array_name verslot version slot
-    local -A slot_version_map
+    local -a all_pkgs
+
+    mvm_declare pkg_slots_map mvm_mcv_set
+    read_reports all_pkgs pkg_slots_map
+
+    mvm_declare old_pkg_slot_minmax mvm_mvc_map
+    mvm_declare new_pkg_slot_minmax mvm_mvc_map
+    consistency_checks old all_pkgs pkg_slots_map old_pkg_slot_minmax
+    consistency_checks new all_pkgs pkg_slots_map new_pkg_slot_minmax
+
+    local pkg old_version new_version slots_set_name
     for pkg in "${all_pkgs[@]}"; do
-        for arch in amd64 arm64; do
-            local "${arch}_verslots"=()
-            local "${arch}_oldest"=''
-        done
-        for arch in amd64 arm64; do
-            local -n verslots="${arch_verslots}"
-            pkginfo_get old "${arch}" "${pkg}" array_name
-            if [[ -z "${array_name}" ]]; then
-                # no such package on this arch
-                continue
-            fi
-            local -n array="${array_name}"
-            verslots=("${array[@]}")
-            unset -n array
-            case ${#verslots[@]} in
-                0)
-                    fail "zero versions for package '${pkg}' on arch '${arch}', should have handled that earlier"
-                    ;;
-                1)
-                    local -n oldest="${arch}_oldest"
-                    oldest=${verslots[0]}
-                    unset -n oldest
-                    ;;
-                *)
-                    mvm_declare slot_map
-                    slot_version_map=()
-                    for verslot in "${verslots[@]}"; do
-                        version=${verslot%%:*}
-                        slot=${verslot##*:}
-                        mvm_add slot_map "${slot}" "${version}"
-                    done
-                    mvm_iterate slot_map ajwaj
-                    mvm_unset slot_map
-                    ;;
-            esac
-            unset -n verslots
+        mvm_get pkg_slots_map "${pkg}" slots_set_name
+        local -n slots="${slots_set_name}"
+
+        for s in "${!slots[@]}"; do
+            # TODO: get min version from old, get max version from new
+            # and see if there's an update
         done
     done
 }

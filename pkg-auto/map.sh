@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [[ -z ${__MVM_SH_INCLUDED__:-} ]]; then
+__MVM_SH_INCLUDED__=x
+
+# mvm - multivalue map
+# mvc - multivalue container, a value stored in mvm
+
 MVM_COUNTER=0
 
 # array mvm, default
@@ -313,3 +319,5 @@ function mvm_c_iterate() {
 #     # rest are values
 #     mvm_add "${target}" "${k}" "${@}"
 # }
+
+fi
