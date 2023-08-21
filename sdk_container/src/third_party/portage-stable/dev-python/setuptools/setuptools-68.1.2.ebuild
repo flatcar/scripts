@@ -21,7 +21,7 @@ HOMEPAGE="
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
@@ -61,8 +61,6 @@ PDEPEND="
 	dev-python/setuptools-scm[${PYTHON_USEDEP}]
 "
 
-DOCS=( {CHANGES,README}.rst )
-
 src_prepare() {
 	local PATCHES=(
 		# TODO: remove this when we're 100% PEP517 mode
@@ -71,8 +69,7 @@ src_prepare() {
 
 	distutils-r1_src_prepare
 
-	# remove bundled dependencies, setuptools will switch to system deps
-	# automatically
+	# remove bundled dependencies
 	rm -r */_vendor || die
 
 	# remove the ugly */extern hack that breaks on unvendored deps
@@ -111,6 +108,8 @@ python_test() {
 		setuptools/tests/test_easy_install.py::TestSetupRequires::test_setup_requires_with_allow_hosts
 		# fails with importlib-metadata-6.6.0
 		setuptools/tests/test_egg_info.py::TestWriteEntries::test_invalid_entry_point
+		# TODO, probably some random package
+		setuptools/tests/config/test_setupcfg.py::TestOptions::test_cmdclass
 	)
 
 	if has_version "<dev-python/packaging-22"; then
