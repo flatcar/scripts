@@ -1,7 +1,7 @@
 # Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 inherit toolchain-funcs flag-o-matic
 
@@ -11,15 +11,22 @@ SRC_URI="https://www.zlib.net/pigz/${P}.tar.gz"
 
 LICENSE="ZLIB"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~ppc-macos"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~ppc-macos"
 IUSE="static test"
 RESTRICT="!test? ( test )"
 
 LIB_DEPEND=">=sys-libs/zlib-1.2.3[static-libs(+)]"
 RDEPEND="!static? ( ${LIB_DEPEND//\[static-libs(+)]} )"
-DEPEND="${RDEPEND}
+DEPEND="
+	${RDEPEND}
 	static? ( ${LIB_DEPEND} )
-	test? ( app-arch/ncompress )"
+	test? ( app-arch/ncompress )
+"
+
+PATCHES=(
+	"${FILESDIR}"/${P}-memcpy-ub.patch
+	"${FILESDIR}"/${P}-zlib-1.3.patch
+)
 
 src_compile() {
 	use static && append-ldflags -static
