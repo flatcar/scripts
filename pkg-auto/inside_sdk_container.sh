@@ -10,7 +10,9 @@
 ## sdk-pkgs-kv - contains package information with key values (USE, PYTHON_TARGET) for SDK
 ## board-pkgs - contains package information for board for chosen architecture
 ## board-bdeps - contains package information with key values (USE, PYTHON_TARGET) of board build dependencies
-## *-warnings - warnings printed by emerge
+## sdk-profiles - contains a list of profiles used by the SDK, in evaluation order
+## board-profiles - contains a list of profiles used by the board for the chosen architecture, in evaluation order
+## *-warnings - warnings printed by emerge or other tools
 ##
 ## Parameters:
 ## -h: this help
@@ -22,15 +24,21 @@
 
 set -euo pipefail
 
-this=${0}
+source "$(dirname "${BASH_SOURCE[0]}")/stuff.sh"
+
 if [[ ${#} -eq 1 ]] && [[ ${1} = '-h' ]]; then
-    grep '^##' "${this}" | sed -e 's/##[[:space:]]*//'
+    print_help
     exit 0
 fi
 
+if [[ ${#} -ne 2 ]]; then
+    fail 'Expected two parameters: board architecture and reports directory'
+fi
+
 function emerge_pretend() {
-    local root=${1}; shift
-    local package=${1}; shift
+    local root package
+    root=${1}; shift
+    package=${1}; shift
 
     emerge \
         --config-root="${root}" \
@@ -101,15 +109,17 @@ PKG_VER_SLOT_KV_SED_FILTERS=(
 )
 
 function collect_package_info_emerge() {
-    local root=${1}; shift
-    local package=${1}; shift
+    local root package
+    root=${1}; shift
+    package=${1}; shift
     # rest goes to sed
 
     emerge_pretend "${root}" "${package}" | sed "${@}" | sort 2>/dev/null
 }
 
 function packages_for_board() {
-    local arch=${1}; shift
+    local arch
+    arch=${1}; shift
     # rest is passed to collect_package_info_emerge
 
     collect_package_info_emerge "/build/${arch}-usr" coreos-devel/board-packages "${@}"
@@ -117,7 +127,6 @@ function packages_for_board() {
 
 function versions_sdk() {
     local -a sed_opts
-
     sed_opts=(
         "${PKG_LINES_SED_FILTERS[@]}"
         "${PKG_VER_SLOT_SED_FILTERS[@]}"
@@ -127,7 +136,6 @@ function versions_sdk() {
 
 function versions_sdk_with_key_values() {
     local -a sed_opts
-
     sed_opts=(
         "${PKG_LINES_SED_FILTERS[@]}"
         "${PKG_VER_SLOT_KV_SED_FILTERS[@]}"
@@ -136,9 +144,10 @@ function versions_sdk_with_key_values() {
 }
 
 function versions_board() {
-    local arch=${1}; shift
-    local -a sed_opts
+    local arch
+    arch=${1}; shift
 
+    local -a sed_opts
     sed_opts=(
         "${PKG_LINES_SED_FILTERS[@]}" \
         -e "/to \/build\/${arch}-usr\// ! d"
@@ -148,9 +157,10 @@ function versions_board() {
 }
 
 function board_bdeps() {
-    local arch=${1}; shift
-    local -a sed_opts
+    local arch
+    arch=${1}; shift
 
+    local -a sed_opts
     sed_opts=(
         "${PKG_LINES_SED_FILTERS[@]}" \
         -e "/to \/build\/${arch}-usr\// d"
@@ -159,18 +169,14 @@ function board_bdeps() {
     packages_for_board "${arch}" "${sed_opts[@]}"
 }
 
-arch=${1}
-reports_dir=${2}
+arch=${1}; shift
+reports_dir=${1}; shift
 
-mkdir "${reports_dir}"
-
-## sdk-pkgs - contains package information for SDK
-## sdk-pkgs-kv - contains package information with key values (USE, PYTHON_TARGET) for SDK
-## board-pkgs - contains package information for board for chosen architecture
-## board-bdeps - contains package information with key values (USE, PYTHON_TARGET) of board build dependencies
-## *-warnings - warnings printed by emerge
+mkdir -p "${reports_dir}"
 
 versions_sdk >"${reports_dir}/sdk-pkgs" 2>"${reports_dir}/sdk-pkgs-warnings"
 versions_sdk_with_key_values >"${reports_dir}/sdk-pkgs-kv" 2>"${reports_dir}/sdk-pkgs-kv-warnings"
 versions_board "${arch}" >"${reports_dir}/board-pkgs" 2>"${reports_dir}/board-pkgs-warnings"
 board_bdeps "${arch}" >"${reports_dir}/board-bdeps" 2>"${reports_dir}/board-bdeps-warnings"
+ROOT=/ "${THIS_DIR}/print-profile-tree.sh -ni -nh" >"${reports_dir}/sdk-profiles" 2>"${reports_dir}/sdk-profiles-warnings"
+ROOT="/build/${arch}-usr" "${THIS_DIR}/print-profile-tree.sh -ni -nh" >"${reports_dir}/board-profiles" 2>"${reports_dir}/board-profiles-warnings"
