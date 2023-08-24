@@ -7,12 +7,12 @@ After=docker.service iptables-restore.service
 
 [Service]
 EnvironmentFile=/run/metadata/flatcar
-ExecStartPre=/oem/eks/download-kubelet.sh
+ExecStartPre=/usr/share/amazon/eks/download-kubelet.sh
 ExecStartPre=/sbin/iptables -P FORWARD ACCEPT -w 5
-ExecStart=/opt/eks/kubelet \
+ExecStart=/usr/share/amazon/eks/kubelet \
     --cloud-provider aws \
-    --config /oem/eks/kubelet-config.json \
-    --kubeconfig /oem/eks/kubelet-kubeconfig \
+    --config /usr/share/amazon/eks/kubelet-config.json \
+    --kubeconfig /usr/share/amazon/eks/kubelet-kubeconfig \
     --container-runtime docker \
     --network-plugin cni \
     --cni-bin-dir=/opt/cni/bin \
