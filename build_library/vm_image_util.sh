@@ -221,11 +221,13 @@ IMG_parallels_DISK_LAYOUT=vm
 IMG_parallels_CONF_FORMAT=pvs
 
 ## ami
-IMG_ami_OEM_PACKAGE=oem-ec2-compat
-IMG_ami_OEM_USE=ec2
 IMG_ami_vmdk_DISK_FORMAT=vmdk_stream
-IMG_ami_vmdk_OEM_PACKAGE=oem-ec2-compat
-IMG_ami_vmdk_OEM_USE=ec2
+IMG_ami_vmdk_OEM_USE=ami
+IMG_ami_vmdk_OEM_PACKAGE=common-oem-files
+IMG_ami_vmdk_SYSEXT=oem-ami
+IMG_ami_OEM_USE=ami
+IMG_ami_OEM_PACKAGE=common-oem-files
+IMG_ami_OEM_SYSEXT=oem-ami
 
 ## openstack, supports ec2's metadata format so use oem-ec2-compat
 IMG_openstack_DISK_FORMAT=qcow2
