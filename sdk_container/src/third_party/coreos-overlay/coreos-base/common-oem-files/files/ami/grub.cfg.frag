@@ -1,6 +1,4 @@
-# Flatcar GRUB settings for EC2
-
-set oem_id="ec2"
+# Flatcar GRUB settings for AMI
 
 # Blacklist the Xen framebuffer module so it doesn't get loaded at boot
 # Disable `ens3` style names, so eth0 is used for both ixgbevf or xen.
