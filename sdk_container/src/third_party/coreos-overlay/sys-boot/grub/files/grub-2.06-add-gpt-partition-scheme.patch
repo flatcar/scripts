@@ -1,0 +1,2792 @@
+From 026cab86883e256607f6df30375bfda4468ae71e Mon Sep 17 00:00:00 2001
+From: Sayan Chowdhury <schowdhury@microsoft.com>
+Date: Thu, 24 Aug 2023 00:00:00 +0530
+Subject: [PATCH] gpt: Add patch to implement the custom GPT module
+
+This module is a new implementation for reading GUID Partition Tables
+which is much stricter than the existing part_gpt module and exports GPT
+data directly instead of the generic grub_partition structure. It will
+be the basis for modules that need to read/write/update GPT data.
+
+This patch also includes the supporting functions like gptprio,
+gptrepair, search commands.
+
+The patch is prepared using the coreos/grub PRs, picking the only
+required ones, and dropping the others. The README.md file in the
+coreos-overlay/sys-boot/grub/ contains more contexual information
+along with the commits used to create the patch.
+
+Authored-by: Michael Marineau <michael.marineau@coreos.com>
+Signed-off-by: Sayan Chowdhury <schowdhury@microsoft.com>
+---
+ Makefile.util.def                      |  30 +
+ grub-core/Makefile.core.def            |  25 +
+ grub-core/commands/gptprio.c           | 223 +++++++
+ grub-core/commands/gptrepair.c         | 110 ++++
+ grub-core/commands/search.c            |  49 ++
+ grub-core/commands/search_part_label.c |   5 +
+ grub-core/commands/search_part_uuid.c  |   5 +
+ grub-core/commands/search_wrap.c       |  12 +
+ grub-core/lib/gpt.c                    | 757 +++++++++++++++++++++++
+ include/grub/gpt_partition.h           | 211 ++++++-
+ include/grub/search.h                  |   4 +
+ tests/gpt_unit_test.c                  | 807 +++++++++++++++++++++++++
+ tests/gptprio_test.in                  | 207 +++++++
+ tests/gptrepair_test.in                | 102 ++++
+ 14 files changed, 2530 insertions(+), 17 deletions(-)
+ create mode 100644 grub-core/commands/gptprio.c
+ create mode 100644 grub-core/commands/gptrepair.c
+ create mode 100644 grub-core/commands/search_part_label.c
+ create mode 100644 grub-core/commands/search_part_uuid.c
+ create mode 100644 grub-core/lib/gpt.c
+ create mode 100644 tests/gpt_unit_test.c
+ create mode 100644 tests/gptprio_test.in
+ create mode 100644 tests/gptrepair_test.in
+
+diff --git a/Makefile.util.def b/Makefile.util.def
+index f8b356cc1..07df521ec 100644
+--- a/Makefile.util.def
++++ b/Makefile.util.def
+@@ -1211,6 +1211,18 @@ script = {
+   common = tests/syslinux_test.in;
+ };
+
++script = {
++  testcase;
++  name = gptrepair_test;
++  common = tests/gptrepair_test.in;
++};
++
++script = {
++  testcase;
++  name = gptprio_test;
++  common = tests/gptprio_test.in;
++};
++
+ program = {
+   testcase;
+   name = example_unit_test;
+@@ -1288,6 +1300,24 @@ program = {
+   ldadd = '$(LIBDEVMAPPER) $(LIBZFS) $(LIBNVPAIR) $(LIBGEOM)';
+ };
+
++program = {
++  testcase;
++  name = gpt_unit_test;
++  common = tests/gpt_unit_test.c;
++  common = tests/lib/unit_test.c;
++  common = grub-core/commands/search_part_label.c;
++  common = grub-core/commands/search_part_uuid.c;
++  common = grub-core/disk/host.c;
++  common = grub-core/kern/emu/hostfs.c;
++  common = grub-core/lib/gpt.c;
++  common = grub-core/tests/lib/test.c;
++  ldadd = libgrubmods.a;
++  ldadd = libgrubgcry.a;
++  ldadd = libgrubkern.a;
++  ldadd = grub-core/gnulib/libgnu.a;
++  ldadd = '$(LIBDEVMAPPER) $(LIBZFS) $(LIBNVPAIR) $(LIBGEOM)';
++};
++
+ program = {
+   name = grub-menulst2cfg;
+   mansection = 1;
+diff --git a/grub-core/Makefile.core.def b/grub-core/Makefile.core.def
+index 8022e1c0a..e9baa2144 100644
+--- a/grub-core/Makefile.core.def
++++ b/grub-core/Makefile.core.def
+@@ -897,6 +897,21 @@ module = {
+   common = commands/gptsync.c;
+ };
+
++module = {
++  name = gptrepair;
++  common = commands/gptrepair.c;
++};
++
++module = {
++  name = gptprio;
++  common = commands/gptprio.c;
++};
++
++module = {
++  name = gpt;
++  common = lib/gpt.c;
++};
++
+ module = {
+   name = halt;
+   nopc = commands/halt.c;
+@@ -1073,6 +1088,16 @@ module = {
+   common = commands/search_label.c;
+ };
+
++module = {
++  name = search_part_uuid;
++  common = commands/search_part_uuid.c;
++};
++
++module = {
++  name = search_part_label;
++  common = commands/search_part_label.c;
++};
++
+ module = {
+   name = setpci;
+   common = commands/setpci.c;
+diff --git a/grub-core/commands/gptprio.c b/grub-core/commands/gptprio.c
+new file mode 100644
+index 000000000..4a24fa62d
+--- /dev/null
++++ b/grub-core/commands/gptprio.c
+@@ -0,0 +1,223 @@
++/* gptprio.c - manage priority based partition selection.  */
++/*
++ *  GRUB  --  GRand Unified Bootloader
++ *  Copyright (C) 2009  Free Software Foundation, Inc.
++ *  Copyright (C) 2014  CoreOS, Inc.
++ *
++ *  GRUB is free software: you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation, either version 3 of the License, or
++ *  (at your option) any later version.
++ *
++ *  GRUB is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with GRUB.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#include <grub/device.h>
++#include <grub/env.h>
++#include <grub/err.h>
++#include <grub/extcmd.h>
++#include <grub/gpt_partition.h>
++#include <grub/i18n.h>
++#include <grub/misc.h>
++
++GRUB_MOD_LICENSE ("GPLv3+");
++
++static const struct grub_arg_option options_next[] = {
++  {"set-device", 'd', 0,
++   N_("Set a variable to the name of selected partition."),
++   N_("VARNAME"), ARG_TYPE_STRING},
++  {"set-uuid", 'u', 0,
++   N_("Set a variable to the GPT UUID of selected partition."),
++   N_("VARNAME"), ARG_TYPE_STRING},
++  {0, 0, 0, 0, 0, 0}
++};
++
++enum options_next
++{
++  NEXT_SET_DEVICE,
++  NEXT_SET_UUID,
++};
++
++static unsigned int
++grub_gptprio_priority (struct grub_gpt_partentry *entry)
++{
++  return (unsigned int) grub_gpt_entry_attribute
++    (entry, GRUB_GPT_PART_ATTR_OFFSET_GPTPRIO_PRIORITY, 4);
++}
++
++static unsigned int
++grub_gptprio_tries_left (struct grub_gpt_partentry *entry)
++{
++  return (unsigned int) grub_gpt_entry_attribute
++    (entry, GRUB_GPT_PART_ATTR_OFFSET_GPTPRIO_TRIES_LEFT, 4);
++}
++
++static void
++grub_gptprio_set_tries_left (struct grub_gpt_partentry *entry,
++			     unsigned int tries_left)
++{
++  grub_gpt_entry_set_attribute
++    (entry, tries_left, GRUB_GPT_PART_ATTR_OFFSET_GPTPRIO_TRIES_LEFT, 4);
++}
++
++static unsigned int
++grub_gptprio_successful (struct grub_gpt_partentry *entry)
++{
++  return (unsigned int) grub_gpt_entry_attribute
++    (entry, GRUB_GPT_PART_ATTR_OFFSET_GPTPRIO_SUCCESSFUL, 1);
++}
++
++static grub_err_t
++grub_find_next (const char *disk_name,
++		const grub_gpt_part_type_t *part_type,
++		char **part_name, char **part_guid)
++{
++  struct grub_gpt_partentry *part, *part_found = NULL;
++  grub_device_t dev = NULL;
++  grub_gpt_t gpt = NULL;
++  grub_uint32_t i, part_index;
++
++  dev = grub_device_open (disk_name);
++  if (!dev)
++    goto done;
++
++  gpt = grub_gpt_read (dev->disk);
++  if (!gpt)
++    goto done;
++
++  if (grub_gpt_repair (dev->disk, gpt))
++    goto done;
++
++  for (i = 0; (part = grub_gpt_get_partentry (gpt, i)) != NULL; i++)
++    {
++      if (grub_memcmp (part_type, &part->type, sizeof (*part_type)) == 0)
++	{
++	  unsigned int priority, tries_left, successful, old_priority = 0;
++
++	  priority = grub_gptprio_priority (part);
++	  tries_left = grub_gptprio_tries_left (part);
++	  successful = grub_gptprio_successful (part);
++
++	  if (part_found)
++	    old_priority = grub_gptprio_priority (part_found);
++
++	  if ((tries_left || successful) && priority > old_priority)
++	    {
++	      part_index = i;
++	      part_found = part;
++	    }
++	}
++    }
++
++  if (!part_found)
++    {
++      grub_error (GRUB_ERR_UNKNOWN_DEVICE, N_("no such partition"));
++      goto done;
++    }
++
++  if (grub_gptprio_tries_left (part_found))
++    {
++      unsigned int tries_left = grub_gptprio_tries_left (part_found);
++
++      grub_gptprio_set_tries_left (part_found, tries_left - 1);
++
++      if (grub_gpt_update (gpt))
++	goto done;
++
++      if (grub_gpt_write (dev->disk, gpt))
++	goto done;
++    }
++
++  *part_name = grub_xasprintf ("%s,gpt%u", disk_name, part_index + 1);
++  if (!*part_name)
++    goto done;
++
++  *part_guid = grub_gpt_guid_to_str (&part_found->guid);
++  if (!*part_guid)
++    goto done;
++
++  grub_errno = GRUB_ERR_NONE;
++
++done:
++  grub_gpt_free (gpt);
++
++  if (dev)
++    grub_device_close (dev);
++
++  return grub_errno;
++}
++
++
++
++static grub_err_t
++grub_cmd_next (grub_extcmd_context_t ctxt, int argc, char **args)
++{
++  struct grub_arg_list *state = ctxt->state;
++  char *p, *root = NULL, *part_name = NULL, *part_guid = NULL;
++
++  /* TODO: Add a uuid parser and a command line flag for providing type.  */
++  grub_gpt_part_type_t part_type = GRUB_GPT_PARTITION_TYPE_USR_X86_64;
++
++  if (!state[NEXT_SET_DEVICE].set || !state[NEXT_SET_UUID].set)
++    {
++      grub_error (GRUB_ERR_INVALID_COMMAND, N_("-d and -u are required"));
++      goto done;
++    }
++
++  if (argc == 0)
++    root = grub_strdup (grub_env_get ("root"));
++  else if (argc == 1)
++    root = grub_strdup (args[0]);
++  else
++    {
++      grub_error (GRUB_ERR_BAD_ARGUMENT, N_("unexpected arguments"));
++      goto done;
++    }
++
++  if (!root)
++    goto done;
++
++  /* To make using $root practical strip off the partition name.  */
++  p = grub_strchr (root, ',');
++  if (p)
++    *p = '\0';
++
++  if (grub_find_next (root, &part_type, &part_name, &part_guid))
++    goto done;
++
++  if (grub_env_set (state[NEXT_SET_DEVICE].arg, part_name))
++    goto done;
++
++  if (grub_env_set (state[NEXT_SET_UUID].arg, part_guid))
++    goto done;
++
++  grub_errno = GRUB_ERR_NONE;
++
++done:
++  grub_free (root);
++  grub_free (part_name);
++  grub_free (part_guid);
++
++  return grub_errno;
++}
++
++static grub_extcmd_t cmd_next;
++
++GRUB_MOD_INIT(gptprio)
++{
++  cmd_next = grub_register_extcmd ("gptprio.next", grub_cmd_next, 0,
++				   N_("-d VARNAME -u VARNAME [DEVICE]"),
++				   N_("Select next partition to boot."),
++				   options_next);
++}
++
++GRUB_MOD_FINI(gptprio)
++{
++  grub_unregister_extcmd (cmd_next);
++}
+diff --git a/grub-core/commands/gptrepair.c b/grub-core/commands/gptrepair.c
+new file mode 100644
+index 000000000..c17c7346c
+--- /dev/null
++++ b/grub-core/commands/gptrepair.c
+@@ -0,0 +1,110 @@
++/* gptrepair.c - verify and restore GPT info from alternate location.  */
++/*
++ *  GRUB  --  GRand Unified Bootloader
++ *  Copyright (C) 2009  Free Software Foundation, Inc.
++ *  Copyright (C) 2014  CoreOS, Inc.
++ *
++ *  GRUB is free software: you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation, either version 3 of the License, or
++ *  (at your option) any later version.
++ *
++ *  GRUB is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with GRUB.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#include <grub/command.h>
++#include <grub/device.h>
++#include <grub/err.h>
++#include <grub/gpt_partition.h>
++#include <grub/i18n.h>
++#include <grub/misc.h>
++
++GRUB_MOD_LICENSE ("GPLv3+");
++
++static char *
++trim_dev_name (char *name)
++{
++  grub_size_t len = grub_strlen (name);
++  if (len && name[0] == '(' && name[len - 1] == ')')
++    {
++      name[len - 1] = '\0';
++      name = name + 1;
++    }
++  return name;
++}
++
++static grub_err_t
++grub_cmd_gptrepair (grub_command_t cmd __attribute__ ((unused)),
++		    int argc, char **args)
++{
++  grub_device_t dev = NULL;
++  grub_gpt_t gpt = NULL;
++  char *dev_name;
++
++  if (argc != 1 || !grub_strlen(args[0]))
++    return grub_error (GRUB_ERR_BAD_ARGUMENT, "device name required");
++
++  dev_name = trim_dev_name (args[0]);
++  dev = grub_device_open (dev_name);
++  if (!dev)
++    goto done;
++
++  if (!dev->disk)
++    {
++      grub_error (GRUB_ERR_BAD_ARGUMENT, "not a disk");
++      goto done;
++    }
++
++  gpt = grub_gpt_read (dev->disk);
++  if (!gpt)
++    goto done;
++
++  if (grub_gpt_both_valid (gpt))
++    {
++      grub_printf_ (N_("GPT already valid, %s unmodified.\n"), dev_name);
++      goto done;
++    }
++
++  if (!grub_gpt_primary_valid (gpt))
++    grub_printf_ (N_("Found invalid primary GPT on %s\n"), dev_name);
++
++  if (!grub_gpt_backup_valid (gpt))
++    grub_printf_ (N_("Found invalid backup GPT on %s\n"), dev_name);
++
++  if (grub_gpt_repair (dev->disk, gpt))
++    goto done;
++
++  if (grub_gpt_write (dev->disk, gpt))
++    goto done;
++
++  grub_printf_ (N_("Repaired GPT on %s\n"), dev_name);
++
++done:
++  if (gpt)
++    grub_gpt_free (gpt);
++
++  if (dev)
++    grub_device_close (dev);
++
++  return grub_errno;
++}
++
++static grub_command_t cmd;
++
++GRUB_MOD_INIT(gptrepair)
++{
++  cmd = grub_register_command ("gptrepair", grub_cmd_gptrepair,
++			       N_("DEVICE"),
++			       N_("Verify and repair GPT on drive DEVICE."));
++}
++
++GRUB_MOD_FINI(gptrepair)
++{
++  grub_unregister_command (cmd);
++}
+diff --git a/grub-core/commands/search.c b/grub-core/commands/search.c
+index ed090b3af..4ad72c5b4 100644
+--- a/grub-core/commands/search.c
++++ b/grub-core/commands/search.c
+@@ -30,6 +30,9 @@
+ #include <grub/i18n.h>
+ #include <grub/disk.h>
+ #include <grub/partition.h>
++#if defined(DO_SEARCH_PART_UUID) || defined(DO_SEARCH_PART_LABEL)
++#include <grub/gpt_partition.h>
++#endif
+
+ GRUB_MOD_LICENSE ("GPLv3+");
+
+@@ -90,6 +93,44 @@ iterate_device (const char *name, void *data)
+ 	}
+       grub_free (buf);
+     }
++#elif defined(DO_SEARCH_PART_UUID)
++    {
++      grub_device_t dev;
++      char *quid;
++
++      dev = grub_device_open (name);
++      if (dev)
++	{
++	  if (grub_gpt_part_uuid (dev, &quid) == GRUB_ERR_NONE)
++	    {
++	      if (grub_strcasecmp (quid, ctx->key) == 0)
++		    found = 1;
++
++	      grub_free (quid);
++	    }
++
++	  grub_device_close (dev);
++	}
++    }
++#elif defined(DO_SEARCH_PART_LABEL)
++    {
++      grub_device_t dev;
++      char *quid;
++
++      dev = grub_device_open (name);
++      if (dev)
++	{
++	  if (grub_gpt_part_label (dev, &quid) == GRUB_ERR_NONE)
++	    {
++	      if (grub_strcmp (quid, ctx->key) == 0)
++		    found = 1;
++
++	      grub_free (quid);
++	    }
++
++	  grub_device_close (dev);
++	}
++    }
+ #else
+     {
+       /* SEARCH_FS_UUID or SEARCH_LABEL */
+@@ -313,6 +354,10 @@ static grub_command_t cmd;
+
+ #ifdef DO_SEARCH_FILE
+ GRUB_MOD_INIT(search_fs_file)
++#elif defined(DO_SEARCH_PART_UUID)
++GRUB_MOD_INIT(search_part_uuid)
++#elif defined(DO_SEARCH_PART_LABEL)
++GRUB_MOD_INIT(search_part_label)
+ #elif defined (DO_SEARCH_FS_UUID)
+ GRUB_MOD_INIT(search_fs_uuid)
+ #else
+@@ -327,6 +372,10 @@ GRUB_MOD_INIT(search_label)
+
+ #ifdef DO_SEARCH_FILE
+ GRUB_MOD_FINI(search_fs_file)
++#elif defined(DO_SEARCH_PART_UUID)
++GRUB_MOD_FINI(search_part_uuid)
++#elif defined(DO_SEARCH_PART_LABEL)
++GRUB_MOD_FINI(search_part_label)
+ #elif defined (DO_SEARCH_FS_UUID)
+ GRUB_MOD_FINI(search_fs_uuid)
+ #else
+diff --git a/grub-core/commands/search_part_label.c b/grub-core/commands/search_part_label.c
+new file mode 100644
+index 000000000..ca906cbd9
+--- /dev/null
++++ b/grub-core/commands/search_part_label.c
+@@ -0,0 +1,5 @@
++#define DO_SEARCH_PART_LABEL 1
++#define FUNC_NAME grub_search_part_label
++#define COMMAND_NAME "search.part_label"
++#define HELP_MESSAGE N_("Search devices by partition label. If VARIABLE is specified, the first device found is set to a variable.")
++#include "search.c"
+diff --git a/grub-core/commands/search_part_uuid.c b/grub-core/commands/search_part_uuid.c
+new file mode 100644
+index 000000000..2d1d3d0d7
+--- /dev/null
++++ b/grub-core/commands/search_part_uuid.c
+@@ -0,0 +1,5 @@
++#define DO_SEARCH_PART_UUID 1
++#define FUNC_NAME grub_search_part_uuid
++#define COMMAND_NAME "search.part_uuid"
++#define HELP_MESSAGE N_("Search devices by partition UUID. If VARIABLE is specified, the first device found is set to a variable.")
++#include "search.c"
+diff --git a/grub-core/commands/search_wrap.c b/grub-core/commands/search_wrap.c
+index 47fc8eb99..d357454a9 100644
+--- a/grub-core/commands/search_wrap.c
++++ b/grub-core/commands/search_wrap.c
+@@ -36,6 +36,10 @@ static const struct grub_arg_option options[] =
+      0, 0},
+     {"fs-uuid",		'u', 0, N_("Search devices by a filesystem UUID."),
+      0, 0},
++    {"part-label",	'L', 0, N_("Search devices by a partition label."),
++     0, 0},
++    {"part-uuid",	'U', 0, N_("Search devices by a partition UUID."),
++     0, 0},
+     {"set",		's', GRUB_ARG_OPTION_OPTIONAL,
+      N_("Set a variable to the first device found."), N_("VARNAME"),
+      ARG_TYPE_STRING},
+@@ -71,6 +75,8 @@ enum options
+     SEARCH_FILE,
+     SEARCH_LABEL,
+     SEARCH_FS_UUID,
++    SEARCH_PART_LABEL,
++    SEARCH_PART_UUID,
+     SEARCH_SET,
+     SEARCH_NO_FLOPPY,
+     SEARCH_HINT,
+@@ -186,6 +192,12 @@ grub_cmd_search (grub_extcmd_context_t ctxt, int argc, char **args)
+   else if (state[SEARCH_FS_UUID].set)
+     grub_search_fs_uuid (id, var, state[SEARCH_NO_FLOPPY].set,
+ 			 hints, nhints);
++  else if (state[SEARCH_PART_LABEL].set)
++    grub_search_part_label (id, var, state[SEARCH_NO_FLOPPY].set,
++			    hints, nhints);
++  else if (state[SEARCH_PART_UUID].set)
++    grub_search_part_uuid (id, var, state[SEARCH_NO_FLOPPY].set,
++			   hints, nhints);
+   else if (state[SEARCH_FILE].set)
+     grub_search_fs_file (id, var, state[SEARCH_NO_FLOPPY].set,
+ 			 hints, nhints);
+diff --git a/grub-core/lib/gpt.c b/grub-core/lib/gpt.c
+new file mode 100644
+index 000000000..098fa65c4
+--- /dev/null
++++ b/grub-core/lib/gpt.c
+@@ -0,0 +1,757 @@
++/* gpt.c - Read/Verify/Write GUID Partition Tables (GPT).  */
++/*
++ *  GRUB  --  GRand Unified Bootloader
++ *  Copyright (C) 2002,2005,2006,2007,2008  Free Software Foundation, Inc.
++ *  Copyright (C) 2014 CoreOS, Inc.
++ *
++ *  GRUB is free software: you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation, either version 3 of the License, or
++ *  (at your option) any later version.
++ *
++ *  GRUB is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with GRUB.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#include <grub/charset.h>
++#include <grub/crypto.h>
++#include <grub/device.h>
++#include <grub/disk.h>
++#include <grub/misc.h>
++#include <grub/mm.h>
++#include <grub/dl.h>
++#include <grub/msdos_partition.h>
++#include <grub/gpt_partition.h>
++
++GRUB_MOD_LICENSE ("GPLv3+");
++
++static grub_uint8_t grub_gpt_magic[] = GRUB_GPT_HEADER_MAGIC;
++
++static grub_err_t
++grub_gpt_read_entries (grub_disk_t disk, grub_gpt_t gpt,
++		       struct grub_gpt_header *header,
++		       void **ret_entries,
++		       grub_size_t *ret_entries_size);
++
++char *
++grub_gpt_guid_to_str (grub_gpt_guid_t *guid)
++{
++  return grub_xasprintf ("%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
++			 grub_le_to_cpu32 (guid->data1),
++			 grub_le_to_cpu16 (guid->data2),
++			 grub_le_to_cpu16 (guid->data3),
++			 guid->data4[0], guid->data4[1],
++			 guid->data4[2], guid->data4[3],
++			 guid->data4[4], guid->data4[5],
++			 guid->data4[6], guid->data4[7]);
++}
++
++static grub_err_t
++grub_gpt_device_partentry (grub_device_t device,
++			   struct grub_gpt_partentry *entry)
++{
++  grub_disk_t disk = device->disk;
++  grub_partition_t p;
++  grub_err_t err;
++
++  if (!disk || !disk->partition)
++    return grub_error (GRUB_ERR_BUG, "not a partition");
++
++  if (grub_strcmp (disk->partition->partmap->name, "gpt"))
++    return grub_error (GRUB_ERR_BAD_ARGUMENT, "not a GPT partition");
++
++  p = disk->partition;
++  disk->partition = p->parent;
++  err = grub_disk_read (disk, p->offset, p->index, sizeof (*entry), entry);
++  disk->partition = p;
++
++  return err;
++}
++
++grub_err_t
++grub_gpt_part_label (grub_device_t device, char **label)
++{
++  struct grub_gpt_partentry entry;
++  const grub_size_t name_len = ARRAY_SIZE (entry.name);
++  const grub_size_t label_len = name_len * GRUB_MAX_UTF8_PER_UTF16 + 1;
++  grub_size_t i;
++  grub_uint8_t *end;
++
++  if (grub_gpt_device_partentry (device, &entry))
++    return grub_errno;
++
++  *label = grub_malloc (label_len);
++  if (!*label)
++    return grub_errno;
++
++  for (i = 0; i < name_len; i++)
++    entry.name[i] = grub_le_to_cpu16 (entry.name[i]);
++
++  end = grub_utf16_to_utf8 ((grub_uint8_t *) *label, entry.name, name_len);
++  *end = '\0';
++
++  return GRUB_ERR_NONE;
++}
++
++grub_err_t
++grub_gpt_part_uuid (grub_device_t device, char **uuid)
++{
++  struct grub_gpt_partentry entry;
++
++  if (grub_gpt_device_partentry (device, &entry))
++    return grub_errno;
++
++  *uuid = grub_gpt_guid_to_str (&entry.guid);
++  if (!*uuid)
++    return grub_errno;
++
++  return GRUB_ERR_NONE;
++}
++
++static struct grub_gpt_header *
++grub_gpt_get_header (grub_gpt_t gpt)
++{
++  if (gpt->status & GRUB_GPT_PRIMARY_HEADER_VALID)
++    return &gpt->primary;
++  else if (gpt->status & GRUB_GPT_BACKUP_HEADER_VALID)
++    return &gpt->backup;
++
++  grub_error (GRUB_ERR_BUG, "No valid GPT header");
++  return NULL;
++}
++
++static grub_uint64_t
++grub_gpt_size_to_sectors (grub_gpt_t gpt, grub_size_t size)
++{
++  unsigned int sector_size;
++  grub_uint64_t sectors;
++
++  sector_size = 1U << gpt->log_sector_size;
++  sectors = size / sector_size;
++  if (size % sector_size)
++    sectors++;
++
++  return sectors;
++}
++
++/* Copied from grub-core/kern/disk_common.c grub_disk_adjust_range so we can
++ * avoid attempting to use disk->total_sectors when GRUB won't let us.
++ * TODO: Why is disk->total_sectors not set to GRUB_DISK_SIZE_UNKNOWN?  */
++static int
++grub_gpt_disk_size_valid (grub_disk_t disk)
++{
++  grub_disk_addr_t total_sectors;
++
++  /* Transform total_sectors to number of 512B blocks.  */
++  total_sectors = disk->total_sectors << (disk->log_sector_size - GRUB_DISK_SECTOR_BITS);
++
++  /* Some drivers have problems with disks above reasonable.
++     Treat unknown as 1EiB disk. While on it, clamp the size to 1EiB.
++     Just one condition is enough since GRUB_DISK_UNKNOWN_SIZE << ls is always
++     above 9EiB.
++  */
++  if (total_sectors > (1ULL << 51))
++    return 0;
++
++  return 1;
++}
++
++static void
++grub_gpt_lecrc32 (grub_uint32_t *crc, const void *data, grub_size_t len)
++{
++  grub_uint32_t crc32_val;
++
++  grub_crypto_hash (GRUB_MD_CRC32, &crc32_val, data, len);
++
++  /* GRUB_MD_CRC32 always uses big endian, gpt is always little.  */
++  *crc = grub_swap_bytes32 (crc32_val);
++}
++
++static void
++grub_gpt_header_lecrc32 (grub_uint32_t *crc, struct grub_gpt_header *header)
++{
++  grub_uint32_t old, new;
++
++  /* crc32 must be computed with the field cleared.  */
++  old = header->crc32;
++  header->crc32 = 0;
++  grub_gpt_lecrc32 (&new, header, sizeof (*header));
++  header->crc32 = old;
++
++  *crc = new;
++}
++
++/* Make sure the MBR is a protective MBR and not a normal MBR.  */
++grub_err_t
++grub_gpt_pmbr_check (struct grub_msdos_partition_mbr *mbr)
++{
++  unsigned int i;
++
++  if (mbr->signature !=
++      grub_cpu_to_le16_compile_time (GRUB_PC_PARTITION_SIGNATURE))
++    return grub_error (GRUB_ERR_BAD_PART_TABLE, "invalid MBR signature");
++
++  for (i = 0; i < sizeof (mbr->entries); i++)
++    if (mbr->entries[i].type == GRUB_PC_PARTITION_TYPE_GPT_DISK)
++      return GRUB_ERR_NONE;
++
++  return grub_error (GRUB_ERR_BAD_PART_TABLE, "invalid protective MBR");
++}
++
++static grub_uint64_t
++grub_gpt_entries_size (struct grub_gpt_header *gpt)
++{
++  return (grub_uint64_t) grub_le_to_cpu32 (gpt->maxpart) *
++         (grub_uint64_t) grub_le_to_cpu32 (gpt->partentry_size);
++}
++
++static grub_uint64_t
++grub_gpt_entries_sectors (struct grub_gpt_header *gpt,
++			  unsigned int log_sector_size)
++{
++  grub_uint64_t sector_bytes, entries_bytes;
++
++  sector_bytes = 1ULL << log_sector_size;
++  entries_bytes = grub_gpt_entries_size (gpt);
++  return grub_divmod64(entries_bytes + sector_bytes - 1, sector_bytes, NULL);
++}
++
++static int
++is_pow2 (grub_uint32_t n)
++{
++  return (n & (n - 1)) == 0;
++}
++
++grub_err_t
++grub_gpt_header_check (struct grub_gpt_header *gpt,
++		       unsigned int log_sector_size)
++{
++  grub_uint32_t crc = 0, size;
++  grub_uint64_t start, end;
++
++  if (grub_memcmp (gpt->magic, grub_gpt_magic, sizeof (grub_gpt_magic)) != 0)
++    return grub_error (GRUB_ERR_BAD_PART_TABLE, "invalid GPT signature");
++
++  if (gpt->version != GRUB_GPT_HEADER_VERSION)
++    return grub_error (GRUB_ERR_BAD_PART_TABLE, "unknown GPT version");
++
++  grub_gpt_header_lecrc32 (&crc, gpt);
++  if (gpt->crc32 != crc)
++    return grub_error (GRUB_ERR_BAD_PART_TABLE, "invalid GPT header crc32");
++
++  /* The header size "must be greater than or equal to 92 and must be less
++   * than or equal to the logical block size."  */
++  size = grub_le_to_cpu32 (gpt->headersize);
++  if (size < 92U || size > (1U << log_sector_size))
++    return grub_error (GRUB_ERR_BAD_PART_TABLE, "invalid GPT header size");
++
++  /* The partition entry size must be "a value of 128*(2^n) where n is an
++   * integer greater than or equal to zero (e.g., 128, 256, 512, etc.)."  */
++  size = grub_le_to_cpu32 (gpt->partentry_size);
++  if (size < 128U || size % 128U || !is_pow2 (size / 128U))
++    return grub_error (GRUB_ERR_BAD_PART_TABLE, "invalid GPT entry size");
++
++  /* The minimum entries table size is specified in terms of bytes,
++   * regardless of how large the individual entry size is.  */
++  if (grub_gpt_entries_size (gpt) < GRUB_GPT_DEFAULT_ENTRIES_SIZE)
++    return grub_error (GRUB_ERR_BAD_PART_TABLE, "invalid GPT entry table size");
++
++  /* And of course there better be some space for partitions!  */
++  start = grub_le_to_cpu64 (gpt->start);
++  end = grub_le_to_cpu64 (gpt->end);
++  if (start > end)
++    return grub_error (GRUB_ERR_BAD_PART_TABLE, "invalid usable sectors");
++
++  return GRUB_ERR_NONE;
++}
++
++static int
++grub_gpt_headers_equal (grub_gpt_t gpt)
++{
++  /* Assume headers passed grub_gpt_header_check so skip magic and version.
++   * Individual fields must be checked instead of just using memcmp because
++   * crc32, header, alternate, and partitions will all normally differ.  */
++
++  if (gpt->primary.headersize != gpt->backup.headersize ||
++      gpt->primary.header_lba != gpt->backup.alternate_lba ||
++      gpt->primary.alternate_lba != gpt->backup.header_lba ||
++      gpt->primary.start != gpt->backup.start ||
++      gpt->primary.end != gpt->backup.end ||
++      gpt->primary.maxpart != gpt->backup.maxpart ||
++      gpt->primary.partentry_size != gpt->backup.partentry_size ||
++      gpt->primary.partentry_crc32 != gpt->backup.partentry_crc32)
++    return 0;
++
++  return grub_memcmp(&gpt->primary.guid, &gpt->backup.guid,
++                     sizeof(grub_gpt_guid_t)) == 0;
++}
++
++static grub_err_t
++grub_gpt_check_primary (grub_gpt_t gpt)
++{
++  grub_uint64_t backup, primary, entries, entries_len, start, end;
++
++  primary = grub_le_to_cpu64 (gpt->primary.header_lba);
++  backup = grub_le_to_cpu64 (gpt->primary.alternate_lba);
++  entries = grub_le_to_cpu64 (gpt->primary.partitions);
++  entries_len = grub_gpt_entries_sectors(&gpt->primary, gpt->log_sector_size);
++  start = grub_le_to_cpu64 (gpt->primary.start);
++  end = grub_le_to_cpu64 (gpt->primary.end);
++
++  grub_dprintf ("gpt", "Primary GPT layout:\n"
++		"primary header = 0x%llx backup header = 0x%llx\n"
++		"entries location = 0x%llx length = 0x%llx\n"
++		"first usable = 0x%llx last usable = 0x%llx\n",
++		(unsigned long long) primary,
++		(unsigned long long) backup,
++		(unsigned long long) entries,
++		(unsigned long long) entries_len,
++		(unsigned long long) start,
++		(unsigned long long) end);
++
++  if (grub_gpt_header_check (&gpt->primary, gpt->log_sector_size))
++    return grub_errno;
++  if (primary != 1)
++    return grub_error (GRUB_ERR_BAD_PART_TABLE, "invalid primary GPT LBA");
++  if (entries <= 1 || entries+entries_len > start)
++    return grub_error (GRUB_ERR_BAD_PART_TABLE, "invalid entries location");
++  if (backup <= end)
++    return grub_error (GRUB_ERR_BAD_PART_TABLE, "invalid backup GPT LBA");
++
++  return GRUB_ERR_NONE;
++}
++
++static grub_err_t
++grub_gpt_check_backup (grub_gpt_t gpt)
++{
++  grub_uint64_t backup, primary, entries, entries_len, start, end;
++
++  backup = grub_le_to_cpu64 (gpt->backup.header_lba);
++  primary = grub_le_to_cpu64 (gpt->backup.alternate_lba);
++  entries = grub_le_to_cpu64 (gpt->backup.partitions);
++  entries_len = grub_gpt_entries_sectors(&gpt->backup, gpt->log_sector_size);
++  start = grub_le_to_cpu64 (gpt->backup.start);
++  end = grub_le_to_cpu64 (gpt->backup.end);
++
++  grub_dprintf ("gpt", "Backup GPT layout:\n"
++		"primary header = 0x%llx backup header = 0x%llx\n"
++		"entries location = 0x%llx length = 0x%llx\n"
++		"first usable = 0x%llx last usable = 0x%llx\n",
++		(unsigned long long) primary,
++		(unsigned long long) backup,
++		(unsigned long long) entries,
++		(unsigned long long) entries_len,
++		(unsigned long long) start,
++		(unsigned long long) end);
++
++  if (grub_gpt_header_check (&gpt->backup, gpt->log_sector_size))
++    return grub_errno;
++  if (primary != 1)
++    return grub_error (GRUB_ERR_BAD_PART_TABLE, "invalid primary GPT LBA");
++  if (entries <= end || entries+entries_len > backup)
++    return grub_error (GRUB_ERR_BAD_PART_TABLE, "invalid entries location");
++  if (backup <= end)
++    return grub_error (GRUB_ERR_BAD_PART_TABLE, "invalid backup GPT LBA");
++
++  /* If both primary and backup are valid but differ prefer the primary.  */
++  if ((gpt->status & GRUB_GPT_PRIMARY_HEADER_VALID) &&
++      !grub_gpt_headers_equal (gpt))
++    return grub_error (GRUB_ERR_BAD_PART_TABLE, "backup GPT out of sync");
++
++  return GRUB_ERR_NONE;
++}
++
++static grub_err_t
++grub_gpt_read_primary (grub_disk_t disk, grub_gpt_t gpt)
++{
++  grub_disk_addr_t addr;
++
++  /* TODO: The gpt partmap module searches for the primary header instead
++   * of relying on the disk's sector size. For now trust the disk driver
++   * but eventually this code should match the existing behavior.  */
++  gpt->log_sector_size = disk->log_sector_size;
++
++  grub_dprintf ("gpt", "reading primary GPT from sector 0x1\n");
++
++  addr = grub_gpt_sector_to_addr (gpt, 1);
++  if (grub_disk_read (disk, addr, 0, sizeof (gpt->primary), &gpt->primary))
++    return grub_errno;
++
++  if (grub_gpt_check_primary (gpt))
++    return grub_errno;
++
++  gpt->status |= GRUB_GPT_PRIMARY_HEADER_VALID;
++
++  if (grub_gpt_read_entries (disk, gpt, &gpt->primary,
++			     &gpt->entries, &gpt->entries_size))
++    return grub_errno;
++
++  gpt->status |= GRUB_GPT_PRIMARY_ENTRIES_VALID;
++
++  return GRUB_ERR_NONE;
++}
++
++static grub_err_t
++grub_gpt_read_backup (grub_disk_t disk, grub_gpt_t gpt)
++{
++  void *entries = NULL;
++  grub_size_t entries_size;
++  grub_uint64_t sector;
++  grub_disk_addr_t addr;
++
++  /* Assumes gpt->log_sector_size == disk->log_sector_size  */
++  if (gpt->status & GRUB_GPT_PRIMARY_HEADER_VALID)
++    {
++      sector = grub_le_to_cpu64 (gpt->primary.alternate_lba);
++      if (grub_gpt_disk_size_valid (disk) && sector >= disk->total_sectors)
++	return grub_error (GRUB_ERR_OUT_OF_RANGE,
++			   "backup GPT located at 0x%llx, "
++			   "beyond last disk sector at 0x%llx",
++			   (unsigned long long) sector,
++			   (unsigned long long) disk->total_sectors - 1);
++    }
++  else if (grub_gpt_disk_size_valid (disk))
++    sector = disk->total_sectors - 1;
++  else
++    return grub_error (GRUB_ERR_OUT_OF_RANGE,
++		       "size of disk unknown, cannot locate backup GPT");
++
++  grub_dprintf ("gpt", "reading backup GPT from sector 0x%llx\n",
++		(unsigned long long) sector);
++
++  addr = grub_gpt_sector_to_addr (gpt, sector);
++  if (grub_disk_read (disk, addr, 0, sizeof (gpt->backup), &gpt->backup))
++    return grub_errno;
++
++  if (grub_gpt_check_backup (gpt))
++    return grub_errno;
++
++  /* Ensure the backup header thinks it is located where we found it.  */
++  if (grub_le_to_cpu64 (gpt->backup.header_lba) != sector)
++    return grub_error (GRUB_ERR_BAD_PART_TABLE, "invalid backup GPT LBA");
++
++  gpt->status |= GRUB_GPT_BACKUP_HEADER_VALID;
++
++  if (grub_gpt_read_entries (disk, gpt, &gpt->backup,
++			     &entries, &entries_size))
++    return grub_errno;
++
++  if (gpt->status & GRUB_GPT_PRIMARY_ENTRIES_VALID)
++    {
++      if (entries_size != gpt->entries_size ||
++	  grub_memcmp (entries, gpt->entries, entries_size) != 0)
++	return grub_error (GRUB_ERR_BAD_PART_TABLE, "backup GPT out of sync");
++
++      grub_free (entries);
++    }
++  else
++    {
++      gpt->entries = entries;
++      gpt->entries_size = entries_size;
++    }
++
++  gpt->status |= GRUB_GPT_BACKUP_ENTRIES_VALID;
++
++  return GRUB_ERR_NONE;
++}
++
++static grub_err_t
++grub_gpt_read_entries (grub_disk_t disk, grub_gpt_t gpt,
++		       struct grub_gpt_header *header,
++		       void **ret_entries,
++		       grub_size_t *ret_entries_size)
++{
++  void *entries = NULL;
++  grub_uint32_t count, size, crc;
++  grub_uint64_t sector;
++  grub_disk_addr_t addr;
++  grub_size_t entries_size;
++
++  /* Grub doesn't include calloc, hence the manual overflow check.  */
++  count = grub_le_to_cpu32 (header->maxpart);
++  size = grub_le_to_cpu32 (header->partentry_size);
++  entries_size = count *size;
++  if (size && entries_size / size != count)
++    {
++      grub_error (GRUB_ERR_OUT_OF_MEMORY, N_("out of memory"));
++      goto fail;
++    }
++
++  /* Double check that the header was validated properly.  */
++  if (entries_size < GRUB_GPT_DEFAULT_ENTRIES_SIZE)
++    return grub_error (GRUB_ERR_BUG, "invalid GPT entries table size");
++
++  entries = grub_malloc (entries_size);
++  if (!entries)
++    goto fail;
++
++  sector = grub_le_to_cpu64 (header->partitions);
++  grub_dprintf ("gpt", "reading GPT %lu entries from sector 0x%llx\n",
++		(unsigned long) count,
++		(unsigned long long) sector);
++
++  addr = grub_gpt_sector_to_addr (gpt, sector);
++  if (grub_disk_read (disk, addr, 0, entries_size, entries))
++    goto fail;
++
++  grub_gpt_lecrc32 (&crc, entries, entries_size);
++  if (crc != header->partentry_crc32)
++    {
++      grub_error (GRUB_ERR_BAD_PART_TABLE, "invalid GPT entry crc32");
++      goto fail;
++    }
++
++  *ret_entries = entries;
++  *ret_entries_size = entries_size;
++  return GRUB_ERR_NONE;
++
++fail:
++  grub_free (entries);
++  return grub_errno;
++}
++
++grub_gpt_t
++grub_gpt_read (grub_disk_t disk)
++{
++  grub_gpt_t gpt;
++
++  grub_dprintf ("gpt", "reading GPT from %s\n", disk->name);
++
++  gpt = grub_zalloc (sizeof (*gpt));
++  if (!gpt)
++    goto fail;
++
++  if (grub_disk_read (disk, 0, 0, sizeof (gpt->mbr), &gpt->mbr))
++    goto fail;
++
++  /* Check the MBR but errors aren't reported beyond the status bit.  */
++  if (grub_gpt_pmbr_check (&gpt->mbr))
++    grub_errno = GRUB_ERR_NONE;
++  else
++    gpt->status |= GRUB_GPT_PROTECTIVE_MBR;
++
++  /* If both the primary and backup fail report the primary's error.  */
++  if (grub_gpt_read_primary (disk, gpt))
++    {
++      grub_error_push ();
++      grub_gpt_read_backup (disk, gpt);
++      grub_error_pop ();
++    }
++  else
++    grub_gpt_read_backup (disk, gpt);
++
++  /* If either succeeded clear any possible error from the other.  */
++  if (grub_gpt_primary_valid (gpt) || grub_gpt_backup_valid (gpt))
++    grub_errno = GRUB_ERR_NONE;
++  else
++    goto fail;
++
++  return gpt;
++
++fail:
++  grub_gpt_free (gpt);
++  return NULL;
++}
++
++struct grub_gpt_partentry *
++grub_gpt_get_partentry (grub_gpt_t gpt, grub_uint32_t n)
++{
++  struct grub_gpt_header *header;
++  grub_size_t offset;
++
++  header = grub_gpt_get_header (gpt);
++  if (!header)
++    return NULL;
++
++  if (n >= grub_le_to_cpu32 (header->maxpart))
++    return NULL;
++
++  offset = (grub_size_t) grub_le_to_cpu32 (header->partentry_size) * n;
++  return (struct grub_gpt_partentry *) ((char *) gpt->entries + offset);
++}
++
++grub_err_t
++grub_gpt_repair (grub_disk_t disk, grub_gpt_t gpt)
++{
++  /* Skip if there is nothing to do.  */
++  if (grub_gpt_both_valid (gpt))
++    return GRUB_ERR_NONE;
++
++  grub_dprintf ("gpt", "repairing GPT for %s\n", disk->name);
++
++  if (disk->log_sector_size != gpt->log_sector_size)
++    return grub_error (GRUB_ERR_NOT_IMPLEMENTED_YET,
++		       "GPT sector size must match disk sector size");
++
++  if (grub_gpt_primary_valid (gpt))
++    {
++      grub_uint64_t backup_header;
++
++      grub_dprintf ("gpt", "primary GPT is valid\n");
++
++      /* Relocate backup to end if disk if the disk has grown.  */
++      backup_header = grub_le_to_cpu64 (gpt->primary.alternate_lba);
++      if (grub_gpt_disk_size_valid (disk) &&
++	  disk->total_sectors - 1 > backup_header)
++	{
++	  backup_header = disk->total_sectors - 1;
++	  grub_dprintf ("gpt", "backup GPT header relocated to 0x%llx\n",
++			(unsigned long long) backup_header);
++
++	  gpt->primary.alternate_lba = grub_cpu_to_le64 (backup_header);
++	}
++
++      grub_memcpy (&gpt->backup, &gpt->primary, sizeof (gpt->backup));
++      gpt->backup.header_lba = gpt->primary.alternate_lba;
++      gpt->backup.alternate_lba = gpt->primary.header_lba;
++      gpt->backup.partitions = grub_cpu_to_le64 (backup_header -
++	  grub_gpt_size_to_sectors (gpt, gpt->entries_size));
++    }
++  else if (grub_gpt_backup_valid (gpt))
++    {
++      grub_dprintf ("gpt", "backup GPT is valid\n");
++
++      grub_memcpy (&gpt->primary, &gpt->backup, sizeof (gpt->primary));
++      gpt->primary.header_lba = gpt->backup.alternate_lba;
++      gpt->primary.alternate_lba = gpt->backup.header_lba;
++      gpt->primary.partitions = grub_cpu_to_le64_compile_time (2);
++    }
++  else
++    return grub_error (GRUB_ERR_BUG, "No valid GPT");
++
++  if (grub_gpt_update (gpt))
++    return grub_errno;
++
++  grub_dprintf ("gpt", "repairing GPT for %s successful\n", disk->name);
++
++  return GRUB_ERR_NONE;
++}
++
++grub_err_t
++grub_gpt_update (grub_gpt_t gpt)
++{
++  grub_uint32_t crc;
++
++  /* Clear status bits, require revalidation of everything.  */
++  gpt->status &= ~(GRUB_GPT_PRIMARY_HEADER_VALID |
++		   GRUB_GPT_PRIMARY_ENTRIES_VALID |
++		   GRUB_GPT_BACKUP_HEADER_VALID |
++		   GRUB_GPT_BACKUP_ENTRIES_VALID);
++
++  /* Writing headers larger than our header structure are unsupported.  */
++  gpt->primary.headersize =
++    grub_cpu_to_le32_compile_time (sizeof (gpt->primary));
++  gpt->backup.headersize =
++    grub_cpu_to_le32_compile_time (sizeof (gpt->backup));
++
++  grub_gpt_lecrc32 (&crc, gpt->entries, gpt->entries_size);
++  gpt->primary.partentry_crc32 = crc;
++  gpt->backup.partentry_crc32 = crc;
++
++  grub_gpt_header_lecrc32 (&gpt->primary.crc32, &gpt->primary);
++  grub_gpt_header_lecrc32 (&gpt->backup.crc32, &gpt->backup);
++
++  if (grub_gpt_check_primary (gpt))
++    {
++      grub_error_push ();
++      return grub_error (GRUB_ERR_BUG, "Generated invalid GPT primary header");
++    }
++
++  gpt->status |= (GRUB_GPT_PRIMARY_HEADER_VALID |
++		  GRUB_GPT_PRIMARY_ENTRIES_VALID);
++
++  if (grub_gpt_check_backup (gpt))
++    {
++      grub_error_push ();
++      return grub_error (GRUB_ERR_BUG, "Generated invalid GPT backup header");
++    }
++
++  gpt->status |= (GRUB_GPT_BACKUP_HEADER_VALID |
++		  GRUB_GPT_BACKUP_ENTRIES_VALID);
++
++  return GRUB_ERR_NONE;
++}
++
++static grub_err_t
++grub_gpt_write_table (grub_disk_t disk, grub_gpt_t gpt,
++		      struct grub_gpt_header *header)
++{
++  grub_disk_addr_t addr;
++
++  if (grub_le_to_cpu32 (header->headersize) != sizeof (*header))
++    return grub_error (GRUB_ERR_NOT_IMPLEMENTED_YET,
++		       "Header size is %u, must be %u",
++		       grub_le_to_cpu32 (header->headersize),
++		       sizeof (*header));
++
++  addr = grub_gpt_sector_to_addr (gpt, grub_le_to_cpu64 (header->header_lba));
++  if (addr == 0)
++    return grub_error (GRUB_ERR_BUG,
++		       "Refusing to write GPT header to address 0x0");
++  if (grub_disk_write (disk, addr, 0, sizeof (*header), header))
++    return grub_errno;
++
++  addr = grub_gpt_sector_to_addr (gpt, grub_le_to_cpu64 (header->partitions));
++  if (addr < 2)
++    return grub_error (GRUB_ERR_BUG,
++		       "Refusing to write GPT entries to address 0x%llx",
++		       (unsigned long long) addr);
++  if (grub_disk_write (disk, addr, 0, gpt->entries_size, gpt->entries))
++    return grub_errno;
++
++  return GRUB_ERR_NONE;
++}
++
++grub_err_t
++grub_gpt_write (grub_disk_t disk, grub_gpt_t gpt)
++{
++  grub_uint64_t backup_header;
++
++  /* TODO: update/repair protective MBRs too.  */
++
++  if (!grub_gpt_both_valid (gpt))
++    return grub_error (GRUB_ERR_BAD_PART_TABLE, "Invalid GPT data");
++
++  /* Write the backup GPT first so if writing fails the update is aborted
++   * and the primary is left intact.  However if the backup location is
++   * inaccessible we have to just skip and hope for the best, the backup
++   * will need to be repaired in the OS.  */
++  backup_header = grub_le_to_cpu64 (gpt->backup.header_lba);
++  if (grub_gpt_disk_size_valid (disk) &&
++      backup_header >= disk->total_sectors)
++    {
++      grub_printf ("warning: backup GPT located at 0x%llx, "
++		   "beyond last disk sector at 0x%llx\n",
++		   (unsigned long long) backup_header,
++		   (unsigned long long) disk->total_sectors - 1);
++      grub_printf ("warning: only writing primary GPT, "
++	           "the backup GPT must be repaired from the OS\n");
++    }
++  else
++    {
++      grub_dprintf ("gpt", "writing backup GPT to %s\n", disk->name);
++      if (grub_gpt_write_table (disk, gpt, &gpt->backup))
++	return grub_errno;
++    }
++
++  grub_dprintf ("gpt", "writing primary GPT to %s\n", disk->name);
++  if (grub_gpt_write_table (disk, gpt, &gpt->primary))
++    return grub_errno;
++
++  return GRUB_ERR_NONE;
++}
++
++void
++grub_gpt_free (grub_gpt_t gpt)
++{
++  if (!gpt)
++    return;
++
++  grub_free (gpt->entries);
++  grub_free (gpt);
++}
+diff --git a/include/grub/gpt_partition.h b/include/grub/gpt_partition.h
+index 7a93f4329..5c4372dce 100644
+--- a/include/grub/gpt_partition.h
++++ b/include/grub/gpt_partition.h
+@@ -21,6 +21,7 @@
+
+ #include <grub/types.h>
+ #include <grub/partition.h>
++#include <grub/msdos_partition.h>
+
+ struct grub_gpt_part_guid
+ {
+@@ -30,25 +31,46 @@ struct grub_gpt_part_guid
+   grub_uint8_t data4[8];
+ } GRUB_PACKED;
+ typedef struct grub_gpt_part_guid grub_gpt_part_guid_t;
++typedef struct grub_gpt_part_guid grub_gpt_guid_t;
++typedef struct grub_gpt_part_guid grub_gpt_part_type_t;
+
+-#define GRUB_GPT_PARTITION_TYPE_EMPTY \
+-  { 0x0, 0x0, 0x0, \
+-    { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 } \
++/* Format the raw little-endian GUID as a newly allocated string.  */
++char * grub_gpt_guid_to_str (grub_gpt_guid_t *guid);
++
++
++#define GRUB_GPT_GUID_INIT(a, b, c, d1, d2, d3, d4, d5, d6, d7, d8)  \
++  {					\
++    grub_cpu_to_le32_compile_time (a),	\
++    grub_cpu_to_le16_compile_time (b),	\
++    grub_cpu_to_le16_compile_time (c),	\
++    { d1, d2, d3, d4, d5, d6, d7, d8 }	\
+   }
+
++#define GRUB_GPT_PARTITION_TYPE_EMPTY \
++  GRUB_GPT_GUID_INIT (0x0, 0x0, 0x0,  \
++      0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0)
++
++#define GRUB_GPT_PARTITION_TYPE_EFI_SYSTEM \
++  GRUB_GPT_GUID_INIT (0xc12a7328, 0xf81f, 0x11d2, \
++      0xba, 0x4b, 0x00, 0xa0, 0xc9, 0x3e, 0xc9, 0x3b)
++
+ #define GRUB_GPT_PARTITION_TYPE_BIOS_BOOT \
+-  { grub_cpu_to_le32_compile_time (0x21686148), \
+-      grub_cpu_to_le16_compile_time (0x6449), \
+-      grub_cpu_to_le16_compile_time (0x6e6f),	       \
+-    { 0x74, 0x4e, 0x65, 0x65, 0x64, 0x45, 0x46, 0x49 } \
+-  }
++  GRUB_GPT_GUID_INIT (0x21686148, 0x6449, 0x6e6f, \
++      0x74, 0x4e, 0x65, 0x65, 0x64, 0x45, 0x46, 0x49)
+
+ #define GRUB_GPT_PARTITION_TYPE_LDM \
+-  { grub_cpu_to_le32_compile_time (0x5808C8AAU),\
+-      grub_cpu_to_le16_compile_time (0x7E8F), \
+-      grub_cpu_to_le16_compile_time (0x42E0),	       \
+-	{ 0x85, 0xD2, 0xE1, 0xE9, 0x04, 0x34, 0xCF, 0xB3 }	\
+-  }
++  GRUB_GPT_GUID_INIT (0x5808c8aa, 0x7e8f, 0x42e0, \
++      0x85, 0xd2, 0xe1, 0xe9, 0x04, 0x34, 0xcf, 0xb3)
++
++#define GRUB_GPT_PARTITION_TYPE_USR_X86_64 \
++  GRUB_GPT_GUID_INIT (0x5dfbf5f4, 0x2848, 0x4bac, \
++      0xaa, 0x5e, 0x0d, 0x9a, 0x20, 0xb7, 0x45, 0xa6)
++
++#define GRUB_GPT_HEADER_MAGIC \
++  { 0x45, 0x46, 0x49, 0x20, 0x50, 0x41, 0x52, 0x54 }
++
++#define GRUB_GPT_HEADER_VERSION	\
++  grub_cpu_to_le32_compile_time (0x00010000U)
+
+ struct grub_gpt_header
+ {
+@@ -57,11 +79,11 @@ struct grub_gpt_header
+   grub_uint32_t headersize;
+   grub_uint32_t crc32;
+   grub_uint32_t unused1;
+-  grub_uint64_t primary;
+-  grub_uint64_t backup;
++  grub_uint64_t header_lba;
++  grub_uint64_t alternate_lba;
+   grub_uint64_t start;
+   grub_uint64_t end;
+-  grub_uint8_t guid[16];
++  grub_gpt_part_guid_t guid;
+   grub_uint64_t partitions;
+   grub_uint32_t maxpart;
+   grub_uint32_t partentry_size;
+@@ -75,13 +97,168 @@ struct grub_gpt_partentry
+   grub_uint64_t start;
+   grub_uint64_t end;
+   grub_uint64_t attrib;
+-  char name[72];
++  grub_uint16_t name[36];
+ } GRUB_PACKED;
+
++enum grub_gpt_part_attr_offset
++{
++  /* Standard partition attribute bits defined by UEFI.  */
++  GRUB_GPT_PART_ATTR_OFFSET_REQUIRED			= 0,
++  GRUB_GPT_PART_ATTR_OFFSET_NO_BLOCK_IO_PROTOCOL	= 1,
++  GRUB_GPT_PART_ATTR_OFFSET_LEGACY_BIOS_BOOTABLE	= 2,
++
++  /* De facto standard attribute bits defined by Microsoft and reused by
++   * http://www.freedesktop.org/wiki/Specifications/DiscoverablePartitionsSpec */
++  GRUB_GPT_PART_ATTR_OFFSET_READ_ONLY			= 60,
++  GRUB_GPT_PART_ATTR_OFFSET_NO_AUTO			= 63,
++
++  /* Partition attributes for priority based selection,
++   * Currently only valid for PARTITION_TYPE_USR_X86_64.
++   * TRIES_LEFT and PRIORITY are 4 bit wide fields.  */
++  GRUB_GPT_PART_ATTR_OFFSET_GPTPRIO_PRIORITY		= 48,
++  GRUB_GPT_PART_ATTR_OFFSET_GPTPRIO_TRIES_LEFT		= 52,
++  GRUB_GPT_PART_ATTR_OFFSET_GPTPRIO_SUCCESSFUL		= 56,
++};
++
++/* Helpers for reading/writing partition attributes.  */
++static inline grub_uint64_t
++grub_gpt_entry_attribute (struct grub_gpt_partentry *entry,
++			  enum grub_gpt_part_attr_offset offset,
++			  unsigned int bits)
++{
++  grub_uint64_t attrib = grub_le_to_cpu64 (entry->attrib);
++
++  return (attrib >> offset) & ((1ULL << bits) - 1);
++}
++
++static inline void
++grub_gpt_entry_set_attribute (struct grub_gpt_partentry *entry,
++			      grub_uint64_t value,
++			      enum grub_gpt_part_attr_offset offset,
++			      unsigned int bits)
++{
++  grub_uint64_t attrib, mask;
++
++  mask = (((1ULL << bits) - 1) << offset);
++  attrib = grub_le_to_cpu64 (entry->attrib) & ~mask;
++  attrib |= ((value << offset) & mask);
++  entry->attrib = grub_cpu_to_le64 (attrib);
++}
++
++/* Basic GPT partmap module.  */
+ grub_err_t
+ grub_gpt_partition_map_iterate (grub_disk_t disk,
+ 				grub_partition_iterate_hook_t hook,
+ 				void *hook_data);
+
++/* Advanced GPT library.  */
++
++/* Status bits for the grub_gpt.status field.  */
++#define GRUB_GPT_PROTECTIVE_MBR		0x01
++#define GRUB_GPT_HYBRID_MBR		0x02
++#define GRUB_GPT_PRIMARY_HEADER_VALID	0x04
++#define GRUB_GPT_PRIMARY_ENTRIES_VALID	0x08
++#define GRUB_GPT_BACKUP_HEADER_VALID	0x10
++#define GRUB_GPT_BACKUP_ENTRIES_VALID	0x20
++
++/* UEFI requires the entries table to be at least 16384 bytes for a
++ * total of 128 entries given the standard 128 byte entry size.  */
++#define GRUB_GPT_DEFAULT_ENTRIES_SIZE	16384
++#define GRUB_GPT_DEFAULT_ENTRIES_LENGTH	\
++  (GRUB_GPT_DEFAULT_ENTRIES_SIZE / sizeof (struct grub_gpt_partentry))
++
++struct grub_gpt
++{
++  /* Bit field indicating which structures on disk are valid.  */
++  unsigned status;
++
++  /* Protective or hybrid MBR.  */
++  struct grub_msdos_partition_mbr mbr;
++
++  /* Each of the two GPT headers.  */
++  struct grub_gpt_header primary;
++  struct grub_gpt_header backup;
++
++  /* Only need one entries table, on disk both copies are identical.
++   * The on disk entry size may be larger than our partentry struct so
++   * the table cannot be indexed directly.  */
++  void *entries;
++  grub_size_t entries_size;
++
++  /* Logarithm of sector size, in case GPT and disk driver disagree.  */
++  unsigned int log_sector_size;
++};
++typedef struct grub_gpt *grub_gpt_t;
++
++/* Helpers for checking the gpt status field.  */
++static inline int
++grub_gpt_mbr_valid (grub_gpt_t gpt)
++{
++  return ((gpt->status & GRUB_GPT_PROTECTIVE_MBR) ||
++	  (gpt->status & GRUB_GPT_HYBRID_MBR));
++}
++
++static inline int
++grub_gpt_primary_valid (grub_gpt_t gpt)
++{
++  return ((gpt->status & GRUB_GPT_PRIMARY_HEADER_VALID) &&
++	  (gpt->status & GRUB_GPT_PRIMARY_ENTRIES_VALID));
++}
++
++static inline int
++grub_gpt_backup_valid (grub_gpt_t gpt)
++{
++  return ((gpt->status & GRUB_GPT_BACKUP_HEADER_VALID) &&
++	  (gpt->status & GRUB_GPT_BACKUP_ENTRIES_VALID));
++}
++
++static inline int
++grub_gpt_both_valid (grub_gpt_t gpt)
++{
++  return grub_gpt_primary_valid (gpt) && grub_gpt_backup_valid (gpt);
++}
++
++/* Translate GPT sectors to GRUB's 512 byte block addresses.  */
++static inline grub_disk_addr_t
++grub_gpt_sector_to_addr (grub_gpt_t gpt, grub_uint64_t sector)
++{
++  return (sector << (gpt->log_sector_size - GRUB_DISK_SECTOR_BITS));
++}
++
++/* Allocates and fills new grub_gpt structure, free with grub_gpt_free.  */
++grub_gpt_t grub_gpt_read (grub_disk_t disk);
++
++/* Helper for indexing into the entries table.
++ * Returns NULL when the end of the table has been reached.  */
++struct grub_gpt_partentry * grub_gpt_get_partentry (grub_gpt_t gpt,
++						    grub_uint32_t n);
++
++/* Sync and update primary and backup headers if either are invalid.  */
++grub_err_t grub_gpt_repair (grub_disk_t disk, grub_gpt_t gpt);
++
++/* Recompute checksums and revalidate everything, must be called after
++ * modifying any GPT data.  */
++grub_err_t grub_gpt_update (grub_gpt_t gpt);
++
++/* Write headers and entry tables back to disk.  */
++grub_err_t grub_gpt_write (grub_disk_t disk, grub_gpt_t gpt);
++
++void grub_gpt_free (grub_gpt_t gpt);
++
++grub_err_t grub_gpt_pmbr_check (struct grub_msdos_partition_mbr *mbr);
++grub_err_t grub_gpt_header_check (struct grub_gpt_header *gpt,
++				  unsigned int log_sector_size);
++
++
++/* Utilities for simple partition data lookups, usage is intended to
++ * be similar to fs->label and fs->uuid functions.  */
++
++/* Return the partition label of the device DEVICE in LABEL.
++ * The label is in a new buffer and should be freed by the caller.  */
++grub_err_t grub_gpt_part_label (grub_device_t device, char **label);
++
++/* Return the partition uuid of the device DEVICE in UUID.
++ * The uuid is in a new buffer and should be freed by the caller.  */
++grub_err_t grub_gpt_part_uuid (grub_device_t device, char **uuid);
+
+ #endif /* ! GRUB_GPT_PARTITION_HEADER */
+diff --git a/include/grub/search.h b/include/grub/search.h
+index d80347df3..c2f40abe9 100644
+--- a/include/grub/search.h
++++ b/include/grub/search.h
+@@ -25,5 +25,9 @@ void grub_search_fs_uuid (const char *key, const char *var, int no_floppy,
+ 			  char **hints, unsigned nhints);
+ void grub_search_label (const char *key, const char *var, int no_floppy,
+ 			char **hints, unsigned nhints);
++void grub_search_part_uuid (const char *key, const char *var, int no_floppy,
++			    char **hints, unsigned nhints);
++void grub_search_part_label (const char *key, const char *var, int no_floppy,
++			     char **hints, unsigned nhints);
+
+ #endif
+diff --git a/tests/gpt_unit_test.c b/tests/gpt_unit_test.c
+new file mode 100644
+index 000000000..53f686912
+--- /dev/null
++++ b/tests/gpt_unit_test.c
+@@ -0,0 +1,807 @@
++/*
++ *  GRUB  --  GRand Unified Bootloader
++ *  Copyright (C) 2014 CoreOS, Inc.
++ *
++ *  GRUB is free software: you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation, either version 3 of the License, or
++ *  (at your option) any later version.
++ *
++ *  GRUB is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with GRUB.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#include <grub/command.h>
++#include <grub/device.h>
++#include <grub/disk.h>
++#include <grub/emu/hostdisk.h>
++#include <grub/emu/misc.h>
++#include <grub/env.h>
++#include <grub/err.h>
++#include <grub/gpt_partition.h>
++#include <grub/msdos_partition.h>
++#include <grub/lib/hexdump.h>
++#include <grub/search.h>
++#include <grub/test.h>
++
++#include <errno.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <sys/mman.h>
++#include <sys/types.h>
++#include <unistd.h>
++
++/* from gnulib */
++#include <verify.h>
++
++/* Confirm that the GPT structures conform to the sizes in the spec:
++ * The header size "must be greater than or equal to 92 and must be less
++ * than or equal to the logical block size."
++ * The partition entry size must be "a value of 128*(2^n) where n is an
++ * integer greater than or equal to zero (e.g., 128, 256, 512, etc.)."  */
++verify (sizeof (struct grub_gpt_header) == 92);
++verify (sizeof (struct grub_gpt_partentry) == 128);
++
++/* GPT section sizes.  */
++#define HEADER_SIZE   (sizeof (struct grub_gpt_header))
++#define HEADER_PAD    (GRUB_DISK_SECTOR_SIZE - HEADER_SIZE)
++#define ENTRY_SIZE    (sizeof (struct grub_gpt_partentry))
++#define TABLE_ENTRIES 0x80
++#define TABLE_SIZE    (TABLE_ENTRIES * ENTRY_SIZE)
++#define TABLE_SECTORS (TABLE_SIZE / GRUB_DISK_SECTOR_SIZE)
++
++/* Double check that the table size calculation was valid.  */
++verify (TABLE_SECTORS * GRUB_DISK_SECTOR_SIZE == TABLE_SIZE);
++
++/* GPT section locations for a 1MiB disk.  */
++#define DISK_SECTORS	      0x800
++#define DISK_SIZE	      (GRUB_DISK_SECTOR_SIZE * DISK_SECTORS)
++#define PRIMARY_HEADER_SECTOR 0x1
++#define PRIMARY_TABLE_SECTOR  0x2
++#define BACKUP_HEADER_SECTOR  (DISK_SECTORS - 0x1)
++#define BACKUP_TABLE_SECTOR   (BACKUP_HEADER_SECTOR - TABLE_SECTORS)
++
++#define DATA_START_SECTOR     (PRIMARY_TABLE_SECTOR + TABLE_SECTORS)
++#define DATA_END_SECTOR	      (BACKUP_TABLE_SECTOR - 0x1)
++#define DATA_SECTORS	      (BACKUP_TABLE_SECTOR - DATA_START_SECTOR)
++#define DATA_SIZE	      (GRUB_DISK_SECTOR_SIZE * DATA_SECTORS)
++
++struct test_disk
++{
++  struct grub_msdos_partition_mbr mbr;
++
++  struct grub_gpt_header primary_header;
++  grub_uint8_t primary_header_pad[HEADER_PAD];
++  struct grub_gpt_partentry primary_entries[TABLE_ENTRIES];
++
++  grub_uint8_t data[DATA_SIZE];
++
++  struct grub_gpt_partentry backup_entries[TABLE_ENTRIES];
++  struct grub_gpt_header backup_header;
++  grub_uint8_t backup_header_pad[HEADER_PAD];
++} GRUB_PACKED;
++
++/* Sanity check that all the above ugly math was correct.  */
++verify (sizeof (struct test_disk) == DISK_SIZE);
++
++struct test_data
++{
++  int fd;
++  grub_device_t dev;
++  struct test_disk *raw;
++};
++
++
++/* Sample primary GPT header for a 1MB disk.  */
++static const struct grub_gpt_header example_primary = {
++  .magic = GRUB_GPT_HEADER_MAGIC,
++  .version = GRUB_GPT_HEADER_VERSION,
++  .headersize = sizeof (struct grub_gpt_header),
++  .crc32 = grub_cpu_to_le32_compile_time (0xb985abe0),
++  .header_lba = grub_cpu_to_le64_compile_time (PRIMARY_HEADER_SECTOR),
++  .alternate_lba = grub_cpu_to_le64_compile_time (BACKUP_HEADER_SECTOR),
++  .start = grub_cpu_to_le64_compile_time (DATA_START_SECTOR),
++  .end = grub_cpu_to_le64_compile_time (DATA_END_SECTOR),
++  .guid = GRUB_GPT_GUID_INIT(0x69c131ad, 0x67d6, 0x46c6,
++			     0x93, 0xc4, 0x12, 0x4c, 0x75, 0x52, 0x56, 0xac),
++  .partitions = grub_cpu_to_le64_compile_time (PRIMARY_TABLE_SECTOR),
++  .maxpart = grub_cpu_to_le32_compile_time (TABLE_ENTRIES),
++  .partentry_size = grub_cpu_to_le32_compile_time (ENTRY_SIZE),
++  .partentry_crc32 = grub_cpu_to_le32_compile_time (0x074e052c),
++};
++
++static const struct grub_gpt_partentry example_entries[TABLE_ENTRIES] = {
++  {
++    .type = GRUB_GPT_PARTITION_TYPE_EFI_SYSTEM,
++    .guid = GRUB_GPT_GUID_INIT (0xa0f1792e, 0xb4ce, 0x4136, 0xbc, 0xf2,
++				0x1a, 0xfc, 0x13, 0x3c, 0x28, 0x28),
++    .start = grub_cpu_to_le64_compile_time (DATA_START_SECTOR),
++    .end = grub_cpu_to_le64_compile_time (0x3f),
++    .attrib = 0x0,
++    .name = {
++      grub_cpu_to_le16_compile_time ('E'),
++      grub_cpu_to_le16_compile_time ('F'),
++      grub_cpu_to_le16_compile_time ('I'),
++      grub_cpu_to_le16_compile_time (' '),
++      grub_cpu_to_le16_compile_time ('S'),
++      grub_cpu_to_le16_compile_time ('Y'),
++      grub_cpu_to_le16_compile_time ('S'),
++      grub_cpu_to_le16_compile_time ('T'),
++      grub_cpu_to_le16_compile_time ('E'),
++      grub_cpu_to_le16_compile_time ('M'),
++      0x0,
++    }
++  },
++  {
++    .type = GRUB_GPT_PARTITION_TYPE_BIOS_BOOT,
++    .guid = GRUB_GPT_GUID_INIT (0x876c898d, 0x1b40, 0x4727, 0xa1, 0x61,
++				0xed, 0xf9, 0xb5, 0x48, 0x66, 0x74),
++    .start = grub_cpu_to_le64_compile_time (0x40),
++    .end = grub_cpu_to_le64_compile_time (0x7f),
++    .attrib = grub_cpu_to_le64_compile_time (
++	1ULL << GRUB_GPT_PART_ATTR_OFFSET_LEGACY_BIOS_BOOTABLE),
++    .name = {
++      grub_cpu_to_le16_compile_time ('B'),
++      grub_cpu_to_le16_compile_time ('I'),
++      grub_cpu_to_le16_compile_time ('O'),
++      grub_cpu_to_le16_compile_time ('S'),
++      grub_cpu_to_le16_compile_time (' '),
++      grub_cpu_to_le16_compile_time ('B'),
++      grub_cpu_to_le16_compile_time ('O'),
++      grub_cpu_to_le16_compile_time ('O'),
++      grub_cpu_to_le16_compile_time ('T'),
++      0x0,
++    }
++  },
++};
++
++/* And the backup header.  */
++static const struct grub_gpt_header example_backup = {
++  .magic = GRUB_GPT_HEADER_MAGIC,
++  .version = GRUB_GPT_HEADER_VERSION,
++  .headersize = sizeof (struct grub_gpt_header),
++  .crc32 = grub_cpu_to_le32_compile_time (0x0af785eb),
++  .header_lba = grub_cpu_to_le64_compile_time (BACKUP_HEADER_SECTOR),
++  .alternate_lba = grub_cpu_to_le64_compile_time (PRIMARY_HEADER_SECTOR),
++  .start = grub_cpu_to_le64_compile_time (DATA_START_SECTOR),
++  .end = grub_cpu_to_le64_compile_time (DATA_END_SECTOR),
++  .guid = GRUB_GPT_GUID_INIT(0x69c131ad, 0x67d6, 0x46c6,
++			     0x93, 0xc4, 0x12, 0x4c, 0x75, 0x52, 0x56, 0xac),
++  .partitions = grub_cpu_to_le64_compile_time (BACKUP_TABLE_SECTOR),
++  .maxpart = grub_cpu_to_le32_compile_time (TABLE_ENTRIES),
++  .partentry_size = grub_cpu_to_le32_compile_time (ENTRY_SIZE),
++  .partentry_crc32 = grub_cpu_to_le32_compile_time (0x074e052c),
++};
++
++/* Sample protective MBR for the same 1MB disk. Note, this matches
++ * parted and fdisk behavior. The UEFI spec uses different values.  */
++static const struct grub_msdos_partition_mbr example_pmbr = {
++  .entries = {{.flag = 0x00,
++	       .start_head = 0x00,
++	       .start_sector = 0x01,
++	       .start_cylinder = 0x00,
++	       .type = 0xee,
++	       .end_head = 0xfe,
++	       .end_sector = 0xff,
++	       .end_cylinder = 0xff,
++	       .start = grub_cpu_to_le32_compile_time (0x1),
++	       .length = grub_cpu_to_le32_compile_time (DISK_SECTORS - 0x1),
++	       }},
++  .signature = grub_cpu_to_le16_compile_time (GRUB_PC_PARTITION_SIGNATURE),
++};
++
++/* If errors are left in grub's error stack things can get confused.  */
++static void
++assert_error_stack_empty (void)
++{
++  do
++    {
++      grub_test_assert (grub_errno == GRUB_ERR_NONE,
++			"error on stack: %s", grub_errmsg);
++    }
++  while (grub_error_pop ());
++}
++
++static grub_err_t
++execute_command2 (const char *name, const char *arg1, const char *arg2)
++{
++  grub_command_t cmd;
++  grub_err_t err;
++  char *argv[2];
++
++  cmd = grub_command_find (name);
++  if (!cmd)
++    grub_fatal ("can't find command %s", name);
++
++  argv[0] = strdup (arg1);
++  argv[1] = strdup (arg2);
++  err = (cmd->func) (cmd, 2, argv);
++  free (argv[0]);
++  free (argv[1]);
++
++  return err;
++}
++
++static void
++sync_disk (struct test_data *data)
++{
++  if (msync (data->raw, DISK_SIZE, MS_SYNC | MS_INVALIDATE) < 0)
++    grub_fatal ("Syncing disk failed: %s", strerror (errno));
++
++  grub_disk_cache_invalidate_all ();
++}
++
++static void
++reset_disk (struct test_data *data)
++{
++  memset (data->raw, 0, DISK_SIZE);
++
++  /* Initialize image with valid example tables.  */
++  memcpy (&data->raw->mbr, &example_pmbr, sizeof (data->raw->mbr));
++  memcpy (&data->raw->primary_header, &example_primary,
++	  sizeof (data->raw->primary_header));
++  memcpy (&data->raw->primary_entries, &example_entries,
++	  sizeof (data->raw->primary_entries));
++  memcpy (&data->raw->backup_entries, &example_entries,
++	  sizeof (data->raw->backup_entries));
++  memcpy (&data->raw->backup_header, &example_backup,
++	  sizeof (data->raw->backup_header));
++
++  sync_disk (data);
++}
++
++static void
++open_disk (struct test_data *data)
++{
++  const char *loop = "loop0";
++  char template[] = "/tmp/grub_gpt_test.XXXXXX";
++  char host[sizeof ("(host)") + sizeof (template)];
++
++  data->fd = mkstemp (template);
++  if (data->fd < 0)
++    grub_fatal ("Creating %s failed: %s", template, strerror (errno));
++
++  if (ftruncate (data->fd, DISK_SIZE) < 0)
++    {
++      int err = errno;
++      unlink (template);
++      grub_fatal ("Resizing %s failed: %s", template, strerror (err));
++    }
++
++  data->raw = mmap (NULL, DISK_SIZE, PROT_READ | PROT_WRITE,
++		    MAP_SHARED, data->fd, 0);
++  if (data->raw == MAP_FAILED)
++    {
++      int err = errno;
++      unlink (template);
++      grub_fatal ("Maping %s failed: %s", template, strerror (err));
++    }
++
++  snprintf (host, sizeof (host), "(host)%s", template);
++  if (execute_command2 ("loopback", loop, host) != GRUB_ERR_NONE)
++    {
++      unlink (template);
++      grub_fatal ("loopback %s %s failed: %s", loop, host, grub_errmsg);
++    }
++
++  if (unlink (template) < 0)
++    grub_fatal ("Unlinking %s failed: %s", template, strerror (errno));
++
++  reset_disk (data);
++
++  data->dev = grub_device_open (loop);
++  if (!data->dev)
++    grub_fatal ("Opening %s failed: %s", loop, grub_errmsg);
++}
++
++static void
++close_disk (struct test_data *data)
++{
++  char *loop;
++
++  assert_error_stack_empty ();
++
++  if (munmap (data->raw, DISK_SIZE) || close (data->fd))
++    grub_fatal ("Closing disk image failed: %s", strerror (errno));
++
++  loop = strdup (data->dev->disk->name);
++  grub_test_assert (grub_device_close (data->dev) == GRUB_ERR_NONE,
++		    "Closing disk device failed: %s", grub_errmsg);
++
++  grub_test_assert (execute_command2 ("loopback", "-d", loop) ==
++		    GRUB_ERR_NONE, "loopback -d %s failed: %s", loop,
++		    grub_errmsg);
++
++  free (loop);
++}
++
++static grub_gpt_t
++read_disk (struct test_data *data)
++{
++  grub_gpt_t gpt;
++
++  gpt = grub_gpt_read (data->dev->disk);
++  if (gpt == NULL)
++    grub_fatal ("grub_gpt_read failed: %s", grub_errmsg);
++
++  return gpt;
++}
++
++static void
++pmbr_test (void)
++{
++  struct grub_msdos_partition_mbr mbr;
++
++  memset (&mbr, 0, sizeof (mbr));
++
++  /* Empty is invalid.  */
++  grub_gpt_pmbr_check (&mbr);
++  grub_test_assert (grub_errno == GRUB_ERR_BAD_PART_TABLE,
++		    "unexpected error: %s", grub_errmsg);
++  grub_errno = GRUB_ERR_NONE;
++
++  /* A table without a protective partition is invalid.  */
++  mbr.signature = grub_cpu_to_le16_compile_time (GRUB_PC_PARTITION_SIGNATURE);
++  grub_gpt_pmbr_check (&mbr);
++  grub_test_assert (grub_errno == GRUB_ERR_BAD_PART_TABLE,
++		    "unexpected error: %s", grub_errmsg);
++  grub_errno = GRUB_ERR_NONE;
++
++  /* A table with a protective type is ok.  */
++  memcpy (&mbr, &example_pmbr, sizeof (mbr));
++  grub_gpt_pmbr_check (&mbr);
++  grub_test_assert (grub_errno == GRUB_ERR_NONE,
++		    "unexpected error: %s", grub_errmsg);
++  grub_errno = GRUB_ERR_NONE;
++}
++
++static void
++header_test (void)
++{
++  struct grub_gpt_header primary, backup;
++
++  /* Example headers should be valid.  */
++  memcpy (&primary, &example_primary, sizeof (primary));
++  grub_gpt_header_check (&primary, GRUB_DISK_SECTOR_BITS);
++  grub_test_assert (grub_errno == GRUB_ERR_NONE,
++		    "unexpected error: %s", grub_errmsg);
++  grub_errno = GRUB_ERR_NONE;
++
++  memcpy (&backup, &example_backup, sizeof (backup));
++  grub_gpt_header_check (&backup, GRUB_DISK_SECTOR_BITS);
++  grub_test_assert (grub_errno == GRUB_ERR_NONE,
++		    "unexpected error: %s", grub_errmsg);
++  grub_errno = GRUB_ERR_NONE;
++
++  /* Twiddle the GUID to invalidate the CRC. */
++  primary.guid.data1 = 0;
++  grub_gpt_header_check (&primary, GRUB_DISK_SECTOR_BITS);
++  grub_test_assert (grub_errno == GRUB_ERR_BAD_PART_TABLE,
++		    "unexpected error: %s", grub_errmsg);
++  grub_errno = GRUB_ERR_NONE;
++
++  backup.guid.data1 = 0;
++  grub_gpt_header_check (&backup, GRUB_DISK_SECTOR_BITS);
++  grub_test_assert (grub_errno == GRUB_ERR_BAD_PART_TABLE,
++		    "unexpected error: %s", grub_errmsg);
++  grub_errno = GRUB_ERR_NONE;
++}
++
++static void
++read_valid_test (void)
++{
++  struct test_data data;
++  grub_gpt_t gpt;
++
++  open_disk (&data);
++  gpt = read_disk (&data);
++  grub_test_assert (gpt->status == (GRUB_GPT_PROTECTIVE_MBR |
++				    GRUB_GPT_PRIMARY_HEADER_VALID |
++				    GRUB_GPT_PRIMARY_ENTRIES_VALID |
++				    GRUB_GPT_BACKUP_HEADER_VALID |
++				    GRUB_GPT_BACKUP_ENTRIES_VALID),
++		    "unexpected status: 0x%02x", gpt->status);
++  grub_gpt_free (gpt);
++  close_disk (&data);
++}
++
++static void
++read_invalid_entries_test (void)
++{
++  struct test_data data;
++  grub_gpt_t gpt;
++
++  open_disk (&data);
++
++  /* Corrupt the first entry in both tables.  */
++  memset (&data.raw->primary_entries[0], 0x55,
++	  sizeof (data.raw->primary_entries[0]));
++  memset (&data.raw->backup_entries[0], 0x55,
++	  sizeof (data.raw->backup_entries[0]));
++  sync_disk (&data);
++
++  gpt = grub_gpt_read (data.dev->disk);
++  grub_test_assert (gpt == NULL, "no error reported for corrupt entries");
++  grub_test_assert (grub_errno == GRUB_ERR_BAD_PART_TABLE,
++		    "unexpected error: %s", grub_errmsg);
++  grub_errno = GRUB_ERR_NONE;
++
++  close_disk (&data);
++}
++
++static void
++read_fallback_test (void)
++{
++  struct test_data data;
++  grub_gpt_t gpt;
++
++  open_disk (&data);
++
++  /* Corrupt the primary header.  */
++  memset (&data.raw->primary_header.guid, 0x55,
++	  sizeof (data.raw->primary_header.guid));
++  sync_disk (&data);
++  gpt = read_disk (&data);
++  grub_test_assert ((gpt->status & GRUB_GPT_PRIMARY_HEADER_VALID) == 0,
++		    "unreported corrupt primary header");
++  grub_gpt_free (gpt);
++  reset_disk (&data);
++
++  /* Corrupt the backup header.  */
++  memset (&data.raw->backup_header.guid, 0x55,
++	  sizeof (data.raw->backup_header.guid));
++  sync_disk (&data);
++  gpt = read_disk (&data);
++  grub_test_assert ((gpt->status & GRUB_GPT_BACKUP_HEADER_VALID) == 0,
++		    "unreported corrupt backup header");
++  grub_gpt_free (gpt);
++  reset_disk (&data);
++
++  /* Corrupt the primary entry table.  */
++  memset (&data.raw->primary_entries[0], 0x55,
++	  sizeof (data.raw->primary_entries[0]));
++  sync_disk (&data);
++  gpt = read_disk (&data);
++  grub_test_assert ((gpt->status & GRUB_GPT_PRIMARY_ENTRIES_VALID) == 0,
++		    "unreported corrupt primary entries table");
++  grub_gpt_free (gpt);
++  reset_disk (&data);
++
++  /* Corrupt the backup entry table.  */
++  memset (&data.raw->backup_entries[0], 0x55,
++	  sizeof (data.raw->backup_entries[0]));
++  sync_disk (&data);
++  gpt = read_disk (&data);
++  grub_test_assert ((gpt->status & GRUB_GPT_BACKUP_ENTRIES_VALID) == 0,
++		    "unreported corrupt backup entries table");
++  grub_gpt_free (gpt);
++  reset_disk (&data);
++
++  /* If primary is corrupt and disk size is unknown fallback fails.  */
++  memset (&data.raw->primary_header.guid, 0x55,
++	  sizeof (data.raw->primary_header.guid));
++  sync_disk (&data);
++  data.dev->disk->total_sectors = GRUB_DISK_SIZE_UNKNOWN;
++  gpt = grub_gpt_read (data.dev->disk);
++  grub_test_assert (gpt == NULL, "no error reported");
++  grub_test_assert (grub_errno == GRUB_ERR_BAD_PART_TABLE,
++		    "unexpected error: %s", grub_errmsg);
++  grub_errno = GRUB_ERR_NONE;
++
++  close_disk (&data);
++}
++
++static void
++repair_test (void)
++{
++  struct test_data data;
++  grub_gpt_t gpt;
++
++  open_disk (&data);
++
++  /* Erase/Repair primary.  */
++  memset (&data.raw->primary_header, 0, sizeof (data.raw->primary_header));
++  sync_disk (&data);
++  gpt = read_disk (&data);
++  grub_gpt_repair (data.dev->disk, gpt);
++  grub_test_assert (grub_errno == GRUB_ERR_NONE,
++		    "repair failed: %s", grub_errmsg);
++  if (memcmp (&gpt->primary, &example_primary, sizeof (gpt->primary)))
++    {
++      printf ("Invalid restored primary header:\n");
++      hexdump (16, (char*)&gpt->primary, sizeof (gpt->primary));
++      printf ("Expected primary header:\n");
++      hexdump (16, (char*)&example_primary, sizeof (example_primary));
++      grub_test_assert (0, "repair did not restore primary header");
++    }
++  grub_gpt_free (gpt);
++  reset_disk (&data);
++
++  /* Erase/Repair backup.  */
++  memset (&data.raw->backup_header, 0, sizeof (data.raw->backup_header));
++  sync_disk (&data);
++  gpt = read_disk (&data);
++  grub_gpt_repair (data.dev->disk, gpt);
++  grub_test_assert (grub_errno == GRUB_ERR_NONE,
++		    "repair failed: %s", grub_errmsg);
++  if (memcmp (&gpt->backup, &example_backup, sizeof (gpt->backup)))
++    {
++      printf ("Invalid restored backup header:\n");
++      hexdump (16, (char*)&gpt->backup, sizeof (gpt->backup));
++      printf ("Expected backup header:\n");
++      hexdump (16, (char*)&example_backup, sizeof (example_backup));
++      grub_test_assert (0, "repair did not restore backup header");
++    }
++  grub_gpt_free (gpt);
++  reset_disk (&data);
++
++  close_disk (&data);
++}
++
++/* Finding/reading/writing the backup GPT may be difficult if the OS and
++ * BIOS report different sizes for the same disk.  We need to gracefully
++ * recognize this and avoid causing trouble for the OS.  */
++static void
++weird_disk_size_test (void)
++{
++  struct test_data data;
++  grub_gpt_t gpt;
++
++  open_disk (&data);
++
++  /* Chop off 65536 bytes (128 512B sectors) which may happen when the
++   * BIOS thinks you are using a software RAID system that reserves that
++   * area for metadata when in fact you are not and using the bare disk.  */
++  grub_test_assert(data.dev->disk->total_sectors == DISK_SECTORS,
++		   "unexpected disk size: 0x%llx",
++		   (unsigned long long) data.dev->disk->total_sectors);
++  data.dev->disk->total_sectors -= 128;
++
++  gpt = read_disk (&data);
++  assert_error_stack_empty ();
++  /* Reading the alternate_lba should have been blocked and reading
++   * the (new) end of disk should have found no useful data.  */
++  grub_test_assert ((gpt->status & GRUB_GPT_BACKUP_HEADER_VALID) == 0,
++		    "unreported missing backup header");
++
++  /* We should be able to reconstruct the backup header and the location
++   * of the backup should remain unchanged, trusting the GPT data over
++   * what the BIOS is telling us.  Further changes are left to the OS.  */
++  grub_gpt_repair (data.dev->disk, gpt);
++  grub_test_assert (grub_errno == GRUB_ERR_NONE,
++		    "repair failed: %s", grub_errmsg);
++  grub_test_assert (memcmp (&gpt->primary, &example_primary,
++	                    sizeof (gpt->primary)) == 0,
++		    "repair corrupted primary header");
++
++  grub_gpt_free (gpt);
++  close_disk (&data);
++}
++
++static void
++iterate_partitions_test (void)
++{
++  struct test_data data;
++  struct grub_gpt_partentry *p;
++  grub_gpt_t gpt;
++  grub_uint32_t n;
++
++  open_disk (&data);
++  gpt = read_disk (&data);
++
++  for (n = 0; (p = grub_gpt_get_partentry (gpt, n)) != NULL; n++)
++    grub_test_assert (memcmp (p, &example_entries[n], sizeof (*p)) == 0,
++		      "unexpected partition %d data", n);
++
++  grub_test_assert (n == TABLE_ENTRIES, "unexpected partition limit: %d", n);
++
++  grub_gpt_free (gpt);
++  close_disk (&data);
++}
++
++static void
++large_partitions_test (void)
++{
++  struct test_data data;
++  struct grub_gpt_partentry *p;
++  grub_gpt_t gpt;
++  grub_uint32_t n;
++
++  open_disk (&data);
++
++  /* Double the entry size, cut the number of entries in half.  */
++  data.raw->primary_header.maxpart =
++    data.raw->backup_header.maxpart =
++    grub_cpu_to_le32_compile_time (TABLE_ENTRIES/2);
++  data.raw->primary_header.partentry_size =
++    data.raw->backup_header.partentry_size =
++    grub_cpu_to_le32_compile_time (ENTRY_SIZE*2);
++  data.raw->primary_header.partentry_crc32 =
++    data.raw->backup_header.partentry_crc32 =
++    grub_cpu_to_le32_compile_time (0xf2c45af8);
++  data.raw->primary_header.crc32 = grub_cpu_to_le32_compile_time (0xde00cc8f);
++  data.raw->backup_header.crc32 = grub_cpu_to_le32_compile_time (0x6d72e284);
++
++  memset (&data.raw->primary_entries, 0,
++	  sizeof (data.raw->primary_entries));
++  for (n = 0; n < TABLE_ENTRIES/2; n++)
++    memcpy (&data.raw->primary_entries[n*2], &example_entries[n],
++	    sizeof (data.raw->primary_entries[0]));
++  memcpy (&data.raw->backup_entries, &data.raw->primary_entries,
++	  sizeof (data.raw->backup_entries));
++
++  sync_disk(&data);
++  gpt = read_disk (&data);
++
++  for (n = 0; (p = grub_gpt_get_partentry (gpt, n)) != NULL; n++)
++    grub_test_assert (memcmp (p, &example_entries[n], sizeof (*p)) == 0,
++		      "unexpected partition %d data", n);
++
++  grub_test_assert (n == TABLE_ENTRIES/2, "unexpected partition limit: %d", n);
++
++  grub_gpt_free (gpt);
++
++  /* Editing memory beyond the entry structure should still change the crc.  */
++  data.raw->primary_entries[1].attrib = 0xff;
++
++  sync_disk(&data);
++  gpt = read_disk (&data);
++  grub_test_assert (gpt->status == (GRUB_GPT_PROTECTIVE_MBR |
++				    GRUB_GPT_PRIMARY_HEADER_VALID |
++				    GRUB_GPT_BACKUP_HEADER_VALID |
++				    GRUB_GPT_BACKUP_ENTRIES_VALID),
++		    "unexpected status: 0x%02x", gpt->status);
++  grub_gpt_free (gpt);
++
++  close_disk (&data);
++}
++
++static void
++invalid_partsize_test (void)
++{
++  struct grub_gpt_header header = {
++    .magic = GRUB_GPT_HEADER_MAGIC,
++    .version = GRUB_GPT_HEADER_VERSION,
++    .headersize = sizeof (struct grub_gpt_header),
++    .crc32 = grub_cpu_to_le32_compile_time (0x1ff2a054),
++    .header_lba = grub_cpu_to_le64_compile_time (PRIMARY_HEADER_SECTOR),
++    .alternate_lba = grub_cpu_to_le64_compile_time (BACKUP_HEADER_SECTOR),
++    .start = grub_cpu_to_le64_compile_time (DATA_START_SECTOR),
++    .end = grub_cpu_to_le64_compile_time (DATA_END_SECTOR),
++    .guid = GRUB_GPT_GUID_INIT(0x69c131ad, 0x67d6, 0x46c6,
++			       0x93, 0xc4, 0x12, 0x4c, 0x75, 0x52, 0x56, 0xac),
++    .partitions = grub_cpu_to_le64_compile_time (PRIMARY_TABLE_SECTOR),
++    .maxpart = grub_cpu_to_le32_compile_time (TABLE_ENTRIES),
++    /* Triple the entry size, which is not valid.  */
++    .partentry_size = grub_cpu_to_le32_compile_time (ENTRY_SIZE*3),
++    .partentry_crc32 = grub_cpu_to_le32_compile_time (0x074e052c),
++  };
++
++  grub_gpt_header_check(&header, GRUB_DISK_SECTOR_BITS);
++  grub_test_assert (grub_errno == GRUB_ERR_BAD_PART_TABLE,
++		    "unexpected error: %s", grub_errmsg);
++  grub_test_assert (strcmp(grub_errmsg, "invalid GPT entry size") == 0,
++		    "unexpected error: %s", grub_errmsg);
++  grub_errno = GRUB_ERR_NONE;
++}
++
++static void
++search_part_label_test (void)
++{
++  struct test_data data;
++  const char *test_result;
++  char *expected_result;
++
++  open_disk (&data);
++
++  expected_result = grub_xasprintf ("%s,gpt1", data.dev->disk->name);
++  grub_env_unset ("test_result");
++  grub_search_part_label ("EFI SYSTEM", "test_result", 0, NULL, 0);
++  test_result = grub_env_get ("test_result");
++  grub_test_assert (test_result && strcmp (test_result, expected_result) == 0,
++		    "wrong device: %s (%s)", test_result, expected_result);
++  grub_free (expected_result);
++
++  expected_result = grub_xasprintf ("%s,gpt2", data.dev->disk->name);
++  grub_env_unset ("test_result");
++  grub_search_part_label ("BIOS BOOT", "test_result", 0, NULL, 0);
++  test_result = grub_env_get ("test_result");
++  grub_test_assert (test_result && strcmp (test_result, expected_result) == 0,
++		    "wrong device: %s (%s)", test_result, expected_result);
++  grub_free (expected_result);
++
++  grub_env_unset ("test_result");
++  grub_search_part_label ("bogus name", "test_result", 0, NULL, 0);
++  test_result = grub_env_get ("test_result");
++  grub_test_assert (test_result == NULL,
++		    "unexpected device: %s", test_result);
++  grub_test_assert (grub_errno == GRUB_ERR_FILE_NOT_FOUND,
++		    "unexpected error: %s", grub_errmsg);
++  grub_errno = GRUB_ERR_NONE;
++
++  close_disk (&data);
++}
++
++static void
++search_part_uuid_test (void)
++{
++  struct test_data data;
++  const char gpt1_uuid[] = "A0F1792E-B4CE-4136-BCF2-1AFC133C2828";
++  const char gpt2_uuid[] = "876c898d-1b40-4727-a161-edf9b5486674";
++  const char bogus_uuid[] = "1534c928-c50e-4866-9daf-6a9fd7918a76";
++  const char *test_result;
++  char *expected_result;
++
++  open_disk (&data);
++
++  expected_result = grub_xasprintf ("%s,gpt1", data.dev->disk->name);
++  grub_env_unset ("test_result");
++  grub_search_part_uuid (gpt1_uuid, "test_result", 0, NULL, 0);
++  test_result = grub_env_get ("test_result");
++  grub_test_assert (test_result && strcmp (test_result, expected_result) == 0,
++		    "wrong device: %s (%s)", test_result, expected_result);
++  grub_free (expected_result);
++
++  expected_result = grub_xasprintf ("%s,gpt2", data.dev->disk->name);
++  grub_env_unset ("test_result");
++  grub_search_part_uuid (gpt2_uuid, "test_result", 0, NULL, 0);
++  test_result = grub_env_get ("test_result");
++  grub_test_assert (test_result && strcmp (test_result, expected_result) == 0,
++		    "wrong device: %s (%s)", test_result, expected_result);
++  grub_free (expected_result);
++
++  grub_env_unset ("test_result");
++  grub_search_part_uuid (bogus_uuid, "test_result", 0, NULL, 0);
++  test_result = grub_env_get ("test_result");
++  grub_test_assert (test_result == NULL,
++		    "unexpected device: %s", test_result);
++  grub_test_assert (grub_errno == GRUB_ERR_FILE_NOT_FOUND,
++		    "unexpected error: %s", grub_errmsg);
++  grub_errno = GRUB_ERR_NONE;
++
++  close_disk (&data);
++}
++
++void
++grub_unit_test_init (void)
++{
++  grub_init_all ();
++  grub_hostfs_init ();
++  grub_host_init ();
++  grub_test_register ("gpt_pmbr_test", pmbr_test);
++  grub_test_register ("gpt_header_test", header_test);
++  grub_test_register ("gpt_read_valid_test", read_valid_test);
++  grub_test_register ("gpt_read_invalid_test", read_invalid_entries_test);
++  grub_test_register ("gpt_read_fallback_test", read_fallback_test);
++  grub_test_register ("gpt_repair_test", repair_test);
++  grub_test_register ("gpt_iterate_partitions_test", iterate_partitions_test);
++  grub_test_register ("gpt_large_partitions_test", large_partitions_test);
++  grub_test_register ("gpt_invalid_partsize_test", invalid_partsize_test);
++  grub_test_register ("gpt_weird_disk_size_test", weird_disk_size_test);
++  grub_test_register ("gpt_search_part_label_test", search_part_label_test);
++  grub_test_register ("gpt_search_uuid_test", search_part_uuid_test);
++}
++
++void
++grub_unit_test_fini (void)
++{
++  grub_test_unregister ("gpt_pmbr_test");
++  grub_test_unregister ("gpt_header_test");
++  grub_test_unregister ("gpt_read_valid_test");
++  grub_test_unregister ("gpt_read_invalid_test");
++  grub_test_unregister ("gpt_read_fallback_test");
++  grub_test_unregister ("gpt_repair_test");
++  grub_test_unregister ("gpt_iterate_partitions_test");
++  grub_test_unregister ("gpt_large_partitions_test");
++  grub_test_unregister ("gpt_invalid_partsize_test");
++  grub_test_unregister ("gpt_weird_disk_size_test");
++  grub_test_unregister ("gpt_search_part_label_test");
++  grub_test_unregister ("gpt_search_part_uuid_test");
++  grub_fini_all ();
++}
+diff --git a/tests/gptprio_test.in b/tests/gptprio_test.in
+new file mode 100644
+index 000000000..c5cf0f3b7
+--- /dev/null
++++ b/tests/gptprio_test.in
+@@ -0,0 +1,207 @@
++#! /bin/bash
++set -e
++
++# Copyright (C) 2010  Free Software Foundation, Inc.
++# Copyright (C) 2014  CoreOS, Inc.
++#
++# GRUB is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation, either version 3 of the License, or
++# (at your option) any later version.
++#
++# GRUB is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with GRUB.  If not, see <http://www.gnu.org/licenses/>.
++
++sgdisk=sgdisk
++grubshell=@builddir@/grub-shell
++
++if ! which "${sgdisk}" >/dev/null 2>&1; then
++   echo "sgdisk not installed; cannot test gptprio."
++   exit 77
++fi
++
++. "@builddir@/grub-core/modinfo.sh"
++
++case "${grub_modinfo_target_cpu}-${grub_modinfo_platform}" in
++    mips-qemu_mips | mipsel-qemu_mips | i386-qemu | i386-multiboot | i386-coreboot | mipsel-loongson)
++	disk=ata0
++	;;
++    powerpc-ieee1275)
++	disk=ieee1275//pci@80000000/mac-io@4/ata-3@20000/disk@0
++	# FIXME: QEMU firmware has bugs which prevent it from accessing hard disk w/o recognised label.
++	exit 0
++	;;
++    sparc64-ieee1275)
++	disk=ieee1275//pci@1fe\,0/pci-ata@5/ide0@500/disk@0
++	# FIXME: QEMU firmware has bugs which prevent it from accessing hard disk w/o recognised label.
++	exit 0
++	;;
++    i386-ieee1275)
++	disk=ieee1275/d
++	# FIXME: QEMU firmware has bugs which prevent it from accessing hard disk w/o recognised label.
++	exit 0
++	;;
++    mips-arc)
++	# FIXME: ARC firmware has bugs which prevent it from accessing hard disk w/o dvh disklabel.
++	exit 0 ;;
++    mipsel-arc)
++	disk=arc/scsi0/disk0/rdisk0
++	;;
++    *)
++	disk=hd0
++	;;
++esac
++img1="`mktemp "${TMPDIR:-/tmp}/tmp.XXXXXXXXXX"`" || exit 1
++trap "rm -f '${img1}'" EXIT
++
++prio_type="5dfbf5f4-2848-4bac-aa5e-0d9a20b745a6"
++declare -a prio_uuid
++prio_uuid[2]="9b003904-d006-4ab3-97f1-73f547b7af1a"
++prio_uuid[3]="1aa5a658-5b02-414d-9b71-f7e6c151f0cd"
++prio_uuid[4]="8aa0240d-98af-42b0-b32a-ccbe0572d62b"
++
++create_disk_image () {
++    size=$1
++    rm -f "${img1}"
++    dd if=/dev/zero of="${img1}" bs=512 count=1 seek=$((size - 1)) status=none
++    ${sgdisk} \
++        -n 1:0:+1 -c 1:ESP -t 1:ef00 \
++        -n 2:0:+1 -c 2:A -t 2:"${prio_type}" -u 2:"${prio_uuid[2]}" \
++        -n 3:0:+1 -c 3:B -t 3:"${prio_type}" -u 3:"${prio_uuid[3]}" \
++        -n 4:0:+1 -c 4:C -t 4:"${prio_type}" -u 4:"${prio_uuid[4]}" \
++        "${img1}" >/dev/null
++}
++
++wipe_disk_area () {
++    sector=$1
++    size=$2
++    dd if=/dev/zero of="${img1}" bs=512 count=${size} seek=${sector} conv=notrunc status=none
++}
++
++is_zero () {
++    sector=$1
++    size=$2
++    cmp -s -i $((sector * 512)) -n $((size * 512)) /dev/zero "${img1}"
++}
++
++check_is_zero () {
++    sector=$1
++    size=$2
++    if ! is_zero "$@"; then
++        echo "$size sector(s) starting at $sector should be all zero"
++        exit 1
++    fi
++}
++
++check_not_zero () {
++    sector=$1
++    size=$2
++    if is_zero "$@"; then
++        echo "$size sector(s) starting at $sector should not be all zero"
++        exit 1
++    fi
++}
++
++fmt_prio () {
++    priority=$(( ( $1 & 15 ) << 48 ))
++    tries=$(( ( $2 & 15 ) << 52 ))
++    success=$(( ( $3 & 1 ) << 56 ))
++    printf %016x $(( priority | tries | success ))
++}
++
++set_prio () {
++    part="$1"
++    attr=$(fmt_prio $2 $3 $4)
++    ${sgdisk} -A "${part}:=:${attr}" "${img1}" >/dev/null
++}
++
++check_prio () {
++    part="$1"
++    expect=$(fmt_prio $2 $3 $4)
++    result=$(LANG=C ${sgdisk} -i "${part}" "${img1}" 2>&1 \
++            | awk '/^Attribute flags: / {print $3}')
++    if [[ "${expect}" != "${result}" ]]; then
++        echo "Partition ${part} has attributes ${result:-??}, not ${expect}"
++        exit 1
++    fi
++}
++
++run_next() {
++    "${grubshell}" --disk="${img1}" --modules=gptprio <<EOF
++gptprio.next -d next_dev -u next_uuid "${disk}"
++echo next_dev=\$next_dev
++echo next_uuid=\$next_uuid
++EOF
++}
++
++check_next () {
++    part="$1"
++    output=$(run_next)
++    if grep ^error <<<"${output}"; then
++        exit 1
++    fi
++    if ! grep -q "^next_dev=${disk},gpt${part}$" <<<"${output}"; then
++        echo "Unexpected next_dev: (expected ${disk},gpt${part})"
++        echo "${output}"
++        exit 1
++    fi
++    if ! grep -q "^next_uuid=${prio_uuid[$part]}$" <<<"${output}"; then
++        echo "Unexpected next_uuid: (expected ${prio_uuid[$part]})"
++        echo "${output}"
++        exit 1
++    fi
++    check_prio "$@"
++}
++
++# Basic sanity check
++create_disk_image 100
++set_prio 2 3 2 1
++check_prio 2 3 2 1
++
++# Check gptprio works without modifying the disk when no update is required.
++# Leaves any existing corruption as is, repairing in the OS is better.
++create_disk_image 100
++set_prio 2 1 0 1
++wipe_disk_area 99 1
++check_next 2 1 0 1
++check_is_zero 99 1
++
++create_disk_image 100
++set_prio 2 1 0 1
++wipe_disk_area 1 1
++check_next 2 1 0 1
++check_is_zero 1 1
++
++# When writes do need to be made go ahead and perform the repair.
++create_disk_image 100
++set_prio 2 1 1 0
++wipe_disk_area 99 1
++check_next 2 1 0 0
++check_not_zero 99 1
++
++create_disk_image 100
++set_prio 2 1 1 0
++wipe_disk_area 1 1
++check_next 2 1 0 0
++check_not_zero 1 1
++
++# Try two partitions before falling before falling back to a third
++create_disk_image 100
++set_prio 2 3 3 0
++set_prio 3 2 2 0
++set_prio 4 1 0 1
++check_next 2 3 2 0
++check_next 2 3 1 0
++check_next 2 3 0 0
++check_next 3 2 1 0
++check_next 3 2 0 0
++check_next 4 1 0 1
++check_next 4 1 0 1
++check_next 4 1 0 1
++check_prio 2 3 0 0
++check_prio 3 2 0 0
+diff --git a/tests/gptrepair_test.in b/tests/gptrepair_test.in
+new file mode 100644
+index 000000000..805dc171a
+--- /dev/null
++++ b/tests/gptrepair_test.in
+@@ -0,0 +1,102 @@
++#! /bin/sh
++set -e
++
++# Copyright (C) 2010  Free Software Foundation, Inc.
++# Copyright (C) 2014  CoreOS, Inc.
++#
++# GRUB is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation, either version 3 of the License, or
++# (at your option) any later version.
++#
++# GRUB is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with GRUB.  If not, see <http://www.gnu.org/licenses/>.
++
++parted=parted
++grubshell=@builddir@/grub-shell
++
++. "@builddir@/grub-core/modinfo.sh"
++
++case "${grub_modinfo_target_cpu}-${grub_modinfo_platform}" in
++    mips-qemu_mips | mipsel-qemu_mips | i386-qemu | i386-multiboot | i386-coreboot | mipsel-loongson)
++	disk=ata0
++	;;
++    powerpc-ieee1275)
++	disk=ieee1275//pci@80000000/mac-io@4/ata-3@20000/disk@0
++	# FIXME: QEMU firmware has bugs which prevent it from accessing hard disk w/o recognised label.
++	exit 0
++	;;
++    sparc64-ieee1275)
++	disk=ieee1275//pci@1fe\,0/pci-ata@5/ide0@500/disk@0
++	# FIXME: QEMU firmware has bugs which prevent it from accessing hard disk w/o recognised label.
++	exit 0
++	;;
++    i386-ieee1275)
++	disk=ieee1275/d
++	# FIXME: QEMU firmware has bugs which prevent it from accessing hard disk w/o recognised label.
++	exit 0
++	;;
++    mips-arc)
++	# FIXME: ARC firmware has bugs which prevent it from accessing hard disk w/o dvh disklabel.
++	exit 0 ;;
++    mipsel-arc)
++	disk=arc/scsi0/disk0/rdisk0
++	;;
++    *)
++	disk=hd0
++	;;
++esac
++img1="`mktemp "${TMPDIR:-/tmp}/tmp.XXXXXXXXXX"`" || exit 1
++img2="`mktemp "${TMPDIR:-/tmp}/tmp.XXXXXXXXXX"`" || exit 1
++trap "rm -f '${img1}' '${img2}'" EXIT
++
++create_disk_image () {
++    size=$1
++    rm -f "${img1}"
++    dd if=/dev/zero of="${img1}" bs=512 count=1 seek=$((size - 1)) status=none
++    ${parted} -a none -s "${img1}" mklabel gpt
++    cp "${img1}" "${img2}"
++}
++
++wipe_disk_area () {
++    sector=$1
++    size=$2
++    dd if=/dev/zero of="${img2}" bs=512 count=${size} seek=${sector} conv=notrunc status=none
++}
++
++do_repair () {
++    output="`echo "gptrepair ($disk)" | "${grubshell}" --disk="${img2}"`"
++    if echo "${output}" | grep ^error; then
++        return 1
++    fi
++    if echo "${output}" | grep -v GPT; then
++        echo "Unexpected output ${output}"
++        return 1
++    fi
++    echo "${output}"
++}
++
++echo "Nothing to repair:"
++create_disk_image 100
++do_repair
++cmp "${img1}" "${img2}"
++echo
++
++echo "Repair primary (MBR left intact)"
++create_disk_image 100
++wipe_disk_area 1 1
++do_repair
++cmp "${img1}" "${img2}"
++echo
++
++echo "Repair backup"
++create_disk_image 100
++wipe_disk_area 99 1
++do_repair
++cmp "${img1}" "${img2}"
++echo
+--
+2.34.1
+
