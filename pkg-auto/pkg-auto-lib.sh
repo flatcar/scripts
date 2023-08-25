@@ -754,7 +754,7 @@ function die() {
     fail "$*"
 }
 
-source "${THIS_DIR}/../${PORTAGE_STABLE_SUFFIX}/eclass/eapi7-ver.eclass"
+source "${THIS_DIR}/../sdk_container/src/third_party/portage-stable/eclass/eapi7-ver.eclass"
 
 unset EAPI
 
