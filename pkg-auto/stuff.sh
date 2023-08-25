@@ -13,10 +13,11 @@ else
     THIS_DIR=$(dirname "${THIS}")
 fi
 
+THIS=$(realpath "${THIS}")
 THIS_DIR=$(realpath "${THIS_DIR}")
 
 function info() {
-    printf '%s: %s' "${this_name}" "${*}"
+    printf '%s: %s' "${THIS_NAME}" "${*}"
 }
 
 function fail() {
@@ -52,21 +53,71 @@ function join_by() {
     fi
 }
 
-_cleanup_actions=''
 _no_cleanups=''
+_cleanup_kind=''
 
-function ignore_cleanups {
-    _no_cleanups=x
+_file_cleanup_file=''
+_file_add_cleanup() {
+    local fac_cleanup_dir tmpfile
+    dirname_out "${_file_cleanup_file}" fac_cleanup_dir
+    tmpfile=$(mktemp -p "${fac_cleanup_dir}")
+    printf '%s\n' "${@}" >${tmpfile}
+    if [[ -f "${_file_cleanup_file}" ]]; then
+        cat "${_file_cleanup_file}" >>${tmpfile}
+    fi
+    mv -f "${tmpfile}" "${_file_cleanup_file}"
+}
+
+_trap_cleanup_actions=''
+function _trap_add_cleanup() {
+    local tac_joined
+    join_by tac_joined ' ; ' "${@}"
+    _trap_cleanup_actions="${tac_joined} ; ${_trap_cleanup_actions}"
+    trap "${_trap_cleanup_actions}" EXIT
+}
+
+function _ignore_add_cleanup() {
+    :
+}
+
+# 1: kind of cleanup
+#
+# kinds:
+# - file: requires extra argument about cleanup file location
+# - trap: executed on shell exit
+# - ignore: noop
+function setup_cleanups {
+    local kind
+    kind=${1}; shift
+
+    if [[ -n "${_cleanup_kind}" ]]; then
+        fail "cannot set cleanups to '${kind}', they are already set up to '${_cleanup_kind}'"
+    fi
+
+    case ${kind} in
+        'file')
+            if [[ ${#} -ne 1 ]]; then
+                fail 'missing cleanup file location argument for file cleanups'
+            fi
+            _file_cleanup_file=${1};
+            ;;
+        'trap'|'ignore')
+            :
+            ;;
+        *)
+            fail "unknown cleanup kind '${kind}'"
+            ;;
+    esac
+    _cleanup_kind=${kind}
 }
 
 function add_cleanup {
-    if [[ -n "${_no_cleanups}" ]]; then
-        return
+    if [[ -z "${_cleanup_kind}" ]]; then
+        _cleanup_kind='trap'
     fi
-    local joined
-    joined=$(join_by ' ; ' "${@}")
-    _cleanup_actions="${joined} ; ${_cleanup_actions}"
-    trap "${_cleanup_actions}" EXIT
+    local add_func="${_cleanup_kind}_add_cleanup"
+
+    "${add_func}" "${@}"
 }
 
 function dirname_out() {
