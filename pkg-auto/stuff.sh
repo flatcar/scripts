@@ -17,7 +17,7 @@ THIS=$(realpath "${THIS}")
 THIS_DIR=$(realpath "${THIS_DIR}")
 
 function info() {
-    printf '%s: %s' "${THIS_NAME}" "${*}"
+    printf '%s: %s\n' "${THIS_NAME}" "${*}"
 }
 
 function fail() {
