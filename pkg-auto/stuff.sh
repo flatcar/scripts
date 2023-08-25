@@ -94,12 +94,14 @@ function setup_cleanups {
         fail "cannot set cleanups to '${kind}', they are already set up to '${_cleanup_kind}'"
     fi
 
+    _cleanup_kind=${kind}
     case ${kind} in
         'file')
             if [[ ${#} -ne 1 ]]; then
                 fail 'missing cleanup file location argument for file cleanups'
             fi
             _file_cleanup_file=${1};
+            add_cleanup "rm -f ${_file_cleanup_file@Q}"
             ;;
         'trap'|'ignore')
             :
@@ -108,7 +110,6 @@ function setup_cleanups {
             fail "unknown cleanup kind '${kind}'"
             ;;
     esac
-    _cleanup_kind=${kind}
 }
 
 function add_cleanup {
