@@ -1451,14 +1451,14 @@ function generate_package_report_at_location() {
     (
         shopt -s nullglob
         cd "${scripts}/${co}"
-        cat_entries "sdk_container/src/third_party/coreos-overlay/coreos/config/env/${pkg}"?(-+([0-9])*)
+        cat_entries "sdk_container/src/third_party/coreos-overlay/coreos/config/env/${pkg}"@(|-+([0-9])*)
     )
 
     yell "${pkg} in user patches"
     (
         shopt -s nullglob
         cd "${scripts}/${co}"
-        for dir in "sdk_container/src/third_party/coreos-overlay/coreos/user-patches/${pkg}"?(-+([0-9])*); do
+        for dir in "sdk_container/src/third_party/coreos-overlay/coreos/user-patches/${pkg}"@(|-+([0-9])*); do
             echo "BEGIN DIRECTORY: ${dir}"
             cat_entries "${dir}"/*
             echo "END DIRECTORY: ${dir}"
@@ -1501,7 +1501,7 @@ function grep_pkg() {
     pkg=${1}; shift
     # rest are directories
 
-    git -C "${scripts}" grep "${pkg}"'\(-[0-9]\|[^-]\|$\)' -- "${@}"
+    git -C "${scripts}" grep "${pkg}"'\(-[0-9]\|[^a-bA-Z0-9-]\|$\)' -- "${@}"
 }
 
 function cat_entries() {
