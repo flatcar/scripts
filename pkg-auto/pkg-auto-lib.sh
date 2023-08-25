@@ -17,6 +17,9 @@
 
 source "$(dirname "${BASH_SOURCE[0]}")/stuff.sh"
 
+# Needed to be enabled here to parse some globs inside the functions.
+shopt -s extglob
+
 # Creates a workdir, the path to which is stored in WORKDIR global
 # variable. Copies listings from the listings directory to work
 # directory.
