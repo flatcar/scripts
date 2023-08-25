@@ -103,8 +103,8 @@ else
     setup_cleanups ignore
 fi
 
-mkdir "${DOWNLOADS_DIR}"
 add_cleanup "rmdir ${DOWNLOADS_DIR@Q}"
+mkdir "${DOWNLOADS_DIR}"
 
 function download {
     local url output
@@ -132,8 +132,8 @@ for arch in amd64 arm64; do
     packages_image_name="flatcar-packages-${arch}:${VERSION_ID}-${BUILD_ID}"
     if ! docker images --format '{{.Repository}}:{{.Tag}}' | grep -q -x -F "${packages_image_name}"; then
         info "No ${packages_image_name} available in docker, pulling it from bincache"
-        download "https://bincache.flatcar-linux.net/containers/${VERSION_ID}-${BUILD_ID}/flatcar-packages-${arch}-${VERSION_ID}-${BUILD_ID}.tar.zst" "${DOWNLOADS_DIR}/packages-sdk-${arch}.tar.zst"
         add_cleanup "rm -f ${DOWNLOADS_DIR@Q}/packages-sdk-${arch}.tar.zst"
+        download "https://bincache.flatcar-linux.net/containers/${VERSION_ID}-${BUILD_ID}/flatcar-packages-${arch}-${VERSION_ID}-${BUILD_ID}.tar.zst" "${DOWNLOADS_DIR}/packages-sdk-${arch}.tar.zst"
         info "Loading ${packages_image_name} into docker"
         zstd -d -c "${DOWNLOADS_DIR}/packages-sdk-${arch}.tar.zst" | docker load
         add_cleanup "docker rmi ${packages_image_name@Q}"
@@ -141,8 +141,8 @@ for arch in amd64 arm64; do
 
     for listing in flatcar_production_image_packages.txt flatcar_developer_container_packages.txt; do
         info "Downloading ${listing} for ${arch}"
-        download "https://bincache.flatcar-linux.net/images/${arch}/${VERSION_ID}+${BUILD_ID}/${listing}" "${DOWNLOADS_DIR}/${listing}"
         add_cleanup "rm -f ${DOWNLOADS_DIR@Q}/${listing@Q}"
+        download "https://bincache.flatcar-linux.net/images/${arch}/${VERSION_ID}+${BUILD_ID}/${listing}" "${DOWNLOADS_DIR}/${listing}"
     done
 done
 info 'Done'
