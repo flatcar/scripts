@@ -150,7 +150,11 @@ function save_new_state() {
 
 function save_non_package_updates() {
     add_cleanup "rm -f ${WORKDIR@Q}/non-package-updates"
-    printf '%s\n' "${@}" | sort >"${WORKDIR}/non-package-updates"
+    if [[ ${#} -eq 0 ]]; then
+        touch "${WORKDIR}/non-package-updates"
+    else
+        printf '%s\n' "${@}" | sort >"${WORKDIR}/non-package-updates"
+    fi
 }
 
 function load_non_package_updates() {
