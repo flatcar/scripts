@@ -332,7 +332,7 @@ function run_sync() {
 
     local packages_list sync_script new_head old_head
     packages_list="${NEW_STATE}/.github/workflows/portage-stable-packages-list"
-    sync_script="${THIS_DIR}/pkg-auto/sync-with-gentoo.sh"
+    sync_script="${THIS_DIR}/pkg-auto/sync_with_gentoo.sh"
     new_head=$(git -C "${NEW_STATE}" rev-parse HEAD)
     local package line pkg_and_rest pkg
     local -A non_package_updates_set
@@ -460,7 +460,7 @@ function handle_missing_in_gentoo() {
     renamed_to=()
 
     local sync_script
-    sync_script="${THIS_DIR}/pkg-auto/sync-with-gentoo.sh"
+    sync_script="${THIS_DIR}/pkg-auto/sync_with_gentoo.sh"
 
     local -x "${GIT_ENV_VARS[@]}"
     setup_git_env
@@ -633,7 +633,7 @@ function generate_sdk_reports() {
                 "git -C ${sdk_run_state@Q} clean -ffdx" \
                 "git -C ${SCRIPTS@Q} worktree remove ${sdk_run_state@Q}" \
                 "git -C ${SCRIPTS@Q} branch -D ${sdk_run_state_branch@Q}"
-            for file in inside_sdk_container.sh stuff.sh print-profile-tree.sh; do
+            for file in inside_sdk_container.sh stuff.sh print_profile_tree.sh; do
                 full_file="${THIS_DIR}/pkg-auto/${file}"
                 cp -a "${full_file}" "${sdk_run_state}"
                 add_cleanup "rm -f ${full_file@Q}"

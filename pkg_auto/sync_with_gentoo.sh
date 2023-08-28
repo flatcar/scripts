@@ -6,16 +6,16 @@
 #
 # Example invocations:
 #
-# sync-with-gentoo --help
+# sync_with_gentoo --help
 #
 #   Print a help message.
 #
-# sync-with-gentoo dev-libs/nettle app-crypt/argon2
+# sync_with_gentoo dev-libs/nettle app-crypt/argon2
 #
 #   This will update the packages, each in a separate commit. The
 #   commit message will contain the commit hash from gentoo repo.
 #
-# sync-with-gentoo dev-libs
+# sync_with_gentoo dev-libs
 #
 #   This will update all the packages in dev-libs category.
 #

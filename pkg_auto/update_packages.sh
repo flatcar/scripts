@@ -23,7 +23,7 @@
 set -euo pipefail
 
 source "$(dirname "${BASH_SOURCE[0]}")/stuff.sh"
-source "${THIS_DIR}/pkg-auto-lib.sh"
+source "${THIS_DIR}/pkg_auto_lib.sh"
 
 cleanup_setup_args=( 'ignore' )
 force_reports_dir_remove=''
