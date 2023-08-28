@@ -156,7 +156,7 @@ function mvm_declare() {
         iteration_helper=''
     fi
 
-    local extras_idx storage_idx extras_map_name storage_map_name
+    local extras_idx storage_idx extras_map_var_name storage_map_var_name
     extras_idx=$((MVM_COUNTER))
     storage_idx=$((MVM_COUNTER + 1))
     extras_map_var_name="mvm_stuff_${extras_idx}"
@@ -177,8 +177,8 @@ function mvm_declare() {
         ['adder']="${adder}"
         ['iteration_helper']="${iteration_helper}"
         ['counter']=0
-        ['extras']="${extras_map_name}"
-        ['storage']="${storage_map_name}"
+        ['extras']="${extras_map_var_name}"
+        ['storage']="${storage_map_var_name}"
     )
     local -n extras_map_ref="${extras_map_var_name}"
     while [[ ${#} -gt 1 ]]; do
