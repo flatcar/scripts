@@ -103,8 +103,8 @@ function perform_sync_with_gentoo() {
     pswg_missing_in_gentoo=()
 
     local -A pswg_renamed_old_to_new_map pswg_renamed_new_to_old_map
-    pswg_renamed_old_to_new_map=${1}; shift
-    pswg_renamed_new_to_old_map=${1}; shift
+    pswg_renamed_old_to_new_map=()
+    pswg_renamed_new_to_old_map=()
 
     run_sync pswg_non_package_updates pswg_missing_in_scripts pswg_missing_in_gentoo
     handle_missing_in_scripts "${pswg_missing_in_scripts[@]}"
