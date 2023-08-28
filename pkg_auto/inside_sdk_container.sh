@@ -174,9 +174,15 @@ reports_dir=${1}; shift
 
 mkdir -p "${reports_dir}"
 
+echo 'Generating SDK packages listing'
 versions_sdk >"${reports_dir}/sdk-pkgs" 2>"${reports_dir}/sdk-pkgs-warnings"
+echo 'Generating SDK packages listing with key-values (USE, SINGLE_PYTHON, etc)'
 versions_sdk_with_key_values >"${reports_dir}/sdk-pkgs-kv" 2>"${reports_dir}/sdk-pkgs-kv-warnings"
+echo 'Generating board packages listing'
 versions_board "${arch}" >"${reports_dir}/board-pkgs" 2>"${reports_dir}/board-pkgs-warnings"
+echo 'Generating board packages bdeps listing'
 board_bdeps "${arch}" >"${reports_dir}/board-bdeps" 2>"${reports_dir}/board-bdeps-warnings"
+echo 'Generating SDK profiles evaluation list'
 ROOT=/ "${THIS_DIR}/print_profile_tree.sh" -ni -nh >"${reports_dir}/sdk-profiles" 2>"${reports_dir}/sdk-profiles-warnings"
+echo 'Generating board profiles evaluation list'
 ROOT="/build/${arch}-usr" "${THIS_DIR}/print_profile_tree.sh" -ni -nh >"${reports_dir}/board-profiles" 2>"${reports_dir}/board-profiles-warnings"

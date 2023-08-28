@@ -100,6 +100,15 @@ listings_directory=$(realpath "${1}"); shift
 branch_name=${1}; shift
 reports_directory=$(realpath "${1}"); shift
 
+if [[ -e "${reports_directory}" ]]; then
+    if [[ -n "${force_reports_dir_remove}" ]]; then
+        rm -rf "${reports_directory}"
+    else
+        fail "reports directory at '${reports_directory}' already exists"
+    fi
+fi
+mkdir -p "${reports_directory}"
+
 setup_cleanups "${cleanup_setup_args[@]}"
 setup_workdir "${listings_directory}" "${work_directory}"
 

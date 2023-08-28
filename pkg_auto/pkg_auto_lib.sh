@@ -649,6 +649,7 @@ function generate_sdk_reports() {
                 ./run_sdk_container \
                 -C "${packages_image_name}" \
                 -n "pkg-${sdk_run_kind}-${arch}" \
+                -a "${arch}" \
                 --rm \
                 ./inside_sdk_container.sh "${arch}" pkg-reports
             sdk_reports_dir="${WORKDIR}/pkg-reports/${sdk_run_kind}-${arch}"
