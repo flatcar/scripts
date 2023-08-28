@@ -301,13 +301,18 @@ EOF
 #
 # local -x "${GIT_ENV_VARS[@]}"
 function setup_git_env() {
-    local role bot_name bot_email
+    local bot_name bot_email role what
 
     bot_name='Flatcar Buildbot'
     bot_email='buildbot@flatcar-linux.org'
     for role in AUTHOR COMMITTER; do
-        "GIT_${role}_NAME=${bot_name}"
-        "GIT_${role}_EMAIL=${bot_email}"
+        for what in name email; do
+            local -n var="GIT_${role}_${what^^}"
+            local -n value="bot_${what}"
+            var=${value}
+            unset -n value
+            unset -n var
+        done
     done
 }
 
