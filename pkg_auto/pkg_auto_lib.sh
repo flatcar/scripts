@@ -36,8 +36,8 @@ function setup_workdir() {
 
     declare -g WORKDIR
     WORKDIR=$(realpath "${workdir}")
-    mkdir -p "${WORKDIR}"
     add_cleanup "rmdir ${WORKDIR@Q}"
+    mkdir -p "${WORKDIR}"
 
     setup_initial_globals_file
     copy_listings "${listings_dir}"
@@ -149,8 +149,8 @@ function save_new_state() {
 # details
 
 function save_non_package_updates() {
-    printf '%s\n' "${@}" | sort >"${WORKDIR}/non-package-updates"
     add_cleanup "rm -f ${WORKDIR@Q}/non-package-updates"
+    printf '%s\n' "${@}" | sort >"${WORKDIR}/non-package-updates"
 }
 
 function load_non_package_updates() {
@@ -187,11 +187,13 @@ function save_rename_maps() {
         fi
     done
 
-    for item in "${!old_to_new_map_ref[@]}"; do
-        mapped=${old_to_new_map_ref["${item}"]}
-        printf '%s:%s' >"${WORKDIR}/rename-map"
-    done
     add_cleanup "rm -f ${WORKDIR@Q}/rename-map"
+    {
+        for item in "${!old_to_new_map_ref[@]}"; do
+            mapped=${old_to_new_map_ref["${item}"]}
+            printf '%s:%s\n'
+        done
+    } >"${WORKDIR}/rename-map"
 }
 
 function load_rename_maps() {
@@ -226,9 +228,6 @@ function setup_worktrees() {
     new_state_branch=${1}; shift
     new_state=${1}; shift
 
-    git -C "${scripts}" worktree add -b "${old_state_branch}" "${old_state}" "${scripts_base}"
-    git -C "${scripts}" worktree add -b "${new_state_branch}" "${new_state}" "${scripts_base}"
-
     add_cleanup \
         "git -C ${old_state@Q} reset --hard HEAD" \
         "git -C ${old_state@Q} clean -ffdx" \
@@ -238,10 +237,14 @@ function setup_worktrees() {
         "git -C ${scripts@Q} worktree remove ${new_state@Q}" \
         "git -C ${scripts@Q} branch -D ${old_state_branch@Q}" \
         "git -C ${scripts@Q} branch -D ${new_state_branch@Q}"
+
+    git -C "${scripts}" worktree add -b "${old_state_branch}" "${old_state}" "${scripts_base}"
+    git -C "${scripts}" worktree add -b "${new_state_branch}" "${new_state}" "${scripts_base}"
 }
 
 function setup_initial_globals_file() {
     local globals_file="${WORKDIR}/globals"
+    add_cleanup "rm -f ${globals_file@Q}"
     cat <<EOF >"${globals_file}"
 local GIT_ENV_VARS=(
     GIT_{AUTHOR,COMMITTER}_{NAME,EMAIL}
@@ -258,7 +261,6 @@ local -A LISTING_KINDS=(
     ['dev']='flatcar_developer_container_packages.txt'
 )
 EOF
-    add_cleanup "rm -f ${globals_file@Q}"
 }
 
 function extend_globals_file() {
@@ -517,8 +519,8 @@ function copy_listings() {
 
     source "${WORKDIR}/globals"
 
-    mkdir "${WORKDIR}/listings"
     add_cleanup "rmdir ${WORKDIR@Q}/listings"
+    mkdir "${WORKDIR}/listings"
     local arch kind listing_name source_listing target_listing
     for arch in "${ARCHES[@]}"; do
         for kind in "${!LISTING_KINDS[@]}"; do
@@ -526,8 +528,8 @@ function copy_listings() {
             source_listing="${listings_dir}/${arch}/${listing_name}"
             target_listing="${WORKDIR}/listings/${arch}-${kind}"
             if [[ -e "${source_listing}" ]]; then
-                cp -a "${source_listing}" "${target_listing}"
                 add_cleanup "rm -f ${target_listing@Q}"
+                cp -a "${source_listing}" "${target_listing}"
             else
                 fail "No listing for ${kind} on ${arch} available in ${listings_dir}"
             fi
@@ -627,17 +629,17 @@ function generate_sdk_reports() {
             state_branch_var_name="${sdk_run_kind^^}_STATE_BRANCH"
             sdk_run_state_branch="${!state_branch_var_name}-sdk-run-${arch}"
 
-            git -C "${SCRIPTS}" \
-                worktree add -b "${sdk_run_state_branch}" "${sdk_run_state}" "${!state_branch_var_name}"
             add_cleanup \
                 "git -C ${sdk_run_state@Q} reset --hard HEAD" \
                 "git -C ${sdk_run_state@Q} clean -ffdx" \
                 "git -C ${SCRIPTS@Q} worktree remove ${sdk_run_state@Q}" \
                 "git -C ${SCRIPTS@Q} branch -D ${sdk_run_state_branch@Q}"
+            git -C "${SCRIPTS}" \
+                worktree add -b "${sdk_run_state_branch}" "${sdk_run_state}" "${!state_branch_var_name}"
             for file in inside_sdk_container.sh stuff.sh print_profile_tree.sh; do
-                full_file="${THIS_DIR}/${file}"
-                cp -a "${full_file}" "${sdk_run_state}"
+                full_file="${sdk_run_state}/${file}"
                 add_cleanup "rm -f ${full_file@Q}"
+                cp -a "${THIS_DIR}/${file}" "${sdk_run_state}"
             done
             env --chdir "${sdk_run_state}" \
                 ./run_sdk_container \
@@ -646,13 +648,14 @@ function generate_sdk_reports() {
                 --rm \
                 ./inside_sdk_container.sh "${arch}" pkg-reports
             sdk_reports_dir="${WORKDIR}/pkg-reports/${sdk_run_kind}-${arch}"
-            add_cleanup "rmdir ${sdk_reports_dir@Q}"
             report_files=()
             for full_file in "${sdk_run_state}/pkg-reports/"*; do
                 file=${full_file##"${sdk_run_state}/pkg-reports/"}
                 report_files+=( "${sdk_reports_dir}/${file}" )
             done
-            add_cleanup "rm -f ${report_files[*]@Q}"
+            add_cleanup \
+                "rm -f ${report_files[*]@Q}" \
+                "rmdir ${sdk_reports_dir@Q}"
             mv "${sdk_run_state}/pkg-reports" "${sdk_reports_dir}"
         done
     done
