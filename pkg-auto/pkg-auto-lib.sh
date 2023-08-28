@@ -39,6 +39,7 @@ function setup_workdir() {
     mkdir -p "${WORKDIR}"
     add_cleanup "rmdir ${WORKDIR@Q}"
 
+    setup_initial_globals_file
     copy_listings "${listings_dir}"
 }
 
@@ -61,7 +62,7 @@ function setup_worktrees_in_workdir() {
     new_state="${WORKDIR}/new_state"
 
     setup_worktrees "${scripts}" "${scripts_base}" "old-state-${RANDOM}" "${old_state}" "new-state-${RANDOM}" "${new_state}"
-    setup_globals_file "${scripts}" "${gentoo}" "${old_state}" "${new_state}" "${reports_dir}"
+    extend_globals_file "${scripts}" "${gentoo}" "${old_state}" "${new_state}" "${reports_dir}"
 }
 
 function override_sdk_image_names() {
@@ -239,36 +240,9 @@ function setup_worktrees() {
         "git -C ${scripts@Q} branch -D ${new_state_branch@Q}"
 }
 
-function setup_globals_file() {
-    local scripts gentoo old_state new_state reports_dir
-    scripts=${1}; shift
-    gentoo=${1}; shift
-    old_state=${1}; shift
-    new_state=${1}; shift
-    reports_dir=${1}; shift
-
-    local old_state_branch new_state_branch
-    old_state_branch=$(git -c "${old_state}" rev-parse --abbrev-ref HEAD)
-    new_state_branch=$(git -c "${new_state}" rev-parse --abbrev-ref HEAD)
-
-    local portage_stable_suffix old_portage_stable new_portage_stable
-    portage_stable_suffix='sdk_container/src/third_party/portage-stable'
-    old_portage_stable="${old_state}/${portage_stable_suffix}"
-    new_portage_stable="${new_state}/${portage_stable_suffix}"
-
+function setup_initial_globals_file() {
     local globals_file="${WORKDIR}/globals"
     cat <<EOF >"${globals_file}"
-local SCRIPTS=${scripts@Q}
-local GENTOO=${gentoo@Q}
-local OLD_STATE=${old_state@Q}
-local NEW_STATE=${new_state@Q}
-local OLD_STATE_BRANCH=${old_state_branch@Q}
-local NEW_STATE_BRANCH=${new_state_branch@Q}
-local PORTAGE_STABLE_SUFFIX=${portage_stable_suffix@Q}
-local OLD_PORTAGE_STABLE=${old_portage_stable@Q}
-local NEW_PORTAGE_STABLE=${new_portage_stable@Q}
-local REPORTS_DIR=${reports_dir@Q}
-
 local GIT_ENV_VARS=(
     GIT_{AUTHOR,COMMITTER}_{NAME,EMAIL}
 )
@@ -285,6 +259,42 @@ LISTING_KINDS=(
 )
 EOF
     add_cleanup "rm -f ${globals_file@Q}"
+}
+
+function extend_globals_file() {
+    local scripts gentoo old_state new_state reports_dir
+    scripts=${1}; shift
+    gentoo=${1}; shift
+    old_state=${1}; shift
+    new_state=${1}; shift
+    reports_dir=${1}; shift
+
+    local globals_file="${WORKDIR}/globals"
+    if [[ ! -e "${globals_file}" ]]; then
+        fail 'an initial version of globals file should already exist'
+    fi
+
+    local old_state_branch new_state_branch
+    old_state_branch=$(git -c "${old_state}" rev-parse --abbrev-ref HEAD)
+    new_state_branch=$(git -c "${new_state}" rev-parse --abbrev-ref HEAD)
+
+    local portage_stable_suffix old_portage_stable new_portage_stable
+    portage_stable_suffix='sdk_container/src/third_party/portage-stable'
+    old_portage_stable="${old_state}/${portage_stable_suffix}"
+    new_portage_stable="${new_state}/${portage_stable_suffix}"
+
+    cat <<EOF >>"${globals_file}"
+local SCRIPTS=${scripts@Q}
+local GENTOO=${gentoo@Q}
+local OLD_STATE=${old_state@Q}
+local NEW_STATE=${new_state@Q}
+local OLD_STATE_BRANCH=${old_state_branch@Q}
+local NEW_STATE_BRANCH=${new_state_branch@Q}
+local PORTAGE_STABLE_SUFFIX=${portage_stable_suffix@Q}
+local OLD_PORTAGE_STABLE=${old_portage_stable@Q}
+local NEW_PORTAGE_STABLE=${new_portage_stable@Q}
+local REPORTS_DIR=${reports_dir@Q}
+EOF
 }
 
 # make sure to call the following beforehand:
