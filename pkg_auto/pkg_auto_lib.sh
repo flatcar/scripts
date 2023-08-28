@@ -604,7 +604,14 @@ function generate_sdk_reports() {
     last_nightly_version_id=$(source "${NEW_STATE}/sdk_container/.repo/manifests/version.txt"; printf '%s' "${FLATCAR_VERSION_ID}")
     last_nightly_build_id=$(source "${NEW_STATE}/sdk_container/.repo/manifests/version.txt"; printf '%s' "${FLATCAR_BUILD_ID}")
 
+    add_cleanup "rmdir ${WORKDIR@Q}/pkg-reports"
+    mkdir "${WORKDIR}/pkg-reports"
+
     local arch packages_image_var_name packages_image_name
+    local sdk_run_kind state_var_name sdk_run_state state_branch_var_name sdk_run_state_branch
+    local file full_file
+    local sdk_reports_dir
+    local -a report_files
     for arch in "${ARCHES[@]}"; do
         packages_image_var_name="${arch^^}_PACKAGES_IMAGE"
         local -n packages_image_ref="${packages_image_var_name}"
@@ -613,13 +620,7 @@ function generate_sdk_reports() {
         if ! docker images --format '{{.Repository}}:{{.Tag}}' | grep --quiet --line-regexp --fixed-strings "${packages_image_name}"; then
             fail "No SDK image named '${packages_image_name}' available locally, pull it before running this script"
         fi
-    done
 
-    mkdir "${WORKDIR}/pkg-reports"
-    add_cleanup "rm -rf ${WORKDIR@Q}/pkg-reports"
-
-    local sdk_run_kind state_var_name sdk_run_state state_branch_var_name sdk_run_state_branch file full_file
-    for arch in "${ARCHES[@]}"; do
         for sdk_run_kind in "${WHICH[@]}"; do
             state_var_name="${sdk_run_kind^^}_STATE"
             sdk_run_state="${!state_var_name}_sdk_run_${arch}"
@@ -638,8 +639,21 @@ function generate_sdk_reports() {
                 cp -a "${full_file}" "${sdk_run_state}"
                 add_cleanup "rm -f ${full_file@Q}"
             done
-            env --chdir "${sdk_run_state}" ./run_sdk_container -C "${packages_image_name}" -n "pkg-${sdk_run_kind}-${arch}" --rm ./inside-sdk-container.sh "${arch}" pkg-reports
-            mv "${sdk_run_state}/pkg-reports" "${WORKDIR}/pkg-reports/${sdk_run_kind}-${arch}"
+            env --chdir "${sdk_run_state}" \
+                ./run_sdk_container \
+                -C "${packages_image_name}" \
+                -n "pkg-${sdk_run_kind}-${arch}" \
+                --rm \
+                ./inside_sdk_container.sh "${arch}" pkg-reports
+            sdk_reports_dir="${WORKDIR}/pkg-reports/${sdk_run_kind}-${arch}"
+            add_cleanup "rmdir ${sdk_reports_dir@Q}"
+            report_files=()
+            for full_file in "${sdk_run_state}/pkg-reports/"*; do
+                file=${full_file##"${sdk_run_state}/pkg-reports/"}
+                report_files+=( "${sdk_reports_dir}/${file}" )
+            done
+            add_cleanup "rm -f ${report_files[*]@Q}"
+            mv "${sdk_run_state}/pkg-reports" "${sdk_reports_dir}"
         done
     done
     cp -a "${WORKDIR}/pkg-reports" "${REPORTS_DIR}/reports-from-sdk"
