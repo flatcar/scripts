@@ -253,7 +253,7 @@ local SDK_PKGS=sdk-pkgs
 local BOARD_PKGS=board-pkgs
 local REPORTS=( "\${SDK_PKGS}" "\${BOARD_PKGS}" )
 
-LISTING_KINDS=(
+local -A LISTING_KINDS=(
     ['prod']='flatcar_production_image_packages.txt'
     ['dev']='flatcar_developer_container_packages.txt'
 )
