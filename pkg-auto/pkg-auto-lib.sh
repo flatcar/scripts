@@ -514,14 +514,15 @@ function copy_listings() {
 
     mkdir "${WORKDIR}/listings"
     add_cleanup "rmdir ${WORKDIR@Q}/listings"
-    local arch kind listing_name listing
+    local arch kind listing_name source_listing target_listing
     for arch in "${ARCHES[@]}"; do
         for kind in "${!LISTING_KINDS[@]}"; do
             listing_name=${LISTING_KINDS["${kind}"]}
-            listing="${WORKDIR}/listings/${arch}-${kind}"
-            if [[ -e "${listings_dir}/${listing}" ]]; then
-                cp -a "${listings_dir}/${listing_name}" "${listing}"
-                add_cleanup "rm -f ${listing@Q}"
+            source_listing="${listings_dir}/${arch}/${listing_name}"
+            target_listing="${WORKDIR}/listings/${arch}-${kind}"
+            if [[ -e "${source_listing}" ]]; then
+                cp -a "${source_listing}" "${target_listing}"
+                add_cleanup "rm -f ${target_listing@Q}"
             else
                 fail "No listing for ${kind} on ${arch} available in ${listings_dir}"
             fi

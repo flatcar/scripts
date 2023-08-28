@@ -141,8 +141,12 @@ for arch in amd64 arm64; do
 
     for listing in flatcar_production_image_packages.txt flatcar_developer_container_packages.txt; do
         info "Downloading ${listing} for ${arch}"
-        add_cleanup "rm -f ${DOWNLOADS_DIR@Q}/${listing@Q}"
-        download "https://bincache.flatcar-linux.net/images/${arch}/${VERSION_ID}+${BUILD_ID}/${listing}" "${DOWNLOADS_DIR}/${listing}"
+        listing_dir="${DOWNLOADS_DIR}/${arch}"
+        listing_path="${listing_dir}/${listing}"
+        add_cleanup "rmdir ${listing_dir@Q}"
+        mkdir "${listing_dir}"
+        add_cleanup "rm -f ${listing_path@Q}"
+        download "https://bincache.flatcar-linux.net/images/${arch}/${VERSION_ID}+${BUILD_ID}/${listing}" "${listing_path}"
     done
 done
 info 'Done'
