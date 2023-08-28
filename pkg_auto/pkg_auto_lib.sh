@@ -332,7 +332,7 @@ function run_sync() {
 
     local packages_list sync_script new_head old_head
     packages_list="${NEW_STATE}/.github/workflows/portage-stable-packages-list"
-    sync_script="${THIS_DIR}/pkg-auto/sync_with_gentoo.sh"
+    sync_script="${THIS_DIR}/sync_with_gentoo.sh"
     new_head=$(git -C "${NEW_STATE}" rev-parse HEAD)
     local package line pkg_and_rest pkg
     local -A non_package_updates_set
@@ -395,13 +395,13 @@ function handle_missing_in_scripts() {
 
     # Remove missing in scripts entries from package automation
     local dir="${WORKDIR}/missing_in_scripts"
+    add_cleanup "rmdir ${dir@Q}"
     mkdir "${dir}"
     local missing_re
-    add_cleanup "rmdir ${dir@Q}"
     join_by missing_re '\|' "${missing_in_scripts_ref[@]}"
-    xgrep --invert-match --line-regexp --regexp="${missing_re}" "${packages_list}" >"${dir}/pkg-list"
-    add_cleanup "rmdir ${dir@Q}/pkg-list"
-    "${packages_list_sort}" "${dir}/pkg-list" >"${packages_list}"
+    add_cleanup "rm -f ${dir@Q}/pkg_list"
+    xgrep --invert-match --line-regexp --regexp="${missing_re}" "${packages_list}" >"${dir}/pkg_list"
+    "${packages_list_sort}" "${dir}/pkg_list" >"${packages_list}"
 
     local -x "${GIT_ENV_VARS[@]}"
     setup_git_env
@@ -460,7 +460,7 @@ function handle_missing_in_gentoo() {
     renamed_to=()
 
     local sync_script
-    sync_script="${THIS_DIR}/pkg-auto/sync_with_gentoo.sh"
+    sync_script="${THIS_DIR}/sync_with_gentoo.sh"
 
     local -x "${GIT_ENV_VARS[@]}"
     setup_git_env
@@ -497,15 +497,15 @@ function handle_missing_in_gentoo() {
     local renamed_re dir
     if [[ ${#renamed_from[@]} -gt 0 ]]; then
         dir="${WORKDIR}/missing_in_gentoo"
-        mkdir "${dir}"
         add_cleanup "rmdir ${dir@Q}"
+        mkdir "${dir}"
         join_by renamed_re '\|' "${renamed_from[@]}"
+        add_cleanup "rm -f ${dir@Q}/pkg_list"
         {
             xgrep --invert-match --line-regexp --regexp="${renamed_re}" "${packages_list}"
             printf '%s\n' "${renamed_to[@]}"
-        } >"${dir}/pkg-list"
-        add_cleanup "rmdir ${dir@Q}/pkg-list"
-        "${packages_list_sort}" "${dir}/pkg-list" >"${packages_list}"
+        } >"${dir}/pkg_list"
+        "${packages_list_sort}" "${dir}/pkg_list" >"${packages_list}"
         git -C "${NEW_STATE}" add "${packages_list}"
         git -C "${NEW_STATE}" commit -m '.github: Update package names in automation'
     fi
@@ -634,7 +634,7 @@ function generate_sdk_reports() {
                 "git -C ${SCRIPTS@Q} worktree remove ${sdk_run_state@Q}" \
                 "git -C ${SCRIPTS@Q} branch -D ${sdk_run_state_branch@Q}"
             for file in inside_sdk_container.sh stuff.sh print_profile_tree.sh; do
-                full_file="${THIS_DIR}/pkg-auto/${file}"
+                full_file="${THIS_DIR}/${file}"
                 cp -a "${full_file}" "${sdk_run_state}"
                 add_cleanup "rm -f ${full_file@Q}"
             done
