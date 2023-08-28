@@ -101,7 +101,7 @@ branch_name=${1}; shift
 reports_directory=$(realpath "${1}"); shift
 
 setup_cleanups "${cleanup_setup_args[@]}"
-setup_workdir"${listings_directory}" "${work_directory}"
+setup_workdir "${listings_directory}" "${work_directory}"
 
 if [[ ${cleanup_setup_args[0]} = 'ignore' ]]; then
     echo "Workdir: ${WORKDIR}"
