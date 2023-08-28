@@ -8,7 +8,7 @@ if [[ ${BASH_SOURCE[-1]##*/} = 'stuff.sh' ]]; then
     THIS_NAME=$(basename "${THIS}")
     THIS_DIR=.
 else
-    THIS=${BASH_SOURCE[-1]##*/}
+    THIS=${BASH_SOURCE[-1]}
     THIS_NAME=$(basename "${THIS}")
     THIS_DIR=$(dirname "${THIS}")
 fi
