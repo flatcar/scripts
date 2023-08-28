@@ -528,7 +528,6 @@ function copy_listings() {
             fi
         done
     done
-    cp -a "${WORKDIR}/listings" "${REPORTS_DIR}/listings"
 }
 
 function process_listings() {
