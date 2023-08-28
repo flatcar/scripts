@@ -345,7 +345,7 @@ function run_sync() {
     non_package_updates_set=()
     while read -r package; do
         old_head=${new_head}
-        if [[ ! -e "${package}" ]]; then
+        if [[ ! -e "${NEW_PORTAGE_STABLE}/${package}" ]]; then
             # If this happens, it means that the package was moved to overlay
             # or dropped, the list ought to be updated.
             missing_in_scripts_ref+=("${package}")
