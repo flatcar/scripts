@@ -275,8 +275,8 @@ function extend_globals_file() {
     fi
 
     local old_state_branch new_state_branch
-    old_state_branch=$(git -c "${old_state}" rev-parse --abbrev-ref HEAD)
-    new_state_branch=$(git -c "${new_state}" rev-parse --abbrev-ref HEAD)
+    old_state_branch=$(git -C "${old_state}" rev-parse --abbrev-ref HEAD)
+    new_state_branch=$(git -C "${new_state}" rev-parse --abbrev-ref HEAD)
 
     local portage_stable_suffix old_portage_stable new_portage_stable
     portage_stable_suffix='sdk_container/src/third_party/portage-stable'
