@@ -1055,7 +1055,7 @@ function consistency_checks() {
             if [[ -n "${verminmax1}" ]] && [[ -n "${verminmax2}" ]]; then
                 ver_min_max \
                     cc_min cc_max \
-                    "{verminmax1%%:*}" "${verminmax1##*:}" "{verminmax2%%:*}" "${verminmax2##*:}"
+                    "${verminmax1%%:*}" "${verminmax1##*:}" "${verminmax2%%:*}" "${verminmax2##*:}"
                 verminmax="${cc_min}:${cc_max}"
             elif [[ -n "${verminmax1}" ]]; then
                 verminmax="${verminmax1}"
