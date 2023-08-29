@@ -361,7 +361,7 @@ function run_sync() {
             missing_in_gentoo_ref+=("${package}")
             continue
         fi
-        env --chdir="${NEW_PORTAGE_STABLE}" GENTOO_REPO="${GENTOO}" "${sync_script}" "${package}"
+        env --chdir="${NEW_PORTAGE_STABLE}" "${sync_script}" "${GENTOO}" "${package}"
         new_head=$(git -C "${NEW_STATE}" rev-parse HEAD)
         if [[ "${old_head}" != "${new_head}" ]]; then
             while read -r line; do
@@ -493,7 +493,7 @@ function handle_missing_in_gentoo() {
             done
         fi
         git -C "${NEW_STATE}" commit "${new_name}: Renamed from ${missing}"
-        env --chdir="${NEW_PORTAGE_STABLE}" GENTOO_REPO="${GENTOO}" "${sync_script}" "${new_name}"
+        env --chdir="${NEW_PORTAGE_STABLE}" "${sync_script}" "${GENTOO}" "${new_name}"
         renamed_from+=("${missing}")
         renamed_to+=("${new_name}")
         renamed_new_to_old_map_ref["${new_name}"]="${missing}"
