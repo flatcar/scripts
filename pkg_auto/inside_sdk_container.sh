@@ -241,7 +241,7 @@ reports_dir=${1}; shift
 
 mkdir -p "${reports_dir}"
 
-set_output_vars "${reports_dir}"
+set_eo "${reports_dir}"
 
 echo 'Running pretend-emerge to get complete report for SDK'
 package_info_for_sdk >"${SDK_EO}" 2>"${SDK_EO}-warnings"
