@@ -597,7 +597,7 @@ function set_mvm_to_array_mvm_cb() {
         unset set_ref['prod']
     fi
     local -a sorted_items
-    mapfile -t sorted_items <(printf '%s\n' "${items_to_add[@]}" | sort)
+    mapfile -t sorted_items < <(printf '%s\n' "${items_to_add[@]}" | sort)
 
     mvm_add "${pkg_to_tags_mvm_var_name}" "${pkg}" "${prod_item[@]}" "${sorted_items}"
 }
