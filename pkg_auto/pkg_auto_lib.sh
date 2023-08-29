@@ -1417,7 +1417,7 @@ function tags_for_pkg() {
 
     local tfp_tags_var_name
 
-    mvm_get "${pkg_to_tags_mvm_var_name}" tfp_tags_var_name
+    mvm_get "${pkg_to_tags_mvm_var_name}" "${pkg}" tfp_tags_var_name
     if [[ -z ${tfp_tags_var_name} ]]; then
         tags_ref=()
     else
@@ -1475,8 +1475,8 @@ function generate_ebuild_diff() {
     new=${1}; shift
 
     local old_pkg_name new_pkg_name
-    old_pkg_name=${old_pkg#/}
-    new_pkg_name=${new_pkg#/}
+    old_pkg_name=${old_pkg#*/}
+    new_pkg_name=${new_pkg#*/}
 
     local old_path new_path
     old_path="${old_ps}/${old_pkg}/${old_pkg_name}-${old}.ebuild"
