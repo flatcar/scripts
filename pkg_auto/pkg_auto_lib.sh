@@ -1125,6 +1125,7 @@ function handle_package_changes() {
     local hpc_cmp_result
     local -A hpc_only_old_slots_set hpc_only_new_slots_set hpc_common_slots_set
     local -a lines
+    local hpc_update_dir
     while [[ ${pkg_idx} -lt ${#old_pkgs[@]} ]]; do
         old_name=${old_pkgs["${pkg_idx}"]}
         new_name=${new_pkgs["${pkg_idx}"]}
@@ -1156,6 +1157,8 @@ function handle_package_changes() {
                     "    - minmax: ${new_verminmax}"
                 continue
             fi
+            update_dir "${new_name}" "${s}" "${s}" hpc_update_dir
+            mkdir -p "${hpc_update_dir}"
             old_version=${old_verminmax%%:*}
             new_version=${new_verminmax##*:}
             gentoo_ver_cmp_out "${new_version}" "${old_version}" hpc_cmp_result
@@ -1187,6 +1190,8 @@ function handle_package_changes() {
                     "    - minmax: ${new_verminmax}"
                 continue
             fi
+            update_dir "${new_name}" "${hpc_old_s}" "${hpc_new_s}" hpc_update_dir
+            mkdir -p "${hpc_update_dir}"
             old_version=${old_verminmax%%:*}
             new_version=${new_verminmax##*:}
             gentoo_ver_cmp_out "${new_version}" "${old_version}" hpc_cmp_result
