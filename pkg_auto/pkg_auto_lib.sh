@@ -1105,7 +1105,7 @@ function read_package_sources() {
     local arch which report pkg repo saved_repo
     for arch in "${ARCHES[@]}"; do
         for which in "${WHICH[@]}"; do
-            for report in sdk-package-reports board-package-reports; do
+            for report in sdk-package-repos board-package-repos; do
                 while read -r pkg repo; do
                     saved_repo=${package_sources_map_ref["${pkg}"]:-}
                     if [[ -n ${saved_repo} ]]; then
