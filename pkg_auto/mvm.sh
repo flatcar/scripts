@@ -220,12 +220,12 @@ function mvm_unset() {
 }
 
 function mvm_c_unset() {
-    local counter name extras_name storage_name destructor mvm_mcu_mvc_name
+    local counter name extras_map_var_name storage_map_var_name destructor mvm_mcu_mvc_name
 
     counter=${mvm['counter']}
     name=${mvm['name']}
-    extras_name=${mvm['extras']}
-    storage_name=${mvm['storage']}
+    extras_map_var_name=${mvm['extras']}
+    storage_map_var_name=${mvm['storage']}
     destructor=${mvm['destructor']}
 
     while [[ ${counter} -gt 0 ]]; do
@@ -233,8 +233,8 @@ function mvm_c_unset() {
         __mvm_mvc_name "${name}" "${counter}" mvm_mcu_mvc_name
         "${destructor}" "${mvm_mcu_mvc_name}"
     done
-    unset "${storage_name}"
-    unset "${extras_name}"
+    unset "${storage_map_var_name}"
+    unset "${extras_map_var_name}"
     unset "${name}"
 }
 
@@ -293,7 +293,7 @@ function __mvm_c_make_new_mvc() {
     name=${mvm['name']}
     counter=${mvm['counter']}
     storage_map_var_name=${mvm['storage']}
-    local -n storage_map_ref="${storage_name}"
+    local -n storage_map_ref="${storage_map_var_name}"
 
     __mvm_mvc_name "${name}" "${counter}" "${mvc_name_var_name}"
 
