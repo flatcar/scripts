@@ -1149,6 +1149,7 @@ function handle_package_changes() {
     unset_report_mvms
 
     local -A hpc_package_sources_map
+    hpc_package_sources_map=()
     read_package_sources hpc_package_sources_map
 
     mkdir "${REPORTS_DIR}/updates"
