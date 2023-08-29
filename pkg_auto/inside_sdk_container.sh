@@ -55,7 +55,7 @@ function emerge_pretend() {
         --color n \
         --emptytree \
         --verbose \
-        "${package}"
+        "${package}" | grep '^\['
 }
 
 function package_info_for_sdk() {
