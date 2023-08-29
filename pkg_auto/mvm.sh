@@ -299,9 +299,10 @@ function __mvm_c_make_new_mvc() {
 
     local constructor
     constructor=${mvm['constructor']}
+
     "${constructor}" "${!mvc_name_var_name}"
     mvm['counter']=$((counter + 1))
-    storage_map_ref["${pkg}"]="${!mvc_name_var_name}"
+    storage_map_ref["${key}"]="${!mvc_name_var_name}"
 }
 
 function mvm_add() {

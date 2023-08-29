@@ -744,7 +744,7 @@ function pkginfo_c_process_file() {
         mvm_c_add "${pkg}" "${s}" "${v}"
         pkg_set_ref["${pkg}"]='x'
         mvm_add "${pkg_slots_set_mvm_var_name}" "${pkg}" "${s}"
-    done < <("${WORKDIR}/pkg-reports/${which}-${arch}/${report}")
+    done <"${WORKDIR}/pkg-reports/${which}-${arch}/${report}"
 }
 
 function pkginfo_profile() {
