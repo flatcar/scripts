@@ -998,7 +998,7 @@ function consistency_checks() {
     pkginfo_name "${which}" amd64 "${BOARD_PKGS}" cc_pimap_mvm_2_var_name
     mvm_declare cc_amd64_sdk_board_pkg_slot_verminmax_map_mvm mvm_mvc_map
     for pkg in "${all_pkgs_ref[@]}"; do
-        consistency_check_for_package "${pkg}" "${cc_p1_name}" "${cc_pimap_mvm_2_var_name}" cc_amd64_sdk_board_pkg_slot_verminmax_map_mvm "${pkg_slots_set_mvm_var_name}"
+        consistency_check_for_package "${pkg}" "${cc_pimap_mvm_1_var_name}" "${cc_pimap_mvm_2_var_name}" cc_amd64_sdk_board_pkg_slot_verminmax_map_mvm "${pkg_slots_set_mvm_var_name}"
     done
 
     # amd64 board <-> arm64 board
@@ -1006,7 +1006,7 @@ function consistency_checks() {
     pkginfo_name "${which}" arm64 "${BOARD_PKGS}" cc_pimap_mvm_2_var_name
     mvm_declare cc_amd64_arm64_board_pkg_slot_verminmax_map_mvm mvm_mvc_map
     for pkg in "${all_pkgs_ref[@]}"; do
-        consistency_check_for_package "${pkg}" "${cc_p1_name}" "${cc_pimap_mvm_2_var_name}" cc_amd64_arm64_board_pkg_slot_verminmax_map_mvm "${pkg_slots_set_mvm_var_name}"
+        consistency_check_for_package "${pkg}" "${cc_pimap_mvm_1_var_name}" "${cc_pimap_mvm_2_var_name}" cc_amd64_arm64_board_pkg_slot_verminmax_map_mvm "${pkg_slots_set_mvm_var_name}"
     done
 
     local cc_slot_verminmax1_map_var_name cc_slot_verminmax2_map_var_name
