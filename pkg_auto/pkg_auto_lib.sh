@@ -931,7 +931,6 @@ function consistency_check_for_package() {
     for s in "${!slots_set_ref[@]}"; do
         v1=${slot_version1_map["${s}"]:-}
         v2=${slot_version2_map["${s}"]:-}
-        mm
 
         if [[ -n ${v1} ]] && [[ -n ${v2} ]]; then
             common_slots+=( "${s}" )
