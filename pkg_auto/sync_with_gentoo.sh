@@ -1,45 +1,43 @@
 #!/bin/bash
 
-# Used for syncing with gentoo. Needs to be called from the
-# toplevel-directory of portage-stable. Expects the actual gentoo repo
-# to be either in ../gentoo or ../../gentoo.
-#
-# Example invocations:
-#
-# sync_with_gentoo --help
-#
-#   Print a help message.
-#
-# sync_with_gentoo dev-libs/nettle app-crypt/argon2
-#
-#   This will update the packages, each in a separate commit. The
-#   commit message will contain the commit hash from gentoo repo.
-#
-# sync_with_gentoo dev-libs
-#
-#   This will update all the packages in dev-libs category.
-#
+##
+## Used for syncing with gentoo. Needs to be called from the
+## toplevel-directory of portage-stable. Expects the actual gentoo repo
+## to be either in ../gentoo or ../../gentoo.
+##
+## Parameters:
+## -h: this help
+##
+## Positional:
+## 0: Gentoo repository
+## #: Entries to update (can be a package name, eclass, category, some special
+##    directories like profiles or . for everything)
+##
+## Example invocations:
+##
+## sync_with_gentoo -h
+##
+##   Print a help message.
+##
+## sync_with_gentoo dev-libs/nettle app-crypt/argon2
+##
+##   This will update the packages, each in a separate commit. The
+##   commit message will contain the commit hash from gentoo repo.
+##
+## sync_with_gentoo dev-libs
+##
+##   This will update all the packages in dev-libs category. The
+##   commit message will contain the commit hash from gentoo repo.
+##
 
 set -euo pipefail
 
-fail() {
-    printf '%s\n' "$*" >&2
-    exit 1
-}
-
-declare -a GLOBAL_obsolete_packages=()
-GLOBAL_gentoo_repo="${GENTOO_REPO:-../gentoo}"
+source "$(dirname "${BASH_SOURCE[0]}")/stuff.sh"
 
 while true; do
-    case "${1}" in
-        '--help'|'-h')
-            echo "${0} [OPTIONS] CATEGORY[/PACKAGE_NAME] [CATEGORY[/PACKAGE_NAME] […]]"
-            echo 'OPTIONS:'
-            echo '  --help|-h: Print this help and quit'
-            echo
-            echo 'ENVIRONMENT VARIABLES:'
-            echo '  GENTOO_REPO: Path to the Gentoo repo, from which the script syncs stuff.'
-            echo
+    case ${1} in
+        '-h')
+            print_help
             exit 0
             ;;
         *)
@@ -48,119 +46,159 @@ while true; do
     esac
 done
 
-if [[ $# -lt 1 ]]; then
-    fail 'expected at least one package, try --help or -h'
+if [[ $# -lt 2 ]]; then
+    fail 'expected at least two positional parameters: a Gentoo repository and at least one package'
 fi
 
 if [[ ! -e 'profiles/repo_name' ]]; then
     fail 'sync is only possible from ebuild packages top-level directory (a directory from which "./profiles/repo_name" is accessible)'
 fi
 
-if [[ ! -d "${GLOBAL_gentoo_repo}" ]]; then
-    gentoo_repo_tmp='../../gentoo'
-    if [[ ! -d "${gentoo_repo_tmp}" ]]; then
-        fail "can't find Gentoo repo (tried ${GLOBAL_gentoo_repo} and ${gentoo_repo_tmp}), try using GENTOO_REPO environment variable"
-    fi
-    GLOBAL_gentoo_repo="${gentoo_repo_tmp}"
-    unset -v gentoo_repo_tmp
-fi
+GENTOO=$(realpath ${1}); shift
+# rest are package names
 
-if [[ $(realpath '.') = $(realpath "${GLOBAL_gentoo_repo}") ]]; then
+if [[ $(realpath '.') = ${GENTOO} ]]; then
     fail 'trying to sync within a Gentoo repo?'
 fi
 
-echo "using Gentoo repo at ${GLOBAL_gentoo_repo}"
+# returns:
+# - 0 (true) if there are changes
+# - 1 (false) if there are no changes
+sync_git_prepare() {
+    local path_path
+    path=${1}; shift
 
-commit_and_show() {
-    if [[ -n "$(git status --porcelain | grep -v '^ ')" ]]; then
-        git commit --quiet "${@}"
-        GIT_PAGER=cat git show --stat
+    local gentoo_path
+    gentoo_path="${GENTOO}/${path}"
+
+    if [[ ! -e "${gentoo_path}" ]]; then
+        info "no '${path}' in Gentoo repository"
+        return 1
+    fi
+
+    rm -rf "${path}"
+    local parent
+    dirname_out "${path}" parent
+    parent=$(dirname "${path}")
+    mkdir --parents "${parent}"
+    cp --archive "${gentoo_path}" "${parent}"
+    if [[ -n $(git status --porcelain -- "${path}" | grep -v '^ ') ]]; then
+        git add "${path}"
         return 0
     fi
     return 1
 }
 
-sync_git_prepare() {
-    local path="${1}"
-    local sync=''
-    local gentoo_path="${GLOBAL_gentoo_repo}/${path}"
+commit_with_gentoo_sha() {
+    local path name sync
+    path=${1}; shift
+    name=${1}; shift
+    sync=${1:-}; shift
 
-    if [[ ! -e "${gentoo_path}" ]]; then
-        GLOBAL_obsolete_packages+=("${path}")
-        return 0
-    fi
-
-    if [[ -d "${path}" ]]; then
-        git rm -r --force --quiet "${path}"
-        sync='x'
-    elif [[ -e "${path}" ]]; then
-        git rm --force --quiet "${path}"
-        sync='x'
-    fi
-    local parent
-    parent=$(dirname ${path})
-    mkdir --parents "${parent}"
-    cp --archive "${gentoo_path}" "${parent}"
-    git add "${path}"
-    if [[ -n "${sync}" ]]; then
-        return 1
-    fi
-    return 0
-}
-
-maybe_commit_with_gentoo_sha() {
-    local path="${1}"
-    local name="${2}"
-    local sync="${3}"
-
-    local commit=''
-    local commit_msg=''
-    commit=$(git -C "${GLOBAL_gentoo_repo}" log --pretty=oneline -1 -- "${path}" | cut -f1 -d' ')
+    local commit commit_msg
+    commit=$(git -C "${GENTOO}" log --pretty=oneline -1 -- "${path}" | cut -f1 -d' ')
     commit_msg="${name}: Add from Gentoo"
     if [[ -n "${sync}" ]]; then
         commit_msg="${name}: Sync with Gentoo"
     fi
-    if ! commit_and_show \
-         --message "${commit_msg}" \
-         --message "It's from Gentoo commit ${commit}."; then
-        echo "no changes in ${path}"
-    fi
+    git commit --quiet --message "${commit_msg}" --message "It's from Gentoo commit ${commit}."
+    GIT_PAGER=cat git show --stat
 }
 
 path_sync() {
-    local path="${1}"
-    local name="${2}"
-    local sync=''
+    local path name
+    path=${1}; shift
+    name=${1}; shift
 
-    if ! sync_git_prepare "${path}"; then
+    local sync
+    sync=''
+    if [[ -e "${path}" ]]; then
         sync='x'
     fi
 
-    maybe_commit_with_gentoo_sha "${path}" "${name}" "${sync}"
+    if sync_git_prepare "${path}"; then
+        commit_with_gentoo_sha "${path}" "${name}" "${sync}"
+    else
+        info "no changes in ${path}"
+    fi
+}
+
+function prepare_dir() {
+    local dir
+    dir=${1}; shift
+
+    local pkg mod
+    for pkg in "${dir}/"*; do
+        if sync_git_prepare "${pkg}"; then
+            mod=x
+        fi
+    done
+    if [[ -n ${mod} ]]; then
+        return 0
+    fi
+    return 1
 }
 
 category_sync() {
-    local path="${1}"
-    local sync=''
+    local path
+    path=${1}; shift
 
     if [[ ! -e "${path}" ]]; then
-        sync_git_prepare "${path}" || :
+        if sync_git_prepare "${path}"; then
+            commit_with_gentoo_sha "${path}" "${path}"
+        fi
     else
-        local pkg=''
-        for pkg in "${path}"/*; do
-            sync_git_prepare "${pkg}" || :
-        done
-        sync='x'
+        if prepare_dir "${path}"; then
+            commit_with_gentoo_sha "${path}" "${path}" 'x'
+        fi
     fi
 
-    maybe_commit_with_gentoo_sha "${path}" "${path}" "${sync}"
 }
 
-for cpn; do
-    while [[ "${cpn}" != "${cpn%/}" ]]; do
-        cpn="${cpn%/}"
+everything_sync() {
+    local path mod
+
+    for path in *; do
+        case ${path} in
+            licenses|eclass|profiles)
+                if sync_git_prepare "${path}"; then
+                    mod=x
+                fi
+                ;;
+            scripts)
+                # ignore for now
+                :
+                ;;
+            metadata)
+                # do only metadata updates
+                if sync_git_prepare metadata/glsa; then
+                    mod=x
+                fi
+                ;;
+            virtual/*-*)
+                if prepare_dir "${path}"; then
+                    mod=x
+                fi
+                ;;
+            *)
+                # likely a changelog, README.md or somesuch, ignore
+                :
+                ;;
+        esac
     done
-    case "${cpn}" in
+    if [[ -n ${mod} ]]; then
+        commit_with_gentoo_sha '.' '*' 'x'
+    fi
+}
+
+shopt -s extglob
+
+for cpn; do
+    cpn=${cpn%%*(/)}
+    case ${cpn} in
+        .)
+            everything_sync
+            ;;
         licenses|eclass/tests|eclass|profiles|scripts)
             path_sync "${cpn}" "${cpn}"
             ;;
@@ -187,14 +225,3 @@ for cpn; do
             ;;
     esac
 done
-
-if [[ ${#GLOBAL_obsolete_packages[@]} -gt 0 ]]; then
-    echo
-    echo 'the following packages are obsolete (not found in gentoo repo):'
-    printf '  %s\n' "${GLOBAL_obsolete_packages[@]}"
-    echo
-fi
-
-echo
-echo 'done'
-echo

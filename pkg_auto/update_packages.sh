@@ -91,7 +91,7 @@ while [[ ${#} -gt 0 ]]; do
 done
 
 if [[ ${#} -ne 5 ]]; then
-    fail 'Expected five positional parameters: a scripts directory, a Gentoo directory, a listings directory, a result branch name and reports directory'
+    fail 'expected five positional parameters: a scripts directory, a Gentoo directory, a listings directory, a result branch name and reports directory'
 fi
 
 scripts=$(realpath "${1}"); shift
