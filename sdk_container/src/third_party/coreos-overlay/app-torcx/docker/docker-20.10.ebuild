@@ -13,7 +13,7 @@ KEYWORDS="amd64 arm64"
 RDEPEND="
 	~app-containers/docker-20.10.24
 	~app-containers/docker-cli-20.10.24
-	~app-containers/containerd-1.7.4
+	~app-containers/containerd-1.7.5
 	~app-containers/docker-proxy-0.8.0_p20230118
 	~app-containers/runc-1.1.9
 	~dev-libs/libltdl-2.4.7
