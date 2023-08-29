@@ -65,97 +65,97 @@ done
 unset all_repo_names
 
 function split_repo_and_profile {
-    local path srap_repo_dir_var_name srap_profile_name_var_name
+    local path repo_dir_var_name profile_name_var_name
     path="${1}"; shift
-    srap_repo_dir_var_name="${1}"; shift
-    local -n srap_repo_dir_var="${srap_repo_dir_var_name}"
-    srap_profile_name_var_name="${1}"; shift
-    local -n srap_profile_name_var="${srap_profile_name_var_name}"
+    repo_dir_var_name="${1}"; shift
+    local -n repo_dir_ref="${repo_dir_var_name}"
+    profile_name_var_name="${1}"; shift
+    local -n profile_name_ref="${profile_name_var_name}"
 
-    srap_repo_dir_var="${path%/profiles/*}"
-    srap_profile_name_var="${path#*/profiles/}"
+    repo_dir_ref="${path%/profiles/*}"
+    profile_name_ref="${path#*/profiles/}"
 }
 
 function repo_path_to_name {
-    local path rptn_name_var_name
+    local path name_var_name
     path="${1}"; shift
-    rptn_name_var_name="${1}"; shift
-    local -n rptn_name_var="${rptn_name_var_name}"
+    name_var_name="${1}"; shift
+    local -n name_ref="${name_var_name}"
 
-    rptn_name_var="${repo_data_r["${path}"]:-'<unknown>'}"
+    name_ref=${repo_data_r["${path}"]:-'<unknown>'}
 }
 
 function repeat_string {
-    local str ntimes rs_out_str_var_name
+    local str ntimes out_str_var_name
     str="${1}"; shift
     ntimes="${1}"; shift
-    rs_out_str_var_name="${1}"; shift
-    local -n rs_out_str_var="${rs_out_str_var_name}"
+    out_str_var_name="${1}"; shift
+    local -n out_str_ref="${out_str_var_name}"
 
     if [[ ${ntimes} -eq 0 ]]; then
-        rs_out_str_var=""
+        out_str_ref=""
         return 0
     elif [[ ${ntimes} -eq 1 ]]; then
-        rs_out_str_var="${str}"
+        out_str_ref="${str}"
         return 0
     fi
     local add_one
     add_one=$((ntimes % 2))
-    repeat_string "${str}${str}" $((ntimes / 2)) "${rs_out_str_var_name}"
+    repeat_string "${str}${str}" $((ntimes / 2)) "${out_str_var_name}"
     if [[ add_one -gt 0 ]]; then
-        rs_out_str_var+="${str}"
+        out_str_ref+="${str}"
     fi
 }
 
 function process_profile {
-    local repo_name profile_path pp_children_var_name
+    local repo_name profile_path children_var_name
     repo_name="${1}"; shift
     profile_path="${1}"; shift
-    pp_children_var_name="${1}"; shift
+    children_var_name="${1}"; shift
+    local -n children_ref="${children_var_name}"
 
-    local parent_file line new_repo_name new_profile_path new_repo_path new_profile_name
+    local parent_file line pp_new_repo_name new_profile_path pp_new_repo_path pp_new_profile_name
     local -a children
-    local -n pp_children_var="${pp_children_var_name}"
 
     parent_file="${profile_path}/parent"
-    pp_children=()
+    children=()
     if [[ -e "${parent_file}" ]]; then
         while read -r line; do
             if [[ "${line}" = *:* ]]; then
-                new_repo_name="${line%%:*}"
-                if [[ -z "${new_repo_name}" ]]; then
-                    new_repo_name=${repo_name}
+                pp_new_repo_name="${line%%:*}"
+                if [[ -z "${pp_new_repo_name}" ]]; then
+                    pp_new_repo_name=${repo_name}
                 fi
-                new_profile_path="${repo_data["${new_repo_name}"]}/profiles/${line#*:}"
-                pp_children+=( "${new_repo_name}" "${new_profile_path}" )
+                new_profile_path="${repo_data["${pp_new_repo_name}"]}/profiles/${line#*:}"
+                children+=( "${pp_new_repo_name}" "${new_profile_path}" )
             elif [[ "${line}" = /* ]]; then
-                new_repo_path=
-                new_profile_name=
-                split_repo_and_profile "${line}" new_repo_path new_profile_name
-                new_repo_name=
-                repo_path_to_name "${new_repo_path}" new_repo_name
-                pp_children+=( "${new_repo_name}" "${line}" )
+                pp_new_repo_path=
+                pp_new_profile_name=
+                split_repo_and_profile "${line}" pp_new_repo_path pp_new_profile_name
+                pp_new_repo_name=
+                repo_path_to_name "${pp_new_repo_path}" pp_new_repo_name
+                children+=( "${pp_new_repo_name}" "${line}" )
             else
-                pp_children+=( "${repo_name}" "$(realpath "${profile_path}/${line}")" )
+                children+=( "${repo_name}" "$(realpath "${profile_path}/${line}")" )
             fi
         done <"${parent_file}"
     fi
 
-    pp_children_var=( "${pp_children[@]}" )
+    children_ref=( "${children[@]}" )
 }
 
 function get_profile_name {
-    local repo_name profile_path gpn_profile_name_var_name
+    local repo_name profile_path profile_name_var_name
     repo_name="${1}"; shift
     profile_path="${1}"; shift
-    gpn_profile_name_var_name="${1}"; shift
-    local -n gpn_profile_name_var="${gpn_profile_name_var_name}"
+    profile_name_var_name="${1}"; shift
+    local -n profile_name_ref="${profile_name_var_name}"
 
-    local repo_path gpn_profile_name
+    local repo_path profile_name
     repo_path=${repo_data["${repo_name}"]}
-    gpn_profile_name=${profile_path#"${repo_path}/profiles/"}
+    profile_name=${profile_path#"${repo_path}/profiles/"}
 
-    gpn_profile_name_var="${gpn_profile_name}"
+    profile_name_ref="${profile_name}"
 }
 
 make_profile_path="${ROOT%/}/etc/portage/make.profile"
@@ -185,19 +185,19 @@ while [[ "${#}" -gt 2 ]]; do
         fi
         fork='+-'
     fi
-    profile_name=
-    get_profile_name "${repo_name}" "${profile_path}" profile_name
-    profile_tree+=( "${lines}${fork}${repo_name}:${profile_name}" )
-    profile_children=()
+    g_profile_name=
+    get_profile_name "${repo_name}" "${profile_path}" g_profile_name
+    profile_tree+=( "${lines}${fork}${repo_name}:${g_profile_name}" )
+    g_profile_children=()
 
-    process_profile "${repo_name}" "${profile_path}" profile_children
+    process_profile "${repo_name}" "${profile_path}" g_profile_children
 
     new_profiles=()
     new_indent=$((indent + 1))
     pc_idx=0
-    while [[ $((pc_idx + 1)) -lt "${#profile_children[@]}" ]]; do
-        new_repo_name=${profile_children["${pc_idx}"]}
-        new_profile_path=${profile_children[$((pc_idx + 1))]}
+    while [[ $((pc_idx + 1)) -lt "${#g_profile_children[@]}" ]]; do
+        new_repo_name=${g_profile_children["${pc_idx}"]}
+        new_profile_path=${g_profile_children[$((pc_idx + 1))]}
         new_profiles+=( "${new_indent}" "${new_repo_name}" "${new_profile_path}" )
         pc_idx=$((pc_idx + 2))
     done
@@ -230,28 +230,28 @@ while [[ "${#}" -gt 2 ]]; do
     num_parent_items=$((num_parents * 2))
     parents=( "${@:1:${num_parent_items}}" )
     shift "${num_parent_items}"
-    profile_children=()
+    g_profile_children=()
 
-    process_profile "${repo_name}" "${profile_path}" profile_children
+    process_profile "${repo_name}" "${profile_path}" g_profile_children
 
     new_args=()
-    if [[ "${#profile_children[@]}" -eq 0 ]]; then
+    if [[ "${#g_profile_children[@]}" -eq 0 ]]; then
         to_evaluate=( "${repo_name}" "${profile_path}" "${parents[@]}" )
         te_idx=0
         while [[ $((te_idx + 1)) -lt "${#to_evaluate[@]}" ]]; do
             new_repo_name=${to_evaluate["${te_idx}"]}
             new_profile_path=${to_evaluate[$((te_idx + 1))]}
-            new_profile_name=
-            get_profile_name "${new_repo_name}" "${new_profile_path}" new_profile_name
-            profile_eval+=( "${new_repo_name}:${new_profile_name}" )
+            g_new_profile_name=
+            get_profile_name "${new_repo_name}" "${new_profile_path}" g_new_profile_name
+            profile_eval+=( "${new_repo_name}:${g_new_profile_name}" )
             te_idx=$((te_idx + 2))
         done
     else
-        last_idx=$(( ${#profile_children[@]} - 2 ))
+        last_idx=$(( ${#g_profile_children[@]} - 2 ))
         pc_idx=0
-        while [[ $((pc_idx + 1)) -lt "${#profile_children[@]}" ]]; do
-            new_repo_name=${profile_children["${pc_idx}"]}
-            new_profile_path=${profile_children[$((pc_idx + 1))]}
+        while [[ $((pc_idx + 1)) -lt "${#g_profile_children[@]}" ]]; do
+            new_repo_name=${g_profile_children["${pc_idx}"]}
+            new_profile_path=${g_profile_children[$((pc_idx + 1))]}
             new_args+=( "${new_repo_name}" "${new_profile_path}" )
             if [[ pc_idx -eq last_idx ]]; then
                 new_args+=( $((num_parents + 1)) "${repo_name}" "${profile_path}" "${parents[@]}" )
