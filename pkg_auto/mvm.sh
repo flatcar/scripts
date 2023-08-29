@@ -121,18 +121,22 @@ function mvm_mvc_set_iteration_helper() {
 
 # mvm functions
 function mvm_declare() {
-    local mvm_var_name value_handler_prefix
+    local mvm_var_name
     mvm_var_name=${1}; shift
+
+    local value_handler_prefix
     value_handler_prefix=''
-    if [[ ${#} -gt 1 ]]; then
+    if [[ ${#} -gt 0 ]]; then
         if [[ ${1} != '--' ]]; then
             value_handler_prefix=${1}
             shift
         fi
-        if [[ ${#} -gt 1 ]] && [[ ${1} != '--' ]]; then
-            fail "missing double-dash separator between optional value handler prefix and extra key value pairs for '${mvm_var_name}'"
+        if [[ ${#} -gt 0 ]]; then
+            if [[ ${1} != '--' ]]; then
+                fail "missing double-dash separator between optional value handler prefix and extra key value pairs for '${mvm_var_name}'"
+            fi
+            shift
         fi
-        shift
     fi
     if [[ -z ${value_handler_prefix} ]]; then
         value_handler_prefix=mvm_mvc_array
