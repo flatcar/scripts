@@ -563,7 +563,7 @@ function process_listings() {
     local eclass ver_ere pkg_ere
     eclass="${THIS_DIR}/../${PORTAGE_STABLE_SUFFIX}/eclass/eapi7-ver.eclass"
     # line is like '   re="<regexp>"'
-    ver_ere=$(grep -e 're=' "${eclass}")
+    ver_ere=$(grep -e 're=' "${eclass}" || fail "no 're=' line found in eapi7-ver.eclass")
     if [[ -z ${ver_ere} ]]; then
         fail 'empty version regex from eapi7-ver.eclass'
     fi
@@ -1649,7 +1649,7 @@ function grep_pkg() {
     pkg=${1}; shift
     # rest are directories
 
-    git -C "${scripts}" grep "${pkg}"'\(-[0-9]\|[^a-bA-Z0-9-]\|$\)' -- "${@}"
+    git -C "${scripts}" grep "${pkg}"'\(-[0-9]\|[^a-bA-Z0-9-]\|$\)' -- "${@}" || :
 }
 
 function cat_entries() {
