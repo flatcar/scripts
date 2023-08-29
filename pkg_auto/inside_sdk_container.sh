@@ -12,6 +12,10 @@
 ## board-bdeps - contains package information with key values (USE, PYTHON_TARGET) of board build dependencies
 ## sdk-profiles - contains a list of profiles used by the SDK, in evaluation order
 ## board-profiles - contains a list of profiles used by the board for the chosen architecture, in evaluation order
+## sdk-package-repos - contains package information with their repos for SDK
+## board-package-repos - contains package information with their repos for board
+## sdk-emerge-output - contains raw emerge output for SDK being a base for other reports
+## board-emerge-output - contains raw emerge output for board being a base for other reports
 ## *-warnings - warnings printed by emerge or other tools
 ##
 ## Parameters:
@@ -52,6 +56,45 @@ function emerge_pretend() {
         --emptytree \
         --verbose \
         "${package}"
+}
+
+function package_info_for_sdk() {
+    emerge_pretend / coreos-devel/sdk-depends
+}
+
+function package_info_for_board() {
+    local arch
+    arch=${1}; shift
+
+    # Replace ${arch}-usr in the output with a generic word BOARD.
+    emerge_pretend "/build/${arch}-usr" coreos-devel/board-packages | \
+        sed -e "s#/build/${arch}-usr/#/build/BOARD/#"
+}
+
+# eo - emerge output
+
+function set_eo() {
+    local dir=${1}; shift
+
+    SDK_EO="${dir}/sdk-emerge-output"
+    BOARD_EO="${dir}/board-emerge-output"
+}
+
+function cat_eo() {
+    local kind=${1}; shift
+
+    local var_name
+    var_name="${kind^^}_EO"
+    local -n ref="${var_name}"
+
+    if [[ -z "${ref+isset}" ]]; then
+        fail "${var_name} unset"
+    fi
+    if [[ ! -s "${ref}" ]]; then
+        fail "${ref} does not exists or it's empty"
+    fi
+
+    cat "${ref}"
 }
 
 #      status      package name       version slot repo                 keyvals          size
@@ -108,21 +151,35 @@ PKG_VER_SLOT_KV_SED_FILTERS=(
     "${SLOT_INFO_SED_FILTERS[@]}"
 )
 
-function collect_package_info_emerge() {
-    local root package
-    root=${1}; shift
-    package=${1}; shift
+PKG_REPO_SED_FILTERS=(
+    # from line like:
+    #
+    # [ebuild   R   ~] virtual/rust        [1.71.1:0/llvm-16::coreos]    USE="-rustfmt" 0 KiB
+    #
+    # extract package name and repo, the result would be:
+    #
+    # virtual/rust coreos
+    -e "s/^${STATUS_RE}${SPACES_RE}\(${PACKAGE_NAME_RE}\)${SPACES_RE}${VER_SLOT_REPO_RE}${SPACES_RE}.*/\1 \3/"
+)
+
+function sed_eo_and_sort() {
+    local kind
+    kind=${1}; shift
     # rest goes to sed
 
-    emerge_pretend "${root}" "${package}" | sed "${@}" | sort 2>/dev/null
+    cat_eo "${kind}" | sed "${@}" | sort
+}
+
+function packages_for_sdk() {
+    # args are passed to sed_eo_and_sort
+
+    sed_eo_and_sort sdk "${@}"
 }
 
 function packages_for_board() {
-    local arch
-    arch=${1}; shift
-    # rest is passed to collect_package_info_emerge
+    # args are passed to sed_eo_and_sort
 
-    collect_package_info_emerge "/build/${arch}-usr" coreos-devel/board-packages "${@}"
+    sed_eo_and_sort board "${@}"
 }
 
 function versions_sdk() {
@@ -131,7 +188,7 @@ function versions_sdk() {
         "${PKG_LINES_SED_FILTERS[@]}"
         "${PKG_VER_SLOT_SED_FILTERS[@]}"
     )
-    collect_package_info_emerge / coreos-devel/sdk-depends "${sed_opts[@]}"
+    packages_for_sdk "${sed_opts[@]}"
 }
 
 function versions_sdk_with_key_values() {
@@ -140,33 +197,43 @@ function versions_sdk_with_key_values() {
         "${PKG_LINES_SED_FILTERS[@]}"
         "${PKG_VER_SLOT_KV_SED_FILTERS[@]}"
     )
-    collect_package_info_emerge / coreos-devel/sdk-depends "${sed_opts[@]}"
+    packages_for_sdk "${sed_opts[@]}"
 }
 
 function versions_board() {
-    local arch
-    arch=${1}; shift
-
     local -a sed_opts
     sed_opts=(
-        "${PKG_LINES_SED_FILTERS[@]}" \
-        -e "/to \/build\/${arch}-usr\// ! d"
+        "${PKG_LINES_SED_FILTERS[@]}"
+        -e '/to \/build\/BOARD\// ! d'
         "${PKG_VER_SLOT_SED_FILTERS[@]}"
     )
-    packages_for_board "${arch}" "${sed_opts[@]}"
+    packages_for_board "${sed_opts[@]}"
 }
 
 function board_bdeps() {
-    local arch
-    arch=${1}; shift
-
     local -a sed_opts
     sed_opts=(
-        "${PKG_LINES_SED_FILTERS[@]}" \
-        -e "/to \/build\/${arch}-usr\// d"
+        "${PKG_LINES_SED_FILTERS[@]}"
+        -e '/to \/build\/BOARD\// d'
         "${PKG_VER_SLOT_KV_SED_FILTERS[@]}"
     )
-    packages_for_board "${arch}" "${sed_opts[@]}"
+    packages_for_board "${sed_opts[@]}"
+}
+
+function package_sources_sdk() {
+    local -a sed_opts
+    sed_opts=(
+        "${PKG_REPO_SED_FILTERS[@]}"
+    )
+    packages_for_sdk "${sed_opts[@]}"
+}
+
+function package_sources_board() {
+    local -a sed_opts
+    sed_opts=(
+        "${PKG_REPO_SED_FILTERS[@]}"
+    )
+    packages_for_board "${sed_opts[@]}"
 }
 
 arch=${1}; shift
@@ -174,15 +241,26 @@ reports_dir=${1}; shift
 
 mkdir -p "${reports_dir}"
 
+set_output_vars "${reports_dir}"
+
+echo 'Running pretend-emerge to get complete report for SDK'
+package_info_for_sdk >"${SDK_EO}" 2>"${SDK_EO}-warnings"
+echo 'Running pretend-emerge to get complete report for board'
+package_info_for_board "${arch}" >"${BOARD_EO}" 2>"${BOARD_EO}-warnings"
+
 echo 'Generating SDK packages listing'
 versions_sdk >"${reports_dir}/sdk-pkgs" 2>"${reports_dir}/sdk-pkgs-warnings"
 echo 'Generating SDK packages listing with key-values (USE, SINGLE_PYTHON, etc)'
 versions_sdk_with_key_values >"${reports_dir}/sdk-pkgs-kv" 2>"${reports_dir}/sdk-pkgs-kv-warnings"
 echo 'Generating board packages listing'
-versions_board "${arch}" >"${reports_dir}/board-pkgs" 2>"${reports_dir}/board-pkgs-warnings"
+versions_board >"${reports_dir}/board-pkgs" 2>"${reports_dir}/board-pkgs-warnings"
 echo 'Generating board packages bdeps listing'
-board_bdeps "${arch}" >"${reports_dir}/board-bdeps" 2>"${reports_dir}/board-bdeps-warnings"
+board_bdeps >"${reports_dir}/board-bdeps" 2>"${reports_dir}/board-bdeps-warnings"
 echo 'Generating SDK profiles evaluation list'
 ROOT=/ "${THIS_DIR}/print_profile_tree.sh" -ni -nh >"${reports_dir}/sdk-profiles" 2>"${reports_dir}/sdk-profiles-warnings"
 echo 'Generating board profiles evaluation list'
 ROOT="/build/${arch}-usr" "${THIS_DIR}/print_profile_tree.sh" -ni -nh >"${reports_dir}/board-profiles" 2>"${reports_dir}/board-profiles-warnings"
+echo 'Generating SDK package source information'
+package_sources_sdk >"${reports_dir}/sdk-package-repos" 2>"${reports_dir}/sdk-package-repos-warnings"
+echo 'Generating board package source information'
+package_sources_board >"${reports_dir}/board-package-repos" 2>"${reports_dir}/board-package-repos-warnings"

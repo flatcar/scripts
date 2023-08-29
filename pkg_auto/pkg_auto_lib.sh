@@ -735,14 +735,14 @@ function pkginfo_adder() {
 
 function pkginfo_declare() {
     local which arch report pi_name_var_name
-    local -a extras
-
     which=${1}; shift
     arch=${1}; shift
     report=${1}; shift
     pi_name_var_name=${1}; shift
 
     pkginfo_name "${which}" "${arch}" "${report}" "${pi_name_var_name}"
+
+    local -a extras
     extras=(
         'which' "${which}"
         'arch' "${arch}"
@@ -750,6 +750,18 @@ function pkginfo_declare() {
     )
 
     mvm_declare "${!pi_name_var_name}" pkginfo -- "${extras[@]}"
+}
+
+function pkginfo_unset() {
+    local which arch report
+    which=${1}; shift
+    arch=${1}; shift
+    report=${1}; shift
+
+    local piu_pi_name
+    pkginfo_name "${which}" "${arch}" "${report}" piu_pi_name
+
+    mvm_unset "${piu_pi_name}"
 }
 
 function pkginfo_process_file() {
@@ -813,6 +825,19 @@ function read_reports() {
     done
     local -n all_pkgs_ref="${all_pkgs_var_name}"
     all_pkgs_ref=( "${!all_packages_set[@]}" )
+}
+
+function unset_report_mvms() {
+    source "${WORKDIR}/globals"
+
+    local arch which report
+    for arch in "${ARCHES[@]}"; do
+        for which in "${WHICH[@]}"; do
+            for report in "${REPORTS[@]}"; do
+                pkginfo_unset "${which}" "${arch}" "${report}"
+            done
+        done
+    done
 }
 
 ###
@@ -1072,6 +1097,35 @@ function consistency_checks() {
     mvm_unset cc_amd64_sdk_board_pkg_slot_verminmax_map_mvm
 }
 
+function read_package_sources() {
+    local package_sources_map_var_name
+    package_sources_map_var_name=${1}; shift
+    local -n package_sources_map_ref="${package_sources_map_var_name}"
+
+    local arch which report pkg repo saved_repo
+    for arch in "${ARCHES[@]}"; do
+        for which in "${WHICH[@]}"; do
+            for report in sdk-package-reports board-package-reports; do
+                while read -r pkg repo; do
+                    saved_repo=${package_sources_map_ref["${pkg}"]:-}
+                    if [[ -n ${saved_repo} ]]; then
+                        if [[ ${saved_repo} != ${repo} ]]; then
+                            pkg_warn \
+                                '- different repos used for the package:' \
+                                "  - package: ${pkg}" \
+                                '  - repos:' \
+                                "    - ${saved_repo}" \
+                                "    - ${repo}"
+                        fi
+                    else
+                        package_sources_map_ref["${pkg}"]=${repo}
+                    fi
+                done <"${WORKDIR}/pkg-reports/${which}-${arch}/${report}"
+            done
+        done
+    done
+}
+
 function handle_package_changes() {
     local renamed_old_to_new_map_var_name renamed_new_to_old_map_var_name pkg_to_tags_mvm_var_name
     renamed_old_to_new_map_var_name=${1}; shift
@@ -1091,6 +1145,11 @@ function handle_package_changes() {
     mvm_declare hpc_new_pkg_slot_verminmax_map_mvm mvm_mvc_map
     consistency_checks old hpc_all_pkgs hpc_pkg_slots_set_mvm hpc_old_pkg_slot_verminmax_map_mvm
     consistency_checks new hpc_all_pkgs hpc_pkg_slots_set_mvm hpc_new_pkg_slot_verminmax_map_mvm
+
+    unset_report_mvms
+
+    local -A hpc_package_sources_map
+    read_package_sources hpc_package_sources_map
 
     mkdir "${REPORTS_DIR}/updates"
 
@@ -1116,7 +1175,7 @@ function handle_package_changes() {
     local pkg_idx
     pkg_idx=0
 
-    local old_name new_name
+    local old_name new_name old_repo new_repo
     local hpc_old_slots_set_var_name hpc_new_slots_set_var_name
     local hpc_old_slot_verminmax_map_var_name hpc_new_slot_verminmax_map_var_name
     local s hpc_old_s hpc_new_s
@@ -1129,6 +1188,21 @@ function handle_package_changes() {
     while [[ ${pkg_idx} -lt ${#old_pkgs[@]} ]]; do
         old_name=${old_pkgs["${pkg_idx}"]}
         new_name=${new_pkgs["${pkg_idx}"]}
+        pkg_idx=$((pkg_idx + 1))
+        old_repo=${hpc_package_sources_map["${old_name}"]}
+        new_repo=${hpc_package_sources_map["${new_name}"]}
+        if [[ ${old_repo} != ${new_repo} ]]; then
+            pkg_warn \
+                '- package has moved between repos? unsupported for now' \
+                "  - old package and repo: ${old_name} ${old_repo}" \
+                "  - new package and repo: ${new_name} ${new_repo}"
+            continue
+        fi
+        if [[ ${new_repo} != 'portage-stable' ]]; then
+            # coreos-overlay packages will need a separate handling
+            continue
+        fi
+
         mvm_get hpc_pkg_slots_set_mvm "${old_name}" hpc_old_slots_set_var_name
         mvm_get hpc_pkg_slots_set_mvm "${new_name}" hpc_new_slots_set_var_name
         local -n hpc_old_slots_set_ref="${hpc_old_slots_set_var_name}"
