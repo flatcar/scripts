@@ -65,11 +65,11 @@ done
 unset all_repo_names
 
 function split_repo_and_profile {
-    local path="${1}"; shift
-    local srap_repo_dir_var_name="${1}"; shift
-    local srap_profile_name_var_name="${1}"; shift
-
+    local path srap_repo_dir_var_name srap_profile_name_var_name
+    path="${1}"; shift
+    srap_repo_dir_var_name="${1}"; shift
     local -n srap_repo_dir_var="${srap_repo_dir_var_name}"
+    srap_profile_name_var_name="${1}"; shift
     local -n srap_profile_name_var="${srap_profile_name_var_name}"
 
     srap_repo_dir_var="${path%/profiles/*}"
@@ -77,19 +77,19 @@ function split_repo_and_profile {
 }
 
 function repo_path_to_name {
-    local path="${1}"; shift
-    local rptn_name_var_name="${1}"; shift
-
+    local path rptn_name_var_name
+    path="${1}"; shift
+    rptn_name_var_name="${1}"; shift
     local -n rptn_name_var="${rptn_name_var_name}"
 
     rptn_name_var="${repo_data_r["${path}"]:-'<unknown>'}"
 }
 
 function repeat_string {
-    local str="${1}"; shift
-    local ntimes="${1}"; shift
-    local rs_out_str_var_name="${1}"; shift
-
+    local str ntimes rs_out_str_var_name
+    str="${1}"; shift
+    ntimes="${1}"; shift
+    rs_out_str_var_name="${1}"; shift
     local -n rs_out_str_var="${rs_out_str_var_name}"
 
     if [[ ${ntimes} -eq 0 ]]; then
@@ -99,7 +99,8 @@ function repeat_string {
         rs_out_str_var="${str}"
         return 0
     fi
-    local add_one=$((ntimes % 2))
+    local add_one
+    add_one=$((ntimes % 2))
     repeat_string "${str}${str}" $((ntimes / 2)) "${rs_out_str_var_name}"
     if [[ add_one -gt 0 ]]; then
         rs_out_str_var+="${str}"
@@ -107,9 +108,11 @@ function repeat_string {
 }
 
 function process_profile {
-    local repo_name="${1}"; shift
-    local profile_path="${1}"; shift
-    local pp_children_var_name="${1}"; shift
+    local repo_name profile_path pp_children_var_name
+    repo_name="${1}"; shift
+    profile_path="${1}"; shift
+    pp_children_var_name="${1}"; shift
+
     local parent_file line new_repo_name new_profile_path new_repo_path new_profile_name
     local -a children
     local -n pp_children_var="${pp_children_var_name}"
@@ -142,13 +145,13 @@ function process_profile {
 }
 
 function get_profile_name {
-    local repo_name="${1}"; shift
-    local profile_path="${1}"; shift
-    local gpn_profile_name_var_name="${1}"; shift
-
-    local repo_path gpn_profile_name
+    local repo_name profile_path gpn_profile_name_var_name
+    repo_name="${1}"; shift
+    profile_path="${1}"; shift
+    gpn_profile_name_var_name="${1}"; shift
     local -n gpn_profile_name_var="${gpn_profile_name_var_name}"
 
+    local repo_path gpn_profile_name
     repo_path=${repo_data["${repo_name}"]}
     gpn_profile_name=${profile_path#"${repo_path}/profiles/"}
 

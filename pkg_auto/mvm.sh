@@ -69,7 +69,7 @@ function mvm_mvc_map_destructor() {
 function mvm_mvc_map_adder() {
     local map_var_name
     map_var_name=${1}; shift
-    local -n map_ref="${1}"
+    local -n map_ref="${map_var_name}"
 
     while [[ ${#} -gt 1 ]]; do
         map_ref["${1}"]=${2}

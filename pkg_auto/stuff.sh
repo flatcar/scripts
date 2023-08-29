@@ -116,7 +116,8 @@ function add_cleanup {
     if [[ -z "${_cleanup_kind}" ]]; then
         _cleanup_kind='trap'
     fi
-    local add_func="_${_cleanup_kind}_add_cleanup"
+    local add_func
+    add_func="_${_cleanup_kind}_add_cleanup"
 
     "${add_func}" "${@}"
 }

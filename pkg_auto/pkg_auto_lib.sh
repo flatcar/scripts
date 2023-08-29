@@ -30,8 +30,8 @@ shopt -s nullglob
 # 2 - predefined work directory path (optional)
 function setup_workdir() {
     local listings_dir workdir
-    local listings_dir=${1}; shift
-    local workdir=${1:-}
+    listings_dir=${1}; shift
+    workdir=${1:-}
     if [[ -z "${workdir}" ]]; then
         workdir=$(mktemp --tmpdir --directory "up-XXXXXXXX")
     fi
@@ -72,7 +72,8 @@ function override_sdk_image_names() {
     overrides_map_var_name=${1}; shift
     local -n overrides_map_ref="${overrides_map_var_name}"
 
-    local globals_file="${WORKDIR}/globals"
+    local globals_file
+    globals_file="${WORKDIR}/globals"
     if [[ ! -e "${globals_file}" ]]; then
         fail "globals not set yet in workdir"
     fi
@@ -249,20 +250,25 @@ function setup_worktrees() {
 }
 
 function setup_initial_globals_file() {
-    local globals_file="${WORKDIR}/globals"
+    local globals_file
+    globals_file="${WORKDIR}/globals"
     add_cleanup "rm -f ${globals_file@Q}"
     cat <<EOF >"${globals_file}"
-local GIT_ENV_VARS=(
+local -a GIT_ENV_VARS ARCHES WHICH REPORTS
+local -A LISTING_KINDS
+local SDK_PKGS BOARD_PKGS
+
+GIT_ENV_VARS=(
     GIT_{AUTHOR,COMMITTER}_{NAME,EMAIL}
 )
 
-local ARCHES=(amd64 arm64)
-local WHICH=(old new)
-local SDK_PKGS=sdk-pkgs
-local BOARD_PKGS=board-pkgs
-local REPORTS=( "\${SDK_PKGS}" "\${BOARD_PKGS}" )
+ARCHES=(amd64 arm64)
+WHICH=(old new)
+SDK_PKGS=sdk-pkgs
+BOARD_PKGS=board-pkgs
+REPORTS=( "\${SDK_PKGS}" "\${BOARD_PKGS}" )
 
-local -A LISTING_KINDS=(
+LISTING_KINDS=(
     ['prod']='flatcar_production_image_packages.txt'
     ['dev']='flatcar_developer_container_packages.txt'
 )
@@ -277,7 +283,8 @@ function extend_globals_file() {
     new_state=${1}; shift
     reports_dir=${1}; shift
 
-    local globals_file="${WORKDIR}/globals"
+    local globals_file
+    globals_file="${WORKDIR}/globals"
     if [[ ! -e "${globals_file}" ]]; then
         fail 'an initial version of globals file should already exist'
     fi
@@ -292,16 +299,19 @@ function extend_globals_file() {
     new_portage_stable="${new_state}/${portage_stable_suffix}"
 
     cat <<EOF >>"${globals_file}"
-local SCRIPTS=${scripts@Q}
-local GENTOO=${gentoo@Q}
-local OLD_STATE=${old_state@Q}
-local NEW_STATE=${new_state@Q}
-local OLD_STATE_BRANCH=${old_state_branch@Q}
-local NEW_STATE_BRANCH=${new_state_branch@Q}
-local PORTAGE_STABLE_SUFFIX=${portage_stable_suffix@Q}
-local OLD_PORTAGE_STABLE=${old_portage_stable@Q}
-local NEW_PORTAGE_STABLE=${new_portage_stable@Q}
-local REPORTS_DIR=${reports_dir@Q}
+local SCRIPTS GENTOO OLD_STATE NEW_STATE OLD_STATE_BRANCH NEW_STATE_BRANCH
+local PORTAGE_STABLE_SUFFIX OLD_PORTAGE_STABLE NEW_PORTAGE_STABLE REPORTS_DIR
+
+SCRIPTS=${scripts@Q}
+GENTOO=${gentoo@Q}
+OLD_STATE=${old_state@Q}
+NEW_STATE=${new_state@Q}
+OLD_STATE_BRANCH=${old_state_branch@Q}
+NEW_STATE_BRANCH=${new_state_branch@Q}
+PORTAGE_STABLE_SUFFIX=${portage_stable_suffix@Q}
+OLD_PORTAGE_STABLE=${old_portage_stable@Q}
+NEW_PORTAGE_STABLE=${new_portage_stable@Q}
+REPORTS_DIR=${reports_dir@Q}
 EOF
 }
 
@@ -402,7 +412,8 @@ function handle_missing_in_scripts() {
     packages_list="${NEW_STATE}/.github/workflows/portage-stable-packages-list"
 
     # Remove missing in scripts entries from package automation
-    local dir="${WORKDIR}/missing_in_scripts"
+    local dir
+    dir="${WORKDIR}/missing_in_scripts"
     add_cleanup "rmdir ${dir@Q}"
     mkdir "${dir}"
     local missing_re
@@ -707,8 +718,11 @@ function pkginfo_destructor() {
 }
 
 function pkginfo_adder() {
+    local map_var_name
+    map_var_name=${1}; shift
+    local -n map_ref="${map_var_name}"
+
     local mark
-    local -n map_ref="${1}"; shift
     while [[ ${#} -gt 1 ]]; do
         mark=${map_ref["${1}"]:-}
         if [[ -n "${mark}" ]]; then
@@ -1710,7 +1724,8 @@ function handle_licenses() {
                 "  - ${line}"
         fi
     done < <(xdiff --brief --recursive "${OLD_PORTAGE_STABLE}/licenses" "${NEW_PORTAGE_STABLE}/licenses")
-    local out_dir="${REPORTS_DIR}/updates/licenses"
+    local out_dir
+    out_dir="${REPORTS_DIR}/updates/licenses"
     mkdir -p "${out_dir}"
     lines_to_file_truncate \
         "${out_dir}/brief-diff" \
@@ -1730,7 +1745,8 @@ function handle_licenses() {
 function handle_scripts() {
     source "${WORKDIR}/globals"
 
-    local out_dir="${REPORTS_DIR}/updates/scripts"
+    local out_dir
+    out_dir="${REPORTS_DIR}/updates/scripts"
     mkdir -p "${out_dir}"
     xdiff --unified --recursive "${OLD_PORTAGE_STABLE}/scripts" "${NEW_PORTAGE_STABLE}/scripts" >"${out_dir}"
 }
