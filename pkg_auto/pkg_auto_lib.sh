@@ -19,6 +19,8 @@ source "$(dirname "${BASH_SOURCE[0]}")/stuff.sh"
 
 # Needed to be enabled here to parse some globs inside the functions.
 shopt -s extglob
+# Saner default.
+shopt -s nullglob
 
 # Creates a workdir, the path to which is stored in WORKDIR global
 # variable. Copies listings from the listings directory to work
@@ -618,6 +620,7 @@ function generate_sdk_reports() {
     local file full_file
     local sdk_reports_dir
     local -a report_files
+    local rv
     for arch in "${ARCHES[@]}"; do
         packages_image_var_name="${arch^^}_PACKAGES_IMAGE"
         local -n packages_image_ref="${packages_image_var_name}"
@@ -645,13 +648,26 @@ function generate_sdk_reports() {
                 add_cleanup "rm -f ${full_file@Q}"
                 cp -a "${THIS_DIR}/${file}" "${sdk_run_state}"
             done
+            rv=0
             env --chdir "${sdk_run_state}" \
                 ./run_sdk_container \
                 -C "${packages_image_name}" \
                 -n "pkg-${sdk_run_kind}-${arch}" \
                 -a "${arch}" \
                 --rm \
-                ./inside_sdk_container.sh "${arch}" pkg-reports
+                ./inside_sdk_container.sh "${arch}" pkg-reports || rv=${?}
+            if [[ ${rv} -ne 0 ]]; then
+                {
+                    info "run_sdk_container finished with exit status ${rv}, printing the warnings below for a clue"
+                    for file in "${sdk_run_state}/pkg-reports/"*'-warnings'; do
+                        info "from ${file}:"
+                        echo
+                        cat "${file}"
+                        echo
+                    done
+                } >&2
+                fail "stopping"
+            fi
             sdk_reports_dir="${WORKDIR}/pkg-reports/${sdk_run_kind}-${arch}"
             report_files=()
             for full_file in "${sdk_run_state}/pkg-reports/"*; do
