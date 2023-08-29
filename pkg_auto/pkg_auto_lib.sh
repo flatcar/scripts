@@ -1331,7 +1331,7 @@ function handle_pkg_update() {
     tags_for_pkg "${pkg_to_tags_mvm_var_name}" "${new_pkg}" hpu_tags
     generate_summary_stub "${new_pkg}" "${hpu_tags[@]}" -- "${lines[@]}"
 
-    generate_package_report "${NEW_STATE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}"
+    generate_package_mention_reports "${NEW_STATE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}"
 }
 
 function handle_pkg_as_is() {
@@ -1363,7 +1363,7 @@ function handle_pkg_as_is() {
     tags_for_pkg "${pkg_to_tags_mvm_var_name}" "${pkg}" hpai_tags
     generate_summary_stub "${new_pkg}" "${hpai_tags[@]}" -- "${lines[@]}"
 
-    generate_package_report "${NEW_STATE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}"
+    generate_package_mention_reports "${NEW_STATE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}"
 }
 
 function handle_pkg_downgrade() {
@@ -1405,7 +1405,7 @@ function handle_pkg_downgrade() {
     tags_for_pkg "${pkg_to_tags_mvm_var_name}" "${new_pkg}" hpd_tags
     generate_summary_stub "${new_pkg}" "${hpd_tags[@]}" -- "${lines[@]}"
 
-    generate_package_report "${NEW_STATE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}"
+    generate_package_mention_reports "${NEW_STATE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}"
 }
 
 function tags_for_pkg() {
@@ -1487,7 +1487,7 @@ function generate_ebuild_diff() {
     xdiff "${old_path}" "${new_path}" >"${ged_update_dir}/diff"
 }
 
-function generate_package_report() {
+function generate_package_mention_reports() {
     local scripts old_pkg new_pkg old_s new_s
     scripts=${1}; shift
     old_pkg=${1}; shift
@@ -1498,18 +1498,17 @@ function generate_package_report() {
     local gpr_update_dir
     update_dir "${new_pkg}" "${old_s}" "${new_s}" gpr_update_dir
 
-    generate_package_report_at_location "${scripts}" "${new_pkg}" "${gpr_update_dir}/occurences"
+    generate_mention_report_for_package "${scripts}" "${new_pkg}" >"${gpr_update_dir}/occurences"
 
     if [[ ${old_pkg} != ${new_pkg} ]]; then
-        generate_package_report_at_location "${scripts}" "${old_pkg}" "${gpr_update_dir}/occurences-for-old-name"
+        generate_mention_report_for_package "${scripts}" "${old_pkg}" >"${gpr_update_dir}/occurences-for-old-name"
     fi
 }
 
-function generate_package_report_at_location() {
-    local scripts old_pkg new_pkg
+function generate_mention_report_for_package() {
+    local scripts pkg
     scripts=${1}; shift
     pkg=${1}; shift
-    report=${1}; shift
 
     local ps co
     ps='sdk_container/src/third_party/portage-stable'
