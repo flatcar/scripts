@@ -1433,7 +1433,7 @@ function generate_changelog_entry_stub() {
 
     source "${WORKDIR}/globals"
 
-    printf '- %s ([%s](TODO))\n' "${pkg_name}" "${v}" >>"${REPORTS_DIR}/updates/changelog_stubs"
+    printf '%s %s ([%s](TODO))\n' '-' "${pkg_name}" "${v}" >>"${REPORTS_DIR}/updates/changelog_stubs"
 }
 
 function generate_summary_stub() {
@@ -1455,7 +1455,7 @@ function generate_summary_stub() {
     # rest are lines
 
     {
-        printf '- %s:' "{pkg}"
+        printf '%s %s:' '-' "{pkg}"
         printf ' [%s]' "${tags[@]}"
         printf '\n'
         printf '  - %s\n' "${@}"
