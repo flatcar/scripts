@@ -1282,7 +1282,7 @@ function handle_package_changes() {
                     handle_pkg_downgrade "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${hpc_old_s}" "${hpc_new_s}" "${old_version}" "${new_version}"
                     ;;
             esac
-        elif [[ ${#hpc_only_old_slots_set[@]} -gt 0 ]] || [[ ${#hpc_only_new_slots_set[@]} -gt 0 ]]
+        elif [[ ${#hpc_only_old_slots_set[@]} -gt 0 ]] || [[ ${#hpc_only_new_slots_set[@]} -gt 0 ]]; then
             lines=(
                 '- handle package update:'
                 '  - old package name:'
