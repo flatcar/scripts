@@ -54,10 +54,10 @@ if [[ ! -e 'profiles/repo_name' ]]; then
     fail 'sync is only possible from ebuild packages top-level directory (a directory from which "./profiles/repo_name" is accessible)'
 fi
 
-GENTOO=$(realpath ${1}); shift
+GENTOO=$(realpath "${1}"); shift
 # rest are package names
 
-if [[ $(realpath '.') = ${GENTOO} ]]; then
+if [[ $(realpath '.') = "${GENTOO}" ]]; then
     fail 'trying to sync within a Gentoo repo?'
 fi
 
@@ -65,7 +65,7 @@ fi
 # - 0 (true) if there are changes
 # - 1 (false) if there are no changes
 sync_git_prepare() {
-    local path_path
+    local path
     path=${1}; shift
 
     local gentoo_path
@@ -82,7 +82,7 @@ sync_git_prepare() {
     parent=$(dirname "${path}")
     mkdir --parents "${parent}"
     cp --archive "${gentoo_path}" "${parent}"
-    if [[ -n $(git status --porcelain -- "${path}" | grep -v '^ ') ]]; then
+    if git status --porcelain -- "${path}" | grep --quiet --invert-match '^ '; then
         git add "${path}"
         return 0
     fi
@@ -102,7 +102,7 @@ commit_with_gentoo_sha() {
         commit_msg="${name}: Sync with Gentoo"
     fi
     git commit --quiet --message "${commit_msg}" --message "It's from Gentoo commit ${commit}."
-    GIT_PAGER=cat git show --stat
+    GIT_PAGER='cat' git show --stat
 }
 
 path_sync() {

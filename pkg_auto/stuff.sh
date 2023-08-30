@@ -34,7 +34,7 @@ function yell() {
 }
 
 function print_help() {
-    if [[ ${THIS} != ${BASH} ]]; then
+    if [[ ${THIS} != "${BASH}" ]]; then
         grep '^##' "${THIS}" | sed -e 's/##[[:space:]]*//'
     fi
 }
@@ -49,6 +49,7 @@ function join_by() {
         printf -v "${output_var_name}" '%s' "${first}" "${@/#/${delimiter}}";
     else
         local -n output_ref="${output_var_name}"
+        # shellcheck disable=SC2034 # it's a reference to external variable
         output_ref=''
     fi
 }
@@ -61,9 +62,9 @@ _file_add_cleanup() {
     local fac_cleanup_dir tmpfile
     dirname_out "${_file_cleanup_file}" fac_cleanup_dir
     tmpfile=$(mktemp -p "${fac_cleanup_dir}")
-    printf '%s\n' "${@}" >${tmpfile}
+    printf '%s\n' "${@}" >"${tmpfile}"
     if [[ -f "${_file_cleanup_file}" ]]; then
-        cat "${_file_cleanup_file}" >>${tmpfile}
+        cat "${_file_cleanup_file}" >>"${tmpfile}"
     fi
     mv -f "${tmpfile}" "${_file_cleanup_file}"
 }
@@ -73,6 +74,7 @@ function _trap_add_cleanup() {
     local tac_joined
     join_by tac_joined ' ; ' "${@}"
     _trap_cleanup_actions="${tac_joined} ; ${_trap_cleanup_actions}"
+    # shellcheck disable=SC2064 # we want to evaluate the trap action now
     trap "${_trap_cleanup_actions}" EXIT
 }
 
@@ -143,10 +145,11 @@ function dirname_out() {
         dir_ref='/'
         return 0
     fi
-    if [[ ${cleaned_up} = ${dn} ]]; then
+    if [[ ${cleaned_up} = "${dn}" ]]; then
         dir_ref='.'
         return 0
     fi
+    # shellcheck disable=SC2034 # it's a reference to external variable
     dir_ref=${dn}
 }
 
@@ -171,6 +174,7 @@ function basename_out() {
     cleaned_up=${cleaned_up//+(\/)/\/}
     # keep last component
     dn=${cleaned_up##*/}
+    # shellcheck disable=SC2034 # it's a reference to external variable
     base_ref=${dn}
 }
 

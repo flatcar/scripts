@@ -96,6 +96,7 @@ fi
 
 if [[ -n ${CLEANUP_FILE} ]]; then
     dirname_out "${CLEANUP_FILE}" cleanup_dir
+    # shellcheck disable=SC2154 # cleanup_dir is assigned in dirname_out
     mkdir -p "${cleanup_dir}"
     unset cleanup_dir
     setup_cleanups file "${CLEANUP_FILE}"
@@ -124,7 +125,9 @@ function download {
 }
 
 if [[ -n ${SCRIPTS} ]]; then
+    # shellcheck disable=SC1091 # sourcing generated file
     VERSION_ID=$(source "${SCRIPTS}/sdk_container/.repo/manifests/version.txt"; printf '%s' "${FLATCAR_VERSION_ID}")
+    # shellcheck disable=SC1091 # sourcing generated file
     BUILD_ID=$(source "${SCRIPTS}/sdk_container/.repo/manifests/version.txt"; printf '%s' "${FLATCAR_BUILD_ID}")
 fi
 

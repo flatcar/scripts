@@ -102,12 +102,15 @@ function override_sdk_image_names() {
 # with packages from Gentoo repo. Cleans up missing packages.
 function perform_sync_with_gentoo() {
     local -a pswg_non_package_updates pswg_missing_in_scripts pswg_missing_in_gentoo
+    # shellcheck disable=SC2034 # it's passed by name
     pswg_non_package_updates=()
     pswg_missing_in_scripts=()
     pswg_missing_in_gentoo=()
 
     local -A pswg_renamed_old_to_new_map pswg_renamed_new_to_old_map
+    # shellcheck disable=SC2034 # it's passed by name
     pswg_renamed_old_to_new_map=()
+    # shellcheck disable=SC2034 # it's passed by name
     pswg_renamed_new_to_old_map=()
 
     run_sync pswg_non_package_updates pswg_missing_in_scripts pswg_missing_in_gentoo
@@ -128,9 +131,11 @@ function generate_package_update_reports() {
     mvm_declare gpur_pkg_to_tags_mvm
     process_listings gpur_pkg_to_tags_mvm
 
+    # shellcheck disable=SC2034 # it's passed by name
     local -a gpur_non_package_updates
     load_non_package_updates gpur_non_package_updates
 
+    # shellcheck disable=SC2034 # it's passed by name
     local -A gpur_renames_old_to_new_map gpur_renames_new_to_old_map
     load_rename_maps gpur_renames_old_to_new_map gpur_renames_new_to_old_map
 
@@ -143,10 +148,12 @@ function generate_package_update_reports() {
 #
 # 1 - a branch name to create
 function save_new_state() {
+    # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
     local branch
     branch=${1}; shift
+    # shellcheck disable=SC2153 # SCRIPTS and NEW_STATE_BRANCH are not misspellings, they come from globals file
     git -C "${SCRIPTS}" branch "${branch}" "${NEW_STATE_BRANCH}"
 }
 
@@ -199,7 +206,7 @@ function save_rename_maps() {
     {
         for item in "${!old_to_new_map_ref[@]}"; do
             mapped=${old_to_new_map_ref["${item}"]}
-            printf '%s:%s\n'
+            printf '%s:%s\n' "${item}" "${mapped}"
         done
     } >"${WORKDIR}/rename-map"
 }
@@ -322,12 +329,15 @@ EOF
 function setup_git_env() {
     local bot_name bot_email role what
 
+    # shellcheck disable=SC2034 # used indirectly
     bot_name='Flatcar Buildbot'
+    # shellcheck disable=SC2034 # used indirectly
     bot_email='buildbot@flatcar-linux.org'
     for role in AUTHOR COMMITTER; do
         for what in name email; do
             local -n var="GIT_${role}_${what^^}"
             local -n value="bot_${what}"
+            # shellcheck disable=SC2034 # it's a reference to external variable
             var=${value}
             unset -n value
             unset -n var
@@ -344,26 +354,30 @@ function run_sync() {
     missing_in_gentoo_var_name=${1}; shift
     local -n missing_in_gentoo_ref="${missing_in_gentoo_var_name}"
 
+    # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
     local -x "${GIT_ENV_VARS[@]}"
     setup_git_env
 
     local packages_list sync_script new_head old_head
+    # shellcheck disable=SC2153 # NEW_STATE is not a misspelling, it comes from globals file
     packages_list="${NEW_STATE}/.github/workflows/portage-stable-packages-list"
     sync_script="${THIS_DIR}/sync_with_gentoo.sh"
     new_head=$(git -C "${NEW_STATE}" rev-parse HEAD)
-    local package line pkg_and_rest pkg
+    local package line pkg
     local -A non_package_updates_set
     non_package_updates_set=()
     while read -r package; do
         old_head=${new_head}
+        # shellcheck disable=SC2153 # NEW_PORTAGE_STABLE is not a misspelling, it comes from globals file
         if [[ ! -e "${NEW_PORTAGE_STABLE}/${package}" ]]; then
             # If this happens, it means that the package was moved to overlay
             # or dropped, the list ought to be updated.
             missing_in_scripts_ref+=("${package}")
             continue
         fi
+        # shellcheck disable=SC2153 # GENTOO is not a misspelling, it comes from globals file
         if [[ ! -e "${GENTOO}/${package}" ]]; then
             # If this happens, it means that the package was obsoleted or moved
             # in Gentoo. The obsoletion needs to be handled in the case-by-case
@@ -395,12 +409,14 @@ function run_sync() {
             done < <(git -C "${NEW_STATE}" diff-tree --no-commit-id --name-only HEAD -r)
         fi
     done < <(xgrep '^[^#]' "${packages_list}")
+    # shellcheck disable=SC2034 # it's a reference to external variable
     non_package_updates_ref=( "${!non_package_updates_set[@]}" )
 }
 
 function handle_missing_in_scripts() {
     # all the args are missing packages
 
+    # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
     if [[ ${#} -eq 0 ]]; then
@@ -439,18 +455,22 @@ function lines_to_file() {
 }
 
 function manual() {
+    # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
+    # shellcheck disable=SC2153 # REPORTS_DIR is not a misspelling, it comes from globals file
     lines_to_file "${REPORTS_DIR}/manual-work-needed" "${@}"
 }
 
 function pkg_warn() {
+    # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
     lines_to_file "${REPORTS_DIR}/warnings" "${@}"
 }
 
 function devel_warn() {
+    # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
     lines_to_file "${REPORTS_DIR}/developer-warnings" "${@}"
@@ -464,6 +484,7 @@ function handle_missing_in_gentoo() {
     local -n renamed_new_to_old_map_ref="${renamed_new_to_old_map_var_name}"
     # the rest are packages missing in Gentoo
 
+    # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
     if [[ ${#} -eq 0 ]]; then
@@ -486,7 +507,7 @@ function handle_missing_in_gentoo() {
     setup_git_env
 
     local missing new_name old_basename new_basename ebuild ebuild_version_ext
-    local old_ebuild_filename new_ebuild_filename
+    local new_ebuild_filename
     for missing; do
         new_name=$(xgrep --recursive --regexp="^move ${missing} " "${NEW_PORTAGE_STABLE}/profiles/updates/" | cut -d' ' -f3)
         if [[ -z "${new_name}" ]]; then
@@ -496,10 +517,9 @@ function handle_missing_in_gentoo() {
         mkdir -p "${NEW_PORTAGE_STABLE}/${new_name%/*}"
         git -C "${NEW_STATE}" mv "${NEW_PORTAGE_STABLE}/${missing}" "${NEW_PORTAGE_STABLE}/${new_name}"
         basename_out "${missing}" old_basename
-        basename_out "$new_name}" new_basename
+        basename_out "${new_name}" new_basename
         if [[ "${old_basename}" != "${new_basename}" ]]; then
             for ebuild in "${NEW_PORTAGE_STABLE}/${new_name}/${old_basename}-"*'.ebuild'; do
-                basename_out "${ebuild}" old_ebuild_filename
                 # 1.2.3-r4.ebuild
                 ebuild_version_ext=${ebuild##*/"${old_basename}-"}
                 new_ebuild_filename="${new_basename}-${ebuild_version_ext}"
@@ -535,6 +555,7 @@ function copy_listings() {
     local listings_dir
     listings_dir=${1}; shift;
 
+    # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
     add_cleanup "rmdir ${WORKDIR@Q}/listings"
@@ -559,6 +580,7 @@ function process_listings() {
     local pkg_to_tags_mvm_var_name
     pkg_to_tags_mvm_var_name=${1}
 
+    # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
     local eclass ver_ere pkg_ere
@@ -604,24 +626,32 @@ function set_mvm_to_array_mvm_cb() {
     local -n set_ref="${set_var_name}"
     # rest are set items
 
+    local removed
     local -a prod_item
     prod_item=()
     if [[ -n ${set_ref['prod']:-} ]]; then
         prod_item+=('prod')
-        unset set_ref['prod']
+        unset "set_ref['prod']"
+        removed=x
     fi
     local -a sorted_items
-    mapfile -t sorted_items < <(printf '%s\n' "${items_to_add[@]}" | sort)
+    mapfile -t sorted_items < <(printf '%s\n' "${!set_ref[@]}" | sort)
+    if [[ -n ${removed} ]]; then
+        set_ref['prod']=x
+    fi
 
-    mvm_add "${pkg_to_tags_mvm_var_name}" "${pkg}" "${prod_item[@]}" "${sorted_items}"
+    mvm_add "${pkg_to_tags_mvm_var_name}" "${pkg}" "${prod_item[@]}" "${sorted_items[@]}"
 }
 
 function generate_sdk_reports() {
     local last_nightly_version_id last_nightly_build_id
 
+    # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
+    # shellcheck disable=SC1091 # sourcing generated file
     last_nightly_version_id=$(source "${NEW_STATE}/sdk_container/.repo/manifests/version.txt"; printf '%s' "${FLATCAR_VERSION_ID}")
+    # shellcheck disable=SC1091 # sourcing generated file
     last_nightly_build_id=$(source "${NEW_STATE}/sdk_container/.repo/manifests/version.txt"; printf '%s' "${FLATCAR_BUILD_ID}")
 
     add_cleanup "rmdir ${WORKDIR@Q}/pkg-reports"
@@ -642,6 +672,7 @@ function generate_sdk_reports() {
             fail "No SDK image named '${packages_image_name}' available locally, pull it before running this script"
         fi
 
+        # shellcheck disable=SC2153 # WHICH is not a misspelling, it comes from globals file
         for sdk_run_kind in "${WHICH[@]}"; do
             state_var_name="${sdk_run_kind^^}_STATE"
             sdk_run_state="${!state_var_name}_sdk_run_${arch}"
@@ -707,6 +738,7 @@ function pkginfo_name() {
     pi_name_var_name=${1}; shift
     local -n pi_name_ref="${pi_name_var_name}"
 
+    # shellcheck disable=SC2034 # it's a reference to external variable
     pi_name_ref="pkginfo_${which}_${arch}_${report//-/_}_pimap_mvm"
 }
 
@@ -721,6 +753,7 @@ function pkginfo_destructor() {
 function pkginfo_adder() {
     local map_var_name
     map_var_name=${1}; shift
+    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
     local -n map_ref="${map_var_name}"
 
     local mark
@@ -781,10 +814,12 @@ function pkginfo_c_process_file() {
     mvm_c_get_extra 'report' report
 
     local pkg version_slot throw_away v s
+    # shellcheck disable=SC2034 # throw_away is unused, it's here for read to store the rest of the line if there is something else
     while read -r pkg version_slot throw_away; do
         v=${version_slot%%:*}
         s=${version_slot##*:}
         mvm_c_add "${pkg}" "${s}" "${v}"
+        # shellcheck disable=SC2034 # it's a reference to external variable
         pkg_set_ref["${pkg}"]='x'
         mvm_add "${pkg_slots_set_mvm_var_name}" "${pkg}" "${s}"
     done <"${WORKDIR}/pkg-reports/${which}-${arch}/${report}"
@@ -811,6 +846,7 @@ function read_reports() {
     all_pkgs_var_name=${1}; shift
     pkg_slots_set_mvm_var_name=${1}; shift
 
+    # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
     local arch which report rr_pimap_mvm_var_name
@@ -829,6 +865,7 @@ function read_reports() {
 }
 
 function unset_report_mvms() {
+    # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
     local arch which report
@@ -845,11 +882,13 @@ function unset_report_mvms() {
 ### BEGIN GENTOO VER COMP HACKS
 ###
 
+# shellcheck disable=SC2034 # it's here only for the eapi7-ver.eclass
 EAPI=6
 function die() {
     fail "$*"
 }
 
+# shellcheck disable=SC1091 # sourcing external file
 source "${THIS_DIR}/../sdk_container/src/third_party/portage-stable/eclass/eapi7-ver.eclass"
 
 unset EAPI
@@ -877,7 +916,7 @@ function gentoo_ver_test() {
 
     local gvt_retval
     gentoo_ver_test_out "${v1}" "${op}" "${v2}" gvt_retval
-    return ${gvt_retval}
+    return "${gvt_retval}"
 }
 
 # symbolic names for use with gentoo_ver_cmp
@@ -917,8 +956,8 @@ function gentoo_ver_cmp() {
     v2=${1}; shift
 
     local gvc_retval
-    gentoo_ver_cmp_out "${v11}" "${v2}" gvc_retval
-    return ${gvc_retval}
+    gentoo_ver_cmp_out "${v1}" "${v2}" gvc_retval
+    return "${gvc_retval}"
 }
 
 ###
@@ -943,7 +982,9 @@ function ver_min_max() {
             max=${v}
         fi
     done
+    # shellcheck disable=SC2034 # it's a reference to external variable
     min_ref="${min}"
+    # shellcheck disable=SC2034 # it's a reference to external variable
     max_ref="${max}"
 }
 
@@ -983,14 +1024,14 @@ function consistency_check_for_package() {
     pkginfo_profile "${pi1_pimap_mvm_var_name}" ccfp_profile_1
     pkginfo_profile "${pi2_pimap_mvm_var_name}" ccfp_profile_2
 
-    local s v1 v2 ccfp_min ccfp_max mm ccfp_slots_name
+    local s v1 v2 ccfp_min ccfp_max mm
     for s in "${!slots_set_ref[@]}"; do
         v1=${slot_version1_map["${s}"]:-}
         v2=${slot_version2_map["${s}"]:-}
 
         if [[ -n ${v1} ]] && [[ -n ${v2} ]]; then
             common_slots+=( "${s}" )
-            if [[ ${v1} != ${v2} ]]; then
+            if [[ ${v1} != "${v2}" ]]; then
                 pkg_warn \
                     "- version mismatch:" \
                     "  - package ${pkg}" \
@@ -1040,10 +1081,12 @@ function consistency_checks() {
     local which all_pkgs_var_name pkg_slots_set_mvm_var_name pkg_slot_verminmax_mvm_var_name
     which=${1}; shift
     all_pkgs_var_name=${1}; shift
+    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
     local -n all_pkgs_ref="${all_pkgs_var_name}"
     pkg_slots_set_mvm_var_name=${1}; shift
     pkg_slot_verminmax_mvm_var_name=${1}; shift
 
+    # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
     local cc_pimap_mvm_1_var_name cc_pimap_mvm_2_var_name pkg
@@ -1067,6 +1110,7 @@ function consistency_checks() {
     local cc_slot_verminmax1_map_var_name cc_slot_verminmax2_map_var_name
     local cc_slots_set_var_name s verminmax1 verminmax2 cc_min cc_max verminmax
     local -A empty_map
+    # shellcheck disable=SC2034 # used indirectly below
     empty_map=()
     for pkg in "${all_pkgs_ref[@]}"; do
         mvm_get cc_amd64_sdk_board_pkg_slot_verminmax_map_mvm "${pkg}" cc_slot_verminmax1_map_var_name
@@ -1110,7 +1154,7 @@ function read_package_sources() {
                 while read -r pkg repo; do
                     saved_repo=${package_sources_map_ref["${pkg}"]:-}
                     if [[ -n ${saved_repo} ]]; then
-                        if [[ ${saved_repo} != ${repo} ]]; then
+                        if [[ ${saved_repo} != "${repo}" ]]; then
                             pkg_warn \
                                 '- different repos used for the package:' \
                                 "  - package: ${pkg}" \
@@ -1130,11 +1174,14 @@ function read_package_sources() {
 function handle_package_changes() {
     local renamed_old_to_new_map_var_name renamed_new_to_old_map_var_name pkg_to_tags_mvm_var_name
     renamed_old_to_new_map_var_name=${1}; shift
+    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
     local -n renamed_old_to_new_map_ref="${renamed_old_to_new_map_var_name}"
     renamed_new_to_old_map_var_name=${1}; shift
+    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
     local -n renamed_new_to_old_map_ref="${renamed_new_to_old_map_var_name}"
     pkg_to_tags_mvm_var_name=${1}; shift
 
+    # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
     local -a hpc_all_pkgs
@@ -1193,7 +1240,7 @@ function handle_package_changes() {
         pkg_idx=$((pkg_idx + 1))
         old_repo=${hpc_package_sources_map["${old_name}"]}
         new_repo=${hpc_package_sources_map["${new_name}"]}
-        if [[ ${old_repo} != ${new_repo} ]]; then
+        if [[ ${old_repo} != "${new_repo}" ]]; then
             pkg_warn \
                 '- package has moved between repos? unsupported for now' \
                 "  - old package and repo: ${old_name} ${old_repo}" \
@@ -1239,13 +1286,13 @@ function handle_package_changes() {
             new_version=${new_verminmax##*:}
             gentoo_ver_cmp_out "${new_version}" "${old_version}" hpc_cmp_result
             case ${hpc_cmp_result} in
-                ${GV_GT})
+                "${GV_GT}")
                     handle_pkg_update "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${s}" "${s}" "${old_version}" "${new_version}"
                     ;;
-                ${GV_EQ})
+                "${GV_EQ}")
                     handle_pkg_as_is "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${s}" "${s}" "${old_version}"
                     ;;
-                ${GV_LT})
+                "${GV_LT}")
                     handle_pkg_downgrade "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${s}" "${s}" "${old_version}" "${new_version}"
                     ;;
             esac
@@ -1272,13 +1319,13 @@ function handle_package_changes() {
             new_version=${new_verminmax##*:}
             gentoo_ver_cmp_out "${new_version}" "${old_version}" hpc_cmp_result
             case ${hpc_cmp_result} in
-                ${GV_GT})
+                "${GV_GT}")
                     handle_pkg_update "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${hpc_old_s}" "${hpc_new_s}" "${old_version}" "${new_version}"
                     ;;
-                ${GV_EQ})
+                "${GV_EQ}")
                     handle_pkg_as_is "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${hpc_old_s}" "${hpc_new_s}" "${old_version}"
                     ;;
-                ${GV_LT})
+                "${GV_LT}")
                     handle_pkg_downgrade "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${hpc_old_s}" "${hpc_new_s}" "${old_version}" "${new_version}"
                     ;;
             esac
@@ -1313,9 +1360,10 @@ function handle_package_changes() {
 }
 
 function get_nth_from_set() {
-    local idx set_name return_var_name
+    local idx set_var_name return_var_name
     idx=${1}; shift
     set_var_name=${1}; shift
+    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
     local -n set_ref="${set_var_name}"
     return_var_name=${1}; shift
     local -n return_ref="${return_var_name}"
@@ -1329,6 +1377,7 @@ function get_nth_from_set() {
         fi
         iter=$((iter + 1))
     done
+    # shellcheck disable=SC2034 # it's a reference to external variable
     return_ref=''
 }
 
@@ -1354,8 +1403,10 @@ function sets_split() {
     for item in "${!first_set_ref[@]}"; do
         mark=${second_set_ref["${item}"]:-}
         if [[ -z "${mark}" ]]; then
+            # shellcheck disable=SC2034 # it's a reference to external variable
             only_in_first_set_ref["${item}"]=x
         else
+            # shellcheck disable=SC2034 # it's a reference to external variable
             common_set_ref["${item}"]=x
         fi
     done
@@ -1363,6 +1414,7 @@ function sets_split() {
     for item in "${!second_set_ref[@]}"; do
         mark=${first_set_ref["${item}"]:-}
         if [[ -z "${mark}" ]]; then
+            # shellcheck disable=SC2034 # it's a reference to external variable
             only_in_second_set_ref["${item}"]=x
         fi
     done
@@ -1378,6 +1430,7 @@ function handle_pkg_update() {
     old=${1}; shift
     new=${1}; shift
 
+    # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
     local old_no_r new_no_r
@@ -1388,9 +1441,10 @@ function handle_pkg_update() {
     pkg_name=${new_pkg#/}
     local -a lines
     lines=( "from ${old} to ${new}")
-    if [[ ${old_pkg} != ${new_pkg} ]]; then
+    if [[ ${old_pkg} != "${new_pkg}" ]]; then
         lines+=( "renamed from ${old_pkg}" )
     fi
+    # shellcheck disable=SC2153 # OLD_PORTAGE_STABLE is not a misspelling, it comes from globals file
     generate_ebuild_diff "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}" "${old}" "${new}"
     local hpu_update_dir
     update_dir "${new_pkg}" "${old_s}" "${new_s}" hpu_update_dir
@@ -1419,6 +1473,7 @@ function handle_pkg_as_is() {
     new_s=${1}; shift
     v=${1}; shift
 
+    # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
     local hpai_update_dir
@@ -1430,7 +1485,7 @@ function handle_pkg_as_is() {
     lines=( "still at ${v}" )
 
     local hpai_update_dir_parent
-    if [[ ${old_pkg} != ${new_pkg} ]]; then
+    if [[ ${old_pkg} != "${new_pkg}" ]]; then
         lines+=( "renamed from ${old_pkg}" )
     else
         # If absolutely nothing has changed, generate no reports and
@@ -1466,6 +1521,7 @@ function handle_pkg_downgrade() {
     old=${1}; shift
     new=${1}; shift
 
+    # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
     local old_no_r new_no_r
@@ -1476,7 +1532,7 @@ function handle_pkg_downgrade() {
     pkg_name=${new_pkg#/}
     local -a lines
     lines=( "downgraded from ${old} to ${new}" )
-    if [[ ${old_pkg} != ${new_pkg} ]]; then
+    if [[ ${old_pkg} != "${new_pkg}" ]]; then
         lines+=( "renamed from ${old_pkg}" )
     fi
     generate_ebuild_diff "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}" "${old}" "${new}"
@@ -1512,6 +1568,7 @@ function tags_for_pkg() {
         tags_ref=()
     else
         local -n tags_in_mvm="${tfp_tags_var_name}"
+        # shellcheck disable=SC2034 # it's a reference to external variable
         tags_ref=( "${tags_in_mvm[@]}" )
     fi
 }
@@ -1521,6 +1578,7 @@ function generate_changelog_entry_stub() {
     pkg_name=${1}; shift
     v=${1}; shift
 
+    # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
     printf '%s %s ([%s](TODO))\n' '-' "${pkg_name}" "${v}" >>"${REPORTS_DIR}/updates/changelog_stubs"
@@ -1530,6 +1588,7 @@ function generate_summary_stub() {
     local pkg
     pkg=${1}; shift
 
+    # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
     local -a tags
@@ -1590,7 +1649,7 @@ function generate_package_mention_reports() {
 
     generate_mention_report_for_package "${scripts}" "${new_pkg}" >"${gpr_update_dir}/occurences"
 
-    if [[ ${old_pkg} != ${new_pkg} ]]; then
+    if [[ ${old_pkg} != "${new_pkg}" ]]; then
         generate_mention_report_for_package "${scripts}" "${old_pkg}" >"${gpr_update_dir}/occurences-for-old-name"
     fi
 }
@@ -1610,23 +1669,21 @@ function generate_mention_report_for_package() {
     yell "${pkg} in gentoo profiles"
     grep_pkg "${scripts}" "${pkg}" "${ps}/profiles"
 
+    # shellcheck disable=SC2164 # we use set -e, so the script will exit if it fails
+    pushd "${scripts}/${co}" >/dev/null
+
     yell "${pkg} in env overrides"
-    (
-        shopt -s nullglob
-        cd "${scripts}/${co}"
-        cat_entries "coreos/config/env/${pkg}"@(|-+([0-9])*)
-    )
+    cat_entries "coreos/config/env/${pkg}"@(|-+([0-9])*)
 
     yell "${pkg} in user patches"
-    (
-        shopt -s nullglob
-        cd "${scripts}/${co}"
-        for dir in "coreos/user-patches/${pkg}"@(|-+([0-9])*); do
-            echo "BEGIN DIRECTORY: ${dir}"
-            cat_entries "${dir}"/*
-            echo "END DIRECTORY: ${dir}"
-        done
-    )
+    for dir in "coreos/user-patches/${pkg}"@(|-+([0-9])*); do
+        echo "BEGIN DIRECTORY: ${dir}"
+        cat_entries "${dir}"/*
+        echo "END DIRECTORY: ${dir}"
+    done
+
+    # shellcheck disable=SC2164 # we use set -e, so the script will exit if it fails
+    popd
 
     yell "${pkg} in overlay (outside profiles)"
     grep_pkg "${scripts}" "${pkg}" "${ps}" ":(exclude)${ps}/profiles"
@@ -1646,15 +1703,17 @@ function update_dir() {
     dir_var_name=${1}; shift
     local -n dir_ref="${dir_var_name}"
 
+    # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
     # slots may have slashes in them - replace them with "-slash-"
     local slot_dir
-    if [[ ${old_s} = ${new_s} ]]; then
+    if [[ ${old_s} = "${new_s}" ]]; then
         slot_dir="${old_s//\//-slash-}"
     else
         slot_dir="${old_s//\//-slash-}-to-${new_s//\//-slash-}"
     fi
+    # shellcheck disable=SC2034 # it's a reference to external variable
     dir_ref="${REPORTS_DIR}/updates/${pkg}/${slot_dir}"
 }
 
@@ -1714,6 +1773,7 @@ function handle_eclass() {
     local eclass
     eclass=${1}; shift
 
+    # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
     mkdir -p "${REPORTS_DIR}/updates/${eclass}"
@@ -1721,9 +1781,10 @@ function handle_eclass() {
 }
 
 function handle_profiles() {
+    # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
-    local arch which report line
+    local arch which report
     local -a files
     files=()
     for arch in "${ARCHES[@]}"; do
@@ -1733,9 +1794,10 @@ function handle_profiles() {
             done
         done
     done
-    local line
-    local -A profile_dirs
+    local -A profile_dirs_set
     profile_dirs_set=()
+
+    local line
     while read -r line; do
         profile_dirs_set["${line}"]=x
     done < <(xgrep --no-filename '^portage-stable:' "${files[@]}" | cut -d: -f2-)
@@ -1746,12 +1808,15 @@ function handle_profiles() {
         --unified
         --new-file  # treat absent files as empty
     )
+
     local out_dir
     out_dir="${REPORTS_DIR}/updates/profiles"
     mkdir -p "${out_dir}"
+
     xdiff "${diff_opts[@]}" \
          "${OLD_PORTAGE_STABLE}/profiles" "${NEW_PORTAGE_STABLE}/profiles" >"${out_dir}/full-diff"
-    local path dir file mark local relevant
+
+    local relevant path dir mark
     local -a relevant_lines possibly_irrelevant_files
     relevant=''
     relevant_lines=()
@@ -1780,10 +1845,11 @@ function handle_profiles() {
         fi
     done
     lines_to_file_truncate "${out_dir}/relevant-diff" "${relevant_lines[@]}"
-    lines_to_file_truncate "${out_dir}/possibly-irrelevant-files" "${possibly_irrelevant_files}"
+    lines_to_file_truncate "${out_dir}/possibly-irrelevant-files" "${possibly_irrelevant_files[@]}"
 }
 
 function handle_licenses() {
+    # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
     local -a dropped added changed
@@ -1801,6 +1867,7 @@ function handle_licenses() {
     # Files <PORTAGE_STABLE_1>/licenses/BSL-1.1 and <PORTAGE_STABLE_2>/licenses/BSL-1.1 differ
     while read -r line; do
         if [[ ${line} = 'Only in '* ]]; then
+            # shellcheck disable=SC2153 # OLD_STATE is not a misspelling, it comes from globals file
             if [[ ${line} = *"${OLD_STATE}"* ]]; then
                 dropped+=( "${line##*:}" )
             elif [[ ${line} = *"${NEW_STATE}"* ]]; then
@@ -1837,6 +1904,7 @@ function handle_licenses() {
 }
 
 function handle_scripts() {
+    # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
     local out_dir

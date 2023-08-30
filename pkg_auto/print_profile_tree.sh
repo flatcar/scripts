@@ -18,7 +18,7 @@ set -euo pipefail
 
 source "$(dirname "${BASH_SOURCE[0]}")/stuff.sh"
 
-: ${ROOT:=/}
+: "${ROOT:=/}"
 
 print_inheritance_tree=x
 print_evaluation_order=x
@@ -64,16 +64,14 @@ done
 
 unset all_repo_names
 
-function split_repo_and_profile {
-    local path repo_dir_var_name profile_name_var_name
+function get_repo_from_profile_path {
+    local path repo_dir_var_name
     path="${1}"; shift
     repo_dir_var_name="${1}"; shift
     local -n repo_dir_ref="${repo_dir_var_name}"
-    profile_name_var_name="${1}"; shift
-    local -n profile_name_ref="${profile_name_var_name}"
 
+    # shellcheck disable=SC2034 # it's a reference to external variable
     repo_dir_ref="${path%/profiles/*}"
-    profile_name_ref="${path#*/profiles/}"
 }
 
 function repo_path_to_name {
@@ -82,6 +80,7 @@ function repo_path_to_name {
     name_var_name="${1}"; shift
     local -n name_ref="${name_var_name}"
 
+    # shellcheck disable=SC2034 # it's a reference to external variable
     name_ref=${repo_data_r["${path}"]:-'<unknown>'}
 }
 
@@ -114,7 +113,7 @@ function process_profile {
     children_var_name="${1}"; shift
     local -n children_ref="${children_var_name}"
 
-    local parent_file line pp_new_repo_name new_profile_path pp_new_repo_path pp_new_profile_name
+    local parent_file line pp_new_repo_name new_profile_path pp_new_repo_path
     local -a children
 
     parent_file="${profile_path}/parent"
@@ -130,8 +129,7 @@ function process_profile {
                 children+=( "${pp_new_repo_name}" "${new_profile_path}" )
             elif [[ "${line}" = /* ]]; then
                 pp_new_repo_path=
-                pp_new_profile_name=
-                split_repo_and_profile "${line}" pp_new_repo_path pp_new_profile_name
+                get_repo_from_profile_path "${line}" pp_new_repo_path
                 pp_new_repo_name=
                 repo_path_to_name "${pp_new_repo_path}" pp_new_repo_name
                 children+=( "${pp_new_repo_name}" "${line}" )
@@ -141,6 +139,7 @@ function process_profile {
         done <"${parent_file}"
     fi
 
+    # shellcheck disable=SC2034 # it's a reference to external variable
     children_ref=( "${children[@]}" )
 }
 
@@ -155,14 +154,14 @@ function get_profile_name {
     repo_path=${repo_data["${repo_name}"]}
     profile_name=${profile_path#"${repo_path}/profiles/"}
 
+    # shellcheck disable=SC2034 # it's a reference to external variable
     profile_name_ref="${profile_name}"
 }
 
 make_profile_path="${ROOT%/}/etc/portage/make.profile"
 top_profile_dir_path=$(realpath "${make_profile_path}")
-top_profile_name=
 top_repo_path=
-split_repo_and_profile "${top_profile_dir_path}" top_repo_path top_profile_name
+get_repo_from_profile_path "${top_profile_dir_path}" top_repo_path
 top_repo_name=
 repo_path_to_name "${top_repo_path}" top_repo_name
 

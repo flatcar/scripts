@@ -29,7 +29,7 @@ cleanup_setup_args=( 'ignore' )
 force_reports_dir_remove=''
 scripts_base='origin/main'
 work_directory=''
-declare -A sdk_image_overrides
+declare -A up_sdk_image_overrides
 up_sdk_image_overrides=()
 
 while [[ ${#} -gt 0 ]]; do
@@ -59,7 +59,8 @@ while [[ ${#} -gt 0 ]]; do
             fi
             arch=${2%%:*}
             image_name=${2#*:}
-            sdk_image_overrides["${arch}"]=${image_name}
+            # shellcheck disable=SC2034 # used indirectly below
+            up_sdk_image_overrides["${arch}"]=${image_name}
             shift 2
             unset arch image_name
             ;;
