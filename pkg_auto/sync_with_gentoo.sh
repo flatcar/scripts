@@ -79,10 +79,9 @@ sync_git_prepare() {
     rm -rf "${path}"
     local parent
     dirname_out "${path}" parent
-    parent=$(dirname "${path}")
     mkdir --parents "${parent}"
     cp --archive "${gentoo_path}" "${parent}"
-    if git status --porcelain -- "${path}" | grep --quiet --invert-match '^ '; then
+    if [[ -n $(git status --porcelain -- "${path}") ]]; then
         git add "${path}"
         return 0
     fi
