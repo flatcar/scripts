@@ -19,8 +19,9 @@ source "$(dirname "${BASH_SOURCE[0]}")/stuff.sh"
 
 # Needed to be enabled here to parse some globs inside the functions.
 shopt -s extglob
-# Saner default.
+# Saner defaults.
 shopt -s nullglob
+shopt -s dotglob
 
 # Creates a workdir, the path to which is stored in WORKDIR global
 # variable. Copies listings from the listings directory to work
@@ -1301,6 +1302,25 @@ function handle_package_changes() {
                 new_verminmax=${new_slot_verminmax_map_ref["${s}"]:-}
                 lines+=("      - ${s}, minmax: ${new_verminmax}")
             done
+            # TODO: drop these
+            lines+=(
+                '  - common slots:'
+            )
+            for s in "${!hpc_common_slots_set[@]}"; do
+                lines+=("    - ${s}")
+            done
+            lines+=(
+                '  - only old slots:'
+            )
+            for s in "${!hpc_only_old_slots_set[@]}"; do
+                lines+=("    - ${s}")
+            done
+            lines+=(
+                '  - only new slots:'
+            )
+            for s in "${!hpc_only_new_slots_set[@]}"; do
+                lines+=("    - ${s}")
+            done
             manual "${lines[@]}"
         fi
         unset -n new_slot_verminmax_map_ref old_slot_verminmax_map_ref hpc_new_slots_set_ref hpc_old_slots_set_ref
@@ -1420,16 +1440,30 @@ function handle_pkg_as_is() {
 
     source "${WORKDIR}/globals"
 
+    local hpai_update_dir
+    update_dir "${new_pkg}" "${old_s}" "${new_s}" hpai_update_dir
+
     local pkg_name
     pkg_name=${new_pkg#/}
     local -a lines
     lines=( "still at ${v}" )
+
+    local hpai_update_dir_parent
     if [[ ${old_pkg} != ${new_pkg} ]]; then
         lines+=( "renamed from ${old_pkg}" )
+    else
+        # If absolutely nothing has changed, generate no reports and
+        # remove the update directory.
+        if diff --recursive "${OLD_PORTAGE_STABLE}/${old_pkg}" "${NEW_PORTAGE_STABLE}/${new_pkg}" >/dev/null 2>/dev/null; then
+            rmdir "${hpai_update_dir}"
+            dirname_out "${hpai_update_dir}" hpai_update_dir_parent
+            if [[ -z $(echo "${hpai_update_dir_parent}"/*) ]]; then
+                rmdir "${hpai_update_dir_parent}"
+            fi
+            return 0
+        fi
     fi
     generate_ebuild_diff "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}" "${v}" "${v}"
-    local hpai_update_dir
-    update_dir "${new_pkg}" "${old_s}" "${new_s}" hpai_update_dir
     if [[ ! -s "${hpai_update_dir}/diff" ]]; then
         lines+=( 'no changes in ebuild' )
     fi
@@ -1530,7 +1564,7 @@ function generate_summary_stub() {
     # rest are lines
 
     {
-        printf '%s %s:' '-' "{pkg}"
+        printf '%s %s:' '-' "${pkg}"
         printf ' [%s]' "${tags[@]}"
         printf '\n'
         printf '  - %s\n' "${@}"
