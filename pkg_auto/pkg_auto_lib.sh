@@ -133,10 +133,13 @@ function generate_package_update_reports() {
 
     # shellcheck disable=SC2034 # it's passed by name
     local -a gpur_non_package_updates
+    gpur_non_package_updates=()
     load_non_package_updates gpur_non_package_updates
 
     # shellcheck disable=SC2034 # it's passed by name
     local -A gpur_renames_old_to_new_map gpur_renames_new_to_old_map
+    gpur_renames_old_to_new_map=()
+    gpur_renames_new_to_old_map=()
     load_rename_maps gpur_renames_old_to_new_map gpur_renames_new_to_old_map
 
     handle_gentoo_sync gpur_non_package_updates gpur_renames_old_to_new_map gpur_renames_new_to_old_map gpur_pkg_to_tags_mvm
@@ -360,12 +363,12 @@ function run_sync() {
     local -x "${GIT_ENV_VARS[@]}"
     setup_git_env
 
-    local packages_list sync_script new_head old_head
+    local packages_list sync_script new_head
     # shellcheck disable=SC2153 # NEW_STATE is not a misspelling, it comes from globals file
     packages_list="${NEW_STATE}/.github/workflows/portage-stable-packages-list"
     sync_script="${THIS_DIR}/sync_with_gentoo.sh"
     new_head=$(git -C "${NEW_STATE}" rev-parse HEAD)
-    local package line pkg
+    local package old_head line category
     local -A non_package_updates_set
     non_package_updates_set=()
     while read -r package; do
@@ -506,8 +509,7 @@ function handle_missing_in_gentoo() {
     local -x "${GIT_ENV_VARS[@]}"
     setup_git_env
 
-    local missing new_name old_basename new_basename ebuild ebuild_version_ext
-    local new_ebuild_filename
+    local missing new_name old_basename new_basename ebuild ebuild_version_ext new_ebuild_filename
     for missing; do
         new_name=$(xgrep --recursive --regexp="^move ${missing} " "${NEW_PORTAGE_STABLE}/profiles/updates/" | cut -d' ' -f3)
         if [[ -z "${new_name}" ]]; then
@@ -534,7 +536,7 @@ function handle_missing_in_gentoo() {
         renamed_old_to_new_map_ref["${missing}"]="${new_name}"
     done
 
-    local renamed_re dir
+    local dir renamed_re
     if [[ ${#renamed_from[@]} -gt 0 ]]; then
         dir="${WORKDIR}/missing_in_gentoo"
         add_cleanup "rmdir ${dir@Q}"
@@ -627,6 +629,7 @@ function set_mvm_to_array_mvm_cb() {
     # rest are set items
 
     local removed
+    removed=''
     local -a prod_item
     prod_item=()
     if [[ -n ${set_ref['prod']:-} ]]; then
@@ -644,11 +647,10 @@ function set_mvm_to_array_mvm_cb() {
 }
 
 function generate_sdk_reports() {
-    local last_nightly_version_id last_nightly_build_id
-
     # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
+    local last_nightly_version_id last_nightly_build_id
     # shellcheck disable=SC1091 # sourcing generated file
     last_nightly_version_id=$(source "${NEW_STATE}/sdk_container/.repo/manifests/version.txt"; printf '%s' "${FLATCAR_VERSION_ID}")
     # shellcheck disable=SC1091 # sourcing generated file
@@ -660,9 +662,9 @@ function generate_sdk_reports() {
     local arch packages_image_var_name packages_image_name
     local sdk_run_kind state_var_name sdk_run_state state_branch_var_name sdk_run_state_branch
     local file full_file
+    local rv
     local sdk_reports_dir
     local -a report_files
-    local rv
     for arch in "${ARCHES[@]}"; do
         packages_image_var_name="${arch^^}_PACKAGES_IMAGE"
         local -n packages_image_ref="${packages_image_var_name}"
@@ -849,9 +851,10 @@ function read_reports() {
     # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
-    local arch which report rr_pimap_mvm_var_name
     local -A all_packages_set
     all_packages_set=()
+
+    local arch which report rr_pimap_mvm_var_name
     for arch in "${ARCHES[@]}"; do
         for which in "${WHICH[@]}"; do
             for report in "${REPORTS[@]}"; do
@@ -901,10 +904,8 @@ function gentoo_ver_test_out() {
     out_var_name=${1}; shift
     local -n out_ref="${out_var_name}"
 
-    local -
-    set +e
-    ver_test "${v1}" "${op}" "${v2}"
-    out_ref=${?}
+    out_ref=0
+    ver_test "${v1}" "${op}" "${v2}" || out_ref=${?}
     return 0
 }
 
@@ -934,10 +935,8 @@ function gentoo_ver_cmp_out() {
     out_var_name=${1}; shift
     local -n out_ref="${out_var_name}"
 
-    local -
-    set +e
-    _ver_compare "${v1}" "${v2}"
-    out_ref=${?}
+    out_ref=0
+    _ver_compare "${v1}" "${v2}" || out_ref=${?}
     case ${out_ref} in
         1|2|3)
             return 0
@@ -1202,10 +1201,11 @@ function handle_package_changes() {
 
     mkdir "${REPORTS_DIR}/updates"
 
-    local pkg other
     local -a old_pkgs new_pkgs
     old_pkgs=()
     new_pkgs=()
+
+    local pkg other
     for pkg in "${hpc_all_pkgs[@]}"; do
         other=${renamed_old_to_new_map_ref["${pkg}"]:-}
         if [[ -n "${other}" ]]; then
@@ -1562,8 +1562,8 @@ function tags_for_pkg() {
     local -n tags_ref="${tags_var_name}"
 
     local tfp_tags_var_name
-
     mvm_get "${pkg_to_tags_mvm_var_name}" "${pkg}" tfp_tags_var_name
+
     if [[ -z ${tfp_tags_var_name} ]]; then
         tags_ref=()
     else
@@ -1784,9 +1784,9 @@ function handle_profiles() {
     # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
-    local arch which report
     local -a files
     files=()
+    local arch which report
     for arch in "${ARCHES[@]}"; do
         for which in "${WHICH[@]}"; do
             for report in sdk-profiles board-profiles; do
@@ -1816,11 +1816,12 @@ function handle_profiles() {
     xdiff "${diff_opts[@]}" \
          "${OLD_PORTAGE_STABLE}/profiles" "${NEW_PORTAGE_STABLE}/profiles" >"${out_dir}/full-diff"
 
-    local relevant path dir mark
-    local -a relevant_lines possibly_irrelevant_files
+    local relevant
     relevant=''
+    local -a relevant_lines possibly_irrelevant_files
     relevant_lines=()
     possibly_irrelevant_files=()
+    local path dir mark
     while read -r line; do
         if [[ ${line} = "diff ${diff_opts[*]} "* ]]; then
             path=${line##*"${NEW_PORTAGE_STABLE}/profiles/"}
@@ -1885,9 +1886,11 @@ function handle_licenses() {
                 "  - ${line}"
         fi
     done < <(xdiff --brief --recursive "${OLD_PORTAGE_STABLE}/licenses" "${NEW_PORTAGE_STABLE}/licenses")
+
     local out_dir
     out_dir="${REPORTS_DIR}/updates/licenses"
     mkdir -p "${out_dir}"
+
     lines_to_file_truncate \
         "${out_dir}/brief-diff" \
         '- removed:' \
@@ -1897,6 +1900,7 @@ function handle_licenses() {
         '- modified:' |
         "${changed[@]/#/  - }"
     truncate --size=0 "${out_dir}/mod-diff"
+
     local c
     for c in "${changed[@]}"; do
         xdiff "${OLD_PORTAGE_STABLE}/licenses/${c}" "${NEW_PORTAGE_STABLE}/licenses/${c}" >>"${out_dir}/mod-diff"
@@ -1910,6 +1914,7 @@ function handle_scripts() {
     local out_dir
     out_dir="${REPORTS_DIR}/updates/scripts"
     mkdir -p "${out_dir}"
+
     xdiff --unified --recursive "${OLD_PORTAGE_STABLE}/scripts" "${NEW_PORTAGE_STABLE}/scripts" >"${out_dir}"
 }
 
