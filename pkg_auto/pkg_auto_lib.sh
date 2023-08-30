@@ -1282,7 +1282,7 @@ function handle_package_changes() {
                     handle_pkg_downgrade "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${hpc_old_s}" "${hpc_new_s}" "${old_version}" "${new_version}"
                     ;;
             esac
-        else
+        elif [[ ${#hpc_only_old_slots_set[@]} -gt 0 ]] || [[ ${#hpc_only_new_slots_set[@]} -gt 0 ]]
             lines=(
                 '- handle package update:'
                 '  - old package name:'
@@ -1301,25 +1301,6 @@ function handle_package_changes() {
             for s in "${!hpc_new_slots_set_ref[@]}"; do
                 new_verminmax=${new_slot_verminmax_map_ref["${s}"]:-}
                 lines+=("      - ${s}, minmax: ${new_verminmax}")
-            done
-            # TODO: drop these
-            lines+=(
-                '  - common slots:'
-            )
-            for s in "${!hpc_common_slots_set[@]}"; do
-                lines+=("    - ${s}")
-            done
-            lines+=(
-                '  - only old slots:'
-            )
-            for s in "${!hpc_only_old_slots_set[@]}"; do
-                lines+=("    - ${s}")
-            done
-            lines+=(
-                '  - only new slots:'
-            )
-            for s in "${!hpc_only_new_slots_set[@]}"; do
-                lines+=("    - ${s}")
             done
             manual "${lines[@]}"
         fi
