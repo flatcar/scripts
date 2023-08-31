@@ -213,6 +213,7 @@ function _trap_resume_cleanups() {
         while read -r name; do
             read -r line || fail "no cleanup actions for snapshot '${name}' saved in cleanup stash file '${stash_file}'"
             _trap_cleanup_snapshots["${name}"]=${line}
+        done
     } <"${stash_file}"
 }
 
