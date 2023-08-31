@@ -137,23 +137,9 @@ function resume_workdir_from() {
 # Goes over the list of automatically updated packages and synces them
 # with packages from Gentoo repo. Cleans up missing packages.
 function perform_sync_with_gentoo() {
-    local -a pswg_non_package_updates pswg_missing_in_scripts pswg_missing_in_gentoo
-    pswg_non_package_updates=()
-    pswg_missing_in_scripts=()
-    pswg_missing_in_gentoo=()
-
-    local -A pswg_renamed_old_to_new_map pswg_renamed_new_to_old_map
-    # shellcheck disable=SC2034 # it's passed by name
-    pswg_renamed_old_to_new_map=()
-    # shellcheck disable=SC2034 # it's passed by name
-    pswg_renamed_new_to_old_map=()
-
-    run_sync pswg_non_package_updates pswg_missing_in_scripts pswg_missing_in_gentoo
-    handle_missing_in_scripts "${pswg_missing_in_scripts[@]}"
-    handle_missing_in_gentoo pswg_renamed_old_to_new_map pswg_renamed_new_to_old_map "${pswg_missing_in_gentoo[@]}"
-
-    save_non_package_updates "${pswg_non_package_updates[@]}"
-    save_rename_maps pswg_renamed_old_to_new_map pswg_renamed_new_to_old_map
+    run_sync
+    handle_missing_in_scripts
+    handle_missing_in_gentoo
 }
 
 # Spawns SDK containers to generate some reports using emerge and
@@ -162,25 +148,7 @@ function perform_sync_with_gentoo() {
 # data, generates package updates reports.
 function generate_package_update_reports() {
     generate_sdk_reports
-
-    mvm_declare gpur_pkg_to_tags_mvm
-    process_listings gpur_pkg_to_tags_mvm
-
-    local -a gpur_non_package_updates
-    # shellcheck disable=SC2034 # it's passed by name
-    gpur_non_package_updates=()
-    load_non_package_updates gpur_non_package_updates
-
-    local -A gpur_renames_old_to_new_map gpur_renames_new_to_old_map
-    # shellcheck disable=SC2034 # it's passed by name
-    gpur_renames_old_to_new_map=()
-    # shellcheck disable=SC2034 # it's passed by name
-    gpur_renames_new_to_old_map=()
-    load_rename_maps gpur_renames_old_to_new_map gpur_renames_new_to_old_map
-
-    handle_gentoo_sync gpur_non_package_updates gpur_renames_old_to_new_map gpur_renames_new_to_old_map gpur_pkg_to_tags_mvm
-
-    mvm_unset gpur_pkg_to_tags_mvm
+    handle_gentoo_sync
 }
 
 # Saves the new state to a save branch in scripts.
@@ -489,13 +457,9 @@ function setup_git_env() {
 }
 
 function run_sync() {
-    local non_package_updates_var_name missing_in_scripts_var_name missing_in_gentoo_var_name
-    non_package_updates_var_name=${1}; shift
-    local -n non_package_updates_ref="${non_package_updates_var_name}"
-    missing_in_scripts_var_name=${1}; shift
-    local -n missing_in_scripts_ref="${missing_in_scripts_var_name}"
-    missing_in_gentoo_var_name=${1}; shift
-    local -n missing_in_gentoo_ref="${missing_in_gentoo_var_name}"
+    local -a missing_in_scripts missing_in_gentoo
+    missing_in_scripts=()
+    missing_in_gentoo=()
 
     # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
@@ -519,7 +483,7 @@ function run_sync() {
         if [[ ! -e "${NEW_PORTAGE_STABLE}/${package}" ]]; then
             # If this happens, it means that the package was moved to overlay
             # or dropped, the list ought to be updated.
-            missing_in_scripts_ref+=("${package}")
+            missing_in_scripts+=("${package}")
             continue
         fi
         # shellcheck disable=SC2153 # GENTOO is not a misspelling, it comes from globals file
@@ -530,44 +494,78 @@ function run_sync() {
             # in portage-stable. The build should not break because of the move,
             # because most likely it's already reflected in the profiles/updates
             # directory.
-            missing_in_gentoo_ref+=("${package}")
+            missing_in_gentoo+=("${package}")
             continue
         fi
         packages_to_update+=( "${package}" )
     done < <(xgrep '^[^#]' "${packages_list}")
-    local old_head new_head
-    old_head=$(git -C "${NEW_STATE}" rev-parse HEAD)
     env --chdir="${NEW_PORTAGE_STABLE}" "${sync_script}" "${GENTOO}" "${packages_to_update[@]}"
-    new_head=$(git -C "${NEW_STATE}" rev-parse HEAD)
-    if [[ "${old_head}" != "${new_head}" ]]; then
-        while read -r line; do
-            line=${line#"${PORTAGE_STABLE_SUFFIX}/"}
-            category=${line%%/*}
-            case "${category}" in
-                eclass)
-                    if [[ ${line} = 'eclass/'+([^/])'.eclass' ]]; then
-                        non_package_updates_set["${line}"]=x
-                    fi
-                    ;;
-                licenses|metadata|profiles)
-                    non_package_updates_set["${category}"]=x
-                    ;;
-                virtual|*-*)
-                    # Package update, will be handled separately.
-                    :
-                    ;;
-                *)
-                    fail "unexpected updated file '${line}'"
-                    ;;
-            esac
-        done < <(git -C "${NEW_STATE}" diff-tree --no-commit-id --name-only -r "${old_head}" "${new_head}")
+
+    save_missing_in_scripts "${missing_in_scripts[@]}"
+    save_missing_in_gentoo "${missing_in_gentoo[@]}"
+}
+
+function save_simple_package_list() {
+    local file
+    file=${1}; shift
+    # rest are packages
+
+    add_cleanup "rm -f ${file@Q}"
+    printf '%s\n' "${@}" >"${file}"
+}
+
+function load_simple_package_list() {
+    local file packages_var_name
+    file=${1}; shift
+    packages_var_name=${1}; shift
+
+    mapfile -t "${packages_var_name}" <"${file}"
+}
+
+function save_missing_packages() {
+    local dir file
+    dir=${1}; shift
+    file=${1}; shift
+
+    create_cleanup_dir "${dir}"
+    save_simple_package_list "${dir}/${file}" "${@}"
+}
+
+function create_cleanup_dir() {
+    local dir
+    dir=${1}; shift
+    if [[ ! -d "${dir}" ]]; then
+        add_cleanup "rmdir ${dir@Q}"
+        mkdir "${dir}"
     fi
-    # shellcheck disable=SC2034 # it's a reference to external variable
-    non_package_updates_ref=( "${!non_package_updates_set[@]}" )
+}
+
+function save_missing_in_scripts() {
+    save_missing_packages "${WORKDIR}/missing_in_scripts" "saved_list" "${@}"
+}
+
+function save_missing_in_gentoo() {
+    save_missing_packages "${WORKDIR}/missing_in_gentoo" "saved_list" "${@}"
+}
+
+function load_missing_in_scripts() {
+    local packages_var_name
+    packages_var_name=${1}; shift
+
+    load_simple_package_list "${WORKDIR}/missing_in_scripts/saved_list" "${packages_var_name}"
+}
+
+function load_missing_in_gentoo() {
+    local packages_var_name
+    packages_var_name=${1}; shift
+
+    load_simple_package_list "${WORKDIR}/missing_in_gentoo/saved_list" "${packages_var_name}"
 }
 
 function handle_missing_in_scripts() {
-    # all the args are missing packages
+    local -a missing_in_scripts
+    missing_in_scripts=()
+    load_missing_in_scripts missing_in_scripts
 
     # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
@@ -584,10 +582,9 @@ function handle_missing_in_scripts() {
     # Remove missing in scripts entries from package automation
     local dir
     dir="${WORKDIR}/missing_in_scripts"
-    add_cleanup "rmdir ${dir@Q}"
-    mkdir "${dir}"
+    create_cleanup_dir "${dir}"
     local missing_re
-    join_by missing_re '\|' "${missing_in_scripts_ref[@]}"
+    join_by missing_re '\|' "${missing_in_scripts[@]}"
     add_cleanup "rm -f ${dir@Q}/pkg_list"
     xgrep --invert-match --line-regexp --regexp="${missing_re}" "${packages_list}" >"${dir}/pkg_list"
     "${packages_list_sort}" "${dir}/pkg_list" >"${packages_list}"
@@ -630,12 +627,13 @@ function devel_warn() {
 }
 
 function handle_missing_in_gentoo() {
-    local renamed_old_to_new_map_var_name renamed_new_to_old_map_var_name
-    renamed_old_to_new_map_var_name=${1}; shift
-    local -n renamed_old_to_new_map_ref="${renamed_old_to_new_map_var_name}"
-    renamed_new_to_old_map_var_name=${1}; shift
-    local -n renamed_new_to_old_map_ref="${renamed_new_to_old_map_var_name}"
-    # the rest are packages missing in Gentoo
+    local -A hmig_renamed_old_to_new_map hmig_renamed_new_to_old_map
+    hmig_renamed_old_to_new_map=()
+    hmig_renamed_new_to_old_map=()
+
+    local -a missing_in_gentoo
+    missing_in_gentoo=()
+    load_missing_in_gentoo missing_in_gentoo
 
     # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
@@ -660,7 +658,7 @@ function handle_missing_in_gentoo() {
     setup_git_env
 
     local missing new_name old_basename new_basename ebuild ebuild_version_ext new_ebuild_filename
-    for missing; do
+    for missing in "${missing_in_gentoo[@]}"; do
         new_name=$(xgrep --recursive --regexp="^move ${missing} " "${NEW_PORTAGE_STABLE}/profiles/updates/" | cut -d' ' -f3)
         if [[ -z "${new_name}" ]]; then
             manual "- package ${missing} is gone from Gentoo and no rename found"
@@ -682,8 +680,8 @@ function handle_missing_in_gentoo() {
         env --chdir="${NEW_PORTAGE_STABLE}" "${sync_script}" "${GENTOO}" "${new_name}"
         renamed_from+=("${missing}")
         renamed_to+=("${new_name}")
-        renamed_new_to_old_map_ref["${new_name}"]="${missing}"
-        renamed_old_to_new_map_ref["${missing}"]="${new_name}"
+        hmig_renamed_new_to_old_map["${new_name}"]="${missing}"
+        hmig_renamed_old_to_new_map["${missing}"]="${new_name}"
     done
 
     local dir renamed_re
@@ -701,6 +699,8 @@ function handle_missing_in_gentoo() {
         git -C "${NEW_STATE}" add "${packages_list}"
         git -C "${NEW_STATE}" commit -m '.github: Update package names in automation'
     fi
+
+    save_rename_maps hmig_renamed_old_to_new_map hmig_renamed_new_to_old_map
 }
 
 function copy_listings() {
@@ -1939,17 +1939,57 @@ function cat_entries() {
 }
 
 function handle_gentoo_sync() {
-    local non_package_updates_set_var_name renamed_old_to_new_map_var_name renamed_new_to_old_map_var_name pkg_to_tags_mvm_var_name
-    non_package_updates_set_var_name=${1}; shift
-    local -n non_package_updates_set_ref="${non_package_updates_set_var_name}"
-    renamed_old_to_new_map_var_name=${1}; shift
-    renamed_new_to_old_map_var_name=${1}; shift
-    pkg_to_tags_mvm_var_name=${1}; shift
+    mvm_declare hgs_pkg_to_tags_mvm
+    process_listings hgs_pkg_to_tags_mvm
 
-    handle_package_changes "${renamed_old_to_new_map_var_name}" "${renamed_new_to_old_map_var_name}" "${pkg_to_tags_mvm_var_name}"
+    local -A hgs_renames_old_to_new_map hgs_renames_new_to_old_map
+    # shellcheck disable=SC2034 # it's passed by name
+    hgs_renames_old_to_new_map=()
+    # shellcheck disable=SC2034 # it's passed by name
+    hgs_renames_new_to_old_map=()
+    load_rename_maps hgs_renames_old_to_new_map hgs_renames_new_to_old_map
+
+    handle_package_changes renames_old_to_new_map hgs_renames_new_to_old_map hgs_pkg_to_tags_mvm
+
+    mvm_unset hgs_pkg_to_tags_mvm
+
+    # shellcheck disable=SC1091 # generated file
+    source "${WORKDIR}/globals"
+
+    local old_head new_head
+    old_head=$(git -C "${OLD_STATE}" rev-parse HEAD)
+    new_head=$(git -C "${NEW_STATE}" rev-parse HEAD)
+
+    local -A non_package_updates_set
+    non_package_updates_set=()
+    local path in_ps category
+    if [[ "${old_head}" != "${new_head}" ]]; then
+        while read -r path; do
+            in_ps=${path#"${PORTAGE_STABLE_SUFFIX}/"}
+            category=${in_ps%%/*}
+            case "${category}" in
+                eclass)
+                    if [[ ${in_ps} != 'eclass/'+([^/])'.eclass' ]]; then
+                        fail "unexpected updated file inside eclass directory: '${path}'"
+                    fi
+                    non_package_updates_set["${path}"]=x
+                    ;;
+                licenses|metadata|profiles)
+                    non_package_updates_set["${category}"]=x
+                    ;;
+                virtual|*-*)
+                    # Package update, already handled
+                    :
+                    ;;
+                *)
+                    fail "unexpected updated file '${line}'"
+                    ;;
+            esac
+        done < <(git -C "${NEW_STATE}" diff-tree --no-commit-id --name-only -r "${old_head}" "${new_head}")
+    fi
 
     local entry
-    for entry in "${!non_package_updates_set_ref[@]}"; do
+    for entry in "${!non_package_updates_set[@]}"; do
         case "${entry}" in
             eclass/*)
                 handle_eclass "${entry}"
