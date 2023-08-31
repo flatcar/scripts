@@ -131,6 +131,10 @@ function _file_resume_cleanups() {
 
 # trap cleanups
 
+function _trap_update_trap() {
+    trap "${_trap_cleanup_actions}" EXIT
+}
+
 function _trap_setup_cleanups() {
     declare -g _trap_cleanup_actions
     _trap_cleanup_actions=':'
@@ -138,13 +142,14 @@ function _trap_setup_cleanups() {
     declare -g -A _trap_cleanup_snapshots
     _trap_cleanup_snapshots=()
 
-    trap '${_trap_cleanup_actions}' EXIT
+    _trap_update_trap
 }
 
 function _trap_add_cleanup() {
     local tac_joined
     join_by tac_joined ' ; ' "${@}"
     _trap_cleanup_actions="${tac_joined} ; ${_trap_cleanup_actions}"
+    _trap_update_trap
 }
 
 function _trap_snapshot_cleanup() {
@@ -170,6 +175,7 @@ function _trap_revert_to_cleanup_snapshot() {
 
     _trap_cleanup_actions=${_trap_cleanup_snapshots["${snapshot}"]}
     unset "_trap_cleanup_snapshots[${snapshot}]"
+    _trap_update_trap
 }
 
 function _trap_drop_cleanup_snapshot() {
@@ -216,6 +222,8 @@ function _trap_resume_cleanups() {
             _trap_cleanup_snapshots["${name}"]=${line}
         done
     } <"${stash_file}"
+
+    _trap_update_trap
 }
 
 # ignore cleanups
