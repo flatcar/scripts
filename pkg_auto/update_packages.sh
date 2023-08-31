@@ -31,7 +31,7 @@ force_reports_dir_remove=''
 
 while [[ ${#} -gt 0 ]]; do
     case ${1} in
-        --rm|)
+        --rm)
             setup_workdir_args+=( "${1}" )
             shift
             ;;

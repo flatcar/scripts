@@ -167,14 +167,15 @@ function generate_package_update_reports() {
     mvm_declare gpur_pkg_to_tags_mvm
     process_listings gpur_pkg_to_tags_mvm
 
-    # shellcheck disable=SC2034 # it's passed by name
     local -a gpur_non_package_updates
+    # shellcheck disable=SC2034 # it's passed by name
     gpur_non_package_updates=()
     load_non_package_updates gpur_non_package_updates
 
-    # shellcheck disable=SC2034 # it's passed by name
     local -A gpur_renames_old_to_new_map gpur_renames_new_to_old_map
+    # shellcheck disable=SC2034 # it's passed by name
     gpur_renames_old_to_new_map=()
+    # shellcheck disable=SC2034 # it's passed by name
     gpur_renames_new_to_old_map=()
     load_rename_maps gpur_renames_old_to_new_map gpur_renames_new_to_old_map
 
@@ -781,6 +782,7 @@ function execute_lines() {
     local commands_file
     commands_file=$(mktemp)
     printf '%s\n' "${@}" "rm -f ${commands_file@Q}" >"${commands_file}"
+    # shellcheck disable=SC1090 # sourcing generated file
     source "${commands_file}"
 }
 
@@ -1399,6 +1401,7 @@ function handle_package_changes() {
     local -a lines
     local hpc_update_dir
     local -A empty_map_or_set
+    # shellcheck disable=SC2034 # used by name below, in a special case
     empty_map_or_set=()
     while [[ ${pkg_idx} -lt ${#old_pkgs[@]} ]]; do
         old_name=${old_pkgs["${pkg_idx}"]}

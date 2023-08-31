@@ -71,6 +71,7 @@ function _file_setup_cleanups() {
 function _file_add_cleanup() {
     local fac_cleanup_dir tmpfile
     dirname_out "${_file_cleanup_file}" fac_cleanup_dir
+
     tmpfile=$(mktemp -p "${fac_cleanup_dir}")
     printf '%s\n' "${@}" >"${tmpfile}"
     if [[ -f "${_file_cleanup_file}" ]]; then
@@ -89,7 +90,7 @@ function _file_snapshot_cleanup() {
     local name
     basename_out "${_file_cleanup_file}" name
 
-    snapshot_ref=$(mktemp -p "dir" "${name}-snapshot-XXXXXXXXXX")
+    snapshot_ref=$(mktemp -p "${dir}" "${name}-snapshot-XXXXXXXXXX")
     cp -a "${_file_cleanup_file}" "${snapshot_ref}"
 }
 
@@ -168,14 +169,14 @@ function _trap_revert_to_cleanup_snapshot() {
     snapshot=${1}; shift
 
     _trap_cleanup_actions=${_trap_cleanup_snapshots["${snapshot}"]}
-    unset _trap_cleanup_snapshots["${snapshot}"]
+    unset "_trap_cleanup_snapshots[${snapshot}]"
 }
 
 function _trap_drop_cleanup_snapshot() {
     local snapshot
     snapshot=${1}; shift
 
-    unset _trap_cleanup_snapshots["${snapshot}"]
+    unset "_trap_cleanup_snapshots[${snapshot}]"
 }
 
 function _trap_stash_cleanups() {
@@ -280,7 +281,7 @@ function _ensure_valid_cleanup_kind() {
     )
 
     local func
-    for func in "${functions[@]/#/_${kind}_"; do
+    for func in "${functions[@]/#/_${kind}_}"; do
         if ! declare -pF "${func}" >/dev/null 2>/dev/null; then
             fail "kind '${kind}' is not a valid cleanup kind, function '${func}' is not defined"
         fi
@@ -316,7 +317,7 @@ function _call_cleanup_func() {
     fi
 
     local func
-    func="_${cleanup_kind}_${func_name}"
+    func="_${_cleanup_kind}_${func_name}"
 
     "${func}" "${@}"
 }
