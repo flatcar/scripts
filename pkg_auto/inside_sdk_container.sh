@@ -22,8 +22,8 @@
 ## -h: this help
 ##
 ## Positional:
-## 0 - architecture (amd64 or arm64)
-## 1 - reports directory
+## 1 - architecture (amd64 or arm64)
+## 2 - reports directory
 ##
 
 set -euo pipefail
@@ -32,10 +32,24 @@ set -x
 
 source "$(dirname "${BASH_SOURCE[0]}")/stuff.sh"
 
-if [[ ${#} -eq 1 ]] && [[ ${1} = '-h' ]]; then
-    print_help
-    exit 0
-fi
+while [[ ${#} -gt 0 ]]; do
+    case ${1} in
+        -h)
+            print_help
+            exit 0
+            ;;
+        --)
+            shift
+            break
+            ;;
+        -*)
+            fail "unknown flag '${1}'"
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
 
 if [[ ${#} -ne 2 ]]; then
     fail 'Expected two parameters: board architecture and reports directory'

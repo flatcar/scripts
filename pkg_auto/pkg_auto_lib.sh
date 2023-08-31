@@ -443,6 +443,28 @@ OLD_PORTAGE_STABLE=${old_portage_stable@Q}
 NEW_PORTAGE_STABLE=${new_portage_stable@Q}
 REPORTS_DIR=${reports_dir@Q}
 EOF
+
+    # shellcheck disable=SC1090 # generated file
+    source "${globals_file}"
+
+    local last_nightly_version_id last_nightly_build_id
+    # shellcheck disable=SC1091,SC2153 # sourcing generated file, NEW_STATE is not misspelled
+    last_nightly_version_id=$(source "${NEW_STATE}/sdk_container/.repo/manifests/version.txt"; printf '%s' "${FLATCAR_VERSION_ID}")
+    # shellcheck disable=SC1091 # sourcing generated file
+    last_nightly_build_id=$(source "${NEW_STATE}/sdk_container/.repo/manifests/version.txt"; printf '%s' "${FLATCAR_BUILD_ID}")
+
+    local -a locals definitions
+    locals=()
+    definitions=()
+    local packages_image_var_name packages_image_name
+    for arch in "${ARCHES[@]}"; do
+        packages_image_var_name="${arch^^}_PACKAGES_IMAGE"
+        packages_image_name="flatcar-packages-${arch}:${last_nightly_version_id}-${last_nightly_build_id}"
+        locals+=( "${packages_image_var_name@Q}" )
+        definitions+=( "${packages_image_var_name}=${packages_image_name@Q}" )
+    done
+
+    printf '%s\n' '' "local ${locals[*]}" '' "${definitions[@]}" >>"${globals_file}"
 }
 
 # make sure to call the following beforehand:
@@ -791,12 +813,6 @@ function generate_sdk_reports() {
     # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
-    local last_nightly_version_id last_nightly_build_id
-    # shellcheck disable=SC1091 # sourcing generated file
-    last_nightly_version_id=$(source "${NEW_STATE}/sdk_container/.repo/manifests/version.txt"; printf '%s' "${FLATCAR_VERSION_ID}")
-    # shellcheck disable=SC1091 # sourcing generated file
-    last_nightly_build_id=$(source "${NEW_STATE}/sdk_container/.repo/manifests/version.txt"; printf '%s' "${FLATCAR_BUILD_ID}")
-
     local gsr_snapshot
     snapshot_cleanup gsr_snapshot
 
@@ -814,9 +830,7 @@ function generate_sdk_reports() {
     local -a report_files
     for arch in "${ARCHES[@]}"; do
         packages_image_var_name="${arch^^}_PACKAGES_IMAGE"
-        local -n packages_image_ref="${packages_image_var_name}"
-        packages_image_name=${packages_image_ref:-"flatcar-packages-${arch}:${last_nightly_version_id}-${last_nightly_build_id}"}
-        unset -n packages_image_ref
+        packages_image_name=${!packages_image_var_name}
         if ! docker images --format '{{.Repository}}:{{.Tag}}' | grep --quiet --line-regexp --fixed-strings "${packages_image_name}"; then
             fail "No SDK image named '${packages_image_name}' available locally, pull it before running this script"
         fi
@@ -851,20 +865,17 @@ function generate_sdk_reports() {
             if [[ ${rv} -ne 0 ]]; then
                 {
                     info "run_sdk_container finished with exit status ${rv}, printing the warnings below for a clue"
+                    info
                     for file in "${sdk_run_state}/pkg-reports/"*'-warnings'; do
                         info "from ${file}:"
                         echo
                         cat "${file}"
                         echo
                     done
+                    info
                     info 'entering the SDK to investigate issues can be done as follows:'
                     info
-                    info "pushd ${NEW_STATE@Q}"
-                    info "./run_sdk_container -t -C ${packages_image_name@Q} -a ${arch@Q} --rm"
-                    info 'popd'
-                    info
-                    info "(optionally, instead of --rm, pass -n <some_name> to name the container"
-                    info " and keep it)"
+                    info "${THIS_DIR@Q}/debug_new_state.sh ${WORKDIR@Q} ${arch@Q}"
                     info
                     info 'after figuring out a fix and committing it'
                     info "to the ${!state_branch_var_name} branch"
@@ -876,6 +887,7 @@ function generate_sdk_reports() {
                     info "${WORKDIR@Q}/salvaged directory"
                     info
                     info 'Cleaning up worktrees created for SDK runs'
+                    info
                 } >&2
                 revert_to_cleanup_snapshot "${gsr_snapshot}"
                 add_cleanup "rm -rf ${WORKDIR@Q}/salvaged"
