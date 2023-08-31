@@ -64,7 +64,7 @@ fi
 # returns:
 # - 0 (true) if there are changes
 # - 1 (false) if there are no changes
-sync_git_prepare() {
+function sync_git_prepare() {
     local path
     path=${1}; shift
 
@@ -88,7 +88,7 @@ sync_git_prepare() {
     return 1
 }
 
-commit_with_gentoo_sha() {
+function commit_with_gentoo_sha() {
     local path name sync
     path=${1}; shift
     name=${1}; shift
@@ -104,7 +104,7 @@ commit_with_gentoo_sha() {
     GIT_PAGER='cat' git show --stat
 }
 
-path_sync() {
+function path_sync() {
     local path name
     path=${1}; shift
     name=${1}; shift
@@ -138,7 +138,7 @@ function prepare_dir() {
     return 1
 }
 
-category_sync() {
+function category_sync() {
     local path
     path=${1}; shift
 
@@ -154,7 +154,7 @@ category_sync() {
 
 }
 
-everything_sync() {
+function everything_sync() {
     local path mod
 
     for path in *; do

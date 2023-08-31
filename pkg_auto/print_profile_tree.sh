@@ -64,7 +64,7 @@ done
 
 unset all_repo_names
 
-function get_repo_from_profile_path {
+function get_repo_from_profile_path() {
     local path repo_dir_var_name
     path="${1}"; shift
     repo_dir_var_name="${1}"; shift
@@ -74,7 +74,7 @@ function get_repo_from_profile_path {
     repo_dir_ref="${path%/profiles/*}"
 }
 
-function repo_path_to_name {
+function repo_path_to_name() {
     local path name_var_name
     path="${1}"; shift
     name_var_name="${1}"; shift
@@ -84,7 +84,7 @@ function repo_path_to_name {
     name_ref=${repo_data_r["${path}"]:-'<unknown>'}
 }
 
-function repeat_string {
+function repeat_string() {
     local str ntimes out_str_var_name
     str="${1}"; shift
     ntimes="${1}"; shift
@@ -106,7 +106,7 @@ function repeat_string {
     fi
 }
 
-function process_profile {
+function process_profile() {
     local repo_name profile_path children_var_name
     repo_name="${1}"; shift
     profile_path="${1}"; shift
@@ -143,7 +143,7 @@ function process_profile {
     children_ref=( "${children[@]}" )
 }
 
-function get_profile_name {
+function get_profile_name() {
     local repo_name profile_path profile_name_var_name
     repo_name="${1}"; shift
     profile_path="${1}"; shift

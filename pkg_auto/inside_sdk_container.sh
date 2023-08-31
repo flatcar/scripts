@@ -7,9 +7,9 @@
 ##
 ## Reports generated:
 ## sdk-pkgs - contains package information for SDK
-## sdk-pkgs-kv - contains package information with key values (USE, PYTHON_TARGET) for SDK
+## sdk-pkgs-kv - contains package information with key values (USE, PYTHON_TARGETS, CPU_FLAGS_X86) for SDK
 ## board-pkgs - contains package information for board for chosen architecture
-## board-bdeps - contains package information with key values (USE, PYTHON_TARGET) of board build dependencies
+## board-bdeps - contains package information with key values (USE, PYTHON_TARGETS, CPU_FLAGS_X86) of board build dependencies
 ## sdk-profiles - contains a list of profiles used by the SDK, in evaluation order
 ## board-profiles - contains a list of profiles used by the board for the chosen architecture, in evaluation order
 ## sdk-package-repos - contains package information with their repos for SDK
@@ -82,6 +82,7 @@ function set_eo() {
 
 function cat_eo() {
     local kind=${1}; shift
+    local suffix=${1:-}; shift
 
     local var_name
     var_name="${kind^^}_EO"
@@ -90,11 +91,13 @@ function cat_eo() {
     if [[ -z "${ref+isset}" ]]; then
         fail "${var_name} unset"
     fi
-    if [[ ! -s "${ref}" ]]; then
-        fail "${ref} does not exists or it's empty"
+    local eo_suffixed
+    eo_suffixed="${ref}${suffix}"
+    if [[ ! -s "${eo_suffixed}" ]]; then
+        fail "${eo_suffixed} does not exists or it's empty"
     fi
 
-    cat "${ref}"
+    cat "${eo_suffixed}"
 }
 
 #      status      package name       version slot repo                 keyvals          size
@@ -109,7 +112,7 @@ function cat_eo() {
 STATUS_RE='\[[^]]*]' # 0 groups
 PACKAGE_NAME_RE='[^[:space:]]*' # 0 groups
 VER_SLOT_REPO_RE='\[\([^]]\+\)::\([^]]\+\)]' # 2 groups
-KEYVALS_RE='\([[:space:]]*[A-Za-z_]*="[^"]*"\)*' # 1 group (but containing only the last pair!)
+KEYVALS_RE='\([[:space:]]*[A-Za-z0-9_]*="[^"]*"\)*' # 1 group (but containing only the last pair!)
 SIZE_RE='[[:digit:]]\+[[:space:]]*[[:alpha:]]*B' # 0 groups
 SPACES_RE='[[:space:]]\+' # 0 groups
 NONSPACES_RE='[^[:space:]]\+' # 0 groups
@@ -236,6 +239,16 @@ function package_sources_board() {
     packages_for_board "${sed_opts[@]}"
 }
 
+function ensure_no_errors() {
+    local kind
+
+    for kind in sdk board; do
+        if cat_eo "${kind}" '-warnings' | grep 'ERROR'; then
+            fail "there are errors in emerge output warnings files"
+        fi
+    done
+}
+
 arch=${1}; shift
 reports_dir=${1}; shift
 
@@ -248,9 +261,11 @@ package_info_for_sdk >"${SDK_EO}" 2>"${SDK_EO}-warnings"
 echo 'Running pretend-emerge to get complete report for board'
 package_info_for_board "${arch}" >"${BOARD_EO}" 2>"${BOARD_EO}-warnings"
 
+ensure_no_errors
+
 echo 'Generating SDK packages listing'
 versions_sdk >"${reports_dir}/sdk-pkgs" 2>"${reports_dir}/sdk-pkgs-warnings"
-echo 'Generating SDK packages listing with key-values (USE, SINGLE_PYTHON, etc)'
+echo 'Generating SDK packages listing with key-values (USE, PYTHON_TARGETS CPU_FLAGS_X86, etc)'
 versions_sdk_with_key_values >"${reports_dir}/sdk-pkgs-kv" 2>"${reports_dir}/sdk-pkgs-kv-warnings"
 echo 'Generating board packages listing'
 versions_board >"${reports_dir}/board-pkgs" 2>"${reports_dir}/board-pkgs-warnings"

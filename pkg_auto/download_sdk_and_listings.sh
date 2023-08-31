@@ -107,7 +107,7 @@ fi
 add_cleanup "rmdir ${DOWNLOADS_DIR@Q}"
 mkdir "${DOWNLOADS_DIR}"
 
-function download {
+function download() {
     local url output
     url="${1}"; shift
     output="${1}"; shift
