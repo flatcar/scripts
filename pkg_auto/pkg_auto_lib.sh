@@ -639,6 +639,7 @@ function handle_missing_in_gentoo() {
     source "${WORKDIR}/globals"
 
     if [[ ${#} -eq 0 ]]; then
+        save_rename_maps hmig_renamed_old_to_new_map hmig_renamed_new_to_old_map
         return 0
     fi
 
