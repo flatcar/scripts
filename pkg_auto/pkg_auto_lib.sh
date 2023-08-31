@@ -544,7 +544,12 @@ function run_sync() {
             line=${line#"${PORTAGE_STABLE_SUFFIX}/"}
             category=${line%%/*}
             case "${category}" in
-                eclass|licenses|metadata|profiles)
+                eclass)
+                    if [[ ${line} = 'eclass/'+([^/])'.eclass' ]]; then
+                        non_package_updates_set["${line}"]=x
+                    fi
+                    ;;
+                licenses|metadata|profiles)
                     non_package_updates_set["${category}"]=x
                     ;;
                 virtual|*-*)
