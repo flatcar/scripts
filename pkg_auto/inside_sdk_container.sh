@@ -28,6 +28,8 @@
 
 set -euo pipefail
 
+set -x
+
 source "$(dirname "${BASH_SOURCE[0]}")/stuff.sh"
 
 if [[ ${#} -eq 1 ]] && [[ ${1} = '-h' ]]; then
