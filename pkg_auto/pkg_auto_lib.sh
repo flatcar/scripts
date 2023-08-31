@@ -138,7 +138,6 @@ function resume_workdir_from() {
 # with packages from Gentoo repo. Cleans up missing packages.
 function perform_sync_with_gentoo() {
     local -a pswg_non_package_updates pswg_missing_in_scripts pswg_missing_in_gentoo
-    # shellcheck disable=SC2034 # it's passed by name
     pswg_non_package_updates=()
     pswg_missing_in_scripts=()
     pswg_missing_in_gentoo=()
@@ -153,7 +152,7 @@ function perform_sync_with_gentoo() {
     handle_missing_in_scripts "${pswg_missing_in_scripts[@]}"
     handle_missing_in_gentoo pswg_renamed_old_to_new_map pswg_renamed_new_to_old_map "${pswg_missing_in_gentoo[@]}"
 
-    save_non_package_updates "${non_package_updates_var_name[@]}"
+    save_non_package_updates "${pswg_non_package_updates[@]}"
     save_rename_maps pswg_renamed_old_to_new_map pswg_renamed_new_to_old_map
 }
 
@@ -1675,17 +1674,26 @@ function handle_pkg_as_is() {
     local -a lines
     lines=( "still at ${v}" )
 
-    local hpai_update_dir_parent
+    local hpai_update_dir_parent hpai_update_dir_parent_2
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
         lines+=( "renamed from ${old_pkg}" )
     else
         # If absolutely nothing has changed, generate no reports and
-        # remove the update directory.
+        # remove the update directory. There are three levels of
+        # directories that may need removing:
+        #
+        # category/name/slot
+        # category/name
+        # category
         if diff --recursive "${OLD_PORTAGE_STABLE}/${old_pkg}" "${NEW_PORTAGE_STABLE}/${new_pkg}" >/dev/null 2>/dev/null; then
             rmdir "${hpai_update_dir}"
             dirname_out "${hpai_update_dir}" hpai_update_dir_parent
             if [[ -z $(echo "${hpai_update_dir_parent}"/*) ]]; then
                 rmdir "${hpai_update_dir_parent}"
+                dirname_out "${hpai_update_dir_parent}" hpai_update_dir_parent_2
+                if [[ -z $(echo "${hpai_update_dir_parent_2}"/*) ]]; then
+                    rmdir "${hpai_update_dir_parent_2}"
+                fi
             fi
             return 0
         fi
