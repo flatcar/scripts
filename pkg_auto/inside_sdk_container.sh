@@ -92,26 +92,37 @@ function set_eo() {
 
     SDK_EO="${dir}/sdk-emerge-output"
     BOARD_EO="${dir}/board-emerge-output"
+    SDK_EO_W="${SDK_EO}-warnings"
+    BOARD_EO_W="${BOARD_EO}-warnings"
 }
 
-function cat_eo() {
-    local kind=${1}; shift
-    local suffix=${1:-}; shift
-
+function cat_var() {
     local var_name
-    var_name="${kind^^}_EO"
+    var_name=${1}; shift
     local -n ref="${var_name}"
 
     if [[ -z "${ref+isset}" ]]; then
         fail "${var_name} unset"
     fi
-    local eo_suffixed
-    eo_suffixed="${ref}${suffix}"
-    if [[ ! -e "${eo_suffixed}" ]]; then
-        fail "${eo_suffixed} does not exist"
+    if [[ ! -e "${ref}" ]]; then
+        fail "${ref} does not exist"
     fi
 
-    cat "${eo_suffixed}"
+    cat "${ref}"
+}
+
+function cat_eo_w() {
+    local kind
+    kind=${1}; shift
+
+    cat_var "${kind^^}_EO_W"
+}
+
+function cat_eo() {
+    local kind
+    kind=${1}; shift
+
+    cat_var "${kind^^}_EO"
 }
 
 #      status      package name       version slot repo                 keyvals          size
@@ -257,7 +268,7 @@ function ensure_no_errors() {
     local kind
 
     for kind in sdk board; do
-        if cat_eo "${kind}" '-warnings' | grep 'ERROR'; then
+        if cat_eo_w "${kind}" | grep --quiet --fixed-strings 'ERROR'; then
             fail "there are errors in emerge output warnings files"
         fi
     done
@@ -271,9 +282,9 @@ mkdir -p "${reports_dir}"
 set_eo "${reports_dir}"
 
 echo 'Running pretend-emerge to get complete report for SDK'
-package_info_for_sdk >"${SDK_EO}" 2>"${SDK_EO}-warnings"
+package_info_for_sdk >"${SDK_EO}" 2>"${SDK_EO_W}"
 echo 'Running pretend-emerge to get complete report for board'
-package_info_for_board "${arch}" >"${BOARD_EO}" 2>"${BOARD_EO}-warnings"
+package_info_for_board "${arch}" >"${BOARD_EO}" 2>"${BOARD_EO_W}"
 
 ensure_no_errors
 
