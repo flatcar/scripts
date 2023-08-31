@@ -28,8 +28,6 @@
 
 set -euo pipefail
 
-set -x
-
 source "$(dirname "${BASH_SOURCE[0]}")/stuff.sh"
 
 while [[ ${#} -gt 0 ]]; do
