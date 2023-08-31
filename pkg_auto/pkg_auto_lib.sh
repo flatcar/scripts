@@ -34,11 +34,11 @@ shopt -s dotglob
 ## -x: cleanup file
 ##
 ## Positional:
-## 0: scripts directory
-## 1: Gentoo directory
-## 2: listings directory
-## 3: new branch name with updates
-## 4: reports directory
+## 1: scripts directory
+## 2: Gentoo directory
+## 3: listings directory
+## 4: new branch name with updates
+## 5: reports directory
 ##
 function setup_workdir_full() {
     local -a cleanup_setup_args
@@ -113,7 +113,7 @@ function setup_workdir_full() {
     reports_directory=$(realpath "${1}"); shift
 
     setup_cleanups "${cleanup_setup_args[@]}"
-    setup_workdir "${listings_directory}" "${work_directory}" "${saved_branch_name}"
+    setup_workdir "${listings_directory}" "${saved_branch_name}" "${work_directory}"
     setup_worktrees_in_workdir "${scripts}" "${scripts_base}" "${gentoo}" "${reports_directory}"
     override_sdk_image_names up_sdk_image_overrides
 }
