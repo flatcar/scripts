@@ -224,6 +224,18 @@ function __mvm_mvc_name() {
 }
 
 function mvm_unset() {
+    # TODO: debug, drop it
+    echo "MVM_UNSET: ${1}"
+    echo "DECLARE OF ${1}:"
+    declare -p "${1}" || :
+    local -n ajwaj="${1}"
+    local k v
+    echo "CONTENTS OF ${1}:"
+    for k in "${!ajwaj[@]}"; do
+        v=${ajwaj["${k}"]:-'AJWAJ!'}
+        echo "  ${k}: ${v}"
+    done
+    unset -n ajwaj
     mvm_call "${1}" mvm_c_unset "${@:2}"
 }
 
