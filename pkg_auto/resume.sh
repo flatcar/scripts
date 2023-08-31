@@ -9,7 +9,7 @@ set -euo pipefail
 ## -h: this help
 ##
 ## Positional:
-## 0: workdir directory
+## 1: workdir directory
 ##
 
 set -euo pipefail
@@ -36,8 +36,8 @@ while [[ ${#} -gt 0 ]]; do
     esac
 done
 
-if [[ ${#} -ne 5 ]]; then
-    fail 'expected one positional parameters: a work directory'
+if [[ ${#} -ne 1 ]]; then
+    fail 'expected one positional parameter: a work directory'
 fi
 
 resume_workdir_from "${1}"
