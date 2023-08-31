@@ -93,8 +93,8 @@ function cat_eo() {
     fi
     local eo_suffixed
     eo_suffixed="${ref}${suffix}"
-    if [[ ! -s "${eo_suffixed}" ]]; then
-        fail "${eo_suffixed} does not exists or it's empty"
+    if [[ ! -e "${eo_suffixed}" ]]; then
+        fail "${eo_suffixed} does not exist"
     fi
 
     cat "${eo_suffixed}"

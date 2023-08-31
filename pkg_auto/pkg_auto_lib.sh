@@ -219,6 +219,7 @@ function setup_workdir() {
 }
 
 function prepare_workdir_for_resumption() {
+    add_cleanup "rm -f ${WORKDIR@Q}/cleanup-stash-file"
     stash_cleanups "${WORKDIR}/cleanup-stash-file"
 }
 
