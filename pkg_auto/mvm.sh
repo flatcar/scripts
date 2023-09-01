@@ -228,6 +228,7 @@ function mvm_unset() {
     echo "MVM_UNSET: ${1}"
     echo "DECLARE OF ${1}:"
     declare -p "${1}" || :
+    echo
     mvm_call "${1}" mvm_c_unset "${@:2}"
 }
 

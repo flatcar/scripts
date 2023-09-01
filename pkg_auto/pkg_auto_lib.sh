@@ -519,7 +519,11 @@ function save_simple_package_list() {
     # rest are packages
 
     add_cleanup "rm -f ${file@Q}"
-    printf '%s\n' "${@}" >"${file}"
+    if [[ ${#} -eq 0 ]]; then
+        truncate --size=0 "${file}"
+    else
+        printf '%s\n' "${@}" >"${file}"
+    fi
 }
 
 function load_simple_package_list() {
@@ -1397,6 +1401,7 @@ function handle_package_changes() {
 
     local pkg other
     for pkg in "${hpc_all_pkgs[@]}"; do
+        echo "pkg: ${pkg}"
         other=${renamed_old_to_new_map_ref["${pkg}"]:-}
         if [[ -n "${other}" ]]; then
             old_pkgs+=("${pkg}")
