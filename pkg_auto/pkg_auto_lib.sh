@@ -2027,7 +2027,7 @@ function handle_eclass() {
     source "${WORKDIR}/globals"
 
     mkdir -p "${REPORTS_DIR}/updates/${eclass}"
-    diff "${OLD_PORTAGE_STABLE}/${eclass}" "${NEW_PORTAGE_STABLE}/${eclass}" >"${REPORTS_DIR}/updates/${eclass}/diff"
+    xdiff "${OLD_PORTAGE_STABLE}/${eclass}" "${NEW_PORTAGE_STABLE}/${eclass}" >"${REPORTS_DIR}/updates/${eclass}/diff"
 }
 
 function handle_profiles() {
