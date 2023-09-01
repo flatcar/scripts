@@ -2147,7 +2147,7 @@ function handle_licenses() {
         "${dropped[@]/#/  - }" \
         '- added:' \
         "${added[@]/#/  - }" \
-        '- modified:' |
+        '- modified:' \
         "${changed[@]/#/  - }"
     truncate --size=0 "${out_dir}/mod-diff"
 
