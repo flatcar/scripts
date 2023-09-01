@@ -23,7 +23,7 @@
 set -euo pipefail
 
 source "$(dirname "${BASH_SOURCE[0]}")/stuff.sh"
-source "${THIS_DIR}/pkg_auto_lib.sh"
+source "${PKG_AUTO_DIR}/pkg_auto_lib.sh"
 
 declare -a setup_workdir_args
 setup_workdir_args=()

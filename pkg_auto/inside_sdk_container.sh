@@ -297,9 +297,9 @@ versions_board >"${reports_dir}/board-pkgs" 2>"${reports_dir}/board-pkgs-warning
 echo 'Generating board packages bdeps listing'
 board_bdeps >"${reports_dir}/board-bdeps" 2>"${reports_dir}/board-bdeps-warnings"
 echo 'Generating SDK profiles evaluation list'
-ROOT=/ "${THIS_DIR}/print_profile_tree.sh" -ni -nh >"${reports_dir}/sdk-profiles" 2>"${reports_dir}/sdk-profiles-warnings"
+ROOT=/ "${PKG_AUTO_DIR}/print_profile_tree.sh" -ni -nh >"${reports_dir}/sdk-profiles" 2>"${reports_dir}/sdk-profiles-warnings"
 echo 'Generating board profiles evaluation list'
-ROOT="/build/${arch}-usr" "${THIS_DIR}/print_profile_tree.sh" -ni -nh >"${reports_dir}/board-profiles" 2>"${reports_dir}/board-profiles-warnings"
+ROOT="/build/${arch}-usr" "${PKG_AUTO_DIR}/print_profile_tree.sh" -ni -nh >"${reports_dir}/board-profiles" 2>"${reports_dir}/board-profiles-warnings"
 echo 'Generating SDK package source information'
 package_sources_sdk >"${reports_dir}/sdk-package-repos" 2>"${reports_dir}/sdk-package-repos-warnings"
 echo 'Generating board package source information'

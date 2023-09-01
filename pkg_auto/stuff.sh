@@ -3,18 +3,76 @@
 if [[ -z ${__STUFF_SH_INCLUDED__:-} ]]; then
 __STUFF_SH_INCLUDED__=x
 
+function dirname_out() {
+    local path dir_var_name
+    path=${1}; shift
+    dir_var_name=${1}; shift
+    local -n dir_ref="${dir_var_name}"
+
+    if [[ -z ${path} ]]; then
+        dir_ref='.'
+        return 0
+    fi
+    local cleaned_up dn
+    # strip trailing slashes
+    cleaned_up=${path%%*(/)}
+    # strip duplicated slashes
+    cleaned_up=${cleaned_up//+(\/)/\/}
+    # strip last component
+    dn=${cleaned_up%/*}
+    if [[ -z ${dn} ]]; then
+        dir_ref='/'
+        return 0
+    fi
+    if [[ ${cleaned_up} = "${dn}" ]]; then
+        dir_ref='.'
+        return 0
+    fi
+    # shellcheck disable=SC2034 # it's a reference to external variable
+    dir_ref=${dn}
+}
+
+function basename_out() {
+    local path base_var_name
+    path=${1}; shift
+    base_var_name=${1}; shift
+    local -n base_ref="${base_var_name}"
+
+    if [[ -z ${path} ]]; then
+        base_ref=''
+        return 0
+    fi
+    local cleaned_up dn
+    # strip trailing slashes
+    cleaned_up=${path%%*(/)}
+    if [[ -z ${cleaned_up} ]]; then
+        base_ref='/'
+        return 0
+    fi
+    # strip duplicated slashes
+    cleaned_up=${cleaned_up//+(\/)/\/}
+    # keep last component
+    dn=${cleaned_up##*/}
+    # shellcheck disable=SC2034 # it's a reference to external variable
+    base_ref=${dn}
+}
+
+echo "BASH_SOURCE: ${BASH_SOURCE[*]}"
+
 if [[ ${BASH_SOURCE[-1]##*/} = 'stuff.sh' ]]; then
     THIS="${BASH}"
-    THIS_NAME=$(basename "${THIS}")
+    basename_out "${THIS}" THIS_NAME
     THIS_DIR=.
 else
     THIS=${BASH_SOURCE[-1]}
-    THIS_NAME=$(basename "${THIS}")
-    THIS_DIR=$(dirname "${THIS}")
+    basename_out "${THIS}" THIS_NAME
+    dirname_out "${THIS}" THIS_DIR
 fi
 
 THIS=$(realpath "${THIS}")
 THIS_DIR=$(realpath "${THIS_DIR}")
+dirname_out "${BASH_SOURCE[0]}" PKG_AUTO_DIR
+PKG_AUTO_DIR=$(realpath "${PKG_AUTO_DIR}")
 
 function info() {
     printf '%s: %s\n' "${THIS_NAME}" "${*}"
@@ -345,60 +403,6 @@ function revert_to_cleanup_snapshot() {
 
 function drop_cleanup_snapshot() {
     _call_cleanup_func drop_cleanup_snapshot "${@}"
-}
-
-function dirname_out() {
-    local path dir_var_name
-    path=${1}; shift
-    dir_var_name=${1}; shift
-    local -n dir_ref="${dir_var_name}"
-
-    if [[ -z ${path} ]]; then
-        dir_ref='.'
-        return 0
-    fi
-    local cleaned_up dn
-    # strip trailing slashes
-    cleaned_up=${path%%*(/)}
-    # strip duplicated slashes
-    cleaned_up=${cleaned_up//+(\/)/\/}
-    # strip last component
-    dn=${cleaned_up%/*}
-    if [[ -z ${dn} ]]; then
-        dir_ref='/'
-        return 0
-    fi
-    if [[ ${cleaned_up} = "${dn}" ]]; then
-        dir_ref='.'
-        return 0
-    fi
-    # shellcheck disable=SC2034 # it's a reference to external variable
-    dir_ref=${dn}
-}
-
-function basename_out() {
-    local path base_var_name
-    path=${1}; shift
-    base_var_name=${1}; shift
-    local -n base_ref="${base_var_name}"
-
-    if [[ -z ${path} ]]; then
-        base_ref=''
-        return 0
-    fi
-    local cleaned_up dn
-    # strip trailing slashes
-    cleaned_up=${path%%*(/)}
-    if [[ -z ${cleaned_up} ]]; then
-        base_ref='/'
-        return 0
-    fi
-    # strip duplicated slashes
-    cleaned_up=${cleaned_up//+(\/)/\/}
-    # keep last component
-    dn=${cleaned_up##*/}
-    # shellcheck disable=SC2034 # it's a reference to external variable
-    base_ref=${dn}
 }
 
 fi

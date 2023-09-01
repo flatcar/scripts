@@ -53,7 +53,7 @@ function main() {
     pushd "${NEW_STATE}"
 
     add_cleanup "rm -f ${NEW_STATE@Q}/{print_profile_tree.sh,inside_sdk_container.sh,stuff.sh}"
-    cp -a "${THIS_DIR}"/{print_profile_tree.sh,inside_sdk_container.sh,stuff.sh} .
+    cp -a "${PKG_AUTO_DIR}"/{print_profile_tree.sh,inside_sdk_container.sh,stuff.sh} .
     add_cleanup "git -C ${NEW_STATE@Q} checkout -- sdk_container/.repo/manifests/version.txt"
     ./run_sdk_container -t -C "${!image_var_name}" -a "${arch}" --rm
     popd
