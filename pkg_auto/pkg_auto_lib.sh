@@ -1404,8 +1404,6 @@ function handle_package_changes() {
 
     local pkg other
     for pkg in "${hpc_all_pkgs[@]}"; do
-        echo "pkg: ${pkg}"
-        declare -p renamed_old_to_new_map_ref
         other=${renamed_old_to_new_map_ref["${pkg}"]:-}
         if [[ -n "${other}" ]]; then
             old_pkgs+=("${pkg}")
@@ -1556,8 +1554,8 @@ function handle_package_changes() {
         unset -n new_slot_verminmax_map_ref old_slot_verminmax_map_ref hpc_new_slots_set_ref hpc_old_slots_set_ref
     done
 
-    mvm_unset hpc_new_pkg_slot_verminmax_mvm
-    mvm_unset hpc_old_pkg_slot_verminmax_mvm
+    mvm_unset hpc_new_pkg_slot_verminmax_map_mvm
+    mvm_unset hpc_old_pkg_slot_verminmax_map_mvm
     mvm_unset hpc_pkg_slots_set_mvm
 }
 
