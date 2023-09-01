@@ -2077,7 +2077,7 @@ function handle_profiles() {
             path=${line##*"${NEW_PORTAGE_STABLE}/profiles/"}
             dirname_out "${path}" dir
             relevant=''
-            mark=${profile_dirs_set["${dir}"]}
+            mark=${profile_dirs_set["${dir}"]:-}
             if [[ -n "${mark}" ]]; then
                 relevant=x
             else
