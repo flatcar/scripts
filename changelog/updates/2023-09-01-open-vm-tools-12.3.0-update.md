@@ -1,0 +1,1 @@
+- VMware: open-vm-tools ([12.3.0](https://github.com/vmware/open-vm-tools/releases/tag/stable-12.3.0))
