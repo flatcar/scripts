@@ -130,8 +130,12 @@ function resume_workdir_from() {
     fi
     resume_cleanups "${workdir}/cleanup-stash-file"
 
+    set_workdir_to "${workdir}"
+}
+
+function set_workdir_to() {
     declare -g WORKDIR
-    WORKDIR=$(realpath "${workdir}")
+    WORKDIR=$(realpath "${1}")
 }
 
 # Goes over the list of automatically updated packages and synces them
@@ -176,8 +180,7 @@ function setup_workdir() {
         workdir=$(mktemp --tmpdir --directory "up-XXXXXXXX")
     fi
 
-    declare -g WORKDIR
-    WORKDIR=$(realpath "${workdir}")
+    set_workdir_to "${workdir}"
     add_cleanup "rmdir ${WORKDIR@Q}"
     mkdir -p "${WORKDIR}"
 
