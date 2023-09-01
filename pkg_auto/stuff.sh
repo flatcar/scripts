@@ -132,6 +132,7 @@ function _file_resume_cleanups() {
 # trap cleanups
 
 function _trap_update_trap() {
+    # shellcheck disable=SC2064 # using double quotes on purpose instead of single quotes
     trap "${_trap_cleanup_actions}" EXIT
 }
 

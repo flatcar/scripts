@@ -346,22 +346,31 @@ function setup_initial_globals_file() {
     local saved_branch_name
     saved_branch_name=${1}; shift
 
+    local sync_script pkg_list_sort_script
+    sync_script="${THIS_DIR}/sync_with_gentoo.sh"
+    pkg_list_sort_script="${THIS_DIR}/sort_packages_list.py"
+
     local globals_file
     globals_file="${WORKDIR}/globals"
+
     add_cleanup "rm -f ${globals_file@Q}"
     cat <<EOF >"${globals_file}"
 local -a GIT_ENV_VARS ARCHES WHICH REPORTS SAVED_BRANCH_NAME
 local -A LISTING_KINDS
 local SDK_PKGS BOARD_PKGS
+local SYNC_SCRIPT PKG_LIST_SORT_SCRIPT
 
 GIT_ENV_VARS=(
     GIT_{AUTHOR,COMMITTER}_{NAME,EMAIL}
 )
 
-ARCHES=(amd64 arm64)
-WHICH=(old new)
-SDK_PKGS=sdk-pkgs
-BOARD_PKGS=board-pkgs
+SYNC_SCRIPT=${sync_script@Q}
+PKG_LIST_SORT_SCRIPT=${pkg_list_sort_script@Q}
+
+ARCHES=('amd64' 'arm64')
+WHICH=('old' 'new')
+SDK_PKGS='sdk-pkgs'
+BOARD_PKGS='board-pkgs'
 REPORTS=( "\${SDK_PKGS}" "\${BOARD_PKGS}" )
 SAVED_BRANCH_NAME=${saved_branch_name@Q}
 
@@ -398,6 +407,7 @@ function extend_globals_file() {
     cat <<EOF >>"${globals_file}"
 local SCRIPTS GENTOO OLD_STATE NEW_STATE OLD_STATE_BRANCH NEW_STATE_BRANCH
 local PORTAGE_STABLE_SUFFIX OLD_PORTAGE_STABLE NEW_PORTAGE_STABLE REPORTS_DIR
+local NEW_STATE_PACKAGES_LIST
 
 SCRIPTS=${scripts@Q}
 GENTOO=${gentoo@Q}
@@ -409,6 +419,9 @@ PORTAGE_STABLE_SUFFIX=${portage_stable_suffix@Q}
 OLD_PORTAGE_STABLE=${old_portage_stable@Q}
 NEW_PORTAGE_STABLE=${new_portage_stable@Q}
 REPORTS_DIR=${reports_dir@Q}
+
+NEW_STATE_PACKAGES_LIST="\${NEW_STATE}/.github/workflows/portage-stable-packages-list"
+
 EOF
 
     # shellcheck disable=SC1090 # generated file
@@ -467,12 +480,6 @@ function run_sync() {
     local -x "${GIT_ENV_VARS[@]}"
     setup_git_env
 
-    local packages_list sync_script
-    # shellcheck disable=SC2153 # NEW_STATE is not a misspelling, it comes from globals file
-    packages_list="${NEW_STATE}/.github/workflows/portage-stable-packages-list"
-    sync_script="${THIS_DIR}/sync_with_gentoo.sh"
-    new_head=$(git -C "${NEW_STATE}" rev-parse HEAD)
-
     local package line category
     local -A non_package_updates_set
     non_package_updates_set=()
@@ -498,8 +505,9 @@ function run_sync() {
             continue
         fi
         packages_to_update+=( "${package}" )
-    done < <(xgrep '^[^#]' "${packages_list}")
-    env --chdir="${NEW_PORTAGE_STABLE}" "${sync_script}" "${GENTOO}" "${packages_to_update[@]}"
+    done < <(xgrep '^[^#]' "${NEW_STATE_PACKAGES_LIST}")
+    # shellcheck disable=SC2153 # SYNC_SCRIPT is not a misspelling
+    env --chdir="${NEW_PORTAGE_STABLE}" "${SYNC_SCRIPT}" "${GENTOO}" "${packages_to_update[@]}"
 
     save_missing_in_scripts "${missing_in_scripts[@]}"
     save_missing_in_gentoo "${missing_in_gentoo[@]}"
@@ -563,21 +571,16 @@ function load_missing_in_gentoo() {
 }
 
 function handle_missing_in_scripts() {
-    local -a missing_in_scripts
-    missing_in_scripts=()
-    load_missing_in_scripts missing_in_scripts
+    local -a hmis_missing_in_scripts
+    hmis_missing_in_scripts=()
+    load_missing_in_scripts hmis_missing_in_scripts
 
     # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
-    if [[ ${#} -eq 0 ]]; then
+    if [[ ${#hmis_missing_in_scripts[@]} -eq 0 ]]; then
         return 0;
     fi
-
-    local packages_list_sort
-    packages_list_sort="${THIS_DIR}/sort_packages_list.py"
-    local packages_list
-    packages_list="${NEW_STATE}/.github/workflows/portage-stable-packages-list"
 
     # Remove missing in scripts entries from package automation
     local dir
@@ -586,13 +589,14 @@ function handle_missing_in_scripts() {
     local missing_re
     join_by missing_re '\|' "${missing_in_scripts[@]}"
     add_cleanup "rm -f ${dir@Q}/pkg_list"
-    xgrep --invert-match --line-regexp --regexp="${missing_re}" "${packages_list}" >"${dir}/pkg_list"
-    "${packages_list_sort}" "${dir}/pkg_list" >"${packages_list}"
+    xgrep --invert-match --line-regexp --regexp="${missing_re}" "${NEW_STATE_PACKAGES_LIST}" >"${dir}/pkg_list"
+    # shellcheck disable=SC2153 # PKG_LIST_SORT_SCRIPT is not a misspelling
+    "${PKG_LIST_SORT_SCRIPT}" "${dir}/pkg_list" >"${NEW_STATE_PACKAGES_LIST}"
 
     local -x "${GIT_ENV_VARS[@]}"
     setup_git_env
 
-    git -C "${NEW_STATE}" add "${packages_list}"
+    git -C "${NEW_STATE}" add "${NEW_STATE_PACKAGES_LIST}"
     git -C "${NEW_STATE}" commit -m '.github: Drop missing packages from automation'
 }
 
@@ -631,74 +635,65 @@ function handle_missing_in_gentoo() {
     hmig_renamed_old_to_new_map=()
     hmig_renamed_new_to_old_map=()
 
-    local -a missing_in_gentoo
-    missing_in_gentoo=()
-    load_missing_in_gentoo missing_in_gentoo
+    local -a hmig_missing_in_gentoo
+    hmig_missing_in_gentoo=()
+    load_missing_in_gentoo hmig_missing_in_gentoo
 
     # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
-    if [[ ${#} -eq 0 ]]; then
-        save_rename_maps hmig_renamed_old_to_new_map hmig_renamed_new_to_old_map
-        return 0
-    fi
+    if [[ ${#hmig_missing_in_gentoo[@]} -gt 0 ]]; then
+        local -a renamed_from renamed_to
+        renamed_from=()
+        renamed_to=()
 
-    local packages_list_sort
-    packages_list_sort="${THIS_DIR}/sort_packages_list.py"
-    local packages_list
-    packages_list="${NEW_STATE}/.github/workflows/portage-stable-packages-list"
+        local -x "${GIT_ENV_VARS[@]}"
+        setup_git_env
 
-    local -a renamed_from renamed_to
-    renamed_from=()
-    renamed_to=()
+        local missing new_name old_basename new_basename ebuild ebuild_version_ext new_ebuild_filename
+        for missing in "${hmig_missing_in_gentoo[@]}"; do
+            new_name=$(xgrep --recursive --regexp="^move ${missing} " "${NEW_PORTAGE_STABLE}/profiles/updates/" | cut -d' ' -f3)
+            if [[ -z "${new_name}" ]]; then
+                manual "- package ${missing} is gone from Gentoo and no rename found"
+                continue
+            fi
+            mkdir -p "${NEW_PORTAGE_STABLE}/${new_name%/*}"
+            git -C "${NEW_STATE}" mv "${NEW_PORTAGE_STABLE}/${missing}" "${NEW_PORTAGE_STABLE}/${new_name}"
+            basename_out "${missing}" old_basename
+            basename_out "${new_name}" new_basename
+            if [[ "${old_basename}" != "${new_basename}" ]]; then
+                for ebuild in "${NEW_PORTAGE_STABLE}/${new_name}/${old_basename}-"*'.ebuild'; do
+                    # 1.2.3-r4.ebuild
+                    ebuild_version_ext=${ebuild##*/"${old_basename}-"}
+                    new_ebuild_filename="${new_basename}-${ebuild_version_ext}"
+                    git -C "${NEW_STATE}" mv "${ebuild}" "${NEW_PORTAGE_STABLE}/${new_name}/${new_ebuild_filename}"
+                done
+            fi
+            git -C "${NEW_STATE}" commit "${new_name}: Renamed from ${missing}"
+            env --chdir="${NEW_PORTAGE_STABLE}" "${SYNC_SCRIPT}" "${GENTOO}" "${new_name}"
+            renamed_from+=("${missing}")
+            renamed_to+=("${new_name}")
+            # shellcheck disable=SC2034 # used by name at the bottom of the function
+            hmig_renamed_new_to_old_map["${new_name}"]="${missing}"
+            # shellcheck disable=SC2034 # used by name at the bottom of the function
+            hmig_renamed_old_to_new_map["${missing}"]="${new_name}"
+        done
 
-    local sync_script
-    sync_script="${THIS_DIR}/sync_with_gentoo.sh"
-
-    local -x "${GIT_ENV_VARS[@]}"
-    setup_git_env
-
-    local missing new_name old_basename new_basename ebuild ebuild_version_ext new_ebuild_filename
-    for missing in "${missing_in_gentoo[@]}"; do
-        new_name=$(xgrep --recursive --regexp="^move ${missing} " "${NEW_PORTAGE_STABLE}/profiles/updates/" | cut -d' ' -f3)
-        if [[ -z "${new_name}" ]]; then
-            manual "- package ${missing} is gone from Gentoo and no rename found"
-            continue
+        local dir renamed_re
+        if [[ ${#renamed_from[@]} -gt 0 ]]; then
+            dir="${WORKDIR}/missing_in_gentoo"
+            add_cleanup "rmdir ${dir@Q}"
+            mkdir "${dir}"
+            join_by renamed_re '\|' "${renamed_from[@]}"
+            add_cleanup "rm -f ${dir@Q}/pkg_list"
+            {
+                xgrep --invert-match --line-regexp --regexp="${renamed_re}" "${NEW_STATE_PACKAGES_LIST}"
+                printf '%s\n' "${renamed_to[@]}"
+            } >"${dir}/pkg_list"
+            "${PKG_LIST_SORT_SCRIPT}" "${dir}/pkg_list" >"${NEW_STATE_PACKAGES_LIST}"
+            git -C "${NEW_STATE}" add "${NEW_STATE_PACKAGES_LIST}"
+            git -C "${NEW_STATE}" commit -m '.github: Update package names in automation'
         fi
-        mkdir -p "${NEW_PORTAGE_STABLE}/${new_name%/*}"
-        git -C "${NEW_STATE}" mv "${NEW_PORTAGE_STABLE}/${missing}" "${NEW_PORTAGE_STABLE}/${new_name}"
-        basename_out "${missing}" old_basename
-        basename_out "${new_name}" new_basename
-        if [[ "${old_basename}" != "${new_basename}" ]]; then
-            for ebuild in "${NEW_PORTAGE_STABLE}/${new_name}/${old_basename}-"*'.ebuild'; do
-                # 1.2.3-r4.ebuild
-                ebuild_version_ext=${ebuild##*/"${old_basename}-"}
-                new_ebuild_filename="${new_basename}-${ebuild_version_ext}"
-                git -C "${NEW_STATE}" mv "${ebuild}" "${NEW_PORTAGE_STABLE}/${new_name}/${new_ebuild_filename}"
-            done
-        fi
-        git -C "${NEW_STATE}" commit "${new_name}: Renamed from ${missing}"
-        env --chdir="${NEW_PORTAGE_STABLE}" "${sync_script}" "${GENTOO}" "${new_name}"
-        renamed_from+=("${missing}")
-        renamed_to+=("${new_name}")
-        hmig_renamed_new_to_old_map["${new_name}"]="${missing}"
-        hmig_renamed_old_to_new_map["${missing}"]="${new_name}"
-    done
-
-    local dir renamed_re
-    if [[ ${#renamed_from[@]} -gt 0 ]]; then
-        dir="${WORKDIR}/missing_in_gentoo"
-        add_cleanup "rmdir ${dir@Q}"
-        mkdir "${dir}"
-        join_by renamed_re '\|' "${renamed_from[@]}"
-        add_cleanup "rm -f ${dir@Q}/pkg_list"
-        {
-            xgrep --invert-match --line-regexp --regexp="${renamed_re}" "${packages_list}"
-            printf '%s\n' "${renamed_to[@]}"
-        } >"${dir}/pkg_list"
-        "${packages_list_sort}" "${dir}/pkg_list" >"${packages_list}"
-        git -C "${NEW_STATE}" add "${packages_list}"
-        git -C "${NEW_STATE}" commit -m '.github: Update package names in automation'
     fi
 
     save_rename_maps hmig_renamed_old_to_new_map hmig_renamed_new_to_old_map
@@ -737,6 +732,7 @@ function process_listings() {
     source "${WORKDIR}/globals"
 
     local eclass ver_ere pkg_ere
+    # shellcheck disable=SC2153 # PORTAGE_STABLE_SUFFIX is not a misspelling
     eclass="${THIS_DIR}/../${PORTAGE_STABLE_SUFFIX}/eclass/eapi7-ver.eclass"
     # line is like '   re="<regexp>"'
     ver_ere=$(grep -e 're=' "${eclass}" || fail "no 're=' line found in eapi7-ver.eclass")
@@ -1375,6 +1371,7 @@ function handle_package_changes() {
     source "${WORKDIR}/globals"
 
     local -a hpc_all_pkgs
+    hpc_all_pkgs=()
 
     mvm_declare hpc_pkg_slots_set_mvm mvm_mvc_set
     read_reports hpc_all_pkgs hpc_pkg_slots_set_mvm
@@ -1958,6 +1955,7 @@ function handle_gentoo_sync() {
     source "${WORKDIR}/globals"
 
     local old_head new_head
+    # shellcheck disable=SC2153 # OLD_STATE is not a misspelling
     old_head=$(git -C "${OLD_STATE}" rev-parse HEAD)
     new_head=$(git -C "${NEW_STATE}" rev-parse HEAD)
 
