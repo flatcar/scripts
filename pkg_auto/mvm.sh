@@ -224,11 +224,6 @@ function __mvm_mvc_name() {
 }
 
 function mvm_unset() {
-    # TODO: debug, drop it
-    echo "MVM_UNSET: ${1}"
-    echo "DECLARE OF ${1}:"
-    declare -p "${1}" || :
-    echo
     mvm_call "${1}" mvm_c_unset "${@:2}"
 }
 
