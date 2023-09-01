@@ -1396,7 +1396,7 @@ function handle_package_changes() {
     hpc_package_sources_map=()
     read_package_sources hpc_package_sources_map
 
-    mkdir "${REPORTS_DIR}/updates"
+    create_cleanup_dir "${REPORTS_DIR}/updates"
 
     local -a old_pkgs new_pkgs
     old_pkgs=()
@@ -1405,6 +1405,7 @@ function handle_package_changes() {
     local pkg other
     for pkg in "${hpc_all_pkgs[@]}"; do
         echo "pkg: ${pkg}"
+        declare -p renamed_old_to_new_map_ref
         other=${renamed_old_to_new_map_ref["${pkg}"]:-}
         if [[ -n "${other}" ]]; then
             old_pkgs+=("${pkg}")
