@@ -2094,7 +2094,7 @@ function handle_profiles() {
         if [[ -n ${relevant} ]]; then
             relevant_lines+=( "${line}" )
         fi
-    done
+    done <"${out_dir}/full-diff"
     lines_to_file_truncate "${out_dir}/relevant-diff" "${relevant_lines[@]}"
     lines_to_file_truncate "${out_dir}/possibly-irrelevant-files" "${possibly_irrelevant_files[@]}"
 }
