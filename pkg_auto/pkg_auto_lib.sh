@@ -1956,7 +1956,7 @@ function handle_gentoo_sync() {
     hgs_renames_new_to_old_map=()
     load_rename_maps hgs_renames_old_to_new_map hgs_renames_new_to_old_map
 
-    handle_package_changes renames_old_to_new_map hgs_renames_new_to_old_map hgs_pkg_to_tags_mvm
+    handle_package_changes hgs_renames_old_to_new_map hgs_renames_new_to_old_map hgs_pkg_to_tags_mvm
 
     mvm_unset hgs_pkg_to_tags_mvm
 
