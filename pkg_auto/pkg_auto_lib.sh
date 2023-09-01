@@ -1978,7 +1978,7 @@ function handle_gentoo_sync() {
                     if [[ ${in_ps} != 'eclass/'+([^/])'.eclass' ]]; then
                         fail "unexpected updated file inside eclass directory: '${path}'"
                     fi
-                    non_package_updates_set["${path}"]=x
+                    non_package_updates_set["${in_ps}"]=x
                     ;;
                 licenses|metadata|profiles)
                     non_package_updates_set["${category}"]=x
