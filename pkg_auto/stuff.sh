@@ -57,8 +57,6 @@ function basename_out() {
     base_ref=${dn}
 }
 
-echo "BASH_SOURCE: ${BASH_SOURCE[*]}"
-
 if [[ ${BASH_SOURCE[-1]##*/} = 'stuff.sh' ]]; then
     THIS="${BASH}"
     basename_out "${THIS}" THIS_NAME
