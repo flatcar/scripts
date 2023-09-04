@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit toolchain-funcs
+inherit bash-completion-r1 toolchain-funcs
 
 MY_P=${P/-/_}
 DESCRIPTION="Improved Whois Client"
@@ -17,7 +17,7 @@ else
 	#SRC_URI="https://github.com/rfc1036/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 	#S="${WORKDIR}"/${PN}
 
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux"
 fi
 
 LICENSE="GPL-2"
@@ -73,7 +73,7 @@ src_compile() {
 }
 
 src_install() {
-	emake BASEDIR="${ED}" prefix=/usr install
+	emake DESTDIR="${D}" prefix="${EPREFIX}/usr" BASHCOMPDIR="$(get_bashcompdir)" install
 
 	insinto /etc
 	doins whois.conf
