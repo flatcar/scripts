@@ -1,0 +1,1 @@
+- Fixed bug in handling renamed network interfaces when generating login issue ([init#102](https://github.com/flatcar/init/pull/102))
