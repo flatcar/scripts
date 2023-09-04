@@ -6,6 +6,17 @@
 # This file is only for generic masks. For arch-specific masks (i.e.
 # mask everywhere, unmask on arch/*) use arch/base.
 
+# WANG Xuerui <xen0n@gentoo.org> (2023-08-28)
+# Breaks multiple high-profile packages depending on outdated proc-macro2 when
+# USE=nightly and using an affected Rust version; keep until revdep problems
+# are gone.
+# See https://github.com/rust-lang/rust/issues/113152
+>=dev-lang/rust-1.72.0 nightly
+
+# Michael Orlitzky <mjo@gentoo.org> (2023-08-23)
+# Polymake itself is masked for removal (bug 909570).
+sci-mathematics/singular polymake
+
 # Michael Orlitzky <mjo@gentoo.org> (2023-08-12)
 # php-7.x is End-of-Life (EOL) and masked, but these packages don't
 # support any newer versions with USE=php. Bugs 912183, 912184,
@@ -17,6 +28,14 @@ sci-geosciences/mapserver php
 # Michael Orlitzky <mjo@gentoo.org> (2023-08-11)
 # php-7.x is End-of-Life (EOL) and masked.
 www-servers/nginx-unit php7-4
+
+# Alexey Sokolov <alexey+gentoo@asokolov.org> (2023-08-14)
+# OpenMW is only playtested with LuaJIT, and in fact unit tests fail with Lua-5.
+# Therefore apply mask/force to override the profile's defaults, and invert on
+# arches where luajit is not keyworded.
+# Done this way also avoids conflicts for users using another default.
+games-engines/openmw lua_single_target_lua5-1
+games-engines/openmw lua_single_target_lua5-3 lua_single_target_lua5-4
 
 # Ionen Wolkens <ionen@gentoo.org> (2023-07-26)
 # MPV currently[1] has no plans to support >=lua5-3 making luajit
@@ -218,7 +237,7 @@ gnome-base/gnome-extra-apps tracker
 >=app-misc/tracker-miners-3.4.0-r1 rss
 
 # Marek Szuba <marecki@gentoo.org> (2022-11-14)
-# Still not ready.
+# As of August 2023, does not support qt-6.5+ yet.
 dev-python/pyotherside qt6
 
 # Viorel Munteanu <ceamac.paragon@gmail.com> (2022-10-07)
@@ -357,11 +376,6 @@ sci-libs/flann doc
 # Broken, upstream issue/PR open since 2021-05 without reply.
 # Gentoo bug #821253
 media-video/mjpg-streamer http-management
-
-# Wolfgang E. Sanyer <ezzieyguywuf@gmail.com> (2021-12-01)
-# Requires pandoc, which is unstable due to various haskell dependencies
-# (including ghc)
->=sys-apps/exa-0.10.1 man
 
 # Sam James <sam@gentoo.org> (2021-11-26)
 # Needs unpackaged asciidoctor-pdf for now
@@ -549,14 +563,6 @@ app-office/abiword ots
 <dev-ml/llvm-ocaml-17 llvm_targets_Xtensa
 <sys-devel/clang-17 llvm_targets_Xtensa
 <sys-devel/llvm-17 llvm_targets_Xtensa
-
-# Marek Szuba <marecki@gentoo.org> (2020-11-30)
-# 3.0.0+ use currently unpackaged Qt6
-# Older versions: vendored therecipe/qt violates network sandbox + uses external binary
-# Qt libraries; see https://github.com/ProtonMail/proton-bridge/issues/16
-# The qt module itself apparently can be made to build against system Qt5
-# but making it do so while vendored is a non-trivial task.
-mail-mta/proton-mail-bridge gui
 
 # Michał Górny <mgorny@gentoo.org> (2020-09-27)
 # The respective dependencies are masked for removal.
