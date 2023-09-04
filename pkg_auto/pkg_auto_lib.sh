@@ -247,26 +247,6 @@ function override_sdk_image_names() {
 
 # details
 
-function save_non_package_updates() {
-    add_cleanup "rm -f ${WORKDIR@Q}/non-package-updates"
-    if [[ ${#} -eq 0 ]]; then
-        touch "${WORKDIR}/non-package-updates"
-    else
-        printf '%s\n' "${@}" | sort >"${WORKDIR}/non-package-updates"
-    fi
-}
-
-function load_non_package_updates() {
-    local non_package_updates_var_name
-    non_package_updates_var_name=${1}; shift
-
-    if [[ ! -e "${WORKDIR}/non-package-updates" ]]; then
-        fail "non-package updates were not saved"
-    fi
-
-    mapfile -t "${non_package_updates_var_name}" <"${WORKDIR}/non-package-updates"
-}
-
 function save_rename_maps() {
     local old_to_new_map_var_name new_to_old_map_var_name
     old_to_new_map_var_name=${1}; shift
@@ -483,11 +463,10 @@ function run_sync() {
     local -x "${GIT_ENV_VARS[@]}"
     setup_git_env
 
-    local package line category
-    local -A non_package_updates_set
-    non_package_updates_set=()
     local -a packages_to_update
     packages_to_update=()
+
+    local package
     while read -r package; do
         # shellcheck disable=SC2153 # NEW_PORTAGE_STABLE is not a misspelling, it comes from globals file
         if [[ ! -e "${NEW_PORTAGE_STABLE}/${package}" ]]; then
