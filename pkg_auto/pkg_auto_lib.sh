@@ -1864,6 +1864,7 @@ function generate_mention_report_for_package() {
     cat_entries "coreos/config/env/${pkg}"@(|-+([0-9])*)
 
     yell "${pkg} in user patches"
+    local dir
     for dir in "coreos/user-patches/${pkg}"@(|-+([0-9])*); do
         echo "BEGIN DIRECTORY: ${dir}"
         cat_entries "${dir}"/*
@@ -1871,7 +1872,7 @@ function generate_mention_report_for_package() {
     done
 
     # shellcheck disable=SC2164 # we use set -e, so the script will exit if it fails
-    popd
+    popd >/dev/null
 
     yell "${pkg} in overlay (outside profiles)"
     grep_pkg "${scripts}" "${pkg}" "${ps}" ":(exclude)${ps}/profiles"
