@@ -261,6 +261,7 @@ function save_new_state() {
 
     # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
+    info "saving new state to branch ${branch_name}"
     # shellcheck disable=SC2153 # SCRIPTS is not a misspelling, it comes from globals file
     git -C "${SCRIPTS}" branch --force "${branch_name}" "${NEW_STATE_BRANCH}"
 }
