@@ -145,4 +145,4 @@ config=${1}; shift
     unset opt_idx name_idx
 } >"${config}"
 
-info 'The config is not guaranteed to be valid!
+info 'The config is not guaranteed to be valid!'
