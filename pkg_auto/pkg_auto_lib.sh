@@ -117,8 +117,7 @@ function setup_workdir_with_config() {
     # some defaults
     cfg_old_base='origin/main'
     cfg_new_base=''
-    cfg_cleanups_kind='ignore'
-    cfg_cleanups_opts=()
+    cfg_cleanups_opts=('ignore')
     cfg_overrides=()
 
     local line key value swwc_stripped var_name arch
@@ -136,21 +135,7 @@ function setup_workdir_with_config() {
                 unset -n var
                 ;;
             cleanups)
-                cfg_cleanups_kind=${line%%';'*}
-                mapfile -t -d';' cfg_cleanups_opts < <(printf '%s' "${line#*';'}")
-                case ${cfg_cleanups_kind} in
-                    ignore|trap)
-                        :
-                        ;;
-                    file)
-                        if [[ ${#cfg_cleanups_opts[@]} -ne 1 ]]; then
-                            fail 'file cleanups expect 1 extra argument being a path to cleanup file'
-                        fi
-                        ;;
-                    *)
-                        fail "invalid cleanups mode '${cfg_cleanups_kind}'"
-                        ;;
-                esac
+                mapfile -t -d';' cfg_cleanups_opts < <(printf '%s' "${value#*';'}")
                 ;;
             *-sdk-img)
                 arch=${key%%-*}
@@ -167,7 +152,7 @@ function setup_workdir_with_config() {
         ensure_specified "${key}" "${!var_name}"
     done
 
-    setup_cleanups "${cfg_cleanups_kind}" "${cfg_cleanups_opts[@]}"
+    setup_cleanups "${cfg_cleanups_opts[@]}"
     setup_workdir "${cfg_aux}" "${workdir}"
     cp "${config_file}" "${WORKDIR}/config"
     setup_worktrees_in_workdir "${cfg_scripts}" "${cfg_old_base}" "${cfg_new_base}" "${cfg_reports}" "${cfg_aux}"
