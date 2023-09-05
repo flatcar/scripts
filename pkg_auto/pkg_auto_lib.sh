@@ -178,8 +178,8 @@ function strip_out() {
 
     local t
     t=${l}
-    t=${t/#+([[:space:]])
-    t=${t/%+([[:space:]])
+    t=${t/#+([[:space:]])}
+    t=${t/%+([[:space:]])}
     out_ref=${t}
 }
 
