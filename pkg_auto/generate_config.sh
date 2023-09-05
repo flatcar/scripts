@@ -27,11 +27,17 @@ source "${PKG_AUTO_DIR}/pkg_auto_lib.sh"
 
 gc_base_workdir=''
 
+# shellcheck disable=SC2034 # used by name below
 gc_aux_directory=''
+# shellcheck disable=SC2034 # used by name below
 gc_new_base=''
+# shellcheck disable=SC2034 # used by name below
 gc_old_base=''
+# shellcheck disable=SC2034 # used by name below
 gc_reports_directory=''
+# shellcheck disable=SC2034 # used by name below
 gc_scripts_directory=''
+# shellcheck disable=SC2034 # used by name below
 gc_cleanup_opts=''
 # ${arch}_sdk_img are declared on demand
 
@@ -60,8 +66,10 @@ while [[ ${#} -gt 0 ]]; do
             image_name=${2#*:}
             var_name="gc_${arch}_sdk_img"
             unset arch
+            # shellcheck disable=SC2178 # shellcheck does not grok refs
             declare -n ref="${var_name}"
             unset var_name
+            # shellcheck disable=SC2178 # shellcheck does not grok refs
             ref=${image_name}
             unset image_name
             unset -n ref
@@ -79,7 +87,9 @@ while [[ ${#} -gt 0 ]]; do
             if [[ -z ${2:-} ]]; then
                 fail 'missing value for -w'
             fi
+            # shellcheck disable=SC2178 # shellcheck does not grok refs
             declare -n ref="${var_name}"
+            # shellcheck disable=SC2178 # shellcheck does not grok refs
             ref=${2}
             unset -n ref
             unset var_name
@@ -112,11 +122,9 @@ if [[ -n ${gc_base_workdir} ]]; then
         name=${pairs["${name_idx}"]}
         opt_idx=$((opt_idx + 2))
         name_idx=$((name_idx + 2))
-        declare -n ref="${name}"
-        if [[ -z ${ref:-} ]]; then
+        if [[ -z ${!name:-} ]]; then
             unset_values+=( "${opt}" "${name}" )
         fi
-        unset -n ref
     done
     get_config_opts "${gc_base_workdir}/config" "${pairs[@]}"
     unset opt_idx name_idx unset_values
@@ -136,6 +144,7 @@ config=${1}; shift
         name=${pairs["${name_idx}"]}
         opt_idx=$((opt_idx + 2))
         name_idx=$((name_idx + 2))
+        # shellcheck disable=SC2178 # shellcheck does not grok refs
         declare -n ref="${name}"
         if [[ -n ${ref:-} ]]; then
             printf '%s: %s\n' "${opt}" "${ref}"

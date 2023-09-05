@@ -33,6 +33,7 @@ function debug_new_state() {
     # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
+    # shellcheck disable=SC2153 # NEW_STATE is not a misspelling, comes from globals
     add_cleanup "rm -f ${NEW_STATE@Q}/{print_profile_tree.sh,inside_sdk_container.sh,stuff.sh}"
     cp -a "${PKG_AUTO_DIR}"/{print_profile_tree.sh,inside_sdk_container.sh,stuff.sh} "${NEW_STATE}"
     add_cleanup "git -C ${NEW_STATE@Q} checkout -- sdk_container/.repo/manifests/version.txt"
@@ -66,7 +67,9 @@ function get_state_refs() {
     new_state_ref_var_name=${1}; shift
     local -n new_state_ref_ref="${new_state_ref_var_name}"
 
+    # shellcheck disable=SC2034 # ref to an external variable
     old_state_ref_ref=$(git -C "${WORKDIR}/old_state" rev-parse --abbrev-ref HEAD)
+    # shellcheck disable=SC2034 # ref to an external variable
     new_state_ref_ref=$(git -C "${WORKDIR}/new_state" rev-parse --abbrev-ref HEAD)
 }
 
@@ -108,14 +111,14 @@ function setup_workdir_with_config() {
 
     local cfg_scripts cfg_aux cfg_reports cfg_old_base cfg_new_base
     local cfg_cleanups_kind
-    local -a cfg_cleanups_opts cfg_overrides
+    local -a cfg_cleanups_opts
     local -A cfg_overrides
 
     # some defaults
     cfg_old_base='origin/main'
     cfg_new_base=''
     cfg_cleanups_kind='ignore'
-    clfg_cleanups_opts=()
+    cfg_cleanups_opts=()
     cfg_overrides=()
 
     local line key value swwc_stripped var_name arch
@@ -151,6 +154,7 @@ function setup_workdir_with_config() {
                 ;;
             *-sdk-img)
                 arch=${key%%-*}
+                # shellcheck disable=SC2034 # used by name below
                 cfg_overrides["${arch}"]=${value}
                 ;;
         esac
@@ -206,29 +210,6 @@ function fail_if_empty() {
     if [[ -z ${value} ]]; then
         fail "${message}"
     fi
-}
-
-function setup_workdir_from_old() {
-    local old_workdir new_workdir cleanup_opts
-    old_workdir=${1}; shift
-    new_workdir=${1}; shift
-    cleanup_opts=${1}; shift
-
-    local old_config new_config
-    old_config="${old_workdir}/config"
-    new_config=$(mktemp)
-
-    local old_base new_base
-    old_base=$(git -C "${old_state}" rev-parse --abbrev-ref HEAD)
-    new_base=$(git -C "${new_state}" rev-parse --abbrev-ref HEAD)
-
-    cat "${old_config}" >"${new_config}"
-    cat <<EOF >>"${new_config}"
-cleanups: trap
-old-base: ${old_base}
-new-base: ${new_base}
-EOF
-    setup_workdir_with_tmp_config "${new_workdir}" "${new_config}"
 }
 
 function setup_workdir_with_tmp_config() {
@@ -382,7 +363,9 @@ function save_rename_maps_simple() {
     while [[ $# -gt 1 ]]; do
         old=${1}; shift
         new=${1}; shift
+        # shellcheck disable=SC2034 # used by name below
         srms_old_to_new_map["${old}"]=${new}
+        # shellcheck disable=SC2034 # used by name below
         srms_new_to_old_map["${new}"]=${old}
     done
     if [[ $# -gt 0 ]]; then
@@ -424,13 +407,16 @@ function save_rename_maps() {
         fi
     done
 
-    add_cleanup "rm -f ${WORKDIR@Q}/rename-map"
+    local map_file
+    # shellcheck disable=SC2153 # AUX_DIR is not a misspelling, comes from globals
+    map_file="${AUX_DIR}/rename-map"
+    add_cleanup "rm -f ${map_file@Q}"
     {
         for item in "${!old_to_new_map_ref[@]}"; do
             mapped=${old_to_new_map_ref["${item}"]}
             printf '%s:%s\n' "${item}" "${mapped}"
         done
-    } >"${AUX_DIR}/rename-map"
+    } >"${map_file}"
 }
 
 function load_rename_maps() {
@@ -544,6 +530,7 @@ function get_valid_arches() {
     var_name=${1}; shift
     local -n ref="${var_name}"
 
+    # shellcheck disable=SC2034 # ref to external variable
     ref=(amd64 arm64)
 }
 

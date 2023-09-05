@@ -19,7 +19,6 @@ source "$(dirname "${BASH_SOURCE[0]}")/stuff.sh"
 source "${PKG_AUTO_DIR}/pkg_auto_lib.sh"
 
 gr_workdir=''
-cleanup_opts='ignore'
 
 while [[ ${#} -gt 0 ]]; do
     case ${1} in
