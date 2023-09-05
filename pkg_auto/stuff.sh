@@ -120,7 +120,7 @@ function _file_setup_cleanups() {
     fi
 
     declare -g _file_cleanup_file
-    _file_cleanup_file=${1}; shift
+    _file_cleanup_file=$(realpath "${1}"); shift
     add_cleanup "rm -f ${_file_cleanup_file@Q}"
 }
 

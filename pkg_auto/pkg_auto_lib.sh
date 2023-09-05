@@ -128,7 +128,13 @@ function setup_workdir_with_config() {
         value=${swwc_stripped}
         ensure_not_empty "${key}" "${value}"
         case ${key} in
-            scripts|aux|reports|old-base|new-base)
+            scripts|aux|reports)
+                var_name="cfg_${key//-/_}"
+                local -n var="${var_name}"
+                var=(realpath "${value}")
+                unset -n var
+                ;;
+            old-base|new-base)
                 var_name="cfg_${key//-/_}"
                 local -n var="${var_name}"
                 var=${value}
@@ -879,9 +885,10 @@ function process_listings() {
 
     mvm_declare pl_pkg_to_tags_set_mvm mvm_mvc_set
 
-    local arch file listing pkg
+    local arch kind file listing pkg
     for arch in "${ARCHES[@]}"; do
-        for file in "${LISTING_KINDS[@]}"; do
+        for kind in "${!LISTING_KINDS[@]}"; do
+            file=${LISTING_KINDS["${kind}"]}
             listing="${AUX_DIR}/${arch}/${file}"
             # lines are like as follows:
             #
