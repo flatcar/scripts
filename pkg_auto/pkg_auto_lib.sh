@@ -881,8 +881,8 @@ function process_listings() {
     ver_ere=${ver_ere%'"'*}
     # regexp begins with ^ and ends with $, so strip them too
     ver_ere=${ver_ere#'^'}
-    ver_ere=${ver_ere#'$'}
-    pkg_ere='[a-z0-9]*-\?[a-z0-9]*/[a-z0-9A-Z_+-]*'
+    ver_ere=${ver_ere%'$'}
+    pkg_ere='[a-z0-9]*-?[a-z0-9]*/[a-z0-9A-Z_+-]*'
 
     mvm_declare pl_pkg_to_tags_set_mvm mvm_mvc_set
 
