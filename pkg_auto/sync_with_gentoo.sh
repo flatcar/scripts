@@ -7,6 +7,7 @@
 ##
 ## Parameters:
 ## -h: this help
+## -b: be brief, print only names of changed entries and errors
 ##
 ## Positional:
 ## 0: Gentoo repository
@@ -34,17 +35,34 @@ set -euo pipefail
 
 source "$(dirname "${BASH_SOURCE[0]}")/stuff.sh"
 
+BRIEF=
+
 while true; do
     case ${1} in
-        '-h')
+        -h)
             print_help
             exit 0
+            ;;
+        -b)
+            BRIEF=x
             ;;
         *)
             break
             ;;
     esac
 done
+
+function vcall() {
+    if [[ -z ${BRIEF} ]]; then
+        "${@}"
+    fi
+}
+
+function bcall() {
+    if [[ -n ${BRIEF} ]]; then
+        "${@}"
+    fi
+}
 
 if [[ $# -lt 2 ]]; then
     fail 'expected at least two positional parameters: a Gentoo repository and at least one package'
@@ -82,6 +100,7 @@ function sync_git_prepare() {
     mkdir --parents "${parent}"
     cp --archive "${gentoo_path}" "${parent}"
     if [[ -n $(git status --porcelain -- "${path}") ]]; then
+        bcall info "updated ${path}"
         git add "${path}"
         return 0
     fi
@@ -101,7 +120,7 @@ function commit_with_gentoo_sha() {
         commit_msg="${name}: Sync with Gentoo"
     fi
     git commit --quiet --message "${commit_msg}" --message "It's from Gentoo commit ${commit}."
-    GIT_PAGER='cat' git show --stat
+    GIT_PAGER='cat' vcall git show --stat
 }
 
 function path_sync() {
@@ -118,7 +137,7 @@ function path_sync() {
     if sync_git_prepare "${path}"; then
         commit_with_gentoo_sha "${path}" "${name}" "${sync}"
     else
-        info "no changes in ${path}"
+        vcall info "no changes in ${path}"
     fi
 }
 
