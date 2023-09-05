@@ -916,15 +916,15 @@ function set_mvm_to_array_mvm_cb() {
     removed=''
     local -a prod_item
     prod_item=()
-    if [[ -n ${set_ref['prod']:-} ]]; then
-        prod_item+=('prod')
-        unset "set_ref['prod']"
+    if [[ -n ${set_ref['PROD']:-} ]]; then
+        prod_item+=('PROD')
+        unset "set_ref['PROD']"
         removed=x
     fi
     local -a sorted_items
     mapfile -t sorted_items < <(printf '%s\n' "${!set_ref[@]}" | sort)
     if [[ -n ${removed} ]]; then
-        set_ref['prod']=x
+        set_ref['PROD']=x
     fi
 
     mvm_add "${pkg_to_tags_mvm_var_name}" "${pkg}" "${prod_item[@]}" "${sorted_items[@]}"
