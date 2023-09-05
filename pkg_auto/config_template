@@ -18,7 +18,7 @@ reports: ../../reports
 #
 # New state serves as an state that's either after the updates or to-be-updated.
 #
-# Optional, defaults to origin/main
+# Optional, defaults to old-base value
 #new-base: origin/main
 
 # Cleanups mode with semicolon-separated list of extra arguments.

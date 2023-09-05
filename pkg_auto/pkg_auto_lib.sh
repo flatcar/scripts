@@ -113,7 +113,7 @@ function setup_workdir_with_config() {
 
     # some defaults
     cfg_old_base='origin/main'
-    cfg_new_base='origin/main'
+    cfg_new_base=''
     cfg_cleanups_kind='ignore'
     clfg_cleanups_opts=()
     cfg_overrides=()
@@ -155,6 +155,9 @@ function setup_workdir_with_config() {
                 ;;
         esac
     done < <(cat_meaningful "${file}")
+    if [[ -z "${cfg_new_base}" ]]; then
+        cfg_new_base=${cfg_old_base}
+    fi
     for key in scripts aux reports; do
         var_name="cfg_${key//-/_}"
         ensure_specified "${key}" "${!var_name}"
@@ -165,7 +168,6 @@ function setup_workdir_with_config() {
     cp "${config_file}" "${WORKDIR}/config"
     setup_worktrees_in_workdir "${cfg_scripts}" "${cfg_old_base}" "${cfg_new_base}" "${cfg_reports}" "${cfg_aux}"
     override_sdk_image_names cfg_overrides
-
 }
 
 function strip_out() {
