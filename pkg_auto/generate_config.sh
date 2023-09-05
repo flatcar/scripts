@@ -114,7 +114,7 @@ pairs=(
 )
 
 if [[ -n ${gc_base_workdir} ]]; then
-    unset_values=()
+    unset_pairs=()
     opt_idx=0
     name_idx=1
     while [[ ${name_idx} -lt "${#pairs[@]}" ]]; do
@@ -123,11 +123,11 @@ if [[ -n ${gc_base_workdir} ]]; then
         opt_idx=$((opt_idx + 2))
         name_idx=$((name_idx + 2))
         if [[ -z ${!name:-} ]]; then
-            unset_values+=( "${opt}" "${name}" )
+            unset_pairs+=( "${opt}" "${name}" )
         fi
     done
-    get_config_opts "${gc_base_workdir}/config" "${pairs[@]}"
-    unset opt_idx name_idx unset_values
+    get_config_opts "${gc_base_workdir}/config" "${unset_pairs[@]}"
+    unset opt_idx name_idx unset_pairs
 fi
 
 if [[ ${#} -ne 1 ]]; then
