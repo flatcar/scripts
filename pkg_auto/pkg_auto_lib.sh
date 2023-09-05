@@ -419,8 +419,8 @@ function load_rename_maps() {
     local -n old_to_new_map_ref="${old_to_new_map_var_name}"
     local -n new_to_old_map_ref="${new_to_old_map_var_name}"
 
-    # shellcheck disable=SC1090 # generated file
-    source "${globals_file}"
+    # shellcheck disable=SC1091 # generated file
+    source "${WORKDIR}/globals"
 
     old_to_new_map_ref=()
     new_to_old_map_ref=()
