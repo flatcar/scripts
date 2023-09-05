@@ -1760,7 +1760,7 @@ function handle_pkg_update() {
     new_no_r=${new%-r+([0-9])}
 
     local pkg_name
-    pkg_name=${new_pkg#/}
+    pkg_name=${new_pkg#*/}
     local -a lines
     lines=( "from ${old} to ${new}")
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
@@ -1860,7 +1860,7 @@ function handle_pkg_downgrade() {
     new_no_r=${new%-r+([0-9])}
 
     local pkg_name
-    pkg_name=${new_pkg#/}
+    pkg_name=${new_pkg#*/}
     local -a lines
     lines=( "downgraded from ${old} to ${new}" )
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
@@ -2247,7 +2247,7 @@ function handle_licenses() {
     added=()
     changed=()
 
-    local line
+    local line hl_stripped
     # Lines are:
     #
     # Only in <PORTAGE_STABLE_X>/licenses: BSL-1.1
@@ -2258,17 +2258,19 @@ function handle_licenses() {
     while read -r line; do
         if [[ ${line} = 'Only in '* ]]; then
             # shellcheck disable=SC2153 # OLD_STATE is not a misspelling, it comes from globals file
+            strip_out "${line##*:}" hl_stripped
             if [[ ${line} = *"${OLD_STATE}"* ]]; then
-                dropped+=( "${line##*:}" )
+                dropped+=( "${hl_stripped}" )
             elif [[ ${line} = *"${NEW_STATE}"* ]]; then
-                added+=( "${line##*:}" )
+                added+=( "${hl_stripped}" )
             else
                 devel_warn "- unhandled license change: ${line}"
             fi
         elif [[ ${line} = 'Files '*' differ' ]]; then
             line=${line##"Files ${OLD_PORTAGE_STABLE}/licenses/"}
             line=${line%% *}
-            changed+=( "${line}" )
+            strip_out "${line}" hl_stripped
+            changed+=( "${hl_stripped}" )
         else
             devel_warn \
                 '- unhandled diff --brief line:' \
@@ -2310,7 +2312,7 @@ function handle_licenses() {
         join_by joined ', ' "${changed[@]}"
         lines+=( "updated ${joined}" )
     fi
-    generate_summary_stub profiles -- "${lines[@]}"
+    generate_summary_stub licenses -- "${lines[@]}"
 }
 
 function handle_scripts() {
