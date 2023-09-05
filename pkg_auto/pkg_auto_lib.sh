@@ -647,7 +647,7 @@ function run_sync() {
         packages_to_update+=( "${package}" )
     done < <(cat_meaningful "${NEW_STATE_PACKAGES_LIST}")
     # shellcheck disable=SC2153 # SYNC_SCRIPT is not a misspelling
-    env --chdir="${NEW_PORTAGE_STABLE}" "${SYNC_SCRIPT}" -b "${gentoo}" "${packages_to_update[@]}"
+    env --chdir="${NEW_PORTAGE_STABLE}" "${SYNC_SCRIPT}" -b -- "${gentoo}" "${packages_to_update[@]}"
 
     save_missing_in_scripts "${missing_in_scripts[@]}"
     save_missing_in_gentoo "${missing_in_gentoo[@]}"
@@ -824,7 +824,7 @@ function handle_missing_in_gentoo() {
                 done
             fi
             git -C "${NEW_STATE}" commit "${new_name}: Renamed from ${missing}"
-            env --chdir="${NEW_PORTAGE_STABLE}" "${SYNC_SCRIPT}" -b "${gentoo}" "${new_name}"
+            env --chdir="${NEW_PORTAGE_STABLE}" "${SYNC_SCRIPT}" -b -- "${gentoo}" "${new_name}"
             renamed_from+=("${missing}")
             renamed_to+=("${new_name}")
             # shellcheck disable=SC2034 # used by name at the bottom of the function

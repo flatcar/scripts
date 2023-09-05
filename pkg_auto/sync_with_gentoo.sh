@@ -45,12 +45,28 @@ while true; do
             ;;
         -b)
             BRIEF=x
+            shift
+            ;;
+        --)
+            shift
+            break
+            ;;
+        -*)
+            fail "unknown flag '${1}'"
             ;;
         *)
             break
             ;;
     esac
 done
+
+if [[ $# -lt 2 ]]; then
+    fail 'expected at least two positional parameters: a Gentoo repository and at least one package'
+fi
+
+if [[ ! -e 'profiles/repo_name' ]]; then
+    fail 'sync is only possible from ebuild packages top-level directory (a directory from which "./profiles/repo_name" is accessible)'
+fi
 
 function vcall() {
     if [[ -z ${BRIEF} ]]; then
@@ -63,14 +79,6 @@ function bcall() {
         "${@}"
     fi
 }
-
-if [[ $# -lt 2 ]]; then
-    fail 'expected at least two positional parameters: a Gentoo repository and at least one package'
-fi
-
-if [[ ! -e 'profiles/repo_name' ]]; then
-    fail 'sync is only possible from ebuild packages top-level directory (a directory from which "./profiles/repo_name" is accessible)'
-fi
 
 GENTOO=$(realpath "${1}"); shift
 # rest are package names
