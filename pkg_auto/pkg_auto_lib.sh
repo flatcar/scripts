@@ -135,7 +135,7 @@ function setup_workdir_with_config() {
                 unset -n var
                 ;;
             cleanups)
-                mapfile -t -d';' cfg_cleanups_opts < <(printf '%s' "${value#*';'}")
+                mapfile -t -d';' cfg_cleanups_opts < <(printf '%s' "${value}")
                 ;;
             *-sdk-img)
                 arch=${key%%-*}
