@@ -131,7 +131,7 @@ function setup_workdir_with_config() {
             scripts|aux|reports)
                 var_name="cfg_${key//-/_}"
                 local -n var="${var_name}"
-                var=(realpath "${value}")
+                var=$(realpath "${value}")
                 unset -n var
                 ;;
             old-base|new-base)
