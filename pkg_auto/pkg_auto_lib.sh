@@ -1918,6 +1918,7 @@ function generate_changelog_entry_stub() {
 function generate_summary_stub() {
     local pkg
     pkg=${1}; shift
+    # rest are tags separated followed by double dash followed by lines
 
     # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
@@ -1936,10 +1937,14 @@ function generate_summary_stub() {
 
     {
         printf '%s %s:' '-' "${pkg}"
-        printf ' [%s]' "${tags[@]}"
+        if [[ ${#tags[@]} -gt 0 ]]; then
+            printf ' [%s]' "${tags[@]}"
+        fi
         printf '\n'
-        printf '  - %s\n' "${@}"
-        printf '\n'
+        if [[ ${#} -gt 0 ]]; then
+            printf '  - %s\n' "${@}"
+            printf '\n'
+        fi
     } >>"${REPORTS_DIR}/updates/summary_stubs"
 }
 
@@ -2150,7 +2155,17 @@ function handle_eclass() {
     source "${WORKDIR}/globals"
 
     mkdir -p "${REPORTS_DIR}/updates/${eclass}"
-    xdiff "${OLD_PORTAGE_STABLE}/${eclass}" "${NEW_PORTAGE_STABLE}/${eclass}" >"${REPORTS_DIR}/updates/${eclass}/diff"
+    local -a lines
+    lines=()
+    if [[ -e "${OLD_PORTAGE_STABLE}/${eclass}" ]] && [[ -e "${NEW_PORTAGE_STABLE}/${eclass}" ]]; then
+        xdiff "${OLD_PORTAGE_STABLE}/${eclass}" "${NEW_PORTAGE_STABLE}/${eclass}" >"${REPORTS_DIR}/updates/${eclass}/diff"
+        lines+=( 'TODO: review the diff' )
+    elif [[ -e "${OLD_PORTAGE_STABLE}/${eclass}" ]]; then
+        lines+=( 'unused, dropped' )
+    else
+        lines+=( 'added from Gentoo' )
+    fi
+    generate_summary_stub "${eclass}" -- "${lines[@]}"
 }
 
 function handle_profiles() {
@@ -2220,6 +2235,7 @@ function handle_profiles() {
     done <"${out_dir}/full-diff"
     lines_to_file_truncate "${out_dir}/relevant-diff" "${relevant_lines[@]}"
     lines_to_file_truncate "${out_dir}/possibly-irrelevant-files" "${possibly_irrelevant_files[@]}"
+    generate_summary_stub profiles -- 'TODO: review the diffs'
 }
 
 function handle_licenses() {
@@ -2278,6 +2294,23 @@ function handle_licenses() {
     for c in "${changed[@]}"; do
         xdiff "${OLD_PORTAGE_STABLE}/licenses/${c}" "${NEW_PORTAGE_STABLE}/licenses/${c}" >>"${out_dir}/mod-diff"
     done
+    local -a lines
+    lines=()
+
+    local joined
+    if [[ ${#dropped[@]} -gt 0 ]]; then
+        join_by joined ', ' "${dropped[@]}"
+        lines+=( "dropped ${joined}" )
+    fi
+    if [[ ${#added[@]} -gt 0 ]]; then
+        join_by joined ', ' "${added[@]}"
+        lines+=( "added ${joined}" )
+    fi
+    if [[ ${#changed[@]} -gt 0 ]]; then
+        join_by joined ', ' "${changed[@]}"
+        lines+=( "updated ${joined}" )
+    fi
+    generate_summary_stub profiles -- "${lines[@]}"
 }
 
 function handle_scripts() {
@@ -2289,6 +2322,7 @@ function handle_scripts() {
     mkdir -p "${out_dir}"
 
     xdiff --unified --recursive "${OLD_PORTAGE_STABLE}/scripts" "${NEW_PORTAGE_STABLE}/scripts" >"${out_dir}"
+    # TODO: update summary stubs
 }
 
 function xdiff() {
