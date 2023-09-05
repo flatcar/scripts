@@ -153,8 +153,9 @@ function setup_workdir_with_config() {
     done
 
     setup_cleanups "${cfg_cleanups_opts[@]}"
-    setup_workdir "${cfg_aux}" "${workdir}"
-    cp "${config_file}" "${WORKDIR}/config"
+    setup_workdir "${workdir}"
+    add_cleanup "rm -f ${WORKDIR@Q}/config"
+    cp -a "${config_file}" "${WORKDIR}/config"
     setup_worktrees_in_workdir "${cfg_scripts}" "${cfg_old_base}" "${cfg_new_base}" "${cfg_reports}" "${cfg_aux}"
     override_sdk_image_names cfg_overrides
 }
@@ -442,7 +443,6 @@ function setup_worktree() {
         "git -C ${worktree_dir@Q} reset --hard HEAD" \
         "git -C ${worktree_dir@Q} clean -ffdx" \
         "git -C ${repo@Q} worktree remove ${worktree_dir@Q}" \
-        "git -C ${repo@Q} branch -D ${branch@Q}" \
         "git -C ${repo@Q} branch -D ${branch@Q}"
 
     git -C "${repo}" worktree add -b "${branch}" "${worktree_dir}" "${base}"
