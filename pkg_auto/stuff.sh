@@ -136,55 +136,6 @@ function _file_add_cleanup() {
     mv -f "${tmpfile}" "${_file_cleanup_file}"
 }
 
-function _file_snapshot_cleanup() {
-    local snapshot_var_name
-    snapshot_var_name=${1}; shift
-    local -n snapshot_ref="${snapshot_var_name}"
-
-    local dir
-    dirname_out "${_file_cleanup_file}" dir
-    local name
-    basename_out "${_file_cleanup_file}" name
-
-    snapshot_ref=$(mktemp -p "${dir}" "${name}-snapshot-XXXXXXXXXX")
-    cp -a "${_file_cleanup_file}" "${snapshot_ref}"
-}
-
-function _file_revert_to_cleanup_snapshot() {
-    local snapshot
-    snapshot=${1}; shift
-
-    mv -f "${snapshot}" "${_file_cleanup_file}"
-}
-
-function _file_drop_cleanup_snapshot() {
-    local snapshot
-    snapshot=${1}; shift
-
-    rm -f "${snapshot}"
-}
-
-function _file_stash_cleanups() {
-    local stash_file
-    stash_file=${1}; shift
-
-    echo "${_file_cleanup_file}" >>"${stash_file}"
-    unset _file_cleanup_file
-}
-
-function _file_resume_cleanups() {
-    local stash_file
-    stash_file=${1}; shift
-
-    declare -g _file_cleanup_file
-
-    local line
-    {
-        read -r line || fail "corrupted cleanups stash file '${stash_file}'" # ignore first line
-        read -r _file_cleanup_file || fail "no cleanup file saved in cleanup stash file '${stash_file}'"
-    } <"${stash_file}"
-}
-
 # trap cleanups
 
 function _trap_update_trap() {
@@ -209,80 +160,6 @@ function _trap_add_cleanup() {
     _trap_update_trap
 }
 
-function _trap_snapshot_cleanup() {
-    local snapshot_var_name
-    snapshot_var_name=${1}; shift
-    local -n snapshot_ref="${snapshot_var_name}"
-
-    local key
-    while true; do
-        key="snapshot-${RANDOM}"
-        value=${_trap_cleanup_snapshots["${key}"]:-}
-        if [[ -z "${value}" ]]; then
-            break
-        fi
-    done
-    snapshot_ref=${key}
-    _trap_cleanup_snapshots["${key}"]=${_trap_cleanup_actions}
-}
-
-function _trap_revert_to_cleanup_snapshot() {
-    local snapshot
-    snapshot=${1}; shift
-
-    _trap_cleanup_actions=${_trap_cleanup_snapshots["${snapshot}"]}
-    unset "_trap_cleanup_snapshots[${snapshot}]"
-    _trap_update_trap
-}
-
-function _trap_drop_cleanup_snapshot() {
-    local snapshot
-    snapshot=${1}; shift
-
-    unset "_trap_cleanup_snapshots[${snapshot}]"
-}
-
-function _trap_stash_cleanups() {
-    local stash_file
-    stash_file=${1}; shift
-
-    local name line
-    {
-        trap - EXIT
-        echo "${_trap_cleanup_actions}"
-        unset _trap_cleanup_actions
-
-        for name in "${!_trap_cleanup_snapshots[@]}"; do
-            line=${_trap_cleanup_snapshots["${name}"]}
-            echo "${name}"
-            echo "${line}"
-        done
-    }  >>"${stash_file}"
-}
-
-function _trap_resume_cleanups() {
-    local stash_file
-    stash_file=${1}; shift
-
-    declare -g _trap_cleanup_actions
-    _trap_cleanup_actions=''
-
-    declare -g -A _trap_cleanup_snapshots
-    _trap_cleanup_snapshots=()
-
-    local line name
-    {
-        read -r line || fail "corrupted cleanups stash file '${stash_file}'" # ignore first line
-        read -r _trap_cleanup_actions || fail "no cleanup actions saved in cleanup stash file '${stash_file}'"
-        while read -r name; do
-            read -r line || fail "no cleanup actions for snapshot '${name}' saved in cleanup stash file '${stash_file}'"
-            _trap_cleanup_snapshots["${name}"]=${line}
-        done
-    } <"${stash_file}"
-
-    _trap_update_trap
-}
-
 # ignore cleanups
 
 function _ignore_setup_cleanups() {
@@ -290,26 +167,6 @@ function _ignore_setup_cleanups() {
 }
 
 function _ignore_add_cleanup() {
-    :
-}
-
-function _ignore_snapshot_cleanup() {
-    :
-}
-
-function _ignore_revert_to_cleanup_snapshot() {
-    :
-}
-
-function _ignore_drop_cleanup_snapshot() {
-    :
-}
-
-function _ignore_stash_cleanups() {
-    :
-}
-
-function _ignore_resume_cleanups() {
     :
 }
 
@@ -332,6 +189,10 @@ function setup_cleanups() {
     _call_cleanup_func setup_cleanups "${@}"
 }
 
+function add_cleanup() {
+    _call_cleanup_func add_cleanup "${@}"
+}
+
 function _ensure_valid_cleanup_kind() {
     local kind
     kind=${1}; shift
@@ -339,10 +200,6 @@ function _ensure_valid_cleanup_kind() {
     local -a functions=(
         setup_cleanups
         add_cleanup
-        snapshot_cleanup
-        revert_to_cleanup_snapshot
-        drop_cleanup_snapshot
-        resume_cleanups
     )
 
     local func
@@ -351,27 +208,6 @@ function _ensure_valid_cleanup_kind() {
             fail "kind '${kind}' is not a valid cleanup kind, function '${func}' is not defined"
         fi
     done
-}
-
-function stash_cleanups() {
-    local stash_file
-    stash_file=${1}; shift
-
-    echo "${_cleanup_kind}" >"${stash_file}"
-
-    _call_cleanup_func stash_cleanups "${stash_file}"
-    unset _cleanup_kind
-}
-
-function resume_cleanups() {
-    local stash_file
-    stash_file=${1}; shift
-
-    local kind
-    read -r kind <"${stash_file}" || fail "corrupted cleanups stash file '${stash_file}'"
-    _ensure_valid_cleanup_kind "${kind}"
-    _cleanup_kind=${kind}
-    _call_cleanup_func resume_cleanups "${stash_file}"
 }
 
 function _call_cleanup_func() {
@@ -385,22 +221,6 @@ function _call_cleanup_func() {
     func="_${_cleanup_kind}_${func_name}"
 
     "${func}" "${@}"
-}
-
-function add_cleanup() {
-    _call_cleanup_func add_cleanup "${@}"
-}
-
-function snapshot_cleanup() {
-    _call_cleanup_func snapshot_cleanup "${@}"
-}
-
-function revert_to_cleanup_snapshot() {
-    _call_cleanup_func revert_to_cleanup_snapshot "${@}"
-}
-
-function drop_cleanup_snapshot() {
-    _call_cleanup_func drop_cleanup_snapshot "${@}"
 }
 
 fi

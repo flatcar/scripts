@@ -5,6 +5,7 @@
 ##
 ## Parameters:
 ## -h: this help
+## -w: path to use for workdir
 ##
 ## Positional:
 ## 1 - work directory
@@ -14,12 +15,22 @@
 set -euo pipefail
 
 source "$(dirname "${BASH_SOURCE[0]}")/stuff.sh"
+source "${PKG_AUTO_DIR}/pkg_auto_lib.sh"
+
+dns_workdir=''
 
 while [[ ${#} -gt 0 ]]; do
     case ${1} in
         -h)
             print_help
             exit 0
+            ;;
+        -w)
+            if [[ -z ${2:-} ]]; then
+                fail 'missing value for -w'
+            fi
+            dns_workdir=${2}
+            shift 2
             ;;
         --)
             shift
@@ -34,29 +45,28 @@ while [[ ${#} -gt 0 ]]; do
     esac
 done
 
-if [[ ${#} -ne 2 ]]; then
-    fail 'Expected two parameters: work directory and board architecture'
+if [[ ${#} -ne 3 ]]; then
+    fail 'Expected three parameters: work directory, board architecture and a final branch name'
 fi
 
-setup_cleanups trap
+old_workdir=${1}; shift
+arch=${1}; shift
+saved_branch_name=${1}; shift
 
-function main() {
-    local workdir arch
-    workdir=${1}; shift
-    arch=${1}; shift
+dns_old_ref=''
+dns_new_ref=''
+get_state_refs "${old_workdir}" dns_old_ref dns_new_ref
 
-    local image_var_name
-    image_var_name="${arch^^}_PACKAGES_IMAGE"
-    # shellcheck disable=SC1091 # generated file
-    source "${workdir}/globals"
+config_file=$(mktemp)
+opts=(
+    -b "${old_workdir}"
+    -x trap
+    -n "${dns_old_ref}"
+    -o "${dns_new_ref}"
+)
+"${PKG_AUTO_DIR}/generate_config.sh" "${opts[@]}" "${config_file}"
 
-    pushd "${NEW_STATE}"
-
-    add_cleanup "rm -f ${NEW_STATE@Q}/{print_profile_tree.sh,inside_sdk_container.sh,stuff.sh}"
-    cp -a "${PKG_AUTO_DIR}"/{print_profile_tree.sh,inside_sdk_container.sh,stuff.sh} .
-    add_cleanup "git -C ${NEW_STATE@Q} checkout -- sdk_container/.repo/manifests/version.txt"
-    ./run_sdk_container -t -C "${!image_var_name}" -a "${arch}" --rm
-    popd
-}
-
-main "${@}"
+create_dir_for_workdir 'dns' dns_workdir
+setup_workdir_with_tmp_config "${dns_workdir}" "${config_file}"
+debug_new_state "${arch}"
+save_new_state "${saved_branch_name}"

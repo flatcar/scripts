@@ -23,99 +23,223 @@ shopt -s extglob
 shopt -s nullglob
 shopt -s dotglob
 
-##
-## Sets up workdir.
-##
-## Parameters:
-## --rm: cleanup on exit
-## -b: scripts base, defaults to origin/main
-## -o: override SDK image name, value should be <arch>:<image_name>
-## -w: path to use for work directory
-## -x: cleanup file
-##
-## Positional:
-## 1: scripts directory
-## 2: Gentoo directory
-## 3: listings directory
-## 4: new branch name with updates
-## 5: reports directory
-##
-function setup_workdir_full() {
-    local -a cleanup_setup_args
-    cleanup_setup_args=( 'ignore' )
-    local scripts_base work_directory
-    scripts_base='origin/main'
-    work_directory=''
-    local -A up_sdk_image_overrides
-    up_sdk_image_overrides=()
+# TODO: docs
+function debug_new_state() {
+    local arch
+    arch=${1}; shift
 
-    local arch image_name
-    while [[ ${#} -gt 0 ]]; do
-        case ${1} in
-            --rm)
-                cleanup_setup_args=( 'trap' )
-                shift
-                ;;
-            -b)
-                if [[ -z ${2:-} ]]; then
-                    fail 'missing value for -b'
-                fi
-                scripts_base=${2}
-                shift 2
-                ;;
-            -o)
-                if [[ -z ${2:-} ]]; then
-                    fail 'missing value for -w'
-                fi
-                arch=${2%%:*}
-                image_name=${2#*:}
-                # shellcheck disable=SC2034 # used indirectly below
-                up_sdk_image_overrides["${arch}"]=${image_name}
-                shift 2
-                ;;
-            -w)
-                if [[ -z ${2:-} ]]; then
-                    fail 'missing value for -w'
-                fi
-                work_directory=$(realpath "${2}")
-                shift 2
-                ;;
-            -x)
-                if [[ -z ${2:-} ]]; then
-                    fail 'missing value for -x'
-                fi
-                cleanup_setup_args=( 'file' "$(realpath "${2}")" )
-                shift 2
-                ;;
-            --)
-                shift
-                break
-                ;;
-            -*)
-                fail "unknown flag '${1}'"
-                ;;
-            *)
-                break
-                ;;
-        esac
+    local image_var_name
+    image_var_name="${arch^^}_PACKAGES_IMAGE"
+    # shellcheck disable=SC1091 # generated file
+    source "${WORKDIR}/globals"
+
+    add_cleanup "rm -f ${NEW_STATE@Q}/{print_profile_tree.sh,inside_sdk_container.sh,stuff.sh}"
+    cp -a "${PKG_AUTO_DIR}"/{print_profile_tree.sh,inside_sdk_container.sh,stuff.sh} "${NEW_STATE}"
+    add_cleanup "git -C ${NEW_STATE@Q} checkout -- sdk_container/.repo/manifests/version.txt"
+    env --chdir "${NEW_STATE}" \
+        ./run_sdk_container \
+        -t \
+        -C "${!image_var_name}" \
+        -n "pkg-new-state-debug-${arch}" \
+        -a "${arch}" \
+        --rm || :
+}
+
+function create_dir_for_workdir() {
+    local prefix path_var_name
+    prefix=${1}; shift
+    path_var_name=${1}; shift
+    local -n path_ref="${path_var_name}"
+
+    if [[ -z "${path_ref:-}" ]]; then
+        path_ref=$(mktemp --tmpdir --directory "${prefix}.XXXXXXXX")
+    else
+        mkdir -p "${path_ref}"
+    fi
+}
+
+function get_state_refs() {
+    local workdir old_state_ref_var_name new_state_ref_var_name
+    workdir=${1}; shift
+    old_state_ref_var_name=${1}; shift
+    local -n old_state_ref_ref="${old_state_ref_var_name}"
+    new_state_ref_var_name=${1}; shift
+    local -n new_state_ref_ref="${new_state_ref_var_name}"
+
+    old_state_ref_ref=$(git -C "${WORKDIR}/old_state" rev-parse --abbrev-ref HEAD)
+    new_state_ref_ref=$(git -C "${WORKDIR}/new_state" rev-parse --abbrev-ref HEAD)
+}
+
+function get_workdir_config_opts() {
+    # all opts are key value-var-name pairs
+
+    get_config_opts "${WORKDIR}/config" "${@}"
+}
+
+function get_config_opts() {
+    local config_file
+    config_file=${1}; shift
+    # rest are key value-var-name pairs
+
+    local -A mapping
+    mapping=()
+    local key var_name
+    while [[ ${#} -gt 1 ]]; do
+        key=${1}; shift
+        var_name=${1}; shift
+        mapping["${key}"]=${var_name}
     done
 
-    if [[ ${#} -ne 5 ]]; then
-        fail 'expected five positional parameters: a scripts directory, a Gentoo directory, a listings directory, a result branch name and reports directory'
+    local line value gwco_stripped
+    while read -r line; do
+        strip_out "${line%%:*}" gwco_stripped
+        key=${gwco_stripped}
+        var_name=${mapping["${key}"]:-}
+        if [[ -n "${var_name}" ]]; then
+            strip_out "${line#*:}" "${var_name}"
+        fi
+    done < <(cat_meaningful "${config_file}")
+}
+
+function setup_workdir_with_config() {
+    local workdir file
+    workdir=${1}; shift
+    file=${1}; shift
+
+    local cfg_scripts cfg_aux cfg_reports cfg_old_base cfg_new_base
+    local cfg_cleanups_kind
+    local -a cfg_cleanups_opts cfg_overrides
+    local -A cfg_overrides
+
+    # some defaults
+    cfg_old_base='origin/main'
+    cfg_new_base='origin/main'
+    cfg_cleanups_kind='ignore'
+    clfg_cleanups_opts=()
+    cfg_overrides=()
+
+    local line key value swwc_stripped var_name arch
+    while read -r line; do
+        strip_out "${line%%:*}" swwc_stripped
+        key=${swwc_stripped}
+        strip_out "${line#*:}" swwc_stripped
+        value=${swwc_stripped}
+        ensure_not_empty "${key}" "${value}"
+        case ${key} in
+            scripts|aux|reports|old-base|new-base)
+                var_name="cfg_${key//-/_}"
+                local -n var="${var_name}"
+                var=${value}
+                unset -n var
+                ;;
+            cleanups)
+                cfg_cleanups_kind=${line%%';'*}
+                mapfile -t -d';' cfg_cleanups_opts < <(printf '%s' "${line#*';'}")
+                case ${cfg_cleanups_kind} in
+                    ignore|trap)
+                        :
+                        ;;
+                    file)
+                        if [[ ${#cfg_cleanups_opts[@]} -ne 1 ]]; then
+                            fail 'file cleanups expect 1 extra argument being a path to cleanup file'
+                        fi
+                        ;;
+                    *)
+                        fail "invalid cleanups mode '${cfg_cleanups_kind}'"
+                        ;;
+                esac
+                ;;
+            *-sdk-img)
+                arch=${key%%-*}
+                cfg_overrides["${arch}"]=${value}
+                ;;
+        esac
+    done < <(cat_meaningful "${file}")
+    for key in scripts aux reports; do
+        var_name="cfg_${key//-/_}"
+        ensure_specified "${key}" "${!var_name}"
+    done
+
+    setup_cleanups "${cfg_cleanups_kind}" "${cfg_cleanups_opts[@]}"
+    setup_workdir "${cfg_aux}" "${workdir}"
+    cp "${config_file}" "${WORKDIR}/config"
+    setup_worktrees_in_workdir "${cfg_scripts}" "${cfg_old_base}" "${cfg_new_base}" "${cfg_reports}" "${cfg_aux}"
+    override_sdk_image_names cfg_overrides
+
+}
+
+function strip_out() {
+    local l out_var_name
+    l=${1}; shift
+    out_var_name=${1}; shift
+    local -n out_ref="${out_var_name}"
+
+    local t
+    t=${l}
+    t=${t/#+([[:space:]])
+    t=${t/%+([[:space:]])
+    out_ref=${t}
+}
+
+function ensure_not_empty() {
+    local key value
+    key=${1}; shift
+    value=${1}; shift
+
+    fail_if_empty "${value}" "empty value for ${key} in config"
+}
+
+function ensure_specified() {
+    local key value
+    key=${1}; shift
+    value=${1}; shift
+
+    fail_if_empty "${value}" "${key} was not specified in config"
+}
+
+function fail_if_empty() {
+    local value message
+    value=${1}; shift
+    message=${1}; shift
+    if [[ -z ${value} ]]; then
+        fail "${message}"
     fi
+}
 
-    local scripts gentoo listings_directory saved_branch_name reports_directory
+function setup_workdir_from_old() {
+    local old_workdir new_workdir cleanup_opts
+    old_workdir=${1}; shift
+    new_workdir=${1}; shift
+    cleanup_opts=${1}; shift
 
-    scripts=$(realpath "${1}"); shift
-    gentoo=$(realpath "${1}"); shift
-    listings_directory=$(realpath "${1}"); shift
-    saved_branch_name=${1}; shift
-    reports_directory=$(realpath "${1}"); shift
+    local old_config new_config
+    old_config="${old_workdir}/config"
+    new_config=$(mktemp)
 
-    setup_cleanups "${cleanup_setup_args[@]}"
-    setup_workdir "${listings_directory}" "${saved_branch_name}" "${work_directory}"
-    setup_worktrees_in_workdir "${scripts}" "${scripts_base}" "${gentoo}" "${reports_directory}"
-    override_sdk_image_names up_sdk_image_overrides
+    local old_base new_base
+    old_base=$(git -C "${old_state}" rev-parse --abbrev-ref HEAD)
+    new_base=$(git -C "${new_state}" rev-parse --abbrev-ref HEAD)
+
+    cat "${old_config}" >"${new_config}"
+    cat <<EOF >>"${new_config}"
+cleanups: trap
+old-base: ${old_base}
+new-base: ${new_base}
+EOF
+    setup_workdir_with_tmp_config "${new_workdir}" "${new_config}"
+}
+
+function setup_workdir_with_tmp_config() {
+    local workdir=${1}; shift
+    local tmp_config=${1}; shift
+
+    local rv
+    rv=0
+    setup_workdir_with_config "${workdir}" "${tmp_config}" || rv=${?}
+    rm -f "${tmp_config}"
+    if [[ ${rv} -ne 0 ]]; then
+        fail "setting up worktree failed with exit status ${rv}"
+    fi
 }
 
 # Takes an existing directory as a workdir. Usable only if workdir was
@@ -141,15 +265,15 @@ function set_workdir_to() {
 # Goes over the list of automatically updated packages and synces them
 # with packages from Gentoo repo. Cleans up missing packages.
 function perform_sync_with_gentoo() {
-    run_sync
+    local gentoo
+    gentoo=${1}; shift
+
+    run_sync "${gentoo}"
     handle_missing_in_scripts
-    handle_missing_in_gentoo
+    handle_missing_in_gentoo "${gentoo}"
 }
 
-# Spawns SDK containers to generate some reports using emerge and
-# other tools. Processes listings. Loads saved non-package updates and
-# rename maps.  Using the emerge&co reports, listing data and loaded
-# data, generates package updates reports.
+# TODO: docs
 function generate_package_update_reports() {
     generate_sdk_reports
     handle_gentoo_sync
@@ -157,24 +281,23 @@ function generate_package_update_reports() {
 
 # Saves the new state to a save branch in scripts.
 function save_new_state() {
+    local branch_name
+    branch_name=${1}; shift
+
     # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
-    # shellcheck disable=SC2153 # SCRIPTS and NEW_STATE_BRANCH are not misspellings, they come from globals file
-    git -C "${SCRIPTS}" branch "${SAVED_BRANCH_NAME}" "${NEW_STATE_BRANCH}"
+    # shellcheck disable=SC2153 # SCRIPTS is not a misspelling, it comes from globals file
+    git -C "${SCRIPTS}" branch "${branch_name}" "${NEW_STATE_BRANCH}"
 }
 
 # TO BE SORTED BELOW
 
 # Creates a workdir, the path to which is stored in WORKDIR global
-# variable. Copies listings from the listings directory to work
-# directory.
+# variable.
 #
-# 1 - directory with listings
-# 2 - predefined work directory path (optional)
+# 1 - predefined work directory path (optional)
 function setup_workdir() {
-    local listings_dir saved_branch_name workdir
-    listings_dir=${1}; shift
-    saved_branch_name=${1}; shift
+    local workdir
     workdir=${1:-}
     if [[ -z "${workdir}" ]]; then
         workdir=$(mktemp --tmpdir --directory "up-XXXXXXXX")
@@ -184,8 +307,7 @@ function setup_workdir() {
     add_cleanup "rmdir ${WORKDIR@Q}"
     mkdir -p "${WORKDIR}"
 
-    setup_initial_globals_file "${saved_branch_name}"
-    copy_listings "${listings_dir}"
+    setup_initial_globals_file
 }
 
 function prepare_workdir_for_resumption() {
@@ -197,22 +319,24 @@ function prepare_workdir_for_resumption() {
 # the globals file inside WORKDIR.
 #
 # 1 - path to scripts repo
-# 2 - base for the new worktrees (e.g. origin/main)
-# 3 - path to Gentoo repo
+# 2 - base for the old state worktree (e.g. origin/main)
+# 3 - base for the new state worktree (e.g. origin/main)
 # 4 - path to reports directory
 function setup_worktrees_in_workdir() {
-    local scripts scripts_base gentoo reports_dir
+    local scripts old_base new_base reports_dir aux_dir
     scripts=${1}; shift
-    scripts_base=${1}; shift
-    gentoo=${1}; shift
+    old_base=${1}; shift
+    new_base=${1}; shift
     reports_dir=${1}; shift
+    aux_dir=${1}; shift
 
     local old_state new_state
     old_state="${WORKDIR}/old_state"
     new_state="${WORKDIR}/new_state"
 
-    setup_worktrees "${scripts}" "${scripts_base}" "old-state-${RANDOM}" "${old_state}" "new-state-${RANDOM}" "${new_state}"
-    extend_globals_file "${scripts}" "${gentoo}" "${old_state}" "${new_state}" "${reports_dir}"
+    setup_worktree "${scripts}" "${old_base}" "old-state-${RANDOM}" "${old_state}"
+    setup_worktree "${scripts}" "${new_base}" "new-state-${RANDOM}" "${new_state}"
+    extend_globals_file "${scripts}" "${old_state}" "${new_state}" "${reports_dir}" "${aux_dir}"
 }
 
 function override_sdk_image_names() {
@@ -245,6 +369,26 @@ function override_sdk_image_names() {
     lines_to_file "${globals_file}" "${lines[@]}"
 }
 
+# TODO: docs
+function save_rename_maps_simple() {
+    # args are old to new name pairs
+    declare -A srms_old_to_new_map srms_new_to_old_map
+    srms_old_to_new_map=()
+    srms_new_to_old_map=()
+
+    local old new
+    while [[ $# -gt 1 ]]; do
+        old=${1}; shift
+        new=${1}; shift
+        srms_old_to_new_map["${old}"]=${new}
+        srms_new_to_old_map["${new}"]=${old}
+    done
+    if [[ $# -gt 0 ]]; then
+        fail 'odd number of parameters for saving rename maps, expected pairs only'
+    fi
+    save_rename_maps srms_old_to_new_map srms_new_to_old_map
+}
+
 # details
 
 function save_rename_maps() {
@@ -253,6 +397,14 @@ function save_rename_maps() {
     new_to_old_map_var_name=${1}; shift
     local -n old_to_new_map_ref="${old_to_new_map_var_name}"
     local -n new_to_old_map_ref="${new_to_old_map_var_name}"
+
+    if [[ ${#old_to_new_map_ref[@]} -eq 0 ]] && [[ ${#new_to_old_map_ref[@]} -eq 0 ]]; then
+        # nothing to save
+        return 0
+    fi
+
+    # shellcheck disable=SC1090 # generated file
+    source "${globals_file}"
 
     local item mapped other_mapped
     for item in "${!old_to_new_map_ref[@]}"; do
@@ -276,7 +428,7 @@ function save_rename_maps() {
             mapped=${old_to_new_map_ref["${item}"]}
             printf '%s:%s\n' "${item}" "${mapped}"
         done
-    } >"${WORKDIR}/rename-map"
+    } >"${AUX_DIR}/rename-map"
 }
 
 function load_rename_maps() {
@@ -286,12 +438,16 @@ function load_rename_maps() {
     local -n old_to_new_map_ref="${old_to_new_map_var_name}"
     local -n new_to_old_map_ref="${new_to_old_map_var_name}"
 
-    if [[ ! -e "${WORKDIR}/rename-map" ]]; then
-        fail "rename maps were not saved"
-    fi
+    # shellcheck disable=SC1090 # generated file
+    source "${globals_file}"
 
     old_to_new_map_ref=()
     new_to_old_map_ref=()
+
+    if [[ ! -e "${AUX_DIR}/rename-map" ]]; then
+        # no rename maps, maybe there was just a simple sync
+        return 0
+    fi
 
     local old new
     while read -r line; do
@@ -299,7 +455,24 @@ function load_rename_maps() {
         new=${line##*:}
         old_to_new_map_ref["${old}"]=${new}
         new_to_old_map_ref["${new}"]=${old}
-    done <"${WORKDIR}/rename-map"
+    done <"${AUX_DIR}/rename-map"
+}
+
+function setup_worktree() {
+    local repo base branch worktree_dir
+    repo=${1}; shift
+    base=${1}; shift
+    branch=${1}; shift
+    worktree_dir=${1}; shift
+
+    add_cleanup \
+        "git -C ${worktree_dir@Q} reset --hard HEAD" \
+        "git -C ${worktree_dir@Q} clean -ffdx" \
+        "git -C ${repo@Q} worktree remove ${worktree_dir@Q}" \
+        "git -C ${repo@Q} branch -D ${branch@Q}" \
+        "git -C ${repo@Q} branch -D ${branch@Q}"
+
+    git -C "${repo}" worktree add -b "${branch}" "${worktree_dir}" "${base}"
 }
 
 function setup_worktrees() {
@@ -326,9 +499,6 @@ function setup_worktrees() {
 }
 
 function setup_initial_globals_file() {
-    local saved_branch_name
-    saved_branch_name=${1}; shift
-
     local sync_script pkg_list_sort_script
     sync_script="${PKG_AUTO_DIR}/sync_with_gentoo.sh"
     pkg_list_sort_script="${PKG_AUTO_DIR}/sort_packages_list.py"
@@ -336,9 +506,13 @@ function setup_initial_globals_file() {
     local globals_file
     globals_file="${WORKDIR}/globals"
 
+    local -a sigf_arches
+    sigf_arches=()
+    get_valid_arches sigf_arches
+
     add_cleanup "rm -f ${globals_file@Q}"
     cat <<EOF >"${globals_file}"
-local -a GIT_ENV_VARS ARCHES WHICH REPORTS SAVED_BRANCH_NAME
+local -a GIT_ENV_VARS ARCHES WHICH REPORTS
 local -A LISTING_KINDS
 local SDK_PKGS BOARD_PKGS
 local SYNC_SCRIPT PKG_LIST_SORT_SCRIPT
@@ -350,12 +524,11 @@ GIT_ENV_VARS=(
 SYNC_SCRIPT=${sync_script@Q}
 PKG_LIST_SORT_SCRIPT=${pkg_list_sort_script@Q}
 
-ARCHES=('amd64' 'arm64')
+ARCHES=( ${sigf_arches[*]@Q} )
 WHICH=('old' 'new')
 SDK_PKGS='sdk-pkgs'
 BOARD_PKGS='board-pkgs'
 REPORTS=( "\${SDK_PKGS}" "\${BOARD_PKGS}" )
-SAVED_BRANCH_NAME=${saved_branch_name@Q}
 
 LISTING_KINDS=(
     ['prod']='flatcar_production_image_packages.txt'
@@ -364,13 +537,21 @@ LISTING_KINDS=(
 EOF
 }
 
+function get_valid_arches() {
+    local var_name
+    var_name=${1}; shift
+    local -n ref="${var_name}"
+
+    ref=(amd64 arm64)
+}
+
 function extend_globals_file() {
-    local scripts gentoo old_state new_state reports_dir
+    local scripts old_state new_state reports_dir
     scripts=${1}; shift
-    gentoo=${1}; shift
     old_state=${1}; shift
     new_state=${1}; shift
     reports_dir=${1}; shift
+    aux_dir=${1}; shift
 
     local globals_file
     globals_file="${WORKDIR}/globals"
@@ -388,12 +569,11 @@ function extend_globals_file() {
     new_portage_stable="${new_state}/${portage_stable_suffix}"
 
     cat <<EOF >>"${globals_file}"
-local SCRIPTS GENTOO OLD_STATE NEW_STATE OLD_STATE_BRANCH NEW_STATE_BRANCH
+local SCRIPTS OLD_STATE NEW_STATE OLD_STATE_BRANCH NEW_STATE_BRANCH
 local PORTAGE_STABLE_SUFFIX OLD_PORTAGE_STABLE NEW_PORTAGE_STABLE REPORTS_DIR
-local NEW_STATE_PACKAGES_LIST
+local NEW_STATE_PACKAGES_LIST AUX_DIR
 
 SCRIPTS=${scripts@Q}
-GENTOO=${gentoo@Q}
 OLD_STATE=${old_state@Q}
 NEW_STATE=${new_state@Q}
 OLD_STATE_BRANCH=${old_state_branch@Q}
@@ -404,6 +584,8 @@ NEW_PORTAGE_STABLE=${new_portage_stable@Q}
 REPORTS_DIR=${reports_dir@Q}
 
 NEW_STATE_PACKAGES_LIST="\${NEW_STATE}/.github/workflows/portage-stable-packages-list"
+
+AUX_DIR=${aux_dir@Q}
 
 EOF
 
@@ -453,6 +635,9 @@ function setup_git_env() {
 }
 
 function run_sync() {
+    local gentoo
+    gentoo=${1}; shift
+
     local -a missing_in_scripts missing_in_gentoo
     missing_in_scripts=()
     missing_in_gentoo=()
@@ -475,8 +660,7 @@ function run_sync() {
             missing_in_scripts+=("${package}")
             continue
         fi
-        # shellcheck disable=SC2153 # GENTOO is not a misspelling, it comes from globals file
-        if [[ ! -e "${GENTOO}/${package}" ]]; then
+        if [[ ! -e "${gentoo}/${package}" ]]; then
             # If this happens, it means that the package was obsoleted or moved
             # in Gentoo. The obsoletion needs to be handled in the case-by-case
             # manner, while move should be handled by doing the same move
@@ -487,12 +671,19 @@ function run_sync() {
             continue
         fi
         packages_to_update+=( "${package}" )
-    done < <(xgrep '^[^#]' "${NEW_STATE_PACKAGES_LIST}")
+    done < <(cat_meaningful "${NEW_STATE_PACKAGES_LIST}")
     # shellcheck disable=SC2153 # SYNC_SCRIPT is not a misspelling
-    env --chdir="${NEW_PORTAGE_STABLE}" "${SYNC_SCRIPT}" "${GENTOO}" "${packages_to_update[@]}"
+    env --chdir="${NEW_PORTAGE_STABLE}" "${SYNC_SCRIPT}" "${gentoo}" "${packages_to_update[@]}"
 
     save_missing_in_scripts "${missing_in_scripts[@]}"
     save_missing_in_gentoo "${missing_in_gentoo[@]}"
+}
+
+function cat_meaningful() {
+    local file
+    file=${1}; shift
+
+    xgrep '^[^#]' "${file}"
 }
 
 function save_simple_package_list() {
@@ -617,6 +808,9 @@ function devel_warn() {
 }
 
 function handle_missing_in_gentoo() {
+    local gentoo
+    gentoo=${1}; shift
+
     local -A hmig_renamed_old_to_new_map hmig_renamed_new_to_old_map
     hmig_renamed_old_to_new_map=()
     hmig_renamed_new_to_old_map=()
@@ -656,7 +850,7 @@ function handle_missing_in_gentoo() {
                 done
             fi
             git -C "${NEW_STATE}" commit "${new_name}: Renamed from ${missing}"
-            env --chdir="${NEW_PORTAGE_STABLE}" "${SYNC_SCRIPT}" "${GENTOO}" "${new_name}"
+            env --chdir="${NEW_PORTAGE_STABLE}" "${SYNC_SCRIPT}" "${gentoo}" "${new_name}"
             renamed_from+=("${missing}")
             renamed_to+=("${new_name}")
             # shellcheck disable=SC2034 # used by name at the bottom of the function
@@ -685,31 +879,6 @@ function handle_missing_in_gentoo() {
     save_rename_maps hmig_renamed_old_to_new_map hmig_renamed_new_to_old_map
 }
 
-function copy_listings() {
-    local listings_dir
-    listings_dir=${1}; shift;
-
-    # shellcheck disable=SC1091 # generated file
-    source "${WORKDIR}/globals"
-
-    add_cleanup "rmdir ${WORKDIR@Q}/listings"
-    mkdir "${WORKDIR}/listings"
-    local arch kind listing_name source_listing target_listing
-    for arch in "${ARCHES[@]}"; do
-        for kind in "${!LISTING_KINDS[@]}"; do
-            listing_name=${LISTING_KINDS["${kind}"]}
-            source_listing="${listings_dir}/${arch}/${listing_name}"
-            target_listing="${WORKDIR}/listings/${arch}-${kind}"
-            if [[ -e "${source_listing}" ]]; then
-                add_cleanup "rm -f ${target_listing@Q}"
-                cp -a "${source_listing}" "${target_listing}"
-            else
-                fail "No listing for ${kind} on ${arch} available in ${listings_dir}"
-            fi
-        done
-    done
-}
-
 function process_listings() {
     local pkg_to_tags_mvm_var_name
     pkg_to_tags_mvm_var_name=${1}
@@ -736,10 +905,10 @@ function process_listings() {
 
     mvm_declare pl_pkg_to_tags_set_mvm mvm_mvc_set
 
-    local arch kind listing pkg
+    local arch file listing pkg
     for arch in "${ARCHES[@]}"; do
-        for kind in "${!LISTING_KINDS[@]}"; do
-            listing="${WORKDIR}/listings/${arch}-${kind}"
+        for file in "${LISTING_KINDS[@]}"; do
+            listing="${AUX_DIR}/${arch}/${file}"
             # lines are like as follows:
             #
             # acct-group/adm-0-r2::portage-stable
@@ -800,13 +969,7 @@ function generate_sdk_reports() {
     # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
-    local gsr_snapshot
-    snapshot_cleanup gsr_snapshot
-
-    local -a gsr_dup_cleanups
-    gsr_dup_cleanups=()
-
-    dup_add_cleanup gsr_dup_cleanups "rmdir ${WORKDIR@Q}/pkg-reports"
+    add_cleanup "rmdir ${WORKDIR@Q}/pkg-reports"
     mkdir "${WORKDIR}/pkg-reports"
 
     local arch packages_image_var_name packages_image_name
@@ -829,7 +992,7 @@ function generate_sdk_reports() {
             state_branch_var_name="${sdk_run_kind^^}_STATE_BRANCH"
             sdk_run_state_branch="${!state_branch_var_name}-sdk-run-${arch}"
 
-            dup_add_cleanup gsr_dup_cleanups \
+            add_cleanup \
                 "git -C ${sdk_run_state@Q} reset --hard HEAD" \
                 "git -C ${sdk_run_state@Q} clean -ffdx" \
                 "git -C ${SCRIPTS@Q} worktree remove ${sdk_run_state@Q}" \
@@ -838,7 +1001,7 @@ function generate_sdk_reports() {
                 worktree add -b "${sdk_run_state_branch}" "${sdk_run_state}" "${!state_branch_var_name}"
             for file in inside_sdk_container.sh stuff.sh print_profile_tree.sh; do
                 full_file="${sdk_run_state}/${file}"
-                dup_add_cleanup gsr_dup_cleanups "rm -f ${full_file@Q}"
+                add_cleanup "rm -f ${full_file@Q}"
                 cp -a "${PKG_AUTO_DIR}/${file}" "${sdk_run_state}"
             done
             rv=0
@@ -851,7 +1014,7 @@ function generate_sdk_reports() {
                 ./inside_sdk_container.sh "${arch}" pkg-reports || rv=${?}
             if [[ ${rv} -ne 0 ]]; then
                 {
-                    salvaged_dir="${WORKDIR}/salvaged-reports"
+                    salvaged_dir="${REPORTS_DIR}/salvaged-reports"
                     info "run_sdk_container finished with exit status ${rv}, printing the warnings below for a clue"
                     info
                     for file in "${sdk_run_state}/pkg-reports/"*'-warnings'; do
@@ -861,29 +1024,28 @@ function generate_sdk_reports() {
                         echo
                     done
                     info
+                    info 'the following steps will work if you configured this run to use cleanups'
+                    info 'other than the "trap" kind'
+                    info
                     info 'entering the SDK to investigate issues can be done as follows:'
                     info
-                    info "${PKG_AUTO_DIR@Q}/debug_new_state.sh ${WORKDIR@Q} ${arch@Q}"
+                    info "${PKG_AUTO_DIR@Q}/debug_new_state.sh ${WORKDIR@Q} ${arch@Q} fixed-stuff"
                     info
-                    info 'after figuring out a fix and committing it'
-                    info "to the ${!state_branch_var_name} branch"
-                    info "in ${!state_var_name}, do the following:"
+                    info 'this will save your git changes to the fixed-stuff branch,'
+                    info 'so after figuring out a fix and committing it, do the following:'
                     info
-                    info "${PKG_AUTO_DIR@Q}/resume.sh ${WORKDIR@Q}"
+                    info "${PKG_AUTO_DIR@Q}/generate_config.sh -b ${WORKDIR@Q} -x \"\${YOUR_CLEANUP}\" -n fixed-stuff fixed-config"
+                    info "${PKG_AUTO_DIR@Q}/generate_reports.sh -w new-workdir fixed-config"
                     info
-                    info 'Whatever reports generated by this script are saved in'
+                    info 'whatever reports generated by the failed run are saved in'
                     info "${salvaged_dir@Q} directory"
                     info
-                    info 'Cleaning up worktrees created for SDK runs'
+                    info 'storing salvaged reports'
                     info
                 } >&2
-                revert_to_cleanup_snapshot "${gsr_snapshot}"
-                add_cleanup "rm -rf ${salvaged_dir@Q}"
                 rm -rf "${salvaged_dir}"
                 cp -a "${sdk_run_state}/pkg-reports" "${salvaged_dir}"
-                execute_lines "${gsr_dup_cleanups[@]}"
-                prepare_workdir_for_resumption
-                fail "cleanup done, stopping now"
+                fail "copying done, stopping now"
             fi
             sdk_reports_dir="${WORKDIR}/pkg-reports/${sdk_run_kind}-${arch}"
             report_files=()
@@ -891,13 +1053,12 @@ function generate_sdk_reports() {
                 file=${full_file##"${sdk_run_state}/pkg-reports/"}
                 report_files+=( "${sdk_reports_dir}/${file}" )
             done
-            dup_add_cleanup gsr_dup_cleanups \
+            add_cleanup \
                 "rm -f ${report_files[*]@Q}" \
                 "rmdir ${sdk_reports_dir@Q}"
             mv "${sdk_run_state}/pkg-reports" "${sdk_reports_dir}"
         done
     done
-    drop_cleanup_snapshot "${gsr_snapshot}"
     cp -a "${WORKDIR}/pkg-reports" "${REPORTS_DIR}/reports-from-sdk"
 }
 
@@ -1375,7 +1536,7 @@ function handle_package_changes() {
     hpc_package_sources_map=()
     read_package_sources hpc_package_sources_map
 
-    create_cleanup_dir "${REPORTS_DIR}/updates"
+    mkdir -p "${REPORTS_DIR}/updates"
 
     local -a old_pkgs new_pkgs
     old_pkgs=()

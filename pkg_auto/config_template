@@ -1,0 +1,47 @@
+# Path to the toplevel directory of the scripts repo.
+scripts: ..
+
+# Path to the directory with auxiliary files.
+aux: ../../downloads
+
+# Path to the directory where update reports will be stored.
+reports: ../../reports
+
+# Base scripts branch for old state.
+#
+# Old state serves as an state before the updates.
+#
+# Optional, defaults to origin/main
+#old-base: origin/main
+
+# Base scripts branch for new state.
+#
+# New state serves as an state that's either after the updates or to-be-updated.
+#
+# Optional, defaults to origin/main
+#new-base: origin/main
+
+# Cleanups mode with semicolon-separated list of extra arguments.
+#
+# Can be:
+#
+# file;${path_to_file}
+# stores cleanup steps in the file. Can be later sourced to perform cleanups.
+#
+# trap
+# executes cleanups on script exit
+#
+# ignore
+# performs no cleanups at all
+#
+# Optional, if not specified, defaults to ignore.
+#cleanups: file;../../x-cleanups
+#cleanups: trap
+#cleanups: ignore
+
+# Override image name to use for an SDK container.
+#
+# Optional, defaults to
+# flatcar-packages-${arch}:${last_nightly_version_id_in_base}-${last_nightly_build_id_in_base}
+#amd64-sdk-img=
+#arm64-sdk-img=
