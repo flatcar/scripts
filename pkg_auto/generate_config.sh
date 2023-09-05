@@ -25,7 +25,7 @@ set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/stuff.sh"
 source "${PKG_AUTO_DIR}/pkg_auto_lib.sh"
 
-base_workdir=''
+gc_base_workdir=''
 
 gc_aux_directory=''
 gc_new_base=''
@@ -103,7 +103,7 @@ pairs=(
     'arm64-sdk-img' gc_amd64_sdk_img
 )
 
-if [[ -z ${base_workdir} ]]; then
+if [[ -n ${gc_base_workdir} ]]; then
     unset_values=()
     opt_idx=0
     name_idx=1
@@ -118,7 +118,7 @@ if [[ -z ${base_workdir} ]]; then
         fi
         unset -n ref
     done
-    get_config_opts "${base_workdir}/config" "${pairs[@]}"
+    get_config_opts "${gc_base_workdir}/config" "${pairs[@]}"
     unset opt_idx name_idx unset_values
 fi
 
