@@ -241,7 +241,7 @@ function set_workdir_to() {
 # with packages from Gentoo repo. Cleans up missing packages.
 function perform_sync_with_gentoo() {
     local gentoo
-    gentoo=${1}; shift
+    gentoo=$(realpath "${1}"); shift
 
     run_sync "${gentoo}"
     handle_missing_in_scripts
