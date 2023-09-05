@@ -9,12 +9,12 @@ set -euo pipefail
 ## -a: aux directory
 ## -b: base workdir - use config from passed workdir to fill unspecified options
 ## -h: this help
+## -i: SDK image override in form of ${arch}:${name},
 ## -n: new base
 ## -o: old base
 ## -r: reports directory
 ## -s: scripts directory
 ## -x: cleanup opts
-## -v: SDK image override in form of ${arch}:${name},
 ##
 ## Positional:
 ## 1: path for config file
@@ -52,9 +52,9 @@ while [[ ${#} -gt 0 ]]; do
             print_help
             exit 0
             ;;
-        -o)
+        -i)
             if [[ -z ${2:-} ]]; then
-                fail 'missing value for -o'
+                fail 'missing value for -i'
             fi
             arch=${2%%:*}
             image_name=${2#*:}
