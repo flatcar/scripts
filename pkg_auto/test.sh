@@ -12,11 +12,11 @@ mvm_declare g_pkg_to_tags_mvm
 process_listings g_pkg_to_tags_mvm
 
 function print_cb() {
-    local k v
+    local k
     k=${1}; shift
-    v=${1}; shift
+    shift # array name not needed
     # rest are tags
-    printf '%s (%s):' "${k}" "${v}"
+    printf '%s:' "${k}"
     if [[ ${#} -gt 0 ]]; then
         printf ' [%s]' "${@}"
     else
