@@ -476,6 +476,7 @@ virtual/openssh
 virtual/os-headers
 virtual/package-manager
 virtual/perl-Carp
+virtual/perl-Data-Dumper
 virtual/perl-Encode
 virtual/perl-Exporter
 virtual/perl-ExtUtils-MakeMaker
