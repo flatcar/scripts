@@ -2099,6 +2099,9 @@ function handle_gentoo_sync() {
     local path in_ps category
     if [[ "${old_head}" != "${new_head}" ]]; then
         while read -r path; do
+            if [[ ${path} != "${PORTAGE_STABLE_SUFFIX}/"* ]]; then
+                continue
+            fi
             in_ps=${path#"${PORTAGE_STABLE_SUFFIX}/"}
             category=${in_ps%%/*}
             case "${category}" in
