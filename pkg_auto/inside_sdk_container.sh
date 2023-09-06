@@ -69,6 +69,8 @@ function emerge_pretend() {
         --color n \
         --emptytree \
         --verbose \
+        --verbose-conflicts \
+        --verbose-slot-rebuilds y \
         "${package}" | grep '^\['
 }
 
