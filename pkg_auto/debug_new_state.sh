@@ -61,8 +61,8 @@ config_file=$(mktemp)
 opts=(
     -b "${old_workdir}"
     -x trap
-    -n "${dns_old_ref}"
-    -o "${dns_new_ref}"
+    -n "${dns_new_ref}"
+    -o "${dns_old_ref}"
 )
 "${PKG_AUTO_DIR}/generate_config.sh" "${opts[@]}" "${config_file}"
 
