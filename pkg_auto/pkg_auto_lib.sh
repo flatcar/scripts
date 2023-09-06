@@ -2116,7 +2116,7 @@ function handle_gentoo_sync() {
                     :
                     ;;
                 *)
-                    fail "unexpected updated file '${line}'"
+                    fail "unexpected updated file '${path}'"
                     ;;
             esac
         done < <(git -C "${NEW_STATE}" diff-tree --no-commit-id --name-only -r "${old_head}" "${new_head}")
