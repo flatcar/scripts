@@ -2177,9 +2177,9 @@ function sort_like_summary_stubs() {
     lines=()
     entries=()
 
-    local line entry sss_lines_name
-    while read -r line; do
-        if [[ -z ${line} ]]; then
+    local REPLY line entry sss_lines_name
+    while read -r; do
+        if [[ -z ${REPLY} ]]; then
             if [[ ${#lines[@]} -gt 0 ]]; then
                 line=${lines[0]}
                 entry=${line#-+([[:space:]])}
@@ -2193,7 +2193,7 @@ function sort_like_summary_stubs() {
                 lines=()
             fi
         else
-            lines+=( "${line}" )
+            lines+=( "${REPLY}" )
         fi
     done < <(cat "${f}"; echo) # echo for final empty line, just in case
 
