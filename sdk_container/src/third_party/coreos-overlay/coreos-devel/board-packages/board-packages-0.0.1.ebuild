@@ -27,7 +27,6 @@ RDEPEND="
 	)
 	arm64? (
 		sys-boot/grub
-		sys-firmware/edk2-ovmf-bin
 	)
 	app-containers/containerd
 	app-containers/docker
