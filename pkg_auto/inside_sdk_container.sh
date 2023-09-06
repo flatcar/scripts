@@ -16,6 +16,10 @@
 ## board-package-repos - contains package information with their repos for board
 ## sdk-emerge-output - contains raw emerge output for SDK being a base for other reports
 ## board-emerge-output - contains raw emerge output for board being a base for other reports
+## sdk-emerge-output-filtered - contains only lines with package information for SDK
+## board-emerge-output-filtered - contains only lines with package information for board
+## sdk-emerge-output-junk - contains only junk lines for SDK
+## board-emerge-output-junk - contains only junk lines for board
 ## *-warnings - warnings printed by emerge or other tools
 ##
 ## Parameters:
@@ -58,20 +62,35 @@ function emerge_pretend() {
     root=${1}; shift
     package=${1}; shift
 
-    emerge \
-        --config-root="${root}" \
-        --root="${root}" \
-        --sysroot="${root}" \
-        --pretend \
-        --columns \
-        --nospinner \
-        --oneshot \
-        --color n \
-        --emptytree \
-        --verbose \
-        --verbose-conflicts \
-        --verbose-slot-rebuilds y \
-        "${package}" | grep '^\['
+    local -a emerge_opts=(
+        --config-root="${root}"
+        --root="${root}"
+        --sysroot="${root}"
+        --pretend
+        --columns
+        --nospinner
+        --oneshot
+        --color n
+        --emptytree
+        --verbose
+        --verbose-conflicts
+        --verbose-slot-rebuilds y
+        --selective n
+        --changed-deps y
+        --changed-deps-report y
+        --changed-slot y
+        --changed-use
+        --complete-graph y
+        --rebuild-if-new-slot y
+        --rebuild-if-new-rev y
+        --with-bdeps y
+    )
+    local rv
+    rv=0
+    emerge "${emerge_opts[@]}" "${package}" || rv=${?}
+    if [[ ${rv} -ne 0 ]]; then
+        echo "WARNING: emerge exited with status ${rv}" >&2
+    fi
 }
 
 function package_info_for_sdk() {
@@ -82,9 +101,7 @@ function package_info_for_board() {
     local arch
     arch=${1}; shift
 
-    # Replace ${arch}-usr in the output with a generic word BOARD.
-    emerge_pretend "/build/${arch}-usr" coreos-devel/board-packages | \
-        sed -e "s#/build/${arch}-usr/#/build/BOARD/#"
+    emerge_pretend "/build/${arch}-usr" coreos-devel/board-packages
 }
 
 # eo - emerge output
@@ -94,6 +111,8 @@ function set_eo() {
 
     SDK_EO="${dir}/sdk-emerge-output"
     BOARD_EO="${dir}/board-emerge-output"
+    SDK_EO_F="${SDK_EO}-filtered"
+    BOARD_EO_F="${BOARD_EO}-filtered"
     SDK_EO_W="${SDK_EO}-warnings"
     BOARD_EO_W="${BOARD_EO}-warnings"
 }
@@ -113,13 +132,6 @@ function cat_var() {
     cat "${ref}"
 }
 
-function cat_eo_w() {
-    local kind
-    kind=${1}; shift
-
-    cat_var "${kind^^}_EO_W"
-}
-
 function cat_eo() {
     local kind
     kind=${1}; shift
@@ -127,31 +139,67 @@ function cat_eo() {
     cat_var "${kind^^}_EO"
 }
 
-#      status      package name       version slot repo                 keyvals          size
-# |--------------| |----------|   |#-g1-----------#--#-g2-#|    |-g----------#-#-g-----| |---|
-# [ebuild   R   ~] virtual/rust   [1.71.1:0/llvm-16::coreos]    USE="-rustfmt" FOO="bar" 0 KiB
+function cat_eo_f() {
+    local kind
+    kind=${1}; shift
+    cat_var "${kind^^}_EO_F"
+}
+
+function cat_eo_w() {
+    local kind
+    kind=${1}; shift
+
+    cat_var "${kind^^}_EO_W"
+}
+
+#      status      package name     version slot repo      target (opt)          keyvals          size
+# |--------------| |----------| |#-g1-----------#--#-g2-#| |--|-g------| |-g----------#-#-g-----| |---|
+# [ebuild   R   ~] virtual/rust [1.71.1:0/llvm-16::coreos] to /some/root USE="-rustfmt" FOO="bar" 0 KiB
 #
-# Actually, there can also be a "to /some/root/" part after "version
-# slot repo" part. This usually shows up in board package reports, but
-# in this case we discard everything after "version slot repo", so we
-# don't need to parse it. In board bdeps reports, this part does not
-# show up.
+# Actually, there can also be another "version slot repo" part between
+# the first "version slot repo" and "target" part.
 STATUS_RE='\[[^]]*]' # 0 groups
 PACKAGE_NAME_RE='[^[:space:]]*' # 0 groups
 VER_SLOT_REPO_RE='\[\([^]]\+\)::\([^]]\+\)]' # 2 groups
+TARGET_RE='to[[:space:]]\+\([^[:space:]]\)\+' # 1 group
 KEYVALS_RE='\([[:space:]]*[A-Za-z0-9_]*="[^"]*"\)*' # 1 group (but containing only the last pair!)
 SIZE_RE='[[:digit:]]\+[[:space:]]*[[:alpha:]]*B' # 0 groups
 SPACES_RE='[[:space:]]\+' # 0 groups
 NONSPACES_RE='[^[:space:]]\+' # 0 groups
 NONSPACES_WITH_COLON_RE='[^[:space:]]*:' # 0 groups
 
-PKG_LINES_SED_FILTERS=(
-    # drop lines not starting with [
-    -e '/^\[/ ! d'
-)
+FULL_LINE_RE='^'"${STATUS_RE}${SPACES_RE}${PACKAGE_NAME_RE}"'\('"${SPACES_RE}${VER_SLOT_REPO_RE}"'\)\{1,2\}\('"${SPACES_RE}${TARGET_RE}"'\)\?\('"${SPACES_RE}${KEYVALS_RE}"'\)*'"${SPACES_RE}${SIZE_RE}"'$'
+
+function filter_sdk_eo() {
+    cat_eo sdk | grep -e "${FULL_LINE_RE}"
+}
+
+function filter_board_eo() {
+    local arch
+    arch=${1}; shift
+
+    # Replace ${arch}-usr in the output with a generic word BOARD.
+    cat_eo board | \
+        grep -e "${FULL_LINE_RE}" | \
+        sed -e "s#/build/${arch}-usr/#/build/BOARD/#"
+}
+
+function junk_sdk_eo() {
+    cat_eo sdk | grep -v -e "${FULL_LINE_RE}"
+}
+
+function junk_board_eo() {
+    cat_eo board | grep -v -e "${FULL_LINE_RE}"
+}
+
+# There may also be a line like:
+#
+# [blocks B      ] <dev-util/gdbus-codegen-2.76.4 ("<dev-util/gdbus-codegen-2.76.4" is soft blocking dev-libs/glib-2.76.4)
+#
+# But currently we don't care about those - they land in junk.
 
 SLOT_INFO_SED_FILTERS=(
-    # if there is not slot information in version, add :0
+    # if there is no slot information in version, add :0
     #
     # assumption here is that version is a second word
     -e "/^${NONSPACES_RE}${SPACES_RE}${NONSPACES_WITH_COLON_RE}/ ! s/^\(${NONSPACES_RE}${SPACES_RE}${NONSPACES_RE}\)/\1:0/"
@@ -177,7 +225,7 @@ PKG_VER_SLOT_KV_SED_FILTERS=(
     # extract package name, version, optionally a slot if it exists and key value pairs if any, the result would be:
     #
     # virtual/rust 1.71.1:0/llvm-16 USE="-rustfmt"
-    -e "s/${STATUS_RE}${SPACES_RE}\(${PACKAGE_NAME_RE}\)${SPACES_RE}${VER_SLOT_REPO_RE}${SPACES_RE}\(${KEYVALS_RE}\)${SPACES_RE}${SIZE_RE}\$/\1 \2 \4/"
+    -e "s/${STATUS_RE}${SPACES_RE}\(${PACKAGE_NAME_RE}\)${SPACES_RE}${VER_SLOT_REPO_RE}\(${SPACES_RE}${VER_SLOT_REPO_RE}\)\?\(${SPACES_RE}${TARGET_RE}\)\?${SPACES_RE}\(${KEYVALS_RE}\)${SPACES_RE}${SIZE_RE}\$/\1 \2 \9/"
     "${SLOT_INFO_SED_FILTERS[@]}"
 )
 
@@ -197,7 +245,7 @@ function sed_eo_and_sort() {
     kind=${1}; shift
     # rest goes to sed
 
-    cat_eo "${kind}" | sed "${@}" | sort
+    cat_eo_f "${kind}" | sed "${@}" | sort
 }
 
 function packages_for_sdk() {
@@ -215,7 +263,6 @@ function packages_for_board() {
 function versions_sdk() {
     local -a sed_opts
     sed_opts=(
-        "${PKG_LINES_SED_FILTERS[@]}"
         "${PKG_VER_SLOT_SED_FILTERS[@]}"
     )
     packages_for_sdk "${sed_opts[@]}"
@@ -224,7 +271,6 @@ function versions_sdk() {
 function versions_sdk_with_key_values() {
     local -a sed_opts
     sed_opts=(
-        "${PKG_LINES_SED_FILTERS[@]}"
         "${PKG_VER_SLOT_KV_SED_FILTERS[@]}"
     )
     packages_for_sdk "${sed_opts[@]}"
@@ -233,7 +279,6 @@ function versions_sdk_with_key_values() {
 function versions_board() {
     local -a sed_opts
     sed_opts=(
-        "${PKG_LINES_SED_FILTERS[@]}"
         -e '/to \/build\/BOARD\// ! d'
         "${PKG_VER_SLOT_SED_FILTERS[@]}"
     )
@@ -243,7 +288,6 @@ function versions_board() {
 function board_bdeps() {
     local -a sed_opts
     sed_opts=(
-        "${PKG_LINES_SED_FILTERS[@]}"
         -e '/to \/build\/BOARD\// d'
         "${PKG_VER_SLOT_KV_SED_FILTERS[@]}"
     )
@@ -289,6 +333,13 @@ echo 'Running pretend-emerge to get complete report for board'
 package_info_for_board "${arch}" >"${BOARD_EO}" 2>"${BOARD_EO_W}"
 
 ensure_no_errors
+
+echo 'Separating emerge info from junk in SDK emerge output'
+filter_sdk_eo >"${SDK_EO_F}" 2>>"${SDK_EO_W}"
+junk_sdk_eo >"${SDK_EO}-junk" 2>>"${SDK_EO_W}"
+echo 'Separating emerge info from junk in board emerge output'
+filter_board_eo "${arch}" >"${BOARD_EO_F}" 2>>"${BOARD_EO_W}"
+junk_board_eo >"${BOARD_EO}-junk" 2>>"${BOARD_EO_W}"
 
 echo 'Generating SDK packages listing'
 versions_sdk >"${reports_dir}/sdk-pkgs" 2>"${reports_dir}/sdk-pkgs-warnings"
