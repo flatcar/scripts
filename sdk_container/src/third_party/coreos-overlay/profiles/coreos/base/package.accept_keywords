@@ -104,3 +104,6 @@
 
 # Accept unstable host Rust compilers.
 =virtual/rust-1.76.0 ~amd64 ~arm64
+
+# Upgrade to latest version for secureboot
+=sys-boot/mokutil-0.6.0 ~amd64
