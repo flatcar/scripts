@@ -130,6 +130,10 @@ function mvm_declare() {
     local mvm_var_name
     mvm_var_name=${1}; shift
 
+    if declare -p "${mvm_var_name}" >/dev/null 2>/dev/null; then
+        fail "variable ${mvm_var_name} already exists, declaring mvm for it would clobber it"
+    fi
+
     local value_handler_prefix
     value_handler_prefix=''
     if [[ ${#} -gt 0 ]]; then

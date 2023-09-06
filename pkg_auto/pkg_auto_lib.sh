@@ -2145,6 +2145,87 @@ function handle_gentoo_sync() {
                 ;;
         esac
     done
+    sort_summary_stubs
+    sort_changelog_stubs
+}
+
+function sort_summary_stubs() {
+    sort_like_summary_stubs "${REPORTS_DIR}/updates/summary_stubs"
+}
+
+# lines look like as follows:
+#
+# -BEGIN-
+# - dev-lang/python: [DEV]
+#   - from 3.11.4 to 3.11.5
+#   - no changes in ebuild
+#   - release notes: TODO
+#
+# - app-emulation/qemu:
+#   - from 8.0.3 to 8.0.4
+#   - no changes in ebuild
+#   - release notes: TODO
+#
+# -END-
+function sort_like_summary_stubs() {
+    local f
+    f=${1}; shift
+
+    mvm_declare groups_mvm
+
+    local -a lines entries
+    lines=()
+    entries=()
+
+    local line entry sss_lines_name
+    while read -r line; do
+        if [[ -z ${line} ]]; then
+            if [[ ${#lines[@]} -gt 0 ]]; then
+                line=${lines[0]}
+                entry=${line#-+([[:space:]])}
+                entry=${entry%%:*}
+                mvm_get groups_mvm "${entry}" sss_lines_name
+                if [[ -n ${sss_lines_name} ]]; then
+                    fail "duplicate entries for ${entry} in summary stubs"
+                fi
+                mvm_add groups_mvm "${entry}" "${lines[@]}"
+                entries+=( "${entry}" )
+                lines=()
+            fi
+        else
+            lines+=( "${line}" )
+        fi
+    done < <(cat "${f}"; echo) # echo for final empty line, just in case
+
+    if [[ ${#entries[@]} -eq 0 ]]; then
+        return 0
+    fi
+
+    {
+        while read -r line; do
+            mvm_get groups_mvm "${line}" sss_lines_name
+            local -n lines_ref="${sss_lines_name}"
+            printf '%s\n' "${lines_ref[@]}" ''
+            unset -n lines_ref
+        done < <(printf '%s\n' "${entries[@]}" | csort)
+    } >"${f}"
+    mvm_unset groups_mvm
+}
+
+function sort_changelog_stubs() {
+    sort_like_changelog_stubs "${REPORTS_DIR}/updates/changelog_stubs"
+}
+
+function sort_like_changelog_stubs() {
+    local f t
+    f=${1}; shift
+    t="${f}.tmp"
+    csort --output="${t}" "${f}"
+    mv -f "${t}" "${f}"
+}
+
+function csort() {
+    LC_ALL=C sort "${@}"
 }
 
 function handle_eclass() {
