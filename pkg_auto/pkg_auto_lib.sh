@@ -68,9 +68,9 @@ function get_state_refs() {
     local -n new_state_ref_ref="${new_state_ref_var_name}"
 
     # shellcheck disable=SC2034 # ref to an external variable
-    old_state_ref_ref=$(git -C "${WORKDIR}/old_state" rev-parse --abbrev-ref HEAD)
+    old_state_ref_ref=$(git -C "${workdir}/old_state" rev-parse --abbrev-ref HEAD)
     # shellcheck disable=SC2034 # ref to an external variable
-    new_state_ref_ref=$(git -C "${WORKDIR}/new_state" rev-parse --abbrev-ref HEAD)
+    new_state_ref_ref=$(git -C "${workdir}/new_state" rev-parse --abbrev-ref HEAD)
 }
 
 function get_workdir_config_opts() {
