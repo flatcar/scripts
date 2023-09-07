@@ -1795,6 +1795,7 @@ function handle_pkg_update() {
     fi
     # shellcheck disable=SC2153 # OLD_PORTAGE_STABLE is not a misspelling, it comes from globals file
     generate_ebuild_diff "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}" "${old}" "${new}"
+    generate_non_ebuild_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}"
     local hpu_update_dir
     update_dir "${new_pkg}" "${old_s}" "${new_s}" hpu_update_dir
     if [[ ! -s "${hpu_update_dir}/diff" ]]; then
@@ -1858,6 +1859,7 @@ function handle_pkg_as_is() {
         fi
     fi
     generate_ebuild_diff "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}" "${v}" "${v}"
+    generate_non_ebuild_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}"
     if [[ ! -s "${hpai_update_dir}/diff" ]]; then
         lines+=( 'no changes in ebuild' )
     fi
@@ -1894,6 +1896,7 @@ function handle_pkg_downgrade() {
         lines+=( "renamed from ${old_pkg}" )
     fi
     generate_ebuild_diff "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}" "${old}" "${new}"
+    generate_non_ebuild_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}"
     local hpd_update_dir
     update_dir "${new_pkg}" "${old_s}" "${new_s}" hpd_update_dir
     if [[ ! -s "${hpd_update_dir}/diff" ]]; then
@@ -1975,6 +1978,31 @@ function generate_summary_stub() {
     } >>"${REPORTS_DIR}/updates/summary_stubs"
 }
 
+function generate_non_ebuild_diffs() {
+    local old_ps new_ps old_pkg new_pkg
+    old_ps=${1}; shift
+    new_ps=${1}; shift
+    old_pkg=${1}; shift
+    new_pkg=${1}; shift
+
+    local old_path new_path
+    old_path="${old_ps}/${old_pkg}"
+    new_path="${new_ps}/${new_pkg}"
+
+    local gned_update_dir
+    update_dir_non_slot "${new_pkg}" gned_update_dir
+
+    local -a diff_opts=(
+        --recursive
+        # Show contents of deleted or added files too.
+        --new-file
+        # Ignore ebuilds and the Manifest file.
+        --exclude='*.ebuild'
+        --exclude='Manifest'
+    )
+    xdiff "${diff_opts[@]}" "${old_path}" "${new_path}" >"${gned_update_dir}/other.diff"
+}
+
 function generate_ebuild_diff() {
     local old_ps new_ps old_pkg new_pkg old_s new_s old new
     old_ps=${1}; shift
@@ -1996,7 +2024,7 @@ function generate_ebuild_diff() {
 
     local ged_update_dir
     update_dir "${new_pkg}" "${old_s}" "${new_s}" ged_update_dir
-    xdiff "${old_path}" "${new_path}" >"${ged_update_dir}/diff"
+    xdiff "${old_path}" "${new_path}" >"${ged_update_dir}/ebuild.diff"
 }
 
 function generate_package_mention_reports() {
@@ -2059,6 +2087,19 @@ function generate_mention_report_for_package() {
     grep_pkg "${scripts}" "${pkg}" ":(exclude)${ps}" ":(exclude)${co}"
 }
 
+function update_dir_non_slot() {
+    local pkg dir_var_name
+    pkg=${1}; shift
+    dir_var_name=${1}; shift
+    local -n dir_ref="${dir_var_name}"
+
+    # shellcheck disable=SC1091 # generated file
+    source "${WORKDIR}/globals"
+
+    # shellcheck disable=SC2034 # it's a reference to external variable
+    dir_ref="${REPORTS_DIR}/updates/${pkg}"
+}
+
 function update_dir() {
     local pkg old_s new_s dir_var_name
     pkg=${1}; shift
@@ -2067,9 +2108,6 @@ function update_dir() {
     dir_var_name=${1}; shift
     local -n dir_ref="${dir_var_name}"
 
-    # shellcheck disable=SC1091 # generated file
-    source "${WORKDIR}/globals"
-
     # slots may have slashes in them - replace them with "-slash-"
     local slot_dir
     if [[ ${old_s} = "${new_s}" ]]; then
@@ -2077,8 +2115,11 @@ function update_dir() {
     else
         slot_dir="${old_s//\//-slash-}-to-${new_s//\//-slash-}"
     fi
+
+    local ud_non_slot_dir
+    update_dir_non_slot "${pkg}" ud_non_slot_dir
     # shellcheck disable=SC2034 # it's a reference to external variable
-    dir_ref="${REPORTS_DIR}/updates/${pkg}/${slot_dir}"
+    dir_ref="${ud_non_slot_dir}/${slot_dir}"
 }
 
 function grep_pkg() {
