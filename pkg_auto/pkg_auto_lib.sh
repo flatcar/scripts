@@ -1798,11 +1798,17 @@ function handle_pkg_update() {
     # shellcheck disable=SC2153 # OLD_PORTAGE_STABLE is not a misspelling, it comes from globals file
     generate_ebuild_diff "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}" "${old}" "${new}"
     generate_non_ebuild_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}"
-    local hpu_update_dir
+    local hpu_update_dir hpu_update_dir_non_slot
+    update_dir_non_slot "${new_pkg}" hpu_update_dir_non_slot
     update_dir "${new_pkg}" "${old_s}" "${new_s}" hpu_update_dir
-    if [[ ! -s "${hpu_update_dir}/diff" ]]; then
-        lines+=( 'no changes in ebuild' )
+    if [[ -s "${hpd_update_dir}/ebuild.diff" ]]; then
+        lines+=( 'TODO: review ebuild.diff' )
     fi
+    if [[ -s "${hpd_update_dir_non_slot}/other.diff" ]]; then
+        lines+=( 'TODO: review other.diff' )
+    fi
+    lines+=( 'TODO: review occurences' )
+
     if gentoo_ver_test "${new_no_r}" -gt "${old_no_r}"; then
         # version bump
         generate_changelog_entry_stub "${pkg_name}" "${new_no_r}"
@@ -1812,7 +1818,7 @@ function handle_pkg_update() {
     local -a hpu_tags
     tags_for_pkg "${pkg_to_tags_mvm_var_name}" "${new_pkg}" hpu_tags
     generate_summary_stub "${new_pkg}" "${hpu_tags[@]}" -- "${lines[@]}"
-
+    generate_full_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}"
     generate_package_mention_reports "${NEW_STATE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}"
 }
 
@@ -1836,40 +1842,58 @@ function handle_pkg_as_is() {
     local -a lines
     lines=( "still at ${v}" )
 
-    local hpai_update_dir_parent hpai_update_dir_parent_2
+    local renamed
+    renamed=
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
         lines+=( "renamed from ${old_pkg}" )
-    else
-        # If absolutely nothing has changed, generate no reports and
-        # remove the update directory. There are three levels of
-        # directories that may need removing:
-        #
-        # category/name/slot
-        # category/name
-        # category
-        if diff --recursive "${OLD_PORTAGE_STABLE}/${old_pkg}" "${NEW_PORTAGE_STABLE}/${new_pkg}" >/dev/null 2>/dev/null; then
-            rmdir "${hpai_update_dir}"
-            dirname_out "${hpai_update_dir}" hpai_update_dir_parent
-            if [[ -z $(echo "${hpai_update_dir_parent}"/*) ]]; then
-                rmdir "${hpai_update_dir_parent}"
-                dirname_out "${hpai_update_dir_parent}" hpai_update_dir_parent_2
-                if [[ -z $(echo "${hpai_update_dir_parent_2}"/*) ]]; then
-                    rmdir "${hpai_update_dir_parent_2}"
-                fi
-            fi
-            return 0
-        fi
+        renamed=x
     fi
     generate_ebuild_diff "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}" "${v}" "${v}"
     generate_non_ebuild_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}"
-    if [[ ! -s "${hpai_update_dir}/diff" ]]; then
-        lines+=( 'no changes in ebuild' )
+    local hpai_update_dir_non_slot hpai_update_dir
+    update_dir_non_slot "${new_pkg}" hpai_update_dir_non_slot
+    update_dir "${new_pkg}" "${old_s}" "${new_s}" hpai_update_dir
+    local modified
+    modified=
+    if [[ -s "${hpai_update_dir}/ebuild.diff" ]]; then
+        lines+=( 'TODO: review ebuild.diff' )
+        modified=x
     fi
+    if [[ -s "${hpai_update_dir_non_slot}/other.diff" ]]; then
+        lines+=( 'TODO: review other.diff' )
+        modified=x
+    fi
+    local hpai_parent_dir
+    if [[ -z ${renamed} ]] && [[ -z ${modified} ]]; then
+        # If nothing (relevant ebuild, stuff in files directory,
+        # metadata) has changed and there was no rename, then generate
+        # no reports and remove the update directory. There are three
+        # levels of directories that may need removing if they are
+        # empty:
+        #
+        # category/name/slot (update dir)
+        # category/name (update dir non slot)
+        # category (parent of above)
+
+        # Drop empty diffs.
+        rm -f "${hpai_update_dir_non_slot}/other.diff" "${hpai_update_dir}/ebuild.diff"
+        # Drop possibly empty directories.
+        rmdir "${hpai_update_dir}"
+        if [[ -z $(echo "${hpai_update_dir_non_slot}"/*) ]]; then
+            rmdir "${hpai_update_dir_non_slot}"
+            dirname_out "${hpai_update_dir_non_slot}" hpai_parent_dir
+            if [[ -z $(echo "${hpai_parent_dir}"/*) ]]; then
+                rmdir "${hpai_parent_dir}"
+            fi
+        fi
+        return 0
+    fi
+    lines+=( 'TODO: review occurences' )
 
     local -a hpai_tags
     tags_for_pkg "${pkg_to_tags_mvm_var_name}" "${pkg}" hpai_tags
     generate_summary_stub "${new_pkg}" "${hpai_tags[@]}" -- "${lines[@]}"
-
+    generate_full_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}"
     generate_package_mention_reports "${NEW_STATE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}"
 }
 
@@ -1899,11 +1923,17 @@ function handle_pkg_downgrade() {
     fi
     generate_ebuild_diff "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}" "${old}" "${new}"
     generate_non_ebuild_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}"
-    local hpd_update_dir
+    local hpd_update_dir hpd_update_dir_non_slot
+    update_dir_non_slot "${new_pkg}" hpd_update_dir_non_slot
     update_dir "${new_pkg}" "${old_s}" "${new_s}" hpd_update_dir
-    if [[ ! -s "${hpd_update_dir}/diff" ]]; then
-        lines+=( 'no changes in ebuild' )
+    if [[ -s "${hpd_update_dir}/ebuild.diff" ]]; then
+        lines+=( 'TODO: review ebuild.diff' )
     fi
+    if [[ -s "${hpd_update_dir_non_slot}/other.diff" ]]; then
+        lines+=( 'TODO: review other.diff' )
+    fi
+    lines+=( 'TODO: review occurences' )
+
     if gentoo_ver_test "${new_no_r}" -lt "${old_no_r}"; then
         # version bump
         generate_changelog_entry_stub "${pkg_name}" "${new_no_r}"
@@ -1913,7 +1943,7 @@ function handle_pkg_downgrade() {
     local -a hpd_tags
     tags_for_pkg "${pkg_to_tags_mvm_var_name}" "${new_pkg}" hpd_tags
     generate_summary_stub "${new_pkg}" "${hpd_tags[@]}" -- "${lines[@]}"
-
+    generate_full_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}"
     generate_package_mention_reports "${NEW_STATE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}"
 }
 
@@ -1980,6 +2010,28 @@ function generate_summary_stub() {
     } >>"${REPORTS_DIR}/updates/summary_stubs"
 }
 
+function generate_full_diffs() {
+    local old_ps new_ps old_pkg new_pkg
+    old_ps=${1}; shift
+    new_ps=${1}; shift
+    old_pkg=${1}; shift
+    new_pkg=${1}; shift
+
+    local old_path new_path
+    old_path="${old_ps}/${old_pkg}"
+    new_path="${new_ps}/${new_pkg}"
+
+    local gfd_update_dir
+    update_dir_non_slot "${new_pkg}" gfd_update_dir
+
+    local -a common_diff_opts=(
+        --recursive
+        --unified=3
+    )
+    xdiff "${common_diff_opts[@]}" --new-file "${old_path}" "${new_path}" >"${gfd_update_dir}/full.diff"
+    xdiff "${common_diff_opts[@]}" --brief "${old_path}" "${new_path}" >"${gfd_update_dir}/brief-summary"
+}
+
 function generate_non_ebuild_diffs() {
     local old_ps new_ps old_pkg new_pkg
     old_ps=${1}; shift
@@ -1996,6 +2048,7 @@ function generate_non_ebuild_diffs() {
 
     local -a diff_opts=(
         --recursive
+        --unified=3
         # Show contents of deleted or added files too.
         --new-file
         # Ignore ebuilds and the Manifest file.
@@ -2026,7 +2079,7 @@ function generate_ebuild_diff() {
 
     local ged_update_dir
     update_dir "${new_pkg}" "${old_s}" "${new_s}" ged_update_dir
-    xdiff "${old_path}" "${new_path}" >"${ged_update_dir}/ebuild.diff"
+    xdiff --unified=3 "${old_path}" "${new_path}" >"${ged_update_dir}/ebuild.diff"
 }
 
 function generate_package_mention_reports() {
@@ -2308,11 +2361,11 @@ function handle_eclass() {
     # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
-    mkdir -p "${REPORTS_DIR}/updates/${eclass}"
     local -a lines
     lines=()
     if [[ -e "${OLD_PORTAGE_STABLE}/${eclass}" ]] && [[ -e "${NEW_PORTAGE_STABLE}/${eclass}" ]]; then
-        xdiff "${OLD_PORTAGE_STABLE}/${eclass}" "${NEW_PORTAGE_STABLE}/${eclass}" >"${REPORTS_DIR}/updates/${eclass}/diff"
+        mkdir -p "${REPORTS_DIR}/updates/${eclass}"
+        xdiff --unified=3 "${OLD_PORTAGE_STABLE}/${eclass}" "${NEW_PORTAGE_STABLE}/${eclass}" >"${REPORTS_DIR}/updates/${eclass}/eclass.diff"
         lines+=( 'TODO: review the diff' )
     elif [[ -e "${OLD_PORTAGE_STABLE}/${eclass}" ]]; then
         lines+=( 'unused, dropped' )
@@ -2347,8 +2400,8 @@ function handle_profiles() {
     local -a diff_opts
     diff_opts=(
         --recursive
-        --unified
-        --new-file  # treat absent files as empty
+        --unified=3
+        --new-file # treat absent files as empty
     )
 
     local out_dir
@@ -2356,7 +2409,7 @@ function handle_profiles() {
     mkdir -p "${out_dir}"
 
     xdiff "${diff_opts[@]}" \
-         "${OLD_PORTAGE_STABLE}/profiles" "${NEW_PORTAGE_STABLE}/profiles" >"${out_dir}/full-diff"
+         "${OLD_PORTAGE_STABLE}/profiles" "${NEW_PORTAGE_STABLE}/profiles" >"${out_dir}/full.diff"
 
     local relevant
     relevant=''
@@ -2386,8 +2439,8 @@ function handle_profiles() {
         if [[ -n ${relevant} ]]; then
             relevant_lines+=( "${line}" )
         fi
-    done <"${out_dir}/full-diff"
-    lines_to_file_truncate "${out_dir}/relevant-diff" "${relevant_lines[@]}"
+    done <"${out_dir}/full.diff"
+    lines_to_file_truncate "${out_dir}/relevant.diff" "${relevant_lines[@]}"
     lines_to_file_truncate "${out_dir}/possibly-irrelevant-files" "${possibly_irrelevant_files[@]}"
     generate_summary_stub profiles -- 'TODO: review the diffs'
 }
@@ -2437,18 +2490,18 @@ function handle_licenses() {
     mkdir -p "${out_dir}"
 
     lines_to_file_truncate \
-        "${out_dir}/brief-diff" \
+        "${out_dir}/brief-summary" \
         '- removed:' \
         "${dropped[@]/#/  - }" \
         '- added:' \
         "${added[@]/#/  - }" \
         '- modified:' \
         "${changed[@]/#/  - }"
-    truncate --size=0 "${out_dir}/mod-diff"
+    truncate --size=0 "${out_dir}/modified.diff"
 
     local c
     for c in "${changed[@]}"; do
-        xdiff "${OLD_PORTAGE_STABLE}/licenses/${c}" "${NEW_PORTAGE_STABLE}/licenses/${c}" >>"${out_dir}/mod-diff"
+        xdiff --unified=3 "${OLD_PORTAGE_STABLE}/licenses/${c}" "${NEW_PORTAGE_STABLE}/licenses/${c}" >>"${out_dir}/modified.diff"
     done
     local -a lines
     lines=()
@@ -2477,7 +2530,7 @@ function handle_scripts() {
     out_dir="${REPORTS_DIR}/updates/scripts"
     mkdir -p "${out_dir}"
 
-    xdiff --unified --recursive "${OLD_PORTAGE_STABLE}/scripts" "${NEW_PORTAGE_STABLE}/scripts" >"${out_dir}"
+    xdiff --unified=3 --recursive "${OLD_PORTAGE_STABLE}/scripts" "${NEW_PORTAGE_STABLE}/scripts" >"${out_dir}/scripts.diff"
     # TODO: update summary stubs
 }
 
