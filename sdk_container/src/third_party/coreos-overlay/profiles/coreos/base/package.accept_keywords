@@ -38,7 +38,6 @@
 
 # Keep versions on both arches in sync.
 =dev-libs/ding-libs-0.6.1-r1 ~arm64
-=dev-libs/elfutils-0.189-r1 ~amd64
 =dev-libs/libgcrypt-1.10.1-r3 ~arm64
 =dev-python/lxml-4.9.2-r1 ~arm64
 =dev-util/bpftool-6.3 ~arm64
