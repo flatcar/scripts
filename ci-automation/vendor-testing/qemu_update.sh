@@ -27,6 +27,12 @@ mkdir -p "$(dirname ${QEMU_UPDATE_PAYLOAD})"
 if [ -f "${QEMU_UPDATE_PAYLOAD}" ] ; then
     echo "++++ ${CIA_TESTSCRIPT}: Using existing ${QEMU_UPDATE_PAYLOAD} for testing ${CIA_VERNUM} (${CIA_ARCH}) ++++"
 else
+    # TODO: Change the GitHub Action to provide this artifact and detect that case here and skip the bincache download
+    if ! curl --head -o /dev/null -fsSL --retry-delay 1 --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 "https://bincache.flatcar-linux.net/images/${CIA_ARCH}/${CIA_VERNUM}/flatcar_test_update.gz"; then
+      echo "1..1" > "${CIA_TAPFILE}"
+      echo "ok - skipped qemu update tests" >> "${CIA_TAPFILE}"
+      exit 0
+    fi
     echo "++++ ${CIA_TESTSCRIPT}: downloading flatcar_test_update.gz for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
     copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/flatcar_test_update.gz" tmp/
 fi
