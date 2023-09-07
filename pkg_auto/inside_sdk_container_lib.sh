@@ -56,9 +56,13 @@ function set_eo() {
 
     SDK_EO="${dir}/sdk-emerge-output"
     BOARD_EO="${dir}/board-emerge-output"
+    # shellcheck disable=SC2034 # used indirectly in cat_eo_f
     SDK_EO_F="${SDK_EO}-filtered"
+    # shellcheck disable=SC2034 # used indirectly in cat_eo_f
     BOARD_EO_F="${BOARD_EO}-filtered"
+    # shellcheck disable=SC2034 # used indirectly in cat_eo_w
     SDK_EO_W="${SDK_EO}-warnings"
+    # shellcheck disable=SC2034 # used indirectly in cat_eo_w
     BOARD_EO_W="${BOARD_EO}-warnings"
 }
 

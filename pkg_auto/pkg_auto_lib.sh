@@ -46,6 +46,7 @@ function debug_new_state() {
         fi
     done
     add_cleanup "rm -rf ${clone_dir@Q}"
+    # shellcheck disable=SC2153 # NEW_STATE is not a misspelling, comes from globals
     git clone "${NEW_STATE}" "${clone_dir}"
 
     # Copy user name and email into clone, so the clone has its own
@@ -70,6 +71,8 @@ function debug_new_state() {
     # to origin (which is in ${NEW_STATE}). That's our
     # synchronization. But here it's only limited to the
     # ${NEW_STATE_BRANCH}.
+    #
+    # shellcheck disable=SC2153 # NEW_STATE_BRANCH is not a misspelling, comes from globals
     git -C "${clone_dir}" push origin "${NEW_STATE_BRANCH}"
 }
 
@@ -137,7 +140,6 @@ function setup_workdir_with_config() {
     file=${1}; shift
 
     local cfg_scripts cfg_aux cfg_reports cfg_old_base cfg_new_base
-    local cfg_cleanups_kind
     local -a cfg_cleanups_opts
     local -A cfg_overrides
 
