@@ -54,6 +54,7 @@
 =net-misc/curl-8.2.1 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
+=net-nds/openldap-2.6.4-r1 ~amd64
 =sec-policy/selinux-base-2.20200818-r3 ~arm64
 =sec-policy/selinux-base-policy-2.20200818-r3 ~arm64
 =sec-policy/selinux-unconfined-2.20200818-r2 ~arm64
