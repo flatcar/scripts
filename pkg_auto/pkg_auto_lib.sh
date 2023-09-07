@@ -33,17 +33,44 @@ function debug_new_state() {
     # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
-    # shellcheck disable=SC2153 # NEW_STATE is not a misspelling, comes from globals
-    add_cleanup "rm -f ${NEW_STATE@Q}/{print_profile_tree.sh,inside_sdk_container.sh,stuff.sh}"
-    cp -a "${PKG_AUTO_DIR}"/{print_profile_tree.sh,inside_sdk_container.sh,stuff.sh} "${NEW_STATE}"
-    add_cleanup "git -C ${NEW_STATE@Q} checkout -- sdk_container/.repo/manifests/version.txt"
-    env --chdir "${NEW_STATE}" \
+    # For debugging, it's best to operate on a full clone instead of
+    # worktree - worktrees are useless inside containers, because the
+    # original clone that has the history, configuration and
+    # everything is not available there. The downside is that we need
+    # to remember to synchronize the clones.
+    local clone_dir
+    while true; do
+        clone_dir="${WORKDIR}/new_state_clone_${RANDOM}"
+        if [[ ! -e ${clone_dir} ]]; then
+            break
+        fi
+    done
+    add_cleanup "rm -rf ${clone_dir@Q}"
+    git clone "${NEW_STATE}" "${clone_dir}"
+
+    # Copy user name and email into clone, so the clone has its own
+    # user info, which won't depend on global or system config that
+    # will be unavailable inside the container.
+    local setting value
+    for setting in name email; do
+        value=$(git -C "${NEW_STATE}" config "user.${setting}")
+        git -C "${clone_dir}" config --type local "user.${setting}" "${value}"
+    done
+
+    cp -a "${PKG_AUTO_DIR}"/{print_profile_tree.sh,inside_sdk_container{,_lib}.sh,stuff.sh} "${clone_dir}"
+    env --chdir "${clone_dir}" \
         ./run_sdk_container \
         -t \
         -C "${!image_var_name}" \
         -n "pkg-new-state-debug-${arch}" \
         -a "${arch}" \
         --rm || :
+
+    # When done with debugging, push the new state branch from clone
+    # to origin (which is in ${NEW_STATE}). That's our
+    # synchronization. But here it's only limited to the
+    # ${NEW_STATE_BRANCH}.
+    git -C "${clone_dir}" push origin "${NEW_STATE_BRANCH}"
 }
 
 function create_dir_for_workdir() {
@@ -981,7 +1008,7 @@ function generate_sdk_reports() {
                 "git -C ${SCRIPTS@Q} branch -D ${sdk_run_state_branch@Q}"
             git -C "${SCRIPTS}" \
                 worktree add -b "${sdk_run_state_branch}" "${sdk_run_state}" "${!state_branch_var_name}"
-            for file in inside_sdk_container.sh stuff.sh print_profile_tree.sh; do
+            for file in inside_sdk_container{,_lib}.sh stuff.sh print_profile_tree.sh; do
                 full_file="${sdk_run_state}/${file}"
                 add_cleanup "rm -f ${full_file@Q}"
                 cp -a "${PKG_AUTO_DIR}/${file}" "${sdk_run_state}"
