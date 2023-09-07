@@ -2029,7 +2029,7 @@ function generate_mention_report_for_package() {
     yell "${pkg} in overlay profiles"
     grep_pkg "${scripts}" "${pkg}" "${co}/profiles"
 
-    yell "${pkg} in gentoo profiles"
+    yell "${pkg} in Gentoo profiles"
     grep_pkg "${scripts}" "${pkg}" "${ps}/profiles"
 
     # shellcheck disable=SC2164 # we use set -e, so the script will exit if it fails
@@ -2050,12 +2050,12 @@ function generate_mention_report_for_package() {
     popd >/dev/null
 
     yell "${pkg} in overlay (outside profiles)"
-    grep_pkg "${scripts}" "${pkg}" "${ps}" ":(exclude)${ps}/profiles"
-
-    yell "${pkg} in gentoo (outside profiles)"
     grep_pkg "${scripts}" "${pkg}" "${co}" ":(exclude)${co}/profiles"
 
-    yell "${pkg} in scripts"
+    yell "${pkg} in Gentoo (outside profiles)"
+    grep_pkg "${scripts}" "${pkg}" "${ps}" ":(exclude)${ps}/profiles"
+
+    yell "${pkg} in scripts (outside overlay and Gentoo)"
     grep_pkg "${scripts}" "${pkg}" ":(exclude)${ps}/profiles" ":(exclude)${co}/profiles"
 }
 
