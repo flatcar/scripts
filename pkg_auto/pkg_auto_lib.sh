@@ -2056,7 +2056,7 @@ function generate_mention_report_for_package() {
     grep_pkg "${scripts}" "${pkg}" "${ps}" ":(exclude)${ps}/profiles"
 
     yell "${pkg} in scripts (outside overlay and Gentoo)"
-    grep_pkg "${scripts}" "${pkg}" ":(exclude)${ps}/profiles" ":(exclude)${co}/profiles"
+    grep_pkg "${scripts}" "${pkg}" ":(exclude)${ps}" ":(exclude)${co}"
 }
 
 function update_dir() {
