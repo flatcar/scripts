@@ -205,6 +205,20 @@ jobs:
           python3 -m http.server -d "${TESTS_WEBSERVER_WEBROOT}" -b "${TESTS_WEBSERVER_IP}" "${TESTS_WEBSERVER_PORT}" &
 
           pushd scripts
+
+          source ci-automation/ci_automation_common.sh
+          source sdk_container/.repo/manifests/version.txt
+
+          version="alpha-$FLATCAR_VERSION_ID"
+          check_version_string "$version"
+          sdk_version="${CUSTOM_SDK_VERSION:-$FLATCAR_SDK_VERSION}"
+
+          # Create version file
+          (
+            source sdk_lib/sdk_container_common.sh
+            create_versionfile "$sdk_version" "$version"
+          )
+
           source ci-automation/test.sh
 
           # Provide our own torcx prepare function so we use our local manifest json.

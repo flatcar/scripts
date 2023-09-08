@@ -13,11 +13,11 @@ set -euo pipefail
 source ci-automation/vendor_test.sh
 
 # The last check is not perfect (if both tests are rerun, it will only look at the name of the second test) but hopefully still good enough to prevent wrong usage
-if [ "$*" != "" ] && [ "$*" != "*" ] && [[ "$*" != *"cl.update.payload" ]]; then
+if [ "$*" != "" ] && [ "$*" != "*" ] && [[ "$*" != *"cl.update."* ]]; then
     echo "1..1" > "${CIA_TAPFILE}"
     echo "not ok - all qemu update tests" >> "${CIA_TAPFILE}"
     echo "  ---" >> "${CIA_TAPFILE}"
-    echo "  ERROR: Only cl.update.payload is supported, got '$*'." | tee -a "${CIA_TAPFILE}"
+    echo "  ERROR: Only cl.update.payload and cl.update.oem are supported, got '$*'." | tee -a "${CIA_TAPFILE}"
     echo "  ..." >> "${CIA_TAPFILE}"
     break_retest_cycle
     exit 1
@@ -27,6 +27,12 @@ mkdir -p "$(dirname ${QEMU_UPDATE_PAYLOAD})"
 if [ -f "${QEMU_UPDATE_PAYLOAD}" ] ; then
     echo "++++ ${CIA_TESTSCRIPT}: Using existing ${QEMU_UPDATE_PAYLOAD} for testing ${CIA_VERNUM} (${CIA_ARCH}) ++++"
 else
+    # TODO: Change the GitHub Action to provide this artifact and detect that case here and skip the bincache download
+    if ! curl --head -o /dev/null -fsSL --retry-delay 1 --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 "https://bincache.flatcar-linux.net/images/${CIA_ARCH}/${CIA_VERNUM}/flatcar_test_update.gz"; then
+      echo "1..1" > "${CIA_TAPFILE}"
+      echo "ok - skipped qemu update tests" >> "${CIA_TAPFILE}"
+      exit 0
+    fi
     echo "++++ ${CIA_TESTSCRIPT}: downloading flatcar_test_update.gz for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
     copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/flatcar_test_update.gz" tmp/
 fi
@@ -87,11 +93,16 @@ query_kola_tests() {
 run_kola_tests() {
     local instance_type="${1}"; shift;
     local instance_tapfile="${1}"; shift
+    local tests=("cl.update.payload")
     local image
     if [ "${instance_type}" = "previous" ]; then
         image="tmp/flatcar_production_image_previous.bin"
     elif [ "${instance_type}" = "first_dual" ]; then
         image="tmp/flatcar_production_image_first_dual.bin"
+        # Only run this test if the Azure dev payload exists on bincache because the fallback download needs it
+        if curl --head -o /dev/null -fsSL --retry-delay 1 --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 "https://bincache.flatcar-linux.net/images/${CIA_ARCH}/${CIA_VERNUM}/flatcar_test_update-oem-azure.gz"; then
+          tests+=("cl.update.oem")
+        fi
     else
         echo "Wrong instance type ${instance_type}" >&2
         exit 1
@@ -107,7 +118,7 @@ run_kola_tests() {
       --torcx-manifest="${CIA_TORCX_MANIFEST}" \
       --update-payload="${QEMU_UPDATE_PAYLOAD}" \
       ${QEMU_KOLA_SKIP_MANGLE:+--qemu-skip-mangle} \
-      cl.update.payload
+      "${tests[@]}"
 }
 
 run_kola_tests_on_instances "previous" "${CIA_TAPFILE}" "${CIA_FIRST_RUN}" first_dual -- cl.update.payload -- "${@}"
