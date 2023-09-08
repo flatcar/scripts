@@ -1,0 +1,1 @@
+- nvidia-drivers ([CVE-2023-25515](https://nvd.nist.gov/vuln/detail/CVE-2023-25515), [CVE-2023-25516](https://nvd.nist.gov/vuln/detail/CVE-2023-25516))
