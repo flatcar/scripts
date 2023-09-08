@@ -1798,6 +1798,7 @@ function handle_pkg_update() {
     # shellcheck disable=SC2153 # OLD_PORTAGE_STABLE is not a misspelling, it comes from globals file
     generate_ebuild_diff "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}" "${old}" "${new}"
     generate_non_ebuild_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}"
+    # shellcheck disable=SC2034 # these variables are used by name
     local hpu_update_dir hpu_update_dir_non_slot
     update_dir_non_slot "${new_pkg}" hpu_update_dir_non_slot
     update_dir "${new_pkg}" "${old_s}" "${new_s}" hpu_update_dir
