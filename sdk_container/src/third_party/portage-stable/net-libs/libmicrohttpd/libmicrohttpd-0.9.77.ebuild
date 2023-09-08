@@ -14,7 +14,7 @@ S="${WORKDIR}"/${MY_P}
 
 LICENSE="|| ( LGPL-2.1+ !ssl? ( GPL-2+-with-eCos-exception-2 ) )"
 SLOT="0/12"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ppc ~ppc64 ~riscv ~s390 sparc x86"
 IUSE="+epoll +eventfd ssl static-libs test +thread-names"
 REQUIRED_USE="epoll? ( kernel_linux )"
 RESTRICT="!test? ( test )"
@@ -33,7 +33,7 @@ pkg_pretend() {
 		use epoll && CONFIG_CHECK+=" ~EPOLL"
 		ERROR_EPOLL="EPOLL is not enabled in kernel, but enabled in libmicrohttpd."
 		ERROR_EPOLL+=" libmicrohttpd will fail to start with 'automatic' configuration."
-		use eventfd && CONFIG_CHECK+=" EVENTFD"
+		use eventfd && CONFIG_CHECK+=" ~EVENTFD"
 		ERROR_EVENTFD="EVENTFD is not enabled in kernel, but enabled in libmicrohttpd."
 		ERROR_EVENTFD+=" libmicrohttpd will not work."
 		check_extra_config

@@ -9,11 +9,11 @@ EAPI=8
 #
 # Also recommend subscribing to the coreutils and bug-coreutils MLs.
 
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{10..11} )
 VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/coreutils.asc
 inherit flag-o-matic python-any-r1 toolchain-funcs verify-sig
 
-MY_PATCH="${PN}-9.0_p20220409-patches-01"
+MY_PATCH="${PN}-9.4-patches"
 DESCRIPTION="Standard GNU utilities (chmod, cp, dd, ls, sort, tr, head, wc, who,...)"
 HOMEPAGE="https://www.gnu.org/software/coreutils/"
 
@@ -23,7 +23,7 @@ if [[ ${PV} == 9999 ]] ; then
 elif [[ ${PV} == *_p* ]] ; then
 	# Note: could put this in devspace, but if it's gone, we don't want
 	# it in tree anyway. It's just for testing.
-	MY_SNAPSHOT="$(ver_cut 1-2).18-ffd62"
+	MY_SNAPSHOT="$(ver_cut 1-2).156-b3afb"
 	SRC_URI="https://www.pixelbeat.org/cu/coreutils-${MY_SNAPSHOT}.tar.xz -> ${P}.tar.xz"
 	SRC_URI+=" verify-sig? ( https://www.pixelbeat.org/cu/coreutils-${MY_SNAPSHOT}.tar.xz.sig -> ${P}.tar.xz.sig )"
 	S="${WORKDIR}"/${PN}-${MY_SNAPSHOT}
@@ -108,12 +108,13 @@ src_unpack() {
 }
 
 src_prepare() {
+	# TODO: past 2025, we may need to add our own hack for bug #907474.
 	local PATCHES=(
 		# Upstream patches
 	)
 
-	if ! use vanilla && [[ -d "${WORKDIR}"/patch ]] ; then
-		PATCHES+=( "${WORKDIR}"/patch )
+	if ! use vanilla && [[ -d "${WORKDIR}"/${MY_PATCH} ]] ; then
+		PATCHES+=( "${WORKDIR}"/${MY_PATCH} )
 	fi
 
 	default
@@ -135,10 +136,9 @@ src_prepare() {
 }
 
 src_configure() {
-	# On alpha at least, gnulib (as of 9.3) can't seem to figure out we need
-	# _F_O_B=64: https://debbugs.gnu.org/64123
-	append-lfs-flags
-
+	# TODO: in future (>9.4?), we may want to wire up USE=systemd:
+	# still experimental at the moment, but:
+	# https://git.savannah.gnu.org/cgit/coreutils.git/commit/?id=85edb4afbd119fb69a0d53e1beb71f46c9525dd0
 	local myconf=(
 		--with-packager="Gentoo"
 		--with-packager-version="${PVR} (p${PATCH_VER:-0})"
@@ -148,7 +148,7 @@ src_configure() {
 		# hostname    - net-tools
 		--enable-install-program="arch,$(usev hostname),$(usev kill)"
 		--enable-no-install-program="groups,$(usev !hostname),$(usev !kill),su,uptime"
-		$(usex caps '' --disable-libcap)
+		$(usev !caps --disable-libcap)
 		$(use_enable nls)
 		$(use_enable acl)
 		$(use_enable multicall single-binary)

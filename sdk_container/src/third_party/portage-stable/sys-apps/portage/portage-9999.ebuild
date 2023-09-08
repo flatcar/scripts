@@ -7,7 +7,7 @@ PYTHON_COMPAT=( pypy3 python3_{10..12} )
 PYTHON_REQ_USE='bzip2(+),threads(+)'
 TMPFILES_OPTIONAL=1
 
-inherit meson linux-info python-r1 tmpfiles
+inherit meson linux-info multiprocessing python-r1 tmpfiles
 
 DESCRIPTION="The package management and distribution system for Gentoo"
 HOMEPAGE="https://wiki.gentoo.org/wiki/Project:Portage"
@@ -31,27 +31,30 @@ RESTRICT="!test? ( test )"
 
 # setuptools is still needed as a workaround for Python 3.12+ for now.
 # https://github.com/mesonbuild/meson/issues/7702
-
 BDEPEND="
 	${PYTHON_DEPS}
 	$(python_gen_cond_dep '
 		dev-python/setuptools[${PYTHON_USEDEP}]
 	' python3_12)
-	test? ( dev-vcs/git )
+	test? (
+		dev-python/pytest-xdist[${PYTHON_USEDEP}]
+		dev-vcs/git
+	)
 "
 DEPEND="
 	${PYTHON_DEPS}
 	>=app-arch/tar-1.27
 	dev-lang/python-exec:2
-	>=sys-apps/sed-4.0.5 sys-devel/patch
+	>=sys-apps/sed-4.0.5
+	sys-devel/patch
 	!build? ( $(python_gen_impl_dep 'ssl(+)') )
 	apidoc? (
 		dev-python/sphinx[${PYTHON_USEDEP}]
 		dev-python/sphinx-epytext[${PYTHON_USEDEP}]
 	)
 	doc? (
-		app-text/xmlto
 		~app-text/docbook-xml-dtd-4.4
+		app-text/xmlto
 	)
 "
 # Require sandbox-2.2 for bug #288863.
@@ -59,25 +62,25 @@ DEPEND="
 RDEPEND="
 	${PYTHON_DEPS}
 	acct-user/portage
-	app-arch/zstd
 	>=app-arch/tar-1.27
+	app-arch/zstd
+	>=app-misc/pax-utils-0.1.17
 	dev-lang/python-exec:2
 	>=sys-apps/baselayout-2.9
 	>=sys-apps/findutils-4.4
 	!build? (
 		>=app-admin/eselect-1.2
 		>=app-shells/bash-5.0:0
-		>=sys-apps/sed-4.0.5
 		>=sec-keys/openpgp-keys-gentoo-release-20230329
+		>=sys-apps/sed-4.0.5
 		rsync-verify? (
-			>=app-portage/gemato-14.5[${PYTHON_USEDEP}]
 			>=app-crypt/gnupg-2.2.4-r2[ssl(-)]
+			>=app-portage/gemato-14.5[${PYTHON_USEDEP}]
 		)
 	)
 	elibc_glibc? ( >=sys-apps/sandbox-2.2 )
 	elibc_musl? ( >=sys-apps/sandbox-2.2 )
 	kernel_linux? ( sys-apps/util-linux )
-	>=app-misc/pax-utils-0.1.17
 	selinux? ( >=sys-libs/libselinux-2.0.94[python,${PYTHON_USEDEP}] )
 	xattr? ( kernel_linux? (
 		>=sys-apps/install-xattr-0.3
@@ -152,6 +155,12 @@ src_compile() {
 	python_foreach_impl meson_src_compile
 }
 
+src_test() {
+	local -x PYTEST_ADDOPTS="-vv -ra -l -o console_output_style=count -n $(makeopts_jobs) --dist=worksteal"
+
+	python_foreach_impl meson_src_test --no-rebuild --verbose
+}
+
 src_install() {
 	python_foreach_impl my_src_install
 	dotmpfiles "${FILESDIR}"/portage-{ccache,tmpdir}.conf
@@ -172,12 +181,8 @@ my_src_install() {
 	python_fix_shebang "${pydirs[@]}"
 }
 
-src_test() {
-	python_foreach_impl meson_src_test --no-rebuild --verbose
-}
-
 pkg_preinst() {
-	if ! use build; then
+	if ! use build && [[ -z ${ROOT} ]]; then
 		python_setup
 		local sitedir=$(python_get_sitedir)
 		[[ -d ${D}${sitedir} ]] || die "${D}${sitedir}: No such directory"

@@ -1,4 +1,4 @@
-From 8969baced4cecd973f3077feba72c82c7fca34a0 Mon Sep 17 00:00:00 2001
+From 0b3f711bd7a9f47412f28b77a4a268f3ab1ba5ad Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Fri, 4 Aug 2023 11:49:18 +0200
 Subject: [PATCH] libfrog: Fix cross-compilation issue with randbytes

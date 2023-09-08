@@ -13,7 +13,7 @@ QEMU_DOCS_VERSION=$(ver_cut 1-3)
 # bug #830088
 QEMU_DOC_USEFLAG="+doc"
 
-PYTHON_COMPAT=( python3_{9,10,11,12} )
+PYTHON_COMPAT=( python3_{10..12} )
 PYTHON_REQ_USE="ncurses,readline"
 
 FIRMWARE_ABI_VERSION="7.2.0"
@@ -204,7 +204,7 @@ SOFTMMU_TOOLS_DEPEND="
 		media-libs/mesa[egl(+),gbm(+)]
 	)
 	pam? ( sys-libs/pam )
-	pipewire? ( media-video/pipewire )
+	pipewire? ( >=media-video/pipewire-0.3.60 )
 	png? ( >=media-libs/libpng-1.6.34:=[static-libs(+)] )
 	pulseaudio? ( media-libs/libpulse )
 	rbd? ( sys-cluster/ceph )
@@ -268,14 +268,15 @@ PPC_FIRMWARE_DEPEND="
 	)
 "
 
+# See bug #913084 for pip dep
 BDEPEND="
 	$(python_gen_impl_dep)
 	dev-lang/perl
-	dev-util/meson
-	sys-apps/texinfo
+	>=dev-util/meson-0.63.0
+	dev-python/pip[${PYTHON_USEDEP}]
 	virtual/pkgconfig
 	doc? (
-		dev-python/sphinx[${PYTHON_USEDEP}]
+		>=dev-python/sphinx-1.6.0[${PYTHON_USEDEP}]
 		dev-python/sphinx-rtd-theme[${PYTHON_USEDEP}]
 	)
 	gtk? ( nls? ( sys-devel/gettext ) )
@@ -310,6 +311,8 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-8.0.0-disable-keymap.patch
 	"${FILESDIR}"/${PN}-7.1.0-capstone-include-path.patch
 	"${FILESDIR}"/${PN}-8.1.0-also-build-virtfs-proxy-helper.patch
+	"${FILESDIR}"/${PN}-8.1.0-skip-tests.patch
+	"${FILESDIR}"/${PN}-8.1.0-find-sphinx.patch
 )
 
 QA_PREBUILT="
@@ -450,11 +453,6 @@ src_prepare() {
 	# Verbose builds
 	MAKEOPTS+=" V=1"
 
-	# We already force -D_FORTIFY_SOURCE=2 (or 3) in our toolchain, but
-	# this setting (-U then -D..=2) will prevent us from trying out 3, so
-	# drop it. No change to level of protection b/c we patch our toolchain.
-	sed -i -e 's/-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2//' configure || die
-
 	# Remove bundled modules
 	rm -r subprojects/dtc roms/*/ || die
 }
@@ -484,7 +482,7 @@ qemu_src_configure() {
 		--disable-containers # bug #732972
 		--disable-guest-agent
 		--disable-strip
-		--with-git-submodules=ignore
+		--disable-download
 
 		# bug #746752: TCG interpreter has a few limitations:
 		# - it does not support FPU
@@ -503,6 +501,7 @@ qemu_src_configure() {
 		--disable-gcrypt
 		--cc="$(tc-getCC)"
 		--cxx="$(tc-getCXX)"
+		--objcc="$(tc-getCC)"
 		--host-cc="$(tc-getBUILD_CC)"
 
 		$(use_enable alsa)
