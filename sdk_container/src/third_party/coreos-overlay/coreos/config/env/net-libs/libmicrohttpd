@@ -1,0 +1,8 @@
+# The usability of the eventfd is tested by linking and running a test
+# program, which can't be done when doing a cross-compiliation. So for
+# the case of cross-compilation, the configuration scripts assumes
+# that eventfd is not usable, which results in confiuration error,
+# since usage of eventfd is requested. We know that eventfd is usable
+# for us, for tell this to the configure script.
+
+export mhd_cv_eventfd_usable=yes
