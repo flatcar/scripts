@@ -1,12 +1,12 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 # Bumping notes: https://wiki.gentoo.org/wiki/Project:Toolchain/sys-libs/glibc
 # Please read & adapt the page as necessary if obsolete.
 
-PYTHON_COMPAT=( python3_{8..11} )
+PYTHON_COMPAT=( python3_{9..11} )
 TMPFILES_OPTIONAL=1
 
 inherit python-any-r1 prefix preserve-libs toolchain-funcs flag-o-matic gnuconfig \
@@ -23,6 +23,19 @@ EMULTILIB_PKG="true"
 PATCH_VER=5
 PATCH_DEV=dilfridge
 
+# gcc mulitilib bootstrap files version
+GCC_BOOTSTRAP_VER=20201208
+
+# systemd integration version
+GLIBC_SYSTEMD_VER=20210729
+
+# Minimum kernel version that glibc requires
+MIN_KERN_VER="3.2.0"
+
+# Minimum pax-utils version needed (which contains any new syscall changes for
+# its seccomp filter!). Please double check this!
+MIN_PAX_UTILS_VER="1.3.3"
+
 if [[ ${PV} == 9999* ]]; then
 	inherit git-r3
 else
@@ -31,25 +44,10 @@ else
 	SRC_URI+=" https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${P}-patches-${PATCH_VER}.tar.xz"
 fi
 
-RELEASE_VER=${PV}
-
-GCC_BOOTSTRAP_VER=20201208
-
-LOCALE_GEN_VER=2.22
-
-GLIBC_SYSTEMD_VER=20210729
-
-SRC_URI+=" https://gitweb.gentoo.org/proj/locale-gen.git/snapshot/locale-gen-${LOCALE_GEN_VER}.tar.gz"
 SRC_URI+=" multilib-bootstrap? ( https://dev.gentoo.org/~dilfridge/distfiles/gcc-multilib-bootstrap-${GCC_BOOTSTRAP_VER}.tar.xz )"
 SRC_URI+=" systemd? ( https://gitweb.gentoo.org/proj/toolchain/glibc-systemd.git/snapshot/glibc-systemd-${GLIBC_SYSTEMD_VER}.tar.gz )"
 
-IUSE="audit caps cet compile-locales +crypt custom-cflags doc gd hash-sysv-compat headers-only +multiarch multilib multilib-bootstrap nscd profile selinux +ssp stack-realign +static-libs suid systemd systemtap test vanilla"
-
-# Minimum kernel version that glibc requires
-MIN_KERN_VER="3.2.0"
-# Minimum pax-utils version needed (which contains any new syscall changes for
-# its seccomp filter!). Please double check this!
-MIN_PAX_UTILS_VER="1.3.3"
+IUSE="audit caps cet compile-locales +crypt custom-cflags doc gd hash-sysv-compat headers-only +multiarch multilib multilib-bootstrap nscd perl profile selinux +ssp stack-realign +static-libs suid systemd systemtap test vanilla"
 
 # Here's how the cross-compile logic breaks down ...
 #  CTARGET - machine that will target the binaries
@@ -99,17 +97,21 @@ fi
 # Lastly, let's avoid some openssh nastiness, bug 708224, as
 # convenience to our users.
 
-# gzip, grep, awk are needed by locale-gen, bug 740750
-
+IDEPEND="
+	!compile-locales? ( sys-apps/locale-gen )
+"
 BDEPEND="
 	${PYTHON_DEPS}
 	>=app-misc/pax-utils-${MIN_PAX_UTILS_VER}
 	sys-devel/bison
-	doc? ( sys-apps/texinfo )
-	!compile-locales? (
-		app-arch/gzip
-		sys-apps/grep
-		app-alternatives/awk
+	compile-locales? ( sys-apps/locale-gen )
+	doc? (
+		dev-lang/perl
+		sys-apps/texinfo
+	)
+	test? (
+		dev-lang/perl
+		>=net-dns/libidn2-2.3.0
 	)
 "
 COMMON_DEPEND="
@@ -123,20 +125,10 @@ COMMON_DEPEND="
 	systemtap? ( dev-util/systemtap )
 "
 DEPEND="${COMMON_DEPEND}
-	compile-locales? (
-		app-arch/gzip
-		sys-apps/grep
-		app-alternatives/awk
-	)
-	test? ( >=net-dns/libidn2-2.3.0 )
 "
 RDEPEND="${COMMON_DEPEND}
-	app-arch/gzip
-	sys-apps/grep
-	app-alternatives/awk
-	sys-apps/gentoo-functions
 	!<app-misc/pax-utils-${MIN_PAX_UTILS_VER}
-	!<net-misc/openssh-8.1_p1-r2
+	perl? ( dev-lang/perl )
 "
 
 RESTRICT="!test? ( test )"
@@ -421,6 +413,7 @@ setup_flags() {
 	fi
 
 	strip-unsupported-flags
+	filter-lto
 	filter-flags -m32 -m64 '-mabi=*'
 
 	# glibc aborts if rpath is set by LDFLAGS
@@ -439,6 +432,9 @@ setup_flags() {
 	# #492892
 	filter-flags -frecord-gcc-switches
 
+	# #898098
+	filter-flags -fno-builtin
+
 	# #829583
 	filter-lfs-flags
 
@@ -456,6 +452,7 @@ setup_flags() {
 
 	# glibc's headers disallow -O0 and fail at build time:
 	#  include/libc-symbols.h:75:3: #error "glibc cannot be compiled without optimization"
+	# https://sourceware.org/glibc/wiki/FAQ#Why_do_I_get:.60.23error_.22glibc_cannot_be_compiled_without_optimization.22.27.2C_when_trying_to_compile_GNU_libc_with_GNU_CC.3F
 	replace-flags -O0 -O1
 
 	# glibc handles this internally already where it's appropriate;
@@ -466,16 +463,16 @@ setup_flags() {
 	filter-flags '-fsanitize=*'
 
 	# See end of bug #830454; we handle this via USE=cet
-	#
-	# Flatcar: When bootstrapping, we may have a situation where
+	filter-flags '-fcf-protection=*'
+
+	# When bootstrapping, we may have a situation where
 	# CET-enabled gcc from seed is used to build CET-disabled
 	# glibc. As such, gcc implicitly enables CET if no
 	# -fcf-protection flag is passed. For a typical package it
 	# should not be a problem, but for glibc it matters as it is
 	# dealing with CET in ld.so. So if CET is supposed to be
 	# disabled for glibc, be explicit about it.
-	filter-flags '-fcf-protection=*'
-	if ! use cet; then
+	if (use amd64 || use x86) && ! use cet; then
 		append-flags '-fcf-protection=none'
 	fi
 }
@@ -665,7 +662,7 @@ foreach_abi() {
 
 glibc_banner() {
 	local b="Gentoo ${PVR}"
-	[[ -n ${PATCH_VER} ]] && ! use vanilla && b+=" p${PATCH_VER}"
+	[[ -n ${PATCH_VER} ]] && ! use vanilla && b+=" (patchset ${PATCH_VER})"
 	echo "${b}"
 }
 
@@ -759,13 +756,6 @@ sanity_prechecks() {
 			eerror "version as syscall(<bignum>) will break. See bug 279260."
 			die "Old and broken kernel."
 		fi
-	fi
-
-	# Users have had a chance to phase themselves, time to give em the boot
-	if [[ -e ${EROOT}/etc/locale.gen ]] && [[ -e ${EROOT}/etc/locales.build ]] ; then
-		eerror "You still haven't deleted ${EROOT}/etc/locales.build."
-		eerror "Do so now after making sure ${EROOT}/etc/locale.gen is kosher."
-		die "Lazy upgrader detected"
 	fi
 
 	if [[ ${CTARGET} == i386-* ]] ; then
@@ -874,6 +864,8 @@ pkg_pretend() {
 	upgrade_warning
 }
 
+# pkg_setup
+
 pkg_setup() {
 	# see bug 682570
 	[[ -z ${BOOTSTRAP_RAP} ]] && python-any-r1_pkg_setup
@@ -902,13 +894,14 @@ src_unpack() {
 		unpack ${P}.tar.xz
 
 		cd "${WORKDIR}" || die
-		unpack glibc-${RELEASE_VER}-patches-${PATCH_VER}.tar.xz
+		unpack glibc-${PV}-patches-${PATCH_VER}.tar.xz
 	fi
 
 	cd "${WORKDIR}" || die
-	unpack locale-gen-${LOCALE_GEN_VER}.tar.gz
 	use systemd && unpack glibc-systemd-${GLIBC_SYSTEMD_VER}.tar.gz
 }
+
+# src_prepare
 
 src_prepare() {
 	local patchsetname
@@ -916,9 +909,9 @@ src_prepare() {
 		if [[ ${PV} == 9999* ]] ; then
 			patchsetname="from git master"
 		else
-			patchsetname="${RELEASE_VER}-${PATCH_VER}"
+			patchsetname="${PV}-${PATCH_VER}"
 		fi
-		einfo "Applying Gentoo Glibc Patchset ${patchsetname}"
+		einfo "Applying Gentoo Glibc patchset ${patchsetname}"
 		eapply "${WORKDIR}"/patches
 		einfo "Done."
 	fi
@@ -927,20 +920,16 @@ src_prepare() {
 
 	gnuconfig_update
 
-	cd "${WORKDIR}"
+	cd "${WORKDIR}" || die
 	find . -name configure -exec touch {} +
-
-	# move the external locale-gen to its old place
-	mkdir extra || die
-	mv locale-gen-${LOCALE_GEN_VER} extra/locale || die
-
-	eprefixify extra/locale/locale-gen
 
 	# Fix permissions on some of the scripts.
 	chmod u+x "${S}"/scripts/*.sh
 
-	cd "${S}"
+	cd "${S}" || die
 }
+
+# src_configure
 
 glibc_do_configure() {
 	dump_build_environment
@@ -957,7 +946,7 @@ glibc_do_configure() {
 	#    https://sourceware.org/PR22634#c0
 	case $(tc-arch ${CTARGET}) in
 		# Keep whitelist of targets where autodetection mostly works.
-		amd64|x86|sparc|ppc|ppc64|arm|arm64|s390) ;;
+		amd64|x86|sparc|ppc|ppc64|arm|arm64|s390|riscv|loong) ;;
 		# Blacklist everywhere else
 		*) myconf+=( libc_cv_ld_gnu_indirect_function=no ) ;;
 	esac
@@ -1020,6 +1009,14 @@ glibc_do_configure() {
 		$(use_enable systemtap)
 		$(use_enable nscd)
 
+		# /usr/bin/mtrace has a Perl shebang. Gentoo Prefix QA checks fail if
+		# Perl hasn't been installed inside the prefix yet and configure picks
+		# up a Perl from outside the prefix instead. configure will fail to
+		# execute Perl during configure if we're cross-compiling a prefix, but
+		# it will just disable mtrace in that case.
+		# Note: mtrace is needed by the test suite.
+		ac_cv_path_PERL="$(usex perl "${EPREFIX}"/usr/bin/perl $(usex test "${EPREFIX}"/usr/bin/perl $(usex doc "${EPREFIX}"/usr/bin/perl no)))"
+
 		# locale data is arch-independent
 		# https://bugs.gentoo.org/753740
 		libc_cv_complocaledir='${exec_prefix}/lib/locale'
@@ -1027,6 +1024,7 @@ glibc_do_configure() {
 		# -march= option tricks build system to infer too
 		# high ISA level: https://sourceware.org/PR27318
 		libc_cv_include_x86_isa_level=no
+
 		# Explicit override of https://sourceware.org/PR27991
 		# exposes a bug in glibc's configure:
 		# https://sourceware.org/PR27991
@@ -1206,6 +1204,8 @@ src_configure() {
 	foreach_abi do_src_configure
 }
 
+# src_compile
+
 do_src_compile() {
 	emake -C "$(builddir nptl)"
 }
@@ -1217,6 +1217,8 @@ src_compile() {
 
 	foreach_abi do_src_compile
 }
+
+# src_test
 
 glibc_src_test() {
 	cd "$(builddir nptl)"
@@ -1237,25 +1239,15 @@ glibc_src_test() {
 	SANDBOX_ON=0 LD_PRELOAD= TIMEOUTFACTOR=16 emake ${myxfailparams} check
 }
 
-do_src_test() {
-	local ret=0
-
-	glibc_src_test
-	: $(( ret |= $? ))
-
-	return ${ret}
-}
-
 src_test() {
 	if just_headers ; then
 		return
 	fi
 
-	# Give tests more time to complete.
-	export TIMEOUTFACTOR=5
-
-	foreach_abi do_src_test || die "tests failed"
+	foreach_abi glibc_src_test || die "tests failed"
 }
+
+# src_install
 
 run_locale_gen() {
 	# if the host locales.gen contains no entries, we'll install everything
@@ -1276,7 +1268,15 @@ run_locale_gen() {
 		locale_list="${root%/}/usr/share/i18n/SUPPORTED"
 	fi
 
-	set -- locale-gen ${inplace} --jobs $(makeopts_jobs) --config "${locale_list}" \
+	# bug 736794: we need to be careful with the parallelization... the number of
+	# processors saved in the environment of a binary package may differ strongly
+	# from the number of processes available during postinst
+	local mygenjobs="$(makeopts_jobs)"
+	if [[ "${EMERGE_FROM}" == "binary" ]] ; then
+		mygenjobs="$(nproc)"
+	fi
+
+	set -- locale-gen ${inplace} --jobs "${mygenjobs}" --config "${locale_list}" \
 		--destdir "${root}"
 	echo "$@"
 	"$@"
@@ -1301,13 +1301,13 @@ glibc_do_src_install() {
 	# '#define VERSION "2.26.90"' -> '2.26.90'
 	local upstream_pv=$(sed -n -r 's/#define VERSION "(.*)"/\1/p' "${S}"/version.h)
 
-	# Flatcar: override this and strip everything to keep image size at bay
 	# Avoid stripping binaries not targeted by ${CHOST}. Or else
 	# ${CHOST}-strip would break binaries build for ${CTARGET}.
-	# is_crosscompile && dostrip -x /
-	# gdb thread introspection relies on local libpthreas symbols. stripping breaks it
+	is_crosscompile && dostrip -x /
+
+	# gdb thread introspection relies on local libpthreads symbols. stripping breaks it
 	# See Note [Disable automatic stripping]
-	# dostrip -x $(alt_libdir)/libpthread-${upstream_pv}.so
+	dostrip -x $(alt_libdir)/libpthread-${upstream_pv}.so
 
 	if [[ -e ${ED}/$(alt_usrlibdir)/libm-${upstream_pv}.a ]] ; then
 		# Move versioned .a file out of libdir to evade portage QA checks
@@ -1316,6 +1316,17 @@ glibc_do_src_install() {
 		sed -i "s@\(libm-${upstream_pv}.a\)@${P}/\1@" "${ED}"/$(alt_usrlibdir)/libm.a || die
 		dodir $(alt_usrlibdir)/${P}
 		mv "${ED}"/$(alt_usrlibdir)/libm-${upstream_pv}.a "${ED}"/$(alt_usrlibdir)/${P}/libm-${upstream_pv}.a || die
+	fi
+
+	# We configure toolchains for standalone prefix systems with a sysroot,
+	# which is prepended to paths in ld scripts, so strip the prefix from these.
+	# Before: GROUP ( /foo/lib64/libc.so.6 /foo/usr/lib64/libc_nonshared.a  AS_NEEDED ( /foo/lib64/ld-linux-x86-64.so.2 ) )
+	# After: GROUP ( /lib64/libc.so.6 /usr/lib64/libc_nonshared.a  AS_NEEDED ( /lib64/ld-linux-x86-64.so.2 ) )
+	if [[ -n $(host_eprefix) ]] ; then
+		local file
+		grep -lZIF "ld script" "${ED}/$(alt_usrlibdir)"/lib*.{a,so} 2>/dev/null | while read -rd '' file ; do
+			sed -i "s|$(host_eprefix)/|/|g" "${file}" || die
+		done
 	fi
 
 	# We'll take care of the cache ourselves
@@ -1412,6 +1423,8 @@ glibc_do_src_install() {
 
 	#################################################################
 	# EVERYTHING AFTER THIS POINT IS FOR NATIVE GLIBC INSTALLS ONLY #
+	#################################################################
+
 	# Make sure we install some symlink hacks so that when we build
 	# a 2nd stage cross-compiler, gcc finds the target system
 	# headers correctly.  See gcc/doc/gccinstall.info
@@ -1435,15 +1448,8 @@ glibc_do_src_install() {
 		-e "s: \\\\::g" -e "s:/: :g" \
 		"${S}"/localedata/SUPPORTED > "${ED}"/usr/share/i18n/SUPPORTED \
 		|| die "generating /usr/share/i18n/SUPPORTED failed"
-	cd "${WORKDIR}"/extra/locale
-	dosbin locale-gen
-	doman *.[0-8]
-	insinto /etc
-	doins locale.gen
 
-	keepdir /usr/lib/locale
-
-	cd "${S}"
+	cd "${S}" || die
 
 	# Install misc network config files
 	insinto /etc
@@ -1488,25 +1494,7 @@ glibc_do_src_install() {
 	# Generate all locales if this is a native build as locale generation
 	if use compile-locales && ! is_crosscompile ; then
 		run_locale_gen --inplace-glibc "${ED}/"
-		sed -e 's:COMPILED_LOCALES="":COMPILED_LOCALES="1":' -i "${ED}"/usr/sbin/locale-gen || die
 	fi
-
-	## Flatcar Container Linux: Add some local changes:
-	# - Config files are installed by baselayout, not glibc.
-	# - Install nscd/systemd stuff in /usr.
-
-	# Use tmpfiles to put nscd.conf in /etc and create directories.
-	insinto /usr/share/baselayout
-	if ! in_iuse nscd || use nscd ; then
-		doins "${S}"/nscd/nscd.conf || die
-		newtmpfiles "${FILESDIR}"/nscd-conf.tmpfiles nscd-conf.conf || die
-	fi
-
-	# Clean out any default configs.
-	rm -rf "${ED}"/etc
-
-	# Restore this one for the SDK.
-	test ! -e "${T}"/00glibc || doenvd "${T}"/00glibc
 }
 
 glibc_headers_install() {
@@ -1584,6 +1572,9 @@ glibc_sanity_check() {
 pkg_preinst() {
 	# nothing to do if just installing headers
 	just_headers && return
+
+	einfo "Checking general environment sanity."
+	sanity_prechecks
 
 	# prepare /etc/ld.so.conf.d/ for files
 	mkdir -p "${EROOT}"/etc/ld.so.conf.d
