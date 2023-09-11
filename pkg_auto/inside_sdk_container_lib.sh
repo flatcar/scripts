@@ -288,6 +288,7 @@ function get_provided_file() {
     path_var_name=${1}; shift
     local -n path_ref="${path_var_name}"
 
+    # shellcheck disable=SC2034 # reference to external variable
     path_ref="${root}/etc/portage/profile/package.provided/ignore_cross_packages"
 }
 
@@ -307,17 +308,17 @@ function get_provided_file() {
 function ignore_crossdev_stuff() {
     local root crossdev_repo_id
     root=${1}; shift
-    cross_dev_repo_id=${1:-x-crossdev}; shift || :
+    crossdev_repo_id=${1:-x-crossdev}; shift || :
 
     local crossdev_repo_path
-    cross_dev_repo_path=$(portageq get_repo_path "${root}" "${crossdev_repo_id}")
+    crossdev_repo_path=$(portageq get_repo_path "${root}" "${crossdev_repo_id}")
 
     local ics_path ics_dir
     get_provided_file "${root}" ics_path
     dirname_out "${ics_path}" ics_dir
 
     sudo mkdir -p "${ics_dir}"
-    env --chdir="${cross_dev_repo_path}" find -L . -name '*.ebuild' | sed 's#^./\([^/]*/[^/]*\).*#\1-9999#' | sort -u | sudo tee "${file}" >/dev/null
+    env --chdir="${crossdev_repo_path}" find -L . -name '*.ebuild' | sed 's#^./\([^/]*/[^/]*\).*#\1-9999#' | sort -u | sudo tee "${ics_path}" >/dev/null
 }
 
 # Reverts effects of the ignore_crossdev_stuff function.
