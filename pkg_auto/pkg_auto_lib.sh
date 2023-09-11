@@ -15,16 +15,16 @@
 #   this). This would make this script more robust.
 #
 
-if [[ -z ${__PKG_AUTO_LIB_SH_INCLUDED__:-} ]]; then
-__PKG_AUTO_LIB_SH_INCLUDED__=x
-
-source "$(dirname "${BASH_SOURCE[0]}")/stuff.sh"
-
 # Needed to be enabled here to parse some globs inside the functions.
 shopt -s extglob
 # Saner defaults.
 shopt -s nullglob
 shopt -s dotglob
+
+if [[ -z ${__PKG_AUTO_LIB_SH_INCLUDED__:-} ]]; then
+__PKG_AUTO_LIB_SH_INCLUDED__=x
+
+source "$(dirname "${BASH_SOURCE[0]}")/stuff.sh"
 
 # TODO: docs
 function debug_new_state() {
