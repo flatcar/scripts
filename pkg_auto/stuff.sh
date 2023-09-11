@@ -230,4 +230,12 @@ function dir_is_empty() {
     [[ -z $(echo "${dir}"/*) ]]
 }
 
+function xdiff() {
+    diff "${@}" || :
+}
+
+function xgrep() {
+    grep "${@}" || :
+}
+
 fi

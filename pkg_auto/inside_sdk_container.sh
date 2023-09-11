@@ -79,6 +79,8 @@ echo 'Separating emerge info from junk in board emerge output'
 filter_board_eo "${arch}" >"${BOARD_EO_F}" 2>>"${BOARD_EO_W}"
 junk_board_eo >"${BOARD_EO}-junk" 2>>"${BOARD_EO_W}"
 
+ensure_valid_reports
+
 echo 'Generating SDK packages listing'
 versions_sdk >"${reports_dir}/sdk-pkgs" 2>"${reports_dir}/sdk-pkgs-warnings"
 echo 'Generating SDK packages listing with key-values (USE, PYTHON_TARGETS CPU_FLAGS_X86, etc)'

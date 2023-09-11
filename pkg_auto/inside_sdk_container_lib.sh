@@ -57,9 +57,13 @@ function package_info_for_board() {
     local root
     root="/build/${arch}-usr"
 
+    # Ignore crossdev stuff in both SDK root and board root - emerge
+    # may query SDK stuff for the board packages.
+    ignore_crossdev_stuff /
     ignore_crossdev_stuff "${root}"
     emerge_pretend "${root}" coreos-devel/board-packages
     revert_crossdev_stuff "${root}"
+    revert_crossdev_stuff /
 }
 
 # eo - emerge output
@@ -133,7 +137,7 @@ NONSPACES_WITH_COLON_RE='[^[:space:]]*:' # 0 groups
 FULL_LINE_RE='^'"${STATUS_RE}${SPACES_RE}${PACKAGE_NAME_RE}"'\('"${SPACES_RE}${VER_SLOT_REPO_RE}"'\)\{1,2\}\('"${SPACES_RE}${TARGET_RE}"'\)\?\('"${SPACES_RE}${KEYVALS_RE}"'\)*'"${SPACES_RE}${SIZE_RE}"'$'
 
 function filter_sdk_eo() {
-    cat_eo sdk | grep -e "${FULL_LINE_RE}"
+    cat_eo sdk | xgrep -e "${FULL_LINE_RE}"
 }
 
 function filter_board_eo() {
@@ -142,16 +146,16 @@ function filter_board_eo() {
 
     # Replace ${arch}-usr in the output with a generic word BOARD.
     cat_eo board | \
-        grep -e "${FULL_LINE_RE}" | \
+        xgrep -e "${FULL_LINE_RE}" | \
         sed -e "s#/build/${arch}-usr/#/build/BOARD/#"
 }
 
 function junk_sdk_eo() {
-    cat_eo sdk | grep -v -e "${FULL_LINE_RE}"
+    cat_eo sdk | xgrep -v -e "${FULL_LINE_RE}"
 }
 
 function junk_board_eo() {
-    cat_eo board | grep -v -e "${FULL_LINE_RE}"
+    cat_eo board | xgrep -v -e "${FULL_LINE_RE}"
 }
 
 # There may also be a line like:
@@ -337,6 +341,18 @@ function revert_crossdev_stuff() {
     if dir_is_empty "${ics_dir}"; then
         sudo rmdir "${ics_dir}"
     fi
+}
+
+function ensure_valid_reports() {
+    local kind var_name
+
+    local file
+    for kind in sdk board; do
+        var_name="${kind^^}_EO_F"
+        if [[ ! -s ${!var_name} ]]; then
+            fail "report files are missing or are empty"
+        fi
+    done
 }
 
 fi

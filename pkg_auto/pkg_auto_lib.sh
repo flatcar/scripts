@@ -2538,12 +2538,4 @@ function handle_scripts() {
     # TODO: update summary stubs
 }
 
-function xdiff() {
-    diff "${@}" || :
-}
-
-function xgrep() {
-    grep "${@}" || :
-}
-
 fi
