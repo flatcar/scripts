@@ -1,0 +1,7 @@
+- cJSON ([1.7.16](https://github.com/DaveGamble/cJSON/releases/tag/v1.7.16))
+- file ([5.45](https://github.com/file/file/blob/FILE5_45/ChangeLog))
+- gmp ([6.3.0](https://gmplib.org/gmp6.3))
+- gnuconfig ([20230731](https://git.savannah.gnu.org/cgit/config.git/log/?id=d4e37b5868ef910e3e52744c34408084bb13051c))
+- hwdata ([0.373](https://github.com/vcrhonek/hwdata/commits/v0.373))
+- kbd ([2.6.1](https://github.com/legionus/kbd/releases/tag/v2.6.1) (includes [2.6.0](https://github.com/legionus/kbd/releases/tag/v2.6.0)))
+- glibc ([2.37](https://sourceware.org/git/?p=glibc.git;a=tag;h=refs/tags/glibc-2.37))
