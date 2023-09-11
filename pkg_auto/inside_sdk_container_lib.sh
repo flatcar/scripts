@@ -1,5 +1,8 @@
 #!/bin/bash
 
+if [[ -z ${__INSIDE_SDK_CONTAINER_LIB_SH_INCLUDED__:-} ]]; then
+__INSIDE_SDK_CONTAINER_LIB_SH_INCLUDED__=x
+
 source "$(dirname "${BASH_SOURCE[0]}")/stuff.sh"
 
 function emerge_pretend() {
@@ -39,14 +42,24 @@ function emerge_pretend() {
 }
 
 function package_info_for_sdk() {
-    emerge_pretend / coreos-devel/sdk-depends
+    local root
+    root='/'
+
+    ignore_crossdev_stuff "${root}"
+    emerge_pretend "${root}" coreos-devel/sdk-depends
+    revert_crossdev_stuff "${root}"
 }
 
 function package_info_for_board() {
     local arch
     arch=${1}; shift
 
-    emerge_pretend "/build/${arch}-usr" coreos-devel/board-packages
+    local root
+    root="/build/${arch}-usr"
+
+    ignore_crossdev_stuff "${root}"
+    emerge_pretend "${root}" coreos-devel/board-packages
+    revert_crossdev_stuff "${root}"
 }
 
 # eo - emerge output
@@ -268,3 +281,61 @@ function ensure_no_errors() {
         fi
     done
 }
+
+function get_provided_file() {
+    local root path_var_name
+    root=${1}; shift
+    path_var_name=${1}; shift
+    local -n path_ref="${path_var_name}"
+
+    path_ref="${root}/etc/portage/profile/package.provided/ignore_cross_packages"
+}
+
+# Marks packages coming from crossdev repo as provided at a very high
+# version. We do this, because updating their native counterparts will
+# cause emerge to complain that cross-<triplet>/<package> is masked
+# (like for sys-libs/glibc and cross-x86_64-cros-linux-gnu/glibc),
+# because it has no keywords. In theory, we could try updating
+# <ROOT>/etc/portage/package.mask/cross-<triplet> file created by the
+# crossdev tool to unmask the new version, but it's an unnecessary
+# hassle - native and cross package are supposed to be the same ebuild
+# anyway, so update information about cross package is redundant.
+#
+# Parameters:
+# 1 - root directory
+# 2 - ID of the crossdev repository (optional, defaults to x-crossdev)
+function ignore_crossdev_stuff() {
+    local root crossdev_repo_id
+    root=${1}; shift
+    cross_dev_repo_id=${1:-x-crossdev}; shift || :
+
+    local crossdev_repo_path
+    cross_dev_repo_path=$(portageq get_repo_path "${root}" "${crossdev_repo_id}")
+
+    local ics_path ics_dir
+    get_provided_file "${root}" ics_path
+    dirname_out "${ics_path}" ics_dir
+
+    sudo mkdir -p "${ics_dir}"
+    env --chdir="${cross_dev_repo_path}" find -L . -name '*.ebuild' | sed 's#^./\([^/]*/[^/]*\).*#\1-9999#' | sort -u | sudo tee "${file}" >/dev/null
+}
+
+# Reverts effects of the ignore_crossdev_stuff function.
+#
+# Parameters:
+# 1 - root directory
+function revert_crossdev_stuff() {
+    local root
+    root=${1}; shift
+
+    local ics_path ics_dir
+    get_provided_file "${root}" ics_path
+    dirname_out "${ics_path}" ics_dir
+
+    sudo rm -f "${ics_path}"
+    if dir_is_empty "${ics_dir}"; then
+        sudo rmdir "${ics_dir}"
+    fi
+}
+
+fi

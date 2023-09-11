@@ -223,4 +223,11 @@ function _call_cleanup_func() {
     "${func}" "${@}"
 }
 
+function dir_is_empty() {
+    local dir
+    dir=${1}; shift
+
+    [[ -z $(echo "${dir}"/*) ]]
+}
+
 fi

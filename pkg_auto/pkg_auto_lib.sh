@@ -15,6 +15,9 @@
 #   this). This would make this script more robust.
 #
 
+if [[ -z ${__PKG_AUTO_LIB_SH_INCLUDED__:-} ]]; then
+__PKG_AUTO_LIB_SH_INCLUDED__=x
+
 source "$(dirname "${BASH_SOURCE[0]}")/stuff.sh"
 
 # Needed to be enabled here to parse some globs inside the functions.
@@ -1880,10 +1883,10 @@ function handle_pkg_as_is() {
         rm -f "${hpai_update_dir_non_slot}/other.diff" "${hpai_update_dir}/ebuild.diff"
         # Drop possibly empty directories.
         rmdir "${hpai_update_dir}"
-        if [[ -z $(echo "${hpai_update_dir_non_slot}"/*) ]]; then
+        if dir_is_empty "${hpai_update_dir_non_slot}"; then
             rmdir "${hpai_update_dir_non_slot}"
             dirname_out "${hpai_update_dir_non_slot}" hpai_parent_dir
-            if [[ -z $(echo "${hpai_parent_dir}"/*) ]]; then
+            if dir_is_empty "${hpai_parent_dir}"; then
                 rmdir "${hpai_parent_dir}"
             fi
         fi
@@ -2542,3 +2545,5 @@ function xdiff() {
 function xgrep() {
     grep "${@}" || :
 }
+
+fi
