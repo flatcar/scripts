@@ -345,8 +345,6 @@ function revert_crossdev_stuff() {
 
 function ensure_valid_reports() {
     local kind var_name
-
-    local file
     for kind in sdk board; do
         var_name="${kind^^}_EO_F"
         if [[ ! -s ${!var_name} ]]; then

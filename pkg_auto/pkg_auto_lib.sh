@@ -1822,8 +1822,10 @@ function handle_pkg_update() {
     local -a hpu_tags
     tags_for_pkg "${pkg_to_tags_mvm_var_name}" "${new_pkg}" hpu_tags
     generate_summary_stub "${new_pkg}" "${hpu_tags[@]}" -- "${lines[@]}"
+    # TODO: should be invoked just once, not everytime for each slot
     generate_full_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}"
-    generate_package_mention_reports "${NEW_STATE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}"
+    # TODO: should be invoked just once, not everytime for each slot
+    generate_package_mention_reports "${NEW_STATE}" "${old_pkg}" "${new_pkg}"
 }
 
 function handle_pkg_as_is() {
@@ -1897,8 +1899,10 @@ function handle_pkg_as_is() {
     local -a hpai_tags
     tags_for_pkg "${pkg_to_tags_mvm_var_name}" "${pkg}" hpai_tags
     generate_summary_stub "${new_pkg}" "${hpai_tags[@]}" -- "${lines[@]}"
+    # TODO: should be invoked just once, not everytime for each slot
     generate_full_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}"
-    generate_package_mention_reports "${NEW_STATE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}"
+    # TODO: should be invoked just once, not everytime for each slot
+    generate_package_mention_reports "${NEW_STATE}" "${old_pkg}" "${new_pkg}"
 }
 
 function handle_pkg_downgrade() {
@@ -1947,8 +1951,10 @@ function handle_pkg_downgrade() {
     local -a hpd_tags
     tags_for_pkg "${pkg_to_tags_mvm_var_name}" "${new_pkg}" hpd_tags
     generate_summary_stub "${new_pkg}" "${hpd_tags[@]}" -- "${lines[@]}"
+    # TODO: should be invoked just once, not everytime for each slot
     generate_full_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}"
-    generate_package_mention_reports "${NEW_STATE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}"
+    # TODO: should be invoked just once, not everytime for each slot
+    generate_package_mention_reports "${NEW_STATE}" "${old_pkg}" "${new_pkg}"
 }
 
 function tags_for_pkg() {
@@ -2087,15 +2093,13 @@ function generate_ebuild_diff() {
 }
 
 function generate_package_mention_reports() {
-    local scripts old_pkg new_pkg old_s new_s
+    local scripts old_pkg new_pkg
     scripts=${1}; shift
     old_pkg=${1}; shift
     new_pkg=${1}; shift
-    old_s=${1}; shift
-    new_s=${1}; shift
 
     local gpr_update_dir
-    update_dir "${new_pkg}" "${old_s}" "${new_s}" gpr_update_dir
+    update_dir_non_slot "${new_pkg}" gpr_update_dir
 
     generate_mention_report_for_package "${scripts}" "${new_pkg}" >"${gpr_update_dir}/occurences"
 
@@ -2316,6 +2320,9 @@ function sort_like_summary_stubs() {
                 entry=${entry%%:*}
                 mvm_get groups_mvm "${entry}" sss_lines_name
                 if [[ -n ${sss_lines_name} ]]; then
+                    # TODO: this actually can happen if we end up with
+                    # having more that one slot installed for the
+                    # package
                     fail "duplicate entries for ${entry} in summary stubs"
                 fi
                 mvm_add groups_mvm "${entry}" "${lines[@]}"
@@ -2422,7 +2429,7 @@ function handle_profiles() {
     possibly_irrelevant_files=()
     local path dir mark
     while read -r line; do
-        if [[ ${line} = "diff ${diff_opts[*]} "* ]]; then
+        if [[ ${line} = "diff "* ]]; then
             path=${line##*"${NEW_PORTAGE_STABLE}/profiles/"}
             dirname_out "${path}" dir
             relevant=''
