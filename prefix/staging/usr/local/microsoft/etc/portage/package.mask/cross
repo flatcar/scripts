@@ -1,2 +1,1 @@
-sys-apps/baselayout::coreos # coreos baselayout depends on systemd
 >=sys-devel/gcc-13 # FIXME: Cannot cross-compile gcc 13+ using older version

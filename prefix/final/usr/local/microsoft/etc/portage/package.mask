@@ -1,1 +1,0 @@
-sys-apps/baselayout::coreos # coreos baselayout depends on systemd

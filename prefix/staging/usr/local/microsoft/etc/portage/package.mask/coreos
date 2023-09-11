@@ -1,0 +1,2 @@
+app-misc/ca-certificates::coreos # coreos ca-certificates doesn't support prefix
+sys-apps/baselayout::coreos # coreos baselayout depends on systemd
