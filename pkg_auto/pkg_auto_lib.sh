@@ -1805,10 +1805,10 @@ function handle_pkg_update() {
     local hpu_update_dir hpu_update_dir_non_slot
     update_dir_non_slot "${new_pkg}" hpu_update_dir_non_slot
     update_dir "${new_pkg}" "${old_s}" "${new_s}" hpu_update_dir
-    if [[ -s "${hpd_update_dir}/ebuild.diff" ]]; then
+    if [[ -s "${hpu_update_dir}/ebuild.diff" ]]; then
         lines+=( 'TODO: review ebuild.diff' )
     fi
-    if [[ -s "${hpd_update_dir_non_slot}/other.diff" ]]; then
+    if [[ -s "${hpu_update_dir_non_slot}/other.diff" ]]; then
         lines+=( 'TODO: review other.diff' )
     fi
     lines+=( 'TODO: review occurences' )
