@@ -55,7 +55,7 @@ function debug_new_state() {
     local setting value
     for setting in name email; do
         value=$(git -C "${NEW_STATE}" config "user.${setting}")
-        git -C "${clone_dir}" config --type local "user.${setting}" "${value}"
+        git -C "${clone_dir}" config --local "user.${setting}" "${value}"
     done
 
     cp -a "${PKG_AUTO_DIR}"/{print_profile_tree.sh,inside_sdk_container{,_lib}.sh,stuff.sh} "${clone_dir}"

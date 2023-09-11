@@ -10,6 +10,7 @@
 ## Positional:
 ## 1 - work directory
 ## 2 - arch (amd64 or arm64)
+## 3 - final branch name
 ##
 
 set -euo pipefail
