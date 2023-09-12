@@ -1444,6 +1444,7 @@ distutils_pep517_install() {
 	einfo "  Building the wheel for ${PWD#${WORKDIR}/} via ${build_backend}"
 	local cmd=(
 		gpep517 build-wheel
+			--prefix="${EPREFIX}/usr"
 			--backend "${build_backend}"
 			--output-fd 3
 			--wheel-dir "${WHEEL_BUILD_DIR}"
