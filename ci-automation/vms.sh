@@ -129,6 +129,8 @@ function _vm_build_impl() {
         COMPRESSION_FORMAT="bz2"
         if [[ "${format}" =~ ^(openstack|openstack_mini|digitalocean)$ ]];then
             COMPRESSION_FORMAT="gz,bz2"
+        elif [[ "${format}" =~ ^(qemu|qemu_uefi)$ ]];then
+            COMPRESSION_FORMAT="bz2,none"
         fi
         ./run_sdk_container -n "${vms_container}" -C "${packages_image}" \
             -v "${vernum}" \
