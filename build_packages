@@ -285,7 +285,32 @@ info "Merging board packages now"
 sudo -E "${EMERGE_CMD[@]}" "${EMERGE_FLAGS[@]}" "$@"
 
 info "Removing obsolete packages"
-sudo -E "${EMERGE_CMD[@]}" --verbose --depclean @unavailable
+# The return value of emerge is not clearly reliable. It may fail with
+# an output like following:
+#
+# Calculating dependencies... done!
+#   dev-libs/gmp-6.3.0 pulled in by:
+#     cross-aarch64-cros-linux-gnu/gcc-12.3.1_p20230526 requires >=dev-libs/gmp-4.3.2:0/10.4=, >=dev-libs/gmp-4.3.2:0=
+#     cross-aarch64-cros-linux-gnu/gdb-13.2-r1 requires dev-libs/gmp:=, dev-libs/gmp:0/10.4=
+#     cross-x86_64-cros-linux-gnu/gcc-12.3.1_p20230526 requires >=dev-libs/gmp-4.3.2:0/10.4=, >=dev-libs/gmp-4.3.2:0=
+#     cross-x86_64-cros-linux-gnu/gdb-13.2-r1 requires dev-libs/gmp:0/10.4=, dev-libs/gmp:=
+#     dev-libs/mpc-1.2.1 requires >=dev-libs/gmp-5.0.0:0=[abi_x86_64(-)], >=dev-libs/gmp-5.0.0:0/10.4=[abi_x86_64(-)]
+#     dev-libs/mpfr-4.1.0-r1 requires >=dev-libs/gmp-5.0.0:=[abi_x86_64(-)], >=dev-libs/gmp-5.0.0:0/10.4=[abi_x86_64(-)]
+#     dev-libs/nettle-3.9.1 requires >=dev-libs/gmp-6.1:0/10.4=[abi_x86_64(-)], >=dev-libs/gmp-6.1:=[abi_x86_64(-)]
+#     net-libs/gnutls-3.8.0 requires >=dev-libs/gmp-5.1.3-r1:0/10.4=[abi_x86_64(-)], >=dev-libs/gmp-5.1.3-r1:=[abi_x86_64(-)]
+#     sys-devel/gcc-12.3.1_p20230526 requires >=dev-libs/gmp-4.3.2:0=, >=dev-libs/gmp-4.3.2:0/10.4=
+#
+# >>> No packages selected for removal by depclean
+#
+# Which gives you completely no reason for returning with non-zero
+# status. Ignore emerge failures here.
+#
+# Well, actually, technically the reason for failure is that we asked
+# for a removal of the unavailable packages and emerge found that
+# dev-libs/gmp-6.3.0 is not available but didn't remove it, because
+# it's pulled as a dependency by other packages. Question is why
+# emerge thinks that dev-libs/gmp-6.3.0 is not available.
+sudo -E "${EMERGE_CMD[@]}" --verbose --depclean @unavailable || :
 
 if [[ "${FLAGS_usepkgonly}" -eq "${FLAGS_FALSE}" ]]; then
   if "portageq-${BOARD}" list_preserved_libs "${BOARD_ROOT}" >/dev/null; then
