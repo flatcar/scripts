@@ -346,9 +346,9 @@ _python_export() {
 			PYTHON_SITEDIR)
 				[[ -n ${PYTHON} ]] || die "PYTHON needs to be set for ${var} to be exported, or requested before it"
 				PYTHON_SITEDIR=$(
-					"${PYTHON}" - <<-EOF || die
-						import sysconfig
-						print(sysconfig.get_path("purelib"))
+					"${PYTHON}" - "${EPREFIX}/usr" <<-EOF || die
+						import sys, sysconfig
+						print(sysconfig.get_path("purelib", vars={"base": sys.argv[1]}))
 					EOF
 				)
 				PYTHON_SITEDIR=${EPREFIX}${PYTHON_SITEDIR#"${BROOT-${EPREFIX}}"}
@@ -358,9 +358,9 @@ _python_export() {
 			PYTHON_INCLUDEDIR)
 				[[ -n ${PYTHON} ]] || die "PYTHON needs to be set for ${var} to be exported, or requested before it"
 				PYTHON_INCLUDEDIR=$(
-					"${PYTHON}" - <<-EOF || die
-						import sysconfig
-						print(sysconfig.get_path("platinclude"))
+					"${PYTHON}" - "${ESYSROOT}/usr" <<-EOF || die
+						import sys, sysconfig
+						print(sysconfig.get_path("platinclude", vars={"installed_platbase": sys.argv[1]}))
 					EOF
 				)
 				PYTHON_INCLUDEDIR=${ESYSROOT}${PYTHON_INCLUDEDIR#"${BROOT-${EPREFIX}}"}
