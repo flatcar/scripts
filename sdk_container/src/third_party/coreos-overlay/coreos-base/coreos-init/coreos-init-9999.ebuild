@@ -37,7 +37,6 @@ DEPEND="
 	test? ( ${PYTHON_DEPS} )
 	"
 RDEPEND="${DEPEND}
-	app-admin/logrotate
 	sys-block/parted
 	sys-apps/gptfdisk
 	>=sys-apps/systemd-207-r5
