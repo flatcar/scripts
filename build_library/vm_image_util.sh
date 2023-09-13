@@ -190,17 +190,23 @@ IMG_vagrant_parallels_OEM_PACKAGE=oem-vagrant
 IMG_vmware_DISK_FORMAT=vmdk_scsi
 IMG_vmware_DISK_LAYOUT=vm
 IMG_vmware_CONF_FORMAT=vmx
-IMG_vmware_OEM_PACKAGE=oem-vmware
+IMG_vmware_OEM_USE=vmware
+IMG_vmware_OEM_PACKAGE=common-oem-files
+IMG_vmware_OEM_SYSEXT=oem-vmware
 
 ## vmware_ova
 IMG_vmware_ova_DISK_FORMAT=vmdk_stream
 IMG_vmware_ova_DISK_LAYOUT=vm
-IMG_vmware_ova_OEM_PACKAGE=oem-vmware
 IMG_vmware_ova_CONF_FORMAT=ovf_vmware
 IMG_vmware_ova_BUNDLE_FORMAT=ova
+IMG_vmware_ova_OEM_USE=vmware
+IMG_vmware_ova_OEM_PACKAGE=common-oem-files
+IMG_vmware_ova_OEM_SYSEXT=oem-vmware
 
 ## vmware_raw
-IMG_vmware_raw_OEM_PACKAGE=oem-vmware
+IMG_vmware_raw_OEM_USE=vmware
+IMG_vmware_raw_OEM_PACKAGE=common-oem-files
+IMG_vmware_raw_OEM_SYSEXT=oem-vmware
 
 ## vmware_insecure
 IMG_vmware_insecure_DISK_FORMAT=vmdk_scsi
