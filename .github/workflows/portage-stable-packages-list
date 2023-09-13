@@ -152,6 +152,7 @@ dev-libs/jsoncpp
 dev-libs/libaio
 dev-libs/libassuan
 dev-libs/libbsd
+dev-libs/libdnet
 dev-libs/libgcrypt
 dev-libs/libgpg-error
 dev-libs/libksba
