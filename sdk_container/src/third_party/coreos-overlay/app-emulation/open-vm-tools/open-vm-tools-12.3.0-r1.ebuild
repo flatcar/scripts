@@ -13,17 +13,22 @@ SRC_URI="https://github.com/vmware/open-vm-tools/releases/download/stable-${PV}/
 LICENSE="LGPL-2.1"
 SLOT="0"
 KEYWORDS="amd64 x86"
-IUSE="X +deploypkg +dnet doc +fuse gtkmm +icu multimon pam +resolutionkms +ssl +vgauth"
+# Flatcar: TO UPSTREAM: added fuse3 USE flag
+IUSE="X +deploypkg +dnet doc +fuse fuse3 gtkmm +icu multimon pam +resolutionkms +ssl +vgauth"
+# Flatcar: TO UPSTREAM: made fuse and fuse3 exclusive
 REQUIRED_USE="
 	multimon? ( X )
 	vgauth? ( ssl )
+	?? ( fuse fuse3 )
 "
 
+# Flatcar: TO UPSTREAM: added optional dep on sys-fs/fuse:3
 RDEPEND="
 	dev-libs/glib
 	net-libs/libtirpc
 	deploypkg? ( dev-libs/libmspack )
 	fuse? ( sys-fs/fuse:0 )
+	fuse3? ( sys-fs/fuse:3 )
 	pam? ( sys-libs/pam )
 	!pam? ( virtual/libcrypt:= )
 	ssl? ( dev-libs/openssl:0= )
@@ -105,6 +110,19 @@ src_configure() {
 		$(use_with dnet)
 		$(use_with icu)
 		--with-udev-rules-dir="$(get_udevdir)/rules.d"
+		# Flatcar: TO UPSTREAM: explicitly specify fuse version
+		$(use_with fuse fuse 2)
+		$(use_with fuse3 fuse 3)
+		# Flatcar: TO UPSTREAM: Disable it explicitly, we do
+		# not yet list the containerinfo dependencies in the
+		# ebuild
+		--disable-containerinfo
+		# Flatcar: TO UPSTREAM: Disable it explicitly, gtk2 is
+		# obsolete
+		--without-gtk2
+		# Flatcar: TO UPSTREAM: Possibly add a separate USE
+		# flag for the utility, or merge it into resolutionkms
+		--disable-vmwgfxctrl
 	)
 	# Avoid a bug in configure.ac
 	use ssl || myeconfargs+=( --without-ssl )
@@ -131,8 +149,11 @@ src_install() {
 		systemd_dounit "${FILESDIR}"/vmtoolsd.service
 	fi
 
-	# Make fstype = vmhgfs-fuse work in fstab
-	dosym vmhgfs-fuse /usr/bin/mount.vmhgfs-fuse
+	# Flatcar: TO UPSTREAM: vmhgfs-fuse is built only when fuse or fuse3 are enabled
+	if use fuse || use fuse3; then
+		# Make fstype = vmhgfs-fuse work in fstab
+		dosym vmhgfs-fuse /usr/bin/mount.vmhgfs-fuse
+	fi
 
 	if use X; then
 		fperms 4711 /usr/bin/vmware-user-suid-wrapper
