@@ -1,0 +1,11 @@
+/etc/eks
+/etc/systemd/system/amazon-ssm-agent.service
+/etc/systemd/system/multi-user.target.requires/coreos-metadata-sshkeys@core.service
+/etc/systemd/system/multi-user.target.wants/amazon-ssm-agent.service
+/etc/systemd/system/multi-user.target.wants/nvidia.service
+/etc/systemd/system/nvidia.service
+/oem/base/
+/oem/bin/
+/oem/eks/
+/oem/ssm
+/oem/units
