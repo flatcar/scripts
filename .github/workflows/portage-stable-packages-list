@@ -172,6 +172,7 @@ dev-libs/oniguruma
 dev-libs/popt
 dev-libs/protobuf
 dev-libs/userspace-rcu
+dev-libs/xmlsec
 
 dev-perl/File-Slurp
 dev-perl/Locale-gettext
