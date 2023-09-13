@@ -1,0 +1,9 @@
+/etc/systemd/system/multi-user.target.wants/vmtoolsd.service
+/etc/systemd/system/vmtoolsd.service
+/etc/vmware-tools
+/oem/base/
+/oem/bin/
+/oem/include/
+/oem/lib64/
+/oem/units/
+/oem/vmware-tools/
