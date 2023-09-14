@@ -440,6 +440,7 @@ sys-firmware/sgabios
 sys-fs/cryptsetup
 sys-fs/dosfstools
 sys-fs/e2fsprogs
+sys-fs/fuse
 sys-fs/lsscsi
 sys-fs/mtools
 sys-fs/multipath-tools
