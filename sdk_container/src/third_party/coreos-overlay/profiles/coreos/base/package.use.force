@@ -23,7 +23,8 @@ sys-apps/portage -xattr
 # Force openssl provider for net-misc/curl
 net-misc/curl ssl openssl curl_ssl_openssl
 
-# Force cpudetection for dev-libs/gmp, so it's also picked up during
-# bootstrap. That way, we won't be hitting bindist restrictions that
-# cause the build in stage1 to fail.
-dev-libs/gmp cpudetection
+# Force cpudetection for dev-libs/gmp, so it is also picked up during
+# bootstrap. That way, we will not be hitting bindist restrictions
+# that cause the build in stage1 to fail. Pulling in asm too, as it is
+# required by cpudetection.
+dev-libs/gmp cpudetection asm
