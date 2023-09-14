@@ -155,7 +155,7 @@ function _trap_setup_cleanups() {
 
 function _trap_add_cleanup() {
     local tac_joined
-    join_by tac_joined ' ; ' "${@}"
+    join_by tac_joined ' ; ' "${@/%/' || :'}"
     _trap_cleanup_actions="${tac_joined} ; ${_trap_cleanup_actions}"
     _trap_update_trap
 }
