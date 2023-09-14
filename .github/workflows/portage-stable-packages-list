@@ -105,6 +105,7 @@ app-eselect/eselect-iptables
 
 app-misc/c_rehash
 app-misc/editor-wrapper
+app-misc/mime-types
 app-misc/pax-utils
 
 app-portage/elt-patches
