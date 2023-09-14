@@ -38,3 +38,6 @@ sys-libs/libseccomp static-libs
 # enable pam
 # no resolutionkms - we provide no graphics
 app-emulation/open-vm-tools -fuse fuse3 -icu pam -resolutionkms
+
+# no suid binaries, please
+sys-fs/fuse -suid
