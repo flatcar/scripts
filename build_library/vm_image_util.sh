@@ -531,7 +531,7 @@ install_oem_sysext() {
     local built_sysext_dir="${FLAGS_to}/${oem_sysext}-sysext"
     local built_sysext_filename="${oem_sysext}.raw"
     local built_sysext_path="${built_sysext_dir}/${built_sysext_filename}"
-    local version='${FLATCAR_VERSION}'
+    local version="${FLATCAR_VERSION}"
     local metapkg="coreos-base/${oem_sysext}"
     local build_sysext_flags=(
         --board="${BOARD}"
