@@ -342,6 +342,7 @@ net-libs/libnsl
 net-libs/libpcap
 net-libs/libslirp
 net-libs/nghttp2
+net-libs/rpcsvc-proto
 
 net-misc/bridge-utils
 net-misc/curl
