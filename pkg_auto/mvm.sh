@@ -342,6 +342,32 @@ function mvm_c_add() {
     "${adder}" "${mvm_mca_mvc_name}" "${@}"
 }
 
+function mvm_remove() {
+    mvm_call "${1}" mvm_c_remove "${@:2}"
+}
+
+function mvm_c_remove() {
+    local key
+    key=${1}; shift
+
+    local storage_map_var_name
+    storage_map_var_name=${mvm['storage']}
+    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
+    local -n storage_map_ref="${storage_map_var_name}"
+
+    if [[ -z ${storage_map_ref["${key}"]:-} ]]; then
+        return 0
+    fi
+
+    local var_name=${storage_map_ref["${key}"]}
+    unset "storage_map_ref["${key}"]"
+
+    local destructor
+    destructor=${mvm['destructor']}
+
+    "${destructor}" "${var_name}"
+}
+
 function mvm_iterate() {
     mvm_call "${1}" mvm_c_iterate "${@:2}"
 }

@@ -1586,6 +1586,7 @@ function handle_package_changes() {
     local -a lines
     local hpc_update_dir
     local -A empty_map_or_set
+    local hpc_changed hpc_slot_changed hpc_update_dir_non_slot hpc_category_dir
     # shellcheck disable=SC2034 # used by name below, in a special case
     empty_map_or_set=()
     while [[ ${pkg_idx} -lt ${#old_pkgs[@]} ]]; do
@@ -1620,6 +1621,15 @@ function handle_package_changes() {
         sets_split \
             hpc_old_slots_set_ref hpc_new_slots_set_ref \
             hpc_only_old_slots_set hpc_only_new_slots_set hpc_common_slots_set
+
+        update_dir_non_slot "${new_name}" hpc_update_dir_non_slot
+        mkdir -p "${hpc_update_dir_non_slot}"
+
+        generate_non_ebuild_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
+        generate_full_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
+        generate_package_mention_reports "${NEW_STATE}" "${old_name}" "${new_name}"
+
+        hpc_changed=
         for s in "${!hpc_common_slots_set[@]}"; do
             old_verminmax=${old_slot_verminmax_map_ref["${s}"]:-}
             new_verminmax=${new_slot_verminmax_map_ref["${s}"]:-}
@@ -1642,12 +1652,20 @@ function handle_package_changes() {
             case ${hpc_cmp_result} in
                 "${GV_GT}")
                     handle_pkg_update "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${s}" "${s}" "${old_version}" "${new_version}"
+                    hpc_changed=x
                     ;;
                 "${GV_EQ}")
-                    handle_pkg_as_is "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${s}" "${s}" "${old_version}"
+                    hpc_slot_changed=
+                    handle_pkg_as_is "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${s}" "${s}" "${old_version}" hpc_slot_changed
+                    if [[ -z ${hpc_slot_changed} ]]; then
+                        rm -rf "${hpc_update_dir}"
+                    else
+                        hpc_changed=x
+                    fi
                     ;;
                 "${GV_LT}")
                     handle_pkg_downgrade "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${s}" "${s}" "${old_version}" "${new_version}"
+                    hpc_changed=x
                     ;;
             esac
         done
@@ -1675,12 +1693,20 @@ function handle_package_changes() {
             case ${hpc_cmp_result} in
                 "${GV_GT}")
                     handle_pkg_update "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${hpc_old_s}" "${hpc_new_s}" "${old_version}" "${new_version}"
+                    hpc_changed=x
                     ;;
                 "${GV_EQ}")
-                    handle_pkg_as_is "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${hpc_old_s}" "${hpc_new_s}" "${old_version}"
+                    hpc_slot_changed=
+                    handle_pkg_as_is "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${hpc_old_s}" "${hpc_new_s}" "${old_version}" hpc_slot_changed
+                    if [[ -z ${hpc_slot_changed} ]]; then
+                        rm -rf "${hpc_update_dir}"
+                    else
+                        hpc_changed=x
+                    fi
                     ;;
                 "${GV_LT}")
                     handle_pkg_downgrade "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${hpc_old_s}" "${hpc_new_s}" "${old_version}" "${new_version}"
+                    hpc_changed=x
                     ;;
             esac
         elif [[ ${#hpc_only_old_slots_set[@]} -gt 0 ]] || [[ ${#hpc_only_new_slots_set[@]} -gt 0 ]]; then
@@ -1706,6 +1732,17 @@ function handle_package_changes() {
             manual "${lines[@]}"
         fi
         unset -n new_slot_verminmax_map_ref old_slot_verminmax_map_ref hpc_new_slots_set_ref hpc_old_slots_set_ref
+        # if nothing changed, drop the entire update directory for the
+        # package, and possibly the parent directory if it became
+        # empty (parent directory being a category directory, like
+        # sys-apps)
+        if [[ -z ${hpc_changed} ]]; then
+            rm -rf "${hpc_update_dir_non_slot}"
+            dirname_out "${hpc_update_dir_non_slot}" hpc_category_dir
+            if dir_is_empty "${hpc_category_dir}"; then
+                rmdir "${hpc_category_dir}"
+            fi
+        fi
     done
 
     mvm_unset hpc_new_pkg_slot_verminmax_map_mvm
@@ -1800,7 +1837,7 @@ function handle_pkg_update() {
     fi
     # shellcheck disable=SC2153 # OLD_PORTAGE_STABLE is not a misspelling, it comes from globals file
     generate_ebuild_diff "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}" "${old}" "${new}"
-    generate_non_ebuild_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}"
+
     # shellcheck disable=SC2034 # these variables are used by name
     local hpu_update_dir hpu_update_dir_non_slot
     update_dir_non_slot "${new_pkg}" hpu_update_dir_non_slot
@@ -1812,6 +1849,9 @@ function handle_pkg_update() {
         lines+=( 'TODO: review other.diff' )
     fi
     lines+=( 'TODO: review occurences' )
+    if [[ ${old_pkg} != "${new_pkg}" ]]; then
+        lines+=( 'TODO: review occurences-for-old-name' )
+    fi
 
     if gentoo_ver_test "${new_no_r}" -gt "${old_no_r}"; then
         # version bump
@@ -1822,20 +1862,18 @@ function handle_pkg_update() {
     local -a hpu_tags
     tags_for_pkg "${pkg_to_tags_mvm_var_name}" "${new_pkg}" hpu_tags
     generate_summary_stub "${new_pkg}" "${hpu_tags[@]}" -- "${lines[@]}"
-    # TODO: should be invoked just once, not everytime for each slot
-    generate_full_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}"
-    # TODO: should be invoked just once, not everytime for each slot
-    generate_package_mention_reports "${NEW_STATE}" "${old_pkg}" "${new_pkg}"
 }
 
 function handle_pkg_as_is() {
-    local pkg_to_tags_mvm_var_name old_pkg new_pkg old_s new_s v
+    local pkg_to_tags_mvm_var_name old_pkg new_pkg old_s new_s v changed_var_name
     pkg_to_tags_mvm_var_name=${1}; shift
     old_pkg=${1}; shift
     new_pkg=${1}; shift
     old_s=${1}; shift
     new_s=${1}; shift
     v=${1}; shift
+    changed_var_name=${1}; shift
+    local -n changed_ref="${changed_var_name}"
 
     # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
@@ -1855,7 +1893,6 @@ function handle_pkg_as_is() {
         renamed=x
     fi
     generate_ebuild_diff "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}" "${v}" "${v}"
-    generate_non_ebuild_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}"
     local hpai_update_dir_non_slot hpai_update_dir
     update_dir_non_slot "${new_pkg}" hpai_update_dir_non_slot
     update_dir "${new_pkg}" "${old_s}" "${new_s}" hpai_update_dir
@@ -1871,38 +1908,18 @@ function handle_pkg_as_is() {
     fi
     local hpai_parent_dir
     if [[ -z ${renamed} ]] && [[ -z ${modified} ]]; then
-        # If nothing (relevant ebuild, stuff in files directory,
-        # metadata) has changed and there was no rename, then generate
-        # no reports and remove the update directory. There are three
-        # levels of directories that may need removing if they are
-        # empty:
-        #
-        # category/name/slot (update dir)
-        # category/name (update dir non slot)
-        # category (parent of above)
-
-        # Drop empty diffs.
-        rm -f "${hpai_update_dir_non_slot}/other.diff" "${hpai_update_dir}/ebuild.diff"
-        # Drop possibly empty directories.
-        rmdir "${hpai_update_dir}"
-        if dir_is_empty "${hpai_update_dir_non_slot}"; then
-            rmdir "${hpai_update_dir_non_slot}"
-            dirname_out "${hpai_update_dir_non_slot}" hpai_parent_dir
-            if dir_is_empty "${hpai_parent_dir}"; then
-                rmdir "${hpai_parent_dir}"
-            fi
-        fi
+        # Nothing relevant has changed, return early.
         return 0
     fi
+    changed_ref=x
     lines+=( 'TODO: review occurences' )
+    if [[ ${old_pkg} != "${new_pkg}" ]]; then
+        lines+=( 'TODO: review occurences-for-old-name' )
+    fi
 
     local -a hpai_tags
     tags_for_pkg "${pkg_to_tags_mvm_var_name}" "${pkg}" hpai_tags
     generate_summary_stub "${new_pkg}" "${hpai_tags[@]}" -- "${lines[@]}"
-    # TODO: should be invoked just once, not everytime for each slot
-    generate_full_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}"
-    # TODO: should be invoked just once, not everytime for each slot
-    generate_package_mention_reports "${NEW_STATE}" "${old_pkg}" "${new_pkg}"
 }
 
 function handle_pkg_downgrade() {
@@ -1930,7 +1947,7 @@ function handle_pkg_downgrade() {
         lines+=( "renamed from ${old_pkg}" )
     fi
     generate_ebuild_diff "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}" "${old}" "${new}"
-    generate_non_ebuild_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}"
+
     local hpd_update_dir hpd_update_dir_non_slot
     update_dir_non_slot "${new_pkg}" hpd_update_dir_non_slot
     update_dir "${new_pkg}" "${old_s}" "${new_s}" hpd_update_dir
@@ -1941,6 +1958,9 @@ function handle_pkg_downgrade() {
         lines+=( 'TODO: review other.diff' )
     fi
     lines+=( 'TODO: review occurences' )
+    if [[ ${old_pkg} != "${new_pkg}" ]]; then
+        lines+=( 'TODO: review occurences-for-old-name' )
+    fi
 
     if gentoo_ver_test "${new_no_r}" -lt "${old_no_r}"; then
         # version bump
@@ -1951,10 +1971,6 @@ function handle_pkg_downgrade() {
     local -a hpd_tags
     tags_for_pkg "${pkg_to_tags_mvm_var_name}" "${new_pkg}" hpd_tags
     generate_summary_stub "${new_pkg}" "${hpd_tags[@]}" -- "${lines[@]}"
-    # TODO: should be invoked just once, not everytime for each slot
-    generate_full_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}"
-    # TODO: should be invoked just once, not everytime for each slot
-    generate_package_mention_reports "${NEW_STATE}" "${old_pkg}" "${new_pkg}"
 }
 
 function tags_for_pkg() {
@@ -2310,23 +2326,35 @@ function sort_like_summary_stubs() {
     local -a lines entries
     lines=()
     entries=()
+    local -A dups
+    dups=()
 
-    local REPLY line entry sss_lines_name
+    local REPLY line entry sss_lines_name dup_count
     while read -r; do
         if [[ -z ${REPLY} ]]; then
             if [[ ${#lines[@]} -gt 0 ]]; then
                 line=${lines[0]}
                 entry=${line#-+([[:space:]])}
                 entry=${entry%%:*}
-                mvm_get groups_mvm "${entry}" sss_lines_name
-                if [[ -n ${sss_lines_name} ]]; then
-                    # TODO: this actually can happen if we end up with
-                    # having more that one slot installed for the
-                    # package
-                    fail "duplicate entries for ${entry} in summary stubs"
+                dup_count=${dups["${entry}"]:-0}
+                if [[ ${dup_count} -gt 0 ]]; then
+                    dup_count=$((dup_count + 1))
+                    mvm_add groups_mvm "${entry}@${dup_count}" "${lines[@]}"
+                    dups["${entry}"]=${dup_count}
+                else
+                    mvm_get groups_mvm "${entry}" sss_lines_name
+                    if [[ -n ${sss_lines_name} ]]; then
+                        local -n lines_ref="${sss_lines_name}"
+                        mvm_add groups_mvm "${entry}@1" "${lines_ref[@]}"
+                        unset -n lines_ref
+                        mvm_remove groups_mvm "${entry}"
+                        mvm_add groups_mvm "${entry}@2" "${lines[@]}"
+                        dups["${entry}"]=2
+                    else
+                        mvm_add groups_mvm "${entry}" "${lines[@]}"
+                        entries+=( "${entry}" )
+                    fi
                 fi
-                mvm_add groups_mvm "${entry}" "${lines[@]}"
-                entries+=( "${entry}" )
                 lines=()
             fi
         else
@@ -2338,12 +2366,25 @@ function sort_like_summary_stubs() {
         return 0
     fi
 
+    local idx
     {
         while read -r line; do
-            mvm_get groups_mvm "${line}" sss_lines_name
-            local -n lines_ref="${sss_lines_name}"
-            printf '%s\n' "${lines_ref[@]}" ''
-            unset -n lines_ref
+            dup_count=${dups["${line}"]:-0}
+            if [[ ${dup_count} -gt 0 ]]; then
+                idx=0
+                while [[ ${idx} -lt ${dup_count} ]]; do
+                    idx=$((idx + 1))
+                    mvm_get groups_mvm "${line}@${idx}" sss_lines_name
+                    local -n lines_ref="${sss_lines_name}"
+                    printf '%s\n' "${lines_ref[@]}" ''
+                    unset -n lines_ref
+                done
+            else
+                mvm_get groups_mvm "${line}" sss_lines_name
+                local -n lines_ref="${sss_lines_name}"
+                printf '%s\n' "${lines_ref[@]}" ''
+                unset -n lines_ref
+            fi
         done < <(printf '%s\n' "${entries[@]}" | csort)
     } >"${f}"
     mvm_unset groups_mvm
@@ -2542,7 +2583,7 @@ function handle_scripts() {
     mkdir -p "${out_dir}"
 
     xdiff --unified=3 --recursive "${OLD_PORTAGE_STABLE}/scripts" "${NEW_PORTAGE_STABLE}/scripts" >"${out_dir}/scripts.diff"
-    # TODO: update summary stubs
+    generate_summary_stub scripts -- 'TODO: review the diffs'
 }
 
 fi
