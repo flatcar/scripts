@@ -33,6 +33,125 @@
 
 #--- END OF EXAMPLES ---
 
+# Michał Górny <mgorny@gentoo.org> (2023-09-17)
+# Core API has not been maintained since 2017, and all the repositories
+# have been archived in 2019.  It remained in ::gentoo only
+# as an optional test dependency, and all reverse dependencies have been
+# updated not to depend on it.
+# Removal on 2023-10-17.  Bug #914363.
+dev-python/coreapi
+dev-python/coreschema
+dev-python/itypes
+
+# Andreas K. Hüttel <dilfridge@gentoo.org> (2021-07-06, 2023-09-15)
+# No longer maintained upstream; masked everywhere for two years now.
+# Please see also the 2021-07-15-opentmpfiles-deprecation news item.
+# https://www.gentoo.org/support/news-items/2021-07-15-opentmpfiles-deprecation.html
+#
+# The replacement is sys-apps/systemd-utils[tmpfiles]; new name
+# but otherwise identical to the solution described in the news item.
+# Removal on 2023-10-15.
+sys-apps/opentmpfiles
+
+# Hans de Graaff <graaff@gentoo.org> (2023-09-15)
+# Not compatible with ruby31, no reverse dependencies. Last release in
+# 2013. Masked for removal on 2023-10-15.
+dev-ruby/ruby-elf
+
+# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2023-09-14)
+# No longer a test dependency of dev-python/textdistance, now fails tests
+# with the latest numpy. Upstream inactive and we already need patching for
+# python 3.10 compatibility. No other reverse dependencies.
+# Bug: https://bugs.gentoo.org/887845
+# Removal on 2023-10-14
+dev-python/abydos
+
+# Andreas K. Hüttel <dilfridge@gentoo.org> (2023-09-11)
+# Dead project accumulating open bugs and incompatibilities.
+#
+# For more detail, please see the '2021-08-24-eudev-retirement' news item
+# as well as the '2022-04-19-systemd-utils' news item.
+#
+# No Gentoo maintainer commits since February 2021.
+#
+# Many Gentoo packaging issues (some may need to go upstream):
+#  bug #713106, #753134, bug #667686, bug #771705, bug #668880, #770358, bug #851255
+#  bug #711462, #904741
+#
+# But more pressingly, lacks support for the udev 'tags' API which libgudev now
+# requires. No fix has been committed upstream and other software like Plymouth
+# has been broken with eudev for some time because of this missing support.
+# See bug #913702.
+#
+# Removal on 2023-10-11.
+sys-fs/eudev
+
+# Leonardo Hernández Hernández <leohdz172@proton.me> (2023-09-10)
+# Upstream has marked this packaged as unmaintained[0] and recommends usage of
+# the active fork eza[1] available as sys-apps/eza
+# Please transition to the new package.
+# Removal: 2023-10-10.  Bug #913737.
+# [0]: https://github.com/ogham/exa/commit/fb05c421ae98e076989eb6e8b1bcf42c07c1d0fe
+# [1]: https://github.com/eza-community/eza
+sys-apps/exa
+
+# Hans de Graaff <graaff@gentoo.org> (2023-09-10)
+# Obsolete slot that no longer has any reverse dependencies. Not
+# compatible with openssl 3. Use the newer slot instead. Masked for
+# removal on 2023-10-10.
+dev-ruby/net-ssh:6
+
+# Hans de Graaff <graaff@gentoo.org> (2023-09-10)
+# Obsolete slot that no longer has any reverse dependencies. Use the
+# newer slot instead. Masked for removal on 2023-10-10.
+dev-ruby/mail:2.7
+
+# Sam James <sam@gentoo.org> (2023-09-09)
+# OpenSSL 1.1.x is EOL on 2023-09-11. Please upgrade immediately to >= OpenSSL 3.
+# https://www.openssl.org/blog/blog/2023/03/28/1.1.1-EOL/
+# https://www.openssl.org/blog/blog/2023/06/15/1.1.1-EOL-Reminder/
+# Please run a full world upgrade, especially checking /etc/portage and your world file
+# for old PHP or Ruby references.
+<dev-libs/openssl-3
+<app-crypt/xca-2.4.0_p20230526
+
+# Conrad Kostecki <conikost@gentoo.org> (2023-09-09)
+# Release causes problems, upstream degrated to RC back.
+# See #913884 for more information
+=net-wireless/unifi-7.5.174-r1
+
+# David Seifert <soap@gentoo.org> (2023-09-09)
+# EOL upstream in 2 months, causes major headaches for OpenSSL 1.1
+# masking. Removal on 2023-10-09.
+dev-lang/php:8.0
+virtual/httpd-php:8.0
+
+# David Seifert <soap@gentoo.org> (2023-09-09)
+# Depends on PHP 8.0. Removal on 2023-10-09.
+~www-apps/tt-rss-20220218
+
+# David Seifert <soap@gentoo.org> (2023-09-09)
+# Depends on PHP 8.0, which in turn depends on OpenSSL 1.1, which in
+# turn is to be masked and removed soon. Removal on 2023-10-09.
+www-apps/moodle:3.11.16
+www-apps/moodle:4.0.10
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2023-09-06)
+# dev-libs/sink is unmaintained upstream, in Gentoo, fails to build.
+# Masked for removal on 2023-10-06, together with mail-client/kube and
+# would-be orphan libraries. Bugs #907499, #904876, #872062, #856094
+net-libs/kdav2
+net-libs/kimap2
+dev-libs/kasync
+dev-libs/sink
+mail-client/kube
+
+# David Seifert <soap@gentoo.org> (2023-09-05)
+# OpenSSL 1.1 based, does not work with 3.0+. tpm2-openssl is the
+# spiritual successor for OpenSSL 3.0+, but isn't packaged.
+# Removal on 2023-10-05.
+app-crypt/tpm2-tss-engine
+
 # Florian Schmaus <flow@gentoo.org> (2023-09-03)
 # Became a leaf package after dev-erlang/riak_pb was removed (989c0f55e0).
 # Unmaintained in ::gentoo and upstream since multiple years. Alternative at
@@ -84,12 +203,6 @@ sci-biology/express
 # Removal on 2023-09-27.  Bug #906516.
 dev-python/pytz_deprecation_shim
 
-# Sam James <sam@gentoo.org> (2023-08-26)
-# 'AttributeError: NoneType object has no attribute cname' regression
-# See bug #913062, https://github.com/cython/cython/issues/5643, and
-# https://github.com/cython/cython/issues/5644.
-=dev-python/cython-3.0.1
-
 # Hans de Graaff <graaff@gentoo.org> (2023-08-26)
 # Obsolete slot. Use the newer shoulda slot instead.
 # Masked for removal on 2023-09-26
@@ -116,10 +229,6 @@ sci-mathematics/polymake
 # no other distros package this, and upstream have discontinued development.
 # Removal on 2023-09-21.  Bug #912582.
 app-emulation/libvirt-snmp
-
-# Sam James <sam@gentoo.org> (2023-08-21)
-# Broken install.
-=net-libs/grpc-1.52.1-r1
 
 # Marek Szuba <marecki@gentoo.org> (2023-08-21)
 # Does not work with recent versions of Sphinx. In the process of being
@@ -163,85 +272,9 @@ app-dicts/edictionary
 # Masked for removal on 2023-09-17.
 app-emacs/ruby-mode
 
-# Matt Turner <mattst88@gentoo.org> (2023-08-14)
-# Dead slot depending on libsoup:2.4
-# Removal on 2023-09-14.
-net-libs/rest:0.7
-
-# Matt Turner <mattst88@gentoo.org> (2023-08-14)
-# Unmaintained in Gentoo and upstream. Last release was 2018, last commit
-# upstream was 2021. Only reverse dependency of dead net-libs/rest:0.7.
-# Removal on 2023-09-14.
-gnome-extra/synapse
-
-# Michael Orlitzky <mjo@gentoo.org> (2023-08-12)
-# More php:7.4 casualties that I missed the first time around.
-# They'll be removed whenever php:7.4 is removed.
-#
-#   * pecl-apcu_bc dead since 2019
-#   * pecl-http:7 is the old slot
-#   * pecl-ncurses dead since 2012
-#   * pecl-propro dead since 2020
-#   * pecl-taint dead in 2021
-#
-dev-php/pecl-apcu_bc
-dev-php/pecl-http:7
-dev-php/pecl-ncurses
-dev-php/pecl-propro
-dev-php/pecl-taint
-
-
-# Michael Orlitzky <mjo@gentoo.org> (2023-08-11)
-# php-7.x is End Of Life (EOL) upstream and no longer receives security
-# fixes. We lose phpunit because it depends on CodeCoverage which
-# depends on TokenStream, and TokenStream is limited to 7.x. Bug 887739
-# to upgrade moodle is seven months old, which I think is long enough to
-# have waited. Selfoss has a newer version. Removal after 2023-09-11.
-dev-lang/php:7.4
-dev-php/PHP_TokenStream
-dev-php/PHP_CodeCoverage
-dev-php/phpspec-prophecy
-dev-php/phpunit
-dev-php/phpunit-mock-objects
-dev-php/sebastian-comparator
-dev-php/sebastian-exporter
-dev-php/sebastian-global-state
-dev-php/sebastian-object-enumerator
-dev-php/sebastian-object-reflector
-dev-php/sebastian-recursion-context
-=mail-client/roundcube-1.4.11
-=virtual/httpd-php-7.4
-=www-apps/moodle-3.11.15
-=www-apps/moodle-4.0.9
-=www-apps/moodle-4.1.4
-=www-apps/moodle-4.2.1
-=www-apps/selfoss-2.19
-
-# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2023-07-05)
-# Library without consumers. Bug #906882
-# Removal on 2023-08-05.
-net-libs/nativebiginteger
-
 # Sam James <sam@gentoo.org> (2023-08-04)
 # Stricter behavior which causes some packages to fail, see bug #911721.
 =dev-util/pkgconf-2.0.0
-
-# David Seifert <soap@gentoo.org> (2023-07-29)
-# EAPI 6, fetch restrictions require annoying registration, no other
-# distro packages this, over 10 years old. Removal on 2023-08-28.
-sci-libs/rosetta-db
-
-# Michael Orlitzky <mjo@gentoo.org> (2023-07-27)
-# Obsolete as of dev-php/swoole-4.3.0, according to
-# its github README. Stuck on php-7.4. Removal on or
-# after 30 days.
-dev-php/swoole-async
-
-# William Hubbs <williamh@gentoo.org> (2023-07-25)
-# This package has been replaced by app-accessibility/espeak-ng.
-# Please transition to the new package.
-# Removal: 2023-08-24.  Bug #877221.
-app-accessibility/espeak
 
 # Mike Gilbert <floppym@gentoo.org> (2023-07-24)
 # Migrated to sys-apps/systemd-utils.
@@ -249,32 +282,6 @@ app-accessibility/espeak
 sys-apps/systemd-tmpfiles
 sys-boot/systemd-boot
 sys-fs/udev
-
-# Michał Górny <mgorny@gentoo.org> (2023-07-24)
-# Incompatible with modern dev-python/matplotlib versions.  No upstream
-# activity since 2022-02.  No revdeps.
-# Removal on 2023-08-23.  Bug #904734.
-dev-python/tikzplotlib
-
-# Michał Górny <mgorny@gentoo.org> (2023-07-23)
-# Package with no maintainer and tests restricted (also test deps look
-# suspicious).  It was only needed for tests
-# in dev-python/pyvirtualdisplay, and that package didn't support
-# the newest version anyway.  No revdeps left.
-# Removal on 2023-08-22.  Bug #910708.
-dev-python/vncdotool
-
-# Michał Górny <mgorny@gentoo.org> (2023-07-21)
-# Fragile package requiring custom patching.  The maintainer resigned.
-# No reverse dependencies.
-# Removal on 2023-08-20.  Bug #910619.
-dev-python/cx_Freeze
-
-# Michał Górny <mgorny@gentoo.org> (2023-07-21)
-# The ebuild has not been bumped for a year now.  It doesn't have
-# working tests.  No reverse dependencies.
-# Removal on 2023-08-20.  Bug #907460.
-dev-python/ansible-runner
 
 # Michał Górny <mgorny@gentoo.org> (2023-07-19)
 # Backport package specific to Python 3.9.  No longer necessary now
@@ -373,12 +380,6 @@ acct-group/spi
 # may or may not lead to useful results.
 <dev-util/catalyst-4
 
-# Joonas Niilola <juippis@gentoo.org> (2023-07-12)
-# Testing. An upgrade from 102 isn't recommended due to downgrading
-# most likely not being possible. Back up your profile before
-# attempting. Fresh install should be fine. Bug #910229
->=mail-client/thunderbird-115.0
-
 # Michał Górny <mgorny@gentoo.org> (2023-07-12)
 # Having scikit-build-core installed still breaks building setuptools
 # extensions in some scenarios.
@@ -387,28 +388,37 @@ acct-group/spi
 
 # Matt Turner <mattst88@gentoo.org> (2023-07-06)
 # GNOME 45 mask
+>=app-accessibility/orca-45_alpha
 >=app-crypt/libsecret-0.21
 >=app-editors/ghex-45_alpha
 >=app-editors/gnome-text-editor-45_alpha
 >=app-misc/gnote-45_alpha
 >=app-misc/tracker-3.6_alpha
 >=app-misc/tracker-miners-3.6_alpha
+>=dev-cpp/glibmm-2.77
 >=dev-cpp/gtkmm-4.11
 >=dev-libs/gjs-1.77
 >=dev-libs/glib-2.77
+>=dev-libs/gobject-introspection-1.77
+>=dev-libs/gobject-introspection-common-1.77
 >=dev-libs/libdex-0.3.0
+>=dev-libs/libportal-0.7
 >=dev-util/gdbus-codegen-2.77
 >=dev-util/glib-utils-2.77
 >=games-puzzle/gnome-sudoku-45_alpha
 >=gnome-base/gdm-45_beta
 >=gnome-base/gnome-control-center-45_alpha
+>=gnome-base/gnome-session-45_alpha
 >=gnome-base/gnome-settings-daemon-45_alpha
 >=gnome-base/gnome-shell-45_alpha
 >=gnome-base/gsettings-desktop-schemas-45_alpha
+>=gnome-base/librsvg-2.57
 >=gnome-base/nautilus-45_alpha
+>=gnome-extra/gnome-boxes-45_alpha
 >=gnome-extra/gnome-calculator-45_alpha
 >=gnome-extra/gnome-calendar-45_alpha
 >=gnome-extra/gnome-characters-45_alpha
+>=gnome-extra/gnome-clocks-45_alpha
 >=gnome-extra/gnome-logs-45_alpha
 >=gnome-extra/gnome-shell-extensions-45_alpha
 >=gnome-extra/gnome-software-45_alpha
@@ -427,6 +437,7 @@ gnome-extra/tecla
 >=sci-geosciences/gnome-maps-45_alpha
 >=sys-apps/baobab-45_alpha
 >=sys-apps/xdg-desktop-portal-gnome-45_alpha
+>=sys-process/gnome-usage-45_alpha
 >=x11-libs/pango-1.51.0
 >=x11-themes/adwaita-icon-theme-45_alpha
 >=x11-themes/gnome-backgrounds-45_alpha
@@ -442,15 +453,6 @@ gnome-extra/tecla
 # Breaks dev-perl/Spreadsheet-ParseExcel, see bug #909564.
 # Please upgrade to >=dev-perl/dev-perl/OLE-StorageLite-0.220.0.
 =dev-perl/OLE-StorageLite-0.210.0
-
-# Sam James <sam@gentoo.org> (2023-06-23)
-# Segfaults with non-bison yacc.
-=app-shells/bash-5.2_p15-r4
-
-# Sam James <sam@gentoo.org> (2023-06-22)
-# Causes segfaults in dependent dev-util/conf2struct.
-# See bug #908989 and related bug #908982.
-=dev-perl/Conf-Libconfig-1.0.0
 
 # Michał Górny <mgorny@gentoo.org> (2023-06-21)
 # suitesparseconfig-7.0.0 fails to build with multilib enabled
@@ -482,10 +484,6 @@ gnome-extra/tecla
 =dev-db/mariadb-10.11.2
 =dev-db/mariadb-10.11.3
 
-# Sam James <sam@gentoo.org> (2023-06-05)
-# Fails to bootstrap, see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=110120.
-=sys-devel/gcc-14.0.0_pre20230604
-
 # Bernd Waibel <waebbl-gentoo@posteo.net> (2023-05-31)
 # Mask this version for uptime soversion issue. There will be an updated release
 # shortly which fixes this.
@@ -493,67 +491,25 @@ gnome-extra/tecla
 # Bug: #907211
 =dev-libs/imath-3.1.7
 
-# Sam James <sam@gentoo.org> (2023-05-24)
-# Breaks building C++ consumers at least: bug #906755, bug #906879, bug #906957.
-# Please upgrade to >=0.5.1.
-=net-libs/libproxy-0.5.0
-
-# Sam James <sam@gentoo.org> (2023-05-20)
-# Various regressions, please upgrade to the latest libxml2 (>=2.11.4).
-=dev-libs/libxml2-2.11.1
-=dev-libs/libxml2-2.11.2
-=dev-libs/libxml2-2.11.2-r1
-=dev-libs/libxml2-2.11.3
-
 # Sam James <sam@gentoo.org> (2023-05-19)
 # Breaks Portage's pid-sandbox at least with 5.10 kernels. Pending investigation.
 # If you're hitting this, try: FEATURES="-pid-sandbox" emerge -v1 sys-apps/util-linux
 # as a workaround. bug #906797.
 ~sys-apps/util-linux-2.39
 
-# David Seifert <soap@gentoo.org> (2023-05-19)
-# Abandoned, NIH library only used by other obsolete packages like gkeys
-# and layman, use app-crypt/gpgme[python] as a proper upstream
-# supported gpg library. Removal on 2023-08-17.
-dev-python/pyGPG
-
-# David Seifert <soap@gentoo.org> (2023-05-19)
-# Abandoned, replaced by 'eselect repository' (app-eselect/eselect-repository),
-# tons of open bugs. Removal on 2023-08-17. Bug #761199.
-app-portage/layman
-
 # Sam James <sam@gentoo.org> (2023-05-10)
 # Lots of package breakage as usual for new versions. Masked until most/all
 # reverse dependencies are fixed. Tracker bug is bug #906077.
 =dev-libs/libfmt-10*
-
-# Sam James <sam@gentoo.org> (2023-05-03)
-# Broken pkgconfig file, please upgrade to -r1.
-# bug #704348, bug #905632, bug #905822
-=sci-libs/metis-5.2.1
-=sci-libs/metis-5.2.1-r1
-=sci-libs/parmetis-4.0.3_p20230326
 
 # Sam James <sam@gentoo.org> (2023-05-01)
 # Breaks dev-python/scipy build. See bug #905396 and https://github.com/serge-sans-paille/gast/issues/74.
 =dev-python/pythran-0.13.0
 =dev-python/gast-0.5.4
 
-# Sam James <sam@gentoo.org> (2023-05-01)
-# Quite broken, see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=109672.
-=sys-devel/gcc-14.0.0_pre20230430
-
 # Andreas Sturmlechner <asturm@gentoo.org> (2023-04-30)
 # Breaking even latest ~arch version of KDE PIM, bug #905352.
 =dev-libs/ktextaddons-1.3*
-
-# Sam James <sam@gentoo.org> (2023-04-19)
-# Last-minute libstdc++ symbol versioning magic causes e.g. mold, cmake
-# to segfault:
-# - https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108969
-# - https://bugzilla.redhat.com/show_bug.cgi?id=2187768#c4
-# 13.0.1_pre20230419 was GCC 13.1 RC1. RC2 will be made when this is fixed.
-=sys-devel/gcc-13.0.1_pre20230419
 
 # Michał Górny <mgorny@gentoo.org> (2023-04-18)
 # Breaks ABI without SOVERSION bump, effectively preventing
@@ -611,19 +567,10 @@ x11-drivers/nvidia-drivers:0/390
 # https://github.com/igraph/igraph/issues/2311
 =sci-libs/arpack-3.9.0
 
-# Sam James <sam@gentoo.org> (2023-03-24)
-# Please upgrade to make-4.4.1 as make-4.4 has a bunch of issues.
-=sys-devel/make-4.4
-
 # Hans de Graaff <graaff@gentoo.org> (2023-03-19)
 # This version of cucumber-core is not compatible with the other
 # cucumber dependencies. Please downgrade cucumber-core.
 =dev-util/cucumber-core-11.1.0
-
-# Sam James <sam@gentoo.org> (2023-03-16)
-# Breaks building C++ consumers. See bug #901211 and bug #901035.
-# Please upgrade to glib-2.76.0-r1.
-=dev-libs/glib-2.76.0
 
 # Mike Pagano <mpagano@gentoo.org> (2023-03-10)
 # Mask =sys-kernel/gentoo-sources-5.15.99 since it does
@@ -638,10 +585,6 @@ x11-drivers/nvidia-drivers:0/390
 # Ben Kohler <bkohler@gentoo.org> (2023-01-30)
 # Breaks too many revdeps for now
 =app-text/discount-3*
-
-# Georgy Yakovlev <gyakovlev@gentoo.org> (2022-12-19)
-# This version currently is not compatible with kernel build (yet)
-~dev-util/bindgen-0.63.0
 
 # Jaco Kroon <jaco@uls.co.za> (2022-11-05)
 # Some potentially breaking changes here, please check the UPGRADE.txt file.
@@ -787,7 +730,7 @@ app-office/texmacs
 # If you still use one of these old toolchain packages, please upgrade (and
 # switch the compiler / the binutils) ASAP. If you need them for a specific
 # (isolated) use case, feel free to unmask them on your system.
-<sys-libs/glibc-2.36-r5
+<sys-libs/glibc-2.37-r3
 <sys-libs/binutils-libs-2.40
 <sys-devel/binutils-2.40
 <sys-devel/binutils-hppa64-2.40

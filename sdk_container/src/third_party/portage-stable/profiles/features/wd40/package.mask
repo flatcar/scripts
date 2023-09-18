@@ -43,6 +43,7 @@ dev-python/mkdocs-git-authors-plugin
 dev-python/mkdocs-i18n
 dev-python/mkdocs-material-extensions
 dev-python/mkdocs-git-revision-date-localized-plugin
+dev-python/nh3
 >=dev-python/notebook-7
 dev-python/oauthlib
 dev-python/openapi-core
@@ -68,6 +69,7 @@ dev-python/python-jose
 dev-python/python-neutronclient
 dev-python/python-openstackclient
 dev-python/python-sshpubkeys
+dev-python/readme-renderer
 dev-python/referencing
 dev-python/requests-kerberos
 dev-python/requests-oauthlib
@@ -93,6 +95,7 @@ dev-util/git-delta
 dev-util/maturin
 dev-util/selenium-manager
 dev-util/tree-sitter-cli
+dev-vcs/breezy
 >=dev-vcs/stgit-2
 >=games-board/gnome-mahjongg-3.40.0
 gnome-base/gdm
@@ -117,6 +120,7 @@ net-news/newsboat
 net-p2p/deluge
 sci-geosciences/gnome-maps
 >=sys-apps/bat-0.18.1
+>=sys-block/thin-provisioning-tools-1.0.6
 sys-fs/bcachefs-tools
 virtual/rust
 www-apps/radicale

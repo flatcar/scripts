@@ -17,6 +17,10 @@
 
 #--- END OF EXAMPLES ---
 
+# Jon Janzen <jon@jonjanzen.com> (2023-09-11)
+# librttopo has not been stabalized on this arch yet
+dev-db/spatialite rttopo
+
 # Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2023-08-21)
 # Mask testing on stable until we have stable qt6
 dev-python/pytest-qt test
@@ -47,11 +51,6 @@ net-misc/curl rustls curl_ssl_rustls
 # Needs unstable media-libs/oneVPL
 media-libs/gst-plugins-bad qsv
 media-video/ffmpeg qsv
-
-# Kai-Chun Ning <kaichun.ning@gmail.com> (2022-05-23)
-# Dependency media-libs/intel-hybrid-codec-driver is only available on unstable
-# branch
-media-libs/libva-intel-driver hybrid
 
 # Adel Kara Slimane <adel.ks@zegrapher.com> (2022-03-14)
 # needs stabilizing

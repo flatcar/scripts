@@ -30,6 +30,10 @@ dev-python/nbval test
 # libomptarget is only supported on 64-bit architectures.
 >=sys-libs/libomp-16.0.0_pre20230124 -offload
 
+# Niccolò Belli <niccolo.belli@linuxsystems.it> (2022-11-29)
+# media-libs/webrtc-audio-processing only has amd64, x86 and ppc64 keywords
+media-video/pipewire -echo-cancel
+
 # Sam James <sam@gentoo.org> (2022-10-13)
 # Causes segfaults, bug #871921
 sci-libs/symengine tcmalloc
@@ -75,6 +79,7 @@ media-video/obs-studio browser
 # Joonas Niilola <juippis@gentoo.org> (2021-06-23)
 # Pandoc is a required dep, and not keyworded.
 sys-apps/exa man
+sys-apps/eza man
 
 # Matt Turner <mattst88@gentoo.org> (2021-06-10)
 # dev-python/django is not keyworded here
