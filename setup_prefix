@@ -29,7 +29,7 @@ DEFINE_string cross_boss_root "${SCRIPTS_DIR}/cross-boss" \
 #DEFINE_string custom_ebuild_overlays "" \
 #  "Comma-separated list of additional ebuild overlays to add to the prefix."
 
-FLAGS_HELP="usage: setup_prefix [flags] <prefix name> <prefix path> <install destination directory>
+FLAGS_HELP="usage: setup_prefix [flags] <prefix name> <prefix path>
 
 setup_prefix creates a new prefix as well as an emerge wrapper.
 
@@ -58,7 +58,7 @@ if [ "${FLAGS_uninstall}" = "${FLAGS_TRUE}" ] ; then
   prefix="ignored"
 fi
 
-if [ -z "${name}" -o -z "${prefix}" ] ;  then
+if [[ ! ${name} || ! ${prefix} ]] ;  then
   error "Missing mandatory positional parameter."
   flags_help
   exit 1
