@@ -2,6 +2,17 @@
 
 **!!! NOTE: Prefix support in the Flatcar SDK is EXPERIMENTAL at this time !!!**
 
+## Path to stabilisation TODO list
+
+Before prefix build support are considered stable, the below must be implemented:
+1. Integrate `cb-bootstrap` with the Flatcar SDK.
+   Currently, `setup_prefix` uses cross-boss' `cb-bootstrap` to set up the prefix environment.
+   Bootstrapping must be fully integrated with the Flatcar SDK before prefix builds are considered stable.
+2. Integrate prefix builds with `/build/<board>` environment and use board cross toolchain.
+   Prefix builds currently use the SDK cross toolchains (`/usr/<arch>-gnu/`) instead of board toolchains in `/build/<board>`.
+   Prefix builds must be integrated with the board toolchains and stop using `cb-emerge` before considered stable.
+3. Add prefix wrappers for all portage tools (similar to board wrappers), not just `emerge`.
+
 ## About
 
 Prefix builds let you build and ship applications and all their dependencies in a custom directory.
