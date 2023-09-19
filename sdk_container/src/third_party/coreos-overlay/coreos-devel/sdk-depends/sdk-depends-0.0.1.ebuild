@@ -61,4 +61,9 @@ DEPEND="${DEPEND}
 	)
 	sys-devel/m4"
 
+DEPEND="${DEPEND}
+	sys-apps/bubblewrap
+	>=dev-python/gpep517-15
+"
+
 RDEPEND="${DEPEND}"

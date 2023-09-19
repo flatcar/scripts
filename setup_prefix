@@ -1,0 +1,143 @@
+#!/bin/bash
+
+
+. "$(dirname "$0")/common.sh" || exit 1
+. "${BUILD_LIBRARY_DIR}/prefix_util.sh" || exit 1
+
+assert_inside_chroot
+assert_not_root_user
+
+staging_dir_opt_placeholder="${DEFAULT_STAGING_ROOT}prefix-<board>/<prefix-name>"
+final_dir_opt_placeholder="${SCRIPTS_DIR}/__prefix__/<board>/<prefix-name>"
+
+DEFINE_string board "${DEFAULT_BOARD}" \
+  "Board (architecture) to build for in prefix."
+DEFINE_string staging_dir "${staging_dir_opt_placeholder}" \
+  "Staging (build) directory for this prefix."
+DEFINE_string final_dir "${final_dir_opt_placeholder}" \
+   "Local directory to install the final prefixed binaries and runtime dependencies to.
+   '<final-dir>/root' will contain the FS root to e.g. create a sysext from."
+DEFINE_boolean force "${FLAGS_FALSE}" \
+  "Force re-creating a prefix that already exists. THIS WILL REMOVE THE OLD PREFIX ENTIRELY."
+DEFINE_boolean uninstall "${FLAGS_FALSE}" \
+  "Uninstall an existing prefix, removing all directories and wrapper scripts associated with it.
+   If set, <prefix path> can be omitted."
+DEFINE_string cross_boss_root "${SCRIPTS_DIR}/cross-boss" \
+  "Custom cross-boss scripts root."
+
+# TODO: implement
+#DEFINE_string custom_ebuild_overlays "" \
+#  "Comma-separated list of additional ebuild overlays to add to the prefix."
+
+FLAGS_HELP="usage: setup_prefix [flags] <prefix name> <prefix path>
+
+setup_prefix creates a new prefix as well as an emerge wrapper.
+
+  <prefix name> - Common name of the prefix. Will be used for naming portage wrappers.
+
+  <prefix path> - Absolute library / executables path to use for this prefix, e.g. '/usr/local/mystuff'.
+                    Binaries and libraries will live below <prefix>; binaries will be
+                    linked against <prefix>/lib etc. Should start with /usr or /opt if you
+                    want to use the installation directory to create a sysext.
+
+Please refer to PREFIX.md for general information on prefixes.
+"
+
+show_help_if_requested "$@"
+FLAGS "$@" || exit 1
+eval set -- "${FLAGS_ARGV}"
+
+switch_to_strict_mode -uo pipefail
+
+name="${1:-}"
+prefix="${2:-}"
+
+if [ "${FLAGS_uninstall}" = "${FLAGS_TRUE}" ] ; then
+  # We don't really care about prefix when uninstalling.
+  # Make sure it is set so we don't need to set it on the uninstall command line.
+  prefix="ignored"
+fi
+
+if [[ ! ${name} || ! ${prefix} ]] ;  then
+  error "Missing mandatory positional parameter."
+  flags_help
+  exit 1
+fi
+
+if [ "${FLAGS_staging_dir}" = "${staging_dir_opt_placeholder}" ] ; then
+  FLAGS_staging_dir="${DEFAULT_STAGING_ROOT}prefix-${FLAGS_board}/${name}"
+fi
+if [ "${FLAGS_final_dir}" = "${final_dir_opt_placeholder}" ] ; then
+  FLAGS_final_dir="${SCRIPTS_DIR}/__prefix__/${FLAGS_board}/${name}"
+fi
+
+#
+# Helper functions
+#
+
+function check_force_dirs() {
+  local what="${1}"
+  local dir="${2}"
+
+  if [ -e "${dir}" ] ; then
+    if [ "${FLAGS_force}" = "${FLAGS_FALSE}" ] ; then
+      error "${what} directory '${dir}' already exists! Use --force to remove and to re-create prefix."
+      exit 1
+    else
+      warn "Removing ${what} directory '${dir}' as requested ('--force' option)."
+      sudo rm -rf "${dir}"
+    fi
+  fi
+}
+# --
+
+#
+# Main
+#
+
+set_prefix_vars "${name}" "${prefix}"
+prefix_repo="$(dirname "$(EPREFIX="" portageq get_repo_path / portage-stable)")/prefix-overlay"
+
+if [ "${FLAGS_uninstall}" = "${FLAGS_TRUE}" ] ; then
+  warn "Removing prefix '${name}' and all associated direcroties and wrappers."
+  sudo rm -vrf "${STAGINGDIR}" "${FINALDIR}"
+  # TODO: cover all portage tools, not just emerge
+  sudo rm -vf "$(emerge_name with-path)"
+  exit
+fi
+
+if [ ! -e "${CB_ROOT}/bin/cb-bootstrap" ] ; then
+  error "Cross-boss not found at '${CB_ROOT}'"
+  error "Please make sure cross-boss is available (i.e. git clone https://github.com/chewi/cross-boss)."
+  error "See PREFIX.md for more information."
+  exit 1
+fi
+
+info "Installing SDK prerequisites and creating prefix directories"
+
+check_force_dirs "staging" "${STAGINGDIR}"
+check_force_dirs "installation" "${FINALDIR}"
+
+setup_prefix_dirs "${prefix_repo}" 2>&1 | lineprepend "Prefix directories"
+
+create_make_conf "staging"
+create_make_conf "final"
+
+install_prereqs "${prefix_repo}" 2>&1 | lineprepend "SDK prereqs"
+
+# --
+
+info "Bootstrapping staging environment in '${STAGINGROOT}'".
+sudo env EPREFIX="${EPREFIX}" "${CB_ROOT}"/bin/cb-bootstrap "${STAGINGROOT}" 2>&1 | lineprepend "cb-bootstrap"
+
+info "Extracting GCC libraries to installation root / final." 
+extract_gcc_libs 2>&1 | lineprepend "GCC libs for final"
+
+# TODO: cover all portage tools, not just emerge
+info "Creating wrappers"
+create_emerge_wrapper
+
+info "Emerging installation root foundational dependencies."
+$(emerge_name) prefix/prefix-final  | lineprepend "final init"
+
+info "Done. Use '$(emerge_name)' to emerge packages into the prefix."
