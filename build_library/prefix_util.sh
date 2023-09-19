@@ -185,7 +185,15 @@ if [ "\${1}" = "--help" ] ; then
     exit
 fi
 
-if [ "\${1}" = "--install" ] ; then
+skip_build="false"
+skip_install="false"
+
+case "\${1}" in
+    --install) skip_build="true"; shift;;
+    --stage) skip_install="true"; shift;;
+esac
+
+if [ "\${skip_build}" = "true" ]  ; then
     echo "Skipping build into staging as requested."
     echo "NOTE that install into final will fail if binpkgs are missing."
 else
@@ -193,7 +201,7 @@ else
     sudo -E EPREFIX=\${EPREFIX} \${CB_ROOT}/bin/cb-emerge \${STAGINGROOT} "\$@"
 fi
 
-if [ "\${1}" = "--stage" ] ; then
+if [ "\${skip_install}" = "true" ]  ; then
     echo "Skipping install into final as requested."
 else
     echo "Installing..."
