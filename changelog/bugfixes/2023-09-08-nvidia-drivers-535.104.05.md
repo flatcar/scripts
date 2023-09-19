@@ -1,0 +1,1 @@
+- Fix the RemainAfterExit clause in nvidia.service ([Flatcar#1169](https://github.com/flatcar/Flatcar/issues/1169))
