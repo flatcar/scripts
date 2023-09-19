@@ -33,6 +33,77 @@
 
 #--- END OF EXAMPLES ---
 
+# Leonardo Hernández Hernández <leohdz172@proton.me> (2023-09-10)
+# Upstream has marked this packaged as unmaintained[0] and recommends usage of
+# the active fork eza[1] available as sys-apps/eza
+# Please transition to the new package.
+# Removal: 2023-10-10.  Bug #913737.
+# [0]: https://github.com/ogham/exa/commit/fb05c421ae98e076989eb6e8b1bcf42c07c1d0fe
+# [1]: https://github.com/eza-community/eza
+sys-apps/exa
+
+# Hans de Graaff <graaff@gentoo.org> (2023-09-10)
+# Obsolete slot that no longer has any reverse dependencies. Not
+# compatible with openssl 3. Use the newer slot instead. Masked for
+# removal on 2023-10-10.
+dev-ruby/net-ssh:6
+
+# Hans de Graaff <graaff@gentoo.org> (2023-09-10)
+# Obsolete slot that no longer has any reverse dependencies. Use the
+# newer slot instead. Masked for removal on 2023-10-10.
+dev-ruby/mail:2.7
+
+# Sam James <sam@gentoo.org> (2023-09-09)
+# OpenSSL 1.1.x is EOL on 2023-09-11. Please upgrade immediately to >= OpenSSL 3.
+# https://www.openssl.org/blog/blog/2023/03/28/1.1.1-EOL/
+# https://www.openssl.org/blog/blog/2023/06/15/1.1.1-EOL-Reminder/
+# Please run a full world upgrade, especially checking /etc/portage and your world file
+# for old PHP or Ruby references.
+<dev-libs/openssl-3
+<app-crypt/xca-2.4.0_p20230526
+
+# Conrad Kostecki <conikost@gentoo.org> (2023-09-09)
+# Release causes problems, upstream degrated to RC back.
+# See #913884 for more information
+=net-wireless/unifi-7.5.174-r1
+
+# David Seifert <soap@gentoo.org> (2023-09-09)
+# EOL upstream in 2 months, causes major headaches for OpenSSL 1.1
+# masking. Removal on 2023-10-09.
+dev-lang/php:8.0
+virtual/httpd-php:8.0
+
+# David Seifert <soap@gentoo.org> (2023-09-09)
+# Depends on PHP 8.0. Removal on 2023-10-09.
+~www-apps/tt-rss-20220218
+
+# David Seifert <soap@gentoo.org> (2023-09-09)
+# Unmaintained, depends on PHP 8.0. Removal on 2023-10-09.
+www-apps/icingaweb2-module-director
+www-apps/icingaweb2-module-incubator
+
+# David Seifert <soap@gentoo.org> (2023-09-09)
+# Depends on PHP 8.0, which in turn depends on OpenSSL 1.1, which in
+# turn is to be masked and removed soon. Removal on 2023-10-09.
+www-apps/moodle:3.11.16
+www-apps/moodle:4.0.10
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2023-09-06)
+# dev-libs/sink is unmaintained upstream, in Gentoo, fails to build.
+# Masked for removal on 2023-10-06, together with mail-client/kube and
+# would-be orphan libraries. Bugs #907499, #904876, #872062, #856094
+net-libs/kdav2
+net-libs/kimap2
+dev-libs/kasync
+dev-libs/sink
+mail-client/kube
+
+# David Seifert <soap@gentoo.org> (2023-09-05)
+# OpenSSL 1.1 based, does not work with 3.0+. tpm2-openssl is the
+# spiritual successor for OpenSSL 3.0+, but isn't packaged.
+# Removal on 2023-10-05.
+app-crypt/tpm2-tss-engine
+
 # Florian Schmaus <flow@gentoo.org> (2023-09-03)
 # Became a leaf package after dev-erlang/riak_pb was removed (989c0f55e0).
 # Unmaintained in ::gentoo and upstream since multiple years. Alternative at
@@ -237,12 +308,6 @@ sci-libs/rosetta-db
 # after 30 days.
 dev-php/swoole-async
 
-# William Hubbs <williamh@gentoo.org> (2023-07-25)
-# This package has been replaced by app-accessibility/espeak-ng.
-# Please transition to the new package.
-# Removal: 2023-08-24.  Bug #877221.
-app-accessibility/espeak
-
 # Mike Gilbert <floppym@gentoo.org> (2023-07-24)
 # Migrated to sys-apps/systemd-utils.
 # Removal on 2023-08-24.
@@ -387,6 +452,7 @@ acct-group/spi
 
 # Matt Turner <mattst88@gentoo.org> (2023-07-06)
 # GNOME 45 mask
+>=app-accessibility/orca-45_alpha
 >=app-crypt/libsecret-0.21
 >=app-editors/ghex-45_alpha
 >=app-editors/gnome-text-editor-45_alpha
@@ -396,7 +462,10 @@ acct-group/spi
 >=dev-cpp/gtkmm-4.11
 >=dev-libs/gjs-1.77
 >=dev-libs/glib-2.77
+>=dev-libs/gobject-introspection-1.77
+>=dev-libs/gobject-introspection-common-1.77
 >=dev-libs/libdex-0.3.0
+>=dev-libs/libportal-0.7
 >=dev-util/gdbus-codegen-2.77
 >=dev-util/glib-utils-2.77
 >=games-puzzle/gnome-sudoku-45_alpha
@@ -406,6 +475,7 @@ acct-group/spi
 >=gnome-base/gnome-shell-45_alpha
 >=gnome-base/gsettings-desktop-schemas-45_alpha
 >=gnome-base/nautilus-45_alpha
+>=gnome-extra/gnome-boxes-45_alpha
 >=gnome-extra/gnome-calculator-45_alpha
 >=gnome-extra/gnome-calendar-45_alpha
 >=gnome-extra/gnome-characters-45_alpha
@@ -446,11 +516,6 @@ gnome-extra/tecla
 # Sam James <sam@gentoo.org> (2023-06-23)
 # Segfaults with non-bison yacc.
 =app-shells/bash-5.2_p15-r4
-
-# Sam James <sam@gentoo.org> (2023-06-22)
-# Causes segfaults in dependent dev-util/conf2struct.
-# See bug #908989 and related bug #908982.
-=dev-perl/Conf-Libconfig-1.0.0
 
 # Michał Górny <mgorny@gentoo.org> (2023-06-21)
 # suitesparseconfig-7.0.0 fails to build with multilib enabled
@@ -516,11 +581,6 @@ gnome-extra/tecla
 # and layman, use app-crypt/gpgme[python] as a proper upstream
 # supported gpg library. Removal on 2023-08-17.
 dev-python/pyGPG
-
-# David Seifert <soap@gentoo.org> (2023-05-19)
-# Abandoned, replaced by 'eselect repository' (app-eselect/eselect-repository),
-# tons of open bugs. Removal on 2023-08-17. Bug #761199.
-app-portage/layman
 
 # Sam James <sam@gentoo.org> (2023-05-10)
 # Lots of package breakage as usual for new versions. Masked until most/all
@@ -787,7 +847,7 @@ app-office/texmacs
 # If you still use one of these old toolchain packages, please upgrade (and
 # switch the compiler / the binutils) ASAP. If you need them for a specific
 # (isolated) use case, feel free to unmask them on your system.
-<sys-libs/glibc-2.36-r5
+<sys-libs/glibc-2.37-r3
 <sys-libs/binutils-libs-2.40
 <sys-devel/binutils-2.40
 <sys-devel/binutils-hppa64-2.40

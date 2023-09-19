@@ -158,7 +158,7 @@ run_localedef() {
     loader=( "${root_fs_dir}/usr/lib64/ld-linux-x86-64.so.2" \
                --library-path "${root_fs_dir}/usr/lib64" );;
   *)
-    die "Unable to run localedev for ARCH ${ARCH}";;
+    die "Unable to run localedef for ARCH ${ARCH}";;
   esac
   info "Generating C.UTF-8 locale..."
   local i18n="${root_fs_dir}/usr/share/i18n"
@@ -166,6 +166,7 @@ run_localedef() {
   # check that the paths we want are available first.
   [[ -f "${i18n}/charmaps/UTF-8.gz" ]] || die
   [[ -f "${i18n}/locales/C" ]] || die
+  sudo mkdir -p "${root_fs_dir}/usr/lib/locale"
   sudo I18NPATH="${i18n}" "${loader[@]}" "${root_fs_dir}/usr/bin/localedef" \
       --prefix="${root_fs_dir}" --charmap=UTF-8 --inputfile=C C.UTF-8
 }
