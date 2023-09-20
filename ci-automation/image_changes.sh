@@ -63,9 +63,7 @@ function image_changes() (
     show_changes_env=(
         # Provide a python3 command for the CVE DB parsing
         "PATH=${PATH}:${PWD}/ci-automation/python-bin"
-        "SCRIPTS_REPO=scripts"
-        "COREOS_OVERLAY_REPO=coreos-overlay"
-        "PORTAGE_STABLE_REPO=portage-stable"
+        "REPOS_PARENT_DIR=.."
     )
     show_changes_params_overrides=(
         # Nothing to override.
@@ -77,16 +75,13 @@ function image_changes() (
         --depth 1 \
         "https://github.com/flatcar/flatcar-build-scripts" \
         "${fbs_repo}"
-    # Parent directory of the scripts repo, required by some other
-    # script.
-    local work_directory='..'
     if [[ -z "${BUILDCACHE_SERVER:-}" ]]; then
         local BUILDCACHE_SERVER=$(source ci-automation/ci-config.env; echo "${BUILDCACHE_SERVER}")
     fi
     echo "Image URL: http://${BUILDCACHE_SERVER}/images/${arch}/${vernum}/flatcar_production_image.bin.bz2"
     echo
     generate_image_changes_report \
-        "${arch}" "${channel}" "${vernum}" '-' "${fbs_repo}" "${work_directory}" \
+        "${arch}" "${channel}" "${vernum}" '-' "${fbs_repo}" \
         "${package_diff_env[@]}" --- "${package_diff_params_b[@]}" -- \
         "${size_changes_env[@]}" --- "${size_changes_params_b[@]}" -- \
         "${show_changes_env[@]}" --- "${show_changes_params_overrides[@]}"
@@ -98,7 +93,6 @@ function image_changes() (
 # 3 - version (FLATCAR_VERSION)
 # 4 - report file (can be relative)
 # 5 - flatcar-build-scripts directory (can be relative, will be realpathed)
-# 6 - work directory for the report scripts (must be a parent directory of the scripts repo, can be relative)
 # @ - package-diff env vars --- package-diff version B param -- size-change-report.sh env vars --- size-change-report.sh spec B param -- show-changes env vars --- show-changes param overrides
 #
 # Example:
@@ -116,7 +110,6 @@ function generate_image_changes_report() (
     local vernum=${1}; shift
     local report_output=${1}; shift
     local flatcar_build_scripts_repo=${1}; shift
-    local work_directory=${1}; shift
 
     local -a package_diff_env package_diff_params
     local -a size_changes_env size_changes_params
@@ -182,7 +175,7 @@ function generate_image_changes_report() (
 
     local print_image_reports_invocation=(
         print_image_reports
-        "${flatcar_build_scripts_repo}" "${channel_a}" "${version_a}" "${work_directory}"
+        "${flatcar_build_scripts_repo}" "${channel_a}" "${version_a}"
         "${package_diff_env[@]}" --- "${package_diff_params[@]}" --
         "${size_changes_env[@]}" --- "${size_changes_params[@]}" --
         "${show_changes_env[@]}" --- "${show_changes_params[@]}"
@@ -256,7 +249,7 @@ function channel_version() {
 # flatcar-build-scripts repo. The environment and parameters for the
 # scripts are passed as follows:
 #
-# print_image_reports <flatcar-build-scripts-directory> <channel a> <version a> <work dir> \\
+# print_image_reports <flatcar-build-scripts-directory> <channel a> <version a> \\
 #       <env vars for package-diff> --- <parameters for package-diff> -- \\
 #       <env vars for size-change-report.sh> --- <parameters for size-change-report.sh> -- \\
 #       <env vars for show-changes> --- <parameters for show-changes>
@@ -284,7 +277,6 @@ function print_image_reports() {
     local flatcar_build_scripts_repo=${1}; shift
     local channel_a=${1}; shift
     local version_a=${1}; shift
-    local work_directory=${1}; shift
     local -a package_diff_env=() package_diff_params=()
     local -a size_change_report_env=() size_change_report_params=()
     local -a show_changes_env=() show_changes_params=()
@@ -309,32 +301,27 @@ function print_image_reports() {
     echo "== Image differences compared to ${channel_a} ${version_a} =="
     echo "Package updates, compared to ${channel_a} ${version_a}:"
     env \
-        --chdir="${work_directory}" \
         "${package_diff_env[@]}" FILE=flatcar_production_image_packages.txt \
         "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
     echo
     echo "Image file changes, compared to ${channel_a} ${version_a}:"
     env \
-        --chdir="${work_directory}" \
         "${package_diff_env[@]}" FILE=flatcar_production_image_contents.txt FILESONLY=1 CUTKERNEL=1 \
         "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
     echo
     echo "Image kernel config changes, compared to ${channel_a} ${version_a}:"
     env \
-        --chdir="${work_directory}" \
         "${package_diff_env[@]}" FILE=flatcar_production_image_kernel_config.txt \
         "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
     echo
     echo "Image init ramdisk file changes, compared to ${channel_a} ${version_a}:"
     env \
-        --chdir="${work_directory}" \
         "${package_diff_env[@]}" FILE=flatcar_production_image_initrd_contents.txt FILESONLY=1 \
         "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
     echo
 
     local size_changes_invocation=(
         env
-        --chdir="${work_directory}"
         "${size_change_report_env[@]}"
         "${flatcar_build_scripts_repo}/size-change-report.sh"
     )
@@ -354,7 +341,6 @@ function print_image_reports() {
 
     echo "Image file size change (includes /boot, /usr and the default rootfs partitions), compared to ${channel_a} ${version_a}:"
     env \
-        --chdir="${work_directory}" \
         "${package_diff_env[@]}" FILE=flatcar_production_image_contents.txt CALCSIZE=1 \
         "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
     echo
@@ -365,7 +351,6 @@ function print_image_reports() {
     done
     # The first changelog we print is always against the previous version of the new channel (is only same as ${channel_a} ${version_a} without a transition)
     env \
-        --chdir "${work_directory}" \
         "${show_changes_env[@]}" \
         "${flatcar_build_scripts_repo}/show-changes" \
         "${SHOW_CHANGES_NEW_CHANNEL}-${SHOW_CHANGES_NEW_CHANNEL_PREV_VERSION}" \
@@ -373,7 +358,6 @@ function print_image_reports() {
     # See if a channel transition happened and print the changelog against ${channel_a} ${version_a} which is the previous release
     if [ "${channel_a}" != "${SHOW_CHANGES_NEW_CHANNEL}" ]; then
         env \
-            --chdir "${work_directory}" \
             "${show_changes_env[@]}" \
             "${flatcar_build_scripts_repo}/show-changes" \
             "${channel_a}-${version_a}" \

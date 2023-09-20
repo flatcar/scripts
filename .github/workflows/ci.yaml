@@ -216,10 +216,7 @@ jobs:
               "local:${PWD}/artifacts/${arch}-usr/latest"
           )
           show_changes_env=(
-              # Nothing to add.
-              "SCRIPTS_REPO=scripts"
-              "COREOS_OVERLAY_REPO=coreos-overlay"
-              "PORTAGE_STABLE_REPO=portage-stable"
+              "REPOS_PARENT_DIR=.."
           )
           show_changes_params_overrides=(
               # We may not have a tag handy, so we tell show-changes
@@ -228,11 +225,8 @@ jobs:
               'NEW_VERSION=HEAD'
           )
 
-          # Parent directory of the scripts repo, required by some other
-          # script.
-          work_directory='..'
           generate_image_changes_report \
-              "${arch}" "${channel}" "${vernum}" 'image-changes-reports.txt' "../flatcar-build-scripts" "${work_directory}" \
+              "${arch}" "${channel}" "${vernum}" 'image-changes-reports.txt' "../flatcar-build-scripts" \
               "${package_diff_env[@]}" --- "${package_diff_params_b[@]}" -- \
               "${size_changes_env[@]}" --- "${size_changes_params_b[@]}" -- \
               "${show_changes_env[@]}" --- "${show_changes_params_overrides[@]}"
