@@ -1,0 +1,2 @@
+- Rework VMware OEM to become a sysext image.
+- The open-vm-tools package in VMware OEM now comes with vmhgfs-fuse, udev rules, pam and vgauth.
