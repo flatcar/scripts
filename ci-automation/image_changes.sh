@@ -80,20 +80,56 @@ function image_changes() (
     fi
     echo "Image URL: http://${BUILDCACHE_SERVER}/images/${arch}/${vernum}/flatcar_production_image.bin.bz2"
     echo
+    local -a oemids
+    get_oem_id_list . oemids
     generate_image_changes_report \
         "${arch}" "${channel}" "${vernum}" '-' "${fbs_repo}" \
         "${package_diff_env[@]}" --- "${package_diff_params_b[@]}" -- \
         "${size_changes_env[@]}" --- "${size_changes_params_b[@]}" -- \
-        "${show_changes_env[@]}" --- "${show_changes_params_overrides[@]}"
+        "${show_changes_env[@]}" --- "${show_changes_params_overrides[@]}" -- \
+        "${oemids[@]}"
 )
 # --
+
+function get_oem_id_list() {
+    local scripts_repo
+    scripts_repo=${1}; shift
+    local -n list_var_ref=${1}; shift
+
+    local -a ebuilds
+    ebuilds=( "${scripts_repo}/sdk_container/src/third_party/coreos-overlay/coreos-base/common-oem-files/common-oem-files-"*'.ebuild' )
+
+    list_var_ref=()
+    if [[ ${#ebuilds[@]} -eq 0 ]]; then
+        return 0
+    fi
+    local line mode
+    # 0 = none OEMIDS line found yet
+    # 1 = OEMIDS line found
+    mode=0
+    while read -r line; do
+        case ${mode} in
+            0)
+                if [[ ${line} = 'OEMIDS=(' ]]; then
+                    mode=1
+                fi
+                ;;
+            1)
+                if [[ ${line} = ')' ]]; then
+                    break
+                fi
+                list_var_ref+=( "${line}" )
+                ;;
+        esac
+    done <"${ebuilds[0]}"
+}
 
 # 1 - arch
 # 2 - channel (alpha, beta, stable or lts)
 # 3 - version (FLATCAR_VERSION)
 # 4 - report file (can be relative)
 # 5 - flatcar-build-scripts directory (can be relative, will be realpathed)
-# @ - package-diff env vars --- package-diff version B param -- size-change-report.sh env vars --- size-change-report.sh spec B param -- show-changes env vars --- show-changes param overrides
+# @ - package-diff env vars --- package-diff version B param -- size-change-report.sh env vars --- size-change-report.sh spec B param -- show-changes env vars --- show-changes param overrides -- list of OEM ids
 #
 # Example:
 #
@@ -101,7 +137,7 @@ function image_changes() (
 #     amd64 alpha 3456.0.0+my-changes reports/images.txt ../flatcar-build-scripts .. \\
 #     FROM_B=bincache BOARD_B=amd64-usr --- 3456.0.0+my-changes -- \\
 #     --- bincache:amd64:3456.0.0+my-changes -- \\
-#     "PATH=${PATH}:${PWD}/ci-automation/python-bin"
+#     "PATH=${PATH}:${PWD}/ci-automation/python-bin" --- -- azure vmware
 function generate_image_changes_report() (
     set -euo pipefail
 
@@ -114,6 +150,7 @@ function generate_image_changes_report() (
     local -a package_diff_env package_diff_params
     local -a size_changes_env size_changes_params
     local -a show_changes_env show_changes_params
+    local -a oemids
     local params_shift=0
 
     split_to_env_and_params \
@@ -127,6 +164,8 @@ function generate_image_changes_report() (
     split_to_env_and_params \
         show_changes_env show_changes_params params_shift \
         "${@}"
+    shift "${params_shift}"
+    oemids=( "${@}" )
 
     local new_channel new_channel_prev_version channel_a version_a
     local board="${arch}-usr"
@@ -178,7 +217,8 @@ function generate_image_changes_report() (
         "${flatcar_build_scripts_repo}" "${channel_a}" "${version_a}"
         "${package_diff_env[@]}" --- "${package_diff_params[@]}" --
         "${size_changes_env[@]}" --- "${size_changes_params[@]}" --
-        "${show_changes_env[@]}" --- "${show_changes_params[@]}"
+        "${show_changes_env[@]}" --- "${show_changes_params[@]}" --
+        "${oemids[@]}"
     )
     # Using "|| :" to avoid failing the job.
     if [[ ${report_output} = '-' ]]; then
@@ -252,7 +292,8 @@ function channel_version() {
 # print_image_reports <flatcar-build-scripts-directory> <channel a> <version a> \\
 #       <env vars for package-diff> --- <parameters for package-diff> -- \\
 #       <env vars for size-change-report.sh> --- <parameters for size-change-report.sh> -- \\
-#       <env vars for show-changes> --- <parameters for show-changes>
+#       <env vars for show-changes> --- <parameters for show-changes> -- \\
+#       <list of OEM ids>
 #
 # Env vars are passed to the called scripts verbatim. Parameters are
 # described below.
@@ -280,6 +321,7 @@ function print_image_reports() {
     local -a package_diff_env=() package_diff_params=()
     local -a size_change_report_env=() size_change_report_params=()
     local -a show_changes_env=() show_changes_params=()
+    local -a oemids
     local params_shift=0
 
     split_to_env_and_params \
@@ -293,10 +335,18 @@ function print_image_reports() {
     split_to_env_and_params \
         show_changes_env show_changes_params params_shift \
         "${@}"
+    shift "${params_shift}"
+    oemids=( "${@}" )
 
     flatcar_build_scripts_repo=$(realpath "${flatcar_build_scripts_repo}")
 
     echo "==================================================================="
+
+    local size_changes_invocation=(
+        env
+        "${size_change_report_env[@]}"
+        "${flatcar_build_scripts_repo}/size-change-report.sh"
+    )
 
     echo "== Image differences compared to ${channel_a} ${version_a} =="
     echo "Package updates, compared to ${channel_a} ${version_a}:"
@@ -309,26 +359,27 @@ function print_image_reports() {
         "${package_diff_env[@]}" FILE=flatcar_production_image_contents.txt FILESONLY=1 CUTKERNEL=1 \
         "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
     echo
+    echo "Image file size changes, compared to ${channel_a} ${version_a}:"
+    if ! "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:wtd}" 2>&1; then
+        "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:old}" 2>&1
+    fi
+    echo
     echo "Image kernel config changes, compared to ${channel_a} ${version_a}:"
     env \
         "${package_diff_env[@]}" FILE=flatcar_production_image_kernel_config.txt \
         "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
     echo
+    echo "Image file size change (includes /boot, /usr and the default rootfs partitions), compared to ${channel_a} ${version_a}:"
+    env \
+        "${package_diff_env[@]}" FILE=flatcar_production_image_contents.txt CALCSIZE=1 \
+        "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
+    echo
+
+    echo "== Init ramdisk differences compared to ${channel_a} ${version_a} =="
     echo "Image init ramdisk file changes, compared to ${channel_a} ${version_a}:"
     env \
         "${package_diff_env[@]}" FILE=flatcar_production_image_initrd_contents.txt FILESONLY=1 \
         "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
-    echo
-
-    local size_changes_invocation=(
-        env
-        "${size_change_report_env[@]}"
-        "${flatcar_build_scripts_repo}/size-change-report.sh"
-    )
-    echo "Image file size changes, compared to ${channel_a} ${version_a}:"
-    if ! "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:wtd}" 2>&1; then
-        "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:old}" 2>&1
-    fi
     echo
     echo "Image init ramdisk file size changes, compared to ${channel_a} ${version_a}:"
     if ! "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:initrd-wtd}" 2>&1; then
@@ -339,11 +390,25 @@ function print_image_reports() {
     echo "Note that vmlinuz-a also contains the kernel code, which might have changed too, so the reported difference does not accurately describe the change in initrd."
     echo
 
-    echo "Image file size change (includes /boot, /usr and the default rootfs partitions), compared to ${channel_a} ${version_a}:"
-    env \
-        "${package_diff_env[@]}" FILE=flatcar_production_image_contents.txt CALCSIZE=1 \
-        "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
-    echo
+    local oemid
+    for oemid in "${oemids[@]}"; do
+        echo "== Sysext changes for OEM ${oemid} compared to ${channel_a} ${version_a} =="
+        echo "Package updates, compared to ${channel_a} ${version_a}:"
+        env \
+            "${package_diff_env[@]}" FILE="oem-${oemid}_packages.txt" \
+            "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
+        echo
+        echo "Image file changes, compared to ${channel_a} ${version_a}:"
+        env \
+            "${package_diff_env[@]}" FILE="oem-${oemid}_contents.txt" FILESONLY=1 CUTKERNEL=1 \
+            "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
+        echo
+        echo "Image file size changes, compared to ${channel_a} ${version_a}:"
+        if ! "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:oem-${oemid}-wtd}"; then
+            "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:oem-${oemid}-old}" 2>&1
+        fi
+        echo
+    done
 
     local param
     for param in "${show_changes_params[@]}"; do

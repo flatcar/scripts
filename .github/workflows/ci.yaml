@@ -225,11 +225,14 @@ jobs:
               'NEW_VERSION=HEAD'
           )
 
+          declare -a oemids
+          get_oem_id_list . oemids
           generate_image_changes_report \
               "${arch}" "${channel}" "${vernum}" 'image-changes-reports.txt' "../flatcar-build-scripts" \
               "${package_diff_env[@]}" --- "${package_diff_params_b[@]}" -- \
               "${size_changes_env[@]}" --- "${size_changes_params_b[@]}" -- \
-              "${show_changes_env[@]}" --- "${show_changes_params_overrides[@]}"
+              "${show_changes_env[@]}" --- "${show_changes_params_overrides[@]}" -- \
+              "${oemids[@]}"
 
       - name: Build VM image(s)
         shell: bash
