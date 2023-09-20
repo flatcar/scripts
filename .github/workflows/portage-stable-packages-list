@@ -295,6 +295,7 @@ eclass/python-single-r1.eclass
 eclass/python-utils-r1.eclass
 eclass/readme.gentoo-r1.eclass
 eclass/savedconfig.eclass
+eclass/selinux-policy-2.eclass
 eclass/strip-linguas.eclass
 eclass/systemd.eclass
 eclass/tmpfiles.eclass
@@ -363,8 +364,17 @@ profiles
 #
 # scripts
 
+sec-policy/selinux-base
+sec-policy/selinux-base-policy
+sec-policy/selinux-container
+sec-policy/selinux-dbus
+sec-policy/selinux-sssd
+sec-policy/selinux-unconfined
+
+
 sys-apps/acl
 sys-apps/attr
+sys-apps/checkpolicy
 sys-apps/config-site
 sys-apps/coreutils
 sys-apps/debianutils
@@ -400,6 +410,7 @@ sys-apps/portage
 sys-apps/pv
 sys-apps/sandbox
 sys-apps/sed
+sys-apps/semodule-utils
 sys-apps/smartmontools
 sys-apps/texinfo
 sys-apps/usbutils
@@ -454,6 +465,8 @@ sys-libs/libcap
 sys-libs/libcap-ng
 sys-libs/libnvme
 sys-libs/libseccomp
+sys-libs/libselinux
+sys-libs/libsepol
 sys-libs/ncurses
 sys-libs/readline
 sys-libs/talloc

@@ -1,0 +1,77 @@
+diff --git a/policy/modules/services/container.fc b/policy/modules/services/container.fc
+index 056aa6023..e4bcada03 100644
+--- a/refpolicy/policy/modules/services/container.fc
++++ b/refpolicy/policy/modules/services/container.fc
+@@ -113,3 +113,5 @@ HOME_DIR/\.docker(/.*)?		gen_context(system_u:object_r:container_conf_home_t,s0)
+ /var/log/kube-controller-manager(/.*)?		gen_context(system_u:object_r:container_log_t,s0)
+ /var/log/kube-proxy(/.*)?		gen_context(system_u:object_r:container_log_t,s0)
+ /var/log/kube-scheduler(/.*)?		gen_context(system_u:object_r:container_log_t,s0)
++
++/usr/share/containerd(/.*)?		gen_context(system_u:object_r:container_config_t,s0)
+diff --git a/policy/modules/services/container.te b/policy/modules/services/container.te
+index 5de421fc3..4a6c2760e 100644
+--- a/refpolicy/policy/modules/services/container.te
++++ b/refpolicy/policy/modules/services/container.te
+@@ -1007,3 +1007,62 @@ optional_policy(`
+        unconfined_domain_noaudit(spc_user_t)
+        domain_ptrace_all_domains(spc_user_t)
+ ')
++
++allow container_domain self:socket_class_set { accept ioctl read getattr lock write append getopt setopt };
++allow container_domain init_t:unix_stream_socket { accept ioctl read getattr lock write append getopt shutdown };
++
++# required for sharing /run for the etcd-wrapper
++files_mounton_runtime_dirs(container_engine_domain)
++
++# this is a hack while the system is not labelled. we need to authorize transition from kernel_t
++require {
++	type kernel_t;
++	type tmpfs_t;
++	type var_lib_t;
++	type unconfined_t;
++}
++allow kernel_t container_t:process transition;
++allow initrc_t container_t:process transition;
++allow kernel_t container_t:process2 nnp_transition;
++allow kernel_t unconfined_t:process transition;
++fs_manage_tmpfs_chr_files(container_t)
++fs_manage_tmpfs_dirs(container_t)
++fs_manage_tmpfs_files(container_t)
++fs_manage_tmpfs_sockets(container_t)
++fs_manage_tmpfs_symlinks(container_t)
++fs_remount_tmpfs(container_t)
++kernel_read_messages(container_t)
++kernel_sigchld(container_t)
++kernel_use_fds(container_t)
++allow container_t self:process getcap;
++files_read_var_lib_files(container_t)
++files_read_var_lib_symlinks(container_t)
++term_use_generic_ptys(container_t)
++term_setattr_generic_ptys(container_t)
++allow container_t tmpfs_t:chr_file { read write open };
++allow container_t container_file_t:chr_file { manage_file_perms };
++allow container_t self:capability sys_chroot;
++allow container_t self:process getpgid;
++allow container_t container_file_t:file { entrypoint mounton };
++allow container_t var_lib_t:file { entrypoint execute execute_no_trans };
++allow container_t kernel_t:fifo_file { getattr ioctl read write open append };
++allow container_t initrc_t:fifo_file { getattr ioctl read write open append };
++filetrans_pattern(kernel_t, etc_t, container_file_t, dir, "cni");
++
++# this is required by flanneld
++allow container_t kernel_t:system { module_request };
++
++# required by flanneld to write into /run/flannel/subnet.env
++filetrans_pattern(kernel_t, var_run_t, container_file_t, dir, "flannel");
++
++# required for cilium
++allow kernel_t spc_t:process transition;
++# required for cilium, can be upstreamed
++# Jun 20 08:01:43 localhost audit[3480]: AVC avc:  denied  { open } for  pid=3480 comm="cilium-agent" scontext=system_u:system_r:spc_t:s0 tcontext=system_u:system_r:spc_t:s0 tclass=perf_event permissive=1
++# Jun 20 08:01:43 localhost audit[3480]: AVC avc:  denied  { kernel } for  pid=3480 comm="cilium-agent" scontext=system_u:system_r:spc_t:s0 tcontext=system_u:system_r:spc_t:s0 tclass=perf_event permissive=1
++# Jun 20 08:01:43 localhost audit[3480]: AVC avc:  denied  { cpu } for  pid=3480 comm="cilium-agent" scontext=system_u:system_r:spc_t:s0 tcontext=system_u:system_r:spc_t:s0 tclass=perf_event permissive=1
++# Jun 20 08:01:43 localhost audit[3480]: AVC avc:  denied  { read } for  pid=3480 comm="cilium-agent" scontext=system_u:system_r:spc_t:s0 tcontext=system_u:system_r:spc_t:s0 tclass=perf_event permissive=1
++allow spc_t self:perf_event { open cpu kernel read };
++# required for using cilium cgroup v1
++allow kernel_t self:perf_event { open cpu kernel read };
++allow unconfined_t container_file_t:file { entrypoint };

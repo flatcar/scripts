@@ -1,0 +1,16 @@
+diff --git refpolicy/policy/modules/kernel/kernel.te refpolicy/policy/modules/kernel/kernel.te
+index 56dbd5af5..b5cf0e3c0 100644
+--- a/refpolicy/policy/modules/kernel/kernel.te
++++ b/refpolicy/policy/modules/kernel/kernel.te
+@@ -363,6 +363,11 @@ files_list_home(kernel_t)
+ files_read_usr_files(kernel_t)
+ 
+ mcs_process_set_categories(kernel_t)
++mcs_killall(kernel_t)
++mcs_file_read_all(kernel_t)
++mcs_file_write_all(kernel_t)
++mcs_ptrace_all(kernel_t)
++allow kernel_t self:user_namespace create;
+ 
+ mls_process_read_all_levels(kernel_t)
+ mls_process_write_all_levels(kernel_t)

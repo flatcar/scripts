@@ -144,9 +144,10 @@ RDEPEND="${RDEPEND}
 	net-misc/wget
 	net-misc/whois
 	net-vpn/wireguard-tools
-	sec-policy/selinux-virt
 	sec-policy/selinux-base
 	sec-policy/selinux-base-policy
+	sec-policy/selinux-container
+	sec-policy/selinux-dbus
 	sec-policy/selinux-unconfined
 	sys-apps/acl
 	sys-apps/attr

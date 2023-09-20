@@ -64,6 +64,9 @@ src_install() {
         ['/usr/share/skel/.bash_logout']='/usr/share/flatcar/etc/skel/.bash_logout'
         ['/usr/share/skel/.bash_profile']='/usr/share/flatcar/etc/skel/.bash_profile'
         ['/usr/share/skel/.bashrc']='/usr/share/flatcar/etc/skel/.bashrc'
+        ['/usr/lib/selinux/config']='/usr/share/flatcar/etc/selinux/config'
+        ['/usr/lib/selinux/mcs']='/usr/share/flatcar/etc/selinux/mcs'
+        ['/usr/lib/selinux/semanage.conf']='/usr/share/flatcar/etc/selinux/semanage.conf'
     )
 
     local link target
@@ -75,6 +78,9 @@ src_install() {
             newins "${T}/empty-file" "${target##*/}"
         fi
     done
+
+    insinto '/etc/selinux/'
+    newins "${FILESDIR}/selinux-config" config
 
     insinto '/etc/bash/bashrc.d'
     doins "${FILESDIR}/99-flatcar-bcc"
