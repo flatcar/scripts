@@ -116,6 +116,7 @@ RDEPEND="${RDEPEND}
 	coreos-base/misc-files
 	coreos-base/update-ssh-keys
 	coreos-base/update_engine
+	coreos-base/ue-rs
 	dev-db/etcdctl
 	dev-libs/libsodium
 	dev-libs/openssl
