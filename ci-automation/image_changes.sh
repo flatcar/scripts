@@ -68,7 +68,9 @@ function image_changes() (
         "PORTAGE_STABLE_REPO=../portage-stable"
     )
     show_changes_params_overrides=(
-        # Nothing to override.
+        # The show-changes script expects a tag name, so using git tag
+        # here instead of the vernum variable.
+        "NEW_VERSION=$(git tag --points-at HEAD)"
     )
 
     local fbs_repo='../flatcar-build-scripts'
@@ -205,9 +207,6 @@ function generate_image_changes_report() (
 
     # Nothing to prepend to show_changes_env.
     show_changes_params=(
-        # The show-changes script expects a tag name, so using git tag
-        # here instead of the vernum variable.
-        "NEW_VERSION=$(git tag --points-at HEAD)"
         "NEW_CHANNEL=${new_channel}"
         "NEW_CHANNEL_PREV_VERSION=${new_channel_prev_version}"
         # Potential overrides.
